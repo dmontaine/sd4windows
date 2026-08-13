@@ -1,0 +1,211 @@
+# HISTORY
+
+Append-only record for the SD Windows port. This is the overflow and archive
+for [PROJECT_STATUS.md](PROJECT_STATUS.md), which holds only what a new session
+needs to act on today.
+
+Read this when you need to know *why* something is the way it is, whether an
+approach has already been tried, or whether a claim in PROJECT_STATUS was ever
+corrected.
+
+---
+
+## Rules
+
+1. **Append-only. Never delete or rewrite an entry.** If an entry turns out to
+   be wrong, add a new entry that says so and references it by date and
+   heading. The wrong turn is part of the record; erasing it invites a repeat.
+2. **Newest first.** New entries go directly below this rules block.
+3. **Every entry carries an absolute date and the commits it covers.** Never
+   "today" or "last session".
+4. **Entries are written to be read cold**, by someone with no memory of the
+   session, possibly on another account. Spell out names and paths.
+5. **Corrections get their own entry**, headed `Correction:`. This is how a
+   future session learns that a confident earlier claim was wrong.
+6. Suggested shape, not mandatory: what changed, why, what it cost, what is
+   still open.
+
+---
+
+## 13 Aug 2026 — Client library replaced with the vendored winsdclilib port
+
+**Commit:** `202b965`
+
+Vendored `github.com/dmontaine/winsdclilib` at `b6624565cacb365d0a2788545495a7fa3ba3f743`
+(5 Aug 2026) into `gplsrc/sdclilib/`, replacing `gplsrc/sdclilib.c`.
+
+**Why it was safe.** `sdclilib` is not listed in `gpl.src`, so it was never
+linked into the server — it only ever produced the shared library. Replacing it
+could not destabilise the server work.
+
+**Why it is better.** No longer the partial Visual Studio port described by the
+stale snapshot that used to sit in `examples/windows.c/winsdclilib/`. It
+combines the complete Linux client behaviour with a Winsock transport and
+carries fixes the old code lacks: an index-buffer overflow, `realloc` ordering
+on a failed grow, short sends, malformed response lengths, and abandoning a
+connection whose stream can no longer be trusted. Verified by building rather
+than trusting the README — zero warnings under `-Wall -Wextra -Wpedantic`, both
+bundled test suites pass.
+
+**Why its own directory.** Its `sdclient.h`, `err.h` and `revstamp.h` are
+different files from the ones in `gplsrc`. `revstamp.h` feeds
+`MAJOR_REV`/`MINOR_REV`/`BUILD` into `SYSSEG_REVSTAMP` in `sysseg.c`, which
+stamps the shared memory segment. Flattening the layout would have displaced
+the server's copy.
+
+**`SDConnectLocal` restored.** Absent upstream because that project targets a
+Windows client talking to a *remote Linux* server, where a local connection has
+no meaning — the user identified this, and it is correct. It matters again now
+the server runs on Windows, and the Python wrapper binds it. Modelled on
+`gplsrc/sdclient.c:666`: named pipe, `CreateProcess` of `sd.exe -Q -C <pipe>`,
+`ConnectNamedPipe`, then `SrvrLocalLogin` and `SrvrAccount`. Two deliberate
+improvements on that original — `ERROR_PIPE_CONNECTED` treated as success
+rather than failure, and the process handle closed as well as the thread handle
+(the original leaked it). Supporting it needed `sysdir()` and a transport layer
+(`transport_recv`/`transport_send`/`transport_live`/`transport_error`) so
+packet I/O works over socket or pipe. Upstream's error handling and connection
+abandonment were left untouched; only byte moving is dispatched.
+
+**Also fixed.** `sdclilib` and `terminfo` both needed `.PHONY`: neither names a
+file and `VPATH` covers `gplsrc`, so make found the directories and considered
+the targets satisfied. This is why an earlier session saw `terminfo` report "is
+up to date" for something it had never built.
+
+**Removed.** The stale `examples/windows.c/winsdclilib/` snapshot, and the
+`sdclilib.so`/`libsdcli.so` pair built from the old client.
+
+**Still open.** `SDConnectLocal` has never run. It needs a live server and an
+`sd.ini`.
+
+---
+
+## 13 Aug 2026 — Correction: the `O_BINARY` override was not corrupting data
+
+**Commit:** `202b965`
+
+An earlier claim in this session's reporting — that hardcoding `O_BINARY` to
+zero meant SD was writing binary files in text mode and corrupting them — was
+**wrong**, and was stated with more confidence than the evidence supported.
+
+On finding the same override a second time in `sdtic.c` (which does not include
+`sddefs.h` and so carries its own copy), the prediction was that the 99
+generated terminfo files were corrupted. Tested by regenerating
+them with and without the correction: **byte identical**. The MSYS2 runtime
+opens files in binary mode by default, so discarding the flag changes nothing
+there.
+
+The `#ifndef` guards in `sddefs.h` and `sdtic.c` are kept because they are
+correct and will matter for stage 2, where the native Windows CRT defaults to
+text mode. Both source comments were rewritten to say this plainly instead of
+implying an active bug.
+
+**Lesson worth keeping:** the compiler warning was real and worth chasing; the
+conclusion drawn from it was not verified before being asserted. Regenerating
+the artifact and comparing bytes took under a minute.
+
+---
+
+## 13 Aug 2026 — Removed superseded Linux artifacts
+
+**Commit:** `3b4600e`
+
+Deleted the six Linux ELF binaries in `bin/` (superseded by the `.exe` builds),
+and `pcode_bld.log`, `pass1`, `pass2` — pcode build scratch. `pass1` and
+`pass2` are byte identical and are written by the `pass1()`/`pass2()` stages of
+`gplbld/bbcmp.py`.
+
+Untracked but kept on disk: `terminfo/`, all 99 files of which are generated by
+the `terminfo` make target. Verified by deleting the directory and rebuilding
+before committing to the change.
+
+Tracked files went from 3,446 to 3,255.
+
+**Kept deliberately**, despite having no function on Windows: `usr/lib/systemd/`
+and `etc/xinetd.d/`. They document the service topology a Windows service must
+reproduce. Also kept: `installsdai.sh` and `deletesdai.sh`, which are the
+targets of the port rather than obsolete output.
+
+---
+
+## 13 Aug 2026 — First native Windows build
+
+**Commit:** `143c959`
+
+All six binaries compile, link and run as native PE32+ executables for the
+first time.
+
+**The central problem.** MSYS2 ships the genuine Cygwin `sys/shm.h`, so SD's
+System V IPC code compiled and linked without a warning and would have failed
+at runtime with ENOSYS. Found by compiling and *running* probe programs rather
+than checking for headers — which is the only reason it surfaced in minutes
+instead of during a confusing debugging session later. MSYS2 has no
+`cygserver`, so there is no way to enable System V IPC.
+
+POSIX named shared memory and named semaphores do work, so:
+
+- `sysseg.c` — `shmget`/`shmat`/`shmdt` → `shm_open`/`ftruncate`/`mmap`/`munmap`
+- `sdsem.c` — `semget`/`semop`/`semctl` → `sem_open`/`sem_trywait`/`sem_post`
+- `sdidx.c`, `sdlnxd.c` — their own copies of the attach code
+
+Two places needed more than substitution: `munmap` must be told the mapping
+length that `shmdt` derived from the address, and `stop_sd()` waited on the
+System V attach count, which POSIX shared memory does not expose. It now polls
+the user table with `kill(pid, 0)`, which also catches a process that died
+without clearing its own entry.
+
+**Other platform fixes.** `O_ASYNC` has no equivalent — verified first that
+`keyin()` and `keyboard_pending()` test stdin with `sdpoll()` independently, so
+input still works without SIGIO. `environ` was remapped to glibc's internal
+`__environ`. `linux/limits.h` → `limits.h` in four files. `sdclient.c:127` read
+`SDnclude <io.h>`, corrupted by the `qm`→`sd` rename; the upstream GPL source
+has a clean `#include`.
+
+**Build.** Libraries had to move after the objects that reference them, since
+the PE/COFF linker resolves strictly left to right; ELF had masked this with
+`-Wl,--no-as-needed`. Dropped `-DLINUX` (never tested for anywhere in the
+source), `-fPIE` (the default here) and `-soname` (no PE equivalent — replaced
+by an import library). libsodium is not packaged for the MSYS2 runtime and is
+built from source into `/usr/local`.
+
+**Two premises that turned out to be wrong**, both worth recording:
+
+- *"gcc is on this computer under C:\msys64."* MSYS2 was installed but
+  contained no toolchain at all — `mingw64/bin` was empty and there was no
+  `gcc.exe` or `make.exe` anywhere. It had never been run; pacman performed
+  first-time setup on first invocation. Everything in PROJECT_STATUS §2 was
+  installed during this work.
+- *"Many files in gplsrc still contain Windows code."* They do not. Of ten
+  files matching Windows API idioms, nine matched only on comments or on
+  `BOOL`/`SOCKET`, which are the project's own typedefs. Only `qmclient.c`
+  holds real Windows code, and it includes `windows.h` unconditionally — it was
+  always the Windows client, not stripped server code. The reference tree's
+  value is archaeology: in `op_kernel.c`, both there and in this repository, a
+  `/* Construct command for CreateProcess */` comment sits directly above a
+  `fork()` call in `op_phantom()`, marking where Windows code used to be.
+
+  The reference tree is a separate checkout at `C:\Users\dmont\Projects\gplsrc`
+  and is not part of this repository.
+
+**The finding that most de-risked the port:** all five `fork()` call sites are
+fork+exec, none rely on copy-on-write semantics. The usual "cannot port this to
+Windows because of `fork`" obstacle does not apply.
+
+---
+
+## 13 Aug 2026 — Repository created
+
+**Commit:** `1285c13`
+
+Initial import of the working tree and push to
+`github.com/dmontaine/sdb_ai_windows`.
+
+`.gitattributes` sets `* -text`: the tree is a Linux-targeted package stored on
+a Windows host, and a clone on a machine with `core.autocrlf=true` would inject
+CRLF into the shell installers. The executable bit was restored on
+`installsdai.sh` and `deletesdai.sh`, which Windows had dropped
+(`core.filemode=false` staged everything as `100644`). The ELF binaries in
+`bin/` were deliberately left non-executable, since `installsdai.sh:514` does
+`chmod -R 755` on the installed directory itself.
+
+Git identity was set repo-locally rather than globally, to avoid changing
+machine-wide state.
