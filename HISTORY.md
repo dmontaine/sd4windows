@@ -27,6 +27,60 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Runtime bring-up started; IPC verified; session ended on credits
+
+**Session ended mid-task.** Handing off to another account. Resume at
+PROJECT_STATUS §3, "Runtime bring-up", and answer the question at the top of §8
+before doing further identity work.
+
+Built the runtime environment for the first time: `/etc/sd.conf` pointing at
+`/usr/local/sdsys`, that tree populated from `sd64/sdsys` plus `bin` and
+`terminfo`, and the account directories under `/home/sd`. None of this is in
+the repository; it exists only on this machine.
+
+**The IPC port is now largely de-risked.** `sd -start` was blocked behind the
+administrator check, so rather than leave the shared memory work unexercised,
+the create/attach/detach/unlink cycle was run standalone at 3 MB in the shape
+`sysseg.c` uses: create, size, map, attach from a second mapping, verify size
+and content, verify writes are visible through both mappings, create six
+semaphores, verify exclusion while held and reacquisition after posting, unmap,
+unlink, and verify a later attach gives ENOENT. Everything behaved. That was
+the largest single unknown in the port.
+
+**`IsAdmin()` was proved in the linked binary, in both directions.** `sd -start`
+refused while `sdadmins` did not exist, and got past the check once built
+against a group the token holds. On the way, `check_admin()` in `sd.c` turned
+out to be a third privilege path that the earlier survey missed: it tested
+`geteuid() != 0` and `in_group("admin")` rather than `IsAdmin()`. It now defers
+to `IsAdmin()`, so there is one definition of an SD administrator.
+`SD_ADMIN_GROUP` was made `#ifndef`-guarded so a site, or a probe build, can
+override it.
+
+**A correction worth recording.** When `sd -start` first printed "Command
+requires administrator privileges", that was reported as the new `IsAdmin()`
+working. It was not — it was `check_admin()`, which at that point did not call
+`IsAdmin()` at all. The conclusion happened to be right in the end, but it was
+asserted before being checked.
+
+**The friction that matters for the design.** The `sdadmins` group was created
+and `GITORLI\don` enrolled, and it still did not take effect: Windows fixes
+group membership in the access token at logon, so the group resolved by name
+while `getgroups` did not list it. Elevation does not help. That directly
+contradicts the requirement that the installing user become an administrator
+automatically, and is the strongest argument for the internal-flag alternative
+raised the same day. Recorded as the open question at the top of PROJECT_STATUS
+§8, unanswered.
+
+**Bootstrap progress.** `gplbld/bbcmp.py` and `gplbld/pcode_bld.py` both run on
+Windows unmodified — `gcat` now holds `$BBPROC`, `$BCOMP` and `!PATHTKN`, and
+`PCODE.OUT` is populated. The sequence stops at `sd -i`, which reports "SD has
+not been started" while `sd -start` refuses because `config.c` requires
+`gcat/$CPROC`, which only the last bootstrap step produces. That ordering is
+the immediate puzzle and is written up in §3. Given the isolation testing
+above, suspect the bootstrap sequence rather than the IPC port.
+
+---
+
 ## 13 Aug 2026 — PROJECT_STATUS rollover limit raised to 800 lines
 
 **Commit:** documentation only.
