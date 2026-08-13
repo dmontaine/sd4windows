@@ -27,6 +27,61 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Surveyed the BASIC layer (GPL.BP) for platform code
+
+**Commits:** documentation only; no code changed.
+
+Context supplied by the repository owner: `sdb64` is the active project, and
+this tree is an experimental variant that has been through five major AI
+cleaning and validation cycles — which is why the code reads more cleanly than
+its age suggests. The original ScarletDME BASIC source was made available at
+`C:\Users\dmont\Projects\GPL.BP` for comparison, on the basis that the C code
+and the BASIC code work together for things like compilation.
+
+**The BASIC layer has a platform switch that nothing had looked at.** Two
+SYSTEM keys are the whole bridge between the C code and the BASIC source:
+`SYSTEM(91)` ("is this Windows") is hardcoded to zero in `op_sys.c`, and
+`SYSTEM(1006)` ("Windows NT style") returns `is_nt`, which `kernel.h` declares
+`init(FALSE)` and which is never assigned anywhere. Both answer "not Windows",
+so every Windows path in the BASIC layer is dead code. `is_nt` is dormant in
+exactly the way `CASE_INSENSITIVE_FILE_SYSTEM` is.
+
+**Unlike the C reference tree, the external GPL.BP is a real asset.** It holds
+Windows logic in 21 files against 6 here, and every file present in both trees
+lost all of it: `LOGIN` went from 16 references to none, `CONFIG` 5 to none,
+`CPROC` 5 to none, `CREATEA` 4 to none, `PARSER` 3 to none. Details of what
+each did are in PROJECT_STATUS §5.5. This is the opposite of the finding for
+the C tree, where the Windows code was genuinely gone and only comments
+remained.
+
+**`@ds` turned out to be load-bearing for compilation**, which is the
+connection the owner pointed at. `BCOMP` opens `@sdsys:@ds:'bin'` and builds
+source paths with it; `BASIC` builds its source and output paths the same way.
+It is SYSCOM slot 57, fed from `dir.separator`, which the original set as
+`if windows then '\' else '/'` and which `CPROC` here hardcodes to `'/'`.
+Correct on the MSYS2 runtime, and a live question for stage 2.
+
+**One Windows blocker was introduced by the cleaning cycles, not inherited.**
+`VALID_OS_PATH` does not exist in the external tree; it is dated 2026/06/10 in
+this one. Its permitted character set omits the backslash and it rejects spaces
+as shell metacharacters, so it rejects `C:\SD\accounts` and everything under
+`C:\Program Files`. It guards `CREATEA` (account creation) and `PY_RUNFILE`.
+Worth recording as a caution: the cleaning cycles can introduce Windows
+problems as readily as they remove clutter, so "the original did not have this"
+is not a safe assumption in either direction.
+
+Smaller Linux remnants: `/tmp/api_srvr.log` and `/tmp/bbproc.log` in `APISRVR`
+and `BBPROC`, and `sudo chmod g+s` in `CREATEA`. `OS_CHOWN` is implemented in
+`op_dio2.c` and called from `CATALOG` via `ospath()`; it has no meaning on
+Windows. The BASIC compiler itself (`BCOMP`, `ACOMP`) carries no platform
+branches in either tree beyond the `@ds` use above.
+
+Nothing was changed. The ordering constraint is recorded in PROJECT_STATUS §7:
+restore the BASIC branches first, flip the SYSTEM keys second, because doing it
+the other way enables paths that are no longer there.
+
+---
+
 ## 13 Aug 2026 — Client library replaced with the vendored winsdclilib port
 
 **Commit:** `202b965`

@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `202b965`
+**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `139cdfd`
 (the most recent commit to change code or build)
 
 ---
@@ -100,18 +100,29 @@ tar xzf libsodium-1.0.20-stable.tar.gz && cd libsodium-stable
 
 Rebuilding the machine means redoing that step, or `make` will fail to link.
 
-### External reference tree
+### External reference trees
 
-`C:\Users\dmont\Projects\gplsrc` holds the original GPL ScarletDME source that
-SD forked from. It is **not part of this repository** and will be absent on a
-fresh machine; nothing in the build depends on it.
+Neither is part of this repository, both will be absent on a fresh machine, and
+nothing in the build depends on either.
 
-Its value is limited — see the HISTORY entry for 13 Aug 2026, "First native
-Windows build". Ladybridge stripped the Windows code thoroughly: only
-`qmclient.c` holds any, and that is the client, which has since been superseded
-by `gplsrc/sdclilib/`. It remains useful for recovering text mangled by the
-`qm`→`sd` rename, which is how the corrupted `#include` in `sdclient.c` was
-confirmed.
+**`C:\Users\dmont\Projects\gplsrc`** — original GPL ScarletDME C source. Value
+is limited; Ladybridge stripped the Windows code thoroughly and only
+`qmclient.c` holds any, which `gplsrc/sdclilib/` has since superseded. Still
+useful for recovering text mangled by the `qm`→`sd` rename, which is how the
+corrupted `#include` in `sdclient.c` was confirmed.
+
+**`C:\Users\dmont\Projects\GPL.BP`** — original ScarletDME BASIC source, 212
+files. **This one is genuinely valuable**, unlike the C tree. It retains real
+Windows code that this repository's `sdsys/GPL.BP` had stripped: 21 files carry
+Windows logic there against 6 here, and every file present in both lost all of
+it. See §5.5.
+
+### Relationship to sdb64
+
+`sdb64` is the active project. This tree, `sdb_ai`, is an experimental variant
+that has been through five major AI cleaning and validation cycles, which is
+why the code reads more cleanly than its age suggests. Those cycles are also
+capable of introducing new problems — see the `VALID_OS_PATH` trap in §6.
 
 ## 3. Current state
 
@@ -217,7 +228,41 @@ UCRT64 and needs no `msys-2.0.dll`. The runtimes never meet — a client links
 the DLL and reaches the server over a socket or a named pipe, always as
 separate processes. Override with `UCRT_CC=...`.
 
-### 5.5 What is tracked
+### 5.5 The BASIC layer has its own platform switch (not yet touched)
+
+The C code and the BASIC source in `sdsys/GPL.BP` work together — notably for
+compilation — and the BASIC side has a platform abstraction of its own that
+nothing has yet been done about.
+
+Two SYSTEM keys are the entire bridge:
+
+| Key | Meaning | State |
+|---|---|---|
+| `SYSTEM(91)` | "is this Windows" | hardcoded to `0` in `op_sys.c` |
+| `SYSTEM(1006)` | "is this Windows NT style" | returns `is_nt`, declared `init(FALSE)` in `kernel.h` and **never assigned anywhere** |
+
+Both say "not Windows", so every Windows path in the BASIC layer is dead code.
+`is_nt` is dormant in exactly the way `CASE_INSENSITIVE_FILE_SYSTEM` is.
+
+Flipping them is not a one line change, because this repository's BASIC source
+has had its Windows branches removed. Files present in both trees lost all of
+it — `LOGIN` 16 references to none, `CONFIG` 5 to none, `CPROC` 5 to none,
+`CREATEA` 4 to none, `PARSER` 3 to none. The logic still exists in the external
+`GPL.BP` tree and can be recovered from there:
+
+- `CPROC` — `dir.separator = if windows then '\' else '/'`, now hardcoded `'/'`
+- `CREATEA` — `if windows then pathname = upcase(pathname)`, twice
+- `LOGIN` — Windows console sessions identified as `Console`, forced to
+  administrator, login id and account paths upcased
+- `CONFIG` — `SPOOLER` hidden on Windows, `CODEPAGE` shown only on Windows
+- `PARSER` — a colon mid-token is a drive letter on Windows, not a delimiter
+- `INT$KEYS.H` — `OPT.SELECT.KEEP.CASE`, `OS$FULLPATH`
+
+Order matters: restoring the BASIC branches while `SYSTEM(91)` still returns
+zero is harmless, but flipping `SYSTEM(91)` first turns on paths that are no
+longer there.
+
+### 5.6 What is tracked
 
 Linked binaries in `bin/` are tracked, because the install scripts deploy them
 from the repository. Compiler intermediates, generated `terminfo/`, pcode
@@ -252,6 +297,21 @@ Each of these cost real time. Read before debugging anything similar.
   `ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new`.
 - **Rebuild from clean when switching toolchains.** Stale objects from another
   compiler link into nonsense. `rm -f gplobj/*.o`.
+- **`@ds` is load-bearing for compilation.** `BCOMP` opens `@sdsys:@ds:'bin'`
+  and builds source paths with it; `BASIC` builds its source and output paths
+  the same way. It is SYSCOM slot 57, fed from `dir.separator`, which `CPROC`
+  now hardcodes to `'/'`. That is correct on the MSYS2 runtime and is a live
+  question for stage 2. If compilation starts failing on path resolution, look
+  here first.
+- **`VALID_OS_PATH` rejects every native Windows path.** Its permitted
+  character set is letters, digits and `._-/:` — no backslash — and it rejects
+  spaces deliberately, as shell metacharacters. So `C:\SD\accounts` fails on
+  the backslash and anything under `C:\Program Files` fails on the space.
+  Callers: `CREATEA` (account creation, before `OS.EXECUTE`) and `PY_RUNFILE`.
+  It is **not** in the external GPL.BP tree; it was added by the AI cleaning
+  cycles, so there is nothing upstream to copy and it must be fixed directly.
+  A reminder that the cleaning cycles can introduce Windows problems as well as
+  remove clutter.
 
 ## 7. Next steps
 
@@ -267,10 +327,22 @@ In the order they should be taken.
    correctness gap and the code is already written.
 3. **Exercise `SDConnectLocal()`** once a server runs. Needs an `sd.ini` in the
    Windows directory with an `[sd]` section and `SDSYS=`, or `SD_CONFIG` set.
-4. **Port the installer.** `installsdai.sh` is apt/dnf/zypper, systemd, xinetd
+4. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Cheap, and it
+   blocks account creation and `PY_RUNFILE` on any native Windows path. Widen
+   the character set without weakening the shell metacharacter protection it
+   exists to provide — quoting the path at the `OS.EXECUTE` site is the safer
+   way to allow spaces. Note `CREATEA` runs `sudo chmod g+s`, which has no
+   native Windows equivalent and needs its own answer.
+
+5. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
+   tree (§5.5), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
+   flipping the switches first would enable paths that are no longer present.
+   Start with `CPROC`'s `dir.separator`, since compilation depends on it.
+
+6. **Port the installer.** `installsdai.sh` is apt/dnf/zypper, systemd, xinetd
    and `/etc` paths throughout. It also tests for `bin/sd`, which is now
    `bin/sd.exe` (also `cp -R bin` and the `/usr/local/bin/sd` symlink).
-5. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites are
+7. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites are
    fork+exec, none need copy-on-write, so this is tractable), `termios` →
    Console API, passwd/group → Windows authentication.
 
