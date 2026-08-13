@@ -27,6 +27,75 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Windows identity model decided; IsAdmin() reimplemented
+
+**Commit:** see below. Code change is confined to `IsAdmin()` in `linuxlb.c`
+and `SD_ADMIN_GROUP` in `sddefs.h`.
+
+Context from the repository owner: on Linux, SD itself creates OS user
+accounts, and administrator access is obtained by running `sudo sd`. Both
+needed rethinking for Windows.
+
+**What SD does today.** Every account operation shells out through `sudo`:
+`useradd -m` in `CREATE_USER`, `passwd` in `SET_PASSWD`, `usermod -aG` in
+`CREATEA` and `MODIFYA`, `groupadd` in `CREATEA`, `userdel` and `groupdel` in
+`DELACC`, and `chmod g+s` in `CREATEA`. The installer creates the `sdusers`
+group and the `sdsys` system user. SD's security model is therefore delegated
+to the operating system: its accounts are real OS users and file access is
+enforced by group ownership plus setgid directories.
+
+**Three things established before deciding.**
+
+`sudo sd` can survive as a command form: `sudo.exe` is present at
+`C:\WINDOWS\system32\sudo.exe` on this machine, though disabled. But it does
+not restore the mechanism — an elevated MSYS2 process still reports
+`uid=197609`, because Cygwin derives the uid from the security identifier and
+elevation does not change it. What elevation changes is group membership and
+integrity level.
+
+The original had a Windows answer and it should not be copied. `LOGIN` in the
+external GPL.BP tree sets `lgn.id = 'Console'` and forces
+`lgn.rec<LGN$ADMIN> = @true` for any console session, with a neighbouring
+comment explaining that authentication was "alien" to Windows 95/98/ME. On a
+modern system that would make anyone able to run `sd.exe` an SD administrator.
+
+`chmod g+s` is the one command with no equivalent. Everything else maps to
+`New-LocalUser`, `New-LocalGroup`, `Add-LocalGroupMember` and so on; the setgid
+directory behaviour is inheritable ACEs, `icacls <dir> /grant "<g>:(OI)(CI)M"`.
+
+**Decisions taken.** SD no longer creates or deletes OS accounts; it maps onto
+Windows users and groups that already exist. This keeps OS-enforced file
+security without SD holding standing administrative rights, and does not break
+on a domain-joined machine. Administrator rights come from membership of the
+`sdadmins` local group rather than from elevation, which separates SD
+administration from Windows administration, needs no UAC prompt, and works for
+a service.
+
+**Implemented.** `IsAdmin()` was `getuid() == 0`. It now resolves
+`SD_ADMIN_GROUP` with `getgrnam()` and tests the primary group and the
+supplementary list, failing closed when the group does not exist. Verified
+first that the mechanism works at all: `getgrnam()` resolves Windows local
+groups on the MSYS2 runtime (`Users` 545, `Administrators` 544) and reports
+membership accurately. The function body was then exercised as a standalone
+copy against member, non-member, absent-group and primary-group cases, all four
+as intended. The linked `sd.exe` path remains unexercised because SD does not
+start.
+
+**Deliberately not done, and why.** The BASIC side is untouched.
+`sdsys/GPL.BP.OUT` contains only a README — there are no compiled objects in
+the tree — and the installer compiles the BASIC with
+`bin/sd -internal BASIC GPL.BP CPROC` after `gplbld/pcode_bld.py`. A BASIC edit
+is therefore inert until SD runs and can compile it, so writing those changes
+now would produce source that cannot be tested and does not match anything
+executable. Recorded as a trap.
+
+Note that the new `IsAdmin()` does **not** by itself unblock SDSYS or
+`CATALOG GLOBAL`: those sites test `SYSTEM(27)` directly rather than
+`K$ADMINISTRATOR`, so they still always deny. That is part of the pending
+BASIC work, not an oversight.
+
+---
+
 ## 13 Aug 2026 — Surveyed every BASIC to C linkage
 
 **Commits:** documentation only; no code changed. Follows the GPL.BP survey

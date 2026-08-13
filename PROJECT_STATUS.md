@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `4e525d6`
+**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `a70520a`
 (the most recent commit to change code or build)
 
 ---
@@ -168,6 +168,11 @@ Keep this split honest. It is the single most useful thing in the file.
   runtime with ENOSYS**.
 - `terminfo` regenerates byte identically with and without the `O_BINARY`
   correction, confirming that change is protective rather than a repair.
+- The new `IsAdmin()` logic (§5.6), exercised as a standalone copy against four
+  cases: member, non-member, absent group, and primary group. `getgrnam()`
+  resolves Windows local groups on the MSYS2 runtime and membership is reported
+  accurately. The **linked** `sd.exe` path has not been exercised, because SD
+  does not start.
 
 ### Not verified — treat as unknown
 
@@ -238,15 +243,11 @@ Flipping them is not a one line change, because this repository's BASIC source
 has had its Windows branches removed. Files present in both trees lost all of
 it — `LOGIN` 16 references to none, `CONFIG` 5 to none, `CPROC` 5 to none,
 `CREATEA` 4 to none, `PARSER` 3 to none. The logic still exists in the external
-`GPL.BP` tree and can be recovered from there:
-
-- `CPROC` — `dir.separator = if windows then '\' else '/'`, now hardcoded `'/'`
-- `CREATEA` — `if windows then pathname = upcase(pathname)`, twice
-- `LOGIN` — Windows console sessions identified as `Console`, forced to
-  administrator, login id and account paths upcased
-- `CONFIG` — `SPOOLER` hidden on Windows, `CODEPAGE` shown only on Windows
-- `PARSER` — a colon mid-token is a drive letter on Windows, not a delimiter
-- `INT$KEYS.H` — `OPT.SELECT.KEEP.CASE`, `OS$FULLPATH`
+`GPL.BP` tree and can be recovered from there; what each file did is listed in
+the HISTORY entry for 13 Aug 2026, "Surveyed the BASIC layer (GPL.BP)". The one
+to start with is `CPROC`'s `dir.separator`, because compilation depends on it
+(§6). Note that `LOGIN`'s Windows branch forced administrator rights on any
+console session, which §5.6 deliberately does not adopt.
 
 Order matters: restoring the BASIC branches while `SYSTEM(91)` still returns
 zero is harmless, but flipping `SYSTEM(91)` first turns on paths that are no
@@ -278,36 +279,75 @@ They reach `sdext_eguid.c` through `SDEXT`, which calls `getpwnam`, `setegid`
 and `seteuid`. Native Windows has no equivalent; impersonation there is
 `LogonUser` plus `ImpersonateLoggedOnUser`.
 
-Nothing here is fixed by flipping `SYSTEM(91)`. It needs a decision about what
-"administrator" means on Windows, and `IsAdmin()` is the single place to put
-it — everything else already routes through `IsAdmin()` or `SYSTEM(27)`.
+Nothing here is fixed by flipping `SYSTEM(91)`. It needed a decision about what
+"administrator" means on Windows; that decision is §5.6.
 
-### 5.6 Other BASIC to C linkages, surveyed
+### 5.6 Identity model on Windows (decided 13 Aug 2026)
 
-Interfaces reviewed and their state:
+Two decisions from the repository owner, replacing the Linux model where SD
+creates OS accounts and `sudo sd` confers administrator rights.
 
-- **`SYSTEM(n)`** — 19 keys used. Platform sensitive: 27 (§5.5), 91 and 1006
-  (§5.4), and 1010, which returns `PLATFORM_NAME` — `"Linux"` in `sddefs.h`.
-  `BCOMP` turns that into the compiler token `SD.LINUX`. Nothing tests the
-  token yet in either tree, so it is latent, but user code asking `SYSTEM(1010)`
-  is told "Linux". The rest (terminal type, endianness, version, times, queue
-  and select state) are platform neutral.
-- **`OSPATH(path, key)`** — 15 keys into `op_dio2.c`, all path semantics:
-  `OS$CD`, `OS$CWD`, `OS$DIR`, `OS$MKDIR`, `OS$MKPATH`, `OS$DELETE`, `OS$DTM`.
-  `OS$FULLPATH` is documented as "Return full DOS file name", another Windows
-  fossil. `OS_CHOWN` is an SD addition called from `CATALOG` and has no meaning
-  on Windows. Not yet reviewed in detail.
-- **`KERNEL(key, ...)`** — around 120 keys. Platform sensitive ones are
-  `K$ADMINISTRATOR` (§5.5), `K$SETUID`, `K$SETGID`, `K$USERS.UID`,
-  `K$IN.GROUP`, `K$TTY`, `K$RUNEXE`, `K$INIPATH`. Not yet reviewed in detail.
-- **`SDEXT`** — the SD extension call, used by the `PY_*` Python family, the
-  `EUID_*` pair (§5.5) and the libsodium wrappers.
-- **`OS.EXECUTE`** — shell-outs in 10 files, including `sudo chmod g+s` in
-  `CREATEA` and `groupadd`. None of those commands exist on native Windows.
-- **The compiler chain** — `BCOMP` and `ACOMP` carry no platform branches
-  beyond `@ds` (§6) and the `SD.LINUX` token above.
+**SD no longer creates or deletes OS accounts.** An administrator creates
+Windows users out of band; SD maps its accounts onto users and groups that
+already exist, and manages only its own group membership. This keeps file
+security enforced by the OS without SD needing standing administrative rights,
+and it does not break on a domain-joined machine, where creating local users
+would be wrong.
 
-### 5.7 What is tracked
+**SD administrator rights come from membership of the `sdadmins` local group**,
+not from elevation. This separates SD administration from Windows
+administration: it can be granted without handing out machine admin, needs no
+UAC prompt, and works for a service or other non-interactive process.
+
+`SD_ADMIN_GROUP` in `sddefs.h` names the group. `IsAdmin()` in `linuxlb.c`
+resolves it with `getgrnam()` and tests the primary group and the supplementary
+list. If the group does not exist, nobody is an administrator — it fails
+closed. Verified on the MSYS2 runtime: `getgrnam()` resolves Windows local
+groups correctly (`Users` 545, `Administrators` 544), membership is reported
+accurately, and all four paths behave (member, non-member, absent group,
+primary group).
+
+Done: `IsAdmin()` and `SD_ADMIN_GROUP`.
+
+Still to do, and none of it is verifiable until SD runs (§6):
+
+- `CPROC` and `CATALOG` test `SYSTEM(27)` **directly**, not `K$ADMINISTRATOR`,
+  so the new `IsAdmin()` does not reach them and SDSYS and `CATALOG GLOBAL`
+  are still refused. They should ask `KERNEL(K$ADMINISTRATOR, -1)` instead.
+  `SYSTEM(27)` should keep meaning "uid", which on Windows is simply not a
+  privilege answer.
+- The `OS.EXECUTE` account commands in `CREATE_USER`, `SET_PASSWD`, `CREATEA`,
+  `DELACC` and `MODIFYA` must stop calling `useradd`, `passwd`, `usermod`,
+  `userdel` and `groupadd`, and either map onto existing Windows users or
+  refuse with a clear message.
+- `chmod g+s` has no Windows equivalent. The setgid directory behaviour is
+  inheritable ACEs: `icacls <dir> /grant "<group>:(OI)(CI)M"`.
+- The installer must create the `sdadmins` group and stop creating `sdsys`
+  as an OS user.
+
+### 5.7 Other BASIC to C linkages, surveyed
+
+Full findings in the HISTORY entry for 13 Aug 2026, "Surveyed every BASIC to C
+linkage". What still needs attention:
+
+- **`SYSTEM(n)`** — 19 keys used; only 27 (§5.5), 91 and 1006 (§5.4) and 1010
+  matter. 1010 returns `PLATFORM_NAME`, `"Linux"` in `sddefs.h`, which `BCOMP`
+  turns into the compiler token `SD.LINUX`. Nothing tests that token, so it is
+  latent, but user code asking `SYSTEM(1010)` is told "Linux". The rest are
+  platform neutral.
+- **`OSPATH(path, key)`** — 15 keys into `op_dio2.c`, all path semantics.
+  `OS$FULLPATH` is documented "Return full DOS file name"; `OS_CHOWN` has no
+  Windows meaning. **Enumerated, not reviewed.**
+- **`KERNEL(key, ...)`** — around 120 keys; the platform sensitive ones are
+  `K$ADMINISTRATOR` (§5.6), `K$SETUID`, `K$SETGID`, `K$USERS.UID`,
+  `K$IN.GROUP`, `K$TTY`, `K$RUNEXE`, `K$INIPATH`. **Enumerated, not reviewed.**
+- **`SDEXT`** — used by the `PY_*` family, the `EUID_*` pair and the libsodium
+  wrappers.
+- **`OS.EXECUTE`** — shell-outs in 10 files; the account commands are §5.6.
+- **The compiler chain** carries no platform branches beyond `@ds` (§6) and the
+  token above.
+
+### 5.8 What is tracked
 
 Linked binaries in `bin/` are tracked, because the install scripts deploy them
 from the repository. Compiler intermediates, generated `terminfo/`, pcode
@@ -348,6 +388,12 @@ Each of these cost real time. Read before debugging anything similar.
   now hardcodes to `'/'`. That is correct on the MSYS2 runtime and is a live
   question for stage 2. If compilation starts failing on path resolution, look
   here first.
+- **Editing BASIC source changes nothing on its own.** `sdsys/GPL.BP.OUT`
+  holds only a README — there are no compiled objects in the tree. The
+  installer compiles the BASIC at install time with
+  `bin/sd -internal BASIC GPL.BP CPROC`, after `gplbld/pcode_bld.py` builds the
+  pcode. So a BASIC edit is inert until SD runs and can compile it, and every
+  BASIC-side fix is gated behind runtime bring-up.
 - **Privilege tests do not fail, they answer wrongly.** `IsAdmin()` is
   `getuid() == 0` and `SYSTEM(27)` is `getuid()`, which is 197609 here. Nothing
   errors; the branches simply always take one side, so the symptom is "SDSYS
@@ -381,14 +427,12 @@ In the order they should be taken.
    correctness gap and the code is already written.
 3. **Exercise `SDConnectLocal()`** once a server runs. Needs an `sd.ini` in the
    Windows directory with an `[sd]` section and `SDSYS=`, or `SD_CONFIG` set.
-4. **Decide what "administrator" means on Windows and reimplement `IsAdmin()`**
-   (§5.5). One function in `linuxlb.c` currently answers `getuid() == 0`, which
-   is never true here, and everything else routes through it or through
-   `SYSTEM(27)`. Until it is settled, SDSYS is unreachable and `CATALOG GLOBAL`
-   is refused, so this blocks administration and part of the compile workflow.
-   Under MSYS2 the nearest test is an elevated token; natively it is
-   `CheckTokenMembership` against the Administrators SID. Decide also whether
-   `SYSTEM(27)` should keep returning a raw uid at all.
+4. **Finish the identity model** (§5.6). `IsAdmin()` is done; the BASIC side is
+   not, and none of it can be tested until step 1 lands (§6). Point `CPROC` and
+   `CATALOG` at `KERNEL(K$ADMINISTRATOR, -1)` instead of `SYSTEM(27)`, stop the
+   `OS.EXECUTE` account commands creating and deleting OS users, translate
+   `chmod g+s` to an inheritable ACE, and have the installer create the
+   `sdadmins` group instead of the `sdsys` OS user.
 
 5. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Cheap, and it
    blocks account creation and `PY_RUNFILE` on any native Windows path. Widen
