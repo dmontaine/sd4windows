@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `139cdfd`
+**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `4e525d6`
 (the most recent commit to change code or build)
 
 ---
@@ -67,7 +67,7 @@ Two stages:
   `msys-2.0.dll` dependency: `fork` → `CreateProcess`, `termios` → Console API,
   passwd/group → Windows authentication.
 
-The client library is already at stage 2 — see §5.4.
+The client library is already at stage 2 — see §5.3.
 
 ## 2. Environment
 
@@ -115,7 +115,7 @@ corrupted `#include` in `sdclient.c` was confirmed.
 files. **This one is genuinely valuable**, unlike the C tree. It retains real
 Windows code that this repository's `sdsys/GPL.BP` had stripped: 21 files carry
 Windows logic there against 6 here, and every file present in both lost all of
-it. See §5.5.
+it. See §5.4.
 
 ### Relationship to sdb64
 
@@ -185,50 +185,40 @@ Do not undo these without reading the reasoning.
 
 ### 5.1 POSIX IPC replaces System V
 
-MSYS2 ships the genuine Cygwin `sys/shm.h`, so System V code **compiles and
-links cleanly** and then fails at runtime with ENOSYS. Native Windows has no
-System V IPC at all. POSIX named shared memory and named semaphores work on
-both.
+System V IPC compiles and links on MSYS2 and then fails at runtime with ENOSYS
+(§6); native Windows has none at all. POSIX named shared memory and semaphores
+work on both, and are the right direction for stage 2 anyway, since POSIX
+shared memory is backed by `CreateFileMapping`.
 
 - `sysseg.c`, `sdidx.c`, `sdlnxd.c`: `shmget`/`shmat`/`shmdt` →
   `shm_open`/`ftruncate`/`mmap`/`munmap`
 - `sdsem.c`: `semget`/`semop`/`semctl` → `sem_open`/`sem_trywait`/`sem_post`
-- Object names come from `SD_POSIX_SHM_NAME` / `SD_POSIX_SEM_FMT` in `sddefs.h`
+- Names come from `SD_POSIX_SHM_NAME` / `SD_POSIX_SEM_FMT` in `sddefs.h`
 
-This is also the right direction for stage 2, since POSIX shared memory is
-backed by `CreateFileMapping` anyway.
+Two spots needed more than substitution: `munmap` must be told the mapping
+length that `shmdt` derived from the address, so it is recorded at attach; and
+`stop_sd()` waited on the System V attach count, which POSIX does not expose,
+so it now polls the user table with `kill(pid, 0)`. Full reasoning in the
+HISTORY entry for 13 Aug 2026, "First native Windows build".
 
-### 5.2 Two things needed more than a substitution
-
-- `munmap` must be told the mapping length that `shmdt` derived from the
-  address, so the size is recorded at attach time.
-- `stop_sd()` waited on the System V attach count, which POSIX shared memory
-  does not expose. It now polls the user table with `kill(pid, 0)`. That is
-  more robust than the original: it also catches a process that died without
-  clearing its own table entry.
-
-### 5.3 Client library is vendored, not referenced
+### 5.2 Client library is vendored, not referenced
 
 `gplsrc/sdclilib/` is a vendored copy of `github.com/dmontaine/winsdclilib`
-at `b662456`, replacing the old `gplsrc/sdclilib.c`.
-
-It sits in **its own directory** because its `sdclient.h`, `err.h` and
-`revstamp.h` are different files from the ones in `gplsrc`. `revstamp.h` feeds
-`MAJOR_REV`/`MINOR_REV`/`BUILD` into `SYSSEG_REVSTAMP` in `sysseg.c`, which
-stamps the shared memory segment — displacing the server's copy would be a bad
-trade for a flatter layout.
+at `b662456`, replacing the old `gplsrc/sdclilib.c`. It sits in its own
+directory because its `sdclient.h`, `err.h` and `revstamp.h` are different
+files from `gplsrc`'s, and `revstamp.h` stamps the shared memory segment.
 
 Local additions (`SDConnectLocal`, `sysdir`, the transport layer) are recorded
 in `gplsrc/sdclilib/VENDORING.md`. **Read that before syncing upstream.**
 
-### 5.4 Two toolchains on purpose
+### 5.3 Two toolchains on purpose
 
 The server is built against the MSYS2 runtime; the client DLL is native
 UCRT64 and needs no `msys-2.0.dll`. The runtimes never meet — a client links
 the DLL and reaches the server over a socket or a named pipe, always as
 separate processes. Override with `UCRT_CC=...`.
 
-### 5.5 The BASIC layer has its own platform switch (not yet touched)
+### 5.4 The BASIC layer has its own platform switch (not yet touched)
 
 The C code and the BASIC source in `sdsys/GPL.BP` work together — notably for
 compilation — and the BASIC side has a platform abstraction of its own that
@@ -262,7 +252,62 @@ Order matters: restoring the BASIC branches while `SYSTEM(91)` still returns
 zero is harmless, but flipping `SYSTEM(91)` first turns on paths that are no
 longer there.
 
-### 5.6 What is tracked
+### 5.5 The privilege model does not survive the move (blocks administration)
+
+This is the most consequential linkage and is not about platform detection at
+all. `IsAdmin()` in `linuxlb.c` is `return (getuid() == 0)`, and `SYSTEM(27)`
+returns `getuid()` straight through. Under MSYS2 `getuid()` is 197609 — never
+zero, and there is no uid 0 on Windows, where administrator is a token
+privilege rather than a user id.
+
+So every privilege test in the BASIC layer resolves the same way, permanently:
+
+| Site | Test | Result on Windows |
+|---|---|---|
+| `CPROC` | `new.account = "SDSYS" and system(27) > 0` | always true — **SDSYS access always denied** |
+| `CATALOG` | `system(27) # 0` for `CATALOG GLOBAL` | always true — **global cataloguing always denied** |
+| `CPROC` | `system(27) = 0` "entered as root?" | always false — the drop to `sdsys` never runs |
+| `BBPROC` | `system(27) # 0` | always true |
+| `op_kernel.c` | `K$ADMINISTRATOR` via `IsAdmin()` | never granted |
+
+The `CATALOG GLOBAL` one matters beyond administration, because cataloguing is
+part of getting compiled BASIC into service.
+
+`EUID_SET`/`EUID_RESTORE` are the mechanism the root branch would have used.
+They reach `sdext_eguid.c` through `SDEXT`, which calls `getpwnam`, `setegid`
+and `seteuid`. Native Windows has no equivalent; impersonation there is
+`LogonUser` plus `ImpersonateLoggedOnUser`.
+
+Nothing here is fixed by flipping `SYSTEM(91)`. It needs a decision about what
+"administrator" means on Windows, and `IsAdmin()` is the single place to put
+it — everything else already routes through `IsAdmin()` or `SYSTEM(27)`.
+
+### 5.6 Other BASIC to C linkages, surveyed
+
+Interfaces reviewed and their state:
+
+- **`SYSTEM(n)`** — 19 keys used. Platform sensitive: 27 (§5.5), 91 and 1006
+  (§5.4), and 1010, which returns `PLATFORM_NAME` — `"Linux"` in `sddefs.h`.
+  `BCOMP` turns that into the compiler token `SD.LINUX`. Nothing tests the
+  token yet in either tree, so it is latent, but user code asking `SYSTEM(1010)`
+  is told "Linux". The rest (terminal type, endianness, version, times, queue
+  and select state) are platform neutral.
+- **`OSPATH(path, key)`** — 15 keys into `op_dio2.c`, all path semantics:
+  `OS$CD`, `OS$CWD`, `OS$DIR`, `OS$MKDIR`, `OS$MKPATH`, `OS$DELETE`, `OS$DTM`.
+  `OS$FULLPATH` is documented as "Return full DOS file name", another Windows
+  fossil. `OS_CHOWN` is an SD addition called from `CATALOG` and has no meaning
+  on Windows. Not yet reviewed in detail.
+- **`KERNEL(key, ...)`** — around 120 keys. Platform sensitive ones are
+  `K$ADMINISTRATOR` (§5.5), `K$SETUID`, `K$SETGID`, `K$USERS.UID`,
+  `K$IN.GROUP`, `K$TTY`, `K$RUNEXE`, `K$INIPATH`. Not yet reviewed in detail.
+- **`SDEXT`** — the SD extension call, used by the `PY_*` Python family, the
+  `EUID_*` pair (§5.5) and the libsodium wrappers.
+- **`OS.EXECUTE`** — shell-outs in 10 files, including `sudo chmod g+s` in
+  `CREATEA` and `groupadd`. None of those commands exist on native Windows.
+- **The compiler chain** — `BCOMP` and `ACOMP` carry no platform branches
+  beyond `@ds` (§6) and the `SD.LINUX` token above.
+
+### 5.7 What is tracked
 
 Linked binaries in `bin/` are tracked, because the install scripts deploy them
 from the repository. Compiler intermediates, generated `terminfo/`, pcode
@@ -287,7 +332,7 @@ Each of these cost real time. Read before debugging anything similar.
   target is already satisfied. Symptom: "is up to date" for something that was
   never built.
 - **Do not let the client's headers displace the server's.** Specifically
-  `revstamp.h` — see §5.3.
+  `revstamp.h` — see §5.2.
 - **`O_BINARY`/`O_TEXT` overrides.** `sddefs.h` and `sdtic.c` each hardcoded
   them to zero, correct on Linux. Both are now `#ifndef` guarded. This changes
   nothing on the MSYS2 runtime, which opens files in binary mode by default,
@@ -303,6 +348,15 @@ Each of these cost real time. Read before debugging anything similar.
   now hardcodes to `'/'`. That is correct on the MSYS2 runtime and is a live
   question for stage 2. If compilation starts failing on path resolution, look
   here first.
+- **Privilege tests do not fail, they answer wrongly.** `IsAdmin()` is
+  `getuid() == 0` and `SYSTEM(27)` is `getuid()`, which is 197609 here. Nothing
+  errors; the branches simply always take one side, so the symptom is "SDSYS
+  access is restricted" or "Command requires administrator privileges" from
+  code that looks correct. See §5.5 before debugging any permission complaint.
+- **`VALID_OS_NAME` rejects spaces in user names**, undoing a change the
+  original made *for* Windows — `ADMUSER` and `CREATEU` both carry the note
+  "15 Apr 05 2.1-12 Allow spaces in user names for Windows compatibility".
+  Called from `CREATEA` and `APISRVR`.
 - **`VALID_OS_PATH` rejects every native Windows path.** Its permitted
   character set is letters, digits and `._-/:` — no backslash — and it rejects
   spaces deliberately, as shell metacharacters. So `C:\SD\accounts` fails on
@@ -327,22 +381,31 @@ In the order they should be taken.
    correctness gap and the code is already written.
 3. **Exercise `SDConnectLocal()`** once a server runs. Needs an `sd.ini` in the
    Windows directory with an `[sd]` section and `SDSYS=`, or `SD_CONFIG` set.
-4. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Cheap, and it
+4. **Decide what "administrator" means on Windows and reimplement `IsAdmin()`**
+   (§5.5). One function in `linuxlb.c` currently answers `getuid() == 0`, which
+   is never true here, and everything else routes through it or through
+   `SYSTEM(27)`. Until it is settled, SDSYS is unreachable and `CATALOG GLOBAL`
+   is refused, so this blocks administration and part of the compile workflow.
+   Under MSYS2 the nearest test is an elevated token; natively it is
+   `CheckTokenMembership` against the Administrators SID. Decide also whether
+   `SYSTEM(27)` should keep returning a raw uid at all.
+
+5. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Cheap, and it
    blocks account creation and `PY_RUNFILE` on any native Windows path. Widen
    the character set without weakening the shell metacharacter protection it
    exists to provide — quoting the path at the `OS.EXECUTE` site is the safer
    way to allow spaces. Note `CREATEA` runs `sudo chmod g+s`, which has no
    native Windows equivalent and needs its own answer.
 
-5. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
-   tree (§5.5), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
+6. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
+   tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
    flipping the switches first would enable paths that are no longer present.
    Start with `CPROC`'s `dir.separator`, since compilation depends on it.
 
-6. **Port the installer.** `installsdai.sh` is apt/dnf/zypper, systemd, xinetd
+7. **Port the installer.** `installsdai.sh` is apt/dnf/zypper, systemd, xinetd
    and `/etc` paths throughout. It also tests for `bin/sd`, which is now
    `bin/sd.exe` (also `cp -R bin` and the `/usr/local/bin/sd` symlink).
-7. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites are
+8. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites are
    fork+exec, none need copy-on-write, so this is tractable), `termios` →
    Console API, passwd/group → Windows authentication.
 

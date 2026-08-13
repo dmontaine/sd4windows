@@ -27,6 +27,71 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Surveyed every BASIC to C linkage
+
+**Commits:** documentation only; no code changed. Follows the GPL.BP survey
+below, which covered platform detection only.
+
+Interfaces enumerated and checked: `SYSTEM(n)` (19 keys in use), `OSPATH()`
+(15 keys), `KERNEL()` (around 120 keys), `SDEXT`, `OS.EXECUTE` (10 files), and
+the compiler chain.
+
+**The privilege model is the serious finding, and it is not a detection
+problem.** `IsAdmin()` in `linuxlb.c` is `return (getuid() == 0)`, and
+`SYSTEM(27)` returns `getuid()` unchanged. `getuid()` under MSYS2 was measured
+at 197609, and Windows has no uid 0 at all — administrator there is a token
+privilege. So every privilege test answers the same way permanently, and
+nothing errors:
+
+- `CPROC` — `new.account = "SDSYS" and system(27) > 0` is always true, so
+  **SDSYS access is always denied**
+- `CATALOG` — `system(27) # 0` guarding `CATALOG GLOBAL` is always true, so
+  **global cataloguing is always denied**, which reaches into the compile
+  workflow and not just administration
+- `CPROC` — the `system(27) = 0` "entered as root?" branch never runs, so the
+  drop to `sdsys` via `EUID_SET` never happens
+- `K$ADMINISTRATOR` in `op_kernel.c` consults `IsAdmin()` and so is never
+  granted implicitly
+
+`EUID_SET`/`EUID_RESTORE` reach `sdext_eguid.c` through `SDEXT` and call
+`getpwnam`, `setegid` and `seteuid`. Native Windows has no equivalent;
+impersonation is `LogonUser` plus `ImpersonateLoggedOnUser`.
+
+The useful part is that this concentrates: everything routes through
+`IsAdmin()` or `SYSTEM(27)`, so one decision about what "administrator" means
+on Windows and one function body covers it. Recorded as next step 4.
+
+**`VALID_OS_NAME` undoes a documented Windows fix.** It rejects spaces in user
+names, and both `ADMUSER` and `CREATEU` in the external tree carry the line
+"15 Apr 05 2.1-12 Allow spaces in user names for Windows compatibility". A
+2005 change made deliberately for Windows was removed by the cleaning cycles
+twenty-one years later. Called from `CREATEA` and `APISRVR`. This is the second
+instance of that pattern after `VALID_OS_PATH`, which is enough to treat it as
+a class rather than a coincidence.
+
+**`PLATFORM_NAME` reaches the compiler.** It is `"Linux"` in `sddefs.h`,
+returned by `SYSTEM(1010)`, and `BCOMP` does
+`add 'SD.':upcase(system(1010)) to defined.tokens` — so the BASIC compiler
+defines the token `SD.LINUX`. The external tree does the same with `QM.`.
+Nothing tests the token in either tree, so it is latent rather than broken, but
+any BASIC source asking `SYSTEM(1010)` is told "Linux".
+
+Surveyed but not yet examined in detail: the 15 `OSPATH` keys in `op_dio2.c`
+(all path semantics, including `OS$FULLPATH`, documented as "Return full DOS
+file name"), and the platform sensitive `KERNEL` keys (`K$SETUID`, `K$SETGID`,
+`K$USERS.UID`, `K$IN.GROUP`, `K$TTY`, `K$RUNEXE`, `K$INIPATH`). `OS_CHOWN` is
+an SD addition called from `CATALOG` with no Windows meaning.
+
+Everything else checked is platform neutral: terminal type, endianness,
+version, times, queue and select state, and the compiler chain apart from `@ds`
+and the token above.
+
+PROJECT_STATUS passed 400 lines during this update and was rolled over per its
+own rule: §5.1 and §5.2 were merged and shortened, since the full reasoning
+already lives in the entry below, and §5 was renumbered.
+
+---
+
 ## 13 Aug 2026 — Surveyed the BASIC layer (GPL.BP) for platform code
 
 **Commits:** documentation only; no code changed.
