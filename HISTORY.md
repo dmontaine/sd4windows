@@ -27,6 +27,30 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Step-up authentication on LOGTO SDSYS
+
+Follows the entry below, which this refines rather than corrects. Covers the
+documentation commit after `59c1de7`. No code changed.
+
+That entry recorded `LOGTO` as needing no password, access being by grant. The
+repository owner added one exception: **`LOGTO SDSYS` prompts for the password
+again.** Entering administration should be a deliberate act, not something an
+unguarded session drifts into.
+
+**The password asked for is the person's own, not an SDSYS password**, and the
+distinction is the whole value of the change. Re-entering your own credential
+is re-authentication — it confirms the person at the keyboard is still the one
+who logged in, keeps attribution intact, and creates no new secret. An SDSYS
+password would be a second shared secret held by every administrator, which is
+exactly the OpenQM weakness this model was built to remove: the audit log would
+still name a person, but the credential guarding the most privileged account in
+the system would be shared, and unrotatable without telling everybody.
+
+The step-up is logged separately from the `LOGTO`, on success and on failure. A
+failed step-up is the most interesting single line the audit trail can carry.
+
+---
+
 ## 13 Aug 2026 — Identity, install layout and data protection decided
 
 Covers the documentation commit that follows `9c00730`. No code changed. Four

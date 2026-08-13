@@ -384,10 +384,11 @@ So salt, derive and compare is available today without new C code.
   `chdir`; `sd -A` at `LOGIN` around line 207 does the same. Both need the
   prompt, and both currently refuse SDSYS unconditionally on Windows because
   `system(27)` is never zero (§5.5).
-- **The password is asked for at login only, not at `LOGTO`.** `LOGTO` tests
-  the grant on the target account and writes the audit record. Give one failure
-  message for an unknown account name and a bad password alike, and keep the
-  existing three-tries-and-`sleep` behaviour.
+- **The password is asked for at login, and again on `LOGTO SDSYS`.** Every
+  other `LOGTO` tests the grant on the target account and writes the audit
+  record without prompting. Give one failure message for an unknown account
+  name and a bad password alike, and keep the existing three-tries-and-`sleep`
+  behaviour.
 - `is_grp_member` calls are removed rather than fixed — `LOGIN` 193 and 224,
   `CPROC` 2507, `APISRVR` 359, 914 and 961, `CREATEA` 323, `MODIFYA` 96, 99
   and 125. This also disposes of the `/etc/group` blocker in §6 rather than
@@ -426,6 +427,23 @@ This is what raises the bar above OpenQM, where an account password is a single
 shared secret with no record of who used it. It also puts administration under
 audit for free: SDSYS is reached by `LOGTO SDSYS` from your own identity, and
 that entry is logged like any other.
+
+**`LOGTO SDSYS` requires the password again** (decided 13 Aug 2026). It is the
+one exception to "granted, not prompted", on the grounds that entering
+administration deserves a deliberate act rather than an unguarded session
+becoming an administrative one.
+
+**The password it asks for is the person's own, not an SDSYS password.** This
+matters and is easy to get backwards. Re-entering your own credential is
+re-authentication: it confirms the person at the keyboard is still the one who
+logged in, changes nothing about attribution, and introduces no new secret. An
+SDSYS password would be a second shared secret held by every administrator,
+which is precisely the OpenQM weakness this model exists to remove — the audit
+log would still name the person, but the credential behind the most privileged
+account in the system would be shared and unrotatable without telling everyone.
+Log the step-up separately from the `LOGTO` itself, both when it succeeds and
+when it fails; a failed step-up is the single most interesting line in the
+audit trail.
 
 Attribution is SD-internal and does **not** depend on the service model in
 §5.7, so it lands with the password work. It records who authenticated, not who
