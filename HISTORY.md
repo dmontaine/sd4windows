@@ -27,6 +27,73 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Correction: `sd -i` was not deadlocked, and not on a semaphore
+
+Corrects the entry below, "SD started for the first time; the bootstrap
+deadlock was not one", which recorded `sd -i` as blocking silently and named a
+semaphore deadlock as the first thing to eliminate. It is neither.
+
+### It is not a semaphore deadlock
+
+Established two independent ways.
+
+A `sem_getvalue()` probe against all six named semaphores read **1 (free) on
+every one**, both at idle and while a process was blocked. And `LockSemaphore`
+in `sdsem.c` is a spin loop — `while (sem_trywait(...) != 0) RelinquishTimeslice;`
+where `RelinquishTimeslice` is `sched_yield()` — so a process stuck there would
+burn CPU continuously. The blocked process used 0.36 s over 95 s of wall clock.
+Whatever it was waiting on, it was sleeping, not spinning.
+
+### What it actually was: a stale record lock, self-inflicted
+
+`strace` (MSYS2's, which launches rather than attaches) showed the process
+stat'ing `/tmp/bbproc.log` and then `clock_nanosleep(0.250000000)`, over and
+over. That is the record-lock wait path in `op_dio3.c` around line 1065:
+conflicting lock held by another user → `Sleep(250)` → re-execute the opcode →
+repeat, with no timeout and no message. `BBPROC:118` opens `/tmp/bbproc.log`
+with `openseq ... overwrite`, which is what wanted the lock.
+
+The lock was left behind by earlier `sd -i` runs that this session killed. The
+lock table lives in the shared segment, so a process killed with SIGTERM or
+SIGKILL never releases what it held, and every later run waits on it forever.
+`sd -stop` followed by `sd -start` clears it, because the segment is unlinked
+and recreated empty. Recorded as a trap in §6 — the symptom (no output, no
+return, no CPU) reads exactly like a deadlock and is not one.
+
+### What is really blocking bootstrap pass 1
+
+On a clean lock table `sd -i` does not hang at all. It returns immediately with
+
+```
+Command requires administrator privileges
+```
+
+and aborts. That message is **not** `check_admin()` in `sd.c` — it is
+`BBPROC:133`, `if system(27) # 0`, which is always true on Windows because
+`SYSTEM(27)` is `getuid()` and there is no uid zero. It is the §5.5 trap hit
+for real, and it is the same message from a different place, which is what made
+it confusing earlier in the session.
+
+**So runtime bring-up and the identity work have converged.** Pass 1 cannot
+proceed until the privilege tests move to `KERNEL(K$ADMINISTRATOR, -1)` per
+§5.6. The probe build's `SD_ADMIN_GROUP` override cannot help, because BBPROC
+tests `SYSTEM(27)` directly and never consults `K$ADMINISTRATOR`. §7 has been
+reordered accordingly.
+
+### Also confirmed while investigating
+
+`sd -stop` works, including the new liveness poll that replaced the System V
+attach count. It reported a clean shutdown and left `/dev/shm` completely
+empty — segment and all six semaphores unlinked — after which `sd -start`
+brought the system up again. The full start/stop/restart cycle runs. That
+closes an item listed as unverified.
+
+Also: `sd -start` does not hang when its output goes to a file rather than a
+pipe, confirming the diagnosis in the entry below that the apparent hang is
+`sdlnxd` inheriting stdout and stderr.
+
+---
+
 ## 13 Aug 2026 — SD started for the first time; the bootstrap deadlock was not one
 
 Covers the documentation commit after `a054dbb`. No code changed. **SD created

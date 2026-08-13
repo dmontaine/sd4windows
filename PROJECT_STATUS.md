@@ -206,22 +206,31 @@ external reference tree), so it is not something the AI cleaning cycles
 introduced. `is_bootstrap` is a red herring for this: it is set at `sd.c:321`
 and never consulted by `bind_sysseg`.
 
-**Where it stops now: `sd -i` blocks silently.** SD starts, the process
-attaches, and it is allocated a user table slot — `errlog` records "User 2 (pid
-1931, don)" and similar for each attempt — but bootstrap pass 1 then produces
-no output at all and never returns. It is blocked, not looping: 0.36 s of CPU
-over 95 s of wall clock. Feeding it `/dev/null` and giving it a real pty via
-`script -q -c ... /dev/null` behave identically, so it is not simply waiting on
-console input in the obvious way.
+**Where it stops now: bootstrap pass 1 refuses on the privilege model.** On a
+clean system `sd -i` does not hang. It runs `$BBPROC`, which stops immediately
+at its own privilege test and aborts:
 
-Start here next session. Things not yet tried: attaching a debugger or
-`strace`-equivalent to see what it waits on; checking whether it is blocked on
-one of the six semaphores, which would point at the `sdsem.c` port rather than
-the bootstrap; and reading what `$BBPROC` does first, since `-i` installs it as
-the command processor (`sd.c:323`) and it is the only thing running at that
-point. A semaphore deadlock is the suspicion worth eliminating first, because
-it is the one that would mean an actual porting defect rather than a missing
-install step.
+```
+BBPROC:133   if system(27) # 0 then
+               crt 'Command requires administrator privileges'
+               goto abort.bbproc
+```
+
+`SYSTEM(27)` is `getuid()`, which is 197609 here and never zero, so this is
+always true — exactly the §5.5 trap, now hit for real. **Runtime bring-up and
+the identity work have converged: pass 1 cannot proceed until the privilege
+model is fixed.** Note the probe build's `SD_ADMIN_GROUP` override does not
+help, because BBPROC tests `SYSTEM(27)` directly rather than
+`K$ADMINISTRATOR` — which is precisely the change §5.6 calls for. Do §7 step 2
+before expecting anything further from the bootstrap.
+
+The process aborts rather than exiting cleanly (exit 134, SIGABRT) via
+`abort.bbproc`. Worth a look once the privilege test is fixed, but it is
+downstream of the refusal, not a separate fault.
+
+**An earlier report of `sd -i` "blocking silently" was wrong**, and the cause
+is worth knowing — see the stale record lock trap in §6. It was self-inflicted
+by killing earlier runs.
 
 **The blocker behind that.** `IS_GRP_MEMBER` reads `/etc/group`, which does not
 exist under MSYS2, so the `sdusers` test at `LOGIN` 193 refuses every
@@ -289,13 +298,21 @@ Keep this split honest. It is the single most useful thing in the file.
   `<sysdir>/errlog` — "User 2 (pid 1931, don)", "User 5 (pid 2050, don)". This
   was listed as unverified until now.
 - SD writes `<sysdir>/errlog` correctly, including on receipt of SIGTERM.
+- **`sd -stop` works, including the new liveness poll.** It reported "SD (64
+  Bit) has been shut down", and `/dev/shm` was left completely empty — the
+  segment and all six semaphores unlinked. `sd -start` then brought the system
+  up again from nothing. So the full start/stop/restart cycle runs, which
+  closes the `stop_sd()` item that was listed as unverified.
+- **The six semaphores are not a bottleneck under normal running.** Sampled
+  with a `sem_getvalue()` probe both at idle and while another process was
+  waiting on a record lock: all six read 1 (free) throughout.
 
 ### Not verified — treat as unknown
 
 - **Bootstrap pass 1 has never completed.** `sd -i` attaches and then blocks
   silently (§3). Everything past it in the bootstrap sequence is untried.
-- Semaphore locking under contention, and `stop_sd()`'s new liveness poll.
-  `sd -stop` has not been run against a live system.
+- Semaphore locking under contention. The semaphores have never been observed
+  held, so the `sdsem.c` port is exercised only in the uncontended case.
 - `SDConnectLocal()` at runtime. It needs a running server and a configuration
   file (§5.8).
 - Any database read or write.
@@ -781,6 +798,18 @@ Each of these cost real time. Read before debugging anything similar.
   blocks until the *daemon* exits, not until `sd -start` exits. The parent has
   already returned. Check with `Get-Process sdlnxd` rather than waiting, and
   redirect to a file when starting from a script.
+- **Killing an SD process leaves its record locks behind, and the next run
+  waits for them forever.** The lock table lives in the shared segment, so a
+  process killed with SIGTERM or SIGKILL never releases what it held. The next
+  process that wants the same record takes the lock-wait path in `op_dio3.c`
+  (around line 1065): "conflicting lock held by another user" → `Sleep(250)` →
+  re-execute the opcode → repeat, with no timeout and no message. The symptom
+  is a process that produces no output, never returns, and uses almost no CPU
+  — which reads exactly like a deadlock and is not one. **`sd -stop` followed
+  by `sd -start` clears it**, because the segment is unlinked and recreated
+  empty. Diagnose with `strace`, which shows the offending path being stat'ed
+  every 250 ms; and note the semaphores are *not* involved, so their values
+  all read 1 while this is happening.
 - **`sd -SUSPEND` is sticky and survives the process.** The flag lives in the
   shared segment (`SSF_SUSPEND`), so every later invocation stops at "SD is
   suspended" with no hint of why, including ones that would otherwise do
@@ -809,12 +838,15 @@ Each of these cost real time. Read before debugging anything similar.
 
 In the order they should be taken.
 
-1. **Finish runtime bring-up.** Environment and the first bootstrap steps are
-   done; resume at the `sd -i` ordering puzzle described in §3. The shared
-   memory and semaphore code has now been verified in isolation (§4), so
-   suspect the bootstrap sequence rather than the IPC port. **Expect the
-   `/etc/group` blocker (§6) immediately after**, since it fires at the first
-   login attempt; under §5.6 the answer is to delete the `is_grp_member` calls.
+1. **Fix the privilege tests, then finish runtime bring-up.** These are no
+   longer separate tasks. SD starts, stops and restarts (§4), but bootstrap
+   pass 1 refuses at `BBPROC:133` because `SYSTEM(27) # 0` is always true on
+   Windows (§3). Point that test — and the matching ones in `CPROC` and
+   `CATALOG` — at `KERNEL(K$ADMINISTRATOR, -1)` per §5.6, then re-run the
+   bootstrap sequence in §3. **Expect the `/etc/group` blocker (§6) after
+   that**, at the first login attempt; under §5.6 the answer is to delete the
+   `is_grp_member` calls. Doing step 2 first, or at least its privilege half,
+   is the shortest path.
 2. **Implement the account credential model** (§5.6). Build the credential
    register as a separate file — one entry per account, listing each permitted
    person with salt and verifier — and prompt for name and password in
