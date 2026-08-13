@@ -27,6 +27,219 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Identity, install layout and data protection decided
+
+Covers the documentation commit that follows `9c00730`. No code changed. Four
+decisions from the repository owner, and the investigation that informed them.
+
+### The decisions
+
+1. **Every SD account carries its own password; OS groups are dropped from SD
+   entirely.** SD has no users, only accounts — user accounts for one person,
+   group accounts reachable by many. **SDSYS is the only administrator**,
+   entered by password prompt from `sd -ASDSYS` or `LOGTO SDSYS`. This is the
+   PICK / UniVerse / OpenQM model. Now PROJECT_STATUS §5.6.
+2. **The install layout follows Windows standards**, not Unix: binaries under
+   `C:\Program Files\SD\`, data and configuration under `C:\ProgramData\SD\`.
+   Now §5.8.
+3. **The installer becomes an Inno Setup binary** (preferred) or a PowerShell
+   script, replacing `installsdai.sh`. Now §5.9.
+4. **The data tree must be protected from snooping.** Now §5.7.
+
+### This supersedes a decision made the same day
+
+`f56de86` and `9c00730` had just committed the opposite model: SD administrator
+rights from membership of an `sdadmins` local group, with `IsAdmin()` resolving
+it through `getgrnam()`. That work is not wasted — `IsAdmin()` still gates
+`sd -start`, which happens before any account or password exists — but it is no
+longer the identity model. See §8 for what remains to decide about it.
+
+### Corrections to what §8 recorded as evidence
+
+The open question in §8 listed evidence favouring an internal administrator
+flag. Two of the three points were wrong, and are corrected here.
+
+**Wrong: "SD already has the machinery — login records carry `LGN$ADMIN`."**
+The `$LOGINS` register was removed on 12 Jun 2024. There is no `$LOGINS` file
+in `sdsys/`; every read and write of it is commented out in `LOGIN` and
+`APISRVR`, including both `kernel(K$ADMINISTRATOR, lgn.rec<LGN$ADMIN>)` calls,
+which were the only consumers of the flag. `LGN$ADMIN` survives in
+`INT$KEYS.H` as a `$define` pointing at a file that no longer exists. An
+internal flag would therefore have meant reintroducing a retired register, not
+reusing existing machinery. `ACCOUNTS` cannot substitute directly — it is keyed
+per account, not per user — though under the decision actually taken that turns
+out to be exactly the right granularity.
+
+**Overstated: "on the current design the OS is still the authority."** It is
+not, inside the BASIC layer. `op_kernel.c` grants `USR_ADMIN` unconditionally
+for any positive argument, so any user who can run BASIC can call
+`kernel(K$ADMINISTRATOR, 1)` and become an SD administrator — which is exactly
+what `CPROC` does. `IsAdmin()` is consulted only when the argument is zero,
+which also reads backwards: passing "clear" *grants* admin to a group member.
+The OS was genuinely authoritative only at `sd -start`. This hole must be
+closed under the new model too, or the SDSYS password gate is decorative.
+
+**Refined, not wrong: the re-logon delay.** It was recorded that an OS group
+cannot make the installing user an administrator immediately, because Windows
+fixes group membership in the token at logon. That is correct for `IsAdmin()`,
+which reads the token via `getgroups()`. It is *not* correct for the BASIC
+layer's `is_grp_member`, which reads the group's member list and so sees a new
+member at once. The two would have disagreed for one logon — SD granting access
+the OS would still refuse — which is worse than failing closed. Moot under the
+decision taken, but worth not rediscovering.
+
+### `/etc/group` does not exist under MSYS2 — a blocker, found before it bit
+
+`IS_GRP_MEMBER` reads `/etc/group` as a text file. MSYS2 and Cygwin dropped
+`/etc/passwd` and `/etc/group` years ago in favour of direct SAM/AD lookups, and
+neither file is present on this machine. So `is_grp_member` sets status 1 and
+returns false for every caller, which fails the `sdusers` test at `LOGIN` 193
+and terminates every connection with "This user is not registered for SD use".
+
+This sits one step past where runtime bring-up stopped, so it would have been
+met head-on in the next session. It is *not* the `getgrnam()` path verified in
+§4 — that goes through the NSS layer and works correctly. Under decision 1 the
+`is_grp_member` calls are deleted rather than repaired, which disposes of the
+blocker as a side effect.
+
+### Data protection: what was found, and why it is stage 2
+
+The premise behind decision 4 was that OS directory permissions keep an
+account's contents private. Two findings, both verified on this machine.
+
+**`chmod` cannot secure anything here.** The MSYS2 mount is `noacl`
+(`none / cygdrive binary,posix=0,noacl,user`). `chmod 0770` on a test directory
+left it `drwxr-xr-x` and changed no ACE. `C:\ProgramData` grants
+`BUILTIN\Users:(I)(OI)(CI)(RX)` by inheritance, so a directory created there is
+world readable and snooping requires no privilege at all.
+
+**But ACL inheritance is unaffected by `noacl`, which makes the fix
+practical.** Breaking inheritance and granting narrowly works, needs no
+elevation for a directory you own, and — the useful part — files subsequently
+created *through the MSYS2 shell* inside that directory inherit the restricted
+ACL correctly, because NTFS applies inheritance in the kernel at creation time,
+below the runtime. Verified by writing through MSYS2 into a locked directory
+and reading back the resulting ACE. So the installer sets permissions once with
+`icacls` and everything SD creates afterwards is protected automatically. This
+also answers the `chmod g+s` problem left open earlier: the setgid directory
+behaviour *is* inheritable ACEs.
+
+Use SIDs rather than names in the installer — `*S-1-5-18` for SYSTEM,
+`*S-1-5-32-544` for `BUILTIN\Administrators` — so a localised Windows does not
+break it. `/inheritance:r` must come first; `/grant` alone leaves the inherited
+`Users:(RX)` in place and the tree stays readable.
+
+**The limit, and it is architectural.** Every SD process opens the database
+directly — `dh_open()` → `dio_open()` → `open()` — in its own process, under the
+invoking user's token. `connection_type` (`CN_CONSOLE`, `CN_SOCKET`, `CN_PIPE`)
+describes only the terminal transport; there is no data server. So any ACL
+strong enough to stop a user reading the files in Explorer also stops SD reading
+them on that user's behalf. **While SD runs as the invoking user, account
+passwords organise access but do not secure it.**
+
+Real protection needs `sdlnxd` to become a Windows service under a dedicated
+service account that owns the tree, with session processes spawned under the
+*service* identity and users reaching them over the named pipe. That is the
+direct Windows equivalent of the Linux original dropping to the `sdsys` user via
+`EUID_SET`, not a Windows novelty. It requires console `sd.exe` to become a
+client rather than doing its own file I/O, which is the substantial part, and it
+belongs with the stage 2 `fork` → `CreateProcess` work. Until then the
+achievable goal is blocking everyone who is not an SD user, which is worth
+having and is not the same as privacy between accounts.
+
+### Also found
+
+The server and client disagree about the configuration file. `GetConfigPath()`
+in `inipath.c` reads `SCARLET_CONFIG`, falling back to `/etc/sd.conf`;
+`sysdir()` in `sdclilib/sdclilib.c` reads `SD_CONFIG`, falling back to `sd.ini`
+in the Windows directory — and its comment claims the two match. They do not.
+`sdnet.h` also hardcodes `PASSWD_FILE_NAME "/etc/shadow"`. Folded into §5.8.
+
+The password machinery decision 1 needs already exists and is wired: `SD_SALT`
+(100) and `SD_KEYFROMPW` (101) reach `crypto_pwhash` (Argon2) through SDEXT, and
+`_INPUT` already supports masked entry via `IN$PASSWORD`. No new C code is
+needed for salt, derive and compare.
+
+### Where the verifiers must not go
+
+The first draft of §5.6 said to add salt and verifier as ACCOUNTS fields 4 and
+5, appended for backward compatibility. That is wrong and was corrected before
+this entry was committed. `LOGIN` opens `ACCOUNTS` at line 175 in the user's own
+process *before* authenticating — it has to, in order to know the account exists
+— and eleven other programs open it as well, `_VOC_REF` among them for routine
+resolution. Every SD user's process can therefore read it, and verifiers stored
+there would let any user harvest every account's Argon2 hash for offline attack.
+
+They go in a separate register keyed by account name. In stage 1 that file is
+still readable by everyone, since Windows has no setuid and there is no
+privileged helper short of the service model, so the split does not fix the
+exposure. Its value is that the boundary exists from the start, so the service
+model can lock one file down without restructuring ACCOUNTS or migrating data.
+
+### Several people per account, and why one password each is not enough
+
+Noted by the repository owner: a user account is sometimes reached by more than
+one person — cover during holidays, assistants. A per-account password supports
+that with no mechanism at all, which is a genuine advantage over the OS group
+model where each person had to be enrolled and removed.
+
+The first draft of §5.6 stopped there and listed the consequences — no
+attribution, and rotation for everyone when one person's access is withdrawn —
+as costs inherent to shared credentials, to be stated rather than engineered
+away. **The repository owner rejected that**, and correctly: a single password
+shared between people is a classic weakness, and raising the security level
+above OpenQM was one of the motives for this whole change. A model that cannot
+name who logged in fails the goal that prompted it.
+
+An intermediate draft proposed a credential list per account — one name, salt
+and verifier per person permitted into it. The repository owner replaced that
+with something simpler and better, which is what §5.6 now records: **you log in
+as your own account, and the login identity follows you.** Access to other
+accounts is granted rather than shared, `LOGTO` needs no second password,
+`@logname` never changes, and every login and every `LOGTO` is written to an
+audit log as "SUE logged to JANE at *date/time*".
+
+Sue covering for Jane is therefore not a shared password at all. Sue is granted
+access to JANE, logs in as SUE, does `LOGTO JANE`, and the log records it.
+Withdrawing the cover removes one grant; nobody's password changes, because
+nothing was ever shared. Administration comes under audit for free, since SDSYS
+is reached by `LOGTO SDSYS` from a named identity.
+
+Grants are recorded on the target account — JANE lists who may enter JANE —
+because that answers the question administration actually asks and puts
+revocation in one place. `$LOGINS` chose the opposite direction with
+`LGN$VALID.ACCOUNTS` and `LGN$BANNED.ACCOUNTS` per user; that register is gone
+and there is no reason to inherit its shape. Worth recording that this session
+earlier argued against reviving `$LOGINS` on the grounds that it was retired
+deliberately — that argument survives, and the model arrived at needs no global
+user register at all.
+
+Attribution is SD-internal and does not depend on the service model, so it can
+land with the password work. It records who authenticated, not who is at the
+keyboard — accountability, not proof of identity.
+
+**The audit log cannot be the existing one.** `LOGMSG` reaches `log_message()`
+in `k_error.c`, which writes `<sysdir>/errlog` and, on reaching the configured
+`ERRLOG` size, discards the oldest half of the file. Correct for a diagnostic
+log, disqualifying for an audit trail. The trail needs its own append-only file
+that rotates rather than truncates. Also note `CPROC` reassigns `logname` when
+it drops to `sdsys` (around line 278); under this model nothing may overwrite
+the login identity.
+
+Separately, none of this makes accounts *private* from each other in stage 1.
+Entering an account requires the user's own token to hold read and write on that
+account's directory, and the OS cannot tell that token apart from the same
+person browsing the directory in Explorer. Privacy between accounts waits for
+§5.7.
+
+### Still open
+
+Recorded in §8: whether `sd -start` keeps an OS-level check now that
+`IsAdmin()` has no other purpose, and whether the console entry point survives
+the service model. Both shape stage 2.
+
+---
+
 ## 13 Aug 2026 — Runtime bring-up started; IPC verified; session ended on credits
 
 **Session ended mid-task.** Handing off to another account. Resume at

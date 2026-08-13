@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `3248b72`
+**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `9c00730`
 (the most recent commit to change code or build)
 
 ---
@@ -161,7 +161,7 @@ Laid down already:
 | `/etc/sd.conf` | written, `SDSYS=/usr/local/sdsys` (copy of `sd64/sd.conf`) |
 | `/usr/local/sdsys` | populated from `sd64/sdsys`, plus `bin`, `terminfo`, `Makefile`, `gpl.src`, `terminfo.src` |
 | `/home/sd/user_accounts`, `/home/sd/group_accounts` | created |
-| `sdadmins` local group | created, `GITORLI\don` enrolled — **not yet effective, see §6** |
+| `sdadmins` local group | created, `GITORLI\don` enrolled — **now unnecessary under §5.6**, pending §8 |
 | `gcat` | `$BBPROC`, `$BCOMP`, `!PATHTKN` built by `gplbld/bbcmp.py` |
 | `PCODE.OUT` | built by `gplbld/pcode_bld.py` |
 
@@ -189,6 +189,16 @@ first: either `-start` precedes `-i` in a way `installsdai.sh` does not make
 obvious, or `-i` is supposed to create the segment itself. Read the `-i`
 handling in `sd.c` around the `is_bootstrap` flag before changing anything.
 
+**The blocker waiting behind it.** Once that is past, the first login attempt
+fails: `IS_GRP_MEMBER` reads `/etc/group`, which does not exist under MSYS2, so
+the `sdusers` test at `LOGIN` 193 refuses every connection. See §6. Under §5.6
+the fix is to delete those calls rather than repair them, so this and the
+account password work land together.
+
+Note the environment above uses `/etc` and `/usr/local`, which §5.8 replaces
+with `C:\ProgramData\SD\`. It was laid down before that decision; there is no
+reason to redo it by hand, but the installer must not reproduce it.
+
 ## 4. Verified vs unverified
 
 Keep this split honest. It is the single most useful thing in the file.
@@ -208,9 +218,10 @@ Keep this split honest. It is the single most useful thing in the file.
   runtime with ENOSYS**.
 - `terminfo` regenerates byte identically with and without the `O_BINARY`
   correction, confirming that change is protective rather than a repair.
-- The new `IsAdmin()` logic (§5.6), against member, non-member, absent group
+- The group-based `IsAdmin()` logic, against member, non-member, absent group
   and primary group. `getgrnam()` resolves Windows local groups on the MSYS2
-  runtime and reports membership accurately.
+  runtime and reports membership accurately. (Superseded as the identity model
+  by §5.6, but the observation stands and `IsAdmin()` still gates `sd -start`.)
 - **`IsAdmin()` in the linked binary.** `sd -start` refused with "Command
   requires administrator privileges" while the group was absent, and got past
   that check once built against a group the token holds. So `check_admin()`
@@ -304,79 +315,281 @@ Order matters: restoring the BASIC branches while `SYSTEM(91)` still returns
 zero is harmless, but flipping `SYSTEM(91)` first turns on paths that are no
 longer there.
 
-### 5.5 The privilege model does not survive the move (blocks administration)
+### 5.5 The Linux privilege model does not survive the move
 
-This is the most consequential linkage and is not about platform detection at
-all. `IsAdmin()` in `linuxlb.c` is `return (getuid() == 0)`, and `SYSTEM(27)`
-returns `getuid()` straight through. Under MSYS2 `getuid()` is 197609 — never
-zero, and there is no uid 0 on Windows, where administrator is a token
-privilege rather than a user id.
+Background for §5.6, which replaces it. `IsAdmin()` in `linuxlb.c` was
+`getuid() == 0` and `SYSTEM(27)` returns `getuid()` straight through. Under
+MSYS2 `getuid()` is 197609 — never zero, and Windows has no uid 0 at all. So
+every privilege test in the BASIC layer answers the same way permanently, and
+the symptom is a refusal from code that looks correct rather than an error
+(§6). The sites are `CPROC` (SDSYS entry, and the "entered as root" drop that
+never runs), `CATALOG` (`CATALOG GLOBAL`, which matters beyond administration
+because cataloguing is part of getting compiled BASIC into service), `BBPROC`,
+and `K$ADMINISTRATOR` in `op_kernel.c`. Full table in the HISTORY entry for
+13 Aug 2026, "Surveyed every BASIC to C linkage".
 
-So every privilege test in the BASIC layer resolves the same way, permanently:
+`EUID_SET`/`EUID_RESTORE` were the mechanism the root branch used, reaching
+`sdext_eguid.c` through `SDEXT` for `getpwnam`, `setegid` and `seteuid`. Native
+Windows has no equivalent; impersonation there is `LogonUser` plus
+`ImpersonateLoggedOnUser`. That is the shape §5.7's service model needs.
 
-| Site | Test | Result on Windows |
-|---|---|---|
-| `CPROC` | `new.account = "SDSYS" and system(27) > 0` | always true — **SDSYS access always denied** |
-| `CATALOG` | `system(27) # 0` for `CATALOG GLOBAL` | always true — **global cataloguing always denied** |
-| `CPROC` | `system(27) = 0` "entered as root?" | always false — the drop to `sdsys` never runs |
-| `BBPROC` | `system(27) # 0` | always true |
-| `op_kernel.c` | `K$ADMINISTRATOR` via `IsAdmin()` | never granted |
+### 5.6 Identity model: accounts with passwords, no OS groups (decided 13 Aug 2026)
 
-The `CATALOG GLOBAL` one matters beyond administration, because cataloguing is
-part of getting compiled BASIC into service.
+Decision from the repository owner on 13 Aug 2026, superseding the `sdadmins`
+group model committed earlier the same day in `f56de86`. **SD has no concept of
+users, only accounts** — user accounts intended for one person, and group
+accounts reachable by many. Authorisation is entirely internal:
 
-`EUID_SET`/`EUID_RESTORE` are the mechanism the root branch would have used.
-They reach `sdext_eguid.c` through `SDEXT`, which calls `getpwnam`, `setegid`
-and `seteuid`. Native Windows has no equivalent; impersonation there is
-`LogonUser` plus `ImpersonateLoggedOnUser`.
+- **Every account carries its own password.** Entry is by password prompt,
+  whether from `sd -ASDSYS` at the shell or `LOGTO SDSYS` inside SD. This is
+  the PICK / UniVerse / OpenQM model.
+- **SDSYS is the only administrator.** There is no separate administrator
+  account, group or flag. If you know the SDSYS password, you are in.
+- **OS groups are dropped from SD's logic entirely.** No `sdadmins`, no
+  `sdusers` login gate, no `ACC$GROUP` membership test.
 
-Nothing here is fixed by flipping `SYSTEM(91)`. It needed a decision about what
-"administrator" means on Windows; that decision is §5.6.
+This resolves the open question that stood in §8 (should admin status live
+inside SD or in an OS group). Neither of the two options recorded there was
+taken; the answer is a third. §5.5 records the Linux privilege model this
+replaces, and is retained for background only.
 
-### 5.6 Identity model on Windows (decided 13 Aug 2026)
+**What already exists and can be reused.** The password machinery is present
+and wired:
 
-Two decisions from the repository owner, replacing the Linux model where SD
-creates OS accounts and `sudo sd` confers administrator rights.
+| Piece | Where |
+|---|---|
+| Salt generation, `SD_SALT` (100) | `op_sdext.c` → `sd_encrypt_sodium.c` |
+| Argon2 key derivation, `SD_KEYFROMPW` (101) | `crypto_pwhash`, same file |
+| Masked prompt, `IN$PASSWORD` | `_INPUT` |
 
-**SD no longer creates or deletes OS accounts.** An administrator creates
-Windows users out of band; SD maps its accounts onto users and groups that
-already exist, and manages only its own group membership. This keeps file
-security enforced by the OS without SD needing standing administrative rights,
-and it does not break on a domain-joined machine, where creating local users
-would be wrong.
+So salt, derive and compare is available today without new C code.
 
-**SD administrator rights come from membership of the `sdadmins` local group**,
-not from elevation. This separates SD administration from Windows
-administration: it can be granted without handing out machine admin, needs no
-UAC prompt, and works for a service or other non-interactive process.
+**What has to be built.**
 
-`SD_ADMIN_GROUP` in `sddefs.h` names the group. `IsAdmin()` in `linuxlb.c`
-resolves it with `getgrnam()` and tests the primary group and the supplementary
-list. If the group does not exist, nobody is an administrator — it fails
-closed. Verified on the MSYS2 runtime: `getgrnam()` resolves Windows local
-groups correctly (`Users` 545, `Administrators` 544), membership is reported
-accurately, and all four paths behave (member, non-member, absent group,
-primary group).
-
-Done: `IsAdmin()` and `SD_ADMIN_GROUP`.
-
-Still to do, and none of it is verifiable until SD runs (§6):
-
-- `CPROC` and `CATALOG` test `SYSTEM(27)` **directly**, not `K$ADMINISTRATOR`,
-  so the new `IsAdmin()` does not reach them and SDSYS and `CATALOG GLOBAL`
-  are still refused. They should ask `KERNEL(K$ADMINISTRATOR, -1)` instead.
-  `SYSTEM(27)` should keep meaning "uid", which on Windows is simply not a
-  privilege answer.
+- **The credential register goes in a separate file, not in the ACCOUNTS
+  record.** One entry per account, holding its salt and verifier.
+  `LOGIN` opens `ACCOUNTS` at line 175, in the user's own process, before any
+  authentication — it must, to know the account exists — and eleven other
+  programs open it too, including `_VOC_REF` for routine resolution. So every
+  SD user's process can read it. Verifiers stored there would let any user pull
+  every account's Argon2 hash and attack it offline. Use a separate register
+  keyed by account name holding only salt and verifier. In stage 1 that file is
+  still readable by everyone (Windows has no setuid, and there is no privileged
+  helper short of §5.7's service), so this does not fix the exposure — it makes
+  the boundary exist, so §5.7 can lock one file to the service account without
+  restructuring ACCOUNTS or migrating data.
+- `ACC$GROUP` becomes dead. The remaining ACCOUNTS fields are unchanged.
+- Neither entry path prompts. `int.logto` (`CPROC` around line 2451) goes
+  straight from account name to a `system(27) > 0` test to `is_grp_member` to
+  `chdir`; `sd -A` at `LOGIN` around line 207 does the same. Both need the
+  prompt, and both currently refuse SDSYS unconditionally on Windows because
+  `system(27)` is never zero (§5.5).
+- **The password is asked for at login only, not at `LOGTO`.** `LOGTO` tests
+  the grant on the target account and writes the audit record. Give one failure
+  message for an unknown account name and a bad password alike, and keep the
+  existing three-tries-and-`sleep` behaviour.
+- `is_grp_member` calls are removed rather than fixed — `LOGIN` 193 and 224,
+  `CPROC` 2507, `APISRVR` 359, 914 and 961, `CREATEA` 323, `MODIFYA` 96, 99
+  and 125. This also disposes of the `/etc/group` blocker in §6 rather than
+  requiring it be repaired.
+- `K$ADMINISTRATOR` is set on successful SDSYS entry, and `CPROC` and `CATALOG`
+  test it instead of `SYSTEM(27)`. `SYSTEM(27)` keeps meaning "uid", which on
+  Windows is not a privilege answer.
+- `op_kernel.c` grants `USR_ADMIN` unconditionally for any positive argument
+  (§6), so the SDSYS gate is decorative until that is closed.
 - The `OS.EXECUTE` account commands in `CREATE_USER`, `SET_PASSWD`, `CREATEA`,
-  `DELACC` and `MODIFYA` must stop calling `useradd`, `passwd`, `usermod`,
-  `userdel` and `groupadd`, and either map onto existing Windows users or
-  refuse with a clear message.
-- `chmod g+s` has no Windows equivalent. The setgid directory behaviour is
-  inheritable ACEs: `icacls <dir> /grant "<group>:(OI)(CI)M"`.
-- The installer must create the `sdadmins` group and stop creating `sdsys`
-  as an OS user.
+  `DELACC` and `MODIFYA` stop calling `useradd`, `passwd`, `usermod`, `userdel`
+  and `groupadd` outright. Under this model they manage SD accounts and their
+  passwords, and touch no OS account at all.
 
-### 5.7 Other BASIC to C linkages, surveyed
+**You log in as yourself, then move; the login identity follows you.** This is
+how shared access works, and it is what makes it attributable:
+
+- A person logs in with **their own account name and password**. That
+  establishes the session identity.
+- Access to other accounts is **granted, not shared**. Once in, a person may
+  `LOGTO` any account they have been given access to. There is no second
+  password to know and none to share.
+- **`@logname` does not change on `LOGTO`.** The login identity persists for
+  the life of the session, which is the whole mechanism — everything downstream
+  attributes to the person who authenticated, not to the account they are
+  standing in.
+- **Every login and every `LOGTO` is written to an audit log**, in the form
+  "SUE logged to JANE at *date/time*".
+
+So the holiday and assistant case is not a shared password. If Sue covers for
+Jane, Sue is granted access to JANE; she logs in as SUE, does `LOGTO JANE`, and
+the log records that she did. Withdrawing it removes one grant and changes
+nobody's password. Nothing is ever shared, so nothing has to be rotated.
+
+This is what raises the bar above OpenQM, where an account password is a single
+shared secret with no record of who used it. It also puts administration under
+audit for free: SDSYS is reached by `LOGTO SDSYS` from your own identity, and
+that entry is logged like any other.
+
+Attribution is SD-internal and does **not** depend on the service model in
+§5.7, so it lands with the password work. It records who authenticated, not who
+is at the keyboard — accountability, not proof of identity.
+
+**The audit log must not be the existing `errlog`.** The `LOGMSG` verb reaches
+`log_message()` in `k_error.c`, which writes to `<sysdir>/errlog` and, when the
+file reaches the `ERRLOG` configured size, **discards the oldest half**. That is
+correct for a diagnostic log and disqualifying for an audit trail, which must
+not lose records silently. Write the audit trail to its own file, append-only,
+and rotate rather than truncate.
+
+`ACCOUNTS` needs the grants. Record them **on the target account** — JANE lists
+who may enter JANE — rather than as a list of destinations on the source. It
+answers the question administration actually asks ("who can get into JANE?"),
+and revocation happens in one place. Note `$LOGINS` chose the other direction,
+`LGN$VALID.ACCOUNTS` and `LGN$BANNED.ACCOUNTS` on each user; that register is
+gone (§6) and there is no reason to inherit its shape.
+
+Watch that `CPROC` currently reassigns `logname` when it drops to `sdsys`
+(around line 278). Under this model nothing may overwrite the login identity.
+
+**Understand the security consequence before relying on this.** A password
+gate inside SD is not a file security boundary — see §5.7.
+
+### 5.7 Where the OS still has to be involved: protecting the data tree
+
+Dropping OS groups from SD's logic (§5.6) does not remove the need for OS file
+permissions, and the two do not compose the way one would hope.
+
+**The tension.** Every SD process opens the database directly — `dh_open()` →
+`dio_open()` → `open()` — in its own process, under the invoking user's token.
+`connection_type` (`CN_CONSOLE`, `CN_SOCKET`, `CN_PIPE`) describes only the
+terminal transport; there is no data server. So any ACL strong enough to stop a
+user reading the files in Explorer also stops SD reading them on that user's
+behalf. **While SD runs as the invoking user, account passwords organise
+access; they do not secure it.**
+
+**This is what decides whether accounts are private from each other.** For a
+user to enter account B, their Windows token must have read and write on B's
+directory, because their own process does the I/O. The OS cannot distinguish
+"entered with the right password" from "opened in Explorer" — it is the same
+token either way. So in stage 1 there are only two options, and neither is what
+was wanted: grant every SD user access to every account directory, which gives
+no protection between accounts at all; or set per-user ACLs per account
+directory, which is OS-level authorisation duplicating the password gate,
+reintroducing exactly what §5.6 removed and adding a Windows-user-to-account
+mapping to maintain.
+
+Under the service model the question dissolves: no end user holds any file
+access, SD is the only reader, and SD checks the password. Accounts become
+private from each other *because* of the password rather than in spite of it,
+and shared accounts still work, because the OS never sees individual people at
+the file layer.
+
+What is achievable now, and what is not:
+
+- **Achievable in stage 1.** Lock the tree to a single identity plus
+  `Administrators`, so no other account on the machine can browse it. This
+  blocks everyone who is not an SD user. It does not stop an SD user reading
+  another account's files directly, since SD runs as them.
+- **The real answer, and it is stage 2.** `sdlnxd` becomes a Windows service
+  running as a dedicated service account — a virtual account, `NT SERVICE\SD`,
+  needs no password management — which owns the tree exclusively. Session
+  processes are spawned under the *service* identity, not the user's, and the
+  user reaches their session over the named pipe. The user's own token never
+  touches the data. This is the direct Windows equivalent of the Linux original
+  dropping to the `sdsys` user via `EUID_SET` (§5.5); it is not a Windows
+  novelty. It requires console `sd.exe` to become a client of the service
+  rather than doing its own file I/O, which is the substantial part.
+
+**Mechanics, verified on this machine 13 Aug 2026.** `C:\ProgramData` grants
+`BUILTIN\Users:(I)(OI)(CI)(RX)` by inheritance, so the default is world
+readable and snooping needs no privilege at all. Breaking inheritance and
+granting narrowly works and needs no elevation for a directory you own:
+
+```sh
+icacls <dir> /inheritance:r /grant "*S-1-5-18:(OI)(CI)F" \
+    /grant "*S-1-5-32-544:(OI)(CI)F" /grant "<principal>:(OI)(CI)M"
+```
+
+Use SIDs, not names — `*S-1-5-18` is SYSTEM, `*S-1-5-32-544` is
+`BUILTIN\Administrators` — so the installer is not broken by a localised
+Windows. `/inheritance:r` first is essential; `/grant` alone leaves the
+inherited `Users:(RX)` in place and the tree stays readable.
+
+**The useful surprise: `noacl` breaks `chmod`, but not ACL inheritance.** The
+MSYS2 mount is `noacl` (§6), so `chmod` is a no-op and cannot be used to secure
+anything. But files created *through MSYS2* inside a locked directory still
+inherit the restricted ACL correctly, because NTFS applies inheritance at
+creation time in the kernel, below the runtime. Confirmed by writing through
+the MSYS2 shell into a locked directory and reading back the resulting ACE.
+So the installer sets permissions once with `icacls` and everything SD creates
+afterwards is protected automatically. This is what makes the approach
+practical, and it also answers the `chmod g+s` problem: the setgid directory
+behaviour *is* inheritable ACEs.
+
+### 5.8 Install layout follows Windows standards (decided 13 Aug 2026)
+
+Decision from the repository owner on 13 Aug 2026: SD for Windows follows
+Windows conventions, not Unix ones. Putting the system under `/etc` and
+`/usr/local` was a stage 1 expedient and is not where it belongs.
+
+Target layout:
+
+| What | Where | Replaces |
+|---|---|---|
+| Binaries | `C:\Program Files\SD\` | `/usr/local/bin` |
+| SDSYS, database, accounts | `C:\ProgramData\SD\` | `/usr/local/sdsys` |
+| Configuration | `C:\ProgramData\SD\sd.conf` | `/etc/sd.conf` |
+
+`ProgramData` is the correct home for machine-wide mutable state, and it has no
+space in its name, which sidesteps the `VALID_OS_PATH` trap (§6) for a default
+install. `Program Files` does contain a space, so binaries are on the wrong
+side of that trap and it must be fixed regardless.
+
+Moving off `/usr/local/sdsys` matters on its own merits: it currently resolves
+to `C:\msys64\usr\local\sdsys`, inside the MSYS2 install tree, so reinstalling
+MSYS2 destroys the database.
+
+**Current state is worse than just the Unix paths — the server and client do
+not agree on how to find the configuration:**
+
+| | Environment variable | Fallback |
+|---|---|---|
+| Server, `GetConfigPath()` in `inipath.c` | `SCARLET_CONFIG` | `/etc/sd.conf` |
+| Client, `sysdir()` in `sdclilib/sdclilib.c` | `SD_CONFIG` | `sd.ini` in the Windows directory |
+
+The client's comment claims `SD_CONFIG` matches the server. It does not — the
+server reads `SCARLET_CONFIG`. Unify on one variable and one file. Also drop
+the `sd.ini`-in-`C:\Windows` fallback: writing there has required
+administrator rights since Vista and it is 16-bit-era practice.
+`sdnet.h` additionally hardcodes `PASSWD_FILE_NAME "/etc/shadow"`.
+
+**Sequencing note.** MSYS2 accepts `C:/ProgramData/SD/sdsys` with forward
+slashes throughout, so stage 1 can move to the correct *location* while keeping
+`/` as the separator. That decouples this work from the `@ds` /
+`dir.separator` question (§6), which is load-bearing for compilation and should
+not be disturbed at the same time.
+
+### 5.9 The installer becomes an Inno Setup binary (decided 13 Aug 2026)
+
+Decision from the repository owner on 13 Aug 2026. `installsdai.sh` is
+apt/dnf/zypper, systemd, xinetd and `/etc` paths throughout and does not
+survive the move. It is replaced by an **Inno Setup installer** (preferred) or
+failing that a PowerShell script.
+
+What the installer is now responsible for, given §5.6 to §5.8:
+
+- Lay down `C:\Program Files\SD\` and `C:\ProgramData\SD\`.
+- Set the ACLs on the data tree with `icacls`, breaking inheritance first
+  (§5.7). This is the step that makes the data private, and nothing SD does at
+  runtime can substitute for it.
+- Prompt for the initial SDSYS password and write the salt and verifier into
+  the ACCOUNTS record.
+- Create no OS users and no OS groups at all (§5.6).
+- Register the service, once §5.7's service model exists.
+- Run the BASIC bootstrap sequence in §3.
+
+Inno Setup is a separate toolchain that is **not currently installed** and is
+not part of the build. Decide whether the `.iss` script lives in this
+repository — it should — and whether CI needs to produce the installer.
+
+### 5.10 Other BASIC to C linkages, surveyed
 
 Full findings in the HISTORY entry for 13 Aug 2026, "Surveyed every BASIC to C
 linkage". What still needs attention:
@@ -398,7 +611,7 @@ linkage". What still needs attention:
 - **The compiler chain** carries no platform branches beyond `@ds` (§6) and the
   token above.
 
-### 5.8 What is tracked
+### 5.11 What is tracked
 
 Linked binaries in `bin/` are tracked, because the install scripts deploy them
 from the repository. Compiler intermediates, generated `terminfo/`, pcode
@@ -464,6 +677,30 @@ Each of these cost real time. Read before debugging anything similar.
   errors; the branches simply always take one side, so the symptom is "SDSYS
   access is restricted" or "Command requires administrator privileges" from
   code that looks correct. See §5.5 before debugging any permission complaint.
+- **`/etc/group` does not exist under MSYS2, so `is_grp_member` fails for
+  everyone.** MSYS2 and Cygwin dropped `/etc/passwd` and `/etc/group` in favour
+  of direct SAM/AD lookups, but `IS_GRP_MEMBER` reads `/etc/group` as a text
+  file. It sets status 1 and returns false always, which fails the `sdusers`
+  test at `LOGIN` 193 and terminates every connection with "This user is not
+  registered for SD use". **This sits one step past where runtime bring-up
+  stopped (§3) and would otherwise be met head-on.** Note this is *not* the
+  `getgrnam()` path verified in §4 — that goes through the NSS layer and works
+  correctly; reading the file directly does not. Under §5.6 the fix is to
+  delete these calls, not repair them.
+- **`chmod` is a no-op on the MSYS2 runtime — the mount is `noacl`.** `chmod
+  0770` leaves a directory `drwxr-xr-x` and changes no ACE; the real permissions
+  stay whatever was inherited, which under `C:\ProgramData` includes
+  `BUILTIN\Users:(OI)(CI)(RX)`. Nothing in SD can secure a directory by mode
+  bits. Use `icacls` from the installer, `/inheritance:r` first (§5.7).
+  Inheritance itself is unaffected by `noacl` and does work — see §5.7.
+- **The server and client disagree about the configuration file.** The server
+  reads `SCARLET_CONFIG` (`inipath.c`), the client reads `SD_CONFIG`
+  (`sdclilib/sdclilib.c`), and the client's comment wrongly claims they match.
+  Setting the variable you would expect fixes one and not the other. See §5.8.
+- **`errlog` throws away its own history.** `log_message()` in `k_error.c`
+  discards the oldest half of `<sysdir>/errlog` when it reaches the `ERRLOG`
+  configured size. Fine for diagnostics, fatal for anything you need to trust
+  later — do not put audit records there (§5.6).
 - **`VALID_OS_NAME` rejects spaces in user names**, undoing a change the
   original made *for* Windows — `ADMUSER` and `CREATEU` both carry the note
   "15 Apr 05 2.1-12 Allow spaces in user names for Windows compatibility".
@@ -482,79 +719,83 @@ Each of these cost real time. Read before debugging anything similar.
 
 In the order they should be taken.
 
-0. **Answer the open question at the top of §8 first** if any further identity
-   work is planned. It changes §5.6.
-
 1. **Finish runtime bring-up.** Environment and the first bootstrap steps are
    done; resume at the `sd -i` ordering puzzle described in §3. The shared
    memory and semaphore code has now been verified in isolation (§4), so
-   suspect the bootstrap sequence rather than the IPC port.
-2. **Enable `CASE_INSENSITIVE_FILE_SYSTEM`.** Referenced at 9 sites in
+   suspect the bootstrap sequence rather than the IPC port. **Expect the
+   `/etc/group` blocker (§6) immediately after**, since it fires at the first
+   login attempt; under §5.6 the answer is to delete the `is_grp_member` calls.
+2. **Implement the account credential model** (§5.6). Build the credential
+   register as a separate file — one entry per account, listing each permitted
+   person with salt and verifier — and prompt for name and password in
+   `int.logto` and the `sd -A` path, setting `@logname` from the credential that
+   succeeded. Remove every `is_grp_member` call, set `K$ADMINISTRATOR` on SDSYS
+   entry and point `CPROC` and `CATALOG` at it instead of `SYSTEM(27)`. Close
+   the `K$ADMINISTRATOR` set hole in `op_kernel.c` at the same time, or the gate
+   is decorative. Cannot be tested until step 1 lands (§6).
+3. **Move to the Windows install layout** (§5.8). Relocate to
+   `C:\Program Files\SD\` and `C:\ProgramData\SD\`, unify the server and client
+   configuration variable, drop the `sd.ini`-in-`C:\Windows` fallback. Keep `/`
+   as the separator for now so this does not disturb `@ds` (§6).
+4. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Now mandatory
+   rather than cheap housekeeping, because step 3 puts binaries under a path
+   containing a space. Widen the character set without weakening the shell
+   metacharacter protection it exists to provide — quoting the path at the
+   `OS.EXECUTE` site is the safer way to allow spaces.
+5. **Add the audit log** (§5.6). Its own append-only file that rotates rather
+   than truncates — *not* `<sysdir>/errlog`, which discards its oldest half on
+   reaching the `ERRLOG` size. Records every login, every `LOGTO` and every
+   failed attempt, attributed to the login identity.
+6. **Write the Inno Setup installer** (§5.9), replacing `installsdai.sh`. The
+   ACL step is the one that actually makes the data private; nothing at runtime
+   substitutes for it.
+7. **Enable `CASE_INSENSITIVE_FILE_SYSTEM`.** Referenced at 9 sites in
    `dh_misc.c`, `dh_open.c`, `op_dio2.c`, `op_dio4.c` but never defined
    anywhere. Windows filesystems *are* case insensitive, so this is a
    correctness gap and the code is already written.
-3. **Exercise `SDConnectLocal()`** once a server runs. Needs an `sd.ini` in the
-   Windows directory with an `[sd]` section and `SDSYS=`, or `SD_CONFIG` set.
-4. **Finish the identity model** (§5.6). `IsAdmin()` is done; the BASIC side is
-   not, and none of it can be tested until step 1 lands (§6). Point `CPROC` and
-   `CATALOG` at `KERNEL(K$ADMINISTRATOR, -1)` instead of `SYSTEM(27)`, stop the
-   `OS.EXECUTE` account commands creating and deleting OS users, translate
-   `chmod g+s` to an inheritable ACE, and have the installer create the
-   `sdadmins` group instead of the `sdsys` OS user.
-
-5. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Cheap, and it
-   blocks account creation and `PY_RUNFILE` on any native Windows path. Widen
-   the character set without weakening the shell metacharacter protection it
-   exists to provide — quoting the path at the `OS.EXECUTE` site is the safer
-   way to allow spaces. Note `CREATEA` runs `sudo chmod g+s`, which has no
-   native Windows equivalent and needs its own answer.
-
-6. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
+8. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
+   file from §5.8, or `SD_CONFIG` set.
+9. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
    tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
    flipping the switches first would enable paths that are no longer present.
    Start with `CPROC`'s `dir.separator`, since compilation depends on it.
-
-7. **Port the installer.** `installsdai.sh` is apt/dnf/zypper, systemd, xinetd
-   and `/etc` paths throughout. It also tests for `bin/sd`, which is now
-   `bin/sd.exe` (also `cp -R bin` and the `/usr/local/bin/sd` symlink).
-8. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites are
-   fork+exec, none need copy-on-write, so this is tractable), `termios` →
-   Console API, passwd/group → Windows authentication.
+10. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
+    are fork+exec, none need copy-on-write, so this is tractable), `termios` →
+    Console API, passwd/group → Windows authentication. **The service-account
+    model in §5.7 belongs here**, and until it lands the data tree is not
+    genuinely private from SD's own users.
 
 ## 8. Open questions
 
-### Decide first: should admin status live inside SD instead of in an OS group?
+The identity question that stood here — admin flag inside SD, or OS group — was
+**answered on 13 Aug 2026** and is now §5.6. Neither option was taken. See the
+HISTORY entry "Identity, install layout and data protection decided" for the
+reasoning and for the corrections to the evidence that was recorded here.
 
-**Raised by the repository owner on 13 Aug 2026 and not yet answered. It
-affects §5.6, so settle it before doing more work there.**
+### Open: what happens to `IsAdmin()` and `sdadmins`?
 
-The proposal is that an SD account carries an administrator flag, so admin
-status is determined entirely within SD and no OS group is involved.
+§5.6 removes the need for both, but they are committed (`f56de86`, `9c00730`)
+and `IsAdmin()` is still what gates `sd -start` in `sd.c` — a check that runs
+before any account exists or any password can be prompted for. Decide whether
+`sd -start` keeps an OS-level check (Windows `Administrators` membership is the
+obvious candidate, since starting a service is an administrative act), or
+whether starting the server becomes a matter of file permissions on the data
+tree alone. Until that is settled, leave `IsAdmin()` in place; it is doing no
+harm and removing it would leave `sd -start` ungated.
 
-Evidence gathered since that decision was made, all of which favours the
-proposal:
+The `sdadmins` local group on this machine becomes unnecessary under §5.6 and
+can be deleted once nothing references it.
 
-- The owner also requires that the person installing becomes an administrator
-  automatically. With an OS group they cannot — Windows fixes group membership
-  at logon, so a freshly enrolled installer must sign out and back in before
-  they can administer anything (§6). An internal flag has no such delay.
-- SD already has the machinery. Login records carry `LGN$ADMIN`, and
-  `K$ADMINISTRATOR` already reads and writes an administrator bit on the user
-  entry. An internal flag uses what exists rather than adding a mechanism.
-- It removes a Windows-specific install step (creating a local group, which
-  needs elevation) and the local-versus-domain group question with it.
+### Open: does the console path survive the service model?
 
-The cost is that SD alone then decides who is an administrator, with no
-operating system gate behind it. On the current design the OS is still the
-authority.
-
-Note these are not exclusive: `IsAdmin()` could remain as written and the
-BASIC layer consult `LGN$ADMIN`, with either sufficing. That keeps central
-management possible for sites that want it, at the price of two paths to audit.
-
-If the internal flag is adopted, `IsAdmin()` and `SD_ADMIN_GROUP` as committed
-should be revisited, and the `sdadmins` group already created on this machine
-becomes unnecessary.
+§5.7's service-account model is what makes the data tree genuinely private, but
+it requires SD session processes to run as the service rather than as the
+invoking user. `sd -ASDSYS` typed at a shell currently runs as that user and
+opens the database itself. Decide whether the console entry point becomes a
+client of the service, is dropped in favour of a client tool, or stays as a
+privileged path used only by administrators. This shapes stage 2 and should be
+settled before the `fork` → `CreateProcess` work starts, since that is where
+the process creation identity is decided.
 
 ### Other
 
