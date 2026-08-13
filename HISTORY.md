@@ -27,6 +27,31 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — PROJECT_STATUS rollover limit raised to 2000 lines
+
+Supersedes the entry below, "PROJECT_STATUS rollover limit raised to 800 lines",
+on the figure only. Its reasoning still holds; the number was still too small.
+
+800 was set earlier the same day, after 400 proved too tight, and was binding
+again within hours — the identity, install layout, data protection and audit
+decisions took the file to 826. Raising it twice in one day is the signal: the
+figure was being chosen to feel tidy rather than to serve a purpose.
+
+**The purpose, stated by the repository owner: stop the file growing to several
+thousand lines, as happened on another project, where it stops being something
+anyone reads.** It is not there to keep the document at a convenient size, and
+approaching it is not a problem. 2000 leaves real headroom — roughly two and a
+half times the current content, and far enough below the failure case that this
+should not need revisiting.
+
+The wording in both PROJECT_STATUS §0 and CLAUDE.md now carries that intent, so
+a later session does not read the number as a budget and start compressing live
+material to stay under it. Added a note on *when* to prune: just after work
+lands, when instructions that have been carried out turn into history and shed
+easily — not when a line count is approached.
+
+---
+
 ## 13 Aug 2026 — Step-up authentication on LOGTO SDSYS
 
 Follows the entry below, which this refines rather than corrects. Covers the

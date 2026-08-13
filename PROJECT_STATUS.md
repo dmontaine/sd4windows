@@ -29,14 +29,21 @@ session will act on it.
 4. **Traps in §6 are the highest value part of this file.** Anything that cost
    more than about fifteen minutes to work out goes there, phrased as what
    happens and what to do.
-5. **Roll over when this file exceeds ~800 lines**, or when any section is
+5. **Roll over when this file exceeds ~2000 lines**, or when any section is
    mostly historical. Move the settled material to HISTORY.md, newest first,
    and leave behind only what a new session needs to act today. §1–§7 are
    permanent sections; keep them, shorten them.
 
-   The limit is a prompt to prune, not a reason to leave something out. If a
-   finding is worth recording, record it and trim elsewhere. Detail that also
-   exists in HISTORY.md is the first thing to cut, since nothing is lost.
+   **Understand what the limit is for.** It exists to stop this file sprawling
+   to the point where nobody reads it — a handoff document that has grown to
+   several thousand lines has stopped being a handoff document. It is not a
+   target to sit near, and it is never a reason to leave a finding out. If
+   something is worth recording, record it and trim elsewhere; detail that also
+   exists in HISTORY.md is the first thing to cut, since nothing is lost by it.
+
+   Prune when a section has gone stale, not when a number is approached. The
+   best moment is just after work lands: instructions that have been carried
+   out become history, and shed easily.
 6. **HISTORY.md is append-only.** Never delete or rewrite an entry. Correct it
    with a new entry that references the old one.
 7. **State the date as an absolute date.** Never "today", "last week", "the
