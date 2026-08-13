@@ -172,35 +172,68 @@ Laid down already:
 | `gcat` | `$BBPROC`, `$BCOMP`, `!PATHTKN` built by `gplbld/bbcmp.py` |
 | `PCODE.OUT` | built by `gplbld/pcode_bld.py` |
 
-The bootstrap sequence, taken from `installsdai.sh`. The first two steps are
-done; the third is where it stopped:
+The bootstrap sequence, taken from `installsdai.sh`. **The sequence recorded
+here previously was wrong** — it omitted two steps, which is what made the
+ordering look like a deadlock. Corrected, with the installer's line numbers:
 
 ```sh
 python3 gplbld/bbcmp.py /usr/local/sdsys GPL.BP/BBPROC  GPL.BP.OUT/BBPROC   # done
 python3 gplbld/bbcmp.py /usr/local/sdsys GPL.BP/BCOMP   GPL.BP.OUT/BCOMP    # done
 python3 gplbld/bbcmp.py /usr/local/sdsys GPL.BP/PATHTKN GPL.BP.OUT/PATHTKN  # done
 python3 gplbld/pcode_bld.py                                                 # done
-sd -i                                  # <-- STOPS HERE: "SD has not been started"
+touch <sysdir>/gcat/'$CPROC'            # installer line 468 - the missing step
+sd -start                               # installer line 590 - before -i, done
+sd -i                                   # installer line 604 - bootstrap pass 1
 sd -internal SECOND.COMPILE
 sd RUN GPL.BP WRITE_INSTALL_DICTS NO.PAGE
 sd THIRD.COMPILE
-sd -internal BASIC GPL.BP CPROC        # this is what finally creates gcat/$CPROC
+sd -internal BASIC GPL.BP CPROC         # writes the real gcat/$CPROC
 ```
 
-**The immediate puzzle.** `sd -i` reports "SD has not been started", which is
-`bind_sysseg` being called with create false — it is trying to attach to a
-segment nobody has created. But `sd -start` cannot run yet either, because
-`config.c` refuses to start until `<sysdir>/gcat/$CPROC` exists, and `$CPROC`
-is only produced by the last step of the list above. Resolve that ordering
-first: either `-start` precedes `-i` in a way `installsdai.sh` does not make
-obvious, or `-i` is supposed to create the segment itself. Read the `-i`
-handling in `sd.c` around the `is_bootstrap` flag before changing anything.
+**The puzzle is solved, and it was never an ordering problem.** `sd -start`
+runs *before* `sd -i`, and `config.c` is satisfied because the installer first
+creates an **empty placeholder**:
 
-**The blocker waiting behind it.** Once that is past, the first login attempt
-fails: `IS_GRP_MEMBER` reads `/etc/group`, which does not exist under MSYS2, so
-the `sdusers` test at `LOGIN` 193 refuses every connection. See §6. Under §5.6
-the fix is to delete those calls rather than repair them, so this and the
-account password work land together.
+```sh
+# Fool sd's vm into thinking gcat is populated
+sudo touch /usr/local/sdsys/gcat/\$CPROC
+```
+
+`read_config()` only does `access(path, 0)` on `<sysdir>/gcat/$CPROC`, so an
+empty file passes. The real catalogue overwrites it at the last step. Note the
+check is in the original Ladybridge source too (`gplsrc/config.c` in the
+external reference tree), so it is not something the AI cleaning cycles
+introduced. `is_bootstrap` is a red herring for this: it is set at `sd.c:321`
+and never consulted by `bind_sysseg`.
+
+**Where it stops now: `sd -i` blocks silently.** SD starts, the process
+attaches, and it is allocated a user table slot — `errlog` records "User 2 (pid
+1931, don)" and similar for each attempt — but bootstrap pass 1 then produces
+no output at all and never returns. It is blocked, not looping: 0.36 s of CPU
+over 95 s of wall clock. Feeding it `/dev/null` and giving it a real pty via
+`script -q -c ... /dev/null` behave identically, so it is not simply waiting on
+console input in the obvious way.
+
+Start here next session. Things not yet tried: attaching a debugger or
+`strace`-equivalent to see what it waits on; checking whether it is blocked on
+one of the six semaphores, which would point at the `sdsem.c` port rather than
+the bootstrap; and reading what `$BBPROC` does first, since `-i` installs it as
+the command processor (`sd.c:323`) and it is the only thing running at that
+point. A semaphore deadlock is the suspicion worth eliminating first, because
+it is the one that would mean an actual porting defect rather than a missing
+install step.
+
+**The blocker behind that.** `IS_GRP_MEMBER` reads `/etc/group`, which does not
+exist under MSYS2, so the `sdusers` test at `LOGIN` 193 refuses every
+connection. See §6. Under §5.6 the fix is to delete those calls rather than
+repair them, so this and the account password work land together. Note it may
+not be reached yet — pass 1 runs `$BBPROC`, not `LOGIN`.
+
+**State of the machine as this was written.** SD is started and `sdlnxd` is
+running, from a probe binary built with `-DSD_ADMIN_GROUP='"Users"'` (§6). The
+shared segment and semaphores are live in `/dev/shm`. A stray `sdprobe` from a
+killed run may need `pkill -f sdprobe`. Stopping and restarting SD needs the
+probe too, since `-start` and `-stop` both call `check_admin()`.
 
 Note the environment above uses `/etc` and `/usr/local`, which §5.8 replaces
 with `C:\ProgramData\SD\`. It was laid down before that decision; there is no
@@ -239,19 +272,39 @@ Keep this split honest. It is the single most useful thing in the file.
   through the other, create six semaphores, confirm one excludes while held and
   can be reacquired after posting, unmap, unlink, and confirm a later attach
   gives ENOENT. All as intended. This was the largest single unknown in the
-  port and it is now largely closed, though still not exercised *by SD itself*.
+  port; it has since been exercised by SD itself as well — see below.
 - `gplbld/bbcmp.py` and `gplbld/pcode_bld.py` both run on Windows and produce
   `gcat` entries and `PCODE.OUT`.
+- **SD has started.** `sd -start` (probe build, §6) created the shared segment
+  and all six semaphores *itself* — `/dev/shm/sd_shm_716d0301` at 100 KB and
+  `sd_sem_716d0302_0` through `_5` — and spawned `sdlnxd`, which stayed
+  running. This is the `shm_open`/`ftruncate`/`mmap` **creation** path in
+  `sysseg.c` executing for the first time; it had never run before, and it was
+  the largest remaining unknown after the standalone lifecycle test. Observed
+  13 Aug 2026.
+- The `gcat/$CPROC` placeholder satisfies `read_config()`. An empty file is
+  enough, as the check is only `access(path, 0)`.
+- **Multi-process attach works.** A second process (`sd -i`) attached to the
+  segment created by `sd -start`, was allocated a user table slot, and wrote to
+  `<sysdir>/errlog` — "User 2 (pid 1931, don)", "User 5 (pid 2050, don)". This
+  was listed as unverified until now.
+- SD writes `<sysdir>/errlog` correctly, including on receipt of SIGTERM.
 
 ### Not verified — treat as unknown
 
-- **SD has never started.** The `shm_open`/`ftruncate`/`mmap` *creation* path
-  in `sysseg.c` has never executed. Only the "not started" probe has.
-- Multi-process attach, semaphore locking under contention, and `stop_sd()`'s
-  new liveness poll.
-- `SDConnectLocal()` at runtime. It needs a running server and an `sd.ini`.
+- **Bootstrap pass 1 has never completed.** `sd -i` attaches and then blocks
+  silently (§3). Everything past it in the bootstrap sequence is untried.
+- Semaphore locking under contention, and `stop_sd()`'s new liveness poll.
+  `sd -stop` has not been run against a live system.
+- `SDConnectLocal()` at runtime. It needs a running server and a configuration
+  file (§5.8).
 - Any database read or write.
 - The installer. `installsdai.sh` is still entirely Linux.
+- **Anything about `sd -start` in the shipped binary.** All of the above was
+  observed with a probe build overriding `SD_ADMIN_GROUP` to `Users` (§6),
+  because the token still lacks `sdadmins`. The admin check is the only
+  difference between that binary and `bin/sd.exe`, but it has not been
+  confirmed by running the real one.
 
 ## 5. Decisions and why
 
@@ -722,6 +775,18 @@ Each of these cost real time. Read before debugging anything similar.
   reads `SCARLET_CONFIG` (`inipath.c`), the client reads `SD_CONFIG`
   (`sdclilib/sdclilib.c`), and the client's comment wrongly claims they match.
   Setting the variable you would expect fixes one and not the other. See §5.8.
+- **`sd -start` looks like it hangs, but it has succeeded.** It spawns
+  `sdlnxd`, which inherits stdout and stderr. Any shell that captures output —
+  a pipe, command substitution, a tool that reads the process's output — then
+  blocks until the *daemon* exits, not until `sd -start` exits. The parent has
+  already returned. Check with `Get-Process sdlnxd` rather than waiting, and
+  redirect to a file when starting from a script.
+- **`sd -SUSPEND` is sticky and survives the process.** The flag lives in the
+  shared segment (`SSF_SUSPEND`), so every later invocation stops at "SD is
+  suspended" with no hint of why, including ones that would otherwise do
+  useful work. `sd -RESUME` clears it. Neither `-SUSPEND` nor `-RESUME` calls
+  `check_admin()`, so any user can suspend a running system — worth revisiting
+  under §5.6.
 - **`errlog` throws away its own history.** `log_message()` in `k_error.c`
   discards the oldest half of `<sysdir>/errlog` when it reaches the `ERRLOG`
   configured size. Fine for diagnostics, fatal for anything you need to trust

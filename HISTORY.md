@@ -27,6 +27,77 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — SD started for the first time; the bootstrap deadlock was not one
+
+Covers the documentation commit after `a054dbb`. No code changed. **SD created
+its shared segment and ran, which it had never done before.**
+
+### Correction: the recorded bootstrap sequence was wrong
+
+PROJECT_STATUS §3 described a deadlock — `sd -i` reporting "SD has not been
+started" while `sd -start` could not run because `config.c` demands
+`<sysdir>/gcat/$CPROC`, which only the last bootstrap step creates. It suggested
+reading the `is_bootstrap` flag in `sd.c` to resolve the ordering.
+
+There is no deadlock. The sequence as recorded omitted two steps that
+`installsdai.sh` performs. The installer creates an **empty placeholder** at
+line 468:
+
+```sh
+# Fool sd's vm into thinking gcat is populated
+sudo touch /usr/local/sdsys/gcat/\$CPROC
+```
+
+then runs `sd -start` at line 590, *before* `sd -i` at line 604. `read_config()`
+only calls `access(path, 0)`, so an empty file satisfies it; the real catalogue
+overwrites the placeholder at the end. Confirmed by creating the placeholder by
+hand, after which `-start` proceeded.
+
+Two things worth recording about the investigation. The `$CPROC` check exists in
+the original Ladybridge source as well — `gplsrc/config.c` in the external
+reference tree — so it is not something the AI cleaning cycles introduced, which
+was the first suspicion. And `is_bootstrap` is a red herring: it is set at
+`sd.c:321` and never consulted by `bind_sysseg`.
+
+### SD started
+
+With the placeholder in place and a probe binary built per §6 (both `sd.c` and
+`linuxlb.c` recompiled with `-DSD_ADMIN_GROUP='"Users"'`, since the token still
+lacks `sdadmins`), `sd -start` created `/dev/shm/sd_shm_716d0301` at 100 KB and
+six semaphores `sd_sem_716d0302_0` through `_5`, and spawned `sdlnxd`, which
+stayed up. That is the `shm_open`/`ftruncate`/`mmap` creation path in
+`sysseg.c` executing for the first time. The standalone lifecycle test recorded
+earlier had exercised the same calls, but never from within SD.
+
+Multi-process attach followed for free: `sd -i` attached to the existing
+segment, was allocated a user table slot, and wrote to `<sysdir>/errlog` —
+"User 2 (pid 1931, don)". Both were listed as unverified.
+
+### Where it stops now
+
+`sd -i` blocks silently. No output at all, and it never returns. It is blocked
+rather than looping — 0.36 s of CPU over 95 s of wall clock — and behaves
+identically whether given `/dev/null` or a real pty via `script`. The suspicion
+worth eliminating first is a semaphore deadlock, because that would mean a
+defect in the `sdsem.c` port rather than another missing install step. Reading
+`$BBPROC` is the other thread to pull, since `-i` installs it as the command
+processor and it is the only thing running at that point.
+
+### Two traps found the hard way
+
+`sd -start` appears to hang. It has not: it spawns `sdlnxd`, which inherits
+stdout and stderr, so any shell capturing output blocks until the *daemon*
+exits rather than until `sd -start` does. The parent returned long before.
+
+`sd -SUSPEND` is sticky and survives the process, because the flag lives in the
+shared segment. Every later invocation dies with "SD is suspended" and no hint
+of why. This was self-inflicted here — a diagnostic loop ran `-SUSPEND` and the
+next twenty minutes of "SD is suspended" looked like a new failure. `sd -RESUME`
+clears it. Neither verb calls `check_admin()`, so any user can suspend a running
+system; worth revisiting under §5.6.
+
+---
+
 ## 13 Aug 2026 — PROJECT_STATUS rollover limit raised to 2000 lines
 
 Supersedes the entry below, "PROJECT_STATUS rollover limit raised to 800 lines",
