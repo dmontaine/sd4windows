@@ -27,6 +27,31 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — PROJECT_STATUS rollover limit raised to 800 lines
+
+**Commit:** documentation only.
+
+The limit was ~400 and was raised to ~800 on the repository owner's
+instruction. Earlier entries below refer to the old figure; they are left as
+written, per the append-only rule, and this entry supersedes them on that
+point.
+
+400 proved too tight for the size of this port. The file crossed it twice in a
+single day of work and both crossings forced a compression pass, which is
+attention spent on housekeeping rather than on the port. The material was
+genuinely needed — the privilege model, the BASIC layer survey and the identity
+decision are all things a new session has to know before touching anything.
+
+A note was added alongside the rule making the intent explicit: the limit is a
+prompt to prune, never a reason to leave a finding out. Where something must
+go, detail duplicated in HISTORY.md goes first, since nothing is lost by it.
+
+An alternative was considered and not taken: splitting the §5 decisions into a
+separate ARCHITECTURE file. Raising the limit keeps one document to read first,
+which is the property that makes the handoff work across accounts.
+
+---
+
 ## 13 Aug 2026 — Windows identity model decided; IsAdmin() reimplemented
 
 **Commit:** see below. Code change is confined to `IsAdmin()` in `linuxlb.c`

@@ -29,10 +29,14 @@ session will act on it.
 4. **Traps in §6 are the highest value part of this file.** Anything that cost
    more than about fifteen minutes to work out goes there, phrased as what
    happens and what to do.
-5. **Roll over when this file exceeds ~400 lines**, or when any section is
+5. **Roll over when this file exceeds ~800 lines**, or when any section is
    mostly historical. Move the settled material to HISTORY.md, newest first,
    and leave behind only what a new session needs to act today. §1–§7 are
    permanent sections; keep them, shorten them.
+
+   The limit is a prompt to prune, not a reason to leave something out. If a
+   finding is worth recording, record it and trim elsewhere. Detail that also
+   exists in HISTORY.md is the first thing to cut, since nothing is lost.
 6. **HISTORY.md is append-only.** Never delete or rewrite an entry. Correct it
    with a new entry that references the old one.
 7. **State the date as an absolute date.** Never "today", "last week", "the

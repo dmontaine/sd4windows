@@ -27,8 +27,9 @@ This is a standing instruction from the repository owner, not a nicety.
   shed settled material, and — especially — when an earlier claim turns out to
   be wrong. Corrections get their own entry. HISTORY.md is append-only; never
   delete or rewrite an entry.
-- **Roll over** when PROJECT_STATUS.md exceeds roughly 400 lines: move settled
-  material into HISTORY.md and leave only what is needed to act today.
+- **Roll over** when PROJECT_STATUS.md exceeds roughly 800 lines: move settled
+  material into HISTORY.md and leave only what is needed to act today. The
+  limit is a prompt to prune, never a reason to omit a finding.
 
 The full rules are in §0 of PROJECT_STATUS.md and at the top of HISTORY.md.
 Follow those; this file only points at them.
