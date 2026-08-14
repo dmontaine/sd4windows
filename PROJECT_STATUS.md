@@ -6,7 +6,11 @@ file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
 **Last updated:** 13 Aug 2026 · **describes the tree as of commit** `25852e0`
-(the most recent commit to change code or build)
+(the most recent commit to change code or build; the documentation is current
+to `6ea67ed`)
+
+**Next session starts at §7 step 1a** — a two-line edit to `APISRVR`, and the
+reasoning behind it is in §6 under the corrected `gplsrc` trap.
 
 ---
 
