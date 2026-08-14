@@ -27,6 +27,55 @@ corrected.
 
 ---
 
+## Correction: 14 Aug 2026 - "redirect to a file" does not defeat the sdwind handle trap
+
+Fourth session of 14 Aug 2026. The repository owner ran
+`gplbld/verify-createaccount.ps1` in an elevated window — the first time it has
+ever run — and it printed
+
+```
+  SD is not running, starting it
+```
+
+and then sat there indefinitely.
+
+**SD was fine.** `Get-Process sd` showed nothing, `sdwind` was running, and no
+Windows account, group or account directory had been created. The script never
+got past starting SD.
+
+### What was wrong, and what was wrong in this repository's own advice
+
+PROJECT_STATUS.md §6 has carried the trap for a while: `sd -start` spawns
+`sdwind`, which inherits stdout and stderr, so anything capturing that output
+blocks until the *daemon* exits rather than until `sd -start` does. The entry
+ended "Check with `Get-Process sdwind` rather than waiting, **and redirect to a
+file when starting from a script**."
+
+**That last clause is wrong, and it is what caused this.** The script's
+`Invoke-Native` helper redirects both streams to files, exactly as instructed,
+and hung anyway. `Start-Process -Wait` with `-RedirectStandardOutput` does not
+return until the redirected **handles** are released, and `sdwind` holds them
+open for its whole life. Whether the other end is a pipe or a file is
+irrelevant — the wait is on the handle.
+
+The remedy is the *other* half of the same entry, taken literally: do not wait
+on the process at all. Start it, then poll for `sdwind`. That is now `Start-SD`
+in `verify-createaccount.ps1`, and §6 carries the correction and the code.
+
+### Why nothing caught it earlier
+
+`verify-sshonly.ps1`, which produced this project's ssh-only verification and
+which `verify-createaccount.ps1` copied its helpers from, **never starts SD**.
+It had no reason to. So the one caller that does start SD was also the one
+place `Invoke-Native` was wrong, and only on the branch taken when SD happens
+to be down — which it was not on the day the script was written.
+
+Same family as the `<sysdir>/bin` daemon bug recorded on 14 Aug 2026: a path
+that works in every situation anyone happened to be in, and fails in the one
+nobody was.
+
+---
+
 ## 14 Aug 2026 - AllowGroups is written, and a session with no elevated window
 
 Fourth session of 14 Aug 2026, from commit `9b44d4b`. It opened intending to do

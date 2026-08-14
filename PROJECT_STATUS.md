@@ -3051,10 +3051,35 @@ Each of these cost real time. Read before debugging anything similar.
   `sdwind`, which inherits stdout and stderr. Any shell that captures output —
   a pipe, command substitution, a tool that reads the process's output — then
   blocks until the *daemon* exits, not until `sd -start` exits. The parent has
-  already returned. Check with `Get-Process sdwind` rather than waiting, and
-  redirect to a file when starting from a script. **This became live again on
-  14 Aug 2026**: while the daemon was never starting, there was nothing to
-  block on and a piped `sd -start` returned immediately.
+  already returned. Check with `Get-Process sdwind` rather than waiting. **This
+  became live again on 14 Aug 2026**: while the daemon was never starting,
+  there was nothing to block on and a piped `sd -start` returned immediately.
+
+  **Correction, 14 Aug 2026, fourth session — "redirect to a file when starting
+  from a script" WAS THE ADVICE HERE AND IT IS NOT ENOUGH.** It hung
+  `verify-createaccount.ps1` completely, on its first ever run, in a helper
+  that was redirecting to files exactly as instructed. `Start-Process -Wait`
+  with `-RedirectStandardOutput`/`-RedirectStandardError` does not return until
+  the redirected **handles** are released, and `sdwind` holds them — so the
+  destination being a file rather than a pipe changes nothing. The wait is on
+  the handle.
+
+  **The only remedy that works is not waiting on the process.** Start it and
+  poll for the daemon:
+
+  ```powershell
+  $null = Start-Process -FilePath $sdExe -ArgumentList '-start' -NoNewWindow
+  for ($i = 0; $i -lt 30; $i++) {
+      if (Get-Process sdwind -ErrorAction SilentlyContinue) { break }
+      Start-Sleep -Milliseconds 500
+  }
+  ```
+
+  `verify-createaccount.ps1` has this as `Start-SD`. **The symptom is a script
+  that prints "SD is not running, starting it" and then sits there for ever
+  while SD is in fact perfectly up** — `Get-Process sd` shows nothing,
+  `Get-Process sdwind` shows the daemon, and nothing has been created. It is
+  safe to interrupt.
 - **A yes/no prompt with no input left spins forever, at full CPU.**
   `CATALOG BP X GLOBAL` asks "Program is also in private catalogue. Remove?".
   Fed from a pipe that has run dry, the read returns end of file, the prompt
