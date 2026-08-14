@@ -458,10 +458,35 @@ Keep this split honest. It is the single most useful thing in the file.
   to SDSYS, so administration is now genuinely a matter of knowing the SDSYS
   password rather than of Windows group membership.
 - **Administrator rights follow you out of SDSYS.** In that same session,
-  `LOGTO KIM` left `SYSTEM(1050)` at 1 while standing in KIM. Nothing clears
-  the flag on the way out — see §7 item 2, which this makes sharper: the
-  `op_kernel.c` hole is why it *cannot* be cleared while `IsAdmin()` is true,
-  but here `IsAdmin()` was false and it still persisted, because no code tries.
+  `LOGTO KIM` left `SYSTEM(1050)` at 1 while standing in KIM. **Fixed later
+  the same day** — see the privilege-escalation entry below.
+- **Privilege escalation was demonstrated, then closed.** Before the fix, the
+  account SUE compiled this in her own `BP` and ran it from an ordinary
+  session:
+
+  ```
+  $internal
+        program escalate
+        crt 'before: ' : kernel(26, -1)
+        void kernel(26, 1)
+        crt 'after:  ' : kernel(26, -1)
+        end
+  ```
+
+  It printed `before: 0` / `after: 1` and `SYSTEM(1050)` then reported 1 —
+  a plain user account making itself an administrator in three lines. Key 26
+  is `K$ADMINISTRATOR`, written as a literal because an ordinary account
+  cannot reach SDSYS's `INT$KEYS.H`, which is no obstacle to anyone.
+
+  After the fix the same program fails to compile — `$internal` is refused,
+  so `KERNEL` is taken for an undimensioned array — and SUE stays at 0. The
+  other route is closed too: `sd -internal -ASUE` is refused by `sd.c`.
+- **The rest of the account model still behaves after all of that.** `sd`
+  with no account named now prompts `Account:` even for a member of
+  `sdadmins`; `sd -internal` prompts for the SDSYS password and refuses three
+  wrong ones; the whole `LOGTO` suite above still passes; and
+  `BASIC GPL.BP CPROC` still compiles a system program, which is the one that
+  matters, since `BCOMP` itself changed.
 
 ### Not verified — treat as unknown
 
@@ -709,14 +734,33 @@ name. The `LOGTO` grant check does not cover that path.
   restructuring ACCOUNTS or migrating data.
 - `ACC$GROUP` is dead but still populated on old records, and `LIST ACCOUNTS`
   still shows it. Remove it with the OS account commands, as one change.
-- **`K$ADMINISTRATOR` still comes from the OS group, which is interim.**
-  `kernel.c` seeds `USR_ADMIN` from `IsAdmin()` when the user table entry is
-  initialised, so on a machine where you are in `sdadmins` **every session you
-  start is an SD administrator**, including one logged in as an ordinary
-  account. That is what makes the bare-pathname branch of `logto.authorised`
-  reachable in ordinary use (§8). Under this model SDSYS entry should be what
-  sets the flag; that change waits on the `op_kernel.c` hole below, since
-  otherwise any BASIC can set it anyway.
+- **Administrator rights are the SDSYS account's, and nothing else's**
+  (13 Aug 2026). `LOGIN` sets `USR_ADMIN` on entry to SDSYS and clears it on
+  entry to anything else; `CPROC` does the same on every `LOGTO`, so the
+  rights are given up on the way out. `kernel.c` still seeds the flag from
+  `IsAdmin()` at process start, but that now decides only one thing — whether
+  a credential-less account can be entered during a fresh install — and no
+  longer confers standing privilege. Observed: `sd -ASUE` on a machine whose
+  token holds `sdadmins` reports `SYSTEM(1050)` as 0.
+- **Only an `$internal` program may set the flag, and only SDSYS may build
+  one.** Both ends of `K_ADMINISTRATOR` in `op_kernel.c` were open: any
+  positive argument granted the flag, and `|| IsAdmin()` meant an argument of
+  zero re-granted rather than cleared. The set is now gated on
+  `process.program.flags & HDR_INTERNAL`, and `BCOMP` accepts the `$internal`
+  directive only for a caller who is in SDSYS. The second half is what makes
+  the first half real: internal mode alone was not a gate, because
+  **`sd -internal` is not itself gated** and an ordinary account could compile
+  a three-line internal program that granted itself rights. That was
+  demonstrated before it was fixed — see §4.
+- **`sd -INTERNAL` means SDSYS, and asks for its password** (decided by the
+  repository owner, 13 Aug 2026). Naming any other account with `-INTERNAL` is
+  refused in `sd.c` rather than quietly redirected. The no-password bypass for
+  an administrator running an internal command is gone with it: that was the
+  last route into administration that did not involve knowing the SDSYS
+  password. The install is unaffected — `sd -i` runs `$BBPROC`, which never
+  reaches `LOGIN`, and until the installer sets a password SDSYS has no
+  credential to check, so the "no password yet" branch admits an
+  administrator with a warning.
 - The privilege tests themselves ask the flag, not the uid: `BBPROC`,
   `CATALOG GLOBAL` and `CPROC` use `kernel(K$ADMINISTRATOR, -1)`, and
   `WRITE_INSTALL_DICTS` uses `SYSTEM(1050)` because `KERNEL` is only available
@@ -970,14 +1014,27 @@ Two consequences worth carrying forward:
   the `@ds` / `dir.separator` question (§6), which is now **testable** for the
   first time, since a `\` separator no longer breaks path resolution.
 
-### 5.9 The installer becomes an Inno Setup binary (decided 13 Aug 2026)
+### 5.9 Two installers, in order: build-from-source now, Inno Setup later
 
-Decision from the repository owner on 13 Aug 2026. `installsdai.sh` is
-apt/dnf/zypper, systemd, xinetd and `/etc` paths throughout and does not
-survive the move. It is replaced by an **Inno Setup installer** (preferred) or
-failing that a PowerShell script.
+**Revised 13 Aug 2026, later the same day.** The original decision was to go
+straight to an **Inno Setup installer**, `installsdai.sh` being
+apt/dnf/zypper, systemd, xinetd and `/etc` paths throughout. That is still the
+destination, but not the next step.
 
-What the installer is now responsible for, given §5.6 to §5.8:
+**What is wanted first is the Linux method, working on Windows**: a script
+that downloads, installs the dependencies, compiles and installs, exactly as
+the Linux one did. On Linux that meant apt or dnf; on Windows it means
+**installing MSYS2 and the packages in §2**, then building. It is a
+development tool — it does not have to be pretty, and there is no release
+schedule to hold it to.
+
+**The Inno Setup installer comes after**, and differs in kind: it stages
+*pre-compiled* artefacts rather than building on the target, which is what an
+end user should get. Note this collides with §5.11, which keeps binaries out
+of the repository — so the staged artefacts are release artefacts built
+elsewhere, not tracked files.
+
+What either installer is responsible for, given §5.6 to §5.8:
 
 - Lay down `C:\Program Files\SD\` and `C:\ProgramData\SD\`.
 - Set the ACLs on the data tree with `icacls`, breaking inheritance first
@@ -992,6 +1049,12 @@ What the installer is now responsible for, given §5.6 to §5.8:
 Inno Setup is a separate toolchain that is **not currently installed** and is
 not part of the build. Decide whether the `.iss` script lives in this
 repository — it should — and whether CI needs to produce the installer.
+
+**This is a hobby project with no release schedule and no architecture
+document to satisfy.** That is context worth having when weighing "do it
+properly" against "do it now": the answer here is usually to do the thing that
+keeps development moving and record honestly what it does not yet do. The two
+handoff files and the changelog are the only process there is.
 
 ### 5.10 Other BASIC to C linkages, surveyed
 
@@ -1349,65 +1412,66 @@ Each of these cost real time. Read before debugging anything similar.
 
 In the order they should be taken.
 
-1. **Add the audit log** (§5.6). This is now the missing half of the identity
-   model: access is controlled, but nothing records who used it. Its own
-   append-only file that rotates rather than truncates — *not* `<sysdir>/errlog`,
-   which discards its oldest half on reaching the `ERRLOG` size. Records every
-   login, every `LOGTO`, and every failed step-up, attributed to `@logname`.
-   A failed step-up is the single most interesting line in the trail.
-2. **Fix the two ends of the administrator flag.** `op_kernel.c` grants
-   `USR_ADMIN` for any positive argument, so BASIC can self-grant and both the
-   SDSYS gate and the new `LOGTO` gate are decorative against anyone who can
-   run a program. At the other end, **nothing clears the flag when you leave
-   SDSYS** — observed, §4 — so administrator rights follow you into whatever
-   account you move to. `CPROC` should clear it on any `LOGTO` away from
-   SDSYS, which only works once `op_kernel.c` allows clearing. Doing both is
-   what lets SDSYS entry, rather than the OS group, become the source of the
-   flag (§5.6).
-3. **Give grants a verb.** `ACC$USERS` can only be edited through
+Reordered 13 Aug 2026 to the repository owner's stated priorities: finish the
+install layout, then make installing work end to end, and only then go back to
+the identity model.
+
+1. **Finish the move to the Windows install layout** (§5.8). The accounts are
+   done. What remains is `SDSYS` itself to `C:\ProgramData\SD\`, binaries to
+   `C:\Program Files\SD\` **with the MSYS2 DLLs beside them** — the exe's own
+   directory is searched first, which is the only reliable answer to the PATH
+   traps in §6 — unifying the server and client configuration variable, and
+   dropping the `sd.ini`-in-`C:\Windows` fallback. The `sdrealpath()` fix
+   removed what was blocking all of it.
+2. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Not
+   housekeeping: step 1 puts binaries under a path containing a space, and
+   this rejects both. Widen the character set without weakening the shell
+   metacharacter protection it exists to provide — quoting the path at the
+   `OS.EXECUTE` site is the safer way to allow spaces.
+3. **Make installing work the way it did on Linux** (§5.9): download,
+   install the dependencies, compile, install. On Windows the dependency step
+   means installing MSYS2 and the packages listed in §2. `installsdai.sh` and
+   `deletesdai.sh` are the starting point and are entirely Linux today —
+   apt/dnf/zypper, systemd, xinetd, `/etc` paths, `useradd`, and a `cp -R bin`
+   that assumed tracked binaries (§5.11). A development tool, not a product;
+   the Inno Setup installer with staged pre-compiled artefacts is step 9.
+4. **Add the audit log** (§5.6). The missing half of the identity model:
+   access is controlled, nothing records who used it. Its own append-only file
+   that rotates rather than truncates — *not* `<sysdir>/errlog`, which discards
+   its oldest half on reaching the `ERRLOG` size. Records every login, every
+   `LOGTO`, and every failed step-up, attributed to `@logname`. A failed
+   step-up is the single most interesting line in the trail.
+5. **Give grants a verb.** `ACC$USERS` can only be edited through
    `MODIFY ACCOUNTS` today. Decide the shape — `GRANT account TO account` and
    `REVOKE`, or a `SET.ACCESS` screen — and write the audit record from it.
-4. **Bring the API server under the same model.** `APISRVR` now takes account
+6. **Bring the API server under the same model.** `APISRVR` now takes account
    names only, like `LOGTO`, but nothing else about it is gated: it has no
    credential check of its own, so any session it accepts reaches any account.
    Its `logname` comes from the client (lines 900 and 963), so the grant check
    cannot simply be copied across — the authentication has to come first.
    `sdnet.h` still hardcodes `PASSWD_FILE_NAME "/etc/shadow"` (§5.8), which is
    what that authentication used to be.
-5. **Finish the move to the Windows install layout** (§5.8). The accounts are
-   done. What remains is `SDSYS` itself to `C:\ProgramData\SD\`, binaries to
-   `C:\Program Files\SD\` with the MSYS2 DLLs beside them, unifying the server
-   and client configuration variable, and dropping the
-   `sd.ini`-in-`C:\Windows` fallback. The `sdrealpath()` fix removed what was
-   blocking all of it.
-6. **Put `SH` and `!` back** (§5.13). Shell access was disabled on Linux and
+7. **Put `SH` and `!` back** (§5.13). Shell access was disabled on Linux and
    that was a mistake; on Windows it stops programs reaching the utilities
-   they need. Find what disabled it — `PT$INVERT`-style config, a `K$SECURE`
-   test, or a removed verb — and restore it deliberately.
-7. **Make everything lower case that can be** (§5.12). Account names, file and
-   field names, and the case inversion at login. Do the case-insensitive
-   comparisons first, or `sue` and `SUE` become different accounts; fold
-   step 10 into the same piece of work.
-8. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Now mandatory
-   rather than cheap housekeeping, because step 5 puts binaries under a path
-   containing a space. Widen the character set without weakening the shell
-   metacharacter protection it exists to provide — quoting the path at the
-   `OS.EXECUTE` site is the safer way to allow spaces.
-9. **Write the Inno Setup installer** (§5.9), replacing `installsdai.sh`. The
-   ACL step is the one that actually makes the data private; nothing at runtime
-   substitutes for it.
-10. **Enable `CASE_INSENSITIVE_FILE_SYSTEM`.** Referenced at 9 sites in
-    `dh_misc.c`, `dh_open.c`, `op_dio2.c`, `op_dio4.c` but never defined
-    anywhere. Windows filesystems *are* case insensitive, so this is a
-    correctness gap and the code is already written. Belongs with step 7.
-11. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
+   they need. Find what disabled it — a config option, a `K$SECURE` test, or a
+   removed verb — and restore it deliberately.
+8. **Make everything lower case that can be** (§5.12), folding in
+   **`CASE_INSENSITIVE_FILE_SYSTEM`**, which is referenced at 9 sites in
+   `dh_misc.c`, `dh_open.c`, `op_dio2.c` and `op_dio4.c` and defined nowhere.
+   Windows filesystems *are* case insensitive, so that half is a correctness
+   gap with the code already written. Do the case-insensitive comparisons
+   first, or `sue` and `SUE` become different accounts.
+9. **Write the Inno Setup installer** (§5.9), staging pre-compiled artefacts
+   rather than building on the target. The ACL step is the one that actually
+   makes the data private; nothing at runtime substitutes for it.
+10. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
     file from §5.8, or `SD_CONFIG` set.
-12. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
+11. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
     tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
     flipping the switches first would enable paths that are no longer present.
     Start with `CPROC`'s `dir.separator`, since compilation depends on it —
     and note that is now testable, since `sdrealpath()` accepts `\` (§5.8).
-13. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
+12. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
     are fork+exec, none need copy-on-write, so this is tractable), `termios` →
     Console API, passwd/group → Windows authentication. **The service-account
     model in §5.7 belongs here**, and until it lands the data tree is not

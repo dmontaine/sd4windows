@@ -27,6 +27,86 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Administrator rights become the SDSYS account's, and an escalation is closed
+
+§7 item 2, and it grew a third part when the fix turned out not to be one.
+
+### The two ends it started as
+
+`K_ADMINISTRATOR` in `op_kernel.c` was open at both ends. Any positive
+argument set the flag, so a BASIC program could grant itself administrator
+rights; and `|| IsAdmin()` meant an argument of zero *re-granted* rather than
+cleared whenever the caller was in the OS group, so the flag could not be
+given up. Nothing cleared it on leaving SDSYS either, so rights followed a
+session into whatever account it moved to next.
+
+Fixed by gating the set on `process.program.flags & HDR_INTERNAL` — the
+established "this program was compiled `$internal`" test, already used in
+`op_jumps.c` and `op_lock.c` — and by having `LOGIN` and `CPROC` set the flag
+on entry to SDSYS and clear it on entry to anything else. `sd -ASUE` on a
+machine whose token holds `sdadmins` now reports 0 where it reported 1.
+
+### Why that was not enough, demonstrated
+
+The `HDR_INTERNAL` gate only asks whether the *program* is internal, and
+anyone could make one: `sd -internal` was not gated, and `BCOMP` accepted the
+`$internal` directive on the strength of internal mode alone. The account SUE
+compiled this in her own `BP` and ran it:
+
+```
+$internal
+      program escalate
+      crt 'before: ' : kernel(26, -1)
+      void kernel(26, 1)
+      crt 'after:  ' : kernel(26, -1)
+      end
+```
+
+`before: 0`, `after: 1`. Key 26 is `K$ADMINISTRATOR`, written as a literal
+because an ordinary account cannot reach SDSYS's `INT$KEYS.H` — no obstacle
+whatever. **This was run before the fix, not reasoned about**, which is the
+only reason the fix is known to be a fix: the same program now fails to
+compile, and SUE stays at 0.
+
+`BCOMP` now requires `kernel(K$ADMINISTRATOR, -1)` as well as internal mode
+before accepting `$internal`. Building a system program is an administrative
+act, so it needs SDSYS.
+
+### And the rule that ties it together
+
+Decision from the repository owner, arriving mid-fix: **`-internal` may only
+enter SDSYS, and must know its password.** Implemented in `sd.c` — any other
+account with `-INTERNAL` is refused rather than quietly redirected — and by
+deleting the internal-mode bypass from `LOGIN`'s `authenticate.account`, which
+was the last route into administration that did not involve the SDSYS
+password. `LOGIN`'s "administrator with no account named lands in SDSYS" case
+went with it, so plain `sd` now asks which account.
+
+**The install is unaffected, and the reason is worth recording**: `sd -i` runs
+`$BBPROC`, which never calls `$LOGIN` — it only compiles it. Checked before
+the bypass was removed, because removing it blind would have broken the
+bootstrap. And on a fresh install SDSYS has no credential yet, so the
+"no password set" branch admits an administrator with a warning.
+
+### Verified
+
+`sd -internal -ASUE` refused; `sd -internal` prompts and admits on `hunter2`,
+refuses three wrong ones; plain `sd` prompts for the account; SUE reports 0,
+SDSYS 1, and SUE stepping up to SDSYS and out again goes 0 → 1 → 0;
+escalation fails to compile; `BASIC GPL.BP CPROC` still builds a system
+program, which is the regression that matters since `BCOMP` itself changed;
+`COUNT VOC` still reports 432; the whole `LOGTO` suite still passes.
+
+### Left standing, deliberately
+
+`kernel.c` still seeds the flag from `IsAdmin()` at process start. It now
+decides one thing only — whether a credential-less account can be entered
+during a fresh install — and confers no standing privilege, since `LOGIN`
+clears it a moment later for any account that is not SDSYS. Removing it
+entirely would take the fresh-install path with it.
+
+---
+
 ## 13 Aug 2026 — Accounts move to ProgramData, and SD learns to read a Windows path
 
 Decision from the repository owner: SD accounts live under
