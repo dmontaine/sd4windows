@@ -27,6 +27,59 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - AllowGroups applied for real: the lockout did not happen
+
+Fourth session of 14 Aug 2026, last piece of it. `allow-ssh-groups.ps1
+-Installed` was run against this machine's live `C:\ProgramData\ssh\sshd_config`
+for the first time. Exit 0, `sshd` restarted and came back Running, and the
+block landed immediately before `Match Group administrators` — the placement
+`verify-allowgroups.ps1` exists to guarantee, now confirmed in the live file
+rather than in a copy of the template.
+
+    # --- BEGIN SD ssh-only model - PROJECT_STATUS.md 5.6.2 ---
+    AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators
+    # --- END SD ssh-only model ---
+    Match Group administrators
+
+**The open question was whether those patterns match anybody**, and §5.6.2 had
+warned that getting it wrong locks the machine's own administrator out of ssh.
+Answered by control and treatment, with no password handled — `BatchMode=yes`
+fails authentication either way, so the *reason* was read out of the
+`OpenSSH/Operational` log:
+
+| account | groups | sshd logged |
+|---|---|---|
+| `don` | `sdusers` + `Administrators` | `Connection reset by **authenticating user** don` |
+| `CodexSandboxOffline` | neither, and **enabled** | `not allowed because none of user's groups are listed in AllowGroups`, `**invalid user**` |
+
+So the patterns match, a non-member is refused for exactly the intended reason,
+and the administrator kept ssh. `sdsshonly` accounts are members of `sdusers`
+too — `CREATEA` adds both — so they are allowed by construction.
+
+### Two things about measuring this that would have gone wrong
+
+**The client cannot tell you the answer.** Both cases produced an identical
+`Permission denied (publickey,password,keyboard-interactive)`. A test that
+judged on the client's message or exit code would have called the working
+configuration broken, or the broken one working. Only the server log
+distinguishes refused-by-group from failed-to-authenticate.
+
+**The first control was confounded and nearly passed for evidence.**
+`WDAGUtilityAccount` is disabled, and produced a bare `Connection reset` with
+no log line at all — a different-looking failure that could as easily have been
+the disabled account as the group check. It was redone with an enabled
+non-member. Recorded because the confounded version looked like a clean
+negative result.
+
+### What stays unknown, deliberately
+
+Which of the four patterns matched. `AllowGroups` is a union and all four were
+written on purpose, precisely so the bare-versus-`COMPUTER\` question would not
+have to be answered per Windows build. It stays open unless somebody narrows
+the list intentionally, and the trade is described in §5.6.2.
+
+---
+
 ## 14 Aug 2026 - STEP 0 IS CLOSED: CREATE.ACCOUNT passes 16 of 16, end to end
 
 Fourth session of 14 Aug 2026, third run of `verify-createaccount.ps1`, with

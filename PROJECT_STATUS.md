@@ -11,8 +11,14 @@ plus the commits that carry this line. What landed:
 - **STEP 0 IS CLOSED. `CREATE.ACCOUNT`'s ssh-only branch works and the
   restriction it applies holds — 16 of 16, end to end** (§4). SD creates the
   account, SD restricts it, and the console is then shut while ssh is open, on
-  an account SD made with a password SD set. **§5.6.2 is now complete except
-  RDP.**
+  an account SD made with a password SD set.
+- **`AllowGroups` IS APPLIED AND ENFORCED ON THIS MACHINE** (§4), by control
+  and treatment: `don` reaches authentication, an enabled non-member is refused
+  with `not allowed because none of user's groups are listed in AllowGroups`
+  in the sshd log. **The lockout risk is closed by measurement**, and the
+  machine's administrator kept ssh.
+- **§5.6.2 IS NOW COMPLETE EXCEPT RDP**, both layers, at both ends — the deny
+  rights and `AllowGroups`, the mechanism and the verb that drives it.
 - **Getting there took three runs and found four separate faults**, none of
   them in `CREATE.ACCOUNT`: this machine's install was four commits stale, a
   PowerShell pipeline puts a phantom empty line after every command that an
@@ -68,11 +74,16 @@ unproven by the session before it.
 - **Scripting SD from PowerShell has two traps** (§6), both of which produce a
   failure that looks like SD's fault and is not.
 
-**Where it stopped:** §5.6.2 is verified except RDP, which needs a second
-machine. `CREATE.ACCOUNT` is done and proven. **`AllowGroups` is written and
-has never been applied to a live `sshd_config`** — that is now the first step,
-it is one command in an elevated window, and it is the only thing from this
-session still unproven.
+**Where it stopped:** everything this session set out to do is done and
+measured. §5.6.2 is complete except **RDP**, which cannot be tested from one
+machine and is waiting on the second one (§7 step 2). Nothing is left
+half-applied and nothing needs cleaning off.
+
+**So the next session picks its own subject.** The strongest candidates, in
+order: the **rollover** (step 5 — this file is 4,100+ lines against a ~2,000
+limit and grew all day), `DELETE.ACCOUNT` (step 1c, which now has two worked
+examples sitting on the machine), and the **second machine** (step 2), which is
+the only place RDP and a genuinely clean install can be tested.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
@@ -90,7 +101,8 @@ install** on it, from the fixed installer:
 | `C:\ProgramData\SD` ACL | locked to sdusers/Administrators/SYSTEM. An unelevated session **cannot read inside it** until `don` signs out and back in; `Test-Path` on the directory itself still says True, so look at the contents |
 | MSYS2 dev tree at `/usr/local/sdsys` | still reachable with `SD_CONFIG=/etc/sd.conf`. Its `bin/` was refreshed with the `sdwind` build on 14 Aug 2026 and the stale `sdlnxd.exe` removed; `pcode`/`pcode.old` are still beside them, since the dev tree keeps the old unsplit layout |
 | **The machine was rebooted** on 14 Aug 2026 | `don`'s token now carries `sdusers`, so **an ordinary unelevated session runs SD** — verified, §4. The sign-out trap in §6 is cleared *on this machine only*; it applies afresh to every new user added to the group |
-| **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled, `C:\ProgramData\ssh\sshd_config` created with defaults. So the ssh-only model (§5.6.2) can now be tested **here**, which was not true earlier in the day |
+| **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
+| **`AllowGroups` IS APPLIED** | 14 Aug 2026, by `allow-ssh-groups.ps1 -Installed`. `C:\ProgramData\ssh\sshd_config` carries `AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators` between SD's markers, before the `Match` block. **Only members of `sdusers` or `Administrators` can ssh into this machine at all** — verified, §4. The original is at `sshd_config.before-sd`; `allow-ssh-groups.ps1 -Remove` reverses it. Left in place deliberately: it is what the installer would have written |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **none.** `sdacct1`, `sdacct2`, `sdsshprobe` and the `sdu_` groups are all gone, confirmed 14 Aug 2026. `sdsshonly` is empty and `sdusers` holds only `GITORLI\don`, which is correct — the groups are the installer's, the membership is not |
 | Test accounts, **SD side** | **two are left, deliberately**: `C:\ProgramData\SD\user_accounts\sdacct1` and `sdacct2`, with their `ACCOUNTS` records. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
@@ -149,34 +161,21 @@ repository is somewhere else.
    powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct3
    ```
 
-0a. **APPLY `AllowGroups` ONCE, IN AN ELEVATED WINDOW**, and keep that window
-   open while you do it. **This is now the first thing to do**, and it is the
-   only thing the fourth session of 14 Aug 2026 left unproven. Written that day
-   and never pointed at a real `sshd_config`:
+0a. **DONE 14 Aug 2026, fourth session — `AllowGroups` is applied here and
+   enforced.** §4 Verified has the control-and-treatment table. It is left
+   applied deliberately; `allow-ssh-groups.ps1 -Remove` reverses it, and
+   `verify-allowgroups.ps1` re-checks the editing with no elevation from any
+   directory.
 
-   ```powershell
-   powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\allow-ssh-groups.ps1 -Installed
-   ```
-
-   **Read this before running it.** It restricts who may ssh into this
-   machine. It is safe to try *here* because this machine's administrator has
-   console access and does not depend on ssh — that is not true everywhere.
-
-   - Exit **0** wrote the block and restarted `sshd`. **Immediately open a
-     second terminal and ssh in as an account in `sdusers`**, before closing
-     anything. That is the measurement §4 Unverified is asking for.
-   - Exit **2** refused, and says why. On this machine the likely reason is
-     that `sshd_config` already exists but restricts nobody, which is *not* a
-     refusal case — so exit 2 here more likely means the `-Installed` switch
-     was omitted.
-   - Anything else failed and put the original back.
-
-   To undo: the same command with `-Remove` instead of `-Installed`, or copy
-   `C:\ProgramData\ssh\sshd_config.before-sd` back over it.
-
-   The file editing itself is already proven and does not need re-testing —
-   `verify-allowgroups.ps1` beside it passes 20 checks with no elevation, and
-   can be run anywhere, from any directory, to confirm nothing has regressed.
+   **If you apply it on another machine, read this first.** The client sees
+   `Permission denied (publickey,password,keyboard-interactive)` whether the
+   user was refused by `AllowGroups` or simply failed to authenticate — the two
+   are indistinguishable from the client. **Read the reason out of the
+   `OpenSSH/Operational` log**, where a group-refused account appears as
+   `not allowed because none of user's groups are listed in AllowGroups` and as
+   `invalid user`, against `authenticating user` for an allowed one. And use an
+   **enabled** account as the control: a disabled one produces a bare
+   `Connection reset` that looks like a refusal and is not.
 
 1. **Finish the loose ends the ssh-only work left.** The model itself is
    proven (§4); what is below is small and should not be left to drift.
@@ -1263,6 +1262,57 @@ Keep this split honest. It is the single most useful thing in the file.
   ACE the installer already sets. It is noise on a successful run, and it is
   now observed rather than predicted.
 
+- **`AllowGroups` IS APPLIED AND ENFORCED, AND THE ADMINISTRATOR IS NOT LOCKED
+  OUT.** Observed 14 Aug 2026, fourth session, on this machine's live
+  `C:\ProgramData\ssh\sshd_config`. **This was the lockout risk, and it is now
+  measured rather than reasoned about.**
+
+  `allow-ssh-groups.ps1 -Installed` exited 0, wrote
+
+  ```
+  # --- BEGIN SD ssh-only model - PROJECT_STATUS.md 5.6.2 ---
+  AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators
+  # --- END SD ssh-only model ---
+  Match Group administrators
+  ```
+
+  — read back from the live file, and note it landed **immediately before the
+  `Match` block**, which is the thing `verify-allowgroups.ps1` exists to
+  guarantee. The original is at `sshd_config.before-sd`, and `sshd` restarted
+  and came back Running.
+
+  Then control and treatment, both by real ssh connections, with no password
+  handled: `BatchMode=yes` fails authentication either way, so the **reason**
+  is read out of the `OpenSSH/Operational` log rather than out of the exit
+  code.
+
+  | account | groups | client saw | sshd logged |
+  |---|---|---|---|
+  | `don` | `sdusers` + `Administrators` | `Permission denied (publickey,password,keyboard-interactive)` | `Connection reset by **authenticating user** don` |
+  | `CodexSandboxOffline` | neither, **and enabled** | same | `User codexsandboxoffline ... **not allowed because none of user's groups are listed in AllowGroups**` |
+
+  The client message is **identical in both cases** — that is the trap here, and
+  it is why this was done through the log. Only the log distinguishes "refused
+  by `AllowGroups`" from "failed to authenticate", and sshd marks a
+  group-refused account as `invalid user` while an allowed one is
+  `authenticating user`.
+
+  So: the patterns match a real member, a non-member is refused for exactly the
+  intended reason, and the machine's own administrator kept ssh. An
+  `sdsshonly` account is a member of `sdusers` too — `CREATEA` adds both — so
+  ssh-only accounts are allowed by construction.
+
+  **A first control was confounded and is recorded because it nearly passed for
+  evidence.** `WDAGUtilityAccount` is **disabled**, and produced a bare
+  `Connection reset` with no log line — a different-looking failure that could
+  as easily have been the disabled account as the group check. The control was
+  redone with an **enabled** non-member, which is the one in the table.
+
+  **Not established: which of the four patterns matched.** `AllowGroups` is a
+  union and all four were written deliberately, so the bare and `COMPUTER\`
+  forms cannot be told apart from this result. That is the intended trade — see
+  §5.6.2 — and it stays unknown unless someone narrows the list on purpose.
+
 - **`allow-ssh-groups.ps1` edits `sshd_config` correctly.** Observed
   14 Aug 2026, fourth session, by `gplbld/verify-allowgroups.ps1` — 20 checks,
   all passed — against
@@ -1357,28 +1407,12 @@ Keep this split honest. It is the single most useful thing in the file.
   section: how the MSYS2 tty layer behaves at a real console rather than with
   redirected stdin.
 
-- **`AllowGroups` ACTUALLY APPLIED TO A LIVE `sshd_config`.** Written on
-  14 Aug 2026 and its file editing is verified (§4 Verified,
-  "`allow-ssh-groups.ps1` edits `sshd_config` correctly"), but the script has
-  **never been pointed at `C:\ProgramData\ssh\sshd_config`** — that needs
-  elevation, which this session could not obtain. Three things are therefore
-  unknown, in descending order of how much they matter:
-
-  1. **Whether the patterns match the right people.** `AllowGroups sdusers
-     GITORLI\sdusers Administrators GITORLI\Administrators` is written on the
-     reasoning in the script's header; nothing offline can tell you whether
-     Win32-OpenSSH's group lookup matches any of those four against a real
-     account. **This is the lockout risk**, and it is why the script writes
-     both the bare and `COMPUTER\` forms of each group rather than choosing.
-  2. Whether `sshd -T` accepts the result on a real config, and whether
-     `Restart-Service sshd` comes back.
-  3. Whether an `sdsshonly` account — which is in `sdusers`, so it should be
-     allowed — can still ssh in afterwards, and whether an account in neither
-     group is refused.
-
-  **Test it on the second machine (§7 step 2), not this one**, and keep a
-  console session open while you do. `verify-sshonly.ps1 -Keep` leaves an
-  account to try it with.
+- **DONE 14 Aug 2026, fourth session — `AllowGroups` is applied and enforced**
+  on this machine, control and treatment. Moved to §4 Verified. What remains
+  unknown is only **which of the four patterns matched**, which is deliberate
+  (§5.6.2), and **what the installer's own path through it does** — the
+  measurement above ran the script by hand, because this machine already had
+  OpenSSH and so never sees the tick box.
 
 - **The installer's own behaviour with the new options.** `sd.iss` compiles
   (§4 Verified) and that is all. Nobody has seen the reworded closing dialog,
@@ -1944,9 +1978,11 @@ server SD did not install — and the list **must include administrators**, or
 the machine's own administrator loses ssh. That makes it an installer offer,
 not something a verb should do silently.
 
-**Written 14 Aug 2026, fourth session, and not yet applied to a live config**
-— §7 step 0a, and §4 Unverified for what that leaves open. How the two cautions
-are answered, since changing either one re-opens them:
+**Written AND APPLIED 14 Aug 2026, fourth session, and verified by control and
+treatment** — §4 Verified, "`AllowGroups` IS APPLIED AND ENFORCED". The lockout
+this section warned about did not happen: the machine's administrator kept ssh
+and an enabled non-member was refused with the reason logged verbatim. How the
+two cautions are answered, since changing either one re-opens them:
 
 - **Not a verb, and not even an unconditional installer step.** It is a
   **child** of the OpenSSH task in `sd.iss`. Inno only enables a child task
