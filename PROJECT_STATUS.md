@@ -929,11 +929,16 @@ Target layout:
 
 | What | Where | Replaces |
 |---|---|---|
-| Binaries | `C:\Program Files\SD\` | `/usr/local/bin` |
-| SDSYS and the database | `C:\ProgramData\SD\` | `/usr/local/sdsys` |
+| Binaries, and the MSYS2 DLLs beside them | `C:\Program Files\SD\` | `/usr/local/bin` |
 | Configuration | `C:\ProgramData\SD\sd.conf` | `/etc/sd.conf` |
-| User accounts | `C:\ProgramData\SD\user_accounts` | `/home/sd/user_accounts` |
-| Group accounts | `C:\ProgramData\SD\group_accounts` | `/home/sd/group_accounts` |
+| The SDSYS account | `C:\ProgramData\SD\sdsys\` | `/usr/local/sdsys` |
+| User accounts | `C:\ProgramData\SD\user_accounts\` | `/home/sd/user_accounts` |
+| Group accounts | `C:\ProgramData\SD\group_accounts\` | `/home/sd/group_accounts` |
+
+**Three siblings under one root**, not SDSYS with the accounts nested inside
+it. That is what makes §5.7 practical: one `icacls` on `C:\ProgramData\SD\`
+with inheritance doing the rest, rather than a grant per location repeated
+every time an account is created.
 
 **What this has to deliver, from the repository owner (13 Aug 2026).** Three
 requirements, and two of them already hold:
@@ -1385,6 +1390,15 @@ Each of these cost real time. Read before debugging anything similar.
   "Unrecognised statement" on the `write` line and then "Non-comment text found
   after final end statement" at the end of the program, because the unmatched
   `end` throws off everything after it.
+- **`<sysdir>/bin` is two unrelated things in one directory.** It holds the
+  executables the install copies there, *and* an SD file that `BCOMP` opens as
+  `@sdsys:@ds:'bin'` to read and write the pcode composite library, records
+  `pcode` and `pcode.old` (around line 1611, the recursive-compilation path).
+  They share a directory only because the Linux install put everything under
+  `/usr/local/sdsys/bin`. When the binaries move to `C:\Program Files\SD\`
+  (§5.8), **the pcode library stays behind with SDSYS** — it is data, and
+  `BCOMP` addresses it relative to `@sdsys`. Move the whole directory and
+  recursive compilation breaks, at a distance, with nothing pointing here.
 - **The runtime tree needs `gplsrc`, `gplobj` and `gplbld/FILES_DICTS`**, not
   just `sdsys` and `bin`. `installsdai.sh` copies all of them into `<sysdir>`.
   `REVSTAMP` opens `./gplsrc/revstamp.h` relative to the account directory, so
@@ -1423,6 +1437,14 @@ the identity model.
    traps in §6 — unifying the server and client configuration variable, and
    dropping the `sd.ini`-in-`C:\Windows` fallback. The `sdrealpath()` fix
    removed what was blocking all of it.
+
+   Two things in the data tree are not data and have to be decided rather than
+   dragged along. `<sysdir>/bin` holds the pcode library as well as the
+   executables and must be split, not moved (§6). And `gplsrc`, `gplobj` and
+   `gplbld/FILES_DICTS` are copied into `<sysdir>` because `REVSTAMP` opens
+   `./gplsrc/revstamp.h` relative to the account directory (§6) — build inputs
+   living in the database. Either they stay, or `REVSTAMP` learns to look
+   where the sources actually are.
 2. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Not
    housekeeping: step 1 puts binaries under a path containing a space, and
    this rejects both. Widen the character set without weakening the shell
