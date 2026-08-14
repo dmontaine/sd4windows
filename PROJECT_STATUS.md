@@ -206,27 +206,27 @@ external reference tree), so it is not something the AI cleaning cycles
 introduced. `is_bootstrap` is a red herring for this: it is set at `sd.c:321`
 and never consulted by `bind_sysseg`.
 
-**Where it stops now: bootstrap pass 1 refuses on the privilege model.** On a
-clean system `sd -i` does not hang. It runs `$BBPROC`, which stops immediately
-at its own privilege test and aborts:
+**Bootstrap pass 1 completes.** The privilege tests now ask
+`KERNEL(K$ADMINISTRATOR, -1)` and `USR_ADMIN` is seeded from `IsAdmin()` at
+process start (§5.6), which unblocked it. `sd -i` exits 0 having compiled nine
+BASIC programs with zero errors — `CPROC`, `LOGIN`, `BASIC`, `BCOMP`, `PTERM`,
+`CATALOG`, `PARSER`, `IS_GRP_MEMBER`, `TERM` — and created `VOC`,
+`ACCOUNTS.DIC`, `$HOLD.DIC`, `$MAP`, `$MAP.DIC`, `$IPC`, `DICT.DIC`,
+`DIR_DICT` and `VOC.DIC`. `GPL.BP.OUT` holds 11 compiled objects.
+
+**Where it stops now: `SECOND.COMPILE`, on the `/etc/group` blocker.** Exactly
+as predicted below:
 
 ```
-BBPROC:133   if system(27) # 0 then
-               crt 'Command requires administrator privileges'
-               goto abort.bbproc
+This user is not registered for String Database (sd) use
+Connection terminated
 ```
 
-`SYSTEM(27)` is `getuid()`, which is 197609 here and never zero, so this is
-always true — exactly the §5.5 trap, now hit for real. **Runtime bring-up and
-the identity work have converged: pass 1 cannot proceed until the privilege
-model is fixed.** Note the probe build's `SD_ADMIN_GROUP` override does not
-help, because BBPROC tests `SYSTEM(27)` directly rather than
-`K$ADMINISTRATOR` — which is precisely the change §5.6 calls for. Do §7 step 2
-before expecting anything further from the bootstrap.
-
-The process aborts rather than exiting cleanly (exit 134, SIGABRT) via
-`abort.bbproc`. Worth a look once the privilege test is fixed, but it is
-downstream of the refusal, not a separate fault.
+That is `LOGIN:193`, `is_grp_member(lgn.id,'sdusers')`, failing because
+`IS_GRP_MEMBER` parses `/etc/group` and MSYS2 has no such file (§6). Pass 1
+avoided it because `-i` runs `$BBPROC` rather than `LOGIN`. **This is the next
+thing to fix**, and under §5.6 the answer is to delete the `is_grp_member`
+calls rather than repair them — the second half of §7 step 2.
 
 **An earlier report of `sd -i` "blocking silently" was wrong**, and the cause
 is worth knowing — see the stale record lock trap in §6. It was self-inflicted
@@ -303,6 +303,14 @@ Keep this split honest. It is the single most useful thing in the file.
   segment and all six semaphores unlinked. `sd -start` then brought the system
   up again from nothing. So the full start/stop/restart cycle runs, which
   closes the `stop_sd()` item that was listed as unverified.
+- **SD compiles BASIC and writes database files on Windows.** Bootstrap pass 1
+  compiled nine programs with zero errors and created nine files under
+  `<sysdir>`. That is the compiler chain — `BCOMP`, `@ds` path resolution, the
+  pcode loader — and the DH file creation path both working for the first time.
+  "Any database read or write" is no longer unverified.
+- **`K$ADMINISTRATOR` answers truthfully.** With `USR_ADMIN` seeded from
+  `IsAdmin()`, the rewritten test in `BBPROC` granted access under the probe
+  build (group `Users`, which the token holds). It had refused everybody before.
 - **The six semaphores are not a bottleneck under normal running.** Sampled
   with a `sem_getvalue()` probe both at idle and while another process was
   waiting on a record lock: all six read 1 (free) throughout.
@@ -315,7 +323,11 @@ Keep this split honest. It is the single most useful thing in the file.
   held, so the `sdsem.c` port is exercised only in the uncontended case.
 - `SDConnectLocal()` at runtime. It needs a running server and a configuration
   file (§5.8).
-- Any database read or write.
+- Everything past `SECOND.COMPILE` in the bootstrap: `WRITE_INSTALL_DICTS`,
+  `THIRD.COMPILE`, and the `BASIC GPL.BP CPROC` step that writes the real
+  `gcat/$CPROC`.
+- Reading data back. Files have been created and written, but nothing has read
+  a record it did not just write.
 - The installer. `installsdai.sh` is still entirely Linux.
 - **Anything about `sd -start` in the shipped binary.** All of the above was
   observed with a probe build overriding `SD_ADMIN_GROUP` to `Users` (§6),
@@ -470,11 +482,25 @@ So salt, derive and compare is available today without new C code.
   `CPROC` 2507, `APISRVR` 359, 914 and 961, `CREATEA` 323, `MODIFYA` 96, 99
   and 125. This also disposes of the `/etc/group` blocker in §6 rather than
   requiring it be repaired.
-- `K$ADMINISTRATOR` is set on successful SDSYS entry, and `CPROC` and `CATALOG`
-  test it instead of `SYSTEM(27)`. `SYSTEM(27)` keeps meaning "uid", which on
-  Windows is not a privilege answer.
-- `op_kernel.c` grants `USR_ADMIN` unconditionally for any positive argument
-  (§6), so the SDSYS gate is decorative until that is closed.
+- **Done 13 Aug 2026: the privilege tests ask `K$ADMINISTRATOR`.** `BBPROC`
+  (was `system(27) # 0`), `CATALOG`'s `CATALOG GLOBAL` (same) and `CPROC`'s
+  `LOGTO SDSYS` (was `system(27) > 0`) now use
+  `not(kernel(K$ADMINISTRATOR, -1))`. `SYSTEM(27)` keeps meaning "uid", which
+  on Windows is simply not a privilege answer.
+
+  For those tests to mean anything, `kernel.c` now seeds `USR_ADMIN` from
+  `IsAdmin()` when the user table entry is initialised. Previously nothing set
+  the flag on Windows — `CPROC` only set it inside its `system(27) = 0` branch,
+  which never runs — so `K$ADMINISTRATOR` answered "no" for everybody. This is
+  an interim arrangement that keeps the OS group as the source; when the
+  credential model lands, SDSYS entry becomes the thing that sets it.
+
+  `CPROC`'s `system(27) = 0` "entered as root?" branch at line 272 was left
+  alone. It guards `EUID_SET`, which has no Windows equivalent (§5.5), and its
+  `kernel(K$ADMINISTRATOR, 1)` is now redundant.
+- `op_kernel.c` still grants `USR_ADMIN` unconditionally for any positive
+  argument (§6), so any BASIC can self-grant. Pre-existing, not made worse by
+  the above, but it must be closed before the SDSYS gate means anything.
 - The `OS.EXECUTE` account commands in `CREATE_USER`, `SET_PASSWD`, `CREATEA`,
   `DELACC` and `MODIFYA` stop calling `useradd`, `passwd`, `usermod`, `userdel`
   and `groupadd` outright. Under this model they manage SD accounts and their
@@ -761,12 +787,14 @@ Each of these cost real time. Read before debugging anything similar.
   overriding only `sd.c` does nothing, because `IsAdmin()` lives in
   `linuxlb.c`. Build the object list from `gpl.src`, not `gplobj/*.o`: the
   latter includes the standalone utilities and gives multiple `main`s.
-- **Editing BASIC source changes nothing on its own.** `sdsys/GPL.BP.OUT`
-  holds only a README — there are no compiled objects in the tree. The
-  installer compiles the BASIC at install time with
-  `bin/sd -internal BASIC GPL.BP CPROC`, after `gplbld/pcode_bld.py` builds the
-  pcode. So a BASIC edit is inert until SD runs and can compile it, and every
-  BASIC-side fix is gated behind runtime bring-up.
+- **Editing BASIC source changes nothing on its own**, and there are two copies
+  of it. `sdsys/GPL.BP.OUT` in the repository holds only a README; the compiled
+  objects live in the deployed tree. A repository edit must be copied to
+  `<sysdir>/GPL.BP/` and then compiled before it has any effect. `$BBPROC` is
+  rebuilt with `python3 gplbld/bbcmp.py <sysdir> GPL.BP/BBPROC
+  GPL.BP.OUT/BBPROC`; the rest are compiled by the bootstrap itself, and
+  `bin/sd -internal BASIC GPL.BP CPROC` at the end. Forgetting the copy step
+  gives a silent no-op — the edit is real, the running system never sees it.
 - **Privilege tests do not fail, they answer wrongly.** `IsAdmin()` is
   `getuid() == 0` and `SYSTEM(27)` is `getuid()`, which is 197609 here. Nothing
   errors; the branches simply always take one side, so the symptom is "SDSYS
@@ -838,15 +866,14 @@ Each of these cost real time. Read before debugging anything similar.
 
 In the order they should be taken.
 
-1. **Fix the privilege tests, then finish runtime bring-up.** These are no
-   longer separate tasks. SD starts, stops and restarts (§4), but bootstrap
-   pass 1 refuses at `BBPROC:133` because `SYSTEM(27) # 0` is always true on
-   Windows (§3). Point that test — and the matching ones in `CPROC` and
-   `CATALOG` — at `KERNEL(K$ADMINISTRATOR, -1)` per §5.6, then re-run the
-   bootstrap sequence in §3. **Expect the `/etc/group` blocker (§6) after
-   that**, at the first login attempt; under §5.6 the answer is to delete the
-   `is_grp_member` calls. Doing step 2 first, or at least its privilege half,
-   is the shortest path.
+1. **Remove the `is_grp_member` calls, then finish the bootstrap.** Pass 1 now
+   completes; `SECOND.COMPILE` stops at `LOGIN:193` because `IS_GRP_MEMBER`
+   parses `/etc/group`, which MSYS2 does not have (§6). Under §5.6 these calls
+   are deleted rather than repaired — `LOGIN` 193 and 224, `CPROC` 2507,
+   `APISRVR` 359, 914 and 961, `CREATEA` 323, `MODIFYA` 96, 99 and 125. Then
+   run the rest of the sequence in §3. Note BASIC edits need recompiling to
+   take effect (§6); `$BBPROC` is rebuilt with `gplbld/bbcmp.py`, the rest by
+   the bootstrap itself.
 2. **Implement the account credential model** (§5.6). Build the credential
    register as a separate file — one entry per account, listing each permitted
    person with salt and verifier — and prompt for name and password in

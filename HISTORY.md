@@ -27,6 +27,72 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Privilege tests moved to K$ADMINISTRATOR; bootstrap pass 1 completes
+
+**SD compiled BASIC and created database files on Windows for the first time.**
+
+### The change
+
+Three privilege tests in the BASIC layer asked `SYSTEM(27)`, which is
+`getuid()`. There is no uid zero on Windows, so each answered the same way
+permanently (§5.5). They now ask `KERNEL(K$ADMINISTRATOR, -1)`:
+
+| File | Was | Effect on Windows |
+|---|---|---|
+| `BBPROC` (~line 129) | `system(27) # 0` | bootstrap always refused |
+| `CATALOG` (~line 105) | `system(27) # 0` | `CATALOG GLOBAL` always refused |
+| `CPROC` `int.logto` (~line 2461) | `system(27) > 0` | `LOGTO SDSYS` always refused |
+
+`LOGIN:217` already used `K$ADMINISTRATOR` and needed no change.
+
+**The tests alone would have achieved nothing**, because nothing set the flag.
+`CPROC` was the only thing that ever called `kernel(K$ADMINISTRATOR, 1)`, and
+only inside its `system(27) = 0` branch, which never runs here — so
+`K$ADMINISTRATOR` answered "no" for everybody and swapping one always-false
+test for another would have changed the message and not the outcome. So
+`kernel.c` now seeds `USR_ADMIN` from `IsAdmin()` where the user table entry is
+initialised, next to the existing `USR_PHANTOM` and `USR_SDAPISRVR` flags.
+
+That keeps the OS group as the source of administrator status for now, which is
+the interim position: when the credential model in §5.6 lands, entry to SDSYS
+becomes what sets the flag. It also means the seeding is the single place to
+change, rather than scattered tests.
+
+`CPROC`'s `system(27) = 0` "entered as root?" branch at line 272 was left as
+found. It guards `EUID_SET`, which has no Windows equivalent, and its
+`kernel(K$ADMINISTRATOR, 1)` is now redundant.
+
+### Result
+
+`sd -i` exits 0. It compiled `CPROC`, `LOGIN`, `BASIC`, `BCOMP`, `PTERM`,
+`CATALOG`, `PARSER`, `IS_GRP_MEMBER` and `TERM` with zero errors each, and
+created `VOC`, `ACCOUNTS.DIC`, `$HOLD.DIC`, `$MAP`, `$MAP.DIC`, `$IPC`,
+`DICT.DIC`, `DIR_DICT` and `VOC.DIC`. `GPL.BP.OUT` went from 4 objects to 11.
+
+So the compiler chain works — `BCOMP`, `@ds` path resolution, the pcode loader
+— and so does DH file creation. Both were unverified. The `@ds` question raised
+in §6 is answered for stage 1: hardcoded `/` is correct on the MSYS2 runtime.
+
+### Where it stops now
+
+`SECOND.COMPILE` fails with "This user is not registered for String Database
+(sd) use" — `LOGIN:193`, `is_grp_member(lgn.id,'sdusers')`, failing because
+`IS_GRP_MEMBER` parses `/etc/group` and MSYS2 has no such file. Predicted in
+the entry below and hit exactly where predicted. Pass 1 escaped it only because
+`-i` runs `$BBPROC` instead of `LOGIN`. Under §5.6 the calls get deleted.
+
+### Method note worth keeping
+
+Testing a BASIC edit needs three steps, not one: edit the repository copy, copy
+it to `<sysdir>/GPL.BP/`, then compile it. `$BBPROC` is compiled by
+`gplbld/bbcmp.py`. Skipping the copy leaves the running system on the old code
+with no indication anything was missed. Recorded as a trap.
+
+All of this still runs against the probe build with `SD_ADMIN_GROUP` overridden
+to `Users`, since the token has yet to pick up `sdadmins`.
+
+---
+
 ## 13 Aug 2026 — Correction: `sd -i` was not deadlocked, and not on a semaphore
 
 Corrects the entry below, "SD started for the first time; the bootstrap
