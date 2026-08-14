@@ -27,6 +27,111 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — LOGTO is gated by grants, and the shipped binary is verified
+
+Continues the entry below, "Account credentials: register, helpers and login",
+which stopped with `LOGTO` untouched. Covers the commit carrying this entry.
+
+### What was built
+
+The second half of §5.6. Entry to an account is now authorised, not assumed.
+
+| Piece | Where |
+|---|---|
+| `ACC$USERS`, field 4 of ACCOUNTS, the grant list | `sdsys/SYSCOM/KEYS.H` |
+| Its dictionary item, and `USERS` added to the default listing | `gplbld/FILES_DICTS/ACCOUNTS.DIC^USERS`, `…^@` |
+| `logto.authorised`, the grant check | `sdsys/GPL.BP/CPROC` |
+| `logto.step.up`, re-authentication for SDSYS | `sdsys/GPL.BP/CPROC` |
+| Messages 10030 and 10031 | `sdsys/MESSAGES` |
+
+The early "is the caller privileged" test at the top of `int.logto` is gone.
+It had been `system(27) = 0` and then `K$ADMINISTRATOR`, and both ask the wrong
+question: entering SDSYS is what confers administrator rights, so requiring
+them to get in is backwards. Authorisation now happens in one place, below the
+ACCOUNTS read, where the target account is known — the spot the deleted
+`ACC$GROUP` test used to occupy, and it fails the same way that test did.
+
+The step-up asks for **the caller's own** password, not an SDSYS one. This is
+the easy thing to get backwards and the whole point of the model: re-entering
+your own credential proves the person at the keyboard is still the one who
+logged in, and introduces no shared secret. An SDSYS password would be a second
+secret held by every administrator, unrotatable without telling all of them.
+
+`KEYS.H` already carried the history line "20240330 mab add ACC$USERS" for a
+define that was not in the file. The 0.6.4 changelog describes the same design
+— "A list of allowed users is found in ACCOUNTS record, field <ACC$USERS>" — so
+field 4 restores what upstream intended rather than inventing a layout.
+
+### What was observed
+
+Two scratch accounts, JANE and SUE, driven from a real login as SUE. The grant
+check refused `LOGTO JANE` before the grant and admitted it after; refused
+`LOGTO SDSYS` before the grant; and after granting, refused three wrong
+passwords and admitted the right one. `LOGTO SUE` into her own account needs no
+grant, as it must. A refused `LOGTO` leaves the session where it was and does
+not drop the connection.
+
+`@logname` survives all of it — `LOGNAME=SUE WHO=JANE`, and `LOGNAME=SUE
+WHO=SDSYS` after stepping up. Administration is reached from a personal
+identity, which is what makes the audit log (now §7 item 1) worth writing.
+
+`sd -internal` still enters SDSYS with no password and moves with no grant, so
+the bootstrap is untouched. Full table in PROJECT_STATUS §4.
+
+**The shipped `bin/sd.exe` was exercised for the first time.** The token now
+carries `sdadmins` — the re-logon that group membership needs had happened
+between sessions — so `-stop`, `-start`, `-internal` and a password login all
+ran against the real binary rather than the probe build. That closes two
+entries that had stood in §4 as unverified since the group work landed.
+
+### Traps found, all of them cheap to hit again
+
+**A confirmation prompt reached by a script spins for ever at full CPU.**
+`CATALOG BP WHOAMI GLOBAL` asks "Program is also in private catalogue.
+Remove?". The piped input had already run out, the read returned end of file,
+and the prompt loop asked again — half a megabyte of repeated prompt in about
+two minutes. It reads like a hang; it is the opposite of the lock-wait hang
+already in §6, which idles. This one matters beyond testing: §5.9's installer
+will drive SD from a script.
+
+**A scripted session must be piped, not redirected.** `cat cmds | sd -AACCOUNT`
+works; `sd -AACCOUNT < cmds` stops after the password prompt and exits 0. Both
+are non-tty stdin. Not investigated further.
+
+**`OSPATH()` is `$internal`-only**, and fails like `KERNEL` does: the compiler
+decides it is an array and complains that it is not in a `DIM` statement.
+
+**`$catalog NAME` in the source catalogues privately**, so the program is
+invisible from other accounts. `CATALOG BP NAME GLOBAL`, or a `$`/`!`/`*`
+prefix, is what makes it global.
+
+### What is still open
+
+The audit log, which is the remaining half of §5.6 and is now the first item in
+§7. Two questions for the repository owner went into §8: whether an
+administrator should be able to enter an account that has not granted them —
+as built, SDSYS cannot — and the bare-pathname branch of `LOGTO`, which reaches
+an account directory without a grant check and is open to anyone the OS group
+makes an administrator. Neither is a regression; both are consequences of §5.6
+as written, and closing the second means restructuring `int.logto` rather than
+inserting a test.
+
+`CREATE.ACCOUNT` was not used to build the test accounts, because `CREATEA`
+still shells out to `sudo usermod` and `groupadd`. A scratch program made them
+instead. The verb has still never run on Windows.
+
+### Stale entry removed from PROJECT_STATUS §4
+
+§4 still listed "Bootstrap pass 1 has never completed — `sd -i` attaches and
+then blocks silently" under *Not verified*, while the *Verified* list directly
+above it recorded the complete bootstrap running and 204 programs compiling.
+Both were written in the same session; the second superseded the first and the
+first was never taken out. The claim itself was corrected on 13 Aug 2026 in
+"Correction: `sd -i` was not deadlocked, and not on a semaphore" — the cause
+was a stale record lock left by a killed run. The bullet is now removed.
+
+---
+
 ## 13 Aug 2026 — Account credentials: register, helpers and login. Session ended on credits
 
 **Session ended mid-task, with LOGTO still to do.** Resume at PROJECT_STATUS

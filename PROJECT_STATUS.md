@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `272ce92`
+**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `f4fdf15`
 (the most recent commit to change code or build)
 
 ---
@@ -243,37 +243,41 @@ None of this is in the repository; it is the state of this machine only.
 |---|---|
 | `/usr/local/sdsys` | fully bootstrapped, SD runs commands |
 | SD server | started, `sdlnxd` running |
+| Binary used | **`/usr/local/sdsys/bin/sd.exe`, the shipped build.** The probe is no longer needed |
 | **SDSYS password** | **`hunter2`** — set during testing, change it |
-| `$CRED` register | created, holds one record for SDSYS |
-| Binary used | **probe build only**, `-DSD_ADMIN_GROUP='"Users"'` (§6) |
-| `bin/sd.exe` | rebuilt and current, but never run — it needs `sdadmins` |
+| **SUE password** | **`correcthorse`** — scratch account, delete it |
+| `$CRED` register | holds SDSYS and SUE |
+| Scratch accounts | `JANE` and `SUE` under `/home/sd/user_accounts`, built by `BP/MKACC` |
+| Grants recorded | `JANE` grants `SUE`; `SDSYS` grants `SUE` |
 
-**Scratch test programs left in `<sysdir>/BP`**: `CREDTEST`, `CREDRT`, `SETPW`,
-`INTEST`, `VTEST`. They are not in the repository and exist only here. `SETPW`
-sets the SDSYS password to `hunter2` in plain text — delete it before this
-machine is used for anything real.
+**The probe build is obsolete on this machine.** The Windows token now carries
+`sdadmins` — the re-logon the group needed has happened — so `IsAdmin()` is
+satisfied and the shipped binary does everything the probe was built for. Left
+in `/tmp/sd_probe.exe` if a machine without the group ever needs it.
+
+**Scratch test programs left in `<sysdir>/BP`**, none of them in the
+repository: `CREDTEST`, `CREDRT`, `SETPW`, `INTEST`, `VTEST` from the previous
+session, and `MKACC`, `GRANT`, `WHOAMI`, `MKDICT` from this one. `SETPW` sets
+the SDSYS password to `hunter2` in plain text and `MKACC` sets SUE's to
+`correcthorse` — delete both, and both scratch accounts, before this machine is
+used for anything real. `WHOAMI` prints `@LOGNAME`, `@WHO` and `@PATH`, which
+is how a `LOGTO` is watched from either side; it is catalogued **globally**, so
+it runs from an account with no `BP` file.
 
 To pick up where this stopped: `sd -internal COUNT VOC` should report 432
 records without prompting (administrator + internal path), and
 `echo hunter2 | sd -ASDSYS WHO` should report `SDSYS` after a password prompt.
-If the first fails, SD is not started — see §6 for the restart, which needs the
-probe binary because `-start` calls `check_admin()`.
+If the first fails, SD is not started: `bin/sd.exe -stop` then
+`bin/sd.exe -start`, redirecting output to a file (§6).
 
 **An earlier report of `sd -i` "blocking silently" was wrong**, and the cause
 is worth knowing — see the stale record lock trap in §6. It was self-inflicted
 by killing earlier runs.
 
-**The blocker behind that.** `IS_GRP_MEMBER` reads `/etc/group`, which does not
-exist under MSYS2, so the `sdusers` test at `LOGIN` 193 refuses every
-connection. See §6. Under §5.6 the fix is to delete those calls rather than
-repair them, so this and the account password work land together. Note it may
-not be reached yet — pass 1 runs `$BBPROC`, not `LOGIN`.
-
-**State of the machine as this was written.** SD is started and `sdlnxd` is
-running, from a probe binary built with `-DSD_ADMIN_GROUP='"Users"'` (§6). The
-shared segment and semaphores are live in `/dev/shm`. A stray `sdprobe` from a
-killed run may need `pkill -f sdprobe`. Stopping and restarting SD needs the
-probe too, since `-start` and `-stop` both call `check_admin()`.
+**The `/etc/group` blocker behind that is gone**, since the `is_grp_member`
+calls in `LOGIN` and `CPROC` were deleted rather than repaired (§5.6). It
+survives only in `CREATEA` and `MODIFYA`, where it guards `OS.EXECUTE` calls to
+`useradd` and friends and must go with them.
 
 Note the environment above uses `/etc` and `/usr/local`, which §5.8 replaces
 with `C:\ProgramData\SD\`. It was laid down before that decision; there is no
@@ -362,29 +366,53 @@ Keep this split honest. It is the single most useful thing in the file.
 - **The six semaphores are not a bottleneck under normal running.** Sampled
   with a `sem_getvalue()` probe both at idle and while another process was
   waiting on a record lock: all six read 1 (free) throughout.
+- **The shipped binary does everything the probe did.** Once the token carried
+  `sdadmins`, `/usr/local/sdsys/bin/sd.exe` ran `-stop`, `-start`, `-internal`
+  commands and a password login, all of which call `check_admin()` or
+  `IsAdmin()`. The probe build is no longer needed on this machine. Observed
+  13 Aug 2026.
+- **LOGTO is gated by the grant list, in both directions.** Observed 13 Aug
+  2026, logged in as SUE with SUE's own password:
+
+  | Command | Result |
+  |---|---|
+  | `LOGTO JANE`, no grant | "User not allowed in requested account", stays in SUE |
+  | `LOGTO JANE` after granting SUE on JANE | enters JANE |
+  | `LOGTO SUE` (own account, no grant) | enters, as it must |
+  | `LOGTO SDSYS`, no grant | refused |
+  | `LOGTO SDSYS`, granted, wrong password ×3 | refused, stays in SUE, connection kept |
+  | `LOGTO SDSYS`, granted, own password | enters SDSYS |
+
+- **`@logname` survives `LOGTO`.** `WHOAMI` reported `LOGNAME=SUE WHO=SUE`
+  before, `LOGNAME=SUE WHO=JANE` after `LOGTO JANE`, and `LOGNAME=SUE
+  WHO=SDSYS` after stepping up into SDSYS. The login identity persists into
+  administration, which is what makes the audit trail worth writing.
+- **The step-up asks for the caller's own password, and only that.** SUE
+  entered SDSYS with `correcthorse`, SUE's password; SDSYS's own password
+  (`hunter2`) is not what is asked for and would not have worked.
+- **The install path still bypasses both.** `sd -internal` entered SDSYS with
+  no password, did `LOGTO JANE` with no grant and `LOGTO SDSYS` with no
+  step-up. The bootstrap is unaffected by any of this.
+- **An SDSYS login cannot `LOGTO` an account that has not granted it.**
+  Logged in as SDSYS, `LOGTO JANE` was refused, because the rule tests
+  `@logname` and JANE grants only SUE. This follows from §5.6 as written; see
+  §8 for whether it is what is wanted.
 
 ### Not verified — treat as unknown
 
-- **Bootstrap pass 1 has never completed.** `sd -i` attaches and then blocks
-  silently (§3). Everything past it in the bootstrap sequence is untried.
 - Semaphore locking under contention. The semaphores have never been observed
   held, so the `sdsem.c` port is exercised only in the uncontended case.
 - `SDConnectLocal()` at runtime. It needs a running server and a configuration
   file (§5.8).
-- **Anything requiring a second user, or contention.** Everything so far is one
-  process at a time. Record locking between real users, `SDConnectLocal()`, and
-  the API server path are all untried.
+- **Anything requiring two processes at once, or contention.** The accounts
+  above were driven one session at a time. Record locking between real users
+  and the API server path are both untried.
 - Writing and reading application data. The bootstrap creates and reads system
-  files; no user account has been created and no user data written.
+  files, and the scratch accounts hold nothing but a VOC.
+- **`CREATE.ACCOUNT` on Windows.** JANE and SUE were built by a scratch program
+  (§3) precisely because `CREATEA` shells out to `sudo usermod` and `groupadd`.
+  The verb itself has never been run here.
 - The installer. `installsdai.sh` is still entirely Linux.
-- **The shipped binary.** Everything was run with the probe build overriding
-  `SD_ADMIN_GROUP` to `Users`. `bin/sd.exe` differs only in that constant, but
-  has not been exercised.
-- **Anything about `sd -start` in the shipped binary.** All of the above was
-  observed with a probe build overriding `SD_ADMIN_GROUP` to `Users` (§6),
-  because the token still lacks `sdadmins`. The admin check is the only
-  difference between that binary and `bin/sd.exe`, but it has not been
-  confirmed by running the real one.
 
 ## 5. Decisions and why
 
@@ -513,6 +541,9 @@ So salt, derive and compare is available today without new C code.
 | `!CRED_VERIFY(account, password, ok)` | `GPL.BP/CRED_VERIFY` |
 | `SET.PASSWORD [account]` verb | `GPL.BP/SET_ACC_PASSWORD` |
 | Password prompt at login, 3 attempts | `LOGIN`, `authenticate.account` |
+| `ACC$USERS`, the grant list, field 4 of ACCOUNTS | `SYSCOM/KEYS.H`, dictionary item in `gplbld/FILES_DICTS` |
+| `LOGTO` grant check | `CPROC`, `logto.authorised` |
+| `LOGTO SDSYS` step-up, 3 attempts | `CPROC`, `logto.step.up` |
 
 `LOGIN` sets `@logname` to the authenticated account and sets
 `K$ADMINISTRATOR` on entry to SDSYS. Two deliberate ways in without a password,
@@ -522,83 +553,72 @@ which is the install path since the bootstrap cannot type a password; and an
 account with no password yet, with a warning. So a half-configured system is
 not an open one.
 
-**What has to be built next.** `LOGTO` is untouched — this is where work
-stopped, and `CPROC`'s `int.logto` is the file to open:
+**How `LOGTO` decides, as built on 13 Aug 2026.** `CPROC`'s `logto.authorised`
+runs where the deleted `ACC$GROUP` test used to sit, immediately after the
+ACCOUNTS read, and the early `K$ADMINISTRATOR` test at the top of `int.logto`
+is gone — it asked whether the caller was already privileged, which is the
+wrong question when entering SDSYS is what confers privilege. In order:
 
-- **The grant check.** `@logname` may enter the target if it *is* the target,
-  or if the target's ACCOUNTS record lists it. Grants go on the target account
-  (JANE lists who may enter JANE) — add `ACC$USERS` as field 4 in
-  `SYSCOM/KEYS.H`, next to `ACC$PATH`, `ACC$DESCR` and `ACC$GROUP`. Insert
-  after the ACCOUNTS read at `CPROC` ~2495, where the removed `ACC$GROUP` test
-  used to sit.
-- **The step-up on `LOGTO SDSYS`**, asking for *the person's own* password —
-  `!CRED_VERIFY(@logname, pw, ok)` — not an SDSYS password. Clear `PT$INVERT`
-  around the read (§6). The early `K$ADMINISTRATOR` test at `CPROC` ~2464
-  should be replaced by this, since SDSYS access is what confers admin rather
-  than something admin is needed for.
-- **`@logname` must not change on `LOGTO`.** Check nothing in the path
-  reassigns it; `CPROC` around line 278 does so in its `system(27) = 0` branch,
-  which never runs on Windows but should not be relied on.
-- **The audit records** — see the audit log task and §7.
+1. An administrator running an internal command is admitted, as at `LOGIN`.
+   The bootstrap has no terminal to type a password at.
+2. A bare pathname rather than an account name has no record to carry a grant.
+   Administrators only; see the residual hole in §8.
+3. Otherwise you may enter your own account, or one whose `ACC$USERS` names
+   you. Refusal is `sysmsg(10003)`, "User not allowed in requested account",
+   and the session stays where it was.
+4. Entering SDSYS additionally runs `logto.step.up`: three tries at **your own**
+   password through `!CRED_VERIFY(@logname, ...)`, with `PT$INVERT` and the
+   input prompt character cleared around the read (§6). If you have no
+   credential of your own, an administrator is warned and admitted, exactly as
+   `LOGIN` treats an account with no password.
 
-**What is still missing after that.**
+`@logname` is untouched by any of it. The only assignments to it anywhere are
+`LOGIN` 235, `CPROC` 250 and 282 (both initialisation, the second in a branch
+that never runs on Windows), and `APISRVR`. Confirmed by observation as well as
+by reading — see §4.
 
-- **The credential register goes in a separate file, not in the ACCOUNTS
-  record.** One entry per account, holding its salt and verifier.
-  `LOGIN` opens `ACCOUNTS` at line 175, in the user's own process, before any
-  authentication — it must, to know the account exists — and eleven other
-  programs open it too, including `_VOC_REF` for routine resolution. So every
-  SD user's process can read it. Verifiers stored there would let any user pull
-  every account's Argon2 hash and attack it offline. Use a separate register
-  keyed by account name holding only salt and verifier. In stage 1 that file is
-  still readable by everyone (Windows has no setuid, and there is no privileged
+**What is still missing.**
+
+- **The audit records.** Nothing is written yet for a login, a `LOGTO` or a
+  failed step-up, which is the remaining half of this model and now the first
+  item in §7. Until it lands, the grant check controls access but leaves no
+  trace of who used it — and attribution, not access control, is what this
+  model is for.
+- **There is no verb for managing grants.** `ACC$USERS` has a dictionary entry
+  so `LIST ACCOUNTS` shows it and `MODIFY ACCOUNTS` can edit it, which is what
+  the 0.6.4 changelog assumed, but nothing offers `GRANT`/`REVOKE`. The scratch
+  `BP/GRANT` on this machine is a stand-in, not a design.
+
+- **The credential register is a separate file, not part of the ACCOUNTS
+  record**, and must stay that way. `LOGIN` opens `ACCOUNTS` at line 175, in
+  the user's own process, before any authentication — it must, to know the
+  account exists — and eleven other programs open it too, including `_VOC_REF`
+  for routine resolution. Verifiers stored there would let any user pull every
+  account's Argon2 hash and attack it offline. In stage 1 `$CRED` is still
+  readable by everyone (Windows has no setuid, and there is no privileged
   helper short of §5.7's service), so this does not fix the exposure — it makes
   the boundary exist, so §5.7 can lock one file to the service account without
   restructuring ACCOUNTS or migrating data.
-- `ACC$GROUP` becomes dead. The remaining ACCOUNTS fields are unchanged.
-- Neither entry path prompts. `int.logto` (`CPROC` around line 2451) goes
-  straight from account name to a `system(27) > 0` test to `is_grp_member` to
-  `chdir`; `sd -A` at `LOGIN` around line 207 does the same. Both need the
-  prompt, and both currently refuse SDSYS unconditionally on Windows because
-  `system(27)` is never zero (§5.5).
-- **The password is asked for at login, and again on `LOGTO SDSYS`.** Every
-  other `LOGTO` tests the grant on the target account and writes the audit
-  record without prompting. Give one failure message for an unknown account
-  name and a bad password alike, and keep the existing three-tries-and-`sleep`
-  behaviour.
-- `is_grp_member` calls are removed rather than fixed — `LOGIN` 193 and 224,
-  `CPROC` 2507, `APISRVR` 359, 914 and 961, `CREATEA` 323, `MODIFYA` 96, 99
-  and 125. This also disposes of the `/etc/group` blocker in §6 rather than
-  requiring it be repaired.
-- **Done 13 Aug 2026: the privilege tests ask the administrator flag.**
-  `BBPROC`, `CATALOG`'s `CATALOG GLOBAL` and `CPROC`'s `LOGTO SDSYS` use
-  `not(kernel(K$ADMINISTRATOR, -1))`. `WRITE_INSTALL_DICTS` uses
-  `not(SYSTEM(1050))` instead, because `KERNEL` is only available to
-  `$internal` programs and it is not one — `SYSTEM(1050)` reports the same
-  `USR_ADMIN` flag (`op_sys.c` case 1050) and is the public accessor. Use it
-  for any non-internal program. `SYSTEM(27)` keeps meaning "uid", which on
-  Windows is simply not a privilege answer.
-- **Done 13 Aug 2026: the `is_grp_member` calls are gone** from `LOGIN`,
-  `CPROC` and `APISRVR`, along with their now-dead `deffun` declarations. That
-  removed both the `sdusers` login gate and the `ACC$GROUP` account gate.
-  **Nothing now restricts entry to any account** — that is the intended
-  interim state, but it means the system is open until the credential model
-  lands, and it should not be exposed to anything until then.
-
-  The calls in `CREATEA` (line 323) and `MODIFYA` (96, 99, 125) were
-  deliberately left. They guard `OS.EXECUTE` calls to `useradd`, `usermod` and
-  `groupadd`; removing only the guard would let those shell-outs run
-  unconditionally, which is worse than leaving them. They go when the OS
-  account commands go, as one change.
-
-  For those tests to mean anything, `kernel.c` now seeds `USR_ADMIN` from
-  `IsAdmin()` when the user table entry is initialised. Previously nothing set
-  the flag on Windows — `CPROC` only set it inside its `system(27) = 0` branch,
-  which never runs — so `K$ADMINISTRATOR` answered "no" for everybody. This is
-  an interim arrangement that keeps the OS group as the source; when the
-  credential model lands, SDSYS entry becomes the thing that sets it.
-
-  `CPROC`'s `system(27) = 0` "entered as root?" branch at line 272 was left
+- `ACC$GROUP` is dead but still populated on old records, and `LIST ACCOUNTS`
+  still shows it. Remove it with the OS account commands, as one change.
+- **`K$ADMINISTRATOR` still comes from the OS group, which is interim.**
+  `kernel.c` seeds `USR_ADMIN` from `IsAdmin()` when the user table entry is
+  initialised, so on a machine where you are in `sdadmins` **every session you
+  start is an SD administrator**, including one logged in as an ordinary
+  account. That is what makes the bare-pathname branch of `logto.authorised`
+  reachable in ordinary use (§8). Under this model SDSYS entry should be what
+  sets the flag; that change waits on the `op_kernel.c` hole below, since
+  otherwise any BASIC can set it anyway.
+- The privilege tests themselves ask the flag, not the uid: `BBPROC`,
+  `CATALOG GLOBAL` and `CPROC` use `kernel(K$ADMINISTRATOR, -1)`, and
+  `WRITE_INSTALL_DICTS` uses `SYSTEM(1050)` because `KERNEL` is only available
+  to `$internal` programs (§6). Use `SYSTEM(1050)` in anything not internal.
+- The `is_grp_member` calls in `CREATEA` (line 323) and `MODIFYA` (96, 99, 125)
+  were deliberately left where the others were deleted. They guard
+  `OS.EXECUTE` calls to `useradd`, `usermod` and `groupadd`; removing only the
+  guard would let those shell-outs run unconditionally, which is worse than
+  leaving them. They go when the OS account commands go, as one change.
+- `CPROC`'s `system(27) = 0` "entered as root?" branch at line 272 was left
   alone. It guards `EUID_SET`, which has no Windows equivalent (§5.5), and its
   `kernel(K$ADMINISTRATOR, 1)` is now redundant.
 - `op_kernel.c` still grants `USR_ADMIN` unconditionally for any positive
@@ -960,6 +980,30 @@ Each of these cost real time. Read before debugging anything similar.
   blocks until the *daemon* exits, not until `sd -start` exits. The parent has
   already returned. Check with `Get-Process sdlnxd` rather than waiting, and
   redirect to a file when starting from a script.
+- **A yes/no prompt with no input left spins forever, at full CPU.**
+  `CATALOG BP X GLOBAL` asks "Program is also in private catalogue. Remove?".
+  Fed from a pipe that has run dry, the read returns end of file, the prompt
+  loop treats it as neither yes nor no, and it asks again immediately — for
+  ever. It produced half a megabyte of repeated prompt in about two minutes and
+  had to be killed, which then left record locks behind (below). This is not
+  specific to `CATALOG`: **any** confirmation prompt reached by a script will do
+  it, which matters for §5.9's installer. Answer every prompt a scripted run can
+  reach, and if something hangs at 100% CPU rather than idling, look for a
+  prompt rather than a lock.
+- **Drive a scripted SD session through a pipe, not a `<` redirect.**
+  `cat commands | sd -AACCOUNT` works. `sd -AACCOUNT < commands` stops dead
+  after the password prompt and exits 0, as though the session had been closed.
+  Both are non-tty stdin, so the difference is in how the terminal layer reads
+  a regular file; it was not investigated further.
+- **`OSPATH()` is only available to `$internal` programs**, like `KERNEL` — and
+  it fails the same confusing way. In an ordinary program the compiler takes it
+  for an array and reports "Matrix OSPATH is not referenced in a DIM statement"
+  plus "WARNING: OSPATH is not assigned a value", never "unknown function".
+- **`$catalog NAME` in the source catalogues *privately*.** The compile says
+  "NAME added to private catalogue" and the program is then invisible from
+  every other account, which reads like the catalogue being broken. Global
+  cataloguing needs the verb — `CATALOG BP NAME GLOBAL` — or one of the
+  `$`, `!`, `*` prefix characters, which imply global mode.
 - **Killing an SD process leaves its record locks behind, and the next run
   waits for them forever.** The lock table lives in the shared segment, so a
   process killed with SIGTERM or SIGKILL never releases what it held. The next
@@ -1034,30 +1078,31 @@ Each of these cost real time. Read before debugging anything similar.
 
 In the order they should be taken.
 
-1. **Finish the credential model** (§5.6). The register, the helpers,
-   `SET.PASSWORD` and the login prompt are done and tested. What remains is
-   `LOGTO`: the grant check, the step-up on `LOGTO SDSYS` against the person's
-   own password, and confirming `@logname` survives the move. §5.6 lists the
-   exact insertion points. **Until this lands, any authenticated session can
-   `LOGTO` into any account**, so the login gate is the only real control.
+1. **Add the audit log** (§5.6). This is now the missing half of the identity
+   model: access is controlled, but nothing records who used it. Its own
+   append-only file that rotates rather than truncates — *not* `<sysdir>/errlog`,
+   which discards its oldest half on reaching the `ERRLOG` size. Records every
+   login, every `LOGTO`, and every failed step-up, attributed to `@logname`.
+   A failed step-up is the single most interesting line in the trail.
 2. **Close the `K$ADMINISTRATOR` set hole in `op_kernel.c`.** Any positive
-   argument grants `USR_ADMIN`, so BASIC can still self-grant and the SDSYS
-   gate is decorative against anyone who can run a program. Note the same code
-   makes the flag impossible to *clear* while `IsAdmin()` is true, which is why
-   admin rights currently persist after leaving SDSYS.
-3. **Move to the Windows install layout** (§5.8). Relocate to
+   argument grants `USR_ADMIN`, so BASIC can still self-grant and both the
+   SDSYS gate and the new `LOGTO` gate are decorative against anyone who can
+   run a program. Note the same code makes the flag impossible to *clear* while
+   `IsAdmin()` is true, which is why admin rights currently persist after
+   leaving SDSYS. Closing this is also what allows SDSYS entry, rather than the
+   OS group, to become the source of the flag (§5.6).
+3. **Give grants a verb.** `ACC$USERS` can only be edited through
+   `MODIFY ACCOUNTS` today. Decide the shape — `GRANT account TO account` and
+   `REVOKE`, or a `SET.ACCESS` screen — and write the audit record from it.
+4. **Move to the Windows install layout** (§5.8). Relocate to
    `C:\Program Files\SD\` and `C:\ProgramData\SD\`, unify the server and client
    configuration variable, drop the `sd.ini`-in-`C:\Windows` fallback. Keep `/`
    as the separator for now so this does not disturb `@ds` (§6).
-4. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Now mandatory
-   rather than cheap housekeeping, because step 3 puts binaries under a path
+5. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Now mandatory
+   rather than cheap housekeeping, because step 4 puts binaries under a path
    containing a space. Widen the character set without weakening the shell
    metacharacter protection it exists to provide — quoting the path at the
    `OS.EXECUTE` site is the safer way to allow spaces.
-5. **Add the audit log** (§5.6). Its own append-only file that rotates rather
-   than truncates — *not* `<sysdir>/errlog`, which discards its oldest half on
-   reaching the `ERRLOG` size. Records every login, every `LOGTO` and every
-   failed attempt, attributed to the login identity.
 6. **Write the Inno Setup installer** (§5.9), replacing `installsdai.sh`. The
    ACL step is the one that actually makes the data private; nothing at runtime
    substitutes for it.
@@ -1084,6 +1129,36 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
 
+### Open: should an administrator be able to enter an account that has not granted them?
+
+Raised by building the `LOGTO` grant check on 13 Aug 2026, and it needs a
+decision from the repository owner because §5.6 does not say.
+
+As specified and as built, the rule tests `@logname` and nothing else, so
+**logging in as SDSYS does not let you into JANE** unless JANE grants you. That
+was observed, not inferred (§4). There is a case for it: to administer an
+account you must first record a grant, which is itself a deliberate, auditable
+act, and nobody reaches an account by accident. There is a case against it: an
+administrator locked out of an account whose ACCOUNTS record is damaged has no
+way in through the front door.
+
+**The same decision has a hole in it today.** `LOGTO` given a bare pathname
+rather than an account name reaches the directory without any grant check,
+because there is no account record to carry a grant. It is restricted to
+administrators, which sounds narrow and is not: `K$ADMINISTRATOR` is still
+seeded from `IsAdmin()`, so on a machine where you are in `sdadmins`, every
+session you start is an administrator (§5.6). `LOGTO /home/sd/user_accounts/JANE`
+was observed entering JANE from a session that `LOGTO JANE` would have refused.
+
+Closing it properly means resolving the path back to an account before
+deciding, which needs the *resolved* directory rather than the string typed —
+`LOGIN` walks ACCOUNTS comparing `ospath("", OS$CWD)` for exactly this reason,
+and doing it in `int.logto` means moving before authorising and unwinding on
+refusal. That is a restructure of `int.logto`, not an insertion, so it was not
+attempted. Note that in stage 1 it protects nothing anyway: an SD user's own
+token opens the files, so anyone who can reach an account by path can read it
+in Explorer (§5.7). It becomes real with the service model.
+
 ### Settled: the binaries were purged from history on 13 Aug 2026
 
 Done, and force pushed. See §5.11 and the HISTORY entry. **Any clone taken
@@ -1104,7 +1179,11 @@ tree alone. Until that is settled, leave `IsAdmin()` in place; it is doing no
 harm and removing it would leave `sd -start` ungated.
 
 The `sdadmins` local group on this machine becomes unnecessary under §5.6 and
-can be deleted once nothing references it.
+can be deleted once nothing references it. **Do not delete it yet**: the token
+now carries it, which is what allows the shipped `bin/sd.exe` to run `-start`
+and `-stop` here without the probe build, and removing it would put this
+machine back to needing the probe. It is also, for the moment, the source of
+`K$ADMINISTRATOR` for every session (§5.6).
 
 ### Open: does the console path survive the service model?
 
