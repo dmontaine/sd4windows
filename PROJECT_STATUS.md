@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `9c00730`
+**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `272ce92`
 (the most recent commit to change code or build)
 
 ---
@@ -235,6 +235,30 @@ Linux `chown` to `sdsys:sdusers`, which has no Windows meaning. Non-fatal —
 cataloguing succeeds — but it should go with the rest of the OS-account work
 in §5.6.
 
+### The machine as this session ended (13 Aug 2026)
+
+None of this is in the repository; it is the state of this machine only.
+
+| Thing | State |
+|---|---|
+| `/usr/local/sdsys` | fully bootstrapped, SD runs commands |
+| SD server | started, `sdlnxd` running |
+| **SDSYS password** | **`hunter2`** — set during testing, change it |
+| `$CRED` register | created, holds one record for SDSYS |
+| Binary used | **probe build only**, `-DSD_ADMIN_GROUP='"Users"'` (§6) |
+| `bin/sd.exe` | rebuilt and current, but never run — it needs `sdadmins` |
+
+**Scratch test programs left in `<sysdir>/BP`**: `CREDTEST`, `CREDRT`, `SETPW`,
+`INTEST`, `VTEST`. They are not in the repository and exist only here. `SETPW`
+sets the SDSYS password to `hunter2` in plain text — delete it before this
+machine is used for anything real.
+
+To pick up where this stopped: `sd -internal COUNT VOC` should report 432
+records without prompting (administrator + internal path), and
+`echo hunter2 | sd -ASDSYS WHO` should report `SDSYS` after a password prompt.
+If the first fails, SD is not started — see §6 for the restart, which needs the
+probe binary because `-start` calls `check_admin()`.
+
 **An earlier report of `sd -i` "blocking silently" was wrong**, and the cause
 is worth knowing — see the stale record lock trap in §6. It was self-inflicted
 by killing earlier runs.
@@ -310,6 +334,19 @@ Keep this split honest. It is the single most useful thing in the file.
   segment and all six semaphores unlinked. `sd -start` then brought the system
   up again from nothing. So the full start/stop/restart cycle runs, which
   closes the `stop_sd()` item that was listed as unverified.
+- **Account passwords work end to end.** `!SD_GET_SALT` returns a fresh
+  24-character salt per call and `!SD_KEY_FROM_PW` a reproducible 44-character
+  Argon2 key that changes with either password or salt — libsodium works on
+  Windows, and neither routine had a caller before. Round trip through
+  `!CRED_SET` / `!CRED_VERIFY`: the right password verifies, the wrong one does
+  not, account names are case insensitive, an unknown account and an empty
+  password both fail closed, and re-setting the same password yields a new salt
+  and verifier that still verifies. The stored record holds salt and key only,
+  with no trace of the password.
+- **Login authenticates.** `echo hunter2 | sd -ASDSYS WHO` reports `SDSYS`; a
+  wrong password is refused three times and terminates the connection; and
+  `sd -internal COUNT VOC` still returns 432 records through the administrator
+  install path. Observed 13 Aug 2026.
 - **The complete bootstrap runs, and SD answers commands.** Every step from
   `sd -start` through `BASIC GPL.BP CPROC` completed on 13 Aug 2026;
   `SECOND.COMPILE` alone compiled 204 programs with no errors. `WHO` reports
@@ -467,7 +504,44 @@ and wired:
 
 So salt, derive and compare is available today without new C code.
 
-**What has to be built.**
+**Built and working as of 13 Aug 2026** — see §4 for what was observed:
+
+| Piece | Where |
+|---|---|
+| `$CRED` register, keyed by account, `CRED$SALT` + `CRED$VERIFIER` | `<sysdir>/$CRED`, defines in `INT$KEYS.H` |
+| `!CRED_SET(account, password, ok)` | `GPL.BP/CRED_SET` |
+| `!CRED_VERIFY(account, password, ok)` | `GPL.BP/CRED_VERIFY` |
+| `SET.PASSWORD [account]` verb | `GPL.BP/SET_ACC_PASSWORD` |
+| Password prompt at login, 3 attempts | `LOGIN`, `authenticate.account` |
+
+`LOGIN` sets `@logname` to the authenticated account and sets
+`K$ADMINISTRATOR` on entry to SDSYS. Two deliberate ways in without a password,
+both gated on `K$ADMINISTRATOR` (which comes from the OS group via `IsAdmin()`
+and cannot be self-granted): an administrator running an internal command,
+which is the install path since the bootstrap cannot type a password; and an
+account with no password yet, with a warning. So a half-configured system is
+not an open one.
+
+**What has to be built next.** `LOGTO` is untouched — this is where work
+stopped, and `CPROC`'s `int.logto` is the file to open:
+
+- **The grant check.** `@logname` may enter the target if it *is* the target,
+  or if the target's ACCOUNTS record lists it. Grants go on the target account
+  (JANE lists who may enter JANE) — add `ACC$USERS` as field 4 in
+  `SYSCOM/KEYS.H`, next to `ACC$PATH`, `ACC$DESCR` and `ACC$GROUP`. Insert
+  after the ACCOUNTS read at `CPROC` ~2495, where the removed `ACC$GROUP` test
+  used to sit.
+- **The step-up on `LOGTO SDSYS`**, asking for *the person's own* password —
+  `!CRED_VERIFY(@logname, pw, ok)` — not an SDSYS password. Clear `PT$INVERT`
+  around the read (§6). The early `K$ADMINISTRATOR` test at `CPROC` ~2464
+  should be replaced by this, since SDSYS access is what confers admin rather
+  than something admin is needed for.
+- **`@logname` must not change on `LOGTO`.** Check nothing in the path
+  reassigns it; `CPROC` around line 278 does so in its `system(27) = 0` branch,
+  which never runs on Windows but should not be relied on.
+- **The audit records** — see the audit log task and §7.
+
+**What is still missing after that.**
 
 - **The credential register goes in a separate file, not in the ACCOUNTS
   record.** One entry per account, holding its salt and verifier.
@@ -914,6 +988,25 @@ Each of these cost real time. Read before debugging anything similar.
   — the symptom is "WARNING: KERNEL is not assigned a value" and an error
   count, not "unknown function". `SYSTEM(1050)` gives the same administrator
   flag without the restriction.
+- **`$internal` itself is only accepted under `sd -internal`.** `BCOMP` gates
+  the directive on `kernel(K$INTERNAL, -1)` (around line 2852). Compile an
+  `$internal` program from an ordinary session and the directive is rejected,
+  after which every internal-only statement it enables — `set.status` among
+  them — reports "Unrecognised statement". The errors point at those lines, not
+  at the directive, so the cause is several lines above the first complaint.
+  Compile with `sd -internal BASIC GPL.BP <prog>`.
+- **`pterm(PT$INVERT, @true)` silently upcases input, including passwords.**
+  `LOGIN` turns case inversion on before prompting. A password typed as
+  `hunter2` arrives as `HUNTER2`, so it verifies correctly by hand and fails at
+  login with nothing visibly wrong: the record is found, the salt and derived
+  key are the right lengths, and `STATUS()` is zero. Save and clear `PT$INVERT`
+  around any password read, and restore it afterwards. This cost real time and
+  would otherwise have shipped.
+- **`WRITE ... THEN` is not valid.** Use a bare `write`, or
+  `write rec to file, id on error ... end`. The compiler reports
+  "Unrecognised statement" on the `write` line and then "Non-comment text found
+  after final end statement" at the end of the program, because the unmatched
+  `end` throws off everything after it.
 - **The runtime tree needs `gplsrc`, `gplobj` and `gplbld/FILES_DICTS`**, not
   just `sdsys` and `bin`. `installsdai.sh` copies all of them into `<sysdir>`.
   `REVSTAMP` opens `./gplsrc/revstamp.h` relative to the account directory, so
@@ -941,21 +1034,17 @@ Each of these cost real time. Read before debugging anything similar.
 
 In the order they should be taken.
 
-1. **Build the account credential model** (§5.6). This is now the critical
-   path, and it is urgent rather than merely next: removing the
-   `is_grp_member` gates left nothing restricting entry to any account. Build
-   the credential register as a separate file, prompt for name and password at
-   login, prompt again on `LOGTO SDSYS`, set `K$ADMINISTRATOR` on SDSYS entry,
-   and close the `op_kernel.c` set hole. The bootstrap now runs, so this is
-   testable end to end for the first time.
-2. **Implement the account credential model** (§5.6). Build the credential
-   register as a separate file — one entry per account, listing each permitted
-   person with salt and verifier — and prompt for name and password in
-   `int.logto` and the `sd -A` path, setting `@logname` from the credential that
-   succeeded. Remove every `is_grp_member` call, set `K$ADMINISTRATOR` on SDSYS
-   entry and point `CPROC` and `CATALOG` at it instead of `SYSTEM(27)`. Close
-   the `K$ADMINISTRATOR` set hole in `op_kernel.c` at the same time, or the gate
-   is decorative. Cannot be tested until step 1 lands (§6).
+1. **Finish the credential model** (§5.6). The register, the helpers,
+   `SET.PASSWORD` and the login prompt are done and tested. What remains is
+   `LOGTO`: the grant check, the step-up on `LOGTO SDSYS` against the person's
+   own password, and confirming `@logname` survives the move. §5.6 lists the
+   exact insertion points. **Until this lands, any authenticated session can
+   `LOGTO` into any account**, so the login gate is the only real control.
+2. **Close the `K$ADMINISTRATOR` set hole in `op_kernel.c`.** Any positive
+   argument grants `USR_ADMIN`, so BASIC can still self-grant and the SDSYS
+   gate is decorative against anyone who can run a program. Note the same code
+   makes the flag impossible to *clear* while `IsAdmin()` is true, which is why
+   admin rights currently persist after leaving SDSYS.
 3. **Move to the Windows install layout** (§5.8). Relocate to
    `C:\Program Files\SD\` and `C:\ProgramData\SD\`, unify the server and client
    configuration variable, drop the `sd.ini`-in-`C:\Windows` fallback. Keep `/`

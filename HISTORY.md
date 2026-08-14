@@ -27,6 +27,72 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Account credentials: register, helpers and login. Session ended on credits
+
+**Session ended mid-task, with LOGTO still to do.** Resume at PROJECT_STATUS
+§5.6, which lists the exact insertion points, and read the machine state at the
+end of §3 before touching anything.
+
+### What was built
+
+The first half of the identity model in §5.6. Accounts now have their own
+passwords, stored as an Argon2 verifier.
+
+| Piece | Where |
+|---|---|
+| `$CRED` register keyed by account | `<sysdir>/$CRED`, fields in `INT$KEYS.H` |
+| `!CRED_SET`, `!CRED_VERIFY` | `GPL.BP/CRED_SET`, `GPL.BP/CRED_VERIFY` |
+| `SET.PASSWORD [account]` | `GPL.BP/SET_ACC_PASSWORD` |
+| Login password prompt | `LOGIN`, `authenticate.account` |
+
+`$CRED` is a separate file from `ACCOUNTS` on purpose: `LOGIN` opens `ACCOUNTS`
+before authenticating anything and eleven other programs open it too, so a
+verifier stored there would be readable by every user.
+
+The libsodium primitives were verified before anything was built on them —
+neither `!SD_GET_SALT` nor `!SD_KEY_FROM_PW` had ever had a caller. Both work
+on Windows.
+
+`LOGIN`'s three account-determination cases collapsed into one, since entry no
+longer varies by how you arrived. Two deliberate ways in without a password,
+both gated on `K$ADMINISTRATOR` — which now comes from OS group membership via
+`IsAdmin()` and cannot be self-granted: an administrator running an internal
+command, because the bootstrap runs through `LOGIN` and cannot type a password;
+and an account with no password yet, with a warning. Note `-internal` alone is
+unguarded in `sd.c`, so the administrator test is the gate, not internal mode.
+
+### Two traps, one of which would have shipped
+
+**`pterm(PT$INVERT, @true)` silently upcases input.** `LOGIN` turns case
+inversion on before prompting, so `hunter2` arrived as `HUNTER2`. The password
+verified correctly by hand and failed at login with nothing visibly wrong — the
+record was found, the salt and derived key were the right lengths, `STATUS()`
+was zero. Every intermediate check passed because the only fault was the case of
+the bytes. Found by dumping `seq()` of each character. Inversion is now saved,
+cleared around the password read, and restored.
+
+**`$internal` is only accepted under `sd -internal`**, gated by `BCOMP` on
+`kernel(K$INTERNAL, -1)`. From an ordinary session the directive is rejected and
+then every internal-only statement it enables reports "Unrecognised statement",
+so the reported lines are all several lines below the actual cause.
+
+Also `WRITE ... THEN` is not valid BASIC here; it produces an unrecognised
+statement plus a spurious complaint about text after the final `end`.
+
+### What is not done
+
+`LOGTO` is untouched, so **any authenticated session can still enter any
+account** — the login prompt is the only real control at the moment. Still to
+write: the grant check on the target account, the step-up password on
+`LOGTO SDSYS` against the person's own credential, and confirming `@logname`
+survives the move. The `op_kernel.c` set hole is also still open, which is why
+administrator rights cannot currently be cleared once `IsAdmin()` is true.
+
+Everything this session was run against the probe build with `SD_ADMIN_GROUP`
+overridden to `Users`. `bin/sd.exe` is current but has never been run.
+
+---
+
 ## 13 Aug 2026 — History rewritten to purge every binary. All earlier hashes are stale
 
 **Read this before following any commit hash quoted in an entry below.** The
