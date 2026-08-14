@@ -27,6 +27,87 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Embedded Python removed; SD is a back end for the API
+
+Decision from the repository owner on 13 Aug 2026, prompted by the staging
+script's warning about the 195 MB Python standard library. The answer was not
+"ship it" or "trim it" but that embedded Python was never what this is for:
+**SD for Windows is a back end data store for Windows developers, reached
+through the API.** Recorded as §5.15, and as a scope statement in §1 because it
+is the tie-breaker for anything else that asks whether a feature earns its
+place.
+
+### Why it was a removal, not a flag
+
+`-DEMBED_PYTHON` looked like a one-line change on `Makefile:73`. It is not:
+`gplsrc/sdext_py.c` and `gplsrc/op_sdpyobj.c` carry **no `EMBED_PYTHON` guards
+at all** and are listed in `gpl.src`, so they cannot compile without the Python
+headers however the flag is set. Removing the flag alone would have broken the
+build. And CLAUDE.md's rule against `#ifdef` branches for dead platform code
+applies in spirit, so the whole thing went:
+
+- `gplsrc/sdext_py.c`, `gplsrc/op_sdpyobj.c`, `gplsrc/sdext_python_inc.h`, and
+  their two entries in `gpl.src`
+- the `EMBED_PYTHON` blocks in `op_sdext.c` and `sd.c`
+- `PY_HDRS`, `PY_LDFLAGS` and `-DEMBED_PYTHON` in the Makefile
+- 20 `GPL.BP/PY_*` programs, `SYSCOM/SDPYFUNC.H`, 4 `sdsys/BP/PY_*` tests
+- the `SD_Py*` error codes in `gplsrc/err.h` and the `SD_Py*`/`SD_Obj_*` SDEXT
+  keys in `SYSCOM/KEYS.H`
+
+`gplbld/gen_includes.py` regenerated `SYSCOM/ERR.H` and `GPL.BP/ERRTEXT.H` from
+the edited `err.h` without being asked twice, which is the first real use of
+the tool written earlier the same day.
+
+### Two things that bit, both now traps in §6
+
+**The opcode table is positional.** `kernel.c` builds its dispatch table from
+`opcodes.h`, so deleting `op_sdpyobj` broke the link. Deleting the `_opc_` line
+would have been far worse — it renumbers every opcode after `0xCFFE` and
+invalidates all compiled pcode everywhere. The file's own convention is to
+retire an opcode in place by pointing it at `op_illegal` with a generic name,
+as `OP_09`, `OP_9E` and `OP_BB` already do; `OP_CFFE` is now one of them.
+
+**And `BCOMP` has a parallel positional list.** It registers intrinsics in
+`int.intrinsics` and dispatches through an `on i goto` whose entries are
+matched **by position**. Removing `SDPYOBJ` from one without the other would
+have silently misrouted every intrinsic after it — a fault that compiles
+cleanly and produces wrong code. Both were removed in the same edit.
+
+Also met: the Makefile does not track header dependencies, so editing
+`opcodes.h` left a stale `kernel.o` and the link failed pointing at
+`kernel.c`, a file that had not been touched.
+
+### Verified
+
+- `make sd` from clean links with no Python, and `objdump -p bin/sd.exe` no
+  longer names `msys-python3.12.dll`.
+- `SECOND.COMPILE` compiled **187 programs with no errors** — 207 less the 20
+  `PY_*` programs, exactly as expected — after recompiling `BCOMP` first,
+  since the intrinsic table changed.
+- `COUNT VOC` still reports 432 records, `WHO` reports `SDSYS`, and
+  `COUNT NOSUCHFILE` still expands to "File not found".
+- The staged tree fell from **16.2 MB to 9.6 MB**, and the DLL closure from
+  seven to four. `msys-intl-8` and `msys-iconv-2` went too: they were only ever
+  present because Python pulled them in.
+
+### What else it took with it
+
+`python-devel` and `gettext-devel` leave the build dependencies (§2).
+`gettext-devel` was only ever there because `python3-config --ldflags --embed`
+emits `-lintl`, so an unrelated-looking dependency disappeared with the
+interpreter. Plain `python` stays: `gplbld/bbcmp.py` is the only thing that can
+compile BASIC before a BASIC compiler exists. It is a developer dependency —
+an installed system needs no Python at all.
+
+### Consequence to weigh
+
+If the API is the primary interface, §7 step 6 — bringing `APISRVR` under the
+identity model — matters more than its position suggests. `APISRVR` has **no
+credential check of its own** and its `logname` comes from the client, so any
+session it accepts reaches any account by name. That was tolerable as a side
+entrance. As the main door it is not. Flagged, not reordered; that is the
+repository owner's call.
+
 ## 13 Aug 2026 — Staging script written, and it immediately found an install blocker
 
 First cut of `gplbld/stage.py`, §7 step 3a. It assembles both install roots

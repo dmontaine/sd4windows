@@ -83,6 +83,12 @@ Checklist before you end a session:
 
 Convert ScarletDME/SD from Linux to Windows.
 
+**Who it is for** (stated by the repository owner, 13 Aug 2026): a Windows
+developer using SD as a **back end data store, reached through the API**. That
+is what settled §5.15, and it should be the tie-breaker on anything else that
+asks "is this feature worth carrying?" — it is also why the API's missing
+credential model (§5.6, §7 step 6) is more pressing than its position suggests.
+
 **This repository is Windows only.** Linux development continues in a separate
 repository. Do not add `#ifdef` branches to keep Linux building; replace Linux
 code outright. This was an explicit instruction and it is what makes the source
@@ -109,14 +115,21 @@ when this work started; everything below was installed during the port.
 | msys `gcc` | 15.2.0 | server and utilities (POSIX runtime) |
 | msys `make` | 4.4.1 | all builds |
 | ucrt64 `gcc` (`C:\msys64\ucrt64\bin\gcc.exe`) | 16.1.0 | client DLL (native Win32) |
-| `python` + `python-devel` | 3.12.13 | `EMBED_PYTHON` |
+| `python` | 3.12.13 | the build scripts in `gplbld/` — **not** linked into SD |
 | libsodium | 1.0.20 | encryption |
 
-Installed with pacman: `gcc make pkgconf libxcrypt-devel libbsd python-devel
-gettext-devel mingw-w64-ucrt-x86_64-gcc`.
+Installed with pacman: `gcc make pkgconf libxcrypt-devel libbsd python
+mingw-w64-ucrt-x86_64-gcc`.
 
-`gettext-devel` is needed only because `python3-config --ldflags --embed`
-emits `-lintl`; the runtime `libintl` package does not carry the link library.
+**`python-devel` and `gettext-devel` are no longer needed** (13 Aug 2026), both
+dropped with embedded Python (§5.15). `gettext-devel` was only ever there
+because `python3-config --ldflags --embed` emits `-lintl` and the runtime
+`libintl` package does not carry the link library — so removing the interpreter
+took a second, unrelated-looking dependency with it.
+
+Plain `python` is still required, and always will be: `gplbld/bbcmp.py` is the
+only thing that can compile BASIC before there is a BASIC compiler. It is a
+**developer** dependency — an installed system needs no Python at all.
 
 **libsodium is not packaged for the MSYS2 runtime** — only for
 mingw64/ucrt64/clang64, which are ABI incompatible with it. It is built from
@@ -460,15 +473,19 @@ Keep this split honest. It is the single most useful thing in the file.
   the regenerated `ERRTEXT.H`. 207 rather than the 204 recorded earlier
   because the credential programs were added since. Observed 13 Aug 2026.
 - **The staged tree runs with MSYS2 entirely off PATH.** `gplbld/stage.py`
-  built a 3087-file, 16 MB tree; `sd.exe` from
+  built the tree; `sd.exe` from
   `<stage>\ProgramFiles\usr\bin\` then ran with `PATH` cut down to
   `C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem` — no `msys64`, no
   Git for Windows — and answered `SD is not active.` cleanly, with no warnings
-  and exit 0. That proves the computed DLL closure is complete (7 MSYS2 DLLs;
-  only `kernel32` and `ntdll` come from Windows) and that the `usr\bin` plus
+  and exit 0. That proves the computed DLL closure is complete — only
+  `kernel32` and `ntdll` come from Windows — and that the `usr\bin` plus
   `etc\fstab` arrangement resolves `/dev/shm` correctly. "SD is not active" is
   the right answer, not a failure: the running server's segment belongs to the
-  `msys64` POSIX root and this process has its own. Observed 13 Aug 2026.
+  `msys64` POSIX root and this process has its own. Observed 13 Aug 2026 at
+  3087 files and 16 MB with embedded Python, and **3059 files and 9.6 MB after
+  §5.15 removed it**, the closure dropping from seven DLLs to four —
+  `msys-intl-8` and `msys-iconv-2` turned out to be there only because Python
+  was.
 - **`gplbld/gen_includes.py` reproduces the generators it replaces.** Its
   output matched the tracked files byte for byte on everything that had
   genuinely been generated from the current C headers — all 199 entries of
@@ -1124,8 +1141,8 @@ linkage". What still needs attention:
 - **`KERNEL(key, ...)`** — around 120 keys; the platform sensitive ones are
   `K$ADMINISTRATOR` (§5.6), `K$SETUID`, `K$SETGID`, `K$USERS.UID`,
   `K$IN.GROUP`, `K$TTY`, `K$RUNEXE`, `K$INIPATH`. **Enumerated, not reviewed.**
-- **`SDEXT`** — used by the `PY_*` family, the `EUID_*` pair and the libsodium
-  wrappers.
+- **`SDEXT`** — used by the `EUID_*` pair and the libsodium wrappers. The
+  `PY_*` family was the third caller and is gone (§5.15).
 - **`OS.EXECUTE`** — shell-outs in 10 files; the account commands are §5.6.
 - **The compiler chain** carries no platform branches beyond `@ds` (§6) and the
   token above.
@@ -1237,6 +1254,42 @@ added later then calls the same subroutine instead of reimplementing it or
 shelling out to the verb. `GPL.BP/CRED_SET` and `CRED_VERIFY` with
 `SET_ACC_PASSWORD` over them are the pattern to copy.
 
+### 5.15 Embedded Python is dropped; the API is the point (decided 13 Aug 2026)
+
+Decision from the repository owner on 13 Aug 2026, and it is a **statement
+about what SD for Windows is for**, not just a packaging choice: the intended
+user is a Windows developer using SD as a **back end data store, reached
+through the API**. Embedded Python was not part of that, so it is gone rather
+than shipped unused.
+
+Removed outright, not left behind an `#ifdef` — the same reasoning as the Linux
+code in §1, and two of the files could not have stayed anyway:
+
+| Gone | Note |
+|---|---|
+| `gplsrc/sdext_py.c`, `gplsrc/op_sdpyobj.c`, `gplsrc/sdext_python_inc.h` | **unguarded** and listed in `gpl.src`, so they could not compile without the Python headers at all |
+| `EMBED_PYTHON` blocks in `op_sdext.c` and `sd.c` | the `SD_Py*` SDEXT keys now fall through to the unknown-key response, which is what they are |
+| `PY_HDRS`, `PY_LDFLAGS`, `-DEMBED_PYTHON` in the Makefile | |
+| 20 `GPL.BP/PY_*` programs, `SYSCOM/SDPYFUNC.H`, 4 `sdsys/BP/PY_*` test programs | nothing outside them called them, so the removal is self-contained |
+| The `SD_Py*` error codes in `gplsrc/err.h` and the `SD_Py*`/`SD_Obj_*` keys in `SYSCOM/KEYS.H` | `gplbld/gen_includes.py` regenerated `SYSCOM/ERR.H` and `GPL.BP/ERRTEXT.H` from the edited header, which is the first real use of that tool |
+
+**Three consequences worth carrying forward.**
+
+- **Two build dependencies disappear, not one.** `python-devel` obviously, and
+  `gettext-devel` because it was only ever needed to satisfy the `-lintl` that
+  `python3-config --ldflags --embed` emits (§2). Plain `python` is still
+  needed by `gplbld/`, for the developer only.
+- **The install gets much smaller and one open question closes.**
+  `msys-python3.12.dll` leaves the DLL closure, and with it the unresolved
+  question of whether to ship the 195 MB Python standard library — which
+  `gplbld/stage.py` was warning about. There is nothing to decide any more.
+- **It reorders §7.** If the API is the primary interface then step 6, bringing
+  `APISRVR` under the identity model, and exercising `SDConnectLocal()` are
+  more important than their positions suggest. `APISRVR` currently has **no
+  credential check of its own** (§5.6), which matters a great deal more for a
+  product whose main door is the API than for one where it is a side entrance.
+  Not reordered yet — flagged, because it is the repository owner's call.
+
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
@@ -1245,6 +1298,21 @@ Each of these cost real time. Read before debugging anything similar.
   real Cygwin ones, so it compiles and links; `shmget`/`semget` return ENOSYS
   at runtime. There is no `cygserver` in MSYS2. Test primitives by *running*
   them, not by checking for headers.
+- **The Makefile does not track header dependencies, so edit a header and
+  `make` links stale objects.** Changing `opcodes.h` on 13 Aug 2026 left
+  `kernel.o` untouched and the link failed with `undefined reference to
+  op_sdpyobj` pointing at `kernel.c`, a file that had not been edited. Delete
+  the affected object, or `rm -f gplobj/*.o`, after touching any header.
+- **Retire an opcode in place; never delete the line.** `opcodes.h` is a
+  positional table — removing an `_opc_` entry renumbers every opcode after it
+  and invalidates all compiled pcode everywhere. The file's own convention is
+  to keep the slot and point it at `op_illegal` with a generic name, as
+  `OP_09`, `OP_9E` and `OP_BB` do. `OP_CFFE` is now one of them (§5.15).
+  **And the BASIC side has to move with it**: `BCOMP` registers intrinsics in
+  `int.intrinsics` and dispatches through an `on i goto` list that is matched
+  to it **by position**, so an entry removed from one must be removed from the
+  other in the same edit or every intrinsic after it dispatches to the wrong
+  handler.
 - **`make` must run from `sd64`.** The Makefile uses `MAIN := $(shell pwd)/`,
   so running it from `gplsrc` produces paths like `gplsrc/gplsrc/...`. The
   installer does `cd .../sd64 && make -B`.
@@ -1644,14 +1712,22 @@ the identity model.
       `etc\fstab`, and emits `MANIFEST.txt` so two builds can be diffed. The
       staged `sd.exe` runs with MSYS2 off PATH (§4). What it left open:
 
-      - **The embedded Python standard library is not staged.**
-        `msys-python3.12.dll` is in the closure, so `sd.exe` loads, but
-        `usr/lib/python3.12` is 195 MB and the `PY_*` family will fail
-        without it. Decide: ship it, ship a trimmed subset, or make
-        `EMBED_PYTHON` optional at build time.
-      - **`sdsys/BP` ships and holds test programs** (`PY_TEST`, `sdTests`,
+      - **The `ACCOUNTS/SDSYS` record ships `/usr/local/sdsys`** as the
+        account path — a Linux path, which the staging script copies
+        verbatim. It has to become the production path, and that decision is
+        tied to whether the staged tree is pre-bootstrapped (below).
+      - **`sdsys/BP` ships and holds test programs** (`sdTests`,
         `BIGSTR_TEST` and the like). Harmless, and the Linux install did the
-        same, but decide whether an end user should get them.
+        same, but decide whether an end user should get them. The `PY_*` ones
+        went with §5.15.
+      - **Consider pre-bootstrapping.** §5.9 says the installer stages
+        pre-compiled artefacts, but the script stages `gcat`, `GPL.BP.OUT` and
+        `PCODE.OUT` **empty**, which means the target still has to run the
+        bootstrap. Running it on the build machine at the production path and
+        staging the result would make the install a file copy — no Python, no
+        compiler, nothing to fail half way — at the cost of fixing the data
+        tree's location. Only `ACCOUNTS/SDSYS` embeds it, so the cost is
+        small; a sweep of the live tree found nothing else.
       - **Nothing sets the ACLs yet**, and that is the step that makes the
         data private (§5.7). It belongs in the installer, not the staging.
    b. **Install from the staged tree onto a machine with no development
