@@ -5,27 +5,29 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, end of the second session of the day, at commit
-`9489c94` plus the commit that carries this line. A long session, and most of it
-was driven by **running the installer as a user would** rather than by reading
-code. What landed:
+**Last updated:** 14 Aug 2026, third session of the day, at commit `61b9408`
+plus the commit that carries this line. A short session with one subject: the
+ssh-only model (§5.6.2), which the previous session left built and entirely
+unproven. What landed:
 
-- The installer fix from `5748a51` **run and verified** — 3,264 files, not 16.
-- The daemon **never started on an installed system**; fixed, verified, and
-  renamed `sdlnxd` → **`sdwind`**.
-- **A Windows administrator is an SD administrator** (§5.6.1) — decided,
-  implemented, verified. `sdadmins` is gone.
-- **`CREATE.ACCOUNT` works**, for the first time ever, with a new
-  `ADMINISTRATOR` keyword (§4).
-- **SD runs from an ordinary unelevated session** (§4) — the first time it has
-  been used the way a user would.
-- **SD accounts are to be ssh-only, and the API goes through ssh** (§5.6.2,
-  §8) — decided and built, **not yet tested through ssh**.
-- The installer's **OpenSSH option had never worked at all**; fixed, and
-  `sshd` now runs on this machine.
+- **THE SSH-ONLY MODEL IS PROVEN** (§4, §5.6.2), by a control-and-treatment
+  experiment on a real Windows account. The console closes, ssh stays open,
+  and the account logs in and runs a shell. The one part still unobserved is
+  RDP refusal, which has no way to be automated.
+- **The test is a tracked script, `gplbld/verify-sshonly.ps1`**, because §7
+  step 2 has to repeat it on the second machine.
+- **`deny-logon.ps1` has now run against a real group**, not a throwaway.
+- Three traps found and recorded in §6, all of which produced **false
+  failures** — a passing test that reported FAILED, and a diagnostic that
+  reported total authentication failure for every account on the machine.
+- **A new SD account cannot use key authentication until somebody has logged
+  in with a password once** (§4, §6). This is a property of Windows, it
+  applies to accounts `CREATE.ACCOUNT` makes, and it was found by accident.
+- **`BUILTIN\Users` membership is not needed** — asked because `CREATE_USER`
+  never adds it, answered by measuring rather than by adding it defensively.
 
-**Where it stopped:** the ssh-only model is built and unverified, and this
-machine is now capable of testing it. That is step 1 below.
+**Where it stopped:** everything above is verified except RDP refusal. §5.6.2's
+second layer, `AllowGroups` in `sshd_config`, is still not implemented.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
@@ -43,7 +45,8 @@ install** on it, from the fixed installer:
 | MSYS2 dev tree at `/usr/local/sdsys` | still reachable with `SD_CONFIG=/etc/sd.conf`. Its `bin/` was refreshed with the `sdwind` build on 14 Aug 2026 and the stale `sdlnxd.exe` removed; `pcode`/`pcode.old` are still beside them, since the dev tree keeps the old unsplit layout |
 | **The machine was rebooted** on 14 Aug 2026 | `don`'s token now carries `sdusers`, so **an ordinary unelevated session runs SD** — verified, §4. The sign-out trap in §6 is cleared *on this machine only*; it applies afresh to every new user added to the group |
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled, `C:\ProgramData\ssh\sshd_config` created with defaults. So the ssh-only model (§5.6.2) can now be tested **here**, which was not true earlier in the day |
-| `sdsshonly` group | **does not exist yet.** The installer creates it and applies the deny rights; this machine's install predates that. `CREATE.ACCOUNT` for a non-administrator would fail today until the installer is rebuilt and re-run |
+| `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
+| `sdsshprobe` account | **a real Windows account, left behind on purpose** by `verify-sshonly.ps1 -Keep`, so the RDP test can still be done. Password `kN7uhhUBauxDCZ9TMxmX-Aa9`, in `sdsshonly` and `Users`. **Delete it** with `verify-sshonly.ps1 -Cleanup`, and delete `C:\Users\dmont\sshonly-transcript.txt`, which holds the same password |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -61,29 +64,39 @@ lines, against 145 for the broken run).
 
 **Where to start next.**
 
-0. **PROVE THE SSH-ONLY MODEL, because it is built and could be wrong.** This
-   is where the session stopped and it is the first thing to do. §5.6.2 is
-   decided and implemented; nothing has been tested through ssh. **This machine
-   can now do it** — `sshd` is Running/Automatic as of 14 Aug 2026.
+0. **Finish the two loose ends the ssh-only work left, then delete the probe
+   account.** The model itself is proven (§4); what is below is small and
+   should not be left to drift.
 
-   The ordered steps and the risk are in §4 Unverified, "THE SSH-ONLY MODEL".
-   The short version:
+   a. **Sign in over RDP as `sdsshprobe` and confirm it is refused.** The only
+      claim in §5.6.2 with no observation behind it. It cannot be automated —
+      `SeDenyRemoteInteractiveLogonRight` has no `LogonUser` type, so RDP is
+      the only thing that exercises it — which is why the probe account was
+      left alive. `mstsc /v:localhost`, password in the table above.
 
-   ```powershell
-   # elevated, once
-   New-LocalGroup -Name sdsshonly -Description "SD accounts restricted to ssh"
-   & 'C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\deny-logon.ps1' sdsshonly
-   ```
+   b. **Then delete the probe**, and the transcript that holds its password:
 
-   then `CREATE.ACCOUNT USER <throwaway>` from an elevated SD session, and try
-   to ssh in as it. **Step 3 in §4 is the one that matters**: if Win32-OpenSSH
-   needs something those deny rights remove, the model fails **closed** and
-   nobody can reach SD at all. Prove that before building anything on top of
-   it.
+      ```powershell
+      powershell -File sdb_ai\sd64\gplbld\verify-sshonly.ps1 -Cleanup
+      Remove-Item C:\Users\dmont\sshonly-transcript.txt
+      ```
 
-   **Delete the throwaway account afterwards.** It is a real Windows account
-   with a password you chose; the last set were removed the same session and
-   the reasoning is in §4.
+      Leave `sdsshonly` alone. It is what the installer creates, and
+      `CREATE.ACCOUNT` needs it.
+
+   c. **`AllowGroups` is still not implemented** (§5.6.2, the second layer).
+      `sshd_config` now exists, so there is something to edit. Read the two
+      cautions in §5.6.2 first: the list **must** include administrators or
+      the machine's own administrator loses ssh, and §5.9 forbids
+      reconfiguring an ssh server SD did not install — so it is an installer
+      offer, not something a verb does silently.
+
+   **`CREATE.ACCOUNT USER <name>` has still never been run with `sdsshonly`
+   present.** The group did not exist when the verb was last exercised, so the
+   ssh-only branch at `CREATEA` line 400 has never executed. It is now
+   unblocked on this machine and is the cheapest remaining test: it needs an
+   elevated SD session, and it would leave a real Windows account to delete
+   afterwards.
 
 1. **Finish the account model now that administration is the OS's** (§5.6.1,
    decided 14 Aug 2026). `IsAdmin()` is done and verified; what is left is the
@@ -966,6 +979,72 @@ Keep this split honest. It is the single most useful thing in the file.
     permissions on a database the user just chose to keep. Now commented as
     intentional rather than left looking like an oversight.
 
+- **THE SSH-ONLY MODEL WORKS.** Observed 14 Aug 2026 by
+  `gplbld/verify-sshonly.ps1`, against a real Windows account on this machine.
+  This is §5.6.2, which had been decided, built, shipped in the installer and
+  never once exercised. Thirteen checks, all passing:
+
+  | | control, in no SD group | after joining `sdsshonly` |
+  |---|---|---|
+  | `LogonUser` INTERACTIVE — the console | admitted | **refused 1385** |
+  | `LogonUser` NETWORK_CLEARTEXT — ssh password auth | admitted | admitted |
+  | `LogonUser` NETWORK | — | admitted |
+  | **`ssh` with a password** | admitted | **admitted** |
+  | `ssh` with a key | admitted | admitted |
+
+  **The bottom row of the middle column is the whole design.** The console is
+  closed by the deny rights and ssh is not, measured on the same account
+  minutes apart with nothing else changed. `1385` is
+  `ERROR_LOGON_TYPE_NOT_GRANTED`.
+
+  **`ssh` was admitted and ran a shell**, not merely authenticated: the test
+  asserts on `whoami` returning the account name, so `cmd.exe` started under
+  that token. And the verdict does not rest on the test's own reporting —
+  the `OpenSSH/Operational` event log recorded `Accepted password for
+  sdsshprobe` and `Accepted publickey for sdsshprobe ... ED25519` from the
+  installed service at the same moment.
+
+  Also confirmed on the same run: the two deny rights are in machine policy
+  against the group and `SeDenyNetworkLogonRight` is **not** — checked by
+  reading `secedit /export` back and comparing **by name**, per the caveat
+  already in this section. And `deny-logon.ps1` ran against a real group for
+  the first time, having previously only been tried on a throwaway.
+
+  **Why there is a control column at all.** The first run refused the key
+  login on *both* sides. Had the treatment side been measured alone, that
+  would have read as "the deny rights break ssh" and §5.6.2 would have been
+  abandoned on a false result. An equal failure on both sides cannot have
+  been caused by the thing that differs between them. Keep the control.
+
+  **Not covered:** RDP. See §4 Unverified.
+
+- **A brand new Windows account cannot use ssh key authentication until it has
+  logged in once.** Found 14 Aug 2026 while chasing the failure above, and it
+  is a property of Windows rather than of anything here. An account that has
+  never logged on has no user profile and no home directory, and
+  Win32-OpenSSH resolves `AuthorizedKeysFile .ssh/authorized_keys` relative to
+  the home directory — so a key planted for a new account is never read.
+
+  Observed in both directions across runs: with no prior login of any kind the
+  key was refused twice; after one password login — which creates the profile,
+  confirmed by the `ProfileList` registry entry and `C:\Users\<name>`
+  appearing — the same key on the same account was accepted. Group membership
+  was identical either way, so the prior login is the difference.
+
+  **It applies to accounts `CREATE.ACCOUNT` makes**, which have also never
+  logged on. Key-only access to a new SD account cannot work until somebody
+  has authenticated with a password once. Nothing in the code has to change,
+  but anyone documenting key-based access has to know it.
+
+- **`BUILTIN\Users` membership is not required for an SD account.** Asked
+  because `New-LocalUser` joins no group at all and `CREATE_USER` adds none
+  either, so an SD account is in `sdusers`, `sdu_<name>` and `sdsshonly` and
+  nothing else — an unusual state that looked like a likely cause while the
+  ssh failures were unexplained. Measured 14 Aug 2026 rather than assumed: the
+  account logged in over ssh and ran `whoami` **before** `Users` was added,
+  and adding `Users` afterwards changed nothing. So `CREATE.ACCOUNT` does not
+  need to add it, and a defensive `Add-LocalGroupMember` was not written.
+
 ### Not verified — treat as unknown
 
 - **Every OS account operation.** `CREATE.ACCOUNT`, `DELETE.ACCOUNT` and
@@ -973,29 +1052,30 @@ Keep this split honest. It is the single most useful thing in the file.
   cannot be from a normal session (§5.6, elevation). No throwaway OS accounts
   were created. Compiling is not running, and this is the largest untested
   thing added on 14 Aug 2026.
-- **THE SSH-ONLY MODEL, end to end** (§5.6.2) — **and this machine can now test
-  it**, since `sshd` is running (§4 Verified). That was the blocker all day and
-  it is gone. The pieces are built and the deny rights are proven to apply; what
-  has never been exercised, in the order to do it:
+- **RDP refusal.** The last unobserved claim in §5.6.2, and the only part of it
+  that is not now verified (§4 Verified). `SeDenyRemoteInteractiveLogonRight`
+  is confirmed **applied** to `sdsshonly` in machine policy, but nothing has
+  watched it refuse a session. It cannot be automated: there is no `LogonUser`
+  logon type corresponding to RDP, so the right can only be exercised by an
+  actual Remote Desktop connection. The `sdsshprobe` account was deliberately
+  left alive for this — §7 step 0a.
 
-  1. **Create `sdsshonly` and apply the rights.** The group does not exist here
-     — this machine's install predates it. Either rebuild and re-run the
-     installer, or for a quick test create the group by hand and run
-     `gplbld/deny-logon.ps1 sdsshonly` elevated.
-  2. **`CREATE.ACCOUNT USER <name>` and check the branch runs.** It compiles
-     with 0 errors and reuses `!os_group`, which is verified, but the ssh-only
-     branch itself has never executed and will fail until (1) is done.
-  3. **That the account CAN ssh in.** *This is the one that would invalidate
-     the design.* §5.6.2 names the risk: if Win32-OpenSSH needs something the
-     deny rights remove, the model fails **closed** and nobody reaches SD at
-     all. Test it before anything is built on top.
-  4. **That the same account CANNOT reach the console or RDP** — the actual
-     point of the exercise.
-  5. **That SD itself works over that ssh session** — `sd -ASOMEACCOUNT` typed
-     at a real terminal, which also finally answers §4's oldest open question
-     about typing at SD from a Windows console.
-  6. **`AllowGroups`** in `sshd_config`, not implemented at all. The file now
-     exists, so there is something to edit; §5.6.2 has the cautions.
+- **`CREATE.ACCOUNT` with `sdsshonly` present.** The verb was run on 14 Aug
+  2026 (§4 Verified) but the group did not exist then, so the ssh-only branch
+  at `CREATEA` line 400 has still never executed. The group exists now. Note
+  that the branch `stop`s on failure *after* the Windows account and the
+  account directory have been created, so a failure there leaves a half-made
+  account.
+
+- **That SD itself works over an ssh session** — `sd -ASOMEACCOUNT` typed at a
+  real terminal reached over ssh. The ssh transport is proven and SD is proven,
+  but not the two together, and it is also the oldest open question in this
+  section: how the MSYS2 tty layer behaves at a real console rather than with
+  redirected stdin.
+
+- **`AllowGroups`** in `sshd_config`, §5.6.2's second layer, not implemented at
+  all. The file now exists, so there is something to edit; §5.6.2 has the two
+  cautions and §7 step 0c repeats them.
 
 - **Whether `OS.EXECUTE` works at all on an installed system.** It almost
   certainly does not — see the shell trap in §6.
@@ -2177,6 +2257,64 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **In PowerShell 5.1, `native.exe 2>&1` turns every stderr LINE into a
+  terminating error when `$ErrorActionPreference = 'Stop'`.** Found 14 Aug
+  2026. PowerShell wraps native stderr in `ErrorRecord`s
+  (`NativeCommandError`), and under `Stop` an `ErrorRecord` throws.
+
+  **It fails on success, which is what makes it expensive.** `ssh` prints
+  `Warning: Permanently added 'localhost' to the list of known hosts` to
+  **stderr after logging in successfully**. `verify-sshonly.ps1` reported
+  `FAILED` with a stack trace for a login that had worked.
+
+  Do not redirect native stderr inline. Use `Start-Process` with
+  `-RedirectStandardOutput` and `-RedirectStandardError` to separate files and
+  read `.ExitCode`; `Invoke-Native` in `verify-sshonly.ps1` is the pattern.
+  Feed stdin from an empty file at the same time, so anything that decides to
+  prompt gets EOF and fails instead of hanging for ever.
+
+- **`sshd -d` started from an elevated administrator prompt cannot
+  authenticate ANY account.** Found 14 Aug 2026, while trying to find out why
+  a login was refused. sshd must run as **SYSTEM** to build a user token:
+
+  ```
+  debug1: get_user_token - unable to generate user token for <name>
+          as i am not running as system
+  ga_init, unable to resolve user <name>
+  ```
+
+  It fails at `mm_answer_pwnamallow`, before authentication is attempted, and
+  the DEBUG3 log therefore looks exactly like a total authentication failure
+  that has nothing to do with what is being tested. Elevation is not enough
+  and there is no flag for it.
+
+  **Read the installed service's reasons instead** — it runs as SYSTEM, and it
+  logs to the `OpenSSH/Operational` event log:
+
+  ```powershell
+  Get-WinEvent -LogName 'OpenSSH/Operational' -MaxEvents 40 |
+      Sort-Object TimeCreated |
+      ForEach-Object { "{0:HH:mm:ss}  {1}" -f $_.TimeCreated, $_.Message }
+  ```
+
+  At the default level that already distinguishes `Failed password for <name>`
+  from `Accepted password for <name>` from "user not allowed", which was
+  enough to tell an authentication failure from a rights refusal.
+
+- **Do not make a person retype a random password into a test.** Found 14 Aug
+  2026. A 36-character password containing `l`, `I`, `1`, `O` and `0` was
+  typed by hand three times and logged three `Failed password` entries,
+  pointing at a design problem that did not exist — `LogonUser` had accepted
+  the same string on the same account minutes earlier.
+
+  `ssh` takes no password on the command line, but it does honour
+  **`SSH_ASKPASS` with `SSH_ASKPASS_REQUIRE=force`** (measured here on
+  OpenSSH_for_Windows_9.5), so a helper program can supply it and the test can
+  be automated. Pass the secret to the helper in an **environment variable**
+  rather than writing it into the helper file, and clear it in a `finally`.
+  Where a password must still be readable by a human, generate it from an
+  alphabet with no ambiguous glyphs and no shell metacharacters.
 
 - **In an Inno `[Run]` parameter, `{{` escapes a literal `{` but `}` MUST BE
   WRITTEN SINGLY — and `}}` gives you two.** Found 14 Aug 2026. The OpenSSH

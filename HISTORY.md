@@ -27,6 +27,109 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - The ssh-only model is proven, and three false failures on the way
+
+Third session of 14 Aug 2026, covering the commit that carries this entry, on
+top of `61b9408`. One subject: §5.6.2, which the previous session left decided,
+implemented, shipped in the installer and completely unexercised.
+
+### What was proven
+
+`gplbld/verify-sshonly.ps1`, new and tracked, against a real Windows account:
+thirteen checks, all passing. The result in one line — **joining `sdsshonly`
+takes away the console and leaves ssh alone.**
+
+| | control, no SD group | in `sdsshonly` |
+|---|---|---|
+| `LogonUser` INTERACTIVE | admitted | **refused 1385** |
+| `LogonUser` NETWORK_CLEARTEXT | admitted | admitted |
+| `ssh` with a password | admitted | **admitted** |
+| `ssh` with a key | admitted | admitted |
+
+The account did not merely authenticate: the test asserts on `whoami` coming
+back, so a shell ran under that token. And the verdict does not rest on the
+test's own reporting — the installed sshd, which is the only one that counts,
+logged `Accepted password for sdsshprobe` and `Accepted publickey for
+sdsshprobe` to `OpenSSH/Operational` at the same moment.
+
+`deny-logon.ps1` ran against a real group for the first time; it had only ever
+been tried on a throwaway. `SeDenyNetworkLogonRight` was confirmed untouched,
+which is the one thing in the design that had to be got right.
+
+**Still not observed: RDP refusal.** There is no `LogonUser` type for it, so it
+cannot be automated at all. The probe account was deliberately left alive so
+the test can still be done by hand.
+
+### Why the script is a file rather than a session
+
+§7 step 2 has to repeat all of this on the second machine, which is being built
+precisely because this one has a development tree. A test that exists only as
+typed commands would have been retyped from memory, differently.
+
+### The control column earned its place immediately
+
+The first run refused the **key** login on both sides of the experiment. Read
+without a control that is "the deny rights break ssh", and §5.6.2 would have
+been abandoned on a false result. An equal failure on both sides cannot have
+been caused by the thing that differs between them.
+
+The real cause turned out to be worth knowing on its own: **a Windows account
+that has never logged on has no user profile**, and Win32-OpenSSH resolves
+`AuthorizedKeysFile .ssh/authorized_keys` relative to the home directory — so
+the planted key was never read. Shown in both directions across runs: refused
+twice with no prior login; accepted after one password login, which creates the
+profile. **This applies to accounts `CREATE.ACCOUNT` makes**, and it is in the
+product changelog for that reason.
+
+### Three false failures, all now traps in §6
+
+Every one of them reported a failure that had not happened, which is the
+expensive kind.
+
+1. **`native.exe 2>&1` under `$ErrorActionPreference = 'Stop'`.** PowerShell
+   5.1 wraps native stderr in `ErrorRecord`s and `Stop` makes them throw. `ssh`
+   writes `Warning: Permanently added 'localhost' ...` to stderr **on a
+   successful login**, so the script died on a success message and printed
+   `FAILED` with a stack trace. Fixed by routing every external program through
+   one `Invoke-Native` helper built on `Start-Process` with separate stream
+   files. There is no inline `2>&1` left in the script.
+
+2. **`sshd -d` from an elevated prompt authenticates nobody.** sshd must run as
+   SYSTEM to build a user token; elevation is not enough and there is no flag
+   for it. It answers `get_user_token - unable to generate user token ... as i
+   am not running as system` and fails at `mm_answer_pwnamallow`, before
+   authentication is attempted — so a DEBUG3 log that looks like a total
+   authentication failure is really a diagnostic that cannot work. Both rounds
+   of a diagnostic script were void. The installed service's reasons are in the
+   `OpenSSH/Operational` event log and were enough.
+
+3. **A human retyping a 36-character random password.** Three `Failed password`
+   entries in the event log pointed at a design problem that did not exist —
+   `LogonUser` had accepted the same string on the same account minutes
+   earlier. `ssh` honours `SSH_ASKPASS` with `SSH_ASKPASS_REQUIRE=force`, so
+   the password test is now automated; the secret travels in an environment
+   variable cleared in a `finally`, never in a file. The generated password now
+   also avoids `l I 1 O 0` and every shell metacharacter.
+
+### A question asked and answered by measuring
+
+`New-LocalUser` joins no group at all, and `CREATE_USER` adds none either, so
+an SD account is in `sdusers`, `sdu_<name>` and `sdsshonly` and **not
+`BUILTIN\Users`**. While the ssh failures were unexplained this looked like a
+likely cause, and the tempting fix was to add `Users` defensively in
+`CREATEA`. It was measured instead: the account logged in over ssh and ran a
+command *before* `Users` was added, and adding it changed nothing. **No code
+was changed**, and §4 records the measurement so the question is not reopened.
+
+### What it cost, and what is still open
+
+Three elevated runs, two of which failed for reasons that had nothing to do
+with the subject. Open: RDP refusal; `CREATE.ACCOUNT` with `sdsshonly` present,
+which has still never executed that branch; `AllowGroups`; and SD itself driven
+over an ssh session.
+
+---
+
 ## 14 Aug 2026 - SD runs as an ordinary user, and sshd finally starts
 
 The end of the second session of 14 Aug 2026. Both results came from the
