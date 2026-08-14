@@ -11,16 +11,14 @@ built it; see the correction in §5.6 and the HISTORY entry of the same date.
 
 **Where to start tomorrow.**
 
-1. **Run the installer.** `gplbld/sd.iss` is written and compiles (§4); what
-   it does to a machine has never been tested. Do it on a clean machine if at
-   all possible — this one has a development tree, an `sdusers` group and a
-   populated `C:\ProgramData\SD`, so it can only exercise the upgrade path,
-   not a first install. Watch for: the ACL locking the installing user out
-   until they sign out and back in, `SET.PASSWORD` at a real Windows console
-   (unverified, §4), and whether `C:\Program Files\SD\` behaves as the
-   staged directory did.
+1. **Install on a clean machine.** The installer has been run here and works
+   (§4), but this machine had a development tree *and* an existing data tree,
+   so what was exercised was the **upgrade** path. A genuine first install —
+   where the installer lays down `sdsys` itself — has not happened, and it is
+   the one that finds anything depended on by accident. Also still untested:
+   `SET.PASSWORD` typed at a real Windows console (§4).
 
-   The script itself was written against all of §5.16's blockers being
+   The script was written against all of §5.16's blockers being
    cleared — the shell, the pre-bootstrap, the staging gap and the
    configuration file — and a staged tree has been installed and run with
    nothing set in the environment (§4). What is left is the `.iss` itself, the
@@ -589,10 +587,36 @@ Keep this split honest. It is the single most useful thing in the file.
   binaries were run from the staging directory, which exercises the same POSIX
   root rule but not the final location.
 
-- **The Inno Setup script exists and compiles**, `gplbld/sd.iss`, producing
-  `sd-setup-1.0-2.exe` at 4.5 MB from the staged tree — clean, no warnings,
-  14 Aug 2026. **It has not been run.** Compiling an installer proves only
-  that it is a valid script; everything it does to a machine is unverified.
+- **THE INSTALLER RUNS, AND THE INSTALLED SYSTEM WORKS.** `sd-setup-1.0-2.exe`
+  built from `gplbld/sd.iss` was run on this machine on 14 Aug 2026, elevated
+  and `/VERYSILENT`, exit code 0. Everything it is supposed to do, it did:
+
+  - 15 files into `C:\Program Files\SD\`, the executables and all four MSYS2
+    DLLs in `usr\bin`, `etc\fstab` beside them.
+  - The `sdusers` local group created and `GITORLI\don` added to it.
+  - **The data tree is no longer world readable.** `icacls` left exactly
+    `sdusers:(OI)(CI)(M)`, `BUILTIN\Administrators:(OI)(CI)(F)` and
+    `NT AUTHORITY\SYSTEM:(OI)(CI)(F)`. The inherited
+    `BUILTIN\Users:(I)(OI)(CI)(RX)` that made it readable by anyone is gone.
+    This is §5.7's goal, achieved for the first time.
+  - `C:\Program Files\SD\usr\bin` added to the machine PATH.
+  - An entry under the `Uninstall` key, so SD appears in Settings > Apps
+    pointing at `C:\Program Files\SD\unins000.exe`.
+  - **The upgrade path behaved.** `sd.conf` was logged "Skipping due to
+    onlyifdoesntexist flag", and the `sdsys` tree does not appear in the
+    install log at all — `Check: DataTreeAbsent` skipped it, and the existing
+    database was left untouched.
+
+  **And SD then ran from `C:\Program Files\SD\usr\bin`**, which had never been
+  used before: `sd -start`, `COUNT VOC` reporting **431 records**,
+  `LIST ACCOUNTS` reporting `Pathname: C:\ProgramData\SD\sdsys`, and
+  `sd -stop`. So the `usr\bin` POSIX-root rule and the `etc\fstab` mapping
+  both hold at the real install location, not only in a staging directory.
+
+  Two things this still does not prove: the machine has a development tree, so
+  an accidental dependency on it could survive; and this was an *upgrade* over
+  a data tree that was already there, so a genuine first install — where the
+  installer lays down `sdsys` itself — has not been exercised.
 
 - **An installed system finds its configuration with nothing set in the
   environment.** Observed 14 Aug 2026 with `SD_CONFIG` and `SCARLET_CONFIG`
@@ -1615,6 +1639,25 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **The ACL lockout's symptom is "Error 13 allocating semaphores", which names
+  nothing useful.** After the installer sets the ACLs, a session whose token
+  does not carry `sdusers` cannot reach `C:\ProgramData\SD` — and since
+  `etcstab` maps `/dev/shm` there, the first thing to fail is semaphore
+  allocation. Errno 13 is EACCES. Observed 14 Aug 2026 immediately after
+  installing: the installing user is added to `sdusers`, but **Windows fixes
+  group membership in the access token at logon**, so until they sign out and
+  back in they match none of the three ACEs on their own database. The
+  installer says so in a dialog at the end for exactly this reason. Anyone who
+  dismisses it gets an error about semaphores and no path forward. Worth
+  reporting EACCES on `/dev/shm` distinctly in `sdsem.c` at some point.
+
+- **`/SUPPRESSMSGBOXES` does not suppress `MsgBox` calls from `[Code]`.**
+  Measured 14 Aug 2026: a `/VERYSILENT /SUPPRESSMSGBOXES` install still stopped
+  and waited for someone to click OK. An unattended deployment would hang
+  indefinitely. The test that works is `WizardSilent` in the install path and
+  `UninstallSilent` in the uninstall path — two different flags for the same
+  job. `gplbld/sd.iss` now checks both.
 
 - **The UCRT64 compiler needs its own `bin` on PATH even when it is invoked by
   absolute path, and it fails with no message whatsoever.** `gcc.exe` finds its
