@@ -1199,6 +1199,33 @@ It grants no access the user does not already have at a command prompt, which
 is precisely why §5.7's service model — not a block on `SH` — is what makes the
 data tree private.
 
+### 5.14 Administration should be forms, not remembered command lines (goal, 13 Aug 2026)
+
+Goal from the repository owner on 13 Aug 2026, for **after the system runs
+well** — not now, and not a reason to hold anything else up. Much of what
+administration currently requires is a command line somebody has to remember,
+or a record edited by hand in `MODIFY`. The intent is a set of admin helpers
+that put a form in front of the same work.
+
+Recording it here because it changes how several things on the §7 list should
+be built, and it is cheaper to know that before writing them than after:
+
+- **The grants verb** (§7 step 5) is the clearest case. `ACC$USERS` is edited
+  through `MODIFY ACCOUNTS` today. Whatever shape it takes — `GRANT`/`REVOKE`
+  or a `SET.ACCESS` screen — a form is the destination, so put the work in a
+  subroutine the form can call rather than in the verb itself.
+- **The batch allowlist** (§8) is the same: `ED VOC ALLOWED` is workable and a
+  form is better, particularly as it is the one place that has to enforce the
+  no-arguments and VOC-type rules recorded there.
+- **`SET.PASSWORD`** already exists and is prompt-driven, which is the right
+  precedent.
+
+The general rule that follows: **new administrative capability goes in a
+subroutine with a verb over it**, not in a verb that holds the logic. A form
+added later then calls the same subroutine instead of reimplementing it or
+shelling out to the verb. `GPL.BP/CRED_SET` and `CRED_VERIFY` with
+`SET_ACC_PASSWORD` over them are the pattern to copy.
+
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
@@ -1568,6 +1595,13 @@ the identity model.
    apt/dnf/zypper, systemd, xinetd, `/etc` paths, `useradd`, and a `cp -R bin`
    that assumed tracked binaries (§5.11). A development tool, not a product;
    the Inno Setup installer with staged pre-compiled artefacts is step 9.
+
+   **Set the SDSYS password last**, after the whole bootstrap has run. `LOGIN`
+   admits an administrator to an account with no verifier yet, so every
+   internal command in the sequence works while SDSYS has no credential, and
+   nothing has to carry a password through the build. This is the whole of the
+   install half of the batch-login question in §8; get the ordering wrong and
+   it becomes a real problem instead of a non-problem.
 4. **Add the audit log** (§5.6). The missing half of the identity model:
    access is controlled, nothing records who used it. Its own append-only file
    that rotates rather than truncates — *not* `<sysdir>/errlog`, which discards
@@ -1597,14 +1631,24 @@ the identity model.
 9. **Write the Inno Setup installer** (§5.9), staging pre-compiled artefacts
    rather than building on the target. The ACL step is the one that actually
    makes the data private; nothing at runtime substitutes for it.
-10. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
+10. **Let a scheduled job log in** (§8). The allowlist and the batch account
+    that grants nobody. Not urgent — the install half of the problem is solved
+    by ordering (step 3) — but it is what MV users expect and it needs no new
+    C code. Build it against the constraints written into §8, particularly the
+    no-arguments rule, which is the part doing the security work.
+11. **Write the admin helpers** (§5.14). Forms over the administrative work
+    that is command lines and hand-edited records today, once the system runs
+    well enough to be worth using. The sequencing note matters more than the
+    step: put administrative logic in subroutines from now on, so a form can
+    call it later without reimplementing it.
+12. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
     file from §5.8, or `SD_CONFIG` set.
-11. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
+13. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
     tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
     flipping the switches first would enable paths that are no longer present.
     Start with `CPROC`'s `dir.separator`, since compilation depends on it —
     and note that is now testable, since `sdrealpath()` accepts `\` (§5.8).
-12. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
+14. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
     are fork+exec, none need copy-on-write, so this is tractable), `termios` →
     Console API, passwd/group → Windows authentication. **The service-account
     model in §5.7 belongs here**, and until it lands the data tree is not
@@ -1624,6 +1668,103 @@ same day by the repository owner** and are now written into §5.6. SDSYS reaches
 every account without exception, and `LOGTO` accepts a registered account name
 only — direct directory access by path is not supported, which closes the
 bypass rather than trying to resolve paths back to accounts.
+
+### Open: how does a scheduled job log in, now that every account has a password?
+
+Raised by the repository owner on 13 Aug 2026. Every account carries a password
+(§5.6), and MV users expect to run work unattended — cron jobs, scheduled
+tasks, and the `sd -internal SECOND.COMPILE` shape the install script uses. The
+design below is the repository owner's; the constraints under it came out of
+working through it and are recorded so they are not re-derived.
+
+**The install case is not part of this and is already solved.** `LOGIN`'s
+`authenticate.account` checks `$CRED` first and admits an administrator, with a
+warning, to an account that has no verifier yet; `sd -i` never reaches `LOGIN`
+at all. So an installer that runs the whole bootstrap and calls `SET.PASSWORD`
+as its **last** step needs no credential during the build. That is an ordering
+requirement on §7 step 3, not an open question.
+
+**The design.** An `X`-type VOC item named `ALLOWED` in **SDSYS's** VOC, whose
+lines are `ACCOUNT, VOC name` pairs. `LOGIN` consults it: the account to enter
+comes from the list, and so does the command that may run. Because the item
+lives in SDSYS, only an administrator can add to it — but the job runs in the
+named account, so **nothing runs with administrator rights**; SDSYS is the
+storage location for the policy, not the context it executes in.
+
+Paired with it: **a dedicated batch account that grants nobody.** An account
+with an empty `ACC$USERS` is already refused to everyone, and SDSYS already
+reaches every account without a grant, so only the administrator can enter it
+to edit its VOC or recompile its BP programs. Both halves of that are existing,
+observed behaviour (§4) — this is a deployment convention, not a new mechanism,
+which is its main virtue. `KIM` on the current test machine is already this
+shape.
+
+**The mechanism exists.** `SYSTEM(1026)` returns the command from the command
+line (`op_sys.c`, case 1026, from `single_command` in `sd.c`), and `CPROC` does
+not pick it up until line 556, so `LOGIN` can read it and decide before
+authenticating. No new C code is needed.
+
+**Constraints to build to.**
+
+- **One token, no arguments, and enforce it.** This is what does the actual
+  security work, not "must be in VOC" — every verb is a VOC item (`COPY` is a
+  `CA` entry for `$COPY`, `LIST` is `CA` for `$QPROC`), so requiring VOC
+  membership excludes almost nothing. With no arguments a verb entry is
+  useless and only a paragraph is worth listing. Reject a command with
+  anything after the first word.
+- **Accept only `PA` and `S` VOC types** when the list is consulted, so a
+  mislisted verb fails when the administrator sets it up rather than spinning
+  on a prompt at 3am.
+- **Any prompt must be fatal in this mode.** A scripted session that reaches an
+  unanswered prompt spins at full CPU (§6).
+- **The name must be unique across the list**, or `-A` must be present and
+  match. `-A` naming a different account is a refusal, never a silent override.
+- **Set `@logname` explicitly** so the audit record reads as an allowlist entry
+  rather than as a login. Attribution is the point of §5.6 and an unattended
+  job has no person behind it.
+- **Catalogue batch programs locally**, not globally, so they do not appear in
+  `gcat` and become runnable from every account.
+
+**What was rejected, and why, so it is not proposed again.**
+
+- **A password on the command line.** Command lines are readable by any local
+  user through Task Manager, `Get-CimInstance Win32_Process` and ETW.
+- **A password file** works today — `cat pw | sd -ABATCH CMD`, and note `<`
+  redirection does not (§6) — and an ssh-style refusal to use a file with a
+  loose ACL would make it defensible. It was passed over because a capability
+  list is better than a stored credential in two ways: there is no secret to
+  leak or rotate, and a stolen credential grants an *interactive session*
+  while a list grants only a fixed set of commands.
+- **Hashing the VOC entry to detect tampering** pins one hop and no further: a
+  paragraph reading `RUN BP NIGHTLY` can be pinned, but `BP NIGHTLY` cannot,
+  and a transitive closure discovered at run time cannot be hashed at all.
+  Storing the command text in the list rather than a name to look up gets the
+  same protection for nothing — the approved thing and the executed thing
+  become the same object. Whether the list holds a name or the command text is
+  still to decide.
+
+**What this depends on, and what it does not fix.**
+
+- **The batch account is the one account where per-directory ACLs work in
+  stage 1.** §5.7's dilemma — grant every SD user access to every account, or
+  duplicate the password gate in ACLs — exists because a user's own process
+  must read the files of any account they enter. No ordinary user is ever
+  meant to run in the batch account, so there is exactly one principal to
+  grant: whatever the scheduled task runs as, plus `Administrators`. An
+  `icacls` on that directory closes the tampering gap properly, today, with no
+  stage 2 dependency. Fold it into §5.9's ACL step.
+- **The account boundary is not a data boundary.** `ACC$USERS` gates `LOGTO`,
+  not file opens, so a Q-pointer in the batch account's VOC reaches another
+  account's files with no grant at all. "Runs without administrator rights" is
+  true and worth having; it is not a sandbox. Every grant added to let a job
+  reach real data widens what a compromised batch account reaches.
+- **Still open: who may trigger it.** The list says what may run unattended,
+  not who may fire it, so any local user who can run `sd.exe` can start a
+  listed job. With the batch account ACL'd away from them that is a matter of
+  causing a job to run at the wrong time rather than of reading or altering
+  anything — tolerable, but it argues for listing only work that is safe to
+  trigger and ideally idempotent. An optional third column naming an OS
+  principal is the escape hatch if that is not enough.
 
 ### Settled: the binaries were purged from history on 13 Aug 2026
 

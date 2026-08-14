@@ -27,6 +27,39 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Batch login raised and designed; admin helpers set as a goal
+
+No code. Two things from the repository owner, both recorded in
+PROJECT_STATUS.md rather than here because both are still ahead of the work:
+the full reasoning for the first is in §8 under "how does a scheduled job log
+in", and the second is §5.14.
+
+**Batch login.** Every account now carries a password (§5.6), which breaks the
+`sd -internal SECOND.COMPILE` shape the install script uses and the cron jobs MV
+users expect. The design chosen is the repository owner's: an `ALLOWED` item in
+SDSYS's VOC listing `ACCOUNT, VOC name` pairs, so that only an administrator can
+authorise unattended work, paired with a batch account that grants nobody so
+that only an administrator can maintain what runs. It needs no new C code —
+`SYSTEM(1026)` already exposes the command line to `LOGIN`.
+
+Recorded here mainly so the alternatives are not proposed again: a password on
+the command line is readable by any local user; a password file works and could
+be made defensible but a capability list beats a stored credential; and hashing
+the VOC entry to detect tampering pins one hop only, because a transitive
+closure discovered at run time cannot be hashed. §8 carries the reasoning and
+the constraints that came out of working it through.
+
+The install half of the problem turned out not to be a problem: `LOGIN` admits
+an administrator to an account with no verifier yet, so an installer that sets
+the SDSYS password **last** needs no credential during the bootstrap. That is
+now an ordering requirement on §7 step 3.
+
+**Admin helpers.** A goal for after the system runs well: forms in place of
+remembered command lines and hand-edited records. The part that matters before
+then is the sequencing rule it implies — put administrative logic in
+subroutines with a verb over it, so a form can call the same code later. §7 was
+renumbered to add both; steps 1 to 9 are unchanged.
+
 ## 13 Aug 2026 — The data tree no longer holds C source, and `ERRGEN` turned out to be booby-trapped
 
 Carries out §7 step 1, parts a, b and c. The data tree can now be built and
