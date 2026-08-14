@@ -27,6 +27,51 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - PowerShell becomes the shell, and two standing rules
+
+Follows directly from the entry below, which found that `OS.EXECUTE` ran
+`/bin/bash -c` while an installed SD ships no shell. Instruction from the
+repository owner: point `SH1` at PowerShell and update the `OS.EXECUTE`
+strings.
+
+**It simplified the code rather than complicating it.** The five programs
+written earlier the same day each built a PowerShell script and then wrapped it
+in bash single quotes to protect it. With PowerShell as the shell the command
+*is* the script, so the wrapper and the `>/dev/null 2>&1` came out of all of
+them. `!ps_script` changed most: it used to `cat` its temporary file into
+PowerShell's stdin, and now names the file **relative to the working
+directory** — which removes the need for a Windows pathname that BASIC has no
+way to produce, and makes it work whether SDSYS sits at a POSIX path or a
+Windows one.
+
+`op_sh.c` derives the PowerShell path from `%SystemRoot%` rather than writing
+`C:\Windows`, because the system drive is not guaranteed. It must contain no
+spaces: `clparse()` splits on them and does not honour quotes, which rules out
+naming PowerShell through anything in Program Files.
+
+**Two measurements decided the design, rather than assumption.**
+`Invoke-Expression` propagates a script's exit status and `& .\script.ps1`
+does not — a script ending `exit 7` gave 7 through the first and 1 through the
+second. `Invoke-Expression` also runs text rather than a file, so the execution
+policy does not apply and nothing needs `-ExecutionPolicy Bypass`. Both probes
+were re-run afterwards with bash out of the loop: `is_grp_member` 7 of 7,
+`ps_script` 5 of 5.
+
+**Two standing rules were given at the same time and are now §5.16.** Every
+remaining Linux-ism is to be converted to its Windows equivalent where one
+exists, rather than wrapped or tolerated — `/bin/bash` is the cautionary case,
+since it looked like an inert default and silently broke every installed
+system. And where Linux parity conflicts with the Inno installer, the installer
+wins. That second rule settles the pre-bootstrap question in the installer's
+favour: the staged tree ships `gcat`, `GPL.BP.OUT` and `PCODE.OUT` empty today,
+which would make an end user run the BASIC bootstrap with Python and a
+compiler, and that is not something an installer should do.
+
+§5.16 carries the working list of Linux-isms still in the tree and what
+"Inno compatible" requires, in dependency order.
+
+---
+
 ## 14 Aug 2026 - OS accounts come back, and the shell they need is missing
 
 Covers the working tree at the time of writing; committed in the same change as

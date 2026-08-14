@@ -11,11 +11,11 @@ built it; see the correction in §5.6 and the HISTORY entry of the same date.
 
 **Where to start tomorrow.**
 
-1. **§7 step 2, the shell question, and it blocks more than it looks like.**
-   `OS.EXECUTE` runs `/bin/bash -c` and an installed system ships no shell, so
-   nothing that shells out works once installed — including everything built
-   on 14 Aug 2026. The trap in §6 has the three options. Decide it before the
-   Inno script, not after.
+1. **Make the install Inno-ready**, which §5.16 now lists in dependency
+   order. The shell blocker is gone — `SH`/`SH1` are PowerShell — so what
+   remains is the layout move, one configuration file found without an
+   environment variable, and the decision to pre-bootstrap the staged tree,
+   which §5.16 settles in the installer's favour.
 2. **Run the account commands once.** They compile and have never executed
    (§4). Needs an elevated session and an `sdusers` group, neither of which
    exists here yet. Until then this is code nobody has seen work.
@@ -501,6 +501,18 @@ Keep this split honest. It is the single most useful thing in the file.
   "not assigned a value" warnings: `VALID_OS_PATH`, `IS_GRP_MEMBER`,
   `PS_SCRIPT`, `OS_GROUP`, `CREATE_USER`, `DELETE_USER`, `SET_PASSWD`,
   `CREATEA`, `DELACC`, `MODIFYA`.
+
+- **The shell is PowerShell now, and bash is out of the loop.** After
+  rebuilding `sd.exe` with the new `op_sh.c` defaults and putting `SH`/`SH1`
+  in `sd.conf`, both probes above were re-run and every case still passed —
+  `is_grp_member` 7 of 7, `ps_script` 5 of 5. So `OS.EXECUTE` reaches
+  PowerShell, the exit status still carries back through `OS.ERROR()`, and
+  `!ps_script` still finds its own temporary file by a relative name.
+  Measured beforehand, and it decided the design: `Invoke-Expression`
+  propagates a script's `exit` status where `& .\script.ps1` does not — a
+  script ending `exit 7` gave 7 through the first and 1 through the second —
+  and it is not subject to the execution policy, so nothing needs
+  `-ExecutionPolicy Bypass`.
 
 ### Not verified — treat as unknown
 
@@ -1310,12 +1322,85 @@ removed".
   product whose main door is the API than for one where it is a side entrance.
   Not reordered yet — flagged, because it is the repository owner's call.
 
+### 5.16 Convert every remaining Linux-ism, and the installer outranks Linux parity (decided 14 Aug 2026)
+
+Two standing instructions from the repository owner, given together on
+14 Aug 2026. They are ordering rules for everything below, not a task.
+
+**1. Every Linux-ism that remains is to be converted to its Windows
+equivalent where one exists.** Not wrapped, not guarded by a flag, not left
+because it is harmless — converted, in the spirit of §1's "replace Linux code
+outright". `/bin/bash` was one and it turned out to be load-bearing (§6): it
+looked like an inert default and it silently broke every installed system.
+Treat the rest the same way, and assume each one is hiding a consequence until
+shown otherwise.
+
+**2. Where Linux parity and the Inno installer conflict, the installer wins.**
+The instruction was "mimic the Linux version if possible, but the Inno
+installer is more important than Linux version compatibility." So when a Linux
+behaviour cannot be reproduced on Windows without making the install worse,
+drop the behaviour rather than complicating the install. This settles the
+pre-bootstrap question below in the installer's favour.
+
+**Known Linux-isms still in the tree**, as a working list rather than a
+complete audit:
+
+| What | Where | Windows equivalent |
+|---|---|---|
+| `sudo chmod g+s` on a new account directory | `GPL.BP/CREATEA` | inheritable ACEs, set once by the installer (§5.7) |
+| `PASSWD_FILE_NAME "/etc/shadow"` | `gplsrc/sdnet.h` | `$CRED`, or peer identity (§7 step 6) |
+| `PLATFORM_NAME "Linux"`, so `SYSTEM(1010)` says Linux and `BCOMP` emits the `SD.LINUX` token | `gplsrc/sddefs.h` | a Windows name; nothing tests the token yet, so it is latent |
+| `SYSTEM(91)` hardcoded 0, `is_nt` never assigned | `op_sys.c`, `kernel.h` | §5.4, and restore the BASIC branches first |
+| `setuid`/`setgid` in `login_user()` | `gplsrc/linuxio.c` | nothing; SD accounts are not OS users (§5.6) |
+| `EUID_SET`/`EUID_RESTORE` | `sdext_eguid.c`, `CPROC` line 272 | the service model (§5.7); no direct equivalent |
+| `usr/lib/systemd/`, `etc/xinetd.d/` | tree | a Windows service; kept deliberately as documentation of the topology |
+| `installsdai.sh`, `deletesdai.sh` | root | not ported, by decision (§5.9) |
+| `@ds` hardcoded `/` | `CPROC` | live for stage 2 only; `/` is correct on the MSYS2 runtime (§6) |
+
+**What "Inno compatible" actually requires.** In dependency order, and most of
+it is already decided rather than done:
+
+1. **No dependency on a shell that Windows does not ship.** **Done**,
+   14 Aug 2026 — see §6. This was the one that would have shipped broken.
+2. **The layout move** (§5.8, §7 step 1). Inno installs to
+   `C:\Program Files\SD\usr\bin\` and `C:\ProgramData\SD\`; `gplbld/stage.py`
+   already builds exactly that. Not done in the live tree.
+3. **One configuration file, found without an environment variable.** The
+   server reads `SCARLET_CONFIG` and falls back to `/etc/sd.conf`; the client
+   reads `SD_CONFIG` and falls back to `sd.ini` in the Windows directory. An
+   installed system must find `C:\ProgramData\SD\sd.conf` with nothing set.
+   Note the relocated POSIX root makes `/etc/sd.conf` resolve *inside*
+   `C:\Program Files\SD\`, which is read-only to ordinary users and separates
+   the configuration from the data it describes. **Required**, not tidiness.
+4. **Pre-bootstrap the staged tree** (§7 step 3a). The staging script ships
+   `gcat`, `GPL.BP.OUT` and `PCODE.OUT` empty, so the target has to run the
+   BASIC bootstrap — which needs Python and a working compiler chain on the
+   end user's machine. That is not something an Inno installer should do, and
+   rule 2 above decides it: run the bootstrap on the build machine at the
+   production path and ship the result, so installing is a file copy. The cost
+   is that the data tree's location becomes fixed, and only `ACCOUNTS/SDSYS`
+   embeds it.
+5. **`icacls` on `C:\ProgramData\SD\`**, breaking inheritance first (§5.7).
+   This is the step that makes the data private; nothing at runtime
+   substitutes for it.
+6. **Prompt for the SDSYS password and set it last** (§7 step 3), after the
+   bootstrap, since `LOGIN` admits an administrator to an account with no
+   verifier yet.
+7. **Decide what the uninstaller does with `C:\ProgramData\SD\`** before
+   shipping one (§5.9). It holds the user's database.
+
+**Elevation is a point in the installer's favour, not against it.** Inno runs
+elevated, which is exactly what the OS account commands need (§5.6). So
+creating the initial accounts is something the installer can do and a normal
+session cannot.
+
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
 
-- **`OS.EXECUTE` runs `/bin/bash -c`, and an installed system has no bash.**
-  Found 14 Aug 2026 while porting the OS account commands, and it is not
+- **RESOLVED 14 Aug 2026, kept because the diagnosis generalises.**
+  `OS.EXECUTE` ran `/bin/bash -c`, and an installed system has no bash.
+  Found while porting the OS account commands, and it was not
   caused by them — it is true of every `OS.EXECUTE` in the system today.
   `op_sh.c` line 179 defaults to `/bin/bash -c`; `gplbld/stage.py` ships the
   six SD executables, the client DLL and the computed MSYS2 DLL closure, and
@@ -1341,8 +1426,23 @@ Each of these cost real time. Read before debugging anything similar.
     those five programs best of all and remove a quoting layer, at the cost of
     making every other `OS.EXECUTE` in the system PowerShell.
 
-  Until this is settled, the account commands work in a development tree and
-  not in an installed one. Decide it before writing the Inno script (§7 step 3).
+  **The third was taken**, on the repository owner's instruction, 14 Aug 2026.
+  `op_sh.c` now defaults both `SH` and `SH1` to PowerShell, at a path derived
+  from `%SystemRoot%` rather than written as `C:\Windows`, and `sd.conf` and
+  `gplbld/stage.py` carry the same values so they are visible and overridable.
+  The path must contain no spaces: `clparse()` splits on them and does not
+  honour quotes, which is why PowerShell is named by its real location.
+
+  **What that changed, and it simplified rather than complicated.** Every
+  `OS.EXECUTE` string in the five new programs lost its bash quoting layer -
+  the command now *is* the PowerShell script. `!ps_script` changed more: it
+  used to `cat` the file into PowerShell's stdin, and now names the file
+  **relative to the working directory**, which removes the need for a Windows
+  pathname that BASIC cannot produce. Both probes still pass with bash out of
+  the loop entirely (§4).
+
+  PowerShell ships with Windows, so **SD no longer depends on a shell it would
+  have to install**, which is what made this an installer problem.
 
 - **MSYS2 declares System V IPC but does not implement it.** Headers are the
   real Cygwin ones, so it compiles and links; `shmget`/`semget` return ENOSYS
@@ -1771,12 +1871,9 @@ the identity model.
    `<sysdir>/bin` holds the pcode library as well as the executables and must
    be **split, not moved** (§6): binaries to `C:\Program Files\SD\`,
    `pcode`/`pcode.old` stay with SDSYS.
-2. **Decide what shell `OS.EXECUTE` uses on an installed system**, and do it
-   before the Inno script. Nothing that shells out works on an installed tree
-   today — the shell trap in §6 has the three options and what each costs. It
-   is now load-bearing for the account commands as well as for §7 step 7.
-
-   Then **finish the OS account work** (§5.6), in this order:
+2. **Finish the OS account work** (§5.6), in this order. The shell question
+   that stood here was **answered on 14 Aug 2026** — `SH` and `SH1` are
+   PowerShell, so nothing depends on a shell Windows does not ship (§6).
 
    a. Enable `sudo` from Developer Settings, or start SD from an elevated
       prompt, and **run `CREATE.ACCOUNT USER` against a throwaway name**. It
