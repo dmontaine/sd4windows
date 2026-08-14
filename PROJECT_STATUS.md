@@ -6,10 +6,23 @@ file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
 **Last updated:** 14 Aug 2026, fourth session of the day, at commit `9b44d4b`
-plus the commit that carries this line. **This session had no elevated
-window** — the permission layer refused to launch one — so everything below is
-what could be done and proven without one, and **step 0 is unchanged and still
-first**. What landed:
+plus the commits that carry this line. What landed:
+
+- **STEP 0 IS CLOSED. `CREATE.ACCOUNT`'s ssh-only branch works and the
+  restriction it applies holds — 16 of 16, end to end** (§4). SD creates the
+  account, SD restricts it, and the console is then shut while ssh is open, on
+  an account SD made with a password SD set. **§5.6.2 is now complete except
+  RDP.**
+- **Getting there took three runs and found four separate faults**, none of
+  them in `CREATE.ACCOUNT`: this machine's install was four commits stale, a
+  PowerShell pipeline puts a phantom empty line after every command that an
+  `input` statement then eats, `sd -stop` reports success while leaving
+  `sdwind` running across an elevation boundary, and the test itself asserted
+  two things that were wrong. All four are in §6 or §4.
+- **The install on this machine was rebuilt and is current** — 18 files in
+  `C:\Program Files\SD`, 3,268 under `sdsys`, `MESSAGES/10034` present.
+
+And, before any of that, the work that needed no elevated window:
 
 - **`AllowGroups` is implemented** (§5.6.2's second layer, previously "not
   implemented at all"): `gplbld/allow-ssh-groups.ps1`, offered by the installer
@@ -55,16 +68,11 @@ unproven by the session before it.
 - **Scripting SD from PowerShell has two traps** (§6), both of which produce a
   failure that looks like SD's fault and is not.
 
-**Where it stopped:** §5.6.2 is verified except RDP. The `CREATE.ACCOUNT` test
-is written and **still unrun** — that is step 0, and it is one command in an
-elevated window. `AllowGroups` is now written, and unrun in the same way and
-for the same reason.
-
-**Both of the things at the top of the list now need the same thing: a window
-somebody has elevated.** Neither is hard and neither is long. If you are
-reading this with an elevated prompt available, do step 0 and step 0a before
-anything else, because everything written since 14 Aug 2026's third session is
-waiting on them.
+**Where it stopped:** §5.6.2 is verified except RDP, which needs a second
+machine. `CREATE.ACCOUNT` is done and proven. **`AllowGroups` is written and
+has never been applied to a live `sshd_config`** — that is now the first step,
+it is one command in an elevated window, and it is the only thing from this
+session still unproven.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
@@ -84,7 +92,8 @@ install** on it, from the fixed installer:
 | **The machine was rebooted** on 14 Aug 2026 | `don`'s token now carries `sdusers`, so **an ordinary unelevated session runs SD** — verified, §4. The sign-out trap in §6 is cleared *on this machine only*; it applies afresh to every new user added to the group |
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled, `C:\ProgramData\ssh\sshd_config` created with defaults. So the ssh-only model (§5.6.2) can now be tested **here**, which was not true earlier in the day |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
-| Test accounts | **none. Cleaned up 14 Aug 2026** — `sdsshprobe` and its transcript are gone, confirmed. `sdsshonly` is empty and that is correct; the group is the installer's, the membership is not |
+| Test accounts, Windows side | **none.** `sdacct1`, `sdacct2`, `sdsshprobe` and the `sdu_` groups are all gone, confirmed 14 Aug 2026. `sdsshonly` is empty and `sdusers` holds only `GITORLI\don`, which is correct — the groups are the installer's, the membership is not |
+| Test accounts, **SD side** | **two are left, deliberately**: `C:\ProgramData\SD\user_accounts\sdacct1` and `sdacct2`, with their `ACCOUNTS` records. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
 | SD | **running as this session ended**, started 14 Aug 2026 from `C:\Program Files\SD\usr\bin\sd.exe` and left up. `sd -stop` takes it down |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
@@ -119,127 +128,31 @@ run).
 
 **Where to start next.**
 
-0. **RUN `gplbld/verify-createaccount.ps1` FROM AN ELEVATED WINDOW.** This is
-   the first thing to do and it is one command. `CREATE.ACCOUNT`'s ssh-only
-   branch has still never executed — the group did not exist when the verb was
-   last run, and it does now. Everything up to the elevation gate is already
-   confirmed (§4 Verified), so this is the privileged half and nothing else:
+**Every elevated command below is written out in full on purpose.** An elevated
+window opens in `C:\WINDOWS\system32`, never in the repository, so a relative
+path fails with "the argument ... does not exist" — which reads like a missing
+script rather than a wrong working directory. Adjust the prefix if the
+repository is somewhere else.
+
+0. **DONE 14 Aug 2026, fourth session — `CREATE.ACCOUNT` PASSED 16 OF 16.**
+   The ssh-only branch at `CREATEA` line 400 executed for the first time, and
+   the restriction it applies was then shown to hold: console refused `1385`,
+   `NETWORK_CLEARTEXT` admitted, real ssh admitted with the password SD set.
+   The table is in §4 Verified; the three runs it took, and the four unrelated
+   faults they exposed, are in HISTORY.md.
+
+   Re-run it any time with a **fresh account name** — the SD side of a previous
+   run is left behind deliberately, so `CREATE.ACCOUNT` refuses a reused one
+   and the script now says so up front:
 
    ```powershell
-   powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1
+   powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct3
    ```
 
-   **The path is absolute on purpose.** An elevated window opens in
-   `C:\WINDOWS\system32`, never in the repository, so a relative path fails
-   with "the argument ... does not exist" — which reads like a missing script
-   rather than a wrong working directory. Every elevated command in this file
-   is written out in full for that reason. Adjust the prefix if the repository
-   is somewhere else.
-
-   A pass closes the chain end to end — SD creates the account, SD restricts
-   it, and the restriction is then shown to hold by the same three
-   measurements that proved §5.6.2. Read §4 Unverified for what its cleanup
-   deliberately does *not* remove.
-
-   **IT RAN ON 14 Aug 2026, FOURTH SESSION, AND IT FAILED — BUT NOT BECAUSE
-   `CREATE.ACCOUNT` IS BROKEN. THE INSTALLED SYSTEM ON THIS MACHINE PREDATES
-   THE COMMIT THAT MADE `CREATE.ACCOUNT` WORK.** Do not chase the failure; fix
-   the install and run it again. The evidence is decisive:
-
-   | | |
-   |---|---|
-   | `C:\Program Files\SD\usr\bin\sd.exe` built | 14 Aug 2026 **08:32:44** |
-   | commit `2fd0aff`, "Make CREATE.ACCOUNT work" | 14 Aug 2026 **09:50:56** |
-   | `MESSAGES/10032`–`10035` in the installed tree | **absent**, all four |
-
-   So the installed `sd.exe` carries the **pre-fix `op_dio2.c`**, whose
-   `OS_PATHNAME` case split on `/` alone and therefore rejected every native
-   Windows path — and the installed `CREATEA` is the pre-fix one, with no
-   `ADMINISTRATOR` keyword and **no ssh-only branch at all**. Six of the
-   failures are that one fact:
-
-   - `Invalid account pathname` is the exact symptom the comment at
-     `op_dio2.c:650` was written to describe, down to it happening *after* the
-     Windows user was created.
-   - `message 10034 (ssh only) shown: no` — the message does not exist in the
-     installed tree and neither does the code that prints it.
-   - no `sdusers`, no `sdu_` group, no account directory, no `ACCOUNTS` record:
-     `CREATEA` `stop`s at the pathname check before reaching any of them.
-
-   **What the run did establish, and it is worth having:** `CREATE_USER`
-   reached the OS from an elevated session and **made a real Windows account**
-   — `the Windows account exists: PASS`. It was left disabled and without a
-   password, which is correct rather than a fault: `SET_PASSWD` line 120 runs
-   `Enable-LocalUser` *inside* the password script, so an account whose
-   password was never set stays inert. `LogonUser` answering **1326** for both
-   logon types is consistent with exactly that and is not evidence about the
-   deny rights.
-
-   Cleanup worked and **the machine is clean** — no `sdacct1`, no `sdu_sdacct1`,
-   `sdsshonly` empty, no account directory, no `C:\Users\sdacct1`.
-
-   **SECOND RUN, AGAINST THE REBUILT INSTALL: THE SSH-ONLY BRANCH EXECUTED FOR
-   THE FIRST TIME.** 9 of 13 structural checks passed, including every one that
-   step 0 existed to answer — `sdacct1 may sign in over ssh only` was printed
-   from message 10034, and membership of `sdusers`, `sdu_sdacct1` and
-   `sdsshonly` was confirmed, with `Administrators` correctly absent. The
-   account directory, `VOC`, `$HOLD`, `BP`, the private catalogue and the
-   `ACCOUNTS` record were all made. **`CREATEA` line 400 has now run.**
-
-   Of the four remaining failures, **two were the test's own fault** and are
-   fixed: it asserted `$SAVEDLISTS` where `CREATEA` creates `$SVLISTS` (the
-   message carries the VOC name, the directory carries the DH file name), and
-   the file count expected 16 program files where a real install has 18 —
-   `unins000.exe` and `unins000.dat` are the installer's, not the stage's.
-
-   **The other two are one cause, now measured**: the PowerShell pipeline's
-   CRLF phantom line, first trap in §6. `SET_PASSWD`'s first `input` ate a
-   phantom, so the password was never set, so the account stayed disabled and
-   all three logon measurements failed for want of a password. `Invoke-SD` now
-   sends one string with LF separators. **This was the thing the previous entry
-   declined to conclude from a lossy echo; it was then established by
-   experiment rather than by reading the transcript harder.**
-
-   **So step 0 has a prerequisite, and the unelevated half of it is DONE.**
-   `make sd` and `stage.py --force --bootstrap` were re-run at 16:15 and the
-   installer rebuilt at 16:17 — see the table above the numbered steps, which
-   records what was checked in the result. **What is left is one elevated
-   sequence, and it must remove the data tree**, because the installer will not
-   replace an `sdsys` that already exists (§5.9) — which is precisely how this
-   install came to be four commits behind its own repository:
-
-   ```powershell
-   & "C:\Program Files\SD\usr\bin\sd.exe" -stop
-   Get-Process sdwind -ErrorAction SilentlyContinue | Stop-Process -Force
-   & "C:\Program Files\SD\unins000.exe" /VERYSILENT
-   Remove-Item -Recurse -Force "C:\Program Files\SD", "C:\ProgramData\SD"
-   & "C:\Users\dmont\sdout\sd-setup-1.0-2.exe"
-   ```
-
-   The `Stop-Process` line is not belt and braces — it is the §6 trap two
-   entries down, and this daemon really was started by an elevated session.
-   Leave `sdusers`, `sdadmins` and `sdsshonly` alone; the installer recreates
-   the two it owns, and §8 explains `sdadmins`.
-
-   **DONE 14 Aug 2026, fourth session.** The install was refreshed and is
-   current: 18 files in `C:\Program Files\SD`, 3,268 under `sdsys`,
-   `MESSAGES/10034` present. No sign-out was needed, because `sdusers` was left
-   alone and the token already carried it.
-
-   **What remains is to run the test once more**, with the CRLF fix in place
-   and **a fresh account name**, because the previous run left the SD side of
-   `sdacct1` behind deliberately and `CREATE.ACCOUNT` will refuse the name:
-
-   ```powershell
-   powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct2
-   ```
-
-   The script now checks for that leftover up front and says this, rather than
-   letting SD refuse the name after it has already made a Windows account.
-
-0a. **THEN APPLY `AllowGroups` ONCE, IN THE SAME ELEVATED WINDOW**, and keep
-   that window open while you do it. Written 14 Aug 2026 and never pointed at
-   a real `sshd_config`:
+0a. **APPLY `AllowGroups` ONCE, IN AN ELEVATED WINDOW**, and keep that window
+   open while you do it. **This is now the first thing to do**, and it is the
+   only thing the fourth session of 14 Aug 2026 left unproven. Written that day
+   and never pointed at a real `sshd_config`:
 
    ```powershell
    powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\allow-ssh-groups.ps1 -Installed
@@ -331,12 +244,21 @@ run).
       **Nobody has seen it on screen** (§4 Unverified). The script compiles;
       that is a different claim.
 
-   c. **Decide what `DELETE.ACCOUNT` should do**, which is now the asymmetry.
-      `DELACC` still consults `config('CREATUSR')` before offering to remove
-      the OS user (line 211), and that gate no longer exists on the creating
-      side. It also has not been run. Removing an account should probably
-      remove the Windows user it created, but that is a destructive default
-      and wants deciding rather than assuming.
+   c. **Decide what `DELETE.ACCOUNT` should do**, which is now the asymmetry —
+      and **there are two live examples of the problem sitting on this machine**
+      to decide against. `DELACC` still consults `config('CREATUSR')` before
+      offering to remove the OS user (line 211), and that gate no longer exists
+      on the creating side. It also has not been run. Removing an account
+      should probably remove the Windows user it created, but that is a
+      destructive default and wants deciding rather than assuming.
+
+      **The examples:** `verify-createaccount.ps1` removes the Windows user and
+      the `sdu_` group and leaves the SD side, so
+      `C:\ProgramData\SD\user_accounts\sdacct1` and `sdacct2` and their
+      `ACCOUNTS` records are still there with no Windows account behind them.
+      `CREATE.ACCOUNT` then refuses those names. Whatever 1c decides has to
+      account for that state existing, because a failed creation reaches it too
+      — the ssh-only branch `stop`s after the account directory is made.
 
    d. **`CREATUSR` is now dead config.** Nothing consults it on the create
       side; `config.c` still parses it, `op_config.c` still answers it and
@@ -1295,6 +1217,52 @@ Keep this split honest. It is the single most useful thing in the file.
   terminated" when handed a redirected stdin, and a PowerShell pipe puts a BOM
   on the first line.
 
+- **`CREATE.ACCOUNT`'S SSH-ONLY BRANCH WORKS, AND THE RESTRICTION IT APPLIES
+  HOLDS. 16 of 16, END TO END.** Observed 14 Aug 2026, fourth session, by
+  `gplbld/verify-createaccount.ps1 -Account sdacct2` from an elevated window,
+  against the install rebuilt the same session. **This closes §7 step 0, which
+  had been the first item in this file all day**, and it is the last thing
+  §5.6.2 needed apart from RDP.
+
+  `CREATEA` line 400 had never executed before — the `sdsshonly` group did not
+  exist the first time the verb ran. What SD made:
+
+  | | |
+  |---|---|
+  | Windows account, **enabled** | yes |
+  | member of `sdusers`, `sdu_sdacct2`, `sdsshonly` | all three |
+  | member of `Administrators` | **no**, which is the default and the decision |
+  | message 10034, `sdacct2 may sign in over ssh only` | printed |
+  | account dir, `VOC`, `$HOLD`, `$SVLISTS`, `BP`, private catalogue | all |
+  | record in `ACCOUNTS` | yes |
+
+  And then the same three measurements that proved §5.6.2, on an account **SD
+  created rather than one the test made for itself**, with the password **SD
+  itself set**:
+
+  | Measurement | Result |
+  |---|---|
+  | `LogonUser` INTERACTIVE (console) | **refused 1385** |
+  | `LogonUser` NETWORK_CLEARTEXT | **admitted** |
+  | real `ssh sdacct2@localhost whoami` | **admitted** |
+
+  So the chain is closed: SD creates the account, SD restricts it, and the
+  restriction is then shown to hold from outside — the console is shut and ssh
+  is not. That is the whole of the ssh-only model except RDP, and it is now
+  demonstrated on an account created by the verb rather than by a test harness.
+
+  **Two things this run also settled in passing.** `SET_PASSWD` works end to
+  end against a real Windows account — the password SD generated and set was
+  the one ssh accepted. And a brand-new account **can** ssh in with a password
+  immediately; it is only key authentication that waits for a first password
+  login (§6), and this confirms the distinction rather than assuming it.
+
+  **`Warning unable to setgid bit on Group Folder, status: 1` prints on every
+  account creation.** Expected and harmless — the `sudo chmod g+s` Linux-ism in
+  `CREATEA` (§5.16, §7 step 2c), whose Windows equivalent is the inheritable
+  ACE the installer already sets. It is noise on a successful run, and it is
+  now observed rather than predicted.
+
 - **`allow-ssh-groups.ps1` edits `sshd_config` correctly.** Observed
   14 Aug 2026, fourth session, by `gplbld/verify-allowgroups.ps1` — 20 checks,
   all passed — against
@@ -1378,26 +1346,10 @@ Keep this split honest. It is the single most useful thing in the file.
   `verify-sshonly.ps1 -Keep` on the machine under test and RDP to it from a
   different one.
 
-- **`CREATE.ACCOUNT` with `sdsshonly` present.** The verb was run on 14 Aug
-  2026 (§4 Verified) but the group did not exist then, so the ssh-only branch
-  at `CREATEA` line 400 has still never executed. The group exists now, and
-  everything up to the elevation gate is confirmed (§4 Verified) — what
-  remains untested is only the privileged half.
-
-  **The test is written and ready: `gplbld/verify-createaccount.ps1`.** It
-  needs an elevated window, which is the whole reason it has not run. It
-  checks both halves of the account, and then puts the account SD created
-  through the same three measurements that proved §5.6.2 — `LogonUser`
-  INTERACTIVE refused `1385`, `NETWORK_CLEARTEXT` admitted, and a real ssh
-  login with the password SD itself set — so a pass would close the chain end
-  to end rather than checking group membership and assuming the rest.
-
-  Note that the branch `stop`s on failure *after* the Windows account and the
-  account directory have been created, so a failure there leaves a half-made
-  account. The script's cleanup removes the **Windows** half only and leaves
-  the `ACCOUNTS` record and the account directory deliberately, because
-  removing those is `DELETE.ACCOUNT`'s job and §7 step 1c has not decided what
-  that should do.
+- **DONE 14 Aug 2026, fourth session — `CREATE.ACCOUNT` with `sdsshonly`
+  present passed 16 of 16.** Moved to §4 Verified. `gplbld/verify-createaccount.ps1`
+  re-runs it; give it a fresh `-Account` name, because the SD side of a
+  previous run is left behind deliberately.
 
 - **That SD itself works over an ssh session** — `sd -ASOMEACCOUNT` typed at a
   real terminal reached over ssh. The ssh transport is proven and SD is proven,
@@ -1922,6 +1874,13 @@ WORKS", and re-run it with `gplbld/verify-sshonly.ps1`. The risk named below,
 that denying the wrong right locks everybody out, was the thing tested and it
 did not happen. Everything else in this section is reasoning that still stands
 on its own; read it before changing any of it.
+
+**And verified through `CREATE.ACCOUNT` itself, later the same day** — §4
+Verified, "`CREATE.ACCOUNT`'S SSH-ONLY BRANCH WORKS". The earlier proof used an
+account the test made for itself; this one used an account **SD created**, with
+a password **SD set**, and it passed all three measurements. So the model is
+proven at both ends — the mechanism and the verb that drives it — and RDP is
+the only part of this section nobody has watched.
 
 **Decision from the repository owner, 14 Aug 2026.** Accounts SD creates reach
 the machine **over ssh and nothing else**. Local terminal access — the physical

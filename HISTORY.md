@@ -27,6 +27,63 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - STEP 0 IS CLOSED: CREATE.ACCOUNT passes 16 of 16, end to end
+
+Fourth session of 14 Aug 2026, third run of `verify-createaccount.ps1`, with
+the CRLF fix in place and a fresh account name. **Every check passed.**
+
+    the Windows account exists      PASS      account is enabled           PASS
+    member of sdusers               PASS      member of sdu_sdacct2        PASS
+    member of sdsshonly             PASS      NOT an administrator         PASS
+    message 10034 (ssh only) shown  PASS      account directory            PASS
+    VOC / $HOLD / $SVLISTS / BP     PASS      record in ACCOUNTS           PASS
+    LogonUser INTERACTIVE           refused 1385     PASS
+    LogonUser NETWORK_CLEARTEXT     admitted         PASS
+    ssh with the password SD set    admitted         PASS
+
+**This closes the chain the test was written to close.** SD creates the
+account, SD restricts it, and the restriction is then shown to hold from
+outside — on an account SD created rather than one the harness made for itself,
+with a password SD generated and set. `CREATEA` line 400 has run, and §5.6.2 is
+now proven at both ends: the mechanism, and the verb that drives it. RDP
+remains the only unwatched part, and it needs a second machine.
+
+Two things it settled in passing. `SET_PASSWD` works end to end against a real
+Windows account — the password SD set is the one ssh accepted. And a brand-new
+account can ssh in **with a password** immediately; only key authentication
+waits for a first password login, which confirms that distinction rather than
+assuming it.
+
+`Warning unable to setgid bit on Group Folder, status: 1` prints on every
+account creation. It is the `sudo chmod g+s` Linux-ism in `CREATEA`, harmless,
+and now observed rather than predicted. Its Windows equivalent is the
+inheritable ACE the installer already sets.
+
+### What it cost, which is the part worth remembering
+
+Three runs, and **four separate faults, none of them in `CREATE.ACCOUNT`**:
+
+1. the install was four commits stale, and nothing said so
+2. a PowerShell pipeline puts a phantom empty line after every command, which
+   an `input` statement eats
+3. `sd -stop` reported success while leaving `sdwind` running
+4. the test asserted `$SAVEDLISTS` and a file count, both wrong
+
+Every one of them presented as "CREATE.ACCOUNT is broken". The verb was correct
+throughout. The general lesson is in §6 three times over: date the thing you
+are testing, measure how your harness talks to SD before trusting a transcript
+of it, and make a test's own assertions as suspect as the code they check.
+
+### Left on the machine
+
+`C:\ProgramData\SD\user_accounts\sdacct1` and `sdacct2`, with their `ACCOUNTS`
+records and no Windows account behind them. The Windows side of both is gone.
+That is deliberate — removing the SD side is `DELETE.ACCOUNT`'s job and §7 step
+1c has not settled what that should do — and it is now two worked examples of
+exactly the state 1c has to decide about.
+
+---
+
 ## 14 Aug 2026 - The ssh-only branch runs, and the password bug is a CRLF
 
 Fourth session of 14 Aug 2026, immediately after the entry below. The install
