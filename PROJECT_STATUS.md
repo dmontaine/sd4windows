@@ -15,9 +15,14 @@ built it; see the correction in §5.6 and the HISTORY entry of the same date.
    cleared — the shell, the pre-bootstrap, the staging gap and the
    configuration file — and a staged tree has been installed and run with
    nothing set in the environment (§4). What is left is the `.iss` itself, the
-   `icacls` step that actually makes the data private (§5.7), prompting for
-   the SDSYS password **last**, and deciding what the uninstaller does with
-   `C:\ProgramData\SD\`.
+   `icacls` step that actually makes the data private (§5.7), and prompting
+   for the SDSYS password **last**. Both open installer questions were
+   settled on 14 Aug 2026 and are written into §5.9: an **opt-in, off by
+   default** OpenSSH Server checkbox, withheld and explained if ssh is
+   already present; and an uninstaller that **leaves accounts, database and
+   `sd.conf` alone** unless separately opted in to. `sd.conf` needs the
+   `uninsneveruninstall` and `onlyifdoesntexist` flags, or the default
+   behaviour deletes it.
 
    **Install onto a machine with no development tree** is still the test that
    matters and has still not been done: this machine has one, so an accidental
@@ -2397,6 +2402,15 @@ it is closed rather than open. That buys time; it does not buy a design.
 **B is what the repository owner already did to OpenQM**, and it carries to
 Windows unchanged — OpenSSH ships as a Windows optional feature and port
 forwarding works. It is the conservative answer and costs nothing new.
+
+**The installer now offers B as a checkbox** (decided 14 Aug 2026, §5.9):
+opt-in, off by default, withheld with an explanation if the machine already
+has an ssh server. That does not decide the posture question — it makes B
+reachable by someone who would not otherwise know how, which is the case the
+repository owner raised: ten people on a local network, installed by someone
+with little administrative knowledge. Read §5.9's two caveats before
+recommending it, particularly that ssh gives those ten people **no isolation
+from each other's data** until §5.7's service model exists.
 
 **C was the repository owner's idea**, and its merit is that it makes the
 *simplest* API authentication the correct one rather than forcing a bigger one.
