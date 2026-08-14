@@ -268,7 +268,9 @@ in `/tmp/sd_probe.exe` if a machine without the group ever needs it.
 
 **Scratch test programs left in `<sysdir>/BP`**, none of them in the
 repository: `CREDTEST`, `CREDRT`, `SETPW`, `INTEST`, `VTEST` from the previous
-session, and `MKACC`, `GRANT`, `WHOAMI`, `MKDICT` from this one. `SETPW` sets
+session, and `MKACC`, `GRANT`, `WHOAMI`, `MKDICT`, `MKBP`, `PROBE` from this
+one — plus `SUE/BP/ESCALATE`, the privilege-escalation proof (§4), which no
+longer compiles but should go with the rest. `SETPW` sets
 the SDSYS password to `hunter2` in plain text and `MKACC` sets SUE's to
 `correcthorse` — delete both, and all three scratch accounts, before this
 machine is used for anything real. `WHOAMI` prints `@LOGNAME`, `@WHO` and
@@ -283,11 +285,21 @@ way to see this system as an ordinary user, since the token here carries
 `sdadmins` and every session is otherwise an SD administrator. `/tmp` does not
 survive a machine rebuild; the recipe in §6 does.
 
-To pick up where this stopped: `sd -internal COUNT VOC` should report 432
-records without prompting (administrator + internal path), and
-`echo hunter2 | sd -ASDSYS WHO` should report `SDSYS` after a password prompt.
-If the first fails, SD is not started: `bin/sd.exe -stop` then
-`bin/sd.exe -start`, redirecting output to a file (§6).
+To pick up where this stopped: `echo hunter2 | sd -internal COUNT VOC` should
+report 432 records, and `echo hunter2 | sd -ASDSYS WHO` should report `SDSYS`.
+**Both need the password now** — the internal no-password path is gone (§5.6).
+If they fail, SD is not started: `bin/sd.exe -stop` then `bin/sd.exe -start`,
+redirecting output to a file (§6).
+
+**A scripted session must be piped from an MSYS2 shell** and cannot use a `<`
+redirect (§6). The pattern that works, and the one every test today used:
+
+```sh
+cat commands.txt | /usr/local/sdsys/bin/sd.exe -ASDSYS 2>&1 | tr -d '\r'
+```
+
+with the password as the first line of `commands.txt` and `OFF` as the last.
+Leave a prompt unanswered at end of input and SD spins at full CPU (§6).
 
 **An earlier report of `sd -i` "blocking silently" was wrong**, and the cause
 is worth knowing — see the stale record lock trap in §6. It was self-inflicted
@@ -1399,11 +1411,32 @@ Each of these cost real time. Read before debugging anything similar.
   (§5.8), **the pcode library stays behind with SDSYS** — it is data, and
   `BCOMP` addresses it relative to `@sdsys`. Move the whole directory and
   recursive compilation breaks, at a distance, with nothing pointing here.
-- **The runtime tree needs `gplsrc`, `gplobj` and `gplbld/FILES_DICTS`**, not
-  just `sdsys` and `bin`. `installsdai.sh` copies all of them into `<sysdir>`.
-  `REVSTAMP` opens `./gplsrc/revstamp.h` relative to the account directory, so
-  without it `SECOND.COMPILE` aborts at APISRVR with "Cannot open gplsrc
-  revstamp.h" — which reads like a compiler fault and is a missing directory.
+- **`SECOND.COMPILE` aborts at APISRVR with "Cannot open gplsrc revstamp.h",
+  and the cause is two lines in APISRVR — not a missing directory.** This was
+  recorded here as "the runtime tree needs `gplsrc`, `gplobj` and
+  `gplbld/FILES_DICTS`", which is what `installsdai.sh` copies and what makes
+  the symptom go away. **That diagnosis was wrong** (13 Aug 2026).
+  `APISRVR` lines 64-66 are:
+
+  ```
+  $execute 'BASIC GPL.BP REVSTAMP'
+  $execute 'RUN GPL.BP REVSTAMP'
+  $include revstamp.h
+  ```
+
+  Compile-time directives that *run* `REVSTAMP`, which opens
+  `./gplsrc/revstamp.h` relative to the account directory. `SECOND.COMPILE` is
+  only the paragraph `TERM 120,9999` then `BASIC GPL.BP *`, so it aborts when
+  it reaches APISRVR and nowhere else. **`CPROC` carries the identical two
+  lines already commented out** (139-140), with a note that the build should
+  compile and run REVSTAMP to sync the two headers — so the intended fix is
+  already demonstrated one file away.
+
+  `REVSTAMP` is a build tool: it translates the C header into the BASIC
+  include `GPL.BP/REVSTAMP.H`, which is **tracked in the repository and
+  already in sync** (both say 1.0-2). The C header says in its own comment
+  that the BASIC copy is normally edited by hand. Nothing at run time or
+  compile time reads `gplsrc`; only that one `$execute` does.
 - **`errlog` throws away its own history.** `log_message()` in `k_error.c`
   discards the oldest half of `<sysdir>/errlog` when it reaches the `ERRLOG`
   configured size. Fine for diagnostics, fatal for anything you need to trust
@@ -1438,13 +1471,31 @@ the identity model.
    dropping the `sd.ini`-in-`C:\Windows` fallback. The `sdrealpath()` fix
    removed what was blocking all of it.
 
-   Two things in the data tree are not data and have to be decided rather than
-   dragged along. `<sysdir>/bin` holds the pcode library as well as the
-   executables and must be split, not moved (§6). And `gplsrc`, `gplobj` and
-   `gplbld/FILES_DICTS` are copied into `<sysdir>` because `REVSTAMP` opens
-   `./gplsrc/revstamp.h` relative to the account directory (§6) — build inputs
-   living in the database. Either they stay, or `REVSTAMP` learns to look
-   where the sources actually are.
+   **Start here — the data tree holds data only** (decided by the repository
+   owner, 13 Aug 2026). No `gplsrc`, no `gplobj`, no `gplbld` under
+   `C:\ProgramData\SD\`. The investigation that settles how is done; what
+   remains is the change itself:
+
+   a. **Comment out `APISRVR` lines 64-65**, the `$execute 'BASIC GPL.BP
+      REVSTAMP'` and `$execute 'RUN GPL.BP REVSTAMP'` pair, exactly as `CPROC`
+      139-140 already are. Keep line 66, `$include revstamp.h` — the include
+      it needs is the tracked `GPL.BP/REVSTAMP.H`, which is in sync. That one
+      edit is what removes `gplsrc` from the data tree; see the corrected trap
+      in §6, and note the previous diagnosis there was wrong.
+   b. Then confirm nothing else wants them: run a full `SECOND.COMPILE`
+      against a `<sysdir>` with `gplsrc`, `gplobj` and `gplbld` **absent**.
+      204 programs with no errors is the pass mark. No consumer has been found
+      for `gplobj` at all, and `gplbld/FILES_DICTS` is an install-time input
+      the installer should read from the source tree, not from the database.
+   c. Decide how the two revision headers stay in sync once nothing runs
+      `REVSTAMP` automatically. A `gplbld/` script beside `bbcmp.py` and
+      `pcode_bld.py` is the obvious home — those already do exactly this kind
+      of build-time translation in Python. The header's own comment says the
+      alternative is editing both by hand.
+
+   Then the move itself. `<sysdir>/bin` holds the pcode library as well as the
+   executables and must be **split, not moved** (§6): binaries to
+   `C:\Program Files\SD\`, `pcode`/`pcode.old` stay with SDSYS.
 2. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Not
    housekeeping: step 1 puts binaries under a path containing a space, and
    this rejects both. Widen the character set without weakening the shell

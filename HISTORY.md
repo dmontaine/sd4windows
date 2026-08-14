@@ -27,6 +27,66 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Correction: `gplsrc` in the data tree was a misdiagnosis. Session ended on credits
+
+**Session ended here, mid-investigation but at a clean stopping point.** The
+next session's first move is §7 step 1a, which is a two-line edit. Everything
+below is what was learned; nothing was changed in the code for it.
+
+### The decision
+
+The repository owner chose the **data-only** option for
+`C:\ProgramData\SD\`: no `gplsrc`, no `gplobj`, no `gplbld` in the database.
+So `REVSTAMP`'s dependency on `./gplsrc/revstamp.h` had to be removed rather
+than relocated — and investigating how showed the dependency is much smaller
+than this file claimed.
+
+### Correction to §6
+
+§6 said "the runtime tree needs `gplsrc`, `gplobj` and `gplbld/FILES_DICTS`",
+on the evidence that `installsdai.sh` copies all three and that
+`SECOND.COMPILE` aborts at APISRVR without them. The symptom was real; **the
+diagnosis was wrong**. What actually happens:
+
+- `SECOND.COMPILE` is a paragraph: `TERM 120,9999` then `BASIC GPL.BP *`. It
+  compiles everything and runs nothing.
+- `APISRVR` lines 64-66 are `$execute 'BASIC GPL.BP REVSTAMP'`,
+  `$execute 'RUN GPL.BP REVSTAMP'`, `$include revstamp.h`. The second is a
+  compile-time directive that **runs** REVSTAMP, which opens
+  `./gplsrc/revstamp.h`. That is the whole of it — one file, two lines.
+- `CPROC` carries the identical pair **already commented out** (139-140),
+  with mab's note that the build should compile and run REVSTAMP to sync the
+  headers. The fix was already sitting one file away.
+- `REVSTAMP` is a build tool that translates the C header into the BASIC
+  include `GPL.BP/REVSTAMP.H`. That include is **tracked in the repository and
+  already in sync** — both say 1.0-2 — and the C header's own comment says the
+  BASIC copy is normally edited by hand.
+
+No consumer was found for `gplobj` in the data tree at all.
+`gplbld/FILES_DICTS` is an install-time input, which the installer should read
+from the source tree rather than from the database.
+
+### Also settled this session
+
+`C:\ProgramData\SD\` holds three siblings — `sdsys`, `user_accounts`,
+`group_accounts` — not SDSYS with the accounts nested inside it. One root is
+what makes §5.7 a single `icacls` rather than a grant per location.
+
+And `<sysdir>/bin` turned out to be two unrelated things sharing a directory:
+the executables, and the SD file `BCOMP` opens as `@sdsys:@ds:'bin'` for the
+pcode composite library. The move must split them, not relocate the directory.
+
+### State of the machine
+
+SD is running from `/usr/local/sdsys` with the current binaries. Passwords:
+SDSYS `hunter2`, SUE `correcthorse`, PAT `batterystaple`; JANE and KIM have
+none. PAT lives under `C:\ProgramData\SD\user_accounts`, the other three are
+still under `/home/sd/user_accounts`. The scratch programs in `<sysdir>/BP`
+are listed in §3 — note `SUE/BP/ESCALATE`, the privilege-escalation proof,
+which is now harmless but should go with the rest.
+
+---
+
 ## 13 Aug 2026 — Administrator rights become the SDSYS account's, and an escalation is closed
 
 §7 item 2, and it grew a third part when the fix turned out not to be one.
