@@ -27,6 +27,33 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — §3 of PROJECT_STATUS pruned
+
+Housekeeping, recorded so a future session knows the section was shortened
+deliberately rather than left incomplete. §3 went from 175 lines to 113, and
+the file from 1814 to about 1750.
+
+**Nothing was moved, because everything cut was already here.** What went was
+the narrative of a completed bring-up: the `gcat/$CPROC` placeholder
+investigation and the `is_bootstrap` red herring (this file, "SD runs. Full
+bootstrap completes", and the entry above it), the step-by-step account of what
+each bootstrap command produced, the correction of the earlier "`sd -i` blocks
+silently" report, and the note that the `/etc/group` blocker had gone. §3 also
+still opened with "SD still does not start", three paragraphs above the text
+saying it does — stale wording that had survived two sessions.
+
+What was kept is what a session needs to act: the build commands, the bootstrap
+sequence itself with the two counter-intuitive steps flagged and a pointer here
+rather than an explanation, the state of this machine including every password
+and scratch account, and the scripted-session pattern. The "laid down already"
+and "machine as this session ended" tables were merged, since the second had
+overtaken the first.
+
+The trigger was rule 5 in §0 — the file was at 1814 lines against a ~2000
+rollover — but the reason to do it now rather than at 2000 is the rest of that
+rule: work had just landed, so the instructions that had been carried out were
+the easiest thing in the file to shed.
+
 ## 13 Aug 2026 — Batch login raised and designed; admin helpers set as a goal
 
 No code. Two things from the repository owner, both recorded in
