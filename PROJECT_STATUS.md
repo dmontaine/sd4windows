@@ -796,9 +796,18 @@ operations have been *run*, because they cannot be (elevation, below).
    rather than guessing from a localised error message. **So account creation
    works from the installer, which Inno runs elevated, and not from a normal
    session.** §5.7's service model is the real answer.
-2. **`sudo` on Windows is not `sudo` on Linux.** `sudo.exe` does ship on this
-   build (26200) but is **disabled by default** and is enabled from Developer
-   Settings. It has no sudoers file and no per-command policy: it asks UAC to
+2. **`sudo` on Windows is not `sudo` on Linux, and nothing should require
+   it.** It is Windows 11 24H2 and later only, so depending on it would
+   exclude Windows 10 and Server. It is not needed to install — Inno requests
+   elevation through UAC itself — and not needed afterwards either, since
+   "Run as administrator" on a terminal gives the same elevated SD session.
+   Treat it as a convenience to document, never a prerequisite. `sudo.exe`
+   ships on this build (26200), is **disabled by default**, and is enabled
+   from Developer Settings; **it was enabled on this machine on 14 Aug 2026
+   in inline mode** (`Enabled=3` under
+   `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Sudo`). Inline matters:
+   the default when enabled is "in a new window", which would break an
+   interactive `sudo sd` because the session needs the same console. It has no sudoers file and no per-command policy: it asks UAC to
    elevate *your own* token, so an administrator gets a consent prompt and a
    standard user gets a prompt for administrator credentials. "Only the sdsys
    user can `sudo sd`" is true, but the mechanism is Administrators membership
@@ -1372,14 +1381,36 @@ it is already decided rather than done:
    Note the relocated POSIX root makes `/etc/sd.conf` resolve *inside*
    `C:\Program Files\SD\`, which is read-only to ordinary users and separates
    the configuration from the data it describes. **Required**, not tidiness.
-4. **Pre-bootstrap the staged tree** (§7 step 3a). The staging script ships
-   `gcat`, `GPL.BP.OUT` and `PCODE.OUT` empty, so the target has to run the
-   BASIC bootstrap — which needs Python and a working compiler chain on the
-   end user's machine. That is not something an Inno installer should do, and
-   rule 2 above decides it: run the bootstrap on the build machine at the
-   production path and ship the result, so installing is a file copy. The cost
-   is that the data tree's location becomes fixed, and only `ACCOUNTS/SDSYS`
-   embeds it.
+4. **Pre-bootstrap the staged tree** (§7 step 3a), and the staged tree is
+   **not installable without it** — established 14 Aug 2026, and it is
+   stronger than "would be nice".
+
+   **What the end user needs, and this is the question worth being exact
+   about.** A C compiler: **never**. The installer ships pre-built binaries
+   and SD carries its own runtime DLLs beside `sd.exe` (§5.9, §5.11) — that is
+   the whole difference from Linux, where `installsdai.sh` compiled on the
+   user's machine because ScarletDME targeted many distributions. Python:
+   **yes as things stand, and that is a defect rather than a requirement.**
+   `SDSYS_EMPTY` stages `gcat`, `cat`, `GPL.BP.OUT`, `BP.OUT` and `PCODE.OUT`
+   empty, so the target must run the bootstrap in §3, and two of its steps are
+   `gplbld/bbcmp.py` and `gplbld/pcode_bld.py`.
+
+   **And it could not run even then, because `gplbld/` is not staged at all.**
+   It is absent from `SDSYS_SHIP`, so `bbcmp.py`, `pcode_bld.py` and the
+   `FILES_DICTS` that `WRITE_INSTALL_DICTS` reads as
+   `@sdsys:"/gplbld/FILES_DICTS"` are all missing from the staged tree. So an
+   install from it fails today whatever is installed on the target. This is
+   precisely the class of thing §5.9 predicted the whitelist would expose, and
+   §4's "the installer is the least tested part of the system" is why it was
+   not noticed sooner.
+
+   Rule 2 above decides the fix: run the bootstrap on the build machine at the
+   production path and ship the filled directories, so installing is a file
+   copy and the end user needs **neither Python nor a compiler**. The cost is
+   that the data tree's location becomes fixed, and only `ACCOUNTS/SDSYS`
+   embeds it. The alternative — staging `gplbld/` and requiring Python on
+   every target — is worse on both counts and contradicts §7 step 1's
+   "the data tree holds data only".
 5. **`icacls` on `C:\ProgramData\SD\`**, breaking inheritance first (§5.7).
    This is the step that makes the data private; nothing at runtime
    substitutes for it.
