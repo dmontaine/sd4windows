@@ -1387,26 +1387,27 @@ In the order they should be taken.
 7. **Make everything lower case that can be** (§5.12). Account names, file and
    field names, and the case inversion at login. Do the case-insensitive
    comparisons first, or `sue` and `SUE` become different accounts; fold
-   `CASE_INSENSITIVE_FILE_SYSTEM` (below) into the same piece of work.
-6. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Now mandatory
+   step 10 into the same piece of work.
+8. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Now mandatory
    rather than cheap housekeeping, because step 5 puts binaries under a path
    containing a space. Widen the character set without weakening the shell
    metacharacter protection it exists to provide — quoting the path at the
    `OS.EXECUTE` site is the safer way to allow spaces.
-7. **Write the Inno Setup installer** (§5.9), replacing `installsdai.sh`. The
+9. **Write the Inno Setup installer** (§5.9), replacing `installsdai.sh`. The
    ACL step is the one that actually makes the data private; nothing at runtime
    substitutes for it.
-8. **Enable `CASE_INSENSITIVE_FILE_SYSTEM`.** Referenced at 9 sites in
-   `dh_misc.c`, `dh_open.c`, `op_dio2.c`, `op_dio4.c` but never defined
-   anywhere. Windows filesystems *are* case insensitive, so this is a
-   correctness gap and the code is already written.
-9. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
-   file from §5.8, or `SD_CONFIG` set.
-10. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
+10. **Enable `CASE_INSENSITIVE_FILE_SYSTEM`.** Referenced at 9 sites in
+    `dh_misc.c`, `dh_open.c`, `op_dio2.c`, `op_dio4.c` but never defined
+    anywhere. Windows filesystems *are* case insensitive, so this is a
+    correctness gap and the code is already written. Belongs with step 7.
+11. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
+    file from §5.8, or `SD_CONFIG` set.
+12. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
     tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
     flipping the switches first would enable paths that are no longer present.
-    Start with `CPROC`'s `dir.separator`, since compilation depends on it.
-11. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
+    Start with `CPROC`'s `dir.separator`, since compilation depends on it —
+    and note that is now testable, since `sdrealpath()` accepts `\` (§5.8).
+13. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
     are fork+exec, none need copy-on-write, so this is tractable), `termios` →
     Console API, passwd/group → Windows authentication. **The service-account
     model in §5.7 belongs here**, and until it lands the data tree is not
