@@ -1242,9 +1242,97 @@ What the installer is responsible for, given §5.6 to §5.8:
 - Register the service, once §5.7's service model exists.
 - Run the BASIC bootstrap sequence in §3.
 
-Inno Setup is a separate toolchain and is not part of `make`. Still to decide:
-whether CI produces the installer, and what the uninstaller does with the data
-tree.
+Inno Setup is a separate toolchain and is not part of `make`. **The compiler
+is installed on this machine**, at `C:\Program Files (x86)\Inno Setup 6\nISCC.exe`, confirmed 14 Aug 2026. Still to decide: whether CI produces the
+installer. What the uninstaller does is settled below.
+
+**Optional OpenSSH Server, opt in and off by default (decided 14 Aug 2026).**
+Decision from the repository owner. The case for offering it at all: SD will
+often be installed by someone with little administrative knowledge who wants
+the ten people on their local network to reach it. Good security is the
+default; the easy path exists but has to be chosen.
+
+Note the Linux script did this unconditionally — `installsdai.sh` installs
+`openssh`/`openssh-server` on all four distributions and, on Arch, runs
+`systemctl start sshd` and `systemctl enable sshd` (lines 254-295). It sat in
+the same package list as `git`, `gcc` and `python3-dev`, because the Linux end
+user had to compile. That reason is gone on Windows, so the behaviour is not
+inherited — it is re-decided, and the standing rule that the installer outranks
+Linux parity is what permits the difference.
+
+Requirements:
+
+- **Unchecked by default**, and clearly worded: it starts a service listening
+  on port 22 and adds a firewall rule, which grants remote shell access to the
+  whole machine, not just to SD.
+- **If OpenSSH Server is already present, say so and do not offer the option.**
+  Detect it without needing elevation — `%SystemRoot%\System32\OpenSSH\sshd.exe`
+  on disk, or an `sshd` service registered. Note
+  `Get-WindowsCapability -Online` **requires elevation** (measured
+  14 Aug 2026), which Inno has and a plain query does not, so prefer the file
+  or service test. Never silently reconfigure or restart an ssh server the
+  machine already has: it may be there for something else and may be managed
+  by policy.
+- **A failure to install it must not fail the SD install.** It is a Windows
+  optional capability fetched from Features on Demand, and that can be blocked
+  by policy, by a metered connection or by an offline machine. Report it and
+  carry on.
+- **The uninstaller must not remove it**, for the same reason it must not
+  remove the database: it may predate SD or be in use by something else.
+
+**Two consequences of the ten-users-over-ssh case worth being honest about.**
+
+- Each of those people needs a **Windows account on the machine** to ssh in
+  and run `sd`. That is precisely what the OS account provisioning restored on
+  14 Aug 2026 makes manageable (§5.6) — `CREATE.ACCOUNT` makes the Windows user
+  alongside the SD account. The two decisions fit together, which was not
+  planned.
+- **It does not give those ten people isolation from each other's data**, and
+  will not until §5.7's service model lands. Every SD process opens the
+  database under the invoking user's own token, so all ten need file access to
+  the tree and can read each other's account directories outside SD. The
+  account passwords organise access; they do not secure it. Anyone deploying
+  this way for casual use should be told that plainly.
+
+### 5.9.1 What the uninstaller does (decided 14 Aug 2026)
+
+Decision from the repository owner, settling the question §5.9 raised.
+
+**Yes, it is the standard Windows uninstall.** Inno registers under
+`HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall`, so SD appears in
+Settings > Apps and in Control Panel > Programs and Features, and `unins000.exe`
+is what both of them run. Nothing has to be built for that.
+
+**The default must not touch accounts, the database or the configuration.**
+Most of this comes free and one part does not:
+
+- **The data is safe by default without doing anything.** Inno removes only
+  the files it installed, from its own log, and removes a directory only if it
+  is empty. Everything the bootstrap and the running system create afterwards —
+  `VOC`, `ACCOUNTS`, `$CRED`, the accounts under `user_accounts`, `errlog` — is
+  invisible to it.
+- **`sd.conf` is the exception and needs handling**, because the installer
+  *does* install it, so Inno would remove it like any other installed file.
+  Mark it `uninsneveruninstall`, and `onlyifdoesntexist` as well so that
+  reinstalling or upgrading does not overwrite settings the user has edited.
+- **Pre-bootstrapping widens this.** The staged tree now ships a populated
+  `gcat`, `GPL.BP.OUT` and so on, so those *are* installed files and Inno will
+  remove them. That is correct — they are program, not data — but it means the
+  boundary between "shipped" and "user's" now runs through the middle of
+  `C:\ProgramData\SD\sdsys`, and anything added to the ship list has to be
+  looked at with the uninstaller in mind.
+
+**Removing the data is a separate, opt-in choice.** Inno can ask during
+uninstall from `[Code]`, and the answer must default to keeping the data. Two
+conditions: the prompt must say exactly what it destroys and where
+(`C:\ProgramData\SD\`, every account and every password), and a **silent
+uninstall must never delete it** — an unattended removal that takes the
+database with it is the worst possible default.
+
+`deletesdai.sh` is still worth reading before writing this, as §5.9 says, but
+it is not the model: it is a Linux script for a Linux layout and the decision
+above is not the one it made.
+
 
 **This is a hobby project with no release schedule and no architecture
 document to satisfy.** That is context worth having when weighing "do it
