@@ -627,6 +627,25 @@ Keep this split honest. It is the single most useful thing in the file.
   tree the installer has not finished. This was the last thing standing between
   the staged tree and an Inno package (§5.16).
 
+- **The uninstaller runs, and keeps the data.** Run `/VERYSILENT` on
+  14 Aug 2026, exit 0: `C:\Program Files\SD` and the Settings > Apps entry
+  were removed, and **`C:\ProgramData\SD` was left completely intact** — the
+  database, the accounts and `sd.conf` all survived, which is what the
+  repository owner asked for and what `UninstallSilent` guarantees for an
+  unattended removal.
+
+  It left two things behind, one of them a defect:
+
+  - **The PATH entry, and Inno cannot undo it by itself.** The `[Registry]`
+    entry appends with the `olddata` constant, so the uninstaller has no way to
+    know which part it contributed and by default leaves a dead directory on
+    the system PATH for ever. **Fixed** — `RemoveFromPath` in `sd.iss` strips
+    it by name at `usUninstall`.
+  - **The `sdusers` group**, deliberately. Every SD user is added to it and a
+    kept data tree is ACL'd to it, so removing the group would orphan the
+    permissions on a database the user just chose to keep. Now commented as
+    intentional rather than left looking like an oversight.
+
 ### Not verified — treat as unknown
 
 - **Every OS account operation.** `CREATE.ACCOUNT`, `DELETE.ACCOUNT` and
@@ -1639,6 +1658,13 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **A brace comment in an Inno `[Code]` section cannot mention a
+  brace-delimited constant.** `{ ... {app} ... }` ends at the FIRST closing
+  brace, and everything after it is parsed as code — the error points at the
+  prose, several lines from anything that looks like a statement. Use the
+  `(* ... *)` form, and do not write `(*` or `*)` inside that either, which
+  ends it the same way. Cost two compile failures on 14 Aug 2026.
 
 - **The ACL lockout's symptom is "Error 13 allocating semaphores", which names
   nothing useful.** After the installer sets the ACLs, a session whose token
