@@ -27,6 +27,65 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Correction: the API server does have a credential check, and it cannot work
+
+Investigation, no code. Prompted by the repository owner's background on
+OpenQM: it was very insecure, remote access worst of all, telnet was replaced
+with ssh only, and the API never got the same treatment. Since §1 now makes the
+API the front door, the question moved to the top.
+
+### Correction
+
+§5.6 and §7 step 6 both said the API server "has no credential check of its
+own". **That is wrong.** `APISRVR` line 921 calls `login(username, password)`,
+which reaches `op_login()` and then `login_user()` in `linuxio.c`. There are
+two paths and the port breaks each in an opposite direction:
+
+- `APILOGIN=1`, which is what `sd.conf` ships, reads `PASSWD_FILE_NAME` —
+  `/etc/shadow`. **MSYS2 has neither `/etc/shadow` nor `/etc/passwd`**, the
+  same NSS change behind the `is_grp_member` trap. `fopen` returns NULL and it
+  returns FALSE, so every API login is refused. The API is **closed, not
+  open** — which is the good version of broken, but it means the interface the
+  product now exists for does not function at all.
+- `APILOGIN=0` skips passwords entirely and trusts `getpeereid()` on an AF_UNIX
+  socket — mab's Feb 2024 hardening, and the right model. But **MSYS2 emulates
+  AF_UNIX over a TCP loopback socket with a handshake file**, so it is not a
+  filesystem object with permissions and "local socket" means much less than
+  it does on Linux.
+
+What is genuinely missing, as opposed to broken, is authorisation *after*
+connect: `SrvrAccount` reaches any account by name and `@logname` comes from
+the client. Both now written into §7 step 6 as ordered work.
+
+### The exposure question, recorded as an open question rather than a decision
+
+The repository owner raised a web front end as a way to make all API access
+local — SD behind it, never on the network. Recorded in §8 with three postures
+(SD's socket exposed; ssh tunnel; web front end) and, deliberately, with the
+argument **against** the web front end given equal weight, because it is the
+repository owner's own and it is a serious one: web servers invite attack,
+every attacker knows how, scanning is constant and automated, and a custom
+protocol on a non-standard port does not attract the same volume. Obscurity is
+not security but it is a real reduction in opportunistic traffic.
+
+The counter recorded alongside it is that a web tier does not add network
+exposure, it moves it — the comparison is IIS exposed versus `APISRVR` exposed,
+and `APISRVR` is 2007 code with fixed 32-byte credential buffers that nobody
+has fuzzed. But that argument only beats the status quo, not the ssh tunnel,
+which exposes nothing either.
+
+The observation that may settle it: **§1 points at the tunnel.** If the target
+user is a Windows developer using SD as a back end, their application is the
+front end. SD does not need a web tier to be secure, it needs to stop listening
+on the network. Whether SD offers a browser UI is then a product question, and
+separating the two is probably what makes either decidable.
+
+Two constraints recorded for whichever posture wins: attribution has to survive
+the extra hop, with the front end asserting identity and SD still enforcing the
+grant list; and connection pooling breaks `@logname` regardless of `NUMUSERS`,
+which is only a default — the repository owner notes OpenQM systems run several
+hundred users.
+
 ## 13 Aug 2026 — Embedded Python removed; SD is a back end for the API
 
 Decision from the repository owner on 13 Aug 2026, prompted by the staging

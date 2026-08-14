@@ -716,9 +716,17 @@ That does mean a typo reads as "User not allowed in requested account", which
 is the same trade `LOGIN` already makes with "Invalid username or password".
 
 `APISRVR`'s `SrvrAccount` took a name **or** a path in the same way and now
-takes a name only. Note that nothing else there is gated: the API server has no
-credential model yet, so any session it accepts can still reach any account by
-name. The `LOGTO` grant check does not cover that path.
+takes a name only. Note that nothing else there is gated: once a session is
+accepted it reaches any account by name, because the `LOGTO` grant check does
+not cover that path.
+
+**Correction (13 Aug 2026): this section used to say the API server "has no
+credential model yet".** That is wrong. `APISRVR` line 921 calls
+`login(username, password)`, which is a real connect-time check — it simply
+**cannot succeed on Windows**, because it reads `/etc/shadow`, which MSYS2 does
+not have (§6). So the API is currently closed rather than open. What is
+genuinely missing is authorisation *after* connect, and an authentication
+mechanism that can work at all. See §7 step 6 and the open question in §8.
 
 **What is still missing.**
 
@@ -1458,6 +1466,26 @@ Each of these cost real time. Read before debugging anything similar.
   `getgrnam()` path verified in §4 — that goes through the NSS layer and works
   correctly; reading the file directly does not. Under §5.6 the fix is to
   delete these calls, not repair them.
+- **The API's two security mechanisms both stop working on Windows, in
+  opposite directions.** `login_user()` in `linuxio.c` has two paths and the
+  port breaks each differently:
+
+  - With `APILOGIN=1`, which is what `sd.conf` ships, it reads
+    `PASSWD_FILE_NAME`, `/etc/shadow`. **MSYS2 has neither `/etc/shadow` nor
+    `/etc/passwd`** — the same NSS change behind the `is_grp_member` trap
+    above. `fopen` returns NULL and it fails closed, so every API login is
+    refused. Safe, but the API is unusable.
+  - With `APILOGIN=0` it skips passwords and trusts `getpeereid()` on an
+    AF_UNIX socket — mab's 2024 hardening, and the right model. **But MSYS2
+    emulates AF_UNIX over a TCP loopback socket with a handshake file.** It is
+    not a filesystem object with permissions, so "local socket" is a far
+    weaker statement here than on Linux, and any local process can reach the
+    port. Do not carry the Linux reasoning across unexamined.
+
+  The Windows equivalent of `SO_PEERCRED` is a **named pipe** with
+  `ImpersonateNamedPipeClient` or `GetNamedPipeClientProcessId`, on a pipe
+  whose security descriptor you control. `connection_type` already has
+  `CN_PIPE`, so the concept is present in the code.
 - **`chmod` is a no-op on the MSYS2 runtime — the mount is `noacl`.** `chmod
   0770` leaves a directory `drwxr-xr-x` and changes no ACE; the real permissions
   stay whatever was inherited, which under `C:\ProgramData` includes
@@ -1758,13 +1786,28 @@ the identity model.
 5. **Give grants a verb.** `ACC$USERS` can only be edited through
    `MODIFY ACCOUNTS` today. Decide the shape — `GRANT account TO account` and
    `REVOKE`, or a `SET.ACCESS` screen — and write the audit record from it.
-6. **Bring the API server under the same model.** `APISRVR` now takes account
-   names only, like `LOGTO`, but nothing else about it is gated: it has no
-   credential check of its own, so any session it accepts reaches any account.
-   Its `logname` comes from the client (lines 900 and 963), so the grant check
-   cannot simply be copied across — the authentication has to come first.
-   `sdnet.h` still hardcodes `PASSWD_FILE_NAME "/etc/shadow"` (§5.8), which is
-   what that authentication used to be.
+6. **Bring the API server under the same model** — and it is more pressing
+   than this position suggests, because §1 now says the API is the product's
+   front door. **The API does not work on Windows at all**: `APISRVR` line 921
+   calls `login(username, password)` → `login_user()` in `linuxio.c`, which
+   with `APILOGIN=1` reads `/etc/shadow`, which MSYS2 does not have. It fails
+   closed, which is the good version of broken, but it is broken. The shape of
+   the work, in value order:
+
+   a. **Authenticate against `$CRED` instead of the OS**, or drop the password
+      check entirely in favour of peer identity — which of those depends on
+      the exposure decision in §8. `!CRED_VERIFY` exists and is verified
+      working (§4), so this is small.
+   b. **Set `@logname` from what was verified**, not from the client. It comes
+      from the client today (lines 900 and 963), which is what stops the grant
+      check being copied across from `LOGTO`.
+   c. **Apply the grant check to `SrvrAccount`** once (b) makes it meaningful.
+   d. **Delete the `setuid`/`setgid` calls in `login_user()`.** SD accounts are
+      not OS users under §5.6, and they are largely no-ops on MSYS2 anyway.
+      They go with the rest of the OS-account work.
+
+   `sdnet.h` still hardcodes `PASSWD_FILE_NAME "/etc/shadow"`, which is what
+   that authentication used to be, and goes with (a).
 7. **Put `SH` and `!` back** (§5.13). Shell access was disabled on Linux and
    that was a mistake; on Windows it stops programs reaching the utilities
    they need. Find what disabled it — a config option, a `K$SECURE` test, or a
@@ -1909,6 +1952,89 @@ authenticating. No new C code is needed.
   anything — tolerable, but it argues for listing only work that is safe to
   trigger and ideally idempotent. An optional third column naming an OS
   principal is the escape hatch if that is not enough.
+
+### Open: how should the API be exposed? (raised 13 Aug 2026)
+
+Background from the repository owner: OpenQM was very insecure and **remote
+access was the worst of it**. Telnet was removed and replaced with ssh only;
+the API never got the same treatment. §1 now makes the API the product's front
+door, so this is the security question that matters most.
+
+**Where it actually stands** — see the trap in §6 and the correction in §5.6.
+The API has a connect-time credential check that cannot succeed on Windows, so
+it is closed rather than open. That buys time; it does not buy a design.
+
+**Three postures, and they are not ranked.**
+
+| | What faces the network | SD's own network exposure |
+|---|---|---|
+| **A** | SD's own socket, as shipped | full, and it is 2007 code |
+| **B** | ssh tunnel or VPN; SD is local only | none |
+| **C** | a web front end; SD is local only behind it | none |
+
+**B is what the repository owner already did to OpenQM**, and it carries to
+Windows unchanged — OpenSSH ships as a Windows optional feature and port
+forwarding works. It is the conservative answer and costs nothing new.
+
+**C was the repository owner's idea**, and its merit is that it makes the
+*simplest* API authentication the correct one rather than forcing a bigger one.
+If the only client is one local process, a **named pipe whose ACL admits
+exactly one principal** — an IIS app pool virtual account, or a Kestrel service
+account — is a stronger statement than any credential that client could
+present. No `$CRED` check in the API path, no TLS in SD, no certificate story.
+That is less code, not more. It is also the one case where Windows ACLs work
+cleanly, for the same reason as the batch account above: one principal to
+grant, so §5.7's dilemma never arises.
+
+**The argument against C, and it is a serious one** (repository owner,
+13 Aug 2026): web servers invite attack. Every hacker knows how to attack one,
+scanning is constant and automated, and a custom protocol on a non-standard
+port simply does not attract the same volume. Obscurity is not security, but it
+is a real reduction in *opportunistic* attack traffic, and a web tier is a
+whole additional codebase and patching burden. **This is recorded as an option
+to be convinced of, not a decision.**
+
+The honest counter is that C does not *add* network exposure, it *moves* it:
+the comparison is not "web server versus nothing" but "IIS exposed versus
+`APISRVR` exposed", and `APISRVR` is 2007 Ladybridge code with fixed 32-byte
+credential buffers that nobody has ever fuzzed. Obscurity cuts both ways —
+fewer people attack it, and fewer people have found its bugs. But that argument
+favours C only over **A**. Against **B** it has no force at all, because B
+exposes nothing either.
+
+**Which is worth noticing: §1 points at B.** If the target user is a Windows
+developer using SD as a back end, *their* application is the front end, and it
+sits on the same machine or reaches SD over a tunnel. SD does not need to ship
+a web tier to be secure — it needs to stop listening on the network. A web
+front end is then a **product** decision, about whether SD offers a browser UI,
+rather than a security mechanism. Keeping those two questions apart is probably
+what makes this decidable.
+
+**Two things that apply to B and C alike.**
+
+- **Attribution has to survive the extra hop.** If a front end is the only
+  client, every SD session carries *its* identity and `@logname` stops naming a
+  person — which destroys what §5.6 is for. The workable split is that the
+  front end **asserts identity** (trusted because of the pipe ACL) and SD still
+  **enforces authorisation**, checking the target account's `ACC$USERS` itself.
+  The grant list stays where it can be audited, and the front end never becomes
+  the authorisation authority. Same shape as the batch-login conclusion above:
+  an asserted capability, not a shared secret. The cost to accept consciously
+  is that compromising the front end compromises attribution entirely.
+- **Connection pooling breaks identity, and this is not about `NUMUSERS`.**
+  A pooled connection reused across users breaks both `@logname` and account
+  isolation, so it needs a session per user or a `LOGTO` with the identity
+  reset per request. Note `NUMUSERS=20` in `sd.conf` is only a default —
+  OpenQM systems run several hundred users — so the ceiling is a tuning
+  question, but the identity problem is not, and retrofitting it is painful.
+
+**What this makes more valuable than its position suggests.**
+`SDConnectLocal()` becomes the production entry point under either B or C
+rather than a curiosity, and it has never been run (§4). The client DLL is
+already the right shape for it: native UCRT64, and confirmed this session to
+depend on nothing but Windows system DLLs, so a .NET or native client can use
+it with no MSYS2 runtime anywhere in the client tier. That separation was made
+for a different reason (§5.3) and happens to be exactly what this needs.
 
 ### Settled: the binaries were purged from history on 13 Aug 2026
 
