@@ -27,6 +27,48 @@ corrected.
 
 ---
 
+## Correction: 14 Aug 2026 - RDP denial CAN probably be tested on one machine
+
+Corrects "14 Aug 2026 - The ssh-only model is proven, and three false failures
+on the way", immediately below, which said the `0x708` failure meant "no
+variation of it will work on one machine" and moved the RDP test to the second
+machine on that basis. **The reasoning was wrong**, and it was wrong in the
+direction that costs most: it declared a test impossible and parked it.
+
+`0x708` is *"you already have a console session in progress"*. It is the
+**same-user** case. `mstsc /v:localhost` had defaulted to the signed-in user's
+own credentials, and asking to connect to a console session you are already
+sitting in is circular, so RDP refuses before authentication. The error was
+read as a statement about how many sessions a Windows client SKU permits, and
+it is not one.
+
+What a client SKU actually does: several user sessions may exist at once - that
+is Fast User Switching - but only one may be **connected**, and an incoming RDP
+logon **takes the console over** rather than being refused for coexisting with
+it. So a *different* user, with no session to collide with, has nothing to
+trigger `0x708` and should reach the logon check where the deny right is
+evaluated.
+
+The attempt is therefore worth making with the **probe account's** credentials.
+Outcomes: refused with "the system administrator has restricted the types of
+logon ... that you may use" means the right holds and nothing happens to the
+console; admitted means the right does not hold, §5.6.2 is half wrong, and the
+console session is disconnected - recoverable by signing in again, with
+processes in the disconnected session still running.
+
+The second machine remains the definitive test, for a better reason than the
+one originally given: it is the configuration a real user is in, and it does
+not put the tester's own session at risk.
+
+**The general lesson, which is why this is an entry and not an edit.** An error
+message was taken as evidence for a broader claim than it supported, and the
+broader claim was then written into three places at once - precisely so that a
+future session would not re-attempt the test. Confidence and reach were added
+in the same step. Prefer to record what was observed (`0x708`, same user,
+before authentication) and keep the conclusion narrow.
+
+---
+
 ## 14 Aug 2026 - The ssh-only model is proven, and three false failures on the way
 
 Third session of 14 Aug 2026, covering the commit that carries this entry, on

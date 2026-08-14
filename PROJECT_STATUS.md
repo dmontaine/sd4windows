@@ -68,14 +68,19 @@ lines, against 145 for the broken run).
    account.** The model itself is proven (§4); what is below is small and
    should not be left to drift.
 
-   a. **RDP refusal has moved to step 2**, the second machine. It was tried
-      here on 14 Aug 2026 and **cannot be done on one machine at all** —
-      `mstsc /v:localhost` fails with `0x708` before authentication, because a
-      Windows client SKU allows a single session and the console holds it. See
-      §4 Unverified. Nothing more to try here.
+   a. **RDP refusal is still unobserved.** The attempt on 14 Aug 2026 hit
+      `0x708` before authentication — but that was the *same-user* case and
+      says nothing about the deny right (§4 Unverified, which corrects an
+      earlier overstatement here). One more attempt is worth making on this
+      machine, giving the **probe account's** credentials rather than your
+      own; the probe has been deleted, so re-create it with
+      `verify-sshonly.ps1 -Keep` first. Read the two outcomes in §4 before
+      running it — one of them disconnects your console session.
 
-   b. **Delete the probe**, which no longer has a purpose, and the transcript
-      that holds its password:
+      The definitive test is still step 2, on the second machine.
+
+   b. **Delete the probe when done** — and the transcript that holds its
+      password:
 
       ```powershell
       powershell -File sdb_ai\sd64\gplbld\verify-sshonly.ps1 -Cleanup
@@ -1060,8 +1065,10 @@ Keep this split honest. It is the single most useful thing in the file.
 
   It cannot be automated — there is no `LogonUser` logon type corresponding to
   RDP's logon type 10, so only a real Remote Desktop connection exercises the
-  right. **And it cannot be done against `localhost` either.** Tried 14 Aug
-  2026: `mstsc /v:localhost` answers
+  right.
+
+  **Tried against `localhost` on 14 Aug 2026 and it failed for an unrelated
+  reason**, which is worth knowing before trying it again:
 
   ```
   Your computer could not connect to another console session on the remote
@@ -1069,14 +1076,33 @@ Keep this split honest. It is the single most useful thing in the file.
   Error code: 0x708
   ```
 
-  That is RDP refusing **before authentication**, because a Windows client SKU
-  allows one session and the console already holds it. It says nothing about
-  the deny right, and no variation of it will: the test needs a **second
-  machine as the client**.
+  That is RDP refusing **before authentication**, so it says nothing about the
+  deny right. **It is the SAME-USER case**: `mstsc` defaulted to the signed-in
+  user's own credentials, and connecting to a console session you are already
+  sitting in is circular. On a Windows client SKU several user sessions may
+  exist (Fast User Switching), but only one may be *connected*, and an
+  incoming RDP logon takes the console over rather than being refused.
 
-  So this belongs to §7 step 2, on the machine being built for it — run
-  `verify-sshonly.ps1 -Keep` there and RDP to it **from this machine**. Do not
-  spend time on it here.
+  **Corrected 14 Aug 2026** — this file previously said no variation would work
+  on one machine. That was wrong; see the correction in HISTORY.md.
+  `mstsc /v:localhost` giving the **probe account's** credentials has no
+  existing session to collide with, and should reach the logon check. What
+  each outcome means:
+
+  - Refused with "the system administrator has restricted the types of logon
+    ... that you may use" — the right works, and nothing happens to the
+    console session.
+  - Admitted — the right does **not** work, §5.6.2 is half wrong, and the
+    console session is disconnected. Recoverable: sign in again at the
+    console; processes in the disconnected session keep running.
+
+  RDP must be enabled for the attempt to mean anything. On this machine it is:
+  `fDenyTSConnections` is 0 and `rdp-tcp` is listening, checked 14 Aug 2026.
+
+  **The definitive test is still from a second machine**, §7 step 2, because
+  that is the configuration a user would actually be in and it does not put
+  the tester's own session at risk. Run `verify-sshonly.ps1 -Keep` there and
+  RDP to it from this one.
 
 - **`CREATE.ACCOUNT` with `sdsshonly` present.** The verb was run on 14 Aug
   2026 (§4 Verified) but the group did not exist then, so the ssh-only branch
