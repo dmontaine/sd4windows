@@ -27,6 +27,104 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - the daemon is fixed and renamed `sdwind`, and it starts
+
+Closes the entry below, which found that `sd -start` could never launch the
+daemon on an installed system, and carries out the rename the repository owner
+asked for. Both in one change because they are the same lines.
+
+### The fix
+
+Two call sites built a path to an executable from `sysseg->sysdir`:
+
+- `gplsrc/sysseg.c`, `start_sd()`, `"%s/bin/sdlnxd"`
+- `gplsrc/sdlnxd.c`, `check_lost_users()`, `"'%s/bin/sd' -cleanup"` — the
+  cleanup session fired when a user's process has vanished
+
+Both resolved to `C:\ProgramData\SD\sdsys\bin`, which holds `pcode` and
+`pcode.old` and no executables at all. The second one had not been noticed when
+the entry below was written; it was found by reading the file while renaming
+it, which is an argument for doing the rename rather than deferring it.
+
+**Both now resolve against the running executable**, through a new
+`gplsrc/exepath.c`:
+
+```c
+bool exe_directory(char* buff, int buff_len);   /* readlink("/proc/self/exe") */
+```
+
+That was chosen over hardcoding the new location deliberately: the launcher and
+the launched then stay together **by construction**, so the next layout change
+cannot reintroduce this. It is also the same rule the MSYS2 runtime itself uses
+to find its POSIX root, which is why `sd.exe` and its DLLs must share a
+directory. `/proc/self/exe` is a Linux interface that the MSYS2 runtime
+implements; measured 14 Aug 2026, it resolves correctly through a path
+containing spaces and reports the name **without** the `.exe` extension, which
+is what is wanted since `execl()` and `system()` both append it — and is how
+the code it replaces named `sdlnxd` and `sd`.
+
+`exepath.o` is added to `gpl.src` and to the daemon's own link line, which is
+short (`sdwind.o sdsem.o exepath.o`) and cannot reach `linuxlb.c`.
+
+**And the forked child now `_exit()`s instead of returning.** This is the half
+that made the bug invisible: on a failed `execl`, or a `snprintf` overflow,
+control fell back into the caller's code inside a child that had already
+`daemon()`ed, so a missing daemon produced no message and no failed exit
+status. It now prints what it could not start and why, and leaves. The general
+lesson is in §6 — a forked child that fails must `_exit()`, never `return`.
+
+### The rename
+
+`sdlnxd` means "SD Linux daemon", which is the wrong name in a Windows-only
+repository. `gplsrc/sdlnxd.c` → `gplsrc/sdwind.c` (via `git mv`, so the history
+follows), the `sdlnxd_pid` field in the shared segment struct, `sysdump.c`'s
+report line, the `Makefile` target and its entry in the `sd:` prerequisites, two
+ship-list entries in `gplbld/stage.py`, and one comment in
+`gplbld/bootstrap.py`.
+
+The name itself now lives in **one place**, `SDWIND_NAME` in `sddefs.h`, used
+both by `start_sd()` to launch it and by the daemon's own errlog prefix, so the
+two cannot drift apart and a further rename is a single line.
+
+**A correction to the caution in the entry below**, which said renaming
+`sdlnxd_pid` "changes the layout of the shared segment struct". It does not —
+renaming a field of the same type at the same offset changes no layout, so
+`revstamp.h` and the segment version needed no thought after all. What *does*
+change across this commit is the daemon's **file name**, which matters only to
+an existing install: an old tree has `sdlnxd.exe` and a new `sd.exe` will look
+for `sdwind`. Upgrading an existing install is unsolved anyway (§5.9.1).
+
+`gplbld/sd.iss` needed no change, as predicted — the daemon ships under the
+`ProgramFiles\*` glob and is not named anywhere in the installer.
+
+### Verified
+
+Built clean (`make sd`, exit 0, `Linking sdwind`, `Linking sd`); the four
+changed or new C files compile with no warnings under `-Wall -Wextra`, the only
+one reported being a pre-existing unused parameter in `create_shared_segment`.
+
+Then, on the **development** tree, `sd -start` left
+`bin/sdwind` running and `sd -stop` removed it. That proves the mechanism but
+not the bug, since `<sysdir>/bin` holds executables there — so the staged tree
+was rebuilt with a full bootstrap, the installer recompiled, and the machine
+cleaned and installed from scratch:
+
+- `sdwind.exe` **running as pid 9740 out of `C:\Program Files\SD\usr\bin\`**,
+  while `<sysdir>\bin` held only `pcode, pcode.old`. The old path could not
+  have worked; this is the case that had never once succeeded.
+- `COUNT VOC` 431 records, `WHO` `2 SDSYS`, and `sd -stop` took the daemon down.
+- The install re-counted at **3,264 of 3,264** files, which also confirms the
+  installer still works after `stage.py` changed.
+
+Not verified: what the daemon *does*. `check_lost_users()` runs every five
+minutes and shells out to `sd -cleanup` only when it finds a user table entry
+whose process has gone. Nothing has made a session go missing, so that path —
+including the second fixed call site — has still never executed. It was
+unreachable before today, the daemon never having run.
+
+`errlog` stayed empty through the whole cycle, as it did before the fix, so
+that open question is not explained by the daemon and remains in §4.
+
 ## 14 Aug 2026 - `sd -start` cannot start the daemon on an installed system
 
 Found immediately after the entry below, while scoping the `sdlnxd` → `sdwind`

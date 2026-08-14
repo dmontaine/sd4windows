@@ -5,26 +5,28 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, second session of the day, at commit `5748a51`
-plus the commit that carries this line. Short and single-purpose: the installer
-fix from `5748a51` was **run and verified**. A genuine first install now lays
-down 3,264 files and the installed system answers commands. One new defect was
-found by inspection while doing it — see `sdadmins` below, which is now the
-thing standing between this and a clean-machine install.
+**Last updated:** 14 Aug 2026, second session of the day, at commit `94cca88`
+plus the commit that carries this line. Three things landed: the installer fix
+from `5748a51` was **run and verified** (3,264 files, not 16); the daemon was
+found never to start on an installed system and **that is fixed and verified**;
+and it was renamed `sdlnxd` → **`sdwind`**. One defect found by inspection is
+still open — see `sdadmins` below, which is the thing standing between this and
+a clean-machine install.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
 
 | Thing | State |
 |---|---|
-| `C:\Program Files\SD` | 15 files, correct |
+| `C:\Program Files\SD` | 15 files, correct, binaries in `usr\bin` including `sdwind.exe` |
 | `C:\ProgramData\SD\sdsys` | **3,264 files - a working database**, `COUNT VOC` reports 431 |
+| The daemon | **runs**, as `C:\Program Files\SD\usr\bin\sdwind.exe`, and `sd -stop` takes it down |
 | SDSYS password | **not set.** `LOGIN` warns and admits an administrator, which is the correct state for an install nobody has finished |
 | `sdusers` group | exists, with `GITORLI\don` in it |
 | `sdadmins` group | exists, **created by hand on 13 Aug, not by the installer** — see below |
 | System PATH and the Settings > Apps entry | both present |
 | `C:\ProgramData\SD` ACL | locked to sdusers/Administrators/SYSTEM. An unelevated session **cannot read inside it** until `don` signs out and back in; `Test-Path` on the directory itself still says True, so look at the contents |
-| MSYS2 dev tree at `/usr/local/sdsys` | untouched, still works, reached with `SD_CONFIG=/etc/sd.conf` |
+| MSYS2 dev tree at `/usr/local/sdsys` | still reachable with `SD_CONFIG=/etc/sd.conf`. Its `bin/` was refreshed with the `sdwind` build on 14 Aug 2026 and the stale `sdlnxd.exe` removed; `pcode`/`pcode.old` are still beside them, since the dev tree keeps the old unsplit layout |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
 elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
@@ -63,48 +65,6 @@ lines, against 145 for the broken run).
    so, whether the group should be `sdadmins` or Windows `Administrators`. That
    question now blocks something concrete, which it did not before. **Decision
    needed from the repository owner** — it is the first item in §8.
-
-1a. **Fix where `sd -start` looks for the daemon, and rename it `sdwind` while
-   you are in there.** Two jobs in the same lines, found 14 Aug 2026.
-
-   **The defect first**, because it is not cosmetic: `gplsrc/sysseg.c` line 405
-   execs `"%s/bin/sdlnxd"` built from `sysseg->sysdir`, which resolves to
-   `C:\ProgramData\SD\sdsys\bin\sdlnxd` on an installed system. The daemon is
-   at `C:\Program Files\SD\usr\bin\sdlnxd.exe`; that directory holds only
-   `pcode` and `pcode.old`. **So the daemon never starts once SD is
-   installed**, silently — see the trap in §6. It works in development, where
-   `<sysdir>/bin` does hold the binaries. Fix it to resolve against the
-   executable's own directory rather than `sysdir`, since §5.8 has permanently
-   separated the two; do not simply hardcode the new path, or the next layout
-   change repeats this.
-
-   **Then the rename**, requested by the repository owner 14 Aug 2026:
-   `sdlnxd` → **`sdwind`**. The name means "SD Linux daemon" and this is a
-   Windows-only repository, so it is wrong in the same way the `#ifdef`
-   branches would have been. Scope, in tracked source only — `bin/` and
-   `gplobj/` are build output and `AI_Modification_Notes/` is a historical
-   record, so neither needs touching:
-
-   | File | What |
-   |---|---|
-   | `gplsrc/sdlnxd.c` | the daemon itself; **rename the file too** |
-   | `gplsrc/sysseg.c` | the exec path above, and the `sdlnxd_pid` field uses |
-   | `gplsrc/sysseg.h` | `int sdlnxd_pid` in the shared segment struct |
-   | `gplsrc/sysdump.c` | prints `sdlnxd pid:` |
-   | `Makefile` | the `sdlnxd` target and its line in the `sd:` prerequisites |
-   | `gplbld/stage.py` | two entries in the ship lists |
-   | `gplbld/bootstrap.py` | one comment |
-
-   `gplbld/sd.iss` does **not** name it — it ships under the `ProgramFiles\*`
-   glob — so the installer needs no change. `gpl.src` does not list it either,
-   since it is linked separately from `sdlnxd.o` and `sdsem.o`.
-
-   Two cautions. **Renaming `sdlnxd_pid` changes the layout of the shared
-   segment struct**, so `revstamp.h` and the segment version want a thought —
-   a running server and a new binary must not disagree about it; safest to
-   rename with SD stopped and `/dev/shm` clean. And **HISTORY.md is
-   append-only**: its 11 references to `sdlnxd` stay as they are, which is
-   correct, since they record what the thing was called at the time.
 
 2. **Install on a genuinely clean machine.** Still the test that matters, and
    still not done: this machine has a development tree, so an accidental
@@ -306,7 +266,7 @@ Produces in `sdb_ai/sd64/bin`:
 
 | Artifact | Kind |
 |---|---|
-| `sd.exe` `sdconv.exe` `sdfix.exe` `sdidx.exe` `sdlnxd.exe` `sdtic.exe` | PE32+, MSYS2 runtime |
+| `sd.exe` `sdconv.exe` `sdfix.exe` `sdidx.exe` `sdwind.exe` `sdtic.exe` | PE32+, MSYS2 runtime |
 | `sdclilib.dll` + `libsdclilib.dll.a` | PE32+, native UCRT64 |
 
 `make sdclilib` builds just the client. `terminfo/` (99 files) is generated by
@@ -475,7 +435,8 @@ Keep this split honest. It is the single most useful thing in the file.
   `gcat` entries and `PCODE.OUT`.
 - **SD has started.** `sd -start` (probe build, §6) created the shared segment
   and all six semaphores *itself* — `/dev/shm/sd_shm_716d0301` at 100 KB and
-  `sd_sem_716d0302_0` through `_5` — and spawned `sdlnxd`, which stayed
+  `sd_sem_716d0302_0` through `_5` — and spawned `sdlnxd` (renamed `sdwind` on
+  14 Aug 2026), which stayed
   running. This is the `shm_open`/`ftruncate`/`mmap` **creation** path in
   `sysseg.c` executing for the first time; it had never run before, and it was
   the largest remaining unknown after the standalone lifecycle test. Observed
@@ -712,6 +673,34 @@ Keep this split honest. It is the single most useful thing in the file.
   system PATH; 15 files in `C:\Program Files\SD`; no `gplbld` anywhere in the
   data tree; and `sd.conf` present.
 
+- **The daemon starts on an installed system, and it is called `sdwind`.**
+  Observed 14 Aug 2026 after the fix. It had **never** started from an install:
+  `sysseg.c` execed `"%s/bin/sdlnxd"` built from `sysseg->sysdir`, and
+  `<sysdir>/bin` holds `pcode` and `pcode.old` and no executables at all (the
+  §5.8 split). `start_sd()` now asks `exe_directory()` — `/proc/self/exe`,
+  which the MSYS2 runtime implements — and launches the daemon from beside the
+  running executable, so the two cannot drift apart again.
+
+  Verified end to end on a clean first install: `sd -start` from
+  `C:\Program Files\SD\usr\bin\sd.exe` left
+  **`sdwind.exe` running as pid 9740 out of `C:\Program Files\SD\usr\bin\`**,
+  while `<sysdir>\bin` held only `pcode, pcode.old` — so the old path could not
+  possibly have worked. `COUNT VOC` then reported **431 records**, `WHO`
+  reported `2 SDSYS`, and `sd -stop` took the daemon down again. The same run
+  re-counted the install at **3,264 of 3,264** files, which also confirms the
+  installer still works after `stage.py` changed.
+
+  **The silence is the part worth remembering.** The `execl` is in a forked
+  child that has already called `daemon()`, so a failure printed nothing and
+  `sd -start` still reported success. The child now `_exit()`s with a message
+  instead of falling back into the caller's code, which is what it did before —
+  so a future failure will at least say so. Trap in §6.
+
+  A second call site had the same defect and is fixed with it: the daemon's own
+  `check_lost_users()` built `'<sysdir>/bin/sd' -cleanup` to launch a cleanup
+  session. Not separately verified, since nothing has yet made a session go
+  missing.
+
 - **The ACLs are right, and this time that was checked from the outside.** The
   data tree carries exactly `GITORLI\sdusers:(OI)(CI)(M)`,
   `BUILTIN\Administrators:(OI)(CI)(F)` and `NT AUTHORITY\SYSTEM:(OI)(CI)(F)`,
@@ -821,20 +810,18 @@ Keep this split honest. It is the single most useful thing in the file.
   plus the `IsAdmin()` observation already recorded above — **it has not been
   observed**, because this machine's token carries `sdadmins`.
 
-- **DIAGNOSED 14 Aug 2026, and it is a real defect — see §7 step 1a.** The open
-  question here was why `Get-Process sdlnxd` reported nothing after `sd -start`
-  on the installed system. **`sysseg.c` looks for the daemon in the wrong
-  place**: line 405 builds the path as `"%s/bin/sdlnxd"` from
-  `sysseg->sysdir`, so on an installed system it tries to exec
-  `C:\ProgramData\SD\sdsys\bin\sdlnxd`. That directory holds `pcode` and
-  `pcode.old` and nothing else — the daemon ships to
-  `C:\Program Files\SD\usr\bin\sdlnxd.exe`. What is *left* unverified is only
-  the consequence for the API, since nothing has exercised the network layer
-  yet.
+- **What the daemon actually does for the system.** Fixed and verified
+  14 Aug 2026 (see §4 Verified), so what remains unknown is only its *effect*:
+  `check_lost_users()` shells out to `sd -cleanup` every five minutes when it
+  finds a user table entry whose process is gone. That path has never been
+  exercised — no session has been killed and the cleanup watched — and it was
+  unreachable until today, since the daemon was never running. It matters for
+  the API (§7 step 6), which is the daemon's other reason to exist.
 
 - **Why `errlog` stayed empty** through a full start / command / stop cycle on
   the freshly installed tree, 14 Aug 2026, where earlier sessions saw
-  "User n (pid, don)" lines written to it. Not chased.
+  "User n (pid, don)" lines written to it. Still empty after the daemon was
+  fixed, so it is not explained by that. Not chased.
 
 ## 5. Decisions and why
 
@@ -845,7 +832,7 @@ Do not undo these without reading the reasoning.
 System V IPC compiles and links on MSYS2 then fails at runtime with ENOSYS
 (§6); native Windows has none at all. POSIX named shared memory and semaphores
 work on both and are the right direction for stage 2 anyway, since POSIX shared
-memory is backed by `CreateFileMapping`. `sysseg.c`, `sdidx.c` and `sdlnxd.c`
+memory is backed by `CreateFileMapping`. `sysseg.c`, `sdidx.c` and `sdwind.c`
 use `shm_open`/`ftruncate`/`mmap`/`munmap`; `sdsem.c` uses
 `sem_open`/`sem_trywait`/`sem_post`; names come from `SD_POSIX_SHM_NAME` and
 `SD_POSIX_SEM_FMT` in `sddefs.h`.
@@ -1231,7 +1218,7 @@ What is achievable now, and what is not:
   `Administrators`, so no other account on the machine can browse it. This
   blocks everyone who is not an SD user. It does not stop an SD user reading
   another account's files directly, since SD runs as them.
-- **The real answer, and it is stage 2.** `sdlnxd` becomes a Windows service
+- **The real answer, and it is stage 2.** `sdwind` becomes a Windows service
   running as a dedicated service account — a virtual account, `NT SERVICE\SD`,
   needs no password management — which owns the tree exclusively. Session
   processes are spawned under the *service* identity, not the user's, and the
@@ -1602,7 +1589,7 @@ Consequences to carry into the installer work (§5.9):
   The end user gets the Inno Setup installer and needs neither a clone nor a
   toolchain.
 - The eight files removed from tracking — `sd.exe`, `sdconv.exe`, `sdfix.exe`,
-  `sdidx.exe`, `sdlnxd.exe`, `sdtic.exe`, `sdclilib.dll`, `libsdclilib.dll.a` —
+  `sdidx.exe`, `sdwind.exe`, `sdtic.exe`, `sdclilib.dll`, `libsdclilib.dll.a` —
   are still produced by `make sd` and still needed at runtime. They were
   untracked, not deleted.
 - **History was rewritten on 13 Aug 2026 to purge them**, so nothing binary
@@ -1819,29 +1806,38 @@ Each of these cost real time. Read before debugging anything similar.
   `(* ... *)` form, and do not write `(*` or `*)` inside that either, which
   ends it the same way. Cost two compile failures on 14 Aug 2026.
 
-- **The `<sysdir>/bin` split left `sysseg.c` pointing at the old location, and
-  it fails silently.** Found 14 Aug 2026. `sysseg.c` line 405 execs
-  `"%s/bin/sdlnxd"` built from `sysseg->sysdir`, which was right when the Linux
-  install put executables and the pcode library in the same
+- **FIXED 14 Aug 2026, kept because the shape recurs: the `<sysdir>/bin` split
+  left two C call sites pointing at the old location, and both failed
+  silently.** `sysseg.c` execed `"%s/bin/sdlnxd"` built from
+  `sysseg->sysdir`, and the daemon's own `check_lost_users()` built
+  `'<sysdir>/bin/sd' -cleanup` the same way. Both were right while the Linux
+  install kept executables and the pcode library in one
   `/usr/local/sdsys/bin`. §5.8 split them — binaries to
   `C:\Program Files\SD\usr\bin`, `pcode` and `pcode.old` staying with SDSYS
-  (§6, "two unrelated things in one directory") — and this call site did not
-  move with them. **`sd -start` therefore cannot start the daemon on an
-  installed system**, and says nothing about it: the `execl` is in a forked
-  child that has already `daemon()`ed, so there is no message anywhere and
-  `sd -start` still reports success. `sysseg->sdlnxd_pid` stays -1, which is
-  the value meaning "failed to start", and `sd -stop` then correctly skips it.
+  (see "two unrelated things in one directory" below) — and neither call site
+  moved. **So the daemon never started on an installed system**, and nothing
+  said so: the `execl` sits in a forked child that has already `daemon()`ed, so
+  there was no message anywhere and `sd -start` still reported success.
+  `sdwind_pid` stayed at -1, which is exactly the value meaning "failed to
+  start", so `sd -stop` correctly skipped it and even that looked normal.
 
   **The symptom is an absence**, which is the hard kind to notice: SD works
-  completely — shared segment, `COUNT VOC`, everything — because none of that
-  needs the daemon. Only `Get-Process sdlnxd` shows it.
+  completely — shared segment, `COUNT VOC`, `WHO`, everything — because none of
+  it needs the daemon. Only looking for the process shows it.
 
-  Note it **works perfectly in development**, where `<sysdir>/bin` really does
-  hold the executables, which is why 13 Aug 2026 recorded the daemon starting
-  and staying up. Same family as the `/bin/bash` trap above: a path that is
-  correct in the development tree and wrong in the installed one. **When
-  anything is moved between the two trees, grep the C for the old location** —
-  the compiler cannot help, because these are runtime strings.
+  It **worked perfectly in development**, where `<sysdir>/bin` really does hold
+  the executables, which is why 13 Aug 2026 recorded the daemon starting and
+  staying up and why nothing contradicted that until there was an install to
+  test. Same family as the `/bin/bash` trap above.
+
+  **Two lessons, both general.** When anything moves between the development
+  and installed trees, **grep the C for the old location** — the compiler
+  cannot help, because these are runtime strings. And **a forked child that
+  fails must `_exit()`, not `return`**: returning put it back into the
+  caller's code as a duplicate process, which is what made this produce no
+  symptom at all. Both call sites now resolve against `exe_directory()`
+  (`exepath.c`), so the launcher and the launched stay together by
+  construction.
 
 - **`Test-Path` says True for a directory you cannot read, so it is no test of
   an ACL.** `Test-Path C:\ProgramData\SD` answers True from a session that is
@@ -2180,11 +2176,13 @@ Each of these cost real time. Read before debugging anything similar.
   (`sdclilib/sdclilib.c`), and the client's comment wrongly claims they match.
   Setting the variable you would expect fixes one and not the other. See §5.8.
 - **`sd -start` looks like it hangs, but it has succeeded.** It spawns
-  `sdlnxd`, which inherits stdout and stderr. Any shell that captures output —
+  `sdwind`, which inherits stdout and stderr. Any shell that captures output —
   a pipe, command substitution, a tool that reads the process's output — then
   blocks until the *daemon* exits, not until `sd -start` exits. The parent has
-  already returned. Check with `Get-Process sdlnxd` rather than waiting, and
-  redirect to a file when starting from a script.
+  already returned. Check with `Get-Process sdwind` rather than waiting, and
+  redirect to a file when starting from a script. **This became live again on
+  14 Aug 2026**: while the daemon was never starting, there was nothing to
+  block on and a piped `sd -start` returned immediately.
 - **A yes/no prompt with no input left spins forever, at full CPU.**
   `CATALOG BP X GLOBAL` asks "Program is also in private catalogue. Remove?".
   Fed from a pipe that has run dry, the read returns end of file, the prompt
