@@ -39,6 +39,11 @@ Follow those; this file only points at them.
 
 - **Windows only.** Linux development lives in a separate repository. Do not
   add `#ifdef` branches to keep Linux building — replace Linux code outright.
+- **No binaries in this repository.** Everything must be auditable from source.
+  That is why the pcode build is Python (`gplbld/`) rather than a shipped
+  binary, and why no `.exe`, `.dll` or object file is tracked. Anything that
+  has to ship as a binary ships outside the repository, as a release artefact.
+  Do not add a convenience exception; installing means building.
 - Two toolchains, deliberately: the server builds against the MSYS2 POSIX
   runtime, the client DLL is native UCRT64. See PROJECT_STATUS.md §5.4.
 
@@ -57,7 +62,7 @@ clear stale objects with `rm -f gplobj/*.o`.
 - Match the surrounding code. It is a 2007 Ladybridge codebase with its own
   idioms — `Public`/`Private` macros, `START-HISTORY` blocks, banner comments.
   Add a dated line to a file's `START-HISTORY` block when changing it.
-- Linked binaries in `bin/` are tracked, because the install scripts deploy
-  them from the repository. Build intermediates are not.
+- Nothing binary is tracked — see the constraint above. `bin/` is build output
+  and is ignored apart from its README.
 - Explain *why* in commit messages, not just what. The reasoning is the part
   that does not survive in the diff.

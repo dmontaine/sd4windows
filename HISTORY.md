@@ -27,6 +27,102 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — SD runs. Full bootstrap completes; no binaries in the repository
+
+Two changes, one of them a reversal of policy set earlier the same day.
+
+### The OS group membership tests are gone
+
+`is_grp_member` calls removed from `LOGIN` (the `sdusers` login gate and the
+`ACC$GROUP` account gate), `CPROC` (`LOGTO`) and `APISRVR` (three sites), along
+with the `deffun` declarations, which had no callers left. This is §5.6: SD
+consults no operating system group.
+
+**It also means nothing currently restricts entry to any account.** That is the
+intended interim state — account credentials replace the groups — but the
+system is open until that is built, and should not be exposed to anything
+meanwhile. §7 step 1 is now the credential model, and it is urgent rather than
+merely next.
+
+The calls in `CREATEA` and `MODIFYA` were left deliberately. They guard
+`OS.EXECUTE` calls to `useradd`, `usermod` and `groupadd`; removing the guard
+alone would let those shell-outs run unconditionally, which is worse than
+leaving them in place. They go when the OS account commands go, as one change.
+
+### The bootstrap now runs to completion, and SD answers commands
+
+| Step | Result |
+|---|---|
+| `sd -i` | 9 programs compiled, `VOC` and dictionaries created |
+| `SECOND.COMPILE` | **204 programs compiled with no errors** |
+| `WRITE_INSTALL_DICTS` | dictionary entries written, "COMPLETE" |
+| `THIRD.COMPILE` | I-types compiled |
+| `BASIC GPL.BP CPROC` | real 24 KB `gcat/$CPROC`, replacing the placeholder |
+
+```
+sd -ASDSYS WHO          -> 7 SDSYS
+sd -ASDSYS COUNT VOC    -> 431 record(s) counted
+sd -ASDSYS SELECT VOC   -> 431 record(s) selected to list 0
+```
+
+Reading records back works. `@ds` hardcoded to `/` compiled 204 programs, which
+settles that question for stage 1.
+
+Three things were learned getting there, all recorded as traps.
+
+**Grep the BASIC case-insensitively.** There were five `system(27)` privilege
+tests, not four: `WRITE_INSTALL_DICTS` spells it `SYSTEM(27)`. A case-sensitive
+sweep found four, and the survivor stopped the bootstrap two steps later. This
+directly caused a wasted cycle.
+
+**`KERNEL` is only available to `$internal` programs.** `WRITE_INSTALL_DICTS`
+is not one, and `KERNEL(K$ADMINISTRATOR, -1)` there produced "WARNING: KERNEL is
+not assigned a value" — the compiler treating it as a variable, not an unknown
+function. `SYSTEM(1050)` returns the same `USR_ADMIN` flag (`op_sys.c` case
+1050) with no such restriction, and is the right call for non-internal code.
+
+**The runtime tree needs `gplsrc`, `gplobj` and `gplbld/FILES_DICTS`.**
+`installsdai.sh` copies all three into `<sysdir>`, and the list recorded in §3
+had omitted them. `REVSTAMP` opens `./gplsrc/revstamp.h` relative to the account
+directory, so `SECOND.COMPILE` aborted at APISRVR with "Cannot open gplsrc
+revstamp.h", which reads like a compiler fault and is a missing directory.
+
+The stale-lock trap recorded in the entry below proved itself twice more: an
+aborted `SECOND.COMPILE` left a lock on the sequential file `REVSTAMP` writes,
+and the retry sat at 0.47 s of CPU over 78 s until SD was restarted. The
+documented fix — stop and start — worked both times.
+
+Still outstanding: every catalogue write prints "Unable change ownership of
+directory error ... err: 1000", which is `CATALOG` doing the Linux `chown` to
+`sdsys:sdusers`. Non-fatal, and it belongs with the rest of the OS account work.
+Also `LOGIN` carried a mangled banner, `END-HISTORYPTION:`, where the AI cleaning
+cycles had merged `END-HISTORY` and `START-DESCRIPTION:`; repaired in passing.
+
+### No binaries in the repository
+
+Decision from the repository owner, **reversing** the position recorded earlier
+the same day that linked binaries in `bin/` were tracked so the install scripts
+could deploy them from a clone. Everything must be auditable from source — the
+same reason the pcode build is Python rather than a shipped binary.
+
+Eight files untracked: `sd.exe`, `sdconv.exe`, `sdfix.exe`, `sdidx.exe`,
+`sdlnxd.exe`, `sdtic.exe`, `sdclilib.dll`, `libsdclilib.dll.a`. They are still
+built by `make sd` and still needed at runtime; they were untracked, not
+deleted. `.gitignore` now excludes `bin/` and every `.exe`, `.dll`, `.a`, `.o`,
+`.so`, `.lib` and `.obj` anywhere in the tree, and CLAUDE.md carries the
+constraint so it is read before anything is added back.
+
+The consequence for §5.9 is that installing means building: `installsdai.sh`
+does `cp -R bin "$sdsysdir"` and tests for `bin/sd`, both of which assumed a
+clone already held the binaries.
+
+**The binaries remain in git history**, so a clone still fetches them and the
+audit goal is only half met. Purging needs a history rewrite and a force push,
+which is destructive to existing clones and breaks the commit hashes this
+archive quotes. Not done without asking; recorded as an open question in §8.
+
+---
+
 ## 13 Aug 2026 — Privilege tests moved to K$ADMINISTRATOR; bootstrap pass 1 completes
 
 **SD compiled BASIC and created database files on Windows for the first time.**

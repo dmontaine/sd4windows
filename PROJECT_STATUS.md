@@ -206,27 +206,34 @@ external reference tree), so it is not something the AI cleaning cycles
 introduced. `is_bootstrap` is a red herring for this: it is set at `sd.c:321`
 and never consulted by `bind_sysseg`.
 
-**Bootstrap pass 1 completes.** The privilege tests now ask
-`KERNEL(K$ADMINISTRATOR, -1)` and `USR_ADMIN` is seeded from `IsAdmin()` at
-process start (§5.6), which unblocked it. `sd -i` exits 0 having compiled nine
-BASIC programs with zero errors — `CPROC`, `LOGIN`, `BASIC`, `BCOMP`, `PTERM`,
-`CATALOG`, `PARSER`, `IS_GRP_MEMBER`, `TERM` — and created `VOC`,
-`ACCOUNTS.DIC`, `$HOLD.DIC`, `$MAP`, `$MAP.DIC`, `$IPC`, `DICT.DIC`,
-`DIR_DICT` and `VOC.DIC`. `GPL.BP.OUT` holds 11 compiled objects.
-
-**Where it stops now: `SECOND.COMPILE`, on the `/etc/group` blocker.** Exactly
-as predicted below:
+**Runtime bring-up is complete. SD runs.** The whole bootstrap sequence above
+was executed successfully on 13 Aug 2026 and the system answers commands:
 
 ```
-This user is not registered for String Database (sd) use
-Connection terminated
+sd -ASDSYS WHO          -> 7 SDSYS
+sd -ASDSYS COUNT VOC    -> 431 record(s) counted
+sd -ASDSYS SELECT VOC   -> 431 record(s) selected to list 0
 ```
 
-That is `LOGIN:193`, `is_grp_member(lgn.id,'sdusers')`, failing because
-`IS_GRP_MEMBER` parses `/etc/group` and MSYS2 has no such file (§6). Pass 1
-avoided it because `-i` runs `$BBPROC` rather than `LOGIN`. **This is the next
-thing to fix**, and under §5.6 the answer is to delete the `is_grp_member`
-calls rather than repair them — the second half of §7 step 2.
+What each step produced: `sd -i` compiled the nine bootstrap programs and
+created `VOC` and the dictionaries; `SECOND.COMPILE` compiled **204 programs
+with no errors** and catalogued them; `WRITE_INSTALL_DICTS` wrote the
+dictionary entries; `THIRD.COMPILE` compiled the I-types; and
+`BASIC GPL.BP CPROC` replaced the placeholder with a real 24 KB
+`gcat/$CPROC`.
+
+**Two things to know before rebuilding this environment.** The runtime tree
+needs more than §3 used to list — `installsdai.sh` also copies `gplsrc`,
+`gplobj` and `gplbld/FILES_DICTS` into `<sysdir>`, and `REVSTAMP` opens
+`./gplsrc/revstamp.h` relative to the account directory, so `SECOND.COMPILE`
+aborts without it. And a run that aborts part way leaves record locks behind,
+so restart SD before retrying (§6).
+
+**Known cosmetic failure.** Every catalogue write prints `Unable change
+ownership of directory error <path> err: 1000`. That is `CATALOG` doing the
+Linux `chown` to `sdsys:sdusers`, which has no Windows meaning. Non-fatal —
+cataloguing succeeds — but it should go with the rest of the OS-account work
+in §5.6.
 
 **An earlier report of `sd -i` "blocking silently" was wrong**, and the cause
 is worth knowing — see the stale record lock trap in §6. It was self-inflicted
@@ -303,11 +310,15 @@ Keep this split honest. It is the single most useful thing in the file.
   segment and all six semaphores unlinked. `sd -start` then brought the system
   up again from nothing. So the full start/stop/restart cycle runs, which
   closes the `stop_sd()` item that was listed as unverified.
-- **SD compiles BASIC and writes database files on Windows.** Bootstrap pass 1
-  compiled nine programs with zero errors and created nine files under
-  `<sysdir>`. That is the compiler chain — `BCOMP`, `@ds` path resolution, the
-  pcode loader — and the DH file creation path both working for the first time.
-  "Any database read or write" is no longer unverified.
+- **The complete bootstrap runs, and SD answers commands.** Every step from
+  `sd -start` through `BASIC GPL.BP CPROC` completed on 13 Aug 2026;
+  `SECOND.COMPILE` alone compiled 204 programs with no errors. `WHO` reports
+  `7 SDSYS`, `COUNT VOC` reports 431 records and `SELECT VOC` selects them. So
+  the compiler chain (`BCOMP`, `@ds` path resolution, the pcode loader), DH
+  file creation, and reading records back all work.
+- **`@ds` is correct for stage 1.** 204 programs compiled with
+  `dir.separator` hardcoded to `/`, which settles the open question in §6 for
+  the MSYS2 runtime. It remains live for stage 2.
 - **`K$ADMINISTRATOR` answers truthfully.** With `USR_ADMIN` seeded from
   `IsAdmin()`, the rewritten test in `BBPROC` granted access under the probe
   build (group `Users`, which the token holds). It had refused everybody before.
@@ -323,12 +334,15 @@ Keep this split honest. It is the single most useful thing in the file.
   held, so the `sdsem.c` port is exercised only in the uncontended case.
 - `SDConnectLocal()` at runtime. It needs a running server and a configuration
   file (§5.8).
-- Everything past `SECOND.COMPILE` in the bootstrap: `WRITE_INSTALL_DICTS`,
-  `THIRD.COMPILE`, and the `BASIC GPL.BP CPROC` step that writes the real
-  `gcat/$CPROC`.
-- Reading data back. Files have been created and written, but nothing has read
-  a record it did not just write.
+- **Anything requiring a second user, or contention.** Everything so far is one
+  process at a time. Record locking between real users, `SDConnectLocal()`, and
+  the API server path are all untried.
+- Writing and reading application data. The bootstrap creates and reads system
+  files; no user account has been created and no user data written.
 - The installer. `installsdai.sh` is still entirely Linux.
+- **The shipped binary.** Everything was run with the probe build overriding
+  `SD_ADMIN_GROUP` to `Users`. `bin/sd.exe` differs only in that constant, but
+  has not been exercised.
 - **Anything about `sd -start` in the shipped binary.** All of the above was
   observed with a probe build overriding `SD_ADMIN_GROUP` to `Users` (§6),
   because the token still lacks `sdadmins`. The admin check is the only
@@ -482,11 +496,26 @@ So salt, derive and compare is available today without new C code.
   `CPROC` 2507, `APISRVR` 359, 914 and 961, `CREATEA` 323, `MODIFYA` 96, 99
   and 125. This also disposes of the `/etc/group` blocker in §6 rather than
   requiring it be repaired.
-- **Done 13 Aug 2026: the privilege tests ask `K$ADMINISTRATOR`.** `BBPROC`
-  (was `system(27) # 0`), `CATALOG`'s `CATALOG GLOBAL` (same) and `CPROC`'s
-  `LOGTO SDSYS` (was `system(27) > 0`) now use
-  `not(kernel(K$ADMINISTRATOR, -1))`. `SYSTEM(27)` keeps meaning "uid", which
-  on Windows is simply not a privilege answer.
+- **Done 13 Aug 2026: the privilege tests ask the administrator flag.**
+  `BBPROC`, `CATALOG`'s `CATALOG GLOBAL` and `CPROC`'s `LOGTO SDSYS` use
+  `not(kernel(K$ADMINISTRATOR, -1))`. `WRITE_INSTALL_DICTS` uses
+  `not(SYSTEM(1050))` instead, because `KERNEL` is only available to
+  `$internal` programs and it is not one — `SYSTEM(1050)` reports the same
+  `USR_ADMIN` flag (`op_sys.c` case 1050) and is the public accessor. Use it
+  for any non-internal program. `SYSTEM(27)` keeps meaning "uid", which on
+  Windows is simply not a privilege answer.
+- **Done 13 Aug 2026: the `is_grp_member` calls are gone** from `LOGIN`,
+  `CPROC` and `APISRVR`, along with their now-dead `deffun` declarations. That
+  removed both the `sdusers` login gate and the `ACC$GROUP` account gate.
+  **Nothing now restricts entry to any account** — that is the intended
+  interim state, but it means the system is open until the credential model
+  lands, and it should not be exposed to anything until then.
+
+  The calls in `CREATEA` (line 323) and `MODIFYA` (96, 99, 125) were
+  deliberately left. They guard `OS.EXECUTE` calls to `useradd`, `usermod` and
+  `groupadd`; removing only the guard would let those shell-outs run
+  unconditionally, which is worse than leaving them. They go when the OS
+  account commands go, as one change.
 
   For those tests to mean anything, `kernel.c` now seeds `USR_ADMIN` from
   `IsAdmin()` when the user table entry is initialised. Previously nothing set
@@ -732,11 +761,36 @@ linkage". What still needs attention:
 - **The compiler chain** carries no platform branches beyond `@ds` (§6) and the
   token above.
 
-### 5.11 What is tracked
+### 5.11 No binaries in the repository (decided 13 Aug 2026)
 
-Linked binaries in `bin/` are tracked, because the install scripts deploy them
-from the repository. Compiler intermediates, generated `terminfo/`, pcode
-scratch and the client's build products are not. See `.gitignore`.
+Decision from the repository owner on 13 Aug 2026, **reversing** the earlier
+position that linked binaries in `bin/` were tracked so the install scripts
+could deploy them from a clone.
+
+**Nothing binary is tracked. Everything must be auditable from source.** That
+is the same reason the pcode build is Python in `gplbld/` rather than a shipped
+binary. `.gitignore` now excludes `bin/` and every `.exe`, `.dll`, `.a`, `.o`,
+`.so`, `.lib` and `.obj` anywhere in the tree. Compiler intermediates,
+generated `terminfo/`, pcode scratch and the client's build products remain
+excluded as before.
+
+Anything that genuinely has to ship as a binary ships **outside** the
+repository, as a release artefact. Do not add a convenience exception.
+
+Consequences to carry into the installer work (§5.9):
+
+- **Installing now means building.** `installsdai.sh` does `cp -R bin
+  "$sdsysdir"` and tests for `bin/sd`, both of which assumed a clone already
+  contained the binaries. The Inno Setup installer either bundles artefacts
+  built elsewhere or drives a build.
+- The eight files removed from tracking — `sd.exe`, `sdconv.exe`, `sdfix.exe`,
+  `sdidx.exe`, `sdlnxd.exe`, `sdtic.exe`, `sdclilib.dll`, `libsdclilib.dll.a` —
+  are still produced by `make sd` and still needed at runtime. They were
+  untracked, not deleted.
+- **They remain in git history**, so a clone still fetches them and the audit
+  goal is only half met. Purging them needs a history rewrite and a force push,
+  which is destructive to anything already cloned; it was deliberately not done
+  without asking. See §8.
 
 ## 6. Traps
 
@@ -844,6 +898,21 @@ Each of these cost real time. Read before debugging anything similar.
   useful work. `sd -RESUME` clears it. Neither `-SUSPEND` nor `-RESUME` calls
   `check_admin()`, so any user can suspend a running system — worth revisiting
   under §5.6.
+- **Grep the BASIC case-insensitively.** It is case-insensitive source, and it
+  is not consistent: four `system(27)` privilege tests are lower case and the
+  fifth, in `WRITE_INSTALL_DICTS`, is `SYSTEM(27)`. A case-sensitive sweep
+  found four of five and the survivor stopped the bootstrap two steps later.
+  Use `grep -i` for anything you intend to be exhaustive.
+- **`KERNEL` is only available to `$internal` programs.** In one that is not,
+  the compiler does not recognise it as a function and treats it as a variable
+  — the symptom is "WARNING: KERNEL is not assigned a value" and an error
+  count, not "unknown function". `SYSTEM(1050)` gives the same administrator
+  flag without the restriction.
+- **The runtime tree needs `gplsrc`, `gplobj` and `gplbld/FILES_DICTS`**, not
+  just `sdsys` and `bin`. `installsdai.sh` copies all of them into `<sysdir>`.
+  `REVSTAMP` opens `./gplsrc/revstamp.h` relative to the account directory, so
+  without it `SECOND.COMPILE` aborts at APISRVR with "Cannot open gplsrc
+  revstamp.h" — which reads like a compiler fault and is a missing directory.
 - **`errlog` throws away its own history.** `log_message()` in `k_error.c`
   discards the oldest half of `<sysdir>/errlog` when it reaches the `ERRLOG`
   configured size. Fine for diagnostics, fatal for anything you need to trust
@@ -866,14 +935,13 @@ Each of these cost real time. Read before debugging anything similar.
 
 In the order they should be taken.
 
-1. **Remove the `is_grp_member` calls, then finish the bootstrap.** Pass 1 now
-   completes; `SECOND.COMPILE` stops at `LOGIN:193` because `IS_GRP_MEMBER`
-   parses `/etc/group`, which MSYS2 does not have (§6). Under §5.6 these calls
-   are deleted rather than repaired — `LOGIN` 193 and 224, `CPROC` 2507,
-   `APISRVR` 359, 914 and 961, `CREATEA` 323, `MODIFYA` 96, 99 and 125. Then
-   run the rest of the sequence in §3. Note BASIC edits need recompiling to
-   take effect (§6); `$BBPROC` is rebuilt with `gplbld/bbcmp.py`, the rest by
-   the bootstrap itself.
+1. **Build the account credential model** (§5.6). This is now the critical
+   path, and it is urgent rather than merely next: removing the
+   `is_grp_member` gates left nothing restricting entry to any account. Build
+   the credential register as a separate file, prompt for name and password at
+   login, prompt again on `LOGTO SDSYS`, set `K$ADMINISTRATOR` on SDSYS entry,
+   and close the `op_kernel.c` set hole. The bootstrap now runs, so this is
+   testable end to end for the first time.
 2. **Implement the account credential model** (§5.6). Build the credential
    register as a separate file — one entry per account, listing each permitted
    person with salt and verifier — and prompt for name and password in
@@ -920,6 +988,25 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 **answered on 13 Aug 2026** and is now §5.6. Neither option was taken. See the
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
+
+### Open: purge the binaries from git history?
+
+§5.11 untracked the eight binaries, so no future commit carries one. But every
+commit up to and including `5c09f0f` still contains them, so a clone still
+fetches roughly 3 MB of unauditable object code. If the goal is that nothing
+binary is in the repository, the history has to be rewritten — `git filter-repo`
+or equivalent, followed by a force push.
+
+That was deliberately **not** done without asking, because it rewrites published
+history: every existing clone diverges and has to be re-cloned or reset, and
+commit hashes referenced elsewhere (including in HISTORY.md) stop resolving.
+Given the project's own record keeping quotes hashes, that cost is real.
+
+Options, in rough order of disruption: leave history alone and treat the policy
+as forward-only; rewrite and force push, accepting the churn while the project
+is still single-developer; or start a fresh repository from the current tree and
+archive the old one. The middle option is cheapest *now* and gets more expensive
+with every clone that exists.
 
 ### Open: what happens to `IsAdmin()` and `sdadmins`?
 
