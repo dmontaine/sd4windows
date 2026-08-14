@@ -5,18 +5,32 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `68e229e`.
-The last commit to change code was `557195f`, which took C source out of the
-data tree (§7 step 1, parts a to c, now done); everything since is
-documentation. §3 was pruned on 13 Aug 2026 — the bring-up narrative it used to
-carry is in HISTORY.md, not lost.
+**Last updated:** 13 Aug 2026, end of session. The last commit to change code
+was `489b18e`, which removed embedded Python; everything after it is
+documentation. §3 was pruned earlier in the day and §4, §5.1, §5.5, §5.6, §5.8,
+§5.11 and §5.15 at the end of it — all of the removed material is in HISTORY.md
+under entries dated 13 Aug 2026, none of it lost.
 
-**Next session starts at §7 step 1** — the move itself. `SDSYS` to
-`C:\ProgramData\SD\` and the binaries to `C:\Program Files\SD\`. What was
-blocking it is gone: nothing compiled from the data tree reads `gplsrc` any
-more, and `SECOND.COMPILE` has been run with `gplsrc`, `gplobj` and `gplbld`
-absent (§4). Read the `ERRGEN` trap in §6 first if anything to do with
-compilation misbehaves.
+**Where to start tomorrow.** Two things are ready to be picked up and one
+decision is waiting.
+
+1. **§7 step 1, the layout move** — `SDSYS` to `C:\ProgramData\SD\` and the
+   binaries to `C:\Program Files\SD\usr\bin\`. Unblocked: nothing compiled from
+   the data tree reads `gplsrc` any more, and `gplbld/stage.py` already builds
+   the target layout. Note the binaries go in `usr\bin`, not `SD\` — the
+   MSYS2 POSIX-root trap in §6 explains why, and it is not optional.
+2. **§7 step 3b, install from the staged tree** onto a machine with no
+   development tree. That is what finds what SD depends on by accident, and
+   nothing has been installed from a staged tree yet.
+3. **Waiting on the repository owner:** how the API should be exposed (§8 —
+   three postures, recorded with the argument against a web front end given
+   equal weight), and whether the staged tree should be pre-bootstrapped, which
+   would make the install a file copy at the cost of fixing the data tree's
+   location (§7 step 3a).
+
+**Read first if anything to do with compilation misbehaves:** the `ERRGEN` trap
+in §6. An undefined `$define` in SD is a *warning* at compile time and an abort
+at run time, in a program that may not run until much later.
 
 ---
 
@@ -367,39 +381,18 @@ Keep this split honest. It is the single most useful thing in the file.
   commands and a password login, all of which call `check_admin()` or
   `IsAdmin()`. The probe build is no longer needed on this machine. Observed
   13 Aug 2026.
-- **LOGTO is gated by the grant list, in both directions.** Observed 13 Aug
-  2026, logged in as SUE with SUE's own password:
-
-  | Command | Result |
-  |---|---|
-  | `LOGTO JANE`, no grant | "User not allowed in requested account", stays in SUE |
-  | `LOGTO JANE` after granting SUE on JANE | enters JANE |
-  | `LOGTO SUE` (own account, no grant) | enters, as it must |
-  | `LOGTO KIM`, an account that grants nobody | refused |
-  | `LOGTO SDSYS`, no grant | refused |
-  | `LOGTO SDSYS`, granted, wrong password ×3 | refused, stays in SUE, connection kept |
-  | `LOGTO SDSYS`, granted, own password | enters SDSYS |
-  | `LOGTO /home/sd/user_accounts/JANE` | refused — a path is not an account |
-  | `LOGTO NOSUCHACCOUNT` | refused, wording identical to an ungranted account |
-
-- **SDSYS reaches every account.** Logged in as SDSYS, `LOGTO JANE` and
-  `LOGTO KIM` were both admitted although neither grants SDSYS. Stepping on
-  from KIM to JANE was refused, because the exception belongs to the account
-  you are standing in — recorded here because it is the one surprising edge of
-  the rule.
-- **The exception carries through a step-up.** Logged in as SUE, `LOGTO KIM`
-  was refused; `LOGTO SDSYS` with SUE's own password was admitted; and
-  `LOGTO KIM` from there was admitted, reporting `LOGNAME=SUE WHO=KIM`. So a
-  person reaches an ungranted account only through administration, and the
-  session still names them throughout.
-
-- **`@logname` survives `LOGTO`.** `WHOAMI` reported `LOGNAME=SUE WHO=SUE`
-  before, `LOGNAME=SUE WHO=JANE` after `LOGTO JANE`, and `LOGNAME=SUE
-  WHO=SDSYS` after stepping up into SDSYS. The login identity persists into
-  administration, which is what makes the audit trail worth writing.
-- **The step-up asks for the caller's own password, and only that.** SUE
-  entered SDSYS with `correcthorse`, SUE's password; SDSYS's own password
-  (`hunter2`) is not what is asked for and would not have worked.
+- **The whole `LOGTO` suite behaves, in both directions.** Observed 13 Aug 2026
+  as SUE: refused without a grant, admitted with one, admitted into her own
+  account, refused for an account granting nobody, refused for SDSYS without a
+  grant, admitted to SDSYS with a grant **and her own password** (three wrong
+  tries refused without dropping the connection), refused for a pathname, and
+  refused for an unknown account in wording identical to an ungranted one.
+  SDSYS reaches every account without a grant, and the exception belongs to the
+  account you are standing in — so SDSYS→KIM→JANE is refused at the second
+  move. The exception carries through a step-up: SUE→SDSYS→KIM was admitted,
+  reporting `LOGNAME=SUE WHO=KIM`. `@logname` survived every hop. The full
+  case-by-case table is in the HISTORY entry "LOGTO is gated by grants, and the
+  shipped binary is verified".
 - **The install path still bypasses everything.** `sd -internal` entered SDSYS
   with no password, moved to JANE with no grant and back with no step-up, and
   `COUNT VOC` still reports 432 records. The bootstrap is unaffected by any of
@@ -438,26 +431,13 @@ Keep this split honest. It is the single most useful thing in the file.
   `LOGTO KIM` left `SYSTEM(1050)` at 1 while standing in KIM. **Fixed later
   the same day** — see the privilege-escalation entry below.
 - **Privilege escalation was demonstrated, then closed.** Before the fix, the
-  account SUE compiled this in her own `BP` and ran it from an ordinary
-  session:
-
-  ```
-  $internal
-        program escalate
-        crt 'before: ' : kernel(26, -1)
-        void kernel(26, 1)
-        crt 'after:  ' : kernel(26, -1)
-        end
-  ```
-
-  It printed `before: 0` / `after: 1` and `SYSTEM(1050)` then reported 1 —
-  a plain user account making itself an administrator in three lines. Key 26
-  is `K$ADMINISTRATOR`, written as a literal because an ordinary account
-  cannot reach SDSYS's `INT$KEYS.H`, which is no obstacle to anyone.
-
-  After the fix the same program fails to compile — `$internal` is refused,
-  so `KERNEL` is taken for an undimensioned array — and SUE stays at 0. The
-  other route is closed too: `sd -internal -ASUE` is refused by `sd.c`.
+  account SUE compiled a three-line `$internal` program calling
+  `kernel(26, 1)` — `K$ADMINISTRATOR`, written as a literal — in her own `BP`
+  and ran it from an ordinary session. It printed `before: 0` / `after: 1` and
+  `SYSTEM(1050)` then reported 1: a plain user account making itself an
+  administrator. After the fix the same program will not compile, `$internal`
+  being refused, and `sd -internal -ASUE` is refused by `sd.c`. Listing in the
+  HISTORY entry "Administrator rights become the SDSYS account's".
 - **The rest of the account model still behaves after all of that.** `sd`
   with no account named now prompts `Account:` even for a member of
   `sdadmins`; `sd -internal` prompts for the SDSYS password and refuses three
@@ -529,21 +509,19 @@ Do not undo these without reading the reasoning.
 
 ### 5.1 POSIX IPC replaces System V
 
-System V IPC compiles and links on MSYS2 and then fails at runtime with ENOSYS
+System V IPC compiles and links on MSYS2 then fails at runtime with ENOSYS
 (§6); native Windows has none at all. POSIX named shared memory and semaphores
-work on both, and are the right direction for stage 2 anyway, since POSIX
-shared memory is backed by `CreateFileMapping`.
+work on both and are the right direction for stage 2 anyway, since POSIX shared
+memory is backed by `CreateFileMapping`. `sysseg.c`, `sdidx.c` and `sdlnxd.c`
+use `shm_open`/`ftruncate`/`mmap`/`munmap`; `sdsem.c` uses
+`sem_open`/`sem_trywait`/`sem_post`; names come from `SD_POSIX_SHM_NAME` and
+`SD_POSIX_SEM_FMT` in `sddefs.h`.
 
-- `sysseg.c`, `sdidx.c`, `sdlnxd.c`: `shmget`/`shmat`/`shmdt` →
-  `shm_open`/`ftruncate`/`mmap`/`munmap`
-- `sdsem.c`: `semget`/`semop`/`semctl` → `sem_open`/`sem_trywait`/`sem_post`
-- Names come from `SD_POSIX_SHM_NAME` / `SD_POSIX_SEM_FMT` in `sddefs.h`
-
-Two spots needed more than substitution: `munmap` must be told the mapping
-length that `shmdt` derived from the address, so it is recorded at attach; and
+Two spots needed more than substitution — `munmap` must be told the mapping
+length that `shmdt` derived from the address, so it is recorded at attach, and
 `stop_sd()` waited on the System V attach count, which POSIX does not expose,
-so it now polls the user table with `kill(pid, 0)`. Full reasoning in the
-HISTORY entry for 13 Aug 2026, "First native Windows build".
+so it polls the user table with `kill(pid, 0)`. Full reasoning in the HISTORY
+entry "First native Windows build".
 
 ### 5.2 Client library is vendored, not referenced
 
@@ -594,21 +572,14 @@ longer there.
 
 ### 5.5 The Linux privilege model does not survive the move
 
-Background for §5.6, which replaces it. `IsAdmin()` in `linuxlb.c` was
-`getuid() == 0` and `SYSTEM(27)` returns `getuid()` straight through. Under
-MSYS2 `getuid()` is 197609 — never zero, and Windows has no uid 0 at all. So
-every privilege test in the BASIC layer answers the same way permanently, and
-the symptom is a refusal from code that looks correct rather than an error
-(§6). The sites are `CPROC` (SDSYS entry, and the "entered as root" drop that
-never runs), `CATALOG` (`CATALOG GLOBAL`, which matters beyond administration
-because cataloguing is part of getting compiled BASIC into service), `BBPROC`,
-and `K$ADMINISTRATOR` in `op_kernel.c`. Full table in the HISTORY entry for
-13 Aug 2026, "Surveyed every BASIC to C linkage".
-
-`EUID_SET`/`EUID_RESTORE` were the mechanism the root branch used, reaching
-`sdext_eguid.c` through `SDEXT` for `getpwnam`, `setegid` and `seteuid`. Native
-Windows has no equivalent; impersonation there is `LogonUser` plus
-`ImpersonateLoggedOnUser`. That is the shape §5.7's service model needs.
+Background for §5.6, which replaces it. `IsAdmin()` was `getuid() == 0` and
+`SYSTEM(27)` returns `getuid()`, which is 197609 under MSYS2 — never zero, so
+every privilege test answered the same way permanently and the symptom was a
+refusal from code that looks correct (§6). `EUID_SET`/`EUID_RESTORE` were the
+mechanism the root branch used, reaching `sdext_eguid.c` through `SDEXT`;
+Windows has no equivalent short of `LogonUser` plus `ImpersonateLoggedOnUser`,
+which is the shape §5.7's service model needs. Full site-by-site table in the
+HISTORY entry "Surveyed every BASIC to C linkage".
 
 ### 5.6 Identity model: accounts with passwords, no OS groups (decided 13 Aug 2026)
 
@@ -740,106 +711,45 @@ mechanism that can work at all. See §7 step 6 and the open question in §8.
   the 0.6.4 changelog assumed, but nothing offers `GRANT`/`REVOKE`. The scratch
   `BP/GRANT` on this machine is a stand-in, not a design.
 
-- **The credential register is a separate file, not part of the ACCOUNTS
-  record**, and must stay that way. `LOGIN` opens `ACCOUNTS` at line 175, in
-  the user's own process, before any authentication — it must, to know the
-  account exists — and eleven other programs open it too, including `_VOC_REF`
-  for routine resolution. Verifiers stored there would let any user pull every
-  account's Argon2 hash and attack it offline. In stage 1 `$CRED` is still
-  readable by everyone (Windows has no setuid, and there is no privileged
-  helper short of §5.7's service), so this does not fix the exposure — it makes
-  the boundary exist, so §5.7 can lock one file to the service account without
-  restructuring ACCOUNTS or migrating data.
+- **`$CRED` must stay a separate file from ACCOUNTS**, which eleven programs
+  open before any authentication. Reasoning in HISTORY, as above.
 - `ACC$GROUP` is dead but still populated on old records, and `LIST ACCOUNTS`
   still shows it. Remove it with the OS account commands, as one change.
-- **Administrator rights are the SDSYS account's, and nothing else's**
-  (13 Aug 2026). `LOGIN` sets `USR_ADMIN` on entry to SDSYS and clears it on
-  entry to anything else; `CPROC` does the same on every `LOGTO`, so the
-  rights are given up on the way out. `kernel.c` still seeds the flag from
-  `IsAdmin()` at process start, but that now decides only one thing — whether
-  a credential-less account can be entered during a fresh install — and no
-  longer confers standing privilege. Observed: `sd -ASUE` on a machine whose
-  token holds `sdadmins` reports `SYSTEM(1050)` as 0.
-- **Only an `$internal` program may set the flag, and only SDSYS may build
-  one.** Both ends of `K_ADMINISTRATOR` in `op_kernel.c` were open: any
-  positive argument granted the flag, and `|| IsAdmin()` meant an argument of
-  zero re-granted rather than cleared. The set is now gated on
-  `process.program.flags & HDR_INTERNAL`, and `BCOMP` accepts the `$internal`
-  directive only for a caller who is in SDSYS. The second half is what makes
-  the first half real: internal mode alone was not a gate, because
-  **`sd -internal` is not itself gated** and an ordinary account could compile
-  a three-line internal program that granted itself rights. That was
-  demonstrated before it was fixed — see §4.
-- **`sd -INTERNAL` means SDSYS, and asks for its password** (decided by the
-  repository owner, 13 Aug 2026). Naming any other account with `-INTERNAL` is
-  refused in `sd.c` rather than quietly redirected. The no-password bypass for
-  an administrator running an internal command is gone with it: that was the
-  last route into administration that did not involve knowing the SDSYS
-  password. The install is unaffected — `sd -i` runs `$BBPROC`, which never
-  reaches `LOGIN`, and until the installer sets a password SDSYS has no
-  credential to check, so the "no password yet" branch admits an
-  administrator with a warning.
-- The privilege tests themselves ask the flag, not the uid: `BBPROC`,
-  `CATALOG GLOBAL` and `CPROC` use `kernel(K$ADMINISTRATOR, -1)`, and
-  `WRITE_INSTALL_DICTS` uses `SYSTEM(1050)` because `KERNEL` is only available
-  to `$internal` programs (§6). Use `SYSTEM(1050)` in anything not internal.
+**Built and verified, listed here only because the detail still matters.**
+Administrator rights are the SDSYS account's alone — `LOGIN` sets `USR_ADMIN`
+on entry to SDSYS and clears it entering anything else, `CPROC` does the same
+on every `LOGTO`. Only an `$internal` program may set the flag and only SDSYS
+may compile one; `sd -INTERNAL` means SDSYS and asks for its password. Privilege
+tests ask the flag, not the uid: use `kernel(K$ADMINISTRATOR, -1)` in an
+`$internal` program and `SYSTEM(1050)` anywhere else (§6). `kernel.c` still
+seeds the flag from `IsAdmin()` at process start, which now decides only
+whether a credential-less account can be entered during a fresh install (§8).
+
+**Still to do, and these are the ones that bite.**
+
 - The `is_grp_member` calls in `CREATEA` (line 323) and `MODIFYA` (96, 99, 125)
-  were deliberately left where the others were deleted. They guard
-  `OS.EXECUTE` calls to `useradd`, `usermod` and `groupadd`; removing only the
-  guard would let those shell-outs run unconditionally, which is worse than
-  leaving them. They go when the OS account commands go, as one change.
+  were left where the others were deleted: they guard `OS.EXECUTE` calls to
+  `useradd`, `usermod` and `groupadd`, and removing only the guard would let
+  those shell-outs run unconditionally. They go when the OS account commands
+  go, as one change — together with the `OS.EXECUTE` account commands in
+  `CREATE_USER`, `SET_PASSWD`, `CREATEA`, `DELACC` and `MODIFYA`, which under
+  this model manage SD accounts and touch no OS account at all.
 - `CPROC`'s `system(27) = 0` "entered as root?" branch at line 272 was left
   alone. It guards `EUID_SET`, which has no Windows equivalent (§5.5), and its
   `kernel(K$ADMINISTRATOR, 1)` is now redundant.
-- `op_kernel.c` still grants `USR_ADMIN` unconditionally for any positive
-  argument (§6), so any BASIC can self-grant. Pre-existing, not made worse by
-  the above, but it must be closed before the SDSYS gate means anything.
-- The `OS.EXECUTE` account commands in `CREATE_USER`, `SET_PASSWD`, `CREATEA`,
-  `DELACC` and `MODIFYA` stop calling `useradd`, `passwd`, `usermod`, `userdel`
-  and `groupadd` outright. Under this model they manage SD accounts and their
-  passwords, and touch no OS account at all.
 
-**You log in as yourself, then move; the login identity follows you.** This is
-how shared access works, and it is what makes it attributable:
+**The model in one paragraph.** A person logs in as **themselves**, then moves.
+Access to other accounts is **granted, not shared**, so there is no second
+password to know and none to rotate; `@logname` does not change on `LOGTO`, so
+everything downstream attributes to whoever authenticated; and every login and
+`LOGTO` is logged. `LOGTO SDSYS` re-prompts — the one exception to "granted,
+not prompted" — and **asks for the caller's own password, not an SDSYS one**,
+which is easy to get backwards and is the whole point: an SDSYS password would
+be a second shared secret held by every administrator, which is the OpenQM
+weakness this exists to remove. The full reasoning, including why the
+credential register is a separate file from ACCOUNTS, was moved to HISTORY on
+13 Aug 2026 — "Moved from PROJECT_STATUS §5.6".
 
-- A person logs in with **their own account name and password**. That
-  establishes the session identity.
-- Access to other accounts is **granted, not shared**. Once in, a person may
-  `LOGTO` any account they have been given access to. There is no second
-  password to know and none to share.
-- **`@logname` does not change on `LOGTO`.** The login identity persists for
-  the life of the session, which is the whole mechanism — everything downstream
-  attributes to the person who authenticated, not to the account they are
-  standing in.
-- **Every login and every `LOGTO` is written to an audit log**, in the form
-  "SUE logged to JANE at *date/time*".
-
-So the holiday and assistant case is not a shared password. If Sue covers for
-Jane, Sue is granted access to JANE; she logs in as SUE, does `LOGTO JANE`, and
-the log records that she did. Withdrawing it removes one grant and changes
-nobody's password. Nothing is ever shared, so nothing has to be rotated.
-
-This is what raises the bar above OpenQM, where an account password is a single
-shared secret with no record of who used it. It also puts administration under
-audit for free: SDSYS is reached by `LOGTO SDSYS` from your own identity, and
-that entry is logged like any other.
-
-**`LOGTO SDSYS` requires the password again** (decided 13 Aug 2026). It is the
-one exception to "granted, not prompted", on the grounds that entering
-administration deserves a deliberate act rather than an unguarded session
-becoming an administrative one.
-
-**The password it asks for is the person's own, not an SDSYS password.** This
-matters and is easy to get backwards. Re-entering your own credential is
-re-authentication: it confirms the person at the keyboard is still the one who
-logged in, changes nothing about attribution, and introduces no new secret. An
-SDSYS password would be a second shared secret held by every administrator,
-which is precisely the OpenQM weakness this model exists to remove — the audit
-log would still name the person, but the credential behind the most privileged
-account in the system would be shared and unrotatable without telling everyone.
-Log the step-up separately from the `LOGTO` itself, both when it succeeds and
-when it fails; a failed step-up is the single most interesting line in the
-audit trail.
 
 Attribution is SD-internal and does **not** depend on the service model in
 §5.7, so it lands with the password work. It records who authenticated, not who
@@ -1018,20 +928,15 @@ operating system user; under §5.6 it is not one, so the Linux location decided
 nothing. `USRDIR` and `GRPDIR` in `sd.conf` carry it, and the compiled defaults
 in `config.c` match.
 
-**Correction to what this section used to say.** It claimed MSYS2 accepts
-`C:/ProgramData/SD/sdsys` "with forward slashes throughout", so stage 1 could
-move location while keeping `/`. The runtime does — `stat()` accepts
-`C:/...`, `C:\...` and `/c/...` equally, all measured — but **SD did not**.
-`sdrealpath()` in `linuxlb.c`, which every `openpath` goes through, treated
-anything not starting with `/` as a *relative* path and glued the working
-directory in front of it, and never treated `\` as a separator. So
-`C:\ProgramData\SD` became `/usr/local/sdsys/C:\ProgramData\SD` and every open
-failed with ER_FNF, "file not found", naming nothing near the cause.
-
-That function now folds backslashes to `/` and treats a leading drive letter as
-the root. All five spellings — `C:\...`, `C:/...`, `/c/...`, lower-case drive,
-and mixed — open the same file (§4). `DS` is still `/`; this changed what SD
-**accepts**, not what it produces.
+**`sdrealpath()` was the blocker, and it is fixed** (13 Aug 2026). It treated
+anything not starting with `/` as *relative* and glued the working directory in
+front, and never treated `\` as a separator, so `C:\ProgramData\SD` became
+`/usr/local/sdsys/C:\ProgramData\SD` and every open failed with ER_FNF naming
+nothing near the cause. It now folds backslashes and treats a leading drive
+letter as the root; all five spellings open the same file (§4). `DS` is still
+`/` — this changed what SD **accepts**, not what it produces. The earlier claim
+that stage 1 could simply keep forward slashes was wrong; see the HISTORY entry
+"Accounts move to ProgramData, and SD learns to read a Windows path".
 
 Two consequences worth carrying forward:
 
@@ -1185,14 +1090,11 @@ Consequences to carry into the installer work (§5.9):
   untracked, not deleted.
 - **History was rewritten on 13 Aug 2026 to purge them**, so nothing binary
   exists anywhere in the repository, past or present — verified by walking
-  every object for NUL bytes. That also removed the pre-port Linux ELF
-  binaries (`bin/sd` and friends, which have no extension and which an
-  extension-based sweep missed), the 62 generated `terminfo/` files, and the
-  compiled I-type object code embedded in two `gplbld/FILES_DICTS` items.
-  **Every commit hash changed**; the mapping is in the HISTORY entry
-  "History rewritten to purge every binary".
-- The install recompiles I-types, so dictionary items carry source and checksum
-  only. If a `FILES_DICTS` item ever regains a compiled tail, strip it.
+  every object for NUL bytes. **Every commit hash changed**; the mapping and
+  what else it removed are in the HISTORY entry "History rewritten to purge
+  every binary". The install recompiles I-types, so dictionary items carry
+  source and checksum only; if a `FILES_DICTS` item ever regains a compiled
+  tail, strip it.
 
 ### 5.12 Lower case everywhere it can be (decided 13 Aug 2026)
 
@@ -1270,16 +1172,12 @@ user is a Windows developer using SD as a **back end data store, reached
 through the API**. Embedded Python was not part of that, so it is gone rather
 than shipped unused.
 
-Removed outright, not left behind an `#ifdef` — the same reasoning as the Linux
-code in §1, and two of the files could not have stayed anyway:
-
-| Gone | Note |
-|---|---|
-| `gplsrc/sdext_py.c`, `gplsrc/op_sdpyobj.c`, `gplsrc/sdext_python_inc.h` | **unguarded** and listed in `gpl.src`, so they could not compile without the Python headers at all |
-| `EMBED_PYTHON` blocks in `op_sdext.c` and `sd.c` | the `SD_Py*` SDEXT keys now fall through to the unknown-key response, which is what they are |
-| `PY_HDRS`, `PY_LDFLAGS`, `-DEMBED_PYTHON` in the Makefile | |
-| 20 `GPL.BP/PY_*` programs, `SYSCOM/SDPYFUNC.H`, 4 `sdsys/BP/PY_*` test programs | nothing outside them called them, so the removal is self-contained |
-| The `SD_Py*` error codes in `gplsrc/err.h` and the `SD_Py*`/`SD_Obj_*` keys in `SYSCOM/KEYS.H` | `gplbld/gen_includes.py` regenerated `SYSCOM/ERR.H` and `GPL.BP/ERRTEXT.H` from the edited header, which is the first real use of that tool |
+Removed outright rather than left behind an `#ifdef`, the same reasoning as the
+Linux code in §1 — and two of the files could not have stayed anyway, being
+unguarded and listed in `gpl.src`. The C sources, the Makefile flags, 20
+`GPL.BP/PY_*` programs, `SYSCOM/SDPYFUNC.H`, the `SD_Py*` error codes and the
+SDEXT keys all went; the itemised list is in the HISTORY entry "Embedded Python
+removed".
 
 **Three consequences worth carrying forward.**
 

@@ -27,6 +27,83 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Second prune of PROJECT_STATUS, and the §5.6 reasoning moved here
+
+Rollover, not new work, at the end of the session. PROJECT_STATUS had reached
+2123 lines against the ~2000 in §0 rule 5. Trimmed: §4's `LOGTO` case-by-case
+table and the escalation program listing (both duplicated entries already in
+this file), §5.1, §5.5, §5.8's `sdrealpath` correction, §5.11's purge account
+and §5.15's itemised removal list — all of which describe finished work whose
+detail is here. §5.6's "what is still missing" list was split, since several of
+its bullets described work that was subsequently done.
+
+The one piece that was **moved rather than trimmed** is below: §5.6's reasoning
+was not recorded anywhere else, so it is set out here in full before being
+reduced to conclusions in PROJECT_STATUS. §5.6 had grown to 255 lines, most of
+it the *why* behind decisions that are now built and verified. Nothing was
+dropped.
+
+### Why the identity model has the shape it does
+
+### You log in as yourself, then move; the login identity follows you
+
+This is how shared access works and it is what makes it attributable:
+
+- A person logs in with **their own account name and password**. That
+  establishes the session identity.
+- Access to other accounts is **granted, not shared**. Once in, a person may
+  `LOGTO` any account they have been given access to. There is no second
+  password to know and none to share.
+- **`@logname` does not change on `LOGTO`.** The login identity persists for
+  the life of the session, which is the whole mechanism — everything
+  downstream attributes to the person who authenticated, not to the account
+  they are standing in.
+- **Every login and every `LOGTO` is written to an audit log**, in the form
+  "SUE logged to JANE at *date/time*".
+
+So the holiday and assistant case is not a shared password. If Sue covers for
+Jane, Sue is granted access to JANE; she logs in as SUE, does `LOGTO JANE`, and
+the log records that she did. Withdrawing it removes one grant and changes
+nobody's password. Nothing is ever shared, so nothing has to be rotated.
+
+This is what raises the bar above OpenQM, where an account password is a single
+shared secret with no record of who used it. It also puts administration under
+audit for free: SDSYS is reached by `LOGTO SDSYS` from your own identity, and
+that entry is logged like any other.
+
+### Why the step-up asks for your own password, not an SDSYS one
+
+`LOGTO SDSYS` requires a password again — the one exception to "granted, not
+prompted" — on the grounds that entering administration deserves a deliberate
+act rather than an unguarded session becoming an administrative one.
+
+**The password it asks for is the person's own.** This matters and is easy to
+get backwards. Re-entering your own credential is re-authentication: it
+confirms the person at the keyboard is still the one who logged in, changes
+nothing about attribution, and introduces no new secret. An SDSYS password
+would be a second shared secret held by every administrator, which is precisely
+the OpenQM weakness this model exists to remove — the audit log would still
+name the person, but the credential behind the most privileged account in the
+system would be shared, and unrotatable without telling everyone.
+
+Log the step-up separately from the `LOGTO` itself, both when it succeeds and
+when it fails; a failed step-up is the single most interesting line in the
+audit trail.
+
+### Why the credential register is a separate file
+
+`$CRED` is not part of the ACCOUNTS record and must stay that way. `LOGIN`
+opens `ACCOUNTS` at line 175, in the user's own process, **before** any
+authentication — it must, to know the account exists — and eleven other
+programs open it too, including `_VOC_REF` for routine resolution. Verifiers
+stored there would let any user pull every account's Argon2 hash and attack it
+offline.
+
+In stage 1 `$CRED` is still readable by everyone, since Windows has no setuid
+and there is no privileged helper short of §5.7's service, so this does not fix
+the exposure. It makes the boundary **exist**, so that §5.7 can later lock one
+file to the service account without restructuring ACCOUNTS or migrating data.
+
 ## 13 Aug 2026 — Correction: the API server does have a credential check, and it cannot work
 
 Investigation, no code. Prompted by the repository owner's background on
