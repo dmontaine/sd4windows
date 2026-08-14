@@ -11,7 +11,16 @@ built it; see the correction in §5.6 and the HISTORY entry of the same date.
 
 **Where to start tomorrow.**
 
-1. **Write the Inno Setup script.** All four of §5.16's blockers are now
+1. **Run the installer.** `gplbld/sd.iss` is written and compiles (§4); what
+   it does to a machine has never been tested. Do it on a clean machine if at
+   all possible — this one has a development tree, an `sdusers` group and a
+   populated `C:\ProgramData\SD`, so it can only exercise the upgrade path,
+   not a first install. Watch for: the ACL locking the installing user out
+   until they sign out and back in, `SET.PASSWORD` at a real Windows console
+   (unverified, §4), and whether `C:\Program Files\SD\` behaves as the
+   staged directory did.
+
+   The script itself was written against all of §5.16's blockers being
    cleared — the shell, the pre-bootstrap, the staging gap and the
    configuration file — and a staged tree has been installed and run with
    nothing set in the environment (§4). What is left is the `.iss` itself, the
@@ -579,6 +588,11 @@ Keep this split honest. It is the single most useful thing in the file.
   Files\SD\` was not used, because creating it needs elevation — the
   binaries were run from the staging directory, which exercises the same POSIX
   root rule but not the final location.
+
+- **The Inno Setup script exists and compiles**, `gplbld/sd.iss`, producing
+  `sd-setup-1.0-2.exe` at 4.5 MB from the staged tree — clean, no warnings,
+  14 Aug 2026. **It has not been run.** Compiling an installer proves only
+  that it is a valid script; everything it does to a machine is unverified.
 
 - **An installed system finds its configuration with nothing set in the
   environment.** Observed 14 Aug 2026 with `SD_CONFIG` and `SCARLET_CONFIG`
