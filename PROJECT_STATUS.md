@@ -71,8 +71,9 @@ install** on it, from the fixed installer:
 
 | Thing | State |
 |---|---|
-| `C:\Program Files\SD` | 15 files, correct, binaries in `usr\bin` including `sdwind.exe` |
-| `C:\ProgramData\SD\sdsys` | **3,264 files - a working database**, `COUNT VOC` reports 431 |
+| **THE WHOLE INSTALL IS STALE** | **Built 08:32/08:34 on 14 Aug 2026 and never refreshed. It predates commit `2fd0aff`, which is the commit that made `CREATE.ACCOUNT` work.** Anything tested against it is testing 08:32's code — that is the trap in §6, and it is what made step 0 fail. A current installer is waiting at `C:\Users\dmont\sdout\`; installing it needs elevation and means removing the data tree first, since an upgrade will not replace it |
+| `C:\Program Files\SD` | 15 files, correct, binaries in `usr\bin` including `sdwind.exe`. `sd.exe` is 08:32:44 and carries the **pre-fix `op_dio2.c`** |
+| `C:\ProgramData\SD\sdsys` | **3,264 files - a working database**, `COUNT VOC` reports 431. The compiled `gcat/$CREATEA` is 08:34 and has **no ssh-only branch**; `MESSAGES/10032`–`10035` are absent |
 | The daemon | **runs**, as `C:\Program Files\SD\usr\bin\sdwind.exe`, and `sd -stop` takes it down |
 | SDSYS password | **not set.** `LOGIN` warns and admits an administrator, which is the correct state for an install nobody has finished |
 | `sdusers` group | exists, with `GITORLI\don` in it |
@@ -92,13 +93,29 @@ elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
 `C:\Program Files\SD` and `C:\ProgramData\SD`, then `Remove-LocalGroup sdusers`
 — but leave `sdadmins` alone, for the reason in §8.
 
-The staged tree is at `C:\Users\dmont\stagetest` and the installer at
-`C:\Users\dmont\sdout\sd-setup-1.0-2.exe`, **rebuilt from the tracked `sd.iss`
-in this session** so it provably matches the committed source. Neither survives
-a rebuild of the machine; both are reproduced by the commands at the top of
-`gplbld/sd.iss`. Evidence from the run is in `C:\Users\dmont\`:
-`sdverify-transcript.txt` (the counts) and `sdfirstinstall.innolog` (16,507
-lines, against 145 for the broken run).
+**THE STAGED TREE AND THE INSTALLER WERE BOTH REBUILT AT THE END OF
+14 Aug 2026's FOURTH SESSION, AND THEY ARE CURRENT.** This is the fix for the
+staleness that made step 0 fail; all that is left is to install it, which needs
+elevation.
+
+| | |
+|---|---|
+| `C:\Users\dmont\stagetest` | rebuilt 16:15, `make sd` + `stage.py --force --bootstrap`, **3,285 files**, 10.4 MB, bootstrap clean, four MSYS2 DLLs |
+| `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` | rebuilt 16:17 from the tracked `sd.iss`, ISCC exit 0, 4,771,110 bytes (was 4,761,838 at 08:35) |
+
+Checked in the rebuilt stage rather than assumed: `MESSAGES/10032`–`10035` all
+present; `allow-ssh-groups.ps1`, `deny-logon.ps1` and `install-ssh.ps1` all in
+`ProgramFiles`; and the compiled `gcat/$CREATEA` **contains the string
+`sdsshonly`**, where the installed one from 08:34 does not. That last one is
+the ssh-only branch shown present in pcode rather than inferred from a source
+file.
+
+**Not verified: that this installer installs.** It compiled; nobody has run it.
+Neither artefact survives a rebuild of the machine, and both are reproduced by
+the commands at the top of `gplbld/sd.iss`. Evidence from the earlier
+first-install run is in `C:\Users\dmont\`: `sdverify-transcript.txt` (the
+counts) and `sdfirstinstall.innolog` (16,507 lines, against 145 for the broken
+run).
 
 **Where to start next.**
 
@@ -124,10 +141,79 @@ lines, against 145 for the broken run).
    measurements that proved §5.6.2. Read §4 Unverified for what its cleanup
    deliberately does *not* remove.
 
-   **It did not run on 14 Aug 2026, fourth session**, and not for any reason
-   to do with SD: the session could not obtain an elevated window at all. The
-   script's own guard reports this cleanly (exit 2, "not elevated"), so there
-   is no half-run state to clean up and nothing was created.
+   **IT RAN ON 14 Aug 2026, FOURTH SESSION, AND IT FAILED — BUT NOT BECAUSE
+   `CREATE.ACCOUNT` IS BROKEN. THE INSTALLED SYSTEM ON THIS MACHINE PREDATES
+   THE COMMIT THAT MADE `CREATE.ACCOUNT` WORK.** Do not chase the failure; fix
+   the install and run it again. The evidence is decisive:
+
+   | | |
+   |---|---|
+   | `C:\Program Files\SD\usr\bin\sd.exe` built | 14 Aug 2026 **08:32:44** |
+   | commit `2fd0aff`, "Make CREATE.ACCOUNT work" | 14 Aug 2026 **09:50:56** |
+   | `MESSAGES/10032`–`10035` in the installed tree | **absent**, all four |
+
+   So the installed `sd.exe` carries the **pre-fix `op_dio2.c`**, whose
+   `OS_PATHNAME` case split on `/` alone and therefore rejected every native
+   Windows path — and the installed `CREATEA` is the pre-fix one, with no
+   `ADMINISTRATOR` keyword and **no ssh-only branch at all**. Six of the
+   failures are that one fact:
+
+   - `Invalid account pathname` is the exact symptom the comment at
+     `op_dio2.c:650` was written to describe, down to it happening *after* the
+     Windows user was created.
+   - `message 10034 (ssh only) shown: no` — the message does not exist in the
+     installed tree and neither does the code that prints it.
+   - no `sdusers`, no `sdu_` group, no account directory, no `ACCOUNTS` record:
+     `CREATEA` `stop`s at the pathname check before reaching any of them.
+
+   **What the run did establish, and it is worth having:** `CREATE_USER`
+   reached the OS from an elevated session and **made a real Windows account**
+   — `the Windows account exists: PASS`. It was left disabled and without a
+   password, which is correct rather than a fault: `SET_PASSWD` line 120 runs
+   `Enable-LocalUser` *inside* the password script, so an account whose
+   password was never set stays inert. `LogonUser` answering **1326** for both
+   logon types is consistent with exactly that and is not evidence about the
+   deny rights.
+
+   Cleanup worked and **the machine is clean** — no `sdacct1`, no `sdu_sdacct1`,
+   `sdsshonly` empty, no account directory, no `C:\Users\sdacct1`.
+
+   **One thing is NOT explained and must not be assumed away.** The transcript
+   shows `SET_PASSWD`'s first prompt reading an empty line and the second
+   reading the password, then `Retry (Y/N)?`. But a session earlier the same
+   day set passwords through a pipe successfully (§4, `sdtest1`/`sdtest2`), and
+   `SET_PASSWD` has not changed since 05:51 — so the two runs disagree and the
+   difference is unidentified. The echo is also demonstrably unreliable in that
+   transcript: it rendered the command as `CREATE.ACCOUSER sdacct1`, four
+   characters short, on a line that executed correctly. **Deducing what SD
+   consumed from that echo is exactly the mistake this file has recorded twice
+   already.** Re-run against a current build first; if the password still
+   fails, it is real and then it is worth chasing.
+
+   **So step 0 has a prerequisite, and the unelevated half of it is DONE.**
+   `make sd` and `stage.py --force --bootstrap` were re-run at 16:15 and the
+   installer rebuilt at 16:17 — see the table above the numbered steps, which
+   records what was checked in the result. **What is left is one elevated
+   sequence, and it must remove the data tree**, because the installer will not
+   replace an `sdsys` that already exists (§5.9) — which is precisely how this
+   install came to be four commits behind its own repository:
+
+   ```powershell
+   & "C:\Program Files\SD\usr\bin\sd.exe" -stop
+   Get-Process sdwind -ErrorAction SilentlyContinue | Stop-Process -Force
+   & "C:\Program Files\SD\unins000.exe" /VERYSILENT
+   Remove-Item -Recurse -Force "C:\Program Files\SD", "C:\ProgramData\SD"
+   & "C:\Users\dmont\sdout\sd-setup-1.0-2.exe"
+   ```
+
+   The `Stop-Process` line is not belt and braces — it is the §6 trap two
+   entries down, and this daemon really was started by an elevated session.
+   Leave `sdusers`, `sdadmins` and `sdsshonly` alone; the installer recreates
+   the two it owns, and §8 explains `sdadmins`.
+
+   **Then sign out and back in before running step 0**, or the new `sdusers`
+   membership is not in the token and nothing can read the data tree (§6).
+   Then run `verify-createaccount.ps1` again.
 
 0a. **THEN APPLY `AllowGroups` ONCE, IN THE SAME ELEVATED WINDOW**, and keep
    that window open while you do it. Written 14 Aug 2026 and never pointed at
@@ -3105,6 +3191,35 @@ Each of these cost real time. Read before debugging anything similar.
   "The process cannot access the file 'native.err' because it is being used by
   another process", which points at the wrong thing entirely. Observed
   14 Aug 2026. Kill the daemon, then re-run.
+
+- **THE INSTALLED DATA TREE IS NEVER UPGRADED, SO "TEST IT ON THE INSTALLED
+  SYSTEM" QUIETLY MEANS "TEST AN OLD BUILD".** `sd.iss` skips the entire
+  `sdsys` set when `C:\ProgramData\SD\sdsys` already exists, and the tree is
+  `uninsneveruninstall` — both deliberate, so that an upgrade cannot overwrite
+  a live database (§5.9). The consequence nobody had joined up: on
+  14 Aug 2026 this machine ran an 08:32 data tree and an 08:32 `sd.exe` for the
+  rest of the day while the repository moved on, and **every test run against
+  "the installed system" after that was testing 08:32's code.** It cost a full
+  investigation of a `CREATE.ACCOUNT` failure that had been fixed at 09:50.
+
+  **Before trusting any result from `C:\Program Files\SD`, date it.** The
+  binary's `LastWriteTime` against `git log` for whatever the test exercises is
+  usually enough; the data tree is harder, because BASIC ships compiled — the
+  quick tell is whether a message the new code prints exists at all:
+
+  ```powershell
+  Get-Item 'C:\Program Files\SD\usr\bin\sd.exe' | Select-Object LastWriteTime
+  Test-Path 'C:\ProgramData\SD\sdsys\MESSAGES\10034'
+  ```
+
+  A `find <tree> -newer <stage>/MANIFEST.txt` over `sdsys/GPL.BP` and
+  `sdsys/MESSAGES` names the delta exactly, and did here: `CREATEA`,
+  `OS_GROUP` and four messages, which is commit `2fd0aff` and nothing else.
+
+  **Refreshing it means uninstall, delete `C:\ProgramData\SD`, reinstall** —
+  the procedure at the top of this file. There is no upgrade path and §5.9
+  records that as unsolved; this is the first time its absence has cost
+  anything, and it will cost more once there is real data in the tree.
 
 - **`sd -stop` REPORTS SUCCESS WHILE LEAVING `sdwind` RUNNING, when the
   stopping session is less elevated than the starting one.** Observed

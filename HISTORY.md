@@ -27,6 +27,67 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - Step 0 ran, and found that this machine's install is four commits behind
+
+Fourth session of 14 Aug 2026. `gplbld/verify-createaccount.ps1` ran for the
+first time, from an elevated window, and reported 14 of 16 checks failed.
+**`CREATE.ACCOUNT` is not broken.** The installed system it was pointed at
+predates the commit that made `CREATE.ACCOUNT` work.
+
+| | |
+|---|---|
+| `C:\Program Files\SD\usr\bin\sd.exe` built | 14 Aug 2026 **08:32:44** |
+| commit `2fd0aff`, "Make CREATE.ACCOUNT work" | 14 Aug 2026 **09:50:56** |
+| `MESSAGES/10032`–`10035` in the installed tree | **absent**, all four |
+
+`2fd0aff` changed `op_dio2.c`, `CREATEA`, `OS_GROUP` and added messages 10032
+and 10033; 10034 and 10035 came with the ssh-only branch after it. None of it
+is in the installed tree. A `find` of the working tree against the staged tree
+returns exactly `CREATEA`, `OS_GROUP` and those four messages — the delta is
+that commit and nothing else.
+
+So the run exercised the **pre-fix** `op_dio2.c`, whose `OS_PATHNAME` case
+split on `/` alone and rejected every native Windows path, and the **pre-fix**
+`CREATEA`, which has no ssh-only branch at all. `Invalid account pathname` is
+the symptom the comment at `op_dio2.c:650` was written to describe, down to it
+occurring after the Windows user had been created.
+
+### What it did establish
+
+`CREATE_USER` reached the OS from an elevated session and made a real Windows
+account. The account was left disabled and passwordless, which is correct
+rather than a fault: `SET_PASSWD` runs `Enable-LocalUser` *inside* the password
+script, so an account whose password was never set stays inert. `LogonUser`
+answering 1326 for both logon types follows from that and says nothing about
+the deny rights. Cleanup worked; the machine was left with no `sdacct1`, no
+`sdu_sdacct1`, an empty `sdsshonly` and no account directory.
+
+### What is deliberately NOT concluded
+
+The transcript shows `SET_PASSWD`'s first prompt reading empty and the second
+reading the password. It is tempting to call that a piped-input defect, and
+this entry does not, for two reasons: a session earlier the same day set
+passwords through a pipe successfully (`sdtest1`, `sdtest2`) and `SET_PASSWD`
+has not changed since 05:51; and the same transcript rendered the command as
+`CREATE.ACCOUSER sdacct1`, four characters short, on a line that executed
+correctly — so the echo is not a reliable record of what SD consumed.
+Re-measure against a current build before diagnosing. Two entries in this file
+already correct conclusions drawn from a single unreliable observation.
+
+### The general finding, which is bigger than this test
+
+**A `uninsneveruninstall` data tree does not get upgraded, and nothing says
+so.** `sd.iss` skips the whole `sdsys` set when the directory already exists —
+deliberately, so an upgrade cannot overwrite a live database — and the
+installer says so in a dialog. What nobody had joined up is that this machine
+has therefore been running a data tree from 08:32 all day while the repository
+moved on, and every test run against "the installed system" since then has been
+testing 08:32's BASIC. §5.9 already records that upgrading an existing database
+is unsolved and needs a migration story; this is the first time it has actually
+cost anything.
+
+---
+
 ## 14 Aug 2026 - sd -stop says it stopped the daemon when it did not
 
 Fourth session of 14 Aug 2026, found while clearing up after the hang recorded
