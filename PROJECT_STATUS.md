@@ -261,10 +261,16 @@ session, and `MKACC`, `GRANT`, `WHOAMI`, `MKDICT` from this one. `SETPW` sets
 the SDSYS password to `hunter2` in plain text and `MKACC` sets SUE's to
 `correcthorse` — delete both, and all three scratch accounts, before this
 machine is used for anything real. `WHOAMI` prints `@LOGNAME`, `@WHO` and
-`@PATH`, which is how a `LOGTO` is watched from either side; it is catalogued
-**globally**, so it runs from an account with no `BP` file. `MKACC` skips an
-account already in ACCOUNTS rather than rewriting it, so re-running it does not
-wipe the grant lists.
+`@PATH` and `SYSTEM(1050)`, which is how a login or a `LOGTO` is watched from
+either side; it is catalogued **globally**, so it runs from an account with no
+`BP` file. `MKACC` skips an account already in ACCOUNTS rather than rewriting
+it, so re-running it does not wipe the grant lists.
+
+There is also a **non-administrator probe** at `/tmp/nonadmin/sd_nonadmin.exe`,
+built per §6 with `SD_ADMIN_GROUP` naming a group nobody holds. It is the only
+way to see this system as an ordinary user, since the token here carries
+`sdadmins` and every session is otherwise an SD administrator. `/tmp` does not
+survive a machine rebuild; the recipe in §6 does.
 
 To pick up where this stopped: `sd -internal COUNT VOC` should report 432
 records without prompting (administrator + internal path), and
@@ -410,6 +416,23 @@ Keep this split honest. It is the single most useful thing in the file.
   with no password, moved to JANE with no grant and back with no step-up, and
   `COUNT VOC` still reports 432 records. The bootstrap is unaffected by any of
   this; re-observed after the pathname removal.
+- **SD no longer needs an operating system group to use.** Observed with a
+  probe whose `SD_ADMIN_GROUP` names a group nobody holds (§6), which is the
+  only way to be a non-administrator on this machine. `sd -ASUE` prompted for
+  the account name's password and entered SUE with `SYSTEM(1050)` reporting
+  **0** — not an administrator, and nothing about the Windows account
+  mattered. That is the whole point of §5.6, and it had never been shown from
+  the outside.
+- **The SDSYS password alone makes you an SD administrator.** The same
+  non-administrator probe ran `sd -ASDSYS`, was prompted, gave `hunter2`, and
+  arrived with `SYSTEM(1050)` reporting **1**. `LOGIN` sets the flag on entry
+  to SDSYS, so administration is now genuinely a matter of knowing the SDSYS
+  password rather than of Windows group membership.
+- **Administrator rights follow you out of SDSYS.** In that same session,
+  `LOGTO KIM` left `SYSTEM(1050)` at 1 while standing in KIM. Nothing clears
+  the flag on the way out — see §7 item 2, which this makes sharper: the
+  `op_kernel.c` hole is why it *cannot* be cleared while `IsAdmin()` is true,
+  but here `IsAdmin()` was false and it still persisted, because no code tries.
 
 ### Not verified — treat as unknown
 
@@ -988,6 +1011,36 @@ Each of these cost real time. Read before debugging anything similar.
   overriding only `sd.c` does nothing, because `IsAdmin()` lives in
   `linuxlb.c`. Build the object list from `gpl.src`, not `gplobj/*.o`: the
   latter includes the standalone utilities and gives multiple `main`s.
+
+  **The same trick inverted is how you see what an ordinary user sees.** Name a
+  group nobody holds — `-DSD_ADMIN_GROUP='"nosuchgroup"'` — and the session is
+  not an SD administrator, which is otherwise impossible to arrange on a
+  machine whose token carries `sdadmins`. Everything a normal user meets at
+  login is behind that. Recompile the two files with the existing objects:
+
+  ```sh
+  cd sdb_ai/sd64
+  CF="-std=gnu17 -w -D_FILE_OFFSET_BITS=64 -Igplsrc -I/usr/local/include \
+      $(python3-config --includes) -DEMBED_PYTHON -DGPL -g \
+      -DSD_ADMIN_GROUP='\"nosuchgroup\"'"
+  gcc $CF -c gplsrc/sd.c -o /tmp/na/sd.o
+  gcc $CF -c gplsrc/linuxlb.c -o /tmp/na/linuxlb.o
+  gcc $(sed 's|^|gplobj/|;s|$|.o|' gpl.src | grep -v '/\(sd\|linuxlb\)\.o') \
+      /tmp/na/sd.o /tmp/na/linuxlb.o \
+      -lm -lcrypt -ldl -lbsd -L/usr/local/lib -lsodium \
+      $(python3-config --ldflags --embed) -o /tmp/na/sd_nonadmin.exe
+  ```
+- **`sd -A` with no account name does nothing.** `sd.c` sets
+  `CMD_QUERY_ACCOUNT` for it and **nothing reads the flag** — `CMD.QUERY.ACCOUNT`
+  is defined in `INT$KEYS.H` and referenced nowhere else in the BASIC. So bare
+  `-A` behaves exactly like plain `sd`, which for an administrator means going
+  straight into SDSYS rather than being asked which account, the opposite of
+  what the option name promises. Either wire it up or drop it.
+- **Case inversion makes the account prompt echo in lower case.** `LOGIN` turns
+  `PT$INVERT` on before prompting, so typing `SUE` displays `sue`. It is only
+  the echo — `LOGIN` upcases the answer — but it looks like the terminal is
+  mangling input. Same mechanism as the password trap below, which is not
+  cosmetic at all.
 - **Editing BASIC source changes nothing on its own**, and there are two copies
   of it. `sdsys/GPL.BP.OUT` in the repository holds only a README; the compiled
   objects live in the deployed tree. A repository edit must be copied to
@@ -1131,13 +1184,15 @@ In the order they should be taken.
    which discards its oldest half on reaching the `ERRLOG` size. Records every
    login, every `LOGTO`, and every failed step-up, attributed to `@logname`.
    A failed step-up is the single most interesting line in the trail.
-2. **Close the `K$ADMINISTRATOR` set hole in `op_kernel.c`.** Any positive
-   argument grants `USR_ADMIN`, so BASIC can still self-grant and both the
+2. **Fix the two ends of the administrator flag.** `op_kernel.c` grants
+   `USR_ADMIN` for any positive argument, so BASIC can self-grant and both the
    SDSYS gate and the new `LOGTO` gate are decorative against anyone who can
-   run a program. Note the same code makes the flag impossible to *clear* while
-   `IsAdmin()` is true, which is why admin rights currently persist after
-   leaving SDSYS. Closing this is also what allows SDSYS entry, rather than the
-   OS group, to become the source of the flag (§5.6).
+   run a program. At the other end, **nothing clears the flag when you leave
+   SDSYS** — observed, §4 — so administrator rights follow you into whatever
+   account you move to. `CPROC` should clear it on any `LOGTO` away from
+   SDSYS, which only works once `op_kernel.c` allows clearing. Doing both is
+   what lets SDSYS entry, rather than the OS group, become the source of the
+   flag (§5.6).
 3. **Give grants a verb.** `ACC$USERS` can only be edited through
    `MODIFY ACCOUNTS` today. Decide the shape — `GRANT account TO account` and
    `REVOKE`, or a `SET.ACCESS` screen — and write the audit record from it.

@@ -27,6 +27,55 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — What logging in actually looks like, seen as an ordinary user
+
+No code changed. This entry records what was observed when the question "how
+does one log into SD from the command line" was asked, because most of it had
+never been seen from outside the administrator's seat.
+
+Every session on this machine is an SD administrator: the token carries
+`sdadmins` and `kernel.c` seeds `USR_ADMIN` from `IsAdmin()`. So the ordinary
+user's experience was invisible here. A **non-administrator probe** — the §6
+recipe with `SD_ADMIN_GROUP` naming a group nobody holds, the inverse of the
+probe built when the group work landed — made it visible. The recipe is now in
+§6 next to the original.
+
+| Entered as | What happens |
+|---|---|
+| `sd` or `sd -A`, administrator | straight into SDSYS, prompts for the SDSYS password |
+| `sd`, ordinary user | prompts `Account:` then `Password:` |
+| `sd -ASUE` | prompts for SUE's password |
+| `sd -ASUE WHO` | same, runs the one command, exits |
+| `sd -internal` | SDSYS with no password; administrators only |
+
+Three things worth knowing came out of it:
+
+**SD no longer needs an operating system group to use.** The probe logged into
+SUE with the account's own password and `SYSTEM(1050)` reported 0. Nothing
+about the Windows account mattered. That is what §5.6 was for, and it had never
+been shown from the outside.
+
+**The SDSYS password alone makes you an SD administrator.** The same probe ran
+`sd -ASDSYS`, gave `hunter2`, and arrived with `SYSTEM(1050)` at 1, because
+`LOGIN` sets the flag on entry to SDSYS. Administration is now a matter of
+knowing that password rather than of Windows group membership.
+
+**Administrator rights follow you out of SDSYS.** `LOGTO KIM` from there left
+the flag at 1 while standing in KIM. This was known to be true while
+`IsAdmin()` is true, and blamed on the `op_kernel.c` set hole; here `IsAdmin()`
+was false and the flag still persisted, because **no code attempts to clear
+it**. §7 item 2 now names both ends of the problem rather than one.
+
+Two smaller findings, both in §6. `sd -A` with no account name sets
+`CMD_QUERY_ACCOUNT` and nothing anywhere reads that flag, so bare `-A` is
+identical to plain `sd` — for an administrator, going straight into SDSYS
+instead of asking which account, the opposite of the option's name. And the
+`Account:` prompt echoes in lower case, because `LOGIN` turns `PT$INVERT` on
+before it; harmless, but it is the visible face of the case-inversion trap that
+cost real time on the password read.
+
+---
+
 ## 13 Aug 2026 — SDSYS is the exception; LOGTO takes account names only
 
 Decisions from the repository owner, answering both questions the entry below
