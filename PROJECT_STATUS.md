@@ -476,9 +476,11 @@ Keep this split honest. It is the single most useful thing in the file.
   held, so the `sdsem.c` port is exercised only in the uncontended case.
 - `SDConnectLocal()` at runtime. It needs a running server and a configuration
   file (§5.8).
-- **Anything requiring two processes at once, or contention.** The accounts
-  above were driven one session at a time. Record locking between real users
-  and the API server path are both untried.
+- **Contention.** Two sessions have now coexisted — an interactive one sitting
+  at a password prompt on `/dev/pty0` and a second running `LISTU`, which
+  listed both (users 8 and 9, 13 Aug 2026). So multi-user attach works. What
+  is still untried is two sessions *competing*: record locking between real
+  users, and the API server path.
 - Writing and reading application data. The bootstrap creates and reads system
   files, and the scratch accounts hold nothing but a VOC.
 - **`CREATE.ACCOUNT` on Windows.** JANE and SUE were built by a scratch program
