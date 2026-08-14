@@ -86,6 +86,33 @@ grant list; and connection pooling breaks `@logname` regardless of `NUMUSERS`,
 which is only a default — the repository owner notes OpenQM systems run several
 hundred users.
 
+### The network-layer argument, added the same day
+
+The repository owner's second point for the API posture: with a private API you
+keep VPN, IP restriction and similar controls that a public web server forfeits
+by definition. Recorded in §8, with the structural form of it — a public web
+application must accept anonymous connections as far as the login page, so its
+TLS stack, HTTP parser, router, session handling and password reset are all
+reachable pre-authentication by everyone, while an IP-restricted API has a
+pre-authentication surface reachable by nobody. That is a difference in kind
+rather than obscurity.
+
+Recorded alongside it, so the record is not misread later: the axis is *public
+versus private*, not web versus API. A web front end on an internal network
+keeps the same controls, so C's security cost over B is a second codebase to
+patch rather than an exposed one.
+
+**And the finding that makes this actionable: SD never binds a listening
+socket.** `sd -N` runs per connection with the socket as stdin and stdout —
+**xinetd** bound port 4243, spawned per connection and supplied `only_from`.
+xinetd does not exist on Windows, so the service replacing it inherits the bind
+address, the port, per-connection spawning and access control, and none of it
+is implemented. The recommendation recorded is to **bind loopback by default**,
+so posture B is what a default install gets without anyone deciding, and to
+settle whether `only_from` is reimplemented or replaced by a Windows Firewall
+rule written at install time. This also explains why §8's note about keeping
+`etc/xinetd.d/` as documentation of the service topology was worth following.
+
 ## 13 Aug 2026 — Embedded Python removed; SD is a back end for the API
 
 Decision from the repository owner on 13 Aug 2026, prompted by the staging

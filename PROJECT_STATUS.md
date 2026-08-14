@@ -2010,6 +2010,45 @@ front end is then a **product** decision, about whether SD offers a browser UI,
 rather than a security mechanism. Keeping those two questions apart is probably
 what makes this decidable.
 
+**The network-layer argument, and it is the strongest one for B** (repository
+owner, 13 Aug 2026). A private API can be put behind controls that run *before
+a byte reaches SD* — VPN, a Windows Firewall rule scoped by remote address or
+interface, or IPsec Connection Security Rules, which can require the peer to be
+an authenticated domain machine without a line of application code. A public
+web server forfeits all of it by definition: if it is public, anyone may reach
+it.
+
+The sharper form of that, which is structural rather than obscurity: **a public
+web application must accept anonymous connections as far as the login page.**
+Its TLS termination, HTTP parser, router, session handling, login form,
+password reset and static file serving are all reachable pre-authentication, by
+everyone, by design. An IP-restricted API has a pre-authentication surface
+reachable by nobody. That is a real difference in kind.
+
+**The refinement that keeps this honest, so it is not read as "web is
+insecure":** the axis is *public versus private*, not web versus API. A web
+front end on an internal network behind the same VPN keeps every one of those
+controls. Deployed privately, C's security cost over B is a second codebase to
+patch, and its benefit is a browser UI — which is the product question again,
+not a security one.
+
+**Where these controls have to live, and nothing does it yet.** SD never binds
+a listening socket. `sd -N` runs per connection with the socket as stdin and
+stdout; **xinetd** bound port 4243, spawned an instance per connection and
+supplied `only_from`. xinetd does not exist on Windows, so the service that
+replaces it inherits all four responsibilities, and none of them are
+implemented. Two consequences:
+
+- **Make it bind to loopback by default**, so posture B is what you get without
+  anyone deciding anything, and listening more widely takes a deliberate act.
+- `only_from` has no Windows equivalent unless the replacement implements it or
+  the install writes a Windows Firewall rule. Decide which; a firewall rule is
+  less code and easier to audit.
+
+These are the deployer's controls rather than SD's, so they are reasons to
+permit a posture, not a substitute for SD's own authentication (§7 step 6).
+Both, not either.
+
 **Two things that apply to B and C alike.**
 
 - **Attribution has to survive the extra hop.** If a front end is the only
