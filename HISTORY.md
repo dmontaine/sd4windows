@@ -27,6 +27,80 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - SD runs as an ordinary user, and sshd finally starts
+
+The end of the second session of 14 Aug 2026. Both results came from the
+repository owner rebooting, which is worth noting on its own: the two things
+blocking verification all day were a stale access token and a half-applied
+Windows capability, and one restart cleared both.
+
+### SD runs unelevated, which it never had
+
+From a **normal PowerShell window** — no elevation, no MSYS2, nothing set in
+the environment:
+
+```
+sd -start      SD (64 Bit) has been started     sdwind running: True
+COUNT VOC      431 record(s) counted
+WHO            2 SDSYS
+sd -stop       SD (64 Bit) has been shut down   sdwind gone
+```
+
+Three things close together:
+
+- **§5.6.1 in the real world.** `IsAdmin()` admitted an administrator who had
+  not elevated. The earlier proof used a probe built with a synthetic gid; this
+  is the shipped binary in an ordinary session, which is the case that matters.
+- **§5.7's ACL model from the user's side.** The token now carries `sdusers`,
+  and that grants the data tree — 3,264 files listed unelevated — **and**
+  `/dev/shm`, mapped into `C:\ProgramData\SD\shm`, which is what `sd -start`
+  needs in order to allocate semaphores. Before the reboot the same session was
+  refused on every path inside `C:\ProgramData\SD`; nothing else changed.
+- **The sign-out requirement is real and sufficient.** It is documented in §6
+  and in the installer's closing dialog, and this is it being demonstrated
+  rather than asserted.
+
+**What it does not show, and is now the most visible gap:** `sd -start` had to
+be typed. An installed system does not come up on boot, because there is no
+service. After every restart somebody must start SD by hand. That is §5.7's
+service model and it is hard to miss now that everything else works.
+
+### sshd runs, and the installer step was still wrong
+
+`Get-WindowsCapability -Online` reported `State : Installed` after the reboot,
+so the brace fix earlier in the session was the whole of that bug.
+
+**But the service was left `Stopped`, `StartType=Manual`, with no
+`sshd_config`** — and that turned out to be a second defect rather than an
+artefact of the terminated run. The capability installs the *files*; the
+**service does not exist until after a reboot**. The step ran
+`Add-WindowsCapability`, `Set-Service` and `Start-Service` in one breath, so on
+a machine that needs the restart, `Set-Service` throws "no such service", hits
+the catch, and reports **total failure for what is actually a success needing a
+reboot**.
+
+Fixed by moving the whole thing out of the `.iss` into
+`gplbld/install-ssh.ps1`, which distinguishes the cases and **exits 2 for
+"restart required"**. Being told to reboot is useful; being told it failed is
+not. Moving it to a file is also the direct lesson of the brace bug: an inline
+`[Run]` parameter cannot be read or parse-checked, and a shipped script can —
+both scripts are now parse-checked before they are believed.
+
+Run against the already-installed capability it reported `sshd is Running,
+StartType=Automatic`, two listeners on port 22, the firewall rule enabled, and
+`sshd_config` created. sshd writes that file on first start, which is the
+earliest moment `AllowGroups` (§5.6.2) could be edited into it — worth knowing,
+because there was nothing to edit before now.
+
+### Where this leaves the ssh-only model
+
+**Built, and completely untested through ssh** — but the blocker is gone. This
+machine has a running `sshd` for the first time, so the ordered test in §4 can
+be done here rather than waiting for the second machine. The step that matters
+is proving an account in `sdsshonly` **can** still ssh in: if Win32-OpenSSH
+needs something the deny rights remove, the model fails closed and nobody
+reaches SD at all.
+
 ## 14 Aug 2026 - SD accounts become ssh-only, and the API goes through ssh too
 
 **Decision from the repository owner**, 14 Aug 2026: accounts SD creates reach

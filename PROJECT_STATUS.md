@@ -5,13 +5,27 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, second session of the day, at commit `94cca88`
-plus the commit that carries this line. Three things landed: the installer fix
-from `5748a51` was **run and verified** (3,264 files, not 16); the daemon was
-found never to start on an installed system and **that is fixed and verified**;
-and it was renamed `sdlnxd` → **`sdwind`**. One defect found by inspection is
-still open — see `sdadmins` below, which is the thing standing between this and
-a clean-machine install.
+**Last updated:** 14 Aug 2026, end of the second session of the day, at commit
+`9489c94` plus the commit that carries this line. A long session, and most of it
+was driven by **running the installer as a user would** rather than by reading
+code. What landed:
+
+- The installer fix from `5748a51` **run and verified** — 3,264 files, not 16.
+- The daemon **never started on an installed system**; fixed, verified, and
+  renamed `sdlnxd` → **`sdwind`**.
+- **A Windows administrator is an SD administrator** (§5.6.1) — decided,
+  implemented, verified. `sdadmins` is gone.
+- **`CREATE.ACCOUNT` works**, for the first time ever, with a new
+  `ADMINISTRATOR` keyword (§4).
+- **SD runs from an ordinary unelevated session** (§4) — the first time it has
+  been used the way a user would.
+- **SD accounts are to be ssh-only, and the API goes through ssh** (§5.6.2,
+  §8) — decided and built, **not yet tested through ssh**.
+- The installer's **OpenSSH option had never worked at all**; fixed, and
+  `sshd` now runs on this machine.
+
+**Where it stopped:** the ssh-only model is built and unverified, and this
+machine is now capable of testing it. That is step 1 below.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
@@ -27,6 +41,10 @@ install** on it, from the fixed installer:
 | System PATH and the Settings > Apps entry | both present |
 | `C:\ProgramData\SD` ACL | locked to sdusers/Administrators/SYSTEM. An unelevated session **cannot read inside it** until `don` signs out and back in; `Test-Path` on the directory itself still says True, so look at the contents |
 | MSYS2 dev tree at `/usr/local/sdsys` | still reachable with `SD_CONFIG=/etc/sd.conf`. Its `bin/` was refreshed with the `sdwind` build on 14 Aug 2026 and the stale `sdlnxd.exe` removed; `pcode`/`pcode.old` are still beside them, since the dev tree keeps the old unsplit layout |
+| **The machine was rebooted** on 14 Aug 2026 | `don`'s token now carries `sdusers`, so **an ordinary unelevated session runs SD** — verified, §4. The sign-out trap in §6 is cleared *on this machine only*; it applies afresh to every new user added to the group |
+| **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled, `C:\ProgramData\ssh\sshd_config` created with defaults. So the ssh-only model (§5.6.2) can now be tested **here**, which was not true earlier in the day |
+| `sdsshonly` group | **does not exist yet.** The installer creates it and applies the deny rights; this machine's install predates that. `CREATE.ACCOUNT` for a non-administrator would fail today until the installer is rebuilt and re-run |
+| SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
 elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
@@ -42,6 +60,30 @@ a rebuild of the machine; both are reproduced by the commands at the top of
 lines, against 145 for the broken run).
 
 **Where to start next.**
+
+0. **PROVE THE SSH-ONLY MODEL, because it is built and could be wrong.** This
+   is where the session stopped and it is the first thing to do. §5.6.2 is
+   decided and implemented; nothing has been tested through ssh. **This machine
+   can now do it** — `sshd` is Running/Automatic as of 14 Aug 2026.
+
+   The ordered steps and the risk are in §4 Unverified, "THE SSH-ONLY MODEL".
+   The short version:
+
+   ```powershell
+   # elevated, once
+   New-LocalGroup -Name sdsshonly -Description "SD accounts restricted to ssh"
+   & 'C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\deny-logon.ps1' sdsshonly
+   ```
+
+   then `CREATE.ACCOUNT USER <throwaway>` from an elevated SD session, and try
+   to ssh in as it. **Step 3 in §4 is the one that matters**: if Win32-OpenSSH
+   needs something those deny rights remove, the model fails **closed** and
+   nobody can reach SD at all. Prove that before building anything on top of
+   it.
+
+   **Delete the throwaway account afterwards.** It is a real Windows account
+   with a password you chose; the last set were removed the same session and
+   the reasoning is in §4.
 
 1. **Finish the account model now that administration is the OS's** (§5.6.1,
    decided 14 Aug 2026). `IsAdmin()` is done and verified; what is left is the
@@ -713,6 +755,57 @@ Keep this split honest. It is the single most useful thing in the file.
   system PATH; 15 files in `C:\Program Files\SD`; no `gplbld` anywhere in the
   data tree; and `sd.conf` present.
 
+- **THE INSTALLED SYSTEM RUNS AS AN ORDINARY USER.** Observed 14 Aug 2026 after
+  the repository owner rebooted, from a **normal unelevated PowerShell window**
+  — no `runas`, no MSYS2, nothing set in the environment:
+
+  ```
+  sd -start          SD (64 Bit) has been started      sdwind running: True
+  COUNT VOC          431 record(s) counted
+  WHO                2 SDSYS
+  sd -stop           SD (64 Bit) has been shut down    sdwind gone
+  ```
+
+  This is the first time SD has been used the way a user would actually use
+  it, and it closes three things at once:
+
+  - **§5.6.1 in the real world.** `IsAdmin()` admitted an administrator who had
+    not elevated. The earlier proof was a probe with a synthetic gid; this is
+    the shipped binary in an ordinary session.
+  - **§5.7's ACL model, from the user's side.** The token now carries
+    `sdusers`, and that grants both the data tree — 3,264 files listed from the
+    unelevated session — **and** `/dev/shm`, which is mapped into
+    `C:\ProgramData\SD\shm` and is what `sd -start` needs to allocate
+    semaphores. The "Error 13" trap in §6 is what this looks like when the
+    token is stale, and it is now shown clearing.
+  - **The sign-out requirement is real and is sufficient.** Before the reboot
+    this same session was refused on every path inside `C:\ProgramData\SD`.
+    Nothing else changed.
+
+  **What it does not show:** `sd -start` had to be typed. An installed system
+  does **not** come up on boot — there is no service — so after every restart
+  someone must start SD by hand. That is §5.7's service model, and it is now
+  the most visible gap in a system that otherwise installs and runs.
+
+- **OpenSSH Server installs, and `sshd` runs.** Observed 14 Aug 2026. After the
+  reboot, `Get-WindowsCapability -Online` reported
+  `OpenSSH.Server~~~~0.0.1.0  State : Installed`, so the corrected
+  `Add-WindowsCapability` line works and the brace bug was the whole of it.
+  `gplbld/install-ssh.ps1` then reported `sshd is Running,
+  StartType=Automatic`, with 2 listeners on port 22, the
+  `OpenSSH SSH Server (sshd)` firewall rule enabled, and
+  `C:\ProgramData\ssh\sshd_config` created — sshd writes that on first start,
+  which is the earliest point at which `AllowGroups` (§5.6.2) could be edited
+  into it.
+
+  **And it exposed an installer defect that is now fixed.** The capability
+  installed but the **service did not exist until after a reboot**. The old
+  step ran `Add-WindowsCapability`, `Set-Service` and `Start-Service` in one
+  breath, so on such a machine `Set-Service` threw "no such service", hit the
+  catch, and reported total failure for what was actually a success needing a
+  restart. `install-ssh.ps1` now distinguishes them and **exits 2 for "restart
+  required"**. Being told to reboot is useful; being told it failed is not.
+
 - **The deny-logon rights are applied correctly, and nothing else is
   disturbed.** Observed 14 Aug 2026 against a throwaway group, running
   `gplbld/deny-logon.ps1` exactly as the installer invokes it:
@@ -880,25 +973,29 @@ Keep this split honest. It is the single most useful thing in the file.
   cannot be from a normal session (§5.6, elevation). No throwaway OS accounts
   were created. Compiling is not running, and this is the largest untested
   thing added on 14 Aug 2026.
-- **THE WHOLE SSH-ONLY MODEL, end to end** (§5.6.2). The pieces are built and
-  the rights are proven to apply (§4 Verified), but nothing has been tested
-  through ssh, because **this machine has no `sshd`**. The OpenSSH install was
-  attempted on 14 Aug 2026, ran into the Features-on-Demand delay described in
-  §5.9, was terminated part-way and left `RebootPending` set with the
-  capability unapplied. What is untested, in order:
+- **THE SSH-ONLY MODEL, end to end** (§5.6.2) — **and this machine can now test
+  it**, since `sshd` is running (§4 Verified). That was the blocker all day and
+  it is gone. The pieces are built and the deny rights are proven to apply; what
+  has never been exercised, in the order to do it:
 
-  1. That `sshd` installs and starts at all — the corrected `.iss` command has
-     been parse-checked and run, but never seen to completion.
-  2. That an account in `sdsshonly` **can** ssh in. This is the one that would
-     invalidate the design if wrong, and the risk is named in §5.6.2: if
-     Win32-OpenSSH turns out to need something the deny rights remove, the
-     model fails closed and nobody can reach SD at all.
-  3. That the same account **cannot** reach the console or RDP.
-  4. `CREATE.ACCOUNT`'s new ssh-only branch actually executing. It compiles
-     with 0 errors and reuses `!os_group`, which is verified, but the branch
-     itself has not run — the `sdsshonly` group does not exist on this machine
-     yet, so it would fail today.
-  5. `AllowGroups` in `sshd_config`, which is not implemented at all.
+  1. **Create `sdsshonly` and apply the rights.** The group does not exist here
+     — this machine's install predates it. Either rebuild and re-run the
+     installer, or for a quick test create the group by hand and run
+     `gplbld/deny-logon.ps1 sdsshonly` elevated.
+  2. **`CREATE.ACCOUNT USER <name>` and check the branch runs.** It compiles
+     with 0 errors and reuses `!os_group`, which is verified, but the ssh-only
+     branch itself has never executed and will fail until (1) is done.
+  3. **That the account CAN ssh in.** *This is the one that would invalidate
+     the design.* §5.6.2 names the risk: if Win32-OpenSSH needs something the
+     deny rights remove, the model fails **closed** and nobody reaches SD at
+     all. Test it before anything is built on top.
+  4. **That the same account CANNOT reach the console or RDP** — the actual
+     point of the exercise.
+  5. **That SD itself works over that ssh session** — `sd -ASOMEACCOUNT` typed
+     at a real terminal, which also finally answers §4's oldest open question
+     about typing at SD from a Windows console.
+  6. **`AllowGroups`** in `sshd_config`, not implemented at all. The file now
+     exists, so there is something to edit; §5.6.2 has the cautions.
 
 - **Whether `OS.EXECUTE` works at all on an installed system.** It almost
   certainly does not — see the shell trap in §6.
