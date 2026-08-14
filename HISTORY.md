@@ -27,6 +27,60 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - `sd -start` cannot start the daemon on an installed system
+
+Found immediately after the entry below, while scoping the `sdlnxd` → `sdwind`
+rename the repository owner asked for. The rename turned up a defect, which is
+the more useful half of this entry.
+
+**`gplsrc/sysseg.c` line 405** builds the daemon's path as `"%s/bin/sdlnxd"`
+from `sysseg->sysdir`, so on an installed system it execs
+`C:\ProgramData\SD\sdsys\bin\sdlnxd`. That directory holds `pcode` and
+`pcode.old` and nothing else. The daemon ships to
+`C:\Program Files\SD\usr\bin\sdlnxd.exe`.
+
+**Why it was there and why it is now wrong.** The Linux install put the
+executables and the pcode composite library in the same
+`/usr/local/sdsys/bin`, so `sysdir` was a correct base. §5.8 split them —
+binaries to `C:\Program Files\SD\usr\bin`, `pcode`/`pcode.old` staying with
+SDSYS because `BCOMP` addresses them relative to `@sdsys` — and this call site
+was not moved with them. The split itself is recorded in §6 as "two unrelated
+things in one directory"; what was missed is that a C runtime string also
+depended on them being one thing.
+
+**It fails silently and the symptom is an absence.** The `execl` is in a forked
+child that has already called `daemon(1, 1)`, so nothing is printed anywhere
+and `sd -start` still reports success. `sysseg->sdlnxd_pid` stays at -1, which
+is exactly the value meaning "failed to start", and `sd -stop` then correctly
+skips the kill. SD works completely — shared segment, `COUNT VOC` reporting
+431, `WHO`, `LIST ACCOUNTS` — because none of that needs the daemon. The only
+thing that shows it is `Get-Process sdlnxd` returning nothing, which is what
+the entry below logged as an unexplained observation before this was chased.
+
+**It works in development**, where `<sysdir>/bin` genuinely does hold the
+executables, which is why 13 Aug 2026 recorded the daemon starting and staying
+up and why nothing had contradicted that until an install existed to test. Same
+family as the `/bin/bash` trap in §6: correct in the development tree, wrong in
+the installed one, and invisible until the two differ. The generalisation is
+now in §6 — **when anything moves between the trees, grep the C for the old
+location**, because the compiler cannot see a runtime string.
+
+Not fixed here. It is §7 step 1a together with the rename, since they are the
+same lines, and the fix should resolve against the executable's own directory
+rather than hardcode the new path — otherwise the next layout change repeats
+it.
+
+**The rename scope, recorded so it need not be re-derived.** Tracked source
+only: `gplsrc/sdlnxd.c` (rename the file too), `gplsrc/sysseg.c`,
+`gplsrc/sysseg.h` (`int sdlnxd_pid` in the shared segment struct),
+`gplsrc/sysdump.c`, `Makefile` (target plus the `sd:` prerequisite list),
+`gplbld/stage.py` (two ship-list entries) and one comment in
+`gplbld/bootstrap.py`. `gplbld/sd.iss` does **not** name it — it ships under
+the `ProgramFiles\*` glob — and `gpl.src` does not list it either, since it
+links separately from `sdlnxd.o` and `sdsem.o`. `bin/` and `gplobj/` are build
+output; `AI_Modification_Notes/` is a historical record and should keep the old
+name, as should this file's earlier entries.
+
 ## 14 Aug 2026 - the installer fix is verified: a first install lays down 3,264 files
 
 Closes the correction below, "the installer was NOT verified for a first

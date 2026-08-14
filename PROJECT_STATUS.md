@@ -64,6 +64,48 @@ lines, against 145 for the broken run).
    question now blocks something concrete, which it did not before. **Decision
    needed from the repository owner** — it is the first item in §8.
 
+1a. **Fix where `sd -start` looks for the daemon, and rename it `sdwind` while
+   you are in there.** Two jobs in the same lines, found 14 Aug 2026.
+
+   **The defect first**, because it is not cosmetic: `gplsrc/sysseg.c` line 405
+   execs `"%s/bin/sdlnxd"` built from `sysseg->sysdir`, which resolves to
+   `C:\ProgramData\SD\sdsys\bin\sdlnxd` on an installed system. The daemon is
+   at `C:\Program Files\SD\usr\bin\sdlnxd.exe`; that directory holds only
+   `pcode` and `pcode.old`. **So the daemon never starts once SD is
+   installed**, silently — see the trap in §6. It works in development, where
+   `<sysdir>/bin` does hold the binaries. Fix it to resolve against the
+   executable's own directory rather than `sysdir`, since §5.8 has permanently
+   separated the two; do not simply hardcode the new path, or the next layout
+   change repeats this.
+
+   **Then the rename**, requested by the repository owner 14 Aug 2026:
+   `sdlnxd` → **`sdwind`**. The name means "SD Linux daemon" and this is a
+   Windows-only repository, so it is wrong in the same way the `#ifdef`
+   branches would have been. Scope, in tracked source only — `bin/` and
+   `gplobj/` are build output and `AI_Modification_Notes/` is a historical
+   record, so neither needs touching:
+
+   | File | What |
+   |---|---|
+   | `gplsrc/sdlnxd.c` | the daemon itself; **rename the file too** |
+   | `gplsrc/sysseg.c` | the exec path above, and the `sdlnxd_pid` field uses |
+   | `gplsrc/sysseg.h` | `int sdlnxd_pid` in the shared segment struct |
+   | `gplsrc/sysdump.c` | prints `sdlnxd pid:` |
+   | `Makefile` | the `sdlnxd` target and its line in the `sd:` prerequisites |
+   | `gplbld/stage.py` | two entries in the ship lists |
+   | `gplbld/bootstrap.py` | one comment |
+
+   `gplbld/sd.iss` does **not** name it — it ships under the `ProgramFiles\*`
+   glob — so the installer needs no change. `gpl.src` does not list it either,
+   since it is linked separately from `sdlnxd.o` and `sdsem.o`.
+
+   Two cautions. **Renaming `sdlnxd_pid` changes the layout of the shared
+   segment struct**, so `revstamp.h` and the segment version want a thought —
+   a running server and a new binary must not disagree about it; safest to
+   rename with SD stopped and `/dev/shm` clean. And **HISTORY.md is
+   append-only**: its 11 references to `sdlnxd` stay as they are, which is
+   correct, since they record what the thing was called at the time.
+
 2. **Install on a genuinely clean machine.** Still the test that matters, and
    still not done: this machine has a development tree, so an accidental
    dependency could survive. What changed is that it is now worth doing — the
@@ -779,15 +821,16 @@ Keep this split honest. It is the single most useful thing in the file.
   plus the `IsAdmin()` observation already recorded above — **it has not been
   observed**, because this machine's token carries `sdadmins`.
 
-- **Whether `sdlnxd` stays running after `sd -start` on an installed system.**
-  `Get-Process sdlnxd` reported nothing immediately after `sd -start` in both
-  passes on 14 Aug 2026, while `COUNT VOC` then worked and reported 431
-  records. §4 records from 13 Aug 2026 that `sd -start` "spawned `sdlnxd`,
-  which stayed running". The server is plainly fine — the shared segment is
-  created and answers — so this is about the daemon's lifetime, not the
-  server's, and it was not investigated. Stated as an observation, not a
-  conclusion. It matters when the API is picked up (§7 step 6), since that is
-  the daemon's job.
+- **DIAGNOSED 14 Aug 2026, and it is a real defect — see §7 step 1a.** The open
+  question here was why `Get-Process sdlnxd` reported nothing after `sd -start`
+  on the installed system. **`sysseg.c` looks for the daemon in the wrong
+  place**: line 405 builds the path as `"%s/bin/sdlnxd"` from
+  `sysseg->sysdir`, so on an installed system it tries to exec
+  `C:\ProgramData\SD\sdsys\bin\sdlnxd`. That directory holds `pcode` and
+  `pcode.old` and nothing else — the daemon ships to
+  `C:\Program Files\SD\usr\bin\sdlnxd.exe`. What is *left* unverified is only
+  the consequence for the API, since nothing has exercised the network layer
+  yet.
 
 - **Why `errlog` stayed empty** through a full start / command / stop cycle on
   the freshly installed tree, 14 Aug 2026, where earlier sessions saw
@@ -1775,6 +1818,30 @@ Each of these cost real time. Read before debugging anything similar.
   prose, several lines from anything that looks like a statement. Use the
   `(* ... *)` form, and do not write `(*` or `*)` inside that either, which
   ends it the same way. Cost two compile failures on 14 Aug 2026.
+
+- **The `<sysdir>/bin` split left `sysseg.c` pointing at the old location, and
+  it fails silently.** Found 14 Aug 2026. `sysseg.c` line 405 execs
+  `"%s/bin/sdlnxd"` built from `sysseg->sysdir`, which was right when the Linux
+  install put executables and the pcode library in the same
+  `/usr/local/sdsys/bin`. §5.8 split them — binaries to
+  `C:\Program Files\SD\usr\bin`, `pcode` and `pcode.old` staying with SDSYS
+  (§6, "two unrelated things in one directory") — and this call site did not
+  move with them. **`sd -start` therefore cannot start the daemon on an
+  installed system**, and says nothing about it: the `execl` is in a forked
+  child that has already `daemon()`ed, so there is no message anywhere and
+  `sd -start` still reports success. `sysseg->sdlnxd_pid` stays -1, which is
+  the value meaning "failed to start", and `sd -stop` then correctly skips it.
+
+  **The symptom is an absence**, which is the hard kind to notice: SD works
+  completely — shared segment, `COUNT VOC`, everything — because none of that
+  needs the daemon. Only `Get-Process sdlnxd` shows it.
+
+  Note it **works perfectly in development**, where `<sysdir>/bin` really does
+  hold the executables, which is why 13 Aug 2026 recorded the daemon starting
+  and staying up. Same family as the `/bin/bash` trap above: a path that is
+  correct in the development tree and wrong in the installed one. **When
+  anything is moved between the two trees, grep the C for the old location** —
+  the compiler cannot help, because these are runtime strings.
 
 - **`Test-Path` says True for a directory you cannot read, so it is no test of
   an ACL.** `Test-Path C:\ProgramData\SD` answers True from a session that is
