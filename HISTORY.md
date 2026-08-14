@@ -27,6 +27,141 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - the installer fix is verified: a first install lays down 3,264 files
+
+Closes the correction below, "the installer was NOT verified for a first
+install". The fix committed in `5748a51` was run for the first time and it
+works. This entry is the evidence, because the previous round of testing was
+green against a database the installer had never written and the lesson taken
+from that was to **count what was installed**.
+
+**Method, and it matters that the machine was cleaned first.** The broken
+install left by the previous session was removed in one elevated pass:
+`C:\Program Files\SD\unins000.exe /VERYSILENT`, then `C:\Program Files\SD` and
+`C:\ProgramData\SD` deleted outright, then the `sdusers` group removed. The
+data tree was copied to `C:\Users\dmont\sd-preclean-backup` first; only
+`sdsys/$HOLD` and `sd.conf` survived the copy, which is of no consequence
+because the tree being discarded was the 16-file broken one, but it is recorded
+rather than glossed.
+
+**The installer under test was rebuilt from the tracked source**, not taken on
+trust from the previous session's output directory:
+
+```sh
+cd sdb_ai/sd64
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DStage=C:\Users\dmont\stagetest \
+    /O"C:\Users\dmont\sdout" gplbld\sd.iss
+```
+
+The staged tree at `C:\Users\dmont\stagetest` was reused unchanged. That is
+worth being explicit about: the `.exe` provably corresponds to the committed
+`sd.iss`, and only the packaging step was redone.
+
+**What a genuine first install produced.** Counted, not inferred:
+
+| Measure | Broken (before fix) | Now | Staged source |
+|---|---|---|---|
+| files under `C:\ProgramData\SD\sdsys` | 16 | **3,264** | 3,264 |
+| directories under it | - | 44 | 44 |
+| `gcat` entries | 0 | 129 | 129 |
+| `GPL.BP.OUT` entries | 0 | 11 | 11 |
+| `Installing the file` lines in the Inno log | 15 | 3,279 | - |
+| Inno log length | 145 lines | 16,507 lines | - |
+
+A `Compare-Object` of every staged path against every installed path reported
+**no differences in either direction** - nothing skipped and nothing extra. The
+install log line count is the cheapest possible check of this class and is
+worth keeping in mind for next time: 145 lines against 16,507 is not a
+difference anyone has to squint at.
+
+**And the installed system runs**, observed twice in two separate elevated
+passes:
+
+- `sd -start` from `C:\Program Files\SD\usr\bin\sd.exe`
+- `COUNT VOC` reporting **431 records**
+- `LIST ACCOUNTS` reporting `Pathname: C:\ProgramData\SD\sdsys`
+- `WHO` reporting `3 SDSYS`
+- `sd -stop`
+
+each preceded by `Warning: account SDSYS has no password set`, which is the
+correct state for a tree whose installation has not been finished by setting
+one, and which confirms the ordering decision in §5.9: every internal command
+works while SDSYS has no credential.
+
+**The rest of the installer's job, all confirmed on the same run.** The ACLs
+are exactly `GITORLI\sdusers:(OI)(CI)(M)`, `BUILTIN\Administrators:(OI)(CI)(F)`
+and `NT AUTHORITY\SYSTEM:(OI)(CI)(F)`, with no `BUILTIN\Users` - and this time
+that was also confirmed **from the outside**, which the previous round did not
+do: an ordinary unelevated session, whose token does not yet carry `sdusers`,
+is refused on every path inside `C:\ProgramData\SD`. `Test-Path` on the
+directory itself still answers True, because listing the parent is permitted;
+only the contents are denied. Anyone checking this should look inside rather
+than at the directory entry. Also present: `sdusers` created with `GITORLI\don`
+in it, `user_accounts`, `group_accounts` and `shm` created, exactly one
+`C:\Program Files\SD\usr\bin` entry on the system PATH, 15 files in
+`C:\Program Files\SD`, and no `gplbld` anywhere in the data tree.
+
+### The finding this run produced: the installer creates `sdusers`, never `sdadmins`
+
+**Not observed, deduced - and it predicts that a clean-machine install produces
+a system nobody can start.** Recorded here because it is the same shape as the
+bug just fixed: invisible on this machine because of state left over from
+earlier work.
+
+`IsAdmin()` in `gplsrc/linuxlb.c` line 75 is `getgrnam(SD_ADMIN_GROUP)`, and
+returns FALSE if the group does not exist - deliberately failing closed.
+`SD_ADMIN_GROUP` is `"sdadmins"` (`gplsrc/sddefs.h` line 131). `gplsrc/sd.c`
+line 613 refuses `sd -start` with "Command requires administrator privileges"
+when `IsAdmin()` is false.
+
+`gplbld/sd.iss` creates **`sdusers`** - for the ACL - and nothing in `gplbld/`
+mentions `sdadmins` at all. So on a machine that has never had SD development
+on it, `getgrnam("sdadmins")` returns NULL, nobody is an SD administrator, and
+`sd -start` refuses. The postinstall `SET.PASSWORD SDSYS` step would fail the
+same way, since `sd -internal` is gated identically.
+
+Everything above ran here only because `sdadmins` was created by hand on
+13 Aug 2026 and this account's token carries it. §4 already records, from an
+earlier session, that `sd -start` refuses while the group is absent and
+succeeds once built against a group the token holds - so the behaviour is
+verified even though this particular consequence was not exercised.
+
+**This is deliberately not fixed in this commit**, because the obvious fix
+prejudges an open question. §8's "what happens to `IsAdmin()` and `sdadmins`?"
+asks whether `sd -start` keeps an OS-level check at all, and if it does,
+whether the right group is `sdadmins` or Windows `Administrators`. Adding two
+`net localgroup sdadmins` lines to the `.iss` would settle that by accident.
+The question now has a forcing function it did not have before: without an
+answer the installer cannot produce a working system on a clean machine.
+
+### Two smaller observations, neither chased down
+
+- **`Get-Process sdlnxd` reported nothing immediately after `sd -start`**, in
+  both passes, while `COUNT VOC` then worked and reported 431 records. §4
+  records from 13 Aug 2026 that `sd -start` "spawned `sdlnxd`, which stayed
+  running". SD itself is plainly fine - the shared segment is created and
+  answered - so this is about the daemon's lifetime, not the server's. It may
+  be that `sdlnxd` exits promptly when nothing needs the network layer, or that
+  it was not yet visible at the moment of the check. Not investigated, and
+  stated as an observation rather than a conclusion.
+- **`errlog` was empty** after a full start/command/stop cycle on the fresh
+  tree, where earlier sessions saw "User n (pid, don)" lines written to it.
+  Also not chased.
+
+### A note on the harness, not on SD
+
+The first elevated pass ran everything correctly but died before writing its
+own summary log, showing a burst of PowerShell errors as the window closed. The
+suspicion at the time was the `sd -stop` process-group trap in §6, since that
+trap's signature is exactly "the shell above it vanished with exit status
+zero". **It was not that.** A second pass under `Start-Transcript`, with marker
+files bracketing every `sd -stop`, reached all nine markers and ran to
+completion - so `sd -stop` is behaving, and the fix recorded in §6 holds. The
+fault was in the throwaway script's own logging helper, which called
+`.TrimEnd()` on the result of piping an empty result set through `Out-String`.
+Worth one line here only so that nobody re-opens the `sd -stop` question on the
+strength of the first observation.
+
 ## Correction: 14 Aug 2026 - the installer was NOT verified for a first install
 
 Corrects the entry "The staged tree is bootstrapped" and the §4 claim added

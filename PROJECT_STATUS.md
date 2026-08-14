@@ -5,89 +5,97 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, end of session, at commit `954c653` plus the
-handoff commit that carries this line. A long session: OS account provisioning
-came back, PowerShell replaced bash as the shell, the staged tree became
-pre-bootstrapped, the configuration file learned to find itself, and the Inno
-installer was written, run, and found to be broken on a first install. **Read
-the machine state below and the correction in §4 before doing anything.**
+**Last updated:** 14 Aug 2026, second session of the day, at commit `5748a51`
+plus the commit that carries this line. Short and single-purpose: the installer
+fix from `5748a51` was **run and verified**. A genuine first install now lays
+down 3,264 files and the installed system answers commands. One new defect was
+found by inspection while doing it — see `sdadmins` below, which is now the
+thing standing between this and a clean-machine install.
 
-**STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **broken SD
-install** on it, left by the bug described in §4:
+**STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
+install** on it, from the fixed installer:
 
 | Thing | State |
 |---|---|
-| `C:\Program Files\SD` | complete and correct, 15 files |
-| `C:\ProgramData\SD\sdsys` | **16 files - not a working database** |
+| `C:\Program Files\SD` | 15 files, correct |
+| `C:\ProgramData\SD\sdsys` | **3,264 files - a working database**, `COUNT VOC` reports 431 |
+| SDSYS password | **not set.** `LOGIN` warns and admits an administrator, which is the correct state for an install nobody has finished |
 | `sdusers` group | exists, with `GITORLI\don` in it |
+| `sdadmins` group | exists, **created by hand on 13 Aug, not by the installer** — see below |
 | System PATH and the Settings > Apps entry | both present |
-| `C:\ProgramData\SD` ACL | locked to sdusers/Administrators/SYSTEM, so an unelevated session cannot read it until `don` signs out and back in |
+| `C:\ProgramData\SD` ACL | locked to sdusers/Administrators/SYSTEM. An unelevated session **cannot read inside it** until `don` signs out and back in; `Test-Path` on the directory itself still says True, so look at the contents |
 | MSYS2 dev tree at `/usr/local/sdsys` | untouched, still works, reached with `SD_CONFIG=/etc/sd.conf` |
 
-**Clean it off before testing anything.** Elevated: run
-`C:\Program Files\SD\unins000.exe /VERYSILENT`, delete `C:\ProgramData\SD`,
-then remove the `sdusers` group. A script that cleans, reinstalls with the
-fixed installer and verifies in one elevated pass is at
-`C:\Users\dmont\sdfinal.ps1` - written, never run, the session ended first.
+Nothing needs cleaning off before the next piece of work. To start over anyway,
+elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
+`C:\Program Files\SD` and `C:\ProgramData\SD`, then `Remove-LocalGroup sdusers`
+— but leave `sdadmins` alone, for the reason in §8.
 
-The staged tree is at `C:\Users\dmont\stagetest` and the built installer at
-`C:\Users\dmont\sdout\sd-setup-1.0-2.exe`. **That installer already contains
-the fix**, having been rebuilt after the bug was found. Neither survives a
-rebuild of the machine; both are reproduced by the commands at the top of
-`gplbld/sd.iss`.
+The staged tree is at `C:\Users\dmont\stagetest` and the installer at
+`C:\Users\dmont\sdout\sd-setup-1.0-2.exe`, **rebuilt from the tracked `sd.iss`
+in this session** so it provably matches the committed source. Neither survives
+a rebuild of the machine; both are reproduced by the commands at the top of
+`gplbld/sd.iss`. Evidence from the run is in `C:\Users\dmont\`:
+`sdverify-transcript.txt` (the counts) and `sdfirstinstall.innolog` (16,507
+lines, against 145 for the broken run).
 
-**Where to start tomorrow.**
+**Where to start next.**
 
-1. **Re-run the first install with the fixed installer, and count the files.**
-   This is the one thing that matters, and it is half done: the bug is found,
-   the fix is committed, the installer is rebuilt, and **the fixed version has
-   never been run**. Clean the machine first - see the state block at the top
-   of this file. What to check afterwards, because "Setup exited 0" is exactly
-   what the broken version did too:
+1. **Settle `sdadmins`, because the installer cannot ship without it.** Found
+   14 Aug 2026 by inspection, **not by observation**, and it is the same shape
+   as the bug just fixed: invisible here because of state left over from
+   earlier work.
 
-   - `C:\ProgramData\SD\sdsys` should hold roughly **3,000 files**, not 16.
-   - `sdsys\gcat` and `sdsys\GPL.BP.OUT` must both be **populated**.
-   - Then `sd -start`, `COUNT VOC` reporting **431 records**, `sd -stop`.
+   `IsAdmin()` (`gplsrc/linuxlb.c` line 75) is `getgrnam(SD_ADMIN_GROUP)` and
+   returns FALSE if the group is absent — failing closed, deliberately.
+   `SD_ADMIN_GROUP` is `"sdadmins"` (`gplsrc/sddefs.h` line 131). `sd.c` line
+   613 refuses `sd -start` with "Command requires administrator privileges"
+   when it is false. **`gplbld/sd.iss` creates `sdusers` and never
+   `sdadmins`** — nothing in `gplbld/` mentions it. So on a machine that has
+   never had SD development on it, nobody is an SD administrator and
+   **`sd -start` refuses**; the postinstall `SET.PASSWORD SDSYS` step fails the
+   same way. Everything worked here only because `sdadmins` was created by hand
+   on 13 Aug and this token carries it.
 
-   Count the files. Do not trust the exit code.
+   **This was deliberately not fixed, because the two-line fix would settle an
+   open question by accident.** §8's "what happens to `IsAdmin()` and
+   `sdadmins`?" asks whether `sd -start` keeps an OS-level check at all and, if
+   so, whether the group should be `sdadmins` or Windows `Administrators`. That
+   question now blocks something concrete, which it did not before. **Decision
+   needed from the repository owner** — it is the first item in §8.
 
-2. **Install on a genuinely clean machine.** The installer has been run here and works
-   (§4), but this machine had a development tree *and* an existing data tree,
-   so what was exercised was the **upgrade** path. A genuine first install —
-   where the installer lays down `sdsys` itself — has not happened, and it is
-   the one that finds anything depended on by accident. Also still untested:
-   `SET.PASSWORD` typed at a real Windows console (§4).
+2. **Install on a genuinely clean machine.** Still the test that matters, and
+   still not done: this machine has a development tree, so an accidental
+   dependency could survive. What changed is that it is now worth doing — the
+   first-install path works here, so a clean-machine failure would be a real
+   finding rather than a known one. Expect it to fail at `sd -start` until
+   step 1 is settled, and **count the files again** rather than trusting
+   Setup's exit code.
 
-   The script was written against all of §5.16's blockers being
-   cleared — the shell, the pre-bootstrap, the staging gap and the
-   configuration file — and a staged tree has been installed and run with
-   nothing set in the environment (§4). What is left is the `.iss` itself, the
-   `icacls` step that actually makes the data private (§5.7), and prompting
-   for the SDSYS password **last**. Both open installer questions were
-   settled on 14 Aug 2026 and are written into §5.9: an **opt-in, off by
-   default** OpenSSH Server checkbox, withheld and explained if ssh is
-   already present; and an uninstaller that **leaves accounts, database and
-   `sd.conf` alone** unless separately opted in to. `sd.conf` needs the
-   `uninsneveruninstall` and `onlyifdoesntexist` flags, or the default
-   behaviour deletes it.
+   Also still untested: `SET.PASSWORD` typed at a real Windows console (§4),
+   which is the postinstall step and the one question that needs a person at a
+   keyboard.
 
-   **Install onto a machine with no development tree** is still the test that
-   matters and has still not been done: this machine has one, so an accidental
-   dependency could survive. `C:\Program Files\SD\` has also never been
-   used, because creating it needs elevation — Inno has that, this session did
-   not.
-2. **Run the account commands once.** They compile and have never executed
-   (§4). Needs an elevated session and an `sdusers` group, neither of which
-   exists here yet. Until then this is code nobody has seen work.
-3. **§7 step 1, the layout move** — `SDSYS` to `C:\ProgramData\SD\` and the
-   binaries to `C:\Program Files\SD\usr\bin\`. Unblocked, and `VALID_OS_PATH`
-   no longer stands in the way. Binaries go in `usr\bin`, not `SD\` — the
-   MSYS2 POSIX-root trap in §6 explains why, and it is not optional.
-4. **Waiting on the repository owner:** how the API should be exposed (§8);
-   whether the staged tree should be pre-bootstrapped (§7 step 3a); and
-   whether the `sdusers` login gate comes back, which the owner wants "if it
-   is possible" and now is — but which pulls against §5.6 (see the correction
-   there before acting on it).
+3. **Run the account commands once.** They compile and have never executed
+   (§4). Needs an elevated session; the `sdusers` group now exists, so that
+   half of the blocker is gone. Until then this is code nobody has seen work.
+
+4. **Waiting on the repository owner:** `sdadmins` above; how the API should be
+   exposed (§8); and whether the `sdusers` login gate comes back, which the
+   owner wants "if it is possible" and now is — but which pulls against §5.6
+   (see the correction there before acting on it).
+
+5. **This file is overdue a rollover** (§0 rule 5): ~2,790 lines against a
+   ~2,000 limit. Superseded installer material was compressed on 14 Aug 2026,
+   which is not enough. The candidates, in order of how much they would shed
+   and how little would be lost: §4's older entries on the staged tree and the
+   probe builds, most of which are now covered by the installer working
+   end to end; §3's "This machine as the session ended (13 Aug 2026)", which
+   describes a development tree that is no longer how the system is reached;
+   and §5.6, which is the longest section in the file and largely settled. Move
+   them to HISTORY.md, newest first. Not done here because it is a
+   restructuring job rather than a trim, and it should not be bolted onto a
+   session that was testing something else.
 
 **Read first if anything to do with compilation misbehaves:** the `ERRGEN` trap
 in §6. An undefined `$define` in SD is a *warning* at compile time and an abort
@@ -365,8 +373,11 @@ SD administrator. `/tmp` does not survive a rebuild; the recipe in §6 does.
 
 **Note the default configuration moved on 14 Aug 2026.** With nothing set,
 SD now reads `C:\ProgramData\SD\sd.conf` and therefore the installed tree at
-`C:\ProgramData\SD\sdsys`, which has **no SDSYS password and no ACLs**. The
-development tree below is reachable only by setting `SD_CONFIG=/etc/sd.conf`.
+`C:\ProgramData\SD\sdsys`. That tree has **no SDSYS password**, so `LOGIN`
+warns and admits an administrator; it **does** have the ACLs, applied by the
+installer, so an unelevated session that has not signed out since being added
+to `sdusers` cannot read it at all (§6). The development tree below is reachable
+only by setting `SD_CONFIG=/etc/sd.conf`.
 
 `echo hunter2 | sd -internal COUNT VOC` should report 432 records and
 `echo hunter2 | sd -ASDSYS WHO` should report `SDSYS`. **Both need the password
@@ -627,49 +638,74 @@ Keep this split honest. It is the single most useful thing in the file.
   binaries were run from the staging directory, which exercises the same POSIX
   root rule but not the final location.
 
-- **CORRECTED 14 Aug 2026, READ THIS BEFORE TRUSTING THE ENTRY BELOW.** What
-  was verified is the **upgrade** path only. A genuine first install was then
-  tried and **produced a broken database**: `Check: DataTreeAbsent` is
-  evaluated *per file*, so the first file created `C:\ProgramData\SD\sdsys`,
-  every later evaluation answered False, and the remaining ~3,260 files were
-  silently skipped. 16 files installed, no `gcat`, no `GPL.BP.OUT` — and Setup
-  still exited 0. The upgrade path hid it, because it skips the whole set
-  consistently and looks identical either way.
+- **A GENUINE FIRST INSTALL WORKS, AND THE FILES WERE COUNTED.** Observed
+  14 Aug 2026, second session, and this closes the correction below. The
+  machine was cleaned first — uninstall, both trees deleted, `sdusers` removed
+  — and the installer **rebuilt from the tracked `gplbld/sd.iss`** rather than
+  taken on trust, so the `.exe` under test provably matches the committed fix.
 
-  **A fix is committed and has NOT been run.** `InitializeSetup` now caches the
-  answer once, before any file is copied. See §7 step 1.
+  | Measure | Broken | Now | Staged source |
+  |---|---|---|---|
+  | files under `C:\ProgramData\SD\sdsys` | 16 | **3,264** | 3,264 |
+  | directories under it | — | 44 | 44 |
+  | `gcat` entries | 0 | 129 | 129 |
+  | `GPL.BP.OUT` entries | 0 | 11 | 11 |
+  | `Installing the file` lines in the Inno log | 15 | 3,279 | — |
+  | Inno log length | 145 lines | 16,507 lines | — |
 
-- **The installer runs, and the installed system works — ON THE UPGRADE PATH.**
-  `sd-setup-1.0-2.exe`
-  built from `gplbld/sd.iss` was run on this machine on 14 Aug 2026, elevated
-  and `/VERYSILENT`, exit code 0. Everything it is supposed to do, it did:
+  A `Compare-Object` of every staged path against every installed path reported
+  **no differences in either direction** — nothing skipped, nothing extra.
 
-  - 15 files into `C:\Program Files\SD\`, the executables and all four MSYS2
-    DLLs in `usr\bin`, `etc\fstab` beside them.
-  - The `sdusers` local group created and `GITORLI\don` added to it.
-  - **The data tree is no longer world readable.** `icacls` left exactly
-    `sdusers:(OI)(CI)(M)`, `BUILTIN\Administrators:(OI)(CI)(F)` and
-    `NT AUTHORITY\SYSTEM:(OI)(CI)(F)`. The inherited
-    `BUILTIN\Users:(I)(OI)(CI)(RX)` that made it readable by anyone is gone.
-    This is §5.7's goal, achieved for the first time.
-  - `C:\Program Files\SD\usr\bin` added to the machine PATH.
-  - An entry under the `Uninstall` key, so SD appears in Settings > Apps
-    pointing at `C:\Program Files\SD\unins000.exe`.
-  - **The upgrade path behaved.** `sd.conf` was logged "Skipping due to
-    onlyifdoesntexist flag", and the `sdsys` tree does not appear in the
-    install log at all — `Check: DataTreeAbsent` skipped it, and the existing
-    database was left untouched.
+  **And the installed system runs**, observed twice in two separate elevated
+  passes: `sd -start` from `C:\Program Files\SD\usr\bin\sd.exe`, `COUNT VOC`
+  reporting **431 records**, `LIST ACCOUNTS` reporting `Pathname:
+  C:\ProgramData\SD\sdsys`, `WHO` reporting `3 SDSYS`, `sd -stop`. Each was
+  preceded by `Warning: account SDSYS has no password set`, which is correct
+  for an install nobody has finished — and is §5.9's password-ordering
+  decision working as intended.
 
-  **And SD then ran from `C:\Program Files\SD\usr\bin`**, which had never been
-  used before: `sd -start`, `COUNT VOC` reporting **431 records**,
-  `LIST ACCOUNTS` reporting `Pathname: C:\ProgramData\SD\sdsys`, and
-  `sd -stop`. So the `usr\bin` POSIX-root rule and the `etc\fstab` mapping
-  both hold at the real install location, not only in a staging directory.
+  Everything else the installer is responsible for, confirmed on the same run:
+  `sdusers` created with `GITORLI\don` in it; `user_accounts`, `group_accounts`
+  and `shm` created; exactly one `C:\Program Files\SD\usr\bin` entry on the
+  system PATH; 15 files in `C:\Program Files\SD`; no `gplbld` anywhere in the
+  data tree; and `sd.conf` present.
 
-  Two things this still does not prove: the machine has a development tree, so
-  an accidental dependency on it could survive; and this was an *upgrade* over
-  a data tree that was already there, so a genuine first install — where the
-  installer lays down `sdsys` itself — has not been exercised.
+- **The ACLs are right, and this time that was checked from the outside.** The
+  data tree carries exactly `GITORLI\sdusers:(OI)(CI)(M)`,
+  `BUILTIN\Administrators:(OI)(CI)(F)` and `NT AUTHORITY\SYSTEM:(OI)(CI)(F)`,
+  with no `BUILTIN\Users`. New on 14 Aug 2026: an ordinary **unelevated**
+  session, whose token does not yet carry `sdusers`, was refused on every path
+  inside `C:\ProgramData\SD` — so the lockout is real and not just a listing.
+  **`Test-Path` on the directory itself still answers True**, because listing
+  the parent is permitted; only the contents are denied. Check inside, or you
+  will conclude the ACL never applied.
+
+- **CORRECTED 14 Aug 2026, and now fixed and verified — kept because the
+  diagnosis is the lesson.** An earlier claim that the installer worked was
+  true of the **upgrade** path only. A genuine first install
+  **produced a broken database**: `Check: DataTreeAbsent` is evaluated *per
+  file*, so the first file created `C:\ProgramData\SD\sdsys`, every later
+  evaluation answered False, and the remaining ~3,260 files were silently
+  skipped. 16 files installed, no `gcat`, no `GPL.BP.OUT` — and Setup still
+  exited 0. The upgrade path hid it, because it skips the whole set
+  consistently and looks identical either way. `InitializeSetup` now caches the
+  answer once, before any file is copied; the entry above is that fix running.
+  **The lesson stands whatever the installer does next: an install test that
+  does not COUNT what was installed proves very little.**
+
+- **The upgrade path works too, and it is a different path.** Observed 14 Aug
+  2026, before the first-install run above; trimmed here to what that run does
+  not already cover. Over an existing data tree, elevated and `/VERYSILENT`:
+  `sd.conf` was logged "Skipping due to onlyifdoesntexist flag", the `sdsys`
+  tree **does not appear in the install log at all** — `DataTreeAbsent`
+  correctly skipping it — and the existing database was left untouched. Also
+  confirmed on that run and not repeated since: all four MSYS2 DLLs land in
+  `usr\bin` with `etc\fstab` beside them, and an entry appears under the
+  `Uninstall` key so SD shows in Settings > Apps pointing at
+  `C:\Program Files\SD\unins000.exe`. SD ran from `C:\Program Files\SD\usr\bin`
+  for the first time there, so the `usr\bin` POSIX-root rule and the `etc\fstab`
+  mapping hold at the real install location and not only in a staging
+  directory.
 
 - **An installed system finds its configuration with nothing set in the
   environment.** Observed 14 Aug 2026 with `SD_CONFIG` and `SCARLET_CONFIG`
@@ -730,11 +766,32 @@ Keep this split honest. It is the single most useful thing in the file.
 - **`CREATE.ACCOUNT` on Windows.** JANE and SUE were built by a scratch program
   (§3) precisely because `CREATEA` shells out to `sudo usermod` and `groupadd`.
   The verb itself has never been run here.
-- **The installer, and this is the least tested part of the system.** Nothing
-  has ever been installed from a staged tree, and `installsdai.sh` is entirely
-  Linux and is not being ported (§5.9). Until an install is done on a machine
-  with no development tree, what SD depends on by accident is unknown — which
-  is precisely how `gplsrc` stayed in the data tree.
+- **The installer on a machine with no development tree.** The first-install
+  path itself is now verified here (§4 above), so this is no longer "the least
+  tested part of the system" — but the accidental-dependency question is
+  untouched, and it is precisely how `gplsrc` stayed in the data tree.
+  `installsdai.sh` is entirely Linux and is not being ported (§5.9).
+
+  **There is now a specific prediction to test:** a clean machine has no
+  `sdadmins` group, so `IsAdmin()` fails closed and `sd -start` should refuse
+  with "Command requires administrator privileges". See §8, first item. That is
+  deduced from `linuxlb.c` line 75, `sddefs.h` line 131 and `sd.c` line 613
+  plus the `IsAdmin()` observation already recorded above — **it has not been
+  observed**, because this machine's token carries `sdadmins`.
+
+- **Whether `sdlnxd` stays running after `sd -start` on an installed system.**
+  `Get-Process sdlnxd` reported nothing immediately after `sd -start` in both
+  passes on 14 Aug 2026, while `COUNT VOC` then worked and reported 431
+  records. §4 records from 13 Aug 2026 that `sd -start` "spawned `sdlnxd`,
+  which stayed running". The server is plainly fine — the shared segment is
+  created and answers — so this is about the daemon's lifetime, not the
+  server's, and it was not investigated. Stated as an observation, not a
+  conclusion. It matters when the API is picked up (§7 step 6), since that is
+  the daemon's job.
+
+- **Why `errlog` stayed empty** through a full start / command / stop cycle on
+  the freshly installed tree, 14 Aug 2026, where earlier sessions saw
+  "User n (pid, don)" lines written to it. Not chased.
 
 ## 5. Decisions and why
 
@@ -1719,6 +1776,15 @@ Each of these cost real time. Read before debugging anything similar.
   `(* ... *)` form, and do not write `(*` or `*)` inside that either, which
   ends it the same way. Cost two compile failures on 14 Aug 2026.
 
+- **`Test-Path` says True for a directory you cannot read, so it is no test of
+  an ACL.** `Test-Path C:\ProgramData\SD` answers True from a session that is
+  refused on every path inside it, because listing the *parent* is what that
+  question actually asks. On 14 Aug 2026 this briefly read as "the installer's
+  `icacls` step did not apply" — it had applied perfectly. **Check the contents:**
+  `Get-ChildItem` on the tree, or `icacls` on it, both of which fail honestly
+  with "Access is denied". The same caution applies to any scripted check of
+  §5.7's work.
+
 - **The ACL lockout's symptom is "Error 13 allocating semaphores", which names
   nothing useful.** After the installer sets the ACLs, a session whose token
   does not carry `sdusers` cannot reach `C:\ProgramData\SD` — and since
@@ -2326,13 +2392,17 @@ the identity model.
       the run above proves the binaries load, not that an install works. It is
       what finds anything depended on by accident, which is how `gplsrc`
       survived in the data tree for as long as it did.
-   c. **The Inno Setup script**, `.iss` tracked in this repository, packaging
-      that directory. The compiler is installed on this machine. The `icacls`
-      step is the one that actually makes the data private (§5.7); nothing at
-      runtime substitutes for it.
-   d. **Decide what the uninstaller does with `C:\ProgramData\SD\`** before
-      shipping one. It holds the user's database. Read `deletesdai.sh` for the
-      current answer rather than porting it.
+   c. **The Inno Setup script — written, and verified on a first install**
+      (14 Aug 2026, §4). `gplbld/sd.iss` is tracked here; the compiler is on
+      this machine at `C:\Program Files (x86)\Inno Setup 6\ISCC.exe`. The
+      `icacls` step works and is confirmed from an unprivileged session. What
+      is left on the installer itself is **`sdadmins`** — it creates `sdusers`
+      and not the group `IsAdmin()` actually gates on, so a clean machine gets
+      a system that cannot be started. Blocked on §8's first item, deliberately.
+   d. **Settled 14 Aug 2026, §5.9.1.** The uninstaller keeps accounts, the
+      database and `sd.conf`, and offers to remove them with the answer
+      defaulting to no; a silent uninstall never deletes them. Verified for the
+      keep path (§4).
 
    **Set the SDSYS password last**, after the whole bootstrap has run. `LOGIN`
    admits an administrator to an account with no verifier yet, so every
@@ -2655,23 +2725,56 @@ from one. The only remaining copy of the pre-rewrite history is a bundle in a
 session scratchpad, which will not survive the machine — see the HISTORY entry
 if it is wanted.
 
-### Open: what happens to `IsAdmin()` and `sdadmins`?
+### Open, AND NOW BLOCKING: what happens to `IsAdmin()` and `sdadmins`?
 
-§5.6 removes the need for both, but they are committed (`f56de86`, `9c00730`)
-and `IsAdmin()` is still what gates `sd -start` in `sd.c` — a check that runs
-before any account exists or any password can be prompted for. Decide whether
-`sd -start` keeps an OS-level check (Windows `Administrators` membership is the
-obvious candidate, since starting a service is an administrative act), or
-whether starting the server becomes a matter of file permissions on the data
-tree alone. Until that is settled, leave `IsAdmin()` in place; it is doing no
-harm and removing it would leave `sd -start` ungated.
+**Promoted to the top of this section on 14 Aug 2026.** This was a tidy-up
+question with no deadline. It is now the one thing standing between the
+installer and a machine that has never had SD on it, so it needs an answer
+before the installer can ship.
 
-The `sdadmins` local group on this machine becomes unnecessary under §5.6 and
-can be deleted once nothing references it. **Do not delete it yet**: the token
-now carries it, which is what allows the shipped `bin/sd.exe` to run `-start`
-and `-stop` here without the probe build, and removing it would put this
-machine back to needing the probe. It is also, for the moment, the source of
-`K$ADMINISTRATOR` for every session (§5.6).
+**What forces it.** `IsAdmin()` (`gplsrc/linuxlb.c` line 75) is
+`getgrnam(SD_ADMIN_GROUP)` and returns FALSE when the group is absent, failing
+closed by design. `SD_ADMIN_GROUP` is `"sdadmins"` (`gplsrc/sddefs.h` line
+131). `sd.c` line 613 refuses `sd -start` with "Command requires administrator
+privileges" when it is false. **`gplbld/sd.iss` creates `sdusers` — for the
+ACL — and never `sdadmins`.** Nothing in `gplbld/` mentions it. So a clean
+machine gets an install in which nobody is an SD administrator, `sd -start`
+refuses, and the postinstall `SET.PASSWORD SDSYS` step fails identically. It
+works on this machine only because `sdadmins` was created by hand on 13 Aug
+2026 and this account's token carries it — the same "leftover state hides the
+bug" shape as the `DataTreeAbsent` defect (§4).
+
+**The three answers, and none has been taken.** Adding two `net localgroup
+sdadmins` lines to the `.iss` would work, but it decides this question by
+accident, which is why it was not done:
+
+1. **Keep an OS-level check on `sdadmins`**, and have the installer create it
+   and enrol the installing user, exactly as it already does for `sdusers`.
+   Cheapest, and consistent with what the code says today. Note it inherits the
+   sign-out-and-back-in trap in §6, so `sd -start` would not work for the
+   installing user until they log in again — which for the postinstall
+   `SET.PASSWORD` step means it fails on a fresh install every time.
+2. **Gate on Windows `Administrators` instead.** Starting a server is an
+   administrative act, the group always exists, and it needs no installer step
+   at all. It also sidesteps (1)'s re-logon problem, since an elevated token
+   carries it immediately. Against it: §5.6 deliberately separated SD
+   administration from Windows administration.
+3. **Drop the OS check**, and let `sd -start` be gated by file permissions on
+   the data tree alone — which the ACLs now genuinely enforce (§4). Most in
+   keeping with §5.6, and the largest change.
+
+§5.6 removes the *need* for the group as an identity mechanism, but both it and
+`IsAdmin()` are committed (`f56de86`, `9c00730`) and the check runs before any
+account exists or any password can be prompted for, so it cannot simply be
+deleted: that would leave `sd -start` ungated. Until this is settled, leave
+`IsAdmin()` in place.
+
+**Do not delete the `sdadmins` group from this machine** while the question is
+open: the token carries it, which is what allows the shipped `sd.exe` to run
+`-start` and `-stop` here without the probe build of §6, and it is for the
+moment the source of `K$ADMINISTRATOR` for every session (§5.6). Deleting and
+recreating it is worse than leaving it — a recreated group has a new SID, which
+this token would not carry until the next logon.
 
 ### Open: does the console path survive the service model?
 
