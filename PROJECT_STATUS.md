@@ -459,6 +459,16 @@ Keep this split honest. It is the single most useful thing in the file.
   still expands to "File not found", which exercises `!ERRTEXT` and therefore
   the regenerated `ERRTEXT.H`. 207 rather than the 204 recorded earlier
   because the credential programs were added since. Observed 13 Aug 2026.
+- **The staged tree runs with MSYS2 entirely off PATH.** `gplbld/stage.py`
+  built a 3087-file, 16 MB tree; `sd.exe` from
+  `<stage>\ProgramFiles\usr\bin\` then ran with `PATH` cut down to
+  `C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem` — no `msys64`, no
+  Git for Windows — and answered `SD is not active.` cleanly, with no warnings
+  and exit 0. That proves the computed DLL closure is complete (7 MSYS2 DLLs;
+  only `kernel32` and `ntdll` come from Windows) and that the `usr\bin` plus
+  `etc\fstab` arrangement resolves `/dev/shm` correctly. "SD is not active" is
+  the right answer, not a failure: the running server's segment belongs to the
+  `msys64` POSIX root and this process has its own. Observed 13 Aug 2026.
 - **`gplbld/gen_includes.py` reproduces the generators it replaces.** Its
   output matched the tracked files byte for byte on everything that had
   genuinely been generated from the current C headers — all 199 entries of
@@ -912,11 +922,20 @@ Target layout:
 
 | What | Where | Replaces |
 |---|---|---|
-| Binaries, and the MSYS2 DLLs beside them | `C:\Program Files\SD\` | `/usr/local/bin` |
+| Binaries, and the MSYS2 DLLs beside them | `C:\Program Files\SD\usr\bin\` | `/usr/local/bin` |
+| Mount table, mapping `/dev/shm` out to writable space | `C:\Program Files\SD\etc\fstab` | — |
 | Configuration | `C:\ProgramData\SD\sd.conf` | `/etc/sd.conf` |
 | The SDSYS account | `C:\ProgramData\SD\sdsys\` | `/usr/local/sdsys` |
 | User accounts | `C:\ProgramData\SD\user_accounts\` | `/home/sd/user_accounts` |
 | Group accounts | `C:\ProgramData\SD\group_accounts\` | `/home/sd/group_accounts` |
+| POSIX shared memory | `C:\ProgramData\SD\shm\` | `/dev/shm` |
+
+**`usr\bin` is load-bearing, not tidiness** (established 13 Aug 2026). Shipping
+`msys-2.0.dll` beside the executable relocates the POSIX root to the DLL's
+directory minus **two** components, so only that depth puts `/` on
+`C:\Program Files\SD\`. The full rule, the measurements behind it, and the
+`fstab` entry that moves `/dev/shm` back to writable space are in §6 — read it
+before changing where anything goes.
 
 **Three siblings under one root**, not SDSYS with the accounts nested inside
 it. That is what makes §5.7 practical: one `icacls` on `C:\ProgramData\SD\`
@@ -1297,6 +1316,41 @@ Each of these cost real time. Read before debugging anything similar.
   machine. Two protections, both in §5.8's direction: put the DLLs beside
   `sd.exe`, since Windows searches the executable's own directory first, and
   never rely on PATH order.
+- **Shipping `msys-2.0.dll` beside `sd.exe` moves the whole POSIX namespace,
+  and the rule is "strip two path components".** This is the sharp edge of
+  §5.8's decision to put the DLLs next to the executable, and it is not
+  obvious: the runtime derives its POSIX root from the DLL's own location, by
+  removing **two** components from the directory holding it — matching MSYS2's
+  own `<root>\usr\bin`. Measured on 13 Aug 2026 with `cygpath -w /` against a
+  staged tree, after guessing wrong twice:
+
+  | `msys-2.0.dll` at | `/` becomes |
+  |---|---|
+  | `<X>\SD\usr\bin\` | `<X>\SD\` |
+  | `<X>\SD\bin\` | `<X>\` |
+  | `<X>\SD\` | the parent of `<X>` |
+
+  So `/dev/shm`, `/etc/sd.conf` and `/tmp` all move with it. The first symptom
+  is a warning that `/dev/shm` does not exist, followed by every POSIX shared
+  memory call failing — which is the entire IPC layer (§5.1). **Put the
+  binaries in `C:\Program Files\SD\usr\bin\`**, so the root lands on
+  `C:\Program Files\SD\` and everything POSIX stays inside SD's own directory.
+  One level up and the root is `C:\Program Files\` itself, which would mean
+  creating `C:\Program Files\dev`.
+
+  **`/dev/shm` then has to be moved back out**, because `shm_open()` creates
+  files in it so every SD user needs write access, and Program Files is
+  read-only to ordinary users by design. Cygwin reads `<root>\etc\fstab` and a
+  bind entry does it — verified working:
+
+  ```
+  C:/ProgramData/SD/shm /dev/shm ntfs binary 0 0
+  ```
+
+  `gplbld/stage.py` writes that file. Note the same relocation is why
+  `/etc/sd.conf` would resolve inside `C:\Program Files\SD\`, which is another
+  reason to finish unifying the configuration variable (§5.8) rather than lean
+  on the fallback path.
 - **Running `sd.exe` outside the MSYS2 shell needs two directories on PATH**,
   not one: `C:\msys64\usr\bin` for the runtime and `C:\msys64\usr\local\bin`
   for `libsodium-26.dll`, which is there because libsodium is built from source
@@ -1584,16 +1638,27 @@ the identity model.
    `installsdai.sh` port is dropped; these two replace it, and this step
    absorbs what used to be step 9.
 
-   a. **The staging script**, in `gplbld/` beside the other build tools. It
-      assembles a directory holding exactly what an install consists of —
-      `C:\Program Files\SD\` and `C:\ProgramData\SD\` as they should end up —
-      copying only what is on an explicit list. **Compute the MSYS2 DLL
-      closure by walking the imports**; do not hardcode it, because a missing
-      DLL gives exit 53 and no message (§6).
+   a. **The staging script — first cut done**, `gplbld/stage.py`. It builds
+      both install roots from an explicit whitelist, computes the MSYS2 DLL
+      closure with `objdump -p` walked transitively, writes `sd.conf` and
+      `etc\fstab`, and emits `MANIFEST.txt` so two builds can be diffed. The
+      staged `sd.exe` runs with MSYS2 off PATH (§4). What it left open:
+
+      - **The embedded Python standard library is not staged.**
+        `msys-python3.12.dll` is in the closure, so `sd.exe` loads, but
+        `usr/lib/python3.12` is 195 MB and the `PY_*` family will fail
+        without it. Decide: ship it, ship a trimmed subset, or make
+        `EMBED_PYTHON` optional at build time.
+      - **`sdsys/BP` ships and holds test programs** (`PY_TEST`, `sdTests`,
+        `BIGSTR_TEST` and the like). Harmless, and the Linux install did the
+        same, but decide whether an end user should get them.
+      - **Nothing sets the ACLs yet**, and that is the step that makes the
+        data private (§5.7). It belongs in the installer, not the staging.
    b. **Install from the staged tree onto a machine with no development
-      tree.** This is the point of the exercise: it is what finds anything
-      that is depended on by accident, which is how `gplsrc` survived in the
-      data tree for as long as it did.
+      tree.** This is the point of the exercise and it has **not** been done:
+      the run above proves the binaries load, not that an install works. It is
+      what finds anything depended on by accident, which is how `gplsrc`
+      survived in the data tree for as long as it did.
    c. **The Inno Setup script**, `.iss` tracked in this repository, packaging
       that directory. The compiler is installed on this machine. The `icacls`
       step is the one that actually makes the data private (§5.7); nothing at

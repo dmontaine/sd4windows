@@ -27,6 +27,81 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Staging script written, and it immediately found an install blocker
+
+First cut of `gplbld/stage.py`, §7 step 3a. It assembles both install roots
+from an explicit whitelist, computes the MSYS2 DLL closure, writes `sd.conf`
+and `etc\fstab`, and emits a `MANIFEST.txt` outside both roots so two builds
+can be diffed. 3087 files, 16 MB.
+
+### The whitelist justified itself on the first run
+
+Within minutes of the first staged tree existing, running `sd.exe` from it with
+MSYS2 off PATH surfaced something that no amount of reading would have found:
+
+> Warning: '/dev/shm' does not exists or is not a directory.
+
+**Shipping `msys-2.0.dll` beside the executable relocates the entire POSIX
+namespace.** The runtime derives its root from the DLL's own directory by
+stripping **two** path components — matching MSYS2's `<root>\usr\bin`. This was
+guessed wrong twice (parent-of-DLL-directory, then DLL-directory) before being
+measured directly with `cygpath -w /` against the staged tree:
+
+| `msys-2.0.dll` at | `/` becomes |
+|---|---|
+| `<X>\SD\usr\bin\` | `<X>\SD\` |
+| `<X>\SD\bin\` | `<X>\` |
+| `<X>\SD\` | the parent of `<X>` |
+
+So `/dev/shm`, `/etc/sd.conf` and `/tmp` all move with the DLL. §5.8 said
+"binaries and the MSYS2 DLLs beside them in `C:\Program Files\SD\`", which
+would have put the POSIX root at `C:\Program Files\` and required creating
+`C:\Program Files\dev`. The layout table now says `C:\Program Files\SD\usr\bin`
+and the reason is recorded in §6, because it looks like gratuitous Unix-ism
+and will otherwise get "tidied up" by a future session.
+
+**Second problem, following from the first.** `/dev/shm` cannot live under
+Program Files at all: `shm_open()` creates files in it, so every SD user needs
+write access, and Program Files is read-only to ordinary users by design.
+Cygwin reads `<root>\etc\fstab`, and a bind entry moves it — verified working:
+
+```
+C:/ProgramData/SD/shm /dev/shm ntfs binary 0 0
+```
+
+With that in place the staged `sd.exe` ran on a `PATH` of
+`C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem` — no `msys64`, no Git
+for Windows — and answered `SD is not active.` with no warnings and exit 0.
+That is the correct answer, not a failure: the running server's shared segment
+belongs to the `msys64` POSIX root and the staged process has its own, which is
+the §6 PATH trap behaving exactly as documented.
+
+### What the closure turned out to be
+
+Seven MSYS2 DLLs for the server — `msys-2.0`, `msys-crypt-2`,
+`msys-python3.12`, `msys-intl-8`, `msys-iconv-2`, `msys-gcc_s-seh-1`, and
+`libsodium-26` from `/usr/local/bin` because it is built from source. Only
+`kernel32` and `ntdll` come from Windows. Three of the seven are reachable only
+transitively, so direct imports would not have been enough — `objdump -p`
+walked recursively, rather than `ldd`, so the answer does not depend on the
+loader's search order and would be the same on a machine that could not run the
+binary.
+
+`sdclilib.dll` needs **nothing** but Windows system DLLs, which confirms §5.3's
+claim about the two toolchains by measurement rather than by assertion.
+
+### Left open
+
+- **The embedded Python standard library is not staged.**
+  `msys-python3.12.dll` is in the closure so `sd.exe` loads, but
+  `usr/lib/python3.12` is 195 MB and the `PY_*` family will fail without it.
+  Ship it, ship a subset, or make `EMBED_PYTHON` optional — undecided, and the
+  script prints a warning saying so rather than quietly omitting it.
+- `sdsys/BP` ships and contains test programs. The Linux install did the same.
+- Nothing sets ACLs yet; that is installer work, not staging.
+- **No install has been done from the staged tree.** The run above proves the
+  binaries load, not that an install works. Step 3b is still ahead.
+
 ## 13 Aug 2026 — Installer: the shell script port is dropped
 
 Decision from the repository owner on 13 Aug 2026, **reversing** the revision
