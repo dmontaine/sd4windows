@@ -27,6 +27,49 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - sd -stop says it stopped the daemon when it did not
+
+Fourth session of 14 Aug 2026, found while clearing up after the hang recorded
+below. Not caused by that hang — the hang only put the machine in the state
+that exposes it.
+
+`sdwind` had been started by an **elevated** script. `sd -stop` run from an
+ordinary session printed `SD (64 Bit) has been shut down`, unlinked the shared
+segment and all six semaphores — `C:\ProgramData\SD\shm` was empty afterwards
+— and left the daemon running. It was still there, idle, minutes later.
+`Stop-Process` on it from the same ordinary session was refused with
+`Access is denied`.
+
+That refusal is the mechanism. `sysseg.c` line 503 is
+
+```c
+if (sysseg->sdwind_pid > 0)
+  kill(sysseg->sdwind_pid, SIGTERM);
+```
+
+An unelevated process signalling an elevated one gets `EPERM`. The return value
+is discarded, and the liveness poll immediately below it walks the **user
+table** only — it has never waited for `sdwind` — so nothing notices and the
+success message is printed unconditionally.
+
+**§4's verification of `sd -stop` is not invalidated.** That test started and
+stopped SD at the same elevation, which is the case that works, and it remains
+true. What is new is the case where the two differ, which nobody had tried:
+elevation is not something the daemon or the stop path has ever had to think
+about, and until `CREATE.ACCOUNT` needed an elevated window there was no reason
+for a start and a stop to straddle one.
+
+**The consequence to watch is not the orphan itself.** It is that the orphan
+holds a mapping of an unlinked segment and keeps running `check_lost_users()`
+against it, while the next `sd -start` creates a fresh segment — so the machine
+runs two daemons, one of them operating on memory nothing else can see.
+
+The fix is small and is not written: check the return, report `EPERM` in
+words, do not make it fatal because the segment teardown that follows is still
+correct. PROJECT_STATUS.md §7 step 1d, and §6 carries the trap.
+
+---
+
 ## Correction: 14 Aug 2026 - "redirect to a file" does not defeat the sdwind handle trap
 
 Fourth session of 14 Aug 2026. The repository owner ran

@@ -171,6 +171,23 @@ lines, against 145 for the broken run).
       confirmed. `sdsshonly` was deliberately left, because it is what the
       installer creates and `CREATE.ACCOUNT` needs it.
 
+   d. **Make `sd -stop` tell the truth about `sdwind`** — found 14 Aug 2026,
+      fourth session, the trap is in §6 and this is the fix for it.
+      `sysseg.c` line 503 discards `kill()`'s return value, so an unelevated
+      `sd -stop` against a daemon an elevated session started gets `EPERM`,
+      leaves it running, and prints "SD (64 Bit) has been shut down" anyway.
+      The liveness poll underneath walks the user table only and never waits
+      for the daemon.
+
+      Small and self-contained: check the return, and if it is `EPERM` say so
+      — "sdwind (pid n) could not be stopped: it was started by a more
+      privileged session" is the whole of what the user needs. Do **not** make
+      it fatal; the segment teardown that follows is still correct and still
+      wanted.
+
+      It needs `make sd` and a re-run of the start/stop cycle at both
+      elevations, so it is a build session rather than a documentation one.
+
    c. **`AllowGroups` is written — done 14 Aug 2026, fourth session** — and is
       §7 step 0a above until somebody has watched it work. What exists:
       `gplbld/allow-ssh-groups.ps1`, an `installssh\allowgroups` subtask in
@@ -3080,6 +3097,51 @@ Each of these cost real time. Read before debugging anything similar.
   while SD is in fact perfectly up** — `Get-Process sd` shows nothing,
   `Get-Process sdwind` shows the daemon, and nothing has been created. It is
   safe to interrupt.
+
+  **And interrupting it leaves the daemon holding the script's own scratch
+  files.** `sdwind` inherited the redirected handles, so
+  `%TEMP%\sd-createaccount-probe\native.err` and `native.out` cannot be deleted
+  or rewritten while it lives. The next run then fails at its own setup with
+  "The process cannot access the file 'native.err' because it is being used by
+  another process", which points at the wrong thing entirely. Observed
+  14 Aug 2026. Kill the daemon, then re-run.
+
+- **`sd -stop` REPORTS SUCCESS WHILE LEAVING `sdwind` RUNNING, when the
+  stopping session is less elevated than the starting one.** Observed
+  14 Aug 2026, fourth session, and it invalidates nothing in §4 — the earlier
+  verification started and stopped SD at the same elevation, which is the case
+  that works.
+
+  What was seen: `sdwind` had been started by an **elevated** script.
+  `sd -stop` from an ordinary session printed `SD (64 Bit) has been shut down`,
+  the shared segment and all six semaphores were unlinked — `C:\ProgramData\SD\shm`
+  was empty afterwards — and **the daemon was still running**, idle, minutes
+  later. `Stop-Process` on it from the same ordinary session was refused with
+  `Access is denied`, which is the same permission boundary `kill()` runs into.
+
+  **`sysseg.c` line 503 does not check the result:**
+
+  ```c
+  if (sysseg->sdwind_pid > 0)
+    kill(sysseg->sdwind_pid, SIGTERM);
+  ```
+
+  An unelevated process signalling an elevated one gets `EPERM`, the return
+  value is discarded, and the liveness poll below it walks the **user table**
+  only — it never waits for `sdwind` — so nothing anywhere notices. The
+  shutdown message is printed unconditionally.
+
+  **What to do now:** kill it by Windows pid from an elevated window,
+  `Stop-Process -Id <pid> -Force`. `sd -stop` will not help a second time,
+  because the segment it reads `sdwind_pid` from has already gone.
+
+  **What to watch for:** an orphaned `sdwind` holds a mapping of an unlinked
+  segment and will keep running `check_lost_users()` against it. Starting SD
+  again creates a *fresh* segment, so the machine ends up with two daemons and
+  one of them is working on memory nothing else can see. Check
+  `Get-Process sdwind` after any `sd -stop` that spanned an elevation boundary.
+
+  **The fix is in `sysseg.c` and is not written** — see §7 step 1d.
 - **A yes/no prompt with no input left spins forever, at full CPU.**
   `CATALOG BP X GLOBAL` asks "Program is also in private catalogue. Remove?".
   Fed from a pipe that has run dry, the read returns end of file, the prompt
