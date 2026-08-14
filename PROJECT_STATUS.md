@@ -178,17 +178,27 @@ run).
    Cleanup worked and **the machine is clean** — no `sdacct1`, no `sdu_sdacct1`,
    `sdsshonly` empty, no account directory, no `C:\Users\sdacct1`.
 
-   **One thing is NOT explained and must not be assumed away.** The transcript
-   shows `SET_PASSWD`'s first prompt reading an empty line and the second
-   reading the password, then `Retry (Y/N)?`. But a session earlier the same
-   day set passwords through a pipe successfully (§4, `sdtest1`/`sdtest2`), and
-   `SET_PASSWD` has not changed since 05:51 — so the two runs disagree and the
-   difference is unidentified. The echo is also demonstrably unreliable in that
-   transcript: it rendered the command as `CREATE.ACCOUSER sdacct1`, four
-   characters short, on a line that executed correctly. **Deducing what SD
-   consumed from that echo is exactly the mistake this file has recorded twice
-   already.** Re-run against a current build first; if the password still
-   fails, it is real and then it is worth chasing.
+   **SECOND RUN, AGAINST THE REBUILT INSTALL: THE SSH-ONLY BRANCH EXECUTED FOR
+   THE FIRST TIME.** 9 of 13 structural checks passed, including every one that
+   step 0 existed to answer — `sdacct1 may sign in over ssh only` was printed
+   from message 10034, and membership of `sdusers`, `sdu_sdacct1` and
+   `sdsshonly` was confirmed, with `Administrators` correctly absent. The
+   account directory, `VOC`, `$HOLD`, `BP`, the private catalogue and the
+   `ACCOUNTS` record were all made. **`CREATEA` line 400 has now run.**
+
+   Of the four remaining failures, **two were the test's own fault** and are
+   fixed: it asserted `$SAVEDLISTS` where `CREATEA` creates `$SVLISTS` (the
+   message carries the VOC name, the directory carries the DH file name), and
+   the file count expected 16 program files where a real install has 18 —
+   `unins000.exe` and `unins000.dat` are the installer's, not the stage's.
+
+   **The other two are one cause, now measured**: the PowerShell pipeline's
+   CRLF phantom line, first trap in §6. `SET_PASSWD`'s first `input` ate a
+   phantom, so the password was never set, so the account stayed disabled and
+   all three logon measurements failed for want of a password. `Invoke-SD` now
+   sends one string with LF separators. **This was the thing the previous entry
+   declined to conclude from a lossy echo; it was then established by
+   experiment rather than by reading the transcript harder.**
 
    **So step 0 has a prerequisite, and the unelevated half of it is DONE.**
    `make sd` and `stage.py --force --bootstrap` were re-run at 16:15 and the
@@ -211,9 +221,21 @@ run).
    Leave `sdusers`, `sdadmins` and `sdsshonly` alone; the installer recreates
    the two it owns, and §8 explains `sdadmins`.
 
-   **Then sign out and back in before running step 0**, or the new `sdusers`
-   membership is not in the token and nothing can read the data tree (§6).
-   Then run `verify-createaccount.ps1` again.
+   **DONE 14 Aug 2026, fourth session.** The install was refreshed and is
+   current: 18 files in `C:\Program Files\SD`, 3,268 under `sdsys`,
+   `MESSAGES/10034` present. No sign-out was needed, because `sdusers` was left
+   alone and the token already carried it.
+
+   **What remains is to run the test once more**, with the CRLF fix in place
+   and **a fresh account name**, because the previous run left the SD side of
+   `sdacct1` behind deliberately and `CREATE.ACCOUNT` will refuse the name:
+
+   ```powershell
+   powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct2
+   ```
+
+   The script now checks for that leftover up front and says this, rather than
+   letting SD refuse the name after it has already made a Windows account.
 
 0a. **THEN APPLY `AllowGroups` ONCE, IN THE SAME ELEVATED WINDOW**, and keep
    that window open while you do it. Written 14 Aug 2026 and never pointed at
@@ -3191,6 +3213,46 @@ Each of these cost real time. Read before debugging anything similar.
   "The process cannot access the file 'native.err' because it is being used by
   another process", which points at the wrong thing entirely. Observed
   14 Aug 2026. Kill the daemon, then re-run.
+
+- **A POWERSHELL PIPELINE PUTS A PHANTOM EMPTY LINE AFTER EVERY COMMAND, AND
+  AN `input` STATEMENT EATS IT.** PowerShell writes **CRLF** between pipeline
+  objects and SD treats CR and LF **each** as a line terminator, so
+  `@('A','B') | sd.exe` arrives as `A`, empty, `B`, empty.
+
+  At the TCL prompt this is invisible — an empty command just reprints `:` —
+  which is why it went unnoticed for as long as scripts only sent commands.
+  **At an `input` statement it is fatal**, and it silently destroyed
+  `verify-createaccount.ps1` on 14 Aug 2026:
+
+  | `SET_PASSWD` | reads | gets |
+  |---|---|---|
+  | `input pw1 HIDDEN` | the phantom after the `CREATE.ACCOUNT` line | **empty** |
+  | `input pw2 HIDDEN` | the real password | the password |
+  | `input yn` | the next phantom | **empty**, so not `Y`, so no retry |
+
+  `pw1 # pw2`, so the password was never set; the account stayed **disabled**,
+  because `SET_PASSWD` runs `Enable-LocalUser` inside the same script; and all
+  three logon measurements then failed for want of a password. The whole
+  visible trace was a stray `Command not found` on **stderr** — the second
+  password falling through to the TCL prompt.
+
+  **The fix is to send one string with LF separators**, not an array:
+
+  ```powershell
+  $body = "`n" + (($commands + @('OFF')) -join "`n") + "`n"
+  $out = $body | & $sdExe -ASDSYS
+  ```
+
+  Measured, not deduced: piping `AAA` and `BBB` both ways and counting prompts.
+  The array form shows an empty command between each pair; the single-string
+  form shows none. Do that measurement before trusting any transcript — **the
+  echo cannot be read directly**, because SD's `[K` erase-line sequences make
+  every line appear twice and can truncate one of the copies (this transcript
+  rendered `CREATE.ACCOUNT USER sdacct1` as `CREATE.ACCOUSER sdacct1` on a line
+  that executed correctly).
+
+  The BOM sink in the same trap below is still needed; the leading newline
+  provides it.
 
 - **THE INSTALLED DATA TREE IS NEVER UPGRADED, SO "TEST IT ON THE INSTALLED
   SYSTEM" QUIETLY MEANS "TEST AN OLD BUILD".** `sd.iss` skips the entire

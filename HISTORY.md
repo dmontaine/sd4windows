@@ -27,6 +27,76 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - The ssh-only branch runs, and the password bug is a CRLF
+
+Fourth session of 14 Aug 2026, immediately after the entry below. The install
+was rebuilt and refreshed — 18 files in `C:\Program Files\SD`, 3,268 under
+`sdsys`, `MESSAGES/10034` present — and `verify-createaccount.ps1` run again.
+
+**`CREATEA` line 400 executed for the first time.** `sdacct1 may sign in over
+ssh only` was printed from message 10034; membership of `sdusers`,
+`sdu_sdacct1` and `sdsshonly` all confirmed, `Administrators` correctly absent;
+account directory, `VOC`, `$HOLD`, `BP`, private catalogue and `ACCOUNTS`
+record all made. That is what step 0 existed to answer and it is answered.
+
+### Two of the four remaining failures were the test's own fault
+
+- It asserted `$SAVEDLISTS`. `CREATEA` prints `Creating $SAVEDLISTS...` and
+  creates a directory called **`$SVLISTS`** — the message carries the VOC name,
+  the directory carries the DH file name. The account was complete all along.
+- The file-count check expected 16 program files. A real install has **18**:
+  `unins000.exe` and `unins000.dat` are the installer's and are not in the
+  stage. The expected number was wrong, not the install.
+
+Both are worth recording rather than quietly fixing, because both produced a
+red FAIL against something that was working, in a test whose entire purpose is
+to be believed.
+
+### The other two were one cause, and it was measured rather than deduced
+
+The previous entry declined to conclude that piped input was at fault, because
+the echo was demonstrably lossy. That caution was right, and the answer came
+from an experiment instead: pipe `AAA` and `BBB` into SD two ways and count the
+prompts.
+
+**PowerShell writes CRLF between pipeline objects, and SD treats CR and LF each
+as a line terminator.** So an array of commands arrives with a phantom EMPTY
+line after every one of them. At the TCL prompt that is invisible — an empty
+command reprints the prompt — which is why it survived every scripted session
+until one of them hit an `input` statement:
+
+    input pw1 HIDDEN   <- phantom after the CREATE.ACCOUNT line: EMPTY
+    input pw2 HIDDEN   <- the real password
+    input yn           <- the next phantom: EMPTY, so not Y, so no retry
+
+`pw1 # pw2`, so the password was never set. The account stayed **disabled**,
+because `SET_PASSWD` runs `Enable-LocalUser` inside the same script, and all
+three logon measurements then failed for want of a password — `LogonUser`
+answering 1326 was reporting a missing password, not a deny right. The only
+visible trace was a stray `Command not found` on stderr: the second password
+falling through to the TCL prompt.
+
+The fix is one string with LF separators rather than an array. `Invoke-SD` in
+`verify-createaccount.ps1` now does that; §6 carries the trap and the code.
+
+### A note on the echo, which cost time twice
+
+SD's `[K` erase-line sequences make every line appear twice in a captured
+transcript, and can truncate one copy — this run rendered
+`CREATE.ACCOUNT USER sdacct1` as `CREATE.ACCOUSER sdacct1` on a line that
+executed perfectly. **The echo is not a record of what SD consumed.** Two
+sessions in a row tried to read consumption off it; the two-minute experiment
+answered it outright.
+
+### Still open
+
+The test has not yet passed. It needs one more run with the CRLF fix and a
+fresh account name — the SD side of `sdacct1` is left behind deliberately, so
+`CREATE.ACCOUNT` will refuse that name, and the script now says so up front
+instead of discovering it after making a Windows account.
+
+---
+
 ## 14 Aug 2026 - Step 0 ran, and found that this machine's install is four commits behind
 
 Fourth session of 14 Aug 2026. `gplbld/verify-createaccount.ps1` ran for the
