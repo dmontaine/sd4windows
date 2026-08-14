@@ -27,6 +27,90 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Installer: the shell script port is dropped
+
+Decision from the repository owner on 13 Aug 2026, **reversing** the revision
+made earlier the same day and recorded in §5.9 as "Two installers, in order:
+build-from-source now, Inno Setup later". No code; §5.9 and §7 step 3 rewritten.
+
+### What changed
+
+`installsdai.sh` and `deletesdai.sh` will **not** be ported to Windows. Two
+scripts replace them: one that builds a **staging directory** containing
+exactly what an install consists of, and one that turns that directory into an
+**Inno Setup installer**. The pattern is one the repository owner has used on
+another project.
+
+The position has now moved three times, which is worth setting out so a future
+session can see it was deliberate rather than drifting:
+
+1. Go straight to Inno Setup, `installsdai.sh` being apt/dnf/zypper, systemd,
+   xinetd and `/etc` throughout.
+2. No — do the Linux method on Windows first: download, install dependencies,
+   compile, install, as a development tool.
+3. No — skip it. What that would produce is a *developer* setup script, and §2
+   and §3 already serve that reader. The bootstrap sequence, which is the part
+   with real value, has to be driven by whichever installer gets written, so
+   it is written once either way.
+
+### Why the Linux script existed — the point that settles it
+
+From the repository owner, and this is the part that should stop the question
+being reopened. `installsdai.sh` was **not** a developer convenience on Linux;
+it was load-bearing. ScarletDME targeted Fedora, Debian, Arch and OpenSUSE
+across several versions each, every one with a different compiler, libc and set
+of package names. No single binary works across that spread, so **the end user
+had to compile**, and the script existed to abstract apt from dnf from pacman
+from zypper and drive a build on the user's own machine.
+
+None of that holds on Windows. There is one target, one ABI, and SD ships its
+own runtime beside `sd.exe` (§5.8), so there is nothing to adapt to and the
+user needs no compiler. Strip the distro handling out of `installsdai.sh` and
+what remains is a developer setup tool covered by §2 and §3 already. The
+requirement that justified the script is a Linux-specific one that the port
+does not inherit — so this is a case where the Windows install ends up
+genuinely simpler than the Linux original, which is not true of much else here.
+
+### Why the staging script is the valuable half
+
+Not mainly packaging. Three reasons, and the middle one is the strongest:
+
+- It makes §5.8 executable. The install layout is prose in PROJECT_STATUS; a
+  staging script is that layout in a form that either runs or does not, and it
+  forces the `<sysdir>/bin` split to be decided rather than remembered.
+- **It is a whitelist, and whitelists find accidental dependencies.** `gplsrc`
+  sat in the data tree for as long as it did because `installsdai.sh` copied it
+  wholesale and nobody asked why — a fault that cost most of a session earlier
+  the same day. A script that copies only what is on an explicit list,
+  installed onto a machine with no development tree, surfaces that class of
+  problem immediately. The installer is the least tested part of the system;
+  making it cheap to rerun is what changes that.
+- It is where the MSYS2 DLL closure gets **computed by walking the imports**
+  rather than guessed. Missing one gives exit code 53 and no message at all.
+
+### Corrections to §5.9 as it stood
+
+- It said the Inno Setup compiler was **not installed**. It is installed on
+  this machine.
+- It framed the shell-script port as what was wanted first. That is reversed.
+
+### Kept from the old scripts
+
+`deletesdai.sh` is not ported but should be **read** before an uninstaller is
+written. Inno supplies an uninstaller; it does not answer what happens to
+`C:\ProgramData\SD\`, which holds the user's database. Removing it on uninstall
+is a catastrophe and leaving it makes reinstall awkward, because accounts and
+`$CRED` are already there. The old script is where the current answer is
+recorded.
+
+### Numbering
+
+§7 step 3 is now the staging script and Inno pair, absorbing what was step 9;
+steps 9 to 13 shifted down by one. Steps 1, 2 and 4 to 8 are unchanged. The
+staging script still cannot jump the queue — step 1 has to settle the layout
+for it to have something to stage, and step 2 has to fix `VALID_OS_PATH`,
+which rejects both the space and the backslash in `C:\Program Files`.
+
 ## 13 Aug 2026 — §3 of PROJECT_STATUS pruned
 
 Housekeeping, recorded so a future session knows the section was shortened

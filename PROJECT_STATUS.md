@@ -490,7 +490,11 @@ Keep this split honest. It is the single most useful thing in the file.
 - **`CREATE.ACCOUNT` on Windows.** JANE and SUE were built by a scratch program
   (§3) precisely because `CREATEA` shells out to `sudo usermod` and `groupadd`.
   The verb itself has never been run here.
-- The installer. `installsdai.sh` is still entirely Linux.
+- **The installer, and this is the least tested part of the system.** Nothing
+  has ever been installed from a staged tree, and `installsdai.sh` is entirely
+  Linux and is not being ported (§5.9). Until an install is done on a machine
+  with no development tree, what SD depends on by accident is unknown — which
+  is precisely how `gplsrc` stayed in the data tree.
 
 ## 5. Decisions and why
 
@@ -998,27 +1002,72 @@ Two consequences worth carrying forward:
   the `@ds` / `dir.separator` question (§6), which is now **testable** for the
   first time, since a `\` separator no longer breaks path resolution.
 
-### 5.9 Two installers, in order: build-from-source now, Inno Setup later
+### 5.9 One installer: a staging script, then Inno Setup (decided 13 Aug 2026)
 
-**Revised 13 Aug 2026, later the same day.** The original decision was to go
-straight to an **Inno Setup installer**, `installsdai.sh` being
-apt/dnf/zypper, systemd, xinetd and `/etc` paths throughout. That is still the
-destination, but not the next step.
+**Revised twice on 13 Aug 2026; this is the current decision and it reverses
+the middle one.** The `installsdai.sh` port is **dropped**. Two scripts replace
+it: one that builds a **staging directory** holding exactly what an install
+consists of, and one that turns that directory into an **Inno Setup
+installer**. Neither the shell installer nor `deletesdai.sh` gets ported.
 
-**What is wanted first is the Linux method, working on Windows**: a script
-that downloads, installs the dependencies, compiles and installs, exactly as
-the Linux one did. On Linux that meant apt or dnf; on Windows it means
-**installing MSYS2 and the packages in §2**, then building. It is a
-development tool — it does not have to be pretty, and there is no release
-schedule to hold it to.
+The three positions in order, so the change is legible: go straight to Inno →
+no, do the Linux method on Windows first, since `installsdai.sh` is
+apt/dnf/zypper, systemd, xinetd and `/etc` throughout → no, skip it. The
+reasoning is in the HISTORY entry for 13 Aug 2026, "Installer: the shell script
+port is dropped".
 
-**The Inno Setup installer comes after**, and differs in kind: it stages
-*pre-compiled* artefacts rather than building on the target, which is what an
-end user should get. Note this collides with §5.11, which keeps binaries out
-of the repository — so the staged artefacts are release artefacts built
-elsewhere, not tracked files.
+**Why the Linux script existed, and why that reason does not transfer.** This
+is the part worth understanding before anyone proposes porting it again.
+`installsdai.sh` was not a developer convenience — it was load-bearing.
+ScarletDME targeted Fedora, Debian, Arch and OpenSUSE across several versions
+each, every one with its own compiler, libc and package names. No single binary
+works across that, so **the end user had to compile**, and the script existed to
+abstract apt from dnf from pacman from zypper and drive a build on the user's
+own machine.
 
-What either installer is responsible for, given §5.6 to §5.8:
+Windows has none of that. One target, one ABI, and SD ships its own runtime
+beside `sd.exe` (§5.8), so there is nothing to adapt to and the user needs no
+compiler at all. The requirement that made the script necessary on Linux simply
+does not exist here — which is why what is left of it, once the distro handling
+is stripped out, is a developer setup tool that §2 and §3 already cover. Note
+this makes the Windows install genuinely *simpler* than the Linux original,
+which is not true of much else in this port.
+
+**The staging script is the valuable half**, and not mainly because of
+packaging:
+
+- **It makes §5.8 executable.** The install layout is prose here; a staging
+  script is that layout in a form that either runs or does not. It is what
+  forces the `<sysdir>/bin` split (§6) to be decided rather than remembered.
+- **It is a whitelist, and whitelists find accidental dependencies.** This is
+  the strongest argument for it. `gplsrc` sat in the data tree for as long as
+  it did because `installsdai.sh` copied it wholesale and nobody asked why —
+  a fault that cost most of a session on 13 Aug 2026. A script that copies
+  only what is on a list, installed on a machine with no development tree,
+  surfaces that class of thing at once. The installer is the least tested part
+  of this system (§4); making it cheap to rerun is what changes that.
+- **It is where the DLL closure is computed, not guessed.** §5.8 requires the
+  MSYS2 DLLs beside `sd.exe`. Which ones — `msys-2.0.dll`, `libsodium-26.dll`,
+  and whatever python, intl, bsd and crypt pull in — must be **derived by
+  walking the imports**, because missing one gives exit code 53 and no message
+  at all (§6). Python in `gplbld/`, beside `bbcmp.py`, `pcode_bld.py` and
+  `gen_includes.py`, is the natural home.
+
+**Inno Setup then packages the staged directory.** It stages *pre-compiled*
+artefacts rather than building on the target, which is what an end user should
+get, and it collides with §5.11 only in appearance: the staged artefacts are
+release artefacts built elsewhere, not tracked files. The `.iss` script does
+belong in this repository. **Correction to what this section said before: the
+Inno Setup compiler is installed on this machine** — it was recorded as absent.
+
+**`deletesdai.sh` is not ported, but read it before writing the uninstaller.**
+Inno gives you an uninstaller for free; it does not answer the question that
+matters. `C:\ProgramData\SD\` holds the user's database. Removing it on
+uninstall is a catastrophe, and leaving it makes reinstall awkward because
+accounts and `$CRED` are already there. Decide deliberately; the old script is
+where the current answer is written down.
+
+What the installer is responsible for, given §5.6 to §5.8:
 
 - Lay down `C:\Program Files\SD\` and `C:\ProgramData\SD\`.
 - Set the ACLs on the data tree with `icacls`, breaking inheritance first
@@ -1030,9 +1079,9 @@ What either installer is responsible for, given §5.6 to §5.8:
 - Register the service, once §5.7's service model exists.
 - Run the BASIC bootstrap sequence in §3.
 
-Inno Setup is a separate toolchain that is **not currently installed** and is
-not part of the build. Decide whether the `.iss` script lives in this
-repository — it should — and whether CI needs to produce the installer.
+Inno Setup is a separate toolchain and is not part of `make`. Still to decide:
+whether CI produces the installer, and what the uninstaller does with the data
+tree.
 
 **This is a hobby project with no release schedule and no architecture
 document to satisfy.** That is context worth having when weighing "do it
@@ -1080,10 +1129,12 @@ repository, as a release artefact. Do not add a convenience exception.
 
 Consequences to carry into the installer work (§5.9):
 
-- **Installing now means building.** `installsdai.sh` does `cp -R bin
+- **Installing now means building** — but only for whoever runs the staging
+  script, which is the point of it (§5.9). `installsdai.sh` does `cp -R bin
   "$sdsysdir"` and tests for `bin/sd`, both of which assumed a clone already
-  contained the binaries. The Inno Setup installer either bundles artefacts
-  built elsewhere or drives a build.
+  contained the binaries; that is one of the reasons it is not being ported.
+  The end user gets the Inno Setup installer and needs neither a clone nor a
+  toolchain.
 - The eight files removed from tracking — `sd.exe`, `sdconv.exe`, `sdfix.exe`,
   `sdidx.exe`, `sdlnxd.exe`, `sdtic.exe`, `sdclilib.dll`, `libsdclilib.dll.a` —
   are still produced by `make sd` and still needed at runtime. They were
@@ -1529,13 +1580,27 @@ the identity model.
    this rejects both. Widen the character set without weakening the shell
    metacharacter protection it exists to provide — quoting the path at the
    `OS.EXECUTE` site is the safer way to allow spaces.
-3. **Make installing work the way it did on Linux** (§5.9): download,
-   install the dependencies, compile, install. On Windows the dependency step
-   means installing MSYS2 and the packages listed in §2. `installsdai.sh` and
-   `deletesdai.sh` are the starting point and are entirely Linux today —
-   apt/dnf/zypper, systemd, xinetd, `/etc` paths, `useradd`, and a `cp -R bin`
-   that assumed tracked binaries (§5.11). A development tool, not a product;
-   the Inno Setup installer with staged pre-compiled artefacts is step 9.
+3. **Build the staging script, then the Inno Setup installer** (§5.9). The
+   `installsdai.sh` port is dropped; these two replace it, and this step
+   absorbs what used to be step 9.
+
+   a. **The staging script**, in `gplbld/` beside the other build tools. It
+      assembles a directory holding exactly what an install consists of —
+      `C:\Program Files\SD\` and `C:\ProgramData\SD\` as they should end up —
+      copying only what is on an explicit list. **Compute the MSYS2 DLL
+      closure by walking the imports**; do not hardcode it, because a missing
+      DLL gives exit 53 and no message (§6).
+   b. **Install from the staged tree onto a machine with no development
+      tree.** This is the point of the exercise: it is what finds anything
+      that is depended on by accident, which is how `gplsrc` survived in the
+      data tree for as long as it did.
+   c. **The Inno Setup script**, `.iss` tracked in this repository, packaging
+      that directory. The compiler is installed on this machine. The `icacls`
+      step is the one that actually makes the data private (§5.7); nothing at
+      runtime substitutes for it.
+   d. **Decide what the uninstaller does with `C:\ProgramData\SD\`** before
+      shipping one. It holds the user's database. Read `deletesdai.sh` for the
+      current answer rather than porting it.
 
    **Set the SDSYS password last**, after the whole bootstrap has run. `LOGIN`
    admits an administrator to an account with no verifier yet, so every
@@ -1569,27 +1634,24 @@ the identity model.
    Windows filesystems *are* case insensitive, so that half is a correctness
    gap with the code already written. Do the case-insensitive comparisons
    first, or `sue` and `SUE` become different accounts.
-9. **Write the Inno Setup installer** (§5.9), staging pre-compiled artefacts
-   rather than building on the target. The ACL step is the one that actually
-   makes the data private; nothing at runtime substitutes for it.
-10. **Let a scheduled job log in** (§8). The allowlist and the batch account
-    that grants nobody. Not urgent — the install half of the problem is solved
-    by ordering (step 3) — but it is what MV users expect and it needs no new
-    C code. Build it against the constraints written into §8, particularly the
-    no-arguments rule, which is the part doing the security work.
-11. **Write the admin helpers** (§5.14). Forms over the administrative work
+9. **Let a scheduled job log in** (§8). The allowlist and the batch account
+   that grants nobody. Not urgent — the install half of the problem is solved
+   by ordering (step 3) — but it is what MV users expect and it needs no new
+   C code. Build it against the constraints written into §8, particularly the
+   no-arguments rule, which is the part doing the security work.
+10. **Write the admin helpers** (§5.14). Forms over the administrative work
     that is command lines and hand-edited records today, once the system runs
     well enough to be worth using. The sequencing note matters more than the
     step: put administrative logic in subroutines from now on, so a form can
     call it later without reimplementing it.
-12. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
+11. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
     file from §5.8, or `SD_CONFIG` set.
-13. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
+12. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
     tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
     flipping the switches first would enable paths that are no longer present.
     Start with `CPROC`'s `dir.separator`, since compilation depends on it —
     and note that is now testable, since `sdrealpath()` accepts `\` (§5.8).
-14. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
+13. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
     are fork+exec, none need copy-on-write, so this is tractable), `termios` →
     Console API, passwd/group → Windows authentication. **The service-account
     model in §5.7 belongs here**, and until it lands the data tree is not
