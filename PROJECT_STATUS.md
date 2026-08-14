@@ -416,6 +416,12 @@ Keep this split honest. It is the single most useful thing in the file.
   with no password, moved to JANE with no grant and back with no step-up, and
   `COUNT VOC` still reports 432 records. The bootstrap is unaffected by any of
   this; re-observed after the pathname removal.
+- **SD does not need the MSYS2 *shell*, only its DLLs.** `sd.exe` run straight
+  from a PowerShell prompt, with `C:\msys64\usr\bin` and
+  `C:\msys64\usr\local\bin` on PATH, answered `COUNT VOC` with 432 records.
+  POSIX paths still resolve — `/usr/local/sdsys`, `/etc/sd.conf` — because the
+  translation is done by `msys-2.0.dll`, not by bash. So the shell dependency
+  is already gone; what remains is the runtime dependency, which is stage 2.
 - **SD no longer needs an operating system group to use.** Observed with a
   probe whose `SD_ADMIN_GROUP` names a group nobody holds (§6), which is the
   only way to be a non-administrator on this machine. `sd -ASUE` prompted for
@@ -436,6 +442,13 @@ Keep this split honest. It is the single most useful thing in the file.
 
 ### Not verified — treat as unknown
 
+- **Typing at SD from a real Windows console.** Everything above was driven
+  with redirected stdin, never an actual console, so how the MSYS2 tty layer
+  behaves in `conhost` or Windows Terminal — echo, masked input, arrow keys,
+  terminfo — is unknown. The scripted-input corruption in §6 says nothing about
+  it either way: those are artefacts of how the shells write to a pipe. This is
+  the one question that has to be answered by a person at a keyboard, and it
+  matters, because it is what "does SD need MSYS2" really turns on.
 - Semaphore locking under contention. The semaphores have never been observed
   held, so the `sdsem.c` port is exercised only in the uncontended case.
 - `SDConnectLocal()` at runtime. It needs a running server and a configuration
@@ -848,13 +861,35 @@ Target layout:
 | What | Where | Replaces |
 |---|---|---|
 | Binaries | `C:\Program Files\SD\` | `/usr/local/bin` |
-| SDSYS, database, accounts | `C:\ProgramData\SD\` | `/usr/local/sdsys` |
+| SDSYS and the database | `C:\ProgramData\SD\` | `/usr/local/sdsys` |
 | Configuration | `C:\ProgramData\SD\sd.conf` | `/etc/sd.conf` |
+| User and group accounts | **open — see §8** | `/home/sd/user_accounts`, `/home/sd/group_accounts` |
+
+**What this has to deliver, from the repository owner (13 Aug 2026).** Three
+requirements, and two of them already hold:
+
+1. **SD's home is under `C:\Program Files`.** Not done.
+2. **The user can start the SD login from any directory.** Already true —
+   `sd -ASUE` run from `C:\Windows` logged in normally. What it needs is for
+   `sd.exe` to be found and to load the right DLLs, which is why they ship
+   beside it (below) rather than being hunted for on PATH.
+3. **On login the current directory is the account's directory**, as on Linux.
+   Already true: `LOGIN` does `ospath(acc.path, OS$CD)` and sets `@PATH` from
+   the result. Logging in as SUE from `C:\Windows` reported
+   `PATH=/home/sd/user_accounts/SUE`. Nothing to build, but do not break it —
+   it is what makes an account feel like a place rather than a setting.
 
 `ProgramData` is the correct home for machine-wide mutable state, and it has no
 space in its name, which sidesteps the `VALID_OS_PATH` trap (§6) for a default
 install. `Program Files` does contain a space, so binaries are on the wrong
 side of that trap and it must be fixed regardless.
+
+**Ship the MSYS2 DLLs beside `sd.exe` in `C:\Program Files\SD\`.** Windows
+searches the executable's own directory before PATH, so this removes both PATH
+problems found on 13 Aug 2026 (§6): the exit-53-with-no-message when
+`libsodium-26.dll` is missing, and — much worse — Git for Windows's rival
+`msys-2.0.dll` being picked up, which makes SD report "SD has not been started"
+while it is running. Relying on PATH order is not a supportable install.
 
 Moving off `/usr/local/sdsys` matters on its own merits: it currently resolves
 to `C:\msys64\usr\local\sdsys`, inside the MSYS2 install tree, so reinstalling
@@ -1030,6 +1065,22 @@ Each of these cost real time. Read before debugging anything similar.
       -lm -lcrypt -ldl -lbsd -L/usr/local/lib -lsodium \
       $(python3-config --ldflags --embed) -o /tmp/na/sd_nonadmin.exe
   ```
+- **A second `msys-2.0.dll` earlier on PATH makes SD lie about being started.**
+  `sd.exe` runs, and reports "SD has not been started" while the server is
+  running perfectly. Observed with `C:\Program Files\Git\usr\bin` — Git for
+  Windows ships its own MSYS2 runtime — ahead of `C:\msys64\usr\bin`. The
+  runtime derives its POSIX root from the location of the DLL that loaded it,
+  so `/dev/shm`, `/etc` and everything else resolve inside the *other*
+  installation, where the shared segment does not exist. The message names the
+  wrong problem entirely, and Git for Windows is on nearly every developer
+  machine. Two protections, both in §5.8's direction: put the DLLs beside
+  `sd.exe`, since Windows searches the executable's own directory first, and
+  never rely on PATH order.
+- **Running `sd.exe` outside the MSYS2 shell needs two directories on PATH**,
+  not one: `C:\msys64\usr\bin` for the runtime and `C:\msys64\usr\local\bin`
+  for `libsodium-26.dll`, which is there because libsodium is built from source
+  into `/usr/local` (§2). Missing either gives exit code 53 and **no message at
+  all** — the loader fails before `main`.
 - **`sd -A` with no account name does nothing.** `sd.c` sets
   `CMD_QUERY_ACCOUNT` for it and **nothing reads the flag** — `CMD.QUERY.ACCOUNT`
   is defined in `INT$KEYS.H` and referenced nowhere else in the BASIC. So bare
@@ -1093,8 +1144,23 @@ Each of these cost real time. Read before debugging anything similar.
 - **Drive a scripted SD session through a pipe, not a `<` redirect.**
   `cat commands | sd -AACCOUNT` works. `sd -AACCOUNT < commands` stops dead
   after the password prompt and exits 0, as though the session had been closed.
-  Both are non-tty stdin, so the difference is in how the terminal layer reads
-  a regular file; it was not investigated further.
+  Confirmed from `cmd.exe` as well as from bash, so it is SD's input layer and
+  not a shell: it cannot read a password from a regular file.
+- **And pipe it from an MSYS2 shell, not a Windows one.** Both Windows shells
+  corrupt the first line, which is the password, in their own way:
+
+  | Piped from | What SD receives |
+  |---|---|
+  | bash, LF text | correct |
+  | bash, CRLF text | correct, plus one empty command per line |
+  | Windows PowerShell 5.1 | first line **three characters longer** — a UTF-8 BOM on the stream, and `$OutputEncoding` does not suppress it |
+  | `cmd.exe` | one character longer per line, plus an empty line that eats one of the three password tries |
+
+  Measured by counting the asterisks SD echoes: `abc` arrived as six characters
+  from PowerShell, `abcdef` as nine. These are artefacts of the sending shell,
+  not SD faults, but they make "log in from PowerShell" fail with nothing worse
+  than "Invalid username or password", which sends you looking in the wrong
+  place.
 - **`OSPATH()` is only available to `$internal` programs**, like `KERNEL` — and
   it fails the same confusing way. In an ordinary program the compiler takes it
   for an array and reports "Matrix OSPATH is not referenced in a DIM statement"
@@ -1237,6 +1303,31 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 **answered on 13 Aug 2026** and is now §5.6. Neither option was taken. See the
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
+
+### Open: where do the SD accounts live?
+
+Raised by the repository owner on 13 Aug 2026 alongside the §5.8 requirements,
+and deliberately left open.
+
+The Linux tree put user accounts under `/home/sd/user_accounts` and group
+accounts under `/home/sd/group_accounts`, which this machine still uses. That
+placement made sense when an SD account was tied to an operating system user.
+**Under §5.6 it is not**: SD accounts have their own names and their own
+passwords and correspond to nothing in Windows, so `/home`-shaped reasoning no
+longer decides anything.
+
+They could keep an equivalent of the Linux location, or sit under
+`C:\ProgramData\SD\` with the rest of the data, or be placed per install. Two
+things bear on the choice, both already established:
+
+- §5.7's ACLs are what make accounts private, and they are set once on a tree
+  and inherited by everything created inside it. One tree is far easier to lock
+  than accounts scattered across a disk.
+- Wherever they go, the path is already configuration and not code. `CREATEA`
+  reads `CONFIG('USRDIR')` and `CONFIG('GRPDIR')`; `config.c` parses both from
+  `sd.conf` and compiles in the Linux defaults at lines 106 and 131. So the
+  decision costs two default strings and a line each in the shipped `sd.conf` —
+  it is a choice to make, not work to do, and it does not block anything else.
 
 ### Settled: SDSYS is the exception, and LOGTO takes names only
 

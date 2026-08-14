@@ -27,6 +27,56 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — SD outside the MSYS2 shell: it works, and one PATH trap is nasty
+
+No code changed. Prompted by the question of whether logging in will one day be
+"global and not require MSYS2". Half of that is already true and had never been
+tested, so it was.
+
+**The shell dependency is already gone.** `sd.exe` run from a plain PowerShell
+prompt answered `COUNT VOC` with 432 records. POSIX paths still resolve —
+`/usr/local/sdsys`, `/etc/sd.conf` — because the translation lives in
+`msys-2.0.dll`, not in bash. What remains is the *runtime* dependency, which is
+stage 2 and unchanged.
+
+It needs two directories on PATH, not one: `C:\msys64\usr\bin` for the runtime
+and `C:\msys64\usr\local\bin` for `libsodium-26.dll`, which sits there because
+libsodium is built from source into `/usr/local`. Miss either and the loader
+fails before `main` with exit code 53 and **no message at all**.
+
+**The trap worth the entry.** Put `C:\Program Files\Git\usr\bin` ahead of
+MSYS2 on PATH — Git for Windows ships its own MSYS2 runtime, and it is on
+nearly every developer machine — and `sd.exe` starts, runs, and reports
+**"SD has not been started"** while the server is running perfectly. The
+runtime derives its POSIX root from the location of the DLL that loaded it, so
+`/dev/shm` resolves inside Git's installation, where no shared segment exists.
+The message names the wrong problem completely.
+
+Both are arguments for shipping the DLLs beside `sd.exe` under
+`C:\Program Files\SD\` (§5.8), since Windows searches the executable's own
+directory before PATH. §5.8 now says so.
+
+**Where it is still not shell-agnostic: reading a password.** Scripted stdin
+from either Windows shell corrupts the first line, which is the password.
+PowerShell 5.1 puts a UTF-8 BOM on the stream, so `abc` arrives as six
+characters and `abcdef` as nine — measured by counting the asterisks SD echoes,
+and `$OutputEncoding` does not suppress it. `cmd.exe` adds a character per line
+and an extra empty line that eats one of the three tries. A pipe from bash is
+correct, with LF or CRLF. These are artefacts of the sending shell rather than
+SD faults, but they surface as "Invalid username or password", which sends you
+looking in the wrong place. Also confirmed from `cmd.exe`: a `<` redirect from
+a regular file cannot be read at all, so that earlier finding is SD's input
+layer and not something about bash.
+
+**What was not tested, and cannot be from here.** Nobody has typed at SD from a
+real Windows console. Every test above used redirected stdin, so how the MSYS2
+tty layer behaves in `conhost` or Windows Terminal — echo, masked input, arrow
+keys, terminfo — is unknown, and the scripted corruption above says nothing
+about it. That is now in §4 as the unverified item that "does SD need MSYS2"
+actually turns on, and it needs a person at a keyboard.
+
+---
+
 ## 13 Aug 2026 — What logging in actually looks like, seen as an ordinary user
 
 No code changed. This entry records what was observed when the question "how
