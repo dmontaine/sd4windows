@@ -5,12 +5,15 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `25852e0`
-(the most recent commit to change code or build; the documentation is current
-to `6ea67ed`)
+**Last updated:** 13 Aug 2026 · **describes the tree as of this commit**, which
+took C source out of the data tree (§7 step 1, parts a to c, now done).
 
-**Next session starts at §7 step 1a** — a two-line edit to `APISRVR`, and the
-reasoning behind it is in §6 under the corrected `gplsrc` trap.
+**Next session starts at §7 step 1** — the move itself. `SDSYS` to
+`C:\ProgramData\SD\` and the binaries to `C:\Program Files\SD\`. What was
+blocking it is gone: nothing compiled from the data tree reads `gplsrc` any
+more, and `SECOND.COMPILE` has been run with `gplsrc`, `gplobj` and `gplbld`
+absent (§4). Read the `ERRGEN` trap in §6 first if anything to do with
+compilation misbehaves.
 
 ---
 
@@ -235,12 +238,14 @@ dictionary entries; `THIRD.COMPILE` compiled the I-types; and
 `BASIC GPL.BP CPROC` replaced the placeholder with a real 24 KB
 `gcat/$CPROC`.
 
-**Two things to know before rebuilding this environment.** The runtime tree
-needs more than §3 used to list — `installsdai.sh` also copies `gplsrc`,
-`gplobj` and `gplbld/FILES_DICTS` into `<sysdir>`, and `REVSTAMP` opens
-`./gplsrc/revstamp.h` relative to the account directory, so `SECOND.COMPILE`
-aborts without it. And a run that aborts part way leaves record locks behind,
-so restart SD before retrying (§6).
+**The runtime tree no longer needs `gplsrc`, `gplobj` or `gplbld`** (13 Aug
+2026). It used to, because `APISRVR` and `ERRTEXT` each carried a `$execute`
+that ran a build tool against `./gplsrc`; both are commented out and
+`gplbld/gen_includes.py` does that work at build time instead. All three
+directories were moved out of `/usr/local/sdsys` on this machine and
+`SECOND.COMPILE` compiled 207 programs with no errors without them (§4).
+`installsdai.sh` still copies them and should stop. Note a run that aborts part
+way leaves record locks behind, so restart SD before retrying (§6).
 
 **Known cosmetic failure.** Every catalogue write prints `Unable change
 ownership of directory error <path> err: 1000`. That is `CATALOG` doing the
@@ -264,6 +269,8 @@ None of this is in the repository; it is the state of this machine only.
 | **PAT password** | **`batterystaple`** — scratch account, delete it |
 | Grants recorded | `JANE` grants `SUE`; `SDSYS` grants `SUE`; `KIM` and `PAT` grant nobody, which is what makes them useful |
 | `sd.conf` | `USRDIR`/`GRPDIR` point at `C:\ProgramData\SD\`; `SDSYS` is still `/usr/local/sdsys` |
+| `gplsrc`, `gplobj`, `gplbld` | **moved out of `<sysdir>`** into a session scratchpad. Do not put them back |
+| `<sysdir>/C:` | an empty directory, left by the `sdrealpath()` bug before it was fixed (§5.8). Harmless, and not evidence of anything |
 
 **The probe build is obsolete on this machine.** The Windows token now carries
 `sdadmins` — the re-logon the group needed has happened — so `IsAdmin()` is
@@ -503,6 +510,21 @@ Keep this split honest. It is the single most useful thing in the file.
   wrong ones; the whole `LOGTO` suite above still passes; and
   `BASIC GPL.BP CPROC` still compiles a system program, which is the one that
   matters, since `BCOMP` itself changed.
+- **The data tree needs no C source.** `SECOND.COMPILE` compiled **207
+  programs with no errors** against a `<sysdir>` with `gplsrc`, `gplobj` and
+  `gplbld` moved away — run twice, once with the original include files and
+  again after regenerating them, both clean. Afterwards `COUNT VOC` still
+  reports 432 records, `WHO` still reports `SDSYS`, and `COUNT NOSUCHFILE`
+  still expands to "File not found", which exercises `!ERRTEXT` and therefore
+  the regenerated `ERRTEXT.H`. 207 rather than the 204 recorded earlier
+  because the credential programs were added since. Observed 13 Aug 2026.
+- **`gplbld/gen_includes.py` reproduces the generators it replaces.** Its
+  output matched the tracked files byte for byte on everything that had
+  genuinely been generated from the current C headers — all 199 entries of
+  `GPL.BP/ERRTEXT.H` and 199 of the 241 `$define` lines in `SYSCOM/ERR.H` —
+  and the differences it reported were all real drift, described in the
+  HISTORY entry. `--check` reports the three files in sync after regeneration
+  and reported each of them stale before it.
 
 ### Not verified — treat as unknown
 
@@ -1437,10 +1459,45 @@ Each of these cost real time. Read before debugging anything similar.
   already demonstrated one file away.
 
   `REVSTAMP` is a build tool: it translates the C header into the BASIC
-  include `GPL.BP/REVSTAMP.H`, which is **tracked in the repository and
-  already in sync** (both say 1.0-2). The C header says in its own comment
-  that the BASIC copy is normally edited by hand. Nothing at run time or
-  compile time reads `gplsrc`; only that one `$execute` does.
+  include `GPL.BP/REVSTAMP.H`, which is tracked in the repository. **Both
+  `$execute` lines are now commented out** (13 Aug 2026) and
+  `gplbld/gen_includes.py` does the translation at build time.
+
+  **And there was a second one, which is the dangerous one — `ERRTEXT` runs
+  `ERRGEN`.** `GPL.BP/ERRTEXT` line 33 carried `$execute 'RUN GPL.BP ERRGEN'`,
+  and `ERRGEN` reads `./gplsrc/err.h` to generate `SYSCOM/ERR.H` and
+  `GPL.BP/ERRTEXT.H`. It **truncates both outputs with `weofseq` before it
+  opens its input**, so with `gplsrc` absent it destroys them and then aborts.
+  `SYSCOM/ERR.H` is left at zero bytes.
+
+  What that looks like is nothing like a missing file. Every `ER$` constant in
+  the system becomes undefined, and an undefined `$define` in SD is **not a
+  compile error** — the compiler takes the name for a variable, prints
+  `WARNING: ER$ARGS is not assigned a value`, reports `0 error(s)`, and writes
+  the broken object into the global catalogue. The failure arrives later, at
+  run time, as `Unassigned variable ER$ARGS at line 60 of $CATALOG` in a
+  program that compiled cleanly. Read every `WARNING: ... is not assigned a
+  value` as a probable missing include.
+
+  **Recovering a poisoned catalogue.** Once `$CATALOG` or `$BCOMP` is broken
+  you cannot simply recompile, because compiling and cataloguing go through
+  them. Restore `SYSCOM/ERR.H` from the repository first, then:
+
+  - `sd -internal BASIC GPL.BP CATALOG` recompiles it correctly and then
+    aborts trying to catalogue it with the old broken `$CATALOG`. The object
+    is already written, so copy it into place by hand:
+    `cp <sysdir>/GPL.BP.OUT/CATALOG <sysdir>/gcat/'$CATALOG'` — the catalogue
+    entry is just a copy of the object, which is the same trick the bootstrap
+    uses for `gcat/$CPROC`.
+  - With `$CATALOG` working, `sd -internal BASIC GPL.BP BCOMP` repairs the
+    compiler, and `SECOND.COMPILE` then repairs everything else.
+- **`SECOND.COMPILE` must be run under `sd -internal`, not `sd -ASDSYS`.**
+  `BCOMP` gates the `$internal` directive on `kernel(K$INTERNAL, -1)` **and**
+  `kernel(K$ADMINISTRATOR, -1)` (line 2860), so being in SDSYS is not enough.
+  Run from an ordinary SDSYS session it reports `Unrecognised compiler
+  directive` on the `$internal` line of every internal program and then a
+  cascade of consequential errors — right bracket not found, misformed
+  `$CATALOG`, matrix not in a DIM statement — none of which names the cause.
 - **`errlog` throws away its own history.** `log_message()` in `k_error.c`
   discards the oldest half of `<sysdir>/errlog` when it reaches the `ERRLOG`
   configured size. Fine for diagnostics, fatal for anything you need to trust
@@ -1475,31 +1532,30 @@ the identity model.
    dropping the `sd.ini`-in-`C:\Windows` fallback. The `sdrealpath()` fix
    removed what was blocking all of it.
 
-   **Start here — the data tree holds data only** (decided by the repository
-   owner, 13 Aug 2026). No `gplsrc`, no `gplobj`, no `gplbld` under
-   `C:\ProgramData\SD\`. The investigation that settles how is done; what
-   remains is the change itself:
+   **The data tree holds data only, and that part is done** (decided by the
+   repository owner, 13 Aug 2026; carried out the same day). No `gplsrc`, no
+   `gplobj`, no `gplbld` under `C:\ProgramData\SD\`. The `$execute` pairs in
+   `APISRVR` and `ERRTEXT` are commented out, `gplbld/gen_includes.py`
+   regenerates the three derived include files at build time, and
+   `SECOND.COMPILE` has been run clean with all three directories absent (§4).
+   Two loose ends it left, neither blocking:
 
-   a. **Comment out `APISRVR` lines 64-65**, the `$execute 'BASIC GPL.BP
-      REVSTAMP'` and `$execute 'RUN GPL.BP REVSTAMP'` pair, exactly as `CPROC`
-      139-140 already are. Keep line 66, `$include revstamp.h` — the include
-      it needs is the tracked `GPL.BP/REVSTAMP.H`, which is in sync. That one
-      edit is what removes `gplsrc` from the data tree; see the corrected trap
-      in §6, and note the previous diagnosis there was wrong.
-   b. Then confirm nothing else wants them: run a full `SECOND.COMPILE`
-      against a `<sysdir>` with `gplsrc`, `gplobj` and `gplbld` **absent**.
-      204 programs with no errors is the pass mark. No consumer has been found
-      for `gplobj` at all, and `gplbld/FILES_DICTS` is an install-time input
-      the installer should read from the source tree, not from the database.
-   c. Decide how the two revision headers stay in sync once nothing runs
-      `REVSTAMP` automatically. A `gplbld/` script beside `bbcmp.py` and
-      `pcode_bld.py` is the obvious home — those already do exactly this kind
-      of build-time translation in Python. The header's own comment says the
-      alternative is editing both by hand.
+   - **`GPL.BP/OPGEN` is not ported** to `gen_includes.py`. It generates
+     `GPL.BP/OPCODES.H` from `gplsrc/opcodes.h` and reads `./gplsrc` the same
+     way the others did, but nothing ever `$execute`d it, so it breaks no
+     compile — it simply cannot be run on an installed system any more. Port
+     it before opcodes ever need regenerating, and verify byte for byte
+     against the tracked `OPCODES.H`; its hex formatting is not obvious from
+     the source (`OP.STOP` is commented `;* 00`, `OP.ABORT` `;* 1`).
+   - **`WRITE_INSTALL_DICTS` reads `@sdsys:"/gplbld/FILES_DICTS"`.** It is an
+     install step rather than part of a compile, so it did not affect the
+     test, but it is the last thing wanting `gplbld` in the data tree and step
+     3 has to deal with it.
 
-   Then the move itself. `<sysdir>/bin` holds the pcode library as well as the
-   executables and must be **split, not moved** (§6): binaries to
-   `C:\Program Files\SD\`, `pcode`/`pcode.old` stay with SDSYS.
+   **Now the move itself**, which is what remains of this step.
+   `<sysdir>/bin` holds the pcode library as well as the executables and must
+   be **split, not moved** (§6): binaries to `C:\Program Files\SD\`,
+   `pcode`/`pcode.old` stay with SDSYS.
 2. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Not
    housekeeping: step 1 puts binaries under a path containing a space, and
    this rejects both. Widen the character set without weakening the shell

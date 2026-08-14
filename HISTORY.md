@@ -27,6 +27,115 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — The data tree no longer holds C source, and `ERRGEN` turned out to be booby-trapped
+
+Carries out §7 step 1, parts a, b and c. The data tree can now be built and
+compiled with `gplsrc`, `gplobj` and `gplbld` absent, which was the blocker on
+moving SDSYS to `C:\ProgramData\SD\`.
+
+### What changed
+
+- `GPL.BP/APISRVR` lines 64-65, the `$execute 'BASIC GPL.BP REVSTAMP'` and
+  `$execute 'RUN GPL.BP REVSTAMP'` pair, are commented out, exactly as
+  `GPL.BP/CPROC` 139-140 already were. `$include revstamp.h` stays.
+- `GPL.BP/ERRTEXT` line 33, `$execute 'RUN GPL.BP ERRGEN'`, is commented out
+  for the same reason. **This one was not known about** — see below.
+- New `gplbld/gen_includes.py` replaces both generators at build time. It
+  regenerates `GPL.BP/REVSTAMP.H` from `gplsrc/revstamp.h`, and `SYSCOM/ERR.H`
+  and `GPL.BP/ERRTEXT.H` from `gplsrc/err.h`. `--check` reports drift without
+  writing, ignoring the generation timestamp.
+- The three generated files are regenerated in the repository, which is what
+  the drift below made necessary.
+
+### The second `$execute`, which cost the session most of its time
+
+Running `SECOND.COMPILE` with `gplsrc` absent did not simply succeed. It failed
+several programs in, with `Unassigned variable ER$ARGS at line 60 of $CATALOG`
+— a **run time** abort in a program that had just compiled with no errors.
+
+The cause was `GPL.BP/ERRTEXT`, which carries `$execute 'RUN GPL.BP ERRGEN'`.
+`ERRGEN` is a build tool of the same family as `REVSTAMP`: it reads
+`./gplsrc/err.h` and writes `SYSCOM/ERR.H` and `GPL.BP/ERRTEXT.H`. Its
+statement order is the problem:
+
+```
+   openseq 'GPL.BP', 'ERRTEXT.H' to out.f ...
+   weofseq out.f                                  <- truncates output 1
+   openseq 'SYSCOM', 'ERR.H' to syscom.f ...
+   weofseq syscom.f                               <- truncates output 2
+   ... writes three header lines to out.f ...
+   openseq "./gplsrc/err.h" to in.f else abort    <- only now reads its input
+```
+
+With `gplsrc` absent it truncated both outputs and then aborted. `SYSCOM/ERR.H`
+was left at **zero bytes**, so every `ER$` constant in the system became
+undefined. That does not fail a compile — it produces
+`WARNING: ER$ARGS is not assigned a value` and a `0 error(s)` result — so the
+compile reported success and wrote broken objects into the global catalogue.
+`$CATALOG` and `$BCOMP` were among them, which meant the compiler chain had to
+be repaired before anything else could be recompiled. Recovery is in §6 of
+PROJECT_STATUS.md.
+
+The lesson is not about `gplsrc`. It is that **a missing `$define` in SD is a
+warning at compile time and an abort at run time**, in a program that may not
+run until much later.
+
+### The generated files had drifted, and `ERRGEN` would have destroyed the drift
+
+Porting `ERRGEN` and `REVSTAMP` to Python and diffing the output against the
+tracked files showed how far they had come apart:
+
+- `GPL.BP/ERRTEXT.H` was generated on 1 Jul 2024 and matched byte for byte for
+  all 199 of its entries — and was missing the 42 error codes added to
+  `gplsrc/err.h` since. Those errors had no text at all.
+- `SYSCOM/ERR.H` matched byte for byte for 199 of its 241 `$define` lines. The
+  other 42, the `SD_*` crypto, SDEXT and embedded-Python codes, had been
+  **hand-edited**: they kept the C spelling (`SD_Mem_Err` rather than
+  `SD$Mem.Err`) and, more seriously, carried the **opposite sign** to the C
+  header. `gplsrc/err.h` says `-10100`; the BASIC copy said `10100`.
+- `GPL.BP/REVSTAMP.H` was missing one history line. The `$define`s agreed.
+
+Nothing in the BASIC layer references any of the 42 names — the `SD_EUID_SET`
+and `SD_EUID_RESTORE` used by `GPL.BP/EUID_SET` and `EUID_RESTORE` are SDEXT
+function keys from `SYSCOM/KEYS.H`, values 102 and 103, not error codes — so
+regenerating was safe, and it makes the BASIC copy agree with the C.
+
+Note what this means about the `$execute` that was removed: it ran `ERRGEN` on
+**every compile of `ERRTEXT`**, so any such compile on a tree that still had
+`gplsrc` would have silently overwritten those hand edits. The directive was a
+hazard quite apart from the data-tree question.
+
+### Verified this session
+
+- `SECOND.COMPILE` compiled **207 programs with no errors** against a
+  `<sysdir>` with `gplsrc`, `gplobj` and `gplbld` moved away — twice: once with
+  the original headers and again after regenerating them. (207 rather than the
+  204 recorded earlier because the credential programs were added since.)
+- `COUNT VOC` still reports 432 records, `WHO` still reports `SDSYS`, and
+  `COUNT NOSUCHFILE` still expands to "File not found", which exercises
+  `!ERRTEXT` and so the regenerated `ERRTEXT.H`.
+- `gen_includes.py --check` reports all three files in sync after the
+  regeneration, and reported each of them stale before it.
+
+### Still open
+
+- **`GPL.BP/OPGEN` is not ported.** It generates `GPL.BP/OPCODES.H` from
+  `gplsrc/opcodes.h` and reads `./gplsrc` the same way, but **nothing ever
+  `$execute`d it** — it is a manual tool, so it did not block this work and
+  removing `gplsrc` does not break any compile. It cannot be run on an
+  installed system any more, so it must be ported before opcodes can be
+  regenerated. It was left alone deliberately rather than ported badly: its
+  hex formatting has behaviour that reading the source does not settle
+  (`OP.STOP` is commented `;* 00` while `OP.ABORT` is `;* 1`, from the same
+  `oconv(value, 'MX')`), and a wrong opcode table is not a failure that
+  announces itself.
+- **`WRITE_INSTALL_DICTS` still reads `@sdsys:"/gplbld/FILES_DICTS"`.** It is
+  an install-time step rather than part of `SECOND.COMPILE`, so it did not
+  affect the test above, but it is the last thing that wants `gplbld` in the
+  data tree and the installer work has to deal with it.
+- The move itself — `SDSYS` to `C:\ProgramData\SD\` and the binaries to
+  `C:\Program Files\SD\` — is unblocked but not done.
+
 ## 13 Aug 2026 — Correction: `gplsrc` in the data tree was a misdiagnosis. Session ended on credits
 
 **Session ended here, mid-investigation but at a clean stopping point.** The
