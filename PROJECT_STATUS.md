@@ -5,10 +5,30 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, third session of the day, at commit `61b9408`
-plus the commit that carries this line. A short session with one subject: the
-ssh-only model (§5.6.2), which the previous session left built and entirely
-unproven. What landed:
+**Last updated:** 14 Aug 2026, fourth session of the day, at commit `9b44d4b`
+plus the commit that carries this line. **This session had no elevated
+window** — the permission layer refused to launch one — so everything below is
+what could be done and proven without one, and **step 0 is unchanged and still
+first**. What landed:
+
+- **`AllowGroups` is implemented** (§5.6.2's second layer, previously "not
+  implemented at all"): `gplbld/allow-ssh-groups.ps1`, offered by the installer
+  as a subtask of the OpenSSH one, and taken back out again on uninstall.
+- **Its file editing is verified, its effect is not.** `verify-allowgroups.ps1`
+  is tracked, needs no elevation and no `sshd`, and passes 20 checks — but
+  nothing has yet pointed the script at a live `sshd_config`, and **whether the
+  group patterns match the right people is the lockout risk** and is unknown.
+  §4 Unverified spells out the three parts of that.
+- **The installer's closing dialog leads with `CREATE.ACCOUNT`** (§7 step 1b),
+  instead of telling the user to run `net localgroup sdusers <name> /add` for a
+  Windows account the verb would have created for them.
+- **Two traps** in §6: the Inno brace-comment trap caught a second time, and
+  the general one behind it — an installer edit to a file SD does not own has to
+  be an *exact* inverse, which a blank line quietly broke.
+
+The previous session's summary, kept because it is what the state above rests
+on. It had one subject: the ssh-only model (§5.6.2), left built and entirely
+unproven by the session before it.
 
 - **THE SSH-ONLY MODEL IS PROVEN** (§4, §5.6.2), by a control-and-treatment
   experiment on a real Windows account. The console closes, ssh stays open,
@@ -36,8 +56,15 @@ unproven. What landed:
   failure that looks like SD's fault and is not.
 
 **Where it stopped:** §5.6.2 is verified except RDP. The `CREATE.ACCOUNT` test
-is written and unrun — **that is step 0, and it is one command in an elevated
-window.** `AllowGroups`, §5.6.2's second layer, is still not implemented.
+is written and **still unrun** — that is step 0, and it is one command in an
+elevated window. `AllowGroups` is now written, and unrun in the same way and
+for the same reason.
+
+**Both of the things at the top of the list now need the same thing: a window
+somebody has elevated.** Neither is hard and neither is long. If you are
+reading this with an elevated prompt available, do step 0 and step 0a before
+anything else, because everything written since 14 Aug 2026's third session is
+waiting on them.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
@@ -90,6 +117,40 @@ lines, against 145 for the broken run).
    measurements that proved §5.6.2. Read §4 Unverified for what its cleanup
    deliberately does *not* remove.
 
+   **It did not run on 14 Aug 2026, fourth session**, and not for any reason
+   to do with SD: the session could not obtain an elevated window at all. The
+   script's own guard reports this cleanly (exit 2, "not elevated"), so there
+   is no half-run state to clean up and nothing was created.
+
+0a. **THEN APPLY `AllowGroups` ONCE, IN THE SAME ELEVATED WINDOW**, and keep
+   that window open while you do it. Written 14 Aug 2026 and never pointed at
+   a real `sshd_config`:
+
+   ```powershell
+   powershell -File sdb_ai\sd64\gplbld\allow-ssh-groups.ps1 -Installed
+   ```
+
+   **Read this before running it.** It restricts who may ssh into this
+   machine. It is safe to try *here* because this machine's administrator has
+   console access and does not depend on ssh — that is not true everywhere.
+
+   - Exit **0** wrote the block and restarted `sshd`. **Immediately open a
+     second terminal and ssh in as an account in `sdusers`**, before closing
+     anything. That is the measurement §4 Unverified is asking for.
+   - Exit **2** refused, and says why. On this machine the likely reason is
+     that `sshd_config` already exists but restricts nobody, which is *not* a
+     refusal case — so exit 2 here more likely means the `-Installed` switch
+     was omitted.
+   - Anything else failed and put the original back.
+
+   To undo: `... allow-ssh-groups.ps1 -Remove`, or copy
+   `C:\ProgramData\ssh\sshd_config.before-sd` back over it.
+
+   The file editing itself is already proven and does not need re-testing —
+   `powershell -File sdb_ai\sd64\gplbld\verify-allowgroups.ps1` passes 20
+   checks with no elevation, and can be run anywhere to confirm nothing has
+   regressed.
+
 1. **Finish the loose ends the ssh-only work left.** The model itself is
    proven (§4); what is below is small and should not be left to drift.
 
@@ -104,12 +165,18 @@ lines, against 145 for the broken run).
       confirmed. `sdsshonly` was deliberately left, because it is what the
       installer creates and `CREATE.ACCOUNT` needs it.
 
-   c. **`AllowGroups` is still not implemented** (§5.6.2, the second layer).
-      `sshd_config` now exists, so there is something to edit. Read the two
-      cautions in §5.6.2 first: the list **must** include administrators or
-      the machine's own administrator loses ssh, and §5.9 forbids
-      reconfiguring an ssh server SD did not install — so it is an installer
-      offer, not something a verb does silently.
+   c. **`AllowGroups` is written — done 14 Aug 2026, fourth session** — and is
+      §7 step 0a above until somebody has watched it work. What exists:
+      `gplbld/allow-ssh-groups.ps1`, an `installssh\allowgroups` subtask in
+      `sd.iss` that is unreachable unless SD is installing OpenSSH itself,
+      removal on uninstall, and `gplbld/verify-allowgroups.ps1`.
+
+      Both cautions from §5.6.2 are honoured, and how matters if you change
+      any of it: the administrators group is resolved from **`S-1-5-32-544`**
+      rather than written as a name, because the name is localised; and the
+      offer is a **child task** of the OpenSSH one, which is what makes it
+      structurally impossible to reach on a machine whose ssh server SD did
+      not install.
 
    `CREATE.ACCOUNT` with `sdsshonly` present is **step 0 above**, which is
    where it belongs now that the test for it is written.
@@ -122,13 +189,16 @@ lines, against 145 for the broken run).
       `ADMINISTRATOR` keyword is in, the `config('CREATUSR')` gate is gone, and
       the verb has now been run for the first time. See §4.
 
-   b. **Reword the installer's closing dialog** — now unblocked. It tells the
-      user to run `net localgroup sdusers <name> /add`, which is what raised
-      the whole administrator question: `CREATE.ACCOUNT` does that *and*
-      creates the Windows user, and the dialog never mentions it. It should
-      lead with the verb and keep the manual command as the explicit fallback
-      for someone who already has a Windows account. It was left alone while
-      the verb did not work; that reason has gone.
+   b. **DONE 14 Aug 2026, fourth session — the installer's closing dialog
+      leads with the verb.** It now gives `sd -start`, `sd -ASDSYS`,
+      `CREATE.ACCOUNT USER <name>`, says that an elevated window is needed and
+      why, says that accounts made this way are ssh-only, and gives the
+      `ADMINISTRATOR` keyword. `net localgroup sdusers <name> /add` stays as
+      what it always was — the way to give SD to somebody who already has a
+      Windows account.
+
+      **Nobody has seen it on screen** (§4 Unverified). The script compiles;
+      that is a different claim.
 
    c. **Decide what `DELETE.ACCOUNT` should do**, which is now the asymmetry.
       `DELACC` still consults `config('CREATUSR')` before offering to remove
@@ -161,9 +231,17 @@ lines, against 145 for the broken run).
    **Rebuild the installer first — the one at `C:\Users\dmont\sdout\` is
    stale.** It was built at 08:35 on 14 Aug and predates everything after it:
    the `IsAdmin()` change, the OpenSSH brace fix, the removal of the SDSYS
-   password step, `sdsshonly` and `deny-logon.ps1`, and the `CREATE.ACCOUNT`
-   work. Full sequence at the top of `gplbld/sd.iss`; the `--bootstrap` stage
-   is the slow part.
+   password step, `sdsshonly` and `deny-logon.ps1`, the `CREATE.ACCOUNT` work,
+   and — added 14 Aug 2026, fourth session — the reworded closing dialog and
+   the whole of `AllowGroups`. Full sequence at the top of `gplbld/sd.iss`; the
+   `--bootstrap` stage is the slow part.
+
+   **`stage.py` must be re-run, not just `ISCC`.** `allow-ssh-groups.ps1` is a
+   new file that `stage.py` copies into `ProgramFiles`, so compiling against
+   the existing `C:\Users\dmont\stagetest` produces an installer whose
+   `AllowGroups` step cannot find its own script. `stage.py` raises rather than
+   warning if the source is missing, so a full rebuild cannot get this wrong —
+   only a shortcut can.
 
    What to check there, in order: **count the files** (3,264 under
    `sdsys`, not 16 — do not trust Setup's exit code); `sd -start` and
@@ -181,9 +259,15 @@ lines, against 145 for the broken run).
    owner wants "if it is possible" and now is — but which pulls against §5.6
    (see the correction there before acting on it).
 
-5. **This file is overdue a rollover** (§0 rule 5): ~2,790 lines against a
-   ~2,000 limit. Superseded installer material was compressed on 14 Aug 2026,
-   which is not enough. The candidates, in order of how much they would shed
+5. **This file is overdue a rollover** (§0 rule 5): **3,844 lines against a
+   ~2,000 limit**, and it grew again on 14 Aug 2026's fourth session rather
+   than shrinking — §0 rule 5 says a finding is never left out to hit the
+   number, and `AllowGroups` produced findings. **That makes the rollover the
+   most overdue item in this list, and it is a job for a session that starts
+   with it rather than one that reaches it.**
+
+   Superseded installer material was compressed on 14 Aug 2026, which is not
+   enough. The candidates, in order of how much they would shed
    and how little would be lost: §4's older entries on the staged tree and the
    probe builds, most of which are now covered by the installer working
    end to end; §3's "This machine as the session ended (13 Aug 2026)", which
@@ -1080,6 +1164,43 @@ Keep this split honest. It is the single most useful thing in the file.
   terminated" when handed a redirected stdin, and a PowerShell pipe puts a BOM
   on the first line.
 
+- **`allow-ssh-groups.ps1` edits `sshd_config` correctly.** Observed
+  14 Aug 2026, fourth session, by `gplbld/verify-allowgroups.ps1` — 20 checks,
+  all passed — against
+  `C:\Windows\System32\OpenSSH\sshd_config_default`, which is the template
+  `sshd` copies to `C:\ProgramData\ssh\sshd_config` on its first start. **The
+  test needs no elevation, no `sshd` and no network**, because that template is
+  world readable, so this half can be re-run on any machine at any time. It
+  lifts the functions out of the shipped script by parsing it, so it cannot
+  drift from the code it checks.
+
+  What passed, and what each one is for:
+
+  | Check | Why it is there |
+  |---|---|
+  | the block lands **before** the first `Match` | the shipped config's last line is `Match Group administrators`; appending would put `AllowGroups` **inside** that block, applying it to administrators only — which reads as working |
+  | exactly one `AllowGroups` after three applies | re-running must replace SD's block, not stack another |
+  | remove is an exact inverse of add, after one apply and after three | see the trap below |
+  | `AllowUsers` / `DenyUsers` / `AllowGroups` / `DenyGroups` already present is detected | §5.9: do not merge into somebody else's policy |
+  | `AllowAgentForwarding` and `#AllowGroups` are **not** detected as policy | a prefix match and a comment would each make the script refuse for no reason |
+  | SD's own block is not mistaken for somebody else's | otherwise it refuses to update what it wrote itself |
+
+  **It found a real defect on the first run.** The block ended with a blank
+  line for readability, which falls *outside* the markers — so removal left it
+  behind and every apply/remove cycle grew the file by a line. Add and remove
+  have to be exact inverses; the blank line is gone.
+
+- **`allow-ssh-groups.ps1 -Check` resolves the administrators group by SID.**
+  Observed the same session, unelevated: `S-1-5-32-544` resolved to
+  `Administrators` on this machine and the script printed the four patterns it
+  would write. That is the half that is wrong on a localised Windows if it is
+  written as a literal, and it is checkable without touching anything.
+
+- **`sd.iss` compiles with all of the above in it** — `ISCC.exe` exit 0, a
+  complete installer built from the tracked script and the existing staged
+  tree. That is the *only* claim being made: see §4 Unverified for everything
+  about the installer that compiling does not show.
+
 ### Not verified — treat as unknown
 
 - **Every OS account operation.** `CREATE.ACCOUNT`, `DELETE.ACCOUNT` and
@@ -1153,9 +1274,36 @@ Keep this split honest. It is the single most useful thing in the file.
   section: how the MSYS2 tty layer behaves at a real console rather than with
   redirected stdin.
 
-- **`AllowGroups`** in `sshd_config`, §5.6.2's second layer, not implemented at
-  all. The file now exists, so there is something to edit; §5.6.2 has the two
-  cautions and §7 step 0c repeats them.
+- **`AllowGroups` ACTUALLY APPLIED TO A LIVE `sshd_config`.** Written on
+  14 Aug 2026 and its file editing is verified (§4 Verified,
+  "`allow-ssh-groups.ps1` edits `sshd_config` correctly"), but the script has
+  **never been pointed at `C:\ProgramData\ssh\sshd_config`** — that needs
+  elevation, which this session could not obtain. Three things are therefore
+  unknown, in descending order of how much they matter:
+
+  1. **Whether the patterns match the right people.** `AllowGroups sdusers
+     GITORLI\sdusers Administrators GITORLI\Administrators` is written on the
+     reasoning in the script's header; nothing offline can tell you whether
+     Win32-OpenSSH's group lookup matches any of those four against a real
+     account. **This is the lockout risk**, and it is why the script writes
+     both the bare and `COMPUTER\` forms of each group rather than choosing.
+  2. Whether `sshd -T` accepts the result on a real config, and whether
+     `Restart-Service sshd` comes back.
+  3. Whether an `sdsshonly` account — which is in `sdusers`, so it should be
+     allowed — can still ssh in afterwards, and whether an account in neither
+     group is refused.
+
+  **Test it on the second machine (§7 step 2), not this one**, and keep a
+  console session open while you do. `verify-sshonly.ps1 -Keep` leaves an
+  account to try it with.
+
+- **The installer's own behaviour with the new options.** `sd.iss` compiles
+  (§4 Verified) and that is all. Nobody has seen the reworded closing dialog,
+  the `installssh\allowgroups` subtask appear under its parent, or
+  `ApplyAllowGroups` report any of its three outcomes. Compiling an Inno script
+  proves the Pascal parses, nothing more — and the two defects this file has
+  already recorded in that script (the brace bug, the per-file `Check`) both
+  compiled perfectly.
 
 - **Whether `OS.EXECUTE` works at all on an installed system.** It almost
   certainly does not — see the shell trap in §6.
@@ -1705,6 +1853,33 @@ which may be managed by policy — §5.9 already forbids reconfiguring an ssh
 server SD did not install — and the list **must include administrators**, or
 the machine's own administrator loses ssh. That makes it an installer offer,
 not something a verb should do silently.
+
+**Written 14 Aug 2026, fourth session, and not yet applied to a live config**
+— §7 step 0a, and §4 Unverified for what that leaves open. How the two cautions
+are answered, since changing either one re-opens them:
+
+- **Not a verb, and not even an unconditional installer step.** It is a
+  **child** of the OpenSSH task in `sd.iss`. Inno only enables a child task
+  when its parent is ticked, and the parent is hidden entirely on a machine
+  that already has an ssh server — so "we did not install it, we do not
+  configure it" is structural rather than a check somebody has to remember.
+  The same `Check` is repeated on the child, because a subtask does not
+  inherit its parent's.
+- **The administrators group is resolved from `S-1-5-32-544`**, not written as
+  a name — the literal `Administrators` is wrong on a localised Windows, and
+  `sshd`'s `AllowGroups` has no SID syntax, so it has to be looked up and
+  written out. `CREATEA` does the same thing at its Administrators add.
+- **Four patterns for two groups**, bare and `COMPUTER\`-qualified.
+  Win32-OpenSSH matches groups as `domain\group` with the computer name
+  standing in for the domain, and reports of the bare form working vary by
+  version. `AllowGroups` is a union, so a pattern that matches nothing costs
+  nothing — and the failure being avoided is a lockout.
+- **Before the first `Match` block**, because everything after a `Match` line
+  belongs to it and the shipped `sshd_config` ends with
+  `Match Group administrators`. Appending would apply `AllowGroups` to
+  administrators only, which reads as working.
+- **Removed on uninstall**, since it is the one thing SD writes outside its own
+  tree, and the original is kept as `sshd_config.before-sd`.
 
 **What ssh-only does not mean.** The deny rights control *where* an account may
 log in, not *what it may run*. An ssh session lands in whatever `DefaultShell`
@@ -2464,6 +2639,35 @@ Each of these cost real time. Read before debugging anything similar.
   prose, several lines from anything that looks like a statement. Use the
   `(* ... *)` form, and do not write `(*` or `*)` inside that either, which
   ends it the same way. Cost two compile failures on 14 Aug 2026.
+
+  **Hit again the same day**, in a new `[Code]` procedure whose comment
+  explained that it must run before `{app}` is deleted. The trap does not need
+  you to be careless about braces; it needs you to write prose about the
+  installer, which is what a comment in an installer is for. If a `[Code]`
+  comment mentions a path, use `(* ... *)` without thinking about it.
+
+- **An installer edit to a file SD does not own must be an exact inverse.**
+  `allow-ssh-groups.ps1` fenced its `AllowGroups` block between two comment
+  markers and then wrote a blank line after the closing one, for readability.
+  The blank line is outside the fence, so removal left it — and every
+  apply/remove cycle grew `sshd_config` by one line, for ever, in a file that
+  belongs to somebody else. Found 14 Aug 2026 by `verify-allowgroups.ps1`,
+  which asks whether add-then-remove reproduces the original **byte for byte**
+  rather than whether it looks right.
+
+  The general form: anything that edits a foreign configuration file needs a
+  test that applies it repeatedly and removes it, and compares against the
+  original text. "It removed the line" is not the check; "the file is the file
+  it was" is.
+
+- **A test for a config edit does not need the real config.**
+  `C:\Windows\System32\OpenSSH\sshd_config_default` is the template `sshd`
+  copies to `C:\ProgramData\ssh\sshd_config` on its first start, and unlike the
+  copy it is **world readable**. So the whole of `AllowGroups`' file handling
+  is testable unelevated, on any machine, with no `sshd` — which is what
+  `verify-allowgroups.ps1` does. Worth remembering as a shape: the risky half
+  of "edit a system file" is usually the editing, and the editing usually has a
+  readable stand-in for its input.
 
 - **FIXED 14 Aug 2026, kept because the shape recurs: the `<sysdir>/bin` split
   left two C call sites pointing at the old location, and both failed

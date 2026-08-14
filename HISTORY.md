@@ -27,6 +27,72 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - AllowGroups is written, and a session with no elevated window
+
+Fourth session of 14 Aug 2026, from commit `9b44d4b`. It opened intending to do
+step 0 — run `gplbld/verify-createaccount.ps1` — and could not: the permission
+layer refused to launch an elevated process at all. **Step 0 did not run and is
+unchanged.** Nothing was half-done by the attempt; the script's own guard exits
+2 before touching anything when it is not elevated.
+
+So the session took the work that needed no elevation, which turned out to be
+most of what was left in §7 step 1.
+
+### The installer's closing dialog now leads with CREATE.ACCOUNT (step 1b)
+
+It used to end with `net localgroup sdusers <name> /add`, as though adding
+somebody to a group were how you gave them SD. It is not, and it never made the
+Windows account — which is the question that started the whole §5.6.1
+discussion. It now gives `sd -start`, `sd -ASDSYS`,
+`CREATE.ACCOUNT USER <name>`, says an elevated window is needed and why, says
+accounts made that way are ssh-only, and gives the `ADMINISTRATOR` keyword. The
+`net` command stays as the fallback it always was: somebody who already has a
+Windows account.
+
+Nobody has seen it on screen. `sd.iss` compiles; that is a different claim, and
+the two defects already recorded in that script both compiled perfectly.
+
+### AllowGroups, the second layer of §5.6.2 (step 1c)
+
+`gplbld/allow-ssh-groups.ps1`, offered by `sd.iss` as a **child** of the
+OpenSSH task and removed again on uninstall. The design decisions and why they
+are what they are now live in §5.6.2; the four that would be easy to undo by
+accident are: resolve the administrators group from `S-1-5-32-544` rather than
+writing its localised name, write both the bare and `COMPUTER\` forms of each
+group, insert **before** the first `Match` block, and make it a child task so
+that "SD does not configure an ssh server it did not install" is structural
+rather than remembered.
+
+**What is proven is the editing, not the effect.** `verify-allowgroups.ps1`
+runs the shipped script's own functions — lifted out by parsing the file, so
+they cannot drift apart — against
+`C:\Windows\System32\OpenSSH\sshd_config_default`, the template `sshd` copies
+on first start. That template is world readable, so the test needs no
+elevation, no `sshd` and no network, and passes 20 checks. Whether the patterns
+**match the right people** is a property of Win32-OpenSSH's group lookup and
+cannot be established offline. That is the lockout risk and it is open; §7 step
+0a is how to close it, and §4 Unverified says what to watch.
+
+**The test earned itself on the first run.** The block ended with a blank line
+for readability. The blank line falls outside the markers, so removal left it
+behind and every apply/remove cycle grew `sshd_config` by one line — in a file
+belonging to somebody else. The check that caught it was not "did it remove the
+line" but "is the file byte-for-byte the file it was". Both the specific fix
+and that general shape are in §6.
+
+The Inno brace-comment trap also caught this session, in a new `[Code]` comment
+explaining that a procedure must run before `{app}` is deleted. It is now
+recorded in §6 that the trap does not need carelessness about braces — only
+prose about the installer, which is what installer comments are made of.
+
+### Still open at the end of it
+
+Step 0 and the new step 0a, both one command in an elevated window, and both
+waiting on the same thing. `stage.py` now stages a third script, so the
+installer needs a full `stage.py` rebuild rather than a re-run of `ISCC`.
+
+---
+
 ## 14 Aug 2026 - A test for CREATE.ACCOUNT, and two traps in scripting SD at all
 
 Same session as the ssh-only work below, after it. `CREATE.ACCOUNT`'s ssh-only
