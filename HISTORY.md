@@ -27,6 +27,76 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — SDSYS is the exception; LOGTO takes account names only
+
+Decisions from the repository owner, answering both questions the entry below
+raised, and the code that carries them out. Made and built the same day.
+
+### SDSYS reaches every account, without exception
+
+The grant check as first built tested `@logname` and nothing else, so an SDSYS
+login could not enter an account that had not granted it — recorded as an open
+question because §5.6 did not say. The answer is that SDSYS is the exception:
+administration that cannot enter an account cannot repair one.
+
+**The test is the account you are standing in, `who`, not the one you logged in
+as.** That reading was chosen deliberately and is worth understanding, because
+the alternative is defensible and one line away. Keying on `@logname` would
+have meant that the model's own recommended route into administration — log in
+as yourself, `LOGTO SDSYS` with your own password — did *not* carry the
+exception, while a direct SDSYS login did. The account would be an exception
+only for people who knew the shared SDSYS password, which is the arrangement
+§5.6 exists to get away from. Keying on `who` gives the exception to whoever is
+standing in SDSYS however they got there, and `@logname` still names them.
+
+Observed both ways: logged in as SDSYS, `LOGTO JANE` and `LOGTO KIM` were
+admitted although neither grants SDSYS; logged in as SUE, `LOGTO KIM` was
+refused, `LOGTO SDSYS` with SUE's own password was admitted, and `LOGTO KIM`
+from there was admitted as `LOGNAME=SUE WHO=KIM`.
+
+The one edge to know: stepping *out* of SDSYS puts you in an ordinary account
+and you no longer carry the exception. SDSYS → KIM → JANE is refused at the
+second move. Returning to SDSYS is never blocked, since it is your own account
+by name if you logged in as it, and a grant plus your own password if not.
+
+### LOGTO takes an account name and nothing else
+
+`int.logto` treated anything absent from ACCOUNTS as a pathname to change
+directory to. That was the hole the entry below recorded: it reached an
+account's directory without ever consulting the grant list, and it was open to
+anyone the OS group made an administrator, which on a machine with `sdadmins`
+is every session. Rather than resolve paths back to accounts — which needs the
+resolved directory, so it means moving before authorising and unwinding on
+refusal — the capability is gone. An unregistered directory is not an account.
+
+An unknown name now gives the same refusal as an ungranted one, so the register
+cannot be probed for which account names exist. The cost is that a typo reads
+as "User not allowed in requested account"; `LOGIN` already makes the same
+trade with "Invalid username or password".
+
+`APISRVR`'s `SrvrAccount` took "account name or path" in the same way and now
+takes a name only. **Nothing else there was gated and nothing was added**: the
+API server has no credential model, its `logname` arrives from the client, and
+putting a grant check on top of that would look like a control without being
+one. It is now §7 item 4, with the authentication named as the part that has to
+come first.
+
+Found while making that change: `revert.to.old.account` put the *directory*
+back after a refused account switch but not `account.path`, so `@PATH` was left
+holding the path the session had failed to reach. Pre-existing, and made more
+visible by the new refusal, which reaches revert with `account.path` empty. It
+now restores both.
+
+### What this changed in the record
+
+PROJECT_STATUS §4 had recorded, under Verified, "An SDSYS login cannot `LOGTO`
+an account that has not granted it". That observation was correct when made and
+is now false by decision, not by error — the behaviour changed the same day.
+The bullet has been replaced by what was observed after the change. §8's two
+open questions are marked settled rather than deleted.
+
+---
+
 ## 13 Aug 2026 — LOGTO is gated by grants, and the shipped binary is verified
 
 Continues the entry below, "Account credentials: register, helpers and login",

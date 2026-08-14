@@ -247,8 +247,8 @@ None of this is in the repository; it is the state of this machine only.
 | **SDSYS password** | **`hunter2`** — set during testing, change it |
 | **SUE password** | **`correcthorse`** — scratch account, delete it |
 | `$CRED` register | holds SDSYS and SUE |
-| Scratch accounts | `JANE` and `SUE` under `/home/sd/user_accounts`, built by `BP/MKACC` |
-| Grants recorded | `JANE` grants `SUE`; `SDSYS` grants `SUE` |
+| Scratch accounts | `JANE`, `SUE` and `KIM` under `/home/sd/user_accounts`, built by `BP/MKACC` |
+| Grants recorded | `JANE` grants `SUE`; `SDSYS` grants `SUE`; `KIM` grants nobody, which is what makes it useful |
 
 **The probe build is obsolete on this machine.** The Windows token now carries
 `sdadmins` — the re-logon the group needed has happened — so `IsAdmin()` is
@@ -259,10 +259,12 @@ in `/tmp/sd_probe.exe` if a machine without the group ever needs it.
 repository: `CREDTEST`, `CREDRT`, `SETPW`, `INTEST`, `VTEST` from the previous
 session, and `MKACC`, `GRANT`, `WHOAMI`, `MKDICT` from this one. `SETPW` sets
 the SDSYS password to `hunter2` in plain text and `MKACC` sets SUE's to
-`correcthorse` — delete both, and both scratch accounts, before this machine is
-used for anything real. `WHOAMI` prints `@LOGNAME`, `@WHO` and `@PATH`, which
-is how a `LOGTO` is watched from either side; it is catalogued **globally**, so
-it runs from an account with no `BP` file.
+`correcthorse` — delete both, and all three scratch accounts, before this
+machine is used for anything real. `WHOAMI` prints `@LOGNAME`, `@WHO` and
+`@PATH`, which is how a `LOGTO` is watched from either side; it is catalogued
+**globally**, so it runs from an account with no `BP` file. `MKACC` skips an
+account already in ACCOUNTS rather than rewriting it, so re-running it does not
+wipe the grant lists.
 
 To pick up where this stopped: `sd -internal COUNT VOC` should report 432
 records without prompting (administrator + internal path), and
@@ -379,9 +381,23 @@ Keep this split honest. It is the single most useful thing in the file.
   | `LOGTO JANE`, no grant | "User not allowed in requested account", stays in SUE |
   | `LOGTO JANE` after granting SUE on JANE | enters JANE |
   | `LOGTO SUE` (own account, no grant) | enters, as it must |
+  | `LOGTO KIM`, an account that grants nobody | refused |
   | `LOGTO SDSYS`, no grant | refused |
   | `LOGTO SDSYS`, granted, wrong password ×3 | refused, stays in SUE, connection kept |
   | `LOGTO SDSYS`, granted, own password | enters SDSYS |
+  | `LOGTO /home/sd/user_accounts/JANE` | refused — a path is not an account |
+  | `LOGTO NOSUCHACCOUNT` | refused, wording identical to an ungranted account |
+
+- **SDSYS reaches every account.** Logged in as SDSYS, `LOGTO JANE` and
+  `LOGTO KIM` were both admitted although neither grants SDSYS. Stepping on
+  from KIM to JANE was refused, because the exception belongs to the account
+  you are standing in — recorded here because it is the one surprising edge of
+  the rule.
+- **The exception carries through a step-up.** Logged in as SUE, `LOGTO KIM`
+  was refused; `LOGTO SDSYS` with SUE's own password was admitted; and
+  `LOGTO KIM` from there was admitted, reporting `LOGNAME=SUE WHO=KIM`. So a
+  person reaches an ungranted account only through administration, and the
+  session still names them throughout.
 
 - **`@logname` survives `LOGTO`.** `WHOAMI` reported `LOGNAME=SUE WHO=SUE`
   before, `LOGNAME=SUE WHO=JANE` after `LOGTO JANE`, and `LOGNAME=SUE
@@ -390,13 +406,10 @@ Keep this split honest. It is the single most useful thing in the file.
 - **The step-up asks for the caller's own password, and only that.** SUE
   entered SDSYS with `correcthorse`, SUE's password; SDSYS's own password
   (`hunter2`) is not what is asked for and would not have worked.
-- **The install path still bypasses both.** `sd -internal` entered SDSYS with
-  no password, did `LOGTO JANE` with no grant and `LOGTO SDSYS` with no
-  step-up. The bootstrap is unaffected by any of this.
-- **An SDSYS login cannot `LOGTO` an account that has not granted it.**
-  Logged in as SDSYS, `LOGTO JANE` was refused, because the rule tests
-  `@logname` and JANE grants only SUE. This follows from §5.6 as written; see
-  §8 for whether it is what is wanted.
+- **The install path still bypasses everything.** `sd -internal` entered SDSYS
+  with no password, moved to JANE with no grant and back with no step-up, and
+  `COUNT VOC` still reports 432 records. The bootstrap is unaffected by any of
+  this; re-observed after the pathname removal.
 
 ### Not verified — treat as unknown
 
@@ -559,10 +572,12 @@ ACCOUNTS read, and the early `K$ADMINISTRATOR` test at the top of `int.logto`
 is gone — it asked whether the caller was already privileged, which is the
 wrong question when entering SDSYS is what confers privilege. In order:
 
+0. **The target must be a registered account name.** Anything not in ACCOUNTS
+   is refused before authorisation is even considered — see the pathname
+   decision below.
 1. An administrator running an internal command is admitted, as at `LOGIN`.
    The bootstrap has no terminal to type a password at.
-2. A bare pathname rather than an account name has no record to carry a grant.
-   Administrators only; see the residual hole in §8.
+2. **A session standing in SDSYS may enter any account**, no grant needed.
 3. Otherwise you may enter your own account, or one whose `ACC$USERS` names
    you. Refusal is `sysmsg(10003)`, "User not allowed in requested account",
    and the session stays where it was.
@@ -576,6 +591,38 @@ wrong question when entering SDSYS is what confers privilege. In order:
 `LOGIN` 235, `CPROC` 250 and 282 (both initialisation, the second in a branch
 that never runs on Windows), and `APISRVR`. Confirmed by observation as well as
 by reading — see §4.
+
+**SDSYS reaches every account, without exception (decided 13 Aug 2026).**
+Decision from the repository owner, settling the question this raised when the
+grant check was first built. Administration that cannot enter an account cannot
+repair one, so SDSYS is not subject to the grant list.
+
+The test is **the account you are standing in** (`who`), not the one you logged
+in as, so it holds whether you entered SDSYS directly or stepped up into it
+from your own identity — and `@logname` still names the person either way, so
+what accounts for the access is the audit record, not a refusal. The
+consequence to know: stepping *out* of SDSYS into another account puts you in
+that account, and you no longer carry the exception. Going from SDSYS to KIM to
+JANE is refused at the second move; return to SDSYS first. Getting back in is
+never blocked, because SDSYS is your own account by name if you logged in as
+it, and a grant plus your own password if you did not.
+
+**`LOGTO` takes an account name and nothing else (decided 13 Aug 2026).**
+Decision from the repository owner. It used to treat anything absent from
+ACCOUNTS as a pathname to change directory to, which reached an account's
+directory without ever consulting its grant list — the hole recorded in §8 when
+the grant check landed, now closed by removing the capability rather than by
+resolving paths back to accounts. An unregistered directory is not an account.
+
+An unknown account name gives the same refusal as an account that has not
+granted you, so the register cannot be probed to discover which names exist.
+That does mean a typo reads as "User not allowed in requested account", which
+is the same trade `LOGIN` already makes with "Invalid username or password".
+
+`APISRVR`'s `SrvrAccount` took a name **or** a path in the same way and now
+takes a name only. Note that nothing else there is gated: the API server has no
+credential model yet, so any session it accepts can still reach any account by
+name. The `LOGTO` grant check does not cover that path.
 
 **What is still missing.**
 
@@ -1094,29 +1141,36 @@ In the order they should be taken.
 3. **Give grants a verb.** `ACC$USERS` can only be edited through
    `MODIFY ACCOUNTS` today. Decide the shape — `GRANT account TO account` and
    `REVOKE`, or a `SET.ACCESS` screen — and write the audit record from it.
-4. **Move to the Windows install layout** (§5.8). Relocate to
+4. **Bring the API server under the same model.** `APISRVR` now takes account
+   names only, like `LOGTO`, but nothing else about it is gated: it has no
+   credential check of its own, so any session it accepts reaches any account.
+   Its `logname` comes from the client (lines 900 and 963), so the grant check
+   cannot simply be copied across — the authentication has to come first.
+   `sdnet.h` still hardcodes `PASSWD_FILE_NAME "/etc/shadow"` (§5.8), which is
+   what that authentication used to be.
+5. **Move to the Windows install layout** (§5.8). Relocate to
    `C:\Program Files\SD\` and `C:\ProgramData\SD\`, unify the server and client
    configuration variable, drop the `sd.ini`-in-`C:\Windows` fallback. Keep `/`
    as the separator for now so this does not disturb `@ds` (§6).
-5. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Now mandatory
-   rather than cheap housekeeping, because step 4 puts binaries under a path
+6. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Now mandatory
+   rather than cheap housekeeping, because step 5 puts binaries under a path
    containing a space. Widen the character set without weakening the shell
    metacharacter protection it exists to provide — quoting the path at the
    `OS.EXECUTE` site is the safer way to allow spaces.
-6. **Write the Inno Setup installer** (§5.9), replacing `installsdai.sh`. The
+7. **Write the Inno Setup installer** (§5.9), replacing `installsdai.sh`. The
    ACL step is the one that actually makes the data private; nothing at runtime
    substitutes for it.
-7. **Enable `CASE_INSENSITIVE_FILE_SYSTEM`.** Referenced at 9 sites in
+8. **Enable `CASE_INSENSITIVE_FILE_SYSTEM`.** Referenced at 9 sites in
    `dh_misc.c`, `dh_open.c`, `op_dio2.c`, `op_dio4.c` but never defined
    anywhere. Windows filesystems *are* case insensitive, so this is a
    correctness gap and the code is already written.
-8. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
+9. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
    file from §5.8, or `SD_CONFIG` set.
-9. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
-   tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
-   flipping the switches first would enable paths that are no longer present.
-   Start with `CPROC`'s `dir.separator`, since compilation depends on it.
-10. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
+10. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
+    tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
+    flipping the switches first would enable paths that are no longer present.
+    Start with `CPROC`'s `dir.separator`, since compilation depends on it.
+11. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
     are fork+exec, none need copy-on-write, so this is tractable), `termios` →
     Console API, passwd/group → Windows authentication. **The service-account
     model in §5.7 belongs here**, and until it lands the data tree is not
@@ -1129,35 +1183,13 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
 
-### Open: should an administrator be able to enter an account that has not granted them?
+### Settled: SDSYS is the exception, and LOGTO takes names only
 
-Raised by building the `LOGTO` grant check on 13 Aug 2026, and it needs a
-decision from the repository owner because §5.6 does not say.
-
-As specified and as built, the rule tests `@logname` and nothing else, so
-**logging in as SDSYS does not let you into JANE** unless JANE grants you. That
-was observed, not inferred (§4). There is a case for it: to administer an
-account you must first record a grant, which is itself a deliberate, auditable
-act, and nobody reaches an account by accident. There is a case against it: an
-administrator locked out of an account whose ACCOUNTS record is damaged has no
-way in through the front door.
-
-**The same decision has a hole in it today.** `LOGTO` given a bare pathname
-rather than an account name reaches the directory without any grant check,
-because there is no account record to carry a grant. It is restricted to
-administrators, which sounds narrow and is not: `K$ADMINISTRATOR` is still
-seeded from `IsAdmin()`, so on a machine where you are in `sdadmins`, every
-session you start is an administrator (§5.6). `LOGTO /home/sd/user_accounts/JANE`
-was observed entering JANE from a session that `LOGTO JANE` would have refused.
-
-Closing it properly means resolving the path back to an account before
-deciding, which needs the *resolved* directory rather than the string typed —
-`LOGIN` walks ACCOUNTS comparing `ospath("", OS$CWD)` for exactly this reason,
-and doing it in `int.logto` means moving before authorising and unwinding on
-refusal. That is a restructure of `int.logto`, not an insertion, so it was not
-attempted. Note that in stage 1 it protects nothing anyway: an SD user's own
-token opens the files, so anyone who can reach an account by path can read it
-in Explorer (§5.7). It becomes real with the service model.
+Both questions raised by the grant check on 13 Aug 2026 were **answered the
+same day by the repository owner** and are now written into §5.6. SDSYS reaches
+every account without exception, and `LOGTO` accepts a registered account name
+only — direct directory access by path is not supported, which closes the
+bypass rather than trying to resolve paths back to accounts.
 
 ### Settled: the binaries were purged from history on 13 Aug 2026
 
