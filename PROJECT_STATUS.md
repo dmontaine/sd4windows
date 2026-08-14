@@ -700,6 +700,33 @@ Keep this split honest. It is the single most useful thing in the file.
   system PATH; 15 files in `C:\Program Files\SD`; no `gplbld` anywhere in the
   data tree; and `sd.conf` present.
 
+- **The deny-logon rights are applied correctly, and nothing else is
+  disturbed.** Observed 14 Aug 2026 against a throwaway group, running
+  `gplbld/deny-logon.ps1` exactly as the installer invokes it:
+
+  | Right | Before | After |
+  |---|---|---|
+  | `SeDenyInteractiveLogonRight` | `Guest` | `sddenyprobe,Guest` |
+  | `SeDenyRemoteInteractiveLogonRight` | *absent* | `sddenyprobe` |
+  | `SeDenyNetworkLogonRight` | `Guest` | `Guest` — **untouched** |
+
+  The last row is the one that matters: ssh authenticates with a network
+  logon, so leaving that right alone is what keeps ssh working (§5.6.2). The
+  first row is the argument for `LsaAddAccountRights` over `secedit` shown
+  working — the existing `Guest` entry survived, where a policy rewrite would
+  have had to reproduce it. Running it twice succeeds (idempotent), and naming
+  a group that does not exist exits 1 with "Group sdnosuchgroup was not found"
+  rather than failing quietly.
+
+  **A caveat on reading this back.** `secedit /export` writes resolvable local
+  groups **by name**, not by SID, so a verification that greps the policy for a
+  SID reports "not present" when it is. That is what the first attempt at this
+  test did. Compare against the name, or read the whole policy line.
+
+  **Not verified:** that an account in the group can still ssh in while being
+  refused at the console. That needs a running `sshd`, which this machine does
+  not yet have — see the OpenSSH entry in §4 Unverified.
+
 - **`CREATE.ACCOUNT` RUNS, AND IT HAD NEVER BEEN RUN BEFORE.** Observed
   14 Aug 2026 from an elevated session, driven through a pipe with the
   password first. Both halves of the account are made, and the
@@ -840,6 +867,26 @@ Keep this split honest. It is the single most useful thing in the file.
   cannot be from a normal session (§5.6, elevation). No throwaway OS accounts
   were created. Compiling is not running, and this is the largest untested
   thing added on 14 Aug 2026.
+- **THE WHOLE SSH-ONLY MODEL, end to end** (§5.6.2). The pieces are built and
+  the rights are proven to apply (§4 Verified), but nothing has been tested
+  through ssh, because **this machine has no `sshd`**. The OpenSSH install was
+  attempted on 14 Aug 2026, ran into the Features-on-Demand delay described in
+  §5.9, was terminated part-way and left `RebootPending` set with the
+  capability unapplied. What is untested, in order:
+
+  1. That `sshd` installs and starts at all — the corrected `.iss` command has
+     been parse-checked and run, but never seen to completion.
+  2. That an account in `sdsshonly` **can** ssh in. This is the one that would
+     invalidate the design if wrong, and the risk is named in §5.6.2: if
+     Win32-OpenSSH turns out to need something the deny rights remove, the
+     model fails closed and nobody can reach SD at all.
+  3. That the same account **cannot** reach the console or RDP.
+  4. `CREATE.ACCOUNT`'s new ssh-only branch actually executing. It compiles
+     with 0 errors and reuses `!os_group`, which is verified, but the branch
+     itself has not run — the `sdsshonly` group does not exist on this machine
+     yet, so it would fail today.
+  5. `AllowGroups` in `sshd_config`, which is not implemented at all.
+
 - **Whether `OS.EXECUTE` works at all on an installed system.** It almost
   certainly does not — see the shell trap in §6.
 
@@ -1318,6 +1365,75 @@ Watch that `CPROC` currently reassigns `logname` when it drops to `sdsys`
 
 **Understand the security consequence before relying on this.** A password
 gate inside SD is not a file security boundary — see §5.7.
+
+### 5.6.2 SD accounts are ssh-only; the console belongs to administrators (decided 14 Aug 2026)
+
+**Decision from the repository owner, 14 Aug 2026.** Accounts SD creates reach
+the machine **over ssh and nothing else**. Local terminal access — the physical
+console, and Remote Desktop — is for administrators, who have ordinary Windows
+accounts. **The API is piped through ssh as well**, which settles the open
+question in §8 about how it should be exposed.
+
+This sits on top of §5.6.1: an administrator is a Windows administrator.
+Answered by the owner the same day, `CREATE.ACCOUNT USER <name> ADMINISTRATOR`
+**keeps creating the Windows account and leaves it unrestricted** — an
+administrator gets a normal Windows account with console access. Only accounts
+without the keyword are confined to ssh. So the keyword now decides two things
+at once, which is worth stating plainly:
+
+| | `CREATE.ACCOUNT USER x` | `CREATE.ACCOUNT USER x ADMINISTRATOR` |
+|---|---|---|
+| Windows group | standard user | `Administrators` |
+| Administers SD | no | yes |
+| Local console / RDP | **denied** | allowed |
+| ssh | yes | yes |
+
+**The two rights, and why not a third.** Windows expresses this as user rights
+assignment: `SeDenyInteractiveLogonRight` blocks the console, and
+`SeDenyRemoteInteractiveLogonRight` blocks Remote Desktop. **Do not deny
+network logon.** Win32-OpenSSH authenticates with a network logon — cleartext
+network logon for passwords, S4U for public keys — so denying it would lock out
+the very access this is meant to preserve. That is the trap in this design and
+it is the one thing to get right.
+
+**Apply the rights to a GROUP, once, not to each account.** SD adds every
+non-administrator account it creates to a dedicated group, and the deny rights
+are applied to that group a single time by the installer. The alternative —
+granting the rights per account as it is created — was rejected:
+
+- There is **no PowerShell cmdlet for account rights** (measured 14 Aug 2026:
+  `Get-Command *AccountRight*` returns nothing), so each grant means either
+  `LsaAddAccountRights` through P/Invoke or a `secedit` export-edit-import.
+  Doing that per account puts a fiddly, elevation-dependent step on the hot
+  path of every account creation.
+- `secedit` is a **read-modify-write of the entire USER_RIGHTS area**, so
+  running it per account rewrites machine policy repeatedly and races anything
+  else editing it.
+- A group is **inspectable**. "Who is confined to ssh?" is answered by looking
+  at one group's membership, rather than by reading policy through `secpol.msc`
+  one right at a time.
+- And SD already knows how to do it: `!os_group("ADDMEM", ...)` is written,
+  tested and used (§4).
+
+**It cannot be `sdusers`.** That group grants access to the data *files* and
+administrators are in it too, so denying console logon to `sdusers` would lock
+administrators out of their own console. The two groups answer different
+questions and must stay separate — the same distinction §5.6.1 draws between
+`sdusers` and `Administrators`.
+
+**`AllowGroups` in `sshd_config` is the second layer**, suggested by the
+repository owner. The deny rights stop local logon; `AllowGroups` decides who
+may ssh at all. Two independent controls rather than one. Two cautions: it
+means writing to `C:\ProgramData\ssh\sshd_config`, a file SD does not own and
+which may be managed by policy — §5.9 already forbids reconfiguring an ssh
+server SD did not install — and the list **must include administrators**, or
+the machine's own administrator loses ssh. That makes it an installer offer,
+not something a verb should do silently.
+
+**What ssh-only does not mean.** The deny rights control *where* an account may
+log in, not *what it may run*. An ssh session lands in whatever `DefaultShell`
+names, `cmd.exe` by default. Confining a user to SD rather than to a shell is a
+separate control and is not part of this decision.
 
 ### 5.7 Where the OS still has to be involved: protecting the data tree
 
@@ -2857,7 +2973,79 @@ authenticating. No new C code is needed.
   trigger and ideally idempotent. An optional third column naming an OS
   principal is the escape hatch if that is not enough.
 
-### Open: how should the API be exposed? (raised 13 Aug 2026)
+### SETTLED 14 Aug 2026: the API is piped through ssh — posture B
+
+**Answered by the repository owner**, in the same instruction that made SD
+accounts ssh-only (§5.6.2): *"Even the API is piped through ssh."* **Posture B
+below was taken** — SD listens locally, ssh carries the traffic, and nothing of
+SD's own faces the network.
+
+What that settles, beyond the choice itself:
+
+- **The API stops needing a network credential model of its own.** §7 step 6a
+  asked whether to authenticate against `$CRED` or to trust peer identity. Over
+  a local-only transport reached through ssh, ssh has already authenticated the
+  user before SD sees a connection, so the answer leans hard towards peer
+  identity — and `login_user()` reading `/etc/shadow`, which cannot work on
+  Windows anyway, can go rather than be ported.
+- **The AF_UNIX weakness in §6 matters less, but does not vanish.** MSYS2
+  emulates AF_UNIX over a TCP loopback socket, so "local socket" is a weaker
+  statement here than on Linux and any local process can still reach the port.
+  Binding to loopback is not the same as authenticating the peer. A **named
+  pipe** with `GetNamedPipeClientProcessId` remains the right Windows answer,
+  and `connection_type` already has `CN_PIPE`.
+- **It makes the ssh install path load-bearing**, which is why the silent
+  failure fixed on 14 Aug 2026 mattered more than an optional extra: if ssh is
+  how the API is reached, an ssh option that quietly does nothing is not a
+  cosmetic bug.
+
+**The client side, as it actually works today.** Supplied by the repository
+owner, 14 Aug 2026 — this is the command their Gambas3 client runs on Linux:
+
+```sh
+sshpass -p <password> ssh -L <port>:/tmp/sdsys/sdclient.socket -N <user>@<host> &
+```
+
+So the contract is: **ssh forwards a local TCP port to a UNIX domain socket on
+the server**, `-N` because no remote command is wanted, and the client library
+then connects to `localhost:<port>`. That is worth having written down, because
+four things about it do not survive the move to Windows, and together they are
+larger than the `login_user()` work in §7 step 6.
+
+1. **Nothing on Windows creates that socket.** `start_connection()`
+   (`linuxio.c` 130-131) reads `sun_path` from a socket it has *already been
+   given* — the server does not listen, it is spawned per connection with the
+   socket on its stdin. On Linux that is xinetd or systemd socket activation.
+   **Windows has neither**, so the listener and the per-connection spawn have
+   to be built. This is what the retained `etc/xinetd.d/` and
+   `usr/lib/systemd/` are documenting, and it belongs with §5.7's service
+   model rather than with the API's credential check.
+2. **`/tmp/sdsys/sdclient.socket` resolves inside `C:\Program Files\SD\`** on an
+   installed system, by the two-component POSIX-root rule in §6 — and Program
+   Files is read-only to ordinary users. It needs the same treatment
+   `/dev/shm` already got: an `etc/fstab` bind out to `C:\ProgramData\SD\`.
+   Exactly the same trap, one directory along.
+3. **MSYS2's AF_UNIX is emulated over a TCP loopback socket** with a handshake
+   file (§6). It is not a filesystem object with permissions, so the Linux
+   reasoning — "a local socket, therefore only local users, therefore
+   `getpeereid()` is meaningful" — **does not carry**. Any local process can
+   reach the port. This is the strongest argument for the named-pipe route.
+4. **`sshpass` does not exist on Windows**, and putting a password on a command
+   line is visible in the process list anyway. A Windows client wants key-based
+   authentication, which also removes the need for the client to hold a
+   password at all.
+
+**Untested and load-bearing:** whether Win32-OpenSSH supports `-L
+port:/path/to/socket` — forwarding to a UNIX domain socket rather than a
+host:port. OpenSSH has done so since 6.7 on Unix; whether the Windows port does
+it, and whether it can reach an MSYS2-emulated socket, has not been measured.
+If it cannot, the transport needs rethinking rather than porting.
+
+The original question and the three postures are kept below, because the
+reasoning for the two not taken is still the record of what was weighed.
+
+<details>
+<summary>The question as it stood</summary>
 
 Background from the repository owner: OpenQM was very insecure and **remote
 access was the worst of it**. Telnet was removed and replaced with ssh only;
@@ -2987,6 +3175,8 @@ already the right shape for it: native UCRT64, and confirmed this session to
 depend on nothing but Windows system DLLs, so a .NET or native client can use
 it with no MSYS2 runtime anywhere in the client tier. That separation was made
 for a different reason (§5.3) and happens to be exactly what this needs.
+
+</details>
 
 ### Settled: the binaries were purged from history on 13 Aug 2026
 

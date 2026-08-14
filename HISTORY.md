@@ -27,6 +27,96 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - SD accounts become ssh-only, and the API goes through ssh too
+
+**Decision from the repository owner**, 14 Aug 2026: accounts SD creates reach
+the machine over ssh and nothing else; local terminal access is for
+administrators, who have ordinary Windows accounts; and **the API is piped
+through ssh as well**. That last clause settles §8's "how should the API be
+exposed" — posture B, which is what the owner had already done to OpenQM.
+
+Asked whether `CREATE.ACCOUNT ... ADMINISTRATOR` should still create the
+Windows account, the answer was **yes, unrestricted, keep the keyword**. So the
+keyword now decides two things at once:
+
+| | `CREATE.ACCOUNT USER x` | `... x ADMINISTRATOR` |
+|---|---|---|
+| Windows group | standard user | `Administrators` |
+| Administers SD | no | yes |
+| Console / RDP | **denied** | allowed |
+| ssh | yes | yes |
+
+### The design, and the two things it turns on
+
+**Two rights, and deliberately not a third.**
+`SeDenyInteractiveLogonRight` blocks the console and
+`SeDenyRemoteInteractiveLogonRight` blocks Remote Desktop.
+**`SeDenyNetworkLogonRight` must not be set** — Win32-OpenSSH authenticates
+with a network logon, cleartext-network for passwords and S4U for keys, so
+denying it would remove the one route the design exists to preserve. That is
+the whole risk in one sentence.
+
+**The rights go on a GROUP, applied once by the installer, not per account.**
+`CREATE.ACCOUNT` adds every non-administrator account to `sdsshonly`; that
+membership is all account creation does. Rejected alternatives, and why:
+
+- There is **no PowerShell cmdlet for user rights** — measured,
+  `Get-Command *AccountRight*` returns nothing — so a per-account grant means
+  P/Invoke or `secedit` on the hot path of every creation.
+- **`secedit` is a read-modify-write of the entire USER_RIGHTS area.** Running
+  it per account rewrites unrelated machine policy and races anything else
+  editing it.
+- A group is **inspectable**: "who is confined to ssh?" is one membership list
+  rather than a walk through `secpol.msc`.
+- SD already has `!os_group("ADDMEM", ...)`, written and verified.
+
+**It cannot be `sdusers`**, which is the trap worth naming: that group grants
+access to the data *files* and administrators are in it too, so denying console
+logon there would lock administrators out of their own machine.
+
+### What was built
+
+`gplbld/deny-logon.ps1`, shipped to `C:\Program Files\SD\` by `stage.py` and
+run once by the installer. It uses `LsaAddAccountRights` through P/Invoke —
+surgical, one SID and one right — rather than `secedit`. It lives in a file
+rather than inline in the `.iss` deliberately: an inline `[Run]` parameter is
+exactly where the OpenSSH brace bug hid, and a file can be read and
+parse-checked on its own.
+
+`CREATEA` gained the `else` branch to the `ADMINISTRATOR` test, plus messages
+10034 and 10035. It compiles with 0 errors.
+
+### Verified, and the part that is not
+
+Against a throwaway group:
+
+| Right | Before | After |
+|---|---|---|
+| `SeDenyInteractiveLogonRight` | `Guest` | `sddenyprobe,Guest` |
+| `SeDenyRemoteInteractiveLogonRight` | *absent* | `sddenyprobe` |
+| `SeDenyNetworkLogonRight` | `Guest` | `Guest` — untouched |
+
+`Guest` surviving in the first row is the case for LSA over `secedit`
+demonstrated rather than argued. Idempotent on a second run; a missing group
+exits 1 saying so.
+
+**One trap in reading it back:** `secedit /export` writes resolvable local
+groups **by name**, not by SID, so a check that greps the exported policy for a
+SID reports "absent" when the right is present. The first attempt at this test
+did exactly that and reported a false negative.
+
+**Nothing has been tested through ssh**, because this machine still has no
+`sshd` — the install hit the Features-on-Demand delay, was terminated part-way
+and left a pending reboot. The untested list is in §4, and item 2 on it is the
+one that matters: if Win32-OpenSSH turns out to need something these rights
+remove, the model fails **closed** and nobody reaches SD at all. It should be
+proven on a machine with `sshd` before anyone relies on it.
+
+`AllowGroups` in `sshd_config` — the owner's second layer — is designed in
+§5.6.2 and **not implemented**. It needs care: it means writing to a file SD
+does not own, and the list must include administrators or the machine's own
+administrator loses ssh.
+
 ## 14 Aug 2026 - the OpenSSH option never worked, and never said so
 
 Found by the repository owner ticking the box during a normal interactive
