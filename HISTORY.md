@@ -27,6 +27,79 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - The configuration file finds itself, and the last Inno blocker goes
+
+Instruction from the repository owner: fix the configuration lookup so it does
+not need `SCARLET_CONFIG`, and if a variable is still needed, rename it to
+`SD_CONFIG`. Both done. This was the last of the four things §5.16 listed as
+standing between the staged tree and an Inno package.
+
+**What it was.** The server read `SCARLET_CONFIG` and fell back to
+`/etc/sd.conf`; the client library read `SD_CONFIG` and fell back to `sd.ini`
+in the Windows directory, with a comment claiming the two matched. They did
+not, so setting the variable you would expect configured exactly one of them.
+Worse for an install: once the binaries ship with `msys-2.0.dll` beside them
+the POSIX root moves to `C:\Program Files\SD\`, so `/etc/sd.conf` resolves
+*inside* Program Files — read-only to ordinary users, and separated from the
+data it describes. The install test on this day had to set the variable by
+hand, which is not an install.
+
+**What it is now.** Both read `SD_CONFIG`; both fall back to
+`%ProgramData%\SD\sd.conf`, with the literal `C:\ProgramData\SD\sd.conf` only
+as a last resort. `%ProgramData%` rather than the literal because that folder
+can be relocated and the variable holds where it actually is — the same
+reasoning as deriving PowerShell's path from `%SystemRoot%` earlier in the day.
+`SCARLET_CONFIG` is no longer read at all: it named a project this is not part
+of, and §5.16's standing rule is to convert rather than tolerate. The
+`sd.ini`-in-`C:\Windows` fallback is gone too.
+
+The two values are `SD_CONFIG_ENV` and `SD_CONFIG_DEFAULT` in `gplsrc/sddefs.h`
+and are **duplicated** in `sdclilib.c`, because the client is a separate
+toolchain that must not include the server's headers (§5.2). Both files say so;
+change them together.
+
+Also fixed while here: one caller of `GetConfigPath()` in `sdfix.c` passed a
+201-byte buffer where every other passes `MAX_PATHNAME_LEN + 1`, so the
+function's contract was whatever the smallest caller happened to be.
+
+**Verified** with `SD_CONFIG` and `SCARLET_CONFIG` both explicitly unset: the
+staged tree, installed by copying to `C:\ProgramData\SD\`, started and reported
+431 records from `COUNT VOC` and `Pathname: C:\ProgramData\SD\sdsys` from
+`LIST ACCOUNTS`.
+
+**Two traps found on the way, and the second one cost the most time in this
+session.**
+
+The UCRT64 compiler needs its own `bin` directory on PATH even when invoked by
+absolute path. `gcc.exe` finds its DLLs beside itself; the `cc1.exe` it spawns
+does not, and resolves them through PATH. Without it, `gcc --version` works and
+compiling a one-line program **exits 1 with completely empty stdout and
+stderr** — which reads as a broken compiler, not a search path. The Makefile
+now sets it from `$(dir $(UCRT_CC))`, so the build no longer depends on the
+developer's shell.
+
+And `make sd` lists `sdclilib` as a *prerequisite*, so when the client failed
+to build, make stopped before linking `sd` — and left `bin/sd.exe` at its
+previous contents. Every test after that measured a binary that did not contain
+the change being tested, including a password prompt that was blamed in turn on
+`$CRED`, on the CRLF fix, and on `LOGIN`, none of which had anything to do with
+it. **After a build failure, check the timestamp on `bin/sd.exe` before
+believing any test result.**
+
+**Where this leaves the installer.** All four blockers in §5.16 are cleared. The
+remaining work is the `.iss` itself, the `icacls` step, prompting for the SDSYS
+password last, and the uninstaller's policy for `C:\ProgramData\SD\`. Two things
+are still untested and both need something this session did not have: an install
+onto a machine with **no development tree**, and `C:\Program Files\SD\`, which
+needs elevation to create.
+
+**State left on this machine.** `C:\ProgramData\SD\sdsys` is a freshly
+bootstrapped install with **no SDSYS password and no ACLs**, and it is what SD
+now reads by default. The development tree at `/usr/local/sdsys` is unchanged
+but is reachable only with `SD_CONFIG=/etc/sd.conf`.
+
+---
+
 ## 14 Aug 2026 - The staged tree is bootstrapped, and installing it found four bugs
 
 Instruction from the repository owner: fix the staging gap and pre-bootstrap

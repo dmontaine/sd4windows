@@ -11,15 +11,19 @@ built it; see the correction in §5.6 and the HISTORY entry of the same date.
 
 **Where to start tomorrow.**
 
-1. **Make the install Inno-ready**, which §5.16 lists in dependency order.
-   Two of the four blockers are now gone: the shell (PowerShell) and the
-   pre-bootstrap, which is built and verified (§4). **What remains is the
-   configuration file.** An installed system cannot find `sd.conf` without
-   `SCARLET_CONFIG` being set — the install test on 14 Aug 2026 had to set it
-   — because the compiled fallback is `/etc/sd.conf`, which the relocated
-   POSIX root puts inside `C:\Program Files\SD\`. That is now the single
-   thing standing between here and an Inno package. Then the `.iss` itself,
-   the `icacls` step, and the uninstaller decision.
+1. **Write the Inno Setup script.** All four of §5.16's blockers are now
+   cleared — the shell, the pre-bootstrap, the staging gap and the
+   configuration file — and a staged tree has been installed and run with
+   nothing set in the environment (§4). What is left is the `.iss` itself, the
+   `icacls` step that actually makes the data private (§5.7), prompting for
+   the SDSYS password **last**, and deciding what the uninstaller does with
+   `C:\ProgramData\SD\`.
+
+   **Install onto a machine with no development tree** is still the test that
+   matters and has still not been done: this machine has one, so an accidental
+   dependency could survive. `C:\Program Files\SD\` has also never been
+   used, because creating it needs elevation — Inno has that, this session did
+   not.
 2. **Run the account commands once.** They compile and have never executed
    (§4). Needs an elevated session and an `sdusers` group, neither of which
    exists here yet. Until then this is code nobody has seen work.
@@ -307,6 +311,11 @@ SD administrator. `/tmp` does not survive a rebuild; the recipe in §6 does.
 
 ### Picking it up again
 
+**Note the default configuration moved on 14 Aug 2026.** With nothing set,
+SD now reads `C:\ProgramData\SD\sd.conf` and therefore the installed tree at
+`C:\ProgramData\SD\sdsys`, which has **no SDSYS password and no ACLs**. The
+development tree below is reachable only by setting `SD_CONFIG=/etc/sd.conf`.
+
 `echo hunter2 | sd -internal COUNT VOC` should report 432 records and
 `echo hunter2 | sd -ASDSYS WHO` should report `SDSYS`. **Both need the password
 now** — the internal no-password path is gone (§5.6). If they fail, SD is not
@@ -565,6 +574,15 @@ Keep this split honest. It is the single most useful thing in the file.
   Files\SD\` was not used, because creating it needs elevation — the
   binaries were run from the staging directory, which exercises the same POSIX
   root rule but not the final location.
+
+- **An installed system finds its configuration with nothing set in the
+  environment.** Observed 14 Aug 2026 with `SD_CONFIG` and `SCARLET_CONFIG`
+  both explicitly unset: `sd -start` succeeded, `COUNT VOC` reported **431
+  records** and `LIST ACCOUNTS` reported `Pathname: C:\ProgramData\SD\sdsys`,
+  reading `C:\ProgramData\SD\sd.conf` found through `%ProgramData%`. It also
+  warned "account SDSYS has no password set", which is the correct state for a
+  tree the installer has not finished. This was the last thing standing between
+  the staged tree and an Inno package (§5.16).
 
 ### Not verified — treat as unknown
 
@@ -1097,6 +1115,15 @@ MSYS2 destroys the database.
 **Current state is worse than just the Unix paths — the server and client do
 not agree on how to find the configuration:**
 
+**Settled 14 Aug 2026.** Both now read `SD_CONFIG` and both fall back to
+`%ProgramData%\SD\sd.conf`, with `C:\ProgramData\SD\sd.conf` as the last
+resort if the variable is missing. `SCARLET_CONFIG` is gone — it named a
+project this is no longer part of — and so is the `sd.ini`-in-`C:\Windows`
+fallback. The two values live in `SD_CONFIG_ENV` and `SD_CONFIG_DEFAULT` in
+`gplsrc/sddefs.h`, and are duplicated in `sdclilib.c` because the client is a
+separate toolchain that must not include the server's headers (§5.2); change
+both together. What it used to be:
+
 | | Environment variable | Fallback |
 |---|---|---|
 | Server, `GetConfigPath()` in `inipath.c` | `SCARLET_CONFIG` | `/etc/sd.conf` |
@@ -1426,13 +1453,10 @@ it is already decided rather than done:
 2. **The layout move** (§5.8, §7 step 1). Inno installs to
    `C:\Program Files\SD\usr\bin\` and `C:\ProgramData\SD\`; `gplbld/stage.py`
    already builds exactly that. Not done in the live tree.
-3. **One configuration file, found without an environment variable.** The
-   server reads `SCARLET_CONFIG` and falls back to `/etc/sd.conf`; the client
-   reads `SD_CONFIG` and falls back to `sd.ini` in the Windows directory. An
-   installed system must find `C:\ProgramData\SD\sd.conf` with nothing set.
-   Note the relocated POSIX root makes `/etc/sd.conf` resolve *inside*
-   `C:\Program Files\SD\`, which is read-only to ordinary users and separates
-   the configuration from the data it describes. **Required**, not tidiness.
+3. **One configuration file, found without an environment variable — DONE,
+   14 Aug 2026.** Both server and client read `SD_CONFIG` and fall back to
+   `%ProgramData%\SD\sd.conf`. Verified with nothing set in the environment
+   (§4). See §5.8.
 4. **Pre-bootstrap the staged tree — DONE, 14 Aug 2026.**
    `gplbld/stage.py --bootstrap` runs `gplbld/bootstrap.py` against the staged
    tree and ships the result, so installing is a file copy. Verified end to
@@ -1484,6 +1508,27 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **The UCRT64 compiler needs its own `bin` on PATH even when it is invoked by
+  absolute path, and it fails with no message whatsoever.** `gcc.exe` finds its
+  DLLs beside itself, but the subprograms it spawns — `cc1.exe`, down in
+  `ucrt64/lib/gcc/...` — do not, and resolve their UCRT64 DLLs through PATH.
+  Without it, `gcc --version` works fine and **compiling `int main(void){return
+  0;}` exits 1 with completely empty stdout and stderr.** That reads as "the
+  compiler is broken", not as a search-path problem, and it does not look like
+  anything in the source. The Makefile now prepends `$(dir $(UCRT_CC))` to PATH
+  for the `sdclilib` target, so it no longer depends on the developer's shell.
+  Found 14 Aug 2026.
+
+- **`make sd` lists `sdclilib` as a prerequisite, so when the client fails to
+  build, `sd.exe` is never relinked — and you go on testing the old one.**
+  `sd: $(SDOBJS) sdclilib sdtic ...`. Make builds prerequisites first, the
+  client failed, make stopped, and `bin/sd.exe` kept an earlier timestamp and
+  earlier contents. Every test then measured a binary that did not contain the
+  change under test, which sent a good hour into diagnosing SD behaviour that
+  had already been fixed in source. **After any build failure, check the
+  timestamp on `bin/sd.exe` before believing a test result.** `make exit=0` and
+  a `Linking sd` line are the things to look for.
 
 - **`sd -stop` used to kill its own caller, and everything else in the process
   group.** `stop_sd()` in `sysseg.c` looped over the user table doing
