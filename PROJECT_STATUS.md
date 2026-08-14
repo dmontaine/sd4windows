@@ -78,15 +78,28 @@ lines, against 145 for the broken run).
 
 2. **Install on a genuinely clean machine.** Still the test that matters, and
    still not done: this machine has a development tree, so an accidental
-   dependency could survive. What changed is that it is now worth doing — the
-   first-install path works here, so a clean-machine failure would be a real
-   finding rather than a known one. Expect it to fail at `sd -start` until
-   step 1 is settled, and **count the files again** rather than trusting
-   Setup's exit code.
+   dependency could survive. **The repository owner is building a second
+   machine for this** (14 Aug 2026), which is what it has been waiting for.
 
-   Also still untested: `SET.PASSWORD` typed at a real Windows console (§4),
-   which is the postinstall step and the one question that needs a person at a
-   keyboard.
+   **The `sdadmins` gap that would have made this fail is closed** — §5.6.1
+   means `IsAdmin()` now tests Windows `Administrators`, which always exists,
+   so there is no group for the installer to forget to create and `sd -start`
+   should work on a fresh machine. That was the predicted failure and it is
+   gone.
+
+   **Rebuild the installer first — the one at `C:\Users\dmont\sdout\` is
+   stale.** It was built at 08:35 on 14 Aug and predates everything after it:
+   the `IsAdmin()` change, the OpenSSH brace fix, the removal of the SDSYS
+   password step, `sdsshonly` and `deny-logon.ps1`, and the `CREATE.ACCOUNT`
+   work. Full sequence at the top of `gplbld/sd.iss`; the `--bootstrap` stage
+   is the slow part.
+
+   What to check there, in order: **count the files** (3,264 under
+   `sdsys`, not 16 — do not trust Setup's exit code); `sd -start` and
+   `COUNT VOC` reporting 431; that `sdwind` is running; and then the whole
+   ssh-only model in §4 Unverified, which is the reason a second machine is
+   worth having — it is the only place `sshd` can be exercised without the
+   half-applied capability this machine is carrying.
 
 3. **Run the account commands once.** They compile and have never executed
    (§4). Needs an elevated session; the `sdusers` group now exists, so that
