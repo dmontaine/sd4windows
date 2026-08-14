@@ -27,6 +27,57 @@ corrected.
 
 ---
 
+## Correction: 14 Aug 2026 - the installer was NOT verified for a first install
+
+Corrects the entry "The staged tree is bootstrapped" and the §4 claim added
+with it, both of which said the installer worked. **It works on the upgrade
+path. A first install produced a broken database.**
+
+`gplbld/sd.iss` gated the data tree with `Check: DataTreeAbsent`, which tested
+`DirExists` directly. A Check function is evaluated **per file**. The first
+file of the sdsys set created `C:\ProgramData\SD\sdsys`, every later evaluation
+therefore answered False, and the remaining ~3,260 files were silently skipped.
+The result: 16 files installed, no `gcat`, no `GPL.BP.OUT`, no working
+database - and Setup exited 0.
+
+**Why the first round of testing missed it, which is the part worth learning
+from.** The machine already had a data tree, put there by hand earlier in the
+day while testing install-by-copy. So the only path exercised was the upgrade
+one, which skips the whole set consistently and looks identical whether the
+Check is right or wrong. Every observable was green: exit 0, files in Program
+Files, correct ACLs, SD starting and reporting 431 records - because SD was
+reading the hand-made tree, not anything the installer had laid down. The test
+that would have caught it is the one that had been deferred all along, and the
+reason for deferring it was that the machine was not clean.
+
+The lesson is not "test on a clean machine", which was already written down. It
+is that **an install test which does not COUNT what was installed proves very
+little**: every high-level check passed against a database the installer had
+not written. §7 step 1 now says to count the files and not trust the exit code.
+
+**Fixed but NOT verified.** `InitializeSetup` caches the answer once, before
+any file is copied, and `DataTreeAbsent` returns the cached value. The
+installer was rebuilt with the fix. It has never been run - the session ended
+first, and the machine is left carrying the broken install. The state block at
+the top of PROJECT_STATUS.md says what is there and how to clear it.
+
+Two smaller findings from the same round, both real:
+
+- **The uninstaller left a dead directory on the system PATH.** Inno cannot
+  undo an appended `[Registry]` value, because the `olddata` constant means it
+  cannot know which part it contributed. `RemoveFromPath` now strips it by
+  name at `usUninstall`. The uninstaller otherwise did the important thing
+  correctly: `C:\ProgramData\SD` survived untouched, which is what a silent
+  uninstall must do.
+- **A brace comment in an Inno `[Code]` section cannot mention a
+  brace-delimited constant.** The comment ends at the first closing brace and
+  the prose after it is parsed as code, so the error points at English several
+  lines from any statement. The `(* *)` form works - and must not mention
+  itself either, which ended the comment the same way and cost a second
+  compile.
+
+---
+
 ## 14 Aug 2026 - The configuration file finds itself, and the last Inno blocker goes
 
 Instruction from the repository owner: fix the configuration lookup so it does

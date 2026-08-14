@@ -5,13 +5,53 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, end of session. That session reversed a decision
-on the owner's instruction — **SD creates and deletes OS accounts again** — and
-built it; see the correction in §5.6 and the HISTORY entry of the same date.
+**Last updated:** 14 Aug 2026, end of session, at commit `954c653` plus the
+handoff commit that carries this line. A long session: OS account provisioning
+came back, PowerShell replaced bash as the shell, the staged tree became
+pre-bootstrapped, the configuration file learned to find itself, and the Inno
+installer was written, run, and found to be broken on a first install. **Read
+the machine state below and the correction in §4 before doing anything.**
+
+**STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **broken SD
+install** on it, left by the bug described in §4:
+
+| Thing | State |
+|---|---|
+| `C:\Program Files\SD` | complete and correct, 15 files |
+| `C:\ProgramData\SD\sdsys` | **16 files - not a working database** |
+| `sdusers` group | exists, with `GITORLI\don` in it |
+| System PATH and the Settings > Apps entry | both present |
+| `C:\ProgramData\SD` ACL | locked to sdusers/Administrators/SYSTEM, so an unelevated session cannot read it until `don` signs out and back in |
+| MSYS2 dev tree at `/usr/local/sdsys` | untouched, still works, reached with `SD_CONFIG=/etc/sd.conf` |
+
+**Clean it off before testing anything.** Elevated: run
+`C:\Program Files\SD\unins000.exe /VERYSILENT`, delete `C:\ProgramData\SD`,
+then remove the `sdusers` group. A script that cleans, reinstalls with the
+fixed installer and verifies in one elevated pass is at
+`C:\Users\dmont\sdfinal.ps1` - written, never run, the session ended first.
+
+The staged tree is at `C:\Users\dmont\stagetest` and the built installer at
+`C:\Users\dmont\sdout\sd-setup-1.0-2.exe`. **That installer already contains
+the fix**, having been rebuilt after the bug was found. Neither survives a
+rebuild of the machine; both are reproduced by the commands at the top of
+`gplbld/sd.iss`.
 
 **Where to start tomorrow.**
 
-1. **Install on a clean machine.** The installer has been run here and works
+1. **Re-run the first install with the fixed installer, and count the files.**
+   This is the one thing that matters, and it is half done: the bug is found,
+   the fix is committed, the installer is rebuilt, and **the fixed version has
+   never been run**. Clean the machine first - see the state block at the top
+   of this file. What to check afterwards, because "Setup exited 0" is exactly
+   what the broken version did too:
+
+   - `C:\ProgramData\SD\sdsys` should hold roughly **3,000 files**, not 16.
+   - `sdsys\gcat` and `sdsys\GPL.BP.OUT` must both be **populated**.
+   - Then `sd -start`, `COUNT VOC` reporting **431 records**, `sd -stop`.
+
+   Count the files. Do not trust the exit code.
+
+2. **Install on a genuinely clean machine.** The installer has been run here and works
    (§4), but this machine had a development tree *and* an existing data tree,
    so what was exercised was the **upgrade** path. A genuine first install —
    where the installer lays down `sdsys` itself — has not happened, and it is
@@ -587,7 +627,20 @@ Keep this split honest. It is the single most useful thing in the file.
   binaries were run from the staging directory, which exercises the same POSIX
   root rule but not the final location.
 
-- **THE INSTALLER RUNS, AND THE INSTALLED SYSTEM WORKS.** `sd-setup-1.0-2.exe`
+- **CORRECTED 14 Aug 2026, READ THIS BEFORE TRUSTING THE ENTRY BELOW.** What
+  was verified is the **upgrade** path only. A genuine first install was then
+  tried and **produced a broken database**: `Check: DataTreeAbsent` is
+  evaluated *per file*, so the first file created `C:\ProgramData\SD\sdsys`,
+  every later evaluation answered False, and the remaining ~3,260 files were
+  silently skipped. 16 files installed, no `gcat`, no `GPL.BP.OUT` — and Setup
+  still exited 0. The upgrade path hid it, because it skips the whole set
+  consistently and looks identical either way.
+
+  **A fix is committed and has NOT been run.** `InitializeSetup` now caches the
+  answer once, before any file is copied. See §7 step 1.
+
+- **The installer runs, and the installed system works — ON THE UPGRADE PATH.**
+  `sd-setup-1.0-2.exe`
   built from `gplbld/sd.iss` was run on this machine on 14 Aug 2026, elevated
   and `/VERYSILENT`, exit code 0. Everything it is supposed to do, it did:
 
