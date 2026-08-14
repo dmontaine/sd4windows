@@ -27,6 +27,75 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - A test for CREATE.ACCOUNT, and two traps in scripting SD at all
+
+Same session as the ssh-only work below, after it. `CREATE.ACCOUNT`'s ssh-only
+branch at `CREATEA` line 400 had still never executed — the `sdsshonly` group
+did not exist when the verb was last run, and by now it does.
+
+**`gplbld/verify-createaccount.ps1` is written and has NOT been run.** It needs
+an elevated window. Recording it here rather than waiting, because the script
+is the work and its result is a separate fact.
+
+It goes further than checking the verb returns: it takes the account SD
+produced and puts it through the three measurements that proved §5.6.2 —
+`LogonUser` INTERACTIVE refused `1385`, `NETWORK_CLEARTEXT` admitted, and a
+real ssh login with the password **SD itself set**. A pass would close the
+chain end to end rather than checking group membership and inferring the rest.
+
+Its cleanup removes the **Windows** half only, leaving the `ACCOUNTS` record
+and the account directory. That is deliberate: removing those is
+`DELETE.ACCOUNT`'s job and §7 step 1c has not decided what `DELETE.ACCOUNT`
+should do, so a cleanup here would presuppose the decision. It also means
+whoever runs it sees what a half-removed account looks like, which is the thing
+1c has to settle.
+
+The helpers are **copied** from `verify-sshonly.ps1` rather than shared. That
+script had just produced the session's main result; factoring its internals
+into a module would need another elevated run to prove the refactor changed
+nothing, which is a poor trade for eighty lines. A third caller is the point to
+make a common file.
+
+### What was verified without elevation, which is most of it
+
+Driven unelevated against the installed tree, with SD started from
+`C:\Program Files\SD\usr\bin\sd.exe`: `COUNT VOC` returned **431 record(s)
+counted** and `WHO` returned `SDSYS`, through `sd -ASDSYS` with no password,
+since SDSYS has none set and `LOGIN` admits an administrator.
+
+`CREATE.ACCOUNT USER sdacct1` then parsed, ran, and stopped at **`Create User
+Failed, OS Error: 5`** — `ERROR_ACCESS_DENIED`, the elevation gate in
+`CREATE_USER` — having created **nothing**, confirmed by checking for both the
+Windows user and the account directory afterwards. So the VOC entry, the verb,
+the parsing and the failure path are all confirmed on the installed system, and
+only the privileged half is untested.
+
+### Two traps, and they compound
+
+Both cost time before the above worked, and both make SD look broken when it
+is not.
+
+1. **`Start-Process -RedirectStandardInput` makes SD exit.** It prints its
+   banner, shows one prompt, answers `Process terminated` and stops. This is
+   the same behaviour §6 already recorded for a `<` redirect: SD wants a pipe,
+   not a file handle. The redirect had been chosen deliberately, to avoid the
+   `2>&1` trap found earlier the same day — one trap's fix walking into
+   another.
+
+2. **A PowerShell pipe prepends U+FEFF to the first line.** So
+   `@('COUNT VOC','WHO','OFF') | & sd.exe -ASDSYS` answers `COUNT is not in
+   your VOC` for a good command, while `WHO` on the second line runs fine.
+   Setting `$OutputEncoding` to `ASCIIEncoding` does **not** fix it — its
+   preamble is empty and the BOM still arrives, so it comes from somewhere
+   else and was not chased further. The fix is a blank sacrificial first line:
+   the BOM lands on a line that was empty anyway.
+
+   They compound because the first line of a scripted session is the one that
+   matters, and because the obvious defence against the second — redirect from
+   a file instead of piping — is the first.
+
+---
+
 ## Correction: 14 Aug 2026 - RDP to this machine from itself: measured, and it does not work
 
 Corrects the entry immediately below, "RDP denial CAN probably be tested on one

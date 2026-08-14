@@ -26,8 +26,18 @@ unproven. What landed:
 - **`BUILTIN\Users` membership is not needed** — asked because `CREATE_USER`
   never adds it, answered by measuring rather than by adding it defensively.
 
-**Where it stopped:** everything above is verified except RDP refusal. §5.6.2's
-second layer, `AllowGroups` in `sshd_config`, is still not implemented.
+- **RDP refusal cannot be tested from one machine** — measured, three attempts,
+  after two wrong inferences about it that are corrected in HISTORY.md. It
+  moves to the second machine.
+- **`gplbld/verify-createaccount.ps1` is written but HAS NOT RUN.** It needs an
+  elevated window. Everything in `CREATE.ACCOUNT` up to the elevation gate is
+  confirmed (§4); the privileged half is untested and is step 0.
+- **Scripting SD from PowerShell has two traps** (§6), both of which produce a
+  failure that looks like SD's fault and is not.
+
+**Where it stopped:** §5.6.2 is verified except RDP. The `CREATE.ACCOUNT` test
+is written and unrun — **that is step 0, and it is one command in an elevated
+window.** `AllowGroups`, §5.6.2's second layer, is still not implemented.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
@@ -46,7 +56,8 @@ install** on it, from the fixed installer:
 | **The machine was rebooted** on 14 Aug 2026 | `don`'s token now carries `sdusers`, so **an ordinary unelevated session runs SD** — verified, §4. The sign-out trap in §6 is cleared *on this machine only*; it applies afresh to every new user added to the group |
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled, `C:\ProgramData\ssh\sshd_config` created with defaults. So the ssh-only model (§5.6.2) can now be tested **here**, which was not true earlier in the day |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
-| `sdsshprobe` account | **a real Windows account, left behind on purpose** by `verify-sshonly.ps1 -Keep`, so the RDP test can still be done. Password `kN7uhhUBauxDCZ9TMxmX-Aa9`, in `sdsshonly` and `Users`. **Delete it** with `verify-sshonly.ps1 -Cleanup`, and delete `C:\Users\dmont\sshonly-transcript.txt`, which holds the same password |
+| Test accounts | **none. Cleaned up 14 Aug 2026** — `sdsshprobe` and its transcript are gone, confirmed. `sdsshonly` is empty and that is correct; the group is the installer's, the membership is not |
+| SD | **running as this session ended**, started 14 Aug 2026 from `C:\Program Files\SD\usr\bin\sd.exe` and left up. `sd -stop` takes it down |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -64,9 +75,23 @@ lines, against 145 for the broken run).
 
 **Where to start next.**
 
-0. **Finish the two loose ends the ssh-only work left, then delete the probe
-   account.** The model itself is proven (§4); what is below is small and
-   should not be left to drift.
+0. **RUN `gplbld/verify-createaccount.ps1` FROM AN ELEVATED WINDOW.** This is
+   the first thing to do and it is one command. `CREATE.ACCOUNT`'s ssh-only
+   branch has still never executed — the group did not exist when the verb was
+   last run, and it does now. Everything up to the elevation gate is already
+   confirmed (§4 Verified), so this is the privileged half and nothing else:
+
+   ```powershell
+   powershell -File sdb_ai\sd64\gplbld\verify-createaccount.ps1
+   ```
+
+   A pass closes the chain end to end — SD creates the account, SD restricts
+   it, and the restriction is then shown to hold by the same three
+   measurements that proved §5.6.2. Read §4 Unverified for what its cleanup
+   deliberately does *not* remove.
+
+1. **Finish the loose ends the ssh-only work left.** The model itself is
+   proven (§4); what is below is small and should not be left to drift.
 
    a. **RDP refusal has moved to step 2, and it is measured rather than
       assumed this time.** Three attempts on 14 Aug 2026 — `localhost` and the
@@ -75,16 +100,9 @@ lines, against 145 for the broken run).
       here**; the table is in §4 Unverified. It needs a separate client
       machine.
 
-   b. **Delete the probe** — it has no purpose left on this machine — and the
-      transcript that holds its password:
-
-      ```powershell
-      powershell -File sdb_ai\sd64\gplbld\verify-sshonly.ps1 -Cleanup
-      Remove-Item C:\Users\dmont\sshonly-transcript.txt
-      ```
-
-      Leave `sdsshonly` alone. It is what the installer creates, and
-      `CREATE.ACCOUNT` needs it.
+   b. **Done 14 Aug 2026 — the probe account and its transcript are deleted**,
+      confirmed. `sdsshonly` was deliberately left, because it is what the
+      installer creates and `CREATE.ACCOUNT` needs it.
 
    c. **`AllowGroups` is still not implemented** (§5.6.2, the second layer).
       `sshd_config` now exists, so there is something to edit. Read the two
@@ -93,12 +111,8 @@ lines, against 145 for the broken run).
       reconfiguring an ssh server SD did not install — so it is an installer
       offer, not something a verb does silently.
 
-   **`CREATE.ACCOUNT USER <name>` has still never been run with `sdsshonly`
-   present.** The group did not exist when the verb was last exercised, so the
-   ssh-only branch at `CREATEA` line 400 has never executed. It is now
-   unblocked on this machine and is the cheapest remaining test: it needs an
-   elevated SD session, and it would leave a real Windows account to delete
-   afterwards.
+   `CREATE.ACCOUNT` with `sdsshonly` present is **step 0 above**, which is
+   where it belongs now that the test for it is written.
 
 1. **Finish the account model now that administration is the OS's** (§5.6.1,
    decided 14 Aug 2026). `IsAdmin()` is done and verified; what is left is the
@@ -1047,6 +1061,25 @@ Keep this split honest. It is the single most useful thing in the file.
   and adding `Users` afterwards changed nothing. So `CREATE.ACCOUNT` does not
   need to add it, and a defensive `Add-LocalGroupMember` was not written.
 
+- **SD can be driven from PowerShell, and `CREATE.ACCOUNT` reaches the OS.**
+  Observed 14 Aug 2026 on the installed tree, unelevated, with SD started from
+  `C:\Program Files\SD\usr\bin\sd.exe`: piped commands through `sd -ASDSYS`
+  with no password — SDSYS has none set, so `LOGIN` warns and admits an
+  administrator — and got `431 record(s) counted` from `COUNT VOC` and `SDSYS`
+  from `WHO`.
+
+  `CREATE.ACCOUNT USER sdacct1` then parsed, ran, and stopped at
+  **`Create User Failed, OS Error: 5`** — `ERROR_ACCESS_DENIED`, the elevation
+  gate in `CREATE_USER` — with **nothing created**: no Windows user and no
+  account directory, both checked afterwards. So the VOC entry, the verb, the
+  argument parsing and the failure path are all confirmed on the installed
+  system, and the only untested part of `CREATE.ACCOUNT` is what happens once
+  the token is elevated.
+
+  Getting there cost two traps, both now in §6: SD exits with "Process
+  terminated" when handed a redirected stdin, and a PowerShell pipe puts a BOM
+  on the first line.
+
 ### Not verified — treat as unknown
 
 - **Every OS account operation.** `CREATE.ACCOUNT`, `DELETE.ACCOUNT` and
@@ -1095,10 +1128,24 @@ Keep this split honest. It is the single most useful thing in the file.
 
 - **`CREATE.ACCOUNT` with `sdsshonly` present.** The verb was run on 14 Aug
   2026 (§4 Verified) but the group did not exist then, so the ssh-only branch
-  at `CREATEA` line 400 has still never executed. The group exists now. Note
-  that the branch `stop`s on failure *after* the Windows account and the
+  at `CREATEA` line 400 has still never executed. The group exists now, and
+  everything up to the elevation gate is confirmed (§4 Verified) — what
+  remains untested is only the privileged half.
+
+  **The test is written and ready: `gplbld/verify-createaccount.ps1`.** It
+  needs an elevated window, which is the whole reason it has not run. It
+  checks both halves of the account, and then puts the account SD created
+  through the same three measurements that proved §5.6.2 — `LogonUser`
+  INTERACTIVE refused `1385`, `NETWORK_CLEARTEXT` admitted, and a real ssh
+  login with the password SD itself set — so a pass would close the chain end
+  to end rather than checking group membership and assuming the rest.
+
+  Note that the branch `stop`s on failure *after* the Windows account and the
   account directory have been created, so a failure there leaves a half-made
-  account.
+  account. The script's cleanup removes the **Windows** half only and leaves
+  the `ACCOUNTS` record and the account directory deliberately, because
+  removing those is `DELETE.ACCOUNT`'s job and §7 step 1c has not decided what
+  that should do.
 
 - **That SD itself works over an ssh session** — `sd -ASOMEACCOUNT` typed at a
   real terminal reached over ssh. The ssh transport is proven and SD is proven,
@@ -2296,6 +2343,38 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **Scripting SD from PowerShell: the input must be a PIPE, and the pipe puts
+  a BOM on the first line.** Both measured 14 Aug 2026 against the installed
+  tree. They compound, because the first line of a scripted session is usually
+  the one that matters.
+
+  **`Start-Process -RedirectStandardInput` does not work.** SD prints its
+  banner, shows one prompt and answers `Process terminated`, then exits — the
+  same behaviour this section already records for a `<` redirect, and for the
+  same reason: SD wants a pipe, not a file handle.
+
+  **The pipe prepends U+FEFF to the first line**, so
+
+  ```powershell
+  @('COUNT VOC','WHO','OFF') | & sd.exe -ASDSYS
+  ```
+
+  answers `COUNT is not in your VOC` for a perfectly good `COUNT VOC`, while
+  `WHO` on the second line runs fine. Setting `$OutputEncoding` to
+  `ASCIIEncoding` does **not** fix it — checked, its preamble is empty and the
+  BOM still arrives, so it is not coming from there.
+
+  **Send a blank sacrificial first line.** The BOM lands on a line that was
+  empty anyway, SD says `is not in your VOC` about nothing, and the real
+  commands follow untouched:
+
+  ```powershell
+  @('', 'COUNT VOC', 'WHO', 'OFF') | & sd.exe -ASDSYS   # 431 record(s) counted
+  ```
+
+  Strip the terminal escapes from the output (`` -replace "`e\[[0-9]*[A-Za-z]", '' ``)
+  or every line arrives wrapped in `[K` and cursor moves.
 
 - **In PowerShell 5.1, `native.exe 2>&1` turns every stderr LINE into a
   terminating error when `$ErrorActionPreference = 'Stop'`.** Found 14 Aug
