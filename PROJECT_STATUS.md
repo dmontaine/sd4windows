@@ -5,8 +5,11 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, fourth session of the day, at commit `9b44d4b`
-plus the commits that carry this line. What landed:
+**Last updated:** 14 Aug 2026, fourth session of the day. The session began at
+commit `9b44d4b` and ran to `8e7edd5` plus the commit carrying this line —
+nine commits, and the ones worth reading cold are `8b6e793` (why a test failed
+for four reasons that were not the code) and `16cbc8d` (the CRLF phantom
+line). What landed:
 
 - **STEP 0 IS CLOSED. `CREATE.ACCOUNT`'s ssh-only branch works and the
   restriction it applies holds — 16 of 16, end to end** (§4). SD creates the
@@ -90,9 +93,9 @@ install** on it, from the fixed installer:
 
 | Thing | State |
 |---|---|
-| **THE WHOLE INSTALL IS STALE** | **Built 08:32/08:34 on 14 Aug 2026 and never refreshed. It predates commit `2fd0aff`, which is the commit that made `CREATE.ACCOUNT` work.** Anything tested against it is testing 08:32's code — that is the trap in §6, and it is what made step 0 fail. A current installer is waiting at `C:\Users\dmont\sdout\`; installing it needs elevation and means removing the data tree first, since an upgrade will not replace it |
-| `C:\Program Files\SD` | 15 files, correct, binaries in `usr\bin` including `sdwind.exe`. `sd.exe` is 08:32:44 and carries the **pre-fix `op_dio2.c`** |
-| `C:\ProgramData\SD\sdsys` | **3,264 files - a working database**, `COUNT VOC` reports 431. The compiled `gcat/$CREATEA` is 08:34 and has **no ssh-only branch**; `MESSAGES/10032`–`10035` are absent |
+| **The install is CURRENT** | Reinstalled 16:15 on 14 Aug 2026 from the rebuilt installer, after the whole day had been spent on an 08:32 one (§6, the staleness trap). **Date it again before trusting it** — it does not update itself, and a reinstall will not replace the data tree |
+| `C:\Program Files\SD` | **18 files**, binaries in `usr\bin` including `sdwind.exe`; `sd.exe` is **16:15:28**. 18 rather than the stage's 16 because `unins000.exe` and `unins000.dat` are the installer's |
+| `C:\ProgramData\SD\sdsys` | **3,270 files - a working database.** The compiled `gcat/$CREATEA` is 16:15:56 and **contains the ssh-only branch**; `MESSAGES/10032`–`10035` are all present. 3,270 rather than the staged 3,268 because the two test accounts added register entries — expect this number to drift upward as accounts are created |
 | The daemon | **runs**, as `C:\Program Files\SD\usr\bin\sdwind.exe`, and `sd -stop` takes it down |
 | SDSYS password | **not set.** `LOGIN` warns and admits an administrator, which is the correct state for an install nobody has finished |
 | `sdusers` group | exists, with `GITORLI\don` in it |
@@ -106,7 +109,7 @@ install** on it, from the fixed installer:
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **none.** `sdacct1`, `sdacct2`, `sdsshprobe` and the `sdu_` groups are all gone, confirmed 14 Aug 2026. `sdsshonly` is empty and `sdusers` holds only `GITORLI\don`, which is correct — the groups are the installer's, the membership is not |
 | Test accounts, **SD side** | **two are left, deliberately**: `C:\ProgramData\SD\user_accounts\sdacct1` and `sdacct2`, with their `ACCOUNTS` records. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
-| SD | **running as this session ended**, started 14 Aug 2026 from `C:\Program Files\SD\usr\bin\sd.exe` and left up. `sd -stop` takes it down |
+| SD | **running as this session ended** — `sdwind` up, started by `verify-createaccount.ps1` from `C:\Program Files\SD\usr\bin\sd.exe` and left up. It was started by an **elevated** session, so an unelevated `sd -stop` will report success and leave the daemon running (§6); stop it from an elevated window, or `Stop-Process` it |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
