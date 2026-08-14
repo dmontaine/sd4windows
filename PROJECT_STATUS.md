@@ -43,28 +43,39 @@ lines, against 145 for the broken run).
 
 **Where to start next.**
 
-1. **Settle `sdadmins`, because the installer cannot ship without it.** Found
-   14 Aug 2026 by inspection, **not by observation**, and it is the same shape
-   as the bug just fixed: invisible here because of state left over from
-   earlier work.
+1. **Finish the account model now that administration is the OS's** (§5.6.1,
+   decided 14 Aug 2026). `IsAdmin()` is done and verified; what is left is the
+   account-creation half.
 
-   `IsAdmin()` (`gplsrc/linuxlb.c` line 75) is `getgrnam(SD_ADMIN_GROUP)` and
-   returns FALSE if the group is absent — failing closed, deliberately.
-   `SD_ADMIN_GROUP` is `"sdadmins"` (`gplsrc/sddefs.h` line 131). `sd.c` line
-   613 refuses `sd -start` with "Command requires administrator privileges"
-   when it is false. **`gplbld/sd.iss` creates `sdusers` and never
-   `sdadmins`** — nothing in `gplbld/` mentions it. So on a machine that has
-   never had SD development on it, nobody is an SD administrator and
-   **`sd -start` refuses**; the postinstall `SET.PASSWORD SDSYS` step fails the
-   same way. Everything worked here only because `sdadmins` was created by hand
-   on 13 Aug and this token carries it.
+   a. **Add `CREATE.ACCOUNT USER <name> {ADMINISTRATOR}`.** Without the
+      keyword, a standard local account; with it, a Windows administrator and
+      therefore an SD administrator. The existing syntax puts keywords after
+      the name (`{NO.QUERY}`, `CREATEA` lines 39-46), so it fits without
+      disturbing the shape. `CREATE_USER` runs `New-LocalUser -Disabled` and
+      `SET_PASSWD` enables it; adding to `Administrators` is one more
+      `os_group("ADDMEM", ...)` call, and it must use the **gid or the SID**,
+      not the name, for the localisation reason in §5.6.1.
 
-   **This was deliberately not fixed, because the two-line fix would settle an
-   open question by accident.** §8's "what happens to `IsAdmin()` and
-   `sdadmins`?" asks whether `sd -start` keeps an OS-level check at all and, if
-   so, whether the group should be `sdadmins` or Windows `Administrators`. That
-   question now blocks something concrete, which it did not before. **Decision
-   needed from the repository owner** — it is the first item in §8.
+   b. **Two things block that verb working at all**, and both are older than
+      this decision:
+
+      - **`CREATUSR` is not in the shipped `sd.conf`** and defaults off
+        (`config.c` line 193). With it off, `CREATEA` takes the `else` at line
+        177 and stops with "Invalid user name", so creating an account for a
+        new person fails out of the box. Decide whether it ships on, or
+        whether the default changes.
+      - **`CREATE.ACCOUNT` has never been run** (§4). It needs an elevated
+        session — `CREATE_USER` returns status 5 otherwise — so this is also
+        the long-standing next step 3.
+
+   c. **Then reword the installer's closing dialog.** It currently tells the
+      user to run `net localgroup sdusers <name> /add`, which is what raised
+      all of this: SD has a verb that does that *and* creates the Windows user,
+      and the dialog never mentions it. It should lead with `CREATE.ACCOUNT`
+      and keep the manual command as the explicit fallback for someone who
+      already has a Windows account. **Deliberately not done yet** — pointing
+      users at a verb that currently errors would be worse than the present
+      text, so this waits on (a) and (b).
 
 2. **Install on a genuinely clean machine.** Still the test that matters, and
    still not done: this machine has a development tree, so an accidental
@@ -673,6 +684,17 @@ Keep this split honest. It is the single most useful thing in the file.
   system PATH; 15 files in `C:\Program Files\SD`; no `gplbld` anywhere in the
   data tree; and `sd.conf` present.
 
+- **A Windows administrator is an SD administrator, tested two ways.** Observed
+  14 Aug 2026 from an **unelevated** session belonging to a machine
+  administrator — the case the previous test would have got wrong. Positive:
+  the shipped build ran `sd -start`, the daemon came up, `sd -stop` took it
+  down. That is decisive rather than incidental, because gid 544 is **not** in
+  `getgroups()` in that session, so it can only have been found through
+  `getgrouplist()`. Negative: `sd.c` and `linuxlb.c` rebuilt with
+  `-DSD_ADMIN_GID=99999` refused with "Command requires administrator
+  privileges", exit 1 — so the gid really is the test, and §6's probe override
+  still works. See §5.6.1.
+
 - **The daemon starts on an installed system, and it is called `sdwind`.**
   Observed 14 Aug 2026 after the fix. It had **never** started from an install:
   `sysseg.c` execed `"%s/bin/sdlnxd"` built from `sysseg->sysdir`, and
@@ -901,7 +923,14 @@ Windows has no equivalent short of `LogonUser` plus `ImpersonateLoggedOnUser`,
 which is the shape §5.7's service model needs. Full site-by-site table in the
 HISTORY entry "Surveyed every BASIC to C linkage".
 
-### 5.6 Identity model: accounts with passwords, no OS groups (decided 13 Aug 2026)
+### 5.6 Identity model: accounts with passwords (13 Aug 2026), and administration is the OS's (14 Aug 2026)
+
+**SUPERSEDED IN PART ON 14 AUG 2026 — READ 5.6.1 FIRST.** The "SDSYS is the
+only administrator" half of this section was reversed by the repository owner
+the next day. **A Windows administrator is an SD administrator.** Everything
+below about accounts, passwords and the grant list still stands; only the
+question of who is an administrator changed. The correction is in 5.6.1 and in
+the HISTORY entry for 14 Aug 2026.
 
 Decision from the repository owner on 13 Aug 2026, superseding the `sdadmins`
 group model committed earlier the same day in `f56de86`. **SD has no concept of
@@ -910,16 +939,79 @@ accounts reachable by many. Authorisation is entirely internal:
 
 - **Every account carries its own password.** Entry is by password prompt,
   whether from `sd -ASDSYS` at the shell or `LOGTO SDSYS` inside SD. This is
-  the PICK / UniVerse / OpenQM model.
+  the PICK / UniVerse / OpenQM model. **Still true.**
 - **SDSYS is the only administrator.** There is no separate administrator
   account, group or flag. If you know the SDSYS password, you are in.
+  **REVERSED — see 5.6.1.**
 - **OS groups are dropped from SD's logic entirely.** No `sdadmins`, no
-  `sdusers` login gate, no `ACC$GROUP` membership test.
+  `sdusers` login gate, no `ACC$GROUP` membership test. **Partly reversed:**
+  `sdadmins` is gone for good, but administration is now Windows
+  `Administrators`, and `sdusers` remains as the ACL group that grants access
+  to the data tree — which was always a file-permission matter rather than an
+  SD authorisation one.
 
-This resolves the open question that stood in §8 (should admin status live
-inside SD or in an OS group). Neither of the two options recorded there was
-taken; the answer is a third. §5.5 records the Linux privilege model this
+This resolved the open question that stood in §8 (should admin status live
+inside SD or in an OS group). §5.5 records the Linux privilege model this
 replaces, and is retained for background only.
+
+### 5.6.1 A Windows administrator is an SD administrator (decided 14 Aug 2026)
+
+**Decision from the repository owner, 14 Aug 2026**, reversing "SDSYS is the
+only administrator" above and settling §8's `IsAdmin()`/`sdadmins` question,
+which had become blocking. In the owner's words: if you can log in as an
+administrator to the OS, you are an administrator of SD; the installer has to
+be an administrator, so the person who installs SD is an SD administrator
+without any further step.
+
+**What forced it.** Three separate problems turned out to be one:
+
+1. The installer creates `sdusers` and never `sdadmins`, so a clean machine got
+   an install nobody could start (`IsAdmin()` fails closed).
+2. The postinstall "set the SDSYS password" step could not work — see the
+   defects recorded in §4 — and on this model it is not needed at all.
+3. `IsAdmin()` was still the real source of `K$ADMINISTRATOR` despite §5.6
+   saying OS groups were gone, so an OS administrator running `sd -internal`
+   was already being admitted without a password. The behaviour and the written
+   decision had drifted apart; this closes the gap in favour of the behaviour.
+
+**What "administrator" tests, and it is not elevation.** Measured 14 Aug 2026
+with a C probe, from an unelevated session belonging to a machine
+administrator:
+
+| Call | Source | Contains Administrators? |
+|---|---|---|
+| `getgroups()` | the process token | **NO** — a UAC-filtered token carries it "deny only", and Cygwin drops it |
+| `getgrouplist()` | the account's groups in the SAM | **YES** |
+
+`IsAdmin()` used `getgroups()`, which would have meant "elevated", not
+"administrator". It uses `getgrouplist()` now, so an administrator is an SD
+administrator in any session, elevated or not — which is what was asked for.
+
+**Test gid 544, never the name.** `getgrnam("Administrators")` resolves to gid
+544 and `getgrgid(544)` back to `Administrators`, because Cygwin maps built-in
+SIDs to their RID — the same reason `Users` is 545. **`Administrators` is
+renamed on a localised Windows**, so the name is not portable and the number
+is. `gplbld/sd.iss` already had to learn this for `icacls`, where it writes
+`*S-1-5-32-544`.
+
+**Consequences to know.**
+
+- Actions needing an elevated token still fail when unelevated — creating a
+  Windows account among them (`CREATE_USER` returns status 5). So an SD
+  administrator is not automatically able to do every administrative thing;
+  they are able to *administer SD*. §5.7's service model is the real answer.
+- **`sdusers` is unaffected and still needed.** It grants file access to
+  `C:\ProgramData\SD`, which is an ACL question, not an authorisation one. An
+  elevated administrator reaches the tree through the `Administrators` ACE
+  without it; everyone else needs the group, and still needs to sign out and
+  back in after being added (§6).
+- **Normal accounts are standard local accounts.** `CREATE.ACCOUNT USER <name>`
+  creates a standard Windows user. Administrators are made deliberately, with
+  a keyword — see §7.
+- The SDSYS password stops being what confers administration. It still exists
+  and still guards the SDSYS *account*, and every account still carries its own
+  password; what changes is that knowing it is no longer the definition of
+  being an administrator.
 
 **What already exists and can be reused.** The password machinery is present
 and wired:
@@ -2030,32 +2122,35 @@ Each of these cost real time. Read before debugging anything similar.
   token comes from the same logon. **Sign out and back in, or reboot.** This
   bears directly on the requirement that the installing user become an
   administrator automatically: they cannot use it until they log in again.
-- **To test admin-gated paths before that re-logon**, rebuild with the group
-  overridden to one the token already holds, e.g.
-  `-DSD_ADMIN_GROUP='"Users"'`, and link a probe binary. `SD_ADMIN_GROUP` is
-  `#ifndef`-guarded for this. Both `sd.c` and `linuxlb.c` must be rebuilt —
-  overriding only `sd.c` does nothing, because `IsAdmin()` lives in
+- **To see what an ordinary user sees, build a probe with a gid nobody holds.**
+  Otherwise impossible on a machine whose account is a Windows administrator,
+  and everything a normal user meets at login is behind it. `SD_ADMIN_GID` is
+  `#ifndef`-guarded for exactly this. **Both `sd.c` and `linuxlb.c` must be
+  rebuilt** — overriding only `sd.c` does nothing, because `IsAdmin()` lives in
   `linuxlb.c`. Build the object list from `gpl.src`, not `gplobj/*.o`: the
   latter includes the standalone utilities and gives multiple `main`s.
 
-  **The same trick inverted is how you see what an ordinary user sees.** Name a
-  group nobody holds — `-DSD_ADMIN_GROUP='"nosuchgroup"'` — and the session is
-  not an SD administrator, which is otherwise impossible to arrange on a
-  machine whose token carries `sdadmins`. Everything a normal user meets at
-  login is behind that. Recompile the two files with the existing objects:
+  **Recipe corrected 14 Aug 2026** — it named `SD_ADMIN_GROUP`, which is gone
+  (§5.6.1), and still carried the `python3-config` flags that went with
+  embedded Python in §5.15, so it had not compiled since 13 Aug. Re-run and
+  verified in this form:
 
   ```sh
   cd sdb_ai/sd64
+  mkdir -p /tmp/na
   CF="-std=gnu17 -w -D_FILE_OFFSET_BITS=64 -Igplsrc -I/usr/local/include \
-      $(python3-config --includes) -DEMBED_PYTHON -DGPL -g \
-      -DSD_ADMIN_GROUP='\"nosuchgroup\"'"
-  gcc $CF -c gplsrc/sd.c -o /tmp/na/sd.o
+      -DGPL -g -DSD_ADMIN_GID=99999"
+  gcc $CF -c gplsrc/sd.c      -o /tmp/na/sd.o
   gcc $CF -c gplsrc/linuxlb.c -o /tmp/na/linuxlb.o
   gcc $(sed 's|^|gplobj/|;s|$|.o|' gpl.src | grep -v '/\(sd\|linuxlb\)\.o') \
       /tmp/na/sd.o /tmp/na/linuxlb.o \
       -lm -lcrypt -ldl -lbsd -L/usr/local/lib -lsodium \
-      $(python3-config --ldflags --embed) -o /tmp/na/sd_nonadmin.exe
+      -o /tmp/na/sd_nonadmin.exe
   ```
+
+  `sd_nonadmin.exe -start` then answers "Command requires administrator
+  privileges". Inverted — a gid the account *does* hold — it is also how to
+  test an admin-gated path.
 - **A second `msys-2.0.dll` earlier on PATH makes SD lie about being started.**
   `sd.exe` runs, and reports "SD has not been started" while the server is
   running perfectly. Observed with `C:\Program Files\Git\usr\bin` — Git for
@@ -2790,7 +2885,20 @@ from one. The only remaining copy of the pre-rewrite history is a bundle in a
 session scratchpad, which will not survive the machine — see the HISTORY entry
 if it is wanted.
 
-### Open, AND NOW BLOCKING: what happens to `IsAdmin()` and `sdadmins`?
+### SETTLED 14 Aug 2026: `IsAdmin()` tests Windows `Administrators`, and `sdadmins` is gone
+
+**Answered by the repository owner the same day it was promoted here.** Option
+2 below was taken: a Windows administrator is an SD administrator. The decision
+and its measured basis are written up in **§5.6.1**, which is the place to
+read; what follows is the question as it stood, kept because the reasoning for
+the other two options is still the record of what was weighed.
+
+The `sdadmins` group is no longer referenced by anything. It may be deleted
+from this machine once a build without it has been run, and it is no longer a
+thing the installer has to create.
+
+<details>
+<summary>The question as it stood</summary>
 
 **Promoted to the top of this section on 14 Aug 2026.** This was a tidy-up
 question with no deadline. It is now the one thing standing between the
@@ -2840,6 +2948,8 @@ open: the token carries it, which is what allows the shipped `sd.exe` to run
 moment the source of `K$ADMINISTRATOR` for every session (§5.6). Deleting and
 recreating it is worse than leaving it — a recreated group has a new SID, which
 this token would not carry until the next logon.
+
+</details>
 
 ### Open: does the console path survive the service model?
 

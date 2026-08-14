@@ -27,6 +27,109 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - a Windows administrator is an SD administrator
+
+**Decision from the repository owner**, reversing the "SDSYS is the only
+administrator" half of §5.6 and settling §8's `IsAdmin()`/`sdadmins` question
+on the same day that question was promoted to blocking. In their words: if you
+can log in as an administrator to the OS, you are an administrator of SD; the
+installer has to be an administrator, so the person who installs SD administers
+it. Normal accounts are created as standard local accounts, and an
+administrator is made deliberately with a keyword at account creation.
+
+### How it came up, because three problems turned out to be one
+
+It surfaced from a plain interactive install rather than from design work.
+Running the wizard as a normal user would:
+
+1. The final dialog told the user to run `net localgroup sdusers <name> /add`,
+   which the owner queried — SD has `CREATE.ACCOUNT`, which already does
+   exactly that (`CREATEA` line 340, `os_group("ADDMEM", "sdusers", ...)`) and
+   creates the Windows user besides. The installer was advertising a manual
+   workaround as though it were the design.
+2. The "set the SDSYS password now" step ran and never let anyone type.
+3. Which raised the question of why there was a second password at all.
+
+And the answer to (3) exposed a drift that had been there since 13 Aug: §5.6
+said OS groups were dropped from SD's logic entirely, but `IsAdmin()` was still
+the real source of `K$ADMINISTRATOR`, and §5.6 itself carved out "an
+administrator running an internal command" as a password-free way in. **So an
+OS administrator was already being admitted without the SDSYS password.** The
+written decision and the behaviour had come apart; this closes the gap in
+favour of the behaviour, and takes option 2 of the three that §8 had listed.
+
+It also kills the `sdadmins` defect found earlier the same day — the installer
+created `sdusers` and never `sdadmins`, so a clean machine got an install
+nobody could start. There is now no private group to create.
+
+### `getgrouplist()`, not `getgroups()` — and this is the whole of it
+
+Measured with a C probe on 14 Aug 2026, from an **unelevated** session
+belonging to a machine administrator:
+
+| Call | Source | Contains Administrators (544)? |
+|---|---|---|
+| `getgroups()` | the process token | **NO** |
+| `getgrouplist()` | the account's groups in the SAM | **YES** |
+
+A UAC-filtered token carries Administrators as "deny only" and Cygwin omits it,
+so `getgroups()` really means *is elevated*, not *is an administrator*.
+`IsAdmin()` used `getgroups()`. It uses `getgrouplist()` now, which is the
+question the owner actually asked.
+
+**And the gid, never the name.** `getgrnam("Administrators")` gives 544 and
+`getgrgid(544)` gives it back, because Cygwin maps built-in SIDs to their RID —
+the same reason `Users` is 545. **`Administrators` is renamed on a localised
+Windows**, so a lookup by name fails on a German or French machine while the
+number does not. `sd.iss` had already had to learn this for `icacls`, where it
+writes `*S-1-5-32-544`. `SD_ADMIN_GROUP "sdadmins"` in `sddefs.h` becomes
+`SD_ADMIN_GID 544`, still `#ifndef`-guarded so the probe trick in §6 works.
+
+### Verified
+
+Built clean. Then, from an **unelevated administrator session** — the case the
+old test would have got wrong:
+
+- **Positive:** the shipped build ran `sd -start`, the daemon came up, `sd
+  -stop` took it down. This is decisive rather than incidental: gid 544 is
+  **not** in `getgroups()` here, so it can only have been found through
+  `getgrouplist()`.
+- **Negative:** `sd.c` and `linuxlb.c` rebuilt with `-DSD_ADMIN_GID=99999`
+  refused with "Command requires administrator privileges", exit 1 — so the gid
+  really is what is tested, and §6's override still works.
+
+### Also changed
+
+The installer's postinstall "Set the SDSYS administrator password now" step is
+**removed**, not fixed. It is unnecessary under this model, and it was broken
+twice over: `sd -internal` needs a running server and the installer never runs
+`sd -start`, so it died with "SD has not been started"; and Inno logged it as
+`Run as: Original user`, so it ran unelevated with a token that does not carry
+`sdusers` and could not have opened the database either. `nowait` meant the
+console vanished before either message could be read. All three would have to
+be fixed together if a password step is ever wanted back.
+
+`sdusers` is untouched and still needed: it grants access to the data tree,
+which is an ACL question rather than an authorisation one. Worth keeping
+straight — an administrator who has not elevated does not carry Administrators
+in their token either, so they need `sdusers` to reach the files exactly as an
+ordinary user does.
+
+### Still to do
+
+`CREATE.ACCOUNT USER <name> {ADMINISTRATOR}` — the keyword that makes an
+administrator rather than a standard local account. The existing syntax puts
+keywords after the name (`{NO.QUERY}`), so it fits without disturbing anything.
+Not built in this commit. Note `CREATE.ACCOUNT` has still never been run at
+all, and `CREATUSR` is not in the shipped `sd.conf` so OS user creation is
+disabled out of the box — both have to be dealt with before the verb works.
+
+The installer's closing dialog still points at `net localgroup`, which is the
+thing that started this. It should lead with `CREATE.ACCOUNT` and keep the
+manual command as the fallback for someone who already has a Windows account —
+deliberately **not** reworded yet, because pointing users at a verb that
+currently errors would be worse than the present text.
+
 ## 14 Aug 2026 - the daemon is fixed and renamed `sdwind`, and it starts
 
 Closes the entry below, which found that `sd -start` could never launch the
