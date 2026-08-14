@@ -787,10 +787,16 @@ Consequences to carry into the installer work (§5.9):
   `sdidx.exe`, `sdlnxd.exe`, `sdtic.exe`, `sdclilib.dll`, `libsdclilib.dll.a` —
   are still produced by `make sd` and still needed at runtime. They were
   untracked, not deleted.
-- **They remain in git history**, so a clone still fetches them and the audit
-  goal is only half met. Purging them needs a history rewrite and a force push,
-  which is destructive to anything already cloned; it was deliberately not done
-  without asking. See §8.
+- **History was rewritten on 13 Aug 2026 to purge them**, so nothing binary
+  exists anywhere in the repository, past or present — verified by walking
+  every object for NUL bytes. That also removed the pre-port Linux ELF
+  binaries (`bin/sd` and friends, which have no extension and which an
+  extension-based sweep missed), the 62 generated `terminfo/` files, and the
+  compiled I-type object code embedded in two `gplbld/FILES_DICTS` items.
+  **Every commit hash changed**; the mapping is in the HISTORY entry
+  "History rewritten to purge every binary".
+- The install recompiles I-types, so dictionary items carry source and checksum
+  only. If a `FILES_DICTS` item ever regains a compiled tail, strip it.
 
 ## 6. Traps
 
@@ -989,24 +995,13 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
 
-### Open: purge the binaries from git history?
+### Settled: the binaries were purged from history on 13 Aug 2026
 
-§5.11 untracked the eight binaries, so no future commit carries one. But every
-commit up to and including `5c09f0f` still contains them, so a clone still
-fetches roughly 3 MB of unauditable object code. If the goal is that nothing
-binary is in the repository, the history has to be rewritten — `git filter-repo`
-or equivalent, followed by a force push.
-
-That was deliberately **not** done without asking, because it rewrites published
-history: every existing clone diverges and has to be re-cloned or reset, and
-commit hashes referenced elsewhere (including in HISTORY.md) stop resolving.
-Given the project's own record keeping quotes hashes, that cost is real.
-
-Options, in rough order of disruption: leave history alone and treat the policy
-as forward-only; rewrite and force push, accepting the churn while the project
-is still single-developer; or start a fresh repository from the current tree and
-archive the old one. The middle option is cheapest *now* and gets more expensive
-with every clone that exists.
+Done, and force pushed. See §5.11 and the HISTORY entry. **Any clone taken
+before that date is incompatible** and must be re-cloned; do not merge or push
+from one. The only remaining copy of the pre-rewrite history is a bundle in a
+session scratchpad, which will not survive the machine — see the HISTORY entry
+if it is wanted.
 
 ### Open: what happens to `IsAdmin()` and `sdadmins`?
 
