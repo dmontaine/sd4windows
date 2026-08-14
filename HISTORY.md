@@ -56,9 +56,15 @@ sdsshprobe` to `OpenSSH/Operational` at the same moment.
 been tried on a throwaway. `SeDenyNetworkLogonRight` was confirmed untouched,
 which is the one thing in the design that had to be got right.
 
-**Still not observed: RDP refusal.** There is no `LogonUser` type for it, so it
-cannot be automated at all. The probe account was deliberately left alive so
-the test can still be done by hand.
+**Still not observed: RDP refusal, and it needs two machines.** There is no
+`LogonUser` type for it — RDP is logon type 10 and `LogonUser` cannot produce
+one — so only a real Remote Desktop connection exercises the right. The probe
+account was left alive to do that by hand, and the attempt on 14 Aug 2026
+failed for a reason unrelated to the design: `mstsc /v:localhost` answers
+`0x708`, "you already have a console session in progress", refusing **before
+authentication** because a Windows client SKU allows one session and the
+console holds it. No variation of it will work on one machine. The test moves
+to the second machine, with this one as the RDP client.
 
 ### Why the script is a file rather than a session
 

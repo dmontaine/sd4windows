@@ -68,13 +68,14 @@ lines, against 145 for the broken run).
    account.** The model itself is proven (§4); what is below is small and
    should not be left to drift.
 
-   a. **Sign in over RDP as `sdsshprobe` and confirm it is refused.** The only
-      claim in §5.6.2 with no observation behind it. It cannot be automated —
-      `SeDenyRemoteInteractiveLogonRight` has no `LogonUser` type, so RDP is
-      the only thing that exercises it — which is why the probe account was
-      left alive. `mstsc /v:localhost`, password in the table above.
+   a. **RDP refusal has moved to step 2**, the second machine. It was tried
+      here on 14 Aug 2026 and **cannot be done on one machine at all** —
+      `mstsc /v:localhost` fails with `0x708` before authentication, because a
+      Windows client SKU allows a single session and the console holds it. See
+      §4 Unverified. Nothing more to try here.
 
-   b. **Then delete the probe**, and the transcript that holds its password:
+   b. **Delete the probe**, which no longer has a purpose, and the transcript
+      that holds its password:
 
       ```powershell
       powershell -File sdb_ai\sd64\gplbld\verify-sshonly.ps1 -Cleanup
@@ -1052,13 +1053,30 @@ Keep this split honest. It is the single most useful thing in the file.
   cannot be from a normal session (§5.6, elevation). No throwaway OS accounts
   were created. Compiling is not running, and this is the largest untested
   thing added on 14 Aug 2026.
-- **RDP refusal.** The last unobserved claim in §5.6.2, and the only part of it
-  that is not now verified (§4 Verified). `SeDenyRemoteInteractiveLogonRight`
-  is confirmed **applied** to `sdsshonly` in machine policy, but nothing has
-  watched it refuse a session. It cannot be automated: there is no `LogonUser`
-  logon type corresponding to RDP, so the right can only be exercised by an
-  actual Remote Desktop connection. The `sdsshprobe` account was deliberately
-  left alive for this — §7 step 0a.
+- **RDP refusal, and it CANNOT BE TESTED ON THIS MACHINE.** The last unobserved
+  claim in §5.6.2 (§4 Verified covers the rest).
+  `SeDenyRemoteInteractiveLogonRight` is confirmed **applied** to `sdsshonly`
+  in machine policy, but nothing has watched it refuse a session.
+
+  It cannot be automated — there is no `LogonUser` logon type corresponding to
+  RDP's logon type 10, so only a real Remote Desktop connection exercises the
+  right. **And it cannot be done against `localhost` either.** Tried 14 Aug
+  2026: `mstsc /v:localhost` answers
+
+  ```
+  Your computer could not connect to another console session on the remote
+  computer because you already have a console session in progress.
+  Error code: 0x708
+  ```
+
+  That is RDP refusing **before authentication**, because a Windows client SKU
+  allows one session and the console already holds it. It says nothing about
+  the deny right, and no variation of it will: the test needs a **second
+  machine as the client**.
+
+  So this belongs to §7 step 2, on the machine being built for it — run
+  `verify-sshonly.ps1 -Keep` there and RDP to it **from this machine**. Do not
+  spend time on it here.
 
 - **`CREATE.ACCOUNT` with `sdsshonly` present.** The verb was run on 14 Aug
   2026 (§4 Verified) but the group did not exist then, so the ssh-only branch
