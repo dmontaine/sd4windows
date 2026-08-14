@@ -27,6 +27,99 @@ corrected.
 
 ---
 
+## 13 Aug 2026 — Accounts move to ProgramData, and SD learns to read a Windows path
+
+Decision from the repository owner: SD accounts live under
+`C:\ProgramData\SD\user_accounts` and `C:\ProgramData\SD\group_accounts`.
+Settles the question opened earlier the same day. `/home/sd` was the right
+place while an SD account was an operating system user; under §5.6 it is not
+one, so nothing about the Linux location carried over.
+
+### What that turned out to require
+
+Writing the location into `sd.conf` did not work, and the reason was not the
+location. Creating the account succeeded and then `openpath` on it failed with
+ER_FNF, "file not found", against a path that plainly existed. Measured with a
+probe over five spellings:
+
+| Spelling | Before | After |
+|---|---|---|
+| `C:\ProgramData\SD\user_accounts\PAT\VOC` | FAIL 3003 | OK |
+| `C:/ProgramData/SD/user_accounts/PAT/VOC` | FAIL 3003 | OK |
+| `/c/ProgramData/SD/user_accounts/PAT/VOC` | OK | OK |
+| `c:\ProgramData\...` (lower-case drive) | FAIL 3003 | OK |
+| `C:\ProgramData/SD/...` (mixed) | FAIL 3003 | OK |
+
+**The MSYS2 runtime was never the problem.** A five-line C probe confirmed
+`stat()` accepts every one of those spellings. The fault was `sdrealpath()` in
+`linuxlb.c`, SD's own hand-rolled `realpath()`, which every `openpath` reaches
+through `fullpath()`. Its opening `switch` treats anything not starting with
+`/` as a *relative* path and prepends the working directory, and its scanner
+only ever splits on `/`. So `C:\ProgramData\SD` resolved to
+`/usr/local/sdsys/C:\ProgramData\SD`.
+
+It now folds backslashes to `/` and treats a leading drive letter as the root,
+with `root_len` replacing the three hardcoded `outpath + 1` root tests. `DS`
+stays `/`: this changed what SD accepts, not what it emits.
+
+**Why it was hard to see, and this is the part worth keeping.**
+`open_file()` calls `fullpath()` without checking the result, and `fullpath()`
+copies its scratch buffer out whether `sdrealpath()` succeeded or not. An
+unresolvable path therefore does not fail at the resolver — it produces an
+arbitrary string, and the `stat()` a few lines later reports "file not found"
+about something nobody passed in. The swallowed return value is still there;
+it is in §6 now.
+
+### Corrections to §5.8
+
+That section claimed MSYS2 "accepts `C:/ProgramData/SD/sdsys` with forward
+slashes throughout, so stage 1 can move to the correct location while keeping
+`/` as the separator". Half right in a way that misleads: the runtime does,
+SD did not, and the sentence would have sent the next session looking at mount
+tables. Corrected in place, with this entry as the record.
+
+The same claim's consequence was also wrong. Moving `SDSYS` and the binaries
+was described as decoupled from the `@ds` question; in fact it was blocked by
+the resolver, and now genuinely is decoupled. Flipping `dir.separator` to `\`
+has also become testable for the first time, since a backslash no longer
+breaks path resolution.
+
+### Verified
+
+`sd -APAT` run from `C:\Windows`, with `USRDIR=C:\ProgramData\SD\user_accounts`
+in `sd.conf`, prompted for the password and landed in the account directory.
+`COUNT VOC` still reports 432 and the whole LOGTO suite still passes against
+the rebuilt binary — stated explicitly because `sdrealpath()` sits on the path
+of every file open in the system.
+
+Two cosmetic leftovers, both tied to `@ds` being `/`: the stored path reads
+`C:\ProgramData\SD\user_accounts/PAT`, because `CREATEA` joins with `@ds`; and
+`@PATH` reports `/c/ProgramData/SD/user_accounts/PAT`, because it comes from
+`getcwd()`, which is always POSIX under MSYS2.
+
+### Also recorded, not built
+
+Two goals from the repository owner, now §5.12 and §5.13. **Everything that can
+be lower case should be** — account names, file and field names, and the case
+inversion at login — with the warning that the comparisons have to become case
+insensitive first, or `sue` and `SUE` become different accounts. And
+**disabling `SH` and `!` on Linux was a mistake**: programs need Windows
+utilities, and shell-out grants nothing the user does not already have at a
+command prompt.
+
+### The changelog gap
+
+`sdb_ai/sd64/sdsys/changelog` is the product changelog, ships with the system,
+and **the port had added nothing to it** — 841 lines ending at upstream's
+Version 1.0-2, while PROJECT_STATUS.md and HISTORY.md carried everything. That
+is the wrong division: those two are the state of the work and the reasoning,
+and neither is what a user reads. A "Windows port - unreleased" section now
+heads the file, covering the identity model, the account move, Windows paths,
+the POSIX IPC switch and the no-binaries rule. Maintaining it is now rule 8 in
+§0 and a line in CLAUDE.md.
+
+---
+
 ## 13 Aug 2026 — SD outside the MSYS2 shell: it works, and one PATH trap is nasty
 
 No code changed. Prompted by the question of whether logging in will one day be

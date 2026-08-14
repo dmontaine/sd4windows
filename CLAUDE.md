@@ -31,6 +31,10 @@ This is a standing instruction from the repository owner, not a nicety.
   material into HISTORY.md and leave only what is needed to act today. The
   limit exists to stop the file sprawling to the point where nobody reads it —
   it is not a target to sit near, and never a reason to omit a finding.
+- **Record anything a user would notice in `sdb_ai/sd64/sdsys/changelog`**, in
+  the same commit as the work. That is the product changelog and it ships with
+  the system; the two files above are the state of the work and the reasoning
+  behind it, and neither substitutes for it.
 
 The full rules are in §0 of PROJECT_STATUS.md and at the top of HISTORY.md.
 Follow those; this file only points at them.

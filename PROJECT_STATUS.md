@@ -48,6 +48,14 @@ session will act on it.
    with a new entry that references the old one.
 7. **State the date as an absolute date.** Never "today", "last week", "the
    previous session".
+8. **Anything a user would notice goes in `sdb_ai/sd64/sdsys/changelog`**, in
+   the same commit. That is the product changelog, it ships with the system,
+   and the port had added nothing to it for its first several sessions while
+   these two files carried everything. They are not a substitute: this file is
+   the state of the work, HISTORY.md is why it was done, the changelog is what
+   changed for someone using SD. New verbs, new or moved files, changed
+   behaviour at login, new messages and new configuration all belong there;
+   refactors, findings and traps do not.
 
 Checklist before you end a session:
 
@@ -55,6 +63,7 @@ Checklist before you end a session:
 - [ ] §4 Verified / Unverified is honest, and nothing was promoted without evidence
 - [ ] §6 Traps gained anything that cost you real time
 - [ ] §7 Next steps reordered, with anything finished removed
+- [ ] Anything user visible added to `sdb_ai/sd64/sdsys/changelog`
 - [ ] Any correction to earlier claims noted in HISTORY.md
 - [ ] Header date and commit above updated
 
@@ -247,8 +256,10 @@ None of this is in the repository; it is the state of this machine only.
 | **SDSYS password** | **`hunter2`** — set during testing, change it |
 | **SUE password** | **`correcthorse`** — scratch account, delete it |
 | `$CRED` register | holds SDSYS and SUE |
-| Scratch accounts | `JANE`, `SUE` and `KIM` under `/home/sd/user_accounts`, built by `BP/MKACC` |
-| Grants recorded | `JANE` grants `SUE`; `SDSYS` grants `SUE`; `KIM` grants nobody, which is what makes it useful |
+| Scratch accounts | `JANE`, `SUE`, `KIM` still under `/home/sd/user_accounts`; `PAT` under `C:\ProgramData\SD\user_accounts`, all built by `BP/MKACC` |
+| **PAT password** | **`batterystaple`** — scratch account, delete it |
+| Grants recorded | `JANE` grants `SUE`; `SDSYS` grants `SUE`; `KIM` and `PAT` grant nobody, which is what makes them useful |
+| `sd.conf` | `USRDIR`/`GRPDIR` point at `C:\ProgramData\SD\`; `SDSYS` is still `/usr/local/sdsys` |
 
 **The probe build is obsolete on this machine.** The Windows token now carries
 `sdadmins` — the re-logon the group needed has happened — so `IsAdmin()` is
@@ -416,6 +427,18 @@ Keep this split honest. It is the single most useful thing in the file.
   with no password, moved to JANE with no grant and back with no step-up, and
   `COUNT VOC` still reports 432 records. The bootstrap is unaffected by any of
   this; re-observed after the pathname removal.
+- **Drive-letter paths work, after the `sdrealpath()` fix (§5.8).** A probe
+  opened the same file through `C:\ProgramData\SD\user_accounts\PAT\VOC`,
+  `C:/...`, `/c/...`, a lower-case drive letter and a mixed
+  `C:\ProgramData/SD/...`. Before the fix every drive-letter form failed with
+  ER_FNF and only `/c/...` worked. The MSYS2 runtime was never the problem —
+  a C probe confirmed `stat()` accepts all of them.
+- **Accounts under `C:\ProgramData\SD` work end to end.** `sd -APAT` run from
+  `C:\Windows`, with `USRDIR=C:\ProgramData\SD\user_accounts` in `sd.conf`,
+  prompted for PAT's password and landed in the account directory. The full
+  bootstrap still answers (`COUNT VOC` reports 432) and the whole LOGTO suite
+  above still passes against the rebuilt binary — worth stating, because
+  `sdrealpath()` is on the path of every file open in the system.
 - **SD does not need the MSYS2 *shell*, only its DLLs.** `sd.exe` run straight
   from a PowerShell prompt, with `C:\msys64\usr\bin` and
   `C:\msys64\usr\local\bin` on PATH, answered `COUNT VOC` with 432 records.
@@ -863,7 +886,8 @@ Target layout:
 | Binaries | `C:\Program Files\SD\` | `/usr/local/bin` |
 | SDSYS and the database | `C:\ProgramData\SD\` | `/usr/local/sdsys` |
 | Configuration | `C:\ProgramData\SD\sd.conf` | `/etc/sd.conf` |
-| User and group accounts | **open — see §8** | `/home/sd/user_accounts`, `/home/sd/group_accounts` |
+| User accounts | `C:\ProgramData\SD\user_accounts` | `/home/sd/user_accounts` |
+| Group accounts | `C:\ProgramData\SD\group_accounts` | `/home/sd/group_accounts` |
 
 **What this has to deliver, from the repository owner (13 Aug 2026).** Three
 requirements, and two of them already hold:
@@ -909,11 +933,40 @@ the `sd.ini`-in-`C:\Windows` fallback: writing there has required
 administrator rights since Vista and it is 16-bit-era practice.
 `sdnet.h` additionally hardcodes `PASSWD_FILE_NAME "/etc/shadow"`.
 
-**Sequencing note.** MSYS2 accepts `C:/ProgramData/SD/sdsys` with forward
-slashes throughout, so stage 1 can move to the correct *location* while keeping
-`/` as the separator. That decouples this work from the `@ds` /
-`dir.separator` question (§6), which is load-bearing for compilation and should
-not be disturbed at the same time.
+**The accounts moved on 13 Aug 2026, and drive letters work now.** Decision
+from the repository owner: SD accounts live under `C:\ProgramData\SD\`, beside
+the rest of the data. `/home/sd` was the right place while an SD account was an
+operating system user; under §5.6 it is not one, so the Linux location decided
+nothing. `USRDIR` and `GRPDIR` in `sd.conf` carry it, and the compiled defaults
+in `config.c` match.
+
+**Correction to what this section used to say.** It claimed MSYS2 accepts
+`C:/ProgramData/SD/sdsys` "with forward slashes throughout", so stage 1 could
+move location while keeping `/`. The runtime does — `stat()` accepts
+`C:/...`, `C:\...` and `/c/...` equally, all measured — but **SD did not**.
+`sdrealpath()` in `linuxlb.c`, which every `openpath` goes through, treated
+anything not starting with `/` as a *relative* path and glued the working
+directory in front of it, and never treated `\` as a separator. So
+`C:\ProgramData\SD` became `/usr/local/sdsys/C:\ProgramData\SD` and every open
+failed with ER_FNF, "file not found", naming nothing near the cause.
+
+That function now folds backslashes to `/` and treats a leading drive letter as
+the root. All five spellings — `C:\...`, `C:/...`, `/c/...`, lower-case drive,
+and mixed — open the same file (§4). `DS` is still `/`; this changed what SD
+**accepts**, not what it produces.
+
+Two consequences worth carrying forward:
+
+- **The rest of the move is now much less risky.** `SDSYS=C:\ProgramData\SD\sdsys`
+  and binaries under `C:\Program Files\SD\` were blocked by exactly this, and
+  are not any more.
+- **Stored and displayed paths still come out half POSIX.** `CREATEA` joins
+  `CONFIG('USRDIR')` to the account name with `@ds`, which is `/`, so the
+  ACCOUNTS record reads `C:\ProgramData\SD\user_accounts/PAT`; and `@PATH`
+  comes from `ospath("", OS$CWD)`, which is `getcwd()` and always POSIX, so it
+  reports `/c/ProgramData/SD/user_accounts/PAT`. Both work. Both are tidied by
+  the `@ds` / `dir.separator` question (§6), which is now **testable** for the
+  first time, since a `\` separator no longer breaks path resolution.
 
 ### 5.9 The installer becomes an Inno Setup binary (decided 13 Aug 2026)
 
@@ -996,6 +1049,47 @@ Consequences to carry into the installer work (§5.9):
   "History rewritten to purge every binary".
 - The install recompiles I-types, so dictionary items carry source and checksum
   only. If a `FILES_DICTS` item ever regains a compiled tail, strip it.
+
+### 5.12 Lower case everywhere it can be (decided 13 Aug 2026)
+
+Goal from the repository owner on 13 Aug 2026. **Everything that can be lower
+case should be lower case.** SD is inconsistent about it today — BASIC source
+is free-form and usually written in lower case, while file names, field names
+and account names are forced up. The end state is lower case throughout, with
+existing upper-case code converted rather than tolerated.
+
+Not started, and it is a wide change rather than a deep one. What is known to
+force case up today, from work already done:
+
+- **Account names.** `KEYS.H` says "Id = account name (forced to uppercase)",
+  and `LOGIN`, `CPROC` and the credential helpers all `upcase()` on the way in.
+  The `$CRED` register is keyed the same way, which is why account names are
+  case insensitive at login.
+- **The terminal itself.** `LOGIN` sets `pterm(PT$INVERT, @true)`, so typed
+  input is case-inverted: type `SUE` and the prompt echoes `sue`. This is the
+  visible half of the trap in §6 that silently upcased a password.
+- Dictionary and VOC item ids, which are conventionally upper case throughout
+  `NEWVOC` and `FILES_DICTS`.
+
+Sequencing matters. Case insensitivity of *comparison* is what makes the
+current upcasing harmless; removing the upcasing without making the
+comparisons case insensitive would make `sue` and `SUE` different accounts.
+`CASE_INSENSITIVE_FILE_SYSTEM` (§7) is the file-name half of the same problem
+and is already written but never defined, so the two belong together.
+
+### 5.13 Shell access is restored, not blocked (decided 13 Aug 2026)
+
+Correction from the repository owner on 13 Aug 2026: disabling the user's
+ability to shell out with `SH` or `!` in the Linux version **was a mistake**,
+and Windows makes it a worse one. Many programs have to reach Windows
+utilities, and there is no way to do that with shell access blocked.
+
+Not urgent, but it belongs on the list rather than in anyone's memory. Note
+this pulls in the opposite direction to the security work in §5.6 and §5.7, so
+it is worth being explicit: shell-out runs as the invoking user and always did.
+It grants no access the user does not already have at a command prompt, which
+is precisely why §5.7's service model — not a block on `SH` — is what makes the
+data tree private.
 
 ## 6. Traps
 
@@ -1170,6 +1264,15 @@ Each of these cost real time. Read before debugging anything similar.
   every other account, which reads like the catalogue being broken. Global
   cataloguing needs the verb — `CATALOG BP NAME GLOBAL` — or one of the
   `$`, `!`, `*` prefix characters, which imply global mode.
+- **`fullpath()` ignores the failure it is told about, and garbage flows on.**
+  `open_file()` in `op_dio1.c` calls `fullpath(pathname, mapped_name)` without
+  looking at the result, and `fullpath()` copies its scratch buffer into the
+  caller's whether `sdrealpath()` succeeded or not. So an unresolvable path
+  does not fail where it went wrong: it produces an arbitrary `pathname`, and
+  the `stat()` a few lines later reports ER_FNF, "file not found", about a
+  string nobody ever passed in. This is what made the drive-letter problem in
+  §5.8 so hard to see. The resolver now accepts drive letters, but the
+  swallowed return value is still there.
 - **Killing an SD process leaves its record locks behind, and the next run
   waits for them forever.** The lock table lives in the shared segment, so a
   process killed with SIGTERM or SIGKILL never releases what it held. The next
@@ -1269,10 +1372,20 @@ In the order they should be taken.
    cannot simply be copied across — the authentication has to come first.
    `sdnet.h` still hardcodes `PASSWD_FILE_NAME "/etc/shadow"` (§5.8), which is
    what that authentication used to be.
-5. **Move to the Windows install layout** (§5.8). Relocate to
-   `C:\Program Files\SD\` and `C:\ProgramData\SD\`, unify the server and client
-   configuration variable, drop the `sd.ini`-in-`C:\Windows` fallback. Keep `/`
-   as the separator for now so this does not disturb `@ds` (§6).
+5. **Finish the move to the Windows install layout** (§5.8). The accounts are
+   done. What remains is `SDSYS` itself to `C:\ProgramData\SD\`, binaries to
+   `C:\Program Files\SD\` with the MSYS2 DLLs beside them, unifying the server
+   and client configuration variable, and dropping the
+   `sd.ini`-in-`C:\Windows` fallback. The `sdrealpath()` fix removed what was
+   blocking all of it.
+6. **Put `SH` and `!` back** (§5.13). Shell access was disabled on Linux and
+   that was a mistake; on Windows it stops programs reaching the utilities
+   they need. Find what disabled it — `PT$INVERT`-style config, a `K$SECURE`
+   test, or a removed verb — and restore it deliberately.
+7. **Make everything lower case that can be** (§5.12). Account names, file and
+   field names, and the case inversion at login. Do the case-insensitive
+   comparisons first, or `sue` and `SUE` become different accounts; fold
+   `CASE_INSENSITIVE_FILE_SYSTEM` (below) into the same piece of work.
 6. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Now mandatory
    rather than cheap housekeeping, because step 5 puts binaries under a path
    containing a space. Widen the character set without weakening the shell
@@ -1303,31 +1416,6 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 **answered on 13 Aug 2026** and is now §5.6. Neither option was taken. See the
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
-
-### Open: where do the SD accounts live?
-
-Raised by the repository owner on 13 Aug 2026 alongside the §5.8 requirements,
-and deliberately left open.
-
-The Linux tree put user accounts under `/home/sd/user_accounts` and group
-accounts under `/home/sd/group_accounts`, which this machine still uses. That
-placement made sense when an SD account was tied to an operating system user.
-**Under §5.6 it is not**: SD accounts have their own names and their own
-passwords and correspond to nothing in Windows, so `/home`-shaped reasoning no
-longer decides anything.
-
-They could keep an equivalent of the Linux location, or sit under
-`C:\ProgramData\SD\` with the rest of the data, or be placed per install. Two
-things bear on the choice, both already established:
-
-- §5.7's ACLs are what make accounts private, and they are set once on a tree
-  and inherited by everything created inside it. One tree is far easier to lock
-  than accounts scattered across a disk.
-- Wherever they go, the path is already configuration and not code. `CREATEA`
-  reads `CONFIG('USRDIR')` and `CONFIG('GRPDIR')`; `config.c` parses both from
-  `sd.conf` and compiles in the Linux defaults at lines 106 and 131. So the
-  decision costs two default strings and a line each in the shipped `sd.conf` —
-  it is a choice to make, not work to do, and it does not block anything else.
 
 ### Settled: SDSYS is the exception, and LOGTO takes names only
 
