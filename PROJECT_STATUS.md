@@ -11,11 +11,15 @@ built it; see the correction in §5.6 and the HISTORY entry of the same date.
 
 **Where to start tomorrow.**
 
-1. **Make the install Inno-ready**, which §5.16 now lists in dependency
-   order. The shell blocker is gone — `SH`/`SH1` are PowerShell — so what
-   remains is the layout move, one configuration file found without an
-   environment variable, and the decision to pre-bootstrap the staged tree,
-   which §5.16 settles in the installer's favour.
+1. **Make the install Inno-ready**, which §5.16 lists in dependency order.
+   Two of the four blockers are now gone: the shell (PowerShell) and the
+   pre-bootstrap, which is built and verified (§4). **What remains is the
+   configuration file.** An installed system cannot find `sd.conf` without
+   `SCARLET_CONFIG` being set — the install test on 14 Aug 2026 had to set it
+   — because the compiled fallback is `/etc/sd.conf`, which the relocated
+   POSIX root puts inside `C:\Program Files\SD\`. That is now the single
+   thing standing between here and an Inno package. Then the `.iss` itself,
+   the `icacls` step, and the uninstaller decision.
 2. **Run the account commands once.** They compile and have never executed
    (§4). Needs an elevated session and an `sdusers` group, neither of which
    exists here yet. Until then this is code nobody has seen work.
@@ -208,19 +212,44 @@ the `terminfo` target and is not tracked.
 commands (§4). It is the order `installsdai.sh` uses, with that script's line
 numbers, and it is what an installer has to reproduce:
 
+**It is a script now, not prose: `gplbld/bootstrap.py`.** Run it through
+`gplbld/stage.py --bootstrap`, which is how an install is built (§5.16). The
+sequence it runs, corrected on 14 Aug 2026 by running it:
+
 ```sh
 python3 gplbld/bbcmp.py <sysdir> GPL.BP/BBPROC  GPL.BP.OUT/BBPROC
 python3 gplbld/bbcmp.py <sysdir> GPL.BP/BCOMP   GPL.BP.OUT/BCOMP
 python3 gplbld/bbcmp.py <sysdir> GPL.BP/PATHTKN GPL.BP.OUT/PATHTKN
-python3 gplbld/pcode_bld.py
-touch <sysdir>/gcat/'$CPROC'            # line 468 - empty placeholder, required
-sd -start                               # line 590 - before -i, not after
-sd -i                                   # line 604 - bootstrap pass 1
+python3 gplbld/pcode_bld.py <sysdir>          # takes the path now, see below
+touch <sysdir>/gcat/'$CPROC'                  # empty placeholder, required
+sd -start                                     # before -i, not after
+sd -i                                         # pass 1; DIES ON SIGNAL 6, see below
 sd -internal SECOND.COMPILE
-sd RUN GPL.BP WRITE_INSTALL_DICTS NO.PAGE
-sd THIRD.COMPILE
-sd -internal BASIC GPL.BP CPROC         # writes the real gcat/$CPROC
+sd -internal RUN GPL.BP WRITE_INSTALL_DICTS NO.PAGE
+sd -internal THIRD.COMPILE
+sd -internal BASIC GPL.BP CPROC               # writes the real gcat/$CPROC
 ```
+
+**Three corrections to what this file used to say**, all found by running it:
+
+- **The last three steps need `-internal`.** They were written as plain
+  `sd RUN ...` and `sd THIRD.COMPILE`. That stopped working on 13 Aug 2026,
+  when plain `sd` with no account named began asking `Account:` instead of
+  putting an administrator into SDSYS (§5.6). They sat at the prompt and the
+  connection was terminated. Nobody noticed because nobody re-ran the
+  bootstrap between the change and 14 Aug.
+- **`sd -i` finishes its work and then dies on signal 6.** Its exit status
+  says nothing, so judge it on what it created — `VOC`, `VOC.DIC`,
+  `ACCOUNTS.DIC`, `$MAP`, `DICT.DIC`. `installsdai.sh` sidestepped this by
+  commenting the line out (line 603), which is why it never surfaced.
+- **`pcode_bld.py` takes the sysdir as an argument.** It had
+  `/usr/local/sdsys` hardcoded, which cannot work when building an install at
+  another path.
+
+`gplbld/FILES_DICTS` is copied into `<sysdir>/gplbld/` for the bootstrap and
+removed afterwards — `WRITE_INSTALL_DICTS` reads it as
+`@sdsys:"/gplbld/FILES_DICTS"`. It is a build input, not data, so it must not
+still be there when the tree ships.
 
 Two steps look wrong and are not. The `touch` is what lets `sd -start` run
 before anything is catalogued — `read_config()` only does `access(path, 0)` on
@@ -513,6 +542,29 @@ Keep this split honest. It is the single most useful thing in the file.
   script ending `exit 7` gave 7 through the first and 1 through the second —
   and it is not subject to the execution policy, so nothing needs
   `-ExecutionPolicy Bypass`.
+
+- **THE STAGED TREE INSTALLS AND RUNS, and this is the first time.** Built
+  with `python3 gplbld/stage.py --stage <dir> --force --bootstrap` on
+  14 Aug 2026: the full bootstrap ran against the staged tree —
+  `SECOND.COMPILE` compiled **190 programs with no errors** — the SDSYS
+  account record was retargeted to `C:\ProgramData\SD\sdsys`, and the
+  build's own check confirmed nothing else in the tree embeds the build path.
+  3278 files, 10.4 MB, four MSYS2 DLLs, and only `kernel32` and `ntdll` from
+  Windows.
+
+  It was then **installed by copying** `ProgramData\sdsys` and `sd.conf` to
+  `C:\ProgramData\SD\` and run from the staged binaries: `sd -start`
+  succeeded, `COUNT VOC` reported **431 records**, `WHO` reported `2 SDSYS`,
+  and `LIST ACCOUNTS` showed `Pathname: C:\ProgramData\SD\sdsys` with the
+  account name and grant list intact. **No Python and no compiler were used
+  at install time.** This is §7 step 3b, which had never been done, and it
+  closes "nothing has ever been installed from a staged tree".
+
+  Two things it does *not* prove: the machine still has a development tree, so
+  an accidental dependency on it could still be hiding; and `C:\Program
+  Files\SD\` was not used, because creating it needs elevation — the
+  binaries were run from the staging directory, which exercises the same POSIX
+  root rule but not the final location.
 
 ### Not verified — treat as unknown
 
@@ -1381,9 +1433,13 @@ it is already decided rather than done:
    Note the relocated POSIX root makes `/etc/sd.conf` resolve *inside*
    `C:\Program Files\SD\`, which is read-only to ordinary users and separates
    the configuration from the data it describes. **Required**, not tidiness.
-4. **Pre-bootstrap the staged tree** (§7 step 3a), and the staged tree is
-   **not installable without it** — established 14 Aug 2026, and it is
-   stronger than "would be nice".
+4. **Pre-bootstrap the staged tree — DONE, 14 Aug 2026.**
+   `gplbld/stage.py --bootstrap` runs `gplbld/bootstrap.py` against the staged
+   tree and ships the result, so installing is a file copy. Verified end to
+   end (§4). The rest of this item is the reasoning, kept because it is why
+   the shape is what it is.
+
+   The staged tree was **not installable at all** before this.
 
    **What the end user needs, and this is the question worth being exact
    about.** A C compiler: **never**. The installer ships pre-built binaries
@@ -1428,6 +1484,49 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **`sd -stop` used to kill its own caller, and everything else in the process
+  group.** `stop_sd()` in `sysseg.c` looped over the user table doing
+  `kill(uptr->pid, SIGTERM)` guarded only by `uptr->uid`. **`kill(0, SIGTERM)`
+  does not mean "no process" — it means every process in the caller's process
+  group**, so a table entry that had been claimed but not yet filled in, or
+  left by a process that died between the two, made `sd -stop` terminate
+  whatever launched it. Found on 14 Aug 2026 while building the installer: a
+  build script called `sd -stop`, and the Python process driving it and the
+  shell above that both vanished, with no error anywhere and an exit status of
+  zero. It reads as "the script silently stopped half way". Fixed — the test is
+  `uptr->pid > 0`, which the liveness poll twenty lines below always had. A
+  negative pid is the same hazard, since `kill(-n)` also signals a group.
+  **The general lesson: never pass an unvalidated pid to `kill()`.**
+
+- **An over-long `SH` or `SH1` in `sd.conf` silently corrupted the parameters
+  declared after them.** `config.c` copied both with a plain `strcpy` into
+  `char[MAX_SH_CMD_LEN+1]`, which was 80, and `sortmem` and `sortmrg` are the
+  next two fields in `struct config`. The PowerShell `SH1` value is 93
+  characters, so it overran, and SD refused to start with **"Invalid value for
+  SORTMRG configuration parameter" — naming a parameter the file does not
+  contain.** Fixed twice over: `MAX_SH_CMD_LEN` is 255, and both copies are
+  length-checked and refuse the value with an honest message. The other
+  `strcpy` calls in that parser have the same shape and have not been audited;
+  `SORTWORK`, `SPOOLER`, `STARTUP` and the rest are all unbounded.
+
+- **`config.c` stripped `\n` but not `\r`, so a CRLF `sd.conf` corrupted every
+  string parameter.** Only `'\n'` was removed, which is right for a Unix file
+  and wrong for every configuration file written on Windows — `gplbld/stage.py`
+  writes CRLF, as Notepad does. The carriage return stayed on the end of the
+  value, so `SDSYS` became `C:\ProgramData\SD\sdsys\r` and every path built
+  from it was wrong. Numeric parameters were unaffected, because `sscanf` stops
+  at the `\r`, which is what made it look like a path problem rather than a
+  parsing one. **This appeared only in the shipped configuration, never in the
+  developer's own**, since the hand-written `/etc/sd.conf` is LF. Fixed.
+
+- **`ACCOUNTS` is a directory-type file, so its records are text files whose
+  field marks are NEWLINES, not `\xfe`.** Splitting a record on the `\xfe`
+  field mark used inside a DH file finds nothing, yields the whole record as
+  field 1, and rewriting field 1 then flattens the record to a single line —
+  silently discarding the account name and the `ACC$USERS` grant list. Done
+  once on 14 Aug 2026 while retargeting the SDSYS account path, and caught only
+  by looking at the bytes. Check the file type before assuming a delimiter.
 
 - **RESOLVED 14 Aug 2026, kept because the diagnosis generalises.**
   `OS.EXECUTE` ran `/bin/bash -c`, and an installed system has no bash.

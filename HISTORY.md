@@ -27,6 +27,83 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - The staged tree is bootstrapped, and installing it found four bugs
+
+Instruction from the repository owner: fix the staging gap and pre-bootstrap
+the tree. Both done, and the tree has now been **installed and run**, which
+had never happened — §4's "the installer is the least tested part of the
+system" was accurate, and this is what testing it cost.
+
+**What was built.** `gplbld/bootstrap.py` encodes the sequence that
+PROJECT_STATUS §3 carried only as prose and `installsdai.sh` as line numbers.
+`gplbld/stage.py --bootstrap` runs it against the staged tree, then retargets
+the SDSYS account record to the production path and **checks that nothing else
+in the tree embeds the build path** rather than trusting the sweep somebody did
+once. `gplbld/pcode_bld.py` takes the sysdir as an argument instead of having
+`/usr/local/sdsys` hardcoded.
+
+**The staging gap was worse than "Python is required".** `gplbld/` was not
+staged at all, so `bbcmp.py`, `pcode_bld.py` and the `FILES_DICTS` that
+`WRITE_INSTALL_DICTS` reads were simply absent — the tree could not have been
+installed on any machine, with or without Python. `FILES_DICTS` is now copied
+in for the bootstrap and removed afterwards: it is a build input, not data.
+
+**Four bugs, all found by running the thing rather than reading it.**
+
+1. **`sd -stop` killed its own caller.** `stop_sd()` did
+   `kill(uptr->pid, SIGTERM)` guarded only by `uptr->uid`, and `kill(0, ...)`
+   signals the whole process group. A build script called `sd -stop` and the
+   Python process driving it and the shell above that both vanished, silently,
+   with exit status zero. It took three attempts to see, because every symptom
+   said "the script stopped half way" rather than "something killed me". The
+   liveness poll twenty lines below always tested `pid > 0`; this loop did not.
+2. **An over-long `SH1` corrupted the parameter after it.** `config.c` used a
+   plain `strcpy` into an 80-byte buffer and `sortmem`/`sortmrg` are next in
+   the struct, so the 93-character PowerShell value overran and SD refused to
+   start with "Invalid value for SORTMRG configuration parameter" — naming a
+   parameter the file does not contain. `MAX_SH_CMD_LEN` is 255 now and both
+   copies are checked. The other `strcpy` calls in that parser have the same
+   shape and are **not** audited.
+3. **A CRLF `sd.conf` corrupted every string parameter.** Only `'\n'` was
+   stripped, so the carriage return stayed on the value and `SDSYS` became
+   `C:\ProgramData\SD\sdsys\r`. Numeric parameters were fine because `sscanf`
+   stops at the `\r`, which is what made it look like a path fault. It could
+   only ever appear in the *shipped* configuration, never the developer's own
+   hand-written LF one - the worst place for a bug to hide.
+4. **`ACCOUNTS` records are newline-delimited, not `\xfe`-delimited**, being a
+   directory-type file. Rewriting field 1 with the DH field mark flattened the
+   record and discarded the account name and the grant list. Caught by looking
+   at the bytes, not by any check.
+
+**And three corrections to the recorded bootstrap sequence**, which had rotted
+without anyone knowing:
+
+- The last three steps need `-internal`. Written as plain `sd RUN ...` and
+  `sd THIRD.COMPILE`, they now sit at the `Account:` prompt that §5.6
+  introduced on 13 Aug 2026 and the connection is terminated. Nobody had
+  re-run the bootstrap in between.
+- `sd -i` completes its work and then dies on signal 6, so its exit status is
+  meaningless and the step is judged on what it created.
+  `installsdai.sh` had commented the line out, which is why this never showed.
+- `THIRD.COMPILE` compiles dictionary I-types and prints no "n error(s)"
+  summary, so a build check that demands one fails on a healthy system.
+
+**Verified.** The full bootstrap ran against the staged tree, `SECOND.COMPILE`
+compiling 190 programs with no errors. The tree was then installed by copying
+to `C:\ProgramData\SD\` and run from the staged binaries: `COUNT VOC` reported
+431 records, `WHO` reported `2 SDSYS`, and `LIST ACCOUNTS` showed the
+production pathname with the account name and grant list intact. **No Python
+and no compiler were used at install time.**
+
+Not proved: the machine still has a development tree, so an accidental
+dependency could still be hiding; and `C:\Program Files\SD\` was not used,
+since creating it needs elevation. The install also had to be told where its
+configuration was, because the compiled fallback `/etc/sd.conf` resolves inside
+`C:\Program Files\SD\` once the POSIX root moves. That is the last Inno
+blocker and it is now the top of §7.
+
+---
+
 ## 14 Aug 2026 - PowerShell becomes the shell, and two standing rules
 
 Follows directly from the entry below, which found that `OS.EXECUTE` ran
