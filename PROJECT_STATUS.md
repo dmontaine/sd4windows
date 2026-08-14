@@ -1558,6 +1558,12 @@ gate inside SD is not a file security boundary — see §5.7.
 
 ### 5.6.2 SD accounts are ssh-only; the console belongs to administrators (decided 14 Aug 2026)
 
+**VERIFIED 14 Aug 2026, except RDP** — see §4 Verified, "THE SSH-ONLY MODEL
+WORKS", and re-run it with `gplbld/verify-sshonly.ps1`. The risk named below,
+that denying the wrong right locks everybody out, was the thing tested and it
+did not happen. Everything else in this section is reasoning that still stands
+on its own; read it before changing any of it.
+
 **Decision from the repository owner, 14 Aug 2026.** Accounts SD creates reach
 the machine **over ssh and nothing else**. Local terminal access — the physical
 console, and Remote Desktop — is for administrators, who have ordinary Windows
