@@ -68,19 +68,15 @@ lines, against 145 for the broken run).
    account.** The model itself is proven (§4); what is below is small and
    should not be left to drift.
 
-   a. **RDP refusal is still unobserved.** The attempt on 14 Aug 2026 hit
-      `0x708` before authentication — but that was the *same-user* case and
-      says nothing about the deny right (§4 Unverified, which corrects an
-      earlier overstatement here). One more attempt is worth making on this
-      machine, giving the **probe account's** credentials rather than your
-      own; the probe has been deleted, so re-create it with
-      `verify-sshonly.ps1 -Keep` first. Read the two outcomes in §4 before
-      running it — one of them disconnects your console session.
+   a. **RDP refusal has moved to step 2, and it is measured rather than
+      assumed this time.** Three attempts on 14 Aug 2026 — `localhost` and the
+      machine's own LAN address, with two different accounts — all answered
+      `0x708` before reaching a credential prompt. **Nothing further to try
+      here**; the table is in §4 Unverified. It needs a separate client
+      machine.
 
-      The definitive test is still step 2, on the second machine.
-
-   b. **Delete the probe when done** — and the transcript that holds its
-      password:
+   b. **Delete the probe** — it has no purpose left on this machine — and the
+      transcript that holds its password:
 
       ```powershell
       powershell -File sdb_ai\sd64\gplbld\verify-sshonly.ps1 -Cleanup
@@ -1067,8 +1063,8 @@ Keep this split honest. It is the single most useful thing in the file.
   RDP's logon type 10, so only a real Remote Desktop connection exercises the
   right.
 
-  **Tried against `localhost` on 14 Aug 2026 and it failed for an unrelated
-  reason**, which is worth knowing before trying it again:
+  **THIS MACHINE CANNOT RDP TO ITSELF. Measured 14 Aug 2026, three attempts**,
+  so do not spend more time on it here. All three answered:
 
   ```
   Your computer could not connect to another console session on the remote
@@ -1076,33 +1072,26 @@ Keep this split honest. It is the single most useful thing in the file.
   Error code: 0x708
   ```
 
-  That is RDP refusing **before authentication**, so it says nothing about the
-  deny right. **It is the SAME-USER case**: `mstsc` defaulted to the signed-in
-  user's own credentials, and connecting to a console session you are already
-  sitting in is circular. On a Windows client SKU several user sessions may
-  exist (Fast User Switching), but only one may be *connected*, and an
-  incoming RDP logon takes the console over rather than being refused.
+  | attempt | credentials offered | result |
+  |---|---|---|
+  | `mstsc /v:localhost` | the signed-in user's own | `0x708` |
+  | `mstsc /v:localhost` | the probe account's | `0x708` |
+  | `mstsc /v:10.0.0.3` (own Wi-Fi address) | the probe account's | `0x708` |
 
-  **Corrected 14 Aug 2026** — this file previously said no variation would work
-  on one machine. That was wrong; see the correction in HISTORY.md.
-  `mstsc /v:localhost` giving the **probe account's** credentials has no
-  existing session to collide with, and should reach the logon check. What
-  each outcome means:
+  **The refusal comes before any credential prompt**, so which account is
+  offered never enters into it, and addressing the machine by its LAN address
+  rather than `localhost` makes no difference either. RDP was enabled
+  throughout — `fDenyTSConnections` 0, `rdp-tcp` listening, inbound firewall
+  rules on for all profiles, all checked the same day.
 
-  - Refused with "the system administrator has restricted the types of logon
-    ... that you may use" — the right works, and nothing happens to the
-    console session.
-  - Admitted — the right does **not** work, §5.6.2 is half wrong, and the
-    console session is disconnected. Recoverable: sign in again at the
-    console; processes in the disconnected session keep running.
+  That is the whole of what was observed. It is deliberately not turned into a
+  statement about how many sessions Windows permits: two such statements were
+  derived from this error already and both were wrong (HISTORY.md, two
+  `Correction:` entries of 14 Aug 2026).
 
-  RDP must be enabled for the attempt to mean anything. On this machine it is:
-  `fDenyTSConnections` is 0 and `rdp-tcp` is listening, checked 14 Aug 2026.
-
-  **The definitive test is still from a second machine**, §7 step 2, because
-  that is the configuration a user would actually be in and it does not put
-  the tester's own session at risk. Run `verify-sshonly.ps1 -Keep` there and
-  RDP to it from this one.
+  **So the test needs a separate client machine** — §7 step 2. Run
+  `verify-sshonly.ps1 -Keep` on the machine under test and RDP to it from a
+  different one.
 
 - **`CREATE.ACCOUNT` with `sdsshonly` present.** The verb was run on 14 Aug
   2026 (§4 Verified) but the group did not exist then, so the ssh-only branch

@@ -27,6 +27,41 @@ corrected.
 
 ---
 
+## Correction: 14 Aug 2026 - RDP to this machine from itself: measured, and it does not work
+
+Corrects the entry immediately below, "RDP denial CAN probably be tested on one
+machine", which predicted that offering a *different* account would get past
+`0x708` and reach the logon check. **It does not.** Measured the same day:
+
+| attempt | credentials offered | result |
+|---|---|---|
+| `mstsc /v:localhost` | the signed-in user's own | `0x708` |
+| `mstsc /v:localhost` | the probe account's | `0x708` |
+| `mstsc /v:10.0.0.3` (the machine's own Wi-Fi address) | the probe account's | `0x708` |
+
+The refusal arrives **before any credential prompt**, so the account offered
+never enters into it, and reaching the machine by its LAN address rather than
+by `localhost` makes no difference. RDP was enabled throughout -
+`fDenyTSConnections` 0, `rdp-tcp` listening, inbound firewall rules on for all
+profiles.
+
+**No rule is being derived from this.** The observation is exactly the three
+rows above: this machine will not RDP to itself, so the RDP half of §5.6.2
+needs a separate client machine. Whether that is a session-count limit, a
+loopback restriction, or something else is not established and does not need
+to be.
+
+**The lesson, which is the reason for two correction entries in one day.** One
+error message produced two confident conclusions - first that the test was
+impossible on one machine, then that it was possible with a different account -
+and neither had been measured. The measurement cost one attempt. Both times the
+inference was published to three files *in order to save a future session
+time*, which is what made being wrong expensive rather than cheap. Reach and
+confidence were added in the same step as the guess; the record should have
+carried the observation and stopped there.
+
+---
+
 ## Correction: 14 Aug 2026 - RDP denial CAN probably be tested on one machine
 
 Corrects "14 Aug 2026 - The ssh-only model is proven, and three false failures
