@@ -27,6 +27,71 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - the OpenSSH option never worked, and never said so
+
+Found by the repository owner ticking the box during a normal interactive
+install and then asking why there was no ssh server. There was not, and there
+never had been on any install.
+
+`gplbld/sd.iss` had:
+
+```
+try {{ Add-WindowsCapability ... ; Start-Service sshd }} catch {{ exit 1 }}
+```
+
+**In Inno, `{{` is the escape for a literal `{`, and `}` needs no escape at
+all** — so `}}` is not an escape, it is two closing braces. The install log
+records `Parameters:` *after* expansion, and shows what PowerShell actually
+received:
+
+```
+try { Add-WindowsCapability ... ; Start-Service sshd }} catch { exit 1 }}
+```
+
+Single opening braces, doubled closing ones. Parsed without running it, that
+gives "The Try statement is missing its Catch or Finally block" — so nothing
+executed at all.
+
+**It failed in total silence, by design.** The entry carries
+`skipifdoesntexist` and checks no exit code, because §5.9 requires that a
+failed ssh install must not fail the SD install. Correct rule, but it means a
+step that could never run looked identical to one that ran fine: no `sshd.exe`,
+no service, nothing on port 22, and not a word anywhere. The only evidence is
+the expanded `Parameters:` line in the log.
+
+Fixed by writing `}` singly. The corrected string was parsed before being
+believed:
+
+```powershell
+[System.Management.Automation.Language.Parser]::ParseInput($s, [ref]$null, [ref]$err)
+```
+
+as shipped → parse error; as fixed → OK. That check costs nothing and is worth
+doing to any generated PowerShell.
+
+### And then the corrected command exposed a second problem
+
+Running it for real showed the step is **slow**, which §5.9 had not
+anticipated — it had planned for failure, not for duration. With the capability
+`NotPresent`, `Add-WindowsCapability` fetches from Features on Demand and hands
+off to `TiWorker`, which worked for minutes, grew its working set by 16 MB in a
+four-second sample, and set **`RebootPending`**.
+
+Because the `[Run]` entry is `runhidden` with no progress, the wizard sits on
+"Installing OpenSSH Server..." saying nothing, and it reads as a hang. It was
+reported as one during this very session. The run was terminated part-way,
+which left the capability unapplied and the reboot pending — the outcome that
+argues hardest for the guidance now in §5.9:
+
+- say on the tasks page that it takes minutes;
+- never kill `TiWorker`, since interrupting servicing mid-operation is how the
+  component store gets corrupted;
+- and tell the user about the pending reboot, which SD itself never needs.
+
+**Still unverified:** that `sshd` runs once servicing completes, and everything
+downstream of it — which now includes the repository owner's decision that SD
+accounts are to be ssh-only.
+
 ## 14 Aug 2026 - CREATE.ACCOUNT runs for the first time, and can make an administrator
 
 Carries out §7 step 1 the same day the administrator decision was made. The

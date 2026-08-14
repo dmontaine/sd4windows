@@ -1616,6 +1616,22 @@ Requirements:
   optional capability fetched from Features on Demand, and that can be blocked
   by policy, by a metered connection or by an offline machine. Report it and
   carry on.
+
+  **And it is SLOW, which was not anticipated and is worse than a failure.**
+  Measured 14 Aug 2026: with the capability `NotPresent`, `Add-WindowsCapability`
+  downloads and hands off to `TiWorker`, which worked for minutes, grew its
+  working set by 16 MB in a 4-second sample, and left **`RebootPending` set to
+  True**. The `[Run]` entry is `runhidden` with no progress, so the wizard sits
+  on "Installing OpenSSH Server..." saying nothing, and it reads as a hang —
+  it was reported as one during testing. Three consequences to design around
+  before this ships:
+
+  - **Say it will take minutes** on the tasks page, next to the checkbox.
+  - **Never kill it.** Interrupting `TiWorker` mid-servicing is how the
+    component store gets corrupted. A terminated run leaves the capability
+    half-applied and a reboot pending, which is what happened here.
+  - **The reboot is real.** SD itself needs none, so an installer that quietly
+    creates a pending reboot because of an optional extra should say so.
 - **The uninstaller must not remove it**, for the same reason it must not
   remove the database: it may predate SD or be in use by something else.
 
@@ -1935,6 +1951,30 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **In an Inno `[Run]` parameter, `{{` escapes a literal `{` but `}` MUST BE
+  WRITTEN SINGLY — and `}}` gives you two.** Found 14 Aug 2026. The OpenSSH
+  step read `try {{ ... }} catch {{ exit 1 }}`, which expanded to
+  `try { ... }} catch { exit 1 }}`: correct opening braces, doubled closing
+  ones. PowerShell answered "The Try statement is missing its Catch or Finally
+  block" — before running anything.
+
+  **It failed in complete silence and had done so on every install.** The entry
+  has `skipifdoesntexist` and checks no exit code, deliberately, because §5.9
+  says a failed ssh install must not fail the SD install. So ticking the box
+  produced no `sshd.exe`, no service, nothing on port 22, and no message
+  anywhere. Only reading the *expanded* parameters in the install log shows it.
+
+  **Check the install log, not the `.iss`.** Inno logs `Parameters:` after
+  expansion, which is the only place the doubled brace is visible. And the
+  quickest test of any generated PowerShell is to parse it without running it:
+
+  ```powershell
+  [System.Management.Automation.Language.Parser]::ParseInput($s, [ref]$null, [ref]$err)
+  ```
+
+  This is a different fault from the brace-comment trap below; they share only
+  the character.
 
 - **A brace comment in an Inno `[Code]` section cannot mention a
   brace-delimited constant.** `{ ... {app} ... }` ends at the FIRST closing
