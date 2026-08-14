@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `f4fdf15`
+**Last updated:** 13 Aug 2026 · **describes the tree as of commit** `0623b5c`
 (the most recent commit to change code or build)
 
 ---
