@@ -5,28 +5,29 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 13 Aug 2026, end of session. The last commit to change code
-was `489b18e`, which removed embedded Python; everything after it is
-documentation. §3 was pruned earlier in the day and §4, §5.1, §5.5, §5.6, §5.8,
-§5.11 and §5.15 at the end of it — all of the removed material is in HISTORY.md
-under entries dated 13 Aug 2026, none of it lost.
+**Last updated:** 14 Aug 2026, end of session. That session reversed a decision
+on the owner's instruction — **SD creates and deletes OS accounts again** — and
+built it; see the correction in §5.6 and the HISTORY entry of the same date.
 
-**Where to start tomorrow.** Two things are ready to be picked up and one
-decision is waiting.
+**Where to start tomorrow.**
 
-1. **§7 step 1, the layout move** — `SDSYS` to `C:\ProgramData\SD\` and the
-   binaries to `C:\Program Files\SD\usr\bin\`. Unblocked: nothing compiled from
-   the data tree reads `gplsrc` any more, and `gplbld/stage.py` already builds
-   the target layout. Note the binaries go in `usr\bin`, not `SD\` — the
+1. **§7 step 2, the shell question, and it blocks more than it looks like.**
+   `OS.EXECUTE` runs `/bin/bash -c` and an installed system ships no shell, so
+   nothing that shells out works once installed — including everything built
+   on 14 Aug 2026. The trap in §6 has the three options. Decide it before the
+   Inno script, not after.
+2. **Run the account commands once.** They compile and have never executed
+   (§4). Needs an elevated session and an `sdusers` group, neither of which
+   exists here yet. Until then this is code nobody has seen work.
+3. **§7 step 1, the layout move** — `SDSYS` to `C:\ProgramData\SD\` and the
+   binaries to `C:\Program Files\SD\usr\bin\`. Unblocked, and `VALID_OS_PATH`
+   no longer stands in the way. Binaries go in `usr\bin`, not `SD\` — the
    MSYS2 POSIX-root trap in §6 explains why, and it is not optional.
-2. **§7 step 3b, install from the staged tree** onto a machine with no
-   development tree. That is what finds what SD depends on by accident, and
-   nothing has been installed from a staged tree yet.
-3. **Waiting on the repository owner:** how the API should be exposed (§8 —
-   three postures, recorded with the argument against a web front end given
-   equal weight), and whether the staged tree should be pre-bootstrapped, which
-   would make the install a file copy at the cost of fixing the data tree's
-   location (§7 step 3a).
+4. **Waiting on the repository owner:** how the API should be exposed (§8);
+   whether the staged tree should be pre-bootstrapped (§7 step 3a); and
+   whether the `sdusers` login gate comes back, which the owner wants "if it
+   is possible" and now is — but which pulls against §5.6 (see the correction
+   there before acting on it).
 
 **Read first if anything to do with compilation misbehaves:** the `ERRGEN` trap
 in §6. An undefined `$define` in SD is a *warning* at compile time and an abort
@@ -474,7 +475,42 @@ Keep this split honest. It is the single most useful thing in the file.
   HISTORY entry. `--check` reports the three files in sync after regeneration
   and reported each of them stale before it.
 
+- **`!valid_os_path` accepts native Windows paths and still rejects
+  metacharacters.** Observed 14 Aug 2026 from inside SD, 16 cases, all as
+  intended: `C:\Program Files\SD\usr\bin`, `C:\ProgramData\SD\sdsys`,
+  `/usr/local/sdsys` and a mixed `C:/ProgramData/...` all pass; empty, over
+  255 characters, and each of `;` `&` `|` `$` backtick, both quote characters,
+  `>` `*` and a tab are all refused. This is §7 step 2, and it was blocking the
+  binaries moving under `C:\Program Files`.
+- **`!is_grp_member` works on Windows.** Observed 14 Aug 2026 from inside SD,
+  7 cases: `don`/`sdadmins` and `don`/`Administrators` report member with
+  status 0; `don`/`Guests` reports not-a-member with status 0; `sdusers`,
+  `nosuchgroup` and an empty user name each report status 1; and a name equal
+  to the group name still reports member, which is the rev 0.9.0 "own group
+  account" case. This closes the trap in §6 that had it answering "no" for
+  everyone, and it is what makes the login gate possible again. **Note
+  `sdusers` does not exist on this machine** — only `sdadmins` — so status 1
+  there is the true answer, not a failure.
+- **`!ps_script` runs a PowerShell script with a secret in it, off the command
+  line.** Observed 14 Aug 2026 from inside SD: `exit 42` came back as 42, a
+  `throw` as 1, an empty script as -1 with status 1, the body genuinely ran
+  (it wrote a marker file that was read back afterwards), and the temporary
+  script was removed. So the write, the pipe through bash into PowerShell, the
+  exit status and the cleanup all work.
+- All ten changed or new `GPL.BP` programs compile with 0 errors and no
+  "not assigned a value" warnings: `VALID_OS_PATH`, `IS_GRP_MEMBER`,
+  `PS_SCRIPT`, `OS_GROUP`, `CREATE_USER`, `DELETE_USER`, `SET_PASSWD`,
+  `CREATEA`, `DELACC`, `MODIFYA`.
+
 ### Not verified — treat as unknown
+
+- **Every OS account operation.** `CREATE.ACCOUNT`, `DELETE.ACCOUNT` and
+  `MODIFY.ACCOUNT` have not been run against a real Windows account, and
+  cannot be from a normal session (§5.6, elevation). No throwaway OS accounts
+  were created. Compiling is not running, and this is the largest untested
+  thing added on 14 Aug 2026.
+- **Whether `OS.EXECUTE` works at all on an installed system.** It almost
+  certainly does not — see the shell trap in §6.
 
 - **Typing at SD from a real Windows console.** Everything above was driven
   with redirected stdin, never an actual console, so how the MSYS2 tty layer
@@ -698,6 +734,84 @@ credential model yet".** That is wrong. `APISRVR` line 921 calls
 not have (§6). So the API is currently closed rather than open. What is
 genuinely missing is authorisation *after* connect, and an authentication
 mechanism that can work at all. See §7 step 6 and the open question in §8.
+
+**Correction (14 Aug 2026): SD creates and deletes OS accounts after all.**
+Decision from the repository owner, reversing "Create no OS users and no OS
+groups at all" above and in §5.9. The reasoning was that OS account creation
+was Linux baggage; the owner's position is that the *linkage* between an SD
+account and an OS user is worth keeping, and that Windows offers the same
+thing — `net user`, `net localgroup`, or the PowerShell `*-LocalUser` and
+`*-LocalGroup` cmdlets used in the end.
+
+**Read the two halves apart, because conflating them is the easy mistake.**
+
+- **Provisioning is back.** Creating an SD account creates a Windows user;
+  deleting one deletes it. Built and compiling, 14 Aug 2026 — see below.
+- **Authorisation is still §5.6's.** Every account carries its own password,
+  SDSYS is the only administrator, and nothing consults a Windows group to
+  decide who may log in. The owner asked for the login gate back "if it is
+  possible"; it is now possible, because `IS_GRP_MEMBER` works (below), but
+  **it has not been restored** and `LOGIN` is untouched. It is a separate,
+  deliberate act — see §7.
+
+The owner's intended shape: the OS-level `sdsys` user is a Windows
+administrator, other SD users are standard users, and only `sdsys` can elevate
+SD. **Note this pulls against §5.6's "administration is a matter of knowing the
+SDSYS password"** — it would make SD administration depend on an OS identity
+again, which §5.6 deliberately removed. Not resolved; flagged because the two
+statements cannot both be the whole truth.
+
+**What was built, 14 Aug 2026.** All compile clean; none of the account
+operations have been *run*, because they cannot be (elevation, below).
+
+| Piece | Where |
+|---|---|
+| `!create_user` — `New-LocalUser`, created disabled | `GPL.BP/CREATE_USER` |
+| `!delete_user` — `Remove-LocalUser`, profile left alone | `GPL.BP/DELETE_USER` |
+| `!set_passwd` — prompts in SD, `Set-LocalUser`, enables | `GPL.BP/SET_PASSWD` |
+| `!os_group(action, group, member)` — the four group operations | `GPL.BP/OS_GROUP` |
+| `!ps_script` — runs a script carrying a secret | `GPL.BP/PS_SCRIPT` |
+| `!is_grp_member` — asks Windows, not `/etc/group` | `GPL.BP/IS_GRP_MEMBER` |
+
+**Three things that decide whether any of it works.**
+
+1. **Elevation, and it is not optional.** Creating a local user or changing a
+   local group needs an elevated token. An ordinary SD session has a
+   UAC-filtered one — measured 14 Aug 2026, `BUILTIN\Administrators` present
+   as *"Group used for deny only"*, and `net localgroup sdusers <name> /add`
+   answering "System error 5 has occurred. Access is denied." Every one of
+   these helpers therefore tests for elevation explicitly and returns status 5
+   rather than guessing from a localised error message. **So account creation
+   works from the installer, which Inno runs elevated, and not from a normal
+   session.** §5.7's service model is the real answer.
+2. **`sudo` on Windows is not `sudo` on Linux.** `sudo.exe` does ship on this
+   build (26200) but is **disabled by default** and is enabled from Developer
+   Settings. It has no sudoers file and no per-command policy: it asks UAC to
+   elevate *your own* token, so an administrator gets a consent prompt and a
+   standard user gets a prompt for administrator credentials. "Only the sdsys
+   user can `sudo sd`" is true, but the mechanism is Administrators membership
+   and UAC, not a policy file.
+3. **`OS.EXECUTE` needs a shell that an installed system does not have** —
+   see §6. This is the one that would have bitten silently.
+
+**Passwords never go on a command line.** Decision from the repository owner,
+14 Aug 2026, consistent with the reasoning in §8: `net user <name> <password>
+/add` exposes the password to any local user through Task Manager,
+`Get-CimInstance Win32_Process` or ETW. `!ps_script` writes the script to a
+file inside the SDSYS directory instead, runs it and deletes it. The file is
+protected by §5.7's ACL inheritance rather than by a permission call of its
+own, which is the first practical use of that finding.
+
+**Still to do on this, and the `is_grp_member` note above is now wrong** — it
+said the fix was to delete these calls. It is not; they stay:
+
+- **`GPL.BP/CREATEA` still runs `sudo chmod g+s` on the account directory.**
+  Guarded, non-fatal, and meaningless on Windows, so it will warn on every
+  account creation. Its real equivalent is the inheritable ACE the installer
+  sets (§5.7) — remove it with the ACL step, not before.
+- **Nothing has been run.** No Windows account has been created, no group
+  changed. `sudo` is disabled on this machine and no throwaway OS accounts
+  were made without the owner's say-so.
 
 **What is still missing.**
 
@@ -1200,6 +1314,36 @@ removed".
 
 Each of these cost real time. Read before debugging anything similar.
 
+- **`OS.EXECUTE` runs `/bin/bash -c`, and an installed system has no bash.**
+  Found 14 Aug 2026 while porting the OS account commands, and it is not
+  caused by them — it is true of every `OS.EXECUTE` in the system today.
+  `op_sh.c` line 179 defaults to `/bin/bash -c`; `gplbld/stage.py` ships the
+  six SD executables, the client DLL and the computed MSYS2 DLL closure, and
+  **no shell at all**. On an installed tree the POSIX root is
+  `C:\Program Files\SD\` (the two-component rule below), so `/bin/bash`
+  resolves to `C:\Program Files\SD\bin\bash.exe`, which does not exist. Every
+  `OS.EXECUTE` fails, and it will fail on the *installed* system while working
+  perfectly in development, where MSYS2's own bash is present.
+
+  This matters beyond the account commands: it is also the whole of §7 step 7,
+  restoring `SH` and `!`. Three ways out, and the choice has not been made:
+
+  - **Ship `bash.exe` and its DLL closure** in the staged tree. Straightforward
+    and it gives back the shell §4 was pleased to have shed — "SD does not need
+    the MSYS2 *shell*, only its DLLs" stops being true of an installed system.
+  - **Point `SH1=` in `sd.conf` at a Windows shell**, which `config.c` already
+    supports (`SH1`, and `SH` for the interactive form). Then `OS.EXECUTE`
+    strings must be written in that shell's syntax, not bash's — which would
+    change every command built in `GPL.BP/OS_GROUP`, `CREATE_USER`,
+    `DELETE_USER`, `IS_GRP_MEMBER` and `PS_SCRIPT`, all of which currently rely
+    on bash single-quoting to protect their PowerShell scripts.
+  - **Point `SH1=` straight at `powershell.exe -Command`**, which would suit
+    those five programs best of all and remove a quoting layer, at the cost of
+    making every other `OS.EXECUTE` in the system PowerShell.
+
+  Until this is settled, the account commands work in a development tree and
+  not in an installed one. Decide it before writing the Inno script (§7 step 3).
+
 - **MSYS2 declares System V IPC but does not implement it.** Headers are the
   real Cygwin ones, so it compiles and links; `shmget`/`semget` return ENOSYS
   at runtime. There is no `cygserver` in MSYS2. Test primitives by *running*
@@ -1354,16 +1498,20 @@ Each of these cost real time. Read before debugging anything similar.
   errors; the branches simply always take one side, so the symptom is "SDSYS
   access is restricted" or "Command requires administrator privileges" from
   code that looks correct. See §5.5 before debugging any permission complaint.
-- **`/etc/group` does not exist under MSYS2, so `is_grp_member` fails for
-  everyone.** MSYS2 and Cygwin dropped `/etc/passwd` and `/etc/group` in favour
+- **FIXED 14 Aug 2026, kept for the diagnosis.** `/etc/group` does not exist
+  under MSYS2, so `is_grp_member` failed for everyone. MSYS2 and Cygwin dropped `/etc/passwd` and `/etc/group` in favour
   of direct SAM/AD lookups, but `IS_GRP_MEMBER` reads `/etc/group` as a text
   file. It sets status 1 and returns false always, which fails the `sdusers`
   test at `LOGIN` 193 and terminates every connection with "This user is not
   registered for SD use". **This sits one step past where runtime bring-up
   stopped (§3) and would otherwise be met head-on.** Note this is *not* the
   `getgrnam()` path verified in §4 — that goes through the NSS layer and works
-  correctly; reading the file directly does not. Under §5.6 the fix is to
-  delete these calls, not repair them.
+  correctly; reading the file directly does not. **The fix was to repair the
+  routine, not to delete its callers** — `GPL.BP/IS_GRP_MEMBER` now asks
+  `Get-LocalGroupMember` and distinguishes member / not-a-member / no-such-group
+  (§4). The earlier instruction here to delete these calls was written under
+  the superseded assumption that SD would stop touching OS groups entirely;
+  see the correction in §5.6.
 - **The API's two security mechanisms both stop working on Windows, in
   opposite directions.** `login_user()` in `linuxio.c` has two paths and the
   port breaks each differently:
@@ -1623,11 +1771,27 @@ the identity model.
    `<sysdir>/bin` holds the pcode library as well as the executables and must
    be **split, not moved** (§6): binaries to `C:\Program Files\SD\`,
    `pcode`/`pcode.old` stay with SDSYS.
-2. **Fix `VALID_OS_PATH`** so it accepts backslashes and spaces. Not
-   housekeeping: step 1 puts binaries under a path containing a space, and
-   this rejects both. Widen the character set without weakening the shell
-   metacharacter protection it exists to provide — quoting the path at the
-   `OS.EXECUTE` site is the safer way to allow spaces.
+2. **Decide what shell `OS.EXECUTE` uses on an installed system**, and do it
+   before the Inno script. Nothing that shells out works on an installed tree
+   today — the shell trap in §6 has the three options and what each costs. It
+   is now load-bearing for the account commands as well as for §7 step 7.
+
+   Then **finish the OS account work** (§5.6), in this order:
+
+   a. Enable `sudo` from Developer Settings, or start SD from an elevated
+      prompt, and **run `CREATE.ACCOUNT USER` against a throwaway name**. It
+      has never been run on Windows at all (§4). Create the `sdusers` local
+      group first — it does not exist on this machine.
+   b. **Restore the login gate**, which the owner asked for and which is now
+      possible: `LOGIN` 193's `sdusers` test was removed when the routine
+      behind it could not work. Restoring it makes the group real again, so
+      settle first what it means for §5.6's "SDSYS is the only administrator",
+      which it pulls against.
+   c. **Remove `sudo chmod g+s` from `CREATEA`** as part of §5.7's `icacls`
+      step, since inheritable ACEs are its Windows equivalent.
+
+   `VALID_OS_PATH` — **done, 14 Aug 2026** (§4). It accepts backslashes and
+   spaces, so `C:\Program Files` passes, and the caller single-quotes.
 3. **Build the staging script, then the Inno Setup installer** (§5.9). The
    `installsdai.sh` port is dropped; these two replace it, and this step
    absorbs what used to be step 9.

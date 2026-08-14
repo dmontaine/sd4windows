@@ -27,6 +27,90 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - OS accounts come back, and the shell they need is missing
+
+Covers the working tree at the time of writing; committed in the same change as
+this entry.
+
+**A decision was reversed by the repository owner.** PROJECT_STATUS §5.6 said
+"Create no OS users and no OS groups at all", on the reasoning that OS account
+creation was Linux baggage that did not transfer. The owner's position, stated
+on 14 Aug 2026: the *linkage* between an SD account and an OS user is worth
+keeping, and Windows offers the same thing through `net user` and
+`net localgroup`. The original reasoning was wrong about what was Linux
+specific — the mechanism was, the intent was not.
+
+**Read the reversal narrowly.** Provisioning came back; authorisation did not.
+Every account still carries its own password, SDSYS is still the only
+administrator, and `LOGIN` was not touched. The owner asked for the `sdusers`
+login gate back "if it is possible", and it now is — but restoring it is a
+separate act, and it pulls against §5.6's "administration is a matter of knowing
+the SDSYS password" in a way that is not yet resolved. That tension is recorded
+rather than silently decided.
+
+**What was built.** `GPL.BP/CREATE_USER` (`New-LocalUser`),
+`GPL.BP/DELETE_USER` (`Remove-LocalUser`), `GPL.BP/SET_PASSWD` (`Set-LocalUser`,
+prompting inside SD), `GPL.BP/OS_GROUP` (the four group operations behind one
+subroutine, per §5.14), `GPL.BP/PS_SCRIPT` (run a script carrying a secret), and
+`GPL.BP/IS_GRP_MEMBER` rewritten. Call sites in `CREATEA`, `DELACC` and
+`MODIFYA` swapped. All ten compile clean.
+
+**Three findings, in the order they matter.**
+
+1. **`OS.EXECUTE` needs a shell an installed system does not have, and this is
+   not new.** `op_sh.c` defaults to `/bin/bash -c`; `gplbld/stage.py` ships no
+   shell. On an installed tree `/bin/bash` resolves inside `C:\Program
+   Files\SD\` and is not there. So every `OS.EXECUTE` in the system fails once
+   installed, while working perfectly in development. It was found by asking
+   whether the new work would survive the Inno installer — a question worth
+   asking earlier than it was. Now a trap in §6, with three options and no
+   decision.
+2. **Elevation is a hard constraint, not a detail.** An ordinary SD session has
+   a UAC-filtered token — `BUILTIN\Administrators` present as "Group used for
+   deny only" — and `net localgroup ... /add` answers "System error 5. Access is
+   denied." Measured, not assumed. Every helper tests for elevation explicitly
+   and returns status 5, rather than parsing a localised message.
+3. **Windows `sudo` is not Linux `sudo`.** `sudo.exe` ships on build 26200 but
+   is disabled by default and enabled from Developer Settings. There is no
+   sudoers file and no per-command policy: it asks UAC to elevate your own
+   token. "Only the sdsys user can `sudo sd`" holds, but through Administrators
+   membership and UAC, not policy. Worth writing down because the Linux
+   intuition is misleading here.
+
+**Passwords stay off the command line.** `net user <name> <password> /add` would
+expose the password to any local user through Task Manager, `Get-CimInstance
+Win32_Process` or ETW — the pattern §8 already rejected for batch login. The
+owner chose a temporary script file instead. `!ps_script` writes it inside the
+SDSYS directory, where §5.7's ACL inheritance protects it with no permission
+call of its own; that is the first practical use of the "noacl breaks chmod but
+not inheritance" finding.
+
+**Correction to an earlier instruction.** §6 said the fix for `is_grp_member`
+was "to delete these calls, not repair them". That was written when SD was
+expected to stop touching OS groups. The routine was repaired instead: it asks
+`Get-LocalGroupMember` and distinguishes member, not-a-member and no-such-group
+by exit code, which parsing `net localgroup` output cannot do without depending
+on the language Windows is installed in. Seven cases verified from inside SD.
+Note it costs a bash plus a PowerShell start on a path that runs at every login;
+the fast answer is `getgrnam()` behind a KERNEL key, which is known to work but
+is new C code.
+
+**Also done, and it was §7 step 2.** `!valid_os_path` accepts backslashes and
+spaces, so `C:\Program Files\SD\usr\bin` passes and the binaries can move. 16
+cases verified. The protection moved to the call site, which single-quotes:
+single rather than double, because bash still reads a backslash as an escape
+inside double quotes, so a path ending in a separator would escape the closing
+quote.
+
+**What was deliberately not done.** No Windows account was created or deleted —
+`sudo` is disabled here, and throwaway OS accounts were not made without the
+owner's say-so — so none of the account operations have ever run. `CREATEA`
+still carries `sudo chmod g+s`, which is meaningless on Windows and will warn on
+every account creation; it goes with §5.7's `icacls` step, whose inheritable
+ACEs are its real equivalent.
+
+---
+
 ## 13 Aug 2026 — Second prune of PROJECT_STATUS, and the §5.6 reasoning moved here
 
 Rollover, not new work, at the end of the session. PROJECT_STATUS had reached
