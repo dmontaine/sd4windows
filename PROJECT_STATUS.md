@@ -109,8 +109,15 @@ lines, against 145 for the broken run).
    confirmed (§4 Verified), so this is the privileged half and nothing else:
 
    ```powershell
-   powershell -File sdb_ai\sd64\gplbld\verify-createaccount.ps1
+   powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1
    ```
+
+   **The path is absolute on purpose.** An elevated window opens in
+   `C:\WINDOWS\system32`, never in the repository, so a relative path fails
+   with "the argument ... does not exist" — which reads like a missing script
+   rather than a wrong working directory. Every elevated command in this file
+   is written out in full for that reason. Adjust the prefix if the repository
+   is somewhere else.
 
    A pass closes the chain end to end — SD creates the account, SD restricts
    it, and the restriction is then shown to hold by the same three
@@ -127,7 +134,7 @@ lines, against 145 for the broken run).
    a real `sshd_config`:
 
    ```powershell
-   powershell -File sdb_ai\sd64\gplbld\allow-ssh-groups.ps1 -Installed
+   powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\allow-ssh-groups.ps1 -Installed
    ```
 
    **Read this before running it.** It restricts who may ssh into this
@@ -143,13 +150,12 @@ lines, against 145 for the broken run).
      was omitted.
    - Anything else failed and put the original back.
 
-   To undo: `... allow-ssh-groups.ps1 -Remove`, or copy
+   To undo: the same command with `-Remove` instead of `-Installed`, or copy
    `C:\ProgramData\ssh\sshd_config.before-sd` back over it.
 
    The file editing itself is already proven and does not need re-testing —
-   `powershell -File sdb_ai\sd64\gplbld\verify-allowgroups.ps1` passes 20
-   checks with no elevation, and can be run anywhere to confirm nothing has
-   regressed.
+   `verify-allowgroups.ps1` beside it passes 20 checks with no elevation, and
+   can be run anywhere, from any directory, to confirm nothing has regressed.
 
 1. **Finish the loose ends the ssh-only work left.** The model itself is
    proven (§4); what is below is small and should not be left to drift.
