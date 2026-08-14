@@ -27,6 +27,108 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - CREATE.ACCOUNT runs for the first time, and can make an administrator
+
+Carries out §7 step 1 the same day the administrator decision was made. The
+verb had **never been executed**, on Windows or otherwise, since the port
+began.
+
+### What the repository owner clarified, and why it removed a config option
+
+> `CREATUSR` isn't an active verb in SD, everything is handled by
+> `CREATE.ACCOUNT`. We have only accounts, not accounts and users like in QM
+> and ScarletDME.
+
+Confirmed by the TCL verb list they supplied the same day, now tracked at
+[docs/TCL_VERBS.md](docs/TCL_VERBS.md): `CREATE.USER`, `DELETE.USER`,
+`ADMIN.USER`, `LIST.USERS` and `PASSWORD` are all in the "in OpenQM, not in SD"
+column. There is no user concept to manage separately.
+
+So the `config('CREATUSR')` gate in `CREATEA` was **removed**. It asked
+permission to do the second half of the only thing the verb does, which stops
+making sense once account and OS account are the same object. `config.c` still
+parses the parameter and `CONFIG` still prints it; `DELACC` still consults it,
+which is now an asymmetry and is written up as §7 step 1c.
+
+**Correction to the entry below and to what §7 said.** It claimed `CREATUSR`
+"is not in the shipped `sd.conf` and defaults off", and gave that as one of two
+things blocking the verb. **That was wrong.** `config.c` line 98 sets
+`pcfg.create_user = 1` — it defaulted **on** and blocked nothing. The real
+blocker was the pathname validator below, which nobody had looked at because
+the verb had never been run far enough to reach it.
+
+### The defect that had been waiting at the end of it
+
+`CREATEA` line 257 calls `ospath(pathname, OS$PATHNAME)`. That is the **C**
+validator in `op_dio2.c`, not the BASIC `VALID_OS_PATH` that was fixed on
+13 Aug — two validators with similar names, different implementations, and only
+the C one on this path. It split the pathname on `/` alone and ran
+`valid_name()` over each component, and `valid_name()` rejects everything in
+`df_restricted_chars`, which contains **both `:` and `\`**. So
+`C:\ProgramData\SD\user_accounts` was a single component holding two forbidden
+characters, and no native Windows path could pass.
+
+**The symptom was a half-made account**, which is why it is worth recording.
+`CREATE.ACCOUNT` printed `User sdtest1 Created`, prompted for and set the
+Windows password — and only then stopped with `Invalid account pathname`. The
+Windows account existed, nothing in SD did, and the message named a pathname
+while the visible work had apparently succeeded.
+
+Fixed by skipping an optional drive letter and splitting on either separator.
+**`df_restricted_chars` was deliberately not widened**: `op_dio3.c` and
+`op_dio4.c` use it to map record ids onto filenames and back, which is a
+different job, and changing it would change how records are named on disk
+without being reversible for files that already exist.
+
+### The `ADMINISTRATOR` keyword
+
+```
+CREATE.ACCOUNT USER <name> {ADMINISTRATOR} {NO.QUERY}
+```
+
+Keywords already follow the name, so it fits the existing shape. Matched on the
+token text rather than by adding a `KW$` constant — `SYSCOM/PARSER.H` is a
+positional table of 216 entries shared by every verb, and extending it to serve
+one verb is a larger and riskier change than this warranted. The cost is that
+`ADMINISTRATOR` cannot be abbreviated, unlike `NO.QUERY`.
+
+The grant goes through `!os_group`, which learned to take a **security
+identifier** as well as a name: `Add-LocalGroupMember` has a parameter set that
+accepts one, and `BUILTIN\Administrators` is renamed on a localised Windows so
+the name cannot be written out. Same reasoning as `icacls` in `sd.iss`. Two new
+messages, 10032 and 10033 — note 10030 and 10031 were **already taken** by
+`CPROC`'s step-up prompts, which is worth checking before claiming a number.
+
+The grant is deliberately placed **after** the `sdusers` add rather than
+instead of it. They answer different questions: `sdusers` grants access to the
+database files, `Administrators` decides who administers SD. An administrator
+who has not elevated does not carry `Administrators` in their token either, so
+they need `sdusers` to reach the data tree exactly as an ordinary user does.
+
+### Verified
+
+Run elevated — `CREATE_USER` needs an elevated token — and driven through a
+pipe with the password first, per §6.
+
+| | `CREATE.ACCOUNT USER sdtest1` | `... sdtest2 ADMINISTRATOR` |
+|---|---|---|
+| Windows local user, enabled | yes | yes |
+| member of `sdusers` | yes | yes |
+| `sdu_<name>` group created | yes | yes |
+| account dir, VOC, `$HOLD`, `$SAVEDLISTS`, BP, private catalogue | yes | yes |
+| record in `ACCOUNTS` | yes | yes |
+| **member of Administrators** | **no** | **yes** |
+
+So `CREATE_USER`, `SET_PASSWD` and `OS_GROUP` have all now executed against
+real Windows accounts, which closes the creation half of "every OS account
+operation is unverified". `DELETE.ACCOUNT` and `MODIFY.ACCOUNT` still have not
+been run.
+
+**Both test accounts were removed afterwards.** They were real Windows accounts
+with a known password and one of them was a local administrator; leaving them
+would have been a live hole rather than untidiness. One empty `sdu_sdtest2`
+group survived a cancelled elevation prompt and is harmless.
+
 ## 14 Aug 2026 - a Windows administrator is an SD administrator
 
 **Decision from the repository owner**, reversing the "SDSYS is the only

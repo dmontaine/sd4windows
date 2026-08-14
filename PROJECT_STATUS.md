@@ -47,35 +47,34 @@ lines, against 145 for the broken run).
    decided 14 Aug 2026). `IsAdmin()` is done and verified; what is left is the
    account-creation half.
 
-   a. **Add `CREATE.ACCOUNT USER <name> {ADMINISTRATOR}`.** Without the
-      keyword, a standard local account; with it, a Windows administrator and
-      therefore an SD administrator. The existing syntax puts keywords after
-      the name (`{NO.QUERY}`, `CREATEA` lines 39-46), so it fits without
-      disturbing the shape. `CREATE_USER` runs `New-LocalUser -Disabled` and
-      `SET_PASSWD` enables it; adding to `Administrators` is one more
-      `os_group("ADDMEM", ...)` call, and it must use the **gid or the SID**,
-      not the name, for the localisation reason in §5.6.1.
+   a. **DONE 14 Aug 2026 and verified — `CREATE.ACCOUNT` works.** The
+      `ADMINISTRATOR` keyword is in, the `config('CREATUSR')` gate is gone, and
+      the verb has now been run for the first time. See §4.
 
-   b. **Two things block that verb working at all**, and both are older than
-      this decision:
-
-      - **`CREATUSR` is not in the shipped `sd.conf`** and defaults off
-        (`config.c` line 193). With it off, `CREATEA` takes the `else` at line
-        177 and stops with "Invalid user name", so creating an account for a
-        new person fails out of the box. Decide whether it ships on, or
-        whether the default changes.
-      - **`CREATE.ACCOUNT` has never been run** (§4). It needs an elevated
-        session — `CREATE_USER` returns status 5 otherwise — so this is also
-        the long-standing next step 3.
-
-   c. **Then reword the installer's closing dialog.** It currently tells the
+   b. **Reword the installer's closing dialog** — now unblocked. It tells the
       user to run `net localgroup sdusers <name> /add`, which is what raised
-      all of this: SD has a verb that does that *and* creates the Windows user,
-      and the dialog never mentions it. It should lead with `CREATE.ACCOUNT`
-      and keep the manual command as the explicit fallback for someone who
-      already has a Windows account. **Deliberately not done yet** — pointing
-      users at a verb that currently errors would be worse than the present
-      text, so this waits on (a) and (b).
+      the whole administrator question: `CREATE.ACCOUNT` does that *and*
+      creates the Windows user, and the dialog never mentions it. It should
+      lead with the verb and keep the manual command as the explicit fallback
+      for someone who already has a Windows account. It was left alone while
+      the verb did not work; that reason has gone.
+
+   c. **Decide what `DELETE.ACCOUNT` should do**, which is now the asymmetry.
+      `DELACC` still consults `config('CREATUSR')` before offering to remove
+      the OS user (line 211), and that gate no longer exists on the creating
+      side. It also has not been run. Removing an account should probably
+      remove the Windows user it created, but that is a destructive default
+      and wants deciding rather than assuming.
+
+   d. **`CREATUSR` is now dead config.** Nothing consults it on the create
+      side; `config.c` still parses it, `op_config.c` still answers it and
+      `CONFIG` still prints it. Remove all three once `DELACC` stops using it.
+
+      **Correction, 14 Aug 2026:** this file previously said `CREATUSR` "is not
+      in the shipped `sd.conf` and defaults off", and gave that as a blocker.
+      **That was wrong** — `config.c` line 98 sets `pcfg.create_user = 1`, so
+      it defaulted **on** and never blocked anything. The real blocker was the
+      pathname validator in §6.
 
 2. **Install on a genuinely clean machine.** Still the test that matters, and
    still not done: this machine has a development tree, so an accidental
@@ -241,8 +240,25 @@ Rebuilding the machine means redoing that step, or `make` will fail to link.
 
 ### External reference trees
 
-Neither is part of this repository, both will be absent on a fresh machine, and
-nothing in the build depends on either.
+**The unmodified Linux version is at
+<https://codeberg.org/stringdatabase/sdb64>** (given by the repository owner,
+14 Aug 2026). `sdb64` is the active project; this tree is the experimental
+variant. Use it to check what the original does before assuming a difference is
+deliberate — several things this port has "found" turned out to be inherited
+rather than introduced. It is a network resource, not a local tree, so it is
+available on any machine.
+
+**The TCL verb surface is written down**, in
+[docs/TCL_VERBS.md](docs/TCL_VERBS.md) — SD's commands against OpenQM 2.6.6,
+supplied by the repository owner 14 Aug 2026. Read it before adding or renaming
+a verb. The important structural fact it records: **SD has accounts, not
+accounts and users.** `CREATE.USER`, `DELETE.USER`, `ADMIN.USER` and
+`LIST.USERS` are all deliberately absent, which is why `CREATE.ACCOUNT`
+provisions the operating system account itself and why the `CREATUSR` gate was
+removed (§7 step 1).
+
+Neither of the two local trees below is part of this repository, both will be
+absent on a fresh machine, and nothing in the build depends on either.
 
 **`C:\Users\dmont\Projects\gplsrc`** — original GPL ScarletDME C source. Value
 is limited; Ladybridge stripped the Windows code thoroughly and only
@@ -683,6 +699,35 @@ Keep this split honest. It is the single most useful thing in the file.
   and `shm` created; exactly one `C:\Program Files\SD\usr\bin` entry on the
   system PATH; 15 files in `C:\Program Files\SD`; no `gplbld` anywhere in the
   data tree; and `sd.conf` present.
+
+- **`CREATE.ACCOUNT` RUNS, AND IT HAD NEVER BEEN RUN BEFORE.** Observed
+  14 Aug 2026 from an elevated session, driven through a pipe with the
+  password first. Both halves of the account are made, and the
+  `ADMINISTRATOR` keyword does exactly what §5.6.1 decided:
+
+  | | `CREATE.ACCOUNT USER sdtest1` | `... sdtest2 ADMINISTRATOR` |
+  |---|---|---|
+  | Windows local user, enabled | yes | yes |
+  | member of `sdusers` | yes | yes |
+  | `sdu_<name>` group created | yes | yes |
+  | account dir, VOC, `$HOLD`, `$SAVEDLISTS`, BP, private catalogue | yes | yes |
+  | record in `ACCOUNTS` | yes | yes |
+  | **member of Administrators** | **no** | **yes** |
+
+  So a standard local account is the default and an administrator is made
+  deliberately, which is the decision. `sdtest2 is now an SD administrator`
+  came from the new message 10032, and the Administrators add went in **by
+  SID** — `!os_group` now accepts `S-1-5-32-544` and uses
+  `Add-LocalGroupMember -SID`, because the name is localised.
+
+  It also closes "**Every OS account operation**" as far as creation goes:
+  `CREATE_USER`, `SET_PASSWD` and `OS_GROUP` have all now executed against real
+  Windows accounts. `DELETE.ACCOUNT` and `MODIFY.ACCOUNT` still have not.
+
+  **Both test accounts were deleted afterwards** — they were real Windows
+  accounts with a known password and one was an administrator. One empty
+  `sdu_sdtest2` group survives, harmless; `Remove-LocalGroup sdu_sdtest2`
+  clears it.
 
 - **A Windows administrator is an SD administrator, tested two ways.** Observed
   14 Aug 2026 from an **unelevated** session belonging to a machine
@@ -2451,6 +2496,32 @@ Each of these cost real time. Read before debugging anything similar.
   original made *for* Windows — `ADMUSER` and `CREATEU` both carry the note
   "15 Apr 05 2.1-12 Allow spaces in user names for Windows compatibility".
   Called from `CREATEA` and `APISRVR`.
+- **FIXED 14 Aug 2026 — `OSPATH(path, OS$PATHNAME)` rejected every native
+  Windows path, and it is a *different* validator from `VALID_OS_PATH`.** This
+  is the C twin of the entry below, and fixing the BASIC one did not touch it.
+  `op_dio2.c` split the path on `/` alone and ran `valid_name()` over each
+  component; `valid_name()` refuses everything in `df_restricted_chars`, which
+  contains **both `:` and `\`**. So `C:\ProgramData\SD\user_accounts` arrived
+  as a single component holding two forbidden characters, and no native path
+  could pass.
+
+  **The symptom was a half-made account.** `CREATE.ACCOUNT` stopped with
+  "Invalid account pathname" (`CREATEA` line 257) *after* it had created the
+  Windows user and set its password — so the operating system account existed,
+  nothing in SD did, and the message named a pathname problem in a verb whose
+  visible work had apparently succeeded. Found on the first ever run of that
+  verb.
+
+  Now: an optional drive letter is skipped, and the split accepts `/` or `\`,
+  whichever comes first. **`df_restricted_chars` was deliberately NOT
+  widened** — `op_dio3.c` and `op_dio4.c` use it to map record ids onto
+  filenames and back, which is a different job, and changing it would change
+  how records are named on disk without being reversible for existing files.
+
+  **The general lesson:** there are two path validators with similar names and
+  different implementations, one in BASIC and one in C. Fixing either says
+  nothing about the other, and only the C one is on `CREATE.ACCOUNT`'s path.
+
 - **`VALID_OS_PATH` rejects every native Windows path.** Its permitted
   character set is letters, digits and `._-/:` — no backslash — and it rejects
   spaces deliberately, as shell metacharacters. So `C:\SD\accounts` fails on
