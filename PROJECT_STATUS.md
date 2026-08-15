@@ -327,16 +327,30 @@ Rebuilding the machine means redoing that step, or `make` will fail to link.
 
 ### External reference trees
 
-**The unmodified Linux version is at
-<https://codeberg.org/stringdatabase/sdb64>** (given by the repository owner,
-14 Aug 2026). `sdb64` is the active project; **this tree, `sdb_ai`, is an
-experimental variant** that has been through five major AI cleaning and
-validation cycles, which is why the code reads more cleanly than its age
-suggests — and why those cycles can also introduce new problems, as the
-`VALID_OS_PATH` trap in §6 shows. Check `sdb64` before assuming a difference is
-deliberate; several things this port has "found" turned out to be inherited
-rather than introduced. It is a network resource, so it is available on any
-machine.
+**THERE ARE THREE GENERATIONS, AND KNOWING WHICH ONE A LINE CAME FROM IS OFTEN
+THE WHOLE ANSWER.** Stated by the repository owner, 15 Aug 2026:
+
+1. **`sdb64`** — <https://codeberg.org/stringdatabase/sdb64>, the unmodified
+   Linux version and the active upstream project. A network resource, so it is
+   available on any machine.
+2. **`sdb_ai`** — an experimental variant the owner produced by putting `sdb64`
+   through **five AI cleaning and validation cycles**. This is why the code
+   reads more cleanly than its age suggests, and why those cycles also
+   introduce problems of their own.
+3. **SD for Windows** — this repository, the port, built on top of `sdb_ai`.
+
+**GENERATION 2 IS TAGGED IN THE SOURCE AND IS WORTH GREPPING FOR.** Every
+change from the cleaning cycles carries a `Modified by Composer AI - 2026/06/10`
+comment: **226 of them across 73 files** — 53 in `gplsrc`, 20 in `sdsys` —
+measured 15 Aug 2026, all bearing that one date. **A line with that marker is
+neither upstream nor port work**, so when something surprises you, grep for the
+marker before treating it as intended and check the behaviour against `sdb64`.
+
+**Two have already cost real time**: the `VALID_OS_PATH` trap in §6, and the
+`SH` administrator gate at `GPL.BP/CPROC:3321` (§4, §7 step 7), which a session
+mistook for a Ladybridge decision it would have been wrong to reverse. Several
+other things this port has "found" turned out to be inherited from generation 1
+rather than introduced — so the check runs both ways.
 
 **The TCL verb surface is written down**, in
 [docs/TCL_VERBS.md](docs/TCL_VERBS.md) — SD's commands against OpenQM 2.6.6,
