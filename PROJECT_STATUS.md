@@ -120,14 +120,16 @@ form, because it changes what every other item in this file assumes:
   **And SD refuses to start inside itself**: `op_sh.c` marks the shell `SH`
   launches with `SD_SESSION`, `sd.c` refuses when it sees it. A guard, not a
   boundary — the user owns that shell — and it is the accident it is for.
-- **CORRECTION, 15 Aug 2026: an SD account DOES have a shell.** `SH` hands one
-  back from inside SD, so `ForceCommand` puts a user in SD but does not keep
-  them there, and nothing should rest on "no shell" — two code comments and
-  this list said it and were fixed. It changes no gate: that shell is
-  unelevated, so everything above still refuses in it. **The owner's answer is
-  application-level — SD can lock a user into a menu system, where `SH` is
-  never reachable.** Restricting `SH` itself is the other route and is **not
-  decided**; nobody should implement it without asking.
+- **AN SD ACCOUNT HAS A SHELL ONLY IF ITS SESSION IS ELEVATED** — corrected
+  twice, and this is the measured version (§4, 15 Aug 2026, ninth session).
+  `SH` is gated at `GPL.BP/CPROC:3321` on `kernel(K$ADMINISTRATOR, -1)`, which
+  is `IsElevated()`, so an ordinary SD user is refused with `sysmsg(2001)`.
+  **An ssh session cannot be elevated, so `ForceCommand` does keep an ssh user
+  inside SD.** The 15 Aug correction that said otherwise was reasoning from
+  `SH` existing, not from running it. **Restricting `SH` further is still not
+  decided** — but note it is already restricted, so the open question is
+  narrower than it looks, and the owner's menu-system answer addresses the
+  elevated console rather than ssh. Nobody should implement more without asking.
 - **SD ACCOUNTS BRING THEIR OWN OS ACCOUNT, WITH ONE EXCEPTION** — owner's
   decision, 14 Aug 2026, seventh session. **The only pre-existing OS user that
   may be given an SD account is the installer's**, done at install time; every
@@ -483,8 +485,36 @@ refuses everything proves nothing. With `SD_SESSION=1` set, all four forms
 tried including `--version` answered `SD is already running in this session`,
 so the guard is genuinely before the gate as `comlin()` intends.
 
-**Still not watched: the marker being set by a real `SH`**, which needs a live
-session; only `sd.c`'s half of that pair has run.
+**Still not watched: the marker being set by a real `SH`**, which needs an
+**elevated** live session for the reason in the next entry; only `sd.c`'s half
+of that pair has run.
+
+**15 Aug 2026 — `SH` IS ALREADY RESTRICTED, AND IT REFUSES AN ORDINARY SD
+USER.** Observed while trying to close item 2c: from an unelevated session
+standing in `DON` on the installed system, `SH cmd /c echo ...` answered
+**`Command requires administrator privileges`** (`sysmsg(2001)`) and the
+session carried on to `OFF`. The gate is **`GPL.BP/CPROC:3321`**, in the
+`os.command:` handler — `if not(kernel(K$ADMINISTRATOR, -1))`, added by
+"Composer AI - 2026/06/10" together with `valid_shell_cmd`. `K$ADMINISTRATOR`
+is seeded from `IsElevated()` (§7 step 0), so **`SH` needs an elevated session,
+not merely an administrator's account.**
+
+**Two things follow, and the second is a correction.**
+
+- **§7 step 7's investigation is done.** That step asks what disabled shell
+  access — "a config option, a `K$SECURE` test, or a removed verb". It is none
+  of those: it is `CPROC:3321`. What remains of step 7 is the decision, not the
+  search.
+- **CORRECTION to 15 Aug's "an SD account DOES have a shell".** True only of an
+  **elevated** session. An ssh session cannot be elevated (§4, local-only by
+  design), so **an ssh user can never reach `SH`, and `ForceCommand` does keep
+  them inside SD** — the hole that correction described is not reachable by the
+  people it was worried about. Whoever can use `SH` is at an elevated console
+  and could run anything anyway.
+
+**Not watched, and it is what item 2c still needs:** `SH` succeeding from an
+**elevated** session, and `SD_SESSION` being set in the shell it returns
+(`op_sh.c:312`).
 
 The matrix is `verify-gate.ps1`, written this session and **not tracked** — it
 lives in the session scratchpad. Two things in it are the reusable part:
@@ -3478,8 +3508,14 @@ the staging script and the Inno installer were all finished and removed.
    that authentication used to be, and goes with (a).
 7. **Put `SH` and `!` back** (§5.13). Shell access was disabled on Linux and
    that was a mistake; on Windows it stops programs reaching the utilities
-   they need. Find what disabled it — a config option, a `K$SECURE` test, or a
-   removed verb — and restore it deliberately.
+   they need. **THE SEARCH IS OVER — it is `GPL.BP/CPROC:3321`**, found
+   15 Aug 2026, ninth session (§4): the `os.command:` handler refuses anyone
+   who is not elevated, `sysmsg(2001)`. Not a config option, not `K$SECURE`,
+   not a removed verb. What is left is the **decision**, and it is the owner's:
+   the gate is doing real work — it is what keeps an ssh user inside SD — so
+   loosening it for "programs reaching the utilities they need" reopens that.
+   A `SH` usable by a program but not by a person at a `:` prompt is the shape
+   worth considering, and it is not what exists today.
 8. **Make everything lower case that can be** (§5.12), folding in
    **`CASE_INSENSITIVE_FILE_SYSTEM`**, which is referenced at 9 sites in
    `dh_misc.c`, `dh_open.c`, `op_dio2.c` and `op_dio4.c` and defined nowhere.
