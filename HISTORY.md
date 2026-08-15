@@ -27,6 +27,23 @@ corrected.
 
 ---
 
+## 15 Aug 2026 - Rebuilt, reinstalled, and step 1d proven on the install
+
+Eighth session, after the two entries below. Re-staged with the ACCOUNTS/SDSYS
+fix (3,471 files, `GPL.BP.OUT` 191 objects, dev tree untouched), ISCC at 06:47
+(4,795,558 bytes), installed. `C:\Program Files\SD\usr\bin` is now the 06:23
+build; the data tree was left alone as designed, so the installed catalogue is
+still the sixth session's and the corrected one waits in the stage for a clean
+machine.
+
+Step 1d then re-run against the installed binary, every branch: `already
+started` naming pid 14980 with `Get-Process` agreeing; daemon killed and segment
+left, `sd -start` exit 1 telling the user to run `sd -stop`; `sd -stop` exit 0
+emptying `shm` silently; `sd -start` back up as 7388. Left running.
+
+One new trap: `sd -start` hangs a shell whose stdout is a pipe even when sd's
+own output goes to a file - `sdwind` inherits the shell's pipe too.
+
 ## 15 Aug 2026 - The bootstrap was compiling the development tree
 
 Eighth session, found by running the first elevated `stage.py --force

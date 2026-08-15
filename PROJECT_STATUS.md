@@ -92,7 +92,7 @@ install** on it, from the fixed installer:
 | `C:\ProgramData\SD\sdsys` | **3,412 files on 15 Aug 2026 - a working database.** The compiled `gcat/$CREATEA` **contains the ssh-only branch**; `MESSAGES/10032`–`10035` are all present. It was 3,270 on 14 Aug and 3,268 as staged: the count drifts upward as accounts are created, so a difference from the stage is not a fault |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, 14 Aug 2026. Binaries **19:05** in `C:\Program Files\SD\usr\bin` (`sd.exe` 1,926,742 bytes, carrying `IsElevated()`), and `GPL.BP\LOGIN`/`CPROC` recompiled against them and catalogued. **An unelevated `sd` no longer reaches SDSYS** — it refuses with `sysmsg(5018)`, and `sd -ASDSYS` with `sysmsg(10002)`. Both observed, §4 |
-| **THE INSTALLED BINARIES ARE NOW BEHIND THE REPOSITORY** | seventh session, 14 Aug 2026. `sdb_ai\sd64\bin\sd.exe` carries the §7 step 1d fix and the installed 19:05 one does not, so **the installed `sd -start` still lies about a stale segment**. Everything verified this session was verified against the build, not the install. Installing is the first item in the header's recipe |
+| **THE INSTALLED BINARIES ARE CURRENT AGAIN** | 15 Aug 2026: installed from `sd-setup-1.0-2.exe` built 06:47 (4,795,558 bytes) out of the re-staged tree, so `C:\Program Files\SD\usr\bin` is the 06:23 build and **step 1d is now proven on the install as well** (§4). The *data* tree was left alone, as designed — so the installed catalogue is still the sixth session's and the corrected one sits in the stage |
 | **`GPL.BP\LOGIN` IS AHEAD OF THE CATALOGUE TOO** | seventh session: the sign-on banner changed in the repository, and the installed `gcat/$LOGIN` is still 18:54:15. It is cosmetic, and it needs the same elevated recompile as everything else in `GPL.BP` |
 | Reinstalling over this | the installer **found the existing database and left it alone**, saying so in a dialog — §6's staleness trap, working as designed. So a reinstall updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`: after one, copy `GPL.BP\LOGIN`/`CPROC` across and recompile, or the machine runs yesterday's BASIC on today's binaries |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
@@ -107,7 +107,7 @@ install** on it, from the fixed installer:
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
 | Test accounts, **SD side** | `sdacct2`–`sdacct5` + SDSYS. `sdacct1` was removed by `DELETE.ACCOUNT` on 14 Aug 2026, the first run of that verb. `sdacct2` and `sdacct3` are still half-removed (no Windows account) and are spare test cases for the same branch; `sdacct4` and `sdacct5` are complete on both sides. Use a fresh `-Account` name when re-running `verify-createaccount.ps1`; SD refuses a reused one |
-| SD | **NOT running, 15 Aug 2026 06:25**, and `C:\ProgramData\SD\shm` still holds the segment and all six semaphores from 14 Aug 21:58 — the stale-segment state again, and a free test case for the installed binary once it is replaced (header item 1). It ran as the seventh session ended, `sdwind` 4696 from `sdb_ai\sd64\bin`; **an ordinary session held terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches an unelevated-started daemon. **Corrected earlier: a blank `Path` is not evidence a process was started elevated** — §6 |
+| SD | **running, pid 7388 from the installed 06:23 binary**, 15 Aug 2026 06:53, segment and six semaphores present. It also ran as the seventh session ended, `sdwind` 4696 from `sdb_ai\sd64\bin`; **an ordinary session held terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches an unelevated-started daemon. **Corrected earlier: a blank `Path` is not evidence a process was started elevated** — §6 |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -398,6 +398,16 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**15 Aug 2026 — §7 STEP 1d HOLDS ON THE INSTALLED BINARY, NOT JUST THE BUILD.**
+Every branch re-run against `C:\Program Files\SD\usr\bin\sd.exe` after the
+install: a second `sd -start` answered `SD is already started - sdwind is
+running as pid 14980` and `Get-Process` agreed on **14980**, so the pid
+translation works in the install too; with the daemon killed and the segment
+left, `sd -start` exited **1** with `SD did not shut down cleanly ... Run
+sd -stop`; `sd -stop` then exited 0 and emptied `shm` with no spurious warning;
+`sd -start` came back up as pid 7388. The 14 Aug binary answered `SD is already
+started` to that middle case and did nothing.
 
 **15 Aug 2026 — THE BOOTSTRAP REFUSES AN UNELEVATED WINDOW, BEFORE DOING
 ANYTHING.** Four unelevated runs: a **nonexistent** `--sysdir` drew the
@@ -1962,6 +1972,14 @@ Each of these cost real time. Read before debugging anything similar.
   group either. The general form is the one this file keeps re-learning:
   **a rule transcribed from the Linux source can depend on a Linux mechanism
   that was never ported.**
+
+- **`sd -start` HANGS A SHELL WHOSE OWN STDOUT IS A PIPE, EVEN WITH SD's OUTPUT
+  REDIRECTED TO A FILE.** 15 Aug 2026, from a scripted shell: `sd -start > f
+  2>&1` returned, the daemon came up, and the *shell* never exited — `sdwind`
+  inherits the shell's pipe as well as the handles `sd` was given. `bootstrap.py`
+  gets this right by giving the subprocess a file; redirecting `sd` alone is not
+  enough when something upstream is still capturing. Run it from a real console,
+  or redirect the whole shell.
 
 - **THE BOOTSTRAP COMPILED INTO THE DEVELOPMENT TREE, AND THE STAGED CATALOGUE
   CAME OUT HOLDING 13 Aug PROGRAMS.** 15 Aug 2026. `sdsys/ACCOUNTS/SDSYS` ships
