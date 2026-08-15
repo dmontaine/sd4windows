@@ -27,6 +27,164 @@ corrected.
 
 ---
 
+## Correction: 14 Aug 2026 - Windows CAN limit sudo, and the password model was built on the belief that it could not
+
+Fifth session of 14 Aug 2026, after the rollover. **No code changed.** This
+entry records a decision from the repository owner that reverses the identity
+model in PROJECT_STATUS 5.6, and — more usefully for anyone reading cold — the
+mistaken belief that produced 5.6 in the first place.
+
+### The belief, and where it came from
+
+PROJECT_STATUS 5.6.1 said of `sudo` on Windows: *"It has no sudoers file and no
+per-command policy - it asks UAC to elevate your own token."* Every word of
+that is true of `sudo.exe`. It was read as **"Windows cannot limit who may
+elevate"**, and the consequence drawn was that mimicking the Linux access model
+would give every user on the machine access to SDSYS.
+
+In the owner's words, 14 Aug 2026: *"The reason we got off on another track is
+because I had taken away the impression that we could not mimic the linux
+access process because of differences between linux and windows. That was my
+lack of understanding. My understanding was that access to sudo could not be
+limited on Windows (no sudoers group), which would give everyone access to
+SDSYS."*
+
+**That belief is why SD grew account passwords.** 5.6's "every account carries
+its own password", decided 13 Aug 2026 and built across two sessions -
+`$CRED`, `!CRED_SET`, `!CRED_VERIFY`, `SET.PASSWORD`, the `LOGIN` password
+prompt, `logto.step.up`, commit `272ce92` "Require an account password at
+login" - exists to replace a control that was thought to be missing and was
+not.
+
+### The measurement that closed it
+
+Read off this machine's live policy, fifth session:
+
+| Setting | Value | Meaning |
+|---|---|---|
+| `EnableLUA` | 1 | UAC on, tokens filtered |
+| `ConsentPromptBehaviorUser` | 3 | **a standard user is prompted for an ADMINISTRATOR's credentials** on the secure desktop |
+| `ConsentPromptBehaviorAdmin` | 5 | an administrator gets a consent prompt only |
+| `LocalAccountTokenFilterPolicy` | not set | default remote restriction applies |
+
+A standard user **cannot elevate as itself**. It can only elevate by supplying
+someone else's administrator credentials, which it does not have. So:
+
+| | Linux | Windows |
+|---|---|---|
+| who may become root | listed in sudoers | member of `Administrators` |
+| a normal account tries it | not in sudoers, refused | prompted for credentials it has not got |
+| an administrator tries it | in sudoers, password | consent prompt, elevated |
+
+**`Administrators` is the sudoers file, and SD has been maintaining it all
+along** without anybody noticing that was what it was doing:
+`CREATE.ACCOUNT USER x` leaves x out of it, `CREATE.ACCOUNT USER x
+ADMINISTRATOR` puts x in (verified 14 Aug 2026, fourth session).
+
+And the distinction the model needs is readable. In an ordinary unelevated
+window belonging to `don`, who is in `Administrators` in the SAM:
+
+    Elevated now: False
+    BUILTIN\Administrators   Alias   S-1-5-32-544   Group used for deny only
+
+**This is the same fact 5.6.1 measured on 14 Aug with a C probe and read the
+other way.** That session compared `getgroups()` against `getgrouplist()`,
+found that only `getgrouplist()` sees `Administrators` in an unelevated
+session, and concluded that `getgrouplist()` was the *right* answer and
+`getgroups()` the wrong one. The measurement was correct; the conclusion was
+half of one. They are two useful tests: `getgrouplist()` answers "is an
+administrator" and gates `sd -start`, the token answers "is elevated right now"
+and gates SDSYS.
+
+### What the Linux version actually does
+
+Confirmed twice: the owner tested it in a Debian virtual machine with SD
+installed, and it is in this repository's own pre-port `LOGIN` at commit
+`f9edab0`, lines 185-270, which is the specification to build from.
+
+    if not(is_grp_member(lgn.id,'sdusers')) then     -> 5009 not registered for SD use
+    case kernel(K$FORCED.ACCOUNT,0) # ''             -> sd -Aname
+       IF initial.account = "SDSYS" and not(K$ADMINISTRATOR) -> 10002 restricted to privileged users
+       if not(is_grp_member(lgn.id,acc.rec<ACC$GROUP>))      -> 10003
+    case kernel(K$ADMINISTRATOR,-1)  ;* user id 0, "sudo sd"
+       initial.account = "SDSYS"                     -> dropped straight into SDSYS
+    case 1                            ;* Must be console
+       initial.account = upcase(@logname)            -> the linked account, by name
+
+**No password prompt anywhere in that path.** The OS has authenticated you; SD
+asks it who you are. Typing `sd` puts you in the SD account with your own name
+and nowhere else; no such account means no login; `sudo sd` puts you in SDSYS.
+
+The owner had forgotten the third of those and re-derived it from the VM:
+*"If you have sudo access, you login with sudo sd and are automatically placed
+in the SDSYS account (I had forgotten that part)."*
+
+There is also a fifth rule nobody had recorded: **`sd -Aname` for another
+account was gated at login by `is_grp_member(you, acc.rec<ACC$GROUP>)`** - the
+account's own OS group - separately from `LOGTO`.
+
+### Correction: `ACC$GROUP` is not dead
+
+PROJECT_STATUS 5.6.1 recorded `ACC$GROUP` as "dead but still populated on old
+records". **Wrong.** `CREATEA` line 455 writes it on every new account as
+`sdu_<name>`, and `CREATE.ACCOUNT` creates that Windows group. Only the code
+that *read* it was deleted, on 13 Aug 2026.
+
+That makes the restoration much smaller than it looks. The write side of the
+Linux model was never removed:
+
+| Piece | State |
+|---|---|
+| `ACC$GROUP` = `sdu_<name>` | written on every account, `CREATEA` 455 |
+| the `sdu_<name>` Windows group | created by `CREATE.ACCOUNT`, verified |
+| `sdusers` membership | added, `CREATEA` 345 |
+| `!is_grp_member` on Windows | works, verified 7 of 7 |
+| messages 5009, 5018, 10002, 10003 | all present; **10002 has never had a caller** |
+
+### The decision
+
+**Mimic the Linux version.** The owner, asked whether to keep the password
+machinery and which mechanism should gate account entry, answered both the same
+way: *"I would prefer to mimic the linux process if available on Windows."*
+Since the elevation control exists, it is available.
+
+**The credential machinery is kept, and this is the part that stops it being a
+demolition.** Asked whether `$CRED` should be deleted outright, the owner
+answered that **the API is a separate door and still needs a password**: *"the
+gate in linux is that the api goes through an ssh tunnel and does not have
+access to the server without an account password."* So `$CRED`, `!CRED_SET`,
+`!CRED_VERIFY` and `SET.PASSWORD` change owner rather than dying - off the
+console, onto the API.
+
+That also corrects PROJECT_STATUS 8, which had reasoned that because the API is
+piped through ssh (posture B, settled 14 Aug 2026), ssh had already
+authenticated the user and peer identity would be enough. **Two gates, not
+one.** Which password is still open: Linux uses the OS account's, through
+`login_user()` reading `/etc/shadow`, which MSYS2 does not have.
+
+### The risk that is left, and it fails closed
+
+`LocalAccountTokenFilterPolicy` is not set, so the default UAC remote
+restriction applies and a local account logging on **over the network gets a
+filtered token**. 5.6.2 makes SD accounts ssh-only, so an SD administrator
+arriving over ssh may be unable to elevate, and so unable to reach SDSYS
+remotely. **Untested.**
+
+Worth being precise about the direction: the feared failure was that everybody
+would get SDSYS. This is the opposite - an administrator gets *less* than
+expected, nobody gets more. So it does not block the work. It may also simply
+be the design, since 5.6.2 already gives the console and RDP to administrators
+and ssh to everyone else.
+
+### What is not done
+
+**Nothing is built.** PROJECT_STATUS 7 step 0 is the whole of the work and the
+next session should start there and do nothing else first, because it changes
+`LOGIN`, `CPROC` and `kernel.c` and several later items are written against the
+model it replaces. Nothing was added to `sdsys/changelog` either: login
+behaviour changing is exactly what rule 8 covers, but the behaviour has not
+changed yet, and the changelog entry belongs in the commit that changes it.
+
 ## 14 Aug 2026 - PROJECT_STATUS rolled over from 4,112 lines
 
 Fifth session of 14 Aug 2026, starting at commit `33495e0`. **The only subject

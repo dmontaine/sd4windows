@@ -6,10 +6,19 @@ file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
 **Last updated:** 14 Aug 2026, fifth session of the day. The session began at
-commit `33495e0` and did one thing: **the rollover this file had been overdue
-for** (§0 rule 5). **No code changed, nothing was built and nothing was
-tested**, so every claim in §4 is exactly as strong as it was before — nothing
-was promoted, and nothing was dropped.
+commit `33495e0` and did two things, both of them paperwork: **the rollover
+this file had been overdue for** (§0 rule 5), and then **a decision from the
+repository owner that reverses the identity model in §5.6**.
+
+**NO CODE CHANGED. Nothing was built and nothing was tested**, so every claim in
+§4 is exactly as strong as it was before. The one thing that *was* measured is
+new and is in §4 Verified: this machine's UAC policy, and the fact that an
+unelevated administrator's token carries `BUILTIN\Administrators` marked
+**"Group used for deny only"**, which is the flag the new model turns on.
+
+**READ §5.6 FIRST. THE ACCESS MODEL IS DECIDED AND NOT IMPLEMENTED**, which is
+the largest gap between this file and the code that has ever existed. §7 step 0
+is the whole of the work.
 
 **4,112 lines to 2,924, which is a 29% cut and still above the ~2,000 limit.**
 That is stated rather than hidden, because the next session inherits it. Where
@@ -34,8 +43,28 @@ three-options weighing, both of which were `<details>` blocks here; and the
 plaintext passwords, which had no home anywhere else and is carried verbatim.
 Everything else cut was a second copy of something HISTORY already held.
 
-**The state of the work is what the fourth session left**, and it is worth
-having in one place:
+**THE ACCESS MODEL IS REVERSED — decided 14 Aug 2026, fifth session, not yet
+built.** Full statement in §5.6; the short form, because it changes what every
+other item in this file assumes:
+
+- **SD login takes no password at all.** The operating system has already
+  authenticated you. Typing `sd` puts you in **the SD account with your own
+  name**, and nowhere else.
+- **No linked SD account means no login**, refused at the door.
+- **`sudo sd` — any elevated session — puts you straight into SDSYS.** That is
+  the only route into administration.
+- **`Administrators` is the sudoers file**, and SD already maintains it:
+  `CREATE.ACCOUNT USER x` does not add to it, `... ADMINISTRATOR` does. A
+  normal SD account cannot elevate, so it can never reach SDSYS.
+- **The API is the exception and still wants a password** — see §8.
+
+This reverses §5.6's "every account carries its own password", decided
+13 Aug 2026 and built over two sessions. **What it does not do is delete that
+work:** `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all stay, and
+become the API's credential rather than the console's.
+
+**The rest of the state is what the fourth session left**, and is worth having
+in one place:
 
 - **STEP 0 IS CLOSED. `CREATE.ACCOUNT`'s ssh-only branch works and the
   restriction it applies holds — 16 of 16, end to end** (§4). SD creates the
@@ -48,14 +77,19 @@ having in one place:
   rights and `AllowGroups`, the mechanism and the verb that drives it. RDP
   **cannot be tested from one machine** (§4 Unverified, measured three ways)
   and waits on the second one (§7 step 2).
-- **Nothing is left half-applied and nothing needs cleaning off.**
+- **Nothing is left half-applied and nothing needs cleaning off** — the
+  reversal above is a decision on paper, and the code still does what §4 says.
 
-**So the next session picks its own subject.** The strongest candidates, in
-order: `DELETE.ACCOUNT` (§7 step 1c, which has two worked examples sitting on
-the machine), the **second machine** (§7 step 2), which is the only place RDP
-and a genuinely clean install can be tested, and **`sd -stop` telling the truth
-about `sdwind`** (§7 step 1d), which is small, self-contained and needs a
-build.
+**THE NEXT SESSION'S SUBJECT IS CHOSEN: §7 step 0**, restoring the Linux access
+model. Nothing else on the list should be started first, because step 0 changes
+what `LOGIN`, `CPROC` and `kernel.c` do and several other items are written
+against the model it replaces. It is a build session — C, BASIC and a re-run of
+the account tests.
+
+The candidates behind it are unchanged: `DELETE.ACCOUNT` (§7 step 1c, which has
+two worked examples sitting on the machine), the **second machine** (§7 step 2),
+which is the only place RDP and a genuinely clean install can be tested, and
+**`sd -stop` telling the truth about `sdwind`** (§7 step 1d).
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
@@ -536,6 +570,45 @@ way to see this system as a non-administrator on a machine whose account is one.
 - **`sd.iss` compiles with all of the above in it** — `ISCC.exe` exit 0. That is
   the *only* claim: see §4 Unverified for what compiling does not show.
 
+#### Elevation, and who may reach SDSYS
+
+- **WINDOWS DOES LIMIT WHO MAY ELEVATE, AND `Administrators` IS THE SUDOERS
+  FILE.** Measured 14 Aug 2026, fifth session, on this machine's live policy.
+  **This is the measurement §5.6's reversal rests on**, and it contradicts the
+  belief that sent the port down the password route:
+
+  | Setting | Value | What it means |
+  |---|---|---|
+  | `EnableLUA` | 1 | UAC on, tokens filtered |
+  | `ConsentPromptBehaviorUser` | 3 | **a standard user is prompted for an ADMINISTRATOR's credentials** on the secure desktop — it cannot elevate as itself |
+  | `ConsentPromptBehaviorAdmin` | 5 | an administrator gets a consent prompt only |
+  | `LocalAccountTokenFilterPolicy` | **not set** | the default remote restriction applies — see below |
+  | `FilterAdministratorToken` | not set | — |
+
+  So a normal SD account, which `CREATE.ACCOUNT USER x` deliberately leaves out
+  of `Administrators` (§4 above), **cannot elevate and therefore cannot reach
+  SDSYS**. That is the Linux rule, enforced by the OS.
+
+- **AN UNELEVATED ADMINISTRATOR'S TOKEN CARRIES `Administrators` AS "GROUP USED
+  FOR DENY ONLY".** Observed the same session, in an ordinary PowerShell window
+  belonging to `don`, who is in `Administrators` in the SAM:
+
+  ```
+  Elevated now: False
+  BUILTIN\Administrators   Alias   S-1-5-32-544   Group used for deny only
+  ```
+
+  **That string is the whole of the distinction §7 step 0 needs.** It is the
+  same fact §5.6.1 measured on 14 Aug with a C probe and read the other way:
+  `getgrouplist()` answers "is an administrator", the token answers "is elevated
+  right now", and the new model wants both — see §5.6.1's correction.
+
+- **`sudo.exe` is present on this build and enabled in inline mode**
+  (`Enabled = 3`). It was enabled by hand on 14 Aug 2026; **the installer does
+  not install or enable it** — `gplbld/sd.iss` does not mention `sudo` anywhere,
+  checked the same session. It is not needed: "Run as administrator" produces
+  the same elevated token on every Windows version.
+
 #### The account model and the ssh-only model
 
 - **The five new OS-facing BASIC helpers work, and the shell is PowerShell.**
@@ -927,27 +1000,99 @@ HISTORY entry "Surveyed every BASIC to C linkage".
 
 ### 5.6 Identity model: accounts with passwords (13 Aug 2026), and administration is the OS's (14 Aug 2026)
 
-**SUPERSEDED IN PART ON 14 AUG 2026 — READ 5.6.1 FIRST.** Decision from the
-repository owner on 13 Aug 2026, superseding the `sdadmins` group model
-committed earlier the same day in `f56de86`. **SD has no concept of users, only
-accounts** — user accounts intended for one person, and group accounts
-reachable by many. Three parts, and one of them was reversed the next day:
+**REVERSED 14 AUG 2026, FIFTH SESSION. DECIDED, NOT BUILT — §7 step 0.**
+Decision from the repository owner: **mimic the Linux version.** SD login takes
+no password; the operating system has already authenticated you, and SD asks
+the OS who you are. The owner verified the Linux behaviour in a Debian virtual
+machine the same day, and it is also in this repository's own pre-port `LOGIN`
+at commit `f9edab0`, which is the authority to read before building it.
 
-- **Every account carries its own password.** Entry is by password prompt,
-  whether from `sd -ASDSYS` at the shell or `LOGTO SDSYS` inside SD. This is
-  the PICK / UniVerse / OpenQM model. **Still true.**
-- **SDSYS is the only administrator.** **REVERSED — see 5.6.1.** A Windows
-  administrator is an SD administrator.
-- **OS groups are dropped from SD's logic entirely.** **Partly reversed:**
-  `sdadmins` is gone for good, but administration is now Windows
-  `Administrators`, and `sdusers` remains as the ACL group granting access to
-  the data tree — always a file-permission matter rather than an SD
-  authorisation one.
+**Why it was not done this way in the first place**, recorded because it is the
+whole reason two sessions went another way: the owner's understanding was that
+**Windows cannot limit who may run `sudo`** — no sudoers file — so mimicking
+Linux would hand SDSYS to everybody. **That is not the case**, and the
+measurement is in §4 Verified. `Administrators` membership *is* the sudoers
+file, and SD already maintains it.
 
-§5.5 records the Linux privilege model this replaces, and is retained for
-background only. The full reasoning, including why the credential register is a
-separate file from ACCOUNTS, is in the HISTORY entry "Moved from
-PROJECT_STATUS §5.6" of 13 Aug 2026.
+The model, in five rules:
+
+| | |
+|---|---|
+| `sd`, no account named | you land in **the SD account with your own name** |
+| no SD account of that name | refused — `sysmsg(5018)`, "Account %1 not in register" |
+| not in `sdusers` | refused at the door — `sysmsg(5009)`, "not registered for SD use" |
+| **`sudo sd`, or any elevated session** | **straight into SDSYS**, no account named and no password |
+| `sd -Aname` | `ACC$GROUP` must name a group you are in; SDSYS additionally needs elevation — `sysmsg(10002)` |
+
+**All five messages already exist** (5009, 5018, 10002, 10003), and 10002 has
+never had a caller.
+
+**What makes it work on Windows, and it is already built.** The write side of
+this model was never removed — only its readers were:
+
+| Piece | State |
+|---|---|
+| `ACC$GROUP` written as `sdu_<name>` | **written on every account**, `CREATEA` line 455 |
+| the `sdu_<name>` Windows group | created by `CREATE.ACCOUNT`, verified §4 |
+| `sdusers` membership | added by `CREATEA` line 345 |
+| `!is_grp_member` on Windows | works, verified 7 of 7 (§4) |
+| the sudoers list | `Administrators`; `CREATE.ACCOUNT USER x` stays out of it, `... ADMINISTRATOR` joins it (§4) |
+
+**Correction to what this file said before:** §5.6.1 recorded `ACC$GROUP` as
+"dead but still populated on old records". **That was wrong** — `CREATEA` writes
+it correctly on every new account. Only the code that read it was deleted.
+
+**What this reverses**, stated plainly because it was a deliberate decision
+built over two sessions and committed in `272ce92`, "Require an account password
+at login":
+
+- **Every account carries its own password. REVERSED for login.** No password
+  is asked for at `sd`, at `sd -Aname` or at `LOGTO SDSYS`.
+- **`LOGTO SDSYS` re-prompts for the caller's own password. REVERSED.** The
+  gate is elevation, applied at login, and there is nothing to step up into.
+
+**The credential machinery is NOT deleted, and this is the owner's decision of
+14 Aug 2026.** `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all
+stay: **the API is a separate door and it does require an account password**,
+on top of the ssh tunnel. See §8. So the credential register changes owner
+rather than becoming dead code — it stops being the console's gate and becomes
+the API's.
+
+**Understand what the security position now rests on.** Nothing in SD checks a
+secret at login; access is entirely OS group membership. That is **not** a
+weakening, and §5.7 already explains why: every SD process opens the database
+under the invoking user's own token, so "account passwords organise access;
+they do not secure it". The password model implied a boundary the filesystem
+never enforced. This states the real position instead of dressing it up.
+
+**One property to accept consciously.** `Administrators` is machine-wide, so
+anyone in it for an unrelated reason — the machine's own administrator, a
+domain admin, an IT tool's service account — gets SDSYS. Linux sudoers is
+machine-wide too, so this is parity rather than a Windows weakness, but it
+should be a decision rather than a discovery.
+
+---
+
+**What follows is the superseded 13 Aug 2026 decision**, kept because 5.6.1 and
+5.6.2 are written on top of it and because the grant model it introduced is
+still how `LOGTO` behaves until §7 step 0 lands.
+
+Decision from the repository owner on 13 Aug 2026, superseding the `sdadmins`
+group model committed earlier the same day in `f56de86`. **SD has no concept of
+users, only accounts** — user accounts intended for one person, and group
+accounts reachable by many. Three parts:
+
+- **Every account carries its own password.** **REVERSED above for login,
+  retained for the API.**
+- **SDSYS is the only administrator.** **REVERSED — see 5.6.1**, and then
+  narrowed again above: an *elevated* Windows administrator.
+- **OS groups are dropped from SD's logic entirely.** **REVERSED above.** OS
+  groups are the whole of the model again: `sdusers` at the door, `ACC$GROUP`
+  per account, `Administrators` for SDSYS.
+
+§5.5 records the Linux privilege model this replaces. The full 13 Aug reasoning,
+including why the credential register is a separate file from ACCOUNTS, is in
+the HISTORY entry "Moved from PROJECT_STATUS §5.6".
 
 ### 5.6.1 A Windows administrator is an SD administrator (decided 14 Aug 2026)
 
@@ -979,6 +1124,16 @@ administrator:
 `IsAdmin()` used `getgroups()`, which would have meant "elevated", not
 "administrator". It uses `getgrouplist()` now, so an administrator is an SD
 administrator in any session, elevated or not — which is what was asked for.
+
+**PARTLY REVERSED 14 Aug 2026, fifth session — the two answers are now both
+wanted, for different questions** (§5.6, §7 step 0). `getgrouplist()` stays as
+`IsAdmin()` and keeps gating `sd -start`, because starting the server should
+not require elevation of somebody who is already an administrator. But
+`K$ADMINISTRATOR` — which now decides who reaches SDSYS — must mean
+**elevated**, so it needs the token answer as well. Add `IsElevated()` beside
+`IsAdmin()` rather than changing `IsAdmin()`: the table above is still correct,
+it simply turned out to describe two useful tests rather than a right one and a
+wrong one.
 
 **Test gid 544, never the name.** Cygwin maps built-in SIDs to their RID, so
 `getgrnam("Administrators")` resolves to 544 and back — but **`Administrators`
@@ -1102,15 +1257,49 @@ from an elevated terminal, and not from a normal session**. And **`OS.EXECUTE`
 needed a shell an installed system does not have**, resolved by making
 `SH`/`SH1` PowerShell — the one that would have bitten silently (§6).
 
-**`sudo` on Windows is a convenience to document, never a prerequisite.** It is
-Windows 11 24H2 and later only, so depending on it would exclude Windows 10 and
-Server; it is not needed to install (Inno requests elevation itself) and not
-afterwards ("Run as administrator" gives the same elevated session). It has no
-sudoers file and no per-command policy — it asks UAC to elevate *your own*
-token. It was enabled on this machine on 14 Aug 2026 **in inline mode**
-(`Enabled=3`), which matters: the default when enabled is "in a new window",
-which would break an interactive `sudo sd` because the session needs the same
-console.
+**`sudo` on Windows: the binary is a convenience, but ELEVATION is now a
+prerequisite.** Corrected 14 Aug 2026, fifth session, because the earlier
+wording here caused a real wrong turn.
+
+**What was said, and why it misled.** This paragraph read "it has no sudoers
+file and no per-command policy". True of `sudo.exe`, and it was taken to mean
+that **Windows cannot limit who may elevate**, which would have handed SDSYS to
+every user and is the reason §5.6's password model was built instead.
+**Elevation is limited, and tightly** — the control is not a file, it is the
+`Administrators` group:
+
+| | Linux | Windows |
+|---|---|---|
+| who may become root | listed in sudoers | member of `Administrators` |
+| a normal account tries it | not in sudoers, refused | **prompted for an administrator's credentials** it does not have |
+| an administrator tries it | in sudoers, password | consent prompt, elevated |
+
+Measured on this machine (§4 Verified): `EnableLUA=1` with
+`ConsentPromptBehaviorUser=3` means a standard user attempting elevation is
+asked for **somebody else's** administrator credentials on the secure desktop.
+They cannot elevate as themselves. **`CREATE.ACCOUNT USER x` leaves x out of
+`Administrators` and `... ADMINISTRATOR` puts x in, so SD has been maintaining
+the sudoers list all along.**
+
+**`sudo.exe` itself is still not a prerequisite**, and the installer does not
+install or enable it — checked 14 Aug 2026, `sd.iss` does not mention it. It is
+Windows 11 24H2 and later only, so requiring it would exclude Windows 10 and
+Server, and **"Run as administrator" on a terminal produces the identical
+elevated token on every Windows version**. `sudo sd` is the convenient
+spelling, not the mechanism. It was enabled on this machine on 14 Aug 2026 **in
+inline mode** (`Enabled=3`), which matters: the default when enabled is "in a
+new window", which would break an interactive `sudo sd` because the session
+needs the same console.
+
+**The one real risk, and it fails CLOSED.** `LocalAccountTokenFilterPolicy` is
+not set on this machine, so the default UAC remote restriction applies and a
+local account logging on **over the network gets a filtered token**. Since
+§5.6.2 makes SD accounts ssh-only, an SD administrator arriving over ssh may be
+unable to elevate at all, and so unable to reach SDSYS remotely. **Nobody gets
+extra access — the failure is that an administrator gets less** — so it does not
+block §7 step 0, but it must be measured before anyone relies on remote
+administration. It may also simply be the design: §5.6.2 already says the
+console and RDP belong to administrators and ssh is for everyone else.
 
 **Passwords never go on a command line.** Decision from the repository owner,
 14 Aug 2026, consistent with §8: `net user <name> <password> /add` exposes the
@@ -2070,6 +2259,20 @@ Each of these cost real time. Read before debugging anything similar.
   now hardcodes to `'/'`. That is correct on the MSYS2 runtime and is a live
   question for stage 2. If compilation starts failing on path resolution, look
   here first.
+- **`whoami /groups` LISTS `Administrators` IN A SESSION THAT CANNOT USE IT,
+  and the qualifier is easy to miss.** An unelevated administrator's token
+  carries `BUILTIN\Administrators` marked **"Group used for deny only"** — it is
+  present so it can be *denied* against, not granted. Read the line and not just
+  the group name, or an unelevated session looks fully privileged.
+
+  **This cost two sessions of design.** It is the same fact as
+  `getgroups()` versus `getgrouplist()` (§5.6.1), and on 14 Aug 2026 it was
+  measured correctly and then read as "elevation cannot be distinguished, so
+  Windows cannot limit who becomes an administrator" — which is what sent the
+  port down the account-password route in §5.6. **A control being in an
+  unfamiliar place is not the control being absent.** The general form: before
+  concluding a platform lacks a capability, find where that platform puts it.
+
 - **Adding yourself to a Windows group does not take effect in the session you
   add it from.** Group membership is fixed in the access token at logon, so
   `sdadmins` resolves by name immediately (`getgrnam` finds gid 197613) while
@@ -2554,6 +2757,53 @@ carried since 13 Aug 2026**, because the rest of this file refers to them by
 number; steps 1 to 3 were renumbered on 14 Aug 2026 when the install layout,
 the staging script and the Inno installer were all finished and removed.
 
+0. **RESTORE THE LINUX ACCESS MODEL (§5.6). DECIDED 14 Aug 2026, NOT BUILT, AND
+   NOTHING ELSE SHOULD BE STARTED FIRST.** It changes what `LOGIN`, `CPROC` and
+   `kernel.c` do, and several items below are written against the model it
+   replaces. This is a build session: C, BASIC, and a re-run of the account
+   tests.
+
+   **Read `git show f9edab0:sdb_ai/sd64/sdsys/GPL.BP/LOGIN` first**, lines
+   185-270. That is this repository's own pre-port source and it is the
+   specification — the five rules in §5.6 are transcribed from it, not designed.
+
+   a. **C: add `IsElevated()` beside `IsAdmin()` in `linuxlb.c`.** Read the
+      token, not the SAM — `GetTokenInformation(TokenElevation)`, or the
+      "deny only" marker on `S-1-5-32-544` that §4 records. **Do not change
+      `IsAdmin()`**: it still gates `sd -start` through `check_admin()`, and
+      starting the server should not demand elevation of somebody who is
+      already an administrator. Then seed `USR_ADMIN` in `kernel.c` line 186
+      from `IsElevated()` rather than `IsAdmin()`, so `K$ADMINISTRATOR` means
+      elevated.
+   b. **`LOGIN`: restore the `f9edab0` logic and delete
+      `authenticate.account`.** The `sdusers` gate returning `sysmsg(5009)`;
+      `sd` with no account named taking `initial.account = upcase(@logname)`
+      and refusing with `sysmsg(5018)` if there is no such account; the
+      `kernel(K$ADMINISTRATOR,-1)` case putting an elevated session straight
+      into SDSYS; and `sd -Aname` checking `ACC$GROUP` and refusing SDSYS to an
+      unelevated caller with `sysmsg(10002)`. **This absorbs what was step 1b.**
+   c. **`CPROC`: drop `logto.step.up` and restore `ACC$GROUP` in
+      `logto.authorised`.** There is no password to step up with, and the gate
+      is now applied at login. While there, **replace the dead
+      `system(27) = 0` branch at line 272** — that is the Linux `sudo` test,
+      `getuid()` never returns 0 on Windows (§5.5), and it is what
+      `IsElevated()` is for.
+   d. **Do NOT delete `$CRED`, `!CRED_SET`, `!CRED_VERIFY` or `SET.PASSWORD`.**
+      Owner's decision, 14 Aug 2026: the API is a separate door and **does**
+      require an account password (§8). They lose their console caller and gain
+      an API one; record them as callerless in the meantime rather than
+      removing them.
+   e. **Re-run `verify-createaccount.ps1` with a fresh account name**, and add
+      to it: a normal SD account logging in with plain `sd` and landing in its
+      own account, the same account refused at `sd -ASDSYS`, and an elevated
+      session landing in SDSYS.
+   f. **Measure whether elevation works over ssh** (§5.6.1). If it does not,
+      SDSYS is reachable only from an elevated console or RDP — which may be
+      the intended design, since §5.6.2 gives the console to administrators, but
+      it should be written down as a decision either way.
+   g. **The changelog.** Login behaviour changing is exactly what §0 rule 8
+      covers, and nothing has been added yet because nothing has been built.
+
 1. **Finish the loose ends the account model left.** The model itself is proven
    (§4, §5.6.1, §5.6.2); none of this is large, and it should not be left to
    drift.
@@ -2567,11 +2817,9 @@ the staging script and the Inno installer were all finished and removed.
       **That was wrong** — `config.c` line 98 sets `pcfg.create_user = 1`, so
       it defaulted **on** and never blocked anything. The real blocker was the
       pathname validator in §6.
-   b. **Restore the `sdusers` login gate**, which the owner asked for and which
-      is now possible: `LOGIN` 193's test was removed when `IS_GRP_MEMBER`
-      could not work, and it works now (§4). Settle first what it means for
-      §5.6.1, which it pulls against — it would make reaching SD depend on a
-      Windows group again.
+   b. **MOVED INTO STEP 0b, 14 Aug 2026.** Restoring the `sdusers` gate is no
+      longer a question that needs settling against §5.6.1 — the reversal in
+      §5.6 answers it. The gate goes back.
    c. **Decide what `DELETE.ACCOUNT` should do.** This is the asymmetry now,
       and **there are two live examples of the problem sitting on this machine
       to decide against.** `DELACC` still consults `config('CREATUSR')` before
@@ -2817,12 +3065,25 @@ SD's own faces the network.
 
 What that settles, beyond the choice itself:
 
-- **The API stops needing a network credential model of its own.** §7 step 6a
-  asked whether to authenticate against `$CRED` or trust peer identity. Over a
-  local-only transport reached through ssh, ssh has already authenticated the
-  user before SD sees a connection, so the answer leans hard towards peer
-  identity — and `login_user()` reading `/etc/shadow`, which cannot work on
-  Windows anyway, can go rather than be ported.
+- **CORRECTED 14 Aug 2026, fifth session — THE API STILL NEEDS AN ACCOUNT
+  PASSWORD.** This bullet used to say the API "stops needing a network
+  credential model of its own", reasoning that ssh had already authenticated
+  the user so peer identity would do. **The repository owner corrected it: in
+  the Linux version the ssh tunnel is only the first gate, and the API has no
+  access to the server without an account password.** Two gates, not one.
+
+  **This is what saves the credential machinery.** §5.6's reversal takes
+  passwords off the console login, which left `$CRED`, `!CRED_SET`,
+  `!CRED_VERIFY` and `SET.PASSWORD` with no caller. They are the API's gate
+  instead, and are **not to be deleted** (§7 step 0d).
+
+  **What is not settled is which password.** On Linux the API check is
+  `login_user()` reading `/etc/shadow`, so it is the *operating system*
+  account's password. MSYS2 has no `/etc/shadow` (§6), so the Windows options
+  are `$CRED`, which exists and is verified working, or `LogonUser` against the
+  Windows account, which would match Linux more closely at the cost of handling
+  a Windows credential inside SD. **Decide it with §7 step 6a**, and note the
+  no-password-on-a-command-line rule in §5.6.1 applies to whichever is chosen.
 - **The AF_UNIX weakness in §6 matters less, but does not vanish.** Binding to
   loopback is not the same as authenticating the peer. A **named pipe** with
   `GetNamedPipeClientProcessId` remains the right Windows answer, and
