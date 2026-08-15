@@ -23,16 +23,19 @@ users`** — where an hour earlier the same commands put a machine administrator
 straight into SDSYS. §4 carries the table. **`sysmsg(10002)` fired for the first
 time in this codebase's history.**
 
-**FOUR OF §5.6's FIVE RULES ARE OBSERVED, AND `CREATE.ACCOUNT` STILL PASSES 16
-of 16** under the elevated-only gate. **THE REMAINING TWO RULES ARE STILL
-UNOBSERVED** — a normal account landing in its own account, and `LOGTO` under
-the restored `ACC$GROUP` test. **The account test does not cover them**: every
-one of its checks is Windows-side and none logs into SD, and it removes the
-account afterwards. Re-run it with **`-Keep`** and a fresh name, then log in
-**over ssh**. That is all §7 step 0e has left.
+**§7 STEP 0 IS COMPLETE. ALL FIVE RULES OF §5.6 ARE OBSERVED**, plus both
+`LOGTO` paths and `CREATE.ACCOUNT` at 16 of 16 under the elevated-only gate. The
+last four were watched over ssh as `sdacct5`, an ordinary non-administrator
+account: `sd` landed it in `SDACCT5` with nothing asked, `who` confirmed it,
+`LOGTO SDSYS` was refused by the elevation gate and `LOGTO SDACCT1` by the
+restored `ACC$GROUP` test. §4 carries the table.
+
+**THE NEXT SUBJECT IS §7 STEP 1** — the loose ends the account model left, of
+which **step 1d is now the most valuable**: `sd -start` and `sd -stop` both lie
+about `sdwind`, and this session hit both.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-3,090 LINES NOW**, measured after the last edit rather than during it (see the
+3,097 LINES NOW**, measured after the last edit rather than during it (see the
 correction below, which is the same mistake one step smaller), after the sixth
 session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
@@ -140,12 +143,22 @@ in one place:
 - **Nothing is left half-applied and nothing needs cleaning off** — the
   reversal above is a decision on paper, and the code still does what §4 says.
 
-**THE NEXT SESSION'S SUBJECT IS CHOSEN: §7 step 0e** — compiling `LOGIN` and
-`CPROC` onto this machine and running the account tests against them. Step 0's
-build is done; **not one line of it has executed.** Nothing else on the list
-should be started first, because every other item is written against a model
-nobody has yet watched work. **It needs an elevated window** — that is new, and
-§6 explains why.
+**THE NEXT SESSION'S SUBJECT IS §7 STEP 1**, the loose ends the account model
+left. Step 0 is closed: the access model is built, installed and verified end to
+end (§4), so the items below are no longer written against a model nobody had
+seen work.
+
+**Step 1d is the pick of them**, and it grew during step 0: **both `sd -start`
+and `sd -stop` lie about `sdwind`**, for the same reason — they trust the shared
+segment rather than the daemon process. This session hit both, one of them
+leaving the system unusable while reporting success (§6). It is small,
+self-contained, and it wastes time every session it survives.
+
+Behind it: **`DELETE.ACCOUNT`** (step 1c), which now has **three** half-removed
+accounts to decide against rather than two — `sdacct1` to `sdacct3` — plus two
+complete ones, `sdacct4` and `sdacct5`, left behind by `-Keep`. And the **second
+machine** (step 2), still the only place RDP and a genuinely clean install can
+be tested.
 
 The candidates behind it are unchanged: `DELETE.ACCOUNT` (§7 step 1c, which has
 two worked examples sitting on the machine), the **second machine** (§7 step 2),
@@ -174,8 +187,8 @@ install** on it, from the fixed installer:
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
 | **`AllowGroups` IS APPLIED** | 14 Aug 2026, by `allow-ssh-groups.ps1 -Installed`. `C:\ProgramData\ssh\sshd_config` carries `AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators` between SD's markers, before the `Match` block. **Only members of `sdusers` or `Administrators` can ssh into this machine at all** — verified, §4. The original is at `sshd_config.before-sd`; `allow-ssh-groups.ps1 -Remove` reverses it. Left in place deliberately: it is what the installer would have written |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
-| Test accounts, Windows side | **none.** `sdacct1`, `sdacct2`, `sdsshprobe` and the `sdu_` groups are all gone, confirmed 14 Aug 2026. `sdsshonly` is empty and `sdusers` holds only `GITORLI\don`, which is correct — the groups are the installer's, the membership is not |
-| Test accounts, **SD side** | **THREE are left, deliberately** — `sdacct3` joined them in the sixth session: `C:\ProgramData\SD\user_accounts\sdacct1`, `sdacct2` and `sdacct3`, with their `ACCOUNTS` records. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
+| Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
+| Test accounts, **SD side** | **FIVE directories now**, `sdacct1` to `sdacct5`, with their `ACCOUNTS` records. **Only three are half-removed** — `sdacct1`, `sdacct2` and `sdacct3`, whose Windows accounts are gone; `sdacct4` and `sdacct5` are complete on both sides. It is the first three that step 1c has to decide about. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
 | SD | **running as this session ended** — `sdwind` up, started by `verify-createaccount.ps1` from `C:\Program Files\SD\usr\bin\sd.exe` and left up. It was started by an **elevated** session, so an unelevated `sd -stop` will report success and leave the daemon running (§6); stop it from an elevated window, or `Stop-Process` it |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
@@ -569,24 +582,24 @@ restriction it applies still holds by the three decisive measurements:
 `LogonUser INTERACTIVE` refused 1385, `NETWORK_CLEARTEXT` admitted, ssh with the
 password SD set admitted.
 
-**BUT THAT RUN DOES NOT TEST SD LOGIN, AND IT IS EASY TO READ AS IF IT DOES.**
-All sixteen checks are Windows-side — account, groups, directories, OS logon.
-**None of them logs into SD.** So **two of §5.6's five rules are still
-unobserved**: a normal SD account typing plain `sd` and **landing in its own
-account**, and **`LOGTO` under the restored `ACC$GROUP` test**.
+**That run does not test SD login, and it is easy to read as if it does** — all
+sixteen checks are Windows-side, and none of them logs into SD. So the last two
+rules were tested separately, by hand, over ssh as `sdacct5`:
 
-**And the run cleans up after itself**, removing the Windows user, so the
-account it made cannot be used for either. Use **`-Keep`** and a fresh name —
-`sdacct3` is now burnt, because the SD side is left behind deliberately (§7 step
-1c) and the verb refuses a reused name:
+**§5.6 IS COMPLETE. ALL FIVE RULES OBSERVED, AND BOTH `LOGTO` PATHS.** From an
+ssh session belonging to `sdacct5`, a normal non-administrator SD account:
 
-```powershell
-powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct4 -Keep
-```
+| Typed | Answer | What it proves |
+|---|---|---|
+| `sd` | **a `:` prompt, nothing asked** | `case 1` took `upcase(@logname)`, found `SDACCT5`, and entered it on the strength of the OS having authenticated the user |
+| `who` | `3 SDACCT5` | which account, confirmed rather than inferred from the absence of a prompt |
+| `LOGTO SDSYS` | `SDSYS Account access is restricted to privileged users` | the elevation gate in `int.logto`. **An ssh session cannot be elevated** — the local-only property of §5.6, tested rather than argued |
+| `LOGTO SDACCT1` | `User not allowed in requested account` | **the restored `ACC$GROUP` test in `logto.authorised`** — `sdacct5` is not in `sdu_sdacct1` |
 
-Then log in **over ssh** — the account is ssh-only by design, so the console will
-refuse it — and check the two rules there. `-Cleanup` removes what `-Keep`
-leaves.
+**The two refusals come from different code**, which is why both were worth
+running: one is the elevation gate before the ACCOUNTS read, the other is the
+group test below it. Between them they cover every branch this session changed
+in `CPROC`.
 
 **Ignore `Command not found` in section 1 of that script's output.** It appears
 while all 16 checks pass; the script's own header (line ~179) records it as a
@@ -3077,11 +3090,11 @@ carried since 13 Aug 2026**, because the rest of this file refers to them by
 number; steps 1 to 3 were renumbered on 14 Aug 2026 when the install layout,
 the staging script and the Inno installer were all finished and removed.
 
-0. **RESTORE THE LINUX ACCESS MODEL (§5.6). PARTS a TO d ARE BUILT — 14 Aug
-   2026, sixth session. e AND f REMAIN AND STILL COME FIRST.** Nothing below
-   should be started until the model that every other item assumes has been
-   watched working. **What is left is not a build session, it is a test
-   session**, and it needs an elevated window.
+0. **CLOSED — 14 Aug 2026, sixth session. THE LINUX ACCESS MODEL IS RESTORED,
+   INSTALLED AND VERIFIED END TO END (§5.6, §4).** All five rules observed, both
+   `LOGTO` paths, and `CREATE.ACCOUNT` still at 16 of 16. Kept here rather than
+   deleted because the sub-steps record how it was done and what it cost; the
+   next subject is step 1.
 
    **Read `git show f9edab0:sdb_ai/sd64/sdsys/GPL.BP/LOGIN` first**, lines
    185-270. That is this repository's own pre-port source and it is the
@@ -3107,20 +3120,15 @@ the staging script and the Inno installer were all finished and removed.
    d. **DONE. `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all kept**
       and recorded as callerless, in `LOGIN` where the caller used to be.
       `sysmsg` 10030 and 10031 lost their only caller with `logto.step.up`.
-   e. **MOSTLY DONE (§4). WHAT REMAINS IS THE TWO RULES THAT NEED A SECOND
-      ACCOUNT.** Compiled, installed, and both refusals observed from an
-      unelevated session. Still to watch: **a normal SD account typing plain
-      `sd` and landing in its own account**, and **`LOGTO` under the restored
-      `ACC$GROUP` test**. Creating the account needs an elevated window:
+   e. **DONE — ALL FIVE RULES OBSERVED (§4).** Compiled, installed, both
+      refusals watched from an unelevated session, and the last two watched over
+      ssh as `sdacct5`: `sd` landed it in `SDACCT5` with nothing asked, and both
+      `LOGTO` refusals fired from their separate code paths.
+      `CREATE.ACCOUNT` re-passed 16 of 16 under the elevated-only gate.
 
-      ```powershell
-      powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct3
-      ```
-
-      **`gcat.before-step0` has already been deleted** (sixth session), once the
-      refusals were verified. If login ever needs restoring, take the catalogue
-      from the staged tree rather than looking for that backup — see the machine
-      table.
+      **`gcat.before-step0` has already been deleted** (sixth session). If login
+      ever needs restoring, take the catalogue from the staged tree rather than
+      looking for that backup — see the machine table.
 
       **Two things the staging run taught, both worth keeping:**
 
@@ -3172,10 +3180,11 @@ the staging script and the Inno installer were all finished and removed.
       same account **refused at `sd -ASDSYS`** with `sysmsg(10002)`; an
       **elevated** session typing plain `sd` and **landing in SDSYS**; and a
       Windows user with no SD account **refused with `sysmsg(5018)`**.
-   f. **Confirm ssh cannot reach SDSYS.** The design question here is answered —
-      elevation is local by design, owner's decision 14 Aug 2026, see §5.6 — so
-      this is now a confirmation and not a choice. **If elevation does turn out
-      to work over ssh, that is a gap to close, not a feature.**
+   f. **DONE. ssh CANNOT REACH SDSYS, CONFIRMED.** From an ssh session as
+      `sdacct5`, `LOGTO SDSYS` was refused with `sysmsg(10002)`. Together with
+      the unelevated `sd -ASDSYS` refusal at the console (§4), **the local-only
+      elevation property is measured rather than argued** — which is what the
+      owner's decision of 14 Aug 2026 asked for.
    g. **DONE. The changelog carries the login change**, including the two things
       a user would otherwise be caught by: existing `ACC$USERS` grants stopping
       working, and elevation being local-only.

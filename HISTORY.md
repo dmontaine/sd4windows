@@ -27,6 +27,63 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - Step 0 is CLOSED: all five rules of 5.6 observed end to end
+
+Sixth session of 14 Aug 2026, last entry. **The access model decided in the
+fifth session is built, installed and verified.** The remaining two rules were
+watched over ssh as `sdacct5`, an ordinary non-administrator SD account created
+by `CREATE.ACCOUNT`:
+
+| Typed | Answer |
+|---|---|
+| `sd` | a `:` prompt, **nothing asked** — no account name, no password |
+| `who` | `3 SDACCT5` |
+| `LOGTO SDSYS` | `SDSYS Account access is restricted to privileged users` |
+| `LOGTO SDACCT1` | `User not allowed in requested account` |
+
+**Both refusals were worth running because they come from different code.**
+`LOGTO SDSYS` is stopped by the elevation gate in `int.logto`, above the
+ACCOUNTS read; `LOGTO SDACCT1` is stopped by the restored `ACC$GROUP` test in
+`logto.authorised`, below it. Between them they cover every branch this session
+changed in `CPROC`. The first also **confirms step 0f by measurement**: an ssh
+session cannot be elevated, so ssh cannot reach SDSYS — the local-only property
+the owner specified earlier the same day, tested rather than argued.
+
+`sd` landing in `SDACCT5` with nothing asked is the whole reversal in one line:
+the operating system authenticated the user, and SD asked it who they were.
+
+### What it took to get there, which is the part worth reading
+
+The code was written in about an hour. **Everything after that was the
+environment**, and none of it was visible from the source:
+
+- `-ASDSYS` instead of `-internal` for the compile, because `BCOMP` gates
+  `$internal` on `K$INTERNAL` *and* `K$ADMINISTRATOR` — eleven cascading errors
+  that looked like broken source.
+- `!VALID_OS_NAME` missing from the bootstrap's pass 1 list, because the
+  restored `sdusers` gate made `LOGIN` reach it at first login.
+- The bootstrap needing `sdusers`, a group only the installer creates.
+- `LIST ACCOUNTS` hanging on the fifth account, because a piped session cannot
+  answer a pagination prompt.
+- `sd -start` reporting success off a stale shared segment with `sdwind` dead.
+- A random 24-character password lost with the run that generated it.
+
+**Five of those six were pre-existing and had simply never been reached.** Only
+`VALID_OS_NAME` was caused by this session's own change. A full bootstrap and one
+hand-driven login found all of them; nothing short of that would have.
+
+### State at the close
+
+Step 0 is closed and **step 1 is the next subject**, with step 1d promoted:
+`sd -start` and `sd -stop` both lie about `sdwind`, this session hit both, and
+they share a cause. `DELETE.ACCOUNT` (step 1c) now has **three** half-removed
+accounts to decide against — `sdacct1` to `sdacct3`, SD side only — plus two
+complete ones left by `-Keep`, `sdacct4` and `sdacct5`. **Nobody knows
+`sdacct4`'s password**: it was random, and the run that made it hung before
+printing it.
+
+---
+
 ## 14 Aug 2026 - The access model is live, and the refusals are observed
 
 Sixth session of 14 Aug 2026, later the same evening. Binaries built, tree
