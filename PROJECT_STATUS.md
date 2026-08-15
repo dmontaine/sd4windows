@@ -29,7 +29,7 @@ under the restored `ACC$GROUP` test. That is all §7 step 0e has left, and
 creating the account needs an elevated window.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-3,017 LINES NOW**, measured after the last edit rather than during it (see the
+3,027 LINES NOW**, measured after the last edit rather than during it (see the
 correction below, which is the same mistake one step smaller), after the sixth
 session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
@@ -546,6 +546,18 @@ command put `don` — a machine administrator — straight into SDSYS. It now
 refuses, because `IsElevated()` is false in an ordinary session. **And
 `sysmsg(10002)` fired for the first time in this codebase's history**; §5.6
 recorded it as having never had a caller.
+
+**BOTH REFUSALS WERE THEN REPRODUCED INDEPENDENTLY BY THE REPOSITORY OWNER IN A
+PLAIN `cmd` CONSOLE**, byte for byte. That matters rather than merely
+duplicating the result: the runs above went through a **pipe**, and §6 records
+that a piped SD session is not equivalent to a real one — it takes a BOM on the
+first line, and `Start-Process -RedirectStandardInput` fails outright. **A real
+TTY was the one way to be sure the refusals were SD's and not the plumbing's.**
+
+Incidental but worth keeping: the console runs carried extra words on the
+command line, and **SD ignored them** — `LOGIN` refuses before anything parses a
+command. So **a user refused at the door cannot smuggle a command in as an
+argument**, on either path.
 
 **FOUR OF THE FIVE RULES IN §5.6 ARE NOW OBSERVED.** What is left is the two
 that need a second account to exist: **a normal SD account typing plain `sd` and
