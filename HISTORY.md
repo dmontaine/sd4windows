@@ -27,6 +27,37 @@ corrected.
 
 ---
 
+## 15 Aug 2026 - Step 1f built, and ADOPT's first run locked the owner out of his console
+
+Eighth session. `gplbld/adopt-account.ps1` gives the installing user an SD
+account; `sd.iss` calls it from `[Code]` at `ssPostInstall` rather than `[Run]`,
+because a `postinstall` entry runs as the original unelevated user - one of the
+three reasons the old SDSYS password step never worked. The script starts SD if
+it must, judges on the `ACCOUNTS` record rather than the exit status, and puts
+the machine back as it found it.
+
+**The verb ran for the first time and made the account - and confined `don` to
+ssh.** `CREATEA` applies the ssh-only restriction as the `else` of the
+`ADMINISTRATOR` keyword, so an adopted account, which is by definition the
+installer's and an administrator's, went into `sdsshonly` and its two
+deny-logon rights. He kept the session he was in; the next sign-out would have
+taken his console and RDP both.
+
+**Owner's rule, stated when it surfaced: no administrator account carries a
+lockout risk.** An OS administrator created outside SD has no SD account at all;
+one created inside SD must be able to log into the machine and into SD. So
+`CREATEA` now skips the restriction for an adopted account and for anyone
+Windows already calls an administrator.
+
+**That second test could not be asked before today.**
+`Get-LocalGroupMember -Group "S-1-5-32-544"` answers "Group ... was not found"
+while `-SID` returns the members, so `!is_grp_member` took its no-such-group
+path and answered false for every administrator, silently. Fixed to use `-SID`
+for a SID-shaped group, which `!os_group` already accepted.
+
+Neither fix has been compiled. The next `ADOPT` on a fresh OS account is the
+test, and it must end with the account not in `sdsshonly`.
+
 ## 15 Aug 2026 - Rebuilt, reinstalled, and step 1d proven on the install
 
 Eighth session, after the two entries below. Re-staged with the ACCOUNTS/SDSYS

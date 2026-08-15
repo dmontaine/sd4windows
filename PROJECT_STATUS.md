@@ -72,9 +72,15 @@ form, because it changes what every other item in this file assumes:
   decision, 14 Aug 2026, seventh session. **The only pre-existing OS user that
   may be given an SD account is the installer's**, done at install time; every
   other SD account creates its OS account from within SD. `CREATE.ACCOUNT`
-  refuses a name that already exists in Windows, and the single sanctioned door
-  is `ADOPT`, gated on `K$INTERNAL` so the install can use it and a console
-  cannot. **The installer's account does not exist yet** — §7 step 1f.
+  refuses a name that already exists in Windows, and the sanctioned door is
+  `ADOPT`, gated on `K$INTERNAL`, which the install uses. **The installer's
+  account is made at install time from 15 Aug 2026** — §7 step 1f.
+  **`K$INTERNAL` IS NOT A WALL AND IS NOT MEANT TO BE** (owner, 15 Aug 2026):
+  an elevated administrator can run `sd -internal CREATE.ACCOUNT USER x ADOPT`
+  by hand and give another administrator an account. That is accepted, and it
+  **stays undocumented** — not in the `changelog`, not in the installer's
+  dialog. What the gate stops is an ordinary console session adopting somebody's
+  existing Windows login.
 
 **Also true and worth having in one place:** `AllowGroups` is applied and
 enforced on this machine, by control and treatment (§4), and the lockout risk
@@ -106,6 +112,7 @@ install** on it, from the fixed installer:
 | **`AllowGroups` IS APPLIED** | 14 Aug 2026, by `allow-ssh-groups.ps1 -Installed`. `C:\ProgramData\ssh\sshd_config` carries `AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators` between SD's markers, before the `Match` block. **Only members of `sdusers` or `Administrators` can ssh into this machine at all** — verified, §4. The original is at `sshd_config.before-sd`; `allow-ssh-groups.ps1 -Remove` reverses it. Left in place deliberately: it is what the installer would have written |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
+| **`don` HAS AN SD ACCOUNT** | 15 Aug 2026, made by `ADOPT` — `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`. **It also put him in `sdsshonly` and that had to be undone by hand** (§6); check `Get-LocalGroupMember sdsshonly` before trusting this machine's logon rights |
 | Test accounts, **SD side** | `sdacct2`–`sdacct5` + SDSYS. `sdacct1` was removed by `DELETE.ACCOUNT` on 14 Aug 2026, the first run of that verb. `sdacct2` and `sdacct3` are still half-removed (no Windows account) and are spare test cases for the same branch; `sdacct4` and `sdacct5` are complete on both sides. Use a fresh `-Account` name when re-running `verify-createaccount.ps1`; SD refuses a reused one |
 | SD | **running, pid 14408 from the installed 06:23 binary**, started unelevated 15 Aug 2026 07:15, segment and six semaphores present. It also ran as the seventh session ended, `sdwind` 4696 from `sdb_ai\sd64\bin`; **an ordinary session held terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches an unelevated-started daemon. **Corrected earlier: a blank `Path` is not evidence a process was started elevated** — §6 |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
@@ -398,6 +405,16 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**15 Aug 2026 — `ADOPT` RAN FOR THE FIRST TIME, AND IT LOCKED THE OWNER OUT OF
+HIS OWN CONSOLE.** `adopt-account.ps1` against the install, elevated:
+`don now has an SD account` — `ACCOUNTS/DON` written, `sdu_don` created, VOC,
+`$HOLD`, `$SAVEDLISTS`, BP and private catalogue made. **And `don may sign in
+over ssh only`**: the verb put him in `sdsshonly`, which carries both deny-logon
+rights, so the next sign-out would have shut him out of the console and RDP.
+Membership confirmed with `Get-LocalGroupMember` and removed by hand. §6 has the
+fix and the rule behind it. Unelevated first, as a control: the same script was
+refused with `sysmsg(10002)` and changed nothing.
 
 **15 Aug 2026 — §7 STEP 1d HOLDS ON THE INSTALLED BINARY, NOT JUST THE BUILD.**
 All four branches against `C:\Program Files\SD\usr\bin\sd.exe`, **run twice**:
@@ -889,6 +906,9 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
+- **The `CREATEA`/`IS_GRP_MEMBER` lockout fix (§6) is source only.** Nothing has
+  compiled or run it: the next `ADOPT` on a fresh OS account is the test, and it
+  must end with the account **not** in `sdsshonly`.
 - **No staged tree has yet been built with the `ACCOUNTS/SDSYS` fix** (§6).
   The next `stage.py --force --bootstrap` is the first, and `SECOND.COMPILE`
   will be compiling the staged sources for the first time — expect differences,
@@ -1986,6 +2006,29 @@ Each of these cost real time. Read before debugging anything similar.
   group either. The general form is the one this file keeps re-learning:
   **a rule transcribed from the Linux source can depend on a Linux mechanism
   that was never ported.**
+
+- **CREATING AN SD ACCOUNT COULD LOCK A WINDOWS ADMINISTRATOR OUT OF THEIR OWN
+  CONSOLE, AND `!is_grp_member` COULD NOT HAVE STOPPED IT.** 15 Aug 2026, both
+  found in one run of `ADOPT` (§4).
+
+  `CREATEA` applies the ssh-only restriction as the `else` of the
+  `ADMINISTRATOR` keyword, so an *adopted* account — the installer's, and by
+  definition an administrator — landed in `sdsshonly` and its two deny-logon
+  rights. Nothing is visible until the next sign-in, and then the console and
+  RDP are both gone.
+
+  **Owner's rule, 15 Aug 2026: no administrator account carries a lockout
+  risk.** An OS administrator made outside SD simply has no SD account; one
+  made *inside* SD must be able to use both the machine and SD. So `CREATEA`
+  now skips the restriction for an adopted account **and** for anyone Windows
+  already calls an administrator, tested by SID.
+
+  **Which needed a second fix, because the test could not be asked.**
+  `Get-LocalGroupMember -Group "S-1-5-32-544"` answers `Group ... was not
+  found` while `-SID` returns the members — measured — so `!is_grp_member` took
+  its "no such group" path and answered **false for every administrator**, fail
+  closed and silent. It now uses `-SID` for a SID-shaped group, matching
+  `!os_group`, which always accepted either.
 
 - **`OpenProcess(PROCESS_TERMINATE)` RETURNING A HANDLE DOES NOT MEAN YOU CAN
   TERMINATE.** 15 Aug 2026: it returned one for a High-integrity `sdwind` from a
@@ -3196,11 +3239,20 @@ the staging script and the Inno installer were all finished and removed.
       sd -internal CREATE.ACCOUNT USER <installing user> ADOPT
       ```
 
-      with the installing user's name, which Inno has, and tolerating the
-      account already existing on a reinstall. **Test it on the second machine
-      (step 2)** — an install is the only place it happens, and this machine's
-      install cannot be re-run without the staleness trap muddying what is
-      being tested.
+      **BUILT 15 Aug 2026.** `gplbld/adopt-account.ps1` does it — starts SD if
+      it must, runs the verb, judges on the `ACCOUNTS` record rather than the
+      exit status, restores what it found; exit 0 adopted, 2 already there,
+      3 no server, 1 refused. `sd.iss` calls it from `[Code]` at
+      `ssPostInstall`, **not `[Run]`**: a `postinstall` entry runs as the
+      original, unelevated user, which is one of the three reasons the old
+      SDSYS password step never worked. The closing dialog reports all three
+      outcomes.
+
+      **Verified: the verb.** `ADOPT` ran against the install and made the
+      account (§4), which also found the lockout defect in §6. **Not verified:
+      the installer calling it** — that needs a real install, so it belongs to
+      step 2, and the fixed `CREATEA`/`IS_GRP_MEMBER` have not been recompiled
+      or re-run anywhere yet.
 2. **Install on a genuinely clean machine, and test RDP there.** Still the test
    that matters: this machine has a development tree, so an accidental
    dependency could survive, and it is the only place two of the open questions
