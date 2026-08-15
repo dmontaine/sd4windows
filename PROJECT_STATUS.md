@@ -32,7 +32,7 @@ account afterwards. Re-run it with **`-Keep`** and a fresh name, then log in
 **over ssh**. That is all §7 step 0e has left.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-3,051 LINES NOW**, measured after the last edit rather than during it (see the
+3,067 LINES NOW**, measured after the last edit rather than during it (see the
 correction below, which is the same mistake one step smaller), after the sixth
 session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
@@ -2139,6 +2139,26 @@ Each of these cost real time. Read before debugging anything similar.
   and refuse up front. And note `bootstrap.py` line 195 already records the
   *previous* login change breaking this same path, unnoticed for the same
   reason: **nobody re-runs the bootstrap, so it rots silently.**
+
+- **A PIPED SD SESSION CANNOT ANSWER "Press RETURN to continue", SO ANY
+  `LIST` THAT OUTGROWS A PAGE HANGS FOREVER.** Measured 14 Aug 2026, sixth
+  session: `verify-createaccount.ps1` stopped dead at `LIST ACCOUNTS` **on the
+  fifth account**, leaving an `sd.exe` blocked on stdin and no error message of
+  any kind. Three earlier runs had passed because four accounts fitted on one
+  page. **The bug was always there; the register just grew.**
+
+  **Append `NO.PAGE` to every `LIST` in a scripted session** — `bootstrap.py`
+  line 205 already does it for `RUN GPL.BP WRITE_INSTALL_DICTS`. Fixed in
+  `verify-createaccount.ps1` in the same session.
+
+  **The general form is the useful part: a test that passes today because the
+  data is small is not a passing test.** This one degraded silently from green
+  to hung with no code change at all.
+
+  **And you may not be able to clean up after it.** The stuck `sd.exe` was
+  started by an *elevated* session, so an unelevated `Stop-Process` answers
+  *Access is denied* — the same asymmetry this section records for `sd -stop`.
+  Kill it from the window that started it.
 
 - **ANYTHING `LOGIN` CALLS BECOMES A BOOTSTRAP DEPENDENCY, BECAUSE
   `SECOND.COMPILE` LOGS IN.** Measured 14 Aug 2026, sixth session. Restoring the
