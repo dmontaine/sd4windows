@@ -10,20 +10,26 @@ commit `c99f927` and **built the access model the fifth session decided** —
 §7 step 0, parts a to d. The gap between this file and the code that the fifth
 session called the largest it had ever been is closed in source.
 
-**THE C COMPILES CLEAN AND NOTHING HAS BEEN RUN.** `make sd` exits 0 with the
-new `IsElevated()` in it. **`LOGIN` and `CPROC` have not been compiled at all**,
-so nothing in §4 moved, and every statement below about how login now behaves is
-**written, not observed**. Why they could not be compiled is a finding in its own
-right and is in §6: `bbcmp.py` cannot compile `LOGIN` — proven with a control,
-not assumed — and SD's own compiler now demands elevation, because `BCOMP` gates
-`$internal` on `K$ADMINISTRATOR` and that flag now means *elevated*.
+**IT ALL COMPILES AND THE NEW `LOGIN` IS RUNNING ON THIS MACHINE.** `make sd`
+exits 0 with the new `IsElevated()` in it, and **`LOGIN` and `CPROC` both
+compiled with `0 error(s)` and are catalogued** — the first time either had ever
+been through a compiler. `gcat/$LOGIN` was checked as written, not as reported.
 
-**READ §5.6, THEN §7 STEP 0e.** The model is built; testing it is the whole of
-what is left, it needs an elevated window, and that is where this session
-stopped.
+**THE PERMISSIVE HALF IS OBSERVED, THE REFUSALS ARE NOT.** The `sdusers` gate
+admits a member and `-INTERNAL` reaches SDSYS — both watched, §4, and dated by
+the "no password set" warning vanishing between two consecutive compiles.
+**But `C:\Program Files\SD\usr\bin\sd.exe` IS STILL THE 14 Aug 16:15 BINARY**,
+which seeds `K$ADMINISTRATOR` from `IsAdmin()` rather than `IsElevated()`. So
+this machine is in a **mixed state — new BASIC, old binary — in which `don`
+lands in SDSYS unelevated.** That is the old binary answering the old way, not
+the gate failing. **Nothing that depends on elevation meaning elevation has been
+tested, and cannot be until the new binaries are installed.**
+
+**READ §5.6, THEN §7 STEP 0e.** Installing the new binaries and testing the
+refusals is the whole of what is left.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-2,882 LINES NOW**, measured after the last edit rather than during it (see the
+2,964 LINES NOW**, measured after the last edit rather than during it (see the
 correction below, which is the same mistake one step smaller), after the sixth
 session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
@@ -152,8 +158,9 @@ install** on it, from the fixed installer:
 | `C:\Program Files\SD` | **18 files**, binaries in `usr\bin` including `sdwind.exe`; `sd.exe` is **16:15:28**. 18 rather than the stage's 16 because `unins000.exe` and `unins000.dat` are the installer's |
 | `C:\ProgramData\SD\sdsys` | **3,270 files - a working database.** The compiled `gcat/$CREATEA` is 16:15:56 and **contains the ssh-only branch**; `MESSAGES/10032`–`10035` are all present. 3,270 rather than the staged 3,268 because the two test accounts added register entries — expect this number to drift upward as accounts are created |
 | The daemon | **runs**, as `C:\Program Files\SD\usr\bin\sdwind.exe`, and `sd -stop` takes it down |
-| SDSYS password | **not set, and under the model built on 14 Aug it no longer matters** — nothing on the console asks for a password. The installed `LOGIN` still does, because it is the old one; see the row below |
-| **THE INSTALLED SYSTEM IS BEHIND THE SOURCE** | as of the sixth session, 14 Aug 2026. `C:\ProgramData\SD\sdsys` carries the **13 Aug password-prompt `LOGIN`**, not the one in the repository. So **what this machine does at login is not what §5.6 describes**, and testing the new model means compiling `LOGIN` and `CPROC` onto it first — §7 step 0e, and read the staleness trap in §6 before assuming a reinstall does it |
+| SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
+| **THE BASIC IS CURRENT, THE BINARIES ARE NOT** | sixth session, 14 Aug 2026. `C:\ProgramData\SD\sdsys\GPL.BP` holds the new `LOGIN` and `CPROC` and **both are compiled and catalogued** (§4). But `C:\Program Files\SD\usr\bin\sd.exe` is still **14 Aug 16:15**, seeding `K$ADMINISTRATOR` from `IsAdmin()`. **So `don` lands in SDSYS unelevated on this machine, and that is expected** — old binary, old meaning. Install the new binaries before reading anything into a refusal that did not happen |
+| `gcat.before-step0` | **a backup of the pre-change `gcat`, 129 files**, taken in the sixth session before `$LOGIN` was replaced. The way back if the new login misbehaves: delete `gcat`, rename this over it. Delete it once §7 step 0e has passed |
 | `sdusers` group | exists, with `GITORLI\don` in it |
 | `sdadmins` group | exists, **created by hand on 13 Aug, not by the installer** — see below |
 | System PATH and the Settings > Apps entry | both present |
@@ -500,10 +507,36 @@ where to go when a claim here looks surprising.
 - **`bbcmp.py` fails on `LOGIN` identically before and after the change**, so
   the failure is the compiler's and not the edit's. Control run, §6.
 
-**AND NOTHING ELSE. The access model built this session is UNVERIFIED in every
-respect** — `LOGIN` and `CPROC` have not been compiled, so no login, no
-refusal, no `LOGTO` and no elevation behaviour described in §5.6 has been
-watched happening. §7 step 0e is what closes that.
+**AND THEN, LATER THE SAME SESSION, IN AN ELEVATED WINDOW:**
+
+- **`LOGIN` AND `CPROC` BOTH COMPILE — `0 error(s)` EACH — AND ARE
+  CATALOGUED.** `sd -internal BASIC GPL.BP LOGIN` then `... CPROC`, against the
+  installed tree. `gcat/$LOGIN` moved from 16:15:56 to 18:54:15 and 5,319
+  bytes, so the pcode was checked as written rather than as reported. Neither
+  file had ever been through a compiler before. **This is the first time the
+  access model has existed in a form that can execute.**
+- **THE NEW `LOGIN` IS RUNNING, and the evidence arrived sideways.** The
+  `LOGIN` compile printed `Warning: account SDSYS has no password set.`; the
+  `CPROC` compile, one command later, **did not**. That line lives in the
+  deleted `authenticate.account`, so its disappearance dates the changeover
+  exactly. The `CPROC` compile then succeeded *through* the new `LOGIN`, which
+  means **the `sdusers` gate admits a member** — `!is_grp_member` works at
+  login, the thing §6 records as having once refused everybody — and **the
+  `K$FORCED.ACCOUNT` branch reaches SDSYS**.
+- **Only one warning, and it is not from the edit:**
+  `PRIVILEGED_COMMANDS is assigned a value but never used`. Cause established
+  by reading rather than by a control run, and it is structural — see §6, the
+  `IS_INSTALL` trap. **No `is not assigned a value` lines**, so both files pass
+  the ERRGEN gate `bootstrap.py` line 229 enforces.
+
+**WHAT IS STILL UNVERIFIED, AND IT IS THE PART THAT MATTERS.** Everything that
+depends on `K$ADMINISTRATOR` *meaning elevated* is untested, because **the
+installed `sd.exe` is still the 14 Aug 16:15 binary that seeds it from
+`IsAdmin()`**. So the compiles above prove the BASIC is well formed and that
+the permissive paths work; they prove nothing about a refusal. No unelevated
+`sd -ASDSYS` refusal, no `sysmsg(10002)`, no `sysmsg(5018)`, no `LOGTO`
+behaviour and no account landing has been watched. §7 step 0e is what closes
+it, and it needs the new binaries installed first.
 
 **The foundations, observed 13 Aug 2026** and superseded as headline claims by
 the installed system running end to end. Nothing since has contradicted any of
@@ -650,9 +683,26 @@ way to see this system as a non-administrator on a machine whose account is one.
   |---|---|---|
   | `EnableLUA` | 1 | UAC on, tokens filtered |
   | `ConsentPromptBehaviorUser` | 3 | **a standard user is prompted for an ADMINISTRATOR's credentials** on the secure desktop — it cannot elevate as itself |
-  | `ConsentPromptBehaviorAdmin` | 5 | an administrator gets a consent prompt only |
+  | `ConsentPromptBehaviorAdmin` | 5 → **now 0**, see below | an administrator gets a consent prompt only |
   | `LocalAccountTokenFilterPolicy` | **not set** | the default remote restriction applies — see below |
   | `FilterAdministratorToken` | not set | — |
+
+  **Correction, 14 Aug 2026, sixth session: `ConsentPromptBehaviorAdmin` now
+  reads 0, not 5, and `PromptOnSecureDesktop` reads 0.** The repository owner
+  moved the UAC slider to "Never notify" during the session. **THE MODEL IS
+  UNAFFECTED AND THIS WAS MEASURED, NOT ASSUMED:** token filtering is
+  `EnableLUA`'s doing, and `EnableLUA` is still 1. In an ordinary session
+  belonging to `don`, an administrator, `S-1-5-32-544` is **absent from the
+  process token** and `id -G` returns no 544 — so `IsElevated()` still answers
+  false where it should. Only the *prompt* on an elevation request is gone.
+
+  **`EnableLUA = 0` WOULD BREAK IT, AND WOULD ALSO MAKE §7 STEP 0e MEANINGLESS.**
+  With no split token every administrator session is elevated, so `IsElevated()`
+  collapses into `IsAdmin()`, plain `sd` puts any administrator into SDSYS
+  always, and **SDSYS becomes reachable over ssh**, contradicting the local-only
+  decision in §5.6. Worse for the work: **the refusal half of step 0e could
+  never fire**, because no session would be unelevated, and the tests would
+  record false passes. **The test machine must have `EnableLUA = 1`.**
 
   So a normal SD account, which `CREATE.ACCOUNT USER x` deliberately leaves out
   of `Administrators` (§4 above), **cannot elevate and therefore cannot reach
@@ -2035,6 +2085,28 @@ Each of these cost real time. Read before debugging anything similar.
   *previous* login change breaking this same path, unnoticed for the same
   reason: **nobody re-runs the bootstrap, so it rots silently.**
 
+- **`IS_INSTALL` IS STILL DEFINED ON EVERY INSTALLED SYSTEM, SO EVERY
+  `$ifndef IS_INSTALL` BLOCK IN `CPROC` IS COMPILED OUT THERE.** Found 14 Aug
+  2026, sixth session, from a single compile warning —
+  `PRIVILEGED_COMMANDS is assigned a value but never used`.
+
+  `CPROC`'s own header, lines 27-31, says: *"The install script overwrites this
+  file with IS_INSTALL commented out, and CPROC will be recompiled."*
+  **It never did.** `GPL.BP/define_install.h` reads `$define IS_INSTALL` in the
+  repository *and* at `C:\ProgramData\SD\sdsys\GPL.BP\define_install.h`.
+
+  What that switches off is the privileged-command handling at `CPROC` 1466 and
+  1479: the `locate` against `privileged_commands`, and the
+  `!EUID_RESTORE`/`!EUID_SET` pair that raises privilege around `$CREATEA` and
+  drops it again. So that mechanism is **dead twice over** — by preprocessor
+  here, and by platform anyway, since `!EUID_SET` is the Linux effective-user
+  drop Windows has no equivalent of (§5.5). Removing it is therefore safer than
+  it looks, but **do not read a `$ifndef IS_INSTALL` block and assume it runs**:
+  on a developer's bootstrapped tree it may, on an installed system it does not.
+
+  **The general form, and it is the third time this file has recorded it:** a
+  comment describing what the install *will* do is not evidence that it does.
+
 - **`gplbld/bbcmp.py` CANNOT COMPILE `LOGIN`, so it is not a syntax checker for
   the BASIC layer.** It aborts with "VOID statement not coded". 14 Aug 2026,
   sixth session — and **checked with a control before being believed**: HEAD's
@@ -2904,22 +2976,45 @@ the staging script and the Inno installer were all finished and removed.
    d. **DONE. `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all kept**
       and recorded as callerless, in `LOGIN` where the caller used to be.
       `sysmsg` 10030 and 10031 lost their only caller with `logto.step.up`.
-   e. **NEXT, AND IT IS THE WHOLE OF THE WORK. Compile `LOGIN` and `CPROC`, then
-      re-run the account tests.** Nothing here has been run.
+   e. **THE COMPILE IS DONE (§4). WHAT REMAINS IS INSTALLING THE NEW BINARIES
+      AND TESTING THE REFUSALS.**
 
-      **The compile needs elevation and this is new** — `BCOMP` gates
-      `$internal` on `K$ADMINISTRATOR`, which now means elevated. `bbcmp.py` is
-      not an alternative: it cannot compile `LOGIN` at all (§6). From an
-      **elevated** window:
+      **THE INVOCATION FORM COST A ROUND TRIP, SO IT IS WRITTEN OUT.** Compile
+      with **`-internal`, and pass the command as separate arguments**, exactly
+      as `bootstrap.py` line 214 does:
 
       ```powershell
-      cd C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64 ; C:\msys64\usr\bin\bash.exe -lc "cd /c/Users/dmont/Projects/sdb_ai_windows/sdb_ai/sd64 && make sd"
+      & 'C:\Program Files\SD\usr\bin\sd.exe' -internal BASIC GPL.BP LOGIN
       ```
 
-      Then stage, reinstall and compile the BASIC — and **remember the staleness
-      trap in §6: a reinstall does not replace the data tree**, so the compiled
-      `gcat` entries for `$LOGIN` and `$CPROC` must be rebuilt on the installed
-      system, not just staged.
+      **Not `-ASDSYS`** — `BCOMP` gates the `$internal` directive on `K$INTERNAL`
+      *and* `K$ADMINISTRATOR`, so standing in SDSYS is not enough
+      (`bootstrap.py` line 189). With `-ASDSYS`, `$internal`, `$flags trusted`
+      and `$catalogue` are all rejected as unrecognised directives and every
+      `common` block in the includes fails after them — 11 cascading errors that
+      look like broken source and are not. **And not piped**: the BOM trap in §6
+      ate the first two characters of `CATALOG`, which arrived as `TALOG`.
+      `CATALOG` is not needed separately anyway — the `$catalog` directive in
+      the source writes `gcat`, which is what `bootstrap.py` relies on.
+
+      **Back up `gcat` before cataloguing anything.** A bad `$LOGIN` locks you
+      out of SD, and this is the way back:
+
+      ```powershell
+      Copy-Item 'C:\ProgramData\SD\sdsys\gcat' 'C:\ProgramData\SD\sdsys\gcat.before-step0' -Recurse -Force
+      ```
+
+      **Success is stricter than `0 error(s)`**: also require no
+      `is not assigned a value` line, which is the ERRGEN trap and what
+      `bootstrap.py` line 229 checks. `PRIVILEGED_COMMANDS is assigned a value
+      but never used` is expected and is the `IS_INSTALL` trap in §6, not a
+      defect. So is `Unable change ownership of directory ... err: 1000`.
+
+      **Now install the new binaries**, which is what the remaining tests need —
+      the installed `sd.exe` still seeds `K$ADMINISTRATOR` from `IsAdmin()`, so
+      until this is done every refusal test passes for the wrong reason. Build,
+      stage and reinstall; **remember the staleness trap in §6, a reinstall does
+      not replace the data tree**, so the `gcat` entries above survive it.
 
       Then the tests, all of which need a **fresh** account name (§7 step 1c):
 

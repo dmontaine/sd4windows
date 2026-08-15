@@ -27,6 +27,80 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - LOGIN and CPROC compile, 0 errors each, and the new login is running
+
+Sixth session of 14 Aug 2026, in an elevated window driven by the repository
+owner. **The first time either program had ever been through a compiler.** Both
+returned `0 error(s)` and were catalogued; `gcat/$LOGIN` moved from 16:15:56 to
+18:54:15 and 5,319 bytes, checked as written rather than as reported.
+
+### The invocation, because getting it wrong cost a round trip
+
+The first attempt used **`-ASDSYS` and a pipe**, and produced 11 errors in
+`LOGIN` and roughly eighty in `CPROC` — `Unrecognised compiler directive` on
+`$internal` and `$flags trusted`, `Misformed $CATALOGUE`, then
+`Expected / after common block name` through every include. **None of it was the
+source.** `BCOMP` gates the `$internal` directive on `K$INTERNAL` *and*
+`K$ADMINISTRATOR`, so standing in SDSYS is not enough — which is written in
+`gplbld/bootstrap.py` line 189, in a file read earlier in the same session. With
+internal mode off, the directives are rejected and everything downstream
+cascades.
+
+**The right form is `-internal` with the command as separate arguments**, as
+`bootstrap.py` line 214 does it:
+`sd.exe -internal BASIC GPL.BP LOGIN`. No pipe, so no BOM — the piped attempt
+also had the first two characters of `CATALOG` eaten and ran `TALOG`. `CATALOG`
+is not needed separately; the `$catalog` directive writes `gcat`.
+
+**Nothing was catalogued by the failed attempt**, so the machine was never in a
+broken state. A `gcat.before-step0` backup had been taken first regardless.
+
+### The behavioural evidence arrived sideways
+
+The `LOGIN` compile printed `Warning: account SDSYS has no password set.` The
+`CPROC` compile, one command later, **did not** — that line lives in the deleted
+`authenticate.account`, so its disappearance dates the changeover precisely. And
+the `CPROC` compile then succeeded *through* the new `LOGIN`, which means **the
+`sdusers` gate admits a member** and **the `K$FORCED.ACCOUNT` branch reaches
+SDSYS**. `!is_grp_member` working at login matters on its own: §6 records the
+day it returned false for everybody and terminated every connection.
+
+**This is the permissive half only.** The installed `sd.exe` is still the
+14 Aug 16:15 binary seeding `K$ADMINISTRATOR` from `IsAdmin()`, so no refusal
+has been tested and none can be until the new binaries are installed.
+
+### One warning, and it exposed something else
+
+`PRIVILEGED_COMMANDS is assigned a value but never used`. **Not caused by the
+edit.** Its only consumer sits inside `$ifndef IS_INSTALL` at `CPROC` 1466 and
+1479, and `define_install.h` reads `$define IS_INSTALL` both in the repository
+and at `C:\ProgramData\SD\sdsys\GPL.BP\define_install.h`. `CPROC`'s own header
+says *"The install script overwrites this file with IS_INSTALL commented out,
+and CPROC will be recompiled."* **It never did.** So on every installed system
+the privilege raise/drop around `$CREATEA` — the `!EUID_RESTORE`/`!EUID_SET`
+pair — is dead by preprocessor as well as dead by platform. Written up as a trap
+in PROJECT_STATUS §6.
+
+### Correction: the machine's UAC policy moved mid-session
+
+§4 recorded `ConsentPromptBehaviorAdmin = 5`, measured in the fifth session. It
+now reads **0**, with `PromptOnSecureDesktop = 0` — the owner moved the UAC
+slider to "Never notify" during the session, in the belief that it would let
+this agent issue elevated commands. **It did not, and that was measured:** the
+session still reports `elevated: False`, `S-1-5-32-544` is absent from the
+process token, and `id -G` returns no 544. The slider does not clear
+`EnableLUA`, which is what creates the split token, so a process must still
+*request* elevation — it simply is not prompted now.
+
+**`EnableLUA = 0` would break the model**, collapsing `IsElevated()` into
+`IsAdmin()`, putting every administrator into SDSYS always, and making SDSYS
+reachable over ssh against the local-only decision. **And it would make step 0e
+meaningless**, because the refusal half of the test could never fire and would
+record false passes. Noted here because the intent behind the change was
+helpful and the reasoning is worth keeping.
+
+---
+
 ## 14 Aug 2026 - Grants are Windows group membership; ACC$USERS is dead
 
 Sixth session of 14 Aug 2026, immediately after the access-model build. Decision
