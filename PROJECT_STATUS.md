@@ -76,7 +76,7 @@ form, because it changes what every other item in this file assumes:
   SD spawns itself with them** for phantoms, the client library, network and
   the API, and those children carry an ordinary token. **The rule closes
   because of the two before it:** the console belongs to administrators, and
-  an ssh session arrives *inside SD* with no shell to type into.
+  an ssh session arrives *inside SD* rather than at a prompt.
 - **EVERY ssh SESSION LANDS IN SD, ADMINISTRATORS INCLUDED** — owner's rule,
   15 Aug 2026. A global `ForceCommand` in `allow-ssh-groups.ps1`'s marked
   block, **not** the `DefaultShell` registry key, which `-Remove` could not
@@ -85,6 +85,14 @@ form, because it changes what every other item in this file assumes:
   **And SD refuses to start inside itself**: `op_sh.c` marks the shell `SH`
   launches with `SD_SESSION`, `sd.c` refuses when it sees it. A guard, not a
   boundary — the user owns that shell — and it is the accident it is for.
+- **CORRECTION, 15 Aug 2026: an SD account DOES have a shell.** `SH` hands one
+  back from inside SD, so `ForceCommand` puts a user in SD but does not keep
+  them there, and nothing should rest on "no shell" — two code comments and
+  this list said it and were fixed. It changes no gate: that shell is
+  unelevated, so everything above still refuses in it. **The owner's answer is
+  application-level — SD can lock a user into a menu system, where `SH` is
+  never reachable.** Restricting `SH` itself is the other route and is **not
+  decided**; nobody should implement it without asking.
 - **SD ACCOUNTS BRING THEIR OWN OS ACCOUNT, WITH ONE EXCEPTION** — owner's
   decision, 14 Aug 2026, seventh session. **The only pre-existing OS user that
   may be given an SD account is the installer's**, done at install time; every
