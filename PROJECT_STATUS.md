@@ -107,7 +107,7 @@ install** on it, from the fixed installer:
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
 | Test accounts, **SD side** | `sdacct2`–`sdacct5` + SDSYS. `sdacct1` was removed by `DELETE.ACCOUNT` on 14 Aug 2026, the first run of that verb. `sdacct2` and `sdacct3` are still half-removed (no Windows account) and are spare test cases for the same branch; `sdacct4` and `sdacct5` are complete on both sides. Use a fresh `-Account` name when re-running `verify-createaccount.ps1`; SD refuses a reused one |
-| SD | **running, pid 7388 from the installed 06:23 binary**, 15 Aug 2026 06:53, segment and six semaphores present. It also ran as the seventh session ended, `sdwind` 4696 from `sdb_ai\sd64\bin`; **an ordinary session held terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches an unelevated-started daemon. **Corrected earlier: a blank `Path` is not evidence a process was started elevated** — §6 |
+| SD | **running, pid 14408 from the installed 06:23 binary**, started unelevated 15 Aug 2026 07:15, segment and six semaphores present. It also ran as the seventh session ended, `sdwind` 4696 from `sdb_ai\sd64\bin`; **an ordinary session held terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches an unelevated-started daemon. **Corrected earlier: a blank `Path` is not evidence a process was started elevated** — §6 |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -2002,7 +2002,10 @@ Each of these cost real time. Read before debugging anything similar.
   `SD (64 Bit) has been started`. `sdwind` inherits the handles and outlives
   `sd`, so waiting on the streams means waiting on the daemon. Wait on the
   **process**, as `bootstrap.py` does, or run it in a real console. A hang here
-  is not a failed start — look at the daemon before believing it.
+  is not a failed start — look at the daemon before believing it. What works
+  from PowerShell: `Start-Process ... -PassThru -NoNewWindow` with the output
+  redirected to files, then `$p.WaitForExit(20000)`; `-Wait` is the form that
+  hangs.
 
 - **THE BOOTSTRAP COMPILED INTO THE DEVELOPMENT TREE, AND THE STAGED CATALOGUE
   CAME OUT HOLDING 13 Aug PROGRAMS.** 15 Aug 2026. `sdsys/ACCOUNTS/SDSYS` ships
