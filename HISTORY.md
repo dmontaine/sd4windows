@@ -27,6 +27,57 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - The EPERM warning fired, and the first attempt to test it tested the wrong binary
+
+Seventh session of 14 Aug 2026, closing the one branch the entry below left
+unwatched. **PROJECT_STATUS §7 step 1d is now fully observed.**
+
+**The false start, which is the part worth reading.** The recipe written into
+the PROJECT_STATUS header named
+`C:\Program Files\SD\usr\bin\sd.exe`, with "install the new binaries" listed as
+the job *before* it - so it read as runnable on its own. Run that way it
+exercised the **19:05 build, which has none of this work in it**: elevated
+`-stop`, elevated `-start`, then `sd -stop` in an ordinary `cmd` window, which
+printed `SD (64 Bit) has been shut down` and said nothing else. **That is
+indistinguishable from the fix failing**, and it is what the reader would
+reasonably have concluded.
+
+It was not wasted: it is the defect reproduced on a real console, where the
+fourth session's observation of it was the only one before. `sdwind` was left
+running as pid 13840 with `C:\ProgramData\SD\shm` **emptied** - the segment
+goes and the daemon stays, which is also why no later `sd -stop` can reach such
+a daemon.
+
+**The real run.** Elevated
+`& 'C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\bin\sd.exe' -start`,
+then the same full path with `-stop` from an ordinary PowerShell window:
+
+```
+Warning: sdwind (pid 5080) is still running.
+It belongs to a session with more privilege than this one, so it could not be
+signalled.
+Stop it from an elevated session with "Stop-Process -Id 5080 -Force" before
+starting SD again, or the machine will run two daemons.
+SD (64 Bit) has been shut down
+```
+
+**Three confirmations, and the third was not designed for.** `Get-Process
+sdwind` answered **5080**, so `win_pid()` translates in the stop path as well
+as the start path. `C:\ProgramData\SD\shm` was **empty**, so the teardown still
+happened - the warning is a warning and not a failure, which is what step 1d
+asked for. And `Stop-Process -Id 5080` **from that same unelevated session was
+refused `Access is denied`**, so the message's account of *why* it could not
+signal is corroborated by a different mechanism rather than being SD's guess.
+
+**The general form, and it belongs with the instrument entries above.** A test
+recipe that names a path names a *binary*, and an installed binary is only the
+current one immediately after an install. **Write the full path to the build
+under test**, and when a test reports nothing, establish which binary answered
+before concluding anything about the code.
+
+**Left on the machine:** `sdwind` 5080, orphaned and elevated, with SD stopped.
+Clearing it needs an elevated `Stop-Process`; PROJECT_STATUS carries it.
+
 ## 14 Aug 2026 - sd -start and sd -stop stop lying about sdwind, and the fix was not where the step said it was
 
 Seventh session of 14 Aug 2026, from commit `5800942`. **Closes PROJECT_STATUS
@@ -89,8 +140,10 @@ person at the keyboard decides. Revisit only with a reason.
 
 **What is still open.**
 
-- **The `EPERM` warning has never been watched.** It needs a daemon started
-  from an elevated window and a stop from an ordinary one. Unverified code.
+- ~~**The `EPERM` warning has never been watched.**~~ **Watched later the same
+  session — see the entry above this one.** Left here struck through rather
+  than edited out, because the entry either side of it describes work done
+  while it was true.
 - **A third face of the same defect cannot be fixed where the others were.**
   Measured by unlinking the segment under a live daemon: `sd -stop` printed
   success, exit 0, and left `sdwind` running. `sysseg->sdwind_pid` is the only

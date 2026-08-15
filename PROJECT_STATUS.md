@@ -15,13 +15,14 @@ and **closed §7 step 1d**: `sd -start` and `sd -stop` no longer lie about
   §5.6, both `LOGTO` paths, `CREATE.ACCOUNT` at 16 of 16 under the
   elevated-only gate. §4 has it.
 - **`sd -start` and `sd -stop` now ask the `sdwind` process rather than the
-  shared segment.** The machine was found sitting in the broken state, so the
-  lie and its repair were watched on the same wreckage an hour apart (§4).
+  shared segment, and every branch has been watched** — including the `EPERM`
+  warning, which took two console windows at different elevations (§4). The
+  machine was found sitting in the broken state, so the lie and its repair were
+  watched on the same wreckage an hour apart.
 - **THE BUILD IS AHEAD OF THE INSTALL.** Everything verified this session was
   verified against `sdb_ai\sd64\bin`, not against `C:\Program Files\SD`. **The
-  installed `sd -start` still lies.** Installing is job one below.
-- **One path in that fix has never been watched — the `EPERM` warning**, which
-  needs an elevated window. Treat it as unverified code, not as done.
+  installed `sd -start` still lies**, and a test naming that path tests the old
+  binary — which cost one round of the `EPERM` test. Installing is job one.
 
 **THE NEXT SUBJECT IS THE REST OF §7 STEP 1**, and **1c, `DELETE.ACCOUNT`, is
 the pick of it**: five test accounts sit on this machine, three of them
@@ -29,30 +30,23 @@ half-removed, and the verb has never been run. It is the last asymmetry the
 account model left. Behind it, the **second machine** (step 2) is still the only
 place RDP and a genuinely clean install can be tested.
 
-**TWO JOBS NEED AN ELEVATED WINDOW, AND UAC IS BACK AT THE DEFAULT ON THIS
-MACHINE** (`ConsentPromptBehaviorAdmin` 5, `PromptOnSecureDesktop` 1), so each
+**ONE JOB NEEDS AN ELEVATED WINDOW, AND UAC IS BACK AT THE DEFAULT ON THIS
+MACHINE** (`ConsentPromptBehaviorAdmin` 5, `PromptOnSecureDesktop` 1), so it
 raises a consent prompt on the secure desktop:
 
-1. **Install the new binaries**, or the fix is only in the repository. Build,
-   stage, reinstall — and remember a reinstall does **not** replace the data
-   tree (§6), so recompile `GPL.BP\LOGIN` and `CPROC` after it.
-2. **Watch the `EPERM` warning**, which is the half of step 1d nobody has seen.
-   **USE THE REPOSITORY BUILD, NOT `C:\Program Files`, UNTIL JOB 1 IS DONE** —
-   a recipe naming the installed path was written here and run on 14 Aug 2026,
-   and it tested the old binary, which of course said nothing. From an
-   **elevated** window:
+**Install the new binaries**, or the fix stays in the repository. Build, stage,
+reinstall — and remember a reinstall does **not** replace the data tree (§6),
+so recompile `GPL.BP\LOGIN` and `CPROC` after it, which also picks up the
+banner. **A test that names `C:\Program Files` tests the installed binary**,
+which is only the current one just after an install; that cost a round of the
+`EPERM` test on 14 Aug 2026 and it reads exactly like the fix not working.
 
-   ```powershell
-   & 'C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\bin\sd.exe' -start
-   ```
-
-   then from an **ordinary** one, the same full path with `-stop`. Expect
-   `Warning: sdwind (pid n) is still running.` naming a **Windows** pid
-   `Get-Process sdwind` agrees with, and the daemon still alive afterwards.
-   Clear it with `Stop-Process -Id n -Force` from the elevated window.
-   **"has been shut down" with no warning, while `Get-Process sdwind` still
-   answers, is a failure of the fix** — but check first that the binary you
-   stopped with is the one that carries it.
+**LEFT ON THIS MACHINE BY THAT TEST: `sdwind` pid 5080, orphaned**, holding a
+mapping of a segment that has already gone, with SD otherwise **stopped**. It
+is elevated, so an ordinary session cannot kill it — `Stop-Process -Id 5080
+-Force` from an elevated window, then `sd -start` from an ordinary one. **Do
+not start SD while it is there**, or the machine runs two daemons, which is
+what its own warning said.
 
 **SIZE — §0 rule 5, three budgets. Measure with `.Count`; `Measure-Object -Line` ignores blank lines and undercounts by ~15%:**
 
@@ -62,9 +56,9 @@ raises a consent prompt on the secure desktop:
 
 | Budget | Limit | Now |
 |---|---|---|
-| **Header** (above §0) | 200 | **182** |
+| **Header** (above §0) | 200 | **176** |
 | **§7 Next steps** | 300 | **258** |
-| Whole file | 3,500 | **3,499** |
+| Whole file | 3,500 | **3,500** |
 
 **All three met for the first time, by rule 5 and not by a rollover** — a
 closing step cleans up after itself, in the commit that closes it.
@@ -131,7 +125,7 @@ install** on it, from the fixed installer:
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
 | Test accounts, **SD side** | **FIVE directories now**, `sdacct1` to `sdacct5`, with their `ACCOUNTS` records. **Only three are half-removed** — `sdacct1`, `sdacct2` and `sdacct3`, whose Windows accounts are gone; `sdacct4` and `sdacct5` are complete on both sides. It is the first three that step 1c has to decide about. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
-| SD | **running as the seventh session ended, and stoppable by anyone** — started **unelevated** from the repository build, so `sdwind` is `sdb_ai\sd64\bin\sdwind.exe` rather than the installed one. `sd -stop` from an ordinary window takes it down. Restart it from the same place, or from `C:\Program Files\SD\usr\bin\sd.exe` once the new binaries are installed |
+| SD | **STOPPED as the seventh session ended, with one orphaned daemon left behind** — `sdwind` pid 5080, elevated, mapped to a segment that has gone; `C:\ProgramData\SD\shm` is empty. It is the residue of the `EPERM` test and the header says how to clear it. Start SD from `sdb_ai\sd64\bin\sd.exe` (the build with the fix) or from `C:\Program Files\SD\usr\bin\sd.exe` once the new binaries are installed |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -491,9 +485,25 @@ after below are the same wreckage an hour apart, not a reconstruction.
   in §6, which is the finding this row exists to record.
 - **`make sd` exits 0 and neither changed file warns.** `gcc -fsyntax-only
   -std=gnu17 -Wall -Wformat=2` clean, then a full `make sd`, exit 0.
-- **NOT observed, and it is the half the step was originally about: the `EPERM`
-  warning.** It needs a daemon started elevated and stopped from an ordinary
-  session. Nothing about it has been watched — treat it as unverified code.
+- **THE `EPERM` WARNING FIRED, AND IT IS THE HALF THE STEP WAS ABOUT.**
+  Watched by the repository owner in two real console windows: `sd -start`
+  elevated from the repository build, then `sd -stop` from an ordinary
+  PowerShell. Verbatim, before `SD (64 Bit) has been shut down`:
+
+  ```
+  Warning: sdwind (pid 5080) is still running.
+  It belongs to a session with more privilege than this one, so it could not be
+  signalled.
+  Stop it from an elevated session with "Stop-Process -Id 5080 -Force" before
+  starting SD again, or the machine will run two daemons.
+  ```
+
+  **Three confirmations, the third not designed for.** `Get-Process sdwind`
+  answered **5080**, so `win_pid()` translates in this path too;
+  `C:\ProgramData\SD\shm` was **empty**, so the teardown still happened and the
+  warning is a warning and not a failure; and `Stop-Process -Id 5080` **from
+  that same unelevated session was refused `Access is denied`**, so the
+  message's account of *why* is corroborated by another mechanism.
 - **Observed instead, and it is a defect the fix cannot reach:** with the
   segment unlinked under a live daemon, `sd -stop` reported success, exit 0,
   and left `sdwind` running. §6 carries it.
@@ -935,10 +945,6 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **THE `EPERM` WARNING IN `sd -stop` HAS NEVER BEEN WATCHED** (14 Aug 2026,
-  seventh session). It needs a daemon started from an elevated window and a
-  stop from an ordinary one — the branch §7 step 1d was written about, and the
-  only part of it not observed. Recipe in the header.
 - **`DELETE.ACCOUNT` and `MODIFY.ACCOUNT` have never been run** against a real
   Windows account. `CREATE.ACCOUNT` has (§4 Verified), so this is the
   asymmetric half — and it is §7 step 1c, which has to decide what deleting an
@@ -1251,31 +1257,28 @@ administrator:
 | `getgrouplist()` | the account's groups in the SAM | **YES** |
 
 `IsAdmin()` used `getgroups()`, which would have meant "elevated", not
-"administrator". It uses `getgrouplist()` now, so an administrator is an SD
-administrator in any session, elevated or not — which is what was asked for.
+"administrator". It uses `getgrouplist()` now.
 
-**PARTLY REVERSED 14 Aug 2026, fifth session — the two answers are now both
-wanted, for different questions** (§5.6, §7 step 0). `getgrouplist()` stays as
-`IsAdmin()` and keeps gating `sd -start`, because starting the server should
-not require elevation of somebody who is already an administrator. But
-`K$ADMINISTRATOR` — which now decides who reaches SDSYS — must mean
-**elevated**, so it needs the token answer as well. Add `IsElevated()` beside
-`IsAdmin()` rather than changing `IsAdmin()`: the table above is still correct,
-it simply turned out to describe two useful tests rather than a right one and a
+**PARTLY REVERSED 14 Aug 2026, fifth session — both answers are wanted, for
+different questions** (§5.6, §7 step 0). `getgrouplist()` stays as `IsAdmin()`
+and keeps gating `sd -start`, because starting the server should not demand
+elevation of somebody already an administrator. But `K$ADMINISTRATOR`, which
+decides who reaches SDSYS, must mean **elevated**, so it needs the token
+answer: hence `IsElevated()` beside `IsAdmin()` rather than a change to it.
+The table above turned out to describe two useful tests, not a right one and a
 wrong one.
 
 **Test gid 544, never the name.** Cygwin maps built-in SIDs to their RID, so
-`getgrnam("Administrators")` resolves to 544 and back — but **`Administrators`
-is renamed on a localised Windows**, so the name is not portable and the number
-is. `gplbld/sd.iss` already had to learn this for `icacls`, where it writes
-`*S-1-5-32-544`, and `CREATEA` does the same at its Administrators add.
+`getgrnam("Administrators")` resolves to 544 and back — but **it is renamed on
+a localised Windows**, so the number is portable and the name is not.
+`gplbld/sd.iss` writes `*S-1-5-32-544` for `icacls`, and `CREATEA` does the
+same at its Administrators add.
 
 **Consequences to know.**
 
 - Actions needing an elevated token still fail when unelevated — creating a
-  Windows account among them. So an SD administrator is not automatically able
-  to do every administrative thing; they are able to *administer SD*. §5.7's
-  service model is the real answer.
+  Windows account among them. An SD administrator is able to *administer SD*,
+  not to do every administrative thing; §5.7's service model is the answer.
 - **`sdusers` is unaffected and still needed.** It grants file access to
   `C:\ProgramData\SD`, which is an ACL question, not an authorisation one. An
   elevated administrator reaches the tree through the `Administrators` ACE
@@ -2071,16 +2074,14 @@ Each of these cost real time. Read before debugging anything similar.
 
 - **`sd -start` SAID "SD is already started" WHEN `sdwind` WAS DEAD, AND DID
   NOTHING — FIXED 14 Aug 2026, seventh session (§7 step 1d).** Kept because the
-  *shape* of it recurs: the segment and the semaphores are objects, and objects
-  outlive the processes that made them, so anything that asks an object whether
-  a system is running will eventually lie. `sd -start` now asks `sdwind`.
-
-  **The fix by hand, if you meet this on a binary that predates it, is still
-  `sd -stop` then `sd -start`.**
+  *shape* recurs: the segment and the semaphores are objects, objects outlive
+  the processes that made them, so anything that asks an object whether a
+  system is running will eventually lie. On a binary that predates the fix, the
+  way out is still `sd -stop` then `sd -start`.
 
   **Start the daemon from an UNELEVATED session where you can.** One started
-  elevated cannot be stopped by an ordinary one — see the `sd -stop` entry
-  below — so an unelevated start leaves it stoppable from either.
+  elevated cannot be stopped by an ordinary one — the entry below — so an
+  unelevated start leaves it stoppable from either.
 
 - **SD PRINTS MSYS2 PROCESS IDS, AND WINDOWS HAS NEVER HEARD OF THEM.**
   Measured 14 Aug 2026, seventh session: the running daemon called itself
@@ -3098,11 +3099,11 @@ the staging script and the Inno installer were all finished and removed.
       and `CREATE.ACCOUNT` refuses those names. Whatever this decides has to
       account for that state existing, **because a failed creation reaches it
       too** — the ssh-only branch `stop`s after the account directory is made.
-   d. **DONE — 14 Aug 2026, seventh session, EXCEPT ONE PATH THAT NEEDS AN
-      ELEVATED WINDOW (below) AND ONE THAT CANNOT BE DONE AT ALL (§6).**
+   d. **DONE AND FULLY OBSERVED — 14 Aug 2026, seventh session. One related
+      defect cannot be fixed here at all and is a trap instead (§6).**
       `sd -start` and `sd -stop` now ask the `sdwind` process instead of the
-      shared segment. Built, run, and watched on a machine that happened to be
-      sitting in the broken state already. §4 has the observations.
+      shared segment. Every branch was watched, including the `EPERM` warning,
+      which needed two console windows at different elevations. §4 has them.
 
       **Three things it taught, all of which cost the next reader nothing now
       and would have cost a session each:**
@@ -3121,11 +3122,11 @@ the staging script and the Inno installer were all finished and removed.
         an `sd -stop` would end them; the count is printed instead so the
         person at the keyboard decides. Reconsider only with a reason.
 
-      **What is left, and it is the half this step was originally about:** the
-      `EPERM` warning has not been *watched*. It needs a daemon started from an
-      elevated window and an `sd -stop` from an ordinary one, and this machine's
-      UAC is back at the default, so elevating raises a secure-desktop prompt.
-      The recipe is in the header.
+      **And a fourth thing, from the run that verified it:** a test recipe that
+      names `C:\Program Files` tests **the installed binary**, which is only the
+      current one just after an install. The first attempt at the `EPERM` test
+      did exactly that and reported nothing, which is indistinguishable from
+      the fix not working. **State the full path to the build under test.**
    e. **Remove `sudo chmod g+s` from `CREATEA`**, whose Windows equivalent is
       the inheritable ACE the installer already sets (§5.7). It warns on every
       account creation today (§4).
