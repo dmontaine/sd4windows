@@ -23,13 +23,16 @@ users`** — where an hour earlier the same commands put a machine administrator
 straight into SDSYS. §4 carries the table. **`sysmsg(10002)` fired for the first
 time in this codebase's history.**
 
-**FOUR OF §5.6's FIVE RULES ARE OBSERVED. THE REMAINING TWO NEED A SECOND
-ACCOUNT TO EXIST** — a normal account landing in its own account, and `LOGTO`
-under the restored `ACC$GROUP` test. That is all §7 step 0e has left, and
-creating the account needs an elevated window.
+**FOUR OF §5.6's FIVE RULES ARE OBSERVED, AND `CREATE.ACCOUNT` STILL PASSES 16
+of 16** under the elevated-only gate. **THE REMAINING TWO RULES ARE STILL
+UNOBSERVED** — a normal account landing in its own account, and `LOGTO` under
+the restored `ACC$GROUP` test. **The account test does not cover them**: every
+one of its checks is Windows-side and none logs into SD, and it removes the
+account afterwards. Re-run it with **`-Keep`** and a fresh name, then log in
+**over ssh**. That is all §7 step 0e has left.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-3,028 LINES NOW**, measured after the last edit rather than during it (see the
+3,051 LINES NOW**, measured after the last edit rather than during it (see the
 correction below, which is the same mistake one step smaller), after the sixth
 session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
@@ -172,7 +175,7 @@ install** on it, from the fixed installer:
 | **`AllowGroups` IS APPLIED** | 14 Aug 2026, by `allow-ssh-groups.ps1 -Installed`. `C:\ProgramData\ssh\sshd_config` carries `AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators` between SD's markers, before the `Match` block. **Only members of `sdusers` or `Administrators` can ssh into this machine at all** — verified, §4. The original is at `sshd_config.before-sd`; `allow-ssh-groups.ps1 -Remove` reverses it. Left in place deliberately: it is what the installer would have written |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **none.** `sdacct1`, `sdacct2`, `sdsshprobe` and the `sdu_` groups are all gone, confirmed 14 Aug 2026. `sdsshonly` is empty and `sdusers` holds only `GITORLI\don`, which is correct — the groups are the installer's, the membership is not |
-| Test accounts, **SD side** | **two are left, deliberately**: `C:\ProgramData\SD\user_accounts\sdacct1` and `sdacct2`, with their `ACCOUNTS` records. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
+| Test accounts, **SD side** | **THREE are left, deliberately** — `sdacct3` joined them in the sixth session: `C:\ProgramData\SD\user_accounts\sdacct1`, `sdacct2` and `sdacct3`, with their `ACCOUNTS` records. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
 | SD | **running as this session ended** — `sdwind` up, started by `verify-createaccount.ps1` from `C:\Program Files\SD\usr\bin\sd.exe` and left up. It was started by an **elevated** session, so an unelevated `sd -stop` will report success and leave the daemon running (§6); stop it from an elevated window, or `Stop-Process` it |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
@@ -559,11 +562,36 @@ command line, and **SD ignored them** — `LOGIN` refuses before anything parses
 command. So **a user refused at the door cannot smuggle a command in as an
 argument**, on either path.
 
-**FOUR OF THE FIVE RULES IN §5.6 ARE NOW OBSERVED.** What is left is the two
-that need a second account to exist: **a normal SD account typing plain `sd` and
-landing in its own account**, and **`LOGTO` under the restored `ACC$GROUP`
-test**. Both need `verify-createaccount.ps1` with a fresh name, and creating an
-account needs elevation. That is all that remains of §7 step 0e.
+**`CREATE.ACCOUNT` STILL WORKS UNDER THE ELEVATED-ONLY GATE — 16 of 16**, re-run
+as `sdacct3` from an elevated window, sixth session. It is `$internal` and tests
+`K$ADMINISTRATOR`, so the reversal could have broken it and did not. The ssh-only
+restriction it applies still holds by the three decisive measurements:
+`LogonUser INTERACTIVE` refused 1385, `NETWORK_CLEARTEXT` admitted, ssh with the
+password SD set admitted.
+
+**BUT THAT RUN DOES NOT TEST SD LOGIN, AND IT IS EASY TO READ AS IF IT DOES.**
+All sixteen checks are Windows-side — account, groups, directories, OS logon.
+**None of them logs into SD.** So **two of §5.6's five rules are still
+unobserved**: a normal SD account typing plain `sd` and **landing in its own
+account**, and **`LOGTO` under the restored `ACC$GROUP` test**.
+
+**And the run cleans up after itself**, removing the Windows user, so the
+account it made cannot be used for either. Use **`-Keep`** and a fresh name —
+`sdacct3` is now burnt, because the SD side is left behind deliberately (§7 step
+1c) and the verb refuses a reused name:
+
+```powershell
+powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct4 -Keep
+```
+
+Then log in **over ssh** — the account is ssh-only by design, so the console will
+refuse it — and check the two rules there. `-Cleanup` removes what `-Keep`
+leaves.
+
+**Ignore `Command not found` in section 1 of that script's output.** It appears
+while all 16 checks pass; the script's own header (line ~179) records it as a
+stray stderr artefact of how passwords are fed in. It is the harness, not the
+verb.
 
 **The foundations, observed 13 Aug 2026** and superseded as headline claims by
 the installed system running end to end. Nothing since has contradicted any of
