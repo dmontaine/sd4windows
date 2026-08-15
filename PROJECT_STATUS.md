@@ -41,10 +41,9 @@ banner. **A test that names `C:\Program Files` tests the installed binary**,
 which is only the current one just after an install; that cost a round of the
 `EPERM` test on 14 Aug 2026 and it reads exactly like the fix not working.
 
-**SD IS RUNNING AND IT WAS STARTED ELEVATED** (`sdwind` 4696, from the build
-with the fix). So **an ordinary `sd -stop` will refuse it and print the
-warning** — correct behaviour now, not a fault. Stop it from an elevated window,
-or `Stop-Process` it. The `EPERM` test's orphan was cleared before this.
+**SD IS RUNNING** (`sdwind` 4696, from the build with the fix), and an ordinary
+session holds terminate rights on it, so it can be stopped without elevation.
+The `EPERM` test's orphan was cleared first.
 
 **SIZE — §0 rule 5, three budgets. Measure with `.Count`; `Measure-Object -Line` ignores blank lines and undercounts by ~15%:**
 
@@ -54,9 +53,9 @@ or `Stop-Process` it. The `EPERM` test's orphan was cleared before this.
 
 | Budget | Limit | Now |
 |---|---|---|
-| **Header** (above §0) | 200 | **174** |
+| **Header** (above §0) | 200 | **173** |
 | **§7 Next steps** | 300 | **258** |
-| Whole file | 3,500 | **3,498** |
+| Whole file | 3,500 | **3,499** |
 
 **All three met for the first time, by rule 5 and not by a rollover** — a
 closing step cleans up after itself, in the commit that closes it.
@@ -123,7 +122,7 @@ install** on it, from the fixed installer:
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
 | Test accounts, **SD side** | **FIVE directories now**, `sdacct1` to `sdacct5`, with their `ACCOUNTS` records. **Only three are half-removed** — `sdacct1`, `sdacct2` and `sdacct3`, whose Windows accounts are gone; `sdacct4` and `sdacct5` are complete on both sides. It is the first three that step 1c has to decide about. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
-| SD | **running as the seventh session ended**, `sdwind` pid 4696 from `sdb_ai\sd64\bin` — the build carrying the step 1d fix — with the segment and all six semaphores present. The `EPERM` test's orphan was cleared first. **It was started ELEVATED**, so an ordinary `sd -stop` will refuse it and say so, which is now the expected behaviour rather than a silent failure. Evidence for the elevation: an unelevated session cannot read its `Path`, the same signature both elevated daemons had this session and neither unelevated one did |
+| SD | **running as the seventh session ended**, `sdwind` pid 4696 from `sdb_ai\sd64\bin` — the build carrying the step 1d fix — with the segment and all six semaphores present. The `EPERM` test's orphan was cleared first. **An ordinary session holds terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches it without elevation. **Corrected: this row briefly said it was started elevated**, on the strength of its `Path` being unreadable — see §6, that is not what a blank `Path` means |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -1161,36 +1160,25 @@ The model, in five rules:
 **All five messages already exist** (5009, 5018, 10002, 10003), and 10002 has
 never had a caller.
 
-**What makes it work on Windows, and it is already built.** The write side of
-this model was never removed — only its readers were:
+**What makes it work on Windows was already built** — the write side of this
+model was never removed, only its readers: `ACC$GROUP` is written as
+`sdu_<name>` on **every** account (`CREATEA` 455), the `sdu_<name>` group is
+created by `CREATE.ACCOUNT` and `sdusers` joined at `CREATEA` 345 (both
+verified, §4), `!is_grp_member` works 7 of 7, and the sudoers list is
+`Administrators`, which `CREATE.ACCOUNT USER x` stays out of and
+`... ADMINISTRATOR` joins. **Correction:** §5.6.1 once called `ACC$GROUP` "dead
+but still populated on old records"; it is written correctly on every new
+account and only its reader had been deleted.
 
-| Piece | State |
-|---|---|
-| `ACC$GROUP` written as `sdu_<name>` | **written on every account**, `CREATEA` line 455 |
-| the `sdu_<name>` Windows group | created by `CREATE.ACCOUNT`, verified §4 |
-| `sdusers` membership | added by `CREATEA` line 345 |
-| `!is_grp_member` on Windows | works, verified 7 of 7 (§4) |
-| the sudoers list | `Administrators`; `CREATE.ACCOUNT USER x` stays out of it, `... ADMINISTRATOR` joins it (§4) |
+**What this reverses**, from `272ce92` "Require an account password at login",
+built over two sessions: **no password is asked for at `sd`, at `sd -Aname` or
+at `LOGTO SDSYS`**, and the SDSYS re-prompt is gone — the gate is elevation,
+applied at login, so there is nothing to step up into.
 
-**Correction to what this file said before:** §5.6.1 recorded `ACC$GROUP` as
-"dead but still populated on old records". **That was wrong** — `CREATEA` writes
-it correctly on every new account. Only the code that read it was deleted.
-
-**What this reverses**, stated plainly because it was a deliberate decision
-built over two sessions and committed in `272ce92`, "Require an account password
-at login":
-
-- **Every account carries its own password. REVERSED for login.** No password
-  is asked for at `sd`, at `sd -Aname` or at `LOGTO SDSYS`.
-- **`LOGTO SDSYS` re-prompts for the caller's own password. REVERSED.** The
-  gate is elevation, applied at login, and there is nothing to step up into.
-
-**The credential machinery is NOT deleted, and this is the owner's decision of
-14 Aug 2026.** `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all
-stay: **the API is a separate door and it does require an account password**,
-on top of the ssh tunnel. See §8. So the credential register changes owner
-rather than becoming dead code — it stops being the console's gate and becomes
-the API's.
+**The credential machinery is NOT deleted** (owner's decision, 14 Aug 2026).
+`$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all stay: **the API is
+a separate door and does require an account password**, on top of the ssh
+tunnel (§8). The register changes owner rather than becoming dead code.
 
 **Understand what the security position now rests on.** Nothing in SD checks a
 secret at login; access is entirely OS group membership. That is **not** a
@@ -1207,26 +1195,14 @@ should be a decision rather than a discovery.
 
 ---
 
-**What follows is the superseded 13 Aug 2026 decision**, kept because 5.6.1 and
-5.6.2 are written on top of it and because the grant model it introduced is
-still how `LOGTO` behaves until §7 step 0 lands.
-
-Decision from the repository owner on 13 Aug 2026, superseding the `sdadmins`
-group model committed earlier the same day in `f56de86`. **SD has no concept of
-users, only accounts** — user accounts intended for one person, and group
-accounts reachable by many. Three parts:
-
-- **Every account carries its own password.** **REVERSED above for login,
-  retained for the API.**
-- **SDSYS is the only administrator.** **REVERSED — see 5.6.1**, and then
-  narrowed again above: an *elevated* Windows administrator.
-- **OS groups are dropped from SD's logic entirely.** **REVERSED above.** OS
-  groups are the whole of the model again: `sdusers` at the door, `ACC$GROUP`
-  per account, `Administrators` for SDSYS.
-
-§5.5 records the Linux privilege model this replaces. The full 13 Aug reasoning,
-including why the credential register is a separate file from ACCOUNTS, is in
-the HISTORY entry "Moved from PROJECT_STATUS §5.6".
+**The superseded 13 Aug 2026 decision, in three lines**, because 5.6.1 and
+5.6.2 are written on top of it. **SD has no concept of users, only accounts.**
+Every account carried its own password (**reversed for login, retained for the
+API**); SDSYS was the only administrator (**reversed** — an *elevated* Windows
+administrator); OS groups were dropped from SD's logic entirely (**reversed** —
+they are now the whole model: `sdusers` at the door, `ACC$GROUP` per account,
+`Administrators` for SDSYS). §5.5 records the Linux model it replaced, and the
+full reasoning is in HISTORY under "Moved from PROJECT_STATUS §5.6".
 
 ### 5.6.1 A Windows administrator is an SD administrator (decided 14 Aug 2026)
 
@@ -2080,6 +2056,31 @@ Each of these cost real time. Read before debugging anything similar.
   **Start the daemon from an UNELEVATED session where you can.** One started
   elevated cannot be stopped by an ordinary one — the entry below — so an
   unelevated start leaves it stoppable from either.
+
+- **A BLANK `Path` FROM `Get-Process` DOES NOT MEAN "ELEVATED", AND IT LOOKS
+  EXACTLY LIKE IT DOES.** 14 Aug 2026, seventh session. Four `sdwind` daemons
+  were started that day; the two started from an elevated window had an
+  unreadable `Path` and the two started unelevated did not, so the field was
+  taken as an elevation test and written into this file as a measurement. **It
+  is not one.** A fifth daemon had a blank `Path` *and* granted
+  `OpenProcess(PROCESS_TERMINATE)` to an ordinary session — which an elevated
+  process cannot do, and which the orphaned one had refused with
+  `Access is denied` an hour earlier.
+
+  **Ask for the right you care about, rather than reading a field that
+  correlates with it.** "Can this session stop that process" is
+  `OpenProcess(PROCESS_TERMINATE)`, and it answers in one call:
+
+  ```powershell
+  Add-Type -Namespace W -Name K -MemberDefinition '[DllImport("kernel32.dll", SetLastError=true)] public static extern IntPtr OpenProcess(uint a, bool i, uint p);'
+  [W.K]::OpenProcess(1, $false, <pid>)   # IntPtr.Zero means refused
+  ```
+
+  The type does not survive between PowerShell tool calls; re-add it each time.
+  **This is the third instrument in this file to be wrong** after
+  `Measure-Object -Line` and the UAC registry reading, and the general form is
+  §0 rule 2's: **an instrument you have not checked is not evidence.** A
+  correlation over four samples is not a check.
 
 - **SD PRINTS MSYS2 PROCESS IDS, AND WINDOWS HAS NEVER HEARD OF THEM.**
   Measured 14 Aug 2026, seventh session: the running daemon called itself

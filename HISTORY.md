@@ -27,6 +27,40 @@ corrected.
 
 ---
 
+## Correction: 14 Aug 2026 - a blank Path is not an elevation test, and it was written into PROJECT_STATUS as one
+
+Seventh session of 14 Aug 2026, correcting commit `653e016`, which recorded
+that the `sdwind` daemon left running at the end of the session (pid 4696) had
+been **started elevated**, and gave as its evidence that an unelevated session
+could not read the process's `Path`.
+
+**The claim was wrong and the evidence was not evidence.** Four daemons were
+started during the day: the two started from an elevated window had an
+unreadable `Path`, the two started unelevated did not. That correlation was
+taken for a test. The fifth, pid 4696, has a blank `Path` **and** grants
+`OpenProcess(PROCESS_TERMINATE)` to an ordinary session - which an elevated
+process cannot do, and which the orphaned pid 5080 had refused with
+`Access is denied` an hour before. So 4696 is stoppable without elevation, and
+the row said the opposite.
+
+**Why it matters more than the fact itself.** The claim was written as
+"evidence for the elevation:", i.e. presented as measured, in a file whose §0
+rule 2 exists to stop exactly that. It also had a practical edge: a session
+reading it would have believed an ordinary `sd -stop` could not stop SD, and
+would have raised a UAC prompt it did not need.
+
+**Why `Path` is blank is still unknown**, and the correction does not depend on
+knowing: the process's own shell reads its `Path` fine, the daemons started by
+a tool session read fine, and this one does not. Recorded as unexplained rather
+than guessed at.
+
+**The replacement is to ask for the right you care about.** "Can this session
+stop that process" is `OpenProcess(PROCESS_TERMINATE)`; §6 carries the
+one-liner. **This is the third instrument in this project to be wrong** -
+after `Measure-Object -Line` undercounting the file, and a UAC registry reading
+that had gone stale within a session - and all three failed the same way: they
+answered a question next to the one being asked.
+
 ## 14 Aug 2026 - The EPERM warning fired, and the first attempt to test it tested the wrong binary
 
 Seventh session of 14 Aug 2026, closing the one branch the entry below left
