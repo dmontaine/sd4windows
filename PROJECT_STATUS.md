@@ -5,45 +5,47 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 15 Aug 2026, eighth session, `317ad58`→`207dd9c`. Closed
-**§7 step 1f** on a real install, found and fixed the `ACCOUNTS/SDSYS` defect
-that had every staged catalogue built from the Linux dev tree (§6), removed the
-`chown`/`setgid`/`sudo` Linux-isms, and tightened the access model to three new
-owner rules (the list above §5.6's summary). Steps 1c, 1d closed in the
-seventh; step 0 in the sixth.
+**Last updated:** 15 Aug 2026, ninth session, `207dd9c`→. **The machine now
+runs the repository**: re-staged, ISCC, and a clean install from nothing, so
+the elevation gate, the ssh `ForceCommand` and the `SD_SESSION` guard are all
+installed. The command-line gate is **verified on the installed binary, 19 of
+19** (§4). The eighth session closed §7 step 1f; steps 1c, 1d the seventh; step
+0 the sixth.
+
+**A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
+reinstall.** Owner's rule, 15 Aug 2026, now in CLAUDE.md because §6 was too
+late a place to find it. **Never a reinstall over the top**, and **do not reason
+your way out of it from file hashes**: the ninth session tried, and 4 matching
+files out of ~3,455 — chosen as the ones the last three commits touched, and
+never including `gcat` — is not evidence a tree is current.
 
 **START HERE, in order:**
 
-1. **THE BUILD IS THREE CHANGES AHEAD OF THE INSTALL AND THE STAGE. Re-stage,
-   ISCC, install.** Nothing of the elevation gate, the ssh `ForceCommand` or
-   the `SD_SESSION` guard is installed or staged — `bin/` has them (`make sd`
-   clean, 15 Aug), and `C:\Program Files\SD` and the staged `ProgramFiles` both
-   hold the **06:23** `sd.exe`. Elevated, from `sdb_ai/sd64`:
-   `stage.py --stage /c/Users/dmont/stagetest --force --bootstrap`, then ISCC
-   and the installer, per the top of `gplbld/sd.iss`. There is no incremental
-   re-stage: `stage.py:368` refuses an existing directory and `--force` deletes
-   it, so the full bootstrap is the only route.
+1. **CLOSED 15 Aug 2026, ninth session. The install is current and clean.**
+   `C:\Program Files\SD` 19 files, `sd.exe` **09:58 and hash-identical to
+   `bin/sd.exe`**; `C:\ProgramData\SD\sdsys` **3,456 files, `gcat` 130,
+   `GPL.BP.OUT` 191**; `ACCOUNTS` holds `DON` and `SDSYS`; `sshd_config` carries
+   `AllowGroups` **and `ForceCommand "C:\Program Files\SD\usr\bin\sd.exe"`**
+   between SD's markers, `sshd` Running.
 
-   **THE INSTALL IS UNINSTALL, DELETE BOTH TREES, REINSTALL — EVERY TIME, AND
-   A HASH CHECK IS NOT A SUBSTITUTE.** §6's "the installed data tree is never
-   upgraded" trap, and the owner's standing rule, 15 Aug 2026: a test cycle runs
-   against a **newly installed** system, because testing against a reinstall-over
-   is how stale trees have repeatedly been measured as current. **Do not reason
-   your way out of it from file hashes.** The ninth session tried: `GPL.BP/CATALOG`,
-   `CREATEA`, `IS_GRP_MEMBER` and `MESSAGES/10040` hashed identically across
-   repository, stage and install, which is true and is **not sufficient** — it is
-   4 files of ~3,455, chosen as the ones the last three commits touched, and it
-   never compared `gcat`, which is what actually runs and is the part §6 names as
-   the hard one because BASIC ships compiled.
+   **The ssh block went on BY HAND and always will on this machine.** The
+   installer's `installssh` task carries `Check: SshServerAbsent`
+   (`sd.iss:95`), which tests for `System32\OpenSSH\sshd.exe` — present here, so
+   the task and its `allowgroups` child are **hidden**, by design (§5.9: SD never
+   reconfigures an ssh server it did not install). Elevated, after every install:
+   `powershell -File "C:\Program Files\SD\allow-ssh-groups.ps1" -Installed`.
+2. **Finish verifying what only an install can show. One of three done.**
 
-   **AND `sshd_config` CARRIES NO SD BLOCK AT ALL** — corrected below, in the
-   machine table. The uninstaller removed it; tick the ssh task on the install.
-2. **Then verify what only an install can show**, none of it watched yet: the
-   switches and a bare command refused against the **installed** binary; an
-   **ssh session landing at SD's `:` prompt** instead of a shell — which needs
-   a test account, since `sdacct4`/`sdacct5` were removed
-   (`verify-createaccount.ps1 -Account sdacct6`); and `SH` really setting
-   `SD_SESSION`, of which only `sd.c`'s half has run.
+   a. **DONE — the switches and a bare command refused on the installed
+      binary**, 19 of 19 (§4).
+   b. **NOT DONE — an ssh session landing at SD's `:` prompt** instead of a
+      shell. Needs a test account, since `sdacct4`/`sdacct5` were removed:
+      `verify-createaccount.ps1 -Account sdacct6`, elevated. The `ForceCommand`
+      is applied, so this is now testable.
+   c. **NOT DONE — `SH` really setting `SD_SESSION`.** Only `sd.c`'s half has
+      run. Needs SD started (**elevated** now) and a live session: `sd`, then
+      `SH`, then read `SD_SESSION` in the shell it hands back and confirm `sd`
+      refuses there.
 3. **§7 step 2** — second machine. Only place RDP and a genuinely clean install
    can be tested, and the corrected catalogue has still never been installed
    anywhere but here.
@@ -58,17 +60,17 @@ The account it was meant for is gone; make a throwaway with
 `New-LocalUser sdadopt3 -NoPassword` and adopt it, or use
 `verify-createaccount.ps1`.
 
-**Machine, end of the eighth session, 15 Aug 2026.** **The install is a clean
-one from the corrected stage** — `C:\Program Files\SD` 19 files, `sd.exe`
-**06:23**; `C:\ProgramData\SD\sdsys` **3,455 files, `gcat` 130**, and the
-installed `gcat/$LOGIN` carries the owner's banner, so the machine at last runs
-what the repository says. **`don` has an SD account**, made by the installer;
-`sdusers` and `sdu_don` hold him, **`sdsshonly` is empty**. `sdacct1`–`5`,
-`sdadopt1`/`2` and their `sdu_` groups are **gone**; SDSYS and DON are the only
-accounts. **SD is not running** — `adopt-account.ps1` put it back as it found
-it — and `C:\ProgramData\SD\shm` is empty, so `sd -start` starts cleanly (from
-an **elevated** window once item 1 is installed). **`bin/` is current**,
-`make sd` clean. **No `gcat.bak` on the new tree**; the rollback is
+**Machine, ninth session, 15 Aug 2026.** **The install is clean and the machine
+runs the repository** — counts and dates in header item 1, which is the one
+place they live. **`don` has an SD account**, made by the installer's own step;
+`sdusers` and `sdu_don` hold him, **`sdsshonly` is empty** — the adopt log says
+`don keeps the Windows sign-in rights it already had`, so the lockout fix has
+now held on two real installs. **No `sd*` Windows users exist**, but the groups
+`sdu_sdacct4` and `sdu_sdadopt1` outlived theirs (machine table). **SD is not
+running** and `C:\ProgramData\SD\shm` is empty, so `sd -start` starts cleanly —
+**from an elevated window, which is new**: the gate now covers `-start`.
+**`bin/` is current**, `make sd` clean, and the installed `sd.exe` hashes the
+same. **No `gcat.bak` on the new tree**; the rollback is
 `C:\Users\dmont\gcat.rollback` (129 entries, and it predates the corrected
 catalogue — it restores a working system, not this one). UAC is at the default
 (`ConsentPromptBehaviorAdmin` 5, `PromptOnSecureDesktop` 1): elevation raises a
@@ -152,14 +154,14 @@ install** on it, from the fixed installer:
 
 | Thing | State |
 |---|---|
-| **The install is CLEAN, from the corrected stage** | 15 Aug 2026, eighth session: uninstalled, `C:\ProgramData\SD` deleted, reinstalled from `sd-setup-1.0-2.exe` (09:05). So the data tree is the repository's own for the first time - see the two rows below. **Date it again before trusting it**; it does not update itself |
-| `C:\Program Files\SD` | **19 files**, binaries in `usrin`; `sd.exe` is **15 Aug 06:23**. 19 rather than 18 because `adopt-account.ps1` ships now, beside the other three `.ps1` scripts |
-| `C:\ProgramData\SD\sdsys` | **3,455 files, `gcat` 130** - a working database, and the first on this machine built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Expect the count to drift upward as accounts are created |
+| **The install is CLEAN and CURRENT** | 15 Aug 2026, ninth session: uninstalled, **both** trees deleted, reinstalled from the 10:06 `sd-setup-1.0-2.exe`. **Counts and dates are in header item 1 and only there.** **Date it again before trusting it**; it does not update itself |
+| `C:\Program Files\SD` | binaries in `usr\bin`. 19 rather than 18 files because `adopt-account.ps1` ships beside the other three `.ps1` scripts. Count and date in header item 1 |
+| `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS THREE COMMITS BEHIND `bin/`** | The elevation gate, the ssh `ForceCommand` and the `SD_SESSION` guard are in the build and **not** installed. Header item 1 — and the refresh is uninstall, delete both trees, reinstall, never a reinstall over the top |
+| **THE INSTALL IS CURRENT** | 15 Aug 2026, ninth session: the elevation gate, the ssh `ForceCommand` and the `SD_SESSION` guard are all installed, and the installed `sd.exe` hashes the same as `bin/sd.exe`. It goes stale the moment anything is committed — **a test cycle starts with a fresh install**, header |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
-| Reinstalling over this | the installer **found the existing database and left it alone**, saying so in a dialog — §6's staleness trap, working as designed. So a reinstall updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`: after one, copy `GPL.BP\LOGIN`/`CPROC` across and recompile, or the machine runs yesterday's BASIC on today's binaries |
+| Reinstalling over this | **DON'T** — the rule in the header. The installer **finds an existing database and leaves it alone**, saying so in a dialog, which is §6's staleness trap working as designed: a reinstall-over updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`, so the machine runs yesterday's BASIC on today's binaries. Copying `GPL.BP` across and recompiling by hand was the old workaround; a fresh install is the rule that replaced it |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
 | `sdusers` group | exists, with `GITORLI\don` in it |
 | `sdadmins` group | exists, **created by hand on 13 Aug, not by the installer**, and nothing references it any more (§8). Leave it alone |
@@ -168,14 +170,14 @@ install** on it, from the fixed installer:
 | MSYS2 dev tree at `/usr/local/sdsys` | still reachable with `SD_CONFIG=/etc/sd.conf`. Its `bin/` was refreshed with the `sdwind` build on 14 Aug 2026 and the stale `sdlnxd.exe` removed; `pcode`/`pcode.old` are still beside them, since the dev tree keeps the old unsplit layout |
 | **The machine was rebooted** on 14 Aug 2026 | `don`'s token now carries `sdusers`, so **an ordinary unelevated session runs SD** — verified, §4. The sign-out trap in §6 is cleared *on this machine only*; it applies afresh to every new user added to the group |
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
-| **`AllowGroups` IS NOT APPLIED** | **Corrected 15 Aug 2026, ninth session.** `C:\ProgramData\ssh\sshd_config` (08:55) is **byte-identical to `sshd_config.before-sd`** — same SHA256, no SD markers, no `AllowGroups`, no `ForceCommand`. The eighth session's uninstall removed it: `sd.iss:604` `RemoveAllowGroups` runs `allow-ssh-groups.ps1 -Remove` at `usUninstall`, working as designed, and the 09:05 reinstall did not put it back. **It comes back only if the `installssh\allowgroups` task is ticked** in the wizard (`sd.iss:377`), so tick it on the next install or header item 2's ssh test cannot run. What was verified on 14 Aug (§4) stands as a measurement of the mechanism, not of the machine's current state |
+| **`AllowGroups` AND `ForceCommand` ARE APPLIED** | 15 Aug 2026, ninth session, **by hand after the install** — `allow-ssh-groups.ps1 -Installed`, elevated. Lines 87–90 of `sshd_config`, before the `Match` block; original kept at `sshd_config.before-sd`; `sshd` restarted, Running. **THE UNINSTALLER TAKES IT BACK OFF** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`, correct behaviour), and **the installer will not put it back on this machine** because the task is hidden — header item 1. So it is a manual step of every fresh install here, and its absence is what the eighth session mistook for it being applied |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **No users** — `Get-LocalUser` matches nothing on `sd*`, 15 Aug 2026 ninth session. **But two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, and left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. Make a fresh account with `verify-createaccount.ps1 -Account sdacct6`, or `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
 | **`don` HAS AN SD ACCOUNT** | 15 Aug 2026, made by `ADOPT` — `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`; `sd` puts him in it, `WHO` says `5 DON`. It also put him in `sdsshonly` before the §6 fix, and **that was undone by hand** — `sdsshonly` now holds only `sdacct4`/`sdacct5` |
 | `sdsshonly` | exists, **empty** - the lockout fix means no administrator is in it, and no ssh-only account exists yet |
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
 | Accounts, **SD side** | `SDSYS` and `DON`, nothing else |
-| SD | **not running**, and `C:\ProgramData\SD\shm` is **empty** - `adopt-account.ps1` left it as it found it. `sd -start` starts cleanly, and needs an **elevated** window once item 1 is installed |
+| SD | **not running**, and `C:\ProgramData\SD\shm` is **empty** - `adopt-account.ps1` left it as it found it. `sd -start` starts cleanly and **now needs an elevated window**, verified: the gate covers `-start` |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -469,14 +471,27 @@ them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
 
 **15 Aug 2026 — THE COMMAND LINE IS CLOSED TO AN UNELEVATED SESSION, AND SD
-WILL NOT START INSIDE ITSELF.** `make sd` clean, then from an ordinary shell
-against the new build: `-start -stop -u -cleanup -suspend -internal` and the
-bare commands `LISTF` and `WHO` all refused with `This command needs an
-elevated session`, exit 1; `--version` still answered; plain `sd` still reached
-login and stopped only at `SD has not been started`. With `SD_SESSION=1` set,
-every form — including `-start` — answered `SD is already running in this
-session`. **Not watched: the marker being set by a real `SH`**, which needs a
-live session; only `sd.c`'s half of that pair has run.
+WILL NOT START INSIDE ITSELF. CONFIRMED ON THE INSTALLED BINARY, ninth
+session.** 19 of 19, unelevated, against `C:\Program Files\SD\usr\bin\sd.exe`
+**dated 09:58 and hash-identical to `bin/sd.exe`** — the fresh install, so this
+is the shipped gate and not only the build's. All twelve guarded switches
+(`-start -stop -restart -cleanup -d -l -m -u -suspend -resume -internal
+-k ALL`) and the bare commands `LISTF` and `WHO` refused with `This command
+needs an elevated session`, **exit 1**; `--version` answered `String Database
+(sd) Version 1.0-2 64 Bit`, **exit 0**, which is the control — a gate that
+refuses everything proves nothing. With `SD_SESSION=1` set, all four forms
+tried including `--version` answered `SD is already running in this session`,
+so the guard is genuinely before the gate as `comlin()` intends.
+
+**Still not watched: the marker being set by a real `SH`**, which needs a live
+session; only `sd.c`'s half of that pair has run.
+
+The matrix is `verify-gate.ps1`, written this session and **not tracked** — it
+lives in the session scratchpad. Two things in it are the reusable part:
+`--version` as the control, and **stderr redirected to a file rather than
+`2>&1`**, because PowerShell 5.1 wraps a native exe's stderr in an ErrorRecord
+and `$ErrorActionPreference = 'Stop'` then aborts on the first refusal — the
+exact line the test exists to observe (§6, the PowerShell traps).
 
 **15 Aug 2026 — §7 STEP 1f IS CLOSED ON A REAL INSTALL.** The installer's
 `[Code]` step made the account: `ACCOUNTS` holds `DON` and `SDSYS`,
@@ -2542,7 +2557,7 @@ Each of these cost real time. Read before debugging anything similar.
 - **The ACL lockout's symptom is "Error 13 allocating semaphores", which names
   nothing useful.** After the installer sets the ACLs, a session whose token
   does not carry `sdusers` cannot reach `C:\ProgramData\SD` — and since
-  `etcstab` maps `/dev/shm` there, the first thing to fail is semaphore
+  `etc\fstab` maps `/dev/shm` there, the first thing to fail is semaphore
   allocation. Errno 13 is EACCES. Observed 14 Aug 2026 immediately after
   installing: the installing user is added to `sdusers`, but **Windows fixes
   group membership in the access token at logon**, so until they sign out and
