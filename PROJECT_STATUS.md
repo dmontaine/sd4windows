@@ -412,6 +412,17 @@ exit 0, `shm` empty, no spurious warning; `sd -start` → up as pid 5500. The
 14 Aug binary answered `SD is already started` to the killed-daemon case and did
 nothing.
 
+**The fifth branch too — the `EPERM` warning, on the install, with the daemon
+started elevated by the owner and `sd -stop` run from an ordinary session.**
+`sd -stop` exited 0, emptied `shm`, and printed `Warning: sdwind (pid 4620) is
+still running.` with the privilege reason and the `Stop-Process -Id 4620 -Force`
+command; `sdwind` was indeed still there afterwards. Corroborated the way §4
+asks: `Stop-Process` from that same unelevated session was **refused, Access is
+denied**, and the daemon measured **High integrity** (`S-1-16-12288`) against
+the session's Medium (`S-1-16-8192`). **So the seventh session's claim stands
+and the doubt raised against it was mine, not the file's** — the daemon killed
+unelevated earlier that morning cannot have been the elevated one.
+
 **15 Aug 2026 — THE BOOTSTRAP REFUSES AN UNELEVATED WINDOW, BEFORE DOING
 ANYTHING.** Four unelevated runs: a **nonexistent** `--sysdir` drew the
 elevation refusal and not `no such sysdir`, so the check is genuinely first;
@@ -1975,6 +1986,13 @@ Each of these cost real time. Read before debugging anything similar.
   group either. The general form is the one this file keeps re-learning:
   **a rule transcribed from the Linux source can depend on a Linux mechanism
   that was never ported.**
+
+- **`OpenProcess(PROCESS_TERMINATE)` RETURNING A HANDLE DOES NOT MEAN YOU CAN
+  TERMINATE.** 15 Aug 2026: it returned one for a High-integrity `sdwind` from a
+  Medium-integrity session, and `Stop-Process` on that same pid seconds later
+  was refused `Access is denied`. The file used that probe once as evidence of
+  terminate rights (§4). **Trust the operation, not the probe** — the cheap
+  check has at least one false positive in it.
 
 - **`sd -start` HANGS ANY CALLER THAT WAITS FOR ITS OUTPUT STREAMS TO CLOSE.**
   15 Aug 2026, twice, in two different shells: `sd -start > f 2>&1` from bash
