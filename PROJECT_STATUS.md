@@ -45,21 +45,6 @@ which is only the current one just after an install; that cost a round of the
 session holds terminate rights on it, so it can be stopped without elevation.
 The `EPERM` test's orphan was cleared first.
 
-**SIZE — §0 rule 5, three budgets. Measure with `.Count`; `Measure-Object -Line` ignores blank lines and undercounts by ~15%:**
-
-```powershell
-(Get-Content C:\Users\dmont\Projects\sdb_ai_windows\PROJECT_STATUS.md).Count
-```
-
-| Budget | Limit | Now |
-|---|---|---|
-| **Header** (above §0) | 200 | **180** |
-| **§7 Next steps** | 300 | **289** |
-| Whole file | 3,500 | **3,500** |
-
-**Met by rule 5 rather than by a rollover**, and step 1c's own material was
-paid for out of §4 and §8, which held settled detail HISTORY already carries.
-
 **THE ACCESS MODEL, BUILT AND VERIFIED.** Full statement in §5.6; the short
 form, because it changes what every other item in this file assumes:
 
@@ -180,85 +165,38 @@ at run time, in a program that may not run until much later.
 
 ## 0. Maintenance rules
 
-These are binding. A stale status file is worse than none, because the next
-session will act on it.
+Revised 14 Aug 2026, seventh session, on the owner's instruction: **the
+documentation was taking more of a session than the work.** The rules below
+replace a longer set that caused it.
 
-1. **Update this file in the same commit as the work it describes.** Not
-   afterwards, not "at the end". If a commit changes what builds, what runs,
-   what is decided, or what is next, it changes this file too.
-2. **Never promote anything into Verified without evidence in that session.**
-   "It compiles" is not "it runs". "It ran once" is not "it is tested". If you
-   did not observe it yourself, it belongs in §4 Unverified, whatever a
-   previous session claimed.
-3. **Record corrections, do not quietly overwrite.** If something here turns
-   out to be wrong, fix it *and* note the correction in HISTORY.md. A future
-   session that reads only the corrected text cannot tell it was ever wrong,
-   which is how the same wrong turn gets taken twice.
-4. **Traps in §6 are the highest value part of this file.** Anything that cost
-   more than about fifteen minutes to work out goes there, phrased as what
-   happens and what to do.
-5. **Size. Three budgets, not one — and the small ones matter more than the
-   big one.** Revised 14 Aug 2026, sixth session, because the single ~2000-line
-   limit that stood here **was never once met**: the file ran 2,925 → 3,188 →
-   3,621 across successive commits, each session noting it was over and
-   deferring the rollover as "a session's work on its own". **A limit that is
-   never met and always deferred is not a limit.** It failed because it demanded
-   one large chore at the moment a session had other work.
+**Audience: the next AI session. Not the owner — he does not read these.** Write
+for a cold agent that will act on this: terse, factual, `file:line` over
+description. No emphasis for effect, no narrative, no argument. The `changelog`
+is the exception and stays plain English for users.
 
-   | Budget | Limit | Why |
-   |---|---|---|
-   | **Header** (above §0) | **200 lines** | read front to back, every session, before any work |
-   | **§7 Next steps** | **300 lines** | the other thing read in full to decide what to do |
-   | Whole file | **3,500 lines** | a ceiling, not a target |
+1. **Same commit as the work.** If a commit changes what builds, runs, is
+   decided, or is next, it changes this file.
+2. **Verified means you watched it, this session.** Compiling is not running.
+   Otherwise it goes in §4 Not verified, whatever an earlier session claimed.
+3. **One fact, one place.** Do not restate a finding in the header, §4, §6, §7
+   and HISTORY. Put it where it belongs and point at it. Duplication is the
+   main way this file got large.
+4. **§6 traps: anything that cost real time.** What happens, what to do. This
+   section is meant to grow; never cut a trap for size.
+5. **Size is a ~3,500 line ceiling and nothing more.** Do not print line counts
+   in the text and do not re-measure to keep a printed number true — that loop
+   cost a dozen tool calls on 14 Aug 2026. When a §7 step closes, compress its
+   §4 and §7 material to the conclusion in the same commit; that is enough to
+   hold the size without a rollover.
+6. **Corrections: fix the text, say so in one line, move on.** No separate
+   ceremony. HISTORY stays append-only.
+7. **Absolute dates.** Never "today" or "last session".
+8. **User-visible changes go in `sdb_ai/sd64/sdsys/changelog`**, same commit.
+   New or changed verbs, messages, files, login behaviour, configuration.
+   Refactors, findings and traps do not.
 
-   **The first two are the ones that protect readability.** Everything else —
-   §4, §5, §6, §8 — is read by *searching*, not by reading, so its size costs a
-   session far less. **§6 in particular is meant to accumulate**: rule 4 makes
-   traps the highest-value content here, and capping them fights the rule that
-   makes them worth keeping. Never cut a trap to meet a number; cut its
-   re-narration, which HISTORY already holds.
-
-   **THE FILE SELF-CLEANS AT ONE MOMENT: WHEN A §7 STEP CLOSES.** In the same
-   commit that closes a step:
-
-   - its §4 tables compress to their conclusions — keep the claim and the
-     decisive measurement, drop the working detail;
-   - its §5 weighing of alternatives moves to HISTORY.md, because a decision
-     that is built and verified no longer needs its argument carried here;
-   - its §7 sub-steps shrink to what was learned.
-
-   **Do that and the rollover never becomes an event.** The 3,500 ceiling is
-   then a backstop for when it has been skipped, not the normal mechanism.
-
-   It remains **never a reason to leave a finding out.** If something is worth
-   recording, record it and trim elsewhere; detail that also exists in
-   HISTORY.md is the first thing to cut, since nothing is lost by it.
-
-   **Measure with `.Count`, not `Measure-Object -Line`** — the latter ignores
-   blank lines and undercounts this file by about 15%. That mistake is recorded
-   in HISTORY and in the header.
-6. **HISTORY.md is append-only.** Never delete or rewrite an entry. Correct it
-   with a new entry that references the old one.
-7. **State the date as an absolute date.** Never "today", "last week", "the
-   previous session".
-8. **Anything a user would notice goes in `sdb_ai/sd64/sdsys/changelog`**, in
-   the same commit. That is the product changelog, it ships with the system,
-   and the port had added nothing to it for its first several sessions while
-   these two files carried everything. They are not a substitute: this file is
-   the state of the work, HISTORY.md is why it was done, the changelog is what
-   changed for someone using SD. New verbs, new or moved files, changed
-   behaviour at login, new messages and new configuration all belong there;
-   refactors, findings and traps do not.
-
-Checklist before you end a session:
-
-- [ ] §3 Current state matches what is actually in the tree
-- [ ] §4 Verified / Unverified is honest, and nothing was promoted without evidence
-- [ ] §6 Traps gained anything that cost you real time
-- [ ] §7 Next steps reordered, with anything finished removed
-- [ ] Anything user visible added to `sdb_ai/sd64/sdsys/changelog`
-- [ ] Any correction to earlier claims noted in HISTORY.md
-- [ ] Header date and commit above updated
+**Time budget: documentation is a small fraction of a session.** If it is
+approaching half, stop and cut.
 
 ---
 

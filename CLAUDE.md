@@ -12,38 +12,28 @@ approach has already been tried.
 This project moves between sessions, machines and accounts. Nothing carries
 over except what is written in those two files.
 
-## You must maintain these files
+## You must maintain these files, cheaply
 
-This is a standing instruction from the repository owner, not a nicety.
+Standing instruction from the repository owner, 14 Aug 2026: **the ratio of
+time spent on the project to time spent documenting it was too high.**
+PROJECT_STATUS.md and HISTORY.md are **written for the next AI session, not for
+him** — he does not read them. So:
 
-- **Update PROJECT_STATUS.md in the same commit as the work it describes**, not
-  afterwards. If a commit changes what builds, what runs, what is decided, or
-  what is next, it changes PROJECT_STATUS.md too.
-- **Never move anything into "Verified" without observing it yourself in that
-  session.** Compiling is not running. Running once is not tested. If a
-  previous session claimed something and you did not confirm it, it stays
-  unverified.
-- **Append to HISTORY.md** when work completes, when PROJECT_STATUS.md needs to
-  shed settled material, and — especially — when an earlier claim turns out to
-  be wrong. Corrections get their own entry. HISTORY.md is append-only; never
-  delete or rewrite an entry.
-- **Keep PROJECT_STATUS.md readable**, which is three budgets rather than one
-  (§0 rule 5): **header ≤ 200 lines**, **§7 Next steps ≤ 300**, whole file
-  ≤ 3,500. The first two are what a session reads front to back before doing
-  anything, so they are the ones that matter; the rest is read by searching.
-  **§6 Traps is meant to grow** — never cut a trap to meet a number.
-  **The file self-cleans when a §7 step closes**: in that same commit, compress
-  its §4 tables to their conclusions and move its §5 weighing to HISTORY.md.
-  Do that and the rollover never becomes an event. Never a reason to omit a
-  finding. Measure with `.Count`, not `Measure-Object -Line`, which ignores
-  blank lines and undercounts by ~15%.
-- **Record anything a user would notice in `sdb_ai/sd64/sdsys/changelog`**, in
-  the same commit as the work. That is the product changelog and it ships with
-  the system; the two files above are the state of the work and the reasoning
-  behind it, and neither substitutes for it.
+- **Terse and factual.** `file:line` over description. No narrative, no
+  emphasis for effect, no restating a finding in several sections. One fact,
+  one place, with pointers.
+- **Documentation is a small fraction of a session.** If it approaches half,
+  stop and cut. Do not print line counts in the files or re-measure to keep
+  them true.
+- **Update PROJECT_STATUS.md in the same commit as the work**, and never move
+  anything into "Verified" without observing it yourself that session.
+  Compiling is not running.
+- **Append to HISTORY.md** when work completes or an earlier claim proves
+  wrong. Append-only. Keep entries short.
+- **`sdb_ai/sd64/sdsys/changelog` is the exception**: it ships to users, stays
+  plain English, and gets anything a user would notice, in the same commit.
 
-The full rules are in §0 of PROJECT_STATUS.md and at the top of HISTORY.md.
-Follow those; this file only points at them.
+Full rules in §0 of PROJECT_STATUS.md. Follow those; this file only points.
 
 ## Project constraints
 
