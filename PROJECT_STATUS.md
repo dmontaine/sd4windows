@@ -5,67 +5,67 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, sixth session of the day. The session began at
-commit `c99f927` and **built the access model the fifth session decided** —
-§7 step 0, parts a to d. The gap between this file and the code that the fifth
-session called the largest it had ever been is closed in source.
+**Last updated:** 14 Aug 2026, sixth session. It began at commit `c99f927` and
+**closed §7 step 0**: the Linux access model is built, installed, and verified
+end to end on this machine.
 
-**IT ALL COMPILES AND THE NEW `LOGIN` IS RUNNING ON THIS MACHINE.** `make sd`
-exits 0 with the new `IsElevated()` in it, and **`LOGIN` and `CPROC` both
-compiled with `0 error(s)` and are catalogued** — the first time either had ever
-been through a compiler. `gcat/$LOGIN` was checked as written, not as reported.
+**WHAT IS TRUE NOW**
 
-**THE MODEL IS LIVE ON THIS MACHINE AND THE REFUSALS ARE OBSERVED.** New
-binaries installed 19:05, `LOGIN` and `CPROC` recompiled against them. From an
-unelevated session, `sd` now answers **`Account DON not in register`** and
-`sd -ASDSYS` answers **`SDSYS Account access is restricted to privileged
-users`** — where an hour earlier the same commands put a machine administrator
-straight into SDSYS. §4 carries the table. **`sysmsg(10002)` fired for the first
-time in this codebase's history.**
+- **The access model works and has been watched working.** All five rules of
+  §5.6, both `LOGTO` paths, and `CREATE.ACCOUNT` still at 16 of 16 under the
+  elevated-only gate. §4 has the tables.
+- **This machine runs it.** Binaries installed 19:05, `LOGIN` and `CPROC`
+  recompiled against them and catalogued. An unelevated `sd` is refused
+  (`sysmsg(5018)`), `sd -ASDSYS` is refused (`sysmsg(10002)`), an elevated
+  session reaches SDSYS, and `sdacct5` signs in over ssh and lands in its own
+  account with nothing asked.
+- **`sysmsg(10002)` fired for the first time in this codebase's history.**
+- **Nothing is half-applied**, and the working tree is clean and pushed.
 
-**§7 STEP 0 IS COMPLETE. ALL FIVE RULES OF §5.6 ARE OBSERVED**, plus both
-`LOGTO` paths and `CREATE.ACCOUNT` at 16 of 16 under the elevated-only gate. The
-last four were watched over ssh as `sdacct5`, an ordinary non-administrator
-account: `sd` landed it in `SDACCT5` with nothing asked, `who` confirmed it,
-`LOGTO SDSYS` was refused by the elevation gate and `LOGTO SDACCT1` by the
-restored `ACC$GROUP` test. §4 carries the table.
+**THE NEXT SUBJECT IS §7 STEP 1**, and **step 1d is the pick of it**:
+`sd -start` and `sd -stop` both lie about `sdwind`, for the same reason — they
+trust the shared segment rather than the daemon process. This session hit both,
+and one of them left the system unusable while reporting success (§6). Small,
+self-contained, and it costs time every session it survives.
 
-**THE NEXT SUBJECT IS §7 STEP 1** — the loose ends the account model left, of
-which **step 1d is now the most valuable**: `sd -start` and `sd -stop` both lie
-about `sdwind`, and this session hit both.
-
-**4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-3,097 LINES NOW**, measured after the last edit rather than during it (see the
-correction below, which is the same mistake one step smaller), after the sixth
-session added the access-model build to §4,
-§6 and §7. Stated rather than hidden, because the next session inherits the file
-and not the intention.
-
-**Correction, 14 Aug 2026, sixth session.** The sentence that stood here said
-the file had gone "back up to about 3,190" once the access-model reversal was
-written in. **It had not.** The file measured **2,729** at commit `c99f927` —
-the commit whose subject is, without irony, "State the line count the next
-session will actually see". The figure was estimated and never re-measured.
-**Measure it, do not carry the previous session's number forward:**
+**THE FILE IS 3,621 LINES. MEASURE IT WITH `.Count`:**
 
 ```powershell
-(Get-Content C:\Users\dmont\Projects\sdb_ai_windows\PROJECT_STATUS.md | Measure-Object -Line).Lines
+(Get-Content C:\Users\dmont\Projects\sdb_ai_windows\PROJECT_STATUS.md).Count
 ```
 
-It is still above the ~2,000 limit. Where the remaining excess is, and why it
-was not cut further:
+**Correction, 14 Aug 2026, sixth session — and it reverses a correction made
+earlier in the same session.** This file briefly claimed the fifth session's
+figure of "about 3,190" was wrong and the real count was 2,729. **The fifth
+session was right; that correction was wrong.**
+`Measure-Object -Line` **does not count blank lines**, so it undercuts this file
+by about 15%. Measured properly, `c99f927` was **3,188** against a claim of
+~3,190, and the rollover commit `2890198` was **2,925** against a claim of
+2,924. **Every figure the earlier sessions recorded was accurate.** The wrong
+number came from the tool used to check them, and it was then written into this
+file as the recommended way to measure — which is how a bad measurement
+propagates. The general form belongs with §0 rule 2: **an instrument you have
+not checked is not evidence.**
 
-- **§6 Traps, 812 lines, is the largest section and now the main candidate.**
-  It was compressed rather than left alone — the longest entries re-narrated
-  how each trap was found, which HISTORY already carries — but **no trap was
-  removed**, and none should be: §0 rule 4 makes them the highest-value part of
-  this file. Getting §6 below about 600 means re-reading every entry against
-  its HISTORY counterpart, which is a session's work on its own.
-- **§4, 456 lines**, was cut hardest (from 828) and is now claim, decisive
-  measurement and nothing else. Cutting it further starts deleting observations
-  rather than prose, which §0 rule 5 forbids.
-- **§5, 887 lines**, still has room. §5.6.1 is 227 of it and is the next place
-  to look after §6.
+**IT IS ~1,600 LINES OVER THE ~2,000 LIMIT, AND THE ROLLOVER IS NOW THE LARGEST
+DEBT IN THE FILE.** Real sizes, measured this session:
+
+| Section | Lines |
+|---|---|
+| **§5 Decisions** | **1,006** |
+| **§6 Traps** | **969** |
+| **§4 Verified** | **605** |
+| §7 Next steps | 303 |
+| header | 258 |
+| §8 Open questions | 233 |
+
+- **§5 is the largest and the best candidate now.** §5.6 and §5.6.1 carry the
+  full argument for an access model that is now built and verified — the
+  weighing of alternatives is history, and HISTORY already holds most of it.
+- **§6 grew by about 160 lines this session** and every one was paid for in
+  time. §0 rule 4 protects it: cut re-narration if you must, never a trap.
+- **§4 grew too.** Now step 0 is closed, its tables can compress to their
+  conclusions without losing an observation.
 
 **What moved to HISTORY.md**, newest first, under "PROJECT_STATUS rolled over
 from 4,112 lines": the three-postures API weighing and the `sdadmins`

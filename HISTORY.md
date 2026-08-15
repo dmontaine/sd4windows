@@ -27,6 +27,47 @@ corrected.
 
 ---
 
+## Correction: 14 Aug 2026 - the line-count "correction" was itself wrong, and the instrument was the cause
+
+Sixth session of 14 Aug 2026. **This entry reverses the entry below headed
+"Correction: 14 Aug 2026 - PROJECT_STATUS said it was ~3,190 lines; it was
+2,729"**, recorded earlier the same session in commit `ca6e13b`. That entry
+stays where it is, per rule 1 — but **do not act on it**, and note that the
+command it recommends at the end is the broken one.
+
+That commit claimed the fifth session's figure of "about 3,190 lines" was an
+unchecked estimate, and that PROJECT_STATUS really measured 2,729. **The fifth
+session was right.** Measured properly:
+
+| Commit | Recorded in the file | Real count |
+|---|---|---|
+| `2890198` | 2,924 | **2,925** |
+| `c99f927` | "about 3,190" | **3,188** |
+
+**Every figure the earlier sessions wrote down was accurate to within a line or
+two.** The error was introduced by the tool used to audit them:
+`(Get-Content file | Measure-Object -Line).Lines` **does not count blank lines**,
+so it undercounts this file by roughly 15%. `.Count` on the array is right.
+
+**The part worth carrying is not the arithmetic.** A wrong measurement was used
+to overturn a correct record, the wrong method was then written into
+PROJECT_STATUS as the recommended way to measure, and every subsequent session
+would have inherited it — each one "confirming" a number that was wrong in the
+same direction. It survived three commits and about a dozen re-measurements
+inside one session, because re-running the same broken instrument agrees with
+itself every time.
+
+**The general form belongs beside §0 rule 2:** *an instrument you have not
+checked is not evidence.* Rule 2 asks whether a claim was observed; this asks
+whether the thing that did the observing was ever tested. The two failures look
+identical from the outside — a confident number, repeated.
+
+**Also corrected in passing:** the section sizes quoted in the header (§6 "812
+lines", §4 "456", §5 "887") were undercounts from the same method. Real sizes at
+the close of this session are §5 1,006, §6 969, §4 605.
+
+---
+
 ## 14 Aug 2026 - Step 0 is CLOSED: all five rules of 5.6 observed end to end
 
 Sixth session of 14 Aug 2026, last entry. **The access model decided in the
