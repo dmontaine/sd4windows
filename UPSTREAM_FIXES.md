@@ -3,6 +3,11 @@
 Defects found while porting SD to Windows that **also affect `sdb64`**, the
 upstream Linux project at <https://codeberg.org/stringdatabase/sdb64>.
 
+**Fixes owed to `winsdclilib` and `linuxsdclilib` do NOT belong here** — those
+two are ours to maintain and are fixed directly (PROJECT_STATUS.md §2, the
+sibling repositories). This file is only for what `sdb64` itself needs. Entry
+#2 is a closed example of a bug that looked like upstream's and was not.
+
 **This file has a different audience from the rest of the repository.**
 PROJECT_STATUS.md and HISTORY.md are written for the next AI session;
 this one is written to be **handed to the upstream maintainer**, so each entry
@@ -91,62 +96,33 @@ caller will free.
 
 ---
 
-## 2. `SV_EMSG_PAIR` and `SV_ECONTXT` are transposed between the two projects
+## 2. `SV_EMSG_PAIR` and `SV_ECONTXT` were transposed — RESOLVED, and it was NOT upstream's bug
 
-**Status:** NEEDS A DECISION FROM THE OWNER BEFORE IT IS SENT, 15 Aug 2026
-**Affects:** `sd64/gplsrc/sdclient.h`, `sd64/sdsys/SYSCOM/sdclilib.h` on `dev`,
-against `github.com/dmontaine/winsdclilib`
-**Severity:** wrong-value, not crash. Only bites where the two projects meet —
-which is the case this whole client exists for, a Windows client against an SD
-server.
+**Status:** **CLOSED 15 Aug 2026. Nothing to send.** `sdb64` was right and had
+been all along; the transposition was in the client libraries and is fixed in
+all three of them. Kept because the *method* that settled it is the reusable
+part, and because a future session comparing the two will otherwise re-open it.
 
-The same two names carry **opposite values** in the two projects:
+**What it was.** `sdb64` `dev` commit `d0647b9`, **19 Jul 2026**, defined
+`SV_EMSG_PAIR=6, SV_ECONTXT=7`. `winsdclilib` commit `13e4bf5`, **5 Aug 2026**,
+titled *"Align Windows client error handling with Linux"*, introduced the same
+two names as `ECONTXT=6, EMSG_PAIR=7` — **the opposite of the thing it was
+aligning to**, seventeen days later. The same 5 Aug work seeded
+`linuxsdclilib` at its initial import (`3a3e02a`), so the swap propagated to
+both client repositories while `sdb64` stayed correct.
 
-| | `SV_EMSG_PAIR` | `SV_ECONTXT` |
-|---|---|---|
-| `sdb64` `dev` (commit `d0647b9`, 19 Jul 2026) | 6 | 7 |
-| `winsdclilib`, vendored here from `b6624565` | 7 | 6 |
+**How it was settled**, and this is the part worth keeping: `sdb64` **`main`
+does not carry these constants at all** — only `dev` does. So neither client
+repository can have taken them from `sdb64`'s released branch, which is what
+made the direction of travel unambiguous once `winsdclilib`'s own history was
+available. **Dates alone were not enough and pointed the wrong way**: the
+vendored snapshot is 5 Aug and `sdb64`'s commit is 19 Jul, but a snapshot date
+says nothing about when a line was written. A session here renumbered on that
+reasoning, reverted it, and only got it right once all three histories were
+readable.
 
-So a caller compiled against one header, talking to a library built from the
-other, reads each state as the other one.
-
-**WHO IS RIGHT IS NOT DETERMINED, AND SHOULD NOT BE GUESSED.** This file has a
-round-trip history (PROJECT_STATUS.md §5.3): `sdb64`'s own C developer started
-a partial Windows library, the repository owner had AI complete it into
-`winsdclilib`, that was vendored into the Windows port, and their developer then
-forked `winsdclilib` back into `sdb64`'s `dev`. **Code has flowed both ways, so
-neither project is simply "upstream" for these two constants.**
-
-Dates do not settle it either: `sdb64`'s commit is 19 Jul 2026 and the snapshot
-vendored here is 5 Aug 2026, but that is only when the snapshot was cut and says
-nothing about when the constants were written in `winsdclilib`.
-
-**Three candidate origins, and all are live:** the developer's original partial
-Visual Studio library; the AI completion that produced `winsdclilib`, which
-could well have assigned the numbers itself; or their fork, transposing on the
-way back. **`winsdclilib`'s own history is what settles it, and it is not in
-this repository.**
-
-**What this project did in the meantime: nothing.** The vendored copy keeps
-`winsdclilib`'s values because it is a vendored copy and must stay faithful to
-its source, and `sdsys/SYSCOM/sdclilib.h` deliberately defines **neither**, so
-that no BASIC code commits to a numbering that may have to change. A session
-here did renumber to match upstream and then reverted it on discovering the
-provenance — do not redo that without settling the question first.
-
-**To settle it**, in order — the first answer wins:
-
-1. **Did the developer's original partial Visual Studio library define them?**
-   If so those values are the origin and both projects should match them.
-2. **Otherwise, when did they first appear in `github.com/dmontaine/winsdclilib`?**
-   Before 19 Jul 2026 means `sdb64` transposed them on the fork and should
-   change. After, means `sdb64`'s numbering came first, this project should
-   adopt it, and `sdsys/SYSCOM/sdclilib.h` should gain both.
-3. **If it was the AI completion that assigned them**, nobody chose either
-   numbering and the tidiest answer wins — take `sdb64`'s, since it is the
-   published one.
-
-Whichever way it goes, the fix is to make the two agree and say so in both
-projects' history, because the names are identical and the values are not —
-which is the worst kind of disagreement to leave in place.
-
+**Fixed in:** `winsdclilib` (headers, `.bi`, `USER_GUIDE.md`),
+`linuxsdclilib` (headers, `.bi`, the `#ifndef` fallbacks in `sdclilib.c`,
+`USER_GUIDE.md`), and this port's vendored copy plus
+`sdsys/SYSCOM/sdclilib.h`, which gained both names for the first time.
+`winsdclilib`'s `make check` passes with the new values.

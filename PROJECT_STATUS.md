@@ -483,6 +483,31 @@ accounts and users.** `CREATE.USER`, `DELETE.USER`, `ADMIN.USER` and
 provisions the operating system account itself and why the `CREATUSR` gate was
 removed (§7 step 1a).
 
+### The sibling repositories, and what "in sync" means
+
+**Four repositories are in play, all cloned beside this one as of
+15 Aug 2026**, and three of them are **maintained**, not merely consulted:
+
+| Path | What it is | Our duty |
+|---|---|---|
+| `../sdb64` | upstream Linux project, `main` + `origin/dev` | **read-only.** Fixes it needs go in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) |
+| `../winsdclilib` | the Windows client library, vendored into `gplsrc/sdclilib/` (§5.3) | **maintain.** Holds the client documentation and is to be the basis of an eventual **SD for Windows client installer** |
+| `../linuxsdclilib` | the Linux client library, imported 5 Aug 2026 | **keep in sync** with the above where the code is shared |
+| this repository | the port | — |
+
+**THE SAME CONSTANT LIVES IN A DOZEN PLACES ACROSS THESE FOUR TREES.** That is
+not hypothetical — it is how the `SV_EMSG_PAIR`/`SV_ECONTXT` transposition
+survived from 5 to 15 Aug 2026 in three repositories at once. **Before changing
+any shared constant, grep all four**:
+
+```sh
+grep -rn "define SV_" ../sdb64 ../winsdclilib ../linuxsdclilib . --include=*.h --include=*.bi --include=*.c
+```
+
+`sdb64` is the authority for anything it defines first; the client repositories
+are the authority for the Windows/Linux transport code they own. **Neither is
+simply "upstream" for `gplsrc/sdclilib/`** — see §5.3's round trip.
+
 Two local trees, neither part of this repository, both absent on a fresh
 machine, and nothing in the build depends on either:
 
