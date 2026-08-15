@@ -3644,9 +3644,11 @@ the staging script and the Inno installer were all finished and removed.
       current one just after an install. The first attempt at the `EPERM` test
       did exactly that and reported nothing, which is indistinguishable from
       the fix not working. **State the full path to the build under test.**
-   e. **Remove `sudo chmod g+s` from `CREATEA`**, whose Windows equivalent is
-      the inheritable ACE the installer already sets (§5.7). It warns on every
-      account creation today (§4).
+   e. **DONE 15 Aug 2026, eighth session** (`a83ac44`), and this entry was left
+      open by mistake — closed in the ninth on finding `CREATEA:333` saying
+      "THE setgid BIT IS GONE, AND SO IS sudo". The `sudo chmod g+s`, the seven
+      `set.owner` calls and the subroutine behind them are all removed; the
+      Windows equivalent is the inheritable ACE the installer sets (§5.7).
    f. **NEXT, AND IT IS THE ONE THING STOPPING THE ACCESS MODEL BEING TRUE FOR
       A REAL PERSON: give the installer an SD account, at install time.**
       Owner's decision, 14 Aug 2026. Today `don` — who installed SD — types
