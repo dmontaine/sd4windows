@@ -23,7 +23,9 @@ what is left, it needs an elevated window, and that is where this session
 stopped.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-2,826 LINES NOW**, after the sixth session added the access-model build to §4,
+2,838 LINES NOW**, measured after the last edit rather than during it (see the
+correction below, which is the same mistake one step smaller), after the sixth
+session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
 and not the intention.
 
