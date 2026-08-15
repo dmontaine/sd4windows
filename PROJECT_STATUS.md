@@ -5,45 +5,41 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, seventh session. It began at commit `5800942`
-and **closed §7 step 1d**: `sd -start` and `sd -stop` no longer lie about
-`sdwind`. Step 0 closed in the sixth session and the access model is live.
+**Last updated:** 14 Aug 2026, seventh session, ending at commit `b8941bf`.
+Began at `5800942`. Closed **§7 step 1d** (`sd -start`/`sd -stop` tell the truth
+about `sdwind`) and **§7 step 1c** (`DELETE.ACCOUNT`), both run and watched.
+Step 0 closed in the sixth session; the access model is live.
 
-**WHAT IS TRUE NOW**
+**START HERE, in order:**
 
-- **The access model works and has been watched working** — all five rules of
-  §5.6, both `LOGTO` paths, `CREATE.ACCOUNT` at 16 of 16 under the
-  elevated-only gate. §4 has it.
-- **`sd -start` and `sd -stop` now ask the `sdwind` process rather than the
-  shared segment, and every branch has been watched** — including the `EPERM`
-  warning, which took two console windows at different elevations (§4). The
-  machine was found sitting in the broken state, so the lie and its repair were
-  watched on the same wreckage an hour apart.
-- **THE BUILD IS AHEAD OF THE INSTALL.** Everything verified this session was
-  verified against `sdb_ai\sd64\bin`, not against `C:\Program Files\SD`. **The
-  installed `sd -start` still lies**, and a test naming that path tests the old
-  binary — which cost one round of the `EPERM` test. Installing is job one.
+1. **`bootstrap.py` does not check for elevation and now needs it.** `BCOMP`
+   gates `$internal` on `K$ADMINISTRATOR`, which means elevated, and
+   `bootstrap.py:192` runs `sd -internal SECOND.COMPILE`. Make it test and
+   refuse up front. **Do not put `-INTERNAL` outside the gate** — that restores
+   the bypass removed on 13 Aug. Small, and it blocks the next two items.
+2. **Rebuild stage + installer, install the new binaries.** The installed
+   `sd.exe` is **14 Aug 19:05** and predates step 1d; the repo build is 21:29.
+   `stage.py --force --bootstrap` then ISCC, per the top of `gplbld/sd.iss`.
+   Needs (1) first. A reinstall does **not** replace the data tree (§6).
+3. **§7 step 1f** — the installer's SD account. `ADOPT` exists, nothing calls
+   it, so `don` is still refused at his own machine.
+4. **§7 step 2** — second machine. Only place RDP and a clean install can be
+   tested.
 
-**THE NEXT SUBJECT IS THE REST OF §7 STEP 1**, and **1c, `DELETE.ACCOUNT`, is
-the pick of it**: five test accounts sit on this machine, three of them
-half-removed, and the verb has never been run. It is the last asymmetry the
-account model left. Behind it, the **second machine** (step 2) is still the only
-place RDP and a genuinely clean install can be tested.
+**Untested branches from step 1c:** `DELETE.ACCOUNT`'s "SD created it" delete
+(use `sdacct4` — real Windows account, password known to nobody) and `ADOPT`.
 
-**ONE JOB NEEDS AN ELEVATED WINDOW, AND UAC IS BACK AT THE DEFAULT ON THIS
-MACHINE** (`ConsentPromptBehaviorAdmin` 5, `PromptOnSecureDesktop` 1), so it
-raises a consent prompt on the secure desktop:
+**Machine, end of session.** SD running, `sdwind` 4696 from
+`sdb_ai\sd64\bin`, stoppable unelevated. Installed BASIC is current for
+`IS_USER`, `IS_GROUP`, `IS_SD_USER`, `DELACC`, `CREATEA`; `$LOGIN`/`$CPROC` are
+sixth-session and still print the old banner. `gcat.bak` is the rollback.
+`sdacct1` removed by `DELETE.ACCOUNT`; `sdacct2`/`sdacct3` half-removed,
+`sdacct4`/`sdacct5` complete. UAC is at the default (`ConsentPromptBehaviorAdmin`
+5, `PromptOnSecureDesktop` 1), so elevation raises a secure-desktop prompt — an
+AI session cannot self-elevate; ask.
 
-**Install the new binaries**, or the fix stays in the repository. Build, stage,
-reinstall — and remember a reinstall does **not** replace the data tree (§6),
-so recompile `GPL.BP\LOGIN` and `CPROC` after it, which also picks up the
-banner. **A test that names `C:\Program Files` tests the installed binary**,
-which is only the current one just after an install; that cost a round of the
-`EPERM` test on 14 Aug 2026 and it reads exactly like the fix not working.
-
-**SD IS RUNNING** (`sdwind` 4696, from the build with the fix), and an ordinary
-session holds terminate rights on it, so it can be stopped without elevation.
-The `EPERM` test's orphan was cleared first.
+**A test naming `C:\Program Files` tests the installed binary**, which is only
+current just after an install. That cost a round of the `EPERM` test.
 
 **THE ACCESS MODEL, BUILT AND VERIFIED.** Full statement in §5.6; the short
 form, because it changes what every other item in this file assumes:
