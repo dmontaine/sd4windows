@@ -37,18 +37,22 @@ raises a consent prompt on the secure desktop:
    stage, reinstall — and remember a reinstall does **not** replace the data
    tree (§6), so recompile `GPL.BP\LOGIN` and `CPROC` after it.
 2. **Watch the `EPERM` warning**, which is the half of step 1d nobody has seen.
-   From an **elevated** window, then an **ordinary** one:
+   **USE THE REPOSITORY BUILD, NOT `C:\Program Files`, UNTIL JOB 1 IS DONE** —
+   a recipe naming the installed path was written here and run on 14 Aug 2026,
+   and it tested the old binary, which of course said nothing. From an
+   **elevated** window:
 
    ```powershell
-   & 'C:\Program Files\SD\usr\bin\sd.exe' -stop
-   & 'C:\Program Files\SD\usr\bin\sd.exe' -start
+   & 'C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\bin\sd.exe' -start
    ```
 
-   then, unelevated, `sd -stop`. Expect `Warning: sdwind (pid n) is still
-   running.` naming a **Windows** pid `Get-Process sdwind` agrees with, and the
-   daemon still alive afterwards. Clear it with `Stop-Process -Id n -Force`
-   from the elevated window. **Anything that says "has been shut down" with no
-   warning while `Get-Process sdwind` still answers is a failure of the fix.**
+   then from an **ordinary** one, the same full path with `-stop`. Expect
+   `Warning: sdwind (pid n) is still running.` naming a **Windows** pid
+   `Get-Process sdwind` agrees with, and the daemon still alive afterwards.
+   Clear it with `Stop-Process -Id n -Force` from the elevated window.
+   **"has been shut down" with no warning, while `Get-Process sdwind` still
+   answers, is a failure of the fix** — but check first that the binary you
+   stopped with is the one that carries it.
 
 **SIZE — §0 rule 5, three budgets. Measure with `.Count`; `Measure-Object -Line` ignores blank lines and undercounts by ~15%:**
 
@@ -58,7 +62,7 @@ raises a consent prompt on the secure desktop:
 
 | Budget | Limit | Now |
 |---|---|---|
-| **Header** (above §0) | 200 | **178** |
+| **Header** (above §0) | 200 | **182** |
 | **§7 Next steps** | 300 | **258** |
 | Whole file | 3,500 | **3,499** |
 
@@ -1284,27 +1288,23 @@ is. `gplbld/sd.iss` already had to learn this for `icacls`, where it writes
   account still carries its own password"; the reversal at the top of §5.6
   removed console passwords altogether. Corrected 14 Aug 2026, seventh session.
 
-**Built and working as of 13 Aug 2026** — see §4 for what was observed. Salt
-generation (`SD_SALT`, 100), Argon2 derivation (`SD_KEYFROMPW`, 101) and the
-masked `IN$PASSWORD` prompt were all already present in C, so salt-derive-
-compare needed no new C code:
+**Where the credential machinery lives**, built 13 Aug 2026 and now the API's
+rather than the console's (§7 step 6). Salt generation (`SD_SALT`, 100), Argon2
+derivation (`SD_KEYFROMPW`, 101) and the masked `IN$PASSWORD` prompt were
+already in C, so salt-derive-compare needed no new C code:
 
 | Piece | Where |
 |---|---|
 | `$CRED` register, keyed by account, `CRED$SALT` + `CRED$VERIFIER` | `<sysdir>/$CRED`, defines in `INT$KEYS.H` |
 | `!CRED_SET` / `!CRED_VERIFY` | `GPL.BP/CRED_SET`, `GPL.BP/CRED_VERIFY` |
 | `SET.PASSWORD [account]` verb | `GPL.BP/SET_ACC_PASSWORD` |
-| Password prompt at login, 3 attempts | `LOGIN`, `authenticate.account` |
-| `ACC$USERS`, the grant list, field 4 of ACCOUNTS | `SYSCOM/KEYS.H`, dictionary item in `gplbld/FILES_DICTS` |
-| `LOGTO` grant check, and the SDSYS step-up | `CPROC`, `logto.authorised` and `logto.step.up` |
 
-**The password model's own login and `LOGTO` rules — the two ways in without a
-password, and the five-way `logto.authorised` order that ended in
-`logto.step.up` — MOVED TO HISTORY.md on 14 Aug 2026, seventh session**, under
-§0 rule 5: step 0 built over them, `logto.step.up` and `ACC$USERS` are both
-deleted, and what replaced them is stated at the top of §5.6. `@logname` is
-still untouched by any of it: the only assignments anywhere are `LOGIN` 235,
-`CPROC` 250 and 282 (both initialisation) and `APISRVR`.
+**Its callers are gone** — the login prompt with `authenticate.account`, the
+`ACC$USERS` grant list, and `logto.step.up`. **The password model's own login
+and `LOGTO` rules moved to HISTORY.md**, 14 Aug 2026 seventh session, under §0
+rule 5. `@logname` is still untouched by any of it: the only assignments
+anywhere are `LOGIN` 235, `CPROC` 250 and 282 (both initialisation) and
+`APISRVR`.
 
 **Two decisions from the repository owner, both 13 Aug 2026, both settled.**
 
@@ -2792,6 +2792,13 @@ Each of these cost real time. Read before debugging anything similar.
   allowed to signal an elevated one, and `Stop-Process` from the same session
   is refused `Access is denied` at the same boundary.
 
+  **REPRODUCED ON THE INSTALLED BINARY FROM A REAL CONSOLE, 14 Aug 2026,
+  seventh session:** elevated `sd -start`, then `sd -stop` typed in an ordinary
+  `cmd` window. `SD (64 Bit) has been shut down`, **`C:\ProgramData\SD\shm`
+  emptied**, `sdwind` still running as pid 13840. The segment goes and the
+  daemon stays, which is also why **the fix cannot help a second time on that
+  daemon** — no segment, no `sdwind_pid` to read (the trap below).
+
   **What to do:** kill it by **Windows** pid from an elevated window,
   `Stop-Process -Id <pid> -Force`. The warning now prints that pid, translated
   (see the MSYS2-pid trap above). A second `sd -stop` will not help, because
@@ -3462,20 +3469,13 @@ if it is wanted.
 
 ### SETTLED 14 Aug 2026: `IsAdmin()` tests Windows `Administrators`, and `sdadmins` is gone
 
-**Answered by the repository owner the same day it was promoted here.** A
-Windows administrator is an SD administrator; the decision and its measured
-basis are in **§5.6.1**, which is the place to read.
-
-The `sdadmins` group is no longer referenced by anything. It may be deleted
-from this machine once a build without it has been run, and it is no longer a
-thing the installer has to create.
-
-The question as it stood, and the two options not taken — keeping an OS check
-on `sdadmins` with the installer creating it, or dropping the OS check entirely
-and letting file permissions on the data tree gate `sd -start` — are in
-HISTORY.md under "PROJECT_STATUS rolled over from 4,112 lines". One reason is
-worth carrying here: option 1 inherits the sign-out-and-back-in trap in §6, so
-`sd -start` would have failed for the installing user on every fresh install.
+A Windows administrator is an SD administrator; the decision and its measured
+basis are in **§5.6.1**. `sdadmins` is referenced by nothing, the installer
+need not create it, and it may be deleted from this machine. The two options
+not taken are in HISTORY under "PROJECT_STATUS rolled over from 4,112 lines";
+one reason is worth carrying: keeping an OS check on `sdadmins` inherits the
+sign-out-and-back-in trap in §6, so `sd -start` would have failed for the
+installing user on every fresh install.
 
 ### Open: does the console path survive the service model?
 
