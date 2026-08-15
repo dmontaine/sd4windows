@@ -16,10 +16,11 @@ access model is live.
 1. **Rebuild stage + installer, install the new binaries.** The installed
    `sd.exe` is **14 Aug 19:05** and predates step 1d; the repo build is
    15 Aug 06:23. `stage.py --force --bootstrap` from an **elevated** window,
-   then ISCC, per the top of `gplbld/sd.iss`. **DO NOT INSTALL THE TREE NOW AT
-   `C:\Users\dmont\stagetest`** — it was bootstrapped before the
-   `ACCOUNTS/SDSYS` fix and its catalogue holds development-tree programs (§6).
-   Re-stage first. A reinstall does **not** replace the data tree (§6).
+   then ISCC, per the top of `gplbld/sd.iss`. **`C:\Users\dmont\stagetest` was
+   re-staged 15 Aug 06:43 with the `ACCOUNTS/SDSYS` fix (§6) — 3,471 files,
+   `gcat` 130 entries** (129 before: the dev tree it used to compile was a
+   program short). ISCC and the install are what remain. A reinstall does
+   **not** replace the data tree (§6).
 2. **§7 step 1f** — the installer's SD account. `ADOPT` exists, nothing calls
    it, so `don` is still refused at his own machine.
 3. **§7 step 2** — second machine. Only place RDP and a clean install can be
@@ -1982,6 +1983,11 @@ Each of these cost real time. Read before debugging anything similar.
   (`stage.py`) and refusing a mismatch (`bootstrap.py:check_account_record`).
   **`check_no_stage_paths` had been passing vacuously** for the same reason:
   the path embedded was the dev tree's, which it does not look for.
+
+  **Confirmed by re-staging the same hour:** staged `GPL.BP.OUT` 12 → **191**
+  objects, tree 3,291 → **3,471** files, `gcat/$LOGIN` now carrying both the new
+  banner and the `sdusers` gate, `check_no_stage_paths` still clean, and the dev
+  tree receiving **0** files against 191 on the run before.
 
 - **`K$ADMINISTRATOR` NOW MEANS ELEVATED, AND `BCOMP` GATES `$internal` ON IT —
   SO COMPILING SD's OWN PROGRAMS NEEDS AN ELEVATED WINDOW.** 14 Aug 2026, sixth
