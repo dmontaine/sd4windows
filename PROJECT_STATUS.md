@@ -27,8 +27,14 @@ access model is live.
 **Untested branches from step 1c:** `DELETE.ACCOUNT`'s "SD created it" delete
 (use `sdacct4` — real Windows account, password known to nobody) and `ADOPT`.
 
-**Machine, end of session.** SD running, `sdwind` 4696 from
-`sdb_ai\sd64\bin`, stoppable unelevated. Installed BASIC is current for
+**Machine, 15 Aug 2026 06:25.** **SD is NOT running and the machine is back in
+the stale-segment state** — `C:\ProgramData\SD\shm` holds the segment and all
+six semaphores, dated 14 Aug 21:58, with no `sdwind` process. That is a
+ready-made test for the installed binary the moment it is replaced: today's
+19:05 one answers `SD is already started`, the current build says the segment is
+stale and names `sd -stop` (§7 step 1d). **`bin/` is current** — `make sd`
+exit 0, all six relinked 15 Aug 06:23, `terminfo` 99 files. Installed BASIC is
+current for
 `IS_USER`, `IS_GROUP`, `IS_SD_USER`, `DELACC`, `CREATEA`; `$LOGIN`/`$CPROC` are
 sixth-session and still print the old banner. `gcat.bak` is the rollback.
 `sdacct1` removed by `DELETE.ACCOUNT`; `sdacct2`/`sdacct3` half-removed,
@@ -79,9 +85,9 @@ install** on it, from the fixed installer:
 
 | Thing | State |
 |---|---|
-| **The install is CURRENT** | Reinstalled 16:15 on 14 Aug 2026 from the rebuilt installer, after the whole day had been spent on an 08:32 one (§6, the staleness trap). **Date it again before trusting it** — it does not update itself, and a reinstall will not replace the data tree |
-| `C:\Program Files\SD` | **18 files**, binaries in `usr\bin` including `sdwind.exe`; `sd.exe` is **16:15:28**. 18 rather than the stage's 16 because `unins000.exe` and `unins000.dat` are the installer's |
-| `C:\ProgramData\SD\sdsys` | **3,270 files - a working database.** The compiled `gcat/$CREATEA` is 16:15:56 and **contains the ssh-only branch**; `MESSAGES/10032`–`10035` are all present. 3,270 rather than the staged 3,268 because the two test accounts added register entries — expect this number to drift upward as accounts are created |
+| **The install is from 14 Aug 19:05 and is BEHIND the repository** | Corrected 15 Aug 2026 by dating the files: this row said "CURRENT, reinstalled 16:15", and the row below it said 19:05. 19:05 is right — the sixth session reinstalled after 16:15. **Date it again before trusting it**; it does not update itself, and a reinstall will not replace the data tree |
+| `C:\Program Files\SD` | **18 files**, binaries in `usr\bin` including `sdwind.exe`; `sd.exe` is **14 Aug 19:05**, 1,926,742 bytes. 18 rather than the stage's 16 because `unins000.exe` and `unins000.dat` are the installer's |
+| `C:\ProgramData\SD\sdsys` | **3,412 files on 15 Aug 2026 - a working database.** The compiled `gcat/$CREATEA` **contains the ssh-only branch**; `MESSAGES/10032`–`10035` are all present. It was 3,270 on 14 Aug and 3,268 as staged: the count drifts upward as accounts are created, so a difference from the stage is not a fault |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, 14 Aug 2026. Binaries **19:05** in `C:\Program Files\SD\usr\bin` (`sd.exe` 1,926,742 bytes, carrying `IsElevated()`), and `GPL.BP\LOGIN`/`CPROC` recompiled against them and catalogued. **An unelevated `sd` no longer reaches SDSYS** — it refuses with `sysmsg(5018)`, and `sd -ASDSYS` with `sysmsg(10002)`. Both observed, §4 |
 | **THE INSTALLED BINARIES ARE NOW BEHIND THE REPOSITORY** | seventh session, 14 Aug 2026. `sdb_ai\sd64\bin\sd.exe` carries the §7 step 1d fix and the installed 19:05 one does not, so **the installed `sd -start` still lies about a stale segment**. Everything verified this session was verified against the build, not the install. Installing is the first item in the header's recipe |
@@ -99,7 +105,7 @@ install** on it, from the fixed installer:
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
 | Test accounts, **SD side** | `sdacct2`–`sdacct5` + SDSYS. `sdacct1` was removed by `DELETE.ACCOUNT` on 14 Aug 2026, the first run of that verb. `sdacct2` and `sdacct3` are still half-removed (no Windows account) and are spare test cases for the same branch; `sdacct4` and `sdacct5` are complete on both sides. Use a fresh `-Account` name when re-running `verify-createaccount.ps1`; SD refuses a reused one |
-| SD | **running as the seventh session ended**, `sdwind` pid 4696 from `sdb_ai\sd64\bin` — the build carrying the step 1d fix — with the segment and all six semaphores present. The `EPERM` test's orphan was cleared first. **An ordinary session holds terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches it without elevation. **Corrected: this row briefly said it was started elevated**, on the strength of its `Path` being unreadable — see §6, that is not what a blank `Path` means |
+| SD | **NOT running, 15 Aug 2026 06:25**, and `C:\ProgramData\SD\shm` still holds the segment and all six semaphores from 14 Aug 21:58 — the stale-segment state again, and a free test case for the installed binary once it is replaced (header item 1). It ran as the seventh session ended, `sdwind` 4696 from `sdb_ai\sd64\bin`; **an ordinary session held terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches an unelevated-started daemon. **Corrected earlier: a blank `Path` is not evidence a process was started elevated** — §6 |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -107,10 +113,14 @@ elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
 `C:\Program Files\SD` and `C:\ProgramData\SD`, then `Remove-LocalGroup sdusers`
 — but leave `sdadmins` alone, for the reason in §8.
 
-**THE STAGED TREE AND THE INSTALLER ARE FROM 14 Aug 2026's FOURTH SESSION AND
-DO NOT CARRY THE STEP 1D FIX.** `C:\Users\dmont\stagetest` (rebuilt 16:15,
-3,285 files, bootstrap clean) and `C:\Users\dmont\sdout\sd-setup-1.0-2.exe`
-(16:17, ISCC exit 0, 4,771,110 bytes). Both were checked rather than assumed —
+**THE STAGED TREE AND THE INSTALLER DO NOT CARRY THE STEP 1D FIX.**
+**Corrected 15 Aug 2026 by dating them** — this said "fourth session, 16:15,
+3,285 files" and "16:17, 4,771,110 bytes", and both artefacts on disk are
+newer: `C:\Users\dmont\stagetest` is 14 Aug **19:14**, **3,287 files**, its
+staged `sd.exe` the 19:05 one, and `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` is
+14 Aug **19:15**, **4,776,555 bytes**. The conclusion is unchanged: 19:05
+predates the 21:29 build that carries step 1d. Both were checked rather than
+assumed —
 `MESSAGES/10032`–`10035` present, the three `.ps1` scripts in `ProgramFiles`,
 and `gcat/$CREATEA` containing the string `sdsshonly`, the ssh-only branch shown
 present in pcode rather than inferred from source. **Not verified: that this

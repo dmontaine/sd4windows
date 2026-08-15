@@ -27,6 +27,34 @@ corrected.
 
 ---
 
+## Correction: 15 Aug 2026 - the install, the stage and the installer were all dated wrong
+
+Eighth session, by listing the files rather than reading the claims. Four
+numbers in PROJECT_STATUS were stale, and each was one a session would act on:
+
+- The install was recorded as "CURRENT, reinstalled 16:15" in one row and
+  "19:05" in the row below it. **19:05 is right** - `C:\Program Files\SD\usr\
+  bin\sd.exe`, 1,926,742 bytes. The sixth session reinstalled after 16:15 and
+  only updated the second row.
+- `C:\Users\dmont\stagetest` was recorded as the fourth session's, 16:15,
+  3,285 files. It is 14 Aug **19:14**, **3,287** files, and its staged `sd.exe`
+  is the 19:05 one.
+- `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` was recorded as 16:17 and
+  4,771,110 bytes. It is 14 Aug **19:15** and **4,776,555** bytes.
+- The installed data tree was recorded as 3,270 files. It is **3,412**, which
+  is the upward drift the row itself predicted.
+
+**Nothing that was decided on those numbers changes.** 19:05 still predates the
+21:29 build carrying step 1d, so the stage and the installer still have to be
+rebuilt. The lesson is the one the file already gives about the install and now
+gives about its own build artefacts: **date them, do not remember them.**
+
+Also measured the same session, because the header asserted otherwise: **SD is
+not running**, and `C:\ProgramData\SD\shm` still holds the segment and all six
+semaphores from 14 Aug 21:58. The machine is sitting in the stale-segment state
+that §7 step 1d fixed, which makes it a free test of the fix against the
+*installed* binary as soon as one is installed.
+
 ## 15 Aug 2026 - The bootstrap refuses an unelevated window
 
 Eighth session, from `317ad58`. Closes the item the seventh session left at the
