@@ -501,10 +501,19 @@ not merely an administrator's account.**
 
 **Two things follow, and the second is a correction.**
 
-- **§7 step 7's investigation is done.** That step asks what disabled shell
-  access — "a config option, a `K$SECURE` test, or a removed verb". It is none
-  of those: it is `CPROC:3321`. What remains of step 7 is the decision, not the
-  search.
+- **WHAT REFUSES TODAY IS AN AI CLEANING-CYCLE ADDITION, NOT THE LINUX
+  PREVENTION AND NOT A PORT DECISION.** Established 15 Aug 2026 after the owner
+  said the Linux block had been reversed early on: **the original ScarletDME
+  `CPROC` has no gate here at all** — `C:\Users\dmont\Projects\GPL.BP\CPROC`'s
+  `os.command:` goes straight to `os.execute`, no `kernel(K$ADMINISTRATOR,-1)`
+  and no `valid_shell_cmd`. The gate's own comment dates it **2026/06/10**,
+  months before the port, and `git log -S` puts it in this repository at the
+  **initial import** (`f9edab0`). **`SH` and `!` have been in `VOC_TEMPLATE` as
+  `V`/`OS` since that same import** and were never removed here. So this is §2's
+  warning firing exactly as written — check `sdb64` before assuming a difference
+  is deliberate — and it is the second instance after `VALID_OS_PATH`.
+  **§7 step 7 is therefore NOT a search for a Linux block**: whatever Linux did,
+  what stands in the way on Windows is one AI-authored `if`.
 - **CORRECTION to 15 Aug's "an SD account DOES have a shell".** True only of an
   **elevated** session. An ssh session cannot be elevated (§4, local-only by
   design), so **an ssh user can never reach `SH`, and `ForceCommand` does keep
@@ -3506,16 +3515,23 @@ the staging script and the Inno installer were all finished and removed.
 
    `sdnet.h` still hardcodes `PASSWD_FILE_NAME "/etc/shadow"`, which is what
    that authentication used to be, and goes with (a).
-7. **Put `SH` and `!` back** (§5.13). Shell access was disabled on Linux and
-   that was a mistake; on Windows it stops programs reaching the utilities
-   they need. **THE SEARCH IS OVER — it is `GPL.BP/CPROC:3321`**, found
-   15 Aug 2026, ninth session (§4): the `os.command:` handler refuses anyone
-   who is not elevated, `sysmsg(2001)`. Not a config option, not `K$SECURE`,
-   not a removed verb. What is left is the **decision**, and it is the owner's:
-   the gate is doing real work — it is what keeps an ssh user inside SD — so
-   loosening it for "programs reaching the utilities they need" reopens that.
-   A `SH` usable by a program but not by a person at a `:` prompt is the shape
-   worth considering, and it is not what exists today.
+7. **Put `SH` and `!` back** (§5.13). **RESTATED 15 Aug 2026, ninth session,
+   because the step as written sent this session looking for the wrong thing.**
+   The verbs are **not** missing: `SH` and `!` are in `VOC_TEMPLATE` as `V`/`OS`
+   and have been since the initial import. **There is no Linux block to reverse
+   in this tree.** What actually refuses is **one line added by an AI cleaning
+   cycle** — `GPL.BP/CPROC:3321`, dated 2026/06/10 in its own comment,
+   `if not(kernel(K$ADMINISTRATOR, -1))` → `sysmsg(2001)` — and the original
+   ScarletDME `CPROC` has no such test (§4). So this is a **decision about one
+   `if`**, not an investigation.
+
+   **And the decision is harder than §5.13 assumed, because that line turned out
+   to be load-bearing.** `K$ADMINISTRATOR` is `IsElevated()`, an ssh session
+   cannot be elevated, so it is **what keeps an ssh user inside SD** (§4).
+   Deleting it to let programs reach Windows utilities reopens the escape
+   `ForceCommand` exists to close. **The shape worth considering is a `SH` a
+   program can call but a person at a `:` prompt cannot**, a distinction that
+   does not exist today. Owner's call; do not simply delete the line.
 8. **Make everything lower case that can be** (§5.12), folding in
    **`CASE_INSENSITIVE_FILE_SYSTEM`**, which is referenced at 9 sites in
    `dh_misc.c`, `dh_open.c`, `op_dio2.c` and `op_dio4.c` and defined nowhere.
