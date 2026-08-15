@@ -113,7 +113,7 @@ install** on it, from the fixed installer:
 | **`AllowGroups` IS APPLIED** | 14 Aug 2026, by `allow-ssh-groups.ps1 -Installed`. `C:\ProgramData\ssh\sshd_config` carries `AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators` between SD's markers, before the `Match` block. **Only members of `sdusers` or `Administrators` can ssh into this machine at all** — verified, §4. The original is at `sshd_config.before-sd`; `allow-ssh-groups.ps1 -Remove` reverses it. Left in place deliberately: it is what the installer would have written |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
-| Test accounts, **SD side** | **FIVE directories now**, `sdacct1` to `sdacct5`, with their `ACCOUNTS` records. **Only three are half-removed** — `sdacct1`, `sdacct2` and `sdacct3`, whose Windows accounts are gone; `sdacct4` and `sdacct5` are complete on both sides. It is the first three that step 1c has to decide about. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
+| Test accounts, **SD side** | `sdacct2`–`sdacct5` + SDSYS. `sdacct1` was removed by `DELETE.ACCOUNT` on 14 Aug 2026, the first run of that verb. `sdacct2` and `sdacct3` are still half-removed (no Windows account) and are spare test cases for the same branch; `sdacct4` and `sdacct5` are complete on both sides. Use a fresh `-Account` name when re-running `verify-createaccount.ps1`; SD refuses a reused one |
 | SD | **running as the seventh session ended**, `sdwind` pid 4696 from `sdb_ai\sd64\bin` — the build carrying the step 1d fix — with the segment and all six semaphores present. The `EPERM` test's orphan was cleared first. **An ordinary session holds terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches it without elevation. **Corrected: this row briefly said it was started elevated**, on the strength of its `Path` being unreadable — see §6, that is not what a blank `Path` means |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
@@ -434,8 +434,21 @@ no warnings, `gcc -fsyntax-only -std=gnu17 -Wall -Wformat=2` clean.
   segment unlinked under a live daemon, `sd -stop` reported success, exit 0,
   and left `sdwind` running. §6 carries it.
 
-**ALSO SEVENTH SESSION, AND THE MEASUREMENTS BEHIND §7 STEP 1c.** None of them
-is a test of the BASIC, which has not been compiled — see Not verified.
+**§7 STEP 1c RUNS — 14 Aug 2026, seventh session, elevated console.** All five
+programs compiled `0 error(s)`, catalogued, no `is not assigned a value` (so
+`K$INTERNAL` and messages 10036–10039 resolve).
+
+- `CREATE.ACCOUNT USER don` → `Windows account don already exists.  SD accounts
+  create their own OS account`. The explicit refusal, on the account it exists
+  to protect. Was `Create User Failed, OS Error: 1`.
+- `DELETE.ACCOUNT sdacct1` → directory prompt, then `Windows account sdacct1
+  does not exist, nothing to delete`; no group warning, `sdu_sdacct1` having
+  already gone. **First run of `DELETE.ACCOUNT` in this codebase.**
+- Checked after, not assumed: `user_accounts\sdacct1` gone, `ACCOUNTS` down to
+  4 accounts + SDSYS, and `sdacct4`/`sdacct5` users and `sdu_` groups
+  untouched.
+
+**Measurements behind step 1c**, PowerShell rather than BASIC:
 
 - **`/etc/passwd` and `/etc/group` are absent under both roots** the MSYS2
   runtime can use, while `getent passwd` returned `don` with his SID and
@@ -845,24 +858,13 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **EVERYTHING §7 STEP 1c CHANGED IS UNCOMPILED BASIC** (14 Aug 2026, seventh
-  session): `DELACC`, `CREATEA`, `IS_USER`, `IS_GROUP` and the new `IS_SD_USER`.
-  The PowerShell inside them was measured (§4 Verified); **the BASIC has not
-  been through a compiler, let alone run.** Compiling needs an elevated
-  `sd -internal BASIC GPL.BP <name>` per program, and **`bbcmp.py` cannot do
-  it** — it only builds `BBPROC`, `BCOMP` and `PATHTKN`. Until then, watch for
-  the `ERRGEN` trap especially: `K$INTERNAL` and messages 10036–10039 are new
-  references, and an undefined `$define` is a *warning* at compile time and an
-  abort at run time.
-
-  **The four new message files must reach the installed tree too**, or the
-  refusals print nothing useful: copy `sdsys/MESSAGES/10036`–`10039` into
-  `C:\ProgramData\SD\sdsys\MESSAGES\` before testing. A reinstall will not do
-  it — that is the staleness trap in §6.
-- **`DELETE.ACCOUNT` and `MODIFY.ACCOUNT` have never been run** against a real
-  Windows account. `CREATE.ACCOUNT` has (§4 Verified), so this is the
-  asymmetric half — and it is §7 step 1c, which has to decide what deleting an
-  account should do to the Windows user behind it before it can be run at all.
+- **`MODIFY.ACCOUNT` has never been run.** `CREATE.ACCOUNT` and
+  `DELETE.ACCOUNT` both have (§4 Verified).
+- **`DELETE.ACCOUNT`'s "SD created it" branch is untested** — the prompt and
+  `!delete_user`. Only the "no such Windows account" branch has run.
+  `sdacct4` is the disposable case to test it with: real Windows account,
+  password unknown to anyone.
+- **`CREATE.ACCOUNT ... ADOPT` is untested**, and nothing calls it (§7 1f).
 - **RDP refusal, and it CANNOT BE TESTED ON THIS MACHINE.** The last unobserved
   claim in §5.6.2 (§4 Verified covers the rest).
   `SeDenyRemoteInteractiveLogonRight` is confirmed **applied** to `sdsshonly`
@@ -3036,8 +3038,8 @@ the staging script and the Inno installer were all finished and removed.
    b. **MOVED INTO STEP 0b, 14 Aug 2026.** Restoring the `sdusers` gate is no
       longer a question that needs settling against §5.6.1 — the reversal in
       §5.6 answers it. The gate goes back.
-   c. **DECIDED AND BUILT 14 Aug 2026, seventh session. NOT COMPILED AND NOT
-      RUN — see the recipe below and treat all of it as unverified.**
+   c. **DONE 14 Aug 2026, seventh session — compiled, catalogued and run (§4).**
+      Two branches still untested: the "SD created it" delete, and `ADOPT`.
 
       **Owner's decision: `DELETE.ACCOUNT` offers to delete the OS account only
       when SD created it.** The three answers are all different and all acted

@@ -27,6 +27,30 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - Step 1c runs; user-visible Linux-isms swept
+
+Seventh session, after the entry below. All five programs compiled `0 error(s)`
+and catalogued; no `is not assigned a value`, so `K$INTERNAL` and messages
+10036-10039 resolve. Run from an elevated console:
+
+- `CREATE.ACCOUNT USER don` refused with message 10038. Was `Create User
+  Failed, OS Error: 1`.
+- `DELETE.ACCOUNT sdacct1` took the "no such Windows account" branch, removed
+  the directory and the record. **First run of DELETE.ACCOUNT in this
+  codebase.** Checked after: `sdacct4`/`sdacct5` users and `sdu_` groups
+  untouched.
+
+Untested still: the "SD created it" delete branch, and `ADOPT`.
+
+**Linux-isms, found by the owner from `LIST ACCOUNTS` output.** The `ACC$GROUP`
+column heading read `Linux Group`. Fixed in
+`gplbld/FILES_DICTS/ACCOUNTS.DIC^GROUP`. **The repository holds no dynamic
+files** - they are built at install time, which is what keeps it auditable
+(CLAUDE.md) - so a dictionary is edited in the repository and never patched in
+an installed tree. Swept the rest at the same time: messages 2004 and 6075 both
+said "Linux" and neither has a caller; reworded. `grep -i linux` over
+`sdsys/MESSAGES` and `gplbld/FILES_DICTS` is now clean.
+
 ## 14 Aug 2026 - DELETE.ACCOUNT decided and built, and two more helpers found reading /etc
 
 Seventh session of 14 Aug 2026. **PROJECT_STATUS §7 step 1c is decided and
