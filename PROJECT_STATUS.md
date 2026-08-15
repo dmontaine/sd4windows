@@ -17,10 +17,24 @@ seventh; step 0 in the sixth.
 1. **THE BUILD IS THREE CHANGES AHEAD OF THE INSTALL AND THE STAGE. Re-stage,
    ISCC, install.** Nothing of the elevation gate, the ssh `ForceCommand` or
    the `SD_SESSION` guard is installed or staged — `bin/` has them (`make sd`
-   clean, 15 Aug), `C:\Program Files\SD` is the **06:23** binary and
-   `sshd_config` still carries the old block. Elevated:
+   clean, 15 Aug), and `C:\Program Files\SD` and the staged `ProgramFiles` both
+   hold the **06:23** `sd.exe`. Elevated, from `sdb_ai/sd64`:
    `stage.py --stage /c/Users/dmont/stagetest --force --bootstrap`, then ISCC
-   and the installer, per the top of `gplbld/sd.iss`.
+   and the installer, per the top of `gplbld/sd.iss`. There is no incremental
+   re-stage: `stage.py:368` refuses an existing directory and `--force` deletes
+   it, so the full bootstrap is the only route.
+
+   **NARROWED 15 Aug 2026, ninth session — ONLY THE BINARIES AND THE `{app}`
+   SCRIPTS ARE BEHIND, NOT THE DATA TREE.** `GPL.BP/CATALOG`, `CREATEA`,
+   `IS_GRP_MEMBER` and `MESSAGES/10040` are **byte-identical (SHA256) across
+   repository, stage and `C:\ProgramData\SD\sdsys`**, and `GPL.BP.OUT` there is
+   dated 08:54 — the stage bootstrap's own output, laid down by the 09:05
+   install. So the reinstall leaving the data tree alone is **correct here** and
+   the §6 "copy the BASIC across and recompile" step does **not** apply to this
+   round. Check it again before assuming it on the next one.
+
+   **AND `sshd_config` CARRIES NO SD BLOCK AT ALL** — corrected below, in the
+   machine table. The uninstaller removed it; tick the ssh task on the install.
 2. **Then verify what only an install can show**, none of it watched yet: the
    switches and a bare command refused against the **installed** binary; an
    **ssh session landing at SD's `:` prompt** instead of a shell — which needs
@@ -123,10 +137,11 @@ form, because it changes what every other item in this file assumes:
   dialog. What the gate stops is an ordinary console session adopting somebody's
   existing Windows login.
 
-**Also true and worth having in one place:** `AllowGroups` is applied and
+**Also true and worth having in one place:** `AllowGroups` was applied and
 enforced on this machine, by control and treatment (§4), and the lockout risk
-is closed by measurement. **§5.6.2 is complete except RDP**, which **cannot be
-tested from one machine** and waits on the second (§7 step 2). Nothing is left
+is closed by measurement — **but it is not applied NOW**, see the correction in
+header item 1. **§5.6.2 is complete except RDP**, which **cannot be tested from
+one machine** and waits on the second (§7 step 2). Nothing is left
 half-applied.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
@@ -139,7 +154,7 @@ install** on it, from the fixed installer:
 | `C:\ProgramData\SD\sdsys` | **3,455 files, `gcat` 130** - a working database, and the first on this machine built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Expect the count to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS THREE COMMITS BEHIND `bin/`** | The elevation gate, the ssh `ForceCommand` and the `SD_SESSION` guard are in the build and **not** installed or staged. Header item 1 |
+| **THE INSTALL IS THREE COMMITS BEHIND `bin/`, IN THE BINARIES ONLY** | The elevation gate, the ssh `ForceCommand` and the `SD_SESSION` guard are in the build and **not** installed or staged. **The data tree is already current** — header item 1's narrowing |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
 | Reinstalling over this | the installer **found the existing database and left it alone**, saying so in a dialog — §6's staleness trap, working as designed. So a reinstall updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`: after one, copy `GPL.BP\LOGIN`/`CPROC` across and recompile, or the machine runs yesterday's BASIC on today's binaries |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
@@ -150,7 +165,7 @@ install** on it, from the fixed installer:
 | MSYS2 dev tree at `/usr/local/sdsys` | still reachable with `SD_CONFIG=/etc/sd.conf`. Its `bin/` was refreshed with the `sdwind` build on 14 Aug 2026 and the stale `sdlnxd.exe` removed; `pcode`/`pcode.old` are still beside them, since the dev tree keeps the old unsplit layout |
 | **The machine was rebooted** on 14 Aug 2026 | `don`'s token now carries `sdusers`, so **an ordinary unelevated session runs SD** — verified, §4. The sign-out trap in §6 is cleared *on this machine only*; it applies afresh to every new user added to the group |
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
-| **`AllowGroups` IS APPLIED** | 14 Aug 2026, by `allow-ssh-groups.ps1 -Installed`. `C:\ProgramData\ssh\sshd_config` carries `AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators` between SD's markers, before the `Match` block. **Only members of `sdusers` or `Administrators` can ssh into this machine at all** — verified, §4. The original is at `sshd_config.before-sd`; `allow-ssh-groups.ps1 -Remove` reverses it. Left in place deliberately: it is what the installer would have written |
+| **`AllowGroups` IS NOT APPLIED** | **Corrected 15 Aug 2026, ninth session.** `C:\ProgramData\ssh\sshd_config` (08:55) is **byte-identical to `sshd_config.before-sd`** — same SHA256, no SD markers, no `AllowGroups`, no `ForceCommand`. The eighth session's uninstall removed it: `sd.iss:604` `RemoveAllowGroups` runs `allow-ssh-groups.ps1 -Remove` at `usUninstall`, working as designed, and the 09:05 reinstall did not put it back. **It comes back only if the `installssh\allowgroups` task is ticked** in the wizard (`sd.iss:377`), so tick it on the next install or header item 2's ssh test cannot run. What was verified on 14 Aug (§4) stands as a measurement of the mechanism, not of the machine's current state |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **NONE.** `sdacct1`-`sdacct5`, `sdadopt1`, `sdadopt2`, `sdsshprobe` and every `sdu_` group but `sdu_don` were removed 15 Aug 2026. Make a fresh one with `verify-createaccount.ps1 -Account sdacct6`, or `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
 | **`don` HAS AN SD ACCOUNT** | 15 Aug 2026, made by `ADOPT` — `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`; `sd` puts him in it, `WHO` says `5 DON`. It also put him in `sdsshonly` before the §6 fix, and **that was undone by hand** — `sdsshonly` now holds only `sdacct4`/`sdacct5` |
