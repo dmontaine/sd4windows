@@ -2828,6 +2828,31 @@ Each of these cost real time. Read before debugging anything similar.
   for the `sdclilib` target, so it no longer depends on the developer's shell.
   Found 14 Aug 2026.
 
+  **FIXED AT SOURCE 15 Aug 2026, because `sd64/Makefile` was only ever covering
+  its own route.** The client library has three documented ways to build it and
+  the 14 Aug fix protected one. The other two — `make` run **inside**
+  `gplsrc/sdclilib/`, and `build.cmd` from a Windows prompt — both still failed
+  silently, and `build.cmd` is what the README recommends first. Both now put
+  the compiler's directory on PATH themselves, derived from `$(CC)` /
+  `%GCC%` so overriding the compiler moves it too. **The fix is in
+  `winsdclilib` as well** (`../winsdclilib`), since the vendored copy came from
+  there and the two build files are byte-identical.
+
+  **Before and after, both observed this session:**
+  `make CC=/c/msys64/ucrt64/bin/gcc.exe check` from a plain MSYS2 shell gave
+  the empty exit 1; the same command now compiles and passes both test suites.
+  `build.cmd` from `cmd.exe` now exits 0 on a clean tree. It does **not** bite
+  in an MSYS2 **UCRT64** shell, which already has the directory on PATH — that
+  is why the README's `make` instructions were written and never noticed it.
+
+- **`NoDefaultCurrentDirectoryInExePath` IS SET ON THIS MACHINE, so `cmd` will
+  not run an executable sitting in the current directory.** A bare
+  `smoke-test.exe` answers `is not recognized as an internal or external
+  command` with the file plainly there, which reads as a build failure rather
+  than a lookup rule. `winsdclilib`'s `build.cmd` invoked both its tests that
+  way and now uses `.\`. Found 15 Aug 2026, after the PATH fix above exposed
+  it — the script had never got that far before.
+
 - **`make sd` lists `sdclilib` as a prerequisite, so when the client fails to
   build, `sd.exe` is never relinked — and you go on testing the old one.**
   `sd: $(SDOBJS) sdclilib sdtic ...`. Make builds prerequisites first, the
