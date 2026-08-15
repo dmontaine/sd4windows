@@ -41,12 +41,10 @@ banner. **A test that names `C:\Program Files` tests the installed binary**,
 which is only the current one just after an install; that cost a round of the
 `EPERM` test on 14 Aug 2026 and it reads exactly like the fix not working.
 
-**LEFT ON THIS MACHINE BY THAT TEST: `sdwind` pid 5080, orphaned**, holding a
-mapping of a segment that has already gone, with SD otherwise **stopped**. It
-is elevated, so an ordinary session cannot kill it — `Stop-Process -Id 5080
--Force` from an elevated window, then `sd -start` from an ordinary one. **Do
-not start SD while it is there**, or the machine runs two daemons, which is
-what its own warning said.
+**SD IS RUNNING AND IT WAS STARTED ELEVATED** (`sdwind` 4696, from the build
+with the fix). So **an ordinary `sd -stop` will refuse it and print the
+warning** — correct behaviour now, not a fault. Stop it from an elevated window,
+or `Stop-Process` it. The `EPERM` test's orphan was cleared before this.
 
 **SIZE — §0 rule 5, three budgets. Measure with `.Count`; `Measure-Object -Line` ignores blank lines and undercounts by ~15%:**
 
@@ -56,9 +54,9 @@ what its own warning said.
 
 | Budget | Limit | Now |
 |---|---|---|
-| **Header** (above §0) | 200 | **176** |
+| **Header** (above §0) | 200 | **174** |
 | **§7 Next steps** | 300 | **258** |
-| Whole file | 3,500 | **3,500** |
+| Whole file | 3,500 | **3,498** |
 
 **All three met for the first time, by rule 5 and not by a rollover** — a
 closing step cleans up after itself, in the commit that closes it.
@@ -125,7 +123,7 @@ install** on it, from the fixed installer:
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
 | Test accounts, **SD side** | **FIVE directories now**, `sdacct1` to `sdacct5`, with their `ACCOUNTS` records. **Only three are half-removed** — `sdacct1`, `sdacct2` and `sdacct3`, whose Windows accounts are gone; `sdacct4` and `sdacct5` are complete on both sides. It is the first three that step 1c has to decide about. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
-| SD | **STOPPED as the seventh session ended, with one orphaned daemon left behind** — `sdwind` pid 5080, elevated, mapped to a segment that has gone; `C:\ProgramData\SD\shm` is empty. It is the residue of the `EPERM` test and the header says how to clear it. Start SD from `sdb_ai\sd64\bin\sd.exe` (the build with the fix) or from `C:\Program Files\SD\usr\bin\sd.exe` once the new binaries are installed |
+| SD | **running as the seventh session ended**, `sdwind` pid 4696 from `sdb_ai\sd64\bin` — the build carrying the step 1d fix — with the segment and all six semaphores present. The `EPERM` test's orphan was cleared first. **It was started ELEVATED**, so an ordinary `sd -stop` will refuse it and say so, which is now the expected behaviour rather than a silent failure. Evidence for the elevation: an unelevated session cannot read its `Path`, the same signature both elevated daemons had this session and neither unelevated one did |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
