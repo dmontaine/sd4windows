@@ -20,9 +20,11 @@ unelevated administrator's token carries `BUILTIN\Administrators` marked
 the largest gap between this file and the code that has ever existed. §7 step 0
 is the whole of the work.
 
-**4,112 lines to 2,924, which is a 29% cut and still above the ~2,000 limit.**
-That is stated rather than hidden, because the next session inherits it. Where
-the remaining excess is, and why it was not cut further:
+**4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut — and then
+back up to about 3,190 when the access-model reversal below was written into
+it.** Both numbers are stated rather than hidden, because the next session
+inherits the file and not the intention. It is still above the ~2,000 limit.
+Where the remaining excess is, and why it was not cut further:
 
 - **§6 Traps, 812 lines, is the largest section and now the main candidate.**
   It was compressed rather than left alone — the longest entries re-narrated
