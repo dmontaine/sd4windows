@@ -389,9 +389,35 @@ their call sites. Three groups:
   — it closes an unterminated banner string an earlier cycle left, which had
   caused `Unrecognised statement`.
 
-**Still to do: the 53 `gplsrc` files, 206 of the 226 markers.** That is where
-the expensive ones are expected, C changes failing at runtime rather than at
-compile time.
+#### The generation-2 audit — C side, done 15 Aug 2026
+
+**The C markers are a different animal from the BASIC ones and are mostly
+GOOD.** 206 markers over 53 `gplsrc` files, and they are static-analyser
+hardening rather than policy: NULL checks after allocation, uninitialised
+locals on switch-default paths, `noreturn` declarations so the analyser can
+see that `k_error()` longjmps, deliberate fall-through annotations,
+`strtok`→re-entrant replacements, and one real memory leak (`groups`, freed
+never). **Nothing here should be reverted wholesale**; the BASIC side's verdict
+does not carry over.
+
+**ONE REAL DEFECT, FOUND AND FIXED.** `ctype.c`'s `CNullString()` and
+`op_sdext.c`'s `NullString()` both guarded their `malloc(1)` and returned a
+**`static char empty[1]`** on failure. Their results are **owned and freed by
+the caller** — `op_sdext.c:258` frees every non-NULL entry of `SDMEArgArray`
+in a loop, and both functions feed it (`NullString()` at line 170, and
+`Extract()`→`CNullString()` at line 184). So an out-of-memory produced
+`free()` of static storage: **heap corruption discovered somewhere else
+entirely, in place of upstream's immediate NULL dereference.** Strictly worse,
+and on the credential path — line 227 hands that array to `sd_KeyFromPW()`.
+**Fixed by returning NULL**, which the release loop already tests for.
+`make sd` clean afterwards. **Only reachable when a 1-byte `malloc` fails, so
+it is latent rather than live** — but it is the shape to look for elsewhere: a
+cleaning-cycle guard that changes who owns a pointer.
+
+**WORTH SENDING UPSTREAM.** This is the one case where generation 2 found a
+genuine flaw: `sdb64` has `p = malloc(1); *p = '\0';` with no check at all, so
+upstream NULL-dereferences on the same out-of-memory. The fix committed here is
+better than both and applies to `sdb64` unchanged.
 
 **The TCL verb surface is written down**, in
 [docs/TCL_VERBS.md](docs/TCL_VERBS.md) — SD's commands against OpenQM 2.6.6,
