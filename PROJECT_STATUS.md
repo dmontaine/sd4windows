@@ -14,11 +14,12 @@ access model is live.
 **START HERE, in order:**
 
 1. **Rebuild stage + installer, install the new binaries.** The installed
-   `sd.exe` is **14 Aug 19:05** and predates step 1d; the repo build is 21:29.
-   `stage.py --force --bootstrap` then ISCC, per the top of `gplbld/sd.iss`.
-   **From an elevated window** — the scripts now say so at the door rather than
-   failing half way, and that run is the first exercise of the check itself
-   (§4 Not verified). A reinstall does **not** replace the data tree (§6).
+   `sd.exe` is **14 Aug 19:05** and predates step 1d; the repo build is
+   15 Aug 06:23. `stage.py --force --bootstrap` from an **elevated** window,
+   then ISCC, per the top of `gplbld/sd.iss`. **DO NOT INSTALL THE TREE NOW AT
+   `C:\Users\dmont\stagetest`** — it was bootstrapped before the
+   `ACCOUNTS/SDSYS` fix and its catalogue holds development-tree programs (§6).
+   Re-stage first. A reinstall does **not** replace the data tree (§6).
 2. **§7 step 1f** — the installer's SD account. `ADOPT` exists, nothing calls
    it, so `don` is still refused at his own machine.
 3. **§7 step 2** — second machine. Only place RDP and a clean install can be
@@ -403,7 +404,9 @@ elevation refusal and not `no such sysdir`, so the check is genuinely first;
 `stage.py --bootstrap` left no staging directory; `--help` works on both;
 `stage.py` without `--bootstrap` reached its `objdump` check, so plain staging
 stays ungated. `os.getgroups()` here carries no 544 (§5.6.1). **The elevated
-half is not verified** — §4 Not verified.
+half ran too**, 06:31: both gates passed in an elevated window and the whole
+bootstrap ran behind them — `SECOND.COMPILE` 0 errors throughout, 3,291 files
+staged. What that run also exposed is the `ACCOUNTS/SDSYS` trap in §6.
 
 **ADDED 14 Aug 2026, SEVENTH SESSION — `sd -start` AND `sd -stop` NOW TELL THE
 TRUTH ABOUT `sdwind` (§7 step 1d), AND THE MACHINE SUPPLIED ITS OWN TEST CASE.**
@@ -861,10 +864,10 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **The elevated half of the bootstrap's new check.** Nobody has watched
-  `is_elevated()` answer true, or a bootstrap run through behind it. The
-  header's item 1 — `stage.py --force --bootstrap` from an elevated window —
-  is that test, and a false refusal there would stop the rebuild dead.
+- **No staged tree has yet been built with the `ACCOUNTS/SDSYS` fix** (§6).
+  The next `stage.py --force --bootstrap` is the first, and `SECOND.COMPILE`
+  will be compiling the staged sources for the first time — expect differences,
+  and expect `check_no_stage_paths` to have something real to say.
 - **`MODIFY.ACCOUNT` has never been run.** `CREATE.ACCOUNT` and
   `DELETE.ACCOUNT` both have (§4 Verified).
 - **`DELETE.ACCOUNT`'s "SD created it" branch is untested** — the prompt and
@@ -1958,6 +1961,27 @@ Each of these cost real time. Read before debugging anything similar.
   group either. The general form is the one this file keeps re-learning:
   **a rule transcribed from the Linux source can depend on a Linux mechanism
   that was never ported.**
+
+- **THE BOOTSTRAP COMPILED INTO THE DEVELOPMENT TREE, AND THE STAGED CATALOGUE
+  CAME OUT HOLDING 13 Aug PROGRAMS.** 15 Aug 2026. `sdsys/ACCOUNTS/SDSYS` ships
+  with field 1 = `/usr/local/sdsys`, and field 1 is the **account directory**:
+  after login `GPL.BP` and `GPL.BP.OUT` resolve through it, while `gcat` comes
+  from the config file. So `SECOND.COMPILE` compiled 190 programs into
+  `/usr/local/sdsys/GPL.BP.OUT` and catalogued them into the stage, whose own
+  `GPL.BP.OUT` held **12** objects — exactly what `sd -i` and `bbcmp.py` write
+  through sysdir paths.
+
+  **The tracer was the sign-on banner.** The owner had changed
+  `GPL.BP/LOGIN:175` in the repository; the staged `gcat/$LOGIN` printed the
+  old text, matched the dev tree's byte for byte but for 3, and carried no
+  `sdusers` literal — a pre-step-0 LOGIN in a tree about to be installed. On a
+  clean machine that path does not exist at all, so **step 2 would have tested
+  a tree built from nothing.**
+
+  Fixed by pointing the record at the staged tree **before** the bootstrap
+  (`stage.py`) and refusing a mismatch (`bootstrap.py:check_account_record`).
+  **`check_no_stage_paths` had been passing vacuously** for the same reason:
+  the path embedded was the dev tree's, which it does not look for.
 
 - **`K$ADMINISTRATOR` NOW MEANS ELEVATED, AND `BCOMP` GATES `$internal` ON IT —
   SO COMPILING SD's OWN PROGRAMS NEEDS AN ELEVATED WINDOW.** 14 Aug 2026, sixth

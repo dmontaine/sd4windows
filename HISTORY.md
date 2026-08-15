@@ -27,6 +27,31 @@ corrected.
 
 ---
 
+## 15 Aug 2026 - The bootstrap was compiling the development tree
+
+Eighth session, found by running the first elevated `stage.py --force
+--bootstrap` and reading its output. `ACCOUNTS/SDSYS` field 1 is the SDSYS
+account directory and the tracked record names `/usr/local/sdsys`, so after
+login `GPL.BP`/`GPL.BP.OUT` resolved to the Linux dev tree while `gcat` came
+from the config file: 190 objects written there, catalogued into the stage,
+staged `GPL.BP.OUT` left with the 12 that `sd -i` and `bbcmp.py` write directly.
+
+**The owner's own banner edit is what caught it** - he had changed
+`GPL.BP/LOGIN:175` days earlier, and the staged `gcat/$LOGIN` printed the old
+line, matched the dev tree's but for 3 bytes, and had no `sdusers` literal in
+it. That is a pre-step-0 LOGIN, in a tree that was one command from being
+installed. Every staged tree so far has been built this way; it never showed
+because the dev tree's programs work and because the critical ones were
+recompiled by hand on the installed system afterwards.
+
+Fixed in `stage.py` (point the record at the staged tree before the bootstrap,
+retarget to production after) and `bootstrap.py` (`check_account_record`
+refuses a mismatch, tested both ways). `check_no_stage_paths` was passing
+vacuously for the same reason - the embedded path was the dev tree's.
+
+Also closed: the elevated half of the elevation check. Both gates passed in an
+elevated window and the bootstrap ran through, `SECOND.COMPILE` 0 errors.
+
 ## Correction: 15 Aug 2026 - the install, the stage and the installer were dated wrong
 
 Eighth session, by listing the files. The install is 14 Aug **19:05** (the
