@@ -53,12 +53,12 @@ The `EPERM` test's orphan was cleared first.
 
 | Budget | Limit | Now |
 |---|---|---|
-| **Header** (above §0) | 200 | **173** |
-| **§7 Next steps** | 300 | **258** |
-| Whole file | 3,500 | **3,499** |
+| **Header** (above §0) | 200 | **180** |
+| **§7 Next steps** | 300 | **289** |
+| Whole file | 3,500 | **3,500** |
 
-**All three met for the first time, by rule 5 and not by a rollover** — a
-closing step cleans up after itself, in the commit that closes it.
+**Met by rule 5 rather than by a rollover**, and step 1c's own material was
+paid for out of §4 and §8, which held settled detail HISTORY already carries.
 
 **THE ACCESS MODEL, BUILT AND VERIFIED.** Full statement in §5.6; the short
 form, because it changes what every other item in this file assumes:
@@ -81,6 +81,13 @@ form, because it changes what every other item in this file assumes:
   silently stopped working**, and **anyone granted an account cannot use it
   until they sign out and back in** — group membership is fixed in the token at
   logon (§6).
+- **SD ACCOUNTS BRING THEIR OWN OS ACCOUNT, WITH ONE EXCEPTION** — owner's
+  decision, 14 Aug 2026, seventh session. **The only pre-existing OS user that
+  may be given an SD account is the installer's**, done at install time; every
+  other SD account creates its OS account from within SD. `CREATE.ACCOUNT`
+  refuses a name that already exists in Windows, and the single sanctioned door
+  is `ADOPT`, gated on `K$INTERNAL` so the install can use it and a console
+  cannot. **The installer's account does not exist yet** — §7 step 1f.
 
 **ONE KNOWN BREAKAGE NOBODY HAS HIT YET: the bootstrap needs an elevated
 shell and nothing says so.** `BCOMP` gates `$internal` on `K$ADMINISTRATOR`,
@@ -463,39 +470,23 @@ It was found sitting in the broken state — segment and all six semaphores unde
 `C:\ProgramData\SD\shm`, **no `sdwind` process at all** — so the before and
 after below are the same wreckage an hour apart, not a reconstruction.
 
-| Run | Command | Answer |
-|---|---|---|
-| **Control**, installed 19:05 binary | `sd -start` | `SD is already started` — **the lie, reproduced** |
-| **New build**, same state | `sd -start` | `SD did not shut down cleanly: the shared segment is still here but sdwind is not running.` + `Run sd -stop to clear it, then sd -start again.` |
-| New build | `sd -stop` | `has been shut down`, exit 0, `shm` **emptied** — and **no spurious warning**, the daemon having genuinely gone |
-| New build | `sd -start` | really starts: `sdwind` at Windows pid 14712 |
-| New build, SD now up | `sd -start` | `SD is already started - sdwind is running as pid 14712.` |
-| New build, segment unlinked by hand | `sd -start` | `Semaphores are already present.  If SD is not running, sd -stop clears them.` |
-
-- **THE CONTROL IS THE MOST VALUABLE ROW.** `SD is already started` — **no full
-  stop**. That is `sdsem.c` line 86, not the `bind_sysseg` string §7 step 1d
-  named, which ends in one. `get_semaphores(TRUE)` runs before the segment is
-  ever looked at, so **a fix confined to the two places the step named would
-  have changed nothing the user sees.**
-- **The pid is the Windows pid.** `sd` said 14712 and `Get-Process sdwind` said
-  14712, against **87** before the translation went in — see the MSYS2-pid trap
-  in §6, which is the finding this row exists to record.
-- **`make sd` exits 0 and neither changed file warns.** `gcc -fsyntax-only
-  -std=gnu17 -Wall -Wformat=2` clean, then a full `make sd`, exit 0.
-- **THE `EPERM` WARNING FIRED, AND IT IS THE HALF THE STEP WAS ABOUT.**
-  Watched by the repository owner in two real console windows: `sd -start`
-  elevated from the repository build, then `sd -stop` from an ordinary
-  PowerShell. Verbatim, before `SD (64 Bit) has been shut down`:
-
-  ```
-  Warning: sdwind (pid 5080) is still running.
-  It belongs to a session with more privilege than this one, so it could not be
-  signalled.
-  Stop it from an elevated session with "Stop-Process -Id 5080 -Force" before
-  starting SD again, or the machine will run two daemons.
-  ```
-
-  **Three confirmations, the third not designed for.** `Get-Process sdwind`
+Every branch was run. The **control** matters most: the installed 19:05 binary,
+against that same wreckage, answered `SD is already started` — **with no full
+stop**, which is `sdsem.c` line 86 and not the `bind_sysseg` string §7 step 1d
+named. `get_semaphores(TRUE)` runs before the segment is looked at, so **a fix
+confined to the two places the step named would have changed nothing the user
+sees.** The new build then said the segment was stale and named `sd -stop`;
+`sd -stop` emptied `shm` with no spurious warning; `sd -start` really started,
+`sdwind` at Windows pid 14712; a second `sd -start` reported it already running
+**as pid 14712**, matching `Get-Process` against the **87** it would have
+printed untranslated (§6, the MSYS2-pid trap); and with the segment unlinked by
+hand it fell through to the reworded semaphore message. `make sd` exits 0 with
+no warnings, `gcc -fsyntax-only -std=gnu17 -Wall -Wformat=2` clean.
+- **THE `EPERM` WARNING FIRED**, watched in two real console windows: an
+  elevated `sd -start` from the repository build, then `sd -stop` from an
+  ordinary PowerShell, which printed
+  `Warning: sdwind (pid 5080) is still running.` and named the command to clear
+  it. **Three confirmations, the third not designed for.** `Get-Process sdwind`
   answered **5080**, so `win_pid()` translates in this path too;
   `C:\ProgramData\SD\shm` was **empty**, so the teardown still happened and the
   warning is a warning and not a failure; and `Stop-Process -Id 5080` **from
@@ -504,6 +495,25 @@ after below are the same wreckage an hour apart, not a reconstruction.
 - **Observed instead, and it is a defect the fix cannot reach:** with the
   segment unlinked under a live daemon, `sd -stop` reported success, exit 0,
   and left `sdwind` running. §6 carries it.
+
+**ALSO SEVENTH SESSION, AND THE MEASUREMENTS BEHIND §7 STEP 1c.** None of them
+is a test of the BASIC, which has not been compiled — see Not verified.
+
+- **`/etc/passwd` and `/etc/group` are absent under both roots** the MSYS2
+  runtime can use, while `getent passwd` returned `don` with his SID and
+  `Get-LocalGroup` returned `sdu_sdacct5` with its SID, from the same machine.
+  That is the whole basis of the three-helper trap in §6.
+- **The `SD account` marker is real, and SD wrote it.** `Get-LocalUser sdacct5`
+  returns a description of exactly `SD account`, 10 characters, stamped by
+  `CREATE_USER` on 14 Aug 2026; `don`'s is empty. **This also proves a quoted
+  value containing a space survives SD's `os.execute` path**, which is what
+  `!is_sd_user` depends on and what nothing had previously shown.
+- **The three answers `!is_sd_user` needs are distinct on real accounts**, run
+  as PowerShell against this machine: `sdacct5` → 0 (SD's), `don` → 1 (**not**
+  SD's, so `DELETE.ACCOUNT` would refuse to touch the machine
+  administrator's login), `sdacct1` → 2 (absent — the half-removed case).
+  `is_user`: `don` → yes, `sdacct1` → no. `is_group`: `sdu_sdacct5` → yes,
+  `sdu_sdacct1` → no.
 
 **14 Aug 2026, SIXTH SESSION — STEP 0, COMPRESSED TO ITS CONCLUSIONS** under §0
 rule 5. HISTORY carries the working detail; these are the claims and what
@@ -572,50 +582,34 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 #### The installed system
 
-- **A GENUINE FIRST INSTALL WORKS, AND THE FILES WERE COUNTED.** Observed
-  14 Aug 2026 on a machine cleaned first — uninstall, both trees deleted,
-  `sdusers` removed — with the installer **rebuilt from the tracked
-  `gplbld/sd.iss`** so the `.exe` under test provably matched the committed fix.
-
-  | Measure | Broken | Now | Staged source |
-  |---|---|---|---|
-  | files under `C:\ProgramData\SD\sdsys` | 16 | **3,264** | 3,264 |
-  | `gcat` entries | 0 | 129 | 129 |
-  | `GPL.BP.OUT` entries | 0 | 11 | 11 |
-  | Inno log length | 145 lines | 16,507 lines | — |
-
-  A `Compare-Object` of every staged path against every installed path reported
-  **no differences in either direction**. And the installed system runs, in two
-  separate elevated passes: `sd -start`, `COUNT VOC` **431 records**,
-  `LIST ACCOUNTS` reporting `Pathname: C:\ProgramData\SD\sdsys`, `WHO`
-  reporting `3 SDSYS`, `sd -stop`. Each was preceded by "account SDSYS has no
-  password set", correct for an install nobody has finished. Everything else
-  the installer owns was confirmed on the same run: `sdusers` created with
-  `GITORLI\don` in it, `user_accounts`/`group_accounts`/`shm` created, exactly
-  one PATH entry, no `gplbld` anywhere in the data tree, `sd.conf` present.
+- **A GENUINE FIRST INSTALL WORKS, AND THE FILES WERE COUNTED** — 14 Aug 2026,
+  on a machine cleaned first, with the installer rebuilt from the tracked
+  `gplbld/sd.iss`. **3,264 files** under `C:\ProgramData\SD\sdsys` against a
+  broken run's 16, 129 `gcat` entries, 11 `GPL.BP.OUT`, and a `Compare-Object`
+  of every staged path against every installed one reporting **no differences
+  in either direction**. It then ran: `COUNT VOC` **431**, `LIST ACCOUNTS`
+  giving `Pathname: C:\ProgramData\SD\sdsys`, `WHO` `3 SDSYS`. Everything else
+  the installer owns was confirmed on the same run — `sdusers` with
+  `GITORLI\don` in it, `user_accounts`/`group_accounts`/`shm`, exactly one PATH
+  entry, no `gplbld` in the data tree, `sd.conf` present.
 
 - **CORRECTED 14 Aug 2026, and the lesson outlives the fix.** An earlier claim
   that the installer worked was true of the **upgrade** path only. A genuine
   first install **produced a broken database**: `Check: DataTreeAbsent` is
-  evaluated *per file*, so the first file created `C:\ProgramData\SD\sdsys`,
-  every later evaluation answered False, and the remaining ~3,260 files were
-  silently skipped — 16 files installed, and **Setup still exited 0**. The
-  upgrade path hid it, because it skips the whole set consistently and looks
-  identical either way. `InitializeSetup` now caches the answer once, before
-  any file is copied. **An install test that does not COUNT what was installed
-  proves very little.**
+  evaluated *per file*, so the first file created the directory, every later
+  evaluation answered False, ~3,260 files were silently skipped — and **Setup
+  still exited 0**. `InitializeSetup` now caches the answer once. **An install
+  test that does not COUNT what was installed proves very little.**
 
-- **THE INSTALLED SYSTEM RUNS AS AN ORDINARY USER.** Observed 14 Aug 2026 after
-  a reboot, from a **normal unelevated PowerShell window** — no `runas`, no
-  MSYS2, nothing set in the environment: `sd -start`, `COUNT VOC` 431, `WHO`
-  `2 SDSYS`, `sd -stop`, with `sdwind` appearing and going. This is the first
-  time SD has been used the way a user would actually use it, and it closes
-  three things at once: **§5.6.1 in the real world**, since `IsAdmin()`
-  admitted an administrator who had not elevated; **§5.7's ACL model from the
-  user's side**, since the token now carries `sdusers` and that grants both the
-  data tree and `/dev/shm`; and **the sign-out requirement**, which is real and
-  is sufficient — the same session had been refused on every path inside
-  `C:\ProgramData\SD` before the reboot, and nothing else changed.
+- **THE INSTALLED SYSTEM RUNS AS AN ORDINARY USER** — 14 Aug 2026 after a
+  reboot, from a normal unelevated window with nothing set in the environment:
+  `sd -start`, `COUNT VOC` 431, `WHO`, `sd -stop`, `sdwind` appearing and
+  going. The first time SD was used the way a user would use it, and it closes
+  three things: **§5.6.1 in the real world**, `IsAdmin()` having admitted an
+  administrator who had not elevated; **§5.7's ACL model from the user's
+  side**, the token now carrying `sdusers`; and **the sign-out requirement**,
+  which is real and sufficient — the same session had been refused on every
+  path inside `C:\ProgramData\SD` before the reboot, and nothing else changed.
 
   **What it does not show:** `sd -start` had to be typed. An installed system
   does **not** come up on boot — there is no service (§5.7) — so after every
@@ -623,36 +617,28 @@ way to see this system as a non-administrator on a machine whose account is one.
   system that otherwise installs and runs.
 
 - **The upgrade path works too, and it is a different path.** Over an existing
-  data tree, elevated and `/VERYSILENT`: `sd.conf` logged "Skipping due to
-  onlyifdoesntexist flag", the `sdsys` tree **does not appear in the install log
-  at all**, and the existing database was left untouched. All four MSYS2 DLLs
-  land in `usr\bin` with `etc\fstab` beside them, and an `Uninstall` key entry
-  puts SD in Settings > Apps.
+  data tree, `/VERYSILENT`: the `sdsys` tree **does not appear in the install
+  log at all** and the database was untouched; the four MSYS2 DLLs and
+  `etc\fstab` land in `usr\bin`, and an `Uninstall` key puts SD in Settings.
 
 - **An installed system finds its configuration with nothing set in the
-  environment** — `SD_CONFIG` and `SCARLET_CONFIG` both explicitly unset,
-  reading `C:\ProgramData\SD\sd.conf` through `%ProgramData%`. This was the last
-  thing standing between the staged tree and an Inno package (§5.16).
+  environment** — reading `C:\ProgramData\SD\sd.conf` through `%ProgramData%`.
 
 - **The uninstaller runs, and keeps the data.** `/VERYSILENT`, exit 0:
-  `C:\Program Files\SD` and the Settings > Apps entry removed, and
-  **`C:\ProgramData\SD` left completely intact**. It left the system PATH entry
-  behind, which Inno cannot undo by itself because `[Registry]` appends with
-  `olddata`; **fixed**, `RemoveFromPath` strips it by name at `usUninstall`. It
-  also leaves the `sdusers` group deliberately — a kept data tree is ACL'd to
-  it, so removing it would orphan the permissions on a database the user just
-  chose to keep.
+  `C:\Program Files\SD` and the Settings > Apps entry removed,
+  **`C:\ProgramData\SD` left completely intact**. It used to leave the PATH
+  entry behind, which Inno cannot undo by itself because `[Registry]` appends
+  with `olddata`; **fixed** by `RemoveFromPath` at `usUninstall`. It leaves the
+  `sdusers` group deliberately — a kept data tree is ACL'd to it.
 
 - **The daemon starts on an installed system, and it is called `sdwind`.** It
-  had **never** started from an install. `start_sd()` now asks
-  `exe_directory()` and launches the daemon from beside the running executable,
-  so the two cannot drift apart again: `sd -start` from
-  `C:\Program Files\SD\usr\bin\sd.exe` left `sdwind.exe` running out of that
-  same directory, while `<sysdir>\bin` held only `pcode, pcode.old` — so the old
-  path could not possibly have worked. A second call site had the same defect
-  and is fixed with it, the daemon's own `check_lost_users()`; not separately
-  verified, since nothing has yet made a session go missing. **Why it was silent
-  is the trap in §6.**
+  had **never** started from an install. `start_sd()` asks `exe_directory()`
+  and launches it from beside the running executable, so the two cannot drift
+  apart: `sd -start` from `C:\Program Files\SD\usr\bin\sd.exe` left
+  `sdwind.exe` running out of that directory, while `<sysdir>\bin` held only
+  `pcode, pcode.old` — the old path could not possibly have worked. The
+  daemon's own `check_lost_users()` had the same defect and is fixed with it,
+  not separately verified. **Why it was silent is the trap in §6.**
 
 - **The ACLs are right, and this time that was checked from the outside.** The
   data tree carries exactly `GITORLI\sdusers:(OI)(CI)(M)`,
@@ -747,26 +733,19 @@ way to see this system as a non-administrator on a machine whose account is one.
   `OS.EXECUTE` reaches PowerShell and the exit status carries back through
   `OS.ERROR()` with bash out of the loop entirely.
 
-  - **`!valid_os_path`**, 16 cases: `C:\Program Files\SD\usr\bin`,
-    `C:\ProgramData\SD\sdsys`, `/usr/local/sdsys` and a mixed
-    `C:/ProgramData/...` all pass; empty, over 255 characters, and each of
-    `;` `&` `|` `$` backtick, both quotes, `>` `*` and a tab are refused. This
-    was blocking the binaries moving under `C:\Program Files`.
-  - **`!is_grp_member`**, 7 cases: member and not-a-member both report status
-    0; no-such-group, an absent group and an empty user name report status 1.
-    A name equal to the group name still reports member, which is the rev
-    0.9.0 "own group account" case. This closes the §6 trap that had it
-    answering "no" for everyone.
-  - **`!ps_script`**, 5 cases: it runs a script carrying a secret off the
-    command line, `exit 42` comes back as 42, a `throw` as 1, an empty script
-    as -1 with status 1, the body genuinely runs, and the script is removed.
+  **`!valid_os_path`** 16 of 16 — Windows, POSIX and mixed paths pass; empty,
+  over 255 characters, and every shell metacharacter refused. **`!is_grp_member`**
+  7 of 7, including the rev 0.9.0 "own group account" case, closing the §6 trap
+  that had it answering no for everyone. **`!ps_script`** 5 of 5, carrying a
+  secret off the command line and returning `exit 42` as 42, a `throw` as 1, an
+  empty script as -1.
 
-  All ten changed or new `GPL.BP` programs compile with 0 errors and no
-  "not assigned a value" warnings. **One measurement decided the design:**
+  All ten changed or new `GPL.BP` programs compiled with 0 errors and no "not
+  assigned a value" warnings. **One measurement decided the design:**
   `Invoke-Expression` propagates a script's `exit` status where
-  `& .\script.ps1` does not — a script ending `exit 7` gave 7 through the first
-  and 1 through the second — and it is not subject to the execution policy, so
-  nothing needs `-ExecutionPolicy Bypass`.
+  `& .\script.ps1` does not — 7 through the first, 1 through the second — and
+  it is not subject to the execution policy, so nothing needs
+  `-ExecutionPolicy Bypass`.
 
 - **A Windows administrator is an SD administrator, tested two ways.** From an
   **unelevated** session belonging to a machine administrator — the case the
@@ -778,41 +757,27 @@ way to see this system as a non-administrator on a machine whose account is one.
   "Command requires administrator privileges", exit 1. See §5.6.1.
 
 - **`CREATE.ACCOUNT` RUNS, AND IT HAD NEVER BEEN RUN BEFORE.** From an elevated
-  session. Both halves of the account are made, and the `ADMINISTRATOR` keyword
-  does exactly what §5.6.1 decided:
-
-  | | `CREATE.ACCOUNT USER sdtest1` | `... sdtest2 ADMINISTRATOR` |
-  |---|---|---|
-  | Windows local user, enabled | yes | yes |
-  | member of `sdusers`, `sdu_<name>` created | yes | yes |
-  | account dir, VOC, `$HOLD`, `$SAVEDLISTS`, BP, private catalogue | yes | yes |
-  | record in `ACCOUNTS` | yes | yes |
-  | **member of Administrators** | **no** | **yes** |
-
-  A standard local account is the default and an administrator is made
-  deliberately, which is the decision. The Administrators add went in **by
-  SID** — `!os_group` accepts `S-1-5-32-544`, because the name is localised.
-  `CREATE_USER`, `SET_PASSWD` and `OS_GROUP` have all now executed against real
-  Windows accounts. **`DELETE.ACCOUNT` and `MODIFY.ACCOUNT` still have not.**
+  session, both halves of the account are made — Windows user enabled, in
+  `sdusers` with its `sdu_` group, account directory, VOC, `$HOLD`,
+  `$SAVEDLISTS`, BP, private catalogue, `ACCOUNTS` record — and the
+  `ADMINISTRATOR` keyword does exactly what §5.6.1 decided: **without it the
+  account is not in `Administrators`, with it it is.** The add went in **by
+  SID**, `!os_group` accepting `S-1-5-32-544`, because the name is localised.
+  `CREATE_USER`, `SET_PASSWD` and `OS_GROUP` have executed against real Windows
+  accounts. **`DELETE.ACCOUNT` and `MODIFY.ACCOUNT` still have not.**
 
 - **The deny-logon rights are applied correctly, and nothing else is
-  disturbed.** `gplbld/deny-logon.ps1` run exactly as the installer invokes it:
-
-  | Right | Before | After |
-  |---|---|---|
-  | `SeDenyInteractiveLogonRight` | `Guest` | `sddenyprobe,Guest` |
-  | `SeDenyRemoteInteractiveLogonRight` | *absent* | `sddenyprobe` |
-  | `SeDenyNetworkLogonRight` | `Guest` | `Guest` — **untouched** |
-
-  The last row is the one that matters: ssh authenticates with a network logon,
-  so leaving that right alone is what keeps ssh working (§5.6.2). The first row
-  is the argument for `LsaAddAccountRights` over `secedit` shown working — the
-  existing `Guest` entry survived, where a policy rewrite would have had to
-  reproduce it. Idempotent on a second run; a missing group exits 1 saying so.
+  disturbed.** `gplbld/deny-logon.ps1` as the installer invokes it:
+  `SeDenyInteractiveLogonRight` went from `Guest` to `sddenyprobe,Guest`,
+  `SeDenyRemoteInteractiveLogonRight` from absent to `sddenyprobe`, and
+  **`SeDenyNetworkLogonRight` was left untouched** — the row that matters, ssh
+  authenticating with a network logon (§5.6.2). The surviving `Guest` entry is
+  the argument for `LsaAddAccountRights` over `secedit` shown working.
+  Idempotent; a missing group exits 1 saying so.
 
   **A caveat on reading this back.** `secedit /export` writes resolvable local
-  groups **by name**, not by SID, so a verification that greps the policy for a
-  SID reports "not present" when it is. That is what the first attempt did.
+  groups **by name**, not by SID, so a verification that greps for a SID
+  reports "not present" when it is. That is what the first attempt did.
 
 - **THE SSH-ONLY MODEL WORKS.** Observed by `gplbld/verify-sshonly.ps1` against
   a real Windows account. This is §5.6.2, which had been decided, built,
@@ -942,6 +907,20 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
+- **EVERYTHING §7 STEP 1c CHANGED IS UNCOMPILED BASIC** (14 Aug 2026, seventh
+  session): `DELACC`, `CREATEA`, `IS_USER`, `IS_GROUP` and the new `IS_SD_USER`.
+  The PowerShell inside them was measured (§4 Verified); **the BASIC has not
+  been through a compiler, let alone run.** Compiling needs an elevated
+  `sd -internal BASIC GPL.BP <name>` per program, and **`bbcmp.py` cannot do
+  it** — it only builds `BBPROC`, `BCOMP` and `PATHTKN`. Until then, watch for
+  the `ERRGEN` trap especially: `K$INTERNAL` and messages 10036–10039 are new
+  references, and an undefined `$define` is a *warning* at compile time and an
+  abort at run time.
+
+  **The four new message files must reach the installed tree too**, or the
+  refusals print nothing useful: copy `sdsys/MESSAGES/10036`–`10039` into
+  `C:\ProgramData\SD\sdsys\MESSAGES\` before testing. A reinstall will not do
+  it — that is the staleness trap in §6.
 - **`DELETE.ACCOUNT` and `MODIFY.ACCOUNT` have never been run** against a real
   Windows account. `CREATE.ACCOUNT` has (§4 Verified), so this is the
   asymmetric half — and it is §7 step 1c, which has to decide what deleting an
@@ -2057,6 +2036,41 @@ Each of these cost real time. Read before debugging anything similar.
   elevated cannot be stopped by an ordinary one — the entry below — so an
   unelevated start leaves it stoppable from either.
 
+- **THREE HELPERS READ `/etc/passwd` AND `/etc/group`, WHICH MSYS2 DOES NOT
+  HAVE. ONE WAS FIXED ON 14 Aug 2026 AND THE OTHER TWO WERE NOT.** The fixed
+  one, `!is_grp_member`, had refused every login with "not registered for SD
+  use" and its trap is below. **`!is_user` and `!is_group` had exactly the same
+  defect and were found a session later**, in the seventh, while doing §7 step
+  1c — nothing had connected them, because each failure looked like something
+  else entirely.
+
+  **They fail CLOSED and therefore SILENTLY**: the read fails, status is set to
+  1, and the answer is "no such user" or "no such group" for names that plainly
+  exist. Measured 14 Aug 2026: no `/etc/passwd` or `/etc/group` under either
+  root the runtime can use — `C:\msys64\etc` on a development machine,
+  `C:\Program Files\SD\etc` on an installed one, which holds only `fstab` —
+  while `getent passwd` answered correctly from the same shell and
+  `Get-LocalGroup` returned `sdu_sdacct5` with its SID. **The capability was
+  never missing; only the file was.**
+
+  **What each one cost, and neither symptom named the cause:**
+
+  | | |
+  |---|---|
+  | `!is_group` | `DELACC` gates the removal of an account's `sdu_` group on it, so **`DELETE.ACCOUNT` silently left the group behind on every account it removed** |
+  | `!is_user` | `CREATEA` asks it whether the OS account exists. False for everyone sent it to `create_user()`, which fails on an existing account — so the verb refused a pre-existing user, which **is** the rule (§5.6), but reported it as `Create User Failed, OS Error: 1` |
+
+  **THE SECOND ONE IS THE INSTRUCTIVE ONE: right behaviour resting on a broken
+  lookup.** Repairing `!is_user` alone would have brought `CREATEA`'s adopt
+  branches to life and turned a refusal into a **silent adoption of somebody's
+  existing Windows login**. That nearly happened in the seventh session and was
+  caught by the repository owner. **When a fix makes a helper answer correctly,
+  check what its callers were relying on it getting wrong** — the two were
+  changed in the same commit, with the rule written into `CREATEA` explicitly.
+
+  **There are no more.** `grep -rn 'openpath "/etc"' GPL.BP` returned nothing
+  after the two fixes, seventh session — that was the whole family.
+
 - **A BLANK `Path` FROM `Get-Process` DOES NOT MEAN "ELEVATED", AND IT LOOKS
   EXACTLY LIKE IT DOES.** 14 Aug 2026, seventh session. Four `sdwind` daemons
   were started that day; the two started from an elevated window had an
@@ -3071,9 +3085,10 @@ the staging script and the Inno installer were all finished and removed.
    (§4, §5.6.1, §5.6.2); none of this is large, and it should not be left to
    drift.
 
-   a. **`CREATUSR` is dead config.** Nothing consults it on the create side;
-      `config.c` still parses it, `op_config.c` still answers it and `CONFIG`
-      still prints it. Remove all three once `DELACC` stops using it (1c).
+   a. **`CREATUSR` is dead config and is now UNBLOCKED.** `DELACC` was its last
+      caller and stopped using it on 14 Aug 2026 (1c), so the three remaining
+      pieces can go: `config.c` parses it, `op_config.c` answers it, `CONFIG`
+      prints it. Nothing else reads it.
 
       **Correction, 14 Aug 2026:** this file previously said `CREATUSR` "is not
       in the shipped `sd.conf` and defaults off", and gave that as a blocker.
@@ -3083,21 +3098,29 @@ the staging script and the Inno installer were all finished and removed.
    b. **MOVED INTO STEP 0b, 14 Aug 2026.** Restoring the `sdusers` gate is no
       longer a question that needs settling against §5.6.1 — the reversal in
       §5.6 answers it. The gate goes back.
-   c. **Decide what `DELETE.ACCOUNT` should do.** This is the asymmetry now,
-      and **there are two live examples of the problem sitting on this machine
-      to decide against.** `DELACC` still consults `config('CREATUSR')` before
-      offering to remove the OS user (line 211), and that gate no longer exists
-      on the creating side. It has also never been run. Removing an SD account
-      should probably remove the Windows user it created, but that is a
-      destructive default and wants deciding rather than assuming.
+   c. **DECIDED AND BUILT 14 Aug 2026, seventh session. NOT COMPILED AND NOT
+      RUN — see the recipe below and treat all of it as unverified.**
 
-      **The examples:** `verify-createaccount.ps1` removes the Windows user and
-      the `sdu_` group and leaves the SD side, so
-      `C:\ProgramData\SD\user_accounts\sdacct1` and `sdacct2` and their
-      `ACCOUNTS` records are still there with no Windows account behind them,
-      and `CREATE.ACCOUNT` refuses those names. Whatever this decides has to
-      account for that state existing, **because a failed creation reaches it
-      too** — the ssh-only branch `stop`s after the account directory is made.
+      **Owner's decision: `DELETE.ACCOUNT` offers to delete the OS account only
+      when SD created it.** The three answers are all different and all acted
+      on: SD made it → prompt, defaulting to no; somebody else made it → say so
+      and leave it; not there at all → say so, which is the half-removed case.
+      `!is_sd_user` (new) answers by reading back the description
+      `CREATE_USER` already stamps on every account it creates, so nothing new
+      is recorded and existing accounts answer correctly with no migration.
+      **It is a marker, not a proof** — an administrator can edit a
+      description — so it is trusted to *withhold* deletion and never to compel
+      it: the one-sided failure leaves litter instead of deleting a login.
+
+      **Also in this step:** the `config('CREATUSR')` gate is gone (unblocking
+      1a), and **the `ACCOUNTS` record is deleted last rather than first**, so
+      a failure part way leaves the account registered and the verb re-runnable
+      instead of leaving orphans nothing can address.
+
+      **The three half-removed accounts are the test case**, and they now have
+      an answer: `sdacct1`–`sdacct3` have no Windows account, so the verb
+      reports that and removes the SD side. Measured: `is_sd_user` answers
+      `sdacct5` → SD's, `don` → **not SD's**, `sdacct1` → absent.
    d. **DONE AND FULLY OBSERVED — 14 Aug 2026, seventh session. One related
       defect cannot be fixed here at all and is a trap instead (§6).**
       `sd -start` and `sd -stop` now ask the `sdwind` process instead of the
@@ -3129,6 +3152,28 @@ the staging script and the Inno installer were all finished and removed.
    e. **Remove `sudo chmod g+s` from `CREATEA`**, whose Windows equivalent is
       the inheritable ACE the installer already sets (§5.7). It warns on every
       account creation today (§4).
+   f. **NEXT, AND IT IS THE ONE THING STOPPING THE ACCESS MODEL BEING TRUE FOR
+      A REAL PERSON: give the installer an SD account, at install time.**
+      Owner's decision, 14 Aug 2026. Today `don` — who installed SD — types
+      `sd` and is refused with `Account DON not in register`, because every
+      other account creates its own OS account and his existed first.
+
+      **The SD half is built and the install half is not.** `CREATE.ACCOUNT
+      USER x ADOPT` attaches an account to an existing OS account, creating no
+      user and setting no password; it is gated on `K$INTERNAL`, so it is
+      reachable from `sd -internal` and **not** from a console, which keeps the
+      rule a rule for administrators while giving the install one door. What
+      remains is calling it: `gplbld/sd.iss` needs a post-install step running
+
+      ```
+      sd -internal CREATE.ACCOUNT USER <installing user> ADOPT
+      ```
+
+      with the installing user's name, which Inno has, and tolerating the
+      account already existing on a reinstall. **Test it on the second machine
+      (step 2)** — an install is the only place it happens, and this machine's
+      install cannot be re-run without the staleness trap muddying what is
+      being tested.
 2. **Install on a genuinely clean machine, and test RDP there.** Still the test
    that matters: this machine has a development tree, so an accidental
    dependency could survive, and it is the only place two of the open questions
@@ -3286,96 +3331,52 @@ every account without exception, and `LOGTO` accepts a registered account name
 only — direct directory access by path is not supported, which closes the
 bypass rather than trying to resolve paths back to accounts.
 
-### Open: how does a scheduled job log in, now that every account has a password?
+### Open: what may a scheduled job run? (the login half is now answered)
 
-Raised by the repository owner on 13 Aug 2026. Every account carries a password
-(§5.6), and MV users expect to run work unattended — cron jobs, scheduled
-tasks, and the `sd -internal SECOND.COMPILE` shape the install script uses. The
-design below is the repository owner's; the constraints under it came out of
-working through it and are recorded so they are not re-derived.
+**REWRITTEN 14 Aug 2026, seventh session, because its premise died.** This was
+"how does a scheduled job log in, now that every account has a password?",
+raised by the repository owner on 13 Aug 2026 and built on the password model,
+`ACC$USERS` and `authenticate.account` — none of which exist now. **The login
+half answers itself under §5.6:** a scheduled task runs as a Windows user, and
+if that user has an SD account, `sd` puts it there with nothing asked. The
+batch account is a Windows account plus its SD account, and it grants nobody
+because nobody else is in its `ACC$GROUP` group. **No credential is involved
+anywhere**, which is what the whole of the rejected reasoning below was for.
 
-**The install case is not part of this and is already solved.** `LOGIN`'s
-`authenticate.account` checks `$CRED` first and admits an administrator, with a
-warning, to an account that has no verifier yet; `sd -i` never reaches `LOGIN`
-at all. So an installer that runs the whole bootstrap and calls `SET.PASSWORD`
-as its **last** step needs no credential during the build. That is an ordering
-requirement on the installer (§5.16, item 6), not an open question.
+**What is still open is the capability list**, and the design is the owner's:
+an `X`-type VOC item named `ALLOWED` in **SDSYS's** VOC, holding
+`ACCOUNT, VOC name` pairs. Only an administrator can edit it, because it lives
+in SDSYS; the job still runs in the named account, so **nothing runs with
+administrator rights**. **The mechanism exists and needs no new C code:**
+`SYSTEM(1026)` returns the command from the command line (`op_sys.c` case 1026,
+from `single_command` in `sd.c`) and `CPROC` does not pick it up until line
+556, so `LOGIN` can read and decide first.
 
-**The design.** An `X`-type VOC item named `ALLOWED` in **SDSYS's** VOC, whose
-lines are `ACCOUNT, VOC name` pairs. `LOGIN` consults it: the account to enter
-comes from the list, and so does the command that may run. Because the item
-lives in SDSYS, only an administrator can add to it — but the job runs in the
-named account, so **nothing runs with administrator rights**; SDSYS is the
-storage location for the policy, not the context it executes in.
+**Constraints to build to**, worked out once and recorded so they are not
+re-derived: **one token, no arguments, enforced** — this is what does the
+security work, not "must be in VOC", since every verb is a VOC item and with no
+arguments a verb entry is useless; **accept only `PA` and `S` VOC types**, so a
+mislisted verb fails when it is set up rather than at 3am; **any prompt is
+fatal in this mode** (§6, the spinning prompt); **the name must be unique
+across the list** or `-A` must match, never a silent override; **set `@logname`
+explicitly**, since an unattended job has no person behind it; and **catalogue
+batch programs locally**, so they do not become runnable from every account.
 
-Paired with it: **a dedicated batch account that grants nobody.** An account
-with an empty `ACC$USERS` is already refused to everyone, and SDSYS already
-reaches every account without a grant, so only the administrator can enter it
-to edit its VOC or recompile its BP programs. Both halves of that are existing,
-observed behaviour (§4) — this is a deployment convention, not a new mechanism,
-which is its main virtue. `KIM` on the current test machine is already this
-shape.
+**Rejected, so it is not proposed again:** a password on the command line
+(readable through Task Manager, `Win32_Process` and ETW) and a password file —
+both moot now that login takes no password, but the reasoning that killed them
+still holds for any future secret: a capability list has nothing to leak or
+rotate, and a stolen credential grants an *interactive session* where a list
+grants a fixed set of commands. **Hashing the VOC entry** was rejected on its
+own merits and still is: it pins one hop and no further, and storing the
+command text rather than a name gets the same protection for nothing.
 
-**The mechanism exists.** `SYSTEM(1026)` returns the command from the command
-line (`op_sys.c`, case 1026, from `single_command` in `sd.c`), and `CPROC` does
-not pick it up until line 556, so `LOGIN` can read it and decide before
-authenticating. No new C code is needed.
-
-**Constraints to build to.**
-
-- **One token, no arguments, and enforce it.** This is what does the actual
-  security work, not "must be in VOC" — every verb is a VOC item (`COPY` is a
-  `CA` entry for `$COPY`), so requiring VOC membership excludes almost nothing.
-  With no arguments a verb entry is useless and only a paragraph is worth
-  listing. Reject a command with anything after the first word.
-- **Accept only `PA` and `S` VOC types** when the list is consulted, so a
-  mislisted verb fails when the administrator sets it up rather than spinning
-  on a prompt at 3am.
-- **Any prompt must be fatal in this mode** — a scripted session that reaches
-  an unanswered prompt spins at full CPU (§6).
-- **The name must be unique across the list**, or `-A` must be present and
-  match. `-A` naming a different account is a refusal, never a silent override.
-- **Set `@logname` explicitly** so the audit record reads as an allowlist entry
-  rather than as a login; an unattended job has no person behind it.
-- **Catalogue batch programs locally**, so they do not appear in `gcat` and
-  become runnable from every account.
-
-**What was rejected, and why, so it is not proposed again.**
-
-- **A password on the command line.** Readable by any local user through Task
-  Manager, `Get-CimInstance Win32_Process` and ETW.
-- **A password file** works today (`cat pw | sd -ABATCH CMD`; `<` redirection
-  does not, §6) and an ssh-style ACL check would make it defensible. Passed
-  over because a capability list has no secret to leak or rotate, and because a
-  stolen credential grants an *interactive session* where a list grants only a
-  fixed set of commands.
-- **Hashing the VOC entry to detect tampering** pins one hop and no further: a
-  paragraph reading `RUN BP NIGHTLY` can be pinned, `BP NIGHTLY` cannot, and a
-  run-time transitive closure cannot be hashed at all. Storing the command text
-  in the list rather than a name to look up gets the same protection for
-  nothing — the approved thing and the executed thing become the same object.
-  Whether the list holds a name or the text is still to decide.
-
-**What this depends on, and what it does not fix.**
-
-- **The batch account is the one account where per-directory ACLs work in
-  stage 1.** §5.7's dilemma exists because a user's own process must read the
-  files of any account they enter; no ordinary user is ever meant to run in the
-  batch account, so there is exactly one principal to grant — whatever the
-  scheduled task runs as, plus `Administrators`. An `icacls` on that directory
-  closes the tampering gap today, with no stage 2 dependency. Fold it into
-  §5.9's ACL step.
-- **The account boundary is not a data boundary.** `ACC$USERS` gates `LOGTO`,
-  not file opens, so a Q-pointer in the batch account's VOC reaches another
-  account's files with no grant at all. "Runs without administrator rights" is
-  true and worth having; it is not a sandbox.
-- **Still open: who may trigger it.** The list says what may run unattended,
-  not who may fire it, so any local user who can run `sd.exe` can start a
-  listed job. With the batch account ACL'd away from them that is a matter of
-  causing a job to run at the wrong time rather than of reading anything —
-  tolerable, but it argues for listing only work that is safe to trigger and
-  ideally idempotent. An optional third column naming an OS principal is the
-  escape hatch.
+**What it does not fix.** The account boundary is **not** a data boundary — a
+Q-pointer in the batch account's VOC reaches another account's files, so "runs
+without administrator rights" is worth having but is not a sandbox. And **who
+may trigger a job is still open**: the list says what may run, not who may fire
+it. The batch account is also the one place per-directory ACLs work in stage 1,
+since exactly one principal ever runs there; fold that `icacls` into §5.9.
 
 ### SETTLED 14 Aug 2026: the API is piped through ssh — posture B
 

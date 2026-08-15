@@ -27,6 +27,80 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - DELETE.ACCOUNT decided and built, and two more helpers found reading /etc
+
+Seventh session of 14 Aug 2026. **PROJECT_STATUS §7 step 1c is decided and
+written; none of it has been compiled**, which is the first thing to know about
+everything below.
+
+**The decision, from the repository owner.** DELETE.ACCOUNT offers to delete
+the Windows account only when SD created it. The provenance question turned out
+to have an answer already sitting on disk: CREATE_USER stamps every account it
+creates with the description "SD account", so nothing new is recorded and
+existing accounts answer without migration. Measured on this machine -
+`sdacct5` reads exactly `SD account`, 10 characters, and `don` reads empty.
+
+**It is a marker and not a proof**, and the failure is deliberately one-sided:
+an account whose description somebody edited is reported as not SD's, so it is
+left alone and a human tidies it. The opposite mistake deletes a real login.
+Litter is recoverable; a deleted account is not.
+
+**THE PREMISE I HAD WAS WRONG, AND THE OWNER CORRECTED IT MID-BUILD.** I read
+CREATEA lines 145-151 as "CREATE.ACCOUNT adopts an existing Windows user", and
+started fixing `!is_user` so that the adopt branch would work. The owner's
+rule: **the only pre-existing OS user that may be given an SD account is the
+installer's, and after that every SD user's OS account is created from within
+SD.** So the adopt branch is not something the model wants at all.
+
+**That correction landed on a genuinely dangerous change.** `!is_user` read
+/etc/passwd, which MSYS2 does not have, so it answered false for every user;
+the adopt branches never ran; CREATE.ACCOUNT fell through to create_user(),
+which fails on an existing account. The verb therefore **refused a pre-existing
+user - the correct behaviour - entirely because a helper was broken**, while
+reporting it as "Create User Failed, OS Error: 1". Repairing the helper on its
+own would have brought the adopt branches to life and turned that refusal into
+a silent adoption of somebody's existing Windows login. The general form is now
+in section 6: **when a fix makes a helper answer correctly, check what its
+callers were relying on it getting wrong.**
+
+**So the rule was written into CREATEA in the same change as the fix.** The two
+adopt branches are gone and replaced by an explicit refusal (message 10038).
+The single sanctioned exception is a new `ADOPT` keyword, gated on `K$INTERNAL`
+rather than `K$ADMINISTRATOR` - so `sd -internal`, which means the bootstrap
+and the install, can use it and an administrator at a console cannot. That
+distinction is the whole point: every elevated session is an administrator, but
+only the install is internal.
+
+**THE THIRD MEMBER OF A FAMILY, AND THE FAMILY IS NOW CLOSED.** `!is_grp_member`
+had this same /etc defect, was found in the sixth session when it refused every
+login with "not registered for SD use", and was fixed - alone. `!is_group` and
+`!is_user` had it too and nothing connected them, because the symptoms were
+unrelated: DELETE.ACCOUNT silently never removing an account's sdu_ group, and
+CREATE.ACCOUNT's misleading refusal. `grep -rn 'openpath "/etc"' GPL.BP` now
+returns nothing.
+
+**Two smaller things in the same change.** The `config('CREATUSR')` gate is
+gone from DELACC, which was its last caller and unblocks step 1a. And the
+ACCOUNTS record is deleted **last** instead of first: it used to go first, so
+anything failing afterwards left a group or an OS account with no register
+entry pointing at it, and DELETE.ACCOUNT could not be re-run because it starts
+by reading that record.
+
+**What was measured, and it is all PowerShell rather than BASIC:** the absence
+of /etc/passwd and /etc/group under both roots; the marker on sdacct5; and the
+three answers is_sd_user must distinguish, against real accounts - sdacct5 as
+SD's, `don` as **not** SD's, sdacct1 as absent. That last row is the one that
+matters: DELETE.ACCOUNT would refuse to touch the machine administrator's
+login. **The transport was proved by SD's own artefact** - a quoted value
+containing a space survives os.execute, which nothing had shown before and
+which is_sd_user depends on.
+
+**What is open.** None of the BASIC is compiled; ERRGEN makes an undefined
+$define a compile-time warning and a run-time abort, and K$INTERNAL and
+messages 10036-10039 are new references. The installer's SD account is decided
+but only half built: the ADOPT door exists, nothing calls it, and `don` is
+still refused at his own machine.
+
 ## Correction: 14 Aug 2026 - a blank Path is not an elevation test, and it was written into PROJECT_STATUS as one
 
 Seventh session of 14 Aug 2026, correcting commit `653e016`, which recorded
