@@ -389,16 +389,63 @@ their call sites. Three groups:
   — it closes an unterminated banner string an earlier cycle left, which had
   caused `Unrecognised statement`.
 
-#### The generation-2 audit — C side, done 15 Aug 2026
+#### The generation-2 audit — C side, 15 Aug 2026
+
+**Method, stated because it bounds the claim: every marker was grouped by its
+own stated intent, and then each group that can CHANGE BEHAVIOUR was read.**
+Groups that cannot — analyser annotations, uninitialised-local fixes — were
+classified from their comments and not read individually. So "audited" here
+means *every behaviour-changing category*, not every one of the 206 lines.
 
 **The C markers are a different animal from the BASIC ones and are mostly
-GOOD.** 206 markers over 53 `gplsrc` files, and they are static-analyser
-hardening rather than policy: NULL checks after allocation, uninitialised
-locals on switch-default paths, `noreturn` declarations so the analyser can
-see that `k_error()` longjmps, deliberate fall-through annotations,
-`strtok`→re-entrant replacements, and one real memory leak (`groups`, freed
-never). **Nothing here should be reverted wholesale**; the BASIC side's verdict
-does not carry over.
+GOOD.** 206 markers over 53 `gplsrc` files, static-analyser hardening rather
+than policy. **Nothing here should be reverted wholesale**; the BASIC side's
+verdict does not carry over.
+
+| Category | n | Verdict |
+|---|---|---|
+| `noreturn` / fall-through annotations | ~24 | cosmetic, safe |
+| uninitialised locals on switch-default paths | ~15 | genuine fixes |
+| allocation guards ending in `k_error("Insufficient memory…")` | ~15 | **right answer** — loud, immediate, matches the codebase |
+| `strtok`→`strtok_r` (`messages.c`, `netfiles.c`, `op_dio2.c`, `sdidx.c`) | 5 | correct — `savep` is function-scoped in every case |
+| `message` pointed at a string literal (`messages.c`) | 3 | improvement, and dead code either way (`k_error()` longjmps above) |
+| NULL-chunk guards in string padding (`op_str5.c`) | 3 | correct — implicit trailing spaces |
+| abort an AK node split on `k_alloc` failure (`dh_ak.c`) | 3 | defensible: orphans a node on OOM vs upstream's NULL-deref mid-split |
+| `timeout` read uninitialised (`op_seqio.c`) | 2 | genuine fix — `sq_file->timeout` is where it lives |
+| free merge buffers on open failure (`op_sort.c`) | 1 | genuine leak fix |
+| `w_addr < 0` always false on an unsigned | 1 | genuine bug fix |
+| `groups` allocated every call, never freed | 1 | genuine leak fix |
+| **`malloc(1)` → static buffer** | 2 | **DEFECT — fixed** |
+| **cleanup gated on the ELSE indicator** | 1 | **DEFECT — fixed** |
+| **trigger setup skipped on `k_alloc` failure** | 1 | **flagged, NOT fixed** |
+
+**THE SECOND DEFECT IS THE SERIOUS ONE, AND IT WAS LIVE.** `op_seqio.c`'s
+`op_openseq()` had `if (status)` where upstream has `if (process.status)`,
+"because `process.status` may be cleared for `ER_RNF` before resources are
+freed". It is cleared deliberately, and the two mean different things: `status`
+goes on the e-stack as the **ELSE indicator**, while `process.status` is what
+`STATUS()` returns — line 597's `ER_RNF; /* Transformed to zero later */` is
+that transformation arriving. **So every `OPENSEQ` of a not-yet-existing file —
+the normal way to create one — ran the failure cleanup on a successful open**:
+`k_free(fvar)` while `fvar_descr->data.fvar` already pointed at it, plus
+`k_free(sq_file)` and its pathname, and a decremented `ref_ct`. A use-after-free
+handed straight to the BASIC programme, and **silent**, because `process.status`
+was 0 by then so the `k_error()` at the foot of the block could not fire.
+**Not OOM-gated like the others — this fired on ordinary use.** Reverted to
+upstream's test; `make sd` clean.
+
+**FLAGGED, NOT FIXED — `dh_open.c:257`.** On `k_alloc` failure for the trigger
+name it silently opens the file **without its trigger**: `DHF_TRIGGER` never
+set, so writes bypass the trigger's validation. Same loud-to-silent trade as
+the `malloc(1)` defect, but OOM-only, and the right remedy — `k_error()` like
+the ~15 other allocation sites, or failing the open — changes open-failure
+semantics. **Decide it deliberately rather than in passing.** (The guard also
+contains a dead `if (p == NULL) { p = NULL; }`.)
+
+**The pattern to carry forward:** generation 2's failure mode is **turning a
+loud failure into a quiet one**, and once — in `op_openseq` — turning a success
+into a silent corruption. When a marker adds a guard, the question is never
+"is the guard right" but **"what does it do instead, and who can tell?"**
 
 **ONE REAL DEFECT, FOUND AND FIXED.** `ctype.c`'s `CNullString()` and
 `op_sdext.c`'s `NullString()` both guarded their `malloc(1)` and returned a
