@@ -113,14 +113,10 @@ elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
 `C:\Program Files\SD` and `C:\ProgramData\SD`, then `Remove-LocalGroup sdusers`
 — but leave `sdadmins` alone, for the reason in §8.
 
-**THE STAGED TREE AND THE INSTALLER DO NOT CARRY THE STEP 1D FIX.**
-**Corrected 15 Aug 2026 by dating them** — this said "fourth session, 16:15,
-3,285 files" and "16:17, 4,771,110 bytes", and both artefacts on disk are
-newer: `C:\Users\dmont\stagetest` is 14 Aug **19:14**, **3,287 files**, its
-staged `sd.exe` the 19:05 one, and `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` is
-14 Aug **19:15**, **4,776,555 bytes**. The conclusion is unchanged: 19:05
-predates the 21:29 build that carries step 1d. Both were checked rather than
-assumed —
+**THE STAGED TREE AND THE INSTALLER DO NOT CARRY THE STEP 1D FIX.** Dated
+15 Aug 2026: `C:\Users\dmont\stagetest` is 14 Aug **19:14**, 3,287 files, its
+`sd.exe` the 19:05 one; `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` is **19:15**,
+4,776,555 bytes. Both were checked rather than assumed —
 `MESSAGES/10032`–`10035` present, the three `.ps1` scripts in `ProgramFiles`,
 and `gcat/$CREATEA` containing the string `sdsshonly`, the ssh-only branch shown
 present in pcode rather than inferred from source. **Not verified: that this
@@ -401,19 +397,13 @@ Keep this split honest. It is the single most useful thing in the file.
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
 
-**15 Aug 2026, EIGHTH SESSION — THE BOOTSTRAP REFUSES AN UNELEVATED WINDOW, AND
-REFUSES BEFORE IT DOES ANYTHING.** Four runs from this session's ordinary
-shell. `bootstrap.py` given a **nonexistent** `--sysdir` printed the elevation
-refusal and **not** `no such sysdir`, so the check really is the first thing it
-does; `stage.py --bootstrap` refused and **left no staging directory behind**,
-so nothing was copied; `--help` still works unelevated on both, so the check
-does not break `--help`; and `stage.py` *without* `--bootstrap` got past the
-gate and died at its `objdump` check instead, so plain staging stays ungated.
-Underneath it, measured here: `os.getgroups()` in this unelevated
-administrator's session carries **no 544** — `IsElevated()`'s own test
-(§5.6.1) — and MSYS2 Python is a Cygwin build (`sys.platform` `cygwin`) with no
-`ctypes.windll` to ask Windows with, which is why the group route is the one
-used. **The elevated half is NOT verified** — see §4 Not verified.
+**15 Aug 2026 — THE BOOTSTRAP REFUSES AN UNELEVATED WINDOW, BEFORE DOING
+ANYTHING.** Four unelevated runs: a **nonexistent** `--sysdir` drew the
+elevation refusal and not `no such sysdir`, so the check is genuinely first;
+`stage.py --bootstrap` left no staging directory; `--help` works on both;
+`stage.py` without `--bootstrap` reached its `objdump` check, so plain staging
+stays ungated. `os.getgroups()` here carries no 544 (§5.6.1). **The elevated
+half is not verified** — §4 Not verified.
 
 **ADDED 14 Aug 2026, SEVENTH SESSION — `sd -start` AND `sd -stop` NOW TELL THE
 TRUTH ABOUT `sdwind` (§7 step 1d), AND THE MACHINE SUPPLIED ITS OWN TEST CASE.**

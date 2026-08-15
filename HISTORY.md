@@ -27,66 +27,38 @@ corrected.
 
 ---
 
-## Correction: 15 Aug 2026 - the install, the stage and the installer were all dated wrong
+## Correction: 15 Aug 2026 - the install, the stage and the installer were dated wrong
 
-Eighth session, by listing the files rather than reading the claims. Four
-numbers in PROJECT_STATUS were stale, and each was one a session would act on:
+Eighth session, by listing the files. The install is 14 Aug **19:05** (the
+table said "CURRENT, 16:15" in one row and 19:05 in the next); `stagetest` is
+**19:14, 3,287 files**, not 16:15/3,285; the installer is **19:15,
+4,776,555 bytes**, not 16:17/4,771,110; the installed tree is **3,412** files,
+not 3,270. Nothing decided on them changes - 19:05 still predates the 21:29
+build carrying step 1d. **Date artefacts, do not remember them.**
 
-- The install was recorded as "CURRENT, reinstalled 16:15" in one row and
-  "19:05" in the row below it. **19:05 is right** - `C:\Program Files\SD\usr\
-  bin\sd.exe`, 1,926,742 bytes. The sixth session reinstalled after 16:15 and
-  only updated the second row.
-- `C:\Users\dmont\stagetest` was recorded as the fourth session's, 16:15,
-  3,285 files. It is 14 Aug **19:14**, **3,287** files, and its staged `sd.exe`
-  is the 19:05 one.
-- `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` was recorded as 16:17 and
-  4,771,110 bytes. It is 14 Aug **19:15** and **4,776,555** bytes.
-- The installed data tree was recorded as 3,270 files. It is **3,412**, which
-  is the upward drift the row itself predicted.
-
-**Nothing that was decided on those numbers changes.** 19:05 still predates the
-21:29 build carrying step 1d, so the stage and the installer still have to be
-rebuilt. The lesson is the one the file already gives about the install and now
-gives about its own build artefacts: **date them, do not remember them.**
-
-Also measured the same session, because the header asserted otherwise: **SD is
-not running**, and `C:\ProgramData\SD\shm` still holds the segment and all six
-semaphores from 14 Aug 21:58. The machine is sitting in the stale-segment state
-that §7 step 1d fixed, which makes it a free test of the fix against the
-*installed* binary as soon as one is installed.
+Also: SD is **not running**, and `C:\ProgramData\SD\shm` holds the segment and
+six semaphores from 14 Aug 21:58 - the stale-segment state, free test of the
+step 1d fix once a new binary is installed.
 
 ## 15 Aug 2026 - The bootstrap refuses an unelevated window
 
-Eighth session, from `317ad58`. Closes the item the seventh session left at the
-top of the handoff. `BCOMP` gates `$internal` on `K$ADMINISTRATOR`, which has
-meant "elevated" since 14 Aug, so the bootstrap's four `sd -internal` steps need
-an elevated window and nothing said so. Unelevated it failed at
-`SECOND.COMPILE`, minutes into a slow build, as a compile summary that never
-arrived.
+Eighth session, from `317ad58`. The bootstrap's four `sd -internal` steps stand
+in SDSYS, which has needed elevation since 14 Aug, and nothing said so:
+unelevated it failed at `SECOND.COMPILE`, minutes in. `bootstrap.py` now
+refuses at the door; `stage.py` imports the same test for `--bootstrap`, which
+otherwise copies thousands of files first.
 
-**The test is `544 in os.getgroups()` and it is `IsElevated()`'s** - the same
-gid for the same reason (`gplsrc/linuxlb.c`: Cygwin maps a built-in SID to its
-RID, and only the name is translated on a localised Windows). `stage.py`
-imports it from `bootstrap.py` rather than restating it.
+The test is `544 in os.getgroups()`, `IsElevated()`'s own (`linuxlb.c`). MSYS2
+Python is a Cygwin build with no `ctypes.windll`, so the group route is the only
+one available there anyway; the `os.name == 'nt'` branch is for a native Windows
+Python. Not fixed by exempting `-INTERNAL`, which would restore the 13 Aug
+bypass.
 
-**MSYS2 Python settled how the question is asked.** It is a Cygwin build -
-`sys.platform` `cygwin`, `os.name` `posix` - so `ctypes.windll` does not exist
-and Windows cannot be asked directly; `os.getgroups()` is there and agrees with
-the C. The `os.name == 'nt'` branch is for a native Windows Python, which has
-the opposite pair.
-
-**`stage.py` is gated too, not just `bootstrap.py`**, because it copies several
-thousand files before reaching the bootstrap. Only `--bootstrap` is gated -
-staging a cold tree needs no elevation.
-
-**What was watched, all unelevated:** a nonexistent `--sysdir` produced the
-elevation refusal rather than `no such sysdir`, which is what shows the check
-is genuinely first; `stage.py --bootstrap` refused leaving no staging
-directory; `--help` still works on both; `stage.py` without `--bootstrap` got
-past the gate and died at its `objdump` check.
-
-**Still open:** nobody has seen the check pass. The elevated half comes with the
-rebuild, which is now the first item in PROJECT_STATUS.
+Watched unelevated: a nonexistent `--sysdir` draws the elevation refusal rather
+than `no such sysdir`, so the check is genuinely first; `stage.py --bootstrap`
+leaves no staging directory; `--help` works; without `--bootstrap` it reaches
+its `objdump` check. **Nobody has seen the check pass** - that comes with the
+rebuild.
 
 ## 14 Aug 2026 - Step 1c runs; user-visible Linux-isms swept
 
