@@ -5,176 +5,106 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, sixth session. It began at commit `c99f927` and
-**closed §7 step 0**: the Linux access model is built, installed, and verified
-end to end on this machine.
+**Last updated:** 14 Aug 2026, seventh session. It began at commit `5800942`
+and **closed §7 step 1d**: `sd -start` and `sd -stop` no longer lie about
+`sdwind`. Step 0 closed in the sixth session and the access model is live.
 
 **WHAT IS TRUE NOW**
 
-- **The access model works and has been watched working.** All five rules of
-  §5.6, both `LOGTO` paths, and `CREATE.ACCOUNT` still at 16 of 16 under the
-  elevated-only gate. §4 has the tables.
-- **This machine runs it.** Binaries installed 19:05, `LOGIN` and `CPROC`
-  recompiled against them and catalogued. An unelevated `sd` is refused
-  (`sysmsg(5018)`), `sd -ASDSYS` is refused (`sysmsg(10002)`), an elevated
-  session reaches SDSYS, and `sdacct5` signs in over ssh and lands in its own
-  account with nothing asked.
-- **`sysmsg(10002)` fired for the first time in this codebase's history.**
-- **Nothing is half-applied**, and the working tree is clean and pushed.
+- **The access model works and has been watched working** — all five rules of
+  §5.6, both `LOGTO` paths, `CREATE.ACCOUNT` at 16 of 16 under the
+  elevated-only gate. §4 has it.
+- **`sd -start` and `sd -stop` now ask the `sdwind` process rather than the
+  shared segment.** The machine was found sitting in the broken state, so the
+  lie and its repair were watched on the same wreckage an hour apart (§4).
+- **THE BUILD IS AHEAD OF THE INSTALL.** Everything verified this session was
+  verified against `sdb_ai\sd64\bin`, not against `C:\Program Files\SD`. **The
+  installed `sd -start` still lies.** Installing is job one below.
+- **One path in that fix has never been watched — the `EPERM` warning**, which
+  needs an elevated window. Treat it as unverified code, not as done.
 
-**THE NEXT SUBJECT IS §7 STEP 1**, and **step 1d is the pick of it**:
-`sd -start` and `sd -stop` both lie about `sdwind`, for the same reason — they
-trust the shared segment rather than the daemon process. This session hit both,
-and one of them left the system unusable while reporting success (§6). Small,
-self-contained, and it costs time every session it survives.
+**THE NEXT SUBJECT IS THE REST OF §7 STEP 1**, and **1c, `DELETE.ACCOUNT`, is
+the pick of it**: five test accounts sit on this machine, three of them
+half-removed, and the verb has never been run. It is the last asymmetry the
+account model left. Behind it, the **second machine** (step 2) is still the only
+place RDP and a genuinely clean install can be tested.
 
-**THE FILE IS 3,657 LINES. MEASURE IT WITH `.Count`:**
+**TWO JOBS NEED AN ELEVATED WINDOW, AND UAC IS BACK AT THE DEFAULT ON THIS
+MACHINE** (`ConsentPromptBehaviorAdmin` 5, `PromptOnSecureDesktop` 1), so each
+raises a consent prompt on the secure desktop:
+
+1. **Install the new binaries**, or the fix is only in the repository. Build,
+   stage, reinstall — and remember a reinstall does **not** replace the data
+   tree (§6), so recompile `GPL.BP\LOGIN` and `CPROC` after it.
+2. **Watch the `EPERM` warning**, which is the half of step 1d nobody has seen.
+   From an **elevated** window, then an **ordinary** one:
+
+   ```powershell
+   & 'C:\Program Files\SD\usr\bin\sd.exe' -stop
+   & 'C:\Program Files\SD\usr\bin\sd.exe' -start
+   ```
+
+   then, unelevated, `sd -stop`. Expect `Warning: sdwind (pid n) is still
+   running.` naming a **Windows** pid `Get-Process sdwind` agrees with, and the
+   daemon still alive afterwards. Clear it with `Stop-Process -Id n -Force`
+   from the elevated window. **Anything that says "has been shut down" with no
+   warning while `Get-Process sdwind` still answers is a failure of the fix.**
+
+**SIZE — §0 rule 5, three budgets. Measure with `.Count`, never
+`Measure-Object -Line`, which ignores blank lines and undercounts by ~15%:**
 
 ```powershell
 (Get-Content C:\Users\dmont\Projects\sdb_ai_windows\PROJECT_STATUS.md).Count
 ```
 
-**Correction, 14 Aug 2026, sixth session — and it reverses a correction made
-earlier in the same session.** This file briefly claimed the fifth session's
-figure of "about 3,190" was wrong and the real count was 2,729. **The fifth
-session was right; that correction was wrong.**
-`Measure-Object -Line` **does not count blank lines**, so it undercuts this file
-by about 15%. Measured properly, `c99f927` was **3,188** against a claim of
-~3,190, and the rollover commit `2890198` was **2,925** against a claim of
-2,924. **Every figure the earlier sessions recorded was accurate.** The wrong
-number came from the tool used to check them, and it was then written into this
-file as the recommended way to measure — which is how a bad measurement
-propagates. The general form belongs with §0 rule 2: **an instrument you have
-not checked is not evidence.**
+| Budget | Limit | Now |
+|---|---|---|
+| **Header** (above §0) | 200 | **182** |
+| **§7 Next steps** | 300 | **258** |
+| Whole file | 3,500 | **3,499** |
 
-**THE SIZE RULE WAS REPLACED THIS SESSION** — §0 rule 5. The single ~2,000-line
-limit had never once been met, so it was doing no work. Three budgets now, and
-the small ones are the ones that matter, because they are what a session reads
-front to back before it can act:
+**All three met, which had never happened before** — by doing what rule 5 says
+a closing step does, in the commit that closed it. It was not a rollover.
 
-| Budget | Limit | Now | |
-|---|---|---|---|
-| **Header** (above §0) | 200 | **269** | **over — trim first** |
-| **§7 Next steps** | 300 | **303** | at the line |
-| Whole file | 3,500 | **3,657** | over by ~157 |
+**§6 is not a candidate for cutting** — it grew again this session and every
+line was paid for in time. Rule 4 protects it; cut re-narration, never a trap.
 
-Everything else is read by searching, not reading, so its size costs a session
-much less. Full sizes: §5 **1,006**, §6 **969**, §4 **605**, §8 233, §3 95, §0
-84, §2 67, §1 26.
-
-**Where to cut, in order:**
-
-- **This header.** It is 69 lines over and it is the most expensive real estate
-  in the file. The step 0 narrative above can go to two lines now the step is
-  closed.
-- **§5, the largest section.** §5.6 and §5.6.1 carry the full argument for an
-  access model that is **now built and verified** — the weighing of
-  alternatives is history, and HISTORY already holds most of it. This is what
-  §0 rule 5's "compress when a step closes" is for, and step 0 closing is
-  exactly that moment.
-- **§4**, whose step 0 tables can shrink to their conclusions without losing an
-  observation.
-- **§6 is NOT a candidate.** It grew ~160 lines this session and every one was
-  paid for in time. Rule 4 protects it; cut re-narration if you must, never a
-  trap.
-
-**What moved to HISTORY.md**, newest first, under "PROJECT_STATUS rolled over
-from 4,112 lines": the three-postures API weighing and the `sdadmins`
-three-options weighing, both of which were `<details>` blocks here; and the
-13 Aug 2026 development-tree machine state, with its scratch accounts and their
-plaintext passwords, which had no home anywhere else and is carried verbatim.
-Everything else cut was a second copy of something HISTORY already held.
-
-**THE ACCESS MODEL IS REVERSED — decided 14 Aug 2026 fifth session, BUILT IN
-THE SIXTH, TESTED IN NEITHER.** Full statement in §5.6; the short form, because
-it changes what every other item in this file assumes:
+**THE ACCESS MODEL, BUILT AND VERIFIED.** Full statement in §5.6; the short
+form, because it changes what every other item in this file assumes:
 
 - **SD login takes no password at all.** The operating system has already
   authenticated you. Typing `sd` puts you in **the SD account with your own
-  name**, and nowhere else.
-- **No linked SD account means no login**, refused at the door.
+  name**, and nowhere else. **No linked SD account means no login.**
 - **`sudo sd` — any elevated session — puts you straight into SDSYS.** That is
-  the only route into administration.
-- **`Administrators` is the sudoers file**, and SD already maintains it:
-  `CREATE.ACCOUNT USER x` does not add to it, `... ADMINISTRATOR` does. A
-  normal SD account cannot elevate, so it can never reach SDSYS.
-- **The API is the exception and still wants a password** — see §8.
+  the only route into administration, and **`Administrators` is the sudoers
+  file**: `CREATE.ACCOUNT USER x` does not add to it, `... ADMINISTRATOR` does.
+- **ELEVATION IS LOCAL BY DESIGN** — owner's decision, and confirmed rather
+  than assumed: an ssh session cannot reach SDSYS (§4). Administrators having
+  *less* remote access than ordinary users is the intent.
+- **The API is the exception and still wants a password** (§8). Nothing of the
+  password work was deleted: `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and
+  `SET.PASSWORD` all stay, as the API's credential rather than the console's.
+- **`ACC$USERS` IS DEAD — THE GRANT IS WINDOWS GROUP MEMBERSHIP.** Entry to an
+  account is membership of its `ACC$GROUP` group, so `GRANT`/`REVOKE` become
+  verbs over `!os_group` (§7 step 5). **Grants recorded on 13 or 14 Aug
+  silently stopped working**, and **anyone granted an account cannot use it
+  until they sign out and back in** — group membership is fixed in the token at
+  logon (§6).
 
-This reverses §5.6's "every account carries its own password", decided
-13 Aug 2026 and built over two sessions. **What it does not do is delete that
-work:** `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all stay, and
-become the API's credential rather than the console's.
+**ONE KNOWN BREAKAGE NOBODY HAS HIT YET: the bootstrap needs an elevated
+shell and nothing says so.** `BCOMP` gates `$internal` on `K$ADMINISTRATOR`,
+which now means elevated, and `bootstrap.py` line 192 runs
+`sd -internal SECOND.COMPILE`. Leaving `-INTERNAL` outside the gate is not the
+answer — it restores the bypass the 13 Aug session removed — so `bootstrap.py`
+should test for elevation and refuse up front. §6 has it. Line 195 of that file
+already records the *previous* login change breaking the same path, unnoticed
+because nobody re-runs the bootstrap.
 
-**ELEVATION IS LOCAL BY DESIGN — owner's decision, 14 Aug 2026, sixth session.**
-Administrators having *less* remote access than ordinary users is the intent.
-To elevate you must be local to the machine: sitting at it, or on a secure
-remote client that gives a real interactive desktop session, such as AnyDesk.
-**This settles §7 step 0f and turns it round.** The open question was "does
-elevation work over ssh, and is it acceptable if it does not"; it is now
-**"confirm ssh cannot reach SDSYS"**, and if it turns out it can, that is a gap
-to close rather than a feature to keep. It sits consistently with §5.6.2:
-ordinary accounts arrive over ssh, the console belongs to administrators.
-
-**TWO CONSEQUENCES OF THE BUILD, ONE NOW DECIDED AND ONE NOT**, both found
-while building it and both written up in HISTORY:
-
-- **`ACC$USERS` IS DEAD. THE GRANT IS WINDOWS GROUP MEMBERSHIP** — owner's
-  decision, 14 Aug 2026, sixth session. Entry to an account is membership of
-  its `ACC$GROUP` group, so granting somebody a second account means adding
-  them to it, and **`GRANT`/`REVOKE` become verbs over `!os_group`**. §7 step 5
-  is rewritten around this and carries the removal order for `ACC$USERS`, which
-  cannot be done define-first without breaking `LIST ACCOUNTS`.
-
-  **Grants recorded on 13 or 14 Aug silently stop working** — that is in the
-  changelog — and **anyone granted an account cannot use it until they sign out
-  and back in**, because group membership is fixed in the token at logon (§6).
-- **THE BOOTSTRAP NOW NEEDS AN ELEVATED SHELL, AND NOTHING SAYS SO.**
-  `K$ADMINISTRATOR` means elevated, `BCOMP` gates `$internal` on it, and
-  `bootstrap.py` line 192 runs `sd -internal SECOND.COMPILE`. Leaving
-  `-INTERNAL` outside the gate is not the answer — it would restore exactly the
-  bypass the 13 Aug session removed — so the fix is to make `bootstrap.py`
-  check for elevation and say so, rather than fail somewhere in the middle.
-  Note that `bootstrap.py` line 195 already records the *previous* login change
-  breaking this same path, unnoticed because nobody re-ran it.
-
-**The rest of the state is what the fourth session left**, and is worth having
-in one place:
-
-- **STEP 0 IS CLOSED. `CREATE.ACCOUNT`'s ssh-only branch works and the
-  restriction it applies holds — 16 of 16, end to end** (§4). SD creates the
-  account, SD restricts it, and the console is then shut while ssh is open, on
-  an account SD made with a password SD set.
-- **`AllowGroups` IS APPLIED AND ENFORCED ON THIS MACHINE** (§4), by control
-  and treatment. **The lockout risk is closed by measurement**, and the
-  machine's administrator kept ssh.
-- **§5.6.2 is complete except RDP**, both layers, at both ends — the deny
-  rights and `AllowGroups`, the mechanism and the verb that drives it. RDP
-  **cannot be tested from one machine** (§4 Unverified, measured three ways)
-  and waits on the second one (§7 step 2).
-- **Nothing is left half-applied and nothing needs cleaning off** — the
-  reversal above is a decision on paper, and the code still does what §4 says.
-
-**THE NEXT SESSION'S SUBJECT IS §7 STEP 1**, the loose ends the account model
-left. Step 0 is closed: the access model is built, installed and verified end to
-end (§4), so the items below are no longer written against a model nobody had
-seen work.
-
-**Step 1d is the pick of them**, and it grew during step 0: **both `sd -start`
-and `sd -stop` lie about `sdwind`**, for the same reason — they trust the shared
-segment rather than the daemon process. This session hit both, one of them
-leaving the system unusable while reporting success (§6). It is small,
-self-contained, and it wastes time every session it survives.
-
-Behind it: **`DELETE.ACCOUNT`** (step 1c), which now has **three** half-removed
-accounts to decide against rather than two — `sdacct1` to `sdacct3` — plus two
-complete ones, `sdacct4` and `sdacct5`, left behind by `-Keep`. And the **second
-machine** (step 2), still the only place RDP and a genuinely clean install can
-be tested.
-
-The candidates behind it are unchanged: `DELETE.ACCOUNT` (§7 step 1c, which has
-two worked examples sitting on the machine), the **second machine** (§7 step 2),
-which is the only place RDP and a genuinely clean install can be tested, and
-**`sd -stop` telling the truth about `sdwind`** (§7 step 1d).
+**Also true and worth having in one place:** `AllowGroups` is applied and
+enforced on this machine, by control and treatment (§4), and the lockout risk
+is closed by measurement. **§5.6.2 is complete except RDP**, which **cannot be
+tested from one machine** and waits on the second (§7 step 2). Nothing is left
+half-applied.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
@@ -184,13 +114,14 @@ install** on it, from the fixed installer:
 | **The install is CURRENT** | Reinstalled 16:15 on 14 Aug 2026 from the rebuilt installer, after the whole day had been spent on an 08:32 one (§6, the staleness trap). **Date it again before trusting it** — it does not update itself, and a reinstall will not replace the data tree |
 | `C:\Program Files\SD` | **18 files**, binaries in `usr\bin` including `sdwind.exe`; `sd.exe` is **16:15:28**. 18 rather than the stage's 16 because `unins000.exe` and `unins000.dat` are the installer's |
 | `C:\ProgramData\SD\sdsys` | **3,270 files - a working database.** The compiled `gcat/$CREATEA` is 16:15:56 and **contains the ssh-only branch**; `MESSAGES/10032`–`10035` are all present. 3,270 rather than the staged 3,268 because the two test accounts added register entries — expect this number to drift upward as accounts are created |
-| The daemon | **runs**, as `C:\Program Files\SD\usr\bin\sdwind.exe`, and `sd -stop` takes it down |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
-| **EVERYTHING IS CURRENT AND THE ACCESS MODEL IS LIVE** | sixth session, 14 Aug 2026. Binaries **19:05** in `C:\Program Files\SD\usr\bin` (`sd.exe` 1,926,742 bytes, carrying `IsElevated()`), and `GPL.BP\LOGIN`/`CPROC` recompiled against them and catalogued. **An unelevated `sd` no longer reaches SDSYS** — it refuses with `sysmsg(5018)`, and `sd -ASDSYS` with `sysmsg(10002)`. Both observed, §4 |
+| **THE ACCESS MODEL IS LIVE** | sixth session, 14 Aug 2026. Binaries **19:05** in `C:\Program Files\SD\usr\bin` (`sd.exe` 1,926,742 bytes, carrying `IsElevated()`), and `GPL.BP\LOGIN`/`CPROC` recompiled against them and catalogued. **An unelevated `sd` no longer reaches SDSYS** — it refuses with `sysmsg(5018)`, and `sd -ASDSYS` with `sysmsg(10002)`. Both observed, §4 |
+| **THE INSTALLED BINARIES ARE NOW BEHIND THE REPOSITORY** | seventh session, 14 Aug 2026. `sdb_ai\sd64\bin\sd.exe` carries the §7 step 1d fix and the installed 19:05 one does not, so **the installed `sd -start` still lies about a stale segment**. Everything verified this session was verified against the build, not the install. Installing is the first item in the header's recipe |
+| **`GPL.BP\LOGIN` IS AHEAD OF THE CATALOGUE TOO** | seventh session: the sign-on banner changed in the repository, and the installed `gcat/$LOGIN` is still 18:54:15. It is cosmetic, and it needs the same elevated recompile as everything else in `GPL.BP` |
 | Reinstalling over this | the installer **found the existing database and left it alone**, saying so in a dialog — §6's staleness trap, working as designed. So a reinstall updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`: after one, copy `GPL.BP\LOGIN`/`CPROC` across and recompile, or the machine runs yesterday's BASIC on today's binaries |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\stagetest\ProgramData\sdsys\gcat`**, a complete 129-entry catalogue freshly bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction |
 | `sdusers` group | exists, with `GITORLI\don` in it |
-| `sdadmins` group | exists, **created by hand on 13 Aug, not by the installer** — see below |
+| `sdadmins` group | exists, **created by hand on 13 Aug, not by the installer**, and nothing references it any more (§8). Leave it alone |
 | System PATH and the Settings > Apps entry | both present |
 | `C:\ProgramData\SD` ACL | locked to sdusers/Administrators/SYSTEM. An unelevated session **cannot read inside it** until `don` signs out and back in; `Test-Path` on the directory itself still says True, so look at the contents |
 | MSYS2 dev tree at `/usr/local/sdsys` | still reachable with `SD_CONFIG=/etc/sd.conf`. Its `bin/` was refreshed with the `sdwind` build on 14 Aug 2026 and the stale `sdlnxd.exe` removed; `pcode`/`pcode.old` are still beside them, since the dev tree keeps the old unsplit layout |
@@ -200,7 +131,7 @@ install** on it, from the fixed installer:
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
 | Test accounts, **SD side** | **FIVE directories now**, `sdacct1` to `sdacct5`, with their `ACCOUNTS` records. **Only three are half-removed** — `sdacct1`, `sdacct2` and `sdacct3`, whose Windows accounts are gone; `sdacct4` and `sdacct5` are complete on both sides. It is the first three that step 1c has to decide about. `verify-createaccount.ps1` does not remove them, because that is `DELETE.ACCOUNT`'s job and §7 step 1c has not settled what it should do. **This is what a half-removed account looks like, and it is the case 1c has to decide.** Use a fresh `-Account` name when re-running the test; SD refuses a reused one |
-| SD | **running as this session ended** — `sdwind` up, started by `verify-createaccount.ps1` from `C:\Program Files\SD\usr\bin\sd.exe` and left up. It was started by an **elevated** session, so an unelevated `sd -stop` will report success and leave the daemon running (§6); stop it from an elevated window, or `Stop-Process` it |
+| SD | **running as the seventh session ended, and stoppable by anyone** — started **unelevated** from the repository build, so `sdwind` is `sdb_ai\sd64\bin\sdwind.exe` rather than the installed one. `sd -stop` from an ordinary window takes it down. Restart it from the same place, or from `C:\Program Files\SD\usr\bin\sd.exe` once the new binaries are installed |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -208,58 +139,40 @@ elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
 `C:\Program Files\SD` and `C:\ProgramData\SD`, then `Remove-LocalGroup sdusers`
 — but leave `sdadmins` alone, for the reason in §8.
 
-**THE STAGED TREE AND THE INSTALLER WERE BOTH REBUILT AT THE END OF
-14 Aug 2026's FOURTH SESSION, AND THEY ARE CURRENT** — the fix for the
-staleness trap in §6:
+**THE STAGED TREE AND THE INSTALLER ARE FROM 14 Aug 2026's FOURTH SESSION AND
+DO NOT CARRY THE STEP 1D FIX.** `C:\Users\dmont\stagetest` (rebuilt 16:15,
+3,285 files, bootstrap clean) and `C:\Users\dmont\sdout\sd-setup-1.0-2.exe`
+(16:17, ISCC exit 0, 4,771,110 bytes). Both were checked rather than assumed —
+`MESSAGES/10032`–`10035` present, the three `.ps1` scripts in `ProgramFiles`,
+and `gcat/$CREATEA` containing the string `sdsshonly`, the ssh-only branch shown
+present in pcode rather than inferred from source. **Not verified: that this
+particular installer installs.** It compiled; nobody has run it. Neither
+artefact survives a rebuild of the machine; both are reproduced by the commands
+at the top of `gplbld/sd.iss`.
 
-| | |
-|---|---|
-| `C:\Users\dmont\stagetest` | rebuilt 16:15, `make sd` + `stage.py --force --bootstrap`, **3,285 files**, 10.4 MB, bootstrap clean, four MSYS2 DLLs |
-| `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` | rebuilt 16:17 from the tracked `sd.iss`, ISCC exit 0, 4,771,110 bytes (was 4,761,838 at 08:35) |
+**Where to start next. The full list is §7; what follows is only what a session
+starting cold would otherwise get wrong.**
 
-Checked in the rebuilt stage rather than assumed: `MESSAGES/10032`–`10035` all
-present; `allow-ssh-groups.ps1`, `deny-logon.ps1` and `install-ssh.ps1` all in
-`ProgramFiles`; and the compiled `gcat/$CREATEA` **contains the string
-`sdsshonly`** where the 08:34 one does not — the ssh-only branch shown present
-in pcode rather than inferred from a source file.
-
-**Not verified: that this particular installer installs.** It compiled; nobody
-has run it. Neither artefact survives a rebuild of the machine, and both are
-reproduced by the commands at the top of `gplbld/sd.iss`.
-
-**Where to start next.**
-
-**Every elevated command below is written out in full on purpose.** An elevated
-window opens in `C:\WINDOWS\system32`, never in the repository, so a relative
-path fails with "the argument ... does not exist" — which reads like a missing
-script rather than a wrong working directory. Adjust the prefix if the
-repository is somewhere else.
-
-**The full list is §7. What follows is only what a session starting cold would
-otherwise get wrong**, and the two re-run recipes worth having to hand.
+**Every elevated command in this file is written out in full on purpose.** An
+elevated window opens in `C:\WINDOWS\system32`, never in the repository, so a
+relative path fails with "the argument ... does not exist" — which reads like a
+missing script rather than a wrong working directory.
 
 **Re-running `CREATE.ACCOUNT` needs a FRESH account name.** The SD side of a
-previous run is left behind deliberately (see §7 step 1c), so the verb refuses
-a reused one and the script says so up front:
+previous run is left behind deliberately (§7 step 1c), so the verb refuses a
+reused one:
 
 ```powershell
-powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct3
+powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct6
 ```
 
-**`AllowGroups` is left applied on this machine deliberately** — it is what the
-installer would have written. `allow-ssh-groups.ps1 -Remove` reverses it, and
+**`AllowGroups` is left applied here deliberately** — it is what the installer
+would have written. `allow-ssh-groups.ps1 -Remove` reverses it;
 `verify-allowgroups.ps1` re-checks the file editing with no elevation, no
-`sshd` and no network, from any directory.
-
-**If you apply it on another machine, read this first.** The client sees
-`Permission denied (publickey,password,keyboard-interactive)` whether the user
-was refused by `AllowGroups` or simply failed to authenticate — the two are
-indistinguishable from the client. **Read the reason out of the
-`OpenSSH/Operational` log**, where a group-refused account appears as
-`not allowed because none of user's groups are listed in AllowGroups` and as
-`invalid user`, against `authenticating user` for an allowed one. And use an
-**enabled** account as the control: a disabled one produces a bare
-`Connection reset` that looks like a refusal and is not.
+`sshd` and no network. **Before applying it on another machine**, read the §4
+entry: a client cannot tell an `AllowGroups` refusal from a failed
+authentication, so the reason has to come out of the `OpenSSH/Operational` log,
+and the control account must be an **enabled** one.
 
 **Read first if anything to do with compilation misbehaves:** the `ERRGEN` trap
 in §6. An undefined `$define` in SD is a *warning* at compile time and an abort
@@ -523,14 +436,18 @@ scratch accounts before this machine is used for anything that matters.**
 
 **With nothing set in the environment, SD reads `C:\ProgramData\SD\sd.conf`**
 and therefore the installed tree at `C:\ProgramData\SD\sdsys` (changed
-14 Aug 2026). That tree has **no SDSYS password**, so `LOGIN` warns and admits
-an administrator; it **does** have the ACLs, so an unelevated session that has
-not signed out since being added to `sdusers` cannot read it at all (§6).
+14 Aug 2026). It has the ACLs, so an unelevated session that has not signed out
+since being added to `sdusers` cannot read it at all (§6).
 
-From an ordinary unelevated PowerShell window, with SD installed:
+**CORRECTED 14 Aug 2026, seventh session.** The recipe here was
+`sd -start ; sd -ASDSYS` then `COUNT VOC`, from an ordinary window; **the
+second half is now refused** with `sysmsg(10002)`, which is the point of §5.6.
+`sd -start` still works unelevated — starting the server is `IsAdmin()`'s
+question, not `IsElevated()`'s — so it is an **elevated** window for SDSYS, or
+an ordinary one for the account named after your own Windows user.
 
 ```powershell
-sd -start ; sd -ASDSYS   # then COUNT VOC, expect 431 record(s) counted
+sd -start                    # ordinary window; check with Get-Process sdwind
 ```
 
 **A scripted session must be piped, not `<`-redirected, and the pipe must send
@@ -549,102 +466,81 @@ Keep this split honest. It is the single most useful thing in the file.
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
 
-**Added 14 Aug 2026, sixth session — and it is a short list on purpose:**
+**ADDED 14 Aug 2026, SEVENTH SESSION — `sd -start` AND `sd -stop` NOW TELL THE
+TRUTH ABOUT `sdwind` (§7 step 1d), AND THE MACHINE SUPPLIED ITS OWN TEST CASE.**
+It was found sitting in the broken state — segment and all six semaphores under
+`C:\ProgramData\SD\shm`, **no `sdwind` process at all** — so the before and
+after below are the same wreckage an hour apart, not a reconstruction.
 
-- **`make sd` exits 0 with `IsElevated()` in it.** Observed: `Compiling
-  linuxlb.o`, all six link steps, `[exited with code 0]`. `linuxlb.c` and
-  `kernel.c` also pass `gcc -fsyntax-only -Wall -Wformat=2` with no warnings.
-- **`ACCOUNTS/SDSYS` field 3 is `sdsys`**, read as bytes off the installed tree
-  and off the repository copy. See §6 — this is the fact that changed the
-  design of the group test.
-- **`bbcmp.py` fails on `LOGIN` identically before and after the change**, so
-  the failure is the compiler's and not the edit's. Control run, §6.
-
-**AND THEN, LATER THE SAME SESSION, IN AN ELEVATED WINDOW:**
-
-- **`LOGIN` AND `CPROC` BOTH COMPILE — `0 error(s)` EACH — AND ARE
-  CATALOGUED.** `sd -internal BASIC GPL.BP LOGIN` then `... CPROC`, against the
-  installed tree. `gcat/$LOGIN` moved from 16:15:56 to 18:54:15 and 5,319
-  bytes, so the pcode was checked as written rather than as reported. Neither
-  file had ever been through a compiler before. **This is the first time the
-  access model has existed in a form that can execute.**
-- **THE NEW `LOGIN` IS RUNNING, and the evidence arrived sideways.** The
-  `LOGIN` compile printed `Warning: account SDSYS has no password set.`; the
-  `CPROC` compile, one command later, **did not**. That line lives in the
-  deleted `authenticate.account`, so its disappearance dates the changeover
-  exactly. The `CPROC` compile then succeeded *through* the new `LOGIN`, which
-  means **the `sdusers` gate admits a member** — `!is_grp_member` works at
-  login, the thing §6 records as having once refused everybody — and **the
-  `K$FORCED.ACCOUNT` branch reaches SDSYS**.
-- **Only one warning, and it is not from the edit:**
-  `PRIVILEGED_COMMANDS is assigned a value but never used`. Cause established
-  by reading rather than by a control run, and it is structural — see §6, the
-  `IS_INSTALL` trap. **No `is not assigned a value` lines**, so both files pass
-  the ERRGEN gate `bootstrap.py` line 229 enforces.
-
-**AND THEN THE REFUSALS, WHICH ARE THE PART THAT PROVES IT.** New binaries
-installed (19:05), `LOGIN` and `CPROC` recompiled against them, and then run
-from an **unelevated** session — the case that could not be tested until
-`IsElevated()` was the live implementation:
-
-| Command | Result | Message |
+| Run | Command | Answer |
 |---|---|---|
-| `sd`, unelevated | **refused** | `Account DON not in register` — `sysmsg(5018)` |
-| `sd -ASDSYS`, unelevated | **refused** | `SDSYS Account access is restricted to privileged users` — `sysmsg(10002)` |
-| `sd -internal BASIC ...`, **elevated** | **worked**, twice | compiled and catalogued |
+| **Control**, installed 19:05 binary | `sd -start` | `SD is already started` — **the lie, reproduced** |
+| **New build**, same state | `sd -start` | `SD did not shut down cleanly: the shared segment is still here but sdwind is not running.` + `Run sd -stop to clear it, then sd -start again.` |
+| New build | `sd -stop` | `has been shut down`, exit 0, `shm` **emptied** — and **no spurious warning**, the daemon having genuinely gone |
+| New build | `sd -start` | really starts: `sdwind` at Windows pid 14712 |
+| New build, SD now up | `sd -start` | `SD is already started - sdwind is running as pid 14712.` |
+| New build, segment unlinked by hand | `sd -start` | `Semaphores are already present.  If SD is not running, sd -stop clears them.` |
 
-**The first row is the whole reversal in one line.** An hour earlier that exact
-command put `don` — a machine administrator — straight into SDSYS. It now
-refuses, because `IsElevated()` is false in an ordinary session. **And
-`sysmsg(10002)` fired for the first time in this codebase's history**; §5.6
-recorded it as having never had a caller.
+- **THE CONTROL IS THE MOST VALUABLE ROW.** `SD is already started` — **no full
+  stop**. That is `sdsem.c` line 86, not the `bind_sysseg` string §7 step 1d
+  named, which ends in one. `get_semaphores(TRUE)` runs before the segment is
+  ever looked at, so **a fix confined to the two places the step named would
+  have changed nothing the user sees.**
+- **The pid is the Windows pid.** `sd` said 14712 and `Get-Process sdwind` said
+  14712, against **87** before the translation went in — see the MSYS2-pid trap
+  in §6, which is the finding this row exists to record.
+- **`make sd` exits 0 and neither changed file warns.** `gcc -fsyntax-only
+  -std=gnu17 -Wall -Wformat=2` clean, then a full `make sd`, exit 0.
+- **NOT observed, and it is the half the step was originally about: the `EPERM`
+  warning.** It needs a daemon started elevated and stopped from an ordinary
+  session. Nothing about it has been watched — treat it as unverified code.
+- **Observed instead, and it is a defect the fix cannot reach:** with the
+  segment unlinked under a live daemon, `sd -stop` reported success, exit 0,
+  and left `sdwind` running. §6 carries it.
 
-**BOTH REFUSALS WERE THEN REPRODUCED INDEPENDENTLY BY THE REPOSITORY OWNER IN A
-PLAIN `cmd` CONSOLE**, byte for byte. That matters rather than merely
-duplicating the result: the runs above went through a **pipe**, and §6 records
-that a piped SD session is not equivalent to a real one — it takes a BOM on the
-first line, and `Start-Process -RedirectStandardInput` fails outright. **A real
-TTY was the one way to be sure the refusals were SD's and not the plumbing's.**
+**14 Aug 2026, SIXTH SESSION — STEP 0, COMPRESSED TO ITS CONCLUSIONS** under §0
+rule 5. HISTORY carries the working detail; these are the claims and what
+decided them.
 
-Incidental but worth keeping: the console runs carried extra words on the
-command line, and **SD ignored them** — `LOGIN` refuses before anything parses a
-command. So **a user refused at the door cannot smuggle a command in as an
-argument**, on either path.
+- **`LOGIN` and `CPROC` both compile, `0 error(s)` each, and are catalogued.**
+  `gcat/$LOGIN` moved to 18:54:15 and 5,319 bytes — the pcode checked as
+  written rather than as reported. Neither had been through a compiler before.
+- **The new `LOGIN` is what runs**, dated exactly: the `LOGIN` compile printed
+  `Warning: account SDSYS has no password set.` and the `CPROC` compile one
+  command later did not, that line living in the deleted
+  `authenticate.account`. `CPROC` then compiled *through* the new `LOGIN`, so
+  the `sdusers` gate admits a member and `K$FORCED.ACCOUNT` reaches SDSYS.
+  Only one warning, structural and not from the edit (§6, `IS_INSTALL`), and no
+  `is not assigned a value` lines, so both pass the ERRGEN gate.
+- **THE REFUSALS, which are the part that proves it.** From an **unelevated**
+  session against the newly installed binaries: `sd` refused with
+  `Account DON not in register` (`sysmsg(5018)`), `sd -ASDSYS` refused with
+  `SDSYS Account access is restricted to privileged users` (`sysmsg(10002)`),
+  while `sd -internal BASIC ...` **elevated** worked twice. An hour earlier the
+  first of those put a machine administrator straight into SDSYS. **And
+  `sysmsg(10002)` fired for the first time in this codebase's history.**
+  **Both were then reproduced by the repository owner in a plain `cmd`
+  console**, which mattered because the runs above went through a pipe and §6
+  records a piped session as not equivalent to a real one. Incidental and worth
+  keeping: extra words on those command lines were **ignored**, so a user
+  refused at the door cannot smuggle a command in as an argument.
+- **§5.6 IS COMPLETE — ALL FIVE RULES, BOTH `LOGTO` PATHS**, over ssh as
+  `sdacct5`, a normal non-administrator account: `sd` gave a `:` prompt with
+  nothing asked, `who` confirmed `3 SDACCT5`, `LOGTO SDSYS` was refused by the
+  elevation gate (**an ssh session cannot be elevated** — the local-only
+  property, tested rather than argued) and `LOGTO SDACCT1` by the restored
+  `ACC$GROUP` test. **The two refusals come from different code**, which is why
+  both were run; between them they cover every branch the session changed.
+- **`CREATE.ACCOUNT` still passes 16 of 16** under the elevated-only gate,
+  re-run as `sdacct3`. Its ssh-only restriction holds by the three decisive
+  measurements: `LogonUser INTERACTIVE` refused 1385, `NETWORK_CLEARTEXT`
+  admitted, ssh with the password SD set admitted. **That run does not test SD
+  login and is easy to read as if it does** — all sixteen checks are
+  Windows-side. Ignore `Command not found` in its section 1; the script's own
+  header records it as a stray stderr artefact of how passwords are fed in.
 
-**`CREATE.ACCOUNT` STILL WORKS UNDER THE ELEVATED-ONLY GATE — 16 of 16**, re-run
-as `sdacct3` from an elevated window, sixth session. It is `$internal` and tests
-`K$ADMINISTRATOR`, so the reversal could have broken it and did not. The ssh-only
-restriction it applies still holds by the three decisive measurements:
-`LogonUser INTERACTIVE` refused 1385, `NETWORK_CLEARTEXT` admitted, ssh with the
-password SD set admitted.
-
-**That run does not test SD login, and it is easy to read as if it does** — all
-sixteen checks are Windows-side, and none of them logs into SD. So the last two
-rules were tested separately, by hand, over ssh as `sdacct5`:
-
-**§5.6 IS COMPLETE. ALL FIVE RULES OBSERVED, AND BOTH `LOGTO` PATHS.** From an
-ssh session belonging to `sdacct5`, a normal non-administrator SD account:
-
-| Typed | Answer | What it proves |
-|---|---|---|
-| `sd` | **a `:` prompt, nothing asked** | `case 1` took `upcase(@logname)`, found `SDACCT5`, and entered it on the strength of the OS having authenticated the user |
-| `who` | `3 SDACCT5` | which account, confirmed rather than inferred from the absence of a prompt |
-| `LOGTO SDSYS` | `SDSYS Account access is restricted to privileged users` | the elevation gate in `int.logto`. **An ssh session cannot be elevated** — the local-only property of §5.6, tested rather than argued |
-| `LOGTO SDACCT1` | `User not allowed in requested account` | **the restored `ACC$GROUP` test in `logto.authorised`** — `sdacct5` is not in `sdu_sdacct1` |
-
-**The two refusals come from different code**, which is why both were worth
-running: one is the elevation gate before the ACCOUNTS read, the other is the
-group test below it. Between them they cover every branch this session changed
-in `CPROC`.
-
-**Ignore `Command not found` in section 1 of that script's output.** It appears
-while all 16 checks pass; the script's own header (line ~179) records it as a
-stray stderr artefact of how passwords are fed in. It is the harness, not the
-verb.
-
-**The foundations, observed 13 Aug 2026** and superseded as headline claims by
-the installed system running end to end. Nothing since has contradicted any of
-them, and re-verifying them is not what the next session should spend time on.
+**The foundations, observed 13 Aug 2026.** Nothing since has contradicted any
+of them, and re-verifying them is not worth a session's time.
 
 | What was shown | HISTORY entry |
 |---|---|
@@ -791,14 +687,18 @@ way to see this system as a non-administrator on a machine whose account is one.
   | `LocalAccountTokenFilterPolicy` | **not set** | the default remote restriction applies — see below |
   | `FilterAdministratorToken` | not set | — |
 
-  **Correction, 14 Aug 2026, sixth session: `ConsentPromptBehaviorAdmin` now
-  reads 0, not 5, and `PromptOnSecureDesktop` reads 0.** The repository owner
-  moved the UAC slider to "Never notify" during the session. **THE MODEL IS
-  UNAFFECTED AND THIS WAS MEASURED, NOT ASSUMED:** token filtering is
-  `EnableLUA`'s doing, and `EnableLUA` is still 1. In an ordinary session
-  belonging to `don`, an administrator, `S-1-5-32-544` is **absent from the
-  process token** and `id -G` returns no 544 — so `IsElevated()` still answers
-  false where it should. Only the *prompt* on an elevation request is gone.
+  **The UAC slider moves, so read it rather than remembering it.** The sixth
+  session recorded `ConsentPromptBehaviorAdmin` at **0** and
+  `PromptOnSecureDesktop` at **0**, the owner having moved the slider to "Never
+  notify"; the seventh session read **5 and 1** — back at the Windows default,
+  so **elevating raises a consent prompt on the secure desktop again**, which
+  is what makes the elevated half of a test something a person has to be asked
+  for rather than something a session can arrange. **THE ACCESS MODEL IS
+  UNAFFECTED EITHER WAY AND THAT WAS MEASURED, NOT ASSUMED:** token filtering
+  is `EnableLUA`'s doing and `EnableLUA` is 1 in both readings. In an ordinary
+  session belonging to `don`, an administrator, `S-1-5-32-544` is **absent from
+  the process token** and `id -G` returns no 544, so `IsElevated()` answers
+  false where it should. Only the *prompt* changes.
 
   **`EnableLUA = 0` WOULD BREAK IT, AND WOULD ALSO MAKE §7 STEP 0e MEANINGLESS.**
   With no split token every administrator session is elevated, so `IsElevated()`
@@ -1329,14 +1229,13 @@ administrator to the OS, you are an administrator of SD; the installer has to
 be an administrator, so the person who installs SD is an SD administrator
 without any further step.
 
-**What forced it.** Three separate problems turned out to be one: the installer
-creates `sdusers` and never `sdadmins`, so a clean machine got an install
-nobody could start; the postinstall "set the SDSYS password" step could not
-work and on this model is not needed at all; and `IsAdmin()` was still the real
-source of `K$ADMINISTRATOR` despite §5.6 saying OS groups were gone, so an OS
-administrator running `sd -internal` was **already** being admitted without a
-password. The behaviour and the written decision had drifted apart; this closes
-the gap in favour of the behaviour.
+**What forced it.** Three problems turned out to be one: the installer creates
+`sdusers` and never `sdadmins`, so a clean machine got an install nobody could
+start; the postinstall "set the SDSYS password" step could not work; and
+`IsAdmin()` was still the real source of `K$ADMINISTRATOR` despite §5.6 saying
+OS groups were gone, so `sd -internal` **already** admitted an OS administrator
+without a password. The behaviour and the written decision had drifted apart,
+and this closed the gap in favour of the behaviour.
 
 **What "administrator" tests, and it is not elevation.** Measured 14 Aug 2026
 with a C probe, from an unelevated session belonging to a machine
@@ -1380,10 +1279,10 @@ is. `gplbld/sd.iss` already had to learn this for `icacls`, where it writes
   back in after being added (§6).
 - **Normal accounts are standard local accounts.** Administrators are made
   deliberately, with a keyword.
-- **The SDSYS password stops being what confers administration.** It still
-  guards the SDSYS *account*, and every account still carries its own password;
-  what changes is that knowing it is no longer the definition of being an
-  administrator.
+- **The SDSYS password stopped conferring administration, and then stopped
+  existing.** This bullet said it "still guards the SDSYS account, and every
+  account still carries its own password"; the reversal at the top of §5.6
+  removed console passwords altogether. Corrected 14 Aug 2026, seventh session.
 
 **Built and working as of 13 Aug 2026** — see §4 for what was observed. Salt
 generation (`SD_SALT`, 100), Argon2 derivation (`SD_KEYFROMPW`, 101) and the
@@ -1399,32 +1298,13 @@ compare needed no new C code:
 | `ACC$USERS`, the grant list, field 4 of ACCOUNTS | `SYSCOM/KEYS.H`, dictionary item in `gplbld/FILES_DICTS` |
 | `LOGTO` grant check, and the SDSYS step-up | `CPROC`, `logto.authorised` and `logto.step.up` |
 
-`LOGIN` sets `@logname` to the authenticated account and sets
-`K$ADMINISTRATOR` on entry to SDSYS. **Two deliberate ways in without a
-password**, both gated on `K$ADMINISTRATOR` (which comes from the OS via
-`IsAdmin()` and cannot be self-granted): an administrator running an internal
-command, which is the install path since the bootstrap cannot type a password;
-and an account with no password yet, with a warning. So a half-configured
-system is not an open one.
-
-**How `LOGTO` decides.** `CPROC`'s `logto.authorised` runs immediately after
-the ACCOUNTS read, where the deleted `ACC$GROUP` test used to sit. The early
-`K$ADMINISTRATOR` test at the top of `int.logto` is gone — it asked whether the
-caller was already privileged, which is the wrong question when entering SDSYS
-is what confers privilege. In order:
-
-0. **The target must be a registered account name.** Anything not in ACCOUNTS
-   is refused before authorisation is considered.
-1. An administrator running an internal command is admitted, as at `LOGIN`.
-2. **A session standing in SDSYS may enter any account**, no grant needed.
-3. Otherwise you may enter your own account, or one whose `ACC$USERS` names
-   you. Refusal is `sysmsg(10003)` and the session stays where it was.
-4. Entering SDSYS additionally runs `logto.step.up`: three tries at **your own**
-   password through `!CRED_VERIFY(@logname, ...)`, with `PT$INVERT` and the
-   input prompt character cleared around the read (§6).
-
-`@logname` is untouched by any of it — the only assignments anywhere are
-`LOGIN` 235, `CPROC` 250 and 282 (both initialisation) and `APISRVR`.
+**The password model's own login and `LOGTO` rules — the two ways in without a
+password, and the five-way `logto.authorised` order that ended in
+`logto.step.up` — MOVED TO HISTORY.md on 14 Aug 2026, seventh session**, under
+§0 rule 5: step 0 built over them, `logto.step.up` and `ACC$USERS` are both
+deleted, and what replaced them is stated at the top of §5.6. `@logname` is
+still untouched by any of it: the only assignments anywhere are `LOGIN` 235,
+`CPROC` 250 and 282 (both initialisation) and `APISRVR`.
 
 **Two decisions from the repository owner, both 13 Aug 2026, both settled.**
 
@@ -2189,25 +2069,34 @@ Each of these cost real time. Read before debugging anything similar.
   *previous* login change breaking this same path, unnoticed for the same
   reason: **nobody re-runs the bootstrap, so it rots silently.**
 
-- **`sd -start` SAYS "SD is already started" WHEN `sdwind` IS DEAD, AND DOES
-  NOTHING.** Measured 14 Aug 2026, sixth session, right after a hung `sd.exe`
-  was killed. The shared segment outlived the daemon —
-  `C:\ProgramData\SD\shm\sd_shm_716d0301` was still there from 19:21 with
-  `sdwind` gone — and `sd -start` trusts the segment, not the process. **So the
-  system is unusable while the command that fixes it reports success.**
+- **`sd -start` SAID "SD is already started" WHEN `sdwind` WAS DEAD, AND DID
+  NOTHING — FIXED 14 Aug 2026, seventh session (§7 step 1d).** Kept because the
+  *shape* of it recurs: the segment and the semaphores are objects, and objects
+  outlive the processes that made them, so anything that asks an object whether
+  a system is running will eventually lie. `sd -start` now asks `sdwind`.
 
-  **The fix is `sd -stop` first, then `sd -start`.** The stop clears the stale
-  segment (verified: the `shm` directory emptied), and the start then really
-  starts: `sdwind` came up as pid 14612.
-
-  **This is §7 step 1d from the other end** — that step is about `sd -stop`
-  lying when it fails to kill `sdwind`; this is `sd -start` lying when `sdwind`
-  is already gone. **Both come from trusting the segment rather than the
-  process, so fix them together.**
+  **The fix by hand, if you meet this on a binary that predates it, is still
+  `sd -stop` then `sd -start`.**
 
   **Start the daemon from an UNELEVATED session where you can.** One started
   elevated cannot be stopped by an ordinary one — see the `sd -stop` entry
   below — so an unelevated start leaves it stoppable from either.
+
+- **SD PRINTS MSYS2 PROCESS IDS, AND WINDOWS HAS NEVER HEARD OF THEM.**
+  Measured 14 Aug 2026, seventh session: the running daemon called itself
+  **pid 87**; `Get-Process sdwind` called it **14712**. `getpid()` under the
+  MSYS2 runtime answers with the runtime's own numbering, and **every pid SD
+  holds is that kind** — the user table, `sysseg->sdwind_pid`, `sysdump`'s
+  `sdwind pid:` line.
+
+  **This is worse than cosmetic in any message that says "stop this process".**
+  `Stop-Process -Id 87` does not fail; it acts on whatever unrelated Windows
+  process holds 87. **Translate before printing:**
+  `cygwin_internal(CW_CYGWIN_PID_TO_WINPID, pid)` from `<sys/cygwin.h>`, which
+  `win_pid()` in `sysseg.c` wraps. It answered correctly on the live daemon —
+  14712, matching `Get-Process` exactly — and returns 0 when it cannot
+  translate, so a caller can fall back to printing no number rather than a
+  wrong one. **`sysdump.c` line 95 still prints the untranslated pid.**
 
 - **A PIPED SD SESSION CANNOT ANSWER "Press RETURN to continue", SO ANY
   `LIST` THAT OUTGROWS A PAGE HANGS FOREVER.** Measured 14 Aug 2026, sixth
@@ -2896,35 +2785,33 @@ Each of these cost real time. Read before debugging anything similar.
   There is no upgrade path (§7 step 3), and it will cost more once a tree holds
   real data.
 
-- **`sd -stop` REPORTS SUCCESS WHILE LEAVING `sdwind` RUNNING, when the
-  stopping session is less elevated than the starting one.** Observed
-  14 Aug 2026, fourth session, and it invalidates nothing in §4 — the earlier
-  verification started and stopped SD at the same elevation, which is the case
-  that works.
+- **`sd -stop` LEAVES `sdwind` RUNNING WHEN THE STOPPING SESSION IS LESS
+  ELEVATED THAN THE STARTING ONE. IT NOW SAYS SO; IT STILL CANNOT STOP IT.**
+  Observed 14 Aug 2026, fourth session; the *silence* was fixed in the seventh
+  (§7 step 1d), the underlying refusal cannot be — an unelevated process is not
+  allowed to signal an elevated one, and `Stop-Process` from the same session
+  is refused `Access is denied` at the same boundary.
 
-  What was seen: `sdwind` started by an **elevated** script; `sd -stop` from an
-  ordinary session printed `SD (64 Bit) has been shut down`, the segment and all
-  six semaphores were unlinked, and **the daemon was still running** minutes
-  later. `Stop-Process` from the same session was refused `Access is denied` —
-  the same permission boundary `kill()` runs into.
-
-  **`sysseg.c` line 503 does not check the result** — `kill(sysseg->sdwind_pid,
-  SIGTERM)` with the return value discarded. An unelevated process signalling an
-  elevated one gets `EPERM`, and the liveness poll below walks the **user table**
-  only, never waiting for `sdwind`, so nothing notices. The shutdown message is
-  printed unconditionally.
-
-  **What to do now:** kill it by Windows pid from an elevated window,
-  `Stop-Process -Id <pid> -Force`. `sd -stop` will not help a second time,
-  because the segment it reads `sdwind_pid` from has already gone.
+  **What to do:** kill it by **Windows** pid from an elevated window,
+  `Stop-Process -Id <pid> -Force`. The warning now prints that pid, translated
+  (see the MSYS2-pid trap above). A second `sd -stop` will not help, because
+  the segment it read `sdwind_pid` from has already gone.
 
   **What to watch for:** an orphaned `sdwind` holds a mapping of an unlinked
-  segment and will keep running `check_lost_users()` against it. Starting SD
-  again creates a *fresh* segment, so the machine ends up with two daemons and
-  one of them is working on memory nothing else can see. Check
-  `Get-Process sdwind` after any `sd -stop` that spanned an elevation boundary.
+  segment and keeps running `check_lost_users()` against it. Starting SD again
+  creates a *fresh* segment, so the machine ends up with two daemons and one of
+  them is working on memory nothing else can see. Check `Get-Process sdwind`
+  after any `sd -stop` that spanned an elevation boundary.
 
-  **The fix is in `sysseg.c` and is not written** — see §7 step 1d.
+- **`sd -stop` STILL SAYS "has been shut down" WITH THE DAEMON RUNNING, IF THE
+  SEGMENT HAS ALREADY GONE — AND THIS ONE IS NOT FIXABLE WHERE THE OTHERS WERE.**
+  Measured 14 Aug 2026, seventh session, by unlinking the segment under a live
+  daemon: `sd -stop` printed success, exit 0, and `Get-Process sdwind` still
+  showed 14712. **`sysseg->sdwind_pid` is the only record of the daemon's
+  identity, so with the segment gone `stop_sd()` has nothing to signal and no
+  way to know there was anything to signal.** The residue of §7 step 1d, and the
+  answer if it ever matters is a **pid file beside the segment** rather than a
+  field inside it.
 - **A yes/no prompt with no input left spins forever, at full CPU.**
   `CATALOG BP X GLOBAL` asks "Program is also in private catalogue. Remove?".
   Fed from a pipe that has run dry, the read returns end of file, the prompt
@@ -3136,94 +3023,42 @@ the staging script and the Inno installer were all finished and removed.
    185-270. That is this repository's own pre-port source and it is the
    specification — the five rules in §5.6 are transcribed from it, not designed.
 
-   a. **DONE. `IsElevated()` added beside `IsAdmin()` in `linuxlb.c`**, and
-      `kernel.c` line 186 seeds `USR_ADMIN` from it. `IsAdmin()` is untouched
-      and still gates `sd -start`. **It is `getgroups()`, not a Win32 call** —
-      the very call `IsAdmin()` was moved off, because §5.6.1 had already
-      measured that `getgroups()` omits a deny-only `Administrators` and so
-      means "elevated". No `windows.h` in a POSIX translation unit (§5.4).
-   b. **DONE. `LOGIN` restored from `f9edab0`; `authenticate.account` deleted.**
-      All three cases, the `sdusers` gate, and no password prompt anywhere.
-      **With one deliberate departure from `f9edab0`: an elevated session skips
-      the `ACC$GROUP` test.** It has to — see §6, `ACCOUNTS/SDSYS` names a group
-      that does not exist on Windows, and restoring the test verbatim refuses
-      SDSYS to everybody. **This absorbed what was step 1b.**
-   c. **DONE. `CPROC`: `logto.step.up` deleted, `ACC$GROUP` restored in
-      `logto.authorised`, `LOGTO SDSYS` requires elevation, and the
-      `system(27) = 0` block is gone** with nothing replacing it in `CPROC` —
-      `kernel.c` seeds the flag before any BASIC runs, and `LOGIN` turns it into
-      an account.
-   d. **DONE. `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all kept**
-      and recorded as callerless, in `LOGIN` where the caller used to be.
-      `sysmsg` 10030 and 10031 lost their only caller with `logto.step.up`.
-   e. **DONE — ALL FIVE RULES OBSERVED (§4).** Compiled, installed, both
-      refusals watched from an unelevated session, and the last two watched over
-      ssh as `sdacct5`: `sd` landed it in `SDACCT5` with nothing asked, and both
-      `LOGTO` refusals fired from their separate code paths.
-      `CREATE.ACCOUNT` re-passed 16 of 16 under the elevated-only gate.
+   **What was built:** `IsElevated()` beside `IsAdmin()` in `linuxlb.c` (it is
+   `getgroups()`, the call `IsAdmin()` was moved *off*, because a UAC-filtered
+   token drops a deny-only `Administrators` — so the two calls answer two
+   different questions and both are wanted); `kernel.c` seeding `USR_ADMIN`
+   from it; `LOGIN` restored from `f9edab0` with `authenticate.account` deleted;
+   `CPROC` losing `logto.step.up` and regaining the `ACC$GROUP` test. `$CRED`,
+   `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` are all kept and recorded as
+   callerless. **One deliberate departure from `f9edab0`: an elevated session
+   skips the `ACC$GROUP` test**, because `ACCOUNTS/SDSYS` names a Linux group
+   and restoring the test verbatim refuses SDSYS to everybody (§6).
 
-      **`gcat.before-step0` has already been deleted** (sixth session). If login
-      ever needs restoring, take the catalogue from the staged tree rather than
-      looking for that backup — see the machine table.
+   **THE RECIPE THAT COST A ROUND TRIP, BECAUSE EVERY LATER STEP NEEDS IT.**
+   Recompiling anything in `GPL.BP` on an installed system takes `-internal`,
+   the command as separate arguments, an **elevated** window, and no pipe:
 
-      **Two things the staging run taught, both worth keeping:**
+   ```powershell
+   & 'C:\Program Files\SD\usr\bin\sd.exe' -internal BASIC GPL.BP LOGIN
+   ```
 
-      **THE INVOCATION FORM COST A ROUND TRIP, SO IT IS WRITTEN OUT.** Compile
-      with **`-internal`, and pass the command as separate arguments**, exactly
-      as `bootstrap.py` line 214 does:
+   **Not `-ASDSYS`** — `BCOMP` gates `$internal` on `K$INTERNAL` *and*
+   `K$ADMINISTRATOR`, so standing in SDSYS is not enough, and with `-ASDSYS`
+   every directive is rejected as unrecognised and each `common` block fails
+   after it: 11 cascading errors that look like broken source and are not.
+   **And not piped** — the BOM trap in §6 turned `CATALOG` into `TALOG`.
+   `CATALOG` is not needed separately: the `$catalog` directive writes `gcat`.
+   **Back up `gcat` first**, because a bad `$LOGIN` locks you out of SD:
 
-      ```powershell
-      & 'C:\Program Files\SD\usr\bin\sd.exe' -internal BASIC GPL.BP LOGIN
-      ```
+   ```powershell
+   Copy-Item 'C:\ProgramData\SD\sdsys\gcat' 'C:\ProgramData\SD\sdsys\gcat.bak' -Recurse -Force
+   ```
 
-      **Not `-ASDSYS`** — `BCOMP` gates the `$internal` directive on `K$INTERNAL`
-      *and* `K$ADMINISTRATOR`, so standing in SDSYS is not enough
-      (`bootstrap.py` line 189). With `-ASDSYS`, `$internal`, `$flags trusted`
-      and `$catalogue` are all rejected as unrecognised directives and every
-      `common` block in the includes fails after them — 11 cascading errors that
-      look like broken source and are not. **And not piped**: the BOM trap in §6
-      ate the first two characters of `CATALOG`, which arrived as `TALOG`.
-      `CATALOG` is not needed separately anyway — the `$catalog` directive in
-      the source writes `gcat`, which is what `bootstrap.py` relies on.
-
-      **Back up `gcat` before cataloguing anything.** A bad `$LOGIN` locks you
-      out of SD, and this is the way back:
-
-      ```powershell
-      Copy-Item 'C:\ProgramData\SD\sdsys\gcat' 'C:\ProgramData\SD\sdsys\gcat.before-step0' -Recurse -Force
-      ```
-
-      **Success is stricter than `0 error(s)`**: also require no
-      `is not assigned a value` line, which is the ERRGEN trap and what
-      `bootstrap.py` line 229 checks. `PRIVILEGED_COMMANDS is assigned a value
-      but never used` is expected and is the `IS_INSTALL` trap in §6, not a
-      defect. So is `Unable change ownership of directory ... err: 1000`.
-
-      **Now install the new binaries**, which is what the remaining tests need —
-      the installed `sd.exe` still seeds `K$ADMINISTRATOR` from `IsAdmin()`, so
-      until this is done every refusal test passes for the wrong reason. Build,
-      stage and reinstall; **remember the staleness trap in §6, a reinstall does
-      not replace the data tree**, so the `gcat` entries above survive it.
-
-      Then the tests, all of which need a **fresh** account name (§7 step 1c):
-
-      ```powershell
-      powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct3
-      ```
-
-      And add to it, because these four are the model: a normal SD account
-      typing plain `sd` and **landing in its own account with no prompt**; the
-      same account **refused at `sd -ASDSYS`** with `sysmsg(10002)`; an
-      **elevated** session typing plain `sd` and **landing in SDSYS**; and a
-      Windows user with no SD account **refused with `sysmsg(5018)`**.
-   f. **DONE. ssh CANNOT REACH SDSYS, CONFIRMED.** From an ssh session as
-      `sdacct5`, `LOGTO SDSYS` was refused with `sysmsg(10002)`. Together with
-      the unelevated `sd -ASDSYS` refusal at the console (§4), **the local-only
-      elevation property is measured rather than argued** — which is what the
-      owner's decision of 14 Aug 2026 asked for.
-   g. **DONE. The changelog carries the login change**, including the two things
-      a user would otherwise be caught by: existing `ACC$USERS` grants stopping
-      working, and elevation being local-only.
+   **Success is stricter than `0 error(s)`**: require also that no
+   `is not assigned a value` line appears, which is the ERRGEN trap and what
+   `bootstrap.py` line 229 checks. `PRIVILEGED_COMMANDS is assigned a value but
+   never used` is expected (§6, `IS_INSTALL`), and so is
+   `Unable change ownership of directory ... err: 1000`.
 
 1. **Finish the loose ends the account model left.** The model itself is proven
    (§4, §5.6.1, §5.6.2); none of this is large, and it should not be left to
@@ -3256,27 +3091,34 @@ the staging script and the Inno installer were all finished and removed.
       and `CREATE.ACCOUNT` refuses those names. Whatever this decides has to
       account for that state existing, **because a failed creation reaches it
       too** — the ssh-only branch `stop`s after the account directory is made.
-   d. **Make `sd -start` AND `sd -stop` tell the truth about `sdwind`.**
-      **Widened 14 Aug 2026, sixth session:** `sd -start` has the same defect
-      from the other end — it answers "SD is already started" off a stale shared
-      segment when `sdwind` is dead, and does nothing, so the system stays
-      unusable while the command reports success (§6, measured). **Both trust
-      the segment rather than the process, so fix them in one pass.** The `-stop`
-      half follows; the `-start` half needs the liveness check to ask whether the
-      daemon process exists, not whether the segment does.
+   d. **DONE — 14 Aug 2026, seventh session, EXCEPT ONE PATH THAT NEEDS AN
+      ELEVATED WINDOW (below) AND ONE THAT CANNOT BE DONE AT ALL (§6).**
+      `sd -start` and `sd -stop` now ask the `sdwind` process instead of the
+      shared segment. Built, run, and watched on a machine that happened to be
+      sitting in the broken state already. §4 has the observations.
 
-      The trap is in §6 and this is the fix for it: `sysseg.c` line 503 discards `kill()`'s return
-      value, so an unelevated `sd -stop` against a daemon an elevated session
-      started gets `EPERM`, leaves it running, and prints "SD (64 Bit) has been
-      shut down" anyway. The liveness poll underneath walks the user table only
-      and never waits for the daemon.
+      **Three things it taught, all of which cost the next reader nothing now
+      and would have cost a session each:**
 
-      Small and self-contained: check the return, and if it is `EPERM` say so —
-      "sdwind (pid n) could not be stopped: it was started by a more privileged
-      session" is the whole of what the user needs. Do **not** make it fatal;
-      the segment teardown that follows is still correct and still wanted. It
-      needs `make sd` and a re-run of the start/stop cycle at both elevations,
-      so it is a build session rather than a documentation one.
+      - **THE MESSAGE THE USER SEES COMES FROM `sdsem.c`, NOT `sysseg.c`.**
+        This step named `sysseg.c` line 503 and `bind_sysseg`'s "SD is already
+        started."; the string that actually appeared on the stale system was
+        **`sdsem.c` line 86's**, which has no full stop and fires first,
+        because `get_semaphores(TRUE)` runs before the segment is looked at.
+        **Fixing only the two places this step named would have left the bug
+        exactly where it was found.** The control run in §4 is what caught it.
+      - **The pid in a "stop this process" message must be translated** or it
+        names an unrelated Windows process — the MSYS2-pid trap in §6.
+      - **`sd -start` does not clear the wreckage for you**, deliberately.
+        Sessions can still be attached to a segment whose daemon has died, and
+        an `sd -stop` would end them; the count is printed instead so the
+        person at the keyboard decides. Reconsider only with a reason.
+
+      **What is left, and it is the half this step was originally about:** the
+      `EPERM` warning has not been *watched*. It needs a daemon started from an
+      elevated window and an `sd -stop` from an ordinary one, and this machine's
+      UAC is back at the default, so elevating raises a secure-desktop prompt.
+      The recipe is in the header.
    e. **Remove `sudo chmod g+s` from `CREATEA`**, whose Windows equivalent is
       the inheritable ACE the installer already sets (§5.7). It warns on every
       account creation today (§4).

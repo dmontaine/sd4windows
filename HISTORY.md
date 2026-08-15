@@ -27,6 +27,143 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - sd -start and sd -stop stop lying about sdwind, and the fix was not where the step said it was
+
+Seventh session of 14 Aug 2026, from commit `5800942`. **Closes PROJECT_STATUS
+§7 step 1d**, except for one path that needs an elevated window and one that
+cannot be fixed at all.
+
+**What was wrong.** Both commands answered from *objects* rather than from
+*processes*. The shared segment and the semaphore set outlive the processes
+that create them, so `sd -start` said "SD is already started" off a segment
+whose daemon had been killed - leaving the system unusable while the command
+that would fix it reported success - and `sd -stop` threw away `kill()`'s
+return value, so an unelevated session that could not signal an elevated
+daemon printed "SD (64 Bit) has been shut down" and left it running.
+
+**What was built**, all in `gplsrc/sysseg.c` unless said otherwise:
+
+- `sd_state()`, which attaches the segment, checks `sysseg->sdwind_pid` with
+  `kill(pid, 0)` - treating `EPERM` as a yes, because a process you may not
+  signal is still a process - counts live sessions in the user table the same
+  way, and answers `SD_STOPPED` / `SD_RUNNING` / `SD_WRECKAGE`. It reads
+  nothing past `revstamp` unless the revstamp is this build's, so a segment
+  from another build is left to `bind_sysseg`'s own mismatch message.
+- `start_sd()` calls it *before* `bind_sysseg()` and reports accordingly.
+- `stop_sd()` keeps the pid, checks `kill()`'s result, treats `ESRCH` as the
+  outcome it wanted, waits for the daemon **in the liveness poll** - which had
+  always walked the user table only, the other half of why nothing noticed -
+  and warns afterwards, distinguishing "could not be signalled" from "did not
+  stop when asked".
+- `win_pid()`, wrapping `cygwin_internal(CW_CYGWIN_PID_TO_WINPID, pid)`.
+- `gplsrc/sdsem.c`: the leftover-semaphore message no longer says "SD is
+  already started".
+
+**THE FINDING THAT MATTERS MOST: the step named the wrong file.** §7 step 1d
+pointed at `sysseg.c` line 503 and at `bind_sysseg`'s `"SD is already started."`
+The string the broken machine actually produced was **`sdsem.c` line 86's**,
+which has no full stop, because `get_semaphores(TRUE)` runs before the segment
+is looked at. A fix confined to the two places the step named would have left
+the behaviour exactly as found. **The control run is what caught it** - running
+the *old, installed* binary against the live wreckage first, and reading the
+message closely enough to notice the missing full stop.
+
+**THE OTHER FINDING: SD's pids are MSYS2 pids.** The daemon called itself
+**pid 87**; `Get-Process sdwind` called it **14712**. Everything SD holds is
+the runtime's numbering. This is not cosmetic in a message that says "stop this
+process": `Stop-Process -Id 87` does not fail, it acts on an unrelated Windows
+process. Hence `win_pid()`. It answered 14712 against the live daemon, matching
+`Get-Process` exactly. **`sysdump.c` line 95 still prints the untranslated
+number.**
+
+**What it cost, and the luck in it.** The machine was found already sitting in
+the broken state - segment and all six semaphores present under
+`C:\ProgramData\SD\shm`, no `sdwind` process - left there by the sixth session.
+So the lie and its repair were watched **on the same wreckage**, an hour apart,
+rather than on a reconstruction.
+
+**Deliberately not done: `sd -start` does not clear the wreckage for you.**
+Sessions can still be attached to a segment whose daemon has died, and an
+`sd -stop` would end them, so the count of live sessions is printed and the
+person at the keyboard decides. Revisit only with a reason.
+
+**What is still open.**
+
+- **The `EPERM` warning has never been watched.** It needs a daemon started
+  from an elevated window and a stop from an ordinary one. Unverified code.
+- **A third face of the same defect cannot be fixed where the others were.**
+  Measured by unlinking the segment under a live daemon: `sd -stop` printed
+  success, exit 0, and left `sdwind` running. `sysseg->sdwind_pid` is the only
+  record of the daemon's identity, so with the segment gone there is nothing to
+  signal and no way to know there was anything to signal. The answer, if it
+  ever matters, is a **pid file beside the segment** rather than a field inside
+  it.
+
+**Also in this session.** The sign-on banner in `GPL.BP/LOGIN` was changed to
+"SD for Windows..." and lost its "(AI modified)" note - an edit found
+uncommitted in the working tree, finished with its `START-HISTORY` line and a
+changelog entry. And PROJECT_STATUS was brought inside all three of §0 rule 5's
+budgets for the first time since the rule was written: header 271 -> 179 (limit
+200), §7 310 -> 258 (limit 300), whole file 3,659 -> under 3,500. The step 0
+material was compressed in §4 and §7 as rule 5 prescribes, and the §5.6.1
+weighing below was moved here.
+
+## 14 Aug 2026 - Moved from PROJECT_STATUS §5.6.1: the password model's login and LOGTO rules
+
+Moved verbatim in the seventh session of 14 Aug 2026 under §0 rule 5, step 0
+having been built over it. `logto.step.up` and `ACC$USERS` are both deleted;
+what replaced them is at the top of PROJECT_STATUS §5.6. Kept because it is the
+only full statement of how the 13 Aug 2026 password model decided access, and a
+future session asking "was a step-up prompt ever tried?" deserves the answer.
+
+> `LOGIN` sets `@logname` to the authenticated account and sets
+> `K$ADMINISTRATOR` on entry to SDSYS. **Two deliberate ways in without a
+> password**, both gated on `K$ADMINISTRATOR` (which comes from the OS via
+> `IsAdmin()` and cannot be self-granted): an administrator running an internal
+> command, which is the install path since the bootstrap cannot type a password;
+> and an account with no password yet, with a warning. So a half-configured
+> system is not an open one.
+>
+> **How `LOGTO` decides.** `CPROC`'s `logto.authorised` runs immediately after
+> the ACCOUNTS read, where the deleted `ACC$GROUP` test used to sit. The early
+> `K$ADMINISTRATOR` test at the top of `int.logto` is gone — it asked whether the
+> caller was already privileged, which is the wrong question when entering SDSYS
+> is what confers privilege. In order:
+>
+> 0. **The target must be a registered account name.** Anything not in ACCOUNTS
+>    is refused before authorisation is considered.
+> 1. An administrator running an internal command is admitted, as at `LOGIN`.
+> 2. **A session standing in SDSYS may enter any account**, no grant needed.
+> 3. Otherwise you may enter your own account, or one whose `ACC$USERS` names
+>    you. Refusal is `sysmsg(10003)` and the session stays where it was.
+> 4. Entering SDSYS additionally runs `logto.step.up`: three tries at **your own**
+>    password through `!CRED_VERIFY(@logname, ...)`, with `PT$INVERT` and the
+>    input prompt character cleared around the read (§6).
+
+## Correction: 14 Aug 2026 - the UAC slider had moved back, and a recorded reading went stale within a session
+
+Seventh session of 14 Aug 2026. The sixth session recorded, as a correction,
+that `ConsentPromptBehaviorAdmin` read **0** and `PromptOnSecureDesktop` read
+**0** - the owner having moved the UAC slider to "Never notify" mid-session.
+Read again in the seventh session, they are **5 and 1**: back at the Windows
+default.
+
+**Nothing about the access model turns on it**, and that was the point of the
+sixth session's entry too: token filtering is `EnableLUA`'s doing, `EnableLUA`
+is 1 in both readings, and `IsElevated()` answers false in an ordinary
+administrator's session either way.
+
+**What it changes is what a session can arrange for itself.** At 5 and 1 an
+elevation request raises a consent prompt on the secure desktop, so the
+elevated half of a test is something the person at the keyboard has to do, not
+something a session can quietly arrange. That is why the `EPERM` half of step
+1d is still unwatched.
+
+**The general form, and it is the same shape as the `Measure-Object` entry
+above: a machine setting is not a fact about the machine, it is a reading with
+a timestamp.** Anything a user can change with a slider should be re-read in
+the session that depends on it.
+
 ## Correction: 14 Aug 2026 - the line-count "correction" was itself wrong, and the instrument was the cause
 
 Sixth session of 14 Aug 2026. **This entry reverses the entry below headed
