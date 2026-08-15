@@ -417,7 +417,62 @@ cleaning-cycle guard that changes who owns a pointer.
 **WORTH SENDING UPSTREAM.** This is the one case where generation 2 found a
 genuine flaw: `sdb64` has `p = malloc(1); *p = '\0';` with no check at all, so
 upstream NULL-dereferences on the same out-of-memory. The fix committed here is
-better than both and applies to `sdb64` unchanged.
+better than both and applies to `sdb64` unchanged. **Written up in
+[UPSTREAM_FIXES.md](UPSTREAM_FIXES.md), which is maintained from now on** —
+CLAUDE.md carries the rule.
+
+#### What `sdb64`'s dev branch has that we want — reviewed 15 Aug 2026
+
+13 commits, 14 files, `main..origin/dev`, heading for 1.0-3.
+
+**TAKEN.** **`ER_SRVRERR 4100`, `ER_INV_NBR 4101`** into `gplsrc/err.h`,
+`gplsrc/sdclilib/err.h` and `sdsys/SYSCOM/ERR.H` — purely additive, no conflict.
+Clean rebuild after `rm -f gplobj/*.o`, no warnings.
+
+**FOUND AND DELIBERATELY LEFT ALONE: `SV_EMSG_PAIR` AND `SV_ECONTXT` ARE
+TRANSPOSED BETWEEN THE TWO PROJECTS.** `sdb64` dev has `EMSG_PAIR=6,
+ECONTXT=7`; the vendored `winsdclilib` client here has them the other way
+round. A caller compiled against one header talking to a library built from the
+other reads each state as the other one.
+
+**This session renumbered ours to match upstream and then reverted it**, on
+learning the client library's provenance (§5.3 below): `sdb64` did not
+originate this file. **Which numbering is right cannot be determined from this
+repository** and is written up in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) #2
+with what would settle it. Until then the vendored copy keeps `winsdclilib`'s
+values, because a vendored copy stays faithful to its source, and
+**`sdsys/SYSCOM/sdclilib.h` deliberately defines NEITHER**, so no BASIC commits
+to a numbering by accident. The cost is that our BASIC cannot yet tell a
+transport failure from a context error.
+
+**Incidental but useful: these constants are duplicated in FOUR files** —
+`gplsrc/sdclilib/sdclient.h`, `sdclilib.h`, `sdclilib.bi`, and
+`sdsys/SYSCOM/sdclilib.h`. Changing two of four is what surfaced the conflict,
+as a redefinition warning. **`grep -rn "define SV_"` before touching them.**
+
+**ALREADY HERE, INDEPENDENTLY.** Dev's `GetResponse()` fix — return TRUE after
+re-fetching the error text rather than reporting a server-side error as a
+transport failure — **is already in our stage-2 client**, with a fuller comment
+and a better fallback path. Nothing to take. Worth knowing the two trees agreed.
+
+**NOT APPLICABLE.** `_XOPEN_SOURCE` Fedora 44 warnings (Linux); `op_sdpyobj.c`
+and `sdext_py.c` (embedded Python, dropped — §5.15); `SDConnectUDS` syslog
+(Unix domain sockets).
+
+**CORROBORATION FOR §7 STEP 6d, AND IT IS WORTH HAVING.** Dev comments out the
+`getpwnam`/`setgid`/`setuid` block in `SDConnectLocal` — independently reaching
+the conclusion step 6d already holds, that these calls make no sense when the
+local connection is forked from a running SD. **Upstream also gives a reason we
+did not have: it breaks an Apache-spawned process** while working from a test C
+program. Our client has no such block, so nothing to do, but step 6d is now
+backed by somebody else's field experience.
+
+**OWNER'S CALL, NOT TAKEN.** Dev bumps to **1.0-3** (`revstamp.h`, `$RELEASE`,
+`sddefs.h`, `sdclient.h`); we are 1.0-2, and release identity is not something
+to change by inference. **`APISRVR` is 2,147 changed lines**, mostly
+reformatting with real error checking inside it; ours has already diverged and
+§7 step 6 owns it — revisit when step 6 is done, not before, or the reformat
+will bury the port's own changes.
 
 **The TCL verb surface is written down**, in
 [docs/TCL_VERBS.md](docs/TCL_VERBS.md) — SD's commands against OpenQM 2.6.6,
@@ -1290,6 +1345,33 @@ The server is built against the MSYS2 runtime; the client DLL is native
 UCRT64 and needs no `msys-2.0.dll`. The runtimes never meet — a client links
 the DLL and reaches the server over a socket or a named pipe, always as
 separate processes. Override with `UCRT_CC=...`.
+
+#### The client library has its OWN lineage, and it is a round trip
+
+Stated by the repository owner, 15 Aug 2026. **The three generations in §2 do
+not describe `gplsrc/sdclilib/` — it came a different way:**
+
+1. **`sdb64`'s own C developer started a partial Windows API library**, the
+   Visual Studio port whose Winsock transport the README still credits.
+2. **The owner set AI on it and it was completed**, becoming
+   **`github.com/dmontaine/winsdclilib`**.
+3. **Vendored into this repository** 13 Aug 2026 from commit `b6624565`
+   (5 Aug 2026) — `gplsrc/sdclilib/VENDORING.md` is the record, and the whole
+   directory is a vendored copy kept faithful to its source on purpose.
+4. **Their developer then forked `winsdclilib` back**, and changes from it are
+   in `sdb64`'s `dev` branch now.
+
+**So for this directory, code has flowed BOTH ways, and "upstream" is
+ambiguous** — the reverse of every other file in the port, where `sdb64` is
+plainly the source. Two consequences worth acting on:
+
+- **Do not "align with upstream" reflexively here.** A session did exactly that
+  with `SV_EMSG_PAIR`/`SV_ECONTXT` and had to revert it (§2's dev-branch review,
+  UPSTREAM_FIXES.md #2).
+- **An AI completed step 2**, so this directory carries the same risk §2
+  describes for generation 2 — plausible-looking decisions nobody made
+  deliberately. It has **no `Composer AI` markers**, so that grep does not find
+  them here; the tell is absent and the suspicion still applies.
 
 ### 5.4 The BASIC layer has its own platform switch (not yet touched)
 

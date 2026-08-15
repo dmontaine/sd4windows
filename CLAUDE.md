@@ -32,6 +32,12 @@ him** — he does not read them. So:
   wrong. Append-only. Keep entries short.
 - **`sdb_ai/sd64/sdsys/changelog` is the exception**: it ships to users, stays
   plain English, and gets anything a user would notice, in the same commit.
+- **[UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) is the other exception**, and it is
+  **maintained, not written once**: when you find a defect that is also in
+  `sdb64`, add an entry in the same commit as the fix. Check first — the clone
+  is at `../sdb64`, and a bug carrying a `Composer AI - 2026/06/10` marker is
+  ours rather than upstream's unless the underlying flaw is there too. It is
+  written for the upstream maintainer, so plain English and self-contained.
 
 Full rules in §0 of PROJECT_STATUS.md. Follow those; this file only points.
 
