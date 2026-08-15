@@ -27,6 +27,86 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - The access model is live, and the refusals are observed
+
+Sixth session of 14 Aug 2026, later the same evening. Binaries built, tree
+staged and bootstrapped, installer built and run, `LOGIN` and `CPROC` recompiled
+against the new binaries. **The reversal decided in the fifth session now
+behaves as designed on a real machine.**
+
+### The decisive test
+
+From an **unelevated** session belonging to `don`, a machine administrator:
+
+| Command | Result |
+|---|---|
+| `sd` | **refused** — `Account DON not in register`, `sysmsg(5018)` |
+| `sd -ASDSYS` | **refused** — `SDSYS Account access is restricted to privileged users`, `sysmsg(10002)` |
+| `sd -internal BASIC GPL.BP LOGIN`, **elevated** | worked |
+
+**The first row is the whole point.** An hour earlier that same command put
+`don` straight into SDSYS, because the installed binary still seeded
+`K$ADMINISTRATOR` from `IsAdmin()`. **And `sysmsg(10002)` fired for the first
+time in this codebase's history** — PROJECT_STATUS §5.6 had recorded it as a
+message that existed and had never had a caller.
+
+Four of §5.6's five rules are now observed. The two outstanding need a second
+account to exist, and creating one needs elevation.
+
+### Two bugs the bootstrap caught, which nothing else would have
+
+**1. `!VALID_OS_NAME` was missing from the pass 1 compile list.** `SECOND.COMPILE`
+logs in; the restored `sdusers` gate makes `LOGIN` call `!IS_GRP_MEMBER`, which
+calls `!VALID_OS_NAME`; that had never been compiled at that point, so the
+bootstrap died at `000000D7: Unable to load '!VALID_OS_NAME' object code` before
+compiling anything, and left the staged tree not installable. **Caused by this
+session's own change**, and invisible until a full bootstrap ran. One line in
+`GPL.BP/BBPROC`. The general rule is now a trap in §6: **anything `LOGIN` calls
+becomes a bootstrap dependency.**
+
+**2. The bootstrap started needing `sdusers`, which only the installer creates.**
+Circular — building the product would have required a group that installing it
+produces, so a clean build machine could not bootstrap at all. **Owner's
+decision, 14 Aug 2026: exempt internal mode from the `sdusers` gate.** It opens
+no hole: `sd -INTERNAL` names SDSYS for itself in `sd.c`, and SDSYS requires
+elevation, so an internal caller has already passed a strictly harder test.
+
+### The bootstrap-elevation trap, measured
+
+§6 predicted the bootstrap would need elevation once `K$ADMINISTRATOR` meant
+elevated. **It does.** Unelevated, `sd -i` answered
+`Command requires administrator privileges`; `stage.py` reported
+`the bootstrap failed; the staged tree is not installable` and, usefully, said
+so rather than producing a broken artefact quietly. The same command from an
+elevated window completed: 3,286 files, 10.4 MB, everything `0 error(s)`.
+
+**A process note worth keeping:** the first staging attempt was run through
+`| tail`, so the shell reported exit 0 — `tail`'s status, not `stage.py`'s. The
+failure was visible only by reading the output. **Do not judge a staged tree by
+an exit code that passed through a pipe.**
+
+### Installer behaviour, confirmed rather than assumed
+
+Setup found the existing database and **left it alone**, saying so in a dialog:
+*"the newly built system files were NOT installed over it"*. That is §6's
+staleness trap behaving as designed and now visible to the user, where it once
+cost a full day of investigation. **The consequence to remember: an install
+updates `C:\Program Files` and not `C:\ProgramData\SD\sdsys`**, so `LOGIN` and
+`CPROC` had to be copied across and recompiled by hand afterwards.
+
+### Left open
+
+`WARNING: GRANT.POS is assigned a value but never used`, emitted when `CPROC`
+compiles **inside the staged tree** and not when the identical file compiles on
+the installed tree. `grant.pos` does not exist in the source — the staged copy
+is md5-identical to the repository's and the token appears nowhere in `sdsys`.
+It belonged to the deleted `ACC$USERS` grant list. Benign, and written up in §6
+with the test that would settle it. **Two explanations were offered for it
+during the session and both were wrong**; it is recorded as unexplained rather
+than explained badly.
+
+---
+
 ## 14 Aug 2026 - LOGIN and CPROC compile, 0 errors each, and the new login is running
 
 Sixth session of 14 Aug 2026, in an elevated window driven by the repository

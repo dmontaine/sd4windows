@@ -15,21 +15,21 @@ exits 0 with the new `IsElevated()` in it, and **`LOGIN` and `CPROC` both
 compiled with `0 error(s)` and are catalogued** — the first time either had ever
 been through a compiler. `gcat/$LOGIN` was checked as written, not as reported.
 
-**THE PERMISSIVE HALF IS OBSERVED, THE REFUSALS ARE NOT.** The `sdusers` gate
-admits a member and `-INTERNAL` reaches SDSYS — both watched, §4, and dated by
-the "no password set" warning vanishing between two consecutive compiles.
-**But `C:\Program Files\SD\usr\bin\sd.exe` IS STILL THE 14 Aug 16:15 BINARY**,
-which seeds `K$ADMINISTRATOR` from `IsAdmin()` rather than `IsElevated()`. So
-this machine is in a **mixed state — new BASIC, old binary — in which `don`
-lands in SDSYS unelevated.** That is the old binary answering the old way, not
-the gate failing. **Nothing that depends on elevation meaning elevation has been
-tested, and cannot be until the new binaries are installed.**
+**THE MODEL IS LIVE ON THIS MACHINE AND THE REFUSALS ARE OBSERVED.** New
+binaries installed 19:05, `LOGIN` and `CPROC` recompiled against them. From an
+unelevated session, `sd` now answers **`Account DON not in register`** and
+`sd -ASDSYS` answers **`SDSYS Account access is restricted to privileged
+users`** — where an hour earlier the same commands put a machine administrator
+straight into SDSYS. §4 carries the table. **`sysmsg(10002)` fired for the first
+time in this codebase's history.**
 
-**READ §5.6, THEN §7 STEP 0e.** Installing the new binaries and testing the
-refusals is the whole of what is left.
+**FOUR OF §5.6's FIVE RULES ARE OBSERVED. THE REMAINING TWO NEED A SECOND
+ACCOUNT TO EXIST** — a normal account landing in its own account, and `LOGTO`
+under the restored `ACC$GROUP` test. That is all §7 step 0e has left, and
+creating the account needs an elevated window.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-2,964 LINES NOW**, measured after the last edit rather than during it (see the
+3,017 LINES NOW**, measured after the last edit rather than during it (see the
 correction below, which is the same mistake one step smaller), after the sixth
 session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
@@ -159,7 +159,8 @@ install** on it, from the fixed installer:
 | `C:\ProgramData\SD\sdsys` | **3,270 files - a working database.** The compiled `gcat/$CREATEA` is 16:15:56 and **contains the ssh-only branch**; `MESSAGES/10032`–`10035` are all present. 3,270 rather than the staged 3,268 because the two test accounts added register entries — expect this number to drift upward as accounts are created |
 | The daemon | **runs**, as `C:\Program Files\SD\usr\bin\sdwind.exe`, and `sd -stop` takes it down |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
-| **THE BASIC IS CURRENT, THE BINARIES ARE NOT** | sixth session, 14 Aug 2026. `C:\ProgramData\SD\sdsys\GPL.BP` holds the new `LOGIN` and `CPROC` and **both are compiled and catalogued** (§4). But `C:\Program Files\SD\usr\bin\sd.exe` is still **14 Aug 16:15**, seeding `K$ADMINISTRATOR` from `IsAdmin()`. **So `don` lands in SDSYS unelevated on this machine, and that is expected** — old binary, old meaning. Install the new binaries before reading anything into a refusal that did not happen |
+| **EVERYTHING IS CURRENT AND THE ACCESS MODEL IS LIVE** | sixth session, 14 Aug 2026. Binaries **19:05** in `C:\Program Files\SD\usr\bin` (`sd.exe` 1,926,742 bytes, carrying `IsElevated()`), and `GPL.BP\LOGIN`/`CPROC` recompiled against them and catalogued. **An unelevated `sd` no longer reaches SDSYS** — it refuses with `sysmsg(5018)`, and `sd -ASDSYS` with `sysmsg(10002)`. Both observed, §4 |
+| Reinstalling over this | the installer **found the existing database and left it alone**, saying so in a dialog — §6's staleness trap, working as designed. So a reinstall updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`: after one, copy `GPL.BP\LOGIN`/`CPROC` across and recompile, or the machine runs yesterday's BASIC on today's binaries |
 | `gcat.before-step0` | **a backup of the pre-change `gcat`, 129 files**, taken in the sixth session before `$LOGIN` was replaced. The way back if the new login misbehaves: delete `gcat`, rename this over it. Delete it once §7 step 0e has passed |
 | `sdusers` group | exists, with `GITORLI\don` in it |
 | `sdadmins` group | exists, **created by hand on 13 Aug, not by the installer** — see below |
@@ -529,14 +530,28 @@ where to go when a claim here looks surprising.
   `IS_INSTALL` trap. **No `is not assigned a value` lines**, so both files pass
   the ERRGEN gate `bootstrap.py` line 229 enforces.
 
-**WHAT IS STILL UNVERIFIED, AND IT IS THE PART THAT MATTERS.** Everything that
-depends on `K$ADMINISTRATOR` *meaning elevated* is untested, because **the
-installed `sd.exe` is still the 14 Aug 16:15 binary that seeds it from
-`IsAdmin()`**. So the compiles above prove the BASIC is well formed and that
-the permissive paths work; they prove nothing about a refusal. No unelevated
-`sd -ASDSYS` refusal, no `sysmsg(10002)`, no `sysmsg(5018)`, no `LOGTO`
-behaviour and no account landing has been watched. §7 step 0e is what closes
-it, and it needs the new binaries installed first.
+**AND THEN THE REFUSALS, WHICH ARE THE PART THAT PROVES IT.** New binaries
+installed (19:05), `LOGIN` and `CPROC` recompiled against them, and then run
+from an **unelevated** session — the case that could not be tested until
+`IsElevated()` was the live implementation:
+
+| Command | Result | Message |
+|---|---|---|
+| `sd`, unelevated | **refused** | `Account DON not in register` — `sysmsg(5018)` |
+| `sd -ASDSYS`, unelevated | **refused** | `SDSYS Account access is restricted to privileged users` — `sysmsg(10002)` |
+| `sd -internal BASIC ...`, **elevated** | **worked**, twice | compiled and catalogued |
+
+**The first row is the whole reversal in one line.** An hour earlier that exact
+command put `don` — a machine administrator — straight into SDSYS. It now
+refuses, because `IsElevated()` is false in an ordinary session. **And
+`sysmsg(10002)` fired for the first time in this codebase's history**; §5.6
+recorded it as having never had a caller.
+
+**FOUR OF THE FIVE RULES IN §5.6 ARE NOW OBSERVED.** What is left is the two
+that need a second account to exist: **a normal SD account typing plain `sd` and
+landing in its own account**, and **`LOGTO` under the restored `ACC$GROUP`
+test**. Both need `verify-createaccount.ps1` with a fresh name, and creating an
+account needs elevation. That is all that remains of §7 step 0e.
 
 **The foundations, observed 13 Aug 2026** and superseded as headline claims by
 the installed system running end to end. Nothing since has contradicted any of
@@ -2085,6 +2100,42 @@ Each of these cost real time. Read before debugging anything similar.
   *previous* login change breaking this same path, unnoticed for the same
   reason: **nobody re-runs the bootstrap, so it rots silently.**
 
+- **ANYTHING `LOGIN` CALLS BECOMES A BOOTSTRAP DEPENDENCY, BECAUSE
+  `SECOND.COMPILE` LOGS IN.** Measured 14 Aug 2026, sixth session. Restoring the
+  `sdusers` gate made `LOGIN` call `!IS_GRP_MEMBER`, which calls
+  `!VALID_OS_NAME` — and the bootstrap died at
+  `000000D7: Unable to load '!VALID_OS_NAME' object code in !IS_GRP_MEMBER`
+  **before compiling anything**, leaving the staged tree not installable.
+
+  The fix is one line in `GPL.BP/BBPROC`'s pass 1 list (line ~222):
+  `src.list<-1> = 'VALID_OS_NAME'`. **The rule to carry forward: if you add a
+  call to `LOGIN` or `CPROC`, add its target — and its target's targets — to
+  that list.** Check the whole chain; `VALID_OS_NAME` calls nothing, which is
+  the only reason this one stopped at one line.
+
+  **And the same change made the bootstrap need `sdusers` to exist**, which only
+  the *installer* creates — circular, and it would have refused the bootstrap on
+  any clean build machine. Resolved by the owner's decision of 14 Aug 2026 to
+  **exempt internal mode from the `sdusers` gate**, which opens no hole because
+  `-INTERNAL` already requires elevation. See §5.6.
+
+- **OPEN QUESTION, NOT A TRAP: `WARNING: GRANT.POS is assigned a value but never
+  used` when `CPROC` is compiled inside the staged tree.** 14 Aug 2026, sixth
+  session. **`grant.pos` does not exist in the source.** Established properly:
+  the staged `CPROC` is md5-identical to the repository's
+  (`4c46731048f6ffe38f1e626ea7522016`), and a case-insensitive search of the
+  whole `sdsys` tree finds `grant` only inside comments. The variable was real
+  once — it belonged to the 13 Aug `ACC$USERS` grant list — and its deletion is
+  what makes the warning strange.
+
+  **It does not appear when the same `CPROC` is compiled on the installed
+  tree**, which points at the staged tree rather than the source. Benign: it is
+  the "assigned but never used" class, not the `is not assigned a value` class
+  `bootstrap.py` line 229 treats as fatal, and the compile reports `0 error(s)`.
+  **The test that would settle it** is compiling `CPROC` alone against a freshly
+  staged tree: if the warning survives, it is in the source and the search above
+  is wrong; if not, it leaks across programs within one `SECOND.COMPILE`.
+
 - **`IS_INSTALL` IS STILL DEFINED ON EVERY INSTALLED SYSTEM, SO EVERY
   `$ifndef IS_INSTALL` BLOCK IN `CPROC` IS COMPILED OUT THERE.** Found 14 Aug
   2026, sixth session, from a single compile warning —
@@ -2976,8 +3027,21 @@ the staging script and the Inno installer were all finished and removed.
    d. **DONE. `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all kept**
       and recorded as callerless, in `LOGIN` where the caller used to be.
       `sysmsg` 10030 and 10031 lost their only caller with `logto.step.up`.
-   e. **THE COMPILE IS DONE (§4). WHAT REMAINS IS INSTALLING THE NEW BINARIES
-      AND TESTING THE REFUSALS.**
+   e. **MOSTLY DONE (§4). WHAT REMAINS IS THE TWO RULES THAT NEED A SECOND
+      ACCOUNT.** Compiled, installed, and both refusals observed from an
+      unelevated session. Still to watch: **a normal SD account typing plain
+      `sd` and landing in its own account**, and **`LOGTO` under the restored
+      `ACC$GROUP` test**. Creating the account needs an elevated window:
+
+      ```powershell
+      powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct3
+      ```
+
+      **Then delete `C:\ProgramData\SD\sdsys\gcat.before-step0`**, the rollback
+      copy taken before `$LOGIN` was first replaced. It is stale the moment this
+      passes, and a stale rollback is worse than none.
+
+      **Two things the staging run taught, both worth keeping:**
 
       **THE INVOCATION FORM COST A ROUND TRIP, SO IT IS WRITTEN OUT.** Compile
       with **`-internal`, and pass the command as separate arguments**, exactly
