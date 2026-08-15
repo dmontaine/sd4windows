@@ -331,8 +331,13 @@ Rebuilding the machine means redoing that step, or `make` will fail to link.
 THE WHOLE ANSWER.** Stated by the repository owner, 15 Aug 2026:
 
 1. **`sdb64`** — <https://codeberg.org/stringdatabase/sdb64>, the unmodified
-   Linux version and the active upstream project. A network resource, so it is
-   available on any machine.
+   Linux version and the active upstream project. **Cloned locally at
+   `../sdb64` since 15 Aug 2026**, with `main` checked out and `origin/dev`
+   fetched, so both branches are readable without the network:
+   `git -C ../sdb64 show origin/dev:sd64/<path>`. It is also a network
+   resource, so a machine without the clone loses nothing but convenience.
+   **Diffing against it is the cheapest way to attribute a surprise** — it is
+   what settled §5.13 and §7 step 7.
 2. **`sdb_ai`** — an experimental variant the owner produced by putting `sdb64`
    through **five AI cleaning and validation cycles**. This is why the code
    reads more cleanly than its age suggests, and why those cycles also
@@ -2024,6 +2029,23 @@ Correction from the repository owner on 13 Aug 2026: disabling the user's
 ability to shell out with `SH` or `!` in the Linux version **was a mistake**,
 and Windows makes it a worse one. Many programs have to reach Windows
 utilities, and there is no way to do that with shell access blocked.
+
+**MEASURED AGAINST `sdb64` ITSELF, 15 Aug 2026, ninth session — THE PREMISE
+ABOVE IS NOT TRUE OF THE CURRENT LINUX VERSION.** With the upstream repository
+cloned locally at `../sdb64`, **neither branch blocks anything**: `main` and
+`origin/dev` both have `GPL.BP/CPROC` line 3252's `os.command:` running
+straight into `os.execute` with no test, both carry `SH` and `!` in
+`VOC_TEMPLATE` as `V`/`OS`, and `op_sh.c` has no privilege check on either.
+`K$SECURE` exists upstream but is not this — `INT$KEYS.H:68` defines it as
+"Secure system (login required)?", a login flag. **Neither branch contains a
+single `Composer AI` marker**, which is the cleanest confirmation that all 226
+belong to generation 2 (§2).
+
+So there is **nothing upstream to restore**, and the only thing that has ever
+blocked shell-out in this lineage is the generation-2 gate at `CPROC:3321`.
+Whatever the block the owner remembers was, it is not in `sdb64` today. That
+does not settle whether the gate should stay — §7 step 7 — it only removes
+"Linux did it" as an argument on either side.
 
 Not urgent, but it belongs on the list rather than in anyone's memory. Note
 this pulls in the opposite direction to the security work in §5.6 and §5.7, so
