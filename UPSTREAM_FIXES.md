@@ -121,8 +121,15 @@ says nothing about when a line was written. A session here renumbered on that
 reasoning, reverted it, and only got it right once all three histories were
 readable.
 
-**Fixed in:** `winsdclilib` (headers, `.bi`, `USER_GUIDE.md`),
-`linuxsdclilib` (headers, `.bi`, the `#ifndef` fallbacks in `sdclilib.c`,
-`USER_GUIDE.md`), and this port's vendored copy plus
-`sdsys/SYSCOM/sdclilib.h`, which gained both names for the first time.
-`winsdclilib`'s `make check` passes with the new values.
+**Fixed and pushed, 15 Aug 2026:** `winsdclilib` `a1987b0` (headers, `.bi`,
+`USER_GUIDE.md` — `make check` passes with the new values) and
+`linuxsdclilib` `f6ab707` (headers, `.bi`, the `#ifndef` fallbacks in
+`sdclilib.c`, `USER_GUIDE.md` — **not built**, the change was made from a
+Windows machine and the commit message says so). This port's vendored copy is
+corrected to match, and `sdsys/SYSCOM/sdclilib.h` gained both names for the
+first time, so BASIC can now tell a transport failure from a context error.
+
+**One thing left undone, and it is upstream-facing in the other direction:**
+`sdb64`'s `dev` branch is the only place these constants live upstream — `main`
+does not have them. When `dev` merges to `main` they arrive; until then anyone
+building the client against `sdb64` `main` has neither.
