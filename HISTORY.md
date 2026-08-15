@@ -27,6 +27,108 @@ corrected.
 
 ---
 
+## Correction: 14 Aug 2026 - PROJECT_STATUS said it was ~3,190 lines; it was 2,729
+
+Sixth session of 14 Aug 2026. PROJECT_STATUS's header claimed the file had gone
+"back up to about 3,190" lines after the fifth session wrote the access-model
+reversal into it. **Measured at commit `c99f927`, it was 2,729** — the estimate
+was made while editing and never re-checked, and it survived into the very
+commit titled "State the line count the next session will actually see".
+
+Harmless in itself, but it is the §0 rule 5 trigger that decides whether a
+session spends its time on a rollover instead of on the work, so an inflated
+figure costs a session. **Measure it:**
+`(Get-Content PROJECT_STATUS.md | Measure-Object -Line).Lines`.
+
+---
+
+## 14 Aug 2026 - The Linux access model is built: no password at login, elevation for SDSYS
+
+Sixth session of 14 Aug 2026, carried by the commit this entry ships in. It
+implements the reversal that the fifth session decided and did not build —
+PROJECT_STATUS §7 step 0, parts a to d. **The C compiles clean. NOTHING HAS BEEN
+RUN**, for a reason that is itself one of the findings below.
+
+### What changed
+
+| Where | What |
+|---|---|
+| `gplsrc/linuxlb.c` | **`IsElevated()` added beside `IsAdmin()`.** `IsAdmin()` is untouched |
+| `gplsrc/kernel.c` | `USR_ADMIN` seeded from `IsElevated()` instead of `IsAdmin()`, so `K$ADMINISTRATOR` means **elevated** |
+| `gplsrc/sddefs.h` | comment only: `SD_ADMIN_GID` now has two callers asking two different questions |
+| `GPL.BP/LOGIN` | the three `f9edab0` cases restored; `authenticate.account` **deleted**; no password is asked for anywhere |
+| `GPL.BP/CPROC` | `logto.step.up` **deleted**; `ACC$GROUP` test restored in `logto.authorised`; `LOGTO SDSYS` requires elevation; the `system(27) = 0` block removed outright |
+
+**`IsElevated()` needs no Win32 call**, which was the one design choice here.
+§7 step 0a offered `GetTokenInformation(TokenElevation)` or the "deny only"
+marker. It is neither: it is `getgroups()` against `SD_ADMIN_GID`, the exact
+call `IsAdmin()` was moved *off* on 14 Aug. §5.6.1 had already measured both in
+one unelevated administrator session — `getgroups()` no, `getgrouplist()` yes —
+so the elevation test was a measured fact sitting unused in the file, and using
+it keeps `windows.h` out of a POSIX-runtime translation unit (§5.4).
+
+### Two findings that would have cost a session each
+
+**1. `ACCOUNTS/SDSYS` carries `ACC$GROUP = sdsys`, and no such Windows group
+exists.** Restoring the group test verbatim, as step 0b says to, **would have
+refused SDSYS to everybody including an elevated administrator**. On Linux
+`sudo sd` ran `!EUID_SET('sdsys')` in `CPROC` *before* `LOGIN`, so `@logname`
+became `sdsys` and `!is_grp_member`'s "is this your own group account?"
+shortcut (`IS_GRP_MEMBER` line 83) matched. Windows has no effective-user drop,
+so `@logname` stays `don` and the shortcut cannot fire. **An elevated session
+therefore skips the group test in both `LOGIN` and `logto.authorised`** — which
+is Linux behaviour anyway, since root is not in the group either. Measured, not
+assumed: the record was read off disk, `C:\ProgramData\SD\sdsys\ACCOUNTS\SDSYS`
+= `C:\ProgramData\SD\sdsys`, empty, `sdsys`.
+
+**2. `K$ADMINISTRATOR` now means elevated, and `BCOMP` gates `$internal` on it.**
+So **compiling any `$internal` program now requires an elevated session**, and
+that includes `bootstrap.py`, which runs `sd -internal SECOND.COMPILE`
+(`gplbld/bootstrap.py` line 192). `sd -INTERNAL` names SDSYS for itself in
+`sd.c`, so it goes through the new elevation gate. This is not a defect in the
+model — leaving `-INTERNAL` outside the gate would restore exactly the bypass
+the 13 Aug session removed — but **the bootstrap now needs an elevated shell and
+nothing says so yet.** `bootstrap.py` line 195 records that the *previous* login
+change broke this same path and "Nobody noticed because nobody had re-run the
+bootstrap since."
+
+### What it cost, and what could not be checked
+
+**`gplbld/bbcmp.py` cannot compile `LOGIN` at all** — it aborts with "VOID
+statement not coded". This was checked properly rather than assumed: HEAD's
+unmodified `LOGIN` was compiled as a control and **failed identically** (line
+204 against the modified file's 210). So the Python compiler is not a syntax
+checker for these two programs; SD's own `BCOMP` is, via `SECOND.COMPILE`, and
+that now needs elevation. **This is why nothing is verified.**
+
+### Still open
+
+- **`ACC$USERS` no longer authorises anything.** The grant list built on 13 Aug
+  is still written, still shown by `LIST ACCOUNTS`, still editable by
+  `MODIFY ACCOUNTS`, and is now consulted by nothing. §7 step 5 ("give grants a
+  verb") was written against it and needs re-deciding: under §5.6 the grant *is*
+  membership of the account's `sdu_` group, so the verb may be an OS-group edit.
+  **Existing grants silently stop working**, which is in the changelog.
+- **`sysmsg` 10030 and 10031 have no caller**, as do `$CRED`, `!CRED_SET`,
+  `!CRED_VERIFY` and `SET.PASSWORD` — the last four deliberately, per the
+  owner's decision that the API keeps a password (§8).
+- **`CPROC` line 1481 still calls `!EUID_SET('sdsys')`** to drop back after a
+  privileged command, paired with `!EUID_RESTORE`. Same dead Linux mechanism as
+  the block removed at line 280, left alone because it is outside step 0.
+
+### Decision recorded the same session: elevation is local by design
+
+From the repository owner, 14 Aug 2026: administrators having **less** remote
+access is intended. To elevate you must be local to the machine — sitting at it,
+or on a secure remote client that gives a real interactive desktop session, such
+as AnyDesk. **This settles §7 step 0f and inverts it.** The question was "does
+elevation work over ssh, and is it acceptable if it does not"; it is now "confirm
+ssh cannot reach SDSYS", and if it can, that is a gap to close rather than a
+feature to keep. It sits consistently with §5.6.2: ordinary accounts arrive over
+ssh, the console belongs to administrators.
+
+---
+
 ## Correction: 14 Aug 2026 - Windows CAN limit sudo, and the password model was built on the belief that it could not
 
 Fifth session of 14 Aug 2026, after the rollover. **No code changed.** This

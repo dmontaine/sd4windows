@@ -5,26 +5,41 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, fifth session of the day. The session began at
-commit `33495e0` and did two things, both of them paperwork: **the rollover
-this file had been overdue for** (§0 rule 5), and then **a decision from the
-repository owner that reverses the identity model in §5.6**.
+**Last updated:** 14 Aug 2026, sixth session of the day. The session began at
+commit `c99f927` and **built the access model the fifth session decided** —
+§7 step 0, parts a to d. The gap between this file and the code that the fifth
+session called the largest it had ever been is closed in source.
 
-**NO CODE CHANGED. Nothing was built and nothing was tested**, so every claim in
-§4 is exactly as strong as it was before. The one thing that *was* measured is
-new and is in §4 Verified: this machine's UAC policy, and the fact that an
-unelevated administrator's token carries `BUILTIN\Administrators` marked
-**"Group used for deny only"**, which is the flag the new model turns on.
+**THE C COMPILES CLEAN AND NOTHING HAS BEEN RUN.** `make sd` exits 0 with the
+new `IsElevated()` in it. **`LOGIN` and `CPROC` have not been compiled at all**,
+so nothing in §4 moved, and every statement below about how login now behaves is
+**written, not observed**. Why they could not be compiled is a finding in its own
+right and is in §6: `bbcmp.py` cannot compile `LOGIN` — proven with a control,
+not assumed — and SD's own compiler now demands elevation, because `BCOMP` gates
+`$internal` on `K$ADMINISTRATOR` and that flag now means *elevated*.
 
-**READ §5.6 FIRST. THE ACCESS MODEL IS DECIDED AND NOT IMPLEMENTED**, which is
-the largest gap between this file and the code that has ever existed. §7 step 0
-is the whole of the work.
+**READ §5.6, THEN §7 STEP 0e.** The model is built; testing it is the whole of
+what is left, it needs an elevated window, and that is where this session
+stopped.
 
-**4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut — and then
-back up to about 3,190 when the access-model reversal below was written into
-it.** Both numbers are stated rather than hidden, because the next session
-inherits the file and not the intention. It is still above the ~2,000 limit.
-Where the remaining excess is, and why it was not cut further:
+**4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
+2,826 LINES NOW**, after the sixth session added the access-model build to §4,
+§6 and §7. Stated rather than hidden, because the next session inherits the file
+and not the intention.
+
+**Correction, 14 Aug 2026, sixth session.** The sentence that stood here said
+the file had gone "back up to about 3,190" once the access-model reversal was
+written in. **It had not.** The file measured **2,729** at commit `c99f927` —
+the commit whose subject is, without irony, "State the line count the next
+session will actually see". The figure was estimated and never re-measured.
+**Measure it, do not carry the previous session's number forward:**
+
+```powershell
+(Get-Content C:\Users\dmont\Projects\sdb_ai_windows\PROJECT_STATUS.md | Measure-Object -Line).Lines
+```
+
+It is still above the ~2,000 limit. Where the remaining excess is, and why it
+was not cut further:
 
 - **§6 Traps, 812 lines, is the largest section and now the main candidate.**
   It was compressed rather than left alone — the longest entries re-narrated
@@ -45,9 +60,9 @@ three-options weighing, both of which were `<details>` blocks here; and the
 plaintext passwords, which had no home anywhere else and is carried verbatim.
 Everything else cut was a second copy of something HISTORY already held.
 
-**THE ACCESS MODEL IS REVERSED — decided 14 Aug 2026, fifth session, not yet
-built.** Full statement in §5.6; the short form, because it changes what every
-other item in this file assumes:
+**THE ACCESS MODEL IS REVERSED — decided 14 Aug 2026 fifth session, BUILT IN
+THE SIXTH, TESTED IN NEITHER.** Full statement in §5.6; the short form, because
+it changes what every other item in this file assumes:
 
 - **SD login takes no password at all.** The operating system has already
   authenticated you. Typing `sd` puts you in **the SD account with your own
@@ -64,6 +79,34 @@ This reverses §5.6's "every account carries its own password", decided
 13 Aug 2026 and built over two sessions. **What it does not do is delete that
 work:** `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all stay, and
 become the API's credential rather than the console's.
+
+**ELEVATION IS LOCAL BY DESIGN — owner's decision, 14 Aug 2026, sixth session.**
+Administrators having *less* remote access than ordinary users is the intent.
+To elevate you must be local to the machine: sitting at it, or on a secure
+remote client that gives a real interactive desktop session, such as AnyDesk.
+**This settles §7 step 0f and turns it round.** The open question was "does
+elevation work over ssh, and is it acceptable if it does not"; it is now
+**"confirm ssh cannot reach SDSYS"**, and if it turns out it can, that is a gap
+to close rather than a feature to keep. It sits consistently with §5.6.2:
+ordinary accounts arrive over ssh, the console belongs to administrators.
+
+**TWO CONSEQUENCES OF THE BUILD THAT NOBODY HAS DECIDED ON YET**, both found
+while building it and both written up in HISTORY:
+
+- **`ACC$USERS` no longer authorises anything.** The grant list is still
+  written, still shown by `LIST ACCOUNTS` and still editable by
+  `MODIFY ACCOUNTS`, and nothing consults it. Under §5.6 the grant *is*
+  membership of the account's `sdu_` group. **Grants recorded on 13 or 14 Aug
+  silently stop working** — that is in the changelog — and **§7 step 5 needs
+  re-deciding**, because it was written against a mechanism that no longer runs.
+- **THE BOOTSTRAP NOW NEEDS AN ELEVATED SHELL, AND NOTHING SAYS SO.**
+  `K$ADMINISTRATOR` means elevated, `BCOMP` gates `$internal` on it, and
+  `bootstrap.py` line 192 runs `sd -internal SECOND.COMPILE`. Leaving
+  `-INTERNAL` outside the gate is not the answer — it would restore exactly the
+  bypass the 13 Aug session removed — so the fix is to make `bootstrap.py`
+  check for elevation and say so, rather than fail somewhere in the middle.
+  Note that `bootstrap.py` line 195 already records the *previous* login change
+  breaking this same path, unnoticed because nobody re-ran it.
 
 **The rest of the state is what the fourth session left**, and is worth having
 in one place:
@@ -82,11 +125,12 @@ in one place:
 - **Nothing is left half-applied and nothing needs cleaning off** — the
   reversal above is a decision on paper, and the code still does what §4 says.
 
-**THE NEXT SESSION'S SUBJECT IS CHOSEN: §7 step 0**, restoring the Linux access
-model. Nothing else on the list should be started first, because step 0 changes
-what `LOGIN`, `CPROC` and `kernel.c` do and several other items are written
-against the model it replaces. It is a build session — C, BASIC and a re-run of
-the account tests.
+**THE NEXT SESSION'S SUBJECT IS CHOSEN: §7 step 0e** — compiling `LOGIN` and
+`CPROC` onto this machine and running the account tests against them. Step 0's
+build is done; **not one line of it has executed.** Nothing else on the list
+should be started first, because every other item is written against a model
+nobody has yet watched work. **It needs an elevated window** — that is new, and
+§6 explains why.
 
 The candidates behind it are unchanged: `DELETE.ACCOUNT` (§7 step 1c, which has
 two worked examples sitting on the machine), the **second machine** (§7 step 2),
@@ -102,7 +146,8 @@ install** on it, from the fixed installer:
 | `C:\Program Files\SD` | **18 files**, binaries in `usr\bin` including `sdwind.exe`; `sd.exe` is **16:15:28**. 18 rather than the stage's 16 because `unins000.exe` and `unins000.dat` are the installer's |
 | `C:\ProgramData\SD\sdsys` | **3,270 files - a working database.** The compiled `gcat/$CREATEA` is 16:15:56 and **contains the ssh-only branch**; `MESSAGES/10032`–`10035` are all present. 3,270 rather than the staged 3,268 because the two test accounts added register entries — expect this number to drift upward as accounts are created |
 | The daemon | **runs**, as `C:\Program Files\SD\usr\bin\sdwind.exe`, and `sd -stop` takes it down |
-| SDSYS password | **not set.** `LOGIN` warns and admits an administrator, which is the correct state for an install nobody has finished |
+| SDSYS password | **not set, and under the model built on 14 Aug it no longer matters** — nothing on the console asks for a password. The installed `LOGIN` still does, because it is the old one; see the row below |
+| **THE INSTALLED SYSTEM IS BEHIND THE SOURCE** | as of the sixth session, 14 Aug 2026. `C:\ProgramData\SD\sdsys` carries the **13 Aug password-prompt `LOGIN`**, not the one in the repository. So **what this machine does at login is not what §5.6 describes**, and testing the new model means compiling `LOGIN` and `CPROC` onto it first — §7 step 0e, and read the staleness trap in §6 before assuming a reinstall does it |
 | `sdusers` group | exists, with `GITORLI\don` in it |
 | `sdadmins` group | exists, **created by hand on 13 Aug, not by the installer** — see below |
 | System PATH and the Settings > Apps entry | both present |
@@ -437,6 +482,22 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**Added 14 Aug 2026, sixth session — and it is a short list on purpose:**
+
+- **`make sd` exits 0 with `IsElevated()` in it.** Observed: `Compiling
+  linuxlb.o`, all six link steps, `[exited with code 0]`. `linuxlb.c` and
+  `kernel.c` also pass `gcc -fsyntax-only -Wall -Wformat=2` with no warnings.
+- **`ACCOUNTS/SDSYS` field 3 is `sdsys`**, read as bytes off the installed tree
+  and off the repository copy. See §6 — this is the fact that changed the
+  design of the group test.
+- **`bbcmp.py` fails on `LOGIN` identically before and after the change**, so
+  the failure is the compiler's and not the edit's. Control run, §6.
+
+**AND NOTHING ELSE. The access model built this session is UNVERIFIED in every
+respect** — `LOGIN` and `CPROC` have not been compiled, so no login, no
+refusal, no `LOGTO` and no elevation behaviour described in §5.6 has been
+watched happening. §7 step 0e is what closes that.
 
 **The foundations, observed 13 Aug 2026** and superseded as headline claims by
 the installed system running end to end. Nothing since has contradicted any of
@@ -1002,7 +1063,9 @@ HISTORY entry "Surveyed every BASIC to C linkage".
 
 ### 5.6 Identity model: accounts with passwords (13 Aug 2026), and administration is the OS's (14 Aug 2026)
 
-**REVERSED 14 AUG 2026, FIFTH SESSION. DECIDED, NOT BUILT — §7 step 0.**
+**REVERSED 14 AUG 2026, FIFTH SESSION. BUILT IN THE SIXTH — §7 step 0 a-d.
+NOT COMPILED AND NOT RUN**, so everything below describes source, not observed
+behaviour.
 Decision from the repository owner: **mimic the Linux version.** SD login takes
 no password; the operating system has already authenticated you, and SD asks
 the OS who you are. The owner verified the Linux behaviour in a Debian virtual
@@ -1025,6 +1088,7 @@ The model, in five rules:
 | not in `sdusers` | refused at the door — `sysmsg(5009)`, "not registered for SD use" |
 | **`sudo sd`, or any elevated session** | **straight into SDSYS**, no account named and no password |
 | `sd -Aname` | `ACC$GROUP` must name a group you are in; SDSYS additionally needs elevation — `sysmsg(10002)` |
+| **an elevated session, at either test** | **passes without the group check**, in `LOGIN` and in `LOGTO` alike. Not a convenience — `ACCOUNTS/SDSYS` names a group Windows does not have, so the check would refuse administration to everybody (§6). Linux root does not pass it either |
 
 **All five messages already exist** (5009, 5018, 10002, 10003), and 10002 has
 never had a caller.
@@ -1930,6 +1994,51 @@ session cannot.
 
 Each of these cost real time. Read before debugging anything similar.
 
+- **`ACCOUNTS/SDSYS` CARRIES `ACC$GROUP = sdsys`, AND NO SUCH WINDOWS GROUP
+  EXISTS.** Found 14 Aug 2026, sixth session, by reading the record off disk
+  rather than trusting §5.6's summary of it:
+  `C:\ProgramData\SD\sdsys\ACCOUNTS\SDSYS` is three fields — the path, empty,
+  and `sdsys`. The installer creates `sdusers`; `CREATE.ACCOUNT` creates
+  `sdu_<name>`; **nothing anywhere creates `sdsys`.**
+
+  So **restoring the `ACC$GROUP` test verbatim, as §7 step 0b said to, refuses
+  SDSYS to everybody** — an elevated administrator included, because
+  `!is_grp_member` returns false with status 1 for a group that does not exist.
+  On Linux this worked by accident of a mechanism Windows does not have: `sudo
+  sd` ran `!EUID_SET('sdsys')` in `CPROC` *before* `LOGIN`, so `@logname` became
+  `sdsys` and `IS_GRP_MEMBER` line 83's "is this your own group account?"
+  shortcut matched. Windows has no effective-user drop, `@logname` stays `don`,
+  and the shortcut cannot fire.
+
+  **The fix, in `LOGIN` and in `logto.authorised` both: an elevated session
+  skips the group test.** That is Linux behaviour anyway — root is not in the
+  group either. The general form is the one this file keeps re-learning:
+  **a rule transcribed from the Linux source can depend on a Linux mechanism
+  that was never ported.**
+
+- **`K$ADMINISTRATOR` NOW MEANS ELEVATED, AND `BCOMP` GATES `$internal` ON IT —
+  SO COMPILING SD's OWN PROGRAMS NEEDS AN ELEVATED WINDOW.** 14 Aug 2026, sixth
+  session. `bootstrap.py` line 192 runs `sd -internal SECOND.COMPILE`, and
+  `sd -INTERNAL` names SDSYS for itself in `sd.c`, so it goes through the new
+  elevation gate like anything else. **Nothing warns about this yet**; expect it
+  to fail somewhere in the middle of a bootstrap rather than at the start.
+
+  Do **not** fix it by letting `-INTERNAL` skip the gate — that restores exactly
+  the bypass the 13 Aug session removed. Make `bootstrap.py` test for elevation
+  and refuse up front. And note `bootstrap.py` line 195 already records the
+  *previous* login change breaking this same path, unnoticed for the same
+  reason: **nobody re-runs the bootstrap, so it rots silently.**
+
+- **`gplbld/bbcmp.py` CANNOT COMPILE `LOGIN`, so it is not a syntax checker for
+  the BASIC layer.** It aborts with "VOID statement not coded". 14 Aug 2026,
+  sixth session — and **checked with a control before being believed**: HEAD's
+  unmodified `LOGIN` was put through the same compiler and failed identically,
+  at pass2 line 204 against the modified file's 210. The Python compiler builds
+  the bootstrap seed only; SD's own `BCOMP` compiles the rest through
+  `SECOND.COMPILE`. **Which means a change to `LOGIN` or `CPROC` cannot be
+  checked at all without a working installed system** — worth knowing before
+  planning a session around editing them.
+
 - **Scripting SD from PowerShell: the input must be a PIPE, and the pipe puts
   a BOM on the first line.** Both measured 14 Aug 2026 against the installed
   tree. They compound, because the first line of a scripted session is usually
@@ -2759,52 +2868,71 @@ carried since 13 Aug 2026**, because the rest of this file refers to them by
 number; steps 1 to 3 were renumbered on 14 Aug 2026 when the install layout,
 the staging script and the Inno installer were all finished and removed.
 
-0. **RESTORE THE LINUX ACCESS MODEL (§5.6). DECIDED 14 Aug 2026, NOT BUILT, AND
-   NOTHING ELSE SHOULD BE STARTED FIRST.** It changes what `LOGIN`, `CPROC` and
-   `kernel.c` do, and several items below are written against the model it
-   replaces. This is a build session: C, BASIC, and a re-run of the account
-   tests.
+0. **RESTORE THE LINUX ACCESS MODEL (§5.6). PARTS a TO d ARE BUILT — 14 Aug
+   2026, sixth session. e AND f REMAIN AND STILL COME FIRST.** Nothing below
+   should be started until the model that every other item assumes has been
+   watched working. **What is left is not a build session, it is a test
+   session**, and it needs an elevated window.
 
    **Read `git show f9edab0:sdb_ai/sd64/sdsys/GPL.BP/LOGIN` first**, lines
    185-270. That is this repository's own pre-port source and it is the
    specification — the five rules in §5.6 are transcribed from it, not designed.
 
-   a. **C: add `IsElevated()` beside `IsAdmin()` in `linuxlb.c`.** Read the
-      token, not the SAM — `GetTokenInformation(TokenElevation)`, or the
-      "deny only" marker on `S-1-5-32-544` that §4 records. **Do not change
-      `IsAdmin()`**: it still gates `sd -start` through `check_admin()`, and
-      starting the server should not demand elevation of somebody who is
-      already an administrator. Then seed `USR_ADMIN` in `kernel.c` line 186
-      from `IsElevated()` rather than `IsAdmin()`, so `K$ADMINISTRATOR` means
-      elevated.
-   b. **`LOGIN`: restore the `f9edab0` logic and delete
-      `authenticate.account`.** The `sdusers` gate returning `sysmsg(5009)`;
-      `sd` with no account named taking `initial.account = upcase(@logname)`
-      and refusing with `sysmsg(5018)` if there is no such account; the
-      `kernel(K$ADMINISTRATOR,-1)` case putting an elevated session straight
-      into SDSYS; and `sd -Aname` checking `ACC$GROUP` and refusing SDSYS to an
-      unelevated caller with `sysmsg(10002)`. **This absorbs what was step 1b.**
-   c. **`CPROC`: drop `logto.step.up` and restore `ACC$GROUP` in
-      `logto.authorised`.** There is no password to step up with, and the gate
-      is now applied at login. While there, **replace the dead
-      `system(27) = 0` branch at line 272** — that is the Linux `sudo` test,
-      `getuid()` never returns 0 on Windows (§5.5), and it is what
-      `IsElevated()` is for.
-   d. **Do NOT delete `$CRED`, `!CRED_SET`, `!CRED_VERIFY` or `SET.PASSWORD`.**
-      Owner's decision, 14 Aug 2026: the API is a separate door and **does**
-      require an account password (§8). They lose their console caller and gain
-      an API one; record them as callerless in the meantime rather than
-      removing them.
-   e. **Re-run `verify-createaccount.ps1` with a fresh account name**, and add
-      to it: a normal SD account logging in with plain `sd` and landing in its
-      own account, the same account refused at `sd -ASDSYS`, and an elevated
-      session landing in SDSYS.
-   f. **Measure whether elevation works over ssh** (§5.6.1). If it does not,
-      SDSYS is reachable only from an elevated console or RDP — which may be
-      the intended design, since §5.6.2 gives the console to administrators, but
-      it should be written down as a decision either way.
-   g. **The changelog.** Login behaviour changing is exactly what §0 rule 8
-      covers, and nothing has been added yet because nothing has been built.
+   a. **DONE. `IsElevated()` added beside `IsAdmin()` in `linuxlb.c`**, and
+      `kernel.c` line 186 seeds `USR_ADMIN` from it. `IsAdmin()` is untouched
+      and still gates `sd -start`. **It is `getgroups()`, not a Win32 call** —
+      the very call `IsAdmin()` was moved off, because §5.6.1 had already
+      measured that `getgroups()` omits a deny-only `Administrators` and so
+      means "elevated". No `windows.h` in a POSIX translation unit (§5.4).
+   b. **DONE. `LOGIN` restored from `f9edab0`; `authenticate.account` deleted.**
+      All three cases, the `sdusers` gate, and no password prompt anywhere.
+      **With one deliberate departure from `f9edab0`: an elevated session skips
+      the `ACC$GROUP` test.** It has to — see §6, `ACCOUNTS/SDSYS` names a group
+      that does not exist on Windows, and restoring the test verbatim refuses
+      SDSYS to everybody. **This absorbed what was step 1b.**
+   c. **DONE. `CPROC`: `logto.step.up` deleted, `ACC$GROUP` restored in
+      `logto.authorised`, `LOGTO SDSYS` requires elevation, and the
+      `system(27) = 0` block is gone** with nothing replacing it in `CPROC` —
+      `kernel.c` seeds the flag before any BASIC runs, and `LOGIN` turns it into
+      an account.
+   d. **DONE. `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and `SET.PASSWORD` all kept**
+      and recorded as callerless, in `LOGIN` where the caller used to be.
+      `sysmsg` 10030 and 10031 lost their only caller with `logto.step.up`.
+   e. **NEXT, AND IT IS THE WHOLE OF THE WORK. Compile `LOGIN` and `CPROC`, then
+      re-run the account tests.** Nothing here has been run.
+
+      **The compile needs elevation and this is new** — `BCOMP` gates
+      `$internal` on `K$ADMINISTRATOR`, which now means elevated. `bbcmp.py` is
+      not an alternative: it cannot compile `LOGIN` at all (§6). From an
+      **elevated** window:
+
+      ```powershell
+      cd C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64 ; C:\msys64\usr\bin\bash.exe -lc "cd /c/Users/dmont/Projects/sdb_ai_windows/sdb_ai/sd64 && make sd"
+      ```
+
+      Then stage, reinstall and compile the BASIC — and **remember the staleness
+      trap in §6: a reinstall does not replace the data tree**, so the compiled
+      `gcat` entries for `$LOGIN` and `$CPROC` must be rebuilt on the installed
+      system, not just staged.
+
+      Then the tests, all of which need a **fresh** account name (§7 step 1c):
+
+      ```powershell
+      powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct3
+      ```
+
+      And add to it, because these four are the model: a normal SD account
+      typing plain `sd` and **landing in its own account with no prompt**; the
+      same account **refused at `sd -ASDSYS`** with `sysmsg(10002)`; an
+      **elevated** session typing plain `sd` and **landing in SDSYS**; and a
+      Windows user with no SD account **refused with `sysmsg(5018)`**.
+   f. **Confirm ssh cannot reach SDSYS.** The design question here is answered —
+      elevation is local by design, owner's decision 14 Aug 2026, see §5.6 — so
+      this is now a confirmation and not a choice. **If elevation does turn out
+      to work over ssh, that is a gap to close, not a feature.**
+   g. **DONE. The changelog carries the login change**, including the two things
+      a user would otherwise be caught by: existing `ACC$USERS` grants stopping
+      working, and elevation being local-only.
 
 1. **Finish the loose ends the account model left.** The model itself is proven
    (§4, §5.6.1, §5.6.2); none of this is large, and it should not be left to
