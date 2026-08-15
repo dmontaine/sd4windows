@@ -23,7 +23,7 @@ what is left, it needs an elevated window, and that is where this session
 stopped.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-2,838 LINES NOW**, measured after the last edit rather than during it (see the
+2,882 LINES NOW**, measured after the last edit rather than during it (see the
 correction below, which is the same mistake one step smaller), after the sixth
 session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
@@ -92,15 +92,19 @@ elevation work over ssh, and is it acceptable if it does not"; it is now
 to close rather than a feature to keep. It sits consistently with §5.6.2:
 ordinary accounts arrive over ssh, the console belongs to administrators.
 
-**TWO CONSEQUENCES OF THE BUILD THAT NOBODY HAS DECIDED ON YET**, both found
+**TWO CONSEQUENCES OF THE BUILD, ONE NOW DECIDED AND ONE NOT**, both found
 while building it and both written up in HISTORY:
 
-- **`ACC$USERS` no longer authorises anything.** The grant list is still
-  written, still shown by `LIST ACCOUNTS` and still editable by
-  `MODIFY ACCOUNTS`, and nothing consults it. Under §5.6 the grant *is*
-  membership of the account's `sdu_` group. **Grants recorded on 13 or 14 Aug
-  silently stop working** — that is in the changelog — and **§7 step 5 needs
-  re-deciding**, because it was written against a mechanism that no longer runs.
+- **`ACC$USERS` IS DEAD. THE GRANT IS WINDOWS GROUP MEMBERSHIP** — owner's
+  decision, 14 Aug 2026, sixth session. Entry to an account is membership of
+  its `ACC$GROUP` group, so granting somebody a second account means adding
+  them to it, and **`GRANT`/`REVOKE` become verbs over `!os_group`**. §7 step 5
+  is rewritten around this and carries the removal order for `ACC$USERS`, which
+  cannot be done define-first without breaking `LIST ACCOUNTS`.
+
+  **Grants recorded on 13 or 14 Aug silently stop working** — that is in the
+  changelog — and **anyone granted an account cannot use it until they sign out
+  and back in**, because group membership is fixed in the token at logon (§6).
 - **THE BOOTSTRAP NOW NEEDS AN ELEVATED SHELL, AND NOTHING SAYS SO.**
   `K$ADMINISTRATOR` means elevated, `BCOMP` gates `$internal` on it, and
   `bootstrap.py` line 192 runs `sd -internal SECOND.COMPILE`. Leaving
@@ -3024,9 +3028,52 @@ the staging script and the Inno installer were all finished and removed.
    its oldest half on reaching the `ERRLOG` size. Records every login, every
    `LOGTO`, and every failed step-up, attributed to `@logname`. A failed
    step-up is the single most interesting line in the trail.
-5. **Give grants a verb.** `ACC$USERS` can only be edited through
-   `MODIFY ACCOUNTS` today. Decide the shape — `GRANT account TO account` and
-   `REVOKE`, or a `SET.ACCESS` screen — and write the audit record from it.
+5. **GIVE GRANTS A VERB. THE GRANT IS WINDOWS GROUP MEMBERSHIP** — owner's
+   decision, 14 Aug 2026, sixth session, settling what the access-model reversal
+   left open. Entry to an account is membership of the group named in its
+   `ACC$GROUP`, so `GRANT` and `REVOKE` edit that Windows group and write
+   nothing to the account record. **`ACC$USERS` is dead and is removed as part
+   of this step.**
+
+   **Most of this already exists.** `!os_group` (`GPL.BP/OS_GROUP`) takes
+   `ADDMEM` and `DELMEM` against a group name or SID, is idempotent, and returns
+   **5 specifically for "not elevated"** rather than a localised error string.
+   `!is_grp_member` reads the other direction. So the verb is argument parsing,
+   two calls and the messages — not new machinery.
+
+   a. **`GRANT <account> TO <user>` and `REVOKE <account> FROM <user>`**, both
+      resolving `<account>` through ACCOUNTS to its `ACC$GROUP` and calling
+      `!os_group('ADDMEM'/'DELMEM', that.group, user)`. Refuse an account with
+      no `ACC$GROUP` rather than guessing the `sdu_` name — an empty field means
+      a record older than `CREATE.ACCOUNT`'s group work, and inventing the name
+      would silently create a group nothing else uses.
+   b. **It requires elevation, and it should say so before it tries.** Gate on
+      `kernel(K$ADMINISTRATOR,-1)` as `CREATEA` line 87 does, so the refusal is
+      SD's and not PowerShell's. `!os_group`'s status 5 is the backstop, not the
+      user-facing message.
+   c. **SAY THE SIGN-OUT PART OUT LOUD IN THE VERB'S OWN OUTPUT.** §6: group
+      membership is fixed in the access token at logon, so somebody granted an
+      account **cannot use it until they sign out and back in**, and until then
+      SD will refuse them with `sysmsg(10003)` as though the grant had not
+      worked. This is the single most confusing thing about the model and the
+      grant is the moment to explain it.
+   d. **Remove `ACC$USERS`, in this order**, because the pieces depend on each
+      other: the dictionary item `gplbld/FILES_DICTS/ACCOUNTS.DIC^USERS` (the
+      "Granted to" column), then field 4 on existing records, then the
+      `$define` in `SYSCOM/KEYS.H` line 269, then `stage.py`'s comment at line
+      167 which describes the SDSYS record as carrying it. Doing the define
+      first breaks `LIST ACCOUNTS` on the way past.
+   e. **Decide how "who may enter this account" is answered**, because it stops
+      being a field the dictionary can show. Listing members needs
+      `Get-LocalGroupMember`, which is a new `!os_group` action —
+      `LISTMEM` — rather than an I-descriptor. Worth doing at the same time:
+      an account whose grants cannot be listed cannot be audited by eye.
+   f. **Write the audit record from the verb** (§7 step 4). Windows records the
+      group edit in its own security log; what SD owes is *who ran GRANT*,
+      attributed to `@logname`, in the audit file step 4 introduces.
+   g. **Put the work in a subroutine with the verb over it** (§5.14), so the
+      admin form that step 10 wants can call the same code rather than
+      reimplementing it. `!os_group` exists for exactly this reason.
 6. **Bring the API server under the same model** — and it is more pressing
    than this position suggests, because §1 now says the API is the product's
    front door. **The API does not work on Windows at all**: `APISRVR` line 921

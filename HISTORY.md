@@ -27,6 +27,47 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - Grants are Windows group membership; ACC$USERS is dead
+
+Sixth session of 14 Aug 2026, immediately after the access-model build. Decision
+from the repository owner, settling the one consequence that build left open.
+
+**Entry to an account is membership of the Windows group named in its
+`ACC$GROUP`.** `CREATE.ACCOUNT` already writes `sdu_<name>` and puts the
+account's own user into it, so granting somebody a *second* account is adding
+them to that group and nothing else. The operating system holds the grant.
+
+**This kills `ACC$USERS`**, the multivalued grant list added on 13 Aug 2026 as
+part of the account-password model. It was already authorising nothing after the
+access-model build — `logto.authorised` asks the group now — so this decision
+turns "dead code nobody has decided about" into "dead code with a removal
+order". PROJECT_STATUS §7 step 5 carries that order, and it matters: the
+dictionary item and the records must go before the `$define` in `SYSCOM/KEYS.H`,
+or `LIST ACCOUNTS` breaks while passing through the intermediate state.
+
+**What the verb becomes.** `GRANT <account> TO <user>` and
+`REVOKE <account> FROM <user>`, over `!os_group`'s `ADDMEM` and `DELMEM`. That
+subroutine already exists, is idempotent, and already returns status 5
+specifically for "not elevated" rather than a localised Windows error string, so
+the work is argument parsing and messages rather than new machinery. The step
+also picks up two things that were not obvious until the grant moved into the
+OS: **listing who may enter an account stops being something a dictionary item
+can show** and needs a new `LISTMEM` action, and **a granted user cannot use the
+grant until they sign out and back in**, because group membership is fixed in
+the access token at logon. The second is the most confusing property of the
+whole model and the verb is where it should be explained.
+
+### Correction folded in with it
+
+`SYSCOM/KEYS.H` line 263 carried a comment reading *"ACC$GROUP is dead; SD no
+longer consults operating system groups"*. **True for exactly one day.** `LOGIN`
+and `CPROC` both depend on that field again as of the access-model build, so the
+header was telling the next reader the opposite of what the code does. Corrected
+in the same commit, and `ACC$USERS`'s define now says it is dead rather than
+describing what it used to do.
+
+---
+
 ## Correction: 14 Aug 2026 - PROJECT_STATUS said it was ~3,190 lines; it was 2,729
 
 Sixth session of 14 Aug 2026. PROJECT_STATUS's header claimed the file had gone
