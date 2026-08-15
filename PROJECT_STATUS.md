@@ -5,25 +5,23 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 14 Aug 2026, seventh session, ending at commit `b8941bf`.
-Began at `5800942`. Closed **§7 step 1d** (`sd -start`/`sd -stop` tell the truth
-about `sdwind`) and **§7 step 1c** (`DELETE.ACCOUNT`), both run and watched.
-Step 0 closed in the sixth session; the access model is live.
+**Last updated:** 15 Aug 2026, eighth session, from commit `317ad58`. Closed
+the previous header item: `bootstrap.py` and `stage.py --bootstrap` now refuse
+an unelevated window up front, before any work (§4, §6). The seventh session
+closed **§7 step 1d** and **§7 step 1c**; step 0 closed in the sixth, and the
+access model is live.
 
 **START HERE, in order:**
 
-1. **`bootstrap.py` does not check for elevation and now needs it.** `BCOMP`
-   gates `$internal` on `K$ADMINISTRATOR`, which means elevated, and
-   `bootstrap.py:192` runs `sd -internal SECOND.COMPILE`. Make it test and
-   refuse up front. **Do not put `-INTERNAL` outside the gate** — that restores
-   the bypass removed on 13 Aug. Small, and it blocks the next two items.
-2. **Rebuild stage + installer, install the new binaries.** The installed
+1. **Rebuild stage + installer, install the new binaries.** The installed
    `sd.exe` is **14 Aug 19:05** and predates step 1d; the repo build is 21:29.
    `stage.py --force --bootstrap` then ISCC, per the top of `gplbld/sd.iss`.
-   Needs (1) first. A reinstall does **not** replace the data tree (§6).
-3. **§7 step 1f** — the installer's SD account. `ADOPT` exists, nothing calls
+   **From an elevated window** — the scripts now say so at the door rather than
+   failing half way, and that run is the first exercise of the check itself
+   (§4 Not verified). A reinstall does **not** replace the data tree (§6).
+2. **§7 step 1f** — the installer's SD account. `ADOPT` exists, nothing calls
    it, so `don` is still refused at his own machine.
-4. **§7 step 2** — second machine. Only place RDP and a clean install can be
+3. **§7 step 2** — second machine. Only place RDP and a clean install can be
    tested.
 
 **Untested branches from step 1c:** `DELETE.ACCOUNT`'s "SD created it" delete
@@ -69,15 +67,6 @@ form, because it changes what every other item in this file assumes:
   refuses a name that already exists in Windows, and the single sanctioned door
   is `ADOPT`, gated on `K$INTERNAL` so the install can use it and a console
   cannot. **The installer's account does not exist yet** — §7 step 1f.
-
-**ONE KNOWN BREAKAGE NOBODY HAS HIT YET: the bootstrap needs an elevated
-shell and nothing says so.** `BCOMP` gates `$internal` on `K$ADMINISTRATOR`,
-which now means elevated, and `bootstrap.py` line 192 runs
-`sd -internal SECOND.COMPILE`. Leaving `-INTERNAL` outside the gate is not the
-answer — it restores the bypass the 13 Aug session removed — so `bootstrap.py`
-should test for elevation and refuse up front. §6 has it. Line 195 of that file
-already records the *previous* login change breaking the same path, unnoticed
-because nobody re-runs the bootstrap.
 
 **Also true and worth having in one place:** `AllowGroups` is applied and
 enforced on this machine, by control and treatment (§4), and the lockout risk
@@ -322,6 +311,10 @@ The shape, for orientation: compile `BBPROC`, `BCOMP` and `PATHTKN` with
 `<sysdir>/gcat/'$CPROC'`, then `sd -start`, `sd -i`, and four `sd -internal`
 steps ending `BASIC GPL.BP CPROC`, which writes the real `gcat/$CPROC`.
 
+**It takes an elevated window, and both scripts refuse one that is not**
+(15 Aug 2026): those four steps stand in SDSYS, which unelevated is refused.
+§6 has the mechanism.
+
 **Three things about that sequence that look wrong and are not**, each of which
 cost time when it was rediscovered:
 
@@ -397,6 +390,20 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**15 Aug 2026, EIGHTH SESSION — THE BOOTSTRAP REFUSES AN UNELEVATED WINDOW, AND
+REFUSES BEFORE IT DOES ANYTHING.** Four runs from this session's ordinary
+shell. `bootstrap.py` given a **nonexistent** `--sysdir` printed the elevation
+refusal and **not** `no such sysdir`, so the check really is the first thing it
+does; `stage.py --bootstrap` refused and **left no staging directory behind**,
+so nothing was copied; `--help` still works unelevated on both, so the check
+does not break `--help`; and `stage.py` *without* `--bootstrap` got past the
+gate and died at its `objdump` check instead, so plain staging stays ungated.
+Underneath it, measured here: `os.getgroups()` in this unelevated
+administrator's session carries **no 544** — `IsElevated()`'s own test
+(§5.6.1) — and MSYS2 Python is a Cygwin build (`sys.platform` `cygwin`) with no
+`ctypes.windll` to ask Windows with, which is why the group route is the one
+used. **The elevated half is NOT verified** — see §4 Not verified.
 
 **ADDED 14 Aug 2026, SEVENTH SESSION — `sd -start` AND `sd -stop` NOW TELL THE
 TRUTH ABOUT `sdwind` (§7 step 1d), AND THE MACHINE SUPPLIED ITS OWN TEST CASE.**
@@ -854,6 +861,10 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
+- **The elevated half of the bootstrap's new check.** Nobody has watched
+  `is_elevated()` answer true, or a bootstrap run through behind it. The
+  header's item 1 — `stage.py --force --bootstrap` from an elevated window —
+  is that test, and a false refusal there would stop the rebuild dead.
 - **`MODIFY.ACCOUNT` has never been run.** `CREATE.ACCOUNT` and
   `DELETE.ACCOUNT` both have (§4 Verified).
 - **`DELETE.ACCOUNT`'s "SD created it" branch is untested** — the prompt and
@@ -1950,16 +1961,22 @@ Each of these cost real time. Read before debugging anything similar.
 
 - **`K$ADMINISTRATOR` NOW MEANS ELEVATED, AND `BCOMP` GATES `$internal` ON IT —
   SO COMPILING SD's OWN PROGRAMS NEEDS AN ELEVATED WINDOW.** 14 Aug 2026, sixth
-  session. `bootstrap.py` line 192 runs `sd -internal SECOND.COMPILE`, and
-  `sd -INTERNAL` names SDSYS for itself in `sd.c`, so it goes through the new
-  elevation gate like anything else. **Nothing warns about this yet**; expect it
-  to fail somewhere in the middle of a bootstrap rather than at the start.
+  session. `sd -INTERNAL` names SDSYS for itself in `sd.c`, so it goes through
+  the elevation gate like anything else and `LOGIN` refuses it with
+  `sysmsg(10002)`. `bootstrap.py:239` is one of four such steps.
 
-  Do **not** fix it by letting `-INTERNAL` skip the gate — that restores exactly
-  the bypass the 13 Aug session removed. Make `bootstrap.py` test for elevation
-  and refuse up front. And note `bootstrap.py` line 195 already records the
-  *previous* login change breaking this same path, unnoticed for the same
-  reason: **nobody re-runs the bootstrap, so it rots silently.**
+  **The build scripts say so up front now instead of failing half way**,
+  15 Aug 2026: `bootstrap.py:74` `is_elevated()`, refused at
+  `bootstrap.py:151`, and the same test at `stage.py:338` for `--bootstrap`,
+  which otherwise copies several thousand files before finding out. The test is
+  `544 in os.getgroups()` — `IsElevated()`'s, imported by `stage.py` rather
+  than restated.
+
+  Do **not** fix it instead by letting `-INTERNAL` skip the gate — that restores
+  exactly the bypass the 13 Aug session removed. And note the comment at
+  `bootstrap.py:242` records the *previous* login change breaking this same
+  path, unnoticed for the same reason: **nobody re-runs the bootstrap, so it
+  rots silently.**
 
 - **`sd -start` SAID "SD is already started" WHEN `sdwind` WAS DEAD, AND DID
   NOTHING — FIXED 14 Aug 2026, seventh session (§7 step 1d).** Kept because the

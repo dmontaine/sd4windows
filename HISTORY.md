@@ -27,6 +27,39 @@ corrected.
 
 ---
 
+## 15 Aug 2026 - The bootstrap refuses an unelevated window
+
+Eighth session, from `317ad58`. Closes the item the seventh session left at the
+top of the handoff. `BCOMP` gates `$internal` on `K$ADMINISTRATOR`, which has
+meant "elevated" since 14 Aug, so the bootstrap's four `sd -internal` steps need
+an elevated window and nothing said so. Unelevated it failed at
+`SECOND.COMPILE`, minutes into a slow build, as a compile summary that never
+arrived.
+
+**The test is `544 in os.getgroups()` and it is `IsElevated()`'s** - the same
+gid for the same reason (`gplsrc/linuxlb.c`: Cygwin maps a built-in SID to its
+RID, and only the name is translated on a localised Windows). `stage.py`
+imports it from `bootstrap.py` rather than restating it.
+
+**MSYS2 Python settled how the question is asked.** It is a Cygwin build -
+`sys.platform` `cygwin`, `os.name` `posix` - so `ctypes.windll` does not exist
+and Windows cannot be asked directly; `os.getgroups()` is there and agrees with
+the C. The `os.name == 'nt'` branch is for a native Windows Python, which has
+the opposite pair.
+
+**`stage.py` is gated too, not just `bootstrap.py`**, because it copies several
+thousand files before reaching the bootstrap. Only `--bootstrap` is gated -
+staging a cold tree needs no elevation.
+
+**What was watched, all unelevated:** a nonexistent `--sysdir` produced the
+elevation refusal rather than `no such sysdir`, which is what shows the check
+is genuinely first; `stage.py --bootstrap` refused leaving no staging
+directory; `--help` still works on both; `stage.py` without `--bootstrap` got
+past the gate and died at its `objdump` check.
+
+**Still open:** nobody has seen the check pass. The elevated half comes with the
+rebuild, which is now the first item in PROJECT_STATUS.
+
 ## 14 Aug 2026 - Step 1c runs; user-visible Linux-isms swept
 
 Seventh session, after the entry below. All five programs compiled `0 error(s)`
