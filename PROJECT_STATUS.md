@@ -400,14 +400,17 @@ them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
 
 **15 Aug 2026 — §7 STEP 1d HOLDS ON THE INSTALLED BINARY, NOT JUST THE BUILD.**
-Every branch re-run against `C:\Program Files\SD\usr\bin\sd.exe` after the
-install: a second `sd -start` answered `SD is already started - sdwind is
-running as pid 14980` and `Get-Process` agreed on **14980**, so the pid
-translation works in the install too; with the daemon killed and the segment
-left, `sd -start` exited **1** with `SD did not shut down cleanly ... Run
-sd -stop`; `sd -stop` then exited 0 and emptied `shm` with no spurious warning;
-`sd -start` came back up as pid 7388. The 14 Aug binary answered `SD is already
-started` to that middle case and did nothing.
+All four branches against `C:\Program Files\SD\usr\bin\sd.exe`, **run twice**:
+the first pass had a daemon restarted by hand in the middle of it, so it was
+redone start to finish from one unelevated session with every pid accounted
+for. Second pass: `sd -start` on a live daemon → exit 1, `SD is already started
+- sdwind is running as pid 7388`, `Get-Process` agreeing on **7388**, so the pid
+translation works in the install too; daemon killed with the segment left →
+exit 1, `SD did not shut down cleanly ... Run sd -stop`, and the seven `shm`
+files **still there**, since clearing them is the user's decision; `sd -stop` →
+exit 0, `shm` empty, no spurious warning; `sd -start` → up as pid 5500. The
+14 Aug binary answered `SD is already started` to the killed-daemon case and did
+nothing.
 
 **15 Aug 2026 — THE BOOTSTRAP REFUSES AN UNELEVATED WINDOW, BEFORE DOING
 ANYTHING.** Four unelevated runs: a **nonexistent** `--sysdir` drew the
@@ -1973,13 +1976,15 @@ Each of these cost real time. Read before debugging anything similar.
   **a rule transcribed from the Linux source can depend on a Linux mechanism
   that was never ported.**
 
-- **`sd -start` HANGS A SHELL WHOSE OWN STDOUT IS A PIPE, EVEN WITH SD's OUTPUT
-  REDIRECTED TO A FILE.** 15 Aug 2026, from a scripted shell: `sd -start > f
-  2>&1` returned, the daemon came up, and the *shell* never exited — `sdwind`
-  inherits the shell's pipe as well as the handles `sd` was given. `bootstrap.py`
-  gets this right by giving the subprocess a file; redirecting `sd` alone is not
-  enough when something upstream is still capturing. Run it from a real console,
-  or redirect the whole shell.
+- **`sd -start` HANGS ANY CALLER THAT WAITS FOR ITS OUTPUT STREAMS TO CLOSE.**
+  15 Aug 2026, twice, in two different shells: `sd -start > f 2>&1` from bash
+  left the *shell* running for ever, and PowerShell
+  `Start-Process -Wait -RedirectStandardOutput` timed out at two minutes — both
+  times **SD had done its job**, the daemon was up and the output file held
+  `SD (64 Bit) has been started`. `sdwind` inherits the handles and outlives
+  `sd`, so waiting on the streams means waiting on the daemon. Wait on the
+  **process**, as `bootstrap.py` does, or run it in a real console. A hang here
+  is not a failed start — look at the daemon before believing it.
 
 - **THE BOOTSTRAP COMPILED INTO THE DEVELOPMENT TREE, AND THE STAGED CATALOGUE
   CAME OUT HOLDING 13 Aug PROGRAMS.** 15 Aug 2026. `sdsys/ACCOUNTS/SDSYS` ships
