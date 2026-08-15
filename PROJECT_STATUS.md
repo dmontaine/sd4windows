@@ -112,7 +112,9 @@ install** on it, from the fixed installer:
 | **`AllowGroups` IS APPLIED** | 14 Aug 2026, by `allow-ssh-groups.ps1 -Installed`. `C:\ProgramData\ssh\sshd_config` carries `AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators` between SD's markers, before the `Match` block. **Only members of `sdusers` or `Administrators` can ssh into this machine at all** — verified, §4. The original is at `sshd_config.before-sd`; `allow-ssh-groups.ps1 -Remove` reverses it. Left in place deliberately: it is what the installer would have written |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct4` and `sdacct5` EXIST and are real, enabled, ssh-only accounts**, left by `-Keep` in the sixth session. `sdacct5` is the one §5.6 was verified with and is worth keeping until step 1 is done; **nobody knows `sdacct4`'s password** — it was random and the run that generated it hung before printing it. `sdacct1`, `sdacct2`, `sdacct3` and `sdsshprobe` are gone from Windows. Remove the two with `verify-createaccount.ps1 -Cleanup -Account <name>` |
-| **`don` HAS AN SD ACCOUNT** | 15 Aug 2026, made by `ADOPT` — `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`. **It also put him in `sdsshonly` and that had to be undone by hand** (§6); check `Get-LocalGroupMember sdsshonly` before trusting this machine's logon rights |
+| **`don` HAS AN SD ACCOUNT** | 15 Aug 2026, made by `ADOPT` — `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`; `sd` puts him in it, `WHO` says `5 DON`. It also put him in `sdsshonly` before the §6 fix, and **that was undone by hand** — `sdsshonly` now holds only `sdacct4`/`sdacct5` |
+| `sdadopt1` | throwaway Windows account (**no password**, in `sdusers`) made 15 Aug 2026 to test the lockout fix, plus its SD account. **Remove both when done**: `DELETE.ACCOUNT sdadopt1` then `Remove-LocalUser sdadopt1` |
+| **The installed `GPL.BP` is AHEAD of the staged tree** | 15 Aug 2026: `CREATEA`, `IS_GRP_MEMBER` and `MESSAGES/10040` were copied in from the repository and recompiled here. The stage still has the old ones |
 | Test accounts, **SD side** | `sdacct2`–`sdacct5` + SDSYS. `sdacct1` was removed by `DELETE.ACCOUNT` on 14 Aug 2026, the first run of that verb. `sdacct2` and `sdacct3` are still half-removed (no Windows account) and are spare test cases for the same branch; `sdacct4` and `sdacct5` are complete on both sides. Use a fresh `-Account` name when re-running `verify-createaccount.ps1`; SD refuses a reused one |
 | SD | **running, pid 14408 from the installed 06:23 binary**, started unelevated 15 Aug 2026 07:15, segment and six semaphores present. It also ran as the seventh session ended, `sdwind` 4696 from `sdb_ai\sd64\bin`; **an ordinary session held terminate rights on it**, measured with `OpenProcess(PROCESS_TERMINATE)`, so `Stop-Process` reaches an unelevated-started daemon. **Corrected earlier: a blank `Path` is not evidence a process was started elevated** — §6 |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
@@ -415,6 +417,18 @@ rights, so the next sign-out would have shut him out of the console and RDP.
 Membership confirmed with `Get-LocalGroupMember` and removed by hand. §6 has the
 fix and the rule behind it. Unelevated first, as a control: the same script was
 refused with `sysmsg(10002)` and changed nothing.
+
+**AND THE FIX IS VERIFIED, BY THE SAME VERB MINUTES APART.** `IS_GRP_MEMBER`
+and `CREATEA` recompiled on the install, `0 error(s)` each, then
+`ADOPT sdadopt1` — a throwaway Windows account — printed **`sdadopt1 keeps the
+Windows sign-in rights it already had`** and `Get-LocalGroupMember sdsshonly`
+now lists only `sdacct4`, `sdacct5`: **`don` restricted before the fix,
+`sdadopt1` not after it**, nothing else changed. `sdusers`, `sdu_sdadopt1`,
+`ACCOUNTS/SDADOPT1` and `user_accounts\sdadopt1` all correct. Two more things
+fell out: `ADOPT` on a name with no Windows account refused with
+`Invalid user name`, which is its other untested branch, and **`sd` typed
+unelevated put `don` in his own account — `WHO` answered `5 DON`**, so the
+`sdusers` gate still admits him through the rewritten `IS_GRP_MEMBER`.
 
 **15 Aug 2026 — §7 STEP 1d HOLDS ON THE INSTALLED BINARY, NOT JUST THE BUILD.**
 All four branches against `C:\Program Files\SD\usr\bin\sd.exe`, **run twice**:
@@ -906,9 +920,9 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **The `CREATEA`/`IS_GRP_MEMBER` lockout fix (§6) is source only.** Nothing has
-  compiled or run it: the next `ADOPT` on a fresh OS account is the test, and it
-  must end with the account **not** in `sdsshonly`.
+- **The lockout fix is compiled and run on THIS machine only** (§4). The staged
+  tree still carries the old `CREATEA`/`IS_GRP_MEMBER`; re-stage before the
+  second machine.
 - **No staged tree has yet been built with the `ACCOUNTS/SDSYS` fix** (§6).
   The next `stage.py --force --bootstrap` is the first, and `SECOND.COMPILE`
   will be compiling the staged sources for the first time — expect differences,
@@ -3248,11 +3262,9 @@ the staging script and the Inno installer were all finished and removed.
       SDSYS password step never worked. The closing dialog reports all three
       outcomes.
 
-      **Verified: the verb.** `ADOPT` ran against the install and made the
-      account (§4), which also found the lockout defect in §6. **Not verified:
-      the installer calling it** — that needs a real install, so it belongs to
-      step 2, and the fixed `CREATEA`/`IS_GRP_MEMBER` have not been recompiled
-      or re-run anywhere yet.
+      **Verified: the verb, both branches, and the lockout fix** (§4) — and
+      `don` can now type `sd` and land in his own account. **Not verified: the
+      installer calling it**, which needs a real install and therefore step 2.
 2. **Install on a genuinely clean machine, and test RDP there.** Still the test
    that matters: this machine has a development tree, so an accidental
    dependency could survive, and it is the only place two of the open questions

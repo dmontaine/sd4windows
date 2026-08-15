@@ -55,8 +55,15 @@ while `-SID` returns the members, so `!is_grp_member` took its no-such-group
 path and answered false for every administrator, silently. Fixed to use `-SID`
 for a SID-shaped group, which `!os_group` already accepted.
 
-Neither fix has been compiled. The next `ADOPT` on a fresh OS account is the
-test, and it must end with the account not in `sdsshonly`.
+**Both fixes then compiled and verified on this machine**, by running the same
+verb again minutes later: `ADOPT sdadopt1`, a throwaway Windows account, printed
+"keeps the Windows sign-in rights it already had" and `sdsshonly` was left
+holding only `sdacct4`/`sdacct5`. `don` restricted before, `sdadopt1` not after,
+nothing else changed. Two more branches fell out for free: `ADOPT` on a name
+with no Windows account refuses with "Invalid user name", and `sd` typed
+unelevated put `don` in his own account, `WHO` answering `5 DON` - which is step
+1f working for a real person, and also shows the rewritten `IS_GRP_MEMBER` still
+admits him through the `sdusers` gate.
 
 ## 15 Aug 2026 - Rebuilt, reinstalled, and step 1d proven on the install
 
