@@ -860,37 +860,18 @@ half ran too**, 06:31: both gates passed in an elevated window and the whole
 bootstrap ran behind them — `SECOND.COMPILE` 0 errors throughout, 3,291 files
 staged. What that run also exposed is the `ACCOUNTS/SDSYS` trap in §6.
 
-**ADDED 14 Aug 2026, SEVENTH SESSION — `sd -start` AND `sd -stop` NOW TELL THE
-TRUTH ABOUT `sdwind` (§7 step 1d), AND THE MACHINE SUPPLIED ITS OWN TEST CASE.**
-It was found sitting in the broken state — segment and all six semaphores under
-`C:\ProgramData\SD\shm`, **no `sdwind` process at all** — so the before and
-after below are the same wreckage an hour apart, not a reconstruction.
+**14 Aug 2026, seventh session — the same §7 step 1d branches on the repository
+build, against wreckage the machine supplied itself.** Superseded by the entry
+above, which re-ran all of it on the installed binary; compressed on close to
+the two things that entry does not carry.
 
-Every branch was run. The **control** matters most: the installed 19:05 binary,
-against that same wreckage, answered `SD is already started` — **with no full
-stop**, which is `sdsem.c` line 86 and not the `bind_sysseg` string §7 step 1d
-named. `get_semaphores(TRUE)` runs before the segment is looked at, so **a fix
-confined to the two places the step named would have changed nothing the user
-sees.** The new build then said the segment was stale and named `sd -stop`;
-`sd -stop` emptied `shm` with no spurious warning; `sd -start` really started,
-`sdwind` at Windows pid 14712; a second `sd -start` reported it already running
-**as pid 14712**, matching `Get-Process` against the **87** it would have
-printed untranslated (§6, the MSYS2-pid trap); and with the segment unlinked by
-hand it fell through to the reworded semaphore message. `make sd` exits 0 with
-no warnings, `gcc -fsyntax-only -std=gnu17 -Wall -Wformat=2` clean.
-- **THE `EPERM` WARNING FIRED**, watched in two real console windows: an
-  elevated `sd -start` from the repository build, then `sd -stop` from an
-  ordinary PowerShell, which printed
-  `Warning: sdwind (pid 5080) is still running.` and named the command to clear
-  it. **Three confirmations, the third not designed for.** `Get-Process sdwind`
-  answered **5080**, so `win_pid()` translates in this path too;
-  `C:\ProgramData\SD\shm` was **empty**, so the teardown still happened and the
-  warning is a warning and not a failure; and `Stop-Process -Id 5080` **from
-  that same unelevated session was refused `Access is denied`**, so the
-  message's account of *why* is corroborated by another mechanism.
-- **Observed instead, and it is a defect the fix cannot reach:** with the
-  segment unlinked under a live daemon, `sd -stop` reported success, exit 0,
-  and left `sdwind` running. §6 carries it.
+- **The control is why the fix works at all.** The old binary answered
+  `SD is already started` against a dead daemon — `sdsem.c:86`, **not** the
+  `bind_sysseg` string §7 step 1d named, because `get_semaphores(TRUE)` runs
+  first. A fix confined to the two places the step named would have changed
+  nothing the user sees. §7 step 1d records the lesson.
+- **A defect the fix cannot reach:** with the segment unlinked under a live
+  daemon, `sd -stop` reports success, exit 0, and leaves `sdwind` running. §6.
 
 **§7 STEP 1c RUNS — 14 Aug 2026, seventh session, elevated console.** All five
 programs compiled `0 error(s)`, catalogued, no `is not assigned a value` (so
