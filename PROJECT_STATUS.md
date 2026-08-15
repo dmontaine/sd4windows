@@ -29,7 +29,7 @@ under the restored `ACC$GROUP` test. That is all §7 step 0e has left, and
 creating the account needs an elevated window.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-3,027 LINES NOW**, measured after the last edit rather than during it (see the
+3,028 LINES NOW**, measured after the last edit rather than during it (see the
 correction below, which is the same mistake one step smaller), after the sixth
 session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
@@ -161,7 +161,7 @@ install** on it, from the fixed installer:
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **EVERYTHING IS CURRENT AND THE ACCESS MODEL IS LIVE** | sixth session, 14 Aug 2026. Binaries **19:05** in `C:\Program Files\SD\usr\bin` (`sd.exe` 1,926,742 bytes, carrying `IsElevated()`), and `GPL.BP\LOGIN`/`CPROC` recompiled against them and catalogued. **An unelevated `sd` no longer reaches SDSYS** — it refuses with `sysmsg(5018)`, and `sd -ASDSYS` with `sysmsg(10002)`. Both observed, §4 |
 | Reinstalling over this | the installer **found the existing database and left it alone**, saying so in a dialog — §6's staleness trap, working as designed. So a reinstall updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`: after one, copy `GPL.BP\LOGIN`/`CPROC` across and recompile, or the machine runs yesterday's BASIC on today's binaries |
-| `gcat.before-step0` | **a backup of the pre-change `gcat`, 129 files**, taken in the sixth session before `$LOGIN` was replaced. The way back if the new login misbehaves: delete `gcat`, rename this over it. Delete it once §7 step 0e has passed |
+| Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\stagetest\ProgramData\sdsys\gcat`**, a complete 129-entry catalogue freshly bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction |
 | `sdusers` group | exists, with `GITORLI\don` in it |
 | `sdadmins` group | exists, **created by hand on 13 Aug, not by the installer** — see below |
 | System PATH and the Settings > Apps entry | both present |
@@ -3049,9 +3049,10 @@ the staging script and the Inno installer were all finished and removed.
       powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct3
       ```
 
-      **Then delete `C:\ProgramData\SD\sdsys\gcat.before-step0`**, the rollback
-      copy taken before `$LOGIN` was first replaced. It is stale the moment this
-      passes, and a stale rollback is worse than none.
+      **`gcat.before-step0` has already been deleted** (sixth session), once the
+      refusals were verified. If login ever needs restoring, take the catalogue
+      from the staged tree rather than looking for that backup — see the machine
+      table.
 
       **Two things the staging run taught, both worth keeping:**
 
