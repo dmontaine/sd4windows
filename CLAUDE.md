@@ -27,10 +27,16 @@ This is a standing instruction from the repository owner, not a nicety.
   shed settled material, and — especially — when an earlier claim turns out to
   be wrong. Corrections get their own entry. HISTORY.md is append-only; never
   delete or rewrite an entry.
-- **Roll over** when PROJECT_STATUS.md exceeds roughly 2000 lines: move settled
-  material into HISTORY.md and leave only what is needed to act today. The
-  limit exists to stop the file sprawling to the point where nobody reads it —
-  it is not a target to sit near, and never a reason to omit a finding.
+- **Keep PROJECT_STATUS.md readable**, which is three budgets rather than one
+  (§0 rule 5): **header ≤ 200 lines**, **§7 Next steps ≤ 300**, whole file
+  ≤ 3,500. The first two are what a session reads front to back before doing
+  anything, so they are the ones that matter; the rest is read by searching.
+  **§6 Traps is meant to grow** — never cut a trap to meet a number.
+  **The file self-cleans when a §7 step closes**: in that same commit, compress
+  its §4 tables to their conclusions and move its §5 weighing to HISTORY.md.
+  Do that and the rollover never becomes an event. Never a reason to omit a
+  finding. Measure with `.Count`, not `Measure-Object -Line`, which ignores
+  blank lines and undercounts by ~15%.
 - **Record anything a user would notice in `sdb_ai/sd64/sdsys/changelog`**, in
   the same commit as the work. That is the product changelog and it ships with
   the system; the two files above are the state of the work and the reasoning

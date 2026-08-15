@@ -28,7 +28,7 @@ trust the shared segment rather than the daemon process. This session hit both,
 and one of them left the system unusable while reporting success (§6). Small,
 self-contained, and it costs time every session it survives.
 
-**THE FILE IS 3,621 LINES. MEASURE IT WITH `.Count`:**
+**THE FILE IS 3,657 LINES. MEASURE IT WITH `.Count`:**
 
 ```powershell
 (Get-Content C:\Users\dmont\Projects\sdb_ai_windows\PROJECT_STATUS.md).Count
@@ -47,25 +47,36 @@ file as the recommended way to measure — which is how a bad measurement
 propagates. The general form belongs with §0 rule 2: **an instrument you have
 not checked is not evidence.**
 
-**IT IS ~1,600 LINES OVER THE ~2,000 LIMIT, AND THE ROLLOVER IS NOW THE LARGEST
-DEBT IN THE FILE.** Real sizes, measured this session:
+**THE SIZE RULE WAS REPLACED THIS SESSION** — §0 rule 5. The single ~2,000-line
+limit had never once been met, so it was doing no work. Three budgets now, and
+the small ones are the ones that matter, because they are what a session reads
+front to back before it can act:
 
-| Section | Lines |
-|---|---|
-| **§5 Decisions** | **1,006** |
-| **§6 Traps** | **969** |
-| **§4 Verified** | **605** |
-| §7 Next steps | 303 |
-| header | 258 |
-| §8 Open questions | 233 |
+| Budget | Limit | Now | |
+|---|---|---|---|
+| **Header** (above §0) | 200 | **269** | **over — trim first** |
+| **§7 Next steps** | 300 | **303** | at the line |
+| Whole file | 3,500 | **3,657** | over by ~157 |
 
-- **§5 is the largest and the best candidate now.** §5.6 and §5.6.1 carry the
-  full argument for an access model that is now built and verified — the
-  weighing of alternatives is history, and HISTORY already holds most of it.
-- **§6 grew by about 160 lines this session** and every one was paid for in
-  time. §0 rule 4 protects it: cut re-narration if you must, never a trap.
-- **§4 grew too.** Now step 0 is closed, its tables can compress to their
-  conclusions without losing an observation.
+Everything else is read by searching, not reading, so its size costs a session
+much less. Full sizes: §5 **1,006**, §6 **969**, §4 **605**, §8 233, §3 95, §0
+84, §2 67, §1 26.
+
+**Where to cut, in order:**
+
+- **This header.** It is 69 lines over and it is the most expensive real estate
+  in the file. The step 0 narrative above can go to two lines now the step is
+  closed.
+- **§5, the largest section.** §5.6 and §5.6.1 carry the full argument for an
+  access model that is **now built and verified** — the weighing of
+  alternatives is history, and HISTORY already holds most of it. This is what
+  §0 rule 5's "compress when a step closes" is for, and step 0 closing is
+  exactly that moment.
+- **§4**, whose step 0 tables can shrink to their conclusions without losing an
+  observation.
+- **§6 is NOT a candidate.** It grew ~160 lines this session and every one was
+  paid for in time. Rule 4 protects it; cut re-narration if you must, never a
+  trap.
 
 **What moved to HISTORY.md**, newest first, under "PROJECT_STATUS rolled over
 from 4,112 lines": the three-postures API weighing and the `sdadmins`
@@ -275,21 +286,46 @@ session will act on it.
 4. **Traps in §6 are the highest value part of this file.** Anything that cost
    more than about fifteen minutes to work out goes there, phrased as what
    happens and what to do.
-5. **Roll over when this file exceeds ~2000 lines**, or when any section is
-   mostly historical. Move the settled material to HISTORY.md, newest first,
-   and leave behind only what a new session needs to act today. §1–§7 are
-   permanent sections; keep them, shorten them.
+5. **Size. Three budgets, not one — and the small ones matter more than the
+   big one.** Revised 14 Aug 2026, sixth session, because the single ~2000-line
+   limit that stood here **was never once met**: the file ran 2,925 → 3,188 →
+   3,621 across successive commits, each session noting it was over and
+   deferring the rollover as "a session's work on its own". **A limit that is
+   never met and always deferred is not a limit.** It failed because it demanded
+   one large chore at the moment a session had other work.
 
-   **Understand what the limit is for.** It exists to stop this file sprawling
-   to the point where nobody reads it — a handoff document that has grown to
-   several thousand lines has stopped being a handoff document. It is not a
-   target to sit near, and it is never a reason to leave a finding out. If
-   something is worth recording, record it and trim elsewhere; detail that also
-   exists in HISTORY.md is the first thing to cut, since nothing is lost by it.
+   | Budget | Limit | Why |
+   |---|---|---|
+   | **Header** (above §0) | **200 lines** | read front to back, every session, before any work |
+   | **§7 Next steps** | **300 lines** | the other thing read in full to decide what to do |
+   | Whole file | **3,500 lines** | a ceiling, not a target |
 
-   Prune when a section has gone stale, not when a number is approached. The
-   best moment is just after work lands: instructions that have been carried
-   out become history, and shed easily.
+   **The first two are the ones that protect readability.** Everything else —
+   §4, §5, §6, §8 — is read by *searching*, not by reading, so its size costs a
+   session far less. **§6 in particular is meant to accumulate**: rule 4 makes
+   traps the highest-value content here, and capping them fights the rule that
+   makes them worth keeping. Never cut a trap to meet a number; cut its
+   re-narration, which HISTORY already holds.
+
+   **THE FILE SELF-CLEANS AT ONE MOMENT: WHEN A §7 STEP CLOSES.** In the same
+   commit that closes a step:
+
+   - its §4 tables compress to their conclusions — keep the claim and the
+     decisive measurement, drop the working detail;
+   - its §5 weighing of alternatives moves to HISTORY.md, because a decision
+     that is built and verified no longer needs its argument carried here;
+   - its §7 sub-steps shrink to what was learned.
+
+   **Do that and the rollover never becomes an event.** The 3,500 ceiling is
+   then a backstop for when it has been skipped, not the normal mechanism.
+
+   It remains **never a reason to leave a finding out.** If something is worth
+   recording, record it and trim elsewhere; detail that also exists in
+   HISTORY.md is the first thing to cut, since nothing is lost by it.
+
+   **Measure with `.Count`, not `Measure-Object -Line`** — the latter ignores
+   blank lines and undercounts this file by about 15%. That mistake is recorded
+   in HISTORY and in the header.
 6. **HISTORY.md is append-only.** Never delete or rewrite an entry. Correct it
    with a new entry that references the old one.
 7. **State the date as an absolute date.** Never "today", "last week", "the
