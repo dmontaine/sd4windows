@@ -27,6 +27,76 @@ corrected.
 
 ---
 
+## 15 Aug 2026 - Header item 2 closed, and the SH gate turns out never to have touched programs
+
+Tenth session. Everything that can be verified on one machine now has been, so
+the next subject is §7 step 2, the second machine.
+
+**The install was stale before any of it could start, and that is the ordinary
+case.** The ninth session left `C:\Program Files\SD\usr\bin\sd.exe` at 09:58 and
+hash-identical to `bin/sd.exe`; five commits between 10:32 and 11:54 — three of
+them C source — made it stale by lunchtime, while PROJECT_STATUS still said it
+was current. So the cycle began where the owner's rule says it does: `make sd`,
+`stage.py --force --bootstrap`, ISCC, uninstall, delete both trees, install,
+re-apply the ssh block by hand. Installed and built `sd.exe` then hashed the
+same, `81594E79CC2B560C`. The item now carries the one-line hash check instead
+of a date to be trusted.
+
+**2b — an ssh session lands inside SD.** `ssh sdacct6@localhost whoami`
+answered SD's banner and a `:` prompt, exit 0, with `whoami` never running.
+`verify-createaccount.ps1` cannot make that measurement: it accepts *either*
+proof of admission by design, because it has to run either side of
+`allow-ssh-groups.ps1`. `CREATE.ACCOUNT USER sdacct6` was 16 of 16 on the way,
+and `scp` to that account was measured dead — exit 255, `Received message too
+long` — which the `changelog` had asserted and nobody had watched.
+
+**2c — `SH` sets `SD_SESSION`, and it took three runs for a reason worth
+keeping.** `SH Get-ChildItem Env:SD_SESSION` printed `SD_SESSION 1`. But
+`SH sd --version` printed **nothing at all**, which reads exactly like a command
+that never ran. It had run and had refused: `sd.c:301` prints that refusal with
+`fprintf(stderr,` and the harness captured only stdout. `Get-Command sd` inside
+the same child resolved correctly, so it was never a PATH problem. The refusal
+was then watched on both child paths, including `sh(FALSE)` — the identical one
+the `SH` verb uses — rather than being inferred from the captured variant.
+
+**The owner's question turned §7 step 7 around.** He pointed out that BASIC
+programs run OS commands and act on the result, `EXECUTE ... CAPTURING`. Step 7
+had said a `SH` a program can call but a person at a prompt cannot is "a
+distinction that does not exist today". It does, and always has:
+`OS.EXECUTE ... CAPTURING` is its own statement, `BCOMP:9647` emitting
+`OP.SHCAP` straight into `op_sh.c`, and **neither `kernel(K$ADMINISTRATOR,-1)`
+nor `!valid_shell_cmd` is anywhere on that path** — both live only in `CPROC`'s
+`os.command:` handler, which is the TCL verb. Measured unelevated with the
+control that makes it mean something: in one session `SH` at the `:` prompt was
+refused `Command requires administrator privileges`, and a program in `don`'s
+own BP ran `OS.EXECUTE 'echo SDMARKER-OK' CAPTURING` and printed the result
+back. The form that *does* break is `EXECUTE 'SH ...' CAPTURING`, which routes
+through TCL. What is left of step 7 is only the elevated console prompt.
+
+**A defect found by reading the closing dialog, which compiling never would.**
+It ended by offering `net localgroup sdusers <name> /add` for somebody who
+already has a Windows account. That cannot work — `sdusers` grants access to the
+files, login needs a linked SD account, so such a user meets `Account X not in
+register`, which is precisely the symptom `don` had before step 1f. Owner's
+decision: drop the lines rather than document `ADOPT`, which stays undocumented.
+`sd.iss:493`, with a `changelog` entry. **Correction to PROJECT_STATUS §7 step
+3 while there: its "nobody has seen the closing dialog" was wrong — the owner
+has, and had screenshotted it.** The `AllowGroups` subtask is still unseen and
+cannot be seen on this machine, being hidden by `Check: SshServerAbsent`.
+
+**Two traps banked.** MSYS2 `python` given `gplbld\stage.py` with a backslash
+mis-resolves `sys.path[0]` and dies `No module named 'bootstrap'`, which reads
+as a missing file; forward slash fixes it, and it would have cost a round trip
+in the elevated window that is the only place staging runs. And a stdout-only
+test harness sees SD's refusals as silence, which is the trap above generalised:
+the gate under test is the output most likely to be on stderr.
+
+**Still open:** `sdacct6` is left in place as step 1c's test subject, password
+`Sd-Test-1`; the staged tree and installer are one commit stale, carrying the
+old dialog until the next rebuild.
+
+---
+
 ## 15 Aug 2026 - Step 1f built, and ADOPT's first run locked the owner out of his console
 
 Eighth session. `gplbld/adopt-account.ps1` gives the installing user an SD

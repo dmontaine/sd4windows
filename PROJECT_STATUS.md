@@ -5,12 +5,11 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 15 Aug 2026, ninth session, `207dd9c`→. **The machine now
-runs the repository**: re-staged, ISCC, and a clean install from nothing, so
-the elevation gate, the ssh `ForceCommand` and the `SD_SESSION` guard are all
-installed. The command-line gate is **verified on the installed binary, 19 of
-19** (§4). The eighth session closed §7 step 1f; steps 1c, 1d the seventh; step
-0 the sixth.
+**Last updated:** 15 Aug 2026, tenth session, `546e9cd`→. **HEADER ITEM 2 IS
+CLOSED — 2b and 2c are both verified on a fresh install** (§4), so every
+verification that can be done on one machine is done and **§7 step 2, the
+second machine, is next**. The ninth session closed 2a; the eighth §7 step 1f;
+steps 1c, 1d the seventh; step 0 the sixth.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall.** Owner's rule, 15 Aug 2026, now in CLAUDE.md because §6 was too
@@ -21,12 +20,23 @@ never including `gcat` — is not evidence a tree is current.
 
 **START HERE, in order:**
 
-1. **CLOSED 15 Aug 2026, ninth session. The install is current and clean.**
-   `C:\Program Files\SD` 19 files, `sd.exe` **09:58 and hash-identical to
-   `bin/sd.exe`**; `C:\ProgramData\SD\sdsys` **3,456 files, `gcat` 130,
-   `GPL.BP.OUT` 191**; `ACCOUNTS` holds `DON` and `SDSYS`; `sshd_config` carries
-   `AllowGroups` **and `ForceCommand "C:\Program Files\SD\usr\bin\sd.exe"`**
-   between SD's markers, `sshd` Running.
+1. **CLOSED 15 Aug 2026, tenth session. The install is current and clean.**
+   `C:\Program Files\SD` 19 files, `sd.exe` **15:41, sha256 `81594E79CC2B560C`,
+   hash-identical to `bin/sd.exe`**; `C:\ProgramData\SD\sdsys` **3,456 files,
+   `gcat` 130, `GPL.BP.OUT` 191**; `ACCOUNTS` holds `DON` and `SDSYS`;
+   `sshd_config` carries `AllowGroups` **and
+   `ForceCommand "C:\Program Files\SD\usr\bin\sd.exe"`** between SD's markers,
+   `sshd` Running.
+
+   **THE NINTH SESSION'S INSTALL WENT STALE WITHIN THE HOUR, AND THAT IS THE
+   normal case, not an accident.** It was hash-identical at 09:58; five commits
+   between 10:32 and 11:54 — three of them C source — made it stale by 11:54,
+   while this file still said it was current. **Re-measure the hash rather than
+   reading this item.** One command, and it is the whole of the check:
+
+   ```powershell
+   (Get-FileHash 'C:\Program Files\SD\usr\bin\sd.exe').Hash -eq (Get-FileHash 'C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\bin\sd.exe').Hash
+   ```
 
    **The ssh block went on BY HAND and always will on this machine.** The
    installer's `installssh` task carries `Check: SshServerAbsent`
@@ -34,21 +44,14 @@ never including `gcat` — is not evidence a tree is current.
    the task and its `allowgroups` child are **hidden**, by design (§5.9: SD never
    reconfigures an ssh server it did not install). Elevated, after every install:
    `powershell -File "C:\Program Files\SD\allow-ssh-groups.ps1" -Installed`.
-2. **Finish verifying what only an install can show. One of three done.**
-
-   a. **DONE — the switches and a bare command refused on the installed
-      binary**, 19 of 19 (§4).
-   b. **NOT DONE — an ssh session landing at SD's `:` prompt** instead of a
-      shell. Needs a test account, since `sdacct4`/`sdacct5` were removed:
-      `verify-createaccount.ps1 -Account sdacct6`, elevated. The `ForceCommand`
-      is applied, so this is now testable.
-   c. **NOT DONE — `SH` really setting `SD_SESSION`.** Only `sd.c`'s half has
-      run. Needs SD started (**elevated** now) and a live session: `sd`, then
-      `SH`, then read `SD_SESSION` in the shell it hands back and confirm `sd`
-      refuses there.
-3. **§7 step 2** — second machine. Only place RDP and a genuinely clean install
-   can be tested, and the corrected catalogue has still never been installed
-   anywhere but here.
+2. **CLOSED 15 Aug 2026, tenth session. All three verified on the install**
+   (§4): a the switches and a bare command, 19 of 19; b an ssh session landing
+   inside SD; c `SH` setting `SD_SESSION` and `sd` refusing in the shell it
+   hands back. `sdacct6` was made by `CREATE.ACCOUNT` for b, 16 of 16, and is
+   **left in place** — it is the test subject step 1c's untested branch wants.
+3. **§7 step 2 — second machine. THIS IS NEXT.** Only place RDP and a genuinely
+   clean install can be tested, and the corrected catalogue has still never been
+   installed anywhere but here. Nothing else on one machine is left to verify.
 
 **Two things the owner has NOT decided, and nobody should decide for him:**
 whether `SH` itself is restricted (the menu system is his answer instead — §6),
@@ -56,9 +59,11 @@ and that the ssh `ForceCommand` **kills scp and sftp on the machine**, which
 follows from forcing the command and is stated in the `changelog`.
 
 **Untested branch from step 1c:** `DELETE.ACCOUNT`'s "SD created it" delete.
-The account it was meant for is gone; make a throwaway with
-`New-LocalUser sdadopt3 -NoPassword` and adopt it, or use
-`verify-createaccount.ps1`.
+**The test subject now exists — `sdacct6`, made by `CREATE.ACCOUNT` in the
+tenth session and left in place for this.** It is SD's own, so `!is_sd_user`
+answers yes and the prompting branch is the one that fires. Password
+`Sd-Test-1`. For the other direction — an account SD did *not* make — use
+`New-LocalUser sdadopt3 -NoPassword` and adopt it.
 
 **Machine, ninth session, 15 Aug 2026.** **The install is clean and the machine
 runs the repository** — counts and dates in header item 1, which is the one
@@ -174,12 +179,12 @@ install** on it, from the fixed installer:
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
 | **`AllowGroups` AND `ForceCommand` ARE APPLIED** | 15 Aug 2026, ninth session, **by hand after the install** — `allow-ssh-groups.ps1 -Installed`, elevated. Lines 87–90 of `sshd_config`, before the `Match` block; original kept at `sshd_config.before-sd`; `sshd` restarted, Running. **THE UNINSTALLER TAKES IT BACK OFF** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`, correct behaviour), and **the installer will not put it back on this machine** because the task is hidden — header item 1. So it is a manual step of every fresh install here, and its absence is what the eighth session mistook for it being applied |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
-| Test accounts, Windows side | **No users** — `Get-LocalUser` matches nothing on `sd*`, 15 Aug 2026 ninth session. **But two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, and left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. Make a fresh account with `verify-createaccount.ps1 -Account sdacct6`, or `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
+| Test accounts, Windows side | **`sdacct6` exists**, 15 Aug 2026 tenth session, made by `CREATE.ACCOUNT` and kept — password `Sd-Test-1`, in `sdusers`, `sdu_sdacct6` and `sdsshonly`, not an administrator. It is step 1c's test subject. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
 | **`don` HAS AN SD ACCOUNT** | 15 Aug 2026, made by `ADOPT` — `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`; `sd` puts him in it, `WHO` says `5 DON`. It also put him in `sdsshonly` before the §6 fix, and **that was undone by hand** — `sdsshonly` now holds only `sdacct4`/`sdacct5` |
-| `sdsshonly` | exists, **empty** - the lockout fix means no administrator is in it, and no ssh-only account exists yet |
+| `sdsshonly` | exists, holding **`sdacct6`** and nothing else — the lockout fix means no administrator is in it, and `sdacct6` is there because that is what `CREATE.ACCOUNT` does to a non-administrator |
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
-| Accounts, **SD side** | `SDSYS` and `DON`, nothing else |
-| SD | **not running**, and `C:\ProgramData\SD\shm` is **empty** - `adopt-account.ps1` left it as it found it. `sd -start` starts cleanly and **now needs an elevated window**, verified: the gate covers `-start` |
+| Accounts, **SD side** | `SDSYS`, `DON` and `SDACCT6` |
+| SD | **running**, started elevated in the tenth session for the 2b/2c work. `sd -start` **needs an elevated window**, verified: the gate covers `-start` |
 | SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
@@ -187,17 +192,18 @@ elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
 `C:\Program Files\SD` and `C:\ProgramData\SD`, then `Remove-LocalGroup sdusers`
 — but leave `sdadmins` alone, for the reason in §8.
 
-**THE STAGED TREE AND THE INSTALLER ARE 15 Aug 2026 AND BOTH INSTALL.**
-`C:\Users\dmont\stagetest` was re-staged at **06:43** with the `ACCOUNTS/SDSYS`
-fix (§6) - 3,473 files, `GPL.BP.OUT` 191 objects, `gcat` 130 - and
-`C:\Users\dmont\sdout\sd-setup-1.0-2.exe` was rebuilt from it at **09:05**
-(4,799,508 bytes). **That installer was run and its database counted** (§4), so
-"it compiled" is no longer the only claim. **What neither carries is the last
-three commits** - the elevation gate, the ssh `ForceCommand` and the
-`SD_SESSION` guard - so a re-stage is header item 1. ISCC alone is not enough
-when a `gplbld/` script changed: `stage.py` copies those into `ProgramFiles`.
-Neither artefact survives a rebuild of the machine; both are reproduced by the
-commands at the top of `gplbld/sd.iss`.
+**THE STAGED TREE AND THE INSTALLER ARE 15 Aug 2026, tenth session, AND WERE
+INSTALLED FROM.** `C:\Users\dmont\stagetest` re-staged at **15:4x** — 3,474
+files — and `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` built from it at **15:52**
+(4,801,559 bytes). That installer was run and the result counted and hashed
+(header item 1), so "it compiled" is not the claim.
+
+**Both are already one commit stale**: the closing-dialog fix (§7 step 3) landed
+after them, so the shipped dialog still carries the `net localgroup` lines until
+the next rebuild. ISCC alone is not enough when a `gplbld/` script changed —
+`stage.py` copies those into `ProgramFiles` — and **`stage.py --bootstrap`
+refuses an unelevated window**. Neither artefact survives a rebuild of the
+machine; both are reproduced by the commands at the top of `gplbld/sd.iss`.
 
 **Where to start next. The full list is §7; what follows is only what a session
 starting cold would otherwise get wrong.**
@@ -679,6 +685,54 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**15 Aug 2026 — AN ssh SESSION LANDS INSIDE SD (header 2b), tenth session.**
+`ssh sdacct6@localhost whoami` against the fresh install answered **SD's banner
+and a `:` prompt, exit 0 — `whoami` never ran**. That is the decisive form:
+sshd discards the client's command and runs SD. `verify-createaccount.ps1`
+deliberately accepts *either* proof of admission, because it must run either
+side of `allow-ssh-groups.ps1`, so it cannot make this measurement — it was made
+separately. `CREATE.ACCOUNT USER sdacct6` was **16 of 16** on the way past,
+including the ssh-only branch and the three logon measurements: `LogonUser`
+INTERACTIVE **refused 1385**, NETWORK_CLEARTEXT **admitted**, ssh **admitted**.
+
+**And scp is dead, measured rather than asserted.** `scp` to that account
+**exit 255**, `Received message too long` / `Ensure the remote shell produces no
+output for non-interactive sessions` — which is what forcing a command that
+prints a banner does. The `changelog` already said so; now it is observed.
+
+**15 Aug 2026 — `SH` SETS `SD_SESSION` AND `sd` REFUSES IN THE SHELL IT HANDS
+BACK (header 2c), tenth session.** Elevated live session on the install:
+`SH Get-ChildItem Env:SD_SESSION` printed **`SD_SESSION 1`**, so `op_sh.c:312`
+is observed and not just `sd.c`'s half. The refusal was then watched on **both**
+child paths — `OS.EXECUTE 'sd --version' CAPTURING` (`sh(TRUE)`) and
+`OS.EXECUTE 'sd --version'` with no CAPTURING (**`sh(FALSE)`, the identical path
+the `SH` verb takes**) — each answering `SD is already running in this session -
+type EXIT to return to it.`
+
+**Why it took three runs, and it is a testing trap not a defect:**
+`SH sd --version` in the piped elevated session produced **no output at all**.
+The refusal is `fprintf(stderr, ...)` at `sd.c:301`, and the capture took only
+stdout. `Get-Command sd` inside the same child resolved to
+`C:\Program Files\SD\usr\bin\sd.exe`, so it was never a PATH failure.
+**`CAPTURING` sees it because `op_sh.c:281-282` dup2s the pipe onto BOTH 1 and
+2**; a bare `2>` on the `sd` invocation does the same for the uncaptured form.
+
+**15 Aug 2026 — AN ORDINARY USER'S PROGRAM REACHES THE OS, IN THE SAME SESSION
+WHERE `SH` IS REFUSED. Owner's question, tenth session.** One **unelevated**
+session on the install, with the control first: `SH echo ...` at the `:` prompt
+→ **`Command requires administrator privileges`**; then a program compiled `0
+error(s)` in `don`'s own BP running `OS.EXECUTE 'echo SDMARKER-OK' CAPTURING
+CAP` → **`SDMARKER-OK` captured and printed back**. The control is what makes it
+mean anything: same session, same user, one route refused and the other open.
+
+**So the gate does not break programs, and §7 step 7's premise was wrong** —
+see the correction there. `OS.EXECUTE ... CAPTURING` is its own BASIC statement,
+`BCOMP:9647` → `OP.SHCAP` (`0xCF99`, `opcodes.h:505`) → `op_shcap()` →
+`sh(TRUE)`, and **neither `kernel(K$ADMINISTRATOR,-1)` nor `!valid_shell_cmd`
+is anywhere on that path**. Both live only in `CPROC`'s `os.command:` handler.
+**The form that does break is `EXECUTE 'SH ...' CAPTURING`**, which goes through
+TCL and therefore through the gate; the statement used directly does not.
 
 **15 Aug 2026 — THE COMMAND LINE IS CLOSED TO AN UNELEVATED SESSION, AND SD
 WILL NOT START INSIDE ITSELF. CONFIRMED ON THE INSTALLED BINARY, ninth
@@ -2385,6 +2439,23 @@ session cannot.
 
 Each of these cost real time. Read before debugging anything similar.
 
+- **A TEST THAT CAPTURES ONLY stdout SEES SD's REFUSALS AS SILENCE.** 15 Aug
+  2026, tenth session. `SH sd --version` produced **no output whatever** in a
+  piped session, which reads like the command never ran; it had, and had
+  refused, on `stderr` (`sd.c:301` and most `fprintf(stderr,` sites like it).
+  **A gate under test is exactly the output most likely to be on stderr**, so a
+  stdout-only harness is blind to the thing it exists to watch. Two working
+  forms: `OS.EXECUTE ... CAPTURING` gets both, because `op_sh.c:281-282` dup2s
+  the pipe onto **1 and 2**; otherwise redirect `sd`'s own stderr to a **file**
+  — never `2>&1`, which PowerShell 5.1 turns into an ErrorRecord (below).
+
+- **MSYS2 `python` GIVEN A BACKSLASHED RELATIVE SCRIPT PATH DIES
+  `No module named 'bootstrap'`.** 15 Aug 2026, tenth session.
+  `python.exe gplbld\stage.py ...` mis-resolves `sys.path[0]`, so `stage.py`'s
+  `from bootstrap import is_elevated` fails and it reads as a missing file
+  rather than a path-separator problem. **Use `gplbld/stage.py`.** Cheap here,
+  expensive in an elevated window, which is the only place staging can run.
+
 - **`ACCOUNTS/SDSYS` CARRIES `ACC$GROUP = sdsys`, AND NO SUCH WINDOWS GROUP
   EXISTS.** Found 14 Aug 2026, sixth session, by reading the record off disk
   rather than trusting §5.6's summary of it:
@@ -3706,9 +3777,18 @@ the staging script and the Inno installer were all finished and removed.
    machine.
 3. **Installer loose ends**, none of them blocking:
 
-   - **Nobody has seen the closing dialog or the `AllowGroups` subtask on
-     screen** (§4 Unverified). The script compiles; that is a different claim,
-     and both defects this file has recorded in that script compiled perfectly.
+   - **CORRECTED 15 Aug 2026: the owner has seen the closing dialog and has
+     screenshotted it before now.** This file's "nobody has seen it" was simply
+     wrong. It was watched again in the tenth session, and **reading it found a
+     defect that compiling never would**: it ended by offering
+     `net localgroup sdusers <name> /add` for somebody who already has a Windows
+     account, which **cannot work** — `sdusers` grants access to the files,
+     login needs a linked SD account, so such a user is refused with `Account X
+     not in register`, the exact symptom `don` had before step 1f. **Owner's
+     decision, 15 Aug 2026: drop those lines**, rather than document `ADOPT`,
+     which stays undocumented. Done, `sd.iss:493`, with a `changelog` entry.
+     **The `AllowGroups` subtask is still unseen** and cannot be seen here — it
+     is hidden by `Check: SshServerAbsent` on this machine (header item 1).
    - **`GPL.BP/OPGEN` is not ported** to `gen_includes.py`. It generates
      `GPL.BP/OPCODES.H` from `gplsrc/opcodes.h` and reads `./gplsrc` the way
      the others did, but nothing ever `$execute`d it, so it breaks no compile —
@@ -3808,9 +3888,23 @@ the staging script and the Inno installer were all finished and removed.
    to be load-bearing.** `K$ADMINISTRATOR` is `IsElevated()`, an ssh session
    cannot be elevated, so it is **what keeps an ssh user inside SD** (§4).
    Deleting it to let programs reach Windows utilities reopens the escape
-   `ForceCommand` exists to close. **The shape worth considering is a `SH` a
-   program can call but a person at a `:` prompt cannot**, a distinction that
-   does not exist today. Owner's call; do not simply delete the line.
+   `ForceCommand` exists to close. Owner's call; do not simply delete the line.
+
+   **CORRECTED 15 Aug 2026, tenth session. THE STEP SAID "a `SH` a program can
+   call but a person at a `:` prompt cannot" IS "a distinction that does not
+   exist today". IT DOES EXIST, AND IT ALWAYS HAS.** The owner asked what the
+   gate does to BASIC programs that run OS commands and act on the result;
+   measured, unelevated, with the control (§4): **`OS.EXECUTE ... CAPTURING`
+   is ungated**. It is its own statement compiling to its own opcode
+   (`BCOMP:9647` → `OP.SHCAP`) straight into `op_sh.c`, never touching `CPROC`.
+   So the gate restricts **the TCL verb only**, which is the person at the
+   prompt, and programs already have what step 7 was proposing to build.
+
+   **What is left of this step is therefore much smaller**: whether a person at
+   an *elevated console* should have `SH`, and whether `!valid_shell_cmd`'s ban
+   on `; | & $` backquote `< >` should stand there. Neither affects programs —
+   `OS.EXECUTE` is subject to neither — so §5.13's argument for shell-out is
+   already satisfied and the remaining question is only about the prompt.
 8. **Make everything lower case that can be** (§5.12), folding in
    **`CASE_INSENSITIVE_FILE_SYSTEM`**, which is referenced at 9 sites in
    `dh_misc.c`, `dh_open.c`, `op_dio2.c` and `op_dio4.c` and defined nowhere.
