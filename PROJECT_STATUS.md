@@ -50,8 +50,7 @@ raises a consent prompt on the secure desktop:
    from the elevated window. **Anything that says "has been shut down" with no
    warning while `Get-Process sdwind` still answers is a failure of the fix.**
 
-**SIZE — §0 rule 5, three budgets. Measure with `.Count`, never
-`Measure-Object -Line`, which ignores blank lines and undercounts by ~15%:**
+**SIZE — §0 rule 5, three budgets. Measure with `.Count`; `Measure-Object -Line` ignores blank lines and undercounts by ~15%:**
 
 ```powershell
 (Get-Content C:\Users\dmont\Projects\sdb_ai_windows\PROJECT_STATUS.md).Count
@@ -59,15 +58,12 @@ raises a consent prompt on the secure desktop:
 
 | Budget | Limit | Now |
 |---|---|---|
-| **Header** (above §0) | 200 | **182** |
+| **Header** (above §0) | 200 | **178** |
 | **§7 Next steps** | 300 | **258** |
 | Whole file | 3,500 | **3,499** |
 
-**All three met, which had never happened before** — by doing what rule 5 says
-a closing step does, in the commit that closed it. It was not a rollover.
-
-**§6 is not a candidate for cutting** — it grew again this session and every
-line was paid for in time. Rule 4 protects it; cut re-narration, never a trap.
+**All three met for the first time, by rule 5 and not by a rollover** — a
+closing step cleans up after itself, in the commit that closes it.
 
 **THE ACCESS MODEL, BUILT AND VERIFIED.** Full statement in §5.6; the short
 form, because it changes what every other item in this file assumes:
@@ -935,6 +931,10 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
+- **THE `EPERM` WARNING IN `sd -stop` HAS NEVER BEEN WATCHED** (14 Aug 2026,
+  seventh session). It needs a daemon started from an elevated window and a
+  stop from an ordinary one — the branch §7 step 1d was written about, and the
+  only part of it not observed. Recipe in the header.
 - **`DELETE.ACCOUNT` and `MODIFY.ACCOUNT` have never been run** against a real
   Windows account. `CREATE.ACCOUNT` has (§4 Verified), so this is the
   asymmetric half — and it is §7 step 1c, which has to decide what deleting an
