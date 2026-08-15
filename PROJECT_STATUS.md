@@ -68,6 +68,23 @@ form, because it changes what every other item in this file assumes:
   silently stopped working**, and **anyone granted an account cannot use it
   until they sign out and back in** — group membership is fixed in the token at
   logon (§6).
+- **NOTHING MAY BE TYPED AFTER `sd` WITHOUT ELEVATION** — owner's rule,
+  15 Aug 2026. The switches and **a bare command both**: `sd LISTF` ran LISTF
+  for anybody. `check_admin()` asks `IsElevated()` now, not `IsAdmin()`, and
+  covers `-CLEANUP -D -L -M -U -SUSPEND -RESUME -INTERNAL` as well as the four
+  it had. Plain `sd` is untouched. **`-P -C -N -Q` are deliberately NOT gated:
+  SD spawns itself with them** for phantoms, the client library, network and
+  the API, and those children carry an ordinary token. **The rule closes
+  because of the two before it:** the console belongs to administrators, and
+  an ssh session arrives *inside SD* with no shell to type into.
+- **EVERY ssh SESSION LANDS IN SD, ADMINISTRATORS INCLUDED** — owner's rule,
+  15 Aug 2026. A global `ForceCommand` in `allow-ssh-groups.ps1`'s marked
+  block, **not** the `DefaultShell` registry key, which `-Remove` could not
+  reverse. ssh only: console, RDP and remote-control tools are untouched.
+  **scp and sftp stop working**, which follows from forcing the command.
+  **And SD refuses to start inside itself**: `op_sh.c` marks the shell `SH`
+  launches with `SD_SESSION`, `sd.c` refuses when it sees it. A guard, not a
+  boundary — the user owns that shell — and it is the accident it is for.
 - **SD ACCOUNTS BRING THEIR OWN OS ACCOUNT, WITH ONE EXCEPTION** — owner's
   decision, 14 Aug 2026, seventh session. **The only pre-existing OS user that
   may be given an SD account is the installer's**, done at install time; every
@@ -407,6 +424,26 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**15 Aug 2026 — THE COMMAND LINE IS CLOSED TO AN UNELEVATED SESSION, AND SD
+WILL NOT START INSIDE ITSELF.** `make sd` clean, then from an ordinary shell
+against the new build: `-start -stop -u -cleanup -suspend -internal` and the
+bare commands `LISTF` and `WHO` all refused with `This command needs an
+elevated session`, exit 1; `--version` still answered; plain `sd` still reached
+login and stopped only at `SD has not been started`. With `SD_SESSION=1` set,
+every form — including `-start` — answered `SD is already running in this
+session`. **Not watched: the marker being set by a real `SH`**, which needs a
+live session; only `sd.c`'s half of that pair has run.
+
+**15 Aug 2026 — §7 STEP 1f IS CLOSED ON A REAL INSTALL.** The installer's
+`[Code]` step made the account: `ACCOUNTS` holds `DON` and `SDSYS`,
+`user_accounts\don` exists, `sdu_don` has him, `sdsshonly` is **empty** — the
+lockout fix holding on the installer's own path — and `adopt-account.log`
+records `AppDir=C:\Program Files\SD`, `don keeps the Windows sign-in rights it
+already had`, and the daemon put back as it was found. The install underneath
+it is the corrected one: **3,455 files, `gcat` 130, and the installed
+`gcat/$LOGIN` carries the new banner** — the first time the repository's own
+catalogue has been on this machine.
 
 **15 Aug 2026 — `ADOPT` RAN FOR THE FIRST TIME, AND IT LOCKED THE OWNER OUT OF
 HIS OWN CONSOLE.** `adopt-account.ps1` against the install, elevated:
