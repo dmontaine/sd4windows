@@ -27,6 +27,309 @@ corrected.
 
 ---
 
+## 14 Aug 2026 - PROJECT_STATUS rolled over from 4,112 lines
+
+Fifth session of 14 Aug 2026, starting at commit `33495e0`. **The only subject
+was the rollover** that §0 rule 5 had been calling for since 13 Aug 2026, and
+which the fourth session had named as the most overdue item in the file and as
+"a job for a session that starts with it rather than one that reaches it".
+
+**No code changed. Nothing was built and nothing was tested.** No claim moved
+between §4 Verified and §4 Unverified in either direction, and nothing that had
+been observed was deleted. This entry exists so that a future session can tell
+what was cut from what was never there.
+
+### What it achieved, and what it did not
+
+**4,112 lines to 2,924 — 29%, and still above the ~2,000 limit.** That is
+recorded honestly in the file's header rather than glossed, because the next
+session inherits it. Where the remainder sits:
+
+| Section | Was | Now |
+|---|---|---|
+| header (before §0) | 340 | 147 |
+| §0–§3 | 309 | 247 |
+| §4 Verified / Unverified | 828 | 456 |
+| §5 Decisions | 1,169 | 887 |
+| §6 Traps | 882 | 812 |
+| §7 Next steps | 173 | 155 |
+| §8 Open questions | 410 | 219 |
+
+**§6 is now the largest section and the main remaining candidate.** It was
+compressed — several entries re-narrated how the trap was found, which HISTORY
+already carries — but **no trap was removed**, and none should be: §0 rule 4
+makes them the highest-value part of the file. Taking §6 below about 600 means
+reading every entry against its HISTORY counterpart, which is a session's work
+on its own and was not attempted here.
+
+**§4 was cut hardest** and is now claim, decisive measurement and nothing else.
+The 13 Aug 2026 foundations — the binaries building, the IPC probes, the shared
+segment lifecycle, the bootstrap, the credential round trip, the `LOGTO` suite,
+the drive-letter fix, the data tree needing no C source, the staged tree running
+with MSYS2 off PATH — became a table of one-line claims, each naming the HISTORY
+entry that carries it. Nothing there was contradicted; it was superseded as a
+*headline* by the installed system running end to end, which is a different
+thing and is why the claims were kept rather than deleted.
+
+Two §4 entries were merged rather than trimmed, because the later one strictly
+covers the earlier: "THE STAGED TREE INSTALLS AND RUNS" was dropped in favour of
+"A GENUINE FIRST INSTALL WORKS", and the earlier ssh-only proof was folded into
+the `CREATE.ACCOUNT` 16-of-16 entry, which measured the same three things on an
+account SD created rather than one a test harness made.
+
+### One correction to the file, made in passing
+
+§7's step numbering was rewritten. Steps 1, 2 and 3 had been "finish the install
+layout", "finish the OS account work" and "build the staging script then the
+installer" — **all three are done**, and step 1's own text had said so in three
+places while still standing at the top of the list. They are replaced by the
+loose ends that actually remain. **Steps 4 to 13 keep their old numbers**,
+because the rest of the file refers to them by number; the four cross-references
+that pointed at the old 1, 2, 3 and 0 were repointed rather than left dangling.
+
+### Archived here because it had no other home
+
+Three blocks were carried out of PROJECT_STATUS verbatim. Everything else that
+was cut was a second copy of something this file already held.
+
+---
+
+#### 1. The development-tree machine state, as it stood 13 Aug 2026
+
+Removed from §3, where it described a tree that is no longer how the system is
+reached — the installed tree at `C:\ProgramData\SD` is. **The scratch account
+passwords below are real and were still set when this was archived.** Delete
+those accounts before that machine is used for anything that matters.
+
+None of this is in the repository. The layout is the pre-§5.8 one, under `/etc`
+and `/usr/local`; there is no reason to redo it by hand, but **the installer
+must not reproduce it**.
+
+| Thing | State |
+|---|---|
+| `/etc/sd.conf` | `SDSYS=/usr/local/sdsys`; `USRDIR`/`GRPDIR` point at `C:\ProgramData\SD\` |
+| `/usr/local/sdsys` | fully bootstrapped, SD answers commands |
+| SD server | started, `sdlnxd` running |
+| Binary used | `/usr/local/sdsys/bin/sd.exe`, the shipped build — the probe is no longer needed here, since the token now carries `sdadmins` |
+| `sdadmins` local group | created, `GITORLI\don` enrolled — **unnecessary under §5.6**, but do not delete it yet (§8) |
+| **SDSYS password** | **`hunter2`** — set during testing, change it |
+| Scratch accounts | `JANE`, `SUE`, `KIM` under `/home/sd/user_accounts`; `PAT` under `C:\ProgramData\SD\user_accounts`. Passwords **`correcthorse`** (SUE) and **`batterystaple`** (PAT). Delete all of them before this machine is used for anything real |
+| Grants recorded | `JANE` grants `SUE`; `SDSYS` grants `SUE`; `KIM` and `PAT` grant nobody, which is what makes them useful |
+| `gplsrc`, `gplobj`, `gplbld` | **moved out of `<sysdir>`** into a session scratchpad. Do not put them back |
+| `<sysdir>/C:` | an empty directory left by the `sdrealpath()` bug before it was fixed (§5.8). Harmless, and not evidence of anything |
+
+**Scratch test programs in `<sysdir>/BP`**, none of them in the repository:
+`CREDTEST`, `CREDRT`, `SETPW`, `INTEST`, `VTEST`, `MKACC`, `GRANT`, `WHOAMI`,
+`MKDICT`, `MKBP`, `PROBE`, plus `SUE/BP/ESCALATE` (§4), which no longer
+compiles. `SETPW` and `MKACC` hold passwords in plain text and go with the
+scratch accounts. Two are worth keeping until there are real verbs for the job:
+`WHOAMI` prints `@LOGNAME`, `@WHO`, `@PATH` and `SYSTEM(1050)`, and is
+catalogued **globally** so it runs from an account with no `BP` file; `MKACC`
+skips an account already in ACCOUNTS rather than rewriting it, so re-running it
+does not wipe the grant lists.
+
+A **non-administrator probe** sits at `/tmp/nonadmin/sd_nonadmin.exe`, built
+per §6 with `SD_ADMIN_GROUP` naming a group nobody holds. It is the only way to
+see this system as an ordinary user, since every session here is otherwise an
+SD administrator. `/tmp` does not survive a rebuild; the recipe in §6 does.
+
+---
+
+#### 2. The API exposure question, and the two postures not taken
+
+Removed from §8, where it sat in a `<details>` block under
+"SETTLED 14 Aug 2026: the API is piped through ssh — posture B". The decision
+stands; this is the record of what was weighed against it.
+
+Background from the repository owner: OpenQM was very insecure and **remote
+access was the worst of it**. Telnet was removed and replaced with ssh only;
+the API never got the same treatment. §1 now makes the API the product's front
+door, so this is the security question that matters most.
+
+**Where it actually stands** — see the trap in §6 and the correction in §5.6.
+The API has a connect-time credential check that cannot succeed on Windows, so
+it is closed rather than open. That buys time; it does not buy a design.
+
+**Three postures, and they are not ranked.**
+
+| | What faces the network | SD's own network exposure |
+|---|---|---|
+| **A** | SD's own socket, as shipped | full, and it is 2007 code |
+| **B** | ssh tunnel or VPN; SD is local only | none |
+| **C** | a web front end; SD is local only behind it | none |
+
+**B is what the repository owner already did to OpenQM**, and it carries to
+Windows unchanged — OpenSSH ships as a Windows optional feature and port
+forwarding works. It is the conservative answer and costs nothing new.
+
+**The installer now offers B as a checkbox** (decided 14 Aug 2026, §5.9):
+opt-in, off by default, withheld with an explanation if the machine already
+has an ssh server. That does not decide the posture question — it makes B
+reachable by someone who would not otherwise know how, which is the case the
+repository owner raised: ten people on a local network, installed by someone
+with little administrative knowledge. Read §5.9's two caveats before
+recommending it, particularly that ssh gives those ten people **no isolation
+from each other's data** until §5.7's service model exists.
+
+**C was the repository owner's idea**, and its merit is that it makes the
+*simplest* API authentication the correct one rather than forcing a bigger one.
+If the only client is one local process, a **named pipe whose ACL admits
+exactly one principal** — an IIS app pool virtual account, or a Kestrel service
+account — is a stronger statement than any credential that client could
+present. No `$CRED` check in the API path, no TLS in SD, no certificate story.
+That is less code, not more. It is also the one case where Windows ACLs work
+cleanly, for the same reason as the batch account above: one principal to
+grant, so §5.7's dilemma never arises.
+
+**The argument against C, and it is a serious one** (repository owner,
+13 Aug 2026): web servers invite attack. Every hacker knows how to attack one,
+scanning is constant and automated, and a custom protocol on a non-standard
+port simply does not attract the same volume. Obscurity is not security, but it
+is a real reduction in *opportunistic* attack traffic, and a web tier is a
+whole additional codebase and patching burden. **This is recorded as an option
+to be convinced of, not a decision.**
+
+The honest counter is that C does not *add* network exposure, it *moves* it:
+the comparison is not "web server versus nothing" but "IIS exposed versus
+`APISRVR` exposed", and `APISRVR` is 2007 Ladybridge code with fixed 32-byte
+credential buffers that nobody has ever fuzzed. Obscurity cuts both ways —
+fewer people attack it, and fewer people have found its bugs. But that argument
+favours C only over **A**. Against **B** it has no force at all, because B
+exposes nothing either.
+
+**Which is worth noticing: §1 points at B.** If the target user is a Windows
+developer using SD as a back end, *their* application is the front end, and it
+sits on the same machine or reaches SD over a tunnel. SD does not need to ship
+a web tier to be secure — it needs to stop listening on the network. A web
+front end is then a **product** decision, about whether SD offers a browser UI,
+rather than a security mechanism. Keeping those two questions apart is probably
+what makes this decidable.
+
+**The network-layer argument, and it is the strongest one for B** (repository
+owner, 13 Aug 2026). A private API can be put behind controls that run *before
+a byte reaches SD* — VPN, a Windows Firewall rule scoped by remote address or
+interface, or IPsec Connection Security Rules, which can require the peer to be
+an authenticated domain machine without a line of application code. A public
+web server forfeits all of it by definition: if it is public, anyone may reach
+it.
+
+The sharper form of that, which is structural rather than obscurity: **a public
+web application must accept anonymous connections as far as the login page.**
+Its TLS termination, HTTP parser, router, session handling, login form,
+password reset and static file serving are all reachable pre-authentication, by
+everyone, by design. An IP-restricted API has a pre-authentication surface
+reachable by nobody. That is a real difference in kind.
+
+**The refinement that keeps this honest, so it is not read as "web is
+insecure":** the axis is *public versus private*, not web versus API. A web
+front end on an internal network behind the same VPN keeps every one of those
+controls. Deployed privately, C's security cost over B is a second codebase to
+patch, and its benefit is a browser UI — which is the product question again,
+not a security one.
+
+**Where these controls have to live, and nothing does it yet.** SD never binds
+a listening socket. `sd -N` runs per connection with the socket as stdin and
+stdout; **xinetd** bound port 4243, spawned an instance per connection and
+supplied `only_from`. xinetd does not exist on Windows, so the service that
+replaces it inherits all four responsibilities, and none of them are
+implemented. Two consequences:
+
+- **Make it bind to loopback by default**, so posture B is what you get without
+  anyone deciding anything, and listening more widely takes a deliberate act.
+- `only_from` has no Windows equivalent unless the replacement implements it or
+  the install writes a Windows Firewall rule. Decide which; a firewall rule is
+  less code and easier to audit.
+
+These are the deployer's controls rather than SD's, so they are reasons to
+permit a posture, not a substitute for SD's own authentication (§7 step 6).
+Both, not either.
+
+**Two things that apply to B and C alike.**
+
+- **Attribution has to survive the extra hop.** If a front end is the only
+  client, every SD session carries *its* identity and `@logname` stops naming a
+  person — which destroys what §5.6 is for. The workable split is that the
+  front end **asserts identity** (trusted because of the pipe ACL) and SD still
+  **enforces authorisation**, checking the target account's `ACC$USERS` itself.
+  The grant list stays where it can be audited, and the front end never becomes
+  the authorisation authority. Same shape as the batch-login conclusion above:
+  an asserted capability, not a shared secret. The cost to accept consciously
+  is that compromising the front end compromises attribution entirely.
+- **Connection pooling breaks identity, and this is not about `NUMUSERS`.**
+  A pooled connection reused across users breaks both `@logname` and account
+  isolation, so it needs a session per user or a `LOGTO` with the identity
+  reset per request. Note `NUMUSERS=20` in `sd.conf` is only a default —
+  OpenQM systems run several hundred users — so the ceiling is a tuning
+  question, but the identity problem is not, and retrofitting it is painful.
+
+**What this makes more valuable than its position suggests.**
+`SDConnectLocal()` becomes the production entry point under either B or C
+rather than a curiosity, and it has never been run (§4). The client DLL is
+already the right shape for it: native UCRT64, and confirmed this session to
+depend on nothing but Windows system DLLs, so a .NET or native client can use
+it with no MSYS2 runtime anywhere in the client tier. That separation was made
+for a different reason (§5.3) and happens to be exactly what this needs.
+
+---
+
+#### 3. The `IsAdmin()` / `sdadmins` question, and the two options not taken
+
+Removed from §8, where it sat in a `<details>` block under
+"SETTLED 14 Aug 2026: `IsAdmin()` tests Windows `Administrators`". Option 2 was
+taken and is written up in §5.6.1. The reason option 1 was rejected is the part
+worth carrying and is now summarised in §8: it inherits the
+sign-out-and-back-in trap in §6, so `sd -start` would have failed for the
+installing user on every fresh install.
+
+**Promoted to the top of this section on 14 Aug 2026.** This was a tidy-up
+question with no deadline. It is now the one thing standing between the
+installer and a machine that has never had SD on it, so it needs an answer
+before the installer can ship.
+
+**What forces it.** `IsAdmin()` (`gplsrc/linuxlb.c` line 75) is
+`getgrnam(SD_ADMIN_GROUP)` and returns FALSE when the group is absent, failing
+closed by design. `SD_ADMIN_GROUP` is `"sdadmins"` (`gplsrc/sddefs.h` line
+131). `sd.c` line 613 refuses `sd -start` with "Command requires administrator
+privileges" when it is false. **`gplbld/sd.iss` creates `sdusers` — for the
+ACL — and never `sdadmins`.** Nothing in `gplbld/` mentions it. So a clean
+machine gets an install in which nobody is an SD administrator, `sd -start`
+refuses, and the postinstall `SET.PASSWORD SDSYS` step fails identically. It
+works on this machine only because `sdadmins` was created by hand on 13 Aug
+2026 and this account's token carries it — the same "leftover state hides the
+bug" shape as the `DataTreeAbsent` defect (§4).
+
+**The three answers, and none has been taken.** Adding two `net localgroup
+sdadmins` lines to the `.iss` would work, but it decides this question by
+accident, which is why it was not done:
+
+1. **Keep an OS-level check on `sdadmins`**, and have the installer create it
+   and enrol the installing user, exactly as it already does for `sdusers`.
+   Cheapest, and consistent with what the code says today. Note it inherits the
+   sign-out-and-back-in trap in §6, so `sd -start` would not work for the
+   installing user until they log in again — which for the postinstall
+   `SET.PASSWORD` step means it fails on a fresh install every time.
+2. **Gate on Windows `Administrators` instead.** Starting a server is an
+   administrative act, the group always exists, and it needs no installer step
+   at all. It also sidesteps (1)'s re-logon problem, since an elevated token
+   carries it immediately. Against it: §5.6 deliberately separated SD
+   administration from Windows administration.
+3. **Drop the OS check**, and let `sd -start` be gated by file permissions on
+   the data tree alone — which the ACLs now genuinely enforce (§4). Most in
+   keeping with §5.6, and the largest change.
+
+§5.6 removes the *need* for the group as an identity mechanism, but both it and
+`IsAdmin()` are committed (`f56de86`, `9c00730`) and the check runs before any
+account exists or any password can be prompted for, so it cannot simply be
+deleted: that would leave `sd -start` ungated. Until this is settled, leave
+`IsAdmin()` in place.
+
+**Do not delete the `sdadmins` group from this machine** while the question is
+open: the token carries it, which is what allows the shipped `sd.exe` to run
+`-start` and `-stop` here without the probe build of §6, and it is for the
+moment the source of `K$ADMINISTRATOR` for every session (§5.6). Deleting and
+recreating it is worse than leaving it — a recreated group has a new SID, which
+this token would not carry until the next logon.
+
 ## 14 Aug 2026 - AllowGroups applied for real: the lockout did not happen
 
 Fourth session of 14 Aug 2026, last piece of it. `allow-ssh-groups.ps1
