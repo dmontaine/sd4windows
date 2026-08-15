@@ -32,7 +32,7 @@ account afterwards. Re-run it with **`-Keep`** and a fresh name, then log in
 **over ssh**. That is all §7 step 0e has left.
 
 **4,112 lines to 2,924 at the rollover commit `2890198`, a 29% cut. THE FILE IS
-3,067 LINES NOW**, measured after the last edit rather than during it (see the
+3,090 LINES NOW**, measured after the last edit rather than during it (see the
 correction below, which is the same mistake one step smaller), after the sixth
 session added the access-model build to §4,
 §6 and §7. Stated rather than hidden, because the next session inherits the file
@@ -2140,6 +2140,26 @@ Each of these cost real time. Read before debugging anything similar.
   *previous* login change breaking this same path, unnoticed for the same
   reason: **nobody re-runs the bootstrap, so it rots silently.**
 
+- **`sd -start` SAYS "SD is already started" WHEN `sdwind` IS DEAD, AND DOES
+  NOTHING.** Measured 14 Aug 2026, sixth session, right after a hung `sd.exe`
+  was killed. The shared segment outlived the daemon —
+  `C:\ProgramData\SD\shm\sd_shm_716d0301` was still there from 19:21 with
+  `sdwind` gone — and `sd -start` trusts the segment, not the process. **So the
+  system is unusable while the command that fixes it reports success.**
+
+  **The fix is `sd -stop` first, then `sd -start`.** The stop clears the stale
+  segment (verified: the `shm` directory emptied), and the start then really
+  starts: `sdwind` came up as pid 14612.
+
+  **This is §7 step 1d from the other end** — that step is about `sd -stop`
+  lying when it fails to kill `sdwind`; this is `sd -start` lying when `sdwind`
+  is already gone. **Both come from trusting the segment rather than the
+  process, so fix them together.**
+
+  **Start the daemon from an UNELEVATED session where you can.** One started
+  elevated cannot be stopped by an ordinary one — see the `sd -stop` entry
+  below — so an unelevated start leaves it stoppable from either.
+
 - **A PIPED SD SESSION CANNOT ANSWER "Press RETURN to continue", SO ANY
   `LIST` THAT OUTGROWS A PAGE HANGS FOREVER.** Measured 14 Aug 2026, sixth
   session: `verify-createaccount.ps1` stopped dead at `LIST ACCOUNTS` **on the
@@ -3191,8 +3211,16 @@ the staging script and the Inno installer were all finished and removed.
       and `CREATE.ACCOUNT` refuses those names. Whatever this decides has to
       account for that state existing, **because a failed creation reaches it
       too** — the ssh-only branch `stop`s after the account directory is made.
-   d. **Make `sd -stop` tell the truth about `sdwind`.** The trap is in §6 and
-      this is the fix for it: `sysseg.c` line 503 discards `kill()`'s return
+   d. **Make `sd -start` AND `sd -stop` tell the truth about `sdwind`.**
+      **Widened 14 Aug 2026, sixth session:** `sd -start` has the same defect
+      from the other end — it answers "SD is already started" off a stale shared
+      segment when `sdwind` is dead, and does nothing, so the system stays
+      unusable while the command reports success (§6, measured). **Both trust
+      the segment rather than the process, so fix them in one pass.** The `-stop`
+      half follows; the `-start` half needs the liveness check to ask whether the
+      daemon process exists, not whether the segment does.
+
+      The trap is in §6 and this is the fix for it: `sysseg.c` line 503 discards `kill()`'s return
       value, so an unelevated `sd -stop` against a daemon an elevated session
       started gets `EPERM`, leaves it running, and prints "SD (64 Bit) has been
       shut down" anyway. The liveness poll underneath walks the user table only
