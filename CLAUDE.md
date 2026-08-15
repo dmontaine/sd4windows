@@ -57,6 +57,35 @@ cd sdb_ai/sd64 && make sd
 `make sdclilib` builds only the client library. After switching toolchains,
 clear stale objects with `rm -f gplobj/*.o`.
 
+## Testing: every cycle runs against a newly installed system
+
+Standing instruction from the repository owner, 15 Aug 2026, after stale
+installs caused the same failure repeatedly. **A test cycle begins with a fresh
+install. Not a reinstall over the top of the old one.** Elevated:
+
+```sh
+"C:\Program Files\SD\unins000.exe" /VERYSILENT   # then confirm the directory is gone
+rm -rf "/c/Program Files/SD" /c/ProgramData/SD
+"C:\Users\dmont\sdout\sd-setup-1.0-2.exe"
+```
+
+Why it is a rule and not a preference: **the installer deliberately never
+overwrites an existing `C:\ProgramData\SD\sdsys`**, so "I tested it on the
+installed system" silently means "I tested the build that first created that
+tree". This has cost whole investigations of bugs already fixed —
+PROJECT_STATUS.md §6, "the installed data tree is never upgraded", and the
+four-fault run in HISTORY.md.
+
+**Do not reason your way out of it.** Hashing a few files that look current is
+not evidence the tree is: the files you would think to check are the ones you
+already believe changed, and `gcat` — the catalogue that actually runs — is not
+readable as source. A ninth-session attempt to do exactly this is recorded in
+PROJECT_STATUS.md header item 1.
+
+**Then date what you are testing before believing any result from it**, and
+state the full path of the binary under test — `C:\Program Files\SD\...` is the
+installed one and is current only just after an install.
+
 ## Conventions
 
 - Match the surrounding code. It is a 2007 Ladybridge codebase with its own
