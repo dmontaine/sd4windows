@@ -357,6 +357,42 @@ mistook for a Ladybridge decision it would have been wrong to reverse. Several
 other things this port has "found" turned out to be inherited from generation 1
 rather than introduced — so the check runs both ways.
 
+#### The generation-2 audit — BASIC side, done 15 Aug 2026
+
+All 20 `sdsys` markers read against `sdb64`. **The whole validation layer is a
+generation-2 invention**: `!valid_os_name`, `!valid_shell_cmd` and
+`!valid_os_path` **do not exist upstream on either branch**, and neither do
+their call sites. Three groups:
+
+- **`!valid_os_name` — 8 call sites, and one of them is a live problem.**
+  Charset is `A-Za-z0-9._-` only, length `MAX.USERNAME.LEN` = 32
+  (`INT$KEYS.H:32`). **No backslash and no space**, so it rejects
+  `DOMAIN\user` and any Windows name containing a space. Benign where the name
+  is one SD is about to *create* (`CREATEA`, `CREATE_USER`, `SET_PASSWD` —
+  refusing an awkward name is reasonable), **questionable where the name
+  already exists**: `DELACC:240` and `MODIFYA:103/127` refuse to clean up or
+  amend an account whose name it dislikes, which leaves litter nothing can
+  address. **And `APISRVR:894` applies it to the API login name before
+  authenticating** — §1 makes the API the product's front door and §7 step 6
+  owns it. `SDCLIENT:249` does the same for remote logins. **NOT YET MEASURED:
+  whether a real API login presents a domain-qualified name.** That measurement
+  is what decides whether this is a defect or only a smell; make it before
+  touching step 6.
+- **`!valid_shell_cmd` rejects `;|&$` + backquote + `<>`**, so **even an
+  elevated `SH` cannot pipe or redirect** — `SH dir | findstr x` is refused.
+  This belongs with §7 step 7's decision: lifting the administrator gate alone
+  would still leave shell-out unable to do the thing §5.13 wants it for.
+- **The rest are benign or genuinely good.** Empty-input early returns in
+  `IS_GROUP`, `IS_GRP_MEMBER`, `IS_USER`, `USERNAME`, `USERNO`, `ABSPATH`;
+  fail-closed on empty password/salt in `SD_KEY_FROM_PW`; file-handle open-state
+  tracking in `WRITE_INSTALL_DICTS`. **`LOGIN:172` is a cycle repairing itself**
+  — it closes an unterminated banner string an earlier cycle left, which had
+  caused `Unrecognised statement`.
+
+**Still to do: the 53 `gplsrc` files, 206 of the 226 markers.** That is where
+the expensive ones are expected, C changes failing at runtime rather than at
+compile time.
+
 **The TCL verb surface is written down**, in
 [docs/TCL_VERBS.md](docs/TCL_VERBS.md) — SD's commands against OpenQM 2.6.6,
 supplied by the repository owner 14 Aug 2026. Read it before adding or renaming
