@@ -65,6 +65,46 @@ unelevated put `don` in his own account, `WHO` answering `5 DON` - which is step
 1f working for a real person, and also shows the rewritten `IS_GRP_MEMBER` still
 admits him through the `sdusers` gate.
 
+## 15 Aug 2026 - Step 1f closed on a real install, and three new access rules
+
+End of the eighth session, `4f28a27`..`207dd9c`.
+
+**The installer gives its user an SD account, proven by installing.**
+`gplbld/adopt-account.ps1` runs `CREATE.ACCOUNT USER <installer> ADOPT`;
+`sd.iss` calls it from `[Code]` at `ssPostInstall`, not `[Run]`, because a
+`postinstall` entry runs as the original unelevated user. It took two failures
+to get there and both are worth keeping:
+
+- **`ADOPT` confined the owner to ssh.** `CREATEA` applied the ssh-only
+  restriction as the `else` of `ADMINISTRATOR`, so an adopted account - the
+  installer's, an administrator's - went into `sdsshonly` and its deny-logon
+  rights. Owner's rule: no administrator account carries a lockout risk.
+  `!is_grp_member` could not have tested for it either, because
+  `Get-LocalGroupMember -Group` refuses a SID; it takes `-SID`.
+- **The step then failed on a real install and said nothing.** `$PSScriptRoot`
+  is EMPTY in a param default when a script has `[CmdletBinding()]` and a
+  mandatory parameter, so `-AppDir` was empty and PowerShell exited 1 before
+  touching SD. Every run by hand had passed `-AppDir`, so only an install could
+  show it. The script now logs to `<DataDir>\adopt-account.log` and the
+  installer passes `-AppDir`.
+
+**Three rules from the owner, all built:** nothing may be typed after `sd`
+without elevation - switches *and* a bare command, since `sd LISTF` ran for
+anybody; every ssh session lands in SD through a global `ForceCommand`,
+administrators included, with console and RDP untouched; and SD refuses to
+start inside itself, `op_sh.c` marking the shell and `sd.c` reading the mark.
+`-P -C -N -Q` are deliberately ungated: SD spawns itself with them.
+
+**And a correction to that work, from the owner:** "an SD account has no
+shell" was false - `SH` hands one back - and it had been offered as the reason
+the second-instance guard need not be a boundary. His answer is a menu system
+inside SD; restricting `SH` is undecided.
+
+**The machine was rebuilt from nothing** and now runs the repository: uninstall,
+delete both trees and every test account, re-stage, ISCC, install. 3,455 files,
+`gcat` 130, and the installed catalogue carries the owner's banner - the first
+time this machine has run what the repository says.
+
 ## 15 Aug 2026 - Rebuilt, reinstalled, and step 1d proven on the install
 
 Eighth session, after the two entries below. Re-staged with the ACCOUNTS/SDSYS
