@@ -24,14 +24,17 @@ seventh; step 0 in the sixth.
    re-stage: `stage.py:368` refuses an existing directory and `--force` deletes
    it, so the full bootstrap is the only route.
 
-   **NARROWED 15 Aug 2026, ninth session — ONLY THE BINARIES AND THE `{app}`
-   SCRIPTS ARE BEHIND, NOT THE DATA TREE.** `GPL.BP/CATALOG`, `CREATEA`,
-   `IS_GRP_MEMBER` and `MESSAGES/10040` are **byte-identical (SHA256) across
-   repository, stage and `C:\ProgramData\SD\sdsys`**, and `GPL.BP.OUT` there is
-   dated 08:54 — the stage bootstrap's own output, laid down by the 09:05
-   install. So the reinstall leaving the data tree alone is **correct here** and
-   the §6 "copy the BASIC across and recompile" step does **not** apply to this
-   round. Check it again before assuming it on the next one.
+   **THE INSTALL IS UNINSTALL, DELETE BOTH TREES, REINSTALL — EVERY TIME, AND
+   A HASH CHECK IS NOT A SUBSTITUTE.** §6's "the installed data tree is never
+   upgraded" trap, and the owner's standing rule, 15 Aug 2026: a test cycle runs
+   against a **newly installed** system, because testing against a reinstall-over
+   is how stale trees have repeatedly been measured as current. **Do not reason
+   your way out of it from file hashes.** The ninth session tried: `GPL.BP/CATALOG`,
+   `CREATEA`, `IS_GRP_MEMBER` and `MESSAGES/10040` hashed identically across
+   repository, stage and install, which is true and is **not sufficient** — it is
+   4 files of ~3,455, chosen as the ones the last three commits touched, and it
+   never compared `gcat`, which is what actually runs and is the part §6 names as
+   the hard one because BASIC ships compiled.
 
    **AND `sshd_config` CARRIES NO SD BLOCK AT ALL** — corrected below, in the
    machine table. The uninstaller removed it; tick the ssh task on the install.
@@ -154,7 +157,7 @@ install** on it, from the fixed installer:
 | `C:\ProgramData\SD\sdsys` | **3,455 files, `gcat` 130** - a working database, and the first on this machine built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Expect the count to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS THREE COMMITS BEHIND `bin/`, IN THE BINARIES ONLY** | The elevation gate, the ssh `ForceCommand` and the `SD_SESSION` guard are in the build and **not** installed or staged. **The data tree is already current** — header item 1's narrowing |
+| **THE INSTALL IS THREE COMMITS BEHIND `bin/`** | The elevation gate, the ssh `ForceCommand` and the `SD_SESSION` guard are in the build and **not** installed. Header item 1 — and the refresh is uninstall, delete both trees, reinstall, never a reinstall over the top |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
 | Reinstalling over this | the installer **found the existing database and left it alone**, saying so in a dialog — §6's staleness trap, working as designed. So a reinstall updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`: after one, copy `GPL.BP\LOGIN`/`CPROC` across and recompile, or the machine runs yesterday's BASIC on today's binaries |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
