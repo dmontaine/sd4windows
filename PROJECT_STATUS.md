@@ -203,8 +203,11 @@ it. Call it first from anything new that tests the install.
      needs a second SD user attempting to read another's `$PS.TMP.<n>`
      mid-flight, which nothing automates today.
 
-   - **THE UNINSTALLER LEFT AN EMPTY PATH ENTRY EVERY CYCLE — FIXED IN SOURCE
-     16 Aug 2026, UNBUILT.** Owner read the system PATH and found **23 empty
+   - ~~The uninstaller left an empty PATH entry every cycle.~~ **FIXED AND
+     VERIFIED 16 Aug 2026**, over a deliberate two-part cycle: **31 entries /
+     24 empty → 6 / 0** when the fixed uninstaller ran, → **7 / 0** after the
+     install. Every accumulated empty cleared in one pass, the six real entries
+     intact and in order. Owner read the system PATH and found **23 empty
      entries in 30**. `RemoveFromPath` (`sd.iss`) keeps the separator *before*
      our directory and skips the one *after* it: correct for an entry in the
      middle, but Inno always **appends**, so ours is always last, the tail is
@@ -226,11 +229,14 @@ it. Call it first from anything new that tests the install.
      uninstall before it ran the old uninstaller. Nothing is wrong with the fix;
      it is one cycle out of phase, and the same applies to any future change to
      `RemoveFromPath`, `RemoveAllowGroups` or anything else at `usUninstall`.
-     **THE PENDING TEST, free at the start of the next cycle:** the system PATH
-     must go from **31 entries / 24 empty to 6 / 0** the moment the uninstaller
-     runs, then to 7/0 after the install. Anywhere else and the fix is wrong.
-     Read it from
-     `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment`.
+     **HOW IT WAS VERIFIED, and the shape is reusable:** uninstall and install
+     as SEPARATE steps, reading
+     `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment`
+     in between. The intermediate state is the whole test and a single
+     uninstall-then-install cycle hides it.
+     **ALWAYS READ THE REGISTRY, NEVER `%PATH%`.** A shell open before an
+     install keeps its own copy, and that appearance — "SD is not on PATH" —
+     is what raised this in the first place. It happened twice on 16 Aug 2026.
      **And the report was half a false alarm worth remembering:** SD *was* on
      the PATH; the pasted value came from a shell opened before the install.
      Windows broadcasts the change and running processes keep their copy. Check
