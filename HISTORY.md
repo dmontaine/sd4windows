@@ -27,6 +27,56 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - The privileged script was writable by every SD user
+
+Fourteenth session. Found while writing up the helper log, fixed on the
+owner's instruction. **Unbuilt when written.**
+
+`!ps_script` wrote each script with `openpath '.'` - the current account
+directory, `C:\ProgramData\SD\sdsys` for an SDSYS session - where the data
+tree's grant is inherited as `sdusers:(OI)(CI)(M)` on every file. Checked on
+the installed tree, not assumed.
+
+**The disclosure was the lesser half.** `!set_passwd`'s script carries a new
+Windows password in clear until it is deleted a moment later, so another SD
+user could read it. **The serious half is elevation:** another SD user could
+REWRITE a pending script between SD writing it and the elevated helper
+executing it, and the helper runs what it finds with full privilege. That is a
+local privilege escalation.
+
+**The reasoning that caused it is in the source, and was corrected in place
+rather than quietly replaced.** `PS_SCRIPT`'s description argued the file was
+safe because the installer breaks inheritance on `C:\ProgramData\SD` and
+"grants narrowly", so the script was "protected by work already done, with no
+icacls call of its own". The grant is narrow against the WORLD; it is not
+narrow against SD's own users, who all hold Modify. A true statement about the
+wrong threat.
+
+**The fix:** `@sdsys\PSTMP`, created by the installer through the new
+`gplbld/secure-psdir.ps1`. `sdusers` gets list/create/traverse **on the
+container only, with no inheritance flags**, so it reaches no file;
+`CREATOR OWNER:(OI)(IO)(F)` hands each script to the session that wrote it;
+Administrators and SYSTEM keep `(OI)(CI)(F)`, which is how the elevated helper
+reads it. `DC` is withheld so nobody can delete another's file to take its
+name.
+
+**The semantics were measured before building anything** - a file created in
+such a directory comes out `don:(I)(F)`, `Administrators:(I)(F)`,
+`SYSTEM:(I)(F)`, with `sdusers` absent, and its creator can still read, write
+and delete it.
+
+`!ps_script` **fails closed** if the directory is missing rather than falling
+back to the old location. Verified this cannot break the bootstrap:
+`bootstrap.py` only compiles and never reaches `!ps_script`; the installer's
+`adopt-account` step does reach it but runs at `ssPostInstall`, after `[Run]`.
+
+The routine got **shorter**: `@sdsys` is already a Windows pathname - `sd.conf`
+carries `SDSYS=C:\ProgramData\SD\sdsys` and `@ds` is the backslash - so the
+`ospath`/`K$WINPATH` conversion that existed only to convert a POSIX working
+directory is gone.
+
+---
+
 ## 16 Aug 2026 - The helper log, and why not AppData
 
 Fourteenth session, `0f33cf9`, verified on the 16:02:58 install. Owner's

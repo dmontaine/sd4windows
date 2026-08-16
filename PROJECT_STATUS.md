@@ -165,20 +165,38 @@ it. Call it first from anything new that tests the install.
      failure you learn that the third step returned 1, not that the third step
      was the `sdsshonly` add. Fixing it means `!ps_script` passing a label;
      **logging the script body is permanently out** — see the next item.
-   - **THE SCRIPT `!ps_script` WRITES CAN CONTAIN A PASSWORD IN CLEAR, AND
-     LANDS WHERE `sdusers` CAN READ IT.** Found 16 Aug 2026, **not fixed, not
-     decided.** `!ps_script` writes each script to `$PS.TMP.<userno>` in the
-     current account directory — `C:\ProgramData\SD\sdsys` for an SDSYS
-     session — where `sdusers` holds Modify. It is deleted immediately after
-     running, but during that window another SD user can read it, and for
-     `!set_passwd` it carries a new Windows password. **The move off the
-     command line was still right** — a command line is visible to every user
-     on the machine, not just `sdusers` — so this narrowed the exposure rather
-     than creating it, but it did not close it. The fix would be writing those
-     scripts somewhere only the session and its helper can reach.
-     **Related standing rule: the helper log must never record script
-     contents**, only paths and exit codes, for exactly this reason. Noted in
-     `sd-elevate.ps1`.
+   - ~~The script `!ps_script` writes can contain a password in clear.~~
+     **FIXED IN SOURCE 16 Aug 2026, UNBUILT AND UNTESTED.** And the disclosure
+     was the lesser half: the account directory carries
+     `sdusers:(OI)(CI)(M)`, inherited by every file, so another SD user could
+     **rewrite a pending script between SD writing it and the elevated helper
+     running it** — arbitrary content executed with full privilege, a local
+     privilege escalation rather than a leak.
+     **The fix:** scripts go in `@sdsys\PSTMP`, created by the installer
+     through the new `gplbld/secure-psdir.ps1`. Directory ACL: `sdusers` gets
+     list/create/traverse **on the container only, with no inheritance**, so it
+     lands on no file; `CREATOR OWNER:(OI)(IO)(F)` gives each script to the
+     session that wrote it; Administrators/SYSTEM keep `(OI)(CI)(F)` so the
+     helper can read it. `DC` is withheld, so one user cannot delete another's
+     file to take its name.
+     **Semantics measured before building** — a file created there comes out
+     `don:(I)(F)`, `Administrators:(I)(F)`, `SYSTEM:(I)(F)`, **`sdusers`
+     absent**, and the creator can still read, write and delete it.
+     **`!ps_script` fails closed** if `PSTMP` is missing rather than falling
+     back. Checked that this cannot break the bootstrap: `bootstrap.py` only
+     compiles and never reaches `!ps_script`. The installer's own
+     `adopt-account` step does, but runs at `ssPostInstall`, after `[Run]`.
+     **`PS_SCRIPT` got shorter, not longer** — `@sdsys` is already a Windows
+     path (`sd.conf`: `SDSYS=C:\ProgramData\SD\sdsys`, `@ds` is `\`), so the
+     `ospath`/`K$WINPATH` conversion is gone.
+     **The description block that justified the old location was wrong and is
+     corrected in place**: it argued the file was safe because the installer
+     "grants narrowly", which is narrow against the world and not against SD's
+     own users.
+     **TO TEST:** install; `C:\ProgramData\SD\sdsys\PSTMP` should exist with
+     that ACL; `CREATE.ACCOUNT` should still work end to end. A stronger check
+     needs a second SD user attempting to read another's `$PS.TMP.<n>`
+     mid-flight, which nothing automates today.
 
    **Description of the feature follows.** 16 Aug 2026, thirteenth session,
    `ea052a4` and `6dadaa1`.
@@ -354,9 +372,11 @@ it. Call it first from anything new that tests the install.
    to the users it records**, which is why `win32audit.c` is the second file
    allowed to include `windows.h`.
 
-5. **SD IS INSTALLED, RUNNING, AND THE INSTALL IS CURRENT — THE CYCLE IS
-   OPEN.** The install of **16:02:58** carries everything in item 1, the helper
-   log included, and no source has changed since. **Five full cycles were built
+5. **SD IS INSTALLED AND RUNNING, AND THE INSTALL IS STALE — THE CYCLE IS
+   ENDED.** The install of **16:02:58** carried everything in item 1 including
+   the helper log, all of it measured and finished; **`GPL.BP/PS_SCRIPT` and
+   `gplbld/` changed afterwards for the PSTMP fix**, so it is a build behind
+   and nothing more may be measured on it. **Five full cycles were built
    today** (13:52:43, 14:14:28, 14:21:50, 15:26:33, 16:02:58); `sd.exe` is
    `239BB9C3E43E4829` on every one of them, **no C having changed all day**, so
    identify a build by `gcat/$CPROC` 25,208, `gcat/!OS_GROUP` 1,933 and the
@@ -523,8 +543,9 @@ is closed by measurement. **§5.6.2 IS COMPLETE, RDP INCLUDED** — 15 Aug 2026,
 tenth session, on a VirtualBox guest (§4). Nothing is left half-applied.
 
 **STATE OF THIS MACHINE — READ FIRST. SD IS INSTALLED, RUNNING, AND THE INSTALL
-IS CURRENT**, as of 16 Aug 2026 16:02:58 (header item 5). **Stop the service
-before staging with `--bootstrap`.**
+IS STALE**, as of 16 Aug 2026 16:02:58 (header item 5) — a build behind on
+`GPL.BP/PS_SCRIPT` and `gplbld/`. **Stop the service before staging with
+`--bootstrap`.**
 
 | Thing | State |
 |---|---|
@@ -533,7 +554,7 @@ before staging with `--bootstrap`.**
 | `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS CURRENT** | `assert-current` exit 0 at 16:03 on 16 Aug 2026. Note editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only. **It goes stale at the first source change** |
+| **THE INSTALL IS STALE** | `assert-current` was exit 0 at 16:03 on 16 Aug 2026 and everything in header item 1 was measured under it; `PS_SCRIPT` and `gplbld/` changed afterwards. Note editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only. **It goes stale at the first source change** |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
 | Reinstalling over this | **DON'T** — the rule in the header. The installer **finds an existing database and leaves it alone**, saying so in a dialog, which is §6's staleness trap working as designed: a reinstall-over updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`, so the machine runs yesterday's BASIC on today's binaries. Copying `GPL.BP` across and recompiling by hand was the old workaround; a fresh install is the rule that replaced it |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
