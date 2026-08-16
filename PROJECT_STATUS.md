@@ -59,24 +59,52 @@ it. Call it first from anything new that tests the install.
    whose segments vanish at reboot. No `UPSTREAM_FIXES.md` entry — do not
    re-check.
 
-   **HOW TO VERIFY IT — needs a fresh install, and this is the next thing to
-   do.** A source change ended the cycle (item 5). Install, then force the
-   failure the fix is for: with SD running, **kill `sdwind` and `sd.exe` rather
-   than stopping the service** so the segment is left behind, confirm
-   `C:\ProgramData\SD\shm` still holds `sd_shm_716d0301`, **reboot**, and
-   expect `Get-Service SD` Running with `sdsvc.log` showing `"sd -start" exited
-   with 0`. **Before the fix that boot fails.** The new stderr line
-   (`Discarding the shared segment left by the previous boot`) is the proof the
-   new path ran — but `sdsvc-sd.log` has captured nothing three times, so do
-   not treat its absence there as the line not being printed; get it from an
-   elevated `sd -start` by hand instead.
+   **VERIFICATION IS IN FLIGHT — THE MACHINE IS SET UP FOR IT RIGHT NOW AND
+   THE ONLY STEP LEFT IS THE REBOOT.** 16 Aug 2026 11:16, thirteenth session.
+   **Do not undo any of this and do not reinstall.** State as left:
+
+   - **Fresh install done at 11:12:25, and it carries the fix** —
+     `assert-current` exit 0, installed `sd.exe` `D2AAB6203CB80661`. Uninstall,
+     both trees deleted and verified gone, then installed from the rebuilt
+     `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (4,833,587 bytes, 11:10:36).
+     Nothing has changed source since, so **the cycle is open and valid**.
+   - **A leftover segment is in `C:\ProgramData\SD\shm` ON PURPOSE** —
+     `sd_shm_716d0301`, mtime **11:15:45**, no `sdwind`, service `Stopped`.
+     **This is not a live bug, it is the test fixture.**
+   - **The pending measurement:** reboot. Expect `Get-Service SD` Running and
+     `sdsvc.log` showing `"sd -start" exited with 0`. **The same state produced
+     exit 1 at the 10:31 boot before the fix, so a successful start is the
+     proof.** The sharp discriminator is the segment's mtime: after the boot it
+     must equal the NEW boot time, not 11:15:45. Still 11:15:45 means the fix
+     did not fire.
+   - The new stderr line (`Discarding the shared segment left by the previous
+     boot`) would confirm the path ran, but it goes to `sdsvc-sd.log`, which
+     has captured nothing on three attempts. **Do not read its absence there as
+     the line not being printed** — get it from an elevated `sd -start` by hand.
+
+   **To rebuild this fixture from scratch if it is lost:** stop the service,
+   `sd -start` from an elevated window, `Stop-Process -Name sdwind -Force`,
+   confirm the segment is still there, reboot. It must be done with the service
+   **stopped** — `sdsvc` watches the daemon and runs `sd -stop` when it dies
+   (`sdsvc.log`, 11:14:34), so killing `sdwind` under a running service cleans
+   the segment up instead of leaving it.
 
    **Still open, both untouched by this fix:**
 
    - **Why `shm_unlink()` fails at shutdown** (`sysseg.c`, the one `return
-     FALSE` in `stop_sd()`). Probably `sdwind` still holding the mapping —
-     Windows will not delete an open file without `FILE_SHARE_DELETE`. Needs
-     the errno. The fix above makes the leak harmless, **not absent**.
+     FALSE` in `stop_sd()`). The fix above makes the leak harmless, **not
+     absent**. **Narrowed on 16 Aug 2026: it is SHUTDOWN-specific, not
+     stop-specific.** A plain `Stop-Service SD` on a running machine exited
+     **0** and left `shm` empty (11:07:34), against exit **1** with the segment
+     left behind during the 10:31 shutdown. So `sd -stop` is not simply broken:
+     at shutdown it races the system tearing down processes, which fits the
+     standing guess that `sdwind` still holds the mapping and Windows will not
+     delete an open file without `FILE_SHARE_DELETE`. Still needs the errno.
+   - **`sdsvc` already cleans up after a dead daemon, and that is why the leak
+     is only ever seen at shutdown.** Kill `sdwind` under a running service and
+     the wrapper notices, runs `sd -stop` and clears the segment
+     (`sdsvc.log`, 11:14:34, `"sd -stop" exited with 0`). It cannot help when
+     the machine itself is going down — which is exactly when it matters.
    - **`sdsvc-sd.log` captures nothing** — 0 bytes, three attempts, and it is
      the reason the twelfth session had to reconstruct a chain from exit codes
      and a directory mtime. Fixing it is the prerequisite for the errno above.
