@@ -5,11 +5,12 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 15 Aug 2026, tenth session, `546e9cd`→. **HEADER ITEM 2 IS
-CLOSED — 2b and 2c are both verified on a fresh install** (§4), so every
-verification that can be done on one machine is done and **§7 step 2, the
-second machine, is next**. The ninth session closed 2a; the eighth §7 step 1f;
-steps 1c, 1d the seventh; step 0 the sixth.
+**Last updated:** 15 Aug 2026, tenth session, `546e9cd`→. **HEADER ITEM 2 AND
+§7 STEP 2 ARE BOTH CLOSED.** 2b and 2c verified on a fresh install, then the
+install and **the RDP refusal** verified on a second machine — a VirtualBox
+guest (§4). **§5.6.2 is complete, RDP included, and nothing is waiting on
+hardware.** The ninth session closed 2a; the eighth §7 step 1f; steps 1c, 1d
+the seventh; step 0 the sixth.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall.** Owner's rule, 15 Aug 2026, now in CLAUDE.md because §6 was too
@@ -49,9 +50,19 @@ never including `gcat` — is not evidence a tree is current.
    inside SD; c `SH` setting `SD_SESSION` and `sd` refusing in the shell it
    hands back. `sdacct6` was made by `CREATE.ACCOUNT` for b, 16 of 16, and is
    **left in place** — it is the test subject step 1c's untested branch wants.
-3. **§7 step 2 — second machine. THIS IS NEXT.** Only place RDP and a genuinely
-   clean install can be tested, and the corrected catalogue has still never been
-   installed anywhere but here. Nothing else on one machine is left to verify.
+3. **CLOSED 15 Aug 2026, tenth session — §7 step 2 ran on a VirtualBox guest**
+   (§4). The install is byte-identical on a machine with no MSYS2, no `gplsrc`
+   and no development tree, and **the RDP refusal is measured, control and
+   treatment**. The second machine now exists and is reusable: VM
+   **`Windows 11 Clone`**, snapshot **`Before SD install`**, bridged, guest
+   `VIRTUAL` at 10.0.0.143. Revert to the snapshot for another clean run.
+
+   **What is still unseen and needs a FRESH run of the wizard:** the ssh task
+   and its `AllowGroups` sub-item on screen (§7 step 3). Both are
+   `Flags: unchecked`, so clicking through leaves `sshd` uninstalled, which is
+   what happened — the design working, not `Check: SshServerAbsent` failing.
+4. **Next: §7 step 4 or 5** — the audit log, or the `GRANT`/`REVOKE` verb.
+   Nothing is blocked on hardware any more.
 
 **Two things the owner has NOT decided, and nobody should decide for him:**
 whether `SH` itself is restricted (the menu system is his answer instead — §6),
@@ -151,10 +162,8 @@ form, because it changes what every other item in this file assumes:
 
 **Also true and worth having in one place:** `AllowGroups` was applied and
 enforced on this machine, by control and treatment (§4), and the lockout risk
-is closed by measurement — **but it is not applied NOW**, see the correction in
-header item 1. **§5.6.2 is complete except RDP**, which **cannot be tested from
-one machine** and waits on the second (§7 step 2). Nothing is left
-half-applied.
+is closed by measurement. **§5.6.2 IS COMPLETE, RDP INCLUDED** — 15 Aug 2026,
+tenth session, on a VirtualBox guest (§4). Nothing is left half-applied.
 
 **STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
 install** on it, from the fixed installer:
@@ -685,6 +694,43 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**15 Aug 2026 — §7 STEP 2 RAN ON A SECOND MACHINE, tenth session. THE INSTALL
+IS SELF-CONTAINED AND THE RDP REFUSAL IS MEASURED.** VirtualBox guest
+`VIRTUAL`, Windows 11 Pro, bridged at 10.0.0.143, from snapshot `Before SD
+install`. **No MSYS2, no `gplsrc`, no development tree** — which is the whole
+reason the step existed, because an accidental dependency on any of them can
+only show up here.
+
+**The install is byte-identical to the build machine's**: `sd.exe` sha256
+`81594E79CC2B560C`, and **19 / 3,456 / `gcat` 130 / `GPL.BP.OUT` 191** — the
+same four counts. `sd -start` exit 0, `sdwind` up, and **`COUNT VOC` answered
+`431 record(s) counted`**, which is the number that says the database is whole
+rather than merely present. `adopt-account.log` shows the installer's account
+step ran there too: `don now has an SD account`, `don keeps the Windows sign-in
+rights it already had` — the lockout fix on a machine that never had the bug.
+
+**RDP, control then treatment, which is the half one machine cannot do.**
+`CREATE.ACCOUNT USER sdacct7` on the guest put it in `sdusers`, `sdu_sdacct7`
+and `sdsshonly`, not `Administrators`, saying `sdacct7 may sign in over ssh
+only`. Then from the host, same target, same port, same firewall rules,
+differing only by `sdsshonly` membership:
+
+- **control — `VIRTUAL\don` → ADMITTED.** Without it a refusal is
+  indistinguishable from RDP being off, which is not hypothetical: three
+  earlier attempts failed for rig reasons alone.
+- **treatment — `VIRTUAL\sdacct7` → REFUSED, `The connection was denied because
+  the user account is not authorized for remote login`.** That wording is
+  `SeDenyRemoteInteractiveLogonRight` specifically, **not** a credentials
+  failure, which is the distinction that makes it evidence.
+
+`LogonUser` locally on the guest agreed on the two types it can test —
+INTERACTIVE **refused 1385**, NETWORK_CLEARTEXT **admitted**. **It cannot test
+the RDP path at all**: there is no logon type 10 for `LogonUser`
+(`RemoteInteractive` is an LSA audit value), and asking for one returns
+`87 ERROR_INVALID_PARAMETER`. A tenth-session probe row claimed otherwise and
+was wrong. **So RDP genuinely required the second machine** — the step was right
+to insist.
 
 **15 Aug 2026 — AN ssh SESSION LANDS INSIDE SD (header 2b), tenth session.**
 `ssh sdacct6@localhost whoami` against the fresh install answered **SD's banner
@@ -2420,6 +2466,28 @@ session cannot.
 
 Each of these cost real time. Read before debugging anything similar.
 
+- **ENABLING REMOTE DESKTOP DOES NOTHING UNTIL THE MACHINE REBOOTS, AND THE
+  SETTINGS TOGGLE REPORTS SUCCESS EITHER WAY.** 15 Aug 2026, tenth session,
+  setting up §7 step 2's RDP test. `fDenyTSConnections` read **0**, no Group
+  Policy key, `TermService` **Running** — and **nothing listening on 3389**.
+  `TermService` creates the listener when it starts and **cannot be restarted**
+  (`Restart-Service` fails "stop failed"), so switching RDP on under a running
+  service leaves it off until a restart. **`netstat -an | findstr 3389` is the
+  only honest check**; the toggle, the registry value and the service state all
+  looked correct while the port was shut. Cost three rounds of firewall changes
+  that were never the problem — the guest's network was also classified
+  **Public**, which really does block the RDP rules, so there was a plausible
+  wrong answer sitting in the way.
+
+- **`mstsc` PREFILLS THE USERNAME FROM THE HOST, WHICH SILENTLY RUINS AN
+  RDP CONTROL/TREATMENT TEST.** Same session. The credential dialog opens on the
+  *client* with the local user already filled in, so accepting it authenticates
+  as the wrong account against a workgroup guest. **Qualify it —
+  `GUEST\account`** — via "More choices" → "Use a different account", and leave
+  "Remember me" unticked or the next run is ambiguous. An account-name mistake
+  produces a credentials error that reads much like a deny-rights refusal; only
+  the wording separates them (§4).
+
 - **A TEST THAT CAPTURES ONLY stdout SEES SD's REFUSALS AS SILENCE.** 15 Aug
   2026, tenth session. `SH sd --version` produced **no output whatever** in a
   piped session, which reads like the command never ran; it had, and had
@@ -3737,11 +3805,22 @@ the staging script and the Inno installer were all finished and removed.
       failure was silent until the script was made to write
       `<DataDir>\adopt-account.log`**, which is the first place to look if an
       install ever produces no account.
-2. **Install on a genuinely clean machine, and test RDP there.** Still the test
-   that matters: this machine has a development tree, so an accidental
-   dependency could survive, and it is the only place two of the open questions
-   can be answered. **The repository owner is building a second machine for
-   this** (14 Aug 2026), which is what it has been waiting for.
+2. **DONE 15 Aug 2026, tenth session (§4).** A VirtualBox guest served as the
+   second machine: install byte-identical, all four counts matching, `COUNT VOC`
+   431, and **the RDP refusal measured with a control**. §5.6.2 is complete.
+
+   **The rig is reusable and worth keeping.** VM `Windows 11 Clone`, snapshot
+   `Before SD install`, NIC **bridged** — NAT cannot be used, since the host must
+   open a connection *to* the guest. Bridging over the WiFi adapter worked here,
+   which is not guaranteed; the host ARP entry carrying the VM's own MAC is how
+   to tell it is working before blaming anything else. Files reach the guest
+   through `VBoxManage sharedfolder add --transient --automount`, which needs no
+   guest credentials — **do not drive the guest with `guestcontrol`**, which
+   does. Read §6's two RDP traps before setting it up again; between them they
+   cost most of an hour.
+
+   **Left undone deliberately:** the ssh task on screen, which needs a fresh
+   wizard run (step 3).
 
    **Rebuild the installer first**, and **re-run `stage.py`, not just `ISCC`** —
    a new `gplbld/` script that `stage.py` copies into `ProgramFiles` produces,

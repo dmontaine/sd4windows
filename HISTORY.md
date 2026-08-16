@@ -95,6 +95,46 @@ the gate under test is the output most likely to be on stderr.
 `Sd-Test-1`; the staged tree and installer are one commit stale, carrying the
 old dialog until the next rebuild.
 
+**LATER THE SAME SESSION — §7 step 2 ran, on a VirtualBox guest.** The owner
+had a Windows 11 instance on this machine, which is the second machine the step
+had been waiting on since 14 Aug. Clone taken, snapshotted `Before SD install`,
+NIC switched to bridged — NAT will not do, because the host has to open a
+connection *to* the guest.
+
+**The install half was clean first time.** `sd.exe` sha256 `81594E79CC2B560C`
+and the counts 19 / 3,456 / `gcat` 130 / `GPL.BP.OUT` 191, all identical to the
+build machine, on a guest with no MSYS2, no `gplsrc` and no development tree.
+`COUNT VOC` answered 431. The installer's own account step ran there too. So
+the staged tree really is self-contained, which is the claim step 2 existed to
+test and which nothing on the build machine could have established.
+
+**The RDP half cost most of an hour, and none of it was SD.** Three connection
+attempts failed for rig reasons: the guest's network was classified Public, so
+the Remote Desktop firewall rules did not apply; and beneath that, **nothing
+was listening on 3389 at all** even though `fDenyTSConnections` was 0, no Group
+Policy overrode it, and `TermService` was Running. `TermService` builds the
+listener when it starts and cannot be restarted, so enabling RDP under a
+running service does nothing until a reboot — while the Settings toggle,
+the registry value and the service state all read as correct. `netstat -an |
+findstr 3389` was the only honest check and should have been the first thing
+asked for. Both are now §6 traps, along with `mstsc` prefilling the username
+from the *host*, which would have silently turned the treatment into a repeat
+of the control.
+
+**Then it passed, control and treatment.** `CREATE.ACCOUNT USER sdacct7` on the
+guest, which SD put in `sdsshonly`; from the host, `VIRTUAL\don` **admitted**
+and `VIRTUAL\sdacct7` **refused** with `The connection was denied because the
+user account is not authorized for remote login` — the deny right's own
+wording, not a credentials failure. §5.6.2 is complete.
+
+**A correction inside this: `LogonUser` cannot test the RDP path.** A probe row
+written this session asked for logon type 10 and read the `87
+ERROR_INVALID_PARAMETER` back as a finding. There is no logon type 10 for
+`LogonUser` — `RemoteInteractive` is an LSA audit value — so the row said
+nothing about SD. It does confirm the step's premise: RDP is only observable by
+making a real RDP connection, which is why a second machine was required rather
+than merely convenient.
+
 ---
 
 ## 15 Aug 2026 - Step 1f built, and ADOPT's first run locked the owner out of his console
