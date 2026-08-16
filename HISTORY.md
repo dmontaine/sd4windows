@@ -27,6 +27,66 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - The cycle ran: four of five pass, and the service is the one that does not
+
+Eleventh session, `a60b76b`→. The tenth session handed over three pieces written
+and never run. All three now work; the fourth thing it wrote, the service, does
+not.
+
+**The installer would not build, and had not for a session.** `sd.iss:560`:
+ISPP reads any line whose first non-blank character is `#` as a preprocessor
+directive, so the wrapped Pascal constant `#13#10#13#10` aborted the compile
+with `Unknown preprocessor directive`. The 15 Aug service message pushed that
+constant onto its own line and `sd.iss` was never compiled again before the
+handoff. Joined to the line above; ISCC then compiled in 3.9 seconds. The cycle
+script aborted before uninstalling, which is the only reason the machine still
+had a working SD to fall back on — ordering that deliberately.
+
+**Test (a): the service reports `Running` and starts nothing.** `Get-Service SD`
+Running / Automatic / LocalSystem with `sdwind` absent, on the install and again
+after a restart of it. It is not inert: `sd -start` creates the segment and six
+semaphores as `NT AUTHORITY\SYSTEM` and leaves them, and every later `sd` then
+dies `Error 116 getting semaphores` (`sdsem.c:121`, errno 116 = ETIMEDOUT)
+rather than `SD has not been started`. **It broke the install as it happened** —
+`adopt-account.log` shows the installer's own account step failing the same way,
+so a fresh install left `don` with no SD account and §7 step 1f regressed.
+
+**A wrong conclusion, corrected inside the same session.** A probe running
+`sd -start` as SYSTEM through `cmd /c ... > file 2>&1` produced no `sdwind`, and
+this was written up as "`sd -start` does not work as LocalSystem in session 0".
+It does. Run as SYSTEM in session 0 through `Start-Process` with **no
+redirection**, `sdwind` came up fine. The failing probe had redirection in it,
+which is the §6 trap about `sdwind` inheriting the caller's handles - so the
+probe tested the trap, not the service. **The fault is in how `sdsvc` launches
+`sd`**: `CREATE_NO_WINDOW`, or the minimal environment a service inherits from
+the SCM (`sdsvc.c:119` passes `NULL` for environment and working directory).
+Untested, and it needs a fresh install because only a real service reproduces it.
+
+**Two defects worth fixing whatever the cause turns out to be.** `sdsvc.c:196`
+checks only that `CreateProcess` succeeded and never reads `rc` — and checking
+the exit code would not have helped, because `sd -start` exits reporting
+success; the honest test is whether `sdwind` is running. And `sdwind` cannot say
+why it died: `sdwind.c:71-91` exits 1 or 2 with no message, discarding the
+`errmsg` that `get_semaphores()` just filled in. Its exit code still
+discriminates - 1 shared memory, 2 semaphores.
+
+**Tests b, c, d and e all pass** (§4). The login rule 5 of 5, including
+`14 SDSYS from DON`; `LIST.GRANTS` with two adjacent member lines, no CR and no
+blank line, on a fresh install rather than a hand-recompiled `OS_GROUP`;
+`CREATE.ACCOUNT` 16 of 16; and the uninstaller removing the service while
+keeping the 3,486-file data tree.
+
+**A testing lesson banked, because the harness lied first.** The first run of
+the b/c/d tests reported three passes that were not: "bare sd lands in DON"
+matched the word DON inside `Account DON not in register`, and both
+`LIST.GRANTS` format checks passed vacuously on zero member lines. **A check
+whose subject never appeared must report NOT MEASURED, not PASS** - a blocked
+test otherwise reads as a working one, which is the same class of error as
+measuring against a stale tree. The harness now distinguishes the three states.
+
+**Still open:** the service, and §7 step 1f with it. The machine has no SD
+installed - test (e) took it off, which is where a cycle starts.
+
 ## 15 Aug 2026 - Header item 2 closed, and the SH gate turns out never to have touched programs
 
 Tenth session. Everything that can be verified on one machine now has been, so

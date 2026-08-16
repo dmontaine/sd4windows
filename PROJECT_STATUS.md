@@ -5,13 +5,13 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 15 Aug 2026, tenth session, `546e9cd`→`e3f5257`. **THE
-SESSION ENDED WITH SOURCE FINISHED AND NOTHING IN IT TESTED.** Three pieces
-were written and never run — the login rule, the service, and the
-`LIST.GRANTS` fix — and the session ran out before the cycle could be done.
-**Item 1 below is that cycle and it is the whole of what comes next.** Earlier
-in the same session: header item 2 and §7 step 2 closed, §5.6.2 complete
-including RDP, and §7 step 5 done bar its audit half.
+**Last updated:** 16 Aug 2026, eleventh session, `a60b76b`→. **THE CYCLE THE
+TENTH SESSION LEFT UNDONE HAS BEEN RUN. FOUR OF THE FIVE TESTS PASS; THE
+SERVICE IS THE ONE THAT DOES NOT**, and it is item 1 below. The login rule
+(5/5), `LIST.GRANTS` (on a fresh install at last) and `CREATE.ACCOUNT` (16/16)
+are now measured rather than merely written, and the uninstaller removes the
+service cleanly. **The installer would not even build** — `sd.iss:560`, fixed
+here (§6).
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -26,87 +26,77 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **DO THE CYCLE. NOTHING BELOW HAS BEEN TESTED AND THE INSTALLED TREE IS BOTH
-   STALE AND HAND-PATCHED** (an `OS_GROUP` was recompiled into it by hand).
-   `assert-current.ps1` will refuse everything until this is done.
+1. **THE SERVICE IS THE ONLY BROKEN THING, AND THE FAULT IS IN HOW `sdsvc`
+   LAUNCHES `sd` — NOT IN THE IDENTITY, THE SESSION, OR SD.** 16 Aug 2026,
+   eleventh session, measured on the fresh install (§4).
 
-   ```
-   make -C /c/Users/dmont/Projects/sdb_ai_windows/sdb_ai/sd64 sd
-   python gplbld/stage.py --stage C:\Users\dmont\stagetest --force --bootstrap
-   ISCC /DStage=C:\Users\dmont\stagetest /OC:\Users\dmont\sdout gplbld\sd.iss
-   ```
-   then uninstall, delete **both** trees, install, and
-   `allow-ssh-groups.ps1 -Installed` by hand (header item 5).
+   **What was seen, three times, all as LocalSystem in session 0:**
 
-   **`make` must run from `sd64`. Use `make -C <path>`** — a `cd ... && make`
-   inside `bash -lc` was silently losing its `cd` on 15 Aug 2026 and reporting
-   `No rule to make target 'sd'`.
+   | how `sd -start` was launched | `sdwind` |
+   |---|---|
+   | by the service (`sdsvc.c:196`, `CreateProcessA`, `CREATE_NO_WINDOW`, no redirection) | **0** |
+   | scheduled task → `cmd /c "sd.exe" -start > file 2>&1` | **0** |
+   | scheduled task → `powershell` → `Start-Process`, no redirection | **1 — it works** |
 
-   **Then test, in this order, because each depends on the one before:**
+   So **`sd -start` starts SD perfectly well as LocalSystem in session 0**, and
+   an eleventh-session claim that it does not was wrong — it came from the
+   middle row, whose redirection is the §6 trap about `sdwind` inheriting
+   handles. **The two candidate differences left are `CREATE_NO_WINDOW` and the
+   minimal environment block a service inherits from the SCM** (`sdsvc.c:119`
+   passes `NULL` for both the environment and the working directory). Neither
+   is tested. **That is the next experiment and it needs a fresh install**,
+   because only a real service reproduces it.
 
-   a. **The service.** `Get-Service SD` Running, `sdwind` present. **The most
-      likely failure is `sd -start` under LocalSystem** — it is gated on
-      `IsElevated()`, which asks `getgrouplist()`, and LocalSystem's group list
-      is not an interactive administrator's. If the service starts but `sdwind`
-      does not appear, that is where to look first. Then reboot and confirm SD
-      is up without anyone typing anything.
-   b. **The login rule.** Elevated `sd` must land in **`DON`, not SDSYS** —
-      `WHO` answers it. `LOGTO SDSYS` from there must work. `sd -ASDSYS` must
-      be **refused** with `sysmsg(10051)`. **`sd -internal <cmd>` must still
-      reach SDSYS**, and if it does not, nothing can be bootstrapped or
-      installed — that is the one to check before anything else in this group.
-   c. **`LIST.GRANTS`** on two members: no blank line between them. Verified
-      only on a hand-recompiled `OS_GROUP` so far.
-   d. **`verify-createaccount.ps1 -Account <fresh>`**, which now sends
-      `LOGTO SDSYS` instead of using `-ASDSYS`, and which calls the guard
-      first. 16 of 16 previously.
-   e. **The uninstaller removes the service** rather than leaving a failing one.
+   **What the failure costs, and why it is not cosmetic:** `sd -start` under the
+   service creates the segment and all six semaphores as `NT AUTHORITY\SYSTEM`
+   and leaves them when `sdwind` does not come up. Every later `sd` from an
+   ordinary session then dies `Error 116 getting semaphores` (`sdsem.c:121`,
+   errno 116 = `ETIMEDOUT`, the branch for a probe `sem_open` failing with
+   anything but `ENOENT`) instead of the intended `SD has not been started`.
+   **It broke the install as it happened**: `adopt-account.log` reads
+   `CREATE.ACCOUNT USER don ADOPT did not create an account / Error 116`, so a
+   fresh install leaves the installing user with **no SD account** — §7 step 1f
+   regressed, and it is the service that regressed it. `sd -stop` clears the
+   set and the machine is fine again.
 
-   **Windows users `sdacct6`, `sdacct7`, `sdacct8` survive an uninstall**, so
-   `CREATE.ACCOUNT` refuses those names. Use a fresh one.
+   **Two defects worth fixing whatever the root cause turns out to be:**
 
-   **THE NINTH SESSION'S INSTALL WENT STALE WITHIN THE HOUR, AND THAT IS THE
-   normal case, not an accident.** It was hash-identical at 09:58; five commits
-   between 10:32 and 11:54 — three of them C source — made it stale by 11:54,
-   while this file still said it was current. **Re-measure the hash rather than
-   reading this item.** One command, and it is the whole of the check:
+   - **`sdsvc.c` reports `SERVICE_RUNNING` having started nothing.** It only
+     checks that `CreateProcess` succeeded; `run_sd`'s `rc` is fetched and never
+     read. **Checking the exit code would not have caught this** — `sd -start`
+     exits reporting success. The honest test is whether `sdwind` is running,
+     which every other caller in this project already does.
+   - **`sdwind` cannot say why it died.** `sdwind.c:71-91` exits `1` or `2` with
+     no message at all, and line 90 fills in `errmsg` from `get_semaphores()`
+     and then discards it. On a machine where the daemon will not start there is
+     nothing to read. Its exit code is still diagnostic: **1 = shared memory
+     attach failed, 2 = semaphore attach failed.**
 
-   ```powershell
-   (Get-FileHash 'C:\Program Files\SD\usr\bin\sd.exe').Hash -eq (Get-FileHash 'C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\bin\sd.exe').Hash
-   ```
+   **The `changelog` already tells users SD runs as a service. Nothing has
+   shipped, so it is not yet a false claim — but it must not ship until this
+   works.**
 
-   **The ssh block went on BY HAND and always will on this machine.** The
-   installer's `installssh` task carries `Check: SshServerAbsent`
-   (`sd.iss:95`), which tests for `System32\OpenSSH\sshd.exe` — present here, so
-   the task and its `allowgroups` child are **hidden**, by design (§5.9: SD never
-   reconfigures an ssh server it did not install). Elevated, after every install:
-   `powershell -File "C:\Program Files\SD\allow-ssh-groups.ps1" -Installed`.
-2. **CLOSED 15 Aug 2026, tenth session. All three verified on the install**
-   (§4): a the switches and a bare command, 19 of 19; b an ssh session landing
-   inside SD; c `SH` setting `SD_SESSION` and `sd` refusing in the shell it
-   hands back. `sdacct6` was made by `CREATE.ACCOUNT` for b, 16 of 16, and is
-   **left in place** — it is the test subject step 1c's untested branch wants.
-3. **CLOSED 15 Aug 2026, tenth session — §7 step 2 ran on a VirtualBox guest**
-   (§4). The install is byte-identical on a machine with no MSYS2, no `gplsrc`
-   and no development tree, and **the RDP refusal is measured, control and
-   treatment**. The second machine now exists and is reusable: VM
-   **`Windows 11 Clone`**, snapshot **`Before SD install`**, bridged, guest
-   `VIRTUAL` at 10.0.0.143. Revert to the snapshot for another clean run.
+2. **CLOSED 16 Aug 2026 — the login rule, `LIST.GRANTS` and `CREATE.ACCOUNT`
+   are all verified on a fresh install** (§4). That was the whole of what the
+   tenth session left written and unrun, bar the service.
 
-   **What is still unseen and needs a FRESH run of the wizard:** the ssh task
-   and its `AllowGroups` sub-item on screen (§7 step 3). Both are
-   `Flags: unchecked`, so clicking through leaves `sshd` uninstalled, which is
-   what happened — the design working, not `Check: SshServerAbsent` failing.
-4. **§7 step 5 is DONE except its audit half** (§4). **Next is §7 step 4, the
-   audit log**, which now has a waiting caller: step 5f is written up in
+3. **§7 step 1f REGRESSED — the installer no longer gives the installing user an
+   SD account**, because the service broke it (item 1). It works when run by
+   hand: `sd -internal CREATE.ACCOUNT USER don ADOPT` produced `ACCOUNTS/DON`,
+   `user_accounts\don`, `sdu_don`, and `don keeps the Windows sign-in rights it
+   already had`. **Re-test 1f on the cycle that tests the service fix** — it is
+   the same fault and will close with it.
+
+4. **§7 step 5 is DONE except its audit half.** **Next after the service is §7
+   step 4, the audit log**, which has a waiting caller: step 5f is written up in
    `GPL.BP/GRANTA`'s header and blocked only on that file existing.
-5. **THE INSTALLED TREE IS HAND-PATCHED AND THE INSTALLER IS STALE.** The
-   `OS_GROUP` on `C:\ProgramData\SD` was recompiled by hand to test the CR fix,
-   so **this machine is not a clean install** — say so in any result taken from
-   it. The staged tree and `sd-setup-1.0-2.exe` (17:26) predate four source
-   changes: the `OS_GROUP` CR strip, the `adopt-account.ps1` race fix, `ADOPT`
-   coming out of the installer dialog, and the `changelog`. **Re-stage, rebuild
-   and install before the next test cycle**, and re-run `LIST.GRANTS` there.
+
+5. **THERE IS NO SD INSTALLED ON THIS MACHINE**, deliberately — test (e)
+   uninstalled it at 08:16 on 16 Aug 2026 and that is where a cycle is supposed
+   to start. `C:\ProgramData\SD` survives with 3,486 files, which is correct:
+   the data tree is `uninsneveruninstall`. **A fresh cycle must delete it too.**
+   `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (07:55 on 16 Aug, 4,826,686 bytes)
+   is current and builds; `C:\Users\dmont\stagetest` is the tree it came from.
 
 **Two things the owner has NOT decided, and nobody should decide for him:**
 whether `SH` itself is restricted (the menu system is his answer instead — §6),
@@ -114,8 +104,9 @@ and that the ssh `ForceCommand` **kills scp and sftp on the machine**, which
 follows from forcing the command and is stated in the `changelog`.
 
 **Untested branch from step 1c:** `DELETE.ACCOUNT`'s "SD created it" delete.
-**The test subject now exists — `sdacct6`, made by `CREATE.ACCOUNT` in the
-tenth session and left in place for this.** It is SD's own, so `!is_sd_user`
+**The test subject is `sdacct9`, made by `CREATE.ACCOUNT` on 16 Aug 2026 and
+left in place for this** — `sdacct6` was the tenth session's and its SD side did
+not survive the fresh install. It is SD's own, so `!is_sd_user`
 answers yes and the prompting branch is the one that fires. Password
 `Sd-Test-1`. For the other direction — an account SD did *not* make — use
 `New-LocalUser sdadopt3 -NoPassword` and adopt it.
@@ -224,12 +215,16 @@ enforced on this machine, by control and treatment (§4), and the lockout risk
 is closed by measurement. **§5.6.2 IS COMPLETE, RDP INCLUDED** — 15 Aug 2026,
 tenth session, on a VirtualBox guest (§4). Nothing is left half-applied.
 
-**STATE OF THIS MACHINE, 14 Aug 2026 - READ FIRST.** There is a **working SD
-install** on it, from the fixed installer:
+**STATE OF THIS MACHINE — READ FIRST. THERE IS NO SD INSTALLED ON IT**, as of
+16 Aug 2026, 08:16, eleventh session: test (e) uninstalled it and that is where
+a cycle is meant to start (header item 5). **The rows below describe what an
+install puts there, not what is on the disk now** — the Windows-side rows
+(groups, users, ssh, PATH) do still describe the machine, because uninstalling
+does not touch them.
 
 | Thing | State |
 |---|---|
-| **The install is CLEAN and CURRENT** | 15 Aug 2026, ninth session: uninstalled, **both** trees deleted, reinstalled from the 10:06 `sd-setup-1.0-2.exe`. **Counts and dates are in header item 1 and only there.** **Date it again before trusting it**; it does not update itself |
+| **The install** | **GONE, 16 Aug 2026.** `C:\ProgramData\SD` survives with 3,486 files, which is correct — the data tree is `uninsneveruninstall`. **A fresh cycle deletes it too.** Counts from the 16 Aug install: 13 files in `usr\bin`, 3,481 in the data tree, `gcat` 131, `GPL.BP.OUT` 192, `sd.exe` `B04E2EBAD145F235` |
 | `C:\Program Files\SD` | binaries in `usr\bin`. 19 rather than 18 files because `adopt-account.ps1` ships beside the other three `.ps1` scripts. Count and date in header item 1 |
 | `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
@@ -247,29 +242,28 @@ install** on it, from the fixed installer:
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
 | **`AllowGroups` AND `ForceCommand` ARE APPLIED** | 15 Aug 2026, ninth session, **by hand after the install** — `allow-ssh-groups.ps1 -Installed`, elevated. Lines 87–90 of `sshd_config`, before the `Match` block; original kept at `sshd_config.before-sd`; `sshd` restarted, Running. **THE UNINSTALLER TAKES IT BACK OFF** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`, correct behaviour), and **the installer will not put it back on this machine** because the task is hidden — header item 1. So it is a manual step of every fresh install here, and its absence is what the eighth session mistook for it being applied |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
-| Test accounts, Windows side | **`sdacct6` exists**, 15 Aug 2026 tenth session, made by `CREATE.ACCOUNT` and kept — password `Sd-Test-1`, in `sdusers`, `sdu_sdacct6` and `sdsshonly`, not an administrator. It is step 1c's test subject. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
-| **`don` HAS AN SD ACCOUNT** | 15 Aug 2026, made by `ADOPT` — `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`; `sd` puts him in it, `WHO` says `5 DON`. It also put him in `sdsshonly` before the §6 fix, and **that was undone by hand** — `sdsshonly` now holds only `sdacct4`/`sdacct5` |
+| Test accounts, Windows side | **`sdacct6`, `sdacct8` and `sdacct9` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct10`**. `sdacct9` is the current subject: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct9` and `sdsshonly`, not an administrator, and **it has an SD side too** — it is step 1c's test subject now that the fresh install wiped `SDACCT6`'s. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
+| **`don` HAS AN SD ACCOUNT** | 16 Aug 2026, but **made by hand, not by the installer** — header item 3. `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`, and `WHO` says `13 DON`. The adopt log's `don keeps the Windows sign-in rights it already had` line still appears, so the lockout fix holds |
 | `sdsshonly` | exists, holding **`sdacct6`** and nothing else — the lockout fix means no administrator is in it, and `sdacct6` is there because that is what `CREATE.ACCOUNT` does to a non-administrator |
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
-| Accounts, **SD side** | `SDSYS`, `DON` and `SDACCT6` |
-| SD | **running**, started elevated in the tenth session for the 2b/2c work. `sd -start` **needs an elevated window**, verified: the gate covers `-start` |
-| SD at boot | **a service exists as of 15 Aug 2026, tenth session, and has NEVER RUN.** `String Database (SD)`, `start= auto`, created and started by the installer; `gplsrc/sdsvc/sdsvc.c` is the native wrapper and `gplbld/install-service.ps1` creates it. Until it is installed and watched, this row is a claim about source, not about the machine |
+| Accounts, **SD side** | in the surviving `C:\ProgramData\SD`: `SDSYS`, `DON` and `SDACCT9`. `DON` was made by hand with `sd -internal CREATE.ACCOUNT USER don ADOPT` after the installer's own step failed — header item 3 |
+| SD | **not running, and not installed.** `sd -start` **needs an elevated window**, verified: the gate covers `-start` |
+| SD at boot | **THE SERVICE DOES NOT START SD — measured 16 Aug 2026, header item 1.** It reports `Running` having started nothing, and leaves a SYSTEM-owned semaphore set that breaks every later `sd` until `sd -stop`. The uninstaller does remove it cleanly (§4) |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
 elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
 `C:\Program Files\SD` and `C:\ProgramData\SD`, then `Remove-LocalGroup sdusers`
 — but leave `sdadmins` alone, for the reason in §8.
 
-**THE STAGED TREE AND THE INSTALLER ARE 15 Aug 2026, tenth session, AND WERE
-INSTALLED FROM.** `C:\Users\dmont\stagetest` re-staged at **15:4x** — 3,474
-files — and `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` built from it at **15:52**
-(4,801,559 bytes). That installer was run and the result counted and hashed
-(header item 1), so "it compiled" is not the claim.
+**THE STAGED TREE AND THE INSTALLER ARE 16 Aug 2026, eleventh session, AND WERE
+INSTALLED FROM.** `C:\Users\dmont\stagetest` re-staged at **07:49–07:55** and
+`C:\Users\dmont\sdout\sd-setup-1.0-2.exe` built from it at **07:55**
+(4,826,686 bytes). That installer was run and the result counted and hashed
+(header item 5), so "it compiled" is not the claim — though on this occasion
+"it compiled" was itself the problem: the previous installer had **not**, for a
+whole session (§6, `sd.iss:560`).
 
-**REBUILT AGAIN at 16:10** (4,802,092 bytes) once the closing-dialog fix landed,
-and **that is the one installed on the second machine** — so the shipped dialog
-no longer carries the `net localgroup` lines. Only a comment in `sd.iss` has
-changed since. ISCC alone is not enough when a `gplbld/` script changed —
+ISCC alone is not enough when a `gplbld/` script changed —
 `stage.py` copies those into `ProgramFiles` — and **`stage.py --bootstrap`
 refuses an unelevated window**. Neither artefact survives a rebuild of the
 machine; both are reproduced by the commands at the top of `gplbld/sd.iss`.
@@ -754,6 +748,38 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**16 Aug 2026 — THE LOGIN RULE, 5 of 5, eleventh session, on the fresh
+install.** Written 15 Aug and never run until now. `sd -internal` → `12 SDSYS`,
+so the bootstrap and install door still reaches SDSYS — the one to check before
+anything else, because nothing can be installed without it. A bare elevated
+`sd` → `13 DON`. `LOGTO SDSYS` from there → **`14 SDSYS from DON`**, which names
+where it came from and is the decisive form. `sd -ASDSYS` → **`You can only log
+in to your own account - use LOGTO to reach another`**, sysmsg(10051), and it did
+not reach SDSYS.
+
+**16 Aug 2026 — `LIST.GRANTS` ON A FRESH INSTALL, eleventh session.** The CR fix
+had only ever been seen on a hand-recompiled `OS_GROUP`. `LIST.GRANTS SDACCT9`
+with two members printed `'   don'` and `'   sdacct9'` **adjacent, neither
+carrying a CR and no blank line between them**, read back with control
+characters made visible rather than by eye. `GRANT`/`REVOKE` round-tripped
+against `Get-LocalGroupMember` both ways, each printing the sign-out line.
+
+**16 Aug 2026 — `CREATE.ACCOUNT`, 16 of 16 on a fresh install, eleventh
+session.** `verify-createaccount.ps1 -Account sdacct9` exit 0: both halves of
+what it makes, the ssh-only branch, and all three logon measurements —
+`LogonUser` INTERACTIVE **refused 1385**, NETWORK_CLEARTEXT **admitted**, ssh
+**admitted**. `sdacct9` is left in place, password `Sd-Test-1`.
+
+**16 Aug 2026 — THE UNINSTALLER REMOVES THE SERVICE, test (e), eleventh
+session.** Service gone (`sc query SD` → 1060), `C:\Program Files\SD` gone, and
+**`C:\ProgramData\SD` kept, 3,486 files** — which is the other half of the test:
+the user's database is `uninsneveruninstall` and must survive.
+
+**16 Aug 2026 — THE SERVICE STARTS NOTHING AND SAYS IT SUCCEEDED, test (a),
+eleventh session.** Header item 1 carries the measurement and the narrowing;
+recorded here only so the split stays honest: **`Get-Service SD` Running /
+Automatic with `sdwind` absent**, on two separate installs.
 
 **15 Aug 2026 — §7 STEP 5: GRANT, REVOKE AND LIST.GRANTS WORK, 16 of 16 on a
 fresh install, tenth session.** Every SD-side claim checked against
@@ -2580,6 +2606,24 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **A LINE OF `sd.iss` STARTING WITH `#13#10` IS READ AS A PREPROCESSOR
+  DIRECTIVE.** 16 Aug 2026, eleventh session. ISPP treats any line whose first
+  non-blank character is `#` as a directive, so a wrapped Pascal string constant
+  aborts the compile with `Unknown preprocessor directive` and a line number,
+  saying nothing about string continuation. Mid-line `#13#10` is fine, which is
+  why the rest of that `MsgBox` works. **Keep `#13#10` off the start of a line**
+  — join it to the line above. Cost an elevated run: `sd.iss:560` was edited on
+  15 Aug when the service message was added and never compiled again before the
+  handoff.
+
+- **THE CLAUDE CODE `Bash` TOOL IS NOT MSYS2, AND `make ... | tail` REPORTS
+  EXIT 0 HAVING BUILT NOTHING.** 16 Aug 2026, eleventh session. `make` is not on
+  that shell's PATH; the failure is `make: command not found` on stdout and the
+  pipe reports `tail`'s status, so it reads as a successful build. Same swallowed
+  status as the `stage.py` case in HISTORY. **Build through
+  `C:\msys64\usr\bin\bash.exe -lc "make -C <abs path> sd"`** and read the linker
+  lines, not the exit code.
 
 - **ENABLING REMOTE DESKTOP DOES NOTHING UNTIL THE MACHINE REBOOTS, AND THE
   SETTINGS TOGGLE REPORTS SUCCESS EITHER WAY.** 15 Aug 2026, tenth session,
