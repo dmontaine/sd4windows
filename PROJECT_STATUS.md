@@ -416,11 +416,12 @@ it. Call it first from anything new that tests the install.
    to the users it records**, which is why `win32audit.c` is the second file
    allowed to include `windows.h`.
 
-5. **SD IS INSTALLED AND RUNNING, AND THE INSTALL IS STALE — THE CYCLE IS
-   ENDED.** The install of **16:02:58** carried everything in item 1 including
-   the helper log, all of it measured and finished; **`GPL.BP/PS_SCRIPT` and
-   `gplbld/` changed afterwards for the PSTMP fix**, so it is a build behind
-   and nothing more may be measured on it. **Five full cycles were built
+5. **SD IS INSTALLED, RUNNING, AND THE INSTALL IS CURRENT — THE CYCLE IS
+   OPEN.** The install of **16:36:52** carries everything in item 1 and no
+   source has changed since. **Seven full cycles were built on 16 Aug 2026**;
+   `sd.exe` is `239BB9C3E43E4829` on every one, **no C changed all day**, so
+   identify a build by `gcat/$CPROC` 25,208, `gcat/!OS_GROUP` 1,933, and the
+   presence of `secure-psdir.ps1` and `sd-elevate.log`. **Five full cycles were built
    today** (13:52:43, 14:14:28, 14:21:50, 15:26:33, 16:02:58); `sd.exe` is
    `239BB9C3E43E4829` on every one of them, **no C having changed all day**, so
    identify a build by `gcat/$CPROC` 25,208, `gcat/!OS_GROUP` 1,933 and the
@@ -593,12 +594,12 @@ IS STALE**, as of 16 Aug 2026 16:02:58 (header item 5) — a build behind on
 
 | Thing | State |
 |---|---|
-| **The install** | **PRESENT, 16 Aug 2026 16:02:58**, from `sd-setup-1.0-2.exe` of 15:44:24 (4,849,972 bytes). 13 files in `usr\bin`, 3,477 in the data tree, `sd.exe` `239BB9C3E43E4829`. `C:\ProgramData\SD` is `uninsneveruninstall`, so **a fresh cycle deletes it by hand as well** |
+| **The install** | **PRESENT, 16 Aug 2026 16:36:52**, from `sd-setup-1.0-2.exe` of 16:29:15 (4,851,866 bytes). 13 files in `usr\bin`, 3,477 in the data tree, `sd.exe` `239BB9C3E43E4829`. `C:\ProgramData\SD` is `uninsneveruninstall`, so **a fresh cycle deletes it by hand as well** |
 | `C:\Program Files\SD` | binaries in `usr\bin`. 19 rather than 18 files because `adopt-account.ps1` ships beside the other three `.ps1` scripts. Count and date in header item 1 |
 | `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS STALE** | `assert-current` was exit 0 at 16:03 on 16 Aug 2026 and everything in header item 1 was measured under it; `PS_SCRIPT` and `gplbld/` changed afterwards. Note editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only. **It goes stale at the first source change** |
+| **THE INSTALL IS CURRENT** | `assert-current` exit 0 at 16:37 on 16 Aug 2026, and everything in header item 1 is verified on it. Note editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only. **It goes stale at the first source change** |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
 | Reinstalling over this | **DON'T** — the rule in the header. The installer **finds an existing database and leaves it alone**, saying so in a dialog, which is §6's staleness trap working as designed: a reinstall-over updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`, so the machine runs yesterday's BASIC on today's binaries. Copying `GPL.BP` across and recompiling by hand was the old workaround; a fresh install is the rule that replaced it |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
