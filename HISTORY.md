@@ -27,6 +27,50 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - The audit log, and step 5f closes with it
+
+Thirteenth session, after the restart fix was verified. **Built, not verified**
+— the call sites are BASIC and only a bootstrap compiles them, so nothing has
+been observed being written.
+
+**`audit_message()` in `k_error.c`**, beside `log_message()` so the contrast is
+visible: `errlog` **discards its oldest half** at the `ERRLOG` size, which is
+right for diagnostics and disqualifying for an audit trail, where the record
+somebody would like discarded is exactly the one an investigator wants. The
+audit file rotates instead — renamed `audit.<yyyymmdd-hhmmss>` at 1MB, nothing
+deleted, pruning left to the site.
+
+**BASIC reaches it as `kernel(K$AUDIT, text)`**, key 57. A kernel key rather
+than an opcode because an opcode would mean touching the compiler; `op_logmsg`
+was the precedent for the opcode route and `K$RUNEXE` for this one.
+
+**The caller passes what happened and never who did it.** Timestamp, username,
+uid and pid are stamped in C from `my_uptr`. §5.6 had already flagged that
+`CPROC` reassigns `logname` when it drops to sdsys, so a trail that trusted its
+BASIC caller would attribute a step-up to the account being entered — the
+warning was in the spec and this is what it was asking for.
+
+**Call sites.** `LOGIN` has exactly one success exit and one
+`terminate.connection`, so both records are written once rather than at each
+gate; an `audit.reason` is set at each refusal and **defaults to `unspecified`**
+so that a refusal added later still produces a line — a vague record is
+recoverable, a missing one is not. `CPROC` covers `LOGTO` success and all three
+refusals, including the failed step-up the spec called the most interesting line
+in the trail. `GRANTA` writes after the group edit, which **closes §7 step 5f**;
+its header had named this file as one of its first callers and now says so in
+the past tense.
+
+**Known weakness, recorded rather than hidden.** `sdusers` holds **Modify** on
+`<sysdir>` — measured, not assumed — so an SD user can edit or delete the trail
+that records them. It has to be writable by them, since that is where the
+records come from. The remedy is an installer ACL change (append-only for
+`sdusers` on that file) and it was **not** done: it is installer work beyond
+this step, and Windows' Security log independently records the group edits
+behind `GRANT`/`REVOKE`. The `changelog` tells users this plainly instead of
+implying a guarantee the file does not have.
+
+---
+
 ## 16 Aug 2026 - A segment from a previous boot stops meaning wreckage
 
 Thirteenth session, `8a1568d`→. Measurement first, on the still-open cycle;

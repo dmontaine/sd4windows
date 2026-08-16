@@ -115,22 +115,25 @@ it. Call it first from anything new that tests the install.
    `ACCOUNTS/DON` is there. The earlier regression was the broken service
    poisoning the semaphores under it, and it went with the Win32 change.
 
-4. **§7 step 5 is DONE except its audit half.** **Next after the service is §7
-   step 4, the audit log**, which has a waiting caller: step 5f is written up in
-   `GPL.BP/GRANTA`'s header and blocked only on that file existing.
+4. **§7 STEP 4, THE AUDIT LOG, IS BUILT AND UNVERIFIED — VERIFYING IT IS THE
+   NEXT THING TO DO** (§7 step 4 for what it does and how). It took step 5f
+   with it, so **§7 step 5 is complete**. **It cannot be tested without a fresh
+   install**: the call sites are `LOGIN`, `CPROC` and `GRANTA`, and BASIC is
+   only compiled by a bootstrap. It also carries a **known weakness the owner
+   should rule on** — `sdusers` can edit the trail, because `<sysdir>` has to
+   be writable by them.
 
-5. **SD IS INSTALLED AND THE INSTALL IS CURRENT** — 16 Aug 2026 11:12:25,
-   `assert-current` exit 0, installed `sd.exe` `D2AAB6203CB80661`, which is the
-   build carrying the `sysseg.c` fix. Fresh install: uninstalled, **both trees
-   deleted and confirmed gone**, then installed from
-   `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (11:10:36 on 16 Aug, 4,833,587
-   bytes), packaged by Inno Setup from `C:\Users\dmont\stagetest`, staged and
-   bootstrapped at 11:08–11:09. **The cycle this began is still open — nothing
-   has changed source since, and item 1's verification was taken inside it.**
-   Bootstrap sanity, against the previous known-good tree: `gcat` 131,
-   `GPL.BP.OUT` 192, `PCODE.OUT` 56, `BP.OUT` and `cat` empty **in both**.
-   **The first source change ends the cycle** and the next test needs a fresh
-   install — uninstall, delete BOTH trees, reinstall.
+5. **SD IS INSTALLED BUT NO LONGER CURRENT — THE CYCLE IS ENDED, by the audit
+   log.** The install of 16 Aug 2026 11:12:25 (`assert-current` exit 0,
+   `sd.exe` `D2AAB6203CB80661`) carried item 1's verification, which was taken
+   in full before anything was edited. **`k_error.c` changed at 11:30 and that
+   ended it**; `bin/sd.exe` was rebuilt at 11:36. **Anything measured on the
+   installed tree from now on is void.** Item 4's verification needs a fresh
+   install — and it needs the **bootstrap** in particular, because the audit
+   call sites are BASIC and the installed `gcat` still holds the old ones.
+   Bootstrap sanity from the 11:08 run, to compare against next time: `gcat`
+   131, `GPL.BP.OUT` 192, `PCODE.OUT` 56, `BP.OUT` and `cat` empty — the same
+   in the previous known-good tree.
 
    **The build sequence, since it was reconstructed from `sd.iss` this
    session** — MSYS2 is at `C:\msys64` and the Bash tool is Git Bash, which has
@@ -2087,10 +2090,10 @@ the first practical use of that finding.
 
 **What is still missing or dead.**
 
-- **The audit records.** Nothing is written yet for a login, a `LOGTO` or a
-  failed step-up, which is the remaining half of this model (§7 step 4). Until
-  it lands the grant check controls access but leaves no trace of who used it —
-  and attribution, not access control, is what this model is for.
+- **The audit records — BUILT 16 Aug 2026, unverified** (§7 step 4). Login,
+  refused login, `LOGTO`, refused `LOGTO` and `GRANT`/`REVOKE` all write to
+  `<sysdir>/audit`. The identity is stamped in C from `my_uptr`, which is what
+  the `logname` warning below was asking for.
 - **There is no verb for managing grants.** `ACC$USERS` has a dictionary entry
   so `LIST ACCOUNTS` shows it and `MODIFY ACCOUNTS` can edit it, but nothing
   offers `GRANT`/`REVOKE` (§7 step 5).
@@ -4171,12 +4174,44 @@ the staging script and the Inno installer were all finished and removed.
      user should get them.
    - **There is no upgrade path for the data tree**, and §6 records what that
      already cost. It will cost more once there is real data in a tree.
-4. **Add the audit log** (§5.6). The missing half of the identity model:
-   access is controlled, nothing records who used it. Its own append-only file
-   that rotates rather than truncates — *not* `<sysdir>/errlog`, which discards
-   its oldest half on reaching the `ERRLOG` size. Records every login, every
-   `LOGTO`, and every failed step-up, attributed to `@logname`. A failed
-   step-up is the single most interesting line in the trail.
+4. **BUILT 16 Aug 2026, thirteenth session. NOT VERIFIED — no record has been
+   observed being written**, because the call sites are BASIC and only a
+   bootstrap compiles them. `audit_message()` in `k_error.c`, reached from
+   BASIC as `kernel(K$AUDIT, text)` (key 57, `keys.h` and `INT$KEYS.H`).
+
+   - **`<sysdir>/audit`, and it rotates rather than truncates.** At 1MB the
+     file is renamed `audit.<yyyymmdd-hhmmss>` and a new one started, so SD
+     never discards a record. Pruning is left to the site, deliberately.
+   - **The caller passes what happened, never who did it.** The timestamp,
+     username, uid and pid are stamped in C from `my_uptr`. §5.6 warns that
+     `CPROC` reassigns `logname` on the drop to sdsys, so a trail that trusted
+     the BASIC caller would attribute a step-up to the account being entered.
+   - **Call sites.** `LOGIN` — success at its one `ok = @true`, refusal at its
+     one `terminate.connection`, with an `audit.reason` set at each gate and
+     defaulting to `unspecified` so a refusal added later still records.
+     `CPROC` — `LOGTO` success after the move and the admin flag, refusal at
+     all three gates including **the failed step-up** (SDSYS asked for by an
+     unelevated session). `GRANTA` — `GRANT`/`REVOKE` after the group edit,
+     which closes §7 step 5f.
+   - Uses `ERRLOG_SEM` rather than a seventh semaphore: both are log writes,
+     and `NUM_SEMAPHORES` is part of the shared segment layout (`sysseg.h`).
+   - Silent on failure, deliberately — an unwritable audit file must not be
+     what stops somebody logging in.
+
+   **KNOWN WEAKNESS, NOT A DEFECT, AND THE OWNER SHOULD DECIDE:** `sdusers`
+   has **Modify** on `<sysdir>` (measured on the 11:12 install), so **an SD
+   user can edit or delete the trail that records them**. It has to be
+   writable by them — that is where the records come from. The remedy is an
+   installer ACL change: deny `Delete` and `WriteData` to `sdusers` on the
+   file while allowing `AppendData`, or put the trail in a subdirectory with
+   append-only rights. Not done — it is installer work beyond this step, and
+   Windows' own Security log already holds an independent record of the group
+   edits that `GRANT`/`REVOKE` make. **The `changelog` states this plainly**
+   rather than implying a stronger guarantee than the file has.
+
+   **To verify:** it needs a fresh install (the BASIC only compiles in a
+   bootstrap). Then `sd`, `LOGTO SDSYS` unelevated (expect a `LOGTO REFUSED`
+   line), `LOGTO` a real account, and read `C:\ProgramData\SD\sdsys\audit`.
 5. **DONE 15 Aug 2026, tenth session, except (f) which needs step 4** — §4 has
    the run, 16 of 16 on a fresh install. `GPL.BP/GRANTA` serves **`GRANT
    <account> TO <user>`, `REVOKE <account> FROM <user>` and `LIST.GRANTS
