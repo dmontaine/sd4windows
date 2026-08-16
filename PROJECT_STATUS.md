@@ -218,6 +218,19 @@ it. Call it first from anything new that tests the install.
      **ISCC ALONE REBUILDS THIS** — `sd.iss` is not copied into
      `ProgramFiles` by `stage.py`, so no bootstrap is needed, unlike every
      other change today.
+     **AN UNINSTALLER FIX CANNOT BE VERIFIED IN THE CYCLE THAT SHIPS IT, and
+     that cost a cycle on 16 Aug 2026.** `unins000.exe` is generated AT INSTALL
+     TIME by whichever installer runs, so the uninstall at the start of a cycle
+     is performed by the PREVIOUS install's code. The fixed installer went on at
+     16:31:23 and the PATH still grew by one, 30/23 → **31/24**, because the
+     uninstall before it ran the old uninstaller. Nothing is wrong with the fix;
+     it is one cycle out of phase, and the same applies to any future change to
+     `RemoveFromPath`, `RemoveAllowGroups` or anything else at `usUninstall`.
+     **THE PENDING TEST, free at the start of the next cycle:** the system PATH
+     must go from **31 entries / 24 empty to 6 / 0** the moment the uninstaller
+     runs, then to 7/0 after the install. Anywhere else and the fix is wrong.
+     Read it from
+     `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment`.
      **And the report was half a false alarm worth remembering:** SD *was* on
      the PATH; the pasted value came from a shell opened before the install.
      Windows broadcasts the change and running processes keep their copy. Check
