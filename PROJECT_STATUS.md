@@ -112,9 +112,24 @@ form, because it changes what every other item in this file assumes:
 - **SD login takes no password at all.** The operating system has already
   authenticated you. Typing `sd` puts you in **the SD account with your own
   name**, and nowhere else. **No linked SD account means no login.**
-- **`sudo sd` — any elevated session — puts you straight into SDSYS.** That is
-  the only route into administration, and **`Administrators` is the sudoers
-  file**: `CREATE.ACCOUNT USER x` does not add to it, `... ADMINISTRATOR` does.
+- **NOBODY LOGS IN TO ANY ACCOUNT BUT THEIR OWN — owner's rule, 15 Aug 2026,
+  tenth session, and it REPLACES what stood here.** An administrator "has
+  access to all accounts, once they have logged into SD, not before": entry is
+  always your own account, and **`LOGTO` is what moves you**, which is where
+  the grant is tested and where an elevated session gets everything (`CPROC`,
+  `logto.authorised`). **`Administrators` is still the sudoers file**:
+  `CREATE.ACCOUNT USER x` does not add to it, `... ADMINISTRATOR` does.
+
+  **WHAT THIS REPLACED:** an elevated session went **straight into SDSYS** with
+  no account named, and `sd -A<anyone>` admitted an administrator to any
+  account at all, because the `ACC$GROUP` test was skipped when elevated. Both
+  let somebody stand in an account without ever standing in their own. Built in
+  `GPL.BP/LOGIN` 15 Aug 2026 — **NOT YET VERIFIED, §4 Not verified.**
+  **`sd -ASDSYS` is refused now**, so anything driving SD as SDSYS sends
+  `LOGTO SDSYS` after logging in; `verify-createaccount.ps1` was changed for it.
+  **`-INTERNAL` is the exception and has to be** — it forces SDSYS and is the
+  install and bootstrap door, and during a bootstrap there is no account for
+  anyone to land in and nothing to `LOGTO` from.
 - **ELEVATION IS LOCAL BY DESIGN** — owner's decision, and confirmed rather
   than assumed: an ssh session cannot reach SDSYS (§4). Administrators having
   *less* remote access than ordinary users is the intent.
@@ -1378,6 +1393,20 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
+- **THE LOGIN RULE IS BUILT AND HAS NEVER RUN** — 15 Aug 2026, tenth session.
+  `GPL.BP/LOGIN` now refuses `-A<anyone else>` with `sysmsg(10051)` and no
+  longer sends an elevated session to SDSYS. **Nothing has compiled it**, let
+  alone run it. What to watch when it is tested, because each is a way it could
+  be wrong: an elevated `sd` lands in `DON` and not SDSYS; `LOGTO SDSYS` still
+  works from there; `sd -ASDSYS` is refused; **`sd -internal` still reaches
+  SDSYS**, without which nothing can be bootstrapped or installed; and
+  `verify-createaccount.ps1`, which now sends `LOGTO SDSYS`, still passes 16 of
+  16.
+- **SD DOES NOT YET RUN AS A SERVICE.** Owner's decision, 15 Aug 2026: a
+  Windows service, started by the installer, so SD is up after every restart.
+  Not built. §5.7 reserves *the identity half* of this — the service account
+  owning the tree, sessions over a named pipe — for stage 2; this is the
+  lifecycle half only and must not be confused with it.
 - **The lockout fix is compiled and run on THIS machine only** (§4). The staged
   tree still carries the old `CREATEA`/`IS_GRP_MEMBER`; re-stage before the
   second machine.
@@ -1626,9 +1655,9 @@ The model, in five rules:
 | `sd`, no account named | you land in **the SD account with your own name** |
 | no SD account of that name | refused — `sysmsg(5018)`, "Account %1 not in register" |
 | not in `sdusers` | refused at the door — `sysmsg(5009)`, "not registered for SD use" |
-| **`sudo sd`, or any elevated session** | **straight into SDSYS**, no account named and no password |
-| `sd -Aname` | `ACC$GROUP` must name a group you are in; SDSYS additionally needs elevation — `sysmsg(10002)` |
-| **an elevated session, at either test** | **passes without the group check**, in `LOGIN` and in `LOGTO` alike. Not a convenience — `ACCOUNTS/SDSYS` names a group Windows does not have, so the check would refuse administration to everybody (§6). Linux root does not pass it either |
+| **`sudo sd`, or any elevated session** | **your own account, like everybody else** — corrected 15 Aug 2026, tenth session. It used to go straight into SDSYS; see the header. `LOGTO SDSYS` afterwards |
+| `sd -Aname` | **refused unless `name` is your own account** — `sysmsg(10051)`. `-INTERNAL` is exempt and forces SDSYS, needing elevation — `sysmsg(10002)` |
+| **an elevated session, in `LOGTO`** | **passes without the group check**, which is now the only place that bypass lives. Not a convenience — `ACCOUNTS/SDSYS` names a group Windows does not have, so the check would refuse administration to everybody (§6). Linux root does not pass it either |
 
 **All five messages already exist** (5009, 5018, 10002, 10003), and 10002 has
 never had a caller.

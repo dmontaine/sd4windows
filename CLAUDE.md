@@ -92,6 +92,22 @@ PROJECT_STATUS.md header item 1.
 state the full path of the binary under test — `C:\Program Files\SD\...` is the
 installed one and is current only just after an install.
 
+**A CYCLE ENDS AT THE NEXT SOURCE CHANGE.** Added 15 Aug 2026 because the rule
+above says when a cycle *begins* and said nothing about what ends one, and that
+gap was enough to break it twice in one session — both times by editing source
+while a test was in flight and carrying on reading the results. **Any result
+taken from the tree after a source change is void, not "probably still valid".**
+Finish every source change first, then run one cycle, then measure.
+
+**This is enforced, not remembered:** `gplbld/assert-current.ps1` exits non-zero
+unless the installed tree matches source, and `verify-createaccount.ps1` refuses
+to run without it. Call it first from anything new that tests the install.
+**Hashing `sd.exe` is not sufficient on its own** — most changes here are BASIC,
+messages, dictionaries and the installer script, none of which touch the binary,
+so it also compares source mtimes against the install. The scripts that test
+Windows-side behaviour rather than SD (`verify-sshonly.ps1`,
+`verify-allowgroups.ps1`) are deliberately exempt.
+
 ## Conventions
 
 - Match the surrounding code. It is a 2007 Ladybridge codebase with its own
