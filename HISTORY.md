@@ -127,6 +127,56 @@ and `VIRTUAL\sdacct7` **refused** with `The connection was denied because the
 user account is not authorized for remote login` — the deny right's own
 wording, not a credentials failure. §5.6.2 is complete.
 
+**LATER STILL — §7 step 5, the GRANT verb.** `GPL.BP/GRANTA` serves `GRANT
+<account> TO <user>`, `REVOKE <account> FROM <user>` and `LIST.GRANTS
+<account>` from one program behind three VOC entries. 16 of 16 on a fresh
+install, with every SD-side claim checked against `Get-LocalGroupMember`
+afterwards — the point of the step being that SD writes nothing to its own
+record. `!os_group` gained `LISTMEM`; `ACC$USERS` went in 5d's order, the
+`USERS` column out of `ACCOUNTS.DIC^@` first, and `LIST ACCOUNTS` survived it.
+Field 4 is deliberately not reused: records written 13–14 Aug still carry a
+grant list there and an installed tree is never upgraded.
+
+**Only (f) is left, and it is blocked on step 4** — the audit record has
+nowhere to be written until the audit file exists.
+
+**Three things the owner corrected or caught, all of which stood in the source
+contradicting decisions already recorded.** `ADOPT` was printed by the
+installer's failure dialog, the one place in the product documenting a verb
+that §7 step 1f says stays undocumented; it now names `adopt-account.ps1`,
+which ships beside `sd.exe` and is the same code path. `-internal` was listed
+in the `changelog` among the gated switches, and `sd --help` does not publish
+it — nor `-restart`, `-cleanup`, `-suspend`, `-resume`, `-d` or `-m`, all of
+which that entry also named, while claiming *every* switch, which was wrong
+anyway because `-P -C -N -Q` are deliberately ungated. And he flagged a build
+check reporting "the fix did not land" — my check, not the fix: it grepped the
+whole file and matched the comments explaining the removal.
+
+**Two defects found only by running it.** `LIST.GRANTS` blank-lined every
+member, because PowerShell ends lines CRLF and `trim()` takes spaces but not
+the carriage return — which also made `OS_GROUP`'s own promise that a `LISTMEM`
+name can be fed back to `DELMEM` false, since a CR fails `!valid_os_name`. And
+the installer gave the installing user no account, reporting `code 3`:
+`adopt-account.ps1` looked for `sdwind` once, immediately after `sd -start`
+returns, and `sd -start` forks the daemon and returns before it is in the
+process table. That race had been won on every previous install and was lost
+with a VM running. Both now in §6, together with the same trap one level up —
+`Start-Process <setup> -Wait` never returns, because the installer's own
+account step starts `sdwind` and it inherits the handles.
+
+**A documentation defect worth more than the code it sat beside:** `stage.py`
+described `NEWVOC` and `VOC_TEMPLATE` **backwards**, and those two lines are
+the first thing anyone adding a verb reads. `VOC_TEMPLATE` is the
+administrative superset that becomes SDSYS's VOC; `NEWVOC` is what `CREATEA`
+copies into each new account. The difference is access control —
+`CREATE.ACCOUNT` and `DELETE.ACCOUNT` are in one and not the other — so a new
+administrative verb put in `NEWVOC` on the strength of that comment would have
+been handed to every account SD creates.
+
+**Left dirty, deliberately and recorded:** the installed tree carries a
+hand-recompiled `OS_GROUP`, so it is not a clean install; and the staged tree
+and installer predate four source changes. Both are in the header.
+
 **A correction inside this: `LogonUser` cannot test the RDP path.** A probe row
 written this session asked for logon type 10 and read the `87
 ERROR_INVALID_PARAMETER` back as a finding. There is no logon type 10 for

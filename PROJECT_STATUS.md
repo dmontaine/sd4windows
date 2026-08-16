@@ -61,8 +61,16 @@ never including `gcat` — is not evidence a tree is current.
    and its `AllowGroups` sub-item on screen (§7 step 3). Both are
    `Flags: unchecked`, so clicking through leaves `sshd` uninstalled, which is
    what happened — the design working, not `Check: SshServerAbsent` failing.
-4. **Next: §7 step 4 or 5** — the audit log, or the `GRANT`/`REVOKE` verb.
-   Nothing is blocked on hardware any more.
+4. **§7 step 5 is DONE except its audit half** (§4). **Next is §7 step 4, the
+   audit log**, which now has a waiting caller: step 5f is written up in
+   `GPL.BP/GRANTA`'s header and blocked only on that file existing.
+5. **THE INSTALLED TREE IS HAND-PATCHED AND THE INSTALLER IS STALE.** The
+   `OS_GROUP` on `C:\ProgramData\SD` was recompiled by hand to test the CR fix,
+   so **this machine is not a clean install** — say so in any result taken from
+   it. The staged tree and `sd-setup-1.0-2.exe` (17:26) predate four source
+   changes: the `OS_GROUP` CR strip, the `adopt-account.ps1` race fix, `ADOPT`
+   coming out of the installer dialog, and the `changelog`. **Re-stage, rebuild
+   and install before the next test cycle**, and re-run `LIST.GRANTS` there.
 
 **Two things the owner has NOT decided, and nobody should decide for him:**
 whether `SH` itself is restricted (the menu system is his answer instead — §6),
@@ -695,6 +703,32 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**15 Aug 2026 — §7 STEP 5: GRANT, REVOKE AND LIST.GRANTS WORK, 16 of 16 on a
+fresh install, tenth session.** Every SD-side claim checked against
+`Get-LocalGroupMember` afterwards, because the point of the step is that SD
+writes nothing to its own record: `GRANT SDACCT8 TO don` → `don may now use
+account SDACCT8` **and don in `sdu_sdacct8`**; `REVOKE` → out of it again.
+Both print the sign-out line (5c). The idempotent paths say so rather than
+implying they acted — a second `GRANT` answers `already a member`, a second
+`REVOKE` answers `has not been granted`. Refusals: unknown account →
+`Account not registered in ACCOUNTS file`; unknown user → `There is no Windows
+account named nosuchuser`, **and it did not add them**. **`LIST ACCOUNTS`
+still works** with the `Granted to` column gone, which is what 5d's ordering
+was for.
+
+**Two defects found by running it that compiling could not have shown.**
+`LIST.GRANTS` printed a blank line after every member: PowerShell ends lines
+CRLF, the capture splits on the LF, and `trim()` removes spaces but **not the
+carriage return**. It reads as untidiness and is not — a name carrying a CR
+fails `!valid_os_name`, so `OS_GROUP`'s own promise that a `LISTMEM` name can
+go straight back to `DELMEM` was false. Fixed by `convert char(13):char(10)`
+before the trim, **verified on a hand-recompiled `OS_GROUP` rather than a
+fresh install** — re-check it on the next one, it is one command.
+
+**And the installer failed to give the installing user an account**, reporting
+`code 3` — the `adopt-account.ps1` race now in §6. It had never fired before
+because the machine had never been loaded enough to lose it.
 
 **15 Aug 2026 — §7 STEP 2 RAN ON A SECOND MACHINE, tenth session. THE INSTALL
 IS SELF-CONTAINED AND THE RDP REFUSAL IS MEASURED.** VirtualBox guest
@@ -3328,6 +3362,21 @@ Each of these cost real time. Read before debugging anything similar.
   destination being a file rather than a pipe changes nothing. The wait is on
   the handle.
 
+  **AND IT REACHES THE INSTALLER TOO, one level up.** 15 Aug 2026, tenth
+  session: `Start-Process <setup.exe> -Wait` never returned, although Setup had
+  finished and left no process — because the installer's own `[Code]` account
+  step runs `adopt-account.ps1`, which starts `sdwind`, which inherits the
+  handles and outlives everything. **Anything that starts SD, however
+  indirectly, cannot be waited on.** Poll for what you actually want — here,
+  `C:\Program Files\SD\usr\bin\sd.exe` existing.
+
+  **The converse cost an install the same day**: `adopt-account.ps1` looked for
+  `sdwind` ONCE, immediately after `sd -start` returned, and `sd -start` forks
+  the daemon and returns before it is in the process table. On an idle machine
+  that race is always won; with a VM running it was lost, and the installer
+  finished having given the installing user no SD account, reporting only
+  `code 3` in a dialog. **Poll for the daemon; never look once.**
+
   **The only remedy that works is not waiting on the process.** Start it and
   poll for the daemon:
 
@@ -3867,9 +3916,23 @@ the staging script and the Inno installer were all finished and removed.
    its oldest half on reaching the `ERRLOG` size. Records every login, every
    `LOGTO`, and every failed step-up, attributed to `@logname`. A failed
    step-up is the single most interesting line in the trail.
-5. **GIVE GRANTS A VERB. THE GRANT IS WINDOWS GROUP MEMBERSHIP** — owner's
-   decision, 14 Aug 2026, sixth session, settling what the access-model reversal
-   left open. Entry to an account is membership of the group named in its
+5. **DONE 15 Aug 2026, tenth session, except (f) which needs step 4** — §4 has
+   the run, 16 of 16 on a fresh install. `GPL.BP/GRANTA` serves **`GRANT
+   <account> TO <user>`, `REVOKE <account> FROM <user>` and `LIST.GRANTS
+   <account>`** from one program behind three `VOC_TEMPLATE` entries; bare
+   `GRANT <account>` lists too. `!os_group` gained `LISTMEM` (e). `ACC$USERS`
+   is gone (d) and **field 4 is not reused** — records written 13–14 Aug still
+   carry a grant list there and an installed tree is never upgraded.
+
+   **(f) IS THE ONE THING LEFT AND IT IS BLOCKED**: the audit record wants
+   step 4's file, which does not exist. `GRANTA`'s header names it as one of
+   that file's first callers. Windows logs the group edit meanwhile, so the
+   change is not unrecorded — only SD's half of it is.
+
+   **The original statement of the step follows, because the reasoning is
+   still the specification.**
+
+   Entry to an account is membership of the group named in its
    `ACC$GROUP`, so `GRANT` and `REVOKE` edit that Windows group and write
    nothing to the account record. **`ACC$USERS` is dead and is removed as part
    of this step.**
