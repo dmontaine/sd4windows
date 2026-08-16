@@ -6,10 +6,11 @@ file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
 **Last updated:** 16 Aug 2026, fourteenth session. **ELEVATION WITHOUT AN
-ELEVATED TERMINAL IS BUILT, INSTALLED AND VERIFIED END TO END** — an unelevated
-SD session created a Windows account by borrowing privilege for the moment it
-needed it. It took two fixes to get there, both found by running it rather than
-reading it. Item 1 has the evidence and the two things still open.
+ELEVATED TERMINAL IS BUILT, INSTALLED AND VERIFIED END TO END**, watchdog and
+audit trail included, and **§7 step 5 is now complete** — `GRANT`/`REVOKE` were
+watched writing their records. Three defects were found and fixed on the way,
+every one of them by running the thing rather than reading it. **A fourth,
+`LIST.GRANTS`, is diagnosed and fixed in source but UNBUILT** — item 1.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -85,9 +86,13 @@ it. Call it first from anything new that tests the install.
      own log: `helper up, pid 11260, serving session 3004` at 14:41:42, then
      `session 3004 has gone - exiting` at 14:41:44 — **two seconds**, matching
      the 2000ms idle wake at `sd-elevate-helper.ps1:78`. Tested against a
-     **dummy owner process rather than `sd.exe`**, so what is proven is the
-     helper's half; that SD passes the right pid is still inferred from
-     `K$WINPID` rather than observed.
+     **dummy owner process rather than `sd.exe`** — but the trail then showed
+     it is **also proven against a real one, twice**: the sessions at 14:31:14
+     and 14:39:18 entered SDSYS, were killed outright, and **wrote no
+     `ELEVATION RELEASED`**, so SD never sent `STOP`; no helper or pipe
+     survived either (checked 14:32:42 and 14:40:25). Only the watchdog can
+     have removed them, which also settles that `K$WINPID` hands over the right
+     pid.
      **HOW TO RUN IT AGAIN, because three attempts through a real SD session
      all failed first:** `sd-elevate.ps1:103` gives consent a bounded wait, so
      a slow UAC click makes `-Start` give up and no helper ever exists. Launch
@@ -98,8 +103,22 @@ it. Call it first from anything new that tests the install.
      search text is in your own command line, and matching yourself reports a
      live "helper" and can end with `Stop-Process` killing the shell doing the
      measuring. That happened here and produced a false FAILED.
-   - **`GRANT`/`REVOKE` has still not been watched writing a record** — needs a
-     second Windows user. Unchanged from the audit work.
+   - ~~`GRANT`/`REVOKE` has not been watched writing a record.~~ **DONE
+     16 Aug 2026, §7 step 5 COMPLETE.** `GRANT account=SDACCT11 to=don` at
+     14:48:22 and `REVOKE account=SDACCT11 from=don` at 14:48:24, both from an
+     unelevated session that had entered SDSYS. The Windows group was edited
+     and correctly reverted, so the machine is as it was.
+   - **`LIST.GRANTS` IS BROKEN AND THE FIX IS UNBUILT.** `Cannot read the
+     members of group <g>, status: 5`, every time, for anyone without an
+     elevated terminal. `OS_GROUP` prepends an elevation guard to **every**
+     action's script and each action appends its body to it; the writing
+     actions pass it because `!ps_script` sends them to the elevated helper,
+     but **`LISTMEM` is deliberately kept local**, so it runs in the
+     permanently-unelevated `sd.exe` and hits `exit 5` before reaching
+     `Get-LocalGroupMember`. Measured: the full script exits 5 with no output,
+     the appended half alone exits 0 and prints the member. **Fixed in source,
+     unbuilt** — the guard is now built only for the actions that go to the
+     helper.
    - **The helper writes no log unless `-LogFile` is passed, and `!elevate`
      never passes one**, so `Say "ran $req -> $code"` goes nowhere and both
      defects had to be diagnosed from outside the process. **Passing it once
@@ -282,13 +301,12 @@ it. Call it first from anything new that tests the install.
    to the users it records**, which is why `win32audit.c` is the second file
    allowed to include `windows.h`.
 
-5. **SD IS INSTALLED AND RUNNING, AND THE INSTALL IS STILL CURRENT — THE CYCLE
-   IS OPEN.** The install of **14:21:50** carried everything in item 1, and
-   **no source has changed since**: only `PROJECT_STATUS.md`, `HISTORY.md` and
-   the `changelog` were edited after it, and `assert-current` looks at
-   `gplsrc`, `sdsys` and `gplbld` only. **So this tree may still be measured
-   on** — run `assert-current` first anyway, since that is the whole point of
-   it.
+5. **SD IS INSTALLED AND RUNNING, AND THE INSTALL IS NOW STALE — THE CYCLE IS
+   ENDED.** The install of **14:21:50** carried everything in item 1 and every
+   measurement was taken and finished on it, the last being the audit read at
+   15:13. **`GPL.BP/OS_GROUP` was edited after that**, so the tree is a build
+   behind and **nothing measured on it from now on counts.** Restage,
+   repackage, reinstall — the loop below.
 
    Three installs were built this session (13:52:43, 14:14:28, 14:21:50), each
    from a full uninstall and both trees deleted. Two audit trails were copied
@@ -447,8 +465,9 @@ is closed by measurement. **§5.6.2 IS COMPLETE, RDP INCLUDED** — 15 Aug 2026,
 tenth session, on a VirtualBox guest (§4). Nothing is left half-applied.
 
 **STATE OF THIS MACHINE — READ FIRST. SD IS INSTALLED, RUNNING, AND THE INSTALL
-IS CURRENT**, as of 16 Aug 2026 14:21:50 (header item 5). Nothing measured on it
-is stale. **Stop the service before staging with `--bootstrap`.**
+IS STALE**, as of 16 Aug 2026 14:21:50 (header item 5). It is a build behind
+source on `GPL.BP/OS_GROUP` only. **Stop the service before staging with
+`--bootstrap`.**
 
 | Thing | State |
 |---|---|
@@ -457,7 +476,7 @@ is stale. **Stop the service before staging with `--bootstrap`.**
 | `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS CURRENT** | `assert-current` exit 0 at 14:22 on 16 Aug 2026, and no source file has been touched since. Editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only. **It goes stale at the first source change** |
+| **THE INSTALL IS STALE** | `assert-current` was exit 0 from 14:22 until `OS_GROUP` was edited at ~15:20, and everything in header item 1 was measured inside that window. Note editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
 | Reinstalling over this | **DON'T** — the rule in the header. The installer **finds an existing database and leaves it alone**, saying so in a dialog, which is §6's staleness trap working as designed: a reinstall-over updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`, so the machine runs yesterday's BASIC on today's binaries. Copying `GPL.BP` across and recompiling by hand was the old workaround; a fresh install is the rule that replaced it |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |

@@ -27,6 +27,43 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - LIST.GRANTS carried a guard it could never satisfy
+
+Fourteenth session. `GRANT`/`REVOKE` were watched writing their audit records -
+`GRANT account=SDACCT11 to=don` 14:48:22, `REVOKE account=SDACCT11 from=don`
+14:48:24 - which **completes §7 step 5**. `LIST.GRANTS`, run in the same
+session, failed three times out of three with `Cannot read the members of group
+sdu_sdacct11, status: 5`.
+
+`OS_GROUP` builds an elevation guard **unconditionally, before the action
+dispatch**, and every action appends its body to it. The writing actions pass
+it because `!ps_script` hands them to the session's elevated helper. **LISTMEM
+is deliberately kept local** - it needs the script's output, which `ps_script`
+cannot return - so it runs inside `sd.exe`, which is unelevated for life by
+design, and exits 5 before reaching `Get-LocalGroupMember`. The one action that
+could not satisfy the guard was the one still carrying it.
+
+A seam, like the other three: the guard predates the split, and when LISTMEM
+was carved out to stay local it was not carved out of the guard. The
+`valid_os_name` test immediately above **was** excluded for LISTMEM at the same
+time, so exclusions were being considered; this one was missed.
+
+**Two wrong hypotheses were tested and discarded first**, both cheaply and
+without touching the machine. That the script was mangled crossing the
+MSYS2-to-Windows `execv` boundary, `"\\\\"` being the obvious candidate - run
+through `C:\\msys64\\usr\\bin\\bash.exe` it arrives intact and exits 0. And that
+SD's child context was to blame - cwd of the account directory, closed stdin,
+`SD_SESSION=1` - every variation exits 0. The reproduction only became faithful
+once the guard was included, which is when it returned 5 with no output. **The
+first repro copied the `case act = 'LISTMEM'` line alone and missed that it
+appends to a script already begun**; that is the mistake to avoid repeating in
+this file, where `ps =` and `ps :=` differ by one character.
+
+Fixed by building the guard only for the actions that go to the helper.
+**Unbuilt when written.**
+
+---
+
 ## 16 Aug 2026 - The -OwnerPid watchdog works; the test harness did not
 
 Fourteenth session, no source change. The helper's own log:
