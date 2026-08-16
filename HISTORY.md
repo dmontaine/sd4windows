@@ -27,6 +27,43 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - LOGTO SDSYS works; the helper could never run a script
+
+Fourteenth session, continuing below. `3e010cf` built and installed:
+**`LOGTO SDSYS` from an ordinary unelevated prompt now succeeds** — UAC
+prompts, the administrator consents, `WHO` answers `2 SDSYS from DON`, and
+`LOGTO DON` moves back out. First time observed.
+
+`CREATE.ACCOUNT` then failed with `Create User Failed, OS Error: 127` —
+**not** the 5 an unprivileged attempt gives, so the privilege was real and
+reaching the helper.
+
+`sd-elevate-helper.ps1:122` ran scripts with `powershell -File`. **`-File`
+refuses any file not named `*.ps1`** — measured: exit `-196608`, nothing
+executed, "the file does not have a '.ps1' extension". `!ps_script` names these
+`$PS.TMP.<userno>`, so **-File could never have run a single one**, and
+`!ps_script`'s own local path uses `Get-Content | Invoke-Expression` for that
+exact reason. The helper was written to do the same job a different way, and
+the difference was the bug. Fixed by making the two identical in how they
+execute and different only in privilege; the corrected form was measured
+standalone before being committed - scripts exiting 0, 1 and 5 report 0, 1
+and 5.
+
+**Two defects in one feature, both invisible to reading and both caught by
+running it once.** Each half was correct alone: the elevation mechanism was
+measured end to end in the thirteenth session, and `!ps_script` had worked for
+months. What failed was each seam between them.
+
+**The helper writes no log unless `-LogFile` is passed, and `!elevate` never
+passes one**, so `Say "ran $req -> $code"` went nowhere and this was diagnosed
+entirely from outside the process. Where such a log should live is not decided
+- not the data tree, which every `sdusers` member can write.
+
+Unverified when written: the helper fix, and `ELEVATION RELEASED` / `LOGTO
+account=SDSYS`, which have still never appeared in a trail.
+
+---
+
 ## 16 Aug 2026 - Elevation ran for the first time, and refused itself
 
 Fourteenth session. Packaged, installed and ran the elevation work of

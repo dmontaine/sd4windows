@@ -5,11 +5,11 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, fourteenth session. Elevation was packaged,
-installed and **run for the first time**. The mechanism works; **the LOGTO it
-served was refused by `logto.authorised`, which never learned about it** — root
-cause found, measured in the audit trail, and **fixed in source but NOT YET
-BUILT OR TESTED**. Item 1.
+**Last updated:** 16 Aug 2026, fourteenth session. Elevation was run for the
+first time and had **two** defects, both found by measuring rather than
+reading. **`LOGTO SDSYS` from an unelevated prompt now works and is verified.**
+The second — the helper could never run a script SD sent it — is **fixed in
+source, unbuilt**. Item 1.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -24,52 +24,70 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **START HERE: THE ELEVATION FIX IS IN SOURCE AND HAS NEVER BEEN BUILT.**
-   16 Aug 2026, fourteenth session. Build, stage, package, install, retest —
-   §7 step 4's test, restated at the end of this item.
+1. **START HERE: `LOGTO SDSYS` NOW WORKS AND IS VERIFIED. THE PRIVILEGED WORK
+   BEHIND IT DOES NOT — one more fix is in source, unbuilt.** 16 Aug 2026,
+   fourteenth session.
 
-   **WHAT THE FIRST RUN MEASURED — do not re-derive any of it.** Installed
-   13:52:43 from a rebuilt installer, `assert-current` exit 0, `sd.exe`
-   `239BB9C3E43E4829`.
+   **VERIFIED, on the 14:14:28 install** (`assert-current` exit 0, installed
+   `gcat/$CPROC` 25,208 @ 14:10:34 — **check that, not `sd.exe`**, which this
+   fix does not touch):
 
-   - **The elevation half works.** `LOGTO SDSYS` from an ordinary unelevated
-     prompt raised a real UAC prompt, the helper started, `!elevate` returned
-     0, and `ELEVATION GRANTED account=SDSYS` reached the trail. Twice.
-   - **The LOGTO was then refused**, `sysmsg(10003)`, and the trail said
-     `LOGTO REFUSED account=SDSYS reason=not granted` **in the same second as
-     the grant**. That adjacent pair is the signature; it is what to look for
-     if this regresses.
-   - **Declining the prompt is correct already** — `sysmsg(10002)` and
-     `reason=elevation refused or unavailable`. Different message from the bug
-     above, so the two are never confusable.
-   - **No helper outlived any session** and no `sd-elev-*` pipe was left,
-     though only because the process died — SD never called `STOP` (no
-     `ELEVATION RELEASED` in the trail at all). The `-OwnerPid` watchdog is
-     still **untested**.
+   - **`LOGTO SDSYS` from an ordinary unelevated prompt succeeds.** UAC
+     prompts, the administrator consents, and `WHO` answers
+     `2 SDSYS from DON`. **The first time this has ever happened.**
+   - `LOGTO DON` moves back out. Exit 0.
+   - **Declining the prompt is refused correctly** — `sysmsg(10002)`,
+     `reason=elevation refused or unavailable`. Measured before the fix and
+     unaffected by it.
 
-   **ROOT CAUSE.** `logto.authorised` (`CPROC:3602`) tests
-   `kernel(K$ADMINISTRATOR,-1)`, which reads `USR_ADMIN` — a session flag
+   **STILL FAILING: `CREATE.ACCOUNT USER sdacct11` → `Create User Failed, OS
+   Error: 127`.** Not error 5, which is what an unprivileged attempt gives, so
+   the privilege is real and reaching the helper — the helper cannot run what
+   it is sent.
+
+   **ROOT CAUSE 2, measured not deduced.** `sd-elevate-helper.ps1:122` ran
+   scripts with `powershell -File`, and **`-File` refuses any file not named
+   `*.ps1`** — "Processing -File '...' failed because the file does not have a
+   '.ps1' extension", exit **-196608**, nothing executed. `!ps_script` names
+   these files `$PS.TMP.<userno>`, so **-File could never have run one**.
+   `!ps_script`'s own local path uses `Get-Content | Invoke-Expression`
+   precisely to avoid this; the helper did not, and the two paths must differ
+   only in privilege. **Fixed in source, unbuilt**, and the corrected form was
+   measured standalone: scripts exiting 0, 1 and 5 report 0, 1 and 5.
+
+   **ROOT CAUSE 1, fixed and now verified** — kept because it is the thing to
+   look for if `LOGTO SDSYS` ever regresses. `logto.authorised` (`CPROC:3602`)
+   tests `kernel(K$ADMINISTRATOR,-1)`, which reads `USR_ADMIN`: a session flag
    seeded **once** from `IsElevated()` at process start (`kernel.c:195`) and
    settable only by an `$internal` program (`op_kernel.c:325`). **SD stays
-   unelevated for life by design**, so that flag is false and always will be;
-   the privilege belongs to the helper process. `CPROC:2639` does set the flag,
-   but only after the move has succeeded — 40 lines past the test that needed
-   it. `6dadaa1` removed the old `and not(kernel(K$ADMINISTRATOR,-1))` gate and
-   added the `elevate('START')` call without joining the two halves.
+   unelevated for life by design**, the privilege being the helper's, so that
+   flag is false and always will be. `CPROC:2639` does set it, 40 lines after
+   the test that needed it. `6dadaa1` removed the old gate and added
+   `elevate('START')` without joining the halves. **The signature in the trail
+   was `ELEVATION GRANTED` and `LOGTO REFUSED ... reason=not granted` in the
+   same second.** Fix: `elev.obtained`, cleared per-LOGTO (a session flag would
+   carry a grant into the next LOGTO and admit a caller to an account just
+   refused), set on a successful `START`, accepted by `logto.authorised`; plus
+   `logto.privilege.undo` at the **four** failure exits between the elevation
+   and the move, none of which released the helper.
 
-   **THE FIX, in `CPROC` and unbuilt:** `elev.obtained`, cleared at the top of
-   `int.logto` (per-LOGTO, or a grant would carry into the next LOGTO and admit
-   a caller to an account just refused), set when `elevate('START')` returns 0,
-   accepted by `logto.authorised`. Plus `logto.privilege.undo`, called at the
-   **four** failure exits between the elevation and the move, because none of
-   them released the helper.
+   **REBUILD — `.ps1` only, but `stage.py` has no incremental mode** (it
+   refuses without `--force` and wipes with it, `stage.py:380`), so it is the
+   same elevated bootstrap as before. `make sd` is still not needed.
 
-   **RETEST, unelevated:** `sd` → `LOGTO SDSYS` (accept the UAC prompt) →
-   `CREATE.ACCOUNT USER sdacct11` → `LOGTO DON`. Expect the trail to read
-   `ELEVATION GRANTED`, `LOGTO account=SDSYS`, then `ELEVATION RELEASED` —
-   **the last two are what has never once been observed.** Then decline a
-   prompt (already correct, cheap to confirm), and check no helper survives
-   `OFF`. The trail needs an **elevated** window to read; `don` cannot.
+   **RETEST, unelevated:** `sd` → `LOGTO SDSYS` (accept) → `CREATE.ACCOUNT USER
+   sdacct11` → `LOGTO DON` → `OFF`. **`sdacct11` is free**; `sdacct10` and
+   below are taken on the Windows side. Then read the trail **from an elevated
+   window** (`don` cannot) and expect `ELEVATION GRANTED`, `LOGTO
+   account=SDSYS`, `ELEVATION RELEASED`. **The last two have still never been
+   observed.** Then check no helper survives `OFF` — the `-OwnerPid` watchdog
+   is **coded and untested**.
+
+   **THE HELPER WRITES NO LOG UNLESS ASKED.** `sd-elevate.ps1` takes
+   `-LogFile` and `!elevate` never passes one, so `Say "ran $req -> $code"`
+   goes nowhere and this failure was diagnosed entirely from the outside. Worth
+   deciding where such a log should live — **not** in the data tree, which
+   every `sdusers` member can write. Nobody should pick that on their own.
 
    **Original description of the feature follows.** 16 Aug 2026,
    thirteenth session, `ea052a4` and `6dadaa1`.
@@ -124,10 +142,10 @@ it. Call it first from anything new that tests the install.
      a value" warning. `GPL.BP.OUT` 192→193, `gcat` 131→132, `!ELEVATE`
      present in the catalogue.
 
-   **WHAT IS LEFT.** Only `CPROC` changed, so **`make sd` is not needed** and
+   **WHAT IS LEFT.** No C has changed, so **`make sd` is not needed** and
    skipping it keeps `bin/sd.exe` at `239BB9C3E43E4829` — relinking would
    change the hash for nothing (see the `TimeDateStamp` note below). Stage and
-   package; both trees are stale on `CPROC` alone.
+   package.
 
    ```sh
    python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
