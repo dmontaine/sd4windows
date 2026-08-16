@@ -27,6 +27,83 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - The service fails its first restart, because /dev/shm is a real directory
+
+Twelfth session, `fab17f2`→. **No source was changed**: the whole session is a
+measurement and a diagnosis, taken on the install of 10:23:47 with
+`assert-current` passing at 10:36.
+
+**The restart test had already run before the session started.** The machine
+rebooted at 10:31:21. `Get-Service SD` was `Stopped`/Automatic with no
+`sdwind`, and SCM event 7024 recorded a service-specific error. The eleventh
+session's last open item is therefore answered, in the negative.
+
+**What `C:\ProgramData\SD\sdsvc.log` held:**
+
+```
+10:23:52  service starting                              <- install-time start
+10:23:58  SD is running (sdwind.exe is up)
+10:31:05  service stopping: "sd -stop" exited with 1    <- shutdown
+10:31:30  service starting                              <- boot
+10:31:31  "sd -start" exited with 1
+10:31:41  SD did not start: sdwind.exe is not running
+10:31:41  cleared the half-started segment: "sd -stop" exited with 0
+```
+
+**The cause.** `etc/fstab` binds `/dev/shm` to `C:\ProgramData\SD\shm`, which is
+NTFS (`stage.py:196`, and it has to leave Program Files because `shm_open()`
+creates files there and ordinary users need to write them). On Linux `/dev/shm`
+is tmpfs and empties at boot. Here it does not. So the segment that the
+shutdown `sd -stop` failed to unlink was still on disk when the machine came
+back, and `sd -start` correctly refused it as `SD_WRECKAGE` (`sysseg.c:506`) —
+correctly by its own rules, which were written for a filesystem that forgets.
+
+**How it was pinned without any of the messages.** `sdsvc-sd.log`, which exists
+solely to capture what `sd` and `sdwind` say, was 0 bytes for the third time
+running, so both the shutdown `errno` and the boot refusal were lost. What
+settled it instead was **the mtime of the `shm` directory: 10:31:41.396**, the
+recovery `sd -stop`. A directory mtime moves only on add or remove. Nothing was
+added — `sd -start` exited one second in, before `bind_sysseg()`, which unlinks
+after itself on failure (`sysseg.c:332`, `:343`) — so an entry was *removed*,
+and it must have been there at boot. The one-second failure independently rules
+out both ten-second waits, the daemon poll and `sem_open`.
+
+The two remaining links are single-code-path rather than observed, and are
+recorded as such: `stop_sd()` has exactly one `return FALSE`, `shm_unlink()`
+failing with errno other than ENOENT (`sysseg.c:785`), so `sd -stop` exit 1
+means the file was left behind; and a fast `sd -start` failure over a segment
+with no daemon can only be the `SD_WRECKAGE` branch.
+
+**Not upstream.** `../sdb64` still uses System V IPC (`shmget`, `IPC_RMID`), and
+those segments are kernel objects that vanish at reboot. The defect follows from
+§5.1, this port's move to POSIX shared memory, and cannot occur upstream. No
+`UPSTREAM_FIXES.md` entry — recorded so a later session does not re-check.
+
+**A second finding, from asking why the service never retried.**
+`install-service.ps1:114` configures two restarts, and `sc qfailureflag SD`
+returns `FAILURE_ACTIONS_ON_NONCRASH_FAILURES: FALSE`. Windows applies recovery
+actions only to a service that *crashes*; `sdsvc.exe` exits reporting
+`SERVICE_STOPPED` with an error, which does not count. The policy has never
+run. Worth noting in both directions: had it run, the 5-second retry would have
+found the `shm` that the failed start had just cleaned, succeeded, and hidden
+this bug behind an alternating-boot flap.
+
+**What the eleventh session got right.** Its honest-failure work is the only
+reason any of this was diagnosable. The service refused to report `RUNNING` over
+a dead SD, wrote down how far it got, and ran `sd -stop` behind the failure — so
+the machine was left clean rather than poisoned, and the log carried the exit
+codes the diagnosis was built from.
+
+**Left open at the handoff:** the fix is not written and not decided. The
+preferred shape is to treat a segment older than the current boot as
+`SD_STOPPED` rather than `SD_WRECKAGE`, since no process from before a reboot
+can hold it — which restores Linux semantics and is needed whatever else is
+done, because power loss and task-kill will always be able to leave a segment
+behind. PROJECT_STATUS.md header item 1 has the alternatives. The machine was
+left with `shm` empty and the service `Stopped`, deliberately, so that the
+owner's next reboot measures whether the boot-time start works at all once the
+leftover is gone.
+
 ## 16 Aug 2026 - Native Win32 semaphores, and the service finally works
 
 Eleventh session, `6755f92`→`ec0d1de`. The owner stated the requirement that

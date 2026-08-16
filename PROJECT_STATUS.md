@@ -5,13 +5,12 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, eleventh session, `a60b76b`→. **THE CYCLE THE
-TENTH SESSION LEFT UNDONE HAS BEEN RUN. FOUR OF THE FIVE TESTS PASS; THE
-SERVICE IS THE ONE THAT DOES NOT**, and it is item 1 below. The login rule
-(5/5), `LIST.GRANTS` (on a fresh install at last) and `CREATE.ACCOUNT` (16/16)
-are now measured rather than merely written, and the uninstaller removes the
-service cleanly. **The installer would not even build** — `sd.iss:560`, fixed
-here (§6).
+**Last updated:** 16 Aug 2026, twelfth session, `fab17f2`→. **THE RESTART TEST
+HAS BEEN RUN AND THE SERVICE FAILED IT.** Root cause found and proven, no
+source changed: `/dev/shm` is a real NTFS directory here, so a shared segment
+left behind by an unclean stop **survives the reboot** and `sd -start` then
+refuses it as wreckage. Item 1 below. Everything else the eleventh session
+verified still stands.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -26,16 +25,43 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **START HERE: REBOOT AND CHECK. IT IS THE ONLY THING LEFT AND IT IS A
-   MINUTE'S WORK.** The service works on a fresh install (§4) but has **never
-   been measured across a restart**, which is the last clause of the owner's
-   requirement, stated 16 Aug 2026: *a production system with nobody logged in
-   at the machine, available to every user from system startup*.
+1. **START HERE: THE SERVICE DOES NOT SURVIVE A RESTART. Root cause proven,
+   16 Aug 2026, twelfth session, no source changed** (§4, §6 "`/dev/shm` is a
+   real directory"). The machine rebooted at 10:31:21; `Get-Service SD` was
+   `Stopped`/Automatic and there was no `sdwind`. The owner's requirement — *a
+   production system with nobody logged in at the machine, available to every
+   user from system startup* — is **not met**.
 
-   **No rebuild and no reinstall are needed.** `assert-current` passed at 10:23
-   on 16 Aug 2026 and nothing committed since touches `gplsrc`, `sdsys` or
-   `gplbld`. Restart the machine, then — **unelevated, and ideally as a user
-   who was not logged in before** — run:
+   **The chain, all measured or single-code-path:**
+
+   1. Shutdown 10:31:05, `sd -stop` **exit 1**. `stop_sd()` has exactly one
+      `return FALSE` — `shm_unlink()` failing with errno ≠ ENOENT,
+      `sysseg.c:785`. The segment file was not deleted.
+   2. It survived the reboot. `/dev/shm` is bind-mounted to
+      `C:\ProgramData\SD\shm`, plain NTFS (`stage.py:196`, installed
+      `etc/fstab`). On Linux `/dev/shm` is tmpfs and empties at boot, so this
+      cannot happen there.
+   3. Boot 10:31:30, `sd -start` **exit 1 in one second** — a segment with no
+      daemon is `SD_WRECKAGE`, `sysseg.c:506`, "Run sd -stop to clear it".
+      One second also rules out the 10s daemon wait and the `sem_open` timeout.
+   4. **Proof it was a leftover and not something that boot created:** `shm`'s
+      LastWriteTime is **10:31:41.396**, the recovery `sd -stop`. A directory
+      mtime moves only on add or remove; nothing was added, because `sd -start`
+      died before `bind_sysseg()`, which cleans up after itself anyway
+      (`sysseg.c:332`, `:343`). So an entry was **removed** — it was there at
+      boot.
+
+   **Not an upstream defect.** `../sdb64` uses System V (`shmget`/`IPC_RMID`),
+   whose segments vanish at reboot. This follows from §5.1, our move to POSIX
+   shm. No `UPSTREAM_FIXES.md` entry — do not re-check.
+
+   **PENDING MEASUREMENT — READ `C:\ProgramData\SD\sdsvc.log` BEFORE ANYTHING
+   ELSE.** At the time of this commit `shm` is **empty** and the service is
+   `Stopped`/Automatic, and the owner reboots straight after it. That boot
+   starts SD with a clean `shm`, which is the one thing never measured: whether
+   the boot-time start works at all once the leftover is gone. **No rebuild or
+   reinstall is needed** — `assert-current` passed at 10:36 and nothing since
+   touches `gplsrc`, `sdsys`, `gplbld`. Then, **unelevated**:
 
    ```powershell
    Get-Service SD              # expect Running / Automatic
@@ -43,119 +69,66 @@ it. Call it first from anything new that tests the install.
    & 'C:\Program Files\SD\usr\bin\sd.exe'
    ```
 
-   then `WHO` and `OFF` at the `:` prompt. **`<n> DON` from an unelevated
-   session after a restart is the requirement met**; anything else is not. If
-   it fails, **`C:\ProgramData\SD\sdsvc.log` is written by the service itself
-   and says how far it got** — read it before anything else.
+   then `WHO` and `OFF`. **The prediction is that the failure ALTERNATES**:
+   this boot works, its shutdown leaks again, the boot after that fails. If it
+   works, the leak is the only fault. **If it fails with `shm` clean there is a
+   second, boot-specific fault** and the diagnosis above is incomplete.
 
-   **EVERYTHING ELSE ABOUT THE SERVICE IS VERIFIED, 16 Aug 2026** (§4). Native
-   Win32 semaphores in the `Global\` namespace did it; POSIX `sem_open()`
-   cannot work in session 0 at all.
+   **The fix, not yet decided:**
 
-   **What was written** — `gplsrc/win32sem.c` and `.h` (new), `sdsem.c`,
-   `sysseg.c`, `sddefs.h`, `Makefile`, `gpl.src`:
+   - **Preferred — make a segment from a previous boot mean `SD_STOPPED`.** No
+     process from before the reboot can still hold it, so `SD_WRECKAGE` is the
+     wrong answer on Windows. Compare the segment's mtime against boot time
+     (`/proc/uptime` is readable on MSYS2, so no `windows.h` in `sysseg.c`).
+     This restores Linux semantics exactly and is needed **whatever else is
+     done** — power loss and task-kill will always be able to leave a segment,
+     and here it now outlives the machine.
+   - **Also worth doing — find why `shm_unlink()` fails at shutdown.** Probably
+     `sdwind` still holding the mapping; Windows will not delete an open file
+     without `FILE_SHARE_DELETE`. Needs the errno, which is exactly what
+     `sdsvc-sd.log` failed to capture.
+   - **Not sufficient alone — clear wreckage in `sdsvc.c` before `sd -start`.**
+     Cheap, but it hides the fault from every other caller.
 
-   - **POSIX named semaphores replaced by Win32 ones in the `Global\`
-     namespace**, created granting SYSTEM, Administrators and `sdusers` — the
-     same three the data tree's ACL grants. `Global\` is the half that lets a
-     session-0 service and a session-1 user see the same object; the security
-     descriptor is the half that stops the service starting and then refusing
-     everybody. **Neither half is verified.**
-   - **`start_sd()` waits for `sdwind` to publish its pid** before returning,
-     up to 10s. Two reasons: a Win32 semaphore dies with its last handle, so
-     `sd -start` must not exit before the daemon attaches; and `sd -start` used
-     to report success without ever looking, which is how a service came to
-     report RUNNING over a machine with no SD.
-   - **`windows.h` is confined to `win32sem.c`**, which includes no SD header
-     at all. It cannot go in `sdsem.c`: `linuxlb.h` defines
-     `GetCurrentProcessId()` as a nought-argument macro against w32api's
-     `VOID` form, SD declares its own `Sleep`, and `Private` expands inside the
-     w32api headers. Owner sanctioned the exception 16 Aug 2026.
+   **Two secondary findings:**
 
-   **§7 STEP 1f IS CLOSED WITH IT** — `adopt-account.log` now reads `don now
-   has an SD account` and `ACCOUNTS/DON` exists on a fresh install. It had
-   regressed because the broken service poisoned the semaphores under it.
+   - **`sdsvc-sd.log` captured nothing again** — 0 bytes, third attempt. Both
+     the shutdown errno and the boot `SD_WRECKAGE` message went into it; the
+     chain above had to be reconstructed from exit codes and a directory mtime.
+     **Do not read that file's silence as the child's silence.**
+   - **The configured recovery actions never fire.** `sc qfailureflag SD` →
+     `FAILURE_ACTIONS_ON_NONCRASH_FAILURES: FALSE`. `sdsvc.exe` exits reporting
+     `SERVICE_STOPPED`, which Windows does not count as a crash, so the two
+     restarts at `install-service.ps1:114` are dead config. Note both ways: had
+     they fired, the 5s retry would have found the freshly-cleaned `shm` and
+     succeeded — **masking this bug rather than fixing it**.
 
-   **What is left:** the restart above, and **`sdsvc-sd.log` never captured
-   anything** — two attempts, both empty, cause not found. It does not matter
-   while the service works and `sdsvc.log` carries the useful lines, but a
-   future session should not trust that file to be evidence of silence.
-
-   **The measurement that forced it**, before the change (§4):
-
-   **The measurement, three ways on one install:**
-
-   | how `sd -start` ran | `sdwind` |
-   |---|---|
-   | the service (LocalSystem, session 0) | dies ~10s, **twice, to the second** |
-   | scheduled task, LocalSystem, session 0, **no service** | dies ~10s |
-   | interactive session, elevated as `don` | **alive at 40s** |
-
-   **What it says when it dies**, which took adding the message to get:
-   `sdwind: Error 116 getting semaphores` — `sdwind.c:113`, from
-   `get_semaphores(FALSE)`. **errno 116 is `ETIMEDOUT`**, and it is meant
-   literally: the probe `sem_open` at `sdsem.c:82` **blocks for about ten
-   seconds and times out**. That is the whole of the ten-second lifetime.
-
-   **So `sdwind` NEVER REACHES ITS MAIN LOOP**, and an earlier note in this
-   session reasoning about `check_lost_users()` and `sleep(60)` was analysing
-   code that never runs. It looks alive for ten seconds because it is sitting
-   in `sem_open`.
-
-   **AND IT IS NOT A CROSS-SESSION PROBLEM.** Both processes in the deciding
-   probe were SYSTEM in session 0 — `sd -start` created the semaphores and
-   `sdwind`, its own child, could not open them. Session 1 was not involved.
-   An earlier claim here that "a session-0 service cannot serve a session-1
-   user" was **unproven and is withdrawn**: that probe raced with `sdwind`'s
-   death and could not tell a refusal from a stale set. **Whether an ordinary
-   user could attach to a service-started SD is still unknown**, and cannot be
-   asked until SD survives in session 0 at all.
-
-   **What was fixed, and is worth keeping whatever is decided** (§4):
-   the service no longer lies or leaves wreckage. It reports `STOPPED` with
-   `sdwind.exe has GONE after N seconds` instead of `Running` over a dead SD,
-   and runs `sd -stop` behind a failed start — after which **`shm` is empty**
-   and `adopt-account` reports the honest `SD has not been started` instead of
-   `Error 116 getting semaphores`. **A failed service no longer breaks the
-   machine**, which is what it did all morning.
-
-   **Where to go next, unresolved and not to be decided alone:**
-
-   - **A service under a NORMAL local account rather than LocalSystem.** The
-     failure is the SYSTEM/session-0 context, so this is the obvious candidate
-     and is untested. It needs an account with a password, so the owner has to
-     make it.
-   - **No service**: start SD in a user session, which is what worked before
-     15 Aug. It costs "SD is simply up before anyone logs in".
-   - **Find what times out inside the MSYS2 runtime.** `sem_open` waiting ten
-     seconds on a named object smells like the Cygwin shared region, and
-     `cygserver` is the usual answer to IPC that works interactively and not as
-     a service. Not investigated.
-
-   **The `changelog` still tells users SD runs as a service and it does not.
-   Nothing has shipped, so it is not yet a false claim — but it must not ship
-   until this is settled.**
+   **The `changelog` tells users SD runs as a service (line 8). That is now
+   known to be false after the first restart. Nothing has shipped; it must not
+   ship until this is fixed.**
 2. **CLOSED 16 Aug 2026 — the login rule, `LIST.GRANTS` and `CREATE.ACCOUNT`
    are all verified on a fresh install** (§4). That was the whole of what the
    tenth session left written and unrun, bar the service.
 
-3. **§7 step 1f REGRESSED — the installer no longer gives the installing user an
-   SD account**, because the service broke it (item 1). It works when run by
-   hand: `sd -internal CREATE.ACCOUNT USER don ADOPT` produced `ACCOUNTS/DON`,
-   `user_accounts\don`, `sdu_don`, and `don keeps the Windows sign-in rights it
-   already had`. **Re-test 1f on the cycle that tests the service fix** — it is
-   the same fault and will close with it.
+3. **CLOSED — §7 step 1f, the installer's own account step.** Re-read on the
+   10:23 install, twelfth session: `adopt-account.log` says `don now has an SD
+   account` and `don keeps the Windows sign-in rights it already had`, and
+   `ACCOUNTS/DON` is there. The earlier regression was the broken service
+   poisoning the semaphores under it, and it went with the Win32 change.
 
 4. **§7 step 5 is DONE except its audit half.** **Next after the service is §7
    step 4, the audit log**, which has a waiting caller: step 5f is written up in
    `GPL.BP/GRANTA`'s header and blocked only on that file existing.
 
-5. **THERE IS NO SD INSTALLED ON THIS MACHINE**, deliberately — test (e)
-   uninstalled it at 08:16 on 16 Aug 2026 and that is where a cycle is supposed
-   to start. `C:\ProgramData\SD` survives with 3,486 files, which is correct:
-   the data tree is `uninsneveruninstall`. **A fresh cycle must delete it too.**
-   `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (07:55 on 16 Aug, 4,826,686 bytes)
-   is current and builds; `C:\Users\dmont\stagetest` is the tree it came from.
+5. **SD IS INSTALLED AND THE INSTALL IS CURRENT** — 16 Aug 2026 10:23:47,
+   `assert-current` exit 0 at 10:36 in the twelfth session. **The cycle that
+   began with it is still open: nothing has changed source since, which is what
+   makes the pending reboot in item 1 a valid measurement.** 13 files in
+   `usr\bin`, 3,488 in the data tree, `sd.exe` `C4982CBCD8518DEE`.
+   `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (10:23:21 on 16 Aug, 4,831,771
+   bytes) is what produced it; `C:\Users\dmont\stagetest` is the tree it came
+   from. **The first source change ends the cycle** and the next test needs a
+   fresh install — uninstall, delete BOTH trees, reinstall.
 
 **Two things the owner has NOT decided, and nobody should decide for him:**
 whether `SH` itself is restricted (the menu system is his answer instead — §6),
@@ -274,21 +247,20 @@ enforced on this machine, by control and treatment (§4), and the lockout risk
 is closed by measurement. **§5.6.2 IS COMPLETE, RDP INCLUDED** — 15 Aug 2026,
 tenth session, on a VirtualBox guest (§4). Nothing is left half-applied.
 
-**STATE OF THIS MACHINE — READ FIRST. THERE IS NO SD INSTALLED ON IT**, as of
-16 Aug 2026, 08:16, eleventh session: test (e) uninstalled it and that is where
-a cycle is meant to start (header item 5). **The rows below describe what an
-install puts there, not what is on the disk now** — the Windows-side rows
-(groups, users, ssh, PATH) do still describe the machine, because uninstalling
-does not touch them.
+**STATE OF THIS MACHINE — READ FIRST. SD IS INSTALLED AND THE INSTALL IS
+CURRENT**, as of 16 Aug 2026 10:23:47, checked at 10:36 in the twelfth session
+(header item 5). **The service is `Stopped` and `shm` is empty**, which is the
+set-up for the pending reboot in header item 1 — do not disturb it before that
+boot has been read.
 
 | Thing | State |
 |---|---|
-| **The install** | **GONE, 16 Aug 2026.** `C:\ProgramData\SD` survives with 3,486 files, which is correct — the data tree is `uninsneveruninstall`. **A fresh cycle deletes it too.** Counts from the 16 Aug install: 13 files in `usr\bin`, 3,481 in the data tree, `gcat` 131, `GPL.BP.OUT` 192, `sd.exe` `B04E2EBAD145F235` |
+| **The install** | **PRESENT, 16 Aug 2026 10:23:47**, from `sd-setup-1.0-2.exe` of 10:23:21. 13 files in `usr\bin`, 3,488 in the data tree, `sd.exe` `C4982CBCD8518DEE`. `C:\ProgramData\SD` is `uninsneveruninstall`, so **a fresh cycle deletes it by hand as well** |
 | `C:\Program Files\SD` | binaries in `usr\bin`. 19 rather than 18 files because `adopt-account.ps1` ships beside the other three `.ps1` scripts. Count and date in header item 1 |
 | `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS CURRENT** | 15 Aug 2026, ninth session: the elevation gate, the ssh `ForceCommand` and the `SD_SESSION` guard are all installed, and the installed `sd.exe` hashes the same as `bin/sd.exe`. It goes stale the moment anything is committed — **a test cycle starts with a fresh install**, header |
+| **THE INSTALL IS CURRENT** | `assert-current` exit 0 at 10:36 on 16 Aug 2026, twelfth session: `sd.exe` hashes the same as `bin/sd.exe` and no file in `gplsrc`, `sdsys` or `gplbld` is newer than the install. **It goes stale at the first source change** — a test cycle starts with a fresh install, header |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
 | Reinstalling over this | **DON'T** — the rule in the header. The installer **finds an existing database and leaves it alone**, saying so in a dialog, which is §6's staleness trap working as designed: a reinstall-over updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`, so the machine runs yesterday's BASIC on today's binaries. Copying `GPL.BP` across and recompiling by hand was the old workaround; a fresh install is the rule that replaced it |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
@@ -302,12 +274,12 @@ does not touch them.
 | **`AllowGroups` AND `ForceCommand` ARE APPLIED** | 15 Aug 2026, ninth session, **by hand after the install** — `allow-ssh-groups.ps1 -Installed`, elevated. Lines 87–90 of `sshd_config`, before the `Match` block; original kept at `sshd_config.before-sd`; `sshd` restarted, Running. **THE UNINSTALLER TAKES IT BACK OFF** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`, correct behaviour), and **the installer will not put it back on this machine** because the task is hidden — header item 1. So it is a manual step of every fresh install here, and its absence is what the eighth session mistook for it being applied |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct6`, `sdacct8`, `sdacct9` and `sdacct10` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct11`**. `sdacct10` is the current subject: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct10` and `sdsshonly`, not an administrator, and **it has an SD side too** — it is step 1c's test subject. `sdacct9`'s SD side did not survive the last fresh install. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
-| **`don` HAS AN SD ACCOUNT** | 16 Aug 2026, but **made by hand, not by the installer** — header item 3. `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`, and `WHO` says `13 DON`. The adopt log's `don keeps the Windows sign-in rights it already had` line still appears, so the lockout fix holds |
+| **`don` HAS AN SD ACCOUNT** | 16 Aug 2026, **made by the installer this time** — header item 3, §7 step 1f closed. `ACCOUNTS/DON` present and `adopt-account.log` says `don now has an SD account`. Its `don keeps the Windows sign-in rights it already had` line still appears, so the lockout fix holds |
 | `sdsshonly` | exists, holding **`sdacct6`** and nothing else — the lockout fix means no administrator is in it, and `sdacct6` is there because that is what `CREATE.ACCOUNT` does to a non-administrator |
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
-| Accounts, **SD side** | in the surviving `C:\ProgramData\SD`: `SDSYS`, `DON` and `SDACCT9`. `DON` was made by hand with `sd -internal CREATE.ACCOUNT USER don ADOPT` after the installer's own step failed — header item 3 |
-| SD | **not running, and not installed.** `sd -start` **needs an elevated window**, verified: the gate covers `-start` |
-| SD at boot | **THE SERVICE STARTS SD AND ORDINARY USERS REACH IT** — 16 Aug 2026, §4, on native Win32 semaphores in `Global\`. `Running / Automatic`, `sdwind` up. It also fails honestly when it cannot: `STOPPED`, a reason in `C:\ProgramData\SD\sdsvc.log`, and `sd -stop` behind it so nothing is left broken. **A RESTART IS STILL UNTESTED** — the measurement was on the install's own start |
+| Accounts, **SD side** | `SDSYS`, `DON` and `SDACCT10`. `DON` was made by the installer's own step — header item 3 |
+| SD | **not running.** `shm` is empty and the service is `Stopped`, deliberately — header item 1's pending reboot needs exactly this. `sd -start` **needs an elevated window**: the gate covers `-start` |
+| SD at boot | **THE SERVICE DOES NOT SURVIVE A RESTART** — 16 Aug 2026, twelfth session, header item 1 and §4. It starts SD correctly when the installer creates it, and ordinary users reach it; but its shutdown `sd -stop` leaks the segment, `/dev/shm` is NTFS so the segment outlives the reboot, and the next boot's `sd -start` refuses it as `SD_WRECKAGE`. It does fail honestly — `STOPPED`, a reason in `C:\ProgramData\SD\sdsvc.log`, and `sd -stop` behind it, which is why the machine is clean now |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
 elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
@@ -853,8 +825,37 @@ and `adopt-account.log` reading **`don now has an SD account`** with
 rests on.** From an **unelevated** session-1 process (`GITORLI\don`, elevated
 `False`, session `1`): all six semaphores opened, and a bare `sd` answered
 **`2 DON`** — an ordinary user logged in to an SD started by a LocalSystem
-service in session 0, with nobody having typed anything. **Not yet measured
-across a RESTART**, which is the last step of the owner's requirement.
+service in session 0, with nobody having typed anything. **The restart has now
+been measured and it fails — see the entry below; this one still stands for
+everything short of a reboot.**
+
+**16 Aug 2026 — THE SERVICE DOES NOT SURVIVE A RESTART, AND WHY, twelfth
+session, on the same install.** Machine rebooted 10:31:21; `Get-Service SD`
+`Stopped`/Automatic, no `sdwind`, SCM event 7024. From
+`C:\ProgramData\SD\sdsvc.log`: shutdown 10:31:05 `sd -stop` **exit 1**, boot
+10:31:30 `sd -start` **exit 1 one second later**, then the service's own
+recovery `sd -stop` **exit 0** at 10:31:41.
+
+**The segment survived the reboot, and the decisive measurement is a directory
+mtime.** `C:\ProgramData\SD\shm` has LastWriteTime **10:31:41.396** — the
+recovery `sd -stop`. A directory mtime moves only when an entry is added or
+removed; nothing was added, because `sd -start` exited one second in, before
+`bind_sysseg()`, which unlinks after itself on failure (`sysseg.c:332`,
+`:343`). So an entry was **removed at 10:31:41**, and was therefore present at
+boot. One second also excludes both ten-second waits — the daemon poll and
+`sem_open`.
+
+The rest is single-code-path rather than observed, because `sdsvc-sd.log`
+captured nothing: `sd -stop` exit 1 can only be `shm_unlink()` failing with
+errno ≠ ENOENT (`sysseg.c:785`, the one `return FALSE` in `stop_sd()`), and a
+one-second `sd -start` failure over a present segment with no daemon is
+`SD_WRECKAGE` (`sysseg.c:506`). Header item 1 has the fix options; §6 has the
+trap.
+
+**16 Aug 2026 — §7 STEP 1f, BY THE INSTALLER RATHER THAN BY HAND, twelfth
+session.** `adopt-account.log` on the 10:23 install reads `don now has an SD
+account` and `don keeps the Windows sign-in rights it already had`, and
+`ACCOUNTS/DON` exists. Read off the installed tree, not re-run.
 
 **16 Aug 2026 — SD WILL NOT RUN UNDER LocalSystem IN SESSION 0 ON POSIX
 SEMAPHORES, test (a), eleventh session. Fixed by the entry above; kept because
@@ -2699,6 +2700,29 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **`/dev/shm` IS A REAL DIRECTORY HERE, SO POSIX SHARED MEMORY OUTLIVES THE
+  MACHINE.** 16 Aug 2026, twelfth session. `etc/fstab` binds it to
+  `C:\ProgramData\SD\shm` on NTFS (`stage.py:196`), because `shm_open()` creates
+  files and Program Files is read-only to ordinary users. On Linux `/dev/shm` is
+  tmpfs and empties at every boot, so **any reasoning of the form "a segment
+  that exists means a system that might still be live" is wrong on this port**.
+  It broke the service across a restart: an unclean `sd -stop` left the segment,
+  it survived the reboot, and `sd -start` refused it as `SD_WRECKAGE` for ever
+  after (header item 1). The same applies to anything else that assumes
+  `/dev/shm` is volatile. Win32 semaphores are **not** affected — they are
+  kernel objects and do vanish (`sdsem.c`), which is why the two now behave
+  differently across a reboot.
+
+- **A NON-CRASHING SERVICE NEVER GETS ITS RECOVERY ACTIONS.** 16 Aug 2026,
+  twelfth session. `sc failure` is ignored unless the service process crashes;
+  a service that reports `SERVICE_STOPPED` with an error code is a "non-crash
+  failure" and needs `sc failureflag <name> 1` as well. `install-service.ps1:114`
+  configures two restarts and `sc qfailureflag SD` says
+  `FAILURE_ACTIONS_ON_NONCRASH_FAILURES: FALSE`, so they have never once run.
+  **Check the flag before believing a recovery policy exists** — and note it
+  cuts both ways here: had those restarts fired, the retry would have found a
+  `shm` the failed start had just cleaned and succeeded, hiding the bug above.
 
 - **A LINE OF `sd.iss` STARTING WITH `#13#10` IS READ AS A PREPROCESSOR
   DIRECTIVE.** 16 Aug 2026, eleventh session. ISPP treats any line whose first
