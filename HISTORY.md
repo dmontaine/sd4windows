@@ -27,6 +27,67 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - Elevation without an elevated terminal
+
+Thirteenth session, `ea052a4` and `6dadaa1`. **Built and bootstrapped; nothing
+has run it.** PROJECT_STATUS.md item 1 carries the state and the test.
+
+**It started as a complaint about the installer's dialog.** It told
+administrators to open an ELEVATED command prompt, and the owner said that was
+never the specification. Checking rather than assuming: the gate on
+`CREATE.ACCOUNT` (`CREATEA:90`) is `rev 0.9.0` and traces to the initial import
+— **not ours**. What was ours was making an elevated terminal the only way to
+satisfy it. Underneath, Windows genuinely requires an elevated token to create
+a local user (`CREATE_USER:48`), and no SD change removes that.
+
+**The design is the owner's.** Three were offered — one prompt per account, one
+per session, or a LocalSystem service with no prompt at all — and the owner
+proposed a fourth that was better than any of them: hang elevation off `LOGTO
+SDSYS`, using the reserved `LOGIN` paragraph as the hook. That collapsed a
+problem rather than solving it. Elevation becomes a property of *being in
+SDSYS*, which CPROC already tracks, so `USR_ADMIN` keeps its meaning and no
+existing gate changes. The rule that came with it: **no `ELEVATE` verb**, since
+"there should never be an elevation from within a normal session".
+
+The check went into `CPROC`'s `int.logto` rather than the VOC paragraph, which
+runs *after* the move — that would have left the session standing in SDSYS
+unelevated while a paragraph tried to eject it.
+
+**A process's token is fixed at creation**, so `sd.exe` stays unelevated for
+life and an elevated helper does the privileged work. That is the smaller
+exposure: in an elevated terminal everything typed is privileged; here only
+what SD sends is.
+
+**Measured before it was written, because two guesses were wrong.** The
+integrity label was *not* the obstacle to an unelevated session reaching its
+elevated helper — **the pipe's DACL is**, and without an explicit ACE the
+connect is refused outright. And a helper serving repeated requests works with
+a single prompt: a session that had just been refused `New-LocalGroup` had one
+created for it through the pipe, exit code intact.
+
+**Two kernel keys, both for facts BASIC could not reach.** `K$WINPATH` (58) —
+`OS$FULLPATH` returns a POSIX path whatever its comment claims, and `!ps_script`
+has been working around that by naming files relative to a shared working
+directory, which does not stretch to `Start-Process`. `K$WINPID` (59) — the
+helper watches its owning session with `Get-Process`, and the MSYS2 pid is not
+that number.
+
+**ssh exclusion became structural.** §5.6.2 already required administrator work
+to happen at the console; it was enforced by an SD flag test. UAC needs an
+interactive desktop, so it is now enforced by Windows. The cost is that a
+remote-control tool must be installed **as a service**, or it cannot render the
+secure desktop and the operator sees a frozen screen — said plainly in the
+installer dialog, because the alternative is an unexplainable hang.
+
+**What is known to work:** the pipe mechanism end to end, and the BASIC
+compiles and catalogues — the bootstrap of 13:38:41 completed, and
+`bootstrap.py` dies on any compile error or missing-`$define` warning.
+`GPL.BP.OUT` 192→193, `!ELEVATE` in the catalogue. **What is unknown:** every
+call site. No `LOGTO SDSYS` has been typed against this build, and the helper's
+owner-watchdog is coded and untested.
+
+---
+
 ## 16 Aug 2026 - The audit log, and step 5f closes with it
 
 Thirteenth session, after the restart fix was verified. **Built, not verified**

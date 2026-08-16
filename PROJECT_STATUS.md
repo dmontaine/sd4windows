@@ -5,11 +5,11 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, thirteenth session, `8a1568d`→. **THE RESTART
-FAILURE IS FIXED AND THE FIX IS VERIFIED ON A FRESH INSTALL** — a segment
-deliberately left behind, then a reboot, and the service came up Running with
-an ordinary user reaching SD (item 1). Everything the eleventh session verified
-still stands.
+**Last updated:** 16 Aug 2026, thirteenth session, `8a1568d`→`6dadaa1`. Three
+things landed: the **restart failure is fixed and verified**; the **audit trail
+is built and verified**, append-only to the users it records; and **elevation
+without an elevated terminal is built, bootstrapped, and NOT YET RUN** — that
+last one is item 1 and is where the next session starts.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -24,7 +24,84 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **CLOSED AND VERIFIED — THE SERVICE SURVIVES A RESTART, INCLUDING ONE WITH
+1. **START HERE: ELEVATION WITHOUT AN ELEVATED TERMINAL IS BUILT AND
+   BOOTSTRAPPED. NOTHING HAS RUN IT. The next step is to package, install and
+   test it — the machine is already most of the way there.** 16 Aug 2026,
+   thirteenth session, `ea052a4` and `6dadaa1`.
+
+   **What it does.** `LOGTO SDSYS` obtains OS privilege for the session, with
+   Windows asking the administrator to consent; leaving SDSYS gives it up.
+   An ordinary command prompt is all that is needed. **There is no `ELEVATE`
+   verb and there must not be** — owner's rule, 16 Aug 2026: *"there should
+   never be an elevation from within a normal session"*. `CPROC`'s `LOGTO`
+   handling is `!elevate`'s only caller.
+
+   **Why it exists.** The installer dialog told administrators to open an
+   ELEVATED command prompt. That was never the intent. The gate on
+   `CREATE.ACCOUNT` (`CREATEA:90`) is **rev 0.9.0 and predates this port** —
+   what was ours was making an elevated terminal the only way to satisfy it.
+   Windows genuinely requires an elevated token to create a user, so the token
+   is now obtained for the moment it is needed. A process's token is fixed at
+   creation and nothing can elevate a running one, so `sd.exe` stays unelevated
+   for life and an elevated **helper process** does the privileged work — a
+   smaller exposure than an elevated terminal, where everything typed is
+   privileged.
+
+   **It cannot work over ssh, and that is the point.** UAC draws its consent
+   dialog on the interactive desktop; an ssh session has none, so elevation
+   fails and the `LOGTO` is refused. §5.6.2's rule is now enforced by Windows
+   rather than by a test in SD that could drift. **A remote-control tool must
+   be installed AS A SERVICE** or it cannot show the secure desktop and the
+   operator sees a frozen screen — this is in the installer dialog.
+
+   **The pieces:** `gplbld/sd-elevate.ps1` (`-Start`/`-Run`/`-Stop`),
+   `gplbld/sd-elevate-helper.ps1` (elevated, hosts the pipe),
+   `GPL.BP/ELEVATE` (`!elevate`), `CPROC` `int.logto`, and `!ps_script`, which
+   is the chokepoint that routes a script to the helper. `!create_user` and
+   `!os_group` were converted from `os.execute` to `!ps_script` for it;
+   **`LISTMEM` deliberately was not** — it needs the script's output, which
+   `ps_script` cannot return, and it is a read needing no privilege.
+
+   **MEASURED ALREADY, so do not re-derive it:**
+
+   - The mechanism end to end: one UAC prompt, a helper serving repeated
+     requests, a local group created through the pipe by a session that had
+     just been refused doing it directly, exit codes intact.
+   - **The explicit pipe DACL is load-bearing.** Without it the pipe takes the
+     elevated creator's default rights and the unelevated SD session is
+     refused outright. The integrity label was a red herring.
+   - `K$WINPATH` (58) and `K$WINPID` (59) exist because BASIC could reach
+     neither fact: `OS$FULLPATH` returns a POSIX path whatever its comment
+     says, and `getpid()` gives the MSYS2 number, not the one `Get-Process`
+     uses (`sysseg.c`, `win_pid()`).
+   - **THE BASIC COMPILES AND CATALOGUES.** The bootstrap of 13:38:41 ran to
+     completion, and `bootstrap.py` dies on any compile error or "not assigned
+     a value" warning. `GPL.BP.OUT` 192→193, `gcat` 131→132, `!ELEVATE`
+     present in the catalogue.
+
+   **WHAT IS LEFT, and the machine is set up for it:**
+
+   1. **`C:\Users\dmont\stagetest` is bootstrapped and current** (13:38:41,
+      `sd.exe` `239BB9C3E43E4829`, `sd-elevate.ps1` staged).
+   2. **THE INSTALLER AT `C:\Users\dmont\sdout` IS STALE — REBUILD IT.** It was
+      packaged from the *previous* staged tree as a parse-check of `sd.iss`.
+      Installing it would install the audit build without the elevation work.
+
+      ```powershell
+      & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DStage=C:\Users\dmont\stagetest /O"C:\Users\dmont\sdout" gplbld\sd.iss
+      ```
+   3. Uninstall, **delete BOTH trees and confirm gone**, install, `assert-current`.
+   4. **Test, unelevated:** `sd` → `LOGTO SDSYS` (expect a **UAC prompt**;
+      accept) → `CREATE.ACCOUNT USER <name>` → `LOGTO` back out. Then read
+      `C:\ProgramData\SD\sdsys\audit` **from an elevated window** and expect
+      `ELEVATION GRANTED`, the `LOGTO`, and `ELEVATION RELEASED`.
+      **Decline the prompt once** as well: the `LOGTO` must be refused and the
+      trail must say `reason=elevation refused or unavailable`.
+   5. **Confirm no helper outlives the session** — `OFF`, then check for a
+      stray `powershell` running `sd-elevate-helper.ps1`. The watchdog that
+      should prevent it (`-OwnerPid`, `K$WINPID`) is **coded and untested**.
+
+2. **CLOSED AND VERIFIED — THE SERVICE SURVIVES A RESTART, INCLUDING ONE WITH
    A LEFTOVER SEGMENT.** 16 Aug 2026, thirteenth session, `sysseg.c`. The
    owner's requirement — *a production system with nobody logged in at the
    machine, available to every user from system startup* — **is met.**
@@ -124,13 +201,21 @@ it. Call it first from anything new that tests the install.
    to the users it records**, which is why `win32audit.c` is the second file
    allowed to include `windows.h`.
 
-5. **SD IS INSTALLED AND THE INSTALL IS CURRENT** — 16 Aug 2026 12:18:42,
-   `assert-current` exit 0, `sd.exe` `ACA5330E140010F3`, from
-   `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (12:15:53, 4,839,177 bytes).
-   Fresh install: uninstalled, **both trees deleted and confirmed gone**, then
-   installed. **The cycle is open and item 4's verification was taken inside
-   it.** Bootstrap sanity, unchanged across three runs now: `gcat` 131,
-   `GPL.BP.OUT` 192, `PCODE.OUT` 56, `BP.OUT` and `cat` empty.
+5. **SD IS INSTALLED, THE SERVICE IS STOPPED, AND THE INSTALL IS NO LONGER
+   CURRENT — THE CYCLE IS ENDED.** The install of 12:18:42
+   (`sd.exe` `ACA5330E140010F3`) carried the audit-log verification, taken in
+   full before anything was edited. **Source changed at 13:29 and the elevation
+   work followed**, so `bin/sd.exe` is now `239BB9C3E43E4829` and the installed
+   tree is a build behind. **Anything measured on it from now on is void.**
+
+   **The service was stopped for the bootstrap and left stopped.** That is not
+   a fault; the next step is a fresh install anyway. `C:\ProgramData\SD` still
+   holds the verified audit trail (287 bytes) and will be deleted by that
+   install — read it first if a record of the verification is wanted.
+
+   Bootstrap sanity, four runs now: `PCODE.OUT` 56, `BP.OUT` and `cat` empty
+   throughout; `gcat` and `GPL.BP.OUT` went 131/192 → **132/193** when
+   `GPL.BP/ELEVATE` was added, which is the expected +1 and not drift.
 
    **A HASH DOES NOT IDENTIFY A BUILD, ONLY AN ARTEFACT — 16 Aug 2026,
    measured.** Two builds of identical source produce different `sd.exe`
