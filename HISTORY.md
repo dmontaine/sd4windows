@@ -27,6 +27,43 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - The -OwnerPid watchdog works; the test harness did not
+
+Fourteenth session, no source change. The helper's own log:
+
+    14:41:42 helper up, pid 11260, serving session 3004
+    14:41:44 session 3004 has gone - exiting
+
+**Two seconds**, matching the 2000ms idle wake at `sd-elevate-helper.ps1:78`.
+A privileged process does not outlive the session that asked for it.
+
+**Tested against a dummy owner process, not `sd.exe`**, so what is proven is
+the helper's half. That SD hands it the right pid is still inferred from
+`K$WINPID` existing for that purpose, not observed.
+
+**Three attempts through a real SD session failed first, and neither failure
+was the watchdog.** First `[Diagnostics.Process]::Start` with redirected stdin
+- no UAC prompt appeared at all, where the piped form always raises one.
+Then a background job, which produced no session. The cause of both is at
+`sd-elevate.ps1:103`: `-Start` waits a bounded time for the helper to answer
+PING and then gives up, so a UAC click that arrives late leaves no helper for
+any test to find.
+
+**Correction to a claim made during this session.** The isolated run was first
+reported as WATCHDOG FAILED, "helper alive +33.8s". That was wrong. The pid
+being watched was the measuring shell's own: the lookup was
+`Get-CimInstance Win32_Process | Where CommandLine -like "*sd-elevate-helper*"`
+**without excluding self**, and the search string is present in the searching
+process's own command line. The run then ended trying to `Stop-Process` itself.
+The same self-match had already been noticed and guarded against earlier in the
+session; the guard was simply not carried into this query.
+
+**The answer came from `-LogFile`**, passed for the first time here. Two lines
+settled what three attempts without it could not, which turns the open question
+about a helper log from an argument into a measurement.
+
+---
+
 ## 16 Aug 2026 - Elevation verified end to end
 
 Fourteenth session, `3e010cf` and `2f32f6f`, on the 14:21:50 install.

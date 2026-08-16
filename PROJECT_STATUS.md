@@ -81,18 +81,32 @@ it. Call it first from anything new that tests the install.
 
    **STILL OPEN, neither in the way of the feature:**
 
-   - **The `-OwnerPid` watchdog is still untested.** Every helper so far has
-     exited because SD sent `STOP`. Testing it means killing `sd.exe` outright
-     with a helper live and watching the helper go within ~2s
-     (`sd-elevate-helper.ps1:79`) — **which may leave SD state needing
-     `sd -cleanup`, so it is not a free test.**
+   - ~~The `-OwnerPid` watchdog is untested.~~ **VERIFIED 16 Aug 2026.** Its
+     own log: `helper up, pid 11260, serving session 3004` at 14:41:42, then
+     `session 3004 has gone - exiting` at 14:41:44 — **two seconds**, matching
+     the 2000ms idle wake at `sd-elevate-helper.ps1:78`. Tested against a
+     **dummy owner process rather than `sd.exe`**, so what is proven is the
+     helper's half; that SD passes the right pid is still inferred from
+     `K$WINPID` rather than observed.
+     **HOW TO RUN IT AGAIN, because three attempts through a real SD session
+     all failed first:** `sd-elevate.ps1:103` gives consent a bounded wait, so
+     a slow UAC click makes `-Start` give up and no helper ever exists. Launch
+     the installed helper directly instead — `Start-Process powershell -Verb
+     RunAs ... -File <helper> -PipeName x -OwnerPid <dummy> -LogFile <path>` —
+     then kill the dummy. **And exclude your own shell from any
+     `Get-CimInstance Win32_Process | Where CommandLine -like` search**: the
+     search text is in your own command line, and matching yourself reports a
+     live "helper" and can end with `Stop-Process` killing the shell doing the
+     measuring. That happened here and produced a false FAILED.
    - **`GRANT`/`REVOKE` has still not been watched writing a record** — needs a
      second Windows user. Unchanged from the audit work.
    - **The helper writes no log unless `-LogFile` is passed, and `!elevate`
      never passes one**, so `Say "ran $req -> $code"` goes nowhere and both
-     defects had to be diagnosed from outside the process. Where such a log
-     should live is **not decided** — not the data tree, which every `sdusers`
-     member can write. Nobody should pick that alone.
+     defects had to be diagnosed from outside the process. **Passing it once
+     settled the watchdog question in two lines**, after three attempts without
+     it had failed — the case for it is now measured, not argued. Where such a
+     log should live is still **not decided**: not the data tree, which every
+     `sdusers` member can write. Nobody should pick that alone.
 
    **Description of the feature follows.** 16 Aug 2026, thirteenth session,
    `ea052a4` and `6dadaa1`.
