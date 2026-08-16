@@ -217,7 +217,7 @@ install** on it, from the fixed installer:
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
 | Accounts, **SD side** | `SDSYS`, `DON` and `SDACCT6` |
 | SD | **running**, started elevated in the tenth session for the 2b/2c work. `sd -start` **needs an elevated window**, verified: the gate covers `-start` |
-| SD at boot | **does not start.** There is no service (§5.7), so `sd -start` must be typed after every restart |
+| SD at boot | **a service exists as of 15 Aug 2026, tenth session, and has NEVER RUN.** `String Database (SD)`, `start= auto`, created and started by the installer; `gplsrc/sdsvc/sdsvc.c` is the native wrapper and `gplbld/install-service.ps1` creates it. Until it is installed and watched, this row is a claim about source, not about the machine |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
 elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
@@ -1402,11 +1402,26 @@ way to see this system as a non-administrator on a machine whose account is one.
   SDSYS**, without which nothing can be bootstrapped or installed; and
   `verify-createaccount.ps1`, which now sends `LOGTO SDSYS`, still passes 16 of
   16.
-- **SD DOES NOT YET RUN AS A SERVICE.** Owner's decision, 15 Aug 2026: a
-  Windows service, started by the installer, so SD is up after every restart.
-  Not built. §5.7 reserves *the identity half* of this — the service account
-  owning the tree, sessions over a named pipe — for stage 2; this is the
-  lifecycle half only and must not be confused with it.
+- **THE SERVICE IS BUILT AND HAS NEVER RUN** — 15 Aug 2026, tenth session.
+  `gplsrc/sdsvc/sdsvc.c`, a **native UCRT64** program built beside the client
+  DLL, because a service must call `StartServiceCtrlDispatcher` and `sd.exe`
+  is MSYS2-POSIX where `linuxlb.c` records the decision to keep `windows.h`
+  out. `objdump` confirms it imports only ADVAPI32, KERNEL32 and UCRT — no
+  `msys-2.0.dll`. `gplbld/install-service.ps1` creates it `start= auto` and the
+  installer runs it **before** the account step, so `adopt-account.ps1` finds
+  SD already up and has no race left to lose.
+
+  **What to watch, because each is a way it could fail and none has been
+  tried:** does the SCM reach Running rather than timing out; does `sdwind`
+  actually appear; **does `sd -start` work at all under LocalSystem** — it is
+  gated on `IsElevated()`, which is `getgrouplist()`, and LocalSystem's group
+  list is not an interactive administrator's; do sessions started by an
+  ordinary user attach to a segment created by SYSTEM; and does uninstalling
+  remove the service rather than leaving a failing one behind.
+
+  §5.7 reserves *the identity half* — a service account owning the tree,
+  sessions over a named pipe — for stage 2. **This is the lifecycle half only**
+  and changes nothing about who owns the files.
 - **The lockout fix is compiled and run on THIS machine only** (§4). The staged
   tree still carries the old `CREATEA`/`IS_GRP_MEMBER`; re-stage before the
   second machine.
