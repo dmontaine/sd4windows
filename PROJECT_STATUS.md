@@ -26,12 +26,16 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **THE SEMAPHORES ARE NATIVE Win32 OBJECTS NOW, AND NOTHING OF IT HAS BEEN
-   TESTED.** 16 Aug 2026, eleventh session. **Run a cycle before believing any
-   of it.** The owner's requirement, stated 16 Aug 2026, is what forced this:
-   **a production system with nobody logged in at the machine, available to
-   every user from system startup.** That rules out anything living in a user
-   session, so SD has to work in session 0, and it did not.
+1. **THE SERVICE WORKS. SD RUNS IN SESSION 0 AND ORDINARY USERS REACH IT** —
+   16 Aug 2026, eleventh session, verified on a fresh install (§4). **The one
+   thing still unproven is a RESTART**: everything below was measured on the
+   install's own start, not on a boot. **Reboot and check before calling the
+   owner's requirement met**, which is *a production system with nobody logged
+   in at the machine, available to every user from system startup*.
+
+   Native Win32 semaphores in the `Global\` namespace did it; POSIX
+   `sem_open()` cannot work in session 0 at all. What was written is below,
+   and the measurements are in §4.
 
    **What was written** — `gplsrc/win32sem.c` and `.h` (new), `sdsem.c`,
    `sysseg.c`, `sddefs.h`, `Makefile`, `gpl.src`:
@@ -53,12 +57,14 @@ it. Call it first from anything new that tests the install.
      `VOID` form, SD declares its own `Sleep`, and `Private` expands inside the
      w32api headers. Owner sanctioned the exception 16 Aug 2026.
 
-   **What to watch for on the cycle**, in this order — each depends on the one
-   before: `sdwind` alive more than 10 seconds under the service; then
-   `adopt-account` giving `don` an account (§7 step 1f, which regressed with
-   the service); then **an ordinary, unelevated user session attaching to a
-   service-started SD**, which is the half that has never once been tested and
-   is where the `Global\` DACL either works or does not.
+   **§7 STEP 1f IS CLOSED WITH IT** — `adopt-account.log` now reads `don now
+   has an SD account` and `ACCOUNTS/DON` exists on a fresh install. It had
+   regressed because the broken service poisoned the semaphores under it.
+
+   **What is left:** the restart above, and **`sdsvc-sd.log` never captured
+   anything** — two attempts, both empty, cause not found. It does not matter
+   while the service works and `sdsvc.log` carries the useful lines, but a
+   future session should not trust that file to be evidence of silence.
 
    **The measurement that forced it**, before the change (§4):
 
@@ -286,7 +292,7 @@ does not touch them.
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
 | Accounts, **SD side** | in the surviving `C:\ProgramData\SD`: `SDSYS`, `DON` and `SDACCT9`. `DON` was made by hand with `sd -internal CREATE.ACCOUNT USER don ADOPT` after the installer's own step failed — header item 3 |
 | SD | **not running, and not installed.** `sd -start` **needs an elevated window**, verified: the gate covers `-start` |
-| SD at boot | **THE SERVICE CANNOT START SD — `sem_open` times out under LocalSystem, header item 1.** It now fails honestly: `STOPPED`, a reason in `C:\ProgramData\SD\sdsvc.log`, and `sd -stop` behind it so nothing is left broken. **Start SD by hand** — `sd -start` from an elevated window, which works and always has. The uninstaller removes the service cleanly (§4). **It is left on `Manual` on this machine** by `cycle9`, so it cannot restart mid-test; `Set-Service SD -StartupType Automatic` puts it back |
+| SD at boot | **THE SERVICE STARTS SD AND ORDINARY USERS REACH IT** — 16 Aug 2026, §4, on native Win32 semaphores in `Global\`. `Running / Automatic`, `sdwind` up. It also fails honestly when it cannot: `STOPPED`, a reason in `C:\ProgramData\SD\sdsvc.log`, and `sd -stop` behind it so nothing is left broken. **A RESTART IS STILL UNTESTED** — the measurement was on the install's own start |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
 elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete
@@ -814,8 +820,23 @@ session.** Service gone (`sc query SD` → 1060), `C:\Program Files\SD` gone, an
 **`C:\ProgramData\SD` kept, 3,486 files** — which is the other half of the test:
 the user's database is `uninsneveruninstall` and must survive.
 
-**16 Aug 2026 — SD WILL NOT RUN UNDER LocalSystem IN SESSION 0, test (a),
-eleventh session.** Header item 1 carries the reasoning and what is left to
+**16 Aug 2026 — THE SERVICE WORKS, AND AN ORDINARY USER REACHES IT, eleventh
+session, on a fresh install.** The whole chain, one install: the service
+`Running`, `sdwind` **alive at t+30s** — past the ten-second mark that had
+killed it every previous time — all six `Global\sd_sem_716d0302_*` openable,
+and `adopt-account.log` reading **`don now has an SD account`** with
+`ACCOUNTS/DON` present, which closes §7 step 1f.
+
+**Then the half that had never been tested, and it is the one the requirement
+rests on.** From an **unelevated** session-1 process (`GITORLI\don`, elevated
+`False`, session `1`): all six semaphores opened, and a bare `sd` answered
+**`2 DON`** — an ordinary user logged in to an SD started by a LocalSystem
+service in session 0, with nobody having typed anything. **Not yet measured
+across a RESTART**, which is the last step of the owner's requirement.
+
+**16 Aug 2026 — SD WILL NOT RUN UNDER LocalSystem IN SESSION 0 ON POSIX
+SEMAPHORES, test (a), eleventh session. Fixed by the entry above; kept because
+it is why the Win32 change exists.** Header item 1 carries the reasoning and what is left to
 decide. The measurements: `sdwind` dies at **~10s** started by the service and
 **~10s** started by a scheduled task as SYSTEM with no service anywhere, and is
 **alive at 40s** started from an interactive elevated session — one install,
