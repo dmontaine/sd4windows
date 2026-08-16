@@ -115,25 +115,33 @@ it. Call it first from anything new that tests the install.
    `ACCOUNTS/DON` is there. The earlier regression was the broken service
    poisoning the semaphores under it, and it went with the Win32 change.
 
-4. **§7 STEP 4, THE AUDIT LOG, IS BUILT AND UNVERIFIED — VERIFYING IT IS THE
-   NEXT THING TO DO** (§7 step 4 for what it does and how). It took step 5f
-   with it, so **§7 step 5 is complete**. **It cannot be tested without a fresh
-   install**: the call sites are `LOGIN`, `CPROC` and `GRANTA`, and BASIC is
-   only compiled by a bootstrap. The trail is **append-only to the users it
-   records** — every ACL property of that was measured, and it is why
-   `win32audit.c` is the second file allowed to include `windows.h`.
+4. **§7 STEP 4, THE AUDIT LOG, IS BUILT AND VERIFIED** on the fresh install of
+   16 Aug 2026 12:18:42 — records observed for a login, a `LOGTO`, and a
+   refused step-up, and every tampering route refused (§7 step 4). It took
+   step 5f with it, so **§7 step 5 is complete apart from one untested path:
+   `GRANT`/`REVOKE` has not been watched writing a record**, since it needs an
+   elevated SD session and a second Windows user. The trail is **append-only
+   to the users it records**, which is why `win32audit.c` is the second file
+   allowed to include `windows.h`.
 
-5. **SD IS INSTALLED BUT NO LONGER CURRENT — THE CYCLE IS ENDED, by the audit
-   log.** The install of 16 Aug 2026 11:12:25 (`assert-current` exit 0,
-   `sd.exe` `D2AAB6203CB80661`) carried item 1's verification, which was taken
-   in full before anything was edited. **`k_error.c` changed at 11:30 and that
-   ended it**; `bin/sd.exe` was rebuilt at 11:36. **Anything measured on the
-   installed tree from now on is void.** Item 4's verification needs a fresh
-   install — and it needs the **bootstrap** in particular, because the audit
-   call sites are BASIC and the installed `gcat` still holds the old ones.
-   Bootstrap sanity from the 11:08 run, to compare against next time: `gcat`
-   131, `GPL.BP.OUT` 192, `PCODE.OUT` 56, `BP.OUT` and `cat` empty — the same
-   in the previous known-good tree.
+5. **SD IS INSTALLED AND THE INSTALL IS CURRENT** — 16 Aug 2026 12:18:42,
+   `assert-current` exit 0, `sd.exe` `ACA5330E140010F3`, from
+   `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (12:15:53, 4,839,177 bytes).
+   Fresh install: uninstalled, **both trees deleted and confirmed gone**, then
+   installed. **The cycle is open and item 4's verification was taken inside
+   it.** Bootstrap sanity, unchanged across three runs now: `gcat` 131,
+   `GPL.BP.OUT` 192, `PCODE.OUT` 56, `BP.OUT` and `cat` empty.
+
+   **A HASH DOES NOT IDENTIFY A BUILD, ONLY AN ARTEFACT — 16 Aug 2026,
+   measured.** Two builds of identical source produce different `sd.exe`
+   hashes: the PE header carries a `TimeDateStamp` set by the linker to the
+   link time (read it back at offset `e_lfanew+8`; it was `12:13:44`, the
+   link). Nothing embeds `__DATE__`/`__TIME__` — it is the linker.
+   **Consequences:** `assert-current` is unaffected, because it compares the
+   installed file against the `bin/` file it was copied from, and that is the
+   same artefact. But **a hash quoted in this file identifies one build, and a
+   later build of the same source will not match it.** Do not read such a
+   mismatch as a source difference; it usually means somebody re-ran `make`.
 
    **The build sequence, since it was reconstructed from `sd.iss` this
    session** — MSYS2 is at `C:\msys64` and the Bash tool is Git Bash, which has
@@ -2090,7 +2098,7 @@ the first practical use of that finding.
 
 **What is still missing or dead.**
 
-- **The audit records — BUILT 16 Aug 2026, unverified** (§7 step 4). Login,
+- **The audit records — BUILT AND VERIFIED 16 Aug 2026** (§7 step 4). Login,
   refused login, `LOGTO`, refused `LOGTO` and `GRANT`/`REVOKE` all write to
   `<sysdir>/audit`. The identity is stamped in C from `my_uptr`, which is what
   the `logname` warning below was asking for.
@@ -4174,10 +4182,24 @@ the staging script and the Inno installer were all finished and removed.
      user should get them.
    - **There is no upgrade path for the data tree**, and §6 records what that
      already cost. It will cost more once there is real data in a tree.
-4. **BUILT 16 Aug 2026, thirteenth session. NOT VERIFIED — no record has been
-   observed being written**, because the call sites are BASIC and only a
-   bootstrap compiles them. `audit_message()` in `k_error.c`, reached from
-   BASIC as `kernel(K$AUDIT, text)` (key 57, `keys.h` and `INT$KEYS.H`).
+4. **BUILT AND VERIFIED 16 Aug 2026, thirteenth session**, on the fresh
+   install of 12:18:42 (`assert-current` exit 0). `audit_message()` in
+   `k_error.c`, reached from BASIC as `kernel(K$AUDIT, text)` (key 57,
+   `keys.h` and `INT$KEYS.H`).
+
+   **The trail after an install and one unelevated session** — the installer's
+   own account step is the first line, the rest is `sd` run as `don`:
+
+   ```
+   12:18:55 user=don uid=1 pid=522 LOGIN account=SDSYS
+   12:19:43 user=don uid=2 pid=529 LOGIN account=DON
+   12:19:43 user=don uid=2 pid=529 LOGTO REFUSED account=SDSYS reason=session is not elevated
+   12:19:43 user=don uid=2 pid=529 LOGTO account=DON
+   ```
+
+   **`GRANT`/`REVOKE` (step 5f) is the one path NOT yet observed** — it needs
+   an elevated SD session and a second Windows user. Everything else above is
+   measured.
 
    - **`<sysdir>/audit`, and it rotates rather than truncates.** At 1MB the
      file is renamed `audit.<yyyymmdd-hhmmss>` and a new one started, so SD
@@ -4235,12 +4257,19 @@ the staging script and the Inno installer were all finished and removed.
    with no inherited `(I)` entry. **Symptom if this ever breaks: `icacls` on
    `audit` shows an inherited `sdusers:(I)(M)`.**
 
-   **Not verified end to end:** it needs a fresh install (the BASIC only
-   compiles in a bootstrap). Then `sd`, `LOGTO SDSYS` unelevated (expect a
-   `LOGTO REFUSED` line), `LOGTO` a real account, and read
+   **VERIFIED ON THE INSTALLED SYSTEM, 16 Aug 2026 12:18–12:20**, install of
+   12:18:42, `assert-current` exit 0. Every tampering route was tried **as
+   unelevated `don`, a real `sdusers` member, against the real file**: read,
+   truncate, overwrite in place, rename and delete were all refused and the
+   file stayed at 287 bytes. Appending through SD worked throughout, and
+   `icacls` itself is refused — `(AD,RA,S)` carries no `READ_CONTROL`, so an
+   ordinary user cannot even read the permissions.
+
+   **To re-run it:** `sd` unelevated, `LOGTO SDSYS` (expect the `LOGTO
+   REFUSED` line), `LOGTO` your own account, `OFF`; then read
    `C:\ProgramData\SD\sdsys\audit` **from an elevated window** — an ordinary
-   one cannot, which is the point. What has been measured is every ACL
-   property above, on a directory mimicking the install, plus rotation.
+   one cannot, which is the point, and is why this cannot be checked by a
+   script running as the user it audits.
 5. **DONE 15 Aug 2026, tenth session, except (f) which needs step 4** — §4 has
    the run, 16 of 16 on a fresh install. `GPL.BP/GRANTA` serves **`GRANT
    <account> TO <user>`, `REVOKE <account> FROM <user>` and `LIST.GRANTS

@@ -88,6 +88,32 @@ after anyone was looking. `win32_audit_rotate()` copies the DACL off the file
 being rotated away and re-applies it `PROTECTED`; measured, the new file
 matches the old with no inherited entry.
 
+**VERIFIED ON A FRESH INSTALL, 12:18:42 the same day** (`assert-current` exit
+0). The trail after an install and one unelevated session:
+
+```
+12:18:55 user=don uid=1 pid=522 LOGIN account=SDSYS
+12:19:43 user=don uid=2 pid=529 LOGIN account=DON
+12:19:43 user=don uid=2 pid=529 LOGTO REFUSED account=SDSYS reason=session is not elevated
+12:19:43 user=don uid=2 pid=529 LOGTO account=DON
+```
+
+Line 1 is the installer's own account step; the rest is `sd` run as `don`.
+Line 3 is the failed step-up the specification called the most interesting
+line in the trail. Then, **as unelevated `don` against the real file**: read,
+truncate, overwrite in place, rename and delete all refused, file unchanged at
+287 bytes, and `icacls` itself refused — `(AD,RA,S)` carries no `READ_CONTROL`.
+
+**Still unobserved:** `GRANT`/`REVOKE` writing a record (step 5f). It needs an
+elevated session and a second Windows user.
+
+**Incidental finding, and it corrects how this file and PROJECT_STATUS quote
+hashes.** Two builds of identical source give different `sd.exe` hashes — the
+PE `TimeDateStamp` is the link time, measured at `12:13:44`. Nothing embeds
+`__DATE__`. `assert-current` is unaffected (it compares the installed file
+with the `bin/` file it was copied from), but a hash names one build, not a
+source state, and a mismatch across two builds means nothing.
+
 ---
 
 ## 16 Aug 2026 - A segment from a previous boot stops meaning wreckage
