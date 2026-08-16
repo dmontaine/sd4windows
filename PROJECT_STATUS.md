@@ -7,10 +7,10 @@ something came to be the way it is.
 
 **Last updated:** 16 Aug 2026, fourteenth session. **ELEVATION WITHOUT AN
 ELEVATED TERMINAL IS BUILT, INSTALLED AND VERIFIED END TO END**, watchdog and
-audit trail included, and **§7 step 5 is now complete** — `GRANT`/`REVOKE` were
-watched writing their records. Three defects were found and fixed on the way,
-every one of them by running the thing rather than reading it. **A fourth,
-`LIST.GRANTS`, is diagnosed and fixed in source but UNBUILT** — item 1.
+audit trail included; **§7 step 5 is complete**; and **`LIST.GRANTS` works
+again**. **Four defects, all found by running it and none visible by reading
+it** — every one at a seam between two halves that were each correct alone.
+Item 1. Nothing in the elevation work is now unverified.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -108,17 +108,19 @@ it. Call it first from anything new that tests the install.
      14:48:22 and `REVOKE account=SDACCT11 from=don` at 14:48:24, both from an
      unelevated session that had entered SDSYS. The Windows group was edited
      and correctly reverted, so the machine is as it was.
-   - **`LIST.GRANTS` IS BROKEN AND THE FIX IS UNBUILT.** `Cannot read the
-     members of group <g>, status: 5`, every time, for anyone without an
-     elevated terminal. `OS_GROUP` prepends an elevation guard to **every**
-     action's script and each action appends its body to it; the writing
-     actions pass it because `!ps_script` sends them to the elevated helper,
-     but **`LISTMEM` is deliberately kept local**, so it runs in the
-     permanently-unelevated `sd.exe` and hits `exit 5` before reaching
-     `Get-LocalGroupMember`. Measured: the full script exits 5 with no output,
-     the appended half alone exits 0 and prints the member. **Fixed in source,
-     unbuilt** — the guard is now built only for the actions that go to the
-     helper.
+   - ~~`LIST.GRANTS` is broken.~~ **FIXED AND VERIFIED 16 Aug 2026** on the
+     15:26:33 install: `LIST.GRANTS DON` prints `don`, and `LIST.GRANTS
+     SDACCT12` prints `sdacct12` on an account created moments earlier.
+     **What it was:** `OS_GROUP` prepends an elevation guard to **every**
+     action's script, each action appending its body to it. The writing actions
+     pass it because `!ps_script` sends them to the elevated helper, but
+     **`LISTMEM` is deliberately kept local**, so it ran in the
+     permanently-unelevated `sd.exe` and hit `exit 5` before reaching
+     `Get-LocalGroupMember` — `status: 5`, always, for anyone without an
+     elevated terminal. The guard is now built only for the actions that go to
+     the helper. **`CREATE.ACCOUNT` was re-run in the same session as a
+     regression check**, since that edit changed how `ps` is built for every
+     action: `sdacct12` created correctly, groups and all.
    - **The helper writes no log unless `-LogFile` is passed, and `!elevate`
      never passes one**, so `Say "ran $req -> $code"` goes nowhere and both
      defects had to be diagnosed from outside the process. **Passing it once
@@ -301,12 +303,13 @@ it. Call it first from anything new that tests the install.
    to the users it records**, which is why `win32audit.c` is the second file
    allowed to include `windows.h`.
 
-5. **SD IS INSTALLED AND RUNNING, AND THE INSTALL IS NOW STALE — THE CYCLE IS
-   ENDED.** The install of **14:21:50** carried everything in item 1 and every
-   measurement was taken and finished on it, the last being the audit read at
-   15:13. **`GPL.BP/OS_GROUP` was edited after that**, so the tree is a build
-   behind and **nothing measured on it from now on counts.** Restage,
-   repackage, reinstall — the loop below.
+5. **SD IS INSTALLED, RUNNING, AND THE INSTALL IS CURRENT — THE CYCLE IS
+   OPEN.** The install of **15:26:33** carries all four fixes and no source has
+   changed since. Identify it by `gcat/!OS_GROUP` 1,933 and `gcat/$CPROC`
+   25,208 rather than by `sd.exe`, which is `239BB9C3E43E4829` on every install
+   of this session — **no C changed all day**. Four full cycles were built
+   (13:52:43, 14:14:28, 14:21:50, 15:26:33); each one surfaced or confirmed a
+   different defect, which is the fresh-install rule earning its cost.
 
    Three installs were built this session (13:52:43, 14:14:28, 14:21:50), each
    from a full uninstall and both trees deleted. Two audit trails were copied
@@ -465,18 +468,17 @@ is closed by measurement. **§5.6.2 IS COMPLETE, RDP INCLUDED** — 15 Aug 2026,
 tenth session, on a VirtualBox guest (§4). Nothing is left half-applied.
 
 **STATE OF THIS MACHINE — READ FIRST. SD IS INSTALLED, RUNNING, AND THE INSTALL
-IS STALE**, as of 16 Aug 2026 14:21:50 (header item 5). It is a build behind
-source on `GPL.BP/OS_GROUP` only. **Stop the service before staging with
-`--bootstrap`.**
+IS CURRENT**, as of 16 Aug 2026 15:26:33 (header item 5). **Stop the service
+before staging with `--bootstrap`.**
 
 | Thing | State |
 |---|---|
-| **The install** | **PRESENT, 16 Aug 2026 14:21:50**, from `sd-setup-1.0-2.exe` of 14:21:20 (4,848,506 bytes). 13 files in `usr\bin`, 3,477 in the data tree, `sd.exe` `239BB9C3E43E4829`. `C:\ProgramData\SD` is `uninsneveruninstall`, so **a fresh cycle deletes it by hand as well** |
+| **The install** | **PRESENT, 16 Aug 2026 15:26:33**, from `sd-setup-1.0-2.exe` of 15:25:53 (4,848,586 bytes). 13 files in `usr\bin`, 3,477 in the data tree, `sd.exe` `239BB9C3E43E4829`. `C:\ProgramData\SD` is `uninsneveruninstall`, so **a fresh cycle deletes it by hand as well** |
 | `C:\Program Files\SD` | binaries in `usr\bin`. 19 rather than 18 files because `adopt-account.ps1` ships beside the other three `.ps1` scripts. Count and date in header item 1 |
 | `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS STALE** | `assert-current` was exit 0 from 14:22 until `OS_GROUP` was edited at ~15:20, and everything in header item 1 was measured inside that window. Note editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only |
+| **THE INSTALL IS CURRENT** | `assert-current` exit 0 at 15:26 on 16 Aug 2026. Note editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only. **It goes stale at the first source change** |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
 | Reinstalling over this | **DON'T** — the rule in the header. The installer **finds an existing database and leaves it alone**, saying so in a dialog, which is §6's staleness trap working as designed: a reinstall-over updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`, so the machine runs yesterday's BASIC on today's binaries. Copying `GPL.BP` across and recompiling by hand was the old workaround; a fresh install is the rule that replaced it |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
@@ -489,11 +491,11 @@ source on `GPL.BP/OS_GROUP` only. **Stop the service before staging with
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
 | **`AllowGroups` AND `ForceCommand` ARE APPLIED** | 15 Aug 2026, ninth session, **by hand after the install** — `allow-ssh-groups.ps1 -Installed`, elevated. Lines 87–90 of `sshd_config`, before the `Match` block; original kept at `sshd_config.before-sd`; `sshd` restarted, Running. **THE UNINSTALLER TAKES IT BACK OFF** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`, correct behaviour), and **the installer will not put it back on this machine** because the task is hidden — header item 1. So it is a manual step of every fresh install here, and its absence is what the eighth session mistook for it being applied |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
-| Test accounts, Windows side | **`sdacct6`, `sdacct8`, `sdacct9` and `sdacct10` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct11`**. **`sdacct11` now exists**, made 16 Aug 2026 by `CREATE.ACCOUNT` from an unelevated session and kept — password `Sd-Test-1`, in `sdusers`, `sdu_sdacct11` and `sdsshonly`, not an administrator, SD side present. **The next free name is `sdacct12`.** `sdacct10`: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct10` and `sdsshonly`, not an administrator, **but its SD side did not survive the 13:52:43 install**, so step 1c needs a fresh subject. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
+| Test accounts, Windows side | **`sdacct6`, `sdacct8`, `sdacct9` and `sdacct10` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct11`**. **`sdacct11` and `sdacct12` both exist**, each made by `CREATE.ACCOUNT` from an unelevated session and kept — password `Sd-Test-1`, in `sdusers`, their own `sdu_` group and `sdsshonly`, neither an administrator. **`sdacct12` has an SD side; `sdacct11` does not**, its tree having gone with the last fresh install. **The next free name is `sdacct13`.** `sdacct10`: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct10` and `sdsshonly`, not an administrator, **but its SD side did not survive the 13:52:43 install**, so step 1c needs a fresh subject. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
 | **`don` HAS AN SD ACCOUNT** | 16 Aug 2026, **made by the installer this time** — header item 3, §7 step 1f closed. `ACCOUNTS/DON` present and `adopt-account.log` says `don now has an SD account`. Its `don keeps the Windows sign-in rights it already had` line still appears, so the lockout fix holds |
 | `sdsshonly` | exists, holding **`sdacct6`** and nothing else — the lockout fix means no administrator is in it, and `sdacct6` is there because that is what `CREATE.ACCOUNT` does to a non-administrator |
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
-| Accounts, **SD side** | `SDSYS`, `DON` and **`SDACCT11`** — the last made by `CREATE.ACCOUNT` from an **unelevated** session, which is header item 1's whole point. `DON` was made by the installer's own step — header item 3 |
+| Accounts, **SD side** | `SDSYS`, `DON` and **`SDACCT12`** — the last made by `CREATE.ACCOUNT` from an **unelevated** session, which is header item 1's whole point. `SDACCT11`'s SD side went with the 15:26:33 install; its Windows user and `sdu_sdacct11` group remain. `DON` was made by the installer's own step — header item 3 |
 | SD | **running.** The installer started it; service `Running`, `sdwind` up, one segment in `shm` stamped 13:52:49. **Stop the service before `stage.py --bootstrap`.** `sd -start` **needs an elevated window**: the gate covers `-start` |
 | SD at boot | **THE SERVICE SURVIVES A RESTART, INCLUDING ONE WITH A LEFTOVER SEGMENT** — fixed and verified 16 Aug 2026, thirteenth session, header item 2. `sd -stop` still leaks the segment at shutdown; `sd_state()` now discards a pre-boot survivor, so the leak is harmless rather than absent |
 

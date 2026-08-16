@@ -27,6 +27,41 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - LIST.GRANTS verified; the elevation work is finished
+
+Fourteenth session, `d3de6b9`, on the 15:26:33 install (`assert-current` exit
+0, `gcat/!OS_GROUP` 1,933).
+
+    LIST.GRANTS DON       ->  Windows accounts granted DON: don
+    LIST.GRANTS SDACCT12  ->  Windows accounts granted SDACCT12: sdacct12
+
+`CREATE.ACCOUNT USER sdacct12` was run in the same session as a deliberate
+regression check - the fix changed how `ps` is built for **every** action, not
+only LISTMEM - and created the account correctly, groups and all, through the
+elevated helper. No helper or pipe survived the session.
+
+**Four defects in one feature, in one day, none of them visible by reading the
+code**, and all four at a seam rather than inside a component:
+
+1. `CPROC` obtained privilege and then refused the LOGTO that obtained it.
+2. The helper could never run any script SD sent it (`-File` versus a file with
+   no `.ps1` extension).
+3. Four failure exits released nothing, leaking the helper on a refused LOGTO.
+4. `LISTMEM` carried an elevation guard it could never satisfy.
+
+Each half was correct alone and had been reviewed as such. What was never
+exercised was the join. The practical lesson for this project is in the cost
+ratio: four fresh install cycles found all four, while reading the same code
+across two sessions found none.
+
+**The audit trail did most of the diagnosing.** Defect 1 was named by
+`ELEVATION GRANTED` and `LOGTO REFUSED` appearing in the same second, before
+any source was opened; defect 3 by `ELEVATION RELEASED` never appearing at all;
+and the trail later corrected this session's own mistaken account of which runs
+had elevated successfully.
+
+---
+
 ## 16 Aug 2026 - LIST.GRANTS carried a guard it could never satisfy
 
 Fourteenth session. `GRANT`/`REVOKE` were watched writing their audit records -
