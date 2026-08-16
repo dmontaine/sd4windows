@@ -26,12 +26,41 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **SD CANNOT RUN UNDER LocalSystem IN SESSION 0. `sem_open` BLOCKS FOR TEN
-   SECONDS AND FAILS WITH `ETIMEDOUT`, SO `sdwind` NEVER ATTACHES.** 16 Aug
-   2026, eleventh session, measured (§4). **This is a decision for the owner,
-   not a bug left to fix**: the "SD runs as a service" design of 15 Aug needs a
-   different identity or a different mechanism, and nothing in `sdsvc.c` can
-   help — it was rewritten and the failure did not move.
+1. **THE SEMAPHORES ARE NATIVE Win32 OBJECTS NOW, AND NOTHING OF IT HAS BEEN
+   TESTED.** 16 Aug 2026, eleventh session. **Run a cycle before believing any
+   of it.** The owner's requirement, stated 16 Aug 2026, is what forced this:
+   **a production system with nobody logged in at the machine, available to
+   every user from system startup.** That rules out anything living in a user
+   session, so SD has to work in session 0, and it did not.
+
+   **What was written** — `gplsrc/win32sem.c` and `.h` (new), `sdsem.c`,
+   `sysseg.c`, `sddefs.h`, `Makefile`, `gpl.src`:
+
+   - **POSIX named semaphores replaced by Win32 ones in the `Global\`
+     namespace**, created granting SYSTEM, Administrators and `sdusers` — the
+     same three the data tree's ACL grants. `Global\` is the half that lets a
+     session-0 service and a session-1 user see the same object; the security
+     descriptor is the half that stops the service starting and then refusing
+     everybody. **Neither half is verified.**
+   - **`start_sd()` waits for `sdwind` to publish its pid** before returning,
+     up to 10s. Two reasons: a Win32 semaphore dies with its last handle, so
+     `sd -start` must not exit before the daemon attaches; and `sd -start` used
+     to report success without ever looking, which is how a service came to
+     report RUNNING over a machine with no SD.
+   - **`windows.h` is confined to `win32sem.c`**, which includes no SD header
+     at all. It cannot go in `sdsem.c`: `linuxlb.h` defines
+     `GetCurrentProcessId()` as a nought-argument macro against w32api's
+     `VOID` form, SD declares its own `Sleep`, and `Private` expands inside the
+     w32api headers. Owner sanctioned the exception 16 Aug 2026.
+
+   **What to watch for on the cycle**, in this order — each depends on the one
+   before: `sdwind` alive more than 10 seconds under the service; then
+   `adopt-account` giving `don` an account (§7 step 1f, which regressed with
+   the service); then **an ordinary, unelevated user session attaching to a
+   service-started SD**, which is the half that has never once been tested and
+   is where the `Global\` DACL either works or does not.
+
+   **The measurement that forced it**, before the change (§4):
 
    **The measurement, three ways on one install:**
 
