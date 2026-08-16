@@ -27,6 +27,49 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - A segment from a previous boot stops meaning wreckage
+
+Thirteenth session, `8a1568d`→. Measurement first, on the still-open cycle;
+then one source file changed, which ended it.
+
+**The twelfth session's pending measurement passed.** Boot 10:50:51 with `shm`
+empty: `sd -start` exit 0, `sdwind` up, service RUNNING (`sdsvc.log:10-13`),
+and unelevated `don` reached account `DON` (`WHO` → `1 DON`, `OFF` → 0). The
+prediction in that session's entry was that the failure alternates, and this is
+the half that confirms it — **the leftover segment was the entire fault, and
+the diagnosis needed no correction.**
+
+**The fix**, `sysseg.c`: `sd_state()` now answers `SD_STOPPED` instead of
+`SD_WRECKAGE` for a segment whose mtime predates boot, and unlinks it.
+Reporting alone was not enough — `bind_sysseg()` looks for a segment before
+creating one and would have answered "SD is already started" (`sysseg.c:132`),
+so `sd -start` would have failed a second way instead of the first.
+
+**Why it is safe, since this is the file where "already started" has been wrong
+twice before.** The test is asked **only after the daemon is known to be
+gone**, so a running system is never examined and a clock corrected after boot
+cannot cause a live segment to be destroyed; the worst a wrong answer can do is
+leave real wreckage looking like wreckage. `boot_time()` is
+`time(NULL) - /proc/uptime`, checked against
+`Win32_OperatingSystem.LastBootUpTime` and agreeing to the second, and it
+answers 0 when unreadable — which restores the old behaviour exactly rather
+than guessing.
+
+**What it does not do.** The `shm_unlink()` failure at shutdown is untouched
+and still unexplained: the leak is now harmless, not absent. A pre-boot segment
+with a **mismatched revstamp** is still not cleared, because `sd_state()` reads
+no further on a mismatch — reachable only by upgrading across an unclean stop,
+and `sd -stop` remains the way out.
+
+**Not verified.** It compiles and links; it has never been observed to run.
+Verifying it needs a fresh install and a deliberately unclean stop before a
+reboot — PROJECT_STATUS.md item 1 carries the procedure. A stderr line,
+`Discarding the shared segment left by the previous boot`, was added so the new
+path is visible when it fires, because `sdsvc-sd.log` has now captured nothing
+on three attempts and silence there proves nothing.
+
+---
+
 ## 16 Aug 2026 - The service fails its first restart, because /dev/shm is a real directory
 
 Twelfth session, `fab17f2`→. **No source was changed**: the whole session is a

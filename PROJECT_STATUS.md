@@ -5,12 +5,12 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, twelfth session, `fab17f2`→. **THE RESTART TEST
-HAS BEEN RUN AND THE SERVICE FAILED IT.** Root cause found and proven, no
-source changed: `/dev/shm` is a real NTFS directory here, so a shared segment
-left behind by an unclean stop **survives the reboot** and `sd -start` then
-refuses it as wreckage. Item 1 below. Everything else the eleventh session
-verified still stands.
+**Last updated:** 16 Aug 2026, thirteenth session, `8a1568d`→. The twelfth
+session's pending measurement **has been run and it passed**: with `shm` clean
+the service starts at boot and an ordinary user reaches SD. The leftover
+segment was the whole fault — there is no second, boot-specific one. **The fix
+is written and compiles but is NOT verified** (item 1). Everything else the
+eleventh session verified still stands.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -25,87 +25,70 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **START HERE: THE SERVICE DOES NOT SURVIVE A RESTART. Root cause proven,
-   16 Aug 2026, twelfth session, no source changed** (§4, §6 "`/dev/shm` is a
-   real directory"). The machine rebooted at 10:31:21; `Get-Service SD` was
-   `Stopped`/Automatic and there was no `sdwind`. The owner's requirement — *a
-   production system with nobody logged in at the machine, available to every
-   user from system startup* — is **not met**.
+1. **START HERE: the restart fix is written and compiles. IT IS NOT VERIFIED —
+   it has never once been observed to run.** 16 Aug 2026, thirteenth session,
+   `sysseg.c`.
 
-   **The chain, all measured or single-code-path:**
+   **What was measured first, and it closes the twelfth session's question**
+   (boot 10:50:51, `sdsvc.log:10-13`): with `shm` clean, `sd -start` exits 0,
+   `sdwind` comes up, the service reports RUNNING, and unelevated `don` reaches
+   account `DON` — `WHO` → `1 DON`, `OFF` → exit 0. **So the leftover segment
+   was the entire fault and there is no second, boot-specific one.** The
+   twelfth session's chain (`shm_unlink()` fails at stop → NTFS `/dev/shm`
+   keeps the segment across the reboot → next `sd -start` calls it
+   `SD_WRECKAGE`) stands as written; it is in HISTORY.md now, not here.
 
-   1. Shutdown 10:31:05, `sd -stop` **exit 1**. `stop_sd()` has exactly one
-      `return FALSE` — `shm_unlink()` failing with errno ≠ ENOENT,
-      `sysseg.c:785`. The segment file was not deleted.
-   2. It survived the reboot. `/dev/shm` is bind-mounted to
-      `C:\ProgramData\SD\shm`, plain NTFS (`stage.py:196`, installed
-      `etc/fstab`). On Linux `/dev/shm` is tmpfs and empties at boot, so this
-      cannot happen there.
-   3. Boot 10:31:30, `sd -start` **exit 1 in one second** — a segment with no
-      daemon is `SD_WRECKAGE`, `sysseg.c:506`, "Run sd -stop to clear it".
-      One second also rules out the 10s daemon wait and the `sem_open` timeout.
-   4. **Proof it was a leftover and not something that boot created:** `shm`'s
-      LastWriteTime is **10:31:41.396**, the recovery `sd -stop`. A directory
-      mtime moves only on add or remove; nothing was added, because `sd -start`
-      died before `bind_sysseg()`, which cleans up after itself anyway
-      (`sysseg.c:332`, `:343`). So an entry was **removed** — it was there at
-      boot.
+   **The fix.** `sd_state()` downgrades `SD_WRECKAGE` to `SD_STOPPED` and
+   unlinks the segment when the segment's mtime predates boot —
+   `segment_predates_boot()`, `boot_time()`, `sysseg.c`. Boot time is
+   `time(NULL) - /proc/uptime`; **that arithmetic was checked against
+   `Win32_OperatingSystem.LastBootUpTime` and agrees to the second.** Deliberate
+   properties, all in the file's comments: it is asked **only after the daemon
+   is known to be gone**, so a live segment is never tested and a clock
+   corrected after boot cannot destroy one; it unlinks rather than only
+   reporting, because `bind_sysseg()` would otherwise attach and answer "SD is
+   already started" (`sysseg.c:132`); it is unreadable-`/proc/uptime`-safe, in
+   that `boot_time()` answering 0 restores exactly the old behaviour.
+
+   **Known limit, deliberate:** a pre-boot segment whose **revstamp does not
+   match** is still not cleared — `sd_state()` reads no further on a mismatch,
+   so only the existing "revstamp mismatch" message fires and `sd -stop` is
+   still the way out. Reachable only by upgrading across an unclean stop.
 
    **Not an upstream defect.** `../sdb64` uses System V (`shmget`/`IPC_RMID`),
-   whose segments vanish at reboot. This follows from §5.1, our move to POSIX
-   shm. No `UPSTREAM_FIXES.md` entry — do not re-check.
+   whose segments vanish at reboot. No `UPSTREAM_FIXES.md` entry — do not
+   re-check.
 
-   **PENDING MEASUREMENT — READ `C:\ProgramData\SD\sdsvc.log` BEFORE ANYTHING
-   ELSE.** At the time of this commit `shm` is **empty** and the service is
-   `Stopped`/Automatic, and the owner reboots straight after it. That boot
-   starts SD with a clean `shm`, which is the one thing never measured: whether
-   the boot-time start works at all once the leftover is gone. **No rebuild or
-   reinstall is needed** — `assert-current` passed at 10:36 and nothing since
-   touches `gplsrc`, `sdsys`, `gplbld`. Then, **unelevated**:
+   **HOW TO VERIFY IT — needs a fresh install, and this is the next thing to
+   do.** A source change ended the cycle (item 5). Install, then force the
+   failure the fix is for: with SD running, **kill `sdwind` and `sd.exe` rather
+   than stopping the service** so the segment is left behind, confirm
+   `C:\ProgramData\SD\shm` still holds `sd_shm_716d0301`, **reboot**, and
+   expect `Get-Service SD` Running with `sdsvc.log` showing `"sd -start" exited
+   with 0`. **Before the fix that boot fails.** The new stderr line
+   (`Discarding the shared segment left by the previous boot`) is the proof the
+   new path ran — but `sdsvc-sd.log` has captured nothing three times, so do
+   not treat its absence there as the line not being printed; get it from an
+   elevated `sd -start` by hand instead.
 
-   ```powershell
-   Get-Service SD              # expect Running / Automatic
-   Get-Process sdwind          # expect one
-   & 'C:\Program Files\SD\usr\bin\sd.exe'
-   ```
+   **Still open, both untouched by this fix:**
 
-   then `WHO` and `OFF`. **The prediction is that the failure ALTERNATES**:
-   this boot works, its shutdown leaks again, the boot after that fails. If it
-   works, the leak is the only fault. **If it fails with `shm` clean there is a
-   second, boot-specific fault** and the diagnosis above is incomplete.
-
-   **The fix, not yet decided:**
-
-   - **Preferred — make a segment from a previous boot mean `SD_STOPPED`.** No
-     process from before the reboot can still hold it, so `SD_WRECKAGE` is the
-     wrong answer on Windows. Compare the segment's mtime against boot time
-     (`/proc/uptime` is readable on MSYS2, so no `windows.h` in `sysseg.c`).
-     This restores Linux semantics exactly and is needed **whatever else is
-     done** — power loss and task-kill will always be able to leave a segment,
-     and here it now outlives the machine.
-   - **Also worth doing — find why `shm_unlink()` fails at shutdown.** Probably
-     `sdwind` still holding the mapping; Windows will not delete an open file
-     without `FILE_SHARE_DELETE`. Needs the errno, which is exactly what
-     `sdsvc-sd.log` failed to capture.
-   - **Not sufficient alone — clear wreckage in `sdsvc.c` before `sd -start`.**
-     Cheap, but it hides the fault from every other caller.
-
-   **Two secondary findings:**
-
-   - **`sdsvc-sd.log` captured nothing again** — 0 bytes, third attempt. Both
-     the shutdown errno and the boot `SD_WRECKAGE` message went into it; the
-     chain above had to be reconstructed from exit codes and a directory mtime.
-     **Do not read that file's silence as the child's silence.**
+   - **Why `shm_unlink()` fails at shutdown** (`sysseg.c`, the one `return
+     FALSE` in `stop_sd()`). Probably `sdwind` still holding the mapping —
+     Windows will not delete an open file without `FILE_SHARE_DELETE`. Needs
+     the errno. The fix above makes the leak harmless, **not absent**.
+   - **`sdsvc-sd.log` captures nothing** — 0 bytes, three attempts, and it is
+     the reason the twelfth session had to reconstruct a chain from exit codes
+     and a directory mtime. Fixing it is the prerequisite for the errno above.
    - **The configured recovery actions never fire.** `sc qfailureflag SD` →
-     `FAILURE_ACTIONS_ON_NONCRASH_FAILURES: FALSE`. `sdsvc.exe` exits reporting
+     `FAILURE_ACTIONS_ON_NONCRASH_FAILURES: FALSE`; `sdsvc.exe` exits reporting
      `SERVICE_STOPPED`, which Windows does not count as a crash, so the two
      restarts at `install-service.ps1:114` are dead config. Note both ways: had
-     they fired, the 5s retry would have found the freshly-cleaned `shm` and
-     succeeded — **masking this bug rather than fixing it**.
+     they fired they would have **masked** this bug rather than fixed it.
 
-   **The `changelog` tells users SD runs as a service (line 8). That is now
-   known to be false after the first restart. Nothing has shipped; it must not
-   ship until this is fixed.**
+   **The `changelog` says SD runs as a service and now also says it recovers
+   from an unclean shutdown. The first is true; the second is unverified.
+   Nothing has shipped — do not ship until the reboot test above passes.**
 2. **CLOSED 16 Aug 2026 — the login rule, `LIST.GRANTS` and `CREATE.ACCOUNT`
    are all verified on a fresh install** (§4). That was the whole of what the
    tenth session left written and unrun, bar the service.
@@ -120,15 +103,17 @@ it. Call it first from anything new that tests the install.
    step 4, the audit log**, which has a waiting caller: step 5f is written up in
    `GPL.BP/GRANTA`'s header and blocked only on that file existing.
 
-5. **SD IS INSTALLED AND THE INSTALL IS CURRENT** — 16 Aug 2026 10:23:47,
-   `assert-current` exit 0 at 10:36 in the twelfth session. **The cycle that
-   began with it is still open: nothing has changed source since, which is what
-   makes the pending reboot in item 1 a valid measurement.** 13 files in
-   `usr\bin`, 3,488 in the data tree, `sd.exe` `C4982CBCD8518DEE`.
-   `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (10:23:21 on 16 Aug, 4,831,771
-   bytes) is what produced it; `C:\Users\dmont\stagetest` is the tree it came
-   from. **The first source change ends the cycle** and the next test needs a
-   fresh install — uninstall, delete BOTH trees, reinstall.
+5. **SD IS INSTALLED BUT THE INSTALL IS NO LONGER CURRENT — THE CYCLE IS
+   ENDED.** The install of 16 Aug 2026 10:23:47 (`assert-current` exit 0 at
+   10:36) carried the twelfth session's measurement, which was taken in full
+   before anything was edited. **`sysseg.c` changed at 10:59 and that ended
+   it**; `bin/sd.exe` was rebuilt at 11:01 and no longer matches
+   `C:\Program Files\SD`. **Anything measured on the installed tree from now on
+   is void** — item 1's verification needs a fresh install first: uninstall,
+   delete BOTH trees, reinstall. The installer that produced the current tree
+   is `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (10:23:21 on 16 Aug, 4,831,771
+   bytes) from `C:\Users\dmont\stagetest`; **it predates the fix, so it must be
+   rebuilt, not re-run.**
 
 **Two things the owner has NOT decided, and nobody should decide for him:**
 whether `SH` itself is restricted (the menu system is his answer instead — §6),
