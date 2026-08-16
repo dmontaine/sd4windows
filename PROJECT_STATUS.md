@@ -5,14 +5,13 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, fourteenth session. **ELEVATION WITHOUT AN
-ELEVATED TERMINAL IS BUILT, INSTALLED AND VERIFIED END TO END**, watchdog,
-audit trail and **helper log** included; **§7 step 5 is complete**; and
-**`LIST.GRANTS` works again**. **Four defects, all found by running it and none
-visible by reading it** — every one at a seam between two halves that were each
-correct alone. Item 1. **Nothing in the elevation work is unverified**; the one
-thing left open there is a password exposure in `!ps_script`, found in passing
-and deliberately not fixed.
+**Last updated:** 16 Aug 2026, fourteenth session, `99e936f`→`00432d8`.
+**ELEVATION WITHOUT AN ELEVATED TERMINAL IS COMPLETE — built, installed and
+verified end to end**, with the watchdog, the audit trail, the helper log and
+its ACL. **§7 step 4 and step 5 are both closed.** **Six defects were found and
+fixed on the way and NOT ONE was visible by reading the code** — every one sat
+at a seam between two halves that were each correct alone (item 1). Seven full
+install cycles; that rule paid for itself repeatedly.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -26,6 +25,43 @@ installed tree matches source, and `verify-createaccount.ps1` refuses without
 it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
+
+**THE ELEVATION WORK IS DONE. Item 1 below is the RECORD, not a task** — read
+it only if that area misbehaves; it holds the regression signatures. The open
+work is §7, and **the next subject is §7 step 1**, the loose ends the account
+model left, followed by step 3 (installer loose ends) and step 6 (the API
+server, which is the largest thing still outstanding).
+
+**Nothing is half-applied and the install is CURRENT** (16:36:52, header item
+5), so the tree can be measured as it stands — run `assert-current` first
+anyway.
+
+**FOUR THINGS THIS SESSION LEARNED THE HARD WAY. They cost a cycle each and
+none of them is about SD:**
+
+1. **An uninstaller fix cannot be verified in the cycle that ships it.**
+   `unins000.exe` is generated at INSTALL time, so the uninstall that begins a
+   cycle always runs the PREVIOUS install's code. Verify such a change by
+   running uninstall and install as SEPARATE steps and reading the state in
+   between.
+2. **Read the registry, never `%PATH%`.** A shell opened before an install
+   keeps its own copy. That appearance — "SD is not on PATH" — misled twice in
+   one session; both times the registry was right.
+3. **Exclude your own shell from any `Get-CimInstance Win32_Process | Where
+   CommandLine -like` search.** The search text is in your own command line, so
+   you match yourself. This produced a false "WATCHDOG FAILED" and a
+   `Stop-Process` aimed at the measuring shell.
+4. **`sd-elevate.ps1` gives UAC consent a bounded wait.** A slow click leaves
+   `-Start` giving up with no helper for any test to find. Three attempts at
+   the watchdog died on this before it was understood.
+
+**AND ONE ABOUT THIS FILE.** Four of the six defects were fixed by reading the
+comments around the code, and two of those comments were WRONG in a way that
+had caused the defect — `PS_SCRIPT` arguing a file was safe because the
+installer "grants narrowly" (narrow against the world, not against SD's own
+users). **Both were corrected in place rather than replaced**, so the mistaken
+reasoning stays visible. Do the same.
+
 
 1. **CLOSED AND VERIFIED END TO END — ELEVATION WITHOUT AN ELEVATED TERMINAL.**
    16 Aug 2026, fourteenth session, `3e010cf` and `2f32f6f`. **An unelevated SD
@@ -4578,8 +4614,12 @@ the staging script and the Inno installer were all finished and removed.
    `C:\ProgramData\SD\sdsys\audit` **from an elevated window** — an ordinary
    one cannot, which is the point, and is why this cannot be checked by a
    script running as the user it audits.
-5. **DONE 15 Aug 2026, tenth session, except (f) which needs step 4** — §4 has
-   the run, 16 of 16 on a fresh install. `GPL.BP/GRANTA` serves **`GRANT
+5. **CLOSED 16 Aug 2026, fourteenth session — (f) INCLUDED.** `GRANT
+   account=SDACCT11 to=don` and `REVOKE account=SDACCT11 from=don` were watched
+   reaching the audit trail at 14:48, from an unelevated session that had
+   entered SDSYS; the Windows group was edited and correctly reverted.
+   **`LIST.GRANTS` was broken the whole time and is fixed** — header item 1,
+   defect 4. §4 has the original run, 16 of 16 on a fresh install. `GPL.BP/GRANTA` serves **`GRANT
    <account> TO <user>`, `REVOKE <account> FROM <user>` and `LIST.GRANTS
    <account>`** from one program behind three `VOC_TEMPLATE` entries; bare
    `GRANT <account>` lists too. `!os_group` gained `LISTMEM` (e). `ACC$USERS`

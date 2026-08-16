@@ -27,6 +27,59 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - Fourteenth session, closing summary
+
+`99e936f` to `00432d8`. Started from a handoff reading "elevation is built and
+bootstrapped, and has never been run". It runs, and nothing in it is
+unverified.
+
+**Six defects, seven install cycles, and not one defect was visible by reading
+the code.** Every one sat at a seam between two halves that were each correct
+alone and had been reviewed as such:
+
+1. `CPROC` obtained privilege and then refused the LOGTO that obtained it.
+2. The helper could never run any script SD sent it - `-File` against a file
+   with no `.ps1` extension.
+3. Four failure exits released nothing, leaking the helper on a refused LOGTO.
+4. `LISTMEM` carried an elevation guard it could never satisfy.
+5. Privileged scripts were readable AND writable by every SD user.
+6. Uninstalling left an empty PATH entry, one per cycle.
+
+Also built: the helper log and the ACL that keeps SD users off it. Also closed:
+7 step 5, `GRANT`/`REVOKE` watched writing their records.
+
+**What actually did the finding.** The audit trail named defect 1 from an
+adjacent GRANTED/REFUSED pair before any source was opened, exposed defect 3
+through an `ELEVATION RELEASED` that never appeared, and later corrected this
+session's own wrong account of which runs had elevated. Defect 6 came from the
+owner reading his PATH. The remaining three came from running the thing and
+reading the message it gave.
+
+**Two comments in the source were wrong in the way that had caused the defect**
+- `PS_SCRIPT` arguing a script was safe because the installer "grants narrowly",
+which is narrow against the world and not against SD's own users. Both were
+corrected in place rather than replaced, so the mistaken reasoning stays
+visible to whoever reads it next.
+
+**Three wrong hypotheses were tested and discarded** before the right one, each
+without touching the machine: MSYS2 argv mangling of `"\\"`, SD's child
+context, and - for the watchdog - a launch method that turned out to be
+innocent. Cheap to test, and each one narrowed the field.
+
+**Two corrections to claims made during the session**, both recorded rather
+than quietly dropped: "no UAC prompt appeared" during the watchdog attempts
+(the trail proved elevation had succeeded three times, and the helper DETECTION
+was what failed), and "WATCHDOG FAILED" (the process being watched was the
+measuring shell's own).
+
+Left open, none blocking: the PSTMP fix rests on a measured mechanism rather
+than a measured attack, nothing here automating two concurrent SD users; the
+helper log cannot say which operation each `ran` line was, `!ps_script` reusing
+one temp file name; and `sdsvc-sd.log` still captures nothing, which is the
+prerequisite for the `shm_unlink` errno.
+
+---
+
 ## 16 Aug 2026 - The privileged script was writable by every SD user
 
 Fourteenth session. Found while writing up the helper log, fixed on the
