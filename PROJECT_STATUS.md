@@ -207,9 +207,10 @@ files — and `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` built from it at **15:52
 (4,801,559 bytes). That installer was run and the result counted and hashed
 (header item 1), so "it compiled" is not the claim.
 
-**Both are already one commit stale**: the closing-dialog fix (§7 step 3) landed
-after them, so the shipped dialog still carries the `net localgroup` lines until
-the next rebuild. ISCC alone is not enough when a `gplbld/` script changed —
+**REBUILT AGAIN at 16:10** (4,802,092 bytes) once the closing-dialog fix landed,
+and **that is the one installed on the second machine** — so the shipped dialog
+no longer carries the `net localgroup` lines. Only a comment in `sd.iss` has
+changed since. ISCC alone is not enough when a `gplbld/` script changed —
 `stage.py` copies those into `ProgramFiles` — and **`stage.py --bootstrap`
 refuses an unelevated window**. Neither artefact survives a rebuild of the
 machine; both are reproduced by the commands at the top of `gplbld/sd.iss`.
