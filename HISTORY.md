@@ -61,12 +61,36 @@ with a **mismatched revstamp** is still not cleared, because `sd_state()` reads
 no further on a mismatch — reachable only by upgrading across an unclean stop,
 and `sd -stop` remains the way out.
 
-**Not verified.** It compiles and links; it has never been observed to run.
-Verifying it needs a fresh install and a deliberately unclean stop before a
-reboot — PROJECT_STATUS.md item 1 carries the procedure. A stderr line,
-`Discarding the shared segment left by the previous boot`, was added so the new
-path is visible when it fires, because `sdsvc-sd.log` has now captured nothing
-on three attempts and silence there proves nothing.
+**VERIFIED THE SAME SESSION, and this is the controlled result the eleventh,
+twelfth and thirteenth sessions were all working towards.** Fresh install at
+11:12:25 (uninstall, both trees deleted and confirmed gone, reinstall from a
+rebuilt installer; `assert-current` exit 0, `sd.exe` `D2AAB6203CB80661`). A
+segment was then left in `C:\ProgramData\SD\shm` deliberately — mtime 11:15:45,
+no daemon, service stopped — and the machine rebooted at 11:19:16:
+
+- `sd -start` **exit 0**, `sdwind` up, service RUNNING.
+- **The segment in `shm` is stamped 11:19:25, not 11:15:45.** The survivor was
+  discarded and a fresh one created. That is the evidence the new path ran.
+- Unelevated `don` reached account `DON`; `WHO` → `1 DON`, `OFF` → exit 0.
+
+**The same state produced exit 1 at the 10:31 boot**, so this is a controlled
+before-and-after rather than a system that might have worked anyway.
+
+The stderr line added for this, `Discarding the shared segment left by the
+previous boot`, **was not observed** — it went to `sdsvc-sd.log`, which
+captured nothing for the fourth time. The mtime carried the proof instead.
+
+**Two findings from building the fixture, both worth more than the fixture.**
+The `shm_unlink()` failure is **shutdown-specific, not stop-specific**: a plain
+`Stop-Service SD` on a running machine exited 0 and left `shm` empty (11:07:34),
+against exit 1 with the segment left behind at the 10:31 shutdown. And the
+reason it is only ever seen at shutdown is that **`sdsvc` already cleans up
+after a dead daemon** — killing `sdwind` under a running service made the
+wrapper notice and run `sd -stop` itself (11:14:34). That watchdog cannot help
+when the machine is going down, which is the one time it would matter. It is
+also why the fixture has to be built with the service stopped: killing `sdwind`
+under a running service tidies the segment away, and the test would then pass
+for the wrong reason.
 
 ---
 

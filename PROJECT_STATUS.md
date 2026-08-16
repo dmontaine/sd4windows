@@ -5,12 +5,11 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, thirteenth session, `8a1568d`→. The twelfth
-session's pending measurement **has been run and it passed**: with `shm` clean
-the service starts at boot and an ordinary user reaches SD. The leftover
-segment was the whole fault — there is no second, boot-specific one. **The fix
-is written and compiles but is NOT verified** (item 1). Everything else the
-eleventh session verified still stands.
+**Last updated:** 16 Aug 2026, thirteenth session, `8a1568d`→. **THE RESTART
+FAILURE IS FIXED AND THE FIX IS VERIFIED ON A FRESH INSTALL** — a segment
+deliberately left behind, then a reboot, and the service came up Running with
+an ordinary user reaching SD (item 1). Everything the eleventh session verified
+still stands.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -25,18 +24,25 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **START HERE: the restart fix is written and compiles. IT IS NOT VERIFIED —
-   it has never once been observed to run.** 16 Aug 2026, thirteenth session,
-   `sysseg.c`.
+1. **CLOSED AND VERIFIED — THE SERVICE SURVIVES A RESTART, INCLUDING ONE WITH
+   A LEFTOVER SEGMENT.** 16 Aug 2026, thirteenth session, `sysseg.c`. The
+   owner's requirement — *a production system with nobody logged in at the
+   machine, available to every user from system startup* — **is met.**
 
-   **What was measured first, and it closes the twelfth session's question**
-   (boot 10:50:51, `sdsvc.log:10-13`): with `shm` clean, `sd -start` exits 0,
-   `sdwind` comes up, the service reports RUNNING, and unelevated `don` reaches
-   account `DON` — `WHO` → `1 DON`, `OFF` → exit 0. **So the leftover segment
-   was the entire fault and there is no second, boot-specific one.** The
-   twelfth session's chain (`shm_unlink()` fails at stop → NTFS `/dev/shm`
-   keeps the segment across the reboot → next `sd -start` calls it
-   `SD_WRECKAGE`) stands as written; it is in HISTORY.md now, not here.
+   **The measurement, on the fresh install of 11:12:25** (`assert-current`
+   exit 0, installed `sd.exe` `D2AAB6203CB80661`). A segment was left in
+   `C:\ProgramData\SD\shm` deliberately, mtime **11:15:45**, no daemon, service
+   stopped so nothing could tidy it. Boot **11:19:16**:
+
+   - `sd -start` **exit 0**, `sdwind` up, service RUNNING (`sdsvc.log`).
+   - **The segment in `shm` is stamped 11:19:25, not 11:15:45** — the survivor
+     was discarded and a fresh one created. That mtime is the proof the new
+     path ran, and it is what to check if this ever regresses.
+   - Unelevated `don` → account `DON`, `WHO` → `1 DON`, `OFF` → exit 0.
+
+   **The identical state produced exit 1 at the 10:31 boot before the fix**
+   (twelfth session), which is what makes this a controlled result rather than
+   a working system that might have worked anyway.
 
    **The fix.** `sd_state()` downgrades `SD_WRECKAGE` to `SD_STOPPED` and
    unlinks the segment when the segment's mtime predates boot —
@@ -59,37 +65,20 @@ it. Call it first from anything new that tests the install.
    whose segments vanish at reboot. No `UPSTREAM_FIXES.md` entry — do not
    re-check.
 
-   **VERIFICATION IS IN FLIGHT — THE MACHINE IS SET UP FOR IT RIGHT NOW AND
-   THE ONLY STEP LEFT IS THE REBOOT.** 16 Aug 2026 11:16, thirteenth session.
-   **Do not undo any of this and do not reinstall.** State as left:
+   **TO RE-RUN THIS TEST** (it is the regression test for the restart
+   requirement, and there is no automated one): stop the service, `sd -start`
+   from an elevated window, `Stop-Process -Name sdwind -Force`, confirm the
+   segment is still in `shm`, reboot, then check the segment's mtime is the new
+   boot time. **The service must be STOPPED while the fixture is built** —
+   `sdsvc` watches the daemon and runs `sd -stop` when it dies (`sdsvc.log`,
+   11:14:34), so killing `sdwind` under a running service tidies the segment
+   away and the test passes for the wrong reason.
 
-   - **Fresh install done at 11:12:25, and it carries the fix** —
-     `assert-current` exit 0, installed `sd.exe` `D2AAB6203CB80661`. Uninstall,
-     both trees deleted and verified gone, then installed from the rebuilt
-     `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (4,833,587 bytes, 11:10:36).
-     Nothing has changed source since, so **the cycle is open and valid**.
-   - **A leftover segment is in `C:\ProgramData\SD\shm` ON PURPOSE** —
-     `sd_shm_716d0301`, mtime **11:15:45**, no `sdwind`, service `Stopped`.
-     **This is not a live bug, it is the test fixture.**
-   - **The pending measurement:** reboot. Expect `Get-Service SD` Running and
-     `sdsvc.log` showing `"sd -start" exited with 0`. **The same state produced
-     exit 1 at the 10:31 boot before the fix, so a successful start is the
-     proof.** The sharp discriminator is the segment's mtime: after the boot it
-     must equal the NEW boot time, not 11:15:45. Still 11:15:45 means the fix
-     did not fire.
-   - The new stderr line (`Discarding the shared segment left by the previous
-     boot`) would confirm the path ran, but it goes to `sdsvc-sd.log`, which
-     has captured nothing on three attempts. **Do not read its absence there as
-     the line not being printed** — get it from an elevated `sd -start` by hand.
+   **The stderr line (`Discarding the shared segment left by the previous
+   boot`) was NOT observed** — it goes to `sdsvc-sd.log`, which captured
+   nothing again. Its absence there means nothing; the mtime is the evidence.
 
-   **To rebuild this fixture from scratch if it is lost:** stop the service,
-   `sd -start` from an elevated window, `Stop-Process -Name sdwind -Force`,
-   confirm the segment is still there, reboot. It must be done with the service
-   **stopped** — `sdsvc` watches the daemon and runs `sd -stop` when it dies
-   (`sdsvc.log`, 11:14:34), so killing `sdwind` under a running service cleans
-   the segment up instead of leaving it.
-
-   **Still open, both untouched by this fix:**
+   **Still open, none of it in the way of the restart requirement:**
 
    - **Why `shm_unlink()` fails at shutdown** (`sysseg.c`, the one `return
      FALSE` in `stop_sd()`). The fix above makes the leak harmless, **not
@@ -114,9 +103,8 @@ it. Call it first from anything new that tests the install.
      restarts at `install-service.ps1:114` are dead config. Note both ways: had
      they fired they would have **masked** this bug rather than fixed it.
 
-   **The `changelog` says SD runs as a service and now also says it recovers
-   from an unclean shutdown. The first is true; the second is unverified.
-   Nothing has shipped — do not ship until the reboot test above passes.**
+   **The `changelog` says SD runs as a service and recovers from an unclean
+   shutdown. Both are now measured true.** Nothing has shipped yet.
 2. **CLOSED 16 Aug 2026 — the login rule, `LIST.GRANTS` and `CREATE.ACCOUNT`
    are all verified on a fresh install** (§4). That was the whole of what the
    tenth session left written and unrun, bar the service.
@@ -131,17 +119,36 @@ it. Call it first from anything new that tests the install.
    step 4, the audit log**, which has a waiting caller: step 5f is written up in
    `GPL.BP/GRANTA`'s header and blocked only on that file existing.
 
-5. **SD IS INSTALLED BUT THE INSTALL IS NO LONGER CURRENT — THE CYCLE IS
-   ENDED.** The install of 16 Aug 2026 10:23:47 (`assert-current` exit 0 at
-   10:36) carried the twelfth session's measurement, which was taken in full
-   before anything was edited. **`sysseg.c` changed at 10:59 and that ended
-   it**; `bin/sd.exe` was rebuilt at 11:01 and no longer matches
-   `C:\Program Files\SD`. **Anything measured on the installed tree from now on
-   is void** — item 1's verification needs a fresh install first: uninstall,
-   delete BOTH trees, reinstall. The installer that produced the current tree
-   is `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (10:23:21 on 16 Aug, 4,831,771
-   bytes) from `C:\Users\dmont\stagetest`; **it predates the fix, so it must be
-   rebuilt, not re-run.**
+5. **SD IS INSTALLED AND THE INSTALL IS CURRENT** — 16 Aug 2026 11:12:25,
+   `assert-current` exit 0, installed `sd.exe` `D2AAB6203CB80661`, which is the
+   build carrying the `sysseg.c` fix. Fresh install: uninstalled, **both trees
+   deleted and confirmed gone**, then installed from
+   `C:\Users\dmont\sdout\sd-setup-1.0-2.exe` (11:10:36 on 16 Aug, 4,833,587
+   bytes), packaged by Inno Setup from `C:\Users\dmont\stagetest`, staged and
+   bootstrapped at 11:08–11:09. **The cycle this began is still open — nothing
+   has changed source since, and item 1's verification was taken inside it.**
+   Bootstrap sanity, against the previous known-good tree: `gcat` 131,
+   `GPL.BP.OUT` 192, `PCODE.OUT` 56, `BP.OUT` and `cat` empty **in both**.
+   **The first source change ends the cycle** and the next test needs a fresh
+   install — uninstall, delete BOTH trees, reinstall.
+
+   **The build sequence, since it was reconstructed from `sd.iss` this
+   session** — MSYS2 is at `C:\msys64` and the Bash tool is Git Bash, which has
+   no toolchain at all:
+
+   ```sh
+   cd sdb_ai/sd64 && make sd
+   python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
+   ```
+   ```powershell
+   & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DStage=C:\Users\dmont\stagetest /O"C:\Users\dmont\sdout" gplbld\sd.iss
+   ```
+
+   `--bootstrap` **needs an elevated window** (`stage.py:358`) and **needs the
+   SD service stopped**: the staged `etc/fstab` points `/dev/shm` at the
+   production `C:\ProgramData\SD\shm` (`stage.py:196`), so its opening
+   `sd -stop` would otherwise tear down the running system. Package with `/O`
+   so the installer lands outside the repository.
 
 **Two things the owner has NOT decided, and nobody should decide for him:**
 whether `SH` itself is restricted (the menu system is his answer instead — §6),
