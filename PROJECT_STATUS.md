@@ -119,9 +119,9 @@ it. Call it first from anything new that tests the install.
    NEXT THING TO DO** (§7 step 4 for what it does and how). It took step 5f
    with it, so **§7 step 5 is complete**. **It cannot be tested without a fresh
    install**: the call sites are `LOGIN`, `CPROC` and `GRANTA`, and BASIC is
-   only compiled by a bootstrap. It also carries a **known weakness the owner
-   should rule on** — `sdusers` can edit the trail, because `<sysdir>` has to
-   be writable by them.
+   only compiled by a bootstrap. The trail is **append-only to the users it
+   records** — every ACL property of that was measured, and it is why
+   `win32audit.c` is the second file allowed to include `windows.h`.
 
 5. **SD IS INSTALLED BUT NO LONGER CURRENT — THE CYCLE IS ENDED, by the audit
    log.** The install of 16 Aug 2026 11:12:25 (`assert-current` exit 0,
@@ -4198,20 +4198,49 @@ the staging script and the Inno installer were all finished and removed.
    - Silent on failure, deliberately — an unwritable audit file must not be
      what stops somebody logging in.
 
-   **KNOWN WEAKNESS, NOT A DEFECT, AND THE OWNER SHOULD DECIDE:** `sdusers`
-   has **Modify** on `<sysdir>` (measured on the 11:12 install), so **an SD
-   user can edit or delete the trail that records them**. It has to be
-   writable by them — that is where the records come from. The remedy is an
-   installer ACL change: deny `Delete` and `WriteData` to `sdusers` on the
-   file while allowing `AppendData`, or put the trail in a subdirectory with
-   append-only rights. Not done — it is installer work beyond this step, and
-   Windows' own Security log already holds an independent record of the group
-   edits that `GRANT`/`REVOKE` make. **The `changelog` states this plainly**
-   rather than implying a stronger guarantee than the file has.
+   **THE TRAIL IS APPEND-ONLY TO THE USERS IT RECORDS.** Owner's decision,
+   16 Aug 2026 — *"admins are highly trusted, we are increasing security not
+   maximizing it"* — so Administrators and SYSTEM keep `F` and this raises the
+   floor against ordinary SD users only. `secure-audit.ps1`, run by the
+   installer **after** the data-tree `icacls` (before it, inheritance puts
+   `Modify` straight back), breaks inheritance and leaves `sdusers:(AD,RA,S)`.
 
-   **To verify:** it needs a fresh install (the BASIC only compiles in a
-   bootstrap). Then `sd`, `LOGTO SDSYS` unelevated (expect a `LOGTO REFUSED`
-   line), `LOGTO` a real account, and read `C:\ProgramData\SD\sdsys\audit`.
+   **Measured as an unelevated member of `sdusers`, all of it, 16 Aug 2026:**
+
+   | operation | result |
+   |---|---|
+   | append a record | works |
+   | read the file | refused |
+   | truncate to nothing | refused |
+   | overwrite a record in place | refused |
+   | rename or delete | refused |
+
+   **THIS IS WHY `win32audit.c` EXISTS**, and it is the second `windows.h`
+   file after `win32sem.c`. `open(O_WRONLY|O_APPEND|O_CREAT)` **fails with
+   errno 13** against that ACL: the MSYS2 runtime maps `O_WRONLY` to
+   `GENERIC_WRITE`, which contains `FILE_WRITE_DATA`. Granting `WriteData` to
+   make the POSIX open work hands back exactly what the ACL was for — measured
+   with it, an ordinary user **can** truncate the trail and **can** overwrite
+   individual records. `CreateFile` asking for `FILE_APPEND_DATA` alone works
+   and the ACL can withhold everything else. **Do not "simplify" this back to
+   `dio_open()`** — the first version of this step did exactly that, and
+   because `audit_message()` is silent it would have lost every ordinary
+   user's records without a word.
+
+   **Rotation carries the ACL** (`win32_audit_rotate()`): a plain `rename()`
+   leaves the next file to be created by the next writer, which inherits
+   `Modify` — so the trail would silently become editable from the first
+   rotation onwards. The DACL is read from the file being rotated away and
+   re-applied `PROTECTED`. Measured: the new file matches the old exactly,
+   with no inherited `(I)` entry. **Symptom if this ever breaks: `icacls` on
+   `audit` shows an inherited `sdusers:(I)(M)`.**
+
+   **Not verified end to end:** it needs a fresh install (the BASIC only
+   compiles in a bootstrap). Then `sd`, `LOGTO SDSYS` unelevated (expect a
+   `LOGTO REFUSED` line), `LOGTO` a real account, and read
+   `C:\ProgramData\SD\sdsys\audit` **from an elevated window** — an ordinary
+   one cannot, which is the point. What has been measured is every ACL
+   property above, on a directory mimicking the install, plus rotation.
 5. **DONE 15 Aug 2026, tenth session, except (f) which needs step 4** — §4 has
    the run, 16 of 16 on a fresh install. `GPL.BP/GRANTA` serves **`GRANT
    <account> TO <user>`, `REVOKE <account> FROM <user>` and `LIST.GRANTS

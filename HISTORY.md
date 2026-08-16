@@ -60,14 +60,33 @@ in the trail. `GRANTA` writes after the group edit, which **closes §7 step 5f**
 its header had named this file as one of its first callers and now says so in
 the past tense.
 
-**Known weakness, recorded rather than hidden.** `sdusers` holds **Modify** on
-`<sysdir>` — measured, not assumed — so an SD user can edit or delete the trail
-that records them. It has to be writable by them, since that is where the
-records come from. The remedy is an installer ACL change (append-only for
-`sdusers` on that file) and it was **not** done: it is installer work beyond
-this step, and Windows' Security log independently records the group edits
-behind `GRANT`/`REVOKE`. The `changelog` tells users this plainly instead of
-implying a guarantee the file does not have.
+**Then the trail was made append-only, the same session.** The first version
+inherited `Modify` from the data tree, so the users it recorded could read,
+rewrite and delete it. Owner's decision on being shown that: *"admins are
+highly trusted - we are increasing security not maximizing it"*, so
+Administrators and SYSTEM keep full control and the floor is raised against
+ordinary SD users only. `secure-audit.ps1` leaves `sdusers:(AD,RA,S)`.
+
+**The measurement that redirected the design.** `open(O_WRONLY|O_APPEND)`
+**fails with errno 13** against an append-only ACL — the MSYS2 runtime maps
+`O_WRONLY` to `GENERIC_WRITE`, which contains `FILE_WRITE_DATA`. Granting
+`WriteData` to make it work gives back exactly what the ACL was for: measured
+with it, an ordinary user **can** truncate the trail to nothing and **can**
+overwrite individual records in place. Since `audit_message()` is deliberately
+silent, shipping the POSIX version would have lost every ordinary user's
+records without a word — the failure this port keeps having. So the write went
+to `win32audit.c`, one `CreateFile` asking for `FILE_APPEND_DATA` alone; that
+is the second `windows.h` file after `win32sem.c`, and the same shape.
+
+Measured as an unelevated `sdusers` member against the shipped ACL: append
+works; read, truncate, overwrite, rename and delete are all refused.
+
+**Rotation had the same trap one level down.** A plain `rename()` leaves the
+new file to be created by the next writer, which inherits `Modify` — so the
+trail would have gone quietly back to editable at the first rotation, long
+after anyone was looking. `win32_audit_rotate()` copies the DACL off the file
+being rotated away and re-applies it `PROTECTED`; measured, the new file
+matches the old with no inherited entry.
 
 ---
 
