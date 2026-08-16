@@ -166,7 +166,12 @@ it. Call it first from anything new that tests the install.
      was the `sdsshonly` add. Fixing it means `!ps_script` passing a label;
      **logging the script body is permanently out** — see the next item.
    - ~~The script `!ps_script` writes can contain a password in clear.~~
-     **FIXED IN SOURCE 16 Aug 2026, UNBUILT AND UNTESTED.** And the disclosure
+     **FIXED AND VERIFIED 16 Aug 2026** on the 16:26 install: `PSTMP` exists,
+     `don` unelevated is refused even reading its ACL, and — the useful part —
+     **`adopt-account` succeeded during the install itself**, which is
+     `!ps_script` going through the new directory before any test of mine ran.
+     `assert-current` exit 0.
+     What it was: And the disclosure
      was the lesser half: the account directory carries
      `sdusers:(OI)(CI)(M)`, inherited by every file, so another SD user could
      **rewrite a pending script between SD writing it and the elevated helper
@@ -197,6 +202,26 @@ it. Call it first from anything new that tests the install.
      that ACL; `CREATE.ACCOUNT` should still work end to end. A stronger check
      needs a second SD user attempting to read another's `$PS.TMP.<n>`
      mid-flight, which nothing automates today.
+
+   - **THE UNINSTALLER LEFT AN EMPTY PATH ENTRY EVERY CYCLE — FIXED IN SOURCE
+     16 Aug 2026, UNBUILT.** Owner read the system PATH and found **23 empty
+     entries in 30**. `RemoveFromPath` (`sd.iss`) keeps the separator *before*
+     our directory and skips the one *after* it: correct for an entry in the
+     middle, but Inno always **appends**, so ours is always last, the tail is
+     empty and the kept separator dangles. The next install appends after it,
+     so the run grows by one per cycle. Simulated against this machine's real
+     PATH: old code leaves **30 entries, 24 empty**; fixed code leaves **6, 0
+     empty**. The fix is a `while` loop rather than one strip, so **the next
+     uninstall clears the whole accumulated run**, not just the slot it made —
+     it can only ever delete separators, never an entry, which is what makes
+     that safe on a PATH we do not own.
+     **ISCC ALONE REBUILDS THIS** — `sd.iss` is not copied into
+     `ProgramFiles` by `stage.py`, so no bootstrap is needed, unlike every
+     other change today.
+     **And the report was half a false alarm worth remembering:** SD *was* on
+     the PATH; the pasted value came from a shell opened before the install.
+     Windows broadcasts the change and running processes keep their copy. Check
+     the registry, not `$env:PATH`, when asked this.
 
    **Description of the feature follows.** 16 Aug 2026, thirteenth session,
    `ea052a4` and `6dadaa1`.
