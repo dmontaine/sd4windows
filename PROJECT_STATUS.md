@@ -121,13 +121,43 @@ it. Call it first from anything new that tests the install.
      the helper. **`CREATE.ACCOUNT` was re-run in the same session as a
      regression check**, since that edit changed how `ps` is built for every
      action: `sdacct12` created correctly, groups and all.
-   - **The helper writes no log unless `-LogFile` is passed, and `!elevate`
-     never passes one**, so `Say "ran $req -> $code"` goes nowhere and both
-     defects had to be diagnosed from outside the process. **Passing it once
-     settled the watchdog question in two lines**, after three attempts without
-     it had failed — the case for it is now measured, not argued. Where such a
-     log should live is still **not decided**: not the data tree, which every
-     `sdusers` member can write. Nobody should pick that alone.
+   - ~~The helper writes no log.~~ **BUILT 16 Aug 2026, owner's decision,
+     UNBUILT AND UNTESTED at the time of writing.**
+     `C:\ProgramData\SD\sd-elevate.log`, beside `sdsvc.log`, created by the
+     installer through the new `gplbld/secure-log.ps1` with **`sdusers` absent
+     from the ACL entirely** — stricter than the audit trail, which must keep
+     `sdusers:AppendData` because unelevated SD writes it; nothing unelevated
+     writes this one.
+     **`!elevate` is unchanged and deliberately so**: nothing in BASIC can name
+     the file, since the installed tree maps only `/dev/shm` and there is no
+     POSIX path for the data tree. `sd-elevate.ps1` derives it from
+     `%ProgramData%`, which is how the installer names it too (`DataDir` is
+     `{commonappdata}\SD`), so the two cannot drift.
+     **It logs only if the file already exists.** Creating it on the fly would
+     inherit the data tree's Modify for every `sdusers` member, and a record of
+     privileged work its own subjects can rewrite is worse than none.
+     **AppData was considered and rejected** (owner raised it, 16 Aug 2026):
+     `%LOCALAPPDATA%` grants the user Full Control and the user **owns** it, so
+     an owner's implicit `WRITE_DAC` lets the subject of the log reset any ACL
+     put on it. `C:\ProgramData\SD` is owned by `BUILTIN\Administrators`.
+     Measured, not argued.
+     **TO TEST:** install, `LOGTO SDSYS`, `CREATE.ACCOUNT`; expect `helper up`,
+     `ran ... -> 0` and `session ... has gone - exiting` lines, and expect
+     `don` to be refused reading the file unelevated.
+   - **THE SCRIPT `!ps_script` WRITES CAN CONTAIN A PASSWORD IN CLEAR, AND
+     LANDS WHERE `sdusers` CAN READ IT.** Found 16 Aug 2026, **not fixed, not
+     decided.** `!ps_script` writes each script to `$PS.TMP.<userno>` in the
+     current account directory — `C:\ProgramData\SD\sdsys` for an SDSYS
+     session — where `sdusers` holds Modify. It is deleted immediately after
+     running, but during that window another SD user can read it, and for
+     `!set_passwd` it carries a new Windows password. **The move off the
+     command line was still right** — a command line is visible to every user
+     on the machine, not just `sdusers` — so this narrowed the exposure rather
+     than creating it, but it did not close it. The fix would be writing those
+     scripts somewhere only the session and its helper can reach.
+     **Related standing rule: the helper log must never record script
+     contents**, only paths and exit codes, for exactly this reason. Noted in
+     `sd-elevate.ps1`.
 
    **Description of the feature follows.** 16 Aug 2026, thirteenth session,
    `ea052a4` and `6dadaa1`.
@@ -303,9 +333,10 @@ it. Call it first from anything new that tests the install.
    to the users it records**, which is why `win32audit.c` is the second file
    allowed to include `windows.h`.
 
-5. **SD IS INSTALLED, RUNNING, AND THE INSTALL IS CURRENT — THE CYCLE IS
-   OPEN.** The install of **15:26:33** carries all four fixes and no source has
-   changed since. Identify it by `gcat/!OS_GROUP` 1,933 and `gcat/$CPROC`
+5. **SD IS INSTALLED AND RUNNING, AND THE INSTALL IS STALE — THE CYCLE IS
+   ENDED.** The install of **15:26:33** carried all four fixes and everything
+   measured on it is finished; **`gplbld/` changed afterwards for the helper
+   log**, so it is a build behind and nothing more may be measured on it. Identify it by `gcat/!OS_GROUP` 1,933 and `gcat/$CPROC`
    25,208 rather than by `sd.exe`, which is `239BB9C3E43E4829` on every install
    of this session — **no C changed all day**. Four full cycles were built
    (13:52:43, 14:14:28, 14:21:50, 15:26:33); each one surfaced or confirmed a
@@ -468,8 +499,8 @@ is closed by measurement. **§5.6.2 IS COMPLETE, RDP INCLUDED** — 15 Aug 2026,
 tenth session, on a VirtualBox guest (§4). Nothing is left half-applied.
 
 **STATE OF THIS MACHINE — READ FIRST. SD IS INSTALLED, RUNNING, AND THE INSTALL
-IS CURRENT**, as of 16 Aug 2026 15:26:33 (header item 5). **Stop the service
-before staging with `--bootstrap`.**
+IS STALE**, as of 16 Aug 2026 15:26:33 (header item 5) — a build behind on
+`gplbld/` only. **Stop the service before staging with `--bootstrap`.**
 
 | Thing | State |
 |---|---|
