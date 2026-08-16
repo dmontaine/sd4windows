@@ -27,6 +27,39 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - Elevation verified end to end
+
+Fourteenth session, `3e010cf` and `2f32f6f`, on the 14:21:50 install.
+**An unelevated SD session created a Windows account.**
+
+`sd` → `LOGTO SDSYS` → UAC accepted → `WHO` says `2 SDSYS from DON` →
+`CREATE.ACCOUNT USER sdacct11` → `User sdacct11 Created`, in `sdusers`,
+`sdsshonly` and `sdu_sdacct11`, not an administrator, SD side registered →
+`LOGTO DON` → `OFF`. No helper and no pipe survive. The trail:
+
+    ELEVATION GRANTED account=SDSYS
+    LOGTO account=SDSYS
+    ELEVATION RELEASED account=DON
+    LOGTO account=DON
+
+with ten seconds between grant and release - `CREATE.ACCOUNT` working through
+the helper. **`ELEVATION RELEASED` also answers a question left open below:**
+the helper exits because `LOGTO` out of SDSYS sends `STOP`, not because the
+watchdog found a corpse. Declining the prompt was re-measured on this same
+build and is still refused with `sysmsg(10002)`.
+
+**Three installs were needed, each a full uninstall with both trees deleted.**
+That is the cycle rule working rather than overhead: the first install produced
+defect 1, the second produced defect 2, and neither would have been visible in
+a tree carrying a mixture of the two.
+
+Still open, none of it blocking: the `-OwnerPid` watchdog has never been
+exercised, since every helper so far was told to stop; `GRANT`/`REVOKE` has
+still not been watched writing a record; and the helper writes no log unless
+`-LogFile` is passed, which `!elevate` never does.
+
+---
+
 ## 16 Aug 2026 - LOGTO SDSYS works; the helper could never run a script
 
 Fourteenth session, continuing below. `3e010cf` built and installed:
