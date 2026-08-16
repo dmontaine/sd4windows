@@ -133,3 +133,83 @@ first time, so BASIC can now tell a transport failure from a context error.
 `sdb64`'s `dev` branch is the only place these constants live upstream — `main`
 does not have them. When `dev` merges to `main` they arrive; until then anyone
 building the client against `sdb64` `main` has neither.
+
+---
+
+## 3. `start_sd()` treats a failed `fork()` as success, and the daemon dies silently
+
+**Status:** PROPOSED, 16 Aug 2026
+**Affects:** `sd64/gplsrc/sysseg.c` (`start_sd()`) and `sd64/gplsrc/sdlnxd.c` —
+both present on `main` and `dev`
+**Severity:** `sd -start` reports that SD has started when it has not, and
+leaves a shared memory segment and semaphore set behind. Every later session
+then fails on the orphaned semaphores with a message that does not describe the
+problem. Recovery needs `sd -stop`, which is not what the message suggests.
+
+**The fork is not checked.** `sysseg.c` around line 351:
+
+```c
+  cpid = fork();
+  if (cpid == 0) { /* Child process */
+    ...
+    execl(path, path, NULL);
+    ...
+  } else /* Parent process */
+```
+
+`fork()` returns `-1` on failure, and `-1` is not `0`, so a failure takes the
+*parent* branch. The daemon is never started, nothing is reported, and
+`start_sd()` carries on to tell the user SD has started. On Linux this is
+reachable whenever `fork()` hits `EAGAIN` or `ENOMEM` — process limits, cgroup
+pressure, a loaded machine.
+
+It matters more than a missed error usually would because of *where* it sits:
+`bind_sysseg(TRUE, ...)` has already created the shared segment and the
+semaphores by this point. So the failure leaves a half-built system that looks
+started, and the next `sd` session finds semaphores with no daemon behind them.
+
+**Suggested fix** — report it and let the existing `sd -stop` path clean up,
+rather than trying to unwind `bind_sysseg()` here:
+
+```c
+  cpid = fork();
+
+  if (cpid < 0) {
+    fprintf(stderr, "Cannot start %s - fork() failed: %s\n", SDWIND_NAME,
+            strerror(errno));
+    fprintf(stderr, "Run sd -stop to clear what this left behind.\n");
+    return FALSE;
+  }
+
+  if (cpid == 0) { /* Child process */
+```
+
+(Upstream's daemon is `sdlnxd`; this port renamed it, hence the macro.)
+
+**And the daemon cannot say why it failed to start.** `sdlnxd.c` ends its
+startup with:
+
+```c
+  if (!get_semaphores(FALSE, errmsg))
+    exit(2);
+```
+
+`errmsg` has just been filled in with the reason and is then discarded, and the
+`shm_open`/`fstat`/`mmap` failures above it are bare `exit(1)`s. When the daemon
+will not start there is nothing to read anywhere — `log_message()` is not usable
+this early, because it takes `ERRLOG_SEM` and the semaphores are precisely what
+has failed. Printing `errmsg` to `stderr` before each exit costs nothing and is
+the difference between a diagnosis and a guess:
+
+```c
+  if (!get_semaphores(FALSE, errmsg)) {
+    fprintf(stderr, "sdlnxd: %s\n", errmsg);
+    exit(2);
+  }
+```
+
+**How it was found.** Porting to Windows, SD was run from a Windows service.
+`sd -start` printed "SD has been started", no daemon existed, and every
+subsequent session failed on the semaphores. Nothing in the two programs
+reported anything, so the cause had to be reconstructed from file ownership and
+exit codes. The Windows-specific part of that is ours; these two are not.

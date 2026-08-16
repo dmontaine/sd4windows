@@ -27,6 +27,65 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - SD will not run under LocalSystem, and sem_open times out saying so
+
+Eleventh session, later the same day, `0bb5e0b`→. The service was taken on as a
+fix and turned into a design finding: **SD cannot be started by a LocalSystem
+process in session 0 at all**, so no version of `sdsvc.c` can make the 15 Aug
+service work. The owner decides what replaces it.
+
+**Three starts on one install, and the third is the control.** The service
+(LocalSystem, session 0) leaves `sdwind` dead after ~10 seconds, twice to the
+second. A scheduled task as SYSTEM in session 0, **with no service anywhere**,
+kills it in the same ~10 seconds. Started from an interactive elevated session
+it is alive at 40 seconds and has been all along.
+
+**What it says, once it could say anything.** `sdwind` used to exit 1 or 2 in
+silence; with a message added it prints **`sdwind: Error 116 getting
+semaphores`**. errno 116 is `ETIMEDOUT` and it means it literally - the probe
+`sem_open` at `sdsem.c:82` **blocks for about ten seconds and times out**. That
+is the entire ten-second lifetime, and it means **`sdwind` never reaches its
+main loop**: a note earlier in this session reasoning about `check_lost_users()`
+and `sleep(60)` was analysing code that never runs. It looks alive because it is
+sitting in `sem_open`.
+
+**It is not a cross-session problem, and a claim that it was is withdrawn.**
+An earlier probe concluded "a session-0 service cannot serve a session-1 user";
+it had raced with `sdwind`'s death and could not tell a refusal from a stale
+set. In the deciding probe **both** processes were SYSTEM in session 0 - one
+created the semaphores and its own child could not open them. Whether an
+ordinary user can attach to a service-started SD is still unknown and cannot be
+asked until SD survives in session 0.
+
+**Four wrong turns, all from the same habit - inferring a mechanism instead of
+measuring it.** `CREATE_NO_WINDOW` was removed as a candidate cause and changed
+nothing. A first `sdwind` check asked whether the process EXISTED and was
+satisfied 500ms in by one already exiting, which made the service report RUNNING
+*and* skip its own cleanup. Two runs of child-output capture produced an empty
+file that read exactly like a silent program. And "a failing session-1 sd kills
+the daemon" fitted three observations and was killed by one control that ran no
+`sd` at all.
+
+**What was fixed and is worth keeping whatever is decided.** `sysseg.c`:
+`start_sd()` never checked `fork()`, so a `-1` fell into the parent branch and a
+failed start reported success - upstream's too, `UPSTREAM_FIXES.md` #3, along
+with the silent daemon. `sdwind.c` says why it will not start. `sdsvc.c` waits
+for `sdwind` to *survive* rather than appear, watches it afterwards instead of
+sleeping on `INFINITE`, logs to `ProgramData\SD\sdsvc.log`, and runs `sd -stop`
+behind a failure. Measured result: `shm` empty afterwards and `adopt-account`
+reporting the honest `SD has not been started` instead of `Error 116`. **A
+failed service no longer breaks the machine**, which it did all morning -
+including taking out the installer's own account step.
+
+**Still open:** the service itself. Candidates, none tested - a service under a
+normal local account rather than LocalSystem (needs an account with a password,
+so the owner must make it); no service at all, starting SD in a user session as
+before 15 Aug; or finding what times out inside the MSYS2 runtime, where
+`cygserver` is the usual answer to IPC that works interactively and not as a
+service. **§7 step 1f stays regressed** until the service is settled - the
+installer gives the installing user no SD account, now for the honest reason
+that SD is not running.
+
 ## 16 Aug 2026 - The cycle ran: four of five pass, and the service is the one that does not
 
 Eleventh session, `a60b76b`→. The tenth session handed over three pieces written
