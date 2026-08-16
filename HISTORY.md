@@ -127,6 +127,62 @@ and `VIRTUAL\sdacct7` **refused** with `The connection was denied because the
 user account is not authorized for remote login` — the deny right's own
 wording, not a credentials failure. §5.6.2 is complete.
 
+**THE SESSION ENDED HERE, WITH SOURCE FINISHED AND NOTHING TESTED.** Credits
+ran out before the cycle could run. Three things were written and never
+executed — the login rule, the service, and the `LIST.GRANTS` carriage-return
+fix — and PROJECT_STATUS header item 1 is the cycle plus the order to test
+them in. Nothing is half-applied; the tree builds.
+
+**The sequencing rule was broken twice, and is now enforced rather than
+remembered.** CLAUDE.md has required since 15 Aug that a test cycle begin with
+a fresh install. It says when a cycle *begins* and said nothing about what
+*ends* one, and that gap was enough: "install, start testing, edit source, keep
+reading results" passes it while measuring a tree that no longer exists. Both
+failures were that shape — `sd.iss` edited after the installer was built with
+the run in flight read anyway, and `GPL.BP/OS_GROUP` hand-recompiled into the
+installed tree with `LIST.GRANTS` then measured on it. The owner asked whether
+more was needed to make the rule absolute; the answer was yes.
+`gplbld/assert-current.ps1` now answers one question — does the installed tree
+match source — and `verify-createaccount.ps1` refuses to run without it.
+**Hashing `sd.exe` is not sufficient and that is the whole point of its second
+check**: run against the tree at the time it reported the binary MATCHING and
+five source files newer, which is exactly the case a binary-only guard waves
+through. `verify-sshonly.ps1` and `verify-allowgroups.ps1` are exempt — they
+test Windows behaviour, not SD, and run on machines with no install.
+
+**NOBODY LOGS IN TO AN ACCOUNT BUT THEIR OWN** — owner's rule, replacing what
+§5.6 had said since 14 Aug. An administrator has access to all accounts *once
+they have logged into SD, not before*, so entry is always your own account and
+`LOGTO` moves you, which is where the grant is tested and where elevation
+already passed everything. Two things let somebody stand in an account without
+ever standing in their own, and both are gone from `GPL.BP/LOGIN`: an elevated
+session with no account named went to SDSYS, and `-A<anyone>` skipped the
+`ACC$GROUP` test when elevated. `-INTERNAL` stays exempt because during a
+bootstrap there is no account to land in and nothing to `LOGTO` from — and if
+that exemption is ever broken, nothing can be built or installed at all.
+
+**SD RUNS AS A SERVICE, and it is a separate native program for a reason worth
+keeping.** A service must call `StartServiceCtrlDispatcher`, and `sd.exe` is
+built against the MSYS2 POSIX runtime where `linuxlb.c` records a deliberate
+decision to keep `windows.h` out — `IsElevated()` uses `getgrouplist()` rather
+than `GetTokenInformation()` precisely so that it need not. Adding a service
+entry point to `sd.exe` would have overridden that in passing. §5.3 already
+keeps two toolchains on purpose, so `gplsrc/sdsvc/sdsvc.c` is built with the
+UCRT64 compiler beside the client DLL; `objdump` shows only ADVAPI32, KERNEL32
+and UCRT, no `msys-2.0.dll`. It sits in its own directory because `SRCS` is
+`$(wildcard *.c)` over `gplsrc`, which would otherwise compile Win32 code with
+the POSIX flags. The installer creates it **before** the account step, so
+`adopt-account.ps1` finds SD already up and the race that cost an install
+earlier the same day has nothing left to lose.
+
+**Three owner corrections, each a contradiction already sitting in the
+source**: `ADOPT` was named in the installer's failure dialog, the one place in
+the product documenting a verb §7 step 1f says stays undocumented; `-internal`
+was listed in the `changelog` among the gated switches although `sd --help`
+does not publish it; and the closing dialog told the user to run `sd -start`
+and `sd -ASDSYS`, both wrong once SD is a service and login is your own account
+only.
+
 **LATER STILL — §7 step 5, the GRANT verb.** `GPL.BP/GRANTA` serves `GRANT
 <account> TO <user>`, `REVOKE <account> FROM <user>` and `LIST.GRANTS
 <account>` from one program behind three VOC entries. 16 of 16 on a fresh

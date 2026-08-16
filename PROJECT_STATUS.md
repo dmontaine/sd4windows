@@ -5,29 +5,65 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 15 Aug 2026, tenth session, `546e9cd`→. **HEADER ITEM 2 AND
-§7 STEP 2 ARE BOTH CLOSED.** 2b and 2c verified on a fresh install, then the
-install and **the RDP refusal** verified on a second machine — a VirtualBox
-guest (§4). **§5.6.2 is complete, RDP included, and nothing is waiting on
-hardware.** The ninth session closed 2a; the eighth §7 step 1f; steps 1c, 1d
-the seventh; step 0 the sixth.
+**Last updated:** 15 Aug 2026, tenth session, `546e9cd`→`e3f5257`. **THE
+SESSION ENDED WITH SOURCE FINISHED AND NOTHING IN IT TESTED.** Three pieces
+were written and never run — the login rule, the service, and the
+`LIST.GRANTS` fix — and the session ran out before the cycle could be done.
+**Item 1 below is that cycle and it is the whole of what comes next.** Earlier
+in the same session: header item 2 and §7 step 2 closed, §5.6.2 complete
+including RDP, and §7 step 5 done bar its audit half.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
-reinstall.** Owner's rule, 15 Aug 2026, now in CLAUDE.md because §6 was too
-late a place to find it. **Never a reinstall over the top**, and **do not reason
-your way out of it from file hashes**: the ninth session tried, and 4 matching
-files out of ~3,455 — chosen as the ones the last three commits touched, and
-never including `gcat` — is not evidence a tree is current.
+reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
+**Never a reinstall over the top**, and **do not reason your way out of it from
+file hashes**: the ninth session tried, and 4 matching files out of ~3,455 is
+not evidence a tree is current. **The second half of that rule was added on
+15 Aug 2026 after the rule was broken twice in one session** — both times by
+editing source while a test was in flight and reading the results anyway.
+**It is enforced now**: `gplbld/assert-current.ps1` exits non-zero unless the
+installed tree matches source, and `verify-createaccount.ps1` refuses without
+it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **CLOSED 15 Aug 2026, tenth session. The install is current and clean.**
-   `C:\Program Files\SD` 19 files, `sd.exe` **15:41, sha256 `81594E79CC2B560C`,
-   hash-identical to `bin/sd.exe`**; `C:\ProgramData\SD\sdsys` **3,456 files,
-   `gcat` 130, `GPL.BP.OUT` 191**; `ACCOUNTS` holds `DON` and `SDSYS`;
-   `sshd_config` carries `AllowGroups` **and
-   `ForceCommand "C:\Program Files\SD\usr\bin\sd.exe"`** between SD's markers,
-   `sshd` Running.
+1. **DO THE CYCLE. NOTHING BELOW HAS BEEN TESTED AND THE INSTALLED TREE IS BOTH
+   STALE AND HAND-PATCHED** (an `OS_GROUP` was recompiled into it by hand).
+   `assert-current.ps1` will refuse everything until this is done.
+
+   ```
+   make -C /c/Users/dmont/Projects/sdb_ai_windows/sdb_ai/sd64 sd
+   python gplbld/stage.py --stage C:\Users\dmont\stagetest --force --bootstrap
+   ISCC /DStage=C:\Users\dmont\stagetest /OC:\Users\dmont\sdout gplbld\sd.iss
+   ```
+   then uninstall, delete **both** trees, install, and
+   `allow-ssh-groups.ps1 -Installed` by hand (header item 5).
+
+   **`make` must run from `sd64`. Use `make -C <path>`** — a `cd ... && make`
+   inside `bash -lc` was silently losing its `cd` on 15 Aug 2026 and reporting
+   `No rule to make target 'sd'`.
+
+   **Then test, in this order, because each depends on the one before:**
+
+   a. **The service.** `Get-Service SD` Running, `sdwind` present. **The most
+      likely failure is `sd -start` under LocalSystem** — it is gated on
+      `IsElevated()`, which asks `getgrouplist()`, and LocalSystem's group list
+      is not an interactive administrator's. If the service starts but `sdwind`
+      does not appear, that is where to look first. Then reboot and confirm SD
+      is up without anyone typing anything.
+   b. **The login rule.** Elevated `sd` must land in **`DON`, not SDSYS** —
+      `WHO` answers it. `LOGTO SDSYS` from there must work. `sd -ASDSYS` must
+      be **refused** with `sysmsg(10051)`. **`sd -internal <cmd>` must still
+      reach SDSYS**, and if it does not, nothing can be bootstrapped or
+      installed — that is the one to check before anything else in this group.
+   c. **`LIST.GRANTS`** on two members: no blank line between them. Verified
+      only on a hand-recompiled `OS_GROUP` so far.
+   d. **`verify-createaccount.ps1 -Account <fresh>`**, which now sends
+      `LOGTO SDSYS` instead of using `-ASDSYS`, and which calls the guard
+      first. 16 of 16 previously.
+   e. **The uninstaller removes the service** rather than leaving a failing one.
+
+   **Windows users `sdacct6`, `sdacct7`, `sdacct8` survive an uninstall**, so
+   `CREATE.ACCOUNT` refuses those names. Use a fresh one.
 
    **THE NINTH SESSION'S INSTALL WENT STALE WITHIN THE HOUR, AND THAT IS THE
    normal case, not an accident.** It was hash-identical at 09:58; five commits
