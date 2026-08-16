@@ -26,16 +26,31 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **THE SERVICE WORKS. SD RUNS IN SESSION 0 AND ORDINARY USERS REACH IT** —
-   16 Aug 2026, eleventh session, verified on a fresh install (§4). **The one
-   thing still unproven is a RESTART**: everything below was measured on the
-   install's own start, not on a boot. **Reboot and check before calling the
-   owner's requirement met**, which is *a production system with nobody logged
-   in at the machine, available to every user from system startup*.
+1. **START HERE: REBOOT AND CHECK. IT IS THE ONLY THING LEFT AND IT IS A
+   MINUTE'S WORK.** The service works on a fresh install (§4) but has **never
+   been measured across a restart**, which is the last clause of the owner's
+   requirement, stated 16 Aug 2026: *a production system with nobody logged in
+   at the machine, available to every user from system startup*.
 
-   Native Win32 semaphores in the `Global\` namespace did it; POSIX
-   `sem_open()` cannot work in session 0 at all. What was written is below,
-   and the measurements are in §4.
+   **No rebuild and no reinstall are needed.** `assert-current` passed at 10:23
+   on 16 Aug 2026 and nothing committed since touches `gplsrc`, `sdsys` or
+   `gplbld`. Restart the machine, then — **unelevated, and ideally as a user
+   who was not logged in before** — run:
+
+   ```powershell
+   Get-Service SD              # expect Running / Automatic
+   Get-Process sdwind          # expect one
+   & 'C:\Program Files\SD\usr\bin\sd.exe'
+   ```
+
+   then `WHO` and `OFF` at the `:` prompt. **`<n> DON` from an unelevated
+   session after a restart is the requirement met**; anything else is not. If
+   it fails, **`C:\ProgramData\SD\sdsvc.log` is written by the service itself
+   and says how far it got** — read it before anything else.
+
+   **EVERYTHING ELSE ABOUT THE SERVICE IS VERIFIED, 16 Aug 2026** (§4). Native
+   Win32 semaphores in the `Global\` namespace did it; POSIX `sem_open()`
+   cannot work in session 0 at all.
 
    **What was written** — `gplsrc/win32sem.c` and `.h` (new), `sdsem.c`,
    `sysseg.c`, `sddefs.h`, `Makefile`, `gpl.src`:
@@ -286,7 +301,7 @@ does not touch them.
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
 | **`AllowGroups` AND `ForceCommand` ARE APPLIED** | 15 Aug 2026, ninth session, **by hand after the install** — `allow-ssh-groups.ps1 -Installed`, elevated. Lines 87–90 of `sshd_config`, before the `Match` block; original kept at `sshd_config.before-sd`; `sshd` restarted, Running. **THE UNINSTALLER TAKES IT BACK OFF** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`, correct behaviour), and **the installer will not put it back on this machine** because the task is hidden — header item 1. So it is a manual step of every fresh install here, and its absence is what the eighth session mistook for it being applied |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
-| Test accounts, Windows side | **`sdacct6`, `sdacct8` and `sdacct9` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct10`**. `sdacct9` is the current subject: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct9` and `sdsshonly`, not an administrator, and **it has an SD side too** — it is step 1c's test subject now that the fresh install wiped `SDACCT6`'s. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
+| Test accounts, Windows side | **`sdacct6`, `sdacct8`, `sdacct9` and `sdacct10` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct11`**. `sdacct10` is the current subject: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct10` and `sdsshonly`, not an administrator, and **it has an SD side too** — it is step 1c's test subject. `sdacct9`'s SD side did not survive the last fresh install. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
 | **`don` HAS AN SD ACCOUNT** | 16 Aug 2026, but **made by hand, not by the installer** — header item 3. `ACCOUNTS/DON`, `user_accounts\don`, `sdu_don`, and `WHO` says `13 DON`. The adopt log's `don keeps the Windows sign-in rights it already had` line still appears, so the lockout fix holds |
 | `sdsshonly` | exists, holding **`sdacct6`** and nothing else — the lockout fix means no administrator is in it, and `sdacct6` is there because that is what `CREATE.ACCOUNT` does to a non-administrator |
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
@@ -819,6 +834,13 @@ what it makes, the ssh-only branch, and all three logon measurements —
 session.** Service gone (`sc query SD` → 1060), `C:\Program Files\SD` gone, and
 **`C:\ProgramData\SD` kept, 3,486 files** — which is the other half of the test:
 the user's database is `uninsneveruninstall` and must survive.
+
+**16 Aug 2026 — NO REGRESSION FROM THE Win32 SEMAPHORES, eleventh session.**
+The IPC change rewrote the layer every SD session depends on, so the morning's
+tests were re-run against it on the same install: **11 of 11** on the login
+rule, `GRANT`/`REVOKE` and `LIST.GRANTS` (still no CR, still no blank line),
+and **16 of 16** on `CREATE.ACCOUNT` for `sdacct10`, ssh-only branch and all
+three logon measurements included.
 
 **16 Aug 2026 — THE SERVICE WORKS, AND AN ORDINARY USER REACHES IT, eleventh
 session, on a fresh install.** The whole chain, one install: the service

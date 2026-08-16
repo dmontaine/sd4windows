@@ -27,6 +27,68 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - Native Win32 semaphores, and the service finally works
+
+Eleventh session, `6755f92`→`ec0d1de`. The owner stated the requirement that
+settled the design: **a production system with nobody logged in at the machine,
+available to every user from system startup.** That rules out starting SD in a
+user session, so session 0 had to work - and POSIX `sem_open()` cannot work
+there at all.
+
+**He also asked whether to install a native Windows compiler.** He already has
+one: `Makefile:89`, UCRT64 gcc, which builds the client DLL and the service
+wrapper. It would not have helped anyway - the failure is the RUNTIME, not the
+compiler, and the same source calls `fork()` and `sem_open()` whoever compiles
+it. MSVC specifically would force the whole fork→CreateProcess migration up
+front with no working baseline, against a 2007 GNU C codebase and a GNU make
+build. Recorded because the question will recur.
+
+**What was built.** POSIX named semaphores replaced by Win32 ones in the
+`Global\` namespace. `Global\` is the half that lets a session-0 service and a
+session-1 user name the same object - a bare name is session-local and would
+have reproduced the fault wearing a different hat. They are created granting
+SYSTEM, Administrators and `sdusers`, because a default descriptor grants the
+creator's token and nothing else, which would start the service and then refuse
+every user on the machine *while looking healthy*. `start_sd()` now waits for
+`sdwind` to publish its pid: a Win32 semaphore dies with its last handle, so
+`sd -start` must not create the set and exit before the daemon attaches - and
+it also stops `sd -start` reporting success without ever looking.
+
+**The shared segment was deliberately left on POSIX `shm_open()`.** `sdwind`
+reached `get_semaphores()` in session 0, so it had already mapped the segment.
+Replacing what is not broken would have widened the change for nothing.
+
+**windows.h could not go in `sdsem.c`, and that is measured rather than
+stylistic.** `linuxlb.h` defines `GetCurrentProcessId()` as a nought-argument
+macro against w32api's `VOID` form, SD declares its own `Sleep`, and the
+`Private` macro expands inside the w32api headers - three compile errors, all
+from one include. So `win32sem.c` includes windows.h and **no SD header at
+all**, and `sdsem.c` talks to it through `void*` handles. The owner sanctioned
+the exception; keeping it to one file with no SD headers is what keeps it
+auditable, and PROJECT_STATUS.md 5.4's rule still stands everywhere else.
+
+**Verified, on a fresh install.** Service `Running`, `sdwind` alive at t+30s -
+past the ten-second mark that had killed it every time - all six
+`Global\sd_sem_716d0302_*` openable, and `adopt-account` reporting `don now has
+an SD account`, which closes §7 step 1f. Then the half that had never been
+tested and is what the requirement rests on: **from an unelevated session-1
+process, a bare `sd` answered `2 DON`** - an ordinary user inside an SD that a
+LocalSystem service started in session 0, nobody having typed anything. No
+regression either: 11 of 11 on the login rule, `GRANT`/`REVOKE` and
+`LIST.GRANTS`, 16 of 16 on `CREATE.ACCOUNT`.
+
+**Still unproven: a RESTART**, which is the last clause of the requirement.
+Everything above was measured on the install's own start. The machine is left
+with a working install and `assert-current` passing, so it needs no rebuild -
+just a reboot and an unelevated `sd`. PROJECT_STATUS header item 1 carries the
+three commands.
+
+**Unexplained and left that way: `sdsvc-sd.log` captured nothing**, twice, and
+the second attempt fixed a real bug in it (a non-inheritable `NUL` handle,
+where `STARTF_USESTDHANDLES` is all-or-nothing) without changing the outcome.
+It does not matter while the service works and `sdsvc.log` carries the useful
+lines, but **it must not be read as evidence that a child was silent**.
+
 ## 16 Aug 2026 - SD will not run under LocalSystem, and sem_open times out saying so
 
 Eleventh session, later the same day, `0bb5e0b`→. The service was taken on as a
