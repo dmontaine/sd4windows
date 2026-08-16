@@ -27,6 +27,49 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - The helper log, and why not AppData
+
+Fourteenth session, `0f33cf9`, verified on the 16:02:58 install. Owner's
+decision after asking where such a log should live.
+
+`C:\ProgramData\SD\sd-elevate.log`, created by the installer through the new
+`gplbld/secure-log.ps1`, with **`sdusers` absent from the ACL entirely**.
+Measured both ways: `don` unelevated is refused the contents **and the ACL** -
+`icacls` itself answers `Access is denied` - and after one `LOGTO SDSYS` plus
+`CREATE.ACCOUNT` the file holds `helper up`, six `ran ... -> 0` lines, `stop
+requested` and `helper exiting`.
+
+**AppData was the owner's suggestion and was rejected on a measurement, not a
+preference.** `%LOCALAPPDATA%` grants the user Full Control and, decisively,
+the user **owns** it; an owner keeps implicit `WRITE_DAC`, so the person the
+log is about could reset any ACL placed on it. `C:\ProgramData\SD` is owned by
+`BUILTIN\Administrators` and cannot be taken back by an ordinary SD user. A
+second problem settled it independently: the helper runs as whichever
+administrator consented at the UAC prompt, so with a standard user at the
+keyboard the log would land in a profile that need not be the session's.
+
+**The ACL is stricter than the audit trail's**, which reads backwards until you
+see why: `audit` must keep `sdusers:AppendData` because unelevated SD sessions
+write it themselves, and nothing unelevated ever writes this one.
+
+`!elevate` was left unchanged on purpose. Nothing in BASIC can name the file -
+the installed tree maps only `/dev/shm`, so `/` is `C:\Program Files\SD` and no
+POSIX path reaches the data tree - and `sd-elevate.ps1` derives it from
+`%ProgramData%` exactly as the installer does, so the two cannot drift.
+It logs **only if the file already exists**: creating one on demand would
+inherit the data tree's Modify for every `sdusers` member, and a record of
+privileged work its own subjects can rewrite is worse than none.
+
+**Known limit, recorded rather than left to be discovered:** every `ran` line
+names the same path, `!ps_script` reusing one temp file per user number, so the
+log gives the count and each exit code but not which operation was which.
+Naming them needs `!ps_script` to pass a label. **Logging the script body is
+permanently out** - `!set_passwd` travels the same path carrying a new Windows
+password in clear, which is also recorded in PROJECT_STATUS.md as an unfixed
+exposure in its own right.
+
+---
+
 ## 16 Aug 2026 - LIST.GRANTS verified; the elevation work is finished
 
 Fourteenth session, `d3de6b9`, on the 15:26:33 install (`assert-current` exit
