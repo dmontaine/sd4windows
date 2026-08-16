@@ -5,11 +5,11 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, thirteenth session, `8a1568d`→`6dadaa1`. Three
-things landed: the **restart failure is fixed and verified**; the **audit trail
-is built and verified**, append-only to the users it records; and **elevation
-without an elevated terminal is built, bootstrapped, and NOT YET RUN** — that
-last one is item 1 and is where the next session starts.
+**Last updated:** 16 Aug 2026, fourteenth session. Elevation was packaged,
+installed and **run for the first time**. The mechanism works; **the LOGTO it
+served was refused by `logto.authorised`, which never learned about it** — root
+cause found, measured in the audit trail, and **fixed in source but NOT YET
+BUILT OR TESTED**. Item 1.
 
 **A TEST CYCLE STARTS WITH A FRESH INSTALL — uninstall, delete BOTH trees,
 reinstall — AND ENDS AT THE NEXT SOURCE CHANGE.** Owner's rule, in CLAUDE.md.
@@ -24,9 +24,54 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-1. **START HERE: ELEVATION WITHOUT AN ELEVATED TERMINAL IS BUILT AND
-   BOOTSTRAPPED. NOTHING HAS RUN IT. The next step is to package, install and
-   test it — the machine is already most of the way there.** 16 Aug 2026,
+1. **START HERE: THE ELEVATION FIX IS IN SOURCE AND HAS NEVER BEEN BUILT.**
+   16 Aug 2026, fourteenth session. Build, stage, package, install, retest —
+   §7 step 4's test, restated at the end of this item.
+
+   **WHAT THE FIRST RUN MEASURED — do not re-derive any of it.** Installed
+   13:52:43 from a rebuilt installer, `assert-current` exit 0, `sd.exe`
+   `239BB9C3E43E4829`.
+
+   - **The elevation half works.** `LOGTO SDSYS` from an ordinary unelevated
+     prompt raised a real UAC prompt, the helper started, `!elevate` returned
+     0, and `ELEVATION GRANTED account=SDSYS` reached the trail. Twice.
+   - **The LOGTO was then refused**, `sysmsg(10003)`, and the trail said
+     `LOGTO REFUSED account=SDSYS reason=not granted` **in the same second as
+     the grant**. That adjacent pair is the signature; it is what to look for
+     if this regresses.
+   - **Declining the prompt is correct already** — `sysmsg(10002)` and
+     `reason=elevation refused or unavailable`. Different message from the bug
+     above, so the two are never confusable.
+   - **No helper outlived any session** and no `sd-elev-*` pipe was left,
+     though only because the process died — SD never called `STOP` (no
+     `ELEVATION RELEASED` in the trail at all). The `-OwnerPid` watchdog is
+     still **untested**.
+
+   **ROOT CAUSE.** `logto.authorised` (`CPROC:3602`) tests
+   `kernel(K$ADMINISTRATOR,-1)`, which reads `USR_ADMIN` — a session flag
+   seeded **once** from `IsElevated()` at process start (`kernel.c:195`) and
+   settable only by an `$internal` program (`op_kernel.c:325`). **SD stays
+   unelevated for life by design**, so that flag is false and always will be;
+   the privilege belongs to the helper process. `CPROC:2639` does set the flag,
+   but only after the move has succeeded — 40 lines past the test that needed
+   it. `6dadaa1` removed the old `and not(kernel(K$ADMINISTRATOR,-1))` gate and
+   added the `elevate('START')` call without joining the two halves.
+
+   **THE FIX, in `CPROC` and unbuilt:** `elev.obtained`, cleared at the top of
+   `int.logto` (per-LOGTO, or a grant would carry into the next LOGTO and admit
+   a caller to an account just refused), set when `elevate('START')` returns 0,
+   accepted by `logto.authorised`. Plus `logto.privilege.undo`, called at the
+   **four** failure exits between the elevation and the move, because none of
+   them released the helper.
+
+   **RETEST, unelevated:** `sd` → `LOGTO SDSYS` (accept the UAC prompt) →
+   `CREATE.ACCOUNT USER sdacct11` → `LOGTO DON`. Expect the trail to read
+   `ELEVATION GRANTED`, `LOGTO account=SDSYS`, then `ELEVATION RELEASED` —
+   **the last two are what has never once been observed.** Then decline a
+   prompt (already correct, cheap to confirm), and check no helper survives
+   `OFF`. The trail needs an **elevated** window to read; `don` cannot.
+
+   **Original description of the feature follows.** 16 Aug 2026,
    thirteenth session, `ea052a4` and `6dadaa1`.
 
    **What it does.** `LOGTO SDSYS` obtains OS privilege for the session, with
@@ -79,27 +124,24 @@ it. Call it first from anything new that tests the install.
      a value" warning. `GPL.BP.OUT` 192→193, `gcat` 131→132, `!ELEVATE`
      present in the catalogue.
 
-   **WHAT IS LEFT, and the machine is set up for it:**
+   **WHAT IS LEFT.** Only `CPROC` changed, so **`make sd` is not needed** and
+   skipping it keeps `bin/sd.exe` at `239BB9C3E43E4829` — relinking would
+   change the hash for nothing (see the `TimeDateStamp` note below). Stage and
+   package; both trees are stale on `CPROC` alone.
 
-   1. **`C:\Users\dmont\stagetest` is bootstrapped and current** (13:38:41,
-      `sd.exe` `239BB9C3E43E4829`, `sd-elevate.ps1` staged).
-   2. **THE INSTALLER AT `C:\Users\dmont\sdout` IS STALE — REBUILD IT.** It was
-      packaged from the *previous* staged tree as a parse-check of `sd.iss`.
-      Installing it would install the audit build without the elevation work.
+   ```sh
+   python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
+   ```
+   ```powershell
+   & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DStage=C:\Users\dmont\stagetest /O"C:\Users\dmont\sdout" gplbld\sd.iss
+   ```
 
-      ```powershell
-      & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DStage=C:\Users\dmont\stagetest /O"C:\Users\dmont\sdout" gplbld\sd.iss
-      ```
-   3. Uninstall, **delete BOTH trees and confirm gone**, install, `assert-current`.
-   4. **Test, unelevated:** `sd` → `LOGTO SDSYS` (expect a **UAC prompt**;
-      accept) → `CREATE.ACCOUNT USER <name>` → `LOGTO` back out. Then read
-      `C:\ProgramData\SD\sdsys\audit` **from an elevated window** and expect
-      `ELEVATION GRANTED`, the `LOGTO`, and `ELEVATION RELEASED`.
-      **Decline the prompt once** as well: the `LOGTO` must be refused and the
-      trail must say `reason=elevation refused or unavailable`.
-   5. **Confirm no helper outlives the session** — `OFF`, then check for a
-      stray `powershell` running `sd-elevate-helper.ps1`. The watchdog that
-      should prevent it (`-OwnerPid`, `K$WINPID`) is **coded and untested**.
+   `--bootstrap` needs an **elevated** window and the **service stopped**
+   (`stage.py:358`, and the staged `etc/fstab` points `/dev/shm` at the live
+   tree). It is also the **first compile of the fix** — `bootstrap.py` dies on
+   any compile error or "not assigned a value" warning, and `bbcmp.py` cannot
+   check `CPROC` beforehand because it does not support `DEFFUN`. Then
+   uninstall, delete BOTH trees, install, `assert-current`, retest as above.
 
 2. **CLOSED AND VERIFIED — THE SERVICE SURVIVES A RESTART, INCLUDING ONE WITH
    A LEFTOVER SEGMENT.** 16 Aug 2026, thirteenth session, `sysseg.c`. The
@@ -201,17 +243,17 @@ it. Call it first from anything new that tests the install.
    to the users it records**, which is why `win32audit.c` is the second file
    allowed to include `windows.h`.
 
-5. **SD IS INSTALLED, THE SERVICE IS STOPPED, AND THE INSTALL IS NO LONGER
-   CURRENT — THE CYCLE IS ENDED.** The install of 12:18:42
-   (`sd.exe` `ACA5330E140010F3`) carried the audit-log verification, taken in
-   full before anything was edited. **Source changed at 13:29 and the elevation
-   work followed**, so `bin/sd.exe` is now `239BB9C3E43E4829` and the installed
-   tree is a build behind. **Anything measured on it from now on is void.**
+5. **SD IS INSTALLED AND RUNNING, AND THE INSTALL IS NO LONGER CURRENT — THE
+   CYCLE IS ENDED.** The install of **13:52:43** (`sd.exe`
+   `239BB9C3E43E4829`) carried the first elevation run, and every measurement
+   in item 1 was taken on it and finished — including the audit read — before
+   `CPROC` was edited. **`CPROC` changed after 14:0x, so the installed tree is
+   a build behind and anything measured on it from now on is void.**
 
-   **The service was stopped for the bootstrap and left stopped.** That is not
-   a fault; the next step is a fresh install anyway. `C:\ProgramData\SD` still
-   holds the verified audit trail (287 bytes) and will be deleted by that
-   install — read it first if a record of the verification is wanted.
+   **The service is Running and `shm` holds a live segment**; the bootstrap
+   needs it stopped. The trail of the failed run was copied out to
+   `C:\Users\dmont\audit-dump.txt` (readable by `don`) and is quoted in item 1;
+   the next fresh install deletes the original.
 
    Bootstrap sanity, four runs now: `PCODE.OUT` 56, `BP.OUT` and `cat` empty
    throughout; `gcat` and `GPL.BP.OUT` went 131/192 → **132/193** when
@@ -363,20 +405,18 @@ enforced on this machine, by control and treatment (§4), and the lockout risk
 is closed by measurement. **§5.6.2 IS COMPLETE, RDP INCLUDED** — 15 Aug 2026,
 tenth session, on a VirtualBox guest (§4). Nothing is left half-applied.
 
-**STATE OF THIS MACHINE — READ FIRST. SD IS INSTALLED AND THE INSTALL IS
-CURRENT**, as of 16 Aug 2026 10:23:47, checked at 10:36 in the twelfth session
-(header item 5). **The service is `Stopped` and `shm` is empty**, which is the
-set-up for the pending reboot in header item 1 — do not disturb it before that
-boot has been read.
+**STATE OF THIS MACHINE — READ FIRST. SD IS INSTALLED, RUNNING, AND THE INSTALL
+IS STALE**, as of 16 Aug 2026 13:52:43 (header item 5). It is a build behind
+source on `CPROC` only. **Stop the service before staging with `--bootstrap`.**
 
 | Thing | State |
 |---|---|
-| **The install** | **PRESENT, 16 Aug 2026 10:23:47**, from `sd-setup-1.0-2.exe` of 10:23:21. 13 files in `usr\bin`, 3,488 in the data tree, `sd.exe` `C4982CBCD8518DEE`. `C:\ProgramData\SD` is `uninsneveruninstall`, so **a fresh cycle deletes it by hand as well** |
+| **The install** | **PRESENT, 16 Aug 2026 13:52:43**, from `sd-setup-1.0-2.exe` of 13:49:38 (4,847,414 bytes). 13 files in `usr\bin`, 3,477 in the data tree, `sd.exe` `239BB9C3E43E4829`. `C:\ProgramData\SD` is `uninsneveruninstall`, so **a fresh cycle deletes it by hand as well** |
 | `C:\Program Files\SD` | binaries in `usr\bin`. 19 rather than 18 files because `adopt-account.ps1` ships beside the other three `.ps1` scripts. Count and date in header item 1 |
 | `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS CURRENT** | `assert-current` exit 0 at 10:36 on 16 Aug 2026, twelfth session: `sd.exe` hashes the same as `bin/sd.exe` and no file in `gplsrc`, `sdsys` or `gplbld` is newer than the install. **It goes stale at the first source change** — a test cycle starts with a fresh install, header |
+| **THE INSTALL IS STALE** | `assert-current` was exit 0 at 13:53 on 16 Aug 2026 and the whole elevation run was measured under it. It went stale when `CPROC` was edited afterwards, which is the cycle ending as it should. **Nothing may be measured on this tree now** — restage, repackage, reinstall first |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
 | Reinstalling over this | **DON'T** — the rule in the header. The installer **finds an existing database and leaves it alone**, saying so in a dialog, which is §6's staleness trap working as designed: a reinstall-over updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`, so the machine runs yesterday's BASIC on today's binaries. Copying `GPL.BP` across and recompiling by hand was the old workaround; a fresh install is the rule that replaced it |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
@@ -389,13 +429,13 @@ boot has been read.
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
 | **`AllowGroups` AND `ForceCommand` ARE APPLIED** | 15 Aug 2026, ninth session, **by hand after the install** — `allow-ssh-groups.ps1 -Installed`, elevated. Lines 87–90 of `sshd_config`, before the `Match` block; original kept at `sshd_config.before-sd`; `sshd` restarted, Running. **THE UNINSTALLER TAKES IT BACK OFF** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`, correct behaviour), and **the installer will not put it back on this machine** because the task is hidden — header item 1. So it is a manual step of every fresh install here, and its absence is what the eighth session mistook for it being applied |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
-| Test accounts, Windows side | **`sdacct6`, `sdacct8`, `sdacct9` and `sdacct10` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct11`**. `sdacct10` is the current subject: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct10` and `sdsshonly`, not an administrator, and **it has an SD side too** — it is step 1c's test subject. `sdacct9`'s SD side did not survive the last fresh install. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
+| Test accounts, Windows side | **`sdacct6`, `sdacct8`, `sdacct9` and `sdacct10` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct11`**. `sdacct11` is **still free** — the retest in header item 1 is what will use it. `sdacct10`: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct10` and `sdsshonly`, not an administrator, **but its SD side did not survive the 13:52:43 install**, so step 1c needs a fresh subject. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
 | **`don` HAS AN SD ACCOUNT** | 16 Aug 2026, **made by the installer this time** — header item 3, §7 step 1f closed. `ACCOUNTS/DON` present and `adopt-account.log` says `don now has an SD account`. Its `don keeps the Windows sign-in rights it already had` line still appears, so the lockout fix holds |
 | `sdsshonly` | exists, holding **`sdacct6`** and nothing else — the lockout fix means no administrator is in it, and `sdacct6` is there because that is what `CREATE.ACCOUNT` does to a non-administrator |
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
-| Accounts, **SD side** | `SDSYS`, `DON` and `SDACCT10`. `DON` was made by the installer's own step — header item 3 |
-| SD | **not running.** `shm` is empty and the service is `Stopped`, deliberately — header item 1's pending reboot needs exactly this. `sd -start` **needs an elevated window**: the gate covers `-start` |
-| SD at boot | **THE SERVICE DOES NOT SURVIVE A RESTART** — 16 Aug 2026, twelfth session, header item 1 and §4. It starts SD correctly when the installer creates it, and ordinary users reach it; but its shutdown `sd -stop` leaks the segment, `/dev/shm` is NTFS so the segment outlives the reboot, and the next boot's `sd -start` refuses it as `SD_WRECKAGE`. It does fail honestly — `STOPPED`, a reason in `C:\ProgramData\SD\sdsvc.log`, and `sd -stop` behind it, which is why the machine is clean now |
+| Accounts, **SD side** | `SDSYS` and `DON` only — the 13:52:43 install is fresh, and `SDACCT10`'s SD side went with the old tree. `DON` was made by the installer's own step — header item 3. **No account has been created since**: `CREATE.ACCOUNT` was never reached, the `LOGTO` ahead of it being refused |
+| SD | **running.** The installer started it; service `Running`, `sdwind` up, one segment in `shm` stamped 13:52:49. **Stop the service before `stage.py --bootstrap`.** `sd -start` **needs an elevated window**: the gate covers `-start` |
+| SD at boot | **THE SERVICE SURVIVES A RESTART, INCLUDING ONE WITH A LEFTOVER SEGMENT** — fixed and verified 16 Aug 2026, thirteenth session, header item 2. `sd -stop` still leaks the segment at shutdown; `sd_state()` now discards a pre-boot survivor, so the leak is harmless rather than absent |
 
 Nothing needs cleaning off before the next piece of work. To start over anyway,
 elevated: `C:\Program Files\SD\unins000.exe /VERYSILENT`, delete

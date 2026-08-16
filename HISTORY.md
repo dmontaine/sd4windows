@@ -27,6 +27,45 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - Elevation ran for the first time, and refused itself
+
+Fourteenth session. Packaged, installed and ran the elevation work of
+`ea052a4`/`6dadaa1`. **The mechanism works. The feature did not.**
+
+`LOGTO SDSYS` from an ordinary unelevated prompt raised a real UAC prompt,
+started the helper, and wrote `ELEVATION GRANTED account=SDSYS` to the trail —
+then refused the LOGTO with `sysmsg(10003)` and wrote `LOGTO REFUSED
+account=SDSYS reason=not granted` **in the same second**.
+
+`logto.authorised` (`CPROC:3602`) asks `kernel(K$ADMINISTRATOR,-1)`, which
+reads `USR_ADMIN` — seeded once from `IsElevated()` at process start
+(`kernel.c:195`). **SD stays unelevated for life by design**, the privilege
+being the helper's, so that flag is false and always will be. `CPROC:2639` does
+set it, 40 lines after the test that needed it. `6dadaa1` removed the old
+`K$ADMINISTRATOR` gate and added `elevate('START')` without joining the halves;
+the feature could never have worked, and no test between them would have
+noticed, because each half is correct alone.
+
+**Fixed in `CPROC`, unbuilt at the time of writing:** `elev.obtained`, cleared
+per-LOGTO, set on a successful `START`, accepted by `logto.authorised`; plus
+`logto.privilege.undo` at the four failure exits between the elevation and the
+move, none of which released the helper.
+
+**What it cost, and what earned it back.** Three elevated steps from the owner
+and two UAC clicks. Against that, **the audit trail diagnosed the bug on its
+own** — the adjacent `GRANTED`/`REFUSED` pair named the failing branch before
+any source was read, and the absent `ELEVATION RELEASED` exposed the leaked
+helper as a second defect. The feature verified a week ago paid for itself
+here.
+
+**Also measured, and still open:** declining the prompt is already correct
+(`sysmsg(10002)`, `reason=elevation refused or unavailable`); no helper
+outlived a session, but only because the process died, so the `-OwnerPid`
+watchdog remains untested; and `ELEVATION RELEASED` and `LOGTO account=SDSYS`
+have still never been observed.
+
+---
+
 ## 16 Aug 2026 - Elevation without an elevated terminal
 
 Thirteenth session, `ea052a4` and `6dadaa1`. **Built and bootstrapped; nothing
