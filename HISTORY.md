@@ -27,6 +27,43 @@ corrected.
 
 ---
 
+## Correction: 17 Aug 2026 - "sd -stop left the daemon running" was wrong; sd -stop never ran
+
+Corrects the entry below, *Seventeenth session: the owed cycle ran, and step 6a's
+BASIC compiles*, and the PROJECT_STATUS.md section 6 trap it produced. Same
+session, an hour later, `06bc63f` already pushed.
+
+**The claim was that a cleanup script ran `sd -stop | Out-Null`, that the daemon
+survived it, and that the explanation had been discarded with the output.**
+`sd -stop` was never reached. The script hung in its *start* helper, several
+steps earlier.
+
+**What it actually is:** `Start-Process -Wait` with `-RedirectStandardOutput`
+never returns from `sd -start`, because `sd -start` forks `sdwind` and the
+daemon inherits the redirect handles and holds them for its whole life.
+PowerShell waits for streams that will never close. **The command succeeds and
+the script hangs anyway.** Section 6 has it, with the recovery and with the two
+working ways to start SD from a script.
+
+**How it was caught, and it was available the first time.** The run wrote
+`stopA-start.out`, **29 bytes**, `SD (64 Bit) has been started` - so the step
+that appeared to be hanging had in fact completed. `sd.exe` was gone and
+`sdwind.exe` pid 13188 was alive with a **dead parent**. Reading the output
+files in order, rather than reasoning from "the daemon is still up", gives the
+answer immediately.
+
+**Why the wrong version was believable, which is the part worth keeping.** A
+surviving `sdwind` really is the signature of the known `sd -stop` EPERM defect
+(section 6, 14 Aug), the script really did contain an `| Out-Null`, and the
+project's own documentation had just been extended with a trap about discarding
+output. Three true things pointed at a conclusion that was not tested against
+the one cheap question: *had the script reached that line at all?* **A
+plausible mechanism is not evidence that the mechanism fired.**
+
+**Nothing here implicates SD.** `stop_sd()` is not under suspicion, no
+diagnostic of it is owed, and the section 7 items are unaffected. Both hangs
+this session were the harness.
+
 ## 17 Aug 2026 - Seventeenth session: the owed cycle ran, and step 6a's BASIC compiles
 
 From `b6758aa`. No source changed this session, deliberately — the whole point

@@ -59,8 +59,13 @@ untestable on this machine**, which already has OpenSSH — only the "leave it
 alone" branch runs here and both new tasks are hidden. It needs the VM from
 step 2. §7 step 3.
 
-**UNVERIFIED, and now cheap to check because the wizard runs again:** the
-trimmed closing dialog and the rewrapped first page. Nobody has read them.
+**THE REWRAPPED FIRST PAGE IS VERIFIED — owner, 17 Aug 2026: it renders FULL
+WIDTH.** The 16 Aug fix worked: paragraphs are one long line and the memo
+word-wraps to whatever width it has, instead of the hand-broken ~50-character
+column it replaced. Do not reintroduce a line break or an indent inside a
+paragraph there (`sd.iss:563` says why). **The closing dialog's CONTENT is
+confirmed from source** — see §7 step 3 — but nobody has reported reading it on
+screen.
 
 **`gplbld/secure-accounts.ps1` IS NOT WIRED IN AND MUST NOT BE WIRED IN ALONE.**
 It is in neither `stage.py`'s ship list (`stage.py:427`) nor `sd.iss`, so it
@@ -128,9 +133,10 @@ install cannot recur silently. `assert-current` **cannot** see that failure:
 it compares the install against SOURCE and `gcat` is a build product. Check
 `gcat` 132 / `GPL.BP.OUT` 193 / `$BCOMP` 87,992 yourself.
 
-**Still unread, and free on the next install that runs the wizard:** the
-rewrapped first page listing what the installer changes on the machine, and
-the trimmed closing dialog. Both ran on 17 Aug and nobody reported them.
+**The wizard pages are no longer owed.** The first page is verified full width
+(header); the closing dialog's content was re-read out of `sd.iss` on 17 Aug
+and carries no `net localgroup` offer. Only its on-screen rendering is
+unreported, and nothing depends on it.
 
 **2. THEN PICK UP §7.** Step 1 is **closed entirely** — 1a went on 17 Aug with
 its control; step 4 and step 5 are closed; **step 6a and 6d are built and
@@ -3462,28 +3468,36 @@ Each of these cost real time. Read before debugging anything similar.
   the pipe onto **1 and 2**; otherwise redirect `sd`'s own stderr to a **file**
   — never `2>&1`, which PowerShell 5.1 turns into an ErrorRecord (below).
 
-- **AND `| Out-Null` ON `sd -stop` THREW AWAY THE ONE MESSAGE THAT EXPLAINED A
-  FAILURE.** 17 Aug 2026, seventeenth session, and it is the entry above
-  repeated by somebody who had read the entry above. A test script started SD
-  against a conf, then cleaned up with `& $sd -stop | Out-Null` followed by
-  `Start-Service`. **`sd -stop` did not take the daemon down** — `sdwind`
-  survived holding the segment — and the script then blocked, because
-  `Start-Service` waits for a service that cannot start while a live segment
-  exists. `Stop-Process -Name sdwind -Force`, delete the segment, `sc start`
-  recovers it.
+- **`Start-Process -Wait` WITH REDIRECTED OUTPUT NEVER RETURNS FROM
+  `sd -start`, BECAUSE `sdwind` INHERITS THE REDIRECT HANDLES.** 17 Aug 2026,
+  seventeenth session. `sd -start` forks the daemon and exits; the daemon keeps
+  the inherited write ends of `-RedirectStandardOutput` / `-Error` open for its
+  whole life, and PowerShell waits for those streams to close. **The command
+  has succeeded and the script hangs anyway**, with the success message already
+  in the file.
 
-  **Whether that was SD failing or SD correctly reporting a stuck daemon is
-  UNKNOWN, and only because the output was discarded.** `stop_sd()`
-  (`sysseg.c:764`) tracks exactly this — `daemon_refused` when `kill()` gives
-  anything but `ESRCH`, `daemon_stuck` when it is signalled and still there —
-  and reports it, precisely because the 14 Aug defect was that the return value
-  *was* discarded. **To settle it: rerun capturing both streams to files**, as
-  the entry above says, elevated, and read the errno. Until then do not record
-  it as an SD defect; the harness is the only proven fault.
+  **Measured, 06:29:45:** `stopA-start.out` **29 bytes**, `SD (64 Bit) has been
+  started`; `sd.exe` gone; `sdwind.exe` pid 13188 alive **with a dead parent**;
+  `Start-Process -Wait` still blocked. Recovery is `Stop-Process -Name sdwind
+  -Force`, delete the segment, `sc.exe start SD`.
 
-  **Two rules for any cleanup that stops SD:** never call `Start-Service`
-  without checking the daemon actually went, and never wait unbounded —
-  `sc.exe start` plus a poll cannot hang where `Start-Service` can.
+  **TO START SD FROM A SCRIPT: use `sc.exe start SD` and poll, or run
+  `sd -start` with NO redirection and judge it from state** — daemon up,
+  segment present — rather than from its stdout. The same hazard applies to any
+  launcher that both redirects and waits.
+
+  **CORRECTION, AND THE MISTAKEN REASONING IS LEFT HERE ON PURPOSE.** This
+  entry first said the hang was `| Out-Null` discarding a message from
+  `sd -stop`, that `sd -stop` "did not take the daemon down", and that whether
+  SD had failed was unknown. **All of that was wrong, and it was wrong because
+  a surviving `sdwind` was read as evidence about the cleanup without checking
+  the script had ever reached the cleanup.** It had not: the 06:08 run hung
+  inside its *start* helper, before printing that step's result and before any
+  `sd -stop` existed. **`sd -stop` was never run, so nothing here implicates
+  it, and `stop_sd()` is not under suspicion at all.** The lesson that survives
+  is the one the entry above already gives — read what the run actually wrote,
+  in order, before inferring which step you are standing in. A 29-byte output
+  file said "this step succeeded" and was there to be read the first time.
 
 - **MSYS2 `python` GIVEN A BACKSLASHED RELATIVE SCRIPT PATH DIES
   `No module named 'bootstrap'`.** 15 Aug 2026, tenth session.
@@ -4894,6 +4908,14 @@ the staging script and the Inno installer were all finished and removed.
      not in register`, the exact symptom `don` had before step 1f. **Owner's
      decision, 15 Aug 2026: drop those lines**, rather than document `ADOPT`,
      which stays undocumented. Done, `sd.iss:493`, with a `changelog` entry.
+
+     **RE-CHECKED AGAINST SOURCE 17 Aug 2026 and it has stayed dropped:**
+     `net localgroup` occurs in `sd.iss` at lines 67 and 926 **only inside
+     comments recording why it went**, and nowhere in the string the closing
+     `MsgBox` emits. Reading the whole box again found nothing else of that
+     kind. **Grep the emitted string, not the file**, if this is ever checked
+     again — the comments are the reason a plain grep looks alarming.
+
      **The `AllowGroups` task is still unseen** and cannot be seen here — it is
      hidden by `Check: SshServerAbsent` on this machine (header item 1). **It is
      no longer a subtask**: renamed `limitssh` and promoted on 16 Aug 2026 when
