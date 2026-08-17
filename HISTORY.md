@@ -27,6 +27,40 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Section 7 step 6c: the API applies the grant check
+
+From `c1d2183`. Step 6 is now built in full and none of 6c has been through a
+compiler; the next `stage.py --bootstrap` is its first, as the last one was
+6a's.
+
+**What went in.** `APISRVR`'s `vb.account` tests membership of the Windows
+group named in the account's `ACC$GROUP`, which is the rule CPROC's
+`logto.authorised` applies at LOGTO. Until now an API session that
+authenticated could switch to **any** account by name: the check existed before
+the port and was lost in it, because it tested a Linux group, and it could not
+be restored until step 6a gave the API a credential model.
+
+**Three things were decided rather than defaulted**, and the block comment in
+the file carries the reasoning: the identity tested is `kernel(K$USERNAME,0)`
+rather than the local `logname`, so the grant check and the audit trail can
+never disagree about who acted; an account with an empty `ACC$GROUP` is refused
+rather than having `sdu_<name>` guessed for it, which is step 5a's rule; and
+the refusal reuses `sysmsg(10003)`, the missing-account message, so the API
+cannot be used to enumerate accounts. SDSYS is refused through the API as a
+consequence, which is intended - administration needs elevation and an API
+session cannot have it.
+
+**A wrong claim was caught before it was committed, and it produced a section 6
+trap worth more than the code.** The first draft of both the comment and the
+step argued that copying `logto.authorised` verbatim would be dangerous because
+`K$INTERNAL` is permanently true inside `APISRVR`, the program being
+`$internal`. **They are two different flags.** `$internal` is `HDR_INTERNAL` in
+the program header; `K$INTERNAL` reads `internal_mode`, a session flag set only
+by `sd -internal` or `sd -I`, both behind `check_admin()`. An API session has
+the first and not the second, so that gate is permanently SHUT, not open. Both
+flags are live in that one file, which is where it will be misread again.
+Checking what set the flag took one grep and reversed the conclusion.
+
 ## Correction: 17 Aug 2026 - "sd -stop left the daemon running" was wrong; sd -stop never ran
 
 Corrects the entry below, *Seventeenth session: the owed cycle ran, and step 6a's

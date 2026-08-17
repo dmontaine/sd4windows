@@ -8,12 +8,20 @@ something came to be the way it is.
 **Last updated:** 17 Aug 2026, seventeenth session, from `b6758aa` — the owed
 cycle, run.
 
-**NO CYCLE IS OWED. The install of 17 Aug 06:07:30 is current and whole**,
-`assert-current` exit 0, `sd.exe` `201A9902D4323765`. Measured on it:
-`gcat` **132**, `GPL.BP.OUT` **193**, `$BCOMP` **87,992** (not the 70,697
-seed), and **every staged file present** — a file-list comparison of the stage
-against the install came back empty, the extras being only install-time
-artefacts (`ACCOUNTS/DON`, `audit`, the logs, the live segment).
+**A CYCLE IS OWED — §7 step 6c went in after the install, and only BASIC
+changed.** `assert-current` fails on `GPL.BP/APISRVR` and `changelog` and is
+right to. **`make sd` IS NOT NEEDED and running it would waste the match** —
+`sd.exe` is still `201A9902D4323765` and no C changed; skip straight to
+`stage.py --force --bootstrap`. **That bootstrap is 6c's first compiler**, as
+the last one was 6a's, and `bootstrap.py` dies loudly on a BASIC error.
+
+**The install of 17 Aug 06:07:30 was current and whole while it lasted**, and
+what was measured on it stands: `gcat` **132**, `GPL.BP.OUT` **193**, `$BCOMP`
+**87,992** (not the 70,697 seed), and **every staged file present** — a
+file-list comparison of the stage against the install came back empty, the
+extras being only install-time artefacts (`ACCOUNTS/DON`, `audit`, the logs,
+the live segment). **That comparison is a better check than counting files**
+and costs the same; §7 step 2 still says to count.
 
 **§7 STEP 6a's BASIC HAS BEEN THROUGH A COMPILER AND PASSED.** That was the
 predicted failure point of the last handoff and it held: `SECOND.COMPILE` on
@@ -112,10 +120,9 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. NO CYCLE IS OWED — the install is current.** `assert-current` exits 0, so
-you can measure on this tree straight away. **The moment you touch `gplsrc`,
-`sdsys` or `gplbld` that stops being true**, so take every measurement you want
-from this install BEFORE editing anything. The cycle, when one is next needed:
+**1. RUN THE CYCLE FIRST — §7 step 6c is uncompiled BASIC.** `assert-current`
+fails and should. **Skip `make sd`**: no C changed, and relinking would move
+`sd.exe`'s hash away from the installed one for nothing.
 
 ```sh
 python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
@@ -139,12 +146,14 @@ and carries no `net localgroup` offer. Only its on-screen rendering is
 unreported, and nothing depends on it.
 
 **2. THEN PICK UP §7.** Step 1 is **closed entirely** — 1a went on 17 Aug with
-its control; step 4 and step 5 are closed; **step 6a and 6d are built and
-compiled but NOT RUN** (§4 Not verified). What is left, in the order it makes
-sense:
+its control; step 4 and step 5 are closed; **step 6 is now built in full —
+a, b, c and d — and NOT RUN** (§4 Not verified). What is left, in the order it
+makes sense:
 
-- **6b and 6c** — 6b largely fell out of 6a, so **6c, the grant check on
-  `SrvrAccount`, is the real remaining piece** of step 6.
+- **STEP 6 IS BUILT AND ITS PROBLEM IS NO LONGER CODE.** Every sub-step has
+  been written; 6c went in on 17 Aug and, like 6a, has not been through a
+  compiler. **The transport is what stands between step 6 and any evidence at
+  all**, so do that next rather than writing more of step 6.
 - **The transport, and it is now forced rather than optional.** The Linux
   client contract cannot be ported — measured, §8 — so the API cannot be
   exercised end to end until a **named pipe** exists. That work belongs with
@@ -2092,9 +2101,18 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **§7 STEP 6a AND 6d ARE BUILT, COMPILED, AND HAVE NEVER RUN — 17 Aug 2026.**
-  The API authenticates against `$CRED`, `login_user()` is deleted, and
-  `K_SET_USERNAME` carries the verified identity.
+- **§7 STEP 6 IS BUILT IN FULL AND HAS NEVER RUN — 17 Aug 2026.** The API
+  authenticates against `$CRED`, `login_user()` is deleted, `K_SET_USERNAME`
+  carries the verified identity, and `vb.account` applies the `ACC$GROUP`
+  grant check.
+
+  **6a and 6d ARE COMPILED; 6c IS NOT.** It went in after the 06:07:30 install
+  and the next `stage.py --bootstrap` is its first compiler — the same position
+  6a was in a few hours earlier, and the same place a mistake will surface.
+  **What to check when it compiles:** that `is_grp_member` resolves, and that
+  the inline `deffun` beside the call does not upset `SECOND.COMPILE` the way
+  `DEFFUN` upsets `bbcmp.py` (`APISRVR` already had one at line 898, so it
+  should not, and that is the reason to expect it rather than a measurement).
 
   **THE COMPILE HALF IS NOW VERIFIED and the risk it carried is spent.**
   Seventeenth session: `SECOND.COMPILE` during the 06:07:30 bootstrap was
@@ -3410,6 +3428,26 @@ Each of these cost real time. Read before debugging anything similar.
   status as the `stage.py` case in HISTORY. **Build through
   `C:\msys64\usr\bin\bash.exe -lc "make -C <abs path> sd"`** and read the linker
   lines, not the exit code.
+
+- **THERE ARE TWO "INTERNAL"S AND THEY ARE NOT THE SAME FLAG.** 17 Aug 2026,
+  seventeenth session, caught while writing §7 step 6c and before it reached a
+  commit — an earlier draft of that step reasoned from the wrong one and its
+  conclusion was wrong.
+
+  - **`$internal` in a program's header** is `HDR_INTERNAL`. It is a property
+    of the PROGRAM. `BCOMP` checks it to allow `KERNEL` to be called at all,
+    and `op_kernel.c` gates `K_SET_USERNAME` on it (§7 step 6a).
+  - **`K$INTERNAL`** reads `internal_mode` (`op_kernel.c:140`). It is a
+    property of the SESSION, set only by `sd -internal` or `sd -I`
+    (`sd.c:338`, `sd.c:349`), **both behind `check_admin()`** — so it already
+    implies an elevated session.
+
+  **A program can be `$internal` in a session that is not `internal_mode`, and
+  `APISRVR` is exactly that**: `$internal` at line 64, spawned with `-C`/`-N`/
+  `-Q`, never `-internal`. So `kernel(K$INTERNAL,-1)` is FALSE inside it.
+  **Both flags are live in that one file**, which is where this will be misread
+  again. Reading the header flag as the session one makes a gate look
+  permanently open when it is permanently shut.
 
 - **AN ORDINARY SD SESSION CANNOT BE READ WITHOUT A CONSOLE, AND THE THREE
   WRONG WAYS EACH FAIL DIFFERENTLY.** 17 Aug 2026, seventeenth session, trying
@@ -5174,10 +5212,42 @@ the staging script and the Inno installer were all finished and removed.
       Both new statements were checked against existing usage instead:
       `call !CRED_VERIFY(...)` matches `SET_ACC_PASSWORD:113`, and
       `void kernel(...)` matches `AUTOLOGOUT:58`.
-   b. **Set `@logname` from what was verified**, not from the client. It comes
-      from the client today (lines 900 and 963), which is what stops the grant
-      check being copied across from `LOGTO`.
-   c. **Apply the grant check to `SrvrAccount`** once (b) makes it meaningful.
+   b. **DONE 17 Aug 2026, as a consequence of (a).** `@logname` no longer
+      comes from the client's assertion: `vb.login` sets `logname` and
+      `K$SET.USERNAME` from the name `!CRED_VERIFY` was given, so the identity
+      exists only if verification passed. **`APILOGIN=0` is unchanged and is
+      not a gap** — that path deliberately takes the identity from the ssh
+      tunnel that already authenticated, and checks no password here.
+   c. **BUILT 17 Aug 2026, seventeenth session, AND NOT COMPILED OR RUN.**
+      `vb.account` applies the `ACC$GROUP` membership test, refusing an account
+      whose group field is empty rather than guessing `sdu_<name>` (step 5a's
+      rule). **Read the block comment in `APISRVR` before touching it** — it
+      records the three things that were decided rather than defaulted:
+
+      - **Only the group test transfers from `logto.authorised`**; its other
+        three gates describe session state an API session cannot have, so
+        they are dead weight rather than a hazard. **Read them with §6's "two
+        internals" trap in hand** — an earlier draft of this step asserted
+        that `K$INTERNAL` was permanently true here because `APISRVR` is
+        `$internal`, and that is wrong: they are different flags.
+      - **The identity is `kernel(K$USERNAME,0)`, not the local `logname`**,
+        which holds the same value today. `K$USERNAME` reads
+        `process.username`, which is what `audit_message()` stamps in C. A
+        grant check that could disagree with the trail about who acted would
+        make the trail worthless.
+      - **SDSYS is refused through the API and that is intended.**
+        `ACCOUNTS/SDSYS` carries `ACC$GROUP = sdsys`, not a Windows group
+        (§6), so the test answers false. Administration needs elevation and
+        an API session cannot have it.
+
+      **The refusal reuses `sysmsg(10003)`**, the missing-account message, so
+      a caller cannot tell "no such account" from "not granted" and the API
+      does not enumerate accounts.
+
+      **Nothing has compiled this** — same position 6a was in before the last
+      cycle, and the next `stage.py --bootstrap` is its first compiler.
+      `is_grp_member` starts PowerShell, which its own header flags as slow on
+      a per-login path; that cost now lands on every API account switch too.
    d. **Delete the `setuid`/`setgid` calls in `login_user()`.** SD accounts are
       not OS users under §5.6, and they are largely no-ops on MSYS2 anyway.
       They go with the rest of the OS-account work.
