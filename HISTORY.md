@@ -27,6 +27,47 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - SET.PASSWORD becomes the tenth administration verb
+
+From `e0d9d4d`. The API could not admit anybody, and the reason was not the
+transport: `APILOGIN=1` makes `APISRVR` call `!CRED_VERIFY`, and NO ACCOUNT
+COULD BE GIVEN A PASSWORD. `GPL.BP/SET_ACC_PASSWORD` existed, compiled, and was
+catalogued as `$SET.PASSWORD` - it is in `gcat` on every install - and **no VOC
+anywhere pointed at it**, so there was no way to type the command.
+
+**Owner's ruling: it is an administrator verb.** *"The administrator can always
+remove it from the exclusion list if they want users to set their own."* So it
+joins the nine in `NEWVOC/TIER.ADD.ADMINISTRATOR`, making ten, with a
+`VOC_TEMPLATE/SET.PASSWORD` record of `V` / `CA` / `$SET.PASSWORD`.
+
+**THE PROGRAM WAS NOT GATED, AND MUST NOT BE.** It already tells the two cases
+apart: `SET_ACC_PASSWORD:69` refuses somebody else's account without
+administrator rights, and `:109` demands the current password for your own. So
+an administrator who copies the verb into a user's VOC gets precisely the
+behaviour the ruling describes - that user can change their own password and
+nobody else's. A wholesale `K$ADMINISTRATOR` gate, which is what the other nine
+carry, would have made that copy do nothing, and would have quietly inverted
+the decision into "only administrators, ever".
+
+**ADMINISTRATOR `COUNT VOC` moves 420 to 421.** Standard and programmer are
+unchanged, the verb living in `VOC_TEMPLATE` alone.
+
+**AND THE VERIFY SCRIPT HAD A HOLE THAT THIS VERY EDIT WOULD HAVE FALLEN
+THROUGH.** `verify-tiers.ps1` cross-checked `$Withheld` against the shipped
+`TIER.OMIT.STANDARD` - its comment says why, "a test that carries its own stale
+copy of the thing under test is no test" - and did NOT do the same for
+`$AdminVerbs` against `TIER.ADD.ADMINISTRATOR`. Updating the record and not the
+test, or the other way about, would have passed silently. It went unnoticed
+while the add list never changed; the first change to it is what exposed it.
+Both lists are cross-checked now, and the hardcoded 18s and 9s are `.Count` of
+the lists themselves.
+
+**Not installed.** A cycle is owed for two data records and the BASIC comment
+changes; `make sd` is not needed, no C changed. After it, `SET.PASSWORD` is
+what makes the first real API login possible.
+
+---
+
 ## 17 Aug 2026 - The remote transport is built: APIPORT, and a listener in sdwind
 
 From `7fe6f38`. Option A, built after the measurement in the entry below killed

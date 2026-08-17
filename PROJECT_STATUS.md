@@ -63,8 +63,29 @@ commit. The owed cycle ran; a fourth harness defect failed a good install.
    binary at once; fatal if one rebuilt binary is copied onto a running
    system.
 
-   **STILL NEVER RUN: the listener itself.** §7 step 6 has why — nothing can
-   set an account password, so `APILOGIN=1` cannot be satisfied by anybody.
+   **THE PASSWORD BLOCKER IS NOW FIXED IN SOURCE AND NOT YET INSTALLED.**
+   `SET.PASSWORD` had no VOC entry anywhere; it is now a **tenth
+   administration verb**, owner's ruling 17 Aug 2026 — *"the administrator can
+   always remove it from the exclusion list if they want users to set their
+   own"*. **The program is deliberately NOT gated wholesale**: it already
+   refuses somebody else's account without admin rights and demands the
+   current password for your own (`SET_ACC_PASSWORD:69`, `:109`), so a blanket
+   gate would destroy exactly that escape hatch.
+
+   **The counts move with it: ADMINISTRATOR `COUNT VOC` 420 → 421**, and
+   `verify-tiers.ps1`'s nine become ten. **`$SET.PASSWORD` is already in
+   `gcat`** on the installed system — the program always compiled and
+   catalogued, so only the VOC record and the add list were missing.
+
+   **AND THE VERIFY SCRIPT HAD A HOLE THAT THIS EDIT WOULD HAVE FALLEN
+   THROUGH.** `$Withheld` was cross-checked against the shipped
+   `TIER.OMIT.STANDARD`, and `$AdminVerbs` was **not** checked against
+   `TIER.ADD.ADMINISTRATOR` — so changing the record and not the test, or the
+   reverse, would have passed. It is checked now, and the hardcoded 18s and 9s
+   are `.Count` of the lists themselves.
+
+   **STILL NEVER RUN: the listener itself**, and now the password path too.
+   Both want the next cycle.
 2. **§7 STEP 11 IS CLOSED AND §7 STEP 6c HAS ITS FIRST EVIDENCE.** Details
    below and in §7 step 11.
 3. **§8's THREE TIERS ARE VERIFIED, 22 of 22.** §8 and the tables below.
@@ -5673,12 +5694,26 @@ the staging script and the Inno installer were all finished and removed.
    API would be their caller (§8). The API half now exists; the half that
    writes the credential still has no door.
 
-   **So the next step after the cycle is a `SET.PASSWORD` verb**, and it needs
-   one decision that is the owner's: **who may set an account's password** —
-   an administrator only, which matches the other 9 administration verbs and
-   `CREATEA`'s own gate, or also the account's own user for their own account.
-   `APILOGIN=0` is the alternative test route and is NOT one: it skips the
-   password by design and so tests nothing of 6a.
+   **ANSWERED AND BUILT 17 Aug 2026 — `SET.PASSWORD` IS AN ADMINISTRATION
+   VERB, THE TENTH.** Owner's ruling: *"the administrator can always remove it
+   from the exclusion list if they want users to set their own"*. So the verb
+   is placed, not gated — `VOC_TEMPLATE/SET.PASSWORD` (`V`/`CA`/`$SET.PASSWORD`)
+   plus `SET.PASSWORD` in `NEWVOC/TIER.ADD.ADMINISTRATOR`, and nothing in the
+   program changed.
+
+   **DO NOT ADD A WHOLESALE `K$ADMINISTRATOR` GATE TO IT.** The program already
+   tells the two cases apart — `SET_ACC_PASSWORD:69` refuses somebody else's
+   account without admin rights, `:109` demands the current password for your
+   own — so an administrator who copies the verb into a user's VOC gets exactly
+   the behaviour the ruling describes. A blanket gate would make that copy do
+   nothing, which is the opposite of the decision.
+
+   `APILOGIN=0` is NOT an alternative test route: it skips the password by
+   design and so tests nothing of 6a.
+
+   **Not installed yet.** `$SET.PASSWORD` is already in `gcat` — the program
+   always compiled — so the cycle is for the two data records, and after it
+   `SET.PASSWORD` is what makes the first real API login possible.
 
    a. **DECIDED 16 Aug 2026 — `$CRED`, not `LogonUser`.** Owner's call when
       asked; the alternative was authenticating the Windows account itself,
