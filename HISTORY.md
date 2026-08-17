@@ -27,6 +27,55 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Step 11 works: SDConnectLocal carries a session, and step 6c has its first evidence
+
+From `dc1e021`. The transport of the previous entry, built.
+
+`local_connect_test` exits 0, four runs, unelevated: `SDConnectLocal("DON")` is
+admitted and `WHO` answers `19 DON`; `SDConnectLocal("SDSYS")` is refused with
+"User not allowed in requested account". **The refusal is the important half.**
+It is the `ACC$GROUP` grant check in `APISRVR` - section 7 step 6c, built on
+17 Aug and never run until now - and `DON` succeeding on its own would have been
+equally consistent with a check that never executed. Two earlier attempts
+elsewhere in this project proved nothing for exactly that reason.
+
+No orphaned `sd.exe` survives a run, which is the EOF path working: closing our
+copies of the child's ends is what lets the child see its stdin close and exit.
+
+**What changed is all client-side except one refusal.** `SDConnectLocal()` makes
+two anonymous pipes and hands them to the child as its standard handles;
+`session[].hPipe` became `hPipeRd`/`hPipeWr`, an anonymous pipe being one-way.
+The command line is `-Q -C1!0`, and the ORDER matters: `sd.c` parses
+`-C<tx>!<rx>` and answers with `dup2(RxPipe, 0); dup2(TxPipe, 1)`, so rx is 0
+and tx is 1. The previous entry and PROJECT_STATUS both said `-C0!1`, which
+would have crossed the streams - caught by reading the parse rather than by
+running it, and it is the kind of thing that would have read as "the transport
+still does not work".
+
+**Inheritance is restricted to exactly two handles** with
+`PROC_THREAD_ATTRIBUTE_HANDLE_LIST`, not left as plain `bInheritHandles = TRUE`.
+This library loads into somebody else's application, and that flag inherits
+EVERY inheritable handle the process owns - a file or socket handle the host
+happens to hold would be copied into a long-lived `sd.exe` and kept alive for
+the whole session with nothing to show why. The pattern was validated in the
+probe before being written into the library, and the probe confirmed it took
+effect in a way worth recording: the child's attached descriptor number dropped
+from 4 to 3, one fewer handle having been inherited.
+
+**`sd.c`'s `-C <pipename>` branch now refuses with a diagnostic instead of
+hanging.** The code behind it is correct and the flaw is not in it, so
+`win32pipe.c` stays; but a path that leaves the server alive, silent and never
+answering is the worst thing to leave callable, and it had already cost one
+session's diagnosis.
+
+**What this measurement is and is not.** A development smoke test: the new
+`sdclilib.dll` paired in a scratch directory with the INSTALLED `sd.exe`, which
+the DLL finds beside itself through `GetModuleFileName`. That is the pair that
+matters, since the server needed no change - but `assert-current` is stale, a
+cycle is owed, and `make check-local` after it is the authoritative run.
+
+---
+
 ## 17 Aug 2026 - Step 11: the transport choice was between three options, not two
 
 From `7dee1a6`. No SD change; a probe, a measurement and a correction to how the

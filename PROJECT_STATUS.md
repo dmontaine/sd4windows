@@ -112,19 +112,27 @@ the staleness guards compare mtimes and are deliberately blunt — a false
 it: `gcat/$APISRVR` **9,323 bytes** against 9,129 after 6a and 9,056 before.
 `gcat` 132, `GPL.BP.OUT` 193. What 6c still lacks is a RUN.
 
-**§7 STEP 11 HAS A MEASURED WAY FORWARD — 17 Aug 2026.** The stopper is real
-but it is a property of **injecting a raw HANDLE**, not of pipes: a descriptor
-Cygwin builds itself from an INHERITED STANDARD HANDLE answers `select()`
-honestly. Measured with its control in one run, `make check-select-probe`.
-**And the peer identity never came from the named pipe at all** — nothing in
-`gplsrc` ever asks the pipe who is on the other end; `SDConnectLocal()` spawns
-`sd.exe` as a child, which inherits the caller's token. The server needs no
-change (`sd.c:441` already takes `-C<tx>!<rx>`; `-C0!1` is a no-op `dup2`).
-**Owner's call still, but the two options he was given were not the only two.**
-§7 step 11 has the numbers.
+**§7 STEP 11 IS BUILT AND WORKS — 17 Aug 2026. `SDConnectLocal()` CARRIES A
+SESSION**, `WHO` answers `19 DON`, and `SDSYS` is refused. **That refusal is
+also the first evidence of any kind for §7 STEP 6c**, the `ACC$GROUP` grant
+check, which had been built and never run. Four runs, exit 0, no orphaned
+`sd.exe`.
 
-**§7 STEP 11 DOES NOT WORK AS SHIPPED, AND THE REASON IS ARCHITECTURAL — READ
-§7 STEP 11 BEFORE TOUCHING IT.** Three real defects were found and fixed (`-C` argument
+**A CYCLE IS OWED AND `make sd` IS DONE** — clean, both toolchains: `sd.exe`
+**`81D0856F5493385E`**, `sdclilib.dll` **`8D1517D1CD2B83AB`**. The measurement
+above is a **development smoke test**, the new DLL paired with the installed
+`sd.exe` in a scratch directory; **`make check-local` after a cycle is the
+authoritative run** and is what §4 should record.
+
+**The fix was the transport, and the two options in the old handoff were not
+the only two.** A descriptor Cygwin builds itself from an **inherited standard
+handle** answers `select()` honestly; the always-ready behaviour belongs to
+**injecting a raw HANDLE**, not to pipes. **And the peer identity never came
+from the named pipe** — nothing in `gplsrc` ever asks a pipe who is on the
+other end; `sd.exe` is a CHILD and runs under the caller's token. §7 step 11.
+
+**§7 STEP 11's OLD PATH DOES NOT WORK, AND `sd.c` NOW SAYS SO RATHER THAN
+HANGING — READ §7 STEP 11 BEFORE REVIVING IT.** Three real defects were found and fixed (`-C` argument
 mismatch, `sd.exe` location, and the access argument to
 `cygwin_attach_handle_to_fd()`), and a fourth thing is not a defect and stops
 the approach: **a descriptor made from a raw HANDLE is reported PERMANENTLY
@@ -5617,8 +5625,61 @@ the staging script and the Inno installer were all finished and removed.
     `-C` argument mismatch, the `sd.exe` location, and the access argument
     below. None of them is undone by this.
 
-    **THE CHOICE WAS FRAMED AS TWO OPTIONS AND THERE IS A THIRD, WHICH IS
-    MEASURED AND IS SMALLER THAN EITHER. 17 Aug 2026.**
+    **BUILT AND WORKING — 17 Aug 2026. `SDConnectLocal()` CARRIES A SESSION.**
+    Four runs, unelevated, `local_connect_test` exit **0** each time:
+
+    ```
+    connecting to DON ...
+      admitted
+      WHO -> 19 DON
+    connecting to SDSYS (this MUST be refused) ...
+      refused: User not allowed in requested account
+    PASS: DON admitted, SDSYS refused.
+    ```
+
+    **AND THAT IS ALSO THE FIRST EVIDENCE OF ANY KIND FOR §7 STEP 6c** — the
+    `ACC$GROUP` grant check in `APISRVR`, built 17 Aug and never run. **The
+    control is what makes it evidence**: `DON` admitted alone would be equally
+    consistent with a check that never executed, and `SDSYS` refused with
+    "User not allowed in requested account" is that check running.
+    **No orphaned `sd.exe` survives a run**, which is the EOF path working:
+    closing our copies of the child's ends is what lets it see stdin close.
+
+    **HOW IT WAS MEASURED, AND WHAT THAT DOES AND DOES NOT COVER.** This is a
+    **development smoke test, not a cycle measurement** — `assert-current` is
+    stale and says so. The new `sdclilib.dll` (`8D1517D1CD2B83AB`) was paired
+    in a scratch directory with the **installed** `sd.exe`, which the DLL finds
+    beside itself through `GetModuleFileName`. That is the pair that matters,
+    because the server needed no change; but **the authoritative run is
+    `make check-local` after a cycle**, and it is owed.
+
+    **`make sd` clean, no warnings, both toolchains:** `sd.exe`
+    **`81D0856F5493385E`**, `sdclilib.dll` **`8D1517D1CD2B83AB`**.
+
+    **WHAT CHANGED.** All of it client-side except one refusal:
+
+    - `SDConnectLocal()` makes **two anonymous pipes** and hands them to the
+      child as its **standard handles**; `session[].hPipe` became `hPipeRd` /
+      `hPipeWr`, because an anonymous pipe is one-way and the pair is what the
+      duplex named pipe used to be alone.
+    - The command line is now **`-Q -C1!0`**. **Note the order** — `sd.c`
+      parses `-C<tx>!<rx>` and answers with `dup2(RxPipe, 0); dup2(TxPipe, 1)`,
+      so rx must be 0 and tx must be 1. `-C0!1` would cross the streams, and an
+      earlier note in this file said exactly that; it was wrong.
+    - **Inheritance is restricted to exactly those two handles** with
+      `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`. Plain `bInheritHandles = TRUE`
+      inherits **every** inheritable handle the process owns, and this library
+      is loaded into somebody else's application — a handle it happens to hold
+      to a file or a socket would be copied into a long-lived `sd.exe` and kept
+      alive for the whole session, with nothing to show why.
+    - `sd.c`'s **`-C <pipename>` branch now refuses with a diagnostic** instead
+      of hanging. The code behind it is correct and the flaw is not in it, so
+      `win32pipe.c` stays; but silent-and-never-answering is the worst thing to
+      leave callable.
+    - `ConnectNamedPipe` and `DisconnectNamedPipe` are gone: an anonymous pipe
+      is connected the moment it exists.
+
+    **The reasoning that got here, kept because the framing was the error:**
 
     **FIRST, THE FRAMING WAS WRONG: THE PEER IDENTITY NEVER CAME FROM THE
     PIPE.** There is no `ImpersonateNamedPipeClient` and no
