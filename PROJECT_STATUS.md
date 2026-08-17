@@ -294,9 +294,11 @@ step 2. §7 step 3.
 WIDTH.** The 16 Aug fix worked: paragraphs are one long line and the memo
 word-wraps to whatever width it has, instead of the hand-broken ~50-character
 column it replaced. Do not reintroduce a line break or an indent inside a
-paragraph there (`sd.iss:563` says why). **The closing dialog's CONTENT is
-confirmed from source** — see §7 step 3 — but nobody has reported reading it on
-screen.
+paragraph there (`sd.iss:563` says why). **AND THE CLOSING DIALOG HAS NOW BEEN
+READ ON SCREEN — owner, 17 Aug 2026, on the 13:43:00 install: "looks fine".**
+That was an open item here; §7 step 3's source re-check and what is on screen
+now agree. **It does not cover the ssh half** — `limitssh` and `sshremote` stay
+hidden on this machine and still need the VM.
 
 **`gplbld/secure-accounts.ps1` IS NOT WIRED IN AND MUST NOT BE WIRED IN ALONE.**
 It is in neither `stage.py`'s ship list (`stage.py:427`) nor `sd.iss`, so it
@@ -5305,6 +5307,10 @@ the staging script and the Inno installer were all finished and removed.
      not in register`, the exact symptom `don` had before step 1f. **Owner's
      decision, 15 Aug 2026: drop those lines**, rather than document `ADOPT`,
      which stays undocumented. Done, `sd.iss:493`, with a `changelog` entry.
+
+     **AND READ ON SCREEN 17 Aug 2026, owner, on the 13:43:00 install:
+     "looks fine".** So the source re-check below and the rendered dialog
+     agree, and this bullet is closed. The `limitssh` paragraph below is not.
 
      **RE-CHECKED AGAINST SOURCE 17 Aug 2026 and it has stayed dropped:**
      `net localgroup` occurs in `sd.iss` at lines 67 and 926 **only inside
