@@ -27,6 +27,36 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Section 8: the PROGRAMMER tier, built and uncompiled
+
+From `ecd62b2`. Session ended here on credits; this is the handoff.
+
+`CREATE.ACCOUNT ... PROGRAMMER` gives the full VOC, `ADMINISTRATOR` implies it,
+and a plain account now gets NEWVOC less the thirteen ids in
+`NEWVOC/TIER.OMIT.STANDARD`. Before this every account got a byte-identical VOC
+whatever keyword was given - the mechanical root of section 8's "enforced
+backwards".
+
+**Owner ruled nine verbs; four exact aliases had to follow or the ruling would
+have been void** - `CATALOGUE` and `CATALOG` are both `$CATALOG`,
+`DELETE.CATALOGUE` and `DELETE.CATALOG` are both `$DELCAT`, `EDIT` and `ED` are
+both `$ED`, and `COPYP` is Pick-style `COPY`. Reading the records is what found
+them; the names alone would not have.
+
+**Two constructs were deliberately avoided in the BASIC**, because none of it
+compiles until the next bootstrap and a novel statement that does not mean what
+it does elsewhere costs a whole cycle: `delete(rec, 1)` (that function appears
+nowhere in GPL.BP, and SDCLIENT defines a *subroutine* of the same name) and
+`CONTINUE` (BCOMP lists it, but its behaviour inside LOOP...REPEAT is
+demonstrated nowhere here, and a skip that did not skip would copy everything
+and look like success). A `copy.it` flag and a `for` loop from field 2 say the
+same thing in constructs the file already uses.
+
+**Left for the owner:** `MODIFY` is a record editor and the most likely thing
+to undo the rest; `COMPILE.DICT` and `GENERATE` are dictionary compilers;
+`PHANTOM` runs catalogued programs. None added - extending a ruling is not
+applying it. And the 30/45/65 split of the 149 verbs is untouched.
+
 ## 17 Aug 2026 - Section 8, first increment: MICRO and the language verbs are out
 
 From `35b3b87`. Owner picked the three-tier VOC work over the transport when

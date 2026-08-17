@@ -5669,11 +5669,48 @@ pointers (`GPL.BP`, `BP`, `MESSAGES`, `ACCOUNTS`, `$HOLD`…). **A standard
 account still gets `BASIC`, `CATALOG`, `RUN`, `ED`, `SED`, `COPY`, `SH`, `!`
 and `DELETE.CATALOG`** — every capability on the removal list.
 
-**NEXT, AND THE MECHANISM IS NOT YET BUILT:** a `PROGRAMMER` keyword beside
-`ADMINISTRATOR` at `CREATEA:610`, and a way for the copy loop at `CREATEA:520`
-to skip records a tier does not get. **Prefer an omit-list held as data over a
-second and third `NEWVOC` directory** — three directories drift apart, and §8
-wants a starting posture the site curates rather than a wall.
+**THE MECHANISM IS BUILT — 17 Aug 2026 — AND HAS NOT BEEN COMPILED OR RUN.**
+A cycle is owed; `make sd` is NOT needed (only BASIC and data changed since the
+08:03:49 install, `sd.exe` `04CA97C138ADB148`). **`stage.py --bootstrap` is
+`CREATEA`'s first compiler for this change**, and that is where a mistake will
+surface.
+
+- **`PROGRAMMER` keyword** at `CREATEA`, beside `ADMINISTRATOR`, matched on
+  token text for the same reason (the `KW$` table is positional and shared).
+  Sets `full.voc`. **`ADMINISTRATOR` sets it too** — an administrator is a
+  programmer and more.
+- **`NEWVOC/TIER.OMIT.STANDARD`** lists what a standard account does not get.
+  Field 1 is a description; fields 2+ are ids. **Held as data so the shipped
+  posture changes without recompiling**, and in `NEWVOC` because that file is
+  already open in the loop and already shipped.
+- **A missing or empty list gives every account the full VOC** — the old
+  behaviour exactly, which is the safe way round for a lost record.
+- **The list record's description starts with "T"**, not a VOC type letter, so
+  if the skip ever broke it would land inert rather than as a fake verb.
+
+**WHAT IS ON THE LIST AND WHY.** Owner's rulings, 16–17 Aug: `BASIC`,
+`CATALOG`, `RUN`, `ED`, `SED`, `COPY`, `DELETE.CATALOG`, `SH`, `!`. **Plus four
+exact aliases, because leaving them would void the ruling** — measured, not
+guessed: `CATALOGUE`→`$CATALOG`, `DELETE.CATALOGUE`→`$DELCAT`, `EDIT`→`$ED`,
+and `COPYP` (`$COPYP`, "Pick style COPY", the same capability by another
+program). **Thirteen ids.**
+
+**STILL THE OWNER'S TO RULE, and they are the obvious holes:** **`MODIFY`**
+(`$MODIFY`, "Verb to modify file" — a record editor, so the same class as `ED`,
+and the one most likely to undo the rest); **`COMPILE.DICT`** (`$CD`) and
+**`GENERATE`** (`$GENERAT`), both dictionary compilers; **`PHANTOM`**, which
+runs a catalogued program in the background. None was added, because extending
+a ruling is not the same as applying it.
+
+**NOT DONE:** the 30/45/65 split of the 149 verbs. What exists is the
+capability cut, not the full three-tier curation.
+
+**HOW TO TEST IT, once a cycle has run** — no elevation needed beyond
+`CREATE.ACCOUNT` itself, and it carries its own control:
+`CREATE.ACCOUNT USER <a>` then `CREATE.ACCOUNT USER <b> PROGRAMMER`; the first
+account's VOC must lack all thirteen and the second must have them. **Checking
+only the first proves nothing** — a copy loop that skipped everything would
+also pass it.
 `SET.TRIGGER`, `UPDATE.RECORD`, `MODIFY`, `HSM`, `GENERATE` are **PROGRAMMER**.
 `SET.SERVER`, `DELETE.SERVER`, `LIST.SERVERS` **removed** — SDNet server details
 were not held securely in this version.
