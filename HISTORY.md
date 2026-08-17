@@ -73,6 +73,22 @@ statements were instead checked against existing usage —
 `call !CRED_VERIFY(...)` against `SET_ACC_PASSWORD:113`, `void kernel(...)`
 against `AUTOLOGOUT:58`.
 
+**HANDOFF PASS, and three stale claims found in PROJECT_STATUS while making
+it.** All three were §4 **Not verified** entries that §4 **Verified**
+contradicted, which is the worst way for this file to be wrong — a cold session
+reading the pessimistic half would redo finished work or distrust a working
+system. The login rule was recorded as "built and has never run" a week after
+being measured 5 of 5 and then 6 of 6; the service likewise, with header item 2
+recording it closed and verified on the same page; and two staging claims had
+been overtaken by every stage built since. **Corrected in place, struck through
+rather than deleted**, so the mistake stays visible. The header also still
+called §8's `CA`-resolution question a blocker after it had been answered.
+
+**The lesson for this file, and it is a §0 rule 3 failure rather than an
+accident:** an entry moved into Verified must be struck out of Not verified in
+the same edit. Closing one half and leaving the other is how the two halves came
+to disagree, and nothing checks it.
+
 ---
 
 ## 16 Aug 2026 - Sixteenth session: the install of 17:51:35 was a failed bootstrap

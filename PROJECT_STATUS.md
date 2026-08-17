@@ -5,7 +5,8 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, sixteenth session, from `222701a`.
+**Last updated:** 17 Aug 2026, sixteenth session, from `222701a` — one run
+across both dates, four commits, ending `722db30`.
 
 **A CYCLE IS OWED AGAIN — §7 step 6a was built on 17 Aug 2026 and the install
 is now behind it.** `make sd` is done and clean; what is left is
@@ -60,18 +61,20 @@ the account's own user, and anyone `GRANT`ed it, would be refused at the file
 layer. Its partner half does not exist: **`CREATEA` contains no `icacls`
 anywhere**, checked. Land both halves together or neither.
 
-**Also this session:** an up-front wizard page listing what the installer
-changes on the machine, and two comments in `sd.iss` corrected that claimed
-`CurStepChanged` checked things it never read (the OpenSSH exit code — now
-replaced by `SshReport` reading machine state — and `deny-logon.ps1`, still
-unchecked, §7 step 3).
+**From the FIFTEENTH session, not this one:** an up-front wizard page listing
+what the installer changes on the machine, and two comments in `sd.iss`
+corrected that claimed `CurStepChanged` checked things it never read (the
+OpenSSH exit code — now replaced by `SshReport` reading machine state — and
+`deny-logon.ps1`, still unchecked, §7 step 3).
 
-**AND A LONG DESIGN THREAD THAT PRODUCED NO CODE BUT MOST OF THE VALUE.** File
-permissions, the three-tier user model, and two defects in the shipped
-`VOC_TEMPLATE`. **It is all in §8 and the HISTORY entry, and §8 is the one to
-read** — it holds the finding that the two user tiers which exist today are
-enforced backwards, and the untraced `CA` resolution that blocks scoping the
-`gcat` lock.
+**AND ITS LONG DESIGN THREAD, WHICH PRODUCED NO CODE BUT MOST OF THE VALUE.**
+File permissions, the three-tier user model, and two defects in the shipped
+`VOC_TEMPLATE`. **It is all in §8, and §8 is the one to read** — it holds the
+finding that the two user tiers which exist today are **enforced backwards**,
+which is still open and still the thing to act on before designing more of them.
+**Its `CA`-resolution question is ANSWERED and is no longer a blocker** —
+`$QPROC` is in `gcat` at 54,073 bytes; the question came from measuring the
+broken install. Scoping the `gcat` lock is against 132 entries, not 4.
 
 **Previous session (fourteenth, `99e936f`→`00432d8`):**
 **ELEVATION WITHOUT AN ELEVATED TERMINAL IS COMPLETE — built, installed and
@@ -94,25 +97,50 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**THE ELEVATION WORK IS DONE. Item 1 below is the RECORD, not a task** — read
-it only if that area misbehaves; it holds the regression signatures. The open
-work is §7. **STEP 1 IS NOW CLOSED ENTIRELY** — 1a and 1c both went in the
-sixteenth session, and a–f are each done or superseded. **The next subject is
-step 6, the API server**, which is the largest thing outstanding and which §1
-makes the product's front door; it does not work on Windows at all today.
-Part of step 3 is done and part of it grew, and what is left of it needs the
-VM: see that step.
+**1. RUN A CYCLE BEFORE ANYTHING ELSE, AND DO NOT EDIT SOURCE FIRST.**
+`assert-current` fails right now and should: `make sd` is done and clean, but
+§7 step 6a's source went in after the last install. **The `APISRVR` change has
+never been through a compiler** — `bbcmp.py` builds only the bootstrap seed, so
+`SECOND.COMPILE` is its first, and `bootstrap.py` dies loudly on any error.
+**That bootstrap is the single most likely place for this handoff to break**,
+and it is a BASIC syntax problem if it does, not a design one.
 
-**FIRST, THOUGH, AND IN THIS ORDER:** run the cycle the header opens with —
-nothing on this machine has been measurable since 17:51:35. Then the ssh work
-of the fifteenth session, which **has still never been run**, on the VM.
+```sh
+python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
+```
+```powershell
+& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DStage=C:\Users\dmont\stagetest /O"C:\Users\dmont\sdout" gplbld\sd.iss
+```
 
-**THE INSTALL IS NO LONGER CURRENT.** It was (16:36:52, header item 5) until
-this session changed `sd.iss`, `stage.py`, `install-ssh.ps1` and added
-`ssh-firewall.ps1`. **`assert-current` will fail and should** — nothing has
-been staged or installed since. Rebuild before measuring anything:
-`stage.py` **and not just `ISCC`**, because a new `gplbld/` script ships
-(step 2's warning, and `ssh-firewall.ps1` is exactly that case).
+**Elevated, and with the SD service stopped**, for the reasons in header item
+1 — then uninstall, delete BOTH trees, install. **`stage.py` refuses to stage a
+tree whose bootstrap did not finish** as of the sixteenth session, so the
+failure that shipped a catalogue-less install cannot recur silently.
+
+**Two things to fold into that cycle for free, because both need it anyway:**
+the **`CREATUSR=` accept-and-ignore branch** (§7 step 1a — it needs
+`sd -start` with `SD_CONFIG` naming a test conf, plus a control carrying an
+unknown parameter, and only a segment *creation* reaches `read_config()`); and
+**reading the two wizard pages** nobody has seen, since the installer runs
+anyway.
+
+**2. THEN PICK UP §7.** Step 1 is **closed entirely**; step 4 and step 5 are
+closed; **step 6a and 6d are built but NOT RUN** (§4 Not verified). What is
+left, in the order it makes sense:
+
+- **6b and 6c** — 6b largely fell out of 6a, so **6c, the grant check on
+  `SrvrAccount`, is the real remaining piece** of step 6.
+- **The transport, and it is now forced rather than optional.** The Linux
+  client contract cannot be ported — measured, §8 — so the API cannot be
+  exercised end to end until a **named pipe** exists. That work belongs with
+  §5.7's service model, not with step 6, and it is what unblocks verifying
+  everything step 6 has built.
+- **The VM work**, which this machine cannot do: the mandatory-ssh install
+  branch (§7 step 3), and §5.6.2's remaining ssh items.
+- **§8's three-tier model**, where the live finding is that the two tiers which
+  exist today are **enforced backwards**. It is blocked on per-account ACLs,
+  and `gplbld/secure-accounts.ps1` is half of those and **must not be wired in
+  alone** — see below.
 
 **FOUR THINGS THIS SESSION LEARNED THE HARD WAY. They cost a cycle each and
 none of them is about SD:**
@@ -701,10 +729,12 @@ enforced on this machine, by control and treatment (§4), and the lockout risk
 is closed by measurement. **§5.6.2 IS COMPLETE, RDP INCLUDED** — 15 Aug 2026,
 tenth session, on a VirtualBox guest (§4). Nothing is left half-applied.
 
-**STATE OF THIS MACHINE — READ FIRST. SD IS INSTALLED, RUNNING, AND THE INSTALL
-IS STALE**, as of 16 Aug 2026 16:02:58 (header item 5) — a build behind on
-`GPL.BP/PS_SCRIPT` and `gplbld/`. **Stop the service before staging with
-`--bootstrap`.**
+**STATE OF THIS MACHINE — READ FIRST. SD IS INSTALLED AND RUNNING, AND THE
+INSTALL IS ONE BUILD STALE**, as of 17 Aug 2026: the tree is the whole and
+working 22:57:00 install, and **§7 step 6a's source landed after it** —
+`op_kernel.c`, `linuxio.c`, `keys.h`, `sd.h`, `sdnet.h`, `APISRVR`,
+`INT$KEYS.H`. `bin/sd.exe` is already rebuilt and clean. **Stop the service
+before staging with `--bootstrap`.**
 
 | Thing | State |
 |---|---|
@@ -713,7 +743,7 @@ IS STALE**, as of 16 Aug 2026 16:02:58 (header item 5) — a build behind on
 | `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
 | **THE ACCESS MODEL IS LIVE** | sixth session, and tightened in the eighth by three owner rules (header). An unelevated `sd` refuses SDSYS with `sysmsg(10002)`; a bare `sd` lands you in your own account |
-| **THE INSTALL IS CURRENT** | `assert-current` exit 0 at 16:37 on 16 Aug 2026, and everything in header item 1 is verified on it. Note editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only. **It goes stale at the first source change** |
+| **THE INSTALL IS NOT CURRENT** | It **was** — `assert-current` exit 0 on the 22:57:00 install of 16 Aug 2026, and everything in §4 dated that day was verified on it. Step 6a's source then landed, which is what ended that cycle, exactly as the rule says. Note editing `PROJECT_STATUS.md`/`HISTORY.md` does **not** end a cycle — the check looks at `gplsrc`, `sdsys` and `gplbld` only |
 | `GPL.BP\LOGIN` vs the catalogue | in step at last - the banner reached the machine with the clean install, not by hand |
 | Reinstalling over this | **DON'T** — the rule in the header. The installer **finds an existing database and leaves it alone**, saying so in a dialog, which is §6's staleness trap working as designed: a reinstall-over updates `C:\Program Files` and **not** `C:\ProgramData\SD\sdsys`, so the machine runs yesterday's BASIC on today's binaries. Copying `GPL.BP` across and recompiling by hand was the old workaround; a fresh install is the rule that replaced it |
 | Rollback, if login ever breaks | **`gcat.before-step0` is GONE**, deleted in the sixth session once the refusals were verified — it held the *pre-change* catalogue, and going back to the password model stopped being something anyone would want. **The way back now is `C:\Users\dmont\gcat.rollback`**, a complete 129-entry catalogue bootstrapped from the same sources. It restores *today's* behaviour rather than yesterday's, which is the more useful direction. It was copied out of `C:\Users\dmont\stagetest` on 15 Aug 2026 because the next step is `stage.py --force`, which deletes that tree — **if you re-stage, the rollback lives outside the staging directory or it does not survive** |
@@ -2047,42 +2077,50 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **THE LOGIN RULE IS BUILT AND HAS NEVER RUN** — 15 Aug 2026, tenth session.
-  `GPL.BP/LOGIN` now refuses `-A<anyone else>` with `sysmsg(10051)` and no
-  longer sends an elevated session to SDSYS. **Nothing has compiled it**, let
-  alone run it. What to watch when it is tested, because each is a way it could
-  be wrong: an elevated `sd` lands in `DON` and not SDSYS; `LOGTO SDSYS` still
-  works from there; `sd -ASDSYS` is refused; **`sd -internal` still reaches
-  SDSYS**, without which nothing can be bootstrapped or installed; and
-  `verify-createaccount.ps1`, which now sends `LOGTO SDSYS`, still passes 16 of
+- **§7 STEP 6a AND 6d ARE BUILT AND HAVE NEVER RUN — 17 Aug 2026.** The API
+  authenticates against `$CRED`, `login_user()` is deleted, and
+  `K_SET_USERNAME` carries the verified identity. `make sd` is clean; **the
+  BASIC has not been compiled at all** — `SECOND.COMPILE` in the next bootstrap
+  is its first, and that is where a syntax error will surface.
+
+  **It cannot be run yet, and the reason is not this work:** there is no API
+  client on this machine, `SDConnectLocal()` has never been exercised
+  (step 11), and the transport is **measured unportable** (§8). So it stays
+  here until a named pipe exists. **What to watch when something can finally
+  call it:** that an account with no `$CRED` entry is refused; that an account
+  with one is admitted; that `@logname` afterwards is the name that was
+  verified and not the client's assertion; and that `kernel(K$SET.USERNAME,…)`
+  is **refused from a program that is not `$internal`**, which is the gate
+  protecting the audit trail.
+
+- ~~**THE LOGIN RULE IS BUILT AND HAS NEVER RUN**~~ — **VERIFIED TWICE SINCE**,
+  and this entry was left standing wrongly for a week: 5 of 5 on 16 Aug 2026
+  (eleventh session) and 6 of 6 with the control on the 22:57:00 install
+  (sixteenth). §4 Verified has both. The original text asked for exactly the
+  checks that were then made — an elevated `sd` landing in `DON`,
+  `LOGTO SDSYS` working from there, `sd -ASDSYS` refused, `sd -internal` still
+  reaching SDSYS, and `verify-createaccount.ps1` still passing 16 of
   16.
-- **THE SERVICE IS BUILT AND HAS NEVER RUN** — 15 Aug 2026, tenth session.
-  `gplsrc/sdsvc/sdsvc.c`, a **native UCRT64** program built beside the client
-  DLL, because a service must call `StartServiceCtrlDispatcher` and `sd.exe`
-  is MSYS2-POSIX where `linuxlb.c` records the decision to keep `windows.h`
-  out. `objdump` confirms it imports only ADVAPI32, KERNEL32 and UCRT — no
-  `msys-2.0.dll`. `gplbld/install-service.ps1` creates it `start= auto` and the
-  installer runs it **before** the account step, so `adopt-account.ps1` finds
-  SD already up and has no race left to lose.
+- ~~**THE SERVICE IS BUILT AND HAS NEVER RUN**~~ — **CLOSED AND VERIFIED**,
+  header item 2: it runs, an ordinary user reaches it, and it survives a
+  restart including one with a leftover segment. Every question this entry
+  raised was answered — the SCM reaches Running, `sdwind` appears, `sd -start`
+  does work under LocalSystem, ordinary sessions attach to a SYSTEM-created
+  segment, and the uninstaller removes the service. `sdsvc.c` is still native
+  UCRT64 for the reason recorded there: a service must call
+  `StartServiceCtrlDispatcher` and `sd.exe` is MSYS2-POSIX.
 
-  **What to watch, because each is a way it could fail and none has been
-  tried:** does the SCM reach Running rather than timing out; does `sdwind`
-  actually appear; **does `sd -start` work at all under LocalSystem** — it is
-  gated on `IsElevated()`, which is `getgrouplist()`, and LocalSystem's group
-  list is not an interactive administrator's; do sessions started by an
-  ordinary user attach to a segment created by SYSTEM; and does uninstalling
-  remove the service rather than leaving a failing one behind.
-
-  §5.7 reserves *the identity half* — a service account owning the tree,
-  sessions over a named pipe — for stage 2. **This is the lifecycle half only**
-  and changes nothing about who owns the files.
-- **The lockout fix is compiled and run on THIS machine only** (§4). The staged
-  tree still carries the old `CREATEA`/`IS_GRP_MEMBER`; re-stage before the
-  second machine.
-- **No staged tree has yet been built with the `ACCOUNTS/SDSYS` fix** (§6).
-  The next `stage.py --force --bootstrap` is the first, and `SECOND.COMPILE`
-  will be compiling the staged sources for the first time — expect differences,
-  and expect `check_no_stage_paths` to have something real to say.
+  §5.7 still reserves *the identity half* — a service account owning the tree,
+  sessions over a named pipe — for stage 2. **What is done is the lifecycle
+  half only**, and it changes nothing about who owns the files. **The named
+  pipe is no longer optional**, though: §8's transport measurement forces it.
+- ~~**The lockout fix is compiled and run on THIS machine only.**~~ It has
+  since gone out through the installer on two machines and on every fresh
+  install here — `adopt-account.log`'s `keeps the Windows sign-in rights it
+  already had` line is the tell, and it appeared again on 22:57:00.
+- ~~**No staged tree has yet been built with the `ACCOUNTS/SDSYS` fix.**~~ Many
+  have; `check_no_stage_paths` is clean on every stage since, and
+  `retarget_sdsys_account()` is now a normal part of `stage.py --bootstrap`.
 - **`MODIFY.ACCOUNT` has never been run.** `CREATE.ACCOUNT` and
   `DELETE.ACCOUNT` both have (§4 Verified).
 - ~~**`DELETE.ACCOUNT`'s "SD created it" branch is untested**.~~ **RUN AND
