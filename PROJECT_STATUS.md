@@ -8,12 +8,16 @@ something came to be the way it is.
 **Last updated:** 17 Aug 2026, seventeenth session, from `b6758aa` — the owed
 cycle, run.
 
-**A CYCLE IS OWED — §7 step 6c went in after the install, and only BASIC
-changed.** `assert-current` fails on `GPL.BP/APISRVR` and `changelog` and is
-right to. **`make sd` IS NOT NEEDED and running it would waste the match** —
-`sd.exe` is still `201A9902D4323765` and no C changed; skip straight to
-`stage.py --force --bootstrap`. **That bootstrap is 6c's first compiler**, as
+**A CYCLE IS OWED — §7 steps 6c and 11 both went in after the install.**
+`assert-current` fails and is right to. **`make sd` IS ALREADY DONE**, clean and
+warning-free at 17 Aug 07:06, both toolchains: `sd.exe` **`76CF1CBE7D88932D`**
+(was `201A9902D4323765`) and `sdclilib.dll` **`93EA16794BE5085A`**. Go straight
+to `stage.py --force --bootstrap`. **That bootstrap is 6c's first compiler**, as
 the last one was 6a's, and `bootstrap.py` dies loudly on a BASIC error.
+
+**Step 11 has C behind it and one specific thing to watch** — whether
+`cygwin_attach_handle_to_fd()` honours a requested descriptor number. §7 step 11
+says what to do if it does not.
 
 **The install of 17 Aug 06:07:30 was current and whole while it lasted**, and
 what was measured on it stands: `gcat` **132**, `GPL.BP.OUT` **193**, `$BCOMP`
@@ -120,9 +124,9 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. RUN THE CYCLE FIRST — §7 step 6c is uncompiled BASIC.** `assert-current`
-fails and should. **Skip `make sd`**: no C changed, and relinking would move
-`sd.exe`'s hash away from the installed one for nothing.
+**1. RUN THE CYCLE FIRST — §7 step 6c is uncompiled BASIC, and step 11 is
+untried C.** `assert-current` fails and should. **`make sd` is already done and
+clean**; start at `stage.py`.
 
 ```sh
 python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
@@ -150,10 +154,14 @@ its control; step 4 and step 5 are closed; **step 6 is now built in full —
 a, b, c and d — and NOT RUN** (§4 Not verified). What is left, in the order it
 makes sense:
 
-- **STEP 6 IS BUILT AND ITS PROBLEM IS NO LONGER CODE.** Every sub-step has
-  been written; 6c went in on 17 Aug and, like 6a, has not been through a
-  compiler. **The transport is what stands between step 6 and any evidence at
-  all**, so do that next rather than writing more of step 6.
+- **STEP 11, AND IT IS NOW THE SHORTEST PATH TO EVIDENCE.** `SDConnectLocal()`
+  is built and has never been called. A local session reaches `SrvrAccount`,
+  so **it can test step 6c without ssh, a tunnel or a remote client** — which
+  is the first evidence step 6 would have of any kind. Run the cycle, then
+  write something small that calls the DLL.
+- **THEN THE REMOTE TRANSPORT**, which is what 6a and 6b still wait on: the
+  listener and per-connection spawn Windows has no xinetd or systemd for. That
+  work belongs with §5.7's service model.
 - **The transport, and it is now forced rather than optional.** The Linux
   client contract cannot be ported — measured, §8 — so the API cannot be
   exercised end to end until a **named pipe** exists. That work belongs with
@@ -2101,6 +2109,15 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
+- **§7 STEP 11 IS BUILT AND HAS NEVER BEEN CALLED — 17 Aug 2026.**
+  `SDConnectLocal()` is fixed on both sides and `make sd` is clean, warning-free,
+  both toolchains. **A clean build is the whole of the evidence.** The single
+  most likely thing to be wrong is whether `cygwin_attach_handle_to_fd()`
+  honours a requested descriptor number rather than allocating the lowest free
+  one; §7 step 11 says what to do if it does not. **It is also the cheapest
+  route to first evidence for §7 step 6c**, because a local session reaches
+  `SrvrAccount` — see the entry below.
+
 - **§7 STEP 6 IS BUILT IN FULL AND HAS NEVER RUN — 17 Aug 2026.** The API
   authenticates against `$CRED`, `login_user()` is deleted, `K_SET_USERNAME`
   carries the verified identity, and `vb.account` applies the `ACC$GROUP`
@@ -2124,15 +2141,29 @@ way to see this system as a non-administrator on a machine whose account is one.
   and `void kernel(K$SET.USERNAME, …)` are both accepted BASIC. **Nothing about
   what they DO is verified by this** — a compile proves syntax.
 
-  **It cannot be run yet, and the reason is not this work:** there is no API
-  client on this machine, `SDConnectLocal()` has never been exercised
-  (step 11), and the transport is **measured unportable** (§8). So it stays
-  here until a named pipe exists. **What to watch when something can finally
-  call it:** that an account with no `$CRED` entry is refused; that an account
-  with one is admitted; that `@logname` afterwards is the name that was
-  verified and not the client's assertion; and that `kernel(K$SET.USERNAME,…)`
-  is **refused from a program that is not `$internal`**, which is the gate
-  protecting the audit trail.
+  **THE TRANSPORT DOES NOT BLOCK ALL OF IT, WHICH THIS FILE SAID UNTIL 17 Aug
+  2026 AND WAS TOO STRONG.** The two halves have different prerequisites:
+
+  - **6c IS TESTABLE WITHOUT ssh**, through `SDConnectLocal()` (step 11, now
+    built). A local session reaches `vb.account`, which is exactly what 6c
+    guards. **`vb.local.login` authenticates nothing, deliberately** — a local
+    client already runs as the user, so `logname` stays as
+    `kernel(K$USERNAME,0)`, which is the identity 6c tests. **That makes step
+    11 the cheapest route to the first evidence step 6 has ever had.**
+  - **6a and 6b are NOT**, and there the old reasoning stands: they live in
+    `vb.login`, the remote path, which needs a client and a transport that is
+    **measured unportable** (§8).
+
+  **What to watch when something can finally call `vb.login`:** that an account
+  with no `$CRED` entry is refused; that an account with one is admitted; that
+  `@logname` afterwards is the name that was verified and not the client's
+  assertion; and that `kernel(K$SET.USERNAME,…)` is **refused from a program
+  that is not `$internal`**, which is the gate protecting the audit trail.
+
+  **What to watch for 6c, which is reachable sooner:** that a member of an
+  account's `sdu_` group is admitted; that a non-member is refused with
+  `sysmsg(10003)`; that an account with an empty `ACC$GROUP` is refused rather
+  than admitted; and that SDSYS is refused.
 
 - ~~**THE LOGIN RULE IS BUILT AND HAS NEVER RUN**~~ — **VERIFIED TWICE SINCE**,
   and this entry was left standing wrongly for a week: 5 of 5 on 16 Aug 2026
@@ -5301,8 +5332,63 @@ the staging script and the Inno installer were all finished and removed.
     well enough to be worth using. The sequencing note matters more than the
     step: put administrative logic in subroutines from now on, so a form can
     call it later without reimplementing it.
-11. **Exercise `SDConnectLocal()`** once a server runs. Needs the configuration
-    file from §5.8, or `SD_CONFIG` set.
+11. **BUILT 17 Aug 2026, seventeenth session, AND NOT RUN.** `SDConnectLocal()`
+    **could never have worked**, on this platform or any other, and it took
+    three independent faults with it. Two were in the shipping path and are
+    fixed; the third was in dead code.
+
+    a. **The client and the server disagreed about `-C`.** `SDConnectLocal()`
+       builds `sd.exe -Q -C \\.\pipe\~SDPipe<pid>-<n>` — the pipe name as a
+       SEPARATE argument — while `sd.c` parsed `sscanf(argv[arg],
+       "-C%d!%d", …)` and `exit(1)`ed on anything else. `argv[arg]` is exactly
+       `"-C"`, so it matched nothing and the child died during argument
+       parsing. **The same mismatch is in `sdb64`**, byte for byte —
+       UPSTREAM_FIXES.md #4. `sd.c` now takes either form, and **consumes the
+       name argument**, which it must: the option loop stops at the first
+       argument not beginning with `-`, so the pipe name would otherwise be
+       taken for a command to execute.
+    b. **The client looked for `sd.exe` inside the DATA tree** —
+       `<sysdir>\bin\sd.exe`, i.e. `C:\ProgramData\SD\sdsys\bin`, which exists
+       and holds the pcode file. It is now found **beside the DLL** through
+       `GetModuleHandleEx(FROM_ADDRESS)` + `GetModuleFileName`, which needs no
+       configuration and follows the install wherever `{app}` puts it, since
+       `stage.py` ships both in `usr\bin`. **The path is now quoted too**: it
+       is under `C:\Program Files`, and an unquoted spaced path in
+       `CreateProcessA` with a NULL application name makes Windows try
+       `C:\Program.exe` first — a hijack, not just a bug.
+    c. **`gplsrc/sdclient.c` had a fourth fault and does not matter**: it reads
+       `C:\Windows\sd.ini`, which nothing creates. **That file is excluded
+       from the build** (`Makefile:66`, `SRCS := $(TEMPSRCS:sdclient.c=)`) —
+       the shipping client is `gplsrc/sdclilib/sdclilib.c`, whose `sysdir()`
+       was already corrected on 14 Aug. **Read the right file**: an earlier
+       hour of this session was spent analysing the dead one.
+
+    **`gplsrc/win32pipe.c` is new, and is the THIRD `windows.h` file** after
+    `win32sem.c` and `win32audit.c`. The pipe is a native object created by the
+    UCRT64 client and `sd.exe` is MSYS2, so `open()` cannot reach it — the
+    Cygwin runtime does not map `\\.\pipe\` names at all. It is opened with
+    `CreateFile` and pushed into the Cygwin descriptor table with
+    `cygwin_attach_handle_to_fd()`, exported by `msys-2.0.dll` (ordinal 379,
+    checked), so everything above it reads and writes 0 and 1 unchanged.
+
+    **It must not include `sd.h`, and neither do the other two.** `sd.h`
+    reaches `linuxlb.h`, which declares `GetUserNameA()` and `Sleep()` with
+    types that conflict with the real Windows ones — two "conflicting types"
+    errors, measured. That is why it returns `int` rather than `bool`, as
+    `win32audit.h` does.
+
+    **`make sd` is clean, no warnings**, both toolchains, 17 Aug 07:06.
+    **THAT IS THE ONLY EVIDENCE THERE IS.** Nothing has called it. **The first
+    thing to test, and the most likely thing to be wrong:** whether
+    `cygwin_attach_handle_to_fd()` honours a REQUESTED descriptor number or
+    allocates the lowest free one. If it allocates, the returned descriptors
+    need `dup2()` onto 0 and 1 and `win32pipe.c` is where that goes.
+
+    **The vendored client's own docs were wrong and are corrected**: both
+    `README.md` and `USER_GUIDE.md` said the Windows DLL does not provide
+    `SDConnectLocal` and that it is "Linux-specific". It is exported —
+    ordinal 6, checked with `objdump -p` — and its transport is a **named
+    pipe**, which has no Linux equivalent in that library at all.
 12. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
     tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
     flipping the switches first would enable paths that are no longer present.

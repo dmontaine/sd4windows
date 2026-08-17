@@ -213,3 +213,80 @@ the difference between a diagnosis and a guess:
 subsequent session failed on the semaphores. Nothing in the two programs
 reported anything, so the cause had to be reconstructed from file ownership and
 exit codes. The Windows-specific part of that is ours; these two are not.
+
+---
+
+## 4. `SDConnectLocal()` and `sd -C` disagree about what `-C` takes, so a local client connection cannot work
+
+`PROPOSED`
+
+**The two halves of the local-connection mechanism have never matched.** The
+client library builds a command line naming a **pipe**, and the server parses
+`-C` as a pair of **file descriptors** and rejects anything else.
+
+`sdclient.c`, in `SDConnectLocal()`:
+
+```c
+sprintf(command, "%s\BIN\SD.EXE -Q -C %s", sysdir(), pipe_name);
+```
+
+`sd.c`, handling that argument:
+
+```c
+case 'C': /* SDLocal client connection */
+  connection_type = CN_PIPE;
+  if (sscanf(argv[arg], "-C%d!%d", &TxPipe, &RxPipe) != 2) {
+    exit(1);
+  }
+  dup2(RxPipe, 0);
+  dup2(TxPipe, 1);
+  break;
+```
+
+The client passes `-C` and the pipe name as **two separate arguments**, so
+`argv[arg]` is exactly `"-C"`. `sscanf` matches no integers, returns 0, and the
+process calls `exit(1)` immediately. The client then blocks in
+`ConnectNamedPipe()` waiting for a child that has already gone, or fails there.
+
+**So `SDConnectLocal()` cannot succeed as the two files stand.** There is no
+ordering or timing to it — the server exits during argument parsing, before it
+does anything at all.
+
+**A second fault sits behind the first**, and it matters because fixing only
+the parse leaves the call still failing: the executable is looked for at
+`<sysdir>\BIN\SD.EXE`, and `sysdir()` returns the **SDSYS data directory**.
+The server executable does not live in the database.
+
+**Suggested fix.** Accept both forms rather than replacing one with the other,
+since the descriptor form is what a Unix parent doing fork-then-exec would
+send:
+
+```c
+case 'C': /* SDLocal client connection */
+  connection_type = CN_PIPE;
+  if (sscanf(argv[arg], "-C%d!%d", &TxPipe, &RxPipe) == 2) {
+    dup2(RxPipe, 0);
+    dup2(TxPipe, 1);
+  } else {
+    if (++arg >= argc)
+      exit(1);
+    /* argv[arg] is the pipe name - open it and make it 0 and 1 */
+  }
+  break;
+```
+
+**Note the argument must be consumed here.** The option loop above stops at the
+first argument that does not begin with `-`, and a pipe name does not, so
+leaving it would end option parsing and the name would then be taken for a
+command to execute. `-TERM` already consumes its argument this way.
+
+Opening the pipe is platform work: on Windows it is `CreateFile` on the pipe
+name, and on a Unix host the equivalent local transport would be a socket or
+FIFO path. That part is not proposed here, only the argument handling and the
+executable location, which are wrong independently of platform.
+
+**How it was found.** Porting to Windows. `SDConnectLocal()` had never been
+called on this platform, and reading the two sides against each other to find
+out what it expected showed they had never agreed. Both files are byte-identical
+to `sdb64` in the lines quoted, which is why this is here rather than in our own
+notes.

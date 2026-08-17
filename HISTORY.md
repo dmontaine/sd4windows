@@ -27,6 +27,63 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Section 7 step 11: SDConnectLocal could never have worked, and now might
+
+From `c7c15f7`. Owner chose the smaller of three scopes when asked: fix
+`SDConnectLocal`, leave the remote transport alone.
+
+**Three independent faults, none of them subtle once the two sides were read
+against each other.** The client library launches `sd.exe -Q -C <pipe name>`
+with the name as a SEPARATE argument; `sd.c` parsed `sscanf(argv[arg],
+"-C%d!%d", ...)` and `exit(1)`ed otherwise, so `argv[arg]` was exactly `"-C"`,
+matched nothing, and the child died during argument parsing. **The same
+mismatch is in `sdb64` byte for byte** - UPSTREAM_FIXES.md #4. The client also
+looked for `sd.exe` at `<sysdir>\bin\sd.exe`, inside the DATA tree, where the
+pcode file lives. And the path it built was unquoted, under `C:\Program
+Files`, which `CreateProcessA` with a NULL application name resolves by trying
+`C:\Program.exe` first.
+
+**`gplsrc/win32pipe.c` is new and is the third `windows.h` file**, after
+`win32sem.c` and `win32audit.c`. The pipe is a native object made by the UCRT64
+client and `sd.exe` is MSYS2, so `open()` cannot reach it - the Cygwin runtime
+does not map `\\.\pipe\` names. `CreateFile` plus
+`cygwin_attach_handle_to_fd()`, which `msys-2.0.dll` exports at ordinal 379,
+puts it on descriptors 0 and 1 so the whole terminal and packet layer above is
+untouched.
+
+**AN HOUR WENT INTO THE WRONG FILE FIRST.** `gplsrc/sdclient.c` looks exactly
+like the client and is **excluded from the build** - `Makefile:66`,
+`SRCS := $(TEMPSRCS:sdclient.c=)`. The shipping client is
+`gplsrc/sdclilib/sdclilib.c`, and its `sysdir()` had already been corrected on
+14 Aug, so one of the "faults" found in the dead file did not exist in the live
+one. **Check what the Makefile builds before reading a file as authoritative.**
+
+**Two things the compiler caught that reading had not.** `win32pipe.c` first
+included `sd.h`, which reaches `linuxlb.h`, which declares `GetUserNameA()` and
+`Sleep()` with types that conflict with the real Windows ones - the reason the
+other two `win32*.c` files include only `windows.h` and their own header, and
+why this returns `int` rather than `bool`. And `GetModuleHandleEx(FROM_ADDRESS)`
+given a function address is a function-pointer-to-object-pointer conversion,
+which `-Wpedantic` reports; the address of a static datum does the same job.
+
+**The vendored library's own docs were wrong.** Both `README.md` and
+`USER_GUIDE.md` said the Windows DLL does not provide `SDConnectLocal` and that
+it is "Linux-specific". It is exported at ordinal 6, checked with `objdump -p`,
+and its transport is a named pipe, which has no Linux equivalent in that
+library at all. Corrected in place.
+
+**A claim in PROJECT_STATUS was too strong and is narrowed:** "the transport
+blocks step 6" is true of 6a and 6b, which live in `vb.login`, and **false of
+6c**, which lives in `vb.account` and is reachable from a local session.
+`vb.local.login` authenticates nothing by design - the process owner is the
+identity - so a local client is the cheapest route to the first evidence step 6
+has ever had.
+
+**Evidence: `make sd` clean and warning-free, both toolchains, 07:06.** That is
+all. Nothing has called any of it. The first thing likely to be wrong is
+whether `cygwin_attach_handle_to_fd()` honours a requested descriptor number or
+allocates the lowest free one.
+
 ## 17 Aug 2026 - Section 7 step 6c: the API applies the grant check
 
 From `c1d2183`. Step 6 is now built in full and none of 6c has been through a
