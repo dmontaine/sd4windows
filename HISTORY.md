@@ -27,6 +27,53 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - The owed cycle ran, and the cycle script failed a good install
+
+From `d7cc7a7`. The harness-only cycle the previous entry owed, run. **Nothing
+was wrong with SD**: install 13:43:00, `assert-current` exit 0, `sd.exe`
+`81D0856F5493385E` and `sdclilib.dll` `8D1517D1CD2B83AB` unchanged, tree whole -
+`gcat` 132, `GPL.BP.OUT` 193, `$BCOMP` 87,992, `$CPROC` 25,208 - and
+`make check-local` passes on the installed pair, `WHO -> 2 DON` with `SDSYS`
+refused. Step 11 stays closed and step 6c's evidence now reproduces on a third
+install.
+
+**A FOURTH HARNESS DEFECT, AND IT IS THE MIRROR OF THE FIRST THREE.** Where
+defect 1 printed a wrong number as a result, this one **failed an install that
+was fine**. `cycle.ps1` step 8 stopped at 13:36:30 with `no
+C:\ProgramData\SD\sdsys\gcat after the install - it did not complete`; the
+install completed normally at 13:43 and every catalogue figure was correct.
+
+**Cause: `& $setup.FullName` does not wait.** PowerShell's call operator returns
+immediately for a GUI-subsystem process, and Setup.exe is one - PE subsystem
+**2**, read off `sd-setup-1.0-2.exe` rather than assumed. The 300-second count
+deadline therefore started when the **wizard opened** rather than when it was
+dismissed. Five minutes spent reading the closing dialog was indistinguishable
+from an install that never ran - and the non-silent default exists precisely to
+ask the operator to read those pages (PROJECT_STATUS section 7 step 3), so the
+defect was aimed at its own intended use. Fixed with `Start-Process -Wait`, the
+count deadline kept as the backstop in case Inno ever respawns itself for
+elevation.
+
+**Why it matters as much as a false pass:** the symptom is identical to the
+broken-bootstrap install of 16 Aug 2026, which is the one failure this script
+exists to catch, and the natural response is to spend another cycle
+investigating a tree that is already correct.
+
+**The file count is not the check, and this run is the second time that has
+mattered.** The tree measured **3,473** files against the **3,483** recorded on
+the 12:28:49 install, with nothing missing: the difference is whether SD is
+running, since the live segment and the logs sit inside `sdsys`. A file-by-file
+comparison of the stage against the install came back empty, `audit` and
+`ACCOUNTS/DON` being the only extras. PROJECT_STATUS section 7 step 2 still says
+to count files.
+
+**No cycle is owed for the fix.** `cycle.ps1` is in `assert-current`'s
+`$neverShipped` list, so editing it cannot make the installed tree differ from
+source - the self-policing exclusion added earlier the same day, working as
+intended.
+
+---
+
 ## 17 Aug 2026 - The cycle: step 11 verified on a real install, and three harness defects
 
 From `a1849b7`. The cycle the previous entry owed, run - and it found nothing

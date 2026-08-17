@@ -5,17 +5,18 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 17 Aug 2026, eighteenth session, ending at `a1849b7` + this
-commit. §8's administrator tier and §7 step 11, both verified on real installs.
+**Last updated:** 17 Aug 2026, nineteenth session, ending at `d7cc7a7` + this
+commit. The owed cycle ran; a fourth harness defect failed a good install.
 
 **WHERE THIS SESSION LEFT IT — read these four, in order:**
 
-1. **A CYCLE IS OWED, FOR HARNESS FIXES ONLY.** `gplsrc/sdclilib/Makefile`
-   changed at **12:32:56**, after every measurement below was taken on the
-   **12:28:49** install, so **the results stand**. Nothing that reaches a
-   running system changed. **`make sd` is NOT needed** — no C changed after the
-   build that produced `sd.exe` **`81D0856F5493385E`** /
-   `sdclilib.dll` **`8D1517D1CD2B83AB`**, which is what is installed.
+1. **NO CYCLE IS OWED.** The harness-only cycle ran: install **13:43:00**,
+   `assert-current` exit 0, `sd.exe` **`81D0856F5493385E`** /
+   `sdclilib.dll` **`8D1517D1CD2B83AB`** unchanged (no C changed, so no
+   rebuild), and **`make check-local` PASSES on the installed pair** —
+   `WHO -> 2 DON`, SDSYS refused. **The `cycle.ps1` fix below owes no cycle
+   either**: it is in `assert-current`'s `$neverShipped` list
+   (`assert-current.ps1:88`).
 2. **§7 STEP 11 IS CLOSED AND §7 STEP 6c HAS ITS FIRST EVIDENCE.** Details
    below and in §7 step 11.
 3. **§8's THREE TIERS ARE VERIFIED, 22 of 22.** §8 and the tables below.
@@ -152,11 +153,33 @@ The installed tree is whole: `gcat` **132**, `GPL.BP.OUT` **193**, `$BCOMP`
 **87,992**, `$CPROC` **25,208**, **3,483 files**. `ACCOUNTS/DON` field 5 reads
 `ADMINISTRATOR` on this install too.
 
-**A CYCLE IS OWED AGAIN, and only for harness fixes** — `gplsrc/sdclilib/Makefile`
-changed at 12:32:56, after the measurements above were taken. Nothing that
-reaches a running system changed; the results stand.
+**THAT CYCLE HAS NOW RUN — 13:43:00, `assert-current` exit 0, `make check-local`
+passes.** It exposed a **fourth** harness defect, again about the tooling and
+not about SD.
 
-**THREE HARNESS DEFECTS THE CYCLE EXPOSED, ALL FIXED, NONE ABOUT SD:**
+**THE FOURTH DEFECT: `cycle.ps1` FAILED AN INSTALL THAT WAS PERFECTLY FINE.**
+Step 8 stopped with `no C:\ProgramData\SD\sdsys\gcat after the install - it did
+not complete`; the install finished normally seven minutes later and the tree
+was whole. **Cause: `& $setup.FullName` — PowerShell's call operator does not
+wait for a GUI-subsystem process**, and Setup.exe is one (PE subsystem **2**,
+read off `sd-setup-1.0-2.exe` rather than assumed). So the 300-second count
+deadline started when the **wizard opened** instead of when it was dismissed,
+and reading the closing dialog — which the non-silent default exists to invite
+(§7 step 3) — is what exceeded it. **Fixed with `Start-Process -Wait`**; the
+count deadline is kept as the backstop for the respawn case.
+
+**A FALSE FAILURE HERE COSTS AS MUCH AS A FALSE PASS.** It reads exactly like
+the broken-bootstrap install of 16 Aug, which is the one thing this script
+exists to catch, and the natural response is to spend another cycle.
+
+**AND THE FILE COUNT IS NOT THE CHECK.** This tree is **3,473** files at rest
+against the **3,483** recorded on the 12:28:49 install, and **nothing was
+missing** — the difference is whether SD is running, since the live segment and
+the logs sit inside `sdsys`. The stage-against-install file comparison came back
+empty, with `audit` and `ACCOUNTS/DON` the only extras. §7 step 2 still says to
+count files.
+
+**THREE HARNESS DEFECTS THE PREVIOUS CYCLE EXPOSED, ALL FIXED, NONE ABOUT SD:**
 
 1. **`cycle.ps1` step 8 counted MID-INSTALL** and reported `GPL.BP.OUT` **5** on
    an install that was fine and finished with 193. It waited for
