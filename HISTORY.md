@@ -122,6 +122,16 @@ now points at it and says not to hand-run the steps.
 names what is still running and stops, because a live `sd` is somebody's
 session.
 
+**Correction, same day: the stray installer was never in `system32`.** This
+entry and PROJECT_STATUS both said `C:\WINDOWS\system32\193`, because that is
+what ISCC printed. The owner went to delete it and there was no such directory.
+It was in **`C:\WINDOWS\SysWOW64\193`**: `C:\Program Files (x86)\Inno Setup 6\`
+is a **32-bit** binary, and WOW64 silently redirects a 32-bit process's writes
+to `system32` into `SysWOW64`. **ISCC reports the path it was asked for, not the
+one it got**, so any path handed to it is subject to that rewrite - though only
+`system32` is redirected, and only a relative path resolved against an elevated
+shell's default directory lands there at all. Both directories are gone now.
+
 **And its first run found a bug in itself, of exactly the class it was written
 to prevent.** The wholeness check used `$out` for the `GPL.BP.OUT` count, and
 **PowerShell variable names are case-insensitive**, so it overwrote the `$Out`

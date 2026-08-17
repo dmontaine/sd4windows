@@ -93,11 +93,11 @@ account VOCs as bytes and matching the on-disk record framing
 (`\0\0\0` + id + type letter, learned from DON's `%0`), which has no substring
 ambiguity — `ED` matches almost anything by naive search. Both agree.
 
-**Litter left behind, deliberately:** `verify-tiers.ps1` removes only the
-Windows half, so `ACCOUNTS` still holds `SDTIER1`–`3` (first run, cleaned up)
-and `SDTIERB1`–`3` (kept). Clear them with `DELETE.ACCOUNT` when convenient;
-**re-running the script needs a fresh `-Prefix`** and it now says so rather than
-failing inside `CREATE.ACCOUNT`.
+**Cleaned up 17 Aug 2026** — `ACCOUNTS` is back to `DON` and `SDSYS`,
+`assert-current` exit 0. `verify-tiers.ps1` removes only the Windows half, so
+each run leaves its `ACCOUNTS` records behind for `DELETE.ACCOUNT`, and
+**re-running it needs a fresh `-Prefix`**; it now says so rather than failing
+inside `CREATE.ACCOUNT` several steps later.
 
 **§7 step 11's FIX is in the same owed cycle**, and it is C — it went in after
 the 07:20:40 install and has never been installed. `assert-current` fails and is
@@ -289,12 +289,22 @@ both faults are now impossible rather than documented:
 **AND THE SCRIPT'S FIRST RUN HIT THE SAME FAULT FROM THE INSIDE.** Its
 wholeness check used `$out` for the `GPL.BP.OUT` count and **PowerShell
 variable names are case-insensitive**, so it overwrote the `$Out` **parameter**
-with **193**. ISCC got `/O193` and wrote a perfectly good installer to
-`C:\WINDOWS\system32\193\`. **A relative path here does not fail, it succeeds
-somewhere nobody looks** — which is why `-Stage` and `-Out` are now required to
-be rooted and are resolved absolute before anything runs, and why every local
-in that block is prefixed. **Delete `C:\WINDOWS\system32\193` when convenient**
-(elevated); nothing depends on it.
+with **193**. ISCC got `/O193` and wrote a perfectly good installer to a
+relative `193\`. **A relative path here does not fail, it succeeds somewhere
+nobody looks** — which is why `-Stage` and `-Out` are now required to be rooted
+and are resolved absolute before anything runs, and why every local in that
+block is prefixed. Cleaned up 17 Aug 2026.
+
+**AND IT DID NOT LAND WHERE ISCC SAID IT DID — `ISCC` IS 32-BIT.** It reported
+`C:\WINDOWS\system32\193\sd-setup-1.0-2.exe`; the file was in
+**`C:\WINDOWS\SysWOW64\193\`**, because `C:\Program Files (x86)\Inno Setup 6\`
+is a 32-bit binary and **WOW64 silently redirects a 32-bit process's writes to
+`system32` into `SysWOW64`**. This file said "delete `system32\193`" and there
+was no such directory, which is corrected here rather than replaced because the
+mistake is the instructive part: **ISCC reports the path it was ASKED for, not
+the one it got**, so any path handed to it is subject to that rewrite. Only
+`system32` is affected, and only for a relative path resolved against an
+elevated shell's default directory — but that is exactly the case this hit.
 
 **Still elevated, and that is checked first** — `--bootstrap` ends in
 `sd -internal` steps SDSYS refuses unelevated, and `bootstrap.py:179` only
