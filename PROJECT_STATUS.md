@@ -5,22 +5,53 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, fifteenth session, from `5e986b6`.
+**Last updated:** 16 Aug 2026, sixteenth session, from `222701a`.
 
-**THE ssh SERVER IS NO LONGER OPTIONAL.** Owner's decision this session,
+**THE CYCLE HAS RUN AND THE INSTALL IS WHOLE AND CURRENT** — 22:57:00,
+`assert-current` exit 0, and **an unelevated session answers `WHO` → `2 DON`**
+(§4). That last clause is the one that matters: the install before it could not
+start a session at all. **§7 step 1a is closed** in the same cycle.
+
+**THE ssh SERVER IS NO LONGER OPTIONAL.** Owner's decision, fifteenth session,
 reversing the opt-in of 14 Aug. §5.9 has the reasoning and what changed.
 
-**HALF OF IT IS VERIFIED, on the 17:51:35 install** — `assert-current` exit 0,
-and the **"leave an ssh server we did not install alone"** branch measured
-against a pre-install baseline: firewall rule still `Enabled True / Private /
-Any`, `sshd_config` still `11:11:30 / 2297 bytes`, PATH 7/0.
-**The mandatory-install branch is structurally untestable on this machine**,
-which already has OpenSSH — only the "leave it alone" branch runs here and both
-new tasks are hidden. It needs the VM from step 2. §7 step 3.
+**THE 17:51:35 INSTALL WAS A FAILED BOOTSTRAP AND NO SD SESSION EVER RAN ON IT.**
+Found and replaced 16 Aug 2026, sixteenth session; kept here because of what it
+voids and what it teaches. It was 337 files short — `gcat` **4 entries not
+132**, `GPL.BP.OUT` **3 not 193**, `gcat/$CPROC` **0 bytes** (the touched
+placeholder), **no `$LOGIN`, no `VOC`** — and every cell of a four-way control
+died `Unable to load '$CPROC' object code`, exit `0xC0000005`.
+**SO EVERY SD-SIDE CLAIM RESTING ON THAT INSTALL IS VOID**, including the one
+in §8 that became an open question. The Windows-side ssh measurements below
+stand: they never start SD.
 
-**UNVERIFIED, because they were written after that cycle:** the trimmed closing
-dialog, the rewrapped first page, and `gplbld/secure-accounts.ps1`. `ISCC` exits
-0 and that is all.
+**Cause, now a trap in §6 and a gate in `stage.py`:** the installer of
+**17:34:39** was built from a staging tree whose bootstrap had died after the
+**seed** phase — its `gcat` held `bbcmp.py`'s objects (`$BCOMP` 70,697) where a
+finished tree holds `BCOMP`'s (87,992). `C:\Users\dmont\stagetest` was healthy
+and was not what got packaged. **`assert-current` cannot see this** — it
+compares the install against SOURCE, and `gcat` is a build product, so it
+exited 0 over the broken tree and was right to.
+
+**WHAT STANDS from that install:** the **"leave an ssh server we did not
+install alone"** branch, measured against a pre-install baseline — firewall
+rule still `Enabled True / Private / Any`, `sshd_config` still `11:11:30 /
+2297 bytes`, PATH 7/0. **The mandatory-install branch is structurally
+untestable on this machine**, which already has OpenSSH — only the "leave it
+alone" branch runs here and both new tasks are hidden. It needs the VM from
+step 2. §7 step 3.
+
+**UNVERIFIED, and now cheap to check because the wizard runs again:** the
+trimmed closing dialog and the rewrapped first page. Nobody has read them.
+
+**`gplbld/secure-accounts.ps1` IS NOT WIRED IN AND MUST NOT BE WIRED IN ALONE.**
+It is in neither `stage.py`'s ship list (`stage.py:427`) nor `sd.iss`, so it
+neither ships nor runs — it was written and left. **Do not just add it:** it
+breaks inheritance on `user_accounts` and leaves `sdusers` nothing inheritable,
+so a directory created under it carries `CREATOR OWNER` and no `sdu_<name>` —
+the account's own user, and anyone `GRANT`ed it, would be refused at the file
+layer. Its partner half does not exist: **`CREATEA` contains no `icacls`
+anywhere**, checked. Land both halves together or neither.
 
 **Also this session:** an up-front wizard page listing what the installer
 changes on the machine, and two comments in `sd.iss` corrected that claimed
@@ -58,14 +89,13 @@ it. Call it first from anything new that tests the install.
 
 **THE ELEVATION WORK IS DONE. Item 1 below is the RECORD, not a task** — read
 it only if that area misbehaves; it holds the regression signatures. The open
-work is §7, and **the next subject is still §7 step 1**, the loose ends the
-account model left — **it was not started**; the fifteenth session went to the
-installer at the owner's direction instead. Then step 6 (the API server, the
-largest thing still outstanding). Part of step 3 is done and part of it grew:
-see that step.
+work is §7. **Step 1a is closed** (sixteenth session); what is left of step 1
+is 1c's two untested branches. Then step 6 (the API server, the largest thing
+still outstanding). Part of step 3 is done and part of it grew: see that step.
 
-**FIRST, THOUGH: the ssh work of the fifteenth session has never been run.**
-Install it on the VM before building anything on top of it.
+**FIRST, THOUGH, AND IN THIS ORDER:** run the cycle the header opens with —
+nothing on this machine has been measurable since 17:51:35. Then the ssh work
+of the fifteenth session, which **has still never been run**, on the VM.
 
 **THE INSTALL IS NO LONGER CURRENT.** It was (16:36:52, header item 5) until
 this session changed `sd.iss`, `stage.py`, `install-ssh.ps1` and added
@@ -668,7 +698,7 @@ IS STALE**, as of 16 Aug 2026 16:02:58 (header item 5) — a build behind on
 
 | Thing | State |
 |---|---|
-| **The install** | **PRESENT, 16 Aug 2026 16:36:52**, from `sd-setup-1.0-2.exe` of 16:29:15 (4,851,866 bytes). 13 files in `usr\bin`, 3,477 in the data tree, `sd.exe` `239BB9C3E43E4829`. `C:\ProgramData\SD` is `uninsneveruninstall`, so **a fresh cycle deletes it by hand as well** |
+| **The install** | **PRESENT, 16 Aug 2026 22:57:00**, sixteenth session, and **whole** — 3,477 files in the data tree, `gcat` 132, `GPL.BP.OUT` 193, `sd.exe` **`7A383F487235134B`** (the `CREATUSR` build). `assert-current` exit 0 and a session runs (§4). `C:\ProgramData\SD` is `uninsneveruninstall`, so **a fresh cycle deletes it by hand as well** |
 | `C:\Program Files\SD` | binaries in `usr\bin`. 19 rather than 18 files because `adopt-account.ps1` ships beside the other three `.ps1` scripts. Count and date in header item 1 |
 | `C:\ProgramData\SD\sdsys` | a working database built entirely from the repository: the installed `gcat/$LOGIN` carries the owner's banner and `gcat/$CREATEA` the lockout fix. Counts in header item 1; expect them to drift upward as accounts are created |
 | SDSYS password | **not set, and it no longer matters** — nothing on the console asks for one. The password prompt is gone from the installed system too, as of the sixth session: the `Warning: account SDSYS has no password set` line no longer appears |
@@ -690,7 +720,7 @@ IS STALE**, as of 16 Aug 2026 16:02:58 (header item 5) — a build behind on
 | **`don` HAS AN SD ACCOUNT** | 16 Aug 2026, **made by the installer this time** — header item 3, §7 step 1f closed. `ACCOUNTS/DON` present and `adopt-account.log` says `don now has an SD account`. Its `don keeps the Windows sign-in rights it already had` line still appears, so the lockout fix holds |
 | `sdsshonly` | exists, holding **`sdacct6`** and nothing else — the lockout fix means no administrator is in it, and `sdacct6` is there because that is what `CREATE.ACCOUNT` does to a non-administrator |
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
-| Accounts, **SD side** | `SDSYS`, `DON` and **`SDACCT13`** — the last made by `CREATE.ACCOUNT` from an **unelevated** session, which is header item 1's whole point. Only the newest survives a fresh install; earlier `sdacctN` Windows users and their `sdu_` groups remain. `DON` was made by the installer's own step — header item 3 |
+| Accounts, **SD side** | **`SDSYS` and `DON` only**, after the fresh install of 22:57:00 — `DON` made by the installer's own step, `adopt-account.log` showing it through to `Adding to register of accounts`. Every `sdacctN` SD side went with the install, as always. **Windows side, `sdacct6, 8, 9, 10, 11, 12, 13` remain**, password `Sd-Test-1`, so **the next free name is `sdacct14`** |
 | SD | **running.** The installer started it; service `Running`, `sdwind` up, one segment in `shm` stamped 13:52:49. **Stop the service before `stage.py --bootstrap`.** `sd -start` **needs an elevated window**: the gate covers `-start` |
 | SD at boot | **THE SERVICE SURVIVES A RESTART, INCLUDING ONE WITH A LEFTOVER SEGMENT** — fixed and verified 16 Aug 2026, thirteenth session, header item 2. `sd -stop` still leaks the segment at shutdown; `sd_state()` now discards a pre-boot survivor, so the leak is harmless rather than absent |
 
@@ -1192,6 +1222,20 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**16 Aug 2026 — THE INSTALL IS WHOLE AND A SESSION RUNS ON IT, sixteenth
+session.** On the install of **22:57:00**, `assert-current` exit 0, `sd.exe`
+`7A383F487235134B`: `gcat` **132**, `GPL.BP.OUT` **193**, `gcat/$CPROC`
+**25,208**, `$LOGIN` 5,615, `$QPROC` 54,073, `VOC` present, 3,477 files,
+`ACCOUNTS/DON` present. Then the part the previous install could not do at all:
+an **unelevated** `sd` answered `WHO` → **`2 DON`** and `OFF` → exit 0.
+**Both halves matter** — the counts say the bootstrap finished, the session
+says the tree works, and the 17:51:35 install passed nothing but a file copy.
+
+**16 Aug 2026 — `CREATUSR` IS GONE FROM THE COMPILED CATALOGUE, not just from
+the source.** Installed `gcat/$CONFIG` is 3,153 bytes and does **not** contain
+the string `CREATUSR`, while it does contain `DEADLOCK` — the control, without
+which the search proves nothing.
 
 **16 Aug 2026 — THE LOGIN RULE, 5 of 5, eleventh session, on the fresh
 install.** Written 15 Aug and never run until now. `sd -internal` → `12 SDSYS`,
@@ -3153,6 +3197,76 @@ session cannot.
 
 Each of these cost real time. Read before debugging anything similar.
 
+- **`struct PCFG` IS IN THE SHARED SEGMENT, WHATEVER ITS HEADER COMMENT SAYS,
+  AND `SYSSEG_REVSTAMP` WILL NOT CATCH A CHANGE TO IT.** 16 Aug 2026,
+  sixteenth session, found while removing one `bool` from it (§7 step 1a).
+  `config.h` introduces `PCFG` as "Config parameters loaded per process", which
+  reads as process-private and is why the first reading of this was that the
+  layout did not matter. It is: `sysseg.c:288` copies a template into the
+  segment at `pcfg_offset`, and **every attaching session does
+  `memcpy(&pcfg, ..., sizeof(struct PCFG))`** at `sysseg.c:142`.
+
+  So adding, removing or reordering a `PCFG` field **changes a layout two
+  binaries have to agree on**, and the only compatibility check is
+  `sysseg->revstamp` — which is `MAJOR_REV/MINOR_REV/BUILD` (`sysseg.c:57`),
+  the release number. **Two builds of the same release have the same revstamp
+  and are not required to have the same `PCFG`.**
+
+  **The failure is silent and does not look like a layout problem:** the
+  session reads every field after the changed one shifted, so `SH`/`SH1` come
+  out truncated or shifted and `OS.EXECUTE` fails in ways that point at
+  PowerShell. **A full install cycle is what makes it safe** — every binary is
+  replaced at once — so this only bites somebody copying a freshly built
+  `sd.exe` over an installed one while SD is running. Do not do that after
+  touching `config.h`; `sd -stop`, replace, `sd -start`.
+
+- **`read_config()` RUNS ONLY WHEN THE SEGMENT IS CREATED, so a configuration
+  change cannot be tested from an ordinary session.** Same session. An
+  attaching session takes `pcfg` from the segment (above) and never opens the
+  file, and `bind_sysseg()` returns at `sysseg.c:150` before the read when
+  `create` is false. **`sd --version` returns earlier still**, before any of
+  it. Three tests of a parser change were run before this was understood and
+  **all three were blind — including their controls**, which is what eventually
+  gave it away: a control that refuses to fail is not a passing test, it is a
+  broken instrument. **The only route in is `sd -start`** (elevated, service
+  stopped) with `SD_CONFIG` naming the file under test.
+
+- **A STAGE WHOSE BOOTSTRAP DIED AFTER THE SEED PHASE PACKAGES AND INSTALLS IN
+  SILENCE, AND `assert-current` CANNOT SEE IT.** 16 Aug 2026, sixteenth
+  session; it cost the whole of the fifteenth session's SD-side results and
+  produced a false open question in §8. The bootstrap's early phase compiles
+  `BBPROC`, `BCOMP` and `PATHTKN` with `bbcmp.py` and **touches an empty
+  `gcat/$CPROC`**; if it stops there, the tree still looks populated — every
+  static file is present and correct — but `gcat` holds **4** entries against
+  132, `GPL.BP.OUT` **3** against 193, and there is no `$LOGIN` and no `VOC`.
+  `ISCC` packages it happily and Setup exits 0.
+
+  **`assert-current` is blind to it by construction**: it compares the install
+  against **source**, and `gcat`/`GPL.BP.OUT`/`VOC` are build products with no
+  source counterpart. It exited 0 over this tree.
+
+  **The symptom, if you install one:** every `sd` invocation dies
+  `Unable to load '$CPROC' object code`, exit `0xC0000005`. It reads as a
+  corrupt binary, and it is a missing catalogue.
+
+  **The one-second check, and it discriminates where a file count does not:**
+
+  ```powershell
+  (Get-Item 'C:\ProgramData\SD\sdsys\gcat\$CPROC').Length   # 25208, never 0
+  ```
+
+  **`$CPROC` at 0 bytes means the bootstrap never finished.** A whole-tree file
+  count is a poor instrument here — 3,139 against 3,475 is a 10% shortfall that
+  reads as rounding. Sizes discriminate too: seed `$BCOMP` is 70,697,
+  `BCOMP`-compiled is 87,992.
+
+  **IT IS ENFORCED NOW, not remembered:** `stage.py`'s
+  `check_bootstrap_complete()` runs on those five facts immediately after the
+  bootstrap and refuses to stage a tree that fails any of them. **It judges the
+  tree, not the exit code**, because the exit code was 0 here. Exercised
+  against both trees when written: silent on the healthy stage, five faults on
+  the broken install.
+
 - **`/dev/shm` IS A REAL DIRECTORY HERE, SO POSIX SHARED MEMORY OUTLIVES THE
   MACHINE.** 16 Aug 2026, twelfth session. `etc/fstab` binds it to
   `C:\ProgramData\SD\shm` on NTFS (`stage.py:196`), because `shm_open()` creates
@@ -4443,14 +4557,48 @@ the staging script and the Inno installer were all finished and removed.
    (§4, §5.6.1, §5.6.2); none of this is large, and it should not be left to
    drift.
 
-   a. **`CREATUSR` is dead config and is now UNBLOCKED.** `DELACC` was its last
-      caller and stopped using it on 14 Aug 2026 (1c), so the three remaining
-      pieces can go: `config.c` parses it, `op_config.c` answers it, `CONFIG`
-      prints it. Nothing else reads it.
+   a. **DONE 16 Aug 2026, sixteenth session — `CREATUSR` IS GONE, WITH ONE
+      DELIBERATE EXCEPTION.** Removed: the `struct PCFG` field (`config.h`),
+      its default (`config.c`), `op_config.c`'s answer, and `CONFIG`'s print.
+      `op_pconfig()` never had a branch for it. `make sd` clean after
+      `rm -f gplobj/*.o` — **required, not tidiness: `config.h` changed and
+      the Makefile tracks no header dependencies**, so every field after the
+      removed one shifts and stale objects read the wrong offsets.
+
+      **AND IT CHANGED A SHARED-SEGMENT LAYOUT, which is not obvious from the
+      header comment saying `PCFG` is "loaded per process".** A template copy
+      lives in the segment at `sysseg->pcfg_offset` and every attaching session
+      does `memcpy(&pcfg, ..., sizeof(struct PCFG))` (`sysseg.c:142`, `:288`).
+      Removing the `bool` shifts `dumpdir` and everything after it by one byte.
+      **`SYSSEG_REVSTAMP` DOES NOT CATCH THIS** — it is
+      `MAJOR_REV/MINOR_REV/BUILD` (`sysseg.c:57`), i.e. release identity, and
+      this release did not change. Harmless as shipped, because an install
+      replaces every binary at once; the hazard is copying one rebuilt
+      `sd.exe` onto a running system. §6 has it.
+
+      **THE PARSER STILL ACCEPTS AND DISCARDS `CREATUSR=`, on purpose.** The
+      chain in `read_config()` ends in `else { "Unrecognised configuration
+      parameter" }`, which **aborts and stops SD starting** — so deleting the
+      branch would turn a tidy-up into a failure to start for anyone whose
+      `sd.conf` carries the line. **`../sdb64` still parses it**, so a file
+      copied from a Linux install can have one. No `sd.conf` on this machine
+      does (all four checked), which is why this is cheap insurance rather
+      than a fix.
+
+      **THAT BRANCH IS THE ONE THING HERE NOT VERIFIED, and the reason is
+      worth knowing before trying:** `read_config()` runs **only when the
+      segment is created** (`sysseg.c:150-157` — an attaching session takes
+      `pcfg` from the segment instead), so nothing an ordinary session does can
+      reach it. Two attempts at a control/treatment test were blind for this
+      reason and one was blind for another (`--version` returns earlier still).
+      **The test is `sd -start` with `SD_CONFIG` pointing at a conf carrying
+      `CREATUSR=1`, and a control carrying a genuinely unknown parameter**,
+      which must be refused — elevated, service stopped. Fold it into the next
+      cycle's start rather than tearing down a good system for it.
 
       **Correction, 14 Aug 2026:** this file previously said `CREATUSR` "is not
       in the shipped `sd.conf` and defaults off", and gave that as a blocker.
-      **That was wrong** — `config.c` line 98 sets `pcfg.create_user = 1`, so
+      **That was wrong** — `config.c` line 98 set `pcfg.create_user = 1`, so
       it defaulted **on** and never blocked anything. The real blocker was the
       pathname validator in §6.
    b. **MOVED INTO STEP 0b, 14 Aug 2026.** Restoring the `sdusers` gate is no
@@ -4977,22 +5125,27 @@ Three are being removed anyway; **`COPYP` and `UNLOCK` need the missing `V`
 line**, and `UNLOCK` is what an administrator reaches for to clear a stuck
 record lock.
 
-**WHERE DOES A `CA` VERB'S PROGRAM ACTUALLY LIVE? Not answered, and it is
-needed to scope the `gcat` lock.** The installed system has **4 entries in
-`gcat`** (`!PATHTKN`, `$BBPROC`, `$BCOMP`, `$CPROC`), **3 objects in
-`GPL.BP.OUT`**, and an **empty `cat`** — against 144 verbs. `LIST` is
-`V`/`CA`/`$QPROC`, and `$QPROC` is in neither.
+**ANSWERED 16 Aug 2026, sixteenth session: A `CA` VERB'S PROGRAM LIVES IN
+`gcat`, EXACTLY WHERE IT LOOKS AS THOUGH IT SHOULD.** `$QPROC` is there at
+**54,073 bytes** in a healthy tree, alongside 131 others. Nothing needs tracing
+and there is no gap in the model.
 
-**This is a gap in the model, NOT evidence of a broken tree.** `GPL.BP/QPROC`'s
-header is "Query processor for LIST, SELECT, COUNT, etc", and **`COUNT VOC`
-returning 431 is a measurement recorded repeatedly on real installs** — so `CA`
-resolution works and the search path simply has not been traced. `GPL.BP.OUT`'s
-three are the bootstrap tools (`BBPROC` "BootStrap Build process", `BCOMP`,
-`PATHTKN`), which suggests the rest is written elsewhere during bootstrap.
+**The question was manufactured by measuring a broken install**, and the
+reasoning is kept because the mistake is the instructive part. What stood here
+was: *"The installed system has 4 entries in `gcat` (`!PATHTKN`, `$BBPROC`,
+`$BCOMP`, `$CPROC`), 3 objects in `GPL.BP.OUT`, and an empty `cat` — against 144
+verbs ... **This is a gap in the model, NOT evidence of a broken tree**, because
+`COUNT VOC` returning 431 is recorded repeatedly on real installs."* It was
+evidence of a broken tree. Those four are `bbcmp.py`'s **bootstrap seed**, and
+`COUNT VOC` 431 was measured on *earlier, working* installs — the one in front
+of it had never run at all. **The tell was there and was read past:
+`gcat/$CPROC` was 0 bytes**, which is the placeholder `bootstrap.py` touches.
 
-**Consequence:** any claim that "`gcat` holds only SD's four own programs, so
-locking them is small" — including one made earlier the same day — rests on this
-untraced model. Trace `CA` resolution in `CPROC` before scoping that work.
+**The general form, and this file has now recorded it twice:** a number read off
+the installed tree describes whatever that tree is, and "SD demonstrably works,
+so this must be a subtlety I have not traced" is the reasoning to distrust.
+**Date the tree first.** Scoping the `gcat` lock is therefore unblocked — 132
+entries is the real figure, not 4.
 
 **Not related:** PROC, the pre-BASIC language, was removed from sd-ai and
 remains upstream (owner, 16 Aug 2026). `QPROC` and `BBPROC` are not PROC despite

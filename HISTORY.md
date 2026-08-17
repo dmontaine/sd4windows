@@ -27,6 +27,98 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - Sixteenth session: the install of 17:51:35 was a failed bootstrap
+
+From `222701a`. **Correction to the fifteenth session's entry below, and to §8.**
+
+**CREATUSR IS GONE — §7 step 1a.** The `struct PCFG` field, its default,
+`op_config.c`'s answer and `CONFIG`'s print. `op_pconfig()` never had a branch.
+`make sd` clean after `rm -f gplobj/*.o`, which was **required rather than
+tidy**: `config.h` changed and the Makefile tracks no header dependencies, so
+every field after the removed one shifts under any stale object.
+
+**The parser still accepts and discards `CREATUSR=`.** `read_config()`'s chain
+ends in `else { "Unrecognised configuration parameter" }`, which aborts and
+stops SD starting, and `../sdb64` still parses the parameter — so deleting the
+branch would turn a tidy-up into a failure to start for anyone whose `sd.conf`
+came from a Linux install. No `sd.conf` on this machine has one; all four were
+checked. Three lines against a startup failure.
+
+**THE FINDING THAT MATTERS: NO SD SESSION HAS EVER RUN ON THE 17:51:35
+INSTALL.** It is 337 files short — `gcat` **4** entries not 132, `GPL.BP.OUT`
+**3** not 193, `gcat/$CPROC` **0 bytes**, no `$LOGIN`, no `VOC`. Found by
+accident: a control/treatment test of the CREATUSR parser failed in **all four
+cells**, including the installed binary with the default config, every one
+dying `Unable to load '$CPROC' object code` with `0xC0000005`. An equal failure
+on both sides cannot be caused by what differs between them — the control is
+what turned a puzzling result into a diagnosis.
+
+**What happened.** `C:\Users\dmont\stagetest` is **healthy** (16:18, 3,475
+files, `gcat` 132, `$CPROC` 25,208) and is **not what was packaged**. The
+installer of **17:34:39** was built from a tree whose bootstrap had died after
+the seed phase: the installed `gcat` holds `bbcmp.py`'s objects (`$BCOMP`
+70,697) where a finished tree holds `BCOMP`'s (87,992), stamped 17:28. Every
+static file installed correctly, which is why the tree looked whole.
+
+**Why nothing caught it.** `assert-current.ps1` compares an install against
+**source**, and `gcat`, `GPL.BP.OUT` and `VOC` are build products with no
+source counterpart — it exited 0 over this tree and was right to. `stage.py`
+checked the bootstrap's **exit code**, which was 0.
+
+**Fixed at the point it can be caught:** `stage.py`'s
+`check_bootstrap_complete()` judges the tree the bootstrap left, on five facts,
+and refuses to stage one that fails any. Exercised against both trees when
+written — silent on the healthy stage, five faults on the broken install.
+
+**CORRECTION TO §8's `CA`-RESOLUTION QUESTION, WHICH WAS NEVER A QUESTION.**
+The fifteenth session read `gcat` holding 4 entries with no `$QPROC`, and
+concluded *"This is a gap in the model, NOT evidence of a broken tree"* on the
+grounds that `COUNT VOC` 431 is recorded repeatedly. It was evidence of a
+broken tree. **`$QPROC` is in `gcat` at 54,073 bytes** in the healthy stage,
+exactly where a `CA` verb's program should be, and those 431s were measured on
+earlier installs. The tell was in the same reading and was passed over:
+`gcat/$CPROC` was 0 bytes. Scoping the `gcat` lock is unblocked, against 132
+entries rather than 4.
+
+**`gplbld/secure-accounts.ps1` IS WIRED INTO NOTHING** — absent from
+`stage.py`'s ship list and unmentioned in `sd.iss`, so it neither ships nor
+runs. **Left that way deliberately.** Wiring it in alone would break account
+access: it leaves `sdusers` nothing inheritable on `user_accounts`, so a new
+account directory carries `CREATOR OWNER` and no `sdu_<name>`, and the
+account's own user — and anyone `GRANT`ed it — is refused at the file layer.
+Its partner half does not exist; `CREATEA` contains no `icacls` anywhere,
+checked. Both halves land together or neither does.
+
+**THE CYCLE RAN AND THE RESULT IS WHOLE.** Install of **22:57:00**,
+`assert-current` exit 0, `sd.exe` `7A383F487235134B`: `gcat` **132**,
+`GPL.BP.OUT` **193**, `gcat/$CPROC` **25,208**, `$QPROC` 54,073, `VOC` present,
+3,477 files, `ACCOUNTS/DON` present — and an **unelevated** `sd` answered `WHO`
+→ **`2 DON`**, `OFF` exit 0. `CREATUSR` is absent from the installed
+`gcat/$CONFIG` (3,153 bytes) while `DEADLOCK` is present, which is the control
+that makes the search mean anything.
+
+**One thing is NOT verified and it is recorded rather than glossed:** the
+`CREATUSR=` accept-and-ignore branch. `read_config()` runs **only when the
+shared segment is created** — an attaching session takes `pcfg` out of the
+segment — so no ordinary session can reach the parser. **Three attempts to test
+it were blind, and so were their controls**, which is what eventually exposed
+the mechanism: `sd --version` returns before the config is read at all, and a
+normal session never reads it. The test is `sd -start` with `SD_CONFIG` naming
+a conf carrying the line, plus a control carrying a genuinely unknown one that
+must be refused. Elevated, service stopped; fold it into the next cycle's start
+rather than tearing down a good system.
+
+**And that hunt turned up a trap worth more than the change that found it:**
+`struct PCFG` is described in `config.h` as "loaded per process", and **it is
+also in the shared segment** (`sysseg.c:288` writes a template, `:142`
+memcpy's it into every attaching session). So removing one `bool` from it
+altered a layout two binaries must agree on, and the only guard,
+`SYSSEG_REVSTAMP`, is `MAJOR_REV/MINOR_REV/BUILD` — the release number, which
+did not change. Harmless as shipped, since an install replaces every binary at
+once; it would bite anyone copying a rebuilt `sd.exe` onto a running system.
+
+---
+
 ## 16 Aug 2026 - Fifteenth session: the ssh server stops being optional
 
 From `5e986b6`.
