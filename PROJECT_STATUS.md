@@ -23,6 +23,22 @@ commit. The owed cycle ran; a fourth harness defect failed a good install.
    **A fresh install opens NO port** and `sdwind` is running: `APIPORT`
    defaults off, as intended.
 
+   **BOTH GAPS BELOW ARE NOW FIXED AND VERIFIED ON THE 16:02:45 INSTALL**,
+   `assert-current` exit 0, `sd.exe` still `55AAB5890E80733D` (no C changed).
+   The installed `sd.conf` carries the documentation with `#APIPORT=4243`
+   commented out, and **`CONFIG` prints `APIPORT   0`** beside `APILOGIN  1`.
+   That last line is the whole chain proven end to end — conf parser →
+   `struct CONFIG` → segment → `op_config()` → the BASIC verb — and the `0`
+   is default-off confirmed at every layer, with no listener on 4243 and
+   `sdwind` running. `make check-local` still passes (`WHO -> 3 DON`).
+
+   **To read `CONFIG` from a piped session you must stop it paginating.** A
+   plain `"\nCONFIG\nOFF\n" | sd.exe` HANGS at the page prompt — §6's spinning
+   prompt, reached by the ordinary route rather than an exotic one. The output
+   only appears when the process is killed, so it reads as "no output" while
+   it is running. Kill it with `Stop-Process` and read what flushes, or set
+   the page depth first.
+
    **THE TWO GAPS, both found by reading the INSTALL rather than the source:**
 
    - **`sd64/sd.conf` IS NOT THE FILE THAT SHIPS.** `stage.py` writes the
