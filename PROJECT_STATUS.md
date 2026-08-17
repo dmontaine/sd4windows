@@ -4967,10 +4967,46 @@ the staging script and the Inno installer were all finished and removed.
    closed, which is the good version of broken, but it is broken. The shape of
    the work, in value order:
 
-   a. **Authenticate against `$CRED` instead of the OS**, or drop the password
-      check entirely in favour of peer identity — which of those depends on
-      the exposure decision in §8. `!CRED_VERIFY` exists and is verified
-      working (§4), so this is small.
+   a. **DECIDED 16 Aug 2026 — `$CRED`, not `LogonUser`.** Owner's call when
+      asked; the alternative was authenticating the Windows account itself,
+      which matches Linux more closely but puts a real Windows credential on
+      the wire and inside SD. `$CRED` keeps it out. **Not built yet**, but the
+      shape is settled and the awkward part is already solved:
+
+      **The obstacle is not the checking, it is setting the identity
+      afterwards.** `!CRED_VERIFY` is BASIC and `APISRVR` can simply call it,
+      but the session identity — `process.username` and `my_uptr->username`,
+      which is what `@logname`, `K$USERNAME` and **the audit trail** all read —
+      is set in C by `op_login()` (`op_kernel.c:760`), and `K_USERNAME` is
+      **read-only** (`op_kernel.c:233`). There is no route from BASIC.
+
+      **Do it the way `K_ADMINISTRATOR` already does it**, which is the
+      precedent and keeps the audit trail honest: make `K_USERNAME` settable
+      **only when `process.program.flags & HDR_INTERNAL`**
+      (`op_kernel.c:325`). Ordinary BASIC cannot reach `KERNEL` at all — BCOMP
+      rejects it — and **`APISRVR` is `$internal`** (line 59), so it can. A
+      plain settable `K_USERNAME` would let any program rewrite the identity
+      the trail is stamped from, which is exactly what §7 step 4 stamps in C
+      to prevent. **Do not skip the gate.**
+
+      **The edits, in order:** `op_kernel.c` gate-and-set `K_USERNAME`;
+      `APISRVR:921` swap `login(username, password)` for `!CRED_VERIFY` plus
+      `kernel(K$USERNAME, username)`; gut `login_user()` in `linuxio.c` so
+      nothing reads `/etc/shadow` (this closes **6d** with it, the
+      `setuid`/`setgid` going the same way); drop `PASSWD_FILE_NAME` from
+      `sdnet.h` and the prototype from `sd.h`. **`APISRVR:921` is the ONLY
+      caller of the `login()` intrinsic** — checked; `LOGIN:60` is an
+      unrelated subroutine of the same name. **Retire the opcode in place if
+      you retire it at all** (§6): `OP_CF0A` is positional, and `BCOMP`'s
+      `int.intrinsics` and its `on i goto` list are matched to it by position,
+      so leaving the slot alone is much the safer course.
+
+      **IT CANNOT BE VERIFIED WHEN IT IS BUILT, and that is not a reason to
+      skip it — it is a reason to write it down.** There is no API client on
+      this machine, `SDConnectLocal()` has never been exercised (step 11), and
+      the transport the Linux client uses **cannot work here at all** (§8,
+      measured 16 Aug). So step 6a lands as "built, not run" and belongs in §4
+      Not verified until something can call it.
    b. **Set `@logname` from what was verified**, not from the client. It comes
       from the client today (lines 900 and 963), which is what stops the grant
       check being copied across from `LOGTO`.
@@ -5337,11 +5373,35 @@ the `login_user()` work in §7 step 6:
    visible in the process list anyway. A Windows client wants key-based
    authentication, which removes the need to hold a password at all.
 
-**Untested and load-bearing:** whether Win32-OpenSSH supports `-L
-port:/path/to/socket` — forwarding to a UNIX domain socket rather than a
-host:port. OpenSSH has done so since 6.7 on Unix; whether the Windows port does
-it, and whether it can reach an MSYS2-emulated socket, has not been measured.
-If it cannot, the transport needs rethinking rather than porting.
+**MEASURED 16 Aug 2026, sixteenth session — THE LINUX CLIENT CONTRACT CANNOT BE
+PORTED, AND THE REASON IS NOT ssh.** This was the "untested and load-bearing"
+item here; it is now settled, and it settles the transport with it.
+
+- **The ssh client accepts the syntax.** `-L 9999:/tmp/sdclient.socket` on
+  OpenSSH_for_Windows_9.5p2 reaches host-key verification, i.e. it parsed —
+  against a malformed control that is rejected outright with `Bad local
+  forwarding specification`. So `-L port:/unix/socket` is **not** the blocker.
+- **The blocker is that MSYS2's AF_UNIX is not a socket Windows can see.** A
+  socket bound by MSYS2 at `/tmp/x.sock` is, from native Windows, a **54-byte
+  regular file** reading `!<socket >52445 s <cookie>` — the Cygwin emulation,
+  a TCP port plus a shared secret. A native Windows AF_UNIX socket is a
+  zero-length reparse point.
+- **Demonstrated, not inferred**, with a control on one socket at one moment:
+  MSYS2's own client **connected** and the server logged the accept; native
+  `curl.exe --unix-socket` on the same path failed in 0 ms and the server saw
+  nothing.
+
+**So `sshd`, a native Windows program, cannot reach a socket SD creates through
+the MSYS2 runtime**, and `ssh -L <port>:/tmp/sdsys/sdclient.socket` cannot work
+here however the rest is built. **This decides the named pipe** — already
+called "the strongest argument" below, now a measurement rather than an
+argument — or a loopback TCP socket with authentication of its own.
+
+**A note on the rig, because the first attempt produced a confident wrong
+answer.** MSYS2's emulation needs the server to actively `accept()` for a
+client's cookie handshake to complete, so a `listen()`-then-sleep server times
+out *every* client. That run had the control failing too, which is the only
+reason it was not written up as proof.
 
 **The original question and all three postures** — A, SD's own socket faces the
 network; B, ssh or VPN carries it and SD is local only; C, a web front end in

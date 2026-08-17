@@ -108,6 +108,36 @@ a conf carrying the line, plus a control carrying a genuinely unknown one that
 must be refused. Elevated, service stopped; fold it into the next cycle's start
 rather than tearing down a good system.
 
+**§8's LOAD-BEARING UNTESTED QUESTION IS SETTLED, AND IT KILLS THE LINUX CLIENT
+CONTRACT.** The question was whether Win32-OpenSSH supports `-L
+port:/path/to/socket`. It does — the client parsed it against a malformed
+control that was rejected as `Bad local forwarding specification`. **The
+blocker is elsewhere and is fatal:** a socket bound by MSYS2 is, seen from
+native Windows, a **54-byte regular file** reading `!<socket >52445 s <cookie>`
+— the Cygwin emulation, a TCP port plus a shared secret — where a real Windows
+AF_UNIX socket is a zero-length reparse point. Demonstrated on one socket at
+one moment: MSYS2's own client **connected** and the server logged the accept,
+while native `curl.exe --unix-socket` on the same path failed in 0 ms and the
+server saw nothing. So `sshd`, a native Windows program, cannot reach a socket
+SD creates, and `ssh -L <port>:/tmp/sdsys/sdclient.socket` cannot be ported.
+**This decides the named pipe**, which §8 had already argued for.
+
+**The first run of that test produced a confident wrong answer**, and it is
+recorded because the shape recurs: MSYS2's emulation needs the server to
+actively `accept()` for the client's cookie handshake to finish, so a
+`listen()`-then-sleep server times out *every* client. Native curl failed, and
+it would have been written up as proof — except the control failed too, and an
+equal failure on both sides cannot be caused by what differs between them.
+
+**§7 STEP 6a DECIDED, NOT BUILT: `$CRED`, not `LogonUser`.** Owner's call when
+asked. The design is worked out and written into step 6a, including the part
+that is not obvious: the hard bit is not checking the password but **setting
+the identity afterwards**, since `process.username` is set in C and
+`K_USERNAME` is read-only. The answer is the `K_ADMINISTRATOR` precedent — a
+setter gated on `HDR_INTERNAL`, which `APISRVR` carries and ordinary BASIC
+cannot reach. An ungated setter would let any program rewrite the identity the
+audit trail is stamped from.
+
 **§7 STEP 1c CLOSED, AND WITH IT STEP 1 ENTIRELY.** `DELETE.ACCOUNT`'s "SD
 created it" branch had never executed. `sdacct14` was made by
 `verify-createaccount.ps1 -Keep` from an **unelevated** session at 23:34 —
