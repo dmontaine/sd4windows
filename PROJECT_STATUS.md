@@ -4921,6 +4921,54 @@ editor, so it is a containment escape of the same class as `SH`. Language verbs
 `SET.SERVER`, `DELETE.SERVER`, `LIST.SERVERS` **removed** — SDNet server details
 were not held securely in this version.
 
+**THE SPLIT ITSELF, first pass, rulings above already applied.** Tiers are
+cumulative: `PROGRAMMER` gets standard plus its own, `ADMINISTRATOR` gets
+everything. **Not reviewed by the owner yet** — expect entries to move.
+
+REMOVED from every tier (7):
+`MICRO` `LOAD.LANGUAGE` `SET.LANGUAGE` `NLS` `SET.SERVER` `DELETE.SERVER`
+`LIST.SERVERS`
+
+ADMINISTRATOR only (26):
+`CREATE.ACCOUNT` `DELETE.ACCOUNT` `MODIFY.ACCOUNT` `UPDATE.ACCOUNT`
+`CLEAN.ACCOUNT` `GRANT` `REVOKE` `LIST.GRANTS` `CONFIG` `LISTU` `LIST.READU`
+`LIST.LOCKS` `CLEAR.LOCKS` `LOCK` `UNLOCK` `LOGOUT` `PHANTOM` `SET.DATE`
+`UMASK` `PSTAT` `PDEBUG` `PDUMP` `DUMP` `ENCRYPT.FIELD` `SH` `!`
+
+PROGRAMMER adds (46):
+`BASIC` `CATALOG` `CATALOGUE` `DELETE.CATALOG` `DELETE.CATALOGUE`
+`COMPILE.DICT` `RUN` `MAP` `DEBUG` `ED` `EDIT` `SED` `MODIFY` `UPDATE.RECORD`
+`SET.TRIGGER` `HSM` `GENERATE` `CREATE.FILE` `DELETE.FILE` `CLEAR.FILE`
+`CONFIGURE.FILE` `ANALYSE.FILE` `ANALYZE.FILE` `FSTAT` `CREATE.INDEX`
+`DELETE.INDEX` `BUILD.INDEX` `MAKE.INDEX` `LIST.INDEX` `COPY` `COPYP` `DELETE`
+`RENAME` `REFORMAT` `SREFORMAT` `SEARCH` `LIST.DIFF` `LIST.ITEM` `SORT.ITEM`
+`LIST.COMMON` `DELETE.COMMON` `LIST.VARS` `CD` `CNAME` `REPORT.SRC`
+`REPORT.STYLE` `FORMAT`
+
+STANDARD — what an application needs (70):
+`SELECT` `SSELECT` `QSELECT` `NSELECT` `GET.LIST` `SAVE.LIST` `FORM.LIST`
+`COPY.LIST` `MERGE.LIST` `DELETE.LIST` `LIST.UNION` `LIST.INTER` `CLEAR.SELECT`
+`CLEARSELECT` `LIST` `SORT` `SUM` `LIST.LABEL` `SORT.LABEL` `LIST.FILES`
+`SETPTR` `SPOOL` `SP.OPEN` `SP.CLOSE` `SP.VIEW` `PRINTER` `COMO` `LOGTO`
+`QUIT` `STOP` `ABORT` `CLEAR.ABORT` `GO` `IF` `SET` `SHOW` `OPTION` `ALIAS`
+`SET.EXIT.STATUS` `SET.FILE` `TERM` `PTERM` `DATE` `TIME` `DATE.FORMAT` `WHO`
+`WHO.AM.I` `STATUS` `MESSAGE` `LOGMSG` `BELL` `ECHO` `HUSH` `PAUSE` `SLEEP`
+`CLR` `CS` `CT` `CLEAR.INPUT` `CLEARINPUT` `CLEAR.PROMPTS` `CLEARPROMPTS`
+`CLEAR.DATA` `CLEARDATA` `CLEAR.STACK` `GET.STACK` `SAVE.STACK` `RELEASE`
+`AUTOLOGOUT` `CLEAR.STACK`
+
+**Two notes on the lists.** `COPYP` is in PROGRAMMER but is one of the five
+malformed entries above, so it does not work today either way. And `LIST` and
+`SELECT` must stay in STANDARD, yet they read **any** file the account can open
+— so the VOC tier decides what a user may DO and the per-account ACL decides
+what they may REACH. Neither substitutes for the other.
+
+**How it would be built:** a second, reduced `VOC_TEMPLATE` plus the
+`PROGRAMMER` keyword in `CREATEA` beside `ADMINISTRATOR`, so the tier is chosen
+where `sdsshonly` and `Administrators` are already chosen. It wants the
+per-account ACL under it first, or an administrator's reduced VOC is one `COPY`
+away from being undone by its own user.
+
 **FIVE VOC_TEMPLATE ENTRIES ARE MALFORMED AND CANNOT WORK.** Found 16 Aug 2026.
 Field 1 holds the DESCRIPTION where the type code belongs, so the record is
 shifted by one: `COPYP`, `DELETE.SERVER`, `LOAD.LANGUAGE`, `SET.SERVER`,
