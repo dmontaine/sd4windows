@@ -290,3 +290,76 @@ called on this platform, and reading the two sides against each other to find
 out what it expected showed they had never agreed. Both files are byte-identical
 to `sdb64` in the lines quoted, which is why this is here rather than in our own
 notes.
+
+---
+
+## 5. `LOGIN`'s VOC update decides whether to write a record by comparing it against a different record
+
+**Status:** PROPOSED, 17 Aug 2026
+**Affects:** `sd64/sdsys/GPL.BP/LOGIN`, the `update.voc` subroutine — `main` and
+`dev`
+**Severity:** low but real, and silent. Some VOC entries are never added to an
+account by `UPDATE.ACCOUNT` or by the "Update VOC to new release?" prompt, with
+no error and nothing in the output to show it.
+
+`update.voc` walks `SDSYS NEWVOC` and copies each record into the target
+account's VOC. For each id it does:
+
+```
+      read rec from sdsys.file,id then
+         new.type = upcase(rec[1,1])
+         if new.type = 'P' then new.type = upcase(rec[1,2])
+
+         readu old.rec from update.voc.f, id then
+            ...
+         end
+
+accept.without.query:
+         rec<1> = new.type   ;* Remove comment text
+         ...
+         if compare(old.rec, rec) then
+            write rec to update.voc.f, id
+            display '.' :
+         end else
+            release update.voc.f, id
+         end
+      end
+   repeat
+```
+
+**`old.rec` is never initialised, and the `READU` has no `ELSE`.** A failed
+`READ` leaves its target variable untouched — `op_dio3.c` takes the ELSE clause
+without writing the string descriptor — so when the account's VOC does not yet
+hold the id, `old.rec` still contains **the record read on a previous iteration
+of the loop**. The `compare()` that decides whether to write is then made
+against an unrelated record.
+
+Most of the time the two differ and the record is written, which is the right
+outcome for the wrong reason. It goes wrong when a missing id and an id already
+present normalise to byte-identical records, because then `compare()` says
+"same" and the missing one is silently skipped.
+
+**`NEWVOC` contains several such pairs.** `CATALOG` and `CATALOGUE` are both
+`V` / `CA` / `$CATALOG`; `CD` and `COMPILE.DICT` are both `V` / `CA` / `$CD`;
+`GRANT`, `REVOKE` and `LIST.GRANTS` all point at `$GRANTA`. Note that `rec<1>`
+is normalised to the bare type letter just above the comparison, so records
+whose descriptions differ still end up identical. Whether the pair actually
+arrives adjacent depends on the order a directory select returns ids, which is
+filesystem-dependent — so this reproduces on some hosts and not others, which is
+the worst property a bug of this kind can have.
+
+**The fix is one line** — clear the variable so a failed read is distinguishable
+from a successful one:
+
+```
+         old.rec = ''
+         readu old.rec from update.voc.f, id then
+```
+
+An `ELSE old.rec = ''` on the `READU` would do the same thing and is arguably
+clearer about intent; either works.
+
+**How it was found.** Reading `update.voc` while adding a filter to it for the
+Windows port. The stale variable was noticed on the way past, and the C side was
+then checked to confirm that a failed `READ` really does leave the target alone
+rather than emptying it.

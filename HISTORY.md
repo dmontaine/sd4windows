@@ -27,6 +27,194 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Section 8: the ADMINISTRATOR tier, and the hole that made the tiers temporary
+
+From `9cb2095`. Still uncompiled - a cycle is owed and now carries three
+commits.
+
+**Owner's rulings, 17 Aug 2026, all three given in one exchange:**
+"administrators get the whole voc"; the four verbs left owed a ruling
+(`MODIFY`, `COMPILE.DICT`, `GENERATE`, `PHANTOM`) are "all should be programmer
+and above"; and the tier is to be recorded rather than left as a create-time
+decision.
+
+**The administrator ruling was never a no-op.** The nine administration verbs -
+`CREATE.ACCOUNT`, `DELETE.ACCOUNT`, `MODIFY.ACCOUNT`, `UPDATE.ACCOUNT`,
+`GRANT`, `REVOKE`, `LIST.GRANTS`, `UNLOCK`, `ENCRYPT.FIELD` - live in
+`VOC_TEMPLATE` and never in `NEWVOC`, and `CREATEA` copies every account's VOC
+from `NEWVOC`. So an SD administrator had to `LOGTO SDSYS` to administer
+anything. The owner's justification checked out for seven of the nine: the
+programs gate themselves on `K$ADMINISTRATOR`. `UPDATE.ACCOUNT` does not - it
+is `CPROC` internal verb 15 - and `ENCRYPT.FIELD` points at `$CRYPTO`, which is
+not in this tree at all. Both are on the list anyway, and PROJECT_STATUS
+section 8 says so.
+
+**They are read out of `VOC_TEMPLATE`, not moved into `NEWVOC`**, because the
+fallbacks only point the safe way while `NEWVOC` holds nothing administrative.
+A lost omit list means "no policy" and gives the full VOC; with
+`CREATE.ACCOUNT` in `NEWVOC`, one missing record would hand every account SD
+creates the power to make more.
+
+**THE FINDING, and it came out of checking the owner's gating claim rather than
+out of looking for it.** `UPDATE.ACCOUNT` is ungated, and it calls
+`$LOGIN(,2)`, which is `LOGIN`'s `update.voc` - and that routine re-copied the
+whole of `NEWVOC` with no tier filter. It hands a standard account back
+`BASIC`, `CATALOG`, `RUN`, `ED`, `SED`, `COPY` and `DELETE.CATALOG`. Worse, the
+same routine is reached from an **ordinary login**: if the account's `$RELEASE`
+level differs from `SD.REV.STAMP`, any user is asked "Update VOC to new
+release?" and `Y` restores everything. No privilege, no verb. **So the tiers
+built the day before survived exactly until the next release stamp moved.**
+
+The fix needed the tier persisted, which nothing did. `ACC$TIER` is `ACCOUNTS`
+field 5 - the first use of the "start at field 5" that the `ACC$USERS` removal
+note reserved on 15 Aug, field 4 being poisoned by records written between 13
+and 14 Aug. A blank field means the full VOC: it can only occur on an account
+created before this change, which already holds one.
+
+**A regression the tier work would have shipped, caught on the way past.**
+`ADOPT` takes no tier keyword and `adopt-account.ps1` passes none, so the
+installing user's own account - `don`'s - would have come out STANDARD, with no
+`BASIC`, no `ED` and no `CATALOG`. It would have read as "SD is broken after
+installing it". `ADOPT` now defaults to the administrator tier; an explicit
+keyword still wins.
+
+**Correction to the previous entry.** That entry recorded avoiding `CONTINUE`
+in `CREATEA` because "its behaviour inside `LOOP ... REPEAT` is not
+demonstrated anywhere here". It is demonstrated - in `LOGIN`, inside
+`update.voc` itself, where a declined type change skips the write. `LOGIN` uses
+`CONTINUE`; `CREATEA` keeps its flag, and the wrong comment is left standing
+there rather than corrected by a second uncompiled change.
+
+**Cost:** one alias again, found by reading records rather than names - `CD` is
+`Verb to compile dictionaries|CA|$CD`, the same program as `COMPILE.DICT`, so
+omitting one without the other would have voided the ruling. That is the second
+time in two sessions.
+
+**Still open:** the 30/45/65 split of the 149 verbs, and everything below it in
+section 8 - the tiers remain enforced by the user's own Windows token until
+per-account ACLs exist.
+
+**And the cycle became one command, `gplbld/cycle.ps1`.** Owner's instruction,
+17 Aug 2026: "this is many more steps than in the past using 2 or 3 different
+types of shells. In the past they were all powershell and fewer steps." He was
+right, and the hand-run sequence had just failed twice in one attempt, both
+times on something a script cannot get wrong:
+
+- **The SD service was still running.** The staged `etc/fstab` points
+  `/dev/shm` at the live tree, so the bootstrap's `sd -start` collided with the
+  live server and `sd -i` produced nothing. The staged tree was left in the
+  seed state - `gcat` 4 entries, `$BCOMP` 70,697, `$CPROC` 0 bytes, no `VOC` -
+  which is exactly the state that shipped a catalogue-less install on 16 Aug.
+  **Nothing of the tier work was compiled**, so that attempt tested nothing.
+- **`ISCC` was run from `C:\WINDOWS\system32`**, where the relative
+  `gplbld\sd.iss` does not resolve. Inno answers "The system cannot find the
+  path specified" without naming the file it could not find - and that error
+  is the only reason the broken staging tree was not packaged into an
+  installer.
+
+The script stops the service and waits for `sdwind` to go, derives every path
+from its own location, re-checks the staged tree before building anything, and
+refuses unelevated *before* the seed phase rewrites the staging tree rather
+than after, which is where `bootstrap.py` checks. CLAUDE.md's testing section
+now points at it and says not to hand-run the steps.
+
+**One thing it deliberately does not do:** kill a surviving `sd` process. It
+names what is still running and stops, because a live `sd` is somebody's
+session.
+
+**And its first run found a bug in itself, of exactly the class it was written
+to prevent.** The wholeness check used `$out` for the `GPL.BP.OUT` count, and
+**PowerShell variable names are case-insensitive**, so it overwrote the `$Out`
+PARAMETER with the number 193. ISCC was handed `/O193` and wrote the installer
+into a relative `193\` directory under the shell's cwd -
+`C:\WINDOWS\system32\193\sd-setup-1.0-2.exe`. The check caught it, but reported
+`no sd-setup-*.exe is in 193`, which names the symptom and not the cause. Every
+local in that block is prefixed now, and `-Stage` and `-Out` are both required
+to be rooted and are resolved absolute up front - a relative path there fails
+not by breaking but by working somewhere nobody will look, which is the same
+fault as the `ISCC` invocation the script replaced.
+
+**That run also spent the risk this session was carrying:** the staged tree came
+out whole - `gcat` **132**, `GPL.BP.OUT` **193**, `$BCOMP` **87,992**, `$CPROC`
+**25,208** - so `SECOND.COMPILE` ran `BASIC GPL.BP *` over the changed `CREATEA`
+and `LOGIN` without an error, and `bootstrap.py` dies on any. **The tier work
+compiles.**
+
+**AND THE ADMINISTRATOR TIER HAS RUN**, on the 10:34 install that the fixed
+script produced, `assert-current` exit 0. Measured without elevation, by
+reading the installed tree: `ACCOUNTS/DON` field 5 reads `ADMINISTRATOR` with
+field 4 empty, so `ACC$TIER` is written, the poisoned field was skipped, and the
+`ADOPT` default fired on the install's own account. DON's VOC holds all nine
+administration verbs - checked by their unique PROGRAM names, `$CREATEA`,
+`$DELACC`, `$MODIFYA`, `$GRANTA`, `$UNLOCK`, `$CRYPTO`, because `GRANT` is a
+substring of `LIST.GRANTS` - all eighteen withheld ids, and neither `TIER.*`
+list record.
+
+**`COUNT VOC` answered 420, which is the derived figure exactly**: installed
+`NEWVOC` holds 410 names, less `%t` (a dynamic-file artefact rather than a
+record) and the two list records leaves 407 copied, plus the nine, plus
+`CREATEA`'s own four. Deriving it first and measuring second is what makes it
+evidence; 420 observed and then rationalised would not have been.
+
+**Along the way, an item that had stood open in the PROJECT_STATUS header for
+two sessions closed for free: an unelevated interactive session works.** `WHO`
+answers `2 DON`. The header called it a tooling limit and pointed at section 6;
+it was not one. Piping `"\n<commands>\nOFF\n"` into `sd.exe` from PowerShell
+drives an ordinary session, the blank first line absorbing the BOM exactly as
+`verify-createaccount.ps1` had been doing since 14 Aug.
+
+**And `assert-current.ps1` had to stop counting the test scripts, having blocked
+one.** `verify-tiers.ps1` was written after the 10:33:57 install; the first
+thing it does is call `assert-current`, which then refused **because of
+`verify-tiers.ps1`** - a verification script blocking itself over a file that
+can never enter an install. The advice it printed made it worse: it named
+`stage.py --force --bootstrap` and the steps after it, so following it meant
+hand-running the sequence `cycle.ps1` exists to replace, against a machine whose
+SD service was still up. That is the run that died on `sd -start` reporting
+"Semaphores are already present" - `sd -stop` shut the daemon down and the
+semaphores outlived it - and left the staged tree in the seed state.
+
+The exclusion uses the rule `localtest\` and `__pycache__` already use: a file
+neither compiled into `sd.exe` nor staged into the install cannot make the
+installed tree differ from source. **It is self-policing**, because an exclusion
+list is exactly the thing that rots into a false "current": each name is checked
+against `stage.py` and `sd.iss`, and one that appears there is watched again.
+The first version of that check matched the bare name and instantly reinstated
+`assert-current.ps1`, because `stage.py:268` discusses it in a **comment** - so
+it now requires the name to be quoted or path-prefixed, the way a ship list
+names a file rather than the way prose mentions one. Verified both directions:
+`deny-logon.ps1`, `adopt-account.ps1`, `install-service.ps1` and
+`sd-elevate.ps1` are all still detected as shipping.
+
+**ALL THREE TIERS THEN RAN AND PASSED**, 17 Aug 2026 11:31:38,
+`gplbld/verify-tiers.ps1 -Keep -Prefix sdtierb`, 22 of 22. `COUNT VOC` landed on
+every derived figure exactly - **393** standard, **411** programmer, **420**
+administrator - and the withheld/administration split came out 0/18 and 0/9 for
+standard, 18/18 and **0/9** for programmer, 18/18 and 9/9 for administrator.
+The programmer row is the one that carries meaning: the eighteen present and the
+nine absent is the only control on the add list, and a copy loop that omitted
+nothing would pass the other two rows. `UPDATE.ACCOUNT` in the standard account
+left it at 393 with all eighteen still missing - before `ACC$TIER` it restored
+every one.
+
+**Confirmed twice, by two instruments.** The script asks SD; the same numbers
+were then re-derived by reading the account VOCs as raw bytes and matching the
+on-disk record framing, `\0\0\0` + id + type letter, learned by dumping DON's
+`%0`. That framing matters because a naive substring search cannot answer this
+at all - `ED` occurs inside half the file, and `GRANT` inside `LIST.GRANTS`.
+
+**A verifier that erases its own evidence is not a verifier, and the first run
+was one.** It cleaned up by default, and the VOCs live in the account
+directories it deleted - so it left three `ACCOUNTS` records, nothing to count,
+and a PASS/FAIL table that existed only in a console window nobody would paste
+back. It now writes a transcript to `C:\ProgramData\SD\verify\` with the verdict
+line written BEFORE the transcript closes, and it detects an `ACCOUNTS` record
+left by an earlier run and asks for a fresh `-Prefix`, rather than letting
+`CREATE.ACCOUNT` refuse the name several steps later for a reason that reads
+like a tier fault.
+
+---
+
 ## 17 Aug 2026 - Section 8: the PROGRAMMER tier, built and uncompiled
 
 From `ecd62b2`. Session ended here on credits; this is the handoff.

@@ -67,13 +67,25 @@ clear stale objects with `rm -f gplobj/*.o`.
 
 Standing instruction from the repository owner, 15 Aug 2026, after stale
 installs caused the same failure repeatedly. **A test cycle begins with a fresh
-install. Not a reinstall over the top of the old one.** Elevated:
+install. Not a reinstall over the top of the old one.**
 
-```sh
-"C:\Program Files\SD\unins000.exe" /VERYSILENT   # then confirm the directory is gone
-rm -rf "/c/Program Files/SD" /c/ProgramData/SD
-"C:\Users\dmont\sdout\sd-setup-1.0-2.exe"
+**One command, elevated PowerShell** — `gplbld/cycle.ps1` does the whole cycle:
+stops the service, stages and bootstraps, checks the staged tree is whole,
+builds the installer, uninstalls, deletes both trees, installs, then runs
+`assert-current`.
+
+```powershell
+C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\cycle.ps1
 ```
+
+`-SkipInstall` stops after building the installer, which is the cheap way to
+find out whether a BASIC change compiles without spending an install.
+
+**Do not hand-run the steps.** Owner's instruction, 17 Aug 2026, after the
+sequence had grown to four commands across three shells; the two faults that
+prompted it — a still-running SD service, and `ISCC` run from a directory where
+`gplbld\sd.iss` does not resolve — are now structurally impossible rather than
+merely written down. PROJECT_STATUS.md §"START HERE" has both.
 
 Why it is a rule and not a preference: **the installer deliberately never
 overwrites an existing `C:\ProgramData\SD\sdsys`**, so "I tested it on the

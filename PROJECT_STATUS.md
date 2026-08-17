@@ -5,14 +5,103 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 17 Aug 2026, seventeenth session, from `b6758aa` — the owed
-cycle, run.
+**Last updated:** 17 Aug 2026, eighteenth session, from `9cb2095` — §8's
+administrator tier, and the hole that made the tiers temporary.
 
-**A CYCLE IS OWED — §7 step 11's FIX went in after the 07:20:40 install.**
-`assert-current` fails and is right to. Only C changed, so **`make sd` is
-already done**, clean and warning-free at 17 Aug 08:02: `sd.exe`
-**`04CA97C138ADB148`**, `sdclilib.dll` **`93EA16794BE5085A`**. Go straight to
-`stage.py --force --bootstrap`.
+**THE CYCLE IS STILL OWED AND IS NOW CARRYING THREE COMMITS' WORTH. `make sd`
+IS DONE**, clean and warning-free at 17 Aug 10:0x: `sd.exe`
+**`A2F094EA686D2B8F`**, `sdclilib.dll` **`93EA16794BE5085A`** (unchanged). **No
+C changed this session** — the `sd.exe` hash moved only because the
+`gplsrc/sdclilib` Makefile edit of the last session forces a relink and a relink
+restamps the PE `TimeDateStamp`. **Go straight to `stage.py --force
+--bootstrap`**, elevated.
+
+**`make` MUST BE RUN THROUGH AN MSYS2 LOGIN SHELL**, and this cost four
+attempts:
+
+```powershell
+& 'C:\msys64\usr\bin\bash.exe' -lc "cd /c/Users/dmont/Projects/sdb_ai_windows/sdb_ai/sd64 && make sd"
+```
+
+A plain non-login shell has no usable Windows `TMP`, so the **UCRT64** compiler
+in the `sdsvc` rule falls back to `C:\WINDOWS\` and dies with **"Cannot create
+temporary file in C:\WINDOWS\: Permission denied"** — which reads like a
+permissions problem and is an environment one. Setting `TMP`/`TEMP` by hand does
+not fix it, in either Windows or POSIX form. **`sdsvc` has no prerequisites so
+it rebuilds on every `make sd`**, which is why this blocks the whole build
+rather than one target.
+
+**§8 is the section to read**; what went in this session:
+
+- **`ADMINISTRATOR` accounts get the 9 administration verbs**, owner's ruling
+  "administrators get the whole voc". They were in `VOC_TEMPLATE` alone, so an
+  SD administrator had to `LOGTO SDSYS` to administer anything.
+- **`MODIFY`, `COMPILE.DICT`, `CD`, `GENERATE`, `PHANTOM`** join the standard
+  omit list — owner, "all should be programmer and above". 13 ids → **18**.
+- **THE TIERS WERE UNDOABLE BY ANY USER AT A PROMPT AND ARE NOT NOW.**
+  `LOGIN:501 update.voc` re-copied the whole of `NEWVOC`; it is reached from an
+  ordinary login by the `$RELEASE` question at `LOGIN:419`. The tier is now
+  recorded at `ACCOUNTS` field 5 (`ACC$TIER`, `KEYS.H:281`) and `LOGIN` applies
+  the omit list. **This is the one to check on the cycle** — §8, "how to test
+  it", has the three-account recipe and its controls.
+- **`ADOPT` defaults to the administrator tier**, or the installing user's own
+  account comes out standard with no `BASIC`, no `ED` and no `CATALOG`.
+
+**IT COMPILES, IT IS INSTALLED, AND THE ADMINISTRATOR TIER HAS RUN.** 17 Aug
+2026, on the 10:34 install, `assert-current` exit 0. `gcat` **132**,
+`GPL.BP.OUT` **193**, `$BCOMP` **87,992**, `$CPROC` **25,208**.
+
+**Verified without elevation, by reading the install:**
+
+- **`ACC$TIER` is written and `ADOPT` defaults to ADMINISTRATOR** —
+  `ACCOUNTS/DON` field 5 reads `ADMINISTRATOR`, **field 4 empty**, so the
+  poisoned field was skipped as intended. `SDSYS` reads blank, which is right:
+  its record comes from the bootstrap, not `CREATEA`.
+- **An administrator gets all 9 administration verbs**, checked by their
+  **unique program names** (`$CREATEA` `$DELACC` `$MODIFYA` `$GRANTA`
+  `$UNLOCK` `$CRYPTO`) rather than by verb id, because `GRANT` is a substring
+  of `LIST.GRANTS`.
+- **Neither `TIER.*` list record reached a VOC**, and all 18 withheld ids are
+  present in DON's — correct for an administrator.
+- **`COUNT VOC` in DON's account is 420, which is the derived figure exactly.**
+  Installed `NEWVOC` holds 410 names, less `%t` (a dynamic-file artefact, not a
+  record) and the two list records = **407 copied**, + 9 administration verbs,
+  + `CREATEA`'s own four (`$COMMAND.STACK`, `$HOLD`, `$SAVEDLISTS`, `BP`).
+- **AND AN UNELEVATED INTERACTIVE SESSION WORKS ON THIS INSTALL** — `WHO`
+  answers **`2 DON`**. That was an open item in this header for two sessions.
+
+**ALL THREE TIERS RUN, AND THE DURABILITY FIX HOLDS — 17 Aug 2026, 11:31:38.**
+`gplbld/verify-tiers.ps1 -Keep -Prefix sdtierb`, **22 of 22 checks passed**;
+transcript at `C:\ProgramData\SD\verify\verify-tiers-20260817-113138.log`.
+**`COUNT VOC` landed on all three derived figures exactly:**
+
+| | `COUNT VOC` | withheld 18 | administration 9 |
+|---|---|---|---|
+| STANDARD | **393** | 0 / 18 | 0 / 9 |
+| PROGRAMMER | **411** | 18 / 18 | **0 / 9** |
+| ADMINISTRATOR | **420** | 18 / 18 | 9 / 9 |
+
+**The PROGRAMMER row is the one that means anything** — the 18 present and the
+9 absent is the only control on the add list, and without it a copy loop that
+omitted nothing would pass the other two rows. **`UPDATE.ACCOUNT` in the
+standard account left it at 393 with all 18 still missing**; before `ACC$TIER`
+it restored every one of them.
+
+**CONFIRMED TWICE, BY TWO INSTRUMENTS.** The script asks SD (`COUNT VOC`,
+`LIST VOC`); the numbers above were then re-derived independently by reading the
+account VOCs as bytes and matching the on-disk record framing
+(`\0\0\0` + id + type letter, learned from DON's `%0`), which has no substring
+ambiguity — `ED` matches almost anything by naive search. Both agree.
+
+**Litter left behind, deliberately:** `verify-tiers.ps1` removes only the
+Windows half, so `ACCOUNTS` still holds `SDTIER1`–`3` (first run, cleaned up)
+and `SDTIERB1`–`3` (kept). Clear them with `DELETE.ACCOUNT` when convenient;
+**re-running the script needs a fresh `-Prefix`** and it now says so rather than
+failing inside `CREATE.ACCOUNT`.
+
+**§7 step 11's FIX is in the same owed cycle**, and it is C — it went in after
+the 07:20:40 install and has never been installed. `assert-current` fails and is
+right to; it listed ten stale files on 17 Aug at 10:0x.
 
 **A `gplbld` or Makefile edit forces a relink even when no C changed**, because
 the staleness guards compare mtimes and are deliberately blunt — a false
@@ -62,10 +151,13 @@ transport blocks it, not the code.
 **§7 step 1a is CLOSED, with the control** — §7 has both lines. That was the
 last unverified branch of step 1.
 
-**WHAT NOBODY HAS CHECKED ON THIS INSTALL: an unelevated interactive session.**
-It is not a doubt about the tree, it is a tooling limit — see "reading the
-state without a console" in §6. The `WHO` → `2 DON` result in §4 belongs to the
-22:57:00 install, not this one.
+**CLOSED 17 Aug 2026 — an unelevated interactive session HAS now been checked**,
+on the 10:34 install: `WHO` answers **`2 DON`** and `COUNT VOC` **420**. It was
+never a tooling limit after all — piping `"`n<commands>`nOFF`n"` into `sd.exe`
+from PowerShell drives an ordinary session perfectly well, the blank first line
+absorbing the BOM exactly as `verify-createaccount.ps1` has always done. **The
+note that stood here said it could not be done and blamed §6**; it is left
+visible because two sessions deferred a check that cost one command.
 
 **THE ssh SERVER IS NO LONGER OPTIONAL.** Owner's decision, fifteenth session,
 reversing the opt-in of 14 Aug. §5.9 has the reasoning and what changed.
@@ -149,10 +241,13 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. RUN THE CYCLE FIRST — it carries §7 step 11's fix, which is C.**
-`assert-current` fails and should. **`make sd` is already done and clean**;
-start at `stage.py`. **Then run the step 11 test**, which is written and is the
-shortest route to the first evidence step 6 has ever had:
+**1. RUN THE CYCLE FIRST — it now carries §8's whole tier mechanism as well as
+§7 step 11's C fix.** `assert-current` fails and should. **`make sd` is already
+done and clean** (`A2F094EA686D2B8F`, and read the login-shell note above before
+running it again); start at `stage.py`. **What to measure is §8's "how to test
+it"** — three accounts, and the controls matter more than the treatments.
+**Then run the step 11 test**, which is written and is the shortest route to the
+first evidence step 6 has ever had:
 
 ```sh
 cd sdb_ai/sd64/gplsrc/sdclilib && make check-local
@@ -164,21 +259,52 @@ builds into `localtest/` **deliberately**, so the loader does not find the
 build tree's `sdclilib.dll` (which has no `sd.exe` beside it) and falls through
 to PATH and the installed pair instead.
 
-```sh
-python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
-```
+**THE CYCLE IS ONE COMMAND NOW — `gplbld/cycle.ps1`.** Owner's instruction,
+17 Aug 2026: it had grown to four commands across three shells and it used to
+be PowerShell and fewer steps. **Elevated PowerShell, from anywhere:**
+
 ```powershell
-& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DStage=C:\Users\dmont\stagetest /O"C:\Users\dmont\sdout" gplbld\sd.iss
+C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\cycle.ps1
 ```
 
-**Elevated, and with the SD service stopped** — `--bootstrap` ends in
-`sd -internal` steps SDSYS refuses unelevated, and the staged `etc/fstab`
-points `/dev/shm` at the live tree — then uninstall, delete BOTH trees,
-install. **`stage.py` refuses to stage a tree whose bootstrap did not finish**
-as of the sixteenth session, so the failure that shipped a catalogue-less
-install cannot recur silently. `assert-current` **cannot** see that failure:
-it compares the install against SOURCE and `gcat` is a build product. Check
-`gcat` 132 / `GPL.BP.OUT` 193 / `$BCOMP` 87,992 yourself.
+Stops the service, stages, bootstraps, checks the staged tree is whole, builds
+the installer, uninstalls, deletes **both** trees, installs, then runs
+`assert-current`. `-SkipInstall` stops after the installer, which is the cheap
+way to find out whether a BASIC change compiles. `-Silent` for `/VERYSILENT`.
+
+**IT WAS WRITTEN AFTER THE HAND-RUN SEQUENCE FAILED TWICE IN ONE ATTEMPT**, and
+both faults are now impossible rather than documented:
+
+- **The SD service was still running.** The staged `etc/fstab` points
+  `/dev/shm` at the **live** tree, so the bootstrap's `sd -start` collided with
+  the live server, `sd -i` produced nothing, and the staged tree was left in
+  the seed state — `gcat` **4**, `$BCOMP` **70,697**, `$CPROC` **0 bytes**,
+  no `VOC`. **That is the state that shipped a catalogue-less install on
+  16 Aug.** Step 1 now stops the service and waits for `sdwind` to go.
+- **`ISCC` was run from `C:\WINDOWS\system32`**, where `gplbld\sd.iss` does not
+  resolve. It answers **"The system cannot find the path specified"** without
+  naming the file. Every path in the script is absolute and derived from the
+  script's own location.
+
+**AND THE SCRIPT'S FIRST RUN HIT THE SAME FAULT FROM THE INSIDE.** Its
+wholeness check used `$out` for the `GPL.BP.OUT` count and **PowerShell
+variable names are case-insensitive**, so it overwrote the `$Out` **parameter**
+with **193**. ISCC got `/O193` and wrote a perfectly good installer to
+`C:\WINDOWS\system32\193\`. **A relative path here does not fail, it succeeds
+somewhere nobody looks** — which is why `-Stage` and `-Out` are now required to
+be rooted and are resolved absolute before anything runs, and why every local
+in that block is prefixed. **Delete `C:\WINDOWS\system32\193` when convenient**
+(elevated); nothing depends on it.
+
+**Still elevated, and that is checked first** — `--bootstrap` ends in
+`sd -internal` steps SDSYS refuses unelevated, and `bootstrap.py:179` only
+notices after the seed phase has already rewritten the staging tree.
+**`stage.py` refuses to stage a tree whose bootstrap did not finish**;
+`cycle.ps1` step 3 tests the same thing again, because that is what stands
+between a silent bootstrap failure and an installer built from the wreckage.
+`assert-current` **cannot** see that failure: it compares the install against
+SOURCE and `gcat` is a build product. `gcat` 132 / `GPL.BP.OUT` 193 /
+`$BCOMP` 87,992 — the script prints all three.
 
 **The wizard pages are no longer owed.** The first page is verified full width
 (header); the closing dialog's content was re-read out of `sd.iss` on 17 Aug
@@ -5661,32 +5787,81 @@ where `VOC_TEMPLATE` carries bare letters**, and `CREATEA:530` normalises them
 down to the type letter on the way in, which is why both forms work.
 
 **AND THE GAP BETWEEN THE TWO TIERS TODAY IS ADMINISTRATION, NOT CAPABILITY** —
-this is §8's finding, counted. Only **24 records** are in `VOC_TEMPLATE` and not
-`NEWVOC`, and they are `CREATE.ACCOUNT`, `DELETE.ACCOUNT`, `MODIFY.ACCOUNT`,
-`UPDATE.ACCOUNT`, `GRANT`, `REVOKE`, `LIST.GRANTS`, the three `*.COMPILE`
-verbs, the `*.SERVER` verbs, `UNLOCK`, `ENCRYPT.FIELD`, `QFILE` and file
-pointers (`GPL.BP`, `BP`, `MESSAGES`, `ACCOUNTS`, `$HOLD`…). **A standard
-account still gets `BASIC`, `CATALOG`, `RUN`, `ED`, `SED`, `COPY`, `SH`, `!`
-and `DELETE.CATALOG`** — every capability on the removal list.
+this is §8's finding, counted. Only **23 records** are in `VOC_TEMPLATE` and not
+`NEWVOC` (24 before `LOAD.LANGUAGE` went): **9 administration verbs**
+(`CREATE.ACCOUNT`, `DELETE.ACCOUNT`, `MODIFY.ACCOUNT`, `UPDATE.ACCOUNT`,
+`GRANT`, `REVOKE`, `LIST.GRANTS`, `UNLOCK`, `ENCRYPT.FIELD`), the 3 `*.SERVER`
+verbs, and **11 SDSYS plumbing records** — `$HOLD` `ACCOUNTS` `BP` `BP.OUT`
+`GPL.BP` `GPL.BP.OUT` `MESSAGES` `QFILE` and `FIRST/SECOND/THIRD.COMPILE`.
+**A standard account still gets `BASIC`, `CATALOG`, `RUN`, `ED`, `SED`, `COPY`,
+`SH`, `!` and `DELETE.CATALOG`** — every capability on the removal list.
+
+**THE 9 ARE NOW THE ADMINISTRATOR TIER.** Owner's ruling, 17 Aug 2026:
+"administrators get the whole voc". It was never a no-op — an SD administrator
+had to `LOGTO SDSYS` to administer anything. Safe because the programs gate
+themselves: `CREATEA:109`, `DELACC:60`, `MODIFYA:48`, `GRANTA:86`, `UNLOCK:61`
+each open `if not(kernel(K$ADMINISTRATOR, -1)) then stop sysmsg(2001)`.
+**Two do not and are on the list anyway** — `UPDATE.ACCOUNT` is `V|IN|15`,
+`CPROC:1521`, ungated; `ENCRYPT.FIELD` points at **`$CRYPTO`, which is not in
+this tree at all** and is as broken in SDSYS's VOC as it will be in an admin's.
+
+**The 11 plumbing records are NOT copied**, and that is a decision, not an
+oversight: `ACCOUNTS`, `BP.OUT`, `GPL.BP`, `GPL.BP.OUT` and `QFILE` are
+**relative** pointers (`F|ACCOUNTS|ACCOUNTS.DIC`), so in a user account they
+name files that are not there and `LIST ACCOUNTS` fails to open rather than
+lists; the `*.COMPILE` records are bootstrap paragraphs; `$HOLD` and `BP` are
+already made per-account by `CREATEA`'s `create.dir.file`.
 
 **THE MECHANISM IS BUILT — 17 Aug 2026 — AND HAS NOT BEEN COMPILED OR RUN.**
 A cycle is owed; `make sd` is NOT needed (only BASIC and data changed since the
 08:03:49 install, `sd.exe` `04CA97C138ADB148`). **`stage.py --bootstrap` is
-`CREATEA`'s first compiler for this change**, and that is where a mistake will
-surface.
+`CREATEA`'s and `LOGIN`'s first compiler for this change**, and that is where a
+mistake will surface. Files: `CREATEA`, `LOGIN`, `SYSCOM/KEYS.H`,
+`NEWVOC/TIER.OMIT.STANDARD`, `NEWVOC/TIER.ADD.ADMINISTRATOR`, `MESSAGES/10052`,
+`gplbld/stage.py` (comment only).
+
+**A BAD `$LOGIN` LOCKS YOU OUT OF SD** — §7 step 0 says back `gcat` up before
+recompiling one on an installed system, and this change touches `LOGIN`. The
+cycle route does not have that hazard (the bootstrap builds a fresh tree), but
+the recovery route does.
+
+**What was avoided, and why the list matters more than usual here** — none of
+this compiles until the cycle: `CONTINUE` is used in `LOGIN` **because that
+file demonstrates it** and not in `CREATEA`, which does not; both loops use an
+explicit id comparison rather than `LOCATE`; `update.voc.tier` and
+`tier.acc.name` are initialised at the top of `LOGIN` because BCOMP's
+**"is not assigned a value"** is what `bootstrap.py:229` fails the bootstrap
+on, and both are read textually above the `get.acc.tier` that sets them.
 
 - **`PROGRAMMER` keyword** at `CREATEA`, beside `ADMINISTRATOR`, matched on
   token text for the same reason (the `KW$` table is positional and shared).
-  Sets `full.voc`. **`ADMINISTRATOR` sets it too** — an administrator is a
-  programmer and more.
-- **`NEWVOC/TIER.OMIT.STANDARD`** lists what a standard account does not get.
-  Field 1 is a description; fields 2+ are ids. **Held as data so the shipped
-  posture changes without recompiling**, and in `NEWVOC` because that file is
-  already open in the loop and already shipped.
+- **`tier`** — `STANDARD` / `PROGRAMMER` / `ADMINISTRATOR`, a string not a flag,
+  because it is written to the register and read back. It replaced a boolean
+  `full.voc` that could not tell the top two apart. `PROGRAMMER` **cannot
+  downgrade** `ADMINISTRATOR`; both keywords are accepted in either order.
+- **`NEWVOC/TIER.OMIT.STANDARD`** lists what a standard account does not get —
+  **18 ids** since 17 Aug. **`NEWVOC/TIER.ADD.ADMINISTRATOR`** lists the 9 an
+  administrator gets on top, read out of `VOC_TEMPLATE`. Field 1 is a
+  description; fields 2+ are ids. **Held as data so the shipped posture changes
+  without recompiling**, and in `NEWVOC` because that file is already open in
+  the loop and already shipped.
+- **READ OUT OF `VOC_TEMPLATE` RATHER THAN MOVED INTO `NEWVOC`, and that is the
+  whole design.** The fallbacks only point the safe way while `NEWVOC` holds
+  nothing administrative: a lost omit list means "no policy" and gives the full
+  VOC, so `CREATE.ACCOUNT` in `NEWVOC` would let one missing record hand every
+  account the power to make more. The add list fails the other way — lost, an
+  administrator gets a programmer's VOC and finds out at once. `stage.py:117`
+  says the same and is amended to say why it survives the tiers.
 - **A missing or empty list gives every account the full VOC** — the old
   behaviour exactly, which is the safe way round for a lost record.
-- **The list record's description starts with "T"**, not a VOC type letter, so
-  if the skip ever broke it would land inert rather than as a fake verb.
+- **Both list records' descriptions start with "T"**, not a VOC type letter, so
+  if a skip ever broke they would land inert rather than as fake verbs.
+- **`ADOPT` defaults to `ADMINISTRATOR`** (`CREATEA`, end of `more.args`).
+  Without it the installing user lands STANDARD with no `BASIC`, no `ED` and no
+  `CATALOG` — `adopt-account.ps1:195` passes no tier keyword and never had one
+  to pass. **A regression the tier work itself would have introduced**, and it
+  would have read as "SD is broken after installing it". A default, not an
+  override: an explicit keyword still wins, and `make.admin` is untouched.
 
 **WHAT IS ON THE LIST AND WHY.** Owner's rulings, 16–17 Aug: `BASIC`,
 `CATALOG`, `RUN`, `ED`, `SED`, `COPY`, `DELETE.CATALOG`, `SH`, `!`. **Plus four
@@ -5695,22 +5870,65 @@ guessed: `CATALOGUE`→`$CATALOG`, `DELETE.CATALOGUE`→`$DELCAT`, `EDIT`→`$ED
 and `COPYP` (`$COPYP`, "Pick style COPY", the same capability by another
 program). **Thirteen ids.**
 
-**STILL THE OWNER'S TO RULE, and they are the obvious holes:** **`MODIFY`**
-(`$MODIFY`, "Verb to modify file" — a record editor, so the same class as `ED`,
-and the one most likely to undo the rest); **`COMPILE.DICT`** (`$CD`) and
-**`GENERATE`** (`$GENERAT`), both dictionary compilers; **`PHANTOM`**, which
-runs a catalogued program in the background. None was added, because extending
-a ruling is not the same as applying it.
+**RULED 17 Aug 2026 — all four are PROGRAMMER AND ABOVE**, so all four are on
+the omit list: **`MODIFY`** (`$MODIFY`, a record editor, the same class as
+`ED`), **`COMPILE.DICT`** (`$CD`) and **`GENERATE`** (`$GENERAT`), the
+dictionary compilers, and **`PHANTOM`**, which runs a catalogued program in the
+background. **This moves `PHANTOM` out of ADMINISTRATOR-only** in the split
+below. **Plus a fifth id: `CD` is an exact alias of `COMPILE.DICT`** — both
+`Verb to compile dictionaries|CA|$CD`, and `THIRD.COMPILE` uses it that way.
+**Eighteen ids.** Reading the records found it; the name alone would not have,
+and this is the second time — see the four aliases above.
 
 **NOT DONE:** the 30/45/65 split of the 149 verbs. What exists is the
 capability cut, not the full three-tier curation.
 
-**HOW TO TEST IT, once a cycle has run** — no elevation needed beyond
-`CREATE.ACCOUNT` itself, and it carries its own control:
-`CREATE.ACCOUNT USER <a>` then `CREATE.ACCOUNT USER <b> PROGRAMMER`; the first
-account's VOC must lack all thirteen and the second must have them. **Checking
-only the first proves nothing** — a copy loop that skipped everything would
-also pass it.
+**THE HOLE THAT MADE THE TIERS TEMPORARY, FOUND AND FIXED 17 Aug 2026.**
+`LOGIN:501 update.voc` re-copied **the whole of `NEWVOC` with no tier filter**,
+handing a standard account back `BASIC`, `CATALOG`, `RUN`, `ED`, `SED`, `COPY`
+and `DELETE.CATALOG` — and writing `TIER.OMIT.STANDARD` into its VOC as a
+record. **Reached two ways, neither needing privilege:** `UPDATE.ACCOUNT`
+(`CPROC:1521`, internal verb 15, ungated), and — worse, because it needs no
+verb — the `$RELEASE` test at **`LOGIN:419`**, which asks **any** user "Update
+VOC to new release?" whenever the account's release level differs from
+`SD.REV.STAMP`. One `Y`. **So the tiers survived exactly until the next release
+stamp moved**, which is not a boundary anyone would notice.
+
+**The fix needs the tier RECORDED, because it was a create-time decision with
+nothing persisting it.** `ACC$TIER` = **`ACCOUNTS` field 5**, `KEYS.H:281` —
+the first use of the "start at field 5" that the `ACC$USERS` note reserved
+(field 4 is poisoned). `CREATEA` writes it on **every** path including `ADOPT`;
+`LOGIN` reads it at all three `update.voc` call sites and applies the same omit
+list. **A blank field means the full VOC**, the pre-tier behaviour: blank can
+only occur on an account created before this, which already holds a full VOC,
+and an update only ever writes — it never deletes.
+
+**And a correction to yesterday's comment:** `CREATEA` says `CONTINUE`'s
+behaviour inside `LOOP ... REPEAT` "is not demonstrated anywhere here" and used
+a flag instead. **It is demonstrated — `LOGIN`, in `update.voc` itself**, where
+a declined type change skips the write. `LOGIN` uses `CONTINUE`; `CREATEA`
+keeps its flag, and the wrong note is left standing there rather than corrected
+by a second uncompiled change.
+
+**DONE AND PASSED — 17 Aug 2026, 11:31:38, 22 of 22.** `gplbld/verify-tiers.ps1`
+is this recipe as one elevated command, and the header has the table. What
+follows is what it checks and why each part is there.
+
+**HOW TO TEST IT** — no elevation needed beyond `CREATE.ACCOUNT` itself, and it
+carries its own controls. Three accounts, not
+one: `CREATE.ACCOUNT USER <a>`, `USER <b> PROGRAMMER`, `USER <c> ADMINISTRATOR`.
+
+- `<a>`'s VOC lacks all **eighteen**; `<b>`'s has them. **Checking only `<a>`
+  proves nothing** — a copy loop that skipped everything would also pass it.
+- `<c>` has the eighteen **and** the nine, `<b>` has the eighteen and **not**
+  the nine. That second half is the control for the add list.
+- No account's VOC holds `TIER.OMIT.STANDARD` or `TIER.ADD.ADMINISTRATOR`.
+- `ACCOUNTS` field 5 reads `STANDARD` / `PROGRAMMER` / `ADMINISTRATOR`, and
+  **`DON`'s reads `ADMINISTRATOR`** — that is the `ADOPT` default, and the
+  installing user's own account is the one a broken default breaks.
+- **Then the durability half, which is the point of recording the tier:**
+  `UPDATE.ACCOUNT` in `<a>` must leave it without the eighteen. Before this
+  change it restored every one of them.
 `SET.TRIGGER`, `UPDATE.RECORD`, `MODIFY`, `HSM`, `GENERATE` are **PROGRAMMER**.
 `SET.SERVER`, `DELETE.SERVER`, `LIST.SERVERS` **removed** — SDNet server details
 were not held securely in this version.
@@ -5723,15 +5941,15 @@ REMOVED from every tier (7):
 `MICRO` `LOAD.LANGUAGE` `SET.LANGUAGE` `NLS` `SET.SERVER` `DELETE.SERVER`
 `LIST.SERVERS`
 
-ADMINISTRATOR only (26):
+ADMINISTRATOR only (25) — `PHANTOM` moved to PROGRAMMER, owner 17 Aug 2026:
 `CREATE.ACCOUNT` `DELETE.ACCOUNT` `MODIFY.ACCOUNT` `UPDATE.ACCOUNT`
 `CLEAN.ACCOUNT` `GRANT` `REVOKE` `LIST.GRANTS` `CONFIG` `LISTU` `LIST.READU`
-`LIST.LOCKS` `CLEAR.LOCKS` `LOCK` `UNLOCK` `LOGOUT` `PHANTOM` `SET.DATE`
+`LIST.LOCKS` `CLEAR.LOCKS` `LOCK` `UNLOCK` `LOGOUT` `SET.DATE`
 `UMASK` `PSTAT` `PDEBUG` `PDUMP` `DUMP` `ENCRYPT.FIELD` `SH` `!`
 
-PROGRAMMER adds (46):
+PROGRAMMER adds (47):
 `BASIC` `CATALOG` `CATALOGUE` `DELETE.CATALOG` `DELETE.CATALOGUE`
-`COMPILE.DICT` `RUN` `MAP` `DEBUG` `ED` `EDIT` `SED` `MODIFY` `UPDATE.RECORD`
+`COMPILE.DICT` `PHANTOM` `RUN` `MAP` `DEBUG` `ED` `EDIT` `SED` `MODIFY` `UPDATE.RECORD`
 `SET.TRIGGER` `HSM` `GENERATE` `CREATE.FILE` `DELETE.FILE` `CLEAR.FILE`
 `CONFIGURE.FILE` `ANALYSE.FILE` `ANALYZE.FILE` `FSTAT` `CREATE.INDEX`
 `DELETE.INDEX` `BUILD.INDEX` `MAKE.INDEX` `LIST.INDEX` `COPY` `COPYP` `DELETE`
