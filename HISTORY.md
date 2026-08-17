@@ -27,6 +27,54 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - The cycle: step 11 verified on a real install, and three harness defects
+
+From `a1849b7`. The cycle the previous entry owed, run - and it found nothing
+wrong with SD and three things wrong with the tooling around it.
+
+**Step 11 is closed.** `assert-current` exit 0 against the 12:28:49 install
+(`sd.exe` `81D0856F5493385E`, `sdclilib.dll` `8D1517D1CD2B83AB`), tree whole -
+`gcat` 132, `GPL.BP.OUT` 193, `$BCOMP` 87,992, `$CPROC` 25,208, 3,483 files -
+and `make check-local` passes on the INSTALLED pair: `DON` admitted with
+`WHO -> 2 DON`, `SDSYS` refused. **That refusal is the first verified evidence
+for step 6c**, the `ACC$GROUP` grant check. `ACCOUNTS/DON` field 5 reads
+`ADMINISTRATOR` on this install too, so the tier work came through the cycle
+intact.
+
+**THE FIRST DEFECT IS THE ONE WORTH REMEMBERING, BECAUSE IT PRINTED A WRONG
+NUMBER AS A RESULT.** `cycle.ps1` step 8 reported `GPL.BP.OUT 5` on an install
+that was fine and finished with 193. It waited for `gcat\$CPROC` to exist and
+then counted, and `$CPROC` is nowhere near the last file written, so it measured
+a half-copied tree. **A number read off a tree that is still being written is
+the exact failure step 3 exists to catch** - and here the script was doing it
+itself and presenting the answer. It now waits for the installed counts to reach
+the STAGED ones, which are known because they were measured minutes earlier, and
+fails if they never do. Reported against the stage rather than a remembered
+constant, so it stays true when the counts legitimately change.
+
+It was caught only by not believing it: `assert-current` exited 0, the script
+said CYCLE COMPLETE, and the tree was in fact perfect. The tell was that the
+install had finished two seconds before the transcript ended, which is far too
+fast for 3,483 files.
+
+**`CC ?= gcc` in `gplsrc/sdclilib/Makefile` had never fired.** `?=` means "if
+UNDEFINED", and GNU make's built-in `CC` has origin `default`, which is defined -
+so `CC` stayed `cc`. The DLL escaped it because the top-level Makefile passes
+`CC=` explicitly; `make check-local` did not, so it compiled a NATIVE UCRT64
+test with the MSYS2 compiler.
+
+**And `make check-local` had no PATH to run with**, answering `Error 127` -
+which reads as a broken transport, one commit after a transport was fixed. A
+plain MSYS2 login shell has neither the installed bin, which the loader is
+*meant* to fall through to, nor `System32`, which a native binary needs to
+resolve `api-ms-win-crt-*.dll`. The failure names an api-ms-win-crt DLL and so
+reads as a broken toolchain rather than a search path. **`make check-local` now
+runs from `sd64`**, where it gets the right compiler, and the target puts both
+directories on PATH for the run. The instruction in section 7 step 11 said to
+run it from `gplsrc/sdclilib`, and that is corrected in both places.
+
+---
+
 ## 17 Aug 2026 - Step 11 works: SDConnectLocal carries a session, and step 6c has its first evidence
 
 From `dc1e021`. The transport of the previous entry, built.

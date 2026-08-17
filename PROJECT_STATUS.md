@@ -5,16 +5,38 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 17 Aug 2026, eighteenth session, from `9cb2095` — §8's
-administrator tier, and the hole that made the tiers temporary.
+**Last updated:** 17 Aug 2026, eighteenth session, ending at `a1849b7` + this
+commit. §8's administrator tier and §7 step 11, both verified on real installs.
 
-**THE CYCLE IS STILL OWED AND IS NOW CARRYING THREE COMMITS' WORTH. `make sd`
-IS DONE**, clean and warning-free at 17 Aug 10:0x: `sd.exe`
-**`A2F094EA686D2B8F`**, `sdclilib.dll` **`93EA16794BE5085A`** (unchanged). **No
-C changed this session** — the `sd.exe` hash moved only because the
-`gplsrc/sdclilib` Makefile edit of the last session forces a relink and a relink
-restamps the PE `TimeDateStamp`. **Go straight to `stage.py --force
---bootstrap`**, elevated.
+**WHERE THIS SESSION LEFT IT — read these four, in order:**
+
+1. **A CYCLE IS OWED, FOR HARNESS FIXES ONLY.** `gplsrc/sdclilib/Makefile`
+   changed at **12:32:56**, after every measurement below was taken on the
+   **12:28:49** install, so **the results stand**. Nothing that reaches a
+   running system changed. **`make sd` is NOT needed** — no C changed after the
+   build that produced `sd.exe` **`81D0856F5493385E`** /
+   `sdclilib.dll` **`8D1517D1CD2B83AB`**, which is what is installed.
+2. **§7 STEP 11 IS CLOSED AND §7 STEP 6c HAS ITS FIRST EVIDENCE.** Details
+   below and in §7 step 11.
+3. **§8's THREE TIERS ARE VERIFIED, 22 of 22.** §8 and the tables below.
+4. **THE NEXT SUBJECT IS THE REMOTE TRANSPORT** — §7 step 6a/6b, the listener
+   and per-connection spawn Windows has no xinetd for. It belongs with §5.7's
+   service model. **Local is done; remote is what step 6 still waits on.**
+
+**THE CYCLE IS ONE COMMAND AND IS NOT TO BE HAND-RUN** — `gplbld/cycle.ps1`,
+elevated. It writes a transcript to `%LOCALAPPDATA%\SD-verify`. See "START
+HERE".
+
+**THE TWO VERIFY SCRIPTS, both one command:**
+
+```
+gplbld\verify-tiers.ps1 -Keep -Prefix <fresh>   elevated; §8's three tiers
+cd sdb_ai/sd64 && make check-local              UNELEVATED; step 11 + 6c
+```
+
+**`make` MUST BE RUN THROUGH AN MSYS2 LOGIN SHELL** — see below. And
+**`make check-local` runs from `sd64`, NOT from `gplsrc/sdclilib`**: from there
+it picks up the MSYS2 `cc` instead of the UCRT64 compiler and cannot run.
 
 **`make` MUST BE RUN THROUGH AN MSYS2 LOGIN SHELL**, and this cost four
 attempts:
@@ -112,17 +134,47 @@ the staleness guards compare mtimes and are deliberately blunt — a false
 it: `gcat/$APISRVR` **9,323 bytes** against 9,129 after 6a and 9,056 before.
 `gcat` 132, `GPL.BP.OUT` 193. What 6c still lacks is a RUN.
 
-**§7 STEP 11 IS BUILT AND WORKS — 17 Aug 2026. `SDConnectLocal()` CARRIES A
-SESSION**, `WHO` answers `19 DON`, and `SDSYS` is refused. **That refusal is
-also the first evidence of any kind for §7 STEP 6c**, the `ACC$GROUP` grant
-check, which had been built and never run. Four runs, exit 0, no orphaned
-`sd.exe`.
+**§7 STEP 11 IS CLOSED — VERIFIED ON A REAL INSTALL, 17 Aug 2026.** The cycle
+ran, `assert-current` exit 0 against the **12:28:49** install (`sd.exe`
+**`81D0856F5493385E`**, `sdclilib.dll` **`8D1517D1CD2B83AB`**), and
+**`make check-local` PASSES**:
 
-**A CYCLE IS OWED AND `make sd` IS DONE** — clean, both toolchains: `sd.exe`
-**`81D0856F5493385E`**, `sdclilib.dll` **`8D1517D1CD2B83AB`**. The measurement
-above is a **development smoke test**, the new DLL paired with the installed
-`sd.exe` in a scratch directory; **`make check-local` after a cycle is the
-authoritative run** and is what §4 should record.
+```
+connecting to DON ...      admitted     WHO -> 2 DON
+connecting to SDSYS ...    refused: User not allowed in requested account
+PASS: DON admitted, SDSYS refused.
+```
+
+**AND THAT REFUSAL IS THE FIRST VERIFIED EVIDENCE FOR §7 STEP 6c** — the
+`ACC$GROUP` grant check in `APISRVR`, built this morning and never run. `DON`
+admitted alone would be equally consistent with a check that never executed.
+The installed tree is whole: `gcat` **132**, `GPL.BP.OUT` **193**, `$BCOMP`
+**87,992**, `$CPROC` **25,208**, **3,483 files**. `ACCOUNTS/DON` field 5 reads
+`ADMINISTRATOR` on this install too.
+
+**A CYCLE IS OWED AGAIN, and only for harness fixes** — `gplsrc/sdclilib/Makefile`
+changed at 12:32:56, after the measurements above were taken. Nothing that
+reaches a running system changed; the results stand.
+
+**THREE HARNESS DEFECTS THE CYCLE EXPOSED, ALL FIXED, NONE ABOUT SD:**
+
+1. **`cycle.ps1` step 8 counted MID-INSTALL** and reported `GPL.BP.OUT` **5** on
+   an install that was fine and finished with 193. It waited for
+   `gcat\$CPROC` to exist, which is nowhere near the last file written. **A
+   number read off a half-copied tree is the exact failure step 3 exists to
+   catch, and it was being printed as the result.** It now waits for the
+   installed counts to REACH the staged ones — which are known, having just
+   been measured — and **fails** if they never do.
+2. **`CC ?= gcc` in `gplsrc/sdclilib/Makefile` never fired.** `?=` means "if
+   UNDEFINED", and make's built-in `CC` has origin `default`, which is defined —
+   so `CC` stayed `cc`. The DLL escaped it because the top-level passes `CC=`;
+   `make check-local` did not, and built a NATIVE test with the MSYS2 compiler.
+3. **`make check-local` had no `PATH` to run with**, and answered **"Error 127"**
+   — which reads as a broken transport. A plain MSYS2 login shell has neither
+   the installed bin (the loader is *meant* to fall through to it) nor
+   `System32`, and the test is a native UCRT64 binary resolving
+   `api-ms-win-crt-*.dll` through the OS. **`make check-local` now runs from
+   `sd64`**, not from `gplsrc/sdclilib`, so it gets the right compiler.
 
 **The fix was the transport, and the two options in the old handoff were not
 the only two.** A descriptor Cygwin builds itself from an **inherited standard
@@ -132,17 +184,21 @@ from the named pipe** — nothing in `gplsrc` ever asks a pipe who is on the
 other end; `sd.exe` is a CHILD and runs under the caller's token. §7 step 11.
 
 **§7 STEP 11's OLD PATH DOES NOT WORK, AND `sd.c` NOW SAYS SO RATHER THAN
-HANGING — READ §7 STEP 11 BEFORE REVIVING IT.** Three real defects were found and fixed (`-C` argument
-mismatch, `sd.exe` location, and the access argument to
-`cygwin_attach_handle_to_fd()`), and a fourth thing is not a defect and stops
-the approach: **a descriptor made from a raw HANDLE is reported PERMANENTLY
+HANGING — READ §7 STEP 11 BEFORE REVIVING IT.** Three real defects were found
+and fixed (`-C` argument mismatch, `sd.exe` location, and the access argument to
+`cygwin_attach_handle_to_fd()`), and a fourth thing is not a defect and stopped
+that approach: **a descriptor made from a raw HANDLE is reported PERMANENTLY
 READY by `select()`**, so SD's `sdpoll()` always says "input waiting" and
 `sd.exe` spins reading one byte at a time, silent, never answering.
-`make check-local` HANGS today. **Do not go looking for another flag** — six
-name/access combinations, `O_NONBLOCK` and `F_SETOWN` were all measured. The
-choice now is a design one and it is the owner's: give `CN_PIPE` its own
-`ReadFile`/`PeekNamedPipe` path, or move to a loopback socket and give up the
-peer identity that chose the pipe.
+**Do not go looking for another flag** — six name/access combinations,
+`O_NONBLOCK` and `F_SETOWN` were all measured.
+
+**That is history now: the transport was replaced, not repaired.** The pipes are
+handed to the child as its STANDARD HANDLES and `make check-local` passes. Only
+the `-C <pipename>` calling convention still leads to the always-ready path, and
+`sd.c` refuses it with a diagnostic rather than hanging. **This paragraph said
+"`make check-local` HANGS today", and it did**; it is kept because the
+measurement behind it is still the reason not to revive that path.
 
 **`strace` IS IN MSYS2 AND IS WHY THIS WAS DIAGNOSED AT ALL** —
 `/c/msys64/usr/bin/strace.exe`, works on `sd.exe`, one run where three install
@@ -164,8 +220,12 @@ install-time artefacts (`ACCOUNTS/DON`, `audit`, the logs, the live segment).
 predicted failure point of the last handoff and it held: `SECOND.COMPILE` on
 this bootstrap was `APISRVR`'s first, `bootstrap.py` dies on any error, and it
 did not. `gcat/$APISRVR` **9,129 / `84f7d949…`** against **9,056 /
-`49c28f05…`** before. **It still has never RUN** — §4 Not verified, and the
-transport blocks it, not the code.
+`49c28f05…`** before. **It still has never RUN, and the transport no longer
+excuses it.** Corrected 17 Aug 2026: this said the transport blocked it, and the
+LOCAL transport now works — but `SrvrLocalLogin` sends no password, so it never
+reaches 6a's `$CRED` check at all. **6a needs the REMOTE path**, which is
+§7 step 6a/6b and the next subject. **6c, the `ACC$GROUP` grant check, HAS now
+run** — §7 step 11.
 
 **§7 step 1a is CLOSED, with the control** — §7 has both lines. That was the
 last unverified branch of step 1.
@@ -260,23 +320,37 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. RUN THE CYCLE FIRST — it now carries §8's whole tier mechanism as well as
-§7 step 11's C fix.** `assert-current` fails and should. **`make sd` is already
-done and clean** (`A2F094EA686D2B8F`, and read the login-shell note above before
-running it again); start at `stage.py`. **What to measure is §8's "how to test
-it"** — three accounts, and the controls matter more than the treatments.
-**Then run the step 11 test**, which is written and is the shortest route to the
-first evidence step 6 has ever had:
+**1. RUN THE CYCLE FIRST — but know that it only carries HARNESS fixes.**
+`assert-current` fails and should: `gplsrc/sdclilib/Makefile` moved at 12:32:56,
+after the measurements. **`make sd` is NOT needed** — the installed binaries
+(`81D0856F5493385E` / `8D1517D1CD2B83AB`) are the current build. **Everything
+this session claims was already verified on the 12:28:49 install**, so the
+cycle is owed for cleanliness, not to settle anything.
+
+**Both verifications are one command each and both have passed**, so re-running
+them after the cycle is a re-confirmation rather than an open question:
 
 ```sh
-cd sdb_ai/sd64/gplsrc/sdclilib && make check-local
+cd sdb_ai/sd64 && make check-local
+```
+```powershell
+gplbld\verify-tiers.ps1 -Keep -Prefix sdtierc
 ```
 
-**Unelevated, and from an MSYS2 shell** — `make` is not a Windows command and
-PowerShell has no `&&`; both were got wrong once here already. The target
-builds into `localtest/` **deliberately**, so the loader does not find the
-build tree's `sdclilib.dll` (which has no `sd.exe` beside it) and falls through
-to PATH and the installed pair instead.
+**`check-local` is UNELEVATED and from an MSYS2 LOGIN shell** — `make` is not a
+Windows command, PowerShell has no `&&`, and a non-login shell has no usable
+`TMP`; all three were got wrong here. **From `sd64`, NOT from
+`gplsrc/sdclilib`**: that directory's `CC` is the MSYS2 `cc`, and it builds a
+native test that cannot run. The target builds into `localtest/`
+**deliberately**, so the loader does not find the build tree's `sdclilib.dll`
+(which has no `sd.exe` beside it) and falls through to PATH and the installed
+pair instead — and the target now puts the installed bin and `System32` on PATH
+for the run, without which it answers `Error 127`.
+
+**`verify-tiers.ps1` is ELEVATED and needs a FRESH `-Prefix` each run**, because
+it leaves its `ACCOUNTS` records behind for `DELETE.ACCOUNT`. Both scripts write
+transcripts to `%LOCALAPPDATA%\SD-verify`, which is outside the trees the cycle
+deletes.
 
 **THE CYCLE IS ONE COMMAND NOW — `gplbld/cycle.ps1`.** Owner's instruction,
 17 Aug 2026: it had grown to four commands across three shells and it used to
@@ -5618,8 +5692,10 @@ the staging script and the Inno installer were all finished and removed.
     `strace`, §6. SD decides whether input is waiting by asking `sdpoll()`
     (`linuxio.c:535`, `:383`, `:456`). Told "yes" unconditionally, it spins
     reading one byte at a time for ever: **`sd.exe` alive, silent, and never
-    answering.** That is where `make check-local` stands today — it hangs, and
-    the client's `SDConnectLocal("DON")` never returns.
+    answering.** `make check-local` hung, and `SDConnectLocal("DON")` never
+    returned. **Fixed by replacing the transport, not by repairing this** — see
+    the top of this step; only the `-C <pipename>` convention still reaches the
+    always-ready path, and `sd.c` now refuses it rather than hanging.
 
     **The three fixes are still right and still needed by any successor**: the
     `-C` argument mismatch, the `sd.exe` location, and the access argument
@@ -5645,13 +5721,11 @@ the staging script and the Inno installer were all finished and removed.
     **No orphaned `sd.exe` survives a run**, which is the EOF path working:
     closing our copies of the child's ends is what lets it see stdin close.
 
-    **HOW IT WAS MEASURED, AND WHAT THAT DOES AND DOES NOT COVER.** This is a
-    **development smoke test, not a cycle measurement** — `assert-current` is
-    stale and says so. The new `sdclilib.dll` (`8D1517D1CD2B83AB`) was paired
-    in a scratch directory with the **installed** `sd.exe`, which the DLL finds
-    beside itself through `GetModuleFileName`. That is the pair that matters,
-    because the server needed no change; but **the authoritative run is
-    `make check-local` after a cycle**, and it is owed.
+    **AND IT IS NOW VERIFIED ON A REAL INSTALL.** The first measurement was a
+    development smoke test — the new DLL paired in a scratch directory with the
+    installed `sd.exe`. **The cycle then ran and `make check-local` passed on
+    the installed pair**, `assert-current` exit 0, 12:28:49 install,
+    `WHO -> 2 DON`. Both runs agree; the header has the figures.
 
     **`make sd` clean, no warnings, both toolchains:** `sd.exe`
     **`81D0856F5493385E`**, `sdclilib.dll` **`8D1517D1CD2B83AB`**.
@@ -5798,7 +5872,7 @@ the staging script and the Inno installer were all finished and removed.
     `-Wall -Wextra -Wpedantic`. **Run it after the cycle, UNELEVATED:**
 
     ```sh
-    cd sdb_ai/sd64/gplsrc/sdclilib && make check-local
+    cd sdb_ai/sd64 && make check-local
     ```
 
     **It carries its own control, and the control is the reason to trust it:**
