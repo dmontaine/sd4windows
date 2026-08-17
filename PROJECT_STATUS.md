@@ -8,24 +8,49 @@ something came to be the way it is.
 **Last updated:** 17 Aug 2026, seventeenth session, from `b6758aa` — the owed
 cycle, run.
 
-**A CYCLE IS OWED — §7 steps 6c and 11 both went in after the install.**
-`assert-current` fails and is right to. **`make sd` IS ALREADY DONE**, clean and
-warning-free at 17 Aug 07:06, both toolchains: `sd.exe` **`76CF1CBE7D88932D`**
-(was `201A9902D4323765`) and `sdclilib.dll` **`93EA16794BE5085A`**. Go straight
-to `stage.py --force --bootstrap`. **That bootstrap is 6c's first compiler**, as
-the last one was 6a's, and `bootstrap.py` dies loudly on a BASIC error.
+**A CYCLE IS OWED — §7 step 11's FIX went in after the 07:20:40 install.**
+`assert-current` fails and is right to. Only C changed, so **`make sd` is
+already done**, clean and warning-free at 17 Aug 08:02: `sd.exe`
+**`04CA97C138ADB148`**, `sdclilib.dll` **`93EA16794BE5085A`**. Go straight to
+`stage.py --force --bootstrap`.
 
-**Step 11 has C behind it and one specific thing to watch** — whether
-`cygwin_attach_handle_to_fd()` honours a requested descriptor number. §7 step 11
-says what to do if it does not.
+**A `gplbld` or Makefile edit forces a relink even when no C changed**, because
+the staleness guards compare mtimes and are deliberately blunt — a false
+"stale" costs one install, a false "current" costs an investigation. Just run
+`make sd` again and take the new hash; do not loosen the check.
 
-**The install of 17 Aug 06:07:30 was current and whole while it lasted**, and
-what was measured on it stands: `gcat` **132**, `GPL.BP.OUT` **193**, `$BCOMP`
-**87,992** (not the 70,697 seed), and **every staged file present** — a
-file-list comparison of the stage against the install came back empty, the
-extras being only install-time artefacts (`ACCOUNTS/DON`, `audit`, the logs,
-the live segment). **That comparison is a better check than counting files**
-and costs the same; §7 step 2 still says to count.
+**§7 STEP 6c HAS COMPILED — that risk is spent.** The 07:20:40 bootstrap took
+it: `gcat/$APISRVR` **9,323 bytes** against 9,129 after 6a and 9,056 before.
+`gcat` 132, `GPL.BP.OUT` 193. What 6c still lacks is a RUN.
+
+**§7 STEP 11 DOES NOT WORK, AND THE REASON IS ARCHITECTURAL — READ §7 STEP 11
+BEFORE TOUCHING IT.** Three real defects were found and fixed (`-C` argument
+mismatch, `sd.exe` location, and the access argument to
+`cygwin_attach_handle_to_fd()`), and a fourth thing is not a defect and stops
+the approach: **a descriptor made from a raw HANDLE is reported PERMANENTLY
+READY by `select()`**, so SD's `sdpoll()` always says "input waiting" and
+`sd.exe` spins reading one byte at a time, silent, never answering.
+`make check-local` HANGS today. **Do not go looking for another flag** — six
+name/access combinations, `O_NONBLOCK` and `F_SETOWN` were all measured. The
+choice now is a design one and it is the owner's: give `CN_PIPE` its own
+`ReadFile`/`PeekNamedPipe` path, or move to a loopback socket and give up the
+peer identity that chose the pipe.
+
+**`strace` IS IN MSYS2 AND IS WHY THIS WAS DIAGNOSED AT ALL** —
+`/c/msys64/usr/bin/strace.exe`, works on `sd.exe`, one run where three install
+cycles would have shown nothing. There is no `gdb` here.
+
+**`sd.exe`'s hash has moved three times today and only once for a code change**,
+so do not read meaning into a difference from an older note: relinking restamps
+the PE `TimeDateStamp`. **`A89DDE70D6AA319F` is the one to install.**
+
+**The installs of 06:07:30 and 07:20:40 were both whole**, and what was measured
+on them stands: `gcat` **132**, `GPL.BP.OUT` **193**, `$BCOMP` **87,992** (not
+the 70,697 seed), and **every staged file present** — a file-list comparison of
+the stage against the install came back empty, the extras being only
+install-time artefacts (`ACCOUNTS/DON`, `audit`, the logs, the live segment).
+**That comparison is a better check than counting files** and costs the same;
+§7 step 2 still says to count.
 
 **§7 STEP 6a's BASIC HAS BEEN THROUGH A COMPILER AND PASSED.** That was the
 predicted failure point of the last handoff and it held: `SECOND.COMPILE` on
@@ -124,9 +149,20 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. RUN THE CYCLE FIRST — §7 step 6c is uncompiled BASIC, and step 11 is
-untried C.** `assert-current` fails and should. **`make sd` is already done and
-clean**; start at `stage.py`.
+**1. RUN THE CYCLE FIRST — it carries §7 step 11's fix, which is C.**
+`assert-current` fails and should. **`make sd` is already done and clean**;
+start at `stage.py`. **Then run the step 11 test**, which is written and is the
+shortest route to the first evidence step 6 has ever had:
+
+```sh
+cd sdb_ai/sd64/gplsrc/sdclilib && make check-local
+```
+
+**Unelevated, and from an MSYS2 shell** — `make` is not a Windows command and
+PowerShell has no `&&`; both were got wrong once here already. The target
+builds into `localtest/` **deliberately**, so the loader does not find the
+build tree's `sdclilib.dll` (which has no `sd.exe` beside it) and falls through
+to PATH and the installed pair instead.
 
 ```sh
 python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
@@ -2109,14 +2145,16 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **§7 STEP 11 IS BUILT AND HAS NEVER BEEN CALLED — 17 Aug 2026.**
-  `SDConnectLocal()` is fixed on both sides and `make sd` is clean, warning-free,
-  both toolchains. **A clean build is the whole of the evidence.** The single
-  most likely thing to be wrong is whether `cygwin_attach_handle_to_fd()`
-  honours a requested descriptor number rather than allocating the lowest free
-  one; §7 step 11 says what to do if it does not. **It is also the cheapest
-  route to first evidence for §7 step 6c**, because a local session reaches
-  `SrvrAccount` — see the entry below.
+- **§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
+  08:03:49 install.** `SDConnectLocal("DON")` never returns; `sd.exe` spins
+  silently because `select()` calls the attached descriptor permanently ready
+  (§6). **Three defects behind it were found and fixed and those fixes stand.**
+  What remains is a design choice, in §7 step 11, not a bug hunt.
+
+  **So it is NOT currently a route to evidence for §7 step 6c**, which is what
+  this entry claimed when the test was written. 6c is still reachable that way
+  in principle — a local session does reach `SrvrAccount` — but only once the
+  transport carries a session at all.
 
 - **§7 STEP 6 IS BUILT IN FULL AND HAS NEVER RUN — 17 Aug 2026.** The API
   authenticates against `$CRED`, `login_user()` is deleted, `K_SET_USERNAME`
@@ -3459,6 +3497,44 @@ Each of these cost real time. Read before debugging anything similar.
   status as the `stage.py` case in HISTORY. **Build through
   `C:\msys64\usr\bin\bash.exe -lc "make -C <abs path> sd"`** and read the linker
   lines, not the exit code.
+
+- **`cygwin_attach_handle_to_fd()` GIVES A DESCRIPTOR THAT `select()` CALLS
+  PERMANENTLY READY, AND THAT DEFEATS SD's INPUT LAYER.** 17 Aug 2026,
+  seventeenth session, §7 step 11. **This is the finding that matters and it
+  is not a flag to fix** — see §7 step 11 for what it costs.
+
+  A descriptor built from a raw Windows HANDLE has no real `select` support in
+  the Cygwin runtime. `strace` on `sd.exe` serving a named pipe shows, forever:
+
+  ```
+  dtable::select_read: //./pipe/SDProbePipe5 fd 0
+  select: sel.always_ready 1
+  set_bits: ready 1
+  read: 1 = read(0, 0x…, 1)
+  ```
+
+  **`sel.always_ready 1`.** So `sdpoll()` — `poll()`, `linuxio.c:757` — always
+  answers "readable", whether or not anything has arrived. SD asks exactly that
+  question before every read (`linuxio.c:535`, `:383`, `:456`), so it spins
+  reading one byte at a time and never blocks, never frames a packet, and never
+  replies. Symptom: `sd.exe` alive, silent, at high CPU, and a client waiting
+  for a response that cannot come.
+
+  **AND IT MADE AN EARLIER DIAGNOSIS HERE WRONG.** This entry first said poll
+  "reports readable" while `read()` gives `EBADF`, as though poll were
+  functioning and disagreeing with read. **Poll was never functioning**: it
+  answers ready unconditionally, which is why it also said ready in the `EBADF`
+  case. The access-argument fact below is still true and still worth having —
+  it is just not what poll was telling us.
+
+  **The access argument must match how the HANDLE was opened.** Open
+  `GENERIC_READ | GENERIC_WRITE` and attach descriptor 0 with `GENERIC_READ` —
+  the obvious thing to write — and the attach **succeeds**, returning 0, while
+  `read()` then fails `EBADF`. The name argument is not involved: the pipe
+  name, `NULL` and `/dev/null` behave identically, `NULL` additionally giving
+  `EFAULT` on the attach, and POSIX `O_RDONLY`/`O_RDWR` values fail like
+  `GENERIC_READ`. `O_NONBLOCK` is harmless; `F_SETOWN` fails `EINVAL` and does
+  not matter, `O_ASYNC` being 0 here (`sddefs.h:96`).
 
 - **THERE ARE TWO "INTERNAL"S AND THEY ARE NOT THE SAME FLAG.** 17 Aug 2026,
   seventeenth session, caught while writing §7 step 6c and before it reached a
@@ -5377,18 +5453,113 @@ the staging script and the Inno installer were all finished and removed.
     errors, measured. That is why it returns `int` rather than `bool`, as
     `win32audit.h` does.
 
-    **`make sd` is clean, no warnings**, both toolchains, 17 Aug 07:06.
-    **THAT IS THE ONLY EVIDENCE THERE IS.** Nothing has called it. **The first
-    thing to test, and the most likely thing to be wrong:** whether
-    `cygwin_attach_handle_to_fd()` honours a REQUESTED descriptor number or
-    allocates the lowest free one. If it allocates, the returned descriptors
-    need `dup2()` onto 0 and 1 and `win32pipe.c` is where that goes.
+    **DOES NOT WORK, AND THE REASON IS ARCHITECTURAL RATHER THAN A BUG LEFT TO
+    FIND. 17 Aug 2026, measured on the 08:03:49 install.** Three real defects
+    were fixed on the way and all three were worth fixing; a fourth thing is
+    not a defect at all and stops this approach.
+
+    **THE STOPPER: a descriptor made by `cygwin_attach_handle_to_fd()` is
+    reported PERMANENTLY READY by `select()`** — `sel.always_ready 1` in
+    `strace`, §6. SD decides whether input is waiting by asking `sdpoll()`
+    (`linuxio.c:535`, `:383`, `:456`). Told "yes" unconditionally, it spins
+    reading one byte at a time for ever: **`sd.exe` alive, silent, and never
+    answering.** That is where `make check-local` stands today — it hangs, and
+    the client's `SDConnectLocal("DON")` never returns.
+
+    **The three fixes are still right and still needed by any successor**: the
+    `-C` argument mismatch, the `sd.exe` location, and the access argument
+    below. None of them is undone by this.
+
+    **THE CHOICE NOW IS A DESIGN ONE, and it is the owner's:**
+
+    - **Give `CN_PIPE` its own I/O.** Read and write the HANDLE with
+      `ReadFile`/`WriteFile` and answer readiness with `PeekNamedPipe`, instead
+      of borrowing descriptors 0 and 1 and `sdpoll()`. Contained — the write
+      side is already one line at `op_tio.c:3902` and the read side is
+      `linuxio.c:535` — but it means a `CN_PIPE` path through the input layer.
+      **This keeps the peer identity that §8 wants from a named pipe.**
+    - **Use a loopback socket instead**, where Cygwin's `select` genuinely
+      works and `CN_SOCKET` is already exercised. Cheaper, and it throws away
+      the peer-identity argument that chose the named pipe in the first place
+      (§8), so it needs authentication of its own.
+
+    **Do not spend another cycle looking for a flag.** Six combinations of the
+    name and access arguments, `O_NONBLOCK`, and `F_SETOWN` were all measured;
+    the always-ready behaviour is a property of the Cygwin file handler for a
+    raw HANDLE, not a setting.
+
+    **The failure and its diagnosis, in the order they were found:**
+
+    - **Observed:** `SDConnectLocal("DON")` → `Connection closed by server`,
+      test exit 1.
+    - **The pipe was fine.** A probe standing in for the client showed
+      `sd.exe` opening the pipe and then exiting **0** — not a crash, not
+      `exit(1)`, and **silent on both streams**.
+    - **THE PREDICTION IN THIS STEP WAS WRONG.** It said the likely fault was
+      `cygwin_attach_handle_to_fd()` not honouring a requested descriptor
+      number. It honours it exactly, measured.
+    - **The real fault: its access argument must MATCH THE HANDLE**, not
+      describe what the descriptor is for. The handle is opened
+      `GENERIC_READ | GENERIC_WRITE`, so **both** calls must pass that.
+      Passing `GENERIC_READ` for descriptor 0 — the obvious thing to write —
+      **succeeds**, and the descriptor then fails `read()` with `EBADF`.
+
+    - **After that fix `sd.exe` STOPPED EXITING and started hanging**, which
+      was progress and was also the next symptom. `strace` then showed the
+      always-ready loop above, which is the stopper.
+
+    **HOW IT WAS FOUND, AND THIS IS THE REUSABLE PART. Two tools, neither of
+    them an install cycle:**
+
+    - **A standalone probe** — twenty lines of C built with MSYS2 gcc outside
+      the repository, driven by a PowerShell harness acting as the pipe
+      server — settled the access argument by trying six combinations against
+      a real pipe with real data. **When the unknown is one library call,
+      isolate the call.**
+    - **`strace`, which is in MSYS2 at `/c/msys64/usr/bin/strace.exe`** and
+      works on any Cygwin binary, `sd.exe` included:
+
+      ```sh
+      strace -o log.txt -- "C:\Program Files\SD\usr\bin\sd.exe" -Q -C \\.\pipe\NAME
+      ```
+
+      **It answered in one run what three cycles could not**, because the
+      failing path prints nothing, exits nothing, and lies through `poll()`.
+      There is no `gdb` in this MSYS2 install; `strace` is the tool to reach
+      for. Both harnesses are worth rebuilding if this is picked up again.
+
+    **`make sd` clean, no warnings**, both toolchains, `sd.exe`
+    **`04CA97C138ADB148`** as installed at 08:03:49.
 
     **The vendored client's own docs were wrong and are corrected**: both
     `README.md` and `USER_GUIDE.md` said the Windows DLL does not provide
     `SDConnectLocal` and that it is "Linux-specific". It is exported —
     ordinal 6, checked with `objdump -p` — and its transport is a **named
     pipe**, which has no Linux equivalent in that library at all.
+
+    **THE TEST IS WRITTEN AND COMPILES; IT HAS NOT BEEN RUN.**
+    `gplsrc/sdclilib/tests/local_connect_test.c`, clean under
+    `-Wall -Wextra -Wpedantic`. **Run it after the cycle, UNELEVATED:**
+
+    ```sh
+    cd sdb_ai/sd64/gplsrc/sdclilib && make check-local
+    ```
+
+    **It carries its own control, and the control is the reason to trust it:**
+
+    | account | expected | why |
+    |---|---|---|
+    | `DON` | admitted | `ACC$GROUP` is `sdu_don` and `GITORLI\don` is a member — both checked on the installed tree |
+    | `SDSYS` | **refused** | `ACC$GROUP` is `sdsys`, which is not a Windows group |
+
+    **`DON` succeeding on its own would prove nothing** — a grant check that
+    never ran would admit it too. Exit codes say which happened: 1 `DON`
+    refused, 2 `SDSYS` admitted (so the check did not run and the first result
+    is worthless), 3 the session opened but `WHO` failed.
+
+    **It is deliberately NOT in `make check`.** Everything there runs without a
+    server; this measures the INSTALLED tree and is therefore subject to the
+    cycle rule.
 12. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
     tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
     flipping the switches first would enable paths that are no longer present.

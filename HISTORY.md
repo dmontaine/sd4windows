@@ -27,6 +27,97 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Step 11 does not work: a Cygwin fd from a raw HANDLE is always "ready"
+
+Corrects and supersedes the entry below, which said step 11's cause was "found
+and fixed". The access-argument fix was real and is kept; it was not the whole
+story, and the rest is not fixable by tweaking flags.
+
+**With the fix in, `sd.exe` stopped exiting and started HANGING** - progress,
+and the next symptom. `strace` on it, serving a real pipe, loops forever:
+
+```
+dtable::select_read: //./pipe/SDProbePipe5 fd 0
+select: sel.always_ready 1
+set_bits: ready 1
+read: 1 = read(0, 0x…, 1)
+```
+
+**`sel.always_ready 1`.** A descriptor built by `cygwin_attach_handle_to_fd()`
+from a raw Windows HANDLE has no real `select` support, so the runtime reports
+it readable unconditionally. SD asks exactly that question before every read
+(`linuxio.c:535`, `:383`, `:456`), so it spins one byte at a time, never
+blocks, never frames a packet and never replies. The client waits for a
+response that cannot come.
+
+**This also corrects a diagnosis in the entry below.** That said `poll()`
+"reports readable" while `read()` gives EBADF, as though poll were working and
+disagreeing. **Poll was never working** - it answers ready unconditionally,
+which is why it said ready in the EBADF case too. Same observation, wrong
+conclusion, because the earlier probe never tested poll against an EMPTY pipe.
+
+**Three defects were still found and fixed on the way, and all three stand:**
+the `-C` argument mismatch (also in `sdb64`, UPSTREAM_FIXES.md #4), `sd.exe`
+being looked for inside the data tree, and the access argument having to match
+how the HANDLE was opened.
+
+**TWO TOOLS DID THE WORK AND NEITHER WAS AN INSTALL CYCLE.** A standalone probe
+- twenty lines of C, MSYS2 gcc, a PowerShell harness playing the pipe server -
+settled the access argument by trying six combinations. Then **`strace`, which
+is in MSYS2 at `/c/msys64/usr/bin/strace.exe` and works on `sd.exe`**, answered
+in one run what three cycles could not: the failing path prints nothing, exits
+nothing, and lies through `poll()`. There is no `gdb` in this install.
+
+**What is left is a design decision, recorded in section 7 step 11:** give
+`CN_PIPE` its own `ReadFile`/`PeekNamedPipe` I/O instead of borrowing
+descriptors 0 and 1, which keeps the peer identity a named pipe was chosen for;
+or move to a loopback socket, where Cygwin's select works and `CN_SOCKET` is
+already exercised, and authenticate some other way.
+
+## 17 Aug 2026 - Step 11 ran and failed; poll() said the descriptor was fine and read() said EBADF
+
+From `4a92f19`, after the cycle that produced the 07:20:40 install.
+
+**Step 6c compiled.** `gcat/$APISRVR` 9,323 bytes against 9,129 after 6a - the
+second consecutive first-compile that passed. 6c still has no run.
+
+**Step 11 ran and failed:** `SDConnectLocal("DON")` answered `Connection closed
+by server`. What made it expensive is that **every diagnostic short of the read
+said the system was healthy**:
+
+- the named pipe CONNECTED, so `win32_attach_client_pipe` had opened it;
+- `sd.exe` exited **0** - not a crash, not `exit(1)`;
+- **both its streams were empty**;
+- and inside it, `poll()` reported the descriptor **readable, `POLLIN` set**.
+
+**The fault: `cygwin_attach_handle_to_fd()`'s access argument must match how
+the HANDLE was opened, not describe what the descriptor is for.** The handle is
+`CreateFile`d `GENERIC_READ | GENERIC_WRITE`; attaching descriptor 0 with
+`GENERIC_READ` - the obvious thing to write - **succeeds and returns 0**, and
+the descriptor then fails `read()` with `EBADF`. SD polls before reading
+(`linuxio.c:535`), passed the poll, failed the read, took the connection-lost
+branch and exited silently.
+
+**The prediction recorded in step 11 was wrong**, and worth noting because it
+was confidently written: it said the likely fault was the call not honouring a
+requested descriptor number. It honours it exactly.
+
+**HOW IT WAS FOUND, AND THIS IS THE PART TO REUSE.** A standalone probe -
+twenty lines of C compiled with MSYS2 gcc outside the repository, driven by a
+PowerShell harness acting as the pipe server - tried six combinations of the
+name and access arguments against a real pipe with real data waiting. **It
+needed no install cycle.** Three cycles would not have found this: the failing
+path prints nothing, exits 0, and lies through `poll()`. When the unknown is
+one library call, isolate the call.
+
+Also fixed: `make check-local` built the test beside the build tree's
+`sdclilib.dll`, which has no `sd.exe` next to it, so the test would have loaded
+the wrong pair. It builds into `localtest/` now, where the loader falls through
+to PATH and the installed pair.
+
+**The fix is unverified in place** - the probe proves the mechanism, not the
+integration - and a cycle is owed to try it.
+
 ## 17 Aug 2026 - Section 7 step 11: SDConnectLocal could never have worked, and now might
 
 From `c7c15f7`. Owner chose the smaller of three scopes when asked: fix
