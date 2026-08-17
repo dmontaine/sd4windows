@@ -27,6 +27,46 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Section 8, first increment: MICRO and the language verbs are out
+
+From `35b3b87`. Owner picked the three-tier VOC work over the transport when
+asked. This is the part he had already ruled on and which needs no tier
+machinery, done first so it lands on its own.
+
+**Removed from both VOCs:** `MICRO` (an external editor, so a containment
+escape of the same class as `SH`), `NLS`, `SET.LANGUAGE`, `LOAD.LANGUAGE`.
+`VOC_TEMPLATE` 434 -> 430, `NEWVOC` 411 -> 408.
+
+**The four programs are KEPT and are now callerless**, which is the precedent
+`$CRED` set. Checked before removing: nothing anywhere calls `$MICRO`, `$NLS`,
+`$SETLANG` or `$LOADLANG`, and `K$SET.LANGUAGE` in `INT$KEYS.H` is kernel key
+38 - a different thing with a confusingly similar name, left alone.
+
+**Two things the inventory corrected.**
+
+**The decision space is 149 verbs, not the 144 section 8 recorded.** That count
+matched the literal string `V` in field 1 and missed five records whose type
+field is descriptive text starting with V. SD reads the FIRST CHARACTER
+(`voc.rec[1,1]`, `CPROC:3376`), so "Verb to compile SDBasic program" is a V and
+"Remote item to list files" is an R. `NEWVOC` carries descriptions where
+`VOC_TEMPLATE` carries bare letters, and `CREATEA:530` normalises them down on
+the way into a new account - which is why both forms work and why counting the
+literal letter undercounts.
+
+**And section 8's finding is now counted rather than asserted.** Only **24
+records** separate `VOC_TEMPLATE` from `NEWVOC`, and every one is account
+administration or a file pointer - `CREATE.ACCOUNT`, `GRANT`, the `*.COMPILE`
+verbs, `GPL.BP`, `MESSAGES` and so on. **A standard account still gets `BASIC`,
+`CATALOG`, `RUN`, `ED`, `SED`, `COPY`, `SH`, `!` and `DELETE.CATALOG`.** So the
+gap between the two tiers that exist is administration, not capability, exactly
+as section 8 said - and now with a number on it.
+
+**Not built yet:** the `PROGRAMMER` keyword beside `ADMINISTRATOR`
+(`CREATEA:610`) and a way for the copy loop (`CREATEA:520`) to skip what a tier
+does not get. An omit-list held as data beats a second and third `NEWVOC`
+directory: three directories drift, and the reduced VOC is meant to be a
+starting posture a site curates.
+
 ## 17 Aug 2026 - Step 11 does not work: a Cygwin fd from a raw HANDLE is always "ready"
 
 Corrects and supersedes the entry below, which said step 11's cause was "found

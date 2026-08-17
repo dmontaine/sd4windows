@@ -5634,6 +5634,46 @@ line is between running an application and building one.
 **Owner's rulings, 16 Aug 2026:** `MICRO` **removed** — it launches an external
 editor, so it is a containment escape of the same class as `SH`. Language verbs
 **removed**, SD is English only: `LOAD.LANGUAGE`, `SET.LANGUAGE`, `NLS`.
+
+**DONE 17 Aug 2026, seventeenth session — all four are out of both VOCs.**
+`VOC_TEMPLATE` 434 → **430**, `NEWVOC` 411 → **408** (`LOAD.LANGUAGE` was
+already admin-only). **The four programs are KEPT and are now callerless**, as
+`$CRED` and its friends are (§7 step 0): `GPL.BP/MICRO`, `NLS`, `SETLANG` and
+`LOADLANG` still compile and still catalogue, and nothing can reach them.
+**Checked before removing** — nothing anywhere calls `$MICRO`, `$NLS`,
+`$SETLANG` or `$LOADLANG`, and `K$SET.LANGUAGE` in `INT$KEYS.H` is kernel key
+38, unrelated to the verb and untouched.
+
+**THE INVENTORY, MEASURED 17 Aug 2026, because the numbers here were slightly
+wrong.** By the **first character** of field 1, which is what SD reads
+(`voc.rec[1,1]`, `CPROC:3376`):
+
+| | `VOC_TEMPLATE` | `NEWVOC` |
+|---|---|---|
+| **V verbs** | **149** | **136** |
+| K keywords | 248 | 249 |
+| F / R / P / S / Q / X | 37 | 26 |
+
+**So the decision space is 149 verbs, not the 144 recorded above** — that count
+matched the literal string `V` and missed five records whose type field is
+descriptive text beginning with V. **`NEWVOC` deliberately carries descriptions
+where `VOC_TEMPLATE` carries bare letters**, and `CREATEA:530` normalises them
+down to the type letter on the way in, which is why both forms work.
+
+**AND THE GAP BETWEEN THE TWO TIERS TODAY IS ADMINISTRATION, NOT CAPABILITY** —
+this is §8's finding, counted. Only **24 records** are in `VOC_TEMPLATE` and not
+`NEWVOC`, and they are `CREATE.ACCOUNT`, `DELETE.ACCOUNT`, `MODIFY.ACCOUNT`,
+`UPDATE.ACCOUNT`, `GRANT`, `REVOKE`, `LIST.GRANTS`, the three `*.COMPILE`
+verbs, the `*.SERVER` verbs, `UNLOCK`, `ENCRYPT.FIELD`, `QFILE` and file
+pointers (`GPL.BP`, `BP`, `MESSAGES`, `ACCOUNTS`, `$HOLD`…). **A standard
+account still gets `BASIC`, `CATALOG`, `RUN`, `ED`, `SED`, `COPY`, `SH`, `!`
+and `DELETE.CATALOG`** — every capability on the removal list.
+
+**NEXT, AND THE MECHANISM IS NOT YET BUILT:** a `PROGRAMMER` keyword beside
+`ADMINISTRATOR` at `CREATEA:610`, and a way for the copy loop at `CREATEA:520`
+to skip records a tier does not get. **Prefer an omit-list held as data over a
+second and third `NEWVOC` directory** — three directories drift apart, and §8
+wants a starting posture the site curates rather than a wall.
 `SET.TRIGGER`, `UPDATE.RECORD`, `MODIFY`, `HSM`, `GENERATE` are **PROGRAMMER**.
 `SET.SERVER`, `DELETE.SERVER`, `LIST.SERVERS` **removed** — SDNet server details
 were not held securely in this version.
