@@ -112,8 +112,19 @@ the staleness guards compare mtimes and are deliberately blunt — a false
 it: `gcat/$APISRVR` **9,323 bytes** against 9,129 after 6a and 9,056 before.
 `gcat` 132, `GPL.BP.OUT` 193. What 6c still lacks is a RUN.
 
-**§7 STEP 11 DOES NOT WORK, AND THE REASON IS ARCHITECTURAL — READ §7 STEP 11
-BEFORE TOUCHING IT.** Three real defects were found and fixed (`-C` argument
+**§7 STEP 11 HAS A MEASURED WAY FORWARD — 17 Aug 2026.** The stopper is real
+but it is a property of **injecting a raw HANDLE**, not of pipes: a descriptor
+Cygwin builds itself from an INHERITED STANDARD HANDLE answers `select()`
+honestly. Measured with its control in one run, `make check-select-probe`.
+**And the peer identity never came from the named pipe at all** — nothing in
+`gplsrc` ever asks the pipe who is on the other end; `SDConnectLocal()` spawns
+`sd.exe` as a child, which inherits the caller's token. The server needs no
+change (`sd.c:441` already takes `-C<tx>!<rx>`; `-C0!1` is a no-op `dup2`).
+**Owner's call still, but the two options he was given were not the only two.**
+§7 step 11 has the numbers.
+
+**§7 STEP 11 DOES NOT WORK AS SHIPPED, AND THE REASON IS ARCHITECTURAL — READ
+§7 STEP 11 BEFORE TOUCHING IT.** Three real defects were found and fixed (`-C` argument
 mismatch, `sd.exe` location, and the access argument to
 `cygwin_attach_handle_to_fd()`), and a fourth thing is not a defect and stops
 the approach: **a descriptor made from a raw HANDLE is reported PERMANENTLY
@@ -5606,18 +5617,66 @@ the staging script and the Inno installer were all finished and removed.
     `-C` argument mismatch, the `sd.exe` location, and the access argument
     below. None of them is undone by this.
 
-    **THE CHOICE NOW IS A DESIGN ONE, and it is the owner's:**
+    **THE CHOICE WAS FRAMED AS TWO OPTIONS AND THERE IS A THIRD, WHICH IS
+    MEASURED AND IS SMALLER THAN EITHER. 17 Aug 2026.**
+
+    **FIRST, THE FRAMING WAS WRONG: THE PEER IDENTITY NEVER CAME FROM THE
+    PIPE.** There is no `ImpersonateNamedPipeClient` and no
+    `GetNamedPipeClientProcessId` anywhere in `gplsrc` — checked.
+    `SDConnectLocal()` gets identity because it **spawns `sd.exe` with
+    `CreateProcessA`**, so the server is a CHILD running under the caller's own
+    token and `GetUserNameA()`/`IsElevated()` inside it report the calling user.
+    The named pipe only carries bytes. **So the socket option's stated cost is
+    illusory — and so is the named pipe's stated benefit.**
+
+    **THE THIRD OPTION: hand the child inherited pipe handles as its STANDARD
+    HANDLES** — `CreatePipe` twice, `STARTUPINFO.hStdInput`/`hStdOutput`,
+    `bInheritHandles = TRUE` — instead of opening a named pipe after the fact.
+    Cygwin then builds descriptors 0 and 1 itself at startup, sees
+    `FILE_TYPE_PIPE`, and installs its pipe handler, whose `select()` is
+    `PeekNamedPipe`-based and answers honestly.
+
+    **MEASURED, with the control in the same process and the same run** —
+    `make check-select-probe`, `gplsrc/sdclilib/tests/select_probe_*.c`,
+    identical on four runs:
+
+    ```
+    inherited(fd 0)  empty=0  data=1     <- select() tells the truth
+    attached(fd 4)   empty=1  data=1     <- always ready: the stopper
+    inherited read: [HELLO-INHERITED]    <- and it reads
+    ```
+
+    **The control is what makes it mean anything**: both descriptors were
+    measured by the same `select()` call with the same timeout, milliseconds
+    apart, in one Cygwin child spawned by one native parent. The only
+    difference is how the descriptor was made. **`empty=0` is the whole
+    finding** — always-ready is a property of injecting a RAW HANDLE, not of
+    pipes.
+
+    **IT NEEDS NOTHING IN THE SERVER.** `sd.c:441` already accepts
+    `-C<tx>!<rx>` and does `dup2(RxPipe, 0); dup2(TxPipe, 1);`, so with the
+    handles arriving on 0 and 1, **`-C0!1` is a no-op `dup2` that just sets
+    `CN_PIPE`**. `win32pipe.c` leaves the hot path. The change is client-side
+    only and REMOVES code rather than adding a `CN_PIPE` branch through the
+    input layer.
+
+    **NOT YET CHECKED:** how `-Q` / `is_sdApiSrvr` behaves with stdin and
+    stdout as the protocol channel rather than a terminal. Read that before
+    writing code.
+
+    **The two options as originally framed, kept because they are the fallback
+    if the above meets something:**
 
     - **Give `CN_PIPE` its own I/O.** Read and write the HANDLE with
       `ReadFile`/`WriteFile` and answer readiness with `PeekNamedPipe`, instead
-      of borrowing descriptors 0 and 1 and `sdpoll()`. Contained — the write
-      side is already one line at `op_tio.c:3902` and the read side is
-      `linuxio.c:535` — but it means a `CN_PIPE` path through the input layer.
-      **This keeps the peer identity that §8 wants from a named pipe.**
+      of borrowing descriptors 0 and 1 and `sdpoll()`. Contained — `CN_PIPE`
+      is in only TWO places in the server (`sd.c:423`, `op_tio.c:3902`) against
+      a dozen for `CN_SOCKET` — but it means a `CN_PIPE` path through the input
+      layer. **Prefer this over the socket** if the third option fails.
     - **Use a loopback socket instead**, where Cygwin's `select` genuinely
-      works and `CN_SOCKET` is already exercised. Cheaper, and it throws away
-      the peer-identity argument that chose the named pipe in the first place
-      (§8), so it needs authentication of its own.
+      works and `CN_SOCKET` is already exercised. Cheaper, but reachable by any
+      local process, so it needs authentication invented for it — new security
+      surface in the one path that currently has a clean answer.
 
     **Do not spend another cycle looking for a flag.** Six combinations of the
     name and access arguments, `O_NONBLOCK`, and `F_SETOWN` were all measured;

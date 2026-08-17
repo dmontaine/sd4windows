@@ -27,6 +27,73 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Step 11: the transport choice was between three options, not two
+
+From `7dee1a6`. No SD change; a probe, a measurement and a correction to how the
+question was posed.
+
+The handoff put the local-transport decision to the owner as two options: give
+`CN_PIPE` its own `ReadFile`/`PeekNamedPipe` I/O, or move to a loopback socket
+and give up the peer identity that chose the named pipe. He asked which to
+recommend, and reading the code to answer showed the question had a false
+premise.
+
+**THE PEER IDENTITY NEVER CAME FROM THE PIPE.** There is no
+`ImpersonateNamedPipeClient` and no `GetNamedPipeClientProcessId` anywhere in
+`gplsrc`. `SDConnectLocal()` gets identity because it spawns `sd.exe` with
+`CreateProcessA`: the server is a child running under the caller's own token, so
+`GetUserNameA()` and `IsElevated()` inside it report the calling user. The pipe
+only carries bytes. That makes the socket option's stated cost illusory - and
+the named pipe's stated benefit illusory with it.
+
+**So the real question was never identity, it was which transport Cygwin's
+select() handles honestly** - and there is a third answer. Hand the child
+inherited pipe handles as its STANDARD handles, and Cygwin builds descriptors 0
+and 1 itself at startup, sees `FILE_TYPE_PIPE`, and installs its pipe handler,
+whose `select()` is `PeekNamedPipe`-based.
+
+**Measured rather than argued**, with the control in the same process and the
+same run - one native UCRT64 parent, one MSYS2 child, both descriptors put
+through the same `select()` milliseconds apart:
+
+```
+inherited(fd 0)  empty=0  data=1     <- honest
+attached(fd 4)   empty=1  data=1     <- always ready: the stopper, reproduced
+inherited read: [HELLO-INHERITED]    <- and usable, not merely honest
+```
+
+Identical on four runs. `empty=0` is the whole finding: always-ready is a
+property of injecting a RAW HANDLE through `cygwin_attach_handle_to_fd()`, not
+of pipes. Reproducing the bad case beside the good one in a single binary is
+what makes it evidence rather than a hopeful reading.
+
+**The evidence was partly already in hand and had been walked past all day.**
+Every `Invoke-SD` in this session piped from PowerShell - a native parent - into
+`sd.exe`, a Cygwin child, and SD read each command, blocked properly and exited
+at EOF. That is the proposed mechanism minus the return path, exercised a dozen
+times while the transport was written up as blocked.
+
+**It needs nothing in the server.** `sd.c:441` already accepts `-C<tx>!<rx>` and
+does `dup2(RxPipe, 0); dup2(TxPipe, 1);`, so with the handles arriving on 0 and
+1, `-C0!1` is a no-op `dup2` that only sets `CN_PIPE`. The change is client-side
+and removes code. The comment at that line already said the descriptor form was
+"what a Unix parent doing fork-then-exec with inherited descriptors would still
+send"; it was kept for a caller nobody could survey, and turns out to be the
+shape the Windows client wants too.
+
+**The harness is in the repository this time** -
+`gplsrc/sdclilib/tests/select_probe_{child,parent}.c` and
+`make check-select-probe` - because the previous step 11 probe was built outside
+it and the handoff had to say "worth rebuilding if this is picked up again". It
+needs both toolchains in one target, which nothing else here does, and the
+UCRT64 `bin` must be on PATH or `gcc` exits 1 having printed nothing at all: the
+driver finds its own `cc1.exe` but `cc1` cannot load its DLLs.
+
+**Still unchecked before code is written:** how `-Q` / `is_sdApiSrvr` behaves
+with stdin and stdout as the protocol channel rather than a terminal.
+
+---
+
 ## 17 Aug 2026 - Section 8: the ADMINISTRATOR tier, and the hole that made the tiers temporary
 
 From `9cb2095`. Still uncompiled - a cycle is owed and now carries three
