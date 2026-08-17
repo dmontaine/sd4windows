@@ -108,6 +108,33 @@ a conf carrying the line, plus a control carrying a genuinely unknown one that
 must be refused. Elevated, service stopped; fold it into the next cycle's start
 rather than tearing down a good system.
 
+**§7 STEP 1c CLOSED, AND WITH IT STEP 1 ENTIRELY.** `DELETE.ACCOUNT`'s "SD
+created it" branch had never executed. `sdacct14` was made by
+`verify-createaccount.ps1 -Keep` from an **unelevated** session at 23:34 —
+and **authenticated over ssh and ran `whoami`**, answering `gitorli\sdacct14`,
+so the account was real and carried a password SD set. Fifteen seconds later
+`DELETE.ACCOUNT sdacct14`, again unelevated into SDSYS, removed all four
+halves: Windows user, `sdu_sdacct14`, account directory, `ACCOUNTS` record.
+
+**The branch is established by state rather than by reading the message, and
+that is worth being precise about.** `DELACC`'s three cases leave different
+things behind and only `case sd.made.it` (`sysmsg(10028)`) deletes the Windows
+user — 10036 leaves it, 10037 means it never existed. It existed and it is
+gone. The directory mtimes corroborate in DELACC's own order: `user_accounts`
+23:34:29, `PSTMP` 23:34:31 (the privileged half through `!ps_script`),
+`ACCOUNTS` **last** at 23:34:32, which is the deliberate ordering that leaves a
+failed run re-runnable. The 10028 line went to the operator's screen and was
+not read by this session.
+
+**A useful by-product: `whoami` running proves `ForceCommand` is off here.**
+Re-measured after the 22:57:00 install, `sshd_config` is the pristine
+`11:11:30 / 2297 bytes` with no `AllowGroups`, no `ForceCommand` and no marker
+block. That is two rules working as designed at once — the uninstaller removes
+them, and the installer will not re-apply them on a machine that already had an
+ssh server. It also re-confirms the "leave an ssh server we did not install
+alone" branch on a second install. It does mean **applying them is a manual
+step of every fresh install on this machine**.
+
 **And that hunt turned up a trap worth more than the change that found it:**
 `struct PCFG` is described in `config.h` as "loaded per process", and **it is
 also in the shared segment** (`sysseg.c:288` writes a template, `:142`

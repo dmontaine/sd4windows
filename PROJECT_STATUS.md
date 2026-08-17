@@ -89,9 +89,12 @@ it. Call it first from anything new that tests the install.
 
 **THE ELEVATION WORK IS DONE. Item 1 below is the RECORD, not a task** — read
 it only if that area misbehaves; it holds the regression signatures. The open
-work is §7. **Step 1a is closed** (sixteenth session); what is left of step 1
-is 1c's two untested branches. Then step 6 (the API server, the largest thing
-still outstanding). Part of step 3 is done and part of it grew: see that step.
+work is §7. **STEP 1 IS NOW CLOSED ENTIRELY** — 1a and 1c both went in the
+sixteenth session, and a–f are each done or superseded. **The next subject is
+step 6, the API server**, which is the largest thing outstanding and which §1
+makes the product's front door; it does not work on Windows at all today.
+Part of step 3 is done and part of it grew, and what is left of it needs the
+VM: see that step.
 
 **FIRST, THOUGH, AND IN THIS ORDER:** run the cycle the header opens with —
 nothing on this machine has been measurable since 17:51:35. Then the ssh work
@@ -714,13 +717,14 @@ IS STALE**, as of 16 Aug 2026 16:02:58 (header item 5) — a build behind on
 | MSYS2 dev tree at `/usr/local/sdsys` | still reachable with `SD_CONFIG=/etc/sd.conf`. Its `bin/` was refreshed with the `sdwind` build on 14 Aug 2026 and the stale `sdlnxd.exe` removed; `pcode`/`pcode.old` are still beside them, since the dev tree keeps the old unsplit layout |
 | **The machine was rebooted** on 14 Aug 2026 | `don`'s token now carries `sdusers`, so **an ordinary unelevated session runs SD** — verified, §4. The sign-out trap in §6 is cleared *on this machine only*; it applies afresh to every new user added to the group |
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
-| **`AllowGroups` AND `ForceCommand` ARE APPLIED** | 15 Aug 2026, ninth session, **by hand after the install** — `allow-ssh-groups.ps1 -Installed`, elevated. Lines 87–90 of `sshd_config`, before the `Match` block; original kept at `sshd_config.before-sd`; `sshd` restarted, Running. **THE UNINSTALLER TAKES IT BACK OFF** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`, correct behaviour), and **the installer will not put it back on this machine** because the task is hidden — header item 1. So it is a manual step of every fresh install here, and its absence is what the eighth session mistook for it being applied |
+| **`AllowGroups` AND `ForceCommand` ARE *NOT* APPLIED** | **Re-measured 16 Aug 2026 after the 22:57:00 install**: `sshd_config` is the pristine `11:11:30 / 2297 bytes`, **0 `AllowGroups`, 0 `ForceCommand`, no marker block**; `sshd_config.before-sd` still there from the ninth session. This is correct and is the rule working twice over — **the uninstaller takes them off** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`) and **the installer will not put them back on this machine**, `limitssh` being hidden where an ssh server already exists. **So it is a manual step of every fresh install here** — `allow-ssh-groups.ps1 -Installed`, elevated — and its absence is what the eighth session mistook for it being applied. **Visible consequence, seen 16 Aug:** `ssh sdacct14@localhost whoami` answered `gitorli\sdacct14` rather than SD's banner, because without `ForceCommand` the client's command runs |
+| OpenSSH firewall rule | `Enabled True / Private / RemoteAddress Any`, unchanged across the install — `ssh-firewall.ps1` never runs here, the whole ssh step being hidden by `SshServerAbsent`. **Not a defect and not evidence about `sshremote`**, which is untestable on this machine (§7 step 3) |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct6`, `sdacct8`, `sdacct9` and `sdacct10` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct11`**. **`sdacct6`, `8`, `9`, `10`, `11`, `12` and `13` exist as Windows users**, each made by `CREATE.ACCOUNT` from an unelevated session and kept — password `Sd-Test-1`, in `sdusers`, their own `sdu_` group and `sdsshonly`, none an administrator. **Only `sdacct13` has an SD side**, the rest having gone with successive fresh installs. **The next free name is `sdacct14`.** `sdacct10`: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct10` and `sdsshonly`, not an administrator, **but its SD side did not survive the 13:52:43 install**, so step 1c needs a fresh subject. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
 | **`don` HAS AN SD ACCOUNT** | 16 Aug 2026, **made by the installer this time** — header item 3, §7 step 1f closed. `ACCOUNTS/DON` present and `adopt-account.log` says `don now has an SD account`. Its `don keeps the Windows sign-in rights it already had` line still appears, so the lockout fix holds |
 | `sdsshonly` | exists, holding **`sdacct6`** and nothing else — the lockout fix means no administrator is in it, and `sdacct6` is there because that is what `CREATE.ACCOUNT` does to a non-administrator |
 | Installed BASIC | the repository's, compiled by the bootstrap that built the stage - no hand-patching survives on this machine |
-| Accounts, **SD side** | **`SDSYS` and `DON` only**, after the fresh install of 22:57:00 — `DON` made by the installer's own step, `adopt-account.log` showing it through to `Adding to register of accounts`. Every `sdacctN` SD side went with the install, as always. **Windows side, `sdacct6, 8, 9, 10, 11, 12, 13` remain**, password `Sd-Test-1`, so **the next free name is `sdacct14`** |
+| Accounts, **SD side** | **`SDSYS` and `DON` only** — `DON` made by the installer's own step on the 22:57:00 install, `adopt-account.log` showing it through to `Adding to register of accounts`. Every `sdacctN` SD side went with the install, as always. **Windows side, `sdacct6, 8, 9, 10, 11, 12, 13` remain**, password `Sd-Test-1`. **`sdacct14` was created and then deleted whole** by §7 step 1c's test, so **it is free again and is the next name to use** |
 | SD | **running.** The installer started it; service `Running`, `sdwind` up, one segment in `shm` stamped 13:52:49. **Stop the service before `stage.py --bootstrap`.** `sd -start` **needs an elevated window**: the gate covers `-start` |
 | SD at boot | **THE SERVICE SURVIVES A RESTART, INCLUDING ONE WITH A LEFTOVER SEGMENT** — fixed and verified 16 Aug 2026, thirteenth session, header item 2. `sd -stop` still leaks the segment at shutdown; `sd_state()` now discards a pre-boot survivor, so the leak is harmless rather than absent |
 
@@ -1222,6 +1226,36 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**16 Aug 2026 — §7 STEP 1c IS CLOSED: `DELETE.ACCOUNT`'s "SD CREATED IT" BRANCH
+HAS RUN, sixteenth session.** `sdacct14` made by `verify-createaccount.ps1
+-Keep` from an **unelevated** session at 23:34 — and it **authenticated over
+ssh and ran `whoami`**, answering `gitorli\sdacct14`, so the account was real
+and carried a password SD set. Fifteen seconds later `DELETE.ACCOUNT sdacct14`
+from an unelevated session that had entered SDSYS removed **all four halves**:
+Windows user, `sdu_sdacct14`, the account directory, and the `ACCOUNTS` record.
+
+**Which branch fired is established by state, not by reading the message.**
+`DELACC`'s three cases are distinguishable by what they leave behind, and only
+`case sd.made.it` (`sysmsg(10028)`) deletes the Windows user — 10036 leaves it
+and 10037 means it never existed. It existed, and it is gone. Corroborated by
+the directory mtimes, which land in DELACC's own order: `user_accounts`
+23:34:29, `PSTMP` 23:34:31 (the privileged half going through `!ps_script`),
+**`ACCOUNTS` last at 23:34:32**, which is the deliberate ordering that leaves a
+failed run re-runnable. **The `10028` line itself was not read by this
+session** — it went to the operator's screen.
+
+**16 Aug 2026 — THE LOGIN RULE AND THE COMMAND-LINE GATE, 6 of 6 WITH THE
+CONTROL, on the fresh install, sixteenth session.** Unelevated: bare `sd` →
+`8 DON` and `sd -ADON` → `9 DON` admitted; `sd -ASDSYS` refused `You can only
+log in to your own account - use LOGTO to reach another`; `sd LISTF` and
+`sd -start` refused `This command needs an elevated session`, **exit 1**; and
+`sd --version` **exit 0**, the control without which a gate that refuses
+everything would look correct.
+
+**16 Aug 2026 — `CONFIG` NO LONGER LISTS `CREATUSR`.** 56 lines, running
+`CMDSTACK` → `DEADLOCK` straight past where it sat. The user-visible half of
+§7 step 1a; the compiled-object check is separate, below.
 
 **16 Aug 2026 — THE INSTALL IS WHOLE AND A SESSION RUNS ON IT, sixteenth
 session.** On the install of **22:57:00**, `assert-current` exit 0, `sd.exe`
@@ -2044,11 +2078,12 @@ way to see this system as a non-administrator on a machine whose account is one.
   and expect `check_no_stage_paths` to have something real to say.
 - **`MODIFY.ACCOUNT` has never been run.** `CREATE.ACCOUNT` and
   `DELETE.ACCOUNT` both have (§4 Verified).
-- **`DELETE.ACCOUNT`'s "SD created it" branch is untested** — the prompt and
-  `!delete_user`. Only the "no such Windows account" branch has run.
-  `sdacct4` is the disposable case to test it with: real Windows account,
-  password unknown to anyone.
-- **`CREATE.ACCOUNT ... ADOPT` is untested**, and nothing calls it (§7 1f).
+- ~~**`DELETE.ACCOUNT`'s "SD created it" branch is untested**.~~ **RUN AND
+  VERIFIED 16 Aug 2026**, sixteenth session, on `sdacct14` — §4 Verified. All
+  three of `DELACC`'s cases have now executed at some point.
+- ~~**`CREATE.ACCOUNT ... ADOPT` is untested**, and nothing calls it.~~ **The
+  installer calls it on every install** and `adopt-account.log` records it —
+  §7 step 1f, closed 15 Aug 2026.
 - **RDP refusal, and it CANNOT BE TESTED ON THIS MACHINE.** The last unobserved
   claim in §5.6.2 (§4 Verified covers the rest).
   `SeDenyRemoteInteractiveLogonRight` is confirmed **applied** to `sdsshonly`
@@ -4553,9 +4588,11 @@ the staging script and the Inno installer were all finished and removed.
    never used` is expected (§6, `IS_INSTALL`), and so is
    `Unable change ownership of directory ... err: 1000`.
 
-1. **Finish the loose ends the account model left.** The model itself is proven
-   (§4, §5.6.1, §5.6.2); none of this is large, and it should not be left to
-   drift.
+1. **CLOSED 16 Aug 2026, sixteenth session — the loose ends the account model
+   left are all tied off.** a and c went that session, b was superseded by
+   step 0b, and d, e and f were already done. The model itself was proven
+   earlier (§4, §5.6.1, §5.6.2). Kept below because the sub-steps record what
+   each cost and what to look for if any of it regresses.
 
    a. **DONE 16 Aug 2026, sixteenth session — `CREATUSR` IS GONE, WITH ONE
       DELIBERATE EXCEPTION.** Removed: the `struct PCFG` field (`config.h`),
@@ -4604,8 +4641,10 @@ the staging script and the Inno installer were all finished and removed.
    b. **MOVED INTO STEP 0b, 14 Aug 2026.** Restoring the `sdusers` gate is no
       longer a question that needs settling against §5.6.1 — the reversal in
       §5.6 answers it. The gate goes back.
-   c. **DONE 14 Aug 2026, seventh session — compiled, catalogued and run (§4).**
-      Two branches still untested: the "SD created it" delete, and `ADOPT`.
+   c. **CLOSED 16 Aug 2026, sixteenth session — BOTH REMAINING BRANCHES HAVE
+      NOW RUN.** The "SD created it" delete was measured on `sdacct14` (§4);
+      `ADOPT` runs on every install through `adopt-account.ps1` (step 1f).
+      Built 14 Aug 2026, seventh session — compiled, catalogued and run.
 
       **Owner's decision: `DELETE.ACCOUNT` offers to delete the OS account only
       when SD created it.** The three answers are all different and all acted
