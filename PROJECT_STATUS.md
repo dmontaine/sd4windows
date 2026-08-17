@@ -7,10 +7,17 @@ something came to be the way it is.
 
 **Last updated:** 16 Aug 2026, sixteenth session, from `222701a`.
 
-**THE CYCLE HAS RUN AND THE INSTALL IS WHOLE AND CURRENT** — 22:57:00,
-`assert-current` exit 0, and **an unelevated session answers `WHO` → `2 DON`**
-(§4). That last clause is the one that matters: the install before it could not
-start a session at all. **§7 step 1a is closed** in the same cycle.
+**A CYCLE IS OWED AGAIN — §7 step 6a was built on 17 Aug 2026 and the install
+is now behind it.** `make sd` is done and clean; what is left is
+`stage.py --force --bootstrap`, `ISCC`, and uninstall / delete both trees /
+install, all elevated. **The BASIC in `APISRVR` has never been through a
+compiler**, so that bootstrap is its first, and `bootstrap.py` dies on any
+error — expect that to be where a mistake surfaces.
+
+**The 22:57:00 install was whole and everything measured on it stands** —
+`assert-current` exit 0, an unelevated session answering `WHO` → `2 DON`, the
+login rule 6 of 6, and §7 steps 1a and 1c both closed and verified on it (§4).
+The install before *that* one could not start a session at all.
 
 **THE ssh SERVER IS NO LONGER OPTIONAL.** Owner's decision, fifteenth session,
 reversing the opt-in of 14 Aug. §5.9 has the reasoning and what changed.
@@ -5001,12 +5008,38 @@ the staging script and the Inno installer were all finished and removed.
       `int.intrinsics` and its `on i goto` list are matched to it by position,
       so leaving the slot alone is much the safer course.
 
-      **IT CANNOT BE VERIFIED WHEN IT IS BUILT, and that is not a reason to
-      skip it — it is a reason to write it down.** There is no API client on
-      this machine, `SDConnectLocal()` has never been exercised (step 11), and
-      the transport the Linux client uses **cannot work here at all** (§8,
-      measured 16 Aug). So step 6a lands as "built, not run" and belongs in §4
-      Not verified until something can call it.
+      **BUILT 17 Aug 2026, AND NOT RUN — §4 Not verified.** `make sd` clean
+      after `rm -f gplobj/*.o`, no warnings. There is no API client on this
+      machine, `SDConnectLocal()` has never been exercised (step 11), and the
+      transport the Linux client uses **cannot work here at all** (§8,
+      measured 16 Aug), so nothing can call it yet.
+
+      **A DEFECT WAS CAUGHT IN THIS DESIGN BEFORE IT WAS WRITTEN, and it is
+      why the key is a new one.** The first plan was to make `K_USERNAME`
+      settable. **It would have renamed the session to `"0"`:** the two
+      readers, `APISRVR:125` and `CPROC:273`, both call
+      `kernel(K$USERNAME, 0)`, and `k_get_c_string()` renders that integer as
+      the string `"0"` — non-empty, so a "set if non-empty" rule fires, and
+      `HDR_INTERNAL` does not save it because APISRVR is `$internal`. **A new
+      key cannot break a reader.** `K_SET_USERNAME` / `K$SET.USERNAME` is 60,
+      the first free number in both `keys.h` and `INT$KEYS.H`.
+
+      **What went in:** `K_SET_USERNAME` in `op_kernel.c`, gated on
+      `HDR_INTERNAL` and setting both `process.username` and
+      `my_uptr->username`; `APISRVR:940` calling `!CRED_VERIFY` and then
+      `kernel(K$SET.USERNAME, username)`; **`login_user()` deleted** from
+      `linuxio.c`, which closes **6d** — its `setgid`/`setuid` went with it;
+      `PASSWD_FILE_NAME` out of `sdnet.h` and the prototype out of `sd.h`;
+      and **`op_login()` left in place as a fail-closed stub**, because
+      `opcodes.h` is positional and `BCOMP`'s `int.intrinsics` is matched to
+      it by position (§6).
+
+      **The BASIC has NOT been through a compiler** — `bbcmp.py` builds only
+      the bootstrap seed, so `APISRVR` is first compiled by `SECOND.COMPILE`
+      during the next `stage.py --bootstrap`, which dies loudly on an error.
+      Both new statements were checked against existing usage instead:
+      `call !CRED_VERIFY(...)` matches `SET_ACC_PASSWORD:113`, and
+      `void kernel(...)` matches `AUTOLOGOUT:58`.
    b. **Set `@logname` from what was verified**, not from the client. It comes
       from the client today (lines 900 and 963), which is what stops the grant
       check being copied across from `LOGTO`.

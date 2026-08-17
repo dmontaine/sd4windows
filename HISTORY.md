@@ -27,6 +27,54 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Section 7 step 6a built: the API authenticates against $CRED
+
+From `e3b4b25`. Continues the sixteenth session below without an install
+between, so **the cycle that was open is now closed by these source changes**
+and `assert-current` will fail until the next one runs.
+
+**The last pre-step-6 measurement first, while the install was still current.**
+§2 asked whether a real API login presents a domain-qualified name, since
+`!valid_os_name` at `APISRVR:894` rejects a backslash and would refuse
+`GITORLI\don` before authenticating. **SD's user name is `don`, bare** —
+`WHO.AM.I` says so where Windows `whoami` says `gitorli\don`, because
+`process.username` comes from the MSYS2 runtime's own lookup. So the call is a
+**smell, not a defect**. **Its limit, stated because it cannot be closed here:**
+this is a workgroup machine, and MSYS2 renders a domain user as `DOMAIN+user`,
+where `+` fails that same charset just as `\` does.
+
+**WHAT WAS BUILT.** `!CRED_VERIFY` replaces `login(username, password)` at
+`APISRVR:940`; `login_user()` is **deleted** from `linuxio.c`, taking
+`/etc/shadow` and — closing step 6d — its `setgid`/`setuid` with it;
+`PASSWD_FILE_NAME` is out of `sdnet.h` and the prototype out of `sd.h`; and
+`op_login()` stays as a fail-closed stub, because `opcodes.h` is positional and
+`BCOMP`'s `int.intrinsics` is matched to it by position. `make sd` clean after
+`rm -f gplobj/*.o`, which was required rather than tidy — three headers changed.
+
+**THE PART THAT WAS NOT OBVIOUS, AND A DEFECT CAUGHT IN THE DESIGN BEFORE IT
+WAS WRITTEN.** Checking the password is the easy half; the session identity —
+`process.username` and `my_uptr->username`, which `@logname`, `K$USERNAME` and
+**the audit trail** all read — is set in C, and `op_login()` used to set it as
+a side effect of the `/etc/shadow` check. Removing that leaves BASIC no route.
+The first plan was to make `K_USERNAME` settable. **It would have renamed the
+session to `"0"`:** both readers call `kernel(K$USERNAME, 0)`, and
+`k_get_c_string()` renders that integer as the string `"0"`, which any
+"set if non-empty" rule accepts — and `HDR_INTERNAL` would not have caught it,
+because `APISRVR` *is* `$internal`. A new key, `K_SET_USERNAME` = 60, cannot
+break a reader. It is gated on `HDR_INTERNAL` exactly as `K_ADMINISTRATOR` is,
+for the reason step 4 stamps the trail in C: an ungated setter hands back the
+ability to claim somebody else's name.
+
+**NOT RUN, and it cannot be yet** — no API client, `SDConnectLocal()` never
+exercised, and the transport measured unportable the day before. It sits in §4
+Not verified. The BASIC has not been through a compiler either; `bbcmp.py`
+builds only the bootstrap seed, so `SECOND.COMPILE` is its first, and both new
+statements were instead checked against existing usage —
+`call !CRED_VERIFY(...)` against `SET_ACC_PASSWORD:113`, `void kernel(...)`
+against `AUTOLOGOUT:58`.
+
+---
+
 ## 16 Aug 2026 - Sixteenth session: the install of 17:51:35 was a failed bootstrap
 
 From `222701a`. **Correction to the fifteenth session's entry below, and to §8.**
