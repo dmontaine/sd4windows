@@ -27,6 +27,50 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Seventeenth session: the owed cycle ran, and step 6a's BASIC compiles
+
+From `b6758aa`. No source changed this session, deliberately — the whole point
+was to run the cycle the entry below left owed, and a source edit would have
+voided it. `assert-current` still exits 0 on the resulting install, so the next
+session can measure before it edits.
+
+**Install of 17 Aug 06:07:30.** `gcat` 132, `GPL.BP.OUT` 193, `$BCOMP` 87,992,
+`sd.exe` `201A9902D4323765`. A file-list comparison of the staged tree against
+the install came back **empty in the "staged but not installed" direction** —
+the 11 extras are install-time artefacts only (`ACCOUNTS/DON`, `audit`,
+`sdsvc.log`, `sd-elevate.log`, `adopt-account.log`, the live segment, `don`'s
+account directories). That comparison is a better check than counting files,
+which is what §7 step 2 asks for, and costs the same.
+
+**The result that mattered: `APISRVR` compiled.** `SECOND.COMPILE` during this
+bootstrap was the first compiler of any kind to see the step 6a BASIC, and
+`bootstrap.py` dies on any error or `is not assigned a value` warning.
+`gcat/$APISRVR` **9,129 bytes / md5 `84f7d949…`** against **9,056 /
+`49c28f05…`** in the previous stage — changed, so it is genuinely the new
+source, and it passed. The previous handoff named this as the single most
+likely place to break. It did not break. **What it does at run time is still
+entirely unverified** and blocked on the transport, not on this.
+
+**§7 step 1a closed with its control.** `NOSUCHPARAM=1` → exit 1,
+`Unrecognised configuration parameter 'NOSUCHPARAM=1'`; `CREATUSR=1` → exit 0,
+`SD (64 Bit) has been started`. Two earlier attempts at this proved nothing
+because only a segment *creation* reaches `read_config()`, and a treatment
+that starts is also what a parser reached by nobody would do.
+
+**What it cost, and both are in §6 rather than here.** An ordinary SD session
+cannot be read without a console — three wrong ways, each failing differently,
+and `sd WHO` being refused unelevated is the gate working rather than a broken
+install. And a cleanup script that ran `sd -stop | Out-Null` threw away the one
+message explaining why the daemon survived, then blocked in `Start-Service`
+waiting on a service that could not start over a live segment. **That is the
+existing "stdout-only harness is blind" trap repeated by someone who had read
+it.** Whether `sd -stop` failed or correctly reported a stuck daemon is
+unknown, for that reason, and is deliberately NOT recorded as an SD defect.
+
+**Still open from this session:** nobody reported the two wizard pages, which
+ran again and are still unread; and the `sd -stop` question above, which needs
+one elevated rerun capturing both streams.
+
 ## 17 Aug 2026 - Section 7 step 6a built: the API authenticates against $CRED
 
 From `e3b4b25`. Continues the sixteenth session below without an install

@@ -5,20 +5,30 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 17 Aug 2026, sixteenth session, from `222701a` — one run
-across both dates, four commits, ending `722db30`.
+**Last updated:** 17 Aug 2026, seventeenth session, from `b6758aa` — the owed
+cycle, run.
 
-**A CYCLE IS OWED AGAIN — §7 step 6a was built on 17 Aug 2026 and the install
-is now behind it.** `make sd` is done and clean; what is left is
-`stage.py --force --bootstrap`, `ISCC`, and uninstall / delete both trees /
-install, all elevated. **The BASIC in `APISRVR` has never been through a
-compiler**, so that bootstrap is its first, and `bootstrap.py` dies on any
-error — expect that to be where a mistake surfaces.
+**NO CYCLE IS OWED. The install of 17 Aug 06:07:30 is current and whole**,
+`assert-current` exit 0, `sd.exe` `201A9902D4323765`. Measured on it:
+`gcat` **132**, `GPL.BP.OUT` **193**, `$BCOMP` **87,992** (not the 70,697
+seed), and **every staged file present** — a file-list comparison of the stage
+against the install came back empty, the extras being only install-time
+artefacts (`ACCOUNTS/DON`, `audit`, the logs, the live segment).
 
-**The 22:57:00 install was whole and everything measured on it stands** —
-`assert-current` exit 0, an unelevated session answering `WHO` → `2 DON`, the
-login rule 6 of 6, and §7 steps 1a and 1c both closed and verified on it (§4).
-The install before *that* one could not start a session at all.
+**§7 STEP 6a's BASIC HAS BEEN THROUGH A COMPILER AND PASSED.** That was the
+predicted failure point of the last handoff and it held: `SECOND.COMPILE` on
+this bootstrap was `APISRVR`'s first, `bootstrap.py` dies on any error, and it
+did not. `gcat/$APISRVR` **9,129 / `84f7d949…`** against **9,056 /
+`49c28f05…`** before. **It still has never RUN** — §4 Not verified, and the
+transport blocks it, not the code.
+
+**§7 step 1a is CLOSED, with the control** — §7 has both lines. That was the
+last unverified branch of step 1.
+
+**WHAT NOBODY HAS CHECKED ON THIS INSTALL: an unelevated interactive session.**
+It is not a doubt about the tree, it is a tooling limit — see "reading the
+state without a console" in §6. The `WHO` → `2 DON` result in §4 belongs to the
+22:57:00 install, not this one.
 
 **THE ssh SERVER IS NO LONGER OPTIONAL.** Owner's decision, fifteenth session,
 reversing the opt-in of 14 Aug. §5.9 has the reasoning and what changed.
@@ -97,13 +107,10 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. RUN A CYCLE BEFORE ANYTHING ELSE, AND DO NOT EDIT SOURCE FIRST.**
-`assert-current` fails right now and should: `make sd` is done and clean, but
-§7 step 6a's source went in after the last install. **The `APISRVR` change has
-never been through a compiler** — `bbcmp.py` builds only the bootstrap seed, so
-`SECOND.COMPILE` is its first, and `bootstrap.py` dies loudly on any error.
-**That bootstrap is the single most likely place for this handoff to break**,
-and it is a BASIC syntax problem if it does, not a design one.
+**1. NO CYCLE IS OWED — the install is current.** `assert-current` exits 0, so
+you can measure on this tree straight away. **The moment you touch `gplsrc`,
+`sdsys` or `gplbld` that stops being true**, so take every measurement you want
+from this install BEFORE editing anything. The cycle, when one is next needed:
 
 ```sh
 python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
@@ -112,21 +119,23 @@ python3 gplbld/stage.py --stage /c/Users/dmont/stagetest --force --bootstrap
 & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DStage=C:\Users\dmont\stagetest /O"C:\Users\dmont\sdout" gplbld\sd.iss
 ```
 
-**Elevated, and with the SD service stopped**, for the reasons in header item
-1 — then uninstall, delete BOTH trees, install. **`stage.py` refuses to stage a
-tree whose bootstrap did not finish** as of the sixteenth session, so the
-failure that shipped a catalogue-less install cannot recur silently.
+**Elevated, and with the SD service stopped** — `--bootstrap` ends in
+`sd -internal` steps SDSYS refuses unelevated, and the staged `etc/fstab`
+points `/dev/shm` at the live tree — then uninstall, delete BOTH trees,
+install. **`stage.py` refuses to stage a tree whose bootstrap did not finish**
+as of the sixteenth session, so the failure that shipped a catalogue-less
+install cannot recur silently. `assert-current` **cannot** see that failure:
+it compares the install against SOURCE and `gcat` is a build product. Check
+`gcat` 132 / `GPL.BP.OUT` 193 / `$BCOMP` 87,992 yourself.
 
-**Two things to fold into that cycle for free, because both need it anyway:**
-the **`CREATUSR=` accept-and-ignore branch** (§7 step 1a — it needs
-`sd -start` with `SD_CONFIG` naming a test conf, plus a control carrying an
-unknown parameter, and only a segment *creation* reaches `read_config()`); and
-**reading the two wizard pages** nobody has seen, since the installer runs
-anyway.
+**Still unread, and free on the next install that runs the wizard:** the
+rewrapped first page listing what the installer changes on the machine, and
+the trimmed closing dialog. Both ran on 17 Aug and nobody reported them.
 
-**2. THEN PICK UP §7.** Step 1 is **closed entirely**; step 4 and step 5 are
-closed; **step 6a and 6d are built but NOT RUN** (§4 Not verified). What is
-left, in the order it makes sense:
+**2. THEN PICK UP §7.** Step 1 is **closed entirely** — 1a went on 17 Aug with
+its control; step 4 and step 5 are closed; **step 6a and 6d are built and
+compiled but NOT RUN** (§4 Not verified). What is left, in the order it makes
+sense:
 
 - **6b and 6c** — 6b largely fell out of 6a, so **6c, the grant check on
   `SrvrAccount`, is the real remaining piece** of step 6.
@@ -2077,11 +2086,19 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **§7 STEP 6a AND 6d ARE BUILT AND HAVE NEVER RUN — 17 Aug 2026.** The API
-  authenticates against `$CRED`, `login_user()` is deleted, and
-  `K_SET_USERNAME` carries the verified identity. `make sd` is clean; **the
-  BASIC has not been compiled at all** — `SECOND.COMPILE` in the next bootstrap
-  is its first, and that is where a syntax error will surface.
+- **§7 STEP 6a AND 6d ARE BUILT, COMPILED, AND HAVE NEVER RUN — 17 Aug 2026.**
+  The API authenticates against `$CRED`, `login_user()` is deleted, and
+  `K_SET_USERNAME` carries the verified identity.
+
+  **THE COMPILE HALF IS NOW VERIFIED and the risk it carried is spent.**
+  Seventeenth session: `SECOND.COMPILE` during the 06:07:30 bootstrap was
+  `APISRVR`'s first compiler of any kind and it passed — `bootstrap.py` dies on
+  any error or `is not assigned a value` warning, and did not. The evidence is
+  `gcat/$APISRVR` **9,129 bytes, md5 `84f7d949…`**, against **9,056 /
+  `49c28f05…`** in the previous stage; `gcat` 132 and `GPL.BP.OUT` 193 say the
+  bootstrap finished rather than stopping at the seed. So `call !CRED_VERIFY(…)`
+  and `void kernel(K$SET.USERNAME, …)` are both accepted BASIC. **Nothing about
+  what they DO is verified by this** — a compile proves syntax.
 
   **It cannot be run yet, and the reason is not this work:** there is no API
   client on this machine, `SDConnectLocal()` has never been exercised
@@ -3388,6 +3405,31 @@ Each of these cost real time. Read before debugging anything similar.
   `C:\msys64\usr\bin\bash.exe -lc "make -C <abs path> sd"`** and read the linker
   lines, not the exit code.
 
+- **AN ORDINARY SD SESSION CANNOT BE READ WITHOUT A CONSOLE, AND THE THREE
+  WRONG WAYS EACH FAIL DIFFERENTLY.** 17 Aug 2026, seventeenth session, trying
+  to confirm the `WHO` → `2 DON` result on a fresh install without a human at a
+  terminal. All three cost a round trip:
+
+  - **`sd WHO` is refused unelevated BY DESIGN** — `This command needs an
+    elevated session`, `sd.c:525`, owner's rule of 15 Aug: *a command is a
+    parameter too*. **This is not a defect and not a broken install**; it is
+    the gate working. Plain `sd` with nothing after it is the untouched path.
+  - **The installed `sd.exe` launched from an MSYS2 shell answers `SD has not
+    been started`** while the service is Running with a live segment. Almost
+    certainly two Cygwin universes: `sd.exe` loads its own
+    `msys-2.0.dll` from `usr\bin`, so its POSIX root is `C:\Program Files\SD`
+    and `/dev/shm` is SD's, while the parent shell is `C:\msys64`. **Launch it
+    from a native Windows shell**, which is how a user runs it anyway.
+  - **Launched natively with stdin/stdout redirected it blocks in terminal
+    setup** and writes nothing at all — killed after two minutes, no output on
+    either stream. `termios` → Console API is §7 step 13, unported.
+
+  **So a `WHO` measurement needs a person at a terminal**, and a claim of one
+  in §4 belongs to whichever install a person was sitting at. What CAN be read
+  without a console: `adopt-account.log`, which records a full BASIC session
+  the installer ran (banner, `Creating VOC...`, `Adding to register of
+  accounts...`) and so rules out the catalogue-less failure mode.
+
 - **ENABLING REMOTE DESKTOP DOES NOTHING UNTIL THE MACHINE REBOOTS, AND THE
   SETTINGS TOGGLE REPORTS SUCCESS EITHER WAY.** 15 Aug 2026, tenth session,
   setting up §7 step 2's RDP test. `fDenyTSConnections` read **0**, no Group
@@ -3419,6 +3461,29 @@ Each of these cost real time. Read before debugging anything similar.
   forms: `OS.EXECUTE ... CAPTURING` gets both, because `op_sh.c:281-282` dup2s
   the pipe onto **1 and 2**; otherwise redirect `sd`'s own stderr to a **file**
   — never `2>&1`, which PowerShell 5.1 turns into an ErrorRecord (below).
+
+- **AND `| Out-Null` ON `sd -stop` THREW AWAY THE ONE MESSAGE THAT EXPLAINED A
+  FAILURE.** 17 Aug 2026, seventeenth session, and it is the entry above
+  repeated by somebody who had read the entry above. A test script started SD
+  against a conf, then cleaned up with `& $sd -stop | Out-Null` followed by
+  `Start-Service`. **`sd -stop` did not take the daemon down** — `sdwind`
+  survived holding the segment — and the script then blocked, because
+  `Start-Service` waits for a service that cannot start while a live segment
+  exists. `Stop-Process -Name sdwind -Force`, delete the segment, `sc start`
+  recovers it.
+
+  **Whether that was SD failing or SD correctly reporting a stuck daemon is
+  UNKNOWN, and only because the output was discarded.** `stop_sd()`
+  (`sysseg.c:764`) tracks exactly this — `daemon_refused` when `kill()` gives
+  anything but `ESRCH`, `daemon_stuck` when it is signalled and still there —
+  and reports it, precisely because the 14 Aug defect was that the return value
+  *was* discarded. **To settle it: rerun capturing both streams to files**, as
+  the entry above says, elevated, and read the errno. Until then do not record
+  it as an SD defect; the harness is the only proven fault.
+
+  **Two rules for any cleanup that stops SD:** never call `Start-Service`
+  without checking the daemon actually went, and never wait unbounded —
+  `sc.exe start` plus a poll cannot hang where `Start-Service` can.
 
 - **MSYS2 `python` GIVEN A BACKSLASHED RELATIVE SCRIPT PATH DIES
   `No module named 'bootstrap'`.** 15 Aug 2026, tenth session.
@@ -4667,16 +4732,23 @@ the staging script and the Inno installer were all finished and removed.
       does (all four checked), which is why this is cheap insurance rather
       than a fix.
 
-      **THAT BRANCH IS THE ONE THING HERE NOT VERIFIED, and the reason is
-      worth knowing before trying:** `read_config()` runs **only when the
-      segment is created** (`sysseg.c:150-157` — an attaching session takes
-      `pcfg` from the segment instead), so nothing an ordinary session does can
-      reach it. Two attempts at a control/treatment test were blind for this
-      reason and one was blind for another (`--version` returns earlier still).
-      **The test is `sd -start` with `SD_CONFIG` pointing at a conf carrying
-      `CREATUSR=1`, and a control carrying a genuinely unknown parameter**,
-      which must be refused — elevated, service stopped. Fold it into the next
-      cycle's start rather than tearing down a good system for it.
+      **VERIFIED 17 Aug 2026, seventeenth session, WITH THE CONTROL** — on the
+      06:07:30 install, `assert-current` exit 0:
+
+      ```
+      control   NOSUCHPARAM=1  ->  exit 1, stderr:
+                                   Unrecognised configuration parameter 'NOSUCHPARAM=1'
+      treatment CREATUSR=1     ->  exit 0, stdout: SD (64 Bit) has been started
+      ```
+
+      **The control is what makes this mean anything**, and is why two earlier
+      attempts proved nothing: `read_config()` runs **only when the segment is
+      created** (`sysseg.c:150-157` — an attaching session takes `pcfg` from the
+      segment instead), so nothing an ordinary session does reaches the parser,
+      and a treatment that starts is also what a parser reached by nobody would
+      do. The test is therefore `sd -start` against each conf **with SD fully
+      stopped first**, elevated. A third earlier attempt was blind for a
+      different reason (`--version` returns earlier still).
 
       **Correction, 14 Aug 2026:** this file previously said `CREATUSR` "is not
       in the shipped `sd.conf` and defaults off", and gave that as a blocker.
@@ -5046,11 +5118,13 @@ the staging script and the Inno installer were all finished and removed.
       `int.intrinsics` and its `on i goto` list are matched to it by position,
       so leaving the slot alone is much the safer course.
 
-      **BUILT 17 Aug 2026, AND NOT RUN — §4 Not verified.** `make sd` clean
-      after `rm -f gplobj/*.o`, no warnings. There is no API client on this
-      machine, `SDConnectLocal()` has never been exercised (step 11), and the
-      transport the Linux client uses **cannot work here at all** (§8,
-      measured 16 Aug), so nothing can call it yet.
+      **BUILT 17 Aug 2026, COMPILED 17 Aug 2026, AND NOT RUN — §4 Not
+      verified.** `make sd` clean after `rm -f gplobj/*.o`, no warnings, and
+      `SECOND.COMPILE` accepted the BASIC on the 06:07:30 bootstrap (§4 has the
+      object sizes). There is no API client on this machine, `SDConnectLocal()`
+      has never been exercised (step 11), and the transport the Linux client
+      uses **cannot work here at all** (§8, measured 16 Aug), so nothing can
+      call it yet.
 
       **A DEFECT WAS CAUGHT IN THIS DESIGN BEFORE IT WAS WRITTEN, and it is
       why the key is a new one.** The first plan was to make `K_USERNAME`
