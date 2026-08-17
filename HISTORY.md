@@ -27,6 +27,138 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - The remote transport is built: APIPORT, and a listener in sdwind
+
+From `7fe6f38`. Option A, built after the measurement in the entry below killed
+option B. **Compiles clean and has never run** - a cycle is owed, and this one
+is real C.
+
+**What it is.** `sdwind` - the one process SD already keeps running - now
+binds a loopback socket, and forks and execs `sd -n -q` per connection with
+the socket on descriptors 0 and 1. That is exactly the contract
+`etc/xinetd.d/qmclient` describes and `start_connection()` reads; Windows has
+neither xinetd nor systemd socket activation, so the half the operating system
+supplies on Linux is now ours.
+
+**APIPORT, and it defaults to OFF.** New parameter, `struct CONFIG` into
+`SYSSEG`, readable as `CONFIG('APIPORT')`. It is in the segment rather than
+`PCFG` because `sdwind` is what reads it and loads no per-process config.
+Zero means no listener - which is what the `memset` already gives - and there
+is deliberately no fallback to 4243: opening a port every local process can
+reach is an act, not a side effect of installing. The socket is bound to
+`INADDR_LOOPBACK` and that is **not** configurable, because posture B says
+nothing of SD's own faces the network and a bind address in a conf file is a
+way to get that wrong by accident.
+
+**`start_connection()` accepts `PF_INET` again, reversing upstream's Feb 2024
+narrowing to AF_UNIX.** The identity that narrowing bought - `getpeereid()`,
+the kernel naming the local user - has no Windows equivalent, measured: native
+sshd cannot see an MSYS2 AF_UNIX socket at all. So the identity moved rather
+than being lost: `$CRED` establishes it (step 6a) and the `ACC$GROUP` test
+confirms the account (step 6c). `peer_usr_id` and `peer_grp_id` are left
+UNASSIGNED rather than filled in with something plausible, so nothing
+downstream can mistake a TCP peer for an authenticated OS user.
+
+**Three things found while building it:**
+
+- **The commented-out upstream `PF_INET` block could never have compiled.** It
+  names `MAX_IP_ADDR_STR_LEN`, which is defined nowhere in the tree; the
+  buffer is `MAX_SOCKET_ADDR_STR_LEN`. Enabling it verbatim would not have
+  built, which is worth knowing before anyone tries the same in `sdb64`.
+- **The daemon's minute timer had to move off the iteration count and onto the
+  clock.** `select()` returns as soon as a connection arrives, so the old
+  `timer++` per pass would have run `check_lost_users()` once per API
+  connection instead of once every five minutes.
+- **Children are reaped in the loop rather than by a `SIGCHLD` handler**, because
+  `SIG_IGN` auto-reaps and would then make `system()` in `check_lost_users()`
+  fail with `ECHILD`.
+
+**The client half needed no work at all** - `SDConnect()` has always opened an
+AF_INET socket - and `sdclilib.dll` is byte-identical at `8D1517D1CD2B83AB`.
+`sd.exe` is now `55AAB5890E80733D` and `sdwind.exe` `6A4006E91EC6431E`, built
+after `rm -f gplobj/*.o`, which was required rather than tidy: `config.h` and
+`sysseg.h` both changed and the Makefile tracks no header dependencies.
+
+**THE SHARED SEGMENT LAYOUT CHANGED** and `SYSSEG_REVSTAMP` does not catch it -
+the same trap as the `PCFG` change of 16 Aug 2026. Harmless across a real
+install; fatal if one rebuilt binary is copied onto a running system.
+
+**What it still lacks is a RUN, and the cycle alone will not give one**,
+because a fresh install opens no port. Testing it needs `APIPORT=4243` added
+to the installed `sd.conf` and SD restarted - `read_config()` runs only when
+the segment is created - and then a client driven through `SDConnect()`, which
+is the only path that reaches step 6a's `$CRED` check at all.
+
+---
+
+## 17 Aug 2026 - The remote transport: a native listener cannot hand a socket to an MSYS2 child
+
+From `7fe6f38`. No source changed; this is a measurement taken before building,
+at the repository owner's instruction to settle the question rather than pick by
+elimination.
+
+**THE QUESTION.** Section 7 step 6a/6b needs a listener and a per-connection
+spawn, which Windows has no xinetd for. The attractive option was a NATIVE
+listener - it keeps the traffic off a loopback TCP port that any local process
+can reach - passing the accepted `SOCKET` to the MSYS2 `sd.exe` as its standard
+input, exactly as step 11's working local transport passes pipes.
+
+**IT CANNOT WORK.** The Cygwin child agrees the descriptor is a socket and can
+write to it, and cannot read a byte of it:
+
+| stdin | pending pre-spawn | getsockname(0) | send(0) | select() | read |
+|---|---|---|---|---|---|
+| pipe (CONTROL) | - | FAIL ENOTSOCK | FAIL | 0 | - |
+| pipe (CONTROL) | - | FAIL ENOTSOCK | FAIL | **1** | **OK** |
+| SOCKET | 0 bytes | OK AF_INET | OK | 0 | EAGAIN |
+| SOCKET | **13 bytes** | OK AF_INET | OK | **0** | **EAGAIN** |
+
+The parent proves with `ioctlsocket(FIONREAD)` that the bytes are pending
+**before the child exists**, so "the child saw nothing" cannot be "nothing was
+sent". The control is the same descriptor number in a separate run: swap the
+socket for a pipe and the payload arrives.
+
+**THE HARNESS WAS WRONG TWICE AND THE CONTROL CAUGHT BOTH, which is the
+reusable part.** First it sent only *after* spawning the child, so it measured
+a channel nobody had written to yet - and the pipe, which step 11 proved
+honest, reported "no data" alongside the socket. Then it used `hStdError` as
+the control channel, which is an OUTPUT handle, so Cygwin builds fd 2
+write-only and a read-select on it can never fire. **Neither wrong answer
+could have survived a control, and neither would have been visible without
+one.** A third slip was of the kind this project keeps recording: a run taken
+from a binary older than its source, because a `cmd /c` build had silently not
+happened - the same "date what you are testing" failure as the install trees.
+
+**Why it fails.** A socket is not passed between processes by handle
+inheritance; Windows documents `WSADuplicateSocket()` for that. The handle is
+real enough for `getsockname` and `send`, which go straight to the kernel
+object, but the receive path stays bound to the originating process's Winsock
+context. And the `WSADuplicateSocket` route would need the rebuilt socket
+injected into Cygwin's descriptor table - `cygwin_attach_handle_to_fd()`, the
+always-ready path step 11 already measured and rejected. Both routes are shut
+by measurement rather than by argument.
+
+**What it leaves.** The listener belongs on the Cygwin side, where `sdwind`
+already lives: MSYS2, already persistent, able to `accept()` and fork+exec
+`sd -n -q` with the socket on descriptor 0 exactly as xinetd does on Linux.
+That needs `start_connection()`'s `PF_INET` branch, which returns FALSE today -
+upstream narrowed it to AF_UNIX in Feb 2024, and the peer identity that bought
+(`getpeereid`) is precisely what step 6a replaced with `$CRED`.
+
+**Also established while reading, and it shrinks the step:** the CLIENT half
+needs no work at all. `SDConnect()` already does `socket(AF_INET, SOCK_STREAM)`
+and `connect()`. And the retained `etc/xinetd.d/` files are pre-2024
+archaeology - they say `protocol = tcp` on 4243, which the current
+`start_connection()` would refuse.
+
+**Not built, and nothing in the repository changed**, so the 13:43:00 install
+stays current and no cycle is owed. The probe is in a session scratchpad and
+will be lost: `sockprobe_parent.c` (native UCRT64, `-lws2_32`) and
+`sockprobe_child.c` (MSYS2). Land them beside step 11's `select_probe_*.c` with
+the next change that owes a cycle anyway.
+
+---
+
 ## 17 Aug 2026 - The owed cycle ran, and the cycle script failed a good install
 
 From `d7cc7a7`. The harness-only cycle the previous entry owed, run. **Nothing

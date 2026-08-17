@@ -10,19 +10,56 @@ commit. The owed cycle ran; a fourth harness defect failed a good install.
 
 **WHERE THIS SESSION LEFT IT — read these four, in order:**
 
-1. **NO CYCLE IS OWED.** The harness-only cycle ran: install **13:43:00**,
-   `assert-current` exit 0, `sd.exe` **`81D0856F5493385E`** /
-   `sdclilib.dll` **`8D1517D1CD2B83AB`** unchanged (no C changed, so no
-   rebuild), and **`make check-local` PASSES on the installed pair** —
-   `WHO -> 2 DON`, SDSYS refused. **The `cycle.ps1` fix below owes no cycle
-   either**: it is in `assert-current`'s `$neverShipped` list
-   (`assert-current.ps1:88`).
+1. **THE REMOTE TRANSPORT IS BUILT AND INSTALLED. A SECOND CYCLE IS OWED FOR
+   TWO GAPS FOUND AFTER IT.**
+
+   **What the 14:36:38 install proved** — `assert-current` exit 0, `sd.exe`
+   **`55AAB5890E80733D`**, `sdwind.exe` **`6A4006E91EC6431E`**, `gcat` 132 /
+   `GPL.BP.OUT` 193 both matching the stage, and **`make check-local` still
+   PASSES** (`WHO -> 2 DON`, SDSYS refused). That last is the regression check
+   that matters: the shared-segment layout changed and `start_connection()`
+   was edited, and the working local transport survived both. **`cycle.ps1`'s
+   `Start-Process -Wait` fix also held** — step 8 no longer fires mid-install.
+   **A fresh install opens NO port** and `sdwind` is running: `APIPORT`
+   defaults off, as intended.
+
+   **THE TWO GAPS, both found by reading the INSTALL rather than the source:**
+
+   - **`sd64/sd.conf` IS NOT THE FILE THAT SHIPS.** `stage.py` writes the
+     installed `sd.conf` from its own `SD_CONF` string constant
+     (`stage.py:206`), so the `APIPORT` documentation went into a development
+     leftover and **no installed system had it**. Fixed in `SD_CONF`; the dead
+     copy now says at the top that it is dead. **Nothing checks the two
+     agree.**
+   - **The `CONFIG` verb did not report `APIPORT`.** `GPL.BP/CONFIG` prints a
+     hand-written list and a new parameter does not appear by itself — the
+     same shape as the `CREATUSR` correction of 16 Aug. Now printed, and
+     **printed even when zero**, because zero is the answer to "is the API
+     listening?".
+
+   **The second cycle is a full one, not a rebuild** — `GPL.BP/CONFIG` is
+   BASIC, so it needs the bootstrap. `make sd` is NOT needed: no C changed
+   after the binaries above.
+
+   **THE SHARED SEGMENT LAYOUT CHANGED** (`sysseg.h`, `api_port`), and
+   `SYSSEG_REVSTAMP` does not catch it — same trap as the `PCFG` change of
+   16 Aug, §7 step 1a. Harmless across a real install, which replaces every
+   binary at once; fatal if one rebuilt binary is copied onto a running
+   system.
+
+   **STILL NEVER RUN: the listener itself.** §7 step 6 has why — nothing can
+   set an account password, so `APILOGIN=1` cannot be satisfied by anybody.
 2. **§7 STEP 11 IS CLOSED AND §7 STEP 6c HAS ITS FIRST EVIDENCE.** Details
    below and in §7 step 11.
 3. **§8's THREE TIERS ARE VERIFIED, 22 of 22.** §8 and the tables below.
 4. **THE NEXT SUBJECT IS THE REMOTE TRANSPORT** — §7 step 6a/6b, the listener
-   and per-connection spawn Windows has no xinetd for. It belongs with §5.7's
-   service model. **Local is done; remote is what step 6 still waits on.**
+   and per-connection spawn Windows has no xinetd for. **Local is done; remote
+   is what step 6 still waits on.** **THE TRANSPORT QUESTION IS NOW ANSWERED
+   BY MEASUREMENT** — a native listener handing the accepted socket to an MSYS2
+   child **cannot work**, with a control; §7 step 6 has the 2×2. So the
+   listener goes on the Cygwin side, in `sdwind`, and `start_connection()`'s
+   `PF_INET` branch has to be enabled. **Nothing is built yet** — the client
+   half needs no work at all, `SDConnect()` having always been TCP.
 
 **THE CYCLE IS ONE COMMAND AND IS NOT TO BE HAND-RUN** — `gplbld/cycle.ps1`,
 elevated. It writes a transcript to `%LOCALAPPDATA%\SD-verify`. See "START
@@ -5508,6 +5545,124 @@ the staging script and the Inno installer were all finished and removed.
    with `APILOGIN=1` reads `/etc/shadow`, which MSYS2 does not have. It fails
    closed, which is the good version of broken, but it is broken. The shape of
    the work, in value order:
+
+   **THE REMOTE TRANSPORT: A NATIVE LISTENER HANDING THE ACCEPTED SOCKET TO AN
+   MSYS2 CHILD CANNOT WORK. MEASURED 17 Aug 2026, WITH A CONTROL.** This was
+   the option worth checking before building anything, because it would have
+   kept the traffic off a TCP port any local process can reach. It is closed.
+
+   A native parent accepts a loopback connection and passes the accepted
+   `SOCKET` to a Cygwin child as its **standard input**, the way step 11's
+   working local transport passes pipes. The child agrees it is a socket and
+   can write to it — **and cannot read a byte of it**:
+
+   | stdin | pending pre-spawn | `getsockname(0)` | `send(0)` | `select()` | read |
+   |---|---|---|---|---|---|
+   | pipe (CONTROL) | — | FAIL `ENOTSOCK` | FAIL | 0 | — |
+   | pipe (CONTROL) | — | FAIL `ENOTSOCK` | FAIL | **1** | **OK** |
+   | SOCKET | 0 bytes | OK `AF_INET` | OK | 0 | `EAGAIN` |
+   | SOCKET | **13 bytes** | OK `AF_INET` | OK | **0** | **`EAGAIN`** |
+
+   **The bottom row is the finding.** The parent proves with
+   `ioctlsocket(FIONREAD)` that 13 bytes are pending **before the child
+   exists**, so "the child saw nothing" cannot be "nothing was sent". Both
+   `select()` and non-blocking `recv()` report empty.
+
+   **The control is the same descriptor number in a separate run** — swap the
+   socket for a pipe and the payload arrives. Two earlier versions of this
+   harness were wrong and the control caught both: sending only *after*
+   spawning (measuring a channel nobody had written to), and using `hStdError`
+   as the control (an OUTPUT handle, so Cygwin builds fd 2 write-only and a
+   read-select can never fire).
+
+   **Why, and why the other route is closed too.** A socket is not passed
+   between processes by handle inheritance — Windows documents
+   `WSADuplicateSocket()` for it. The handle is real enough for `getsockname`
+   and `send`, which go straight to the kernel object, but the receive path
+   stays bound to the originating process's Winsock context. And the
+   `WSADuplicateSocket` route needs the rebuilt socket injected into Cygwin's
+   descriptor table — `cygwin_attach_handle_to_fd()`, which is the
+   **always-ready** path step 11 measured and rejected. **Both routes are shut
+   by measurement, not by argument.**
+
+   **So the listener belongs on the Cygwin side**, where `sdwind` already is:
+   MSYS2, already the persistent daemon, so it can `accept()` and fork+exec
+   `sd -n -q` with the socket on descriptor 0 exactly as xinetd does on Linux,
+   with no Windows novelty in the path at all. That needs `start_connection()`'s
+   `PF_INET` branch, which currently `return FALSE`s — upstream narrowed it to
+   AF_UNIX in Feb 2024, and the peer identity that narrowing bought
+   (`getpeereid`) is precisely what (a) below replaced with `$CRED`.
+
+   **The probe is kept and is one command** — `make check-sock-probe` from
+   `gplsrc/sdclilib`, sources at `tests/sock_probe_{parent,child}.c`, beside
+   step 11's `select_probe_*.c`. It reproduces all four cells above.
+
+   **BUILT 17 Aug 2026, NINETEENTH SESSION, AND NOT RUN.** Everything below
+   compiles clean and no part of it has been exercised; the install of
+   13:43:00 predates it. **`APIPORT` DEFAULTS TO OFF**, so a fresh install
+   still opens no port and the cycle will not test the listener unless the
+   conf is edited — see "how to test it" below.
+
+   - **`APIPORT=<port>` is the new configuration parameter**, `struct CONFIG`
+     → `SYSSEG` (`config.h`, `config.c`, `sysseg.h`, `sysseg.c`), readable as
+     `CONFIG('APIPORT')` (`op_config.c`). **It is in the segment, not `PCFG`**,
+     because `sdwind` is what reads it and `sdwind` loads no per-process
+     config. Zero means no listener, which is what a `memset` of the struct
+     already gives — there is deliberately no fallback to 4243.
+   - **The listener is in `sdwind`** (`open_api_listener()`,
+     `accept_api_session()`), because it is the one process SD already keeps
+     running. **Bound to `INADDR_LOOPBACK` and not configurable** — posture B
+     says nothing of SD's own faces the network, and a bind address in a conf
+     file is a way to get that wrong by accident.
+   - **The main loop now waits on `select()` and drives its minute timer from
+     the CLOCK**, not from the iteration count. It had to change: `select()`
+     returns as soon as a connection arrives, so counting iterations would run
+     `check_lost_users()` once per API connection.
+   - **Children are reaped in the loop, not in a `SIGCHLD` handler.**
+     `SIG_IGN` would auto-reap and then make `system()` in `check_lost_users()`
+     fail with `ECHILD`.
+   - **`start_connection()` accepts `PF_INET` again** (`linuxio.c`), with the
+     reversal argued in the code comment. `peer_usr_id`/`peer_grp_id` are
+     **left unassigned** rather than filled in plausibly: nothing downstream
+     may treat a TCP peer as an authenticated OS user.
+   - **The commented-out upstream `PF_INET` block could never have compiled** —
+     it names `MAX_IP_ADDR_STR_LEN`, which is defined nowhere in the tree. The
+     buffer is `MAX_SOCKET_ADDR_STR_LEN` (109, `sddefs.h:250`).
+   - `sd.conf` carries `#APIPORT=4243` commented out with the reasoning, and
+     the `changelog` has the user-facing entry.
+
+   **HOW TO TEST IT, and it needs more than the cycle.** A fresh install opens
+   no port, so: run the cycle, then add `APIPORT=4243` to
+   `C:\ProgramData\SD\sd.conf`, then **restart SD** — `read_config()` runs
+   only when the segment is created (§7 step 1a), so a running system will not
+   pick it up. Then check `netstat -an | findstr 4243` shows a **127.0.0.1**
+   listener and not `0.0.0.0`, and drive it with the client library.
+   **`SDConnect()` is the call, not `SDConnectLocal()`** — and it is the only
+   path that reaches step 6a's `$CRED` check, because `SrvrLocalLogin` sends no
+   password. **Expect the same control as step 11**: an account the user is
+   granted admitted, `SDSYS` refused.
+
+   **AND IT CANNOT BE TESTED YET, FOR A REASON THAT IS NOT THE TRANSPORT.
+   NOTHING CAN SET AN ACCOUNT PASSWORD.** `APILOGIN=1` makes `APISRVR` call
+   `!CRED_VERIFY`, and `APISRVR:1002` says it plainly: *an account that has
+   never had a password set cannot be reached*. **`GPL.BP/SET_ACC_PASSWORD`
+   exists and NO VOC ANYWHERE POINTS AT IT** — checked, both `VOC_TEMPLATE`
+   and `NEWVOC`, and nothing references `SETPASS` or `SET_ACC_PASSWORD`. So
+   there is no `SET.PASSWORD` verb at any tier and no way to give an account
+   the credential the API demands.
+
+   **This is §5.6's "callerless" note coming due.** Taking passwords off the
+   console login left `$CRED`, `!CRED_SET`, `!CRED_VERIFY` and
+   `SET_ACC_PASSWORD` with no caller, and they were kept precisely because the
+   API would be their caller (§8). The API half now exists; the half that
+   writes the credential still has no door.
+
+   **So the next step after the cycle is a `SET.PASSWORD` verb**, and it needs
+   one decision that is the owner's: **who may set an account's password** —
+   an administrator only, which matches the other 9 administration verbs and
+   `CREATEA`'s own gate, or also the account's own user for their own account.
+   `APILOGIN=0` is the alternative test route and is NOT one: it skips the
+   password by design and so tests nothing of 6a.
 
    a. **DECIDED 16 Aug 2026 — `$CRED`, not `LogonUser`.** Owner's call when
       asked; the alternative was authenticating the Windows account itself,
