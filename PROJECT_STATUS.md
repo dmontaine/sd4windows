@@ -84,8 +84,12 @@ commit. The owed cycle ran; a fourth harness defect failed a good install.
    reverse, would have passed. It is checked now, and the hardcoded 18s and 9s
    are `.Count` of the lists themselves.
 
-   **STILL NEVER RUN: the listener itself**, and now the password path too.
-   Both want the next cycle.
+   **THE API TEST HARNESS IS BUILT AND UNRUN, and it is the next thing.**
+   `gplblderify-apiport.ps1 -Prefix sdapi1`, elevated, is one command for the
+   whole of it: throwaway account, generated password, port on, session,
+   everything back. §7 step 6 has what it asserts and why the wrong-password
+   cell is the one that matters. **A cycle is owed first** — it gates on
+   `assert-current`.
 2. **§7 STEP 11 IS CLOSED AND §7 STEP 6c HAS ITS FIRST EVIDENCE.** Details
    below and in §7 step 11.
 3. **§8's THREE TIERS ARE VERIFIED, 22 of 22.** §8 and the tables below.
@@ -5711,9 +5715,52 @@ the staging script and the Inno installer were all finished and removed.
    `APILOGIN=0` is NOT an alternative test route: it skips the password by
    design and so tests nothing of 6a.
 
-   **Not installed yet.** `$SET.PASSWORD` is already in `gcat` — the program
-   always compiled — so the cycle is for the two data records, and after it
-   `SET.PASSWORD` is what makes the first real API login possible.
+   **Installed and verified 17 Aug 2026** on the 16:28:43 install:
+   `verify-tiers.ps1 -Prefix sdtierc` passed every check, `COUNT VOC` 421 on
+   the derived figure, and `SET.PASSWORD` read directly out of the account VOCs
+   is present for ADMINISTRATOR and absent for STANDARD and PROGRAMMER.
+
+   **THE TEST HARNESS IS BUILT AND HAS NOT BEEN RUN** — one elevated command:
+
+   ```
+   gplblderify-apiport.ps1 -Prefix sdapi1
+   ```
+
+   It creates a throwaway account, sets a **generated** password on it (never
+   hardcoded, never on a command line, delivered on stdin — the section 5.6.1
+   rule), adds `APIPORT` to the installed `sd.conf`, **restarts SD** because
+   `read_config()` runs only when the segment is created, asserts the listener
+   is on **127.0.0.1 and not 0.0.0.0**, drives the client, and puts all of it
+   back in a `finally` block. `-Keep` leaves it standing.
+
+   **The client half is `make check-remote`** (`tests/remote_connect_test.c`),
+   and it carries THREE cells:
+
+   | cell | expected | what it proves |
+   |---|---|---|
+   | right password, granted account | admitted | the transport carries a session |
+   | **WRONG password, same account** | **refused** | **`$CRED` actually ran** |
+   | right password, `SDSYS` | refused | the `ACC$GROUP` check ran |
+
+   **The wrong-password cell has no precedent anywhere in this project** —
+   `SDConnectLocal` sends no password, so nothing has ever reached
+   `!CRED_VERIFY`. If it is admitted, everything else the test says is
+   worthless, and `APILOGIN=0` is the first thing to suspect.
+
+   **Two defects were found by running it rather than reading it**, both in the
+   harness: unescaped backslashes in a diagnostic (three warnings, and the
+   message printed mangled), and `APIHOST` passed through as empty from the
+   top-level Makefile, which **overrides a `?=` default rather than leaving it
+   alone** — the test was handed an empty host and answered `Invalid host
+   name`, which reads as a broken listener.
+
+   **`verify-apiport.ps1` is in `assert-current`'s `$neverShipped` list**, or it
+   would refuse to run because of its own existence — the trap that list was
+   added for.
+
+   **A CYCLE IS OWED BEFORE IT CAN RUN**, for `remote_connect_test.c` and the
+   sdclilib Makefile. Neither ships; `gplsrc` is watched and the guard is
+   deliberately blunt. `make sd` is not needed.
 
    a. **DECIDED 16 Aug 2026 — `$CRED`, not `LogonUser`.** Owner's call when
       asked; the alternative was authenticating the Windows account itself,

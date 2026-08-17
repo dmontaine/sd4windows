@@ -27,6 +27,54 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - The API test harness: one command, and three cells
+
+From `054ef11`. `SET.PASSWORD` verified on the 16:28:43 install first -
+`verify-tiers.ps1 -Prefix sdtierc` passed every check with `COUNT VOC` 421 on
+the derived figure, and reading the account VOCs as bytes, independently of the
+script's own `LIST VOC`, put `SET.PASSWORD` in the ADMINISTRATOR account and in
+neither of the others.
+
+**Then the harness the remote transport has been waiting for.**
+`gplbld/verify-apiport.ps1` is one elevated command: it creates a throwaway
+account, sets a GENERATED password on it, adds APIPORT to the installed
+sd.conf, restarts SD, asserts what is listening, drives a client session, and
+puts all of it back in a finally block so a failure part way still restores.
+
+**The password is generated, never hardcoded, and never on a command line.** It
+reaches SD on stdin, which is section 5.6.1's rule - a command line is readable
+through Task Manager, Win32_Process and ETW. A throwaway account rather than a
+real one, because setting a password on somebody's account to run a test leaves
+a credential behind that nobody asked for.
+
+**THREE CELLS, AND THE WRONG-PASSWORD ONE HAS NO PRECEDENT HERE.**
+`tests/remote_connect_test.c` checks that the right password is admitted, that
+a WRONG password is refused, and that SDSYS is refused whatever the password.
+The middle cell is the first thing in this project that can ever reach
+`!CRED_VERIFY`: `SDConnectLocal` sends no password at all, so step 6a has never
+been executed by anything. If a wrong password is admitted, the other two
+results are worthless and APILOGIN=0 is the first thing to suspect.
+
+**TWO DEFECTS FOUND BY RUNNING IT RATHER THAN READING IT**, both in the harness
+and both worth the run:
+
+- Unescaped backslashes in a diagnostic string - three compiler warnings, and
+  the message printed as "C:ProgramDataSDsd.conf".
+- `APIHOST` passed through from the top-level Makefile as an EMPTY value, which
+  **overrides a `?=` default rather than leaving it alone**. The test was handed
+  an empty host and answered "Invalid host name", which reads as a broken
+  listener rather than a makefile mistake. Defaulted at both levels now.
+
+**And verify-apiport.ps1 had to join assert-current's neverShipped list**, or it
+would refuse to run because of its own existence - exactly the trap that list
+was added for on 17 Aug when verify-tiers.ps1 blocked itself.
+
+**Not run.** A cycle is owed for the test source and the sdclilib Makefile;
+neither ships, but `gplsrc` is a watched tree and the guard is deliberately
+blunt. `make sd` is not needed.
+
+---
+
 ## 17 Aug 2026 - SET.PASSWORD becomes the tenth administration verb
 
 From `e0d9d4d`. The API could not admit anybody, and the reason was not the
