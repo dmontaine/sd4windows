@@ -27,6 +27,159 @@ corrected.
 
 ---
 
+## 16 Aug 2026 - Fifteenth session: the ssh server stops being optional
+
+From `5e986b6`.
+
+**INSTALLED AND MEASURED, on the 17:51:35 install** — `assert-current` exit 0,
+`sd.exe` `239BB9C3E43E4829`. What that proves is the **"leave an ssh server we
+did not install alone"** branch, which is the half this machine can prove: the
+firewall rule stayed `Enabled True / Private / RemoteAddress Any` and
+`sshd_config` stayed byte-identical at `11:11:30 / 2297 bytes`, both compared
+against a baseline taken before the install. PATH 7 entries / 0 empty.
+`ssh-firewall.ps1` shipped.
+
+**The mandatory-install branch is still unobserved** and cannot be observed
+here — see the closing section.
+
+**Changed again AFTER that cycle, so these are unverified:** the closing dialog
+was trimmed, the first page was rewrapped, and `gplbld/secure-accounts.ps1` was
+added. The install is therefore no longer current and `assert-current` fails by
+design.
+
+**What prompted it.** The owner asked three questions about the installer:
+whether to offer a location other than `Program Files`, whether the first page
+should say what the installer is about to do, and whether the ssh features
+should be optional so a local-only user can decline them. Answering the third
+turned up the real defect: `sd.iss` applies the `sdsshonly` deny rights
+unconditionally and `CREATEA:442` joins every non-administrator account to that
+group, so **on a machine with no ssh server every account SD creates can sign in
+nowhere at all** — console denied, RDP denied, no ssh. The only usable accounts
+were the installer's own (`ADOPT`) and `... ADMINISTRATOR`, which answers "the
+second person needs to run SD" with "make them a machine administrator".
+
+**The owner's answer was to make ssh mandatory** rather than to add a local
+account kind: *"That allows a local user to emulate remote users by just
+ssh'ing to their own computer."* This keeps §5.6.2 and `CREATEA` untouched and
+removes a whole fork — no third account kind, no conditional deny rights, one
+access path to test. §8 had already reached half of it, saying posture B "makes
+the ssh install path load-bearing"; nobody had followed that into the installer.
+
+**One amendment was made to the owner's shape and accepted.** Installing the
+capability creates `OpenSSH-Server-In-TCP` and enables it — measured on this
+machine, `Enabled True, Inbound, Profile Private, RemoteAddress Any` — so
+"always install" would open port 22 to the LAN on every install, including for
+the local-only user whose case made ssh mandatory. **The checkbox was inverted
+rather than deleted**: the server is always installed, and the opt-in became
+"let other computers connect", which is where the risk actually sits. The local
+user ends up with a machine no more exposed than before.
+
+**What changed:** `installssh` task deleted; `install-ssh.ps1` runs under
+`Check: SshServerAbsent`. New `gplbld/ssh-firewall.ps1` and the `sshremote`
+task. `installssh\allowgroups` promoted to `limitssh`. `SshWasAbsent` cached in
+`InitializeSetup`. New `SshReport` and `ApplySshFirewall`. A memo page after
+`wpWelcome` listing every machine-level change. `stage.py` ships the new script.
+
+**Two comments in `sd.iss` were found asserting checks nobody had written**, and
+this is the part worth carrying forward. One claimed `CurStepChanged` reported
+the OpenSSH exit code; the other claimed it checked `deny-logon.ps1` "so it
+cannot fail silently, which is the mistake the OpenSSH step made" — while making
+that same mistake one entry above. `CurStepChanged` read neither: a `[Run]`
+entry discards its exit code. Both corrected in place per the standing rule.
+The OpenSSH half is now genuinely checked, from machine state rather than an
+exit code, which also answers correctly when the capability was already there.
+**`deny-logon.ps1` is still unchecked** and is recorded in §7 step 3 — it needs
+`LsaEnumerateAccountRights`, so there is no state Inno can read.
+
+**What is still open, and it is the whole of the verification.** The mandatory
+path **cannot be tested on this machine**, which already has OpenSSH:
+`SshServerAbsent` is false here, so only the "already present, leave it alone"
+branch runs and both new tasks are hidden. Structurally the same hole that has
+kept the `AllowGroups` task unseen since 14 Aug. It needs the VM from §7 step 2
+(`Windows 11 Clone`, snapshot `Before SD install`).
+
+**Not done, and not answered:** question 1. The recommendation was to leave the
+destination page as it is and harden `{app}` with `icacls` unconditionally,
+because nothing does today — `{app}` relies entirely on Program Files' inherited
+ACL, and it holds `sd-elevate-helper.ps1`, which `sd-elevate.ps1:111` resolves
+with `$PSScriptRoot` and launches `-Verb RunAs`. Install anywhere with a loose
+root ACL and that is arbitrary code as administrator: the same class as the
+`PSTMP` fix of the previous session. The owner has not ruled on it.
+
+**The data-location half of question 1 is ANSWERED, by the owner, and it needs
+no code:** mount a second disk at an empty NTFS folder — `C:\ProgramData\SD` —
+and the database is on its own volume with nothing in SD changed. That avoids
+all of `stage.py`'s embedded paths, the `ACCOUNTS/SDSYS` rewrite and
+`check_no_stage_paths()`. Two caveats: the mount must exist **before** the
+install, and the MSYS2 layer is the thing to watch rather than Windows, since a
+volume mount point is a reparse point and the POSIX runtime sometimes presents
+those as symlinks — `sdrealpath()` and the `/dev/shm` `fstab` mapping both land
+on it. Recorded in §5.8.
+
+### What the file-permission thread turned up, and it outgrew the session
+
+Asked whether the "everything under SD is readable by every SD user" limit was a
+Windows limitation. **It is not — Windows is the more expressive of the two**,
+and the Linux original is weaker than remembered. Checked against the real
+`installsd.sh` from `codeberg.org/stringdatabase/sd-scripts`, not the
+experimental `installsdai.sh` in this tree: every mode in it is 644, 654, 755 or
+775, there is no `setfacl` and no `umask`, `chmod -R 755 $sdsysdir` makes SDSYS
+world-readable, and the only directory-creation mode in the C is
+`mkdir(path, 0777)` (`sddefs.h:105`). `CREATEA` at `f9edab0` sets
+`chown user:sdu_<user>` and `chmod g+s`, but **nothing removes other-read**. So
+the Windows port is already stricter, because `icacls /inheritance:r` strips the
+inherited `BUILTIN\Users:(RX)`.
+
+**Measured on the installed tree:** `gcat` and `GPL.BP.OUT` both carry
+`sdusers:(I)(OI)(CI)(M)`. Any SD user can rewrite catalogued pcode that every
+other session executes, including an administrator inside an elevated-helper
+session whose `!ps_script` calls build what the privileged helper runs. Same
+shape as the `PSTMP` fix.
+
+**Two collisions with the unelevated-token model shape all the remedies**, and
+both were found by tracing rather than by reading:
+
+1. **`sd.exe` stays unelevated for life**, so all of SD's file I/O uses the
+   invoking user's token even inside an SDSYS session, and an unelevated
+   administrator's `Administrators` membership is deny-only. So `sdusers:M` on
+   `sdsys` is load-bearing — it is what lets `CREATE.ACCOUNT` write `ACCOUNTS`.
+   A wholesale read-only `sdsys` would break account registration.
+2. **The account directory cannot be locked when it is created.** `CREATEA:328`
+   creates it and population runs to about line 600 as the invoking user, so the
+   per-account ACL has to go on at the very end — and `DELETE.ACCOUNT` then has
+   to remove the directory through the elevated helper, because an administrator
+   not in `sdu_<name>` cannot delete it from an ordinary session.
+
+`gplbld/secure-accounts.ps1` was written for the container half: the
+`secure-psdir.ps1` pattern with `AD` instead of `WD`, `DC` withheld so one user
+cannot delete another's account, and `CREATOR OWNER` inheriting into
+subdirectories as well as files — the last is load-bearing, since with `sdusers`
+holding nothing inheritable it is the only thing granting the creating session
+rights to the directory it just made.
+
+**A correction made in this session's own notes:** the claim that "`gcat` holds
+only SD's four own programs, so locking them is small" is built on an untraced
+model. `LIST` is `V`/`CA`/`$QPROC` and `$QPROC` is in neither `gcat` nor
+`GPL.BP.OUT`, yet `COUNT VOC` returning 431 is a repeatedly recorded
+measurement — so `CA` resolution works by a path nobody here has followed. §8
+carries it; trace it before scoping the lock.
+
+**Two defects found in the shipped `VOC_TEMPLATE`**, neither related to the ssh
+work: five entries hold their DESCRIPTION in field 1 where the type code belongs
+and so cannot work — `COPYP`, `DELETE.SERVER`, `LOAD.LANGUAGE`, `SET.SERVER`,
+`UNLOCK` — and `SET.SERVER`/`DELETE.SERVER`/`LIST.SERVERS` have no compiled
+program behind them at all. `UNLOCK` is the one that matters: it is what clears
+a stuck record lock, and it needs the missing `V` line.
+
+**The three-tier user model** the owner set out — application user, programmer,
+administrator, with a new `PROGRAMMER` keyword on `CREATE.ACCOUNT` — is in §8
+with the 144-verb split and the finding that **the two tiers that exist today
+are enforced backwards**: `SH` is gated on `IsElevated()`, which an ssh session
+can never be, while `OS.EXECUTE ... CAPTURING` is ungated, so tiers 1 and 2 have
+identical actual power.
+
+---
+
 ## 16 Aug 2026 - Fourteenth session, closing summary
 
 `99e936f` to `00432d8`. Started from a handoff reading "elevation is built and

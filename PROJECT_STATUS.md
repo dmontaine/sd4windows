@@ -5,7 +5,37 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 16 Aug 2026, fourteenth session, `99e936f`→`00432d8`.
+**Last updated:** 16 Aug 2026, fifteenth session, from `5e986b6`.
+
+**THE ssh SERVER IS NO LONGER OPTIONAL.** Owner's decision this session,
+reversing the opt-in of 14 Aug. §5.9 has the reasoning and what changed.
+
+**HALF OF IT IS VERIFIED, on the 17:51:35 install** — `assert-current` exit 0,
+and the **"leave an ssh server we did not install alone"** branch measured
+against a pre-install baseline: firewall rule still `Enabled True / Private /
+Any`, `sshd_config` still `11:11:30 / 2297 bytes`, PATH 7/0.
+**The mandatory-install branch is structurally untestable on this machine**,
+which already has OpenSSH — only the "leave it alone" branch runs here and both
+new tasks are hidden. It needs the VM from step 2. §7 step 3.
+
+**UNVERIFIED, because they were written after that cycle:** the trimmed closing
+dialog, the rewrapped first page, and `gplbld/secure-accounts.ps1`. `ISCC` exits
+0 and that is all.
+
+**Also this session:** an up-front wizard page listing what the installer
+changes on the machine, and two comments in `sd.iss` corrected that claimed
+`CurStepChanged` checked things it never read (the OpenSSH exit code — now
+replaced by `SshReport` reading machine state — and `deny-logon.ps1`, still
+unchecked, §7 step 3).
+
+**AND A LONG DESIGN THREAD THAT PRODUCED NO CODE BUT MOST OF THE VALUE.** File
+permissions, the three-tier user model, and two defects in the shipped
+`VOC_TEMPLATE`. **It is all in §8 and the HISTORY entry, and §8 is the one to
+read** — it holds the finding that the two user tiers which exist today are
+enforced backwards, and the untraced `CA` resolution that blocks scoping the
+`gcat` lock.
+
+**Previous session (fourteenth, `99e936f`→`00432d8`):**
 **ELEVATION WITHOUT AN ELEVATED TERMINAL IS COMPLETE — built, installed and
 verified end to end**, with the watchdog, the audit trail, the helper log and
 its ACL. **§7 step 4 and step 5 are both closed.** **Six defects were found and
@@ -28,13 +58,21 @@ it. Call it first from anything new that tests the install.
 
 **THE ELEVATION WORK IS DONE. Item 1 below is the RECORD, not a task** — read
 it only if that area misbehaves; it holds the regression signatures. The open
-work is §7, and **the next subject is §7 step 1**, the loose ends the account
-model left, followed by step 3 (installer loose ends) and step 6 (the API
-server, which is the largest thing still outstanding).
+work is §7, and **the next subject is still §7 step 1**, the loose ends the
+account model left — **it was not started**; the fifteenth session went to the
+installer at the owner's direction instead. Then step 6 (the API server, the
+largest thing still outstanding). Part of step 3 is done and part of it grew:
+see that step.
 
-**Nothing is half-applied and the install is CURRENT** (16:36:52, header item
-5), so the tree can be measured as it stands — run `assert-current` first
-anyway.
+**FIRST, THOUGH: the ssh work of the fifteenth session has never been run.**
+Install it on the VM before building anything on top of it.
+
+**THE INSTALL IS NO LONGER CURRENT.** It was (16:36:52, header item 5) until
+this session changed `sd.iss`, `stage.py`, `install-ssh.ps1` and added
+`ssh-firewall.ps1`. **`assert-current` will fail and should** — nothing has
+been staged or installed since. Rebuild before measuring anything:
+`stage.py` **and not just `ISCC`**, because a new `gplbld/` script ships
+(step 2's warning, and `ssh-firewall.ps1` is exactly that case).
 
 **FOUR THINGS THIS SESSION LEARNED THE HARD WAY. They cost a cycle each and
 none of them is about SD:**
@@ -2779,19 +2817,52 @@ create `sdusers` and `sdsshonly`; run — or ship the result of — the bootstra
 in §3; and register the service once §5.7's model exists. What the uninstaller
 does is §5.9.1.
 
-**Optional OpenSSH Server, opt in and off by default (decided 14 Aug 2026).**
-Decision from the repository owner. The case for offering it: SD will often be
-installed by someone with little administrative knowledge who wants the ten
-people on their local network to reach it. Good security is the default; the
-easy path exists but has to be chosen. Note the Linux script installed and
-enabled ssh **unconditionally** — that behaviour is not inherited but
-re-decided, which §5.16's rule 2 permits.
+**REVERSED 16 Aug 2026: OpenSSH Server is ALWAYS INSTALLED, and what is opt-in
+is the network exposure.** Owner's decision. The `installssh` task is gone;
+`sd.iss` runs `install-ssh.ps1` under `Check: SshServerAbsent`.
+
+Why: SD accounts sign in over ssh and nothing else (§5.6.2), and the API is
+carried over ssh (§8, posture B — which already said this "makes the ssh
+install path load-bearing"). So an install without ssh is one nobody but the
+installing user can use: every non-administrator account `CREATE.ACCOUNT`
+makes is denied console and RDP (`CREATEA:442`, unconditional) with nothing to
+fall back on. **A local-only machine is served by `ssh localhost`**, which is
+what decided it — it needs no network.
+
+**The new opt-in is `sshremote`, off by default**, and it is stricter than what
+it replaces. Installing the capability creates `OpenSSH-Server-In-TCP` **and
+enables it for any remote address** — measured 16 Aug 2026: `Enabled True,
+Inbound, Profile Private, RemoteAddress Any` — so the old ticked box opened
+port 22 to the LAN as a side effect nobody chose. `gplbld/ssh-firewall.ps1`
+scopes the rule to `127.0.0.1,::1` unless the task is ticked. `RemoteAddress`
+rather than `Enabled False`: both leave loopback working, but a disabled rule
+reads as something switched off and gets switched back on.
+
+**What did NOT change, and must not**: "never reconfigure or restart an ssh
+server we did not install" is a separate rule from optionality. `SshWasAbsent`
+is cached in `InitializeSetup` — from `ssPostInstall` the live test answers
+False everywhere, so "did we put this here?" is otherwise unanswerable, and
+both the firewall step and the report depend on it. `limitssh` (was
+`installssh\allowgroups`) is now top-level and **its own `Check` is the only
+thing left** keeping it off somebody else's server.
+
+**The uninstaller does not widen the rule back.** Deliberate asymmetry with
+`RemoveAllowGroups`: restoring it means opening a port on the way out.
+
+**The original reasoning for the opt-in, kept because the requirements below
+still stand:** SD will often be installed by someone with little administrative
+knowledge who wants the ten people on their local network to reach it. Good
+security is the default; the easy path exists but has to be chosen. Note the
+Linux script installed and enabled ssh **unconditionally** — that behaviour is
+not inherited but re-decided, which §5.16's rule 2 permits. **That re-decision
+has now landed on the same answer the Linux script had, by a different route.**
 
 Requirements, and each of these has already cost something:
 
-- **Unchecked by default**, and clearly worded: it starts a service listening
-  on port 22 and adds a firewall rule, granting remote shell access to the
-  whole machine, not just to SD.
+- ~~**Unchecked by default**~~ — superseded above. The wording requirement
+  survives and moved to the exposure task: it starts a service listening on
+  port 22 and adds a firewall rule, granting remote shell access to the whole
+  machine, not just to SD.
 - **If OpenSSH Server is already present, say so and do not offer the option.**
   Detect it **without elevation** — `%SystemRoot%\System32\OpenSSH\sshd.exe` on
   disk, or an `sshd` service registered; `Get-WindowsCapability -Online`
@@ -2800,8 +2871,14 @@ Requirements, and each of these has already cost something:
   This is also what makes the `AllowGroups` subtask structurally unreachable on
   such a machine (§5.6.2).
 - **A failure to install it must not fail the SD install.** It is a Features on
-  Demand capability, blockable by policy, a metered connection or an offline
-  machine. Report it and carry on.
+  Demand capability, blockable by policy, a WSUS with no FoD source, a metered
+  connection or an offline machine. Report it and carry on.
+  **The rule survived 16 Aug 2026 but its consequence did not.** The no-ssh
+  state used to be one the user chose; it is now one the machine can impose,
+  and in it **no account but the installing user's can sign in anywhere**. So
+  it is reported in as many words with the retry command — `SshReport` in
+  `sd.iss`, from machine state (`sshd.exe` present, `Services\sshd` key
+  present) rather than from an exit code.
 - **And it is SLOW, which is worse than a failure.** Measured 14 Aug 2026:
   `Add-WindowsCapability` hands off to `TiWorker`, which worked for minutes and
   left **`RebootPending` True**. The `[Run]` entry is `runhidden` with no
@@ -4513,8 +4590,25 @@ the staging script and the Inno installer were all finished and removed.
      not in register`, the exact symptom `don` had before step 1f. **Owner's
      decision, 15 Aug 2026: drop those lines**, rather than document `ADOPT`,
      which stays undocumented. Done, `sd.iss:493`, with a `changelog` entry.
-     **The `AllowGroups` subtask is still unseen** and cannot be seen here — it
-     is hidden by `Check: SshServerAbsent` on this machine (header item 1).
+     **The `AllowGroups` task is still unseen** and cannot be seen here — it is
+     hidden by `Check: SshServerAbsent` on this machine (header item 1). **It is
+     no longer a subtask**: renamed `limitssh` and promoted on 16 Aug 2026 when
+     its parent went (§5.9).
+   - **`deny-logon.ps1`'s outcome is not checked, and `sd.iss` claimed for
+     months that it was.** Comment corrected in place 16 Aug 2026; the check
+     itself is not written. Unlike the OpenSSH step there is no machine state
+     Inno can read — user rights assignment needs `LsaEnumerateAccountRights` —
+     so it means shelling out to a script as `ApplyAllowGroups` does. **Cost
+     while it stays open:** an account in `sdsshonly` on a machine where the
+     rights never landed is not confined at all, silently. Second comment in
+     that file found asserting a check nobody wrote; the other was the OpenSSH
+     exit code, replaced by `SshReport`.
+   - **THE MANDATORY-SSH PATH CANNOT BE TESTED ON THIS MACHINE**, which already
+     has OpenSSH — `SshServerAbsent` is false here, so only the "already
+     present, leave it alone" branch ever runs, and `sshremote` and `limitssh`
+     are both hidden. Structurally the same hole as the `AllowGroups` task
+     above. **It needs the VM from step 2** (`Windows 11 Clone`, snapshot
+     `Before SD install`).
    - **`GPL.BP/OPGEN` is not ported** to `gen_includes.py`. It generates
      `GPL.BP/OPCODES.H` from `gplsrc/opcodes.h` and reads `./gplsrc` the way
      the others did, but nothing ever `$execute`d it, so it breaks no compile —
@@ -4766,6 +4860,121 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 **answered on 13 Aug 2026** and is now §5.6. Neither option was taken. See the
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
+
+### Open: how many kinds of user does SD have, and what enforces each (raised 16 Aug 2026)
+
+Owner's model, three tiers: **application users** dumped into a menu, never
+seeing `:`, holding object code and no source; **programmers**, at the prompt,
+with read/write/catalog/execute/create/delete in their own account and any
+`GRANT`ed account including a shared-program one, needing *some* `SH`;
+**db administrators**, everything. In Pick the last two were the same because
+Pick *was* the OS. §5.6.1 already split them here, so deviating is not new.
+
+**THE TWO TIERS THAT EXIST TODAY ARE ENFORCED BACKWARDS**, and this is the
+finding to act on before designing more of them:
+
+- `SH` at the prompt is gated on `IsElevated()`, and an ssh session **can never
+  be elevated** — so no ssh user ever gets `SH`, including the programmers who
+  need it.
+- `OS.EXECUTE ... CAPTURING` is **ungated** (§7 step 7, measured with a
+  control) — so anyone who can write and run a program has full OS execution
+  under their own token.
+
+So the visible control is denied to the people who need it and the capability
+it guards is open to everyone who does not. **Tiers 1 and 2 have identical
+actual power.**
+
+**No privilege concept exists to hang tiers on.** Only `USR_ADMIN`
+(`sysseg.h:158`), one session flag seeded from `IsElevated()` at process start.
+Nothing in `SYSCOM`; `PRIVILEGED_COMMANDS` is a local in `IS_INSTALL`, not a
+mechanism.
+
+**Owner's approach, 16 Aug 2026: capability by VOC content.** Take **`BASIC`,
+`CATALOG`, `RUN`, `ED` and `SED`** off accounts that do not need them — no
+compiler, no way to catalogue, no way to run an imported object, no editor to
+put any of them back with. Idiomatic MV, needs no C. Plus break off
+(`OPT.NO.USER.ABORTS` exists) and `ForceCommand` on by default.
+
+**`COPY` belongs on the list too** — it writes a record into VOC as effectively
+as `ED` does. **`EXECUTE`/`PERFORM` do NOT and cannot**: corrected 16 Aug 2026,
+they are BASIC statements, not VOC verbs, so they are not in the 434 and cannot
+be removed. What they run still resolves through VOC, so removing `BASIC` denies
+it to programs as well as to the prompt — which is what makes the whole approach
+work with one mechanism.
+
+**THREE TIERS, AND A NEW `PROGRAMMER` KEYWORD ON `CREATE.ACCOUNT`** (owner,
+16 Aug 2026) beside the existing `ADMINISTRATOR`. Standard gets a reduced VOC,
+`PROGRAMMER` a full one plus limited shell, `ADMINISTRATOR` everything.
+**An admin can add anything back to any account**, so the reduced VOC is a
+starting posture the site curates, not a wall.
+
+**The decision space is 144 verbs, not 434** — the other 248 are `K` keywords
+(query syntax) plus 15 `F`, 11 `R`, 4 `PA`, 2 `S`, 2 `Q`, 2 `PH`, 1 `X`.
+First-pass split is roughly 30 admin / 45 programmer / 65 standard, so
+**`PROGRAMMER` sits much closer to `ADMINISTRATOR` than to standard**: the real
+line is between running an application and building one.
+
+**Owner's rulings, 16 Aug 2026:** `MICRO` **removed** — it launches an external
+editor, so it is a containment escape of the same class as `SH`. Language verbs
+**removed**, SD is English only: `LOAD.LANGUAGE`, `SET.LANGUAGE`, `NLS`.
+`SET.TRIGGER`, `UPDATE.RECORD`, `MODIFY`, `HSM`, `GENERATE` are **PROGRAMMER**.
+`SET.SERVER`, `DELETE.SERVER`, `LIST.SERVERS` **removed** — SDNet server details
+were not held securely in this version.
+
+**FIVE VOC_TEMPLATE ENTRIES ARE MALFORMED AND CANNOT WORK.** Found 16 Aug 2026.
+Field 1 holds the DESCRIPTION where the type code belongs, so the record is
+shifted by one: `COPYP`, `DELETE.SERVER`, `LOAD.LANGUAGE`, `SET.SERVER`,
+`UNLOCK`. Compare `LIST.SERVERS`, which is correct — `V` / `CA` / `$LSTSRVR`.
+Three are being removed anyway; **`COPYP` and `UNLOCK` need the missing `V`
+line**, and `UNLOCK` is what an administrator reaches for to clear a stuck
+record lock.
+
+**WHERE DOES A `CA` VERB'S PROGRAM ACTUALLY LIVE? Not answered, and it is
+needed to scope the `gcat` lock.** The installed system has **4 entries in
+`gcat`** (`!PATHTKN`, `$BBPROC`, `$BCOMP`, `$CPROC`), **3 objects in
+`GPL.BP.OUT`**, and an **empty `cat`** — against 144 verbs. `LIST` is
+`V`/`CA`/`$QPROC`, and `$QPROC` is in neither.
+
+**This is a gap in the model, NOT evidence of a broken tree.** `GPL.BP/QPROC`'s
+header is "Query processor for LIST, SELECT, COUNT, etc", and **`COUNT VOC`
+returning 431 is a measurement recorded repeatedly on real installs** — so `CA`
+resolution works and the search path simply has not been traced. `GPL.BP.OUT`'s
+three are the bootstrap tools (`BBPROC` "BootStrap Build process", `BCOMP`,
+`PATHTKN`), which suggests the rest is written elsewhere during bootstrap.
+
+**Consequence:** any claim that "`gcat` holds only SD's four own programs, so
+locking them is small" — including one made earlier the same day — rests on this
+untraced model. Trace `CA` resolution in `CPROC` before scoping that work.
+
+**Not related:** PROC, the pre-BASIC language, was removed from sd-ai and
+remains upstream (owner, 16 Aug 2026). `QPROC` and `BBPROC` are not PROC despite
+the names.
+
+**It is only durable with per-account ACLs (§7 step 3 / the B work).** A VOC
+the user can write is a VOC they can put `BASIC` back into, and SD object code
+is portable pcode, so without `DC` withheld they can drop an object into
+another account. Locking `<account>\VOC` read-only to `sdu_<name>` is what makes
+the reduced VOC stay reduced. **So the tier work is blocked on B, not the other
+way round.**
+
+**Two residual holes, both real, neither closed by any of the above:**
+
+1. **Injection through the application's own `OS.EXECUTE` or `EXECUTE`.** Tier-1
+   programs legitimately need OS access, so the capability stays; an app that
+   builds a command from user input is an escape and the user compiles nothing.
+   `!valid_shell_cmd`'s ban on `; | & $ < >` guards the `SH` path only.
+2. **A machine whose ssh server SD did not install**, where `ForceCommand` is
+   never written (§5.9, structural). The user lands in `cmd.exe` and never meets
+   SD's VOC at all.
+
+**The real fix for (1) is program provenance** — a catalogued program written by
+a programmer may `OS.EXECUTE`, an ad-hoc one may not. Setuid-shaped, new
+machinery, and it depends on the `gcat` ACL work: "catalogued" means nothing
+until users cannot rewrite each other's entries. Left open deliberately.
+
+**And the floor under all of it:** until §5.7's service model, every tier is
+enforced by the user's own Windows token. Tier 3 is real because Windows
+enforces it. Tiers 1 and 2 are only ever as real as the ACLs.
 
 ### Settled: SDSYS is the exception, and LOGTO takes names only
 
