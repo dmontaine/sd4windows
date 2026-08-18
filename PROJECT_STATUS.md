@@ -3732,27 +3732,58 @@ a. **The name on disk.** `ACCOUNTS`, `BP`, `BP.OUT`, `DICT.DIC`, `DIR_DICT`,
    `OS_CWD`, which is the point. Note the account directory already mixes the
    two: `cat` and `stacks` are lower case beside `BP` and `VOC`.
 
-b. **The VOC record id, which is what a user types.** **Every token is folded
-   before the VOC read** — today UP: `PARSER:152` and `:251`
-   (`read voc.rec from @voc, upcase(string)`), `PARSER:140`, `QPROC:494`, and
-   `CPROC` 2176, 2182, 2192, 2218 for `RUN`.
+b. **The VOC record id, which is what a user types.**
 
-**THE CONVERSION IS DOWNWARD: `upcase(` BECOMES `downcase(`.** Owner,
-18 Aug 2026, correcting an earlier reading of this section that treated the
-folding as an obstacle to be preserved or worked around. It is neither. The
-mechanism that makes file names case insensitive today is *folding one side*,
-and it keeps working in the other direction: with entries named `bp`, `COUNT BP`
-folds to `bp` and finds it, and so does `COUNT bp`. `downcase()` is a compiler
-intrinsic (`BCOMP:469`, `OP.DNCASE`) and `CREATEA` already uses it to force
-lower case (`CREATEA:517`), so the idiom is established here.
+**THE CONVERSION IS DOWNWARD, owner 18 Aug 2026** — `upcase(` towards
+`downcase(`. `downcase()` is a compiler intrinsic (`BCOMP:469`, `OP.DNCASE`)
+and `CREATEA:517` already uses it to force lower case, so the idiom is
+established here.
+
+**BUT THE FOLD IS NOT A PLAIN `upcase(` — IT IS "AS TYPED, THEN UPPER", AND
+THAT CHANGES THE PLAN.** Read 18 Aug 2026, and two earlier readings of this
+section were wrong about it. Every site tries the token EXACTLY AS TYPED first
+and only falls back to upper case:
+
+```
+PARSER:151   read voc.rec from @voc, string
+PARSER:152     else read voc.rec from @voc, upcase(string)
+PARSER:139   open string ... else open upcase(string)          multifile
+QPROC:488    open qproc.file.name ... else open upcase(...)    + :494 rewrites the name
+CPROC:2176   open run.file.name.out ... else open upcase(...)  RUN, and 2182/2192 likewise
+PARSER:251   read voc.rec from @voc, upcase(string)            THE EXCEPTION - no as-typed try
+```
+
+**SO THE CHANGE IS ADDITIVE, NOT A FLIP: as typed → down → up.** Adding a
+`downcase` attempt to the chain is **purely additive on today's tree** — with
+every id upper case, the new attempt can never hit, so it changes no behaviour
+and cannot break anything. Replacing the `upcase` attempt instead would break
+lower-case typing of every id not yet renamed, and `PARSER:152` serves verbs and
+keywords as well as file names, so that blast radius is the whole VOC.
+
+**THIS OVERTURNS THE "ONE COMMIT" CLAIM THIS SECTION USED TO MAKE.** The
+fallback can be added, cycled and tested on its own; the renames can then follow
+a file at a time, each independently verifiable. Nothing has to move as a single
+all-or-nothing change.
 
 **MEASURED 18 Aug 2026 on the 08:44:51 install, and it is what must still hold
 afterwards:** `COUNT BP`, `COUNT bp`, `COUNT VOC` and `COUNT voc` all work.
 
-**THE ONE REAL CONSTRAINT: the rename and the flip are ONE change.** Rename the
-entries to lower case while the fold still goes up and nothing resolves; flip
-the fold while the entries are upper case and nothing resolves. Neither half is
-separately testable, so neither half is separately committable.
+**AND THE ADDITIVE FALLBACK FIXES A LIVE DEFECT, so step one earns its own
+cycle rather than being scaffolding.** `CREATE.FILE testlc` writes the VOC id
+**as typed** (`testlc`) while upcasing the file on disk and the paths it stores
+in fields 2 and 3 (`TESTLC`, `TESTLC.DIC`). Measured on the 08:44:51 install:
+
+```
+CT VOC testlc    ->  F / TESTLC / TESTLC.DIC
+CT VOC TESTLC    ->  Record 'TESTLC' not found
+COUNT testlc     ->  0 record(s) counted
+COUNT TESTLC     ->  File not found
+```
+
+**So a file created with a lower-case name is invisible to anyone who types its
+name in upper case** — on a system that is case insensitive everywhere else.
+That is today's behaviour, nothing to do with the conversion, and the `downcase`
+attempt is what closes it. The probe was removed afterwards, VOC record included.
 
 **`DHF_NOCASE` IS NOT NEEDED FOR THIS.** It was worth ruling out, because `VOC`
 is a **dynamic** file and takes its flags from its own header
@@ -3951,6 +3982,23 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **A CONFIRMATION PROMPT CANNOT BE ANSWERED THROUGH THE PIPE, AND THE PROCESS
+  SPINS FOR EVER WHEN THE PIPE ENDS.** 18 Aug 2026. `DELETE.FILE x` asks "OK to
+  delete DATA portion 'X'?" and `DELETE VOC x` asks its own; both read the
+  keyboard directly, so `Y` lines piped in behind the command are **not**
+  consumed as answers — the first one is swallowed as something else and the
+  prompt then re-asks on EOF, without end. Three `sd.exe` processes were left
+  spinning. **They are children of the calling `powershell.exe`, so identify
+  them by `ParentProcessId` before killing anything** — the service is session 0
+  and a real user session must not be caught by a blanket `Stop-Process -Name
+  sd.exe`.
+
+  **The way to delete a record non-interactively is a BASIC program**:
+  `OPEN 'VOC' TO F.VOC` then `DELETE F.VOC, 'id'`, run through the pipe like any
+  other probe. No prompt, and it is how the `testlc` probe record was removed.
+  Everything in this project that drives SD from PowerShell is subject to this,
+  so **prefer verbs that do not confirm**.
 
 - **`` `e `` IS NOT AN ESCAPE IN WINDOWS POWERSHELL 5.1, so every ANSI strip in
   `gplbld` is dead code.** 18 Aug 2026. `` `e `` arrived in PowerShell 6, so
@@ -6513,12 +6561,14 @@ the staging script and the Inno installer were all finished and removed.
    terminal's `PT$INVERT` is NO LONGER on this list**: it is off already and
    deliberately, see above.
 
-   **READ §5.12 BEFORE STARTING THE FILE-NAME HALF.** The shape is: rename the
-   files and the VOC entries to lower case, and flip the fold that runs before
-   every VOC read from `upcase(` to `downcase(` (`PARSER:152` and the seven
-   sites beside it). **Both halves are one commit** — either alone leaves
-   nothing resolving. §5.12 has the sites, the measurement that must still hold,
-   and the list of everything that moves with them.
+   **READ §5.12 BEFORE STARTING THE FILE-NAME HALF, AND START WITH THE
+   FALLBACK.** The fold is "as typed, then upper", not a plain `upcase(`, so the
+   first step is to ADD a `downcase` attempt — as typed, then down, then up.
+   That is additive on today's tree (no id is lower case, so the new attempt
+   cannot hit), it is committable and cycle-testable on its own, and it closes a
+   live defect: `CREATE.FILE testlc` currently produces a file that only answers
+   to the exact case typed. The renames then follow a file at a time. §5.12 has
+   the eight sites, the measurements, and everything that moves with them.
 9. **Let a scheduled job log in** (§8). The allowlist and the batch account
    that grants nobody. Not urgent — the install half of the problem is solved
    by ordering (step 3) — but it is what MV users expect and it needs no new
@@ -6799,6 +6849,52 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 **answered on 13 Aug 2026** and is now §5.6. Neither option was taken. See the
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
+
+### Open: a FOURTH kind — the RDP desktop user running an API client locally (raised 18 Aug 2026)
+
+Owner's question, 18 Aug 2026: SD on Windows Server, a remote user arrives by
+**RDP**, and runs an SD API application **without an ssh tunnel**; ordinary
+users stay standard accounts. Is it possible? **Yes, and most of it is already
+true — but it changes one security property, and that is the part to decide.**
+
+**1. THE TUNNEL WAS NEVER ABOUT THE API, SO THERE IS NOTHING TO REMOVE.** The
+listener binds to **127.0.0.1** (§7 step 6, asserted in the same run that proved
+the transport). `ssh -L` exists to carry that loopback port **across the
+network**; a client running INSIDE an RDP session is already on the machine's
+loopback. The API's own gate is untouched and still applies — `$CRED` password
+plus the `ACC$GROUP` account test, with two distinct refusal messages (§4). So
+"no ssh tunnel" is a consequence of where the listener binds, not a change.
+Note `APIPORT` is **not** in `sd.conf` by default; turning it on is deliberate.
+
+**2. THE BLOCKER IS ONE LOGON RIGHT, AND IT IS ALREADY GROUP-SCOPED.**
+`deny-logon.ps1` sets `SeDenyInteractiveLogonRight` **and
+`SeDenyRemoteInteractiveLogonRight`** — the second one *is* Remote Desktop — so
+an SD account cannot RDP in today, by design. But it is applied to
+**`sdsshonly`**, which is a *different group* from `sdusers` (`sd.iss:701`). The
+fourth user type is therefore **"in `sdusers`, not in `sdsshonly`"** and needs
+no new enforcement mechanism.
+
+**`CREATEA` ALREADY HAS THE EXEMPTION AND ANTICIPATED THIS.** `CREATEA:491` is
+`if adopt or is_grp_member(acc.uname, "S-1-5-32-544")` — skip the `sdsshonly`
+add — and its comment says the test sits there "so the next route inherits the
+protection instead of rediscovering the lockout". This is that next route. What
+it needs is a **`CREATE.ACCOUNT` keyword** naming the class, not new plumbing.
+
+**3. WHAT IT COSTS, AND IT IS THE ONLY REAL DECISION HERE.** Today *"anyone who
+can be local is an administrator"* is true **by construction** — everyone else
+is denied both interactive and remote interactive logon. **Binding the API to
+loopback is safe because of that, not on its own.** Admit non-administrator
+desktop users and "local" becomes a much larger set, so the entire boundary
+becomes `$CRED` + `ACC$GROUP`. §8's posture-B note already says the quiet part:
+*binding to loopback is not the same as authenticating the peer*, and names the
+Windows answer — a **named pipe** with `GetNamedPipeClientProcessId`, for which
+`connection_type` already has `CN_PIPE`. **This proposal is what makes that
+work worth doing rather than theoretical.**
+
+**Not decided, and not started.** Also unexamined: several concurrent RDP
+sessions each running a client is a user-count question (`MESSAGES/1000`, "User
+limit reached"), and §5.6.2 would need rewriting from "the console belongs to
+administrators" to a three-way rule.
 
 ### Open: how many kinds of user does SD have, and what enforces each (raised 16 Aug 2026)
 
