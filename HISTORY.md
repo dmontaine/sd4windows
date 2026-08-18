@@ -27,6 +27,68 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - The OS.USERS admit path runs: a shell granted and taken back
+
+**Commit:** this one. Twenty-first session. On the 07:00:00 install.
+
+`gplbld/verify-osusers.ps1`, **18 of 18 checks, 13 of them decisive, exit 0**.
+§7 step 7 is closed and the `changelog` entry that was held back for it is
+written. §4 carries the table and what each row is for. `OS.USERS` was empty
+again afterwards, the BP probe gone and no markers left, all checked directly
+rather than taken from the script's own summary.
+
+**The first run FAILED and the fault was the harness, not SD.** `New-ProbeCmd`
+built the probe without its `SH ` prefix - the smoke test had added it in the
+caller and the script did not - so every probe went in as a bare `New-Item`,
+SD answered *"New-Item is not in your VOC"* (message 5051), no marker appeared,
+and **six decisive checks failed without the gate under test ever being
+reached**. It read exactly like a working boundary.
+
+**That is the failure mode worth remembering: a probe that never arrives looks
+identical to one that was refused.** Both leave no marker. `Test-ProbeRan` now
+scans for 5051 on the probe command itself and stops with exit 2 - "the test
+could not be run" - at all three places a probe is fired, including inside the
+elevated half, which reports it back as `elev_reached`.
+
+**Re-running cost no cycle, and would have cost one.** `assert-current.ps1`
+watches all of `gplbld`, so editing the test would have demanded a reinstall to
+re-run the test - the self-blocking trap already recorded against
+`verify-tiers.ps1` on 17 Aug. `verify-osusers.ps1` joined `$neverShipped`
+(`assert-current.ps1:88`), which is self-policing: a name quoted in `stage.py`
+or `sd.iss` is put back under the guard.
+
+**What the run established.** `@LOGNAME` is `don` in lower case, not
+`$env:USERNAME` upcased, which is why the script asks SD for the record key.
+An unelevated `OPENPATH` of `OS.USERS` succeeds although the file is (RX) to
+`sdusers` - the one thing that could have made the design not work at all. The
+two refusals carry different messages, 5240 for the metacharacter ban and 10053
+for the gate, so an elevated session that is not listed still has the ban and
+nothing regressed. And the shell goes away again when the record does, which is
+what stops the whole thing being read into an install that admits everybody.
+
+**Three more bugs in the script, all caught before the run rather than by it.**
+A PowerShell function returns everything it writes, so the two helpers that both
+printed and returned would have handed their caller an array with the printed
+lines in front of the answer - `$rc -ne 0` on a string array; they report through
+a script-scope variable now and have no return value at all. `Set-Content
+-Encoding UTF8` writes a BOM on 5.1, which lands on the first line of the result
+file the elevated half passes back and would have silently lost whichever key was
+there. And the "already listed" gate trusted SD's read alone, which mattered
+because the script REMOVES the record when it finishes: a pre-existing record -
+somebody's real shell permission - would have been destroyed by a test. The
+filesystem is asked as well now, `OS.USERS` being (RX) to `sdusers`.
+
+**A defect found in the shared idiom and fixed only in the new script:**
+`` `e `` is not an escape sequence in Windows PowerShell 5.1 - it arrived in
+PowerShell 6 - so the ANSI strip that `verify-nocase.ps1` and `verify-tiers.ps1`
+both carry has never removed an escape sequence. Measured: `TERM 200,9999` comes
+back as `TERM<ESC>[7G200,9999` with the strip applied. `verify-osusers.ps1` uses
+`[char]27`. The other two are untouched deliberately - the line is inert for
+them, both match on substrings that no escape sequence sits inside, and changing
+a passing verifier for a cosmetic gain was not worth the risk. §6.
+
+---
+
 ## 17 Aug 2026 - OS.USERS: SH is permitted by a list, and ssh lands in SD
 
 Twentieth session, commit f6eef22 and this one. Section 7 step 7, which this

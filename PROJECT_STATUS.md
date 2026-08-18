@@ -5,16 +5,21 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 17 Aug 2026, twentieth session, on the 22:43:52 install.
-**Three installer steps that could fail silently were fixed and all three are
-verified** — `$CRED` closed, `DHF_NOCASE` on directory files, `ApplyDenyLogon`
-applying the deny rights. **Then §7 step 7 was built**: `SH` is now permitted by
-`@SDSYS/OS.USERS` rather than by elevation, and **the ssh `ForceCommand` was
-applied at last**, so every ssh session lands in SD.
+**Last updated:** 18 Aug 2026, twenty-first session, on the 07:00:00 install.
+**§7 STEP 7 IS CLOSED. `OS.USERS` PERMITS A SHELL, AND THAT HAD NEVER BEEN
+SEEN** — `gplbld/verify-osusers.ps1`, **18 of 18 checks, 13 of them decisive,
+exit 0**, and the tree was left as it was found. §4 has the table. The
+`changelog` entry it was waiting on is written, which makes the install stale
+by one file again; that is the normal end of a cycle here, not a fault.
 
-**THE ONE OWED TEST IS SHORT AND IS THE HALF THAT MATTERS**: nobody has ever
-been *permitted* by `OS.USERS`, only refused. §7 step 7 has it, and a
-`changelog` entry waits on it.
+**NOTHING IS BLOCKING AND THE NEXT SUBJECT IS THE OWNER'S CHOICE.** By this
+file's own ordering the candidates are **§7 step 8**, the rest of lower case
+(§5.12 — the file-name half is done, the other 8 `CASE_INSENSITIVE_FILE_SYSTEM`
+sites were deliberately not taken); **§8's per-account ACLs, "the B work"**,
+which §5.7 says is what finally makes accounts private from each other; and the
+**C half of step 7** — `OS.EXECUTE` is still ungated for everybody, so an
+unlisted programmer with `BASIC` reaches the OS from a program whatever
+`OS.USERS` says.
 
 **WHERE THIS SESSION LEFT IT — read these five, in order:**
 
@@ -93,13 +98,8 @@ been *permitted* by `OS.USERS`, only refused. §7 step 7 has it, and a
 3. **§7 STEP 11 IS CLOSED AND §7 STEP 6c HAS ITS FIRST EVIDENCE.** Details
    below and in §7 step 11.
 4. **§8's THREE TIERS ARE VERIFIED, 22 of 22.** §8 and the tables below.
-5. **THE NEXT SUBJECT IS THE OWNER'S CHOICE**, because §1's front door is now
-   open and nothing else is blocking. By the file's own ordering the
-   candidates are **§7 step 7** (one decision about one `if`: whether an
-   elevated console gets `SH`), **§7 step 8** (lower case, folding in
-   `CASE_INSENSITIVE_FILE_SYSTEM`, a correctness gap), and **§8's per-account
-   ACLs — "the B work"**, which §8 says the tier work is blocked on and which
-   §5.7 says is what finally makes accounts private from each other.
+5. **§7 STEP 7 IS CLOSED — `OS.USERS` ADMITS AS WELL AS REFUSES.** §4 has the
+   table; the next subject is at the top of this file.
 
 **THE CYCLE IS ONE COMMAND AND IS NOT TO BE HAND-RUN** — `gplbld/cycle.ps1`,
 elevated. It writes a transcript to `%LOCALAPPDATA%\SD-verify`. See "START
@@ -113,6 +113,7 @@ gplbld\verify-tiers.ps1 -Keep -Prefix <fresh>   elevated;   §8 three tiers
 cd sdb_ai/sd64 && make check-local              UNELEVATED; step 11 + 6c
 gplbld\verify-credacl.ps1                       UNELEVATED; step 6, $CRED ACL
 gplbld\verify-nocase.ps1                        UNELEVATED; step 8, DHF_NOCASE
+gplbld\verify-osusers.ps1                       UNELEVATED; step 7, SH admitted
 ```
 
 **`verify-credacl.ps1` REFUSES to run elevated** — the ACL grants
@@ -1702,9 +1703,30 @@ rewritten `os.command` gate. **The ACL is verified with it and separately**:
 the exact split `CPROC` needs, since it reads the list in the user's own
 process. `secure-osusers.ps1` worked on its first install.
 
-**THE ADMIT PATH HAS NOT RUN.** `OS.USERS` is still empty, so no account has
-ever been permitted and `SH` has never been allowed by the list - only refused
-by it. Section 7 step 7 has the test.
+**18 Aug 2026 - THE ADMIT PATH RUNS. `gplbld/verify-osusers.ps1`, 18 of 18
+checks, 13 of them decisive, exit 0 on the 07:00:00 install**, twenty-first
+session. The whole of §7 step 7 is now observed rather than argued:
+
+| | plain `SH` | `SH` with a pipe |
+|---|---|---|
+| unelevated, unlisted | refused 10053 | refused 10053 |
+| **elevated**, unlisted | ran | refused **5240** |
+| unelevated, **listed** | **ran** | **ran** |
+| unelevated, unlisted again | refused 10053 | — |
+
+**What each row is for.** Row 3 is the reading nobody had ever taken. Row 4 is
+what stops it being read into an install that admits everybody — the shell goes
+away again when the record does. Row 2 is the "regresses nothing" claim, and
+its two cells carry **different messages**: 5240 is `!valid_shell_cmd` refusing
+the pipe, 10053 is the gate refusing the person, so the ban is intact for an
+elevated session that is not listed.
+
+**What was scored is a marker FILE each probe creates**, not the message — SD
+echoes the command back, so a message can be present without the command having
+run. `@LOGNAME` is **`don`, lower case**, and the record is keyed by it.
+Unelevated `OPENPATH` of a file that is (RX) to `sdusers` **succeeds**, which is
+what makes the design work at all. Transcript in `%LOCALAPPDATA%\SD-verify`;
+`OS.USERS` was empty again afterwards, checked directly.
 
 **17 Aug 2026 — CASE INSENSITIVE QUERIES AGAINST A DIRECTORY FILE WORK, and
 this is the BEHAVIOUR rather than the flag.** On the 20:34:04 install,
@@ -2577,15 +2599,10 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **`OS.USERS` IS BUILT AND HAS NEVER COMPILED OR RUN — 17 Aug 2026, twentieth
-  session.** §7 step 7. `ISCC` is clean; the `CPROC` change is BASIC and
-  unbuilt. **Two things to check first on the next cycle**: that `CPROC`
-  compiles at all, and that `WRITE_INSTALL_DICTS` wrote the five
-  `OS.USERS.DIC` records rather than reporting `ERROR OPENING FILE`.
-  Then, unelevated: `SH` refused with message 10053; add the account to
-  `OS.USERS` with `SH` = `yes` from an elevated SDSYS session; `SH` admitted,
-  including a piped command, which is the half the metacharacter ban used to
-  refuse. **Field 2 `OS.EX` is inert** and gates nothing yet.
+- **`OS.EXECUTE` IS UNGATED FOR EVERYBODY, and `OS.USERS` field 2 does not
+  change that.** §7 step 7. The `SH` half is verified (§4); `OS.EX` is stored,
+  dictionaried and read by nobody, so an unlisted programmer with `BASIC` still
+  has full OS access from a program. Gating it needs C.
 
 - **§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
   08:03:49 install.** `SDConnectLocal("DON")` never returns; `sd.exe` spins
@@ -3861,6 +3878,15 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **`` `e `` IS NOT AN ESCAPE IN WINDOWS POWERSHELL 5.1, so every ANSI strip in
+  `gplbld` is dead code.** 18 Aug 2026. `` `e `` arrived in PowerShell 6, so
+  ``"`e\[[0-9]*[A-Za-z]"`` is the literal letter `e` and matches nothing SD
+  emits. Measured: `TERM 200,9999` comes back as `TERM<ESC>[7G200,9999` with the
+  strip applied. **Use `[char]27`.** `verify-osusers.ps1` does;
+  `verify-nocase.ps1` and `verify-tiers.ps1` still carry the dead line and have
+  never been hurt by it, because both match on substrings that no escape
+  sequence sits inside. It looks like working code, which is the trap.
 
 - **`struct PCFG` IS IN THE SHARED SEGMENT, WHATEVER ITS HEADER COMMENT SAYS,
   AND `SYSSEG_REVSTAMP` WILL NOT CATCH A CHANGE TO IT.** 16 Aug 2026,
@@ -6104,14 +6130,21 @@ the staging script and the Inno installer were all finished and removed.
    records, the ACL took, and an unlisted account is refused with message
    10053 (§4).
 
-   **THE ADMIT PATH IS THE OWED TEST AND IT IS SHORT.** `OS.USERS` is still
-   empty, so `SH` has only ever been refused by the list, never allowed by it.
-   From an ELEVATED session: `LOGTO SDSYS`, `ED OS.USERS DON`, one record with
-   field 1 `yes`; then unelevated, `SH dir` should be admitted, and
-   `SH dir | more` should also work — the pipe is the half `!valid_shell_cmd`
-   used to refuse and which a listed account is exempt from. **`changelog`
-   entry is owed and deliberately unwritten until that is seen.** Owner's decision, this session,
-   after the file had held the question open since 15 Aug.
+   **THE ADMIT PATH IS VERIFIED — `gplbld/verify-osusers.ps1`, 18 of 18, exit 0
+   on the 07:00:00 install of 18 Aug 2026.** §4 has the table and what each row
+   is for. The `changelog` entry it was waiting on is written.
+
+   **THE SCRIPT RUNS UNELEVATED AND PROMPTS FOR UAC TWICE ITSELF.** The
+   measurement must not be elevated or `CPROC:3448` admits it on
+   `K$ADMINISTRATOR` and `OS.USERS` is never consulted; writing the record and
+   removing it again must be, because that ACL is the whole protection. The two
+   halves cannot share a token, and elevating is the easy direction.
+
+   **IT IS EXEMPT FROM `assert-current`'s STALENESS GUARD** — added to
+   `$neverShipped` (`assert-current.ps1:88`) with the other verifiers, or
+   editing the test would demand a reinstall to re-run the test. That list is
+   self-policing: a name that turns up quoted in `stage.py` or `sd.iss` is put
+   back under the guard.
 
    **THE PROBLEM IT SOLVES (§8).** The gate at `CPROC`'s `os.command:` label
    admitted only `K$ADMINISTRATOR`, which is `IsElevated()`, and an ssh session
@@ -6172,11 +6205,9 @@ the staging script and the Inno installer were all finished and removed.
    **Owner wants a form for account setup with these privileges** eventually
    (§5.14); `ED` is the interim editor.
 
-   **NOT COMPILED.** `ISCC` is clean including `[Code]`, but the `CPROC` change
-   is BASIC and nothing has compiled it — that needs a cycle. `trim()` and the
-   `openpath ... then` form were checked against `CPROC`'s own usage, and
-   `sh.f`/`sh.rec`/`sh.listed` were checked for collisions, which is not the
-   same as compiling.
+   *(A "NOT COMPILED" paragraph stood here and was wrong by the time it was
+   written — the 22:43:52 cycle compiled `CPROC`, as this step's own first line
+   says. Removed 18 Aug 2026.)*
 
 8. **Make everything lower case that can be** (§5.12). **STARTED 17 Aug 2026,
    twentieth session: the file-name half is done in source and NOT VERIFIED.**
