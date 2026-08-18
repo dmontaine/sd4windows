@@ -96,12 +96,18 @@ diagnosed, fixed and verified closed on the 17:36:21 install.
 elevated. It writes a transcript to `%LOCALAPPDATA%\SD-verify`. See "START
 HERE".
 
-**THE TWO VERIFY SCRIPTS, both one command:**
+**THE VERIFY SCRIPTS, each one command. Two are new on 17 Aug 2026, and the
+two unelevated ones are the cheap checks to run after any cycle:**
 
 ```
-gplbld\verify-tiers.ps1 -Keep -Prefix <fresh>   elevated; §8's three tiers
+gplbld\verify-tiers.ps1 -Keep -Prefix <fresh>   elevated;   §8 three tiers
 cd sdb_ai/sd64 && make check-local              UNELEVATED; step 11 + 6c
+gplbld\verify-credacl.ps1                       UNELEVATED; step 6, $CRED ACL
+gplbld\verify-nocase.ps1                        UNELEVATED; step 8, DHF_NOCASE
 ```
+
+**`verify-credacl.ps1` REFUSES to run elevated** — the ACL grants
+`Administrators` Full, so an elevated run passes however broken it is.
 
 **`make` MUST BE RUN THROUGH AN MSYS2 LOGIN SHELL** — see below. And
 **`make check-local` runs from `sd64`, NOT from `gplsrc/sdclilib`**: from there
@@ -2484,11 +2490,11 @@ way to see this system as a non-administrator on a machine whose account is one.
 - **DIRECTORY FILES NOW OPEN `DHF_NOCASE` AND IT HAS NOT BEEN OBSERVED — 17 Aug
   2026, twentieth session.** `dh_open.c:529`, unconditional, replacing an
   `#ifdef` on a macro nothing defines. `make sd` is clean and **that is the
-  whole of the evidence** — compiling is not running. §7 step 8 has the
-  reasoning and the three observable differences; **the decisive one is a
-  record lock on `sue` colliding with one on `SUE`, which needs two concurrent
-  sessions**, so no existing one-command script covers it. Low risk to sit on:
-  the flag is memory-only for directory files, so nothing on disk changed.
+  whole of the evidence** — compiling is not running. **Run
+  `gplbld/verify-nocase.ps1` unelevated after the next cycle**: it wants
+  `DIRFILE=1` with `DHFILE=0` as the control, and both read 0 before the
+  change. Low risk to sit on: the flag is memory-only for directory files, so
+  nothing on disk changed.
 
 - **§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
   08:03:49 install.** `SDConnectLocal("DON")` never returns; `sd.exe` spins
@@ -6025,12 +6031,32 @@ the staging script and the Inno installer were all finished and removed.
    disk (`dh_open.c:549`). No format change, nothing to migrate, and it cannot
    corrupt an existing database.
 
-   **NOT VERIFIED — `make sd` is clean and that is all.** The three observable
-   differences are `FILEINFO(f, FL_NOCASE)` on a directory file (now 1, was 0 —
-   nothing in `GPL.BP` reads it), a lock on `sue` colliding with one on `SUE`
-   from a second session, and the transaction cache. **The lock collision is
-   the decisive one and needs two concurrent sessions**, so it is not a
-   one-command check like the others in this file.
+   **NOT VERIFIED — `make sd` is clean and that is all.** But the measurement
+   is now one command: **`gplbld/verify-nocase.ps1`, UNELEVATED**, no account
+   creation, nothing to clean up by hand.
+
+   **CORRECTION, same session:** this entry first said the decisive observable
+   was a lock on `sue` colliding with one on `SUE` and so "needs two concurrent
+   sessions". **That was wrong, and it confused the change with its
+   consequence.** What this port changed is whether `DHF_NOCASE` is *set*;
+   `op_lock.c` has honoured the flag since long before the port. So the
+   decisive reading is `FILEINFO(f, FL$NOCASE)` — one session, one account.
+
+   **THE DYNAMIC FILE IS THE CONTROL.** A directory file answering 1 proves
+   nothing alone; `VOC` takes its flags from its own header (`dh_open.c:549`),
+   untouched here, so it must still answer 0. One moves, one does not.
+
+   **BEFORE, measured by hand on the 17:36:21 install** (pre-change binary):
+
+   ```
+   DIRFILE=0     BP,  a directory file      -> must become 1
+   DHFILE=0      VOC, a dynamic file        -> must stay   0
+   ```
+
+   **The probe is placed by writing a file, not by driving `ED` through a
+   pipe** — `BP` *is* a directory file, so a record is just a file on disk.
+   That trick is what makes this cheap, and it is worth remembering for any
+   future test that needs BASIC on an installed system.
 
    **A `changelog` LINE IS OWED AND WAS DELIBERATELY NOT WRITTEN.** Locks
    colliding across case is something a user would notice, so the rule in
