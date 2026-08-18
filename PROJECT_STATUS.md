@@ -2554,6 +2554,16 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
+- **`OS.USERS` IS BUILT AND HAS NEVER COMPILED OR RUN — 17 Aug 2026, twentieth
+  session.** §7 step 7. `ISCC` is clean; the `CPROC` change is BASIC and
+  unbuilt. **Two things to check first on the next cycle**: that `CPROC`
+  compiles at all, and that `WRITE_INSTALL_DICTS` wrote the five
+  `OS.USERS.DIC` records rather than reporting `ERROR OPENING FILE`.
+  Then, unelevated: `SH` refused with message 10053; add the account to
+  `OS.USERS` with `SH` = `yes` from an elevated SDSYS session; `SH` admitted,
+  including a piped command, which is the half the metacharacter ban used to
+  refuse. **Field 2 `OS.EX` is inert** and gates nothing yet.
+
 - **§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
   08:03:49 install.** `SDConnectLocal("DON")` never returns; `sd.exe` spins
   silently because `select()` calls the attached descriptor permanently ready
@@ -6032,37 +6042,75 @@ the staging script and the Inno installer were all finished and removed.
 
    `sdnet.h` still hardcodes `PASSWD_FILE_NAME "/etc/shadow"`, which is what
    that authentication used to be, and goes with (a).
-7. **Put `SH` and `!` back** (§5.13). **RESTATED 15 Aug 2026, ninth session,
-   because the step as written sent this session looking for the wrong thing.**
-   The verbs are **not** missing: `SH` and `!` are in `VOC_TEMPLATE` as `V`/`OS`
-   and have been since the initial import. **There is no Linux block to reverse
-   in this tree.** What actually refuses is **one line added by an AI cleaning
-   cycle** — `GPL.BP/CPROC:3321`, dated 2026/06/10 in its own comment,
-   `if not(kernel(K$ADMINISTRATOR, -1))` → `sysmsg(2001)` — and the original
-   ScarletDME `CPROC` has no such test (§4). So this is a **decision about one
-   `if`**, not an investigation.
+7. **BUILT 17 Aug 2026, TWENTIETH SESSION, AND NOT COMPILED OR RUN — `SH` is
+   permitted by a list, not by elevation.** Owner's decision, this session,
+   after the file had held the question open since 15 Aug.
 
-   **And the decision is harder than §5.13 assumed, because that line turned out
-   to be load-bearing.** `K$ADMINISTRATOR` is `IsElevated()`, an ssh session
-   cannot be elevated, so it is **what keeps an ssh user inside SD** (§4).
-   Deleting it to let programs reach Windows utilities reopens the escape
-   `ForceCommand` exists to close. Owner's call; do not simply delete the line.
+   **THE PROBLEM IT SOLVES (§8).** The gate at `CPROC`'s `os.command:` label
+   admitted only `K$ADMINISTRATOR`, which is `IsElevated()`, and an ssh session
+   can never be elevated — so programmers, the one group that needs a shell,
+   were the one group that could never have one. Meanwhile `OS.EXECUTE` stayed
+   ungated for everybody. The visible control was denied to the people who
+   needed it and the capability it guards was open to those who did not.
 
-   **CORRECTED 15 Aug 2026, tenth session. THE STEP SAID "a `SH` a program can
-   call but a person at a `:` prompt cannot" IS "a distinction that does not
-   exist today". IT DOES EXIST, AND IT ALWAYS HAS.** The owner asked what the
-   gate does to BASIC programs that run OS commands and act on the result;
-   measured, unelevated, with the control (§4): **`OS.EXECUTE ... CAPTURING`
-   is ungated**. It is its own statement compiling to its own opcode
-   (`BCOMP:9647` → `OP.SHCAP`) straight into `op_sh.c`, never touching `CPROC`.
-   So the gate restricts **the TCL verb only**, which is the person at the
-   prompt, and programs already have what step 7 was proposing to build.
+   **WHAT WAS BUILT:** `@SDSYS/OS.USERS`, a directory file, **one record per
+   account**, keyed by account name. Field 1 `SH`, field 2 `OS.EX`, each `yes`
+   or anything else. Dictionary `OS.USERS.DIC` with `Name` (D 0), `SH` (D 1),
+   `OS.EX` (D 2), plus `@ID` and an `@` default listing, shipped as source in
+   `gplbld/FILES_DICTS` and written at bootstrap by `WRITE_INSTALL_DICTS`.
+   Both files are staged empty by `stage.py` — **`WRITE_INSTALL_DICTS`
+   `OPENPATH`s the dictionary rather than creating it**, so if it were not
+   staged the entries would be skipped and the file would ship with no
+   dictionary. Admin edits with `ED` from SDSYS. New message 10053.
 
-   **What is left of this step is therefore much smaller**: whether a person at
-   an *elevated console* should have `SH`, and whether `!valid_shell_cmd`'s ban
-   on `; | & $` backquote `< >` should stand there. Neither affects programs —
-   `OS.EXECUTE` is subject to neither — so §5.13's argument for shell-out is
-   already satisfied and the remaining question is only about the prompt.
+   **NOT IN `NEWVOC`, and that was reconsidered mid-design.** The tier lists
+   live there because `CREATEA` already has it open (`CREATEA:593`); `CPROC`
+   does not, so the saving vanishes. Worse, everything in `NEWVOC` is copied
+   into every account's VOC unless excluded in **two** places, and the tier
+   lists' fail-safe is *permissive* — a missing record means the FULL VOC.
+   A permission list needs the opposite default and must not inherit that
+   convention.
+
+   **THE ACL IS THE ENTIRE CONTROL.** `gplbld/secure-osusers.ps1` grants
+   `sdusers` **(RX) — read, not modify**, which is the difference from
+   `secure-cred.ps1`: `CPROC` reads the list from the user's own process, so
+   they must read it and must never write it. Called from `[Code]` as
+   `SecureOsUsers`, **exit code checked**, failure named in the closing box.
+   Without it any SD user adds their own name and the file is decoration —
+   exactly what happened to `$CRED`.
+
+   **ELEVATION STILL PASSES ON ITS OWN**, deliberately: an empty `OS.USERS`
+   must not lock the machine's own administrator out of `SH`, which is the
+   lockout `ADOPT` caused with `sdsshonly` on 15 Aug 2026.
+
+   **The metacharacter ban is lifted for a listed account only** (owner). An
+   elevated session that is not listed keeps `!valid_shell_cmd` exactly as
+   before, so this adds capability and regresses nothing.
+
+   **WHAT IS NOT DONE, AND IT IS HALF THE FEATURE.** **Field 2 `OS.EX` is
+   stored, dictionaried and read by nobody.** `OS.EXECUTE` is a BASIC
+   statement compiling straight to `OP.SH`/`OP.SHCAP` into `op_sh.c`, never
+   touching `CPROC`, so gating it needs **C**: two bits beside `USR_ADMIN`
+   (`sysseg.h`, `0x0100` and `0x0200` are free), a kernel key gated on
+   `HDR_INTERNAL` as `K$ADMINISTRATOR` is — or a programmer sets the bit
+   themselves — `LOGIN` seeding them, and a check in `sh()`. Until then an
+   unlisted programmer with `BASIC` still has full OS access from a program,
+   so **this is an auditable permission record, not yet a boundary**.
+
+   **Note `SH` implies `OS.EX` and cannot not**: `CPROC:3465` runs the verb by
+   calling `os.execute`, so the two flags are not independent in that
+   direction. The useful combination is `OS.EX` yes with `SH` no — programs may
+   shell out, the person at the prompt may not.
+
+   **Owner wants a form for account setup with these privileges** eventually
+   (§5.14); `ED` is the interim editor.
+
+   **NOT COMPILED.** `ISCC` is clean including `[Code]`, but the `CPROC` change
+   is BASIC and nothing has compiled it — that needs a cycle. `trim()` and the
+   `openpath ... then` form were checked against `CPROC`'s own usage, and
+   `sh.f`/`sh.rec`/`sh.listed` were checked for collisions, which is not the
+   same as compiling.
+
 8. **Make everything lower case that can be** (§5.12). **STARTED 17 Aug 2026,
    twentieth session: the file-name half is done in source and NOT VERIFIED.**
 
