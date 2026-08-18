@@ -6850,7 +6850,99 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
 
-### Open: a FOURTH kind — the RDP desktop user running an API client locally (raised 18 Aug 2026)
+### DECIDED IN SHAPE, BLOCKED ON THE ACL WORK: `RDPUSER` (owner, 18 Aug 2026)
+
+**Owner's decision, 18 Aug 2026.** A new `CREATE.ACCOUNT` keyword, orthogonal
+to the tier rather than a fourth one:
+
+```
+CREATE.ACCOUNT USER jim RDPUSER              standard tier, may sign in to Windows
+CREATE.ACCOUNT USER jim PROGRAMMER RDPUSER   programmer tier, may sign in to Windows
+```
+
+They hold an ordinary Windows account, may run other Windows programs, reach the
+API **without an ssh tunnel**, and reach a terminal session directly.
+
+**MECHANICALLY IT IS SMALL, AND TWO OF THE THREE CAPABILITIES NEED NO CODE.**
+
+- **Skip the `sdsshonly` add.** That group is what carries
+  `SeDenyInteractiveLogonRight` and `SeDenyRemoteInteractiveLogonRight`
+  (`deny-logon.ps1:29`), and `CREATEA:491` already branches for exactly this
+  (`if adopt or is_grp_member(... "S-1-5-32-544")`). The keyword is a third case
+  on a test that exists.
+- **The terminal works already.** `sd.c:582`: *"Plain `sd` with nothing after it
+  is untouched: that is how a user reaches their own account."* `check_admin()`
+  gates a command **on the command line** (`sd LISTF`), not an interactive
+  session. So "without ssh" needs nothing built.
+- **The API works already.** The listener is on 127.0.0.1; `ssh -L` only ever
+  existed to carry that across a network, and a client in an RDP session is
+  already on the loopback. `$CRED` + `ACC$GROUP` still gate it.
+
+**THE BLOCKER, AND IT IS MEASURED, NOT ARGUED — §8's "B work" IS NOW A
+PREREQUISITE.** Every path in the data tree except four inherits
+`sdusers:(OI)(CI)(M)`. Measured unelevated, 18 Aug 2026:
+
+```
+sdsys                     sdusers:(I)(OI)(CI)(M)
+sdsys\gcat                sdusers:(I)(OI)(CI)(M)     <- the compiled system programs
+sdsys\GPL.BP.OUT          sdusers:(I)(OI)(CI)(M)
+sdsys\NEWVOC              sdusers:(I)(OI)(CI)(M)
+user_accounts             sdusers:(I)(OI)(CI)(M)     <- and every account inside it
+user_accounts\don         sdusers:(I)(OI)(CI)(M)     <- inherited, NOT per-account
+audit, $CRED, PSTMP       Access is denied           <- these four do hold
+OS.USERS                  sdusers:(OI)(CI)(RX)
+```
+
+**`gcat` is the sharp one.** It holds `$LOGIN` and `$CPROC` as object code, and
+`CPROC:315` calls `$LOGIN` for every session. Modify on it means overwriting
+`$LOGIN` and **running your code in everybody's session, administrators
+included.** Any SD user also has Modify on every other user's account directory.
+
+**What keeps that shut today is precisely what `RDPUSER` removes.** A standard
+account cannot reach a filesystem at all: no console and no RDP (`sdsshonly`),
+and ssh lands it inside SD through `ForceCommand`. `RDPUSER`'s whole purpose is
+to hand it a desktop, and from a desktop this is Explorer, not an exploit.
+**So the per-account ACLs (§5.7, §8 "the B work") stop being the thing the tier
+work is blocked on and become the thing `RDPUSER` is blocked on.**
+
+*(Partly reachable already: `OS.EXECUTE` is ungated for everybody (§4), so a
+PROGRAMMER with `BASIC` can do this today without a desktop. `RDPUSER` widens it
+to STANDARD accounts and makes it trivial. That is an argument for fixing the
+ACLs, not for treating the new keyword as harmless.)*
+
+**LOCAL ssh DOES NOT MITIGATE IT, and is not worth the complexity.** The owner
+offered it as a fallback if direct terminal access is too risky. It would restore
+`ForceCommand`, but a desktop user can run `C:\Program Files\SD\usr\bin\sd.exe`
+directly and Program Files is read-and-execute to `Users` — so it adds an
+authentication step and no containment. **The risk above is filesystem access,
+which local ssh does not touch.**
+
+**SMALLER DIFFICULTIES, none of them blocking:**
+
+1. **Where "may RDP" is recorded.** The tier lives in `ACCOUNTS` field 5, inside
+   SD; RDP-ness would live in a Windows group's *absence*, outside it. So SD
+   cannot report it, `LIST.ACCOUNTS` cannot show it, and the two can drift if
+   somebody edits the group by hand. Either mirror it into `ACCOUNTS` and accept
+   the drift, or have SD ask the group. **Decide before building.**
+2. **`MODIFY.ACCOUNT` needs the same keyword**, or the class is create-time only.
+3. **`sd LISTF` from an RDP desktop is refused while `sd` then `LISTF` works** —
+   `check_admin()` at `sd.c:585` gates the command-line form. Defensible, but the
+   inconsistency only becomes visible with this class of user.
+4. **The comment at `sd.c:570-573` becomes false.** It justifies that gate with
+   *"whoever is at the console or on Remote Desktop is an administrator, because
+   SD's own accounts are confined to ssh"*. The gate can stay; the reasoning
+   beside it must be rewritten or it will mislead the next reader.
+5. **User counting** — several RDP sessions each running clients
+   (`MESSAGES/1000`, "User limit reached") is unexamined.
+6. **§5.6.2 needs rewriting** from "the console belongs to administrators" into a
+   three-way rule.
+
+**RECOMMENDATION, for the owner to overrule if he wants it sooner:** take the
+per-account ACLs first, then add the keyword. The keyword is perhaps an hour;
+shipping it before the ACLs converts a documented weakness into a reachable
+privilege escalation for the least trusted class of account.
+
+### Superseded background: the same question as first raised (18 Aug 2026)
 
 Owner's question, 18 Aug 2026: SD on Windows Server, a remote user arrives by
 **RDP**, and runs an SD API application **without an ssh tunnel**; ordinary
