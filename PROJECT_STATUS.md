@@ -6,10 +6,10 @@ file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
 **Last updated:** 17 Aug 2026, twentieth session, on the 20:10:31 install.
-**Three installer steps that could fail silently were fixed; two of the three
-are verified.** `$CRED` is closed (twice over, on two installs), directory files
-open `DHF_NOCASE`, and `ApplyDenyLogon`'s execution is the one still unread —
-it needs an elevated window.
+**Three installer steps that could fail silently were fixed, and all three are
+verified.** `$CRED` is closed (twice over, on two installs), directory files
+open `DHF_NOCASE`, and `ApplyDenyLogon` applies the deny rights. **All three
+are verified by observation.**
 
 **WHERE THIS SESSION LEFT IT — read these five, in order:**
 
@@ -1664,6 +1664,25 @@ Keep this split honest. It is the single most useful thing in the file.
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
 
+**`ApplyDenyLogon` WORKS — VERIFIED 17 Aug 2026, elevated, on the 20:34:04
+install.** `sd.iss` `[Run]` entry → `[Code]`, exit code checked. The rights
+read back from `secedit /export /areas USER_RIGHTS`:
+
+```
+SeDenyInteractiveLogonRight       = *S-1-...-1016,sdsshonly,Guest   PRESENT
+SeDenyRemoteInteractiveLogonRight = *S-1-...-1016,sdsshonly         PRESENT
+SeDenyNetworkLogonRight           = Guest                           ABSENT
+```
+
+**All three rows are wanted, and the third is wanted ABSENT** — setting it
+would deny the network logon Win32-OpenSSH authenticates with and break ssh
+outright, which is the one thing §5.6.2 exists to preserve.
+
+**The first reading of this said all three were absent, and that was the
+CHECK being wrong, not the machine.** See the `deny-logon.ps1` caveat above:
+by-name not by-SID, and UTF-16LE. Both were already documented and a
+hand-rolled check hit both anyway.
+
 **17 Aug 2026 — CASE INSENSITIVE QUERIES AGAINST A DIRECTORY FILE WORK, and
 this is the BEHAVIOUR rather than the flag.** On the 20:34:04 install,
 `verify-nocase.ps1` exit 0 with `SYSTEM(91)` answering 1, and then by hand,
@@ -2396,9 +2415,16 @@ way to see this system as a non-administrator on a machine whose account is one.
   the argument for `LsaAddAccountRights` over `secedit` shown working.
   Idempotent; a missing group exits 1 saying so.
 
-  **A caveat on reading this back.** `secedit /export` writes resolvable local
-  groups **by name**, not by SID, so a verification that greps for a SID
-  reports "not present" when it is. That is what the first attempt did.
+  **A caveat on reading this back, AND IT HAS NOW CAUGHT TWO ATTEMPTS.**
+  `secedit /export` writes resolvable local groups **by name**, not by SID, so
+  a verification that greps for a SID reports "not present" when it is.
+  **There is a second half: the file is UTF-16LE** (`FF FE`), so
+  `Get-Content` without `-Encoding Unicode` can match nothing at all — which
+  looks identical. On 17 Aug 2026 a hand-rolled check hit **both** at once and
+  reported all three rights absent on a machine where two were correctly
+  present. **Use `gplbld/verify-sshonly.ps1`**, which gets both right
+  (`:421-432`) and carries this warning in its own comment. Do not hand-roll
+  it a third time.
 
 - **THE SSH-ONLY MODEL WORKS.** Observed by `gplbld/verify-sshonly.ps1` against
   a real Windows account. This is §5.6.2, which had been decided, built,
@@ -2527,29 +2553,6 @@ way to see this system as a non-administrator on a machine whose account is one.
   written as a literal.
 
 ### Not verified — treat as unknown
-
-- **`ApplyDenyLogon` HAS NOT RUN — 17 Aug 2026, twentieth session.** `sd.iss`
-  `[Run]` entry → `[Code]`, exit code checked. `ISCC` compiles clean including
-  the `[Code]` section and **that is the whole of the evidence.** The healthy
-  path is invisible by design — on a good install the message is empty and the
-  rights land exactly as before.
-
-  **IT SURVIVED THE 20:10:31 CYCLE WITHOUT COMPLAINT, AND THAT IS NOT PROOF.**
-  A failure would have put a paragraph in the closing dialog; none appeared.
-  That rules out a loud failure, not a step that never ran. **Reading the
-  rights back needs elevation** — `secedit /export /areas USER_RIGHTS` refuses
-  unelevated (measured), so this cannot be closed from an ordinary window.
-  Cheapest confirmation, ELEVATED, far cheaper than `verify-sshonly.ps1`:
-
-  ```
-  secedit /export /areas USER_RIGHTS /cfg %TEMP%.inf
-  findstr SeDenyInteractiveLogonRight %TEMP%.inf
-  ```
-
-  The `sdsshonly` SID must appear on `SeDenyInteractiveLogonRight` and
-  `SeDenyRemoteInteractiveLogonRight`, and **must NOT appear on
-  `SeDenyNetworkLogonRight`** — that one would break ssh, which is the whole
-  design (§5.6.2).
 
 - **§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
   08:03:49 install.** `SDConnectLocal("DON")` never returns; `sd.exe` spins
@@ -5475,9 +5478,10 @@ the staging script and the Inno installer were all finished and removed.
      hidden by `Check: SshServerAbsent` on this machine (header item 1). **It is
      no longer a subtask**: renamed `limitssh` and promoted on 16 Aug 2026 when
      its parent went (§5.9).
-   - **CLOSED IN SOURCE 17 Aug 2026, NOT YET OBSERVED — `deny-logon.ps1`'s
-     outcome is now checked.** It moved from `[Run]` to `ApplyDenyLogon` in
-     `[Code]` at `ssPostInstall` (`sd.iss:691`), exit code checked, failure
+   - **CLOSED AND VERIFIED 17 Aug 2026 (§4) — `deny-logon.ps1`'s outcome is
+     now checked, and the rights are confirmed applied.** It moved from
+     `[Run]` to `ApplyDenyLogon` in `[Code]` at `ssPostInstall`
+     (`sd.iss:691`), exit code checked, failure
      named in the closing `MsgBox`. **The script was never the problem** — it
      validates every `NTSTATUS` and throws, so its exit code always meant
      something; `[Run]` simply discarded it. Third such step fixed this session,
