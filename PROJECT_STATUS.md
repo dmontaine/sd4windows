@@ -6336,6 +6336,58 @@ the staging script and the Inno installer were all finished and removed.
    not known. **A change made on top of this would be a change made on top of
    a contradiction.**
 
+   **18 Aug 2026 — THE THING THIS STEP SAID TO ESTABLISH FIRST IS ESTABLISHED:
+   INVERSION IS OFF FOR THE SESSIONS REAL USERS GET, AND THAT IS WHAT §5.12
+   WANTS.** On the 07:28:34 install, three independent readings agree:
+
+   ```
+   SYSTEM(1001)                      0          op_sys.c case 1001
+   PTERM DISPLAY                     Off        op_pterm, a different opcode
+   SH New-Item -ItemType File ...    ran        mixed case reached PowerShell
+   ```
+
+   **The third is the one that settles it.** The `verify-osusers.ps1` probes
+   send a mixed-case command through the input path; with inversion on it would
+   have arrived as `nEW-iTEM -iTEMtYPE fILE`, and instead it created its marker.
+   That is behaviour, not a flag reading, and it cannot be an instrument fault.
+
+   **So the terminal half is a DEAD-SETTER cleanup, not a behaviour change.**
+   SD accounts are ssh-only and ssh gives SD piped stdin, so 0 is the reading
+   for every account that can log in. Nothing has to change for §5.12; removing
+   the three setters is tidying.
+
+   **THE CONTRADICTION IS STILL NOT RESOLVED — but eight candidates are gone,
+   so do not re-walk them.** Eliminated 18 Aug 2026: (1) `PT$INVERT` and
+   `PT_INVERT` disagreeing — both 2, `INT$KEYS.H:146` and `keys.h:181`;
+   (2) `LOGIN` not including `int$keys.h` — it does, line 73; (3) two copies of
+   `case_inversion` — `Public` is `extern` (`sddefs.h:261`) everywhere but
+   `sd.c`, so there is one; (4) the instrument — two opcodes and behaviour
+   agree; (5) the early `return` at `LOGIN:198` skipping line 266 — that is the
+   `mode = 2 or 3` VOC-upgrade path, and the banner at `LOGIN:209` proves it
+   was not taken; (6) `@TRUE` being negative and so meaning "report only" —
+   it is 1, measured; (7) the setter being broken — `PTERM CASE INVERT` turns
+   it On in the same session and it stays On; (8) `SET_PASSWD` resetting it at
+   login — it is called from `CREATEA` and `PS_SCRIPT`, not `LOGIN`.
+
+   **WHAT IS LEFT TO TRY**, in order: whether `pterm(` at `LOGIN:266` compiled
+   to the OPCODE or bound to the catalogued `$PTERM` verb, which parses
+   `@sentence` and would ignore its arguments entirely; and instrumenting
+   `LOGIN` with a `display` beside line 266, which costs one cycle and answers
+   "does it execute" outright. The catalogued object is current — `gcat/$LOGIN`
+   and `GPL.BP.OUT/LOGIN` are both 6,160 bytes at 07:28 — so staleness is not
+   it.
+
+   **A SEPARATE REAL DEFECT, FOUND ON THE WAY AND NOT FIXED: `SET_PASSWD`'s
+   case-inversion save/restore can never restore On.** `op_pterm`'s own stack
+   diagram says the value returned is the **NEW** value, and a **negative**
+   argument is what reports without setting. So `SET_PASSWD:88`
+   `was.inverted = pterm(PT$INVERT, @false)` sets it off and saves the *off* it
+   just wrote, and `SET_PASSWD:98` restores that. The fix is to read with
+   `pterm(PT$INVERT, -1)` first, then set. **Harmless today only because
+   inversion is already off everywhere**; it is latent, and it is ours — the
+   lines carry a `14 Aug 26 Windows port` marker — so no `UPSTREAM_FIXES.md`
+   entry.
+
    **WHAT WAS NARROWED, 17 Aug 2026, so the next attempt starts further on:**
 
    - `connection_type` **defaults to `CN_CONSOLE`** (`kernel.h:54`); only

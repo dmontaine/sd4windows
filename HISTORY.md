@@ -27,6 +27,53 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - Case inversion is off for real sessions; the contradiction is narrowed, not closed
+
+**Commit:** this one. Twenty-first session. On the 07:28:34 install.
+
+§7 step 8 gated its terminal half on a contradiction: three places set
+`case_inversion` TRUE, one of them `LOGIN:266` unconditionally, and yet
+`SYSTEM(1001)` reads 0. It also named the thing to establish first - whether
+that 0 is the reading for the sessions users actually get, in which case §5.12
+is already satisfied and the work is removing dead setters.
+
+**It is established, and by behaviour rather than by a flag.** Three readings
+agree: `SYSTEM(1001)` = 0, `PTERM DISPLAY` says "Case inversion: Off" through a
+different opcode, and - decisively - the `verify-osusers.ps1` probes send
+`SH New-Item -ItemType File -Path C:\Users\dmont\...` and it reached PowerShell
+with its case intact and created the marker. With inversion on that arrives as
+`nEW-iTEM -iTEMtYPE fILE` and fails. An instrument can be wrong about a flag;
+it cannot invent a file.
+
+**So the terminal half is a cleanup, not a behaviour change.** SD accounts are
+ssh-only, ssh gives SD piped stdin, and that is the path measured.
+
+**The contradiction itself is NOT resolved, and that is the honest state.**
+Eight candidates were eliminated so the next session does not re-walk them:
+the two `PT$INVERT`/`PT_INVERT` constants (both 2), a missing include in LOGIN
+(it has one), two copies of the variable (`Public` is `extern` outside `sd.c`),
+the instrument (two opcodes plus behaviour), the early `return` at LOGIN:198
+(that is the `mode = 2 or 3` path, and the banner at 209 proves it was not
+taken), `@TRUE` being negative and so meaning "report only" (it is 1, measured),
+the setter being broken (`PTERM CASE INVERT` works and sticks), and SET_PASSWD
+resetting it at login (it is called from CREATEA and PS_SCRIPT, not LOGIN).
+
+**Left to try:** whether `pterm(` at LOGIN:266 compiled to the opcode or bound
+to the catalogued `$PTERM` verb, which parses `@sentence` and would ignore its
+arguments; and a `display` beside line 266, which costs one cycle and answers
+it outright. Staleness is ruled out - `gcat/$LOGIN` and `GPL.BP.OUT/LOGIN` are
+both 6,160 bytes at 07:28.
+
+**A separate defect found on the way, recorded and not fixed.** `op_pterm`'s
+own stack diagram says it returns the NEW value and that a NEGATIVE argument is
+what reports without setting. `SET_PASSWD:88` does
+`was.inverted = pterm(PT$INVERT, @false)` - so it saves the "off" it has just
+written, and the restore at line 98 can never put On back. Latent rather than
+live, because inversion is off everywhere anyway. Ours, not upstream: the lines
+carry a `14 Aug 26 Windows port` marker.
+
+---
+
 ## 18 Aug 2026 - The release string is W1.0-0, and only the release string
 
 **Commit:** this one. Twenty-first session. Owner's instruction.
