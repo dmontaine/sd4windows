@@ -8,9 +8,49 @@ something came to be the way it is.
 **Last updated:** 17 Aug 2026, nineteenth session, ending at `d7cc7a7` + this
 commit. The owed cycle ran; a fourth harness defect failed a good install.
 
-**WHERE THIS SESSION LEFT IT — read these four, in order:**
+**WHERE THIS SESSION LEFT IT — read these five, in order:**
 
-1. **THE API WORKS. §7 STEP 6 IS CLOSED — VERIFIED ON A REAL INSTALL,
+1. **READ THIS FIRST: `$CRED` IS NOT LOCKED, AND THE ESCALATION IS OPEN.**
+   `secure-cred.ps1` shipped, installed and **did not take**. Measured on the
+   17:08:32 install, unelevated:
+
+   ```
+   icacls C:\ProgramData\SD\sdsys\$CRED
+     GITORLI\sdusers:(I)(OI)(CI)(M)        <- INHERITED MODIFY, the thing it was
+     BUILTIN\Administrators:(I)(OI)(CI)(F)    written to remove
+     NT AUTHORITY\SYSTEM:(I)(OI)(CI)(F)
+   ```
+
+   **So any SD user can still overwrite another account's Argon2 verifier** with
+   one derived from a password they choose, and authenticate through the API as
+   that account. The API now works, which makes this reachable rather than
+   theoretical.
+
+   **The script IS installed** at `C:\Program Files\SD\secure-cred.ps1`.
+   **Why it did not run is NOT yet known.** Two candidates, the first
+   favoured:
+
+   a. **The single quotes reach the script literally.** `sd.iss` passes
+      `-Path '{#DataDir}\sdsys\$CRED'`, single quoted so PowerShell cannot
+      expand `$CRED`. But Inno builds a RAW command line and `powershell.exe
+      -File` does not strip single quotes the way the PowerShell language
+      does — so `$Path` may arrive with the quotes still on it, `Test-Path`
+      fails, and the script exits 2 saying "does not exist - nothing secured".
+      **The installer does not check its exit code** (deliberately, copying
+      `secure-audit.ps1`), so that failure is silent.
+   b. **Ordering** against the data-tree `icacls`, which would re-inherit.
+
+   **DO NOT READ MY UNELEVATED REPRODUCTION AS THE CAUSE.** Running the script
+   by hand unelevated fails with `icacls: Access is denied`, because changing a
+   DACL needs more than the Modify `sdusers` holds. That says nothing about
+   what happened during the install, which is elevated.
+
+   **Cheapest next step:** run it ELEVATED with the literal argument form the
+   installer uses, and print `$Path` before `Test-Path`. If (a), the fix is to
+   escape the `$` for PowerShell instead of quoting the path — and to check the
+   exit code, because a credential store left open must not be a silent step.
+
+2. **THE API WORKS. §7 STEP 6 IS CLOSED — VERIFIED ON A REAL INSTALL,
    17 Aug 2026, 17:09.** `gplbld/verify-apiport.ps1 -Prefix sdapi2`, all
    checks passed. The remote transport carried a session, **`$CRED` ran for
    the first time in this project's history**, and the `ACC$GROUP` check ran:
@@ -30,10 +70,10 @@ commit. The owed cycle ran; a fourth harness defect failed a good install.
    not 0.0.0.0**, and everything was put back — port closed, account removed,
    `sd.conf` restored.
 
-2. **§7 STEP 11 IS CLOSED AND §7 STEP 6c HAS ITS FIRST EVIDENCE.** Details
+3. **§7 STEP 11 IS CLOSED AND §7 STEP 6c HAS ITS FIRST EVIDENCE.** Details
    below and in §7 step 11.
-3. **§8's THREE TIERS ARE VERIFIED, 22 of 22.** §8 and the tables below.
-4. **THE NEXT SUBJECT IS THE OWNER'S CHOICE**, because §1's front door is now
+4. **§8's THREE TIERS ARE VERIFIED, 22 of 22.** §8 and the tables below.
+5. **THE NEXT SUBJECT IS THE OWNER'S CHOICE**, because §1's front door is now
    open and nothing else is blocking. By the file's own ordering the
    candidates are **§7 step 7** (one decision about one `if`: whether an
    elevated console gets `SH`), **§7 step 8** (lower case, folding in

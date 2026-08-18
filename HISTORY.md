@@ -27,6 +27,51 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Correction: secure-cred.ps1 did not take, and $CRED is open
+
+From `62b4740`, and it corrects the entry below within the same session. The
+API was verified working and `$CRED` was reported as locked to SYSTEM and
+Administrators. **The lock did not apply.** Measured unelevated on the
+17:08:32 install:
+
+    icacls C:\ProgramData\SD\sdsys\$CRED
+      GITORLI\sdusers:(I)(OI)(CI)(M)
+      BUILTIN\Administrators:(I)(OI)(CI)(F)
+      NT AUTHORITY\SYSTEM:(I)(OI)(CI)(F)
+
+`(I)` is inherited: the data tree's Modify for every SD user, which is exactly
+what secure-cred.ps1 was written to remove. So the escalation stands - an SD
+user can overwrite another account's Argon2 verifier with one derived from a
+password they choose and authenticate through the API as that account - and the
+API working is what makes it reachable rather than theoretical.
+
+**It was nearly signed off.** The verify-apiport run passed every check it
+makes, and none of them looks at the ACL; the ACL was checked only because
+listing $CRED as an unelevated user succeeded when it should not have. **A
+harness that asserts what it set out to prove and not what it changed will do
+this again** - the run asserted the port was on loopback, and never asked
+whether the store it protects was protected.
+
+**Why it did not run is NOT established.** Two candidates, the first favoured:
+the `-Path '...'` single quoting added to stop PowerShell expanding `$CRED` may
+arrive at the script with the quotes still attached, because Inno builds a raw
+command line and `powershell.exe -File` does not strip single quotes the way
+the PowerShell language does - `Test-Path` then fails and the script exits 2
+silently, since the installer deliberately does not check its exit code. Or the
+entry runs before the data-tree icacls and inheritance re-applies.
+
+**A reproduction attempt was inconclusive and is recorded so it is not
+repeated:** running the script by hand UNELEVATED fails with `icacls: Access is
+denied`, because changing a DACL needs more than the Modify sdusers holds. That
+says nothing about the elevated install-time path.
+
+**Cheapest next step:** run it elevated with the installer's literal argument
+form, printing `$Path` before `Test-Path`. If the quoting is the cause, escape
+the `$` for PowerShell rather than quoting the path - and check the exit code,
+because a credential store left wide open must not be a silent step.
+
+---
+
 ## 17 Aug 2026 - The API works: section 7 step 6 closed
 
 From `01d2c2b`. `gplbld/verify-apiport.ps1 -Prefix sdapi2`, all checks passed,
