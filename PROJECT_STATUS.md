@@ -91,6 +91,16 @@ running the bootstrap.
    remember `CREATE.FILE` itself still upper-cases the name on disk
    (`UPSTREAM_FIXES.md` 6) — that is a separate defect and the fold hides its
    symptom rather than fixing it.
+
+   **AND A LOWER-CASE NAME MAKES `DELETE.FILE` ASK QUESTIONS IT DOES NOT ASK
+   OTHERWISE.** `DELETEF` prompts separately for the DATA and DICT parts
+   (`:222`, `:296`), each in an unbounded `until yn = 'Y' or 'N'` loop, and each
+   prompt fires **only when the stored path differs from the default name** —
+   which is exactly what `CREATE.FILE testlc` produces, VOC id `testlc` against
+   a path of `TESTLC`. So a file created in lower case cannot be deleted from a
+   script the way an upper-case one can. Use `DELETE.FILE <name> FORCE`, which
+   skips both. This hung `verify-fold.ps1 -Cleanup` on 18 Aug 2026 and left the
+   DATA part deleted and the DICT part behind; both verifiers now pass `FORCE`.
 3. **`RDPUSER`** — decided in shape by the owner, **blocked on item 1**. §8 has
    the syntax, what needs no code at all, and the one open question: where "may
    RDP" is recorded, given the tier lives in `ACCOUNTS` field 5 and RDP-ness
