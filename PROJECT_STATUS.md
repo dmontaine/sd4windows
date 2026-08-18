@@ -5,13 +5,16 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 17 Aug 2026, twentieth session. The `$CRED` escalation is
-diagnosed, fixed and verified closed on the 17:36:21 install.
+**Last updated:** 17 Aug 2026, twentieth session, on the 20:10:31 install.
+**Three installer steps that could fail silently were fixed; two of the three
+are verified.** `$CRED` is closed (twice over, on two installs), directory files
+open `DHF_NOCASE`, and `ApplyDenyLogon`'s execution is the one still unread —
+it needs an elevated window.
 
 **WHERE THIS SESSION LEFT IT — read these five, in order:**
 
-1. **READ THIS FIRST: THE `$CRED` ESCALATION IS DIAGNOSED AND FIXED IN SOURCE,
-   AND NOT YET VERIFIED ON AN INSTALL.** The cause was candidate (a), proven,
+1. **THE `$CRED` ESCALATION IS CLOSED AND VERIFIED — 17:36:21 install, and
+   again on the 20:10:31 one.** The cause was candidate (a), proven,
    not inferred: `powershell.exe -File` does not strip single quotes, so
    `sd.iss`'s `-Path '...\sdsys\$CRED'` reached `secure-cred.ps1` with the
    quotes still in the value. `Test-Path` failed on a path that really did not
@@ -55,7 +58,8 @@ diagnosed, fixed and verified closed on the 17:36:21 install.
    denied**, which is what `audit`, `sd-elevate.log` and `PSTMP` all already
    answered in the same measurement — three siblings locked, this one not.
 
-   **VERIFIED ON THE 17:36:21 INSTALL, 17 Aug 2026, and this item is CLOSED.**
+   **VERIFIED ON THE 17:36:21 INSTALL AND AGAIN ON THE 20:10:31 ONE, 17 Aug
+   2026. This item is CLOSED.**
    `verify-credacl.ps1` unelevated as `GITORLI\don`: exit 0, `assert-current`
    clean. The decisive check is the write, and it is refused —
    `UnauthorizedAccessException` creating a record in `$CRED` — with the DACL
@@ -1660,6 +1664,25 @@ Keep this split honest. It is the single most useful thing in the file.
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
 
+**17 Aug 2026 — DIRECTORY FILES OPEN `DHF_NOCASE`, twentieth session.** On the
+20:10:31 install, `gplbld/verify-nocase.ps1` unelevated as SD account `DON`,
+exit 0, `assert-current` clean:
+
+```
+directory file (BP) reports FL$NOCASE   expected 1   observed 1   PASS
+dynamic file (VOC) reports FL$NOCASE    expected 0   observed 0   PASS
+```
+
+**BOTH ROWS ARE DECISIVE AND THE SECOND IS WHY THE FIRST MEANS ANYTHING.** Both
+read 0 before the change (17:36:21 install), so the directory file moved and
+the dynamic file did not — the flag is being read rather than invented, and
+`dh_open.c:549` still takes a dynamic file's flags from its own header.
+
+**This is the flag being SET, not the lock collision.** `op_lock.c` has honoured
+`DHF_NOCASE` since long before the port; what this port changed is whether a
+directory file gets it. A two-session `READU` test would exercise `op_lock.c`,
+which is not what changed.
+
 **17 Aug 2026 — `$CRED` IS CLOSED TO ORDINARY USERS, twentieth session.** On the
 17:36:21 install, `gplbld/verify-credacl.ps1` unelevated as `GITORLI\don`, exit
 0, `assert-current` clean. **The decisive measurement is a write, not a
@@ -2487,14 +2510,28 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **DIRECTORY FILES NOW OPEN `DHF_NOCASE` AND IT HAS NOT BEEN OBSERVED — 17 Aug
-  2026, twentieth session.** `dh_open.c:529`, unconditional, replacing an
-  `#ifdef` on a macro nothing defines. `make sd` is clean and **that is the
-  whole of the evidence** — compiling is not running. **Run
-  `gplbld/verify-nocase.ps1` unelevated after the next cycle**: it wants
-  `DIRFILE=1` with `DHFILE=0` as the control, and both read 0 before the
-  change. Low risk to sit on: the flag is memory-only for directory files, so
-  nothing on disk changed.
+- **`ApplyDenyLogon` HAS NOT RUN — 17 Aug 2026, twentieth session.** `sd.iss`
+  `[Run]` entry → `[Code]`, exit code checked. `ISCC` compiles clean including
+  the `[Code]` section and **that is the whole of the evidence.** The healthy
+  path is invisible by design — on a good install the message is empty and the
+  rights land exactly as before.
+
+  **IT SURVIVED THE 20:10:31 CYCLE WITHOUT COMPLAINT, AND THAT IS NOT PROOF.**
+  A failure would have put a paragraph in the closing dialog; none appeared.
+  That rules out a loud failure, not a step that never ran. **Reading the
+  rights back needs elevation** — `secedit /export /areas USER_RIGHTS` refuses
+  unelevated (measured), so this cannot be closed from an ordinary window.
+  Cheapest confirmation, ELEVATED, far cheaper than `verify-sshonly.ps1`:
+
+  ```
+  secedit /export /areas USER_RIGHTS /cfg %TEMP%.inf
+  findstr SeDenyInteractiveLogonRight %TEMP%.inf
+  ```
+
+  The `sdsshonly` SID must appear on `SeDenyInteractiveLogonRight` and
+  `SeDenyRemoteInteractiveLogonRight`, and **must NOT appear on
+  `SeDenyNetworkLogonRight`** — that one would break ssh, which is the whole
+  design (§5.6.2).
 
 - **§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
   08:03:49 install.** `SDConnectLocal("DON")` never returns; `sd.exe` spins
@@ -5420,15 +5457,26 @@ the staging script and the Inno installer were all finished and removed.
      hidden by `Check: SshServerAbsent` on this machine (header item 1). **It is
      no longer a subtask**: renamed `limitssh` and promoted on 16 Aug 2026 when
      its parent went (§5.9).
-   - **`deny-logon.ps1`'s outcome is not checked, and `sd.iss` claimed for
-     months that it was.** Comment corrected in place 16 Aug 2026; the check
-     itself is not written. Unlike the OpenSSH step there is no machine state
-     Inno can read — user rights assignment needs `LsaEnumerateAccountRights` —
-     so it means shelling out to a script as `ApplyAllowGroups` does. **Cost
-     while it stays open:** an account in `sdsshonly` on a machine where the
-     rights never landed is not confined at all, silently. Second comment in
-     that file found asserting a check nobody wrote; the other was the OpenSSH
-     exit code, replaced by `SshReport`.
+   - **CLOSED IN SOURCE 17 Aug 2026, NOT YET OBSERVED — `deny-logon.ps1`'s
+     outcome is now checked.** It moved from `[Run]` to `ApplyDenyLogon` in
+     `[Code]` at `ssPostInstall` (`sd.iss:691`), exit code checked, failure
+     named in the closing `MsgBox`. **The script was never the problem** — it
+     validates every `NTSTATUS` and throws, so its exit code always meant
+     something; `[Run]` simply discarded it. Third such step fixed this session,
+     after `SecureCredStore` and alongside the two the file already had.
+
+     **Ordering: it now runs after the whole `[Run]` section instead of before
+     the data-tree `icacls`, and that is safe** — the rights are held by the
+     GROUP, so nothing already done depends on when they land, and it is called
+     **before `AdoptAccount`**, so no SD account exists before the confinement.
+
+     **No read-back here, deliberately:** confirming the rights afterwards needs
+     `LsaEnumerateAccountRights`, and `verify-sshonly.ps1` already dumps and
+     checks them. A second implementation would be a second thing to keep true.
+
+     **Cost if it regresses:** an account in `sdsshonly` on a machine where the
+     rights never landed is not confined at all — it can sign in at the console
+     — and before this the install said nothing.
    - **THE MANDATORY-SSH PATH CANNOT BE TESTED ON THIS MACHINE**, which already
      has OpenSSH — `SshServerAbsent` is false here, so only the "already
      present, leave it alone" branch ever runs, and `sshremote` and `limitssh`
@@ -6031,9 +6079,9 @@ the staging script and the Inno installer were all finished and removed.
    disk (`dh_open.c:549`). No format change, nothing to migrate, and it cannot
    corrupt an existing database.
 
-   **NOT VERIFIED — `make sd` is clean and that is all.** But the measurement
-   is now one command: **`gplbld/verify-nocase.ps1`, UNELEVATED**, no account
-   creation, nothing to clean up by hand.
+   **VERIFIED 17 Aug 2026 on the 20:10:31 install — `DIRFILE=1`, `DHFILE=0`,
+   `gplbld/verify-nocase.ps1` exit 0, unelevated.** §4 has it. The measurement
+   is one command, no account creation, nothing to clean up by hand.
 
    **CORRECTION, same session:** this entry first said the decisive observable
    was a lock on `sue` colliding with one on `SUE` and so "needs two concurrent
@@ -6058,10 +6106,15 @@ the staging script and the Inno installer were all finished and removed.
    That trick is what makes this cheap, and it is worth remembering for any
    future test that needs BASIC on an installed system.
 
-   **A `changelog` LINE IS OWED AND WAS DELIBERATELY NOT WRITTEN.** Locks
-   colliding across case is something a user would notice, so the rule in
-   CLAUDE.md applies — but the entry would be describing behaviour nobody has
-   observed. **Write it when the lock collision is measured**, not before.
+   **`changelog` ENTRY WRITTEN 17 Aug 2026, once the flag was observed.**
+
+   **IT DESCRIBES THE LOCK COLLISION, WHICH IS INFERRED AND NOT OBSERVED — be
+   straight about that if it is ever queried.** What was measured is that the
+   flag is SET. That locks then collide follows from `op_lock.c:996`, which
+   case-folds the id with `memucpy` when the flag is on, so two sessions
+   locking `sue` and `SUE` produce one folded id and one lock entry. Sound, and
+   still a reading of source rather than a measurement. A two-session `READU`
+   test is the thing that would close it.
 
    **WHAT IS LEFT of step 8** is the wide half §5.12 describes: account names
    (`LOGIN`, `CPROC`, the `$CRED` register), the terminal's `PT$INVERT`, and

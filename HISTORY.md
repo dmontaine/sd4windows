@@ -27,6 +27,72 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - Step 8's file-name half: DHF_NOCASE on, upper-casing left off
+
+Twentieth session, commits 0cc600f and 2b6aa92 plus this one. Verified on the
+20:10:31 install.
+
+CASE_INSENSITIVE_FILE_SYSTEM is referenced at 9 sites in this tree and defined
+nowhere - and never defined in ../sdb64 either, so it is dead in both and there
+is no upstream defect: on a case-sensitive Linux filesystem, off is correct.
+
+**The 9 sites are two competing strategies, not one feature.** dh_open.c:529
+makes the COMPARISON case insensitive by setting DHF_NOCASE on directory files.
+The other 8 - dh_misc.c:143, op_dio2.c at 634, 726, 788, 916, 928, op_dio4.c at
+1154 and 1285 - normalise paths and ids to UPPER case so that case-SENSITIVE
+comparisons agree with the filesystem. Both solve the same problem and only one
+can be right, so **defining the macro would have taken both**.
+
+Took the comparison. Left the upper-casing off, because 5.12 chose lower case
+and (b) is its opposite: user-visible (OS_CWD would answer C:\PROGRAMDATA\SD), and
+worthless on Windows, where the filesystem already matches case-insensitively
+without being asked. (b) is not internally consistent either - op_dio4.c:1155
+guards on Option(OptSelectKeepCase) and op_dio4.c:1285 does not.
+
+**Nothing is persisted.** Directory files have no header, so the flag lives only
+in the shared FILE_ENTRY; dynamic files still take theirs from disk at
+dh_open.c:549. No format change and nothing to migrate.
+
+**Measured, with the control that makes it mean something:**
+
+    before (17:36:21 install)   DIRFILE=0   DHFILE=0
+    after  (20:10:31 install)   DIRFILE=1   DHFILE=0
+
+BP is a directory file and VOC is dynamic. One moved and one did not, so the
+flag is being read rather than invented.
+
+**Correction inside the same session, worth keeping because it changed the cost
+of the work by an order of magnitude.** Commit 0cc600f claimed the decisive
+observable was a record lock on sue colliding with one on SUE, needing two
+concurrent sessions and beyond any one-command script. That confused the change
+with its consequence: op_lock.c has honoured DHF_NOCASE since long before the
+port, so what this port changed is whether the flag is SET - and FILEINFO(f,
+FL$NOCASE) answers that in one unelevated session. The lock collision remains
+inferred from op_lock.c:996 rather than observed. The changelog states it plainly
+because it is what a user needs to know; the caveat that it is an inference from
+source lives in section 7 step 8, where the next session will look.
+
+**The trick that made the test cheap:** BP is itself a directory file, so a
+BASIC program is a file on disk. The probe was placed by writing it, not by
+driving ED through a pipe. Reusable for anything else needing BASIC on an
+installed system.
+
+**gplbld/verify-nocase.ps1** wraps it, registered in assert-current.ps1's
+$neverShipped. Unlike verify-credacl.ps1 two commits earlier, its glue was
+exercised against a known state before shipping - the pre-change binary, where
+it correctly produced FAIL with "installed sd.exe predates dh_open.c:529".
+
+**A self-inflicted cost worth recording.** A source edit to sd.iss landed 33
+seconds after a completed cycle, which voided taking any measurement from that
+install - the trap CLAUDE.md names as editing source while a test is in flight.
+Reverting does not help, because assert-current compares mtimes and a reverted
+file is newer still. The fix is the prescribed order: finish every source
+change, then one cycle, then measure. **Do not reason past the guard on the
+grounds that the changed file was only the installer script** - that is the
+ninth-session mistake the file forbids by name.
+
+---
+
 ## 17 Aug 2026 - $CRED is verified closed, and the verify script had the same bug
 
 Twentieth session, closing the entry below. Cycle run, install at 17:36:21,
