@@ -27,6 +27,77 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - The default terminal type is VT100, not LINUX
+
+**Commit:** this one. Twenty-first session. Owner's decision, following the
+entry below, which found the VOC `LOGIN` paragraph and noted `TERM LINUX` on
+its second line.
+
+`NEWVOC/LOGIN` and `VOC_TEMPLATE/LOGIN` now say `TERM VT100`. It said
+`TERM LINUX`, inherited from the Linux original, and `TERM` confirmed the
+session device really was `linux` rather than that being a dead line.
+
+**Checked before the edit, not after:** `vt100` is shipped in SD's own terminfo
+(`terminfo/v/vt100`, installed), and `TERM VT100` on the 07:28:34 install
+answered `Device : vt100` with no error and the page size intact.
+
+**Edited byte-for-byte rather than with sed.** `TERM LINUX` and `TERM VT100`
+are both 10 characters, so no record framing could shift - and the two files
+are NOT identical: `NEWVOC/LOGIN` ends without a trailing newline and
+`VOC_TEMPLATE/LOGIN` ends with one. A line-based rewrite risked normalising
+that, and these are database records, not source files.
+
+**An existing account keeps `linux` until its VOC is updated**, and then takes
+the new value without asking: `update.voc` prompts only when the record TYPE
+changes (`LOGIN:613`) and both old and new are `PA`, so `LOGIN:657` writes it
+straight in. The release string moved in the same version, so every existing
+account is offered the update at its next sign-in anyway.
+
+**Not installed.** Source only; a cycle is owed.
+
+---
+
+## Correction: 18 Aug 2026 - the case inversion contradiction is resolved, and the setters are not dead
+
+**Commit:** this one. Twenty-first session. Corrects the entry immediately
+below, "Case inversion is off for real sessions; the contradiction is narrowed,
+not closed", same day and same session.
+
+**The VOC `LOGIN` PARAGRAPH turns it off.** `NEWVOC/LOGIN` is a `PA` record,
+copied into every account VOC, and its fourth line is `PTERM CASE NOINVERT`.
+`CPROC:397` runs it at session start and `CPROC:2701` runs it again on every
+`LOGTO`. So `LOGIN:266` executes and does set the flag TRUE, exactly as its
+source says; the paragraph runs afterwards and wins. Confirmed live with
+`CT VOC LOGIN` against DON's own VOC.
+
+**What the entry below got wrong:** it called the terminal half a "dead-setter
+cleanup". The three C setters and `LOGIN:266` are not dead, they are
+OVERRIDDEN, and removing them would be deleting working code that a shipped
+configuration record happens to countermand. Nothing needs removing. The
+authoritative place to change this behaviour is the paragraph, in
+`NEWVOC/LOGIN` and `VOC_TEMPLATE/LOGIN`. Its conclusion still stands and is
+now better founded: inversion off is DELIBERATE and shipped, which is what
+§5.12 wants, so §7 step 8's terminal half needs no work at all.
+
+**How it was cracked, after eight hypotheses had been eliminated by reading:**
+by watching the ECHO instead of the flag. With inversion on, an upper-case
+command comes back lower case. `PTERM CASE INVERT` then `LOGTO DON` echoed as
+`logto don` - so the flag really was on and really did invert - and the command
+after it echoed upper case again, while no banner appeared. That fixed the
+reset inside `LOGTO` and ruled out `$LOGIN` re-running, which turned a
+whole-session mystery into one grep for `pterm(` across `GPL.BP`. The eight
+eliminated candidates were all about C and about `$LOGIN`; not one of them was
+about a VOC record, which is where the answer was.
+
+**Also noted:** line 2 of the same paragraph is `TERM LINUX`, and `TERM`
+confirms the session device is `linux`. Not a fault - SD ships its own
+terminfo and `sdsys/terminfo/l/linux` is installed - but it is a §5.16
+Linux-ism in shipped configuration.
+
+**No source changed**, so the 07:28:34 install stays current.
+
+---
+
 ## 18 Aug 2026 - Case inversion is off for real sessions; the contradiction is narrowed, not closed
 
 **Commit:** this one. Twenty-first session. On the 07:28:34 install.

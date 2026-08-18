@@ -6356,8 +6356,50 @@ the staging script and the Inno installer were all finished and removed.
    for every account that can log in. Nothing has to change for §5.12; removing
    the three setters is tidying.
 
-   **THE CONTRADICTION IS STILL NOT RESOLVED — but eight candidates are gone,
-   so do not re-walk them.** Eliminated 18 Aug 2026: (1) `PT$INVERT` and
+   **RESOLVED, 18 Aug 2026, AND IT IS CONFIGURATION RATHER THAN A DEFECT: THE
+   VOC `LOGIN` PARAGRAPH TURNS IT OFF AFTERWARDS.** `NEWVOC/LOGIN` is a `PA`
+   record, copied into every account VOC, and it reads:
+
+   ```
+   PA
+   TERM LINUX
+   TERM 120,36
+   PTERM CASE NOINVERT      <- this line
+   ```
+
+   `CPROC:397` runs it at session start and **`CPROC:2701` runs it again on
+   every `LOGTO`**. So `LOGIN:266` does execute and does set the flag TRUE;
+   the paragraph runs later and wins. Confirmed live with `CT VOC LOGIN`.
+
+   **SO THE SETTERS ARE NOT DEAD, THEY ARE OVERRIDDEN — and the previous
+   entry's "dead-setter cleanup" was wrong.** Nothing in C or in `$LOGIN`
+   needs removing, and **the authoritative place to change this behaviour is
+   the paragraph**, in `NEWVOC/LOGIN` and `VOC_TEMPLATE/LOGIN`. Inversion
+   being off is deliberate and shipped, which is what §5.12 wants, so **§7
+   step 8's terminal half needs no work at all.**
+
+   **THE VISIBLE PROOF, worth keeping because it is how this was cracked:**
+   with inversion on, an upper-case command echoes back lower case.
+   `PTERM CASE INVERT` then `LOGTO DON` echoed as `logto don`, and the command
+   after it echoed upper case again — so the flag was on, `LOGTO` turned it
+   off, and no banner appeared, meaning `$LOGIN` had not re-run.
+
+   **LINE 2 IS NOW `TERM VT100`, owner's decision 18 Aug 2026** — it said
+   `TERM LINUX`, inherited from the Linux original, and `TERM` confirmed the
+   session device really was `linux`. Changed in `NEWVOC/LOGIN` and
+   `VOC_TEMPLATE/LOGIN`, **byte-for-byte** (`TERM LINUX` and `TERM VT100` are
+   both 10 characters, so no record framing moved — and the two files differ,
+   `NEWVOC/LOGIN` having no trailing newline where `VOC_TEMPLATE/LOGIN` has
+   one). `vt100` is shipped in SD's own terminfo and `TERM VT100` was checked
+   on the 07:28:34 install before the edit: `Device : vt100`, no error.
+   **NOT YET INSTALLED — needs a cycle.**
+
+   **An existing account keeps `linux` until its VOC is updated**, and then
+   picks it up silently: `update.voc` only prompts when the record TYPE
+   changes (`LOGIN:613`) and both are `PA`, so `LOGIN:657` just writes it.
+
+   **EIGHT CANDIDATES WERE ELIMINATED GETTING HERE, kept so nobody re-walks
+   them.** 18 Aug 2026: (1) `PT$INVERT` and
    `PT_INVERT` disagreeing — both 2, `INT$KEYS.H:146` and `keys.h:181`;
    (2) `LOGIN` not including `int$keys.h` — it does, line 73; (3) two copies of
    `case_inversion` — `Public` is `extern` (`sddefs.h:261`) everywhere but
@@ -6368,14 +6410,6 @@ the staging script and the Inno installer were all finished and removed.
    it is 1, measured; (7) the setter being broken — `PTERM CASE INVERT` turns
    it On in the same session and it stays On; (8) `SET_PASSWD` resetting it at
    login — it is called from `CREATEA` and `PS_SCRIPT`, not `LOGIN`.
-
-   **WHAT IS LEFT TO TRY**, in order: whether `pterm(` at `LOGIN:266` compiled
-   to the OPCODE or bound to the catalogued `$PTERM` verb, which parses
-   `@sentence` and would ignore its arguments entirely; and instrumenting
-   `LOGIN` with a `display` beside line 266, which costs one cycle and answers
-   "does it execute" outright. The catalogued object is current — `gcat/$LOGIN`
-   and `GPL.BP.OUT/LOGIN` are both 6,160 bytes at 07:28 — so staleness is not
-   it.
 
    **A SEPARATE REAL DEFECT, FOUND ON THE WAY AND NOT FIXED: `SET_PASSWD`'s
    case-inversion save/restore can never restore On.** `op_pterm`'s own stack
