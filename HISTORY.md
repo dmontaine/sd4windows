@@ -27,6 +27,61 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - SYSTEM(91) said "not Windows", and that killed QPROC's case work
+
+Twentieth session, commit f792a9d and this one. Verified on the 20:34:04
+install, behaviour as well as flag.
+
+op_sys.c case 91 - SYSTEM(91), "Windows?" - answered 0. On Windows. Inherited
+from sdb64 where returning 0 is correct, so there is no upstream defect.
+
+**What it broke.** QPROC:82 reads it into is.windows and QPROC:499 is
+
+    if is.windows and is.dir then is.case.insensitive = @true
+
+which is the ONLY route by which the query processor treats a directory file's
+ids as case insensitive. FL$FLAGS cannot supply it - op_dio2.c:439 answers
+FL_FLAGS only when (dynamic && internal), and a directory file is neither, so
+QPROC:498 reads 0 for one however the flag is set. So SELECT against a
+directory file has never matched an id typed in a different case, and the code
+to make it match sat there unreachable.
+
+**The same shape as the DHF_NOCASE entry below, one layer up.** Both were
+correct code behind a switch that answered for the wrong platform: a macro
+nobody defines in the C layer, a "not Windows" flag in the BASIC layer. Worth
+remembering as a search: in a port, look for the platform predicates before
+looking for missing code.
+
+**Measured, treatment and control:**
+
+    SELECT BP  WITH @ID = "sue"   directory file, record SUE  ->  1 record(s)
+    SELECT VOC WITH @ID = "who"   dynamic file,   record WHO  ->  0 record(s)
+
+The control is the point. A directory file matching across case proves nothing
+on its own - everything matching would look identical. VOC is dynamic with
+NOCASE off and stays case sensitive, so one matched and the other did not.
+
+**Blast radius was checked before the change, not after.** The only other
+reader of SYSTEM(91) is APISRVR:954, which is commented out, and
+is.case.insensitive upper-cases both sides of a COMPARISON only (QPROC 4034,
+4447, 7059, 7198), storing nothing - the same strategy taken at dh_open.c:529,
+not the upper-casing 5.12 rejected.
+
+**Two things the survey ruled OUT of step 8, recorded so they are not
+rediscovered.** 707 upcase( calls in GPL.BP, most of which must stay: VOC verb
+lookup, Y/N answers, record types - CPROC upcases verbs, which is why typing
+listf finds LISTF. And the terminal half is blocked: case_inversion is XOR 0x20,
+true inversion rather than force-upper, set in THREE places (linuxio.c:240,
+linuxio.c:313, GPL.BP/LOGIN:266), yet SYSTEM(1001) reads 0 in a piped session,
+contradicting all three. Read it from a real console or ssh session before
+touching any of them.
+
+**Incidental, and it cost a compile:** pterm() cannot be called from a user
+account. It is internal-only and compiles as "Matrix PTERM is not referenced in
+a DIM statement". SYSTEM() is the route to these values from a probe.
+
+---
+
 ## 17 Aug 2026 - Step 8's file-name half: DHF_NOCASE on, upper-casing left off
 
 Twentieth session, commits 0cc600f and 2b6aa92 plus this one. Verified on the

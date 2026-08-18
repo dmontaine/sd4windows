@@ -1664,6 +1664,24 @@ Keep this split honest. It is the single most useful thing in the file.
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
 
+**17 Aug 2026 — CASE INSENSITIVE QUERIES AGAINST A DIRECTORY FILE WORK, and
+this is the BEHAVIOUR rather than the flag.** On the 20:34:04 install,
+`verify-nocase.ps1` exit 0 with `SYSTEM(91)` answering 1, and then by hand,
+treatment and control in one session:
+
+```
+SELECT BP  WITH @ID = "sue"   directory file, record is SUE  ->  1 record(s)
+SELECT VOC WITH @ID = "who"   dynamic file,   record is WHO  ->  0 record(s)
+```
+
+**THE CONTROL IS THE DYNAMIC FILE AND IT IS WHY THIS MEANS ANYTHING** — a
+directory file matching across case proves nothing if everything matches. `VOC`
+is dynamic with `NOCASE` off and stays case sensitive, so `"who"` finds nothing
+while `"sue"` finds `SUE`.
+
+**This is `QPROC:499` running for the first time.** It is gated on
+`SYSTEM(91)`, which answered 0 on Windows until this session.
+
 **17 Aug 2026 — DIRECTORY FILES OPEN `DHF_NOCASE`, twentieth session.** On the
 20:10:31 install, `gplbld/verify-nocase.ps1` unelevated as SD account `DON`,
 exit 0, `assert-current` clean:
@@ -2509,14 +2527,6 @@ way to see this system as a non-administrator on a machine whose account is one.
   written as a literal.
 
 ### Not verified — treat as unknown
-
-- **`SYSTEM(91)` NOW ANSWERS WINDOWS AND IT HAS NOT BEEN OBSERVED — 17 Aug
-  2026, twentieth session.** `op_sys.c` `case 91`, 0 → 1. `make sd` is clean
-  and that is all. **`ISWIN=0` was measured by hand on the 20:10:31 install**,
-  so the before reading is real; `verify-nocase.ps1` carries the row and wants
-  1 after the next cycle. What it unblocks is `QPROC:499`, so the behavioural
-  check is `SELECT <dirfile> WITH @ID = "sue"` matching record `SUE` — worth
-  running once by hand, since the row only proves the flag.
 
 - **`ApplyDenyLogon` HAS NOT RUN — 17 Aug 2026, twentieth session.** `sd.iss`
   `[Run]` entry → `[Code]`, exit code checked. `ISCC` compiles clean including
@@ -6124,8 +6134,8 @@ the staging script and the Inno installer were all finished and removed.
    still a reading of source rather than a measurement. A two-session `READU`
    test is the thing that would close it.
 
-   **THE BASIC LAYER HAD THE SAME DEFECT AND IT IS NOW FIXED — 17 Aug 2026,
-   NOT YET OBSERVED.** `op_sys.c` `case 91` (`SYSTEM(91)`, "Windows?") answered
+   **THE BASIC LAYER HAD THE SAME DEFECT AND IT IS NOW FIXED AND VERIFIED —
+   17 Aug 2026, 20:34:04 install, behaviour as well as flag (§4).** `op_sys.c` `case 91` (`SYSTEM(91)`, "Windows?") answered
    **0**, inherited from `sdb64` where it is correct, so every BASIC program
    asking whether it is on Windows was told no — on Windows. Now 1.
 
@@ -6142,8 +6152,9 @@ the staging script and the Inno installer were all finished and removed.
    written, never switched on. `is.case.insensitive` upper-cases both sides of
    a comparison only (`QPROC` 4034, 4447, 7059, 7198) and stores nothing, so it
    is the same strategy as (a) and not the upper-casing §5.12 rejected. The
-   only other reader, `APISRVR:954`, is commented out. **`ISWIN=0` measured by
-   hand on the 20:10:31 install; `verify-nocase.ps1` now carries the row.**
+   only other reader, `APISRVR:954`, is commented out. **`ISWIN` moved 0 → 1
+   across the two installs and the `SELECT` behaviour was measured with its
+   control; `verify-nocase.ps1` carries the row.** `changelog` entry written.
 
    **THE TERMINAL HALF IS NOT STARTED AND IS BLOCKED ON A MEASUREMENT.**
    `case_inversion` (XOR `0x20`, so true inversion, not force-upper —
