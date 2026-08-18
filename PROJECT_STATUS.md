@@ -7441,6 +7441,22 @@ Three are being removed anyway; **`COPYP` and `UNLOCK` need the missing `V`
 line**, and `UNLOCK` is what an administrator reaches for to clear a stuck
 record lock.
 
+**AND IT HAS NOW COST TIME — 18 Aug 2026, so this is live rather than noted.**
+A `verify-fold.ps1 -Cleanup` run was killed at a `DELETE.FILE` prompt while
+holding the update lock `DELETEF:145` takes on the VOC record (`readu`). Every
+later attempt on that name **blocked silently** — SD echoed the command and
+printed nothing at all, indefinitely, which is what a lock wait looks like and
+is easily mistaken for another prompt. Two attempts were spent guessing at
+prompts before a timeout in the harness showed the empty output that identified
+it.
+
+**The remedy is to restart SD** (`sd -stop`, `sd -start`, elevated), which
+rebuilds the shared segment and drops every lock — because `UNLOCK`, the command
+for exactly this, is one of the five malformed entries above and cannot run.
+**Fixing `UNLOCK` is one line** in `VOC_TEMPLATE/UNLOCK`: field 1 must be `V`,
+not the description. It needs a cycle, and it is worth doing before anything
+else drives SD from a script.
+
 **ANSWERED 16 Aug 2026, sixteenth session: A `CA` VERB'S PROGRAM LIVES IN
 `gcat`, EXACTLY WHERE IT LOOKS AS THOUGH IT SHOULD.** `$QPROC` is there at
 **54,073 bytes** in a healthy tree, alongside 131 others. Nothing needs tracing
