@@ -27,6 +27,43 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - The release string is W1.0-0, and only the release string
+
+**Commit:** this one. Twenty-first session. Owner's instruction.
+
+`SD_REV_STAMP` / `SD.REV.STAMP` is `"W1.0-0"`. The W is for Windows; 1.0-1 and
+1.0-2 were releases of SD this port was built from, not releases of the port.
+Four files: `gplsrc/revstamp.h`, `gplsrc/sdclilib/revstamp.h`,
+`sdsys/GPL.BP/REVSTAMP.H`, and the `$RELEASE` records in `NEWVOC` and
+`VOC_TEMPLATE` - which must carry the same string, because `LOGIN:430` compares
+them and a mismatch asks every user to update their VOC.
+
+**Correction: the first attempt renumbered too much and was reverted whole.**
+It also changed `BUILD` from 2 to 0 in all three headers and `AppVer` in
+`gplbld/sd.iss`, on the reasoning that `revstamp.h`'s own comment block names
+those as the places to keep in step. **That comment is about the openQM
+lineage, which is not the SD release.** `MAJOR_REV`/`MINOR_REV`/`BUILD` stay
+1/0/2 and `MESSAGES/0000` stays `2.6-6`; the SD release number is a DISPLAY
+string, mainly the login header (`LOGIN:209`). Owner, 18 Aug 2026.
+
+**`sd.iss`'s `AppVer` follows it**, asked rather than assumed, so the installer
+becomes `sd-setup-W1.0-0.exe`. Safe alongside the old one: `cycle.ps1:212`
+takes the NEWEST `sd-setup-*.exe` by write time, and a failed `ISCC` stops the
+run before that line, so a leftover cannot be installed by accident.
+
+**`W1.0-0` passes `MATCHFIELD(voc.rec<2>, "0X0A", 1)` unchanged**, checked
+before the edit rather than after: `0X` consumes the leading letter. The
+pattern is there to strip a TRAILING alphabetic suffix - measured on the same
+run, `2.6-6a` comes back as `2.6-6`. A release string that started with a
+letter was the one way this change could have broken every login.
+
+**Built, not installed.** `make sd` exit 0; `bin/sd.exe --version` answers
+`String Database (sd) Version W1.0-0 64 Bit`, and `SDTIC W1.0-0` appears in the
+terminfo step. The client DLL includes `revstamp.h` but uses no symbol from it,
+so the string is absent from `sdclilib.dll` by design, not by a stale build.
+
+---
+
 ## 18 Aug 2026 - The OS.USERS admit path runs: a shell granted and taken back
 
 **Commit:** this one. Twenty-first session. On the 07:00:00 install.

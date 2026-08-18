@@ -12,7 +12,24 @@ exit 0**, and the tree was left as it was found. §4 has the table. The
 `changelog` entry it was waiting on is written, which makes the install stale
 by one file again; that is the normal end of a cycle here, not a fault.
 
-**NOTHING IS BLOCKING AND THE NEXT SUBJECT IS THE OWNER'S CHOICE.** By this
+**THE SD RELEASE STRING IS `W1.0-0` — SOURCE ONLY, NOT YET BUILT.** Owner,
+18 Aug 2026. **It is the display string and nothing else**: `SD_REV_STAMP` in
+`gplsrc/revstamp.h` and `gplsrc/sdclilib/revstamp.h`, `SD.REV.STAMP` in
+`sdsys/GPL.BP/REVSTAMP.H`, and the `$RELEASE` records in `NEWVOC` and
+`VOC_TEMPLATE` — which must carry the same string or `LOGIN:430` asks every
+user to update their VOC. **`MAJOR_REV`/`MINOR_REV`/`BUILD` (still 1/0/2) and
+`MESSAGES/0000` (`2.6-6`) are the openQM lineage and are NOT the SD release —
+do not renumber them.** A first attempt changed `BUILD` and was reverted.
+`gplbld/sd.iss`'s `AppVer` follows (owner, 18 Aug), so the installer becomes
+**`sd-setup-W1.0-0.exe`**. `cycle.ps1` picks the NEWEST `sd-setup-*.exe` by
+write time, so the `sd-setup-1.0-2.exe` left in `C:\Users\dmont\sdout` cannot
+be installed by accident.
+
+**`W1.0-0` SURVIVES `MATCHFIELD(...,"0X0A",1)` INTACT**, checked 18 Aug 2026 —
+a leading letter is consumed by `0X`. That pattern exists to strip a TRAILING
+alphabetic suffix: `2.6-6a` → `2.6-6`.
+
+**NOTHING ELSE IS BLOCKING AND THE NEXT SUBJECT IS THE OWNER'S CHOICE.** By this
 file's own ordering the candidates are **§7 step 8**, the rest of lower case
 (§5.12 — the file-name half is done, the other 8 `CASE_INSENSITIVE_FILE_SYSTEM`
 sites were deliberately not taken); **§8's per-account ACLs, "the B work"**,
