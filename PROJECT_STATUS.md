@@ -2481,6 +2481,15 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
+- **DIRECTORY FILES NOW OPEN `DHF_NOCASE` AND IT HAS NOT BEEN OBSERVED — 17 Aug
+  2026, twentieth session.** `dh_open.c:529`, unconditional, replacing an
+  `#ifdef` on a macro nothing defines. `make sd` is clean and **that is the
+  whole of the evidence** — compiling is not running. §7 step 8 has the
+  reasoning and the three observable differences; **the decisive one is a
+  record lock on `sue` colliding with one on `SUE`, which needs two concurrent
+  sessions**, so no existing one-command script covers it. Low risk to sit on:
+  the flag is memory-only for directory files, so nothing on disk changed.
+
 - **§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
   08:03:49 install.** `SDConnectLocal("DON")` never returns; `sd.exe` spins
   silently because `select()` calls the attached descriptor permanently ready
@@ -5978,12 +5987,61 @@ the staging script and the Inno installer were all finished and removed.
    on `; | & $` backquote `< >` should stand there. Neither affects programs —
    `OS.EXECUTE` is subject to neither — so §5.13's argument for shell-out is
    already satisfied and the remaining question is only about the prompt.
-8. **Make everything lower case that can be** (§5.12), folding in
-   **`CASE_INSENSITIVE_FILE_SYSTEM`**, which is referenced at 9 sites in
-   `dh_misc.c`, `dh_open.c`, `op_dio2.c` and `op_dio4.c` and defined nowhere.
-   Windows filesystems *are* case insensitive, so that half is a correctness
-   gap with the code already written. Do the case-insensitive comparisons
-   first, or `sue` and `SUE` become different accounts.
+8. **Make everything lower case that can be** (§5.12). **STARTED 17 Aug 2026,
+   twentieth session: the file-name half is done in source and NOT VERIFIED.**
+
+   **`CASE_INSENSITIVE_FILE_SYSTEM` IS NOT ONE THING, AND THAT IS THE FINDING.**
+   9 sites, defined nowhere — **and never defined in `../sdb64` either**, so it
+   is dead in both trees and there is no upstream defect (on a case-sensitive
+   Linux filesystem, off is correct). The 9 split into two **competing
+   strategies** for the same problem, and only one can be right:
+
+   a. **`dh_open.c:529` — make the COMPARISON case insensitive.** One site.
+      Sets `DHF_NOCASE` on directory files. **This is the one that was taken.**
+   b. **The other 8 — normalise every path and id to UPPER case** so that
+      case-sensitive comparisons agree with the filesystem: `dh_misc.c:143`,
+      `op_dio2.c` at 634 (`!OSPATH` input), 726 (`OS_CWD` output), 788
+      (directory listings), 916 and 928 (both `OSRENAME` paths), `op_dio4.c`
+      1154 and 1285 (`SELECT` over a directory file). **Left off, because
+      §5.12 chose lower case** — upper-casing every path is the opposite of
+      the goal, and it is user-visible: `OS_CWD` would start answering
+      `C:\PROGRAMDATA\SD`. It also buys nothing on Windows, where the
+      filesystem already matches case-insensitively without being asked.
+
+   **DEFINING THE MACRO WOULD THEREFORE HAVE BEEN WRONG** — it would have taken
+   (a) and (b) together. (a) is now unconditional instead, per CLAUDE.md's rule
+   against `#ifdef` branches, and the macro name now governs only (b).
+   `op_dio4.c:1155` already guards on `Option(OptSelectKeepCase)` and
+   `op_dio4.c:1285` does not, so (b) is not even internally consistent.
+
+   **WHY (a) MATTERS:** a directory file's record ids **are** file names, and
+   NTFS resolves `SUE` and `sue` to one file — so without it SD takes **two
+   record locks** (`op_lock.c:996`) and **two transaction cache entries**
+   (`txn.c:302`) on what is one file. It does **not** change reads or writes:
+   `dir_read`/`dir_write` open by name and NTFS was already case insensitive.
+
+   **Nothing is persisted by it.** Directory files have no header, so the flag
+   lives only in the shared `FILE_ENTRY`; dynamic files still take theirs from
+   disk (`dh_open.c:549`). No format change, nothing to migrate, and it cannot
+   corrupt an existing database.
+
+   **NOT VERIFIED — `make sd` is clean and that is all.** The three observable
+   differences are `FILEINFO(f, FL_NOCASE)` on a directory file (now 1, was 0 —
+   nothing in `GPL.BP` reads it), a lock on `sue` colliding with one on `SUE`
+   from a second session, and the transaction cache. **The lock collision is
+   the decisive one and needs two concurrent sessions**, so it is not a
+   one-command check like the others in this file.
+
+   **A `changelog` LINE IS OWED AND WAS DELIBERATELY NOT WRITTEN.** Locks
+   colliding across case is something a user would notice, so the rule in
+   CLAUDE.md applies — but the entry would be describing behaviour nobody has
+   observed. **Write it when the lock collision is measured**, not before.
+
+   **WHAT IS LEFT of step 8** is the wide half §5.12 describes: account names
+   (`LOGIN`, `CPROC`, the `$CRED` register), the terminal's `PT$INVERT`, and
+   dictionary and VOC ids. (a) is the enabling change for the account half —
+   `$CRED` and `ACCOUNTS` are directory files — but removing the `upcase()`
+   calls is still what makes `sue` and `SUE` one account, and that is untouched.
 9. **Let a scheduled job log in** (§8). The allowlist and the batch account
    that grants nobody. Not urgent — the install half of the problem is solved
    by ordering (step 3) — but it is what MV users expect and it needs no new
