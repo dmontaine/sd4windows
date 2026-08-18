@@ -3717,6 +3717,62 @@ current upcasing harmless, so removing the upcasing first would make `sue` and
 file-name half of the same problem, already written but never defined, so the
 two belong together.
 
+**FILE NAMES ARE IN SCOPE, INCLUDING THE ONES THAT ALREADY EXIST — `VOC`, `BP`
+and the rest. Owner, 18 Aug 2026.** Not only newly created files: the shipped
+ones are to be lower case too.
+
+**IT IS TWO DIFFERENT THINGS AND ONLY ONE OF THEM IS HARD.**
+
+a. **The name on disk.** `ACCOUNTS`, `BP`, `BP.OUT`, `DICT.DIC`, `DIR_DICT`,
+   `GPL.BP`, `GPL.BP.OUT`, `MESSAGES`, `NEWVOC`, `OS.USERS`, `PCODE.OUT`,
+   `PSTMP`, `SD.VOCLIB`, `SYSCOM`, `VOC`, `VOC.DIC`, `VOC_TEMPLATE`, the four
+   `$` files, and per account `BP`, `VOC`, `$HOLD`, `$HOLD.DIC`, `$SVLISTS`.
+   **Renaming these is cosmetic for resolution** — NTFS matches without being
+   asked — but the stored path text is user-visible through `LISTF` and
+   `OS_CWD`, which is the point. Note the account directory already mixes the
+   two: `cat` and `stacks` are lower case beside `BP` and `VOC`.
+
+b. **The VOC record id, which is what a user types.** **Every token is folded
+   before the VOC read** — today UP: `PARSER:152` and `:251`
+   (`read voc.rec from @voc, upcase(string)`), `PARSER:140`, `QPROC:494`, and
+   `CPROC` 2176, 2182, 2192, 2218 for `RUN`.
+
+**THE CONVERSION IS DOWNWARD: `upcase(` BECOMES `downcase(`.** Owner,
+18 Aug 2026, correcting an earlier reading of this section that treated the
+folding as an obstacle to be preserved or worked around. It is neither. The
+mechanism that makes file names case insensitive today is *folding one side*,
+and it keeps working in the other direction: with entries named `bp`, `COUNT BP`
+folds to `bp` and finds it, and so does `COUNT bp`. `downcase()` is a compiler
+intrinsic (`BCOMP:469`, `OP.DNCASE`) and `CREATEA` already uses it to force
+lower case (`CREATEA:517`), so the idiom is established here.
+
+**MEASURED 18 Aug 2026 on the 08:44:51 install, and it is what must still hold
+afterwards:** `COUNT BP`, `COUNT bp`, `COUNT VOC` and `COUNT voc` all work.
+
+**THE ONE REAL CONSTRAINT: the rename and the flip are ONE change.** Rename the
+entries to lower case while the fold still goes up and nothing resolves; flip
+the fold while the entries are upper case and nothing resolves. Neither half is
+separately testable, so neither half is separately committable.
+
+**`DHF_NOCASE` IS NOT NEEDED FOR THIS.** It was worth ruling out, because `VOC`
+is a **dynamic** file and takes its flags from its own header
+(`dh_open.c:549`), so §7 step 8(a) never covered it and `verify-nocase.ps1`
+asserts `DHFILE=0` deliberately. But folding one side is what delivers case
+insensitivity here, exactly as it does now — the file's own flag is not
+involved either way, and `DHFILE=0` should go on being asserted.
+
+**What has to move together**, so it is one change and not five: the on-disk
+names, the F-type records in `NEWVOC` that carry the path (6 of them) and their
+`@SDSYS/VOC.DIC`-style dictionary paths, `VOC_TEMPLATE`, `CREATEA` (which
+creates `BP`, `$HOLD`, `$SAVEDLISTS`, `$COMMAND.STACK`), `WRITE_INSTALL_DICTS`,
+`gplbld/stage.py`, `gplbld/sd.iss`, and the `gplbld` verify scripts that name
+these paths as literals — `verify-osusers.ps1`, `verify-nocase.ps1`,
+`verify-tiers.ps1`, `assert-current.ps1`.
+
+*(Unrelated but found while surveying: the installed `sdsys` contains an empty
+directory literally named `C:`. Something builds a path where a bare file name
+was expected. Harmless, and nobody has looked at it.)*
+
 ### 5.13.1 The ForceCommand scp cost has a workaround: pull, do not push (17 Aug 2026)
 
 **The global `ForceCommand` stays global** — owner reaffirmed 17 Aug 2026, after
@@ -6449,10 +6505,20 @@ the staging script and the Inno installer were all finished and removed.
    2577, 2579, plus the audit lines 2601, 2619, 3686.
 
    **WHAT IS LEFT of step 8** is the wide half §5.12 describes: account names
-   (`LOGIN`, `CPROC`, the `$CRED` register), the terminal's `PT$INVERT`, and
-   dictionary and VOC ids. (a) is the enabling change for the account half —
-   `$CRED` and `ACCOUNTS` are directory files — but removing the `upcase()`
-   calls is still what makes `sue` and `SUE` one account, and that is untouched.
+   (`LOGIN`, `CPROC`, the `$CRED` register), dictionary and VOC ids, and — added
+   by the owner 18 Aug 2026 — **the file names themselves, `VOC` and `BP`
+   included**. (a) is the enabling change for the account half — `$CRED` and
+   `ACCOUNTS` are directory files — but removing the `upcase()` calls is still
+   what makes `sue` and `SUE` one account, and that is untouched. **The
+   terminal's `PT$INVERT` is NO LONGER on this list**: it is off already and
+   deliberately, see above.
+
+   **READ §5.12 BEFORE STARTING THE FILE-NAME HALF.** The shape is: rename the
+   files and the VOC entries to lower case, and flip the fold that runs before
+   every VOC read from `upcase(` to `downcase(` (`PARSER:152` and the seven
+   sites beside it). **Both halves are one commit** — either alone leaves
+   nothing resolving. §5.12 has the sites, the measurement that must still hold,
+   and the list of everything that moves with them.
 9. **Let a scheduled job log in** (§8). The allowlist and the batch account
    that grants nobody. Not urgent — the install half of the problem is solved
    by ordering (step 3) — but it is what MV users expect and it needs no new
