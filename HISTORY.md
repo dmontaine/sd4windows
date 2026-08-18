@@ -27,6 +27,108 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - OS.USERS: SH is permitted by a list, and ssh lands in SD
+
+Twentieth session, commit f6eef22 and this one. Section 7 step 7, which this
+file had held open as "owner's call" since 15 Aug 2026.
+
+**The problem, which section 8 had already named.** CPROC's os.command gate
+admitted only K$ADMINISTRATOR, which is IsElevated(), and an ssh session can
+never be elevated - so programmers, the one group that needs a shell, were the
+one group that could never have one, while OS.EXECUTE stayed ungated for
+everyone. The visible control was denied to the people who needed it and the
+capability it guards was open to those who did not.
+
+**What was built.** @SDSYS/OS.USERS, a directory file, one record per account
+keyed by account name: field 1 SH, field 2 OS.EX. Dictionary Name (D 0),
+SH (D 1), OS.EX (D 2) plus @ID and an @ default listing, held as source in
+gplbld/FILES_DICTS and written at bootstrap by WRITE_INSTALL_DICTS. Message
+10053. Admin edits it with ED from SDSYS.
+
+**Not in NEWVOC, and the owner was right to query it.** The tier lists live
+there because CREATEA already has NEWVOC open (CREATEA:593); CPROC does not, so
+the saving vanishes. Worse, everything in NEWVOC is copied into every account's
+VOC unless excluded in TWO places, and the tier lists' fail-safe is PERMISSIVE -
+a missing record means the FULL VOC. A permission list needs the opposite
+default and must not inherit that convention. This was caught by being asked
+"why is it in newvoc", after the design was already written.
+
+**Both files must be staged, and that is not obvious.** WRITE_INSTALL_DICTS
+OPENPATHs the dictionary rather than creating it, so an unstaged OS.USERS.DIC
+means the entries are skipped with "ERROR OPENING FILE" and the file ships with
+no dictionary at all.
+
+**The ACL is the entire control**, and secure-osusers.ps1 grants sdusers (RX) -
+read, not modify - which is the difference from secure-cred.ps1: CPROC reads the
+list from the USER'S OWN process, so they must read it and must never write it.
+Wired as SecureOsUsers in [Code] with the exit code checked. Verified on the
+22:43:52 install: sdusers:(OI)(CI)(RX), no inherited entries, write raises
+UnauthorizedAccessException, read succeeds. It worked on its first install,
+which $CRED did not.
+
+**Verified: the refusal.** `SH dir` as an unlisted don answers "don is not
+permitted to use the operating system shell". **NOT verified: the admit path.**
+OS.USERS is still empty, so SH has only ever been refused by the list and never
+allowed by it. The changelog entry for OS.USERS is deliberately unwritten until
+that is seen.
+
+**Half the feature is missing and it is the half that makes it a boundary.**
+Field 2 OS.EX is stored, dictionaried and read by nobody: OS.EXECUTE compiles
+straight to OP.SH/OP.SHCAP into op_sh.c without touching CPROC, so gating it
+needs C - two bits beside USR_ADMIN (sysseg.h, 0x0100 and 0x0200 free), a kernel
+key gated on HDR_INTERNAL as K$ADMINISTRATOR is, LOGIN seeding them, a check in
+sh(). Until then an unlisted programmer with BASIC still has full OS access from
+a program, so OS.USERS is an auditable record and not yet a wall.
+
+**SH implies OS.EX and cannot not**: CPROC runs the verb by calling os.execute.
+The useful combination is OS.EX yes with SH no - programs may shell out, the
+person at the prompt may not.
+
+**Two build notes worth keeping.** Inno's Pascal Script has NO NESTED FUNCTIONS;
+declaring one reports "'BEGIN' expected" at the inner declaration, which does not
+name the cause. And pterm() cannot be called from a user account - internal only,
+compiling as "Matrix PTERM is not referenced in a DIM statement" - so SYSTEM() is
+the route to those values from a probe.
+
+## 17 Aug 2026 - The ssh ForceCommand is applied, and scp is answered by pulling
+
+Same session. allow-ssh-groups.ps1 -Installed was run elevated by the owner and
+reported working; the config was then read here - marker block present,
+AllowGroups over sdusers and Administrators, ForceCommand naming sd.exe,
+sshd_config.before-sd kept, sshd Running. The ssh login itself was the owner's
+test, not observed here: it needs a credential this session does not have.
+
+**It stays GLOBAL rather than Match Group sdsshonly**, reaffirmed now that
+OS.USERS exists. The group form would hand remote administrators a PowerShell
+prompt, which is more than the global form gives them; and shell access is now
+grantable per account, so nobody is stranded by forcing everyone into SD.
+
+**The recorded cost - scp and sftp die machine-wide - is INBOUND ONLY, and that
+is the whole of the answer.** ForceCommand applies where this machine is the ssh
+SERVER. WinSCP or scp running ON this machine, connecting outward, makes it the
+CLIENT and sshd_config is not consulted. So an administrator copies files by
+PULLING them from a console or Remote Desktop session, both untouched because
+administrators are never put in sdsshonly. Outbound is not firewalled: all three
+profiles report DefaultOutboundAction NotConfigured, i.e. the Windows default of
+Allow.
+
+**Do not "fix" the scp cost with a Match Group administrators exemption without
+reading 5.13.1.** Beyond giving admins a shell instead of SD, it may not even
+work: sshd_config takes the FIRST obtained value for a keyword and
+allow-ssh-groups.ps1 inserts its block BEFORE the first Match, so a later
+ForceCommand none is not guaranteed to override the earlier global one. That was
+left unresolved - sshd -T needs the host keys and refuses unelevated with "no
+hostkeys available" - and it does not need resolving, because pulling avoids the
+question.
+
+**One consequence of the two changes together, worth stating plainly:** before
+OS.USERS, ForceCommand closed the shell escape absolutely, because SH needed
+elevation and ssh cannot elevate. It now makes the escape GRANTABLE - a listed
+account lands in SD and can shell out from there. That is the intent, but it
+means ssh confinement is now only as tight as OS.USERS is kept.
+
+---
+
 ## 17 Aug 2026 - SYSTEM(91) said "not Windows", and that killed QPROC's case work
 
 Twentieth session, commit f792a9d and this one. Verified on the 20:34:04

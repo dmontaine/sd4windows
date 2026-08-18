@@ -5,11 +5,16 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 17 Aug 2026, twentieth session, on the 20:10:31 install.
-**Three installer steps that could fail silently were fixed, and all three are
-verified.** `$CRED` is closed (twice over, on two installs), directory files
-open `DHF_NOCASE`, and `ApplyDenyLogon` applies the deny rights. **All three
-are verified by observation.**
+**Last updated:** 17 Aug 2026, twentieth session, on the 22:43:52 install.
+**Three installer steps that could fail silently were fixed and all three are
+verified** — `$CRED` closed, `DHF_NOCASE` on directory files, `ApplyDenyLogon`
+applying the deny rights. **Then §7 step 7 was built**: `SH` is now permitted by
+`@SDSYS/OS.USERS` rather than by elevation, and **the ssh `ForceCommand` was
+applied at last**, so every ssh session lands in SD.
+
+**THE ONE OWED TEST IS SHORT AND IS THE HALF THAT MATTERS**: nobody has ever
+been *permitted* by `OS.USERS`, only refused. §7 step 7 has it, and a
+`changelog` entry waits on it.
 
 **WHERE THIS SESSION LEFT IT — read these five, in order:**
 
@@ -1154,7 +1159,7 @@ before staging with `--bootstrap`.**
 | MSYS2 dev tree at `/usr/local/sdsys` | still reachable with `SD_CONFIG=/etc/sd.conf`. Its `bin/` was refreshed with the `sdwind` build on 14 Aug 2026 and the stale `sdlnxd.exe` removed; `pcode`/`pcode.old` are still beside them, since the dev tree keeps the old unsplit layout |
 | **The machine was rebooted** on 14 Aug 2026 | `don`'s token now carries `sdusers`, so **an ordinary unelevated session runs SD** — verified, §4. The sign-out trap in §6 is cleared *on this machine only*; it applies afresh to every new user added to the group |
 | **OpenSSH Server** | **installed, `sshd` Running / Automatic**, listening on 22, firewall rule enabled |
-| **`AllowGroups` AND `ForceCommand` ARE *NOT* APPLIED** | **Re-measured 16 Aug 2026 after the 22:57:00 install**: `sshd_config` is the pristine `11:11:30 / 2297 bytes`, **0 `AllowGroups`, 0 `ForceCommand`, no marker block**; `sshd_config.before-sd` still there from the ninth session. This is correct and is the rule working twice over — **the uninstaller takes them off** (`sd.iss:604`, `RemoveAllowGroups` at `usUninstall`) and **the installer will not put them back on this machine**, `limitssh` being hidden where an ssh server already exists. **So it is a manual step of every fresh install here** — `allow-ssh-groups.ps1 -Installed`, elevated — and its absence is what the eighth session mistook for it being applied. **Visible consequence, seen 16 Aug:** `ssh sdacct14@localhost whoami` answered `gitorli\sdacct14` rather than SD's banner, because without `ForceCommand` the client's command runs |
+| **`AllowGroups` AND `ForceCommand` ARE APPLIED - 17 Aug 2026, twentieth session** | Owner ran `allow-ssh-groups.ps1 -Installed` elevated and reported it working; the config was then read here: marker block present, `AllowGroups sdusers GITORLI\sdusers Administrators GITORLI\Administrators`, `ForceCommand "C:\Program Files\SD\usr\bin\sd.exe"`, `sshd_config.before-sd` kept, sshd Running. **It remains a manual step of every fresh install here** - the uninstaller removes it (`sd.iss`, `RemoveAllowGroups`) and `limitssh` is hidden where an ssh server already exists, so it must be re-run after every cycle. **The ssh login itself was tested by the owner, not observed here** - it needs a credential this session does not have |
 | OpenSSH firewall rule | `Enabled True / Private / RemoteAddress Any`, unchanged across the install — `ssh-firewall.ps1` never runs here, the whole ssh step being hidden by `SshServerAbsent`. **Not a defect and not evidence about `sshremote`**, which is untestable on this machine (§7 step 3) |
 | `sdsshonly` group | **exists now**, created 14 Aug 2026 by `verify-sshonly.ps1`, with both deny rights applied to it. So `CREATE.ACCOUNT` for a non-administrator will work here. It is left in place deliberately — it is what the installer would have created |
 | Test accounts, Windows side | **`sdacct6`, `sdacct8`, `sdacct9` and `sdacct10` exist as Windows users** — `CREATE.ACCOUNT` refuses a name Windows already has, so **the next free one is `sdacct11`**. **`sdacct6`, `8`, `9`, `10`, `11`, `12` and `13` exist as Windows users**, each made by `CREATE.ACCOUNT` from an unelevated session and kept — password `Sd-Test-1`, in `sdusers`, their own `sdu_` group and `sdsshonly`, none an administrator. **Only `sdacct13` has an SD side**, the rest having gone with successive fresh installs. **The next free name is `sdacct14`.** `sdacct10`: 16 Aug 2026, made by `CREATE.ACCOUNT` and kept, password `Sd-Test-1`, in `sdusers`, `sdu_sdacct10` and `sdsshonly`, not an administrator, **but its SD side did not survive the 13:52:43 install**, so step 1c needs a fresh subject. **Two `sdu_` groups outlived their users**, `sdu_sdacct4` and `sdu_sdadopt1`: the eighth session's "every `sdu_` group but `sdu_don` was removed" is wrong. Harmless, left alone — but `DELETE.ACCOUNT`'s group cleanup is the thing to suspect if it matters later. `New-LocalUser sdadopt3 -NoPassword` for an adopt test |
@@ -1682,6 +1687,24 @@ outright, which is the one thing §5.6.2 exists to preserve.
 CHECK being wrong, not the machine.** See the `deny-logon.ps1` caveat above:
 by-name not by-SID, and UTF-16LE. Both were already documented and a
 hand-rolled check hit both anyway.
+
+**17 Aug 2026 - `OS.USERS` REFUSES AN UNLISTED ACCOUNT, twentieth session.** On
+the 22:43:52 install, unelevated, `SH dir` piped into `sd.exe` as `don`:
+
+```
+don is not permitted to use the operating system shell
+```
+
+That is the new message 10053 with `@logname` substituted, from `CPROC`'s
+rewritten `os.command` gate. **The ACL is verified with it and separately**:
+`icacls` shows `sdusers:(OI)(CI)(RX)` with no inherited entries, a write into
+`OS.USERS` raises `UnauthorizedAccessException`, and a read succeeds - which is
+the exact split `CPROC` needs, since it reads the list in the user's own
+process. `secure-osusers.ps1` worked on its first install.
+
+**THE ADMIT PATH HAS NOT RUN.** `OS.USERS` is still empty, so no account has
+ever been permitted and `SH` has never been allowed by the list - only refused
+by it. Section 7 step 7 has the test.
 
 **17 Aug 2026 — CASE INSENSITIVE QUERIES AGAINST A DIRECTORY FILE WORK, and
 this is the BEHAVIOUR rather than the flag.** On the 20:34:04 install,
@@ -3659,6 +3682,39 @@ current upcasing harmless, so removing the upcasing first would make `sue` and
 `SUE` different accounts. `CASE_INSENSITIVE_FILE_SYSTEM` (§7 step 8) is the
 file-name half of the same problem, already written but never defined, so the
 two belong together.
+
+### 5.13.1 The ForceCommand scp cost has a workaround: pull, do not push (17 Aug 2026)
+
+**The global `ForceCommand` stays global** — owner reaffirmed 17 Aug 2026, after
+`OS.USERS` (§7 step 7) made shell access grantable per account. The
+`Match Group sdsshonly` alternative was considered and rejected again: it would
+hand remote administrators a PowerShell prompt, which is more than the global
+form gives them.
+
+**The recorded cost — scp and sftp stop working machine-wide — is INBOUND
+only, and that is the whole of the answer.** `ForceCommand` applies to sessions
+where this machine is the ssh **server**. WinSCP or scp running **on** this
+machine, connecting outward, makes it the **client**, and `sshd_config` is not
+consulted at all.
+
+**So an administrator copies files by PULLING them**, from a console or Remote
+Desktop session — both of which are untouched, because administrators are never
+put in `sdsshonly` (`CREATEA:492`). Outbound is not firewalled: all three
+profiles report `DefaultOutboundAction = NotConfigured`, i.e. the Windows
+default of Allow (measured 17 Aug 2026).
+
+**What genuinely cannot be done: pushing a file TO this machine over ssh.**
+Nobody can, administrators included. That is the accepted cost, and the reason
+it is acceptable is the paragraph above.
+
+**Do not "fix" this with a `Match Group administrators` exemption without
+reading this first.** Beyond giving admins a shell instead of SD, it may not
+even work: `sshd_config` takes the FIRST obtained value for a keyword, and
+`allow-ssh-groups.ps1` inserts its block **before** the first `Match`
+(`Add-OurBlock`), so a later `ForceCommand none` is not guaranteed to override
+the earlier global one. That was not resolved — `sshd -T` needs the host keys
+and refuses unelevated with "no hostkeys available" — and it does not need to
+be, because pulling avoids the question entirely.
 
 ### 5.13 Shell access is restored, not blocked (decided 13 Aug 2026)
 
@@ -6042,8 +6098,19 @@ the staging script and the Inno installer were all finished and removed.
 
    `sdnet.h` still hardcodes `PASSWD_FILE_NAME "/etc/shadow"`, which is what
    that authentication used to be, and goes with (a).
-7. **BUILT 17 Aug 2026, TWENTIETH SESSION, AND NOT COMPILED OR RUN — `SH` is
-   permitted by a list, not by elevation.** Owner's decision, this session,
+7. **BUILT, INSTALLED, AND HALF VERIFIED — 17 Aug 2026, twentieth session.
+   `SH` is permitted by a list, not by elevation.** On the 22:43:52 install
+   `CPROC` compiled, `WRITE_INSTALL_DICTS` wrote all five `OS.USERS.DIC`
+   records, the ACL took, and an unlisted account is refused with message
+   10053 (§4).
+
+   **THE ADMIT PATH IS THE OWED TEST AND IT IS SHORT.** `OS.USERS` is still
+   empty, so `SH` has only ever been refused by the list, never allowed by it.
+   From an ELEVATED session: `LOGTO SDSYS`, `ED OS.USERS DON`, one record with
+   field 1 `yes`; then unelevated, `SH dir` should be admitted, and
+   `SH dir | more` should also work — the pipe is the half `!valid_shell_cmd`
+   used to refuse and which a listed account is exempt from. **`changelog`
+   entry is owed and deliberately unwritten until that is seen.** Owner's decision, this session,
    after the file had held the question open since 15 Aug.
 
    **THE PROBLEM IT SOLVES (§8).** The gate at `CPROC`'s `os.command:` label
