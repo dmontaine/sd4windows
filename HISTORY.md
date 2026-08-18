@@ -27,6 +27,71 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - One upstream defect from this session's findings, and five that are ours
+
+**Commit:** this one. Twenty-first session.
+
+`UPSTREAM_FIXES.md` gains **entry 6**: `CREATE.FILE` writes the VOC entry under
+the name as typed (`CREATEF:108`, `:460`) but upper-cases the name on disk and
+the paths in fields 2 and 3 (`:301`, `:374`), so `CREATE.FILE testlc` reports
+"Created DATA part as TESTLC" and then `COUNT TESTLC` answers "File not found"
+while `COUNT testlc` works. Verified against `git -C ../sdb64 show` on **both
+`main` and `origin/dev`** - identical line numbers - and not Windows-specific,
+since the mismatch is between the VOC id and the stored path rather than between
+the path and the filesystem. No fix proposed: either direction closes it and the
+choice is a policy decision for upstream, not for a port.
+
+**Checked and deliberately NOT added, so nobody re-checks them:**
+
+- **`SET_PASSWD`'s `pterm` save/restore** (saves the value it just wrote). The
+  lines carry a `14 Aug 26 Windows port` marker and replaced an
+  `OS.EXECUTE "sudo passwd"`; `_INPUT` does the same save/restore correctly, so
+  the flaw is not a shared misunderstanding. **Ours.**
+- **`` `e `` not being an escape in PowerShell 5.1.** `gplbld` scripts exist only
+  in this port. **Ours.**
+- **`CC ?= gcc` never firing in `gplsrc/sdclilib/Makefile`.** `sdb64` has no
+  `gplsrc/sdclilib` at all - the client DLL came from `winsdclilib`. **Ours.**
+- **`TERM LINUX` in `NEWVOC/LOGIN`.** Correct on Linux; only wrong here. Same
+  reasoning as `CASE_INSENSITIVE_FILE_SYSTEM`. **Not a defect upstream.**
+- **`PTERM` returning the new value rather than the previous one.** The stack
+  diagram in `op_pterm()` documents exactly that, and a negative argument is the
+  documented way to read without setting. **Behaviour, not a bug.**
+
+**One thing left unexamined rather than cleared:** the installed `sdsys` holds an
+empty directory literally named `C:`. Something builds a path where a bare file
+name was expected. It is probably ours - a Windows path reaching code that wanted
+a name - but nobody has traced it, so it is neither fixed nor reported.
+
+---
+
+## Correction: 18 Aug 2026 - piped answers DO work, and a working run was killed
+
+**Commit:** this one. Twenty-first session. Corrects the §6 trap added in
+`883b9a6`, "The fold is 'as typed, then upper'...", written the same day.
+
+That entry claimed a confirming verb "reads the keyboard directly" so piped `Y`
+lines "are **not** consumed as answers". **Both halves were wrong.** Measured
+with a throwaway file: `DELETE.FILE sdtrap` with two `Y` lines behind it in the
+pipe deletes the DATA portion, the DICT portion and the VOC entry, reporting
+each. Surplus `Y` lines merely arrive at the prompt as unknown verbs.
+
+**What is true** is that a prompt consumes **the next line in the pipe** whatever
+it was meant to be — so `DELETE.FILE x` followed by `OFF` feeds `OFF` to the
+prompt, loses the command, and then, the answer being neither Y nor N, re-asks
+on an exhausted pipe for ever. §6 now says that instead.
+
+**The mistake underneath it was procedural, and is the part worth keeping.** The
+"it hangs" reading came from starting a background task, reading its output file
+a second or two later, seeing only the command echo, and concluding a hang. The
+second attempt - `Y Y Y OFF` - would have worked; it was killed while running.
+Three `sd.exe` processes died that way and were then written up as evidence for
+the wrong diagnosis. **Sampling an output file early is not observing a hang.**
+
+Nothing was broken by it: the probe file and record were cleaned up either way,
+and the BASIC-program route it recommends is still the cleanest for a record.
+
+---
+
 ## 18 Aug 2026 - The default terminal type is VT100, not LINUX
 
 **Commit:** this one. Twenty-first session. Owner's decision, following the

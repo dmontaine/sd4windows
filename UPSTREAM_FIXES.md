@@ -363,3 +363,82 @@ clearer about intent; either works.
 Windows port. The stale variable was noticed on the way past, and the C side was
 then checked to confirm that a failed `READ` really does leave the target alone
 rather than emptying it.
+
+---
+
+## 6. `CREATE.FILE` names the file one way on disk and another way in the VOC, so the name it reports back does not work
+
+**Status:** PROPOSED, 18 Aug 2026
+**Affects:** `sd64/sdsys/GPL.BP/CREATEF` — `main` and `dev`, identical line
+numbers in both
+**Severity:** low, self-inflicted by the user's choice of case, but confusing in
+a way that is hard to diagnose: the confirmation message names something that
+then cannot be used.
+
+Create a file with a lower-case name and `CREATE.FILE` reports:
+
+```
+:CREATE.FILE testlc
+Created DICT part as TESTLC.DIC
+Created DATA part as TESTLC
+```
+
+It has upper-cased the name, and says so. But the name it just printed does not
+work, while the one that was typed does:
+
+```
+:COUNT testlc
+0 record(s) counted
+:COUNT TESTLC
+File not found
+```
+
+Nor can the entry be examined under the reported name:
+
+```
+:CT VOC testlc     ->  F / TESTLC / TESTLC.DIC
+:CT VOC TESTLC     ->  Record 'TESTLC' not found
+```
+
+**One command applies two different case policies.** `file.name` is taken from
+the command exactly as typed and never folded:
+
+```
+108:   file.name = field(token, ',', 1)
+```
+
+The VOC record is written under that as-typed name:
+
+```
+460:   write voc.rec to voc.f, file.name
+```
+
+but the name used on disk — and therefore the paths stored in fields 2 and 3 —
+is upper-cased:
+
+```
+301:                  os.name = ospath(upcase(file.name), OS$MAPPED.NAME)
+374:      os.name = ospath(upcase(file.name), OS$MAPPED.NAME)
+```
+
+So the VOC id keeps the user's case while everything else is folded up, and the
+two halves disagree. Lookup then hides it: a name is tried as typed and only
+then as `upcase()`, which is why the typed form still resolves and the reported
+form never can.
+
+**This is not Windows-specific.** The mismatch is between the VOC id and the
+stored path, not between the path and the filesystem, so a case-sensitive host
+behaves the same way. It was found on a Windows port, but `CREATEF` there is
+byte-identical to `main`.
+
+**No fix is proposed, because the right one depends on a policy decision this
+project should make rather than a port.** The two halves need to agree, and
+either direction does that: write the VOC entry under `upcase(file.name)` so the
+entry matches the message and the disk, which is the smaller change; or stop
+upper-casing the path so the file is named what the user asked for, which is the
+less surprising behaviour. What should not stay is the current split, where the
+message reports a name that does not resolve.
+
+**How it was found.** Measuring what `CREATE.FILE` does with a lower-case name,
+while scoping a lower-case conversion for the Windows port. The probe file and
+its VOC entry were removed afterwards.

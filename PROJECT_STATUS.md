@@ -5,40 +5,67 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 18 Aug 2026, twenty-first session, on the 07:00:00 install.
-**§7 STEP 7 IS CLOSED. `OS.USERS` PERMITS A SHELL, AND THAT HAD NEVER BEEN
-SEEN** — `gplbld/verify-osusers.ps1`, **18 of 18 checks, 13 of them decisive,
-exit 0**, and the tree was left as it was found. §4 has the table. The
-`changelog` entry it was waiting on is written, which makes the install stale
-by one file again; that is the normal end of a cycle here, not a fault.
+**Last updated:** 18 Aug 2026, end of the twenty-first session.
 
-**THE SD RELEASE STRING IS `W1.0-0` — SOURCE ONLY, NOT YET BUILT.** Owner,
-18 Aug 2026. **It is the display string and nothing else**: `SD_REV_STAMP` in
-`gplsrc/revstamp.h` and `gplsrc/sdclilib/revstamp.h`, `SD.REV.STAMP` in
-`sdsys/GPL.BP/REVSTAMP.H`, and the `$RELEASE` records in `NEWVOC` and
-`VOC_TEMPLATE` — which must carry the same string or `LOGIN:430` asks every
-user to update their VOC. **`MAJOR_REV`/`MINOR_REV`/`BUILD` (still 1/0/2) and
-`MESSAGES/0000` (`2.6-6`) are the openQM lineage and are NOT the SD release —
-do not renumber them.** A first attempt changed `BUILD` and was reverted.
-`gplbld/sd.iss`'s `AppVer` follows (owner, 18 Aug), so the installer becomes
-**`sd-setup-W1.0-0.exe`**. `cycle.ps1` picks the NEWEST `sd-setup-*.exe` by
-write time, so the `sd-setup-1.0-2.exe` left in `C:\Users\dmont\sdout` cannot
-be installed by accident.
+**THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
+against the **08:44:51** install, `sd.exe` **`5AC5BE3AE9D3CAF2`**. Everything
+since has been documentation. **That is unusual here and it is worth spending:
+the next session can measure immediately.** Confirm it before believing it —
+one unelevated command, `gplbld\assert-current.ps1`.
 
-**`W1.0-0` SURVIVES `MATCHFIELD(...,"0X0A",1)` INTACT**, checked 18 Aug 2026 —
-a leading letter is consumed by `0X`. That pattern exists to strip a TRAILING
-alphabetic suffix: `2.6-6a` → `2.6-6`.
+**CLOSED AND VERIFIED THIS SESSION, all on real installs:**
 
-**NOTHING ELSE IS BLOCKING AND THE NEXT SUBJECT IS THE OWNER'S CHOICE.** By this
-file's own ordering the candidates are **§7 step 8**, the rest of lower case
-(§5.12 — the file-name half is done, the other 8 `CASE_INSENSITIVE_FILE_SYSTEM`
-sites were deliberately not taken); **§8's per-account ACLs, "the B work"**,
-which §5.7 says is what finally makes accounts private from each other; and the
-**C half of step 7** — `OS.EXECUTE` is still ungated for everybody, so an
-unlisted programmer with `BASIC` reaches the OS from a program whatever
-`OS.USERS` says.
+- **§7 step 7 — `OS.USERS` PERMITS a shell, not just refuses one.**
+  `gplbld/verify-osusers.ps1`, **18 of 18, 13 decisive**, exit 0. §4 has the
+  table. Nobody had ever been *admitted* by the list before.
+- **§7 step 8's TERMINAL HALF — nothing to do, and that is the finding.** Case
+  inversion is off for every session a real user gets, deliberately: the VOC
+  `LOGIN` **paragraph** ends `PTERM CASE NOINVERT`. `LOGIN:266` does set it on;
+  the paragraph runs afterwards and wins. The three C setters are **overridden,
+  not dead** — do not delete them.
+- **The release string is `W1.0-0`** and the login header reads it. Display
+  string only; `MAJOR_REV`/`MINOR_REV`/`BUILD` stay 1/0/2 and `MESSAGES/0000`
+  stays `2.6-6` — **those are the openQM lineage, not the SD release.**
+- **The default terminal is `vt100`**, was `linux`. `NEWVOC/LOGIN` and
+  `VOC_TEMPLATE/LOGIN`.
 
-**WHERE THIS SESSION LEFT IT — read these five, in order:**
+**WHAT TO DO NEXT, IN THIS ORDER, AND THE ORDER IS THE POINT:**
+
+1. **§8's PER-ACCOUNT ACLs — "the B work". Now the gate on two things, not
+   one.** Measured unelevated this session: every path in the data tree bar four
+   inherits `sdusers:(OI)(CI)(M)` — **including `gcat`**, which holds `$LOGIN`
+   and `$CPROC` as object code that `CPROC:315` calls for every session, and
+   including every account directory. Modify on `gcat` is code execution in
+   everybody's session, administrators included. `audit`, `$CRED` and `PSTMP`
+   do hold; `OS.USERS` is correctly `(RX)`.
+2. **The `downcase` fallback for §5.12's file-name half.** ADD a `downcase`
+   attempt to the eight fold sites — the fold is "as typed, then upper", so this
+   is **additive and a no-op on today's tree**, committable and cycle-testable
+   alone, and it closes a live defect (`CREATE.FILE testlc` produces a file that
+   only answers to the exact case typed). Renames follow a file at a time. §5.12
+   has the sites; do not flip `upcase(` to `downcase(`, add beside it.
+3. **`RDPUSER`** — decided in shape by the owner, **blocked on item 1**. §8 has
+   the syntax, what needs no code at all, and the one open question: where "may
+   RDP" is recorded, given the tier lives in `ACCOUNTS` field 5 and RDP-ness
+   would live in the *absence* of a Windows group.
+
+**STILL OPEN, unchanged by this session:** `OS.EXECUTE` is ungated for
+everybody (§4), so a PROGRAMMER with `BASIC` reaches the OS from a program
+whatever `OS.USERS` says — that is the C half of step 7. And the wide half of
+§5.12, account names, is untouched.
+
+**`UPSTREAM_FIXES.md` GAINED ENTRY 6**, PROPOSED and not sent: `CREATE.FILE`
+writes the VOC entry as typed but upper-cases the name on disk, so it reports a
+name that does not resolve. Verified on `main` and `origin/dev`. HISTORY lists
+five more findings checked and deliberately **not** sent, so nobody re-checks
+them.
+
+**ONE THING NOBODY HAS TRACED:** the installed `sdsys` holds an empty directory
+literally named `C:`. Probably a Windows path reaching code that wanted a bare
+name. Neither fixed nor reported.
+
+**CLOSED IN EARLIER SESSIONS — background, not work to pick up. Read only if a
+claim above needs its evidence:**
 
 1. **THE `$CRED` ESCALATION IS CLOSED AND VERIFIED — 17:36:21 install, and
    again on the 20:10:31 one.** The cause was candidate (a), proven,
@@ -3983,22 +4010,44 @@ session cannot.
 
 Each of these cost real time. Read before debugging anything similar.
 
-- **A CONFIRMATION PROMPT CANNOT BE ANSWERED THROUGH THE PIPE, AND THE PROCESS
-  SPINS FOR EVER WHEN THE PIPE ENDS.** 18 Aug 2026. `DELETE.FILE x` asks "OK to
-  delete DATA portion 'X'?" and `DELETE VOC x` asks its own; both read the
-  keyboard directly, so `Y` lines piped in behind the command are **not**
-  consumed as answers — the first one is swallowed as something else and the
-  prompt then re-asks on EOF, without end. Three `sd.exe` processes were left
-  spinning. **They are children of the calling `powershell.exe`, so identify
-  them by `ParentProcessId` before killing anything** — the service is session 0
-  and a real user session must not be caught by a blanket `Stop-Process -Name
-  sd.exe`.
+- **A CONFIRMING VERB EATS THE NEXT PIPED LINE AS ITS ANSWER, AND SPINS FOR EVER
+  IF THE PIPE RUNS OUT WHILE IT IS STILL ASKING.** 18 Aug 2026. **Corrected the
+  same day**: this entry first said piped answers were "not consumed" and that
+  such prompts "read the keyboard directly". Both were wrong — measured with a
+  throwaway file, `DELETE.FILE` answers perfectly well from the pipe:
 
-  **The way to delete a record non-interactively is a BASIC program**:
-  `OPEN 'VOC' TO F.VOC` then `DELETE F.VOC, 'id'`, run through the pipe like any
-  other probe. No prompt, and it is how the `testlc` probe record was removed.
-  Everything in this project that drives SD from PowerShell is subject to this,
-  so **prefer verbs that do not confirm**.
+  ```
+  DELETE.FILE sdtrap  +  Y  Y   ->  OK to delete DATA portion 'SDTRAP'? Y
+                                    DATA portion 'SDTRAP' deleted
+                                    OK to delete DICT portion 'SDTRAP.DIC'? Y
+                                    DICT portion 'SDTRAP.DIC' deleted
+                                    VOC entry 'sdtrap' deleted
+  ```
+
+  **The real trap has two halves.** A prompt consumes **the next line in the
+  pipe**, whatever you meant it to be — so `DELETE.FILE x` followed by `OFF`
+  feeds `OFF` to the prompt as the answer, and the line you intended as a
+  command is gone. Then, the answer being neither Y nor N, it asks again, the
+  pipe is exhausted, and **it re-asks on EOF without end**. Surplus answers are
+  harmless: extra `Y` lines just reach the prompt as unknown verbs.
+
+  **So supply every answer, in order, before the next command.** Count the
+  prompts — `DELETE.FILE` asks twice, DATA then DICT.
+
+  **AND THE LESSON THAT WAS ACTUALLY MINE:** the "it hangs" reading came from
+  sampling a background task's output file a second or two after starting it,
+  seeing only the command echo, and killing a run that was working. Three
+  `sd.exe` processes died that way. **Give it time and read the output again
+  before concluding a hang.**
+
+  If a process does need killing: **they are children of the calling
+  `powershell.exe`, so identify them by `ParentProcessId`** — the service is
+  session 0 and a real user session must not be caught by a blanket
+  `Stop-Process -Name sd.exe`.
+
+  **A BASIC program is still the cleanest route for a record**, and needs no
+  answers at all: `OPEN 'VOC' TO F.VOC` then `DELETE F.VOC, 'id'`. That is how
+  the `testlc` probe record was removed.
 
 - **`` `e `` IS NOT AN ESCAPE IN WINDOWS POWERSHELL 5.1, so every ANSI strip in
   `gplbld` is dead code.** 18 Aug 2026. `` `e `` arrived in PowerShell 6, so
