@@ -5,50 +5,61 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 17 Aug 2026, nineteenth session, ending at `d7cc7a7` + this
-commit. The owed cycle ran; a fourth harness defect failed a good install.
+**Last updated:** 17 Aug 2026, twentieth session. The `$CRED` escalation is
+diagnosed, fixed and verified closed on the 17:36:21 install.
 
 **WHERE THIS SESSION LEFT IT — read these five, in order:**
 
-1. **READ THIS FIRST: `$CRED` IS NOT LOCKED, AND THE ESCALATION IS OPEN.**
-   `secure-cred.ps1` shipped, installed and **did not take**. Measured on the
-   17:08:32 install, unelevated:
+1. **READ THIS FIRST: THE `$CRED` ESCALATION IS DIAGNOSED AND FIXED IN SOURCE,
+   AND NOT YET VERIFIED ON AN INSTALL.** The cause was candidate (a), proven,
+   not inferred: `powershell.exe -File` does not strip single quotes, so
+   `sd.iss`'s `-Path '...\sdsys\$CRED'` reached `secure-cred.ps1` with the
+   quotes still in the value. `Test-Path` failed on a path that really did not
+   exist, the script exited 2 saying so, and the `[Run]` entry discarded the
+   code. Measured 17 Aug 2026 with a probe script and a raw command line:
 
    ```
-   icacls C:\ProgramData\SD\sdsys\$CRED
-     GITORLI\sdusers:(I)(OI)(CI)(M)        <- INHERITED MODIFY, the thing it was
-     BUILTIN\Administrators:(I)(OI)(CI)(F)    written to remove
-     NT AUTHORITY\SYSTEM:(I)(OI)(CI)(F)
+   -File    -Path '...\sdsys\$CRED'   ->  ['...\sdsys\$CRED']  151 chars
+   -File    -Path "...\sdsys\$CRED"   ->  [...\sdsys\$CRED]    149 chars
+   -Command -Path "...\sdsys\$CRED"   ->  [...\sdsys\]         144 chars
    ```
 
-   **So any SD user can still overwrite another account's Argon2 verifier** with
-   one derived from a password they choose, and authenticate through the API as
-   that account. The API now works, which makes this reachable rather than
-   theoretical.
+   **The comment that caused it was reasoning about `-Command`.** Its claim —
+   double quotes expand `$CRED` and leave `-Path` as `...\sdsys\` — is true of
+   `-Command` (row 3) and false of `-File`. **The fix this file proposed last
+   session, a backtick before the `$`, is also wrong**: `-File` delivers the
+   backtick literally too. The fix is plain doubled double-quotes, like every
+   other script argument in `sd.iss`.
 
-   **The script IS installed** at `C:\Program Files\SD\secure-cred.ps1`.
-   **Why it did not run is NOT yet known.** Two candidates, the first
-   favoured:
+   **Candidate (b), ordering, was never the cause** — the data-tree `icacls`
+   was already ahead of it in `[Run]`.
 
-   a. **The single quotes reach the script literally.** `sd.iss` passes
-      `-Path '{#DataDir}\sdsys\$CRED'`, single quoted so PowerShell cannot
-      expand `$CRED`. But Inno builds a RAW command line and `powershell.exe
-      -File` does not strip single quotes the way the PowerShell language
-      does — so `$Path` may arrive with the quotes still on it, `Test-Path`
-      fails, and the script exits 2 saying "does not exist - nothing secured".
-      **The installer does not check its exit code** (deliberately, copying
-      `secure-audit.ps1`), so that failure is silent.
-   b. **Ordering** against the data-tree `icacls`, which would re-inherit.
+   **What changed:** `sd.iss` `[Run]` entry → `SecureCredStore` in `[Code]` at
+   `ssPostInstall` (`sd.iss:867`), double quoted, **exit code checked**, and a
+   failure named in the closing `MsgBox` rather than passed over. Called first
+   at `ssPostInstall`, ahead of `AdoptAccount`. `secure-cred.ps1` gained the
+   `try`/`catch` the other three `secure-*.ps1` have — it was the only one
+   without, and under `$ErrorActionPreference='Stop'` the `2>&1` on `icacls`
+   can terminate it unhandled. `ISCC` compiles clean, `[Code]` section and all.
 
-   **DO NOT READ MY UNELEVATED REPRODUCTION AS THE CAUSE.** Running the script
-   by hand unelevated fails with `icacls: Access is denied`, because changing a
-   DACL needs more than the Modify `sdusers` holds. That says nothing about
-   what happened during the install, which is elevated.
+   **`gplbld/verify-credacl.ps1` is new and is how this stops regressing.**
+   Nothing checked these ACLs before, which is why it shipped broken and
+   stayed broken for a session. **Run it UNELEVATED** — the ACL grants
+   `Administrators` Full, so an elevated run passes whatever the ACL says, and
+   the script refuses to run elevated. Its decisive check is a write into
+   `$CRED`, not a listing.
 
-   **Cheapest next step:** run it ELEVATED with the literal argument form the
-   installer uses, and print `$Path` before `Test-Path`. If (a), the fix is to
-   escape the `$` for PowerShell instead of quoting the path — and to check the
-   exit code, because a credential store left open must not be a silent step.
+   **THE UNELEVATED DISCRIMINATOR, before and after any cycle:** `icacls`
+   `C:\ProgramData\SD\sdsys\$CRED`. On the broken 17:08:32 install it PRINTS,
+   showing `sdusers:(I)(OI)(CI)(M)`. On a good one it answers **Access is
+   denied**, which is what `audit`, `sd-elevate.log` and `PSTMP` all already
+   answered in the same measurement — three siblings locked, this one not.
+
+   **VERIFIED ON THE 17:36:21 INSTALL, 17 Aug 2026, and this item is CLOSED.**
+   `verify-credacl.ps1` unelevated as `GITORLI\don`: exit 0, `assert-current`
+   clean. The decisive check is the write, and it is refused —
+   `UnauthorizedAccessException` creating a record in `$CRED` — with the DACL
+   no longer readable at all. §4 has it.
 
 2. **THE API WORKS. §7 STEP 6 IS CLOSED — VERIFIED ON A REAL INSTALL,
    17 Aug 2026, 17:09.** `gplbld/verify-apiport.ps1 -Prefix sdapi2`, all
@@ -1642,6 +1653,20 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**17 Aug 2026 — `$CRED` IS CLOSED TO ORDINARY USERS, twentieth session.** On the
+17:36:21 install, `gplbld/verify-credacl.ps1` unelevated as `GITORLI\don`, exit
+0, `assert-current` clean. **The decisive measurement is a write, not a
+listing**: `[System.IO.File]::Open(...CreateNew)` on a record inside
+`C:\ProgramData\SD\sdsys\$CRED` raises `UnauthorizedAccessException`, and
+`icacls` on the same path answers **Access is denied** where the 17:08:32
+install printed `GITORLI\sdusers:(I)(OI)(CI)(M)`.
+
+**A listing alone would not have been evidence** — inherited entries, deny ACEs,
+group nesting and token filtering all change what one means — which is why the
+script asks the filesystem the question an attacker would ask. **And it must be
+run UNELEVATED**: the ACL grants `Administrators` Full, so an elevated run
+passes however broken the ACL is. The script refuses to run elevated.
 
 **16 Aug 2026 — §7 STEP 1c IS CLOSED: `DELETE.ACCOUNT`'s "SD CREATED IT" BRANCH
 HAS RUN, sixteenth session.** `sdacct14` made by `verify-createaccount.ps1
@@ -5692,6 +5717,12 @@ the staging script and the Inno installer were all finished and removed.
    `gplbld/secure-cred.ps1`**, which the installer runs after the data-tree
    `icacls`, like `secure-audit.ps1` and for the same ordering reason.
 
+   **THE LOCK DID NOT ACTUALLY TAKE UNTIL 17 Aug 2026, TWENTIETH SESSION.** The
+   call was quoted for `-Command` and made with `-File`, so it secured nothing
+   and said nothing. Header item 1 has the measurement, the fix and the
+   discriminator; `gplbld/verify-credacl.ps1` is the check that did not exist.
+   **Both halves of this step are now closed and observed.**
+
    **SYSTEM AND ADMINISTRATORS ONLY. `sdusers` GET NOTHING** — owner's ruling,
    17 Aug 2026. **The risk is writing, not reading**: `$CRED` holds a salt and
    an **Argon2 verifier**, never a password (`INT$KEYS.H:263`), so reading one
@@ -5767,7 +5798,7 @@ the staging script and the Inno installer were all finished and removed.
    **THE TEST HARNESS IS BUILT AND HAS NOT BEEN RUN** — one elevated command:
 
    ```
-   gplblderify-apiport.ps1 -Prefix sdapi1
+   gplbld\verify-apiport.ps1 -Prefix sdapi1
    ```
 
    It creates a throwaway account, sets a **generated** password on it (never

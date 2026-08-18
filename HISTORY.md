@@ -27,6 +27,132 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - $CRED is verified closed, and the verify script had the same bug
+
+Twentieth session, closing the entry below. Cycle run, install at 17:36:21,
+`assert-current` clean. `gplbld/verify-credacl.ps1` unelevated as `GITORLI\don`,
+exit 0:
+
+    ordinary user can create a record in $CRED   expected no   observed no   PASS
+    DACL is readable by an ordinary user         expected no   observed no   PASS
+
+`icacls C:\ProgramData\SD\sdsys\$CRED` now answers *Access is denied* where the
+17:08:32 install printed `GITORLI\sdusers:(I)(OI)(CI)(M)`. The decisive one is
+the first row - `[System.IO.File]::Open(...CreateNew)` raising
+`UnauthorizedAccessException` - because that is the escalation itself rather
+than a reading of a listing.
+
+**THE VERIFY SCRIPT FAILED ITS FIRST RUN, AND ON THE BUG IT WAS WRITTEN TO
+CATCH ELSEWHERE.** `$acl = & icacls.exe $store 2>&1` sat under
+`$ErrorActionPreference = 'Stop'`, so the *Access is denied* that proves the ACL
+is right arrived as a terminating `NativeCommandError` and killed the script at
+the moment it had its answer. Same defect as the missing `try`/`catch` in
+`secure-cred.ps1`, written up at the top of that file in the same commit, one
+file away.
+
+Fixed by lowering EAP across that one call rather than wrapping it: here
+*denied* is the healthy path and must be read and scored, not caught and turned
+into a failure.
+
+**Worth keeping as a rule:** in this codebase, `2>&1` on a native command under
+`Stop` is a trap every time, and the right handling depends on whether stderr
+means failure. `secure-cred.ps1` catches it, because for that script any stderr
+from `icacls` is a failure. `verify-credacl.ps1` reads it, because for that one
+stderr is the expected result.
+
+**Also confirmed here:** `verify-credacl.ps1` was edited after the install and
+`assert-current` still reported clean, which is the `$neverShipped` registration
+in `assert-current.ps1` doing its job - without it the script would have refused
+itself, the trap that list already records `verify-tiers.ps1` hitting.
+
+---
+
+## 17 Aug 2026 - Why secure-cred.ps1 did not take: -File does not strip quotes
+
+Twentieth session. Answers the entry below, which measured the open ACL but
+left the cause as two candidates. It is candidate (a), and it was measured
+rather than reasoned to.
+
+`sd.iss` passed the store as `-Path '{#DataDir}\sdsys\$CRED'` - single quoted -
+to `powershell.exe -File`. **`-File` does not run its arguments through the
+expression parser**, so it neither expands variables nor strips quotes, and
+`$Path` arrived as `'C:\ProgramData\SD\sdsys\$CRED'` with the quotes as part
+of the value. `Test-Path` said no, `secure-cred.ps1` exited 2 with
+"does not exist - nothing secured" - which was true - and the `[Run]` entry
+discarded the exit code. Every visible sign said the install had worked.
+
+Measured by driving `powershell.exe` from a batch file, so the command line
+arrives as raw as Inno's does, against a probe script that printed its own
+argument and its length:
+
+    -File    -Path '...\sdsys\$CRED'   ->  ['...\sdsys\$CRED']  151 chars
+    -File    -Path "...\sdsys\$CRED"   ->  [...\sdsys\$CRED]    149 chars
+    -Command -Path "...\sdsys\$CRED"   ->  [...\sdsys\]         144 chars
+    -Command -Path '...\sdsys\$CRED'   ->  [...\sdsys\$CRED]    149 chars
+
+**The comment in `sd.iss` that mandated the single quotes was reasoning about
+`-Command`.** It said double quotes would expand `$CRED` and silently leave
+`-Path` as `...\sdsys\`. Row 3 shows that is exactly right - for `-Command`.
+The entry used `-File`, where row 2 shows double quotes are correct and safe.
+The author reasoned correctly about the wrong parser, and rows 3 and 4 are why
+the belief was reasonable rather than careless.
+
+**The fix PROJECT_STATUS proposed last session was also wrong.** It suggested
+escaping the `$` with a backtick; `-File` delivers the backtick literally too,
+so that would have failed the same way with a different wrong path. The fix is
+plain doubled double-quotes, like every other script argument in the file.
+
+**Candidate (b), ordering against the data-tree `icacls`, was never the cause.**
+The `icacls` was already ahead of it in `[Run]`.
+
+**The control that made this cheap:** on the same broken install, `icacls` on
+`audit`, `sd-elevate.log` and `PSTMP` all answered *Access is denied*
+unelevated, because their `/inheritance:r` had run and removed `sdusers`
+entirely. `$CRED` was the only one of the four that would still print its ACL.
+Three siblings locked, one not, and the only difference between the four call
+sites was the quoting on that one line.
+
+**What changed.** The `[Run]` entry became `SecureCredStore` in `[Code]`, called
+at `ssPostInstall` ahead of `AdoptAccount`, double quoted, **with the exit code
+checked** and a failure named in the closing `MsgBox`. A `[Run]` entry cannot
+check an exit code - this file already records the same mistake being made
+about the OpenSSH entry - and the rationale for not checking, copied from
+`secure-audit.ps1`, does not carry: a missed audit ACL leaves an editable
+trail, a missed credential ACL leaves an escalation open.
+
+`secure-cred.ps1` also gained the `try`/`catch` the other three `secure-*.ps1`
+have. It was the only one without, and under `$ErrorActionPreference='Stop'`
+the `2>&1` on the `icacls` call turns any stderr line into a terminating
+`NativeCommandError` - which, uncaught in a script the installer runs hidden,
+exits with no message anyone would see.
+
+**`gplbld/verify-credacl.ps1` is new**, and is the part that stops this
+recurring: nothing checked any of these four ACLs, which is why it shipped
+broken and stayed broken for a session. It **refuses to run elevated** - the
+ACL grants `Administrators` Full, so an elevated run passes however broken the
+ACL is - and its decisive check is a write into `$CRED` rather than a reading
+of the listing. It is registered in `assert-current.ps1`'s `$neverShipped`
+list; without that it would have refused itself, the trap that list already
+records `verify-tiers.ps1` hitting.
+
+**Cost:** no install. The whole diagnosis was unelevated, from a batch file and
+a four-line probe script.
+
+**What is NOT done: none of it has been observed on an install.** `ISCC`
+compiles the changed `sd.iss` clean, `[Code]` section included, and
+`secure-cred.ps1` was run against a stand-in store and produced exactly two
+ACEs. One cycle is owed. Until then `verify-credacl.ps1` refuses, correctly,
+because source is newer than the install.
+
+**Also fixed here, unrelated and one character:** PROJECT_STATUS.md carried
+`gplbld\verify-apiport.ps1` with the `\v` replaced by a literal vertical tab
+(0x0B), inside a code block offered as a command to run. An earlier session's
+Python edit had eaten it as an escape. Same trap bit twice more this session
+while writing these files, both times caught by scanning the result for control
+characters - worth doing after any scripted edit to these documents.
+
+---
+
 ## 17 Aug 2026 - Correction: secure-cred.ps1 did not take, and $CRED is open
 
 From `62b4740`, and it corrects the entry below within the same session. The
