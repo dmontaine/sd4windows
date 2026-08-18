@@ -2510,6 +2510,14 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
+- **`SYSTEM(91)` NOW ANSWERS WINDOWS AND IT HAS NOT BEEN OBSERVED — 17 Aug
+  2026, twentieth session.** `op_sys.c` `case 91`, 0 → 1. `make sd` is clean
+  and that is all. **`ISWIN=0` was measured by hand on the 20:10:31 install**,
+  so the before reading is real; `verify-nocase.ps1` carries the row and wants
+  1 after the next cycle. What it unblocks is `QPROC:499`, so the behavioural
+  check is `SELECT <dirfile> WITH @ID = "sue"` matching record `SUE` — worth
+  running once by hand, since the row only proves the flag.
+
 - **`ApplyDenyLogon` HAS NOT RUN — 17 Aug 2026, twentieth session.** `sd.iss`
   `[Run]` entry → `[Code]`, exit code checked. `ISCC` compiles clean including
   the `[Code]` section and **that is the whole of the evidence.** The healthy
@@ -6115,6 +6123,43 @@ the staging script and the Inno installer were all finished and removed.
    locking `sue` and `SUE` produce one folded id and one lock entry. Sound, and
    still a reading of source rather than a measurement. A two-session `READU`
    test is the thing that would close it.
+
+   **THE BASIC LAYER HAD THE SAME DEFECT AND IT IS NOW FIXED — 17 Aug 2026,
+   NOT YET OBSERVED.** `op_sys.c` `case 91` (`SYSTEM(91)`, "Windows?") answered
+   **0**, inherited from `sdb64` where it is correct, so every BASIC program
+   asking whether it is on Windows was told no — on Windows. Now 1.
+
+   **What that actually broke:** `QPROC:82` reads it into `is.windows` and
+   `QPROC:499` is `if is.windows and is.dir then is.case.insensitive = @true`
+   — **the only route** by which the query processor treats a directory file's
+   ids as case insensitive. `FL$FLAGS` cannot supply it: `op_dio2.c:439`
+   answers `FL_FLAGS` only when `(dynamic && internal)`, and a directory file
+   is neither, so `QPROC:498` reads 0 for one however the flag is set. **So
+   `SELECT ... WITH @ID = "sue"` never matched record `SUE`**, and the code to
+   make it match has sat there unreachable.
+
+   **Same shape as `CASE_INSENSITIVE_FILE_SYSTEM`**: correct code, already
+   written, never switched on. `is.case.insensitive` upper-cases both sides of
+   a comparison only (`QPROC` 4034, 4447, 7059, 7198) and stores nothing, so it
+   is the same strategy as (a) and not the upper-casing §5.12 rejected. The
+   only other reader, `APISRVR:954`, is commented out. **`ISWIN=0` measured by
+   hand on the 20:10:31 install; `verify-nocase.ps1` now carries the row.**
+
+   **THE TERMINAL HALF IS NOT STARTED AND IS BLOCKED ON A MEASUREMENT.**
+   `case_inversion` (XOR `0x20`, so true inversion, not force-upper —
+   `op_tio.c:1133`) is set in **three** places, not the one §5.12 implies:
+   `linuxio.c:240` (`start_connection`), `linuxio.c:313` (`init_console`) and
+   `GPL.BP/LOGIN:266`. **But `SYSTEM(1001)` reads 0 in a piped session**, which
+   contradicts all three, and a piped session is the only kind measurable from
+   here. **Find out what an INTERACTIVE console or ssh session reads before
+   changing anything** — the probe is `CRT SYSTEM(1001)`. Do not remove
+   `LOGIN:266` alone; it would not be enough.
+
+   **AND 707 `upcase(` CALLS IN `GPL.BP` ARE NOT ALL IN SCOPE.** Most are VOC
+   verb lookup, `Y`/`N` answers and record types, which must stay — CPROC
+   upcases verbs so lower-case typing still finds `LISTF`. The account-name
+   subset is about 11 sites: `LOGIN` 281, 321, 339, 383, 690 and `CPROC` 2531,
+   2577, 2579, plus the audit lines 2601, 2619, 3686.
 
    **WHAT IS LEFT of step 8** is the wide half §5.12 describes: account names
    (`LOGIN`, `CPROC`, the `$CRED` register), the terminal's `PT$INVERT`, and
