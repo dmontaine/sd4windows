@@ -27,6 +27,72 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - $CRED was never created, so SET.PASSWORD never worked
+
+From `fa3dccb`. Running the API harness found a defect in the product rather
+than in the harness, and an old one: the credential store has never existed on
+any install.
+
+    :SET.PASSWORD SDAPI1
+    Cannot open the $CRED register.  Has the install completed?
+
+**Nothing creates it.** `sd -i` creates VOC, VOC.DIC, ACCOUNTS.DIC, $MAP and
+DICT.DIC and no more; `CRED_SET` opens `$CRED` and returns ER$NVR if it is not
+there; `stage.py` listed it among the files "the bootstrap and the running
+system create for themselves", which was simply wrong. So SET.PASSWORD has
+failed on every install ever built, and nobody saw it: section 5.6 took
+passwords off the console login and left the credential machinery callerless,
+and no VOC pointed at SET.PASSWORD until the morning of 17 Aug 2026. The API
+could not authenticate anybody because no account could hold a credential.
+
+**Now staged as a directory file and locked to SYSTEM and Administrators.**
+Owner's ruling. `gplbld/secure-cred.ps1` runs from the installer after the
+data-tree icacls - the same ordering `secure-audit.ps1` needs, or inheritance
+puts the tree's Modify straight back.
+
+**THE RISK IS WRITING, NOT READING, and the distinction matters.** `$CRED`
+holds a per-account salt and an ARGON2 VERIFIER, never a password
+(`INT$KEYS.H:263`). Reading a verifier is worth little. But the data tree
+grants sdusers Modify - measured on `$MAP`, which is what `$CRED` would have
+inherited - so any SD user could have OVERWRITTEN another account's verifier
+with one derived from a password they chose, then authenticated through the API
+as that account. That is the escalation the ACL closes. sdusers get nothing at
+all here, which is the difference from the audit trail, where they keep
+append-only so SD can write it as the user.
+
+**THE FILE SHAPE IS NOT A CONTROL.** Directory file or dynamic file, the same
+bytes are equally readable to anyone with access - `VOC` and `$MAP` are dynamic
+and their `%0` is plainly greppable. The ACL is the whole of the protection,
+and choosing dynamic would have bought obscurity while feeling like security.
+
+**THE SERVICE ACCOUNT IS WHAT MAKES THE TIGHT ACL WORKABLE, and it was checked
+rather than assumed:** `Win32_Service` reports `StartName = LocalSystem`, so
+sdwind forks `sd -n -q` children that read `$CRED` as SYSTEM and the API path
+is unaffected. An elevated administrator running SET.PASSWORD is unaffected. An
+ordinary console user cannot read it, deliberately - which is consistent with
+SET.PASSWORD being an administration verb, and carries a corollary worth
+knowing before somebody tries it: copying SET.PASSWORD into a user's VOC will
+not work at the file layer until section 5.7's service model lands. The program
+permits it; the ACL does not.
+
+**And the API gate has no elevation bypass**, which was worth checking once it
+was clear API sessions run as SYSTEM: `APISRVR:449` tests the VERIFIED USERNAME
+from `kernel(K$USERNAME,0)` against the account's group, not the process token,
+so SDSYS stays refused however privileged the process is. That is precisely why
+step 6c insisted the identity come from K$USERNAME.
+
+**A trap in the installer entry, which would have failed silently.** The path
+is single quoted, unlike every other entry in sd.iss, because PowerShell
+EXPANDS `$CRED` inside a double-quoted string. Undefined, so `-Path` would have
+become the sdsys directory itself and the credential store would have been left
+wide open with the step reporting success.
+
+**Verified by staging, not by reading:** a cold `stage.py --force` into a
+scratch tree puts `$CRED` in the staged data tree and `secure-cred.ps1` in
+ProgramFiles. Not installed - a cycle is owed.
+
+---
+
 ## 17 Aug 2026 - The API test harness: one command, and three cells
 
 From `054ef11`. `SET.PASSWORD` verified on the 16:28:43 install first -

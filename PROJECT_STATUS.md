@@ -5683,8 +5683,57 @@ the staging script and the Inno installer were all finished and removed.
    password. **Expect the same control as step 11**: an account the user is
    granted admitted, `SDSYS` refused.
 
-   **AND IT CANNOT BE TESTED YET, FOR A REASON THAT IS NOT THE TRANSPORT.
-   NOTHING CAN SET AN ACCOUNT PASSWORD.** `APILOGIN=1` makes `APISRVR` call
+   **THE `$CRED` FILE WAS NEVER CREATED BY ANYTHING, AND `SET.PASSWORD` HAS
+   THEREFORE FAILED ON EVERY INSTALL EVER MADE** — `Cannot open the $CRED
+   register`, measured 17 Aug 2026 on the 16:45:49 install. Nobody saw it
+   because §5.6 left the credential machinery callerless and no VOC pointed at
+   `SET.PASSWORD` until that morning. `stage.py` listed `$CRED` among the files
+   "the bootstrap and the running system create for themselves" and **that
+   comment was wrong**: `sd -i` creates `VOC`, `VOC.DIC`, `ACCOUNTS.DIC`,
+   `$MAP` and `DICT.DIC` and no more, and `CRED_SET` opens without creating.
+
+   **FIXED: it is staged as a directory file** (`SDSYS_EMPTY`, the same shape
+   as `ACCOUNTS` — an empty directory is one) **and locked by
+   `gplbld/secure-cred.ps1`**, which the installer runs after the data-tree
+   `icacls`, like `secure-audit.ps1` and for the same ordering reason.
+
+   **SYSTEM AND ADMINISTRATORS ONLY. `sdusers` GET NOTHING** — owner's ruling,
+   17 Aug 2026. **The risk is writing, not reading**: `$CRED` holds a salt and
+   an **Argon2 verifier**, never a password (`INT$KEYS.H:263`), so reading one
+   is worth little — but inherited `Modify`, which is what the data tree grants
+   and what `$MAP` demonstrably has, would let any SD user **overwrite another
+   account's verifier** with one derived from a password they chose and then
+   authenticate through the API as that account. A straight escalation.
+
+   **THE FILE SHAPE IS NOT A CONTROL.** A dynamic file would put the same bytes
+   in `%0`; `VOC` and `$MAP` are dynamic and plainly greppable. The ACL is the
+   whole of the protection.
+
+   **WHO CAN STILL REACH IT — the service account decides this, and it was
+   checked rather than assumed: `Win32_Service` `StartName` is `LocalSystem`.**
+   So `sdwind` forks `sd -n -q` children that read `$CRED` as **SYSTEM**, and
+   the API path works under the tight ACL. An elevated administrator running
+   `SET.PASSWORD` works. **An ordinary console user cannot**, deliberately —
+   and that is consistent with `SET.PASSWORD` being an administration verb.
+   **The corollary is worth knowing before somebody tries it:** copying
+   `SET.PASSWORD` into a user's VOC will not work at the file layer until
+   §5.7's service model lands. The program permits it, the ACL does not.
+
+   **AND THE API GATE HAS NO ELEVATION BYPASS — checked, because a SYSTEM-owned
+   session could plausibly have had one.** `APISRVR:449` tests
+   `is_grp_member(kernel(K$USERNAME,0), acc.group)`, the **verified username**,
+   not the process token, so SDSYS stays refused however privileged the process
+   is. That is exactly why 6c insisted the identity come from `K$USERNAME`.
+
+   **A TRAP IN THE INSTALLER ENTRY, and it would have failed silently:** the
+   path is **single quoted**, unlike every other entry in `sd.iss`, because
+   PowerShell **expands `$CRED`** inside a double-quoted string. Undefined, so
+   `-Path` would have become `...\sdsys\` and the store would have been left
+   wide open with the step reporting success.
+
+   **The old statement of the blocker follows.**
+
+   **NOTHING COULD SET AN ACCOUNT PASSWORD.** `APILOGIN=1` makes `APISRVR` call
    `!CRED_VERIFY`, and `APISRVR:1002` says it plainly: *an account that has
    never had a password set cannot be reached*. **`GPL.BP/SET_ACC_PASSWORD`
    exists and NO VOC ANYWHERE POINTS AT IT** — checked, both `VOC_TEMPLATE`
