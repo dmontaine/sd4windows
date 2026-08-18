@@ -6156,15 +6156,38 @@ the staging script and the Inno installer were all finished and removed.
    across the two installs and the `SELECT` behaviour was measured with its
    control; `verify-nocase.ps1` carries the row.** `changelog` entry written.
 
-   **THE TERMINAL HALF IS NOT STARTED AND IS BLOCKED ON A MEASUREMENT.**
-   `case_inversion` (XOR `0x20`, so true inversion, not force-upper —
-   `op_tio.c:1133`) is set in **three** places, not the one §5.12 implies:
-   `linuxio.c:240` (`start_connection`), `linuxio.c:313` (`init_console`) and
-   `GPL.BP/LOGIN:266`. **But `SYSTEM(1001)` reads 0 in a piped session**, which
-   contradicts all three, and a piped session is the only kind measurable from
-   here. **Find out what an INTERACTIVE console or ssh session reads before
-   changing anything** — the probe is `CRT SYSTEM(1001)`. Do not remove
-   `LOGIN:266` alone; it would not be enough.
+   **THE TERMINAL HALF IS NOT STARTED, AND THE EVIDENCE CONTRADICTS THE
+   SOURCE. DO NOT CHANGE IT UNTIL THAT IS RESOLVED.** `case_inversion` is XOR
+   `0x20` — true inversion, not force-upper (`op_tio.c:1133`) — and **three**
+   places set it TRUE, not the one §5.12 implies: `linuxio.c:240`
+   (`start_connection`), `linuxio.c:313` (`init_console`) and `LOGIN:266`.
+   `LOGIN:266` is **unconditional** — the `if/else` opened at 233 closes at
+   264 — and LOGIN demonstrably runs, because `WHO` answers `2 DON`.
+
+   **Yet `SYSTEM(1001)` reads 0.** Measured repeatedly, 17 Aug 2026, on the
+   20:34:04 install. Something either does not run or resets it, and which is
+   not known. **A change made on top of this would be a change made on top of
+   a contradiction.**
+
+   **WHAT WAS NARROWED, 17 Aug 2026, so the next attempt starts further on:**
+
+   - `connection_type` **defaults to `CN_CONSOLE`** (`kernel.h:54`); only
+     `-pipe`-style and socket invocations move it (`sd.c` 407, 423, 471). So a
+     plain `sd.exe` is `CN_CONSOLE` and `op_tio.c:3258` should reach
+     `init_console()`.
+   - **The console path refuses an ordinary user**, measured: `sd.exe RUN BP X`
+     with no pipe answers *"This command needs an elevated session"*. That is
+     §5.6.2 working as designed, and it is why the console reading cannot be
+     taken unelevated.
+   - **The piped path is the one that matters anyway.** SD accounts are
+     ssh-only, and ssh gives SD piped stdin — so the 0 above is the reading for
+     the sessions real users get. **If it is 0 there, §5.12's terminal concern
+     may already be satisfied for every account that can actually log in**, and
+     the work would be removing three dead setters rather than changing
+     behaviour. That is the thing to establish first.
+   - `pterm()` **cannot be called from a user account** — internal only, and
+     compiles as *"Matrix PTERM is not referenced in a DIM statement"*.
+     `SYSTEM(1001)` is the route from a probe.
 
    **AND 707 `upcase(` CALLS IN `GPL.BP` ARE NOT ALL IN SCOPE.** Most are VOC
    verb lookup, `Y`/`N` answers and record types, which must stay — CPROC
