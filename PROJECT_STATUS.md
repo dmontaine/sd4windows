@@ -43,6 +43,17 @@ exit 0, on the 11:35:44 install:**
   the gate testable without credentials — `LOGTO SDSYS` then `LOGTO <account>`
   is a genuinely unprivileged session in the same pipe.
 
+**ALSO CLOSED AND VERIFIED — §5.12's NAME FOLD, on the 16:24:23 install.**
+`gplbld/verify-fold.ps1`, **5 of 5**, exit 0. The lookup chain is now **as typed
+→ lower → upper** at 74 sites in 38 files. A file created as `zzlcfold1` now
+answers to `ZZLCFOLD1` as well, which is the live defect (`CREATE.FILE testlc`
+registers `testlc`, reports `TESTLC`, and `COUNT TESTLC` said "File not found").
+The control holds — an upper-case file still answers to both cases, so the bug
+is not merely inverted — and a name in no case at all is still refused. §5.12 has
+the shapes, the 4 sites left deliberately, and **four traps, two of which
+survived a clean compile AND a block-balance check** and were caught only by
+running the bootstrap.
+
 **WHAT TO DO NEXT, IN THIS ORDER, AND THE ORDER IS THE POINT:**
 
 1. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE; the account
@@ -72,12 +83,14 @@ exit 0, on the 11:35:44 install:**
    account once its directory is locked, which §5.6 says must always work.
    **Decide that before building.** `gplbld/secure-accounts.ps1` remains
    unwired; the warning below still stands.
-2. **The `downcase` fallback for §5.12's file-name half.** ADD a `downcase`
-   attempt to the eight fold sites — the fold is "as typed, then upper", so this
-   is **additive and a no-op on today's tree**, committable and cycle-testable
-   alone, and it closes a live defect (`CREATE.FILE testlc` produces a file that
-   only answers to the exact case typed). Renames follow a file at a time. §5.12
-   has the sites; do not flip `upcase(` to `downcase(`, add beside it.
+2. **THE RENAMES — §5.12's visible half, and the fold above is what unblocks
+   it.** Lower-case names now resolve, so files can be renamed one at a time,
+   each independently verifiable, without a flag day. §5.12 (a) lists them:
+   `VOC`, `BP`, `BP.OUT`, `NEWVOC`, `GPL.BP`, the `$` files, and the per-account
+   ones. Start with a per-account file rather than a shipped system one, and
+   remember `CREATE.FILE` itself still upper-cases the name on disk
+   (`UPSTREAM_FIXES.md` 6) — that is a separate defect and the fold hides its
+   symptom rather than fixing it.
 3. **`RDPUSER`** — decided in shape by the owner, **blocked on item 1**. §8 has
    the syntax, what needs no code at all, and the one open question: where "may
    RDP" is recorded, given the tier lives in `ACCOUNTS` field 5 and RDP-ness
@@ -3831,6 +3844,57 @@ every id upper case, the new attempt can never hit, so it changes no behaviour
 and cannot break anything. Replacing the `upcase` attempt instead would break
 lower-case typing of every id not yet renamed, and `PARSER:152` serves verbs and
 keywords as well as file names, so that blast radius is the whole VOC.
+
+**THE FOLD IS NOT EIGHT SITES. IT IS 76, IN 38 FILES — measured 18 Aug 2026**,
+and the list above was only the ones someone had looked at. **DONE AND VERIFIED 18 Aug
+2026** on the 16:24:23 install — `gplbld/verify-fold.ps1`, 5 of 5. 63 converted
+by a scripted transform over the two regular shapes, 11 by hand, 4 left
+deliberately. The first bootstrap FAILED; see the traps below.
+
+- **PLAIN** — `read/open X else read/open upcase(X) else <err> end end`. Insert
+  a `downcase` tier; re-indent the inner block.
+- **REWRITE** — as PLAIN but followed by `X = upcase(X)` inside the outer block,
+  so the `downcase` tier takes the `THEN` form and folds the name itself.
+- **BY HAND**: `PARSER` ×3 (multifile `status()` nesting; a single-line
+  `else goto`; and the keyword read, which has no as-typed attempt and whose
+  body would have to be duplicated — a `fold.found` flag instead), `CATALOG`,
+  `CPROC` ×2, `FORMAT`, `SED`, `SHOW` (which folds through `found` flags in
+  separate blocks, so a lower-case pair goes before the upper-case pair), `CD`
+  (the name opened and the name rewritten are different variables).
+- **LEFT DELIBERATELY**: `CPROC:2600` and `LOGIN:690` read `ACCOUNTS` by
+  **account name**, which stays upper case — that is the wide half of this
+  section and is what makes signing in case insensitive. `QPROC:3848` and
+  `UPDREC:2584` have **no as-typed attempt at all**, so there is no fold to
+  extend; they are dictionary/token ids and belong with the dictionary half.
+
+**FOUR TRAPS FOR ANYONE SCRIPTING THIS AGAIN. The last two got past a clean
+compile and a balance check, and were caught only by running the bootstrap.**
+
+1. **Fold sites nest** — `CPROC`'s RUN block holds three, one inside another —
+   so indices taken before the first edit are stale by the second. Batch
+   conversion silently skipped the outer sites and would have spliced a `PLAIN`
+   site at the wrong line. Recompute after every single conversion.
+2. **A converted REWRITE site re-detects itself**, because the inserted
+   `end else` becomes the line above the `upcase` attempt, so a one-line
+   "already done?" check loops forever.
+3. **`if cond then <statement>` followed by `else` / `end` is a block, and its
+   opening line does not end in `then`.** Miss it and the matching-end search
+   stops one `end` early, so the inserted `end` lands *inside* the wrong block.
+   In `BCOMP`'s `open.include.record` that put `return` on the wrong side of a
+   branch. **It compiled, and it balanced** — count the bare `else` as an
+   opener.
+4. **The trailing rewrite is not always `X = upcase(X)`.** `BCOMP`'s
+   `get.file.ref` has `token = upcase(token.string)` — different variable each
+   side. Rebuilding it from the left-hand side produced
+   `token = downcase(token)`, which reads `token` before it is ever assigned:
+   **"Unassigned variable in $BCOMP"**, which stopped the bootstrap while it was
+   compiling `TERM`. Mirror the existing line, do not regenerate it.
+
+**The balance check is necessary and NOT sufficient**, which trap 3 proves:
+every edited file's block-opener minus block-closer count must be unchanged from
+its committed version (36 files, 0 unbalanced), but a misplaced `end` balances
+just as well as a correct one. **`cycle.ps1 -SkipInstall` is the real check** —
+it costs a bootstrap, not an install, and it is what found both of these.
 
 **THIS OVERTURNS THE "ONE COMMIT" CLAIM THIS SECTION USED TO MAKE.** The
 fallback can be added, cycled and tested on its own; the renames can then follow

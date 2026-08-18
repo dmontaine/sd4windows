@@ -27,6 +27,62 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - The name fold gained a lower-case attempt, at 74 sites rather than the eight that were written down
+
+**Commit:** this one. Twenty-second session. `gplbld/verify-fold.ps1`, **5 of 5**,
+exit 0, on the **16:24:23** install.
+
+**What changed.** Every lookup that resolved a name tried it AS TYPED and then,
+if that failed, in UPPER case - and nothing else. The chain is now **as typed →
+lower → upper**. Purely additive: every id on today's tree is upper case, so the
+new attempt cannot hit until renames start. It closes the live defect where
+`CREATE.FILE testlc` registers the VOC entry as `testlc`, reports "Created DATA
+part as TESTLC", and `COUNT TESTLC` then answers "File not found" - the name the
+command itself just printed.
+
+**§5.12 SAID EIGHT SITES. THERE WERE 76, IN 38 FILES.** The list in the document
+was the subset someone had looked at. 63 were converted by a scripted transform
+over the two regular shapes, 11 by hand where the shape was irregular, 4 left
+deliberately: `CPROC:2600` and `LOGIN:690` read `ACCOUNTS` by **account name**,
+which stays upper case and is what makes signing in case insensitive, and
+`QPROC:3848`/`UPDREC:2584` have no as-typed attempt at all, so there is no fold
+to extend.
+
+**FOUR TRAPS, AND THE LAST TWO ARE THE ONES WORTH REMEMBERING** because they
+passed a clean compile:
+
+1. **Fold sites nest.** `CPROC`'s RUN block holds three, one inside another, so
+   indices taken before the first edit are stale by the second. Batch conversion
+   silently skipped the outer sites. Recompute after every conversion.
+2. **A converted site re-detects itself** - the inserted `end else` becomes the
+   line above the `upcase` attempt, so a one-line "already done?" test loops
+   forever.
+3. **`if cond then <statement>` followed by `else` / `end` is a block whose
+   opening line does not end in `then`.** Missing it stopped the matching-end
+   search one `end` early, so the inserted `end` landed inside the wrong block
+   and put `return` on the wrong side of a branch in `BCOMP`'s
+   `open.include.record`. **It compiled and it balanced.**
+4. **The trailing rewrite is not always `X = upcase(X)`.** `BCOMP`'s
+   `get.file.ref` has `token = upcase(token.string)`. Rebuilding it from the
+   left-hand side gave `token = downcase(token)`, reading `token` before it was
+   assigned - **"Unassigned variable in $BCOMP"**, which stopped the bootstrap
+   while it was compiling `TERM`. Mirror the existing line; do not regenerate it.
+
+**THE COST WAS ONE BOOTSTRAP, AND THAT IS THE POINT OF `-SkipInstall`.** Traps 3
+and 4 were invisible to review and to a block-balance check - the count is
+unchanged whether the `end` is in the right place or not - and the bootstrap
+found both in four minutes without spending an install. The balance check is
+still worth running (36 files, 0 unbalanced) but it is necessary, not
+sufficient; that is now written into §5.12.
+
+**Verified, not assumed.** The verifier creates a lower-case file and checks the
+name `CREATE.FILE` reported back now resolves; an upper-case file is the control,
+because a fold that resolved everything downward would pass the first check and
+break every existing system; and a name in no case at all must still be refused,
+because a fold that answered "found" to everything would pass both.
+
+---
+
 ## 18 Aug 2026 - The global catalogue was writable from inside SD, and is now gated and locked
 
 **Commit:** this one. Twenty-second session. `gplbld/verify-catgate.ps1`,
