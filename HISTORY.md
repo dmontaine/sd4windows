@@ -27,6 +27,103 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - The global catalogue was writable from inside SD, and is now gated and locked
+
+**Commit:** this one. Twenty-second session. `gplbld/verify-catgate.ps1`,
+**25 of 25**, exit 0, on the **11:35:44** install.
+
+**What was wrong.** `CATALOG` selects the global catalogue two ways and checked
+one. The `GLOBAL` keyword tested `K$ADMINISTRATOR` (since 13 Aug 2026); a call
+name beginning `*`, `!`, `_` or `$` selects `CAT_GLOBAL` at `CATALOG:158`,
+`:172` and `:183` and tested nothing, so `CATALOG BP $MYPROG` was allowed where
+`CATALOG BP MYPROG GLOBAL` was refused. `DELCAT` had no privilege test anywhere
+in it, by either route. `gcat` holds `$LOGIN` as object code and `CPROC:315`
+calls it for every session, so this was code execution in everybody's session
+and, through `DELETE.CATALOG $LOGIN`, a way to stop the machine signing in.
+Both need only `CATALOG`/`DELETE.CATALOG` in the VOC, which PROGRAMMER has and
+STANDARD does not (`NEWVOC/TIER.OMIT.STANDARD`).
+
+**Why it mattered more than the handoff thought.** PROJECT_STATUS had `gcat` as
+an Explorer/RDP exposure that `RDPUSER` would unlock. It was reachable from
+inside SD with no desktop, no RDP and no `OS.EXECUTE`.
+
+**Fixed** with one test where `mode` is finally known (`CATALOG:191`, so a
+fourth route inherits it) and a pre-loop scan in `DELCAT:89` (before the loop,
+so a mixed list deletes nothing rather than stopping half way). The keyword's
+own test was left where it is - it reports while parsing. Upstream has both:
+`UPSTREAM_FIXES.md` entry 7, checked against `../sdb64`.
+
+**And locked**, owner's decision the same day: `gplbld/secure-gcat.ps1` puts
+`sdusers:(OI)(CI)(RX)` on `gcat` and, after a second instruction, on
+`GPL.BP.OUT` as well; `sd.iss`'s `SecureGcat` runs it at `ssPostInstall` beside
+the credential store and the shell list. A gate in a program protects that
+program; the ACL protects the directory from code not yet written.
+
+**The price, accepted deliberately:** cataloguing globally now needs a genuinely
+elevated session, because `sd.exe` stays unelevated for life and a filtered
+token carries `Administrators` deny-only - so a session that reached SDSYS
+through the elevation helper has `K$ADMINISTRATOR` true and is refused by NTFS.
+Measured: an unelevated write into `gcat` throws. The changelog says so in
+plain English.
+
+**What it cost: five verifier runs, and not one of them was the fix.** Worth
+recording because every failure was in the scaffolding and each looked at first
+like a defect in the change:
+
+1. **A probe the account did not have.** Section 3 used `CREATE.ACCOUNT` to show
+   the session was unprivileged. That verb is ADMINISTRATOR-only, so a
+   PROGRAMMER account has no such verb and SD answered "not a known verb" - the
+   check reported the session as *privileged*. Replaced with `CATALOG ... GLOBAL`,
+   the pre-existing gate, so the new code does not vouch for itself.
+2. **A prompt down a pipe.** Cataloguing the same name `LOCAL` after private
+   makes `check.private` (`CATALOG:463`) ask "Program is also in private
+   catalogue. Remove?" in an unbounded `loop ... until yn = 'Y' or 'N' repeat`.
+   The pipe had no answer, the prompt ate the remaining commands, and the run
+   stopped dead with no summary. Two different program names fixed it;
+   `NO.QUERY` would have silenced it by *deleting* the other entry, which is not
+   what the check is for.
+3. **A teardown with two lifetimes in it.** An auto-clean for leftover accounts
+   called the whole of `Remove-Made`, which also deleted the control's own
+   `gcat` entry mid-run and failed sections 4 and 7. Split into
+   `Remove-Account` and `Remove-Fixtures`.
+4. **A check that could never pass — and a wrong finding published from it.**
+   A precondition tested `sdsys\VOC\<name>` as a file. **A VOC record is not a
+   file: `VOC` is a DYNAMIC file** (`CREATEA:575`), on disk a directory of
+   `%0`/`%1` buckets - `sdsys\VOC` holds two files whatever its record count. It
+   refused a `CREATE.FILE` that had printed "Created DATA part as ..." directly
+   above the refusal. **That check had already produced a confident, wrong
+   diagnosis** of run 3 - "CREATE.FILE wrote no VOC entry" - which was reported
+   to the owner and is retracted here. The step now asks SD what it did.
+
+**Still unexplained**, and now in §8 rather than guessed at: on the one run that
+reused a scratch file name a previous run had `DELETE.FILE`d, `BASIC` produced
+no `.OUT`. Not reproduced. The verifier uses per-run names and prints SD's
+output, so a recurrence carries its own evidence.
+
+**The general lesson, which this file has now recorded in a new form:** a
+control that cannot be built is "could not be run", never a FAIL. Four of the
+five runs reported failures against the code under test when the scaffolding
+had collapsed. `verify-catgate.ps1` now exits 2 with SD's own output whenever a
+fixture step fails.
+
+**Two findings for the per-account ACL work that is next**, both cheap and both
+changing how it should be built:
+
+- **No new mapping is needed.** §5.7 assumed per-account ACLs would add a
+  Windows-user-to-account mapping. `LOGTO` is already gated on membership of the
+  account's `ACC$GROUP` (`CPROC:3697`), written by `CREATEA:545` as `sdu_<name>`
+  and maintained by `GRANT` (`GRANTA:201`). Granting the account directory to
+  `ACC$GROUP` makes the file layer mirror the SD layer exactly.
+- **A create-time write would not reach existing accounts.** Every ACL step
+  names a fixed path and none carries a `Check`, so an install over an existing
+  tree re-applies all of them - which is why `gcat` will reach an old tree even
+  though `NEWVOC` will not (`sd.iss:167`, `Check: DataTreeAbsent`). Nothing
+  enumerates accounts, so a per-account ACL set by `CREATEA` alone would exist
+  only on accounts made afterwards, with no migration and a tree that looks
+  correct. The work needs a re-apply step as well.
+
+---
+
 ## 18 Aug 2026 - One upstream defect from this session's findings, and five that are ours
 
 **Commit:** this one. Twenty-first session.

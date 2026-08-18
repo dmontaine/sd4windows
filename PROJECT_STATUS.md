@@ -5,39 +5,73 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 18 Aug 2026, end of the twenty-first session.
+**Last updated:** 18 Aug 2026, end of the twenty-second session.
 
 **THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **08:44:51** install, `sd.exe` **`5AC5BE3AE9D3CAF2`**. Everything
-since has been documentation. **That is unusual here and it is worth spending:
-the next session can measure immediately.** Confirm it before believing it —
-one unelevated command, `gplbld\assert-current.ps1`.
+against the **11:35:44** install, `sd.exe` **`5AC5BE3AE9D3CAF2`** (unchanged;
+this session touched no C). Confirm it before believing it — one unelevated
+command, `gplbld\assert-current.ps1`.
 
-**CLOSED AND VERIFIED THIS SESSION, all on real installs:**
+**CLOSED AND VERIFIED THIS SESSION — `gplbld/verify-catgate.ps1`, 25 of 25,
+exit 0, on the 11:35:44 install:**
 
-- **§7 step 7 — `OS.USERS` PERMITS a shell, not just refuses one.**
-  `gplbld/verify-osusers.ps1`, **18 of 18, 13 decisive**, exit 0. §4 has the
-  table. Nobody had ever been *admitted* by the list before.
-- **§7 step 8's TERMINAL HALF — nothing to do, and that is the finding.** Case
-  inversion is off for every session a real user gets, deliberately: the VOC
-  `LOGIN` **paragraph** ends `PTERM CASE NOINVERT`. `LOGIN:266` does set it on;
-  the paragraph runs afterwards and wins. The three C setters are **overridden,
-  not dead** — do not delete them.
-- **The release string is `W1.0-0`** and the login header reads it. Display
-  string only; `MAJOR_REV`/`MINOR_REV`/`BUILD` stay 1/0/2 and `MESSAGES/0000`
-  stays `2.6-6` — **those are the openQM lineage, not the SD release.**
-- **The default terminal is `vt100`**, was `linux`. `NEWVOC/LOGIN` and
-  `VOC_TEMPLATE/LOGIN`.
+- **THE GLOBAL CATALOGUE WAS WRITABLE FROM INSIDE SD BY ANY PROGRAMMER, AND IS
+  NOT NOW.** `CATALOG` tested `K$ADMINISTRATOR` only on the spelled-out `GLOBAL`
+  keyword; a `*!_$` call-name prefix selects the same mode at `CATALOG:158`,
+  `:172` and `:183` and tested nothing. `DELCAT` tested nothing **at all**, by
+  either route. So `CATALOG BP $LOGIN` replaced the program `CPROC:315` runs for
+  every session, and `DELETE.CATALOG $LOGIN` stopped the machine signing in.
+  **Reachable with no desktop, no RDP and no `OS.EXECUTE`** — the handoff had
+  this as an Explorer/RDP risk that `RDPUSER` would unlock. Fixed by one test
+  where `mode` is finally known (`CATALOG:191`) and a pre-loop test in
+  `DELCAT:89`. Upstream has both — `UPSTREAM_FIXES.md` 7.
+- **`gcat` AND `GPL.BP.OUT` ARE LOCKED** to `sdusers:(OI)(CI)(RX)`, no inherited
+  entries. `gplbld/secure-gcat.ps1`, run from `sd.iss`'s `SecureGcat` at
+  `ssPostInstall` beside the other two ACL steps.
+- **THE PRICE, AND IT IS DELIBERATE (owner, 18 Aug 2026):** cataloguing globally
+  now needs a **genuinely elevated** session. `sd.exe` stays unelevated for life
+  and a filtered token carries `Administrators` deny-only, so a session that
+  reached SDSYS through the elevation helper has `K$ADMINISTRATOR` true and is
+  refused by NTFS. Measured: an unelevated write into `gcat` throws. The
+  supported route — an elevated window, §7 step 0's recipe — is unchanged.
+- **Local and private cataloguing are untouched**, in any account the user may
+  `LOGTO` into. They write the account's own `cat` and `VOC`; only `CAT_GLOBAL`
+  reaches `gcat`. Verified both.
+- **Only SDSYS is an administrator.** `CPROC:2657` sets the flag for SDSYS and
+  clears it for every other account, so an ADMINISTRATOR-tier account cannot
+  catalogue globally while standing in its own account. That is also what makes
+  the gate testable without credentials — `LOGTO SDSYS` then `LOGTO <account>`
+  is a genuinely unprivileged session in the same pipe.
 
 **WHAT TO DO NEXT, IN THIS ORDER, AND THE ORDER IS THE POINT:**
 
-1. **§8's PER-ACCOUNT ACLs — "the B work". Now the gate on two things, not
-   one.** Measured unelevated this session: every path in the data tree bar four
-   inherits `sdusers:(OI)(CI)(M)` — **including `gcat`**, which holds `$LOGIN`
-   and `$CPROC` as object code that `CPROC:315` calls for every session, and
-   including every account directory. Modify on `gcat` is code execution in
-   everybody's session, administrators included. `audit`, `$CRED` and `PSTMP`
-   do hold; `OS.USERS` is correctly `(RX)`.
+1. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE; the account
+   directories are what is left.** Every account directory still inherits
+   `sdusers:(OI)(CI)(M)`, so any SD user can read and rewrite any other
+   account's files outside SD. `audit`, `$CRED`, `PSTMP` hold; `OS.USERS`,
+   `gcat` and `GPL.BP.OUT` are `(RX)`.
+
+   **Two things learned this session that change how to build it:**
+
+   a. **There is no new mapping to maintain** — §5.7 assumed there would be.
+      `LOGTO` is gated on membership of the account's `ACC$GROUP` (`CPROC:3697`),
+      which `CREATE.ACCOUNT` writes as `sdu_<name>` (`CREATEA:545`) and `GRANT`
+      maintains (`GRANTA:201`). Grant the account directory to `ACC$GROUP` and
+      the set who may enter an account is exactly the set who may write it.
+   b. **A create-time write is not enough, and this is the trap.** Every ACL step
+      names a **fixed path**; nothing enumerates accounts. An install over an
+      existing tree re-runs them all (no `Check` on any), so `gcat` reaches old
+      trees — but a per-account ACL applied by `CREATEA` would exist only on
+      accounts created afterwards, with no migration and a tree that looks
+      right. **Build the re-apply step too**: walk `user_accounts`, re-stamp each
+      from its `ACC$GROUP`, and let the installer run it unconditionally.
+
+   **And it still gates administrators out of other accounts.** The same
+   measurement that justifies the lock — Administrators is deny-only in an
+   unelevated token — means an admin's ordinary session could not enter another
+   account once its directory is locked, which §5.6 says must always work.
+   **Decide that before building.** `gplbld/secure-accounts.ps1` remains
+   unwired; the warning below still stands.
 2. **The `downcase` fallback for §5.12's file-name half.** ADD a `downcase`
    attempt to the eight fold sites — the fold is "as typed, then upper", so this
    is **additive and a no-op on today's tree**, committable and cycle-testable
@@ -1713,6 +1747,17 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**THE GLOBAL CATALOGUE GATE AND THE TWO LOCKS — VERIFIED 18 Aug 2026, elevated,
+on the 11:35:44 install.** `gplbld/verify-catgate.ps1`, **25 of 25**, exit 0.
+Decisive rows: `DELETE.CATALOG $LOGIN` refused from a PROGRAMMER account with
+`$LOGIN` still 6160 bytes; `CATALOG BP $SDGATE2` refused and `gcat` did not gain
+it; `gcat` and `GPL.BP.OUT` both `sdusers:(OI)(CI)(RX)` with no `(I)` entries;
+private and local cataloguing both still accepted in the same account; and both
+administrator controls — global catalogue and global delete — still work from an
+elevated SDSYS session. The unprivileged session is obtained by `LOGTO SDSYS`
+then `LOGTO <account>` (`CPROC:2657`), not by credentials, which `sdsshonly`
+would refuse. The header carries the reasoning.
 
 **`ApplyDenyLogon` WORKS — VERIFIED 17 Aug 2026, elevated, on the 20:34:04
 install.** `sd.iss` `[Run]` entry → `[Code]`, exit code checked. The rights
@@ -7563,6 +7608,21 @@ client of the service, is dropped in favour of a client tool, or stays as a
 privileged path used only by administrators. This shapes stage 2 and should be
 settled before the `fork` → `CreateProcess` work starts, since that is where
 the process creation identity is decided.
+
+### Open, undiagnosed: `BASIC` produced no object in SDSYS on a reused file name
+
+18 Aug 2026, on the 11:35:44 install. `verify-catgate.ps1` created a scratch
+directory file in SDSYS, compiled into it and catalogued — fine on a fresh tree,
+twice. On the first run to reuse a name an earlier run had `DELETE.FILE`d,
+`CREATE.FILE` reported success and `BASIC <file> <prog>` then produced no
+`.OUT`. Not reproduced since; the verifier now uses a per-run name and prints
+what SD said, so a recurrence will carry its own diagnosis.
+
+**Do not read the first account of this as evidence** — it claimed the VOC entry
+was missing, which was an artefact of testing for `sdsys\VOC\<name>` as a file.
+**A VOC record is not a file: `VOC` is a DYNAMIC file** (`CREATEA:575`), on disk
+a directory of `%0`/`%1` buckets — `sdsys\VOC` holds two files whatever its
+record count. That check could never pass and was removed.
 
 ### Other
 

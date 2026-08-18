@@ -442,3 +442,89 @@ message reports a name that does not resolve.
 **How it was found.** Measuring what `CREATE.FILE` does with a lower-case name,
 while scoping a lower-case conversion for the Windows port. The probe file and
 its VOC entry were removed afterwards.
+
+## 7. The global catalogue can be written and deleted by any user, because only the spelled-out `GLOBAL` keyword is checked
+
+**Status:** PROPOSED, 18 Aug 2026
+**Affects:** `sd64/sdsys/GPL.BP/CATALOG` and `sd64/sdsys/GPL.BP/DELCAT` — checked
+on `main`
+**Severity:** high. The global catalogue holds the object code SD runs for every
+session, `$LOGIN` among them, so writing it is code execution in other users'
+sessions and deleting from it stops everybody signing in.
+
+`CATALOG` decides it is working on the global catalogue in two different ways,
+and only one of them is checked.
+
+The keyword is checked. `CATALOG` at the `GLOBAL` keyword:
+
+```
+case keyword = KW$GLOBAL
+   ...
+   mode = CAT_GLOBAL
+   if system(27) # 0 then stop sysmsg(2001)   ;* requires administrator
+```
+
+The name prefix is not. A call name beginning with one of `*`, `!`, `_` or `$`
+selects the same mode, in three places (`CATALOG` lines 153, 167 and 178 on
+`main`), none of which tests anything:
+
+```
+if mode # CAT_PCODE and index(prefix.chars, call.name[1,1], 1) then
+   program.name = program.name[2,999]
+   if mode and mode # CAT_GLOBAL then stop sysmsg(3021)
+   mode = CAT_GLOBAL
+end
+```
+
+So `CATALOG BP MYPROG GLOBAL` is refused and `CATALOG BP $MYPROG` is allowed,
+though they do the same thing. There is no later test: `catalogue.program`
+reaches `case mode = CAT_GLOBAL` and writes `gcat` unconditionally.
+
+**`DELETE.CATALOG` tests nothing at all**, by either route — `DELCAT` has no
+privilege test anywhere in it, and the same prefix characters route a name to
+the global catalogue:
+
+```
+case global or index(prefix.chars, cat.name[1,1], 1)
+   readvu obj.rec from gcat.f, cat.name, 0 then
+      delete gcat.f, cat.name
+```
+
+`DELETE.CATALOG $LOGIN` therefore removes the program every session runs.
+
+**Why it is reachable.** On Linux the tree is owned `sdsys:sdusers` with group
+write, so an ordinary SD user's own process can write `gcat`; SD does its file
+I/O as the invoking user, so no privilege is needed for the write itself. The
+BASIC test is the only gate, and for these routes there is none. An account
+needs `CATALOG` or `DELETE.CATALOG` in its VOC, which any account doing
+development has.
+
+**Suggested fix**, which is what this port did: test once where the mode is
+finally known rather than at each place that sets it, so a further route to
+`CAT_GLOBAL` inherits the check. In `CATALOG`, after the `begin case no.names`
+block and before the object file is opened:
+
+```
+if mode = CAT_GLOBAL and system(27) # 0 then
+   stop sysmsg(2001)  ;* Command requires administrator privileges
+end
+```
+
+In `DELCAT`, before the delete loop rather than inside it, so a list mixing
+private and global names deletes nothing rather than stopping part way through:
+
+```
+if system(27) # 0 then
+   gbl.count = dcount(name.list, @fm)
+   for gbl.i = 1 to gbl.count
+      gbl.name = name.list<gbl.i>
+      if global or index(prefix.chars, gbl.name[1,1], 1) then
+         stop sysmsg(2001)
+      end
+   next gbl.i
+end
+```
+
+`sysmsg(2001)` already exists and is the message `CATALOG` uses for this today.
+Local and private cataloguing are untouched by both changes: they write the
+account's own `VOC` and `cat`, not `gcat`.
