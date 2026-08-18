@@ -10,97 +10,36 @@ commit. The owed cycle ran; a fourth harness defect failed a good install.
 
 **WHERE THIS SESSION LEFT IT — read these four, in order:**
 
-1. **THE REMOTE TRANSPORT IS BUILT AND INSTALLED. A SECOND CYCLE IS OWED FOR
-   TWO GAPS FOUND AFTER IT.**
+1. **THE API WORKS. §7 STEP 6 IS CLOSED — VERIFIED ON A REAL INSTALL,
+   17 Aug 2026, 17:09.** `gplbld/verify-apiport.ps1 -Prefix sdapi2`, all
+   checks passed. The remote transport carried a session, **`$CRED` ran for
+   the first time in this project's history**, and the `ACC$GROUP` check ran:
 
-   **What the 14:36:38 install proved** — `assert-current` exit 0, `sd.exe`
-   **`55AAB5890E80733D`**, `sdwind.exe` **`6A4006E91EC6431E`**, `gcat` 132 /
-   `GPL.BP.OUT` 193 both matching the stage, and **`make check-local` still
-   PASSES** (`WHO -> 2 DON`, SDSYS refused). That last is the regression check
-   that matters: the shared-segment layout changed and `start_connection()`
-   was edited, and the working local transport survived both. **`cycle.ps1`'s
-   `Start-Process -Wait` fix also held** — step 8 no longer fires mid-install.
-   **A fresh install opens NO port** and `sdwind` is running: `APIPORT`
-   defaults off, as intended.
+   ```
+   right password  ->  admitted, WHO -> 1 SDAPI2
+   WRONG password  ->  refused: Invalid username or password
+   SDSYS           ->  refused: User not allowed in requested account
+   ```
 
-   **BOTH GAPS BELOW ARE NOW FIXED AND VERIFIED ON THE 16:02:45 INSTALL**,
-   `assert-current` exit 0, `sd.exe` still `55AAB5890E80733D` (no C changed).
-   The installed `sd.conf` carries the documentation with `#APIPORT=4243`
-   commented out, and **`CONFIG` prints `APIPORT   0`** beside `APILOGIN  1`.
-   That last line is the whole chain proven end to end — conf parser →
-   `struct CONFIG` → segment → `op_config()` → the BASIC verb — and the `0`
-   is default-off confirmed at every layer, with no listener on 4243 and
-   `sdwind` running. `make check-local` still passes (`WHO -> 3 DON`).
+   **The two refusals carry DIFFERENT messages and that is the evidence.**
+   `sysmsg(5017)` is `!CRED_VERIFY` rejecting the credential (6a) and
+   `sysmsg(10003)` is the group test refusing the account (6c). One catch-all
+   message would have proved only that something said no.
 
-   **To read `CONFIG` from a piped session you must stop it paginating.** A
-   plain `"\nCONFIG\nOFF\n" | sd.exe` HANGS at the page prompt — §6's spinning
-   prompt, reached by the ordinary route rather than an exotic one. The output
-   only appears when the process is killed, so it reads as "no output" while
-   it is running. Kill it with `Stop-Process` and read what flushes, or set
-   the page depth first.
+   **Also asserted in the same run:** the listener is bound to **127.0.0.1 and
+   not 0.0.0.0**, and everything was put back — port closed, account removed,
+   `sd.conf` restored.
 
-   **THE TWO GAPS, both found by reading the INSTALL rather than the source:**
-
-   - **`sd64/sd.conf` IS NOT THE FILE THAT SHIPS.** `stage.py` writes the
-     installed `sd.conf` from its own `SD_CONF` string constant
-     (`stage.py:206`), so the `APIPORT` documentation went into a development
-     leftover and **no installed system had it**. Fixed in `SD_CONF`; the dead
-     copy now says at the top that it is dead. **Nothing checks the two
-     agree.**
-   - **The `CONFIG` verb did not report `APIPORT`.** `GPL.BP/CONFIG` prints a
-     hand-written list and a new parameter does not appear by itself — the
-     same shape as the `CREATUSR` correction of 16 Aug. Now printed, and
-     **printed even when zero**, because zero is the answer to "is the API
-     listening?".
-
-   **The second cycle is a full one, not a rebuild** — `GPL.BP/CONFIG` is
-   BASIC, so it needs the bootstrap. `make sd` is NOT needed: no C changed
-   after the binaries above.
-
-   **THE SHARED SEGMENT LAYOUT CHANGED** (`sysseg.h`, `api_port`), and
-   `SYSSEG_REVSTAMP` does not catch it — same trap as the `PCFG` change of
-   16 Aug, §7 step 1a. Harmless across a real install, which replaces every
-   binary at once; fatal if one rebuilt binary is copied onto a running
-   system.
-
-   **THE PASSWORD BLOCKER IS NOW FIXED IN SOURCE AND NOT YET INSTALLED.**
-   `SET.PASSWORD` had no VOC entry anywhere; it is now a **tenth
-   administration verb**, owner's ruling 17 Aug 2026 — *"the administrator can
-   always remove it from the exclusion list if they want users to set their
-   own"*. **The program is deliberately NOT gated wholesale**: it already
-   refuses somebody else's account without admin rights and demands the
-   current password for your own (`SET_ACC_PASSWORD:69`, `:109`), so a blanket
-   gate would destroy exactly that escape hatch.
-
-   **The counts move with it: ADMINISTRATOR `COUNT VOC` 420 → 421**, and
-   `verify-tiers.ps1`'s nine become ten. **`$SET.PASSWORD` is already in
-   `gcat`** on the installed system — the program always compiled and
-   catalogued, so only the VOC record and the add list were missing.
-
-   **AND THE VERIFY SCRIPT HAD A HOLE THAT THIS EDIT WOULD HAVE FALLEN
-   THROUGH.** `$Withheld` was cross-checked against the shipped
-   `TIER.OMIT.STANDARD`, and `$AdminVerbs` was **not** checked against
-   `TIER.ADD.ADMINISTRATOR` — so changing the record and not the test, or the
-   reverse, would have passed. It is checked now, and the hardcoded 18s and 9s
-   are `.Count` of the lists themselves.
-
-   **THE API TEST HARNESS IS BUILT AND UNRUN, and it is the next thing.**
-   `gplblderify-apiport.ps1 -Prefix sdapi1`, elevated, is one command for the
-   whole of it: throwaway account, generated password, port on, session,
-   everything back. §7 step 6 has what it asserts and why the wrong-password
-   cell is the one that matters. **A cycle is owed first** — it gates on
-   `assert-current`.
 2. **§7 STEP 11 IS CLOSED AND §7 STEP 6c HAS ITS FIRST EVIDENCE.** Details
    below and in §7 step 11.
 3. **§8's THREE TIERS ARE VERIFIED, 22 of 22.** §8 and the tables below.
-4. **THE NEXT SUBJECT IS THE REMOTE TRANSPORT** — §7 step 6a/6b, the listener
-   and per-connection spawn Windows has no xinetd for. **Local is done; remote
-   is what step 6 still waits on.** **THE TRANSPORT QUESTION IS NOW ANSWERED
-   BY MEASUREMENT** — a native listener handing the accepted socket to an MSYS2
-   child **cannot work**, with a control; §7 step 6 has the 2×2. So the
-   listener goes on the Cygwin side, in `sdwind`, and `start_connection()`'s
-   `PF_INET` branch has to be enabled. **Nothing is built yet** — the client
-   half needs no work at all, `SDConnect()` having always been TCP.
+4. **THE NEXT SUBJECT IS THE OWNER'S CHOICE**, because §1's front door is now
+   open and nothing else is blocking. By the file's own ordering the
+   candidates are **§7 step 7** (one decision about one `if`: whether an
+   elevated console gets `SH`), **§7 step 8** (lower case, folding in
+   `CASE_INSENSITIVE_FILE_SYSTEM`, a correctness gap), and **§8's per-account
+   ACLs — "the B work"**, which §8 says the tier work is blocked on and which
+   §5.7 says is what finally makes accounts private from each other.
 
 **THE CYCLE IS ONE COMMAND AND IS NOT TO BE HAND-RUN** — `gplbld/cycle.ps1`,
 elevated. It writes a transcript to `%LOCALAPPDATA%\SD-verify`. See "START
@@ -5579,7 +5518,23 @@ the staging script and the Inno installer were all finished and removed.
    g. **Put the work in a subroutine with the verb over it** (§5.14), so the
       admin form that step 10 wants can call the same code rather than
       reimplementing it. `!os_group` exists for exactly this reason.
-6. **Bring the API server under the same model** — and it is more pressing
+6. **CLOSED 17 Aug 2026, NINETEENTH SESSION — THE API WORKS END TO END.**
+   Verified on the 17:09 run of `gplbld/verify-apiport.ps1 -Prefix sdapi2`
+   against the 16:5x install: a remote session opened over the loopback port,
+   **the wrong password was refused by `!CRED_VERIFY` (6a) and SDSYS by the
+   `ACC$GROUP` test (6c)**, with different messages, which is what makes the
+   admitted case mean anything. 6b follows from 6a, and 6d went with
+   `login_user()`.
+
+   **What is left of step 6 is nothing blocking.** The transport is loopback
+   TCP with ssh carrying it (posture B), `APIPORT` defaults off, and the
+   listener lives in `sdwind`. The sub-steps below are kept because they record
+   what each cost and what to look at if any of it regresses.
+
+   **The original statement follows, because the reasoning is still the
+   specification.**
+
+   **Bring the API server under the same model** — and it is more pressing
    than this position suggests, because §1 now says the API is the product's
    front door. **The API does not work on Windows at all**: `APISRVR` line 921
    calls `login(username, password)` → `login_user()` in `linuxio.c`, which

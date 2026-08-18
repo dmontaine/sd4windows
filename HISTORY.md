@@ -27,6 +27,47 @@ corrected.
 
 ---
 
+## 17 Aug 2026 - The API works: section 7 step 6 closed
+
+From `01d2c2b`. `gplbld/verify-apiport.ps1 -Prefix sdapi2`, all checks passed,
+17:09. The front door section 1 names is open.
+
+    right password  ->  admitted, WHO -> 1 SDAPI2
+    WRONG password  ->  refused: Invalid username or password
+    SDSYS           ->  refused: User not allowed in requested account
+
+**THE WRONG-PASSWORD LINE IS THE ONE THAT MATTERS.** It is the first time
+`!CRED_VERIFY` has executed in this project at all: SDConnectLocal sends no
+password, so step 6a had been built, compiled and never run since 17 Aug
+morning, and every earlier "evidence for 6c" came from a path that never
+reached the credential check.
+
+**And the two refusals carry DIFFERENT messages, which is the evidence rather
+than a detail.** `sysmsg(5017)` is the credential check rejecting the password;
+`sysmsg(10003)` is the group test refusing the account. A single catch-all
+refusal would have proved only that something said no, and would have been
+equally consistent with a transport that rejects everything.
+
+**What this closes.** Step 6a ($CRED instead of /etc/shadow), 6b (@logname from
+the verified identity rather than the client's assertion), 6c (the ACC$GROUP
+grant check) and 6d (login_user deleted) are all now run rather than merely
+built - and with them the remote transport itself: the listener in sdwind, the
+per-connection fork+exec, and PF_INET re-enabled in start_connection().
+
+**Asserted in the same run:** the listener is bound to 127.0.0.1 and NOT to
+0.0.0.0, which is posture B holding in practice and not just in the design; and
+the harness put everything back - port closed, Windows account removed, sd.conf
+restored from its backup.
+
+**The road here, for anyone reading back:** a native listener handing the
+socket to an MSYS2 child could not work (measured, with a control), so the
+listener went into sdwind on the Cygwin side; the client half never needed
+touching because SDConnect has always been TCP; SET.PASSWORD had no VOC entry;
+and $CRED had never been created by anything. Four separate stoppers, each of
+which looked like the last one until it was measured.
+
+---
+
 ## 17 Aug 2026 - $CRED was never created, so SET.PASSWORD never worked
 
 From `fa3dccb`. Running the API harness found a defect in the product rather
