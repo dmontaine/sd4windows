@@ -75,7 +75,7 @@ builds the installer, uninstalls, deletes both trees, installs, then runs
 `assert-current`.
 
 ```powershell
-C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\cycle.ps1
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 ```
 
 `-SkipInstall` stops after building the installer, which is the cheap way to

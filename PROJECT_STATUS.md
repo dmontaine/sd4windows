@@ -221,7 +221,7 @@ it picks up the MSYS2 `cc` instead of the UCRT64 compiler and cannot run.
 attempts:
 
 ```powershell
-& 'C:\msys64\usr\bin\bash.exe' -lc "cd /c/Users/dmont/Projects/sdb_ai_windows/sdb_ai/sd64 && make sd"
+& 'C:\msys64\usr\bin\bash.exe' -lc "cd /c/Users/dmont/Projects/sd4windows/sdb_ai/sd64 && make sd"
 ```
 
 A plain non-login shell has no usable Windows `TMP`, so the **UCRT64** compiler
@@ -560,7 +560,7 @@ deletes.
 be PowerShell and fewer steps. **Elevated PowerShell, from anywhere:**
 
 ```powershell
-C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\cycle.ps1
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 ```
 
 Stops the service, stages, bootstraps, checks the staged tree is whole, builds
@@ -1296,7 +1296,7 @@ previous run is left behind deliberately (§7 step 1c), so the verb refuses a
 reused one:
 
 ```powershell
-powershell -File C:\Users\dmont\Projects\sdb_ai_windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct6
+powershell -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1 -Account sdacct6
 ```
 
 **`AllowGroups` is left applied here deliberately** — it is what the installer
