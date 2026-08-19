@@ -27,6 +27,41 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — Correction: probe-keys.ps1 deleted the command it had just taught
+
+**Commit:** this one, over `f17380d`. `gplbld\probe-keys.ps1` only.
+
+**Owner: "tried it in terminal and it said zzkeyprobe did not exist."** Reported
+after successful cmd and PowerShell readings, and the session was unelevated.
+
+**The cause is the script's own design, not SD.** It removed `ZZKEYPROBE` when
+the operator left SD. The probe is meant to be run once per console host, so
+the first run teaches `RUN BP ZZKEYPROBE` and the operator naturally types it in
+the next window — where the previous run had already deleted it. **A probe that
+deletes the command it just taught you is a trap of its own making.**
+
+**Elevation was checked first and is not the cause** — measured, an elevated
+`sd` session lands in `DON`, not `SDSYS`, so the account would have been the
+same either way. Worth recording because §5.6's "administrator rights on entry
+to SDSYS" makes the opposite sound plausible.
+
+**Fixed three ways.** The program is now **left installed** and `-Keep` is
+replaced by `-Cleanup`, which is a mode that removes and stops. After the
+compile the script checks the **object** exists in `bp.out` rather than trusting
+`0 error(s)` — RUN needs the object, and the first sign of trouble was otherwise
+SD refusing at a prompt with the script already gone. And it prints the account
+and paths it is using.
+
+**`-Cleanup` is exempt from both guards**, the console test and
+`assert-current`. Removing a file needs neither, and a guard that blocks the
+undo is one that gets worked around.
+
+**Measured:** `-Cleanup` with nothing installed exits 0 and says so; with the
+probe installed it removes source and object and exits 0; a measuring run piped
+into still exits 2.
+
+---
+
 ## 19 Aug 2026 — The console reading: every key matches, and §5.18 is closed
 
 **Commit:** this one, over `7de04ee`. Documents only.
@@ -79,8 +114,9 @@ Worth watching for whenever a header is replaced wholesale rather than edited.
 
 `gplbld\probe-keys.ps1` compiles `ZZKEYPROBE` into the caller's own `bp`,
 starts a plain `sd` in the current console, and prints every byte each key
-sends — naming an arrow's spelling, `ESC [ D` or `ESC O D`, as it goes. Then it
-removes the program (`-Keep` leaves it).
+sends — naming an arrow's spelling, `ESC [ D` or `ESC O D`, as it goes. The
+program is left installed; `-Cleanup` removes it. **It removed the program on
+exit at first, and that was wrong — see the correction below.**
 
 **Why it is worth a script rather than a paste of BASIC.** Every other
 instrument in `gplbld` drives SD down a pipe, which measures what SD does with

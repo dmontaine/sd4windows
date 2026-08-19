@@ -4652,6 +4652,31 @@ Both fixed: the reset is unconditional and a failed entry now fails the run.
 Found by giving the new entry a description containing a comma — `get_token()`
 splits on commas, so `Windows Terminal)` was read as a capability name.
 
+**`gplbld\probe-keys.ps1` IS THE INSTRUMENT, AND IT IS THE ONLY ONE HERE THAT
+IS NOT A PIPE.** It compiles `ZZKEYPROBE` into the caller's own `bp`, starts a
+plain `sd` in the current console, and prints every byte each key sends, naming
+an arrow's spelling as it goes. **Reach for it whenever a keyboard question
+comes up** — next step 2, backspace in the full-screen editors, is the same
+class of problem and has no instrument of its own yet.
+
+* **The program is LEFT INSTALLED**; `-Cleanup` removes it and stops. It used
+  to be removed on exit, and the second console was then told
+  `RUN BP ZZKEYPROBE` and answered that it did not exist. `-Cleanup` is exempt
+  from the console guard and from `assert-current` — removing a file needs
+  neither, and a guard that blocks the undo gets worked around.
+* **It refuses if stdin is redirected.** Piping in would measure the pipe and
+  answer the wrong question confidently, which is what it exists to prevent.
+* **It checks the OBJECT exists in `bp.out`**, not just that the compiler said
+  `0 error(s)` — `RUN` needs the object.
+* **`@(0,0)` disables pagination.** A cursor POSITIONING call does that; a
+  special function like `@(-1)` does not. Without it the pager fires mid-listing
+  and **the key pressed to dismiss it is itself a keystroke**.
+* **`sd <command>` is elevation-gated** (`sd.c:734`), so it cannot run the
+  program for you; the operator types `RUN BP ZZKEYPROBE`. Elevating to avoid
+  that would change the session under test. **Elevation does NOT change the
+  account** — measured, an elevated `sd` still lands in `DON`, not `SDSYS`.
+* **Nothing captures its output.** SD writes to the console directly.
+
 ### 5.17 The keyboard: accept both spellings of a key, not the one terminfo names (19 Aug 2026)
 
 **The backspace key did nothing at all in cmd, PowerShell or Windows Terminal**,
