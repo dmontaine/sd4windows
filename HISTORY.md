@@ -27,6 +27,120 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — The backspace key did nothing in any Windows console
+
+**Commit:** this one. **Install:** NOT CYCLED — it rides the same owed cycle as
+the `bp.OUT` entry below. Baseline measured on the 07:41:45 install *before* the
+fix, which is what makes it evidence: piping `COUNTX<DEL> VOC` ran `COUNTX VOC`
+and answered "not in your VOC"; the same with Ctrl-H ran `COUNT VOC` and counted
+422; and the no-erase control was refused.
+
+Reported by the owner: backspace dead in cmd, PowerShell and Windows Terminal,
+and in PuTTY unless its "Backspace key" setting was changed to Control-H.
+
+**A terminal sends one of two bytes for backspace — Ctrl-H (8) or DEL (127) —
+and nothing says which.** `_KEYCODE` built its table from terminfo, so SD
+accepted whichever byte `kbs` named and let the other fall through as a literal;
+`CPROC:835`/`972` have a `case` for `K$BACKSPACE` and none for 127. Every
+Windows console host sends **DEL**, and `LOGIN:116` defaults an unset `TERM` to
+`vt100`, whose `kbs` is `^H`. The two never met.
+
+**No choice of terminal type could have fixed it, and that is the reusable
+part.** Of the 62 entries in `terminfo.src`, 51 say `^H`, one says `^Y`, eight
+have no `kbs`, and **only `xterm` and `linux` say DEL**. The owner had tried
+`vt100-w` because it reads like a Windows variant — it is the **wide**
+132-column variant, `cols#132` and a different `rs2`, with every key capability
+identical to `vt100`. `vt100-at` (AccuTerm, an actual Windows emulator) is
+`kbs=^H` as well.
+
+**A first grep said only two entries had an unusual `kbs` and was wrong about
+which**, because `\\177` is DEL and **prints as nothing** — `kbs=[]` in the
+output was `kbs=[DEL]`. Parsing the capability properly, rather than eyeballing
+grep output, is what turned the answer up.
+
+**The fix binds both bytes, before the terminfo binds**, so `bind`'s
+replace-on-existing behaviour lets terminfo override either: `vt100-at` keeps
+DEL as its Delete key via `kdch1=\\177`, while `vt100` — which has no `kdch1` at
+all — leaves 127 unclaimed and gains a working backspace.
+
+**Defaulting `LOGIN:116` to `xterm` was the other candidate and was rejected.**
+The owner confirmed `TERM xterm` fixes all three consoles, but `xterm`'s `kbs`
+is DEL, so it would break every terminal that sends `^H` — the same bug pointing
+the other way — besides changing `cols`, colours and the function keys for
+everyone.
+
+**It is testable from a pipe**, because `keyin()` reads stdin and a piped byte
+reaches the command-line editor exactly as a keystroke does — the same property
+behind the BOM trap in §6. `gplbld/verify-keys.ps1` is new, unelevated, and
+needs no account and no terminal.
+
+**Not fixed, and recorded as next step 3:** `ED` and the `UPDATE.RECORD` screens
+read raw bytes at `UPDREC:2171` and carry their own tables (`char(127)` →
+`K$DELETE` at `UPDREC:2416`, `SED:4497`), so on a DEL terminal backspace there
+still deletes **forwards**. The two bindings are trivial; the test that drives a
+full-screen editor does not exist yet, and that is the actual work.
+
+---
+
+## 19 Aug 2026 — bp.OUT is fixed and BP and GPL.BP have moved
+
+**Commit:** this one. **Install:** NOT CYCLED — the change landed after the
+07:41:45 install and is unmeasured. `gplsrc` is untouched, so `make sd` is not
+owed; `cycle.ps1` alone is. Block-balance pre-flight: 12 BASIC files, 0 with a
+changed opener/closer delta — which §5.12 says in terms is **necessary and not
+sufficient**.
+
+**The defect first, because it had to go before `BP` could move.** `BASIC:132`
+built the object file name from the token **as typed**, so `BASIC bp X` asked
+for `bp.OUT` — while `CREATE.FILE` writes the VOC id as typed and upper-cases
+the directory to `BP.OUT` (`CREATEF:378`, `UPSTREAM_FIXES.md` #6). The
+three-case fold tries as typed, all lower, all upper and **reaches no
+mixed-case id**, so the next `BASIC BP Y` found no VOC entry, tried to create
+`BP.OUT`, and stopped with `Data pathname 'BP.OUT' already exists` — for ever,
+since nothing clears it but deleting the file.
+
+**The fix is two halves and either alone still produces a mixed name.** The
+name now comes from the VOC record that answered the `open` — the read was
+already there at `BASIC:143` and threw the answer away — **and the suffix
+follows that name's case**, because `'.OUT'` is a literal and would rebuild
+`bp.OUT` from a lower-case id. `out.suffix` rather than a literal in two
+places: the Q-pointer branch appends the same suffix to a file name in another
+account, and what creates the object file there is this same program applying
+this same rule.
+
+**`MICRO` was a tenth comparison site, and the earlier audit could not have
+found it.** `MICRO:134` tested `InfileName[-2,2] = "BP"` to decide whether to
+offer *"Compile?"*. That is a comparison against a **substring of a file name**,
+not against a VOC id, which is the shape the 281-site grep of 18 Aug looked
+for. It had been silently broken since 5.12 (a) made the per-account file `bp`
+— the prompt simply stopped appearing. `upcase()`d now.
+
+**What the id move cost:** four `voc_template` record renames (there the id
+*is* the file name), the `"BP"` default source file in `BASIC`, `CATALOG` ×3,
+`CPROC`, `CREATEA`, `FORMAT` and `GENERATE`; `openseq 'gpl.bp'` in `ERRGEN`,
+`OPGEN` and `REVSTAMP`; five `$include GPL.BP` lines in `BBPROC` and
+`PROG_INFO`; `first.compile`, `second.compile` and `bootstrap.py`;
+`docs/TCL_VERBS.md`; a changelog entry; `verify-fold.ps1`'s SDSYS path.
+
+**Two files had no `START-HISTORY` block at all** — `MICRO` and `PROG_INFO` —
+so they were given one rather than the dated line going unrecorded.
+
+**`verify-lcnames.ps1` gained §9, and its first act is to delete the object
+file.** With one already present BASIC's `open` succeeds and the create branch,
+the only place the name is built, is never reached — so the section would pass
+while measuring nothing. It then reads the account VOC with **exact-match
+reads**: `CT` folds and would answer for any spelling, while a `read` of a VOC
+record does not fold at all, so `bp.out` / `bp.OUT` / `BP.OUT` are
+distinguishable. The second assertion is the regression proper — a further
+compile typed `BASIC BP`, because the failure was never in the compile that
+made the file but in the next one, typed the other way.
+
+**`$COMMAND.STACK` is now the only control left** in §3. Whatever moves it must
+bring a replacement, and the obvious one is a record the verifier makes itself
+rather than a shipped id.
+
+---
+
 ## 19 Aug 2026 — A splatting mistake wore the tier filter's disguise
 
 **Commit:** this one. **Install:** unchanged, 07:41:45, `sd.exe`

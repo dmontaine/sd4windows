@@ -7,9 +7,38 @@ something came to be the way it is.
 
 **Last updated:** 19 Aug 2026, end of the twenty-sixth session.
 
-**THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **07:41:45** install (19 Aug), `sd.exe` **`339AB7157F002679`**.
-Confirm it before believing it: `gplbld\assert-current.ps1`, unelevated.
+**A CYCLE IS OWED — `bp.OUT` AND THE `BP`/`GPL.BP` IDS LANDED AFTER THE
+07:41:45 INSTALL AND ARE UNMEASURED.** `gplsrc` did **not** change, so
+**`make sd` is NOT needed**; `cycle.ps1` alone is the whole of it. Elevated:
+
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+```
+
+Then `verify-lcnames.ps1` — its **new §9** is the one that matters, below —
+**`verify-keys.ps1`** (new, unelevated), and
+`post-cycle-elevated.ps1 -TierPrefix sdtieri -Account sdacct16`.
+
+**AND THE BACKSPACE KEY DID NOTHING IN ANY WINDOWS CONSOLE. FIXED, NOT YET
+MEASURED ON AN INSTALL — §5.17.** A terminal sends either Ctrl-H (8) or DEL
+(127) for backspace; SD bound whichever one the type's `kbs` named and ignored
+the other. **Every Windows console host sends DEL** — cmd, PowerShell and
+Windows Terminal, measured — while `LOGIN:116` defaults an unset `TERM` to
+`vt100`, whose `kbs` is `^H`. `_KEYCODE` now binds **both** bytes as defaults,
+*before* the terminfo binds so a type that genuinely claims one still wins.
+
+**IT IS DRIVEN FROM A PIPE, so it costs nothing to check.** `keyin()` reads
+stdin, so a byte piped in reaches the command-line editor exactly as a
+keystroke does. `COUNTX<erase> VOC` runs `COUNT VOC` if the erase worked and
+`COUNTX VOC` if it did not — two different answers. **Measured on the 07:41:45
+install, before the fix:** DEL not erased, `^H` erased, and the no-erase
+control refused. `gplbld/verify-keys.ps1` is that, as a script.
+
+**`cycle.ps1 -SkipInstall` IS THE CHEAP HALF AND IS WORTH IT HERE**: this
+change edits 12 BASIC programs, and a bootstrap is what catches a misplaced
+`end` that compiled and balanced (§5.12's traps 3 and 4). The block-balance
+pre-flight passed — 12 files, 0 with a changed opener/closer delta — and §5.12
+says in terms that this is **necessary and not sufficient**.
 
 **THIS SESSION DID §5.12 (a)'s WIDE HALF: EVERY SDSYS FILE NAME IS LOWER CASE
 ON DISK, AND SO IS EACH ACCOUNT'S `voc`.** That is the previous session's next
@@ -28,10 +57,48 @@ directories) plus 73 in `gplbld/FILES_DICTS`, and every literal that names them.
 | **`CREATE.ACCOUNT` makes the account's `voc`** | `verify-createaccount.ps1` all PASS, `voc (exact case)` | 07:41:45 |
 | the VOC tiers still filter after it | `verify-tiers.ps1` 22/22, **393 / 411 / 421** | 07:41:45 |
 
-**EVERY VERIFIER HAS NOW RUN AGAINST THIS INSTALL AND ALL PASS.** The register
-is back to `DON` and `SDSYS`, `user_accounts` to `don`, and no `sdtierh*`,
-`sdacct15` or `zzprobeacct` Windows user or group survives. `sdacct1`–`13` and
+**EVERY VERIFIER RAN AGAINST THAT INSTALL AND ALL PASSED.** The register is
+back to `DON` and `SDSYS`, `user_accounts` to `don`, and no `sdtierh*`,
+`sdacct15` or `zzprobeacct` Windows user or group survives. `sdacct1`–`15` and
 `sdtierb`–`h` are spent names; **next free are `sdacct16` and `sdtieri`.**
+
+**AND THEN `bp.OUT` AND THE `BP`/`GPL.BP` IDS WENT IN — NOT YET MEASURED.**
+Next steps 2 and 3 as the previous entry left them, and 3 had to come first.
+
+**THE DEFECT, because it is the interesting half.** `BASIC:132` built the
+object file name from the token **as typed**, so `BASIC bp X` asked for
+`bp.OUT` — and `CREATE.FILE` writes the VOC id as typed while upper-casing the
+directory to `BP.OUT` (`CREATEF:378`, `UPSTREAM_FIXES.md` #6). **No case of the
+three-case fold reaches a MIXED-case id**, so the next `BASIC BP Y` found no
+VOC entry, tried to create `BP.OUT`, and stopped with
+`Data pathname 'BP.OUT' already exists` — for ever.
+
+**THE FIX IS TWO HALVES AND EITHER ALONE STILL PRODUCES A MIXED NAME.** The
+name now comes from the VOC record that answered the `open` (the read was
+already there and threw the answer away), **and the suffix follows that name's
+case** — `'.OUT'` is a literal, so a lower-case id would give `bp.OUT` again.
+`out.suffix` is used in the Q-pointer branch too, because what creates the
+object file in the other account is this same program applying this same rule.
+
+**WHAT MOVED WITH THE IDS:** `voc_template/BP`, `BP.OUT`, `GPL.BP`,
+`GPL.BP.OUT` (record renames — the id **is** the file name there), the `"BP"`
+default source file in `BASIC`, `CATALOG` ×3, `CPROC`, `CREATEA`, `FORMAT`,
+`GENERATE`; `openseq 'gpl.bp'` in `ERRGEN`, `OPGEN`, `REVSTAMP`; five
+`$include GPL.BP` lines in `BBPROC` and `PROG_INFO`; `first.compile` and
+`second.compile`; and `bootstrap.py`'s `RUN`/`BASIC gpl.bp`.
+
+**`MICRO` WAS A COMPARISON AND HAD ALREADY BROKEN SILENTLY.** `MICRO:134`
+tested `InfileName[-2,2] = "BP"` to decide whether to offer *"Compile?"* — a
+comparison, so no fold reached it, and the offer stopped appearing the moment
+5.12 (a) made the per-account file `bp`. Live since 18 Aug; `upcase()`d now.
+It is the tenth site of the nine the earlier audit found, and it was missed
+because the audit looked for comparisons against **VOC ids**, not against a
+**substring of a file name**.
+
+**`$COMMAND.STACK` IS THE LAST CONTROL LEFT.** `verify-lcnames.ps1` §3 types it
+in lower case and requires an UPPER-case echo. When it moves, that section can
+no longer tell a rename from a sweep — **whatever moves it must bring a
+replacement**, and the obvious one is a record the test makes itself.
 
 **THE DIRECT EVIDENCE IS THE DIRECTORY LISTING:**
 
@@ -236,38 +303,49 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
 
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
-1. **§5.12 (a) IS CLOSED. NOTHING IS OWED. PICK UP STEP 2.** Every verifier has
-   run against the 07:41:45 install and all pass — the four unelevated ones and,
-   through `post-cycle-elevated.ps1`, `verify-fold` 10/10,
-   `verify-createaccount` all-PASS and `verify-tiers` 22/22 on 393 / 411 / 421.
+1. **CYCLE, THEN MEASURE `bp.OUT` AND THE TWO IDS.** §5.12 (a) is closed and
+   was verified on the 07:41:45 install. What is unmeasured is everything after
+   it: the `bp.OUT` fix and the `BP`/`GPL.BP` id moves. **`verify-lcnames.ps1`
+   §9 is the decisive one** — it clears the object file first, because with one
+   already there BASIC's `open` succeeds and the create branch, the only place
+   the name is built, is never reached. It then reads the account VOC with
+   EXACT-MATCH reads (`CT` would fold and answer for any spelling) to assert the
+   id is `bp.out` and neither `bp.OUT` nor `BP.OUT`, and compiles a second
+   program with `BASIC BP` to prove the *next* compile no longer stops with
+   "already exists" — which is where the failure always was.
 
-2. **`$COMMAND.STACK`, THEN `BP`, THEN THE F/Q FILE-POINTER IDS — 5.12 (b).**
-   The disk names are done; what is left is the **ids**: `VOC`, `BP`, `NEWVOC`,
-   `GPL.BP`, `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`,
-   `SD.ACCOUNTS`, `OS.USERS`, `BP.OUT`, `GPL.BP.OUT`. **These are the ones with
-   a second reader**: `$include GPL.BP revstamp.h` in most of `GPL.BP`,
-   `BASIC GPL.BP *` in `SECOND.COMPILE`, `CD $MAP`/`CD ACCOUNTS`/`CD DICT.DICT`/
-   `CD VOC` in `THIRD.COMPILE`, `FIRST.COMPILE`, and `bootstrap.py`'s
-   `RUN GPL.BP WRITE_INSTALL_DICTS` and `BASIC GPL.BP CPROC`. All resolve
-   through the fold, so each can move on its own — but `BASIC <file> <prog>`
-   derives the object file name from the TOKEN, so item 3 comes first for `BP`
-   and for `GPL.BP` alike. `$hold` is still the worked example: the hard-coded
-   literals, the `MESSAGES` records, the `VOC_TEMPLATE` record where the id
-   **is** the file name (case-only `git mv` in two steps, or
-   `git -c core.ignorecase=false add -A` for a batch), `CREATEA`, a
-   `START-HISTORY` line per file, a changelog entry, and a
-   `verify-lcnames.ps1` section for the pre-rename account.
+2. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** `bp`, `bp.out`,
+   `gpl.bp` and `gpl.bp.out` went on 19 Aug; what is left is `VOC`, `NEWVOC`,
+   `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`,
+   `SD.ACCOUNTS`, `OS.USERS`, and `$COMMAND.STACK`. **`gpl.bp` is the worked
+   example** and it is the one with a second reader: `$include gpl.bp x`,
+   `BASIC gpl.bp *` in `second.compile`, `first.compile`, and
+   `bootstrap.py`'s `RUN`/`BASIC gpl.bp`. All resolve through the fold, so
+   each id can move on its own.
 
-3. **FIX `bp.OUT` BEFORE `BP` MOVES.** `BASIC:132` derives the object file name
-   from the string the user TYPED, so `BASIC bp x` creates VOC id `bp.OUT` while
-   `CREATE.FILE` upper-cases the directory to `BP.OUT` (`UPSTREAM_FIXES.md` #6).
-   No case of the three-case fold reaches a mixed-case id, so that account can
-   never compile with `BASIC BP y` again. **Every account where anyone types
-   `BASIC bp x` acquires it**, and 5.12 (a) is what made people type `bp`.
-   `BASIC:135` already knows which VOC record answered the `open` — derive the
-   name from that rather than from the token. §6.
+   a. **`VOC` IS THE AWKWARD ONE.** `DELETEF:48` bans it by name
+      (`banned.files = 'VOC':@VM:'$ACC'`, both sides `upcase()`d already),
+      `CNAME:94`, `CREATEF:67`, `SHOW:52` and `SED:5460` name it as a
+      literal, and `CPROC:3686` reads `$VOC.PARSER` from it.
+   b. **`$COMMAND.STACK` TAKES THE LAST CONTROL WITH IT.** Bring a
+      replacement — a record the verifier creates — or §3 stops being able
+      to distinguish a rename from a sweep.
+   c. **Account names are still out of scope** and are the part of 5.12 that
+      cannot move until comparison stops depending on the upcasing.
 
-4. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
+3. **BACKSPACE IN THE FULL-SCREEN EDITORS — §5.17's second half.** `ED` and the
+   `UPDATE.RECORD` screens read raw bytes (`UPDREC:2171`) and carry their own
+   key tables, so the `_KEYCODE` fix does not reach them: on a DEL terminal,
+   which is every Windows console, backspace still deletes **forwards**. The
+   same both-bytes decision applies to `UPDREC:2396`/`:2416` and `SED:4497` —
+   but it needs a test that drives a full-screen editor, and nothing here does
+   that yet. **That test is the work**, not the two bindings.
+
+4. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4), so a PROGRAMMER with
+   `BASIC` reaches the OS from a program whatever `OS.USERS` says. That is
+   the C half of §7 step 7 and it is a real hole, not tidying.
+
+5. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
    by this session, and still blocked on the decision below. Every account
    directory still inherits `sdusers:(OI)(CI)(M)`, so any SD user can read and
    rewrite any other account's files outside SD.
@@ -285,7 +363,7 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
    enter another account once its directory is locked, which §5.6 says must
    always work. **Decide that before building.** `gplbld/secure-accounts.ps1`
    remains unwired.
-5. **`RDPUSER`** — decided in shape by the owner, **blocked on item 4**. §8 has
+6. **`RDPUSER`** — decided in shape by the owner, **blocked on item 5**. §8 has
    the syntax and the one open question: where "may RDP" is recorded, given the
    tier lives in `ACCOUNTS` field 5 and RDP-ness would live in the *absence* of
    a Windows group.
@@ -415,6 +493,7 @@ to run after any cycle; "START HERE" has the order:**
 
 ```
 gplbld\verify-lcnames.ps1                       UNELEVATED; 5.12, 115 checks
+gplbld\verify-keys.ps1                          UNELEVATED; 5.17, backspace
 gplbld\verify-credacl.ps1                       UNELEVATED; step 6, $CRED ACL
 gplbld\verify-nocase.ps1                        UNELEVATED; step 8, DHF_NOCASE
 gplbld\verify-osusers.ps1                       UNELEVATED; step 7, SH admitted
@@ -776,6 +855,7 @@ preference rather than necessity:
 
 ```powershell
 gplbld\verify-lcnames.ps1          UNELEVATED; the lower-case work, incl. new §2a
+gplbld\verify-keys.ps1             UNELEVATED; 5.17, backspace; needs no terminal
 gplbld\verify-credacl.ps1          UNELEVATED; must NOT be run elevated
 gplbld\verify-nocase.ps1           UNELEVATED
 gplbld\verify-osusers.ps1          UNELEVATED
@@ -4284,13 +4364,35 @@ so the list content and the ids can move independently.
 deliberately so**: the 14 `$`/`%`/`@` records and the F/Q **file pointers**,
 which are file names rather than commands and belong with (a).
 
-**BUT `BP` HAS A DEFECT IN FRONT OF IT — FIX `bp.OUT` FIRST.** `BASIC:132`
-derives the object file name from the token TYPED, so `BASIC bp x` makes VOC id
-`bp.OUT` while `CREATE.FILE` writes the directory as `BP.OUT`. No case of the
-three-case fold reaches a mixed-case id, so that account can never compile with
-`BASIC BP y` again. §6 has the whole trap; `BASIC:135` already knows which VOC
-record answered the `open`, which is where the name should come from.
+**`bp.OUT` IS FIXED AND `BP`, `BP.OUT`, `GPL.BP`, `GPL.BP.OUT` HAVE MOVED —
+19 Aug 2026, NOT YET MEASURED.** `BASIC` built the object file name from the
+TOKEN, so `BASIC bp X` asked for `bp.OUT` while `CREATE.FILE` made the
+directory `BP.OUT` (`CREATEF:378`, `UPSTREAM_FIXES.md` #6). **No case of the
+fold reaches a mixed-case id**, so the next `BASIC BP Y` stopped with
+`Data pathname 'BP.OUT' already exists`, permanently.
 
+**THE FIX IS TWO HALVES AND EITHER ALONE STILL GIVES A MIXED NAME.** The name
+comes from the VOC record that answered the `open` — the read was already
+there and discarded the answer — **and the suffix follows that name's case**,
+because `'.OUT'` is a literal and would rebuild `bp.OUT` from a lower-case id.
+`out.suffix` is used in the Q-pointer branch too: what creates the object file
+in the other account is this same program applying this same rule.
+
+**`MICRO` WAS THE TENTH COMPARISON SITE AND THE AUDIT COULD NOT HAVE FOUND
+IT.** `MICRO:134` tested `InfileName[-2,2] = "BP"` to decide whether to offer
+*"Compile?"* — a comparison against a **substring of a file name**, not
+against a VOC id, which is the shape the 281-site grep looked for. It had been
+silently broken since 5.12 (a) made the per-account file `bp`. `upcase()`d now.
+
+**WHAT THE ID MOVE COST:** four `voc_template` record renames (there the id
+**is** the file name), the `"BP"` default source file in `BASIC`, `CATALOG` ×3,
+`CPROC`, `CREATEA`, `FORMAT` and `GENERATE`; `openseq 'gpl.bp'` in `ERRGEN`,
+`OPGEN` and `REVSTAMP`; five `$include GPL.BP` lines across `BBPROC` and
+`PROG_INFO`; `first.compile`; `second.compile`; `bootstrap.py`; `docs/TCL_VERBS.md`;
+a changelog entry; and `verify-lcnames.ps1` §3 and its new §9.
+
+**`$COMMAND.STACK` IS THE LAST CONTROL.** Whatever moves it must bring a
+replacement, or §3 can no longer tell a rename from a sweep.
 
 **(a) IS DONE FOR THE PER-ACCOUNT FILES — 18 Aug 2026**, `verify-lcnames.ps1`
 26/26 on the 19:46:12 install. A new account holds `$hold`, `$hold.dic`,
@@ -4404,6 +4506,64 @@ at it.)*
 `COMO:44` and `PHANTOM:59` define the on-disk name and the VOC id with the same
 `$define`, so splitting them is `CREATEA`'s `fn`/`os.name` pattern again — and
 nothing in `gplbld` drives `COMO`, so it would ship unmeasured.
+
+### 5.17 The keyboard: accept both spellings of a key, not the one terminfo names (19 Aug 2026)
+
+**The backspace key did nothing at all in cmd, PowerShell or Windows Terminal**,
+and nothing in PuTTY unless its "Backspace key" setting was changed to
+Control-H. Reported by the owner, 19 Aug 2026.
+
+**A terminal sends one of two bytes for backspace — Ctrl-H (8) or DEL (127) —
+and nothing in the protocol says which.** `_KEYCODE` built its table from
+terminfo (`code = K$BACKSPACE ; key.string = tinfo<T$KEY.BACKSPACE>`), so SD
+accepted whichever byte `kbs` named and let the other fall through as a literal.
+`CPROC:835`/`972` have a `case` for `K$BACKSPACE` and none for 127, so it was
+silently discarded.
+
+**MEASURED: every Windows console host sends DEL.** `LOGIN:115` takes
+`env('TERM')` and `LOGIN:116` defaults an unset one to `vt100`, whose `kbs` is
+`^H` — and `TERM` is unset on this machine. So the platform this port exists for
+had a dead backspace out of the box.
+
+**NO CHOICE OF TERMINAL TYPE COULD HAVE FIXED IT, which is the part worth
+keeping.** Of the 62 entries in `terminfo.src`, **51 say `^H`** (39 as `^H`,
+12 as ``), one says `^Y`, eight have no `kbs` at all — and **only `xterm` and
+`linux` say DEL**. That is why `vt100-w` looked like it should have helped and
+did not: it is the **wide** 132-column variant, `cols#132` and a different
+`rs2`, and every key capability is identical to `vt100`. `vt100-at` (AccuTerm,
+which genuinely is a Windows emulator) is `kbs=^H` too.
+
+**THE FIX BINDS BOTH BYTES, BEFORE THE TERMINFO BINDS.** `bind` *replaces* an
+existing binding, so the two defaults are overridden by anything terminfo
+claims: `vt100-at` has `kdch1=` and keeps DEL as its Delete key, while
+`vt100` — which has no `kdch1` at all — leaves 127 unclaimed and gains a working
+backspace. **Additive in the same sense as the three-case fold**: it turns a
+lookup that finds nothing into one that finds something, and changes no lookup
+that already succeeds.
+
+**CHANGING THE DEFAULT TERMINAL TYPE WAS THE OTHER CANDIDATE AND WAS REJECTED.**
+`LOGIN:116` could default to `xterm`, and the owner confirmed `TERM xterm` fixes
+all three consoles. But it would then break every terminal that sends `^H`,
+because `xterm`'s `kbs` is DEL and `^H` would be the unbound one — the same bug
+pointing the other way. It also changes `cols`, colours and the function keys
+for everyone. Binding both is strictly better and touches nothing else.
+
+**IT IS TESTABLE FROM A PIPE, WHICH IS WHY IT HAS A VERIFIER AT ALL.**
+`keyin()` reads stdin, so a byte piped in reaches the command-line editor
+exactly as a keystroke does — the same property behind the BOM trap in §6. The
+instrument is **what SD executes**, not what it echoes: `COUNTX<erase> VOC` runs
+`COUNT VOC` and answers "422 record(s) counted" if the erase worked, and
+`COUNTX VOC` and answers "not in your VOC" if it did not. `gplbld/verify-keys.ps1`,
+unelevated, needs no account and no terminal.
+
+**THE EDITORS ARE NOT FIXED AND IT IS THE SAME FAMILY.** `UPDREC:2171` reads raw
+bytes with `keyin()` and assembles escape sequences itself, carrying its own
+table where `char(127)` is bound to `K$DELETE` (`UPDREC:2416`) and `char(8)` to
+`K$BACKSPACE` (`UPDREC:2396`). `SED` does the same (`SED:4497`). So inside `ED`
+and the `UPDATE.RECORD` screens, backspace on a DEL terminal still deletes
+**forwards**. Fixing it means the same both-bytes decision in two more tables,
+and it needs a test that drives a full-screen editor — which nothing here does
+yet.
 
 ### 5.13.1 The ForceCommand scp cost has a workaround: pull, do not push (17 Aug 2026)
 
