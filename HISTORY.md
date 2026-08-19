@@ -27,6 +27,67 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — Backspace in the full-screen editors, and the test that was "the work"
+
+**Commit:** this one, over `679f47c`. **A CYCLE IS OWED** — `SED` and `UPDREC`
+are BASIC, only a bootstrap compiles them, and elevation was declined twice at
+the end of the session. Nothing below is measured on the new build.
+
+**Owner: "fix backspace in ED and UPDATE.RECORD".**
+
+**ED was never affected and §5.17 was wrong to list it.** It is the LINE editor
+and reads with `input`, so the `_KEYCODE` fix of 19 Aug already covers it.
+Measured: DEL erases backwards in ED today. `ED:3436` passes *"Not full screen
+editor"* and there is no path from `ED` to `SED`.
+
+**The two that were affected, measured on the 10:06:08 install before changing
+anything:**
+
+```
+SED    type AB, DEL, C          -> ABC   deleted forwards   (Ctrl-H gave AC)
+UPDREC field AB, type X, DEL    -> XB    deleted forwards   (Ctrl-H gave AB)
+```
+
+**And UPDREC was worse than a dead key: its arrows typed themselves into the
+record.** Its only cursor bindings were `char(203)`-`char(212)`, an 8-bit
+terminal convention nothing on this platform emits, and no escape sequence was
+bound at all. `get.key` walks the multi-character table, fails, and the bytes
+fall through as text. **Measured: field `AB`, press Right, type `X`, save ->
+`CXAB`.** Silent data corruption in a data-entry screen, which is why the arrows
+were fixed here too and not left for later.
+
+**`SED`'s arrows were already right** and are the worked example `UPDREC` copies:
+`SED:4489` binds Ctrl-B, `ESC [ D`, `ESC O D` and `char(203)` to `F.LEFT`. All
+three measured working. Only its erase keys were wrong.
+
+**THE INSTRUMENT IS THE SAVED RECORD, AND THAT IS THE REUSABLE PART.** §5.17 said
+this needed "a test that drives a full-screen editor, and nothing here does that
+yet", and assumed a console. It does not need one: `SED` and `UPDREC` read the
+keyboard with `keyin()`, which reads **standard input**, so a full-screen editor
+is drivable from a pipe exactly as the command-line editor is. Type, save, quit,
+read the record back with `CT`. The screen is never inspected.
+`gplbld\verify-editkeys.ps1` is that test, 14 checks.
+
+**WHAT IT COST: AN HOUR TO A RECORD LOCK THAT OUTLIVES ITS PROCESS.** A bounded
+run that times out kills SD mid-edit; `LIST.READU` then shows an `RU` lock owned
+by a dead user; `UNLOCK USER n` and `UNLOCK FILE ...` will not take it from an
+ordinary account session; and every later run on that record id stops on *"Wait
+for lock to be released? Y or N only"*. One timeout poisons the id for the life
+of the install. **The verifier now uses a fresh random record id per case** and
+reports stale locks rather than failing on them. They clear with `sd -CLEANUP`,
+which removes only users whose process is gone (`clopts.c:242`), or at the next
+cycle, which rebuilds the shared memory segment.
+
+**Correction, and it corrects something written earlier the same day.** This file
+said an agent shell CANNOT raise a UAC prompt; the twenty-seventh session
+overturned that after four successes. Both are too strong. The same mechanism
+then failed **twice** at the end of this session, returning *"The operation was
+canceled by the user"* **with no way for the caller to tell a declined prompt
+from one that never appeared**. It tracks whether someone is at the keyboard.
+**Try it; never build a step that depends on it.**
+
+---
+
 ## 19 Aug 2026 — All three console hosts read; the keyboard subject is closed
 
 **Commit:** this one, over `1f466f4`. Documents only.

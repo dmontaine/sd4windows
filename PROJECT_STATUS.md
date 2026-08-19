@@ -26,13 +26,16 @@ install (19 Aug), `sd.exe` **`FA5B47C0F6CF32D6`**, `gcat` 129, `GPL.BP.OUT` 190,
 **Register left at `DON` and `SDSYS`, `user_accounts` at `don`, probes removed.
 `sdacct1`–`17` and `sdtierb`–`j` are spent; next free `sdacct18`, `sdtierk`.**
 
-**AN AGENT SHELL *CAN* RAISE A UAC PROMPT — the claim in this file was wrong.**
-`Start-Process -Verb RunAs -Wait` prompted and succeeded repeatedly this
-session: `verify-osusers`' two elevated phases, `post-cycle-elevated.ps1`, and
-`cycle.ps1` itself. So a session can run the whole cycle unattended apart from
-consent. `post-cycle-elevated.ps1`'s header comment still says otherwise and is
-the one place left to correct if it matters. **What is true is narrower**: it
-fails where there is no interactive desktop at all, e.g. over ssh.
+**AN AGENT SHELL CAN SOMETIMES RAISE A UAC PROMPT, AND THE HONEST ANSWER IS "IT
+DEPENDS ON SOMEONE BEING THERE".** Earlier claims in this file went both ways and
+both were too strong. Measured across one session: `Start-Process -Verb RunAs
+-Wait` prompted and succeeded **four times** — `verify-osusers`' two elevated
+phases, `post-cycle-elevated.ps1`, and `cycle.ps1` — and then failed **twice**,
+returning *"The operation was canceled by the user"* **without the caller being
+able to tell a declined prompt from one that never appeared**. The difference
+tracks whether the owner was at the keyboard. **So: try it, but never build a
+step that assumes it.** Anything elevated has to be safe to hand to a human
+instead, which is what `post-cycle-elevated.ps1` is for.
 
 **THIS SESSION: THE ARROW KEYS. §5.18, and it is a regression from 18 Aug.**
 Owner reported left arrow, right arrow, backspace and clear screen dead in cmd,
@@ -97,6 +100,28 @@ owner's PowerShell run, and **confirmed fixed in a live console**: the same
 17-byte reading now completes with no pager at all. 40 arrow presses list 120
 bytes uninterrupted on an 80x24 terminal.
 
+**THE EDITOR KEYS ARE FIXED IN SOURCE AND NOT YET MEASURED — §5.19.** `SED` and
+`UPDREC` bound `char(127)` to Delete, so Backspace deleted forwards inside every
+full-screen edit; and `UPDREC` had no escape-sequence bindings at all, so its
+arrow keys **typed themselves into the record** — field `AB`, press Right, type
+`X`, save gave `CXAB`. Both measured before the change on the 10:06:08 install.
+**`ED` was never affected**: it is the line editor, reads with `input`, and DEL
+already erases backwards there — §5.17 was wrong to list it.
+
+**A CYCLE IS OWED AND IT IS THE FIRST THING TO DO.** The install is stale: `SED`
+and `UPDREC` are BASIC and only a bootstrap compiles them. Elevation was declined
+twice at the end of the session, so it was left for a human:
+
+```powershell
+gplbld\cycle.ps1                ELEVATED
+gplbld\verify-editkeys.ps1      UNELEVATED, 14 checks, new
+```
+
+**`verify-editkeys.ps1` IS THE TEST §5.17 SAID DID NOT EXIST**, and the thing
+that made it cheap is that `keyin()` reads standard input — **a full-screen
+editor is drivable from a pipe**, and the instrument is the saved record rather
+than the screen.
+
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
@@ -104,17 +129,11 @@ carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
    `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`,
    `SD.ACCOUNTS`, `OS.USERS`, `$COMMAND.STACK`.
 
-2. **BACKSPACE IN THE FULL-SCREEN EDITORS — §5.17's second half.** `ED` and the
-   `UPDATE.RECORD` screens carry their own key tables, so neither the
-   `_KEYCODE` binds nor the terminal-type change reaches them. **The work is a
-   test that drives a full-screen editor**, and nothing here does that yet —
-   `probe-keys.ps1` is the nearest thing and it only reads keys.
+2. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4) — the C half of §7 step 7.
 
-3. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4) — the C half of §7 step 7.
+3. **§8's PER-ACCOUNT ACLs**, blocked on the administrator decision.
 
-4. **§8's PER-ACCOUNT ACLs**, blocked on the administrator decision.
-
-5. **`RDPUSER`** — blocked on item 4.
+4. **`RDPUSER`** — blocked on item 3.
 
 **THE CULL WAS NOT DONE AND WAS NOT ASKED FOR.** The owner said they "wouldn't
 mind getting rid of all the terminal types", then ruled: copy `linux`, name it
@@ -384,9 +403,9 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
 `verify-tiers.ps1`'s name lists, and `docs/TCL_VERBS.md`.
 
 **THE NEXT STEPS IN DETAIL.** The header's list is the index; these are the
-same five items with their sub-points. **Numbers match.** Two items that used to
+same four items with their sub-points. **Numbers match.** Three items that used to
 head this list are done and gone: the post-cycle run on the 09:10:45 install,
-and the left arrow — §5.18 and the header have those.
+the left arrow (§5.18), and backspace in the full-screen editors (§5.19).
 
 1. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** `bp`, `bp.out`,
    `gpl.bp` and `gpl.bp.out` went on 19 Aug; what is left is `VOC`, `NEWVOC`,
@@ -407,19 +426,11 @@ and the left arrow — §5.18 and the header have those.
    c. **Account names are still out of scope** and are the part of 5.12 that
       cannot move until comparison stops depending on the upcasing.
 
-2. **BACKSPACE IN THE FULL-SCREEN EDITORS — §5.17's second half.** `ED` and the
-   `UPDATE.RECORD` screens read raw bytes (`UPDREC:2171`) and carry their own
-   key tables, so the `_KEYCODE` fix does not reach them: on a DEL terminal,
-   which is every Windows console, backspace still deletes **forwards**. The
-   same both-bytes decision applies to `UPDREC:2396`/`:2416` and `SED:4497` —
-   but it needs a test that drives a full-screen editor, and nothing here does
-   that yet. **That test is the work**, not the two bindings.
-
-3. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4), so a PROGRAMMER with
+2. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4), so a PROGRAMMER with
    `BASIC` reaches the OS from a program whatever `OS.USERS` says. That is
    the C half of §7 step 7 and it is a real hole, not tidying.
 
-4. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
+3. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
    by this session, and still blocked on the decision below. Every account
    directory still inherits `sdusers:(OI)(CI)(M)`, so any SD user can read and
    rewrite any other account's files outside SD.
@@ -437,7 +448,7 @@ and the left arrow — §5.18 and the header have those.
    enter another account once its directory is locked, which §5.6 says must
    always work. **Decide that before building.** `gplbld/secure-accounts.ps1`
    remains unwired.
-5. **`RDPUSER`** — decided in shape by the owner, **blocked on item 4**. §8 has
+4. **`RDPUSER`** — decided in shape by the owner, **blocked on item 3**. §8 has
    the syntax and the one open question: where "may RDP" is recorded, given the
    tier lives in `ACCOUNTS` field 5 and RDP-ness would live in the *absence* of
    a Windows group.
@@ -569,6 +580,7 @@ to run after any cycle; "START HERE" has the order:**
 gplbld\verify-lcnames.ps1                       UNELEVATED; 5.12, 115 checks
 gplbld\verify-keys.ps1                          UNELEVATED; 5.17+5.18, keys
 gplbld\probe-keys.ps1                           UNELEVATED; a REAL console only
+gplbld\verify-editkeys.ps1                      UNELEVATED; 5.19, the editors
 gplbld\verify-credacl.ps1                       UNELEVATED; step 6, $CRED ACL
 gplbld\verify-nocase.ps1                        UNELEVATED; step 8, DHF_NOCASE
 gplbld\verify-osusers.ps1                       UNELEVATED; step 7, SH admitted
@@ -932,6 +944,7 @@ preference rather than necessity:
 gplbld\verify-lcnames.ps1          UNELEVATED; the lower-case work, incl. new §2a
 gplbld\verify-keys.ps1             UNELEVATED; 5.17+5.18; needs no terminal
 gplbld\probe-keys.ps1              UNELEVATED; the ONE needing a real console
+gplbld\verify-editkeys.ps1         UNELEVATED; 5.19, SED and UPDATE.RECORD
 gplbld\verify-credacl.ps1          UNELEVATED; must NOT be run elevated
 gplbld\verify-nocase.ps1           UNELEVATED
 gplbld\verify-osusers.ps1          UNELEVATED
@@ -4583,6 +4596,73 @@ at it.)*
 `$define`, so splitting them is `CREATEA`'s `fn`/`os.name` pattern again — and
 nothing in `gplbld` drives `COMO`, so it would ship unmeasured.
 
+### 5.19 The full-screen editors carry their own key tables (19 Aug 2026)
+
+**Owner, 19 Aug 2026: "fix backspace in ED and UPDATE.RECORD".** §5.17 had
+recorded this as owed and said the work was "a test that drives a full-screen
+editor, and nothing here does that yet". **That test now exists** —
+`gplbld/verify-editkeys.ps1`, 14 checks.
+
+**ED WAS NEVER AFFECTED, AND §5.17 WAS WRONG TO LIST IT.** `ED` is the LINE
+editor: it reads whole lines with `input`, so it goes through the command-line
+editor that `_KEYCODE` fixed on 19 Aug. **Measured: DEL erases backwards in ED
+already.** It cannot reach the screen editor either — `ED:3436` passes
+*"Not full screen editor"* and there is no path from one to the other.
+
+**THE TWO THAT WERE AFFECTED ARE `SED` AND `UPDREC`**, and the fault is the same
+in both: their key tables are hard-coded and know nothing of terminfo, so they
+bound `char(127)` — the byte every Windows console sends for **Backspace** — to
+**Delete**. Measured before the change, on the 10:06:08 install:
+
+| | Backspace, DEL 127 | Ctrl-H 8 |
+|---|---|---|
+| `SED`, type `AB` DEL `C` | **`ABC`** — deleted forwards | `AC` — correct |
+| `UPDREC`, field `AB`, type `X` DEL | **`XB`** — deleted forwards | `AB` — correct |
+
+**AND `UPDREC` WAS WORSE THAN A DEAD KEY: ITS ARROWS TYPED THEMSELVES INTO THE
+RECORD.** Its only cursor-key bindings were `char(203)`–`char(212)`
+(`UPDREC:2427`), an 8-bit terminal convention nothing on this platform emits. No
+escape sequence was bound at all, so `get.key` walked the multi-character table,
+failed to match, and the bytes fell through as ordinary text. **Measured: field
+`AB`, press Right, type `X`, save — the record became `CXAB`.** That is silent
+data corruption in a data-entry screen, and it is why the arrows were fixed here
+as well as the erase keys.
+
+**`SED`'s ARROWS WERE ALREADY RIGHT** and are the worked example the `UPDREC`
+change copies: `SED:4489` binds `@B`, `@[[D`, `@[OD` and `char(203)` to
+`F.LEFT` — Ctrl-B, both escape spellings, and the 8-bit code. Measured: all
+three spellings move the cursor. Only its erase keys were wrong.
+
+**THE TWO KEYS ARE DISTINCT BYTES ON THIS PLATFORM, so nothing is shared and
+neither key loses its function** — Backspace is `127`, Delete is `ESC [ 3 ~`
+(`kdch1`), both measured from three console hosts in §5.18. `SED`'s `F.DELETE`
+and `UPDREC`'s `K$DELETE` now take the escape sequence and `127` goes to
+backspace. **A terminal that genuinely sends DEL for its Delete key gets
+Backspace instead**; these are shipped defaults, and `SED` reads its bindings
+from a file a site can edit.
+
+**`UPDREC` ALSO GAINED THE KEYPAD BLOCK** — `khome`, `kend`, `kdch1`, `kich1`,
+`kpp`, `knp` — because every one of them was unbound and would have typed itself
+into the record in exactly the same way. `kich1` goes to `K$OVERLAY`, which is
+what the 8-bit Insert code `char(211)` was already bound to.
+
+**THE INSTRUMENT IS THE SAVED RECORD, AND THAT IS WHAT MAKES THIS TESTABLE AT
+ALL.** `SED` and `UPDREC` read the keyboard with `keyin()`, which reads standard
+input — so **a full-screen editor is drivable from a pipe** exactly as the
+command-line editor is. The screen is not drivable and does not need to be: type,
+save, quit, then read the record back with `CT`. §5.17 assumed a console was
+required and it is not.
+
+**A TIMED-OUT RUN LEAVES A RECORD LOCK, AND IT OUTLIVES THE PROCESS.** This cost
+an hour. `Stop-Job` kills SD mid-edit; `LIST.READU` then shows an `RU` lock owned
+by a dead user; `UNLOCK USER n` and `UNLOCK FILE ...` will not take it from an
+ordinary account session; and every later run on that record id stops on
+*"Wait for lock to be released? Y or N only"*. **`verify-editkeys.ps1` uses a
+fresh random record id for every case** so one timeout cannot poison the rest,
+and reports any stale locks it finds rather than failing on them. They clear
+with `sd -CLEANUP` (elevated — it removes only users whose process is gone,
+`clopts.c:242`) or at the next cycle, which rebuilds the shared memory segment.
+
 ### 5.18 The arrow keys were dead because of the default terminal type (19 Aug 2026)
 
 **Owner, 19 Aug 2026: left arrow, right arrow, backspace and clear screen do
@@ -4728,14 +4808,18 @@ instrument is **what SD executes**, not what it echoes: `COUNTX<erase> VOC` runs
 `COUNTX VOC` and answers "not in your VOC" if it did not. `gplbld/verify-keys.ps1`,
 unelevated, needs no account and no terminal.
 
-**THE EDITORS ARE NOT FIXED AND IT IS THE SAME FAMILY.** `UPDREC:2171` reads raw
-bytes with `keyin()` and assembles escape sequences itself, carrying its own
-table where `char(127)` is bound to `K$DELETE` (`UPDREC:2416`) and `char(8)` to
-`K$BACKSPACE` (`UPDREC:2396`). `SED` does the same (`SED:4497`). So inside `ED`
-and the `UPDATE.RECORD` screens, backspace on a DEL terminal still deletes
-**forwards**. Fixing it means the same both-bytes decision in two more tables,
-and it needs a test that drives a full-screen editor — which nothing here does
-yet.
+**THE EDITORS ARE THE SAME FAMILY AND ARE NOW FIXED — §5.19, 19 Aug 2026.**
+`UPDREC` reads raw bytes with `keyin()` and carries its own table, and `SED`
+does the same; both bound `char(127)` to Delete, so Backspace deleted forwards
+inside them.
+
+**TWO THINGS THIS PARAGRAPH USED TO SAY ARE WRONG, and §5.19 has the
+measurements.** It listed **`ED`**, which is the LINE editor: it reads with
+`input`, so the `_KEYCODE` fix above already covers it and DEL erases backwards
+there today. And it said a test "needs a console" — it does not. `keyin()` reads
+**standard input**, so a full-screen editor is drivable from a pipe, and the
+instrument is the record it saves rather than the screen it paints.
+`gplbld/verify-editkeys.ps1` is that test.
 
 ### 5.13.1 The ForceCommand scp cost has a workaround: pull, do not push (17 Aug 2026)
 
