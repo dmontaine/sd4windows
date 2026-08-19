@@ -7,8 +7,8 @@ something came to be the way it is.
 
 **Last updated:** 19 Aug 2026, end of the twenty-seventh session.
 
-**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **15:30:36**
-install (19 Aug), `sd.exe` **`FA5B47C0F6CF32D6`**, terminfo **100**. Confirm
+**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **16:38:01**
+install (19 Aug), `sd.exe` **`4042F21834AFDD75`**, terminfo **100**. Confirm
 before believing it: `gplbld\assert-current.ps1`, unelevated.
 
 **THE POST-CYCLE RUN IS COMPLETE AND EVERYTHING PASSED. Nothing is owed.**
@@ -93,6 +93,57 @@ bytes uninterrupted on an 80x24 terminal.
 `os.users`. Typing the OLD upper-case name is answered in the new spelling,
 which is the rename demonstrated rather than inferred.
 
+**`OS.EXECUTE` IS GATED — §4 and the C half of §7 step 7 are CLOSED.**
+`verify-osusers.ps1` **24/24** on the 16:38:01 install.
+
+**THE HOLE, measured with its control before the change** — one unelevated
+session standing in `DON`, unlisted in `OS.USERS`:
+
+```
+SH echo ...                 ->  "don is not permitted to use the operating system shell"
+os.execute ... capturing    ->  output captured, and the plain form ran too
+```
+
+**Same user, same session: the visible route refused and the real one open.**
+Anyone with `BASIC` had the operating system. After: *"don is not permitted to
+use OS.EXECUTE at line 2 of ..."*.
+
+**THE GATE IS IN C, IN `sh()`** (`op_sh.c`, `os_permitted()`), because
+`OS.EXECUTE` is its own BASIC statement — `BCOMP:9643` → `OP.SH`/`OP.SHCAP` →
+`sh()` — and CPROC's `os.command:` gate is nowhere near that path. Three ways
+in, and **the first is what keeps `SH` working**:
+
+1. **`HDR_INTERNAL`.** The `SH` verb reaches the OS by CPROC itself doing
+   `os.execute`, so in C the verb and the statement are the same code. CPROC is
+   `$internal` and has already applied the finer rule, so trusting the marker
+   leaves `SH` unchanged. **It cannot be forged**: `BCOMP:2864` honours
+   `$INTERNAL` only for a session that is itself internal AND elevated.
+2. **An elevated session**, as `SH` allows — or an empty `OS.USERS` locks the
+   machine's own administrator out.
+3. **`OS.USERS` field 2, `OS.EX`**, which until now was read by nobody.
+
+**MISSING FILE OR MISSING RECORD MEANS NO** — the behaviour before this existed,
+and the opposite of the tier lists in `NEWVOC`.
+
+**NOTHING SYSTEM-SIDE CHANGES, AND THAT WAS CHECKED RATHER THAN ASSUMED: all 13
+programs in the shipped tree that call `os.execute` are `$internal`** — `BCOMP`,
+`CPROC`, `CREATEA`, `CREATE_USER`, `DELETE_USER`, `ELEVATE`, `IS_GROUP`,
+`IS_GRP_MEMBER`, `IS_SD_USER`, `IS_USER`, `MODIFYA`, `OS_GROUP`, `PS_SCRIPT`.
+
+**THE TRUTH TABLE IS COMPLETE, which is what makes it evidence.** A gate that
+refused everything, or read the wrong field, could not produce this:
+
+| `os.users` record | `SH` | `OS.EXECUTE` |
+|---|---|---|
+| unlisted | refused | refused |
+| `SH=yes, OS.EX=no` | **runs** | refused |
+| `SH=no, OS.EX=yes` | refused | **runs** |
+| elevated session | runs | **runs** |
+
+**THE ACL ON `os.users` IS THE WHOLE OF THE PROTECTION** —
+`gplbld/secure-osusers.ps1` makes it read-only to `sdusers`. Without it a user
+grants themselves this in one line and the gate is decoration.
+
 **AND `$COMMAND.STACK` WENT TOO — `verify-lcnames.ps1` **142/142** on the
 15:30:36 install.** It is X-type rather than an F/Q pointer, and its readers do
 **exact record reads with no fold** — `_VOC_REF` folds a FILE name, never a
@@ -161,11 +212,22 @@ list it.
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
-1. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4) — the C half of §7 step 7.
+1. **§8's PER-ACCOUNT ACLs**, blocked on the administrator decision.
 
-2. **§8's PER-ACCOUNT ACLs**, blocked on the administrator decision.
+2. **`RDPUSER`** — blocked on item 1.
 
-3. **`RDPUSER`** — blocked on item 2.
+3. **THE FIRST VERIFIER RUN AFTER A CYCLE FAILS CHECKS THAT PASS ON THE
+   SECOND, and it is not understood.** Seen twice on 19 Aug: one failure in
+   `verify-lcnames` §6 after the 15:30:36 install, and **four** after the
+   16:38:01 one — 138/142, then 142/142 with no change in between. **The
+   `$RELEASE` prompt is NOT the cause**: `LOGIN:444` fires it only when the
+   VOC's stamp differs from `SD.REV.STAMP`, and both read `W1.0-0`, measured.
+   **This matters more than it looks**: the whole discipline here is "cycle,
+   then measure", and a first run that lies in either direction undermines
+   every result in this file. **Next step is to capture a first run's output
+   unpiped** — both times the detail was lost because the run was piped through
+   `Select-String`, so `Start-Transcript` recorded the command and not the
+   answers.
 
 **§5.12's REMAINING SCOPE, now that every file-pointer id has moved:** the 387
 `NEWVOC` / 400 `VOC_TEMPLATE` **verb and keyword** ids, `SD.VOCLIB`'s 11, the
@@ -440,16 +502,12 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
 `verify-tiers.ps1`'s name lists, and `docs/TCL_VERBS.md`.
 
 **THE NEXT STEPS IN DETAIL.** The header's list is the index; these are the
-same three items with their sub-points. **Numbers match.** Everything that used to head this
+same two items, plus a loose end the header lists third with their sub-points. **Numbers match.** Everything that used to head this
 list is done: the post-cycle run on the 09:10:45 install, the left arrow
 (§5.18), backspace in the full-screen editors (§5.19), and the whole of the
 file-pointer rename including `$COMMAND.STACK` (§5.12 b).
 
-1. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4), so a PROGRAMMER with
-   `BASIC` reaches the OS from a program whatever `OS.USERS` says. That is
-   the C half of §7 step 7 and it is a real hole, not tidying.
-
-2. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
+1. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
    by this session, and still blocked on the decision below. Every account
    directory still inherits `sdusers:(OI)(CI)(M)`, so any SD user can read and
    rewrite any other account's files outside SD.
@@ -467,22 +525,31 @@ file-pointer rename including `$COMMAND.STACK` (§5.12 b).
    enter another account once its directory is locked, which §5.6 says must
    always work. **Decide that before building.** `gplbld/secure-accounts.ps1`
    remains unwired.
-3. **`RDPUSER`** — decided in shape by the owner, **blocked on item 2**. §8 has
+2. **`RDPUSER`** — decided in shape by the owner, **blocked on item 1**. §8 has
    the syntax and the one open question: where "may RDP" is recorded, given the
    tier lives in `ACCOUNTS` field 5 and RDP-ness would live in the *absence* of
    a Windows group.
 
-**ONE VERIFIER CHECK FAILED ONCE AND HAS NOT DONE SO AGAIN — WATCH FOR IT.**
-`verify-lcnames.ps1` §6, "CT VOC COPYP shows a bare V type code", failed on the
-FIRST run against the 15:30:36 install and passed on the next three, and the
-record itself is correct (`CT VOC COPYP` answers `1: V` by hand). **The cause
-was not established.** What is worth knowing is that a mechanism with exactly
-this shape exists: `LOGIN:444` compares the VOC's `$RELEASE` field 2 against
-`SD.REV.STAMP` and, if they differ, **prompts in a loop** — `input s`, exiting
-only on Y or N. **A piped session answers that prompt with its next command**,
-so one stray prompt swallows a verb and the check that depended on it reports a
-plain False with nothing in the output to say why. It would hit any piped
-verifier. If a lone unexplained failure turns up after a cycle, look there first.
+**THE FIRST VERIFIER RUN AFTER A CYCLE FAILS CHECKS THAT THE SECOND PASSES.**
+Seen twice on 19 Aug and it is next step 3. `verify-lcnames.ps1` failed §6's
+"CT VOC COPYP shows a bare V type code" on the first run after the 15:30:36
+install and passed on the next three; after the 16:38:01 install it came back
+**138 of 142** and then **142 of 142** immediately afterwards with nothing
+changed in between. The records are correct by hand each time.
+
+**THE `$RELEASE` PROMPT IS NOT THE CAUSE, and it was the obvious suspect.**
+`LOGIN:444` compares the VOC's `$RELEASE` field 2 against `SD.REV.STAMP` and
+prompts in a loop that only Y or N escapes — and **a piped session answers that
+prompt with its next command**, which would produce exactly this shape. But both
+read `W1.0-0` on this install, measured, so it never fires. The mechanism is
+still worth knowing: it would hit any piped verifier here.
+
+**WHY IT MATTERS MORE THAN A FLAKY TEST.** The discipline in this repository is
+"cycle, then measure". A first run that fails checks which are actually fine
+teaches whoever meets it to re-run until green, and the next real failure gets
+the same treatment. **Capture a first run's output UNPIPED** — both times the
+detail was lost because the run went through `Select-String`, so
+`Start-Transcript` recorded the command and not the answers.
 
 **SHOULD `cycle.ps1` RUN `make`? NOT DECIDED.** A2 makes the omission loud,
 which is the cheap half. Building inside an elevated cycle would leave objects

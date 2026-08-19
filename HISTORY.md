@@ -27,6 +27,67 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — OS.EXECUTE is gated: the C half of step 7 is closed
+
+**Commit:** this one, over `69015c3`. **Install:** **16:38:01**, `sd.exe`
+`4042F21834AFDD75`. `verify-osusers.ps1` **24/24**.
+
+**The hole, measured with its control before the change** - one unelevated
+session standing in DON, unlisted in OS.USERS:
+
+```
+SH echo ...               ->  "don is not permitted to use the operating system shell"
+os.execute ... capturing  ->  output captured, and the plain form ran too
+```
+
+Same user, same session: the visible route refused and the real one open. Any
+account that could write a program had the operating system. After the change:
+*"don is not permitted to use OS.EXECUTE at line 2 of ..."*.
+
+**The gate is in C, in `sh()`** (`op_sh.c`, `os_permitted()`), because
+OS.EXECUTE is its own BASIC statement - `BCOMP:9643` -> `OP.SH`/`OP.SHCAP` ->
+`sh()` - and CPROC's `os.command:` gate is not on that path and cannot be.
+
+**Three ways in, and the first is what keeps SH working.** `HDR_INTERNAL`: the
+SH verb reaches the OS by CPROC itself doing `os.execute`, so in C the verb and
+the statement are the same code and cannot be told apart. CPROC is `$internal`
+and has already applied the finer rule, so trusting the marker leaves SH
+unchanged - and it cannot be forged, because `BCOMP:2864` honours `$INTERNAL`
+only for a session that is itself internal AND elevated. Then an elevated
+session, and OS.USERS field 2.
+
+**Nothing system-side changes, and it was checked rather than assumed:** all 13
+programs in the shipped tree that call `os.execute` are `$internal`.
+
+**THE TRUTH TABLE IS WHAT MAKES IT EVIDENCE.** A gate that refused everything,
+or that read field 1 by mistake, could not produce this:
+
+```
+unlisted            SH refused    OS.EXECUTE refused
+SH=yes OS.EX=no     SH RUNS       OS.EXECUTE refused
+SH=no  OS.EX=yes    SH refused    OS.EXECUTE RUNS
+elevated            SH runs       OS.EXECUTE RUNS
+```
+
+The middle two rows are one record each, read in one session, and they are the
+whole proof that the two fields are independent. `verify-osusers.ps1` gained a
+third elevated phase to write the second of them.
+
+**A trap this file already documents caught me anyway.** The first version of
+the OS.EXECUTE helper both printed and returned, so PowerShell handed the caller
+an array with the printed lines in front of the answer, and two checks compared
+'refused' against `System.Object[]` and failed **on a gate that was working**.
+`Invoke-ElevatedPhase` in that same script carries a comment about exactly this.
+It now reports through a script-scope variable.
+
+**Still open, and it is next step 3: the first verifier run after a cycle fails
+checks the second passes.** 138/142 then 142/142 with nothing changed between.
+The `$RELEASE` prompt was the obvious suspect and is ruled out - `LOGIN:444`
+fires only on a stamp mismatch, and both read `W1.0-0`. Not understood, and it
+undermines "cycle, then measure" until it is.
+
+---
+
 ## 19 Aug 2026 — $COMMAND.STACK moves, and section 3 gets a control it owns
 
 **Commit:** this one, over `0394af4`. **Install:** **15:30:36**.
