@@ -55,7 +55,9 @@ together while the arrows were dead.
 CONSOLE, AND EVERY INSTRUMENT IN `gplbld` IS A PIPE.** That is also why
 `verify-keys` passed 6/6 on backspace while the owner was reporting it broken.
 **Do not read a green suite as "the keyboard works"** — it means the byte
-sequences resolve, not that a key press produces them.
+sequences resolve, not that a key press produces them. **`gplbld\probe-keys.ps1`
+is the one instrument here that is not a pipe**, and it is what closes that gap;
+it refuses to run if its own stdin is redirected.
 
 **`sdtic` HAD A DEFECT AND IT COST A BUILD — `UPSTREAM_FIXES.md` #9, fixed.**
 `reset_buffers()` was inside the "entry compiled" guard, so a failed entry's
@@ -65,12 +67,28 @@ buffered to a file. It also always exited 0. Both fixed.
 
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
-1. **CONFIRM THE ARROWS AT A REAL CONSOLE.** `verify-keys` 10/10 says the
-   bindings resolve; only a person can say the key press arrives. One console
-   each — cmd, PowerShell, Windows Terminal — and the item is closed. **If any
-   of them still fails, the next measurement is the raw-byte probe** (a BASIC
-   loop on `keyin()` printing `seq()`), because that is the one question the
-   protocol argument in §5.18 cannot answer from source.
+1. **CONFIRM THE ARROWS AT A REAL CONSOLE — `gplbld\probe-keys.ps1`, and it
+   is built.** `verify-keys` 10/10 says the bindings resolve; only a person can
+   say the key press arrives. One console each — cmd, PowerShell, Windows
+   Terminal — and the item is closed.
+
+   ```powershell
+   gplbld\probe-keys.ps1        UNELEVATED, in a real console window
+   ```
+
+   It compiles `ZZKEYPROBE` into the caller's own `bp`, starts a plain `sd`,
+   and prints every byte a key sends — naming an arrow's spelling as it goes,
+   `ESC [ D` or `ESC O D`, which is the whole of what §5.18 turns on. Then it
+   removes the program again (`-Keep` leaves it).
+
+   **It refuses if standard input is redirected**, because piping into it would
+   measure the pipe and answer the wrong question confidently — which is the
+   failure it exists to prevent. **Nothing captures its output**: SD writes to
+   the console directly, so the reading has to be copied out of the window.
+
+   **`sd <command>` is elevation-gated** (`sd.c:734`, changelog 15 Aug 26), so
+   the probe cannot run itself — the operator types `RUN BP ZZKEYPROBE`.
+   Elevating to avoid that would change the session under test.
 
 2. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** Unchanged by this
    session; see the entry further down. `VOC`, `NEWVOC`, `ACCOUNTS`, `MESSAGES`,
@@ -551,7 +569,8 @@ to run after any cycle; "START HERE" has the order:**
 
 ```
 gplbld\verify-lcnames.ps1                       UNELEVATED; 5.12, 115 checks
-gplbld\verify-keys.ps1                          UNELEVATED; 5.17, backspace
+gplbld\verify-keys.ps1                          UNELEVATED; 5.17+5.18, keys
+gplbld\probe-keys.ps1                           UNELEVATED; a REAL console only
 gplbld\verify-credacl.ps1                       UNELEVATED; step 6, $CRED ACL
 gplbld\verify-nocase.ps1                        UNELEVATED; step 8, DHF_NOCASE
 gplbld\verify-osusers.ps1                       UNELEVATED; step 7, SH admitted
@@ -913,7 +932,8 @@ preference rather than necessity:
 
 ```powershell
 gplbld\verify-lcnames.ps1          UNELEVATED; the lower-case work, incl. new §2a
-gplbld\verify-keys.ps1             UNELEVATED; 5.17, backspace; needs no terminal
+gplbld\verify-keys.ps1             UNELEVATED; 5.17+5.18; needs no terminal
+gplbld\probe-keys.ps1              UNELEVATED; the ONE needing a real console
 gplbld\verify-credacl.ps1          UNELEVATED; must NOT be run elevated
 gplbld\verify-nocase.ps1           UNELEVATED
 gplbld\verify-osusers.ps1          UNELEVATED

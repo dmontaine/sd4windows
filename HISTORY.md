@@ -27,6 +27,37 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — probe-keys.ps1: the first instrument here that is not a pipe
+
+**Commit:** this one, over `a71d124`. No source change under `gplsrc` or
+`sdsys`, so the 10:06:08 install stays current.
+
+`gplbld\probe-keys.ps1` compiles `ZZKEYPROBE` into the caller's own `bp`,
+starts a plain `sd` in the current console, and prints every byte each key
+sends — naming an arrow's spelling, `ESC [ D` or `ESC O D`, as it goes. Then it
+removes the program (`-Keep` leaves it).
+
+**Why it is worth a script rather than a paste of BASIC.** Every other
+instrument in `gplbld` drives SD down a pipe, which measures what SD does with
+a byte and never what the console produces from a key press. That gap let
+`verify-keys` pass 6/6 on backspace on the same install where backspace was
+being reported dead. **It refuses if stdin is redirected**, so it cannot quietly
+become another pipe measurement.
+
+**Registered in `assert-current.ps1`'s `$neverShipped`** — a new file under
+`gplbld` that is not in that list makes every install look stale.
+
+**`sd <command>` is elevation-gated** (`sd.c:734`, 15 Aug), so the script cannot
+run the program itself; the operator types `RUN BP ZZKEYPROBE`. Elevating to
+avoid that would change the session under test.
+
+**Verified before handing it over:** the BASIC compiles (0 errors), the decoder
+was fed `ESC [ D`, `ESC O C`, DEL and Ctrl-H down a pipe and named all four
+correctly, and the redirect guard exits 2. The console reading itself is the
+owner's to take — that is the whole point of it.
+
+---
+
 ## 19 Aug 2026 — Clear screen was never broken (closes part of the entry below)
 
 **Commit:** this one, over `17fcae2`. No code change.
