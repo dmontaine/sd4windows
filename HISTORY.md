@@ -27,6 +27,83 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - SDNet removed, UNLOCK repaired, and a killed session explained three failures at once
+
+**Commit:** this one. Twenty-second session. `gplbld/verify-nonet.ps1`,
+**16 of 16**, exit 0, on the **18:54:10** install, `sd.exe`
+**`DA280984D21571B4`**.
+
+**IT WAS STILL THERE.** The owner believed the network file capability had gone
+with telnet, for the same reason - the client protocol is insecure. It had not:
+`netfiles.c` (1,227 lines) was compiled, `op_dio1.c:635` treated any VOC file
+reference containing `;` as `server;remote_file` and called `net_open()`, and
+the three server verbs shipped. **The `NETFILES` parameter that looks like an
+off switch was parsed, stored in the shared segment, reported by `CONFIG` - and
+tested nowhere.** `net_open()` read host, user and password from `sd.conf`,
+connected on port 4245, and de-obfuscated the password with a rolling
+substitution over a fixed alphabet; the code's own comment at `netfiles.c:564`
+calls it "a very simple encryption".
+
+**LATENT, NOT LIVE, AND THE DISTINCTION WAS WORTH ESTABLISHING BEFORE ACTING.**
+A server must be named in an `[sdnet]` section of `sd.conf`; with none defined
+every remote open failed `ER_SERVER`. Neither the shipped nor the installed
+`sd.conf` had one.
+
+**THE SEPARABILITY CHECK CAME FIRST**, because the owner's condition was that
+the remote API keep working. **`sdnet.h` is NOT SDNet** despite the name - it is
+the socket/termios portability header (`SOCKET`, `closesocket`, `NetError`),
+included by `sdclilib.c`, `linuxio.c`, `lnxport.c` and `op_skt.c`. Deleting it
+would have broken the client library. Only `netfiles.c` and its call sites were
+the feature.
+
+**Removed:** `netfiles.c`; 30 `NET_FILE` branches across `op_dio3` (12),
+`dh_ak` (6), `op_lock` (5), `op_dio4` (2), `op_dio1` (2), `op_dio2` (1); the
+`;` dispatch; the `net_*` prototypes in `sd.h`; `DELSRVR`, `SETSRVR`,
+`LISTSRVR`; `DELETE.SERVER`, `SET.SERVER`, `LIST.SERVERS`. **Kept
+deliberately:** `sdnet.h`, `APISRVR`, the `NETFILES` parse (or an existing
+`sd.conf` stops SD starting - the `CREATUSR` trap), the `sysseg` field (removing
+it shifts the shared-segment layout), and `K_GET_SDNET_CONNECTIONS`, which now
+returns an empty list so `INT$KEYS.H` numbering does not move.
+
+**THREE TRAPS, ALL FOUND BY THE COMPILER:** `gpl.src` is the build list
+(`Makefile:61`), not the `*.c` wildcard, so deleting the file gave "No rule to
+make target 'netfiles.o'"; `sd.h` changed and the Makefile tracks no header
+dependencies, so objects had to be cleared; and removing a branch orphans its
+locals - but one orphaned declaration was still needed by the surviving `else`,
+so a blanket delete broke the build.
+
+**`UNLOCK` WAS REPAIRED IN THE SAME CYCLE, AND IT HAD JUST COST REAL TIME.** Its
+`VOC_TEMPLATE` entry held the description, "Verb to unlock records", in field 1
+where the type code belongs - one of the five malformed entries §8 recorded on
+16 Aug. Field 1 is now `V`. There is no description field to move the text to;
+correct records do not carry one. **`COPYP` still needs the identical fix.**
+
+**AND THE THING THAT COST THE MOST: ONE KILLED SESSION CAUSED THREE SEPARATE
+FAILURES THAT LOOKED UNRELATED.** A `verify-fold.ps1 -Cleanup` run was killed at
+a `DELETE.FILE` prompt. It left (a) the update lock `DELETEF:145` takes on the
+VOC record, so later attempts **blocked silently** - SD echoed the command and
+printed nothing, which reads like another prompt and is not; (b) its user-table
+slot occupied, so `sdwind` would not shut down and the next `cycle.ps1` refused
+to start with "SD is still running: sdwind(8792)" **while the service itself was
+already Stopped**; and (c) no way to clear (a), because `UNLOCK` is the command
+for exactly that and was the malformed entry above.
+
+Two attempts were spent guessing at which prompt had caught it. What identified
+it was **bounding the harness**: `Invoke-SD` now runs SD in a job with a 45
+second timeout and returns whatever SD printed, so the empty output after
+`:DELETE.FILE zzlcfold1 FORCE` became visible and named the cause. Both
+verifiers carry the timeout and a note saying what a timed-out call leaves
+behind.
+
+**`FORCE` is still right and stays**: `DELETEF` prompts separately for the DATA
+and DICT parts, each in an unbounded `until yn = 'Y' or 'N'` loop, and **only
+when the stored path differs from the default name** - which is exactly what
+`CREATE.FILE`'s upper-casing of a lower-case name produces. So a lower-case file
+cannot be deleted from a script the way an upper-case one can, which will be met
+again during the renames.
+
+---
+
 ## 18 Aug 2026 - The name fold gained a lower-case attempt, at 74 sites rather than the eight that were written down
 
 **Commit:** this one. Twenty-second session. `gplbld/verify-fold.ps1`, **5 of 5**,

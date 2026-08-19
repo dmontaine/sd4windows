@@ -8,11 +8,27 @@ something came to be the way it is.
 **Last updated:** 18 Aug 2026, end of the twenty-second session.
 
 **THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **11:35:44** install, `sd.exe` **`5AC5BE3AE9D3CAF2`** (unchanged;
-this session touched no C). Confirm it before believing it — one unelevated
-command, `gplbld\assert-current.ps1`.
+against the **18:54:10** install, `sd.exe` **`DA280984D21571B4`**. Confirm it
+before believing it — one unelevated command, `gplbld\assert-current.ps1`.
 
-**CLOSED AND VERIFIED THIS SESSION — `gplbld/verify-catgate.ps1`, 25 of 25,
+**FOUR THINGS CLOSED THIS SESSION, EACH VERIFIED ON A REAL INSTALL — read the
+four blocks below only if a claim needs its evidence:**
+
+| Subject | Verifier | Install |
+|---|---|---|
+| Global catalogue gate + `gcat`/`GPL.BP.OUT` locks | `verify-catgate.ps1` 25/25 | 11:35:44 |
+| §5.12's name fold, 74 sites | `verify-fold.ps1` 5/5 | 16:24:23 |
+| SDNet removed, `UNLOCK` repaired | `verify-nonet.ps1` 16/16 | 18:54:10 |
+
+**THE ONE THING THAT COST MOST, AND IT WAS NOT SD:** a hard-killed SD session
+leaves **three** marks that look unrelated — a record lock that makes later
+`DELETE.FILE` on that name block **silently**, an occupied user-table slot that
+stops `sdwind` shutting down so the next `cycle.ps1` refuses to start *while the
+service reads Stopped*, and no way to clear the first because `UNLOCK` was
+broken. §8 has it. **Bound every scripted SD call** — both verifiers now use a
+45s timeout, and that is what turned "it hangs" into a diagnosis.
+
+**CLOSED AND VERIFIED — `gplbld/verify-catgate.ps1`, 25 of 25,
 exit 0, on the 11:35:44 install:**
 
 - **THE GLOBAL CATALOGUE WAS WRITABLE FROM INSIDE SD BY ANY PROGRAMMER, AND IS
@@ -42,6 +58,19 @@ exit 0, on the 11:35:44 install:**
   catalogue globally while standing in its own account. That is also what makes
   the gate testable without credentials — `LOGTO SDSYS` then `LOGTO <account>`
   is a genuinely unprivileged session in the same pipe.
+
+**SDNET IS GONE — verified on the 18:54:10 install, `sd.exe`
+`DA280984D21571B4`.** `gplbld/verify-nonet.ps1`, **16 of 16**, exit 0. Owner's
+decision: `qmclient` stays because the API needs it and is mitigated by
+requiring an ssh tunnel; `qmnet` had neither mitigation nor an off switch —
+`NETFILES` was read at startup and tested nowhere — and kept each server's
+password in `sd.conf` under a substitution cipher. Removed: `netfiles.c`, 30
+`NET_FILE` branches, the `;` dispatch in `op_dio1.c`, three BASIC programs and
+three VOC entries. **`sdnet.h` STAYS — it is not SDNet**, it is the
+socket/termios portability header the client library and terminal I/O include.
+`gcat` 132 → 129. §8 has the scope and the three traps. **`UNLOCK` shipped in
+the same cycle** and now has a `V` type code, so the one command for clearing a
+stuck record lock works for the first time.
 
 **ALSO CLOSED AND VERIFIED — §5.12's NAME FOLD, on the 16:24:23 install.**
 `gplbld/verify-fold.ps1`, **5 of 5**, exit 0. The lookup chain is now **as typed
@@ -106,16 +135,32 @@ running the bootstrap.
    RDP" is recorded, given the tier lives in `ACCOUNTS` field 5 and RDP-ness
    would live in the *absence* of a Windows group.
 
+**RIDE THIS ON THE NEXT CYCLE, WHATEVER IT IS: `COPYP`.** One line in
+`VOC_TEMPLATE/COPYP` — field 1 must be `V`, not "Verb for Pick style COPY". It
+is the last of §8's five malformed entries still needing anything: `UNLOCK` was
+fixed this session, and `DELETE.SERVER`/`SET.SERVER` were **deleted** with SDNet
+rather than repaired, deliberately. `COPYP` is a PROGRAMMER-tier verb that has
+never worked. The edit costs a minute; it is listed here only because it needs a
+cycle to verify and should not have one of its own.
+
 **STILL OPEN, unchanged by this session:** `OS.EXECUTE` is ungated for
 everybody (§4), so a PROGRAMMER with `BASIC` reaches the OS from a program
 whatever `OS.USERS` says — that is the C half of step 7. And the wide half of
 §5.12, account names, is untouched.
 
-**`UPSTREAM_FIXES.md` GAINED ENTRY 6**, PROPOSED and not sent: `CREATE.FILE`
-writes the VOC entry as typed but upper-cases the name on disk, so it reports a
-name that does not resolve. Verified on `main` and `origin/dev`. HISTORY lists
-five more findings checked and deliberately **not** sent, so nobody re-checks
-them.
+**`UPSTREAM_FIXES.md` HOLDS ENTRIES 6 AND 7, BOTH PROPOSED AND NEITHER SENT.**
+Sending them is the owner's call.
+
+- **6** — `CREATE.FILE` writes the VOC entry as typed but upper-cases the name
+  on disk, so it reports a name that does not resolve. Verified on `main` and
+  `origin/dev`. **Still live here**: §5.12's fold makes the symptom survivable,
+  not absent, and it is what makes `DELETE.FILE` prompt on a lower-case name.
+- **7** — the global catalogue can be written and deleted by any user, because
+  only the spelled-out `GLOBAL` keyword is checked. Checked against `../sdb64`.
+  High severity: `gcat` holds the object code every session executes.
+
+HISTORY lists five more findings checked and deliberately **not** sent, so
+nobody re-checks them.
 
 **ONE THING NOBODY HAS TRACED:** the installed `sdsys` holds an empty directory
 literally named `C:`. Probably a Windows path reaching code that wanted a bare
@@ -7437,6 +7482,24 @@ away from being undone by its own user.
 Field 1 holds the DESCRIPTION where the type code belongs, so the record is
 shifted by one: `COPYP`, `DELETE.SERVER`, `LOAD.LANGUAGE`, `SET.SERVER`,
 `UNLOCK`. Compare `LIST.SERVERS`, which is correct — `V` / `CA` / `$LSTSRVR`.
+
+**TWO OF THE FIVE ARE NOW SETTLED, AND ONE WAS SETTLED BY DELETION.**
+`UNLOCK` **IS FIXED AND VERIFIED — 18 Aug 2026**, field 1 is now `V`, checked on
+the 18:54:10 install by `verify-nonet.ps1` (it rides along there because it
+shipped in the same cycle, not because it is related). There is no description
+field to move the text to; correct records simply do not carry one.
+**`DELETE.SERVER` and `SET.SERVER` no longer exist** — they were deleted with
+SDNet rather than repaired, on purpose: fixing them would have restored the
+management verbs for a subsystem that was being removed. **`COPYP` still needs
+the identical one-line fix** and is the only one left. **`LOAD.LANGUAGE` is a
+ZERO-BYTE file** — a different fault from the other four, and not yet looked at.
+
+**`UNLOCK` lives only in `VOC_TEMPLATE`, not `NEWVOC`**, so SDSYS gets it from
+the bootstrap and administrator accounts get it through
+`TIER.ADD.ADMINISTRATOR`. Note that `CREATEA`'s copy loop reads `rec[1,1]` — the
+first CHARACTER of the record — so an administrator account was silently given
+`V` from the `V` of "Verb", and the entry may therefore have worked there while
+being broken in SDSYS. Worth knowing before concluding the fix changed nothing.
 Three are being removed anyway; **`COPYP` and `UNLOCK` need the missing `V`
 line**, and `UNLOCK` is what an administrator reaches for to clear a stuck
 record lock.
@@ -7450,9 +7513,19 @@ is easily mistaken for another prompt. Two attempts were spent guessing at
 prompts before a timeout in the harness showed the empty output that identified
 it.
 
-**The remedy is to restart SD** (`sd -stop`, `sd -start`, elevated), which
-rebuilds the shared segment and drops every lock — because `UNLOCK`, the command
-for exactly this, is one of the five malformed entries above and cannot run.
+**At the time the remedy was to restart SD** (`sd -stop`, `sd -start`,
+elevated), which rebuilds the shared segment and drops every lock — because
+`UNLOCK`, the command for exactly this, was one of the malformed entries above
+and could not run. **`UNLOCK` WORKS FROM THE 18:54:10 INSTALL ONWARDS**, so try
+it first; the restart is the fallback, not the procedure.
+
+**AND THE SAME KILLED SESSION BLOCKS THE NEXT CYCLE.** `cycle.ps1` stopped with
+*"SD is still running after 45s: sdwind(8792)"* at 17:21 on 18 Aug 2026 with the
+**service already Stopped** — an orphaned `sdwind` holding the segment, because
+it will not shut down while a user-table slot is still occupied. Same cause as
+the lock: the session was killed without deregistering. `Stop-Process` the PID
+`cycle.ps1` names, then run it again. **Any hard kill of an SD session leaves
+both a lock and a slot**, so expect the pair together.
 **Fixing `UNLOCK` is one line** in `VOC_TEMPLATE/UNLOCK`: field 1 must be `V`,
 not the description. It needs a cycle, and it is worth doing before anything
 else drives SD from a script.
@@ -7516,6 +7589,97 @@ same day by the repository owner** and are now written into §5.6. SDSYS reaches
 every account without exception, and `LOGTO` accepts a registered account name
 only — direct directory access by path is not supported, which closes the
 bypass rather than trying to resolve paths back to accounts.
+
+### OPEN AND UNDECIDED: SDNet was NOT removed, and its off switch does nothing (found 18 Aug 2026)
+
+The repository owner believed the network file capability had gone with telnet,
+for the same reason — the client protocol is inherently insecure. **It is still
+here, it is compiled, and it is reachable.**
+
+- `gplsrc/netfiles.c`, 1,227 lines, and `gplsrc/sdnet.h`. **Built**, because
+  `Makefile:65` is `TEMPSRCS := $(wildcard *.c)` and excludes only `sdclient.c`.
+- `GPL.BP/DELSRVR`, `SETSRVR`, `LISTSRVR`; `VOC_TEMPLATE/DELETE.SERVER`,
+  `SET.SERVER`, `LIST.SERVERS`.
+- **Reachable from `OPEN`**: `op_dio1.c:635` treats any VOC file reference
+  containing `;` as `server;remote_file` and calls `net_open()`.
+
+**`NETFILES` IS NOT A GATE.** It is parsed (`config.c:251`), copied to the
+shared segment (`sysseg.c:237`) and displayed (`op_config.c:119`,
+`sysdump.c:92`) — and **tested nowhere**. Grep for the field: those four sites
+are all of them. There is no way to turn this off in configuration.
+
+**The protocol is what the owner remembered.** `net_open()` reads host, user and
+password from `sd.conf` (`netfiles.c:424`), connects on port **4245**, and
+recovers the password with a rolling substitution over a fixed 64-character
+alphabet — `netfiles.c:564` calls it "a very simple encryption" in its own
+comment.
+
+**IT IS LATENT, NOT LIVE, AND THE DISTINCTION MATTERS.** A server must be named
+in an `[sdnet]` section of `sd.conf` (`netfiles.c:446`); with none defined, every
+remote open fails `ER_SERVER` (`:459`). Neither the shipped nor the installed
+`sd.conf` has such a section or a `NETFILES` line — checked 18 Aug 2026. So
+nothing is reachable across the network today. What is wrong is that the code
+ships and is compiled, that the credentials for any server added later sit in
+`sd.conf` under a substitution cipher, and that **there is no switch to refuse
+the feature** — a `;` in a VOC entry is the whole trigger, and a user who can
+write their own VOC can supply one.
+
+**CONSEQUENCE FOR THE MALFORMED VOC ENTRIES (§8 above).** `DELETE.SERVER` and
+`SET.SERVER` do not work *because* they are malformed. Repairing them would
+restore the management verbs for a subsystem that is to be removed, and would
+add no containment — the open path needs a VOC entry with a `;`, not the verbs.
+**Leave them broken; remove them with the rest.**
+
+**OWNER'S DECISION, 18 Aug 2026: REMOVE IT.** `qmclient` stays — the API needs
+it, and it is mitigated by requiring an ssh tunnel — but `qmnet` goes.
+
+**IT IS SEPARABLE FROM THE API, CHECKED BEFORE ANY CODE WAS TOUCHED.**
+**`sdnet.h` IS NOT SDNet AND MUST STAY** — despite the name it is a portability
+header (termios, netdb, the `SOCKET` typedef, `closesocket`, `NetError`), and its
+own description says it "extracts commonly used platform dependencies from
+networking and terminal i/o modules". That is why `sdclilib/sdclilib.c` includes
+it, along with `linuxio.c`, `lnxport.c` and `op_skt.c`. **Deleting it would break
+the client library and terminal I/O.** The API's dependency is on the shims, not
+on remote files.
+
+**REMOVED AND VERIFIED 18 Aug 2026** — `gplbld/verify-nonet.ps1`, **16 of 16**,
+exit 0, on the **18:54:10** install, `sd.exe` **`DA280984D21571B4`**. Builds
+clean, zero errors and zero warnings; `sd.exe` 1,914,621 bytes, was 1,955,243.
+**`gcat` went 132 → 129 entries**, which is the three removed programs and is
+the cheapest independent check that the removal reached the installed tree.
+What follows is what was taken out and the three things that bit while doing it.
+
+**THREE TRAPS, ALL FOUND BY THE COMPILER:**
+
+1. **`gpl.src` IS THE BUILD LIST, NOT THE `*.c` WILDCARD.** `Makefile:61` is
+   `SDSRCS := $(shell cat $(GPLDOTSRC))` — deleting `netfiles.c` gave
+   "No rule to make target 'netfiles.o'" until the name came out of `gpl.src`
+   too. The wildcard at `:65` is a different list and misled the first reading.
+2. **`sd.h` changed, and the Makefile tracks no header dependencies** — so
+   `rm -f gplobj/*.o` first, exactly as §7 step 1a records for `config.h`.
+3. **Removing a branch orphans its locals.** `dh_ak.c` and `op_dio4.c` were left
+   with unused `index_name`, `akname`, `list_descr`, `count_descr`. One of those
+   declarations was still needed by the surviving `else` branch, so a blanket
+   delete broke the build — read each warning rather than trusting a pattern.
+
+**SCOPE, MEASURED:**
+
+- `gplsrc/netfiles.c` — delete, 1,227 lines. It is the whole of the feature.
+- **30 `NET_FILE` references** (`descr.h:317`, a `FILE_VAR` type) in
+  `op_dio3.c` (12), `dh_ak.c` (6), `op_lock.c` (5), `op_dio4.c` (2),
+  `op_dio1.c` (2), `op_dio2.c` (1). Every one is a clean `fvar->type == NET_FILE`
+  test or a `case NET_FILE:`, so each is a branch deletion rather than surgery.
+- The `;` dispatch at `op_dio1.c:635`, which is what reaches `net_open()` at all.
+- `GPL.BP/DELSRVR`, `SETSRVR`, `LISTSRVR`; `VOC_TEMPLATE/DELETE.SERVER`,
+  `SET.SERVER`, `LIST.SERVERS`. **Do not repair the malformed two first** — see
+  above.
+- **`NETFILES` NEEDS NO CODE CHANGE AND SHOULD GET NONE.** It is already inert:
+  parsed at `config.c:251`, stored at `sysseg.c:237`, reported at
+  `op_config.c:119` — and tested nowhere. **Leave the parse**, or an `sd.conf`
+  carrying the line stops SD starting, exactly as with `CREATUSR` (§7 step 1a);
+  and **leave the `sysseg` field**, because removing it shifts the shared-segment
+  layout and `SYSSEG_REVSTAMP` does not catch that.
+- It is a C change, so it needs `make sd` and a full cycle, not just a bootstrap.
 
 ### Open: what may a scheduled job run? (the login half is now answered)
 
