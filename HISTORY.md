@@ -27,6 +27,94 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - The second VOC-id rename, and two harness defects the documented post-cycle sequence exposed
+
+**Commit:** this one. **Install:** 21:29:59, `sd.exe` `A71C53652197195E`,
+`assert-current` exit 0. `verify-lcnames.ps1` **46/46**, `verify-fold.ps1`
+10/10, `make check-local` PASS, `verify-credacl` / `-nocase` / `-osusers`
+exit 0.
+
+**The VOC id `$HOLD` is now `$hold`** — PROJECT_STATUS.md §5.12 (b), the second
+rename after `$savedlists`, and the one the fold work of the previous session
+was built for. Changed: `CLEANAC:72`, `MICRO:60`, `SPVIEW` (95, 106, 346),
+`_NEXTPTR:39`, `_PRFILE:56`, `SETPTR` (334, 612, 639, 811), `CREATEA:759`,
+`MESSAGES` 7119/7131/7170, `NEWVOC/SP.VIEW`'s description text, and
+`VOC_TEMPLATE/$HOLD` renamed to `$hold`.
+
+**`VOC_TEMPLATE` was the new part.** `$savedlists` had no record there, so this
+was the first rename where the VOC id *is* a file name on disk: `BBPROC:181`
+copies each `VOC_TEMPLATE` record into SDSYS's own VOC by id. `core.ignorecase`
+is true in this repository, so the rename went through a temporary name —
+`git mv '$HOLD' 'zz$hold.tmp'` then `git mv 'zz$hold.tmp' '$hold'`. Fields 2 and
+3 still read `$HOLD` / `$HOLD.DIC`: those are SDSYS's names **on disk**, which is
+5.12 (a)'s wide half and deliberately did not move.
+
+**The `"$HOLD "` prefix moved too, and both sides fold rather than flip.**
+`SETPTR` writes that marker in front of a hold-file record name and
+`to_file.c`'s `start_file()` reads it back. It is never looked up in a VOC, but
+it is displayed by `sysmsg(7120)` and `sysmsg(7171)`, and the previous session's
+`to_file.c` comment had explicitly deferred it to this work. `SETPTR`'s three
+tests took `downcase(...)` and the C took `MemCompareNoCase`, because the BASIC
+half is built by the bootstrap and the C half by `make sd` — neither may depend
+on the other having moved.
+
+**`UPSTREAM_FIXES.md` #8 came out of that line.** `memcmp(pu->file_name,
+"$HOLD ", 6)` reads six bytes of an allocation sized `strlen + 1`, and
+`SETPTR ... AS PATHNAME /tmp` makes that five. Present on `sdb64` `main` and
+`origin/dev`. `MemCompareNoCase` returns at the first difference, so the fix
+carried the overread away with it; upstream's fix is `strncmp`.
+
+**No migration, measured two ways.** `verify-lcnames.ps1` §5a renames the id
+back to `$HOLD` with a BASIC toggle in `bp`, then measures `open '$hold'`
+(answers `OPENED=YES`, the direct test of the hard-coded literal) and
+`SETPTR ... AS NEXT` (writes `ZZN..._0001`). **The second exists because
+`_NEXTPTR` fails silently**: it presets `seqno` to `'0'` and only a successful
+`open 'DICT','$hold'` replaces it with `fmt(...,"4'0'R")`, so a missed lookup
+writes `_0` and a hit writes four digits. The assertion is on the **width**, not
+on `_0001` — `$NEXT` persists in `$hold.dic`, so a second run on one install
+legitimately gets `_0002` and an exact match would fail on a change that works.
+
+### Harness defect 1: `BASIC bp X` leaves a `bp.OUT` nothing can open again
+
+`verify-nocase.ps1` and `verify-osusers.ps1` both exited 2 on the fresh install
+with `Data pathname 'BP.OUT' already exists / Unable to open newly created
+output file`, which reads exactly like the broken-bootstrap install of 16 Aug.
+
+`BASIC:132` builds the object file name from the source name **as typed**, so
+`BASIC bp X` asks for `bp.OUT`. `BASIC:135` opens it through the three-case
+fold, finds nothing, and `BASIC:157` runs `CREATE.FILE DATA bp.OUT DIRECTORY` —
+which stores the VOC id as typed (`bp.OUT`) and the directory upper-cased
+(`BP.OUT`). That is `UPSTREAM_FIXES.md` #6. **The fold tries as typed, all
+lower, all upper, and none of those reaches a mixed-case id**, so the next
+`BASIC BP Y` finds no VOC record, tries to create `BP.OUT`, and the directory is
+already there — permanently.
+
+It appeared only now because 5.12 (a) made the per-account file `bp`, so scripts
+and people type `bp`; before that everyone typed `BP` and the two spellings
+agreed. `verify-lcnames.ps1`'s `Remove-Probes` now runs
+`DELETE.FILE bp.OUT FORCE`, and only when that run created the file. **The
+underlying defect is not fixed** and is item 3 of PROJECT_STATUS's next steps:
+`BASIC:135` already knows which VOC record answered, and that is where the
+object name should come from.
+
+### Harness defect 2: `assert-current` check A2 made `make check-local` a permanent false stale
+
+A2 flags any file under `gplsrc` newer than the oldest binary in `bin\`. It did
+not inherit check B's `localtest\` exclusion, and `make check-local` builds
+`gplsrc\sdclilib\localtest\local-connect-test.exe`. So from the moment the
+documented post-cycle sequence reached step 2, every `assert-current` said STALE
+and every verify script refused — and no reinstall clears it, because the next
+`check-local` recreates the file. Check B's comment, added 17 Aug for
+`__pycache__` and `localtest`, describes this failure precisely; A2 was written
+on 18 Aug and was one place short. Both exclusions are now in both checks.
+
+**Also corrected:** this file and PROJECT_STATUS carried `gcat` 132 and
+`GPL.BP.OUT` 193. Those are pre-SDNet-removal figures. Every cycle run on
+18 Aug 2026 reported **129** and **190**, including the ones that passed 36/36
+before this session.
+
+---
+
 ## 18 Aug 2026 - A silent install blocked on a message box, and CurPageChanged was the entry point nobody guarded
 
 **Commit:** see the commit that carries this entry. Twenty-fourth session,

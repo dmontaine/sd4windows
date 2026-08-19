@@ -528,3 +528,51 @@ end
 `sysmsg(2001)` already exists and is the message `CATALOG` uses for this today.
 Local and private cataloguing are untouched by both changes: they write the
 account's own `VOC` and `cat`, not `gcat`.
+
+---
+
+## 8. `start_file()` reads six bytes of a print file name that may be shorter than that
+
+**Status:** PROPOSED, 18 Aug 2026
+**Affects:** `sd64/gplsrc/to_file.c`, `start_file()` — checked on `main` and
+`origin/dev`
+**Severity:** low. An out-of-bounds read of at most five bytes, off the heap,
+whose result is discarded. It will not normally be noticed; it will be noticed
+by a sanitiser or a hardened allocator.
+
+`start_file()` decides whether a print unit is aimed at the account's hold file
+by testing the first six characters of the name for `"$HOLD "`:
+
+```c
+} else if (memcmp(pu->file_name, "$HOLD ", 6) == 0) {
+```
+
+`pu->file_name` is allocated by `alloc_c_string()` at exactly `string_len + 1`
+bytes (`strings.c`), and it is set from whatever name the user gave. The
+`AS PATHNAME` form of `SETPTR` stores that name unchanged, so
+
+```
+SETPTR 1,132,60,0,0,3,AS PATHNAME /tmp
+```
+
+leaves a five-byte allocation, and `memcmp` is then given a length of six.
+`memcmp` is entitled to read all `n` bytes — implementations commonly compare a
+machine word at a time — so this is a read past the end of the allocation, not
+merely a redundant comparison. The shortest name a user can supply makes it a
+five-byte overread.
+
+**Suggested fix.** Compare only as far as the string actually goes:
+
+```c
+} else if (strncmp(pu->file_name, "$HOLD ", 6) == 0) {
+```
+
+`strncmp` stops at the terminating NUL, so a shorter name simply does not match.
+Nothing else changes: the two agree on every input that is at least six bytes
+long, which is every input that could have matched.
+
+This port arrived at the same place from a different direction — it made the
+test case-insensitive using SD's own `MemCompareNoCase()`, which compares byte
+by byte and returns at the first difference, so the overread went with it. The
+one-word `strncmp` change above is the whole fix for upstream and carries no
+behaviour change at all.

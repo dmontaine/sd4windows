@@ -5,77 +5,108 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 18 Aug 2026, end of the twenty-fourth session.
+**Last updated:** 18 Aug 2026, end of the twenty-fifth session.
 
 **THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **21:03:32** install, `sd.exe` **`A6AAAB58AAB676F4`**. Confirm it
+against the **21:29:59** install, `sd.exe` **`A71C53652197195E`**. Confirm it
 before believing it — one unelevated command, `gplbld\assert-current.ps1`.
 
-**THIS SESSION MADE THE FIRST VOC-ID RENAME, §5.12 (b).**
+**THIS SESSION MADE THE SECOND VOC-ID RENAME: `$HOLD` IS NOW `$hold`, §5.12 (b).**
 
 | Subject | Verifier | Install |
 |---|---|---|
-| VOC id `$SAVEDLISTS` → `$savedlists`, old accounts unaffected | `verify-lcnames.ps1` 36/36 | 21:03:32 |
-| A silent install no longer blocks on a message box | `cycle.ps1 -Silent`, no dialog | 21:03:32 |
+| VOC id `$HOLD` → `$hold`, old accounts unaffected | `verify-lcnames.ps1` **46/46** | 21:29:59 |
+| the three-case fold and `_VOC_REF`, unregressed | `verify-fold.ps1` 10/10 (elevated) | 21:29:59 |
+| step 11 local transport | `make check-local` PASS | 21:29:59 |
+| `$CRED` ACL, `DHF_NOCASE`, `OS.USERS` | `verify-credacl` / `-nocase` / `-osusers`, exit 0 | 21:29:59 |
 
-**`$SAVEDLISTS` IS NOW `$savedlists`, AND THE 13 HARD-CODED LITERALS MOVED WITH
-IT** — the ones last session's `_VOC_REF` fold was built for. With them:
-`MESSAGES` 3248/3249/3250/6462, `EDIT.LIST` in `NEWVOC` and `VOC_TEMPLATE`, and
-`CREATEA:759`. Every non-comment line of the `GPL.BP` diff is a literal swap,
-checked mechanically rather than read. **`$HOLD`, `BP` and `$COMMAND.STACK` are
-deliberately untouched and are the controls** — a sweep would fail
-`verify-lcnames.ps1` §3 rather than pass it. §5.12.
+**WHAT MOVED WITH IT:** `CLEANAC`, `MICRO`, `SPVIEW`, `_NEXTPTR`, `_PRFILE`,
+`SETPTR`, `CREATEA:759`, `MESSAGES` 7119/7131/7170, `NEWVOC/SP.VIEW`'s
+description, and `VOC_TEMPLATE/$HOLD` **renamed** to `$hold` — a case-only
+`git mv` needs two steps here, `core.ignorecase` is true. `BBPROC`, `stage.py`
+and `FILES_DICTS` name SDSYS's `$HOLD` **on disk** and are deliberately
+untouched: that is (a), and it is the wide half.
 
-**NO MIGRATION, AND IT IS MEASURED RATHER THAN ARGUED.** An account created
-before this holds `$SAVEDLISTS`; the code opens the literal `$savedlists`;
-`_VOC_REF` folds UP as well as down, so it resolves. `verify-lcnames.ps1` §5
-renames the id back with a BASIC toggle, drives `SAVE.LIST`/`GET.LIST` through
-it, and restores it. A failure part-way leaves the account on `$SAVEDLISTS`,
-which is the state the section says works.
+**`BP` AND `$COMMAND.STACK` ARE WHAT IS LEFT OF THE CONTROLS.**
+`verify-lcnames.ps1` §3 now asserts that typing `$command.stack` and `bp` is
+still answered in **upper** case — a sweep would fail there rather than pass.
 
-**"NOT FOUND" CANNOT TEST A VOC-ID RENAME, AND TWO CHECKS WRITTEN THAT WAY
-FAILED.** `CT` folds the **record id** too — `CT:202`, one of the 74 sites — so
-`CT VOC $SAVEDLISTS` still finds the record. **`CT:215` prints the id it
-MATCHED, not the one typed**, and that echo is the instrument: typing
-`$SAVEDLISTS` and being answered `VOC $savedlists` IS the rename, demonstrated.
-The control is the same query against `$HOLD`, which must still answer
-`VOC $HOLD`. Also measured: `COUNT $SAVEDLISTS` and
-`COPY.LIST x,y FROM $SAVEDLISTS` both still work, so nothing a user types has
-to change.
+**THE `"$HOLD "` PREFIX SETPTR PUTS IN FRONT OF A HOLD-FILE RECORD NAME MOVED
+TOO, AND THE C SIDE IS CASE-INSENSITIVE RATHER THAN FLIPPED.** `to_file.c:200`
+is now `MemCompareNoCase(pu->file_name, "$hold ", 6)`. The BASIC half is built
+by the bootstrap and the C half by `make sd`, so neither may depend on the other
+having moved. It also removes an overread — `memcmp` with a length of 6 on a
+name the user may have given as one character. `UPSTREAM_FIXES.md` #8.
 
-**TWO THINGS COST THIS SESSION A CYCLE EACH, both harness rather than SD:**
+**NO MIGRATION, AND IT IS MEASURED.** `verify-lcnames.ps1` §5a renames the id
+back to `$HOLD` with a BASIC toggle and measures twice: `open '$hold'` answers
+`OPENED=YES`, and `SETPTR ... AS NEXT` writes `ZZN..._0001`. **That second one
+is the instrument for `_NEXTPTR`, whose failure is SILENT** — it presets `seqno`
+to `'0'` and only a successful `open 'DICT','$hold'` replaces it, so a missed
+lookup writes `_0` and a hit writes four digits. Assert the **width**, not
+`_0001`: `$NEXT` persists in `$hold.dic`, so a second run legitimately gets
+`_0002`.
 
-1. **A VERIFY SCRIPT IS EXEMPT FROM `assert-current`; `sdsys/changelog` IS
-   NOT.** `verify-lcnames.ps1` is in `$neverShipped`, the changelog ships, so
-   correcting both in one go voided the install being measured. **Order the
-   exempt fixes first, re-measure, then touch anything under `sdsys`.**
-2. **`cycle.ps1 -Silent` BLOCKED ON A MESSAGE BOX. FIXED AND VERIFIED** —
-   `CurPageChanged` now takes the same `WizardSilent` guard `CurStepChanged`
-   already had, and a `-Silent` cycle ran through with no dialog (21:03:32).
-   **`CurPageChanged` FIRES IN SILENT MODE**: the wizard form is created and
-   not shown, so "never displayed" is not "never changed". §6.
+**`gcat` IS 129 AND `GPL.BP.OUT` IS 190.** The 132/193 this file used to print
+were from before SDNet was removed on 18 Aug. Stale, not a regression — every
+cycle on 18 Aug reported 129/190.
 
-   **Two things said about this earlier in the session were wrong**, and the
-   corrections are the useful part. *Five of the six `MsgBox` sites were
-   already guarded* — `WizardSilent` in the install path, `UninstallSilent` in
-   the uninstall path — so the fault was one missed entry point, not a
-   file-wide pattern. And *`SuppressibleMsgBox` was the wrong prescription*: it
-   is driven by `/SUPPRESSMSGBOXES`, which §6 records as measured NOT to reach
-   these boxes, and it would have put a second idiom beside the working one.
+**TWO HARNESS DEFECTS COST THIS SESSION, both found by running the documented
+post-cycle sequence, both fixed, neither about SD. §6 has them.**
+
+1. **`verify-lcnames.ps1` LEFT BEHIND A `bp.OUT` THAT NOTHING CAN EVER OPEN
+   AGAIN**, and it made `verify-nocase.ps1` and `verify-osusers.ps1` exit 2 on a
+   perfectly good install. `BASIC bp X` builds the object file name from the
+   name **as typed** (`BASIC:132`), so `CREATE.FILE` stores VOC id `bp.OUT` and
+   directory `BP.OUT` — `UPSTREAM_FIXES.md` #6, reachable now because 5.12 (a)
+   made the file `bp`. **The three-case fold cannot reach a MIXED-case id**, so
+   the next `BASIC BP Y` stops with `Data pathname 'BP.OUT' already exists`, and
+   goes on doing so for ever. `Remove-Probes` now deletes it, and only when that
+   run created it.
+2. **`assert-current` CHECK A2 REFUSED EVERY VERIFIER AFTER `make check-local`.**
+   A2 scans `gplsrc` recursively and did not inherit check B's `localtest\`
+   exclusion, so the test binary that target builds is newer than everything in
+   `bin\`. **A false stale no reinstall clears**, because the next run of
+   `check-local` recreates it. Check B's own comment foresaw exactly this.
+
+**ORDER EXEMPT FIXES FIRST** — carried over and now in §6 rather than here. A
+verify script is in `$neverShipped` and cannot make an install stale;
+`sdsys/changelog` ships and can. Fix the exempt ones, re-measure, then touch
+anything under `sdsys`.
 
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
-1. **THE NEXT VOC-ID RENAMES — §5.12 (b), with `$savedlists` as the worked
-   example.** What one costs, in full: the hard-coded literals, the `MESSAGES`
-   records, both `EDIT.LIST` records, `CREATEA`, a `START-HISTORY` line per
-   file, a changelog entry, and a verifier section for the pre-rename account.
-   **`$HOLD` is the obvious next and is wider than `$savedlists` was** —
-   `to_file.c` builds `$HOLD` paths in C, and `SETPTR`, the spooler and
-   `CLEANAC` all name it. `$COMMAND.STACK` and `BP` after that. The shipped
-   system files (`VOC`, `BP`, `NEWVOC`, `GPL.BP`, the `$` files) are still the
-   wide half and need `stage.py`, `sd.iss` and four verify scripts to move with
-   them.
-2. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
+1. **THE OWNER ASKED ON 18 Aug 2026 WHEN `bp` AND `voc` GET LOWER-CASED ON
+   DISK, WHICH IS 5.12 (a)'s WIDE HALF, AND IT IS NOW THE PRIORITY.** The
+   per-account files are already done (`$hold`, `$hold.dic`, `$svlists`, `bp`);
+   what is left is the **shipped** system files — `VOC`, `BP`, `NEWVOC`,
+   `GPL.BP`, `MESSAGES`, `VOC_TEMPLATE`, `SD.VOCLIB`, `SYSCOM` and the `$`
+   files in SDSYS, plus the per-account `VOC`. **These have to move together**:
+   the F-type records in `NEWVOC` that carry the path and their
+   `@SDSYS/VOC.DIC` dictionary paths, `VOC_TEMPLATE`, `CREATEA`,
+   `WRITE_INSTALL_DICTS`, `BBPROC`'s `FILES_LIST`, `gplbld/stage.py`,
+   `gplbld/sd.iss`, and the verify scripts that name these paths as literals —
+   `verify-osusers.ps1`, `verify-nocase.ps1`, `verify-tiers.ps1`,
+   `assert-current.ps1`. §5.12 (a).
+
+2. **THE REMAINING VOC-ID RENAMES — §5.12 (b), with `$hold` as the worked
+   example. `$COMMAND.STACK` AND `BP` ARE WHAT IS LEFT.** What one costs, in
+   full: the hard-coded literals, the `MESSAGES` records, the `VOC_TEMPLATE`
+   record where the id **is** the file name (case-only `git mv`, two steps),
+   `CREATEA`, a `START-HISTORY` line per file, a changelog entry, and a
+   `verify-lcnames.ps1` section for the pre-rename account. **`BP` is the
+   awkward one and item 3 is why.**
+
+3. **FIX `bp.OUT` BEFORE `BP` MOVES.** `BASIC:132` derives the object file name
+   from the string the user TYPED, so `BASIC bp x` creates VOC id `bp.OUT` while
+   `CREATE.FILE` upper-cases the directory to `BP.OUT` (`UPSTREAM_FIXES.md` #6).
+   No case of the three-case fold reaches a mixed-case id, so that account can
+   never compile with `BASIC BP y` again. **Every account where anyone types
+   `BASIC bp x` acquires it**, and 5.12 (a) is what made people type `bp`.
+   `BASIC:135` already knows which VOC record answered the `open` — derive the
+   name from that rather than from the token. §6.
+
+4. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
    by this session, and still blocked on the decision below. Every account
    directory still inherits `sdusers:(OI)(CI)(M)`, so any SD user can read and
    rewrite any other account's files outside SD.
@@ -93,7 +124,7 @@ to change.
    enter another account once its directory is locked, which §5.6 says must
    always work. **Decide that before building.** `gplbld/secure-accounts.ps1`
    remains unwired.
-3. **`RDPUSER`** — decided in shape by the owner, **blocked on item 2**. §8 has
+5. **`RDPUSER`** — decided in shape by the owner, **blocked on item 4**. §8 has
    the syntax and the one open question: where "may RDP" is recorded, given the
    tier lives in `ACCOUNTS` field 5 and RDP-ness would live in the *absence* of
    a Windows group.
@@ -106,10 +137,11 @@ correct in passing.
 
 **STILL OPEN, unchanged by this session:** `OS.EXECUTE` is ungated for
 everybody (§4), so a PROGRAMMER with `BASIC` reaches the OS from a program
-whatever `OS.USERS` says — that is the C half of step 7. And the wide half of
-§5.12, account names, is untouched.
+whatever `OS.USERS` says — that is the C half of step 7. And account names, the
+part of §5.12 that cannot move until comparison stops depending on the upcasing,
+are untouched.
 
-**`UPSTREAM_FIXES.md` HOLDS ENTRIES 6 AND 7, BOTH PROPOSED AND NEITHER SENT.**
+**`UPSTREAM_FIXES.md` HOLDS ENTRIES 6, 7 AND 8, ALL PROPOSED AND NONE SENT.**
 Sending them is the owner's call.
 
 - **6** — `CREATE.FILE` writes the VOC entry as typed but upper-cases the name
@@ -119,6 +151,11 @@ Sending them is the owner's call.
 - **7** — the global catalogue can be written and deleted by any user, because
   only the spelled-out `GLOBAL` keyword is checked. Checked against `../sdb64`.
   High severity: `gcat` holds the object code every session executes.
+- **8** — `start_file()` compares six bytes of a print file name that may be
+  shorter than six bytes. Low severity, a heap overread of at most five bytes;
+  reachable from `SETPTR ... AS PATHNAME /tmp`. Fixed here as a side effect of
+  making the `"$hold "` test case insensitive, and upstream's fix is one word,
+  `memcmp` — `strncmp`. On `main` and `origin/dev`.
 
 HISTORY lists five more findings checked and deliberately **not** sent, so
 nobody re-checks them.
@@ -3967,10 +4004,34 @@ changelog promises it: `COUNT $SAVEDLISTS` finds the file, and
 name with `=` rather than folding, and reaches the file through its generic
 three-case `open` instead.
 
-**`$HOLD` IS THE OBVIOUS NEXT AND IS WIDER**: `to_file.c` builds `$HOLD` paths
-in C, and `SETPTR`, the spooler and `CLEANAC` all name it. `$COMMAND.STACK` and
-`BP` after that. All three are the controls in `verify-lcnames.ps1` §3 today,
-so whichever moves next takes its control with it.
+**`$HOLD` IS DONE TOO — 18 Aug 2026**, `verify-lcnames.ps1` 46/46 on the
+21:29:59 install. It was the wider one: `CLEANAC`, `MICRO`, `SPVIEW`,
+`_NEXTPTR`, `_PRFILE`, `SETPTR`, `CREATEA:759`, `MESSAGES` 7119/7131/7170,
+`NEWVOC/SP.VIEW`'s description text, and — new for this rename —
+**`VOC_TEMPLATE/$HOLD` renamed to `$hold`**, because in `VOC_TEMPLATE` the
+record id *is* the file name and `BBPROC:181` copies each one into SDSYS's own
+VOC. `core.ignorecase` is true here, so a case-only `git mv` needs a temporary
+name in between.
+
+**THE `"$HOLD "` PREFIX IS NOT A VOC ID AND STILL MOVED WITH IT.** `SETPTR:334`
+puts it in front of a hold-file record name and `to_file.c` reads it back
+(`start_file()`); it is never looked up, but it is displayed by `sysmsg(7120)`
+and `sysmsg(7171)`. **Both sides fold rather than flip** — `downcase(...)` in
+`SETPTR`'s three tests, `MemCompareNoCase` in C — because the BASIC half is
+built by the bootstrap and the C half by `make sd`, so neither may assume the
+other has moved. `_PRFILE:56`'s guard took `downcase()` for the same reason.
+
+**`BP` AND `$COMMAND.STACK` ARE WHAT IS LEFT OF THE CONTROLS**, asserted in
+`verify-lcnames.ps1` §3 by typing them in lower case and requiring an upper-case
+echo. Whichever moves next takes its control with it.
+
+**BUT `BP` HAS A DEFECT IN FRONT OF IT — FIX `bp.OUT` FIRST.** `BASIC:132`
+derives the object file name from the token TYPED, so `BASIC bp x` makes VOC id
+`bp.OUT` while `CREATE.FILE` writes the directory as `BP.OUT`. No case of the
+three-case fold reaches a mixed-case id, so that account can never compile with
+`BASIC BP y` again. §6 has the whole trap; `BASIC:135` already knows which VOC
+record answered the `open`, which is where the name should come from.
+
 
 **(a) IS DONE FOR THE PER-ACCOUNT FILES — 18 Aug 2026**, `verify-lcnames.ps1`
 26/26 on the 19:46:12 install. A new account holds `$hold`, `$hold.dic`,
@@ -4208,6 +4269,53 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **`BASIC bp X` CREATES A `bp.OUT` THAT NOTHING CAN EVER OPEN AGAIN, AND IT
+  BREAKS THE NEXT SCRIPT RATHER THAN THE ONE THAT DID IT.** 18 Aug 2026. Two
+  verify scripts exited 2 on a fresh, good install with
+  `Data pathname 'BP.OUT' already exists / Unable to open newly created output
+  file`, which reads like a broken bootstrap.
+
+  `BASIC:132` builds the object file name from the source name **as typed** —
+  `bp` gives `bp.OUT`, not `BP.OUT`. `BASIC:135` opens it through the three-case
+  fold, finds nothing on a fresh account, and `BASIC:157` runs
+  `CREATE.FILE DATA bp.OUT DIRECTORY`. `CREATE.FILE` then writes the VOC id **as
+  typed** (`bp.OUT`) and the directory **upper-cased** (`BP.OUT`) —
+  `UPSTREAM_FIXES.md` #6.
+
+  **THE FOLD CANNOT REACH A MIXED-CASE ID.** It tries as typed, all lower, all
+  upper; `bp.OUT` is none of those from `BP.OUT`. So the next `BASIC BP Y` finds
+  no VOC entry, tries to create `BP.OUT`, and the directory is already there.
+  **Permanently** — nothing clears it but deleting the file.
+
+  **WHY IT APPEARED ONLY NOW**: 5.12 (a) made the per-account file `bp`, so
+  scripts and people type `bp`. Before that everyone typed `BP` and the two
+  spellings agreed. The repair is
+  `DELETE.FILE bp.OUT FORCE` — `FORCE` because `DELETEF` prompts separately for
+  the DATA and DICT parts whenever the stored path differs from the default
+  name, which for a lower-case file it always does. `verify-lcnames.ps1`'s
+  `Remove-Probes` now does it, and only when that run created the file.
+
+- **`assert-current` CHECK A2 TURNS `make check-local` INTO A PERMANENT FALSE
+  STALE.** 18 Aug 2026, fixed the same day. A2 flags any file under `gplsrc`
+  newer than the oldest binary in `bin\`, and it did **not** inherit check B's
+  `localtest\` exclusion. `make check-local` builds
+  `gplsrc\sdclilib\localtest\local-connect-test.exe`, so from then on every
+  `assert-current` said STALE and every verify script refused — and reinstalling
+  does not help, because the next run of `check-local` recreates the file.
+
+  **The documented post-cycle order is cycle, `check-local`, then the verify
+  scripts**, so this fires on the normal sequence rather than on anything
+  unusual. Check B's own comment (added 17 Aug for `__pycache__` and
+  `localtest`) foresaw exactly this failure and A2, written on 18 Aug, was one
+  place short. Both exclusions are now in both checks.
+
+- **ORDER EXEMPT FIXES FIRST, THEN RE-MEASURE, THEN TOUCH `sdsys`.** 18 Aug
+  2026, and it cost a cycle. A verify script is in `assert-current`'s
+  `$neverShipped` list and cannot make an install stale; `sdsys/changelog`
+  **ships** and can. Correcting a verifier and the changelog in one go therefore
+  voids the install being measured, for the sake of the half that did not need
+  to.
 
 - **`cycle.ps1` DOES NOT BUILD. A C CHANGE CAN BE CYCLED, INSTALLED, TESTED AND
   PASSED WITHOUT EVER BEING COMPILED.** 18 Aug 2026, and it cost a whole cycle.
