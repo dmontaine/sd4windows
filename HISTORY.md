@@ -27,6 +27,29 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — All three console hosts read; the keyboard subject is closed
+
+**Commit:** this one, over `1f466f4`. Documents only.
+
+**Windows Terminal read, and it is byte for byte identical to cmd and
+PowerShell.** All three send `ESC [ D/C/A/B` for the arrows, `127` for
+Backspace and `ESC [ 3 ~` for Delete — exactly what the `windows` terminfo
+entry binds. **§5.18 now rests on measurement at both ends of the chain**, with
+no inferred link: SD never sends `smkx` (read from source), and no console ever
+sends the application-mode spelling (read from three consoles).
+
+**Both fixes from the previous two entries confirmed live.** The probe stayed
+installed, so the run worked where the deletion had broken it; and the same
+17-byte reading that hit the pager in PowerShell now completes with no pager at
+all, which is `@(0,0)`.
+
+**The keyboard subject that opened this session is finished** apart from next
+step 2, backspace inside `ED` and the `UPDATE.RECORD` screens, which is a
+separate mechanism — those carry their own key tables and neither the `_KEYCODE`
+binds nor the terminal type reaches them.
+
+---
+
 ## 19 Aug 2026 — Correction: probe-keys.ps1 deleted the command it had just taught
 
 **Commit:** this one, over `f17380d`. `gplbld\probe-keys.ps1` only.
