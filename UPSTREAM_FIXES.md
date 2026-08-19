@@ -576,3 +576,72 @@ test case-insensitive using SD's own `MemCompareNoCase()`, which compares byte
 by byte and returns at the first difference, so the overread went with it. The
 one-word `strncmp` change above is the whole fix for upstream and carries no
 behaviour change at all.
+
+## 9. `sdtic` carries a failed entry's buffers into the next one, and always exits 0
+
+**Status:** PROPOSED, 19 Aug 2026
+**Affects:** `sd64/gplsrc/sdtic.c`, `process_file()` — the terminfo compiler.
+Checked against `../sdb64`: the two files differ only in an `O_BINARY` guard, an
+`atoi`/`strtol` change and a `strtok`/`strtok_r` change, none of which touch
+this.
+**Severity:** medium. The visible outcome is a **truncated terminfo database
+that the build reports as successful**. A user then meets it as "my terminal
+does not work", a long way from the cause.
+
+`process_file()` compiles one entry per iteration. The whole of the "build and
+write it out" step is guarded:
+
+```c
+    if ((errors == 0) && !skip) {
+      ...build the entry, write it out...
+      errors = 0;
+      reset_buffers();
+    }
+  }
+```
+
+`reset_buffers()` is **inside** that guard. So an entry that produced an error —
+or one that `skip` passed over for selective compilation — leaves `strings[]`,
+`string_offsets[]` and `str_count` holding its own half-built data, and the next
+entry accumulates on top of it. Given enough following entries this runs past
+the end of `strings[4096]`.
+
+**Reproduced** by giving one entry a description containing a comma:
+
+```
+windows|Windows console (cmd, PowerShell, Windows Terminal),
+```
+
+That is malformed source — `get_token()` splits on commas, so `PowerShell` and
+`Windows Terminal)` are read as capability names and `lookup()` rejects them —
+but the handling is the defect, not the input. Compiling a 62-entry database
+with that one entry in it **segfaulted part way through**, leaving 24 of the
+100 expected files. Because stdout is block buffered when redirected, not one
+of the diagnostics already printed reached the file either, so the operator saw
+a bare "Segmentation fault" and a directory that looked plausible.
+
+**Suggested fix.** Move the reset out of the guard, so it runs for every entry:
+
+```c
+    if ((errors == 0) && !skip) {
+      ...build the entry, write it out...
+      errors = 0;
+    }
+
+    errors = 0;
+    reset_buffers();
+  }
+```
+
+**A second, separable point.** `errors` is reset per entry, so nothing records
+whether the run as a whole succeeded, and `main()` returns 0 regardless. A
+makefile cannot tell a complete database from a partial one. Adding a counter
+that is never reset, and returning non-zero when it is not zero, turns the
+silent case into a build failure:
+
+```
+sdtic: 1 terminal definition(s) did not compile - see above.
+```
+
+With both changes the same malformed database compiles the other 61 entries
+correctly, names the bad one with its line number, and exits 1.

@@ -27,6 +27,67 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — The arrow keys: the default terminal type was the cause
+
+**Commit:** this one, over `3d05dad`. **Install:** **10:06:08**, `sd.exe`
+`FA5B47C0F6CF32D6`, terminfo 100.
+
+**Finished the post-cycle run owed on the 09:10:45 install** — `verify-credacl`,
+`-nocase`, `-osusers`, `make check-local`, and `post-cycle-elevated.ps1`
+(`-TierPrefix sdtieri -Account sdacct16`) all passed. Then took a fresh cycle for
+the work below and ran the whole suite again on it: `verify-lcnames` 121/121,
+`verify-keys` 10/10, `verify-fold` 10/10, `verify-tiers` 22/22 at 393/411/421.
+
+**Correction: an agent shell CAN raise a UAC prompt.** PROJECT_STATUS had it as
+a working constraint, and `post-cycle-elevated.ps1` exists because of it.
+`Start-Process -Verb RunAs -Wait` prompted and succeeded four separate times
+this session, including for `cycle.ps1`. The true constraint is narrower — no
+interactive desktop, e.g. over ssh.
+
+**The owner reported left arrow, right arrow, backspace and clear screen dead in
+cmd, PowerShell and Windows Terminal.** Cause: the `login` paragraph's
+`TERM VT100`, changed from `TERM LINUX` on 18 Aug on the reasoning that "on
+Windows the sensible default is VT100". Backwards. `vt100` binds the arrows to
+`ESC O A/B/C/D`, which a terminal sends **only in application cursor mode**, and
+`smkx` — the string that enters that mode — **occurs nowhere in the tree except
+the capability-name table** at `gplsrc/ti_names.h:179`. So the arrows had never
+worked under that default. `kbs` was the same one key over, which is what §5.17
+patched in `_KEYCODE` on 19 Aug without reaching the cause.
+
+**Fixed by the owner's ruling**: `terminfo.src` gains `windows`, a byte-exact
+copy of `linux`; the `login` paragraph in `voc_template` and `newvoc` selects it;
+`LOGIN:116`'s fallback matches. **The cull was discussed and not done** — all 62
+definitions still ship. `verify-keys.ps1` grew 6 → 10 checks with an arrow
+section that tells "both arrows worked", "only LEFT worked" and "neither worked"
+apart in one run.
+
+**Measured along the way, and worth keeping:** `system(7)` already answers
+`vt100` before `LOGIN` can look, so `LOGIN:115`'s `env('TERM')` branch is dead —
+**neither `$TERM` nor `sd -TERM <type>` changes the terminal type**, only typing
+`TERM x`. And `sd.exe` links `msys-2.0.dll`, so the terminal layer is Cygwin's
+console handler.
+
+**Clear screen is still open and is not an SD defect so far.** `@(-1)` emits
+`ESC [ H ESC [ J` and `@(5,3)` emits `ESC [ 4 ; 6 H`, both correct. **A pipe is
+not a console and every instrument in `gplbld` is a pipe** — the same gap that
+let `verify-keys` pass 6/6 on backspace while the owner was reporting it broken.
+
+**What it cost: one build, to an `sdtic` defect — `UPSTREAM_FIXES.md` #9.**
+`reset_buffers()` sat inside the "this entry compiled" guard, so a failed entry
+left `strings[]` and `str_count` to accumulate into the next one. The 62-entry
+database with one bad entry **segfaulted at 24 files of 100** and printed none
+of its diagnostics, because stdout was block buffered to a file. `sdtic` also
+returned 0 whatever happened, so `make terminfo` reported success. Both fixed.
+It was found by giving the new entry the description
+`Windows console (cmd, PowerShell, Windows Terminal)` — `get_token()` splits on
+commas, so the words after the first one were read as capability names.
+
+**Also: `make sdtic` is not a supported target.** It leaves `C_FLAGS` empty, so
+gcc defaults to gnu23 where `bool` is a keyword and `sdtic.c:148`'s
+`typedef int16_t bool` will not compile. Use `make sd`.
+
+---
+
 ## 19 Aug 2026 — Both fixes measured on the 09:10:45 install; the left arrow is open
 
 **Commit:** this one, over `1943704`. **Install:** **09:10:45**, `sd.exe`

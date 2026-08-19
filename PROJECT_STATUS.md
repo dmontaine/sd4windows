@@ -5,50 +5,86 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 19 Aug 2026, end of the twenty-sixth session.
+**Last updated:** 19 Aug 2026, end of the twenty-seventh session.
 
-**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **09:10:45**
-install (19 Aug), `sd.exe` **`339AB7157F002679`**. Confirm before believing it:
+**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **10:06:08**
+install (19 Aug), `sd.exe` **`FA5B47C0F6CF32D6`**, `gcat` 129, `GPL.BP.OUT` 190,
+`$BCOMP` 88,076, terminfo **100**. Confirm before believing it:
 `gplbld\assert-current.ps1`, unelevated.
 
-**BUT THE POST-CYCLE RUN IS ONLY HALF DONE.** Two verifiers ran and passed;
-the rest were not reached before the session ended. **Owed, in this order:**
+**THE POST-CYCLE RUN IS COMPLETE AND EVERYTHING PASSED.** Nothing is owed.
 
-```powershell
-gplbld\verify-credacl.ps1     UNELEVATED
-gplbld\verify-nocase.ps1      UNELEVATED
-gplbld\verify-osusers.ps1     UNELEVATED
-```
-```sh
-cd sdb_ai/sd64 && make check-local
-```
-```powershell
-gplbld\post-cycle-elevated.ps1 -TierPrefix sdtieri -Account sdacct16   ELEVATED
-```
+| Verifier | Result |
+|---|---|
+| `verify-lcnames.ps1` | **121/121** |
+| `verify-keys.ps1` (grew 6 → 10, arrows added) | **10/10** |
+| `verify-credacl` / `-nocase` / `-osusers` | exit 0 |
+| `make check-local` | PASS, `WHO -> 59 DON` |
+| `post-cycle-elevated.ps1 -TierPrefix sdtierj -Account sdacct17` | all exit 0 |
+| — `verify-fold` 10/10, `verify-tiers` 22/22 **393 / 411 / 421** | |
 
-**`sdtieri` AND `sdacct16` ARE THE NEXT FREE NAMES** — `sdacct1`–`15` and
-`sdtierb`–`h` are spent.
+**Register left at `DON` and `SDSYS`, `user_accounts` at `don`, probes removed.
+`sdacct1`–`17` and `sdtierb`–`j` are spent; next free `sdacct18`, `sdtierk`.**
 
-**WHAT DID RUN, AND BOTH PASSED ON THE 09:10:45 INSTALL:**
+**AN AGENT SHELL *CAN* RAISE A UAC PROMPT — the claim in this file was wrong.**
+`Start-Process -Verb RunAs -Wait` prompted and succeeded repeatedly this
+session: `verify-osusers`' two elevated phases, `post-cycle-elevated.ps1`, and
+`cycle.ps1` itself. So a session can run the whole cycle unattended apart from
+consent. `post-cycle-elevated.ps1`'s header comment still says otherwise and is
+the one place left to correct if it matters. **What is true is narrower**: it
+fails where there is no interactive desktop at all, e.g. over ssh.
 
-| Subject | Verifier | Result |
-|---|---|---|
-| **the backspace key**, 5.17 | `verify-keys.ps1` (new) | **6/6** |
-| everything in 5.12, incl. **`bp.OUT` §9** and the `bp`/`gpl.bp` ids | `verify-lcnames.ps1` | **121/121** |
+**THIS SESSION: THE ARROW KEYS. §5.18, and it is a regression from 18 Aug.**
+Owner reported left arrow, right arrow, backspace and clear screen dead in cmd,
+PowerShell and Windows Terminal. The `login` paragraph's `TERM VT100` — changed
+from `TERM LINUX` on 18 Aug — is the cause: `vt100` binds the arrows to
+`ESC O A/B/C/D`, which a terminal sends **only in application cursor mode**, and
+**SD never sends `smkx` to enter it** (`smkx` appears nowhere but the
+capability-name table, `gplsrc/ti_names.h:179`). Fixed by the owner's ruling —
+a new `windows` terminfo entry, a byte-exact copy of `linux`, as the default.
 
-**§9's ANSWER IS THE ONE TO READ**, because it is what `BP` had to move behind:
+**CLEAR SCREEN IS THE HALF STILL OPEN AND IT IS NOT AN SD DEFECT SO FAR.**
+`@(-1)` emits `ESC [ H ESC [ J` and `@(5,3)` emits `ESC [ 4 ; 6 H`, both
+correct, measured. **A PIPE IS NOT A CONSOLE and every instrument here is a
+pipe** — which is also why `verify-keys` passed 6/6 on backspace while the owner
+was reporting it broken. Settling it needs someone at a real console.
 
-```
-BASIC bp ZZRLC1  ->  LOWER=YES   MIXED=NO   UPPER=NO
-BASIC BP ZZULC1  ->  UPPERCOMPILE=OK, no "already exists"
-```
+**`sdtic` HAD A DEFECT AND IT COST A BUILD — `UPSTREAM_FIXES.md` #9, fixed.**
+`reset_buffers()` was inside the "entry compiled" guard, so a failed entry's
+buffers accumulated into the next; the full database with one bad entry
+**segfaulted at 24 files of 100**, printing nothing because stdout was block
+buffered to a file. It also always exited 0. Both fixed.
 
-Exact-match VOC reads: the id created is **`bp.out`**, not the unreachable
-mixed-case `bp.OUT`, and the *next* compile typed the other way now works.
+**WHAT TO DO NEXT, IN THIS ORDER:**
 
-**AND BACKSPACE IS FIXED WITH A BEFORE-AND-AFTER.** On the 07:41:45 install,
-piping `COUNTX<DEL> VOC` ran `COUNTX VOC` — not erased. On 09:10:45 it runs
-`COUNT VOC`, `^H` still erases, and the no-erase control is still refused.
+1. **SETTLE CLEAR SCREEN AT A REAL CONSOLE.** Ask the owner exactly what "clear
+   screen" means — the `@(-1)`/`IT$CS` function from a program, a key, or `CS`
+   at TCL — because SD emits the right bytes for the first. Nothing in `gplbld`
+   can press a key or read a screen, so **this is the first thing here that
+   needs a human instrument**, and building one is the work.
+
+2. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** Unchanged by this
+   session; see the entry further down. `VOC`, `NEWVOC`, `ACCOUNTS`, `MESSAGES`,
+   `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`, `SD.ACCOUNTS`, `OS.USERS`,
+   `$COMMAND.STACK`.
+
+3. **BACKSPACE IN THE FULL-SCREEN EDITORS — §5.17's second half.** `ED` and the
+   `UPDATE.RECORD` screens carry their own key tables (`UPDREC:2396`/`:2416`,
+   `SED:4497`), so neither the `_KEYCODE` binds nor the terminal-type change
+   reaches them. **It needs the same human instrument as item 1** — do them
+   together.
+
+4. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4) — the C half of §7 step 7.
+
+5. **§8's PER-ACCOUNT ACLs**, still blocked on the administrator decision below.
+
+6. **`RDPUSER`** — blocked on item 5.
+
+**THE CULL WAS NOT DONE AND WAS NOT ASKED FOR.** The owner said they "wouldn't
+mind getting rid of all the terminal types", then ruled: copy `linux`, name it
+`windows`, make it the default. **All 62 definitions still ship.** If the cull
+is ever wanted, `sdterm` is the one that cannot simply go — `op_tio.c:342/349/405`,
+`sdtermlb.c:326`, `TERM:80`/`:166` and `LOGIN:140` all test for it.
 
 **THIS SESSION DID §5.12 (a)'s WIDE HALF: EVERY SDSYS FILE NAME IS LOWER CASE
 ON DISK, AND SO IS EACH ACCOUNT'S `voc`.** That is the previous session's next
@@ -4520,6 +4556,77 @@ at it.)*
 `$define`, so splitting them is `CREATEA`'s `fn`/`os.name` pattern again — and
 nothing in `gplbld` drives `COMO`, so it would ship unmeasured.
 
+### 5.18 The arrow keys were dead because of the default terminal type (19 Aug 2026)
+
+**Owner, 19 Aug 2026: left arrow, right arrow, backspace and clear screen do
+not work in cmd, PowerShell or Windows Terminal.** Root cause found and fixed;
+the arrows are measured, clear screen is not a defect (below).
+
+**IT IS A REGRESSION FROM 18 AUG, NOT FROM THE BACKSPACE FIX.** `changelog:305`
+changed the `login` paragraph in `voc_template` and `newvoc` from `TERM LINUX`
+to `TERM VT100`, reasoning "on Windows the sensible default is VT100". Backwards:
+the entry named `linux` is the ANSI/normal-cursor-mode one, and that is what
+every Windows console speaks. Measured on the 09:10:45 install, all four cells:
+
+| TERM | `kcub1` | sends `ESC [ D` | sends `ESC O D` |
+|---|---|---|---|
+| `vt100`, `xterm` | `\EOD` | **dead** | works |
+| `linux`, `ansi` | `\E[D` | **works** | dead |
+
+**THE `ESC O` SPELLING CAN NEVER ARRIVE, AND THAT IS THE WHOLE ARGUMENT.** A
+terminal sends it only in APPLICATION CURSOR MODE, entered by `smkx`
+(`ESC [ ? 1 h`). **SD never sends `smkx`** — the string occurs nowhere in the
+tree but `gplsrc/ti_names.h:179-180`, the capability-name table. `settermtype()`
+(`op_tio.c:2524`) sends `is1` only, and `is1` is absent from `vt100`, `xterm`,
+`ansi` and `linux` alike, so SD sends nothing at all at terminal init. So a
+`vt100` default listens for a byte sequence nothing on the platform emits.
+`kbs` is the same story one key over — that was §5.17.
+
+**THE FIX, owner's ruling: one type that matches Windows.** `terminfo.src` gains
+`windows`, a **byte-exact copy** of `linux` (verified with `cmp` on the extracted
+capability lines; the `kbs=\177` literal DEL survives the copy). `login` field 2
+in `sdsys/voc_template/login` and `sdsys/newvoc/login` is `TERM WINDOWS`, and
+`LOGIN:116`'s fallback is `'windows'`. **The other 61 entries are still shipped**
+— the owner asked for a copy and a default, not a cull.
+
+**THE VOC `login` PARAGRAPH IS WHAT DECIDES THIS, AND `LOGIN:116` IS NEARLY DEAD
+CODE.** Measured: `system(7)` already answers `vt100` by the time anything can
+look, so `LOGIN:115`'s `env('TERM')` branch never runs — **neither `$TERM` nor
+`sd -TERM <type>` changes the terminal type**, only typing `TERM x`. The
+paragraph runs after the subroutine and sets it unconditionally. Both were
+changed so they cannot disagree, but the paragraph is the one that acts.
+
+**CLEAR SCREEN IS NOT A DEFECT ON THE SD SIDE.** `@(-1)` emits
+`27 91 72 27 91 74` = `ESC [ H ESC [ J`, and `@(5,3)` emits `ESC [ 4 ; 6 H` —
+both correct, measured with a `seq()` probe. `clear` is identical in `vt100`,
+`linux` and `windows`, so the terminal-type change cannot have affected it.
+**Unexplained and needs a real console**: nothing here can press a key or watch
+a screen. See "still owed" below.
+
+**`sd.exe` LINKS `msys-2.0.dll`**, so the terminal layer is Cygwin's console
+handler, which is what translates key presses into these byte sequences and
+tracks application cursor mode by watching the output stream. That is why the
+protocol argument above holds for cmd, PowerShell and Windows Terminal alike.
+
+**A PIPE IS NOT A CONSOLE, AND EVERY INSTRUMENT HERE IS A PIPE.** `verify-keys`
+passed 6/6 on backspace while the owner was reporting backspace as broken. The
+gap is real and is the reason the clear-screen half is still open.
+
+**`verify-keys.ps1` IS THE GUARD, 6 → 10 CHECKS.** Section 3 types `COUNTVOC`,
+LEFT ×4, RIGHT ×1, space: `COUNT VOC` if both arrows moved the cursor,
+`COUN is not in your VOC` if only LEFT did, `COUNTVOC is not in your VOC` if
+neither — one run, three distinguishable answers. Controls: the `ESC O` spelling
+must **not** count, and no arrows at all must be refused.
+
+**AND `sdtic` HAD A DEFECT THAT COST THIS SESSION A BUILD — `UPSTREAM_FIXES.md`
+#9, fixed here.** `reset_buffers()` sat inside `if ((errors == 0) && !skip)`, so
+a failed entry left `strings[]` and `str_count` to accumulate into the next one;
+the full database with one bad entry **segfaulted at 24 files of 100** and, with
+stdout block-buffered to a file, printed nothing. `sdtic` also always exited 0.
+Both fixed: the reset is unconditional and a failed entry now fails the run.
+Found by giving the new entry a description containing a comma — `get_token()`
+splits on commas, so `Windows Terminal)` was read as a capability name.
+
 ### 5.17 The keyboard: accept both spellings of a key, not the one terminfo names (19 Aug 2026)
 
 **The backspace key did nothing at all in cmd, PowerShell or Windows Terminal**,
@@ -7955,54 +8062,18 @@ sessions each running a client is a user-count question (`MESSAGES/1000`, "User
 limit reached"), and §5.6.2 would need rewriting from "the console belongs to
 administrators" to a three-way rule.
 
-### OPEN, PARTLY MEASURED: the LEFT ARROW in a Windows console (raised 19 Aug 2026)
+### CLOSED: the LEFT ARROW in a Windows console (raised and settled 19 Aug 2026)
 
-**Owner, 19 Aug 2026, immediately after the backspace fix: "now the back arrow
-key does not work."** Unresolved when the session ended. **Read the
-measurements before assuming it is a regression - the evidence says it is
-not.**
+**Cause found, fixed and measured — §5.18.** It was not the `_KEYCODE` change
+and it was not a mystery about what the console sends: the default terminal
+type was `vt100`, whose arrows are the application-cursor-mode spellings, and
+**SD never sends `smkx`, so that mode is never entered**. Every arrow was dead,
+not only Left. The default is now the new `windows` type. `verify-keys.ps1`
+section 3 is the standing guard, 10/10 on the 10:06:08 install.
 
-**WHAT IS MEASURED, on the 09:10:45 install, driven from a pipe** (the same
-technique `verify-keys.ps1` uses - `COUNTVOC` + LEFT x3 + a space runs
-`COUNT VOC` only if LEFT moved the cursor):
-
-```
-ESC O D   (vt100 kcub1)   ->  COUNT VOC ran        LEFT WORKS
-ESC [ D   (ansi/xterm)    ->  refused              LEFT DISCARDED
-no arrows (control)       ->  refused
-```
-
-**SO THE BINDING IS INTACT AND THE `_KEYCODE` CHANGE DID NOT BREAK IT.** The
-only binding 5.17 added is `char(127)`, which cannot affect a three-byte escape
-sequence: `_KEYCODE` reads ESC, appends the next byte, and walks the table by
-prefix. Measured after the change, `ESC O D` still resolves to `K$LEFT`.
-
-**WHAT IS NOT ESTABLISHED: whether it ever worked, or what the console sends.**
-"Now" may mean "a regression" or "now that I am testing the keyboard". Nobody
-has measured the bytes the Windows console emits for Left.
-
-**THE TERMINAL TYPE IS NOT THE ANSWER EITHER, and this was checked:** `vt100`
-and `xterm` BOTH use `kcub1=\EOD` with `smkx=\E[?1h\E=`, so switching between
-them changes nothing for arrows. `ansi` and `linux` use `kcub1=\E[D` and have
-**no `smkx`**.
-
-**THE LIKELY MECHANISM, and it is a hypothesis, not a finding:** `\EOD` is what
-a terminal sends only in APPLICATION CURSOR KEY MODE, which `smkx` (DECCKM,
-`ESC [ ? 1 h`) turns on. A console that never receives `smkx`, or ignores it,
-goes on sending `ESC [ D` - which the measurement above shows SD discards with a
-bell. **The next step is to find out whether SD emits `smkx` at all**: a first
-grep found `smkx` in `gplsrc/ti_names.h` only, i.e. named in the capability
-table but with no sender located yet. That grep was not finished.
-
-**THE CHEAP NEXT MEASUREMENT** is the raw-byte probe: a BASIC program looping on
-`keyin()` printing `seq()`, compiled into an account's `bp`, run in a real
-console, pressing Left once. It says in one line what the console sends. The
-session had one (`ZZKEYPROBE`) and removed it; rebuild rather than guess.
-
-**IF IT TURNS OUT THE CONSOLE SENDS `ESC [ D`**, the fix has the same shape as
-5.17: bind both spellings of each arrow in `_KEYCODE`, before the terminfo
-binds so terminfo still overrides. `verify-keys.ps1` already has the harness -
-its LEFT test is three lines.
+**The hypothesis recorded here was right and the proposed probe was not needed**
+— the question "what does the console send?" was answered from the protocol
+instead: `\EOD` is *by definition* only sent in a mode nothing turns on.
 
 ### Open: how many kinds of user does SD have, and what enforces each (raised 16 Aug 2026)
 
