@@ -8,21 +8,31 @@ something came to be the way it is.
 **Last updated:** 18 Aug 2026, end of the twenty-fifth session.
 
 **THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **22:37:20** install, `sd.exe` **`A71C53652197195E`**. Confirm it
+against the **22:55:26** install, `sd.exe` **`A71C53652197195E`**. Confirm it
 before believing it — one unelevated command, `gplbld\assert-current.ps1`.
 
-**THIS SESSION RENAMED `$HOLD` TO `$hold` (§5.12 (b)) AND THEN FOLDED EVERY
-REMAINING EXACT-MATCH VOC LOOKUP, so the TCL-verb rename below cannot break
-anything silently.**
+**THIS SESSION RENAMED `$HOLD` TO `$hold`, FOLDED EVERY REMAINING EXACT-MATCH VOC
+LOOKUP, AND THEN LOWER-CASED ALL 792 TCL COMMAND IDS. §5.12 (b).**
 
 | Subject | Verifier | Install |
 |---|---|---|
-| VOC id `$HOLD` → `$hold`, old accounts unaffected | `verify-lcnames.ps1` **50/50** | 22:37:20 |
-| nine more lookups and comparisons fold | `verify-lcnames.ps1` **50/50** | 22:37:20 |
-| the VOC tiers still filter | `verify-tiers.ps1` 22/22, 393 / 411 / 421 | 22:37:20 |
-| step 11 local transport | `make check-local` PASS | 22:37:20 |
-| `$CRED` ACL, `DHF_NOCASE`, `OS.USERS` | `verify-credacl` / `-nocase` / `-osusers`, exit 0 | 22:37:20 |
-| the three-case fold and `_VOC_REF` | `verify-fold.ps1` 10/10 (elevated) | 21:29:59 |
+| **792 command ids lower-cased**, both spellings work | `verify-lcnames.ps1` **57/57** | 22:55:26 |
+| the VOC tiers still filter after it | `verify-tiers.ps1` 22/22, 393 / 411 / 421 | 22:55:26 |
+| a lower-case VERB and KEYWORD reached typed UPPER | `verify-lcnames.ps1` §8 | 22:55:26 |
+| the three-case fold and `_VOC_REF` | `verify-fold.ps1` 10/10 (elevated) | 22:55:26 |
+| step 11 local transport | `make check-local` PASS | 22:55:26 |
+| `$CRED` ACL, `DHF_NOCASE`, `OS.USERS` | `verify-credacl` / `-nocase` / `-osusers`, exit 0 | 22:55:26 |
+| VOC id `$HOLD` → `$hold`, old accounts unaffected | `verify-lcnames.ps1` §3, §5a | 22:55:26 |
+
+**THE DIRECT EVIDENCE, and it is one command:**
+
+```
+CT VOC LIST         ->  VOC list
+CT VOC CREATE.FILE  ->  VOC create.file
+CT VOC VOC          ->  VOC VOC          <- the control: file pointers did not move
+COUNT VOC / count voc                    ->  422 both ways
+LIST VOC WITH TYPE = "F" / lower case    ->  11 both ways
+```
 
 **WHAT MOVED WITH IT:** `CLEANAC`, `MICRO`, `SPVIEW`, `_NEXTPTR`, `_PRFILE`,
 `SETPTR`, `CREATEA:759`, `MESSAGES` 7119/7131/7170, `NEWVOC/SP.VIEW`'s
@@ -157,21 +167,14 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
    `verify-osusers.ps1`, `verify-nocase.ps1`, `verify-tiers.ps1`,
    `assert-current.ps1`. §5.12 (a).
 
-2. **THE TCL COMMANDS — owner, 18 Aug 2026, and the scaffolding for it is
-   already in.** Rename the 387 command ids in `NEWVOC` and 400 in
-   `VOC_TEMPLATE` plus `SD.VOCLIB`'s 11, lower-case the contents of
-   `TIER.OMIT.STANDARD` and `TIER.ADD.ADMINISTRATOR`, update
-   `verify-tiers.ps1`'s name lists and `docs/TCL_VERBS.md`. The header above
-   has the audit and the exclusions. **Do it as ONE change with a scripted
-   rename** — 800 files one at a time is not a per-file plan, and the fold now
-   makes any single missed literal recoverable rather than fatal.
-
-   **Then `$COMMAND.STACK` and `BP` — what is left of the `$` and file-pointer
-   ids**, with `$hold` as the worked example: the hard-coded literals, the
-   `MESSAGES` records, the `VOC_TEMPLATE` record where the id **is** the file
-   name (case-only `git mv`, two steps), `CREATEA`, a `START-HISTORY` line per
-   file, a changelog entry, and a `verify-lcnames.ps1` section for the
-   pre-rename account. **`BP` is the awkward one and item 3 is why.**
+2. **`$COMMAND.STACK`, THEN `BP` — what is left of the `$` and file-pointer
+   ids.** The TCL commands are DONE (this session, 792 ids). `$hold` is the
+   worked example for one of these: the hard-coded literals, the `MESSAGES`
+   records, the `VOC_TEMPLATE` record where the id **is** the file name
+   (case-only `git mv` in two steps, or `git -c core.ignorecase=false add -A`
+   for a batch), `CREATEA`, a `START-HISTORY` line per file, a changelog entry,
+   and a `verify-lcnames.ps1` section for the pre-rename account. **`BP` is the
+   awkward one and item 3 is why.**
 
 3. **FIX `bp.OUT` BEFORE `BP` MOVES.** `BASIC:132` derives the object file name
    from the string the user TYPED, so `BASIC bp x` creates VOC id `bp.OUT` while
@@ -4101,7 +4104,24 @@ other has moved. `_PRFILE:56`'s guard took `downcase()` for the same reason.
 `verify-lcnames.ps1` §3 by typing them in lower case and requiring an upper-case
 echo. Whichever moves next takes its control with it.
 
-**THE TCL COMMANDS ARE IN SCOPE TOO — owner, 18 Aug 2026.** Every command id
+**THE TCL COMMANDS ARE DONE — 18 Aug 2026, 792 ids**, `verify-lcnames.ps1`
+57/57 and `verify-tiers.ps1` 22/22 on the 22:55:26 install. 384 in `NEWVOC`,
+397 in `VOC_TEMPLATE`, 11 in `SD.VOCLIB`, plus field 3 of the 22 R records and
+the contents of both tier lists. **Excluded and each for its own reason**: the
+14 `$`/`%`/`@` records (their own queued renames), the F/Q **file pointers**
+(`VOC`, `BP`, `NEWVOC`, `GPL.BP`, `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`,
+`DICT.DICT`, `MD`, `SD.ACCOUNTS`, `OS.USERS`, `BP.OUT`, `GPL.BP.OUT`), which
+are file names and move with (a); the two `T` tier-list records, which are data
+and never VOC entries; and `!`, `#`, `&`, which have no case.
+
+**`git mv` PER FILE IS NOT THE WAY TO DO 792 OF THEM.** `core.ignorecase` is
+true here, so a plain `git add -A` after a filesystem rename sees **nothing** —
+it reported only the content changes and none of the renames. Rename on disk
+through a temporary name, then `git -c core.ignorecase=false add -A .`, which
+stages all of them in one call (787 as `R`, 5 as add/delete pairs because their
+content changed too).
+
+**THE ORIGINAL SCOPE NOTE, kept because the reasoning is still the rule:** Every command id
 in `NEWVOC` and `VOC_TEMPLATE`, not only the `$` files. The audit is in this
 file's header; what it comes to is that **dispatch already folds and only
 COMPARISONS were at risk**, and the nine that mattered were folded on 18 Aug

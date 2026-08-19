@@ -27,6 +27,90 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - The TCL commands are lower case, and a probe found the site the whole change depended on
+
+**Commit:** this one and `8f808a3`. **Install:** 22:55:26, `sd.exe`
+`A71C53652197195E`, `assert-current` exit 0. `verify-lcnames.ps1` **57/57**,
+`verify-tiers.ps1` 22/22 with `COUNT VOC` 393 / 411 / 421, `verify-fold.ps1`
+10/10, `make check-local` PASS, `verify-credacl` / `-nocase` / `-osusers`
+exit 0.
+
+**Correction to `8f808a3`'s commit message**, which says the fold was verified
+"on the 22:57 install". It was the **22:49:57** cycle; 22:55:26 is this one.
+The verification itself stands, 57/57.
+
+### The probe that saved it
+
+The previous entry's audit concluded "dispatch was never the risk", from reading
+`PARSER:160`, which does fold three ways. **That was wrong, and only a probe
+showed it.** A VOC record was written with the id `zzprobev` and dispatched:
+
+```
+zzprobev  ->  File name required            (dispatched)
+ZZPROBEV  ->  ZZPROBEV is not in your VOC   (not)
+```
+
+`CPROC:1401` is where a typed verb is actually resolved, and it went **as
+entered, then UPPER, then upper-with-hyphens-as-dots** — no lower-case attempt.
+It is not among the 74 fold sites because its third tier is a `change()` rather
+than a plain read, so it matched neither scripted shape and was passed over.
+**Renaming the ids without this would have made every verb typed in upper case
+fail, for every user, on the first login after the upgrade.**
+
+**Why nothing earlier could have caught it:** nothing SD ships was lower case,
+so every measurement to date exercised the fold's UPWARD half. The downward half
+had never fired for a verb or a keyword. `verify-lcnames.ps1` §8 is now the
+standing probe — it MAKES a lower-case verb and a lower-case keyword and reaches
+them by typing the names in UPPER case, with a control for each.
+
+### The rename
+
+**792 ids**: 384 in `NEWVOC`, 397 in `VOC_TEMPLATE`, 11 in `SD.VOCLIB`, plus
+field 3 of the 22 R records (which name the `SD.VOCLIB` record they point at)
+and the contents of `TIER.OMIT.STANDARD` (18) and `TIER.ADD.ADMINISTRATOR` (10).
+
+**Excluded, each for its own reason**: the 14 `$`/`%`/`@` records, which are
+being renamed one at a time; the F/Q **file pointers** (`VOC`, `BP`, `NEWVOC`,
+`GPL.BP`, `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`,
+`SD.ACCOUNTS`, `OS.USERS`, `BP.OUT`, `GPL.BP.OUT`), which are file names and
+move with 5.12 (a); the two `T` tier-list records, which are data and never VOC
+entries; and `!`, `#`, `&`, which have no case to change.
+
+**`git mv` per file is not how to do 792 renames, and a plain `git add -A` does
+not work at all.** `core.ignorecase` is true in this repository, so after the
+filesystem renames `git add -A` reported only the content changes and **none**
+of the renames — the index kept the old spellings and the commit would have
+been silently wrong. Rename on disk through a temporary name, then
+`git -c core.ignorecase=false add -A .`: one call, 787 staged as `R` and 5 as
+add/delete pairs because their content had changed too.
+
+**The evidence, on the installed system:**
+
+```
+CT VOC LIST         ->  VOC list
+CT VOC CREATE.FILE  ->  VOC create.file
+CT VOC VOC          ->  VOC VOC        <- the control: file pointers did not move
+COUNT VOC / count voc                  ->  422 both ways
+LIST VOC WITH TYPE = "F" / lower case  ->  11 both ways
+```
+
+**The bootstrap is itself a test of the fold** and it is the first one that
+runs: `bootstrap.py` types `SECOND.COMPILE`, `THIRD.COMPILE` and
+`RUN GPL.BP WRITE_INSTALL_DICTS NO.PAGE` in upper case against ids that are now
+lower case. A broken fold fails there, loudly, before anything is installed.
+
+**The tiers were the thing most likely to break quietly and did not.**
+`verify-tiers.ps1` 22/22 with all three `COUNT VOC` figures exact, both shipped
+tier lists matching the test's own copy, and both list records still absent from
+every VOC. The `upcase()` on both sides of those comparisons, added in the
+previous commit, is what made the list contents and the ids independent.
+
+**`docs/TCL_VERBS.md` is left in upper case on purpose** — it is a comparison
+against OpenQM 2.6.6, which spells them that way — with a note at the top saying
+what is now stored and that it makes no difference to what you type.
+
+---
+
 ## 18 Aug 2026 - Folding every remaining exact-match VOC lookup, before the TCL commands move
 
 **Commit:** this one. **Install:** 22:37:20, `sd.exe` `A71C53652197195E`,
