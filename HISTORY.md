@@ -27,6 +27,50 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — Both fixes measured on the 09:10:45 install; the left arrow is open
+
+**Commit:** this one, over `1943704`. **Install:** **09:10:45**, `sd.exe`
+`339AB7157F002679`, `assert-current` exit 0.
+
+**`verify-keys.ps1` 6/6** and **`verify-lcnames.ps1` 121/121**, so both changes
+in `1943704` are now measured rather than merely written.
+
+**Section 9 is the answer for `bp.OUT`:** `BASIC bp ZZRLC1` produced
+`LOWER=YES MIXED=NO UPPER=NO` on exact-match VOC reads — the id created is
+`bp.out`, not the unreachable mixed-case `bp.OUT` — and `BASIC BP ZZULC1`
+afterwards answered `UPPERCOMPILE=OK` with no "already exists". That second one
+is the regression proper: the failure was never in the compile that made the
+file but in the next one, typed the other way.
+
+**Backspace has a before and after.** On 07:41:45, piping `COUNTX<DEL> VOC` ran
+`COUNTX VOC` — not erased. On 09:10:45 it runs `COUNT VOC`, `^H` still erases,
+and the no-erase control is still refused.
+
+**A false alarm in `Remove-Probes`, and it is instructive.** It printed
+"WARNING: bp.OUT is still there - a later BASIC BP <x> will fail" on a
+perfectly good install. Two things were wrong. The warning TEXT described the
+failure the fix had just removed. And the removal itself used the old mixed-case
+spelling: measured directly, `DELETE.FILE bp.OUT FORCE` removed nothing while
+`DELETE.FILE bp.out FORCE` answered "DATA portion 'BP.OUT' deleted / VOC entry
+'bp.out' deleted". **Why the mixed spelling is not folded to the lower one is
+not established** and is recorded as an open question rather than guessed at.
+
+**THE LEFT ARROW IS OPEN, AND THE `_KEYCODE` CHANGE IS EXONERATED BY
+MEASUREMENT.** The owner reported it immediately after the backspace fix. Driven
+from a pipe on the fixed install, `ESC O D` (vt100's `kcub1`) still resolves to
+`K$LEFT` and moves the cursor, while `ESC [ D` is discarded — so the binding is
+intact and the only added binding, `char(127)`, cannot affect a three-byte
+escape sequence. What is NOT established is what the Windows console emits for
+Left, or whether SD ever sends `smkx` to put it in application cursor key mode;
+`vt100` and `xterm` both use `kcub1=\EOD` with `smkx=\E[?1h\E=`, so the
+terminal type is not the lever. §8 has the measurements and the next step.
+
+**Left unfinished by the session, not by the work:** `verify-credacl`,
+`-nocase`, `-osusers`, `make check-local` and `post-cycle-elevated.ps1` were not
+reached. Next free names are `sdacct16` and `sdtieri`.
+
+---
+
 ## 19 Aug 2026 — The backspace key did nothing in any Windows console
 
 **Commit:** this one. **Install:** NOT CYCLED — it rides the same owed cycle as

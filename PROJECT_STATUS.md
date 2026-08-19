@@ -7,38 +7,48 @@ something came to be the way it is.
 
 **Last updated:** 19 Aug 2026, end of the twenty-sixth session.
 
-**A CYCLE IS OWED — `bp.OUT` AND THE `BP`/`GPL.BP` IDS LANDED AFTER THE
-07:41:45 INSTALL AND ARE UNMEASURED.** `gplsrc` did **not** change, so
-**`make sd` is NOT needed**; `cycle.ps1` alone is the whole of it. Elevated:
+**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **09:10:45**
+install (19 Aug), `sd.exe` **`339AB7157F002679`**. Confirm before believing it:
+`gplbld\assert-current.ps1`, unelevated.
+
+**BUT THE POST-CYCLE RUN IS ONLY HALF DONE.** Two verifiers ran and passed;
+the rest were not reached before the session ended. **Owed, in this order:**
 
 ```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+gplbld\verify-credacl.ps1     UNELEVATED
+gplbld\verify-nocase.ps1      UNELEVATED
+gplbld\verify-osusers.ps1     UNELEVATED
+```
+```sh
+cd sdb_ai/sd64 && make check-local
+```
+```powershell
+gplbld\post-cycle-elevated.ps1 -TierPrefix sdtieri -Account sdacct16   ELEVATED
 ```
 
-Then `verify-lcnames.ps1` — its **new §9** is the one that matters, below —
-**`verify-keys.ps1`** (new, unelevated), and
-`post-cycle-elevated.ps1 -TierPrefix sdtieri -Account sdacct16`.
+**`sdtieri` AND `sdacct16` ARE THE NEXT FREE NAMES** — `sdacct1`–`15` and
+`sdtierb`–`h` are spent.
 
-**AND THE BACKSPACE KEY DID NOTHING IN ANY WINDOWS CONSOLE. FIXED, NOT YET
-MEASURED ON AN INSTALL — §5.17.** A terminal sends either Ctrl-H (8) or DEL
-(127) for backspace; SD bound whichever one the type's `kbs` named and ignored
-the other. **Every Windows console host sends DEL** — cmd, PowerShell and
-Windows Terminal, measured — while `LOGIN:116` defaults an unset `TERM` to
-`vt100`, whose `kbs` is `^H`. `_KEYCODE` now binds **both** bytes as defaults,
-*before* the terminfo binds so a type that genuinely claims one still wins.
+**WHAT DID RUN, AND BOTH PASSED ON THE 09:10:45 INSTALL:**
 
-**IT IS DRIVEN FROM A PIPE, so it costs nothing to check.** `keyin()` reads
-stdin, so a byte piped in reaches the command-line editor exactly as a
-keystroke does. `COUNTX<erase> VOC` runs `COUNT VOC` if the erase worked and
-`COUNTX VOC` if it did not — two different answers. **Measured on the 07:41:45
-install, before the fix:** DEL not erased, `^H` erased, and the no-erase
-control refused. `gplbld/verify-keys.ps1` is that, as a script.
+| Subject | Verifier | Result |
+|---|---|---|
+| **the backspace key**, 5.17 | `verify-keys.ps1` (new) | **6/6** |
+| everything in 5.12, incl. **`bp.OUT` §9** and the `bp`/`gpl.bp` ids | `verify-lcnames.ps1` | **121/121** |
 
-**`cycle.ps1 -SkipInstall` IS THE CHEAP HALF AND IS WORTH IT HERE**: this
-change edits 12 BASIC programs, and a bootstrap is what catches a misplaced
-`end` that compiled and balanced (§5.12's traps 3 and 4). The block-balance
-pre-flight passed — 12 files, 0 with a changed opener/closer delta — and §5.12
-says in terms that this is **necessary and not sufficient**.
+**§9's ANSWER IS THE ONE TO READ**, because it is what `BP` had to move behind:
+
+```
+BASIC bp ZZRLC1  ->  LOWER=YES   MIXED=NO   UPPER=NO
+BASIC BP ZZULC1  ->  UPPERCOMPILE=OK, no "already exists"
+```
+
+Exact-match VOC reads: the id created is **`bp.out`**, not the unreachable
+mixed-case `bp.OUT`, and the *next* compile typed the other way now works.
+
+**AND BACKSPACE IS FIXED WITH A BEFORE-AND-AFTER.** On the 07:41:45 install,
+piping `COUNTX<DEL> VOC` ran `COUNTX VOC` — not erased. On 09:10:45 it runs
+`COUNT VOC`, `^H` still erases, and the no-erase control is still refused.
 
 **THIS SESSION DID §5.12 (a)'s WIDE HALF: EVERY SDSYS FILE NAME IS LOWER CASE
 ON DISK, AND SO IS EACH ACCOUNT'S `voc`.** That is the previous session's next
@@ -303,16 +313,19 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
 
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
-1. **CYCLE, THEN MEASURE `bp.OUT` AND THE TWO IDS.** §5.12 (a) is closed and
-   was verified on the 07:41:45 install. What is unmeasured is everything after
-   it: the `bp.OUT` fix and the `BP`/`GPL.BP` id moves. **`verify-lcnames.ps1`
-   §9 is the decisive one** — it clears the object file first, because with one
-   already there BASIC's `open` succeeds and the create branch, the only place
-   the name is built, is never reached. It then reads the account VOC with
-   EXACT-MATCH reads (`CT` would fold and answer for any spelling) to assert the
-   id is `bp.out` and neither `bp.OUT` nor `BP.OUT`, and compiles a second
-   program with `BASIC BP` to prove the *next* compile no longer stops with
-   "already exists" — which is where the failure always was.
+1. **FINISH THE POST-CYCLE RUN ON THE 09:10:45 INSTALL.** `verify-keys` 6/6 and
+   `verify-lcnames` 121/121 already passed; `verify-credacl`, `-nocase`,
+   `-osusers`, `make check-local` and `post-cycle-elevated.ps1` were not
+   reached. Commands and fresh names are in the header. **Nothing is known to
+   be wrong** - this is an unfinished measurement, not a suspected fault.
+
+1a. **THEN SETTLE THE LEFT ARROW - §8, "OPEN, PARTLY MEASURED".** The owner
+   reported it right after the backspace fix. **The `_KEYCODE` change is
+   exonerated by measurement** (`ESC O D` still resolves to `K$LEFT` on the
+   installed tree); what is unknown is what the Windows console actually sends
+   for Left, and whether SD emits `smkx` to put it in application cursor mode.
+   The raw-byte probe is one command and answers both. Do not "fix" it before
+   measuring - the last two rounds of this were both settled by one probe.
 
 2. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** `bp`, `bp.out`,
    `gpl.bp` and `gpl.bp.out` went on 19 Aug; what is left is `VOC`, `NEWVOC`,
@@ -7941,6 +7954,55 @@ work worth doing rather than theoretical.**
 sessions each running a client is a user-count question (`MESSAGES/1000`, "User
 limit reached"), and §5.6.2 would need rewriting from "the console belongs to
 administrators" to a three-way rule.
+
+### OPEN, PARTLY MEASURED: the LEFT ARROW in a Windows console (raised 19 Aug 2026)
+
+**Owner, 19 Aug 2026, immediately after the backspace fix: "now the back arrow
+key does not work."** Unresolved when the session ended. **Read the
+measurements before assuming it is a regression - the evidence says it is
+not.**
+
+**WHAT IS MEASURED, on the 09:10:45 install, driven from a pipe** (the same
+technique `verify-keys.ps1` uses - `COUNTVOC` + LEFT x3 + a space runs
+`COUNT VOC` only if LEFT moved the cursor):
+
+```
+ESC O D   (vt100 kcub1)   ->  COUNT VOC ran        LEFT WORKS
+ESC [ D   (ansi/xterm)    ->  refused              LEFT DISCARDED
+no arrows (control)       ->  refused
+```
+
+**SO THE BINDING IS INTACT AND THE `_KEYCODE` CHANGE DID NOT BREAK IT.** The
+only binding 5.17 added is `char(127)`, which cannot affect a three-byte escape
+sequence: `_KEYCODE` reads ESC, appends the next byte, and walks the table by
+prefix. Measured after the change, `ESC O D` still resolves to `K$LEFT`.
+
+**WHAT IS NOT ESTABLISHED: whether it ever worked, or what the console sends.**
+"Now" may mean "a regression" or "now that I am testing the keyboard". Nobody
+has measured the bytes the Windows console emits for Left.
+
+**THE TERMINAL TYPE IS NOT THE ANSWER EITHER, and this was checked:** `vt100`
+and `xterm` BOTH use `kcub1=\EOD` with `smkx=\E[?1h\E=`, so switching between
+them changes nothing for arrows. `ansi` and `linux` use `kcub1=\E[D` and have
+**no `smkx`**.
+
+**THE LIKELY MECHANISM, and it is a hypothesis, not a finding:** `\EOD` is what
+a terminal sends only in APPLICATION CURSOR KEY MODE, which `smkx` (DECCKM,
+`ESC [ ? 1 h`) turns on. A console that never receives `smkx`, or ignores it,
+goes on sending `ESC [ D` - which the measurement above shows SD discards with a
+bell. **The next step is to find out whether SD emits `smkx` at all**: a first
+grep found `smkx` in `gplsrc/ti_names.h` only, i.e. named in the capability
+table but with no sender located yet. That grep was not finished.
+
+**THE CHEAP NEXT MEASUREMENT** is the raw-byte probe: a BASIC program looping on
+`keyin()` printing `seq()`, compiled into an account's `bp`, run in a real
+console, pressing Left once. It says in one line what the console sends. The
+session had one (`ZZKEYPROBE`) and removed it; rebuild rather than guess.
+
+**IF IT TURNS OUT THE CONSOLE SENDS `ESC [ D`**, the fix has the same shape as
+5.17: bind both spellings of each arrow in `_KEYCODE`, before the terminfo
+binds so terminfo still overrides. `verify-keys.ps1` already has the harness -
+its LEFT test is three lines.
 
 ### Open: how many kinds of user does SD have, and what enforces each (raised 16 Aug 2026)
 
