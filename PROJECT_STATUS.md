@@ -8,14 +8,15 @@ something came to be the way it is.
 **Last updated:** 18 Aug 2026, end of the twenty-fourth session.
 
 **THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **20:34:25** install, `sd.exe` **`A6AAAB58AAB676F4`**. Confirm it
+against the **21:03:32** install, `sd.exe` **`A6AAAB58AAB676F4`**. Confirm it
 before believing it — one unelevated command, `gplbld\assert-current.ps1`.
 
 **THIS SESSION MADE THE FIRST VOC-ID RENAME, §5.12 (b).**
 
 | Subject | Verifier | Install |
 |---|---|---|
-| VOC id `$SAVEDLISTS` → `$savedlists`, old accounts unaffected | `verify-lcnames.ps1` 36/36 | 20:34:25 |
+| VOC id `$SAVEDLISTS` → `$savedlists`, old accounts unaffected | `verify-lcnames.ps1` 36/36 | 21:03:32 |
+| A silent install no longer blocks on a message box | `cycle.ps1 -Silent`, no dialog | 21:03:32 |
 
 **`$SAVEDLISTS` IS NOW `$savedlists`, AND THE 13 HARD-CODED LITERALS MOVED WITH
 IT** — the ones last session's `_VOC_REF` fold was built for. With them:
@@ -48,12 +49,19 @@ to change.
    NOT.** `verify-lcnames.ps1` is in `$neverShipped`, the changelog ships, so
    correcting both in one go voided the install being measured. **Order the
    exempt fixes first, re-measure, then touch anything under `sdsys`.**
-2. **`cycle.ps1 -Silent` IS NOT UNATTENDED, and `-Silent` is not what makes it
-   so.** `sd.iss` uses plain `MsgBox` at all six sites and Inno suppresses only
-   `SuppressibleMsgBox`, so `/VERYSILENT` skips the wizard and still blocks on
-   every prompt. Worse, `sd.iss:1338` then says "the two ssh options are absent
-   from this page" about a page silent mode never showed. **Not fixed** —
-   `SuppressibleMsgBox` with a default answer is the change.
+2. **`cycle.ps1 -Silent` BLOCKED ON A MESSAGE BOX. FIXED AND VERIFIED** —
+   `CurPageChanged` now takes the same `WizardSilent` guard `CurStepChanged`
+   already had, and a `-Silent` cycle ran through with no dialog (21:03:32).
+   **`CurPageChanged` FIRES IN SILENT MODE**: the wizard form is created and
+   not shown, so "never displayed" is not "never changed". §6.
+
+   **Two things said about this earlier in the session were wrong**, and the
+   corrections are the useful part. *Five of the six `MsgBox` sites were
+   already guarded* — `WizardSilent` in the install path, `UninstallSilent` in
+   the uninstall path — so the fault was one missed entry point, not a
+   file-wide pattern. And *`SuppressibleMsgBox` was the wrong prescription*: it
+   is driven by `/SUPPRESSMSGBOXES`, which §6 records as measured NOT to reach
+   these boxes, and it would have put a second idiom beside the working one.
 
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
@@ -5019,6 +5027,14 @@ Each of these cost real time. Read before debugging anything similar.
   indefinitely. The test that works is `WizardSilent` in the install path and
   `UninstallSilent` in the uninstall path — two different flags for the same
   job. `gplbld/sd.iss` now checks both.
+
+  **AND "CHECKS BOTH" WAS NOT ENOUGH — CORRECTED 18 Aug 2026.** It checked them
+  in `CurStepChanged` and `CurUninstallStepChanged` and NOT in
+  `CurPageChanged`, which **still fires in silent mode** — the wizard form is
+  created and simply not shown. A `-Silent` cycle stopped there with a modal
+  box on screen and copied nothing until somebody clicked OK. The guard is now
+  the first statement of `CurPageChanged`; verified by a `-Silent` cycle
+  running through unattended, 21:03:32.
 
 - **The UCRT64 compiler needs its own `bin` on PATH even when it is invoked by
   absolute path, and it fails with no message whatsoever.** `gcc.exe` finds its

@@ -27,6 +27,48 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - A silent install blocked on a message box, and CurPageChanged was the entry point nobody guarded
+
+**Commit:** see the commit that carries this entry. Twenty-fourth session,
+after the entry below.
+
+**What was wrong.** `cycle.ps1 -Silent` passes `/VERYSILENT`, which skips the
+wizard. It did not skip `CurPageChanged`, and the box at `sd.iss:1338` - the
+one saying SD will not touch an OpenSSH Server that is already installed -
+appeared with nothing behind it and copied not one file until somebody clicked
+OK. **`CurPageChanged` fires in silent mode**: Inno creates the wizard form and
+simply does not show it, so "the page was never displayed" is not the same as
+"the page never changed". The box also explains why two options are "absent
+from this page", which is incoherent in a mode that shows no pages.
+
+**The fix** is the guard the file already used - `if WizardSilent then Exit;` -
+as the first statement of `CurPageChanged`. Verified by running a `-Silent`
+cycle through: no dialog, no `MainWindowTitle` on the setup process (the
+previous run showed "Setup"), install at 21:03:32, `assert-current` exit 0, and
+`verify-lcnames.ps1` 36/36 on that install.
+
+**Two claims made earlier in the same session were wrong, and the corrections
+are worth more than the fix.**
+
+1. **"`sd.iss` uses plain `MsgBox` at all six sites and none are guarded" is
+   false.** Five of six were already guarded, deliberately and with a comment
+   explaining why - `WizardSilent` in `CurStepChanged`, `UninstallSilent` in
+   `CurUninstallStepChanged`. The fault was one missed entry point, not a
+   file-wide pattern, and describing it as the latter would have sent the next
+   session rewriting five working call sites.
+2. **`SuppressibleMsgBox` was the wrong prescription**, offered before reading
+   the surrounding code. It is driven by `/SUPPRESSMSGBOXES`, which
+   PROJECT_STATUS.md section 6 records as MEASURED on 14 Aug 2026 not to reach
+   `[Code]` message boxes at all - which is precisely why the author chose
+   `WizardSilent` instead. Taking it would have added a second idiom that does
+   not work beside a first one that does.
+
+**A claim in PROJECT_STATUS.md section 6 was also incomplete and is corrected
+in place**: "`gplbld/sd.iss` now checks both" was true of the install and
+uninstall paths and silently not true of `CurPageChanged`.
+
+---
+
 ## 18 Aug 2026 - The first VOC id is lower case, and a rename cannot be tested by "not found"
 
 **Commit:** see the commit that carries this entry. Twenty-fourth session.
