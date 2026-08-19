@@ -848,8 +848,17 @@ notices after the seed phase has already rewritten the staging tree.
 `cycle.ps1` step 3 tests the same thing again, because that is what stands
 between a silent bootstrap failure and an installer built from the wreckage.
 `assert-current` **cannot** see that failure: it compares the install against
-SOURCE and `gcat` is a build product. `gcat` 132 / `GPL.BP.OUT` 193 /
-`$BCOMP` 87,992 — the script prints all three.
+SOURCE and `gcat` is a build product. `gcat` ~129 / `gpl.bp.out` ~190 /
+`terminfo` ~99 / `$BCOMP` ~88,000 — the script prints all four.
+
+**`terminfo` JOINED THAT CHECK ON 19 Aug 2026 AND IS COUNTED RECURSIVELY.** It
+is sharded a level deep — `sdtermlb.c:166` opens
+`<sysdir>\terminfo\<first letter>\<name>` — so a flat count reports **0** for a
+perfectly good database. **Nothing else would have said it was missing**: it is
+not tracked (it is `make terminfo` output), `stage.py:469` checks only that the
+directory *exists*, and `sd.iss` copies the staged tree with a wildcard. An
+`sdtic` that failed part way would ship silently and every terminal type would
+answer *"Unrecognised terminal name"*.
 
 **The wizard pages are no longer owed.** The first page is verified full width
 (header); the closing dialog's content was re-read out of `sd.iss` on 17 Aug
