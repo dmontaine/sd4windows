@@ -27,6 +27,121 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - The fold reached only half the lookups, the per-account files went lower case, and a C change was cycled without being compiled
+
+**Commit:** see the commit that carries this entry. Twenty-third session.
+
+Two sessions ran concurrently in this repository, both on "pull continue",
+started five minutes apart. The older one (started 19:07) did §5.12 (a) and
+`COPYP`; the newer one found the collision at 19:14 by noticing `git status`
+had gone from clean to seven modified files mid-session, stopped editing, and
+messaged the finding across. The owner then stopped the older session and had
+the newer take over its uncommitted work. **`git status` at session start is a
+snapshot, not a subscription** - nothing warns you that another session is
+writing to the same tree.
+
+### The fold covered the command line and not the BASIC OPEN statement
+
+`GPL.BP/_VOC_REF` was not among the 36 files commit `0d62cf9` changed, and it
+had no fold of any kind - one exact-match read at `:72`, then the `PATH:` /
+`Account:File` special syntax. It is `pcode_voc_ref`, which
+`get_voc_file_reference()` (`op_dio1.c:481`) recurses into, so it resolves the
+name for **every** BASIC `OPEN` (`op_dio1.c:624`) and for `op_seqio.c:193`,
+`:453`.
+
+**The 74 folded sites work by trying a name in three cases and handing each one
+down to that exact-match read.** That is why every verb passed the earlier
+verification while nothing had actually been fixed for programs. A hard-coded
+literal got no fold at all, so `open "$SAVEDLISTS"` - in `SAVELST`, `GETLIST`,
+`DELLIST`, `LSTMRG`, `COPYLST`, `SAVESTK`, `CLEANAC`, `UPDREC` and the three
+`_` recursives, 13 sites - would have broken at the first VOC-id rename.
+
+Measured on the 18:54:10 install before the change, with a probe program written
+straight into an account's `BP` (a directory file, so a record is a file on
+disk): VOC id `zzprobe1` could not be opened as `ZZPROBE1` while
+`COUNT ZZPROBE1` found it, and VOC id `ZZPROBE2` could not be opened as
+`zzprobe2`. Fixed at `_VOC_REF:102` with a flag and a `goto` rather than a
+nested block, so the special syntax kept its indentation - the file already
+jumps to `parse.as.q.pointer` from inside its own case statement. The Q-pointer
+target at `:272` took the PLAIN shape. `verify-fold.ps1` gained section 4, which
+compiles a probe because no verb can reach this lookup. 10 of 10 on the 19:46:12
+install.
+
+### §5.12 (a), the per-account file names
+
+A new account holds `$hold`, `$hold.dic`, `$svlists` and `bp`. `CREATEA`'s
+`os.name` values and `create.dir.file`'s `.dic` suffix, the create-if-missing
+fallbacks in `SAVELST`, `COPYLST` and `SAVESTK`, and `to_file.c`'s three
+hold-file paths. The VOC ids are unchanged, which is why this could go first.
+No migration: each account's VOC names its own files and NTFS matches either
+case. `verify-lcnames.ps1`, 26 of 26, with `VOC` still upper case as the
+deliberate control and `cat` lower since before the port.
+
+`Test-Path` cannot make this assertion - NTFS matches `$HOLD` against `$hold`,
+so it passes whichever case was written. Every name check compares against the
+directory listing with `-ceq`.
+
+### A C change was cycled, installed, tested and passed without being compiled
+
+**`cycle.ps1` contains no `make`.** It stages whatever is already in `bin\`.
+`to_file.c` was edited at 19:15 and cycled at 19:38 against `bin/sd.exe` built
+at **17:17**.
+
+Both `assert-current` checks passed, and neither was wrong to. Check A compares
+installed `sd.exe` against `bin/sd.exe` - equal, because both were stale. Check
+B compares source mtimes against the **install** time, and 19:15 is older than
+19:39. The script's header reasons carefully about the opposite direction
+("most changes here are BASIC, so hashing `sd.exe` is not enough"); nothing
+covered this half.
+
+**And the test for the change passed too**, which is what made it invisible: the
+change was `$HOLD` to `$hold` in a relative path, NTFS matches either, so both
+binaries behave identically. `verify-lcnames.ps1` §4 carried a comment claiming
+it measured the C literal. It cannot, on Windows, and the comment was corrected
+rather than the check removed - it is still a good regression guard on
+`CREATEA`'s rename.
+
+`assert-current` check **A2** now refuses any file under `gplsrc` newer than the
+oldest binary in `bin\`, naming it; run against the tree as it stood it printed
+`18 Aug 19:15:43 gplsrc	o_file.c`. Oldest rather than `sd.exe` alone, so
+`gplsrc\sdclilib` and `gplsrc\sdsvc` count. The discriminator is the hash:
+`DA280984D21571B4` to `A6AAAB58AAB676F4`.
+
+Whether `cycle.ps1` should run `make` is **not decided**. Building inside an
+elevated cycle would leave objects owned by an elevated token, and the build
+needs an MSYS2 login shell where the cycle is PowerShell.
+
+### Correction: the five malformed VOC_TEMPLATE entries were never broken
+
+Supersedes the claim made in PROJECT_STATUS §8 from 16 Aug 2026 and repeated in
+the entry below, *SDNet removed, UNLOCK repaired...*, and in the `changelog`
+entry shipped 18 Aug 2026 saying `UNLOCK` "never worked".
+
+`CPROC:1410`, in the source and directly beside the test, says the type code
+**may be followed by comment text with no intervening space** - the PI /
+PI-open / UniVerse rule - and `CPROC:1433` tests `voc.entry.type[1,1]`. So
+`Verb to unlock records` is a `V` with a comment and dispatches normally. The
+record is not shifted either: fields 2 and 3 are correct in both the "malformed"
+and the correct records.
+
+Measured rather than re-read: `verify-lcnames.ps1` section 6 builds a VOC record
+from scratch with a descriptive type field, pointing at `$COPYP`, and it answers
+`File name required` - which only a dispatched verb produces. The older
+concurrent session had independently measured that `COPYP` already worked on the
+18:54:10 install before changing it.
+
+So `UNLOCK` was not repaired on 18 Aug 2026 and `COPYP` was not repaired on the
+23rd session; both were working. The restart-SD workaround used that day to
+clear a stuck record lock was never necessary. Both records are still bare `V`,
+because the inconsistency with every other verb is what produced the misreading,
+but that is tidying and not a fix. An `UPSTREAM_FIXES.md` entry reporting all
+five to upstream was written and **withdrawn** - `../sdb64` has all five, but
+there is no defect to report. `LOAD.LANGUAGE` was also found not to exist: it
+was removed with the language verbs in `ecd62b2` on 17 Aug 2026, and was never
+the zero-byte file PROJECT_STATUS described.
+
+---
+
 ## 18 Aug 2026 - SDNet removed, UNLOCK repaired, and a killed session explained three failures at once
 
 **Commit:** this one. Twenty-second session. `gplbld/verify-nonet.ps1`,

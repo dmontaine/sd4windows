@@ -5,143 +5,91 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 18 Aug 2026, end of the twenty-second session.
+**Last updated:** 18 Aug 2026, end of the twenty-third session.
 
 **THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **18:54:10** install, `sd.exe` **`DA280984D21571B4`**. Confirm it
-before believing it — one unelevated command, `gplbld\assert-current.ps1`.
+against the **19:46:12** install, `sd.exe` **`A6AAAB58AAB676F4`**. Confirm it
+before believing it — one unelevated command, `gplbldssert-current.ps1`.
 
-**FOUR THINGS CLOSED THIS SESSION, EACH VERIFIED ON A REAL INSTALL — read the
-four blocks below only if a claim needs its evidence:**
+**THIS SESSION CLOSED §5.12 (a) FOR THE PER-ACCOUNT FILES, EXTENDED THE FOLD TO
+THE LOOKUP IT HAD MISSED, AND FOUND THAT `assert-current` COULD PASS A C CHANGE
+THAT WAS NEVER COMPILED.**
 
 | Subject | Verifier | Install |
 |---|---|---|
-| Global catalogue gate + `gcat`/`GPL.BP.OUT` locks | `verify-catgate.ps1` 25/25 | 11:35:44 |
-| §5.12's name fold, 74 sites | `verify-fold.ps1` 5/5 | 16:24:23 |
-| SDNet removed, `UNLOCK` repaired | `verify-nonet.ps1` 16/16 | 18:54:10 |
+| Per-account names lower case on disk, + `COPYP` | `verify-lcnames.ps1` 26/26 | 19:46:12 |
+| The fold reaches the BASIC `OPEN` statement | `verify-fold.ps1` 10/10 | 19:46:12 |
 
-**THE ONE THING THAT COST MOST, AND IT WAS NOT SD:** a hard-killed SD session
-leaves **three** marks that look unrelated — a record lock that makes later
-`DELETE.FILE` on that name block **silently**, an occupied user-table slot that
-stops `sdwind` shutting down so the next `cycle.ps1` refuses to start *while the
-service reads Stopped*, and no way to clear the first because `UNLOCK` was
-broken. §8 has it. **Bound every scripted SD call** — both verifiers now use a
-45s timeout, and that is what turned "it hangs" into a diagnosis.
+**THE FOLD DID NOT REACH `open` AND NOTHING WOULD HAVE SAID SO.** The 74 sites
+fold by trying a name in three cases and handing each one to `_VOC_REF`, which
+matched EXACTLY and was not among the 36 files the fold commit changed. So every
+verb passed while every hard-coded `open "$SAVEDLISTS"` in `GPL.BP` — 13 of
+them — would have broken at the first VOC-id rename. Measured on the 18:54:10
+install before the change: a file whose VOC id is `zzprobe1` could not be opened
+as `ZZPROBE1` from BASIC, while `COUNT ZZPROBE1` found it. Fixed at
+`_VOC_REF:102` and at the Q-pointer target `:272`, a flag and a `goto` rather
+than a nested block so the `PATH:` syntax below keeps its shape. §5.12.
 
-**CLOSED AND VERIFIED — `gplbld/verify-catgate.ps1`, 25 of 25,
-exit 0, on the 11:35:44 install:**
+**THE TRAP THAT COST THIS SESSION A WHOLE CYCLE, AND IT IS NOT SD:
+`cycle.ps1` CONTAINS NO `make`.** It stages whatever is already in `bin\`. A
+`to_file.c` edit at 19:15 was cycled at 19:38 against a binary built at 17:17,
+and **both existing `assert-current` checks passed** — A compared installed
+`sd.exe` against `bin/sd.exe` and they matched *because both were stale*, and B
+compares source mtimes against the INSTALL time, where 19:15 is older than
+19:39. **And the test for the change passed too**, because the change was
+`$HOLD` to `$hold` in a relative path and NTFS matches either. `assert-current`
+check **A2** now refuses any file under `gplsrc` newer than the oldest binary in
+`bin\`, naming it. §6.
 
-- **THE GLOBAL CATALOGUE WAS WRITABLE FROM INSIDE SD BY ANY PROGRAMMER, AND IS
-  NOT NOW.** `CATALOG` tested `K$ADMINISTRATOR` only on the spelled-out `GLOBAL`
-  keyword; a `*!_$` call-name prefix selects the same mode at `CATALOG:158`,
-  `:172` and `:183` and tested nothing. `DELCAT` tested nothing **at all**, by
-  either route. So `CATALOG BP $LOGIN` replaced the program `CPROC:315` runs for
-  every session, and `DELETE.CATALOG $LOGIN` stopped the machine signing in.
-  **Reachable with no desktop, no RDP and no `OS.EXECUTE`** — the handoff had
-  this as an Explorer/RDP risk that `RDPUSER` would unlock. Fixed by one test
-  where `mode` is finally known (`CATALOG:191`) and a pre-loop test in
-  `DELCAT:89`. Upstream has both — `UPSTREAM_FIXES.md` 7.
-- **`gcat` AND `GPL.BP.OUT` ARE LOCKED** to `sdusers:(OI)(CI)(RX)`, no inherited
-  entries. `gplbld/secure-gcat.ps1`, run from `sd.iss`'s `SecureGcat` at
-  `ssPostInstall` beside the other two ACL steps.
-- **THE PRICE, AND IT IS DELIBERATE (owner, 18 Aug 2026):** cataloguing globally
-  now needs a **genuinely elevated** session. `sd.exe` stays unelevated for life
-  and a filtered token carries `Administrators` deny-only, so a session that
-  reached SDSYS through the elevation helper has `K$ADMINISTRATOR` true and is
-  refused by NTFS. Measured: an unelevated write into `gcat` throws. The
-  supported route — an elevated window, §7 step 0's recipe — is unchanged.
-- **Local and private cataloguing are untouched**, in any account the user may
-  `LOGTO` into. They write the account's own `cat` and `VOC`; only `CAT_GLOBAL`
-  reaches `gcat`. Verified both.
-- **Only SDSYS is an administrator.** `CPROC:2657` sets the flag for SDSYS and
-  clears it for every other account, so an ADMINISTRATOR-tier account cannot
-  catalogue globally while standing in its own account. That is also what makes
-  the gate testable without credentials — `LOGTO SDSYS` then `LOGTO <account>`
-  is a genuinely unprivileged session in the same pipe.
+**THE "FIVE MALFORMED VOC_TEMPLATE ENTRIES" WERE NEVER BROKEN, AND THE CLAIM IS
+WITHDRAWN — measured, not re-read.** `CPROC:1410` says a type code MAY carry
+comment text with no intervening space (the PI / PI-open / UniVerse rule) and
+`CPROC:1433` tests `voc.entry.type[1,1]`, so `Verb to unlock records` is a `V`
+with a comment. `verify-lcnames.ps1` section 6 builds such a record from scratch
+and dispatches it. **So `UNLOCK` was not repaired last session**, `COPYP` was not
+repaired this one, and the `changelog` entry that told users otherwise now
+carries a correction. Both records are still bare `V`, because the
+inconsistency is what produced the wrong reading. §8. **No `UPSTREAM_FIXES.md`
+entry** — one was written and withdrawn.
 
-**SDNET IS GONE — verified on the 18:54:10 install, `sd.exe`
-`DA280984D21571B4`.** `gplbld/verify-nonet.ps1`, **16 of 16**, exit 0. Owner's
-decision: `qmclient` stays because the API needs it and is mitigated by
-requiring an ssh tunnel; `qmnet` had neither mitigation nor an off switch —
-`NETFILES` was read at startup and tested nowhere — and kept each server's
-password in `sd.conf` under a substitution cipher. Removed: `netfiles.c`, 30
-`NET_FILE` branches, the `;` dispatch in `op_dio1.c`, three BASIC programs and
-three VOC entries. **`sdnet.h` STAYS — it is not SDNet**, it is the
-socket/termios portability header the client library and terminal I/O include.
-`gcat` 132 → 129. §8 has the scope and the three traps. **`UNLOCK` shipped in
-the same cycle** and now has a `V` type code, so the one command for clearing a
-stuck record lock works for the first time.
+**WHAT TO DO NEXT, IN THIS ORDER:**
 
-**ALSO CLOSED AND VERIFIED — §5.12's NAME FOLD, on the 16:24:23 install.**
-`gplbld/verify-fold.ps1`, **5 of 5**, exit 0. The lookup chain is now **as typed
-→ lower → upper** at 74 sites in 38 files. A file created as `zzlcfold1` now
-answers to `ZZLCFOLD1` as well, which is the live defect (`CREATE.FILE testlc`
-registers `testlc`, reports `TESTLC`, and `COUNT TESTLC` said "File not found").
-The control holds — an upper-case file still answers to both cases, so the bug
-is not merely inverted — and a name in no case at all is still refused. §5.12 has
-the shapes, the 4 sites left deliberately, and **four traps, two of which
-survived a clean compile AND a block-balance check** and were caught only by
-running the bootstrap.
+1. **THE VOC-ID RENAMES — §5.12 (b), and the `_VOC_REF` fold is what unblocks
+   it.** (a) is done for the per-account files; the ids are untouched. A
+   hard-coded `open "$SAVEDLISTS"` now folds, so an id can move on its own.
+   `$SAVEDLISTS` is the obvious first — self-contained, and its verbs
+   (`SAVE.LIST`, `GET.LIST`) already have coverage in `verify-lcnames.ps1` §4.
+   The shipped system files (`VOC`, `BP`, `NEWVOC`, `GPL.BP`, the `$` files) are
+   the wide half and still need `stage.py`, `sd.iss` and four verify scripts to
+   move with them.
+2. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
+   by this session, and still blocked on the decision below. Every account
+   directory still inherits `sdusers:(OI)(CI)(M)`, so any SD user can read and
+   rewrite any other account's files outside SD.
 
-**WHAT TO DO NEXT, IN THIS ORDER, AND THE ORDER IS THE POINT:**
+   a. **There is no new mapping to maintain** — `LOGTO` is gated on membership
+      of the account's `ACC$GROUP` (`CPROC:3697`), which `CREATE.ACCOUNT` writes
+      as `sdu_<name>` (`CREATEA:545`) and `GRANT` maintains (`GRANTA:201`).
+   b. **A create-time write is not enough.** Every ACL step names a fixed path;
+      nothing enumerates accounts. **Build the re-apply step too**: walk
+      `user_accounts`, re-stamp each from its `ACC$GROUP`, installer runs it
+      unconditionally.
 
-1. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE; the account
-   directories are what is left.** Every account directory still inherits
-   `sdusers:(OI)(CI)(M)`, so any SD user can read and rewrite any other
-   account's files outside SD. `audit`, `$CRED`, `PSTMP` hold; `OS.USERS`,
-   `gcat` and `GPL.BP.OUT` are `(RX)`.
+   **And it still gates administrators out of other accounts** — Administrators
+   is deny-only in an unelevated token, so an admin's ordinary session could not
+   enter another account once its directory is locked, which §5.6 says must
+   always work. **Decide that before building.** `gplbld/secure-accounts.ps1`
+   remains unwired.
+3. **`RDPUSER`** — decided in shape by the owner, **blocked on item 2**. §8 has
+   the syntax and the one open question: where "may RDP" is recorded, given the
+   tier lives in `ACCOUNTS` field 5 and RDP-ness would live in the *absence* of
+   a Windows group.
 
-   **Two things learned this session that change how to build it:**
-
-   a. **There is no new mapping to maintain** — §5.7 assumed there would be.
-      `LOGTO` is gated on membership of the account's `ACC$GROUP` (`CPROC:3697`),
-      which `CREATE.ACCOUNT` writes as `sdu_<name>` (`CREATEA:545`) and `GRANT`
-      maintains (`GRANTA:201`). Grant the account directory to `ACC$GROUP` and
-      the set who may enter an account is exactly the set who may write it.
-   b. **A create-time write is not enough, and this is the trap.** Every ACL step
-      names a **fixed path**; nothing enumerates accounts. An install over an
-      existing tree re-runs them all (no `Check` on any), so `gcat` reaches old
-      trees — but a per-account ACL applied by `CREATEA` would exist only on
-      accounts created afterwards, with no migration and a tree that looks
-      right. **Build the re-apply step too**: walk `user_accounts`, re-stamp each
-      from its `ACC$GROUP`, and let the installer run it unconditionally.
-
-   **And it still gates administrators out of other accounts.** The same
-   measurement that justifies the lock — Administrators is deny-only in an
-   unelevated token — means an admin's ordinary session could not enter another
-   account once its directory is locked, which §5.6 says must always work.
-   **Decide that before building.** `gplbld/secure-accounts.ps1` remains
-   unwired; the warning below still stands.
-2. **THE RENAMES — §5.12's visible half, and the fold above is what unblocks
-   it.** Lower-case names now resolve, so files can be renamed one at a time,
-   each independently verifiable, without a flag day. §5.12 (a) lists them:
-   `VOC`, `BP`, `BP.OUT`, `NEWVOC`, `GPL.BP`, the `$` files, and the per-account
-   ones. Start with a per-account file rather than a shipped system one, and
-   remember `CREATE.FILE` itself still upper-cases the name on disk
-   (`UPSTREAM_FIXES.md` 6) — that is a separate defect and the fold hides its
-   symptom rather than fixing it.
-
-   **AND A LOWER-CASE NAME MAKES `DELETE.FILE` ASK QUESTIONS IT DOES NOT ASK
-   OTHERWISE.** `DELETEF` prompts separately for the DATA and DICT parts
-   (`:222`, `:296`), each in an unbounded `until yn = 'Y' or 'N'` loop, and each
-   prompt fires **only when the stored path differs from the default name** —
-   which is exactly what `CREATE.FILE testlc` produces, VOC id `testlc` against
-   a path of `TESTLC`. So a file created in lower case cannot be deleted from a
-   script the way an upper-case one can. Use `DELETE.FILE <name> FORCE`, which
-   skips both. This hung `verify-fold.ps1 -Cleanup` on 18 Aug 2026 and left the
-   DATA part deleted and the DICT part behind; both verifiers now pass `FORCE`.
-3. **`RDPUSER`** — decided in shape by the owner, **blocked on item 1**. §8 has
-   the syntax, what needs no code at all, and the one open question: where "may
-   RDP" is recorded, given the tier lives in `ACCOUNTS` field 5 and RDP-ness
-   would live in the *absence* of a Windows group.
-
-**RIDE THIS ON THE NEXT CYCLE, WHATEVER IT IS: `COPYP`.** One line in
-`VOC_TEMPLATE/COPYP` — field 1 must be `V`, not "Verb for Pick style COPY". It
-is the last of §8's five malformed entries still needing anything: `UNLOCK` was
-fixed this session, and `DELETE.SERVER`/`SET.SERVER` were **deleted** with SDNet
-rather than repaired, deliberately. `COPYP` is a PROGRAMMER-tier verb that has
-never worked. The edit costs a minute; it is listed here only because it needs a
-cycle to verify and should not have one of its own.
+**SHOULD `cycle.ps1` RUN `make`? NOT DECIDED.** A2 makes the omission loud,
+which is the cheap half. Building inside an elevated cycle would leave objects
+owned by an elevated token, and the build needs an MSYS2 login shell where the
+cycle is PowerShell (§5.4) — so it is a real decision, not an oversight to
+correct in passing.
 
 **STILL OPEN, unchanged by this session:** `OS.EXECUTE` is ungated for
 everybody (§4), so a PROGRAMMER with `BASIC` reaches the OS from a program
@@ -3951,6 +3899,47 @@ its committed version (36 files, 0 unbalanced), but a misplaced `end` balances
 just as well as a correct one. **`cycle.ps1 -SkipInstall` is the real check** —
 it costs a bootstrap, not an install, and it is what found both of these.
 
+**THE FOLD HAD A SECOND LOOKUP AND IT WAS MISSED — FIXED AND VERIFIED
+18 Aug 2026**, `verify-fold.ps1` 10/10 on the 19:46:12 install, section 4.
+`_VOC_REF` is `pcode_voc_ref`, which `get_voc_file_reference()`
+(`op_dio1.c:481`) recurses into, so it resolves the name for **every BASIC
+`OPEN`** (`op_dio1.c:624`) and for `op_seqio.c:193`, `:453`. It was not among
+the 36 files the fold commit changed and had **no fold at all** — one
+exact-match read, then the `PATH:` / `Account:File` syntax.
+
+**THE 74 SITES WORK BY PASSING EACH OF THREE CASES DOWN TO AN EXACT-MATCH
+`_VOC_REF`.** That is why verbs all passed. A **hard-coded literal** got
+nothing: `open "$SAVEDLISTS"` at `SAVELST:106`, `GETLIST:97`, `DELLIST:69`,
+`LSTMRG:60`, `COPYLST:171`/`:193`, `SAVESTK:89`/`:110`, `CLEANAC:72`,
+`UPDREC:77`, `_DELLIST:39`, `_GETLIST:39`, `_SAVELST:47`, plus `ED $SAVEDLISTS`
+in `NEWVOC/EDIT.LIST` and `VOC_TEMPLATE/EDIT.LIST`. Every one would have broken
+at the first VOC-id rename.
+
+**Measured before the change** on the 18:54:10 install: VOC id `zzprobe1` could
+not be opened as `ZZPROBE1` from BASIC while `COUNT ZZPROBE1` found it; VOC id
+`ZZPROBE2` could not be opened as `zzprobe2`. **A FLAG AND A `goto`, NOT A
+NESTED BLOCK** (`_VOC_REF:102`), so the special syntax keeps its indentation —
+the file already jumps to `parse.as.q.pointer` from inside its own case
+statement. The Q-pointer target at `:272` takes the PLAIN shape.
+
+**ONLY A BASIC PROGRAM CAN TEST THIS.** No verb reaches it, for the reason
+above. `verify-fold.ps1` section 4 writes a probe into `BP` — a directory file,
+so a record is a file on disk — compiles it and reads five printed answers.
+
+**(a) IS DONE FOR THE PER-ACCOUNT FILES — 18 Aug 2026**, `verify-lcnames.ps1`
+26/26 on the 19:46:12 install. A new account holds `$hold`, `$hold.dic`,
+`$svlists`, `bp`; `VOC` is deliberately still upper case and is the control,
+`cat` was already lower. `CREATEA:737` onwards (`os.name`, not `fn`),
+`create.dir.file`'s `.dic` suffix, the create-if-missing fallbacks in
+`SAVELST:114`, `COPYLST:179`, `SAVESTK:97`, and `to_file.c`'s three hold-file
+paths. **No migration**: each account's VOC names its own files and NTFS matches
+either case, so existing accounts are untouched and need nothing.
+
+**`to_file.c`'s HALF CANNOT BE TESTED ON WINDOWS**, and a check that claimed to
+was corrected. The literal is a RELATIVE path resolved against the account
+directory, so `$HOLD\P1` and `$hold\P1` reach the same place. It passed on a
+binary that never contained the change — §6, `assert-current` check A2.
+
 **THIS OVERTURNS THE "ONE COMMIT" CLAIM THIS SECTION USED TO MAKE.** The
 fallback can be added, cycled and tested on its own; the renames can then follow
 a file at a time, each independently verifiable. Nothing has to move as a single
@@ -4173,6 +4162,34 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **`cycle.ps1` DOES NOT BUILD. A C CHANGE CAN BE CYCLED, INSTALLED, TESTED AND
+  PASSED WITHOUT EVER BEING COMPILED.** 18 Aug 2026, and it cost a whole cycle.
+  `cycle.ps1` stages whatever is already in `bin\`; the build is a separate
+  `make sd` in an MSYS2 login shell. `to_file.c` was edited at 19:15 and cycled
+  at 19:38 against `bin/sd.exe` from **17:17**.
+
+  **BOTH `assert-current` CHECKS PASSED, and neither was wrong to.** Check A
+  compares installed `sd.exe` against `bin/sd.exe` — equal, *because both were
+  stale*. Check B compares source mtimes against the **install** time, and
+  19:15 is older than 19:39. The script's own header reasons carefully about the
+  opposite direction ("most changes here are BASIC, so hashing `sd.exe` is not
+  enough"); this is the other half and nothing covered it.
+
+  **AND THE TEST FOR THE CHANGE PASSED TOO, which is what made it invisible.**
+  The change was `$HOLD` to `$hold` in a **relative** path, and NTFS matches
+  either against the `$hold` directory — so the old binary and the new one
+  behave identically. `verify-lcnames.ps1` §4 carried a comment claiming it
+  measured the C literal; it cannot, on Windows, and the comment is corrected.
+
+  **`assert-current` CHECK A2 NOW CATCHES IT**: any file under `gplsrc` newer
+  than the **oldest** binary in `bin\` is stale, and it names the file. Run
+  against the tree as it stood it printed `18 Aug 19:15:43 gplsrc	o_file.c`.
+  Oldest rather than `sd.exe` alone, so `gplsrc\sdclilib` and `gplsrc\sdsvc`
+  count — they ship in the same install.
+
+  **The discriminator, if this is ever in doubt: the `sd.exe` hash.** It moved
+  `DA280984D21571B4` to `A6AAAB58AAB676F4` when the C was finally built.
 
 - **A CONFIRMING VERB EATS THE NEXT PIPED LINE AS ITS ANSWER, AND SPINS FOR EVER
   IF THE PIPE RUNS OUT WHILE IT IS STILL ASKING.** 18 Aug 2026. **Corrected the
@@ -6774,6 +6791,15 @@ the staging script and the Inno installer were all finished and removed.
    terminal's `PT$INVERT` is NO LONGER on this list**: it is off already and
    deliberately, see above.
 
+   **18 Aug 2026, TWENTY-THIRD SESSION — THE FALLBACK IS FINISHED AND THE FIRST
+   RENAMES ARE IN.** The fold reached only the parser; `_VOC_REF`, which every
+   BASIC `OPEN` goes through, had no fold and is now converted
+   (`verify-fold.ps1` 10/10). §5.12 (a) is done for the per-account files —
+   `$hold`, `$hold.dic`, `$svlists`, `bp` (`verify-lcnames.ps1` 26/26). **What
+   is left of the file-name half is (b), the VOC ids, and the shipped system
+   files**, which need `stage.py`, `sd.iss` and four verify scripts to move with
+   them. The account-name half is untouched.
+
    **READ §5.12 BEFORE STARTING THE FILE-NAME HALF, AND START WITH THE
    FALLBACK.** The fold is "as typed, then upper", not a plain `upcase(`, so the
    first step is to ADD a `downcase` attempt — as typed, then down, then up.
@@ -7478,21 +7504,37 @@ where `sdsshonly` and `Administrators` are already chosen. It wants the
 per-account ACL under it first, or an administrator's reduced VOC is one `COPY`
 away from being undone by its own user.
 
-**FIVE VOC_TEMPLATE ENTRIES ARE MALFORMED AND CANNOT WORK.** Found 16 Aug 2026.
-Field 1 holds the DESCRIPTION where the type code belongs, so the record is
-shifted by one: `COPYP`, `DELETE.SERVER`, `LOAD.LANGUAGE`, `SET.SERVER`,
-`UNLOCK`. Compare `LIST.SERVERS`, which is correct — `V` / `CA` / `$LSTSRVR`.
+**FIVE VOC_TEMPLATE ENTRIES ARE INCONSISTENT. THEY ARE NOT BROKEN, AND THE
+"CANNOT WORK" CLAIM THIS SECTION MADE FROM 16 Aug 2026 IS WITHDRAWN — measured
+18 Aug 2026,** `verify-lcnames.ps1` section 6 on the 19:46:12 install. Field 1
+holds a description where a bare type code is usual: `COPYP`, `DELETE.SERVER`,
+`LOAD.LANGUAGE`, `SET.SERVER`, `UNLOCK`. Compare `LIST.SERVERS` — `V` / `CA` /
+`$LSTSRVR`. **The record is NOT shifted**; fields 2 and 3 are correct in both.
 
-**TWO OF THE FIVE ARE NOW SETTLED, AND ONE WAS SETTLED BY DELETION.**
-`UNLOCK` **IS FIXED AND VERIFIED — 18 Aug 2026**, field 1 is now `V`, checked on
-the 18:54:10 install by `verify-nonet.ps1` (it rides along there because it
-shipped in the same cycle, not because it is related). There is no description
-field to move the text to; correct records simply do not carry one.
-**`DELETE.SERVER` and `SET.SERVER` no longer exist** — they were deleted with
-SDNet rather than repaired, on purpose: fixing them would have restored the
-management verbs for a subsystem that was being removed. **`COPYP` still needs
-the identical one-line fix** and is the only one left. **`LOAD.LANGUAGE` is a
-ZERO-BYTE file** — a different fault from the other four, and not yet looked at.
+**SD ALLOWS THE DESCRIPTION ON PURPOSE.** `CPROC:1410`, in the source, beside
+the test: *"The type code may be followed by comment text with no intervening
+space"* — the PI / PI-open / UniVerse rule — and `CPROC:1433` tests
+`voc.entry.type[1,1]`. So `Verb to unlock records` is a `V` with a comment and
+dispatches. The measurement builds such a record from scratch, in an account
+VOC, pointing at `$COPYP`, and it answers `File name required` — which only a
+dispatched verb produces.
+
+**SO `UNLOCK` WAS NEVER REPAIRED**, and neither was `COPYP`; both were working.
+The `changelog` entry shipped 18 Aug 2026 saying `UNLOCK` "never worked" is
+wrong and carries a correction in the same file. **Both records are still bare
+`V`** — every other verb is written that way and the inconsistency is what
+produced the misreading — but that is tidying, not a fix. **No
+`UPSTREAM_FIXES.md` entry**: one was written against `../sdb64`, which has all
+five, and withdrawn when `CPROC:1410` was read. **`LOAD.LANGUAGE` no longer
+exists** — removed with the language verbs in `ecd62b2`, 17 Aug 2026, not the
+zero-byte file this section used to claim.
+
+**ALL FIVE ARE NOW SETTLED, THREE OF THEM BY DELETION.** `UNLOCK` and `COPYP`
+carry a bare `V` as of the 18:54:10 and 19:46:12 installs respectively.
+**`DELETE.SERVER` and `SET.SERVER` no longer exist** — deleted with SDNet rather
+than repaired, on purpose: fixing them would have restored the management verbs
+for a subsystem that was being removed. **`LOAD.LANGUAGE` no longer exists**
+either, deleted with the language verbs. Nothing here is outstanding.
 
 **`UNLOCK` lives only in `VOC_TEMPLATE`, not `NEWVOC`**, so SDSYS gets it from
 the bootstrap and administrator accounts get it through
@@ -7513,11 +7555,12 @@ is easily mistaken for another prompt. Two attempts were spent guessing at
 prompts before a timeout in the harness showed the empty output that identified
 it.
 
-**At the time the remedy was to restart SD** (`sd -stop`, `sd -start`,
-elevated), which rebuilds the shared segment and drops every lock — because
-`UNLOCK`, the command for exactly this, was one of the malformed entries above
-and could not run. **`UNLOCK` WORKS FROM THE 18:54:10 INSTALL ONWARDS**, so try
-it first; the restart is the fallback, not the procedure.
+**`UNLOCK` IS THE COMMAND FOR THIS — try it first**; restarting SD
+(`sd -stop`, `sd -start`, elevated) rebuilds the shared segment and drops every
+lock, but it disconnects everybody and is the fallback, not the procedure.
+**The restart was used on 18 Aug 2026 in the belief that `UNLOCK` was one of the
+malformed entries and could not run. That belief was wrong** — it dispatched
+then as it does now, §8 above — so the restart was never necessary.
 
 **AND THE SAME KILLED SESSION BLOCKS THE NEXT CYCLE.** `cycle.ps1` stopped with
 *"SD is still running after 45s: sdwind(8792)"* at 17:21 on 18 Aug 2026 with the
