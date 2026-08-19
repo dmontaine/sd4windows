@@ -7,24 +7,11 @@ something came to be the way it is.
 
 **Last updated:** 19 Aug 2026, end of the twenty-seventh session.
 
-**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **10:06:08**
-install (19 Aug), `sd.exe` **`FA5B47C0F6CF32D6`**, `gcat` 129, `GPL.BP.OUT` 190,
-`$BCOMP` 88,076, terminfo **100**. Confirm before believing it:
-`gplbld\assert-current.ps1`, unelevated.
+**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **14:54:36**
+install (19 Aug), `sd.exe` **`FA5B47C0F6CF32D6`**, terminfo **100**. Confirm
+before believing it: `gplbld\assert-current.ps1`, unelevated.
 
-**THE POST-CYCLE RUN IS COMPLETE AND EVERYTHING PASSED.** Nothing is owed.
-
-| Verifier | Result |
-|---|---|
-| `verify-lcnames.ps1` | **121/121** |
-| `verify-keys.ps1` (grew 6 → 10, arrows added) | **10/10** |
-| `verify-credacl` / `-nocase` / `-osusers` | exit 0 |
-| `make check-local` | PASS, `WHO -> 59 DON` |
-| `post-cycle-elevated.ps1 -TierPrefix sdtierj -Account sdacct17` | all exit 0 |
-| — `verify-fold` 10/10, `verify-tiers` 22/22 **393 / 411 / 421** | |
-
-**Register left at `DON` and `SDSYS`, `user_accounts` at `don`, probes removed.
-`sdacct1`–`17` and `sdtierb`–`j` are spent; next free `sdacct18`, `sdtierk`.**
+**THE POST-CYCLE RUN IS COMPLETE AND EVERYTHING PASSED. Nothing is owed.**
 
 **AN AGENT SHELL CAN SOMETIMES RAISE A UAC PROMPT, AND THE HONEST ANSWER IS "IT
 DEPENDS ON SOMEONE BEING THERE".** Earlier claims in this file went both ways and
@@ -100,27 +87,30 @@ owner's PowerShell run, and **confirmed fixed in a live console**: the same
 17-byte reading now completes with no pager at all. 40 arrow presses list 120
 bytes uninterrupted on an 80x24 terminal.
 
-**THE EDITOR KEYS ARE FIXED IN SOURCE AND NOT YET MEASURED — §5.19.** `SED` and
-`UPDREC` bound `char(127)` to Delete, so Backspace deleted forwards inside every
-full-screen edit; and `UPDREC` had no escape-sequence bindings at all, so its
-arrow keys **typed themselves into the record** — field `AB`, press Right, type
-`X`, save gave `CXAB`. Both measured before the change on the 10:06:08 install.
-**`ED` was never affected**: it is the line editor, reads with `input`, and DEL
-already erases backwards there — §5.17 was wrong to list it.
+**THE EDITOR KEYS ARE FIXED AND MEASURED — §5.19, `verify-editkeys.ps1`
+**14/14** on the 14:54:36 install.** `SED` and `UPDREC` bound `char(127)` to
+Delete, so Backspace deleted forwards inside every full-screen edit; and
+`UPDREC` had no escape-sequence bindings at all, so its arrow keys **typed
+themselves into the record** — field `AB`, press Right, type `X`, save gave
+`CXAB`, and now gives `AXB`. **`ED` was never affected**: it is the line editor,
+reads with `input`, and DEL already erased backwards there — §5.17 was wrong to
+list it.
 
-**A CYCLE IS OWED AND IT IS THE FIRST THING TO DO.** The install is stale: `SED`
-and `UPDREC` are BASIC and only a bootstrap compiles them. Elevation was declined
-twice at the end of the session, so it was left for a human:
+**THE WHOLE SUITE RAN ON THAT INSTALL AND ALL OF IT PASSED:**
 
-```powershell
-gplbld\cycle.ps1                ELEVATED
-gplbld\verify-editkeys.ps1      UNELEVATED, 14 checks, new
-```
+| Verifier | Result |
+|---|---|
+| `verify-editkeys.ps1` **(new)** | **14/14** |
+| `verify-keys.ps1` | 10/10 |
+| `verify-lcnames.ps1` | 121/121 |
+| `verify-credacl` / `-nocase` / `-osusers` | exit 0 |
+| `make check-local` | PASS |
+| `post-cycle-elevated.ps1 -TierPrefix sdtierk -Account sdacct18` | all exit 0 |
+| — `verify-fold` 10/10, `verify-tiers` 22/22 **393 / 411 / 421** | |
 
-**`verify-editkeys.ps1` IS THE TEST §5.17 SAID DID NOT EXIST**, and the thing
-that made it cheap is that `keyin()` reads standard input — **a full-screen
-editor is drivable from a pipe**, and the instrument is the saved record rather
-than the screen.
+**Register left at `DON` and `SDSYS`, `user_accounts` at `don`, `bp` and
+`bp.out` empty. `sdacct1`–`18` and `sdtierb`–`k` are spent; next free
+`sdacct19`, `sdtierl`.**
 
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
@@ -4652,6 +4642,25 @@ input — so **a full-screen editor is drivable from a pipe** exactly as the
 command-line editor is. The screen is not drivable and does not need to be: type,
 save, quit, then read the record back with `CT`. §5.17 assumed a console was
 required and it is not.
+
+**MEASURED AFTER THE CHANGE — `verify-editkeys.ps1` 14/14, 14:54:36 install.**
+`SED` `AB`+DEL+`C` gives `AC`; `UPDREC` field `AB`, `X`+DEL gives `AB`; and
+`UPDREC` Right-then-`X` gives `AXB` where it used to give `CXAB`. **The controls
+are what make it evidence**: with no erase byte at all the same runs give `ABC`
+and `XAB`, so the erase is what changed them; and the Delete key still deletes
+FORWARDS in both editors, so the two keys were fixed rather than swapped.
+**That last check has to be taken with the cursor NOT at the end of the line** —
+at the end, deleting forwards does nothing, and the check would pass on a Delete
+key that had stopped working altogether.
+
+**A ONE-LINE `if ... then ... end else ... end` COMPILES CLEAN AND FAILS AT RUN
+TIME**, and it cost this session a full verifier run. Written inline —
+`open 'F' to f then write .. ; print 'OK' end else print 'FAIL'` — SDBasic
+reports `0 error(s)` and then stops with **"Unassigned variable END"**, because
+the inline `THEN` takes statements to the end of the line and the `END` is read
+as a variable. Use the block form. **CLAUDE.md's "compiling is not running" has
+a second edge here**: it is usually about testing a stale install, and this is
+the same lesson one layer down.
 
 **A TIMED-OUT RUN LEAVES A RECORD LOCK, AND IT OUTLIVES THE PROCESS.** This cost
 an hour. `Stop-Job` kills SD mid-edit; `LIST.READU` then shows an `RU` lock owned

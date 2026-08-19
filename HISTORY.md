@@ -27,6 +27,44 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — The editor keys measured: 14/14, and the whole suite with them
+
+**Commit:** this one, over `1f92080`. **Install:** **14:54:36**, `sd.exe`
+`FA5B47C0F6CF32D6`. The cycle the entry below said was owed was run by the
+owner; everything in it is now measured.
+
+**`gplbld\verify-editkeys.ps1` — 14 of 14.** Before and after, same
+instrument:
+
+```
+SED     AB DEL C            ABC  ->  AC
+UPDREC  field AB, X DEL     XB   ->  AB
+UPDREC  field AB, RIGHT X   CXAB ->  AXB
+```
+
+**The controls are what make it evidence.** With no erase byte the same runs give
+`ABC` and `XAB`, so the erase is what changed them; and the Delete key still
+deletes FORWARDS in both editors, so the two keys were fixed rather than
+swapped. That last check is taken with the cursor NOT at the end of the line —
+at the end, deleting forwards does nothing and the check would pass on a Delete
+key that had stopped working altogether.
+
+**The rest of the suite on the same install:** `verify-keys` 10/10,
+`verify-lcnames` 121/121, `verify-credacl`/`-nocase`/`-osusers` exit 0,
+`make check-local` PASS, and `post-cycle-elevated.ps1 -TierPrefix sdtierk
+-Account sdacct18` all exit 0 with `verify-fold` 10/10 and `verify-tiers` 22/22
+at 393/411/421. Register back to `DON` and `SDSYS`, `bp` and `bp.out` empty.
+
+**THE FIRST RUN FAILED 7 OF 14 AND THE FIX WAS MINE, NOT SD's.** The seed helper
+was written as a single line — `open 'F' to f then write .. ; print 'OK' end
+else print 'FAIL'` — which **compiles clean, reports `0 error(s)`, and then
+stops at run time with "Unassigned variable END"**: the inline `THEN` takes
+statements to the end of the line, so `END` is read as a variable. The block
+form works. Worth keeping because SED's seven checks passed in that same run, so
+the failure looked at first like a fix that had only half worked.
+
+---
+
 ## 19 Aug 2026 — Backspace in the full-screen editors, and the test that was "the work"
 
 **Commit:** this one, over `679f47c`. **A CYCLE IS OWED** — `SED` and `UPDREC`
