@@ -5,24 +5,74 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 18 Aug 2026, end of the twenty-fifth session.
+**Last updated:** 19 Aug 2026, end of the twenty-sixth session.
 
 **THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **22:55:26** install, `sd.exe` **`A71C53652197195E`**. Confirm it
-before believing it — one unelevated command, `gplbld\assert-current.ps1`.
+against the **07:41:45** install (19 Aug), `sd.exe` **`339AB7157F002679`**.
+Confirm it before believing it: `gplbld\assert-current.ps1`, unelevated.
 
-**THIS SESSION RENAMED `$HOLD` TO `$hold`, FOLDED EVERY REMAINING EXACT-MATCH VOC
-LOOKUP, AND THEN LOWER-CASED ALL 792 TCL COMMAND IDS. §5.12 (b).**
+**THIS SESSION DID §5.12 (a)'s WIDE HALF: EVERY SDSYS FILE NAME IS LOWER CASE
+ON DISK, AND SO IS EACH ACCOUNT'S `voc`.** That is the previous session's next
+step 1 and what the owner asked for on 18 Aug. **2,968 files renamed** (12 SDSYS
+directories) plus 73 in `gplbld/FILES_DICTS`, and every literal that names them.
 
 | Subject | Verifier | Install |
 |---|---|---|
-| **792 command ids lower-cased**, both spellings work | `verify-lcnames.ps1` **57/57** | 22:55:26 |
-| the VOC tiers still filter after it | `verify-tiers.ps1` 22/22, 393 / 411 / 421 | 22:55:26 |
-| a lower-case VERB and KEYWORD reached typed UPPER | `verify-lcnames.ps1` §8 | 22:55:26 |
-| the three-case fold and `_VOC_REF` | `verify-fold.ps1` 10/10 (elevated) | 22:55:26 |
-| step 11 local transport | `make check-local` PASS | 22:55:26 |
-| `$CRED` ACL, `DHF_NOCASE`, `OS.USERS` | `verify-credacl` / `-nocase` / `-osusers`, exit 0 | 22:55:26 |
-| VOC id `$HOLD` → `$hold`, old accounts unaffected | `verify-lcnames.ps1` §3, §5a | 22:55:26 |
+| **every SDSYS name lower on disk**, 25 present / 25 old absent | `verify-lcnames.ps1` **§2a (new)** | 07:41:45 |
+| the per-account `voc`, and `VOC` gone | `verify-lcnames.ps1` §2 | 07:41:45 |
+| VOC fields 2/3 name the new paths | `verify-lcnames.ps1` §3 | 07:41:45 |
+| all of 5.12 (a) and (b) together | `verify-lcnames.ps1` **115/115** | 07:41:45 |
+| `$CRED` ACL, `DHF_NOCASE`, `OS.USERS` | `verify-credacl` / `-nocase` / `-osusers`, exit 0 | 07:41:45 |
+| step 11 local transport | `make check-local` PASS, `WHO -> 47 DON` | 07:41:45 |
+
+**THE DIRECT EVIDENCE IS THE DIRECTORY LISTING:**
+
+```
+$cred $hold $hold.dic $ipc $map $map.dic accounts accounts.dic bin bp bp.out
+cat dict.dic dir_dict gcat gpl.bp gpl.bp.out messages newvoc os.users
+os.users.dic pcode.out prt pstmp sd.voclib syscom voc voc.dic voc_template
+```
+
+**AN AGENT SHELL CANNOT RAISE A UAC PROMPT, AND THAT IS NOW A WORKING
+CONSTRAINT RATHER THAN A SURPRISE.** `Start-Process -Verb RunAs` returns
+*"The operation was canceled by the user"* **without ever showing a prompt** —
+a detached process has no desktop to display consent on. So `cycle.ps1` and the
+three elevated verifiers have to be started by a human in an elevated terminal.
+**`gplbld/post-cycle-elevated.ps1` is new and exists for that**: one elevated
+command runs `verify-fold`, `verify-createaccount` and `verify-tiers`, each
+without `-Keep` so nothing is left behind, and writes a summary to
+`%LOCALAPPDATA%\SD-verify`. It is in `assert-current`'s `$neverShipped` list.
+
+**THE FOUR UNELEVATED CHECKS CAN BE RUN BY THE SESSION ITSELF** and were.
+
+**THE ONE FACT THE WHOLE CHANGE TURNS ON, so nobody has to find it twice:**
+`create.file <path> DYNAMIC` **in BASIC is a language statement and takes the
+path exactly as given**. It is *not* the `CREATE.FILE` verb, which upper-cases
+the name on disk (`CREATEF:378`, `UPSTREAM_FIXES.md` #6). So `BBPROC`'s
+`FILES_LIST` decides the case of every file the bootstrap creates, and changing
+that list was enough — no `CREATEF` change, and upstream #6 is untouched.
+
+**THE VOC IDS DID NOT MOVE AND THAT IS DELIBERATE.** `VOC`, `BP`, `NEWVOC`,
+`GPL.BP`, `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE` are still upper case as
+*ids*; only the path text in fields 2 and 3, and the directories themselves,
+are lower. So `$include GPL.BP revstamp.h`, `BASIC GPL.BP *` in
+`SECOND.COMPILE`, and `CD VOC` in `THIRD.COMPILE` are unchanged and must stay
+that way until step 2. **The ids are the remaining controls** —
+`verify-lcnames.ps1` §3 types `bp` and `$command.stack` and requires an
+UPPER-case echo.
+
+**NO MIGRATION, AND THE REASON IS NTFS.** Every one of these files is reached
+through a path recorded in a VOC record or built from `@sdsys`, and NTFS matches
+without regard to case, so an account or an `sdsys` built before this goes on
+working under its old spelling. It is also why a **missed** reference still
+resolves — which is exactly why §2a of `verify-lcnames.ps1` compares against the
+real directory listing with `-ceq` rather than using `Test-Path`.
+
+**`$COMO` IS THE ONE PER-ACCOUNT NAME STILL UPPER CASE ON DISK**, left
+deliberately: `COMO:44` and `PHANTOM:59` define the on-disk name and the VOC id
+as the same `$define`, so splitting them is CREATEA's `fn`/`os.name` pattern
+again, and nothing in `gplbld` exercises `COMO` to test it with. Small, and its
+own step.
 
 **THE DIRECT EVIDENCE, and it is one command:**
 
@@ -34,12 +84,16 @@ COUNT VOC / count voc                    ->  422 both ways
 LIST VOC WITH TYPE = "F" / lower case    ->  11 both ways
 ```
 
+*(19 Aug: the `CT VOC VOC` line still holds — the **id** has not moved. What
+moved this session is the same record's **fields 2 and 3**, now `voc` and
+`@SDSYS/voc.dic`.)*
+
 **WHAT MOVED WITH IT:** `CLEANAC`, `MICRO`, `SPVIEW`, `_NEXTPTR`, `_PRFILE`,
 `SETPTR`, `CREATEA:759`, `MESSAGES` 7119/7131/7170, `NEWVOC/SP.VIEW`'s
 description, and `VOC_TEMPLATE/$HOLD` **renamed** to `$hold` — a case-only
 `git mv` needs two steps here, `core.ignorecase` is true. `BBPROC`, `stage.py`
-and `FILES_DICTS` name SDSYS's `$HOLD` **on disk** and are deliberately
-untouched: that is (a), and it is the wide half.
+and `FILES_DICTS` name SDSYS's `$HOLD` **on disk** and were deliberately
+untouched then: that is (a), the wide half — **done 19 Aug 2026, header.**
 
 **`BP` AND `$COMMAND.STACK` ARE WHAT IS LEFT OF THE CONTROLS.**
 `verify-lcnames.ps1` §3 now asserts that typing `$command.stack` and `bp` is
@@ -154,27 +208,30 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
 
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
-1. **THE OWNER ASKED ON 18 Aug 2026 WHEN `bp` AND `voc` GET LOWER-CASED ON
-   DISK, WHICH IS 5.12 (a)'s WIDE HALF, AND IT IS NOW THE PRIORITY.** The
-   per-account files are already done (`$hold`, `$hold.dic`, `$svlists`, `bp`);
-   what is left is the **shipped** system files — `VOC`, `BP`, `NEWVOC`,
-   `GPL.BP`, `MESSAGES`, `VOC_TEMPLATE`, `SD.VOCLIB`, `SYSCOM` and the `$`
-   files in SDSYS, plus the per-account `VOC`. **These have to move together**:
-   the F-type records in `NEWVOC` that carry the path and their
-   `@SDSYS/VOC.DIC` dictionary paths, `VOC_TEMPLATE`, `CREATEA`,
-   `WRITE_INSTALL_DICTS`, `BBPROC`'s `FILES_LIST`, `gplbld/stage.py`,
-   `gplbld/sd.iss`, and the verify scripts that name these paths as literals —
-   `verify-osusers.ps1`, `verify-nocase.ps1`, `verify-tiers.ps1`,
-   `assert-current.ps1`. §5.12 (a).
+1. **RUN `post-cycle-elevated.ps1` IF IT HAS NOT BEEN RUN AGAINST THE 07:41:45
+   INSTALL.** The four unelevated checks passed; the three elevated ones —
+   `verify-fold`, `verify-createaccount`, `verify-tiers` — were still owed when
+   this was written, because the session could not elevate (header). They are
+   what exercise `CREATEA`, and `CREATEA:581` now creates the account's `voc`.
+   **§5.12 (a) is closed either way for what the header claims** —
+   `verify-lcnames.ps1` §2/§2a/§3 measured all of it, 115/115.
 
-2. **`$COMMAND.STACK`, THEN `BP` — what is left of the `$` and file-pointer
-   ids.** The TCL commands are DONE (this session, 792 ids). `$hold` is the
-   worked example for one of these: the hard-coded literals, the `MESSAGES`
-   records, the `VOC_TEMPLATE` record where the id **is** the file name
-   (case-only `git mv` in two steps, or `git -c core.ignorecase=false add -A`
-   for a batch), `CREATEA`, a `START-HISTORY` line per file, a changelog entry,
-   and a `verify-lcnames.ps1` section for the pre-rename account. **`BP` is the
-   awkward one and item 3 is why.**
+2. **`$COMMAND.STACK`, THEN `BP`, THEN THE F/Q FILE-POINTER IDS — 5.12 (b).**
+   The disk names are done; what is left is the **ids**: `VOC`, `BP`, `NEWVOC`,
+   `GPL.BP`, `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`,
+   `SD.ACCOUNTS`, `OS.USERS`, `BP.OUT`, `GPL.BP.OUT`. **These are the ones with
+   a second reader**: `$include GPL.BP revstamp.h` in most of `GPL.BP`,
+   `BASIC GPL.BP *` in `SECOND.COMPILE`, `CD $MAP`/`CD ACCOUNTS`/`CD DICT.DICT`/
+   `CD VOC` in `THIRD.COMPILE`, `FIRST.COMPILE`, and `bootstrap.py`'s
+   `RUN GPL.BP WRITE_INSTALL_DICTS` and `BASIC GPL.BP CPROC`. All resolve
+   through the fold, so each can move on its own — but `BASIC <file> <prog>`
+   derives the object file name from the TOKEN, so item 3 comes first for `BP`
+   and for `GPL.BP` alike. `$hold` is still the worked example: the hard-coded
+   literals, the `MESSAGES` records, the `VOC_TEMPLATE` record where the id
+   **is** the file name (case-only `git mv` in two steps, or
+   `git -c core.ignorecase=false add -A` for a batch), `CREATEA`, a
+   `START-HISTORY` line per file, a changelog entry, and a
+   `verify-lcnames.ps1` section for the pre-rename account.
 
 3. **FIX `bp.OUT` BEFORE `BP` MOVES.** `BASIC:132` derives the object file name
    from the string the user TYPED, so `BASIC bp x` creates VOC id `bp.OUT` while
@@ -332,14 +389,15 @@ HERE".
 to run after any cycle; "START HERE" has the order:**
 
 ```
-gplbld\verify-lcnames.ps1                       UNELEVATED; 5.12, 57 checks
+gplbld\verify-lcnames.ps1                       UNELEVATED; 5.12, 115 checks
 gplbld\verify-credacl.ps1                       UNELEVATED; step 6, $CRED ACL
 gplbld\verify-nocase.ps1                        UNELEVATED; step 8, DHF_NOCASE
 gplbld\verify-osusers.ps1                       UNELEVATED; step 7, SH admitted
 cd sdb_ai/sd64 && make check-local              UNELEVATED; step 11 + 6c
+gplbld\post-cycle-elevated.ps1                  ELEVATED;   the next three, once
 gplbld\verify-fold.ps1                          elevated;   the 3-case fold
 gplbld\verify-tiers.ps1 -Keep -Prefix <fresh>   elevated;   §8 three tiers
-gplbld\verify-createaccount.ps1                 elevated;   CREATE.ACCOUNT
+gplbld\verify-createaccount.ps1 -Account <new>  elevated;   CREATE.ACCOUNT
 gplbld\verify-apiport.ps1 -Prefix <fresh>       elevated;   step 6, the API
 gplbld\verify-catgate.ps1                       elevated;   gcat privilege
 gplbld\verify-nonet.ps1                         elevated;   SDNet is gone
@@ -347,10 +405,15 @@ gplbld\verify-sshonly.ps1 / -allowgroups.ps1    Windows side, exempt from
                                                 assert-current
 ```
 
-**`verify-lcnames.ps1` IS THE ONE THAT GREW THIS SESSION** and is the regression
-guard for the whole of §5.12: names on disk, VOC ids both ways, an account created
-before a rename (§5, §5a), and §8, which MAKES a lower-case verb and keyword and
-reaches them typed in UPPER case. §8 is the one that found `CPROC:1401`.
+**`verify-lcnames.ps1` GREW AGAIN THIS SESSION, 57 → 115**, and is the
+regression guard for the whole of §5.12: names on disk **per account and in
+SDSYS** (§2, §2a), VOC ids both ways, an account created before a rename
+(§5, §5a), and §8, which MAKES a lower-case verb and keyword and reaches them
+typed in UPPER case. §8 is the one that found `CPROC:1401`.
+
+**IT IS THE ONE TO RUN FIRST AFTER ANY CYCLE.** It is unelevated, it takes
+about a minute, and §2a would catch a whole class of "the install is fine,
+something else is wrong" investigation in one line.
 
 **`verify-credacl.ps1` REFUSES to run elevated** — the ACL grants
 `Administrators` Full, so an elevated run passes however broken it is.
@@ -666,10 +729,12 @@ it. Call it first from anything new that tests the install.
 **START HERE, in order:**
 
 **1. NO CYCLE IS OWED. CONFIRM THAT, THEN START WORKING.** The tree was left
-clean at the end of 18 Aug 2026: `assert-current` exit 0 against the **22:55:26**
-install, `sd.exe` **`A71C53652197195E`**, working tree committed and pushed, and
-every test account removed (`ACCOUNTS` is `DON` and `SDSYS`, no `sdtier*` Windows
-users). One unelevated command settles it:
+clean at the end of 19 Aug 2026: `assert-current` exit 0 against the
+**07:41:45** install, `sd.exe` **`339AB7157F002679`**, working tree committed
+and pushed, and the SD register holding only `DON` and `SDSYS`. (Windows still
+has `sdacct6`, `8`, `9`, `10`–`13` from earlier sessions — dead local users, no
+SD register records, litter rather than state.) One unelevated command settles
+it:
 
 ```powershell
 gplbld\assert-current.ps1
@@ -685,7 +750,7 @@ Run them in this order; the ordering trap that used to make everything after
 preference rather than necessity:
 
 ```powershell
-gplbld\verify-lcnames.ps1          UNELEVATED; 57 checks, the lower-case work
+gplbld\verify-lcnames.ps1          UNELEVATED; the lower-case work, incl. new §2a
 gplbld\verify-credacl.ps1          UNELEVATED; must NOT be run elevated
 gplbld\verify-nocase.ps1           UNELEVATED
 gplbld\verify-osusers.ps1          UNELEVATED
@@ -694,9 +759,18 @@ gplbld\verify-osusers.ps1          UNELEVATED
 cd sdb_ai/sd64 && make check-local
 ```
 ```powershell
+gplbld\post-cycle-elevated.ps1                ELEVATED - the three below, in one
 gplbld\verify-fold.ps1                        ELEVATED
+gplbld\verify-createaccount.ps1 -Account <fresh>   ELEVATED
 gplbld\verify-tiers.ps1 -Keep -Prefix sdtierg ELEVATED, FRESH PREFIX
 ```
+
+**AN AGENT CANNOT START ANY OF THE ELEVATED ONES** — a detached shell gets no
+UAC prompt at all, just "canceled by the user" (header). Ask for one command:
+`post-cycle-elevated.ps1`, which runs all three **without** `-Keep` so nothing
+is left to clean up, and writes a summary file the session can read back.
+Its defaults are `-TierPrefix sdtierg -Account sdacct14`; **both must be names
+nobody has used**, and both are spent once it runs.
 
 **`verify-tiers.ps1` NEEDS A PREFIX NOBODY HAS USED.** `sdtierb` through
 `sdtierf` are spent. **And `-Keep` leaves three Windows accounts and three
@@ -4230,17 +4304,72 @@ asserts `DHFILE=0` deliberately. But folding one side is what delivers case
 insensitivity here, exactly as it does now — the file's own flag is not
 involved either way, and `DHFILE=0` should go on being asserted.
 
-**What has to move together**, so it is one change and not five: the on-disk
-names, the F-type records in `NEWVOC` that carry the path (6 of them) and their
-`@SDSYS/VOC.DIC`-style dictionary paths, `VOC_TEMPLATE`, `CREATEA` (which
-creates `BP`, `$HOLD`, `$SAVEDLISTS`, `$COMMAND.STACK`), `WRITE_INSTALL_DICTS`,
-`gplbld/stage.py`, `gplbld/sd.iss`, and the `gplbld` verify scripts that name
-these paths as literals — `verify-osusers.ps1`, `verify-nocase.ps1`,
-`verify-tiers.ps1`, `assert-current.ps1`.
+**(a) IS DONE IN FULL — 19 Aug 2026**, `verify-lcnames.ps1` **115/115** on the
+**07:41:45** install, `sd.exe` `339AB7157F002679`. Every name in the installed
+`sdsys` is lower case, and so is each account's `voc`. The new §2a reads the
+`sdsys` listing with `-ceq` and asserts **25 lower-case names present and their
+25 upper-case spellings absent**; §3 adds `CT VOC VOC` → `voc` /
+`@SDSYS/voc.dic` and `CT VOC SYSCOM` → `@SDSYS/syscom`.
+
+```
+$cred $hold $hold.dic $ipc $map $map.dic accounts accounts.dic bin bp bp.out
+cat dict.dic dir_dict gcat gpl.bp gpl.bp.out messages newvoc os.users
+os.users.dic pcode.out prt pstmp sd.voclib syscom voc voc.dic voc_template
+```
+
+**THE FACT THE WHOLE THING TURNS ON, and it is not obvious from the names:**
+`create.file <path> DYNAMIC` **in BASIC is a language statement and takes the
+path exactly as given.** It is *not* the `CREATE.FILE` verb, which upper-cases
+the name on disk (`CREATEF:378`). So `BBPROC`'s `FILES_LIST` — seven names and
+the `'.dic'` suffix — decides the case of everything the bootstrap creates, and
+`CREATEA:581`/`create.dir.file` decides it for each account. **No `CREATEF`
+change was needed and `UPSTREAM_FIXES.md` #6 is untouched.**
+
+**What moved together**, and it really is one change: the on-disk names
+(**2,968 files**, 12 SDSYS directories, plus 73 record ids in
+`gplbld/FILES_DICTS`); the F-type records in `NEWVOC` and `VOC_TEMPLATE` that
+carry the path and their `@SDSYS/VOC.DIC`-style dictionary paths; `BBPROC`;
+`CREATEA`; 14 more `GPL.BP` programs that `openpath` an SDSYS file
+(`APISRVR`, `CPROC`, `CRED_SET`, `CRED_VERIFY`, `DELACC`, `GRANTA`, `LOADLANG`,
+`LOGIN`, `MODIFYA`, `PS_SCRIPT`, `SETACC`, `SETFILE`, `SET_ACC_PASSWORD`,
+`_VOC_REF`); `gplsrc/messages.c` (the only C-side literal, and the reason
+`make sd` was needed); `gplbld/stage.py`, `bootstrap.py`, `sd.iss`,
+`pcode_bld.py`, `gen_includes.py`, `CREATE_INSTALL_DICT_FILE`,
+`INSTALL_FILE_INFO`; and the scripts that name these paths as literals —
+`verify-osusers.ps1`, `-nocase`, `-tiers`, `-fold`, `-catgate`, `-apiport`,
+`-nonet`, `-credacl`, `-createaccount`, `cycle.ps1`, `adopt-account.ps1`,
+`secure-gcat.ps1`, `secure-psdir.ps1`, `secure-cred.ps1`, `secure-osusers.ps1`.
+
+**THE VOC IDS DID NOT MOVE**, so `$include GPL.BP x`, `BASIC GPL.BP *`
+(`SECOND.COMPILE`), `CD VOC` (`THIRD.COMPILE`) and `bootstrap.py`'s
+`RUN GPL.BP …` are unchanged and still resolve. `BBPROC` passes `'gpl.bp'` to
+`$bcomp`, which reaches VOC id `GPL.BP` through `_VOC_REF`'s **upward** fold —
+the half that has always worked.
+
+**`git mv` DOES NOT WORK FOR A DIRECTORY EITHER**, and it fails differently
+from the 792-record case: with `core.ignorecase` true, `git add -A` after the
+filesystem rename staged 2,968 **additions** and no deletions, because
+`lstat("sdsys/GPL.BP/…")` still succeeds against `sdsys/gpl.bp/`. The old index
+entries have to be removed by name:
+`git -c core.ignorecase=false rm -r --cached sdb_ai/sd64/sdsys/<OLD>` per
+directory, after `git -c core.ignorecase=false add -A`. 2,950 then came out as
+`R` and 18 as add/delete pairs — the small records whose content changed too.
+
+**THE CHEAP CHECK BEFORE SPENDING A CYCLE**, because `os.path.exists` cannot
+make it on NTFS: import `stage.py` and compare `SDSYS_SHIP`/`SDSYS_EMPTY`
+against `os.listdir(sdsys)` as a **set**, case-exactly. A `.ps1` parse sweep
+(`[Parser]::ParseFile` over `gplbld\*.ps1`) is the other one. Neither says the
+bootstrap works; both catch the typo that would waste the install.
 
 *(Unrelated but found while surveying: the installed `sdsys` contains an empty
 directory literally named `C:`. Something builds a path where a bare file name
-was expected. Harmless, and nobody has looked at it.)*
+was expected. Still there after this rename, harmless, and nobody has looked
+at it.)*
+
+**`$COMO` IS THE ONE PER-ACCOUNT NAME LEFT UPPER CASE**, deliberately.
+`COMO:44` and `PHANTOM:59` define the on-disk name and the VOC id with the same
+`$define`, so splitting them is `CREATEA`'s `fn`/`os.name` pattern again — and
+nothing in `gplbld` drives `COMO`, so it would ship unmeasured.
 
 ### 5.13.1 The ForceCommand scp cost has a workaround: pull, do not push (17 Aug 2026)
 

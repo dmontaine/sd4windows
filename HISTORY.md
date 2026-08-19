@@ -27,6 +27,71 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — Every SDSYS file name is lower case on disk
+
+**Commit:** this one. **Install:** 07:41:45, `sd.exe` `339AB7157F002679`,
+`assert-current` exit 0. `verify-lcnames.ps1` **115/115** (was 57),
+`verify-credacl` / `-nocase` / `-osusers` exit 0, `make check-local` PASS.
+
+§5.12 (a)'s wide half, and the answer to the owner's question of 18 Aug 2026:
+`bp` and `voc` — and `gpl.bp`, `newvoc`, `voc_template`, `messages`, `syscom`,
+`sd.voclib`, `accounts`, `bp.out`, `gpl.bp.out`, `pcode.out`, `$hold`,
+`$hold.dic`, `$map`, `$map.dic`, `$ipc`, `$cred`, `voc.dic`, `dict.dic`,
+`dir_dict`, `accounts.dic`, `os.users`, `os.users.dic`, `pstmp` — are lower
+case in the installed `sdsys`, and each account's `voc` with them. 2,968 files
+renamed plus 73 record ids in `gplbld/FILES_DICTS`.
+
+**The VOC ids did not move.** Only the path text in fields 2 and 3 and the
+directories themselves. `$include GPL.BP x`, `BASIC GPL.BP *` and `CD VOC` are
+untouched, and `bp` / `$COMMAND.STACK` typed in lower case are still answered in
+upper — the controls that say this is a rename and not a sweep.
+
+**What decided the disk names, and it was one list.** `create.file <path>
+DYNAMIC` in BASIC is a *language statement* that takes the path exactly as
+given — not the `CREATE.FILE` verb, which upper-cases it (`CREATEF:378`,
+`UPSTREAM_FIXES.md` #6). So `BBPROC`'s `FILES_LIST` and its `'.dic'` suffix
+decide the case of everything the bootstrap creates, and `CREATEA:581` plus
+`create.dir.file` decide it per account. No `CREATEF` change was needed, and
+upstream #6 is still live and still unsent.
+
+**No migration, and NTFS is the reason** — every one of these is reached
+through a path in a VOC record or built from `@sdsys`, and NTFS matches without
+regard to case. That is also why a *missed* reference would still have resolved,
+so `verify-lcnames.ps1` §2a compares against the real directory listing with
+`-ceq`; `Test-Path` could not have made the assertion at all.
+
+**`git mv` fails differently for a directory than for a record.** With
+`core.ignorecase` true, `git add -A` after the filesystem rename staged 2,968
+**additions and no deletions** — `lstat("sdsys/GPL.BP/…")` still succeeds
+against `sdsys/gpl.bp/`. The old index entries have to be removed by name with
+`git -c core.ignorecase=false rm -r --cached <OLD>`. 2,950 then came out as
+renames and 18 as add/delete pairs, those being the small records whose content
+changed too.
+
+**An agent shell cannot raise a UAC prompt, and this is the session that found
+out.** `Start-Process -Verb RunAs` returned "The operation was canceled by the
+user" **without ever displaying one**: a detached process has no desktop to show
+consent on. Every elevated step — `cycle.ps1` and three verifiers — has to be
+started by a human. `gplbld/post-cycle-elevated.ps1` is new and reduces the
+three verifiers to one elevated command, each run without `-Keep` so nothing is
+left behind; it is in `assert-current`'s `$neverShipped` list, or adding it
+would itself have made the install stale.
+
+**Two cheap checks that are worth doing before spending a cycle**, because both
+catch the mistake this change was most likely to make and neither needs an
+install: import `stage.py` and compare `SDSYS_SHIP`/`SDSYS_EMPTY` against
+`os.listdir(sdsys)` as a set, case-exactly (`os.path.exists` cannot say this on
+NTFS); and parse every `gplbld\*.ps1` with
+`[System.Management.Automation.Language.Parser]::ParseFile`.
+
+**Left deliberately:** `$COMO`, the one per-account on-disk name still upper
+case — `COMO:44` and `PHANTOM:59` define the on-disk name and the VOC id with
+one `$define`, and nothing in `gplbld` drives `COMO` to test a split with.
+The empty `C:` directory in the installed `sdsys` survived the rename unchanged
+and is still untraced.
+
+---
+
 ## 18 Aug 2026 - The TCL commands are lower case, and a probe found the site the whole change depended on
 
 **Commit:** this one and `8f808a3`. **Install:** 22:55:26, `sd.exe`
