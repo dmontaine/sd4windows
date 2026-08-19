@@ -220,8 +220,12 @@ carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
    SECOND, and it is not understood.** Seen twice on 19 Aug: one failure in
    `verify-lcnames` §6 after the 15:30:36 install, and **four** after the
    16:38:01 one — 138/142, then 142/142 with no change in between. **The
-   `$RELEASE` prompt is NOT the cause**: `LOGIN:444` fires it only when the
-   VOC's stamp differs from `SD.REV.STAMP`, and both read `W1.0-0`, measured.
+   `$RELEASE` prompt is ruled out** — `LOGIN:444` fires only on a stamp
+   mismatch and both sides read `W1.0-0` — **but that is the DISPLAY string,
+   not the release**, which is `MAJOR_REV`/`MINOR_REV`/`BUILD` 1/0/2 (2.6-6).
+   **The lead to follow is the shared segment**: `SYSSEG_REVSTAMP` is built
+   from those and `sysseg.h:69` says it does not catch a layout change, so the
+   first `sd` after a cycle creates the segment where later runs attach to it.
    **This matters more than it looks**: the whole discipline here is "cycle,
    then measure", and a first run that lies in either direction undermines
    every result in this file. **Next step is to capture a first run's output
@@ -537,12 +541,29 @@ install and passed on the next three; after the 16:38:01 install it came back
 **138 of 142** and then **142 of 142** immediately afterwards with nothing
 changed in between. The records are correct by hand each time.
 
-**THE `$RELEASE` PROMPT IS NOT THE CAUSE, and it was the obvious suspect.**
-`LOGIN:444` compares the VOC's `$RELEASE` field 2 against `SD.REV.STAMP` and
-prompts in a loop that only Y or N escapes — and **a piped session answers that
-prompt with its next command**, which would produce exactly this shape. But both
-read `W1.0-0` on this install, measured, so it never fires. The mechanism is
-still worth knowing: it would hit any piped verifier here.
+**THE `$RELEASE` PROMPT IS RULED OUT, BUT ONLY FOR THE DISPLAY STRING — and
+that distinction is the owner's correction, 19 Aug 2026.** `LOGIN:444` compares
+the VOC's `$RELEASE` field 2 against `SD.REV.STAMP` and prompts in a loop that
+only Y or N escapes; **a piped session answers that prompt with its next
+command**, which would produce exactly this shape. Both sides read `W1.0-0` on
+this install, measured, so it never fires — and `LOGIN`'s second check,
+`compare(system(1012), SD.REV.STAMP)`, compares the same string with itself
+(`op_sys.c:378` returns `SD_REV_STAMP`).
+
+**`W1.0-0` IS A DISPLAY STRING AND NOT THE RELEASE.** The release identity is
+`MAJOR_REV`/`MINOR_REV`/`BUILD` = **1/0/2**, the openQM 2.6-6 lineage, and
+`MESSAGES/0000` still reads `2.6-6`. So checking that the display strings agree
+says less than it looks like it says, and the first version of this note
+overstated it.
+
+**WHICH OPENS THE LEAD WORTH FOLLOWING NEXT: the SHARED SEGMENT is not guarded
+across an install.** `sysseg.c:58` builds `SYSSEG_REVSTAMP` from
+`MAJOR_REV`/`MINOR_REV`/`BUILD`, and `sysseg.h:69` already says in terms that it
+**does not catch a layout change**, because the release identity does not move
+when the port changes. A cycle deletes both trees, so the first `sd` after one
+creates the segment fresh while later runs attach to it — an install boundary
+with different behaviour on the first run through it, which is the shape of what
+is being seen. Not measured; it is a lead, not a finding.
 
 **WHY IT MATTERS MORE THAN A FLAKY TEST.** The discipline in this repository is
 "cycle, then measure". A first run that fails checks which are actually fine

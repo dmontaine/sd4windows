@@ -27,6 +27,33 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — Correction: W1.0-0 is a display string, not the release
+
+**Commit:** this one, over `f988f48`. Documents only. Owner's correction.
+
+The entry below ruled out the `$RELEASE` prompt as the cause of the first-run
+verifier failures on the grounds that "both read `W1.0-0`". **That reasoning was
+shallow.** `W1.0-0` is the DISPLAY string - the 18 Aug entry in this file says
+so in its title - and the release identity is `MAJOR_REV`/`MINOR_REV`/`BUILD` =
+**1/0/2**, the openQM **2.6-6** lineage, which `MESSAGES/0000` still carries.
+
+**The ruling-out itself still holds**, and is now stated for what it is: both
+sides of `LOGIN:444` are the display string and they match, and `LOGIN`'s second
+check, `compare(system(1012), SD.REV.STAMP)`, compares that string with itself
+(`op_sys.c:378` returns `SD_REV_STAMP`). What was wrong was implying that
+agreement between display strings settled the release question.
+
+**AND THE CORRECTION POINTS AT THE LEAD.** `sysseg.c:58` builds
+`SYSSEG_REVSTAMP` from `MAJOR_REV`/`MINOR_REV`/`BUILD`, and `sysseg.h:69`
+already records in terms that **it does not catch a shared-segment layout
+change**, precisely because the release identity does not move when the port
+does. A cycle deletes both trees, so the first `sd` after one creates the
+segment while later runs attach to it - an install boundary that behaves
+differently on the first pass, which is the shape of what is being seen.
+**Not measured. It is a lead, not a finding.**
+
+---
+
 ## 19 Aug 2026 — OS.EXECUTE is gated: the C half of step 7 is closed
 
 **Commit:** this one, over `69015c3`. **Install:** **16:38:01**, `sd.exe`
