@@ -107,6 +107,24 @@ next step 2. What the audit found, so nobody repeats it:
   words — `UNION`, `INTERSECTION`, `DIFFERENCE` on `LIST.UNION`/`LIST.INTER`/
   `LIST.DIFF`, compared with `=` in `LSTMRG`. They are record content, not ids.
 
+**THE AUDIT MISSED THE ONE SITE EVERYTHING DEPENDS ON, AND ONLY A PROBE FOUND
+IT.** `CPROC:1401` resolves a typed verb **as entered, then UPPER, then
+upper-with-hyphens-as-dots** — no lower-case attempt. It is not among the 74
+fold sites because its third tier is a `change()` rather than a plain read, so
+it matched neither scripted shape. **Reading `PARSER:160` and concluding
+"dispatch folds" was wrong**; the verb never reaches that read. Measured on the
+22:37:20 install with a VOC record whose id is `zzprobev`: typing `zzprobev`
+dispatched it, typing `ZZPROBEV` answered *"ZZPROBEV is not in your VOC"*. **So
+renaming the command ids without this would have made every verb typed in upper
+case fail, for every user.** Fixed, and `verify-lcnames.ps1` §8 is now the
+standing probe — a lower-case verb AND a lower-case keyword, each reached by
+typing the name in upper case, each with a control.
+
+**THE LESSON, and it is the reusable part: the upward half of the fold is what
+every earlier check measured, because nothing shipped was lower case.** The
+downward half had never fired for a verb or a keyword. After a rename, probe
+the direction the tree cannot exercise on its own.
+
 **AND THE AUDIT FOUND A DEFECT THE `$hold` RENAME HAD ALREADY SHIPPED.**
 `LIST VOC $HOLD` answered `'$HOLD' not found` on the record `CT VOC $HOLD`
 echoed back as `$hold` — `QPROC`'s `check.record` read the record id exactly
