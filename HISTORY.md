@@ -27,6 +27,23 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — Clear screen was never broken (closes part of the entry below)
+
+**Commit:** this one, over `17fcae2`. No code change.
+
+**Owner, at a real console: "cs works correctly".** The entry below left clear
+screen open because nothing in `gplbld` can watch a screen. It agrees with what
+was already measured — `@(-1)` emits `ESC [ H ESC [ J`, `@(5,3)` emits
+`ESC [ 4 ; 6 H`, and `clear` is identical in `vt100`, `linux` and `windows`, so
+the terminal-type change could not have affected it either way. Read it as
+collateral in the original four-item report, not a fifth fault.
+
+**Still owed from that report: a person confirming the arrows** in cmd,
+PowerShell and Windows Terminal. `verify-keys` 10/10 proves the bindings
+resolve; it cannot prove a key press arrives, because it drives SD down a pipe.
+
+---
+
 ## 19 Aug 2026 — The arrow keys: the default terminal type was the cause
 
 **Commit:** this one, over `3d05dad`. **Install:** **10:06:08**, `sd.exe`

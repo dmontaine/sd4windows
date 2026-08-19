@@ -43,11 +43,19 @@ from `TERM LINUX` on 18 Aug — is the cause: `vt100` binds the arrows to
 capability-name table, `gplsrc/ti_names.h:179`). Fixed by the owner's ruling —
 a new `windows` terminfo entry, a byte-exact copy of `linux`, as the default.
 
-**CLEAR SCREEN IS THE HALF STILL OPEN AND IT IS NOT AN SD DEFECT SO FAR.**
-`@(-1)` emits `ESC [ H ESC [ J` and `@(5,3)` emits `ESC [ 4 ; 6 H`, both
-correct, measured. **A PIPE IS NOT A CONSOLE and every instrument here is a
-pipe** — which is also why `verify-keys` passed 6/6 on backspace while the owner
-was reporting it broken. Settling it needs someone at a real console.
+**CLEAR SCREEN WAS NEVER BROKEN — OWNER CONFIRMED "CS WORKS CORRECTLY",
+19 Aug 2026**, at a real console, which is the only place it could be settled.
+It agrees with the measurement: `@(-1)` emits `ESC [ H ESC [ J` and `@(5,3)`
+emits `ESC [ 4 ; 6 H`, both correct, and `clear` is identical in `vt100`,
+`linux` and `windows` so the type change could not have touched it. It was
+almost certainly collateral in the original report — one of four things named
+together while the arrows were dead.
+
+**THE REASON IT TOOK AN OWNER TO SETTLE IT STANDS THOUGH: A PIPE IS NOT A
+CONSOLE, AND EVERY INSTRUMENT IN `gplbld` IS A PIPE.** That is also why
+`verify-keys` passed 6/6 on backspace while the owner was reporting it broken.
+**Do not read a green suite as "the keyboard works"** — it means the byte
+sequences resolve, not that a key press produces them.
 
 **`sdtic` HAD A DEFECT AND IT COST A BUILD — `UPSTREAM_FIXES.md` #9, fixed.**
 `reset_buffers()` was inside the "entry compiled" guard, so a failed entry's
@@ -57,11 +65,12 @@ buffered to a file. It also always exited 0. Both fixed.
 
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
-1. **SETTLE CLEAR SCREEN AT A REAL CONSOLE.** Ask the owner exactly what "clear
-   screen" means — the `@(-1)`/`IT$CS` function from a program, a key, or `CS`
-   at TCL — because SD emits the right bytes for the first. Nothing in `gplbld`
-   can press a key or read a screen, so **this is the first thing here that
-   needs a human instrument**, and building one is the work.
+1. **CONFIRM THE ARROWS AT A REAL CONSOLE.** `verify-keys` 10/10 says the
+   bindings resolve; only a person can say the key press arrives. One console
+   each — cmd, PowerShell, Windows Terminal — and the item is closed. **If any
+   of them still fails, the next measurement is the raw-byte probe** (a BASIC
+   loop on `keyin()` printing `seq()`), because that is the one question the
+   protocol argument in §5.18 cannot answer from source.
 
 2. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** Unchanged by this
    session; see the entry further down. `VOC`, `NEWVOC`, `ACCOUNTS`, `MESSAGES`,
@@ -4596,12 +4605,12 @@ look, so `LOGIN:115`'s `env('TERM')` branch never runs — **neither `$TERM` nor
 paragraph runs after the subroutine and sets it unconditionally. Both were
 changed so they cannot disagree, but the paragraph is the one that acts.
 
-**CLEAR SCREEN IS NOT A DEFECT ON THE SD SIDE.** `@(-1)` emits
-`27 91 72 27 91 74` = `ESC [ H ESC [ J`, and `@(5,3)` emits `ESC [ 4 ; 6 H` —
-both correct, measured with a `seq()` probe. `clear` is identical in `vt100`,
-`linux` and `windows`, so the terminal-type change cannot have affected it.
-**Unexplained and needs a real console**: nothing here can press a key or watch
-a screen. See "still owed" below.
+**CLEAR SCREEN WAS NEVER BROKEN.** `@(-1)` emits `27 91 72 27 91 74` =
+`ESC [ H ESC [ J`, and `@(5,3)` emits `ESC [ 4 ; 6 H` — both correct, measured
+with a `seq()` probe. `clear` is identical in `vt100`, `linux` and `windows`,
+so the terminal-type change could not have affected it either way.
+**Owner confirmed "CS works correctly", 19 Aug 2026**, at a console. Treat it
+as collateral in the original report rather than a fifth fault.
 
 **`sd.exe` LINKS `msys-2.0.dll`**, so the terminal layer is Cygwin's console
 handler, which is what translates key presses into these byte sequences and
