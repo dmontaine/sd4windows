@@ -65,8 +65,8 @@ buffers accumulated into the next; the full database with one bad entry
 **segfaulted at 24 files of 100**, printing nothing because stdout was block
 buffered to a file. It also always exited 0. Both fixed.
 
-**THE CONSOLE READING IS IN AND EVERY KEY MATCHES — owner, cmd, 19 Aug 2026,
-`gplbld\probe-keys.ps1`.** This was the last inferred link in §5.18, and it is
+**THE CONSOLE READING IS IN AND EVERY KEY MATCHES — owner, cmd AND PowerShell,
+19 Aug 2026, `gplbld\probe-keys.ps1`.** This was the last inferred link in §5.18, and it is
 now a direct measurement rather than an argument from the protocol:
 
 ```
@@ -83,10 +83,17 @@ Delete     27 91 51 126  ESC [ 3 ~   kdch1=\E[3~     match
 Delete are distinct bytes, so the `windows` type binds them to different keys
 with no collision.
 
-**Only cmd was read**, and that is acceptable rather than a gap: all three
-console hosts reach SD through the same `msys-2.0.dll` layer, and the 19 Aug
-backspace work already measured DEL from all three. Reading the other two is
-one command if it is ever doubted.
+**cmd and PowerShell were read and the two are byte for byte identical.**
+Windows Terminal was not, and that is acceptable rather than a gap: all three
+reach SD through the same `msys-2.0.dll` console layer, and the 19 Aug backspace
+work already measured DEL from all three. Reading it is one command if doubted.
+
+**The probe disables pagination and this is why.** `@(0,0)` — a cursor
+POSITIONING call, which `@(-1)` is not — turns off "Press RETURN to continue".
+Without it a long session hits the pager part way through the byte listing and
+**the key pressed to dismiss it is itself a keystroke**, so the instrument would
+start interfering with what it measures. It appeared after 17 bytes in the
+owner's PowerShell run; 40 arrow presses now list 120 bytes uninterrupted.
 
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".

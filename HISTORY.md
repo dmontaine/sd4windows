@@ -48,9 +48,18 @@ cursor mode spelling could never arrive, because nothing in SD sends `smkx`.
 That was the last inferred link in the chain and it is now a direct reading.
 Backspace and Delete are distinct bytes, so the two keys do not collide.
 
-**Only cmd was read.** Acceptable rather than a gap: all three console hosts
-reach SD through the same `msys-2.0.dll` layer, and the 19 Aug backspace work
-already measured DEL from all three.
+**cmd and PowerShell were both read and are byte for byte identical.** Windows
+Terminal was not; acceptable rather than a gap, since all three reach SD through
+the same `msys-2.0.dll` console layer and the 19 Aug backspace work already
+measured DEL from all three.
+
+**The PowerShell run also exposed a flaw in the probe itself**: SD's pagination
+fired after 17 bytes. Harmless there — it came after the reading — but a longer
+session would hit "Press RETURN to continue" mid-listing, and the key pressed to
+dismiss it is itself a keystroke, so the instrument would interfere with its own
+measurement. Fixed with `@(0,0)`: a cursor POSITIONING call disables pagination
+where a special function like `@(-1)` does not. 40 arrow presses now list 120
+bytes uninterrupted on an 80x24 terminal.
 
 **Correction to this file's own housekeeping: PROJECT_STATUS.md had TWO
 "WHAT TO DO NEXT" lists.** Replacing the header on the twenty-seventh session
