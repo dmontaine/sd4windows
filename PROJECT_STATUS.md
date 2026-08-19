@@ -8,17 +8,21 @@ something came to be the way it is.
 **Last updated:** 18 Aug 2026, end of the twenty-fifth session.
 
 **THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **21:29:59** install, `sd.exe` **`A71C53652197195E`**. Confirm it
+against the **22:37:20** install, `sd.exe` **`A71C53652197195E`**. Confirm it
 before believing it — one unelevated command, `gplbld\assert-current.ps1`.
 
-**THIS SESSION MADE THE SECOND VOC-ID RENAME: `$HOLD` IS NOW `$hold`, §5.12 (b).**
+**THIS SESSION RENAMED `$HOLD` TO `$hold` (§5.12 (b)) AND THEN FOLDED EVERY
+REMAINING EXACT-MATCH VOC LOOKUP, so the TCL-verb rename below cannot break
+anything silently.**
 
 | Subject | Verifier | Install |
 |---|---|---|
-| VOC id `$HOLD` → `$hold`, old accounts unaffected | `verify-lcnames.ps1` **46/46** | 21:29:59 |
-| the three-case fold and `_VOC_REF`, unregressed | `verify-fold.ps1` 10/10 (elevated) | 21:29:59 |
-| step 11 local transport | `make check-local` PASS | 21:29:59 |
-| `$CRED` ACL, `DHF_NOCASE`, `OS.USERS` | `verify-credacl` / `-nocase` / `-osusers`, exit 0 | 21:29:59 |
+| VOC id `$HOLD` → `$hold`, old accounts unaffected | `verify-lcnames.ps1` **50/50** | 22:37:20 |
+| nine more lookups and comparisons fold | `verify-lcnames.ps1` **50/50** | 22:37:20 |
+| the VOC tiers still filter | `verify-tiers.ps1` 22/22, 393 / 411 / 421 | 22:37:20 |
+| step 11 local transport | `make check-local` PASS | 22:37:20 |
+| `$CRED` ACL, `DHF_NOCASE`, `OS.USERS` | `verify-credacl` / `-nocase` / `-osusers`, exit 0 | 22:37:20 |
+| the three-case fold and `_VOC_REF` | `verify-fold.ps1` 10/10 (elevated) | 21:29:59 |
 
 **WHAT MOVED WITH IT:** `CLEANAC`, `MICRO`, `SPVIEW`, `_NEXTPTR`, `_PRFILE`,
 `SETPTR`, `CREATEA:759`, `MESSAGES` 7119/7131/7170, `NEWVOC/SP.VIEW`'s
@@ -74,6 +78,52 @@ verify script is in `$neverShipped` and cannot make an install stale;
 `sdsys/changelog` ships and can. Fix the exempt ones, re-measure, then touch
 anything under `sdsys`.
 
+**THE OWNER ASKED FOR THE TCL COMMANDS IN LOWER CASE TOO, 18 Aug 2026. THE
+AUDIT IS DONE AND THE SCAFFOLDING IS IN; THE RENAME ITSELF IS NOT.** §5.12 (b),
+next step 2. What the audit found, so nobody repeats it:
+
+* **Dispatch was never the risk.** `PARSER:160` and `PARSER:270` both fold as
+  typed → lower → upper, so typing a verb in any case already works.
+* **Comparisons were the risk**, and 281 sites matched a first-pass grep. All
+  but nine are false positives: `BCOMP`/`ICOMP`/`ACOMP` compare SDBasic
+  language keywords and intrinsics, `ED`/`SED`/`DEBUG`/`PROC` compare their own
+  sub-commands, and both namespaces are separate from the VOC and are compared
+  against already-upcased tokens.
+* **The nine that mattered are now folded** — `UPDREC`, `QPROC` ×2, `CPROC`
+  ×2, `APISRVR`, `DELETEF`, `SETFILE`, and the tier filter in `LOGIN` and
+  `CREATEA`. All additive: every shipped id is upper case, so the new attempts
+  cannot fire yet.
+* **The tier filter was the dangerous one.** `LOGIN:576` and `CREATEA:640`
+  compared `id` from a `READNEXT` against `'TIER.OMIT.STANDARD'` with `=`, and
+  the omit list holds verb ids compared against `id` the same way. Lower-case
+  one side and nothing is omitted — **a STANDARD account silently gets the full
+  VOC**, and it looks exactly like a filter that worked. Both sides now
+  `upcase()`, so the halves are independent.
+* **`DELETEF`'s banned-file guard was reachable.** `file.name` arrives at the
+  `locate` as the user typed it whenever the exact read succeeded, so once
+  `VOC` is `voc`, `DELETE.FILE voc` walks past the guard and deletes the
+  account's VOC. Both sides now `upcase()`.
+* **V-type field 4 is a separate namespace and stays upper.** Only three are
+  words — `UNION`, `INTERSECTION`, `DIFFERENCE` on `LIST.UNION`/`LIST.INTER`/
+  `LIST.DIFF`, compared with `=` in `LSTMRG`. They are record content, not ids.
+
+**AND THE AUDIT FOUND A DEFECT THE `$hold` RENAME HAD ALREADY SHIPPED.**
+`LIST VOC $HOLD` answered `'$HOLD' not found` on the record `CT VOC $HOLD`
+echoed back as `$hold` — `QPROC`'s `check.record` read the record id exactly
+and had no fold at all, while `CT:202` folds its. **`verify-lcnames.ps1` tested
+`CT` and `COUNT` and neither could have shown it.** Fixed, and the verifier now
+tests `LIST` both ways with an absent-id control.
+
+**WHAT THE RENAME ITSELF STILL COSTS:** 387 record ids in `NEWVOC` and 400 in
+`VOC_TEMPLATE` (K 238, V 133/143, R 11, P 3/6, S 2), plus `SD.VOCLIB`'s 11 —
+each a case-only `git mv` in two steps. Excluded deliberately: the 14 `$`/`%`/
+`@` records (their own queued renames) and the F/Q **file pointers** (`VOC`,
+`BP`, `NEWVOC`, `GPL.BP`, `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`,
+`DICT.DICT`, `MD`, `SD.ACCOUNTS`, `OS.USERS`, `BP.OUT`, `GPL.BP.OUT`), which
+belong with the on-disk file-name work in next step 1. Also owed: the contents
+of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
+`verify-tiers.ps1`'s name lists, and `docs/TCL_VERBS.md`.
+
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
 1. **THE OWNER ASKED ON 18 Aug 2026 WHEN `bp` AND `voc` GET LOWER-CASED ON
@@ -89,13 +139,21 @@ anything under `sdsys`.
    `verify-osusers.ps1`, `verify-nocase.ps1`, `verify-tiers.ps1`,
    `assert-current.ps1`. §5.12 (a).
 
-2. **THE REMAINING VOC-ID RENAMES — §5.12 (b), with `$hold` as the worked
-   example. `$COMMAND.STACK` AND `BP` ARE WHAT IS LEFT.** What one costs, in
-   full: the hard-coded literals, the `MESSAGES` records, the `VOC_TEMPLATE`
-   record where the id **is** the file name (case-only `git mv`, two steps),
-   `CREATEA`, a `START-HISTORY` line per file, a changelog entry, and a
-   `verify-lcnames.ps1` section for the pre-rename account. **`BP` is the
-   awkward one and item 3 is why.**
+2. **THE TCL COMMANDS — owner, 18 Aug 2026, and the scaffolding for it is
+   already in.** Rename the 387 command ids in `NEWVOC` and 400 in
+   `VOC_TEMPLATE` plus `SD.VOCLIB`'s 11, lower-case the contents of
+   `TIER.OMIT.STANDARD` and `TIER.ADD.ADMINISTRATOR`, update
+   `verify-tiers.ps1`'s name lists and `docs/TCL_VERBS.md`. The header above
+   has the audit and the exclusions. **Do it as ONE change with a scripted
+   rename** — 800 files one at a time is not a per-file plan, and the fold now
+   makes any single missed literal recoverable rather than fatal.
+
+   **Then `$COMMAND.STACK` and `BP` — what is left of the `$` and file-pointer
+   ids**, with `$hold` as the worked example: the hard-coded literals, the
+   `MESSAGES` records, the `VOC_TEMPLATE` record where the id **is** the file
+   name (case-only `git mv`, two steps), `CREATEA`, a `START-HISTORY` line per
+   file, a changelog entry, and a `verify-lcnames.ps1` section for the
+   pre-rename account. **`BP` is the awkward one and item 3 is why.**
 
 3. **FIX `bp.OUT` BEFORE `BP` MOVES.** `BASIC:132` derives the object file name
    from the string the user TYPED, so `BASIC bp x` creates VOC id `bp.OUT` while
@@ -4025,6 +4083,25 @@ other has moved. `_PRFILE:56`'s guard took `downcase()` for the same reason.
 `verify-lcnames.ps1` §3 by typing them in lower case and requiring an upper-case
 echo. Whichever moves next takes its control with it.
 
+**THE TCL COMMANDS ARE IN SCOPE TOO — owner, 18 Aug 2026.** Every command id
+in `NEWVOC` and `VOC_TEMPLATE`, not only the `$` files. The audit is in this
+file's header; what it comes to is that **dispatch already folds and only
+COMPARISONS were at risk**, and the nine that mattered were folded on 18 Aug
+2026 before any id moved: `UPDREC`, `QPROC` ×2, `CPROC` ×2, `APISRVR`,
+`DELETEF`, `SETFILE`, and the tier filter in `LOGIN` and `CREATEA`.
+
+**THE TIER FILTER IS THE ONE THAT WOULD HAVE FAILED SILENTLY.** `LOGIN:576` and
+`CREATEA:640` compare the id from a `READNEXT` against `'TIER.OMIT.STANDARD'`
+with `=`, and the omit list holds verb ids compared against that id the same
+way. Move one side and nothing is omitted: a STANDARD account gets the whole
+VOC, and it looks exactly like a filter that worked. Both sides `upcase()` now,
+so the list content and the ids can move independently.
+
+**SCOPE, MEASURED:** 387 command ids in `NEWVOC` and 400 in `VOC_TEMPLATE`
+(K 238, V 133/143, R 11, P 3/6, S 2) plus `SD.VOCLIB`'s 11. **Out of scope and
+deliberately so**: the 14 `$`/`%`/`@` records and the F/Q **file pointers**,
+which are file names rather than commands and belong with (a).
+
 **BUT `BP` HAS A DEFECT IN FRONT OF IT — FIX `bp.OUT` FIRST.** `BASIC:132`
 derives the object file name from the token TYPED, so `BASIC bp x` makes VOC id
 `bp.OUT` while `CREATE.FILE` writes the directory as `BP.OUT`. No case of the
@@ -4269,6 +4346,30 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **`CT` AND `LIST` DISAGREED ABOUT THE SAME RECORD ID, AND THE VERIFIER COULD
+  NOT HAVE SEEN IT.** 18 Aug 2026, found while auditing for the TCL rename and
+  fixed the same day. On the 22:26:18 install, with the VOC id already renamed:
+
+  ```
+  CT VOC $HOLD        ->  VOC $hold                 (CT:202 folds the record id)
+  LIST VOC $hold      ->  1 record(s) listed
+  LIST VOC $HOLD      ->  0 record(s) listed, '$HOLD' not found
+  ```
+
+  `QPROC`'s `check.record` read the record id **exactly** and had no fold at
+  all. So the `$hold` rename shipped a live regression the same session that
+  made it, and the changelog promised "the old spelling still works when you
+  type it" — true of `COUNT`, `CT` and `ED`, false of `LIST`.
+
+  **`verify-lcnames.ps1` TESTED `CT` AND `COUNT` AND NEITHER CAN SHOW THIS**,
+  because both fold. A verb that folds cannot be the instrument for a verb that
+  does not. It now tests `LIST` both ways, with an absent-id control so the fold
+  is distinguishable from a lookup that matches anything.
+
+  **The general lesson: after a rename, test every verb that NAMES the thing,
+  not one of them.** The ones that fold all pass together and say nothing about
+  the ones that do not.
 
 - **`BASIC bp X` CREATES A `bp.OUT` THAT NOTHING CAN EVER OPEN AGAIN, AND IT
   BREAKS THE NEXT SCRIPT RATHER THAN THE ONE THAT DID IT.** 18 Aug 2026. Two

@@ -27,6 +27,91 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - Folding every remaining exact-match VOC lookup, before the TCL commands move
+
+**Commit:** this one. **Install:** 22:37:20, `sd.exe` `A71C53652197195E`,
+`assert-current` exit 0. `verify-lcnames.ps1` **50/50**, `verify-tiers.ps1`
+22/22 with `COUNT VOC` 393 / 411 / 421, `make check-local` PASS,
+`verify-credacl` / `-nocase` / `-osusers` exit 0.
+
+**The owner asked for the TCL commands in lower case as well.** This entry is
+the audit and the scaffolding; the rename itself has not been done.
+
+**Dispatch was never the risk.** `PARSER:160` and `PARSER:270` already fold as
+typed → lower → upper, so a verb typed in any case resolves. **Comparisons
+were.** A grep for `= '<ID>'` over `GPL.BP` against the 390 word-shaped
+`VOC_TEMPLATE` ids returned 281 sites, and all but nine are false positives:
+`BCOMP`, `ICOMP` and `ACOMP` compare SDBasic language keywords and intrinsic
+names; `ED`, `SED`, `DEBUG` and `PROC` compare their own sub-commands. Both are
+separate namespaces and both compare against tokens that are already upcased.
+
+**The nine that mattered, all folded and all additive** (every shipped id is
+upper case, so the new attempts cannot fire until an id moves):
+
+* `UPDREC:2584` — read the account VOC with `upcase(token)` and **nothing else**.
+  5.12 had listed this as one of two sites "left deliberately... dictionary or
+  token ids". It is not: it reads the VOC, which is a DYNAMIC file and therefore
+  an exact byte match, and with upcase alone every keyword would come back -1.
+* `QPROC:3835` — the query processor's VOC token read, as-typed only. Converted
+  with a `fold.found` flag rather than three copies of the body, which carries
+  `RETURN` and `GOTO`. The dictionary reads either side of it are untouched.
+* `CPROC:397`, `CPROC:2723`, `APISRVR:486` — the LOGIN paragraph, read by exact
+  literal. `new.sentence` now carries the id that matched, not the one asked for.
+* `LOGIN:576`/`CREATEA:640` and `LOGIN:586`/`CREATEA:652` — **the tier filter,
+  and the only silent failure in the set.** The guard compares an id from
+  `READNEXT` against `'TIER.OMIT.STANDARD'`; the omit list holds verb ids
+  compared against that id. Move one side without the other and nothing is
+  omitted, so a STANDARD account is handed the compiler, both editors and
+  `DELETE.CATALOG` — and it looks exactly like a filter that worked. Both sides
+  `upcase()` now. `verify-tiers.ps1` 22/22 afterwards, all three counts exact.
+* `DELETEF:172` — the banned-file guard. `file.name` reaches the `locate` **as
+  typed** whenever the exact read at the top of `delete.file` succeeded; the
+  `upcase()` at :148 is only in the else branch. So once `VOC` is `voc`,
+  `DELETE.FILE voc` walks past the guard and deletes the account's VOC. Both
+  sides `upcase()` now. Measured after: `DELETE.FILE VOC` answers "Cannot delete
+  system file VOC" and `COUNT VOC` still counts 422. **The lower-case-exact path
+  cannot be demonstrated until an id actually moves**, which is honest rather
+  than tidy.
+* `SETFILE:124` and `:136` — the default `QFILE` pointer, exact read then exact
+  comparison. **Compiled, not run**: the block is only reached from the
+  interactive prompt path.
+
+**V-type field 4 is a separate namespace and stays upper case.** Of 17 distinct
+dispatch strings only three are words — `UNION`, `INTERSECTION`, `DIFFERENCE`
+on `LIST.UNION` / `LIST.INTER` / `LIST.DIFF`, compared with `=` in `LSTMRG`.
+They are record content, not ids, so nothing needs to move.
+
+### The audit found a live defect the $hold rename had already shipped
+
+On the 22:26:18 install, with the VOC id already `$hold`:
+
+```
+CT VOC $HOLD     ->  VOC $hold                 (CT:202 folds the record id)
+LIST VOC $hold   ->  1 record(s) listed
+LIST VOC $HOLD   ->  0 record(s) listed, '$HOLD' not found
+```
+
+`QPROC`'s `check.record` read the record id exactly and had no fold at all, so
+`CT` and `LIST` disagreed about the same name. The changelog entry written
+earlier the same day promised "the old spelling still works when you type it" —
+true of `COUNT`, `CT` and `ED`, false of `LIST`. Both are corrected: the read
+now folds and rewrites `id` to the spelling that matched, and the changelog
+carries a `CORRECTION` entry.
+
+**`verify-lcnames.ps1` tested `CT` and `COUNT`, and neither could ever have
+shown this, because both fold.** A verb that folds cannot be the instrument for
+a verb that does not. It now tests `LIST` both ways with an absent-id control,
+which is what takes it from 46 checks to 50.
+
+**What the rename itself still costs:** 387 command ids in `NEWVOC`, 400 in
+`VOC_TEMPLATE`, 11 in `SD.VOCLIB`, each a case-only `git mv` in two steps; the
+contents of `TIER.OMIT.STANDARD` (18) and `TIER.ADD.ADMINISTRATOR` (10);
+`verify-tiers.ps1`'s name lists; `docs/TCL_VERBS.md`. The 14 `$`/`%`/`@`
+records and the F/Q file pointers are deliberately excluded — they are file
+names, not commands, and belong with 5.12 (a).
+
+---
+
 ## 18 Aug 2026 - The second VOC-id rename, and two harness defects the documented post-cycle sequence exposed
 
 **Commit:** this one. **Install:** 21:29:59, `sd.exe` `A71C53652197195E`,
