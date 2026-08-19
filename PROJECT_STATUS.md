@@ -328,16 +328,29 @@ claim above needs its evidence:**
 elevated. It writes a transcript to `%LOCALAPPDATA%\SD-verify`. See "START
 HERE".
 
-**THE VERIFY SCRIPTS, each one command. Two are new on 17 Aug 2026, and the
-two unelevated ones are the cheap checks to run after any cycle:**
+**THE VERIFY SCRIPTS, each one command. The unelevated ones are the cheap checks
+to run after any cycle; "START HERE" has the order:**
 
 ```
-gplbld\verify-tiers.ps1 -Keep -Prefix <fresh>   elevated;   §8 three tiers
-cd sdb_ai/sd64 && make check-local              UNELEVATED; step 11 + 6c
+gplbld\verify-lcnames.ps1                       UNELEVATED; 5.12, 57 checks
 gplbld\verify-credacl.ps1                       UNELEVATED; step 6, $CRED ACL
 gplbld\verify-nocase.ps1                        UNELEVATED; step 8, DHF_NOCASE
 gplbld\verify-osusers.ps1                       UNELEVATED; step 7, SH admitted
+cd sdb_ai/sd64 && make check-local              UNELEVATED; step 11 + 6c
+gplbld\verify-fold.ps1                          elevated;   the 3-case fold
+gplbld\verify-tiers.ps1 -Keep -Prefix <fresh>   elevated;   §8 three tiers
+gplbld\verify-createaccount.ps1                 elevated;   CREATE.ACCOUNT
+gplbld\verify-apiport.ps1 -Prefix <fresh>       elevated;   step 6, the API
+gplbld\verify-catgate.ps1                       elevated;   gcat privilege
+gplbld\verify-nonet.ps1                         elevated;   SDNet is gone
+gplbld\verify-sshonly.ps1 / -allowgroups.ps1    Windows side, exempt from
+                                                assert-current
 ```
+
+**`verify-lcnames.ps1` IS THE ONE THAT GREW THIS SESSION** and is the regression
+guard for the whole of §5.12: names on disk, VOC ids both ways, an account created
+before a rename (§5, §5a), and §8, which MAKES a lower-case verb and keyword and
+reaches them typed in UPPER case. §8 is the one that found `CPROC:1401`.
 
 **`verify-credacl.ps1` REFUSES to run elevated** — the ACL grants
 `Administrators` Full, so an elevated run passes however broken it is.
@@ -652,22 +665,45 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. RUN THE CYCLE FIRST — but know that it only carries HARNESS fixes.**
-`assert-current` fails and should: `gplsrc/sdclilib/Makefile` moved at 12:32:56,
-after the measurements. **`make sd` is NOT needed** — the installed binaries
-(`81D0856F5493385E` / `8D1517D1CD2B83AB`) are the current build. **Everything
-this session claims was already verified on the 12:28:49 install**, so the
-cycle is owed for cleanliness, not to settle anything.
+**1. NO CYCLE IS OWED. CONFIRM THAT, THEN START WORKING.** The tree was left
+clean at the end of 18 Aug 2026: `assert-current` exit 0 against the **22:55:26**
+install, `sd.exe` **`A71C53652197195E`**, working tree committed and pushed, and
+every test account removed (`ACCOUNTS` is `DON` and `SDSYS`, no `sdtier*` Windows
+users). One unelevated command settles it:
 
-**Both verifications are one command each and both have passed**, so re-running
-them after the cycle is a re-confirmation rather than an open question:
+```powershell
+gplbld\assert-current.ps1
+```
 
+**If it says STALE, believe it and run the cycle** — `gplbld\cycle.ps1`, elevated.
+**`make sd` is only needed when `gplsrc` changed**, and `assert-current` check A2
+says so by name; the cycle does NOT build.
+
+**RE-CONFIRMING THE REST IS FOUR COMMANDS, none of which needs a fresh install.**
+Run them in this order; the ordering trap that used to make everything after
+`check-local` refuse was fixed on 18 Aug 2026 (§6), so the order is now
+preference rather than necessity:
+
+```powershell
+gplbld\verify-lcnames.ps1          UNELEVATED; 57 checks, the lower-case work
+gplbld\verify-credacl.ps1          UNELEVATED; must NOT be run elevated
+gplbld\verify-nocase.ps1           UNELEVATED
+gplbld\verify-osusers.ps1          UNELEVATED
+```
 ```sh
 cd sdb_ai/sd64 && make check-local
 ```
 ```powershell
-gplbld\verify-tiers.ps1 -Keep -Prefix sdtierc
+gplbld\verify-fold.ps1                        ELEVATED
+gplbld\verify-tiers.ps1 -Keep -Prefix sdtierg ELEVATED, FRESH PREFIX
 ```
+
+**`verify-tiers.ps1` NEEDS A PREFIX NOBODY HAS USED.** `sdtierb` through
+`sdtierf` are spent. **And `-Keep` leaves three Windows accounts and three
+register records behind** — clear them with
+`verify-tiers.ps1 -Cleanup -Prefix <p>` for the Windows half and
+`DELETE.ACCOUNT` (elevated, answer `Y` three times per account) for the register
+half, or the next run of anything that counts accounts is measuring your litter.
 
 **`check-local` is UNELEVATED and from an MSYS2 LOGIN shell** — `make` is not a
 Windows command, PowerShell has no `&&`, and a non-login shell has no usable
