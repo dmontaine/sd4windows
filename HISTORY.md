@@ -27,6 +27,42 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — The console reading: every key matches, and §5.18 is closed
+
+**Commit:** this one, over `7de04ee`. Documents only.
+
+**Owner ran `gplbld\probe-keys.ps1` in a cmd console.** Every key sends what
+the `windows` terminfo entry binds:
+
+```
+Left       27 91 68      ESC [ D     kcub1=\E[D
+Right      27 91 67      ESC [ C     kcuf1=\E[C
+Up         27 91 65      ESC [ A     kcuu1=\E[A
+Down       27 91 66      ESC [ B     kcud1=\E[B
+Backspace  127           DEL         kbs=\177
+Delete     27 91 51 126  ESC [ 3 ~   kdch1=\E[3~
+```
+
+**Not one `ESC O` in it.** §5.18 argued from the protocol that the application
+cursor mode spelling could never arrive, because nothing in SD sends `smkx`.
+That was the last inferred link in the chain and it is now a direct reading.
+Backspace and Delete are distinct bytes, so the two keys do not collide.
+
+**Only cmd was read.** Acceptable rather than a gap: all three console hosts
+reach SD through the same `msys-2.0.dll` layer, and the 19 Aug backspace work
+already measured DEL from all three.
+
+**Correction to this file's own housekeeping: PROJECT_STATUS.md had TWO
+"WHAT TO DO NEXT" lists.** Replacing the header on the twenty-seventh session
+left the twenty-sixth's list in place further down, and its item 1 was
+"finish the post-cycle run on the 09:10:45 install" — work completed that same
+morning. A cold reader following the second list would have redone finished
+work against a superseded install. **The two are now one index in the header
+and one detail block below it, with matching numbers**, and the header says so.
+Worth watching for whenever a header is replaced wholesale rather than edited.
+
+---
+
 ## 19 Aug 2026 — probe-keys.ps1: the first instrument here that is not a pipe
 
 **Commit:** this one, over `a71d124`. No source change under `gplsrc` or

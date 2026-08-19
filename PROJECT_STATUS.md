@@ -65,47 +65,47 @@ buffers accumulated into the next; the full database with one bad entry
 **segfaulted at 24 files of 100**, printing nothing because stdout was block
 buffered to a file. It also always exited 0. Both fixed.
 
-**WHAT TO DO NEXT, IN THIS ORDER:**
+**THE CONSOLE READING IS IN AND EVERY KEY MATCHES — owner, cmd, 19 Aug 2026,
+`gplbld\probe-keys.ps1`.** This was the last inferred link in §5.18, and it is
+now a direct measurement rather than an argument from the protocol:
 
-1. **CONFIRM THE ARROWS AT A REAL CONSOLE — `gplbld\probe-keys.ps1`, and it
-   is built.** `verify-keys` 10/10 says the bindings resolve; only a person can
-   say the key press arrives. One console each — cmd, PowerShell, Windows
-   Terminal — and the item is closed.
+```
+Left       27 91 68      ESC [ D     kcub1=\E[D      match
+Right      27 91 67      ESC [ C     kcuf1=\E[C      match
+Up         27 91 65      ESC [ A     kcuu1=\E[A      match
+Down       27 91 66      ESC [ B     kcud1=\E[B      match
+Backspace  127           DEL         kbs=\177        match
+Delete     27 91 51 126  ESC [ 3 ~   kdch1=\E[3~     match
+```
 
-   ```powershell
-   gplbld\probe-keys.ps1        UNELEVATED, in a real console window
-   ```
+**NOT ONE `ESC O` IN IT.** The console is in normal cursor mode, which is what
+§5.18 said had to be true because nothing in SD sends `smkx`. Backspace and
+Delete are distinct bytes, so the `windows` type binds them to different keys
+with no collision.
 
-   It compiles `ZZKEYPROBE` into the caller's own `bp`, starts a plain `sd`,
-   and prints every byte a key sends — naming an arrow's spelling as it goes,
-   `ESC [ D` or `ESC O D`, which is the whole of what §5.18 turns on. Then it
-   removes the program again (`-Keep` leaves it).
+**Only cmd was read**, and that is acceptable rather than a gap: all three
+console hosts reach SD through the same `msys-2.0.dll` layer, and the 19 Aug
+backspace work already measured DEL from all three. Reading the other two is
+one command if it is ever doubted.
 
-   **It refuses if standard input is redirected**, because piping into it would
-   measure the pipe and answer the wrong question confidently — which is the
-   failure it exists to prevent. **Nothing captures its output**: SD writes to
-   the console directly, so the reading has to be copied out of the window.
+**WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
+carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
-   **`sd <command>` is elevation-gated** (`sd.c:734`, changelog 15 Aug 26), so
-   the probe cannot run itself — the operator types `RUN BP ZZKEYPROBE`.
-   Elevating to avoid that would change the session under test.
+1. **THE REST OF THE F/Q FILE-POINTER IDS — §5.12 (b).** `VOC`, `NEWVOC`,
+   `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`,
+   `SD.ACCOUNTS`, `OS.USERS`, `$COMMAND.STACK`.
 
-2. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** Unchanged by this
-   session; see the entry further down. `VOC`, `NEWVOC`, `ACCOUNTS`, `MESSAGES`,
-   `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`, `SD.ACCOUNTS`, `OS.USERS`,
-   `$COMMAND.STACK`.
+2. **BACKSPACE IN THE FULL-SCREEN EDITORS — §5.17's second half.** `ED` and the
+   `UPDATE.RECORD` screens carry their own key tables, so neither the
+   `_KEYCODE` binds nor the terminal-type change reaches them. **The work is a
+   test that drives a full-screen editor**, and nothing here does that yet —
+   `probe-keys.ps1` is the nearest thing and it only reads keys.
 
-3. **BACKSPACE IN THE FULL-SCREEN EDITORS — §5.17's second half.** `ED` and the
-   `UPDATE.RECORD` screens carry their own key tables (`UPDREC:2396`/`:2416`,
-   `SED:4497`), so neither the `_KEYCODE` binds nor the terminal-type change
-   reaches them. **It needs the same human instrument as item 1** — do them
-   together.
+3. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4) — the C half of §7 step 7.
 
-4. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4) — the C half of §7 step 7.
+4. **§8's PER-ACCOUNT ACLs**, blocked on the administrator decision.
 
-5. **§8's PER-ACCOUNT ACLs**, still blocked on the administrator decision below.
-
-6. **`RDPUSER`** — blocked on item 5.
+5. **`RDPUSER`** — blocked on item 4.
 
 **THE CULL WAS NOT DONE AND WAS NOT ASKED FOR.** The owner said they "wouldn't
 mind getting rid of all the terminal types", then ruled: copy `linux`, name it
@@ -312,7 +312,7 @@ anything under `sdsys`.
 
 **THE OWNER ASKED FOR THE TCL COMMANDS IN LOWER CASE TOO, 18 Aug 2026. THE
 AUDIT IS DONE AND THE SCAFFOLDING IS IN; THE RENAME ITSELF IS NOT.** §5.12 (b),
-next step 2. What the audit found, so nobody repeats it:
+next step 1. What the audit found, so nobody repeats it:
 
 * **Dispatch was never the risk.** `PARSER:160` and `PARSER:270` both fold as
   typed → lower → upper, so typing a verb in any case already works.
@@ -374,23 +374,12 @@ belong with the on-disk file-name work in next step 1. Also owed: the contents
 of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
 `verify-tiers.ps1`'s name lists, and `docs/TCL_VERBS.md`.
 
-**WHAT TO DO NEXT, IN THIS ORDER:**
+**THE NEXT STEPS IN DETAIL.** The header's list is the index; these are the
+same five items with their sub-points. **Numbers match.** Two items that used to
+head this list are done and gone: the post-cycle run on the 09:10:45 install,
+and the left arrow — §5.18 and the header have those.
 
-1. **FINISH THE POST-CYCLE RUN ON THE 09:10:45 INSTALL.** `verify-keys` 6/6 and
-   `verify-lcnames` 121/121 already passed; `verify-credacl`, `-nocase`,
-   `-osusers`, `make check-local` and `post-cycle-elevated.ps1` were not
-   reached. Commands and fresh names are in the header. **Nothing is known to
-   be wrong** - this is an unfinished measurement, not a suspected fault.
-
-1a. **THEN SETTLE THE LEFT ARROW - §8, "OPEN, PARTLY MEASURED".** The owner
-   reported it right after the backspace fix. **The `_KEYCODE` change is
-   exonerated by measurement** (`ESC O D` still resolves to `K$LEFT` on the
-   installed tree); what is unknown is what the Windows console actually sends
-   for Left, and whether SD emits `smkx` to put it in application cursor mode.
-   The raw-byte probe is one command and answers both. Do not "fix" it before
-   measuring - the last two rounds of this were both settled by one probe.
-
-2. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** `bp`, `bp.out`,
+1. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** `bp`, `bp.out`,
    `gpl.bp` and `gpl.bp.out` went on 19 Aug; what is left is `VOC`, `NEWVOC`,
    `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`,
    `SD.ACCOUNTS`, `OS.USERS`, and `$COMMAND.STACK`. **`gpl.bp` is the worked
@@ -409,7 +398,7 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
    c. **Account names are still out of scope** and are the part of 5.12 that
       cannot move until comparison stops depending on the upcasing.
 
-3. **BACKSPACE IN THE FULL-SCREEN EDITORS — §5.17's second half.** `ED` and the
+2. **BACKSPACE IN THE FULL-SCREEN EDITORS — §5.17's second half.** `ED` and the
    `UPDATE.RECORD` screens read raw bytes (`UPDREC:2171`) and carry their own
    key tables, so the `_KEYCODE` fix does not reach them: on a DEL terminal,
    which is every Windows console, backspace still deletes **forwards**. The
@@ -417,11 +406,11 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
    but it needs a test that drives a full-screen editor, and nothing here does
    that yet. **That test is the work**, not the two bindings.
 
-4. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4), so a PROGRAMMER with
+3. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4), so a PROGRAMMER with
    `BASIC` reaches the OS from a program whatever `OS.USERS` says. That is
    the C half of §7 step 7 and it is a real hole, not tidying.
 
-5. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
+4. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
    by this session, and still blocked on the decision below. Every account
    directory still inherits `sdusers:(OI)(CI)(M)`, so any SD user can read and
    rewrite any other account's files outside SD.
@@ -439,7 +428,7 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
    enter another account once its directory is locked, which §5.6 says must
    always work. **Decide that before building.** `gplbld/secure-accounts.ps1`
    remains unwired.
-6. **`RDPUSER`** — decided in shape by the owner, **blocked on item 5**. §8 has
+5. **`RDPUSER`** — decided in shape by the owner, **blocked on item 4**. §8 has
    the syntax and the one open question: where "may RDP" is recorded, given the
    tier lives in `ACCOUNTS` field 5 and RDP-ness would live in the *absence* of
    a Windows group.
