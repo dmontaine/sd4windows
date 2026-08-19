@@ -7,7 +7,7 @@ something came to be the way it is.
 
 **Last updated:** 19 Aug 2026, end of the twenty-seventh session.
 
-**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **14:54:36**
+**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **15:16:15**
 install (19 Aug), `sd.exe` **`FA5B47C0F6CF32D6`**, terminfo **100**. Confirm
 before believing it: `gplbld\assert-current.ps1`, unelevated.
 
@@ -87,6 +87,38 @@ owner's PowerShell run, and **confirmed fixed in a live console**: the same
 17-byte reading now completes with no pager at all. 40 arrow presses list 120
 bytes uninterrupted on an 80x24 terminal.
 
+**THE TEN F/Q FILE-POINTER VOC IDS ARE LOWER CASE — §5.12 (b),
+`verify-lcnames.ps1` **135/135** on the 15:16:15 install.** `voc`, `newvoc`,
+`accounts`, `messages`, `syscom`, `qfile`, `dict.dict`, `md`, `sd.accounts`,
+`os.users`. Typing the OLD upper-case name is answered in the new spelling,
+which is the rename demonstrated rather than inferred.
+
+**`$COMMAND.STACK` DID NOT MOVE AND IS NOT AN F/Q POINTER.** It is an **X-type**
+record — `CREATEA:752` writes `'X'` to it — and it was on that list only because
+§5.12 (b) tracked it as the last upper-case control. **It needs different work**:
+`CPROC:3611`, `CPROC:3623` and `LOGIN:489` read and release it by **exact
+record read with no fold**, so moving it means folding two hot-path reads and
+bringing a replacement control for `verify-lcnames.ps1` §3. Its own step.
+
+**THREE LITERALS DELIBERATELY STAY UPPER CASE.** `DELETEF:48`'s
+`banned.files = 'VOC':@VM:'$ACC'` — the guard is `locate upcase(file.name) in
+banned.files`, which upcases only the LEFT side, so lowering the list would let
+`DELETE.FILE voc` walk past it and take the account's VOC. Annotated in place.
+`SETFILE:130`/`:150` keep `'QFILE'` because the code already tries the exact id
+then `downcase()`, which covers a pre-rename account and a renamed one at once —
+lowering the default would break the older half.
+
+**AND THREE `"VOC"` LITERALS ARE THE `@VOC` SYSTEM VARIABLE, NOT THE FILE.**
+`BCOMP:294`, `ICOMP:201` and `bbcmp.py:1814` sit in the `@`-variable name table
+between `USER4` and `WHO`. Renaming those would rename the BASIC variable.
+
+**THE TEN SPLIT ACROSS TWO VOCs, AND THE FIRST VERIFIER RUN FAILED FOUR CHECKS
+BECAUSE OF IT.** An account's VOC is built from `newvoc`; `voc_template` becomes
+SDSYS's own. `ACCOUNTS`, `MESSAGES`, `QFILE` and `OS.USERS` are in
+`voc_template` **only**, so in DON's account "Record not found" is the correct
+answer and says nothing about the rename. The verifier now asks each id where it
+actually lives, and asserts the absence as well.
+
 **THE EDITOR KEYS ARE FIXED AND MEASURED — §5.19, `verify-editkeys.ps1`
 **14/14** on the 14:54:36 install.** `SED` and `UPDREC` bound `char(127)` to
 Delete, so Backspace deleted forwards inside every full-screen edit; and
@@ -115,9 +147,11 @@ list it.
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
-1. **THE REST OF THE F/Q FILE-POINTER IDS — §5.12 (b).** `VOC`, `NEWVOC`,
-   `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`,
-   `SD.ACCOUNTS`, `OS.USERS`, `$COMMAND.STACK`.
+1. **`$COMMAND.STACK`, THE LAST UPPER-CASE VOC ID — §5.12 (b).** Not an F/Q
+   pointer; it is X-type, and `CPROC:3611`/`:3623` and `LOGIN:489` reach it by
+   **exact record read with no fold**. Moving it means folding those, and
+   bringing `verify-lcnames.ps1` §3 a replacement control — a record the test
+   makes itself rather than a shipped id.
 
 2. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4) — the C half of §7 step 7.
 
@@ -397,24 +431,24 @@ same four items with their sub-points. **Numbers match.** Three items that used 
 head this list are done and gone: the post-cycle run on the 09:10:45 install,
 the left arrow (§5.18), and backspace in the full-screen editors (§5.19).
 
-1. **THE REST OF THE F/Q FILE-POINTER IDS — 5.12 (b).** `bp`, `bp.out`,
-   `gpl.bp` and `gpl.bp.out` went on 19 Aug; what is left is `VOC`, `NEWVOC`,
-   `ACCOUNTS`, `MESSAGES`, `SYSCOM`, `QFILE`, `DICT.DICT`, `MD`,
-   `SD.ACCOUNTS`, `OS.USERS`, and `$COMMAND.STACK`. **`gpl.bp` is the worked
-   example** and it is the one with a second reader: `$include gpl.bp x`,
-   `BASIC gpl.bp *` in `second.compile`, `first.compile`, and
-   `bootstrap.py`'s `RUN`/`BASIC gpl.bp`. All resolve through the fold, so
-   each id can move on its own.
+1. **`$COMMAND.STACK`, THE LAST UPPER-CASE VOC ID — 5.12 (b).** The ten F/Q
+   file pointers went on 19 Aug (`verify-lcnames.ps1` 135/135); this is what is
+   left, and it is a different job.
 
-   a. **`VOC` IS THE AWKWARD ONE.** `DELETEF:48` bans it by name
-      (`banned.files = 'VOC':@VM:'$ACC'`, both sides `upcase()`d already),
-      `CNAME:94`, `CREATEF:67`, `SHOW:52` and `SED:5460` name it as a
-      literal, and `CPROC:3686` reads `$VOC.PARSER` from it.
-   b. **`$COMMAND.STACK` TAKES THE LAST CONTROL WITH IT.** Bring a
-      replacement — a record the verifier creates — or §3 stops being able
-      to distinguish a rename from a sweep.
-   c. **Account names are still out of scope** and are the part of 5.12 that
-      cannot move until comparison stops depending on the upcasing.
+   a. **It is X-type, not F or Q.** `CREATEA:752` writes `'X'` to it and the
+      readers test `voc.rec[1,1] = "X"`. It was grouped with the pointers only
+      because it was the last upper-case id.
+   b. **Its readers do not fold.** `CPROC:3611` `readu voc.rec from
+      voc,"$COMMAND.STACK"`, the matching `release` at `:3623`, and
+      `LOGIN:489`. These are RECORD reads from an open file, not VOC-id
+      resolution, so `_VOC_REF` never sees them - a record read has no fold at
+      all. Both are hot paths: login, and every return to the prompt.
+   c. **It has to work for a pre-rename account too**, so the shape is try the
+      new id, else the old, and `release` whichever matched.
+   d. **It takes `verify-lcnames.ps1` §3's last control with it.** That section
+      tells a rename from a sweep by asserting an id that has NOT moved is
+      still answered in upper case. Bring a replacement first - a record the
+      test creates - or the section quietly stops proving anything.
 
 2. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4), so a PROGRAMMER with
    `BASIC` reaches the OS from a program whatever `OS.USERS` says. That is

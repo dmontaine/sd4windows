@@ -27,6 +27,60 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — The ten F/Q file-pointer VOC ids are lower case
+
+**Commit:** this one, over `0d85619`. **Install:** **15:16:15**.
+`verify-lcnames.ps1` **135/135**, and the whole suite with it.
+
+`VOC NEWVOC ACCOUNTS MESSAGES SYSCOM QFILE DICT.DICT MD SD.ACCOUNTS OS.USERS`
+became `voc newvoc accounts messages syscom qfile dict.dict md sd.accounts
+os.users` in both `newvoc` and `voc_template`, plus the two Q-pointer field 3s
+(`md` -> `voc`, `sd.accounts` -> `accounts`), 24 literals across 21 BASIC
+programs, `third.compile`'s three `CD` targets, and message 2022.
+
+**Three literals deliberately stay upper case, and each would be a defect to
+"fix".** `DELETEF:48`'s `banned.files` is compared with
+`locate upcase(file.name) in banned.files` - only the LEFT side is upcased, so
+lowering the list lets `DELETE.FILE voc` past the guard and delete the account's
+VOC. `SETFILE:130`/`:150` keep `'QFILE'`: the code already tries the exact id
+then `downcase()`, covering a pre-rename account and a renamed one at once, and
+lowering the default would break the older half. Annotated in place.
+
+**Three `"VOC"` literals are the `@VOC` system variable**, not the file -
+`BCOMP:294`, `ICOMP:201`, `bbcmp.py:1814`, in the `@`-variable name table
+between `USER4` and `WHO`.
+
+**One comparison did have to move**: `LOGIN:647` `if id = 'MD'` - `id` comes
+from a READNEXT over the update VOC, whose record is now `md`, so every account
+being updated would have been asked about a type change it should never see.
+`upcase(id)` now.
+
+**THE FIRST VERIFIER RUN FAILED FOUR CHECKS AND THE TEST WAS WRONG, NOT THE
+RENAME.** An account's VOC is built from `newvoc`; `voc_template` becomes
+SDSYS's own. `ACCOUNTS`, `MESSAGES`, `QFILE` and `OS.USERS` are in
+`voc_template` **only**, so in DON's account "Record not found" is the correct
+answer. All four were correct in SDSYS all along. The verifier now asks each id
+where it lives and asserts the absence as well.
+
+**`$COMMAND.STACK` DID NOT MOVE, and it is not an F/Q pointer.** X-type
+(`CREATEA:752` writes `'X'`), grouped with the pointers only because it was the
+last upper-case id. Its readers - `CPROC:3611`, `:3623`, `LOGIN:489` - do exact
+RECORD reads with no fold, on the login and prompt paths, and moving it takes
+`verify-lcnames` §3's last control with it. Its own step, and next.
+
+**Suite on the 15:16:15 install:** `verify-lcnames` 135/135, `verify-keys`
+10/10, `verify-editkeys` 14/14, credacl/nocase/osusers exit 0,
+`make check-local` PASS, `post-cycle-elevated -TierPrefix sdtierl -Account
+sdacct19` all exit 0 with `verify-tiers` 22/22 still at 393/411/421 - the tiers
+and `CREATE.ACCOUNT` are unaffected by the renamed `newvoc`. Next free names
+`sdacct20`, `sdtierm`.
+
+**`cycle.ps1 -SkipInstall` earned its keep**: the bootstrap compiled all of it
+clean before an install was spent, which is what PROJECT_STATUS 5.12 recommends
+for a BASIC change of this size.
+
+---
+
 ## 19 Aug 2026 — The editor keys measured: 14/14, and the whole suite with them
 
 **Commit:** this one, over `1f92080`. **Install:** **14:54:36**, `sd.exe`
