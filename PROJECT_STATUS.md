@@ -7,7 +7,7 @@ something came to be the way it is.
 
 **Last updated:** 19 Aug 2026, end of the twenty-seventh session.
 
-**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **15:16:15**
+**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **15:30:36**
 install (19 Aug), `sd.exe` **`FA5B47C0F6CF32D6`**, terminfo **100**. Confirm
 before believing it: `gplbld\assert-current.ps1`, unelevated.
 
@@ -93,12 +93,26 @@ bytes uninterrupted on an 80x24 terminal.
 `os.users`. Typing the OLD upper-case name is answered in the new spelling,
 which is the rename demonstrated rather than inferred.
 
-**`$COMMAND.STACK` DID NOT MOVE AND IS NOT AN F/Q POINTER.** It is an **X-type**
-record — `CREATEA:752` writes `'X'` to it — and it was on that list only because
-§5.12 (b) tracked it as the last upper-case control. **It needs different work**:
-`CPROC:3611`, `CPROC:3623` and `LOGIN:489` read and release it by **exact
-record read with no fold**, so moving it means folding two hot-path reads and
-bringing a replacement control for `verify-lcnames.ps1` §3. Its own step.
+**AND `$COMMAND.STACK` WENT TOO — `verify-lcnames.ps1` **142/142** on the
+15:30:36 install.** It is X-type rather than an F/Q pointer, and its readers do
+**exact record reads with no fold** — `_VOC_REF` folds a FILE name, never a
+record id — so `CPROC` and `LOGIN` now try `$command.stack` and then
+`$COMMAND.STACK`. `CPROC` keeps whichever matched in `cs.id` **because the
+`release` has to name the record the `readu` locked**; releasing the other
+spelling would hold the lock for the life of the session.
+
+**THE INSTRUMENT IS THE `stacks` FILE, NOT THE VOC** (§5b). `CPROC` writes it
+only when it found the record and the record is X-type, so the file appearing is
+the read having succeeded. Measured both ways: the shipped lower-case id, and
+the id toggled back to `$COMMAND.STACK` to stand for an account made before the
+rename. Both save the stack, which is what the changelog promises.
+
+**§3's CONTROL IS NO LONGER A SHIPPED ID.** `$HOLD` was the control until
+18 Aug, `BP` until 19 Aug and `$COMMAND.STACK` until later that day — each
+rename ate the one before it. It is now **a record the test writes itself** in
+upper case and reads back in upper case, which no future rename can consume.
+Without a control, every assertion in §3 would pass just as well if the whole
+VOC had been lower-cased by accident.
 
 **THREE LITERALS DELIBERATELY STAY UPPER CASE.** `DELETEF:48`'s
 `banned.files = 'VOC':@VM:'$ACC'` — the guard is `locate upcase(file.name) in
@@ -147,17 +161,16 @@ list it.
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
-1. **`$COMMAND.STACK`, THE LAST UPPER-CASE VOC ID — §5.12 (b).** Not an F/Q
-   pointer; it is X-type, and `CPROC:3611`/`:3623` and `LOGIN:489` reach it by
-   **exact record read with no fold**. Moving it means folding those, and
-   bringing `verify-lcnames.ps1` §3 a replacement control — a record the test
-   makes itself rather than a shipped id.
+1. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4) — the C half of §7 step 7.
 
-2. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4) — the C half of §7 step 7.
+2. **§8's PER-ACCOUNT ACLs**, blocked on the administrator decision.
 
-3. **§8's PER-ACCOUNT ACLs**, blocked on the administrator decision.
+3. **`RDPUSER`** — blocked on item 2.
 
-4. **`RDPUSER`** — blocked on item 3.
+**§5.12's REMAINING SCOPE, now that every file-pointer id has moved:** the 387
+`NEWVOC` / 400 `VOC_TEMPLATE` **verb and keyword** ids, `SD.VOCLIB`'s 11, the
+`$`/`%`/`@` records, and **account names** — the last of which cannot move until
+comparison stops depending on the upcasing. §5.12 (b) has the audit.
 
 **THE CULL WAS NOT DONE AND WAS NOT ASKED FOR.** The owner said they "wouldn't
 mind getting rid of all the terminal types", then ruled: copy `linux`, name it
@@ -427,34 +440,16 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
 `verify-tiers.ps1`'s name lists, and `docs/TCL_VERBS.md`.
 
 **THE NEXT STEPS IN DETAIL.** The header's list is the index; these are the
-same four items with their sub-points. **Numbers match.** Three items that used to
-head this list are done and gone: the post-cycle run on the 09:10:45 install,
-the left arrow (§5.18), and backspace in the full-screen editors (§5.19).
+same three items with their sub-points. **Numbers match.** Everything that used to head this
+list is done: the post-cycle run on the 09:10:45 install, the left arrow
+(§5.18), backspace in the full-screen editors (§5.19), and the whole of the
+file-pointer rename including `$COMMAND.STACK` (§5.12 b).
 
-1. **`$COMMAND.STACK`, THE LAST UPPER-CASE VOC ID — 5.12 (b).** The ten F/Q
-   file pointers went on 19 Aug (`verify-lcnames.ps1` 135/135); this is what is
-   left, and it is a different job.
-
-   a. **It is X-type, not F or Q.** `CREATEA:752` writes `'X'` to it and the
-      readers test `voc.rec[1,1] = "X"`. It was grouped with the pointers only
-      because it was the last upper-case id.
-   b. **Its readers do not fold.** `CPROC:3611` `readu voc.rec from
-      voc,"$COMMAND.STACK"`, the matching `release` at `:3623`, and
-      `LOGIN:489`. These are RECORD reads from an open file, not VOC-id
-      resolution, so `_VOC_REF` never sees them - a record read has no fold at
-      all. Both are hot paths: login, and every return to the prompt.
-   c. **It has to work for a pre-rename account too**, so the shape is try the
-      new id, else the old, and `release` whichever matched.
-   d. **It takes `verify-lcnames.ps1` §3's last control with it.** That section
-      tells a rename from a sweep by asserting an id that has NOT moved is
-      still answered in upper case. Bring a replacement first - a record the
-      test creates - or the section quietly stops proving anything.
-
-2. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4), so a PROGRAMMER with
+1. **`OS.EXECUTE` IS UNGATED FOR EVERYBODY** (§4), so a PROGRAMMER with
    `BASIC` reaches the OS from a program whatever `OS.USERS` says. That is
    the C half of §7 step 7 and it is a real hole, not tidying.
 
-3. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
+2. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
    by this session, and still blocked on the decision below. Every account
    directory still inherits `sdusers:(OI)(CI)(M)`, so any SD user can read and
    rewrite any other account's files outside SD.
@@ -472,10 +467,22 @@ the left arrow (§5.18), and backspace in the full-screen editors (§5.19).
    enter another account once its directory is locked, which §5.6 says must
    always work. **Decide that before building.** `gplbld/secure-accounts.ps1`
    remains unwired.
-4. **`RDPUSER`** — decided in shape by the owner, **blocked on item 3**. §8 has
+3. **`RDPUSER`** — decided in shape by the owner, **blocked on item 2**. §8 has
    the syntax and the one open question: where "may RDP" is recorded, given the
    tier lives in `ACCOUNTS` field 5 and RDP-ness would live in the *absence* of
    a Windows group.
+
+**ONE VERIFIER CHECK FAILED ONCE AND HAS NOT DONE SO AGAIN — WATCH FOR IT.**
+`verify-lcnames.ps1` §6, "CT VOC COPYP shows a bare V type code", failed on the
+FIRST run against the 15:30:36 install and passed on the next three, and the
+record itself is correct (`CT VOC COPYP` answers `1: V` by hand). **The cause
+was not established.** What is worth knowing is that a mechanism with exactly
+this shape exists: `LOGIN:444` compares the VOC's `$RELEASE` field 2 against
+`SD.REV.STAMP` and, if they differ, **prompts in a loop** — `input s`, exiting
+only on Y or N. **A piped session answers that prompt with its next command**,
+so one stray prompt swallows a verb and the check that depended on it reports a
+plain False with nothing in the output to say why. It would hit any piped
+verifier. If a lone unexplained failure turns up after a cycle, look there first.
 
 **SHOULD `cycle.ps1` RUN `make`? NOT DECIDED.** A2 makes the omission loud,
 which is the cheap half. Building inside an elevated cycle would leave objects

@@ -27,6 +27,53 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — $COMMAND.STACK moves, and section 3 gets a control it owns
+
+**Commit:** this one, over `0394af4`. **Install:** **15:30:36**.
+`verify-lcnames.ps1` **142/142**.
+
+`$COMMAND.STACK` was the last upper-case VOC id and the only one left after the
+ten file pointers. **It is X-type, not an F/Q pointer**, and it needed different
+work: `CPROC` and `LOGIN` reach it by **RECORD read**, and a record read matches
+the id exactly - `_VOC_REF` folds a FILE name, never a record id - so both
+spellings are tried by hand. `CREATEA` writes the lower-case one.
+
+**`CPROC` keeps whichever spelling matched in `cs.id`**, because the `release`
+has to name the record the `readu` locked. Releasing the other spelling would
+leave the lock held for the life of the session - a quiet, permanent fault, and
+the reason that line is not simply the literal it used to be.
+
+**THE INSTRUMENT IS THE `stacks` FILE, NOT THE VOC.** `CPROC` writes it only
+when it found the record AND the record is X-type, so the file appearing is the
+read having succeeded. Section 5b measures both readings: the shipped
+lower-case id, and the id toggled back to `$COMMAND.STACK` to stand for an
+account created before the rename. **Both save the stack**, which is exactly
+what the changelog promises and is the half that would otherwise be assumed.
+
+**SECTION 3'S CONTROL IS NO LONGER A SHIPPED ID.** `$HOLD` held that job until
+18 Aug, `BP` until 19 Aug, `$COMMAND.STACK` until later the same day - each
+rename ate the control before it, which is a pattern rather than bad luck. It is
+now a record the test writes itself in upper case and reads back in upper case,
+and no future rename can consume it. Without a control every assertion in that
+section would pass equally well on a VOC that had been lower-cased by accident.
+
+**One check failed once and has not since, and the cause was not established.**
+§6's "CT VOC COPYP shows a bare V type code" failed on the first run against
+this install and passed on the next three; the record is correct by hand. A
+mechanism with that exact shape exists and is worth knowing about:
+`LOGIN:444` compares the VOC's `$RELEASE` against `SD.REV.STAMP` and prompts in
+a loop that only Y or N escapes, so **a piped session answers it with its next
+command** - one stray prompt swallows a verb and the dependent check reports a
+bare False. It would hit any piped verifier here. Recorded in the header rather
+than closed.
+
+**Suite on the same install:** `verify-keys` 10/10, `verify-editkeys` 14/14,
+credacl/nocase/osusers exit 0, `make check-local` PASS,
+`post-cycle-elevated -TierPrefix sdtierm -Account sdacct20` all exit 0.
+Next free names `sdacct21`, `sdtiern`.
+
+---
+
 ## 19 Aug 2026 — The ten F/Q file-pointer VOC ids are lower case
 
 **Commit:** this one, over `0d85619`. **Install:** **15:16:15**.
