@@ -5,63 +5,68 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 18 Aug 2026, end of the twenty-third session.
+**Last updated:** 18 Aug 2026, end of the twenty-fourth session.
 
 **THE INSTALL IS CURRENT AND NO CYCLE IS OWED** — `assert-current` exit 0
-against the **19:46:12** install, `sd.exe` **`A6AAAB58AAB676F4`**. Confirm it
-before believing it — one unelevated command, `gplbldssert-current.ps1`.
+against the **20:34:25** install, `sd.exe` **`A6AAAB58AAB676F4`**. Confirm it
+before believing it — one unelevated command, `gplbld\assert-current.ps1`.
 
-**THIS SESSION CLOSED §5.12 (a) FOR THE PER-ACCOUNT FILES, EXTENDED THE FOLD TO
-THE LOOKUP IT HAD MISSED, AND FOUND THAT `assert-current` COULD PASS A C CHANGE
-THAT WAS NEVER COMPILED.**
+**THIS SESSION MADE THE FIRST VOC-ID RENAME, §5.12 (b).**
 
 | Subject | Verifier | Install |
 |---|---|---|
-| Per-account names lower case on disk, + `COPYP` | `verify-lcnames.ps1` 26/26 | 19:46:12 |
-| The fold reaches the BASIC `OPEN` statement | `verify-fold.ps1` 10/10 | 19:46:12 |
+| VOC id `$SAVEDLISTS` → `$savedlists`, old accounts unaffected | `verify-lcnames.ps1` 36/36 | 20:34:25 |
 
-**THE FOLD DID NOT REACH `open` AND NOTHING WOULD HAVE SAID SO.** The 74 sites
-fold by trying a name in three cases and handing each one to `_VOC_REF`, which
-matched EXACTLY and was not among the 36 files the fold commit changed. So every
-verb passed while every hard-coded `open "$SAVEDLISTS"` in `GPL.BP` — 13 of
-them — would have broken at the first VOC-id rename. Measured on the 18:54:10
-install before the change: a file whose VOC id is `zzprobe1` could not be opened
-as `ZZPROBE1` from BASIC, while `COUNT ZZPROBE1` found it. Fixed at
-`_VOC_REF:102` and at the Q-pointer target `:272`, a flag and a `goto` rather
-than a nested block so the `PATH:` syntax below keeps its shape. §5.12.
+**`$SAVEDLISTS` IS NOW `$savedlists`, AND THE 13 HARD-CODED LITERALS MOVED WITH
+IT** — the ones last session's `_VOC_REF` fold was built for. With them:
+`MESSAGES` 3248/3249/3250/6462, `EDIT.LIST` in `NEWVOC` and `VOC_TEMPLATE`, and
+`CREATEA:759`. Every non-comment line of the `GPL.BP` diff is a literal swap,
+checked mechanically rather than read. **`$HOLD`, `BP` and `$COMMAND.STACK` are
+deliberately untouched and are the controls** — a sweep would fail
+`verify-lcnames.ps1` §3 rather than pass it. §5.12.
 
-**THE TRAP THAT COST THIS SESSION A WHOLE CYCLE, AND IT IS NOT SD:
-`cycle.ps1` CONTAINS NO `make`.** It stages whatever is already in `bin\`. A
-`to_file.c` edit at 19:15 was cycled at 19:38 against a binary built at 17:17,
-and **both existing `assert-current` checks passed** — A compared installed
-`sd.exe` against `bin/sd.exe` and they matched *because both were stale*, and B
-compares source mtimes against the INSTALL time, where 19:15 is older than
-19:39. **And the test for the change passed too**, because the change was
-`$HOLD` to `$hold` in a relative path and NTFS matches either. `assert-current`
-check **A2** now refuses any file under `gplsrc` newer than the oldest binary in
-`bin\`, naming it. §6.
+**NO MIGRATION, AND IT IS MEASURED RATHER THAN ARGUED.** An account created
+before this holds `$SAVEDLISTS`; the code opens the literal `$savedlists`;
+`_VOC_REF` folds UP as well as down, so it resolves. `verify-lcnames.ps1` §5
+renames the id back with a BASIC toggle, drives `SAVE.LIST`/`GET.LIST` through
+it, and restores it. A failure part-way leaves the account on `$SAVEDLISTS`,
+which is the state the section says works.
 
-**THE "FIVE MALFORMED VOC_TEMPLATE ENTRIES" WERE NEVER BROKEN, AND THE CLAIM IS
-WITHDRAWN — measured, not re-read.** `CPROC:1410` says a type code MAY carry
-comment text with no intervening space (the PI / PI-open / UniVerse rule) and
-`CPROC:1433` tests `voc.entry.type[1,1]`, so `Verb to unlock records` is a `V`
-with a comment. `verify-lcnames.ps1` section 6 builds such a record from scratch
-and dispatches it. **So `UNLOCK` was not repaired last session**, `COPYP` was not
-repaired this one, and the `changelog` entry that told users otherwise now
-carries a correction. Both records are still bare `V`, because the
-inconsistency is what produced the wrong reading. §8. **No `UPSTREAM_FIXES.md`
-entry** — one was written and withdrawn.
+**"NOT FOUND" CANNOT TEST A VOC-ID RENAME, AND TWO CHECKS WRITTEN THAT WAY
+FAILED.** `CT` folds the **record id** too — `CT:202`, one of the 74 sites — so
+`CT VOC $SAVEDLISTS` still finds the record. **`CT:215` prints the id it
+MATCHED, not the one typed**, and that echo is the instrument: typing
+`$SAVEDLISTS` and being answered `VOC $savedlists` IS the rename, demonstrated.
+The control is the same query against `$HOLD`, which must still answer
+`VOC $HOLD`. Also measured: `COUNT $SAVEDLISTS` and
+`COPY.LIST x,y FROM $SAVEDLISTS` both still work, so nothing a user types has
+to change.
+
+**TWO THINGS COST THIS SESSION A CYCLE EACH, both harness rather than SD:**
+
+1. **A VERIFY SCRIPT IS EXEMPT FROM `assert-current`; `sdsys/changelog` IS
+   NOT.** `verify-lcnames.ps1` is in `$neverShipped`, the changelog ships, so
+   correcting both in one go voided the install being measured. **Order the
+   exempt fixes first, re-measure, then touch anything under `sdsys`.**
+2. **`cycle.ps1 -Silent` IS NOT UNATTENDED, and `-Silent` is not what makes it
+   so.** `sd.iss` uses plain `MsgBox` at all six sites and Inno suppresses only
+   `SuppressibleMsgBox`, so `/VERYSILENT` skips the wizard and still blocks on
+   every prompt. Worse, `sd.iss:1338` then says "the two ssh options are absent
+   from this page" about a page silent mode never showed. **Not fixed** —
+   `SuppressibleMsgBox` with a default answer is the change.
 
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
-1. **THE VOC-ID RENAMES — §5.12 (b), and the `_VOC_REF` fold is what unblocks
-   it.** (a) is done for the per-account files; the ids are untouched. A
-   hard-coded `open "$SAVEDLISTS"` now folds, so an id can move on its own.
-   `$SAVEDLISTS` is the obvious first — self-contained, and its verbs
-   (`SAVE.LIST`, `GET.LIST`) already have coverage in `verify-lcnames.ps1` §4.
-   The shipped system files (`VOC`, `BP`, `NEWVOC`, `GPL.BP`, the `$` files) are
-   the wide half and still need `stage.py`, `sd.iss` and four verify scripts to
-   move with them.
+1. **THE NEXT VOC-ID RENAMES — §5.12 (b), with `$savedlists` as the worked
+   example.** What one costs, in full: the hard-coded literals, the `MESSAGES`
+   records, both `EDIT.LIST` records, `CREATEA`, a `START-HISTORY` line per
+   file, a changelog entry, and a verifier section for the pre-rename account.
+   **`$HOLD` is the obvious next and is wider than `$savedlists` was** —
+   `to_file.c` builds `$HOLD` paths in C, and `SETPTR`, the spooler and
+   `CLEANAC` all name it. `$COMMAND.STACK` and `BP` after that. The shipped
+   system files (`VOC`, `BP`, `NEWVOC`, `GPL.BP`, the `$` files) are still the
+   wide half and need `stage.py`, `sd.iss` and four verify scripts to move with
+   them.
 2. **§8's PER-ACCOUNT ACLs — "the B work". THE `gcat` HALF IS DONE.** Unchanged
    by this session, and still blocked on the decision below. Every account
    directory still inherits `sdusers:(OI)(CI)(M)`, so any SD user can read and
@@ -3926,6 +3931,39 @@ statement. The Q-pointer target at `:272` takes the PLAIN shape.
 above. `verify-fold.ps1` section 4 writes a probe into `BP` — a directory file,
 so a record is a file on disk — compiles it and reads five printed answers.
 
+**(b) HAS STARTED, AND `$SAVEDLISTS` IS THE WORKED EXAMPLE — 18 Aug 2026**,
+`verify-lcnames.ps1` 36/36 on the 20:34:25 install. The VOC id is now
+`$savedlists`. **What one rename costs, in full**: the hard-coded literals (13
+`open` sites plus the `recordlocku`/`write` pairs and COPYLST's name
+comparisons), `MESSAGES` 3248/3249/3250/6462, `EDIT.LIST` in both `NEWVOC` and
+`VOC_TEMPLATE`, `CREATEA:759`, a `START-HISTORY` line per file, a changelog
+entry, and a verifier section for the pre-rename account. The name on disk
+(`$svlists`) did NOT move and did not need to — (a) and (b) are independent.
+
+**NO MIGRATION, MEASURED.** An account created before the rename holds
+`$SAVEDLISTS`; the code opens the literal `$savedlists`; `_VOC_REF` folds UP as
+well as down. `verify-lcnames.ps1` §5 renames the id back with a BASIC toggle
+(`ZZSVTOGL` into `bp`), drives `SAVE.LIST`/`GET.LIST` through it, and restores
+it — a failure part-way leaves the account in the state the section asserts
+works, so the failure mode is benign.
+
+**AND "NOT FOUND" IS THE WRONG INSTRUMENT FOR A VOC-ID RENAME.** Two checks
+written that way failed on the 20:21:53 install. **`CT` folds the RECORD id as
+well as the file name** — `CT:202`, one of the 74 sites — so
+`CT VOC $SAVEDLISTS` still finds the record. **`CT:215` prints the id it
+MATCHED, not the one typed**, so the echo is the instrument: type
+`$SAVEDLISTS`, be answered `VOC $savedlists`. Control: `CT VOC $hold` must
+still answer `VOC $HOLD`. Also measured on the 20:34:25 install, because the
+changelog promises it: `COUNT $SAVEDLISTS` finds the file, and
+`COPY.LIST x,y FROM $SAVEDLISTS` copies and reads back — COPYLST compares the
+name with `=` rather than folding, and reaches the file through its generic
+three-case `open` instead.
+
+**`$HOLD` IS THE OBVIOUS NEXT AND IS WIDER**: `to_file.c` builds `$HOLD` paths
+in C, and `SETPTR`, the spooler and `CLEANAC` all name it. `$COMMAND.STACK` and
+`BP` after that. All three are the controls in `verify-lcnames.ps1` §3 today,
+so whichever moves next takes its control with it.
+
 **(a) IS DONE FOR THE PER-ACCOUNT FILES — 18 Aug 2026**, `verify-lcnames.ps1`
 26/26 on the 19:46:12 install. A new account holds `$hold`, `$hold.dic`,
 `$svlists`, `bp`; `VOC` is deliberately still upper case and is the control,
@@ -6800,14 +6838,19 @@ the staging script and the Inno installer were all finished and removed.
    files**, which need `stage.py`, `sd.iss` and four verify scripts to move with
    them. The account-name half is untouched.
 
-   **READ §5.12 BEFORE STARTING THE FILE-NAME HALF, AND START WITH THE
-   FALLBACK.** The fold is "as typed, then upper", not a plain `upcase(`, so the
-   first step is to ADD a `downcase` attempt — as typed, then down, then up.
-   That is additive on today's tree (no id is lower case, so the new attempt
-   cannot hit), it is committable and cycle-testable on its own, and it closes a
-   live defect: `CREATE.FILE testlc` currently produces a file that only answers
-   to the exact case typed. The renames then follow a file at a time. §5.12 has
-   the eight sites, the measurements, and everything that moves with them.
+   **18 Aug 2026, TWENTY-FOURTH SESSION — THE FIRST VOC ID HAS MOVED.**
+   `$SAVEDLISTS` is `$savedlists` (`verify-lcnames.ps1` 36/36, 20:34:25
+   install), and §5.12 (b) now has a worked example to copy: what moves with a
+   rename, and the verifier section that proves an account created before it
+   still works. **`$HOLD` next, then `$COMMAND.STACK` and `BP`**; the shipped
+   system files stay the wide half. The account-name half is still untouched.
+
+   **THE FALLBACK IS DONE, SO A RENAME NO LONGER NEEDS ONE.** The fold was "as
+   typed, then upper"; it is now as typed, then down, then up, at the 74 parser
+   sites and in `_VOC_REF`. **Read §5.12 before the next rename** — it has the
+   sites, the measurements, and the two instruments that are not obvious:
+   `CT` echoes the id it matched (so "not found" cannot test a rename), and the
+   pre-rename account has to be simulated rather than assumed.
 9. **Let a scheduled job log in** (§8). The allowlist and the batch account
    that grants nobody. Not urgent — the install half of the problem is solved
    by ordering (step 3) — but it is what MV users expect and it needs no new

@@ -27,6 +27,65 @@ corrected.
 
 ---
 
+## 18 Aug 2026 - The first VOC id is lower case, and a rename cannot be tested by "not found"
+
+**Commit:** see the commit that carries this entry. Twenty-fourth session.
+
+**What changed.** PROJECT_STATUS.md 5.12 (b), first rename: the VOC id
+`$SAVEDLISTS` is now `$savedlists`. With it went the 13 hard-coded
+`open "$SAVEDLISTS"` literals in `GPL.BP` and their `recordlocku`/`write`
+pairs, COPYLST's four name comparisons, `CREATEA:759`, `MESSAGES`
+3248/3249/3250/6462, and the `EDIT.LIST` record in both `NEWVOC` and
+`VOC_TEMPLATE`. The name on disk, `$svlists`, did not move: (a) and (b) are
+independent, and this is what showed it. Verified `verify-lcnames.ps1` 36/36 on
+the 20:34:25 install.
+
+**No migration, and it was simulated rather than assumed.** An account created
+before the rename holds `$SAVEDLISTS` while the code now opens the literal
+`$savedlists`; what reaches it is `_VOC_REF` folding UP as well as down, added
+the session before. `verify-lcnames.ps1` section 5 writes a BASIC toggle into
+the account's `bp`, renames the id back to `$SAVEDLISTS`, drives
+`SAVE.LIST`/`GET.LIST` through it, and restores it. A failure part-way leaves
+the account on `$SAVEDLISTS`, which is the state the section asserts works.
+
+**Correction to a claim made earlier the same session: "not found" is the wrong
+instrument.** Two checks asserted that `CT VOC $SAVEDLISTS` would now answer
+"Record not found". Both failed on the 20:21:53 install. **`CT` folds the
+record id as well as the file name** (`CT:202`, one of the 74 fold sites), so
+it finds the record whichever case is typed - and `CT:215` prints the id it
+MATCHED, not the one typed. That echo is a better instrument than the one
+intended: typing `$SAVEDLISTS` and being answered `VOC $savedlists` is the
+rename demonstrated, and the control is `CT VOC $hold` still answering
+`VOC $HOLD`. The changelog entry claiming `CT VOC $SAVEDLISTS` no longer finds
+a record was corrected before the commit.
+
+**Two harness facts, each of which cost a cycle:**
+
+1. **A verify script is exempt from `assert-current`; `sdsys/changelog` is
+   not.** `verify-lcnames.ps1` is in the `$neverShipped` list, so editing it
+   does not void an install; the changelog ships, so editing it does. Both were
+   corrected in one go, which voided the 20:21:53 install and bought a second
+   cycle. Order the exempt fixes first, re-measure, then touch `sdsys`.
+2. **`cycle.ps1 -Silent` is not unattended.** `sd.iss` uses plain `MsgBox` at
+   all six sites and Inno suppresses only `SuppressibleMsgBox`, so
+   `/VERYSILENT` skips the wizard and still blocks on every prompt. The box
+   that blocked was `sd.iss:1338`, which says "the two ssh options are absent
+   from this page" - about a page silent mode never showed. Not fixed.
+
+**Also corrected in passing.** `cycle.ps1`'s wholeness hint had read "want ~132
+/ ~193" since SDNet was removed (`c893308`) took three programs out; the true
+figures are 129 and 190, and the guard thresholds (100/150) never needed to
+move. And PROJECT_STATUS.md's header had carried a BEL byte where the backslash
+in `gplbld\assert-current.ps1` belonged, so the one command it tells a new
+session to run named a path that does not exist.
+
+**Still open.** `$HOLD` is the next id and is wider - `to_file.c` builds `$HOLD`
+paths in C, and `SETPTR`, the spooler and `CLEANAC` all name it. `$HOLD`, `BP`
+and `$COMMAND.STACK` are the controls in `verify-lcnames.ps1` section 3 today,
+so whichever moves next takes its own control with it.
+
+---
+
 ## 18 Aug 2026 - Repository renamed to sd4windows
 
 **Commit:** see the commit that carries this entry.
