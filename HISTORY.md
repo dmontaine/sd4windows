@@ -27,6 +27,53 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — A splatting mistake wore the tier filter's disguise
+
+**Commit:** this one. **Install:** unchanged, 07:41:45, `sd.exe`
+`339AB7157F002679`. `verify-fold` 10/10, `verify-createaccount` all PASS
+including `voc (exact case)`, `verify-tiers` **22/22 on 393 / 411 / 421**.
+Every verifier has now run against this install.
+
+`post-cycle-elevated.ps1`, written earlier the same day, called
+`& $path @($s.Args)`. **`@(...)` is an array subexpression, not splatting** —
+splatting is `@name` on a variable — so the array went in as one positional
+argument and was stringified. `verify-tiers.ps1` ran with
+`$Prefix = "-Prefix sdtierg"` and tried to create accounts named
+`-Prefix sdtierg1`.
+
+**What made it expensive is what it looked like.** `CREATE.ACCOUNT` refused the
+malformed name, `LOGTO` left every session in SDSYS, and the run reported all
+three tiers holding **429** records with **0 of 18** capabilities withheld and
+all **10** administration verbs present in a STANDARD account — the exact shape
+of the silent full-VOC failure PROJECT_STATUS §5.12 warns about. 429 is simply
+`voc_template`'s record count. The discriminator was one line in `sdsys/audit`:
+`LOGTO REFUSED account=-PREFIX reason=not in the register`.
+
+**Array splatting would not have fixed it either**, which is worth recording
+because it is the obvious next guess. Measured against a probe script:
+`& $p @($a)` gives `-Prefix sdtierg`; `& $p @a` on an array gives `-Prefix`,
+because elements bind positionally; only `& $p @h` on a **hashtable** binds by
+name and gives `sdtierg`.
+
+**Two blind spots let it through, and both are worth more than the fix.**
+`verify-tiers.ps1` section 1 tested `$out -notmatch $t.Name` — **a check that
+could never fail**, since SD echoes the command it is given, so the name is in
+the output whether the verb worked or refused. It now asserts the
+`accounts\<NAME>` register record exists. And `verify-createaccount.ps1` had no
+`Start-Transcript`; it was the only verifier without one, and an elevated
+window does not paste its output back, so its exit 2 left no record at all.
+
+**`CREATE.ACCOUNT` was never broken**, and the diagnostic that proved it did so
+by creating a real account: `zzprobeacct` came out complete, with its directory
+holding `$hold $hold.dic $svlists bp cat voc` — the lower-case `voc` from
+`CREATEA:581`, confirming the rename in the same measurement that cleared the
+verb.
+
+Register and `user_accounts` were returned to `DON`/`SDSYS` and `don`
+afterwards. Spent names now run to `sdacct15` and `sdtierh`.
+
+---
+
 ## 19 Aug 2026 — Every SDSYS file name is lower case on disk
 
 **Commit:** this one. **Install:** 07:41:45, `sd.exe` `339AB7157F002679`,

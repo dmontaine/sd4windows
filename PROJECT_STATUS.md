@@ -24,6 +24,14 @@ directories) plus 73 in `gplbld/FILES_DICTS`, and every literal that names them.
 | all of 5.12 (a) and (b) together | `verify-lcnames.ps1` **115/115** | 07:41:45 |
 | `$CRED` ACL, `DHF_NOCASE`, `OS.USERS` | `verify-credacl` / `-nocase` / `-osusers`, exit 0 | 07:41:45 |
 | step 11 local transport | `make check-local` PASS, `WHO -> 47 DON` | 07:41:45 |
+| the three-case fold and `_VOC_REF` | `verify-fold.ps1` 10/10 (elevated) | 07:41:45 |
+| **`CREATE.ACCOUNT` makes the account's `voc`** | `verify-createaccount.ps1` all PASS, `voc (exact case)` | 07:41:45 |
+| the VOC tiers still filter after it | `verify-tiers.ps1` 22/22, **393 / 411 / 421** | 07:41:45 |
+
+**EVERY VERIFIER HAS NOW RUN AGAINST THIS INSTALL AND ALL PASS.** The register
+is back to `DON` and `SDSYS`, `user_accounts` to `don`, and no `sdtierh*`,
+`sdacct15` or `zzprobeacct` Windows user or group survives. `sdacct1`–`13` and
+`sdtierb`–`h` are spent names; **next free are `sdacct16` and `sdtieri`.**
 
 **THE DIRECT EVIDENCE IS THE DIRECTORY LISTING:**
 
@@ -32,6 +40,26 @@ $cred $hold $hold.dic $ipc $map $map.dic accounts accounts.dic bin bp bp.out
 cat dict.dic dir_dict gcat gpl.bp gpl.bp.out messages newvoc os.users
 os.users.dic pcode.out prt pstmp sd.voclib syscom voc voc.dic voc_template
 ```
+
+**A WRAPPER THAT SPLATTED ITS ARGUMENTS WRONGLY LOOKED EXACTLY LIKE THE SILENT
+TIER-FILTER FAILURE §5.12 WARNS ABOUT. It was not. §6 has it, and read it
+before believing any tier result.** `post-cycle-elevated.ps1` had
+`& $path @($s.Args)`; **`@(...)` is an array subexpression, not splatting**, so
+`verify-tiers.ps1` ran with `$Prefix = "-Prefix sdtierg"`. `CREATE.ACCOUNT`
+refused the malformed name, `LOGTO` left every session in **SDSYS**, and
+`COUNT VOC` answered **429 for all three tiers with nothing withheld and all 10
+administration verbs present**. 429 is simply how many records `voc_template`
+holds. **Only a hashtable splat binds by name** — array splatting passes
+elements positionally and gives `$Prefix = "-Prefix"`, which is wrong too.
+
+**AND TWO BLIND SPOTS LET IT THROUGH, both now closed.**
+`verify-tiers.ps1`'s section 1 tested `$out -notmatch $t.Name`, **a check that
+could never fail** because SD echoes the command it was given; it now asserts
+the `accounts\<NAME>` register record exists. `verify-createaccount.ps1` had
+**no `Start-Transcript`** — the only verifier without one — so when it exited 2
+in under a second there was no record of why, and the fault had to be
+reconstructed from `verify-tiers`' audit trail. Both scripts now also reject an
+`-Account`/`-Prefix` that is not a usable account name.
 
 **AN AGENT SHELL CANNOT RAISE A UAC PROMPT, AND THAT IS NOW A WORKING
 CONSTRAINT RATHER THAN A SURPRISE.** `Start-Process -Verb RunAs` returns
@@ -208,13 +236,10 @@ of `TIER.OMIT.STANDARD` (18 ids) and `TIER.ADD.ADMINISTRATOR` (10),
 
 **WHAT TO DO NEXT, IN THIS ORDER:**
 
-1. **RUN `post-cycle-elevated.ps1` IF IT HAS NOT BEEN RUN AGAINST THE 07:41:45
-   INSTALL.** The four unelevated checks passed; the three elevated ones —
-   `verify-fold`, `verify-createaccount`, `verify-tiers` — were still owed when
-   this was written, because the session could not elevate (header). They are
-   what exercise `CREATEA`, and `CREATEA:581` now creates the account's `voc`.
-   **§5.12 (a) is closed either way for what the header claims** —
-   `verify-lcnames.ps1` §2/§2a/§3 measured all of it, 115/115.
+1. **§5.12 (a) IS CLOSED. NOTHING IS OWED. PICK UP STEP 2.** Every verifier has
+   run against the 07:41:45 install and all pass — the four unelevated ones and,
+   through `post-cycle-elevated.ps1`, `verify-fold` 10/10,
+   `verify-createaccount` all-PASS and `verify-tiers` 22/22 on 393 / 411 / 421.
 
 2. **`$COMMAND.STACK`, THEN `BP`, THEN THE F/Q FILE-POINTER IDS — 5.12 (b).**
    The disk names are done; what is left is the **ids**: `VOC`, `BP`, `NEWVOC`,
@@ -4558,6 +4583,56 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **A TIER RESULT THAT LOOKS LIKE THE SILENT FULL-VOC FAILURE IS MORE LIKELY A
+  BROKEN ACCOUNT NAME. 19 Aug 2026.** `verify-tiers.ps1` reported all three
+  tiers holding **429** VOC records, **0 of 18** capabilities withheld and all
+  **10** administration verbs present in a STANDARD account — which is exactly
+  the failure §5.12 says is dangerous because it "looks exactly like a filter
+  that worked".
+
+  **It was not the filter. `CREATE.ACCOUNT` had created nothing**, `LOGTO` had
+  failed, and every session was still in **SDSYS** — and `voc_template` holds
+  429 records. **The discriminator is one line in `sdsys/audit`:**
+
+  ```
+  LOGTO REFUSED account=-PREFIX reason=not in the register
+  ```
+
+  **CHECK THE ACCOUNT WAS CREATED BEFORE READING ANY TIER NUMBER.** `429`, or
+  any figure equal to `voc_template`'s record count, means SDSYS.
+
+  **THE CAUSE WAS POWERSHELL SPLATTING**, in `post-cycle-elevated.ps1`:
+  `& $path @($s.Args)`. **`@(...)` is an array subexpression, not splatting.**
+  Measured, all three forms, against a probe script:
+
+  ```
+  & $p @($a)             ->  Prefix = [-Prefix sdtierg]   the whole array, stringified
+  & $p @a   (array)      ->  Prefix = [-Prefix]           elements bind POSITIONALLY
+  & $p @h   (hashtable)  ->  Prefix = [sdtierg]           the only one that binds by name
+  ```
+
+  **SPLAT A HASHTABLE OR PASS THE PARAMETERS LITERALLY.** Array splatting is
+  not a fix.
+
+- **A CHECK THAT CANNOT FAIL IS WORSE THAN NO CHECK, and this one guarded
+  account creation.** 19 Aug 2026. `verify-tiers.ps1` section 1 read
+  `if ($out -notmatch $t.Name) { exit 2 }` — but **SD echoes the command it is
+  given**, so the account name is in the output whether `CREATE.ACCOUNT`
+  succeeded or refused. A run that created nothing walked straight past it and
+  first surfaced three sections later wearing the disguise above. It now
+  asserts the `accounts\<NAME>` record exists — the thing the verb is *for*.
+
+  **The general form: assert the effect, not the transcript.** Anything that
+  greps SD's output for a string the input also contains is measuring the echo.
+
+- **AN ELEVATED SCRIPT WITHOUT A TRANSCRIPT REPORTS NOTHING**, because the
+  elevated window does not paste its output back into the session that asked
+  for it. 19 Aug 2026: `verify-createaccount.ps1` was the only verifier without
+  `Start-Transcript`, exited 2 in under a second, and left no record of why —
+  the fault had to be reconstructed from `verify-tiers`' audit trail instead.
+  Fixed, and closed in the existing `finally` so every `exit` path releases it;
+  a transcript left running swallows the *next* verifier's output.
 
 - **`CT` AND `LIST` DISAGREED ABOUT THE SAME RECORD ID, AND THE VERIFIER COULD
   NOT HAVE SEEN IT.** 18 Aug 2026, found while auditing for the TCL rename and
