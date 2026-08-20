@@ -27,20 +27,21 @@ after the cycle and SD restarted so `read_config()` ran. Measured:
 `TCP 127.0.0.1:4243 LISTENING`, **and not on `0.0.0.0`**. Backup of the
 original at `sd.conf.before-apiport`.
 
-**`$cred` HOLDS TWO VERSION-2 RECORDS — `SDSCRAM3` and `SDAPI4`, verifier
-litter. **`DON` HAS NO CREDENTIAL**: the owner set one at 08:54 and the
-**second** cycle of the day (09:09:06, for the `SET.PASSWORD` guard) deleted
-the data tree and took it. `APIPORT=4243` is listening again, so mvDeveloper
-needs only:
+**THE API IS COMPLETE END TO END, 20 Aug 2026 12:08.** `APIPORT=4243`
+listening on `127.0.0.1` and `$cred` holding three version-2 records — `DON`
+(the owner's, re-set after the second cycle) plus `SDSCRAM3` and `SDAPI4`,
+verifier litter. All three `SCRAM-SHA-256`, `i=600000`, 24-char salt, 44-char
+StoredKey and ServerKey.
 
-```
-sd -internal          (ELEVATED)
-SET.PASSWORD DON
-```
+**mvDeveloper NEEDS NOTHING COPIED.** Its DLL is
+`C:\Program Files (x86)\BLC\mvDeveloper\qmclilib.dll` and already speaks SCRAM;
+`gplsrc/sdclilib/sdclilib.c` has not changed since `ba29603`, so today's
+rebuilds add nothing it lacks. Connect with host `127.0.0.1`, account and user
+`don`, database type Ladybridge OpenQM.
 
-**THAT IS THE COST OF A CYCLE, PAID TWICE IN ONE DAY, AND IT IS WORTH SAYING
-BEFORE RUNNING ONE RATHER THAN AFTER.** A cycle deletes `C:\ProgramData\SD`;
-every `$cred` record and the `APIPORT` line go with it. Nothing puts them back.
+**A CYCLE TAKES BOTH OF THOSE AND NOTHING PUTS THEM BACK** — it deletes
+`C:\ProgramData\SD`, so every `$cred` record and the `APIPORT` line go with
+it. Paid twice on 20 Aug. **Say that before running one, not after.**
 
 **READING `$cred` UNELEVATED RETURNS *ACCESS DENIED*, AND
 `-ErrorAction SilentlyContinue` TURNS THAT INTO "0 RECORDS".** This session
