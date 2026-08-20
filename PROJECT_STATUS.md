@@ -126,8 +126,8 @@ NOW THE SOURCE OF TRUTH.** The stale-32-bit-DLL blocker is closed.
 | | Holds | Product |
 |---|---|---|
 | `sd64/gplsrc/sdclilib` | **the source** | `sdclilib.dll` 64-bit |
-| `Projects/winsdclilib` | mirror, `master` `254fb1d`, **committed not pushed** | `sdclilib.dll` + `sdclient.dll` 64-bit, **+ installer** |
-| `Projects/sdclilib32` | no source; `SRCDIR` points here | `qmclilib.dll` + `qmclient.dll` **32-bit**, **+ installer** |
+| `Projects/winsdclilib` | mirror, `master` `254fb1d`, pushed | `sdclilib.dll` + `sdclient.dll` 64-bit, **+ installer** |
+| `Projects/sdclilib32` | no source; `SRCDIR` points here. **`master` `cf5a72a`, pushed** | `qmclilib.dll` + `qmclient.dll` **32-bit**, **+ installer** |
 
 **EACH CLIENT PROJECT NOW BUILDS ITS DLL TWICE AND HAS AN INSTALLER — 20 Aug
 2026, owner's decision.** The second name is the same library from the same
@@ -1466,11 +1466,20 @@ it. Call it first from anything new that tests the install.
 (**07:52:25**, `sd.exe` **`6DE833057823BFFB`**) and the whole suite passed on
 it, `probe-keys.ps1` excepted.
 
-**COMMITTED, NOT PUSHED — both this repository and `winsdclilib`.** Nothing has
-left this machine. `sdclilib32` is **still not a git repository**, so its half
-of the 20 Aug work — the `qmclient.dll` build and `qmclient.iss` — exists on
-disk and nowhere else, which is the same exposure this file has recorded since
-19 Aug and is now larger.
+**ALL THREE REPOSITORIES ARE COMMITTED AND PUSHED, 20 Aug 2026.**
+`sd4windows` `d92217d` on `main`; `winsdclilib` `254fb1d` on `master`;
+`sdclilib32` `cf5a72a` on `master`.
+
+**`sdclilib32` IS A GIT REPOSITORY NOW, AND THE LONGEST-STANDING EXPOSURE IN
+THIS FILE IS CLOSED.** It had been built from since 15 Aug and versioned
+nowhere; every sync of it existed on disk alone and could not be reviewed,
+reverted or seen from another machine. Owner created
+`github.com/dmontaine/sdclilib32` (public); the initial import is **12 files
+and no binaries**, verified against the remote tree rather than assumed.
+
+**`qmclient.def` IS DELIBERATELY NOT AMONG THEM.** It is generated from
+`qmclilib.def`, and committing it would create the second hand-kept copy of a
+99-name export list that generating it exists to prevent.
 
 **THE ONE THING WAITING IS THE OWNER'S mvDeveloper SETUP, and it is two
 elevated commands, not an investigation** — the cycle deleted the data tree, so

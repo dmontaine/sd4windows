@@ -161,11 +161,17 @@ stopped being true when `SDConnectLocal()` was built (section 7 step 11). It
 starts `sd.exe` and talks to it over a pipe, and `make check-local` exercises
 it.
 
-**`sdclilib32` IS STILL NOT A GIT REPOSITORY** and the exposure is now larger:
-the `qmclient.dll` build, `qmclient.iss`, its `.gitignore` and its licence
-files exist on disk and nowhere else. A `.gitignore` was written for it anyway,
-so that whenever it becomes one the build products are excluded from the first
-import rather than committed.
+**`sdclilib32` BECAME A GIT REPOSITORY THE SAME DAY**, closing the
+longest-standing exposure this file records: it had been built from since
+15 Aug and versioned nowhere, so every sync of it existed on disk alone.
+Owner created `github.com/dmontaine/sdclilib32` (public); initial import
+`cf5a72a`, **12 files and no binaries**, checked against the remote tree rather
+than assumed. `qmclient.def` is excluded along with the build products — it is
+generated, and committing it would create the second hand-kept copy of a
+99-name export list that generating it exists to prevent.
+
+**All three repositories are pushed:** `sd4windows` `d92217d`, `winsdclilib`
+`254fb1d`, `sdclilib32` `cf5a72a`.
 
 ---
 
