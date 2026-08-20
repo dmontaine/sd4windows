@@ -27,6 +27,57 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - End of the twenty-eighth session: what is left standing
+
+**Commit:** this one. Handoff summary; the detail is in the entries below.
+
+**WHAT THIS SESSION DID.** SCRAM phases 3 and 4 - the server exchange and the
+client - both written and both verified; the three client locations
+synchronised with this tree made the source of truth; the orphaned Windows test
+accounts removed; and mvDeveloper, the 32-bit shipping client, authenticating
+over SCRAM against SD.
+
+**THE TREE IS COMMITTED AND PUSHED**, both `sd4windows` (`main`) and
+`winsdclilib` (`master`). `sdclilib32` is still not a git repository, so its
+half of the sync exists on disk only - the single largest gap in what a cold
+start can recover.
+
+**A CYCLE IS OWED, FOR ONE LOGGING-ONLY CHANGE, AND IT WAS LEFT UNRUN
+DELIBERATELY.** `assert-current` refuses: `gplsrc/sdclilib/sdclilib.c` carries
+the `SD_CLIENT_DEBUG` auto-logging of `ba29603` and the install is 22:25:09.
+**Cycling would delete `APIPORT=4243` and every `$cred`**, and the owner's
+editor was working when the session ended - so the next session should choose
+knowingly rather than run the cycle by reflex, and put both back if it does.
+Nothing functional is missing from the install; only the ability to
+self-enable packet logging.
+
+**THE JUDGEMENT BEHIND THAT IS WORTH STATING**, because it cuts against this
+project's usual reflex. The standing rule is cycle-then-measure, and leaving a
+tree stale is normally the wrong answer. Here the stale item is a diagnostic
+that changes no behaviour, and the cost of cycling is landing the owner back on
+the problem that took most of the session to find. Measurement can wait; a
+working editor at the end of a session should not be thrown away to satisfy a
+guard that is red for a logging statement.
+
+**LIVE STATE THAT NOTHING IN THE TREE RECORDS:**
+
+- `APIPORT=4243` enabled by hand in the installed `sd.conf`, loopback only.
+- `don` has an API credential; `SET.PASSWORD` was run this session.
+- `C:\Program Files (x86)\BLC\mvDeveloper\qmclilib.dll` is the current 32-bit
+  build, with the previous one beside it as `qmclilib.dll.bak-before-autodebug`.
+- `SD_CLIENT_DEBUG` has been unset. A running editor keeps its inherited copy
+  and its open log handle until restarted, so
+  `%LOCALAPPDATA%\SD-verify\mvdeveloper-client.log` may still be growing; it
+  holds everything the session reads and writes and can be deleted.
+- `SDQM1` is in the `ACCOUNTS` register and wants `DELETE.ACCOUNT`.
+- Three profile directories outlive their deleted accounts:
+  `C:\Users\sdacct6`, `sdacct9`, `sdacct10`.
+
+**NEXT:** phase 5, retiring `SrvrLogin`. The mvDeveloper run is the evidence it
+is safe - the shipping 32-bit client sends 47 and 48 and never sends 24.
+
+---
+
 ## 19 Aug 2026 - mvDeveloper authenticates with SCRAM, and the instrument that showed it
 
 **Commit:** this one, plus `ba29603` and `winsdclilib` `5553ae3`.

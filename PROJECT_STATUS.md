@@ -7,14 +7,31 @@ something came to be the way it is.
 
 **Last updated:** 19 Aug 2026, end of the twenty-eighth session.
 
-**NO CYCLE IS OWED. THE INSTALL IS CURRENT AND THE HAND-PATCHING IS GONE.**
-`assert-current` exit 0 against the **21:58:11** install (19 Aug), `sd.exe`
-**`417CDC4FCA73FB27`**, `bin\` built 21:41:30, no source newer. Confirm it
-rather than trusting this line:
+**A CYCLE IS OWED FOR EXACTLY ONE CHANGE, AND IT WAS LEFT UNRUN ON PURPOSE.**
+`assert-current` **REFUSES** — the install is **22:25:09** (19 Aug), `sd.exe`
+**`DE298C106146B40B`**, and `gplsrc/sdclilib/sdclilib.c` is newer than both
+`bin\` and the install. Confirm rather than trusting this line:
 
 ```powershell
 gplbld\assert-current.ps1
 ```
+
+**THE ONE CHANGE IS `SD_CLIENT_DEBUG` AUTO-LOGGING, AND IT IS LOGGING ONLY** —
+commit `ba29603`, `initialise_client()`. Nothing functional is missing from the
+install; the 64-bit DLL there simply cannot self-enable packet logging. The
+32-bit DLL beside `mvDeveloper.exe` **does** have it, having been copied there
+by hand.
+
+**WHY IT WAS NOT CYCLED: A CYCLE WOULD BREAK A WORKING SETUP.** It deletes
+`C:\ProgramData\SD`, taking `APIPORT=4243` and every `$cred` with it — and the
+owner's 32-bit editor was, at the end of this session, connecting and working.
+Cycling costs them re-enabling the port and re-running `SET.PASSWORD` for every
+account. **So decide deliberately rather than reflexively**, and put both back
+afterwards. §"THE TWO THINGS A CYCLE TAKES" below has the detail.
+
+**Nothing can be MEASURED until that cycle**, since every verifier calls
+`assert-current` first. That is the cost of the choice, and it is the right way
+round: a false stale costs one install, a false current costs an investigation.
 
 **`APIPORT=4243` IS ENABLED IN THE INSTALLED `sd.conf` RIGHT NOW, 19 Aug 2026,
 AND A CYCLE WILL TURN IT OFF AGAIN.** Re-enabled by hand after the owner's
@@ -498,9 +515,18 @@ list it.
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
-0. **DONE — the post-cycle suite is green on 21:03:41** (header has the table).
-   The only outstanding item is `probe-keys.ps1`, which needs a human at a
-   real console and refuses a redirected stdin rather than measuring the pipe.
+0. **DECIDE ABOUT THE CYCLE FIRST — it is not free.** One logging-only change
+   is uninstalled, and cycling deletes `APIPORT` and every `$cred`, breaking
+   the owner's working editor until both are put back. If you cycle:
+   re-enable `APIPORT=4243`, restart SD, and re-run `SET.PASSWORD` per account.
+   Then re-run the suite, which last passed two cycles ago on 21:03:41.
+   `probe-keys.ps1` still needs a human at a real console.
+
+0a. **PHASE 5 IS THE NEXT REAL WORK** — retire `SrvrLogin`, the point of no
+   return. [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md) has the four steps
+   and the one check that must be **inverted** rather than deleted. The
+   19 Aug mvDeveloper run is good evidence it is safe to take: the shipping
+   32-bit client speaks 47/48 and never sends 24.
 
 1. **§8's PER-ACCOUNT ACLs — the code is installed and `CREATE.ACCOUNT` still
    works; the ACL it applies is still unmeasured.** `verify-accountacl.ps1`
@@ -1354,19 +1380,27 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. NO CYCLE IS OWED. CONFIRM THAT, THEN START WORKING.** The tree was left
-clean at the end of 19 Aug 2026: `assert-current` exit 0 against the
-**21:03:41** install, `sd.exe` **`D796556A8106325A`**, `bin\` built 20:51:53,
-working tree committed and pushed. **The suite below has all been run against
-this install and passed** — the header has the table — **except
-`probe-keys.ps1`, which still needs a human at a console.** The SD register
-holds `DON` and `SDSYS` only. **The Windows side is clean too, as of
-19 Aug 2026** — the eight orphaned test users (`sdacct6`, `8`, `9`, `10`–`13`,
-`sdacl1`) and ten orphaned `sdu_*` groups were removed; `sdusers` and
-`sdadmins` now contain `don` alone. **Three profile directories survive their
+**1. A CYCLE IS OWED FOR ONE LOGGING-ONLY CHANGE, AND CYCLING COSTS A WORKING
+API.** Read the header before running one: it deletes `APIPORT=4243` and every
+`$cred`, and the owner's 32-bit editor was working at the end of 19 Aug 2026.
+`assert-current` **refuses** against the **22:25:09** install, `sd.exe`
+**`DE298C106146B40B`**; the only thing newer is
+`gplsrc/sdclilib/sdclilib.c` (`ba29603`, `SD_CLIENT_DEBUG` auto-logging).
+Working tree committed and pushed, both repositories.
+
+**THE SUITE BELOW LAST PASSED ON THE 21:03:41 INSTALL, WHICH IS TWO CYCLES
+AGO** — `probe-keys.ps1` excepted, which still needs a human at a console.
+`verify-apiport.ps1` is the newest result, green on **21:58:11**. So the suite
+is owed again after whatever cycle comes next, not before it.
+
+**The SD register holds `DON`, `SDSYS` and `SDQM1`** — the last a throwaway
+from the 32-bit client reproduction, wanting `DELETE.ACCOUNT`. **The Windows
+side is clean**: the eight orphaned test users (`sdacct6`, `8`, `9`, `10`–`13`,
+`sdacl1`) and ten orphaned `sdu_*` groups were removed, and `sdusers` and
+`sdadmins` contain `don` alone. **Three profile directories survive their
 accounts** — `C:\Users\sdacct6`, `sdacct9`, `sdacct10` — left deliberately,
 since §7 step 1c has not settled whether cleanup should take them. One
-unelevated command settles that the tree itself is current:
+unelevated command settles where the tree actually stands:
 
 ```powershell
 gplbld\assert-current.ps1
