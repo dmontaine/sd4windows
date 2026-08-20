@@ -159,6 +159,16 @@ which Windows searches BEFORE PATH, so a PATH entry can never displace it.
 Updating that editor stays a hand copy, exactly as it has been. The installer
 is for applications that do not ship their own copy.
 
+**`assert-current` NO LONGER DEMANDS A CYCLE FOR A DOCUMENTATION EDIT.**
+Editing `gplsrc\sdclilib\VENDORING.md` turned it red on a tree that had cycled
+an hour before, telling the reader to run `make sd` and a full cycle - both
+pointless, since nothing compiles a `.md` and nothing under `gplsrc` is
+installed. **Check A2 excludes `.md`/`.txt` outright** (nothing compiles them);
+**check B asks `$shipsAs` first**, so a document that ever appears in
+`stage.py` or `sd.iss` is watched again - a blunt filter there could produce a
+false CURRENT, which is the expensive direction. **Measured with its control:**
+a new `.c` under `gplsrc` still gives exit 1, a new `.md` gives exit 0.
+
 **TWO LATENT BUILD DEFECTS IN `winsdclilib` WERE FOUND AND FIXED**, both the
 faults the 32-bit project met first: `CC ?= gcc` never fired (make predefines
 `CC` as `cc`, so `?=` is a no-op) and the PATH prepend split at the

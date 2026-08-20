@@ -27,6 +27,51 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - assert-current demanded a full cycle for a markdown file
+
+**Commit:** this one. Twenty-ninth session.
+
+**FOUND BY DOING IT.** Editing `gplsrc\sdclilib\VENDORING.md` to record the
+client packaging work turned `assert-current` red - on a tree that had cycled
+an hour earlier and passed the whole suite. It printed *"run 'make sd'"* and
+*"Run one cycle"*, and **both would have been pointless**: a rebuild has
+nothing to read in a `.md` and an install has nothing to receive, since nothing
+under `gplsrc` is installed at all. `stage.py` ships `sdsys`.
+
+**WHY IT MATTERS MORE THAN THE ten minutes it costs.** The next session would
+either have spent an install on a documentation edit, or learned that the
+guard cries wolf - and the guard's whole value is that it is believed. This
+file already records three earlier false stales of the same shape:
+`localtest\`, `__pycache__\` and `sdclilib\tests\`. This is the fourth route in.
+
+**FIXED IN BOTH CHECKS, DIFFERENTLY, BECAUSE THEY ASK DIFFERENT QUESTIONS.**
+
+- **A2** asks *"is any SOURCE newer than the binaries"*. Nothing compiles a
+  `.md` or `.txt`, so the extension is excluded outright, beside the existing
+  build-product filter.
+- **B** asks *"is any source newer than the INSTALL"*, and there a blunt
+  extension filter would hide a document somebody later ships. So it asks
+  `$shipsAs` - the existing valve that re-watches a `$neverShipped` file the
+  moment it appears quoted or path-prefixed in `stage.py` or `sd.iss`. A `.md`
+  that ships is watched; one that does not, is not.
+
+**THE DIRECTION OF THE RISK IS WHY THEY DIFFER**, and this file has said it
+before: a false stale costs one install, a false current costs an
+investigation. A2 cannot produce a false current from a document because
+documents are not compiled; B could, so B keeps the valve.
+
+**MEASURED WITH ITS CONTROL, which is the only thing that makes it mean
+anything** - a guard that stopped catching real staleness would be worse than
+the false alarm it was fixing:
+
+```
+a new .c  under gplsrc, newer than the install  ->  exit 1    STALE   (control)
+a new .md under gplsrc, newer than the install  ->  exit 0            (treatment)
+both removed                                    ->  exit 0
+```
+
+---
+
 ## 20 Aug 2026 - The client library becomes something you can install
 
 **Commit:** this one, plus `winsdclilib` `254fb1d`. Twenty-ninth session.
