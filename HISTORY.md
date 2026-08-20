@@ -27,6 +27,68 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - Section 8's ACL work is closed: 21/21 on the second cycle
+
+**Commit:** this one. Measured on the **15:51:19** install, `sd.exe`
+`9C128170D50FD29C`, this session's second cycle.
+
+`post-cycle-elevated.ps1 -TierPrefix sdtierr -Account sdacct25 -AclPrefix sdacl3`
+- all four verifiers **exit 0**. `verify-fold` 10/10,
+`verify-createaccount` all PASS, `verify-tiers` all PASS (393 / 411 / 421),
+**`verify-accountacl` 21/21**, including the corrected control and step 6,
+neither of which had ever executed against SD.
+
+**THE FIX IS CONFIRMED AGAINST A CASE NOBODY PLANTED, which is better
+evidence than the scratch-root test that preceded it.** Step 6 sweeps the
+whole of `user_accounts` with `-WhatIf`, and it met this:
+
+```
+would stamp don with sdu_don
+skipped sdacct25 - group sdu_sdacct25 does not exist    <- NOT planted
+would stamp sdacl3 with sdu_sdacl3
+skipped sdacl3ng - group sdu_sdacl3ng does not exist    <- planted
+skipped sdacl3nv - no voc, so it is not an account directory
+2 stamped, 3 skipped, 0 failed
+```
+
+`sdacct25` is `verify-createaccount.ps1`'s own leftover from **earlier in the
+same run**: that script removes the Windows group and leaves the account
+directory on purpose (section 7 step 1c). **So the suite manufactures the
+trigger for this defect every time it runs.** Under the old code the sweep
+would have thrown at `sdacct25` - before reaching `sdacl3` - and the installer
+would have reported that it could not secure the account directories, leaving
+every later one unstamped. The defect was not merely possible on this machine;
+it was certain.
+
+**A CONSEQUENCE WORTH KNOWING: A SKIPPED DIRECTORY KEEPS THE STAMP IT WAS BORN
+WITH.** `user_accounts\sdacct25` carries `sdu_sdacct25:(OI)(CI)(M)` for a
+group that no longer exists, so only `BUILTIN\Administrators` and
+`NT AUTHORITY\SYSTEM` can reach it. That **fails closed** and is safe, but it
+is permanent - the sweep will skip it for ever. Another argument for settling
+section 7 step 1c, what `DELETE.ACCOUNT` should actually remove.
+
+**The corrected control passed:** `R: the account group is gone` - False, as
+expected - alongside `R: differs from A` and `R: inheritance is back on`. The
+reset's inherited set is `GITORLI\don` (CREATOR OWNER materialised),
+CREATOR OWNER, `BUILTIN\Administrators` and `NT AUTHORITY\SYSTEM`, with no
+`sdusers` anywhere - which is what `secure-accounts.ps1:73`'s non-inheritable
+grant predicts.
+
+**WHAT THIS CLOSES.** Section 8's per-account ACLs have been the oldest open
+item in PROJECT_STATUS.md, blocked for four sessions on a premise the code
+contradicted, then written but unverified since 19 Aug. The rule is
+deliberately implemented twice and could not be shared as a file; it is now
+measured, the measurement runs as step 4 of `post-cycle-elevated.ps1`, and the
+first thing it did was find a defect in the shipped half.
+
+**WHAT IS STILL OPEN:** `APIPORT` and `$cred` are empty from the cycles and
+no further cycle is owed, so putting them back is now safe. `RDPUSER`
+(section 8) was blocked on this ACL work and is no longer. `probe-keys.ps1`
+still needs a human at a real console. `sdtiers`, `sdacct26` and `sdacl4` are
+the next free prefixes.
+
+---
+
 ## 20 Aug 2026 - The account-ACL verifier passes its question and fails a shipped script on its first run
 
 **Commit:** this one. Measured on the **15:09:33** install, `sd.exe`
