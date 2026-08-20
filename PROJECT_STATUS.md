@@ -12,6 +12,23 @@ one was **16:54:55** (19 Aug), `sd.exe` **`4042F21834AFDD75`**, but §8's
 account-ACL work went in after it and **none of it has been compiled or
 run**. `gplbld\assert-current.ps1` says so; believe it, not this file.
 
+**SCRAM IS HALF BUILT AND THE INSTALL IS HAND-PATCHED, 19 Aug 2026.** Phases
+1-2 of 6 complete and verified; 3-6 not started. Design and decisions
+[docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md); state, resume commands and traps
+[docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md). Commits `d971bf3`, `7c4b099`.
+Nothing on the login path changed yet — all additive.
+
+**The running install matches no build.** `sd.exe` is `ADD9459228DD287C`, not
+the `4042F21834AFDD75` named above; that one is at
+`sdb_ai/sd64/bin/sd.exe.installed-backup-20260819` and
+`C:\Program Files\SD\usr\bin\sd.exe.bak-20260819`. Also copied in by hand:
+`sdsys/gpl.bp/INT$KEYS.H`, `CRED_SET`, `CRED_VERIFY`, `SET_ACC_PASSWORD`;
+`sdsys/syscom/KEYS.H`; `sdsys/bp/TESTSCRAM`, `TESTCRED`. Safe for these
+changes only — `config.h` and `sysseg.h` untouched, so the segment-layout trap
+does not apply. A cycle is still owed, and will delete `C:\ProgramData\SD`
+including the `don` account and `APIPORT=4243`, which a fresh install leaves
+commented out and which the API needs to listen at all.
+
 **THE POST-CYCLE RUN IS COMPLETE AND EVERYTHING PASSED. Nothing is owed.**
 
 **AN AGENT SHELL CAN SOMETIMES RAISE A UAC PROMPT, AND THE HONEST ANSWER IS "IT
