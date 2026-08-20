@@ -27,6 +27,98 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - SCRAM phase 5: the cleartext login is retired
+
+**Commit:** this one. Twenty-ninth session.
+
+**WHAT CHANGED.** `APISRVR`'s `vb.login` no longer authenticates anything: it
+answers message **5275** and drops the connection. Requests 47 and 48 are the
+only network login. `vb.local.login` (25) is untouched - `SDConnectLocal` sends
+no password and never did.
+
+**24 STAYS IN THE PRE-AUTHENTICATION GATE, THOUGH IT IS RETIRED.** Removing it
+from that list would have answered an old client with 5270 *"Not logged in"* -
+true, and useless: it reads as a client bug rather than as a protocol that
+moved. Three lines buy a reply that names the cause, and an old client is
+exactly the caller that will be reading it.
+
+**THE DESIGN DOCUMENTS LISTED ONE CLIENT AND THE TREE HELD FOUR.**
+`grep -rn SrvrLogin` finds them; neither `docs/SCRAM_AUTH.md` nor
+`docs/SCRAM_HANDOFF.md` mentioned more than `sdclilib.c`.
+
+| | State |
+|---|---|
+| `gplsrc/sdclilib/sdclilib.c` | speaks SCRAM since phase 4 |
+| `sdsys/GPL.BP/SDCLIENT` (`!sdclient`) | **sent request 24 - would have broken silently** |
+| `gplbld/verify-scramlogin.ps1` | the test client; sends 24 on purpose |
+| `gplsrc/sdclient.c` | **dead**, see below |
+
+**`!sdclient` IS THE BASIC-CALLABLE HALF OF THE API**, what `sdclilib.dll` is
+to an application outside SD. It is catalogued in `gcat` on every install, has
+no caller anywhere in this tree and no test, so nothing would have reported the
+break. Owner's decision, 20 Aug 2026: give it SCRAM rather than leave it broken
+or delete it.
+
+**AND IT IS NOT THE REMOVED qmnet, which is the fact that made the decision
+easy.** qmnet was `net_open()` in C, port 4245, `server;file` VOC references,
+credentials in `sd.conf` under a substitution cipher, removed 18 Aug 2026
+(`op_dio1.c:627`) - and that removal note keeps qmclient explicitly, because
+the API is mitigated by requiring an ssh tunnel. `!sdclient` opens **4243**,
+the API port. Different facility, opposite decision, and one letter apart in
+the QM names they inherit.
+
+**THE CLASS IS `$internal` NOW.** SCRAM needs `SDEXT`, which BCOMP admits only
+to a program compiled `$internal` (`BCOMP:3777`). The flag is a property of
+that object code and not of its callers: the class calls no `KERNEL` function
+and runs nothing locally - `execute()` and `call()` send their argument to the
+remote server - so there is no method through which a caller could borrow it.
+`sdsys/bp/TESTSDCLI` is deliberately **not** `$internal` and drives the class
+anyway, which demonstrates that rather than asserting it. Recompiling
+`SDCLIENT` now needs `sd -internal` from an elevated window.
+
+**`gplsrc/sdclient.c` STILL BUILDS A CLEARTEXT REQUEST 24 AT LINE 609 AND IS
+LEFT ALONE.** `Makefile:66` strips it from `SRCS`, it is absent from
+`gpl.src`, and no target depends on `sdclient.o` - the rule at `Makefile:214`
+is an orphan. Nothing links it, so phase 5 does not break it. Deleting source
+is its own decision and was not in scope; recorded so the next reader does not
+re-derive that it is dead.
+
+**THE VERIFIER GAINED SIXTEEN CHECKS AND CLOSED BOTH RECORDED GAPS.**
+`verify-scramlogin.ps1` went from 24 to **40**, all passing on the 07:52:25
+install:
+
+- **every refusal asserts its message TEXT**, read from the installed
+  `messages` record rather than hard-coded - 5017 for a wrong password *and*
+  for an unknown account, 5272 for replay / tampered nonce / `y,,` / `m=`,
+  5273 for 48-without-47, 5275 for request 24. A refusal that fires on the
+  wrong branch refuses just as firmly and used to pass.
+- **5274 is exercised**, by renaming `$cred` for one client-first and renaming
+  it back in a `finally`, with a second attempt in the outer `finally`. It is
+  the server-fault path and nothing had ever reached it. A run that ended with
+  the credential store renamed would refuse every login on the machine, which
+  is why the restore is in two places.
+- **step 9b drives `!sdclient` through `TESTSDCLI`**, with a wrong-password
+  control inside the test program.
+- **"request 24 still accepted" was inverted, not deleted.** It is now the
+  proof the old path is gone. Its control in step 9 still works and the reason
+  is worth stating: `Test-SentContains` reads what the SCRIPT sent, not what
+  the server accepted, so the packet still carries the password and the server
+  now throws it away.
+
+**WHAT IT COST.** One `cycle.ps1 -SkipInstall` to find out the BASIC compiled -
+it did, first time, 0 errors and no `is not assigned a value` - and one full
+cycle. **The full cycle deleted `C:\ProgramData\SD`**, so `APIPORT` went back
+to commented out and `$cred` came back empty, which is the price the previous
+session declined to pay to keep the owner's mvDeveloper working. It has to be
+put back by hand: uncomment `APIPORT`, restart, `SET.PASSWORD` per account.
+
+**THE LESSON WORTH CARRYING: grep for the REQUEST NUMBER, not for the client
+you have in mind.** The design documents had been read carefully and were
+simply incomplete. What found the fourth speaker was `grep -rn "SrvrLogin"`
+across the whole tree, not reading the phase description again.
+
+---
+
 ## 19 Aug 2026 - End of the twenty-eighth session: what is left standing
 
 **Commit:** this one. Handoff summary; the detail is in the entries below.

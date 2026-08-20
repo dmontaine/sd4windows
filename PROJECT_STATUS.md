@@ -5,40 +5,38 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 19 Aug 2026, end of the twenty-eighth session.
+**Last updated:** 20 Aug 2026, end of the twenty-ninth session.
 
-**A CYCLE IS OWED FOR EXACTLY ONE CHANGE, AND IT WAS LEFT UNRUN ON PURPOSE.**
-`assert-current` **REFUSES** — the install is **22:25:09** (19 Aug), `sd.exe`
-**`DE298C106146B40B`**, and `gplsrc/sdclilib/sdclilib.c` is newer than both
-`bin\` and the install. Confirm rather than trusting this line:
+**THE TREE IS CURRENT AND EVERYTHING BELOW WAS MEASURED ON IT.**
+`assert-current` **exit 0** — install **20 Aug 07:52:25**, `sd.exe`
+**`6DE833057823BFFB`**, `bin\` built 07:49:15 with no source newer. Confirm
+rather than trusting this line:
 
 ```powershell
 gplbld\assert-current.ps1
 ```
 
-**THE ONE CHANGE IS `SD_CLIENT_DEBUG` AUTO-LOGGING, AND IT IS LOGGING ONLY** —
-commit `ba29603`, `initialise_client()`. Nothing functional is missing from the
-install; the 64-bit DLL there simply cannot self-enable packet logging. The
-32-bit DLL beside `mvDeveloper.exe` **does** have it, having been copied there
-by hand.
+**SCRAM PHASE 5 IS DONE: THE CLEARTEXT LOGIN IS GONE.** Request 24 is refused
+with message **5275**; `verify-scramlogin.ps1 -Prefix sdscram2` is **40/40**.
+Details in [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md); the two things worth
+knowing here are that **`!sdclient` was the client nobody had listed** and that
+**`gplsrc/sdclient.c` is a fourth, dead, unlinked one** left alone on purpose.
 
-**WHY IT WAS NOT CYCLED: A CYCLE WOULD BREAK A WORKING SETUP.** It deletes
-`C:\ProgramData\SD`, taking `APIPORT=4243` and every `$cred` with it — and the
-owner's 32-bit editor was, at the end of this session, connecting and working.
-Cycling costs them re-enabling the port and re-running `SET.PASSWORD` for every
-account. **So decide deliberately rather than reflexively**, and put both back
-afterwards. §"THE TWO THINGS A CYCLE TAKES" below has the detail.
+**THE OWNER'S mvDeveloper SETUP NEEDS PUTTING BACK — THE CYCLE TOOK IT.** This
+is the cost the previous session declined to pay and this one paid: the data
+tree was deleted, so `APIPORT` is commented out again and `$cred` is empty.
+Two steps, both elevated, and neither is a fault to investigate:
 
-**Nothing can be MEASURED until that cycle**, since every verifier calls
-`assert-current` first. That is the cost of the choice, and it is the right way
-round: a false stale costs one install, a false current costs an investigation.
+1. uncomment `APIPORT=4243` in `C:\ProgramData\SD\sd.conf` and restart SD;
+2. `SET.PASSWORD <ACCOUNT>` for every account that uses the API.
 
-**`APIPORT=4243` IS ENABLED IN THE INSTALLED `sd.conf` RIGHT NOW, 19 Aug 2026,
-AND A CYCLE WILL TURN IT OFF AGAIN.** Re-enabled by hand after the owner's
-32-bit editor could not connect. Bound to `127.0.0.1` only, never `0.0.0.0`.
+**The 32-bit DLL beside `mvDeveloper.exe` does NOT need replacing for phase 5** —
+it already speaks SCRAM and never sent request 24. Phase 6's rebuild is about
+picking up `SD_CLIENT_DEBUG` auto-logging, not about the exchange.
 
 **THE TWO THINGS A CYCLE TAKES THAT NOTHING PUTS BACK, and both look like "the
-API is broken":**
+API is broken". THIS IS NOW OBSERVED RATHER THAN PREDICTED — the cycle of
+20 Aug took both:**
 
 1. **`APIPORT` returns to commented-out**, because that is what a fresh install
    ships. Nothing is then listening and every client says it cannot connect.
@@ -72,9 +70,29 @@ Set it to a path, start the client, read the exchange. **It is the tool for
 cost most of a session before it existed. Off unless the variable is set.
 **It logs everything the session reads and writes**, so unset it afterwards.
 
-**SCRAM PHASES 1-4 OF 6 ARE COMPLETE AND VERIFIED, 19 Aug 2026.** 5-6 not
-started. Design and decisions [docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md); state,
-resume commands and traps [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md).
+**SCRAM PHASES 1-5 OF 6 ARE COMPLETE AND VERIFIED, 20 Aug 2026.** Phase 6 is
+the DLL rebuild and re-setting every password; its acceptance test — mvDeveloper
+over SCRAM — already passed on 19 Aug. Design and decisions
+[docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md); state, resume commands and traps
+[docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md).
+
+**PHASE 5 IS `APISRVR` PLUS A CLIENT THE DESIGN NEVER MENTIONED.**
+`sdsys/GPL.BP/SDCLIENT`, catalogued `!sdclient`, is the BASIC-callable half of
+the API and sent request 24. It has no caller in this tree and no test, so
+retiring 24 would have broken it in silence. It now speaks SCRAM, is
+`$internal` because the derivation needs `SDEXT`, and is exercised by
+`sdsys/bp/TESTSDCLI` — which is deliberately **not** `$internal`, so it also
+demonstrates that the class's flag is not a requirement pushed onto callers.
+
+**IT IS NOT THE REMOVED qmnet, AND THAT IS WHY IT WAS KEPT RATHER THAN
+DELETED.** qmnet was `net_open()` in C, port 4245, `server;file` VOC
+references, credentials in `sd.conf` under a substitution cipher — removed
+18 Aug, `op_dio1.c:627`, whose note keeps qmclient explicitly. `!sdclient`
+opens **4243**, the API port. Different facility, opposite decision.
+
+**THE LESSON, because it cost nothing this time only by luck: grep for the
+REQUEST NUMBER, not for the client you have in mind.** `grep -rn SrvrLogin`
+finds all four speakers of request 24.
 
 **PHASE 4 IS THE CLIENT** — `gplsrc/sdclilib/scram_client.h` and
 `scram_login()` in `sdclilib.c`. `SDConnect` no longer sends `SrvrLogin`;
@@ -179,21 +197,19 @@ and leaves the SD half so a half-failed `CREATE.ACCOUNT` cannot hide. Clear it
 with `DELETE.ACCOUNT` (elevated, `Y` three times). **Next free prefix is
 `sdscram2`.** `sd.conf` is restored, `APIPORT` is gone and SD is running.
 
-**THE POST-CYCLE SUITE PASSED ON 21:03:41 AND IS OWED AGAIN ON 21:58:11.**
-Phase 4 cycled twice after that run, so by this file's own rule the table
-below describes a tree that no longer exists. It is the strongest evidence
-available and the only source change since was the client library — which is
-**not** a licence to carry the numbers forward, `gcat` being a build product
-and a bootstrap that differed being exactly what the rule catches.
+**THE WHOLE POST-CYCLE SUITE PASSED ON THE 07:52:25 INSTALL OF 20 AUG 2026** —
+`probe-keys.ps1` excepted, which needs a human at a real console and refuses
+rather than lying. Nothing in the table below is carried forward from an
+earlier tree.
 
 **This is the designed workflow, not a treadmill.** Every cycle invalidates the
 suite; `post-cycle-elevated.ps1` exists precisely to put it back, and none of
 it needs a fresh install — only running. "START HERE" has the list and the
-order. What is already green on **21:58:11** is `verify-apiport.ps1` (the
-whole of it, including the packet check).
+order.
 
 Every number quoted further down this file against the 14:54:36, 15:16:15,
-15:30:36, 16:38:01 and 16:54:55 installs is **older history still**.
+15:30:36, 16:38:01, 16:54:55, 21:03:41, 21:58:11 and 22:25:09 installs is
+**older history**.
 
 | Verifier | Result |
 |---|---|
@@ -203,10 +219,20 @@ Every number quoted further down this file against the 14:54:36, 15:16:15,
 | `verify-nocase.ps1` / `verify-credacl.ps1` | exit 0 |
 | `verify-osusers.ps1` | all 23 PASS, exit 0 |
 | `make check-local` | PASS — `DON` admitted, `SDSYS` refused |
-| `verify-scramlogin.ps1 -Prefix sdscram1` | **24/24** |
-| `post-cycle-elevated.ps1 -TierPrefix sdtierl -Account sdacct19` | all exit 0 |
+| `verify-scramlogin.ps1 -Prefix sdscram2` | **40/40** — phases 3 AND 5 |
+| `verify-apiport.ps1 -Prefix sdapi3` | all checks — types sent 1, 2, 3, 21, 47, 48 |
+| `post-cycle-elevated.ps1 -TierPrefix sdtierm -Account sdacct20` | all exit 0 |
 | — `verify-fold` **10/10**, `verify-tiers` all passed, standard `COUNT VOC` **393** | |
 | `probe-keys.ps1` | **NOT RUN — needs a real console, see below** |
+
+**WHAT THE 40 ADD OVER THE 24, because "more checks" is not the point.** Every
+refusal now asserts its message **text** against the installed `messages`
+record, so a refusal firing on the wrong branch fails instead of passing:
+5017 wrong password *and* unknown account, 5272 replay / tampered nonce /
+`y,,` / `m=`, 5273 for 48-without-47, 5275 for request 24. **5274 is
+exercised by renaming `$cred` for one client-first** and renaming it back in a
+`finally` — the server-fault path, which nothing had ever reached. And step 9b
+drives `!sdclient` through `TESTSDCLI`, with a wrong-password control.
 
 **`probe-keys.ps1` IS THE ONE AN AGENT CANNOT DO, AND IT REFUSES RATHER THAN
 LYING.** Run unelevated it answers *"standard input is redirected, so this is
@@ -225,13 +251,19 @@ gplbld\probe-keys.ps1
 rule stands unchanged — it works when someone is at the keyboard, and nothing
 should be built assuming it.
 
-**LITTER: FIVE `ACCOUNTS` RECORDS, NO WINDOWS ACCOUNTS.** `SDACCT19`,
-`SDSCRAM1`, `SDTIERL1`, `SDTIERL2`, `SDTIERL3` — every Windows user, group and
-`user_accounts` directory was cleaned up by the scripts; the SD half is left
-by design so a half-failed `CREATE.ACCOUNT` cannot hide. Clear with
-`DELETE.ACCOUNT` (elevated, `Y` three times each) or the next thing that
-counts accounts is measuring this. **Next free: `sdacct20`, `sdtierm`,
-`sdscram2`.**
+**LITTER: SIX `ACCOUNTS` RECORDS, NO WINDOWS ACCOUNTS.** `SDACCT20`, `SDAPI3`,
+`SDSCRAM2`, `SDTIERM1`, `SDTIERM2`, `SDTIERM3` — every Windows user, group and
+`user_accounts` directory was cleaned up by the scripts, and `Get-LocalUser`
+shows no `sd*` account at all with `sdu_don` the only `sdu_*` group. The SD
+half is left by design so a half-failed `CREATE.ACCOUNT` cannot hide. Clear
+with `DELETE.ACCOUNT` (elevated, `Y` three times each) or the next thing that
+counts accounts is measuring this. **Next free: `sdacct21`, `sdtiern`,
+`sdscram3`, `sdapi4`.**
+
+**The register also holds `DON`, and that is the installer working** — a cycle
+deletes the data tree, so `DON` is there because `adopt-account.ps1` put it
+back (§7 step 1f). Worth knowing, because "my account vanished" after a cycle
+would otherwise look like a fault.
 
 **AN AGENT SHELL CAN SOMETIMES RAISE A UAC PROMPT, AND THE HONEST ANSWER IS "IT
 DEPENDS ON SOMEONE BEING THERE".** Earlier claims in this file went both ways and
@@ -240,7 +272,10 @@ both were too strong. Measured across one session: `Start-Process -Verb RunAs
 phases, `post-cycle-elevated.ps1`, and `cycle.ps1` — and then failed **twice**,
 returning *"The operation was canceled by the user"* **without the caller being
 able to tell a declined prompt from one that never appeared**. The difference
-tracks whether the owner was at the keyboard. **So: try it, but never build a
+tracks whether the owner was at the keyboard. **On 20 Aug it succeeded five
+times out of five** — two `cycle.ps1` runs, `verify-scramlogin`, `verify-apiport`
+and `post-cycle-elevated` — with the owner present throughout, which is the same
+finding and not a new one. **So: try it, but never build a
 step that assumes it.** Anything elevated has to be safe to hand to a human
 instead, which is what `post-cycle-elevated.ps1` is for.
 
@@ -1380,27 +1415,27 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. A CYCLE IS OWED FOR ONE LOGGING-ONLY CHANGE, AND CYCLING COSTS A WORKING
-API.** Read the header before running one: it deletes `APIPORT=4243` and every
-`$cred`, and the owner's 32-bit editor was working at the end of 19 Aug 2026.
-`assert-current` **refuses** against the **22:25:09** install, `sd.exe`
-**`DE298C106146B40B`**; the only thing newer is
-`gplsrc/sdclilib/sdclilib.c` (`ba29603`, `SD_CLIENT_DEBUG` auto-logging).
-Working tree committed and pushed, both repositories.
+**1. NO CYCLE IS OWED, AND NOTHING NEEDS RE-MEASURING.** The tree is current
+(**07:52:25**, `sd.exe` **`6DE833057823BFFB`**) and the whole suite passed on
+it, `probe-keys.ps1` excepted. Working tree committed and pushed.
 
-**THE SUITE BELOW LAST PASSED ON THE 21:03:41 INSTALL, WHICH IS TWO CYCLES
-AGO** — `probe-keys.ps1` excepted, which still needs a human at a console.
-`verify-apiport.ps1` is the newest result, green on **21:58:11**. So the suite
-is owed again after whatever cycle comes next, not before it.
+**THE ONE THING WAITING IS THE OWNER'S mvDeveloper SETUP, and it is two
+elevated commands, not an investigation** — the cycle deleted the data tree, so
+`APIPORT` is commented out and `$cred` is empty. The header has both. Do not
+read *"Invalid username or password"* from a client as a phase 5 regression
+until `SET.PASSWORD` has been run for that account.
 
-**The SD register holds `DON`, `SDSYS` and `SDQM1`** — the last a throwaway
-from the 32-bit client reproduction, wanting `DELETE.ACCOUNT`. **The Windows
-side is clean**: the eight orphaned test users (`sdacct6`, `8`, `9`, `10`–`13`,
-`sdacl1`) and ten orphaned `sdu_*` groups were removed, and `sdusers` and
-`sdadmins` contain `don` alone. **Three profile directories survive their
-accounts** — `C:\Users\sdacct6`, `sdacct9`, `sdacct10` — left deliberately,
-since §7 step 1c has not settled whether cleanup should take them. One
-unelevated command settles where the tree actually stands:
+**THE NEXT PIECE OF WORK IS PHASE 6** (rebuild the two DLLs so they carry
+`SD_CLIENT_DEBUG` auto-logging, re-set every password) **or §8's
+`verify-accountacl.ps1`, which is still the oldest unwritten thing here.**
+
+**The SD register holds `DON`, `SDSYS` and six test records** — listed in the
+header, all wanting `DELETE.ACCOUNT`. **The Windows side is clean**:
+`Get-LocalUser` shows no `sd*` account, and `sdu_don` is the only `sdu_*`
+group. **Three profile directories survive their accounts** —
+`C:\Users\sdacct6`, `sdacct9`, `sdacct10` — left deliberately, since §7 step 1c
+has not settled whether cleanup should take them. One unelevated command
+settles where the tree actually stands:
 
 ```powershell
 gplbld\assert-current.ps1
@@ -1432,6 +1467,8 @@ gplbld\post-cycle-elevated.ps1                ELEVATED - the three below, in one
 gplbld\verify-fold.ps1                        ELEVATED
 gplbld\verify-createaccount.ps1 -Account <fresh>   ELEVATED
 gplbld\verify-tiers.ps1 -Keep -Prefix sdtierg ELEVATED, FRESH PREFIX
+gplbld\verify-scramlogin.ps1 -Prefix <fresh>  ELEVATED - SCRAM, phases 3 and 5
+gplbld\verify-apiport.ps1 -Prefix <fresh>     ELEVATED - the DLL client end to end
 ```
 
 **AN AGENT CANNOT START ANY OF THE ELEVATED ONES** — a detached shell gets no
