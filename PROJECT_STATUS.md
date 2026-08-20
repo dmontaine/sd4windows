@@ -1897,10 +1897,17 @@ a test would make every test refuse to run.
 
 **WHAT IS LEFT, 20 Aug 2026 — the whole list, in the order it is worth doing.**
 
-1. **`SET.PASSWORD DON`.** One elevated command. The third cycle of the day
-   took the credential; `APIPORT` is already back. Until it is run, mvDeveloper
-   answers *"Invalid username or password"*, which is an ABSENT credential and
-   not a fault.
+1. **DONE. `SET.PASSWORD DON` run, and mvDeveloper CONNECTED - owner,
+   20 Aug 2026, on the 16:13:18 install.** That is the whole chain of this
+   session confirmed end to end by the application it was all for:
+   `APIPORT` **on by default** rather than hand-enabled, a `$cred` record
+   reached over SCRAM (the only login this server still serves), and
+   `vb.account`'s group check passed.
+
+   **mvDeveloper CONNECTING IS THE PROOF `$cred` HOLDS `DON`, and it is
+   better evidence than looking.** An unelevated read of `$cred` cannot
+   distinguish empty from forbidden - the mistake this file records twice -
+   whereas a successful SCRAM login cannot happen without the record.
 2. **DONE. `gplbld/probe-keys.ps1` re-run by the owner on the 16:13:18
    install, in PowerShell**, and every key is byte for byte what 19 Aug
    recorded - `27 91 68/67/66/65` for Left/Right/Down/Up, `127` for
@@ -1926,9 +1933,15 @@ a test would make every test refuse to run.
    `secure-account-dirs.ps1` is fixed and re-measured. It is step 4 of
    `post-cycle-elevated.ps1` from now on. **`sdacl3` is spent - next
    `-AclPrefix sdacl4`.**
-4. **Confirm mvDeveloper in the GUI.** `verify-tierapi.ps1` proves the library
-   it loads admits all three tiers; nobody has watched the editor itself do it.
-   A minute, and only a person can.
+4. **DONE for one account; the THREE-TIER half of it is not, and that is the
+   remaining gap.** The owner watched mvDeveloper connect as `DON` on 20 Aug
+   (item 1). `DON` is ADMINISTRATOR, so what is now watched rather than
+   inferred is the editor working against **one** tier.
+   `verify-tierapi.ps1 -Prefix sdtapi3` still carries the three-tier claim
+   through `qm-connect.exe` and the shipping 32-bit DLL, which is the same
+   library the editor loads - so the inference is a short one. Watching a
+   STANDARD account in the GUI would close it, and would show the thing worth
+   seeing: it connects, and then has no `basic`, `ed` or `run`.
 5. **`DELETE.ACCOUNT` the ten register records** listed above, or the next
    thing that counts accounts is measuring the litter.
 6. **DONE, AND HALF OF IT WAS WRONG.** `gplsrc/sdclient.c` is deleted;
