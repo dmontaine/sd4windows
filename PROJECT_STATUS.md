@@ -13,10 +13,26 @@ account-ACL work went in after it and **none of it has been compiled or
 run**. `gplbld\assert-current.ps1` says so; believe it, not this file.
 
 **SCRAM IS HALF BUILT AND THE INSTALL IS HAND-PATCHED, 19 Aug 2026.** Phases
-1-2 of 6 complete and verified; 3-6 not started. Design and decisions
-[docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md); state, resume commands and traps
-[docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md). Commits `d971bf3`, `7c4b099`.
-Nothing on the login path changed yet — all additive.
+1-2 of 6 complete and verified; **phase 3 written and NOT COMPILED**; 4-6 not
+started. Design and decisions [docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md); state,
+resume commands and traps [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md).
+Commits `d971bf3`, `7c4b099`. Nothing on the login path changed — request 24
+still reaches `vb.login`, all additive.
+
+**PHASE 3 IS `APISRVR` REQUEST TYPES 47 AND 48** — `vb.scram.first`,
+`vb.scram.final`, the shared exits, messages `5272`-`5274`, and
+`gplbld/verify-scramlogin.ps1`. The `deffun valid_os_name` moved out of
+`vb.login` to the top of the program because phase 5 deletes that handler and
+would have taken the declaration with it.
+
+**ITS CLIENT HALF IS PROVEN AND ITS SERVER HALF IS NOT.**
+`verify-scramlogin.ps1 -SelfTest` is **5/5** against the RFC 7677 vectors,
+unelevated, no server, no install — so the instrument is sound and a later
+disagreement is SD's. Everything about the handlers themselves is unverified.
+
+**TWO UNVERIFIED CHANGES NOW WAIT ON ONE CYCLE** — this and §8's account ACLs.
+CLAUDE.md's rule is finish every source change, then run one cycle, then
+measure; they do not need one each.
 
 **The running install matches no build.** `sd.exe` is `ADD9459228DD287C`, not
 the `4042F21834AFDD75` named above; that one is at
@@ -301,8 +317,19 @@ list it.
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
+0. **ONE CYCLE, THEN MEASURE BOTH.** `make sd` first — `assert-current` A2
+   names four `gplsrc` files newer than `bin\sdclilib.dll`. Then
+   `gplbld\cycle.ps1`, elevated. It clears items 1 and 1a together.
+
 1. **§8's PER-ACCOUNT ACLs - IN FLIGHT, UNVERIFIED, INSTALL STALE.** The
    blocker is gone (see the header). Verifier, then cycle, then measure.
+
+1a. **SCRAM PHASE 3 - WRITTEN, NOT COMPILED.** After the cycle, elevated, with
+   a prefix nobody has used: `gplbld\verify-scramlogin.ps1 -Prefix sdscram1`.
+   It restores `sd.conf` and removes the Windows account in a `finally`, and
+   leaves the `ACCOUNTS` and `$CRED` records for `DELETE.ACCOUNT`.
+   [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md) has what to suspect first if
+   it fails.
 
 2. **`RDPUSER`** — blocked on item 1.
 

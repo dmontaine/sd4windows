@@ -27,6 +27,79 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - SCRAM phase 3: the server exchange, written and not compiled
+
+**Commit:** this one. Phase 3 of [docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md).
+**The install was already STALE when this started and still is.** Nothing here
+has been compiled or run against a server.
+
+**What went in.** `APISRVR` gains `vb.scram.first` (request 47) and
+`vb.scram.final` (48), shared exits `scram.bad.message` / `scram.crypto.failed`
+/ `scram.bad.cred` / `exit.vb.scram.fail`, and `scram.trim.body`. Messages
+`5272` "Invalid authentication message", `5273` "Authentication sequence
+error", `5274` "Authentication service unavailable"; every credential failure
+answers the existing `5017` and sleeps 3, as `vb.login` does. `vb.login` is
+untouched and still serves request 24.
+
+**The two questions the previous handoff left open, answered from the code.**
+Per-session state is ordinary program variables — `APISRVR` is one process per
+connection running one `loop`, so nothing survives between connections and
+nothing needs a session key. They are initialised before the loop, not in the
+`kernel(K$CPROC.LEVEL,0)` first-time block, so `scram.stage` is never merely
+unassigned. The "already logged in" guard sits on **both** handlers: the main
+loop's gate only *admits* 24/25/47/48 to an unauthenticated session and does
+not block them afterwards.
+
+**`deffun valid_os_name` moved to the top of `APISRVR`.** It was inside
+`vb.login`, which phase 5 deletes; that would have taken the declaration with
+it and left `vb.scram.first` calling an undeclared function. Placed **below**
+the `common /$APISRVR/` block rather than above it, because CPROC is the only
+program here showing the two together and it declares after `syscom.h`'s
+common — the order known to compile.
+
+**`ON ... GOSUB` clamps rather than falls through, which is why adding two
+entries was safe.** `computed_jump()` in `gplsrc/op_jumps.c` with
+`pick_style = FALSE` forces an out-of-range index to the last label, and the
+last label is `vb.illegal.action`. Checked rather than assumed, because the
+opposite would have made every action above 48 a silent success.
+
+**`bbcmp.py` does not support DEFFUN and it does not matter.**
+`gplbld/bootstrap.py:54` sends only `BBPROC`, `BCOMP`, `PATHTKN` through it;
+`APISRVR` is compiled by the real `BCOMP` and already had a `deffun`.
+
+**`gplbld/verify-scramlogin.ps1` is new and speaks the protocol directly**,
+because `sdclilib.c` does not speak SCRAM until phase 4, so a test through the
+client library would test nothing. It builds packets from
+`[4 byte length][2 byte type][payload]` and waits for the `0x06` ACK, as
+`OpenSocket()` does.
+
+**Its client half is proven; that is the only thing verified here.**
+`-SelfTest` is unelevated, needs no server and no install, and drives the
+script's own `New-ScramProof` — the same function the live checks use, not a
+copy — against the RFC 7677 §3 vectors. **5/5**: SaltedPassword, StoredKey,
+ServerKey, ClientProof, ServerSignature. So a later disagreement with SD is
+SD's.
+
+**The suite is built around the refusals and two controls**, since a login path
+that says "yes" proves little: wrong password, a replayed client-final from the
+exchange that succeeded, a tampered nonce, 48 with no 47, unknown account,
+`y,,` downgrade, `m=` extension. The controls are that two exchanges for one
+account get different server nonces, and that the same byte search which finds
+no password in the SCRAM traffic **does** find it in a request-24 login — a
+search that can never find anything passes just as well.
+
+**User enumeration was introduced deliberately and is recorded, not hidden.**
+An account with no usable credential fails at 47, a wrong password at 48; same
+message, different round trip. RFC 5802's dummy-salt answer needs a secret
+`APISRVR` can read and cannot write, which means seeding it in `CRED_SET` and
+re-opening verified phase 2 work. Deferred because it changes no stored
+credential and no wire format. `SCRAM_AUTH.md` "Still open" has the design.
+
+**Still open:** the whole of it, until a cycle. `make sd` is owed as well —
+four `gplsrc` files are newer than `bin\sdclilib.dll`.
+
+---
+
 ## 19 Aug 2026 - Account ACLs: the blocker was a wrong premise; code written, nothing verified
 
 **Commit:** this one. **Session ended mid-task**, out of credits. **The install
