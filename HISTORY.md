@@ -27,6 +27,60 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - mvDeveloper authenticates with SCRAM, and the instrument that showed it
+
+**Commit:** this one, plus `ba29603` and `winsdclilib` `5553ae3`.
+
+**THE RESULT.** The 32-bit editor - the shipping client the whole KDF decision
+was made for - connected over SCRAM-SHA-256 and worked. From its own packet
+log: requests 47 and 48 sent, **24 never**, `i=600000`, the server's `v=`
+returned and accepted by the client, account attach accepted, then
+`SSELECT VOC` and a working session. **No password in the 1,005 bytes the
+session exchanged.** Phase 6's real acceptance test, passed before phase 6.
+
+**HOW IT GOT THERE, INCLUDING THE PART THAT WAS MY OWN DOING.** The editor
+first reported "could not connect": `APIPORT` was commented out, because the
+day's cycles had rebuilt `C:\ProgramData\SD` and a fresh install ships it that
+way. Re-enabled. Then "connection error": `$cred` was empty, because a cycle
+takes the credentials too - by design, the plaintext was never stored - so
+every account needs `SET.PASSWORD` again after one. **Both were consequences of
+cycling, not faults**, and both will recur.
+
+**THEN IT STOPPED BEING DIAGNOSABLE, WHICH IS THE USEFUL PART OF THIS ENTRY.**
+Everything testable was correct: the port answered, `don` had a credential
+(request 47 returned a real server-first), `sdu_don` granted the account, the
+64-bit DLL passed end to end, the **32-bit** DLL connected under
+`qm-connect.exe`, and the DLL beside `mvDeveloper.exe` was byte-identical to
+that one. A working library, a working server, and a client saying "connection
+error" - which is all `QMConnect` gives an application that does not print
+`QMError()`.
+
+**SO THE LIBRARY WAS MADE TO SAY WHAT HAPPENED.** `SD_CLIENT_DEBUG` used to
+choose the log's PATH only; logging still had to be started by the application
+calling `SDDebug(1)`. Fine for code you can edit, useless for a closed-source
+client - which is exactly the case that needs it. It now turns logging on by
+itself. Placed after the initialisation loops, because `SDDebug()` reports a
+log it could not open by writing into `session[].sderror` and the clearing loop
+would have wiped that very message.
+
+**WHAT ACTUALLY FIXED THE CONNECTION IS NOT ESTABLISHED, and inventing a cause
+would be worse than saying so.** Between the failing attempt and the working
+one the editor was restarted and `SET.PASSWORD` had been run; the DLL was also
+replaced, but only with one that adds logging, so it cannot be the cause. The
+likeliest reading is that the failing attempt predated the credential.
+
+**The lesson is about instrumentation, not about SCRAM.** A generic client-side
+error message turned a five-minute question into most of a session, and the
+answer was to stop inferring from the outside and make the library talk.
+
+**Housekeeping:** the deployed `qmclilib.dll` is the current build, with the
+previous one kept beside it as `qmclilib.dll.bak-before-autodebug`.
+`SD_CLIENT_DEBUG` has been unset - it logs everything a session reads and
+writes, so it is not something to leave on. `SDQM1` is in the `ACCOUNTS`
+register from the 32-bit reproduction and wants `DELETE.ACCOUNT`.
+
+---
+
 ## 19 Aug 2026 - The orphaned Windows test accounts removed
 
 **Commit:** this one. Eight local users and ten local groups, left behind by

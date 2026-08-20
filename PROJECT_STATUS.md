@@ -40,6 +40,21 @@ recurs.
 not ask for a current one: two hidden prompts, then *"Password set for account
 X"*.
 
+**mvDeveloper CONNECTS OVER SCRAM AND WORKS — 19 Aug 2026.** The 32-bit editor,
+the shipping client the whole KDF decision was made for, authenticated with
+SCRAM-SHA-256 against SD and ran `SSELECT VOC`. Read from its own packet log:
+requests **47 and 48 sent, 24 never**, `i=600000`, the server's `v=` returned
+and accepted, and **no password in the 1,005 bytes the session exchanged**.
+That is phase 6's real acceptance test passed ahead of phase 6.
+[docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md) has the transcript.
+
+**`SD_CLIENT_DEBUG` NOW TURNS CLIENT PACKET LOGGING ON BY ITSELF**, without the
+application calling `SDDebug(1)` — which no third-party client will ever do.
+Set it to a path, start the client, read the exchange. **It is the tool for
+"the application says connection error and nothing else"**, and that failure
+cost most of a session before it existed. Off unless the variable is set.
+**It logs everything the session reads and writes**, so unset it afterwards.
+
 **SCRAM PHASES 1-4 OF 6 ARE COMPLETE AND VERIFIED, 19 Aug 2026.** 5-6 not
 started. Design and decisions [docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md); state,
 resume commands and traps [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md).
