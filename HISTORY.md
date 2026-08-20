@@ -27,6 +27,56 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - A cycle spent on one line of sd.iss, and the rule that was already written down
+
+**Commit:** this one. Follows the SCRAM phase 3 entry below; the cycle that
+entry asked for is what hit this.
+
+**THE FAULT.** `gplbld/sd.iss:1046` wrapped `#13#10#13#10 +` onto its own line.
+ISPP treats a line whose first non-blank character is `#` as a preprocessor
+directive, so it read the Pascal character constant as a directive named
+`13#10#13#10` and answered *"Error on line 1046 ... Unknown preprocessor
+directive. Compile aborted."* It came from the account-ACL work of the same
+day, whose `sd.iss` changes were written and never put through ISCC.
+
+**THE RULE WAS ALREADY IN THE FILE.** `sd.iss`'s `InitializeWizard` comment
+says, verbatim, not to start a line with `#` because ISPP reads it as a
+directive, and names the exact error text. It sits ~480 lines above where the
+new message was added. **A comment that far from the code being written is not
+a guard**, which is the general lesson: the same distance defeats any rule
+recorded only as prose near an unrelated function.
+
+**WHAT IT COST.** `cycle.ps1` stops the service at step 1, stages and
+bootstraps at step 2, checks the staged tree at step 3, and only reaches ISCC
+at step 4 - so the whole of that ran before a one-line syntax error surfaced.
+It also left **SD stopped**, because `Fail` exits without restarting it and
+said nothing about having done so.
+
+**BOTH ARE STRUCTURAL NOW.**
+
+- `cycle.ps1` lints `sd.iss` for lines starting with `#` that are not known
+  ISPP directives, **before step 1** - so the same mistake costs seconds and
+  names the line, instead of a stage and a bootstrap and an error message that
+  does not say what is wrong. Checked in both directions: 0 findings on the
+  fixed file, and all 10 reported when the wrap is reintroduced everywhere the
+  idiom appears.
+- `cycle.ps1`'s `Fail` now reports when it is leaving the SD service stopped,
+  and says that both trees are untouched until step 6. It deliberately does
+  **not** restart it: a re-run stops it again immediately, and starting a
+  server against a half-staged tree is worse than leaving it down. The point
+  is only that it should never be a surprise.
+
+**THE FIX IS VERIFIED AS FAR AS IT CAN BE WITHOUT ELEVATION.** `ISCC` was run
+standalone against the staged tree left by the failed cycle, writing to a
+scratch directory: *Successful compile*, exit 0. That also compiled §8's
+`SecureAccountDirs` Pascal for the first time, which had never been through
+ISCC either. It does not cover uninstall, delete or install - steps 5 to 7,
+which only a real cycle exercises.
+
+**Still open:** the cycle itself, and everything downstream of it.
+
+---
+
 ## 19 Aug 2026 - SCRAM phase 3: the server exchange, written and not compiled
 
 **Commit:** this one. Phase 3 of [docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md).

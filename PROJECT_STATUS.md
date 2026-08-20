@@ -34,6 +34,27 @@ disagreement is SD's. Everything about the handlers themselves is unverified.
 CLAUDE.md's rule is finish every source change, then run one cycle, then
 measure; they do not need one each.
 
+**THE FIRST CYCLE ATTEMPT DIED AT ISCC AND THE FAULT IS FIXED — RE-RUN IT.**
+`sd.iss:1046` wrapped `#13#10#13#10 +` onto its own line, and ISPP reads any
+line whose first non-blank character is `#` as a preprocessor directive:
+*"Unknown preprocessor directive"*, no file position beyond the line number,
+and only after the service had been stopped, staged and bootstrapped.
+**The rule was already written down** in `sd.iss`'s `InitializeWizard` comment,
+~480 lines from where the account-ACL message was added, and that was not
+enough. **It is enforced now**: `cycle.ps1` lints `sd.iss` for stray `#` lines
+**before step 1**, so it costs seconds instead of a stage and a bootstrap.
+Checked both ways — 0 on the fixed file, and it names all 10 when they are
+reintroduced.
+
+**AND THE FIX IS VERIFIED AS FAR AS IT CAN BE WITHOUT ELEVATION.** `ISCC` run
+standalone against the staged tree: *Successful compile*, exit 0, which also
+compiled §8's `SecureAccountDirs` Pascal for the first time. What that does
+**not** cover is everything after step 4 — uninstall, delete, install.
+
+**SD IS STOPPED RIGHT NOW** unless something has started it since. `cycle.ps1`
+step 1 stops the service and `Fail` never restarted it; both trees are intact
+because the run died before step 6. `Fail` now says so on the way out.
+
 **The running install matches no build.** `sd.exe` is `ADD9459228DD287C`, not
 the `4042F21834AFDD75` named above; that one is at
 `sdb_ai/sd64/bin/sd.exe.installed-backup-20260819` and
