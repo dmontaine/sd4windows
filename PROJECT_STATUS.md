@@ -67,13 +67,48 @@ and leaves the SD half so a half-failed `CREATE.ACCOUNT` cannot hide. Clear it
 with `DELETE.ACCOUNT` (elevated, `Y` three times). **Next free prefix is
 `sdscram2`.** `sd.conf` is restored, `APIPORT` is gone and SD is running.
 
-**THE POST-CYCLE SUITE IS OWED AGAINST 21:03:41 AND ONLY `verify-scramlogin`
-HAS RUN.** This line used to say "nothing is owed"; the cycle of 19 Aug
-deleted the tree those results were taken from, so by this project's own rule
-they describe a tree that no longer exists. Every number quoted further down
-against the 14:54:36, 15:16:15, 15:30:36, 16:38:01 and 16:54:55 installs is
-**history, not current state** — nothing below has been re-measured. "START
-HERE" has the list and the order; they need no fresh install, only running.
+**THE POST-CYCLE SUITE HAS RUN AGAINST 21:03:41 AND ALL OF IT PASSED — one
+item excepted, and it is not a failure.** Every number quoted further down
+this file against the 14:54:36, 15:16:15, 15:30:36, 16:38:01 and 16:54:55
+installs is **history**; these are the current tree.
+
+| Verifier | Result |
+|---|---|
+| `verify-lcnames.ps1` | **142/142** |
+| `verify-keys.ps1` | **10/10** |
+| `verify-editkeys.ps1` | **14/14** |
+| `verify-nocase.ps1` / `verify-credacl.ps1` | exit 0 |
+| `verify-osusers.ps1` | all 23 PASS, exit 0 |
+| `make check-local` | PASS — `DON` admitted, `SDSYS` refused |
+| `verify-scramlogin.ps1 -Prefix sdscram1` | **24/24** |
+| `post-cycle-elevated.ps1 -TierPrefix sdtierl -Account sdacct19` | all exit 0 |
+| — `verify-fold` **10/10**, `verify-tiers` all passed, standard `COUNT VOC` **393** | |
+| `probe-keys.ps1` | **NOT RUN — needs a real console, see below** |
+
+**`probe-keys.ps1` IS THE ONE AN AGENT CANNOT DO, AND IT REFUSES RATHER THAN
+LYING.** Run unelevated it answers *"standard input is redirected, so this is
+not a console"* and exits 2. That is the instrument working: it is the only
+thing here that measures a key press rather than a byte sequence, and §5.18's
+whole lesson is that **a pipe is not a console**. It needs a human at cmd,
+PowerShell or Windows Terminal:
+
+```powershell
+gplbld\probe-keys.ps1
+```
+
+**UAC WAS REACHABLE THIS SESSION AND THAT IS WHY THE ELEVATED HALF RAN.**
+`verify-osusers`' two self-elevating phases and `post-cycle-elevated.ps1` via
+`Start-Process -Verb RunAs -Wait` all prompted and succeeded. The header's
+rule stands unchanged — it works when someone is at the keyboard, and nothing
+should be built assuming it.
+
+**LITTER: FIVE `ACCOUNTS` RECORDS, NO WINDOWS ACCOUNTS.** `SDACCT19`,
+`SDSCRAM1`, `SDTIERL1`, `SDTIERL2`, `SDTIERL3` — every Windows user, group and
+`user_accounts` directory was cleaned up by the scripts; the SD half is left
+by design so a half-failed `CREATE.ACCOUNT` cannot hide. Clear with
+`DELETE.ACCOUNT` (elevated, `Y` three times each) or the next thing that
+counts accounts is measuring this. **Next free: `sdacct20`, `sdtierm`,
+`sdscram2`.**
 
 **AN AGENT SHELL CAN SOMETIMES RAISE A UAC PROMPT, AND THE HONEST ANSWER IS "IT
 DEPENDS ON SOMEONE BEING THERE".** Earlier claims in this file went both ways and
@@ -352,10 +387,9 @@ list it.
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
-0. **RE-RUN THE POST-CYCLE SUITE against the 21:03:41 install.** No fresh
-   install needed — the tree is current, these have simply not been run
-   against it. "START HERE" has the list and which need elevation. Do this
-   before trusting any number quoted further down this file.
+0. **DONE — the post-cycle suite is green on 21:03:41** (header has the table).
+   The only outstanding item is `probe-keys.ps1`, which needs a human at a
+   real console and refuses a redirected stdin rather than measuring the pipe.
 
 1. **§8's PER-ACCOUNT ACLs — the code is installed and `CREATE.ACCOUNT` still
    works; the ACL it applies is still unmeasured.** `verify-accountacl.ps1`
@@ -386,6 +420,24 @@ carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
    unpiped** — both times the detail was lost because the run was piped through
    `Select-String`, so `Start-Transcript` recorded the command and not the
    answers.
+
+   **A THIRD CLEAN FIRST-RUN-AFTER-CYCLE, 19 Aug 2026: 142/142 on 21:03:41.**
+   Which is more evidence that "first run after a cycle" is not the trigger.
+
+   **AND THE CAPTURE WAS BOTCHED A THIRD TIME, THE SAME WAY.** That run was
+   piped into `Select-String` again, so its transcript
+   (`verify-lcnames-20260819-212010.log`) holds **one** `PASS` line instead of
+   142. `Start-Transcript` records what reaches the **host**; a caller-side
+   pipe consumes the objects first, so the script's own transcript cannot save
+   you from it. **Run it with nothing after it** — no `|`, no `> file`, no
+   `*> $null` — and read the transcript afterwards:
+
+   ```powershell
+   gplbld\verify-lcnames.ps1
+   ```
+
+   Three sessions have now lost this detail to the same reflex, which is why
+   it is written as a command rather than as advice.
 
 **§5.12's REMAINING SCOPE, now that every file-pointer id has moved:** the 387
 `NEWVOC` / 400 `VOC_TEMPLATE` **verb and keyword** ids, `SD.VOCLIB`'s 11, the
@@ -1194,13 +1246,13 @@ it. Call it first from anything new that tests the install.
 **1. NO CYCLE IS OWED. CONFIRM THAT, THEN START WORKING.** The tree was left
 clean at the end of 19 Aug 2026: `assert-current` exit 0 against the
 **21:03:41** install, `sd.exe` **`D796556A8106325A`**, `bin\` built 20:51:53,
-working tree committed. The SD register holds `DON`, `SDSYS` and the leftover
-`SDSCRAM1` (header). **Only `verify-scramlogin.ps1` has been run against this
-install** — everything in the list below is owed, not because the tree is
-stale but because the cycle replaced the tree those results came from.
-(Windows still has `sdacct6`, `8`, `9`, `10`–`13` from earlier sessions — dead
-local users, no SD register records, litter rather than state.) One unelevated
-command settles the first half:
+working tree committed and pushed. **The suite below has all been run against
+this install and passed** — the header has the table — **except
+`probe-keys.ps1`, which still needs a human at a console.** The SD register
+holds `DON`, `SDSYS` and five spent test accounts (header). (Windows still has
+`sdacct6`, `8`, `9`, `10`–`13` from earlier sessions — dead local users, no SD
+register records, litter rather than state.) One unelevated command settles
+that the tree itself is current:
 
 ```powershell
 gplbld\assert-current.ps1

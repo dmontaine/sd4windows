@@ -27,6 +27,54 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - The post-cycle suite re-run on 21:03:41, green but for the one an agent cannot run
+
+**Commit:** this one. Closes the "post-cycle suite is owed" correction made in
+the entry below, which was made in the same session that then discharged it.
+
+**Everything passed.** `verify-lcnames` **142/142**, `verify-keys` **10/10**,
+`verify-editkeys` **14/14**, `verify-nocase` and `verify-credacl` exit 0,
+`verify-osusers` all 23 PASS, `make check-local` PASS (`DON` admitted, `SDSYS`
+refused), `verify-scramlogin` **24/24**, and
+`post-cycle-elevated.ps1 -TierPrefix sdtierl -Account sdacct19` all exit 0 -
+`verify-fold` **10/10**, `verify-tiers` all passed with standard `COUNT VOC`
+**393**.
+
+**`probe-keys.ps1` WAS NOT RUN, AND ITS REFUSAL IS THE POINT.** It answers
+*"standard input is redirected, so this is not a console"* and exits 2. It is
+the only instrument here that measures a key press rather than a byte
+sequence, and §5.18's lesson is that a pipe is not a console - so refusing is
+it working, not it failing. It needs a human at cmd, PowerShell or Windows
+Terminal.
+
+**UAC WAS REACHABLE, WHICH IS WHY THE ELEVATED HALF RAN AT ALL.**
+`verify-osusers`' two self-elevating phases and `post-cycle-elevated.ps1`
+launched with `Start-Process -Verb RunAs -Wait` all prompted and succeeded.
+That does not change the standing rule - it works when someone is at the
+keyboard, and nothing should be built assuming it.
+
+**THE INTERMITTENT `verify-lcnames` CHECK PASSED, AND THE CAPTURE WAS BOTCHED
+A THIRD TIME IN THE SAME WAY.** 142/142 on the first run after the cycle,
+which is a third data point against "first run after a cycle" being the
+trigger. But the run was piped into `Select-String`, so its transcript holds
+**one** `PASS` line instead of 142 - exactly the mistake PROJECT_STATUS item 3
+was written to prevent, made by the session that had just read the warning.
+
+**`Start-Transcript` cannot save a piped run, and this is the general shape of
+it.** It records what reaches the **host**; a caller-side pipe consumes the
+objects before they get there. So a script writing its own transcript gives no
+protection against the caller piping it - the fix has to be at the call site,
+which is why the instruction is now written as a bare command with nothing
+after it rather than as advice.
+
+**Litter left: five `ACCOUNTS` records, no Windows accounts.** `SDACCT19`,
+`SDSCRAM1`, `SDTIERL1`, `SDTIERL2`, `SDTIERL3`. Every Windows user, group and
+`user_accounts` directory was cleaned up by the scripts; the SD half is left
+by design so a half-failed `CREATE.ACCOUNT` cannot hide. Next free `sdacct20`,
+`sdtierm`, `sdscram2`.
+
+---
+
 ## 19 Aug 2026 - SCRAM phase 3 verified: 24/24, and the exchange is what runs
 
 **Commit:** this one. Closes the two entries below. **Install 21:03:41**,
