@@ -27,21 +27,30 @@ after the cycle and SD restarted so `read_config()` ran. Measured:
 `TCP 127.0.0.1:4243 LISTENING`, **and not on `0.0.0.0`**. Backup of the
 original at `sd.conf.before-apiport`.
 
-**WHAT IS STILL MISSING IS THE CREDENTIAL, AND ONLY THAT.** `$cred` holds **0
-records** because the cycle deleted the data tree. Every account that uses the
-API needs `SET.PASSWORD` run again, **elevated**, and it is the one step
-deliberately left to a person: the password is the owner's to choose and a
-script should not invent one.
+**`$cred` HOLDS THREE VERSION-2 RECORDS, 20 Aug 2026** — `DON` (owner ran
+`SET.PASSWORD`), plus `SDAPI3` and `SDSCRAM2` which the verifiers leave behind
+by design. All three: `SCRAM-SHA-256`, `i=600000`, 24-char salt, 44-char
+StoredKey and ServerKey. **So the API is complete end to end again**: port
+listening, credential present.
 
-```
-sd -internal          (ELEVATED)
-SET.PASSWORD DON
-```
+**READING `$cred` UNELEVATED RETURNS *ACCESS DENIED*, AND
+`-ErrorAction SilentlyContinue` TURNS THAT INTO "0 RECORDS".** This session
+reported an empty credential store twice and concluded from it that
+`SET.PASSWORD` had not been run. **It had.** The store had never been empty at
+either moment — `verify-scramlogin` had already left `SDSCRAM2` in it.
 
-**A CLIENT SAYING "Invalid username or password" BEFORE THAT IS AN ABSENT
-CREDENTIAL, NOT A PHASE 5 REGRESSION** — the server has nothing to check
-against, and SCRAM cannot distinguish the two in its reply. This is the second
-of "THE TWO THINGS A CYCLE TAKES" below, now in its expected state.
+**That is `verify-credacl.ps1`'s subject working exactly as intended**, which
+is what makes the mistake worth writing down rather than just fixing: the ACL
+was known, documented and verified, and the check was still written as though
+it would answer. **An unelevated probe of `$cred` cannot distinguish empty from
+forbidden.** Use `-ErrorAction Stop` and elevate, or do not ask.
+
+**AND THE PROBE THAT FIXED IT PRINTED THE KEY MATERIAL IT PROMISED NOT TO.**
+It split records on `@FM` (`0xFE`); `$cred` is a DIRECTORY file, so on disk the
+field marks are NEWLINES, the split produced one field, and every
+"if field count >= 6, print only lengths" guard was skipped — so the whole
+record went to the transcript. **A redaction conditional on a parse is not a
+redaction.**
 
 **The 32-bit DLL beside `mvDeveloper.exe` does NOT need replacing for phase 5** —
 it already speaks SCRAM and never sent request 24. Phase 6's rebuild is about

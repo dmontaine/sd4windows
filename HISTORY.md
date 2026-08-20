@@ -27,6 +27,43 @@ corrected.
 
 ---
 
+## Correction: 20 Aug 2026 - "$cred is empty" was access denied, not empty
+
+**Commit:** this one. Twenty-ninth session.
+
+**THE CLAIM THAT WAS WRONG.** This session reported `$cred records: 0` twice and
+concluded that `SET.PASSWORD` had not been run. The store was not empty either
+time: `verify-scramlogin` had already left `SDSCRAM2` in it, `verify-apiport`
+`SDAPI3`, and by the second reading the owner had added `DON`.
+
+**WHAT ACTUALLY HAPPENED.** `$cred` is ACL'd to SYSTEM and Administrators -
+`secure-cred.ps1` does that, and `verify-credacl.ps1` exists to prove it. An
+unelevated `Get-ChildItem` on it throws *Access to the path ... is denied*, and
+the probe was written with `-ErrorAction SilentlyContinue`, which turned the
+exception into an empty collection. `.Count` on that is `0`.
+
+**WHY IT IS WORTH AN ENTRY.** The ACL was known, documented, and verified green
+in the same session, and the check was still written as though it would answer.
+**An unelevated probe of `$cred` cannot tell empty from forbidden**, and the
+shape of the mistake - a silenced error read as data - is not specific to this
+directory.
+
+**THE RULE:** `-ErrorAction Stop` on anything that reads a secured path, or do
+not ask. Elevated, the answer came back immediately: three records, all
+version 2, `SCRAM-SHA-256`, `i=600000`.
+
+**AND THE ELEVATED PROBE PRINTED THE KEY MATERIAL IT PROMISED NOT TO.** It
+split records on `@FM` (`0xFE`) and `$cred` is a DIRECTORY file, so on disk the
+field marks are NEWLINES. The split produced one field, every
+`if field count >= 6, print lengths only` guard was skipped, and the whole
+record - salt, StoredKey, ServerKey - went into the transcript. **A redaction
+that depends on a successful parse is not a redaction**: it has to be the
+default, with the parse only able to add detail. StoredKey is the value whose
+holder can impersonate the server to that account, which is why the ACL exists
+at all.
+
+---
+
 ## 20 Aug 2026 - assert-current demanded a full cycle for a markdown file
 
 **Commit:** this one. Twenty-ninth session.
