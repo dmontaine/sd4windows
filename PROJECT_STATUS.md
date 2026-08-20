@@ -7,7 +7,7 @@ something came to be the way it is.
 
 **Last updated:** 19 Aug 2026, end of the twenty-seventh session.
 
-**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **16:38:01**
+**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **16:54:55**
 install (19 Aug), `sd.exe` **`4042F21834AFDD75`**, terminfo **100**. Confirm
 before believing it: `gplbld\assert-current.ps1`, unelevated.
 
@@ -216,16 +216,12 @@ carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
 2. **`RDPUSER`** — blocked on item 1.
 
-3. **THE FIRST VERIFIER RUN AFTER A CYCLE FAILS CHECKS THAT PASS ON THE
-   SECOND, and it is not understood.** Seen twice on 19 Aug: one failure in
-   `verify-lcnames` §6 after the 15:30:36 install, and **four** after the
-   16:38:01 one — 138/142, then 142/142 with no change in between. **The
-   `$RELEASE` prompt is ruled out** — `LOGIN:444` fires only on a stamp
-   mismatch and both sides read `W1.0-0` — **but that is the DISPLAY string,
-   not the release**, which is `MAJOR_REV`/`MINOR_REV`/`BUILD` 1/0/2 (2.6-6).
-   **The lead to follow is the shared segment**: `SYSSEG_REVSTAMP` is built
-   from those and `sysseg.h:69` says it does not catch a layout change, so the
-   first `sd` after a cycle creates the segment where later runs attach to it.
+3. **A `verify-lcnames` CHECK HAS FAILED TWICE AND RE-RUN CLEAN — intermittent,
+   about 2 runs in 10, cause unknown.** An install was spent on it: six
+   consecutive clean runs, the first of them straight after the cycle. **"First
+   run after a cycle" is the wrong description**, and the shared-segment and
+   `$RELEASE` explanations are both dead — see the entry below. Low priority,
+   but do not let it train anyone to re-run until green.
    **This matters more than it looks**: the whole discipline here is "cycle,
    then measure", and a first run that lies in either direction undermines
    every result in this file. **Next step is to capture a first run's output
@@ -534,43 +530,42 @@ file-pointer rename including `$COMMAND.STACK` (§5.12 b).
    tier lives in `ACCOUNTS` field 5 and RDP-ness would live in the *absence* of
    a Windows group.
 
-**THE FIRST VERIFIER RUN AFTER A CYCLE FAILS CHECKS THAT THE SECOND PASSES.**
-Seen twice on 19 Aug and it is next step 3. `verify-lcnames.ps1` failed §6's
-"CT VOC COPYP shows a bare V type code" on the first run after the 15:30:36
-install and passed on the next three; after the 16:38:01 install it came back
-**138 of 142** and then **142 of 142** immediately afterwards with nothing
-changed in between. The records are correct by hand each time.
+**A VERIFIER CHECK HAS FAILED TWICE AND RE-RUN CLEAN, AND IT IS NOT
+UNDERSTOOD — but "the first run after a cycle" is the WRONG description, and
+that was worth an install to find out.** 19 Aug 2026.
 
-**THE `$RELEASE` PROMPT IS RULED OUT, BUT ONLY FOR THE DISPLAY STRING — and
-that distinction is the owner's correction, 19 Aug 2026.** `LOGIN:444` compares
-the VOC's `$RELEASE` field 2 against `SD.REV.STAMP` and prompts in a loop that
-only Y or N escapes; **a piped session answers that prompt with its next
-command**, which would produce exactly this shape. Both sides read `W1.0-0` on
-this install, measured, so it never fires — and `LOGIN`'s second check,
-`compare(system(1012), SD.REV.STAMP)`, compares the same string with itself
-(`op_sys.c:378` returns `SD_REV_STAMP`).
+**What happened:** after the 15:30:36 install `verify-lcnames.ps1` failed §6's
+COPYP check once and passed three times after; after the 16:38:01 install it
+came back **138 of 142** and then **142 of 142** with nothing changed between.
 
-**`W1.0-0` IS A DISPLAY STRING AND NOT THE RELEASE.** The release identity is
-`MAJOR_REV`/`MINOR_REV`/`BUILD` = **1/0/2**, the openQM 2.6-6 lineage, and
-`MESSAGES/0000` still reads `2.6-6`. So checking that the display strings agree
-says less than it looks like it says, and the first version of this note
-overstated it.
+**What a deliberate cycle then showed — the owner authorised the install for
+this.** A cycle was run, and the verifier was driven **UNPIPED** immediately
+afterwards, before anything else touched SD, and then five more times:
 
-**WHICH OPENS THE LEAD WORTH FOLLOWING NEXT: the SHARED SEGMENT is not guarded
-across an install.** `sysseg.c:58` builds `SYSSEG_REVSTAMP` from
-`MAJOR_REV`/`MINOR_REV`/`BUILD`, and `sysseg.h:69` already says in terms that it
-**does not catch a layout change**, because the release identity does not move
-when the port changes. A cycle deletes both trees, so the first `sd` after one
-creates the segment fresh while later runs attach to it — an install boundary
-with different behaviour on the first run through it, which is the shape of what
-is being seen. Not measured; it is a lead, not a finding.
+```
+run 1 (straight after the install)   142 / 142
+runs 2 - 6                           142 / 142
+```
 
-**WHY IT MATTERS MORE THAN A FLAKY TEST.** The discipline in this repository is
-"cycle, then measure". A first run that fails checks which are actually fine
-teaches whoever meets it to re-run until green, and the next real failure gets
-the same treatment. **Capture a first run's output UNPIPED** — both times the
-detail was lost because the run went through `Select-String`, so
-`Start-Transcript` recorded the command and not the answers.
+**Six clean runs, so it did not reproduce, and three explanations are dead:**
+
+- **"The first run after a cycle is different"** — this cycle's first run was
+  clean, so the pattern is intermittent rather than tied to the install
+  boundary.
+- **"The first `sd` creates the shared segment"** — `C:\ProgramData\SD\shm`
+  already holds `sd_shm_716d0301` **before any of these runs**, because the
+  installer's ADOPT step runs SD. Nothing here creates it.
+- **The `$RELEASE` prompt and the revision cross-check** — both sides of each
+  are the display string `W1.0-0` and they match (`op_sys.c:378`).
+
+**What is left is an intermittent failure of about 2 in 10 runs, cause
+unknown.** It is recorded rather than closed because of what it costs if
+ignored: this repository's discipline is "cycle, then measure", and a check
+that fails without meaning it teaches whoever meets it to re-run until green —
+which is exactly how a real failure gets waved through. **If it recurs, capture
+the run UNPIPED**; both original sightings were lost because the run went
+through `Select-String`, so `Start-Transcript` recorded the command and not the
+answers.
 
 **SHOULD `cycle.ps1` RUN `make`? NOT DECIDED.** A2 makes the omission loud,
 which is the cheap half. Building inside an elevated cycle would leave objects

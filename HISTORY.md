@@ -27,6 +27,47 @@ corrected.
 
 ---
 
+## 19 Aug 2026 — An install spent on the intermittent check: three explanations dead
+
+**Commit:** this one, over `8825928`. **Install:** **16:54:55**. Owner
+authorised the cycle for this and nothing else; no source changed.
+
+**The question:** `verify-lcnames.ps1` had failed once after the 15:30:36
+install and four times after the 16:38:01 one, passing on an immediate re-run
+both times. It had been written up as "the first run after a cycle".
+
+**The measurement:** a cycle, then the verifier driven **UNPIPED** immediately
+afterwards - before anything else touched SD - and then five more times.
+
+```
+run 1 (straight after the install)   142 / 142
+runs 2 - 6                           142 / 142
+```
+
+**It did not reproduce, and that is worth more than it sounds.** Three
+explanations are now dead:
+
+1. **"The first run after a cycle is different."** This cycle's first run was
+   clean, so whatever it is, it is intermittent rather than tied to the install
+   boundary. The name it was filed under was wrong.
+2. **"The first `sd` creates the shared segment."** `C:\ProgramData\SD\shm`
+   already held `sd_shm_716d0301` **before any of these runs**, because the
+   installer's ADOPT step runs SD. This was the lead the release-string
+   correction opened, and it is closed.
+3. **The `$RELEASE` prompt and the revision cross-check**, ruled out earlier and
+   restated: both sides of each are the display string `W1.0-0` and they match,
+   `op_sys.c:378` returning `SD_REV_STAMP` for `system(1012)`.
+
+**What is left: an intermittent failure of roughly 2 runs in 10, cause
+unknown.** Kept in the file rather than closed, because of what it costs if
+ignored - the discipline here is "cycle, then measure", and a check that fails
+without meaning it teaches whoever meets it to re-run until green, which is how
+a real failure gets waved through. **If it recurs, capture the run UNPIPED**:
+both original sightings were lost because the run went through `Select-String`,
+so `Start-Transcript` recorded the command and not the answers.
+
+---
+
 ## 19 Aug 2026 — Correction: W1.0-0 is a display string, not the release
 
 **Commit:** this one, over `f988f48`. Documents only. Owner's correction.
