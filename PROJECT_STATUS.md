@@ -8,7 +8,7 @@ something came to be the way it is.
 **Last updated:** 19 Aug 2026, end of the twenty-eighth session.
 
 **NO CYCLE IS OWED. THE INSTALL IS CURRENT AND THE HAND-PATCHING IS GONE.**
-`assert-current` exit 0 against the **21:43:02** install (19 Aug), `sd.exe`
+`assert-current` exit 0 against the **21:58:11** install (19 Aug), `sd.exe`
 **`417CDC4FCA73FB27`**, `bin\` built 21:41:30, no source newer. Confirm it
 rather than trusting this line:
 
@@ -29,17 +29,22 @@ was run rather than assumed. `verify-apiport.ps1 -Prefix sdapi1` passed end to
 end on the **21:43:02** install: right password admitted, wrong password
 refused, `SDSYS` refused.
 
-**ONE CHECK ON PHASE 4 IS OWED, AND IT IS NOT A FAILURE.** After that run,
-`verify-apiport.ps1` gained a packet-type assertion — 47 and 48 sent, **24
-not**, password absent from the reassembled bytes with the user name as its
-control. **A successful login does not prove the client spoke SCRAM**, because
-the server still serves request 24 and would admit a fallback just as readily.
-Source says a fallback is impossible (nothing calls `SrvrLogin`, `login_data`
-is gone), but that is an argument. **UAC was declined on the re-run**, so:
+**AND WHICH LOGIN THE CLIENT SPEAKS IS MEASURED — `-Prefix sdapi2`, 21:58:11
+install, all checks passed.** A successful login does not prove the client
+spoke SCRAM: the server still serves request 24 and would admit a fallback
+just as readily. So `verify-apiport.ps1` reads the client's own `SDDebug(1)`
+log:
 
-```powershell
-gplbld\verify-apiport.ps1 -Prefix sdapi2       ELEVATED; sdapi1 is spent
 ```
+request types sent: 1, 2, 3, 21, 47, 48
+   47 sent  PASS      24 NOT sent  PASS      password absent  PASS
+   same search finds the user name  PASS   <- the control, 963 bytes
+```
+
+The password search **reassembles the byte stream from the hex columns
+first** — `debug()` dumps 16 bytes per line, so a 20 character password splits
+across two and a plain text search would have passed whether or not it had
+been sent. `sdapi1` and `sdapi2` are spent.
 
 **THE 32-BIT SHIPPING DLL BUILDS FROM A STALE COPY — A PHASE 6 BLOCKER, FOUND
 NOT CREATED.** `Projects/winsdclilib/sdclilib.c` (112 KB) and this repo's
@@ -96,17 +101,18 @@ and leaves the SD half so a half-failed `CREATE.ACCOUNT` cannot hide. Clear it
 with `DELETE.ACCOUNT` (elevated, `Y` three times). **Next free prefix is
 `sdscram2`.** `sd.conf` is restored, `APIPORT` is gone and SD is running.
 
-**THE POST-CYCLE SUITE PASSED ON 21:03:41 — WHICH PHASE 4's CYCLE THEN
-REPLACED, SO IT IS OWED AGAIN ON 21:43:02.** The table below is the last full
-green run and is **the strongest evidence available**, but by this file's own
-rule it describes a tree that no longer exists. The only source change between
-the two installs was the client library, and that is **not** a licence to carry
-the numbers forward: `gcat` is a build product, and a bootstrap that differed
-is exactly the class of fault this rule exists to catch.
+**THE POST-CYCLE SUITE PASSED ON 21:03:41 AND IS OWED AGAIN ON 21:58:11.**
+Phase 4 cycled twice after that run, so by this file's own rule the table
+below describes a tree that no longer exists. It is the strongest evidence
+available and the only source change since was the client library — which is
+**not** a licence to carry the numbers forward, `gcat` being a build product
+and a bootstrap that differed being exactly what the rule catches.
 
-**Re-running is cheap — no install needed, only running.** "START HERE" has
-the list. `verify-apiport.ps1 -Prefix sdapi2` is owed regardless, for the
-packet check.
+**This is the designed workflow, not a treadmill.** Every cycle invalidates the
+suite; `post-cycle-elevated.ps1` exists precisely to put it back, and none of
+it needs a fresh install — only running. "START HERE" has the list and the
+order. What is already green on **21:58:11** is `verify-apiport.ps1` (the
+whole of it, including the packet check).
 
 Every number quoted further down this file against the 14:54:36, 15:16:15,
 15:30:36, 16:38:01 and 16:54:55 installs is **older history still**.

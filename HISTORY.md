@@ -27,6 +27,32 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - The phase 4 packet check ran: 47 and 48 sent, 24 never
+
+**Commit:** this one. Completes the entry below, which recorded the check as
+written but not run because UAC was declined. It was run afterwards, elevated,
+as `verify-apiport.ps1 -Prefix sdapi2` against the **21:58:11** install.
+
+```
+request types sent: 1, 2, 3, 21, 47, 48
+   client sent SCRAM client-first (47)      PASS
+   client sent SCRAM client-final (48)      PASS
+   client sent NO cleartext login (24)      PASS
+   password absent from the bytes sent      PASS   963 bytes reassembled
+   same search finds the user name          PASS   <- the control
+```
+
+**So "the client speaks SCRAM" stops being an argument from source.** The
+server still serves request 24; a client that had fallen back would have been
+admitted just as readily and every other check would still have been green.
+
+The cycle that install came from was owed for a one-paragraph `changelog`
+entry - `sdsys` is watched and ships, so a text file there makes the tree stale
+exactly as a program would. That is the guard working, and the cost is a
+reminder to write the changelog entry **before** the cycle rather than after.
+
+---
+
 ## 19 Aug 2026 - SCRAM phase 4: the client stops sending the password
 
 **Commit:** this one. **Install 21:43:02**, `sd.exe` `417CDC4FCA73FB27`,
