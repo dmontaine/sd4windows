@@ -27,6 +27,93 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - RDPACCOUNT built: the account class that may sign in to Windows
+
+**Commit:** this one. Owner's decision of 18 Aug 2026, built 20 Aug, **not yet
+compiled or run**.
+
+**IT IS `RDPACCOUNT`, NOT `RDPUSER`.** Owner, 20 Aug: *"we don't have users
+just accounts"*. Every §8 note and HISTORY entry before this date uses the old
+spelling.
+
+**THE DESIGN DECISION §8 SAID TO TAKE FIRST: nothing is recorded in
+`ACCOUNTS`.** Owner chose to derive it. The reasoning that settled it was a
+measurement rather than a preference - **`sdsshonly` is WRITTEN in exactly one
+place (`CREATEA`) and READ nowhere in the tree at all.** Windows enforces the
+whole property, through `SeDenyInteractiveLogonRight` and
+`SeDenyRemoteInteractiveLogonRight` on that group. So a mirrored field could
+never do anything but agree or disagree with the thing that actually decides,
+and a field that can disagree is a field that can misreport a security
+property. **`ACC$USERS` was deleted on this same reasoning on 15 Aug** -
+`SYSCOM/KEYS.H`: *"the operating system holds the grant, not this record"*.
+
+**§8 PREDICTED THE SHAPE AND WAS RIGHT.** The whole create-time change is one
+keyword case in `CREATEA`'s `more.args` loop and one clause on the sdsshonly
+test - a test whose own comment, dated 15 Aug, says it sits where it does *"so
+the next route inherits the protection instead of rediscovering the lockout"*.
+
+**THE NESTING MATTERS AND THE FIRST ATTEMPT GOT IT WRONG.** Chaining a new
+`if` in front of the existing one as `end else if` stole the `end` that closed
+the `make.admin` block - the kind of error BASIC will not catch until a
+compile, which here costs a cycle. It is nested inside the existing `else`
+instead, which needs no extra `end`, and has the better semantics anyway:
+ADOPT and administrator are asked FIRST, so an administrator who also typed
+the keyword still gets 10040 (*kept* rights they already had, which is what
+happened) and 10056 is only printed where the keyword actually did something.
+
+**`MODIFY.ACCOUNT` GAINS TWO ACTIONS**, in the slot `ADD` and `DELETE` already
+occupy: `RDPACCOUNT` and `NO.RDPACCOUNT`, taking no user name because they act
+on the account's own Windows user. **The ADD/DELETE block is untouched** -
+wrapped in one `if not(rdp.done)` rather than rewritten into case arms, since
+it is working code with four message paths that the new actions share none of.
+
+**THE ACCOUNT'S OWN USER IS TAKEN BACK OUT OF `ACC$GROUP`, not from the record
+id.** `downcase(acc.name)` would usually be right, and "usually" is doing real
+work in something that decides whether a person can log in. `ACC$GROUP` is
+`"sdu_":acc.uname`, written by `CREATE.ACCOUNT` from the user name itself, so
+stripping the prefix reverses what was recorded. The result is then checked
+against `sdusers` with the test the ADD path already uses - which is also what
+rejects a GROUP-type account, whose `ACC$GROUP` is a caller-supplied name and
+which has no single Windows user for any of this to mean anything about.
+
+**THE LOCKOUT GUARD IS THE PART THAT MATTERS.** `NO.RDPACCOUNT` is the
+dangerous direction: confining an administrator denies them console and Remote
+Desktop sign-in, and they keep only the session they typed it in - which is
+exactly what happened on 15 Aug 2026 the first time ADOPT ran. `clear.rdp`
+refuses by SID (`S-1-5-32-544`, because the name is translated on a localised
+Windows) before acting, with message 10061.
+
+**`gplsrc/sd.c`'s JUSTIFICATION WAS FALSE THE MOMENT THIS EXISTED, and the
+gate was not.** It read *"whoever is at the console or on Remote Desktop is an
+administrator, because SD's own accounts are confined to ssh"* - true by
+construction until RDPACCOUNT. The gate itself asks whether the SESSION IS
+ELEVATED, not how the person arrived, so it behaves correctly for an
+RDPACCOUNT user without change. **The old sentence explained why the refusal
+was near-unreachable, not why it was right.** Rewritten; §8's difficulty 4 is
+closed and difficulty 3 is annotated there as a decision rather than changed.
+
+**`gplbld/verify-rdpaccount.ps1` MEASURES A LOGON, NOT A GROUP LISTING.**
+`LogonUser` with `LOGON32_LOGON_INTERACTIVE`: `admitted`, or `refused 1385`
+(`ERROR_LOGON_TYPE_NOT_GRANTED`). A group-membership check would pass just as
+happily on a machine where `deny-logon.ps1` had never run. Its control is a
+plain account created seconds later in the same run, which must be refused.
+
+**It tests the lockout guard on a THROWAWAY administrator, never on `DON`** -
+if the guard is broken, the account under test is locked out, and this script
+must not be able to do that to the owner's own account. Its `finally` takes
+every account out of `sdsshonly` **before** deleting it, because a locked-out
+account that is then deleted destroys the evidence of which half failed.
+
+**WHAT IS STILL OPEN:** the tree is stale and owes ONE cycle; `make sd` is
+already done (`bin/sd.exe` `F8B91512CD1A332E`). §8 difficulties 5 and 6 - user
+counting across several RDP sessions, and §5.6.2's rewrite into a three-way
+rule - are untouched. **And the posture-B question stops being theoretical:**
+*"anyone who can be local is an administrator"* was true by construction and
+is not once an RDPACCOUNT exists, which is what the API's loopback binding
+leaned on.
+
+---
+
 ## 20 Aug 2026 - APIPORT is on by default, reversing the 17 Aug decision
 
 **Commit:** this one. Owner's decision, 20 Aug 2026.

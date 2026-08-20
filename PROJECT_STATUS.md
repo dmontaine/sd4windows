@@ -7,9 +7,86 @@ something came to be the way it is.
 
 **Last updated:** 20 Aug 2026, thirtieth session.
 
-**THE TREE IS CURRENT AND EVERYTHING BELOW WAS MEASURED ON IT.**
-`assert-current` **exit 0** - install **20 Aug 16:13:18**, `sd.exe`
-**`9C128170D50FD29C`**. Three cycles ran this session; this is the third.
+**RDPACCOUNT IS WRITTEN AND THE BASIC HAS NEVER BEEN THROUGH THE COMPILER.
+THE TREE IS STALE AND OWES ONE CYCLE.** Nothing below about RDPACCOUNT has
+been run.
+
+**`make sd` IS ALREADY DONE** - `gplsrc/sd.c` changed (a comment only) and was
+rebuilt; `bin\` is current with no source newer. The cycle alone is owed.
+
+```
+bin/sd.exe    F8B91512CD1A332E   built 20 Aug 16:39:21   <- the cycle must install this
+installed     9C128170D50FD29C   20 Aug 16:13:18
+```
+
+**A BASIC COMPILE ERROR ABORTS THE CYCLE BEFORE THE UNINSTALL**, so a failed
+bootstrap costs nothing but time and leaves the installed tree alone. That is
+why this is one full cycle rather than `-SkipInstall` first.
+
+**WHAT IT IS** (owner's decision, 18 Aug, built 20 Aug): a `CREATE.ACCOUNT`
+keyword **orthogonal to the tier**, not a fourth one - `CREATE.ACCOUNT USER
+jim RDPACCOUNT`, or `... jim PROGRAMMER RDPACCOUNT`. The account keeps an
+ordinary Windows sign-in: console, Remote Desktop, other Windows programs, as
+well as ssh.
+
+**IT IS `RDPACCOUNT`, NOT `RDPUSER`** - owner, 20 Aug: *"we don't have users
+just accounts"*. §8 and HISTORY entries before this date say `RDPUSER`.
+
+**NOTHING IS RECORDED IN `ACCOUNTS`, AND THAT IS THE DESIGN DECISION §8 SAID
+TO TAKE FIRST** (owner, 20 Aug). Absence from `sdsshonly` **is** the property:
+that group carries `SeDenyInteractiveLogonRight` and
+`SeDenyRemoteInteractiveLogonRight` (`gplbld/deny-logon.ps1`), and **SD never
+reads it** - `sdsshonly` is written at `CREATEA` and nowhere else, and read
+nowhere at all. A mirrored field could only ever disagree with the thing that
+actually decides. **`ACC$USERS` was deleted on this exact reasoning** on
+15 Aug - `SYSCOM/KEYS.H`, *"the operating system holds the grant, not this
+record"*.
+
+**WHERE IT IS:**
+
+| Part | What |
+|---|---|
+| `CREATEA` `more.args` | `case upcase(token) = 'RDPACCOUNT'`, sets `rdp.account` |
+| `CREATEA` sdsshonly test | nested inside the existing `else`, so ADOPT/admin still win and report 10040 |
+| `MODIFYA` | `RDPACCOUNT` / `NO.RDPACCOUNT` actions, wrapped round the untouched ADD/DELETE block |
+| `MODIFYA` `clear.rdp` | **refuses an administrator, message 10061** |
+| `gplsrc/sd.c` | the false justification at the `check_admin()` gate, rewritten |
+| `sdsys/messages/10056`-`10062` | new |
+| `gplbld/verify-rdpaccount.ps1` | **NEW, NEVER RUN** |
+
+**THE LOCKOUT GUARD IS THE PART TO CHECK FIRST.** `CREATEA`'s comment has said
+since 15 Aug that the administrator test sits where it does *"so the next
+route inherits the protection instead of rediscovering the lockout"*.
+**`MODIFY.ACCOUNT ... NO.RDPACCOUNT` is that next route**, and it is the
+dangerous direction: confining an administrator denies them console and Remote
+Desktop, which is what happened on 15 Aug 2026 the first time ADOPT ran.
+`clear.rdp` refuses by SID before acting.
+
+**`verify-rdpaccount.ps1` MEASURES A LOGON, NOT A GROUP LISTING** -
+`LogonUser` with `LOGON32_LOGON_INTERACTIVE`, `admitted` or `refused 1385`.
+A group check would pass just as happily if `deny-logon.ps1` had never run.
+**Its control is a plain account created in the same run**, which must be
+refused. **It tests the lockout guard on a THROWAWAY administrator, never on
+`DON`**, and its `finally` takes every account out of `sdsshonly` before
+deleting it - a locked-out account that is then deleted destroys the evidence
+of which half failed.
+
+**STILL OPEN, and deliberately not built:** §8's difficulties 5 and 6 - user
+counting with several RDP sessions (`MESSAGES/1000`), and §5.6.2's rewrite
+from *"the console belongs to administrators"* into a three-way rule. §8's
+difficulty 3 - `sd LISTF` refused from a desktop while `sd` then `LISTF`
+works - is **left as a decision**, annotated in `sd.c` rather than changed.
+
+**AND THE POSTURE-B QUESTION IS NOW LOAD-BEARING RATHER THAN THEORETICAL.**
+*"Anyone who can be local is an administrator"* was true by construction and
+stops being so the first time an RDPACCOUNT exists. The API's loopback binding
+leaned on that. §8's answer - a named pipe with
+`GetNamedPipeClientProcessId`, `CN_PIPE` already in `connection_type` - is the
+work this makes worth doing.
+
+**Before RDPACCOUNT the tree was current at install 20 Aug 16:13:18, `sd.exe`
+`9C128170D50FD29C`, three cycles this session, and everything below was
+measured there.**
 
 **ALL FOUR ELEVATED VERIFIERS PASSED, exit 0** -
 `post-cycle-elevated.ps1 -TierPrefix sdtiers -Account sdacct26 -AclPrefix sdacl4`.
