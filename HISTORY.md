@@ -130,9 +130,28 @@ stays a 32-bit install and `{autopf32}` resolves to `Program Files (x86)` on
 64-bit Windows and `Program Files` on 32-bit. Marking it would also refuse to
 run on 32-bit Windows, the one platform with no alternative package.
 
-**NEITHER INSTALLER IS INSTALL-VERIFIED.** ISCC compiles both; the UAC prompt
-for a test install was declined or never appeared, which this project records
-as indistinguishable from the caller's side. Compiling is not running.
+**BOTH INSTALLERS WERE INSTALLED AND VERIFIED LATER THE SAME DAY**, once the
+owner was at the keyboard - the UAC prompts that had failed then succeeded,
+which is the same finding this file already records rather than a new one.
+
+**TESTED AS A CONSUMER SEES THEM.** `smoke_test.c` compiled against the
+INSTALLED headers and import libraries only, then run from a neutral directory
+whose `PATH` held the installed `bin` and `System32` and nothing else, so the
+installed DLL was the only one reachable. All four combinations passed:
+`-lsdclient`, `-lsdclilib`, `-lqmclient`, `-lqmclilib`.
+
+**AND THE PATH ORDERING WAS MEASURED RATHER THAN ASSERTED.** Three
+`sdclilib.dll` now sit on the machine `PATH` - server at [8], the two client
+packages at [9] and [10]. `SDConnectLocal` is the discriminator: it starts
+`sd.exe` from beside the DLL, and the client packages have none, so a wrong
+resolution fails outright. `local-connect-test.exe` on the raw machine `PATH`
+answered *"PASS: DON admitted, SDSYS refused"*.
+
+**ONE THING THE TEST ITSELF GOT WRONG FIRST, and it is the trap both Makefiles
+already guard**: the compile step did not put the compiler's own directory on
+`PATH`, so `cc1.exe` could not resolve its DLLs and gcc exited 1 with
+completely empty output - four "LINK FAILED" lines and no reason. A
+hand-written test has to carry that guard too.
 
 **TWO LATENT DEFECTS IN `winsdclilib`'s MAKEFILE, FOUND BY THE FIRST CLEAN
 BUILD FROM A PLAIN MSYS2 SHELL**, and both are faults the 32-bit project met

@@ -22,13 +22,26 @@ Details in [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md); the two things worth
 knowing here are that **`!sdclient` was the client nobody had listed** and that
 **`gplsrc/sdclient.c` is a fourth, dead, unlinked one** left alone on purpose.
 
-**THE OWNER'S mvDeveloper SETUP NEEDS PUTTING BACK — THE CYCLE TOOK IT.** This
-is the cost the previous session declined to pay and this one paid: the data
-tree was deleted, so `APIPORT` is commented out again and `$cred` is empty.
-Two steps, both elevated, and neither is a fault to investigate:
+**`APIPORT=4243` IS ENABLED AND LISTENING AGAIN, 20 Aug 2026** — re-enabled
+after the cycle and SD restarted so `read_config()` ran. Measured:
+`TCP 127.0.0.1:4243 LISTENING`, **and not on `0.0.0.0`**. Backup of the
+original at `sd.conf.before-apiport`.
 
-1. uncomment `APIPORT=4243` in `C:\ProgramData\SD\sd.conf` and restart SD;
-2. `SET.PASSWORD <ACCOUNT>` for every account that uses the API.
+**WHAT IS STILL MISSING IS THE CREDENTIAL, AND ONLY THAT.** `$cred` holds **0
+records** because the cycle deleted the data tree. Every account that uses the
+API needs `SET.PASSWORD` run again, **elevated**, and it is the one step
+deliberately left to a person: the password is the owner's to choose and a
+script should not invent one.
+
+```
+sd -internal          (ELEVATED)
+SET.PASSWORD DON
+```
+
+**A CLIENT SAYING "Invalid username or password" BEFORE THAT IS AN ABSENT
+CREDENTIAL, NOT A PHASE 5 REGRESSION** — the server has nothing to check
+against, and SCRAM cannot distinguish the two in its reply. This is the second
+of "THE TWO THINGS A CYCLE TAKES" below, now in its expected state.
 
 **The 32-bit DLL beside `mvDeveloper.exe` does NOT need replacing for phase 5** —
 it already speaks SCRAM and never sent request 24. Phase 6's rebuild is about
@@ -144,10 +157,33 @@ run on a machine that is not the server. `winsdclilib/sdclient.iss` and
 `sdclilib32/qmclient.iss` package an already-built tree exactly as
 `gplbld/sd.iss` does, and refuse rather than package a stale DLL.
 
-**BOTH INSTALLERS COMPILE AND NEITHER IS INSTALL-VERIFIED.** ISCC is green on
-both; the UAC prompt for a test install was declined or never appeared, which
-this file records as indistinguishable. **Compiling is not running** — install
-one before believing it works.
+**BOTH INSTALLERS ARE INSTALLED AND VERIFIED, 20 Aug 2026** — the owner was at
+the keyboard, so the UAC prompts that failed an hour earlier succeeded.
+`C:\Program Files\SD Client` and
+`C:\Program Files (x86)\SD Client (32-bit)`, each with `bin\`, `lib\` and
+`include\`.
+
+**TESTED AS A CONSUMER SEES THEM, not as the build tree does.** `smoke_test.c`
+compiled against the INSTALLED headers and import libraries only, then run from
+a neutral directory whose `PATH` held the installed `bin` and `System32` and
+nothing else — so the installed DLL is the only one it could have loaded.
+**All four combinations passed:** `-lsdclient`, `-lsdclilib`, `-lqmclient`,
+`-lqmclilib`.
+
+**AND THE "APPENDED, NEVER PREPENDED" CLAIM IS MEASURED.** Three
+`sdclilib.dll` now sit on the machine `PATH`:
+
+```
+ [8] C:\Program Files\SD\usr\bin              <- the server, still first
+ [9] C:\Program Files\SD Client\bin
+[10] C:\Program Files (x86)\SD Client (32-bit)\bin
+```
+
+**`SDConnectLocal` IS THE DISCRIMINATOR THAT MAKES THAT WORTH ANYTHING**: it
+starts `sd.exe` from beside the DLL, and the client packages have no `sd.exe`.
+`local-connect-test.exe` run on the raw machine `PATH`, nothing prepended,
+answered *"PASS: DON admitted, SDSYS refused"* — so the server's copy won. Had
+the package's won, it would have failed.
 
 **THIS TREE STILL BUILDS ONE DLL, DELIBERATELY.** `make sd` produces
 `sdclilib.dll` for the server's own use. The second name is for distribution,
@@ -1481,15 +1517,29 @@ and no binaries**, verified against the remote tree rather than assumed.
 `qmclilib.def`, and committing it would create the second hand-kept copy of a
 99-name export list that generating it exists to prevent.
 
-**THE ONE THING WAITING IS THE OWNER'S mvDeveloper SETUP, and it is two
-elevated commands, not an investigation** — the cycle deleted the data tree, so
-`APIPORT` is commented out and `$cred` is empty. The header has both. Do not
-read *"Invalid username or password"* from a client as a phase 5 regression
-until `SET.PASSWORD` has been run for that account.
+**THE ONE THING WAITING IS `SET.PASSWORD`, AND IT IS WAITING ON A PERSON.**
+`APIPORT=4243` is enabled and listening on `127.0.0.1`; `$cred` holds **0
+records**, because the cycle deleted the data tree. Elevated:
+
+```
+sd -internal
+SET.PASSWORD DON
+```
+
+Left to a person on purpose — the password is the owner's to choose and a
+script should not invent a credential. **Do not read *"Invalid username or
+password"* from a client as a phase 5 regression until this has been run for
+that account**: the server has nothing to check against, and SCRAM cannot
+distinguish an absent credential from a wrong one in its reply.
 
 **THE NEXT PIECE OF WORK IS PHASE 6** (rebuild the two DLLs so they carry
 `SD_CLIENT_DEBUG` auto-logging, re-set every password) **or §8's
 `verify-accountacl.ps1`, which is still the oldest unwritten thing here.**
+
+**`probe-keys.ps1` IS STILL OWED AND ONLY A HUMAN CAN RUN IT.** It refuses a
+redirected stdin, which is what every instrument here has. It measures a key
+press rather than a byte sequence, and §5.18 is the reason that distinction
+earns its own tool.
 
 **The SD register holds `DON`, `SDSYS` and six test records** — listed in the
 header, all wanting `DELETE.ACCOUNT`. **The Windows side is clean**:
