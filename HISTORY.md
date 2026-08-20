@@ -27,6 +27,47 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - The orphaned Windows test accounts removed
+
+**Commit:** this one. Eight local users and ten local groups, left behind by
+test runs across several sessions.
+
+```
+users   sdacct6, sdacct8, sdacct9, sdacct10, sdacct11, sdacct12, sdacct13, sdacl1
+groups  sdu_ for each of those, plus sdu_sdacct4 and sdu_sdadopt1, whose
+        users had already gone
+```
+
+**Each was re-checked before removal rather than trusted from a list**, since
+deleting a local account cannot be undone: not in a protected set, exists, has
+the `SD account` description `CREATE.ACCOUNT` writes, and has **no record in
+the SD `ACCOUNTS` register**. That last one is what "orphaned" means here, and
+it is the check that would have stopped a live account being taken.
+
+Protected and untouched: `don`, `Administrator`, `Guest`, `DefaultAccount`,
+`WDAGUtilityAccount`, both `CodexSandbox*` accounts - which belong to other
+tooling on this machine and are nothing to do with SD - and the `sdusers`,
+`sdadmins`, `sdsshonly` and `sdu_don` groups.
+
+Verified beforehand that none of the eight owned a running process, and that
+none was a member of `Administrators` or `sdadmins`. `sdusers` and `sdadmins`
+now contain `don` alone; group membership went with the users.
+
+**THREE PROFILE DIRECTORIES SURVIVE THEIR ACCOUNTS** - `C:\Users\sdacct6`,
+`sdacct9` and `sdacct10`, the three that had ever been logged into. Left
+deliberately: removing an account is one thing, removing a directory that might
+hold data is another, and section 7 step 1c has not settled whether cleanup
+should take them.
+
+**THE UNDERLYING CAUSE IS UNCHANGED AND IS WORTH KEEPING IN VIEW: a cycle
+deletes the data tree but not the Windows accounts.** So the SD register looks
+clean after every cycle while the Windows side keeps accumulating, which is
+exactly how eight of them built up unnoticed. `verify-apiport.ps1` and
+`verify-scramlogin.ps1` remove their own in a `finally`;
+`verify-createaccount.ps1` deliberately does not.
+
+---
+
 ## 19 Aug 2026 - The three client locations synchronised, and the arrow turned round
 
 **Commit:** this one, plus `winsdclilib` `07a71c6` and `e35376a`, both pushed.

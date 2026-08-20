@@ -313,12 +313,17 @@ after stamping user_accounts/sdacl1 with sdu_sdacl1:
 The ACL it leaves is `sdu_sdacl1:(OI)(CI)(M)`, `BUILTIN\Administrators:(OI)(CI)(F)`,
 `NT AUTHORITY\SYSTEM:(OI)(CI)(F)`, and **`sdusers` gone**.
 
-**THERE IS A THROWAWAY ACCOUNT LEFT ON THIS MACHINE AND IT IS HALF-STAMPED.**
-`sdacl1` - Windows user, group `sdu_sdacl1`, `ACCOUNTS` register record, and a
-directory whose ACL was replaced by hand. **A cycle deletes the tree but NOT the
-Windows user or the group.** Remove them, or reuse it as the second account the
-verifier needs. **`don`'s own account was deliberately left untouched** and
-still shows the inherited `sdusers:(I)(OI)(CI)(M)`.
+**`sdacl1`, THE HALF-STAMPED THROWAWAY, IS GONE — removed 19 Aug 2026** along
+with `sdu_sdacl1` and the other orphaned test users. Its register record and
+its hand-stamped directory went with the cycle that rebuilt the data tree.
+**The verifier will therefore need a fresh second account**, not that one.
+
+**THE OBSERVATION THAT MADE IT WORTH RECORDING STANDS: a cycle deletes the
+data tree but NOT the Windows user or the group.** That is why the litter
+accumulated across sessions in the first place, and why anything creating a
+Windows account has to clean it up itself — `verify-apiport.ps1` and
+`verify-scramlogin.ps1` do, in a `finally`; `verify-createaccount.ps1`
+deliberately does not, and §7 step 1c is the open decision about that.
 
 **THE RULE IS IN TWO PLACES ON PURPOSE, AND THE GUARD FOR THAT IS NOT WRITTEN.**
 `CREATEA` builds the icacls inline through `!ps_script`; the re-apply script has
@@ -1316,10 +1321,13 @@ clean at the end of 19 Aug 2026: `assert-current` exit 0 against the
 working tree committed and pushed. **The suite below has all been run against
 this install and passed** — the header has the table — **except
 `probe-keys.ps1`, which still needs a human at a console.** The SD register
-holds `DON`, `SDSYS` and five spent test accounts (header). (Windows still has
-`sdacct6`, `8`, `9`, `10`–`13` from earlier sessions — dead local users, no SD
-register records, litter rather than state.) One unelevated command settles
-that the tree itself is current:
+holds `DON` and `SDSYS` only. **The Windows side is clean too, as of
+19 Aug 2026** — the eight orphaned test users (`sdacct6`, `8`, `9`, `10`–`13`,
+`sdacl1`) and ten orphaned `sdu_*` groups were removed; `sdusers` and
+`sdadmins` now contain `don` alone. **Three profile directories survive their
+accounts** — `C:\Users\sdacct6`, `sdacct9`, `sdacct10` — left deliberately,
+since §7 step 1c has not settled whether cleanup should take them. One
+unelevated command settles that the tree itself is current:
 
 ```powershell
 gplbld\assert-current.ps1
