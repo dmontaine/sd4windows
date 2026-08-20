@@ -27,6 +27,66 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - RDPACCOUNT verified 18/18, and the lesson was in the failures
+
+**Commit:** this one. Measured on the **16:47:22** install, `sd.exe`
+`F8B91512CD1A332E`.
+
+`verify-rdpaccount.ps1 -Prefix sdrdp2` is **18/18** and
+`verify-accountacl.ps1 -Prefix sdacl6` is **21/21**. Section 8's account-class
+work is finished: the keyword, both `MODIFY.ACCOUNT` directions, the lockout
+guard, and all six message texts.
+
+**THE FIRST RUN WAS 12/18 AND EVERY FAILURE WAS THE TEST.** `Get-SysMsgHead`
+took the text before the first `%`; every message this script asserts STARTS
+with `%1`, so the head was the empty string for all six and the
+is-it-installed guard beside it fired. The feature had worked perfectly on
+that run - every behavioural check passed, including the guard.
+
+**WHAT MADE IT A FIVE-MINUTE DIAGNOSIS RATHER THAN AN INVESTIGATION: one of
+the six failures was IMPOSSIBLE.** `10034` is an existing message printed by
+the ssh-only path, which RDPACCOUNT does not go near, and it failed too. A new
+feature cannot break an old message on a path it never touches, so the fault
+had to be in the checking rather than in anything built that day.
+
+**Worth generalising: when a new suite fails broadly, look first for a check
+that could not have been affected by the change.** If one exists, the
+instrument is the suspect, not the subject. Six plausible failures would have
+sent the search into CREATEA and MODIFYA.
+
+**AND THE SAME BUG WAS ALREADY SHIPPED IN A PASSING VERIFIER.**
+`verify-accountacl.ps1` carried an identical `Get-SysMsgHead` and had been
+green twice. Its one message, `10055` - *"Could not secure account directory
+%1 (%2)"* - happens to begin with literal text, so the helper worked there **by
+accident**. A helper that is correct only for the inputs it has met is not
+correct, and copying it into a second script is what exposed it. Fixed in
+both.
+
+**THE REPLACEMENT IS TESTED WITH A CONTROL.** `Get-SysMsgPattern` turns the
+installed message into a regex - `%N` becomes `.*`, literal runs escaped - and
+was checked against real substituted text before shipping, including that
+`10057`'s pattern does NOT match `10056`'s message. Without that, a pattern
+that matched anything would have passed the same six checks.
+
+**A TIMING TRAP RECORDED BECAUSE IT NEARLY BECAME A FALSE CLAIM.** The
+`sdacl5` run of `verify-accountacl` finished at 16:51:06 and that file was
+edited at 16:51:57, so its 21/21 exercised the OLD helper and said nothing
+about the fix. The two verifiers hold SEPARATE copies of the function, so
+neither run substitutes for the other. `sdacl6` was run afterwards for that
+reason alone.
+
+**WHAT IS OPEN AFTER THIS.** Section 8 difficulties 3, 5 and 6: `sd LISTF`
+refused from a desktop while `sd` then `LISTF` works, user counting across
+several RDP sessions, and §5.6.2's rewrite into a three-way rule.
+
+**AND THE POSTURE-B QUESTION IS NOW LIVE.** *"Anyone who can be local is an
+administrator"* was true by construction and stopped being true the moment
+RDPACCOUNT existed. The API listener binds to loopback and leaned on that. The
+Windows answer section 8 already names is a named pipe with
+`GetNamedPipeClientProcessId`, and `connection_type` already has `CN_PIPE`.
+
+---
+
 ## 20 Aug 2026 - RDPACCOUNT built: the account class that may sign in to Windows
 
 **Commit:** this one. Owner's decision of 18 Aug 2026, built 20 Aug, **not yet

@@ -7,9 +7,9 @@ something came to be the way it is.
 
 **Last updated:** 20 Aug 2026, thirtieth session.
 
-**RDPACCOUNT COMPILES AND WORKS. EVERY BEHAVIOURAL CHECK PASSED on the first
-run**, `verify-rdpaccount.ps1 -Prefix sdrdp1`, on the cycle that installed
-`F8B91512CD1A332E`. The tree is CURRENT (`assert-current` exit 0).
+**RDPACCOUNT IS BUILT AND VERIFIED: `verify-rdpaccount.ps1 -Prefix sdrdp2`
+is 18/18** on the **16:47:22** install, `sd.exe` **`F8B91512CD1A332E`**. The
+tree is CURRENT (`assert-current` exit 0) and nothing is owed.
 
 ```
 RDPACCOUNT account   not in sdsshonly   LogonUser INTERACTIVE  admitted
@@ -24,11 +24,14 @@ put into `sdsshonly` loses console and Remote Desktop sign-in and keeps only
 the session they typed it in - 15 Aug 2026, the first ADOPT run. `clear.rdp`
 refused, and the account was still admitted afterwards.
 
-**THE MESSAGE TEXTS ARE NOT YET VERIFIED. The run was 12/18 and all six
-failures were the message assertions, every one of them a fault in the TEST.**
-`Get-SysMsgPattern` (then `Get-SysMsgHead`) took the text before the first
-`%`, and **every message this script reads STARTS with `%1`** - so the head
-was the empty string and the guard beside it fired. Fixed; re-run to close it.
+**THE MESSAGE TEXTS ARE VERIFIED TOO: `-Prefix sdrdp2` is 18/18**, all six
+asserted against the installed `messages` records. RDPACCOUNT is finished.
+
+**The first run was 12/18 and every failure was a fault in the TEST.**
+`Get-SysMsgHead` took the text before the first `%`, and **every message this
+script reads STARTS with `%1`** - so the head was the empty string and the
+guard beside it fired. Replaced with `Get-SysMsgPattern`, which turns the
+message into a regex (`%N` becomes `.*`, literal runs escaped).
 
 **THE ACCIDENTAL CONTROL IS WHY THAT TOOK MINUTES RATHER THAN AN
 INVESTIGATION: `10034` failed too, and `10034` is an EXISTING message on a
@@ -45,17 +48,14 @@ in both rather than left standing where it happened to work.
 **NO CYCLE IS OWED FOR THE FIX** - both verifiers are in `$neverShipped`, and
 `assert-current` is exit 0 on the **16:47:22** install.
 
-**WHAT IS OWED IS TWO UNELEVATED-COST RE-RUNS, both ELEVATED to run:**
+**BOTH RE-RUNS ARE DONE AND BOTH ARE CLEAN**, on the 16:47:22 install:
+`verify-rdpaccount.ps1 -Prefix sdrdp2` **18/18**, and
+`verify-accountacl.ps1 -Prefix sdacl6` **21/21** - the second exercising the
+file's own copy of the changed helper, which the `sdacl5` run had predated by
+a minute and therefore said nothing about.
 
-```powershell
-gplbld\verify-rdpaccount.ps1 -Prefix sdrdp2    <- the six message texts, still unproven
-gplbld\verify-accountacl.ps1 -Prefix sdacl6    <- its copy of the changed helper
-```
-
-**The second is not belt-and-braces.** The two files hold SEPARATE copies of
-the same function, and the `sdacl5` run finished a minute BEFORE that file was
-edited - so a green `verify-accountacl` on this install says nothing about the
-version now on disk.
+**NOTHING IS OWED. The tree is current and every verifier in the suite has
+passed on this install.**
 
 **WHAT IT IS** (owner's decision, 18 Aug, built 20 Aug): a `CREATE.ACCOUNT`
 keyword **orthogonal to the tier**, not a fourth one - `CREATE.ACCOUNT USER
@@ -666,21 +666,21 @@ all four **exit 0**:
 | `verify-createaccount.ps1 -Account sdacct27` | all PASS, incl. the ssh-only branch |
 | `verify-tiers.ps1 -Prefix sdtiert` | all PASS - **393 / 411 / 421** |
 | `verify-accountacl.ps1 -Prefix sdacl5` | **21/21** |
-| `verify-rdpaccount.ps1 -Prefix sdrdp1` | **12/18 - behaviour all PASS, six message checks were the TEST's fault. Fixed, NOT re-run.** |
+| `verify-rdpaccount.ps1 -Prefix sdrdp2` | **18/18** - behaviour and all six message texts |
+| `verify-accountacl.ps1 -Prefix sdacl6` | **21/21** - re-run after the helper fix |
 
 All earlier installs are superseded by these. **RDPACCOUNT did not disturb
 anything**: the same three verifiers pass on the install that introduced it.
 
-**THE `sdacl5` RUN PREDATES THE HELPER FIX BY ABOUT A MINUTE** - the summary
-was written 16:51:06 and `verify-accountacl.ps1` was edited 16:51:57 - so it
-exercised the OLD `Get-SysMsgHead`, which worked there by accident. It
-confirms the tree, **not the fix**. The changed copy in that file is still
-unrun; `verify-rdpaccount.ps1 -Prefix sdrdp2` exercises the other copy.
+**`sdrdp1` and `sdacl5` ARE SUPERSEDED AND WERE BOTH SOUND AT THE TIME.**
+`sdrdp1` was 12/18 with the broken helper; `sdacl5` ran a minute before that
+file was edited, so it confirmed the tree rather than the fix. Both were
+re-run after the change and both are clean.
 
-**`sdtierq`-`sdtiert`, `sdacct24`-`sdacct27`, `sdacl2`-`sdacl5` and `sdrdp1`
-are SPENT.** Next free: `sdtieru`, `sdacct28`, `sdacl6`, `sdrdp2`. Their
-`ACCOUNTS` records are still in the register, like the rest of the litter -
-the Windows halves were cleaned up by the scripts.
+**`sdtierq`-`sdtiert`, `sdacct24`-`sdacct27`, `sdacl2`-`sdacl6` and `sdrdp1`,
+`sdrdp2` are SPENT.** Next free: `sdtieru`, `sdacct28`, `sdacl7`, `sdrdp3`.
+Their `ACCOUNTS` records are still in the register, like the rest of the
+litter - the Windows halves were cleaned up by the scripts.
 
 **THE CLIENT REPOSITORIES CARRY THE PROJECT LICENCE HEADER AND NO ScarletDME
 BRANDING — 20 Aug 2026.** Every source file in `winsdclilib` and `sdclilib32`
@@ -1126,7 +1126,8 @@ carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
    checks that `5272` refusals happen but never checks their text, and `5274`
    is unexercised.
 
-2. **`RDPUSER`** — blocked on item 1.
+2. **DONE, and it is `RDPACCOUNT`.** Built and verified 20 Aug 2026 -
+   `verify-rdpaccount.ps1 -Prefix sdrdp2` **18/18**. The header has it.
 
 3. **A `verify-lcnames` CHECK HAS FAILED TWICE AND RE-RUN CLEAN — intermittent,
    about 2 runs in 10, cause unknown.** An install was spent on it: six
@@ -9262,7 +9263,21 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 HISTORY entry "Identity, install layout and data protection decided" for the
 reasoning and for the corrections to the evidence that was recorded here.
 
-### DECIDED IN SHAPE, BLOCKED ON THE ACL WORK: `RDPUSER` (owner, 18 Aug 2026)
+### BUILT AND VERIFIED, 20 Aug 2026: `RDPACCOUNT` (decided 18 Aug, owner)
+
+**IT SHIPPED AS `RDPACCOUNT`, NOT `RDPUSER`** - owner, 20 Aug: *"we don't
+have users just accounts"*. Everything below this line was written before
+that rename and before it was built, and uses the old spelling; it is kept
+as the record of how the decision was reached. **The header of this file
+has what was actually built, and what it measured.**
+
+**THE BLOCKER NAMED IN THIS SECTION IS GONE** - the per-account ACLs are
+done and verified (`verify-accountacl.ps1`). **Difficulty 1 was decided by
+deriving rather than recording**, difficulty 2 was built (`MODIFY.ACCOUNT`
+gained `RDPACCOUNT`/`NO.RDPACCOUNT`), and difficulty 4 is closed - the
+`sd.c` comment is rewritten. **Difficulties 3, 5 and 6 remain open**:
+`sd LISTF` from a desktop, user counting across RDP sessions, and §5.6.2's
+rewrite into a three-way rule.
 
 **Owner's decision, 18 Aug 2026.** A new `CREATE.ACCOUNT` keyword, orthogonal
 to the tier rather than a fourth one:
