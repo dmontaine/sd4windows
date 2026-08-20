@@ -16,6 +16,30 @@ rather than trusting this line:
 gplbld\assert-current.ps1
 ```
 
+**`APIPORT=4243` IS ENABLED IN THE INSTALLED `sd.conf` RIGHT NOW, 19 Aug 2026,
+AND A CYCLE WILL TURN IT OFF AGAIN.** Re-enabled by hand after the owner's
+32-bit editor could not connect. Bound to `127.0.0.1` only, never `0.0.0.0`.
+
+**THE TWO THINGS A CYCLE TAKES THAT NOTHING PUTS BACK, and both look like "the
+API is broken":**
+
+1. **`APIPORT` returns to commented-out**, because that is what a fresh install
+   ships. Nothing is then listening and every client says it cannot connect.
+2. **`$cred` comes back EMPTY**, so no account has an API password. The port
+   answers, `vb.scram.first` runs, and the reply is *"Invalid username or
+   password"* — which reads like a wrong password rather than an absent one.
+
+**Neither is a fault, and both are now measurable in seconds** rather than
+guessed at. A read-only probe that speaks request 47 and reads the answer
+distinguishes "nothing listening" from "listening but no credential" from "a
+real protocol fault"; it is worth keeping as `gplbld/probe-api.ps1` if this
+recurs.
+
+**SET.PASSWORD needs an ELEVATED session** — `SET_ACC_PASSWORD:72` stops with
+*"Command requires administrator privileges"*. With no credential yet it does
+not ask for a current one: two hidden prompts, then *"Password set for account
+X"*.
+
 **SCRAM PHASES 1-4 OF 6 ARE COMPLETE AND VERIFIED, 19 Aug 2026.** 5-6 not
 started. Design and decisions [docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md); state,
 resume commands and traps [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md).
