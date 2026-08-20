@@ -8,7 +8,7 @@ something came to be the way it is.
 **Last updated:** 20 Aug 2026, end of the twenty-ninth session.
 
 **THE TREE IS CURRENT AND EVERYTHING BELOW WAS MEASURED ON IT.**
-`assert-current` **exit 0** — install **20 Aug 07:52:25**, `sd.exe`
+`assert-current` **exit 0** — install **20 Aug 09:09:06**, `sd.exe`
 **`6DE833057823BFFB`**, `bin\` built 07:49:15 with no source newer. Confirm
 rather than trusting this line:
 
@@ -27,11 +27,20 @@ after the cycle and SD restarted so `read_config()` ran. Measured:
 `TCP 127.0.0.1:4243 LISTENING`, **and not on `0.0.0.0`**. Backup of the
 original at `sd.conf.before-apiport`.
 
-**`$cred` HOLDS THREE VERSION-2 RECORDS, 20 Aug 2026** — `DON` (owner ran
-`SET.PASSWORD`), plus `SDAPI3` and `SDSCRAM2` which the verifiers leave behind
-by design. All three: `SCRAM-SHA-256`, `i=600000`, 24-char salt, 44-char
-StoredKey and ServerKey. **So the API is complete end to end again**: port
-listening, credential present.
+**`$cred` HOLDS TWO VERSION-2 RECORDS — `SDSCRAM3` and `SDAPI4`, verifier
+litter. **`DON` HAS NO CREDENTIAL**: the owner set one at 08:54 and the
+**second** cycle of the day (09:09:06, for the `SET.PASSWORD` guard) deleted
+the data tree and took it. `APIPORT=4243` is listening again, so mvDeveloper
+needs only:
+
+```
+sd -internal          (ELEVATED)
+SET.PASSWORD DON
+```
+
+**THAT IS THE COST OF A CYCLE, PAID TWICE IN ONE DAY, AND IT IS WORTH SAYING
+BEFORE RUNNING ONE RATHER THAN AFTER.** A cycle deletes `C:\ProgramData\SD`;
+every `$cred` record and the `APIPORT` line go with it. Nothing puts them back.
 
 **READING `$cred` UNELEVATED RETURNS *ACCESS DENIED*, AND
 `-ErrorAction SilentlyContinue` TURNS THAT INTO "0 RECORDS".** This session
@@ -289,7 +298,7 @@ and leaves the SD half so a half-failed `CREATE.ACCOUNT` cannot hide. Clear it
 with `DELETE.ACCOUNT` (elevated, `Y` three times). **Next free prefix is
 `sdscram2`.** `sd.conf` is restored, `APIPORT` is gone and SD is running.
 
-**THE WHOLE POST-CYCLE SUITE PASSED ON THE 07:52:25 INSTALL OF 20 AUG 2026** —
+**THE WHOLE POST-CYCLE SUITE PASSED ON THE 09:09:06 INSTALL OF 20 AUG 2026** —
 `probe-keys.ps1` excepted, which needs a human at a real console and refuses
 rather than lying. Nothing in the table below is carried forward from an
 earlier tree.
@@ -311,11 +320,26 @@ Every number quoted further down this file against the 14:54:36, 15:16:15,
 | `verify-nocase.ps1` / `verify-credacl.ps1` | exit 0 |
 | `verify-osusers.ps1` | all 23 PASS, exit 0 |
 | `make check-local` | PASS — `DON` admitted, `SDSYS` refused |
-| `verify-scramlogin.ps1 -Prefix sdscram2` | **40/40** — phases 3 AND 5 |
-| `verify-apiport.ps1 -Prefix sdapi3` | all checks — types sent 1, 2, 3, 21, 47, 48 |
-| `post-cycle-elevated.ps1 -TierPrefix sdtierm -Account sdacct20` | all exit 0 |
+| `verify-setpw.ps1` **(new)** | **4/4** — the trailing token, with its control |
+| `verify-scramlogin.ps1 -Prefix sdscram3` | **40/40** — phases 3 AND 5 |
+| `verify-apiport.ps1 -Prefix sdapi4` | all checks — types sent 1, 2, 3, 21, 47, 48 |
+| `post-cycle-elevated.ps1 -TierPrefix sdtiern -Account sdacct21` | all exit 0 |
 | — `verify-fold` **10/10**, `verify-tiers` all passed, standard `COUNT VOC` **393** | |
 | `probe-keys.ps1` | **NOT RUN — needs a real console, see below** |
+
+**A VERIFIER CAN FAIL FOR A REASON THAT IS NOT SD, AND ONE DID — 20 Aug 2026.**
+`verify-lcnames.ps1` reported **135/142** minutes after the 09:09:06 install,
+five named failures, all in the later blocks. The same block replayed by hand
+answered correctly, and a re-run on a quiet machine was **142/142**.
+
+**Its `Invoke-SD` drives SD through `Start-Job` with a 45-second timeout** and
+has an explicit `<<TIMED OUT>>` path, so contention on a machine still settling
+after an install is the likely cause — **likely, not proven**: the raw output
+was not kept. **It fails in the SAFE direction** (a false FAIL, never a false
+PASS), which is why it is a note and not a defect.
+
+**Re-run before believing a lcnames failure**, and do not go looking in SD
+until it reproduces on a quiet machine. That investigation cost an hour here.
 
 **WHAT THE 40 ADD OVER THE 24, because "more checks" is not the point.** Every
 refusal now asserts its message **text** against the installed `messages`
@@ -343,14 +367,14 @@ gplbld\probe-keys.ps1
 rule stands unchanged — it works when someone is at the keyboard, and nothing
 should be built assuming it.
 
-**LITTER: SIX `ACCOUNTS` RECORDS, NO WINDOWS ACCOUNTS.** `SDACCT20`, `SDAPI3`,
-`SDSCRAM2`, `SDTIERM1`, `SDTIERM2`, `SDTIERM3` — every Windows user, group and
+**LITTER: SIX `ACCOUNTS` RECORDS, NO WINDOWS ACCOUNTS.** `SDACCT21`, `SDAPI4`,
+`SDSCRAM3`, `SDTIERN1`, `SDTIERN2`, `SDTIERN3` — every Windows user, group and
 `user_accounts` directory was cleaned up by the scripts, and `Get-LocalUser`
 shows no `sd*` account at all with `sdu_don` the only `sdu_*` group. The SD
 half is left by design so a half-failed `CREATE.ACCOUNT` cannot hide. Clear
 with `DELETE.ACCOUNT` (elevated, `Y` three times each) or the next thing that
-counts accounts is measuring this. **Next free: `sdacct21`, `sdtiern`,
-`sdscram3`, `sdapi4`.**
+counts accounts is measuring this. **Next free: `sdacct22`, `sdtiero`,
+`sdscram4`, `sdapi5`.**
 
 **The register also holds `DON`, and that is the installer working** — a cycle
 deletes the data tree, so `DON` is there because `adopt-account.ps1` put it
@@ -1541,24 +1565,21 @@ password"* from a client as a phase 5 regression until this has been run for
 that account**: the server has nothing to check against, and SCRAM cannot
 distinguish an absent credential from a wrong one in its reply.
 
-**OPEN, FOUND 20 Aug 2026 BY THE OWNER WALKING INTO IT:
-`SET.PASSWORD <account> <anything>` SILENTLY DISCARDS THE TRAILING TOKEN.**
-`SET_ACC_PASSWORD:57-66` resets the parser, takes one token as the verb and one
-as the account, and **never looks for a third**. So a person who types the
-password on the command line - which is the obvious thing to try - gets no
-error, no hint, and the hidden prompts anyway.
+**CLOSED 20 Aug 2026 — `SET.PASSWORD <account> <anything>` NOW REFUSES THE
+TRAILING TOKEN INSTEAD OF DISCARDING IT.** Found by the owner typing it.
+`SET_ACC_PASSWORD` read one token as the verb and one as the account and never
+looked for a third, so the obvious thing to try - putting the password on the
+command line - failed silently, and the password still reached SD's command
+stack. It now stops with message **5276**.
 
-**The password still lands somewhere it was not meant to**: SD's command stack,
-and the shell's history if the verb were reached from a shell rather than from
-SD's own `:` prompt. `verify-scramlogin.ps1`'s own comment states the rule the
-verb does not enforce - *"GENERATED, NEVER HARDCODED, AND NEVER ON A COMMAND
-LINE"*.
+**`gplbld/verify-setpw.ps1` is the check, and the CONTROL is the point**: the
+same command WITHOUT the token has to get past the syntax test and reach the
+password prompt, or "it refused" would prove nothing. 4/4 on the 09:09:06
+install.
 
-**The fix is a few lines and a message**: after reading the account, ask the
-parser for another token and, if one is there, stop with "a password is never
-taken on the command line". **It is a BASIC change, so it costs a cycle and
-voids the suite above** - which is why it is written down here rather than done
-in passing.
+**It is in `$neverShipped` in `assert-current.ps1`**, because a verify script
+is not shipped and cannot reach an installed tree - without that line, WRITING
+a test would make every test refuse to run.
 
 **THE NEXT PIECE OF WORK IS PHASE 6** (rebuild the two DLLs so they carry
 `SD_CLIENT_DEBUG` auto-logging, re-set every password) **or §8's

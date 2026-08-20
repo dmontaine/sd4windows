@@ -27,6 +27,54 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - SET.PASSWORD refuses a trailing token, and a verifier cried wolf
+
+**Commit:** this one. Twenty-ninth session, second cycle of the day.
+
+**THE DEFECT, FOUND BY THE OWNER TYPING IT.** `SET.PASSWORD DON <password>`
+read one token as the verb and one as the account and never looked for a third,
+so the password was discarded in silence and the hidden prompts appeared as
+though nothing had happened. Everything visible said it worked - and it did,
+just not the way the person typing it believed. The password had already
+reached SD's command stack by then.
+
+`SET_ACC_PASSWORD` now asks the parser for one more token and stops with
+message **5276** if there is one. The guard sits BEFORE the administrator
+check on purpose: the password is exposed the moment it is typed, so telling
+the person immediately matters more than telling them they were not allowed to
+set that account anyway.
+
+**IT IS DELIBERATELY NOT "ACCEPT IT IF GIVEN".** A password on a command line
+is the thing the credential model exists to avoid; making the convenient form
+work would undo it.
+
+**`gplbld/verify-setpw.ps1` IS THE CHECK AND THE CONTROL IS THE POINT** - the
+same command without the token must reach the password prompt, or "it refused"
+proves nothing. 4/4. It is listed in `assert-current.ps1`'s `$neverShipped`,
+because a verify script cannot reach an installed tree and without that line
+WRITING a test would make every test refuse to run.
+
+**AND A VERIFIER FAILED FOR A REASON THAT WAS NOT SD.** `verify-lcnames.ps1`
+came back **135/142** minutes after the install, five named failures, all in
+later blocks - and the obvious reading was that the BASIC change had broken VOC
+resolution. It had not. The failing block replayed by hand answered correctly,
+and a re-run on a quiet machine was **142/142**.
+
+Its `Invoke-SD` drives SD through `Start-Job` with a 45-second timeout and an
+explicit `<<TIMED OUT>>` path, so contention on a machine still settling after
+an install is the likely cause. **Likely, not proven** - the raw output was not
+kept, and saying so is better than inventing a cause. It fails in the SAFE
+direction, a false FAIL rather than a false PASS, which is why it is recorded
+as a trap and not a defect. **Re-run before believing it.**
+
+**THE SECOND CYCLE OF THE DAY TOOK THE OWNER'S CREDENTIAL AGAIN.** `DON` had a
+password at 08:54; the 09:09:06 cycle deleted the data tree and it went with
+`APIPORT`. That cost was documented before the first cycle and NOT restated
+before the second, which is the mistake worth recording: the cost of a cycle
+should be said before running one, not after.
+
+---
+
 ## Correction: 20 Aug 2026 - "$cred is empty" was access denied, not empty
 
 **Commit:** this one. Twenty-ninth session.
