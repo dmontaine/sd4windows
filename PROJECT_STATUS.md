@@ -1681,10 +1681,31 @@ a test would make every test refuse to run.
    A minute, and only a person can.
 5. **`DELETE.ACCOUNT` the ten register records** listed above, or the next
    thing that counts accounts is measuring the litter.
-6. **Decide what happens to `gplsrc/sdclient.c`.** A second, dead cleartext
-   client - stripped from `SRCS`, absent from `gpl.src`, nothing links it. It
-   still builds a request 24 at line 609. Delete it or revive it onto SCRAM;
-   leaving it is the status quo and is fine, but it should be a decision.
+6. **DELETE `gplsrc/sdclient.c` AND `gplsrc/sdclient.h`.** Owner's decision,
+   20 Aug 2026 - the question is settled, only the deletion is left. Do it with
+   the next change that owes a cycle rather than on its own: nothing links
+   them, but a `.c` under `gplsrc` trips `assert-current` check A2, so a
+   standalone deletion would owe a `make sd` and leave the tree stale for no
+   gain.
+
+   **THEY ARE DEAD THREE WAYS OVER, so do not go looking for callers:**
+   `Makefile:66` strips the file with `SRCS := $(TEMPSRCS:sdclient.c=)`, it is
+   absent from `gpl.src` which is the real build list, and the `sdclient.o`
+   rule at `Makefile:214` is an orphan no target depends on. It still builds a
+   cleartext request 24 at line 609, which this server now refuses.
+
+   **DO NOT CONFUSE THEM WITH `gplsrc/sdclilib/sdclient.h`**, one directory
+   down, which is a DIFFERENT file with the same basename: the live protocol
+   header, shared with both client projects. That collision is why this took
+   a session to pin down.
+
+   **THE ONE ARGUMENT FOR KEEPING THEM IS DEAD.** `sdclient.c` is
+   `_stdcall _export` with `VBBool`, the only stdcall implementation in the
+   tree, so it was the natural start for the VB6/VBA shim that
+   `sdclilib32/README.md` calls "a separate piece of work". **Owner, 20 Aug
+   2026: VB6 is not a target.** So the shim is not wanted, and with it the
+   reason to keep these two files. Do not re-open this on finding the stdcall
+   note in that README - update the README instead.
 7. **§7 step 3, installer loose ends** - `deny-logon.ps1`'s exit code is still
    unchecked, and `limitssh`/`sshremote` need the VM.
 8. **§7 steps 9, 10, 12, 13** - scheduled-job login, the admin helpers, the
