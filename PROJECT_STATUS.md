@@ -7,21 +7,44 @@ something came to be the way it is.
 
 **Last updated:** 20 Aug 2026, thirtieth session.
 
-**RDPACCOUNT IS WRITTEN AND THE BASIC HAS NEVER BEEN THROUGH THE COMPILER.
-THE TREE IS STALE AND OWES ONE CYCLE.** Nothing below about RDPACCOUNT has
-been run.
-
-**`make sd` IS ALREADY DONE** - `gplsrc/sd.c` changed (a comment only) and was
-rebuilt; `bin\` is current with no source newer. The cycle alone is owed.
+**RDPACCOUNT COMPILES AND WORKS. EVERY BEHAVIOURAL CHECK PASSED on the first
+run**, `verify-rdpaccount.ps1 -Prefix sdrdp1`, on the cycle that installed
+`F8B91512CD1A332E`. The tree is CURRENT (`assert-current` exit 0).
 
 ```
-bin/sd.exe    F8B91512CD1A332E   built 20 Aug 16:39:21   <- the cycle must install this
-installed     9C128170D50FD29C   20 Aug 16:13:18
+RDPACCOUNT account   not in sdsshonly   LogonUser INTERACTIVE  admitted
+plain account        IN sdsshonly       LogonUser INTERACTIVE  refused 1385  <- the control
+MODIFY ... RDPACCOUNT      out of sdsshonly, admitted
+MODIFY ... NO.RDPACCOUNT   back in sdsshonly, refused 1385
+ADMINISTRATOR + NO.RDPACCOUNT   still NOT in sdsshonly, still admitted  <- the guard held
 ```
 
-**A BASIC COMPILE ERROR ABORTS THE CYCLE BEFORE THE UNINSTALL**, so a failed
-bootstrap costs nothing but time and leaves the installed tree alone. That is
-why this is one full cycle rather than `-SkipInstall` first.
+**THE LOCKOUT GUARD IS THE ONE THAT MATTERED AND IT HELD.** An administrator
+put into `sdsshonly` loses console and Remote Desktop sign-in and keeps only
+the session they typed it in - 15 Aug 2026, the first ADOPT run. `clear.rdp`
+refused, and the account was still admitted afterwards.
+
+**THE MESSAGE TEXTS ARE NOT YET VERIFIED. The run was 12/18 and all six
+failures were the message assertions, every one of them a fault in the TEST.**
+`Get-SysMsgPattern` (then `Get-SysMsgHead`) took the text before the first
+`%`, and **every message this script reads STARTS with `%1`** - so the head
+was the empty string and the guard beside it fired. Fixed; re-run to close it.
+
+**THE ACCIDENTAL CONTROL IS WHY THAT TOOK MINUTES RATHER THAN AN
+INVESTIGATION: `10034` failed too, and `10034` is an EXISTING message on a
+path RDPACCOUNT never touches.** A new feature cannot break an old message it
+does not go near, so the fault had to be in the checking. **Six failures with
+one of them impossible is worth more than six plausible ones** - when a new
+suite fails, look first for a check that could not have been affected.
+
+**`verify-accountacl.ps1` CARRIED THE SAME FUNCTION AND PASSED ANYWAY**, and
+that is the more useful half of the lesson. Its one message, `10055`, happens
+to begin with literal text, so the helper worked there **by accident**. Fixed
+in both rather than left standing where it happened to work.
+
+**NO CYCLE IS OWED FOR THE FIX** - both verifiers are in `$neverShipped`.
+**`sdrdp1` is SPENT** (its `ACCOUNTS` records survive); re-run with
+`-Prefix sdrdp2`.
 
 **WHAT IT IS** (owner's decision, 18 Aug, built 20 Aug): a `CREATE.ACCOUNT`
 keyword **orthogonal to the tier**, not a fourth one - `CREATE.ACCOUNT USER
