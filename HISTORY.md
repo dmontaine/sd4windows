@@ -27,6 +27,70 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - APIPORT is on by default, reversing the 17 Aug decision
+
+**Commit:** this one. Owner's decision, 20 Aug 2026.
+
+`gplbld/stage.py`'s `SD_CONF` template now ships `APIPORT=4243` **active**
+instead of commented out, so a fresh install listens for API connections as
+soon as SD starts. The installed `sd.conf` was edited to match and SD
+restarted, so the running system agrees with the template rather than waiting
+on the next cycle.
+
+**MEASURED after the restart**, with its control:
+
+```
+TCP 127.0.0.1:4243 LISTENING       <- and nothing on 0.0.0.0 or any interface
+```
+
+**WHY THE DEFAULT COULD CHANGE.** The 17 Aug default was defensive about a
+specific thing: the API login sent the account password in CLEAR, so opening
+the port by default meant any local process could watch one go past. SCRAM
+phase 5 retired that login on 20 Aug - the password is never sent and request
+24 is refused outright - so the premise the cautious default rested on is
+gone. The second reason is operational: every install deletes and rebuilds the
+data tree, so a commented-out default meant re-enabling the port by hand after
+every upgrade, and the symptom of forgetting is a client reporting that it
+cannot connect - which reads like a fault.
+
+**IT ALSO HALVES A STANDING TRAP.** PROJECT_STATUS.md has carried "the two
+things a cycle takes and nothing puts back" - `APIPORT` and `$cred` - and both
+were paid for twice on 20 Aug alone. Only `$cred` is left, and that one cannot
+be defaulted away: it holds passwords, which a script must not invent.
+
+**WHAT GUARDS THE PORT IS UNCHANGED, and it was never the default.** The
+socket binds to 127.0.0.1 and never to a network interface; a client must
+complete a SCRAM-SHA-256 exchange against a `$cred` record; and it must then
+pass `vb.account`'s `ACC$GROUP` check. An account with no API password cannot
+be logged in to at all - which is the state every account is in immediately
+after a cycle, so the default-on port answers and admits nobody until
+SET.PASSWORD has been run.
+
+**WHAT THIS DOES NOT ANSWER.** Section 8's posture-B note stands: binding to
+loopback is not the same as authenticating the peer, and the Windows answer is
+a named pipe with `GetNamedPipeClientProcessId`, for which `connection_type`
+already has `CN_PIPE`. Default-on raises the value of that work rather than
+substituting for it. It also interacts with the `RDPUSER` proposal, whose
+whole point is to admit non-administrator desktop users - at which point
+"anyone who can be local is an administrator" stops being true by
+construction, and the loopback binding stops carrying the weight it carries
+today.
+
+**CHECKED RATHER THAN ASSUMED: the two verifiers that set `APIPORT`
+themselves are unaffected.** `verify-apiport.ps1:204` and
+`verify-scramlogin.ps1:499` both filter any existing `^\s*APIPORT\s*=` line out
+before appending their own, so an active default is replaced rather than
+duplicated, and both restore `sd.conf` from a backup in a `finally`. A
+duplicate line would have been the obvious way for this change to break the
+suite.
+
+**WHAT IS STILL OPEN:** the tree is stale by `gplbld/stage.py` and owes one
+cycle - no `make sd`, nothing under `gplsrc` moved. The four elevated
+verifiers should be re-run after it. `$cred` is still empty and
+`SET.PASSWORD DON` still needs a person.
+
+---
+
 ## 20 Aug 2026 - Section 8's ACL work is closed: 21/21 on the second cycle
 
 **Commit:** this one. Measured on the **15:51:19** install, `sd.exe`

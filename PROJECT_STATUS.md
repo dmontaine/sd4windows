@@ -7,9 +7,17 @@ something came to be the way it is.
 
 **Last updated:** 20 Aug 2026, thirtieth session.
 
-**THE TREE IS CURRENT AND EVERYTHING BELOW WAS MEASURED ON IT.**
-`assert-current` **exit 0** - install **20 Aug 15:51:19**, `sd.exe`
-**`9C128170D50FD29C`**. Two cycles ran this session; this is the second.
+**EVERYTHING BELOW WAS MEASURED ON THE 15:51:19 INSTALL, `sd.exe`
+`9C128170D50FD29C`** - this session's second cycle, and `assert-current` was
+`exit 0` when measured.
+
+**THE TREE IS NOW STALE AGAIN BY ONE FILE: `gplbld/stage.py`**, changed after
+those measurements to put `APIPORT` on by default (below). It ships, so it
+owes a cycle; it needs **no `make sd`**, nothing under `gplsrc` moved. **The
+verifier results below are still good** - `stage.py` is the installer's
+template and changes nothing any of them measured - but re-run the four
+elevated ones after the cycle rather than carrying these forward, per the
+project's own rule.
 
 **ALL FOUR ELEVATED VERIFIERS PASSED, exit 0** -
 `post-cycle-elevated.ps1 -TierPrefix sdtierr -Account sdacct25 -AclPrefix sdacl3`.
@@ -90,12 +98,45 @@ past the summary and the exit code - eleven passing checks ended as a stack
 trace. The verifier now has a `catch` that records the throw as a failed check
 and still prints what it measured.
 
-**`APIPORT` AND `$cred` ARE EMPTY AND NO FURTHER CYCLE IS OWED, so now is the
-time to put them back.** Both cycles today took them, as every cycle does.
-`APIPORT=4243` is commented out in `C:\ProgramData\SD\sd.conf` and nothing is
-listening; `DON` has no API credential, so mvDeveloper answers *"Invalid
-username or password"* - an ABSENT credential, not a fault. Un-comment the
-line, restart SD, then elevated: `sd -internal`, `SET.PASSWORD DON`.
+**`APIPORT=4243` IS NOW ON BY DEFAULT - owner's decision, 20 Aug 2026, and it
+reverses the 17 Aug default.** `gplbld/stage.py`'s `SD_CONF` ships the line
+ACTIVE rather than commented out, **so a cycle no longer takes it.** That
+halves the standing "two things a cycle takes and nothing puts back": only
+`$cred` is left.
+
+**ENABLED AND MEASURED ON THE RUNNING SYSTEM TOO**, not just in the template -
+`sd.conf` edited, SD restarted so `read_config()` ran, and:
+
+```
+TCP 127.0.0.1:4243 LISTENING          <- and the control: nothing on 0.0.0.0
+```
+
+Backup of the pre-change file at `sd.conf.before-apiport`.
+
+**WHY IT IS DEFENSIBLE NOW AND WAS NOT ON 17 AUG.** The old default was
+defensive about a login that sent the password in clear; SCRAM phase 5 retired
+that on 20 Aug. What guards the port is unchanged and is not the default: it
+binds to **127.0.0.1 only**, a client must complete SCRAM against a `$cred`
+record, and then pass `vb.account`'s `ACC$GROUP` check. **An account with no
+API password cannot be logged in to at all**, which is the state every account
+is in immediately after a cycle.
+
+**§8's POSTURE-B NOTE STILL STANDS AND IS NOT ANSWERED BY THIS**: binding to
+loopback is not the same as authenticating the peer, and the Windows answer is
+a named pipe with `GetNamedPipeClientProcessId` (`connection_type` already has
+`CN_PIPE`). Default-on raises the value of that work; it does not do it.
+
+**THE TWO VERIFIERS THAT SET `APIPORT` THEMSELVES ARE UNAFFECTED**, checked
+rather than assumed: `verify-apiport.ps1:204` and `verify-scramlogin.ps1:499`
+both FILTER any existing `^\s*APIPORT\s*=` line out before appending their
+own, so an active default is replaced rather than duplicated, and both restore
+`sd.conf` from a backup in a `finally`.
+
+**`$cred` IS STILL EMPTY AND THAT STILL NEEDS A PERSON.** `DON` has no API
+credential, so mvDeveloper answers *"Invalid username or password"* - an
+ABSENT credential, not a fault. Elevated: `sd -internal`, then
+`SET.PASSWORD DON`. Left to a person because the password is the owner's to
+choose and a script should not invent one.
 
 Confirm the tree rather than trusting this line:
 
