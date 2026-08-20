@@ -27,6 +27,66 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - The three client locations synchronised, and the arrow turned round
+
+**Commit:** this one, plus `winsdclilib` `07a71c6` and `e35376a`, both pushed.
+Closes the phase 6 blocker recorded two entries below.
+
+**THE PROBLEM.** `Projects/winsdclilib` had not moved since 15 Aug 2026 while
+this tree added `SDConnectLocal`, `sysdir()`, the socket-or-pipe transport
+layer and then SCRAM-SHA-256. `Projects/sdclilib32` built from
+`../winsdclilib`. So the 32-bit `qmclilib.dll` intended to ship with
+mvDeveloper was being built from source with **no SCRAM in it** - still
+sending the password in clear - and **nothing in either project would have
+reported it**. `sdclilib32`'s own Makefile comment had predicted exactly this
+failure in the abstract: "a forked copy quietly goes stale".
+
+**CHECKED BEFORE OVERWRITING ANYTHING**, because VENDORING.md recorded
+`winsdclilib` as *upstream* and this directory as the vendored copy, and
+overwriting upstream with a copy is how work gets lost:
+
+- every function in `winsdclilib/sdclilib.c` was present here;
+- every `#define` likewise;
+- the `_MSC_VER` guards survive in both;
+- the only thing it had that this tree lacked was the **comment** explaining
+  the `SV_EMSG_PAIR`/`SV_ECONTXT` transposition. The values were already
+  identical - `winsdclilib` fixed it in `a1987b0` and this tree fixed it
+  independently, each with its own note.
+
+So the repo copy was a genuine content superset and the sync could only add.
+
+**THE ARROW NOW POINTS OUTWARDS.** `gplsrc/sdclilib` is the source of truth;
+`winsdclilib` is a mirror; `sdclilib32` holds no source at all and its
+`SRCDIR` was repointed from `../winsdclilib` to this tree. **One hop instead
+of two**, so the middle copy cannot lag again. VENDORING.md was rewritten
+around the new direction rather than deleted - it still records why
+`SDConnectLocal` and the transport layer exist.
+
+**`sdclilib.c` WAS CRLF, AND IS NOW LF.** The only such file in the directory,
+inherited with the vendored import and predating the SCRAM work - the phase 4
+diff was 266 lines, not a whole-file rewrite, which is what proves it was
+already CRLF. This tree's rule is that every file stays LF and `winsdclilib`
+normalises to LF, so leaving it would have guaranteed a permanent byte
+difference between two copies meant to be identical. Exactly one CR removed
+per line, and `git diff --ignore-cr-at-eol` is empty.
+
+**`make check` EARNED ITS KEEP.** `internal_state_test.c` includes
+`sdclilib.c` directly, so it needed `-lbcrypt` as well - missing in all three
+Makefiles and both `build.cmd` scripts. Only the test link failed; every DLL
+built fine, so nothing but running the tests would have found it.
+
+**Verified after the sync**, in both external projects and by **both** build
+routes, Makefile and `build.cmd`: smoke and internal-state pass in each, plus
+the QM alias test in `sdclilib32`. `qmclilib.dll` is PE32 i386 and imports only
+`bcrypt`, `KERNEL32`, `msvcrt` and `WS2_32` - all Windows, so it remains a
+single file that can be copied beside an application, which is the constraint
+that chose PBKDF2 over Argon2 in the first place.
+
+**Still open:** `sdclilib32` is not a git repository, and is now the weakest of
+the three - its half of this sync exists on disk and nowhere else.
+
+---
+
 ## 19 Aug 2026 - The phase 4 packet check ran: 47 and 48 sent, 24 never
 
 **Commit:** this one. Completes the entry below, which recorded the check as

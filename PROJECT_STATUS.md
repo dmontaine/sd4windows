@@ -46,16 +46,38 @@ first** — `debug()` dumps 16 bytes per line, so a 20 character password splits
 across two and a plain text search would have passed whether or not it had
 been sent. `sdapi1` and `sdapi2` are spent.
 
-**THE 32-BIT SHIPPING DLL BUILDS FROM A STALE COPY — A PHASE 6 BLOCKER, FOUND
-NOT CREATED.** `Projects/winsdclilib/sdclilib.c` (112 KB) and this repo's
-`gplsrc/sdclilib/sdclilib.c` (138 KB) have diverged, and the repo copy is a
-strict superset — `winsdclilib` is an older ancestor with nothing of its own.
-`Projects/sdclilib32/Makefile` has `SRCDIR ?= ../winsdclilib`, so the
-`qmclilib.dll` that ships with mvDeveloper **has no SCRAM in it and will not
-get any from editing this repository**. Phase 6 is "rebuild both DLLs" and
-cannot be done until this is settled — point `SRCDIR` here, or bring
-`winsdclilib` up to this copy. Owner's call. `sdclilib32` is still not a git
-repository.
+**THE THREE CLIENT LOCATIONS ARE SYNCHRONISED, 19 Aug 2026, AND THIS TREE IS
+NOW THE SOURCE OF TRUTH.** The stale-32-bit-DLL blocker is closed.
+
+| | Holds | Product |
+|---|---|---|
+| `sd64/gplsrc/sdclilib` | **the source** | `sdclilib.dll` 64-bit |
+| `Projects/winsdclilib` | mirror, `master` `e35376a`, pushed | `sdclilib.dll` 64-bit |
+| `Projects/sdclilib32` | no source; `SRCDIR` points here | `qmclilib.dll` **32-bit** |
+
+**`sdclilib32` was repointed from `../winsdclilib` to this tree — one hop, not
+two, so the middle copy can no longer lag.** It had lagged: `winsdclilib` had
+not moved since 15 Aug, so the `qmclilib.dll` meant for mvDeveloper was being
+built without SCRAM, still sending the password in clear, and neither project
+would have reported it. The seven shared files are byte-identical.
+`gplsrc/sdclilib/VENDORING.md` has the topology, the sync commands and what
+stays 32-bit-specific; the arrow in it used to point the other way.
+
+**Verified after the sync:** `make check` green in both external projects, by
+**both** the Makefile and `build.cmd` routes — `sdclilib32` includes the QM
+alias test. `qmclilib.dll` is PE32 i386 depending only on `bcrypt`,
+`KERNEL32`, `msvcrt`, `WS2_32`, so it is still one copyable file.
+
+**`sdclilib32` IS STILL NOT A GIT REPOSITORY**, and that is now the weakest
+point of the three: its half of this sync exists on disk and nowhere else.
+
+**`gplsrc/sdclilib/sdclilib.c` WAS CRLF AND IS NOW LF.** It was the only such
+file in the directory, inherited from the vendored import and predating the
+SCRAM work. This tree's rule is that every file stays LF, and `winsdclilib`
+normalises to LF, so leaving it would have guaranteed a permanent byte
+difference between two copies that are meant to be identical. Content is
+untouched: `git diff --ignore-cr-at-eol` is empty, and exactly one CR was
+removed per line.
 
 **PHASE 3 IS `APISRVR` REQUEST TYPES 47 AND 48 — `verify-scramlogin.ps1
 -Prefix sdscram1` is **24/24** on the 21:03:41 install.** `vb.scram.first`,
