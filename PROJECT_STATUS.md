@@ -5,68 +5,75 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 19 Aug 2026, end of the twenty-seventh session.
+**Last updated:** 19 Aug 2026, end of the twenty-eighth session.
 
-**THE INSTALL IS STALE AND A CYCLE IS THE FIRST THING OWED.** The last good
-one was **16:54:55** (19 Aug), `sd.exe` **`4042F21834AFDD75`**, but §8's
-account-ACL work went in after it and **none of it has been compiled or
-run**. `gplbld\assert-current.ps1` says so; believe it, not this file.
+**NO CYCLE IS OWED. THE INSTALL IS CURRENT AND THE HAND-PATCHING IS GONE.**
+`assert-current` exit 0 against the **21:03:41** install (19 Aug), `sd.exe`
+**`D796556A8106325A`**, `bin\` built 20:51:53, no source newer. Confirm it
+rather than trusting this line:
 
-**SCRAM IS HALF BUILT AND THE INSTALL IS HAND-PATCHED, 19 Aug 2026.** Phases
-1-2 of 6 complete and verified; **phase 3 written and NOT COMPILED**; 4-6 not
+```powershell
+gplbld\assert-current.ps1
+```
+
+**SCRAM PHASES 1-3 OF 6 ARE COMPLETE AND VERIFIED, 19 Aug 2026.** 4-6 not
 started. Design and decisions [docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md); state,
 resume commands and traps [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md).
-Commits `d971bf3`, `7c4b099`. Nothing on the login path changed — request 24
-still reaches `vb.login`, all additive.
+Commits `d971bf3`, `7c4b099`, `b037526`, `e225354`. Nothing on the login path
+has changed — request 24 still reaches `vb.login`, and that was measured, not
+assumed.
 
-**PHASE 3 IS `APISRVR` REQUEST TYPES 47 AND 48** — `vb.scram.first`,
-`vb.scram.final`, the shared exits, messages `5272`-`5274`, and
-`gplbld/verify-scramlogin.ps1`. The `deffun valid_os_name` moved out of
-`vb.login` to the top of the program because phase 5 deletes that handler and
-would have taken the declaration with it.
+**PHASE 3 IS `APISRVR` REQUEST TYPES 47 AND 48 — `verify-scramlogin.ps1
+-Prefix sdscram1` is **24/24** on the 21:03:41 install.** `vb.scram.first`,
+`vb.scram.final`, the shared exits, messages `5272`-`5274`. The `deffun
+valid_os_name` moved out of `vb.login` to the top of the program because phase
+5 deletes that handler and would have taken the declaration with it.
 
-**ITS CLIENT HALF IS PROVEN AND ITS SERVER HALF IS NOT.**
-`verify-scramlogin.ps1 -SelfTest` is **5/5** against the RFC 7677 vectors,
-unelevated, no server, no install — so the instrument is sound and a later
-disagreement is SD's. Everything about the handlers themselves is unverified.
+**WHAT THE 24 ACTUALLY ESTABLISH**, because "the login worked" is the least of
+it:
 
-**TWO UNVERIFIED CHANGES NOW WAIT ON ONE CYCLE** — this and §8's account ACLs.
-CLAUDE.md's rule is finish every source change, then run one cycle, then
-measure; they do not need one each.
+```
+server signature verifies   v=le6vgqqoodvYIbI1oP07beHpCGv8oIroJZi1i64SEoY=
+                            computed independently in .NET from ServerKey
+                            -> mutual auth, two implementations agreeing
+password absent from bytes sent          <- and the CONTROL passed:
+same search FINDS it in a request 24 login  the detector is not blind
+server nonce differs between exchanges   <- replay defence has a basis
+replayed client-final refused            <- and it actually refuses
+tampered nonce / 48 without 47 / unknown account / y,, / m=  all refused
+iterations 600000                        <- the credential is at full cost
+request 24 still accepted                <- phase 3 really is additive
+```
 
-**THE FIRST CYCLE ATTEMPT DIED AT ISCC AND THE FAULT IS FIXED — RE-RUN IT.**
-`sd.iss:1046` wrapped `#13#10#13#10 +` onto its own line, and ISPP reads any
-line whose first non-blank character is `#` as a preprocessor directive:
-*"Unknown preprocessor directive"*, no file position beyond the line number,
-and only after the service had been stopped, staged and bootstrapped.
-**The rule was already written down** in `sd.iss`'s `InitializeWizard` comment,
-~480 lines from where the account-ACL message was added, and that was not
-enough. **It is enforced now**: `cycle.ps1` lints `sd.iss` for stray `#` lines
-**before step 1**, so it costs seconds instead of a stage and a bootstrap.
-Checked both ways — 0 on the fixed file, and it names all 10 when they are
-reintroduced.
+**THE MESSAGE TEXT IS ONLY PARTLY OBSERVED.** `5017` and `5273` came back to
+the client and are in the transcript. **`5272` fired but its text was never
+checked** — those refusals assert only that `server.error` was non-zero — and
+**`5274` was never exercised** at all, being the server-fault path. Cheap to
+close: assert the text in `verify-scramlogin.ps1`, no cycle needed.
 
-**AND THE FIX IS VERIFIED AS FAR AS IT CAN BE WITHOUT ELEVATION.** `ISCC` run
-standalone against the staged tree: *Successful compile*, exit 0, which also
-compiled §8's `SecureAccountDirs` Pascal for the first time. What that does
-**not** cover is everything after step 4 — uninstall, delete, install.
+**§8's ACLs GOT ONE FREE RESULT OUT OF THIS.** `accounts record created`
+passing means **`CREATE.ACCOUNT` still works with `secure.account.dir` inside
+it** — which this file named as the first thing to check, since `!ps_script`
+needs the session to hold privilege. It says nothing about whether the ACL it
+applies is right; that still needs `verify-accountacl.ps1`, still unwritten.
 
-**SD IS STOPPED RIGHT NOW** unless something has started it since. `cycle.ps1`
-step 1 stops the service and `Fail` never restarted it; both trees are intact
-because the run died before step 6. `Fail` now says so on the way out.
+**AND THE `$CRED` ACL SURVIVED THE FRESH INSTALL.** An unelevated `Test-Path`
+on `C:\ProgramData\SD\sdsys\$cred\SDSCRAM1` answers *Access is denied*, which
+is `secure-cred.ps1` doing its job on a tree the cycle built from nothing.
 
-**The running install matches no build.** `sd.exe` is `ADD9459228DD287C`, not
-the `4042F21834AFDD75` named above; that one is at
-`sdb_ai/sd64/bin/sd.exe.installed-backup-20260819` and
-`C:\Program Files\SD\usr\bin\sd.exe.bak-20260819`. Also copied in by hand:
-`sdsys/gpl.bp/INT$KEYS.H`, `CRED_SET`, `CRED_VERIFY`, `SET_ACC_PASSWORD`;
-`sdsys/syscom/KEYS.H`; `sdsys/bp/TESTSCRAM`, `TESTCRED`. Safe for these
-changes only — `config.h` and `sysseg.h` untouched, so the segment-layout trap
-does not apply. A cycle is still owed, and will delete `C:\ProgramData\SD`
-including the `don` account and `APIPORT=4243`, which a fresh install leaves
-commented out and which the API needs to listen at all.
+**LEFTOVER: `SDSCRAM1` IS STILL IN THE `ACCOUNTS` REGISTER.** Deliberate — the
+script removes the Windows account, the group and `user_accounts\sdscram1`,
+and leaves the SD half so a half-failed `CREATE.ACCOUNT` cannot hide. Clear it
+with `DELETE.ACCOUNT` (elevated, `Y` three times). **Next free prefix is
+`sdscram2`.** `sd.conf` is restored, `APIPORT` is gone and SD is running.
 
-**THE POST-CYCLE RUN IS COMPLETE AND EVERYTHING PASSED. Nothing is owed.**
+**THE POST-CYCLE SUITE IS OWED AGAINST 21:03:41 AND ONLY `verify-scramlogin`
+HAS RUN.** This line used to say "nothing is owed"; the cycle of 19 Aug
+deleted the tree those results were taken from, so by this project's own rule
+they describe a tree that no longer exists. Every number quoted further down
+against the 14:54:36, 15:16:15, 15:30:36, 16:38:01 and 16:54:55 installs is
+**history, not current state** — nothing below has been re-measured. "START
+HERE" has the list and the order; they need no fresh install, only running.
 
 **AN AGENT SHELL CAN SOMETIMES RAISE A UAC PROMPT, AND THE HONEST ANSWER IS "IT
 DEPENDS ON SOMEONE BEING THERE".** Earlier claims in this file went both ways and
@@ -177,11 +184,18 @@ concern was written before that restoration and was never re-checked.
 | Part | State |
 |---|---|
 | `gplbld/secure-account-dirs.ps1` - the re-apply half, NEW | **run by hand and it works** (below) |
-| `CREATEA`'s `secure.account.dir` - the create-time half | written, **never compiled** |
-| `sd.iss` `SecureAccountDirs` + the closing message | written, **never through ISCC** |
-| `stage.py` ships both scripts | written, never staged |
+| `CREATEA`'s `secure.account.dir` - the create-time half | compiled and installed by the 21:03:41 cycle; **`CREATE.ACCOUNT` still works with it in** |
+| `sd.iss` `SecureAccountDirs` + the closing message | through ISCC and installed — one syntax error found and fixed on the way, HISTORY.md |
+| `stage.py` ships both scripts | staged and installed |
 | `sdsys/messages/10055` | new |
-| a verifier | **does not exist - this is the next thing to write** |
+| a verifier | **does not exist - this is still the next thing to write** |
+
+**THE CYCLE ONLY ANSWERED "DOES IT STILL RUN", NOT "IS THE ACL RIGHT".**
+`CREATE.ACCOUNT` making an account was check 1 of `verify-scramlogin.ps1`, so
+`secure.account.dir` and its `!ps_script` privilege requirement do not break
+account creation. **Nothing has compared the ACL it applies against the one
+`secure-account-dirs.ps1` applies**, which is the whole point of the verifier
+and the only guard on a rule that is deliberately in two places.
 
 **THE ONE THING THAT IS MEASURED**, by running the new script by hand against a
 throwaway account on the 16:54:55 install:
@@ -338,19 +352,25 @@ list it.
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
-0. **ONE CYCLE, THEN MEASURE BOTH.** `make sd` first — `assert-current` A2
-   names four `gplsrc` files newer than `bin\sdclilib.dll`. Then
-   `gplbld\cycle.ps1`, elevated. It clears items 1 and 1a together.
+0. **RE-RUN THE POST-CYCLE SUITE against the 21:03:41 install.** No fresh
+   install needed — the tree is current, these have simply not been run
+   against it. "START HERE" has the list and which need elevation. Do this
+   before trusting any number quoted further down this file.
 
-1. **§8's PER-ACCOUNT ACLs - IN FLIGHT, UNVERIFIED, INSTALL STALE.** The
-   blocker is gone (see the header). Verifier, then cycle, then measure.
+1. **§8's PER-ACCOUNT ACLs — the code is installed and `CREATE.ACCOUNT` still
+   works; the ACL it applies is still unmeasured.** `verify-accountacl.ps1`
+   does not exist and is the next thing to write. It must assert that a
+   directory `CREATE.ACCOUNT` makes and one `secure-account-dirs.ps1` stamps
+   come out with the **same** ACL — the rule is deliberately in two places and
+   a measurement is the only guard against them drifting. `CREATEA`'s comment
+   already promises the file by name; write it or change the comment.
 
-1a. **SCRAM PHASE 3 - WRITTEN, NOT COMPILED.** After the cycle, elevated, with
-   a prefix nobody has used: `gplbld\verify-scramlogin.ps1 -Prefix sdscram1`.
-   It restores `sd.conf` and removes the Windows account in a `finally`, and
-   leaves the `ACCOUNTS` and `$CRED` records for `DELETE.ACCOUNT`.
-   [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md) has what to suspect first if
-   it fails.
+1a. **SCRAM PHASE 3 — DONE, `verify-scramlogin.ps1` **24/24** on 21:03:41.**
+   Phase 4 is the client, in `sdclilib.c`;
+   [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md) has what that verifier
+   already settles for it. Loose end worth a few minutes first: the suite
+   checks that `5272` refusals happen but never checks their text, and `5274`
+   is unexercised.
 
 2. **`RDPUSER`** — blocked on item 1.
 
@@ -1173,11 +1193,14 @@ it. Call it first from anything new that tests the install.
 
 **1. NO CYCLE IS OWED. CONFIRM THAT, THEN START WORKING.** The tree was left
 clean at the end of 19 Aug 2026: `assert-current` exit 0 against the
-**07:41:45** install, `sd.exe` **`339AB7157F002679`**, working tree committed
-and pushed, and the SD register holding only `DON` and `SDSYS`. (Windows still
-has `sdacct6`, `8`, `9`, `10`–`13` from earlier sessions — dead local users, no
-SD register records, litter rather than state.) One unelevated command settles
-it:
+**21:03:41** install, `sd.exe` **`D796556A8106325A`**, `bin\` built 20:51:53,
+working tree committed. The SD register holds `DON`, `SDSYS` and the leftover
+`SDSCRAM1` (header). **Only `verify-scramlogin.ps1` has been run against this
+install** — everything in the list below is owed, not because the tree is
+stale but because the cycle replaced the tree those results came from.
+(Windows still has `sdacct6`, `8`, `9`, `10`–`13` from earlier sessions — dead
+local users, no SD register records, litter rather than state.) One unelevated
+command settles the first half:
 
 ```powershell
 gplbld\assert-current.ps1

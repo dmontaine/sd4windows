@@ -27,6 +27,71 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - SCRAM phase 3 verified: 24/24, and the exchange is what runs
+
+**Commit:** this one. Closes the two entries below. **Install 21:03:41**,
+`sd.exe` `D796556A8106325A`, `assert-current` exit 0 before and after.
+
+**`gplbld/verify-scramlogin.ps1 -Prefix sdscram1` passed 24 of 24.** Run by the
+repository owner from an elevated prompt; the transcript is at
+`%LOCALAPPDATA%\SD-verify\verify-scramlogin-20260819-210415.log` and was read
+back rather than taken on the summary line, per CLAUDE.md's rule that nothing
+becomes "verified" without being observed.
+
+**The results that carry weight, as opposed to "the login worked":**
+
+- **Mutual authentication.** The server answered
+  `v=le6vgqqoodvYIbI1oP07beHpCGv8oIroJZi1i64SEoY=` and the test client
+  computed the same value independently in .NET from `ServerKey`. Two
+  implementations agreeing, not one agreeing with itself.
+- **The password is not on the wire — and the detector is not blind.** The
+  byte search found no password in the SCRAM traffic, and the *same* search
+  found it in a request-24 login. Without that control the check would have
+  passed just as well if it could never find anything.
+- **Replay is refused, and the freshness it depends on was measured
+  separately.** Two exchanges for one account got different server nonces, and
+  a client-final captured from the exchange that *succeeded* was refused when
+  replayed against a fresh client-first.
+- **Every refusal fired:** wrong password, tampered nonce, client-final with no
+  client-first, unknown account, the `y,,` downgrade, an `m=` mandatory
+  extension.
+- **`iterations` came back 600000**, so the credential is at full cost rather
+  than some debugging value.
+- **Request 24 still works**, which makes "phase 3 is additive" a measurement.
+
+**Two gaps in the suite, recorded so they are not mistaken for coverage.** The
+`5272` refusals assert only that `server.error` was non-zero and never check
+the message text; `5274` is unexercised, being the server-fault path. `5017`
+and `5273` were both seen reaching the client. Neither gap needs a cycle to
+close.
+
+**§8's ACLs got one result out of this for free.** `accounts record created`
+passing means **`CREATE.ACCOUNT` still works with `secure.account.dir` inside
+it** - which PROJECT_STATUS had named as the first thing to check, because
+`!ps_script` needs the session to hold privilege. It says nothing about
+whether the ACL applied is correct; `verify-accountacl.ps1` is still unwritten.
+
+**And the `$CRED` ACL survived a tree built from nothing.** An unelevated
+`Test-Path` on `C:\ProgramData\SD\sdsys\$cred\SDSCRAM1` answers *Access is
+denied*.
+
+**A CORRECTION THIS CYCLE FORCED.** PROJECT_STATUS carried the line "THE
+POST-CYCLE RUN IS COMPLETE AND EVERYTHING PASSED. Nothing is owed." That was
+true of the tree the cycle deleted. Every figure in that file quoted against
+the 14:54:36, 15:16:15, 15:30:36, 16:38:01 and 16:54:55 installs is now
+history, and only `verify-scramlogin` has run against 21:03:41. The line has
+been replaced with one saying so. **This is the failure mode the cycle rule
+exists to prevent, appearing in the document that states the rule.**
+
+**Left behind:** `SDSCRAM1` in the `ACCOUNTS` register, deliberately, for
+`DELETE.ACCOUNT`. Next free prefix `sdscram2`. `sd.conf` restored, `APIPORT`
+gone, SD running.
+
+**Still open:** phase 4, the client half in `sdclilib.c`; and the post-cycle
+suite against 21:03:41.
+
+---
+
 ## 19 Aug 2026 - A cycle spent on one line of sd.iss, and the rule that was already written down
 
 **Commit:** this one. Follows the SCRAM phase 3 entry below; the cycle that
