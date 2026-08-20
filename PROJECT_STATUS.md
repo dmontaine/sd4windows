@@ -8,20 +8,49 @@ something came to be the way it is.
 **Last updated:** 19 Aug 2026, end of the twenty-eighth session.
 
 **NO CYCLE IS OWED. THE INSTALL IS CURRENT AND THE HAND-PATCHING IS GONE.**
-`assert-current` exit 0 against the **21:03:41** install (19 Aug), `sd.exe`
-**`D796556A8106325A`**, `bin\` built 20:51:53, no source newer. Confirm it
+`assert-current` exit 0 against the **21:43:02** install (19 Aug), `sd.exe`
+**`417CDC4FCA73FB27`**, `bin\` built 21:41:30, no source newer. Confirm it
 rather than trusting this line:
 
 ```powershell
 gplbld\assert-current.ps1
 ```
 
-**SCRAM PHASES 1-3 OF 6 ARE COMPLETE AND VERIFIED, 19 Aug 2026.** 4-6 not
+**SCRAM PHASES 1-4 OF 6 ARE COMPLETE AND VERIFIED, 19 Aug 2026.** 5-6 not
 started. Design and decisions [docs/SCRAM_AUTH.md](docs/SCRAM_AUTH.md); state,
 resume commands and traps [docs/SCRAM_HANDOFF.md](docs/SCRAM_HANDOFF.md).
-Commits `d971bf3`, `7c4b099`, `b037526`, `e225354`. Nothing on the login path
-has changed — request 24 still reaches `vb.login`, and that was measured, not
-assumed.
+
+**PHASE 4 IS THE CLIENT** — `gplsrc/sdclilib/scram_client.h` and
+`scram_login()` in `sdclilib.c`. `SDConnect` no longer sends `SrvrLogin`;
+`QMConnect`'s signature is unchanged, so applications are unaffected.
+`verify-scramclient.c` is **27/27** against the RFC 7677 vectors **64-bit and
+32-bit** — the 32-bit half is the constraint the KDF choice rested on, so it
+was run rather than assumed. `verify-apiport.ps1 -Prefix sdapi1` passed end to
+end on the **21:43:02** install: right password admitted, wrong password
+refused, `SDSYS` refused.
+
+**ONE CHECK ON PHASE 4 IS OWED, AND IT IS NOT A FAILURE.** After that run,
+`verify-apiport.ps1` gained a packet-type assertion — 47 and 48 sent, **24
+not**, password absent from the reassembled bytes with the user name as its
+control. **A successful login does not prove the client spoke SCRAM**, because
+the server still serves request 24 and would admit a fallback just as readily.
+Source says a fallback is impossible (nothing calls `SrvrLogin`, `login_data`
+is gone), but that is an argument. **UAC was declined on the re-run**, so:
+
+```powershell
+gplbld\verify-apiport.ps1 -Prefix sdapi2       ELEVATED; sdapi1 is spent
+```
+
+**THE 32-BIT SHIPPING DLL BUILDS FROM A STALE COPY — A PHASE 6 BLOCKER, FOUND
+NOT CREATED.** `Projects/winsdclilib/sdclilib.c` (112 KB) and this repo's
+`gplsrc/sdclilib/sdclilib.c` (138 KB) have diverged, and the repo copy is a
+strict superset — `winsdclilib` is an older ancestor with nothing of its own.
+`Projects/sdclilib32/Makefile` has `SRCDIR ?= ../winsdclilib`, so the
+`qmclilib.dll` that ships with mvDeveloper **has no SCRAM in it and will not
+get any from editing this repository**. Phase 6 is "rebuild both DLLs" and
+cannot be done until this is settled — point `SRCDIR` here, or bring
+`winsdclilib` up to this copy. Owner's call. `sdclilib32` is still not a git
+repository.
 
 **PHASE 3 IS `APISRVR` REQUEST TYPES 47 AND 48 — `verify-scramlogin.ps1
 -Prefix sdscram1` is **24/24** on the 21:03:41 install.** `vb.scram.first`,
@@ -67,10 +96,20 @@ and leaves the SD half so a half-failed `CREATE.ACCOUNT` cannot hide. Clear it
 with `DELETE.ACCOUNT` (elevated, `Y` three times). **Next free prefix is
 `sdscram2`.** `sd.conf` is restored, `APIPORT` is gone and SD is running.
 
-**THE POST-CYCLE SUITE HAS RUN AGAINST 21:03:41 AND ALL OF IT PASSED — one
-item excepted, and it is not a failure.** Every number quoted further down
-this file against the 14:54:36, 15:16:15, 15:30:36, 16:38:01 and 16:54:55
-installs is **history**; these are the current tree.
+**THE POST-CYCLE SUITE PASSED ON 21:03:41 — WHICH PHASE 4's CYCLE THEN
+REPLACED, SO IT IS OWED AGAIN ON 21:43:02.** The table below is the last full
+green run and is **the strongest evidence available**, but by this file's own
+rule it describes a tree that no longer exists. The only source change between
+the two installs was the client library, and that is **not** a licence to carry
+the numbers forward: `gcat` is a build product, and a bootstrap that differed
+is exactly the class of fault this rule exists to catch.
+
+**Re-running is cheap — no install needed, only running.** "START HERE" has
+the list. `verify-apiport.ps1 -Prefix sdapi2` is owed regardless, for the
+packet check.
+
+Every number quoted further down this file against the 14:54:36, 15:16:15,
+15:30:36, 16:38:01 and 16:54:55 installs is **older history still**.
 
 | Verifier | Result |
 |---|---|

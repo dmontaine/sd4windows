@@ -27,6 +27,92 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - SCRAM phase 4: the client stops sending the password
+
+**Commit:** this one. **Install 21:43:02**, `sd.exe` `417CDC4FCA73FB27`,
+`assert-current` exit 0.
+
+**`SDConnect` no longer sends `SrvrLogin`.** `gplsrc/sdclilib/scram_client.h`
+holds the primitives and the derivation; `scram_login()` in `sdclilib.c` runs
+the exchange. `QMConnect`'s signature, return and `QMError()` are unchanged,
+which is what makes this viable for a third-party client whose source nobody
+has. `login_data` is gone from the file entirely.
+
+**A HEADER OF static FUNCTIONS, NOT A SECOND .c FILE.** The client ships as one
+binary - source may be split, the binary may not - and it lets
+`gplbld/verify-scramclient.c` include the same file and test it against the RFC
+7677 vectors. A separate implementation written to agree with the first would
+prove only that somebody made the same assumption twice. It is the arrangement
+`gplsrc/sd_scram.c` and `gplbld/verify-scram.c` already use server-side.
+
+**27/27 on the vectors, AND RUN 32-BIT AS WELL.** `/c/msys64/mingw32/bin/gcc`
+with `-static-libgcc` produces a PE32 i386 binary that passes identically.
+**That is the constraint the entire KDF decision rested on** - Argon2 was
+rejected because a 32-bit process cannot afford its memory - so it was measured
+rather than assumed. Everything comes from `bcrypt.dll`, part of Windows, so
+the DLL stays a single file; base64 is implemented in the header rather than
+taken from `crypt32`.
+
+**Verified end to end by `verify-apiport.ps1 -Prefix sdapi1`:** right password
+admitted with `WHO -> 1 SDAPI1`, wrong password refused, `SDSYS` refused. That
+last one matters beyond the login - it is the `ACC$GROUP` grant check reading
+the identity SCRAM established, so section 7 step 6c still works on top of the
+new path.
+
+**BUT A SUCCESSFUL LOGIN DOES NOT PROVE THE CLIENT SPOKE SCRAM, and noticing
+that is the useful part of this entry.** The server still serves request 24, so
+a client that had fallen back to the cleartext login would have been admitted
+just as readily and every check above would still be green. Source says a
+fallback is impossible - nothing calls `SrvrLogin`, `login_data` is gone - but
+that is an argument, not a measurement.
+
+**So `verify-apiport.ps1` gained a packet-type check**, using the client's own
+`SDDebug(1)` log via a new `SD_CLIENT_DEBUG` guard in
+`tests/remote_connect_test.c`: 47 and 48 present, **24 absent**, and the
+password absent from the traffic with the user name found by the same search
+as its control. **It has not been run** - UAC was declined on the re-run - and
+is owed as `-Prefix sdapi2`.
+
+**THE PASSWORD SEARCH NEARLY BECAME A CHECK THAT COULD NOT FAIL.** `debug()`
+dumps 16 bytes per line with a printable column beside them, so a 20 character
+password is SPLIT ACROSS TWO LINES and a plain text search of the log would
+never have found it - passing whether or not the password had been sent. The
+check reassembles the byte stream from the hex columns first, and the user name
+control exists to prove the search can find something.
+
+**`assert-current` now excludes `gplsrc\sdclilib\tests\`, in both checks.**
+Section 7 step 11 had recorded that editing `remote_connect_test.c` owed a full
+cycle before `verify-apiport.ps1` would run again - and `verify-apiport` calls
+`assert-current` first, so **improving the test blocked the test**. Nothing in
+that directory ships or is compiled into anything; a cycle that reinstalls
+none of it is not a guard, it is a toll. Same reasoning as the `localtest\` and
+`__pycache__` exclusions already there.
+
+**A PHASE 6 BLOCKER, FOUND RATHER THAN CREATED: THE 32-BIT SHIPPING DLL BUILDS
+FROM A STALE COPY.** `Projects/winsdclilib/sdclilib.c` is 112 KB against this
+repository's 138 KB, and the repo copy is a strict **superset** - every
+function in `winsdclilib` is in it, plus `SDConnectLocal`, `sd_exe_path`,
+`sysdir` and the four `transport_*` functions. So `winsdclilib` is an older
+ancestor with nothing of its own, and `Projects/sdclilib32/Makefile` points
+`SRCDIR` at it. **The `qmclilib.dll` mvDeveloper will use therefore has no
+SCRAM in it and will not get any from editing this repository.** Phase 6 is
+"rebuild the 64-bit and 32-bit DLLs" and cannot be done until that is settled -
+point `SRCDIR` here, or bring `winsdclilib` up to this copy. Owner's call; not
+touched here because phase 4 could be built and verified without it. The
+SCRAM_HANDOFF note that said "both DLLs build from one sdclilib.c" was
+describing an intention, not the tree.
+
+**A CORRECTION THIS ENTRY FORCES.** The post-cycle suite passed on the
+21:03:41 install; phase 4's cycle replaced that tree at 21:43:02, so those
+numbers again describe a tree that no longer exists. The only source change
+between them was the client library - which is **not** a licence to carry them
+forward, `gcat` being a build product. Owed again, and cheap: no install, only
+running.
+
+**Still open:** phase 5, retiring `SrvrLogin`, which is the point of no return.
+
+---
+
 ## 19 Aug 2026 - The post-cycle suite re-run on 21:03:41, green but for the one an agent cannot run
 
 **Commit:** this one. Closes the "post-cycle suite is owed" correction made in
