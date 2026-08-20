@@ -1541,6 +1541,25 @@ password"* from a client as a phase 5 regression until this has been run for
 that account**: the server has nothing to check against, and SCRAM cannot
 distinguish an absent credential from a wrong one in its reply.
 
+**OPEN, FOUND 20 Aug 2026 BY THE OWNER WALKING INTO IT:
+`SET.PASSWORD <account> <anything>` SILENTLY DISCARDS THE TRAILING TOKEN.**
+`SET_ACC_PASSWORD:57-66` resets the parser, takes one token as the verb and one
+as the account, and **never looks for a third**. So a person who types the
+password on the command line - which is the obvious thing to try - gets no
+error, no hint, and the hidden prompts anyway.
+
+**The password still lands somewhere it was not meant to**: SD's command stack,
+and the shell's history if the verb were reached from a shell rather than from
+SD's own `:` prompt. `verify-scramlogin.ps1`'s own comment states the rule the
+verb does not enforce - *"GENERATED, NEVER HARDCODED, AND NEVER ON A COMMAND
+LINE"*.
+
+**The fix is a few lines and a message**: after reading the account, ask the
+parser for another token and, if one is there, stop with "a password is never
+taken on the command line". **It is a BASIC change, so it costs a cycle and
+voids the suite above** - which is why it is written down here rather than done
+in passing.
+
 **THE NEXT PIECE OF WORK IS PHASE 6** (rebuild the two DLLs so they carry
 `SD_CLIENT_DEBUG` auto-logging, re-set every password) **or §8's
 `verify-accountacl.ps1`, which is still the oldest unwritten thing here.**
