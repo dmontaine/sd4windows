@@ -5,16 +5,89 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 20 Aug 2026, end of the twenty-ninth session.
+**Last updated:** 20 Aug 2026, thirtieth session.
 
-**THE TREE IS CURRENT AND EVERYTHING BELOW WAS MEASURED ON IT.**
-`assert-current` **exit 0** — install **20 Aug 12:58:06**, `sd.exe`
-**`FDFC41E3F1882B39`**. Confirm
-rather than trusting this line:
+**THE TREE IS STALE AND OWES ONE CYCLE. NOTHING MEASURED AGAINST THE INSTALL
+IS VALID UNTIL IT RUNS.** `gplsrc/sdclient.c` was deleted and
+`gplsrc/sdclient.h` edited, so `assert-current` is **exit 1**. `make sd` has
+been run and is **green**; the cycle has not. Confirm rather than trusting
+this line:
 
 ```powershell
 gplbld\assert-current.ps1
 ```
+
+**SAY THIS BEFORE RUNNING THE CYCLE, NOT AFTER: it deletes
+`C:\ProgramData\SD`, so `APIPORT=4243` returns to commented-out and every
+`$cred` record goes, including `DON`'s.** mvDeveloper then answers *"Invalid
+username or password"*, which is an ABSENT credential and not a fault.
+
+**`gplsrc/sdclient.h` IS LIVE AND THE PREVIOUS SESSION'S NOTE WAS HALF WRONG.**
+It said to delete `gplsrc/sdclient.c` **and** `gplsrc/sdclient.h`. The `.c` is
+dead and is now deleted. **The `.h` is not**: `op_tio.c` takes `SV_PROMPT`
+(`gplsrc/op_tio.c:3732`), `SrvrRespond` (`:3812`) and `SrvrEndCommand`
+(`:3817`) from it, `op_tio` is in `gpl.src:70`, and the build's only `-I` is
+`gplsrc` — so this copy is the only one reachable and
+`gplsrc/sdclilib/sdclient.h` cannot substitute for it.
+
+**MEASURED, NOT ARGUED**, by building it both ways:
+
+```
+header present  ->  op_tio.o built, make sd exit 0
+header absent   ->  op_tio.c:98:10: fatal error: sdclient.h: No such file
+                    make exit 2, op_tio.o not built
+```
+
+**THE NOTE'S THREE ARGUMENTS WERE ALL ABOUT THE `.c`** — stripped from `SRCS`,
+absent from `gpl.src`, orphan `.o` rule — and not one of them was ever a
+statement about the header. The *"do not confuse them with
+`gplsrc/sdclilib/sdclient.h`"* warning it carried is what made the pair look
+settled. A dated `START-HISTORY` note in `gplsrc/sdclient.h` now says this in
+the file itself, so it cannot be re-opened from the note alone.
+
+**`op_dio3.c:57` ALSO INCLUDES IT AND USES NOTHING FROM IT.** Left alone — a
+stale include is not a defect, and removing it would widen a change that
+already owes a cycle.
+
+**NOT AN UPSTREAM ENTRY, DELIBERATELY.** `sdb64` has the identical dead `.c`,
+the identical orphan rule (`sd64/Makefile:132`) and the same live header — but
+nothing there misbehaves, because request 24 is still upstream's live login.
+Dead code and a trap, not a defect, so `UPSTREAM_FIXES.md` was left alone.
+
+**`gplbld/verify-accountacl.ps1` EXISTS — §8's oldest unwritten thing is
+WRITTEN AND UNRUN.** It asserts that the ACL `CREATE.ACCOUNT` applies
+(`CREATEA:618`, `secure.account.dir`) is byte-identical to the one
+`gplbld/secure-account-dirs.ps1` applies. **Nothing has run it against SD** —
+it needs the cycle and an elevated session.
+
+**ITS CONTROL IS THE POINT, AND IS WHY IT IS NOT A ONE-LINER.** Both halves
+are idempotent, so running the script over a directory `CREATE.ACCOUNT` has
+just stamped leaves it identical **whether the script did the work or nothing
+at all**. So it reads the ACL three times — after `CREATE.ACCOUNT`, after
+`icacls /reset`, after the script — and asserts the reset landed (`sdusers`
+back, inheritance back on, differs from the first reading) before believing
+the third.
+
+**THE MECHANICS ARE ALREADY MEASURED, on a scratch tree, unelevated**, so only
+the SD-side question is open when it first runs. `/reset` genuinely unprotects
+and restores the inherited `sdusers` ACE; the stamp is
+`D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1301bf;;;<grp>)`; re-stamping
+reproduces it byte for byte. Rights are asserted as masks — `F` 2032127, `M`
+1245631, `(OI)(CI)` 3 — and identities by SID, because both halves grant
+`*S-1-5-18` and `*S-1-5-32-544` precisely so a localised Windows works.
+
+**It also exercises the guard against a mass-stamp** — the script skips a
+directory with no `voc` and one whose `sdu_` group is absent, which its own
+header calls the one failure it must not have. Driven with `-WhatIf`, which
+reaches both guards (they run before the `-WhatIf` branch) and touches no ACL.
+
+**Wired into `post-cycle-elevated.ps1` as a fourth step** with `-AclPrefix`
+(default `sdacl2`), and listed in `assert-current.ps1`'s `$neverShipped` —
+without which it would report the tree stale **because it exists**, then refuse
+to run on the strength of its own newness.
+
+**Its three refusal paths are exercised**: no `-Prefix`, a splatted
+`-Prefix "-Prefix sdacl2"`, and unelevated. All three exit 2.
 
 **SCRAM PHASE 5 IS DONE: THE CLEARTEXT LOGIN IS GONE.** Request 24 is refused
 with message **5275**; `verify-scramlogin.ps1 -Prefix sdscram2` is **40/40**.
@@ -292,7 +365,8 @@ close: assert the text in `verify-scramlogin.ps1`, no cycle needed.
 passing means **`CREATE.ACCOUNT` still works with `secure.account.dir` inside
 it** — which this file named as the first thing to check, since `!ps_script`
 needs the session to hold privilege. It says nothing about whether the ACL it
-applies is right; that still needs `verify-accountacl.ps1`, still unwritten.
+applies is right; that needs `verify-accountacl.ps1`, which now exists and
+has not been run against SD.
 
 **AND THE `$CRED` ACL SURVIVED THE FRESH INSTALL.** An unelevated `Test-Path`
 on `C:\ProgramData\SD\sdsys\$cred\SDSCRAM1` answers *Access is denied*, which
@@ -577,7 +651,7 @@ concern was written before that restoration and was never re-checked.
 | `sd.iss` `SecureAccountDirs` + the closing message | through ISCC and installed — one syntax error found and fixed on the way, HISTORY.md |
 | `stage.py` ships both scripts | staged and installed |
 | `sdsys/messages/10055` | new |
-| a verifier | **does not exist - this is still the next thing to write** |
+| `gplbld/verify-accountacl.ps1` - the guard | **written 20 Aug; mechanics measured, NEVER RUN against SD** |
 
 **THE CYCLE ONLY ANSWERED "DOES IT STILL RUN", NOT "IS THE ACL RIGHT".**
 `CREATE.ACCOUNT` making an account was check 1 of `verify-scramlogin.ps1`, so
@@ -619,8 +693,12 @@ exposes no `system()` key for the program directory (`exe_directory()` exists in
 C, `config_path` at 1011 is the DATA tree). **The intended guard is a
 measurement, not a shared file** - a verifier asserting that a directory
 `CREATE.ACCOUNT` makes and one the script stamps come out with the SAME ACL.
-`CREATEA`'s comment already promises `gplbld/verify-accountacl.ps1`. **Write it
-or change that comment.**
+`CREATEA`'s comment promised `gplbld/verify-accountacl.ps1` by name and that
+file now exists. **What is owed is a RUN, not the writing.** Its control is
+the part worth knowing: both halves are idempotent, so re-stamping an
+already-correct directory proves nothing, and it knocks the ACL back with
+`icacls /reset` in between - asserting the knock landed - before believing
+the second stamp.
 
 **WHAT TO DO, IN ORDER:** write the verifier; `cycle.ps1`; then measure - and
 the first thing to check is that **CREATE.ACCOUNT still works at all**, because
@@ -761,7 +839,7 @@ carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
 1. **§8's PER-ACCOUNT ACLs — the code is installed and `CREATE.ACCOUNT` still
    works; the ACL it applies is still unmeasured.** `verify-accountacl.ps1`
-   does not exist and is the next thing to write. It must assert that a
+   now EXISTS and is owed a run. It asserts that a
    directory `CREATE.ACCOUNT` makes and one `secure-account-dirs.ps1` stamps
    come out with the **same** ACL — the rule is deliberately in two places and
    a measurement is the only guard against them drifting. `CREATEA`'s comment
@@ -1671,41 +1749,40 @@ a test would make every test refuse to run.
    press rather than a byte sequence, and the only one an agent cannot run - it
    refuses a redirected stdin, which is what every shell here has. §5.18's last
    open link.
-3. **§8's `verify-accountacl.ps1` — the oldest unwritten thing in this file.**
-   `CREATEA`'s `secure.account.dir` and `gplbld/secure-account-dirs.ps1` apply
-   the same ACL rule from two places on purpose, and **nothing compares them**.
-   `CREATEA`'s own comment already promises the file. Write it or change the
-   comment.
+3. **§8's `verify-accountacl.ps1` — WRITTEN, and now owed a RUN.** It compares
+   the ACL `CREATEA`'s `secure.account.dir` applies against the one
+   `gplbld/secure-account-dirs.ps1` applies — the rule is in two places on
+   purpose and this is the only guard on it. Its mechanics are measured; the
+   SD side is not. It runs as step 4 of `post-cycle-elevated.ps1`. **Use a
+   prefix nobody has used: `sdacl1` is spent (19 Aug), so `-AclPrefix sdacl2`,
+   which is the default.**
 4. **Confirm mvDeveloper in the GUI.** `verify-tierapi.ps1` proves the library
    it loads admits all three tiers; nobody has watched the editor itself do it.
    A minute, and only a person can.
 5. **`DELETE.ACCOUNT` the ten register records** listed above, or the next
    thing that counts accounts is measuring the litter.
-6. **DELETE `gplsrc/sdclient.c` AND `gplsrc/sdclient.h`.** Owner's decision,
-   20 Aug 2026 - the question is settled, only the deletion is left. Do it with
-   the next change that owes a cycle rather than on its own: nothing links
-   them, but a `.c` under `gplsrc` trips `assert-current` check A2, so a
-   standalone deletion would owe a `make sd` and leave the tree stale for no
-   gain.
+6. **DONE, AND HALF OF IT WAS WRONG.** `gplsrc/sdclient.c` is deleted;
+   **`gplsrc/sdclient.h` STAYS** - `op_tio.c` compiles against it and the
+   build fails without it, measured both ways. The header now carries a dated
+   `START-HISTORY` note saying so. The header of this file has the detail.
+   `Makefile:66`'s `sdclient.c` strip and the orphan `sdclient.o` rule went
+   with the `.c`.
 
-   **THEY ARE DEAD THREE WAYS OVER, so do not go looking for callers:**
-   `Makefile:66` strips the file with `SRCS := $(TEMPSRCS:sdclient.c=)`, it is
-   absent from `gpl.src` which is the real build list, and the `sdclient.o`
-   rule at `Makefile:214` is an orphan no target depends on. It still builds a
-   cleartext request 24 at line 609, which this server now refuses.
+   **THE `.c` WAS DEAD THREE WAYS OVER** - stripped from `SRCS`, absent from
+   `gpl.src`, orphan `.o` rule - **and every one of those is a statement about
+   the `.c` alone.** Reading them as covering the header is the mistake this
+   entry used to make. It also still built a cleartext request 24 at its line
+   609, which this server now refuses.
 
-   **DO NOT CONFUSE THEM WITH `gplsrc/sdclilib/sdclient.h`**, one directory
-   down, which is a DIFFERENT file with the same basename: the live protocol
-   header, shared with both client projects. That collision is why this took
-   a session to pin down.
+   **THREE FILES SHARE TWO BASENAMES AND THAT IS WHY THIS TOOK TWO SESSIONS:**
+   `gplsrc/sdclient.c` (deleted), `gplsrc/sdclient.h` (**live, server side**)
+   and `gplsrc/sdclilib/sdclient.h` (live, client side, shared with both client
+   projects, and NOT on this build's include path).
 
-   **THE ONE ARGUMENT FOR KEEPING THEM IS DEAD.** `sdclient.c` is
-   `_stdcall _export` with `VBBool`, the only stdcall implementation in the
-   tree, so it was the natural start for the VB6/VBA shim that
-   `sdclilib32/README.md` calls "a separate piece of work". **Owner, 20 Aug
-   2026: VB6 is not a target.** So the shim is not wanted, and with it the
-   reason to keep these two files. Do not re-open this on finding the stdcall
-   note in that README - update the README instead.
+   **VB6 IS NOT A TARGET** - owner, 20 Aug 2026 - so the `_stdcall _export`
+   shim `sdclilib32/README.md` calls "a separate piece of work" is not wanted,
+   which is what left the `.c` with no reason to exist. Do not re-open it on
+   finding the stdcall note in that README; update the README instead.
 7. **§7 step 3, installer loose ends** - `deny-logon.ps1`'s exit code is still
    unchecked, and `limitssh`/`sshremote` need the VM.
 8. **§7 steps 9, 10, 12, 13** - scheduled-job login, the admin helpers, the

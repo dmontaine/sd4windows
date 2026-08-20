@@ -27,6 +27,82 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - Correction: `gplsrc/sdclient.h` is live, and the account-ACL verifier is written
+
+**Commit:** this one.
+
+**CORRECTION TO PROJECT_STATUS.md's "WHAT IS LEFT" ITEM 6 AND TO COMMIT
+`18fdfa8`, both of which said to delete `gplsrc/sdclient.c` AND
+`gplsrc/sdclient.h`.** The `.c` was dead and is deleted. **The `.h` is not
+dead and would have broken the build.** `gplsrc/op_tio.c` takes `SV_PROMPT`
+(`:3732`), `SrvrRespond` (`:3812`) and `SrvrEndCommand` (`:3817`) from it,
+`op_tio` is in `gpl.src:70`, and the only `-I` the build passes is `gplsrc` -
+so `gplsrc/sdclilib/sdclient.h` is not reachable and cannot stand in.
+
+**MEASURED BOTH WAYS RATHER THAN ARGUED**, by moving the header aside and
+building:
+
+```
+header present  ->  op_tio.o built, make sd exit 0
+header absent   ->  op_tio.c:98:10: fatal error: sdclient.h: No such file
+                    make exit 2, op_tio.o not built
+```
+
+**HOW THE WRONG CLAIM GOT MADE, because the shape of it will recur.** The
+three arguments recorded for the deletion - stripped from `SRCS` at
+`Makefile:66`, absent from `gpl.src`, orphan `.o` rule at `Makefile:214` -
+are every one of them a statement about the `.c` file. None was ever evidence
+about the header. The entry then carried a warning not to confuse
+`gplsrc/sdclient.h` with `gplsrc/sdclilib/sdclient.h`, which read as the
+header question having been examined; it had been examined only far enough to
+tell the two apart. **A `.c` and a `.h` with one basename are not one fact.**
+
+**The guard against a repeat is in the file, not in a document.**
+`gplsrc/sdclient.h` now opens its `START-HISTORY` with a dated note naming the
+three symbols and their line numbers.
+
+**NOT ADDED TO UPSTREAM_FIXES.md, deliberately.** `sdb64` has the identical
+dead `.c`, the identical orphan rule at `sd64/Makefile:132`, and the same live
+header - but nothing there misbehaves, because request 24 is still upstream's
+live login. Dead code and a naming trap are not a defect.
+
+**ALSO: `gplbld/verify-accountacl.ps1`, section 8's oldest unwritten item.**
+It asserts that the ACL `CREATE.ACCOUNT` applies (`CREATEA:618`,
+`secure.account.dir`, through `!ps_script`) is byte-identical to the one
+`gplbld/secure-account-dirs.ps1` applies. The rule is in two places on purpose
+- they cannot share a file - so a measurement was always the intended guard,
+and `CREATEA`'s comment had promised this filename since 19 Aug.
+
+**THE CONTROL IS THE DESIGN.** Both halves are idempotent, so running the
+script over a directory `CREATE.ACCOUNT` has just stamped leaves it identical
+**whether the script applied the rule or did nothing at all** - a test without
+a control here would pass with the script deleted. It therefore reads the DACL
+three times: after `CREATE.ACCOUNT`, after `icacls /reset`, after the script.
+The middle reading is asserted to have landed - `sdusers` back, inheritance
+back on, differs from the first - before the third is believed.
+
+**Its mechanics were measured on a scratch tree before it was wired up**, so
+the first real run has only the SD-side question open: `/reset` does unprotect
+and restore the inherited `sdusers` ACE; the stamp is
+`D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1301bf;;;<grp>)`; re-stamping
+reproduces it byte for byte. Rights are asserted as masks (`F` 2032127, `M`
+1245631, `(OI)(CI)` 3) and identities by SID, because both halves grant
+`*S-1-5-18` and `*S-1-5-32-544` so that a localised Windows works.
+
+**Wired in two places it would otherwise have broken:** step 4 of
+`post-cycle-elevated.ps1` (`-AclPrefix`, default `sdacl2`), and
+`assert-current.ps1`'s `$neverShipped` - without the second it would report
+the tree stale *because it exists*, then refuse to run on the strength of its
+own newness, which is the toll `verify-setpw.ps1` already recorded.
+
+**WHAT IS STILL OPEN:** the tree is STALE and owes one cycle. `make sd` is
+green; nothing has been measured against an install. **The cycle deletes
+`C:\ProgramData\SD`, taking `APIPORT=4243` and every `$cred` record with
+it**, so `SET.PASSWORD DON` and re-enabling `APIPORT` are owed afterwards.
+`verify-accountacl.ps1` has never run against SD.
+
+---
+
 ## 20 Aug 2026 - The client libraries get the project licence header, and lose ScarletDME
 
 **Commit:** this one, plus `winsdclilib` `9d8af57` and `sdclilib32` `52226a8`.
