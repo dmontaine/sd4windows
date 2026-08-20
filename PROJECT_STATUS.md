@@ -10,8 +10,16 @@ something came to be the way it is.
 **THE TREE IS STALE AND OWES ONE CYCLE. NOTHING MEASURED AGAINST THE INSTALL
 IS VALID UNTIL IT RUNS.** `gplsrc/sdclient.c` was deleted and
 `gplsrc/sdclient.h` edited, so `assert-current` is **exit 1**. `make sd` has
-been run and is **green**; the cycle has not. Confirm rather than trusting
-this line:
+been run and is **green**; the cycle has not.
+
+```
+bin/sd.exe    9C128170D50FD29C   built 20 Aug 14:04:36  <- this session's
+installed     FDFC41E3F1882B39   20 Aug 12:58:06        <- the previous one
+```
+
+**After the cycle the installed hash must be `9C128170D50FD29C`.** If it is
+not, the install did not take the binary this session built. Confirm rather
+than trusting this line:
 
 ```powershell
 gplbld\assert-current.ps1
