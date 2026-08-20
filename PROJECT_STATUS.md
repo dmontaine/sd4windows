@@ -542,7 +542,7 @@ Every number quoted further down this file against the 14:54:36, 15:16:15,
 | `verify-tierapi.ps1 -Prefix sdtapi3` | **16/16** — all three tiers over the API |
 | `verify-scramlogin.ps1 -Prefix sdscram5` | **40/40** — phases 3 AND 5 |
 | `verify-apiport.ps1 -Prefix sdapi6` | all checks — types sent 1, 2, 3, 21, 47, 48 |
-| `probe-keys.ps1` | **NOT RUN — needs a real console, see below** |
+| `probe-keys.ps1` | **RUN on the 16:13:18 install, PowerShell** — every key matches the 19 Aug table byte for byte |
 
 **ON THE 16:13:18 INSTALL, this session's THIRD cycle** -
 `post-cycle-elevated.ps1 -TierPrefix sdtiers -Account sdacct26 -AclPrefix sdacl4`,
@@ -1901,10 +1901,25 @@ a test would make every test refuse to run.
    took the credential; `APIPORT` is already back. Until it is run, mvDeveloper
    answers *"Invalid username or password"*, which is an ABSENT credential and
    not a fault.
-2. **`gplbld/probe-keys.ps1`.** The only instrument here that measures a key
-   press rather than a byte sequence, and the only one an agent cannot run - it
-   refuses a redirected stdin, which is what every shell here has. §5.18's last
-   open link.
+2. **DONE. `gplbld/probe-keys.ps1` re-run by the owner on the 16:13:18
+   install, in PowerShell**, and every key is byte for byte what 19 Aug
+   recorded - `27 91 68/67/66/65` for Left/Right/Down/Up, `127` for
+   Backspace, `27 91 51 126` for Delete, **not one `ESC O`**. Terminal type
+   `windows`; `terminfo clear = 27 91 72 27 91 74` (`ESC [ H ESC [ J`), which
+   is what §5.18 says `@(-1)` emits.
+
+   **IT IS ARGUABLY EXEMPT FROM CYCLE INVALIDATION AND THIS RUN IS THE
+   EVIDENCE.** What it measures is what the CONSOLE sends when a key is
+   pressed - not anything in the tree - so a cycle cannot change the answer,
+   and three cycles later it did not. The terminfo it is compared against does
+   ship, which is why it asserts `assert-current` before running. Treat a
+   stale-tree reading as void, but do not re-run it after every cycle for its
+   own sake.
+
+   **ONE HOST WAS READ THIS TIME, not three.** 19 Aug read cmd, PowerShell and
+   Windows Terminal and found them byte-identical, and the reason is
+   structural - they share the `msys-2.0.dll` console layer - so re-reading
+   one is a check that nothing moved, not a narrower measurement.
 3. **DONE. §8's `verify-accountacl.ps1` is written, run and **21/21**.** The
    two halves of the ACL rule produce a byte-identical ACL, the mass-stamp
    guard is exercised, and the defect the first run found in
