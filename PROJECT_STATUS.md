@@ -7,9 +7,10 @@ something came to be the way it is.
 
 **Last updated:** 19 Aug 2026, end of the twenty-seventh session.
 
-**THE INSTALL IS CURRENT** — `assert-current` exit 0 against the **16:54:55**
-install (19 Aug), `sd.exe` **`4042F21834AFDD75`**, terminfo **100**. Confirm
-before believing it: `gplbld\assert-current.ps1`, unelevated.
+**THE INSTALL IS STALE AND A CYCLE IS THE FIRST THING OWED.** The last good
+one was **16:54:55** (19 Aug), `sd.exe` **`4042F21834AFDD75`**, but §8's
+account-ACL work went in after it and **none of it has been compiled or
+run**. `gplbld\assert-current.ps1` says so; believe it, not this file.
 
 **THE POST-CYCLE RUN IS COMPLETE AND EVERYTHING PASSED. Nothing is owed.**
 
@@ -92,6 +93,77 @@ bytes uninterrupted on an 80x24 terminal.
 `accounts`, `messages`, `syscom`, `qfile`, `dict.dict`, `md`, `sd.accounts`,
 `os.users`. Typing the OLD upper-case name is answered in the new spelling,
 which is the rename demonstrated rather than inferred.
+
+**§8's PER-ACCOUNT ACLs: THE BLOCKER IS GONE, THE CODE IS WRITTEN, AND NOTHING
+HAS BEEN VERIFIED. Session ended here - read this before touching it.**
+
+**THE DECISION THAT BLOCKED THIS FOR FOUR SESSIONS WAS BASED ON A PREMISE THE
+CODE CONTRADICTS.** This file said locking account directories "still gates
+administrators out of other accounts, which §5.6 says must always work".
+**§5.6 says no such thing** - its table grants the group-check bypass to an
+**elevated** session, not to an ordinary one. And measured on the 16:54:55
+install, with a second account made for the purpose:
+
+```
+don, unelevated, not in sdu_sdacl1:
+   LOGTO SDACL1              ->  "User not allowed in requested account"  (WHO stays DON)
+   dir  user_accounts/sdacl1 ->  6 entries        <- the hole
+   write into it             ->  ALLOWED          <- the hole
+```
+
+**SD ALREADY REFUSES THAT SESSION.** `CPROC`'s `logto.authorised` admits an
+elevated session, one that has just obtained privilege, or a member of the
+account's `ACC$GROUP` - an ordinary administrator is none of those, and has not
+been since the group test was restored on 14 Aug 2026. **So this work aligns the
+file layer with a rule SD already enforces; it does not invent one.** The
+concern was written before that restoration and was never re-checked.
+
+**WHAT IS WRITTEN, AND WHAT EACH PART HAS ACTUALLY HAD DONE TO IT:**
+
+| Part | State |
+|---|---|
+| `gplbld/secure-account-dirs.ps1` - the re-apply half, NEW | **run by hand and it works** (below) |
+| `CREATEA`'s `secure.account.dir` - the create-time half | written, **never compiled** |
+| `sd.iss` `SecureAccountDirs` + the closing message | written, **never through ISCC** |
+| `stage.py` ships both scripts | written, never staged |
+| `sdsys/messages/10055` | new |
+| a verifier | **does not exist - this is the next thing to write** |
+
+**THE ONE THING THAT IS MEASURED**, by running the new script by hand against a
+throwaway account on the 16:54:55 install:
+
+```
+after stamping user_accounts/sdacl1 with sdu_sdacl1:
+   dir   ->  DENIED      (was 6 entries)
+   write ->  DENIED      (was ALLOWED)
+   voc   ->  DENIED      so it propagates to children
+   CONTROL: don's OWN account still lists 7 entries
+```
+
+The ACL it leaves is `sdu_sdacl1:(OI)(CI)(M)`, `BUILTIN\Administrators:(OI)(CI)(F)`,
+`NT AUTHORITY\SYSTEM:(OI)(CI)(F)`, and **`sdusers` gone**.
+
+**THERE IS A THROWAWAY ACCOUNT LEFT ON THIS MACHINE AND IT IS HALF-STAMPED.**
+`sdacl1` - Windows user, group `sdu_sdacl1`, `ACCOUNTS` register record, and a
+directory whose ACL was replaced by hand. **A cycle deletes the tree but NOT the
+Windows user or the group.** Remove them, or reuse it as the second account the
+verifier needs. **`don`'s own account was deliberately left untouched** and
+still shows the inherited `sdusers:(I)(OI)(CI)(M)`.
+
+**THE RULE IS IN TWO PLACES ON PURPOSE, AND THE GUARD FOR THAT IS NOT WRITTEN.**
+`CREATEA` builds the icacls inline through `!ps_script`; the re-apply script has
+the same rule. They cannot share a file: the script installs to `{app}`, and SD
+exposes no `system()` key for the program directory (`exe_directory()` exists in
+C, `config_path` at 1011 is the DATA tree). **The intended guard is a
+measurement, not a shared file** - a verifier asserting that a directory
+`CREATE.ACCOUNT` makes and one the script stamps come out with the SAME ACL.
+`CREATEA`'s comment already promises `gplbld/verify-accountacl.ps1`. **Write it
+or change that comment.**
+
+**WHAT TO DO, IN ORDER:** write the verifier; `cycle.ps1`; then measure - and
+the first thing to check is that **CREATE.ACCOUNT still works at all**, because
+`secure.account.dir` runs inside it and `!ps_script` needs the session to hold
+privilege. **If account creation breaks, that is where to look.**
 
 **`OS.EXECUTE` IS GATED — §4 and the C half of §7 step 7 are CLOSED.**
 `verify-osusers.ps1` **24/24** on the 16:38:01 install.
@@ -212,7 +284,8 @@ list it.
 **WHAT TO DO NEXT, IN THIS ORDER.** Each is a one-line index; the same numbers
 carry their detail further down this file, under "THE NEXT STEPS IN DETAIL".
 
-1. **§8's PER-ACCOUNT ACLs**, blocked on the administrator decision.
+1. **§8's PER-ACCOUNT ACLs - IN FLIGHT, UNVERIFIED, INSTALL STALE.** The
+   blocker is gone (see the header). Verifier, then cycle, then measure.
 
 2. **`RDPUSER`** — blocked on item 1.
 

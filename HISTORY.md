@@ -27,6 +27,59 @@ corrected.
 
 ---
 
+## 19 Aug 2026 - Account ACLs: the blocker was a wrong premise; code written, nothing verified
+
+**Commit:** this one. **Session ended mid-task**, out of credits. **The install
+is STALE** and nothing below has been compiled or run.
+
+**THE BLOCKER WAS WRONG, AND MEASUREMENT IS WHAT SHOWED IT.** For four sessions
+PROJECT_STATUS said the per-account ACLs were blocked because locking a
+directory "still gates administrators out of other accounts, which §5.6 says
+must always work". **§5.6 says no such thing**: its table grants the
+group-check bypass to an ELEVATED session, not an ordinary one. And on the
+16:54:55 install, with a second account made for the purpose, an unelevated
+`don` was already refused by SD - `LOGTO SDACL1` answered "User not allowed in
+requested account" - while the FILE system let the same session list that
+account's directory and write into it. `CPROC`'s `logto.authorised` has admitted
+only elevation, freshly obtained privilege, or `ACC$GROUP` membership since
+14 Aug 2026. **The concern predates that restoration and was never re-checked.**
+
+**So this work aligns the file layer with a rule SD already enforces.** That is
+the whole reason it is safe to do, and it is why the "decision" dissolved
+instead of being made.
+
+**WRITTEN, WITH WHAT WAS ACTUALLY DONE TO EACH:**
+
+* `gplbld/secure-account-dirs.ps1` - NEW, the re-apply half. **Run by hand and
+  it works**: stamping `user_accounts/sdacl1` took don's access from "6 entries
+  and writing ALLOWED" to DENIED, propagated to `voc` beneath it, and left
+  don's OWN account still listing 7 entries as the control.
+* `CREATEA` gained `secure.account.dir`, stamping a new account from its
+  `ACC$GROUP` through `!ps_script`. **Never compiled.**
+* `sd.iss` gained `SecureAccountDirs` - container first, then re-apply, after
+  `AdoptAccount` - and its message joins the closing dialog. **Never through
+  ISCC.**
+* `stage.py` ships both scripts. `sdsys/messages/10055` is new.
+* **No verifier exists.** `CREATEA`'s comment promises
+  `gplbld/verify-accountacl.ps1`; write it or change the comment.
+
+**LEFT ON THE MACHINE: `sdacl1`** - Windows user, group `sdu_sdacl1`, register
+record, and a directory whose ACL was replaced by hand. A cycle removes the
+directory but NOT the user or the group. `don`'s own account was deliberately
+left untouched.
+
+**THE RULE IS DELIBERATELY IN TWO PLACES.** `CREATEA` builds the icacls inline;
+the script has the same rule. They cannot share a file - the script installs to
+`{app}` and SD exposes no `system()` key for the program directory. **The guard
+is meant to be a measurement**: a verifier asserting a `CREATE.ACCOUNT`
+directory and a script-stamped one come out identical.
+
+**FIRST THING TO CHECK AFTER THE CYCLE: that CREATE.ACCOUNT still works.**
+`secure.account.dir` runs inside it and `!ps_script` needs the session to hold
+privilege. If account creation breaks, that is where to look.
+
+---
+
 ## 19 Aug 2026 — An install spent on the intermittent check: three explanations dead
 
 **Commit:** this one, over `8825928`. **Install:** **16:54:55**. Owner
