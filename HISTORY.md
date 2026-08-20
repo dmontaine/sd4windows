@@ -27,6 +27,57 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - All three account tiers reach the API, through the real client
+
+**Commit:** this one. Twenty-ninth session.
+
+**THE QUESTION, FROM THE OWNER:** can mvDeveloper connect as a standard user
+and as a programmer, not just as an administrator?
+
+**ANSWERED BY DRIVING THE CLIENT mvDeveloper ACTUALLY LOADS**, rather than by
+reasoning about the protocol or by clicking through a GUI once.
+`gplbld/verify-tierapi.ps1` runs `qm-connect.exe`, which links against the
+32-bit `qmclilib.dll` in `Projects/sdclilib32` - the same file that sits beside
+`mvDeveloper.exe`. **16/16 on the 09:09:06 install.**
+
+```
+STANDARD       sdtapi11   connects   VOC 393
+PROGRAMMER     sdtapi12   connects   VOC 411
+ADMINISTRATOR  sdtapi13   connects   VOC 421
+```
+
+**THE TIER DOES NOT GATE THE LOGIN, AND THAT IS THE DESIGN.** Nothing in the
+SCRAM exchange or in `vb.account` consults the VOC. What the tier gates is what
+happens after: 393 is `newvoc` minus `TIER.OMIT.STANDARD`, so a standard
+account has no `basic`, `ed`, `run`, `sed`, `cd` or `sh`. It connects with a
+developer tool and then cannot edit or compile. **A developer wants
+PROGRAMMER.** If the login ever does start consulting the tier, this test is
+what notices.
+
+**THE TWO CONTROLS ARE THE POINT.** Three tiers connecting proves only that
+three accounts exist unless something is also refused, and both refusals came
+back with the right message rather than merely failing:
+
+```
+wrong password              ->  "Invalid username or password"
+tier 1 -> tier 3's account  ->  "User not allowed in requested account"
+```
+
+The second is `vb.account`'s `ACC$GROUP` check, which is the whole reason an
+account name is not just a label.
+
+**WHAT THE SCRIPT DOES NOT DO, and it is deliberate**: it does not test the
+GUI. It tests the library the GUI loads. The remaining gap is whether
+mvDeveloper itself is happy, which needs a person and takes a minute.
+
+**ONE UGLINESS RECORDED RATHER THAN HIDDEN**: `qm-connect.exe` takes the
+password as `argv[4]`, so it reaches the process list. That is qm-connect's
+interface and not a choice made by the test, which is why it generates
+single-use passwords on accounts it deletes. The irony against the same day's
+`SET.PASSWORD` work is noted in the script's header.
+
+---
+
 ## 20 Aug 2026 - SET.PASSWORD refuses a trailing token, and a verifier cried wolf
 
 **Commit:** this one. Twenty-ninth session, second cycle of the day.

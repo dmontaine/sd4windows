@@ -322,11 +322,43 @@ Every number quoted further down this file against the 14:54:36, 15:16:15,
 | `verify-osusers.ps1` | all 23 PASS, exit 0 |
 | `make check-local` | PASS — `DON` admitted, `SDSYS` refused |
 | `verify-setpw.ps1` **(new)** | **4/4** — the trailing token, with its control |
+| `verify-tierapi.ps1 -Prefix sdtapi1` **(new)** | **16/16** — all three tiers over the API |
 | `verify-scramlogin.ps1 -Prefix sdscram3` | **40/40** — phases 3 AND 5 |
 | `verify-apiport.ps1 -Prefix sdapi4` | all checks — types sent 1, 2, 3, 21, 47, 48 |
 | `post-cycle-elevated.ps1 -TierPrefix sdtiern -Account sdacct21` | all exit 0 |
 | — `verify-fold` **10/10**, `verify-tiers` all passed, standard `COUNT VOC` **393** | |
 | `probe-keys.ps1` | **NOT RUN — needs a real console, see below** |
+
+**ALL THREE ACCOUNT TIERS REACH THE API, MEASURED THROUGH THE CLIENT
+mvDeveloper ACTUALLY LOADS — `verify-tierapi.ps1 -Prefix sdtapi1`, 16/16,
+09:09:06 install.** It drives `qm-connect.exe`, which links against the 32-bit
+`qmclilib.dll` in `Projects/sdclilib32`, so this is a reading of the shipping
+library rather than an inference about the protocol, and it needs nobody at a
+GUI.
+
+```
+STANDARD       sdtapi11   connects   VOC 393
+PROGRAMMER     sdtapi12   connects   VOC 411
+ADMINISTRATOR  sdtapi13   connects   VOC 421
+```
+
+**THE TIER DOES NOT GATE THE LOGIN AND IS NOT MEANT TO.** Nothing in the SCRAM
+exchange or in `vb.account` consults the VOC, so a standard account connecting
+is the designed behaviour. **What the tier gates is what happens next**: 393
+records is `newvoc` minus `TIER.OMIT.STANDARD`, so a standard account has no
+`basic`, `ed`, `run`, `sed`, `cd` or `sh`. It will connect with mvDeveloper and
+then be unable to edit or compile anything. **A developer wants PROGRAMMER.**
+
+**THE TWO CONTROLS ARE WHAT MAKE THE THREE SUCCESSES MEAN ANYTHING**, and both
+came back with the right message rather than merely failing:
+
+```
+wrong password                  ->  "Invalid username or password"
+tier 1 attaching to tier 3      ->  "User not allowed in requested account"
+```
+
+The second is `vb.account`'s `ACC$GROUP` check. Without it, "three tiers
+connected" would only say three accounts exist.
 
 **A VERIFIER CAN FAIL FOR A REASON THAT IS NOT SD, AND ONE DID — 20 Aug 2026.**
 `verify-lcnames.ps1` reported **135/142** minutes after the 09:09:06 install,
@@ -368,14 +400,15 @@ gplbld\probe-keys.ps1
 rule stands unchanged — it works when someone is at the keyboard, and nothing
 should be built assuming it.
 
-**LITTER: SIX `ACCOUNTS` RECORDS, NO WINDOWS ACCOUNTS.** `SDACCT21`, `SDAPI4`,
-`SDSCRAM3`, `SDTIERN1`, `SDTIERN2`, `SDTIERN3` — every Windows user, group and
+**LITTER: NINE `ACCOUNTS` RECORDS, NO WINDOWS ACCOUNTS.** `SDACCT21`, `SDAPI4`,
+`SDSCRAM3`, `SDTAPI11`, `SDTAPI12`, `SDTAPI13`, `SDTIERN1`, `SDTIERN2`,
+`SDTIERN3` — every Windows user, group and
 `user_accounts` directory was cleaned up by the scripts, and `Get-LocalUser`
 shows no `sd*` account at all with `sdu_don` the only `sdu_*` group. The SD
 half is left by design so a half-failed `CREATE.ACCOUNT` cannot hide. Clear
 with `DELETE.ACCOUNT` (elevated, `Y` three times each) or the next thing that
 counts accounts is measuring this. **Next free: `sdacct22`, `sdtiero`,
-`sdscram4`, `sdapi5`.**
+`sdscram4`, `sdapi5`, `sdtapi2`.**
 
 **The register also holds `DON`, and that is the installer working** — a cycle
 deletes the data tree, so `DON` is there because `adopt-account.ps1` put it
