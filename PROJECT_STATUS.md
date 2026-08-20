@@ -7,22 +7,29 @@ something came to be the way it is.
 
 **Last updated:** 20 Aug 2026, thirtieth session.
 
-**EVERYTHING BELOW WAS MEASURED ON THE 15:51:19 INSTALL, `sd.exe`
-`9C128170D50FD29C`** - this session's second cycle, and `assert-current` was
-`exit 0` when measured.
-
-**THE TREE IS NOW STALE AGAIN BY ONE FILE: `gplbld/stage.py`**, changed after
-those measurements to put `APIPORT` on by default (below). It ships, so it
-owes a cycle; it needs **no `make sd`**, nothing under `gplsrc` moved. **The
-verifier results below are still good** - `stage.py` is the installer's
-template and changes nothing any of them measured - but re-run the four
-elevated ones after the cycle rather than carrying these forward, per the
-project's own rule.
+**THE TREE IS CURRENT AND EVERYTHING BELOW WAS MEASURED ON IT.**
+`assert-current` **exit 0** - install **20 Aug 16:13:18**, `sd.exe`
+**`9C128170D50FD29C`**. Three cycles ran this session; this is the third.
 
 **ALL FOUR ELEVATED VERIFIERS PASSED, exit 0** -
-`post-cycle-elevated.ps1 -TierPrefix sdtierr -Account sdacct25 -AclPrefix sdacl3`.
+`post-cycle-elevated.ps1 -TierPrefix sdtiers -Account sdacct26 -AclPrefix sdacl4`.
 `verify-fold` **10/10**, `verify-createaccount` all PASS,
 `verify-tiers` all PASS (**393 / 411 / 421**), `verify-accountacl` **21/21**.
+
+**`APIPORT=4243` NOW SURVIVES A CYCLE, AND THAT IS MEASURED ON A TREE THE
+CYCLE BUILT FROM NOTHING.** This install's `sd.conf` was generated from
+`stage.py`'s template - the hand-edited one and its `sd.conf.before-apiport`
+backup went with the deleted tree, which is how we know it is the template's
+doing and not a leftover:
+
+```
+sd.conf line 34   APIPORT=4243          <- active, straight from the template
+                  TCP 127.0.0.1:4243 LISTENING
+                  nothing on 0.0.0.0    <- the control
+```
+
+**SO "THE TWO THINGS A CYCLE TAKES AND NOTHING PUTS BACK" IS DOWN TO ONE.**
+Only `$cred` is left, and it cannot be defaulted away - it holds passwords.
 
 **§8's QUESTION IS ANSWERED AND THE ANSWER IS YES: THE TWO HALVES OF THE ACL
 RULE AGREE.** `CREATEA`'s `secure.account.dir` and
@@ -537,22 +544,23 @@ Every number quoted further down this file against the 14:54:36, 15:16:15,
 | `verify-apiport.ps1 -Prefix sdapi6` | all checks — types sent 1, 2, 3, 21, 47, 48 |
 | `probe-keys.ps1` | **NOT RUN — needs a real console, see below** |
 
-**ON THE 15:51:19 INSTALL, this session's SECOND cycle** -
-`post-cycle-elevated.ps1 -TierPrefix sdtierr -Account sdacct25 -AclPrefix sdacl3`,
+**ON THE 16:13:18 INSTALL, this session's THIRD cycle** -
+`post-cycle-elevated.ps1 -TierPrefix sdtiers -Account sdacct26 -AclPrefix sdacl4`,
 all four **exit 0**:
 
 | Verifier | Result |
 |---|---|
 | `verify-fold.ps1` | **10/10** |
-| `verify-createaccount.ps1 -Account sdacct25` | all PASS, incl. the ssh-only branch |
-| `verify-tiers.ps1 -Prefix sdtierr` | all PASS - **393 / 411 / 421** |
-| `verify-accountacl.ps1 -Prefix sdacl3` | **21/21** - A and S byte-identical, and step 6 ran |
+| `verify-createaccount.ps1 -Account sdacct26` | all PASS, incl. the ssh-only branch |
+| `verify-tiers.ps1 -Prefix sdtiers` | all PASS - **393 / 411 / 421** |
+| `verify-accountacl.ps1 -Prefix sdacl4` | **21/21** - A and S byte-identical, step 6 ran |
 
-The 15:09:33 install saw the same three pass and `verify-accountacl` find the
-defect described in the header; those numbers are superseded by these.
+The 15:09:33 and 15:51:19 installs are superseded by these. Step 6 skipped
+`sdacct26` for a missing group on this run too - the suite makes that case
+every time it runs, which is the header's point.
 
-**`sdtierq`, `sdtierr`, `sdacct24`, `sdacct25`, `sdacl2` and `sdacl3` are
-SPENT.** Next free: `sdtiers`, `sdacct26`, `sdacl4`. Their `ACCOUNTS` records
+**`sdtierq`-`sdtiers`, `sdacct24`-`sdacct26` and `sdacl2`-`sdacl4` are
+SPENT.** Next free: `sdtiert`, `sdacct27`, `sdacl5`. Their `ACCOUNTS` records
 are still in the register, like the rest of the litter - the Windows halves
 were cleaned up by the scripts.
 
