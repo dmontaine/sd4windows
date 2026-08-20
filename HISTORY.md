@@ -27,6 +27,80 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - The client libraries get the project licence header, and lose ScarletDME
+
+**Commit:** this one, plus `winsdclilib` `9d8af57` and `sdclilib32` `52226a8`.
+
+**WHAT WAS ASKED:** the project licence header and "Modifications Copyright
+Donald Montaine" on every source file in both client repositories, ScarletDME
+references gone, and `qm-connect` renamed `sd-connect`.
+
+**THE LINE THAT MATTERED: QM IDENTIFIERS AN APPLICATION RESOLVES ARE NOT
+BRANDING.** `qmclilib.dll` is the filename mvDeveloper loads; `qmclilib.def`
+carries the `QMConnect`/`QMRead`/... names a QM application imports BY NAME;
+`qmclilib.h` declares them; `qmcompat.c` implements `QMConnectLocal`. Renaming
+any of them ends QM compatibility, which is the entire reason `sdclilib32`
+exists. Owner confirmed: branding only. `qm-connect` -> `sd-connect` is a tool
+name and moved.
+
+**THE LICENCE, AND A CORRECTION THE OWNER SUPPLIED.** The first plan kept the
+GPL grant in `err.h`, `revstamp.h` and `sdclient.h` intact, on the reasoning
+that GPL -> LGPL is not a relicensing the GPL permits. The owner said that
+wording was the port's own and should have said LGPL. **The Linux tree settles
+it**: `sdb64`'s `err.h` says GPL version **2** and has **no** linking
+exception; ours says version **3** and has one. The port wrote both, and a
+linking exception is precisely what is added when LGPL-style linking is meant.
+So it is our notice with a typo, and correcting it is not touching Ladybridge's
+grant.
+
+**COPYRIGHT NOTICES STAY, and the owner is right that the GPL never permits
+removing them.** They are also the provenance - they say where the file came
+from - so they earn their place twice.
+
+**THE MISTAKE WORTH THE ENTRY: THE FIRST PASS EDITED THE MIRROR.** All seven
+shared files diverged from `gplsrc/sdclilib`, which is exactly what
+`VENDORING.md` exists to prevent and exactly what shipped a SCRAM-less
+`qmclilib.dll` on 19 Aug. Caught by scanning for what was left rather than by
+any guard - **nothing in the tooling checks that divergence**, which is worth
+knowing. Undone by restoring from the source of truth, redone there, synced
+out, and the nine shared files then checked byte-identical **by hash**.
+**Edit the source of truth; never the mirror.**
+
+**THREE SMALLER BREAKAGES FROM PREPENDING A HEADER BLINDLY**, all caught before
+commit: `build.cmd` had `rem` lines above `@echo off`, so cmd would have echoed
+them; `generate_pdf.py` lost its shebang from line 1; and two files stated their
+title twice. **A header is not always safe to put at the top of a file.**
+
+**`sdclilib32` WAS MIXED CRLF AND LF.** It had never been a git repository, so
+nothing had normalised it, and prepending an LF block to a CRLF file produced
+files that were both. Now LF with a `.gitattributes`. It matters beyond
+tidiness: "are these files byte-identical" is a check this project runs, and a
+line-ending difference turns a real answer into a false one.
+
+**ScarletDME IS NOW ABSENT FROM EVERYTHING A USER SEES.** The message
+catalogue never had it - `changelog:2194` records that cleanup being done
+deliberately. `gpl.bp/LOGIN` held a commented-out pre-fork banner, one
+character from printing at every login; removed. What remains is history and
+attribution and stays: the changelog, `contrib`, `sdb_ai/README.md`'s account
+of the fork, and source comments.
+
+**THE LIVE BANNER STILL CREDITS LADYBRIDGE** - `(c) 2000-2026 by Ladybridge
+Systems and Other Contributors`. Left alone: an attribution notice, and whose
+names join it is the owner's call.
+
+**AND THE CHANGELOG ENTRY COST A FOURTH CYCLE.** `sdsys/changelog` ships, so
+writing the entry for the banner removal - which CLAUDE.md requires in the same
+commit - made the install stale one minute after it had gone green. **The
+lesson is the one this file already carries in the other direction: finish
+EVERY source change before cycling, and the changelog is a source change.**
+
+Verified on the 12:58:06 install, `assert-current` exit 0: lcnames 142/142,
+keys 10/10, editkeys 14/14, credacl, nocase, osusers, setpw 4/4, check-local,
+fold 10/10, createaccount, tiers, scramlogin `sdscram5` 40/40, apiport
+`sdapi6`, tierapi `sdtapi3` 16/16.
+
+---
+
 ## 20 Aug 2026 - All three account tiers reach the API, through the real client
 
 **Commit:** this one. Twenty-ninth session.

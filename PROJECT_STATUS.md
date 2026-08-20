@@ -8,8 +8,8 @@ something came to be the way it is.
 **Last updated:** 20 Aug 2026, end of the twenty-ninth session.
 
 **THE TREE IS CURRENT AND EVERYTHING BELOW WAS MEASURED ON IT.**
-`assert-current` **exit 0** — install **20 Aug 09:09:06**, `sd.exe`
-**`6DE833057823BFFB`**, `bin\` built 07:49:15 with no source newer. Confirm
+`assert-current` **exit 0** — install **20 Aug 12:58:06**, `sd.exe`
+**`FDFC41E3F1882B39`**. Confirm
 rather than trusting this line:
 
 ```powershell
@@ -27,11 +27,16 @@ after the cycle and SD restarted so `read_config()` ran. Measured:
 `TCP 127.0.0.1:4243 LISTENING`, **and not on `0.0.0.0`**. Backup of the
 original at `sd.conf.before-apiport`.
 
-**THE API IS COMPLETE END TO END, 20 Aug 2026 12:08.** `APIPORT=4243`
-listening on `127.0.0.1` and `$cred` holding three version-2 records — `DON`
-(the owner's, re-set after the second cycle) plus `SDSCRAM3` and `SDAPI4`,
-verifier litter. All three `SCRAM-SHA-256`, `i=600000`, 24-char salt, 44-char
-StoredKey and ServerKey.
+**`APIPORT=4243` IS LISTENING ON `127.0.0.1`, AND `DON` HAS NO CREDENTIAL.**
+`$cred` holds five records and every one is verifier litter — `SDSCRAM5`,
+`SDAPI6`, `SDTAPI31`, `SDTAPI32`, `SDTAPI33`. **The cycles of 20 Aug took
+`DON`'s**, as the first two did. One elevated command puts it back and
+mvDeveloper works again:
+
+```
+sd -internal
+SET.PASSWORD DON
+```
 
 **mvDeveloper NEEDS NOTHING COPIED.** Its DLL is
 `C:\Program Files (x86)\BLC\mvDeveloper\qmclilib.dll` and already speaks SCRAM;
@@ -299,7 +304,7 @@ and leaves the SD half so a half-failed `CREATE.ACCOUNT` cannot hide. Clear it
 with `DELETE.ACCOUNT` (elevated, `Y` three times). **Next free prefix is
 `sdscram2`.** `sd.conf` is restored, `APIPORT` is gone and SD is running.
 
-**THE WHOLE POST-CYCLE SUITE PASSED ON THE 09:09:06 INSTALL OF 20 AUG 2026** —
+**THE WHOLE POST-CYCLE SUITE PASSED ON THE 12:58:06 INSTALL OF 20 AUG 2026** —
 `probe-keys.ps1` excepted, which needs a human at a real console and refuses
 rather than lying. Nothing in the table below is carried forward from an
 earlier tree.
@@ -321,13 +326,54 @@ Every number quoted further down this file against the 14:54:36, 15:16:15,
 | `verify-nocase.ps1` / `verify-credacl.ps1` | exit 0 |
 | `verify-osusers.ps1` | all 23 PASS, exit 0 |
 | `make check-local` | PASS — `DON` admitted, `SDSYS` refused |
-| `verify-setpw.ps1` **(new)** | **4/4** — the trailing token, with its control |
-| `verify-tierapi.ps1 -Prefix sdtapi1` **(new)** | **16/16** — all three tiers over the API |
-| `verify-scramlogin.ps1 -Prefix sdscram3` | **40/40** — phases 3 AND 5 |
-| `verify-apiport.ps1 -Prefix sdapi4` | all checks — types sent 1, 2, 3, 21, 47, 48 |
-| `post-cycle-elevated.ps1 -TierPrefix sdtiern -Account sdacct21` | all exit 0 |
+| `verify-setpw.ps1` | **4/4** — the trailing token, with its control |
+| `verify-tierapi.ps1 -Prefix sdtapi3` | **16/16** — all three tiers over the API |
+| `verify-scramlogin.ps1 -Prefix sdscram5` | **40/40** — phases 3 AND 5 |
+| `verify-apiport.ps1 -Prefix sdapi6` | all checks — types sent 1, 2, 3, 21, 47, 48 |
+| `post-cycle-elevated.ps1 -TierPrefix sdtierp -Account sdacct23` | all exit 0 |
 | — `verify-fold` **10/10**, `verify-tiers` all passed, standard `COUNT VOC` **393** | |
 | `probe-keys.ps1` | **NOT RUN — needs a real console, see below** |
+
+**THE CLIENT REPOSITORIES CARRY THE PROJECT LICENCE HEADER AND NO ScarletDME
+BRANDING — 20 Aug 2026.** Every source file in `winsdclilib` and `sdclilib32`
+now has *"Modifications Copyright (c) 2026 Donald Montaine"* with
+LGPL-3.0-or-later and the linking exception. **The Ladybridge copyright lines
+stay**: the GPL does not permit removing them, and they are also the
+provenance.
+
+**THE "GPL" IN `err.h`, `revstamp.h` AND `sdclient.h` WAS THIS PORT'S OWN TYPO,
+and the Linux tree proves it** — `sdb64`'s copy says GPL version **2** with
+**no** linking exception; ours says version **3** **with** one. The port wrote
+both, and a linking exception is what you add when you mean LGPL. Corrected;
+that is fixing our own notice, not relicensing Ladybridge's.
+
+**`qm-connect` IS NOW `sd-connect`.** A tool name, not something an application
+resolves. **Every QM identifier an application DOES resolve is untouched** —
+`qmclilib.dll`, the `.def` export names, `qmclilib.h`, `QMConnectLocal` —
+because renaming those ends QM compatibility, which is the entire reason
+`sdclilib32` exists.
+
+**AND THE FIRST ATTEMPT EDITED THE MIRROR INSTEAD OF THE SOURCE OF TRUTH,
+diverging all seven shared files.** Exactly what `VENDORING.md` exists to
+prevent and what shipped a SCRAM-less `qmclilib.dll` on 19 Aug. Undone; the
+work was redone in `gplsrc/sdclilib` and synced out, and the nine shared files
+were checked byte-identical by hash rather than assumed. **Edit the source of
+truth, never the mirror.**
+
+**`sdclilib32` WAS MIXED CRLF AND LF and is now LF with a `.gitattributes`.**
+It had never been a git repository, so nothing had normalised it — and
+"are these files byte-identical" is a check this project actually runs, which a
+line-ending difference turns into a false answer.
+
+**ScarletDME IS GONE FROM EVERYTHING A USER SEES.** `sdsys/messages` never had
+it. `gpl.bp/LOGIN` carried a commented-out pre-fork banner, one character from
+being printed at every login; removed. What remains is deliberate: the
+`changelog` history, `contrib` attribution, `sdb_ai/README.md`'s account of the
+fork, and source comments.
+
+**THE LIVE LOGIN BANNER STILL READS `(c) 2000-2026 by Ladybridge Systems and
+Other Contributors`** (`gpl.bp/LOGIN`). Left alone: it is an attribution
+notice, and whether the owner's name joins it is his call, not a tidy-up.
 
 **ALL THREE ACCOUNT TIERS REACH THE API, MEASURED THROUGH THE CLIENT
 mvDeveloper ACTUALLY LOADS — `verify-tierapi.ps1 -Prefix sdtapi1`, 16/16,
@@ -400,15 +446,15 @@ gplbld\probe-keys.ps1
 rule stands unchanged — it works when someone is at the keyboard, and nothing
 should be built assuming it.
 
-**LITTER: NINE `ACCOUNTS` RECORDS, NO WINDOWS ACCOUNTS.** `SDACCT21`, `SDAPI4`,
-`SDSCRAM3`, `SDTAPI11`, `SDTAPI12`, `SDTAPI13`, `SDTIERN1`, `SDTIERN2`,
-`SDTIERN3` — every Windows user, group and
+**LITTER: TEN `ACCOUNTS` RECORDS, NO WINDOWS ACCOUNTS.** `SDACCT23`, `SDAPI6`,
+`SDSCRAM5`, `SDTAPI31`, `SDTAPI32`, `SDTAPI33`, `SDTIERP1`, `SDTIERP2`,
+`SDTIERP3` — every Windows user, group and
 `user_accounts` directory was cleaned up by the scripts, and `Get-LocalUser`
 shows no `sd*` account at all with `sdu_don` the only `sdu_*` group. The SD
 half is left by design so a half-failed `CREATE.ACCOUNT` cannot hide. Clear
 with `DELETE.ACCOUNT` (elevated, `Y` three times each) or the next thing that
-counts accounts is measuring this. **Next free: `sdacct22`, `sdtiero`,
-`sdscram4`, `sdapi5`, `sdtapi2`.**
+counts accounts is measuring this. **Next free: `sdacct24`, `sdtierq`,
+`sdscram6`, `sdapi7`, `sdtapi4`.**
 
 **The register also holds `DON`, and that is the installer working** — a cycle
 deletes the data tree, so `DON` is there because `adopt-account.ps1` put it
@@ -1615,9 +1661,40 @@ install.
 is not shipped and cannot reach an installed tree - without that line, WRITING
 a test would make every test refuse to run.
 
-**THE NEXT PIECE OF WORK IS PHASE 6** (rebuild the two DLLs so they carry
-`SD_CLIENT_DEBUG` auto-logging, re-set every password) **or §8's
-`verify-accountacl.ps1`, which is still the oldest unwritten thing here.**
+**WHAT IS LEFT, 20 Aug 2026 — the whole list, in the order it is worth doing.**
+
+1. **`SET.PASSWORD DON`.** One elevated command. The third cycle of the day
+   took the credential; `APIPORT` is already back. Until it is run, mvDeveloper
+   answers *"Invalid username or password"*, which is an ABSENT credential and
+   not a fault.
+2. **`gplbld/probe-keys.ps1`.** The only instrument here that measures a key
+   press rather than a byte sequence, and the only one an agent cannot run - it
+   refuses a redirected stdin, which is what every shell here has. §5.18's last
+   open link.
+3. **§8's `verify-accountacl.ps1` — the oldest unwritten thing in this file.**
+   `CREATEA`'s `secure.account.dir` and `gplbld/secure-account-dirs.ps1` apply
+   the same ACL rule from two places on purpose, and **nothing compares them**.
+   `CREATEA`'s own comment already promises the file. Write it or change the
+   comment.
+4. **Confirm mvDeveloper in the GUI.** `verify-tierapi.ps1` proves the library
+   it loads admits all three tiers; nobody has watched the editor itself do it.
+   A minute, and only a person can.
+5. **`DELETE.ACCOUNT` the ten register records** listed above, or the next
+   thing that counts accounts is measuring the litter.
+6. **Decide what happens to `gplsrc/sdclient.c`.** A second, dead cleartext
+   client - stripped from `SRCS`, absent from `gpl.src`, nothing links it. It
+   still builds a request 24 at line 609. Delete it or revive it onto SCRAM;
+   leaving it is the status quo and is fine, but it should be a decision.
+7. **§7 step 3, installer loose ends** - `deny-logon.ps1`'s exit code is still
+   unchecked, and `limitssh`/`sshremote` need the VM.
+8. **§7 steps 9, 10, 12, 13** - scheduled-job login, the admin helpers, the
+   BASIC layer's Windows branches, and stage 2 native Win32. All untouched.
+
+**NOT ON THE LIST, and here is why.** SCRAM is finished: phase 6's rebuild
+happened on 20 Aug and its acceptance test - mvDeveloper over SCRAM - passed on
+19 Aug. The client branding and licence headers are done and pushed. `qmnet`
+stays removed: the owner's decision, 20 Aug, on the finding that SCRAM fixes
+one of the four reasons it went and not the biggest.
 
 **`probe-keys.ps1` IS STILL OWED AND ONLY A HUMAN CAN RUN IT.** It refuses a
 redirected stdin, which is what every instrument here has. It measures a key
