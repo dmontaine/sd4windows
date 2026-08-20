@@ -126,8 +126,45 @@ NOW THE SOURCE OF TRUTH.** The stale-32-bit-DLL blocker is closed.
 | | Holds | Product |
 |---|---|---|
 | `sd64/gplsrc/sdclilib` | **the source** | `sdclilib.dll` 64-bit |
-| `Projects/winsdclilib` | mirror, `master` `e35376a`, pushed | `sdclilib.dll` 64-bit |
-| `Projects/sdclilib32` | no source; `SRCDIR` points here | `qmclilib.dll` **32-bit** |
+| `Projects/winsdclilib` | mirror, `master` `254fb1d`, **committed not pushed** | `sdclilib.dll` + `sdclient.dll` 64-bit, **+ installer** |
+| `Projects/sdclilib32` | no source; `SRCDIR` points here | `qmclilib.dll` + `qmclient.dll` **32-bit**, **+ installer** |
+
+**EACH CLIENT PROJECT NOW BUILDS ITS DLL TWICE AND HAS AN INSTALLER — 20 Aug
+2026, owner's decision.** The second name is the same library from the same
+build, not a variant: `sdclilib.dll`/`qmclilib.dll` are what existing
+applications ask for and do not move, `sdclient.dll`/`qmclient.dll` are for new
+work and are what the installers put on PATH. **Second LINKS, not file copies** —
+an import library records the DLL name its symbols come from, so a renamed copy
+sends the application to the original. `gplsrc/sdclilib/VENDORING.md` has the
+detail, including why `qmclient.def` is generated rather than kept.
+
+**THE PROBLEM THEY SOLVE: the client library could only be got out of an
+installed SD server.** That is the wrong shape for a client, which exists to
+run on a machine that is not the server. `winsdclilib/sdclient.iss` and
+`sdclilib32/qmclient.iss` package an already-built tree exactly as
+`gplbld/sd.iss` does, and refuse rather than package a stale DLL.
+
+**BOTH INSTALLERS COMPILE AND NEITHER IS INSTALL-VERIFIED.** ISCC is green on
+both; the UAC prompt for a test install was declined or never appeared, which
+this file records as indistinguishable. **Compiling is not running** — install
+one before believing it works.
+
+**THIS TREE STILL BUILDS ONE DLL, DELIBERATELY.** `make sd` produces
+`sdclilib.dll` for the server's own use. The second name is for distribution,
+which is what the client projects are for.
+
+**THE INSTALLERS DO NOT REACH mvDeveloper, AND THAT IS NOT A GAP.** Its DLL is
+`C:\Program Files (x86)\BLC\mvDeveloper\qmclilib.dll` — beside the executable,
+which Windows searches BEFORE PATH, so a PATH entry can never displace it.
+Updating that editor stays a hand copy, exactly as it has been. The installer
+is for applications that do not ship their own copy.
+
+**TWO LATENT BUILD DEFECTS IN `winsdclilib` WERE FOUND AND FIXED**, both the
+faults the 32-bit project met first: `CC ?= gcc` never fired (make predefines
+`CC` as `cc`, so `?=` is a no-op) and the PATH prepend split at the
+drive-letter colon. Invisible from the UCRT64 shell the README names, fatal
+from any other — the build failed on `strcpy_s`/`sprintf_s`, which reads as
+broken source rather than as the wrong compiler. It now builds from any shell.
 
 **`sdclilib32` was repointed from `../winsdclilib` to this tree — one hop, not
 two, so the middle copy can no longer lag.** It had lagged: `winsdclilib` had
@@ -1417,7 +1454,13 @@ it. Call it first from anything new that tests the install.
 
 **1. NO CYCLE IS OWED, AND NOTHING NEEDS RE-MEASURING.** The tree is current
 (**07:52:25**, `sd.exe` **`6DE833057823BFFB`**) and the whole suite passed on
-it, `probe-keys.ps1` excepted. Working tree committed and pushed.
+it, `probe-keys.ps1` excepted.
+
+**COMMITTED, NOT PUSHED — both this repository and `winsdclilib`.** Nothing has
+left this machine. `sdclilib32` is **still not a git repository**, so its half
+of the 20 Aug work — the `qmclient.dll` build and `qmclient.iss` — exists on
+disk and nowhere else, which is the same exposure this file has recorded since
+19 Aug and is now larger.
 
 **THE ONE THING WAITING IS THE OWNER'S mvDeveloper SETUP, and it is two
 elevated commands, not an investigation** — the cycle deleted the data tree, so

@@ -27,6 +27,103 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - The client library becomes something you can install
+
+**Commit:** this one, plus `winsdclilib` `254fb1d`. Twenty-ninth session.
+
+**THE PROBLEM, IN THE OWNER'S WORDS: "the user has to know where to look for
+the dlls in the installed sd for windows system".** The only way to obtain the
+client library was to find it inside an installed SD server, under
+`C:\Program Files\SD`, on a machine that had one - which is the wrong shape
+for a client, whose whole purpose is to run on a machine that is NOT the
+server and reach it over an ssh tunnel.
+
+**EACH CLIENT PROJECT NOW BUILDS ITS DLL TWICE.** Owner's decision, and the
+second name is the same library rather than a variant:
+
+| Project | keeps | adds |
+|---|---|---|
+| `winsdclilib` | `sdclilib.dll` | `sdclient.dll` |
+| `sdclilib32` | `qmclilib.dll` | `qmclient.dll` |
+
+The old names do not move - `qmclilib.dll` in particular is the name a QMClient
+application asks for and is the entire reason that project exists. The new
+names are for new work and are what the installers put on PATH.
+
+**A SECOND LINK, NOT A COPY OF THE FILE, and the reason is not obvious.** An
+import library records the name of the DLL its symbols come from. Copy
+`sdclilib.dll` to `sdclient.dll` and the only implib you have still says
+`sdclilib.dll`, so an application linked against it loads the wrong file at run
+time - or nothing at all on a machine where the package installed only the
+other name, and the error then names a DLL the developer never asked for.
+
+**IN THE 32-BIT PROJECT IT IS WORSE, because the `.def` sets that name too.**
+`LIBRARY qmclilib.dll` in `qmclilib.def` overrides whatever `-o` says. So
+`qmclient.def` is **generated** from it by rewriting that one line, and is not
+kept: two hand-maintained copies of a 99-name export list would eventually
+differ by one name, and that failure shows up only at run time and only for
+whoever called it.
+
+**BOTH `make check` TARGETS NOW RUN A TEST THROUGH EACH IMPORT LIBRARY.** That
+is the only thing that catches either mistake, and the 32-bit one repeats the
+QM ALIAS test rather than the smoke test deliberately: it resolves QM exports,
+so it fails if the generated `.def` lost the export list, AND it loads
+`qmclient.dll`, so it fails if the `LIBRARY` line left the implib pointing at
+`qmclilib.dll`. Those are the only two ways the second name can be wrong.
+
+**TWO INSTALLERS**, `winsdclilib/sdclient.iss` and `sdclilib32/qmclient.iss`,
+both packaging an already-built tree exactly as `gplbld/sd.iss` does and
+building nothing themselves - so ISCC fails naming the missing file if you did
+not build first. Own AppIds, own directories, so neither conflicts with nor
+requires the server and a machine may carry all three. **PATH is appended to,
+never prepended**, so an existing server install keeps finding its own
+`sdclilib.dll` first - which matters, because `make check-local` in this tree
+depends on PATH resolving to the installed server pair.
+
+The 32-bit one is deliberately **not** `ArchitecturesInstallIn64BitMode`, so it
+stays a 32-bit install and `{autopf32}` resolves to `Program Files (x86)` on
+64-bit Windows and `Program Files` on 32-bit. Marking it would also refuse to
+run on 32-bit Windows, the one platform with no alternative package.
+
+**NEITHER INSTALLER IS INSTALL-VERIFIED.** ISCC compiles both; the UAC prompt
+for a test install was declined or never appeared, which this project records
+as indistinguishable from the caller's side. Compiling is not running.
+
+**TWO LATENT DEFECTS IN `winsdclilib`'s MAKEFILE, FOUND BY THE FIRST CLEAN
+BUILD FROM A PLAIN MSYS2 SHELL**, and both are faults the 32-bit project met
+first and already guards against:
+
+- **`CC ?= gcc` never fired.** Make defines `CC` itself, as `cc`, so `?=` is a
+  no-op and the compiler was whatever `cc` named. From the UCRT64 shell the
+  README tells you to use, that is the right one and the bug is invisible.
+  From a plain MSYS2 shell it is the POSIX gcc, and the build fails on
+  `strcpy_s` and `sprintf_s` - UCRT functions the msys runtime does not have -
+  **which reads as broken source rather than as the wrong compiler**.
+- **the PATH prepend split at the drive-letter colon.** Harmless while `CC` was
+  a bare `gcc` and the prepend never ran; fatal once `CC` defaults to an
+  absolute path, leaving gcc exiting 1 with completely empty output.
+
+**The 32-bit project's makefile carries the long form of both explanations, and
+it is worth noticing that neither was copied back when the 64-bit one was
+written.** A guard learned in one of three sibling projects does not propagate
+by itself.
+
+**TWO STALE README CLAIMS CORRECTED in `winsdclilib`:** "the prebuilt Windows
+DLL and import library included with this repository" - `.gitignore` excludes
+every DLL, so nothing prebuilt ships and a clone has to build - and
+"`SDConnectLocal` is Linux-specific and is not part of this Windows DLL", which
+stopped being true when `SDConnectLocal()` was built (section 7 step 11). It
+starts `sd.exe` and talks to it over a pipe, and `make check-local` exercises
+it.
+
+**`sdclilib32` IS STILL NOT A GIT REPOSITORY** and the exposure is now larger:
+the `qmclient.dll` build, `qmclient.iss`, its `.gitignore` and its licence
+files exist on disk and nowhere else. A `.gitignore` was written for it anyway,
+so that whenever it becomes one the build products are excluded from the first
+import rather than committed.
+
+---
+
 ## 20 Aug 2026 - SCRAM phase 5: the cleartext login is retired
 
 **Commit:** this one. Twenty-ninth session.
