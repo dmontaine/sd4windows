@@ -7,19 +7,76 @@ something came to be the way it is.
 
 **Last updated:** 20 Aug 2026, thirtieth session.
 
-**THE TREE IS STALE AND OWES ONE CYCLE. NOTHING MEASURED AGAINST THE INSTALL
-IS VALID UNTIL IT RUNS.** `gplsrc/sdclient.c` was deleted and
-`gplsrc/sdclient.h` edited, so `assert-current` is **exit 1**. `make sd` has
-been run and is **green**; the cycle has not.
+**THE CYCLE RAN AND INSTALLED THE RIGHT BINARY - 15:09:33, `sd.exe`
+`9C128170D50FD29C`**, which is the one this session built and is what the
+recorded hash was for.
+
+**THE FOUR ELEVATED VERIFIERS RAN ON IT. THREE PASSED OUTRIGHT**
+- `verify-fold` **10/10**, `verify-createaccount -Account sdacct24` all PASS,
+`verify-tiers -Prefix sdtierq` all PASS (**393 / 411 / 421**). **The fourth,
+`verify-accountacl`, answered its question and then died** - see below.
+**Nothing else was re-run**, so the unelevated half of the suite is a cycle
+behind and its numbers further down this file are stale by the project's own
+rule.
+
+**THEN A SECOND SOURCE CHANGE MADE IT STALE AGAIN. ONE MORE CYCLE IS OWED,
+AND IT DOES NOT NEED `make sd`** - nothing under `gplsrc` moved; the change is
+`gplbld/secure-account-dirs.ps1`, which ships.
+
+**§8's QUESTION IS ANSWERED: THE TWO HALVES OF THE ACL RULE AGREE.**
+`verify-accountacl.ps1 -Prefix sdacl2`, first run, on that install:
 
 ```
-bin/sd.exe    9C128170D50FD29C   built 20 Aug 14:04:36  <- this session's
-installed     FDFC41E3F1882B39   20 Aug 12:58:06        <- the previous one
+A  after CREATE.ACCOUNT   D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1301bf;;;<sdu_sdacl2>)
+S  after the script       identical, byte for byte      <- the whole point
 ```
 
-**After the cycle the installed hash must be `9C128170D50FD29C`.** If it is
-not, the install did not take the binary this session built. Confirm rather
-than trusting this line:
+Three ACEs and no more, inheritance off, `sdusers` absent, `voc` inheriting
+the group. **The rule that has been in two places since 19 Aug is now
+measured rather than assumed.**
+
+**AND THE FIRST RUN FOUND A REAL DEFECT IN THE SHIPPED HALF, WHICH IS WHY IT
+WAS WORTH WRITING.** `secure-account-dirs.ps1:95` did
+`$null = & net.exe localgroup $group 2>&1` under
+`$ErrorActionPreference = 'Stop'`. In PowerShell 5.1 that turns a native
+command's stderr into a **terminating** `NativeCommandError`, so a missing
+group made *"System error 1376 has occurred."* **throw** - and the script died
+at the exact moment it detected the case it exists to handle.
+
+**THE SKIP PATH HAD THEREFORE NEVER WORKED**, and the installer runs this over
+**every** account directory (`sd.iss` `SecureAccountDirs`). One account whose
+`sdu_` group had been removed - which is what every verifier's cleanup leaves
+behind - aborted the sweep and left **every later account unstamped**, while
+reporting failure. Fixed with the same guard `verify-credacl.ps1:143` already
+used. Measured after the fix, on a scratch root: no `voc` and no group both
+report and continue, exit 0.
+
+**THE PROJECT ALREADY KNEW THIS TRAP.** `verify-credacl.ps1:143` carries the
+guard with a comment dated **17 Aug**, and `secure-cred.ps1` has it written up
+at the top. `secure-account-dirs.ps1` was written on **19 Aug** and repeated
+it. **`gplbld` was swept for the pattern**: the only other instance was
+`verify-catgate.ps1:395`, latent and now guarded too.
+
+**ONE CHECK IN THE VERIFIER WAS WRONG AND IS CORRECTED.** `R: sdusers is back`
+FAILED while the control was working perfectly. §8's 18 Aug measurement of
+`user_accounts` predates `secure-accounts.ps1` being applied to it, and that
+script grants `sdusers:(RD,AD,X,RA,S)` with **no `(OI)(CI)`** - deliberately
+not inheritable - so `sdusers` **cannot** reach a child directory and "back"
+was never a reachable state. The control now asserts that **the account's own
+group is gone** after the reset, which is what makes the third reading
+evidence of the script's work.
+
+**THE OTHER TWO CONTROL ASSERTIONS WERE RIGHT AND BOTH PASSED** - `R` differs
+from `A`, and inheritance is back on - so the knock did land and the reading
+was sound. The failure was in the probe, not in SD.
+
+**STEP 6 NEVER RAN AND THE RUN PRODUCED NO VERDICT**, because the throw
+propagated past the summary. The verifier now has a `catch`: it records the
+throw as a failed check and still prints what it measured.
+
+**`APIPORT` AND `$cred` ARE STILL EMPTY** - the 15:09:33 cycle took them, as
+every cycle does, and the next one will take them again. Do them after the
+LAST cycle, not before it. Confirm the tree rather than trusting this line:
 
 ```powershell
 gplbld\assert-current.ps1
@@ -386,10 +443,14 @@ and leaves the SD half so a half-failed `CREATE.ACCOUNT` cannot hide. Clear it
 with `DELETE.ACCOUNT` (elevated, `Y` three times). **Next free prefix is
 `sdscram2`.** `sd.conf` is restored, `APIPORT` is gone and SD is running.
 
-**THE WHOLE POST-CYCLE SUITE PASSED ON THE 12:58:06 INSTALL OF 20 AUG 2026** —
-`probe-keys.ps1` excepted, which needs a human at a real console and refuses
-rather than lying. Nothing in the table below is carried forward from an
-earlier tree.
+**TWO INSTALLS ARE QUOTED BELOW AND THE TABLE SAYS WHICH.** The four elevated
+verifiers ran on the **15:09:33** install of 20 Aug 2026, after this session's
+cycle. The rest were last measured on the **12:58:06** install earlier the
+same day and were **not** re-run afterwards - they are a cycle behind, and a
+cycle invalidates them by the project's own rule. Re-running them is the
+unelevated list in "START HERE"; none needs a fresh install.
+`probe-keys.ps1` is excepted throughout - it needs a human at a real console
+and refuses rather than lying.
 
 **This is the designed workflow, not a treadmill.** Every cycle invalidates the
 suite; `post-cycle-elevated.ps1` exists precisely to put it back, and none of
@@ -412,9 +473,22 @@ Every number quoted further down this file against the 14:54:36, 15:16:15,
 | `verify-tierapi.ps1 -Prefix sdtapi3` | **16/16** — all three tiers over the API |
 | `verify-scramlogin.ps1 -Prefix sdscram5` | **40/40** — phases 3 AND 5 |
 | `verify-apiport.ps1 -Prefix sdapi6` | all checks — types sent 1, 2, 3, 21, 47, 48 |
-| `post-cycle-elevated.ps1 -TierPrefix sdtierp -Account sdacct23` | all exit 0 |
-| — `verify-fold` **10/10**, `verify-tiers` all passed, standard `COUNT VOC` **393** | |
 | `probe-keys.ps1` | **NOT RUN — needs a real console, see below** |
+
+**ON THE 15:09:33 INSTALL, this session's cycle** —
+`post-cycle-elevated.ps1 -TierPrefix sdtierq -Account sdacct24 -AclPrefix sdacl2`:
+
+| Verifier | Result |
+|---|---|
+| `verify-fold.ps1` | **10/10** |
+| `verify-createaccount.ps1 -Account sdacct24` | all PASS, incl. the ssh-only branch |
+| `verify-tiers.ps1 -Prefix sdtierq` | all PASS — **393 / 411 / 421** |
+| `verify-accountacl.ps1 -Prefix sdacl2` | **the question PASSED** — A and S byte-identical; one wrong check and a shipped defect, both fixed since. Header has it. |
+
+**`sdtierq`, `sdacct24` and `sdacl2` are SPENT.** Next free: `sdtierr`,
+`sdacct25`, `sdacl3`. Their `ACCOUNTS` records are still in the register,
+like the rest of the litter - the Windows halves were cleaned up by the
+scripts.
 
 **THE CLIENT REPOSITORIES CARRY THE PROJECT LICENCE HEADER AND NO ScarletDME
 BRANDING — 20 Aug 2026.** Every source file in `winsdclilib` and `sdclilib32`
@@ -1757,13 +1831,13 @@ a test would make every test refuse to run.
    press rather than a byte sequence, and the only one an agent cannot run - it
    refuses a redirected stdin, which is what every shell here has. §5.18's last
    open link.
-3. **§8's `verify-accountacl.ps1` — WRITTEN, and now owed a RUN.** It compares
-   the ACL `CREATEA`'s `secure.account.dir` applies against the one
-   `gplbld/secure-account-dirs.ps1` applies — the rule is in two places on
-   purpose and this is the only guard on it. Its mechanics are measured; the
-   SD side is not. It runs as step 4 of `post-cycle-elevated.ps1`. **Use a
-   prefix nobody has used: `sdacl1` is spent (19 Aug), so `-AclPrefix sdacl2`,
-   which is the default.**
+3. **§8's `verify-accountacl.ps1` — RUN, and its question PASSED.** The two
+   halves of the ACL rule produce a byte-identical ACL. **What is left is one
+   re-run**: the run found a defect in `secure-account-dirs.ps1` that killed
+   the script before step 6, so **the mass-stamp guard has still never
+   executed against SD**, and one of its own checks was wrong and is
+   corrected. Both fixed; the re-run is owed the next cycle. **`sdacl2` is
+   spent - use `-AclPrefix sdacl3`.**
 4. **Confirm mvDeveloper in the GUI.** `verify-tierapi.ps1` proves the library
    it loads admits all three tiers; nobody has watched the editor itself do it.
    A minute, and only a person can.

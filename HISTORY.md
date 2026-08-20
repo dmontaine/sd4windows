@@ -27,6 +27,93 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - The account-ACL verifier passes its question and fails a shipped script on its first run
+
+**Commit:** this one. Measured on the **15:09:33** install, `sd.exe`
+`9C128170D50FD29C`.
+
+**THE QUESTION SECTION 8 HAD LEFT OPEN SINCE 19 AUG IS ANSWERED.** The ACL
+`CREATE.ACCOUNT` applies through `CREATEA`'s `secure.account.dir` and the one
+`gplbld/secure-account-dirs.ps1` applies are **byte-identical**:
+`D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1301bf;;;<sdu_sdacl2>)`, three
+ACEs, inheritance off, `sdusers` absent, `voc` inheriting the group. The rule
+is deliberately in two places and could not be shared as a file; it is now
+measured instead of assumed.
+
+**AND THE FIRST RUN BROKE THE SHIPPED HALF, which is the return on writing
+it.** `secure-account-dirs.ps1:95` read
+`$null = & net.exe localgroup $group 2>&1` under
+`$ErrorActionPreference = 'Stop'`. PowerShell 5.1 turns a native command's
+redirected stderr into a **terminating** `NativeCommandError`, so a group that
+did not exist made net.exe's *"System error 1376 has occurred."* throw. The
+script died at the moment it detected the one case it was written to handle,
+and **its skip path had therefore never worked at all**.
+
+**WHY THAT MATTERED RATHER THAN BEING TIDY.** The installer runs this over
+EVERY account directory (`sd.iss` `SecureAccountDirs`). One account whose
+`sdu_` group had been removed - exactly what every verifier's cleanup leaves
+behind, and what PROJECT_STATUS has been recording as harmless litter for
+several sessions - aborted the whole sweep, reported failure, and left every
+LATER account directory unstamped. The feature's re-apply half was one stale
+group away from silently not running.
+
+**THE TRAP WAS ALREADY DOCUMENTED IN THIS REPOSITORY.**
+`verify-credacl.ps1:143` carries the identical guard with a comment dated
+17 Aug 2026, and `secure-cred.ps1` has it written up at the top.
+`secure-account-dirs.ps1` was written on 19 Aug and repeated it two days
+later. **Knowing a trap and having written it down did not prevent the next
+instance of it** - which is an argument for the sweep, not for another note.
+`gplbld` was swept: the only other instance was `verify-catgate.ps1:395`,
+latent because both its paths are readable to the elevated session it runs
+in, and now guarded too.
+
+**Fix and its measurement:** drop to `Continue` for the call, read
+`$LASTEXITCODE`, restore - `verify-credacl.ps1`'s remedy, for consistency.
+Against a scratch root holding one directory with no `voc` and one with a
+`voc` but no group, both now report and continue, exit 0.
+
+**CORRECTION TO ONE OF THE VERIFIER'S OWN CHECKS.** `R: sdusers is back`
+FAILED while the control it belongs to was working perfectly. Section 8's
+18 Aug measurement of `user_accounts` predates `secure-accounts.ps1` being
+applied to that container, and `secure-accounts.ps1:73` grants
+`sdusers:(RD,AD,X,RA,S)` with **no `(OI)(CI)`** - deliberately not
+inheritable - so `sdusers` cannot appear on a child directory and "back" was
+never a state the reset could produce. The inherited set after a reset is
+CREATOR OWNER (materialised as the creating user), `BUILTIN\Administrators`
+and `NT AUTHORITY\SYSTEM`.
+
+The control now asserts that **the account's own group is gone** after the
+reset. That is what the control actually needs to say - the stamp added the
+group, so the group's absence is what proves the stamp was removed - and
+unlike the `sdusers` premise it is true by construction. The other two
+assertions (`R` differs from `A`; inheritance is back on) were right and both
+passed, so the knock had landed and the reading was sound. **The failure was
+in the probe, not in SD.**
+
+**A SECOND LESSON FROM THE SAME RUN: the verifier produced NO VERDICT.** The
+throw propagated past the summary and the exit code, so a run in which eleven
+checks had passed ended in a stack trace that said nothing about any of them.
+It now has a `catch` that records the throw as a failed check and still prints
+what it measured.
+
+**AND ONE MISTAKE MADE WHILE DIAGNOSING IT, worth recording because the file
+warns about its exact shape.** An unelevated `Get-Acl` on
+`user_accounts` failed with *"Attempted to perform an unauthorized
+operation"*, and the next line - testing the null result for `sdusers` -
+printed a confident *"NO - sdusers is not on the container"*. That is the
+`$cred` mistake in a different costume: **a failed read that a later test
+turns into a finding.** The answer was then taken from
+`secure-accounts.ps1:73`, which is source and needs no privilege.
+
+**WHAT IS STILL OPEN:** the tree is STALE again and owes ONE cycle. It does
+**not** need `make sd` - nothing under `gplsrc` moved. `APIPORT` and `$cred`
+are empty from the 15:09:33 cycle and the next one takes them again, so
+`SET.PASSWORD DON` and re-enabling `APIPORT` belong after the LAST cycle.
+`verify-accountacl.ps1` step 6, the mass-stamp guard, has still never
+executed against SD.
+
+---
+
 ## 20 Aug 2026 - Correction: `gplsrc/sdclient.h` is live, and the account-ACL verifier is written
 
 **Commit:** this one.
