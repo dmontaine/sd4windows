@@ -42,9 +42,20 @@ that is the more useful half of the lesson. Its one message, `10055`, happens
 to begin with literal text, so the helper worked there **by accident**. Fixed
 in both rather than left standing where it happened to work.
 
-**NO CYCLE IS OWED FOR THE FIX** - both verifiers are in `$neverShipped`.
-**`sdrdp1` is SPENT** (its `ACCOUNTS` records survive); re-run with
-`-Prefix sdrdp2`.
+**NO CYCLE IS OWED FOR THE FIX** - both verifiers are in `$neverShipped`, and
+`assert-current` is exit 0 on the **16:47:22** install.
+
+**WHAT IS OWED IS TWO UNELEVATED-COST RE-RUNS, both ELEVATED to run:**
+
+```powershell
+gplbld\verify-rdpaccount.ps1 -Prefix sdrdp2    <- the six message texts, still unproven
+gplbld\verify-accountacl.ps1 -Prefix sdacl6    <- its copy of the changed helper
+```
+
+**The second is not belt-and-braces.** The two files hold SEPARATE copies of
+the same function, and the `sdacl5` run finished a minute BEFORE that file was
+edited - so a green `verify-accountacl` on this install says nothing about the
+version now on disk.
 
 **WHAT IT IS** (owner's decision, 18 Aug, built 20 Aug): a `CREATE.ACCOUNT`
 keyword **orthogonal to the tier**, not a fourth one - `CREATE.ACCOUNT USER
@@ -644,25 +655,32 @@ Every number quoted further down this file against the 14:54:36, 15:16:15,
 | `verify-apiport.ps1 -Prefix sdapi6` | all checks — types sent 1, 2, 3, 21, 47, 48 |
 | `probe-keys.ps1` | **RUN on the 16:13:18 install, PowerShell** — every key matches the 19 Aug table byte for byte |
 
-**ON THE 16:13:18 INSTALL, this session's THIRD cycle** -
-`post-cycle-elevated.ps1 -TierPrefix sdtiers -Account sdacct26 -AclPrefix sdacl4`,
+**ON THE 16:47:22 INSTALL - the RDPACCOUNT cycle, `sd.exe`
+`F8B91512CD1A332E`** -
+`post-cycle-elevated.ps1 -TierPrefix sdtiert -Account sdacct27 -AclPrefix sdacl5`,
 all four **exit 0**:
 
 | Verifier | Result |
 |---|---|
 | `verify-fold.ps1` | **10/10** |
-| `verify-createaccount.ps1 -Account sdacct26` | all PASS, incl. the ssh-only branch |
-| `verify-tiers.ps1 -Prefix sdtiers` | all PASS - **393 / 411 / 421** |
-| `verify-accountacl.ps1 -Prefix sdacl4` | **21/21** - A and S byte-identical, step 6 ran |
+| `verify-createaccount.ps1 -Account sdacct27` | all PASS, incl. the ssh-only branch |
+| `verify-tiers.ps1 -Prefix sdtiert` | all PASS - **393 / 411 / 421** |
+| `verify-accountacl.ps1 -Prefix sdacl5` | **21/21** |
+| `verify-rdpaccount.ps1 -Prefix sdrdp1` | **12/18 - behaviour all PASS, six message checks were the TEST's fault. Fixed, NOT re-run.** |
 
-The 15:09:33 and 15:51:19 installs are superseded by these. Step 6 skipped
-`sdacct26` for a missing group on this run too - the suite makes that case
-every time it runs, which is the header's point.
+All earlier installs are superseded by these. **RDPACCOUNT did not disturb
+anything**: the same three verifiers pass on the install that introduced it.
 
-**`sdtierq`-`sdtiers`, `sdacct24`-`sdacct26` and `sdacl2`-`sdacl4` are
-SPENT.** Next free: `sdtiert`, `sdacct27`, `sdacl5`. Their `ACCOUNTS` records
-are still in the register, like the rest of the litter - the Windows halves
-were cleaned up by the scripts.
+**THE `sdacl5` RUN PREDATES THE HELPER FIX BY ABOUT A MINUTE** - the summary
+was written 16:51:06 and `verify-accountacl.ps1` was edited 16:51:57 - so it
+exercised the OLD `Get-SysMsgHead`, which worked there by accident. It
+confirms the tree, **not the fix**. The changed copy in that file is still
+unrun; `verify-rdpaccount.ps1 -Prefix sdrdp2` exercises the other copy.
+
+**`sdtierq`-`sdtiert`, `sdacct24`-`sdacct27`, `sdacl2`-`sdacl5` and `sdrdp1`
+are SPENT.** Next free: `sdtieru`, `sdacct28`, `sdacl6`, `sdrdp2`. Their
+`ACCOUNTS` records are still in the register, like the rest of the litter -
+the Windows halves were cleaned up by the scripts.
 
 **THE CLIENT REPOSITORIES CARRY THE PROJECT LICENCE HEADER AND NO ScarletDME
 BRANDING — 20 Aug 2026.** Every source file in `winsdclilib` and `sdclilib32`
