@@ -26,37 +26,62 @@ DEFECT.** Cycle 21 Aug, install **16:18:37**, `sd.exe` **`CB9C4E0460B175F5`**,
 | `verify-peerlog` | — | **21/21** |
 | `verify-apiadmin` | `sdapia11` | **22/23**, the 23rd the standing N/A |
 
-**THE FINDING: `CREATE.ACCOUNT GROUP` DOES NOT WORK, AND IT LEAVES A DIRECTORY
-BEHIND THAT BLOCKS THE NAME FOR EVER.** Observed: the account directory was
-made, **no `sdg_` Windows group**, **no ACCOUNTS record**; `MODIFY.ACCOUNT` and
-`DELETE.ACCOUNT` then both said there is no such account. From the source, only
-one path produces exactly that — `CREATEA:499` makes the directory, `:696`
-calls `create.group`, and `:698` **`stop`s** if it fails, before `make.account`
-and before the register write. **Nothing removes the directory on that path**,
-and `CREATEA:500` refuses an existing directory with 10009, so the name cannot
-be retried.
+**THE FINDING, FOUND AND FIXED: `CREATE.ACCOUNT GROUP` HAS NEVER WORKED ON THIS
+PORT.** It aborted every time, and had since 10 June. The `-Prefix sdar2` re-run
+caught it in one line:
 
-**WHY IT FAILED IS NOT KNOWN, AND THAT IS AN INSTRUMENT FAULT OF MINE.**
-`verify-accountrules` printed not one line of what the verb said, so the
-diagnosis had to be reconstructed from source and could not be finished.
-`create.group`'s two silent exits are both ruled out — `valid_os_name`'s
-character set allows `sdg_sdar1g` and `MAX.USERNAME.LEN` is 32 — so it took the
-loud path and printed **10015, "Unable to create group: %1 status: %2"**, whose
-status code is the answer. **The verifier now prints every command's output**
-and records whether the directory got a `voc` (which separates "stopped at
-`create.group`" from "stopped inside `make.account`").
-
-**SO THE NEXT ACTION IS ONE RE-RUN, AND IT NEEDS NO CYCLE.** Only
-`verify-accountrules.ps1` changed and it is on `assert-current`'s
-`$neverShipped` list, which is exactly what that list is for — the other seven
-results stand.
-
-```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-accountrules.ps1 -Prefix sdar2
+```
+000000EE: Unassigned variable at line 30 of !VALID_OS_NAME
 ```
 
-**A FRESH PREFIX: `sdar1` IS SPENT.** Its `sdar1n`, `sdar1p` and `sdar1d`
-ACCOUNTS records are still in the register.
+**`create.group` tested two things on one line and `and` DOES NOT
+SHORT-CIRCUIT:**
+
+```
+if upcase(acc.type) = 'USER' and not(valid_os_name(acc.uname)) then
+```
+
+`acc.uname` is assigned in the **USER arm alone** (`CREATEA:249`); on the GROUP
+path it has no value. SD BASIC evaluates **both** operands whatever the first
+answers, so `!VALID_OS_NAME` was called anyway and aborted on its first use of
+the argument. **Nested, `CREATEA:1405`.**
+
+**BCOMP CANNOT SEE THIS CLASS OF BUG.** Its *"is not assigned a value"* test is
+per VARIABLE, not per PATH, and `acc.uname` **is** assigned — just not on that
+one. So it compiled clean and died at run time, every time.
+
+**NOT AN `sdb64` DEFECT** — checked in `../sdb64`: upstream's `create.group` has
+no `valid_os_name` guards at all, so the whole test is ours, from the 10 June
+phase 2 work. No `UPSTREAM_FIXES.md` entry.
+
+**SWEPT FOR THE SAME SHAPE AND IT IS THE ONLY ONE.** `CREATEA:465`, `:490`,
+`MODIFYA:201`/`:224` and `SET_ACC_PASSWORD:113` all pass variables that are
+assigned on every path reaching them.
+
+**WHAT IS NOT FIXED, DELIBERATELY: the abort left the account directory
+behind**, and `CREATEA:500` refuses an existing directory with 10009 — so each
+failed attempt burned the name permanently. A general unwind for a failed
+creation is a wider change than this defect, and the verb's own comment above
+`make.account` already says *"we could end up with groups created and no actual
+account"*.
+
+**THE INSTRUMENT FAULT THAT DELAYED IT WAS MINE.** The first run printed not one
+line of what the verb said, and its cleanup deleted the directory holding the
+other half of the evidence. `verify-accountrules.ps1` now prints every command's
+output and records whether the directory got a `voc`. **That is what turned a
+five-line guess into a one-line answer**, and it is why the fix is in the same
+session as the finding.
+
+**SO A CYCLE IS OWED AGAIN.** `CREATEA` is `sdsys` source, so the tree is stale
+and every verifier will refuse. Cycle, then the whole suite — the seven green
+results above were taken on the 16:18:37 install and do not describe the tree
+after this fix.
+
+**THE `sdar2` RUN WAS 28/35**, and all seven failures collapse to that one
+abort: no 10014, no register record, no `voc`, no `sdg_` group, then
+`MODIFY.ACCOUNT` and `DELETE.ACCOUNT` correctly saying there is no such account.
+**Steps 1, 2 and 4 were 22/22** — the keyword, the password unwind and the whole
+ADOPT gate.
 
 **WHAT PHASE 3 THIS RUN DID PROVE, and it is most of it:**
 
@@ -94,9 +119,16 @@ That is either
   false where it should be true.
 
 **It cannot be told apart from outside**: `$cred` is locked to SYSTEM and
-Administrators, so an unelevated session cannot look. **From an ELEVATED
-prompt, `dir "C:\ProgramData\SD\sdsys\$cred"` settles it** — a `DON` record
-means the first reading. Do that before believing the rule works.
+Administrators, so an unelevated session cannot look. From an ELEVATED prompt:
+
+```powershell
+dir 'C:\ProgramData\SD\sdsys\$cred'
+```
+
+A `DON` record means the first reading. **SINGLE QUOTES, AND THAT IS NOT
+PEDANTRY** — the first attempt used double quotes, PowerShell expanded `$cred`
+to nothing, and it listed `sdsys` instead. Same trap `adopt-account.ps1`'s
+marker comment warns about. **Still unanswered.**
 
 **WHAT PHASE 3 CHANGED**, all of it in §"Phase 3, as built" below with the
 reasoning:

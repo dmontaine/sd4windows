@@ -13228,3 +13228,53 @@ prompt without being asked for a password.  Either `don` has a credential
 because the install's SD window was used, or `require.credential` did not fire.
 `$cred` is locked to SYSTEM and Administrators, so only an elevated `dir` on it
 can tell the two apart.
+
+## 21 Aug 2026 - CREATE.ACCOUNT GROUP has never worked, and "and" is why
+
+The instrumented `verify-accountrules.ps1 -Prefix sdar2` answered it in one
+line, which is the whole argument for having instrumented it:
+
+    000000EE: Unassigned variable at line 30 of !VALID_OS_NAME
+
+`create.group` tested two things on one line:
+
+    if upcase(acc.type) = 'USER' and not(valid_os_name(acc.uname)) then
+
+`acc.uname` is assigned in the USER arm alone (CREATEA:249); on the GROUP path
+it has no value at all.  **SD BASIC evaluates both operands of "and" whatever
+the first one answers**, so !VALID_OS_NAME was called anyway and aborted on line
+30, its first use of the argument.  Nested, CREATEA:1405.
+
+**BCOMP cannot see this class of defect.**  Its "is not assigned a value" test
+is per VARIABLE, not per PATH, and acc.uname IS assigned - just not on that one.
+So it compiled clean and died at run time, every time, since the 10 June phase 2
+work that added the guard.  Not an sdb64 defect either: upstream's create.group
+has no valid_os_name guards at all.
+
+**Nothing noticed for two months because nothing tested it.**  The plan for
+phase 4 said so in as many words - "Nothing tests CREATE.ACCOUNT GROUP today" -
+and it was right.
+
+**The abort burned the name each time.**  It happens after the account directory
+is created (CREATEA:499), and line 500 refuses an existing directory with 10009,
+so a second attempt at the same name could never succeed.  That half is left
+alone deliberately: a general unwind for a failed creation is wider than this
+defect, and the verb already warns above make.account that it "could end up with
+groups created and no actual account".
+
+**The delay was an instrument fault, and it is the lesson worth keeping.**  The
+first run failed five checks in that step and printed nothing of what the verb
+had said; the diagnosis had to be reconstructed from source and could not be
+finished, and the script's own cleanup had deleted the directory holding the
+other half of the evidence.  Adding a Said() that prints every command's output,
+plus a record of whether the directory got a voc, turned a five-line guess into
+a one-line answer on the very next run.  Every other verifier in gplbld already
+printed its output; this one did not.
+
+**Swept for the same shape and found no other instance**: CREATEA:465 and :490,
+MODIFYA:201 and :224, and SET_ACC_PASSWORD:113 all pass variables assigned on
+every path that reaches them.
+
+Steps 1, 2 and 4 of that run were 22/22 - the required keyword, the mandatory
+password and its unwind, and the whole ADOPT gate including the second refusal
+after the marker is spent.
