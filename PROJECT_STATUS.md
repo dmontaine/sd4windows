@@ -9,6 +9,81 @@ something came to be the way it is.
 
 ---
 
+## NEXT SESSION: START HERE, IT IS SHORT
+
+**NOTHING IS OWED. TREE IS CURRENT** - install **20:16:10**, `sd.exe`
+**`04F6BCBC0C59CB14`**, `assert-current` exit 0, no `note:` line.
+
+**1. RUN THIS FIRST. NO CYCLE NEEDED** - the probe is compiled at run time and
+both files are in `$neverShipped`:
+
+```powershell
+gplblderify-apiadmin.ps1 -Prefix sdapia3
+```
+
+**It is unrun.** It gained an `os.execute 'cmd /c whoami'` probe. Two answers
+in one line: **is `OS.EXECUTE` reachable from a network session**, and **what
+does SD's own session say it is FROM INSIDE** (everything so far infers that
+from outside, by reading the forked `sd.exe`'s owner). Expect
+`PROBE.WHOAMI=nt_authority_____system`. **A FAIL is the finding.**
+
+**2. THE GATE IS THE WORK, AND IT IS NOT STARTED.** Owner chose it, 20 Aug:
+*"gate openpath and the os primitives for network sessions."*
+
+**TWO THINGS ARE ALREADY FORCED - do not redesign them:**
+
+- **Discriminator is `connection_type == CN_SOCKET`.** `-C` (SDLocal) and
+  `-P` (phantom) are spawned by the user's own `sd.exe` and DO run as the
+  user; only `-N` has `sdwind` as its parent.
+- **It MUST exempt `HDR_INTERNAL`, or nothing works** - `CRED_VERIFY:68`
+  opens `$cred` during SCRAM, inside the API session. That is a real boundary:
+  `BCOMP:2864` honours `$internal` only for an elevated internal session -
+  unlike `$SDCALL`, which is ungated.
+
+**THE FIVE ENTRY POINTS.** A gate that misses one reads as protection and
+leaks:
+
+| File | What |
+|---|---|
+| `op_dio1.c` `open_file()` | **`OPEN` AND `OPENPATH` BOTH** - so a VOC F-record pointing anywhere is caught too |
+| `op_dio2.c` `ospath()` | `OS_DELETE`, `OS_CD`, `OS_DIR`, `OS_MKDIR`, `OS_MKPATH`, `OS_CHOWN` |
+| `op_seqio.c` | `OPENSEQ` / `OPENSEQP` |
+| `op_sh.c` `os_permitted()` | see item 3 |
+| `config.c` | any allowed-roots setting |
+
+**THE ONE DECISION LEFT, AND IT IS THE OWNER'S:** the containment root.
+**Strict** - own account directory plus a new `NETDIRS=` config for sites with
+external data - actually closes it, and breaks any site whose VOC points
+outside the account until `NETDIRS` is set. **Loose** - deny only `sdsys` and
+other accounts - cannot break a deployment and **is not a fix**, because the
+session still writes anywhere else on the machine as SYSTEM. **Recommended:
+strict, with the config escape hatch; nothing has shipped.**
+
+**3. `op_sh.c` IS A FOURTH SITE OF THE SAME FALSE ASSUMPTION, AND IT IS A
+SECURITY GATE RATHER THAN A COMMENT.** `os_permitted()` returns TRUE on
+`USR_ADMIN`, which `kernel.c:195` sets from `IsElevated()` with no test of
+connection type - so **`OS.EXECUTE` is open to every API session, as SYSTEM**.
+Written 19 Aug to close a hole on this very path. Item 1 measures it.
+
+**4. `SET.PASSWORD DON` IS OWED AND NEEDS A PERSON** - the password is the
+owner's. **ELEVATED prompt**, `sd`, then `set.password don`. Not
+`logto sdsys`: that gives SD's admin flag and an elevated HELPER process,
+while `sd.exe` keeps its own unelevated token, so the `$cred` write fails
+**3035** (`ER_PERM`).
+
+**5. `APIPORT` IS OFF BY DEFAULT NOW** (20 Aug, reversing the same day).
+**mvDeveloper will not connect until it is uncommented by hand** in
+`C:\ProgramData\SD\sd.conf` - deliberate, not a regression.
+
+**PREFIXES SPENT 20 Aug:** `sdacct27`, `sdtiert1`-`3`, `sdacl7`, `sdapia1`,
+`sdapia2`. Only `verify-apiadmin` cleans up after itself; the other three
+leave ACCOUNTS records, so **exit 2 from them means "use a fresh prefix", not
+a failure**.
+
+---
+
+---
+
 ## CONFIRMED, AND THE MOST IMPORTANT THING IN THIS FILE: A REMOTE API SESSION RUNS AS LocalSystem
 
 **CONFIRMED THREE TIMES, AND TWICE WITH A CORRECT INSTRUMENT.** The whole

@@ -27,6 +27,40 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - Session end: the gate is chosen and specified, not built
+
+**Commit:** this one. Handoff only; `PROJECT_STATUS.md` opens with the short
+version.
+
+**Owner chose the fix, 20 Aug:** gate `OPENPATH` and the OS primitives for
+network sessions, rather than matching the session token to the user (S4U).
+
+**NOT STARTED.** Two things are already forced and should not be redesigned:
+the discriminator is `connection_type == CN_SOCKET` (only `-N` has `sdwind` as
+its parent; `-C` and `-P` are spawned by the user's own `sd.exe`), and the
+gate MUST exempt `HDR_INTERNAL` or nothing works, because `CRED_VERIFY:68`
+opens `$cred` during SCRAM inside the API session.
+
+**THE SURFACE IS FIVE FILES, NOT TWO**, which is why this stopped rather than
+half-landing: `op_dio1.c` `open_file()` (both `OPEN` and `OPENPATH`),
+`op_dio2.c` `ospath()`, `op_seqio.c`, `op_sh.c`, and the config. **A gate that
+misses one reads as protection and leaks.**
+
+**THE DECISION LEFT IS THE CONTAINMENT ROOT** - strict (own account plus a
+`NETDIRS=` config) closes it and breaks external data directories until
+configured; loose (deny `sdsys` and other accounts) breaks nothing and is not
+a fix, since the session still writes anywhere else as SYSTEM.
+
+**AND A FOURTH SITE OF THE SAME FALSE ASSUMPTION, this one a security gate.**
+`op_sh.c`'s `os_permitted()` returns TRUE on `USR_ADMIN`, which `kernel.c:195`
+sets from `IsElevated()` with no test of connection type - so **OS.EXECUTE is
+open to every API session, as SYSTEM**, by a more direct route than the `$cred`
+write. Written 19 Aug to close a hole on this very path. `apiadminprobe.sb`
+now runs `os.execute 'cmd /c whoami'` to measure it; **that run is owed and
+needs no cycle.**
+
+---
+
 ## 20 Aug 2026 - The suite on the 19:57:43 install, and a trap in assert-current's own exclusion
 
 **Commit:** this one.
