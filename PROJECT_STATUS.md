@@ -60,13 +60,46 @@ are `sdadmins`, `sdapi`, `sdssh`, `sdsshonly`, `sdusers`, `sdu_don`; service
 Running. **`sdadmins` is expected litter** — made by hand on 13 Aug, referenced
 now only in comments (`linuxlb.c:64`, `sddefs.h:157`); §8 says leave it.
 
+**THE `DELETE.ACCOUNT` TEST SUBJECTS NAMED ELSEWHERE IN THIS FILE NO LONGER
+EXIST.** `sdacct9` and `sdadopt3` are both gone as Windows accounts — checked
+21 Aug — so the test has to make its own. Two directions and BOTH are needed;
+either alone proves nothing.
+
+1. **SD made it, so it must go with no prompt:** `CREATE.ACCOUNT SDACCT28`
+   (next free name), then `DELETE.ACCOUNT SDACCT28`. Expect the Windows
+   account removed **without a Y/N**, and no `sdacct28` under `C:\Users` and
+   no `Win32_UserProfile` for it afterwards.
+2. **SD did not make it, so it must be refused:** elevated,
+   `New-LocalUser sdadopt4 -NoPassword`, then `CREATE.ACCOUNT` naming it, then
+   `DELETE.ACCOUNT`. Expect message `10036`, *"%1 was not created by SD"*, and
+   **`sdadopt4` still present afterwards**. That is `!is_sd_user` working, and
+   it is the guard that replaced the prompt.
+
+**THE PROFILE HALF MAY NOT BE EXERCISED BY (1) ON ITS OWN.** A Windows account
+has no profile until something signs in as it, so a freshly created account may
+have nothing to remove and the test would pass without testing anything. Check
+whether a profile appeared BEFORE deleting — `Get-CimInstance Win32_UserProfile`
+— and say so in the result either way. `gplbld/clean-test-profiles.ps1 -List`
+answers the same question.
+
 **ITEM 9 IS CONFIRMED. `verify-apiadmin -Prefix sdapia8`: 22 PASS + 1 N/A of
 23, no failures**, on the install that carries the read-only change. That was
 the risk leg — a network session failing where it used to work would have shown
 up here — and it came through clean. Items 1, 4, 5 and 9 are all measured.
 
-**`limitssh` IS TICKED BY DEFAULT NOW** — owner's decision, 21 Aug, the second
-change to that task the same day. `Flags: unchecked` is gone from `sd.iss:183`.
+**`limitssh` IS TICKED BY DEFAULT AND IT IS CONFIRMED FROM THE INSTALL.**
+Owner's decision, 21 Aug, the second change to that task that day;
+`Flags: unchecked` is gone from `sd.iss:183`. **`verify-routes -Prefix sdrt4`
+on the 09:33:41 cycle: 33/33**, the three ssh checks passing for the first time
+without anybody running a script by hand.
+
+**AND THAT IS NOT THE MANUAL RUN SURVIVING, which was the thing to rule out.**
+`sshd_config` was last written **09:34:42**, inside that cycle — not at the
+08:2x hand-run — and uninstall ALWAYS strips SD's block (`RemoveAllowGroups`,
+`sd.iss:1657`). So the cycle removed it and the installer put it back on its
+own. **Check the file's timestamp, not just the verifier**, if this is ever in
+doubt again: a passing ssh check is equally consistent with a block nobody
+removed.
 
 **AND THAT REVERSES WHAT THE CONSENT ARGUMENT RESTED ON.** When the `Check`
 came off earlier the same day, the note said 5.9 — *"we never reconfigure an
@@ -146,12 +179,11 @@ sweeper for anything that gets past the verb.
 | # | Owed | Whose |
 |---|---|---|
 | — | **`cycle.ps1`** — C, BASIC and the Makefile all changed since the last install | a person, elevated |
-| — | **`DELETE.ACCOUNT` against `sdacct9`** (SD made it, so it must go without asking, profile and all) and against an adopted account (must be refused) | a person, elevated |
-| — | **`verify-routes.ps1 -Prefix sdrt4`** — 33/33, and this time the three ssh checks should pass **from the install itself** rather than from running the script by hand, because the task is now ticked by default. That is the whole test of this change | a person, elevated |
+| — | **`DELETE.ACCOUNT`, both directions — AND IT NEEDS FRESH SUBJECTS, see below** | a person, elevated |
 | — | **the API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s the session so it inherits the service token. Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
 **PREFIXES SPENT:** 20 Aug — `sdacct27`, `sdtiert1`-`3`, `sdacl7`, `sdapia1`,
-`sdapia2`. 21 Aug — `sdrt1`-`sdrt3`, `sdapia3`-`sdapia8`. Only `verify-apiadmin`
+`sdapia2`. 21 Aug — `sdrt1`-`sdrt4`, `sdapia3`-`sdapia8`. Only `verify-apiadmin`
 and `verify-routes` clean up after themselves; **exit 2 from the others means
 "use a fresh prefix", not a failure**.
 

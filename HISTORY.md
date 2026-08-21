@@ -12538,3 +12538,22 @@ against configuring a machine that has no policy at all - and there SD's model
 is the only model there is. The cost, ForceCommand stopping scp and sftp for
 everyone, is unchanged and is now the default, so the task description is the
 only warning before it is accepted.
+
+**limitssh default-on confirmed from the install, 21 Aug.**
+`verify-routes -Prefix sdrt4` on the 09:33:41 cycle: 33/33, with the three ssh
+checks passing for the first time without anybody running a script by hand.
+
+The thing to rule out was the hand-run from that morning simply surviving, since
+a passing ssh check is equally consistent with a block nobody removed.
+`sshd_config` was last written 09:34:42, inside the cycle, and uninstall always
+strips SD's block (RemoveAllowGroups, sd.iss:1657) - so the cycle removed it and
+the installer put it back by itself. The file timestamp is the control here, not
+the verifier.
+
+**And the DELETE.ACCOUNT test subjects this file names had gone.** sdacct9 and
+sdadopt3 are both absent as Windows accounts, so the handoff was pointing the
+next session at things that do not exist. Replaced with instructions to create
+their own, and with a warning that direction (1) may not exercise the profile
+removal at all: a Windows account has no profile until something signs in as it,
+so a freshly created account may have nothing to remove and would pass without
+testing anything.
