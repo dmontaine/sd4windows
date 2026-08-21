@@ -77,19 +77,17 @@ CYCLE IS OWED**: `DELACC` and `DELETE_USER` are BASIC, so `cycle.ps1`
   name no longer resolves to a SID.
 - **The account DIRECTORY is still asked about separately.** Data, not login.
 
-**THE 26 PROFILES ALREADY ON THIS MACHINE ARE NOT REMOVED BY THIS** — they have
-no accounts left to delete. Sweep them, elevated:
-
-```powershell
-powershell -File "C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\clean-test-profiles.ps1"
-```
+**THE 26 PROFILES ALREADY ON THIS MACHINE WERE SWEPT, 21 Aug**, with
+`gplbld/clean-test-profiles.ps1` — none had an account left to delete.
+`C:\Users` now holds `dmont` and the stock Windows profiles alone, and
+`Win32_UserProfile` reports no `sd*` entry. **The script stays**: it is the
+sweeper for anything that gets past the verb.
 
 **WHAT IS OWED. ALL CODE OR A CYCLE; NOTHING IS WAITING ON A DECISION.**
 
 | # | Owed | Whose |
 |---|---|---|
 | — | **`cycle.ps1`, then `DELETE.ACCOUNT` against `sdacct9`** (SD made it, so it must go without asking) and against an adopted account (must be refused) | a person, elevated |
-| — | `clean-test-profiles.ps1`, the 26 already there | a person, elevated |
 | 9 | **THE GATE ADMITS A PATH, NOT A MODE.** A network session may still WRITE the shared `sdsys` entries — `sd.voclib` and `newvoc` are the ones that matter, because they shape what FUTURE accounts get. `$cred`, `gcat`, `os.users` and `accounts` are NOT among them and are unreachable either way. Needs the open mode threaded down from each entry point, which differs per caller | code, + one cycle |
 | — | **the API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s the session so it inherits the service token. Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
@@ -10622,11 +10620,30 @@ every account without exception, and `LOGTO` accepts a registered account name
 only — direct directory access by path is not supported, which closes the
 bypass rather than trying to resolve paths back to accounts.
 
-### OPEN AND UNDECIDED: SDNet was NOT removed, and its off switch does nothing (found 18 Aug 2026)
+### CLOSED 21 Aug 2026: SDNet is gone. What follows is the record of the find
+
+**CHECKED FILE BY FILE ON 21 Aug AND EVERY ITEM BELOW IS NOW UNTRUE.**
+`gplsrc/netfiles.c` is deleted and builds no object; `DELSRVR`, `SETSRVR` and
+`LISTSRVR` are gone from `gpl.bp`; `DELETE.SERVER`, `SET.SERVER` and
+`LIST.SERVERS` are gone from `voc_template`; and the semicolon dispatch in
+`op_dio1.c` is gone, replaced by a comment saying a name containing `;` now
+falls through to `fullpath()` and fails like any other bad pathname.
+
+**TWO RESIDUES, BOTH DELIBERATE, NEITHER A TASK.** `gplsrc/sdnet.h` STAYS and
+is still included by `linuxio.c`, `lnxport.c` and `op_skt.c` — it carries
+socket declarations that have nothing to do with SDNet, and `sd.h:273` says so
+in place. And `NETFILES` is still parsed, stored and displayed while being
+tested nowhere: **leave the parse**, or an `sd.conf` carrying it stops loading.
+
+**The original entry is kept below because the reasoning is what dates**, and
+because "a parameter that reads like a gate and gates nothing" is the shape
+worth recognising again.
+
+---
 
 The repository owner believed the network file capability had gone with telnet,
-for the same reason — the client protocol is inherently insecure. **It is still
-here, it is compiled, and it is reachable.**
+for the same reason — the client protocol is inherently insecure. **It was still
+here, compiled, and reachable when this was written on 18 Aug.**
 
 - `gplsrc/netfiles.c`, 1,227 lines, and `gplsrc/sdnet.h`. **Built**, because
   `Makefile:65` is `TEMPSRCS := $(wildcard *.c)` and excludes only `sdclient.c`.
