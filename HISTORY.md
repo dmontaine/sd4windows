@@ -27,6 +27,69 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - Acting on the API finding: default off, three comments, and the scope
+
+**Commit:** this one. **No fix yet** - the route is still to be chosen. This is
+everything that was cheap, reversible and clearly right.
+
+**1. `APIPORT` IS OFF BY DEFAULT AGAIN**, reversing the on-by-default decision
+taken **earlier the same day**. Not a change of mind about the argument that
+won it: that argument was about cleartext and is still correct. A different
+fact turned up afterwards - the API is a privilege escalation from "holds an
+SD credential" to "is SYSTEM on this machine", and default-on ships it to
+every install. The arguments for on-by-default still stand and should win
+again once the token is fixed; `stage.py` says so where the line is.
+
+**2. THE THREE FALSE COMMENTS ARE CORRECTED** - `APISRVR` twice and `sd.c`'s
+`check_admin()`. All three said an API session runs unprivileged, and the
+account gating in `APISRVR` was reasoned on those sentences. **No code
+changed.**
+
+**3. `verify-apiadmin.ps1` IS STEP 5 OF `post-cycle-elevated.ps1`, AND IT
+FAILS THERE ON PURPOSE.** Expected 13/15 with the two verdict checks failing.
+**That is the finding standing, not the suite rotting** - and when the fix
+lands it goes green, which is why it belongs in the suite rather than in
+somebody's memory.
+
+**4. §5.7's STAGE 2 IS REWRITTEN, because it was the bug as a design.** It
+proposed session processes spawned under a service identity owning the whole
+tree - which is precisely what an API session already does by accident. What
+it left out is what would make it safe: SD enforcing access once the OS no
+longer can, and **SD has no file-level access control** (`op_dio1.c:368`).
+**The Linux comparison is what hid it** - `EUID_SET` drops to `sdsys` and the
+Linux original has the same absence, so the parallel is exact and inherits the
+gap rather than answering it.
+
+**THE SCOPE, read from the request handlers rather than guessed.** The
+exposure needs the ability to RUN CODE:
+
+- `vb.open` uses **`OPEN`, VOC-resolved, not `OPENPATH`**, and refuses a
+  `FL$FLAGS.TRUSTED` file - a client cannot name an arbitrary path.
+- `vb.open.sdnet` does take `account;filename`, and is gated on
+  `bitand(config('NETFILES'), 2)`; **`NETFILES` defaults to 0 and is absent
+  from the shipped `sd.conf`**.
+- So it needs `vb.execute` or `vb.call` running BASIC that uses `OPENPATH`,
+  which needs `basic`/`run` in the VOC - **PROGRAMMER or ADMINISTRATOR, not
+  STANDARD**. A STANDARD account is not *proven* safe and is not recorded as
+  such: a VOC record pointing at the file would do it, if it has any way to
+  write its own VOC.
+
+**That is what scopes the fix**: gate `OPENPATH` and the `OS.*` primitives for
+network sessions. The request interface is already VOC-bound.
+
+**CONFIGURATION IS NOT A MITIGATION, and this is worth its own note because it
+looks like one.** `SDCLIENT=1` stops `EXECUTE` and an attacker uses `CALL`;
+`SDCLIENT=2` restricts `CALL` to programs carrying `HDR.SDCALL.ALLOWED` - and
+**`BCOMP:2948` sets that flag from a bare `$SDCALL` directive with no
+privilege check**, while `RECURSIVE` on the very next line *is* gated on
+`K$INTERNAL`. So a PROGRAMMER marks their own subroutine callable and walks
+through, and **`SDCLIENT=2` is not a security boundary**. Left alone
+deliberately: gating `$SDCALL` would break the feature, which exists so a
+programmer can expose a subroutine to clients. Any non-zero `SDCLIENT` also
+disables `vb.open` outright, so it breaks an editor client regardless.
+
+---
+
 ## CONFIRMED 20 Aug 2026 - a remote API session runs as LocalSystem and can rewrite $cred
 
 **Commit:** this one. `verify-apiadmin.ps1 -Prefix sdapia1`, run by the owner.

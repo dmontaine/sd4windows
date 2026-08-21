@@ -107,6 +107,47 @@ symptom: the probe wrote the file **without** the administrator flag, so
 gating the flag would leave the exposure exactly where it is while looking
 like it had been dealt with.
 
+**HOW FAR IT REACHES, SCOPED 20 Aug 2026 BY READING THE REQUEST HANDLERS. IT
+NEEDS THE ABILITY TO RUN CODE, SO IT NEEDS PROGRAMMER OR ADMINISTRATOR.**
+
+- **The raw request interface CANNOT reach `$cred`.** `vb.open` does
+  `open cmnd to files(i)` - **`OPEN`, resolved through the VOC, not
+  `OPENPATH`** - and additionally refuses a file carrying
+  `FL$FLAGS.TRUSTED`. So a client cannot name an arbitrary path.
+- **`vb.open.sdnet` DOES take `account;filename`**, and is gated on
+  `bitand(config('NETFILES'), 2)`. **`NETFILES` defaults to 0 and is absent
+  from the shipped `sd.conf`**, so it answers `ER$XREMOTE`.
+- **What is left is code execution** - `vb.execute` or `vb.call` running BASIC
+  that uses `OPENPATH`. That takes `basic`/`run` in the VOC, which **STANDARD
+  does not have** (§ tiers) and PROGRAMMER and ADMINISTRATOR do.
+
+**SO A STANDARD ACCOUNT LOOKS CONSTRAINED AND IS NOT PROVEN SAFE** - it could
+still get there by way of a VOC record pointing at the file, if it has any way
+to write its own VOC. Not measured; do not record it as safe.
+
+**AND THIS IS WHAT SCOPES THE FIX**: gate `OPENPATH` and the `OS.*`
+primitives for network sessions. **The request interface is already VOC-bound
+and does not need touching.**
+
+**CONFIGURATION IS NOT A MITIGATION, CHECKED RATHER THAN ASSUMED.**
+`SDCLIENT=1` stops `EXECUTE` and an attacker uses `CALL` instead.
+`SDCLIENT=2` restricts `CALL` to programs carrying `HDR.SDCALL.ALLOWED` -
+**and `BCOMP:2948` sets that flag from a bare `$SDCALL` directive with no
+privilege check at all**, so a PROGRAMMER marks their own subroutine callable
+and walks through:
+
+```
+case u.token.string = "SDCALL" and not(is.ctype)             <- ungated
+case u.token.string = "RECURSIVE" & kernel(K$INTERNAL, -1)   <- gated, next line
+```
+
+**The contrast with `RECURSIVE` immediately below it suggests an oversight
+rather than a decision**, and it means **`SDCLIENT=2` is not a security
+boundary**. Left alone deliberately - gating `$SDCALL` to internal programs
+would break the feature, which exists so a programmer can expose a subroutine
+to clients. **Any non-zero `SDCLIENT` also disables `vb.open` outright**
+(*"File access is disabled"*), so it breaks an editor client anyway.
+
 **"CAN `sdwind` RUN AS SOMETHING OTHER THAN LocalSystem?" - owner, 20 Aug
 2026. YES, AND §5.7 ALREADY SPECIFIES IT**: a **virtual account,
 `NT SERVICE\SD`**, which needs no password management. Three things qualify
@@ -5511,17 +5552,35 @@ and adds a Windows-user-to-account mapping to maintain.
   `Administrators`, so no other account on the machine can browse it. That
   blocks everyone who is not an SD user; it does not stop one SD user reading
   another's account files directly.
-- **The real answer, and it is stage 2.** `sdwind` becomes a Windows service
-  running as a dedicated service account — a virtual account, `NT SERVICE\SD`,
-  needs no password management — which owns the tree exclusively. Session
-  processes are spawned under the *service* identity and the user reaches their
-  session over the named pipe, so the user's own token never touches the data.
-  The question then dissolves: accounts become private *because* of the
-  password rather than in spite of it, and shared accounts still work because
-  the OS never sees individual people at the file layer. This is the direct
-  Windows equivalent of the Linux original dropping to the `sdsys` user via
-  `EUID_SET` (§5.5), not a Windows novelty. The substantial part is making
-  console `sd.exe` a client of the service instead of doing its own file I/O.
+- **What used to stand here as "the real answer", and it is NOT.** The
+  proposal was: `sdwind` becomes a service running as a dedicated account -
+  a virtual account, `NT SERVICE\SD`, needing no password management - which
+  owns the tree exclusively, with **session processes spawned under the
+  SERVICE identity** and the user reaching their session over a named pipe, so
+  the user's own token never touches the data. Accounts would become private
+  *because* of the password rather than in spite of it. It was called the
+  direct Windows equivalent of the Linux original dropping to `sdsys` via
+  `EUID_SET` (§5.5).
+
+  **20 Aug 2026 - THAT IS THE BUG THIS PROJECT JUST MEASURED, WRITTEN AS A
+  DESIGN.** "Session processes run under an identity that owns the whole tree"
+  is exactly what an API session already does by accident, and
+  `verify-apiadmin.ps1` showed where it leads: a PROGRAMMER-tier account
+  opened and wrote `$cred`. Adopting this deliberately would generalise that
+  from the API to every session.
+
+  **WHAT THE PROPOSAL LEFT OUT IS THE PART THAT MAKES IT SAFE.** It works only
+  if SD enforces access once the OS no longer can, and **SD has no file-level
+  access control**: `op_openpath` calls `open_file()` with no path restriction
+  of any kind (`op_dio1.c:368`). The Linux comparison is what hid this - Linux
+  `EUID_SET` drops to `sdsys` *and* the Linux original had the same absence,
+  so the parallel is exact and inherits the gap rather than answering it.
+
+  **SO IT IS A ROUTE, NOT AN ANSWER, and the missing half is the bulk of the
+  work**: path gating inside SD. The named-pipe transport is separately
+  blocked - §7 step 11, 17 Aug 2026 - so the transport half cannot be built
+  today either. **Do not reach for this section as the fix.** The opening
+  section of this file has the options that were actually weighed.
 
 **Mechanics, verified on this machine 13 Aug 2026.** `C:\ProgramData` grants
 `BUILTIN\Users:(I)(OI)(CI)(RX)` by inheritance, so the default is world
