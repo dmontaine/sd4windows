@@ -11,118 +11,76 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**PHASE 2 COMPILES. IT HAS NEVER RUN.** `cycle.ps1 -SkipInstall`, owner's
-elevated window, **21 Aug 13:10:11** — transcript
-`%LOCALAPPDATA%\SD-verify\cycle-20260821-131011.log`. 195 `0 error(s)`
-summaries and not one non-zero; `$CREATEA`, `$DELACC`, `$MODIFYA`,
-`!CRED_VERIFY` and **`$MODIFY.PASSWORD`** all catalogued (log:300, 345, 553,
-325, 749 — the last is the rename landing). Staged tree whole: gcat 129,
-gpl.bp.out 190, `$CPROC` 25728, `$BCOMP` 88079. Four `assigned a value but
-never used` warnings, all four also in the 11:45 pre-Phase-2 run, so Phase 2
-added none. **`-SkipInstall` DID NOT INSTALL — the installed tree is STALE.**
+**PHASE 2 IS BUILT AND MEASURED.** Install 21 Aug **14:15:55**,
+`assert-current` green, four verifiers run against that one install:
 
-**THEN THE FULL CYCLE RAN — install 21 Aug 13:16:19 — AND THE SUITE WENT 4 OF
-6.** Summary `%LOCALAPPDATA%\SD-verify\post-cycle-20260821-131727.txt`:
-
-| verifier | prefix | exit |
+| verifier | prefix | result |
 |---|---|---|
-| `verify-fold` | — | **0** |
-| `verify-createaccount` | `sdacct28` | **0** |
-| `verify-tiers` | `sdtiert4` | **0** |
-| `verify-accountacl` | `sdacl8` | **0** |
-| `verify-peerlog` | — | **1** — stale assertion, since fixed |
-| `verify-apiadmin` | `sdapia9` | **1** — same, since fixed |
+| `verify-delaccount` | `sddel3` | **39 PASS + 0 N/A of 39** |
+| `verify-apiport` | `sdapi5` | **all checks passed** |
+| `verify-apiadmin` | `sdapia10` | **22/23** — the 23rd is the standing N/A |
+| `verify-peerlog` | — | **21/21** |
 
-**BOTH FAILURES WERE ONE STALE ASSERTION LEFT BY PHASE 1, NOT A PHASE 2
-FAULT.** Each matched `netstat` for a literal `127.0.0.1:<port> LISTENING`
-line; Phase 1 moved the bind to `INADDR_ANY`, so `netstat` prints
-`0.0.0.0:4243` and neither could pass. **Confirmed by looking**, 21 Aug: the
-only LISTENING line on 4243 is `TCP 0.0.0.0:4243`. Phase 1 corrected
-`verify-apiport`'s copy (commit `0022907`) and missed these two.
-**It cost more in `verify-apiadmin`**, where the `Fail` aborted before step 7 —
-the containment-gate measurement the script exists for — so a run that proved
-nothing looked like a run that found something. Both now match on the port
-alone, as `verify-apiport`, `verify-scramlogin` and `verify-tierapi` already
-did. **THEY HAVE NOT BEEN RE-RUN.**
+**THE ONE N/A IS THE HONEST ONE, NOT A GAP** — *"API session is NOT running as
+SYSTEM"* is answered by running `whoami` inside the session, which the gate now
+refuses. **The session still runs as LocalSystem.** Only its reach changed.
 
-**AND A CYCLE IS OWED AGAIN BEFORE ANYTHING CAN BE.** The `CREATEA`
-return-code fix in this same commit changed a file in the watched `sdsys` tree,
-so `assert-current` refuses — measured 21 Aug 13:25, *"STALE: 1 source file(s)
-are newer than the install: sdsys\gpl.bp\CREATEA"*. Every verifier calls it
-first. **The two fixed scripts being on `$neverShipped` does not help here** —
-that list stops a verifier from reporting the tree stale *because of its own
-edit*; it does nothing about a genuinely newer shipped file.
+**WHAT THAT SETTLES, and it is most of Phase 2:**
 
-**`ED` RIDES THE SAME CYCLE.** Owner's call, 21 Aug: since one was owed anyway,
-the second instance of the missing minus went in with it —
-`@system.return.code = -ER$ARGS` at `ED:70`, where `CREATEA:206` and
-`DELACC:82` already wrote that identical preset negated. **Checked before
-changing it**: `ED:185` clears the preset to 0 once the file opens, so it is an
-error value; the only reader in the file, `ED:1371` `if @system.return.code < 1`,
-sits after `execute 'BASIC '` and is reading the COMPILER's count, not ED's own
-preset; and nothing in `gpl.bp` runs `ED` and tests its code. **Neither sign fix
-is verified** — both ride this cycle, and `UPSTREAM_FIXES.md` #11 carries both
-to `sdb64`.
+- **The single delete confirmation, both wordings, and they cannot
+  over-promise.** For an account SD made: 10084 names the Windows account and
+  10085 is absent. For a borrowed one attached with `ADOPT`: 10085 only, 10084
+  absent, 10036 shown, and **the borrowed Windows account, its description and
+  its profile all survive**. That pairing is the whole reason `del.user` is
+  worked out before the question is asked.
+- **`MODIFY.ACCOUNT <acc> API` really moves group membership.**
+  `verify-apiadmin` 7a proves the account is refused the API beforehand, 7b that
+  the grant lands it in `sdapi`. **Non-vacuous only because the account is now
+  created with `NONE`** — created with `API` it would be in `sdapi` at birth and
+  7a would have failed outright.
+- **`MODIFY.PASSWORD` is reachable and works.** Both API verifiers set a
+  credential with it and then authenticate on it.
+- **The containment gate still holds** on the Phase 2 plus sign-fix build:
+  `$cred` refused, `OS.EXECUTE` refused by name, both local controls still
+  succeed.
+- **The API faces the network**: `bound to 0.0.0.0`, `NOT loopback-only`.
 
-```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-```
-
-**THEN THE FOUR THAT ARE OWED**, in the order that measures most first:
-
-| | why |
-|---|---|
-| `verify-delaccount.ps1 -Prefix sddel3` | the single delete confirmation and its two wordings — never run against Phase 2 |
-| `verify-apiport.ps1 -Prefix sdapi5` | the `NONE` → `MODIFY.ACCOUNT … API` grant, and the port |
-| `verify-apiadmin.ps1 -Prefix sdapia10` | step 7, the containment gate, which today's run never reached |
-| `verify-peerlog.ps1` | everything after its step 3, likewise never reached |
-
+**WHAT IS STILL UNMEASURED, and it is Phase 4's verifier work:** 10082 (no
+keyword given, refuse), **10086 (the mandatory-password unwind — the one real
+behaviour change with no coverage at all)**, 10087 (a GROUP account), 10083
+(`MODIFY.ACCOUNT` refusing an administrator), and messages 10076 / 10079.
 `verify-routes` refuses with exit 2 until Phase 4 rewrites it.
 
-**WHAT THE GREEN FOUR DO AND DO NOT SETTLE.** `verify-createaccount` created
-its account with `SSH` and passed, so the create-time keyword parses and does
-not break creation — but nothing yet asserts that `SSH` produced ssh-and-not-API
-membership. `verify-tiers` passed with `... BOTH`. The mandatory password and
-`modify.password` as a reachable verb are still unobserved.
+**AND FOUR RESULTS ARE STALE, not failed.** `verify-fold`,
+`verify-createaccount -Account sdacct28`, `verify-tiers -Prefix sdtiert4` and
+`verify-accountacl -Prefix sdacl8` all exited 0 — on the **13:16:19** install,
+which two source changes have superseded. They are not results for the tree
+installed now. Re-running them needs no cycle:
 
-**TWO PIECES OF PHASE 2 WERE OBSERVED WORKING ANYWAY, incidentally, on the
-13:16:19 install. Neither came from a verifier.**
-
-**1. `set.access` ran during the INSTALL, and the administrators-get-the-API
-fix is closed.** `C:\ProgramData\SD\adopt-account.log` from that install:
-
-```
-don keeps the Windows sign-in rights it already had     <- 10040
-don may sign in over ssh and use the API                <- 10078
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert5 -Account sdacct29 -AclPrefix sdacl9 -ApiPrefix sdapia11
 ```
 
-and the groups agree — `don` is in **`sdssh` and `sdapi`**; `test1`, an older
-account, is in `sdssh` and `sdsshonly` and **not** `sdapi`. That is the whole
-point of moving the join out of the `make.admin` / `adopt` else branches: before
-Phase 2 an ADOPTed account joined neither group and `APISRVR` refuses a
-non-member with no administrator exemption, so an SD administrator could not use
-the API at all. 10040 alongside it shows ADOPT still skips `sdsshonly`, so the
-15 Aug rule about not touching the console still holds.
-**IT DOES NOT PROVE THE KEYWORDS** — this path is the `tier = 'ADMINISTRATOR'`
-forcing in `more.args`, not `SSH`/`API`/`BOTH`/`NONE` off a command line — and
-it does not prove an administrator can complete an API session, which is
-`verify-apiadmin` step 7.
+**THE INSTALL ITSELF EXERCISES `set.access`, and the administrator/API gap is
+closed.** `C:\ProgramData\SD\adopt-account.log`: *"don keeps the Windows
+sign-in rights it already had"* (10040), then *"don may sign in over ssh and use
+the API"* (10078). The groups agree — `don` is in `sdssh` **and** `sdapi`.
+Before Phase 2 an ADOPTed account joined neither, and `APISRVR` tests `sdapi`
+with no administrator exemption, so an SD administrator could not use the API at
+all. 10040 alongside it shows ADOPT still skips `sdsshonly`, so the 15 Aug
+console rule holds.
 
-**2. THE SINGLE DELETE CONFIRMATION RAN, with the longer wording.** From
-`verify-apiadmin`'s own cleanup at 13:20, deleting the account it had made:
+**BOTH `@SYSTEM.RETURN.CODE` SIGN FIXES ARE IN THIS BUILD** — `CREATEA` (a
+failed `create_user()`) and `ED:70` (the command-error preset), each now
+`-ER$…` like every other site in its file. **Neither is verified**: reaching
+them needs `create_user()` or `ED` to fail, which nothing here provokes.
+`UPSTREAM_FIXES.md` #11 carries both to `sdb64`, where they are on `main` and
+`dev`.
 
-```
-Delete account SDAPIA9, its directory and its Windows account sdapia9 (Y/N)? Y
-Group: sdu_sdapia9 Deleted
-OS User: sdapia9 Deleted
-```
-
-That is 10084 with both substitutions right — `%1` the upper-case account,
-`%2` the lower-case Windows user — so `del.user` was correctly non-empty for an
-account SD made. **And there was only one question:** the cleanup feeds
-`'Y','Y'` and the second `Y` fell through to the prompt as *"Y is not in your
-VOC"*. **NOT SHOWN:** the 10085 short wording for a borrowed account, the
-directory removal, or the profile half. `verify-delaccount` is still owed.
+**THE COMPILE, for the record.** `cycle.ps1 -SkipInstall` 13:10:11 — 195
+`0 error(s)` summaries, no non-zero one, `$MODIFY.PASSWORD` catalogued (the
+rename landing), staged tree whole. Four `assigned a value but never used`
+warnings, all four also present pre-Phase-2.
 
 **THE STATIC READ THAT PRECEDED IT, 21 Aug, thirty-fourth session**, kept
 because it is what the next unverified change should get before it spends an
@@ -178,7 +136,7 @@ kept apart so a failure is attributable.
 | # | what | state |
 |---|---|---|
 | 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
-| 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **compiles 13:10:11, installed 13:16:19, 4 of 6 verifiers green — but nothing yet MEASURES the four keywords, the password rule or the delete confirmation** |
+| 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **done and measured on the 14:15:55 install** — `verify-delaccount` 39/39, `verify-apiport` all, `verify-apiadmin` 22+1 N/A, `verify-peerlog` 21/21. The refusal paths (10082, 10086, 10087, 10083) are Phase 4's |
 | 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | not started |
 | 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | not started |
 
@@ -200,16 +158,16 @@ and that is the whole point of the change.
 **`sd.conf` IS AT `C:\ProgramData\SD\sd.conf`**, not under `sdsys\`. Cost a
 wrong lookup on 21 Aug; `verify-apiport.ps1` has it right.
 
-**THESE FOUR STILL PREDATE PHASE 2** — the four above ran on the 13:16:19
-install, these did not, and none of them has been run against the code now in
-the tree.
+**SUPERSEDED, kept only so a number in HISTORY can be placed.** Three of these
+four were re-run on the 14:15:55 install and the header carries those results;
+`verify-routes` has not run since Phase 2 retired what it asserts, and refuses.
 
 | verifier | prefix | result | measured on |
 |---|---|---|---|
-| `verify-apiport` | `sdapi4` | **13/13** | 11:50:48 cycle (Phase 1) |
-| `verify-apiadmin` | `sdapia8` | **22 PASS + 1 N/A of 23** | 09:33:41 cycle |
-| `verify-routes` | `sdrt4` | **33/33** | 09:33:41 cycle |
-| `verify-delaccount` | `sddel2` | **38/38** | 09:33:41 cycle |
+| `verify-apiport` | `sdapi4` | 13/13 | 11:50:48 cycle (Phase 1) |
+| `verify-apiadmin` | `sdapia8` | 22 PASS + 1 N/A of 23 | 09:33:41 cycle |
+| `verify-routes` | `sdrt4` | 33/33 | 09:33:41 cycle — **last valid run** |
+| `verify-delaccount` | `sddel2` | 38/38 | 09:33:41 cycle |
 
 **WHAT PHASE 2 DOES TO THE SUITE, so a red run is not misread as a broken
 feature:**
@@ -284,6 +242,15 @@ is the only thing left.
   **`newline=''` to both `open` calls** — read and write — or use the editing
   tools. `HISTORY.md` was untouched because it was appended to from the shell.
 
+  **AND PASS `encoding='utf-8'` WITH IT.** 21 Aug: a splice into
+  PROJECT_STATUS.md died with *"'charmap' codec can't decode byte 0x90"* —
+  Git Bash's `python3` is the Windows Store build and defaults to cp1252, and
+  these files hold em dashes and curly quotes. `dict(encoding='utf-8',
+  newline='')` splatted into every `open` is the whole fix. **Assert the
+  boundaries before writing**, too: the splice that worked checked the first
+  and last line it was about to replace, so a shifted file would abort instead
+  of silently eating the wrong hundred lines.
+
   **AND THE FIX FOR IT WALKED INTO A SECOND TRAP IN THE SAME BREATH.** The
   Python that added this bullet was fed through a **quoted bash heredoc, which
   still halves backslashes**, so a `\\n` written to mean two literal characters
@@ -343,8 +310,8 @@ is the only thing left.
 - **Test prefixes are single-use.** Exit 2 from `verify-createaccount`,
   `verify-tiers` or `verify-accountacl` means "use a fresh prefix", not a
   failure. **Spent:** 20 Aug `sdacct27`, `sdtiert1`-`3`, `sdacl7`,
-  `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia9`,
-  `sddel1`-`sddel2`, `sdapi3`-`sdapi4`, `sdacct28`, `sdtiert4`, `sdacl8`.
+  `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia10`,
+  `sddel1`-`sddel3`, `sdapi3`-`sdapi5`, `sdacct28`, `sdtiert4`, `sdacl8`.
 
 ---
 

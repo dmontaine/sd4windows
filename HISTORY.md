@@ -13022,3 +13022,48 @@ says the check is per EDIT rather than per task, and gives the two tells:
 
 **Cost: one cycle, and both trees left deleted.** No source was lost and nothing
 needed reverting - the tree that has to be installed is simply the current one.
+
+---
+
+## 21 Aug 2026 - Phase 2 measured: 39/39, 22+1, 21/21, and apiport all green
+
+Install 14:15:55, `assert-current` green, four verifiers against that one
+install. `verify-delaccount -Prefix sddel3` **39 PASS of 39**;
+`verify-apiport -Prefix sdapi5` all checks; `verify-apiadmin -Prefix sdapia10`
+**22/23**, the 23rd being the standing N/A - "API session is NOT running as
+SYSTEM" is answered by running `whoami` inside the session, which the gate now
+refuses; `verify-peerlog` **21/21**.
+
+**The delete confirmation is settled in both directions, which is the assertion
+worth having.** For the account SD made: 10084 names the Windows account, 10085
+absent. For the borrowed one attached with ADOPT: 10085 only, 10084 absent,
+10036 shown, and the borrowed Windows account, its description and its profile
+all survive. A run where the longer wording appeared for a borrowed account
+would mean the caller had confirmed a deletion the verb then declined to
+perform - which is exactly what working `del.user` out before the prompt
+prevents.
+
+**`MODIFY.ACCOUNT ... API` is measured moving group membership**, and only
+because the account is created with `NONE` now: 7a proves it is refused the API
+beforehand, 7b that the grant lands it in `sdapi`. Created with `API` - as the
+Phase 2 follow-up first had it - 7a would have failed outright and 7b would have
+passed whether or not the grant did anything. Both halves of that correction
+paid for themselves in one run.
+
+**Two fixes made earlier the same day are confirmed by these runs.** The
+listener assertions: "a listener on the port" passes in both `verify-peerlog`
+and `verify-apiadmin`, and `verify-apiport` separately asserts `bound to
+0.0.0.0` and `NOT loopback-only`. `verify-peerlog` reached everything past its
+step 3 for the first time today, and `verify-apiadmin` reached step 7 - the
+containment gate, which still holds on the Phase 2 plus sign-fix build.
+
+**What Phase 2 still has no coverage for**, and it is Phase 4's verifier work:
+10082, **10086 - the mandatory-password unwind, the one real behaviour change
+with nothing exercising it at all** - 10087, 10083, and messages 10076 / 10079.
+`verify-routes` refuses until it is rewritten.
+
+**Four results went stale rather than red.** `verify-fold`,
+`verify-createaccount`, `verify-tiers` and `verify-accountacl` exited 0 on the
+13:16:19 install, which the two sign fixes superseded. Not failures, but not
+results for the tree installed now either; re-running `post-cycle-elevated.ps1`
+with fresh prefixes is one command and needs no cycle.
