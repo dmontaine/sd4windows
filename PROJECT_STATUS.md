@@ -11,247 +11,143 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**NOTHING IS OWED TO A VERIFIER AND THE TREE IS CURRENT.** Cycle 21 Aug 08:1x,
-`sd.exe` **`46141a14f13f4100`**, 94 objects, `assert-current` exit 0.
+**THE TREE IS CURRENT AND NOTHING IS OWED TO A VERIFIER.** Cycle 21 Aug
+09:33:41, `sd.exe` **`b188cd47c0a2e51a`**, 94 objects, no warnings.
 
-**THE CONTAINMENT GATE IS BUILT AND CONFIRMED. THE SUITE IS GREEN.**
+**THE SUITE IS GREEN AND THE API EXPOSURE IS SHUT.**
 
 | verifier | prefix | result |
 |---|---|---|
-| `verify-apiadmin` | `sdapia7` | **22 PASS + 1 N/A of 23**, no failures |
-| `verify-routes` | `sdrt3` | **33/33** |
+| `verify-apiadmin` | `sdapia8` | **22 PASS + 1 N/A of 23** |
+| `verify-routes` | `sdrt4` | **33/33** |
 
-**THE MEASUREMENT, from inside a real remote API session:**
+**Items 1, 4, 5, 6 and 9 are built AND measured.** From inside a real remote
+API session: `PROBE.CRED.OPEN=NO status 3035` (`ER_PERM`) and
+*"sdapia8 is not permitted to use OS.EXECUTE"*. On 20 Aug the same probe opened
+`$cred`, wrote a record, read it back, and reported itself `nt_authority_system`.
+**The controls held in the same run** — a local elevated session still gets
+`YES`/`YES`, so the probe answers `NO` only when it genuinely cannot.
 
-```
-PROBE.ACCOUNT=SDAPIA7   PROBE.CRED.OPEN=NO status 3035   PROBE.DONE
-000000D3: sdapia7 is not permitted to use OS.EXECUTE at line 26 of ...
-```
+**THE ONE N/A IS HONEST, NOT A GAP.** *"API session is NOT running as SYSTEM"*
+is answered by running `whoami` INSIDE the session, which the gate now refuses.
+**THE SESSION STILL RUNS AS LocalSystem.** Only its reach changed.
 
-**3035 is `ER_PERM`.** On 20 Aug the same probe **opened `$cred`, wrote a record
-and read it back**, and printed `PROBE.WHOAMI=nt_authority_system`.
+---
 
-**THE CONTROLS HOLD IN THE SAME RUN, which is what makes it a measurement**: a
-local elevated session running the same compiled program printed
-`CRED.OPEN=YES` and `CRED.WRITE=YES`, so the probe answers `NO` only when it
-genuinely cannot; and `$cred` grants `sdusers` nothing, so the account had no
-route to that file except the session's token.
-
-**Items 1, 4 and 5 are done.**
-
-**THE ONE N/A IS CORRECT AND IS NOT A PASS.** `API session is NOT running as
-SYSTEM` is answered by running `whoami` INSIDE the session, which the gate now
-refuses, so the probe cannot ask. **THE SESSION STILL RUNS AS LocalSystem.**
-Only its REACH changed. Closing that needs the `CreateProcessAsUser` work
-below.
-
-**ITEM 6 IS DONE, 21 Aug** — `set.password don`, *"Account DON has no password
-set. Setting the first one."* … *"Password set for account DON"*.
-
-**THE ORPHANED REGISTER ENTRIES ARE GONE, AND NOT BY BEING DELETED.**
-`DELETE.ACCOUNT SDRT1S` and `SDRT1A` both answered *"Account not registered in
-ACCOUNTS file"*: **the 21 Aug cycle deletes the data tree**, so the ACCOUNTS
-register was rebuilt empty and took them with it. The Windows half had already
-gone — `verify-routes` removes that itself.
-
-**THE MACHINE IS CLEAN, checked 21 Aug rather than assumed.** No local user or
-group matching any spent test prefix; `user_accounts` holds `don` alone; groups
-are `sdadmins`, `sdapi`, `sdssh`, `sdsshonly`, `sdusers`, `sdu_don`; service
-Running. **`sdadmins` is expected litter** — made by hand on 13 Aug, referenced
-now only in comments (`linuxlb.c:64`, `sddefs.h:157`); §8 says leave it.
-
-**THE `DELETE.ACCOUNT` TEST SUBJECTS NAMED ELSEWHERE IN THIS FILE NO LONGER
-EXIST.** `sdacct9` and `sdadopt3` are both gone as Windows accounts — checked
-21 Aug — so the test has to make its own. Two directions and BOTH are needed;
-either alone proves nothing.
-
-1. **SD made it, so it must go with no prompt:** `CREATE.ACCOUNT SDACCT28`
-   (next free name), then `DELETE.ACCOUNT SDACCT28`. Expect the Windows
-   account removed **without a Y/N**, and no `sdacct28` under `C:\Users` and
-   no `Win32_UserProfile` for it afterwards.
-2. **SD did not make it, so it must be refused:** elevated,
-   `New-LocalUser sdadopt4 -NoPassword`, then `CREATE.ACCOUNT` naming it, then
-   `DELETE.ACCOUNT`. Expect message `10036`, *"%1 was not created by SD"*, and
-   **`sdadopt4` still present afterwards**. That is `!is_sd_user` working, and
-   it is the guard that replaced the prompt.
-
-**THE PROFILE HALF MAY NOT BE EXERCISED BY (1) ON ITS OWN.** A Windows account
-has no profile until something signs in as it, so a freshly created account may
-have nothing to remove and the test would pass without testing anything. Check
-whether a profile appeared BEFORE deleting — `Get-CimInstance Win32_UserProfile`
-— and say so in the result either way. `gplbld/clean-test-profiles.ps1 -List`
-answers the same question.
-
-**ITEM 9 IS CONFIRMED. `verify-apiadmin -Prefix sdapia8`: 22 PASS + 1 N/A of
-23, no failures**, on the install that carries the read-only change. That was
-the risk leg — a network session failing where it used to work would have shown
-up here — and it came through clean. Items 1, 4, 5 and 9 are all measured.
-
-**`limitssh` IS TICKED BY DEFAULT AND IT IS CONFIRMED FROM THE INSTALL.**
-Owner's decision, 21 Aug, the second change to that task that day;
-`Flags: unchecked` is gone from `sd.iss:183`. **`verify-routes -Prefix sdrt4`
-on the 09:33:41 cycle: 33/33**, the three ssh checks passing for the first time
-without anybody running a script by hand.
-
-**AND THAT IS NOT THE MANUAL RUN SURVIVING, which was the thing to rule out.**
-`sshd_config` was last written **09:34:42**, inside that cycle — not at the
-08:2x hand-run — and uninstall ALWAYS strips SD's block (`RemoveAllowGroups`,
-`sd.iss:1657`). So the cycle removed it and the installer put it back on its
-own. **Check the file's timestamp, not just the verifier**, if this is ever in
-doubt again: a passing ssh check is equally consistent with a block nobody
-removed.
-
-**AND THAT REVERSES WHAT THE CONSENT ARGUMENT RESTED ON.** When the `Check`
-came off earlier the same day, the note said 5.9 — *"we never reconfigure an
-ssh server we did not install"* — was carried by `Flags: unchecked`, because
-nothing happened unless somebody ticked a box. **That is no longer true: a
-SILENT install now applies it**, since an Inno task without `unchecked` is
-selected in silent mode too, and `ApplyAllowGroups` (`sd.iss:1329`) runs
-BEFORE the `WizardSilent` exit at `:1374` — checked, not assumed.
-
-**WHAT CARRIES 5.9 NOW IS `allow-ssh-groups.ps1`'s SECOND REFUSAL**, and it is
-the stronger guard rather than the weaker: it refuses outright if `sshd_config`
-already holds an `AllowGroups`, `AllowUsers`, `DenyGroups` or `DenyUsers` line,
-so somebody else's policy is never widened, replaced or merged into. What has
-gone is the protection against configuring a machine that has **no** policy at
-all — and there, SD's model is the only model there is.
-
-**THE COST IS UNCHANGED AND IS NOW THE DEFAULT: `ForceCommand` STOPS scp AND
-sftp FOR EVERYONE** on the machine. The task description is the only warning an
-administrator gets before accepting it. `-Remove` undoes it.
-
-**ITEM 9 IS BUILT: THE SHARED `sdsys` ENTRIES ARE NOW READ-ONLY TO A NETWORK
-SESSION.** `net_path_permitted()` takes a `for_write` argument; the account and
-`NETDIRS` stay read-write, the shipped `sdsys` allow-list is read-only.
-
-**MOST OF THE ENFORCEMENT IS NOT IN THE GATE, AND THAT IS THE DESIGN.** An SD
-`OPEN` does not declare intent — a file opened plainly can be written later —
-so there is no mode to test at open time. `open_file()` asks *may I write
-here?* first, and on a no that is not also a no to reading it sets
-**`FV_RDONLY`** on the file variable. Every write path in the engine already
-honours that flag (`op_dio3.c` 133/310/753, `op_seqio.c` 112/1456/1530/1652),
-so there is no write site left for this to have missed, and the refusal is the
-one `READONLY` already produces. `openseq()` sets its own `read_only` before
-`dio_open`, so the descriptor is opened `DIO_READ` and is never writable.
-`OS_DELETE`/`MKDIR`/`MKPATH`/`CHOWN`/`UNIQUE` and both ends of `OSRENAME` ask
-with `TRUE`; `OS_EXISTS`/`DTM`/`CD`/`OPEN`/`DIR` ask with `FALSE`.
-
-**AND THE MAKEFILE FIX FROM THIS MORNING WAS HALF A FIX.** `TEMPSRCS` was
-`$(wildcard *.c)` — the same empty-wildcard bug as `SDHDRS`, from the same
-header-less directory — so `OBJS` was empty and `$(OBJS): $(SDHDRS)` attached
-to nothing. **Measured**: after the `SDHDRS` fix, a change to `sd.h` rebuilt
-**91 of 94** objects and left `sdwind.o`, `sdtic.o` and `win32peer.o` behind.
-**`sdwind.o` is the one that matters** — `sdwind.c` includes `sd.h` and reads
-`sysseg->` in eight places including `api_port`, so a `struct SYSSEG` change
-would have left THE API LISTENER on the old layout while everything else moved.
-Now `$(notdir $(wildcard $(GPLSRC)*.c))`, verified by touching `sysseg.h` and
-watching `sdwind.o` and `win32peer.o` appear. `sdtic.o` correctly does not —
-`sdtic.c` includes no SD header.
-
-**Clean full rebuild 09:25, 94 objects, no warnings, `sd.exe`
-`b188cd47c0a2e51a`.** **BUILT, NOT RUN.**
-
-**`DELETE.ACCOUNT` NOW DELETES THE WINDOWS ACCOUNT AND ITS PROFILE — BUILT
-21 Aug, NOT RUN.** Owner's decision the same day, settling §7 step 1c. **A
-CYCLE IS OWED**: `DELACC` and `DELETE_USER` are BASIC, so `cycle.ps1`
-`-SkipInstall` is the cheap way to find out whether they compile.
-
-- The Y/N prompt is gone (`DELACC`); message `10027` deleted with it.
-- `!is_sd_user` is UNTOUCHED and is what still protects a BORROWED login —
-  the ordinary case under the access model. The prompt was never the guard.
-- `!delete_user` now removes the `Win32_UserProfile` too, **which reverses its
-  own comment**. Removing the directory alone leaves the ProfileList entry, and
-  the next account of that name lands in `C:\Users\<name>.<COMPUTERNAME>` —
-  that is where the four `.GITORLI` directories came from.
-- **Status 6 = the account went, the profile did not.** A success with a
-  warning (`10075`), not a failure: re-running cannot retry it, because the
-  name no longer resolves to a SID.
-- **The account DIRECTORY is still asked about separately.** Data, not login.
-
-**THE 26 PROFILES ALREADY ON THIS MACHINE WERE SWEPT, 21 Aug**, with
-`gplbld/clean-test-profiles.ps1` — none had an account left to delete.
-`C:\Users` now holds `dmont` and the stock Windows profiles alone, and
-`Win32_UserProfile` reports no `sd*` entry. **The script stays**: it is the
-sweeper for anything that gets past the verb.
-
-**WHAT IS OWED. ALL CODE OR A CYCLE; NOTHING IS WAITING ON A DECISION.**
+### WHAT IS OWED
 
 | # | Owed | Whose |
 |---|---|---|
-| — | **`cycle.ps1`** — C, BASIC and the Makefile all changed since the last install | a person, elevated |
-| — | **`DELETE.ACCOUNT`, both directions — AND IT NEEDS FRESH SUBJECTS, see below** | a person, elevated |
-| — | **the API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s the session so it inherits the service token. Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
+| — | **`DELETE.ACCOUNT`, both directions — needs FRESH SUBJECTS, below** | a person, elevated |
+| — | **Does the console path survive the service model?** `sd -ASDSYS` runs as the invoking user and opens the database itself. Becomes a client, is dropped, or stays a privileged admin path. **Settle this BEFORE the token work** — it is where process-creation identity is decided (§5.7) | **the owner's** |
+| — | **The API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s it, so it inherits the service token; Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
-**PREFIXES SPENT:** 20 Aug — `sdacct27`, `sdtiert1`-`3`, `sdacl7`, `sdapia1`,
-`sdapia2`. 21 Aug — `sdrt1`-`sdrt4`, `sdapia3`-`sdapia8`. Only `verify-apiadmin`
-and `verify-routes` clean up after themselves; **exit 2 from the others means
-"use a fresh prefix", not a failure**.
+**THE `DELETE.ACCOUNT` SUBJECTS NAMED ELSEWHERE IN THIS FILE ARE GONE** —
+`sdacct9` and `sdadopt3` are both absent as Windows accounts (checked 21 Aug).
+Make fresh ones. **BOTH directions or neither result means anything.**
 
-**WHAT THE GATE IS.** Owner's decisions 21 Aug: containment root = the account
-(`@PATH`), and drop `Check: SshServerAbsent`.
+1. **SD made it → must go with NO prompt.** `CREATE.ACCOUNT SDACCT28`, then
+   `DELETE.ACCOUNT SDACCT28`. Expect no Y/N, the Windows account gone, and no
+   `Win32_UserProfile` for it afterwards.
+2. **SD did not make it → must be REFUSED.** Elevated,
+   `New-LocalUser sdadopt4 -NoPassword`, `CREATE.ACCOUNT` naming it, then
+   `DELETE.ACCOUNT`. Expect message `10036` and **`sdadopt4` still present**.
+   That is `!is_sd_user`, the guard that replaced the prompt.
 
-- **`kernel.c`** — `USR_ADMIN` not set when `connection_type == CN_SOCKET`.
-- **`op_dio2.c`** — `net_path_permitted()` with `net_normalise()`,
-  `path_within()`, `has_parent_ref()`, `net_raw_permitted()`. Root `@PATH`,
-  `HDR_INTERNAL` exempt, allow-list of the shipped `sdsys` entries, then
-  `NETDIRS` (ships commented out; empty is strict).
-- **Six entry points, not the five specified** — `op_dio1.c` `open_file()`,
-  `op_seqio.c` twice, `op_ospath()` (9 of 15 keys + `OS_CHOWN`),
-  **`op_osrename()`, which the spec missed**, and `config.c`/`sysseg.*`/
-  `op_config.c`. Refusal `ER_PERM` (3035); message `10074`.
+**(1) MAY NOT EXERCISE THE PROFILE HALF AT ALL.** A Windows account has no
+profile until something signs in as it, so a fresh account may have nothing to
+remove and would pass without testing anything. Check with
+`clean-test-profiles.ps1 -List` BEFORE deleting and say which happened.
 
-**FOUR THINGS MEASURED WHILE BUILDING IT. Do not re-derive.**
+---
+
+### TRAPS THAT COST A CYCLE, OR WOULD HAVE
+
+- **`make sd` DID NOT REBUILD ON A HEADER CHANGE** until 21 Aug. `SDHDRS` and
+  `TEMPSRCS` were both `$(wildcard *.c/*.h)` evaluated from `sdb_ai/sd64`,
+  which holds neither — so both were EMPTY and both were unused, and nothing
+  complained. A `struct SYSSEG` change then built a binary whose translation
+  units disagreed about the layout: **it linked clean, started, and silently
+  did nothing.** Both fixed; `$(OBJS)` covers `sdwind.o`, which reads
+  `sysseg->` in eight places.
+- **`cycle.ps1` CONTAINS NO `make`.** Build first if any `.c` or `.h` changed.
+- **A SILENT INSTALL NOW APPLIES `limitssh`** — it is ticked by default since
+  21 Aug, so an unattended install edits `sshd_config` and **stops scp and
+  sftp machine-wide**. What still protects somebody else's server is
+  `allow-ssh-groups.ps1`'s refusal when `sshd_config` already says who may
+  connect — not the tick.
+- **A PASSING ssh CHECK IS NOT PROOF THE INSTALL DID IT** — it is equally
+  consistent with a block nobody removed. Check `sshd_config`'s LastWriteTime
+  against the cycle.
+- **`APIPORT` ships commented out** and now also needs `MODIFY.ACCOUNT <acc> API`.
+- **The `sdusers`→`sdssh` ordering in `sd.iss` is a LOCKOUT if reversed.**
+- **Test prefixes are single-use.** Exit 2 from `verify-createaccount`,
+  `verify-tiers` or `verify-accountacl` means "use a fresh prefix", not a
+  failure. **Spent:** 20 Aug `sdacct27`, `sdtiert1`-`3`, `sdacl7`,
+  `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia8`.
+
+---
+
+### THE RULE THAT WAS PAID FOR FIVE TIMES: ASSERT ON SOMETHING THAT MUST BE PRESENT
+
+Every instrument fault found in `verify-apiadmin.ps1` was one shape — **an
+absent marker read as an answer** — and two of them would have reported the
+exposure as fixed while it was open.
+
+1. `^nt_authority_+system$` did not match `nt_authority\system`: **a false PASS
+   on the most important line in the file.**
+2. `PROBE.DONE` sat after an aborting call, so a control failed although every
+   measurement it cared about had been taken.
+3. **An abort DISCARDS an API session's CAPTURED output**, so the `$cred`
+   markers vanished on exactly the runs where the gate worked. **A leg that can
+   abort has to be a SEPARATE RUN** — hence `apiosexecprobe.sb`.
+4. A blank `PROBE.CRED.WRITE` scored FAIL, when the probe only writes inside
+   `if cred.open then`: **a refused open SUBSUMES the write.**
+5. `PROBE.OSEXEC.TRIED` **can never come back over the API while the gate
+   works.** A check that cannot pass is as useless as one that cannot fail. It
+   asserts on SD's refusal message now, which names the account and the program.
+
+`Skip()` reports N/A — neither a pass nor a failure — for a question that
+cannot be asked.
+
+---
+
+### THE GATE, AND FOUR THINGS MEASURED WHILE BUILDING IT
+
+Root = the account the session is standing in (`@PATH`), owner's decision
+21 Aug. `HDR_INTERNAL` exempt; an allow-list of the shipped `sdsys` entries,
+**read-only**; then `NETDIRS` (ships commented out, empty is strict).
+**Six entry points, not the five specified** — `op_dio1.c` `open_file()`,
+`op_seqio.c` twice, `op_ospath()`, **`op_osrename()` which the spec missed**,
+and `config.c`/`sysseg.*`/`op_config.c`. Refusal `ER_PERM` (3035), message
+`10074`. **`kernel.c` no longer sets `USR_ADMIN` for `CN_SOCKET`.**
+
+**The read/write axis is mostly NOT in the gate**: an SD `OPEN` declares no
+intent, so `open_file()` asks "may I write here?" and sets **`FV_RDONLY`** on a
+read-only admission. Every write path already honours that flag, so no write
+site could be missed.
+
+**DO NOT RE-DERIVE THESE. Probes were built with MSYS2 gcc outside the repo.**
 
 1. **`sdrealpath()` STOPS COLLAPSING `..` AT THE FIRST MISSING COMPONENT** and
    returns the rest verbatim, so `.../DON/nofile/../../../sdsys/$cred` still
-   begins with the account root. `has_parent_ref()` refuses any surviving
-   `..`. Also in `sdb64`: `UPSTREAM_FIXES.md` #10.
+   begins with the account root. `has_parent_ref()` refuses any surviving `..`.
+   Also in `sdb64` — `UPSTREAM_FIXES.md` #10.
 2. **`fullpath()` OUTPUT IS IN ONE OF TWO NAMESPACES depending on its INPUT** —
-   `/c/...` from `getcwd()`, `C:/...` from a drive letter; `@PATH` is always
-   the first. `cygwin_conv_path(CCP_WIN_A_TO_POSIX)` folds both, is idempotent
-   on POSIX input, **and does not fold case** — hence `strncasecmp`.
+   `/c/...` from `getcwd()`, `C:/...` from a drive letter; `@PATH` is always the
+   first. `cygwin_conv_path(CCP_WIN_A_TO_POSIX)` folds both and is idempotent on
+   POSIX input, **but does not fold case** — hence `strncasecmp`.
 3. **AN ACCOUNT IS NOT SELF-CONTAINED.** `sdsys/voc_template` has eight
    F-records into `sdsys`, including `voc`'s own dictionary. Hence
-   `net_sysdir_shared[]`, an ALLOW-list, so the sharp files are excluded by not
-   being named.
+   `net_sysdir_shared[]` — an ALLOW-list, so `$cred`, `gcat`, `os.users`,
+   `accounts` and `cat` are excluded by not being named.
 4. **`@PATH` CANNOT BE FORGED.** Absent from `at.syscom.lvars`
    (`BCOMP:304-307`); `common /$syscom/` needs a `$`-prefixed block name, which
    `get.name` (`BCOMP:3113`) allows only `if internal`.
 
 **READ, NOT MEASURED:** `load_object()` uses `dio_open()` directly
-(`object.c:197`), never `open_file()`, so refusing `gcat` stops a network
+(`object.c:197`), never `open_file()` — so refusing `gcat` stops a network
 session REWRITING catalogued code without stopping it RUNNING any.
-
-**FIVE INSTRUMENT FAULTS WERE FOUND IN `verify-apiadmin.ps1` IN TWO DAYS AND
-THEY ARE ALL ONE SHAPE: AN ABSENT MARKER READ AS AN ANSWER.** Read this before
-adding a check anywhere in `gplbld`.
-
-1. `^nt_authority_+system$` did not match `nt_authority\system` — **a false
-   PASS on the most important line in the file.**
-2. `PROBE.DONE` sat after the aborting call, so a control failed although
-   every measurement it cared about had been taken.
-3. The `$cred` markers were lost because **an abort discards an API session's
-   CAPTURED output**. **A leg that can abort has to be a SEPARATE RUN** —
-   hence `apiosexecprobe.sb`.
-4. A blank `PROBE.CRED.WRITE` scored FAIL. The probe only writes inside
-   `if cred.open then`, so **a refused open SUBSUMES the write**.
-5. `PROBE.OSEXEC.TRIED` **can never come back over the API while the gate
-   works**. **A check that cannot pass is as useless as one that cannot
-   fail.** It asserts on SD's refusal message now, which names the account and
-   the program.
-
-**THE RULE, PAID FOR FIVE TIMES: ASSERT ON SOMETHING THAT MUST BE PRESENT.**
-
-**STANDING TRAPS.** **`make sd` DID NOT REBUILD ON A HEADER CHANGE until
-21 Aug** — `SDHDRS` was `$(wildcard *.h)` from a directory with no headers, so
-it was empty and unused; a `struct SYSSEG` change then produced a binary whose
-translation units disagreed about the layout, and it **linked clean, started,
-and silently did nothing**. Fixed (`$(SDOBJS): $(SDHDRS)`); it cost one cycle.
-Also: `cycle.ps1` contains no `make`; **a silent install ticks no task, so
-`limitssh` never applies itself** — run
-`allow-ssh-groups.ps1 -Installed` by hand; `APIPORT` ships commented out and
-needs `MODIFY.ACCOUNT <acc> API`; the `sdusers`→`sdssh` ordering in `sd.iss` is
-a lockout if reversed. Items 2, 7 and 8 below are the long form.
 
 ---
 
