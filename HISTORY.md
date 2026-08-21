@@ -12932,3 +12932,45 @@ Phase 1. The header was right.
 **`CREATEA`'s return-code sign is fixed** - `-ER$NOT.CREATED`, and
 `UPSTREAM_FIXES.md` #11 carries it upstream with the second instance in `ED:57`
 that the survey turned up. Unverified: it rides on the next cycle.
+
+**AND THAT FIX IMMEDIATELY COST THE OWNER TWO VERIFIER RUNS.** `verify-delaccount
+-Prefix sddel3` and `verify-apiport -Prefix sdapi5` were started at 13:58 and
+both refused: `CREATEA` sits in the watched `sdsys` tree, so `assert-current`
+reported the install stale and every verifier calls it first. The guard behaved
+exactly as designed and the change was made after the suite had gone quiet -
+but "the suite is quiet" is not the same as "nothing more will be run today",
+and a one-character fix to a shipped file costs a whole cycle whenever it lands.
+**The lesson is about ORDERING, not about the guard:** a change to anything
+under `gplsrc`, `sdsys` or `gplbld` that is not on `$neverShipped` should either
+go in before the cycle that will measure it, or wait until the owner has
+finished with the install they have.
+
+---
+
+## 21 Aug 2026 - two pieces of Phase 2 seen working, neither by a verifier
+
+Both read out of the 13:16:19 install rather than from a test, and both worth
+recording because the four verifiers that would have measured them are still
+owed.
+
+**`set.access` ran during the install and closed the administrator/API gap.**
+`C:\ProgramData\SD\adopt-account.log`: "don keeps the Windows sign-in rights it
+already had" (10040) followed by "don may sign in over ssh and use the API"
+(10078). Group membership agrees - `don` is in `sdssh` and `sdapi`, while the
+older `test1` is in `sdssh` and `sdsshonly` and not `sdapi`. That is the join
+having moved out of the `make.admin` and `adopt` else branches, which is the
+whole of the fix: `APISRVR` tests `sdapi` with no administrator exemption, so
+before this an SD administrator could not use the API at all. 10040 alongside
+it confirms ADOPT still skips `sdsshonly`.
+
+It does NOT exercise the keywords - this is the `tier = 'ADMINISTRATOR'`
+forcing at the end of `more.args`, not `SSH`/`API`/`BOTH`/`NONE` off a command
+line - and it does not show an administrator completing an API session.
+
+**The single delete confirmation ran, with the longer wording**, in
+`verify-apiadmin`'s own cleanup: "Delete account SDAPIA9, its directory and its
+Windows account sdapia9 (Y/N)?" - 10084 with `%1` the upper-case account name
+and `%2` the lower-case Windows user, so `del.user` was correctly non-empty.
+One question only: the cleanup feeds `'Y','Y'` and the second fell through to
+the prompt as "Y is not in your VOC". The 10085 branch, the directory removal
+and the profile half are still unmeasured.

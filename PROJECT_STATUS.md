@@ -71,9 +71,47 @@ C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 **WHAT THE GREEN FOUR DO AND DO NOT SETTLE.** `verify-createaccount` created
 its account with `SSH` and passed, so the create-time keyword parses and does
 not break creation — but nothing yet asserts that `SSH` produced ssh-and-not-API
-membership. `verify-tiers` passed with `... BOTH`. The mandatory password, the
-single delete confirmation and `modify.password` as a reachable verb are all
-still unobserved.
+membership. `verify-tiers` passed with `... BOTH`. The mandatory password and
+`modify.password` as a reachable verb are still unobserved.
+
+**TWO PIECES OF PHASE 2 WERE OBSERVED WORKING ANYWAY, incidentally, on the
+13:16:19 install. Neither came from a verifier.**
+
+**1. `set.access` ran during the INSTALL, and the administrators-get-the-API
+fix is closed.** `C:\ProgramData\SD\adopt-account.log` from that install:
+
+```
+don keeps the Windows sign-in rights it already had     <- 10040
+don may sign in over ssh and use the API                <- 10078
+```
+
+and the groups agree — `don` is in **`sdssh` and `sdapi`**; `test1`, an older
+account, is in `sdssh` and `sdsshonly` and **not** `sdapi`. That is the whole
+point of moving the join out of the `make.admin` / `adopt` else branches: before
+Phase 2 an ADOPTed account joined neither group and `APISRVR` refuses a
+non-member with no administrator exemption, so an SD administrator could not use
+the API at all. 10040 alongside it shows ADOPT still skips `sdsshonly`, so the
+15 Aug rule about not touching the console still holds.
+**IT DOES NOT PROVE THE KEYWORDS** — this path is the `tier = 'ADMINISTRATOR'`
+forcing in `more.args`, not `SSH`/`API`/`BOTH`/`NONE` off a command line — and
+it does not prove an administrator can complete an API session, which is
+`verify-apiadmin` step 7.
+
+**2. THE SINGLE DELETE CONFIRMATION RAN, with the longer wording.** From
+`verify-apiadmin`'s own cleanup at 13:20, deleting the account it had made:
+
+```
+Delete account SDAPIA9, its directory and its Windows account sdapia9 (Y/N)? Y
+Group: sdu_sdapia9 Deleted
+OS User: sdapia9 Deleted
+```
+
+That is 10084 with both substitutions right — `%1` the upper-case account,
+`%2` the lower-case Windows user — so `del.user` was correctly non-empty for an
+account SD made. **And there was only one question:** the cleanup feeds
+`'Y','Y'` and the second `Y` fell through to the prompt as *"Y is not in your
+VOC"*. **NOT SHOWN:** the 10085 short wording for a borrowed account, the
+directory removal, or the profile half. `verify-delaccount` is still owed.
 
 **THE STATIC READ THAT PRECEDED IT, 21 Aug, thirty-fourth session**, kept
 because it is what the next unverified change should get before it spends an
