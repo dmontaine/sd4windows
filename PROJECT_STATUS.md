@@ -265,15 +265,28 @@ Policy decided by the owner, 20 Aug 2026: **LOG ONLY, nothing is refused.**
 The three candidates are in the table below; the two enforcing ones both need
 this mechanism first, so what is built is the common part and not a narrowing.
 
-**THE TREE IS STALE BY ONE FILE, AND IT IS `sdsys/changelog`.** It was edited
-AFTER the 21/21 run, to write up the two log properties below for users. It is
-a shipped file, so `assert-current` refuses - correctly. **The 21/21 stands**:
-it was measured before the edit, and a changelog carries no behaviour. **The
-install half clears on the next cycle; nothing needs re-verifying.**
+**NOTHING IS OWED. THE TREE IS CURRENT** - install **20:16:10**, `sd.exe`
+**`04F6BCBC0C59CB14`**, `assert-current` exit 0 and no `note:` line.
 
-*(Recorded rather than reasoned round. Same shape as the previous session's
-`gplsrc/sdclilib/Makefile`, and the reason for the rule is that "it is only a
-documentation file" is exactly what a wrong version of this claim would say.)*
+**THE DEFAULT-OFF CHANGE IS MEASURED ON A TREE THE CYCLE BUILT FROM NOTHING**,
+which is what makes it the template's doing rather than a leftover - the
+install deletes `C:\ProgramData\SD` before recreating it:
+
+```
+sd.conf     # APIPORT=4243        <- commented out, straight from stage.py
+            nothing listening on 4243     <- the control
+```
+
+**`SET.PASSWORD DON` IS OWED, and it needs a person** - the password is the
+owner's to choose. From an ELEVATED prompt, because `set.password` is an
+administration verb and writing `$cred` needs an elevated token: `sd`, then
+`set.password don`. **And mvDeveloper will not connect until `APIPORT` is
+uncommented by hand**, which is now the deliberate default rather than a
+regression.
+
+**`$cred` IS NOT CLAIMED EMPTY HERE.** An unelevated read cannot tell empty
+from forbidden - the mistake this file has recorded twice - and nothing has
+looked at it elevated.
 
 **THE ONE GENUINE UNKNOWN IS ANSWERED: `sdwind` RUNS AS LocalSystem AND
 RESOLVED AN ORDINARY USER'S PROCESS.** Everything else here was reasoning that
