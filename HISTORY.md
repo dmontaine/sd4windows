@@ -12816,3 +12816,54 @@ verifiers needed an access keyword added, verify-routes refuses until it is
 rewritten - so a red run is read as expected rather than as a broken feature.
 That heading is the kind of claim that rots silently: it was accurate when
 written and nothing forces it to be re-checked.
+
+---
+
+## 21 Aug 2026 - Phase 2 read statically, four defects fixed, still not compiled
+
+**The cycle still needs an elevated window and this session did not have one.**
+So the cheap half of what it would have found was taken without it: block
+balance and terminating END, gosub targets against labels, sysmsg numbers
+against `sdsys/messages/`, and every variable Phase 2 added or retired, across
+CREATEA, DELACC, MODIFYA, SET_ACC_PASSWORD and CRED_VERIFY. All clean. Plus 45
+`gplbld/*.ps1` parsed and the sd.iss ISPP lint. **The checkers were scratch
+scripts and were each proved against a deliberately broken copy first** - the
+first version of the block checker let a dropped END be swallowed by the
+program terminator and reported "balanced", which is the absent-marker fault
+this project has paid for five times, arriving in the instrument written to
+avoid it.
+
+**Four defects, all in Phase 2's own change, all fixed.**
+
+`messages/5276` still said "SET.PASSWORD prompts for it" - the one message file
+the rename swept past, and the one a user meets by typing a password on the
+command line, which is the case the message exists for. `MODIFYA:244` still
+listed `ADD, DELETE, SSH, NO.SSH, API or NO.API`: the case statement above it
+was rewritten and the error text below it was not, so an unrecognised action
+recommended two keywords the verb had just stopped accepting.
+
+**And two verifiers were given the wrong access keyword by the follow-up
+commit, each in a way that defeated the test underneath it.**
+`verify-apiadmin` creates the account, then step 7a connects with a valid
+credential and asserts the API REFUSES it for want of `sdapi`; created with
+`API` it is in `sdapi` at birth, so that step would have failed outright and
+looked like a broken gate. `verify-apiport` creates, then grants with
+`MODIFY.ACCOUNT ... API` and asserts the account landed in `sdapi`; created
+with `API` the assertion passes whether or not the grant does anything. Both
+now create with `NONE`. `verify-scramlogin` keeps `API` and is correct: it
+never calls `MODIFY.ACCOUNT`, so creation is the only place its grant can come
+from. **The rule "give each call site the keyword its own test wants" was
+right; applying it needs reading the step AFTER the creation, not just the one
+that creates.**
+
+**A trap paid for again, in the other direction.** `sed -i` from Git Bash on
+`verify-delaccount.ps1` removed all 696 CRs from a CRLF file while
+`git diff --stat` still reported `2 +-`. Reverted and redone with the editing
+tools. The existing CRLF bullet covered Python text mode only; it now covers
+this and records which trees are CRLF and which are LF.
+
+**Left undone deliberately:** `CREATEA:325` sets `@system.return.code` to
+`ER$NOT.CREATED` without the minus every other site in the file uses. It is
+untouched by Phase 2, it is upstream as well
+(`../sdb64/sd64/sdsys/GPL.BP/CREATEA:158`), and phases are kept apart so that a
+failure is attributable. In WHAT IS OWED.

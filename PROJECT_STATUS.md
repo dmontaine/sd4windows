@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 21 Aug 2026, thirty-third session.
+**Last updated:** 21 Aug 2026, thirty-fourth session.
 
 ---
 
@@ -27,6 +27,19 @@ apply here are "is not assigned a value" (which `bootstrap.py:229` fails the
 build on — every new variable in `CREATEA` and `DELACC` is assigned at the top
 for exactly this) and a `begin case` / `end case` mismatch. Counted before
 committing: `CREATEA` 7/7, `DELACC` 3/3 plus 3 `loop`/3 `repeat`.
+
+**AND BOTH OF THOSE ARE NOW RULED OUT WITHOUT AN ELEVATED WINDOW, 21 Aug,
+thirty-fourth session.** Static checks over `CREATEA`, `DELACC`, `MODIFYA`,
+`SET_ACC_PASSWORD` and `CRED_VERIFY`: every block balances and each file ends
+with its terminating `END`; every `gosub` has a label; every `sysmsg(N)` has a
+message file; each of the thirteen variables Phase 2 added is assigned
+somewhere, and the four it retired (`msg.done`, `msg.already`, `msg.fail`,
+`route.group`) have no reader left. Also: all 45 `gplbld/*.ps1` parse, and
+`sd.iss` has no line ISPP would misread as a directive. **THE CHECKERS ARE NOT
+IN THE REPO** — throwaway scratch scripts, each proved against a deliberately
+broken copy first, because a checker that cannot fail proves nothing.
+**THIS IS NOT A COMPILE.** Anything BCOMP knows that the shapes above do not —
+an unsupported statement, a bad intrinsic, an argument count — is still ahead.
 
 **ONE DEVIATION FROM THE APPROVED PLAN, deliberate.** The `LOGIN` change —
 "an account with no `$cred` must set one before reaching the prompt" — is
@@ -117,6 +130,14 @@ feature:**
 - **`verify-delaccount` now asserts the confirmation WORDING**: 10084 names the
   Windows account, 10085 does not, and which appears must match whether
   `!is_sd_user` will allow the deletion.
+- **`verify-apiadmin` and `verify-apiport` create with `NONE`, corrected 21 Aug
+  from the `API` they were first given.** Both grant the API a step later and
+  measure the grant, so a create-time `API` defeated each of them: it would
+  have failed `verify-apiadmin` step 7a outright (`verify-apiadmin.ps1:385`
+  asserts the API REFUSES an account not in `sdapi`, and `API` puts it there at
+  birth), and made `verify-apiport.ps1:221` pass whether or not
+  `MODIFY.ACCOUNT` did anything. `verify-scramlogin` keeps `API`: it never
+  calls `MODIFY.ACCOUNT`, so creation is where its grant has to come from.
 
 **AFTER `-SkipInstall` COMES BACK CLEAN, run the full cycle**, then the suite
 with fresh prefixes (spent list is in the traps section below).
@@ -139,6 +160,7 @@ is answered by running `whoami` INSIDE the session, which the gate now refuses.
 | # | Owed | Whose |
 |---|---|---|
 | — | **The API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s it, so it inherits the service token; Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
+| — | **`CREATEA:325` sets `@system.return.code = ER$NOT.CREATED` without the minus** that every other site in the file uses, so a failed `create_user()` reports `6` where the convention is `-6`. Found 21 Aug, NOT fixed: it is untouched by Phase 2 and phases are kept apart so a failure is attributable. **Also upstream** — `../sdb64/sd64/sdsys/GPL.BP/CREATEA:158` — so fixing it earns an `UPSTREAM_FIXES.md` entry in the same commit | one character, owner's call on when |
 
 **`DELETE.ACCOUNT` IS CLOSED — `verify-delaccount -Prefix sddel2`, 21 Aug,
 owner's elevated run on the 09:33:41 install. 38 of 38, profile half included.**
@@ -171,6 +193,15 @@ is the only thing left.
   a stray CR into the very warning about stray CRs. Quoting the delimiter does
   not save you. **Write source files with the editing tools, not by piping a
   script through a heredoc.**
+
+  **AND `sed -i` DOES THE SAME THING THE OTHER WAY ROUND.** 21 Aug: a
+  one-comment edit to `verify-delaccount.ps1` — a CRLF file — came back with
+  **all 696 CRs gone**, because Git Bash's `sed` strips the CR as part of the
+  line terminator and writes LF. `git diff --stat` still said `2 +-`, so the
+  damage is invisible there; `grep -c $'\r' <file>` against `wc -l` is what
+  shows it. **The `gplbld/*.ps1` and the three docs are CRLF; `sdsys/gpl.bp/*`
+  and `sdsys/messages/*` are LF.** Check before editing, and prefer the editing
+  tools for anything CRLF.
 
 - **`make sd` DID NOT REBUILD ON A HEADER CHANGE** until 21 Aug. `SDHDRS` and
   `TEMPSRCS` were both `$(wildcard *.c/*.h)` evaluated from `sdb_ai/sd64`,
