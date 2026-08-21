@@ -12974,3 +12974,31 @@ and `%2` the lower-case Windows user, so `del.user` was correctly non-empty.
 One question only: the cleanup feeds `'Y','Y'` and the second fell through to
 the prompt as "Y is not in your VOC". The 10085 branch, the directory removal
 and the profile half are still unmeasured.
+
+---
+
+## 21 Aug 2026 - ED gets the same minus, since the cycle was owed anyway
+
+Owner's call. `ED:68` presets `@system.return.code` to `-ER$ARGS` now, matching
+`CREATEA:206` and `DELACC:82`, which write that identical preset negated. It was
+in WHAT IS OWED and deliberately left out of the CREATEA commit to keep the
+Phase 2 cycle attributable - but a cycle was owed regardless by then, so the
+argument for holding it had expired: free now, a whole cycle later.
+
+**Checked before changing, because "one character" is not the same as "no
+risk".** `ED:183` clears the preset to 0 once the file has opened, so it really
+is an error value rather than a count. The only reader of `@system.return.code`
+in the file is `ED:1369`, `if @system.return.code < 1 then return` - and that
+sits immediately after `execute 'BASIC ' : z`, so it reads the COMPILER's return
+(`BASIC:246` sets `num.programs`, a positive count) and not ED's own preset.
+Nothing else in `gpl.bp` runs `ED` and tests its code.
+
+**A checker bug found on the way, and it had not masked anything.** The scratch
+block-balance script matched `^loop\b` / `^next\b` / `^repeat\b`, so `ED`'s
+`loop.count = ...` and `next.chunk = ...` were read as block statements and ED
+came back with eight spurious faults. Corrected to require the keyword to stand
+alone. **The concern was whether the same bug had hidden a real imbalance in the
+Phase 2 files**: none of `CREATEA`, `DELACC`, `MODIFYA`, `SET_ACC_PASSWORD` or
+`CRED_VERIFY` contains a single identifier of that shape, so the earlier clean
+results stand, and all five re-read clean with the corrected script. ED itself
+had also compiled with 0 errors in the 13:10 bootstrap.

@@ -53,6 +53,17 @@ first. **The two fixed scripts being on `$neverShipped` does not help here** —
 that list stops a verifier from reporting the tree stale *because of its own
 edit*; it does nothing about a genuinely newer shipped file.
 
+**`ED` RIDES THE SAME CYCLE.** Owner's call, 21 Aug: since one was owed anyway,
+the second instance of the missing minus went in with it —
+`@system.return.code = -ER$ARGS` at `ED:70`, where `CREATEA:206` and
+`DELACC:82` already wrote that identical preset negated. **Checked before
+changing it**: `ED:185` clears the preset to 0 once the file opens, so it is an
+error value; the only reader in the file, `ED:1371` `if @system.return.code < 1`,
+sits after `execute 'BASIC '` and is reading the COMPILER's count, not ED's own
+preset; and nothing in `gpl.bp` runs `ED` and tests its code. **Neither sign fix
+is verified** — both ride this cycle, and `UPSTREAM_FIXES.md` #11 carries both
+to `sdb64`.
+
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 ```
@@ -248,7 +259,6 @@ is answered by running `whoami` INSIDE the session, which the gate now refuses.
 | # | Owed | Whose |
 |---|---|---|
 | — | **The API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s it, so it inherits the service token; Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
-| — | **`ED:57` sets `@system.return.code = ER$ARGS` without the minus**, the second instance of the defect `CREATEA` had. Same reasoning, same one-character fix; left because `ED` is nothing to do with the account work and `UPSTREAM_FIXES.md` #11 already carries it for the maintainer | one character |
 
 **`DELETE.ACCOUNT` IS CLOSED — `verify-delaccount -Prefix sddel2`, 21 Aug,
 owner's elevated run on the 09:33:41 install. 38 of 38, profile half included.**
