@@ -12345,3 +12345,22 @@ an ssh server we did not install - is carried by `Flags: unchecked` and by the
 script's second refusal, not by the Check that went. Superseded comments were
 marked rather than deleted; it is the third time this file has been found
 asserting something that had stopped being true.
+
+**The first cycle attempt failed, and it was the Makefile.** `sd -i did not
+create voc`. `make sd` gives an object exactly one prerequisite - its own `.c` -
+because the `.c.o` suffix rule lists no headers and `SDHDRS` was
+`$(wildcard *.h)` evaluated from a directory containing no headers, so it was
+empty and unused. `struct SYSSEG` had gained a field; 15 of 94 objects were
+built against the new layout and 69 were three days old. The link succeeded,
+`nm` found the new symbol, the binary started, and it then did nothing at all.
+
+Fixed by pointing `SDHDRS` at `$(GPLSRC)*.h` and making every object depend on
+every header. Blunt by choice: `-MMD` would be more precise and is another
+thing to get wrong, and a full build is a couple of minutes. Rebuilt clean,
+94 objects, `sd.exe` `46141a14f13f4100`.
+
+**Worth keeping: the failure had no honest signal.** Compiling clean, linking
+clean and finding the symbol in the binary were all true and all worthless -
+the same trap PROJECT_STATUS records for APIPORT ("this changes the shared
+segment layout and SYSSEG_REVSTAMP does not catch that"), reached from the
+build side rather than by copying one binary onto a running system.

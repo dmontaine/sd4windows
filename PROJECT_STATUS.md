@@ -13,12 +13,33 @@ something came to be the way it is.
 
 **A CYCLE IS OWED AND NOTHING BELOW IS MEASURED.** The gate (item 4), the
 `USR_ADMIN` fix (item 5) and the `limitssh` Check (item 1) were all **built
-21 Aug, thirty-third session**. `make sd` clean, no warnings, both toolchains;
-`net_path_permitted` is in `bin/sd.exe` and `kernel.o` now references
-`connection_type`. **THAT IS COMPILING, NOT RUNNING.** The installed tree is
-**STALE**.
+21 Aug, thirty-third session**. Clean full rebuild at **08:08:59**, no
+warnings, all **94** objects; `sd.exe` **`46141a14f13f4100`**. **THAT IS
+COMPILING, NOT RUNNING.** The installed tree is **STALE**.
 
-**FIRST ACTION, ELEVATED, AND `make sd` IS ALREADY DONE:**
+**THE FIRST CYCLE ATTEMPT FAILED AND THE CAUSE WAS THE MAKEFILE, NOT THE GATE.**
+08:00, `stage: the bootstrap failed`, `sd -i did not create voc`. **`make sd`
+DOES NOT REBUILD ON A HEADER CHANGE**, so `struct SYSSEG` gained a 1024-byte
+field and only **15 of 94** objects were compiled against the new layout —
+69 of them dated **18 August**. One binary, two ideas of where `sysseg->netfiles`
+lives. **It linked with no warning, started, and then silently did nothing**,
+which is the worst shape this can fail in: every visible signal said the build
+was fine, including `nm` finding the new symbol.
+
+**FIXED IN THE MAKEFILE, and the bug was that `SDHDRS` WAS EMPTY** —
+`$(wildcard *.h)` evaluated from `sdb_ai/sd64`, which holds no headers (they
+are in `gplsrc/`), and it was then used nowhere either, so nothing complained.
+Now `$(wildcard $(GPLSRC)*.h)`, with `$(SDOBJS): $(SDHDRS)` and
+`$(OBJS): $(SDHDRS)` above the `.c.o` rule. Blunt on purpose: any header
+change rebuilds everything. **`rm -f gplobj/*.o` is no longer the remedy for
+this**, but it is still right after switching toolchains.
+
+**THE ORPHANED `sdwind` FROM THE FAILED RUN WAS KILLED** (pid 1044, 08:00:34).
+`sd -stop` reported success and left it alive, holding a segment built by the
+incoherent binary. **Check `Get-Process sd,sdwind` before re-running** — an
+abandoned segment also holds record locks (§6).
+
+**FIRST ACTION, ELEVATED. `make sd` IS ALREADY DONE and is now trustworthy:**
 
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
