@@ -305,6 +305,17 @@ is the only thing left.
   `* -text` git compares bytes, so a whole-file ending flip shows as every
   line changed. In Python, `open(p, 'rb')` and count `b'\r\n'`.
 
+- **CHECK FOR A RUNNING CYCLE BEFORE EVERY SOURCE EDIT, NOT ONCE PER TASK.**
+  21 Aug: a one-character fix to `ED` was written at 14:11:57, four minutes
+  into a cycle started at 14:07:51. The staging step had already copied `ED`,
+  so the installer built at 14:08:25 held the OLD file — **the cycle was void
+  before the owner cancelled it**, and had it finished, `assert-current` would
+  have called `ED` stale and demanded another. The session had checked for a
+  cycle in flight at the start of the task and did not re-check when the owner
+  approved one more change; between those two moments the owner had started
+  the cycle the session itself had asked for. **The check is per EDIT.**
+  `assert-current` reports `nothing installed` mid-cycle — that alone is the
+  tell, and `ls %LOCALAPPDATA%\SD-verify\cycle-*.log` gives the start time.
 - **`make sd` DID NOT REBUILD ON A HEADER CHANGE** until 21 Aug. `SDHDRS` and
   `TEMPSRCS` were both `$(wildcard *.c/*.h)` evaluated from `sdb_ai/sd64`,
   which holds neither — so both were EMPTY and both were unused, and nothing

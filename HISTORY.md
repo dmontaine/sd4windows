@@ -13002,3 +13002,23 @@ Phase 2 files**: none of `CREATEA`, `DELACC`, `MODIFYA`, `SET_ACC_PASSWORD` or
 `CRED_VERIFY` contains a single identifier of that shape, so the earlier clean
 results stand, and all five re-read clean with the corrected script. ED itself
 had also compiled with 0 errors in the 13:10 bootstrap.
+
+**AND IT WENT IN DURING A RUNNING CYCLE, WHICH VOIDED THAT CYCLE.** The edit was
+written at 14:11:57; the owner had started `cycle.ps1` at 14:07:51, on the
+session's own instruction. Staging had already copied `ED`, so the staged tree
+and the installer built at 14:08:25 both held the unfixed file - confirmed by
+reading `C:\Users\dmont\stagetest\ProgramData\sdsys\gpl.bp\ED`, which still said
+`= ER$ARGS`. The owner cancelled the install at step 7 independently; the cycle
+was already void without that, because `assert-current` would have found `ED`
+newer than the install and refused every verifier again.
+
+**The failure was a stale check, not a missing rule.** The session checked for a
+cycle in flight when the ED task arrived, found the suite quiet, and then did not
+re-check when the owner said "add it" - and in the gap between those two moments
+the owner had started the cycle the session had just asked for. Section 6 now
+says the check is per EDIT rather than per task, and gives the two tells:
+`assert-current` answers "nothing installed" while a cycle sits between its step
+6 and step 7, and `%LOCALAPPDATA%\SD-verify\cycle-*.log` carries the start time.
+
+**Cost: one cycle, and both trees left deleted.** No source was lost and nothing
+needed reverting - the tree that has to be installed is simply the current one.
