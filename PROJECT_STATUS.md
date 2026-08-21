@@ -496,6 +496,17 @@ is the only thing left.
   units disagreed about the layout: **it linked clean, started, and silently
   did nothing.** Both fixed; `$(OBJS)` covers `sdwind.o`, which reads
   `sysseg->` in eight places.
+- **PHASE 3 MAKES A CYCLE END WITH A WINDOW SOMEBODY HAS TO CLOSE, AND AN
+  UNCLOSED ONE BLOCKS THE NEXT CYCLE.** The install now finishes by launching a
+  visible `sd` session so the adopted account can be given a password
+  (`sd.iss` `TakeAccountPassword`, `ewNoWait`). Leave it sitting there and it is
+  a live `sd` process: `cycle.ps1` step 1 waits 45s for `sdwind, sd` to go and
+  then **fails with "SD is still running... Close any SD session"**, and the
+  uninstall at step 5 cannot delete files the session holds open. **Answer the
+  prompt, or type `OFF`, before starting another cycle.** Not a defect in either
+  half — the window is the feature — but the two had never met before Phase 3
+  and nothing else says so. `-Silent` never opens it: the `WizardSilent` guard
+  returns before that line.
 - **`cycle.ps1` CONTAINS NO `make`.** Build first if any `.c` or `.h` changed.
 - **A SILENT INSTALL NOW APPLIES `limitssh`** — it is ticked by default since
   21 Aug, so an unattended install edits `sshd_config` and **stops scp and
