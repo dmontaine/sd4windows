@@ -13115,3 +13115,60 @@ caught a real `#13#10` at the start of a line, the trap `cycle.ps1` lints for;
 both `.ps1` files parsed; both BASIC files unchanged in block-balance from HEAD,
 on a checker that moves that number when an `end` is deleted from `LOGIN`; every
 `sysmsg(N)` in both files backed by a message file. None of that is a compile.
+
+## 21 Aug 2026 - Phase 4 written: verify-routes rewritten, and the refusals get a verifier
+
+Same session as Phase 3, and nothing here has run either.  `verify-routes.ps1`,
+`verify-accountrules.ps1` (new), `assert-current.ps1`, `post-cycle-elevated.ps1`.
+No product code changed.
+
+**verify-routes stopped refusing.** It asserted the SSH / NO.SSH / API / NO.API
+pairs and messages 10063-10071, which Phase 2 retired, and had been exiting 2
+since - the honest answer while a rewrite was outstanding, because Shown()
+answers false for a message file it cannot read and it would otherwise have
+scored eight failures that look like a broken feature.  Its guard now points the
+other way: it refuses if any of those nine is STILL installed, which means a
+tree predating Phase 2 and assertions that describe a verb no longer under test.
+
+**The check that separates absolute from additive is one line.** After
+`MODIFY.ACCOUNT x API` on an account created with SSH, the routes must be `api`
+ALONE.  An additive implementation - the pre-21-Aug behaviour - also puts the
+account in sdapi and passes every other check in the file; only the sdssh
+membership afterwards tells the two apart.  The step also asserts 10080 for a
+repeat, 10078 for BOTH, 10079 for NONE, and re-checks the keyboard invariant
+after all of it, because NONE and BOTH are new code that could touch sdsshonly.
+
+**verify-accountrules covers the refusal side, which had none.** 10082 with no
+access keyword, 10086 and the unwind, a GROUP account created and deleted end to
+end, and ADOPT without Phase 3's marker.  PROJECT_STATUS had listed all four as
+built-but-unmeasured, and 10086 as the one real behaviour change with no
+coverage at all.
+
+**Every refusal has a control that succeeds, and that is the design rather than
+a flourish.** "Nothing was created" passes on a build where CREATE.ACCOUNT never
+creates anything, on a machine out of disk, or on a name Windows would refuse.
+So each leg refuses and then makes the SAME account with the one thing that was
+missing - the keyword, a matching password, the marker.  It is the same rule the
+project has paid for five times, from the other side: a check that cannot fail
+proves nothing, and neither does one whose subject was never viable.
+
+**The password failure is provoked with two different passwords.**
+SET_PASSWD:100 returns false on `pw1 = '' or pw1 # pw2`, which is deterministic;
+a password rejected by Windows policy would depend on the policy of whichever
+machine the suite runs on.  The unwind is then measured on all four traces -
+register, directory, Windows user, sdu_ group - because CREATEA's own comment
+claims the unwind is complete on the grounds that only the Windows user exists
+at that point, and that is a claim worth measuring rather than believing.
+
+**The GROUP leg tests three things nothing else does**: that the mandatory
+password and the required keyword are the USER arm's alone, since the call feeds
+neither and must not hang or be refused; that no Windows user, sdu_ group or
+$cred record is made; and that DELETE.ACCOUNT uses the SHORTER confirmation,
+10085, because 10084 names a Windows account this account never had.
+
+**The new verifier had to be added to assert-current's $neverShipped list**, or
+it would report the tree stale because it exists and then refuse to run on the
+strength of its own newness - the self-blocking shape that list already carries
+five notes about.  Both verifiers were added to post-cycle-elevated.ps1, before
+verify-peerlog, which overwrites the error log any earlier step would have left
+a diagnosis in.

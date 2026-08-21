@@ -11,9 +11,10 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**PHASE 3 IS WRITTEN AND NOTHING ABOUT IT HAS BEEN RUN.** Not compiled, not
-installed, not measured. The tree is stale by every file it touched. **The next
-action is one cycle**, and `-SkipInstall` first is the cheap half:
+**PHASES 3 AND 4 ARE WRITTEN AND NOTHING ABOUT EITHER HAS BEEN RUN.** Not
+compiled, not installed, not measured. The tree is stale by every file they
+touched. **The next action is one cycle**, and `-SkipInstall` first is the cheap
+half:
 
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
@@ -56,23 +57,34 @@ the rule where it can actually work.
 is exactly what Inno's `Exec` with `SW_SHOW` gives `sd.exe` — → `isatty=1`,
 `ttyname=/dev/cons0`. **Do not re-derive this.**
 
+**WHAT PHASE 4 ADDED — verifier work only, no product change:**
+
+| | |
+|---|---|
+| `verify-routes.ps1` | rewritten for the four keywords. **It no longer refuses**; its superseded-guard now points the other way and refuses if 10063–10071 are still installed |
+| `verify-accountrules.ps1`, new | the refusal side: 10082, 10086 and its unwind, a GROUP account end to end, and `ADOPT` without the marker. **Every leg has a control that succeeds** |
+| `assert-current.ps1` | the new verifier added to `$neverShipped` — without that line it would report the tree stale because it exists, then refuse to run on the strength of its own newness |
+| `post-cycle-elevated.ps1` | runs both, before `verify-peerlog` (which overwrites the error log). New `-RoutePrefix` / `-RulesPrefix` |
+
 **WHAT A CYCLE SHOULD SHOW, in order.** `-SkipInstall` first: the two BASIC
 files compile. Then a full cycle, and **watch it** — the install must end with a
 console window that asks for a password. Then, with fresh prefixes:
 
 ```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert5 -Account sdacct29 -AclPrefix sdacl9 -ApiPrefix sdapia11
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert5 -Account sdacct29 -AclPrefix sdacl9 -ApiPrefix sdapia11 -RoutePrefix sdrt5 -RulesPrefix sdar1
 ```
 
-`verify-delaccount -Prefix sddel4` is the one that exercises the new gate.
+`verify-delaccount -Prefix sddel4` is still run by hand, and is the other one
+that exercises the new gate.
 
 **WHAT WAS CHECKED WITHOUT A CYCLE, so a failure is placeable.** The `[Code]`
 section compiles under ISCC (extracted into a minimal `.iss`; it caught a real
-`#13#10` at the start of a line, which is the trap `cycle.ps1` lints for). Both
-`.ps1` files parse. Both BASIC files come out with the same block-balance number
-as at HEAD, on a checker proved to change that number when an `end` is removed
-from this very file. Every `sysmsg(N)` in both has a message file. **None of
-that is a compile** — `bbal.py` is not a BASIC parser and was thrown away.
+`#13#10` at the start of a line, which is the trap `cycle.ps1` lints for). Every
+`gplbld/*.ps1` parses. Both BASIC files come out with the same block-balance
+number as at HEAD, on a checker proved to change that number when an `end` is
+removed from this very file. Every `sysmsg(N)` in both has a message file, and
+every message the new verifier names is on its `$needMsgs` guard. **None of that
+is a compile** — `bbal.py` is not a BASIC parser and was thrown away.
 
 **AND THE DECISION FROM LAST SESSION IS STILL WAITING ON THE OWNER.** The
 changelog is
@@ -122,11 +134,10 @@ refuses. **The session still runs as LocalSystem.** Only its reach changed.
   succeed.
 - **The API faces the network**: `bound to 0.0.0.0`, `NOT loopback-only`.
 
-**WHAT IS STILL UNMEASURED, and it is Phase 4's verifier work:** 10082 (no
-keyword given, refuse), **10086 (the mandatory-password unwind — the one real
-behaviour change with no coverage at all)**, 10087 (a GROUP account), 10083
-(`MODIFY.ACCOUNT` refusing an administrator), and messages 10076 / 10079.
-`verify-routes` refuses with exit 2 until Phase 4 rewrites it.
+**WHAT WAS UNMEASURED HAS A VERIFIER NOW, AND THE VERIFIER HAS NOT RUN.** 10082,
+**10086 and its unwind**, 10087 and a GROUP account end to end are
+`verify-accountrules.ps1`; 10083, 10076–10080 and the absolute semantics are the
+rewritten `verify-routes.ps1`, which no longer refuses. §"Phase 4, as built".
 
 **AND FOUR RESULTS ARE STALE, not failed** — `verify-fold`,
 `verify-createaccount -Account sdacct28`, `verify-tiers -Prefix sdtiert4`,
@@ -231,9 +242,48 @@ can run before the sign-out at all.
 straight into message 10082. Corrected to `... SSH`. It is the only place in the
 product that quotes the verb, and nothing in the suite reads it.
 
-**NOT DONE, AND IT IS PHASE 4's:** `verify-delaccount` asserts the marker is
-consumed, and nothing yet tests the refusal — `ADOPT` with no marker present
-must come back as *"Unexpected token (ADOPT)"*, and no verifier asks.
+**THE REFUSAL IS TESTED TOO, in `verify-accountrules.ps1` step 4** — `ADOPT`
+with no marker must come back as *"Unexpected token (ADOPT)"*, then the same
+command with the marker must succeed, then a third with no marker must be
+refused again. The middle leg is what stops the first from passing on a build
+where `ADOPT` is broken outright.
+
+---
+
+### Phase 4, as built — 21 Aug 2026, thirty-fifth session. NOT RUN
+
+**NO PRODUCT CODE CHANGED.** Four `gplbld` files, and the header lists them.
+
+**EVERY REFUSAL IN THE NEW VERIFIER HAS A CONTROL THAT SUCCEEDS.** *"Nothing was
+created"* passes just as happily on a build where `CREATE.ACCOUNT` never creates
+anything, so each leg refuses and then makes **the same account** with the one
+thing that was missing — the keyword, a matching password, the marker. A control
+that fails is reported as a failure of the leg, because the refusal has then
+been shown to prove nothing.
+
+**THE PASSWORD FAILURE IS PROVOKED WITH TWO DIFFERENT PASSWORDS**, not a weak
+one: `SET_PASSWD:100` returns false on `pw1 = '' or pw1 # pw2`, which is
+deterministic, where a policy-rejected password depends on the machine.
+
+**AND THE UNWIND IS MEASURED ON ALL FOUR TRACES** — register, directory, Windows
+user, `sdu_` group. `CREATEA`'s own comment claims the unwind is complete
+because only the Windows user exists at that point; this is what turns that
+claim into a measurement.
+
+**`verify-routes`'s SUPERSEDED GUARD NOW POINTS THE OTHER WAY.** It refused when
+10063–10071 were *missing*, because it asserted them; it now refuses when any of
+them is *present*, which means an install predating Phase 2 and assertions that
+describe a verb that is no longer under test.
+
+**THE ONE CHECK THAT SEPARATES ABSOLUTE FROM ADDITIVE** is `verify-routes` step
+4, second line: after `MODIFY.ACCOUNT x API` on an account created with `SSH`,
+the routes must be `api` **alone**. An additive implementation puts the account
+in `sdapi` too and passes everything else in that file.
+
+**NOT DONE:** nothing has run. And `verify-accountrules` places the `$adopt`
+marker briefly — it removes it in a `finally` and again at the top of its own
+step 4, but a run killed between those points leaves the install-only gate open
+until somebody deletes `C:\ProgramData\SD\sdsys\$adopt` by hand.
 
 ---
 
@@ -241,8 +291,7 @@ must come back as *"Unexpected token (ADOPT)"*, and no verifier asks.
 
 | | |
 |---|---|
-| **Phase 3**, built, **unmeasured** | one cycle, watched — see the top of this file for what it should show |
-| **Phase 4**, not started | rewrite `verify-routes` for the four keywords; a new verifier for 10082 / 10086 / 10087 / 10083, **and for `ADOPT` refused with no marker**; changelog and handoff |
+| **Phases 3 and 4**, built, **unmeasured** | one cycle, watched, then the suite — see the top of this file |
 | bookkeeping | every verifier result in this file predates Phase 3 |
 | owner's decision | whether `assert-current` should exempt `sdsys/changelog` — top of this file |
 | **this file is far over §0's size ceiling** | roughly three times it. §0.5 says the way back is to compress a §7 step's §4 and §7 material to its conclusion when the step closes — Phase 1 and Phase 2 have both closed since anyone last did that. Not attempted here: it is a real editing job, not a tidy-up, and doing it badly loses reasoning that nothing else records |
@@ -288,7 +337,7 @@ kept apart so a failure is attributable.
 | 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
 | 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **done and measured on the 14:15:55 install** — `verify-delaccount` 39/39, `verify-apiport` all, `verify-apiadmin` 22+1 N/A, `verify-peerlog` 21/21. The refusal paths (10082, 10086, 10087, 10083) are Phase 4's |
 | 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | **built 21 Aug, nothing run** — §"Phase 3, as built", and two deviations at the top of this file |
-| 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | not started |
+| 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | **built 21 Aug, nothing run** — §"Phase 4, as built". The changelog half was already discharged: Phases 1 and 2 each wrote their own entry in their own commit |
 
 **THE PLAN IS AT `C:\Users\dmont\.claude\plans\zazzy-questing-engelbart.md`** —
 approved 21 Aug, and it carries the reasoning for each phase, the assumptions
@@ -469,6 +518,10 @@ is the only thing left.
   failure. **Spent:** 20 Aug `sdacct27`, `sdtiert1`-`3`, `sdacl7`,
   `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia10`,
   `sddel1`-`sddel3`, `sdapi3`-`sdapi5`, `sdacct28`, `sdtiert4`, `sdacl8`.
+  **`post-cycle-elevated.ps1`'s DEFAULTS ARE NOT FRESH after one run** — it now
+  takes six prefixes, and `-RoutePrefix sdrt5` / `-RulesPrefix sdar1` are the
+  next unspent pair. Pass all six every time; the defaults in the file are a
+  starting point, not a supply.
 
 ---
 
