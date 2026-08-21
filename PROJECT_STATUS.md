@@ -9,20 +9,51 @@ something came to be the way it is.
 
 ---
 
-## OPEN, AND THE MOST IMPORTANT THING IN THIS FILE: DOES A REMOTE API SESSION RUN AS LocalSystem?
+## CONFIRMED, AND THE MOST IMPORTANT THING IN THIS FILE: A REMOTE API SESSION RUNS AS LocalSystem
 
-**IT LOOKS LIKE IT DOES.** Not yet proven end to end.
-**`gplbld/verify-apiadmin.ps1` IS WRITTEN AND HAS NEVER RUN** - it needs a
-cycle. Elevated, after `cycle.ps1`:
+**MEASURED 20 Aug 2026, `verify-apiadmin.ps1 -Prefix sdapia1`.** A
+**PROGRAMMER-tier** account, over a real remote API connection, **opened
+`$cred`, wrote a record to it and read the record back**:
 
-```powershell
-gplbld\verify-apiadmin.ps1 -Prefix sdapia1
+```
+PROBE.ACCOUNT=SDAPIA1  PROBE.CRED.OPEN=YES  PROBE.CRED.WRITE=YES  PROBE.DONE
 ```
 
-**A FAIL IS THE FINDING, NOT A BROKEN TEST.** The assertions are that a remote
-session **cannot** open or write `$cred`.
+**THE CONTROLS HELD, which is what makes it a measurement.** The same compiled
+program from a local elevated session also reported `YES`/`YES`, so the probe
+answers `YES` only when it genuinely can; and the ACL was asserted in the same
+run - `$cred` grants SYSTEM and Administrators and **grants `sdusers`
+nothing**. So the account had no route to that file except the session's token.
 
-**WHAT IS ALREADY MEASURED (20 Aug 2026, unelevated):**
+**THE SCORE WAS 12/15 AND ALL THREE FAILURES WERE THE INSTRUMENT.** `SDExecute`
+returns captured output as a **dynamic array joined by FIELD MARKS (char
+254)**, not text with newlines, so the whole reply arrived as one physical
+line; `Get-Marker` anchored on `^` and captured `\S*`, so the first marker
+swallowed everything and the other two read as ABSENT. **The finding was
+sitting inside the text of the check that failed first.** Fixed - the parser is
+delimiter-agnostic now and field marks are turned into newlines before
+anything reads them. **The local leg parsed cleanly because a local session's
+output really does have newlines, so the defect appeared only on the leg that
+mattered.**
+
+**WHAT IT MEANS.** A remote client holding nothing but an ordinary account's
+credential can rewrite the credential store - so it can reset any account's
+password. It needs no administration verb: the probe wrote the file directly
+from BASIC, which is what a PROGRAMMER account can do.
+
+**AND `$cred` IS ONLY THE FILE THAT WAS TESTED.** The same token reaches
+everything the data tree protects - **inference from the same measurement, not
+separately measured**, and `gcat` is the sharp one: it holds `$LOGIN` and
+`$CPROC` as object code and `CPROC:315` calls `$LOGIN` for every session, so
+write access there is code running in everybody's session, administrators
+included (§8 records this for the RDPACCOUNT case).
+
+**NOT PROVEN, AND IT DOES NOT MATTER TO THE CONCLUSION:** whether
+`K$ADMINISTRATOR` is set for these sessions. `KERNEL` is refused to a program
+not compiled `$internal`, so the probe could not ask. The file write is the
+capability that counts and it does not go through that flag.
+
+**THE ORIGINAL EVIDENCE (20 Aug 2026, unelevated):**
 
 ```
 sc qc SD  ->  SERVICE_START_NAME : LocalSystem
@@ -61,10 +92,20 @@ So this needs a valid credential, not anonymous access.
 reaching for it: an ssh-forwarded client identifies **`sshd`**, which
 `win32peer.h` records as a documented limit.
 
-**IF IT CONFIRMS, THE OPTIONS ARE** - drop the session's privilege after
-`fork()` in `sdwind.c`; or gate `USR_ADMIN` on connection type at
-`kernel.c:195`; or route `$cred` writes through the elevation helper the way
-`create.account` does. **Not decided, and the measurement comes first.**
+**THE FIX IS THE NEXT THING TO DECIDE, AND IT IS THE OWNER'S CALL.** The
+measurement is done; nothing has been built.
+
+| Option | What it does | Cost |
+|---|---|---|
+| **Drop the token after `fork()` in `sdwind.c`** | the session runs as the client, or as a low-privilege account, before `execl` | the right shape, and the largest change - Windows has no `setuid`, so this means `CreateProcessAsUser` with a token, which is not what the fork/exec path does today |
+| **Gate `USR_ADMIN` on connection type** at `kernel.c:195` | an API session is never an SD administrator | **does NOT close this** - the probe never used the flag; the OS still grants the write |
+| **Run `sdwind` as a lesser account** than LocalSystem | every forked session inherits that instead | it needs SYSTEM for the semaphores (`win32sem.c`) - check before choosing |
+| **Take SYSTEM off `$cred`** and reach it another way | the ACL stops granting what the session has | `$cred` is written by SD itself; the write has to come from somewhere |
+
+**THE SECOND ROW IS THE TRAP.** It is the obvious fix and it treats the
+symptom: the probe wrote the file **without** the administrator flag, so
+gating the flag would leave the exposure exactly where it is while looking
+like it had been dealt with.
 
 ---
 

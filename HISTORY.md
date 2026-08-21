@@ -27,10 +27,69 @@ corrected.
 
 ---
 
+## CONFIRMED 20 Aug 2026 - a remote API session runs as LocalSystem and can rewrite $cred
+
+**Commit:** this one. `verify-apiadmin.ps1 -Prefix sdapia1`, run by the owner.
+**The entry below this one predicted it; this is the measurement.**
+
+A **PROGRAMMER-tier** account, over a real remote API connection, opened
+`$cred`, wrote a record and read it back:
+
+```
+PROBE.ACCOUNT=SDAPIA1  PROBE.CRED.OPEN=YES  PROBE.CRED.WRITE=YES  PROBE.DONE
+```
+
+**BOTH CONTROLS HELD.** The same compiled program from a local elevated
+session also reported `YES`/`YES` - so the probe says `YES` only when it
+genuinely can - and the ACL was asserted in the same run: `$cred` grants SYSTEM
+and Administrators and grants **`sdusers` nothing**. The account therefore had
+no route to that file except the session's token.
+
+**A remote client holding an ordinary account's credential can rewrite the
+credential store, so it can reset any account's password.** It needs no
+administration verb - the probe wrote the file directly from BASIC, which is
+what a PROGRAMMER account can do. `$cred` is only the file that was tested;
+the same token reaches everything the data tree protects, and `gcat` is the
+sharp one (§8).
+
+**THE SCORE WAS 12/15 AND ALL THREE FAILURES WERE THE INSTRUMENT - the
+finding was inside the text of the check that failed first.** `SDExecute`
+returns captured output as a DYNAMIC ARRAY JOINED BY FIELD MARKS (char 254),
+not text with newlines, so the reply arrived as one physical line.
+`Get-Marker` anchored on `^` and captured `\S*`: a field mark is not
+whitespace, so the first marker swallowed the whole reply, and with no line
+starts after it every later marker read as ABSENT - which the verdict reported
+as a missing answer rather than as the answer.
+
+**WHY IT SURVIVED WRITING: THE CONTROL LEG COULD NOT CATCH IT.** A local
+session's captured output really does have newlines, so the local run parsed
+perfectly. **The defect appeared only on the leg that mattered**, which is the
+worst place for a parsing bug to hide and the reason the raw output is now
+printed before anything reads it. Generalises the 20 Aug RDPACCOUNT lesson: a
+helper correct for the inputs it has met is not correct, and here the two legs
+of one test supplied genuinely different input shapes.
+
+**Fixed:** field marks are turned into newlines before parsing, and the marker
+regex is delimiter-agnostic - no `^` anchor, and the value bounded to the
+characters the probe emits rather than to "not whitespace". Verified against
+the exact byte sequence the failing run produced.
+
+**Not proven and it does not change the conclusion:** whether
+`K$ADMINISTRATOR` is set for these sessions. `KERNEL` is refused to a program
+not compiled `$internal`, so the probe could not ask. The file write does not
+go through that flag.
+
+**THE OBVIOUS FIX IS THE WRONG ONE, and PROJECT_STATUS records why.** Gating
+`USR_ADMIN` on connection type at `kernel.c:195` treats the symptom: the probe
+wrote the file **without** the flag, so that change would leave the exposure
+where it is while looking like it had been dealt with.
+
+---
+
 ## 20 Aug 2026 - A remote API session appears to run as LocalSystem
 
-**Commit:** this one. **An instrument, and a partial measurement. Not proven
-end to end** - `gplbld/verify-apiadmin.ps1` is written and has never run.
+**Commit:** `b325a03`. **An instrument, and a partial measurement**, written
+before the run above confirmed it.
 
 **HOW IT CAME UP.** The owner asked whether a remote API client can perform
 administration such as `set.password`, expecting the answer "no" and being
