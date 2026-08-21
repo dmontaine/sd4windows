@@ -12801,3 +12801,18 @@ deliberately. It exists to serve the installer step that leaves the installing
 user in SD to set a password, and the bootstrap runs `sd -internal` into an
 SDSYS that has no credential at all - so the rule has to be written around that
 or it breaks the install. It belongs with the flow it serves.
+
+**Handoff, 21 Aug - Phase 2 is written and the testing moves to a new session.**
+Owner's decision. What the next session needs is in PROJECT_STATUS.md's opening
+block; the plan it is executing is at
+`C:\Users\dmont\.claude\plans\zazzy-questing-engelbart.md`, approved the same
+day, and carries the reasoning for each phase.
+
+**The header used to say "THE SUITE IS GREEN AND THE API EXPOSURE IS SHUT" and
+both halves had stopped being true.** Phase 1 deliberately opened the port, and
+no verifier has run against Phase 2 at all. Replaced with the measurement dates
+per verifier and an explicit account of what Phase 2 does to the suite - ten
+verifiers needed an access keyword added, verify-routes refuses until it is
+rewritten - so a red run is read as expected rather than as a broken feature.
+That heading is the kind of claim that rots silently: it was accurate when
+written and nothing forces it to be re-checked.

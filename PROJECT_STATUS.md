@@ -36,6 +36,29 @@ does not exist yet, and **the bootstrap runs `sd -internal` into an SDSYS that
 has no credential** (`bootstrap.py`, "NO PASSWORD IS NEEDED OR SET"), so the
 rule has to be written around that or it breaks the install.
 
+**THE MESSAGE NUMBERS PHASE 2 ADDED**, so a refusal naming one is identifiable
+without a grep. Retired with it: 10063–10072, 6029, 6031.
+
+| | |
+|---|---|
+| 10076-10079 | the four resulting-access statements — ssh only / API only / both / none. **Shared by `CREATE.ACCOUNT` and `MODIFY.ACCOUNT`** so access reads the same however it was set |
+| 10080 | already had that access; nothing changed |
+| 10081 | unable to change remote access for %1, status %2 |
+| 10082 | **say who may reach this account** — `CREATE.ACCOUNT USER` with no keyword |
+| 10083 | %1 is an administrator and always has both |
+| 10084 / 10085 | the delete confirmation, with and without a Windows account to name |
+| 10086 | an account must have a password; nothing was created |
+| 10087 | %1 is a group account and has no remote access |
+
+**`set.access` IS A `gosub` SUBROUTINE IN `CREATEA`**, not a verb or a file —
+the dotted name matches `create.group`, `more.args` and `create.dir.file`
+beside it. It turns `access.ssh` / `access.api` into `sdssh` / `sdapi`
+membership and then prints one of 10076–10079. **It is called from the USER arm
+only, and deliberately from OUTSIDE the `make.admin` and `adopt` else
+branches** — that placement is the whole of the administrators-get-the-API fix,
+because the join it replaced sat inside them. `MODIFYA`'s equivalent is
+`route.set`, which additionally REMOVES memberships, since it is absolute.
+
 **Phase 1 is done and measured.** Cycle 21 Aug 11:50:48, `sd.exe`
 **`cb9c4e0460b175f5`**.
 
@@ -46,8 +69,12 @@ kept apart so a failure is attributable.
 |---|---|---|
 | 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
 | 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **written, never compiled** |
-| 3 | ADOPT install-only; the install ends in an SD session that takes the password | |
-| 4 | verifiers, changelog, handoff | |
+| 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | not started |
+| 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | not started |
+
+**THE PLAN IS AT `C:\Users\dmont\.claude\plans\zazzy-questing-engelbart.md`** —
+approved 21 Aug, and it carries the reasoning for each phase, the assumptions
+taken, and the group-account section that shaped the password rule.
 
 **PHASE 1 CHANGED WHAT THE MACHINE EXPOSES**, and all four halves are confirmed
 on this install: `0.0.0.0:4243` listening, `APIPORT=4243` in the shipped
@@ -63,18 +90,36 @@ and that is the whole point of the change.
 **`sd.conf` IS AT `C:\ProgramData\SD\sd.conf`**, not under `sdsys\`. Cost a
 wrong lookup on 21 Aug; `verify-apiport.ps1` has it right.
 
-**THE SUITE IS GREEN AND THE API EXPOSURE IS SHUT.**
+**EVERY RESULT BELOW PREDATES PHASE 2. NONE OF IT HAS BEEN RUN AGAINST THE
+CODE NOW IN THE TREE.**
 
-| verifier | prefix | result |
-|---|---|---|
-| `verify-apiport` | `sdapi4` | **13/13** — the port, on the 11:50:48 cycle |
-| `verify-apiadmin` | `sdapia8` | **22 PASS + 1 N/A of 23** |
-| `verify-routes` | `sdrt4` | **33/33** |
-| `verify-delaccount` | `sddel2` | **38/38** |
+| verifier | prefix | result | measured on |
+|---|---|---|---|
+| `verify-apiport` | `sdapi4` | **13/13** | 11:50:48 cycle (Phase 1) |
+| `verify-apiadmin` | `sdapia8` | **22 PASS + 1 N/A of 23** | 09:33:41 cycle |
+| `verify-routes` | `sdrt4` | **33/33** | 09:33:41 cycle |
+| `verify-delaccount` | `sddel2` | **38/38** | 09:33:41 cycle |
 
-**The last three were measured on the 09:33:41 cycle and have not been re-run
-since Phase 1.** Phase 1 touched the listener, `sd.conf` and the installer, none
-of which those three assert on — but that is reasoning, not a measurement.
+**WHAT PHASE 2 DOES TO THE SUITE, so a red run is not misread as a broken
+feature:**
+
+- **Ten verifiers create accounts**, and `CREATE.ACCOUNT USER` now refuses
+  without an access keyword. Each call site was given the keyword its own test
+  wants — `API` for the two that drive API sessions, `SSH` for the ssh-only
+  creation test, `BOTH` elsewhere. **`adopt-account.ps1` needed nothing**:
+  `ADOPT` forces tier `ADMINISTRATOR`, which forces both, so the install is
+  unaffected.
+- **`verify-routes` REFUSES with exit 2** until Phase 4 rewrites it. It asserts
+  the retired `SSH`/`NO.SSH`/`API`/`NO.API` pairs and messages 10063–10071, and
+  `Shown()` answers `$false` for a message file it cannot read — so it would
+  score as eight failures that look like a broken feature. It keys on the
+  INSTALLED tree, so it stays quiet until the Phase 2 cycle removes those files.
+- **`verify-delaccount` now asserts the confirmation WORDING**: 10084 names the
+  Windows account, 10085 does not, and which appears must match whether
+  `!is_sd_user` will allow the deletion.
+
+**AFTER `-SkipInstall` COMES BACK CLEAN, run the full cycle**, then the suite
+with fresh prefixes (spent list is in the traps section below).
 
 **Items 1, 4, 5, 6 and 9 are built AND measured.** From inside a real remote
 API session: `PROBE.CRED.OPEN=NO status 3035` (`ER_PERM`) and
