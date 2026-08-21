@@ -107,6 +107,52 @@ symptom: the probe wrote the file **without** the administrator flag, so
 gating the flag would leave the exposure exactly where it is while looking
 like it had been dealt with.
 
+**"CAN `sdwind` RUN AS SOMETHING OTHER THAN LocalSystem?" - owner, 20 Aug
+2026. YES, AND §5.7 ALREADY SPECIFIES IT**: a **virtual account,
+`NT SERVICE\SD`**, which needs no password management. Three things qualify
+that, and the third is the one that matters.
+
+1. **A CONCRETE BLOCKER IN OUR OWN CODE.** `sd -start` is gated on
+   `IsElevated()` (`sd.c` `check_admin()`), which is true only when
+   `BUILTIN\Administrators` is in the process token. **A virtual service
+   account is not in that group, so the service could not start SD.**
+   `install-service.ps1:22` says so outright - *"LocalSystem is chosen because
+   it is elevated - `sd -start` is gated on `IsElevated()` - and because it
+   needs no password to manage."* Changing the account means changing that
+   gate, not just the service definition.
+2. **UNVERIFIED, both cheap to check:** the `Global\` semaphores
+   (`win32sem.c`) need `SeCreateGlobalPrivilege`, which a service logon should
+   carry through the SERVICE SID; and the tree ACLs would need the new account
+   adding wherever they name SYSTEM.
+3. **IT DOES NOT FIX THIS ON ITS OWN, AND THAT IS THE POINT.** §5.7's stage 2
+   deliberately runs **session processes under the service identity** - the
+   identity that owns the tree. That is the same reach the probe just used,
+   wearing a different name.
+
+**WHY STAGE 2 INHERITS THE PROBLEM RATHER THAN SOLVING IT.** What is supposed
+to make it safe is that SD does the access control once the OS no longer can.
+**SD has no file-level access control.** `op_openpath` calls `open_file()` with
+no path restriction of any kind (`op_dio1.c:368`), so a PROGRAMMER account -
+which has `BASIC` - can open any path the process token reaches. §5.7 states
+the premise itself: *"While SD runs as the invoking user, account passwords
+organise access; they do not secure it."* **The API path is the first place
+where SD stopped running as the invoking user, and nothing replaced what that
+was doing.**
+
+**SO THE QUESTION TO SETTLE IS NOT THE SERVICE ACCOUNT.** It is whether a
+session may hold a token that exceeds the user's. Either match the user - an
+S4U logon and `CreateProcessAsUser`, which is the only thing that restores
+§5.7's premise and is real work - or accept a service identity and **build the
+path gating SD has never had**. Stage 2 as written assumes the second without
+saying so.
+
+**A THIRD PLACE IN THE CODE RESTS ON THE FALSE ASSUMPTION**, after
+`APISRVR:459` and `:489`. `check_admin()`'s own comment: *"the client, network
+and API paths use `-C`, `-N` and `-Q`. **Those children inherit an ORDINARY
+user's token**"*. True for phantoms and for SDLocal, whose parent is a user's
+`sd.exe`; **false for the API, whose parent is the service.** Written 15 Aug
+2026 - the same day the service landed.
+
 ---
 
 **PEER IDENTIFICATION IS BUILT, VERIFIED AND LOG-ONLY. `verify-peerlog.ps1`
