@@ -12886,3 +12886,49 @@ two failure shapes the handoff was braced for, ruled both out, and the compile
 agreed. What it could not have told anyone is the part still ahead - none of
 this has RUN. `-SkipInstall` does not install, so the installed tree is stale
 and every behaviour Phase 2 adds is still unobserved.
+
+---
+
+## 21 Aug 2026 - the suite's first Phase 2 run: 4 of 6, and both reds were Phase 1's
+
+Full cycle, install 13:16:19, then `post-cycle-elevated.ps1`. `verify-fold`,
+`verify-createaccount -Account sdacct28`, `verify-tiers -Prefix sdtiert4` and
+`verify-accountacl -Prefix sdacl8` all exit 0. `verify-peerlog` and
+`verify-apiadmin -Prefix sdapia9` both exit 1.
+
+**Both reds were the same stale assertion and neither was Phase 2's.** Each
+matched `netstat` output for a literal `127.0.0.1:<port>  LISTENING` line.
+Phase 1 moved sdwind's bind to `INADDR_ANY` on 21 Aug, so `netstat` prints
+`0.0.0.0:4243` and the match could not succeed. Confirmed by looking rather
+than reasoned: the only LISTENING line on that port is `TCP 0.0.0.0:4243`.
+Phase 1 corrected the same assertion in `verify-apiport` (commit `0022907`) and
+did not carry the fix to its two siblings; `verify-scramlogin` and
+`verify-tierapi` already matched on the port alone and were unaffected.
+
+**It cost more in `verify-apiadmin` than the exit code shows.** The check calls
+`Fail` on zero matches, and it sits at step 6 - before step 7, which is the
+containment-gate measurement the whole script exists for. So the run proved
+nothing about the gate while looking like a run that had found something. Both
+scripts now match on the port alone, and where the socket is bound stays
+`verify-apiport`'s assertion, which is the script whose subject that is.
+
+**A CORRECTION: the CRLF trap added to PROJECT_STATUS.md earlier today was
+wrong, and the tool that produced it lies.** It claimed `sed -i` had stripped
+696 CRs from `verify-delaccount.ps1`, and said which trees were CRLF and which
+LF. **The whole repository is LF** - checked in binary at three commits and in
+the working tree. `grep -c $'\r'` in this MSYS shell does not pass a literal CR
+to grep, so it matches every line and reports a CRLF file wherever there is
+none; `tr -dc '\r' | wc -c` answers 0 for everything, including files that
+really do have CRs. The edit that morning was reverted and redone for a fault
+that did not exist, and `git diff --stat` - which said `2 +-` throughout - had
+been right all along. The bullet now says to use `git diff --stat`, since
+`.gitattributes` sets `* -text` and git therefore compares bytes.
+
+**And one more stale line found the same way:** the traps section said
+"`APIPORT` ships commented out", which contradicted the header three sections
+above it. `stage.py:279` writes an active `APIPORT=4243` and has done since
+Phase 1. The header was right.
+
+**`CREATEA`'s return-code sign is fixed** - `-ER$NOT.CREATED`, and
+`UPSTREAM_FIXES.md` #11 carries it upstream with the second instance in `ED:57`
+that the survey turned up. Unverified: it rides on the next cycle.

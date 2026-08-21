@@ -21,16 +21,59 @@ gpl.bp.out 190, `$CPROC` 25728, `$BCOMP` 88079. Four `assigned a value but
 never used` warnings, all four also in the 11:45 pre-Phase-2 run, so Phase 2
 added none. **`-SkipInstall` DID NOT INSTALL — the installed tree is STALE.**
 
-**SO THE NEXT STEP IS THE FULL CYCLE, THEN THE SUITE.** No source change since
-the compile, so it may start now:
+**THEN THE FULL CYCLE RAN — install 21 Aug 13:16:19 — AND THE SUITE WENT 4 OF
+6.** Summary `%LOCALAPPDATA%\SD-verify\post-cycle-20260821-131727.txt`:
+
+| verifier | prefix | exit |
+|---|---|---|
+| `verify-fold` | — | **0** |
+| `verify-createaccount` | `sdacct28` | **0** |
+| `verify-tiers` | `sdtiert4` | **0** |
+| `verify-accountacl` | `sdacl8` | **0** |
+| `verify-peerlog` | — | **1** — stale assertion, since fixed |
+| `verify-apiadmin` | `sdapia9` | **1** — same, since fixed |
+
+**BOTH FAILURES WERE ONE STALE ASSERTION LEFT BY PHASE 1, NOT A PHASE 2
+FAULT.** Each matched `netstat` for a literal `127.0.0.1:<port> LISTENING`
+line; Phase 1 moved the bind to `INADDR_ANY`, so `netstat` prints
+`0.0.0.0:4243` and neither could pass. **Confirmed by looking**, 21 Aug: the
+only LISTENING line on 4243 is `TCP 0.0.0.0:4243`. Phase 1 corrected
+`verify-apiport`'s copy (commit `0022907`) and missed these two.
+**It cost more in `verify-apiadmin`**, where the `Fail` aborted before step 7 —
+the containment-gate measurement the script exists for — so a run that proved
+nothing looked like a run that found something. Both now match on the port
+alone, as `verify-apiport`, `verify-scramlogin` and `verify-tierapi` already
+did. **THEY HAVE NOT BEEN RE-RUN.**
+
+**AND A CYCLE IS OWED AGAIN BEFORE ANYTHING CAN BE.** The `CREATEA`
+return-code fix in this same commit changed a file in the watched `sdsys` tree,
+so `assert-current` refuses — measured 21 Aug 13:25, *"STALE: 1 source file(s)
+are newer than the install: sdsys\gpl.bp\CREATEA"*. Every verifier calls it
+first. **The two fixed scripts being on `$neverShipped` does not help here** —
+that list stops a verifier from reporting the tree stale *because of its own
+edit*; it does nothing about a genuinely newer shipped file.
 
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 ```
 
-**COMPILING IS NOT RUNNING.** Nothing below the compile has been observed:
-not the four keywords, not the mandatory password, not the single delete
-confirmation, not `modify.password` as a reachable verb.
+**THEN THE FOUR THAT ARE OWED**, in the order that measures most first:
+
+| | why |
+|---|---|
+| `verify-delaccount.ps1 -Prefix sddel3` | the single delete confirmation and its two wordings — never run against Phase 2 |
+| `verify-apiport.ps1 -Prefix sdapi5` | the `NONE` → `MODIFY.ACCOUNT … API` grant, and the port |
+| `verify-apiadmin.ps1 -Prefix sdapia10` | step 7, the containment gate, which today's run never reached |
+| `verify-peerlog.ps1` | everything after its step 3, likewise never reached |
+
+`verify-routes` refuses with exit 2 until Phase 4 rewrites it.
+
+**WHAT THE GREEN FOUR DO AND DO NOT SETTLE.** `verify-createaccount` created
+its account with `SSH` and passed, so the create-time keyword parses and does
+not break creation — but nothing yet asserts that `SSH` produced ssh-and-not-API
+membership. `verify-tiers` passed with `... BOTH`. The mandatory password, the
+single delete confirmation and `modify.password` as a reachable verb are all
+still unobserved.
 
 **THE STATIC READ THAT PRECEDED IT, 21 Aug, thirty-fourth session**, kept
 because it is what the next unverified change should get before it spends an
@@ -86,7 +129,7 @@ kept apart so a failure is attributable.
 | # | what | state |
 |---|---|---|
 | 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
-| 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **compiles 21 Aug 13:10:11; never run** |
+| 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **compiles 13:10:11, installed 13:16:19, 4 of 6 verifiers green — but nothing yet MEASURES the four keywords, the password rule or the delete confirmation** |
 | 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | not started |
 | 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | not started |
 
@@ -108,8 +151,9 @@ and that is the whole point of the change.
 **`sd.conf` IS AT `C:\ProgramData\SD\sd.conf`**, not under `sdsys\`. Cost a
 wrong lookup on 21 Aug; `verify-apiport.ps1` has it right.
 
-**EVERY RESULT BELOW PREDATES PHASE 2. NONE OF IT HAS BEEN RUN AGAINST THE
-CODE NOW IN THE TREE.**
+**THESE FOUR STILL PREDATE PHASE 2** — the four above ran on the 13:16:19
+install, these did not, and none of them has been run against the code now in
+the tree.
 
 | verifier | prefix | result | measured on |
 |---|---|---|---|
@@ -166,7 +210,7 @@ is answered by running `whoami` INSIDE the session, which the gate now refuses.
 | # | Owed | Whose |
 |---|---|---|
 | — | **The API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s it, so it inherits the service token; Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
-| — | **`CREATEA:325` sets `@system.return.code = ER$NOT.CREATED` without the minus** that every other site in the file uses, so a failed `create_user()` reports `6` where the convention is `-6`. Found 21 Aug, NOT fixed: it is untouched by Phase 2 and phases are kept apart so a failure is attributable. **Also upstream** — `../sdb64/sd64/sdsys/GPL.BP/CREATEA:158` — so fixing it earns an `UPSTREAM_FIXES.md` entry in the same commit | one character, owner's call on when |
+| — | **`ED:57` sets `@system.return.code = ER$ARGS` without the minus**, the second instance of the defect `CREATEA` had. Same reasoning, same one-character fix; left because `ED` is nothing to do with the account work and `UPSTREAM_FIXES.md` #11 already carries it for the maintainer | one character |
 
 **`DELETE.ACCOUNT` IS CLOSED — `verify-delaccount -Prefix sddel2`, 21 Aug,
 owner's elevated run on the 09:33:41 install. 38 of 38, profile half included.**
@@ -200,14 +244,18 @@ is the only thing left.
   not save you. **Write source files with the editing tools, not by piping a
   script through a heredoc.**
 
-  **AND `sed -i` DOES THE SAME THING THE OTHER WAY ROUND.** 21 Aug: a
-  one-comment edit to `verify-delaccount.ps1` — a CRLF file — came back with
-  **all 696 CRs gone**, because Git Bash's `sed` strips the CR as part of the
-  line terminator and writes LF. `git diff --stat` still said `2 +-`, so the
-  damage is invisible there; `grep -c $'\r' <file>` against `wc -l` is what
-  shows it. **The `gplbld/*.ps1` and the three docs are CRLF; `sdsys/gpl.bp/*`
-  and `sdsys/messages/*` are LF.** Check before editing, and prefer the editing
-  tools for anything CRLF.
+  **DO NOT USE `grep -c $'\r'` TO CHECK FOR THIS. It lies in both directions,
+  and a bullet written here on 21 Aug on the strength of it was wrong.**
+  Corrected the same day. It reported 696 CRs in `verify-delaccount.ps1` and
+  0 after a `sed -i`, which read as "sed flipped a CRLF file to LF" — so the
+  edit was reverted and redone for a reason that did not exist. **The whole
+  repository is LF**, in git and on disk: checked in binary, at three commits
+  and in the working tree, across `gpl.bp`, `messages`, `gplbld/*.ps1` and the
+  root `.md` files. In this MSYS shell `$'\r'` does not reach `grep` as a
+  literal CR, so it matches every line; `tr -dc '\r' | wc -c` answers 0 for
+  everything and is no better. **`git diff --stat` is the check** — with
+  `* -text` git compares bytes, so a whole-file ending flip shows as every
+  line changed. In Python, `open(p, 'rb')` and count `b'\r\n'`.
 
 - **`make sd` DID NOT REBUILD ON A HEADER CHANGE** until 21 Aug. `SDHDRS` and
   `TEMPSRCS` were both `$(wildcard *.c/*.h)` evaluated from `sdb_ai/sd64`,
@@ -225,12 +273,19 @@ is the only thing left.
 - **A PASSING ssh CHECK IS NOT PROOF THE INSTALL DID IT** — it is equally
   consistent with a block nobody removed. Check `sshd_config`'s LastWriteTime
   against the cycle.
-- **`APIPORT` ships commented out** and now also needs `MODIFY.ACCOUNT <acc> API`.
+- **`APIPORT` SHIPS ACTIVE since Phase 1** — `stage.py:279` writes an
+  uncommented `APIPORT=4243`, and the reasoning, including the two earlier
+  times the default moved, is in the comment above it. This line said "ships
+  commented out" until 21 Aug and contradicted the header, which was right.
+  The tracked `sdb_ai/sd64/sd.conf` still has `#APIPORT=4243`, and is not what
+  ships — `stage.py` generates the installed one. An account still also needs
+  `modify.account <acc> api` or the create-time keyword.
 - **The `sdusers`→`sdssh` ordering in `sd.iss` is a LOCKOUT if reversed.**
 - **Test prefixes are single-use.** Exit 2 from `verify-createaccount`,
   `verify-tiers` or `verify-accountacl` means "use a fresh prefix", not a
   failure. **Spent:** 20 Aug `sdacct27`, `sdtiert1`-`3`, `sdacl7`,
-  `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia8`, `sddel1`-`sddel2`, `sdapi3`-`sdapi4`.
+  `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia9`,
+  `sddel1`-`sddel2`, `sdapi3`-`sdapi4`, `sdacct28`, `sdtiert4`, `sdacl8`.
 
 ---
 

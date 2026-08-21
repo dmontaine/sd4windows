@@ -740,3 +740,89 @@ opposite - "a fully resolved path".
 
 **Reported against** `origin/dev`, `sd64/gplsrc/linuxlb.c`, the `ENOENT` branch
 of `sdrealpath()`.
+
+---
+
+## 11. `CREATE.ACCOUNT` reports a failure as a positive `@SYSTEM.RETURN.CODE`, which is the range that means success
+
+**Status:** PROPOSED, 21 Aug 2026
+**Affects:** `sd64/sdsys/GPL.BP/CREATEA` line 158, and `sd64/sdsys/GPL.BP/ED`
+line 57 — `main` and `dev`, identical on both
+**Severity:** low but silent, and it fails in the unsafe direction: a caller
+that checks whether `CREATE.ACCOUNT` worked is told it did when it did not.
+
+When `CREATE.ACCOUNT USER` cannot create the operating system account, it sets
+the return code without negating it:
+
+```
+         if not(create_user(acc.uname)) then
+           * create user failed
+           @system.return.code = ER$NOT.CREATED
+           stop sysmsg(10006,STATUS()) ;* Create User Failed, OS Error: %1
+```
+
+`gplsrc/err.h` states the convention at the top of the file:
+
+> Commands that set negative error codes into `@SYSTEM.RETURN.CODE` use the
+> arithmetic inverse of the values listed below.
+
+`ER$NOT.CREATED` is 6, so this leaves **6** where every other error exit in the
+same program leaves **-6**. `CREATEA` assigns `@SYSTEM.RETURN.CODE` in
+twenty-five places: twenty-three negate, one is `= 0` on the success path at
+line 377, and this is the twenty-fifth.
+
+**The positive range is not unused — it means "this many things were done".**
+That is what makes this more than a cosmetic sign error. Across `GPL.BP` a
+positive value is a count of work completed:
+
+| Where | What it sets |
+|---|---|
+| `COPY:271`, `COPYP:160` | `records.copied` |
+| `DELETE:162`, `NSELECT:105` | `record.count` |
+| `GETLIST:113`, `FORMLST:98`, `MRGLIST:161`, `LSTMRG:160` | a `dcount()` |
+| `BASIC:246` | `num.programs` |
+
+So a `CREATE.ACCOUNT` that has just refused to create anything leaves behind a
+value indistinguishable from "six records copied".
+
+**And the readers test the sign, not the value.** Two places in the shipped
+source ask only whether the number is negative:
+
+```
+PROC:677     if.arg1 = if @system.return.code < 0 then 1 else ''
+PDEBUG:61    if @system.return.code < 0 then goto abort.pdebug.startup
+```
+
+`PROC:677` is how a PROC finds out whether the command it just ran failed. A
+PROC that creates accounts and tests for an error after each one is told that a
+failed creation succeeded, and carries on. Nothing hides the failure from a
+person — message 10006 is printed — but the machine-readable answer contradicts
+what the screen says.
+
+**The fix is one character:**
+
+```
+           @system.return.code = -ER$NOT.CREATED
+```
+
+**The same fault is in `ED`, at line 57:**
+
+```
+   @system.return.code = ER$ARGS   ;* Preset for command errors
+```
+
+`CREATEA:86` and `DELACC:55` write that identical preset as `-ER$ARGS`, and
+`ED` itself clears it to `0` at line 168 on the path that succeeds — so it is
+meant as an error value and wants the same minus. It is listed here rather than
+as a separate entry because it is one defect with two instances.
+
+**How it was found.** Reading `CREATEA` line by line while making an unrelated
+change to the account verbs in a Windows port of SD, and noticing that one
+error exit in a file of twenty-five did not look like its neighbours. The
+convention was then confirmed from `err.h` rather than assumed, and the meaning
+of the positive range from the commands that set it.
+
+**Not verified by running it.** The change is one character on a path that
+needs `create_user()` to fail, which is awkward to provoke deliberately; it is
+offered on the strength of the convention in `err.h` and of the other
+twenty-three sites in the same file.
