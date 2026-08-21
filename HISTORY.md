@@ -12399,3 +12399,28 @@ checks pass by itself. Put right on this machine by running
 allow-ssh-groups.ps1 by hand, which wrote both halves - AllowGroups and
 ForceCommand - the default -SdExe resolving correctly because the installed
 copy was the one run.
+
+**Measured: the gate works.** `sdapia6`, from inside a real remote API session -
+`PROBE.CRED.OPEN=NO status 3035`, which is ER_PERM, with `PROBE.DONE` present so
+the probe finished rather than died, and the local elevated control printing
+`YES`/`YES` in the same run. `OS.EXECUTE` refused by name in the same run.
+Items 4 and 5 done. `verify-routes -Prefix sdrt3`: 33/33, item 1 closed.
+
+**The score was 18/22 and both failures were the instrument again.** Third and
+fourth faults of the same shape, an absent marker read as an answer:
+
+- `API session CANNOT write $cred` read a blank as FAIL. The probe attempts the
+  write only inside `if cred.open then` - there is no file variable otherwise -
+  so a refused OPEN means the marker is never printed. A refused open subsumes
+  the write; the check now says so, and records which of the two reasons
+  satisfied it, because collapsing them would hide the day the open starts
+  succeeding again.
+- `the OS.EXECUTE probe ran at all, API` asked for `PROBE.OSEXEC.TRIED`, which
+  can never come back over the API while the gate works - splitting the probe
+  fixed the `$cred` leg but the os.execute leg still aborts, and the abort still
+  takes its markers. A check that cannot pass is as useless as one that cannot
+  fail. It now asserts on SD's refusal message, which does come back and which
+  names the account and the program.
+
+The rule that has now been paid for four times: **assert on something that must
+be PRESENT.**

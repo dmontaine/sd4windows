@@ -11,122 +11,105 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**THE TREE IS CURRENT** — cycle ran 21 Aug 08:1x, `sd.exe`
-**`46141a14f13f4100`**, 94 objects. **NO CYCLE IS OWED**: everything changed
-since is a verifier or a probe, all in `$neverShipped`.
+**THE TREE IS CURRENT** — cycle 21 Aug 08:1x, `sd.exe` **`46141a14f13f4100`**,
+94 objects. **NO CYCLE IS OWED**: everything changed since is a verifier or a
+probe, all in `$neverShipped`.
 
-**`OS.EXECUTE` IS CLOSED IN A REMOTE API SESSION. MEASURED, WITH ITS CONTROL,
-`sdapia5`, 21 Aug.** SD's own refusal, over a real API connection:
+**THE GATE IS MEASURED AND IT WORKS. `sdapia6`, 21 Aug, from inside a real
+remote API session, SD's own probe output:**
 
 ```
-0000021A: sdapia5 is not permitted to use OS.EXECUTE at line 106 of
-/cygdrive/c/ProgramData/SD/user_accounts/sdapia5/BP.OUT/APIADMINPROBE
+PROBE.ACCOUNT=SDAPIA6   PROBE.CRED.OPEN=NO status 3035   PROBE.DONE
 ```
 
-**Item 5 is done.** Before the fix the same probe printed
-`PROBE.WHOAMI=nt_authority_system`. The local elevated leg is refused too,
-which is the control.
+**3035 is `ER_PERM`** — `net_path_permitted()` refusing the open with the status
+it was given. `PROBE.DONE` is present, so the probe finished cleanly rather
+than dying. **The control holds in the same run**: the same program from a
+local elevated session printed `PROBE.CRED.OPEN=YES` / `PROBE.CRED.WRITE=YES`,
+so the probe answers `NO` only when it genuinely cannot.
 
-**THE `$cred` HALF IS NOT MEASURED, AND THE RUN DESTROYED ITS OWN EVIDENCE.**
-`API session CANNOT open $cred` and `... write $cred` came back **BLANK**, not
-`NO`. **THOSE TWO FAILS WERE ABSENCE OF DATA, NOT A FINDING** — and so were the
-two blanks above them.
+**`OS.EXECUTE` IS CLOSED TOO**, SD's own refusal over the API:
 
-**WHY, AND IT IS THE THIRD INSTRUMENT FAULT IN THIS VERIFIER IN TWO DAYS.** The
-`os.execute` was the last thing `apiadminprobe.sb` did, and a refusal **aborts**
-the program. Locally that costs nothing — the markers are already on the
-terminal. **Over the API the session's output is CAPTURED and an abort
-DISCARDS THE CAPTURED BUFFER**, so the reply held
-`EXECUTE generated an abort event` and not one of the markers already printed.
-**So the run proved the gate worked and threw away the measurement that matters
-on its way out.** Moving `PROBE.DONE` earlier (the 21 Aug fix) did not help:
-the loss is in the CAPTURE, not the ordering.
+```
+000000D3: sdapia6 is not permitted to use OS.EXECUTE at line 26 of
+/cygdrive/c/ProgramData/SD/user_accounts/sdapia6/BP.OUT/APIOSEXECPROBE
+```
 
-**FIXED BY SPLITTING THE PROBE.** `apiadminprobe.sb` is now **abort-free by
-construction** and carries the `$cred` measurements; the new
-`apiosexecprobe.sb` is the one allowed to die. `verify-apiadmin.ps1` compiles
-both and runs both on each leg. **A leg that can abort has to be a separate
-run** — that is the reusable rule.
+**Items 4 and 5 are done.** Before the fix the same probe printed
+`PROBE.WHOAMI=nt_authority_system` and opened and wrote `$cred`.
 
-**AND THE `OS.EXECUTE` CHECK ITSELF WAS VACUOUS AND NOW IS NOT.** It read the
-ABSENCE of `PROBE.WHOAMI`, which is equally consistent with the probe never
-starting. It is now gated on `PROBE.OSEXEC.TRIED`, printed before the attempt;
-two new checks assert the attempt was made on each leg. Same shape as the
-`Skip`/N/A added for the SYSTEM line — **an absent marker is not evidence.**
+**`verify-routes -Prefix sdrt3`: 33/33.** Item 1 closed. `sshd_config` carries
+`AllowGroups sdssh …` and `ForceCommand "C:\Program Files\SD\usr\bin\sd.exe"`,
+and `AllowGroups` no longer names `sdusers`.
 
-**RUN THESE TWO, ELEVATED. NO CYCLE FIRST — no `.c` or `.h` changed.**
+**RUN THIS, ELEVATED. NO CYCLE — no `.c` or `.h` changed since the install.**
 
 ```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiadmin.ps1 -Prefix sdapia6
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiadmin.ps1 -Prefix sdapia7
 ```
 
-```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-routes.ps1 -Prefix sdrt3
-```
+**EXPECTED: 22 PASS + 1 N/A of 23.** The `sdapia6` run scored 18/22 and **both
+FAILs were the instrument, not the gate** — fixed since, see below.
 
-| verifier | expected | the two that matter |
-|---|---|---|
-| `verify-apiadmin` | **21 PASS + 1 N/A of 22** | `API session CANNOT open $cred` and `... write $cred` must read **`NO`**, not blank |
-| `verify-routes` | **33/33** | the three ssh checks |
+**FOUR INSTRUMENT FAULTS IN THIS VERIFIER IN TWO DAYS AND THEY ARE ALL ONE
+SHAPE: AN ABSENT MARKER READ AS AN ANSWER.** Worth reading before adding a
+check to anything here.
 
-**A BLANK IS STILL NOT A PASS.** If either `$cred` line comes back empty again
-the instrument is still wrong and the gate is still unmeasured; only `NO` is
-evidence.
+1. The `$cred` markers were lost because the `os.execute` leg aborted and **an
+   abort discards an API session's CAPTURED output**. Fixed by splitting the
+   probe: `apiadminprobe.sb` is abort-free by construction,
+   `apiosexecprobe.sb` is the one allowed to die. **A leg that can abort has
+   to be a separate run.**
+2. `API session CANNOT write $cred` read a blank as a FAIL. The probe only
+   attempts the write **inside `if cred.open then`** — there is no file
+   variable otherwise — so a refused OPEN means the marker is never printed.
+   **A refused open SUBSUMES the write**; the check now says so, and the
+   transcript records which of the two reasons satisfied it.
+3. `the OS.EXECUTE probe ran at all, API` asked for `PROBE.OSEXEC.TRIED`,
+   which **can never come back over the API when the gate works** — the abort
+   takes it. **A check that cannot pass is as useless as one that cannot
+   fail.** It now asserts on SD's refusal message, which does come back and
+   which **names the account and the program**.
+4. Earlier the same day: `^nt_authority_+system$` did not match
+   `nt_authority\system`, giving a false PASS on the SYSTEM line; and
+   `PROBE.DONE` sat after the aborting call so a control failed for the wrong
+   reason.
 
-**ssh ON THIS MACHINE IS NOW IN FORCE**, run by hand 21 Aug after the install:
-`sshd_config` carries
-`AllowGroups sdssh GITORLI\sdssh Administrators GITORLI\Administrators` and
-`ForceCommand "C:\Program Files\SD\usr\bin\sd.exe"`.
-
-**THE 30/33 ON `verify-routes` WAS EXPECTED AND THE HANDOFF PREDICTED 32/32,
-WHICH WAS WRONG.** Dropping `Check: SshServerAbsent` makes the `limitssh` task
-**offerable**; it ships `Flags: unchecked` and **a silent cycle install ticks
-nothing**, so `sshd_config` stayed stock. **A cycle can never make those three
-pass by itself** — an interactive install has to tick the box, or the script
-has to be run by hand:
-
-```powershell
-powershell -File "C:\Program Files\SD\allow-ssh-groups.ps1" -Installed
-```
-
-`-SdExe` is not needed when running the INSTALLED copy: `$PSScriptRoot` is
-`C:\Program Files\SD`, so the default resolves and the `ForceCommand` half
-lands. Everything else in that run passed — all six new-verb checks, both
-keyboard refusals, the administrator control, and `RDPACCOUNT` refused with
-nothing left behind.
+**`API session is NOT running as SYSTEM` IS N/A AND THAT IS CORRECT.** It is
+answered by running `whoami` inside the session, which the gate now refuses,
+so the probe cannot ask. **THE SESSION STILL RUNS AS LocalSystem** — that needs
+the `CreateProcessAsUser` work and was not done. N/A is neither a pass nor a
+failure, which is the honest answer.
 
 **WHAT IS OWED, IN ORDER.**
 
 | # | Owed | Whose |
 |---|---|---|
-| — | **the two verifiers above** | a person, elevated |
+| — | `verify-apiadmin.ps1 -Prefix sdapia7`, the confirming run | a person, elevated |
 | 6 | `set.password don` | **a person**, elevated |
 | — | `DELETE.ACCOUNT SDRT1S` / `SDRT1A`, orphaned register entries | a person, elevated |
 | 9 | the gate admits a PATH, not a MODE — a network session may still WRITE `sd.voclib` and `newvoc` | code |
 | — | the API session's TOKEN is untouched; it is still LocalSystem | code, large |
 
 **PREFIXES SPENT:** 20 Aug — `sdacct27`, `sdtiert1`-`3`, `sdacl7`, `sdapia1`,
-`sdapia2`. 21 Aug — `sdrt1`, `sdrt2`, `sdapia3`, `sdapia4`, `sdapia5`. Only
+`sdapia2`. 21 Aug — `sdrt1`, `sdrt2`, `sdrt3`, `sdapia3`-`sdapia6`. Only
 `verify-apiadmin` and `verify-routes` clean up after themselves; **exit 2 from
 the others means "use a fresh prefix", not a failure**.
 
-**WHAT WAS BUILT 21 Aug, AND WHAT THE GATE IS.** Owner's decisions: containment
-root = the account (`@PATH`), and drop `Check: SshServerAbsent`.
+**WHAT THE GATE IS.** Owner's decisions 21 Aug: containment root = the account
+(`@PATH`), and drop `Check: SshServerAbsent`.
 
-- **`kernel.c`** — `USR_ADMIN` is not set when `connection_type == CN_SOCKET`.
-  **Confirmed working.** Does NOT close the `$cred` write, which went through
-  no flag.
+- **`kernel.c`** — `USR_ADMIN` not set when `connection_type == CN_SOCKET`.
 - **`op_dio2.c`** — `net_path_permitted()` with `net_normalise()`,
   `path_within()`, `has_parent_ref()`, `net_raw_permitted()`. Root `@PATH`,
   `HDR_INTERNAL` exempt, allow-list of the shipped `sdsys` entries, then
-  `NETDIRS`.
+  `NETDIRS` (ships commented out; empty is strict).
 - **Six entry points, not the five specified** — `op_dio1.c` `open_file()`,
   `op_seqio.c` twice, `op_ospath()` (9 of 15 keys + `OS_CHOWN`),
   **`op_osrename()`, which the spec missed**, and `config.c`/`sysseg.*`/
-  `op_config.c` for `NETDIRS`. Refusal is `ER_PERM` (3035); message `10074`.
+  `op_config.c`. Refusal `ER_PERM` (3035); message `10074`.
 
-**FOUR THINGS MEASURED WHILE BUILDING IT. Do not re-derive; probes were built
-with MSYS2 gcc outside the repository.**
+**FOUR THINGS MEASURED WHILE BUILDING IT. Do not re-derive.**
 
 1. **`sdrealpath()` STOPS COLLAPSING `..` AT THE FIRST MISSING COMPONENT** and
    returns the rest verbatim, so `.../DON/nofile/../../../sdsys/$cred` still
@@ -134,29 +117,29 @@ with MSYS2 gcc outside the repository.**
    `..`. Also in `sdb64`: `UPSTREAM_FIXES.md` #10.
 2. **`fullpath()` OUTPUT IS IN ONE OF TWO NAMESPACES depending on its INPUT** —
    `/c/...` from `getcwd()`, `C:/...` from a drive letter; `@PATH` is always
-   the first. `cygwin_conv_path(CCP_WIN_A_TO_POSIX)` folds both and is
-   idempotent on POSIX input, **but does not fold case**, hence `strncasecmp`.
+   the first. `cygwin_conv_path(CCP_WIN_A_TO_POSIX)` folds both, is idempotent
+   on POSIX input, **and does not fold case** — hence `strncasecmp`.
 3. **AN ACCOUNT IS NOT SELF-CONTAINED.** `sdsys/voc_template` has eight
    F-records into `sdsys`, including `voc`'s own dictionary. Hence
    `net_sysdir_shared[]`, an ALLOW-list, so `$cred`, `gcat`, `os.users`,
    `accounts` and `cat` are excluded by not being named.
 4. **`@PATH` CANNOT BE FORGED.** Absent from `at.syscom.lvars`
    (`BCOMP:304-307`); `common /$syscom/` needs a `$`-prefixed block name, which
-   `get.name` (`BCOMP:3113`) allows only `if internal`, and an API session is
-   `sd -n -q`.
+   `get.name` (`BCOMP:3113`) allows only `if internal`.
 
 **READ, NOT MEASURED:** `load_object()` uses `dio_open()` directly
 (`object.c:197`), never `open_file()`, so refusing `gcat` stops a network
 session REWRITING catalogued code without stopping it RUNNING any.
 
-**STANDING TRAPS.** **`make sd` DOES NOT REBUILD ON A HEADER CHANGE — it did
-not, until 21 Aug.** `SDHDRS` was `$(wildcard *.h)` evaluated from a directory
-with no headers, so it was empty and unused; a `struct SYSSEG` change then
-produced a binary whose translation units disagreed about the layout, and it
-**linked clean, started, and silently did nothing**. Fixed
-(`$(SDOBJS): $(SDHDRS)`), and that cost one cycle. Also: `cycle.ps1` contains
-no `make`; `APIPORT` ships commented out and needs `MODIFY.ACCOUNT <acc> API`;
-the `sdusers`→`sdssh` ordering in `sd.iss` is a lockout if reversed. Items 2, 7
+**STANDING TRAPS.** **`make sd` DID NOT REBUILD ON A HEADER CHANGE until
+21 Aug** — `SDHDRS` was `$(wildcard *.h)` from a directory with no headers, so
+it was empty and unused; a `struct SYSSEG` change then produced a binary whose
+translation units disagreed about the layout, and it **linked clean, started,
+and silently did nothing**. Fixed (`$(SDOBJS): $(SDHDRS)`); it cost one cycle.
+Also: `cycle.ps1` contains no `make`; **a silent install ticks no task, so
+`limitssh` never applies itself** — run `allow-ssh-groups.ps1 -Installed` by
+hand; `APIPORT` ships commented out and needs `MODIFY.ACCOUNT <acc> API`; the
+`sdusers`→`sdssh` ordering in `sd.iss` is a lockout if reversed. Items 2, 7
 and 8 below are the long form.
 
 ---
