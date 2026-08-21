@@ -12867,3 +12867,22 @@ this and records which trees are CRLF and which are LF.
 untouched by Phase 2, it is upstream as well
 (`../sdb64/sd64/sdsys/GPL.BP/CREATEA:158`), and phases are kept apart so that a
 failure is attributable. In WHAT IS OWED.
+
+---
+
+## 21 Aug 2026 - Phase 2 compiles, first time of asking
+
+`cycle.ps1 -SkipInstall`, owner's elevated window, 13:10:11. Transcript
+`%LOCALAPPDATA%\SD-verify\cycle-20260821-131011.log`: 195 `0 error(s)`
+summaries, no non-zero one anywhere, and `$CREATEA`, `$DELACC`, `$MODIFYA`,
+`!CRED_VERIFY` and `$MODIFY.PASSWORD` all added to the global catalogue - the
+last being the `set.password` rename landing where it was aimed. Staged tree
+whole: gcat 129, gpl.bp.out 190, `$CPROC` 25728, `$BCOMP` 88079. Four
+`assigned a value but never used` warnings, every one of them also in the 11:45
+pre-Phase-2 run, so Phase 2 introduced none.
+
+**The static read predicted this and was worth the time it took**: it named the
+two failure shapes the handoff was braced for, ruled both out, and the compile
+agreed. What it could not have told anyone is the part still ahead - none of
+this has RUN. `-SkipInstall` does not install, so the installed tree is stale
+and every behaviour Phase 2 adds is still unobserved.

@@ -11,35 +11,40 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**A CYCLE IS OWED. PHASE 2 IS WRITTEN AND HAS NEVER BEEN COMPILED.**
-Six BASIC programs, twelve new messages, twelve retired, a verb rename and a
-VOC record moved. **`stage.py --bootstrap` is the first compiler for all of it**
-and it needs an elevated window, so nothing here has been through a parser.
-Build first — no `.c` changed, so `-SkipInstall` is the cheap way to find a
-compile error:
+**PHASE 2 COMPILES. IT HAS NEVER RUN.** `cycle.ps1 -SkipInstall`, owner's
+elevated window, **21 Aug 13:10:11** — transcript
+`%LOCALAPPDATA%\SD-verify\cycle-20260821-131011.log`. 195 `0 error(s)`
+summaries and not one non-zero; `$CREATEA`, `$DELACC`, `$MODIFYA`,
+`!CRED_VERIFY` and **`$MODIFY.PASSWORD`** all catalogued (log:300, 345, 553,
+325, 749 — the last is the rename landing). Staged tree whole: gcat 129,
+gpl.bp.out 190, `$CPROC` 25728, `$BCOMP` 88079. Four `assigned a value but
+never used` warnings, all four also in the 11:45 pre-Phase-2 run, so Phase 2
+added none. **`-SkipInstall` DID NOT INSTALL — the installed tree is STALE.**
+
+**SO THE NEXT STEP IS THE FULL CYCLE, THEN THE SUITE.** No source change since
+the compile, so it may start now:
 
 ```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 ```
 
-**WHAT TO EXPECT IF IT FAILS:** BCOMP reports the file and line. The traps that
-apply here are "is not assigned a value" (which `bootstrap.py:229` fails the
-build on — every new variable in `CREATEA` and `DELACC` is assigned at the top
-for exactly this) and a `begin case` / `end case` mismatch. Counted before
-committing: `CREATEA` 7/7, `DELACC` 3/3 plus 3 `loop`/3 `repeat`.
+**COMPILING IS NOT RUNNING.** Nothing below the compile has been observed:
+not the four keywords, not the mandatory password, not the single delete
+confirmation, not `modify.password` as a reachable verb.
 
-**AND BOTH OF THOSE ARE NOW RULED OUT WITHOUT AN ELEVATED WINDOW, 21 Aug,
-thirty-fourth session.** Static checks over `CREATEA`, `DELACC`, `MODIFYA`,
-`SET_ACC_PASSWORD` and `CRED_VERIFY`: every block balances and each file ends
-with its terminating `END`; every `gosub` has a label; every `sysmsg(N)` has a
-message file; each of the thirteen variables Phase 2 added is assigned
-somewhere, and the four it retired (`msg.done`, `msg.already`, `msg.fail`,
-`route.group`) have no reader left. Also: all 45 `gplbld/*.ps1` parse, and
-`sd.iss` has no line ISPP would misread as a directive. **THE CHECKERS ARE NOT
-IN THE REPO** — throwaway scratch scripts, each proved against a deliberately
-broken copy first, because a checker that cannot fail proves nothing.
-**THIS IS NOT A COMPILE.** Anything BCOMP knows that the shapes above do not —
-an unsupported statement, a bad intrinsic, an argument count — is still ahead.
+**THE STATIC READ THAT PRECEDED IT, 21 Aug, thirty-fourth session**, kept
+because it is what the next unverified change should get before it spends an
+elevated window. Over `CREATEA`, `DELACC`, `MODIFYA`, `SET_ACC_PASSWORD` and
+`CRED_VERIFY`: every block balances and each file ends with its terminating
+`END`; every `gosub` has a label; every `sysmsg(N)` has a message file; each of
+the thirteen variables Phase 2 added is assigned somewhere, and the four it
+retired (`msg.done`, `msg.already`, `msg.fail`, `route.group`) have no reader
+left. Also all 45 `gplbld/*.ps1` parsed, and the `sd.iss` ISPP lint. **THE
+CHECKERS ARE NOT IN THE REPO** — throwaway scratch scripts, each proved against
+a deliberately broken copy first, because a checker that cannot fail proves
+nothing. **It predicted the compile correctly and found four defects on the
+way**, two of which would have scored as feature failures in the suite; see
+HISTORY.md, 21 Aug, "Phase 2 read statically".
 
 **ONE DEVIATION FROM THE APPROVED PLAN, deliberate.** The `LOGIN` change —
 "an account with no `$cred` must set one before reaching the prompt" — is
@@ -81,7 +86,7 @@ kept apart so a failure is attributable.
 | # | what | state |
 |---|---|---|
 | 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
-| 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **written, never compiled** |
+| 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **compiles 21 Aug 13:10:11; never run** |
 | 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | not started |
 | 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | not started |
 
@@ -139,8 +144,9 @@ feature:**
   `MODIFY.ACCOUNT` did anything. `verify-scramlogin` keeps `API`: it never
   calls `MODIFY.ACCOUNT`, so creation is where its grant has to come from.
 
-**AFTER `-SkipInstall` COMES BACK CLEAN, run the full cycle**, then the suite
-with fresh prefixes (spent list is in the traps section below).
+**`-SkipInstall` CAME BACK CLEAN AT 13:10:11.** What is left is the full cycle
+and then the suite, with fresh prefixes (spent list is in the traps section
+below).
 
 **Items 1, 4, 5, 6 and 9 are built AND measured.** From inside a real remote
 API session: `PROBE.CRED.OPEN=NO status 3035` (`ER_PERM`) and
