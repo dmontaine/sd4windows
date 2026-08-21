@@ -38,26 +38,37 @@ is answered by running `whoami` INSIDE the session, which the gate now refuses.
 
 | # | Owed | Whose |
 |---|---|---|
-| — | **`DELETE.ACCOUNT`, both directions — needs FRESH SUBJECTS, below** | a person, elevated |
+| — | **`DELETE.ACCOUNT`, both directions — ONE COMMAND, below** | a person, elevated |
 | — | **Does the console path survive the service model?** `sd -ASDSYS` runs as the invoking user and opens the database itself. Becomes a client, is dropped, or stays a privileged admin path. **Settle this BEFORE the token work** — it is where process-creation identity is decided (§5.7) | **the owner's** |
 | — | **The API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s it, so it inherits the service token; Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
-**THE `DELETE.ACCOUNT` SUBJECTS NAMED ELSEWHERE IN THIS FILE ARE GONE** —
-`sdacct9` and `sdadopt3` are both absent as Windows accounts (checked 21 Aug).
-Make fresh ones. **BOTH directions or neither result means anything.**
+**IT IS A VERIFIER NOW — `gplbld/verify-delaccount.ps1`, written 21 Aug, NEVER
+RUN.** Both directions in one elevated command, 38 checks. Fresh stem each run;
+subjects are `<prefix>s` (SD's own) and `<prefix>b` (borrowed).
 
-1. **SD made it → must go with NO prompt.** `CREATE.ACCOUNT SDACCT28`, then
-   `DELETE.ACCOUNT SDACCT28`. Expect no Y/N, the Windows account gone, and no
-   `Win32_UserProfile` for it afterwards.
-2. **SD did not make it → must be REFUSED.** Elevated,
-   `New-LocalUser sdadopt4 -NoPassword`, `CREATE.ACCOUNT` naming it, then
-   `DELETE.ACCOUNT`. Expect message `10036` and **`sdadopt4` still present**.
-   That is `!is_sd_user`, the guard that replaced the prompt.
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-delaccount.ps1 -Prefix sddel1
+```
 
-**(1) MAY NOT EXERCISE THE PROFILE HALF AT ALL.** A Windows account has no
-profile until something signs in as it, so a fresh account may have nothing to
-remove and would pass without testing anything. Check with
-`clean-test-profiles.ps1 -List` BEFORE deleting and say which happened.
+**THE HAND RECIPE THAT WAS HERE FOR DIRECTION 2 COULD NOT HAVE WORKED.**
+`CREATE.ACCOUNT USER x` on a name whose Windows account already exists stops
+with message `10038` (`CREATEA:236`) — so no SD account is made and there is
+nothing to `DELETE.ACCOUNT`. `ADOPT` is the only door and it is gated on
+`K$INTERNAL` (`CREATEA:1023`), i.e. `sd -internal`, separate arguments, not
+piped. The verifier does that.
+
+**THE PROFILE HALF IS NO LONGER LEFT TO CHANCE.** A fresh account has no
+profile until something signs in as it, so the checks would have passed
+vacuously; `userenv!CreateProfile` gives both subjects a real one first —
+directory *and* `ProfileList` entry, the two halves `DELETE_USER` targets. If
+it will not run the checks report **N/A**, never a pass. Note that
+`verify-routes` leaves no profiles to sweep: `LogonUser` alone creates none.
+
+**HOW "NO SECOND Y/N" IS PROVED WITHOUT ASSERTING AN ABSENCE.** After the one
+`Y` the account *directory* still takes (message `6031`), the input carries a
+sentinel that is in nobody's VOC. If exactly one question was asked it comes
+back as message `5051` — a marker that MUST BE PRESENT. Two `Y`s pad behind it
+so a regression fails the check instead of spinning on EOF.
 
 ---
 
@@ -2263,6 +2274,8 @@ gplbld\post-cycle-elevated.ps1                  ELEVATED;   the next three, once
 gplbld\verify-fold.ps1                          elevated;   the 3-case fold
 gplbld\verify-tiers.ps1 -Keep -Prefix <fresh>   elevated;   §8 three tiers
 gplbld\verify-createaccount.ps1 -Account <new>  elevated;   CREATE.ACCOUNT
+gplbld\verify-delaccount.ps1 -Prefix <fresh>    elevated;   DELETE.ACCOUNT,
+                                                both directions
 gplbld\verify-apiport.ps1 -Prefix <fresh>       elevated;   step 6, the API
 gplbld\verify-catgate.ps1                       elevated;   gcat privilege
 gplbld\verify-nonet.ps1                         elevated;   SDNet is gone

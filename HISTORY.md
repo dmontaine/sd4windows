@@ -12557,3 +12557,44 @@ their own, and with a warning that direction (1) may not exercise the profile
 removal at all: a Windows account has no profile until something signs in as it,
 so a freshly created account may have nothing to remove and would pass without
 testing anything.
+
+**DELETE.ACCOUNT became a verifier, 21 Aug — written, not yet run.**
+`gplbld/verify-delaccount.ps1`, 38 checks, both directions in one elevated
+command. Subjects `<prefix>s` (SD's own) and `<prefix>b` (borrowed), created
+seconds apart on the same install so the refusal is a control and not a second
+test.
+
+**The hand recipe the handoff carried for direction 2 could not have worked.**
+It said `New-LocalUser`, then `CREATE.ACCOUNT` naming it. `CREATEA:236` stops
+with message 10038 when the Windows account already exists, so no SD account is
+made and there is nothing to delete. `ADOPT` is the only door and `CREATEA:1023`
+gates it on `K$INTERNAL` — `sd -internal`, separate arguments, not piped. Found
+by reading before writing; it would have cost the run otherwise.
+
+**Two things the design turns on, both measured rather than assumed.** Neither
+`Y` nor `N` is a record in `VOC_TEMPLATE`, so padding the input with them is
+inert. An unknown verb comes back as message **5051**, `%1 is not in your VOC`,
+not 2014 — checked by running one through a live session. That is what lets the
+sentinel prove exactly one question was asked: a marker that must be PRESENT,
+rather than an absent prompt read as an answer, which is the shape this project
+has paid for five times.
+
+**And the profile half is exercised instead of hoped for.** `userenv!CreateProfile`
+gives both subjects a real profile first — directory and `ProfileList` entry, the
+two halves `DELETE_USER` targets. Without it a fresh account has nothing to
+remove and the checks pass having measured nothing. If the call fails they
+report N/A with the HRESULT.
+
+**`clean-test-profiles.ps1`'s sweep pattern did not match the names two
+verifiers make.** A prefix there is a stem: `verify-routes` makes `<prefix>s`,
+`<prefix>a`, `<prefix>x`, and `sdrt4s` matched nothing; `sdcatg` and `sdtapi`
+were absent from the list outright. Widened to allow one trailing letter.
+**No backlog was found** — the machine held four profiles, three special and
+one the owner's — because `LogonUser` alone creates no profile, which is all
+`verify-routes` does. It closes a hole rather than clearing one.
+
+**`assert-current.ps1` needed the new script on `$neverShipped` immediately.**
+`verify-delaccount.ps1` calls it and refuses on a non-zero exit, so an unlisted
+one would have reported the tree stale because it exists, then refused to run on
+the strength of its own newness — on its first run. Exit 0 with no `note:` line
+afterwards.
