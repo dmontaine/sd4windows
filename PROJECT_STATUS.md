@@ -11,8 +11,28 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**THE TREE IS CURRENT AND NOTHING IS OWED TO A VERIFIER.** Cycle 21 Aug
-09:33:41, `sd.exe` **`b188cd47c0a2e51a`**, 94 objects, no warnings.
+**A CYCLE IS OWED — PHASE 1 OF SIX OWNER CHANGES IS BUILT AND UNTESTED.**
+`make sd` clean, `sd.exe` **`cb9c4e0460b175f5`**. `assert-current` exit 1 by
+design; nothing measured on this tree means anything until a cycle has run.
+
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+```
+
+**THE SIX CHANGES, owner 21 Aug 2026.** Plan approved the same day; phases are
+kept apart so a failure is attributable. 1 — API at the port, not through a
+tunnel (**done, untested**). 2 — remote access is a create-time property,
+`create.account … ssh|api|both|none`, `modify.account` the same four, password
+mandatory for USER accounts, `delete.account` one confirmation then both halves,
+`set.password` → `modify.password`. 3 — ADOPT install-only, and the install ends
+in an SD session that takes the password. 4 — verifiers, changelog, handoff.
+
+**PHASE 1 CHANGED WHAT THE MACHINE EXPOSES.** The listener binds every
+interface, `APIPORT=4243` ships active, and the `apiremote` installer task is
+ticked by default. §8 has the reversal and what still guards the port.
+
+**The previous cycle was 21 Aug 09:33:41**, `sd.exe` `b188cd47c0a2e51a`, and
+everything in the table below was measured on it.
 
 **THE SUITE IS GREEN AND THE API EXPOSURE IS SHUT.**
 
@@ -10797,7 +10817,38 @@ may trigger a job is still open**: the list says what may run, not who may fire
 it. The batch account is also the one place per-directory ACLs work in stage 1,
 since exactly one principal ever runs there; fold that `icacls` into §5.9.
 
-### SETTLED 14 Aug 2026: the API is piped through ssh — posture B
+### REVERSED 21 Aug 2026: the API is reached AT THE PORT. Posture B is gone
+
+**Owner's decision, 21 Aug 2026:** *"api through an ssh tunnel should be
+removed, it should only be allowed to the port, normally 4243."*
+
+`sdwind.c open_api_listener()` binds `INADDR_ANY`; `stage.py`'s `SD_CONF` ships
+`APIPORT=4243` **active**; `gplbld/api-firewall.ps1` owns an `SD-API-In-TCP`
+rule that the installer creates (task `apiremote`, **ticked by default**) and
+the uninstaller removes.
+
+**WHAT CHANGED IS NOT THE ARGUMENT BELOW — IT IS WHAT STANDS IN FRONT OF THE
+PORT.** Posture B was settled when the API login was cleartext and a session
+that got in could open `$cred` and reach `OS.EXECUTE`. Since then SCRAM-SHA-256
+replaced the login (19–20 Aug) and the containment gate shut both (21 Aug,
+measured). So the port is no longer a boundary doing work nothing else does.
+
+**WHAT IS STILL TRUE, so this is a judgement and not a clean bill:** an API
+session's TOKEN is still LocalSystem. Binding a network interface widens who
+may **attempt** a SCRAM exchange, from every local process to everything the
+firewall admits. It does not widen what a session can do once in — that is the
+gate's job — and the token work is what closes the other half.
+
+**The `apiremote` task is ticked while `sshremote` is unchecked, deliberately.**
+ssh has a use for somebody who never wants a remote connection (a local user
+ssh'ing to localhost, the case that made the ssh server mandatory). The API has
+no such case after this change, so a firewalled-off port ships a feature that
+does not work. `sd.iss` says how to flip it in one flag.
+
+**What follows is the superseded record**, kept because the reasoning is still
+what has to be argued against if anyone wants the tunnel back.
+
+### SUPERSEDED 21 Aug 2026 — SETTLED 14 Aug 2026: the API is piped through ssh — posture B
 
 **Answered by the repository owner**, in the same instruction that made SD
 accounts ssh-only (§5.6.2): *"Even the API is piped through ssh."* **Posture B
