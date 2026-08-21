@@ -7,18 +7,51 @@ something came to be the way it is.
 
 **Last updated:** 20 Aug 2026, thirty-first session.
 
-**PEER IDENTIFICATION IS BUILT AND IS LOG-ONLY. THE POLICY IS DECIDED - owner,
-20 Aug 2026: LOG ONLY, nothing is refused.** The three candidates are in the
-table below; the two enforcing ones both need this mechanism first, so what is
-built is the common part and not a narrowing.
+**PEER IDENTIFICATION IS BUILT, VERIFIED AND LOG-ONLY. `verify-peerlog.ps1`
+IS 21/21** on the **17:47:40** install, `sd.exe` **`A8E9E6568F573313`**.
+Policy decided by the owner, 20 Aug 2026: **LOG ONLY, nothing is refused.**
+The three candidates are in the table below; the two enforcing ones both need
+this mechanism first, so what is built is the common part and not a narrowing.
 
-**A CYCLE IS OWED AND IS THE NEXT ACTION. `verify-peerlog.ps1` IS WRITTEN AND
-HAS NEVER RUN.** Elevated, in order:
+**THE TREE IS STALE BY ONE FILE, AND IT IS `sdsys/changelog`.** It was edited
+AFTER the 21/21 run, to write up the two log properties below for users. It is
+a shipped file, so `assert-current` refuses - correctly. **The 21/21 stands**:
+it was measured before the edit, and a changelog carries no behaviour. **The
+install half clears on the next cycle; nothing needs re-verifying.**
 
-```powershell
-gplbld\cycle.ps1
-gplbld\verify-peerlog.ps1
+*(Recorded rather than reasoned round. Same shape as the previous session's
+`gplsrc/sdclilib/Makefile`, and the reason for the rule is that "it is only a
+documentation file" is exactly what a wrong version of this claim would say.)*
+
+**THE ONE GENUINE UNKNOWN IS ANSWERED: `sdwind` RUNS AS LocalSystem AND
+RESOLVED AN ORDINARY USER'S PROCESS.** Everything else here was reasoning that
+`OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION)` would cross accounts because
+a process's default DACL grants SYSTEM. It does, measured:
+
 ```
+API connection from 127.0.0.1:49838 - pid 8608,  GITORLI\don   <- the script
+API connection from 127.0.0.1:49839 - pid 18760, GITORLI\don   <- its child
+```
+
+**TWO DIFFERENT PIDS IS THE CONTROL, and it is the reason one connection would
+not have been a test.** A lookup returning any constant satisfies a one-peer
+run. Both pids came from Windows - `$PID` and `Start-Process -PassThru` - not
+from anything the test deduced.
+
+**TWO PROPERTIES THE RUN EXPOSED. NEITHER IS A DEFECT AND BOTH WOULD PUZZLE A
+READER OF THE LOG:**
+
+1. **THE FILE EXCEEDS `ERRLOG` BY ONE RECORD BEFORE COMING DOWN.** Measured
+   `10228 -> 10320 -> 5287` against a 10240 cap. The trim runs BEFORE the
+   append, so the record that crosses the line is written and the next call
+   removes it. "Under ERRLOG" means "under ERRLOG plus one record". This is
+   `k_error.c`'s order too and is matched deliberately.
+2. **THE TRIM RESTARTS AT A LINE BOUNDARY, NOT A RECORD BOUNDARY.** An entry
+   is two lines - a timestamp header and an indented message - and the trim
+   resumes at the first newline past the halfway mark. After this run the log
+   began with an **orphaned message line whose header had gone**:
+   `first line now: planted filler ...`. Again `k_error.c`'s behaviour. **An
+   errlog whose first line has no timestamp is expected, not corruption.**
 
 **WHAT IS BUILT:**
 
@@ -59,12 +92,14 @@ often enough to reach the case, so it is a trap and not a defect.
 |---|---|
 | `make sd` exit 0, no warnings | **observed** |
 | `make check-peer-probe` PASS, against the moved `gplsrc/win32peer.c` | **observed** |
-| trim arithmetic - newest record kept, whole-line start, no gap, four sizes | **observed on a SCRATCH COPY of the algorithm**, not on `sdwind` |
-| **anything about the running daemon** | **NOT observed. No cycle has run.** |
+| `verify-peerlog.ps1` **21/21** on the running daemon, 17:47:40 install | **observed** - owner ran it, transcript read rather than taken on report |
+| trim arithmetic - newest record kept, whole-line start, no gap, four sizes | observed on a scratch copy first; **superseded by the 21/21 run** and the copy is deleted |
 
-**THE SCRATCH COPY IS NOT THE VERIFICATION AND IS DELETED.** It could only
-catch an off-by-one before a cycle was spent, which is what it was for.
-`verify-peerlog.ps1` against the running daemon is the evidence.
+**THE TRANSCRIPT IS WHY THIS COUNTS AS OBSERVED RATHER THAN REPORTED.**
+`verify-peerlog.ps1` writes to `%LOCALAPPDATA%\SD-verify\`, which cycle.ps1
+chose because that directory is the same elevated or not - so an unelevated
+session can read what an elevated run measured. Every verifier here inherits
+that, and it is the difference between recording a score and reading one.
 
 **`assert-current` CATCHES THIS CHANGE BY MTIME, NOT BY HASH, AND THAT IS THE
 DESIGN WORKING.** Everything here lands in **`sdwind.exe`**; `sd.exe` is
@@ -2122,14 +2157,17 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. A CYCLE IS OWED.** `gplsrc/win32peer.c`, `win32peer.h`, `sdwind.c`, the
-`Makefile` and `sdsys/changelog` all changed after the last install, and
-`sdwind.exe` carries the lot. Then `gplbld/verify-peerlog.ps1`, which has
-never run. The header has both commands.
+**1. NO CYCLE IS OWED.** The cycle ran (install **17:47:40**) and
+`verify-peerlog.ps1` is **21/21** on it; `assert-current` is exit 0. Header.
 
-*(This item said "NO CYCLE IS OWED, AND NOTHING NEEDS RE-MEASURING" against
-the 07:52:25 install. That was true when written and is the shape of claim
-this file has to keep current, not date-stamp and leave.)*
+**`$cred` IS EMPTY AGAIN AND `SET.PASSWORD DON` IS OWED**, as it is after
+every cycle - the data tree was deleted. Until it is run, mvDeveloper answers
+*"Invalid username or password"*, which is an ABSENT credential and not a
+phase 5 regression. Elevated: `sd -internal`, then `SET.PASSWORD DON`.
+
+*(This item has now said both "no cycle is owed" and "a cycle is owed" within
+one session. That is the shape of claim this file has to keep current rather
+than date-stamp and leave.)*
 
 **ALL THREE REPOSITORIES ARE COMMITTED AND PUSHED, 20 Aug 2026.**
 `sd4windows` `d92217d` on `main`; `winsdclilib` `254fb1d` on `master`;
@@ -2179,8 +2217,8 @@ a test would make every test refuse to run.
 
 **WHAT IS LEFT, 20 Aug 2026 — the whole list, in the order it is worth doing.**
 
-**0. THE CYCLE AND `verify-peerlog.ps1`** — ahead of everything below, because
-it is the only unverified code in the tree. Header.
+**0. DONE. The cycle ran and `verify-peerlog.ps1` is 21/21** on the 17:47:40
+install. Header. **`SET.PASSWORD DON` is owed again**, as after every cycle.
 
 1. **DONE. `SET.PASSWORD DON` run, and mvDeveloper CONNECTED - owner,
    20 Aug 2026, on the 16:13:18 install.** That is the whole chain of this

@@ -27,9 +27,56 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - verify-peerlog.ps1 is 21/21; the cross-account lookup was the real unknown
+
+**Commit:** this one. Follows the entry below, in the same session.
+
+**21/21 on the 17:47:40 install**, `sd.exe` `A8E9E6568F573313`. Run by the
+owner; the transcript in `%LOCALAPPDATA%\SD-verify\` was read rather than the
+score taken on report - that directory is the same elevated or not, which is
+what lets an unelevated session check an elevated run's work.
+
+**THE ONE THING THAT WAS REASONING AND IS NOW MEASUREMENT: `sdwind` RUNS AS
+LocalSystem IN SESSION 0 AND RESOLVED AN ORDINARY USER'S PROCESS.** The
+argument was that `OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION)` crosses
+accounts because a process's default DACL grants SYSTEM. It does:
+
+```
+API connection from 127.0.0.1:49838 - pid 8608,  GITORLI\don
+API connection from 127.0.0.1:49839 - pid 18760, GITORLI\don
+```
+
+Two different pids, both from Windows rather than deduced, so a lookup
+returning any constant fails. The peer probe could not reach this - it ran
+both halves as the same user.
+
+**TWO PROPERTIES THE RUN EXPOSED, NEITHER A DEFECT, BOTH ABLE TO PUZZLE
+SOMEBODY READING THE LOG:**
+
+1. **The file exceeds ERRLOG by one record before coming down** -
+   `10228 -> 10320 -> 5287` against a 10240 cap. The trim runs before the
+   append, so the record that crosses the line is written and the next call
+   removes it.
+2. **The trim restarts at a LINE boundary, not a RECORD boundary.** An entry
+   is a timestamp header plus an indented message, and the trim resumes at the
+   first newline past halfway - so the log began with an orphaned message line
+   whose header had gone. **An errlog whose first line carries no timestamp is
+   expected, not corruption.**
+
+Both are `k_error.c`'s behaviour, matched deliberately: two writers to one
+file must not disagree about what ERRLOG means. Recorded because the
+alternative is a future session reading an untimestamped first line as damage.
+
+**The trim fired on connection 2**, so the plant-just-under-the-cap approach
+did its job - a test that filled 10kb by opening connections would have needed
+about 450 of them and forked an `sd` session for each.
+
+---
+
 ## 20 Aug 2026 - Peer identification built, log only; and the errlog trim sdwind never had
 
-**Commit:** this one. **Built, not verified** - no cycle has run.
+**Commit:** `cd31072`. **Built, not verified at the time of that commit** - no
+cycle had run. Verified in the entry above, same session.
 
 **THE POLICY IS DECIDED: LOG ONLY** (owner, 20 Aug 2026), the first row of the
 table the previous entry left open. `sdwind.c`'s `accept_api_session()` keeps
