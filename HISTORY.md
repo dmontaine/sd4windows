@@ -12598,3 +12598,50 @@ one the owner's — because `LogonUser` alone creates no profile, which is all
 one would have reported the tree stale because it exists, then refused to run on
 the strength of its own newness — on its first run. Exit 0 with no `note:` line
 afterwards.
+
+**And it ran the same day. Both directions held.** `verify-delaccount -Prefix
+sddel1`, owner's elevated run on the 09:33:41 install: **30 PASS + 7 N/A of 37,
+no failures.** The entry above says "never run"; this supersedes it.
+
+The account SD created went with exactly one Y/N — 10028 shown, Windows account
+gone, group gone, register record gone, directory gone. The account SD borrowed
+was refused with 10036 and is still there with its description untouched, while
+its SD side went anyway. The sentinel came back as 5051 in both legs, which is
+what makes "exactly one question" a measurement rather than an absence.
+
+**The 7 N/A were the whole profile half, and they were an instrument fault.**
+`CreateProfile` returned 0x800706F7, RPC_X_BAD_STUB_DATA, for both subjects, so
+neither ever had a profile and there was nothing for DELETE_USER to remove.
+Nothing about DELETE.ACCOUNT was learned there, and nothing false was claimed
+either: the Skip() path reported N/A and named the HRESULT. A verifier without
+that third state would have printed 37/37 on a run where seven checks had no
+subject. That is the fifth time this project has been bitten by the shape and
+the first time the instrument caught itself.
+
+**The count reconciles exactly, which is worth one line.** 38 Note calls exist,
+8 of them inside profile branches that the 7 Skips replaced: 38 - 8 + 7 = 37.
+So the run took the branches the source says it would.
+
+**The buffer was 320 and MAX_PATH is 260.** CreateProfile is serviced by ProfSvc
+over RPC and the out parameter is size-constrained in the stub, so a count above
+MAX_PATH is rejected before the API sees it - which is what 1783 means and why
+the error names no parameter. Changed to pass the StringBuilder's own capacity,
+so the declared size and the real buffer cannot disagree; that was the other
+candidate and it was eliminated first by measuring the constructor.
+**INFERRED FROM THE ERROR, NOT PROVEN.**
+
+**So a second route was added rather than betting the re-run on one guess.**
+LogonUser with LOGON32_LOGON_NETWORK, then LoadUserProfile, which creates the
+profile when the user has none and depends on no undocumented constraint.
+Network because it is the only logon type both subjects can pass: deny-logon.ps1
+sets the interactive and remote-interactive denials and deliberately not
+SeDenyNetworkLogonRight, because Win32-OpenSSH needs it (deny-logon.ps1:20).
+It runs only if CreateProfile fails, so it cannot break a working path. Both
+routes were compiled and called here - PROFILEINFO marshals to 56 bytes, and
+route 2 against a nonexistent name returns 1326 with LastStep "LogonUser" - but
+neither has been run elevated against a real account.
+
+**Add-Type cannot replace a type in a live session**, and this script is one an
+elevated window runs more than once. The guard now asks for a method the older
+definition did not have and says so plainly rather than dying with "method not
+found" several steps later.

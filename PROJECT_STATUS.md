@@ -20,6 +20,7 @@ something came to be the way it is.
 |---|---|---|
 | `verify-apiadmin` | `sdapia8` | **22 PASS + 1 N/A of 23** |
 | `verify-routes` | `sdrt4` | **33/33** |
+| `verify-delaccount` | `sddel1` | **30 PASS + 7 N/A of 37** — no failures |
 
 **Items 1, 4, 5, 6 and 9 are built AND measured.** From inside a real remote
 API session: `PROBE.CRED.OPEN=NO status 3035` (`ER_PERM`) and
@@ -38,16 +39,33 @@ is answered by running `whoami` INSIDE the session, which the gate now refuses.
 
 | # | Owed | Whose |
 |---|---|---|
-| — | **`DELETE.ACCOUNT`, both directions — ONE COMMAND, below** | a person, elevated |
+| — | **`DELETE.ACCOUNT`'s PROFILE HALF only — one command, below. Both directions are DONE** | a person, elevated |
 | — | **Does the console path survive the service model?** `sd -ASDSYS` runs as the invoking user and opens the database itself. Becomes a client, is dropped, or stays a privileged admin path. **Settle this BEFORE the token work** — it is where process-creation identity is decided (§5.7) | **the owner's** |
 | — | **The API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s it, so it inherits the service token; Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
-**IT IS A VERIFIER NOW — `gplbld/verify-delaccount.ps1`, written 21 Aug, NEVER
-RUN.** Both directions in one elevated command, 38 checks. Fresh stem each run;
-subjects are `<prefix>s` (SD's own) and `<prefix>b` (borrowed).
+**BOTH DIRECTIONS HELD — `verify-delaccount -Prefix sddel1`, 21 Aug, owner's
+elevated run on the 09:33:41 install. 30 PASS + 7 N/A of 37, NO FAILURES.**
+
+- **SD made it → it went, unasked.** `10028` shown, Windows account gone,
+  `sdu_sddel1s` gone, register record gone, account directory gone.
+- **SD borrowed it → refused.** `10036` shown, `10028` NOT shown, **the Windows
+  account and its description are still there**; the SD side went anyway.
+- **Exactly one Y/N was asked**, both directions: the sentinel came back as
+  `5051` from inside the same run, so nothing else consumed the input.
+
+**THE 7 N/A ARE THE WHOLE PROFILE HALF, AND IT IS AN INSTRUMENT FAULT, NOT A
+FINDING.** `CreateProfile` returned `0x800706F7` (`RPC_X_BAD_STUB_DATA`) for
+both subjects, so neither ever had a profile and there was nothing to remove.
+**The N/A is the design working** — a check that could not tell "not set up"
+from "passed" would have called this 37/37.
+
+**RE-RUN WITH A FRESH STEM TO CLOSE IT.** The buffer was 320 and is MAX_PATH
+now; a second route (`LogonUser` network logon + `LoadUserProfile`) is tried if
+the first still fails, and a failure names the step and the Win32 error.
+**The MAX_PATH diagnosis is INFERRED FROM THE ERROR, NOT PROVEN.**
 
 ```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-delaccount.ps1 -Prefix sddel1
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-delaccount.ps1 -Prefix sddel2
 ```
 
 **THE HAND RECIPE THAT WAS HERE FOR DIRECTION 2 COULD NOT HAVE WORKED.**
@@ -95,7 +113,7 @@ so a regression fails the check instead of spinning on EOF.
 - **Test prefixes are single-use.** Exit 2 from `verify-createaccount`,
   `verify-tiers` or `verify-accountacl` means "use a fresh prefix", not a
   failure. **Spent:** 20 Aug `sdacct27`, `sdtiert1`-`3`, `sdacl7`,
-  `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia8`.
+  `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia8`, `sddel1`.
 
 ---
 
@@ -4107,6 +4125,15 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**`DELETE.ACCOUNT` BOTH DIRECTIONS — 21 Aug 2026, owner's elevated run on the
+09:33:41 install.** `gplbld/verify-delaccount.ps1 -Prefix sddel1`, **30 PASS +
+7 N/A of 37**, no failures. The account SD created went — Windows account,
+`sdu_` group, register record and directory — with **exactly one Y/N**, the one
+the account *directory* takes. The account SD only borrowed was refused
+(`10036`) and **is still there, description untouched**, while its SD side went
+anyway. **The 7 N/A are the profile half**, which never got set up:
+`CreateProfile` returned `RPC_X_BAD_STUB_DATA`. Still owed — see the header.
 
 **THE GLOBAL CATALOGUE GATE AND THE TWO LOCKS — VERIFIED 18 Aug 2026, elevated,
 on the 11:35:44 install.** `gplbld/verify-catgate.ps1`, **25 of 25**, exit 0.
