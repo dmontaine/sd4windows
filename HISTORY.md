@@ -13067,3 +13067,51 @@ with nothing exercising it at all** - 10087, 10083, and messages 10076 / 10079.
 13:16:19 install, which the two sign fixes superseded. Not failures, but not
 results for the tree installed now either; re-running `post-cycle-elevated.ps1`
 with fresh prefixes is one command and needs no cycle.
+
+## 21 Aug 2026 - Phase 3 written, and two places the plan could not have worked
+
+Thirty-fifth session. `CREATEA`, `LOGIN`, `messages/10088`-`10095`,
+`adopt-account.ps1`, `sd.iss`, `verify-delaccount.ps1`. **Nothing compiled and
+nothing run** - the cycle is the next session's, and the tree is stale by all of
+it.
+
+**ADOPT is install-only now, by a one-shot marker** that `adopt-account.ps1`
+writes and `CREATEA` deletes on acceptance. That reverses the 15 Aug position -
+"the gate is not a wall and is not meant to be" - on the owner's ruling that
+`-internal` is a development flag and gating on it was never install-only. The
+keyword still reads as an unrecognised token when the marker is absent, so it
+tells nobody it exists.
+
+**The approved plan put the closing SD session in a `postinstall` [Run] entry,
+and that could not have worked.** `sd.iss` already carried the reason, 480 lines
+away, in the gravestone of the SDSYS password step it removed on 14 Aug: Inno
+logs such an entry as "Run as: Original user", and that token carries neither
+`sdusers` - so it cannot open the data tree until the user signs out - nor
+Administrators, so `!CRED_SET` could not write `$cred` either. The plan's
+argument, that setting your own password needs no elevation in SD's permission
+model, is true and was not the binding constraint. It runs from `[Code]` at
+ssPostInstall on Setup's own token instead. The gravestone's own closing line -
+"if a password step is ever wanted back, all three have to be fixed together" -
+is what caught it.
+
+**And the LOGIN rule would have killed the whole verifier suite.** `Invoke-SD`
+pipes `LOGTO SDSYS`, `TERM 200,9999` and the rest into `sd`; a password prompt
+in front of that eats the script a line at a time as failed attempts and refuses
+the session. Ten verifiers use that shape. The rule now also tests
+`kernel(K$TTY,0) # ''`, which is the honest form of it anyway - ask where a
+password can be typed.
+
+**That test was measured rather than assumed.** `K$TTY` is
+`ttyname(fileno(stdin))` at `kernel.c:250`. A probe built with the MSYS2 gcc:
+piped stdin gives `isatty=0` and `ttyname=(NULL)`; a new console window - what
+Inno's `Exec` with `SW_SHOW` hands `sd.exe` - gives `isatty=1` and
+`/dev/cons0`. The rule is also confined to elevated sessions, because
+`secure-cred.ps1` locks `$cred` to SYSTEM and Administrators: an ordinary
+session can neither read it to ask the question nor write it to answer.
+
+**Checked without spending a cycle**, each check proved able to fail first: the
+`[Code]` section extracted into a minimal `.iss` and compiled by ISCC - which
+caught a real `#13#10` at the start of a line, the trap `cycle.ps1` lints for;
+both `.ps1` files parsed; both BASIC files unchanged in block-balance from HEAD,
+on a checker that moves that number when an `end` is deleted from `LOGIN`; every
+`sysmsg(N)` in both files backed by a message file. None of that is a compile.

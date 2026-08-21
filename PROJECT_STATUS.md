@@ -5,22 +5,77 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 21 Aug 2026, thirty-fourth session.
+**Last updated:** 21 Aug 2026, thirty-fifth session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**THE TREE IS STALE BY ONE FILE AND IT IS `sdsys/changelog`.** Every verifier
-will refuse until a cycle is spent — *"STALE: 1 source file(s) are newer than
-the install: sdsys\changelog"*, 21 Aug 14:30. **Nothing is broken.** The
-changelog cannot change behaviour and no verifier reads it; it was written after
-the 14:15:55 install as CLAUDE.md requires, and `assert-current` watches all of
-`sdsys`. **Read the results below before deciding to spend a cycle** — Phase 2
-is already measured, and the only thing a cycle unblocks is re-running four
-verifiers whose results went stale rather than red.
+**PHASE 3 IS WRITTEN AND NOTHING ABOUT IT HAS BEEN RUN.** Not compiled, not
+installed, not measured. The tree is stale by every file it touched. **The next
+action is one cycle**, and `-SkipInstall` first is the cheap half:
 
-**AND THERE IS A DECISION WAITING ON THE OWNER ABOUT THAT.** The changelog is
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+```
+
+**WHAT PHASE 3 CHANGED**, all of it in §"Phase 3, as built" below with the
+reasoning:
+
+| | |
+|---|---|
+| `CREATEA:1197` | `ADOPT` needs a one-shot marker `sdsys/$adopt` as well as `K$INTERNAL`, and deletes it on acceptance. Absent → "Unexpected token (ADOPT)", so it still names nothing |
+| `adopt-account.ps1` | writes the marker before the verb, removes it in a `finally` |
+| `LOGIN:575`, `:643` | an account with no `$cred` sets one before the prompt; declining ends the session. `require.credential` is the subroutine |
+| `sd.iss` `TakeAccountPassword` | the install ends in a visible SD session — `[Code]` at ssPostInstall, **after every dialog**, `ewNoWait` |
+| `messages/10088`–`10095` | what `require.credential` says |
+| `verify-delaccount.ps1:568` | places the marker itself, and asserts `ADOPT` consumed it — **so the total becomes 40, not 39** |
+
+**TWO DELIBERATE DEVIATIONS FROM THE APPROVED PLAN, both forced by an ACL and
+both recorded at the code.** Neither narrows what the owner asked for; each puts
+the rule where it can actually work.
+
+1. **The closing SD session is `[Code]` at ssPostInstall, not a `postinstall`
+   `[Run]` checkbox.** The plan chose `[Run]` because setting your *own*
+   password needs no elevation in SD's permission model — true, and not the
+   binding constraint. `sd.iss`'s own gravestone (the removed SDSYS password
+   step) records that Inno logs a `postinstall` entry as *"Run as: Original
+   user"*, and that token carries neither `sdusers` — so it cannot open the data
+   tree until the user signs out and back in — nor Administrators, so
+   `!CRED_SET` could not write `$cred` either. Setup's own token has both.
+2. **The `LOGIN` rule fires only for an ELEVATED session at a REAL TERMINAL.**
+   `secure-cred.ps1` locks `$cred` to SYSTEM and Administrators, so an ordinary
+   session can neither read it to ask the question nor write it to answer.
+   And **the terminal test is what keeps the suite alive**: `Invoke-SD` in ten
+   verifiers pipes a script into `sd`, and a password prompt in front of that
+   would eat `LOGTO SDSYS` as the first attempt and refuse every session.
+
+**THE TERMINAL TEST IS `kernel(K$TTY,0) # ''`, AND IT WAS MEASURED.** `K$TTY` is
+`ttyname(fileno(stdin))` (`kernel.c:250`). Probe built with the MSYS2 gcc,
+21 Aug: piped stdin → `isatty=0`, `ttyname=(NULL)`; a new console window — which
+is exactly what Inno's `Exec` with `SW_SHOW` gives `sd.exe` — → `isatty=1`,
+`ttyname=/dev/cons0`. **Do not re-derive this.**
+
+**WHAT A CYCLE SHOULD SHOW, in order.** `-SkipInstall` first: the two BASIC
+files compile. Then a full cycle, and **watch it** — the install must end with a
+console window that asks for a password. Then, with fresh prefixes:
+
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert5 -Account sdacct29 -AclPrefix sdacl9 -ApiPrefix sdapia11
+```
+
+`verify-delaccount -Prefix sddel4` is the one that exercises the new gate.
+
+**WHAT WAS CHECKED WITHOUT A CYCLE, so a failure is placeable.** The `[Code]`
+section compiles under ISCC (extracted into a minimal `.iss`; it caught a real
+`#13#10` at the start of a line, which is the trap `cycle.ps1` lints for). Both
+`.ps1` files parse. Both BASIC files come out with the same block-balance number
+as at HEAD, on a checker proved to change that number when an `end` is removed
+from this very file. Every `sysmsg(N)` in both has a message file. **None of
+that is a compile** — `bbal.py` is not a BASIC parser and was thrown away.
+
+**AND THE DECISION FROM LAST SESSION IS STILL WAITING ON THE OWNER.** The
+changelog is
 touched by **97 commits so far**, and every one of them costs a cycle before the
 suite can run again. `assert-current.ps1` already makes this argument for
 documentation in its own comments — editing `VENDORING.md` once turned it red on
@@ -73,19 +128,12 @@ behaviour change with no coverage at all)**, 10087 (a GROUP account), 10083
 (`MODIFY.ACCOUNT` refusing an administrator), and messages 10076 / 10079.
 `verify-routes` refuses with exit 2 until Phase 4 rewrites it.
 
-**AND FOUR RESULTS ARE STALE, not failed.** `verify-fold`,
-`verify-createaccount -Account sdacct28`, `verify-tiers -Prefix sdtiert4` and
-`verify-accountacl -Prefix sdacl8` all exited 0 — on the **13:16:19** install,
-which two source changes have superseded. They are not results for the tree
-installed now. **Re-running them needs a cycle first**, because of the
-changelog staleness at the top of this file — cycle, then:
-
-```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert5 -Account sdacct29 -AclPrefix sdacl9 -ApiPrefix sdapia11
-```
-
-**Nothing in those four is suspected.** The two changes that superseded them are
-a sign on an error path neither exercises. This is bookkeeping, not a hunt.
+**AND FOUR RESULTS ARE STALE, not failed** — `verify-fold`,
+`verify-createaccount -Account sdacct28`, `verify-tiers -Prefix sdtiert4`,
+`verify-accountacl -Prefix sdacl8`, all exit 0 on the **13:16:19** install.
+Phase 3 has now superseded the Phase 2 install as well, so **every** result in
+this section belongs to a tree that is no longer installed. The Phase 3 cycle
+re-establishes all of it; the command is at the top of this file.
 
 **THE INSTALL ITSELF EXERCISES `set.access`, and the administrator/API gap is
 closed.** `C:\ProgramData\SD\adopt-account.log`: *"don keeps the Windows
@@ -122,21 +170,80 @@ nothing. **It predicted the compile correctly and found four defects on the
 way**, two of which would have scored as feature failures in the suite; see
 HISTORY.md, 21 Aug, "Phase 2 read statically".
 
-**ONE DEVIATION FROM THE APPROVED PLAN, deliberate.** The `LOGIN` change —
-"an account with no `$cred` must set one before reaching the prompt" — is
-**moved to Phase 3**, where the installer step it exists to serve lives. Doing
-it here would put a rule in front of every login while the flow that needs it
-does not exist yet, and **the bootstrap runs `sd -internal` into an SDSYS that
-has no credential** (`bootstrap.py`, "NO PASSWORD IS NEEDED OR SET"), so the
-rule has to be written around that or it breaks the install.
+---
+
+### Phase 3, as built — 21 Aug 2026, thirty-fifth session. NOT COMPILED, NOT RUN
+
+The header has the file list and the two deviations. What is here is the part
+that is not visible in a diff.
+
+**THE MARKER IS A WINDOW IN TIME, NOT A SECOND IDENTITY TEST.** `sdsys/$adopt`
+is not ACL'd against anyone — the data tree grants `sdusers` Modify, so any SD
+user can create it. It buys them nothing: `K$INTERNAL` still means `sd
+-internal`, which `sd.c` forces to SDSYS, which `LOGIN` refuses without an
+elevated session. **This reverses the 15 Aug position** recorded in
+`adopt-account.ps1` — that an elevated administrator typing `ADOPT` by hand is
+acceptable — on the owner's ruling of 21 Aug.
+
+**IT IS DELETED IN TWO PLACES AND THAT IS DELIBERATE.** `CREATEA` deletes it on
+acceptance, so it authorises exactly one adoption; `adopt-account.ps1` deletes
+it in a `finally`, so a refused verb or a killed process does not leave it
+behind. The failure that matters is the one where it survives, because nothing
+later would notice.
+
+**ONLY AN ACCEPTED `ADOPT` CAN SPEND IT.** The existence test is in the `case`
+condition and the delete is inside the branch, so no other `-internal` command
+can consume the installer's marker. **Written not to depend on whether `AND`
+short-circuits** — the test reads a file and changes nothing, so it is harmless
+if it runs for every token.
+
+**AND IT MUST NEVER BE IN THE SOURCE TREE.** `stage.py` copies `sdsys`
+wholesale, so a marker committed here would be staged into every install and
+leave the door open permanently — the exact state this replaces.
+
+**`require.credential` ASKS BUT DOES NOT AUTHENTICATE.** Login still takes no
+password. It is `LOGIN:643`, it fails **open** if `$cred` cannot be opened —
+that means a broken install, and refusing every elevated login for it takes away
+the session that could repair it — and the API fails **closed** on the same
+condition in `!CRED_VERIFY`, which is the door where it matters.
+
+**AN EMPTY PASSWORD IS THE WAY OUT OF THE PROMPT LOOP**, and it has to be one:
+without it a session that cannot write a credential (wrong ACL, full disk)
+would loop with no exit but killing the process.
+
+**THE SESSION RUNS AFTER EVERY DIALOG AND DOES NOT BLOCK.** A modal box holding
+focus while SD asks for a password is how a password gets typed into the wrong
+window; and `ewNoWait` is what "leaving them in SD at the end of the install"
+actually means. **It is not the `nowait` the gravestone blames** — that hid a
+console for a command that exited at once. `WizardSilent` needs no test of its
+own: the guard above the closing box exits first.
+
+**THE CLOSING DIALOG STOPPED CLAIMING THERE IS NO PASSWORD TO SET.** `sd.iss`
+said *"Type sd to use it; there is no password to set, because Windows has
+already authenticated you"*. The second half is now false — the console does not
+ask, but the account needs one to be reachable from anywhere else — and **the
+first half always contradicted the sign-out paragraph three lines above it**,
+which is the accurate one. The new window runs on Setup's token, which is why it
+can run before the sign-out at all.
+
+**AND A PHASE 2 MISS WAS FOUND WHILE WRITING THIS.** The same dialog quoted
+`CREATE.ACCOUNT USER <name>` with no access keyword, which since Phase 2 walks
+straight into message 10082. Corrected to `... SSH`. It is the only place in the
+product that quotes the verb, and nothing in the suite reads it.
+
+**NOT DONE, AND IT IS PHASE 4's:** `verify-delaccount` asserts the marker is
+consumed, and nothing yet tests the refusal — `ADOPT` with no marker present
+must come back as *"Unexpected token (ADOPT)"*, and no verifier asks.
+
+---
 
 **WHAT IS NEXT, in the order it makes sense to take it:**
 
 | | |
 |---|---|
-| **Phase 3**, not started | `ADOPT` becomes install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** — see the deviation note above |
-| **Phase 4**, not started | rewrite `verify-routes` for the four keywords; a new verifier for 10082 / 10086 / 10087 / 10083; changelog and handoff |
-| bookkeeping | re-run the four stale verifiers, after a cycle |
+| **Phase 3**, built, **unmeasured** | one cycle, watched — see the top of this file for what it should show |
+| **Phase 4**, not started | rewrite `verify-routes` for the four keywords; a new verifier for 10082 / 10086 / 10087 / 10083, **and for `ADOPT` refused with no marker**; changelog and handoff |
+| bookkeeping | every verifier result in this file predates Phase 3 |
 | owner's decision | whether `assert-current` should exempt `sdsys/changelog` — top of this file |
 | **this file is far over §0's size ceiling** | roughly three times it. §0.5 says the way back is to compress a §7 step's §4 and §7 material to its conclusion when the step closes — Phase 1 and Phase 2 have both closed since anyone last did that. Not attempted here: it is a real editing job, not a tidy-up, and doing it badly loses reasoning that nothing else records |
 
@@ -180,7 +287,7 @@ kept apart so a failure is attributable.
 |---|---|---|
 | 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
 | 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **done and measured on the 14:15:55 install** — `verify-delaccount` 39/39, `verify-apiport` all, `verify-apiadmin` 22+1 N/A, `verify-peerlog` 21/21. The refusal paths (10082, 10086, 10087, 10083) are Phase 4's |
-| 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | not started |
+| 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | **built 21 Aug, nothing run** — §"Phase 3, as built", and two deviations at the top of this file |
 | 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | not started |
 
 **THE PLAN IS AT `C:\Users\dmont\.claude\plans\zazzy-questing-engelbart.md`** —
@@ -211,6 +318,13 @@ four were re-run on the 14:15:55 install and the header carries those results;
 | `verify-apiadmin` | `sdapia8` | 22 PASS + 1 N/A of 23 | 09:33:41 cycle |
 | `verify-routes` | `sdrt4` | 33/33 | 09:33:41 cycle — **last valid run** |
 | `verify-delaccount` | `sddel2` | 38/38 | 09:33:41 cycle |
+
+**WHAT PHASE 3 DOES TO THE SUITE: one file, deliberately.**
+`verify-delaccount.ps1` writes the `$adopt` marker itself before its ADOPT
+control leg and asserts `CREATEA` consumed it. **Nothing else needed touching,
+and that is what the `kernel(K$TTY,0)` test in `LOGIN` buys** — every other
+verifier drives `sd` through a pipe, and without that test the new password
+prompt would have swallowed their scripts. Header, deviation 2.
 
 **WHAT PHASE 2 DOES TO THE SUITE, so a red run is not misread as a broken
 feature:**
