@@ -12482,3 +12482,36 @@ failure, because the account really is deleted and re-running could never retry
 the profile.
 
 Built, not run: both are BASIC, so a cycle is owed.
+
+## 21 Aug 2026 - the gate gets a mode, and the Makefile fix gets its other half
+
+**Item 9 built.** `net_path_permitted()` takes `for_write`; the account and
+NETDIRS stay read-write and the shipped SDSYS allow-list becomes read-only, so a
+network session can no longer write sd.voclib or newvoc.
+
+**Most of the enforcement is not in the gate.** An SD OPEN does not declare
+intent - a file opened plainly can be written later - so there is nothing to
+test at open time. open_file() asks "may I write here?" first and, on a no that
+is not also a no to reading, sets FV_RDONLY on the file variable. Every write
+path in the engine already honours that flag, so there was no write site left to
+miss and the refusal is the one READONLY already produces. Borrowing an existing
+flag rather than inventing a check was the whole of the design. openseq() sets
+its own read_only before dio_open, so the descriptor is opened DIO_READ and is
+never writable - stronger than refusing writes afterwards.
+
+**And this morning's Makefile fix turned out to be half a fix.** TEMPSRCS was
+`$(wildcard *.c)` - the same empty-wildcard bug as SDHDRS, in the same
+header-less directory - so OBJS was empty and `$(OBJS): $(SDHDRS)` attached to
+nothing. It only became visible BECAUSE SDHDRS was fixed: a change to sd.h then
+rebuilt 91 of 94 objects and left sdwind.o, sdtic.o and win32peer.o behind.
+
+sdwind.o is the one that matters. sdwind.c includes sd.h and reads sysseg-> in
+eight places including api_port, so a struct SYSSEG change would have left the
+API listener compiled against the old layout while everything else moved - the
+same fault that cost a cycle that morning, arriving in the one process hardest
+to suspect. Fixed with $(notdir $(wildcard $(GPLSRC)*.c)) and verified by
+touching sysseg.h and watching the two appear.
+
+Worth keeping: two dead variables, both `$(wildcard)` against the wrong
+directory, both harmless for as long as nothing used them. The first cost a
+cycle. The second would have cost the next one.

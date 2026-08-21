@@ -60,6 +60,37 @@ are `sdadmins`, `sdapi`, `sdssh`, `sdsshonly`, `sdusers`, `sdu_don`; service
 Running. **`sdadmins` is expected litter** — made by hand on 13 Aug, referenced
 now only in comments (`linuxlb.c:64`, `sddefs.h:157`); §8 says leave it.
 
+**ITEM 9 IS BUILT: THE SHARED `sdsys` ENTRIES ARE NOW READ-ONLY TO A NETWORK
+SESSION.** `net_path_permitted()` takes a `for_write` argument; the account and
+`NETDIRS` stay read-write, the shipped `sdsys` allow-list is read-only.
+
+**MOST OF THE ENFORCEMENT IS NOT IN THE GATE, AND THAT IS THE DESIGN.** An SD
+`OPEN` does not declare intent — a file opened plainly can be written later —
+so there is no mode to test at open time. `open_file()` asks *may I write
+here?* first, and on a no that is not also a no to reading it sets
+**`FV_RDONLY`** on the file variable. Every write path in the engine already
+honours that flag (`op_dio3.c` 133/310/753, `op_seqio.c` 112/1456/1530/1652),
+so there is no write site left for this to have missed, and the refusal is the
+one `READONLY` already produces. `openseq()` sets its own `read_only` before
+`dio_open`, so the descriptor is opened `DIO_READ` and is never writable.
+`OS_DELETE`/`MKDIR`/`MKPATH`/`CHOWN`/`UNIQUE` and both ends of `OSRENAME` ask
+with `TRUE`; `OS_EXISTS`/`DTM`/`CD`/`OPEN`/`DIR` ask with `FALSE`.
+
+**AND THE MAKEFILE FIX FROM THIS MORNING WAS HALF A FIX.** `TEMPSRCS` was
+`$(wildcard *.c)` — the same empty-wildcard bug as `SDHDRS`, from the same
+header-less directory — so `OBJS` was empty and `$(OBJS): $(SDHDRS)` attached
+to nothing. **Measured**: after the `SDHDRS` fix, a change to `sd.h` rebuilt
+**91 of 94** objects and left `sdwind.o`, `sdtic.o` and `win32peer.o` behind.
+**`sdwind.o` is the one that matters** — `sdwind.c` includes `sd.h` and reads
+`sysseg->` in eight places including `api_port`, so a `struct SYSSEG` change
+would have left THE API LISTENER on the old layout while everything else moved.
+Now `$(notdir $(wildcard $(GPLSRC)*.c))`, verified by touching `sysseg.h` and
+watching `sdwind.o` and `win32peer.o` appear. `sdtic.o` correctly does not —
+`sdtic.c` includes no SD header.
+
+**Clean full rebuild 09:25, 94 objects, no warnings, `sd.exe`
+`b188cd47c0a2e51a`.** **BUILT, NOT RUN.**
+
 **`DELETE.ACCOUNT` NOW DELETES THE WINDOWS ACCOUNT AND ITS PROFILE — BUILT
 21 Aug, NOT RUN.** Owner's decision the same day, settling §7 step 1c. **A
 CYCLE IS OWED**: `DELACC` and `DELETE_USER` are BASIC, so `cycle.ps1`
@@ -87,8 +118,9 @@ sweeper for anything that gets past the verb.
 
 | # | Owed | Whose |
 |---|---|---|
-| — | **`cycle.ps1`, then `DELETE.ACCOUNT` against `sdacct9`** (SD made it, so it must go without asking) and against an adopted account (must be refused) | a person, elevated |
-| 9 | **THE GATE ADMITS A PATH, NOT A MODE.** A network session may still WRITE the shared `sdsys` entries — `sd.voclib` and `newvoc` are the ones that matter, because they shape what FUTURE accounts get. `$cred`, `gcat`, `os.users` and `accounts` are NOT among them and are unreachable either way. Needs the open mode threaded down from each entry point, which differs per caller | code, + one cycle |
+| — | **`cycle.ps1`** — C, BASIC and the Makefile all changed since the last install | a person, elevated |
+| — | **`DELETE.ACCOUNT` against `sdacct9`** (SD made it, so it must go without asking, profile and all) and against an adopted account (must be refused) | a person, elevated |
+| — | **`verify-apiadmin.ps1 -Prefix sdapia8`** — must still be 22 PASS + 1 N/A. **The read-only change is the risk**: if a network session now fails where it used to work, the shared allow-list is where to look | a person, elevated |
 | — | **the API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s the session so it inherits the service token. Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
 **PREFIXES SPENT:** 20 Aug — `sdacct27`, `sdtiert1`-`3`, `sdacl7`, `sdapia1`,
