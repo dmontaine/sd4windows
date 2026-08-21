@@ -13278,3 +13278,34 @@ every path that reaches them.
 Steps 1, 2 and 4 of that run were 22/22 - the required keyword, the mandatory
 password and its unwind, and the whole ADOPT gate including the second refusal
 after the marker is spent.
+
+## 21 Aug 2026 - the install really does end in SD, and a timestamp proves it
+
+`dir 'C:\ProgramData\SD\sdsys\$cred'` on the 16:18:37 install: two records,
+`DON` written at **16:19** and `SDAPIA11` at 16:25.  The second is
+verify-apiadmin, which ran at 16:25:06.  The first is the one that matters.
+
+The install finished at 16:18:37 and the suite started at 16:20:19, so nothing
+else was running in between.  `!CRED_SET` is the only writer into `$cred` and
+its only callers are MODIFY.PASSWORD and require.credential.  So the install did
+end in a visible SD session, the new LOGIN rule did fire in it, and somebody
+typed a password - the whole of phase 3's install flow, end to end, with the
+only alternative being a hand-typed `modify.password don` inside a 100-second
+window.
+
+**It confirms both deviations by the hardest evidence available.**  That write
+landed in a store secure-cred.ps1 locks to SYSTEM and Administrators, from the
+session Setup launched.  A "postinstall" [Run] entry - which is what the
+approved plan called for - runs as the ORIGINAL user and could not have made it.
+The argument for moving the step into [Code] was read off sd.iss's own
+gravestone; this is the measurement.
+
+**And it explains the paste accident.**  The stray elevated `sd.exe` sessions
+reached the `:` prompt without a password demand because DON already had a
+credential: require.credential looked, found one, and did nothing.  Read on its
+own that looked like the rule failing to fire, which is exactly why it was
+written down as ambiguous rather than as a result.
+
+Use SINGLE quotes on that path.  The first attempt used double quotes,
+PowerShell expanded `$cred` to nothing and listed `sdsys` instead - the same
+trap adopt-account.ps1's marker comment warns about.

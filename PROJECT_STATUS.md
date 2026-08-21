@@ -11,9 +11,10 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**PHASES 3 AND 4 ARE MEASURED, EXCEPT ONE LEG, AND THAT LEG FOUND A REAL
-DEFECT.** Cycle 21 Aug, install **16:18:37**, `sd.exe` **`CB9C4E0460B175F5`**,
-`assert-current` green for every step. Seven of eight verifiers passed:
+**PHASE 3 IS DONE AND MEASURED. PHASE 4 IS MEASURED EXCEPT ONE LEG, AND THAT LEG
+FOUND A REAL DEFECT, NOW FIXED AND AWAITING A CYCLE.** Cycle 21 Aug, install
+**16:18:37**, `sd.exe` **`CB9C4E0460B175F5`**, `assert-current` green for every
+step. Seven of eight verifiers passed:
 
 | verifier | prefix | result |
 |---|---|---|
@@ -100,35 +101,35 @@ ADOPT gate.
   measurement the `kernel(K$TTY,0)` test exists for: every verifier drives `sd`
   through a pipe and not one of them was prompted.
 
-**WHAT PHASE 3 THIS RUN DID NOT PROVE:** whether the install ended in a visible
-SD session that asked for a password. Nobody has reported seeing it, and no
-verifier can — it happens after the last dialog. **Ask, or watch the next
-install.** `C:\ProgramData\SD\adopt-account.log` and the Setup log are where a
-failure would be.
+**AND PHASE 3's LAST UNMEASURED HALF IS NOW MEASURED, BY A TIMESTAMP.**
+`dir 'C:\ProgramData\SD\sdsys\$cred'` on the 16:18:37 install:
 
-**AND THERE IS AN AMBIGUOUS OBSERVATION ABOUT `require.credential` THAT NEEDS
-SETTLING.** 21 Aug, by accident: the previous transcript was pasted back into an
-elevated prompt, which launched several `sd.exe` sessions — elevated, at a real
-console, `don`'s own account. **Every one went straight to the `:` prompt.**
-That is either
+| record | written |
+|---|---|
+| `DON` | **16:19** |
+| `SDAPIA11` | 16:25 — `verify-apiadmin`, which ran at 16:25:06 |
 
-- `don` **has** a credential, because the install's SD window was used — in
-  which case the rule is working and Phase 3 is closed; or
-- the rule **did not fire**, and something in the `mode = 0`,
-  `not(is.phantom)`, `not(K$INTERNAL)`, `K$ADMINISTRATOR`, `K$TTY # ''` chain is
-  false where it should be true.
+**The install finished at 16:18:37 and the suite started at 16:20:19**, so
+nothing else was running when `DON` was written. `!CRED_SET` is the only writer
+into `$cred`, and its only callers are `MODIFY.PASSWORD` and
+`require.credential`. **So the install did end in a visible SD session, the rule
+did fire in it, and somebody typed a password.** The one alternative — a
+`modify.password don` by hand in that 100-second window — is the owner's to
+dismiss.
 
-**It cannot be told apart from outside**: `$cred` is locked to SYSTEM and
-Administrators, so an unelevated session cannot look. From an ELEVATED prompt:
+**THAT ALSO CONFIRMS BOTH DEVIATIONS, and by the hardest evidence available.**
+The write happened, into a store `secure-cred.ps1` locks to SYSTEM and
+Administrators, from the session Setup launched. An unelevated `postinstall`
+`[Run]` entry — what the plan called for — could not have made it.
 
-```powershell
-dir 'C:\ProgramData\SD\sdsys\$cred'
-```
+**AND IT EXPLAINS THE PASTE ACCIDENT.** The stray elevated `sd.exe` sessions
+reached the `:` prompt without a password demand because `DON` already had a
+credential by then: `require.credential` looked, found one, and correctly did
+nothing.
 
-A `DON` record means the first reading. **SINGLE QUOTES, AND THAT IS NOT
-PEDANTRY** — the first attempt used double quotes, PowerShell expanded `$cred`
-to nothing, and it listed `sdsys` instead. Same trap `adopt-account.ps1`'s
-marker comment warns about. **Still unanswered.**
+**USE SINGLE QUOTES ON THAT PATH.** The first attempt used double quotes,
+PowerShell expanded `$cred` to nothing, and it listed `sdsys` instead — the same
+trap `adopt-account.ps1`'s marker comment warns about.
 
 **WHAT PHASE 3 CHANGED**, all of it in §"Phase 3, as built" below with the
 reasoning:
@@ -436,7 +437,7 @@ kept apart so a failure is attributable.
 |---|---|---|
 | 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
 | 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **done and measured on the 14:15:55 install** — `verify-delaccount` 39/39, `verify-apiport` all, `verify-apiadmin` 22+1 N/A, `verify-peerlog` 21/21. The refusal paths (10082, 10086, 10087, 10083) are Phase 4's |
-| 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | **built 21 Aug, nothing run** — §"Phase 3, as built", and two deviations at the top of this file |
+| 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | **DONE and measured, 21 Aug.** The gate: `verify-accountrules` step 4, 10/10, plus the install's own ADOPT. The session and `require.credential`: `$cred/DON` written 16:19, between the 16:18:37 install and the 16:20:19 suite. Two deviations at the top of this file, both confirmed by that write |
 | 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | **built 21 Aug, nothing run** — §"Phase 4, as built". The changelog half was already discharged: Phases 1 and 2 each wrote their own entry in their own commit |
 
 **THE PLAN IS AT `C:\Users\dmont\.claude\plans\zazzy-questing-engelbart.md`** —
