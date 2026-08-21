@@ -54,6 +54,25 @@ measured behaviour, including one leg of it that does not match the tree.
 
 ### TRAPS THAT COST A CYCLE, OR WOULD HAVE
 
+- **EDITING THESE FILES WITH PYTHON FLIPPED THE WHOLE FILE TO CRLF.** Done
+  21 Aug 2026 and pushed before it was noticed: a four-line edit to
+  PROJECT_STATUS.md committed as **10998 insertions and 10945 deletions**, which
+  is the entire file. `io.open(p, 'w', encoding='utf-8')` is TEXT mode, and on
+  Windows text mode turns every newline into a carriage-return/newline pair on
+  the way out.
+  **`.gitattributes` sets `* -text` precisely so files round-trip byte-for-byte**,
+  so nothing corrects it and the diff, and `git blame`, are destroyed. Pass
+  **`newline=''` to both `open` calls** — read and write — or use the editing
+  tools. `HISTORY.md` was untouched because it was appended to from the shell.
+
+  **AND THE FIX FOR IT WALKED INTO A SECOND TRAP IN THE SAME BREATH.** The
+  Python that added this bullet was fed through a **quoted bash heredoc, which
+  still halves backslashes**, so a `\\n` written to mean two literal characters
+  arrived as one escape and Python turned it into a real control byte — putting
+  a stray CR into the very warning about stray CRs. Quoting the delimiter does
+  not save you. **Write source files with the editing tools, not by piping a
+  script through a heredoc.**
+
 - **`make sd` DID NOT REBUILD ON A HEADER CHANGE** until 21 Aug. `SDHDRS` and
   `TEMPSRCS` were both `$(wildcard *.c/*.h)` evaluated from `sdb_ai/sd64`,
   which holds neither — so both were EMPTY and both were unused, and nothing
@@ -10945,6 +10964,7 @@ lands in its own account like any other; what elevation buys is a **silent**
 `LOGTO SDSYS` instead of a UAC prompt, which is the same destination reached
 one step later. If an elevated `sd -ASDSYS` is ever seen to succeed, that
 comment and this entry are both wrong and `LOGIN:334` is the place to look.
+
 ### Open, undiagnosed: `BASIC` produced no object in SDSYS on a reused file name
 
 18 Aug 2026, on the 11:35:44 install. `verify-catgate.ps1` created a scratch
