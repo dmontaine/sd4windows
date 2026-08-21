@@ -12440,3 +12440,13 @@ work and is untouched.
 The §"MOST IMPORTANT THING IN THIS FILE" section was re-headed rather than
 rewritten - the file half is closed, the token half is not, and the reasoning
 below it is what dates rather than the verdict.
+
+**Item 6 done and the register cleared, 21 Aug.** `set.password don` set DON's
+first password. `DELETE.ACCOUNT SDRT1S` and `SDRT1A` both answered "Account not
+registered in ACCOUNTS file" - the cycle earlier that day deletes the data tree,
+so the register had already been rebuilt empty, and verify-routes had removed the
+Windows half itself. Checked rather than assumed afterwards: no local user or
+group matching any spent test prefix survives, and user_accounts holds don alone.
+
+Everything still owed is code: the gate admits a path rather than a mode, and the
+API session's token is still LocalSystem.

@@ -45,12 +45,25 @@ refuses, so the probe cannot ask. **THE SESSION STILL RUNS AS LocalSystem.**
 Only its REACH changed. Closing that needs the `CreateProcessAsUser` work
 below.
 
-**WHAT IS OWED, IN ORDER.**
+**ITEM 6 IS DONE, 21 Aug** — `set.password don`, *"Account DON has no password
+set. Setting the first one."* … *"Password set for account DON"*.
+
+**THE ORPHANED REGISTER ENTRIES ARE GONE, AND NOT BY BEING DELETED.**
+`DELETE.ACCOUNT SDRT1S` and `SDRT1A` both answered *"Account not registered in
+ACCOUNTS file"*: **the 21 Aug cycle deletes the data tree**, so the ACCOUNTS
+register was rebuilt empty and took them with it. The Windows half had already
+gone — `verify-routes` removes that itself.
+
+**THE MACHINE IS CLEAN, checked 21 Aug rather than assumed.** No local user or
+group matching any spent test prefix; `user_accounts` holds `don` alone; groups
+are `sdadmins`, `sdapi`, `sdssh`, `sdsshonly`, `sdusers`, `sdu_don`; service
+Running. **`sdadmins` is expected litter** — made by hand on 13 Aug, referenced
+now only in comments (`linuxlb.c:64`, `sddefs.h:157`); §8 says leave it.
+
+**WHAT IS OWED. BOTH ARE CODE; NOTHING IS WAITING ON A PERSON.**
 
 | # | Owed | Whose |
 |---|---|---|
-| 6 | `set.password don` — elevated prompt, `sd`, then `set.password don`. **Not `logto sdsys`**: that leaves `sd.exe` unelevated and the `$cred` write fails **3035** | **a person**, elevated |
-| — | `DELETE.ACCOUNT SDRT1S` / `SDRT1A`, orphaned register entries | a person, elevated |
 | 9 | **THE GATE ADMITS A PATH, NOT A MODE.** A network session may still WRITE the shared `sdsys` entries — `sd.voclib` and `newvoc` are the ones that matter, because they shape what FUTURE accounts get. `$cred`, `gcat`, `os.users` and `accounts` are NOT among them and are unreachable either way. Needs the open mode threaded down from each entry point, which differs per caller | code, + one cycle |
 | — | **the API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s the session so it inherits the service token. Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
