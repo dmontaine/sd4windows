@@ -7,6 +7,67 @@ something came to be the way it is.
 
 **Last updated:** 20 Aug 2026, thirty-first session.
 
+---
+
+## OPEN, AND THE MOST IMPORTANT THING IN THIS FILE: DOES A REMOTE API SESSION RUN AS LocalSystem?
+
+**IT LOOKS LIKE IT DOES.** Not yet proven end to end.
+**`gplbld/verify-apiadmin.ps1` IS WRITTEN AND HAS NEVER RUN** - it needs a
+cycle. Elevated, after `cycle.ps1`:
+
+```powershell
+gplbld\verify-apiadmin.ps1 -Prefix sdapia1
+```
+
+**A FAIL IS THE FINDING, NOT A BROKEN TEST.** The assertions are that a remote
+session **cannot** open or write `$cred`.
+
+**WHAT IS ALREADY MEASURED (20 Aug 2026, unelevated):**
+
+```
+sc qc SD  ->  SERVICE_START_NAME : LocalSystem
+pid 20276 owner 'GITORLI\don'   <- ordinary interactive sd.exe, readable
+pid 4412  owner '\'             <- API-FORKED sd.exe, NOT readable
+sdwind    owner '\'             <- the known-LocalSystem control
+```
+
+An unelevated query can read the owner of a process running as itself and not
+one running as SYSTEM. **The API session does not run as the connecting
+client.**
+
+**WHAT IS READ, NOT MEASURED:**
+
+| | |
+|---|---|
+| `sdwind.c` `accept_api_session` | `fork()` + `execl("sd","-n","-q")` - the child inherits the service token |
+| `kernel.c:195` | `if (IsElevated()) my_uptr->flags \|= USR_ADMIN;` - **no connection-type gate** |
+| `linuxlb.c` `IsElevated` | true when `BUILTIN\Administrators` is in `getgroups()`; LocalSystem's token carries it |
+| `secure-cred.ps1:86` | `$cred` granted `SYSTEM` and `Administrators` **only** - so a SYSTEM session may rewrite credentials |
+| `APISRVR:972` `vb.execute` | disabled only if `SDCLIENT≠0` (**defaults 0, absent from shipped `sd.conf`**) or `K$SDNET` (**set only by `vb.open.sdnet`**) - so **command execution is ON** |
+| `APISRVR:459`, `:489` | *"K$ADMINISTRATOR ... an API session cannot have"*, *"an API session cannot have it, so there is nothing to admit"* - **the assumption the account gating is reasoned on** |
+
+**WHY IT MATTERS MORE THAN IT LOOKS - IT INVERTS THE OWNER'S RULE.** Owner,
+20 Aug 2026: an administrator may work (1) at the machine, (2) over RDP/AnyDesk
+or (3) through an API client, and **not through a terminal session**. But
+loopback is not a barrier: **`ssh -L 4243:127.0.0.1:4243` reaches the API from
+another machine**, and ssh is the forbidden route. An admin at the console
+meets a UAC prompt; a remote API client would meet nothing at all.
+
+**WHAT STILL GATES IT, and it is not nothing:** SCRAM against a real `$cred`
+record, and `vb.account`'s `ACC$GROUP` test (SDSYS is refused through the API).
+So this needs a valid credential, not anonymous access.
+
+**PEER IDENTIFICATION DOES NOT CATCH THIS**, and that is worth knowing before
+reaching for it: an ssh-forwarded client identifies **`sshd`**, which
+`win32peer.h` records as a documented limit.
+
+**IF IT CONFIRMS, THE OPTIONS ARE** - drop the session's privilege after
+`fork()` in `sdwind.c`; or gate `USR_ADMIN` on connection type at
+`kernel.c:195`; or route `$cred` writes through the elevation helper the way
+`create.account` does. **Not decided, and the measurement comes first.**
+
+---
+
 **PEER IDENTIFICATION IS BUILT, VERIFIED AND LOG-ONLY. `verify-peerlog.ps1`
 IS 21/21** on the **17:47:40** install, `sd.exe` **`A8E9E6568F573313`**.
 Policy decided by the owner, 20 Aug 2026: **LOG ONLY, nothing is refused.**

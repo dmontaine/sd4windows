@@ -27,6 +27,88 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - A remote API session appears to run as LocalSystem
+
+**Commit:** this one. **An instrument, and a partial measurement. Not proven
+end to end** - `gplbld/verify-apiadmin.ps1` is written and has never run.
+
+**HOW IT CAME UP.** The owner asked whether a remote API client can perform
+administration such as `set.password`, expecting the answer "no" and being
+content with it: *"then it just means that they have to run a gui admin tool
+at the computer or through remote desktop type software, which is not a bad
+thing."* **The answer looks like yes, which is the worse outcome** - not a
+missing feature but an unintended one.
+
+**THE PART THAT IS MEASURED**, 20 Aug 2026, unelevated:
+
+```
+sc qc SD  ->  SERVICE_START_NAME : LocalSystem
+pid 20276 owner 'GITORLI\don'   <- ordinary interactive sd.exe, readable
+pid 4412  owner '\'             <- API-FORKED sd.exe, NOT readable
+sdwind    owner '\'             <- the known-LocalSystem control
+```
+
+An unelevated query reads the owner of a process running as itself and not one
+running as SYSTEM. So **the API session does not run as the connecting
+client** - `sdwind` is a LocalSystem service and `accept_api_session()`
+`fork()`s and `exec()`s `sd -n -q`, which inherits the service's token.
+
+**THE PART THAT IS ONLY READ.** `kernel.c:195` sets `USR_ADMIN` from
+`IsElevated()` **with no connection-type gate**; `IsElevated()` is true when
+`BUILTIN\Administrators` is in `getgroups()`, which LocalSystem's token
+carries; `secure-cred.ps1:86` grants `$cred` to SYSTEM and Administrators
+only; and `APISRVR:972`'s `vb.execute` is disabled only by `SDCLIENT≠0`
+(defaults 0 and is absent from the shipped `sd.conf`) or `K$SDNET` (set in one
+place, `vb.open.sdnet`) - so command execution over the API is **on**.
+
+**THE ASSUMPTION IT CONTRADICTS IS LOAD-BEARING.** `APISRVR:459` says
+`K$ADMINISTRATOR` describes *"session state an API session cannot have"* and
+`:489` says *"Administration needs elevation and an API session cannot have
+it, so there is nothing to admit."* The account gating in that program is
+reasoned on those sentences. They read as true on Linux, where the session
+would run as the connecting user; the Windows port made the session a child of
+a service and nothing revisited them.
+
+**WHY IT MATTERS MORE THAN THE MECHANISM SUGGESTS: IT INVERTS THE OWNER'S OWN
+RULE.** Administration is meant to require being at the machine or on a real
+desktop, and explicitly **not** a terminal session. But the loopback binding is
+not a barrier - `ssh -L 4243:127.0.0.1:4243` reaches the API from another
+machine, over exactly the forbidden route. An administrator at the console
+meets a UAC prompt; a remote API client would meet nothing.
+
+**STILL GATED, and worth stating so the finding is not overstated:** a client
+must complete SCRAM against a real `$cred` record and pass `vb.account`'s
+`ACC$GROUP` test, and SDSYS is refused through the API. This needs a valid
+credential; it is not anonymous.
+
+**AND PEER IDENTIFICATION DOES NOT CATCH IT** - an ssh-forwarded client
+identifies `sshd`, which `win32peer.h` records as a documented limit of that
+mechanism. The two pieces of work landed the same day and the second does not
+close the first.
+
+**THE INSTRUMENT'S DESIGN, because a log-reading test is easy to write
+vacuously.** `gplbld/apiadminprobe.sb` opens `$cred`, writes a namespaced
+record, **reads it back** and deletes it - the read-back is what is believed,
+since a write that reported nothing and did nothing would otherwise read as
+success. It asks the file system rather than the session because `KERNEL` is
+refused to a program not compiled `$internal` and `BCOMP` compiles those only
+for SDSYS. **The same compiled program runs twice** - from a local elevated
+session, which must report the store open and writable, and down a real API
+connection, which must not. Without the local leg, a probe answering "no"
+unconditionally would pass every assertion. The ACL is asserted too, because a
+drifted ACL would make the API result unremarkable and still fail.
+
+**PROGRAMMER tier deliberately:** the least privileged tier that still has
+`RUN` in its VOC - STANDARD has no `basic`, `ed` or `run` - and it holds none
+of the administration verbs, so whatever it reaches it reaches through the
+session's OS token rather than through SD granting it.
+
+**Options if it confirms, none decided:** drop privilege after the `fork()` in
+`sdwind.c`; gate `USR_ADMIN` on connection type at `kernel.c:195`; or route
+`$cred` writes through the elevation helper as `create.account` does.
+
+---
+
 ## Correction: 20 Aug 2026 - SET.PASSWORD never needed `sd -internal`, and the flag is unpublished
 
 **Commit:** this one. Corrects PROJECT_STATUS.md in four places and the
