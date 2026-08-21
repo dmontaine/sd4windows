@@ -12664,3 +12664,20 @@ exercised through it before committing.
 **Nothing was spent.** The guard fires before any account is created, so
 `sddel2` is still fresh. Worth knowing generally: every `Fail` in this script is
 above the `try`, so exit 2 never consumes a prefix.
+
+**38 of 38, and MAX_PATH was the whole of it.** `verify-delaccount -Prefix
+sddel2` on the 09:33:41 install: both subjects got their profile
+**"via CreateProfile"**, so passing MAX_PATH and the buffer's own capacity fixed
+`RPC_X_BAD_STUB_DATA`. The inference recorded above is now measured.
+
+What the profile half actually proved, which is the part that had never been
+tested: SD's own account lost **both halves** — `C:\Users\sddel2s` and its
+`ProfileList` entry — and `10075` was not shown, so `delete_user` returned 0 and
+not 6. The borrowed account kept its login, its description **and its profile**,
+while its SD side went. That is `DELETE_USER`'s whole contract, exercised.
+
+**Route 2 has still never executed**, and the file says so. It is untested code
+on a path only reachable if `CreateProfile` fails again.
+
+`DELETE.ACCOUNT` is closed and off the owed list. What remains there is the
+owner's console-path decision and then the token work.
