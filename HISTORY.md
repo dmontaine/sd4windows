@@ -12364,3 +12364,38 @@ clean and finding the symbol in the binary were all true and all worthless -
 the same trap PROJECT_STATUS records for APIPORT ("this changes the shared
 segment layout and SYSSEG_REVSTAMP does not catch that"), reached from the
 build side rather than by copying one binary onto a running system.
+
+**The cycle then ran, and the gate's own success destroyed the measurement.**
+`verify-apiadmin -Prefix sdapia5`: OS.EXECUTE was REFUSED over a real API
+connection - `sdapia5 is not permitted to use OS.EXECUTE`, with the local
+elevated leg refused too, so item 5 is confirmed with its control. But the
+`$cred` markers came back BLANK.
+
+The `os.execute` was the last thing the probe did and a refusal aborts it. On
+the local leg that costs nothing, because the markers are already on the
+terminal. Over the API the session's output is CAPTURED, and an abort discards
+the captured buffer - so the reply held the abort event and the refusal, and
+not one of the markers the program had already printed. Two FAILs that were
+absence of data rather than measurement, on the headline claim of the gate.
+
+Moving PROBE.DONE above the attempt, which was the 21 Aug fix to a different
+symptom on the same lines, did not help: the loss is in the capture, not the
+ordering. Fixed by splitting the probe in two - apiadminprobe.sb is now
+abort-free by construction, apiosexecprobe.sb is the one allowed to die. **A
+leg that can abort has to be a separate run** is the part worth carrying
+forward.
+
+The OS.EXECUTE check itself was vacuous by the same logic - it read the ABSENCE
+of PROBE.WHOAMI, which is equally consistent with the probe never starting -
+and is now gated on PROBE.OSEXEC.TRIED, with a check on each leg asserting the
+attempt was made. Third instrument fault in this verifier in two days, and all
+three are the same shape: an absent marker read as an answer.
+
+**verify-routes came back 30/33 and the handoff had predicted 32/32.** That
+prediction was wrong, not the run. Dropping `Check: SshServerAbsent` makes the
+limitssh task offerable; it still ships unticked, and a silent cycle install
+ticks nothing, so sshd_config stayed stock. No cycle can make those three
+checks pass by itself. Put right on this machine by running
+allow-ssh-groups.ps1 by hand, which wrote both halves - AllowGroups and
+ForceCommand - the default -SdExe resolving correctly because the installed
+copy was the one run.
