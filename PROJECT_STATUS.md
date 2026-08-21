@@ -2167,9 +2167,26 @@ phase 5 regression. Run `sd`, then `SET.PASSWORD DON`.
 
 **IT IS NOT `sd -internal`, AND THIS FILE SAID SO IN FOUR PLACES UNTIL
 20 Aug 2026.** Corrected on the owner's point that **`-INTERNAL` IS AN
-UNPUBLISHED DEVELOPMENT FLAG AND IS NEVER EXPOSED TO CUSTOMERS** - `LOGIN:332`
-already says exactly that, and `--HELP` does not list it (`sd.c:657`). Routine
-credential administration must not be documented in terms of it.
+UNPUBLISHED DEVELOPMENT FLAG** - `LOGIN:332` already says exactly that, and
+`--HELP` does not list it (`sd.c:657`). Routine credential administration must
+not be documented in terms of it.
+
+**UNPUBLISHED IS NOT SECRET, AND THE DISTINCTION IS LOAD-BEARING** - owner,
+20 Aug 2026: *"since this is open source, the customer can look at the source
+code and find out about -internal, but we don't want to publish it."* So:
+
+- **Do not publish it.** Not in `--HELP`, not in the changelog, not in any
+  user-facing document. It is for developing SD.
+- **Do not rely on it being unknown either.** The source is GPL and a customer
+  may read it. **Never write an obscurity argument into the reasoning around
+  it**, and treat one already written as a defect.
+- **What actually protects it is ELEVATION, TWICE**: `check_admin()`
+  (`sd.c:340`) refuses an unelevated session at the door, and `LOGIN:338`
+  refuses SDSYS without `K$ADMINISTRATOR`, which `kernel.c:195` seeds from
+  `IsElevated()`. Reaching SDSYS this way needs a Windows administrator who
+  has elevated - somebody who can already do anything on the machine. **That
+  holds against a reader who knows everything above**, which is the property
+  that makes publishing-or-not a tidiness decision rather than a security one.
 
 **AND IT WAS NEVER NEEDED, WHICH THE CODE SETTLES:**
 

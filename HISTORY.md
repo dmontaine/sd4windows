@@ -55,11 +55,43 @@ is the failure mode worth naming: a note that keeps prescribing a flag will
 outlive the reason it was ever reached for, and the next reader copies the
 prescription rather than the reasoning.
 
-**THE CHANGELOG HAD IT TOO** - a 13 Aug entry described `"sd -INTERNAL"` and
-its password behaviour to customers. Replaced with the fact a customer can
-actually observe (entering SDSYS always asks for its password) and no flag
-name. Safe to edit rather than append: the whole section is headed
-*"Windows port - unreleased"*, so nothing has shipped.
+**THE CHANGELOG NAMED IT TOO** - a 13 Aug entry described `"sd -INTERNAL"` to
+customers. The flag name is dropped. Safe to edit rather than append: the
+section is headed *"Windows port - unreleased"*, so nothing has shipped.
+
+**AND THE FIRST ATTEMPT AT THAT EDIT WAS WRONG, IN A WAY WORTH RECORDING.** It
+replaced the bullet with *"ENTERING SDSYS ALWAYS ASKS FOR ITS PASSWORD"* -
+**false today**, taken from the stale comment at `sd.c:549` rather than from
+`LOGIN`. Two mistakes at once: asserting current behaviour from a comment
+instead of code, and **rewriting a DATED HISTORICAL entry into the present
+tense**. A changelog entry dated 13 Aug is not falsified by 14 Aug reversing
+it - it is superseded by the newer entry above, which is how the file is meant
+to work, and the 14 Aug reversal *is* recorded, at `changelog:1202`,
+thoroughly. Corrected to a bullet that names no flag and asserts nothing about
+today.
+
+**THE RULE THAT FALLS OUT: a changelog is a dated record and is edited only to
+remove what should not have been published. Never to "correct" an old entry
+into current truth** - that destroys the history and, as here, can introduce a
+falsehood while claiming to fix one.
+
+**UNPUBLISHED IS NOT SECRET.** Owner, 20 Aug 2026: *"since this is open
+source, the customer can look at the source code and find out about
+-internal, but we don't want to publish it."* Both halves matter. Do not
+publish it; do not lean on it being unknown. What protects it is **elevation,
+twice** - `check_admin()` at `sd.c:340` and `LOGIN:338`'s `K$ADMINISTRATOR`
+test, seeded from `IsElevated()` - which holds against a reader who has the
+source. **An obscurity argument written into that reasoning is a defect**, and
+`sd.c` now says so in the file.
+
+**THE COMMENT THAT CAUSED ALL OF THIS IS FIXED**, and it is the third instance
+this project has recorded of the same failure. `sd.c:549` claimed *"entering
+SDSYS needs the SDSYS password like any other entry"*. Written **13 Aug**;
+`LOGIN`'s reversal deleting password login entirely landed **14 Aug**; never
+updated. The changelog got it right and the comment did not, **because a dated
+entry is superseded by the next one while a comment in the present tense just
+goes on being read.** Compare the §8-versus-§7 note the previous session
+found, stale for three days by the same mechanism.
 
 **NOT OVER-APPLIED.** Eighteen mentions remain in PROJECT_STATUS and every one
 is development or bootstrap - `sd -internal BASIC GPL.BP <prog>`, because
