@@ -11,8 +11,30 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+**THE TREE IS STALE BY ONE FILE AND IT IS `sdsys/changelog`.** Every verifier
+will refuse until a cycle is spent — *"STALE: 1 source file(s) are newer than
+the install: sdsys\changelog"*, 21 Aug 14:30. **Nothing is broken.** The
+changelog cannot change behaviour and no verifier reads it; it was written after
+the 14:15:55 install as CLAUDE.md requires, and `assert-current` watches all of
+`sdsys`. **Read the results below before deciding to spend a cycle** — Phase 2
+is already measured, and the only thing a cycle unblocks is re-running four
+verifiers whose results went stale rather than red.
+
+**AND THERE IS A DECISION WAITING ON THE OWNER ABOUT THAT.** The changelog is
+touched by **97 commits so far**, and every one of them costs a cycle before the
+suite can run again. `assert-current.ps1` already makes this argument for
+documentation in its own comments — editing `VENDORING.md` once turned it red on
+a tree that had just passed the whole suite — and its `$shipsAs` test exempts
+`.md`/`.txt` that do not ship. `changelog` has no extension and **does** ship, so
+it is watched. Exempting it by name would end the toll, at the price of allowing
+an install to carry a changelog one entry behind source. **Not done: the guard's
+own rule is that a false "current" costs more than a false "stale", and that is
+the owner's call, not a session's.**
+
+---
+
 **PHASE 2 IS BUILT AND MEASURED.** Install 21 Aug **14:15:55**,
-`assert-current` green, four verifiers run against that one install:
+`assert-current` green at the time, four verifiers run against that one install:
 
 | verifier | prefix | result |
 |---|---|---|
@@ -55,11 +77,15 @@ behaviour change with no coverage at all)**, 10087 (a GROUP account), 10083
 `verify-createaccount -Account sdacct28`, `verify-tiers -Prefix sdtiert4` and
 `verify-accountacl -Prefix sdacl8` all exited 0 — on the **13:16:19** install,
 which two source changes have superseded. They are not results for the tree
-installed now. Re-running them needs no cycle:
+installed now. **Re-running them needs a cycle first**, because of the
+changelog staleness at the top of this file — cycle, then:
 
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert5 -Account sdacct29 -AclPrefix sdacl9 -ApiPrefix sdapia11
 ```
+
+**Nothing in those four is suspected.** The two changes that superseded them are
+a sign on an error path neither exercises. This is bookkeeping, not a hunt.
 
 **THE INSTALL ITSELF EXERCISES `set.access`, and the administrator/API gap is
 closed.** `C:\ProgramData\SD\adopt-account.log`: *"don keeps the Windows
@@ -103,6 +129,23 @@ it here would put a rule in front of every login while the flow that needs it
 does not exist yet, and **the bootstrap runs `sd -internal` into an SDSYS that
 has no credential** (`bootstrap.py`, "NO PASSWORD IS NEEDED OR SET"), so the
 rule has to be written around that or it breaks the install.
+
+**WHAT IS NEXT, in the order it makes sense to take it:**
+
+| | |
+|---|---|
+| **Phase 3**, not started | `ADOPT` becomes install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** — see the deviation note above |
+| **Phase 4**, not started | rewrite `verify-routes` for the four keywords; a new verifier for 10082 / 10086 / 10087 / 10083; changelog and handoff |
+| bookkeeping | re-run the four stale verifiers, after a cycle |
+| owner's decision | whether `assert-current` should exempt `sdsys/changelog` — top of this file |
+| **this file is far over §0's size ceiling** | roughly three times it. §0.5 says the way back is to compress a §7 step's §4 and §7 material to its conclusion when the step closes — Phase 1 and Phase 2 have both closed since anyone last did that. Not attempted here: it is a real editing job, not a tidy-up, and doing it badly loses reasoning that nothing else records |
+
+**AND TWO THINGS THAT OUTLIVE THE FOUR PHASES.** The API session's TOKEN is
+still LocalSystem (§WHAT IS OWED — the only large item left, and no longer
+blocked). And **nothing has ever crossed the network**: every API measurement
+went to `127.0.0.1:4243`. The bind is asserted `0.0.0.0` and the firewall rule
+exists, but a connection from another machine is what Phase 1 was for and it has
+not been made.
 
 **THE MESSAGE NUMBERS PHASE 2 ADDED**, so a refusal naming one is identifiable
 without a grep. Retired with it: 10063–10072, 6029, 6031.
