@@ -27,6 +27,82 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - Peer identification built, log only; and the errlog trim sdwind never had
+
+**Commit:** this one. **Built, not verified** - no cycle has run.
+
+**THE POLICY IS DECIDED: LOG ONLY** (owner, 20 Aug 2026), the first row of the
+table the previous entry left open. `sdwind.c`'s `accept_api_session()` keeps
+the peer `sockaddr` it used to discard, resolves it through
+`gplsrc/win32peer.c` and writes one line. Nothing is refused. The two
+enforcing options both need this mechanism first, so the built part is the
+common prefix rather than a narrowing of the choice.
+
+**THE PROBE'S WINDOWS HALF MOVED INTO THE SHIPPED TREE RATHER THAN BEING
+COPIED.** `gplsrc/sdclilib/tests/peer_probe_win32.c` is deleted and
+`make check-peer-probe` compiles `gplsrc/win32peer.c` - the file `sdwind`
+calls. Two copies would have drifted the first time either was corrected, and
+the test would have gone on passing.
+
+**THE PART THAT WAS NOT ASKED FOR AND IS NOT OPTIONAL: `sdwind`'s
+`log_message()` HAS NEVER TRIMMED THE ERROR LOG.** `k_error.c:569` trims when
+the file reaches `ERRLOG`; this copy shares the name and only ever appended.
+**It never showed because until now the daemon logged at startup and on
+failure and nowhere else**, so the file was capped by whichever SD session
+next logged anything - an accident, not a cap, and on a machine used only
+through the API no SD session need log at all. Logging per connection makes
+`sdwind` a per-connection writer, and the shipped `ERRLOG=50` is about 450
+connections. Adding the feature without the trim would have shipped unbounded
+growth of a file the configuration promises to bound.
+
+**GENERALISABLE:** a config setting honoured by one of two writers to the same
+file is not honoured. It reads as working for exactly as long as the other
+writer is the busy one.
+
+**ONE GUARD ADDED THAT `k_error.c` LACKS**, found by reading it to copy it:
+`p = ((char*)memchr(buff, '\n', bytes)) + 1` is dereferenced unconditionally
+under the comment *"there must be one"*. A log holding a single line longer
+than 4096 bytes would take the process down. The new copy abandons the trim
+instead. **Not raised upstream**, on the `sdclient.c` precedent: `sdb64`'s
+`sdlnxd.c` has the identical untrimmed `log_message`, but nothing there writes
+often enough to reach either case, so it is a trap rather than a defect.
+
+**`-Wformat-truncation` CAUGHT A REAL ONE** and was not silenced: the log line
+was assembled into 512 bytes while the account alone can be 514, so a long
+`DOMAIN\name` would have produced a truncated line naming the wrong account -
+worse than no line. Buffer sized from the account length rather than guessed.
+
+**WHAT IS OBSERVED AND WHAT IS NOT, stated because the distinction is the
+rule:** `make sd` exit 0 with no warnings, and `make check-peer-probe` PASS
+against the moved file, are **observed**. The trim's arithmetic was checked on
+a **scratch copy of the algorithm** - four file sizes, asserting the newest
+record survives, the file restarts on a whole line, and no gap appears in the
+middle - which is enough to catch an off-by-one before spending a cycle and is
+**not** evidence about `sdwind`. Nothing about the running daemon is measured.
+`gplbld/verify-peerlog.ps1` is written and has never run.
+
+**THE VERIFIER'S CONTROLS**, since a log-reading test is easy to write
+vacuously: two DIFFERENT processes connect and both pids must appear, so a
+lookup returning any constant fails; the pids come from Windows (`$PID`,
+`Start-Process -PassThru`) rather than from anything the test deduced; the
+planted log carries a marker in its first record and another in its last, and
+the trim must remove the first and keep the second - "the file got smaller"
+alone would also be true of one the trim had emptied.
+
+**A HOLE IN `assert-current` THAT THIS CHANGE WALKS PAST, AND THE MTIME CHECK
+CATCHES IT.** Everything here lands in `sdwind.exe`; `sd.exe` carries none of
+it. A currency test that hashed `sd.exe` alone would call this tree current.
+CLAUDE.md says "hashing `sd.exe` is not sufficient on its own" about BASIC,
+messages and dictionaries - this is the same hole reached from the C side, and
+is the first C change to reach it.
+
+**Still open:** the cycle, the verifier, and whether enforcement is ever
+wanted. `win32peer.h` carries the two limits any enforcement must allow for -
+an ssh-forwarded client identifies `sshd`, and the `accept()`-to-lookup TOCTOU
+window.
+
+---
+
 ## 20 Aug 2026 - The named pipe is closed; GetExtendedTcpTable does the same job
 
 **Commit:** this one. Investigation and a probe; **nothing built into SD**.

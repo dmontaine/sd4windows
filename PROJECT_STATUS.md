@@ -5,11 +5,83 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 20 Aug 2026, thirtieth session.
+**Last updated:** 20 Aug 2026, thirty-first session.
 
-**PEER AUTHENTICATION FOR THE API: THE ROUTE §8 NAMES IS BLOCKED, AND A
-WORKING ALTERNATIVE IS PROVEN. NOTHING IS BUILT INTO SD YET - the policy is
-undecided and that is the next thing to settle.** Started 20 Aug 2026.
+**PEER IDENTIFICATION IS BUILT AND IS LOG-ONLY. THE POLICY IS DECIDED - owner,
+20 Aug 2026: LOG ONLY, nothing is refused.** The three candidates are in the
+table below; the two enforcing ones both need this mechanism first, so what is
+built is the common part and not a narrowing.
+
+**A CYCLE IS OWED AND IS THE NEXT ACTION. `verify-peerlog.ps1` IS WRITTEN AND
+HAS NEVER RUN.** Elevated, in order:
+
+```powershell
+gplbld\cycle.ps1
+gplbld\verify-peerlog.ps1
+```
+
+**WHAT IS BUILT:**
+
+| Part | What |
+|---|---|
+| `gplsrc/win32peer.c`,`.h` | **NEW.** The fourth `windows.h` file. Moved out of the probe's `tests/`, so `make check-peer-probe` now compiles the SHIPPED file |
+| `sdwind.c` `accept_api_session` | peer `sockaddr` kept instead of discarded; `getsockname` + `win32_peer_pid` + `win32_pid_user`; one log line; **no refusal** |
+| `sdwind.c` `trim_errlog` | **NEW, and it is not optional** - see below |
+| `Makefile` | `win32peer.o` and `-liphlpapi` on the `sdwind` target |
+| `gplbld/verify-peerlog.ps1` | **NEW, NEVER RUN.** Step 5 of `post-cycle-elevated.ps1` |
+| `sdsys/changelog` | the log line, the ssh-shows-sshd limit, and the ERRLOG change |
+
+**THE TRIM IS THE PART THAT WOULD HAVE BITTEN LATER. `sdwind`'s
+`log_message()` HAS NEVER TRIMMED THE ERRLOG** - `k_error.c:569` does it on
+the sd side and this copy only ever appended. It did not show because until
+now this program logged at startup and on failure and nowhere else, so the
+file was capped by whichever SD session next logged anything. **That is an
+accident, not a cap**: on a machine used only through the API no SD session
+need call `log_message()` at all. Logging per connection turns `sdwind` into a
+per-connection writer, and `sd.conf` asks for `ERRLOG=50` - about 450
+connections. `trim_errlog()` is `k_error.c`'s algorithm in POSIX calls.
+
+**IT REMOVES `limit/2` PER CALL, NOT HALF THE FILE**, so a file already far
+over the limit comes down slowly. Matched to `k_error.c` deliberately - two
+writers to one file must not disagree about what ERRLOG means.
+
+**ONE GUARD ADDED THAT `k_error.c` LACKS**, and it is a real latent crash
+there: `p = ((char*)memchr(...)) + 1` is dereferenced unconditionally under
+the comment *"there must be one"*, so a log holding one line longer than 4096
+bytes takes the process down. Here a missing newline abandons the trim.
+**Not raised upstream** - the same reasoning as `sdclient.c`: upstream's
+`sdlnxd.c` has the identical untrimmed `log_message`, but nothing there writes
+often enough to reach the case, so it is a trap and not a defect.
+
+**WHAT IS OBSERVED THIS SESSION, AND WHAT IS NOT:**
+
+| | |
+|---|---|
+| `make sd` exit 0, no warnings | **observed** |
+| `make check-peer-probe` PASS, against the moved `gplsrc/win32peer.c` | **observed** |
+| trim arithmetic - newest record kept, whole-line start, no gap, four sizes | **observed on a SCRATCH COPY of the algorithm**, not on `sdwind` |
+| **anything about the running daemon** | **NOT observed. No cycle has run.** |
+
+**THE SCRATCH COPY IS NOT THE VERIFICATION AND IS DELETED.** It could only
+catch an off-by-one before a cycle was spent, which is what it was for.
+`verify-peerlog.ps1` against the running daemon is the evidence.
+
+**`assert-current` CATCHES THIS CHANGE BY MTIME, NOT BY HASH, AND THAT IS THE
+DESIGN WORKING.** Everything here lands in **`sdwind.exe`**; `sd.exe` is
+relinked but carries none of it. A suite that hashed `sd.exe` alone would call
+this tree current. CLAUDE.md's *"hashing `sd.exe` is not sufficient on its
+own"* is usually said about BASIC and messages - this is the same hole reached
+from the C side.
+
+**HASHES:** `bin/sd.exe` **`A8E9E6568F573313`**, `bin/sdwind.exe`
+**`5179A93DA234BFD5`**, built 20 Aug 17:37.
+
+**THE TWO LIMITS ARE UNCHANGED AND ARE IN THE CHANGELOG, NOT ONLY HERE**, so a
+user meets them before being puzzled: an **ssh-forwarded client shows `sshd`**,
+and there is a narrow **TOCTOU** window. `win32peer.h` carries both at length.
+
+**Before this: the route §8 names was blocked and the alternative proven.**
+Started 20 Aug 2026.
 
 **§8's PROPOSAL IS CLOSED BY THIS PROJECT'S OWN MEASUREMENT.** It says *"a
 named pipe with `GetNamedPipeClientProcessId` remains the right Windows
@@ -69,12 +141,13 @@ owner up before `fork()`, refuse there.
   port be reused. Narrow, and closable by comparing process start time, but it
   is not zero.
 
-**WHAT IS NOT DECIDED, AND IT IS THE WHOLE OF THE NEXT STEP: what policy to
-enforce.** The mechanism yields the peer's Windows account. Candidates:
+**DECIDED 20 Aug 2026 - LOG ONLY, the first row.** The other two are still the
+options if enforcement is wanted later, and both need the built mechanism
+first:
 
 | Policy | Buys | Costs |
 |---|---|---|
-| **Log only** | an audit trail of who connected | no enforcement |
+| **Log only** ← **BUILT** | an audit trail of who connected | no enforcement |
 | **Peer must be in `sdusers`** | a non-SD process cannot reach the SCRAM exchange at all | breaks ssh-forwarded clients, where the peer is `sshd` |
 | **Peer must match the SD account** | strongest | the account is not known at accept time - it arrives in the SCRAM exchange, so this has to be checked in `APISRVR`, not `sdwind` |
 
@@ -82,8 +155,8 @@ enforce.** The mechanism yields the peer's Windows account. Candidates:
 administrator"* was true by construction and stopped being true the moment an
 RDPACCOUNT existed, and the loopback binding leaned on it.
 
-**NOTHING IN `sdwind` OR ANY SHIPPED FILE HAS BEEN TOUCHED.** The probe and
-its make target are the whole of the change.
+**THE "NOTHING IN `sdwind` HAS BEEN TOUCHED" LINE THAT STOOD HERE IS GONE**,
+not annotated. It was true for one session. The header has what is built.
 
 **BEFORE THIS: RDPACCOUNT IS BUILT AND VERIFIED**,
 `verify-rdpaccount.ps1 -Prefix sdrdp2` **18/18** on the **16:47:22** install,
@@ -2049,9 +2122,14 @@ it. Call it first from anything new that tests the install.
 
 **START HERE, in order:**
 
-**1. NO CYCLE IS OWED, AND NOTHING NEEDS RE-MEASURING.** The tree is current
-(**07:52:25**, `sd.exe` **`6DE833057823BFFB`**) and the whole suite passed on
-it, `probe-keys.ps1` excepted.
+**1. A CYCLE IS OWED.** `gplsrc/win32peer.c`, `win32peer.h`, `sdwind.c`, the
+`Makefile` and `sdsys/changelog` all changed after the last install, and
+`sdwind.exe` carries the lot. Then `gplbld/verify-peerlog.ps1`, which has
+never run. The header has both commands.
+
+*(This item said "NO CYCLE IS OWED, AND NOTHING NEEDS RE-MEASURING" against
+the 07:52:25 install. That was true when written and is the shape of claim
+this file has to keep current, not date-stamp and leave.)*
 
 **ALL THREE REPOSITORIES ARE COMMITTED AND PUSHED, 20 Aug 2026.**
 `sd4windows` `d92217d` on `main`; `winsdclilib` `254fb1d` on `master`;
@@ -2100,6 +2178,9 @@ is not shipped and cannot reach an installed tree - without that line, WRITING
 a test would make every test refuse to run.
 
 **WHAT IS LEFT, 20 Aug 2026 — the whole list, in the order it is worth doing.**
+
+**0. THE CYCLE AND `verify-peerlog.ps1`** — ahead of everything below, because
+it is the only unverified code in the tree. Header.
 
 1. **DONE. `SET.PASSWORD DON` run, and mvDeveloper CONNECTED - owner,
    20 Aug 2026, on the 16:13:18 install.** That is the whole chain of this
