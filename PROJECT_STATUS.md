@@ -6516,6 +6516,27 @@ session cannot.
 
 Each of these cost real time. Read before debugging anything similar.
 
+- **`sdclilib.dll` BUILDS REPRODUCIBLY AND `sd.exe` DOES NOT, AND THE
+  ASYMMETRY DECIDES WHAT A NO-OP REBUILD COSTS.** Measured 20 Aug 2026 by
+  running `make sd` twice with no source change between:
+
+  ```
+  sdclilib.dll  3783A82FCDEBD433 -> 3783A82FCDEBD433   identical
+  sd.exe        EBD39CFC091DB1A2 -> B0F8DE2D5F4306E9   different
+  ```
+
+  So **rebuilding after touching anything the server links ALWAYS costs a
+  cycle**, whether or not the change could affect the binary - the hash moves,
+  `assert-current`'s Check A fails, and only an install can clear it. The
+  client DLL is free.
+
+  **THE SHAPE THIS ARRIVES IN, because it is not obvious from either end.**
+  Editing `gplsrc/sdclilib/Makefile` to add a TEST target - which cannot
+  change any shipped byte - left the DLL's mtime older than the Makefile, so
+  Check B said *"run `make sd`"*; running it then broke Check A, which only a
+  cycle fixes. **One edit to a test-only target, two cycles**, if the rebuild
+  is not done before the first one. Do the rebuild first.
+
 - **A TIER RESULT THAT LOOKS LIKE THE SILENT FULL-VOC FAILURE IS MORE LIKELY A
   BROKEN ACCOUNT NAME. 19 Aug 2026.** `verify-tiers.ps1` reported all three
   tiers holding **429** VOC records, **0 of 18** capabilities withheld and all
