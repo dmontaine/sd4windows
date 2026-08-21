@@ -13172,3 +13172,59 @@ strength of its own newness - the self-blocking shape that list already carries
 five notes about.  Both verifiers were added to post-cycle-elevated.ps1, before
 verify-peerlog, which overwrites the error log any earlier step would have left
 a diagnosis in.
+
+## 21 Aug 2026 - the suite on the Phase 3/4 install: 7 of 8, and CREATE.ACCOUNT GROUP does not work
+
+Cycle 21 Aug, install 16:18:37, `sd.exe` `CB9C4E0460B175F5`, `assert-current`
+green for every step.  `verify-fold` 10/10, `verify-createaccount` 18/18 on
+`sdacct29`, `verify-tiers` 22/22, `verify-accountacl` 21/21, **`verify-routes`
+33/33** on its first run after the Phase 4 rewrite, `verify-peerlog` 21/21,
+`verify-apiadmin` 22 + the standing N/A.  `verify-accountrules` 27/32.
+
+**Phase 2's four keywords are measured end to end.** The check that mattered
+most passed: after `MODIFY.ACCOUNT x API` on an account created with SSH, the
+routes are `api` ALONE, so the keyword says what the access IS rather than what
+to add.  10077, 10080 for a repeat, 10078 for BOTH, 10079 for NONE, 10083 for an
+administrator, and the keyboard invariant still held after all of it.
+
+**Phase 3's ADOPT gate is measured, and the install exercised it for real.** All
+ten step-4 checks passed - refused as an unknown token without the marker,
+accepted with it, marker consumed, second attempt refused again.  Separately,
+`verify-tiers` reads "DON ACC$TIER (the ADOPT default): ADMINISTRATOR", which
+means `adopt-account.ps1` wrote the marker and `CREATEA` consumed it during the
+install itself.  An ADOPTed account also came out with both routes and NOT in
+`sdsshonly`, which is the administrator/API gap closure on the ADOPT path,
+measured for the first time.
+
+**The LOGIN credential rule did not break the suite**, which is the negative
+measurement `kernel(K$TTY,0)` exists for: every verifier drives `sd` through a
+pipe and not one was prompted.
+
+**THE FINDING: `CREATE.ACCOUNT GROUP` fails, and leaves a directory that blocks
+the name for ever.**  Observed: the account directory was made, no `sdg_`
+Windows group, no ACCOUNTS record; `MODIFY.ACCOUNT` and `DELETE.ACCOUNT` then
+both said there is no such account.  Only one path in `CREATEA` produces exactly
+that - `:499` makes the directory, `:696` calls `create.group`, `:698` `stop`s
+if it fails, and both `make.account` and the register write are after it.
+Nothing removes the directory on that path, and `:500` refuses an existing
+directory with 10009, so the name cannot be retried.  Nothing had ever tested
+`CREATE.ACCOUNT GROUP`, which is why this is only surfacing now.
+
+**Why it failed is not known, and that is an instrument fault.**
+`verify-accountrules` printed not one line of what the verb said, so the
+diagnosis had to be reconstructed from source and could not be finished.
+`create.group`'s two silent exits are ruled out - `valid_os_name`'s character
+set allows `sdg_sdar1g` and `MAX.USERNAME.LEN` is 32 - so it took the loud path
+and printed 10015 with a status code, which is the answer nobody captured.  The
+file now prints every command's output and records whether the directory got a
+`voc`, which separates "stopped at create.group" from "stopped inside
+make.account".  Its own cleanup had also deleted the directory, taking the other
+half of the evidence with it.
+
+**An accidental observation that is not yet settled.**  The transcript was
+pasted back into an elevated prompt, which launched several `sd.exe` sessions -
+elevated, real console, `don`'s own account - and every one reached the `:`
+prompt without being asked for a password.  Either `don` has a credential
+because the install's SD window was used, or `require.credential` did not fire.
+`$cred` is locked to SYSTEM and Administrators, so only an elevated `dir` on it
+can tell the two apart.

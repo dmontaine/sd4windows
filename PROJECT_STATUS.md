@@ -11,14 +11,92 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**PHASES 3 AND 4 ARE WRITTEN AND NOTHING ABOUT EITHER HAS BEEN RUN.** Not
-compiled, not installed, not measured. The tree is stale by every file they
-touched. **The next action is one cycle**, and `-SkipInstall` first is the cheap
-half:
+**PHASES 3 AND 4 ARE MEASURED, EXCEPT ONE LEG, AND THAT LEG FOUND A REAL
+DEFECT.** Cycle 21 Aug, install **16:18:37**, `sd.exe` **`CB9C4E0460B175F5`**,
+`assert-current` green for every step. Seven of eight verifiers passed:
+
+| verifier | prefix | result |
+|---|---|---|
+| `verify-fold` | — | **10/10** |
+| `verify-createaccount` | `sdacct29` | **18/18**, and it shows `SSH` printing 10034 **and** 10076 |
+| `verify-tiers` | `sdtiert5` | **22/22** |
+| `verify-accountacl` | `sdacl9` | **21/21** |
+| `verify-routes` | `sdrt5` | **33/33** — the Phase 4 rewrite, first run |
+| `verify-accountrules` | `sdar1` | **27/32** — see the finding below |
+| `verify-peerlog` | — | **21/21** |
+| `verify-apiadmin` | `sdapia11` | **22/23**, the 23rd the standing N/A |
+
+**THE FINDING: `CREATE.ACCOUNT GROUP` DOES NOT WORK, AND IT LEAVES A DIRECTORY
+BEHIND THAT BLOCKS THE NAME FOR EVER.** Observed: the account directory was
+made, **no `sdg_` Windows group**, **no ACCOUNTS record**; `MODIFY.ACCOUNT` and
+`DELETE.ACCOUNT` then both said there is no such account. From the source, only
+one path produces exactly that — `CREATEA:499` makes the directory, `:696`
+calls `create.group`, and `:698` **`stop`s** if it fails, before `make.account`
+and before the register write. **Nothing removes the directory on that path**,
+and `CREATEA:500` refuses an existing directory with 10009, so the name cannot
+be retried.
+
+**WHY IT FAILED IS NOT KNOWN, AND THAT IS AN INSTRUMENT FAULT OF MINE.**
+`verify-accountrules` printed not one line of what the verb said, so the
+diagnosis had to be reconstructed from source and could not be finished.
+`create.group`'s two silent exits are both ruled out — `valid_os_name`'s
+character set allows `sdg_sdar1g` and `MAX.USERNAME.LEN` is 32 — so it took the
+loud path and printed **10015, "Unable to create group: %1 status: %2"**, whose
+status code is the answer. **The verifier now prints every command's output**
+and records whether the directory got a `voc` (which separates "stopped at
+`create.group`" from "stopped inside `make.account`").
+
+**SO THE NEXT ACTION IS ONE RE-RUN, AND IT NEEDS NO CYCLE.** Only
+`verify-accountrules.ps1` changed and it is on `assert-current`'s
+`$neverShipped` list, which is exactly what that list is for — the other seven
+results stand.
 
 ```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-accountrules.ps1 -Prefix sdar2
 ```
+
+**A FRESH PREFIX: `sdar1` IS SPENT.** Its `sdar1n`, `sdar1p` and `sdar1d`
+ACCOUNTS records are still in the register.
+
+**WHAT PHASE 3 THIS RUN DID PROVE, and it is most of it:**
+
+- **The `$adopt` gate works, all ten checks.** `ADOPT` refused as an unknown
+  token without the marker, accepted with it, the marker consumed, **and a
+  second attempt refused again** — so "one-shot" is measured, not asserted.
+- **The install itself adopted through the new gate.** `verify-tiers` reads
+  *"DON ACC$TIER (the ADOPT default): ADMINISTRATOR"*. `adopt-account.ps1` wrote
+  the marker, `CREATEA` consumed it, and `don` has an SD account on this
+  install — the whole Phase 3 path, exercised by the installer rather than by a
+  test.
+- **An ADOPTed account gets both routes** (`ssh+api`) and **is not put in
+  `sdsshonly`** (10040) — the administrator/API gap closure, on the ADOPT path,
+  measured for the first time.
+- **The `LOGIN` credential rule did not break the suite**, which is the negative
+  measurement the `kernel(K$TTY,0)` test exists for: every verifier drives `sd`
+  through a pipe and not one of them was prompted.
+
+**WHAT PHASE 3 THIS RUN DID NOT PROVE:** whether the install ended in a visible
+SD session that asked for a password. Nobody has reported seeing it, and no
+verifier can — it happens after the last dialog. **Ask, or watch the next
+install.** `C:\ProgramData\SD\adopt-account.log` and the Setup log are where a
+failure would be.
+
+**AND THERE IS AN AMBIGUOUS OBSERVATION ABOUT `require.credential` THAT NEEDS
+SETTLING.** 21 Aug, by accident: the previous transcript was pasted back into an
+elevated prompt, which launched several `sd.exe` sessions — elevated, at a real
+console, `don`'s own account. **Every one went straight to the `:` prompt.**
+That is either
+
+- `don` **has** a credential, because the install's SD window was used — in
+  which case the rule is working and Phase 3 is closed; or
+- the rule **did not fire**, and something in the `mode = 0`,
+  `not(is.phantom)`, `not(K$INTERNAL)`, `K$ADMINISTRATOR`, `K$TTY # ''` chain is
+  false where it should be true.
+
+**It cannot be told apart from outside**: `$cred` is locked to SYSTEM and
+Administrators, so an unelevated session cannot look. **From an ELEVATED
+prompt, `dir "C:\ProgramData\SD\sdsys\$cred"` settles it** — a `DON` record
+means the first reading. Do that before believing the rule works.
 
 **WHAT PHASE 3 CHANGED**, all of it in §"Phase 3, as built" below with the
 reasoning:
@@ -66,25 +144,15 @@ is exactly what Inno's `Exec` with `SW_SHOW` gives `sd.exe` — → `isatty=1`,
 | `assert-current.ps1` | the new verifier added to `$neverShipped` — without that line it would report the tree stale because it exists, then refuse to run on the strength of its own newness |
 | `post-cycle-elevated.ps1` | runs both, before `verify-peerlog` (which overwrites the error log). New `-RoutePrefix` / `-RulesPrefix` |
 
-**WHAT A CYCLE SHOULD SHOW, in order.** `-SkipInstall` first: the two BASIC
-files compile. Then a full cycle, and **watch it** — the install must end with a
-console window that asks for a password. Then, with fresh prefixes:
+**THE WHOLE SUITE, for the next cycle**, with fresh prefixes each time:
 
 ```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert5 -Account sdacct29 -AclPrefix sdacl9 -ApiPrefix sdapia11 -RoutePrefix sdrt5 -RulesPrefix sdar1
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert6 -Account sdacct30 -AclPrefix sdacl10 -ApiPrefix sdapia12 -RoutePrefix sdrt6 -RulesPrefix sdar3
 ```
 
 `verify-delaccount -Prefix sddel4` is still run by hand, and is the other one
-that exercises the new gate.
-
-**WHAT WAS CHECKED WITHOUT A CYCLE, so a failure is placeable.** The `[Code]`
-section compiles under ISCC (extracted into a minimal `.iss`; it caught a real
-`#13#10` at the start of a line, which is the trap `cycle.ps1` lints for). Every
-`gplbld/*.ps1` parses. Both BASIC files come out with the same block-balance
-number as at HEAD, on a checker proved to change that number when an `end` is
-removed from this very file. Every `sysmsg(N)` in both has a message file, and
-every message the new verifier names is on its `$needMsgs` guard. **None of that
-is a compile** — `bbal.py` is not a BASIC parser and was thrown away.
+that exercises the new gate — **it has not run since Phase 3**, so its own
+marker assertion and its 40th check are still unmeasured.
 
 **AND THE DECISION FROM LAST SESSION IS STILL WAITING ON THE OWNER.** The
 changelog is
@@ -528,11 +596,12 @@ is the only thing left.
   `verify-tiers` or `verify-accountacl` means "use a fresh prefix", not a
   failure. **Spent:** 20 Aug `sdacct27`, `sdtiert1`-`3`, `sdacl7`,
   `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia10`,
-  `sddel1`-`sddel3`, `sdapi3`-`sdapi5`, `sdacct28`, `sdtiert4`, `sdacl8`.
-  **`post-cycle-elevated.ps1`'s DEFAULTS ARE NOT FRESH after one run** — it now
-  takes six prefixes, and `-RoutePrefix sdrt5` / `-RulesPrefix sdar1` are the
-  next unspent pair. Pass all six every time; the defaults in the file are a
-  starting point, not a supply.
+  `sddel1`-`sddel3`, `sdapi3`-`sdapi5`, `sdacct28`, `sdtiert4`, `sdacl8`;
+  **21 Aug 16:20 run** `sdacct29`, `sdtiert5`, `sdacl9`, `sdapia11`, `sdrt5`,
+  `sdar1`.
+  **`post-cycle-elevated.ps1`'s DEFAULTS ARE NOT FRESH** — it now takes six
+  prefixes and every default in the file is spent. Pass all six every time; they
+  are a starting point, not a supply.
 
 ---
 
