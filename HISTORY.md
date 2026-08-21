@@ -27,6 +27,47 @@ corrected.
 
 ---
 
+## Correction: 20 Aug 2026 - SET.PASSWORD never needed `sd -internal`, and the flag is unpublished
+
+**Commit:** this one. Corrects PROJECT_STATUS.md in four places and the
+changelog in one.
+
+**Owner, 20 Aug 2026:** *"-internal is an unpublished flag, only used when
+developing sd itself, it is never exposed to the customers."* PROJECT_STATUS
+had told four separate readers to run `sd -internal` then `SET.PASSWORD DON`,
+which is routine credential administration documented in terms of a
+development flag.
+
+**AND IT WAS NEVER NEEDED, WHICH THE CODE SETTLES.** `SET_ACC_PASSWORD:105`
+gates only *someone else's* account, on `kernel(K$ADMINISTRATOR,-1)`, which
+`kernel.c:195` seeds from `IsElevated()`. Elevation is the whole requirement.
+Setting your **own** password takes the `own` branch, which skips that test and
+asks for the current password only `if own and has.cred`
+(`SET_ACC_PASSWORD:150`) - and after a cycle `$cred` is empty, so it prints
+*"Account DON has no password set. Setting the first one."* What `-INTERNAL`
+does is `check_admin()` and `forced_account = "SDSYS"` (`sd.c:340`, `:555`),
+neither of which the task wants.
+
+**THE CODEBASE ALREADY KNEW.** `LOGIN:332` says *"It is unpublished and comes
+from a command line rather than a session"*, and `--HELP` does not list it
+(`sd.c:657`). **The handoff document was the only thing publishing it**, which
+is the failure mode worth naming: a note that keeps prescribing a flag will
+outlive the reason it was ever reached for, and the next reader copies the
+prescription rather than the reasoning.
+
+**THE CHANGELOG HAD IT TOO** - a 13 Aug entry described `"sd -INTERNAL"` and
+its password behaviour to customers. Replaced with the fact a customer can
+actually observe (entering SDSYS always asks for its password) and no flag
+name. Safe to edit rather than append: the whole section is headed
+*"Windows port - unreleased"*, so nothing has shipped.
+
+**NOT OVER-APPLIED.** Eighteen mentions remain in PROJECT_STATUS and every one
+is development or bootstrap - `sd -internal BASIC GPL.BP <prog>`, because
+`BCOMP` accepts `$internal` only under it, and the installer's ADOPT step.
+`sd.c:338` names exactly those callers. That is what the flag is for.
+
+---
+
 ## 20 Aug 2026 - verify-peerlog.ps1 is 21/21; the cross-account lookup was the real unknown
 
 **Commit:** this one. Follows the entry below, in the same session.

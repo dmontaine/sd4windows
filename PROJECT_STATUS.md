@@ -445,9 +445,9 @@ own, so an active default is replaced rather than duplicated, and both restore
 
 **`$cred` IS STILL EMPTY AND THAT STILL NEEDS A PERSON.** `DON` has no API
 credential, so mvDeveloper answers *"Invalid username or password"* - an
-ABSENT credential, not a fault. Elevated: `sd -internal`, then
-`SET.PASSWORD DON`. Left to a person because the password is the owner's to
-choose and a script should not invent one.
+ABSENT credential, not a fault. Run `sd`, then `SET.PASSWORD DON`. Left to a
+person because the password is the owner's to choose and a script should not
+invent one.
 
 Confirm the tree rather than trusting this line:
 
@@ -545,7 +545,7 @@ original at `sd.conf.before-apiport`.
 mvDeveloper works again:
 
 ```
-sd -internal
+sd
 SET.PASSWORD DON
 ```
 
@@ -2163,7 +2163,38 @@ it. Call it first from anything new that tests the install.
 **`$cred` IS EMPTY AGAIN AND `SET.PASSWORD DON` IS OWED**, as it is after
 every cycle - the data tree was deleted. Until it is run, mvDeveloper answers
 *"Invalid username or password"*, which is an ABSENT credential and not a
-phase 5 regression. Elevated: `sd -internal`, then `SET.PASSWORD DON`.
+phase 5 regression. Run `sd`, then `SET.PASSWORD DON`.
+
+**IT IS NOT `sd -internal`, AND THIS FILE SAID SO IN FOUR PLACES UNTIL
+20 Aug 2026.** Corrected on the owner's point that **`-INTERNAL` IS AN
+UNPUBLISHED DEVELOPMENT FLAG AND IS NEVER EXPOSED TO CUSTOMERS** - `LOGIN:332`
+already says exactly that, and `--HELP` does not list it (`sd.c:657`). Routine
+credential administration must not be documented in terms of it.
+
+**AND IT WAS NEVER NEEDED, WHICH THE CODE SETTLES:**
+
+- `SET_ACC_PASSWORD:105` gates only *someone else's* account, on
+  `kernel(K$ADMINISTRATOR,-1)`, which `kernel.c:195` seeds from
+  `IsElevated()`. **Elevation is the whole requirement, and `-INTERNAL` is not
+  part of it.**
+- Setting **your own** password takes the `own` branch, which skips that test
+  entirely and asks for the current password only `if own and has.cred`
+  (`SET_ACC_PASSWORD:150`). **After a cycle `$cred` is empty**, so `has.cred`
+  is false and it prints *"Account DON has no password set. Setting the first
+  one."*
+- What `-INTERNAL` actually does is two things and neither is wanted here:
+  `check_admin()` and `forced_account = "SDSYS"` (`sd.c:340`, `sd.c:555`).
+
+**WHERE IT DOES STILL BELONG, so the correction is not over-applied:**
+compiling `$internal` programs - `sd -internal BASIC GPL.BP <prog>` - because
+`BCOMP` accepts `$internal` only under it (§7). That is developing SD, which
+is what the flag is for. The other mentions in this file are that.
+
+**THE ONE CASE WHERE THE ACCOUNT MATTERS**, and it is not this one: from
+`DON`, `SET.PASSWORD DON` is the `own` path and needs the current password
+once one exists. Resetting a *forgotten* password takes an account that is not
+the target - `LOGTO SDSYS` from an elevated session - so that `own` is false
+and the administrator branch applies.
 
 *(This item has now said both "no cycle is owed" and "a cycle is owed" within
 one session. That is the shape of claim this file has to keep current rather
@@ -2186,10 +2217,10 @@ and no binaries**, verified against the remote tree rather than assumed.
 
 **THE ONE THING WAITING IS `SET.PASSWORD`, AND IT IS WAITING ON A PERSON.**
 `APIPORT=4243` is enabled and listening on `127.0.0.1`; `$cred` holds **0
-records**, because the cycle deleted the data tree. Elevated:
+records**, because the cycle deleted the data tree:
 
 ```
-sd -internal
+sd
 SET.PASSWORD DON
 ```
 
