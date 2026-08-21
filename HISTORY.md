@@ -12450,3 +12450,35 @@ group matching any spent test prefix survives, and user_accounts holds don alone
 
 Everything still owed is code: the gate admits a path rather than a mode, and the
 API session's token is still LocalSystem.
+
+## 21 Aug 2026 - DELETE.ACCOUNT takes the Windows account and its profile
+
+Owner's decision, settling §7 step 1c, which had been open since 14 Aug: the
+verb deletes the associated Windows account rather than stopping to ask.
+
+It already deleted it - behind a Y/N prompt (message 10027). The comment beside
+that prompt said "the two mistakes do not cost the same, so the quiet answer is
+the safe one", and that was the wrong way round: NOT deleting is not the quiet
+outcome, because it leaves a Windows account and a profile behind with nothing
+pointing at them and nothing ever coming back for them. Twenty-six such profiles
+had accumulated on the development machine by that morning.
+
+`!is_sd_user` is untouched and is what actually protects a borrowed login - the
+ordinary case, since an SD account is normally named after a Windows user who
+already exists. The prompt was never the guard; the test is.
+
+**The profile goes too, and that reverses `!delete_user`'s own comment**, which
+had said the directory was left alone because it is "the person's own data".
+Sound for a borrowed account and not for one SD created, and DELACC is the only
+caller and never reaches it for a borrowed one. Removing the DIRECTORY alone is
+the wrong half: the ProfileList registry entry survives it and Windows honours
+that entry the next time the name appears, which is where sdacct19.GITORLI and
+the other three came from. Remove-CimInstance on Win32_UserProfile takes both.
+The SID is read before the account is deleted, because afterwards the name
+cannot be resolved to one.
+
+Status 6 - account gone, profile not - is a success with a warning rather than a
+failure, because the account really is deleted and re-running could never retry
+the profile.
+
+Built, not run: both are BASIC, so a cycle is owed.

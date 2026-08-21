@@ -60,10 +60,36 @@ are `sdadmins`, `sdapi`, `sdssh`, `sdsshonly`, `sdusers`, `sdu_don`; service
 Running. **`sdadmins` is expected litter** — made by hand on 13 Aug, referenced
 now only in comments (`linuxlb.c:64`, `sddefs.h:157`); §8 says leave it.
 
-**WHAT IS OWED. BOTH ARE CODE; NOTHING IS WAITING ON A PERSON.**
+**`DELETE.ACCOUNT` NOW DELETES THE WINDOWS ACCOUNT AND ITS PROFILE — BUILT
+21 Aug, NOT RUN.** Owner's decision the same day, settling §7 step 1c. **A
+CYCLE IS OWED**: `DELACC` and `DELETE_USER` are BASIC, so `cycle.ps1`
+`-SkipInstall` is the cheap way to find out whether they compile.
+
+- The Y/N prompt is gone (`DELACC`); message `10027` deleted with it.
+- `!is_sd_user` is UNTOUCHED and is what still protects a BORROWED login —
+  the ordinary case under the access model. The prompt was never the guard.
+- `!delete_user` now removes the `Win32_UserProfile` too, **which reverses its
+  own comment**. Removing the directory alone leaves the ProfileList entry, and
+  the next account of that name lands in `C:\Users\<name>.<COMPUTERNAME>` —
+  that is where the four `.GITORLI` directories came from.
+- **Status 6 = the account went, the profile did not.** A success with a
+  warning (`10075`), not a failure: re-running cannot retry it, because the
+  name no longer resolves to a SID.
+- **The account DIRECTORY is still asked about separately.** Data, not login.
+
+**THE 26 PROFILES ALREADY ON THIS MACHINE ARE NOT REMOVED BY THIS** — they have
+no accounts left to delete. Sweep them, elevated:
+
+```powershell
+powershell -File "C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\clean-test-profiles.ps1"
+```
+
+**WHAT IS OWED. ALL CODE OR A CYCLE; NOTHING IS WAITING ON A DECISION.**
 
 | # | Owed | Whose |
 |---|---|---|
+| — | **`cycle.ps1`, then `DELETE.ACCOUNT` against `sdacct9`** (SD made it, so it must go without asking) and against an adopted account (must be refused) | a person, elevated |
+| — | `clean-test-profiles.ps1`, the 26 already there | a person, elevated |
 | 9 | **THE GATE ADMITS A PATH, NOT A MODE.** A network session may still WRITE the shared `sdsys` entries — `sd.voclib` and `newvoc` are the ones that matter, because they shape what FUTURE accounts get. `$cred`, `gcat`, `os.users` and `accounts` are NOT among them and are unreachable either way. Needs the open mode threaded down from each entry point, which differs per caller | code, + one cycle |
 | — | **the API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s the session so it inherits the service token. Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
@@ -3420,13 +3446,30 @@ whether `SH` itself is restricted (the menu system is his answer instead — §6
 and that the ssh `ForceCommand` **kills scp and sftp on the machine**, which
 follows from forcing the command and is stated in the `changelog`.
 
-**Untested branch from step 1c:** `DELETE.ACCOUNT`'s "SD created it" delete.
-**The test subject is `sdacct9`, made by `CREATE.ACCOUNT` on 16 Aug 2026 and
-left in place for this** — `sdacct6` was the tenth session's and its SD side did
-not survive the fresh install. It is SD's own, so `!is_sd_user`
-answers yes and the prompting branch is the one that fires. Password
+**SETTLED 21 Aug 2026, owner: `DELETE.ACCOUNT` DELETES THE ASSOCIATED WINDOWS
+ACCOUNT.** It is part of what the verb does, not something it stops to ask
+about. The Y/N prompt (`10027`, now removed) is gone from `DELACC`; the
+`!is_sd_user` gate is untouched and is what still protects a BORROWED login,
+which is the ordinary case under the access model. **The account directory is
+still asked about separately** — that is data, this is the login.
+
+**AND THE PROFILE GOES WITH IT** — `!delete_user` now removes the
+`Win32_UserProfile`, reversing its own comment, which had said the directory
+was "the person's own data". True of a borrowed account; not of one SD made,
+and `DELACC` is the only caller and never reaches it for a borrowed one.
+**Removing the DIRECTORY alone is the wrong half**: the ProfileList registry
+entry survives it, and the next account of that name then lands in
+`C:\Users\<name>.<COMPUTERNAME>`. Status **6** means the account went and the
+profile did not — a success with a warning (`10075`), not a failure, because
+re-running can never retry it once the name no longer resolves to a SID.
+
+**BUILT, NOT RUN. A CYCLE IS OWED** — `DELACC` and `DELETE_USER` are BASIC.
+
+**The test subject for the "SD created it" branch is `sdacct9`**, made by
+`CREATE.ACCOUNT` on 16 Aug 2026 and left in place for this; password
 `Sd-Test-1`. For the other direction — an account SD did *not* make — use
-`New-LocalUser sdadopt3 -NoPassword` and adopt it.
+`New-LocalUser sdadopt3 -NoPassword` and adopt it. **The branch now deletes
+rather than prompts, so the test is that it happened, not that it asked.**
 
 **Machine, ninth session, 15 Aug 2026.** **The install is clean and the machine
 runs the repository** — counts and dates in header item 1, which is the one
