@@ -12424,3 +12424,19 @@ fourth faults of the same shape, an absent marker read as an answer:
 
 The rule that has now been paid for four times: **assert on something that must
 be PRESENT.**
+
+**Confirming run, `sdapia7`: 22 PASS + 1 N/A of 23, no failures.** Both `$cred`
+lines read `NO`, `API session was refused OS.EXECUTE by name` is True, and every
+control holds - the local elevated leg still opens and writes `$cred`, so the
+probe answers `NO` only when it genuinely cannot. With `verify-routes` at 33/33,
+items 1, 4 and 5 are closed.
+
+The single N/A is `API session is NOT running as SYSTEM`, and it is the honest
+answer rather than a gap in the suite: that question is answered by running
+`whoami` inside the session, which the gate now refuses. The session still runs
+as LocalSystem; only its reach changed. Closing that is the `CreateProcessAsUser`
+work and is untouched.
+
+The §"MOST IMPORTANT THING IN THIS FILE" section was re-headed rather than
+rewritten - the file half is closed, the token half is not, and the reasoning
+below it is what dates rather than the verdict.
