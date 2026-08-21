@@ -7,9 +7,94 @@ something came to be the way it is.
 
 **Last updated:** 20 Aug 2026, thirtieth session.
 
-**RDPACCOUNT IS BUILT AND VERIFIED: `verify-rdpaccount.ps1 -Prefix sdrdp2`
-is 18/18** on the **16:47:22** install, `sd.exe` **`F8B91512CD1A332E`**. The
-tree is CURRENT (`assert-current` exit 0) and nothing is owed.
+**PEER AUTHENTICATION FOR THE API: THE ROUTE §8 NAMES IS BLOCKED, AND A
+WORKING ALTERNATIVE IS PROVEN. NOTHING IS BUILT INTO SD YET - the policy is
+undecided and that is the next thing to settle.** Started 20 Aug 2026.
+
+**§8's PROPOSAL IS CLOSED BY THIS PROJECT'S OWN MEASUREMENT.** It says *"a
+named pipe with `GetNamedPipeClientProcessId` remains the right Windows
+answer, and `connection_type` already has `CN_PIPE`"*. Both halves are wrong
+now:
+
+1. **The transport is dead.** §7 step 11 measured it on **17 Aug 2026**: a
+   named pipe pushed into the Cygwin descriptor table with
+   `cygwin_attach_handle_to_fd()` is reported **PERMANENTLY READY** by
+   `select()` (`sel.always_ready 1`), so `sdpoll()` says "input waiting" for
+   ever and `sd.exe` spins - alive, silent, never answering. `sd.c` **refuses**
+   the `-C <pipename>` form today rather than hanging.
+2. **`CN_PIPE` IS NOT FREE.** It is SDLocal's transport - `sd.c:423`, the
+   `-C1!0` form, pipes handed over as standard handles. Live and tested
+   (`make check-local`).
+
+**THE §8 NOTE IS DATED 14 Aug AND WAS NEVER UPDATED AFTER THE 17 Aug
+MEASUREMENT.** Two sections of this file disagreed; this is the correction.
+
+**WHAT WORKS INSTEAD, AND IT IS MEASURED: `GetExtendedTcpTable`.** It asks the
+same question - *which process is at the other end* - of the socket `sdwind`
+**already has**, and changes no transport at all. `make check-peer-probe` in
+`gplsrc/sdclilib`:
+
+```
+accepted from 127.0.0.1:59314
+owning pid from GetExtendedTcpTable: 11448
+PASS: matches the client's WINDOWS pid      <- cross-checked, cygwin_internal()
+peer runs as: GITORLI\don                  <- OpenProcess + token + LookupAccountSid
+control: non-existent peer -> 0 (PASS)      <- a constant-returning lookup would fail here
+```
+
+**THE PROBE KNOWS THE ANSWER INDEPENDENTLY**, which is what makes it a test:
+it `fork()`s its own client, so the pid it looks for is one `fork()` told it
+rather than one it deduced.
+
+**A HEADER FINDING THAT DICTATES THE STRUCTURE: `<windows.h>` and
+`<netinet/in.h>` CANNOT SHARE A TRANSLATION UNIT** - *redefinition of struct
+in6_addr*, w32api's against cygwin's. So the Windows half must take **plain
+integers** and the socket half must never see a Windows header. That is the
+same shape `gplsrc/win32sem.c`, `win32audit.c` and `win32pipe.c` already use,
+and any implementation is a **fourth** such file. `winsock2.h` must come
+before `windows.h` there, or `AF_INET` is undefined.
+
+**THE HOOK POINT IS ONE LINE**: `sdwind.c:357`, `accept(api_listener, NULL,
+NULL)` - capture the peer `sockaddr_in` instead of discarding it, look the
+owner up before `fork()`, refuse there.
+
+**TWO LIMITS TO DECIDE AROUND, both real:**
+
+- **An ssh-forwarded connection shows `sshd` as the peer**, not the remote
+  user - the tunnel terminates locally. So peer identity distinguishes a
+  genuinely local client from a tunnelled one, and cannot identify a remote
+  person. Given §8's posture B pipes the API through ssh, this is the common
+  case rather than an edge one.
+- **TOCTOU**: the peer could exit between `accept()` and the lookup and its
+  port be reused. Narrow, and closable by comparing process start time, but it
+  is not zero.
+
+**WHAT IS NOT DECIDED, AND IT IS THE WHOLE OF THE NEXT STEP: what policy to
+enforce.** The mechanism yields the peer's Windows account. Candidates:
+
+| Policy | Buys | Costs |
+|---|---|---|
+| **Log only** | an audit trail of who connected | no enforcement |
+| **Peer must be in `sdusers`** | a non-SD process cannot reach the SCRAM exchange at all | breaks ssh-forwarded clients, where the peer is `sshd` |
+| **Peer must match the SD account** | strongest | the account is not known at accept time - it arrives in the SCRAM exchange, so this has to be checked in `APISRVR`, not `sdwind` |
+
+**RDPACCOUNT is what makes this worth doing**: *"anyone who can be local is an
+administrator"* was true by construction and stopped being true the moment an
+RDPACCOUNT existed, and the loopback binding leaned on it.
+
+**NOTHING IN `sdwind` OR ANY SHIPPED FILE HAS BEEN TOUCHED.** The probe and
+its make target are the whole of the change.
+
+**BEFORE THIS: RDPACCOUNT IS BUILT AND VERIFIED**,
+`verify-rdpaccount.ps1 -Prefix sdrdp2` **18/18** on the **16:47:22** install,
+`sd.exe` **`F8B91512CD1A332E`**.
+
+**THE TREE IS STALE BY ONE FILE: `gplsrc/sdclilib/Makefile`**, which gained
+the probe target. `make sd` has been run and is green (`bin/sd.exe`
+**`36C7AB34154D1F04`**); the install half clears on the next cycle. Nothing
+about the shipped product changed - it is a test target - but that Makefile
+does build the shipped DLL, so watching it is right and reasoning round it is
+not.
 
 ```
 RDPACCOUNT account   not in sdsshonly   LogonUser INTERACTIVE  admitted
@@ -10001,9 +10086,19 @@ What that settles, beyond the choice itself:
   a Windows credential inside SD. **Decide it with §7 step 6a**, and note the
   no-password-on-a-command-line rule in §5.6.1 applies to whichever is chosen.
 - **The AF_UNIX weakness in §6 matters less, but does not vanish.** Binding to
-  loopback is not the same as authenticating the peer. A **named pipe** with
-  `GetNamedPipeClientProcessId` remains the right Windows answer, and
-  `connection_type` already has `CN_PIPE`.
+  loopback is not the same as authenticating the peer.
+
+  **CORRECTED 20 Aug 2026 — this bullet used to say a named pipe with
+  `GetNamedPipeClientProcessId` was the right Windows answer "and
+  `connection_type` already has `CN_PIPE`". BOTH HALVES ARE WRONG and were
+  already wrong three days after it was written.** The named-pipe transport was
+  built and abandoned on 17 Aug (§7 step 11): a pipe in the Cygwin descriptor
+  table is PERMANENTLY READY to `select()`, so `sdpoll()` spins and `sd.exe`
+  never answers. And `CN_PIPE` is not spare — it is SDLocal's own transport
+  (`sd.c:423`). **The answer is `GetExtendedTcpTable`**, which identifies the
+  peer of the socket `sdwind` already has and changes no transport;
+  `make check-peer-probe` proves it. The header of this file has the detail and
+  the open policy question.
 - **It makes the ssh install path load-bearing**, which is why the silent
   failure fixed on 14 Aug 2026 mattered more than an optional extra.
 

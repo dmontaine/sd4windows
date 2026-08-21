@@ -27,6 +27,71 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - The named pipe is closed; GetExtendedTcpTable does the same job
+
+**Commit:** this one. Investigation and a probe; **nothing built into SD**.
+
+**§8 HAS SAID SINCE 14 Aug THAT THE WINDOWS ANSWER TO PEER AUTHENTICATION IS
+A NAMED PIPE WITH `GetNamedPipeClientProcessId`, "and `connection_type`
+already has `CN_PIPE`". BOTH HALVES ARE WRONG, and this project measured why
+itself three days later without the note being updated.**
+
+1. **The transport is dead.** §7 step 11, 17 Aug 2026: a named pipe pushed
+   into the Cygwin descriptor table with `cygwin_attach_handle_to_fd()` is
+   reported PERMANENTLY READY by `select()`, so `sdpoll()` answers "input
+   waiting" unconditionally and `sd.exe` spins reading one byte at a time -
+   alive, silent, never replying. `sd.c` refuses `-C <pipename>` today rather
+   than hanging.
+2. **`CN_PIPE` is not spare.** It is SDLocal's own transport (`sd.c:423`,
+   the `-C1!0` form), live and covered by `make check-local`.
+
+**Worth recording as a documentation failure as much as a technical one:** two
+sections of PROJECT_STATUS.md disagreed for three days, and the stale one was
+the one a reader would act on, because it is the one phrased as a
+recommendation. A note that proposes a mechanism should be re-read whenever
+that mechanism is measured.
+
+**WHAT WORKS: `GetExtendedTcpTable` with `TCP_TABLE_OWNER_PID_ALL`.** It asks
+the same question of the socket `sdwind` already holds, so the transport does
+not change at all. Proven end to end by `make check-peer-probe`:
+the owning pid of the accepted connection matched the client's Windows pid,
+cross-checked against `cygwin_internal(CW_CYGWIN_PID_TO_WINPID)`, and
+`OpenProcess` + `TokenUser` + `LookupAccountSid` resolved it to a domain and
+account name. **The probe forks its own client**, so the pid it is looking for
+is one `fork()` told it - a test, not a demonstration - and its control
+asserts that a non-existent peer returns 0, without which a lookup returning
+any constant would have passed.
+
+**A HEADER FINDING THAT DICTATES THE STRUCTURE OF ANY IMPLEMENTATION.**
+`<windows.h>` and `<netinet/in.h>` cannot share a translation unit - w32api's
+`in6addr.h` against cygwin's `in6.h`, *redefinition of struct in6_addr*. So
+the Windows half must expose plain integers and the socket half must never see
+a Windows header. That is exactly the shape `win32sem.c`, `win32audit.c` and
+`win32pipe.c` already have, and it was rediscovered here by compiling rather
+than by reading them - the first version of the probe was one file and did not
+build. `winsock2.h` must precede `windows.h` or `AF_INET` is undefined.
+
+**TWO LIMITS THE POLICY HAS TO BE DESIGNED AROUND:**
+
+- **An ssh-forwarded connection identifies `sshd`, not the remote user.** The
+  tunnel terminates locally, so peer identity separates a genuinely local
+  client from a tunnelled one and can say nothing about who is at the far end.
+  §8's posture B pipes the API through ssh, so this is the ordinary case.
+- **TOCTOU.** The peer can exit between `accept()` and the lookup and its port
+  be reused. Narrow, closable by comparing process start time, not zero.
+
+**WHAT IS OPEN: the policy, which is the whole of the next step.** Log only;
+or require the peer to be in `sdusers`, which stops a non-SD process reaching
+the SCRAM exchange but breaks ssh-forwarded clients; or require the peer to
+match the SD account, which is strongest but cannot be done in `sdwind` at
+all - the account name arrives later, in the SCRAM exchange, so that check
+belongs in `APISRVR`.
+
+**The hook point is `sdwind.c:357`** - `accept(api_listener, NULL, NULL)`
+discards the peer address today.
+
+---
+
 ## 20 Aug 2026 - RDPACCOUNT verified 18/18, and the lesson was in the failures
 
 **Commit:** this one. Measured on the **16:47:22** install, `sd.exe`
