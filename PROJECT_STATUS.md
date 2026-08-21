@@ -120,10 +120,42 @@ that, and the third is the one that matters.
    it is elevated - `sd -start` is gated on `IsElevated()` - and because it
    needs no password to manage."* Changing the account means changing that
    gate, not just the service definition.
-2. **UNVERIFIED, both cheap to check:** the `Global\` semaphores
-   (`win32sem.c`) need `SeCreateGlobalPrivilege`, which a service logon should
-   carry through the SERVICE SID; and the tree ACLs would need the new account
-   adding wherever they name SYSTEM.
+2. **BOTH CHECKED, 20 Aug 2026. Neither is a blocker; the second is the
+   work.**
+
+   **(a) `Global\` IS NOT A BLOCKER, AND `win32sem.c`'s COMMENT OVERSTATES
+   IT.** That file says *"Creating in Global needs SeCreateGlobalPrivilege,
+   which LocalSystem and an elevated administrator both hold."* **Creation
+   does not need it here.** Measured with a scratch program from an
+   ordinary unelevated token - `whoami /priv` shows
+   `SeCreateGlobalPrivilege` **absent** and `BUILTIN\Administrators` as
+   *"Group used for deny only"*, and yet:
+
+   ```
+   Local\sd_scratch_probe_2156    CREATED (err 0)
+   Global\sd_scratch_probe_2156   CREATED (err 0)     <- no privilege held
+   ```
+
+   **CREATED, not opened** - `ERROR_ALREADY_EXISTS` was checked rather than
+   assumed away, and the name carries the pid, and it was run twice with
+   different pids. So the privilege is not enforced for creation on this
+   machine (Windows 11 26200). **And a service logon would hold it anyway**,
+   through the SERVICE SID `S-1-5-6`. Two independent reasons it is not a
+   blocker. *(Tested: a mutex, from an interactive filtered-admin token. Not
+   tested: a semaphore with a security descriptor from a service token - the
+   namespace rule is the same, the security descriptor is not.)* The comment
+   is worth correcting the next time that file is touched; it is not worth a
+   cycle on its own, and it matters here because somebody weighing this
+   decision would read it as a blocker.
+
+   **(b) THE ACLs ARE THE REAL WORK: TEN PLACES NAME SYSTEM**, and every one
+   would need the new account. Eight `gplbld/secure-*.ps1` scripts -
+   `account-dirs`, `accounts`, `audit`, `cred`, `gcat`, `log`, `osusers`,
+   `psdir` - plus the data-tree root at `sd.iss:291`, plus **one that is not
+   an ACL at all**: `win32sem.c:112` builds
+   `D:(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;<group>)` for the semaphores, so a
+   service that was not SYSTEM could not reopen its own objects. **Mechanical,
+   but ten places and one of them is C.**
 3. **IT DOES NOT FIX THIS ON ITS OWN, AND THAT IS THE POINT.** §5.7's stage 2
    deliberately runs **session processes under the service identity** - the
    identity that owns the tree. That is the same reach the probe just used,
