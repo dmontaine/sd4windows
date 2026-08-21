@@ -27,6 +27,221 @@ corrected.
 
 ---
 
+## 21 Aug 2026 - RDPACCOUNT deleted; ssh and API became per-account groups
+
+**Commit:** this one. **MEASURED — `verify-routes.ps1 -Prefix sdrt1`, 30/32 on
+the 22:58:56 install, `sd.exe` `C930BAD1DD5F8B9B`, `assert-current` exit 0.**
+Every check on the account model passed: both keyboard refusals, the
+administrator control that makes them mean anything, all six on the new verbs,
+and RDPACCOUNT refused with no account left behind. `verify-apiadmin.ps1` is
+still unrun.
+
+**THE TWO FAILURES ARE A FINDING THAT PREDATES THIS WORK, AND IT IS THE MOST
+IMPORTANT THING IN THIS ENTRY.** `sshd_config` on this machine is stock — no
+`AllowGroups` and **no `ForceCommand`**. The cause is a one-way ratchet in the
+installer: uninstall always calls `RemoveAllowGroups`, while install offers the
+`limitssh` task only under `Check: SshServerAbsent`, which asks whether
+`%SystemRoot%\System32\OpenSSH\sshd.exe` was missing *before this install
+began* — and SD's own first install puts it there permanently. So the limiting
+works exactly once, on a machine with no ssh server, and every cycle since has
+stripped it and been unable to re-apply it.
+
+**The `ForceCommand` half is the sharp one.** Without it an ssh session lands
+at a PowerShell prompt rather than in SD, so an account confined to `sdsshonly`
+gets a shell on the server — precisely what the confinement exists to prevent,
+reached by the other door. `AllowGroups` being absent means any Windows account
+may ssh in at all. The changelog's 15 Aug promise, *"Connecting over ssh puts
+you straight into SD"*, has not been true on this machine for some time.
+
+**NOT CAUSED BY THE `sdusers`→`sdssh` CHANGE** — the same two checks would have
+failed before it. What the change means in the meantime is that `sdssh` is
+unexercised: `NO.SSH` removes a membership nothing currently enforces. The
+proposed fix is one line, is the owner's, and is recorded in PROJECT_STATUS
+header item 1.
+
+**`verify-apiadmin.ps1 -Prefix sdapia3` RAN TOO — 15/18, same install — AND IT
+SETTLED THE OPEN QUESTION.** `PROBE.WHOAMI=nt_authority\system`, printed by
+SD's own session after `os.execute 'cmd /c whoami'` RETURNED. Everything before
+this inferred the identity from outside the process by reading the forked
+`sd.exe`'s owner; this is the session answering. **`OS.EXECUTE` is reachable
+from a remote API session and runs as SYSTEM** — arbitrary command execution
+for any client holding an ordinary account's credential, and a shorter route
+than the `$cred` write that has been the headline since 20 Aug.
+
+**THE CONTROL INVERTED IT, AND THAT IS THE PART WORTH KEEPING.** The same
+compiled program, in the same account, from a **local elevated** session was
+**REFUSED**: *"don is not permitted to use OS.EXECUTE at line 87"*. A local
+session starts in SDSYS with `USR_ADMIN` set and gives the flag up on the way
+out (`CPROC`, *"administrator rights belong to SDSYS"*), so `os_permitted()`
+refuses it by the time it reaches the probe. The API session never leaves
+anywhere and keeps the flag. **The remote client gets the operating system and
+the administrator at the keyboard does not.**
+
+**TWO INSTRUMENT FAULTS IN THAT RUN, AND THE FIRST IS THE MORE INSTRUCTIVE.**
+
+**A FALSE PASS ON THE MOST IMPORTANT CHECK IN THE FILE.** `verify-apiadmin.ps1`
+tested `^nt_authority_+system$`; the probe's `convert` listed char(10),
+char(13), `@fm`, `@vm` and space — **not the backslash** — so the marker
+arrived as `nt_authority\system` and did not match. The verdict printed
+*"API session is NOT running as SYSTEM ... PASS"* on the very run where the
+session had just said it was, and the `FINDING:` block, gated on the same
+variable, stayed silent. **It was caught only because the raw marker is echoed
+into the transcript beside the verdict** — a check that prints what it read can
+be audited by eye; one that prints only its conclusion cannot. Fixed at both
+ends deliberately: the probe flattens `char(92)` as well, and the pattern is
+now `^nt[^a-z0-9]*authority[^a-z0-9]*system$`, so a reworded probe cannot blind
+it again. The `FINDING:` block is now gated on "OS.EXECUTE ran" rather than on
+"it said SYSTEM", because reaching the operating system at all is the hole
+whatever identity it reports.
+
+**AND `control: probe ran locally` FAILED FOR THE WRONG REASON.** `PROBE.DONE`
+was the probe's last line, printed after the `os.execute` that aborts when
+refused — so the control leg never reached it although every measurement it
+cares about had already been taken and printed. `PROBE.DONE` now comes before
+the attempt, and the **absence of `PROBE.WHOAMI`** is how a refusal is read.
+That is what turned an aborted control into the inversion measurement above:
+both legs print DONE, only the permitted leg prints WHOAMI.
+
+**BOTH FIXES CONFIRMED ON A SECOND RUN — `-Prefix sdapia4`, 16/20, same
+install.** `control: probe ran locally` PASSES; the marker arrives as
+`nt_authority_system`; `API session is NOT running as SYSTEM` now reads
+**FAIL**, as it should have on the first run; and both `FINDING:` blocks
+printed, including the inversion paragraph. The four FAILs are `$cred` open,
+`$cred` write, `OS.EXECUTE` ran, and session is SYSTEM — **16/20 is the
+expected score** until the containment gate lands.
+
+**A CYCLE WAS ALSO SPENT FOR NOTHING BEFORE ALL THAT** — install 22:47:23,
+refused by `assert-current`. Next paragraph.
+
+**A CYCLE WAS SPENT FOR NOTHING, AND THE CAUSE IS WORTH MORE THAN THE COST.
+`cycle.ps1` CONTAINS NO `make`** — it stages whatever is already in `bin\`
+(`assert-current.ps1:66` records the 18 Aug incident that established this).
+Two **comment-only** edits to `gplsrc/sd.c` and `gplsrc/sdwind.c` made those
+sources newer than the binaries, so the cycle installed the PREVIOUS `sd.exe`
+and `assert-current` correctly refused everything afterwards. The run order in
+PROJECT_STATUS's header said "cycle first" and now says `make sd` first, which
+is what was missing. **The rule was already written down inside
+`assert-current.ps1` and was still got wrong** — being documented somewhere is
+not the same as being in the run order.
+
+**AND THE FIRST `make sd` FAILED TO COMPILE, which is the other half of the
+lesson: comment-only edits are not risk-free.** The new paragraph in
+`sdwind.c` ended with `*/` while the original comment continued below it, so
+the rest became code — `error: unknown type name 'LOG'`. Caught by the build
+in seconds; it would have been invisible to every check that does not compile.
+
+**The owner's rule, restated 21 Aug and now the whole design:** *"within SD, if
+we create a user, they do not have the ability to log in to Windows at the
+keyboard unless they are an administrator."* Scope was settled in the same
+message and is narrower than it first looked — SD does not police Windows
+accounts it did not make: *"if an administrator wants to give users direct
+keyboard access outside of SD there is nothing we can do about that."*
+
+**RDPACCOUNT broke that rule and was the only thing that did.** `sdsshonly`
+carries `SeDenyInteractiveLogonRight` **and**
+`SeDenyRemoteInteractiveLogonRight`, and membership is the only lever, so
+`CREATE.ACCOUNT ... RDPACCOUNT` and `MODIFY.ACCOUNT <acc> RDPACCOUNT` handed
+over the console along with Remote Desktop. Its own verifier had recorded this
+without anyone reading it that way: `verify-rdpaccount.ps1` **18/18**, 20 Aug,
+includes *"RDPACCOUNT account ... LogonUser INTERACTIVE → admitted"*.
+
+**Two ways to fix it were put to the owner — split `sdsshonly` into two deny
+groups, or delete RDPACCOUNT — and deletion was chosen**, on the ground that
+Remote Desktop needs Windows Server and RDP CALs and belongs to a commercial
+product. It is also the smaller change and the rule then holds by
+construction rather than by an invariant somebody maintains.
+
+**Deleted:** the `RDPACCOUNT` case in `CREATEA` `more.args` and the
+`rdp.account` flag; `set.rdp`/`clear.rdp` and the two actions in `MODIFYA`;
+messages `10056`-`10062`; `gplbld/verify-rdpaccount.ps1`. Typing the keyword
+now stops with `sysmsg(2018)` *"Unexpected token"* and creates nothing, because
+`more.args` runs before the account is made.
+
+**MESSAGE NUMBERS WERE NOT REUSED.** `10056`-`10062` are retired and the new
+ones start at `10063`. The data tree is never upgraded (§6), so an old install
+that met a new message number would print the RDP wording for an ssh event —
+the same reasoning that poisoned `ACC$USERS`' field 4 on 15 Aug.
+
+**The two remaining routes are now per-account, one Windows group each:**
+
+| Route | Group | Read by | New account |
+|---|---|---|---|
+| ssh | `sdssh` | sshd `AllowGroups` | **joined** |
+| API | `sdapi` | `APISRVR` `vb.scram.final` | **not joined** |
+
+Verbs `MODIFY.ACCOUNT <acc> SSH | NO.SSH | API | NO.API`, sharing one
+`route.add`/`route.remove` pair parameterised by group and message number.
+
+**`sdssh` REPLACED `sdusers` IN `AllowGroups`, and that untangling was the
+point.** While sshd allowed `sdusers` — the group that grants access to the
+data files — "may read SD's files" and "may ssh into this machine" were one
+fact, so ssh could not be withdrawn from an account without taking its files
+away too.
+
+**THE UPGRADE HAZARD IS A LOCKOUT AND IS HANDLED IN ONE PLACE.** On an existing
+install every account is in `sdusers` and none is in `sdssh`; writing the new
+`AllowGroups` line first would point sshd at an empty group and every account
+would lose ssh at the next restart. `gplbld/sync-route-groups.ps1` creates both
+groups and seeds `sdssh` from `sdusers` **only when it created the group** —
+"was this group here a moment ago" being the only honest test for "does this
+installation predate the split" — and `sd.iss` runs it **before**
+`ApplyAllowGroups`. The groups are deliberately **not** created in `[Run]`
+beside `sdsshonly`: that would answer the seeding question wrongly and produce
+exactly the lockout.
+
+**API DEFAULT-OFF IS A DECISION, NOT AN OMISSION**, and it is the one place
+this session chose for the owner rather than being told. `APIPORT` is already
+off by default, so it takes nothing from a working deployment; and an API
+session runs as LocalSystem (20 Aug finding), so until the containment gate
+lands every API-capable account can rewrite `$cred`. `CREATEA` carries the
+comment saying one `ADDMEM` reverses it.
+
+**`APISRVR` tests it after the SCRAM proof succeeds, not before**, and the
+placement is the security argument: everything earlier answers a failed
+exchange with one indistinct error, so a guesser learns nothing; a caller that
+reaches the `sdapi` test has already produced a valid proof, so naming the
+refusal plainly (`10073`) leaks nothing and gives an administrator the one
+message that explains what happened. Testing before the proof would have
+answered *"no such API user"* to a stranger. It also audits the refusal.
+
+**A LIVE SAM QUERY, NOT A TOKEN TEST, AND NOT BY CHOICE.** `in_group()` behind
+`K$IN.GROUP` would answer for SYSTEM in an API session. `is_grp_member` asks
+`Get-LocalGroupMember` about the *name*, so `NO.API` bites on the next
+connection with no sign-out and no SD restart — `verify-apiadmin.ps1` asserts
+that by granting mid-run and reconnecting without restarting.
+
+**`verify-apiadmin.ps1` HAD TO CHANGE OR IT WOULD HAVE STOPPED WORKING**: the
+account it creates is no longer in `sdapi`, so its SCRAM login would be
+refused. Rather than only granting, it now connects **before** the grant and
+asserts the refusal (`7a`), grants (`7b`), then makes the original measurement
+(`7c`). Its score is **17 checks, not 15**. The necessary fix became the
+evidence for the new gate.
+
+**`gplbld/verify-routes.ps1` is new and unrun.** Its control is the part worth
+keeping: a throwaway ADMINISTRATOR account created in the same run must be
+`admitted` by `LogonUser INTERACTIVE`, because "the standard account is
+refused" means nothing on a machine where a wrong password, a disabled account
+or a broken P/Invoke would read the same way. It also re-checks the keyboard
+after every `SSH`/`API` verb, which is the assertion that the deletion actually
+bought something.
+
+**What is NOT done.** No cycle, so none of this is measured. The containment
+gate is still unstarted and the containment root is still the owner's decision.
+Accounts already created with `RDPACCOUNT` keep their Windows sign-in — SD
+never recorded which they were, so nothing can go back and find them; the
+changelog says so and gives the one-line repair.
+
+**Two things found while reading, both recorded in PROJECT_STATUS header item
+7 and neither measured.** SD's grant test is a live SAM query while the NTFS
+ACL on an account directory is token-based, so a fresh `GRANT` fails at
+`5161`/`5163` rather than the `10003` the changelog promises, and a `REVOKE`
+leaves the files reachable from Explorer until the next sign-in. And the
+`RDPACCOUNT` justification in `sdwind.c` for peer identification survives its
+subject: the loopback port is reachable by services and scheduled tasks that
+never sign in anywhere.
+
+---
+
 ## 20 Aug 2026 - Session end: the gate is chosen and specified, not built
 
 **Commit:** this one. Handoff only; `PROJECT_STATUS.md` opens with the short
