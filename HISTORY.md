@@ -12645,3 +12645,22 @@ neither has been run elevated against a real account.
 elevated window runs more than once. The guard now asks for a method the older
 definition did not have and says so plainly rather than dying with "method not
 found" several steps later.
+
+**The stale-type guard cost the run it was meant to protect, 21 Aug.**
+`verify-delaccount -Prefix sddel2` stopped at the guard: the elevated window had
+run the `sddel1` version and still held its `SdDelProfile`, and Add-Type cannot
+replace a type in a live session. Correct diagnosis, useless remedy — it
+demanded a fresh window for a reason no operator can see, and refusing is not
+what a verifier is for.
+
+**The type is named after a hash of its own source now.** Same source, same
+name, reused; edited source, a different name, compiled beside the old one that
+nothing refers to. It cannot go stale and no future edit to `$profileSig` has to
+remember any of this. The name is not known until run time, so the type is held
+in `$script:P` and reached as `$script:P::Member`, which works exactly as
+`[Name]::Member` does. Loader run twice in one session and both call sites
+exercised through it before committing.
+
+**Nothing was spent.** The guard fires before any account is created, so
+`sddel2` is still fresh. Worth knowing generally: every `Fail` in this script is
+above the `try`, so exit 2 never consumes a prefix.
