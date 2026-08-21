@@ -39,12 +39,16 @@ is answered by running `whoami` INSIDE the session, which the gate now refuses.
 
 | # | Owed | Whose |
 |---|---|---|
-| — | **Does the console path survive the service model?** `sd -ASDSYS` runs as the invoking user and opens the database itself. Becomes a client, is dropped, or stays a privileged admin path. **Settle this BEFORE the token work** — it is where process-creation identity is decided (§5.7) | **the owner's** |
 | — | **The API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s it, so it inherits the service token; Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
 **`DELETE.ACCOUNT` IS CLOSED — `verify-delaccount -Prefix sddel2`, 21 Aug,
 owner's elevated run on the 09:33:41 install. 38 of 38, profile half included.**
 Details in §4. `gplbld/verify-delaccount.ps1` is the regression guard.
+
+**AND SO IS THE CONSOLE PATH — owner's decision, 21 Aug 2026: it stays exactly
+as it is.** Not a client of the service, not dropped. §8 has the ruling and the
+measured behaviour, including one leg of it that does not match the tree.
+**The token work is no longer blocked**, and it is the only thing left.
 
 ---
 
@@ -10908,17 +10912,39 @@ one reason is worth carrying: keeping an OS check on `sdadmins` inherits the
 sign-out-and-back-in trap in §6, so `sd -start` would have failed for the
 installing user on every fresh install.
 
-### Open: does the console path survive the service model?
+### CLOSED 21 Aug 2026: the console path stays exactly as it is
 
-§5.7's service-account model is what makes the data tree genuinely private, but
-it requires SD session processes to run as the service rather than as the
-invoking user. `sd -ASDSYS` typed at a shell currently runs as that user and
-opens the database itself. Decide whether the console entry point becomes a
-client of the service, is dropped in favour of a client tool, or stays as a
-privileged path used only by administrators. This shapes stage 2 and should be
-settled before the `fork` → `CreateProcess` work starts, since that is where
-the process creation identity is decided.
+**Owner's decision, 21 Aug 2026.** The console entry point is neither dropped
+nor turned into a client of the service. It stays a privileged administrator
+path, and **the behaviour that is there now is the specification.** That
+unblocks the token work: process-creation identity has to be decided only for
+the sessions the SERVICE creates, not for a console session, which goes on
+opening the database as the invoking user.
 
+**WHAT THAT BEHAVIOUR IS, MEASURED 21 Aug RATHER THAN DESCRIBED.**
+
+- **Entry is always your own account.** `sd` with no account named lands in
+  `@logname`'s (`LOGIN`, `case 1`). Owner's rule of 15 Aug 2026, and it covers
+  administrators.
+- **`sd -ASDSYS` is refused — message `10051`**, *"You can only log in to your
+  own account - use LOGTO to reach another"*, observed unelevated. The gate at
+  `LOGIN:334` has **no elevation branch**, so an elevated session is refused
+  the same way. `10002` is reachable only under `-internal`.
+- **`LOGTO SDSYS` is the only door, and entering SDSYS is what obtains
+  privilege** (`CPROC:2595`, owner's design 16 Aug). `!elevate` asks UAC and
+  answers 0 when the session is already elevated — so from an elevated prompt
+  nothing prompts, and from an ordinary one the consent dialog appears.
+- **Over ssh it fails by construction**: UAC draws on the interactive desktop
+  and an ssh session has none (§5.6.2). Windows enforces it, not a test here.
+
+**ONE LEG OF THE DESCRIPTION THIS WAS SETTLED FROM DOES NOT MATCH THE TREE, and
+it is recorded rather than written in.** *"Run from an elevated prompt and you
+are put into SDSYS automatically"* was true until 15 Aug 2026 and was **deleted
+that day, deliberately** — `LOGIN:356` says so in full. An elevated session
+lands in its own account like any other; what elevation buys is a **silent**
+`LOGTO SDSYS` instead of a UAC prompt, which is the same destination reached
+one step later. If an elevated `sd -ASDSYS` is ever seen to succeed, that
+comment and this entry are both wrong and `LOGIN:334` is the place to look.
 ### Open, undiagnosed: `BASIC` produced no object in SDSYS on a reused file name
 
 18 Aug 2026, on the 11:35:44 install. `verify-catgate.ps1` created a scratch

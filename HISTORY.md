@@ -12681,3 +12681,30 @@ on a path only reachable if `CreateProfile` fails again.
 
 `DELETE.ACCOUNT` is closed and off the owed list. What remains there is the
 owner's console-path decision and then the token work.
+
+**The console path is settled, 21 Aug — it stays exactly as it is.** Owner's
+decision: not a client of the service, not dropped, and the behaviour that is
+there now is the specification. That was the last thing blocking the token work,
+which is now the only item owed.
+
+**Three of the four legs it was settled from match the tree; one does not.**
+Measured rather than taken on trust, because the file must not carry a claim
+that contradicts the source:
+
+- `sd -ASDSYS` unelevated is refused with **10051**, "You can only log in to
+  your own account" — not 10002, which is reachable only under `-internal`.
+  Observed here, not read.
+- `LOGIN:334` has **no elevation branch**, so that refusal applies to an
+  elevated session too.
+- `LOGTO SDSYS` is the only door and is what obtains privilege (`CPROC:2595`).
+  `!elevate` answers 0 when already elevated, so an elevated prompt reaches
+  SDSYS with no UAC dialog and an ordinary one gets the consent prompt.
+
+The leg that does not match is *"run from an elevated prompt and you are put
+into SDSYS automatically"*. That was true until 15 Aug 2026 and was deleted that
+day on purpose — `LOGIN:356` records it as one of two ways somebody could stand
+in an account without ever standing in their own. The destination is the same
+and one step later, which is the likely reason it reads as automatic: from an
+elevated prompt the `LOGTO` is silent. Recorded in §8 as a flag rather than
+written in as behaviour; if an elevated `sd -ASDSYS` is ever seen to work,
+`LOGIN:334` is where to look and both entries are wrong.
