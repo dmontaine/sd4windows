@@ -11,36 +11,45 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**A CYCLE IS OWED — PHASE 1 OF SIX OWNER CHANGES IS BUILT AND UNTESTED.**
-`make sd` clean, `sd.exe` **`cb9c4e0460b175f5`**. `assert-current` exit 1 by
-design; nothing measured on this tree means anything until a cycle has run.
-
-```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-```
+**THE TREE IS CURRENT. PHASE 1 OF SIX OWNER CHANGES IS DONE AND MEASURED.**
+Cycle 21 Aug 11:50:48, `sd.exe` **`cb9c4e0460b175f5`**, `assert-current` exit 0.
 
 **THE SIX CHANGES, owner 21 Aug 2026.** Plan approved the same day; phases are
-kept apart so a failure is attributable. 1 — API at the port, not through a
-tunnel (**done, untested**). 2 — remote access is a create-time property,
-`create.account … ssh|api|both|none`, `modify.account` the same four, password
-mandatory for USER accounts, `delete.account` one confirmation then both halves,
-`set.password` → `modify.password`. 3 — ADOPT install-only, and the install ends
-in an SD session that takes the password. 4 — verifiers, changelog, handoff.
+kept apart so a failure is attributable.
 
-**PHASE 1 CHANGED WHAT THE MACHINE EXPOSES.** The listener binds every
-interface, `APIPORT=4243` ships active, and the `apiremote` installer task is
-ticked by default. §8 has the reversal and what still guards the port.
+| # | what | state |
+|---|---|---|
+| 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
+| 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | next |
+| 3 | ADOPT install-only; the install ends in an SD session that takes the password | |
+| 4 | verifiers, changelog, handoff | |
 
-**The previous cycle was 21 Aug 09:33:41**, `sd.exe` `b188cd47c0a2e51a`, and
-everything in the table below was measured on it.
+**PHASE 1 CHANGED WHAT THE MACHINE EXPOSES**, and all four halves are confirmed
+on this install: `0.0.0.0:4243` listening, `APIPORT=4243` in the shipped
+`C:\ProgramData\SD\sd.conf`, firewall rule `SD-API-In-TCP` / `RemoteAddress Any`
+created by the installer, and a real client session carried over the port.
+§8 has the reversal and what still guards it.
+
+**NOT VERIFIED: A CONNECTION FROM ANOTHER MACHINE.** Everything measured so far
+went to `127.0.0.1:4243`. The bind is right and the rule is right, so there is
+no reason to expect a failure — but nothing has actually crossed the network,
+and that is the whole point of the change.
+
+**`sd.conf` IS AT `C:\ProgramData\SD\sd.conf`**, not under `sdsys\`. Cost a
+wrong lookup on 21 Aug; `verify-apiport.ps1` has it right.
 
 **THE SUITE IS GREEN AND THE API EXPOSURE IS SHUT.**
 
 | verifier | prefix | result |
 |---|---|---|
+| `verify-apiport` | `sdapi4` | **13/13** — the port, on the 11:50:48 cycle |
 | `verify-apiadmin` | `sdapia8` | **22 PASS + 1 N/A of 23** |
 | `verify-routes` | `sdrt4` | **33/33** |
 | `verify-delaccount` | `sddel2` | **38/38** |
+
+**The last three were measured on the 09:33:41 cycle and have not been re-run
+since Phase 1.** Phase 1 touched the listener, `sd.conf` and the installer, none
+of which those three assert on — but that is reasoning, not a measurement.
 
 **Items 1, 4, 5, 6 and 9 are built AND measured.** From inside a real remote
 API session: `PROBE.CRED.OPEN=NO status 3035` (`ER_PERM`) and
@@ -114,7 +123,7 @@ is the only thing left.
 - **Test prefixes are single-use.** Exit 2 from `verify-createaccount`,
   `verify-tiers` or `verify-accountacl` means "use a fresh prefix", not a
   failure. **Spent:** 20 Aug `sdacct27`, `sdtiert1`-`3`, `sdacl7`,
-  `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia8`, `sddel1`-`sddel2`.
+  `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia8`, `sddel1`-`sddel2`, `sdapi3`-`sdapi4`.
 
 ---
 
@@ -4126,6 +4135,16 @@ Keep this split honest. It is the single most useful thing in the file.
 **Entries are claim, decisive measurement, and nothing else.** Every one of
 them has a HISTORY entry carrying how it was found and what it cost; that is
 where to go when a claim here looks surprising.
+
+**THE API IS REACHED AT ITS OWN PORT — 21 Aug 2026, owner's elevated run on the
+11:50:48 install.** `gplbld/verify-apiport.ps1 -Prefix sdapi4`, **13 of 13**.
+`netstat` shows `0.0.0.0:4243 LISTENING` and no loopback binding; the client
+library carried a real session over it (`remote_connect_test` exit 0) with SCRAM
+client-first and client-final sent, no cleartext login, and the password absent
+from the 286 bytes on the wire. The installer's half was checked separately:
+`SD-API-In-TCP` exists with `RemoteAddress Any`, `api-firewall.ps1` is in
+`{app}`, and the shipped `sd.conf` carries `APIPORT=4243`. **A connection from
+another machine is still unmeasured** — see the header.
 
 **`DELETE.ACCOUNT`, BOTH DIRECTIONS AND THE PROFILE — 21 Aug 2026, owner's
 elevated run on the 09:33:41 install.** `gplbld/verify-delaccount.ps1 -Prefix

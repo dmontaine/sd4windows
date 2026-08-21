@@ -12723,3 +12723,30 @@ traps - the BOM on the first line, a prompt left unanswered at EOF. Typing
 one Y/N for the directory, `Group: sdu_test2 Deleted`, `OS User: test2
 Deleted` - independent corroboration of the 38 of 38, by a route none of the
 automation uses.
+
+**Phase 1 measured: the API is reached at its own port. 13 of 13.**
+`verify-apiport -Prefix sdapi4` on the 11:50:48 cycle. `0.0.0.0:4243`
+listening, no loopback binding, and the client library carried a real session
+over it with SCRAM intact - client-first and client-final sent, no cleartext
+login, password absent from the 286 bytes on the wire. The installer's half
+checked separately: `SD-API-In-TCP` with `RemoteAddress Any`, `api-firewall.ps1`
+in `{app}`, `APIPORT=4243` in the shipped conf.
+
+**The first run failed three checks and none of them was Phase 1's code.**
+Two were the verifier asserting posture B at the new binary - "bound to
+127.0.0.1" and "NOT bound to 0.0.0.0" - which failed BECAUSE the change worked;
+the header and closing message had been updated in Phase 1 and the assertions
+themselves had not. Inverted, with the step's purpose unchanged.
+
+**The third was a real gap that predates Phase 1 by a day.** "sdapi3 is not
+permitted to use the API" is message 10073: APISRVR tests sdapi membership
+after the SCRAM proof (`APISRVR:1362`) and CREATE.ACCOUNT deliberately does not
+join it, so this script had been broken since sdapi was added on 21 Aug and
+nobody had run it since. The handoff's own trap list named the dependency
+- *"now also needs MODIFY.ACCOUNT <acc> API"* - and the verifier was never
+updated to match. It grants access as its own step now and fails loudly if the
+grant does not land, because the symptom otherwise reads as a credential
+failure in the client's output, which is exactly how it presented.
+
+**`sd.conf` is at `C:\ProgramData\SD\sd.conf`, not under `sdsys\`.** Cost one
+wrong lookup while confirming the install.
