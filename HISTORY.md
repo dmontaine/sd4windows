@@ -12275,3 +12275,73 @@ CRLF into the shell installers. The executable bit was restored on
 
 Git identity was set repo-locally rather than globally, to avoid changing
 machine-wide state.
+
+
+## 21 Aug 2026, thirty-third session - the gate is built, and not yet measured
+
+Owner took both open decisions: containment root = the account the session is
+standing in (`@PATH`), and drop `Check: SshServerAbsent` from the `limitssh`
+task. Items 4, 5 and 1 built in one pass so they land in one cycle.
+
+**Nothing here is measured.** `make sd` clean, no warnings, both toolchains;
+`net_path_permitted` in `bin/sd.exe`, `kernel.o` referencing `connection_type`.
+The installed tree is stale and a cycle is owed. Expected afterwards:
+`verify-apiadmin` 19 PASS + 1 N/A (was 16/20), `verify-routes` 32/32 (was
+30/32).
+
+**Two measurements would have made the gate decoration**, both found by lifting
+the function out and probing it rather than by reading it:
+
+- `sdrealpath()` stops collapsing `..` at the first component that does not
+  exist and glues the remainder on verbatim, so
+  `.../DON/nofile/../../../sdsys/$cred` still begins with the account root.
+  `has_parent_ref()` refuses any surviving `..`. Present in `sdb64` too -
+  `UPSTREAM_FIXES.md` #10.
+- `fullpath()` output is in one of two namespaces depending on its input -
+  `/c/...` from `getcwd()`, `C:/...` from a drive-letter path - and `@PATH` is
+  always the first. A prefix test across them matches nothing.
+  `cygwin_conv_path(CCP_WIN_A_TO_POSIX)` folds both, is idempotent on POSIX
+  input, and does not fold case.
+
+**Two facts changed the shape of the work from what the previous session wrote
+down:**
+
+- **An account is not self-contained.** `sdsys/voc_template` has eight
+  F-records into `sdsys`, including `voc`'s own dictionary (`@SDSYS/voc.dic`),
+  so a pure account root would refuse an account its own VOC dictionary. The
+  design as specified assumed otherwise. Answered with `net_sysdir_shared[]`,
+  an allow-list, so the sharp files are excluded by not being named.
+- **`op_osrename()` is a sixth entry point** and the five-file spec did not
+  list it. It hands both pathnames to `rename()` with no `fullpath()` anywhere,
+  so a network session could have moved `$cred` somewhere it could read - a
+  rename needing no access to the contents of what it moves.
+
+**`@PATH` was checked for forgeability before being trusted as a root**, since
+the gate would be decoration if BASIC could set it: it is absent from
+`at.syscom.lvars` (`BCOMP:304-307`) so `@PATH = ...` does not compile, and
+`common /$syscom/` needs a `$`-prefixed block name, which `get.name`
+(`BCOMP:3113`) allows only `if internal`.
+
+**The `USR_ADMIN` fix is not the whole fix and is recorded as such.** It closes
+`OS.EXECUTE` and makes `APISRVR:459`'s standing assumption true, but the
+20 Aug `$cred` write went through no privilege flag at all, so the file gate is
+the half that closes that. The session still runs as LocalSystem; only its
+reach changed.
+
+**A verifier check would have become a vacuous pass and was given a third
+state.** `API session is NOT running as SYSTEM` is answered by running `whoami`
+inside the session; once `OS.EXECUTE` is refused the probe cannot ask, and an
+absent marker reads as "not SYSTEM ... PASS" on a session that is still
+LocalSystem. `Skip()` was added to `verify-apiadmin.ps1` so it reports N/A,
+which is neither a pass nor a failure. Same fault as the false pass found
+earlier the same day, arriving by a different route.
+
+**`sd.iss` was not a one-line change.** Dropping the Check made two comments
+and one user-visible message false: the wizard box said "the two ssh options
+are absent from this page" when only one now is, and `allow-ssh-groups.ps1`'s
+first refusal reason said `-Installed` means "SD installed this server" when it
+now means "an administrator asked for this". The 5.9 rule - never reconfigure
+an ssh server we did not install - is carried by `Flags: unchecked` and by the
+script's second refusal, not by the Check that went. Superseded comments were
+marked rather than deleted; it is the third time this file has been found
+asserting something that had stopped being true.

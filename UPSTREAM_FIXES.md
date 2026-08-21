@@ -645,3 +645,98 @@ sdtic: 1 terminal definition(s) did not compile - see above.
 
 With both changes the same malformed database compiles the other 61 entries
 correctly, names the bad one with its line number, and exits 1.
+
+
+---
+
+## 10. `sdrealpath()` stops resolving at the first component that does not exist, and returns the rest of the path unprocessed
+
+**Status: PROPOSED**
+
+`sdrealpath()` in `gplsrc/linuxlb.c` walks a pathname component by component,
+collapsing `.` and `..` and following symlinks as it goes. When `lstat()` on a
+component answers `ENOENT` it stops, copies **the remainder of the input string
+verbatim** onto what it has resolved so far, and returns:
+
+```c
+      if (lstat(outpath, &st) < 0) {
+        if (errno != ENOENT)
+          return NULL;
+
+        /* Simply glue unrecognised component(s) on the end so that we
+          return a fully resolved path of what we might be trying to
+          create.                                                      */
+        ...
+          *(tgt++) = '/';
+          strcpy(tgt, p);
+        }
+        return outpath;
+      }
+```
+
+Returning something for a path that does not exist yet is deliberate and is
+right - a caller creating a file needs it. The defect is that the remainder is
+copied **without being processed**, so any `.` or `..` in it survives, and the
+returned path is not the absolute form the function's own comment promises.
+
+**How to see it.** Both calls below name the same file, and only the first has
+every component present:
+
+```
+in   /data/accounts/live/../../sdsys
+out  /data/sdsys                                  <- resolved
+
+in   /data/accounts/live/nofile/../../../sdsys
+out  /data/accounts/live/nofile/../../../sdsys    <- returned unchanged
+```
+
+One non-existent component anywhere in the path is enough, and it does not have
+to be the last one.
+
+**Why it matters.** `fullpath()` is the only path-canonicalising function SD
+has, and `OSPATH(name, OS$FULLPATH)` is how BASIC reaches it. Two consequences:
+
+1. **Comparing two results is unsound.** Two spellings of the same file can
+   come back different, so code that caches, deduplicates or compares resolved
+   pathnames can treat one file as two.
+2. **Anything using it as a security check is defeated by one made-up name.**
+   This is how we found it: we were adding a rule confining a class of session
+   to a directory, implemented as "resolve the path, then check it is under the
+   permitted root". A path containing a component that does not exist keeps its
+   `..` segments, still begins with the permitted root, passes the check, and is
+   then resolved by the operating system to somewhere else entirely. The check
+   reads as protection and does not protect.
+
+We do not know of a place in `sdb64` today where point 2 is exploitable - the
+containment rule is ours and upstream has no equivalent. Point 1 stands on its
+own, and point 2 is worth knowing before anyone builds such a check.
+
+**Suggested fix.** Process the remainder through the same loop instead of
+copying it. The minimal change is to note that the component was missing and
+carry on rather than return - keeping the existing behaviour of producing a
+path for something that does not exist, while still collapsing `.` and `..`:
+
+```c
+      if (lstat(outpath, &st) < 0) {
+        if (errno != ENOENT)
+          return NULL;
+
+        /* The component does not exist.  Keep going so that "." and ".."
+          later in the path are still collapsed - a caller creating a file
+          needs a path back, but it has to be a RESOLVED one.  There is
+          nothing to follow, so only the symlink handling is skipped.     */
+        continue;
+      }
+```
+
+with the loop's `p = q + 1` advance moved so that `continue` cannot skip it.
+
+**A caller that wants the old behaviour has a better option anyway**: resolve
+the parent directory, which does exist, and append the final component itself.
+
+**If the unresolved form is kept deliberately**, the comment should say so and
+say that the result may still contain `..`, because the current one says the
+opposite - "a fully resolved path".
+
+**Reported against** `origin/dev`, `sd64/gplsrc/linuxlb.c`, the `ENOENT` branch
+of `sdrealpath()`.
