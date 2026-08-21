@@ -47,8 +47,8 @@ Details in §4. `gplbld/verify-delaccount.ps1` is the regression guard.
 
 **AND SO IS THE CONSOLE PATH — owner's decision, 21 Aug 2026: it stays exactly
 as it is.** Not a client of the service, not dropped. §8 has the ruling and the
-measured behaviour, including one leg of it that does not match the tree.
-**The token work is no longer blocked**, and it is the only thing left.
+behaviour, all of it observed. **The token work is no longer blocked**, and it
+is the only thing left.
 
 ---
 
@@ -10956,14 +10956,27 @@ opening the database as the invoking user.
 - **Over ssh it fails by construction**: UAC draws on the interactive desktop
   and an ssh session has none (§5.6.2). Windows enforces it, not a test here.
 
-**ONE LEG OF THE DESCRIPTION THIS WAS SETTLED FROM DOES NOT MATCH THE TREE, and
-it is recorded rather than written in.** *"Run from an elevated prompt and you
-are put into SDSYS automatically"* was true until 15 Aug 2026 and was **deleted
-that day, deliberately** — `LOGIN:356` says so in full. An elevated session
-lands in its own account like any other; what elevation buys is a **silent**
-`LOGTO SDSYS` instead of a UAC prompt, which is the same destination reached
-one step later. If an elevated `sd -ASDSYS` is ever seen to succeed, that
-comment and this entry are both wrong and `LOGIN:334` is the place to look.
+**"AN ELEVATED PROMPT PUTS YOU IN SDSYS AUTOMATICALLY" IS ONE STEP OUT, AND THE
+OWNER'S OWN SESSION SHOWED WHICH.** From an elevated PowerShell, 21 Aug:
+
+```
+:who              -> 27 DON               <- own account, NOT SDSYS
+:logto sdsys
+:who              -> 27 SDSYS from DON    <- and no UAC dialog
+```
+
+So an elevated session lands in its own account like any other, and what
+elevation buys is a **silent** `LOGTO SDSYS` rather than a consent prompt — the
+same destination, reached one step later, which is why it reads as automatic.
+The automatic form was true until 15 Aug 2026 and was deleted that day
+deliberately (`LOGIN:356`, one of two ways somebody could stand in an account
+without ever standing in their own).
+
+**THAT SESSION IS ALSO THE ONLY MEASUREMENT OF ANY OF THIS FROM A REAL
+TERMINAL.** Every verifier drives SD through a PIPE, so `create.account user
+test2` / `delete.account test2` typed at the `:` prompt is independent
+corroboration of the 38 of 38 above — one Y/N for the directory, `Group:
+sdu_test2 Deleted`, `OS User: test2 Deleted`.
 
 ### Open, undiagnosed: `BASIC` produced no object in SDSYS on a reused file name
 

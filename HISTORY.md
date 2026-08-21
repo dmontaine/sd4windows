@@ -12708,3 +12708,18 @@ and one step later, which is the likely reason it reads as automatic: from an
 elevated prompt the `LOGTO` is silent. Recorded in §8 as a flag rather than
 written in as behaviour; if an elevated `sd -ASDSYS` is ever seen to work,
 `LOGIN:334` is where to look and both entries are wrong.
+
+**The flagged leg resolved itself the same day, from the owner's own screen.**
+An elevated PowerShell, `sd`, `who` -> `27 DON`. Then `logto sdsys`, `who` ->
+`27 SDSYS from DON`, with no UAC dialog. So the reading of `LOGIN:334` was
+right: an elevated session lands in its OWN account, and elevation buys a
+silent `LOGTO SDSYS` rather than automatic entry. Same destination, one step
+later. The flag in section 8 is replaced by the transcript.
+
+**And that session is the only measurement of any of this from a REAL
+TERMINAL.** Every verifier drives SD through a pipe, which carries its own
+traps - the BOM on the first line, a prompt left unanswered at EOF. Typing
+`create.account user test2` and `delete.account test2` at the `:` prompt gave
+one Y/N for the directory, `Group: sdu_test2 Deleted`, `OS User: test2
+Deleted` - independent corroboration of the 38 of 38, by a route none of the
+automation uses.
