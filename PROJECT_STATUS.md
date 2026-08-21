@@ -60,6 +60,33 @@ are `sdadmins`, `sdapi`, `sdssh`, `sdsshonly`, `sdusers`, `sdu_don`; service
 Running. **`sdadmins` is expected litter** — made by hand on 13 Aug, referenced
 now only in comments (`linuxlb.c:64`, `sddefs.h:157`); §8 says leave it.
 
+**ITEM 9 IS CONFIRMED. `verify-apiadmin -Prefix sdapia8`: 22 PASS + 1 N/A of
+23, no failures**, on the install that carries the read-only change. That was
+the risk leg — a network session failing where it used to work would have shown
+up here — and it came through clean. Items 1, 4, 5 and 9 are all measured.
+
+**`limitssh` IS TICKED BY DEFAULT NOW** — owner's decision, 21 Aug, the second
+change to that task the same day. `Flags: unchecked` is gone from `sd.iss:183`.
+
+**AND THAT REVERSES WHAT THE CONSENT ARGUMENT RESTED ON.** When the `Check`
+came off earlier the same day, the note said 5.9 — *"we never reconfigure an
+ssh server we did not install"* — was carried by `Flags: unchecked`, because
+nothing happened unless somebody ticked a box. **That is no longer true: a
+SILENT install now applies it**, since an Inno task without `unchecked` is
+selected in silent mode too, and `ApplyAllowGroups` (`sd.iss:1329`) runs
+BEFORE the `WizardSilent` exit at `:1374` — checked, not assumed.
+
+**WHAT CARRIES 5.9 NOW IS `allow-ssh-groups.ps1`'s SECOND REFUSAL**, and it is
+the stronger guard rather than the weaker: it refuses outright if `sshd_config`
+already holds an `AllowGroups`, `AllowUsers`, `DenyGroups` or `DenyUsers` line,
+so somebody else's policy is never widened, replaced or merged into. What has
+gone is the protection against configuring a machine that has **no** policy at
+all — and there, SD's model is the only model there is.
+
+**THE COST IS UNCHANGED AND IS NOW THE DEFAULT: `ForceCommand` STOPS scp AND
+sftp FOR EVERYONE** on the machine. The task description is the only warning an
+administrator gets before accepting it. `-Remove` undoes it.
+
 **ITEM 9 IS BUILT: THE SHARED `sdsys` ENTRIES ARE NOW READ-ONLY TO A NETWORK
 SESSION.** `net_path_permitted()` takes a `for_write` argument; the account and
 `NETDIRS` stay read-write, the shipped `sdsys` allow-list is read-only.
@@ -120,11 +147,11 @@ sweeper for anything that gets past the verb.
 |---|---|---|
 | — | **`cycle.ps1`** — C, BASIC and the Makefile all changed since the last install | a person, elevated |
 | — | **`DELETE.ACCOUNT` against `sdacct9`** (SD made it, so it must go without asking, profile and all) and against an adopted account (must be refused) | a person, elevated |
-| — | **`verify-apiadmin.ps1 -Prefix sdapia8`** — must still be 22 PASS + 1 N/A. **The read-only change is the risk**: if a network session now fails where it used to work, the shared allow-list is where to look | a person, elevated |
+| — | **`verify-routes.ps1 -Prefix sdrt4`** — 33/33, and this time the three ssh checks should pass **from the install itself** rather than from running the script by hand, because the task is now ticked by default. That is the whole test of this change | a person, elevated |
 | — | **the API session's TOKEN is still LocalSystem.** `sdwind` `fork()`s the session so it inherits the service token. Windows has no `setuid`, so this means `CreateProcessAsUser` rather than fork/exec | code, large |
 
 **PREFIXES SPENT:** 20 Aug — `sdacct27`, `sdtiert1`-`3`, `sdacl7`, `sdapia1`,
-`sdapia2`. 21 Aug — `sdrt1`-`sdrt3`, `sdapia3`-`sdapia7`. Only `verify-apiadmin`
+`sdapia2`. 21 Aug — `sdrt1`-`sdrt3`, `sdapia3`-`sdapia8`. Only `verify-apiadmin`
 and `verify-routes` clean up after themselves; **exit 2 from the others means
 "use a fresh prefix", not a failure**.
 

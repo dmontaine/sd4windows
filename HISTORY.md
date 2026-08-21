@@ -12515,3 +12515,26 @@ touching sysseg.h and watching the two appear.
 Worth keeping: two dead variables, both `$(wildcard)` against the wrong
 directory, both harmless for as long as nothing used them. The first cost a
 cycle. The second would have cost the next one.
+
+**Item 9 confirmed and limitssh made the default, 21 Aug.**
+`verify-apiadmin -Prefix sdapia8`: 22 PASS + 1 N/A of 23, no failures, on the
+install carrying the read-only change. That was the risk leg - a network session
+failing where it used to work would have surfaced here - and it was clean.
+
+Owner then decided the limitssh task should be ticked by default, the second
+change to it that day. Flags: unchecked is gone.
+
+**That reverses what the consent argument rested on**, and the file now says so
+rather than quietly disagreeing with itself. When the Check came off that
+morning, the note said 5.9 was carried by Flags: unchecked, because nothing
+happened unless somebody ticked a box. A silent install now applies it -
+ApplyAllowGroups runs at sd.iss:1329, before the WizardSilent exit at :1374,
+checked rather than assumed.
+
+What carries 5.9 now is allow-ssh-groups.ps1's second refusal, which is the
+stronger guard: it refuses outright if sshd_config already says who may connect,
+so somebody else's policy is never touched. What is gone is the protection
+against configuring a machine that has no policy at all - and there SD's model
+is the only model there is. The cost, ForceCommand stopping scp and sftp for
+everyone, is unchanged and is now the default, so the task description is the
+only warning before it is accepted.
