@@ -11,7 +11,38 @@ something came to be the way it is.
 
 ## CONFIRMED, AND THE MOST IMPORTANT THING IN THIS FILE: A REMOTE API SESSION RUNS AS LocalSystem
 
-**MEASURED 20 Aug 2026, `verify-apiadmin.ps1 -Prefix sdapia1`.** A
+**CONFIRMED THREE TIMES, AND TWICE WITH A CORRECT INSTRUMENT.** The whole
+suite ran on the **19:57:43** install, `sd.exe` **`04F6BCBC0C59CB14`**:
+
+```
+verify-fold          10/10        verify-peerlog     21/21
+verify-createaccount PASS         verify-apiadmin    13/15   <- the finding
+verify-tiers         all PASS     verify-accountacl  21/21
+```
+
+**13/15 IS THE EXPECTED SCORE AND IS NOT A REGRESSION.** The thirteen include
+**both controls** - a local elevated session opens and writes `$cred`, and the
+ACL grants `sdusers` nothing - and the two that fail are the verdict:
+
+```
+[FAIL] API session CANNOT open  $cred: expected NO, got YES
+[FAIL] API session CANNOT write $cred: expected NO, got YES
+```
+
+**RE-RUNNING THE SUITE NEEDS FRESH PREFIXES EVERY TIME, and this is not a
+fault.** A second run the same evening reported **exit 2** from
+`verify-createaccount`, `verify-tiers` and `verify-accountacl` - *"still in
+the ACCOUNTS register from an earlier run"*. Those three **deliberately leave
+the SD side behind** (§7 step 1c: what `DELETE.ACCOUNT` should remove is
+undecided, and inventing a cleanup would presuppose it). **`verify-apiadmin`
+cleans up after itself** - `DELETE.ACCOUNT` removes the directory, the `sdu_`
+group and the OS user - which is why it alone could be re-run on the same
+prefix. **Exit 2 there is the guard working; exit 1 would be a failure.**
+
+**Spent this evening: `sdacct27`, `sdtiert1`-`3`, `sdacl7`, `sdapia1`,
+`sdapia2`.**
+
+**THE ORIGINAL RUN, `verify-apiadmin.ps1 -Prefix sdapia1`.** A
 **PROGRAMMER-tier** account, over a real remote API connection, **opened
 `$cred`, wrote a record to it and read the record back**:
 
@@ -6693,6 +6724,35 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- **NAMING A SCRIPT WITH A PATH SEPARATOR IN `stage.py` OR `sd.iss` SILENTLY
+  UN-EXCLUDES IT FROM `assert-current`.** Hit 20 Aug 2026. A comment in
+  `stage.py`'s `SD_CONF` block said *"Measured 20 Aug 2026
+  (`gplbld/verify-apiadmin.ps1`)"*, and `assert-current` began reporting:
+
+  ```
+  note: verify-apiadmin.ps1 now appears in stage.py or sd.iss, so it is watched again
+  ```
+
+  **`$shipsAs` matches `["'\/]` immediately before the name**, to tell a ship
+  list entry from a passing mention - and a mention that happens to carry a
+  path separator looks exactly like a ship list entry. **This is the same
+  false positive that check was already hardened against**, arriving by the
+  one route the hardening does not cover: its own comment records that the
+  first version matched the bare name and reinstated `assert-current.ps1`
+  because `stage.py` discusses it in a comment.
+
+  **WHY IT MATTERS RATHER THAN BEING COSMETIC:** the file leaves
+  `$neverShipped`, so the next edit to it makes the tree report STALE - and
+  `verify-apiadmin.ps1` **calls `assert-current` and refuses on a non-zero
+  exit**, so it would refuse to run on the strength of its own newness. That
+  is the self-blocking shape the `verify-accountacl.ps1` note in
+  `assert-current.ps1` describes, reached without anyone touching that list.
+
+  **THE RULE: in `stage.py` and `sd.iss`, name a script WITHOUT a path** -
+  *"verify-apiadmin.ps1 in this directory"*, never `gplbld/verify-apiadmin.ps1`.
+  **And read `assert-current`'s `note:` lines**; this one is printed on an
+  otherwise exit-0 run, so a reader watching only the exit code never sees it.
 
 - **`sdclilib.dll` BUILDS REPRODUCIBLY AND `sd.exe` DOES NOT, AND THE
   ASYMMETRY DECIDES WHAT A NO-OP REBUILD COSTS.** Measured 20 Aug 2026 by

@@ -27,6 +27,49 @@ corrected.
 
 ---
 
+## 20 Aug 2026 - The suite on the 19:57:43 install, and a trap in assert-current's own exclusion
+
+**Commit:** this one.
+
+**THE WHOLE SUITE RAN CLEAN EXCEPT THE INTENDED FAILURE**, on `sd.exe`
+`04F6BCBC0C59CB14`: `verify-fold` 10/10, `verify-createaccount` PASS,
+`verify-tiers` all PASS, `verify-accountacl` 21/21, `verify-peerlog` 21/21,
+`verify-apiadmin` **13/15**.
+
+**13/15 IS THE EXPECTED SCORE.** The two failures are the verdict - a remote
+API session opened and wrote `$cred` - and the other thirteen include both
+controls. **Second confirmation with a correct instrument** (the first, at
+12/15, had the field-mark parsing defect), on a different throwaway account
+and a freshly installed tree.
+
+**RE-RUNNING THE SUITE NEEDS FRESH PREFIXES, AND EXIT 2 IS THE GUARD WORKING.**
+A second run the same evening got exit 2 from `verify-createaccount`,
+`verify-tiers` and `verify-accountacl`: *"still in the ACCOUNTS register from
+an earlier run"*. Those three deliberately leave the SD side behind - §7 step
+1c, because what `DELETE.ACCOUNT` should remove is undecided and inventing a
+cleanup would presuppose it. **`verify-apiadmin` cleans up after itself**, so
+it alone re-ran on the same prefix. Worth knowing before reading three exit-2s
+as breakage: **exit 2 is a refusal to start, exit 1 is a failure.**
+
+**AND A TRAP FOUND BY READING A `note:` LINE ON AN OTHERWISE EXIT-0 RUN.**
+Adding *"Measured 20 Aug 2026 (`gplbld/verify-apiadmin.ps1`)"* to a comment in
+`stage.py` made `assert-current` announce that the file *"now appears in
+stage.py or sd.iss, so it is watched again"* - silently removing it from
+`$neverShipped`. `$shipsAs` matches a quote or path separator immediately
+before the name, to tell a ship-list entry from a passing mention, and **a
+mention carrying a path separator is indistinguishable from one**. This is the
+same false positive that check was already hardened against, arriving by the
+one route the hardening does not cover.
+
+**It is not cosmetic:** `verify-apiadmin.ps1` calls `assert-current` and
+refuses on a non-zero exit, so once watched, the next edit to it would make it
+refuse to run on the strength of its own newness. Fixed by naming the script
+without a path. **The rule is now in §6**, along with the more general one:
+read `assert-current`'s `note:` lines - this one printed on a run that exited
+0, so anyone watching the exit code alone never sees it.
+
+---
+
 ## 20 Aug 2026 - Acting on the API finding: default off, three comments, and the scope
 
 **Commit:** this one. **No fix yet** - the route is still to be chosen. This is
