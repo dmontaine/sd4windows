@@ -12750,3 +12750,54 @@ failure in the client's output, which is exactly how it presented.
 
 **`sd.conf` is at `C:\ProgramData\SD\sd.conf`, not under `sdsys\`.** Cost one
 wrong lookup while confirming the install.
+
+**Phase 2 written, 21 Aug - the account verbs take the owner's four words.**
+Never compiled: `stage.py --bootstrap` is the first parser for all of it and
+needs an elevated window.
+
+`CREATEA` takes SSH / API / BOTH / NONE, required for a USER account and
+matched on token text like ADMINISTRATOR and PROGRAMMER - the KW$ table in
+SYSCOM/PARSER.H is positional and shared, so adding to it is the larger change.
+ADMINISTRATOR forces BOTH, which CLOSES A GAP rather than opening one: the
+branch that joined sdssh sat inside the non-administrator else, and APISRVR
+tests sdapi with no exemption (`APISRVR:1362`), so an SD administrator could
+not use the API at all. The route join moved OUT of both else branches for the
+rule to hold on every path; sdsshonly did not move, because who is denied the
+KEYBOARD is a different question.
+
+`MODIFYA` takes the same four, absolute rather than additive - API now
+WITHDRAWS ssh - so route.add and route.remove became one route.set and eight
+messages became four that each name BOTH routes. That wording is the point:
+somebody who types API meaning BOTH has just taken ssh away, and "may now use
+the API" is true and is the wrong half. Administrators are refused (10083) and
+group accounts are refused (10087), the latter because account.user would
+otherwise answer "is not a member of sdusers", which is true and explains
+nothing.
+
+`DELACC` asks once. What will go is worked out BEFORE the question -
+!is_sd_user moved to the top - so the prompt can name the Windows account it is
+about to remove, and a group account is never asked about one it has not got.
+del.user holds the whole answer in one variable and everything downstream reads
+it, so the prompt and the deletion cannot disagree; the old code re-derived it
+after the prompt. The cross-reference Y/N (6029) became a statement, since
+report.xref has already printed the detail above it.
+
+**`set.password` is `modify.password`.** The $catalog name and the VOC record
+moved; the SOURCE FILE keeps its name, as DELACC does for DELETE.ACCOUNT. 27
+references across ten build and verify scripts renamed, plus the prose in five
+BASIC programs that told the reader to run it. `stage.py`'s two mentions are
+left alone: they are dated statements about what was true on 17 Aug.
+
+**Twelve messages retired and twelve added**, and deleting a message file needed
+one check first: err.h codes and sysmsg numbers SHARE AN INTEGER SPACE but are
+independent lookups. ER_NO_EXIST is 6031 and messages/6031 held "Delete
+directory %1 (Y/N)?"; ER_PERM is 3035 and messages/3035 says "Program is also in
+global catalogue. Remove?" while ER_PERM's own text comes from message 10074.
+Nothing passes an err.h constant to sysmsg - checked - so the collision is
+harmless and the file could go.
+
+**The LOGIN change was moved to Phase 3**, against the approved plan and
+deliberately. It exists to serve the installer step that leaves the installing
+user in SD to set a password, and the bootstrap runs `sd -internal` into an
+SDSYS that has no credential at all - so the rule has to be written around that
+or it breaks the install. It belongs with the flow it serves.

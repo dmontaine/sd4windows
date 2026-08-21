@@ -11,8 +11,33 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**THE TREE IS CURRENT. PHASE 1 OF SIX OWNER CHANGES IS DONE AND MEASURED.**
-Cycle 21 Aug 11:50:48, `sd.exe` **`cb9c4e0460b175f5`**, `assert-current` exit 0.
+**A CYCLE IS OWED. PHASE 2 IS WRITTEN AND HAS NEVER BEEN COMPILED.**
+Six BASIC programs, twelve new messages, twelve retired, a verb rename and a
+VOC record moved. **`stage.py --bootstrap` is the first compiler for all of it**
+and it needs an elevated window, so nothing here has been through a parser.
+Build first — no `.c` changed, so `-SkipInstall` is the cheap way to find a
+compile error:
+
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+```
+
+**WHAT TO EXPECT IF IT FAILS:** BCOMP reports the file and line. The traps that
+apply here are "is not assigned a value" (which `bootstrap.py:229` fails the
+build on — every new variable in `CREATEA` and `DELACC` is assigned at the top
+for exactly this) and a `begin case` / `end case` mismatch. Counted before
+committing: `CREATEA` 7/7, `DELACC` 3/3 plus 3 `loop`/3 `repeat`.
+
+**ONE DEVIATION FROM THE APPROVED PLAN, deliberate.** The `LOGIN` change —
+"an account with no `$cred` must set one before reaching the prompt" — is
+**moved to Phase 3**, where the installer step it exists to serve lives. Doing
+it here would put a rule in front of every login while the flow that needs it
+does not exist yet, and **the bootstrap runs `sd -internal` into an SDSYS that
+has no credential** (`bootstrap.py`, "NO PASSWORD IS NEEDED OR SET"), so the
+rule has to be written around that or it breaks the install.
+
+**Phase 1 is done and measured.** Cycle 21 Aug 11:50:48, `sd.exe`
+**`cb9c4e0460b175f5`**.
 
 **THE SIX CHANGES, owner 21 Aug 2026.** Plan approved the same day; phases are
 kept apart so a failure is attributable.
@@ -20,7 +45,7 @@ kept apart so a failure is attributable.
 | # | what | state |
 |---|---|---|
 | 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
-| 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | next |
+| 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **written, never compiled** |
 | 3 | ADOPT install-only; the install ends in an SD session that takes the password | |
 | 4 | verifiers, changelog, handoff | |
 
