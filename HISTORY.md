@@ -18610,3 +18610,51 @@ install is still current.
 **No `changelog` entry for this**, which is the irony worth recording: the
 exemption is build tooling, invisible to a user, and rule 8 covers verbs,
 messages, files, login behaviour and configuration. Nothing about SD changed.
+
+## 21 Aug 2026 - step 11's stale claim struck, and the half-correction that hid it
+
+**`SDConnectLocal()` WORKS AND HAS SINCE 17 Aug 2026.** Five places in
+PROJECT_STATUS still said it did not. All five are struck or corrected.
+
+**THE INTERESTING PART IS WHY THE SWEEP OF EARLIER THE SAME DAY MISSED IT.**
+That sweep found §7 step 11's heading reading *"BUILT ... AND NOT RUN"* directly
+above a body describing what running it did, and rewrote it to *"CALLED, AND IT
+DOES NOT WORK"*. That fixed the half of the sentence it was looking at and left
+a half that the same body refutes forty lines further down - the named-pipe
+transport was replaced with anonymous pipes hours after the failing measurement,
+and the replacement passed on the 12:28:49 install. **A half-corrected sentence
+reads as a checked one**, which is worse than an obviously stale one, and it
+survived a pass whose whole purpose was to find exactly this.
+
+**THE FIVE:**
+
+1. §4 *"Not verified"*, the step 11 entry - struck. It also claimed the local
+   transport was *"NOT currently a route to evidence for step 6c"*; it is the
+   route, and it delivered - `SDSYS` refused with *"User not allowed in
+   requested account"* while `DON` was admitted, which is the `ACC$GROUP` check
+   running rather than absent.
+2. §7 step 11's heading - now *"BUILT AND WORKING"*, with the 12:28:49
+   measurement on it.
+3. §7 step 11's body, *"DOES NOT WORK, AND THE REASON IS ARCHITECTURAL"* - the
+   subject is the NAMED PIPE, which is true of it and was never true of the
+   step. Scoped rather than struck: the always-ready `select()` finding behind
+   it stands and is why the transport changed.
+4. §7 step 11's body, *"THE TEST IS WRITTEN AND COMPILES; IT HAS NOT BEEN
+   RUN"* - it has run five times, four in development and once on the installed
+   pair.
+5. §5.7, *"the named-pipe transport is separately blocked, so the transport
+   half cannot be built today either"* - that sentence carried a second stale
+   claim beside it, that SD has no path gating. **It has had one since 21 Aug**
+   (the containment gate in `op_dio2.c`), so what §5.7 still lacks is the
+   identity half, not both halves.
+
+**AND ONE CLAIM WRITTEN DURING THIS CORRECTION WAS ITSELF WRONG, caught by
+reading the source rather than the entry.** The struck §4 bullet said
+`SDConnectLocal()` *"needs a running server and a configuration file"*, and the
+first draft of the correction said it needs neither now. It still needs both:
+`SDConnectLocal()` calls `sysdir()` and returns FALSE when the configuration
+file is absent (`sdclilib.c:1507`), and the comment above it says the check is
+kept deliberately. What changed is only that the file is no longer how `sd.exe`
+is located - that is `sd_exe_path()` and `GetModuleHandleEx`. **Striking a stale
+claim is exactly when a new one gets written**, because the temptation is to
+correct from the other entry rather than from the code.

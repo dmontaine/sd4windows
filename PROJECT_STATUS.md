@@ -1747,7 +1747,16 @@ refusal, typing at a real console, and the no-development-tree install — and
 four narrowed, where part of the claim still stands.** `MODIFY.ACCOUNT` was a
 ninth, struck earlier the same session, and **§7 step 11's own heading was a
 tenth** — it said *"AND NOT RUN"* directly above a body describing what
-running it did. Each carries what settled it. The pattern is worth knowing before reading the
+running it did. Each carries what settled it.
+
+**AN ELEVENTH WENT THE SAME DAY, AND IT IS THE ONE THE SWEEP ITSELF MISSED.**
+Step 11's entry below said the local transport *"DOES NOT WORK"*; it was
+replaced hours after that measurement and the step's own body reports the
+replacement passing on an install. **The sweep had rewritten that heading's
+"NOT RUN" half and left its "does not work" half**, so a half-corrected
+sentence read as a checked one. **A correction that touches part of a claim is
+the easiest kind to mistake for a whole one** — the striking below now covers
+all three places step 11 carried it. The pattern is worth knowing before reading the
 rest: **the header was rewritten every phase and this list was not**, so what
 rots here is specifically the entries claiming something has NOT been done —
 the dated measurements elsewhere in §4 held up under checking. Nothing was
@@ -1771,16 +1780,33 @@ run. **Check §4 against itself before believing anything here.**
   survive. **The narrowing is the API path only**; a local or ssh session is
   exactly as open as this entry always said.
 
-- **§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
+- ~~**§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
   08:03:49 install.** `SDConnectLocal("DON")` never returns; `sd.exe` spins
-  silently because `select()` calls the attached descriptor permanently ready
-  (§6). **Three defects behind it were found and fixed and those fixes stand.**
-  What remains is a design choice, in §7 step 11, not a bug hunt.
+  silently because `select()` calls the attached descriptor permanently ready.
+  So it is NOT currently a route to evidence for §7 step 6c.~~ **THE TRANSPORT
+  WAS REPLACED LATER THE SAME DAY AND IT WORKS. Struck 21 Aug 2026, and it is
+  the ELEVENTH stale claim of the sweep** — which corrected §7 step 11's
+  heading from *"AND NOT RUN"* to *"CALLED, AND IT DOES NOT WORK"*, fixing one
+  half of a sentence the body had already refuted twice. **Both halves are now
+  struck, here and at §7 step 11.**
 
-  **So it is NOT currently a route to evidence for §7 step 6c**, which is what
-  this entry claimed when the test was written. 6c is still reachable that way
-  in principle — a local session does reach `SrvrAccount` — but only once the
-  transport carries a session at all.
+  **`SDConnectLocal()` CARRIES A SESSION** — four runs, unelevated,
+  `local_connect_test` exit **0** each time, `DON` admitted and `SDSYS`
+  **refused** with *"User not allowed in requested account"*. **And on a real
+  install**: `make check-local` passed on the installed pair, `assert-current`
+  exit 0, **12:28:49 install**, `WHO -> 2 DON`.
+
+  **The always-ready `select()` finding is not withdrawn** — it is why the named
+  pipe went. Two anonymous pipes handed to the child as its standard handles
+  replaced it, so Cygwin builds descriptors 0 and 1 itself and its
+  `PeekNamedPipe`-based `select()` answers honestly. §7 step 11 has the
+  measurement, with the control in the same process.
+
+  **AND IT DID DELIVER THE §7 STEP 6c EVIDENCE THIS ENTRY SAID IT COULD NOT.**
+  The `SDSYS` refusal is the `ACC$GROUP` grant check running; `DON` admitted
+  alone would be equally consistent with a check that never executed, which is
+  what makes the pair evidence and either half alone worthless. 6c also has an
+  independent measurement over the port — `verify-apiport.ps1 -Prefix sdapi2`.
 
 - ~~**§7 STEP 6 IS BUILT IN FULL AND HAS NEVER RUN — 17 Aug 2026.**~~ **IT RAN
   THE SAME DAY THIS WAS WRITTEN.** §7 step 6 is **CLOSED 17 Aug 2026,
@@ -1986,8 +2012,15 @@ run. **Check §4 against itself before believing anything here.**
   19 Aug is that runtime's, working.
 - Semaphore locking under contention. The semaphores have never been observed
   held, so the `sdsem.c` port is exercised only in the uncontended case.
-- `SDConnectLocal()` at runtime. It needs a running server and a configuration
-  file (§5.8).
+- ~~`SDConnectLocal()` at runtime. It needs a running server and a
+  configuration file (§5.8).~~ **RUN, AND ON AN INSTALLED TREE** — see the
+  struck entry above and §7 step 11. **Both prerequisites still hold and an
+  install satisfies them**: `SDConnectLocal()` calls `sysdir()` and returns
+  FALSE if the configuration file is absent (`sdclilib.c:1507`). What changed is
+  that the file is no longer how `sd.exe` is LOCATED — that is `sd_exe_path()`,
+  `GetModuleHandleEx(FROM_ADDRESS)` beside the DLL — and the comment at
+  `sdclilib.c:1502` says the check is kept deliberately, ahead of spawning
+  anything.
 - **Contention.** Two sessions have now coexisted — an interactive one sitting
   at a password prompt on `/dev/pty0` and a second running `LISTU`, which
   listed both (users 8 and 9, 13 Aug 2026). So multi-user attach works. What
@@ -2611,10 +2644,15 @@ and adds a Windows-user-to-account mapping to maintain.
   so the parallel is exact and inherits the gap rather than answering it.
 
   **SO IT IS A ROUTE, NOT AN ANSWER, and the missing half is the bulk of the
-  work**: path gating inside SD. The named-pipe transport is separately
-  blocked - §7 step 11, 17 Aug 2026 - so the transport half cannot be built
-  today either. **Do not reach for this section as the fix.** The opening
-  section of this file has the options that were actually weighed.
+  work**: path gating inside SD, **which exists as of 21 Aug 2026** — the
+  containment gate in `op_dio2.c`, rooted at the account the session stands in.
+  So the missing half is no longer missing, and what this section still lacks
+  is the identity half. *The claim that stood here — "the named-pipe transport
+  is separately blocked, so the transport half cannot be built today either" —
+  went with the named pipe: the local transport was rebuilt on anonymous pipes
+  the same day and works (§7 step 11).* **Do not reach for this section as the
+  fix.** The opening section of this file has the options that were actually
+  weighed.
 
 **Mechanics, verified on this machine 13 Aug 2026.** `C:\ProgramData` grants
 `BUILTIN\Users:(I)(OI)(CI)(RX)` by inheritance, so the default is world
@@ -5944,14 +5982,23 @@ the staging script and the Inno installer were all finished and removed.
     well enough to be worth using. The sequencing note matters more than the
     step: put administrative logic in subroutines from now on, so a form can
     call it later without reimplementing it.
-11. **BUILT 17 Aug 2026, seventeenth session. CALLED, AND IT DOES NOT WORK** —
-    on the 08:03:49 install, `SDConnectLocal("DON")` never returns and `sd.exe`
-    spins silently (§4 *"Not verified"*, §6). *"AND NOT RUN" stood here until
-    21 Aug 2026 and was already contradicted by this entry's own body, which
-    reports what running it did.* `SDConnectLocal()`
-    **could never have worked**, on this platform or any other, and it took
-    three independent faults with it. Two were in the shipping path and are
-    fixed; the third was in dead code.
+11. **BUILT AND WORKING — 17 Aug 2026, seventeenth session. VERIFIED ON THE
+    12:28:49 INSTALL**, `make check-local` on the installed pair,
+    `assert-current` exit 0, `WHO -> 2 DON`. The measurements are in this step's
+    body and in §4.
+
+    ***"AND NOT RUN" stood here until 21 Aug 2026; "CALLED, AND IT DOES NOT
+    WORK" replaced it that day and was stale too** — both were refuted by this
+    entry's own body, which reports the transport being replaced and the test
+    passing. The half-correction is why it survived a sweep. Struck 21 Aug 2026
+    in both places.*
+
+    **The heading it carried is still the right way to read what follows**:
+    `SDConnectLocal()` as originally written **could never have worked**, on
+    this platform or any other, and it took three independent faults with it.
+    Two were in the shipping path and are fixed; the third was in dead code.
+    **A fourth thing was not a defect and is what forced the transport
+    change** — the always-ready `select()`, below.
 
     a. **The client and the server disagreed about `-C`.** `SDConnectLocal()`
        builds `sd.exe -Q -C \\.\pipe\~SDPipe<pid>-<n>` — the pipe name as a
@@ -5993,8 +6040,11 @@ the staging script and the Inno installer were all finished and removed.
     errors, measured. That is why it returns `int` rather than `bool`, as
     `win32audit.h` does.
 
-    **DOES NOT WORK, AND THE REASON IS ARCHITECTURAL RATHER THAN A BUG LEFT TO
-    FIND. 17 Aug 2026, measured on the 08:03:49 install.** Three real defects
+    **THE NAMED PIPE DOES NOT WORK, AND THE REASON IS ARCHITECTURAL RATHER THAN
+    A BUG LEFT TO FIND. 17 Aug 2026, measured on the 08:03:49 install** — the
+    transport this describes is the one that was REPLACED, later the same day,
+    and the replacement is what the top of this step reports working. **Three
+    real defects
     were fixed on the way and all three were worth fixing; a fourth thing is
     not a defect at all and stops this approach.
 
@@ -6178,9 +6228,11 @@ the staging script and the Inno installer were all finished and removed.
     ordinal 6, checked with `objdump -p` — and its transport is a **named
     pipe**, which has no Linux equivalent in that library at all.
 
-    **THE TEST IS WRITTEN AND COMPILES; IT HAS NOT BEEN RUN.**
-    `gplsrc/sdclilib/tests/local_connect_test.c`, clean under
-    `-Wall -Wextra -Wpedantic`. **Run it after the cycle, UNELEVATED:**
+    ~~**THE TEST IS WRITTEN AND COMPILES; IT HAS NOT BEEN RUN.**~~ **IT HAS
+    RUN, FIVE TIMES** — four development runs and once on the installed pair at
+    12:28:49, all exit 0. Struck 21 Aug 2026 with the other two claims of the
+    same kind in this step. `gplsrc/sdclilib/tests/local_connect_test.c`, clean
+    under `-Wall -Wextra -Wpedantic`. **Re-run it after any cycle, UNELEVATED:**
 
     ```sh
     cd sdb_ai/sd64 && make check-local
