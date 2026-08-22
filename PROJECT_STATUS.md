@@ -196,12 +196,60 @@ lower now. The record keys *inside* `accounts` were not part of that change.
 LOGIN (21), APISRVR (5), DELACC (4), GRANTA (4). **`CREATEA` ships**, so this
 costs a cycle.
 
-**3. THE POST-INSTALL VERIFY DOES NOT EXIST — the banner is on the wrong file.**
+**3. THE POST-INSTALL CHECK IS BUILT — AND HAS NEVER RUN INSIDE AN INSTALL.**
+`check-install.ps1`, written 22 Aug 2026 on the owner's instruction: a
+post-install verify that runs as the last step *"without complication"*,
+explicitly **not** as comprehensive as the development suite.
+
+**WHAT IS PROVEN AND WHAT IS NOT — the distinction matters here.**
+
+- **Proven:** it parses, and on the live 10:28:16 install it reports every
+  section `[ok]` and reads the catalogue as **129 entries**, matching the
+  install. All three membership branches produce correct text, and the
+  elevated false-pass warning fires — **all by forcing the state**, because
+  `don` is already in `sdusers` from an earlier install.
+- **NOT proven:** the checkbox has never appeared on a Finished page, the
+  Start Menu shortcut has never been created, and **the `[not yet]` path has
+  never run against a genuinely stale token.** Two cycles were launched for
+  this and **both UAC prompts were declined**, so nothing was installed.
+  `assert-current` reports `check-install.ps1`, `stage.py` and `sd.iss` stale.
+
+**THE DESIGN, in one line each:**
+
+- **Read-only.** Creates, deletes, starts and stops nothing. Re-runnable.
+- **Three outcomes, not two:** `[ok]`, `[PROBLEM]`, and **`[not yet]`**. The
+  third exists because at install time the user's token **cannot** carry
+  `sdusers` yet, so the database is unreadable however healthy it is. Reporting
+  that as a failure would tell somebody their new install is broken for a
+  reason that fixes itself. Membership is read **twice** — from the group and
+  from the token — and the pair separates *"sign out and back in"* from *"the
+  installer never added you"*.
+- **The check it exists for** is the catalogue count: the 16 Aug 2026
+  catalogue-less install had every file present and the service running.
+- **Not elevated, deliberately** (`sd.iss` `[Icons]` and the `[Run]` entry both
+  say so). Administrators read the data tree through their own ACE, so an
+  elevated run passes regardless — a **false pass on the only question the
+  script asks**. It does not refuse the way `verify-credacl` does, because a
+  worried user right-clicking "Run as administrator" must learn something; it
+  runs and says what the answer is worth, twice.
+- **`postinstall` + `-NoExit`.** The `"Run as: Original user"` behaviour that
+  killed the SDSYS password step is exactly what this wants. `-NoExit` because
+  the third thing that killed that step was the console vanishing unread.
+- **A Start Menu shortcut, and it is not a convenience:** the install-time run
+  is *always* the incomplete one, so the re-run is how the check ever finishes.
+
+**NEXT: one cycle proves all of it** — the Finished-page checkbox, the shortcut,
+and (only after signing out and back in) the `[not yet]` → `[ok]` transition.
+
+**THE ORIGINAL FINDING THAT PROMPTED IT, kept because the reasoning still binds:
+the DEVELOPMENT suite is the thing that does not exist as a shipped check.**
 Asked 22 Aug: *"the last session said that it had created the banner and the
 yes/no question for the post install verify"*. **The banner and the `y/n` are
-real, at `VerifyInstall1.ps1:168-196` — the DEVELOPMENT runner.** `sd.iss` has
-no verify task at all; its `[Tasks]` are `addtopath`, `sshremote`, `limitssh`,
-`apiremote`. Stale claim number twelve.
+real, at `VerifyInstall1.ps1:168-196` — the DEVELOPMENT runner.** When asked,
+`sd.iss` had **no verify step of any kind**; its `[Tasks]` are `addtopath`,
+`sshremote`, `limitssh` and `apiremote`, and they still are — the check added
+since is a `postinstall` `[Run]` entry with a `Description`, which is a
+Finished-page tickbox rather than a `[Tasks]` checkbox. Stale claim twelve.
 
 **THE DEV SUITE CAN NEVER SHIP, and it is structural rather than packaging.**
 `assert-current.ps1:38` derives the **source tree** from its own location and

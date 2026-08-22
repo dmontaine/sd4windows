@@ -22696,3 +22696,60 @@ back in.
 **ALSO RECORDED:** account names should be lower case (owner) - `CREATEA:489`
 upcases the register key, `adopt-account.ps1:132` mirrors it, and both disagree
 with e1095ab's lower-case-on-disk rule. CREATEA ships, so it costs a cycle.
+
+
+## FORTIETH SESSION, part 2 - check-install.ps1, the shipped post-install check
+
+Owner's instruction, 22 Aug 2026: a post-install verify that runs as the last
+step of the install "without complication", knowing it will not be as
+comprehensive as the development suite.
+
+**BUILT, TESTED AS FAR AS IT CAN BE WITHOUT AN INSTALL, AND NOT YET PROVEN IN
+ONE.** Two cycles were launched for it and BOTH UAC PROMPTS WERE DECLINED, so
+the Finished-page tickbox and the Start Menu shortcut have never been seen and
+the [not yet] path has never met a genuinely stale token.
+
+**THE DESIGN TURNS ON A THIRD OUTCOME.** [ok], [PROBLEM], and [not yet]. At
+install time the user's token CANNOT carry sdusers - Windows fixes group
+membership at sign-in and the installer grants it after that - so the database
+is unreadable however healthy it is. Reporting that as a failure would tell
+somebody their new install was broken, at the moment they have least reason to
+doubt it, for something that fixes itself. Membership is therefore read TWICE,
+from the group and from the token, and the pair separates "sign out and back
+in" from "the installer never added you".
+
+**IT ANSWERS A DIFFERENT QUESTION FROM THE DEV SUITE AND CANNOT ANSWER THAT
+ONE.** assert-current needs the SOURCE TREE and 21 of 24 verifiers refuse
+without it; the suite is also destructive. check-install reads only.
+
+**THE ONE CHECK IT EXISTS FOR** is the catalogue count - the 16 Aug 2026
+catalogue-less install had every file present and the service running.
+
+**THREE DEFECTS WERE FOUND IN IT BY REVIEW RATHER THAN BY RUNNING IT**, which
+is worth recording because two of them would have misinformed a user:
+
+  * A user NOT in sdusers was told to sign out and back in. That cannot help
+    them - their problem is membership - and it points away from the fault
+    printed six lines above. Now attributed to the right cause.
+  * The summary said the skipped checks "need you to sign out and back in" even
+    when a PROBLEM was what blocked them. Now neutral on that path.
+  * AN ELEVATED RUN WAS A FALSE PASS. Administrators read the data tree through
+    their own ACE, so the database passes regardless of sdusers - on the ONLY
+    question the script asks. It does NOT refuse the way verify-credacl does,
+    because a worried user right-clicking "Run as administrator" must learn
+    something; it runs and says what the answer is worth, in a banner and again
+    inline where the misreading would happen.
+
+**AND THE INSTRUCTION TO RE-RUN IT WAS UNACTIONABLE.** It said "run this again
+afterwards" and never said how, on a first run that is ALWAYS the incomplete
+one. Now it prints the Start Menu path and the full command, and sd.iss [Icons]
+gains the shortcut that makes the first of those true. The shortcut is not a
+convenience: the install-time run cannot finish the job, so the re-run is how
+the check ever completes.
+
+**THE "Run as: Original user" BEHAVIOUR IS LOAD-BEARING HERE, HAVING BEEN FATAL
+EVERYWHERE ELSE.** sd.iss:1125 records it killing the SDSYS password step. For
+this check it is exactly right - the question is whether the person who just
+installed SD can use it, and an elevated token answers as Administrators.
+-NoExit for the same reason the gravestone gives: the third thing that killed
+that step was the console vanishing before anything could be read.
