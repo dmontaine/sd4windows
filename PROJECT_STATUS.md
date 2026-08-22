@@ -16,7 +16,7 @@ after the last install and **neither has ever been compiled or run**:
 
 ```
 STALE: 2 source file(s) are newer than the install:
-       21 Aug 21:55:43  gplbld\adopt-account.ps1
+       22 Aug 08:25:29  gplbld\adopt-account.ps1
        21 Aug 21:55:04  sdsys\gpl.bp\CREATEA
 ```
 
@@ -42,6 +42,20 @@ C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiname.ps1 -Prefix
 refuses. **The install's own ADOPT is the test** - it runs every cycle, and
 `verify-accountrules` reads the result out of `adopt-account.log`; a marker that
 no longer matched would show up as the installing user having no SD account.
+
+**AND ONE MORE THING RIDES ALONG, ADDED 22 Aug 2026 BECAUSE IT WAS FREE.**
+`adopt-account.ps1` folded case with `.ToLower()`/`.ToUpper()`, which are
+**culture-sensitive**; SD's `downcase`/`upcase` are the fixed ASCII byte maps
+`lc_chars`/`uc_chars`, built `A-Z <-> a-z` at `ctype.c:61` and identity
+elsewhere. On a Turkish or Azeri locale `I` folds to a dotless `U+0131`, so a
+name containing that letter **would not match itself** across the two sides —
+the marker at `:249`, and the ACCOUNTS record at `:132` that decides the
+reinstall case. Both are `Invariant` now, which matches SD's map exactly for the
+ASCII-only names `valid_os_name` permits (`VALID_OS_NAME:29`). **It changes
+nothing measurable here** — on this machine the two folds are byte-identical, so
+the cycle tests it only in the sense that it must not break anything. Done now
+rather than later because that file was **already** stale, so it cost no cycle;
+after the cycle it would have cost a whole one.
 
 **ALREADY DONE ON THE 21:17:35 INSTALL, so these do not need repeating:** the
 audit fix measured by `verify-apiname` (still owed - it has never run against
