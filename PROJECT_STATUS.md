@@ -44,9 +44,36 @@ something came to be the way it is.
 > of it is: never `Stop-Process` an `sd` session on a tree you still want to
 > measure.**
 
-**NO CYCLE IS OWED. THE WHOLE SUITE IS GREEN ON ONE INSTALL**, and **every
-outstanding "built but not verified" item in this file is now measured.**
-Owner's elevated run, 22 Aug 2026.
+**A CYCLE IS OWED — ONE SHIPPED FILE CHANGED.** `gplbld\sd.iss`, 22 Aug 10:11,
+and nothing else:
+
+```
+STALE: 1 source file(s) are newer than the install:
+       22 Aug 10:11:20  gplbld\sd.iss
+```
+
+**`make sd` IS NOT NEEDED** — no C changed. **What changed and why:
+`DisableDirPage=yes` and `UsePreviousAppDir=no`, so the install location is no
+longer a choice.** Owner's decision, 22 Aug 2026: *"since we dont allow changing
+the c:\programdata location i don't see any reason why we give an alternative
+location to c:\program files\sd"*. The data tree never was a choice —
+`DataDir` is `#define`d as `{commonappdata}\SD`, a compile-time constant with no
+wizard page — so offering one for the programs was an asymmetry with nothing
+behind it, and a user who took it got a half-movable install.
+
+**IT WAS NOT COST-FREE EITHER, WHICH IS HOW IT SURFACED.** **21 verify scripts
+locate SD as `$env:ProgramFiles\SD`**, and **`assert-current.ps1:40` hardcodes
+the literal `C:\Program Files\SD\usr\bin\sd.exe`** — so on a moved install the
+staleness guard compares against a path that does not exist and the whole suite
+fails without saying why. Inno **does** record the real location
+(`HKLM\...\Uninstall\{9F2B7C41-…}_is1`, `InstallLocation`, measured 22 Aug), so
+teaching all twenty-two to read it was possible; **removing the choice removes
+the class of fault instead.** `VerifyInstall1` still checks and names the
+mismatch in one line, because an install made *before* this change can still be
+elsewhere.
+
+**EVERYTHING BELOW WAS MEASURED ON THE 22 Aug 08:32:03 INSTALL** and stands —
+only `sd.iss` has moved since, and nothing in the suite reads it.
 
 ```
 installed at: 22 Aug 08:32:03      sd.exe CB9C4E0460B175F5
@@ -170,8 +197,22 @@ individual prefix still overrides it.
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-unelevated.ps1 -ThenElevated -Run b2
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b2
 ```
+
+**THE TWO RUNNERS WERE RENAMED 22 Aug 2026, on the owner's instruction:**
+`post-cycle-unelevated.ps1` → **`VerifyInstall1.ps1`**, `post-cycle-elevated.ps1`
+→ **`VerifyInstall2.ps1`**. `VerifyInstall1` calls `VerifyInstall2`. Both stay
+on `assert-current`'s `$neverShipped` list under the new names — checked, the
+guard reported only `sd.iss` afterwards.
+
+**`VerifyInstall1` NOW EXPLAINS ITSELF AND ASKS FIRST.** It says what it will do
+— several minutes, creates and deletes Windows accounts, restarts the SD
+service, about four elevation prompts, where the output goes — and then waits
+for `y`. **`-Yes` skips the prompt**, which anything that is not a person needs:
+`Read-Host` in a non-interactive host does not wait, it **throws**, so the
+absence of somebody to answer is caught and named rather than left as a stack
+trace.
 
 **THE WHOLE SUITE IS ONE COMMAND SINCE 22 Aug 2026, AND IT MUST BE STARTED
 UNELEVATED.** `-ThenElevated` runs the eight unelevated verifiers with a genuine
@@ -1063,6 +1104,43 @@ all-checks are **first recorded results ever**; `verify-tierapi` 15/16 and
 **THREE OF THE FIVE WERE FAULTS IN THE TESTS OR IN MY WIRING, NOT IN SD**, and
 two of those had been failing silently for as long as they had existed —
 which is the argument for the inventory above in one line.
+
+### 4.0.2 The suite CANNOT be run from the installer, and the reason is structural
+
+**ASKED 22 Aug 2026: can `VerifyInstall1` be made part of the install, so the
+installer reports a result straight after installing? NO — not this suite, and
+not by wiring it in.** The blocker is not effort:
+
+1. **`assert-current.ps1` compares the installed tree against the SOURCE tree**
+   — `bin\sd.exe`, `gplsrc`, `sdsys`, all under `sdb_ai\sd64`. **Nearly every
+   verifier calls it first.** An end-user machine has no source tree, so it
+   exits 2 with *"no bin/sd.exe - run make sd"* before any check runs. The suite
+   answers *"does the install match what I just built"*, which is a **developer's**
+   question and is meaningless on a machine that built nothing.
+2. **13 of the 24 need MSYS2, `gcc`, `make` and the repository Makefile** —
+   `verify-apiadmin`, `verify-apiport`, `verify-apiname` and `verify-scramlogin`
+   compile C probes at run time. `verify-tierapi` additionally needs
+   `sd-connect.exe` from the **separate `sdclilib32` repository**.
+3. **None of the verify scripts is shipped.** `stage.py` ships a named list;
+   they are not on it, and they are on `$neverShipped` precisely because they
+   cannot reach an install.
+4. **It is aggressive for a user's machine**: it creates and deletes Windows
+   accounts, restarts the SD service, and plants synthetic records in the error
+   log. Directly after an install, on somebody else's computer, that is not a
+   self-test — it is a second installer.
+5. **It needs about four UAC approvals and several minutes**, and the installer
+   runs its steps through `Exec` with `SW_HIDE`, where nothing can answer.
+
+**WHAT WOULD ACTUALLY WORK IS A DIFFERENT ARTEFACT**, and it is worth building
+when somebody wants it: a small **post-install smoke test** using only the
+installed tree — SD starts, a session opens, the installing user's account was
+adopted, `$cred` and `gcat` carry the right ACLs, the API port is listening.
+**11 of the 24 already need nothing but the installed tree**
+(`verify-fold`, `verify-nonet`, `verify-tiers`, `verify-routes`, `verify-setpw`,
+`verify-nocase`, `verify-keys`, `verify-editkeys`, `verify-credacl`,
+`verify-allowgroups`, `verify-sshonly`) — but each still calls `assert-current`,
+so they would need that call made conditional before any of them could ship.
+**Not started; recorded so the next session does not rediscover the blocker.**
 
 ### 4.0.1 An agent shell CAN elevate here, and that was the premise of the split
 
