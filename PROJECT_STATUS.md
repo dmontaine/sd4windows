@@ -97,6 +97,17 @@ C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert7 -Account sdacct31 -AclPrefix sdacl11 -ApiPrefix sdapia13 -RoutePrefix sdrt7 -RulesPrefix sdar4 -DelPrefix sddel5
 ```
 
+**ONE ELEVATED RUN IS OWED, AND IT IS NOT A CYCLE.** `verify-apiname.ps1` was
+written 21 Aug 2026 to settle §2's `!valid_os_name` question and has **never
+run**. It needs no install and changes nothing that ships — it makes an account,
+tries four spellings of its name at the API port, and removes it in a `finally`.
+**It is deliberately NOT in `post-cycle-elevated.ps1`**: it answers a question
+once rather than guarding the tree, and the runner is for the standing suite.
+
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiname.ps1 -Prefix sdapin1
+```
+
 **`verify-delaccount` IS NOW IN THE RUNNER** — owner's instruction, 21 Aug 2026,
 `-DelPrefix`, ninth step, between `verify-accountrules` and `verify-peerlog`.
 It was the last verifier that had to be *remembered*: on `assert-current`'s
@@ -497,13 +508,40 @@ it do instead, and who can tell?"**
   **questionable where the name already exists** — `DELACC:240` and
   `MODIFYA:103/127` refuse to clean up or amend an account whose name it
   dislikes, leaving litter nothing can address.
-- **AND IT IS STILL ON THE API LOGIN PATH.** `APISRVR:1180` applies it to the
-  username inside the SCRAM exchange, before the credential is checked
-  (`goto scram.bad.cred`), and `SDCLIENT:279` does the same for remote logins.
-  **STILL NOT MEASURED: whether a real API login presents a domain-qualified
-  name.** That measurement is what decides whether this is a defect or only a
-  smell. *This used to say "make it before touching §7 step 6"; step 6 closed on
-  17 Aug 2026 and the measurement was never made, so it is owed on its own now.*
+- **AND IT IS STILL ON THE API LOGIN PATH — ANSWERED 21 Aug 2026: A SMELL, NOT
+  A DEFECT.** `APISRVR:1180` applies it to the username inside the SCRAM
+  exchange, before the credential is read (`goto scram.bad.cred`), and
+  `SDCLIENT:279` does the same for remote logins. **A name it refuses can never
+  have been an SD account**, for two independent reasons, so no legitimate login
+  is lost:
+
+  | | |
+  |---|---|
+  | nothing derives the name | `SDConnect()`'s `username` argument goes to `scram_login()` and straight into `n=%s` (`sdclilib.c:1049`). **No `GetUserName` anywhere in the client**, so a qualified name appears only if the application author writes one |
+  | the client does not filter it | its only check is **length 1..32** (`sdclilib.c:1218`), no charset — so it does reach the server |
+  | SD cannot register such a name | `valid_os_name` gates creation too: `CREATE_USER:79`, `CREATEA:537`, `CREATEA:1406` (ADOPT) |
+  | SD cannot see domain accounts at all | `IS_USER:62` in its own words — *"LOCAL ACCOUNTS ONLY. Get-LocalUser does not see domain accounts"* — and `CREATE_USER` uses `New-LocalUser` |
+
+  **MEASURED on the 17:18:11 install, live, against the listening port:** bare,
+  `GITORLI\name`, `gitorli\name` and a spaced name are all refused with the
+  identical text `Invalid username or password`.
+
+  **WHAT THE REFUSAL COSTS IS DIAGNOSTIC, AND THAT IS THE REAL FINDING.** It is
+  **indistinguishable from a wrong password** — same branch, same text — and
+  **it leaves no audit record at all**: `APISRVR` audits one refusal reason
+  only, `reason=not in sdapi` at `:1363`. See §8.
+
+  **THE CONTROL IS OWED AND HAS A VERIFIER WAITING:
+  `gplbld/verify-apiname.ps1 -Prefix sdapin1`, elevated, never run.** Those four
+  refusals are each equally consistent with *"that account does not exist"* —
+  because it did not. The control is the **same account and password** admitted
+  bare and refused qualified, and creating an account with an API credential
+  needs elevation. **Do not read the four refusals as evidence until it runs.**
+
+  **A REAL DOMAIN ACCOUNT CANNOT BE PRESENTED ON THIS MACHINE**, and this is a
+  trap rather than a task: GITORLI is in `WORKGROUP`, measured. Same shape as
+  §4's RDP entry — the reasoning is sound and the rig is absent. §7 step 2's VM
+  is not a domain either.
 - **`!valid_shell_cmd` rejects `;|&$`, backquote and `<>`**, so **even an
   elevated `SH` cannot pipe or redirect** — `SH dir | findstr x` is refused.
   That is message 5240 in §4's `OS.USERS` table, and §7 step 7 lifts the ban for
@@ -2922,6 +2960,24 @@ Each of these cost real time. Read before debugging anything similar.
   answers at all: `OPEN 'VOC' TO F.VOC` then `DELETE F.VOC, 'id'`. That is how
   the `testlc` probe record was removed.
 
+- **POWERSHELL'S `-match` IS CASE INSENSITIVE, SO A SUCCESS TEST CAN MATCH THE
+  FAILURE LINE.** 21 Aug 2026, caught while writing `verify-apiname.ps1` and
+  **before** it cost an elevated run, which is the only reason it is cheap.
+  `remote_connect_test.c` prints `admitted` when the connect succeeds (`:116`)
+  and **`ADMITTED`** on the *failure* paths of its wrong-password and SDSYS
+  checks (`:139`, `:154`) — so `$out -match 'admitted'` answers true for both,
+  and a harness reading it would score a failed refusal as a passing login.
+  **Use `-ceq` on the trimmed line, or `-cmatch`.** The `c` prefix is the
+  case-sensitive form of every PowerShell comparison operator (`-ceq`,
+  `-cmatch`, `-clike`, `-ccontains`) and none of them is the default.
+
+  **The general form is §0 rule 2's, arriving through the harness rather than
+  the system:** an instrument you have not checked is not evidence, and a
+  comparison that cannot fail is the commonest way to build one. This file has
+  now recorded four such instruments — `Measure-Object -Line`, the UAC registry
+  reading, `OpenProcess(PROCESS_TERMINATE)`, and a `-notmatch` on SD's own echo
+  (§6 above) — and this is the fifth.
+
 - **`` `e `` IS NOT AN ESCAPE IN WINDOWS POWERSHELL 5.1, so every ANSI strip in
   `gplbld` is dead code.** 18 Aug 2026. `` `e `` arrived in PowerShell 6, so
   ``"`e\[[0-9]*[A-Za-z]"`` is the literal letter `e` and matches nothing SD
@@ -4961,6 +5017,27 @@ was missing, which was an artefact of testing for `sdsys\VOC\<name>` as a file.
 **A VOC record is not a file: `VOC` is a DYNAMIC file** (`CREATEA:575`), on disk
 a directory of `%0`/`%1` buckets, so it holds two files whatever its record
 count. That check could never pass and was removed.
+
+### Open: a refused API login leaves no audit record (found 21 Aug 2026)
+
+**`APISRVR` AUDITS EXACTLY ONE REFUSAL REASON** — `kernel(K$AUDIT, 'API REFUSED
+user=' : scram.user : ' reason=not in sdapi')` at `APISRVR:1363`, and that fires
+only **after** the SCRAM proof has succeeded. **Everything that fails earlier
+goes to `scram.bad.cred` and writes nothing**: a wrong password, an account with
+no `$cred` record, a version-1 credential, and a name `valid_os_name` rejects.
+
+**So the API has no failed-login trail**, while §5.6's console model logs every
+login, refused login, `LOGTO` and refused `LOGTO` (§7 step 4). Nothing
+distinguishes a mistyped password from a client pointed at the wrong account
+from somebody working through names — at the time or afterwards.
+
+**Found while making the `valid_os_name` measurement (§2), not by looking for
+it**, which is why it is here rather than in §7: it is a gap in a subsystem that
+was signed off as working, and what to do about it is a decision. **The obvious
+fix is one `kernel(K$AUDIT, ...)` at the `scram.bad.cred` label**, but it needs
+deciding what to record — the name as presented is attacker-controlled text
+going into an append-only file that `secure-audit.ps1` protects, and
+`valid_os_name` has already refused it by definition on one of the four paths.
 
 ### Open, undiagnosed: the first verifier run after a cycle sometimes fails checks the second passes
 

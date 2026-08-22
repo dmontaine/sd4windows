@@ -27,6 +27,73 @@ corrected.
 
 ---
 
+## 21 Aug 2026 - The valid_os_name question is answered: a smell, and an audit gap behind it
+
+**Commit:** this one. Thirty-eighth session. **Nothing that ships changed** -
+one new verifier, one line in `assert-current`'s `$neverShipped`, and
+documentation. `assert-current` exit 0 throughout; the 17:18:11 install stands.
+
+**THE QUESTION**, owed since 15 Aug 2026 and re-flagged when section 2 was
+compressed: `APISRVR:1180` applies `!valid_os_name` to the SCRAM username before
+the credential is read, and that function forbids backslash and space. Does a
+real API login ever present a domain-qualified name? Section 2 said the answer
+decides whether it is a defect or a smell.
+
+**IT IS A SMELL, and the chain is four independent facts:**
+
+1. Nothing derives the name. `SDConnect()`'s `username` argument reaches
+   `scram_login()` and goes straight into `n=%s` (`sdclilib.c:1049`). There is
+   no `GetUserName` or `getlogin` anywhere in the client, so a qualified name
+   appears only if the application author writes one.
+2. The client does not filter it - its only check is length 1..32
+   (`sdclilib.c:1218`), no charset - so it genuinely reaches the server.
+3. SD can never register such a name: `valid_os_name` gates creation as well as
+   login, at `CREATE_USER:79`, `CREATEA:537` and `CREATEA:1406` (ADOPT).
+4. SD cannot see domain accounts at all. `IS_USER:62` says so in its own
+   comment - "LOCAL ACCOUNTS ONLY. Get-LocalUser does not see domain accounts" -
+   and `CREATE_USER` uses `New-LocalUser`.
+
+So a name the check refuses could not have been an account, and refusing it
+loses no legitimate login.
+
+**MEASURED LIVE on the 17:18:11 install**, service running and `0.0.0.0:4243`
+listening, through `remote_connect_test` built from `gplsrc/sdclilib/tests`:
+bare, `GITORLI\name`, `gitorli\name` and a spaced name all refused with the
+identical text `Invalid username or password`.
+
+**THE CONTROL IS OWED AND IS WHY THIS IS NOT YET IN THE VERIFIED LIST.** All
+four refusals are equally consistent with "that account does not exist", because
+it did not - `sdapi` holds only `GITORLI\don`, whose password is his. The
+control is the same account and password admitted bare and refused qualified,
+and creating an account with an API credential needs elevation.
+`gplbld/verify-apiname.ps1` does the whole thing in one elevated command and has
+never run; the header carries it.
+
+**WHAT THE MEASUREMENT FOUND THAT NOBODY WAS LOOKING FOR: the API has no
+failed-login trail.** `APISRVR` audits exactly one refusal reason - "not in
+sdapi", `:1363` - and that fires only after the SCRAM proof succeeds. A wrong
+password, an absent `$cred` record, a version-1 credential and a rejected name
+all go to `scram.bad.cred` and write **nothing**, while the console model logs
+every refused login and refused LOGTO. Recorded as an open question in section 8
+rather than fixed, because what to record is a decision: the presented name is
+attacker-controlled text going into an append-only file.
+
+**AND AN INSTRUMENT FAULT, CAUGHT BEFORE IT COST AN ELEVATED RUN.**
+`remote_connect_test.c` prints `admitted` on success (`:116`) and **`ADMITTED`**
+on the failure paths of its wrong-password and SDSYS checks (`:139`, `:154`).
+PowerShell's `-match` is case-insensitive, so the obvious success test scores a
+failed refusal as a passing login. The verifier uses `-ceq` on the trimmed line,
+with the reason in a comment; section 6 has the general form, which is that the
+`c` prefix is the case-sensitive variant of every PowerShell comparison operator
+and none of them is the default. **Fifth bad instrument this file has recorded.**
+
+**A REAL DOMAIN ACCOUNT CANNOT BE PRESENTED HERE**, measured rather than assumed:
+`Win32_ComputerSystem.PartOfDomain` is False and the machine is in `WORKGROUP`.
+Kept as a trap in section 2 - same shape as the RDP entry, sound reasoning and
+no rig.
+
+---
+
 ## 21 Aug 2026 - Sections 2 and 7 compressed, and one stale claim survived a compression pass
 
 **Commit:** this one, over the entry below. Thirty-eighth session, second pass.
