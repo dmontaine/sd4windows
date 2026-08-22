@@ -11,19 +11,54 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**ALL FOUR PHASES OF THE 21 Aug 2026 PLAN ARE DONE AND MEASURED.** Cycle 21 Aug,
-install **17:18:11**, `sd.exe` **`CB9C4E0460B175F5`**, `assert-current` exit 0
-afterwards — so these results describe the tree as it stands.
+**A CYCLE IS OWED, AND IT IS THE FIRST THING TO DO.** Two shipped files changed
+after the last install and **neither has ever been compiled or run**:
 
-**NO CYCLE IS OWED. NEITHER THE THIRTY-SEVENTH NOR THE THIRTY-EIGHTH SESSION
-CHANGED ANYTHING THAT SHIPS.** The thirty-seventh: the changelog exemption
-(item 1 below) and the striking of step 11's *"does not work"* from the five
-places that carried it. The thirty-eighth: **§2, §4, §7 and §8 compressed, and
-nothing else** — two markdown files at the repository root, which
-`assert-current` does not walk and would exclude anyway
-(`assert-current.ps1:372` drops unshipped `.md`). **The 17:18:11 install is
-still current — re-measured, exit 0** — and the suite below still stands.
-**Start from it.**
+```
+STALE: 2 source file(s) are newer than the install:
+       21 Aug 21:55:43  gplbld\adopt-account.ps1
+       21 Aug 21:55:04  sdsys\gpl.bp\CREATEA
+```
+
+**THE INSTALL UNDER THEM IS 21 Aug, 21:17:35**, `sd.exe` **`CB9C4E0460B175F5`**,
+and everything else in this file was measured on it or on the 17:18:11 install
+before it. All four phases of the 21 Aug plan are done and measured.
+
+**`make sd` IS NOT NEEDED** — no C changed, so `bin\` is current and
+`cycle.ps1` stages what is already there. **`-SkipInstall` FIRST**: a change to
+`CREATEA` cannot be syntax-checked any other way (§6 — `bbcmp.py` cannot compile
+a `void` statement, so it is not a syntax checker for this layer), and the
+bootstrap is its only compiler. It costs a bootstrap, not an install.
+
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert8 -Account sdacct32 -AclPrefix sdacl12 -ApiPrefix sdapia14 -RoutePrefix sdrt8 -RulesPrefix sdar6 -DelPrefix sddel7
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiname.ps1 -Prefix sdapin2
+```
+
+**WHAT THE CYCLE IS FOR: the name-bound ADOPT marker** (§Phase 3 below).
+`CREATEA` and `adopt-account.ps1` both ship, so `assert-current` names them and
+refuses. **The install's own ADOPT is the test** - it runs every cycle, and
+`verify-accountrules` reads the result out of `adopt-account.log`; a marker that
+no longer matched would show up as the installing user having no SD account.
+
+**ALREADY DONE ON THE 21:17:35 INSTALL, so these do not need repeating:** the
+audit fix measured by `verify-apiname` (still owed - it has never run against
+it), `verify-accountrules -Prefix sdar5` at **34/34**, and
+`verify-delaccount -Prefix sddel6` at **38 of 38, 0 N/A**. Those two counts
+replace the suite table's `sdar4`/`sddel4` figures, which describe the files
+before ADOPT came out of them.
+
+**The changelog was edited too and cost nothing** — the exemption of 21 Aug
+(item 1 below) held, and the guard said so out loud on the same run:
+`EXEMPT: sdsys\changelog is newer than the install`. That is the exemption
+working, not a warning.
+
+**Everything before the audit fix was documentation only**, and stood on the
+17:18:11 install: the thirty-seventh session's changelog exemption and the
+striking of step 11's *"does not work"*; the thirty-eighth's compression of §2,
+§4, §7 and §8, and the `!valid_os_name` measurement (§2, closed, 13/13).
 
 | verifier | prefix | result |
 |---|---|---|
@@ -168,6 +203,72 @@ user can create it. It buys them nothing: `K$INTERNAL` still means
 elevated session. **This reverses the 15 Aug position** — that an elevated
 administrator typing `ADOPT` by hand is acceptable — on the owner's ruling of
 21 Aug.
+
+**AND NO VERIFIER MAY RE-OPEN THE WINDOW - owner's ruling, 21 Aug 2026.**
+*"The ADOPT command itself is not supposed to be available after
+installation."* Two verifiers were writing the marker themselves and adopting an
+account, which made the product read as though it offered a door it does not.
+Neither does now: **`verify-delaccount` builds its borrowed subject with
+`CREATE.ACCOUNT` and then sets the Windows description**, which is the only
+thing `!is_sd_user` reads (`IS_SD_USER:94`), and **`verify-accountrules` takes
+its control from the install's own adoption** - `adopt-account.log`,
+`accounts/DON`, the spent marker, the route groups - instead of performing a
+second one. **ADOPT is now invoked in exactly two places: `adopt-account.ps1`,
+and one verifier that requires it to be REFUSED.**
+
+**AND THE STANDARD IS THE PRODUCT AS DELIVERED - owner, 21 Aug 2026.**
+*"Since this is an open source project, users can make any changes they want.
+The goal is to make the project, as delivered, enforce the idea that SD account
+setup happens in SD. If users want to degrade security after the fact, that is
+their right."* **This overrules the argument that a gate an elevated
+administrator can pass is not worth building** - an administrator who forges a
+marker, or writes an `ACCOUNTS` record by hand, is exercising their right and is
+not the case the design answers to. What the design owes is that **nothing the
+shipped product offers sets up an SD account outside SD.**
+
+**MEASURED TODAY, and it is most of the way there:** after an install the marker
+is absent, so ADOPT is refused as an unrecognised token on every path the
+product offers. **What is left is that the marker is generic** - a single
+`sdsys/$adopt` authorises adopting *any* name - so recreating one re-opens the
+verb in full rather than for one account.
+
+**BUILT 21 Aug 2026, NOT YET VERIFIED: the marker names the account it
+authorises.** `adopt-account.ps1` writes `sdsys/$adopt.<user>` and `CREATEA`
+tests that path, so one marker opens the door for **one account** rather than
+for the verb in general. **No file parsing** - the name is in the path, and both
+sides downcase the same `$User` this script was invoked with, which answers the
+objection `adopt-account.ps1` used to carry ("a mismatch on case or a domain
+prefix would break the install").
+
+**IT IS BUILT WHERE THE NAME IS PARSED, NOT IN `more.args`, AND THAT IS THE
+WHOLE CARE IN IT.** `more.args` is shared with the GROUP and OTHER arms, which
+never assign `acc.uname` - and **`AND` does not short-circuit**, so
+`downcase(acc.uname)` in the ADOPT case condition would abort every
+`CREATE.ACCOUNT GROUP` with an unassigned variable. That is precisely the defect
+§6 records at `CREATEA:1405`, which survived from 10 June to 21 Aug 2026.
+`CREATEA:280` sets it in the USER arm, between the name parse and
+`gosub more.args`; the bare `$adopt` at `:241` stays as the fallback for the
+arms that never adopt, and **nothing writes that name any more.**
+
+**DOWNCASED ON BOTH SIDES DELIBERATELY.** `acc.uname` keeps whatever case was
+typed on the ADOPT path: the `downcase` at the `is_user` test runs only in its
+**else**, so an account found under its typed spelling is never folded.
+
+**REFUSING ADOPT ONCE ANY ACCOUNT IS REGISTERED WAS CONSIDERED AND REJECTED.** A
+second administrator reinstalling over an existing tree has no SD account and no
+other supported way to get one, because `CREATE.ACCOUNT USER` refuses a name
+whose Windows account already exists (10038). It would have been a real
+regression, not a tightening.
+
+**NO CHANGELOG ENTRY, DELIBERATELY.** ADOPT is undocumented on purpose - it is
+refused as an unrecognised token so it "tells nobody it exists" - and §7 step 3
+records the owner's decision not to document it. Nothing a user can see changed:
+the install behaves as before and the verb was already refused afterwards.
+
+**A CYCLE IS OWED** - `sdsys/gpl.bp/CREATEA` and `gplbld/adopt-account.ps1`, both
+shipped. `make sd` is not needed. **The install's own ADOPT is the test**: it
+runs on every cycle, and `verify-accountrules` reads the result out of
+`adopt-account.log` afterwards.
 
 **IT IS DELETED IN TWO PLACES.** `CREATEA` deletes it on acceptance, so it
 authorises exactly one adoption; `adopt-account.ps1` deletes it in a `finally`,
@@ -5016,32 +5117,49 @@ was missing, which was an artefact of testing for `sdsys\VOC\<name>` as a file.
 a directory of `%0`/`%1` buckets, so it holds two files whatever its record
 count. That check could never pass and was removed.
 
-### Open: a refused API login leaves no audit record (found 21 Aug 2026)
+### BUILT 21 Aug 2026, NOT YET VERIFIED: every refused API login is audited
 
-**`APISRVR` AUDITS EXACTLY ONE REFUSAL REASON** — `kernel(K$AUDIT, 'API REFUSED
-user=' : scram.user : ' reason=not in sdapi')` at `APISRVR:1363`, and that fires
-only **after** the SCRAM proof has succeeded. **Everything that fails earlier
-goes to `scram.bad.cred` and writes nothing**: a wrong password, an account with
-no `$cred` record, a version-1 credential, and a name `valid_os_name` rejects.
+**THE GAP, WHICH WAS MEASURED BEFORE IT WAS FIXED.** `APISRVR` audited exactly
+one refusal reason — `not in sdapi` — and that fires only **after** the SCRAM
+proof succeeds. Everything failing earlier reached `scram.bad.cred` and wrote
+nothing: a wrong password, an account with no `$cred` record, a version-1
+credential, a rejected name. `verify-apiname` watched the `audit` file **not
+grow at all** across five consecutive refused logins. Meanwhile §5.6's console
+model logs every refused login and refused `LOGTO` (§7 step 4).
 
-**So the API has no failed-login trail**, while §5.6's console model logs every
-login, refused login, `LOGTO` and refused `LOGTO` (§7 step 4). Nothing
-distinguishes a mistyped password from a client pointed at the wrong account
-from somebody working through names — at the time or afterwards.
+**WHAT WAS BUILT.** One writer, at `exit.vb.scram.fail`, driven by a new
+`scram.refuse.reason`. **Every path out of both SCRAM handlers passes that
+label**, which is the same argument `LOGIN`'s `terminate.connection` rests on —
+a refusal added later is recorded whether or not its author thinks about the
+trail. Seventeen sites set a reason; the three shared labels supply a default so
+a site added without one still cannot be silent.
 
-**MEASURED, NOT INFERRED — `verify-apiname`, 21 Aug 2026, 17:18:11 install.**
-The `audit` file **did not grow at all** across five consecutive refused API
-logins (four rejected spellings and one wrong password). That is the check's
-value: "no record naming the attempt" would also pass on a file that recorded
-something useless, and this says nothing was written.
+**THE REPLY TO THE CLIENT IS UNCHANGED**, deliberately: every credential failure
+still answers `5017` after the same three-second sleep. The trail gets the
+truth, the caller gets what it always got. **That is safe here because
+`secure-audit.ps1` grants `sdusers` `(AD,RA,S)` — AppendData, and no
+ReadData** — so an ordinary SD user cannot read the reasons back and use them to
+enumerate accounts. **Check that ACL still says that before adding any further
+detail to a record.**
 
-**Found while making the `valid_os_name` measurement (§2), not by looking for
-it**, which is why it is here rather than in §7: it is a gap in a subsystem that
-was signed off as working, and what to do about it is a decision. **The obvious
-fix is one `kernel(K$AUDIT, ...)` at the `scram.bad.cred` label**, but it needs
-deciding what to record — the name as presented is attacker-controlled text
-going into an append-only file that `secure-audit.ps1` protects, and
-`valid_os_name` has already refused it by definition on one of the four paths.
+**THE NAME IS SANITISED, AND THAT IS NOT FUSSINESS.** `audit_message()`
+(`k_error.c`) writes its text **verbatim** and ends the record with a newline,
+and these names have **not** passed `valid_os_name` — that is the point of
+recording them. `scram.clean.name` caps at `MAX.USERNAME.LEN` and maps anything
+outside `valid_os_name`'s own set to `?`, so `GITORLI\jim` is recorded as
+`GITORLI?jim`. Without it a name containing a newline forges an audit line.
+
+**THE COST, ACCEPTED.** A stranger can now make the server write a record — one
+per connection, never faster than the existing `sleep 3`. An unlogged
+authentication failure is the worse of the two, and `win32_audit_rotate()`
+exists for the file. The changelog says so in as many words.
+
+**NOT VERIFIED — A CYCLE IS OWED.** `verify-apiname.ps1` step 6 has been
+**inverted** to the new contract and now asserts the trail grew, that
+`reason=name rejected by valid_os_name` and `reason=wrong password` both appear
+and differ, that the name appears **sanitised**, and — the log-injection control
+— that the **raw backslash form never appears**. It has not run against the
+change.
 
 ### Open, undiagnosed: the first verifier run after a cycle sometimes fails checks the second passes
 
