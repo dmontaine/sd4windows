@@ -59,6 +59,17 @@ green on one install**, so the next source change starts from a known tree.
    `127.0.0.1:4243`. The bind is asserted `0.0.0.0` and the firewall rule exists,
    but the second machine in §7 step 2 is what settles it.
 
+**OWNER'S RULING, 21 Aug 2026 — NO WINDOWS BRANCHES ANYWHERE. THIS IS A
+WINDOWS-ONLY PORT.** CLAUDE.md already said it for the C code; it applies to
+the BASIC layer too. **§7 step 12 was rewritten because it said the opposite** —
+it had asked for the BASIC layer's Windows branches to be *restored* from the
+external tree and the platform switches turned on. **They are to be removed
+instead:** take the Windows arm, drop the conditional, delete the Linux arm.
+§5.4 and §7 step 12 carry the detail, including the two things re-read that day
+— `SYSTEM(91)` already answers `1`, and `SYSTEM(1006)`/`is_nt` has no reader at
+all — and the one arm that must **not** be taken, `LOGIN`'s forced
+administrator rights on console sessions, which §5.6 rejects.
+
 **THE STANDING COMMANDS.** A cycle begins with a fresh install and ends at the
 next source change; `-SkipInstall` is the cheap way to find out whether a change
 compiles.
@@ -2075,34 +2086,44 @@ plainly the source. Two consequences worth acting on:
   deliberately. It has **no `Composer AI` markers**, so that grep does not find
   them here; the tell is absent and the suspicion still applies.
 
-### 5.4 The BASIC layer has its own platform switch (not yet touched)
+### 5.4 The BASIC layer's platform switch, and why it is not to be revived (owner, 21 Aug 2026)
 
 The C code and the BASIC source in `sdsys/GPL.BP` work together — notably for
-compilation — and the BASIC side has a platform abstraction of its own that
-nothing has yet been done about.
+compilation — and the BASIC side has a platform abstraction of its own.
+
+**OWNER'S RULING, 21 Aug 2026: THERE SHOULD BE NO WINDOWS BRANCHES IN THIS
+VERSION OF SD, BECAUSE IT IS WINDOWS ONLY.** Same rule CLAUDE.md states for the
+C code. **The switch is therefore something to remove, not to turn on**, and
+§7 step 12 is rewritten accordingly — take the Windows arm, drop the
+conditional, delete the Linux arm.
 
 Two SYSTEM keys are the entire bridge:
 
-| Key | Meaning | State |
+| Key | Meaning | State, re-read 21 Aug 2026 |
 |---|---|---|
-| `SYSTEM(91)` | "is this Windows" | hardcoded to `0` in `op_sys.c` |
-| `SYSTEM(1006)` | "is this Windows NT style" | returns `is_nt`, declared `init(FALSE)` in `kernel.h` and **never assigned anywhere** |
+| `SYSTEM(91)` | "is this Windows" | **answers `1`** — `op_sys.c:282`, changed 17 Aug 2026 |
+| `SYSTEM(1006)` | "is this Windows NT style" | returns `is_nt`, `kernel.h:43` `init(FALSE)`, **never assigned**, and **no BASIC file reads it** |
 
-Both say "not Windows", so every Windows path in the BASIC layer is dead code.
-`is_nt` is dormant in exactly the way `CASE_INSENSITIVE_FILE_SYSTEM` is.
+**THE `SYSTEM(91)` ROW SAID "hardcoded to `0`" UNTIL 21 Aug 2026 AND WAS TWO
+DAYS OUT OF DATE WHEN IT WAS WRITTEN.** It was flipped on 17 Aug to fix the
+query processor: `QPROC:87` reads it into `is.windows` and `QPROC:508` is the
+**only** route by which a directory file's ids are matched case insensitively,
+so `SELECT ... WITH @ID = "sue"` never matched record `SUE`. `op_sys.c:259` has
+the reasoning. **That single reader is also why flipping it early was safe** —
+the branch removal had been thorough enough that nothing else could light up.
 
-Flipping them is not a one line change, because this repository's BASIC source
-has had its Windows branches removed — `LOGIN` 16 references to none, `CONFIG`
-5 to none, `CPROC` 5 to none, `CREATEA` 4 to none, `PARSER` 3 to none. The
-logic still exists in the external `GPL.BP` tree (§2) and what each file did is
-listed in the HISTORY entry "Surveyed the BASIC layer (GPL.BP)". Start with
-`CPROC`'s `dir.separator`, because compilation depends on it (§6) — and note
-`LOGIN`'s Windows branch forced administrator rights on any console session,
-which §5.6 deliberately does not adopt.
+This repository's BASIC source has had its Windows branches removed — `LOGIN`,
+`CONFIG`, `CPROC`, `CREATEA` and `PARSER` all went to none. The logic still
+exists in the external tree at **`C:\Users\dmont\Projects\GPL.BP`** (§2, and
+the 13 Aug HISTORY entry *"Surveyed the BASIC layer (GPL.BP)"* — whose closing
+pointer to "§5.5" means **this** section, which was §5.5 before the file was
+renumbered). **The idiom there is a bare `windows`**, set by
+`windows = system(91)`, not `is.windows`.
 
-Order matters: restoring the BASIC branches while `SYSTEM(91)` still returns
-zero is harmless, but flipping `SYSTEM(91)` first turns on paths that are no
-longer there.
+**THE OLD ORDERING WARNING IS GONE WITH THE RULING.** It said restoring the
+branches first was harmless but flipping `SYSTEM(91)` first would turn on paths
+that are no longer there. Nothing is being restored and nothing is being
+flipped, so neither half applies. §7 step 12 has what replaced it.
 
 ### 5.5 The Linux privilege model does not survive the move
 
@@ -6166,11 +6187,42 @@ the staging script and the Inno installer were all finished and removed.
     **It is deliberately NOT in `make check`.** Everything there runs without a
     server; this measures the INSTALLED tree and is therefore subject to the
     cycle rule.
-12. **Restore the BASIC layer's Windows branches** from the external `GPL.BP`
-    tree (§5.4), then set `SYSTEM(91)` to 1 and assign `is_nt`. In that order:
-    flipping the switches first would enable paths that are no longer present.
-    Start with `CPROC`'s `dir.separator`, since compilation depends on it —
-    and note that is now testable, since `sdrealpath()` accepts `\` (§5.8).
+12. **REWRITTEN ON THE OWNER'S RULING, 21 Aug 2026. DO NOT RESTORE THE
+    BRANCHES.** This step used to read *"Restore the BASIC layer's Windows
+    branches from the external `GPL.BP` tree, then set `SYSTEM(91)` to 1 and
+    assign `is_nt`"*. **There should be no Windows branches in this version of
+    SD, because it is Windows only** — the same rule CLAUDE.md already states
+    for the C code (*"do not add `#ifdef` branches to keep Linux building —
+    replace Linux code outright"*), now stated for the BASIC layer.
+
+    **A branch implies a non-Windows arm to fall back to, and there is none.**
+    So the work is: **take the Windows arm from the external tree, drop the
+    conditional, and delete the Linux arm.** `if windows then '\' else '/'`
+    becomes whichever separator this port actually wants — decided on its
+    merits, not by a platform test.
+
+    **THE SWITCHES ARE DEAD WEIGHT UNDER THIS RULING, not a thing to turn on.**
+    `SYSTEM(91)` already answers **1** (`op_sys.c:282`, 17 Aug 2026, flipped to
+    fix case-insensitive `@ID` matching — §5.4). `SYSTEM(1006)`/`is_nt` has
+    **no reader at all** in the shipped BASIC tree. A constant that is always
+    true does not need testing.
+
+    **WHAT TO ACTUALLY DO**, and it is smaller than the old wording suggested:
+
+    - Source is `C:\Users\dmont\Projects\GPL.BP` — 212 files, 25 with platform
+      references. **The idiom is a bare `windows`**, set by
+      `windows = system(91)` (`CPROC:251`, `LOGIN:91`) — *not* `is.windows`,
+      which is why grepping for that finds nothing and looks like the logic is
+      gone. Uses in the five stripped files: `LOGIN` 4, `CONFIG` 3, `CPROC` 3,
+      `CREATEA` 4, `PARSER` 2.
+    - Start at `CPROC`'s `dir.separator` — shipped `= '/'` (`CPROC:290`),
+      original `= if windows then '\' else '/'` (`CPROC:323`) — because `@ds`
+      is SYSCOM slot 57 and compilation depends on it: `BCOMP` opens
+      `@sdsys:@ds:'bin'`. **`/` is what works today on the MSYS2 runtime**, so
+      the burden is on changing it, not on keeping it.
+    - **DO NOT TAKE EVERY WINDOWS ARM BLIND.** `LOGIN`'s forced administrator
+      rights on any console session, which **§5.6 rejects on purpose**. Judge
+      each arm against the port's own decisions.
 13. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
     are fork+exec, none need copy-on-write, so this is tractable), `termios` →
     Console API, passwd/group → Windows authentication. **The service-account

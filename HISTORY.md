@@ -18515,3 +18515,50 @@ records it where they are working — §7, the header, a verifier — not here.
 **So the failure mode is structural, not carelessness**, and it will recur.
 Sweeping this list against the verifiers is cheap, needs no cycle and no
 elevation, and is worth doing at the end of any phase that adds one.
+
+## 21 Aug 2026 - owner's ruling: no Windows branches, so step 12 was backwards
+
+Asked what §7 step 12 was about. Reading it to answer found the step asking for
+the opposite of the project's own rule, and the owner settled it in one line:
+**there should be no Windows branches in this version of SD, as it is Windows
+only.** CLAUDE.md has said that for the C code since the start — *"do not add
+`#ifdef` branches to keep Linux building, replace Linux code outright"* — and
+it had never been written down for the BASIC layer.
+
+**Step 12 had said: restore the BASIC layer's Windows branches from the
+external `GPL.BP` tree, then set `SYSTEM(91)` to 1 and assign `is_nt`.** It now
+says: take the Windows arm, drop the conditional, delete the Linux arm. A
+branch implies a non-Windows arm to fall back to and there is none.
+
+**THREE THINGS RE-READ WHILE ANSWERING, ALL OF WHICH CHANGE THE WORK:**
+
+1. **`SYSTEM(91)` already answers 1**, `op_sys.c:282`, since 17 Aug - four days
+   before §5.4's table was still calling it *"hardcoded to `0`"*. It was
+   flipped to fix the query processor: `QPROC:87` reads it into `is.windows`
+   and `QPROC:508` is the only route by which a directory file's ids match case
+   insensitively, so `SELECT ... WITH @ID = "sue"` never found record `SUE`.
+2. **`SYSTEM(1006)`/`is_nt` has no reader at all** in the shipped BASIC tree,
+   and is still `init(FALSE)` at `kernel.h:43`. Assigning it would change
+   nothing; the readers are what is missing, not the value.
+3. **The idiom is a bare `windows`**, set by `windows = system(91)` at
+   `CPROC:251` and `LOGIN:91` - **not `is.windows`**. Grepping for the latter
+   returns nothing in either tree and makes the logic look absent when it is
+   not. External tree is `C:\Users\dmont\Projects\GPL.BP`, 212 files, 25 with
+   platform references.
+
+**AND THE ONE ARM THAT MUST NOT BE TAKEN, kept from the old text because it is
+the reason this is judgement and not a sweep:** `LOGIN`'s Windows branch forced
+administrator rights on any console session, which §5.6 rejects deliberately.
+"Windows only" is not "take every Windows arm".
+
+**A stale cross-reference corrected in passing:** the 13 Aug survey entry above
+points at "PROJECT_STATUS §5.5" for what each file's Windows logic did. That is
+§5.4 now - the file was renumbered. Noted here rather than edited into the
+entry, since this file is append-only.
+
+**The concrete first case is unchanged and now has a burden of proof.**
+`CPROC`'s `dir.separator` is `'/'` shipped (`CPROC:290`) against
+`if windows then '\' else '/'` original (`CPROC:323`), and `@ds` is SYSCOM slot
+57, which compilation depends on - `BCOMP` opens `@sdsys:@ds:'bin'`. **`/`
+works today on the MSYS2 runtime**, so changing it needs an argument; the old
+step implied restoring `\` was simply owed.
