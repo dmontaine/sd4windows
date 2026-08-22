@@ -1002,11 +1002,22 @@ And `verify-sshonly` overlaps `verify-createaccount`'s three logon measurements
 but is five times the size and does the real `ssh`. **Nothing here was dead
 code.**
 
-**THE LAST TWO ROWS ARE STILL THE ONES TO WATCH**: neither has a recorded
-result, so their first run under the runner is a first measurement, not a
-re-confirmation. `verify-tierapi` is also the only step needing a binary from
-**outside this repository** — `sd-connect.exe` from the `sdclilib32` tree,
-present 22 Aug — which is why it is last.
+**THEY ALL RAN, 22 Aug 2026, `-Run b1` — 12 of 17 clean, and the five failures
+were worth every minute.** `verify-scramlogin` **40/40** and `verify-apiport`
+all-checks are **first recorded results ever**; `verify-tierapi` 15/16 and
+`verify-catgate` 25/25.
+
+| step | outcome |
+|---|---|
+| `verify-osusers` | exit 2, **measured nothing** — it *refuses* an elevated window. **My error**: it was classified by grepping for `WindowsBuiltInRole`, which it mentions in a gate that **refuses** rather than requires. Moved to the unelevated runner. **Read the branch, not the symbol.** |
+| `verify-nonet` | 16/17 — `CT VOC UNLOCK shows a V type code` wanted `^\s*\d*\s*V\s*$` and SD prints **`1: V`**. **The colon was missing, so it had failed every run since it was written.** `verify-lcnames:767` had it right all along. Fixed |
+| `verify-tierapi` | 15/16 — `bound to 127.0.0.1 only` **expected `$false` of an expression that asks "is it 0.0.0.0"**, so it failed *because the server was correct*. **Posture B left behind**, which Phase 1 reversed on 21 Aug. `verify-apiport` asked the same question the right way round two steps earlier and got the opposite answer — **that disagreement is what makes it a test bug and not a finding**. Fixed |
+| `verify-fold` | exit 2 — `CREATE.FILE ZZUCFOLD1` met *"DATA part of file already exists"*. **Residue from two interrupted runs**, not a defect. Clear it with `verify-fold.ps1 -Cleanup` |
+| `verify-sshonly` | exit 1 — **OPEN, and the owner's call**. Every `ssh` attempt was refused, **including the control**, because it builds a plain local account in **no SD group** and `sshd`'s `AllowGroups` now names `sdssh`. The test predates §5.6.2's own change. `verify-createaccount` step 3 already proves ssh works on an SD-made account, so nothing is unmeasured — but this file now asserts a premise the product no longer has |
+
+**THREE OF THE FIVE WERE FAULTS IN THE TESTS OR IN MY WIRING, NOT IN SD**, and
+two of those had been failing silently for as long as they had existed —
+which is the argument for the inventory above in one line.
 
 **ALL SEVEN UNELEVATED VERIFIERS RAN 22 Aug 2026 ON THE 08:32:03 INSTALL**, most
 of them for the first time in this file's memory:
