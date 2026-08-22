@@ -18479,3 +18479,39 @@ has NOT been done. Those are the ones nothing re-reads.
 **Cheap to check and worth checking in bulk:** every remaining bullet in §4's
 unverified list, against the verifiers that now exist. Two of the four already
 struck through were struck by a later session finding exactly this.
+
+## 21 Aug 2026 - the unverified list swept: ten stale claims, two self-refuting
+
+Done on the owner's instruction after the MODIFY.ACCOUNT find above. Every
+bullet in §4's *"Not verified — treat as unknown"* checked against the
+verifiers and measurements that exist today. **Ten claims were wrong.**
+
+**Struck through — the claim is dead:**
+
+| entry | what settled it |
+|---|---|
+| §7 step 6 "BUILT IN FULL AND HAS NEVER RUN" | step 6 CLOSED 17 Aug, the day this was written; `verify-apiport` refused a wrong password via `!CRED_VERIFY` (6a) and SDSYS via `ACC$GROUP` (6c), different messages |
+| RDP refusal "nothing has watched it refuse a session" | 15 Aug VM run, control then treatment: `don` ADMITTED, `sdacct7` REFUSED with the `SeDenyRemoteInteractiveLogonRight` wording |
+| "Typing at SD from a real Windows console" | 19 Aug, owner at a keyboard; found the arrows dead, root-caused to the terminal type, and produced §5.17, §5.18 and §5.19 |
+| "installer on a machine with no development tree" | 15 Aug VM: no MSYS2, no `gplsrc`, byte-identical install, `COUNT VOC` 431 |
+| `MODIFY.ACCOUNT` "has never been run" | `verify-routes` 33/33, six calls (entry above) |
+
+**Narrowed — part of the claim still stands:** `OS.EXECUTE` is gated on the API
+path now and measured by a probe built to die, but is as open as ever locally;
+the closing dialog has been seen twice, the `limitssh` task still cannot be
+here; `errlog`'s premise is gone since `sdwind.c` writes and trims it; and SD
+over ssh is proven except for the one combination that has never happened — an
+interactive terminal whose pty is sshd's.
+
+**And §7 step 11's heading said "AND NOT RUN" directly above its own body
+describing what running it did**, on a named install. That is the second entry
+found refuting itself in one session — §8's `UNLOCK` was the first.
+
+**WHY THIS LIST ROTS AND THE MEASUREMENTS DO NOT.** Every phase rewrote the
+header and left this section alone. A measurement carries its own date and
+install and ages honestly; an entry saying *"X has never been run"* makes a
+claim about the present that nothing re-checks, and the person who later runs X
+records it where they are working — §7, the header, a verifier — not here.
+**So the failure mode is structural, not carelessness**, and it will recur.
+Sweeping this list against the verifiers is cheap, needs no cycle and no
+elevation, and is worth doing at the end of any phase that adds one.

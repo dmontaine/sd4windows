@@ -1721,10 +1721,35 @@ way to see this system as a non-administrator on a machine whose account is one.
 
 ### Not verified — treat as unknown
 
-- **`OS.EXECUTE` IS UNGATED FOR EVERYBODY, and `OS.USERS` field 2 does not
-  change that.** §7 step 7. The `SH` half is verified (§4); `OS.EX` is stored,
-  dictionaried and read by nobody, so an unlisted programmer with `BASIC` still
-  has full OS access from a program. Gating it needs C.
+**SWEPT 21 Aug 2026 AGAINST THE VERIFIERS THAT NOW EXIST, and it was overdue.
+Eight entries here were wrong: four are struck through — §7 step 6, the RDP
+refusal, typing at a real console, and the no-development-tree install — and
+four narrowed, where part of the claim still stands.** `MODIFY.ACCOUNT` was a
+ninth, struck earlier the same session, and **§7 step 11's own heading was a
+tenth** — it said *"AND NOT RUN"* directly above a body describing what
+running it did. Each carries what settled it. The pattern is worth knowing before reading the
+rest: **the header was rewritten every phase and this list was not**, so what
+rots here is specifically the entries claiming something has NOT been done —
+the dated measurements elsewhere in §4 held up under checking. Nothing was
+deleted; a closed entry keeps its body where that body is a trap (§0 rule 4),
+notably the RDP one.
+
+**Two of them had already been answered by measurements recorded in this very
+section**, hundreds of lines above the entry still calling them unknown — the
+RDP refusal and the no-development-tree install, both settled by the 15 Aug VM
+run. **Check §4 against itself before believing anything here.**
+
+- **`OS.EXECUTE` IS UNGATED FOR EVERY *LOCAL* SESSION, and `OS.USERS` field 2
+  does not change that.** §7 step 7. The `SH` half is verified (§4); `OS.EX` is
+  stored, dictionaried and read by nobody, so an unlisted programmer with
+  `BASIC` still has full OS access from a program. Gating it needs C.
+
+  **"FOR EVERYBODY" WAS TRUE UNTIL 21 Aug 2026 AND IS NOT NOW.** The API path
+  is gated — the containment gate in `op_dio2.c` — and it is *measured*, not
+  argued: `verify-apiadmin` ships a second probe, `APIOSEXECPROBE`, whose whole
+  job is to die (`verify-apiadmin.ps1:281-296`), alongside one that must
+  survive. **The narrowing is the API path only**; a local or ssh session is
+  exactly as open as this entry always said.
 
 - **§7 STEP 11 HAS BEEN CALLED AND DOES NOT WORK — 17 Aug 2026, on the
   08:03:49 install.** `SDConnectLocal("DON")` never returns; `sd.exe` spins
@@ -1737,10 +1762,19 @@ way to see this system as a non-administrator on a machine whose account is one.
   in principle — a local session does reach `SrvrAccount` — but only once the
   transport carries a session at all.
 
-- **§7 STEP 6 IS BUILT IN FULL AND HAS NEVER RUN — 17 Aug 2026.** The API
-  authenticates against `$CRED`, `login_user()` is deleted, `K_SET_USERNAME`
-  carries the verified identity, and `vb.account` applies the `ACC$GROUP`
-  grant check.
+- ~~**§7 STEP 6 IS BUILT IN FULL AND HAS NEVER RUN — 17 Aug 2026.**~~ **IT RAN
+  THE SAME DAY THIS WAS WRITTEN.** §7 step 6 is **CLOSED 17 Aug 2026,
+  nineteenth session — the API works end to end**, measured by
+  `verify-apiport.ps1 -Prefix sdapi2`: a session opened over the port, **the
+  wrong password refused by `!CRED_VERIFY`** (that is 6a) **and SDSYS refused by
+  the `ACC$GROUP` test** (that is 6c), with *different* messages, which is what
+  makes the admitted case mean anything. Re-measured 21 Aug at `sdapi4`, 13/13.
+  **What is left of this entry is 6b and the "what to watch" list below**, kept
+  because it is the specification for anything that touches `vb.login` next.
+
+  The API authenticates against `$CRED`, `login_user()` is deleted,
+  `K_SET_USERNAME` carries the verified identity, and `vb.account` applies the
+  `ACC$GROUP` grant check.
 
   **6a and 6d ARE COMPILED; 6c IS NOT.** It went in after the 06:07:30 install
   and the next `stage.py --bootstrap` is its first compiler — the same position
@@ -1824,10 +1858,21 @@ way to see this system as a non-administrator on a machine whose account is one.
 - ~~**`CREATE.ACCOUNT ... ADOPT` is untested**, and nothing calls it.~~ **The
   installer calls it on every install** and `adopt-account.log` records it —
   §7 step 1f, closed 15 Aug 2026.
-- **RDP refusal, and it CANNOT BE TESTED ON THIS MACHINE.** The last unobserved
-  claim in §5.6.2 (§4 Verified covers the rest).
-  `SeDenyRemoteInteractiveLogonRight` is confirmed **applied** to `sdsshonly`
-  in machine policy, but nothing has watched it refuse a session.
+- ~~**RDP refusal, and it CANNOT BE TESTED ON THIS MACHINE.** The last
+  unobserved claim in §5.6.2. `SeDenyRemoteInteractiveLogonRight` is confirmed
+  **applied** to `sdsshonly` in machine policy, but nothing has watched it
+  refuse a session.~~ **WATCHED REFUSING A SESSION — 15 Aug 2026, tenth
+  session, on the VirtualBox guest, control then treatment** (§4 Verified,
+  *"§7 STEP 2 RAN ON A SECOND MACHINE"*): `VIRTUAL\don` ADMITTED, then
+  `VIRTUAL\sdacct7` REFUSED with *"the user account is not authorized for
+  remote login"* — the wording that is
+  `SeDenyRemoteInteractiveLogonRight` specifically rather than a credentials
+  failure, which is what makes it evidence. **§5.6.2 has no unobserved claim
+  left.**
+
+  **THE REST OF THIS ENTRY IS KEPT AS A TRAP, NOT A TASK** (§0 rule 4): it is
+  still true that this cannot be tested here, and the record below is what
+  stops the next session spending an hour rediscovering that.
 
   It cannot be automated — there is no `LogonUser` logon type corresponding to
   RDP's logon type 10, so only a real Remote Desktop connection exercises the
@@ -1859,15 +1904,22 @@ way to see this system as a non-administrator on a machine whose account is one.
   derived from this error already and both were wrong (HISTORY.md, two
   `Correction:` entries of 14 Aug 2026).
 
-  **So the test needs a separate client machine** — §7 step 2. Run
-  `verify-sshonly.ps1 -Keep` on the machine under test and RDP to it from a
-  different one.
+  **So the test needed a separate client machine** — §7 step 2, and that is
+  how it was done on 15 Aug. To repeat it: `verify-sshonly.ps1 -Keep` on the
+  machine under test, then RDP to it from a different one.
 
-- **That SD itself works over an ssh session** — `sd -ASOMEACCOUNT` typed at a
-  real terminal reached over ssh. The ssh transport is proven and SD is proven,
-  but not the two together, and it is also the oldest open question in this
-  section: how the MSYS2 tty layer behaves at a real console rather than with
-  redirected stdin.
+- **That SD works over an ssh session AT A REAL TERMINAL — narrowed twice, and
+  what is left is only the tty half.** *"Not the two together"* is no longer
+  true: on 15 Aug 2026 `ssh sdacct6@localhost whoami` answered **SD's banner
+  and a `:` prompt, exit 0, with `whoami` never running** (§4 Verified) — sshd
+  discarding the client's command and running SD is the two together. And the
+  MSYS2 tty layer is no longer unknown either; it was measured at a real
+  Windows console on 19 Aug (§5.18, and the entry above).
+
+  **What has still never happened is those two at once**: an interactive
+  `sd -ASOMEACCOUNT` at a real terminal *reached over ssh*, where the pty is
+  sshd's rather than `conhost`'s. That is a narrower question than this entry
+  used to ask, and §7 step 2's rig is what would answer it.
 
 - **Which of `AllowGroups`' four patterns actually matched.** It is applied and
   enforced (§4 Verified), but `AllowGroups` is a union and all four patterns
@@ -1877,24 +1929,41 @@ way to see this system as a non-administrator on a machine whose account is one.
   own path through it does**, since the measurement ran the script by hand on a
   machine that already had OpenSSH and so never sees the tick box.
 
-- **The installer's own behaviour with the new options.** `sd.iss` compiles
-  (§4 Verified) and that is all. Nobody has seen the reworded closing dialog,
-  the `installssh\allowgroups` subtask appear under its parent, or
-  `ApplyAllowGroups` report any of its three outcomes. Compiling an Inno script
-  proves the Pascal parses, nothing more — and the two defects this file has
-  already recorded in that script (the brace bug, the per-file `Check`) both
-  compiled perfectly.
+- **The installer's own behaviour with the new options — NARROWED, 21 Aug 2026,
+  and the closing dialog is off this list.** **The reworded closing dialog HAS
+  been seen**: screenshotted by the owner before 15 Aug, and read on screen
+  again 17 Aug on the 13:43:00 install — *"looks fine"* (§7 step 3, where the
+  reading found a defect that compiling never would). **What is still unseen is
+  the `limitssh` task** — no longer a subtask since 16 Aug — **and
+  `ApplyAllowGroups` reporting any of its three outcomes**, and neither can be
+  seen here: `Check: SshServerAbsent` is false on a machine that already has
+  OpenSSH, so the tick box never appears.
+
+  Compiling an Inno script proves the Pascal parses, nothing more — and the two
+  defects this file has already recorded in that script (the brace bug, the
+  per-file `Check`) both compiled perfectly.
 
 - **Whether `OS.EXECUTE` works at all on an installed system.** It almost
   certainly does not — see the shell trap in §6.
 
-- **Typing at SD from a real Windows console.** Everything above was driven
-  with redirected stdin, never an actual console, so how the MSYS2 tty layer
+- ~~**Typing at SD from a real Windows console.** ... how the MSYS2 tty layer
   behaves in `conhost` or Windows Terminal — echo, masked input, arrow keys,
-  terminfo — is unknown. The scripted-input corruption in §6 says nothing about
-  it either way: those are artefacts of how the shells write to a pipe. This is
-  the one question that has to be answered by a person at a keyboard, and it
-  matters, because it is what "does SD need MSYS2" really turns on.
+  terminfo — is unknown. This is the one question that has to be answered by a
+  person at a keyboard.~~ **ANSWERED BY A PERSON AT A KEYBOARD, 19 Aug 2026,
+  and it produced three §5 decisions rather than a yes.** The owner typed at SD
+  in cmd, PowerShell and Windows Terminal and found **the arrow keys, backspace
+  and clear screen dead** — root-caused to the default terminal type and fixed,
+  with all four `TERM` cells measured on the 09:10:45 install (§5.18). §5.17 —
+  accept both spellings of a key — and §5.19 — the full-screen editors carry
+  their own key tables — came out of the same sitting, and `verify-keys` and
+  `verify-editkeys` exist because of it.
+
+  **What this did NOT answer is the question the entry said it turned on:**
+  whether SD needs MSYS2. It does, and not for terminfo — SD generates its own
+  `terminfo/` from `terminfo.src` and ships it (§3 Building). The dependency is
+  that `sd.exe` is built against the MSYS2 POSIX runtime, which is **§5.3's
+  deliberate decision, not an unknown**, and the tty behaviour measured on
+  19 Aug is that runtime's, working.
 - Semaphore locking under contention. The semaphores have never been observed
   held, so the `sdsem.c` port is exercised only in the uncontended case.
 - `SDConnectLocal()` at runtime. It needs a running server and a configuration
@@ -1906,10 +1975,16 @@ way to see this system as a non-administrator on a machine whose account is one.
   users, and the API server path.
 - Writing and reading application data. The bootstrap creates and reads system
   files, and the scratch accounts hold nothing but a VOC.
-- **The installer on a machine with no development tree.** The first-install
-  path itself is now verified here (§4 above), so this is no longer "the least
-  tested part of the system" — but the accidental-dependency question is
-  untouched, and it is precisely how `gplsrc` stayed in the data tree.
+- ~~**The installer on a machine with no development tree.** ... the
+  accidental-dependency question is untouched, and it is precisely how
+  `gplsrc` stayed in the data tree.~~ **ANSWERED 15 Aug 2026, and by the
+  measurement recorded 650 lines above this one.** The VirtualBox guest had
+  **no MSYS2, no `gplsrc`, no development tree** — *"which is the whole reason
+  the step existed, because an accidental dependency on any of them can only
+  show up here"* — and the install came out **byte-identical**: `sd.exe`
+  sha256 `81594E79CC2B560C`, the same four counts (19 / 3,456 / `gcat` 130 /
+  `GPL.BP.OUT` 191), `sd -start` exit 0 and `COUNT VOC` **431**. There is no
+  accidental dependency on the development tree.
   `installsdai.sh` is entirely Linux and is not being ported (§5.9).
 
   **The `sdadmins` prediction that used to sit here is gone**, and not by being
@@ -1928,6 +2003,13 @@ way to see this system as a non-administrator on a machine whose account is one.
   the freshly installed tree, 14 Aug 2026, where earlier sessions saw
   "User n (pid, don)" lines written to it. Still empty after the daemon was
   fixed, so it is not explained by that. Not chased.
+
+  **THE PREMISE NO LONGER DESCRIBES THE SYSTEM, 21 Aug 2026.** `errlog` is
+  written per connection now — `sdwind.c`'s `log_message()` gained the trim the
+  `sd` side always had — and `verify-peerlog` measures both the writing and the
+  trim, 21/21 on the 17:18:11 install. So this is a question about **14 Aug's
+  tree**, not about anything installed since, and it is not worth chasing on a
+  current one.
 
 ## 5. Decisions and why
 
@@ -5827,7 +5909,11 @@ the staging script and the Inno installer were all finished and removed.
     well enough to be worth using. The sequencing note matters more than the
     step: put administrative logic in subroutines from now on, so a form can
     call it later without reimplementing it.
-11. **BUILT 17 Aug 2026, seventeenth session, AND NOT RUN.** `SDConnectLocal()`
+11. **BUILT 17 Aug 2026, seventeenth session. CALLED, AND IT DOES NOT WORK** —
+    on the 08:03:49 install, `SDConnectLocal("DON")` never returns and `sd.exe`
+    spins silently (§4 *"Not verified"*, §6). *"AND NOT RUN" stood here until
+    21 Aug 2026 and was already contradicted by this entry's own body, which
+    reports what running it did.* `SDConnectLocal()`
     **could never have worked**, on this platform or any other, and it took
     three independent faults with it. Two were in the shipping path and are
     fixed; the third was in dead code.
