@@ -1019,6 +1019,30 @@ all-checks are **first recorded results ever**; `verify-tierapi` 15/16 and
 two of those had been failing silently for as long as they had existed —
 which is the argument for the inventory above in one line.
 
+### 4.0.1 An agent shell CAN elevate here, and that was the premise of the split
+
+**MEASURED 22 Aug 2026, twice, and it contradicts a claim this file has acted on
+since 19 Aug.** `post-cycle-elevated.ps1`'s header says an agent shell cannot
+raise a UAC prompt — *"`Start-Process -Verb RunAs` returns 'The operation was
+canceled by the user' without ever showing one, because a detached process has
+no desktop to display consent on"* — and **that is why the elevated verifiers
+have to be started by a human.**
+
+From an **unelevated** agent shell, `Start-Process powershell -Verb RunAs -Wait
+-PassThru` returned **exit 0**, and the child reported **`user=GITORLI\don
+elevated=True`** while the parent reported `elevated=False`. It was then used
+for real: `verify-fold.ps1 -Cleanup`, exit 0, which cleared the `ZZ*FOLD*`
+residue.
+
+**WHAT IS NOT ESTABLISHED IS WHY**, and it matters before anything is built on
+it. Either UAC on this machine is configured not to prompt for this account, or
+something changed since 19 Aug. Those have very different consequences — the
+first is a local setting **another machine will not share**, the second would
+mean the 19 Aug observation was wrong or has been overtaken. **Nobody has
+looked.** Treat *"an agent can elevate"* as true **here** and unproven anywhere
+else, and **do not collapse the two runners until it is understood** — the
+unelevated half must keep a genuine ordinary token whatever happens to this.
+
 **ALL SEVEN UNELEVATED VERIFIERS RAN 22 Aug 2026 ON THE 08:32:03 INSTALL**, most
 of them for the first time in this file's memory:
 
