@@ -947,6 +947,20 @@ before twelve throwaway accounts exist.
 **Thirteen prefixes, one token: `-Run`.** The header has the invocation and the
 collision guard.
 
+**BOTH RUNNERS NOW REFUSE IF SD IS NOT RUNNING, added 22 Aug 2026 after it cost
+a run.** `assert-current` **does not answer that question** and cannot: it
+compares hashes and mtimes, so a **stopped** server is perfectly "current". The
+service had been stopped to clear a stale user table and not started again;
+`verify-fold` printed *"assert-current: the installed tree matches source"* and
+then died on its first SD command with *"SD has not been started"*. **A green
+line immediately above a failure is the worst possible reading order**, and at
+seventeen steps each one would have found out separately, leaving accounts
+behind on the way. Both runners check the **service and an `sdwind` process** —
+not the service alone, because `sdsvc.log` shows it reporting RUNNING while it
+waits five seconds to see whether `sdwind` stays up. **Neither starts it**:
+`cycle.ps1` owns that, a stopped SD after a cycle is itself diagnostic, and the
+unelevated runner could not start a service anyway.
+
 **Run after a cycle, UNELEVATED — `post-cycle-unelevated.ps1`, NEW 22 Aug 2026,
 and it spends no prefixes at all:** `verify-credacl`, `verify-nocase`,
 `verify-setpw`, `verify-allowgroups`, `verify-keys`, `verify-editkeys`,
