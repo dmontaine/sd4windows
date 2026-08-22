@@ -27,6 +27,66 @@ corrected.
 
 ---
 
+## 21 Aug 2026 - Sections 2 and 7 compressed, and one stale claim survived a compression pass
+
+**Commit:** this one, over the entry below. Thirty-eighth session, second pass.
+**Documentation only** - the 17:18:11 install stays current and no cycle is owed.
+
+**WHAT CHANGED.** Section 2's two generation-2 audits and the `sdb64`
+dev-branch review, and section 7's closed steps 7, 8 and 11, compressed to their
+conclusions under rule 0.5; the material moved verbatim to two more `## ARCHIVE
+21 Aug 2026` entries at the foot of this file. Step 7 kept most of its length
+deliberately - the ACL that is the whole control, why the list is not in
+`NEWVOC`, the C gate's truth table - because that is design constraint rather
+than narrative, and cutting it to hit a number is what rule 4 exists to stop.
+
+**FIVE MORE STALE CLAIMS, AND THE FIRST ONE IS THE WORRYING ONE:**
+
+1. **Section 7 step 7 said gating `OS.EXECUTE` "needs C" and that `OS.USERS`
+   field 2 was read by nobody.** That C was written on 19 Aug 2026 -
+   `os_permitted()`, `op_sh.c:150`, called at `:209`, `verify-osusers` 24/24 on
+   the 16:38:01 install. **The claim had also propagated into section 4 and
+   section 8, and the section 4 copy was carried THROUGH yesterday's compression
+   pass** - read in place, believed, and copied into the new text. It fell only
+   when step 7 was checked against this file. **Reading an entry is not checking
+   it**, and a list that warns about its own rot does not protect the reader who
+   is editing it.
+2. **The `SV_EMSG_PAIR`/`SV_ECONTXT` transposition was presented as open** in
+   section 2, with "our BASIC cannot yet tell a transport failure from a context
+   error". Fixed 15 Aug 2026 in both client repositories;
+   `UPSTREAM_FIXES.md` #2 has said **CLOSED - nothing to send** ever since. All
+   four trees read 6/7, checked file by file.
+3. **"`sdsys/SYSCOM/sdclilib.h` deliberately defines NEITHER"** - it defines
+   both, at `:127`.
+4. **The vendoring arrow was backwards.** Section 2's table had `winsdclilib` as
+   the source and `gplsrc/sdclilib/` as the vendored copy; that reversed on
+   19 Aug 2026, and the old direction is precisely how the 32-bit client shipped
+   without SCRAM in it. `../sdclilib32` was missing from the table entirely and
+   is now in it, with the note that 32-bit is a shipping constraint.
+5. **The intermittent first-verifier-run failure had fallen out of
+   PROJECT_STATUS altogether.** It was raised 19 Aug 2026 and explicitly "kept
+   in the file rather than closed", for a stated reason that still holds: a check
+   that fails without meaning it teaches whoever meets it to re-run until green.
+   Restored to section 8, with the three dead explanations, the one later
+   instance that turned out to be a bad test, and the instruction to capture the
+   run UNPIPED if it recurs.
+
+**TWO THINGS WERE CHECKED AND FOUND ALREADY FIXED**, so neither became an entry:
+`../sdclilib32` is a git repository now, closing the 19 Aug "its half exists on
+disk and nowhere else" risk; and `!valid_os_name` is still on the API login path
+(`APISRVR:1180`, inside the SCRAM exchange), so that one stays live - but its
+pointer said "measure this before touching step 6", and step 6 closed on 17 Aug
+without the measurement being made, so it is now owed on its own.
+
+**WHAT IS STILL OPEN.** The file is under the size it was and still over the
+ceiling, and **there is no cheap material left**: sections 2, 4, 7 and 8 are at
+their conclusions, section 6 is off limits under rule 4, and section 5 is the
+reasoning that dates. The header now says so and stops naming a next target,
+because naming one that cannot deliver is how the previous paragraph got written
+twice.
+
+---
+
 ## 21 Aug 2026 - Sections 4 and 8 compressed, and four stale claims fell out
 
 **Commit:** this one. Thirty-eighth session. **Documentation only - nothing that
@@ -21048,3 +21108,952 @@ record count. That check could never pass and was removed.
 - The client library is LGPL-3.0-or-later with a linking exception, while the
   rest of the tree is GPL-3.0. That is compatible and intentional for a client
   library, but it is a real licensing boundary worth being aware of.
+
+---
+
+## ARCHIVE 21 Aug 2026 - section 2's generation-2 audits and dev-branch review
+
+NOT A SESSION ENTRY.  Companion to the section 4 and section 8 archives below,
+same pass, same rule 0.5.  Section 2 was carrying two completed audits and a
+completed branch review at their full working length.  What stayed in
+PROJECT_STATUS is the rule they produced - grep for the Composer AI marker
+before treating a surprise as intended - the one-line verdict of each audit, the
+pattern they share (generation 2 turns a loud failure into a quiet one), and the
+five findings that are still live: valid_os_name's charset and its presence on
+the API login path, valid_shell_cmd's metacharacter ban, dh_open.c:257 flagged
+and not fixed, and the APISRVR reformat that was deferred until step 6 closed.
+
+THREE STALE CLAIMS WERE STRUCK RATHER THAN CARRIED, all in the sibling
+repositories subsection and all about the same thing.  The
+SV_EMSG_PAIR/SV_ECONTXT transposition was presented here as open, with "the
+vendored copy keeps winsdclilib's values" and "our BASIC cannot yet tell a
+transport failure from a context error".  It was fixed on 15 Aug 2026 in both
+client repositories and UPSTREAM_FIXES.md #2 has been CLOSED since - all four
+trees now read 6/7, checked file by file on 21 Aug.  The claim that
+sdsys/syscom/sdclilib.h "deliberately defines NEITHER" was false; it defines
+both at :127.  And the table had the vendoring arrow backwards: gplsrc/sdclilib
+became the source of truth on 19 Aug 2026 and winsdclilib is now the mirror,
+which is the direction that matters, because the old direction is how the 32-bit
+client shipped without SCRAM in it.  The 32-bit tree ../sdclilib32 was missing
+from the table entirely and is now in it.
+
+---
+
+## 2. Environment
+
+MSYS2 lives at `C:\msys64`. It was installed but completely empty of tooling
+when this work started; everything below was installed during the port.
+
+| Component | Version | Used for |
+|---|---|---|
+| msys `gcc` | 15.2.0 | server and utilities (POSIX runtime) |
+| msys `make` | 4.4.1 | all builds |
+| ucrt64 `gcc` (`C:\msys64\ucrt64\bin\gcc.exe`) | 16.1.0 | client DLL (native Win32) |
+| `python` | 3.12.13 | the build scripts in `gplbld/` — **not** linked into SD |
+| libsodium | 1.0.20 | encryption |
+
+Installed with pacman: `gcc make pkgconf libxcrypt-devel libbsd python
+mingw-w64-ucrt-x86_64-gcc`. **`python-devel` and `gettext-devel` are no longer
+needed** (13 Aug 2026), both dropped with embedded Python (§5.15).
+
+Plain `python` is still required, and always will be: `gplbld/bbcmp.py` is the
+only thing that can compile BASIC before there is a BASIC compiler. It is a
+**developer** dependency — an installed system needs no Python at all.
+
+**libsodium is not packaged for the MSYS2 runtime** — only for
+mingw64/ucrt64/clang64, which are ABI incompatible with it. It is built from
+source into `/usr/local`:
+
+```sh
+curl -fLO https://download.libsodium.org/libsodium/releases/libsodium-1.0.20-stable.tar.gz
+tar xzf libsodium-1.0.20-stable.tar.gz && cd libsodium-stable
+./configure --prefix=/usr/local --disable-dependency-tracking && make -j4 && make install
+```
+
+Rebuilding the machine means redoing that step, or `make` will fail to link.
+
+### External reference trees
+
+**THERE ARE THREE GENERATIONS, AND KNOWING WHICH ONE A LINE CAME FROM IS OFTEN
+THE WHOLE ANSWER.** Stated by the repository owner, 15 Aug 2026:
+
+1. **`sdb64`** — <https://codeberg.org/stringdatabase/sdb64>, the unmodified
+   Linux version and the active upstream project. **Cloned locally at
+   `../sdb64` since 15 Aug 2026**, with `main` checked out and `origin/dev`
+   fetched, so both branches are readable without the network:
+   `git -C ../sdb64 show origin/dev:sd64/<path>`. It is also a network
+   resource, so a machine without the clone loses nothing but convenience.
+   **Diffing against it is the cheapest way to attribute a surprise** — it is
+   what settled §5.13 and §7 step 7.
+2. **`sdb_ai`** — an experimental variant the owner produced by putting `sdb64`
+   through **five AI cleaning and validation cycles**. This is why the code
+   reads more cleanly than its age suggests, and why those cycles also
+   introduce problems of their own.
+3. **SD for Windows** — this repository, the port, built on top of `sdb_ai`.
+
+**GENERATION 2 IS TAGGED IN THE SOURCE AND IS WORTH GREPPING FOR.** Every
+change from the cleaning cycles carries a `Modified by Composer AI - 2026/06/10`
+comment: **226 of them across 73 files** — 53 in `gplsrc`, 20 in `sdsys` —
+measured 15 Aug 2026, all bearing that one date. **A line with that marker is
+neither upstream nor port work**, so when something surprises you, grep for the
+marker before treating it as intended and check the behaviour against `sdb64`.
+
+**Two have already cost real time**: the `VALID_OS_PATH` trap in §6, and the
+`SH` administrator gate at `GPL.BP/CPROC:3321` (§4, §7 step 7), which a session
+mistook for a Ladybridge decision it would have been wrong to reverse. Several
+other things this port has "found" turned out to be inherited from generation 1
+rather than introduced — so the check runs both ways.
+
+#### The generation-2 audit — BASIC side, done 15 Aug 2026
+
+All 20 `sdsys` markers read against `sdb64`. **The whole validation layer is a
+generation-2 invention**: `!valid_os_name`, `!valid_shell_cmd` and
+`!valid_os_path` **do not exist upstream on either branch**, and neither do
+their call sites. Three groups:
+
+- **`!valid_os_name` — 8 call sites, and one of them is a live problem.**
+  Charset is `A-Za-z0-9._-` only, length `MAX.USERNAME.LEN` = 32
+  (`INT$KEYS.H:32`). **No backslash and no space**, so it rejects
+  `DOMAIN\user` and any Windows name containing a space. Benign where the name
+  is one SD is about to *create* (`CREATEA`, `CREATE_USER`, `SET_PASSWD` —
+  refusing an awkward name is reasonable), **questionable where the name
+  already exists**: `DELACC:240` and `MODIFYA:103/127` refuse to clean up or
+  amend an account whose name it dislikes, which leaves litter nothing can
+  address. **And `APISRVR:894` applies it to the API login name before
+  authenticating** — §1 makes the API the product's front door and §7 step 6
+  owns it. `SDCLIENT:249` does the same for remote logins. **NOT YET MEASURED:
+  whether a real API login presents a domain-qualified name.** That measurement
+  is what decides whether this is a defect or only a smell; make it before
+  touching step 6.
+- **`!valid_shell_cmd` rejects `;|&$` + backquote + `<>`**, so **even an
+  elevated `SH` cannot pipe or redirect** — `SH dir | findstr x` is refused.
+  This belongs with §7 step 7's decision: lifting the administrator gate alone
+  would still leave shell-out unable to do the thing §5.13 wants it for.
+- **The rest are benign or genuinely good.** Empty-input early returns in
+  `IS_GROUP`, `IS_GRP_MEMBER`, `IS_USER`, `USERNAME`, `USERNO`, `ABSPATH`;
+  fail-closed on empty password/salt in `SD_KEY_FROM_PW`; file-handle open-state
+  tracking in `WRITE_INSTALL_DICTS`. **`LOGIN:172` is a cycle repairing itself**
+  — it closes an unterminated banner string an earlier cycle left, which had
+  caused `Unrecognised statement`.
+
+#### The generation-2 audit — C side, 15 Aug 2026
+
+**Method, stated because it bounds the claim: every marker was grouped by its
+own stated intent, and then each group that can CHANGE BEHAVIOUR was read.**
+Groups that cannot — analyser annotations, uninitialised-local fixes — were
+classified from their comments and not read individually. So "audited" here
+means *every behaviour-changing category*, not every one of the 206 lines.
+
+**The C markers are a different animal from the BASIC ones and are mostly
+GOOD.** 206 markers over 53 `gplsrc` files, static-analyser hardening rather
+than policy. **Nothing here should be reverted wholesale**; the BASIC side's
+verdict does not carry over.
+
+| Category | n | Verdict |
+|---|---|---|
+| `noreturn` / fall-through annotations | ~24 | cosmetic, safe |
+| uninitialised locals on switch-default paths | ~15 | genuine fixes |
+| allocation guards ending in `k_error("Insufficient memory…")` | ~15 | **right answer** — loud, immediate, matches the codebase |
+| `strtok`→`strtok_r` (`messages.c`, `netfiles.c`, `op_dio2.c`, `sdidx.c`) | 5 | correct — `savep` is function-scoped in every case |
+| `message` pointed at a string literal (`messages.c`) | 3 | improvement, and dead code either way (`k_error()` longjmps above) |
+| NULL-chunk guards in string padding (`op_str5.c`) | 3 | correct — implicit trailing spaces |
+| abort an AK node split on `k_alloc` failure (`dh_ak.c`) | 3 | defensible: orphans a node on OOM vs upstream's NULL-deref mid-split |
+| `timeout` read uninitialised (`op_seqio.c`) | 2 | genuine fix — `sq_file->timeout` is where it lives |
+| free merge buffers on open failure (`op_sort.c`) | 1 | genuine leak fix |
+| `w_addr < 0` always false on an unsigned | 1 | genuine bug fix |
+| `groups` allocated every call, never freed | 1 | genuine leak fix |
+| **`malloc(1)` → static buffer** | 2 | **DEFECT — fixed** |
+| **cleanup gated on the ELSE indicator** | 1 | **DEFECT — fixed** |
+| **trigger setup skipped on `k_alloc` failure** | 1 | **flagged, NOT fixed** |
+
+**THE SECOND DEFECT IS THE SERIOUS ONE, AND IT WAS LIVE.** `op_seqio.c`'s
+`op_openseq()` had `if (status)` where upstream has `if (process.status)`,
+"because `process.status` may be cleared for `ER_RNF` before resources are
+freed". It is cleared deliberately, and the two mean different things: `status`
+goes on the e-stack as the **ELSE indicator**, while `process.status` is what
+`STATUS()` returns — line 597's `ER_RNF; /* Transformed to zero later */` is
+that transformation arriving. **So every `OPENSEQ` of a not-yet-existing file —
+the normal way to create one — ran the failure cleanup on a successful open**:
+`k_free(fvar)` while `fvar_descr->data.fvar` already pointed at it, plus
+`k_free(sq_file)` and its pathname, and a decremented `ref_ct`. A use-after-free
+handed straight to the BASIC programme, and **silent**, because `process.status`
+was 0 by then so the `k_error()` at the foot of the block could not fire.
+**Not OOM-gated like the others — this fired on ordinary use.** Reverted to
+upstream's test; `make sd` clean.
+
+**FLAGGED, NOT FIXED — `dh_open.c:257`.** On `k_alloc` failure for the trigger
+name it silently opens the file **without its trigger**: `DHF_TRIGGER` never
+set, so writes bypass the trigger's validation. Same loud-to-silent trade as
+the `malloc(1)` defect, but OOM-only, and the right remedy — `k_error()` like
+the ~15 other allocation sites, or failing the open — changes open-failure
+semantics. **Decide it deliberately rather than in passing.** (The guard also
+contains a dead `if (p == NULL) { p = NULL; }`.)
+
+**The pattern to carry forward:** generation 2's failure mode is **turning a
+loud failure into a quiet one**, and once — in `op_openseq` — turning a success
+into a silent corruption. When a marker adds a guard, the question is never
+"is the guard right" but **"what does it do instead, and who can tell?"**
+
+**ONE REAL DEFECT, FOUND AND FIXED.** `ctype.c`'s `CNullString()` and
+`op_sdext.c`'s `NullString()` both guarded their `malloc(1)` and returned a
+**`static char empty[1]`** on failure. Their results are **owned and freed by
+the caller** — `op_sdext.c:258` frees every non-NULL entry of `SDMEArgArray`
+in a loop, and both functions feed it (`NullString()` at line 170, and
+`Extract()`→`CNullString()` at line 184). So an out-of-memory produced
+`free()` of static storage: **heap corruption discovered somewhere else
+entirely, in place of upstream's immediate NULL dereference.** Strictly worse,
+and on the credential path — line 227 hands that array to `sd_KeyFromPW()`.
+**Fixed by returning NULL**, which the release loop already tests for.
+`make sd` clean afterwards. **Only reachable when a 1-byte `malloc` fails, so
+it is latent rather than live** — but it is the shape to look for elsewhere: a
+cleaning-cycle guard that changes who owns a pointer.
+
+**WORTH SENDING UPSTREAM.** This is the one case where generation 2 found a
+genuine flaw: `sdb64` has `p = malloc(1); *p = '\0';` with no check at all, so
+upstream NULL-dereferences on the same out-of-memory. The fix committed here is
+better than both and applies to `sdb64` unchanged. **Written up in
+[UPSTREAM_FIXES.md](UPSTREAM_FIXES.md), which is maintained from now on** —
+CLAUDE.md carries the rule.
+
+#### What `sdb64`'s dev branch has that we want — reviewed 15 Aug 2026
+
+13 commits, 14 files, `main..origin/dev`, heading for 1.0-3.
+
+**TAKEN.** **`ER_SRVRERR 4100`, `ER_INV_NBR 4101`** into `gplsrc/err.h`,
+`gplsrc/sdclilib/err.h` and `sdsys/SYSCOM/ERR.H` — purely additive, no conflict.
+Clean rebuild after `rm -f gplobj/*.o`, no warnings.
+
+**FOUND AND DELIBERATELY LEFT ALONE: `SV_EMSG_PAIR` AND `SV_ECONTXT` ARE
+TRANSPOSED BETWEEN THE TWO PROJECTS.** `sdb64` dev has `EMSG_PAIR=6,
+ECONTXT=7`; the vendored `winsdclilib` client here has them the other way
+round. A caller compiled against one header talking to a library built from the
+other reads each state as the other one.
+
+**This session renumbered ours to match upstream and then reverted it**, on
+learning the client library's provenance (§5.3 below): `sdb64` did not
+originate this file. **Which numbering is right cannot be determined from this
+repository** and is written up in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) #2
+with what would settle it. Until then the vendored copy keeps `winsdclilib`'s
+values, because a vendored copy stays faithful to its source, and
+**`sdsys/SYSCOM/sdclilib.h` deliberately defines NEITHER**, so no BASIC commits
+to a numbering by accident. The cost is that our BASIC cannot yet tell a
+transport failure from a context error.
+
+**Incidental but useful: these constants are duplicated in FOUR files** —
+`gplsrc/sdclilib/sdclient.h`, `sdclilib.h`, `sdclilib.bi`, and
+`sdsys/SYSCOM/sdclilib.h`. Changing two of four is what surfaced the conflict,
+as a redefinition warning. **`grep -rn "define SV_"` before touching them.**
+
+**ALREADY HERE, INDEPENDENTLY.** Dev's `GetResponse()` fix — return TRUE after
+re-fetching the error text rather than reporting a server-side error as a
+transport failure — **is already in our stage-2 client**, with a fuller comment
+and a better fallback path. Nothing to take. Worth knowing the two trees agreed.
+
+**NOT APPLICABLE.** `_XOPEN_SOURCE` Fedora 44 warnings (Linux); `op_sdpyobj.c`
+and `sdext_py.c` (embedded Python, dropped — §5.15); `SDConnectUDS` syslog
+(Unix domain sockets).
+
+**CORROBORATION FOR §7 STEP 6d, AND IT IS WORTH HAVING.** Dev comments out the
+`getpwnam`/`setgid`/`setuid` block in `SDConnectLocal` — independently reaching
+the conclusion step 6d already holds, that these calls make no sense when the
+local connection is forked from a running SD. **Upstream also gives a reason we
+did not have: it breaks an Apache-spawned process** while working from a test C
+program. Our client has no such block, so nothing to do, but step 6d is now
+backed by somebody else's field experience.
+
+**OWNER'S CALL, NOT TAKEN.** Dev bumps to **1.0-3** (`revstamp.h`, `$RELEASE`,
+`sddefs.h`, `sdclient.h`); we are 1.0-2, and release identity is not something
+to change by inference. **`APISRVR` is 2,147 changed lines**, mostly
+reformatting with real error checking inside it; ours has already diverged and
+§7 step 6 owns it — revisit when step 6 is done, not before, or the reformat
+will bury the port's own changes.
+
+**The TCL verb surface is written down**, in
+[docs/TCL_VERBS.md](docs/TCL_VERBS.md) — SD's commands against OpenQM 2.6.6,
+supplied by the repository owner 14 Aug 2026. Read it before adding or renaming
+a verb. The important structural fact it records: **SD has accounts, not
+accounts and users.** `CREATE.USER`, `DELETE.USER`, `ADMIN.USER` and
+`LIST.USERS` are all deliberately absent, which is why `CREATE.ACCOUNT`
+provisions the operating system account itself and why the `CREATUSR` gate was
+removed (§7 step 1a).
+
+### The sibling repositories, and what "in sync" means
+
+**Four repositories are in play, all cloned beside this one as of
+15 Aug 2026**, and three of them are **maintained**, not merely consulted:
+
+| Path | What it is | Our duty |
+|---|---|---|
+| `../sdb64` | upstream Linux project, `main` + `origin/dev` | **read-only.** Fixes it needs go in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) |
+| `../winsdclilib` | the Windows client library, vendored into `gplsrc/sdclilib/` (§5.3) | **maintain.** Holds the client documentation and is to be the basis of an eventual **SD for Windows client installer** |
+| `../linuxsdclilib` | the Linux client library, imported 5 Aug 2026 | **keep in sync** with the above where the code is shared |
+| this repository | the port | — |
+
+**THE SAME CONSTANT LIVES IN A DOZEN PLACES ACROSS THESE FOUR TREES.** That is
+not hypothetical — it is how the `SV_EMSG_PAIR`/`SV_ECONTXT` transposition
+survived from 5 to 15 Aug 2026 in three repositories at once. **Before changing
+any shared constant, grep all four**:
+
+```sh
+grep -rn "define SV_" ../sdb64 ../winsdclilib ../linuxsdclilib . --include=*.h --include=*.bi --include=*.c
+```
+
+`sdb64` is the authority for anything it defines first; the client repositories
+are the authority for the Windows/Linux transport code they own. **Neither is
+simply "upstream" for `gplsrc/sdclilib/`** — see §5.3's round trip.
+
+Two local trees, neither part of this repository, both absent on a fresh
+machine, and nothing in the build depends on either:
+
+- **`C:\Users\dmont\Projects\gplsrc`** — original GPL ScarletDME C source.
+  Limited value: Ladybridge stripped the Windows code thoroughly. Still useful
+  for recovering text mangled by the `qm`→`sd` rename.
+- **`C:\Users\dmont\Projects\GPL.BP`** — original ScarletDME BASIC source, 212
+  files. **This one is genuinely valuable.** It retains real Windows code that
+  this repository's `sdsys/GPL.BP` had stripped: 21 files carry Windows logic
+  there against 6 here, and every file present in both lost all of it. See
+  §5.4.
+
+
+---
+
+## ARCHIVE 21 Aug 2026 - section 7's closed steps 7, 8 and 11
+
+NOT A SESSION ENTRY.  Same pass and same rule as the three archives below.
+Steps 0 to 6 were compressed on 21 Aug 2026 and are in their own archive; these
+are the three that were still carrying their working detail.
+
+Step 7 keeps its design in PROJECT_STATUS rather than here, because almost all
+of it constrains future work: the ACL that is the whole control, why the list is
+not in NEWVOC, the C gate's three ways in and the truth table that proves the
+two fields independent, and the two things that catch anyone editing the
+verifier.  What went is the narrative.
+
+ONE STALE CLAIM WAS STRUCK.  Step 7 carried a paragraph headed "WHAT IS NOT
+DONE, AND IT IS HALF THE FEATURE", saying OS.USERS field 2 was read by nobody
+and that gating OS.EXECUTE needed C.  That C was written on 19 Aug 2026 -
+os_permitted(), op_sh.c:150, called at :209, verify-osusers 24/24 on the
+16:38:01 install - so the claim was two days stale before the 21 Aug phases
+began, and it had propagated into section 4 and section 8 as well.  All three
+are corrected; the session entry of 21 Aug 2026, "Sections 2 and 7 compressed",
+has the detail.
+
+Step 8 keeps what is done, what is left in the order to take it, and the
+SET_PASSWD latent defect.  Section 5.12 is where the method lives and step 8
+points at it rather than repeating it.  Step 11 keeps the three faults any
+successor still meets, the transport as it now is including the -C1!0 ordering,
+and the control in make check-local.
+
+---
+
+7. **BUILT, INSTALLED, AND HALF VERIFIED — 17 Aug 2026, twentieth session.
+   `SH` is permitted by a list, not by elevation.** On the 22:43:52 install
+   `CPROC` compiled, `WRITE_INSTALL_DICTS` wrote all five `OS.USERS.DIC`
+   records, the ACL took, and an unlisted account is refused with message
+   10053 (§4).
+
+   **THE ADMIT PATH IS VERIFIED — `gplbld/verify-osusers.ps1`, 18 of 18, exit 0
+   on the 07:00:00 install of 18 Aug 2026.** §4 has the table and what each row
+   is for. The `changelog` entry it was waiting on is written.
+
+   **THE SCRIPT RUNS UNELEVATED AND PROMPTS FOR UAC TWICE ITSELF.** The
+   measurement must not be elevated or `CPROC:3448` admits it on
+   `K$ADMINISTRATOR` and `OS.USERS` is never consulted; writing the record and
+   removing it again must be, because that ACL is the whole protection. The two
+   halves cannot share a token, and elevating is the easy direction.
+
+   **IT IS EXEMPT FROM `assert-current`'s STALENESS GUARD** — added to
+   `$neverShipped` (`assert-current.ps1:88`) with the other verifiers, or
+   editing the test would demand a reinstall to re-run the test. That list is
+   self-policing: a name that turns up quoted in `stage.py` or `sd.iss` is put
+   back under the guard.
+
+   **THE PROBLEM IT SOLVES (§8).** The gate at `CPROC`'s `os.command:` label
+   admitted only `K$ADMINISTRATOR`, which is `IsElevated()`, and an ssh session
+   can never be elevated — so programmers, the one group that needs a shell,
+   were the one group that could never have one. Meanwhile `OS.EXECUTE` stayed
+   ungated for everybody. The visible control was denied to the people who
+   needed it and the capability it guards was open to those who did not.
+
+   **WHAT WAS BUILT:** `@SDSYS/OS.USERS`, a directory file, **one record per
+   account**, keyed by account name. Field 1 `SH`, field 2 `OS.EX`, each `yes`
+   or anything else. Dictionary `OS.USERS.DIC` with `Name` (D 0), `SH` (D 1),
+   `OS.EX` (D 2), plus `@ID` and an `@` default listing, shipped as source in
+   `gplbld/FILES_DICTS` and written at bootstrap by `WRITE_INSTALL_DICTS`.
+   Both files are staged empty by `stage.py` — **`WRITE_INSTALL_DICTS`
+   `OPENPATH`s the dictionary rather than creating it**, so if it were not
+   staged the entries would be skipped and the file would ship with no
+   dictionary. Admin edits with `ED` from SDSYS. New message 10053.
+
+   **NOT IN `NEWVOC`, and that was reconsidered mid-design.** The tier lists
+   live there because `CREATEA` already has it open (`CREATEA:593`); `CPROC`
+   does not, so the saving vanishes. Worse, everything in `NEWVOC` is copied
+   into every account's VOC unless excluded in **two** places, and the tier
+   lists' fail-safe is *permissive* — a missing record means the FULL VOC.
+   A permission list needs the opposite default and must not inherit that
+   convention.
+
+   **THE ACL IS THE ENTIRE CONTROL.** `gplbld/secure-osusers.ps1` grants
+   `sdusers` **(RX) — read, not modify**, which is the difference from
+   `secure-cred.ps1`: `CPROC` reads the list from the user's own process, so
+   they must read it and must never write it. Called from `[Code]` as
+   `SecureOsUsers`, **exit code checked**, failure named in the closing box.
+   Without it any SD user adds their own name and the file is decoration —
+   exactly what happened to `$CRED`.
+
+   **ELEVATION STILL PASSES ON ITS OWN**, deliberately: an empty `OS.USERS`
+   must not lock the machine's own administrator out of `SH`, which is the
+   lockout `ADOPT` caused with `sdsshonly` on 15 Aug 2026.
+
+   **The metacharacter ban is lifted for a listed account only** (owner). An
+   elevated session that is not listed keeps `!valid_shell_cmd` exactly as
+   before, so this adds capability and regresses nothing.
+
+   **WHAT IS NOT DONE, AND IT IS HALF THE FEATURE.** **Field 2 `OS.EX` is
+   stored, dictionaried and read by nobody.** `OS.EXECUTE` is a BASIC
+   statement compiling straight to `OP.SH`/`OP.SHCAP` into `op_sh.c`, never
+   touching `CPROC`, so gating it needs **C**: two bits beside `USR_ADMIN`
+   (`sysseg.h`, `0x0100` and `0x0200` are free), a kernel key gated on
+   `HDR_INTERNAL` as `K$ADMINISTRATOR` is — or a programmer sets the bit
+   themselves — `LOGIN` seeding them, and a check in `sh()`. Until then an
+   unlisted programmer with `BASIC` still has full OS access from a program,
+   so **this is an auditable permission record, not yet a boundary**.
+
+   **Note `SH` implies `OS.EX` and cannot not**: `CPROC:3465` runs the verb by
+   calling `os.execute`, so the two flags are not independent in that
+   direction. The useful combination is `OS.EX` yes with `SH` no — programs may
+   shell out, the person at the prompt may not.
+
+   **Owner wants a form for account setup with these privileges** eventually
+   (§5.14); `ED` is the interim editor.
+
+   *(A "NOT COMPILED" paragraph stood here and was wrong by the time it was
+   written — the 22:43:52 cycle compiled `CPROC`, as this step's own first line
+   says. Removed 18 Aug 2026.)*
+
+
+8. **Make everything lower case that can be** (§5.12). **STARTED 17 Aug 2026,
+   twentieth session: the file-name half is done in source and NOT VERIFIED.**
+
+   **`CASE_INSENSITIVE_FILE_SYSTEM` IS NOT ONE THING, AND THAT IS THE FINDING.**
+   9 sites, defined nowhere — **and never defined in `../sdb64` either**, so it
+   is dead in both trees and there is no upstream defect (on a case-sensitive
+   Linux filesystem, off is correct). The 9 split into two **competing
+   strategies** for the same problem, and only one can be right:
+
+   a. **`dh_open.c:529` — make the COMPARISON case insensitive.** One site.
+      Sets `DHF_NOCASE` on directory files. **This is the one that was taken.**
+   b. **The other 8 — normalise every path and id to UPPER case** so that
+      case-sensitive comparisons agree with the filesystem: `dh_misc.c:143`,
+      `op_dio2.c` at 634 (`!OSPATH` input), 726 (`OS_CWD` output), 788
+      (directory listings), 916 and 928 (both `OSRENAME` paths), `op_dio4.c`
+      1154 and 1285 (`SELECT` over a directory file). **Left off, because
+      §5.12 chose lower case** — upper-casing every path is the opposite of
+      the goal, and it is user-visible: `OS_CWD` would start answering
+      `C:\PROGRAMDATA\SD`. It also buys nothing on Windows, where the
+      filesystem already matches case-insensitively without being asked.
+
+   **DEFINING THE MACRO WOULD THEREFORE HAVE BEEN WRONG** — it would have taken
+   (a) and (b) together. (a) is now unconditional instead, per CLAUDE.md's rule
+   against `#ifdef` branches, and the macro name now governs only (b).
+   `op_dio4.c:1155` already guards on `Option(OptSelectKeepCase)` and
+   `op_dio4.c:1285` does not, so (b) is not even internally consistent.
+
+   **WHY (a) MATTERS:** a directory file's record ids **are** file names, and
+   NTFS resolves `SUE` and `sue` to one file — so without it SD takes **two
+   record locks** (`op_lock.c:996`) and **two transaction cache entries**
+   (`txn.c:302`) on what is one file. It does **not** change reads or writes:
+   `dir_read`/`dir_write` open by name and NTFS was already case insensitive.
+
+   **Nothing is persisted by it.** Directory files have no header, so the flag
+   lives only in the shared `FILE_ENTRY`; dynamic files still take theirs from
+   disk (`dh_open.c:549`). No format change, nothing to migrate, and it cannot
+   corrupt an existing database.
+
+   **VERIFIED 17 Aug 2026 on the 20:10:31 install — `DIRFILE=1`, `DHFILE=0`,
+   `gplbld/verify-nocase.ps1` exit 0, unelevated.** §4 has it. The measurement
+   is one command, no account creation, nothing to clean up by hand.
+
+   **CORRECTION, same session:** this entry first said the decisive observable
+   was a lock on `sue` colliding with one on `SUE` and so "needs two concurrent
+   sessions". **That was wrong, and it confused the change with its
+   consequence.** What this port changed is whether `DHF_NOCASE` is *set*;
+   `op_lock.c` has honoured the flag since long before the port. So the
+   decisive reading is `FILEINFO(f, FL$NOCASE)` — one session, one account.
+
+   **THE DYNAMIC FILE IS THE CONTROL.** A directory file answering 1 proves
+   nothing alone; `VOC` takes its flags from its own header (`dh_open.c:549`),
+   untouched here, so it must still answer 0. One moves, one does not.
+
+   **BEFORE, measured by hand on the 17:36:21 install** (pre-change binary):
+
+   ```
+   DIRFILE=0     BP,  a directory file      -> must become 1
+   DHFILE=0      VOC, a dynamic file        -> must stay   0
+   ```
+
+   **The probe is placed by writing a file, not by driving `ED` through a
+   pipe** — `BP` *is* a directory file, so a record is just a file on disk.
+   That trick is what makes this cheap, and it is worth remembering for any
+   future test that needs BASIC on an installed system.
+
+   **`changelog` ENTRY WRITTEN 17 Aug 2026, once the flag was observed.**
+
+   **IT DESCRIBES THE LOCK COLLISION, WHICH IS INFERRED AND NOT OBSERVED — be
+   straight about that if it is ever queried.** What was measured is that the
+   flag is SET. That locks then collide follows from `op_lock.c:996`, which
+   case-folds the id with `memucpy` when the flag is on, so two sessions
+   locking `sue` and `SUE` produce one folded id and one lock entry. Sound, and
+   still a reading of source rather than a measurement. A two-session `READU`
+   test is the thing that would close it.
+
+   **THE BASIC LAYER HAD THE SAME DEFECT AND IT IS NOW FIXED AND VERIFIED —
+   17 Aug 2026, 20:34:04 install, behaviour as well as flag (§4).** `op_sys.c` `case 91` (`SYSTEM(91)`, "Windows?") answered
+   **0**, inherited from `sdb64` where it is correct, so every BASIC program
+   asking whether it is on Windows was told no — on Windows. Now 1.
+
+   **What that actually broke:** `QPROC:82` reads it into `is.windows` and
+   `QPROC:499` is `if is.windows and is.dir then is.case.insensitive = @true`
+   — **the only route** by which the query processor treats a directory file's
+   ids as case insensitive. `FL$FLAGS` cannot supply it: `op_dio2.c:439`
+   answers `FL_FLAGS` only when `(dynamic && internal)`, and a directory file
+   is neither, so `QPROC:498` reads 0 for one however the flag is set. **So
+   `SELECT ... WITH @ID = "sue"` never matched record `SUE`**, and the code to
+   make it match has sat there unreachable.
+
+   **Same shape as `CASE_INSENSITIVE_FILE_SYSTEM`**: correct code, already
+   written, never switched on. `is.case.insensitive` upper-cases both sides of
+   a comparison only (`QPROC` 4034, 4447, 7059, 7198) and stores nothing, so it
+   is the same strategy as (a) and not the upper-casing §5.12 rejected. The
+   only other reader, `APISRVR:954`, is commented out. **`ISWIN` moved 0 → 1
+   across the two installs and the `SELECT` behaviour was measured with its
+   control; `verify-nocase.ps1` carries the row.** `changelog` entry written.
+
+   **THE TERMINAL HALF IS NOT STARTED, AND THE EVIDENCE CONTRADICTS THE
+   SOURCE. DO NOT CHANGE IT UNTIL THAT IS RESOLVED.** `case_inversion` is XOR
+   `0x20` — true inversion, not force-upper (`op_tio.c:1133`) — and **three**
+   places set it TRUE, not the one §5.12 implies: `linuxio.c:240`
+   (`start_connection`), `linuxio.c:313` (`init_console`) and `LOGIN:266`.
+   `LOGIN:266` is **unconditional** — the `if/else` opened at 233 closes at
+   264 — and LOGIN demonstrably runs, because `WHO` answers `2 DON`.
+
+   **Yet `SYSTEM(1001)` reads 0.** Measured repeatedly, 17 Aug 2026, on the
+   20:34:04 install. Something either does not run or resets it, and which is
+   not known. **A change made on top of this would be a change made on top of
+   a contradiction.**
+
+   **18 Aug 2026 — THE THING THIS STEP SAID TO ESTABLISH FIRST IS ESTABLISHED:
+   INVERSION IS OFF FOR THE SESSIONS REAL USERS GET, AND THAT IS WHAT §5.12
+   WANTS.** On the 07:28:34 install, three independent readings agree:
+
+   ```
+   SYSTEM(1001)                      0          op_sys.c case 1001
+   PTERM DISPLAY                     Off        op_pterm, a different opcode
+   SH New-Item -ItemType File ...    ran        mixed case reached PowerShell
+   ```
+
+   **The third is the one that settles it.** The `verify-osusers.ps1` probes
+   send a mixed-case command through the input path; with inversion on it would
+   have arrived as `nEW-iTEM -iTEMtYPE fILE`, and instead it created its marker.
+   That is behaviour, not a flag reading, and it cannot be an instrument fault.
+
+   **So the terminal half is a DEAD-SETTER cleanup, not a behaviour change.**
+   SD accounts are ssh-only and ssh gives SD piped stdin, so 0 is the reading
+   for every account that can log in. Nothing has to change for §5.12; removing
+   the three setters is tidying.
+
+   **RESOLVED, 18 Aug 2026, AND IT IS CONFIGURATION RATHER THAN A DEFECT: THE
+   VOC `LOGIN` PARAGRAPH TURNS IT OFF AFTERWARDS.** `NEWVOC/LOGIN` is a `PA`
+   record, copied into every account VOC, and it reads:
+
+   ```
+   PA
+   TERM LINUX
+   TERM 120,36
+   PTERM CASE NOINVERT      <- this line
+   ```
+
+   `CPROC:397` runs it at session start and **`CPROC:2701` runs it again on
+   every `LOGTO`**. So `LOGIN:266` does execute and does set the flag TRUE;
+   the paragraph runs later and wins. Confirmed live with `CT VOC LOGIN`.
+
+   **SO THE SETTERS ARE NOT DEAD, THEY ARE OVERRIDDEN — and the previous
+   entry's "dead-setter cleanup" was wrong.** Nothing in C or in `$LOGIN`
+   needs removing, and **the authoritative place to change this behaviour is
+   the paragraph**, in `NEWVOC/LOGIN` and `VOC_TEMPLATE/LOGIN`. Inversion
+   being off is deliberate and shipped, which is what §5.12 wants, so **§7
+   step 8's terminal half needs no work at all.**
+
+   **THE VISIBLE PROOF, worth keeping because it is how this was cracked:**
+   with inversion on, an upper-case command echoes back lower case.
+   `PTERM CASE INVERT` then `LOGTO DON` echoed as `logto don`, and the command
+   after it echoed upper case again — so the flag was on, `LOGTO` turned it
+   off, and no banner appeared, meaning `$LOGIN` had not re-run.
+
+   **LINE 2 IS NOW `TERM VT100`, owner's decision 18 Aug 2026** — it said
+   `TERM LINUX`, inherited from the Linux original, and `TERM` confirmed the
+   session device really was `linux`. Changed in `NEWVOC/LOGIN` and
+   `VOC_TEMPLATE/LOGIN`, **byte-for-byte** (`TERM LINUX` and `TERM VT100` are
+   both 10 characters, so no record framing moved — and the two files differ,
+   `NEWVOC/LOGIN` having no trailing newline where `VOC_TEMPLATE/LOGIN` has
+   one). `vt100` is shipped in SD's own terminfo and `TERM VT100` was checked
+   on the 07:28:34 install before the edit: `Device : vt100`, no error.
+   **NOT YET INSTALLED — needs a cycle.**
+
+   **An existing account keeps `linux` until its VOC is updated**, and then
+   picks it up silently: `update.voc` only prompts when the record TYPE
+   changes (`LOGIN:613`) and both are `PA`, so `LOGIN:657` just writes it.
+
+   **EIGHT CANDIDATES WERE ELIMINATED GETTING HERE, kept so nobody re-walks
+   them.** 18 Aug 2026: (1) `PT$INVERT` and
+   `PT_INVERT` disagreeing — both 2, `INT$KEYS.H:146` and `keys.h:181`;
+   (2) `LOGIN` not including `int$keys.h` — it does, line 73; (3) two copies of
+   `case_inversion` — `Public` is `extern` (`sddefs.h:261`) everywhere but
+   `sd.c`, so there is one; (4) the instrument — two opcodes and behaviour
+   agree; (5) the early `return` at `LOGIN:198` skipping line 266 — that is the
+   `mode = 2 or 3` VOC-upgrade path, and the banner at `LOGIN:209` proves it
+   was not taken; (6) `@TRUE` being negative and so meaning "report only" —
+   it is 1, measured; (7) the setter being broken — `PTERM CASE INVERT` turns
+   it On in the same session and it stays On; (8) `SET_PASSWD` resetting it at
+   login — it is called from `CREATEA` and `PS_SCRIPT`, not `LOGIN`.
+
+   **A SEPARATE REAL DEFECT, FOUND ON THE WAY AND NOT FIXED: `SET_PASSWD`'s
+   case-inversion save/restore can never restore On.** `op_pterm`'s own stack
+   diagram says the value returned is the **NEW** value, and a **negative**
+   argument is what reports without setting. So `SET_PASSWD:88`
+   `was.inverted = pterm(PT$INVERT, @false)` sets it off and saves the *off* it
+   just wrote, and `SET_PASSWD:98` restores that. The fix is to read with
+   `pterm(PT$INVERT, -1)` first, then set. **Harmless today only because
+   inversion is already off everywhere**; it is latent, and it is ours — the
+   lines carry a `14 Aug 26 Windows port` marker — so no `UPSTREAM_FIXES.md`
+   entry.
+
+   **WHAT WAS NARROWED, 17 Aug 2026, so the next attempt starts further on:**
+
+   - `connection_type` **defaults to `CN_CONSOLE`** (`kernel.h:54`); only
+     `-pipe`-style and socket invocations move it (`sd.c` 407, 423, 471). So a
+     plain `sd.exe` is `CN_CONSOLE` and `op_tio.c:3258` should reach
+     `init_console()`.
+   - **The console path refuses an ordinary user**, measured: `sd.exe RUN BP X`
+     with no pipe answers *"This command needs an elevated session"*. That is
+     §5.6.2 working as designed, and it is why the console reading cannot be
+     taken unelevated.
+   - **The piped path is the one that matters anyway.** SD accounts are
+     ssh-only, and ssh gives SD piped stdin — so the 0 above is the reading for
+     the sessions real users get. **If it is 0 there, §5.12's terminal concern
+     may already be satisfied for every account that can actually log in**, and
+     the work would be removing three dead setters rather than changing
+     behaviour. That is the thing to establish first.
+   - `pterm()` **cannot be called from a user account** — internal only, and
+     compiles as *"Matrix PTERM is not referenced in a DIM statement"*.
+     `SYSTEM(1001)` is the route from a probe.
+
+   **AND 707 `upcase(` CALLS IN `GPL.BP` ARE NOT ALL IN SCOPE.** Most are VOC
+   verb lookup, `Y`/`N` answers and record types, which must stay — CPROC
+   upcases verbs so lower-case typing still finds `LISTF`. The account-name
+   subset is about 11 sites: `LOGIN` 281, 321, 339, 383, 690 and `CPROC` 2531,
+   2577, 2579, plus the audit lines 2601, 2619, 3686.
+
+   **WHAT IS LEFT of step 8** is the wide half §5.12 describes: account names
+   (`LOGIN`, `CPROC`, the `$CRED` register), dictionary and VOC ids, and — added
+   by the owner 18 Aug 2026 — **the file names themselves, `VOC` and `BP`
+   included**. (a) is the enabling change for the account half — `$CRED` and
+   `ACCOUNTS` are directory files — but removing the `upcase()` calls is still
+   what makes `sue` and `SUE` one account, and that is untouched. **The
+   terminal's `PT$INVERT` is NO LONGER on this list**: it is off already and
+   deliberately, see above.
+
+   **18 Aug 2026, TWENTY-THIRD SESSION — THE FALLBACK IS FINISHED AND THE FIRST
+   RENAMES ARE IN.** The fold reached only the parser; `_VOC_REF`, which every
+   BASIC `OPEN` goes through, had no fold and is now converted
+   (`verify-fold.ps1` 10/10). §5.12 (a) is done for the per-account files —
+   `$hold`, `$hold.dic`, `$svlists`, `bp` (`verify-lcnames.ps1` 26/26). **What
+   is left of the file-name half is (b), the VOC ids, and the shipped system
+   files**, which need `stage.py`, `sd.iss` and four verify scripts to move with
+   them. The account-name half is untouched.
+
+   **18 Aug 2026, TWENTY-FOURTH SESSION — THE FIRST VOC ID HAS MOVED.**
+   `$SAVEDLISTS` is `$savedlists` (`verify-lcnames.ps1` 36/36, 20:34:25
+   install), and §5.12 (b) now has a worked example to copy: what moves with a
+   rename, and the verifier section that proves an account created before it
+   still works. **`$HOLD` next, then `$COMMAND.STACK` and `BP`**; the shipped
+   system files stay the wide half. The account-name half is still untouched.
+
+   **THE FALLBACK IS DONE, SO A RENAME NO LONGER NEEDS ONE.** The fold was "as
+   typed, then upper"; it is now as typed, then down, then up, at the 74 parser
+   sites and in `_VOC_REF`. **Read §5.12 before the next rename** — it has the
+   sites, the measurements, and the two instruments that are not obvious:
+   `CT` echoes the id it matched (so "not found" cannot test a rename), and the
+   pre-rename account has to be simulated rather than assumed.
+
+11. **BUILT AND WORKING — 17 Aug 2026, seventeenth session. VERIFIED ON THE
+    12:28:49 INSTALL**, `make check-local` on the installed pair,
+    `assert-current` exit 0, `WHO -> 2 DON`. The measurements are in this step's
+    body and in §4.
+
+    ***"AND NOT RUN" stood here until 21 Aug 2026; "CALLED, AND IT DOES NOT
+    WORK" replaced it that day and was stale too** — both were refuted by this
+    entry's own body, which reports the transport being replaced and the test
+    passing. The half-correction is why it survived a sweep. Struck 21 Aug 2026
+    in both places.*
+
+    **The heading it carried is still the right way to read what follows**:
+    `SDConnectLocal()` as originally written **could never have worked**, on
+    this platform or any other, and it took three independent faults with it.
+    Two were in the shipping path and are fixed; the third was in dead code.
+    **A fourth thing was not a defect and is what forced the transport
+    change** — the always-ready `select()`, below.
+
+    a. **The client and the server disagreed about `-C`.** `SDConnectLocal()`
+       builds `sd.exe -Q -C \\.\pipe\~SDPipe<pid>-<n>` — the pipe name as a
+       SEPARATE argument — while `sd.c` parsed `sscanf(argv[arg],
+       "-C%d!%d", …)` and `exit(1)`ed on anything else. `argv[arg]` is exactly
+       `"-C"`, so it matched nothing and the child died during argument
+       parsing. **The same mismatch is in `sdb64`**, byte for byte —
+       UPSTREAM_FIXES.md #4. `sd.c` now takes either form, and **consumes the
+       name argument**, which it must: the option loop stops at the first
+       argument not beginning with `-`, so the pipe name would otherwise be
+       taken for a command to execute.
+    b. **The client looked for `sd.exe` inside the DATA tree** —
+       `<sysdir>\bin\sd.exe`, i.e. `C:\ProgramData\SD\sdsys\bin`, which exists
+       and holds the pcode file. It is now found **beside the DLL** through
+       `GetModuleHandleEx(FROM_ADDRESS)` + `GetModuleFileName`, which needs no
+       configuration and follows the install wherever `{app}` puts it, since
+       `stage.py` ships both in `usr\bin`. **The path is now quoted too**: it
+       is under `C:\Program Files`, and an unquoted spaced path in
+       `CreateProcessA` with a NULL application name makes Windows try
+       `C:\Program.exe` first — a hijack, not just a bug.
+    c. **`gplsrc/sdclient.c` had a fourth fault and does not matter**: it reads
+       `C:\Windows\sd.ini`, which nothing creates. **That file is excluded
+       from the build** (`Makefile:66`, `SRCS := $(TEMPSRCS:sdclient.c=)`) —
+       the shipping client is `gplsrc/sdclilib/sdclilib.c`, whose `sysdir()`
+       was already corrected on 14 Aug. **Read the right file**: an earlier
+       hour of this session was spent analysing the dead one.
+
+    **`gplsrc/win32pipe.c` is new, and is the THIRD `windows.h` file** after
+    `win32sem.c` and `win32audit.c`. The pipe is a native object created by the
+    UCRT64 client and `sd.exe` is MSYS2, so `open()` cannot reach it — the
+    Cygwin runtime does not map `\\.\pipe\` names at all. It is opened with
+    `CreateFile` and pushed into the Cygwin descriptor table with
+    `cygwin_attach_handle_to_fd()`, exported by `msys-2.0.dll` (ordinal 379,
+    checked), so everything above it reads and writes 0 and 1 unchanged.
+
+    **It must not include `sd.h`, and neither do the other two.** `sd.h`
+    reaches `linuxlb.h`, which declares `GetUserNameA()` and `Sleep()` with
+    types that conflict with the real Windows ones — two "conflicting types"
+    errors, measured. That is why it returns `int` rather than `bool`, as
+    `win32audit.h` does.
+
+    **THE NAMED PIPE DOES NOT WORK, AND THE REASON IS ARCHITECTURAL RATHER THAN
+    A BUG LEFT TO FIND. 17 Aug 2026, measured on the 08:03:49 install** — the
+    transport this describes is the one that was REPLACED, later the same day,
+    and the replacement is what the top of this step reports working. **Three
+    real defects
+    were fixed on the way and all three were worth fixing; a fourth thing is
+    not a defect at all and stops this approach.
+
+    **THE STOPPER: a descriptor made by `cygwin_attach_handle_to_fd()` is
+    reported PERMANENTLY READY by `select()`** — `sel.always_ready 1` in
+    `strace`, §6. SD decides whether input is waiting by asking `sdpoll()`
+    (`linuxio.c:535`, `:383`, `:456`). Told "yes" unconditionally, it spins
+    reading one byte at a time for ever: **`sd.exe` alive, silent, and never
+    answering.** `make check-local` hung, and `SDConnectLocal("DON")` never
+    returned. **Fixed by replacing the transport, not by repairing this** — see
+    the top of this step; only the `-C <pipename>` convention still reaches the
+    always-ready path, and `sd.c` now refuses it rather than hanging.
+
+    **The three fixes are still right and still needed by any successor**: the
+    `-C` argument mismatch, the `sd.exe` location, and the access argument
+    below. None of them is undone by this.
+
+    **BUILT AND WORKING — 17 Aug 2026. `SDConnectLocal()` CARRIES A SESSION.**
+    Four runs, unelevated, `local_connect_test` exit **0** each time:
+
+    ```
+    connecting to DON ...
+      admitted
+      WHO -> 19 DON
+    connecting to SDSYS (this MUST be refused) ...
+      refused: User not allowed in requested account
+    PASS: DON admitted, SDSYS refused.
+    ```
+
+    **AND THAT IS ALSO THE FIRST EVIDENCE OF ANY KIND FOR §7 STEP 6c** — the
+    `ACC$GROUP` grant check in `APISRVR`, built 17 Aug and never run. **The
+    control is what makes it evidence**: `DON` admitted alone would be equally
+    consistent with a check that never executed, and `SDSYS` refused with
+    "User not allowed in requested account" is that check running.
+    **No orphaned `sd.exe` survives a run**, which is the EOF path working:
+    closing our copies of the child's ends is what lets it see stdin close.
+
+    **AND IT IS NOW VERIFIED ON A REAL INSTALL.** The first measurement was a
+    development smoke test — the new DLL paired in a scratch directory with the
+    installed `sd.exe`. **The cycle then ran and `make check-local` passed on
+    the installed pair**, `assert-current` exit 0, 12:28:49 install,
+    `WHO -> 2 DON`. Both runs agree; the header has the figures.
+
+    **`make sd` clean, no warnings, both toolchains:** `sd.exe`
+    **`81D0856F5493385E`**, `sdclilib.dll` **`8D1517D1CD2B83AB`**.
+
+    **WHAT CHANGED.** All of it client-side except one refusal:
+
+    - `SDConnectLocal()` makes **two anonymous pipes** and hands them to the
+      child as its **standard handles**; `session[].hPipe` became `hPipeRd` /
+      `hPipeWr`, because an anonymous pipe is one-way and the pair is what the
+      duplex named pipe used to be alone.
+    - The command line is now **`-Q -C1!0`**. **Note the order** — `sd.c`
+      parses `-C<tx>!<rx>` and answers with `dup2(RxPipe, 0); dup2(TxPipe, 1)`,
+      so rx must be 0 and tx must be 1. `-C0!1` would cross the streams, and an
+      earlier note in this file said exactly that; it was wrong.
+    - **Inheritance is restricted to exactly those two handles** with
+      `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`. Plain `bInheritHandles = TRUE`
+      inherits **every** inheritable handle the process owns, and this library
+      is loaded into somebody else's application — a handle it happens to hold
+      to a file or a socket would be copied into a long-lived `sd.exe` and kept
+      alive for the whole session, with nothing to show why.
+    - `sd.c`'s **`-C <pipename>` branch now refuses with a diagnostic** instead
+      of hanging. The code behind it is correct and the flaw is not in it, so
+      `win32pipe.c` stays; but silent-and-never-answering is the worst thing to
+      leave callable.
+    - `ConnectNamedPipe` and `DisconnectNamedPipe` are gone: an anonymous pipe
+      is connected the moment it exists.
+
+    **The reasoning that got here, kept because the framing was the error:**
+
+    **FIRST, THE FRAMING WAS WRONG: THE PEER IDENTITY NEVER CAME FROM THE
+    PIPE.** There is no `ImpersonateNamedPipeClient` and no
+    `GetNamedPipeClientProcessId` anywhere in `gplsrc` — checked.
+    `SDConnectLocal()` gets identity because it **spawns `sd.exe` with
+    `CreateProcessA`**, so the server is a CHILD running under the caller's own
+    token and `GetUserNameA()`/`IsElevated()` inside it report the calling user.
+    The named pipe only carries bytes. **So the socket option's stated cost is
+    illusory — and so is the named pipe's stated benefit.**
+
+    **THE THIRD OPTION: hand the child inherited pipe handles as its STANDARD
+    HANDLES** — `CreatePipe` twice, `STARTUPINFO.hStdInput`/`hStdOutput`,
+    `bInheritHandles = TRUE` — instead of opening a named pipe after the fact.
+    Cygwin then builds descriptors 0 and 1 itself at startup, sees
+    `FILE_TYPE_PIPE`, and installs its pipe handler, whose `select()` is
+    `PeekNamedPipe`-based and answers honestly.
+
+    **MEASURED, with the control in the same process and the same run** —
+    `make check-select-probe`, `gplsrc/sdclilib/tests/select_probe_*.c`,
+    identical on four runs:
+
+    ```
+    inherited(fd 0)  empty=0  data=1     <- select() tells the truth
+    attached(fd 4)   empty=1  data=1     <- always ready: the stopper
+    inherited read: [HELLO-INHERITED]    <- and it reads
+    ```
+
+    **The control is what makes it mean anything**: both descriptors were
+    measured by the same `select()` call with the same timeout, milliseconds
+    apart, in one Cygwin child spawned by one native parent. The only
+    difference is how the descriptor was made. **`empty=0` is the whole
+    finding** — always-ready is a property of injecting a RAW HANDLE, not of
+    pipes.
+
+    **IT NEEDS NOTHING IN THE SERVER.** `sd.c:441` already accepts
+    `-C<tx>!<rx>` and does `dup2(RxPipe, 0); dup2(TxPipe, 1);`, so with the
+    handles arriving on 0 and 1, **`-C0!1` is a no-op `dup2` that just sets
+    `CN_PIPE`**. `win32pipe.c` leaves the hot path. The change is client-side
+    only and REMOVES code rather than adding a `CN_PIPE` branch through the
+    input layer.
+
+    **NOT YET CHECKED:** how `-Q` / `is_sdApiSrvr` behaves with stdin and
+    stdout as the protocol channel rather than a terminal. Read that before
+    writing code.
+
+    **The two options as originally framed, kept because they are the fallback
+    if the above meets something:**
+
+    - **Give `CN_PIPE` its own I/O.** Read and write the HANDLE with
+      `ReadFile`/`WriteFile` and answer readiness with `PeekNamedPipe`, instead
+      of borrowing descriptors 0 and 1 and `sdpoll()`. Contained — `CN_PIPE`
+      is in only TWO places in the server (`sd.c:423`, `op_tio.c:3902`) against
+      a dozen for `CN_SOCKET` — but it means a `CN_PIPE` path through the input
+      layer. **Prefer this over the socket** if the third option fails.
+    - **Use a loopback socket instead**, where Cygwin's `select` genuinely
+      works and `CN_SOCKET` is already exercised. Cheaper, but reachable by any
+      local process, so it needs authentication invented for it — new security
+      surface in the one path that currently has a clean answer.
+
+    **Do not spend another cycle looking for a flag.** Six combinations of the
+    name and access arguments, `O_NONBLOCK`, and `F_SETOWN` were all measured;
+    the always-ready behaviour is a property of the Cygwin file handler for a
+    raw HANDLE, not a setting.
+
+    **The failure and its diagnosis, in the order they were found:**
+
+    - **Observed:** `SDConnectLocal("DON")` → `Connection closed by server`,
+      test exit 1.
+    - **The pipe was fine.** A probe standing in for the client showed
+      `sd.exe` opening the pipe and then exiting **0** — not a crash, not
+      `exit(1)`, and **silent on both streams**.
+    - **THE PREDICTION IN THIS STEP WAS WRONG.** It said the likely fault was
+      `cygwin_attach_handle_to_fd()` not honouring a requested descriptor
+      number. It honours it exactly, measured.
+    - **The real fault: its access argument must MATCH THE HANDLE**, not
+      describe what the descriptor is for. The handle is opened
+      `GENERIC_READ | GENERIC_WRITE`, so **both** calls must pass that.
+      Passing `GENERIC_READ` for descriptor 0 — the obvious thing to write —
+      **succeeds**, and the descriptor then fails `read()` with `EBADF`.
+
+    - **After that fix `sd.exe` STOPPED EXITING and started hanging**, which
+      was progress and was also the next symptom. `strace` then showed the
+      always-ready loop above, which is the stopper.
+
+    **HOW IT WAS FOUND, AND THIS IS THE REUSABLE PART. Two tools, neither of
+    them an install cycle:**
+
+    - **A standalone probe** — twenty lines of C built with MSYS2 gcc outside
+      the repository, driven by a PowerShell harness acting as the pipe
+      server — settled the access argument by trying six combinations against
+      a real pipe with real data. **When the unknown is one library call,
+      isolate the call.**
+    - **`strace`, which is in MSYS2 at `/c/msys64/usr/bin/strace.exe`** and
+      works on any Cygwin binary, `sd.exe` included:
+
+      ```sh
+      strace -o log.txt -- "C:\Program Files\SD\usr\bin\sd.exe" -Q -C \\.\pipe\NAME
+      ```
+
+      **It answered in one run what three cycles could not**, because the
+      failing path prints nothing, exits nothing, and lies through `poll()`.
+      There is no `gdb` in this MSYS2 install; `strace` is the tool to reach
+      for. Both harnesses are worth rebuilding if this is picked up again.
+
+    **`make sd` clean, no warnings**, both toolchains, `sd.exe`
+    **`04CA97C138ADB148`** as installed at 08:03:49.
+
+    **The vendored client's own docs were wrong and are corrected**: both
+    `README.md` and `USER_GUIDE.md` said the Windows DLL does not provide
+    `SDConnectLocal` and that it is "Linux-specific". It is exported —
+    ordinal 6, checked with `objdump -p` — and its transport is a **named
+    pipe**, which has no Linux equivalent in that library at all.
+
+    ~~**THE TEST IS WRITTEN AND COMPILES; IT HAS NOT BEEN RUN.**~~ **IT HAS
+    RUN, FIVE TIMES** — four development runs and once on the installed pair at
+    12:28:49, all exit 0. Struck 21 Aug 2026 with the other two claims of the
+    same kind in this step. `gplsrc/sdclilib/tests/local_connect_test.c`, clean
+    under `-Wall -Wextra -Wpedantic`. **Re-run it after any cycle, UNELEVATED:**
+
+    ```sh
+    cd sdb_ai/sd64 && make check-local
+    ```
+
+    **It carries its own control, and the control is the reason to trust it:**
+
+    | account | expected | why |
+    |---|---|---|
+    | `DON` | admitted | `ACC$GROUP` is `sdu_don` and `GITORLI\don` is a member — both checked on the installed tree |
+    | `SDSYS` | **refused** | `ACC$GROUP` is `sdsys`, which is not a Windows group |
+
+    **`DON` succeeding on its own would prove nothing** — a grant check that
+    never ran would admit it too. Exit codes say which happened: 1 `DON`
+    refused, 2 `SDSYS` admitted (so the check did not run and the first result
+    is worthless), 3 the session opened but `WHO` failed.
+
+    **It is deliberately NOT in `make check`.** Everything there runs without a
+    server; this measures the INSTALLED tree and is therefore subject to the
+    cycle rule.
