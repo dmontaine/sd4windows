@@ -5,85 +5,65 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 22 Aug 2026, thirty-ninth session.
+**Last updated:** 22 Aug 2026, fortieth session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## DO THIS FIRST. TWO COMMANDS, ELEVATED THEN ORDINARY.
+> ## THE CYCLE AND THE SUITE ARE DONE. NO CYCLE IS OWED.
+>
+> **Fortieth session, 22 Aug 2026.** Install **22 Aug 10:28:16**, `assert-current`
+> **exit 0**, `gcat` 129/129, `GPL.BP.OUT` 190/190, `bin\` still the 21 Aug
+> 11:33:36 build — no C has changed.
+>
+> **THE DIRECTORY PAGE IS GONE — the owner watched the wizard and confirmed it.**
+> That was the whole point of the cycle. `InstallLocation` in
+> `HKLM\...\Uninstall\{…}_is1` reads `C:\Program Files\SD\`, which is the half a
+> script can check; the absent page is the half only a person can. Adoption ran
+> as designed — `adopt-account.log`: *"don now has an SD account"*.
+>
+> **THE SUITE RAN, `-Run b2`: unelevated 8/8, elevated 15/16.** The only failure
+> is `verify-sshonly`, and it is the informative kind — see item 1 below.
+> **`b2` is spent. Pick a fresh token.**
+>
+> ### WHAT TO DO NEXT, and none of it needs a cycle first
+>
+> 1. **`verify-sshonly` fails at a NEW place, one layer deeper.** §5.6.2.
+> 2. **Account names should be lower case** — owner's instruction. `CREATEA:489`.
+> 3. **The post-install verify does not exist**, and a claim says it does.
+>
+> **THE THREE SCRIPTS EDITED THIS SESSION ARE ALL ON `$neverShipped`**, so the
+> install is still current and the next measurement can be taken without paying
+> for a cycle: `verify-sshonly.ps1`, `VerifyInstall1.ps1`, `VerifyInstall2.ps1`.
+>
+> **WHY TWO COMMANDS AND NOT ONE, since it keeps being asked:** `cycle.ps1` must
+> be elevated and `VerifyInstall1` must not, and **an elevated parent cannot make
+> a genuine unelevated child** — `runas /trustlevel` yields a *restricted* token,
+> not this user's normal one, and `verify-credacl` answered by the wrong token
+> is worse than not run. It could be collapsed by **inverting**: one unelevated
+> entry point that elevates for the cycle, drops back for the unelevated checks,
+> then elevates for `VerifyInstall2`. **Not built.**
 >
 > ```powershell
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b2
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run <fresh>
 > ```
->
-> **The first is ELEVATED, the second is an ORDINARY window** — it refuses an
-> elevated one, and that is load-bearing (§4.0). It explains itself and waits
-> for `y`; expect **about four UAC prompts** and several minutes. `-Run b2` is
-> unspent; `b1` is not.
->
-> **WHY TWO AND NOT ONE, since it keeps being asked:** `cycle.ps1` must be
-> elevated and `VerifyInstall1` must not, and **an elevated parent cannot make a
-> genuine unelevated child** — `runas /trustlevel` yields a *restricted* token,
-> not this user's normal one, and `verify-credacl` answered by the wrong token
-> is worse than not run. It could be collapsed by **inverting**: one unelevated
-> entry point that elevates for the cycle, drops back for the unelevated checks,
-> then elevates for `VerifyInstall2`. **Not built.**
->
-> **WHAT THE CYCLE IS FOR THIS TIME:** `sd.iss` only — `DisableDirPage=yes` and
-> `UsePreviousAppDir=no`. **`make sd` is not needed.** The wizard's directory
-> page should be **gone**; that is the one thing only an install can show, so
-> watch for it.
->
-> **AND `-SkipInstall` IS POINTLESS HERE** — it stops after building the
-> installer, and what changed is what the installer *asks*. Run the full cycle.
 
-> **THE INSTALLED SD NEEDS ONE ELEVATED COMMAND BEFORE IT WILL RUN A SESSION.**
-> Left this way 22 Aug 2026: **every `sd` session aborts with `Process
-> terminated`**, because sessions were killed with `Stop-Process` and the
-> daemon's cleanup path has been answering `Forced logout` to every new one
-> since. **The source tree is untouched and `assert-current` is exit 0** — no
-> cycle is owed, this is runtime state in the shared segment only.
->
-> ```powershell
-> C:\Windows\System32\sc.exe stop SD
-> C:\Windows\System32\sc.exe start SD
-> ```
->
-> ***TWO LINES, NOT ONE, AND NOT JOINED BY `;`.*** That was written here as a
-> one-liner on 22 Aug and **failed on the first attempt**: `sc.exe stop` returns
-> while the service is still `STOP_PENDING` (it says so — `WAIT_HINT 0x7530`,
-> thirty seconds), `;` chains unconditionally, and the start hit
-> **`[SC] StartService FAILED 1056: An instance of the service is already
-> running.`** The stop itself was fine — the segment went — so only the start
-> had to be repeated. **This is the same trap `cycle.ps1` step 1 already
-> documents**, which is why that script waits on the *process* rather than on
-> the SCM: *"Stop-Service returns before the SCM has finished and before sdwind
-> has gone."* Wait for `Get-Service SD` to read `Stopped` before starting.
->
-> **WHAT PROVES IT WORKED, and it is not the service state:** `C:\ProgramData\SD\shm`
-> is **empty**. That directory holds the shared segment carrying the user table,
-> so an empty one means the stale entries are gone rather than merely idle.
->
-> If sessions still abort after that, run
-> `& 'C:\Program Files\SD\usr\bin\sd.exe' -cleanup` elevated. §4's
-> `check_lost_users()` entry has the whole finding; **the operational rule out
-> of it is: never `Stop-Process` an `sd` session on a tree you still want to
-> measure.**
+> **THE STALE-SEGMENT NOTE THAT STOOD HERE IS SPENT — the cycle cleared it.**
+> It said every `sd` session aborted with `Process terminated` and gave an
+> `sc.exe stop`/`start` pair to fix it. Step 6 deleted both trees, so the
+> segment went with them, and **15 of 16 elevated verifiers drove live `sd`
+> sessions on this install** — the condition is gone rather than merely quiet.
+> §4's `check_lost_users()` entry keeps the finding, and **the operational rule
+> out of it survives and is the part worth carrying: never `Stop-Process` an
+> `sd` session on a tree you still want to measure.**
 
-**A CYCLE IS OWED — ONE SHIPPED FILE CHANGED.** `gplbld\sd.iss`, 22 Aug 10:11,
-and nothing else:
-
-```
-STALE: 1 source file(s) are newer than the install:
-       22 Aug 10:11:20  gplbld\sd.iss
-```
-
-**`make sd` IS NOT NEEDED** — no C changed. **What changed and why:
+**THE `sd.iss` CYCLE IS SPENT AND THE CHANGE IS PROVEN.** Ran 22 Aug 10:27,
+`cycle.ps1` exit 0, install 10:28:16. **What changed and why:
 `DisableDirPage=yes` and `UsePreviousAppDir=no`, so the install location is no
 longer a choice.** Owner's decision, 22 Aug 2026: *"since we dont allow changing
 the c:\programdata location i don't see any reason why we give an alternative
@@ -103,33 +83,149 @@ the class of fault instead.** `VerifyInstall1` still checks and names the
 mismatch in one line, because an install made *before* this change can still be
 elsewhere.
 
-**EVERYTHING BELOW WAS MEASURED ON THE 22 Aug 08:32:03 INSTALL** and stands —
-only `sd.iss` has moved since, and nothing in the suite reads it.
+**EVERYTHING BELOW WAS MEASURED ON THE 22 Aug 10:28:16 INSTALL**, `-Run b2`.
 
 ```
-installed at: 22 Aug 08:32:03      sd.exe CB9C4E0460B175F5
+installed at: 22 Aug 10:28:16      sd.exe CB9C4E0460B175F5
 assert-current: the installed tree matches source
 ```
 
-**Re-confirmed unelevated after the run**, so that line is this session's own
-observation and not a quotation. `bin\` is still the 21 Aug 11:33:36 build — **no
-C has changed since**, which is why `sd.exe` carries the same hash across three
-installs and is not evidence of anything else.
+`bin\` is still the 21 Aug 11:33:36 build — **no C has changed since**, which is
+why `sd.exe` carries the same hash across four installs and is not evidence of
+anything else.
 
-| verifier | prefix | result |
+**UNELEVATED, 8/8** — `verify-credacl`, `verify-osusers`, `verify-nocase`,
+`verify-setpw`, `verify-allowgroups`, `verify-keys`, `verify-editkeys`,
+`verify-lcnames` (142/142).
+
+**ELEVATED, 15 of 16.** Every step exit 0 except one:
+
+| step | prefix | result |
 |---|---|---|
-| `verify-fold` | — | 10/10 |
-| `verify-createaccount` | `sdacct32` | exit 0 |
-| `verify-tiers` | `sdtiert8` | exit 0 |
-| `verify-accountacl` | `sdacl12` | 21/21 |
-| `verify-routes` | `sdrt8` | 33/33 |
-| `verify-accountrules` | `sdar6` | 34/34 |
-| `verify-delaccount` | `sddel7` | 38 of 38, 0 N/A |
-| `verify-peerlog` | — | 21/21 |
-| `verify-apiadmin` | `sdapia14` | 22/23, the 23rd a standing N/A |
-| `verify-apiname` | `sdapin2` | 17/17 — **not** in the runner, see below |
+| `verify-fold` | — | exit 0 — **b1's residue failure is gone**, the fresh tree cleared it |
+| `verify-nonet` | — | exit 0 — **the missing-colon fix holds** |
+| `verify-createaccount` | `sdacctb2` | exit 0 |
+| `verify-tiers` | `sdtiertb2` | exit 0 |
+| `verify-catgate` | `sdcatgb2` | exit 0 |
+| `verify-accountacl` | `sdaclb2` | exit 0 |
+| `verify-routes` | `sdrtb2` | exit 0 |
+| `verify-accountrules` | `sdarb2` | exit 0 |
+| `verify-delaccount` | `sddelb2` | exit 0 |
+| **`verify-sshonly`** | `sdsshb2` | **exit 1 — item 1 below** |
+| `verify-peerlog` | — | exit 0 |
+| `verify-apiadmin` | `sdapiab2` | exit 0 |
+| `verify-apiname` | `sdapinb2` | exit 0 — **now step 13, no longer run by hand** |
+| `verify-apiport` | `sdapib2` | exit 0 |
+| `verify-scramlogin` | `sdscramb2` | exit 0 |
+| `verify-tierapi` | `sdtapib2` | exit 0 — **b1's inverted expectation is fixed** |
 
-**THE TWO THINGS THE CYCLE WAS FOR, and both landed.**
+**THE RUNNER COULD NOT REPORT A FAILURE, AND NOBODY HAD NOTICED BECAUSE NOTHING
+HAD FAILED THROUGH IT.** Two independent defects, both found by the owner
+watching a blank elevated window for ten minutes and asking *"it is not printing
+the steps"* / *"it is also supposed to print any failures"*. Both fixed 22 Aug.
+
+1. **`VerifyInstall1.ps1` redirected the whole child with `*>`.** `-Quiet`'s
+   contract is *"FULL OUTPUT TO A FILE PER STEP, PROGRESS AND FAILURES ON THE
+   SCREEN"* and it writes all of that with `Write-Host` — **which is the
+   INFORMATION stream in PowerShell 5+, and `*>` captures all six.** So the
+   screen got nothing. `VerifyInstall2.ps1:500` states that exact mechanic for
+   the *inner* redirect; **it was not carried one level up.** Now
+   `*>&1 | Tee-Object`, measured both ways: old form → nothing on stdout, new
+   form → the `Write-Host` line reaches it **and** the file still holds it.
+2. **`Select-String -Pattern '\[FAIL\]' -SimpleMatch` matched nothing, ever.**
+   `-SimpleMatch` takes the pattern **literally**, backslashes included, and no
+   verifier writes those. Measured on the `b2` `verify-sshonly` log, which holds
+   five `[FAIL]` lines: `-SimpleMatch '\[FAIL\]'` → **0**, regex `'\[FAIL\]'` →
+   5, `-SimpleMatch '[FAIL]'` → 5. The run reported **`FAILED  exit 1, 0 failing
+   check(s)`** for a step with five of them.
+
+**AND THE EXIT CODE WAS NEVER FAITHFUL EITHER — this was found by testing the
+fix rather than trusting it.** The write-up here first said `*>` propagates the
+child's code and only a pipeline would lose it. **Measured with a probe that
+exits 7:** `*>` → **1**, naive `Tee` → **1**, `Tee` + `; exit $LASTEXITCODE` →
+**7**. `powershell -Command` answers **1 for any non-zero**, and `b2`'s
+`VERIFYINSTALL1 EXIT: 1` looked like proof only because VerifyInstall2's failure
+code is also 1. **What it cost:** VerifyInstall2 has **nine `exit 2` paths**
+(unusable `-Run` token, prefix already spent, SD not running) against **one
+`exit 1`**, and `VerifyInstall1:381` reports the child's code as its own — so
+every *"the suite could not run"* was delivered as *"a step failed"*. **A reused
+prefix and a broken product were indistinguishable from the exit code.**
+
+### THE THREE ITEMS THE FORTIETH SESSION LEAVES
+
+**1. `verify-sshonly` NOW FAILS ONE LAYER DEEPER, AND THAT IS PROGRESS.** The
+owner's decision, 22 Aug: assert the premise the product *has* rather than the
+one it had when the test was written. Rewritten and measured the same run:
+
+```
+[PASS] gate: ssh with a password, in no sdssh: expected refused, got refused
+       ssh said: refused: Permission denied (publickey,password,keyboard-interactive)
+       added sdsshb2 to sdssh
+[PASS] control: LogonUser INTERACTIVE / NETWORK_CLEARTEXT
+[FAIL] control: ssh with a password: expected admitted, got refused: Error 5 getting semaphores
+```
+
+**THE OLD FAILURE WAS MASKING THIS ONE.** `AllowGroups sdssh …` refused the
+control at sshd's door and nothing behind it was ever reached. Now sshd
+**admits** the account and **SD itself** refuses: `Error 5 getting semaphores`
+(`gplsrc/sdsem.c:166`; 5 is `ERROR_ACCESS_DENIED`) — it cannot attach to the
+shared segment. §2 and §3 still pass every `LogonUser` and policy row, so
+**5.6.2's deny rights are untouched by this**.
+
+**THE LIKELY CAUSE, NOT YET PROVEN — prove it before changing the test again.**
+The probe is a bare `New-LocalUser` in `sdssh` and `sdsshonly` and **not in
+`sdusers`**, which is what grants the data tree. `sd.iss`'s `[Run]` section says
+CREATE.ACCOUNT adds every Windows user it makes to `sdusers`, so an SD-made
+account has it and the probe does not — the probe has stopped being a faithful
+stand-in. **Measure the ACL rather than inferring it from that comment**;
+§4 of the script ("does BUILTIN\Users membership matter?") is the precedent for
+asking this the measured way.
+
+**2. ACCOUNT NAMES SHOULD BE LOWER CASE.** Owner's instruction, 22 Aug 2026,
+on seeing `sdsys\accounts\DON` beside `user_accounts\don`.
+
+- `CREATEA:489` — `acc.name = upcase(acc.name)`, the register key.
+- `CREATEA:750` — upstream's own comment: *"account names are (historically?)
+  always upper case"*. The question mark is upstream's.
+- `adopt-account.ps1:132` — `.ToUpperInvariant()`, mirroring it deliberately.
+
+**It disagrees with e1095ab**, which made SDSYS *file* names lower case —
+`verify-lcnames` proves `accounts`, `messages`, `qfile`, `os.users` are all
+lower now. The record keys *inside* `accounts` were not part of that change.
+**Blast radius, because ACCOUNTS is read by key:** CPROC (47 `upcase` uses),
+LOGIN (21), APISRVR (5), DELACC (4), GRANTA (4). **`CREATEA` ships**, so this
+costs a cycle.
+
+**3. THE POST-INSTALL VERIFY DOES NOT EXIST — the banner is on the wrong file.**
+Asked 22 Aug: *"the last session said that it had created the banner and the
+yes/no question for the post install verify"*. **The banner and the `y/n` are
+real, at `VerifyInstall1.ps1:168-196` — the DEVELOPMENT runner.** `sd.iss` has
+no verify task at all; its `[Tasks]` are `addtopath`, `sshremote`, `limitssh`,
+`apiremote`. Stale claim number twelve.
+
+**THE DEV SUITE CAN NEVER SHIP, and it is structural rather than packaging.**
+`assert-current.ps1:38` derives the **source tree** from its own location and
+compares source mtimes, C sources, `bin\`, `stage.py` and `sd.iss` against the
+install — and **21 of the 24 verifiers call it and refuse without it**. A
+customer machine has no source tree. It is also destructive: it creates and
+deletes Windows accounts, rewrites user rights, restarts the service, edits
+`sshd_config`, and spends single-use prefixes.
+
+**THE CHECKBOX FIT, which is the non-obvious half.** `sd.iss:1125` records that
+a `postinstall` `[Run]` checkbox runs as *"Run as: Original user"* — the
+**unelevated** token — and calls that **"STILL FATAL"** for adopt-account. For a
+verify runner it is exactly right: §4.0.1 says `VerifyInstall1` needs a genuine
+unelevated token and an elevated parent cannot manufacture one. **The property
+that disqualifies the checkbox for adoption qualifies it for verification.**
+
+**AND THE TRAP THAT SHAPES THE WHOLE SCRIPT, so decide it before writing:** that
+same unelevated token **does not carry `sdusers` until the user signs out and
+back in**. A shipped check running on it cannot open the data tree and would
+report a good install as broken — the worst possible first impression. Either it
+checks only what needs no data-tree access, or it opens by saying "sign out and
+back in first". **Item 1's `Error 5` is the same mechanism seen live.**
+
+**THE TWO THINGS THE 08:32 CYCLE WAS FOR, and both landed.**
 
 1. **THE NAME-BOUND ADOPT MARKER WORKS** (§Phase 3). `adopt-account.ps1` wrote
    `sdsys\$adopt.don`, `CREATEA` tested `@sdsys:@ds:'$adopt.':downcase(acc.uname)`
@@ -269,8 +365,10 @@ running anything** and refuses, naming every clash at once. **A Windows local
 user survives an uninstall**, so a fresh install is *not* a fresh set of names —
 that is the assumption this guard exists to break. Spent: everything up to
 `sdtiert8`/`sdacct32`/`sdacl12`/`sdapia14`/`sdrt8`/`sdar6`/`sddel7`, plus
-`sdapin1`–`2` and `sdapi4`. **`b1` was checked free on 22 Aug** and is the
-suggested next token.
+`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` and `b2`** — thirteen
+derived names each. **Pick a fresh token; `b3` has not been checked.** The check
+is two lines and costs nothing: `Get-LocalUser -Name "<prefix>*"` and
+`Get-LocalGroup -Name "sdu_<prefix>*"` must both come back empty.
 
 **THE LAST LINE IS UNELEVATED AND MUST BE** — §4.0 has why (`verify-credacl`
 would pass for the wrong reason in an elevated shell). It spends no prefixes.
@@ -322,7 +420,7 @@ the owner's, not a tidying job. The line counts that used to stand in this
 paragraph are gone deliberately: §0.5 rule 5 forbids printing them, and keeping
 them true meant re-measuring on every pass.
 
-**ELEVEN STALE CLAIMS HAVE SURFACED AND WERE CORRECTED RATHER THAN CARRIED.
+**THIRTEEN STALE CLAIMS HAVE SURFACED AND WERE CORRECTED RATHER THAN CARRIED.
 That is the argument for looking**, and the reason to distrust any claim here
 that says something has NOT been done:
 
@@ -338,6 +436,8 @@ that says something has NOT been done:
 | §6, §7 step 3 | three `header item N` pointers | that header was archived 21 Aug |
 | §8 | *(absent)* the intermittent first-run failure | was "kept in the file", then fell out of it; restored |
 | §2, §4 | a refused API login *"writes nothing to `audit`"* / *"the `audit` file did not grow at all"* | **reversed by the 21 Aug fix**, measured 22 Aug — one record per refusal, with a reason. Both sentences were written as measurements, which is what made them convincing and what made them survive the fix by a day |
+| header | *"the last session created the banner and yes/no question for the **post install** verify"* | the banner and `y/n` are real at `VerifyInstall1.ps1:168-196` — **the development runner**. `sd.iss` has no verify task at all. Attached to the wrong artefact |
+| `VerifyInstall1.ps1` comment | *"`*>` propagates the script's exit code; a pipeline would lose it"* | **`*>` never carried it either** — probe exiting 7 gave **1**. Written as reasoning, disproved by testing the fix instead of trusting it |
 | §4, §6 ×2 | three pointers to *"§7 step 6a / 6b / 6c"* | **step 6 was compressed on 21 Aug and its sub-steps went with it.** Second instance of the same fault as the `header item N` row above, one pass later: **compressing a section does not update what points into it.** §4's is rewritten to state the four claims; §6's two are flagged in place |
 
 **ROWS 3 AND 10 ARE THE ONES THAT SHOULD WORRY THE NEXT SESSION, and they fail

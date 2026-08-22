@@ -22628,3 +22628,71 @@ and the control in make check-local.
     **It is deliberately NOT in `make check`.** Everything there runs without a
     server; this measures the INSTALLED tree and is therefore subject to the
     cycle rule.
+
+
+## FORTIETH SESSION 22 Aug 2026 - the sd.iss cycle, -Run b2, and a runner that could not report a failure
+
+**THE CYCLE.** `cycle.ps1` exit 0, install 22 Aug 10:28:16, `assert-current`
+exit 0, gcat 129/129, GPL.BP.OUT 190/190. `bin\` unchanged since 21 Aug 11:33:36.
+**The wizard's directory page is gone - the owner watched for it and confirmed
+it**, which is the half no script can see; `InstallLocation` reads
+`C:\Program Files\SD\`, which is the half one can. Adoption ran: *"don now has
+an SD account"*.
+
+**FIRST ATTEMPT AT THE CYCLE WAS DECLINED AT THE UAC PROMPT** and returned
+*"The operation was canceled by the user"* - the same message a desktop-less
+shell gets when no prompt can be shown at all (4.0.1). Nothing had changed; the
+second attempt was approved and ran.
+
+**THE SUITE, `-Run b2`: unelevated 8/8, elevated 15/16.** Three of `b1`'s five
+failures are confirmed fixed on a fresh tree - `verify-fold` (residue),
+`verify-nonet` (the missing colon), `verify-tierapi` (the inverted expectation) -
+and `verify-osusers` passes in its new unelevated home. `b1` and `b2` are both
+spent, thirteen derived names each.
+
+**`verify-sshonly` REWRITTEN ON THE OWNER'S DECISION - assert the premise the
+product HAS.** The account in no SD group is now a decisive GATE check (ssh
+refused without `sdssh`) instead of a control that could never pass, and the
+control joins `sdssh` before being asked to log in. **The gate passes. The
+control now fails one layer deeper**: sshd admits the account and SD answers
+`Error 5 getting semaphores` (`sdsem.c:166`, ERROR_ACCESS_DENIED). The old
+AllowGroups failure had been masking it. Probably `sdusers` membership, which
+the probe lacks and a CREATE.ACCOUNT-made account has - **not yet proven, and
+PROJECT_STATUS says to measure the ACL rather than infer it.**
+
+**THE RUNNER COULD NOT REPORT A FAILURE. Two independent defects, both found by
+the owner watching a blank elevated window** and asking why it printed neither
+steps nor failures.
+
+  * `VerifyInstall1.ps1` wrapped the child in `*>`, which captures all six
+    streams - and `-Quiet` writes its progress line, its OK/FAILED and its
+    `[FAIL]` lines with `Write-Host`, **the INFORMATION stream in PowerShell 5+**.
+    `VerifyInstall2.ps1:500` states that exact mechanic for the INNER redirect.
+    The knowledge was in the file and was not carried one level up.
+  * `Select-String -Pattern '\[FAIL\]' -SimpleMatch` matched **nothing, ever**:
+    `-SimpleMatch` is literal, so it hunted for the backslashes too. The b2 run
+    printed `FAILED  exit 1, 0 failing check(s)` for a step whose log held five.
+
+**AND TESTING THE FIX DISPROVED THE REASONING FOR IT.** The comment written
+first said `*>` propagates the exit code and only a pipeline would lose it.
+A probe exiting 7: `*>` gave **1**, naive Tee gave **1**, Tee plus an explicit
+`exit $LASTEXITCODE` gave **7**. `powershell -Command` answers 1 for any
+non-zero, and b2's `EXIT: 1` had looked like proof only because VerifyInstall2's
+failure code is also 1. **VerifyInstall2 has nine `exit 2` paths against one
+`exit 1`**, and VerifyInstall1 reports the child's code as its own - so every
+"the suite could not run" had been arriving as "a step failed". A reused prefix
+and a broken product were indistinguishable.
+
+**THE POST-INSTALL VERIFY DOES NOT EXIST.** Asked because a previous session
+said it had built "the banner and the yes/no question" for one. Both are real -
+at `VerifyInstall1.ps1:168-196`, **the development runner**. `sd.iss` has no
+verify task. The dev suite also **cannot** ship: `assert-current.ps1:38` needs
+the SOURCE tree and 21 of 24 verifiers refuse without it, and the suite is
+destructive. `sd.iss:1125` records that a postinstall checkbox runs on the
+**unelevated** token - fatal for adopt-account, and exactly right for a verify
+runner, except that the same token lacks `sdusers` until the user signs out and
+back in.
+
+**ALSO RECORDED:** account names should be lower case (owner) - `CREATEA:489`
+upcases the register key, `adopt-account.ps1:132` mirrors it, and both disagree
+with e1095ab's lower-case-on-disk rule. CREATEA ships, so it costs a cycle.
