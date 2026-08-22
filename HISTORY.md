@@ -18388,3 +18388,30 @@ site could be missed.
 **READ, NOT MEASURED:** `load_object()` uses `dio_open()` directly
 (`object.c:197`), never `open_file()` — so refusing `gcat` stops a network
 session REWRITING catalogued code without stopping it RUNNING any.
+
+## 21 Aug 2026 - verify-delaccount at 40 of 40, and the verifier nobody runs
+
+Thirty-sixth session. The last item of the four-phase plan that was not the
+owner's. Owner's elevated run, `-Prefix sddel4`, on the 17:18:11 install;
+`assert-current` green inside the run, **40 PASS + 0 N/A of 40**, exit 0.
+PROJECT_STATUS §4 has the result.
+
+**WHAT WAS ACTUALLY NEW.** Phase 3 added exactly one check to this file —
+`ADOPT consumed the one-shot marker` — and it had never run. It passed: the
+marker was gone after the verb, so the one-shot property is measured rather
+than argued from the source.
+
+**40 IS EVERY `Note` CALL IN THE FILE, AND THAT IS THE POINT OF THE COUNT.**
+`sddel1` reported 37 and `sddel2` 38 against the same 40 calls, because checks
+that could not be set up reported N/A instead of firing. A run that says 40 of
+40 is therefore saying something the earlier two could not: nothing was
+skipped. This is what the third state was built for and it has now paid twice.
+
+**THE GAP THIS EXPOSED, and it is process, not code.** `verify-delaccount.ps1`
+is the only verifier in the suite that `post-cycle-elevated.ps1` does not call.
+It is on `assert-current`'s `$neverShipped` list, so it never reports the tree
+stale, and nothing else reports its absence either — it simply has to be
+remembered. It was not remembered for a whole phase, which is how a Phase 3
+assertion reached the end of the plan unmeasured. Recorded in the standing
+commands block as a third line rather than wired in: wiring costs no cycle,
+but spends a `sddel<n>` prefix every cycle, and that is the owner's call.

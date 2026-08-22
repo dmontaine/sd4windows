@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 21 Aug 2026, thirty-fifth session.
+**Last updated:** 21 Aug 2026, thirty-sixth session.
 
 ---
 
@@ -25,6 +25,7 @@ afterwards — so these results describe the tree as it stands.
 | `verify-accountrules` | `sdar3` | 35/35 |
 | `verify-peerlog` | — | 21/21 |
 | `verify-apiadmin` | `sdapia12` | 22/23, the 23rd a standing N/A |
+| `verify-delaccount` | `sddel4` | 40/40, 0 N/A — every `Note` in the file fired |
 
 **WHAT THE FOUR PHASES DID**, in one line each. §8 has the reversals, §"Phase 3,
 as built" and §"Phase 4, as built" below have the reasoning, HISTORY has the
@@ -37,16 +38,12 @@ narrative.
 | 3 | `ADOPT` is install-only behind a one-shot marker; the install ends in an SD session that takes the installing user's password |
 | 4 | `verify-routes` rewritten; `verify-accountrules` written for the refusal paths |
 
-**THREE THINGS ARE LEFT, AND TWO OF THEM ARE THE OWNER'S.**
+**TWO THINGS ARE LEFT AND BOTH ARE THE OWNER'S.** `verify-delaccount` was the
+third; it ran on the 17:18:11 install at **40 of 40, 0 N/A** — §4 has it, and
+the Phase 3 `$adopt` marker assertion is measured. **The whole suite is now
+green on one install**, so the next source change starts from a known tree.
 
-1. **`verify-delaccount` has not run since Phase 3.** Its `$adopt` marker
-   assertion and its 40th check are unmeasured. It needs no cycle:
-
-   ```powershell
-   C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-delaccount.ps1 -Prefix sddel4
-   ```
-
-2. **The owner's decision on `sdsys/changelog`.** It is touched by nearly every
+1. **The owner's decision on `sdsys/changelog`.** It is touched by nearly every
    commit and each one costs a cycle before the suite can run again.
    `assert-current.ps1` already makes this argument for documentation in its own
    comments, and its `$shipsAs` test exempts `.md`/`.txt` that do not ship.
@@ -56,7 +53,7 @@ narrative.
    false "current" costs more than a false "stale", and that is the owner's
    call.**
 
-3. **The two that outlive the plan.** The API session's TOKEN is still
+2. **The two that outlive the plan.** The API session's TOKEN is still
    LocalSystem — §WHAT IS OWED, and the only large item left. And **nothing has
    ever crossed the network**: every API measurement has gone to
    `127.0.0.1:4243`. The bind is asserted `0.0.0.0` and the firewall rule exists,
@@ -70,7 +67,16 @@ compiles.
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert7 -Account sdacct31 -AclPrefix sdacl11 -ApiPrefix sdapia13 -RoutePrefix sdrt7 -RulesPrefix sdar4
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-delaccount.ps1 -Prefix sddel5
 ```
+
+**THE THIRD LINE IS SEPARATE BECAUSE `verify-delaccount` IS NOT IN
+`post-cycle-elevated.ps1`, AND THAT IS WHY IT WENT A WHOLE PHASE UNMEASURED.**
+It is the only verifier in the suite that must be remembered rather than run.
+Wiring it in would cost nothing — the runner is on `$neverShipped`, so editing
+it owes no cycle — but it would spend a `sddel<n>` prefix every cycle, which is
+why it has not been done unasked. **Run it or wire it, but do not assume the
+runner covers it.**
 
 **Every prefix is single-use** and the defaults in `post-cycle-elevated.ps1` are
 spent — §6 has the list. **The install now ends in a visible SD session that asks
@@ -746,13 +752,18 @@ from the 286 bytes on the wire. The installer's half was checked separately:
 `{app}`, and the shipped `sd.conf` carries `APIPORT=4243`. **A connection from
 another machine is still unmeasured** — see the header.
 
-**`DELETE.ACCOUNT`, BOTH DIRECTIONS AND THE PROFILE — 21 Aug 2026, owner's
-elevated run on the 09:33:41 install.** `gplbld/verify-delaccount.ps1 -Prefix
-sddel2`, **38 of 38**, exit 0.
+**`DELETE.ACCOUNT`, BOTH DIRECTIONS, THE PROFILE AND THE PHASE 3 MARKER —
+21 Aug 2026, owner's elevated run on the 17:18:11 install.**
+`gplbld/verify-delaccount.ps1 -Prefix sddel4`, **40 of 40, 0 N/A**, exit 0.
+`assert-current` green inside the run, so it describes that install.
+
+**40 IS EVERY `Note` IN THE FILE**, so no check was skipped. That is the claim
+the count carries and the earlier runs could not: `sddel1` was 37 and `sddel2`
+38, both short because checks did not fire.
 
 - **SD made it → it went, unasked.** `10028` and `10025` shown; Windows account,
-  `sdu_sddel2s`, register record and account directory all gone, and **both
-  halves of the profile with them** — `C:\Users\sddel2s` and its `ProfileList`
+  `sdu_sddel4s`, register record and account directory all gone, and **both
+  halves of the profile with them** — `C:\Users\sddel4s` and its `ProfileList`
   entry. `10075` not shown, so `delete_user` returned 0 and not 6.
 - **SD borrowed it → refused.** `10036` shown, `10028` not; **the Windows
   account, its description AND its profile are all still there.** The SD side
@@ -760,6 +771,10 @@ sddel2`, **38 of 38**, exit 0.
 - **Exactly one Y/N, both directions.** The sentinel came back as `5051` from
   inside each run, so nothing else consumed the input. The one question is the
   account *directory* (`6031`); `6029` was never reached.
+- **`ADOPT` SPENT THE ONE-SHOT MARKER** — `$adopt` gone after the verb, the
+  Phase 3 assertion that had never run. It registered the account, made
+  `sdu_sddel4b` and left the description alone, which is what keeps step 5's
+  refusal meaningful.
 
 **The profile half is real, not vacuous:** both subjects were given a profile
 with `userenv!CreateProfile` first, since an account nothing has signed into
