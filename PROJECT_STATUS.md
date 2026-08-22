@@ -11,6 +11,37 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ## DO THIS FIRST. TWO COMMANDS, ELEVATED THEN ORDINARY.
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b2
+> ```
+>
+> **The first is ELEVATED, the second is an ORDINARY window** — it refuses an
+> elevated one, and that is load-bearing (§4.0). It explains itself and waits
+> for `y`; expect **about four UAC prompts** and several minutes. `-Run b2` is
+> unspent; `b1` is not.
+>
+> **WHY TWO AND NOT ONE, since it keeps being asked:** `cycle.ps1` must be
+> elevated and `VerifyInstall1` must not, and **an elevated parent cannot make a
+> genuine unelevated child** — `runas /trustlevel` yields a *restricted* token,
+> not this user's normal one, and `verify-credacl` answered by the wrong token
+> is worse than not run. It could be collapsed by **inverting**: one unelevated
+> entry point that elevates for the cycle, drops back for the unelevated checks,
+> then elevates for `VerifyInstall2`. **Not built.**
+>
+> **WHAT THE CYCLE IS FOR THIS TIME:** `sd.iss` only — `DisableDirPage=yes` and
+> `UsePreviousAppDir=no`. **`make sd` is not needed.** The wizard's directory
+> page should be **gone**; that is the one thing only an install can show, so
+> watch for it.
+>
+> **AND `-SkipInstall` IS POINTLESS HERE** — it stops after building the
+> installer, and what changed is what the installer *asks*. Run the full cycle.
+
 > **THE INSTALLED SD NEEDS ONE ELEVATED COMMAND BEFORE IT WILL RUN A SESSION.**
 > Left this way 22 Aug 2026: **every `sd` session aborts with `Process
 > terminated`**, because sessions were killed with `Stop-Process` and the

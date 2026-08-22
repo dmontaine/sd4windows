@@ -27,6 +27,66 @@ corrected.
 
 ---
 
+## 22 Aug 2026 - VerifyInstall1/2, the install location pinned, and what the installer cannot do
+
+**Commits:** `b9d2e8e` and the handoff above it. **END OF THE THIRTY-NINTH
+SESSION.** A cycle is owed for `gplbld\sd.iss` and nothing else; `make sd` is
+not needed.
+
+**RENAMED, on the owner's instruction:** `post-cycle-unelevated.ps1` →
+`VerifyInstall1.ps1`, `post-cycle-elevated.ps1` → `VerifyInstall2.ps1`, the
+first calling the second. Both stay on `assert-current`'s `$neverShipped` under
+the new names - checked afterwards, the guard named `sd.iss` and nothing else.
+
+**IT EXPLAINS ITSELF AND ASKS FIRST.** Several minutes, creates and deletes
+Windows accounts and groups, restarts the SD service, about four elevation
+prompts, and where the output goes - then waits for `y`. **`-Yes` skips it, and
+something had to**: measured, `Read-Host` in a NonInteractive host does not wait,
+it **throws**, so the absence of anybody to answer is caught and named instead
+of surfacing as a stack trace.
+
+**THE INSTALL LOCATION IS NO LONGER A CHOICE**, and the owner's one-line
+observation is the whole argument: *"since we dont allow changing the
+c:\programdata location i don't see any reason why we give an alternative
+location to c:\program files\sd"*. `DataDir` is `#define`d as
+`{commonappdata}\SD` - a compile-time constant with no wizard page - so the
+programs had a choice the data never did, and anyone who took it got a
+half-movable install. `sd.iss` gains `DisableDirPage=yes` **and
+`UsePreviousAppDir=no`**; the second matters as much, or a machine that once
+installed elsewhere keeps doing so and the pin silently does not apply there.
+
+**THE ASYMMETRY WAS ALREADY COSTING SOMETHING, WHICH IS HOW IT SURFACED.**
+**21 verify scripts locate SD as `$env:ProgramFiles\SD`**, and
+**`assert-current.ps1:40` hardcodes the literal
+`C:\Program Files\SD\usr\bin\sd.exe`** - so on a moved install the staleness
+guard compares against a path that does not exist and the entire suite fails
+without saying why. Inno **does** record the real location (`HKLM\...\Uninstall\
+{9F2B7C41-...}_is1`, `InstallLocation`, measured), so teaching all twenty-two to
+read it was possible. **Removing the choice removes the class of fault instead**
+- and `VerifyInstall1` still detects and names a mismatch in one line, because
+an install made before this change can still be elsewhere.
+
+**CAN THE INSTALLER RUN IT? NO, AND THE BLOCKER IS STRUCTURAL - §4.0.2.**
+`assert-current.ps1` compares the installed tree against the **source** tree, and
+nearly every verifier calls it first, so on a machine that built nothing it exits
+2 before a single check runs. The suite answers *"does this install match what I
+just built"*, which is a developer's question. Also: 13 of 24 need MSYS2, gcc,
+make and the repository Makefile, `verify-tierapi` needs a binary from a separate
+repo, none of them ships, and it creates accounts and restarts the service - on
+somebody else's machine directly after an install that is a second installer, not
+a self-test. **What would work is a different artefact**, a smoke test over the
+installed tree only; 11 of the 24 already need nothing else, except that each
+still calls `assert-current`. Not started.
+
+**AND IT IS STILL TWO COMMANDS, FOR THE TOKEN REASON AND NOT FROM NEGLECT.**
+`cycle.ps1` must be elevated and `VerifyInstall1` must not, and an elevated
+parent cannot make a genuine unelevated child. It could be collapsed by
+inverting - one unelevated entry point that elevates for the cycle, drops back,
+then elevates for `VerifyInstall2`. Not built, and recorded so it is a choice
+rather than an oversight.
+
+---
+
 ## 22 Aug 2026 - all 24 verifiers are in a runner, none deleted, and the prefix count forced a redesign
 
 **Commit:** this one. **No shipped source changed.** Owner's instruction: *"if
