@@ -170,9 +170,26 @@ individual prefix still overrides it.
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -Run b1
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-unelevated.ps1
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-unelevated.ps1 -ThenElevated -Run b2
 ```
+
+**THE WHOLE SUITE IS ONE COMMAND SINCE 22 Aug 2026, AND IT MUST BE STARTED
+UNELEVATED.** `-ThenElevated` runs the eight unelevated verifiers with a genuine
+ordinary token and then hands over to `post-cycle-elevated.ps1` through
+`Start-Process -Verb RunAs`, waiting for it and reporting its exit code. All 24
+verifiers, one line.
+
+**THIS IS NOT THE TWO RUNNERS COLLAPSED, and the difference is why it is
+allowed.** Two **processes**, correct token each. The reverse — an elevated
+parent manufacturing an ordinary child — **cannot be done properly**:
+`runas /trustlevel` yields a *restricted* token rather than this user's normal
+one, and `verify-credacl` answered by the wrong token is worse than
+`verify-credacl` not run. Asked and answered 22 Aug.
+
+**EXPECT ABOUT FOUR UAC PROMPTS**: roughly three from `verify-osusers`, which
+elevates once per phase, and one for the handover. **It is not unattended.**
+Run the two halves separately if you want the elevated one to go without you:
+`post-cycle-unelevated.ps1` then `post-cycle-elevated.ps1 -Run <token>`.
 
 **PICK A `-Run` TOKEN NOBODY HAS USED**, and the runner now checks: it asks
 `Get-LocalUser` and `Get-LocalGroup` for all thirteen derived names **before
