@@ -151,6 +151,50 @@ code is also 1. **What it cost:** VerifyInstall2 has **nine `exit 2` paths**
 every *"the suite could not run"* was delivered as *"a step failed"*. **A reused
 prefix and a broken product were indistinguishable from the exit code.**
 
+### THE INSTALL'S PASSWORD PROMPT — NINE FAULTS, ALL FIXED 22 Aug 2026
+
+Owner watching a real install. **A cycle is owed for five of them** (messages,
+`LOGIN`, `sd.iss`, `check-install.ps1`); `_INPUT` is already in the 16:04
+install.
+
+1. **BACKSPACE DID NOT ERASE — and it was worse than a dead key.**
+   `_INPUT:120` compared the raw byte against the **one** byte `terminfo('kbs')`
+   named, so it never saw the binding table `_KEYCODE` fixed on 19 Aug. It is
+   the **third member of the family that file names** (`UPDREC`, `SED` are the
+   other two) and was missed. With no forward-delete in a single-line INPUT the
+   unmatched byte fell to the catch-all case and was **APPENDED** — on a
+   password prompt backspace made the entry *longer* and echoed another `*`.
+   Now both 8 and 127 erase, `kbs` still counts, strictly additive.
+   **CONFIRMED WORKING by the owner, elevated and ordinary PowerShell**, after
+   measurement here (plain and HIDDEN, both bytes: `ab<erase>c` → `ac`).
+2. **UNPRINTABLE CHARACTERS — self-inflicted, and the mechanism is exact.**
+   `messages.c:316` turns every **real newline** in a message file into a
+   **FIELD MARK**, which `display` renders as garbage. **The supported line
+   break is the two-character escape `\n`** (`messages.c:334` → LF+CR); 17
+   shipped messages already use it. Measured on 1425: `dcount(m, char(254))=1`
+   — no field marks — and trailing bytes `10 13`.
+   ***THE RULE: NEVER PUT A REAL NEWLINE IN A MESSAGE FILE.***
+3. **The two-password explanation confused.** Owner's framing, now in 10089: at
+   the keyboard you need only your **Windows** password; from another computer,
+   over ssh or the API, only **this** one.
+4. **No blank line** between paragraph and `New password:` — added in `LOGIN`,
+   not the message, because a message ending in blank lines invites the next
+   editor to trim them as trailing whitespace.
+5. **`type off` was said only after the password was set** — now up front in
+   10089 as well. The closing dialog always said it and was still missed.
+6. **The banner buried the question.** `-QUIET` on the install's session
+   (`CMD_QUIET`, `sd.c:347`, tested at `LOGIN:234`). **Suppressed there only** —
+   the banner an ordinary `sd` prints, which `LOGIN` marks as required by GPL
+   clause 1, is untouched.
+7. **Setup waited on the check window.** `postinstall` now also carries
+   **`nowait`**; `-NoExit` still keeps the window. Not the `nowait` that killed
+   the old password step — that hid a console for a command which exited at once.
+8. **No explanation of the check**, and 9. **no way to refuse it.** The tickbox
+   always was a refusal, but one line on a page somebody is clicking Finish on
+   is not a decision anyone makes. It now describes what will happen, and
+   `check-install.ps1` explains itself and **asks**, with `-Yes` for callers
+   that are not people.
+
 ### THE THREE ITEMS THE FORTIETH SESSION LEAVES
 
 **1. `verify-sshonly` NOW FAILS ONE LAYER DEEPER, AND THAT IS PROGRESS.** The
