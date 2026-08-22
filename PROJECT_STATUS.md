@@ -5207,6 +5207,31 @@ Each of these cost real time. Read before debugging anything similar.
   program that compiled cleanly. Read every `WARNING: ... is not assigned a
   value` as a probable missing include.
 
+- **`AND` DOES NOT SHORT-CIRCUIT, AND BCOMP CANNOT SEE A PER-PATH UNASSIGNED
+  VARIABLE. Together they hid a broken verb for two months.** `CREATEA`'s
+  `create.group` tested
+
+  ```
+  if upcase(acc.type) = 'USER' and not(valid_os_name(acc.uname)) then
+  ```
+
+  `acc.uname` is assigned in the USER arm alone, so on the GROUP path it has no
+  value — and **both operands are evaluated whatever the first one answers**, so
+  `!VALID_OS_NAME` was called anyway and aborted on its first use of the
+  argument. **Every `CREATE.ACCOUNT GROUP` died** with `000000EE: Unassigned
+  variable at line 30 of !VALID_OS_NAME`, from 10 June until 21 Aug 2026.
+
+  **BCOMP's "is not assigned a value" is per VARIABLE, not per PATH**, and
+  `acc.uname` *is* assigned — just not on that one. Clean compile, runtime
+  abort, every time. **So the warning above catches a missing include and will
+  never catch this.** Nest the test, or assign the variable at the top the way
+  `access.given` and `adopt.marker` are. Fixed at `CREATEA:1405`; swept for the
+  same shape and it was the only instance.
+
+  **AND NOTHING TESTED THE VERB**, which is the other half of why it survived —
+  the Phase 4 plan said "nothing tests `CREATE.ACCOUNT GROUP` today" and was
+  right. It is `verify-accountrules.ps1` step 3 now.
+
   **Recovering a poisoned catalogue.** Once `$CATALOG` or `$BCOMP` is broken
   you cannot simply recompile, because compiling and cataloguing go through
   them. Restore `SYSCOM/ERR.H` from the repository first, then:
