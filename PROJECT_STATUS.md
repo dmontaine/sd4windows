@@ -976,7 +976,35 @@ asks whether an **ordinary** user can read or write `sdsys\$cred`;
 `secure-cred.ps1` grants `Administrators` Full, so an elevated run would pass
 every check **and prove the opposite of what the file claims**. A test that
 passes for the wrong reason is worse than one nobody runs, because it is
-believed.
+believed. `verify-osusers` refuses for the same class of reason — *"CPROC admits
+`K$ADMINISTRATOR` whatever `OS.USERS` says"*.
+
+**RUN THIS ONE FIRST, BEFORE THE ELEVATED RUNNER.** Measured 22 Aug 2026 in the
+harder direction — *after* the 17-step elevated run had already churned the tree
+— and **all 8 exited 0**, so either order works. First is better for two
+reasons: it measures the tree closest to what the cycle left, before sixteen
+steps of account, `sd.conf` and service churn; and `verify-lcnames`, the file
+§8's intermittent has always been about, gets the cleanest tree it can. Nothing
+here depends on anything the elevated runner creates — all eight use `$cred`,
+`OS.USERS` and the installing user's own account, which the **install** provides.
+
+| step | 22 Aug result |
+|---|---|
+| `verify-credacl` | PASSED |
+| `verify-osusers` | **PASSED** — *"OS.USERS grants a shell, and takes it away again"*. **First result since the 16:38:01 install**, and it only ran at all because it moved out of the elevated runner |
+| `verify-nocase` | PASSED |
+| `verify-setpw` | PASSED |
+| `verify-allowgroups` | all checks passed |
+| `verify-keys` | 10/10 |
+| `verify-editkeys` | 14/14 |
+| `verify-lcnames` | **142/142** — the intermittent did **not** recur |
+
+**IT IS NOT UNATTENDED, AND THE HEADER OF `verify-osusers` UNDERSTATES BY HOW
+MUCH.** That file says it *"will prompt for the elevation it needs, twice"*. It
+has **one** `-Verb RunAs` call site (`:559`) but **three** phases in its
+`ValidateSet` — `Grant`, `GrantOsx`, `Revoke` — and the owner counted the
+prompts on the day: about three from it. **Expect to click.** It is second in the
+list so the clicking is over early rather than after five silent minutes.
 
 **IN NEITHER RUNNER: NONE, SINCE 22 Aug 2026.** The eight that were out are all
 in the elevated runner now, and **none was deleted** — owner's instruction was
@@ -1034,14 +1062,34 @@ elevated=True`** while the parent reported `elevated=False`. It was then used
 for real: `verify-fold.ps1 -Cleanup`, exit 0, which cleared the `ZZ*FOLD*`
 residue.
 
-**WHAT IS NOT ESTABLISHED IS WHY**, and it matters before anything is built on
-it. Either UAC on this machine is configured not to prompt for this account, or
-something changed since 19 Aug. Those have very different consequences — the
-first is a local setting **another machine will not share**, the second would
-mean the 19 Aug observation was wrong or has been overtaken. **Nobody has
-looked.** Treat *"an agent can elevate"* as true **here** and unproven anywhere
-else, and **do not collapse the two runners until it is understood** — the
-unelevated half must keep a genuine ordinary token whatever happens to this.
+***ANSWERED THE SAME HOUR, BY THE OWNER, AND THE FIRST ANSWER WAS WRONG.*** This
+entry said *"either UAC is configured not to prompt for this account, or
+something changed since 19 Aug"* and offered no way to tell. The owner supplied
+it in four words — **"I got three uac prompts"** — so:
+
+**UAC PROMPTS NORMALLY. IT IS NOT SILENT.** What actually happens is that
+`-Verb RunAs` from an agent shell **raises a real consent dialog on the owner's
+desktop**, and the elevation succeeds **because a human approves it**. The
+19 Aug claim is wrong about the mechanism — the prompt *does* show — but its
+practical conclusion survives intact and matters more than the correction:
+
+**AN AGENT CAN START AN ELEVATED CHILD; IT CANNOT DO SO UNATTENDED.** Every
+`-Verb RunAs` costs somebody a click. Two were spent before anyone realised —
+a probe and `verify-fold.ps1 -Cleanup` — with no warning given that they would
+interrupt. **Say so before elevating.** A suite that silently demands consent
+five times is worse than one that asks for a command.
+
+**WHAT WAS NEARLY RECORDED INSTEAD is the lesson.** *"UAC must be configured not
+to prompt"* was a plausible reading of a true observation, it was about to go
+into this file as a hypothesis, and it was wrong. The evidence that settled it
+was on the owner's screen the whole time and invisible from here. **When a
+measurement has a half that only a human can see, ask before writing the
+conclusion.**
+
+**DO NOT COLLAPSE THE TWO RUNNERS.** The unelevated half must keep a genuine
+ordinary token whatever happens here — that is why `verify-credacl` and
+`verify-osusers` refuse elevation — and `verify-osusers` prompts twice on its
+own, which is most of the three.
 
 **ALL SEVEN UNELEVATED VERIFIERS RAN 22 Aug 2026 ON THE 08:32:03 INSTALL**, most
 of them for the first time in this file's memory:
