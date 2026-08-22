@@ -66,17 +66,16 @@ compiles.
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert7 -Account sdacct31 -AclPrefix sdacl11 -ApiPrefix sdapia13 -RoutePrefix sdrt7 -RulesPrefix sdar4
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-delaccount.ps1 -Prefix sddel5
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert7 -Account sdacct31 -AclPrefix sdacl11 -ApiPrefix sdapia13 -RoutePrefix sdrt7 -RulesPrefix sdar4 -DelPrefix sddel5
 ```
 
-**THE THIRD LINE IS SEPARATE BECAUSE `verify-delaccount` IS NOT IN
-`post-cycle-elevated.ps1`, AND THAT IS WHY IT WENT A WHOLE PHASE UNMEASURED.**
-It is the only verifier in the suite that must be remembered rather than run.
-Wiring it in would cost nothing — the runner is on `$neverShipped`, so editing
-it owes no cycle — but it would spend a `sddel<n>` prefix every cycle, which is
-why it has not been done unasked. **Run it or wire it, but do not assume the
-runner covers it.**
+**`verify-delaccount` IS NOW IN THE RUNNER** — owner's instruction, 21 Aug 2026,
+`-DelPrefix`, ninth step, between `verify-accountrules` and `verify-peerlog`.
+It was the last verifier that had to be *remembered*: on `assert-current`'s
+`$neverShipped` list, so it never reported the tree stale, and nothing else
+reported its absence either. It went a whole phase without running, which is how
+Phase 3's `$adopt` marker assertion reached the end of the plan unmeasured.
+**Nothing is now run by hand**; the two lines above are the whole cycle.
 
 **Every prefix is single-use** and the defaults in `post-cycle-elevated.ps1` are
 spent — §6 has the list. **The install now ends in a visible SD session that asks

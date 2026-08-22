@@ -18415,3 +18415,20 @@ remembered. It was not remembered for a whole phase, which is how a Phase 3
 assertion reached the end of the plan unmeasured. Recorded in the standing
 commands block as a third line rather than wired in: wiring costs no cycle,
 but spends a `sddel<n>` prefix every cycle, and that is the owner's call.
+
+**AND THE OWNER MADE IT THE SAME SESSION: WIRED IN.** `-DelPrefix`, default
+`sddel5`, ninth step, between `verify-accountrules` and `verify-peerlog` —
+before the log overwrite, because it drives `CREATE.ACCOUNT`, `ADOPT` and
+`DELETE.ACCOUNT` and a failure of any of them leaves its diagnosis in the log
+`verify-peerlog` replaces with synthetic records. It does not restart SD, so it
+does not disturb the server the earlier steps measured; its `Start-SD` returns
+early when `sdwind` is already up. Checked without spending a cycle: the file
+parses, `-DelPrefix` binds by name, the splat key is `Prefix` (which is what
+the verifier declares), and `assert-current` still exits 0 because the runner
+is itself on `$neverShipped`. **Nothing in the suite is hand-run now.**
+
+**The one cost accepted, recorded so it is not a surprise:** it is the only
+step that makes and deletes Windows PROFILES, so a run killed inside it can
+leave `C:\Users\<prefix>s` or `<prefix>b` and a `ProfileList` entry behind.
+Both subjects are named from `-DelPrefix`, so the next cycle needs a fresh one
+regardless.
