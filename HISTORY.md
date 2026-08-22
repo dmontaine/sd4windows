@@ -27,6 +27,76 @@ corrected.
 
 ---
 
+## 22 Aug 2026 - the owed cycle ran: the name-bound marker and the audit fix are both measured
+
+**Commits:** `75a5506` (the case-fold fix) and this one. **Install
+22 Aug 08:32:03**, `sd.exe` `CB9C4E0460B175F5`, `bin\` still the 21 Aug 11:33:36
+build - no C changed, which is why the hash is unchanged across three installs.
+Owner's elevated run of `cycle.ps1`, `post-cycle-elevated.ps1` and
+`verify-apiname.ps1`; `assert-current` re-run unelevated afterwards.
+
+**THE TWO ITEMS THE CYCLE WAS OWED FOR BOTH LANDED**, and the entry below this
+one - *"built, not verified"* - is now closed by it.
+
+1. **The name-bound `ADOPT` marker works.** `adopt-account.ps1` wrote
+   `sdsys\$adopt.don`; `CREATEA:280` built the same path from
+   `'$adopt.':downcase(acc.uname)`, matched, adopted, and deleted it.
+   `verify-accountrules -Prefix sdar6`, **34/34**, pairs the refusal (ADOPT with
+   no marker → unrecognised token 2018, nothing registered, Windows account
+   untouched) with the install's own adoption as the control. Three further
+   traces agree: `adopt-account.log`, `accounts\DON`, and `verify-tiers` reading
+   its tier as `ADMINISTRATOR`. **No `$adopt*` file survives under `sdsys`** -
+   checked directly after the run.
+2. **Every refused API login is audited.** `verify-apiname -Prefix sdapin2`,
+   **17/17**, up from `sdapin1`'s 13/13 because the file gained the audit half.
+   One record per refusal, with a distinct `reason=`, the name sanitised
+   (`GITORLI?sdapin2`) and no raw backslash. The client still gets
+   `Invalid username or password` for all of it.
+
+**THE WHOLE SUITE IS GREEN ON ONE INSTALL:** `verify-fold` 10/10,
+`verify-createaccount` `sdacct32` exit 0, `verify-tiers` `sdtiert8` exit 0,
+`verify-accountacl` `sdacl12` 21/21, `verify-routes` `sdrt8` 33/33,
+`verify-accountrules` `sdar6` 34/34, `verify-delaccount` `sddel7` 38 of 38 with
+0 N/A, `verify-peerlog` 21/21, `verify-apiadmin` `sdapia14` 22/23 with the 23rd
+the standing N/A.
+
+**A DEFECT WAS FOUND BY READING, BEFORE THE CYCLE, AND FIXED FOR FREE.**
+`adopt-account.ps1` folded case with `.ToLower()` and `.ToUpper()`, which are
+**culture-sensitive**. SD's `downcase`/`upcase` are not: they are the fixed
+ASCII byte maps `lc_chars`/`uc_chars`, built `A-Z <-> a-z` at `ctype.c:61` and
+identity for every other byte. On a Turkish or Azeri locale Windows folds `I` to
+the dotless `U+0131` and `i` to the dotted `U+0130`, so **an ordinary ASCII user
+name containing that letter would not match itself** across the two sides - the
+marker at `:249` (the install ends without giving the user an SD account, the
+exact failure the mechanism exists to prevent) and the `ACCOUNTS` record at
+`:132` (the reinstall check is missed). Both are `Invariant` now, which matches
+SD's map **exactly** rather than closely, because `valid_os_name` permits ASCII
+only (`VALID_OS_NAME:29`).
+
+**IT WAS DONE BEFORE THE CYCLE ON PURPOSE.** That file was **already** stale, so
+the fix rode along at no cost; after the install it would have cost a cycle of
+its own. **en-US folds ASCII identically either way, so nothing on this machine
+could detect it** - the successful adoption proves the change broke nothing, not
+that the bug is gone. No `UPSTREAM_FIXES.md` entry: `sdb64` contains no
+PowerShell at all, checked rather than assumed. The changelog got an entry
+because a Turkish-locale user would notice.
+
+**AND TWO STALE CLAIMS FELL OUT, BOTH OF THE WORST KIND.** §2 said a refused API
+login *"writes nothing to `audit`"* and §4's `verify-apiname` row said *"the
+`audit` file did not grow at all"*. Both were **true measurements** taken on
+21 Aug at 17:18:11, and both were **falsified by a commit made later the same
+day** - the audit fix - yet survived into the next session's file. They are row
+10 of PROJECT_STATUS's stale-claims table, and the lesson is narrower than
+"reading is not checking": **a sentence that names a measurement is not thereby
+current.** Check the date it was taken against the date the code last changed.
+
+**WHAT IS STILL OPEN** is unchanged and neither item is a phase item: the API
+session's token is still LocalSystem (§WHAT IS OWED), and **nothing has ever
+crossed the network** - every API measurement to date has gone to
+`127.0.0.1:4243`.
+
+---
+
 ## 21 Aug 2026 - The ADOPT marker names the account it authorises (built, not verified)
 
 **Commit:** this one. **A CYCLE IS OWED** - `sdsys/gpl.bp/CREATEA` and

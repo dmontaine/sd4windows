@@ -5,86 +5,73 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 21 Aug 2026, thirty-eighth session.
+**Last updated:** 22 Aug 2026, thirty-ninth session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**A CYCLE IS OWED, AND IT IS THE FIRST THING TO DO.** Two shipped files changed
-after the last install and **neither has ever been compiled or run**:
+**NO CYCLE IS OWED. THE WHOLE SUITE IS GREEN ON ONE INSTALL**, and **every
+outstanding "built but not verified" item in this file is now measured.**
+Owner's elevated run, 22 Aug 2026.
 
 ```
-STALE: 2 source file(s) are newer than the install:
-       22 Aug 08:25:29  gplbld\adopt-account.ps1
-       21 Aug 21:55:04  sdsys\gpl.bp\CREATEA
+installed at: 22 Aug 08:32:03      sd.exe CB9C4E0460B175F5
+assert-current: the installed tree matches source
 ```
 
-**THE INSTALL UNDER THEM IS 21 Aug, 21:17:35**, `sd.exe` **`CB9C4E0460B175F5`**,
-and everything else in this file was measured on it or on the 17:18:11 install
-before it. All four phases of the 21 Aug plan are done and measured.
-
-**`make sd` IS NOT NEEDED** — no C changed, so `bin\` is current and
-`cycle.ps1` stages what is already there. **`-SkipInstall` FIRST**: a change to
-`CREATEA` cannot be syntax-checked any other way (§6 — `bbcmp.py` cannot compile
-a `void` statement, so it is not a syntax checker for this layer), and the
-bootstrap is its only compiler. It costs a bootstrap, not an install.
-
-```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert8 -Account sdacct32 -AclPrefix sdacl12 -ApiPrefix sdapia14 -RoutePrefix sdrt8 -RulesPrefix sdar6 -DelPrefix sddel7
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiname.ps1 -Prefix sdapin2
-```
-
-**WHAT THE CYCLE IS FOR: the name-bound ADOPT marker** (§Phase 3 below).
-`CREATEA` and `adopt-account.ps1` both ship, so `assert-current` names them and
-refuses. **The install's own ADOPT is the test** - it runs every cycle, and
-`verify-accountrules` reads the result out of `adopt-account.log`; a marker that
-no longer matched would show up as the installing user having no SD account.
-
-**AND ONE MORE THING RIDES ALONG, ADDED 22 Aug 2026 BECAUSE IT WAS FREE.**
-`adopt-account.ps1` folded case with `.ToLower()`/`.ToUpper()`, which are
-**culture-sensitive**; SD's `downcase`/`upcase` are the fixed ASCII byte maps
-`lc_chars`/`uc_chars`, built `A-Z <-> a-z` at `ctype.c:61` and identity
-elsewhere. On a Turkish or Azeri locale `I` folds to a dotless `U+0131`, so a
-name containing that letter **would not match itself** across the two sides —
-the marker at `:249`, and the ACCOUNTS record at `:132` that decides the
-reinstall case. Both are `Invariant` now, which matches SD's map exactly for the
-ASCII-only names `valid_os_name` permits (`VALID_OS_NAME:29`). **It changes
-nothing measurable here** — on this machine the two folds are byte-identical, so
-the cycle tests it only in the sense that it must not break anything. Done now
-rather than later because that file was **already** stale, so it cost no cycle;
-after the cycle it would have cost a whole one.
-
-**ALREADY DONE ON THE 21:17:35 INSTALL, so these do not need repeating:** the
-audit fix measured by `verify-apiname` (still owed - it has never run against
-it), `verify-accountrules -Prefix sdar5` at **34/34**, and
-`verify-delaccount -Prefix sddel6` at **38 of 38, 0 N/A**. Those two counts
-replace the suite table's `sdar4`/`sddel4` figures, which describe the files
-before ADOPT came out of them.
-
-**The changelog was edited too and cost nothing** — the exemption of 21 Aug
-(item 1 below) held, and the guard said so out loud on the same run:
-`EXEMPT: sdsys\changelog is newer than the install`. That is the exemption
-working, not a warning.
-
-**Everything before the audit fix was documentation only**, and stood on the
-17:18:11 install: the thirty-seventh session's changelog exemption and the
-striking of step 11's *"does not work"*; the thirty-eighth's compression of §2,
-§4, §7 and §8, and the `!valid_os_name` measurement (§2, closed, 13/13).
+**Re-confirmed unelevated after the run**, so that line is this session's own
+observation and not a quotation. `bin\` is still the 21 Aug 11:33:36 build — **no
+C has changed since**, which is why `sd.exe` carries the same hash across three
+installs and is not evidence of anything else.
 
 | verifier | prefix | result |
 |---|---|---|
 | `verify-fold` | — | 10/10 |
-| `verify-createaccount` | `sdacct30` | exit 0 |
-| `verify-tiers` | `sdtiert6` | exit 0 |
-| `verify-accountacl` | `sdacl10` | 21/21 |
-| `verify-routes` | `sdrt6` | 33/33 |
-| `verify-accountrules` | `sdar3` | 35/35 |
+| `verify-createaccount` | `sdacct32` | exit 0 |
+| `verify-tiers` | `sdtiert8` | exit 0 |
+| `verify-accountacl` | `sdacl12` | 21/21 |
+| `verify-routes` | `sdrt8` | 33/33 |
+| `verify-accountrules` | `sdar6` | 34/34 |
+| `verify-delaccount` | `sddel7` | 38 of 38, 0 N/A |
 | `verify-peerlog` | — | 21/21 |
-| `verify-apiadmin` | `sdapia12` | 22/23, the 23rd a standing N/A |
-| `verify-delaccount` | `sddel4` | 40/40, 0 N/A — every `Note` in the file fired |
+| `verify-apiadmin` | `sdapia14` | 22/23, the 23rd a standing N/A |
+| `verify-apiname` | `sdapin2` | 17/17 — **not** in the runner, see below |
+
+**THE TWO THINGS THE CYCLE WAS FOR, and both landed.**
+
+1. **THE NAME-BOUND ADOPT MARKER WORKS** (§Phase 3). `adopt-account.ps1` wrote
+   `sdsys\$adopt.don`, `CREATEA` tested `@sdsys:@ds:'$adopt.':downcase(acc.uname)`
+   for the name it was given, matched, adopted and **deleted it**. Measured four
+   ways on this install: `adopt-account.log` says *"don now has an SD account"*,
+   `accounts\DON` exists, `verify-tiers` reads its tier as `ADMINISTRATOR` (the
+   ADOPT default), and **no `$adopt*` file survives anywhere under `sdsys`**.
+   `verify-accountrules` §4 carries the pair that matters: **ADOPT without a
+   marker is refused as an unrecognised token (2018)**, and the control — the
+   install's own adoption — succeeded.
+2. **EVERY REFUSED API LOGIN IS AUDITED** (§8). `verify-apiname -Prefix sdapin2`,
+   **17/17**, up from `sdapin1`'s 13/13 because the file gained the audit half.
+   The trail now names a reason per refusal and **the name is sanitised**:
+   `user=GITORLI?sdapin2 reason=name rejected by valid_os_name`. The raw
+   backslash never appears, and `wrong password` is recorded distinctly.
+
+**THE CASE-FOLD FIX RODE ALONG AND CHANGED NOTHING, AS PREDICTED.**
+`adopt-account.ps1` folded case with the **culture-sensitive** `.ToLower()` /
+`.ToUpper()`; SD's `downcase`/`upcase` are the fixed ASCII byte maps
+`lc_chars`/`uc_chars`, built `A-Z <-> a-z` at `ctype.c:61` and identity
+elsewhere. On a Turkish or Azeri locale `I` folds to a dotless `U+0131`, so an
+ordinary ASCII name containing that letter **would not match itself** across the
+two sides — the marker at `:249`, and the `ACCOUNTS` record at `:132` that
+decides the reinstall case. Both are `Invariant` now, which matches SD's map
+**exactly** rather than closely, because `valid_os_name` permits ASCII only
+(`VALID_OS_NAME:29`). **en-US folds ASCII identically either way, so nothing
+here could have detected it** — the adoption above is the proof it did not break
+anything, not proof the bug is gone. Done before the cycle rather than after
+**because that file was already stale**, so it cost no cycle of its own.
+
+**`verify-apiname` IS DELIBERATELY NOT IN `post-cycle-elevated.ps1`** — it
+answered a question once rather than guarding the tree — so it is the one line
+that has to be run separately, with a fresh prefix.
 
 **WHAT THE FOUR PHASES DID**, in one line each. §8 has the reversals, §"Phase 3,
 as built" and §"Phase 4, as built" below have the reasoning, HISTORY has the
@@ -97,10 +84,10 @@ narrative.
 | 3 | `ADOPT` is install-only behind a one-shot marker; the install ends in an SD session that takes the installing user's password |
 | 4 | `verify-routes` rewritten; `verify-accountrules` written for the refusal paths |
 
-**ONE THING IS LEFT AND IT IS THE OWNER'S.** `verify-delaccount` was one of the
-three; it ran on the 17:18:11 install at **40 of 40, 0 N/A** — §4 has it, and
-the Phase 3 `$adopt` marker assertion is measured. **The whole suite is now
-green on one install**, so the next source change starts from a known tree.
+**ALL FOUR PHASES ARE NOW DONE *AND* MEASURED ON ONE INSTALL**, so the next
+source change starts from a known tree. **What is left is in §WHAT IS OWED and
+item 2 below, and neither is a phase item**: the API session's token, and the
+fact that nothing has ever crossed the network.
 
 1. **DECIDED AND BUILT 21 Aug 2026 — `sdsys/changelog` IS EXEMPT FROM THE
    STALENESS GUARD.** Owner's decision. It was touched by nearly every commit
@@ -143,14 +130,16 @@ compiles.
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert7 -Account sdacct31 -AclPrefix sdacl11 -ApiPrefix sdapia13 -RoutePrefix sdrt7 -RulesPrefix sdar4 -DelPrefix sddel5
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert9 -Account sdacct33 -AclPrefix sdacl13 -ApiPrefix sdapia15 -RoutePrefix sdrt9 -RulesPrefix sdar7 -DelPrefix sddel8
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiname.ps1 -Prefix sdapin3
 ```
 
-**§2's `!valid_os_name` QUESTION IS ANSWERED AND CLOSED** — `verify-apiname.ps1
--Prefix sdapin1`, owner's elevated run on the 17:18:11 install, **13 of 13**.
-A smell, not a defect; §4 has the measurement and §2 the reasoning. It is
-deliberately **not** in `post-cycle-elevated.ps1` — it answered a question once
-rather than guarding the tree — but it is re-runnable with a fresh prefix.
+**§2's `!valid_os_name` QUESTION IS ANSWERED AND CLOSED** — `verify-apiname.ps1`,
+owner's elevated runs: `sdapin1` **13/13** on the 17:18:11 install, and
+`sdapin2` **17/17** on this one once the audit half was added. A smell, not a
+defect; §4 has the measurement and §2 the reasoning. It is deliberately **not**
+in `post-cycle-elevated.ps1` — it answered a question once rather than guarding
+the tree — so it is the fourth line above, run by hand with a fresh prefix.
 
 **`verify-delaccount` IS NOW IN THE RUNNER** — owner's instruction, 21 Aug 2026,
 `-DelPrefix`, ninth step, between `verify-accountrules` and `verify-peerlog`.
@@ -158,13 +147,17 @@ It was the last verifier that had to be *remembered*: on `assert-current`'s
 `$neverShipped` list, so it never reported the tree stale, and nothing else
 reported its absence either. It went a whole phase without running, which is how
 Phase 3's `$adopt` marker assertion reached the end of the plan unmeasured.
-**Nothing is now run by hand**; the two lines above are the whole cycle.
+**Only `verify-apiname` is run by hand now**; the four lines above are the whole
+cycle.
 
 **Every prefix is single-use.** The suite table above names the **last spent**
-prefix for each verifier and the `post-cycle-elevated.ps1` line names the **next
-free** ones; between them that is the whole record. *Corrected 21 Aug 2026: this
-said "§6 has the list", and §6 has never carried one — a reader would have hunted
-for it.* Also spent: `sdapin1` (`verify-apiname`), `sdapi4` (`verify-apiport`).
+prefix for each verifier and the command block names the **next free** ones;
+between them that is the whole record. *Corrected 21 Aug 2026: this said "§6 has
+the list", and §6 has never carried one — a reader would have hunted for it.*
+Also spent: `sdapi4` (`verify-apiport`). **Checked free before the 22 Aug run**
+and worth repeating, because a Windows local user **survives an uninstall** and
+a collision fails a verifier part-way: `Get-LocalUser -Name "<prefix>*"` and
+`Get-LocalGroup -Name "sdu_<prefix>*"` must both come back empty.
 
 **The install now ends in a visible SD session that asks for a password; close
 it (`off`) before the next cycle**, or step 1 refuses.
@@ -185,9 +178,9 @@ the owner's, not a tidying job. The line counts that used to stand in this
 paragraph are gone deliberately: §0.5 rule 5 forbids printing them, and keeping
 them true meant re-measuring on every pass.
 
-**NINE STALE CLAIMS SURFACED ACROSS THE TWO COMPRESSION PASSES and were
-corrected rather than carried. That is the argument for having done it**, and
-the reason to distrust any claim here that says something has NOT been done:
+**TEN STALE CLAIMS HAVE SURFACED AND WERE CORRECTED RATHER THAN CARRIED. That
+is the argument for looking**, and the reason to distrust any claim here that
+says something has NOT been done:
 
 | where | what it said | what is true |
 |---|---|---|
@@ -200,11 +193,16 @@ the reason to distrust any claim here that says something has NOT been done:
 | §2 | `winsdclilib` is upstream of `gplsrc/sdclilib/` | **the arrow turned round 19 Aug** — this tree is the source |
 | §6, §7 step 3 | three `header item N` pointers | that header was archived 21 Aug |
 | §8 | *(absent)* the intermittent first-run failure | was "kept in the file", then fell out of it; restored |
+| §2, §4 | a refused API login *"writes nothing to `audit`"* / *"the `audit` file did not grow at all"* | **reversed by the 21 Aug fix**, measured 22 Aug — one record per refusal, with a reason. Both sentences were written as measurements, which is what made them convincing and what made them survive the fix by a day |
 
-**THE ONE THAT SHOULD WORRY THE NEXT SESSION IS ROW 3.** It was carried
-*through* a compression pass — read in place, believed, and copied forward into
-the new text — and only fell when §7 step 7 was checked against HISTORY. **Reading
-an entry is not checking it.**
+**ROWS 3 AND 10 ARE THE ONES THAT SHOULD WORRY THE NEXT SESSION, and they fail
+the same way.** Row 3 was carried *through* a compression pass — read in place,
+believed, copied forward — and only fell when §7 step 7 was checked against
+HISTORY. Row 10 is worse: both sentences were **stated as measurements**, which
+is exactly what a reader is trained to trust, and they stayed true right up to
+the commit that falsified them. **Reading an entry is not checking it, and a
+sentence that names a measurement is not thereby current** — check the date it
+was taken against the date the code last changed.
 
 ---
 
@@ -240,19 +238,30 @@ marker, or writes an `ACCOUNTS` record by hand, is exercising their right and is
 not the case the design answers to. What the design owes is that **nothing the
 shipped product offers sets up an SD account outside SD.**
 
-**MEASURED TODAY, and it is most of the way there:** after an install the marker
-is absent, so ADOPT is refused as an unrecognised token on every path the
-product offers. **What is left is that the marker is generic** - a single
-`sdsys/$adopt` authorises adopting *any* name - so recreating one re-opens the
-verb in full rather than for one account.
+**AFTER AN INSTALL THE MARKER IS ABSENT**, so ADOPT is refused as an
+unrecognised token on every path the product offers.
 
-**BUILT 21 Aug 2026, NOT YET VERIFIED: the marker names the account it
-authorises.** `adopt-account.ps1` writes `sdsys/$adopt.<user>` and `CREATEA`
-tests that path, so one marker opens the door for **one account** rather than
-for the verb in general. **No file parsing** - the name is in the path, and both
-sides downcase the same `$User` this script was invoked with, which answers the
-objection `adopt-account.ps1` used to carry ("a mismatch on case or a domain
-prefix would break the install").
+**VERIFIED 22 Aug 2026: the marker names the account it authorises.**
+`adopt-account.ps1` writes `sdsys/$adopt.<user>` and `CREATEA` tests that path,
+so one marker opens the door for **one account** rather than for the verb in
+general. **No file parsing** - the name is in the path, and both sides downcase
+the same `$User` this script was invoked with, which answers the objection
+`adopt-account.ps1` used to carry ("a mismatch on case or a domain prefix would
+break the install").
+
+**HOW IT WAS MEASURED, and it is the install itself rather than a verifier
+re-opening the door.** On the 08:32:03 install: `adopt-account.log` records
+*"don now has an SD account"*, `accounts/DON` exists, `verify-tiers` reads its
+tier as `ADMINISTRATOR`, **no `$adopt*` file survives under `sdsys`**, and
+`verify-accountrules` §4 pairs the refusal (2018, no marker) with that adoption
+as its control. A marker that no longer matched its name would have shown up as
+the installing user having **no SD account at all**.
+
+**AND THE TWO SIDES CANNOT DRIFT ON CASE**, which was nearly untrue: see the
+header's case-fold note. `adopt-account.ps1` now folds with
+`ToLowerInvariant`/`ToUpperInvariant` to match SD's ASCII `lc_chars`/`uc_chars`
+maps; the culture-sensitive forms it used before would have disagreed on a
+Turkish or Azeri locale.
 
 **IT IS BUILT WHERE THE NAME IS PARSED, NOT IN `more.args`, AND THAT IS THE
 WHOLE CARE IN IT.** `more.args` is shared with the GROUP and OTHER arms, which
@@ -278,11 +287,6 @@ regression, not a tightening.
 refused as an unrecognised token so it "tells nobody it exists" - and §7 step 3
 records the owner's decision not to document it. Nothing a user can see changed:
 the install behaves as before and the verb was already refused afterwards.
-
-**A CYCLE IS OWED** - `sdsys/gpl.bp/CREATEA` and `gplbld/adopt-account.ps1`, both
-shipped. `make sd` is not needed. **The install's own ADOPT is the test**: it
-runs on every cycle, and `verify-accountrules` reads the result out of
-`adopt-account.log` afterwards.
 
 **IT IS DELETED IN TWO PLACES.** `CREATEA` deletes it on acceptance, so it
 authorises exactly one adoption; `adopt-account.ps1` deletes it in a `finally`,
@@ -637,14 +641,15 @@ it do instead, and who can tell?"**
   | SD cannot register such a name | `valid_os_name` gates creation too: `CREATE_USER:79`, `CREATEA:537`, `CREATEA:1406` (ADOPT) |
   | SD cannot see domain accounts at all | `IS_USER:62` in its own words — *"LOCAL ACCOUNTS ONLY. Get-LocalUser does not see domain accounts"* — and `CREATE_USER` uses `New-LocalUser` |
 
-  **MEASURED WITH ITS CONTROL — `verify-apiname`, 13 of 13, §4 has the row.**
-  Four spellings refused, including **`name@computer`**, which matters because
-  the UPN form is what a domain user is likeliest to type today.
+  **MEASURED WITH ITS CONTROL — `verify-apiname`, 13/13 then 17/17; §4 has the
+  row.** Four spellings refused, including **`name@computer`**, which matters
+  because the UPN form is what a domain user is likeliest to type today.
 
-  **WHAT THE REFUSAL COSTS IS DIAGNOSTIC, AND THAT IS THE REAL FINDING.** It is
-  **indistinguishable from a wrong password** — same branch, byte-identical text
-  — and **it writes nothing to `audit`**, measured. See §8, which owns that as an
-  open question in its own right.
+  **WHAT THE REFUSAL COSTS IS DIAGNOSTIC, AND THAT WAS THE REAL FINDING.** To
+  the caller it is still **indistinguishable from a wrong password** — same
+  branch, byte-identical text — and that is deliberate. **The half that was a
+  defect is fixed**: it used to write **nothing** to `audit`, and since 21 Aug
+  2026 every refusal is recorded with a distinct `reason=`. §8 has it, closed.
 
   **A REAL DOMAIN ACCOUNT CANNOT BE PRESENTED ON THIS MACHINE**, and this is a
   trap rather than a task: GITORLI is in `WORKGROUP`, measured
@@ -874,9 +879,10 @@ reason the row is evidence — **do not drop it when re-running the measurement.
 | **`DELETE.ACCOUNT`, both directions, the profile, and the `$adopt` marker** | 21 Aug, 17:18:11 | `verify-delaccount -Prefix sddel4`, **40 of 40 with 0 N/A — every `Note` in the file fired**, which is the claim the count carries and `sddel1` (37) and `sddel2` (38) could not. SD made it → account, `sdu_`, register record, directory and **both halves of the profile** gone; SD borrowed it → `10036`, Windows account and profile untouched, SD side gone anyway. One Y/N each way, sentinel `5051` proving nothing else ate the input |
 | **Which `DELETE.ACCOUNT` branch fired is established by state, not by the message** | 16 Aug `sdacct14` | Only `case sd.made.it` deletes the Windows user; 10036 leaves it, 10037 means it never existed. Directory mtimes land in `DELACC`'s own order with `ACCOUNTS` **last**, which is the ordering that leaves a failed run re-runnable |
 | **`MODIFY.ACCOUNT`, and remote access is absolute rather than additive** | 21 Aug, 17:18:11 | `verify-routes -Prefix sdrt6`, six calls. **Step 4 is the only check that separates the two**: `MODIFY.ACCOUNT x API` on an account created `SSH` must leave the routes `api` **alone**. An additive build passes every other check in the file |
-| **Every refusal path in `CREATE.ACCOUNT`** | 21 Aug, 17:18:11 | `verify-accountrules -Prefix sdar3`. Each leg refuses and then makes **the same account** with the one thing that was missing — the control, because *"nothing was created"* passes just as happily on a build that never creates anything. The password failure is provoked with **two different passwords**, not a weak one (`SET_PASSWD:100`), and the unwind is measured on all four traces |
+| **Every refusal path in `CREATE.ACCOUNT`** | 21 Aug 17:18:11, re-run 22 Aug 08:32:03 | `verify-accountrules`, `sdar3` then `sdar6` at **34/34**. Each leg refuses and then makes **the same account** with the one thing that was missing — the control, because *"nothing was created"* passes just as happily on a build that never creates anything. The password failure is provoked with **two different passwords**, not a weak one (`SET_PASSWD:100`), and the unwind is measured on all four traces |
 | **`GRANT`, `REVOKE` and `LIST.GRANTS`** | 15 Aug 16/16, re-run 16 Aug on a fresh install | Every SD-side claim checked against `Get-LocalGroupMember` afterwards, which is the point of the step: SD writes nothing to its own record. The idempotent paths say so rather than implying they acted. `LIST ACCOUNTS` still works with the `Granted to` column gone |
 | **`ADOPT`, and the lockout fix** | 15 Aug | `ADOPT sdadopt1` printed *"keeps the Windows sign-in rights it already had"* and left `sdsshonly` unchanged — against `don`, whom the same verb had restricted minutes earlier. **The trap and the rule behind it are §6** |
+| **`ADOPT` is refused without a marker, and the marker names ONE account** | 22 Aug, 08:32:03 | `verify-accountrules -Prefix sdar6` §4 is the pair: `sd -internal CREATE.ACCOUNT USER sdar6d ADOPT` with no marker is refused **as an unrecognised token (2018)** — no register record, Windows account untouched — and the control is **the install's own adoption**, not a second one the verifier performs. `adopt-account.ps1` wrote `sdsys\$adopt.don`, `CREATEA` tested `'$adopt.':downcase(acc.uname)`, matched, adopted and deleted it. Four independent traces: `adopt-account.log` *"don now has an SD account"*, `accounts\DON`, `verify-tiers` reading its tier as `ADMINISTRATOR`, and **no `$adopt*` file surviving under `sdsys`** — the last checked directly, unelevated, after the run. A marker bound to the wrong name would leave the installing user with **no SD account at all** |
 | **§7 step 1f — the installer gives the installing user an account** | 15 Aug, and every install since | `adopt-account.log`: `don now has an SD account`, `don keeps the Windows sign-in rights it already had`; `ACCOUNTS/DON` present and `sdsshonly` **empty** |
 
 #### Login, elevation and who reaches SDSYS
@@ -979,7 +985,7 @@ carries the warning in its own comment. Do not hand-roll it a third time.
 | **A remote API session cannot open `$cred` or reach `OS.EXECUTE`** | 21 Aug, 17:18:11 | `verify-apiadmin -Prefix sdapia12`. It ships **two** probes: `APIOSEXECPROBE`, whose whole job is to die, alongside one that must survive. The containment gate in `op_dio2.c` roots a session at the account it stands in; the `USR_ADMIN` fix in `kernel.c` is the other half |
 | **`SDConnectLocal()` carries a session** | 17 Aug, 12:28:49 | `make check-local` on the installed pair, `assert-current` exit 0, `WHO -> 2 DON`. **`DON` admitted and `SDSYS` refused** with *"User not allowed in requested account"* — `DON` alone would be equally consistent with a check that never executed, which is why the pair is evidence and either half alone is worthless |
 | **`errlog` is written per connection, and trimmed** | 21 Aug, 17:18:11 | `verify-peerlog`. `sdwind.c`'s `log_message()` gained the trim the `sd` side always had |
-| **`!valid_os_name` refuses a qualified login name, and the refusal is silent** | 21 Aug, 17:18:11 | `verify-apiname -Prefix sdapin1`, **13 of 13**, owner's elevated run. **The control is the same account and password admitted bare**, which is what makes the four refusals evidence rather than four accounts that did not exist: `COMPUTER\name`, `computer\name`, a **spaced** name and **`name@computer`** (the UPN shape) all refused. **All four return the byte-identical text a WRONG PASSWORD returns** — `Invalid username or password` — and **the `audit` file did not grow at all** across the five refused attempts. The 33-character control is refused CLIENT-side with different text (`Invalid user name`, `sdclilib.c:1218`), so the length cap and the charset check are two limits and not one seen twice. §2 has why refusing costs no legitimate login; §8 has the audit gap |
+| **`!valid_os_name` refuses a qualified login name, the client cannot tell why, and the trail can** | 22 Aug, 08:32:03 | `verify-apiname -Prefix sdapin2`, **17 of 17**, owner's elevated run; `sdapin1` was 13/13 on 21 Aug, 17:18:11, before the audit half existed. **The control is the same account and password admitted bare**, which is what makes the four refusals evidence rather than four accounts that did not exist: `COMPUTER\name`, `computer\name`, a **spaced** name and **`name@computer`** (the UPN shape) all refused. **All four return the byte-identical text a WRONG PASSWORD returns** — `Invalid username or password`. **THE AUDIT HALF IS THE REVERSAL**: on `sdapin1` the `audit` file *"did not grow at all"* across the five refused attempts, and on `sdapin2` it grows once per refusal with a distinct `reason=`, the name sanitised to `GITORLI?sdapin2`, and no raw backslash anywhere. The 33-character control is refused CLIENT-side with different text (`Invalid user name`, `sdclilib.c:1218`), so the length cap and the charset check are two limits and not one seen twice. §2 has why refusing costs no legitimate login; §8 has the audit record |
 
 #### The foundations, observed 13 Aug 2026
 
@@ -5131,7 +5137,7 @@ was missing, which was an artefact of testing for `sdsys\VOC\<name>` as a file.
 a directory of `%0`/`%1` buckets, so it holds two files whatever its record
 count. That check could never pass and was removed.
 
-### BUILT 21 Aug 2026, NOT YET VERIFIED: every refused API login is audited
+### CLOSED 22 Aug 2026: every refused API login is audited
 
 **THE GAP, WHICH WAS MEASURED BEFORE IT WAS FIXED.** `APISRVR` audited exactly
 one refusal reason — `not in sdapi` — and that fires only **after** the SCRAM
@@ -5168,12 +5174,22 @@ per connection, never faster than the existing `sleep 3`. An unlogged
 authentication failure is the worse of the two, and `win32_audit_rotate()`
 exists for the file. The changelog says so in as many words.
 
-**NOT VERIFIED — A CYCLE IS OWED.** `verify-apiname.ps1` step 6 has been
-**inverted** to the new contract and now asserts the trail grew, that
-`reason=name rejected by valid_os_name` and `reason=wrong password` both appear
-and differ, that the name appears **sanitised**, and — the log-injection control
-— that the **raw backslash form never appears**. It has not run against the
-change.
+**VERIFIED 22 Aug 2026 — `verify-apiname.ps1 -Prefix sdapin2`, 17/17**, owner's
+elevated run on the 08:32:03 install. Step 6 was **inverted** to the new
+contract: the trail grew, `reason=name rejected by valid_os_name` and
+`reason=wrong password` both appear and differ, the name appears **sanitised**,
+and — the log-injection control — the **raw backslash form never appears**. What
+the trail gained, verbatim:
+
+```
+API REFUSED user=GITORLI?sdapin2 reason=name rejected by valid_os_name
+API REFUSED user=sdapin2 reason=wrong password
+API REFUSED user=sdapin2?GITORLI reason=name rejected by valid_os_name
+```
+
+**AND THE DISCRIMINATOR STILL HOLDS** (step 5): all five refused spellings read
+back to the client as `Invalid username or password`, identical to a wrong
+password. The trail separates them; the caller cannot.
 
 ### Open, undiagnosed: the first verifier run after a cycle sometimes fails checks the second passes
 
