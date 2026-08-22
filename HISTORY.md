@@ -13309,3 +13309,39 @@ written down as ambiguous rather than as a result.
 Use SINGLE quotes on that path.  The first attempt used double quotes,
 PowerShell expanded `$cred` to nothing and listed `sdsys` instead - the same
 trap adopt-account.ps1's marker comment warns about.
+
+## 21 Aug 2026 - all four phases measured green, and CREATE.ACCOUNT GROUP works
+
+Cycle 21 Aug, install **17:18:11**, `sd.exe` `CB9C4E0460B175F5`,
+`assert-current` exit 0 afterwards - so the results describe the tree as
+installed.  All eight verifiers exit 0:
+
+    verify-fold                        10/10
+    verify-createaccount  sdacct30     exit 0
+    verify-tiers          sdtiert6     exit 0
+    verify-accountacl     sdacl10      21/21
+    verify-routes         sdrt6        33/33
+    verify-accountrules   sdar3        35/35
+    verify-peerlog                     21/21
+    verify-apiadmin       sdapia12     22/23, the standing N/A
+
+**CREATE.ACCOUNT GROUP works for the first time on this port.**  The log reads
+"Group:  sdg_sdar3g created", the account is refused by MODIFY.ACCOUNT with
+10087, and DELETE.ACCOUNT removes it with the shorter confirmation and takes the
+group with it: "Group: sdg_sdar3g Deleted".  All seven checks that failed on the
+sdar2 run flipped together, which is what a single-cause fix should look like.
+
+**The install adopted cleanly for the third install running**, marker and all:
+adopt-account.log carries 10040 and 10078 and then builds the account.
+
+**What that closes.**  Phase 1 (the API on a network port), phase 2 (the four
+access keywords, the mandatory password, the single delete confirmation, the
+verb rename), phase 3 (ADOPT install-only, the install ending in SD) and phase 4
+(the verifiers) are all done and measured.  What is left against this install is
+`verify-delaccount -Prefix sddel4`, which has not run since phase 3 and still
+owes its marker assertion and its 40th check; it needs no cycle.
+
+**Two runs were lost on the way to this one**, both to the same thing and
+neither to a product fault: a second sdwind that "sd -stop" could not reach.
+That is written up in the traps section - the errlog's "API listener not
+started: cannot bind port 4243" is the only evidence that says what it was.

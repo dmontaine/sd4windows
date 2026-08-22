@@ -11,21 +11,45 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-**PHASE 3 IS DONE AND MEASURED. PHASE 4 IS MEASURED EXCEPT ONE LEG, AND THAT LEG
-FOUND A REAL DEFECT, NOW FIXED AND AWAITING A CYCLE.** Cycle 21 Aug, install
-**16:18:37**, `sd.exe` **`CB9C4E0460B175F5`**, `assert-current` green for every
-step. Seven of eight verifiers passed:
+**ALL FOUR PHASES ARE DONE AND MEASURED, AND THE SUITE IS GREEN END TO END.**
+Cycle 21 Aug, install **17:18:11**, `sd.exe` **`CB9C4E0460B175F5`**.
+`assert-current` **exit 0 as of 17:2x** — the tree matches source, so these
+results describe what is installed now.
 
 | verifier | prefix | result |
 |---|---|---|
 | `verify-fold` | — | **10/10** |
-| `verify-createaccount` | `sdacct29` | **18/18**, and it shows `SSH` printing 10034 **and** 10076 |
-| `verify-tiers` | `sdtiert5` | **22/22** |
-| `verify-accountacl` | `sdacl9` | **21/21** |
-| `verify-routes` | `sdrt5` | **33/33** — the Phase 4 rewrite, first run |
-| `verify-accountrules` | `sdar1` | **27/32** — see the finding below |
+| `verify-createaccount` | `sdacct30` | exit 0 |
+| `verify-tiers` | `sdtiert6` | exit 0 |
+| `verify-accountacl` | `sdacl10` | **21/21** |
+| `verify-routes` | `sdrt6` | **33/33** |
+| `verify-accountrules` | `sdar3` | **35/35** — was 27/32; the GROUP fix |
 | `verify-peerlog` | — | **21/21** |
-| `verify-apiadmin` | `sdapia11` | **22/23**, the 23rd the standing N/A |
+| `verify-apiadmin` | `sdapia12` | **22/23**, the 23rd the standing N/A |
+
+**`CREATE.ACCOUNT GROUP` WORKS FOR THE FIRST TIME ON THIS PORT.** The log shows
+`Group:  sdg_sdar3g created` and then `Group: sdg_sdar3g Deleted` — created,
+refused by `MODIFY.ACCOUNT` with 10087, and deleted with the shorter
+confirmation. It had aborted every time since 10 June; the cause and fix are
+below.
+
+**AND THE INSTALL ADOPTED CLEANLY AGAIN.** `C:\ProgramData\SD\adopt-account.log`
+for this install: *"don keeps the Windows sign-in rights it already had"*
+(10040), *"don may sign in over ssh and use the API"* (10078), then the account
+built. The Phase 3 marker path, third install running.
+
+**WHAT IS LEFT IS ONE VERIFIER AND TWO OLD ITEMS.**
+`verify-delaccount -Prefix sddel4` **has not run since Phase 3** — its `$adopt`
+marker assertion and its 40th check are still unmeasured, and it is the only
+thing owed against this install. It needs no cycle:
+
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-delaccount.ps1 -Prefix sddel4
+```
+
+Then: the owner's decision on exempting `sdsys/changelog` (below), and the two
+things that outlive the four phases — the API session's LocalSystem TOKEN
+(§WHAT IS OWED) and the fact that **nothing has ever crossed the network**.
 
 **THE FINDING, FOUND AND FIXED: `CREATE.ACCOUNT GROUP` HAS NEVER WORKED ON THIS
 PORT.** It aborted every time, and had since 10 June. The `-Prefix sdar2` re-run
@@ -73,16 +97,11 @@ output and records whether the directory got a `voc`. **That is what turned a
 five-line guess into a one-line answer**, and it is why the fix is in the same
 session as the finding.
 
-**SO A CYCLE IS OWED AGAIN.** `CREATEA` is `sdsys` source, so the tree is stale
-and every verifier will refuse. Cycle, then the whole suite — the seven green
-results above were taken on the 16:18:37 install and do not describe the tree
-after this fix.
-
-**THE `sdar2` RUN WAS 28/35**, and all seven failures collapse to that one
-abort: no 10014, no register record, no `voc`, no `sdg_` group, then
+**MEASURED FIXED ON THE 17:18:11 INSTALL: `verify-accountrules` 35/35.** The
+`sdar2` run that found it was 28/35, and all seven failures collapsed to that
+one abort — no 10014, no register record, no `voc`, no `sdg_` group, then
 `MODIFY.ACCOUNT` and `DELETE.ACCOUNT` correctly saying there is no such account.
-**Steps 1, 2 and 4 were 22/22** — the keyword, the password unwind and the whole
-ADOPT gate.
+All seven flipped together, which is what a single-cause fix should look like.
 
 **WHAT PHASE 3 THIS RUN DID PROVE, and it is most of it:**
 
@@ -392,8 +411,8 @@ until somebody deletes `C:\ProgramData\SD\sdsys\$adopt` by hand.
 
 | | |
 |---|---|
-| **Phases 3 and 4**, built, **unmeasured** | one cycle, watched, then the suite — see the top of this file |
-| bookkeeping | every verifier result in this file predates Phase 3 |
+| **All four phases: DONE and measured** | 21 Aug, install 17:18:11, suite green end to end |
+| `verify-delaccount -Prefix sddel4` | the one verifier not run since Phase 3. Needs no cycle |
 | owner's decision | whether `assert-current` should exempt `sdsys/changelog` — top of this file |
 | **this file is far over §0's size ceiling** | roughly three times it. §0.5 says the way back is to compress a §7 step's §4 and §7 material to its conclusion when the step closes — Phase 1 and Phase 2 have both closed since anyone last did that. Not attempted here: it is a real editing job, not a tidy-up, and doing it badly loses reasoning that nothing else records |
 
@@ -438,7 +457,7 @@ kept apart so a failure is attributable.
 | 1 | API reached AT THE PORT, not through an ssh tunnel | **done, 13/13** |
 | 2 | `create.account … ssh\|api\|both\|none` and `modify.account` the same four; password mandatory for USER accounts; `delete.account` one confirmation then both halves; `set.password` → `modify.password` | **done and measured on the 14:15:55 install** — `verify-delaccount` 39/39, `verify-apiport` all, `verify-apiadmin` 22+1 N/A, `verify-peerlog` 21/21. The refusal paths (10082, 10086, 10087, 10083) are Phase 4's |
 | 3 | ADOPT install-only; the install ends in an SD session that takes the password; **plus the `LOGIN` change moved here** | **DONE and measured, 21 Aug.** The gate: `verify-accountrules` step 4, 10/10, plus the install's own ADOPT. The session and `require.credential`: `$cred/DON` written 16:19, between the 16:18:37 install and the 16:20:19 suite. Two deviations at the top of this file, both confirmed by that write |
-| 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | **built 21 Aug, nothing run** — §"Phase 4, as built". The changelog half was already discharged: Phases 1 and 2 each wrote their own entry in their own commit |
+| 4 | rewrite `verify-routes` for the four keywords; a new verifier for the create-time keyword, mandatory password, admin-gets-both and a GROUP account; changelog and handoff | **DONE and measured, 21 Aug**, install 17:18:11 — `verify-routes` 33/33, `verify-accountrules` 35/35. §"Phase 4, as built". The changelog half was already discharged: Phases 1 and 2 each wrote their own entry in their own commit |
 
 **THE PLAN IS AT `C:\Users\dmont\.claude\plans\zazzy-questing-engelbart.md`** —
 approved 21 Aug, and it carries the reasoning for each phase, the assumptions
@@ -662,7 +681,8 @@ is the only thing left.
   `sdapia1`-`2`; 21 Aug `sdrt1`-`sdrt4`, `sdapia3`-`sdapia10`,
   `sddel1`-`sddel3`, `sdapi3`-`sdapi5`, `sdacct28`, `sdtiert4`, `sdacl8`;
   **21 Aug 16:20 run** `sdacct29`, `sdtiert5`, `sdacl9`, `sdapia11`, `sdrt5`,
-  `sdar1`.
+  `sdar1`; `sdar2`; **21 Aug 17:19 run** `sdacct30`, `sdtiert6`, `sdacl10`,
+  `sdapia12`, `sdrt6`, `sdar3`.
   **`post-cycle-elevated.ps1`'s DEFAULTS ARE NOT FRESH** — it now takes six
   prefixes and every default in the file is spent. Pass all six every time; they
   are a starting point, not a supply.
