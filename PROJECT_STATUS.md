@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 21 Aug 2026, thirty-sixth session.
+**Last updated:** 21 Aug 2026, thirty-seventh session.
 
 ---
 
@@ -14,6 +14,13 @@ something came to be the way it is.
 **ALL FOUR PHASES OF THE 21 Aug 2026 PLAN ARE DONE AND MEASURED.** Cycle 21 Aug,
 install **17:18:11**, `sd.exe` **`CB9C4E0460B175F5`**, `assert-current` exit 0
 afterwards — so these results describe the tree as it stands.
+
+**NO CYCLE IS OWED. THE THIRTY-SEVENTH SESSION CHANGED NOTHING THAT SHIPS.**
+Two commits, both documentation and one build script: the changelog exemption
+(item 1 below) and the striking of step 11's *"does not work"* from the five
+places that carried it. `assert-current.ps1` is on its own `$neverShipped` list,
+so **the 17:18:11 install is still current — re-measured, exit 0, after the
+edit** — and the suite below still stands. **Start from it.**
 
 | verifier | prefix | result |
 |---|---|---|
