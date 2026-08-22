@@ -27,6 +27,74 @@ corrected.
 
 ---
 
+## 22 Aug 2026 - all 24 verifiers are in a runner, none deleted, and the prefix count forced a redesign
+
+**Commit:** this one. **No shipped source changed.** Owner's instruction: *"if
+the verifiers are needed, can they be included in one of the other runners.  If
+they are unneeded delete them"*.
+
+**ANSWER: ALL EIGHT WERE NEEDED. NOTHING WAS DELETED.** Each was read before
+being judged, and each guards a claim no other verifier makes - §4.0 has the
+one-line-each table. **Two supersession claims I expected to confirm both
+failed**, and that is the part worth keeping:
+
+- `verify-apiport` looked obsolete, because Phase 1 made `APIPORT` ship active
+  and that script turns the port on and off again. **It had already been updated
+  for exactly that on 21 Aug** - its own comment reads *"PUT BACK, NOT REMOVED
+  AGAIN ... it ships ACTIVE now"* - and what it measures is the two API gates
+  answering DIFFERENTLY (wrong password via `!CRED_VERIFY`, `SDSYS` via
+  `ACC$GROUP`), which `verify-apiadmin` does not do at all: that one measures
+  containment.
+- `verify-sshonly` overlaps `verify-createaccount`, whose §3 says in as many
+  words that it makes *"the same three measurements verify-sshonly.ps1 makes"*.
+  But it is 507 lines to that step's three checks, and it does a **real ssh
+  login**. Partial overlap is not supersession.
+
+**THE CHANGE FORCED A REDESIGN, AND THIS IS THE REASON TO RECORD IT.** Wiring
+eight verifiers in took `post-cycle-elevated.ps1` from 9 steps to **17** and
+from **7 prefixes to 13**. Thirteen single-use names, invented by hand, all
+distinct from every name spent since 13 Aug, is not something anybody types
+correctly at the end of a cycle - and the failure mode is not a clean refusal
+but a verifier three sections in wearing a disguise, which is the fault that
+file's own header already records costing an install. So:
+
+- **`-Run <token>` derives all thirteen** (`-Run b1` -> `sdtiertb1`, `sdacctb1`,
+  `sdcatgb1` ...). Every individual prefix still overrides, so an interrupted
+  cycle can re-run one step without spending a new token.
+- **A COLLISION GUARD ASKS ALL THIRTEEN UP FRONT** - `Get-LocalUser` and
+  `Get-LocalGroup`, with a `*` suffix to catch the derived forms - and refuses,
+  naming every clash at once, **before anything runs**. The reason is the one
+  this project keeps rediscovering: **a Windows local user survives an
+  uninstall**, so a fresh install is not a fresh set of names. Each verifier
+  does check its own name, but only when it gets there; a 17-step run would
+  otherwise go deep before a collision surfaced, with every account made before
+  it still to be removed by hand.
+
+**ORDERING IS THE OTHER HALF, and two constraints already in the file decide
+it.** `verify-peerlog` OVERWRITES the error log, so everything that can leave a
+diagnosis there runs before it; the API steps edit `sd.conf` and restart SD, so
+they all run after it. `verify-nonet` went first because it is static, needs no
+prefix and reads the installed tree - a tree that is not what the cycle left
+says so before twelve throwaway accounts exist.
+
+**AND ANOTHER STALE COMMENT FELL OUT.** `post-cycle-elevated.ps1` said
+`verify-apiadmin` *"FAILS TODAY ON PURPOSE"* and was expected to report *"13/15
+with the two verdict checks FAILING"*. The containment gate landed 21 Aug
+(`op_dio2.c`, and `USR_ADMIN` in `kernel.c`), and on 22 Aug it reports **22/23
+with both verdict checks PASSING**. A failure there is now a REGRESSION, and the
+comment said the opposite. Same family as the eleven in PROJECT_STATUS's table,
+found the same way - by checking a claim against the run rather than reading it.
+
+**NOT RUN.** The suite could not be exercised end to end: the install was left
+needing an elevated repair earlier the same day (entry below). What WAS done is
+a parse check, and all four argument paths exercised - no `-Run`, malformed
+`-Run`, good `-Run` reaching the elevation gate, and the collision guard's own
+test shown detecting a name that exists (`don`) and clearing one that does not.
+**The seventeen steps have never run in this order**; the first cycle to use it
+should expect to find the ordering wrong somewhere.
+
+---
+
 ## 22 Aug 2026 - the fifteen verifiers nobody runs, and two faults found by running seven of them
 
 **Commit:** this one. **No shipped source changed**, so no cycle is owed and the

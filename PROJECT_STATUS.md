@@ -143,19 +143,41 @@ administrator rights on console sessions, which §5.6 rejects.
 next source change; `-SkipInstall` is the cheap way to find out whether a change
 compiles.
 
+**ALL 24 VERIFIERS ARE NOW IN A RUNNER — 22 Aug 2026, and none was deleted.**
+Each of the eight that was in neither was read first; every one guards a claim
+no other makes, so there was nothing to delete. §4.0 is the inventory.
+`post-cycle-elevated.ps1` went from 9 steps to **17**, which took it from 7
+prefixes to 13 — so **`-Run <token>` now derives them all**, and every
+individual prefix still overrides it.
+
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert9 -Account sdacct33 -AclPrefix sdacl13 -ApiPrefix sdapia15 -RoutePrefix sdrt9 -RulesPrefix sdar7 -DelPrefix sddel8
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiname.ps1 -Prefix sdapin3
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -Run b1
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-unelevated.ps1
 ```
+
+**PICK A `-Run` TOKEN NOBODY HAS USED**, and the runner now checks: it asks
+`Get-LocalUser` and `Get-LocalGroup` for all thirteen derived names **before
+running anything** and refuses, naming every clash at once. **A Windows local
+user survives an uninstall**, so a fresh install is *not* a fresh set of names —
+that is the assumption this guard exists to break. Spent: everything up to
+`sdtiert8`/`sdacct32`/`sdacl12`/`sdapia14`/`sdrt8`/`sdar6`/`sddel7`, plus
+`sdapin1`–`2` and `sdapi4`. **`b1` was checked free on 22 Aug** and is the
+suggested next token.
+
+**THE LAST LINE IS UNELEVATED AND MUST BE** — §4.0 has why (`verify-credacl`
+would pass for the wrong reason in an elevated shell). It spends no prefixes.
 
 **§2's `!valid_os_name` QUESTION IS ANSWERED AND CLOSED** — `verify-apiname.ps1`,
 owner's elevated runs: `sdapin1` **13/13** on the 17:18:11 install, and
 `sdapin2` **17/17** on this one once the audit half was added. A smell, not a
-defect; §4 has the measurement and §2 the reasoning. It is deliberately **not**
-in `post-cycle-elevated.ps1` — it answered a question once rather than guarding
-the tree — so it is the fourth line above, run by hand with a fresh prefix.
+defect; §4 has the measurement and §2 the reasoning. *It used to be run by hand;
+since 22 Aug 2026 it is step 14 of the elevated runner, because the audit half
+turned it from a question already answered into a guard that can regress.* The
+sentence that stood here — that it is deliberately **not** in the runner because
+it "answered a question once rather than guarding the tree" — was true when
+written and is not now.
 
 **`verify-delaccount` IS NOW IN THE RUNNER** — owner's instruction, 21 Aug 2026,
 `-DelPrefix`, ninth step, between `verify-accountrules` and `verify-peerlog`.
@@ -888,10 +910,25 @@ missed again. **Add a row here in the same commit that adds a verifier.**
 range and by regex both reported files missing that were not. Grep for
 `'<name>'` **quoted**, or the answer is wrong.
 
-**Run after a cycle, elevated — `post-cycle-elevated.ps1`, one prefix each:**
-`verify-fold`, `verify-createaccount`, `verify-tiers`, `verify-accountacl`,
-`verify-routes`, `verify-accountrules`, `verify-delaccount`, `verify-peerlog`,
-`verify-apiadmin`. The header carries the current counts.
+**Run after a cycle, elevated — `post-cycle-elevated.ps1`, SEVENTEEN steps since
+22 Aug 2026**, in this order, which is not arbitrary:
+
+```
+fold  nonet  createaccount  tiers  catgate  osusers  accountacl  routes
+accountrules  delaccount  sshonly | peerlog | apiadmin  apiname  apiport
+scramlogin  tierapi
+```
+
+**The two bars are the two ordering constraints.** Everything left of the first
+can leave a diagnosis in the SD error log, and `verify-peerlog` **overwrites**
+that log with synthetic records to make the trim fire. Everything right of the
+second edits `APIPORT` in the installed `sd.conf` and restarts SD, so none of it
+is talking to the server the earlier steps measured. `verify-nonet` is first
+because it is static and cheap: a tree that is not what the cycle left says so
+before twelve throwaway accounts exist.
+
+**Thirteen prefixes, one token: `-Run`.** The header has the invocation and the
+collision guard.
 
 **Run after a cycle, UNELEVATED — `post-cycle-unelevated.ps1`, NEW 22 Aug 2026,
 and it spends no prefixes at all:** `verify-credacl`, `verify-nocase`,
@@ -910,23 +947,35 @@ every check **and prove the opposite of what the file claims**. A test that
 passes for the wrong reason is worse than one nobody runs, because it is
 believed.
 
-**In NEITHER runner — eight, all needing elevation, and the owner's to run:**
+**IN NEITHER RUNNER: NONE, SINCE 22 Aug 2026.** The eight that were out are all
+in the elevated runner now, and **none was deleted** — owner's instruction was
+*wire it in or delete it*, and each of the eight was read before being judged.
+Every one guards a claim no other verifier makes:
 
-| verifier | why it is out | last recorded |
+| verifier | the claim only it makes | was |
 |---|---|---|
-| `verify-apiname` | deliberate — answered §2's question once rather than guarding | **17/17**, 22 Aug |
-| `verify-sshonly` | tests **Windows**, not SD; exempt from `assert-current` (CLAUDE.md) | 13 checks |
-| `verify-osusers` | never wired in | 24/24, **16:38:01 install** — old |
-| `verify-catgate` | never wired in | 25/25 |
-| `verify-nonet` | never wired in | `gcat` 132 → 129 |
-| `verify-apiport` | superseded in practice by `verify-apiadmin`; **not confirmed** | `sdapi4` |
-| `verify-scramlogin` | **was in no document** | — |
-| `verify-tierapi` | **was in no document** | — |
+| `verify-nonet` | SDNet is gone and its neighbours are not | `gcat` 132 → 129 |
+| `verify-catgate` | the **global** catalogue needs administrator rights by every route (UPSTREAM_FIXES 7) | 25/25 |
+| `verify-osusers` | the `SH`/`OS.EX` truth table — the middle two rows prove the fields independent | 24/24, **16:38:01 install** |
+| `verify-sshonly` | the ssh-only model end to end, incl. a **real ssh login** | 13 checks |
+| `verify-apiname` | `!valid_os_name` refuses a qualified name, indistinguishably, **and it is audited** | **17/17**, 22 Aug |
+| `verify-apiport` | the two API gates answer **differently** — wrong password vs `ACC$GROUP` | `sdapi4` |
+| `verify-scramlogin` | the SCRAM wire exchange against the **RFC**, replay and nonce reuse refused, request 24 refused | *no recorded result* |
+| `verify-tierapi` | all three tiers reachable over the API, and one that should not be, refused | *no recorded result* |
 
-**THE LAST THREE ROWS ARE THE ONES TO SETTLE**, and none needs a cycle — only an
-elevated shell on a green install. Each either confirms a claim this file
-already makes or finds a regression that has been invisible since the verifier
-stopped being run.
+**THE TWO SUPERSESSION CLAIMS I EXPECTED TO FIND BOTH FAILED.** `verify-apiport`
+looked obsolete — Phase 1 made `APIPORT` ship active and that script turns the
+port on and off — but **it was updated for exactly that on 21 Aug** (*"PUT BACK,
+NOT REMOVED AGAIN"*), and `verify-apiadmin` measures containment, not the gates.
+And `verify-sshonly` overlaps `verify-createaccount`'s three logon measurements
+but is five times the size and does the real `ssh`. **Nothing here was dead
+code.**
+
+**THE LAST TWO ROWS ARE STILL THE ONES TO WATCH**: neither has a recorded
+result, so their first run under the runner is a first measurement, not a
+re-confirmation. `verify-tierapi` is also the only step needing a binary from
+**outside this repository** — `sd-connect.exe` from the `sdclilib32` tree,
+present 22 Aug — which is why it is last.
 
 **ALL SEVEN UNELEVATED VERIFIERS RAN 22 Aug 2026 ON THE 08:32:03 INSTALL**, most
 of them for the first time in this file's memory:
