@@ -97,16 +97,11 @@ C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-elevated.ps1 -TierPrefix sdtiert7 -Account sdacct31 -AclPrefix sdacl11 -ApiPrefix sdapia13 -RoutePrefix sdrt7 -RulesPrefix sdar4 -DelPrefix sddel5
 ```
 
-**ONE ELEVATED RUN IS OWED, AND IT IS NOT A CYCLE.** `verify-apiname.ps1` was
-written 21 Aug 2026 to settle §2's `!valid_os_name` question and has **never
-run**. It needs no install and changes nothing that ships — it makes an account,
-tries four spellings of its name at the API port, and removes it in a `finally`.
-**It is deliberately NOT in `post-cycle-elevated.ps1`**: it answers a question
-once rather than guarding the tree, and the runner is for the standing suite.
-
-```powershell
-C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiname.ps1 -Prefix sdapin1
-```
+**§2's `!valid_os_name` QUESTION IS ANSWERED AND CLOSED** — `verify-apiname.ps1
+-Prefix sdapin1`, owner's elevated run on the 17:18:11 install, **13 of 13**.
+A smell, not a defect; §4 has the measurement and §2 the reasoning. It is
+deliberately **not** in `post-cycle-elevated.ps1` — it answered a question once
+rather than guarding the tree — but it is re-runnable with a fresh prefix.
 
 **`verify-delaccount` IS NOW IN THE RUNNER** — owner's instruction, 21 Aug 2026,
 `-DelPrefix`, ninth step, between `verify-accountrules` and `verify-peerlog`.
@@ -116,9 +111,14 @@ reported its absence either. It went a whole phase without running, which is how
 Phase 3's `$adopt` marker assertion reached the end of the plan unmeasured.
 **Nothing is now run by hand**; the two lines above are the whole cycle.
 
-**Every prefix is single-use** and the defaults in `post-cycle-elevated.ps1` are
-spent — §6 has the list. **The install now ends in a visible SD session that asks
-for a password; close it (`off`) before the next cycle**, or step 1 refuses.
+**Every prefix is single-use.** The suite table above names the **last spent**
+prefix for each verifier and the `post-cycle-elevated.ps1` line names the **next
+free** ones; between them that is the whole record. *Corrected 21 Aug 2026: this
+said "§6 has the list", and §6 has never carried one — a reader would have hunted
+for it.* Also spent: `sdapin1` (`verify-apiname`), `sdapi4` (`verify-apiport`).
+
+**The install now ends in a visible SD session that asks for a password; close
+it (`off`) before the next cycle**, or step 1 refuses.
 
 **THE CLOSED MATERIAL IS NOW COMPRESSED, AND THE FILE IS STILL OVER §0.5's
 CEILING.** Seven blocks have gone to HISTORY, **moved and not deleted** — seven
@@ -522,26 +522,23 @@ it do instead, and who can tell?"**
   | SD cannot register such a name | `valid_os_name` gates creation too: `CREATE_USER:79`, `CREATEA:537`, `CREATEA:1406` (ADOPT) |
   | SD cannot see domain accounts at all | `IS_USER:62` in its own words — *"LOCAL ACCOUNTS ONLY. Get-LocalUser does not see domain accounts"* — and `CREATE_USER` uses `New-LocalUser` |
 
-  **MEASURED on the 17:18:11 install, live, against the listening port:** bare,
-  `GITORLI\name`, `gitorli\name` and a spaced name are all refused with the
-  identical text `Invalid username or password`.
+  **MEASURED WITH ITS CONTROL — `verify-apiname`, 13 of 13, §4 has the row.**
+  Four spellings refused, including **`name@computer`**, which matters because
+  the UPN form is what a domain user is likeliest to type today.
 
   **WHAT THE REFUSAL COSTS IS DIAGNOSTIC, AND THAT IS THE REAL FINDING.** It is
-  **indistinguishable from a wrong password** — same branch, same text — and
-  **it leaves no audit record at all**: `APISRVR` audits one refusal reason
-  only, `reason=not in sdapi` at `:1363`. See §8.
-
-  **THE CONTROL IS OWED AND HAS A VERIFIER WAITING:
-  `gplbld/verify-apiname.ps1 -Prefix sdapin1`, elevated, never run.** Those four
-  refusals are each equally consistent with *"that account does not exist"* —
-  because it did not. The control is the **same account and password** admitted
-  bare and refused qualified, and creating an account with an API credential
-  needs elevation. **Do not read the four refusals as evidence until it runs.**
+  **indistinguishable from a wrong password** — same branch, byte-identical text
+  — and **it writes nothing to `audit`**, measured. See §8, which owns that as an
+  open question in its own right.
 
   **A REAL DOMAIN ACCOUNT CANNOT BE PRESENTED ON THIS MACHINE**, and this is a
-  trap rather than a task: GITORLI is in `WORKGROUP`, measured. Same shape as
-  §4's RDP entry — the reasoning is sound and the rig is absent. §7 step 2's VM
-  is not a domain either.
+  trap rather than a task: GITORLI is in `WORKGROUP`, measured
+  (`Win32_ComputerSystem.PartOfDomain` False). Same shape as §4's RDP entry —
+  the reasoning is sound and the rig is absent. §7 step 2's VM is not a domain
+  either, so proving it against a live domain account needs a rig nobody has.
+  **The four facts above are what make that acceptable rather than owed:** SD
+  cannot register, adopt or even see such an account, so there is no login being
+  refused.
 - **`!valid_shell_cmd` rejects `;|&$`, backquote and `<>`**, so **even an
   elevated `SH` cannot pipe or redirect** — `SH dir | findstr x` is refused.
   That is message 5240 in §4's `OS.USERS` table, and §7 step 7 lifts the ban for
@@ -867,6 +864,7 @@ carries the warning in its own comment. Do not hand-roll it a third time.
 | **A remote API session cannot open `$cred` or reach `OS.EXECUTE`** | 21 Aug, 17:18:11 | `verify-apiadmin -Prefix sdapia12`. It ships **two** probes: `APIOSEXECPROBE`, whose whole job is to die, alongside one that must survive. The containment gate in `op_dio2.c` roots a session at the account it stands in; the `USR_ADMIN` fix in `kernel.c` is the other half |
 | **`SDConnectLocal()` carries a session** | 17 Aug, 12:28:49 | `make check-local` on the installed pair, `assert-current` exit 0, `WHO -> 2 DON`. **`DON` admitted and `SDSYS` refused** with *"User not allowed in requested account"* — `DON` alone would be equally consistent with a check that never executed, which is why the pair is evidence and either half alone is worthless |
 | **`errlog` is written per connection, and trimmed** | 21 Aug, 17:18:11 | `verify-peerlog`. `sdwind.c`'s `log_message()` gained the trim the `sd` side always had |
+| **`!valid_os_name` refuses a qualified login name, and the refusal is silent** | 21 Aug, 17:18:11 | `verify-apiname -Prefix sdapin1`, **13 of 13**, owner's elevated run. **The control is the same account and password admitted bare**, which is what makes the four refusals evidence rather than four accounts that did not exist: `COMPUTER\name`, `computer\name`, a **spaced** name and **`name@computer`** (the UPN shape) all refused. **All four return the byte-identical text a WRONG PASSWORD returns** — `Invalid username or password` — and **the `audit` file did not grow at all** across the five refused attempts. The 33-character control is refused CLIENT-side with different text (`Invalid user name`, `sdclilib.c:1218`), so the length cap and the charset check are two limits and not one seen twice. §2 has why refusing costs no legitimate login; §8 has the audit gap |
 
 #### The foundations, observed 13 Aug 2026
 
@@ -5030,6 +5028,12 @@ no `$cred` record, a version-1 credential, and a name `valid_os_name` rejects.
 login, refused login, `LOGTO` and refused `LOGTO` (§7 step 4). Nothing
 distinguishes a mistyped password from a client pointed at the wrong account
 from somebody working through names — at the time or afterwards.
+
+**MEASURED, NOT INFERRED — `verify-apiname`, 21 Aug 2026, 17:18:11 install.**
+The `audit` file **did not grow at all** across five consecutive refused API
+logins (four rejected spellings and one wrong password). That is the check's
+value: "no record naming the attempt" would also pass on a file that recorded
+something useless, and this says nothing was written.
 
 **Found while making the `valid_os_name` measurement (§2), not by looking for
 it**, which is why it is here rather than in §7: it is a gap in a subsystem that

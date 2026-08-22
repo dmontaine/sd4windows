@@ -27,6 +27,56 @@ corrected.
 
 ---
 
+## 21 Aug 2026 - verify-apiname 13/13: the control landed, and the audit gap is measured
+
+**Commit:** this one, over the entry below, which wrote the question up while the
+control was still owed. **Owner's elevated run**, `verify-apiname.ps1 -Prefix
+sdapin1`, on the 17:18:11 install, `assert-current` exit 0 inside the run.
+**13 of 13.** Documentation only in this commit; the verifier itself is below.
+
+**THE CONTROL IS WHAT THIS ADDS, and it is the whole difference between four
+refusals and evidence.** The entry below recorded four spellings refused and
+said in as many words not to read them as evidence, because no account existed -
+every one was equally consistent with "that account does not exist". Step 3 now
+has the **same account with the same password admitted bare**, and steps 4 and 5
+refuse it spelled four other ways. Without step 3 the file would pass on a build
+whose API refused everything.
+
+**THE FOUR SPELLINGS, all refused:** `GITORLI\sdapin1`, `gitorli\sdapin1`, a
+name with a space, and **`sdapin1@GITORLI`**. The UPN shape was added late and
+earns its place - it is the form a domain user is likeliest to type today, and
+`@` is outside `valid_os_name`'s charset for the same reason backslash is.
+
+**THE DISCRIMINATOR PASSED: all four return the byte-identical string a WRONG
+PASSWORD returns**, `REFUSED: Invalid username or password`. The script compares
+them as strings rather than by eye, which is the only way that check means
+anything.
+
+**AND THE AUDIT GAP IS NOW MEASURED RATHER THAN READ OUT OF THE SOURCE.** The
+`audit` file **did not grow at all** across five consecutive refused logins.
+That is stronger than the check name suggests: "audit does not name the refused
+spelling" would also pass on a file recording something useless, and this says
+nothing was written. Section 8 carries it as an open question with the fix and
+the reason it was not just applied - the presented name is attacker-controlled
+text going into an append-only file.
+
+**THE 33-CHARACTER CONTROL SEPARATES TWO LIMITS THAT LOOK LIKE ONE.** It is
+refused **client-side** with different text - `Invalid user name`,
+`sdclilib.c:1218` - so the length cap and the server's charset check are
+independent rather than one check seen twice from different angles.
+
+**A TENTH STALE CLAIM FELL OUT ON THE WAY**, found looking for somewhere to
+record that `sdapin1` is spent: the header said *"every prefix is single-use and
+the defaults are spent - §6 has the list"*, and **§6 has never carried such a
+list**. The authority is the header's own suite table (last spent, per verifier)
+and the `post-cycle-elevated.ps1` line (next free); the header now says that
+instead of sending the reader hunting.
+
+**Nothing that ships changed and no cycle is owed.** The account was created and
+removed inside the run, out of `sdapi` first.
+
+---
+
 ## 21 Aug 2026 - The valid_os_name question is answered: a smell, and an audit gap behind it
 
 **Commit:** this one. Thirty-eighth session. **Nothing that ships changed** -
