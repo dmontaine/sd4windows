@@ -19,13 +19,30 @@ something came to be the way it is.
 > cycle is owed, this is runtime state in the shared segment only.
 >
 > ```powershell
-> C:\Windows\System32\sc.exe stop SD ; C:\Windows\System32\sc.exe start SD
+> C:\Windows\System32\sc.exe stop SD
+> C:\Windows\System32\sc.exe start SD
 > ```
 >
-> If sessions still abort, run `& 'C:\Program Files\SD\usr\bin\sd.exe' -cleanup`
-> elevated. §4's `check_lost_users()` entry has the whole finding; **the
-> operational rule out of it is: never `Stop-Process` an `sd` session on a tree
-> you still want to measure.**
+> ***TWO LINES, NOT ONE, AND NOT JOINED BY `;`.*** That was written here as a
+> one-liner on 22 Aug and **failed on the first attempt**: `sc.exe stop` returns
+> while the service is still `STOP_PENDING` (it says so — `WAIT_HINT 0x7530`,
+> thirty seconds), `;` chains unconditionally, and the start hit
+> **`[SC] StartService FAILED 1056: An instance of the service is already
+> running.`** The stop itself was fine — the segment went — so only the start
+> had to be repeated. **This is the same trap `cycle.ps1` step 1 already
+> documents**, which is why that script waits on the *process* rather than on
+> the SCM: *"Stop-Service returns before the SCM has finished and before sdwind
+> has gone."* Wait for `Get-Service SD` to read `Stopped` before starting.
+>
+> **WHAT PROVES IT WORKED, and it is not the service state:** `C:\ProgramData\SD\shm`
+> is **empty**. That directory holds the shared segment carrying the user table,
+> so an empty one means the stale entries are gone rather than merely idle.
+>
+> If sessions still abort after that, run
+> `& 'C:\Program Files\SD\usr\bin\sd.exe' -cleanup` elevated. §4's
+> `check_lost_users()` entry has the whole finding; **the operational rule out
+> of it is: never `Stop-Process` an `sd` session on a tree you still want to
+> measure.**
 
 **NO CYCLE IS OWED. THE WHOLE SUITE IS GREEN ON ONE INSTALL**, and **every
 outstanding "built but not verified" item in this file is now measured.**
