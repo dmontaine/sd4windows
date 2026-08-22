@@ -27,6 +27,73 @@ corrected.
 
 ---
 
+## 22 Aug 2026 - the fifteen verifiers nobody runs, and two faults found by running seven of them
+
+**Commit:** this one. **No shipped source changed**, so no cycle is owed and the
+08:32:03 install still matches source (`assert-current` exit 0 throughout).
+
+**THE STARTING POINT: there are 24 `verify-*.ps1` and the runner ran 9.** The
+other fifteen were reachable only by remembering they existed, and **three -
+`verify-scramlogin`, `verify-setpw`, `verify-tierapi` - were not named anywhere
+in PROJECT_STATUS.md at all**, though all three appear in HISTORY. That is
+`verify-delaccount`'s failure again: a verifier nobody runs is a guard that has
+already stopped guarding, and nothing reports its absence. §4.0 is now an
+inventory of all 24 and says which are run, which are deliberately out, and
+which are owed.
+
+**SEVEN OF THE FIFTEEN NEED NO ELEVATION**, so they were run immediately, and
+`gplbld/post-cycle-unelevated.ps1` was written so the next session runs them
+with one command. It **refuses an elevated shell**, which is load-bearing:
+`verify-credacl` asks whether an *ordinary* user can read `sdsys\$cred`, and
+`secure-cred.ps1` grants Administrators Full, so an elevated run would pass
+every check and prove the opposite. It **spends no prefixes** - nothing in it
+creates a Windows account - so unlike the elevated runner it is free to re-run.
+Listed on `assert-current`'s `$neverShipped` in this commit, per the rule; the
+control was a scratch unlisted file in the same directory, which turned the
+guard red and named itself, so the listing is doing the work.
+
+**SIX PASSED CLEANLY:** `verify-credacl`, `verify-nocase` (3 decisive),
+`verify-setpw` (4/4), `verify-allowgroups`, `verify-keys` (10/10),
+`verify-editkeys` (14/14). §4.0 has the table.
+
+**THE SEVENTH FOUND THE KNOWN INTERMITTENT, WITH THE DETAIL THE OTHER SIGHTINGS
+LACK.** `verify-lcnames` ran **142/142 at 08:52 and 135/142 at ~09:00**, nothing
+changed between. The "142" in §8's *"138/142 then 142/142, roughly 2 runs in
+10"* was always this file. **All seven failing checks begin with `LOGTO SDSYS`**
+and all 135 that passed run inside the invoking user's own account. Three of the
+seven are read-only, so nothing was renamed and left unrestored - what they
+share is only *entering SDSYS*. That narrows "some checks" to "the
+SDSYS-entering ones"; it does not diagnose it.
+
+**THEN A SECOND, SEPARATE FAULT, AND IT WAS SELF-INFLICTED.** Chasing the first,
+`sd` sessions were killed with `Stop-Process` to escape what looked like a hang.
+From **09:13:01 every new session was answered `Forced logout`** - twelve in the
+error log, users 242-253, each a fresh healthy session with `sdwind` the only
+live process - and it **did not recover across twenty minutes**.
+
+**THAT IS §4's `check_lost_users()` ITEM, WHICH SAID THE PATH "HAS NEVER BEEN
+EXERCISED - NO SESSION HAS BEEN KILLED AND THE CLEANUP WATCHED".** Both have now
+happened. `sdwind.c:238` scans the user table every five minutes and shells out
+to `sd -cleanup` on finding an entry whose process is gone; what was observed is
+that the remedy ends up forcing out **live** sessions. **Whether that is
+`sd -cleanup` misjudging or `kill(pid, 0)` answering wrongly for an MSYS2 pid
+was NOT determined**, and the entry says so rather than guessing.
+
+**THE OPERATIONAL RULE OUT OF IT: never `Stop-Process` an `sd` session on a tree
+you still want to measure.** It costs the install, not just the session, and the
+recovery verb (`sd -cleanup`) needs elevation - so an unelevated session that
+does it cannot undo it. The install was left needing one elevated command; the
+header carries it.
+
+**WHAT WAS ALSO CORRECTED:** three pointers to *"§7 step 6a / 6b / 6c"*, whose
+sub-steps were compressed away on 21 Aug. §4's is rewritten to state its four
+claims outright. That is the **second** instance of the `header item N` fault
+one pass later, and it is now row 11 of the stale-claims table with the general
+form written down: **compressing a section does not update what points into
+it.**
+
+---
+
 ## 22 Aug 2026 - the owed cycle ran: the name-bound marker and the audit fix are both measured
 
 **Commits:** `75a5506` (the case-fold fix) and this one. **Install

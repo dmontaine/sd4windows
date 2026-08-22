@@ -11,6 +11,22 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> **THE INSTALLED SD NEEDS ONE ELEVATED COMMAND BEFORE IT WILL RUN A SESSION.**
+> Left this way 22 Aug 2026: **every `sd` session aborts with `Process
+> terminated`**, because sessions were killed with `Stop-Process` and the
+> daemon's cleanup path has been answering `Forced logout` to every new one
+> since. **The source tree is untouched and `assert-current` is exit 0** — no
+> cycle is owed, this is runtime state in the shared segment only.
+>
+> ```powershell
+> C:\Windows\System32\sc.exe stop SD ; C:\Windows\System32\sc.exe start SD
+> ```
+>
+> If sessions still abort, run `& 'C:\Program Files\SD\usr\bin\sd.exe' -cleanup`
+> elevated. §4's `check_lost_users()` entry has the whole finding; **the
+> operational rule out of it is: never `Stop-Process` an `sd` session on a tree
+> you still want to measure.**
+
 **NO CYCLE IS OWED. THE WHOLE SUITE IS GREEN ON ONE INSTALL**, and **every
 outstanding "built but not verified" item in this file is now measured.**
 Owner's elevated run, 22 Aug 2026.
@@ -178,9 +194,9 @@ the owner's, not a tidying job. The line counts that used to stand in this
 paragraph are gone deliberately: §0.5 rule 5 forbids printing them, and keeping
 them true meant re-measuring on every pass.
 
-**TEN STALE CLAIMS HAVE SURFACED AND WERE CORRECTED RATHER THAN CARRIED. That
-is the argument for looking**, and the reason to distrust any claim here that
-says something has NOT been done:
+**ELEVEN STALE CLAIMS HAVE SURFACED AND WERE CORRECTED RATHER THAN CARRIED.
+That is the argument for looking**, and the reason to distrust any claim here
+that says something has NOT been done:
 
 | where | what it said | what is true |
 |---|---|---|
@@ -194,6 +210,7 @@ says something has NOT been done:
 | §6, §7 step 3 | three `header item N` pointers | that header was archived 21 Aug |
 | §8 | *(absent)* the intermittent first-run failure | was "kept in the file", then fell out of it; restored |
 | §2, §4 | a refused API login *"writes nothing to `audit`"* / *"the `audit` file did not grow at all"* | **reversed by the 21 Aug fix**, measured 22 Aug — one record per refusal, with a reason. Both sentences were written as measurements, which is what made them convincing and what made them survive the fix by a day |
+| §4, §6 ×2 | three pointers to *"§7 step 6a / 6b / 6c"* | **step 6 was compressed on 21 Aug and its sub-steps went with it.** Second instance of the same fault as the `header item N` row above, one pass later: **compressing a section does not update what points into it.** §4's is rewritten to state the four claims; §6's two are flagged in place |
 
 **ROWS 3 AND 10 ARE THE ONES THAT SHOULD WORRY THE NEXT SESSION, and they fail
 the same way.** Row 3 was carried *through* a compression pass — read in place,
@@ -854,6 +871,80 @@ as it stood — every measurement with the reasoning that produced it — is in
 HISTORY, *"ARCHIVE 21 Aug 2026 - section 4's measurement record"*. Nothing was
 deleted, and the three corrections made on the way are noted where they belong.
 
+### 4.0 The verifier inventory — all 24, and which are actually run
+
+**WRITTEN 22 Aug 2026 BECAUSE THE SET HAD NEVER BEEN WRITTEN DOWN.** There are
+**24** `verify-*.ps1` in `gplbld`. `post-cycle-elevated.ps1` ran **nine** of
+them, and the other fifteen were reachable only by remembering they existed.
+**Three of the twenty-four — `verify-scramlogin`, `verify-setpw`,
+`verify-tierapi` — were not named anywhere in this file at all**, so a session
+reading the handoff could not have known to run them. That is exactly what
+happened to `verify-delaccount`, which went a whole phase unrun; the difference
+is that this list makes the next one visible instead of waiting for it to be
+missed again. **Add a row here in the same commit that adds a verifier.**
+
+**ALL 24 ARE ON `assert-current`'s `$neverShipped` LIST** — checked by name,
+22 Aug 2026, not by eye: two earlier attempts to audit this by grepping a line
+range and by regex both reported files missing that were not. Grep for
+`'<name>'` **quoted**, or the answer is wrong.
+
+**Run after a cycle, elevated — `post-cycle-elevated.ps1`, one prefix each:**
+`verify-fold`, `verify-createaccount`, `verify-tiers`, `verify-accountacl`,
+`verify-routes`, `verify-accountrules`, `verify-delaccount`, `verify-peerlog`,
+`verify-apiadmin`. The header carries the current counts.
+
+**Run after a cycle, UNELEVATED — `post-cycle-unelevated.ps1`, NEW 22 Aug 2026,
+and it spends no prefixes at all:** `verify-credacl`, `verify-nocase`,
+`verify-setpw`, `verify-allowgroups`, `verify-keys`, `verify-editkeys`,
+`verify-lcnames`. Nothing there creates a Windows account, so unlike the
+elevated runner it is free to re-run.
+
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\post-cycle-unelevated.ps1
+```
+
+**IT REFUSES AN ELEVATED SHELL, AND THAT IS LOAD-BEARING.** `verify-credacl`
+asks whether an **ordinary** user can read or write `sdsys\$cred`;
+`secure-cred.ps1` grants `Administrators` Full, so an elevated run would pass
+every check **and prove the opposite of what the file claims**. A test that
+passes for the wrong reason is worse than one nobody runs, because it is
+believed.
+
+**In NEITHER runner — eight, all needing elevation, and the owner's to run:**
+
+| verifier | why it is out | last recorded |
+|---|---|---|
+| `verify-apiname` | deliberate — answered §2's question once rather than guarding | **17/17**, 22 Aug |
+| `verify-sshonly` | tests **Windows**, not SD; exempt from `assert-current` (CLAUDE.md) | 13 checks |
+| `verify-osusers` | never wired in | 24/24, **16:38:01 install** — old |
+| `verify-catgate` | never wired in | 25/25 |
+| `verify-nonet` | never wired in | `gcat` 132 → 129 |
+| `verify-apiport` | superseded in practice by `verify-apiadmin`; **not confirmed** | `sdapi4` |
+| `verify-scramlogin` | **was in no document** | — |
+| `verify-tierapi` | **was in no document** | — |
+
+**THE LAST THREE ROWS ARE THE ONES TO SETTLE**, and none needs a cycle — only an
+elevated shell on a green install. Each either confirms a claim this file
+already makes or finds a regression that has been invisible since the verifier
+stopped being run.
+
+**ALL SEVEN UNELEVATED VERIFIERS RAN 22 Aug 2026 ON THE 08:32:03 INSTALL**, most
+of them for the first time in this file's memory:
+
+| verifier | result |
+|---|---|
+| `verify-credacl` | PASSED — an ordinary user can neither read the DACL of `sdsys\$cred` nor create a record in it |
+| `verify-nocase` | PASSED, 3 decisive — directory file `FL$NOCASE` 1, dynamic file 0, `SYSTEM(91)` 1 |
+| `verify-setpw` | PASSED, 4/4 — `MODIFY.PASSWORD DON somethingextra` refused with 5276, and the control without the token reaches the prompt |
+| `verify-allowgroups` | all checks passed — apply is idempotent, removal is an exact inverse, four foreign-policy shapes refused |
+| `verify-keys` | 10/10 — DEL and Ctrl-H both erase, LEFT/RIGHT both move, with the no-erase and no-arrow controls |
+| `verify-editkeys` | 14/14 — the same inside `SED` and `UPDATE.RECORD` |
+| `verify-lcnames` | **142/142 at 08:52**, then 135/142 — see §8's intermittent, which this is |
+
+**`verify-lcnames` IS THE ONE TO DISTRUST OF THE SEVEN.** The other six are
+short, and each ran once and cleanly. It is the only one long enough to have hit
+the intermittent, and it is the verifier the intermittent has always been about.
+
 ### Verified by observation
 
 **A row is claim and decisive measurement, and nothing else.** Every one has a
@@ -1051,12 +1142,22 @@ of an ordinary user's program reaching the OS had already answered on an install
   and reading it in place is not enough to notice — it took checking §7 step 7
   against HISTORY.
 
-- **What still has to be watched when something calls `vb.login`** — §7 step 6a
-  and 6c are closed, 6b is not. That an account with no `$CRED` entry is
-  refused; that one with an entry is admitted; that `@logname` afterwards is the
-  name that was **verified** rather than the client's assertion; and that
-  `kernel(K$SET.USERNAME,…)` is **refused from a program that is not
-  `$internal`**, which is the gate protecting the audit trail.
+- **What still has to be watched when something calls `vb.login`.** Four things:
+  that an account with no `$CRED` entry is refused; that one with an entry is
+  admitted; that `@logname` afterwards is the name that was **verified** rather
+  than the client's assertion; and that `kernel(K$SET.USERNAME,…)` is **refused
+  from a program that is not `$internal`**, which is the gate protecting the
+  audit trail.
+
+  ***THIS ENTRY POINTED AT "§7 step 6a, 6b and 6c" UNTIL 22 Aug 2026, AND ALL
+  THREE HAD STOPPED EXISTING*** — step 6 was compressed on 21 Aug and its
+  sub-steps went with it, so the pointer sent a reader hunting for a
+  numbered item no longer in the file. The four claims are written out here
+  instead, which is what should have replaced the pointer. **Two more of the
+  same dangling pointers survive in §6** (`§7 step 6c` and `§7 step 6a`) and are
+  narrative rather than task, so they are left with this note against them.
+  Same fault as the `header item N` row in the stale-claims table: **compressing
+  a section does not update what points into it.**
 
 - **Which of `AllowGroups`' four patterns actually matched.** It is applied and
   enforced, but `AllowGroups` is a union and all four patterns were written
@@ -1091,10 +1192,29 @@ of an ordinary user's program reaching the OS had already answered on an install
 - **Writing and reading application data.** The bootstrap creates and reads
   system files; the scratch accounts hold nothing but a VOC.
 
-- **What the daemon actually does for the system.** `check_lost_users()` shells
-  out to `sd -cleanup` every five minutes when it finds a user table entry whose
-  process is gone. That path has never been exercised — no session has been
-  killed and the cleanup watched.
+- **What the daemon actually does for the system — EXERCISED 22 Aug 2026, AND IT
+  DOES NOT CONVERGE.** `check_lost_users()` (`sdwind.c:238`) scans the user table
+  every five minutes, and on finding an entry whose process is gone
+  (`kill(pid, 0)`) shells out to `sd -cleanup` (`:295`). This entry used to say
+  *"that path has never been exercised — no session has been killed and the
+  cleanup watched"*. **Both have now happened**, by accident rather than design:
+  several `sd` sessions were killed with `Stop-Process` to escape a hang, and
+  from **09:13:01 onward every new session was answered `Forced logout`** —
+  twelve of them in the error log, user numbers 242 to 253, each a *fresh,
+  healthy* session, `sdwind` the only live process. It **did not recover on its
+  own** across twenty minutes, and `sd -cleanup` cannot be run by hand to clear
+  it because that verb requires elevation.
+
+  **WHAT IS ESTABLISHED IS THE SYMPTOM, NOT THE CAUSE**, and the difference
+  matters: killing sessions leaves stale entries, the daemon notices, and the
+  remedy it runs ends up forcing out live sessions instead of only dead ones —
+  but whether that is `sd -cleanup` misjudging, or `kill(pid, 0)` answering
+  wrongly for an MSYS2 pid, was **not** determined. Do not write it up as either
+  until somebody looks.
+
+  **THE OPERATIONAL PART: never `Stop-Process` an `sd` session on a tree you
+  still want to measure.** It costs the install, not just the session. Recovery
+  is elevated — `sd -cleanup`, and a service restart if that does not take.
 
 - **RDP refusal — CLOSED, but the rest of this entry is KEPT AS A TRAP, NOT A
   TASK** (§0 rule 4). It was watched refusing a session on the VirtualBox guest,
@@ -5219,6 +5339,36 @@ asserts the absence too. Whether that was the whole of it was never established.
 **IF IT RECURS, CAPTURE THE RUN UNPIPED.** Both original sightings were lost
 because the run went through `Select-String`, so `Start-Transcript` recorded the
 command and not the answers.
+
+**IT RECURRED 22 Aug 2026, ON THE 08:32:03 INSTALL, AND THIS SIGHTING HAS THE
+BREAKDOWN THE OTHER TWO LACK.** Same verifier — the "142" in *138/142* is
+`verify-lcnames` — and the same shape: **142/142 at 08:52, then 135/142 at
+~09:00 with no source change between** (`assert-current` exit 0 either side).
+
+**ALL SEVEN FAILING CHECKS BEGIN WITH `LOGTO SDSYS`**, and every one of the 135
+that passed runs inside the invoking user's own account:
+
+```
+SDSYS: typing ACCOUNTS / MESSAGES / QFILE / OS.USERS is answered lower case
+CT VOC COPYP shows a bare V type code
+COPYP answers differently from an unknown verb
+COPYP still reaches $COPYP itself
+```
+
+**That is a narrowing, not a diagnosis**: three of the seven are read-only
+(`CT VOC COPYP`, `COPYP`, `LIST VOC COPYP`), so nothing was renamed and left
+unrestored — what they share is only *entering SDSYS*. Previous sightings
+recorded a count and no names, so "some checks" is now "the SDSYS-entering
+ones". **The advice above was still not followed** — this run also went through
+`Select-String` — but the tool captured the whole summary table anyway, which is
+where the seven names came from. **Redirect to a file next time; do not rely on
+that.**
+
+**A SECOND, SEPARATE FAULT FOLLOWED AND MUST NOT BE CONFLATED WITH IT.** From
+09:13:01 every session was `Forced logout` — but that began *after* sessions
+were killed with `Stop-Process`, thirteen minutes after the 135/142 run, and is
+§4's `check_lost_users()` entry, not this one. **The 135/142 happened first,
+with the tree healthy.**
 
 ---
 
