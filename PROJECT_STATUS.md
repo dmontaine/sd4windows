@@ -38,20 +38,27 @@ narrative.
 | 3 | `ADOPT` is install-only behind a one-shot marker; the install ends in an SD session that takes the installing user's password |
 | 4 | `verify-routes` rewritten; `verify-accountrules` written for the refusal paths |
 
-**TWO THINGS ARE LEFT AND BOTH ARE THE OWNER'S.** `verify-delaccount` was the
-third; it ran on the 17:18:11 install at **40 of 40, 0 N/A** — §4 has it, and
+**ONE THING IS LEFT AND IT IS THE OWNER'S.** `verify-delaccount` was one of the
+three; it ran on the 17:18:11 install at **40 of 40, 0 N/A** — §4 has it, and
 the Phase 3 `$adopt` marker assertion is measured. **The whole suite is now
 green on one install**, so the next source change starts from a known tree.
 
-1. **The owner's decision on `sdsys/changelog`.** It is touched by nearly every
-   commit and each one costs a cycle before the suite can run again.
-   `assert-current.ps1` already makes this argument for documentation in its own
-   comments, and its `$shipsAs` test exempts `.md`/`.txt` that do not ship.
-   `changelog` has no extension and **does** ship, so it is watched. Exempting it
-   by name would end the toll, at the price of allowing an install to carry a
-   changelog one entry behind source. **Not done: the guard's own rule is that a
-   false "current" costs more than a false "stale", and that is the owner's
-   call.**
+1. **DECIDED AND BUILT 21 Aug 2026 — `sdsys/changelog` IS EXEMPT FROM THE
+   STALENESS GUARD.** Owner's decision. It was touched by nearly every commit
+   and each touch cost a cycle before the suite would run again.
+   `assert-current.ps1:334` carries a second list, `$shippedButExempt`, holding
+   that one path. **It could not go on `$neverShipped`**: that list is
+   self-policing against `stage.py` and `sd.iss`, and `changelog` is quoted at
+   `stage.py:140`, so it would have been reinstated on the next run and the
+   exemption would have done nothing.
+
+   **The guard's bias is kept by making it loud rather than silent** — when the
+   changelog is newer than the install the script prints an `EXEMPT:` line
+   naming it, **through `Write-Output` and not `Note()`, so `-Quiet` does not
+   swallow it**. Measured both ways on the 17:18:11 install, and **with the
+   control**: `sdsys/MESSAGES/10053` touched still reports STALE and exit 1, so
+   the exemption is one path wide. What is accepted is that an install may carry
+   a changelog behind source; nothing reads it.
 
 2. **The two that outlive the plan.** The API session's TOKEN is still
    LocalSystem — §WHAT IS OWED, and the only large item left. And **nothing has
@@ -331,7 +338,9 @@ is the exception and stays plain English for users.
 7. **Absolute dates.** Never "today" or "last session".
 8. **User-visible changes go in `sdb_ai/sd64/sdsys/changelog`**, same commit.
    New or changed verbs, messages, files, login behaviour, configuration.
-   Refactors, findings and traps do not.
+   Refactors, findings and traps do not. **Writing one no longer costs a
+   cycle** — it is exempt from `assert-current` since 21 Aug 2026, header
+   item 1 — so there is nothing left to weigh against obeying this rule.
 
 **Time budget: documentation is a small fraction of a session.** If it is
 approaching half, stop and cut.
@@ -3885,10 +3894,15 @@ Each of these cost real time. Read before debugging anything similar.
 
 - **ORDER EXEMPT FIXES FIRST, THEN RE-MEASURE, THEN TOUCH `sdsys`.** 18 Aug
   2026, and it cost a cycle. A verify script is in `assert-current`'s
-  `$neverShipped` list and cannot make an install stale; `sdsys/changelog`
-  **ships** and can. Correcting a verifier and the changelog in one go therefore
+  `$neverShipped` list and cannot make an install stale; a shipped file under
+  `sdsys` can. Correcting a verifier and a message file in one go therefore
   voids the install being measured, for the sake of the half that did not need
   to.
+
+  **THE EXAMPLE THIS ENTRY WAS WRITTEN AROUND IS DEAD, THE RULE IS NOT.** It
+  said `sdsys/changelog`, which was the commonest case; the changelog has been
+  exempt since 21 Aug 2026 (header item 1), so it no longer voids anything.
+  Every other shipped file under `sdsys` still does.
 
 - **`cycle.ps1` DOES NOT BUILD. A C CHANGE CAN BE CYCLED, INSTALLED, TESTED AND
   PASSED WITHOUT EVER BEING COMPILED.** 18 Aug 2026, and it cost a whole cycle.

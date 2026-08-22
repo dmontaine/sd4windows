@@ -18562,3 +18562,51 @@ entry, since this file is append-only.
 57, which compilation depends on - `BCOMP` opens `@sdsys:@ds:'bin'`. **`/`
 works today on the MSYS2 runtime**, so changing it needs an argument; the old
 step implied restoring `\` was simply owed.
+
+## 21 Aug 2026 - the changelog is exempt from the staleness guard
+
+**Owner's decision**, in answer to header item 1, which had stood undecided
+since the four phases closed. `sdsys/changelog` no longer makes an installed
+tree stale.
+
+**What it cost while it was watched.** CLAUDE.md requires a changelog entry in
+the same commit as any user-visible change, so nearly every commit touched it -
+and `assert-current.ps1` then reported STALE, which makes the whole verify suite
+refuse, since each verifier calls it first. Clearing that meant a full install
+whose only effect was to reinstall a text file. The argument for deciding it
+rather than living with it: a guard that charges a cycle for writing
+documentation teaches the next session to skip the documentation or to skip the
+guard, and both are worse than what it was protecting against.
+
+**IT COULD NOT GO ON `$neverShipped`, and that is worth knowing before anyone
+tries to exempt a second shipped file.** That list is self-policing - anything
+on it that turns up quoted in `stage.py` or `sd.iss` is put back under the guard
+- and `changelog` is quoted at `stage.py:140`. It would have been reinstated on
+the next run and the exemption would silently have done nothing. So a second
+list, `$shippedButExempt` (`assert-current.ps1:334`), which deliberately does
+not consult `$shipsAs`. The two lists now mean different things: `$neverShipped`
+says *this cannot make the install stale*, `$shippedButExempt` says *this can,
+and we accept it*.
+
+**PATH-ANCHORED, NOT BY NAME.** The other lists match a bare file name because
+those names are distinctive. `changelog` is not, so the entry is
+`sdsys\changelog` and a second file of that name anywhere under the watched
+trees is still watched.
+
+**THE BIAS IN THE HEADER IS KEPT BY MAKING IT LOUD.** A false "current" costs an
+investigation, so the one place the script now knowingly reports current on a
+stale file, it says so: an `EXEMPT:` line naming the file and its mtime, emitted
+with `Write-Output` rather than `Note()`, so `-Quiet` does not swallow it - and
+`-Quiet` is how the verifiers call it.
+
+**MEASURED ON THE 17:18:11 INSTALL, BOTH PATHS AND THE CONTROL.** The changelog
+touched forward: `EXEMPT:` line printed, exit **0**, in both the full and
+`-Quiet` forms, where before it was STALE and exit 1. The control -
+`sdsys/MESSAGES/10053` touched the same way - still STALE, exit **1**. Without
+it the exit 0 would have been equally consistent with check B having been broken
+outright. Both mtimes were restored afterwards, so the tree is as it was and the
+install is still current.
+
+**No `changelog` entry for this**, which is the irony worth recording: the
+exemption is build tooling, invisible to a user, and rule 8 covers verbs,
+messages, files, login behaviour and configuration. Nothing about SD changed.
