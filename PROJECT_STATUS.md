@@ -1812,8 +1812,12 @@ way to see this system as a non-administrator on a machine whose account is one.
 - ~~**No staged tree has yet been built with the `ACCOUNTS/SDSYS` fix.**~~ Many
   have; `check_no_stage_paths` is clean on every stage since, and
   `retarget_sdsys_account()` is now a normal part of `stage.py --bootstrap`.
-- **`MODIFY.ACCOUNT` has never been run.** `CREATE.ACCOUNT` and
-  `DELETE.ACCOUNT` both have (§4 Verified).
+- ~~**`MODIFY.ACCOUNT` has never been run.**~~ **RUN AND VERIFIED 21 Aug 2026**,
+  on the 17:18:11 install: `verify-routes` **33/33**, which calls it six times —
+  `API`, `API` again for the "already had that access" path, `BOTH`, `NONE`,
+  `SSH`, and `NONE` against an administrator (`verify-routes.ps1:320-361`).
+  Step 4 is the one that separates absolute from additive; the header carries
+  why. `CREATE.ACCOUNT` and `DELETE.ACCOUNT` had already been run (§4 Verified).
 - ~~**`DELETE.ACCOUNT`'s "SD created it" branch is untested**.~~ **RUN AND
   VERIFIED 16 Aug 2026**, sixteenth session, on `sdacct14` — §4 Verified. All
   three of `DELACC`'s cases have now executed at some point.

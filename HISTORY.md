@@ -18455,3 +18455,27 @@ like a measurement does.** A section that records a fix and then goes on
 telling the next session to make it will get the work done twice — here it
 would have cost an install for a file that was already correct. When a section
 contradicts itself, the source settles it, not the more emphatic sentence.
+
+## 21 Aug 2026 - and the same again: MODIFY.ACCOUNT was on the unverified list
+
+Asked for the smallest remaining task a second time. §4's *"Not verified —
+treat as unknown"* still carried **"`MODIFY.ACCOUNT` has never been run"**.
+
+Phase 2 built the verb and Phase 4 wrote the verifier that drives it:
+`verify-routes.ps1:320-361` calls it six times — `API`, `API` again for the
+"already had that access" path, `BOTH`, `NONE`, `SSH`, and `NONE` against an
+administrator — and it ran **33/33** on the 17:18:11 install. Struck through
+and pointed at the measurement, per the convention the list already uses for
+the two bullets below it.
+
+**THE SECOND STALE TASK FOUND IN TWO LOOKS, AND THAT IS THE POINT.** Both had
+the same shape: work completed inside a phase, recorded in the phase's own
+summary, and never unwound from the older list that said it was outstanding.
+The header was rewritten each phase; §4 and §8 were not. **So the next session
+should distrust the pending-work lists specifically** — not the file generally,
+whose measurements are dated and hold up, but the entries that claim something
+has NOT been done. Those are the ones nothing re-reads.
+
+**Cheap to check and worth checking in bulk:** every remaining bullet in §4's
+unverified list, against the verifiers that now exist. Two of the four already
+struck through were struck by a later session finding exactly this.
