@@ -165,8 +165,28 @@ install.
    unmatched byte fell to the catch-all case and was **APPENDED** — on a
    password prompt backspace made the entry *longer* and echoed another `*`.
    Now both 8 and 127 erase, `kbs` still counts, strictly additive.
-   **CONFIRMED WORKING by the owner, elevated and ordinary PowerShell**, after
-   measurement here (plain and HIDDEN, both bytes: `ab<erase>c` → `ac`).
+
+   **THAT WAS ONLY HALF OF IT, AND THE HALF NOBODY COULD SEE.** With the byte
+   matching fixed the key *still* looked dead, because the ERASE ITSELF was
+   broken separately: `_INPUT:155` erased with `@(IT$CUB) : ' ' : @(IT$CUB)`,
+   and **`@(IT$CUB)` came back EMPTY in the installer's console** — so all that
+   reached the screen was the space, and the cursor walked *forward*. The
+   owner's screenshot is the whole diagnosis: `********    ******`, four
+   backspaces, four spaces, no escape garbage. **Now `char(8)`**, the portable
+   BS-space-BS; `cub1` for the `windows` type is `\b` anyway, so nothing that
+   worked before changes.
+
+   **WHY `cub1` WAS EMPTY THERE IS NOT ESTABLISHED — open.** terminfo is
+   installed (100 entries), the `windows` entry is present and carries
+   `cub1=\b`, and a **piped** session on the same install emitted byte 8
+   correctly. Something differs about a real console. Not guessed at.
+
+   ***A CORRECTION THIS FILE BRIEFLY CARRIED:*** it said backspace was
+   *"CONFIRMED WORKING by the owner, elevated and ordinary PowerShell"*. That
+   confirmation was of the **piped test**, not of the install's prompt, and the
+   screenshot arrived minutes later showing the prompt still failing. **A pass
+   on the instrument I could drive was read as a pass on the thing being
+   asked about.**
 2. **UNPRINTABLE CHARACTERS — self-inflicted, and the mechanism is exact.**
    `messages.c:316` turns every **real newline** in a message file into a
    **FIELD MARK**, which `display` renders as garbage. **The supported line
