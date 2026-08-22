@@ -597,6 +597,17 @@ is the only thing left.
   units disagreed about the layout: **it linked clean, started, and silently
   did nothing.** Both fixed; `$(OBJS)` covers `sdwind.o`, which reads
   `sysseg->` in eight places.
+- **STOPPING THE SERVICE DOES NOT ALWAYS STOP THE DAEMON, AND IT COST A RUN.**
+  21 Aug 17:05: `cycle.ps1` failed at step 1 with *"SD is still running after
+  45s: sdwind(15956)"*. The service was **Stopped**; `sdwind` had been started
+  at 16:25:45 by `verify-apiadmin`'s `sc.exe start SD`, and its parent — the
+  `sdsvc.exe` that the SCM had since ended — **was gone**. A daemon whose parent
+  has gone is nobody's child, and the SCM has nothing left to stop.
+  `sdsvc.c` does call `run_sd("-stop")` on its own stop path (`:433`, `:467`,
+  `:482`), so it tried; the daemon outlived it anyway, and **why is not known**.
+  **Step 1 now asks `sd -stop` itself** before giving up, and its failure
+  message tells a surviving `sd` (a session, close it) from a lone `sdwind`
+  (a daemon that has refused both, so something is still logged in to it).
 - **PHASE 3 MAKES A CYCLE END WITH A WINDOW SOMEBODY HAS TO CLOSE, AND AN
   UNCLOSED ONE BLOCKS THE NEXT CYCLE.** The install now finishes by launching a
   visible `sd` session so the adopted account can be given a password
