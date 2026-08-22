@@ -597,17 +597,37 @@ is the only thing left.
   units disagreed about the layout: **it linked clean, started, and silently
   did nothing.** Both fixed; `$(OBJS)` covers `sdwind.o`, which reads
   `sysseg->` in eight places.
-- **STOPPING THE SERVICE DOES NOT ALWAYS STOP THE DAEMON, AND IT COST A RUN.**
-  21 Aug 17:05: `cycle.ps1` failed at step 1 with *"SD is still running after
-  45s: sdwind(15956)"*. The service was **Stopped**; `sdwind` had been started
-  at 16:25:45 by `verify-apiadmin`'s `sc.exe start SD`, and its parent — the
-  `sdsvc.exe` that the SCM had since ended — **was gone**. A daemon whose parent
-  has gone is nobody's child, and the SCM has nothing left to stop.
-  `sdsvc.c` does call `run_sd("-stop")` on its own stop path (`:433`, `:467`,
-  `:482`), so it tried; the daemon outlived it anyway, and **why is not known**.
-  **Step 1 now asks `sd -stop` itself** before giving up, and its failure
-  message tells a surviving `sd` (a session, close it) from a lone `sdwind`
-  (a daemon that has refused both, so something is still logged in to it).
+- **TWO `sdwind`s CAN COEXIST, AND `sd -stop` THEN LIES BY TELLING THE TRUTH.**
+  Cost two runs on 21 Aug. `cycle.ps1` failed at step 1 with *"SD is still
+  running after 45s: sdwind(15956)"* while the service said **Stopped**, and
+  `sd -stop` answered ***"SD (64 Bit) has been shut down"*** — twice — with the
+  process still there, idle at 0 CPU and **still LISTENING on 0.0.0.0:4243**.
+
+  **The errlog is what explains it**, and nothing else does:
+
+  ```
+  21 Aug 16:25:45 [sdwind]:  API listener on all interfaces, port 4243
+  21 Aug 16:30:55 [sdwind]:  API listener not started: cannot bind port 4243
+  ```
+
+  A **second** daemon started at 16:30:55 outside the service — `sdsvc.log` has
+  nothing between 16:25:50 and 17:05:45 — and could not take the port because
+  the 16:25:45 one had it. `sd -stop` reaches whichever daemon owns the shared
+  segment it finds, stops that one and says so **truthfully**, while the older
+  one keeps running with the port and a segment nothing can now reach.
+
+  **A SECOND DAEMON STARTS ANYWAY WHEN IT CANNOT BIND** — it logs the line above
+  and carries on without an API. Defensible on its own (SD still works locally)
+  and it is how two of them come to coexist.
+
+  **RECOVERY IS `Stop-Process`, and it is safe when — and only when — `sd -stop`
+  said it succeeded and no `sd` process exists.** Then it is a daemon, not a
+  session, and nothing else will end it. **`cycle.ps1` still will not do it for
+  you**: an automatic kill is what the "named, not killed" rule exists to
+  prevent. It now detects the case and prints the exact command.
+
+  **What started the 16:30:55 one is not established** — most likely the paste
+  accident the same minute.
 - **PHASE 3 MAKES A CYCLE END WITH A WINDOW SOMEBODY HAS TO CLOSE, AND AN
   UNCLOSED ONE BLOCKS THE NEXT CYCLE.** The install now finishes by launching a
   visible `sd` session so the adopted account can be given a password
