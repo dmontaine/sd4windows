@@ -18432,3 +18432,26 @@ step that makes and deletes Windows PROFILES, so a run killed inside it can
 leave `C:\Users\<prefix>s` or `<prefix>b` and a `ProfileList` entry behind.
 Both subjects are named from `-DelPrefix`, so the next cycle needs a fresh one
 regardless.
+
+## 21 Aug 2026 - the one-line UNLOCK fix was done three days ago
+
+Asked for the smallest remaining task. §8's SDNet/malformed-verb section named
+one: *"Fixing `UNLOCK` is one line in `VOC_TEMPLATE/UNLOCK`: field 1 must be
+`V`, not the description. It needs a cycle."*
+
+**It was already done, and the same section said so six lines above** — *"`UNLOCK`
+and `COPYP` carry a bare `V` as of the 18:54:10 and 19:46:12 installs"*. Three
+claims in one section, two of them stale, contradicting the third.
+
+Read back before touching anything: source and install both hold `V` / `CA` /
+`$UNLOCK`, matching the control verb `LIST` at `V` / `CA` / `$QPROC`. `COPYP`
+the same. No edit made, no cycle spent; the two stale claims were corrected in
+place and now point at the paragraph that settled it.
+
+**THE GENERAL FORM, AND THE FILE HAS NOW RECORDED IT THREE TIMES.** It is the
+same discipline as *"date the tree first"*, applied to the handoff instead of
+the install: **a task list is a claim about the tree, and it goes stale exactly
+like a measurement does.** A section that records a fix and then goes on
+telling the next session to make it will get the work done twice — here it
+would have cost an install for a file that was already correct. When a section
+contradicts itself, the source settles it, not the more emphatic sentence.

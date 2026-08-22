@@ -6574,9 +6574,9 @@ the bootstrap and administrator accounts get it through
 first CHARACTER of the record — so an administrator account was silently given
 `V` from the `V` of "Verb", and the entry may therefore have worked there while
 being broken in SDSYS. Worth knowing before concluding the fix changed nothing.
-Three are being removed anyway; **`COPYP` and `UNLOCK` need the missing `V`
-line**, and `UNLOCK` is what an administrator reaches for to clear a stuck
-record lock.
+Three are being removed anyway; **`COPYP` and `UNLOCK` have the `V` line** —
+re-read 21 Aug 2026, see the end of this section — and `UNLOCK` is what an
+administrator reaches for to clear a stuck record lock.
 
 **AND IT HAS NOW COST TIME — 18 Aug 2026, so this is live rather than noted.**
 A `verify-fold.ps1 -Cleanup` run was killed at a `DELETE.FILE` prompt while
@@ -6601,9 +6601,14 @@ it will not shut down while a user-table slot is still occupied. Same cause as
 the lock: the session was killed without deregistering. `Stop-Process` the PID
 `cycle.ps1` names, then run it again. **Any hard kill of an SD session leaves
 both a lock and a slot**, so expect the pair together.
-**Fixing `UNLOCK` is one line** in `VOC_TEMPLATE/UNLOCK`: field 1 must be `V`,
-not the description. It needs a cycle, and it is worth doing before anything
-else drives SD from a script.
+**`UNLOCK` IS ALREADY FIXED — READ BACK 21 Aug 2026, SOURCE AND INSTALL.**
+This section used to end *"Fixing `UNLOCK` is one line in `VOC_TEMPLATE/UNLOCK`:
+field 1 must be `V`, not the description. It needs a cycle"*, and that had been
+stale since the 18:54:10 install — the paragraph above records the fix. Both
+`sdb_ai/sd64/sdsys/VOC_TEMPLATE/UNLOCK` and
+`C:\ProgramData\SD\sdsys\VOC_TEMPLATE\UNLOCK` read `V` / `CA` / `$UNLOCK`,
+which is the shape of the control verb `LIST` (`V` / `CA` / `$QPROC`). `COPYP`
+is the same. **No cycle is owed by anything in this section.**
 
 **ANSWERED 16 Aug 2026, sixteenth session: A `CA` VERB'S PROGRAM LIVES IN
 `gcat`, EXACTLY WHERE IT LOOKS AS THOUGH IT SHOULD.** `$QPROC` is there at
