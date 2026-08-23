@@ -57,6 +57,25 @@ something came to be the way it is.
 >    `CreateProcessAsUser` versus accepting a service identity behind the
 >    `op_dio2.c` gate that already holds.
 >
+> ### AND THEN PROC, SED AND UPDATE.RECORD WERE REMOVED - THE TREE IS STALE
+>
+> **Owner, 23 Aug 2026: they are "not necessary for a working SD".** Deleted:
+> `gpl.bp/PROC`, `gpl.bp/SED`, `gpl.bp/UPDREC`, their VOC records, `listpq`,
+> `sed` from `TIER.OMIT.STANDARD`, and `verify-editkeys.ps1`, which tested
+> nothing else. `CPROC`'s `PQ` dispatch now **refuses by name** (message 10099)
+> rather than falling through to *"invalid dispatch code"* - the record is valid
+> PROC, it is the interpreter that is gone. **A CYCLE IS OWED, and BASIC changed
+> but C did not, so `make sd` is NOT needed.** The suite is **26** from now on.
+>
+> **THREE THINGS DELIBERATELY LEFT, each checked rather than assumed:**
+> **`$QPROC`** is the QUERY processor - `LIST`, `COUNT`, `SELECT`, `SORT` - and a
+> different program from `$PROC` despite the name; **`PDBG`/`PDEBUG`** turned out
+> to be the PHANTOM debugger, not PROC's; and **`_KEYEDIT`/`KEYCODE.H`** are
+> language runtime, not editor-private - `KEYEDIT` is a BASIC opcode
+> (`opcodes.h:441`), so deleting them would have removed a language feature.
+> **The `proc.*` SYSCOM common slots also stay**: removing common-block slots
+> shifts every slot after them, which is §7 step 1's `struct PCFG` hazard.
+>
 > ### TWO THINGS NOT CLAIMED, BECAUSE NOTHING EXERCISED THEM
 >
 > - **`CREATEA`'s `USRDIR`/`GRPDIR` fallback** runs only when `CONFIG('USRDIR')`
@@ -326,7 +345,7 @@ consecutive installs**, so §8's intermittent has not bitten since 22 Aug.
 
 ```
 verify-credacl  verify-osusers  verify-nocase 3/3  verify-setpw
-verify-allowgroups  verify-keys  verify-editkeys  verify-lcnames 142/142
+verify-allowgroups  verify-keys  verify-editkeys*  verify-lcnames 142/142
 verify-parsertokens 7/7  verify-batchjob 10/10                   all exit 0
 
 verify-fold 10/10        verify-nonet 17/17         verify-notyet 13/13
@@ -337,7 +356,9 @@ verify-apiadmin 22/23    verify-apiname 17/17       verify-apiport all
 verify-scramlogin 40/40  verify-tierapi 16/16                       all exit 0
 ```
 
-`verify-apiadmin`'s 23rd is the standing N/A, not a failure.
+`verify-apiadmin`'s 23rd is the standing N/A, not a failure. **`*` `verify-editkeys` ran here and passed, then was REMOVED on 23 Aug with the
+editors it tested (§5.19), so the suite is 26 from now on. The 27 above is what
+was measured, not what the next run will show.**
 
 **WHAT THE TWO RUNS SETTLED THAT THE STEP COUNTS DO NOT SAY.** `verify-notyet`
 passed **through the runner** rather than by hand; `verify-sshonly` — `b3`'s one
@@ -1515,11 +1536,12 @@ as it stood — every measurement with the reasoning that produced it — is in
 HISTORY, *"ARCHIVE 21 Aug 2026 - section 4's measurement record"*. Nothing was
 deleted, and the three corrections made on the way are noted where they belong.
 
-### 4.0 The verifier inventory — all 27, and which are actually run
+### 4.0 The verifier inventory — all 26, and which are actually run
 
 **WRITTEN 22 Aug 2026 BECAUSE THE SET HAD NEVER BEEN WRITTEN DOWN.** There are
-**27** `verify-*.ps1` in `gplbld` — 24 when this was written, plus
-`verify-notyet`, `verify-parsertokens` and `verify-batchjob`. `post-cycle-elevated.ps1` ran **nine** of
+**26** `verify-*.ps1` in `gplbld` — 24 when this was written, plus
+`verify-notyet`, `verify-parsertokens` and `verify-batchjob`, less
+`verify-editkeys`, removed 23 Aug with the editors it tested. `post-cycle-elevated.ps1` ran **nine** of
 them, and the other fifteen were reachable only by remembering they existed.
 **Three of the twenty-four — `verify-scramlogin`, `verify-setpw`,
 `verify-tierapi` — were not named anywhere in this file at all**, so a session
@@ -1528,7 +1550,7 @@ happened to `verify-delaccount`, which went a whole phase unrun; the difference
 is that this list makes the next one visible instead of waiting for it to be
 missed again. **Add a row here in the same commit that adds a verifier.**
 
-**ALL 27 ARE ON `assert-current`'s `$neverShipped` LIST** — checked by name,
+**ALL 26 ARE ON `assert-current`'s `$neverShipped` LIST** — checked by name,
 22 Aug 2026, not by eye: two earlier attempts to audit this by grepping a line
 range and by regex both reported files missing that were not. Grep for
 `'<name>'` **quoted**, or the answer is wrong.
@@ -1569,8 +1591,8 @@ unelevated runner could not start a service anyway.
 
 **Run after a cycle, UNELEVATED — `post-cycle-unelevated.ps1`, NEW 22 Aug 2026,
 and it spends no prefixes at all:** `verify-credacl`, `verify-nocase`,
-`verify-setpw`, `verify-allowgroups`, `verify-keys`, `verify-editkeys`,
-`verify-lcnames`, `verify-parsertokens`, `verify-batchjob`. Nothing there creates a Windows
+`verify-setpw`, `verify-allowgroups`, `verify-keys`, `verify-lcnames`,
+`verify-parsertokens`, `verify-batchjob`. Nothing there creates a Windows
 account, so unlike the
 elevated runner it is free to re-run.
 
@@ -1745,7 +1767,7 @@ of them for the first time in this file's memory:
 | `verify-setpw` | PASSED, 4/4 — `MODIFY.PASSWORD DON somethingextra` refused with 5276, and the control without the token reaches the prompt |
 | `verify-allowgroups` | all checks passed — apply is idempotent, removal is an exact inverse, four foreign-policy shapes refused |
 | `verify-keys` | 10/10 — DEL and Ctrl-H both erase, LEFT/RIGHT both move, with the no-erase and no-arrow controls |
-| `verify-editkeys` | 14/14 — the same inside `SED` and `UPDATE.RECORD` |
+| ~~`verify-editkeys`~~ | **STRUCK 23 Aug 2026 — `SED` and `UPDATE.RECORD` were removed, so this row's subject is gone and the verifier with it (§5.19). It read 14/14. Kept struck rather than deleted because the measurement was real and HISTORY, 19 Aug, explains what it found** |
 | `verify-lcnames` | **142/142 at 08:52**, then 135/142 — see §8's intermittent, which this is |
 
 **`verify-lcnames` IS THE ONE TO DISTRUST OF THE SEVEN.** The other six are
@@ -3462,91 +3484,25 @@ find: that section says `env('TERM')` "never runs" and that `$TERM` cannot
 change the terminal type. Both are wrong, and wrong for the same reason as the
 `cub1` question — the measurement behind them was taken at the `:` prompt.
 
-### 5.19 The full-screen editors carry their own key tables (19 Aug 2026)
+### 5.19 REMOVED WITH ITS SUBJECT: the full-screen editors are gone (23 Aug 2026)
 
-**Owner, 19 Aug 2026: "fix backspace in ED and UPDATE.RECORD".** §5.17 had
-recorded this as owed and said the work was "a test that drives a full-screen
-editor, and nothing here does that yet". **That test now exists** —
-`gplbld/verify-editkeys.ps1`, 14 checks.
+**`SED` and `UPDREC` were removed from the system on 23 Aug 2026** (§7 step 10's
+neighbour, and the changelog entry of that date), so the key-table work this
+section recorded has nothing left to apply to and `verify-editkeys.ps1` went with
+them. Compressed under §0.5; **HISTORY, 19 Aug, holds the measurements** - the
+before-and-after tables, `UPDREC`'s arrows typing themselves into the record, and
+`SED`'s bindings as the worked example.
 
-**ED WAS NEVER AFFECTED, AND §5.17 WAS WRONG TO LIST IT.** `ED` is the LINE
-editor: it reads whole lines with `input`, so it goes through the command-line
-editor that `_KEYCODE` fixed on 19 Aug. **Measured: DEL erases backwards in ED
-already.** It cannot reach the screen editor either — `ED:3436` passes
-*"Not full screen editor"* and there is no path from one to the other.
+**THE PART THAT IS STILL LIVE IS IN §5.17 AND §5.18, NOT HERE**: on this platform
+Backspace is `127` and Delete is `ESC [ 3 ~`, measured from three console hosts.
+That governs the COMMAND LINE, which still exists, and `verify-keys.ps1` still
+measures it.
 
-**THE TWO THAT WERE AFFECTED ARE `SED` AND `UPDREC`**, and the fault is the same
-in both: their key tables are hard-coded and know nothing of terminfo, so they
-bound `char(127)` — the byte every Windows console sends for **Backspace** — to
-**Delete**. Measured before the change, on the 10:06:08 install:
-
-| | Backspace, DEL 127 | Ctrl-H 8 |
-|---|---|---|
-| `SED`, type `AB` DEL `C` | **`ABC`** — deleted forwards | `AC` — correct |
-| `UPDREC`, field `AB`, type `X` DEL | **`XB`** — deleted forwards | `AB` — correct |
-
-**AND `UPDREC` WAS WORSE THAN A DEAD KEY: ITS ARROWS TYPED THEMSELVES INTO THE
-RECORD.** Its only cursor-key bindings were `char(203)`–`char(212)`
-(`UPDREC:2427`), an 8-bit terminal convention nothing on this platform emits. No
-escape sequence was bound at all, so `get.key` walked the multi-character table,
-failed to match, and the bytes fell through as ordinary text. **Measured: field
-`AB`, press Right, type `X`, save — the record became `CXAB`.** That is silent
-data corruption in a data-entry screen, and it is why the arrows were fixed here
-as well as the erase keys.
-
-**`SED`'s ARROWS WERE ALREADY RIGHT** and are the worked example the `UPDREC`
-change copies: `SED:4489` binds `@B`, `@[[D`, `@[OD` and `char(203)` to
-`F.LEFT` — Ctrl-B, both escape spellings, and the 8-bit code. Measured: all
-three spellings move the cursor. Only its erase keys were wrong.
-
-**THE TWO KEYS ARE DISTINCT BYTES ON THIS PLATFORM, so nothing is shared and
-neither key loses its function** — Backspace is `127`, Delete is `ESC [ 3 ~`
-(`kdch1`), both measured from three console hosts in §5.18. `SED`'s `F.DELETE`
-and `UPDREC`'s `K$DELETE` now take the escape sequence and `127` goes to
-backspace. **A terminal that genuinely sends DEL for its Delete key gets
-Backspace instead**; these are shipped defaults, and `SED` reads its bindings
-from a file a site can edit.
-
-**`UPDREC` ALSO GAINED THE KEYPAD BLOCK** — `khome`, `kend`, `kdch1`, `kich1`,
-`kpp`, `knp` — because every one of them was unbound and would have typed itself
-into the record in exactly the same way. `kich1` goes to `K$OVERLAY`, which is
-what the 8-bit Insert code `char(211)` was already bound to.
-
-**THE INSTRUMENT IS THE SAVED RECORD, AND THAT IS WHAT MAKES THIS TESTABLE AT
-ALL.** `SED` and `UPDREC` read the keyboard with `keyin()`, which reads standard
-input — so **a full-screen editor is drivable from a pipe** exactly as the
-command-line editor is. The screen is not drivable and does not need to be: type,
-save, quit, then read the record back with `CT`. §5.17 assumed a console was
-required and it is not.
-
-**MEASURED AFTER THE CHANGE — `verify-editkeys.ps1` 14/14, 14:54:36 install.**
-`SED` `AB`+DEL+`C` gives `AC`; `UPDREC` field `AB`, `X`+DEL gives `AB`; and
-`UPDREC` Right-then-`X` gives `AXB` where it used to give `CXAB`. **The controls
-are what make it evidence**: with no erase byte at all the same runs give `ABC`
-and `XAB`, so the erase is what changed them; and the Delete key still deletes
-FORWARDS in both editors, so the two keys were fixed rather than swapped.
-**That last check has to be taken with the cursor NOT at the end of the line** —
-at the end, deleting forwards does nothing, and the check would pass on a Delete
-key that had stopped working altogether.
-
-**A ONE-LINE `if ... then ... end else ... end` COMPILES CLEAN AND FAILS AT RUN
-TIME**, and it cost this session a full verifier run. Written inline —
-`open 'F' to f then write .. ; print 'OK' end else print 'FAIL'` — SDBasic
-reports `0 error(s)` and then stops with **"Unassigned variable END"**, because
-the inline `THEN` takes statements to the end of the line and the `END` is read
-as a variable. Use the block form. **CLAUDE.md's "compiling is not running" has
-a second edge here**: it is usually about testing a stale install, and this is
-the same lesson one layer down.
-
-**A TIMED-OUT RUN LEAVES A RECORD LOCK, AND IT OUTLIVES THE PROCESS.** This cost
-an hour. `Stop-Job` kills SD mid-edit; `LIST.READU` then shows an `RU` lock owned
-by a dead user; `UNLOCK USER n` and `UNLOCK FILE ...` will not take it from an
-ordinary account session; and every later run on that record id stops on
-*"Wait for lock to be released? Y or N only"*. **`verify-editkeys.ps1` uses a
-fresh random record id for every case** so one timeout cannot poison the rest,
-and reports any stale locks it finds rather than failing on them. They clear
-with `sd -CLEANUP` (elevated — it removes only users whose process is gone,
-`clopts.c:242`) or at the next cycle, which rebuilds the shared memory segment.
+**AND THE ONE CORRECTION WORTH CARRYING: `ED` WAS NEVER AFFECTED.** §5.17 listed
+it and was wrong - `ED` is the LINE editor, reads whole lines with `input`, and
+goes through the command-line editor `_KEYCODE` fixed. It is also the editor this
+system now uses, so if backspace is ever reported broken in `ED`, that is a new
+fault and not this one coming back.
 
 ### 5.18 The arrow keys were dead because of the default terminal type (19 Aug 2026)
 
@@ -3706,7 +3662,7 @@ measurements.** It listed **`ED`**, which is the LINE editor: it reads with
 there today. And it said a test "needs a console" — it does not. `keyin()` reads
 **standard input**, so a full-screen editor is drivable from a pipe, and the
 instrument is the record it saves rather than the screen it paints.
-`gplbld/verify-editkeys.ps1` is that test.
+`gplbld/verify-editkeys.ps1` was that test, **until `SED` and `UPDATE.RECORD` were removed on 23 Aug 2026 and it went with them** (§5.19).
 
 ### 5.13.1 The ForceCommand scp cost has a workaround: pull, do not push (17 Aug 2026)
 

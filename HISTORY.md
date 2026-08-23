@@ -23501,3 +23501,49 @@ ONE DANGLING POINTER IS LEFT DELIBERATELY.  gpl.bp/LOGIN:890 still says "(step
 tree stale and costs a cycle - on a tree that had just gone 27 of 27.  It is
 recorded in step 10 instead, to be fixed the next time LOGIN is edited for a
 real reason.  Documentation accuracy is worth a lot; it is not worth an install.
+
+## FORTY-SECOND SESSION, part 9 - PROC, SED and UPDATE.RECORD are removed
+
+23 Aug 2026, owner's instruction.  414 KB of BASIC deleted: gpl.bp/PROC (the
+PROC interpreter, $PROC), gpl.bp/SED (the screen editor) and gpl.bp/UPDREC
+(UPDATE.RECORD), with their VOC records in newvoc and voc_template, listpq in
+three places, and "sed" from TIER.OMIT.STANDARD.
+
+PROC IS NOT A VERB, WHICH IS THE PART THAT IS NOT OBVIOUS.  It is a VOC record
+TYPE: CPROC dispatched an item of type PQ by building the PROC input buffers
+from @sentence and calling $PROC.  That case is replaced rather than deleted,
+and it REFUSES BY NAME - message 10099.  Deleting it outright would have dropped
+a PQ item into the "invalid dispatch code" arm above it, which is the wrong
+thing to say: the record is valid PROC, it is the interpreter that is gone.
+Nothing shipped is affected - no record in newvoc or voc_template is type PQ,
+checked before the change.
+
+FOUR THINGS WERE CHECKED RATHER THAN ASSUMED, and three of them changed what was
+deleted:
+
+  $QPROC is the QUERY processor - LIST, COUNT, SELECT, SORT - and is a different
+  program from $PROC despite the name.  Untouched.
+
+  PDBG and PDEBUG read like PROC's debugger from the names.  They are the
+  PHANTOM debugger; their headers say so.  Untouched.
+
+  _KEYEDIT and KEYCODE.H are referenced by nothing else once SED and UPDREC go,
+  which reads like an orphan.  KEYEDIT is a BASIC OPCODE (opcodes.h:441,
+  OP_KEYEDIT), so it is language runtime callable from any program.  Deleting
+  them would have removed a language feature.  Untouched.
+
+  ED is the LINE editor and is unaffected - 5.19 had already established that
+  and said 5.17 was wrong to list it.  It is also the editor this system uses
+  for os.users and batch.jobs, so removing the screen editors costs no
+  administrative capability.
+
+The proc.* SYSCOM common slots stay.  Removing common-block slots shifts every
+slot after them, which is the struct PCFG hazard section 7 step 1 recorded.
+
+verify-editkeys.ps1 went with them: it tested SED and UPDREC and nothing else.
+The suite is 26 from now on, not 27, and both runners and assert-current's
+neverShipped list were updated in the same commit.  5.19 is compressed to its
+conclusion, and its row in section 4's verified table is STRUCK rather than
+deleted - the measurement was real, its subject is not.
+
+NOT COMPILED.  BASIC changed and C did not, so the next cycle needs no make sd.
