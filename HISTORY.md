@@ -23743,3 +23743,21 @@ sdclilib32 - and the script is not written.  The blocker for it is not the
 script: GPL.BP (212 files, 9 references) and gplsrc (118 files, 3 references)
 are plain directories with NO REMOTE, so nothing can clone them, and GPL.BP
 exists on one machine with no backup.
+
+23 Aug 2026 - the Linux client is archived rather than abandoned.  The GitHub
+repository is deleted and the working tree is gone; the tree is zipped to
+Projects\linuxsdclilib.zip, which is now THE ONLY COPY.  Verified rather than
+assumed: extracted to scratch, git log reads full history with HEAD at f6ab707,
+git fsck clean, and UPSTREAM_FIXES entry #2's commit is present.  84 entries, 61
+of them .git/ - a repository, not a source dump.
+
+WHY IT IS KEPT: the owner may advance sdb_ai itself - the Linux base this port
+was built on - as its own line, still separate from upstream sdb64.  A Linux
+client belongs with that work rather than this one.
+
+The zip is also copied to pCloud, so it is not resting on one disk.
+
+Projects\GPL.BP IS STILL EXPOSED: 212 files, 9 references, no remote, and section
+2 calls it genuinely valuable - the original ScarletDME BASIC retaining Windows
+code this repository's sdsys/gpl.bp had stripped, which section 7 step 12 worked
+from.  Nothing in this project can recreate it.

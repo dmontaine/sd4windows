@@ -1523,11 +1523,33 @@ rather than deleted; read it before syncing anything.
 it, and `qmclilib.dll` must stay a single file that can be copied beside an
 application, which is what chose PBKDF2 over Argon2 for SCRAM.
 
-***THE LINUX CLIENT IS REMOVED FROM THE PROJECT ENTIRELY — owner, 23 Aug
-2026.*** *"This build is windows only and I think the number of users that want
-to connect from a linux client to a windows server are very small."* **Not
-cloned, not synced, not a duty, and not in the table above.** The GitHub
-repository is being removed too.
+***THE LINUX CLIENT IS REMOVED FROM THE PROJECT — owner, 23 Aug 2026.***
+*"This build is windows only and I think the number of users that want to
+connect from a linux client to a windows server are very small."* **Not cloned,
+not synced, not a duty, and not in the table above.** ***The GitHub repository
+is DELETED and the working tree is gone*** — `gh repo view` no longer resolves
+it.
+
+***IT IS NOT DISCARDED, THOUGH, AND THE REASON IS FORWARD-LOOKING.*** The owner
+may advance **`sdb_ai` itself — the Linux base this port was built on — as its
+own line, still separate from upstream `sdb64`** (§2, the three generations). A
+Linux client belongs with that work rather than with this one. So it is
+archived rather than abandoned:
+
+**`C:\Users\dmont\Projects\linuxsdclilib.zip`, AND IT IS NOW THE ONLY COPY.**
+**Verified restorable 23 Aug 2026**, not merely assumed: extracted to a scratch
+directory, `git log` reads the full history with HEAD at **`f6ab707`**,
+`git fsck` is **clean**, and the commit [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md)
+entry #2 cites is present. **84 entries, 61 of them `.git/`** — it is a
+repository, not a source dump.
+
+**AND IT IS COPIED TO pCloud** (owner, 23 Aug 2026), so it is not resting on
+one disk.
+
+***`Projects\GPL.BP` IS THE ONE STILL EXPOSED*** — 212 files, 9 references,
+**no remote**, and §2 calls it *"genuinely valuable"*: it is the original
+ScarletDME BASIC that retains Windows code this repository's `sdsys/gpl.bp`
+had stripped, and §7 step 12 worked from it. **Nothing here can recreate it.**
 
 **AND THE TWO ENDS CANNOT TALK ANYWAY, measured 23 Aug 2026:** this port's
 client sends **request 47** for SCRAM and upstream's dispatch table **ends at

@@ -6,8 +6,10 @@ upstream Linux project at <https://codeberg.org/stringdatabase/sdb64>.
 **Fixes owed to `winsdclilib` do NOT belong here** — it is ours to maintain and
 is fixed directly (PROJECT_STATUS.md §2, the sibling repositories). This file is
 only for what `sdb64` itself needs. Entry #2 is a closed example of a bug that
-looked like upstream's and was not. *(`linuxsdclilib` was removed from the
-project on 23 Aug 2026 and is not a destination for anything.)*
+looked like upstream's and was not. *(`linuxsdclilib` was removed from the project on 23 Aug 2026 — repository
+deleted, tree archived to `Projects\linuxsdclilib.zip` and to pCloud — and is
+not a destination for anything. Its history survives in that zip, which is why
+entry #2's citation of `f6ab707` still resolves.)*
 
 ## Nothing here can be tested across the boundary
 
