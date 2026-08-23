@@ -48,10 +48,18 @@ something came to be the way it is.
 >
 > ***THEN STEP 9 WAS BUILT AND THE TREE IS STALE AGAIN. A CYCLE IS OWED, AND
 > THIS ONE CHANGES C.*** `sd.c`, `LOGIN`, `stage.py`, `sd.iss`, three new
-> messages, a dictionary and a new verifier - **so `make sd` runs this time**,
-> unlike every cycle since 21 Aug. **None of it has been compiled.** §7 step 9
-> has what was built and the two things §8 specified that turned out to be
-> wrong.
+> messages, a dictionary and a new verifier. §7 step 9 has what was built and
+> the two things §8 specified that turned out to be wrong.
+>
+> ***BECAUSE C CHANGED, `make sd` COMES FIRST. `cycle.ps1` DOES NOT BUILD*** -
+> it stages what is already in `bin\`. Getting that wrong cost a cycle on
+> 22 Aug: the 23:40:28 install carried the **21 Aug** `sd.exe`, and
+> `assert-current` caught it. **It compares against the OLDEST binary in
+> `bin\`**, which was `sdclilib.dll`, so rebuilding the server alone would not
+> have cleared it either - `make sd` depends on `sdclilib`, which is why one
+> build does. **Built 22 Aug 23:43:35, `gplobj/sd.o` rebuilt with it, and the
+> new `sd.exe` hashes DIFFERENT from the installed one** - so the change is in
+> the binary and the install is one cycle behind it.
 >
 > **THE ONE-LINE VERSION:** a scheduled job can now run a command, because the
 > elevation gate on `sd <command>` moved from `sd.c` into `LOGIN` and became a
