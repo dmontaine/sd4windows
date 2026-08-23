@@ -23939,3 +23939,37 @@ A latent double-report went with it: under -CheckOnly with git absent, Step-Git
 printed "git is missing" from Install-Winget and then "installed but not on
 PATH" about an install that never happened.  Both steps now return on the
 install's own verdict.  Same one-cause-two-reports defect as the ssh clones.
+
+23 Aug 2026 - the clones go over https, and a bare machine can now finish
+
+Owner's decision, taken before the first clean-VM run so that the run tests the
+final script rather than a superseded one.  A VirtualBox VM named
+DevInstallTest was created for that run: Windows 11, NAT, Guest Additions up,
+NO SNAPSHOT - "if necessary i'll just make another clone" - so the run is
+one-shot and a retry means a fresh VM clone.
+
+THE FINDING BEHIND IT: all three GitHub repositories are PUBLIC, checked with
+gh repo view, so git@ was only ever required to PUSH.  Cloning over git@ meant
+a machine with no key skipped sd4windows and sdclilib32 and skipped `make sd`
+with them - which this script's own comment calls the only real test of the
+environment.  A bare machine could therefore be set up to within one step of
+the only thing that would have proved the setup worked.
+
+Now: Url is https for all four, a new Push field carries the git@ URL for the
+two that are pushed to, and Step-Clone applies it with
+`git remote set-url --push origin` after the clone.  Pushing is unchanged and
+nothing needs hand-editing afterwards.  Step-Ssh no longer gates anything - it
+reports a missing key as a fact about pushing, not as a problem - and the
+HaveSshKey skip added earlier the same day is gone with the condition it
+existed for.
+
+VERIFIED BEFORE THE VM RUN, not after: the real Step-Clone was extracted and
+run against a throwaway root, cloning winsdclilib and sdclilib32 over https.
+sdclilib32 came out fetch=https push=git@, winsdclilib https both ways, which
+is what was intended.  Doing this on the host cost nothing; discovering it on
+the VM would have cost the one-shot fresh state.
+
+THE ORDER IS THE POINT.  CLAUDE.md's rule that a cycle ends at the next source
+change is about SD test cycles, but it applies whole: every source change was
+made and checked BEFORE the fresh machine was spent, because a fresh machine is
+the one resource here that cannot be re-used.

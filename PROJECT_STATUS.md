@@ -101,13 +101,13 @@ something came to be the way it is.
 > tree archived to `Projects\linuxsdclilib.zip` and pCloud, kept because
 > `sdb_ai` may be advanced as its own Linux line. §2.
 >
-> ### setup-devbox HAS BEEN RUN, AND IT FOUND FIVE THINGS
+> ### setup-devbox HAS BEEN RUN, AND IT FOUND SIX THINGS
 >
 > **Owner ran it on his laptop, 23 Aug 2026, and reported back; the "do not
 > rewrite" hold is over.** It finished with 3 problems, of which **one was
-> real**. All five items below are fixed in the same commit as this entry.
-> **Item 5 came from a question afterwards, not from the run**, and is the
-> owner's ruling rather than something the run exposed.
+> real**. All six items below are fixed. Items 5 and 6 came from questions
+> and decisions afterwards rather than from the run itself, and both are the
+> owner's rulings.
 >
 > **THE LAPTOP WAS NOT A FRESH MACHINE, so the two biggest paths STILL have
 > not executed:** MSYS2 was already at `C:\msys64` and all 9 packages were
@@ -151,10 +151,28 @@ something came to be the way it is.
 >    `GitHub.cli`. §2 records why this cuts across the MSYS2-`git` reasoning
 >    and why it still stands.
 >
-> ***THE NEXT RUN SHOULD BE ON A VM SNAPSHOT, NOT THE LAPTOP*** - owner's own
-> suggestion and it is right. §7 step 2 already documents a reusable rig.
-> Nothing exercises the MSYS2 or pacman paths short of a machine that has
-> neither, and those are the two steps with the most left to go wrong.
+> 6. ***THE CLONES ARE `https` NOW, AND THIS IS THE ONE THAT CHANGES WHAT A
+>    BARE MACHINE CAN DO.*** Owner's decision, 23 Aug 2026, made **before** the
+>    clean-VM run so the run tests the final script. All three GitHub repos are
+>    **public**, so `git@` was only ever needed to push - yet it meant a machine
+>    with no key skipped `sd4windows` and `sdclilib32` and **skipped `make sd`
+>    with them**, stopping one step short of the only thing that proves the
+>    environment. The `git@` **push URL is set after the clone**, so pushing is
+>    unchanged. §2 has it.
+>
+> ### THE CLEAN-VM RUN: VirtualBox `DevInstallTest`
+>
+> **Owner created it 23 Aug 2026 and it is the rig the laptop could not be.**
+> Windows 11, NAT (enough - nothing here needs the host to reach the guest,
+> unlike §7 step 2's bridged rig), Guest Additions running.
+>
+> ***NO SNAPSHOT, DELIBERATELY*** - owner: *"if necessary i'll just make
+> another clone"*, which takes about five minutes. So **the run is one-shot
+> and a second attempt means a fresh VM clone**, not a rollback.
+>
+> **THE KEY IS DELIBERATELY NOT INSTALLED ON IT** - owner will add it
+> afterwards - which is exactly the condition item 6 above was fixed for, and
+> makes this run the test of it.
 >
 > ### THE RUN BEFORE IT, KEPT ONLY TO BRACKET THE REVERT
 >
@@ -1497,11 +1515,20 @@ run died on, `gh ssh-key add` is the shortest way through it, and the script
 had been *naming* `gh` in its advice while never installing it — which is the
 worst of the three options.
 
-**TWO THINGS IT CANNOT DO, AND IT SAYS SO RATHER THAN FAILING LATE:** it cannot
-create **SSH keys** (two remotes are `git@github.com`), and it cannot fetch
-**`Projects\GPL.BP`**, which has no remote. A machine it builds can build and
-test SD; it cannot do the attribution work this section is written around until
-that tree is copied across by hand.
+***ONE THING IT CANNOT DO, AND IT SAYS SO RATHER THAN FAILING LATE:*** it
+cannot fetch **`Projects\GPL.BP`**, which has no remote. A machine it builds
+can build and test SD; it cannot do the attribution work this section is
+written around until that tree is copied across by hand.
+
+**IT USED TO BE TWO. SSH KEYS STOPPED BEING A BLOCKER 23 Aug 2026** (owner's
+decision, before the first clean-VM run). **All three GitHub repositories are
+PUBLIC, so a key was only ever needed to PUSH** — and cloning over `git@` meant
+a machine without one skipped `sd4windows` and `sdclilib32`, and skipped
+**`make sd`** with them. So a bare machine could be set up to within one step
+of the only thing that proves it. **Clones are `https` now**, and the script
+sets the `git@` **push URL** afterwards with `git remote set-url --push`, so
+nothing about pushing changes and no hand-editing is wanted. A key is now
+needed the first time somebody pushes, and git explains that clearly by itself.
 
 ***MSYS2'S OWN `git` IS DELIBERATELY NOT IN THE PACKAGE LIST***, and the first
 draft had it. `-CheckOnly` on the reference machine reported it missing — on
