@@ -3,10 +3,35 @@
 Defects found while porting SD to Windows that **also affect `sdb64`**, the
 upstream Linux project at <https://codeberg.org/stringdatabase/sdb64>.
 
-**Fixes owed to `winsdclilib` and `linuxsdclilib` do NOT belong here** — those
-two are ours to maintain and are fixed directly (PROJECT_STATUS.md §2, the
-sibling repositories). This file is only for what `sdb64` itself needs. Entry
-#2 is a closed example of a bug that looked like upstream's and was not.
+**Fixes owed to `winsdclilib` do NOT belong here** — it is ours to maintain and
+is fixed directly (PROJECT_STATUS.md §2, the sibling repositories). This file is
+only for what `sdb64` itself needs. Entry #2 is a closed example of a bug that
+looked like upstream's and was not. *(`linuxsdclilib` was removed from the
+project on 23 Aug 2026 and is not a destination for anything.)*
+
+## Nothing here can be tested across the boundary
+
+**The two projects cannot talk to each other, so no claim in this file has ever
+been checked by running one side against the other.** Measured 23 Aug 2026:
+
+- **This port's client cannot log in to an upstream server.** Its only login
+  path sends **request 47** (`SrvrScramFirst`); upstream's `APISRVR` dispatch
+  table **ends at 46**, so the request falls off the end of it. There is no
+  fallback — request 24 was removed here, not deprecated.
+- **An upstream client cannot log in to this port's server.** It sends request
+  24, which `APISRVR` marks *"RETIRED, always refused"* since 20 Aug 2026:
+  SCRAM is the only network login and there is **no fallback, by design**.
+- `grep -rli scram ../sdb64` finds **nothing**. Upstream has no SCRAM at all.
+
+**So every entry here rests on READING upstream's source and reasoning about
+it — never on observing upstream misbehave.** That is a real limit and it
+should show in how an entry is worded: say what the code does and why it is
+wrong, and **do not write as though the failure was reproduced** unless it was
+reproduced *in this tree*, which is a different claim and worth stating as one.
+
+**It also means the usual safety net is absent.** Elsewhere in this project a
+wrong conclusion is caught by a verifier; here there is nothing to run. The
+substitute is the generation check below — do it, every time.
 
 **This file has a different audience from the rest of the repository.**
 PROJECT_STATUS.md and HISTORY.md are written for the next AI session;
