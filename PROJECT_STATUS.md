@@ -6334,6 +6334,36 @@ the staging script and the Inno installer were all finished and removed.
        for the same reason. Exercised down a pipe: it declines to answer rather
        than answering the wrong question.
 
+       ***RUN ONCE, 23 Aug 2026, AND THE PROBE WAS WRONG - IT ANSWERED "YES" ON
+       A RUN WHERE `read()` HAD FAILED.*** The output said
+       `bytes: (read returned -1)` and then *"the mode we set survived a Cygwin
+       read unchanged"*, because **all it compared was the mode bits, and a read
+       that never happened cannot disturb them.** The verdict is void; do not
+       carry it forward. **A check that passes without meaning it is worse than
+       no check** - §8's intermittent entry makes the same argument from the
+       other direction.
+       **Rebuilt with a `read()` that must SUCCEED before YES is available**,
+       `errno` printed on failure, **a control read before anything of ours is
+       set**, and - if the deciding read fails - **the entry mode restored and
+       the read retried**, so a failure can be pinned on `SetConsoleMode` or
+       declared INCONCLUSIVE rather than read as a NO by whoever wants an
+       answer. **It needs running again.**
+
+       ***TWO THINGS THAT FIRST RUN DID ESTABLISH, and they hold whatever the
+       verdict becomes.*** `isatty` is 1 on both descriptors and both carry real
+       console handles, **so the question is live** rather than academic. And
+       the console reads **`0x2e8`** on entry - line input off, echo off,
+       processed input off, **virtual-terminal input ON** - and **Cygwin's own
+       `tcsetattr(raw)` leaves it at `0x2e8`, unchanged**. So ***Cygwin is
+       already driving `SetConsoleMode` itself***, translating termios into
+       console modes, and **`0x2e8` is the mode the native code has to
+       reproduce** - which is worth having whichever way the leg goes.
+
+       **AND THE OUTPUT STAIRCASED**, because step 3 clears `OPOST` and a bare
+       `\n` then does not return the carriage. Fixed with CRLF throughout. It
+       is cosmetic, but it made the first run's verdict hard to read at exactly
+       the moment it needed reading.
+
        **`probe-console.c`, `.ps1` and `.exe` are all on `assert-current`'s
        `$neverShipped` list, in the commit that created them** - the rule
        `verify-scram.c` was added without and paid for. The `.exe` matters most:
