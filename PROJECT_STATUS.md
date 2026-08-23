@@ -24,12 +24,13 @@ something came to be the way it is.
 > as designed — `adopt-account.log`: *"don now has an SD account"*.
 >
 > **THE SUITE RAN, `-Run b2`: unelevated 8/8, elevated 15/16.** The only failure
-> is `verify-sshonly`, and it is the informative kind — see item 1 below.
+> was `verify-sshonly`, and it is **now closed** — see item 1 below.
 > **`b2` is spent. Pick a fresh token.**
 >
 > ### WHAT TO DO NEXT, and none of it needs a cycle first
 >
-> 1. **`verify-sshonly` fails at a NEW place, one layer deeper.** §5.6.2.
+> 1. ~~`verify-sshonly`~~ **CLOSED 22 Aug** — exit 0, every check. §5.6.2 is
+>    measured over ssh at last; the `Error 5` was a second gate, not a fault.
 > 2. **Account names should be lower case** — owner's instruction. `CREATEA:489`.
 > 3. **The post-install verify does not exist**, and a claim says it does.
 >
@@ -111,7 +112,7 @@ anything else.
 | `verify-routes` | `sdrtb2` | exit 0 |
 | `verify-accountrules` | `sdarb2` | exit 0 |
 | `verify-delaccount` | `sddelb2` | exit 0 |
-| **`verify-sshonly`** | `sdsshb2` | **exit 1 — item 1 below** |
+| **`verify-sshonly`** | `sdsshb2` | exit 1 **at the time** — the ladder closed it later that day, item 1 |
 | `verify-peerlog` | — | exit 0 |
 | `verify-apiadmin` | `sdapiab2` | exit 0 |
 | `verify-apiname` | `sdapinb2` | exit 0 — **now step 13, no longer run by hand** |
@@ -253,33 +254,56 @@ not a pass on the thing being asked about.**
 
 ### THE THREE ITEMS THE FORTIETH SESSION LEAVES
 
-**1. `verify-sshonly` NOW FAILS ONE LAYER DEEPER, AND THAT IS PROGRESS.** The
-owner's decision, 22 Aug: assert the premise the product *has* rather than the
-one it had when the test was written. Rewritten and measured the same run:
+**1. `verify-sshonly` IS CLOSED - exit 0, every check, 22 Aug 2026.** First
+clean run since the gate was added, and 5.6.2's deny rights are now measured
+**over ssh** rather than only through `LogonUser`. Sections 2, 3 and 4 had
+never passed before: every ssh check in the file died at `Error 5` first.
 
-```
-[PASS] gate: ssh with a password, in no sdssh: expected refused, got refused
-       ssh said: refused: Permission denied (publickey,password,keyboard-interactive)
-       added sdsshb2 to sdssh
-[PASS] control: LogonUser INTERACTIVE / NETWORK_CLEARTEXT
-[FAIL] control: ssh with a password: expected admitted, got refused: Error 5 getting semaphores
-```
+**THE FAILURE WAS THE FINDING.** `Error 5 getting semaphores` was never a broken
+control - it was a **SECOND GATE** with no check on it. An account can satisfy
+sshd completely and still not reach SD. Real failure mode: an account made by
+hand, given ssh, left out of `sdusers`, looks entirely set up and cannot run SD.
 
-**THE OLD FAILURE WAS MASKING THIS ONE.** `AllowGroups sdssh …` refused the
-control at sshd's door and nothing behind it was ever reached. Now sshd
-**admits** the account and **SD itself** refuses: `Error 5 getting semaphores`
-(`gplsrc/sdsem.c:166`; 5 is `ERROR_ACCESS_DENIED`) — it cannot attach to the
-shared segment. §2 and §3 still pass every `LogonUser` and policy row, so
-**5.6.2's deny rights are untouched by this**.
+**IT IS NOW A LADDER, one group per rung**, so each refusal is attributable to
+the membership that was missing and to nothing else:
 
-**THE LIKELY CAUSE, NOT YET PROVEN — prove it before changing the test again.**
-The probe is a bare `New-LocalUser` in `sdssh` and `sdsshonly` and **not in
-`sdusers`**, which is what grants the data tree. `sd.iss`'s `[Run]` section says
-CREATE.ACCOUNT adds every Windows user it makes to `sdusers`, so an SD-made
-account has it and the probe does not — the probe has stopped being a faithful
-stand-in. **Measure the ACL rather than inferring it from that comment**;
-§4 of the script ("does BUILTIN\Users membership matter?") is the precedent for
-asking this the measured way.
+| rung | in | result |
+|---|---|---|
+| 1 | no SD group | refused **at the door** - `Permission denied (publickey,password,keyboard-interactive)` |
+| 2 | `+ sdssh` | sshd **admits**; SD refuses - `Error 5 getting semaphores` |
+| 3 | `+ sdusers` | **admitted** - the control |
+| 4 | `+ sdsshonly` | deny rights: console refused 1385, ssh still admitted |
+
+**THE TWO REFUSALS ARE TELLABLE APART**, which is the only reason rung 2 is a
+check rather than a restatement of rung 1 - different components, different
+text. `SshVerdict` classifies; the raw text is printed either way.
+
+**MEASURED, NOT INFERRED FROM `sd.iss`'s COMMENT**, which is what this file
+asked for: `sddefs.h:189` defines `SD_USERS_GROUP` as `"sdusers"`; `sdsem.c:183`
+creates `Global\sd_sem_716d0302_<n>` with it as their DACL; `win32sem.c` passes
+it to `build_descriptor`; `w32sem_open` asks `SEMAPHORE_ALL_ACCESS`. A token
+without the group is refused there - `5` is `ERROR_ACCESS_DENIED`.
+
+**AND SECTION 4's QUESTION IS ANSWERED - it had been asked the wrong way round
+since it was written.** It adds `BUILTIN\Users` and asks whether that is what ssh
+needs. Every run from `b1` to `b4` added it and *still* got `Error 5`, because
+nothing put the probe in `sdusers`; the row was non-decisive, so it failed
+quietly and answered nothing for four runs. `sdusers` carries it; `Users`
+changes nothing, and the row is kept as a control on rung 3.
+
+**TWO POWERSHELL FAULTS FOUND IN THE BUILDING, the pre-existing one worse than
+the one I introduced.** *Everything a function writes to the output stream is
+part of what it returns.*
+
+- `SshVerdict` used `Write-Output` for its diagnostic and returned an **array** -
+  both gate rows read `got System.Object[]` while the ssh attempts underneath
+  were perfectly correct. Mine, caught on the `b5` run.
+- Sweeping for the same shape found **`Remove-Probe`**, which returns a bool the
+  caller branches on. Its refusal path returned `@("cleanup: REFUSING...",
+  $false)` - a non-empty array, and `if ($ok)` is **true** for one - so
+  **`-Cleanup` aimed at an account without the marker printed REFUSING and
+  exited 0.** The protection always held; the exit code lied. Demonstrated in
+  isolation both ways.
 
 **2. ACCOUNT NAMES SHOULD BE LOWER CASE.** Owner's instruction, 22 Aug 2026,
 on seeing `sdsys\accounts\DON` beside `user_accounts\don`.
