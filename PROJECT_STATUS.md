@@ -59,11 +59,18 @@ something came to be the way it is.
 > commands named in `@SDSYS/batch.jobs`. **The interactive `:` prompt is
 > untouched.**
 >
-> **THE FIRST RISK TO CHECK IS THE BOOTSTRAP, not the feature.** `LOGIN` gained
-> variables, and `bootstrap.py:310` **fails the whole bootstrap** on any
-> *"is not assigned a value"* warning. `batch.command` is assigned at the top of
-> the subroutine for exactly that reason. If the cycle dies there, that is
-> where to look - `cycle.ps1 -SkipInstall` is the cheap way to find out.
+> **THE BOOTSTRAP RISK IS CLEARED.** `cycle.ps1 -SkipInstall` ran 23:36:19 and
+> reached *"Successful compile"*: **`compile: LOGIN` 0 error(s) with no
+> "is not assigned a value"** - the warning `bootstrap.py:310` kills the whole
+> bootstrap on, and the reason `batch.command` is assigned at the top of the
+> subroutine. **`WRITE_INSTALL_DICTS` wrote `batch.jobs.dic` `@`, `@ID` and
+> `COMMAND`**, and **Inno compiled `sd.iss`**, so `SecureBatchJobs`'s Pascal is
+> sound. The four warnings in that log - `PRIVILEGED_COMMANDS`, `INP_LN`,
+> `ACC.REC`, `I` - are pre-existing and are *"assigned a value but never used"*,
+> which is the other warning and is not fatal.
+>
+> **WHAT -SkipInstall DOES NOT SHOW:** it stops before installing, so **nothing
+> in step 9 has RUN**. The installed tree is still 22:50:18 and stale.
 >
 > **AND THE SUITE COSTS MORE UAC PROMPTS NOW: about six, not four.**
 > `verify-batchjob` raises two of its own, because writing a probe record into
