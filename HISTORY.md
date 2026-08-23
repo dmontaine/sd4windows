@@ -23761,3 +23761,21 @@ Projects\GPL.BP IS STILL EXPOSED: 212 files, 9 references, no remote, and sectio
 2 calls it genuinely valuable - the original ScarletDME BASIC retaining Windows
 code this repository's sdsys/gpl.bp had stripped, which section 7 step 12 worked
 from.  Nothing in this project can recreate it.
+
+23 Aug 2026 - THE REVERT IS VERIFIED.  -Run b15 on the 10:01:45 install: 9 of 9
+unelevated and 17 of 17 elevated, every step exit 0, zero [FAIL] in either half,
+assert-current matching source.  Confirmed from the two runner logs
+independently and from the summary file's 17 step lines with none non-zero.
+
+That is the point of the run: the tree it measures is the one with section 7
+step 13 leg 1 backed out.  Installed sd.exe MD5 0e742883, the reverted build.
+b14 was green on the 08:08:32 install BEFORE leg 1 landed, so the two runs
+bracket the change.
+
+Spent: b1-b15; next is b16.
+
+AND THE GREEN STILL SAYS NOTHING ABOUT THE CONSOLE.  Every verifier drives SD
+down a pipe, which is precisely how leg 1 shipped a cleartext password prompt
+past a fully green suite earlier the same day.  probe-keys.ps1 at a real console
+is the check, and the cheapest direct one is set.password at a plain sd prompt -
+stars as you type, and asked twice.

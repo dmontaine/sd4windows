@@ -11,54 +11,60 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## ONE CYCLE IS OWED, AND THE INSTALLED TREE IS BROKEN UNTIL IT RUNS.
+> ## NOTHING IS OWED. ALL 26 VERIFIERS GREEN ON THE 10:01:45 INSTALL, `-Run b15`.
 >
-> **End of the forty-third session, 23 Aug 2026.** ***THE INSTALL ON THIS
-> MACHINE HAS A BROKEN POST-INSTALL PASSWORD PROMPT*** - it **echoes the
-> password in cleartext**, prints its stars a whole line at a time, and then
-> **freezes without asking for the confirmation**. That was §7 step 13 leg 1.
-> **The source is already reverted and rebuilt**; the cycle is what puts a
-> working installer back on the machine. **`make sd` IS DONE** - `bin\` rebuilt
-> 23 Aug, `sd.exe` MD5 `0e742883`.
+> **End of the forty-third session, 23 Aug 2026.** Install **23 Aug 10:01:45**,
+> `assert-current` matched source, and `-Run b15` at **9 of 9 unelevated and 17
+> of 17 elevated, every step exit 0, zero `[FAIL]` in either half** — confirmed
+> from both logs independently, and from the summary file's 17 step lines with
+> none non-zero.
+>
+> **THAT RUN IS THE REVERT VERIFIED**, not just a green suite: the tree it
+> measures is the one with §7 step 13 leg 1 backed out. Installed `sd.exe` MD5
+> **`0e742883`**, which is the reverted build.
+>
+> **Spent: `b1`-`b15`. Next is `b16`.** The suite is **26** — 9 unelevated, 17
+> elevated.
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b16
 > ```
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b15
-> ```
+> **An ORDINARY window, not elevated** - it refuses an elevated one, and that is
+> load-bearing (§4.0). About six UAC prompts; it is not unattended.
 >
-> **The password typed at the broken prompt was displayed on screen - change
-> it.**
+> ### THE ONE THING THE SUITE STILL CANNOT SEE
 >
-> ***§7 STEP 13 IS DROPPED (owner, 23 Aug 2026), AND LEG 1 IS THE EVIDENCE FOR
-> DROPPING IT.*** The suite was green throughout and **could never have caught
-> this**: every verifier drives SD **down a pipe**, so the console path is
-> skipped entirely. It took a person typing a password into a real console.
-> **`probe-keys.ps1` is what covers that ground**, and is worth a run after the
-> cycle for that reason rather than because anything changed.
+> ***A GREEN 26 SAYS NOTHING ABOUT THE CONSOLE.*** Every verifier drives SD
+> **down a pipe**, so the terminal path is skipped entirely — which is exactly
+> how leg 1 shipped a **cleartext password prompt** past a fully green suite
+> earlier the same day. **The check is a person at a real console:**
 >
 > ```powershell
 > powershell -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-keys.ps1
 > ```
 >
-> ### WHERE IT WAS WHEN IT WAS LAST GREEN
+> **And the cheapest direct check of the thing that broke** is `set.password`
+> at a plain `sd` prompt: it must show **stars as you type**, not the password,
+> and must ask **twice**. That was the failure, and nothing automated covers it.
 >
-> Install **23 Aug 08:08:32**, `assert-current` matched source at **every**
-> step, and `-Run b14` at **9 of 9 unelevated and 17 of 17 elevated - every
-> verifier in the tree, every one exit 0, zero `[FAIL]` in either half.** A
-> single clean sweep on one install, not results composed across runs. **That is
-> the baseline the owed cycle has to get back to.**
+> ### WHAT THE SESSION DECIDED, BECAUSE IT CHANGES WHAT COMES NEXT
 >
-> **THE SUITE IS 26** - 9 unelevated, 17 elevated; `verify-editkeys` went with
-> the editors. **Spent: `b1`-`b14`. Next is `b15`.**
+> ***§7 STEP 13 - "Stage 2, native Win32" - IS DROPPED*** (owner). It was never
+> the objective; user isolation was, and that does not need the runtime
+> changed. **§7 steps 14 and 15 are the outcomes it was for.** Step 13 keeps the
+> survey, the four reasons, and what leg 1 cost.
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b15
-> ```
+> ***THE LINUX CLIENT IS OUT OF THE PROJECT*** (owner) — repository deleted,
+> tree archived to `Projects\linuxsdclilib.zip` and pCloud, kept because
+> `sdb_ai` may be advanced as its own Linux line. §2.
 >
-> An ORDINARY window, about six UAC prompts (§4.0).
+> ### THE RUN BEFORE IT, KEPT ONLY TO BRACKET THE REVERT
+>
+> `-Run b14` on the **08:08:32** install was green on the same 9 + 17, and that
+> was **before** leg 1 landed. **b15 is the same tree again after it was backed
+> out**, so the two brackets the change and the header above is the current
+> answer. §THE SUITE ON THE 23:46:31 TREE has the older detail.
 >
 > ### WHAT b12 FOUND ON THE WAY, AND IT WAS THE TESTS
 >
@@ -493,8 +499,8 @@ standalone on `b6`; `verify-lcnames` hit **142/142 on both**, so §8's
 intermittent did not bite either time; and **nothing is outside a runner any
 more** (§4.0).
 
-**`b1`–`b14` ARE ALL SPENT** (23 Aug 2026; `b13` on two standalone re-runs
-rather than a full sweep). **`b15` has not been checked.**
+**`b1`–`b15` ARE ALL SPENT** (23 Aug 2026; `b13` on two standalone re-runs
+rather than a full sweep). **`b16` has not been checked.**
 `verify-createaccount` leaves `sdacctb11` and `user_accounts\sdacctb11` in place
 **on purpose** — removing them is `DELETE.ACCOUNT`'s job and §7 step 1c has not
 been decided. That is not residue to tidy.
@@ -929,8 +935,8 @@ running anything** and refuses, naming every clash at once. **A Windows local
 user survives an uninstall**, so a fresh install is *not* a fresh set of names —
 that is the assumption this guard exists to break. Spent: everything up to
 `sdtiert8`/`sdacct32`/`sdacl12`/`sdapia14`/`sdrt8`/`sdar6`/`sddel7`, plus
-`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` to `b14`** — thirteen
-derived names each. **Pick a fresh token; `b15` has not been checked.** The check
+`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` to `b15`** — thirteen
+derived names each. **Pick a fresh token; `b16` has not been checked.** The check
 is two lines and costs nothing: `Get-LocalUser -Name "<prefix>*"` and
 `Get-LocalGroup -Name "sdu_<prefix>*"` must both come back empty.
 
