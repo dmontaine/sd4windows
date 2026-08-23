@@ -22815,3 +22815,61 @@ no console, the way Read-Host does, and a try/catch was written round it.  IT
 BLOCKS.  A background job hung until killed - the unbounded-wait fault section 8
 records costing three runs, reintroduced by the line meant to prevent it.
 [Console]::IsInputRedirected is the real guard, and it was re-measured.
+
+
+## FORTIETH SESSION, part 4 - verify-sshonly closed: the failure was a second gate
+
+EXIT 0, EVERY CHECK, 22 Aug 2026 - the first clean run since the gate was added.
+Sections 2, 3 and 4 had never passed before, because every ssh check in the file
+died at "Error 5 getting semaphores" first.  5.6.2's deny rights are now measured
+OVER SSH rather than only through LogonUser.
+
+"Error 5" WAS NEVER A BROKEN CONTROL.  It was a SECOND GATE with no check on it:
+an account can satisfy sshd completely and still not reach SD.  Real failure
+mode - an account made by hand, given ssh, and left out of sdusers looks entirely
+set up and cannot run SD.
+
+A LADDER NOW, one group per rung, each refusal attributable to the membership
+that was missing and nothing else:
+
+  rung 1  no SD group   refused AT THE DOOR - Permission denied (publickey,...)
+  rung 2  + sdssh       sshd ADMITS; SD refuses - Error 5 getting semaphores
+  rung 3  + sdusers     admitted - the control
+  rung 4  + sdsshonly   deny rights: console refused 1385, ssh still admitted
+
+Rung 2 is a check rather than a restatement of rung 1 ONLY because the two
+refusals come from different components and do not look alike.
+
+MEASURED FROM THE SOURCE THAT BUILDS THE DACL, not from sd.iss's comment, which
+is what PROJECT_STATUS demanded: sddefs.h:189, sdsem.c:183, win32sem.c, and
+w32sem_open's SEMAPHORE_ALL_ACCESS.  5 is ERROR_ACCESS_DENIED.
+
+SECTION 4 HAD BEEN ASKED THE WRONG WAY ROUND SINCE IT WAS WRITTEN.  It adds
+BUILTIN\Users and asks whether ssh needs it.  b1 through b4 all added it and
+still got Error 5, because nothing put the probe in sdusers - and the row was
+NON-DECISIVE, so it failed quietly and answered nothing for four runs.  A
+non-decisive check that never passes is a question nobody is answering.
+
+TWO POWERSHELL FAULTS, AND THE PRE-EXISTING ONE IS WORSE THAN MINE.  Everything
+a function writes to the output stream is part of what it returns.
+
+  * SshVerdict used Write-Output for its diagnostic and returned an ARRAY, so
+    both gate rows read "got System.Object[]" while the ssh attempts beneath them
+    were correct.
+  * Sweeping for the same shape found Remove-Probe, which returns a bool the
+    caller branches on.  Its refusal path returned @("cleanup: REFUSING...",
+    $false) - non-empty, so "if ($ok)" is TRUE - and -Cleanup aimed at an account
+    without the marker printed REFUSING then EXITED 0.  The protection always
+    held; the exit code lied.
+
+AND A PROCESS NOTE, because it is the third occurrence in one session.  Two UAC
+prompts were declined during this work, so two runs did not happen - and both
+times the previous run's log stayed newest and was nearly read out as a fresh
+result.  THE FILE NAME CARRIES THE STAMP; THE CONTENT DOES NOT SAY WHICH RUN IT
+IS.  The same shape cost the b3 elevated summary earlier the same evening.
+
+A NOTE ON THE TOOLING TOO: three commits in a row nearly shipped without their
+documentation because a python heredoc died on a literal backslash - "\Users"
+read as an escape - while the git commit on the following line ran anyway.  Two
+were caught by checking git show --stat afterwards.  BUILD BACKSLASHES WITH
+chr(92) IN THESE SCRIPTS, OR USE THE EDITOR.
