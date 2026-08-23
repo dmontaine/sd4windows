@@ -6235,6 +6235,139 @@ the staging script and the Inno installer were all finished and removed.
     model in §5.7 belongs here**, and until it lands the data tree is not
     genuinely private from SD's own users.
 
+    **SURVEYED AGAINST THE SOURCE, 23 Aug 2026, AND THE THREE LEGS ABOVE ARE
+    HALF OF IT.** The three that were named are all real and all confirmed;
+    three more were not named and two of those are load-bearing. **This step is
+    not "three conversions", it is moving the server off the MSYS2 runtime**,
+    which is the thing §5.4's two-toolchain split exists to postpone.
+
+    **COUNTS ARE CODE LINES WITH COMMENT LINES EXCLUDED**, which is not
+    pedantry: the first pass of this table said `sys/cygwin.h` was **14 calls**
+    and it is **6**, the other eight being the comments that explain them. In
+    this file a raw `grep -c` is not a measurement.
+
+    | leg | measured | in the framing above? |
+    |---|---|---|
+    | `fork` → `CreateProcess` | **5 sites**, `op_kernel.c:701`, `op_sh.c:379`, `sdwind.c:491`, `sysseg.c:643`, `sysseg.c:745` - **every one fork+exec**, claim holds | yes |
+    | `termios` → Console API | **11 sites, 2 files** (`linuxio.c` 6, `lnxport.c` 5) - the smallest leg | yes |
+    | passwd/group → Windows auth | **22 sites, 5 files** - `linuxlb.c` 14, `ingroup.c` 3, `op_dio2.c` 3, `linuxio.c` 1, `sdext_eguid.c` 1; `linuxlb.c` is **already part Win32** | yes |
+    | **`sys/cygwin.h`** | **6 sites, 3 files** - `cygwin_conv_path` x2 (`op_dio2.c:1226`, `op_kernel.c:577`), `cygwin_internal` x2 (`op_kernel.c:595`, `sysseg.c:412`), `cygwin_attach_handle_to_fd` x2 (`win32pipe.c:133`, `:140`) | **NO** |
+    | **POSIX shm + semaphores** | **17 sites, 6 files** - `sysseg.c` 6, `sdsem.c` 3, `sdidx.c` 2, `sdwind.c` 2, `win32sem.c`/`.h` 4 | **NO** |
+    | `select()`/poll semantics | §7 step 11 already measured the difference | **NO** |
+
+    ***THE SMALL ONE IS SMALLER THAN IT LOOKED AND THE BIG ONE IS STILL BIG.***
+    `sys/cygwin.h` is the MSYS2 runtime's **own** API - in a native build those
+    functions do not exist at all - but it is **six calls**, and two of them are
+    in `win32pipe.c`, which §7 step 11 already moved off the hot path. The
+    shm/semaphore pair is the real one: it **is SYSSEG**, the segment the whole
+    product lives in, and on MSYS2 it reaches `/dev/shm` through the
+    `etc/fstab` mapping the install already depends on (§6).
+
+    **THE TOOLCHAIN FLIP IS NOT THE HARD PART.** `UCRT_CC` is already wired in
+    the Makefile and **three things already build native** - `sdclilib`,
+    `sdsvc` and the check probes. The hard part is the POSIX surface above.
+
+    **SO IT IS INCREMENTAL, AND THAT IS THE ONE PIECE OF GOOD NEWS.** Win32
+    calls work perfectly well from an MSYS2 build, so each leg can be converted
+    **with the tree still building and the 26-verifier suite still running**,
+    and the toolchain flipped last, once nothing POSIX-only is left. **Do not
+    do this as a big-bang rewrite**; there is no reason to and no way to test
+    one.
+
+    ***BUT NOT IN THE OBVIOUS ORDER. THE `sys/cygwin.h` LEG MUST GO LAST, NOT
+    FIRST, AND THAT IS THE ONE THING TO CARRY OUT OF THIS SURVEY.*** It looks
+    like the cheapest leg - six calls - and it is the one that must not be
+    touched early, because **all six exist only to bridge a gap the flip
+    removes, so they delete themselves rather than needing conversion:**
+
+    - **`K_WINPID`** translates the MSYS2 pid to the Windows one. Native,
+      `getpid()` **is** the Windows pid, so the case becomes `getpid()`.
+      Same for `sysseg.c:412`'s `win_pid()`.
+    - **`K_WINPATH`** translates POSIX→Windows because SD's paths are POSIX
+      **under MSYS2**. Native, every path is already a Windows path and the
+      case becomes the identity function.
+    - **`net_normalise()`** folds `C:/...` and `/c/...` into one namespace so
+      the containment gate's prefix test means anything. ***That dual spelling
+      is created by the MSYS2 runtime and does not exist natively.***
+    - `win32pipe.c`'s two are already off the hot path (§7 step 11).
+
+    **AND `net_normalise()` IS THE ONE THAT WOULD HURT.** It is inside the API
+    containment gate. Hand-rolling a native fold while `getcwd()` still answers
+    `/c/...` would either duplicate the runtime's work or **break the gate**,
+    and the gate is the only thing standing in front of a LocalSystem session.
+    Convert it **at** the flip, in the same change that makes `getcwd()` native,
+    or not at all.
+
+    ***AND "termios → Console API" IS TWO LEGS, NOT ONE.*** `linuxio.c`'s 6
+    sites are the session terminal and really are Console API work.
+    **`lnxport.c`'s 5 are SERIAL PORTS** - "Port i/o opcodes for Linux/FreeBSD",
+    on `sq_file->fu` - and their Windows target is `GetCommState`/`SetCommState`,
+    a different API for a different feature. ***It is compiled and linked***
+    (`SRCS` is a wildcard over `gplsrc/*.c`, so every file is), but **no
+    verifier drives it**, so converting it would ship unmeasured - the same
+    objection that keeps `$COMO` upper case in §7 step 8.
+
+    **THE ORDER THAT FOLLOWS FROM ALL OF THAT**, runtime-independent work
+    first, entangled work at the flip:
+
+    1. **`linuxio.c` termios → Console API** - 6 sites, one file, permanent
+       whichever runtime it builds under. `verify-keys` §3 is the standing
+       guard (§5.18).
+
+       ***BLOCKED ON ONE MEASUREMENT, AND THE INSTRUMENT IS BUILT AND
+       WAITING: `gplbld/probe-console.ps1`, IN A REAL CONSOLE, UNELEVATED.***
+       Under MSYS2 `ttyin` is a **Cygwin descriptor** and **Cygwin's own tty
+       layer is what implements termios**, so calling `SetConsoleMode` from
+       `linuxio.c` today means two layers both owning the console. Whether the
+       mode SD sets survives a Cygwin `read()` decides whether this leg can be
+       done now or must move **with** the flip, like the `sys/cygwin.h` calls.
+       **Reasoning cannot settle it and the cost of guessing is the console** -
+       every interactive session goes through this path.
+
+       The probe does what `linuxio.c` does today, prints **Cygwin's raw mode
+       expressed in Console API terms** - which is the target the native code
+       has to reproduce, and is worth having whatever the answer - then sets
+       SD's intended native mode, reads a keystroke, and **reads the mode back**.
+       It restores the console on the way out, Ctrl-C included.
+
+       **It refuses a redirected stdin**, the same guard as `probe-keys.ps1` and
+       for the same reason. Exercised down a pipe: it declines to answer rather
+       than answering the wrong question.
+
+       **`probe-console.c`, `.ps1` and `.exe` are all on `assert-current`'s
+       `$neverShipped` list, in the commit that created them** - the rule
+       `verify-scram.c` was added without and paid for. The `.exe` matters most:
+       the runner **compiles on every run**, so an unlisted one would report the
+       tree stale the moment anybody used the instrument.
+    2. **passwd/group → Windows auth** - 22 sites; `linuxlb.c` holds 14 and is
+       already part Win32, so this extends work already begun.
+    3. **`fork` → `CreateProcess`, the 4 non-`sdwind` sites.** Entangled but
+       not with the flip: the children are MSYS2 programs and the parents
+       `dup2()` Cygwin descriptors onto their handles, so each needs care.
+    4. **shm/semaphores → `CreateFileMapping` + named objects** - 17 sites and
+       it **is** SYSSEG. The riskiest, and worth its own cycle.
+    5. **The toolchain flip, `sys/cygwin.h` deleting itself with it.**
+    6. `lnxport.c`, only if serial ports are wanted, and only with a verifier.
+
+    ***AND THE API-SESSION TOKEN CANNOT BE FIXED WHERE THE HANDOFF IMPLIES.***
+    `sdwind.c:491` cannot `CreateProcessAsUser`, because **the SCRAM exchange
+    happens in the CHILD, in `APISRVR`, after the `execl`** - at fork time
+    `sdwind` does not yet know who the caller is. That leaves two shapes, and
+    it is a decision rather than a discovery:
+
+    a. **Authenticate in `sdwind` first, then spawn as the user.** Moves SCRAM
+       out of BASIC into C - the larger change, and it relocates the one piece
+       of security logic that is currently readable as BASIC.
+    b. **Let the session take the token after it authenticates.** But SCRAM
+       means **the server never holds the password**, so `LogonUser` is not
+       available; only **S4U**, which yields an *identification*-level token
+       unless the service holds TCB or the account is trusted for delegation -
+       ***and an identification token cannot be passed to
+       `CreateProcessAsUser`***. This needs checking before it is chosen.
+
+    **Until one is chosen the honest position is §THE FILE HALF IS CLOSED's:**
+    the containment gate holds, and the token is LocalSystem.
+
 ## 8. Open questions
 
 **COMPRESSED 21 Aug 2026, thirty-eighth session**, under §0 rule 5. Closed and
