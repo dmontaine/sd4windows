@@ -11,13 +11,41 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NOTHING IS OWED. ALL 26 VERIFIERS GREEN IN ONE RUN, `-Run b14`.
+> ## ONE CYCLE IS OWED. `make sd` IS ALREADY DONE - C CHANGED THIS TIME.
 >
-> **End of the forty-third session, 23 Aug 2026.** Install **23 Aug 08:08:32**,
-> `assert-current` matched source at **every** step, and `-Run b14` at
-> **9 of 9 unelevated and 17 of 17 elevated - every verifier in the tree, every
-> one exit 0, zero `[FAIL]` in either half.** That is a single clean sweep on one
-> install, not results composed across runs.
+> **End of the forty-third session, 23 Aug 2026.** ***SOURCE HAS MOVED PAST THE
+> INSTALL*** - §7 step 13 leg 1 landed, so `assert-current` WILL refuse and is
+> right to. **`bin\` was rebuilt 23 Aug 09:39:** `sd.exe` MD5
+> `1bea0e93...` against the installed `ec8581a1...`, so the hash moved, which is
+> the check that matters (§"THREE OPERATIONAL FACTS": the previous rebuild was
+> byte-identical in *length*).
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b15
+> ```
+>
+> ***AND THEN `probe-keys.ps1`, IN A REAL CONSOLE, BECAUSE THE SUITE CANNOT
+> TEST WHAT CHANGED.*** Leg 1 alters the **console** input path, and every
+> verifier drives SD **down a pipe** - where the new code answers "not a
+> console" and does nothing, exactly as the old `tcgetattr` failure did. **A
+> green suite says the change broke nothing else; it says nothing about the
+> change.** Arrow keys and backspace are the thing to look at (§5.18).
+>
+> ```powershell
+> powershell -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-keys.ps1
+> ```
+>
+> ### WHERE IT WAS WHEN IT WAS LAST GREEN
+>
+> Install **23 Aug 08:08:32**, `assert-current` matched source at **every**
+> step, and `-Run b14` at **9 of 9 unelevated and 17 of 17 elevated - every
+> verifier in the tree, every one exit 0, zero `[FAIL]` in either half.** A
+> single clean sweep on one install, not results composed across runs. **That is
+> the baseline the owed cycle has to get back to.**
 >
 > **THE SUITE IS 26** - 9 unelevated, 17 elevated; `verify-editkeys` went with
 > the editors. **Spent: `b1`-`b14`. Next is `b15`.**
@@ -6314,64 +6342,48 @@ the staging script and the Inno installer were all finished and removed.
        whichever runtime it builds under. `verify-keys` §3 is the standing
        guard (§5.18).
 
-       ***BLOCKED ON ONE MEASUREMENT, AND THE INSTRUMENT IS BUILT AND
-       WAITING: `gplbld/probe-console.ps1`, IN A REAL CONSOLE, UNELEVATED.***
-       Under MSYS2 `ttyin` is a **Cygwin descriptor** and **Cygwin's own tty
-       layer is what implements termios**, so calling `SetConsoleMode` from
-       `linuxio.c` today means two layers both owning the console. Whether the
-       mode SD sets survives a Cygwin `read()` decides whether this leg can be
-       done now or must move **with** the flip, like the `sys/cygwin.h` calls.
-       **Reasoning cannot settle it and the cost of guessing is the console** -
-       every interactive session goes through this path.
+       ***ANSWERED YES ON THE THIRD RUN, AND BUILT.*** `probe-console.ps1`,
+       real console, 23 Aug 2026: control `27 91 68`, deciding read
+       `27 91 68`, mode `0x2e9` unchanged after. **A read succeeded, the bytes
+       matched the control, and the mode survived** - all three, which is what
+       the first two runs each failed to establish while answering YES anyway.
+       **`SetConsoleMode` from an MSYS2 process sticks and does not disturb key
+       delivery**, so the leg was doable before the flip. *(The prediction
+       recorded here was NO. It was wrong, and the earlier run's stray `13` was
+       the buffering artefact, not a broken arrow.)*
 
-       The probe does what `linuxio.c` does today, prints **Cygwin's raw mode
-       expressed in Console API terms** - which is the target the native code
-       has to reproduce, and is worth having whatever the answer - then sets
-       SD's intended native mode, reads a keystroke, and **reads the mode back**.
-       It restores the console on the way out, Ctrl-C included.
+       **WHAT WAS BUILT.** `gplsrc/win32console.c` and `.h`, and `linuxio.c`'s
+       six termios calls are gone. **A separate translation unit because
+       `windows.h` must not enter an MSYS2-runtime file** - the rule
+       `win32pipe.h` and `win32audit.h` already follow, §5.4. **It is in
+       `gpl.src`**, which is the explicit list `SDOBJS` is built from; the
+       `gplsrc/*.c` wildcard nearby is a different variable and does **not**
+       feed the link, which cost one failed link to discover.
 
-       **It refuses a redirected stdin**, the same guard as `probe-keys.ps1` and
-       for the same reason. Exercised down a pipe: it declines to answer rather
-       than answering the wrong question.
+       ***THE MODE IS THE MEASURED ONE, `0x2e8`.*** Line input off, echo off,
+       **processed input OFF**, virtual-terminal input on.
 
-       ***RUN TWICE, 23 Aug 2026, AND IT ANSWERED "YES" BOTH TIMES WITHOUT
-       EARNING IT. NEITHER VERDICT MEANS ANYTHING - do not carry either
-       forward.*** The two failures were different and the second is the more
-       instructive:
+       ***AND `ENABLE_PROCESSED_INPUT` OFF IS THE FINDING, NOT A DETAIL.***
+       `linuxio.c` sets `ISIG`, so the obvious conversion turns processed input
+       **on** - and that is wrong. **SD handles the break key itself, in
+       software**, comparing the incoming byte against `tio.break_char` and
+       calling `break_key()` (`linuxio.c`'s input loop). For that the byte has
+       to REACH SD, and processed input is exactly what intercepts it first.
+       The measurement agrees: **Cygwin's raw mode leaves processed input off
+       despite `ISIG` being on.** So `set_term()`'s `trap_break` toggle now
+       changes **no console bit at all** - it always was a software flag, and
+       only the termios call made it look otherwise. ***The probe's own step 5
+       set that bit ON, so the instrument asked for a mode SD must not use;
+       it answered the question it was built for and would have been the wrong
+       thing to copy.***
 
-       1. **It answered YES on a run where `read()` had FAILED.** The output
-          said `bytes: (read returned -1)` and then *"the mode we set survived
-          a Cygwin read unchanged"* - because **all it compared was the mode
-          bits, and a read that never happened cannot disturb them.**
-       2. **It answered YES on a run where the ARROW KEY HAD STOPPED
-          ARRIVING.** The control read gave `27 91 68`; the deciding read gave
-          `13`. The read succeeded and the mode survived, so the probe was
-          satisfied - **it never compared the bytes**, which is the only part
-          SD actually cares about.
-
-       ***AND THE SECOND RUN CANNOT BE READ AS A "NO" EITHER, because it had a
-       buffering artefact underneath it.*** The control read returned
-       `27 91 68` **and stopped**, leaving the operator's Enter in the queue -
-       so the deciding read may have been satisfied by that leftover CR before
-       any key was pressed. **Two explanations and no way to tell them apart:**
-       the mode change broke arrow delivery, or step 6 measured step 4's
-       leftovers.
-
-       **Rebuilt a third time, and every condition below was added after a run
-       that answered YES without it.** YES now requires **a read that
-       succeeded, a mode that survived, AND BYTES THAT MATCH THE CONTROL**.
-       Each measured read **flushes the queue first and consumes the whole
-       line including the CR**, so nothing leaks between steps. If the bytes
-       change, the entry mode is **restored and the key read again** - coming
-       back pins it on `SetConsoleMode`, not coming back prints INCONCLUSIVE
-       and says so. **It needs running a third time.**
-
-       **THE LESSON IS NOT ABOUT THIS PROBE.** Three times the instrument
-       reported the easy signal - an exit code, a mode register - instead of
-       the meaningful one. §8's intermittent entry warns about the same shape from
-       the other direction: *a check that fails without meaning it teaches
-       whoever meets it to re-run until green.* **A check that PASSES without
-       meaning it is worse, because nobody re-runs it at all.**
+       ***THE SUITE CANNOT TEST THIS, AND THAT IS STRUCTURAL.*** Every verifier
+       drives SD **down a pipe**, where `GetConsoleMode` fails, the new code
+       answers "not a console" and does nothing - which is what a failed
+       `tcgetattr` meant before. **A green suite proves the change broke
+       nothing else and says nothing about the change.** `probe-keys.ps1`, in a
+       real console, is the check; `verify-keys` §3 still guards what SD does
+       with a byte once it has one.
 
        ***TWO THINGS THAT FIRST RUN DID ESTABLISH, and they hold whatever the
        verdict becomes.*** `isatty` is 1 on both descriptors and both carry real
