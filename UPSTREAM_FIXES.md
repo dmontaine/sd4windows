@@ -826,3 +826,110 @@ of the positive range from the commands that set it.
 needs `create_user()` to fail, which is awkward to provoke deliberately; it is
 offered on the strength of the convention in `err.h` and of the other
 twenty-three sites in the same file.
+
+---
+
+## 12. A login whose `TERM` has no terminfo entry gets no terminal capabilities at all, for the whole of `$LOGIN`
+
+**Status:** PROPOSED, 22 Aug 2026
+**Affects:** `sd64/sdsys/GPL.BP/LOGIN` — `main` and `dev`. The mechanism it
+relies on is in `sd64/gplsrc/sdtermlb.c`, which needs no change.
+**Severity:** cosmetic in effect, but it fires on almost every modern login.
+The screen is not cleared at sign-on and any prompt inside the login sequence
+has no cursor control — so backspace at such a prompt erases nothing.
+
+### What happens
+
+`LOGIN:79` sets the terminal type and does not check the result:
+
+```
+            s = env('TERM')
+            if s = '' then s = 'vt100'
+      end
+
+      void kernel(K$TERM.TYPE, s)
+```
+
+If `$TERM` names a terminal that has no entry in the shipped `terminfo`
+directory, that call **fails**, and the failure is silent.
+
+**The consequence is bigger than one missing capability.** `tsettermtype()`
+opens the terminfo file first and calls `free_terminfo()` only afterwards
+(`sdtermlb.c:169` and `:173`), so a lookup that fails leaves whatever was
+loaded before still in place. On the **first** call of a session there is
+nothing loaded, so `tinfo` stays `NULL` — and `sdtgetstr()` then returns an
+empty string for **every** capability id (`sdtermlb.c:372`), not just for the
+one that was asked for. `tio.term_type` is only assigned on success
+(`sdtermlb.c:308`), so `@TERM.TYPE` is empty as well.
+
+Everything `$LOGIN` does after that point runs with no terminal capabilities:
+
+* `LOGIN:97`, `display @(-1) :` — the clear screen at sign-on emits nothing.
+* `LOGIN:118`, `:348`, `:441` — prompts. Cursor motion, and therefore
+  destructive backspace, does not work at any of them.
+
+### Why it has gone unnoticed
+
+The account's VOC `login` paragraph sets the type again — `VOC_TEMPLATE/LOGIN`
+field 2 is `TERM LINUX` — and that call succeeds, so from the `:` prompt
+onwards everything is correct.
+
+But the paragraph runs **after** the login sequence: `CPROC:284-285` calls
+`$LOGIN`, and `CPROC:366` is where the paragraph is read and run. So the
+repair always arrives too late for the things listed above, and any test run
+from a command prompt sees a session that has already been repaired.
+
+### How likely is it
+
+The shipped `terminfo` directory has `linux`, `ansi`, `vt100` and `xterm`, and
+no entry for any of the values a current desktop or terminal multiplexer sets:
+
+| `TERM` | typical source | entry shipped? |
+|---|---|---|
+| `xterm-256color` | GNOME Terminal, Konsole, most X terminals, most ssh clients | no |
+| `screen`, `screen-256color` | GNU screen | no |
+| `tmux-256color` | tmux | no |
+| `linux` | the kernel virtual console | yes |
+
+So the console is the case that works, and a graphical terminal or an ssh
+session from one is the case that does not.
+
+### The fix
+
+Ask for the type, then check it loaded, and fall back to a type that is
+shipped. `KERNEL(K$TERM.TYPE, ...)` returns the type in force **after** the
+attempt and leaves it unchanged when the attempt fails (`op_kernel.c:220-227`),
+so a mismatch is the failure. `settermtype()` lowercases the name it stores
+(`sdtermlb.c:153`, `:308`), so the name has to be lowercased before comparing
+or an upper-case `$TERM` will not match itself.
+
+Replacing `LOGIN:79`:
+
+```
+      s = downcase(s)
+      if (kernel(K$TERM.TYPE, s) # s) and (s # 'linux') then
+         s = 'linux'
+         void kernel(K$TERM.TYPE, s)
+      end
+```
+
+`linux` to match `VOC_TEMPLATE/LOGIN`, so that the two places that name a
+default name the same one. `TERM:245-246` already performs this same test on
+these same two calls, for the `TERM` verb — this only brings the login path
+into line with it.
+
+**A second fix is possible and is not proposed here:** shipping the missing
+terminfo entries, or teaching the lookup to strip a `-256color` suffix and
+retry. Either would reduce how often the fallback is needed, but neither
+removes the need to check that a lookup succeeded.
+
+### How it was found
+
+Backspace did nothing at a password prompt during installation in a Windows
+port of SD, while the same key measured correctly from a command prompt on the
+same installation. The difference turned out not to be the terminal but the
+moment: the prompt is inside `$LOGIN` and the measurement was taken after it.
+Confirmed by lifting the account's `login` paragraph out of the way and reading
+the capabilities back: with a `$TERM` that has no entry, `cub1`, `kbs`, `el`
+and `cup` all came back zero-length; with one that has an entry, all four were
+correct.

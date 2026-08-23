@@ -5,26 +5,42 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 22 Aug 2026, end of the fortieth session.
+**Last updated:** 22 Aug 2026, end of the forty-first session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NOTHING IS OWED. THE TREE IS CURRENT AND THE SUITE HAS RUN.
+> ## ONE THING IS OWED: A CYCLE FOR THE `LOGIN` TERMINAL-TYPE FIX.
 >
-> **End of the fortieth session, 22 Aug 2026.** Install **22 Aug 19:38:32**,
-> `assert-current` **exit 0**, `bin\` still the 21 Aug 11:33:36 build - **no C
-> has changed since**, so `make sd` is not needed for anything below.
+> **End of the forty-first session, 22 Aug 2026.** **THE TREE IS STALE** -
+> `sdsys/gpl.bp/LOGIN` changed after the last cycle, so `assert-current` now
+> exits 1 and 21 of the 24 verifiers will refuse. **Run `cycle.ps1` before
+> believing any measurement.** `bin\` is still the 21 Aug 11:33:36 build - no C
+> has changed - so `make sd` is not needed.
+>
+> **WHAT THE CHANGE IS AND WHAT IT ALREADY COST TO GET WRONG: §5.20.** The
+> first `settermtype()` of a session fails, because the MSYS2 runtime hands SD
+> `TERM=xterm-256color` and there is no such terminfo entry - and until one
+> loads **every** capability is empty, for the whole of `$LOGIN`. That is the
+> answer to what was item 2 below. **The fix compiles clean against a control
+> and has NOT been run.**
+>
+> **THE MEASUREMENT THAT MATTERS AFTER THE CYCLE** is the installer's own
+> password prompt: type a character, press backspace, and watch it erase. Every
+> piped instrument here answers the wrong question - see §5.20.
+>
+> Before the change, the fortieth session left: install **22 Aug 19:38:32**,
+> `assert-current` **exit 0**.
 >
 > **THE SUITE, `-Run b3`: unelevated 8/8, elevated 15/16**, and its one failure
 > - `verify-sshonly` - **was closed afterwards**: exit 0, every check, on the
 > `b6` run. **Spent: `b1`-`b7`. Start at `b8` and check it free first.**
 >
-> **EVERYTHING THE SESSION OPENED IS CLOSED.** The install's last mile was
-> rebuilt from about a dozen sittings in front of real installs; account names
-> are lower case; `assert-current` now catches a rename. §WHAT THE FORTIETH
-> SESSION LEAVES has all four with what was measured.
+> **EVERYTHING THE FORTIETH SESSION OPENED IS CLOSED.** The install's last mile
+> was rebuilt from about a dozen sittings in front of real installs; account
+> names are lower case; `assert-current` now catches a rename. §WHAT THE
+> FORTIETH SESSION LEAVES has all four with what was measured.
 >
 > ### WHAT IS ACTUALLY LEFT, cheapest first
 >
@@ -32,10 +48,11 @@ something came to be the way it is.
 >    It needs a Windows account **not already in `sdusers`**; `don` has been in
 >    it since an earlier install, so every branch was proved by forcing the
 >    state. Minutes, and it is the path a real user hits first.
-> 2. **WHY `cub1` CAME BACK EMPTY** in the installer's console - open, and
->    deliberately not guessed at. terminfo is installed, the `windows` entry
->    carries `cub1=\b`, and a **piped** session on the same install emitted
->    byte 8 correctly. Something differs about a real console.
+> 2. **WHY `cub1` CAME BACK EMPTY is ANSWERED - §5.20, 22 Aug 2026.** It was
+>    never about the console: no terminal type had loaded, so every capability
+>    was empty, and the repair runs after `$LOGIN` rather than before the
+>    prompt. **`LOGIN` is fixed and owes the cycle above.** Upstream has the
+>    same defect - `UPSTREAM_FIXES.md` #12.
 > 3. **THE ONLY LARGE ITEM: a remote API session still runs as LocalSystem.**
 >    §THE FILE HALF IS CLOSED, and §What fixing it involves.
 > 4. **Nothing has ever crossed the network to the API port** - every
@@ -3207,6 +3224,64 @@ at it.)*
 `$define`, so splitting them is `CREATEA`'s `fn`/`os.name` pattern again — and
 nothing in `gplbld` drives `COMO`, so it would ship unmeasured.
 
+### 5.20 `cub1` was empty because NO type had loaded, not because cub1 was missing (22 Aug 2026)
+
+**Answers the open item "WHY `cub1` CAME BACK EMPTY".** Measured on the
+22 Aug 19:38:32 install, `assert-current` exit 0.
+
+**THE FIRST `settermtype()` OF THE SESSION FAILS, AND UNTIL ONE SUCCEEDS EVERY
+CAPABILITY IS EMPTY** — not just `cub1`. `tsettermtype()` calls
+`free_terminfo()` only after the open succeeds (`sdtermlb.c:167` and `:173`), so
+a name with no entry leaves `tinfo` NULL on the first call, and `sdtgetstr()`
+then returns `""` for every id (`sdtermlb.c:395`). `tio.term_type` is assigned
+only on success (`sdtermlb.c:329`).
+
+**THE NAME IS `xterm-256color` AND WINDOWS DID NOT SET IT.** The MSYS2 runtime
+supplies it: TERM is empty at Machine, User and Process scope, and `env('TERM')`
+inside SD answers `xterm-256color`. `terminfo/x` holds only `xterm`.
+
+**THE PROMPT IS INSIDE `$LOGIN`, THE REPAIR IS AFTER IT.** `require.credential`
+is `LOGIN:592`; the VOC `login` paragraph's `TERM WINDOWS` is run by
+`CPROC:411`, and `$LOGIN` is called at `CPROC:324`. So the password prompt — and
+the clear screen — are the only places in a session that are always in the
+unrepaired state.
+
+***THE PIPE WAS NEVER THE DIFFERENCE. THE TIMING WAS.*** Every piped
+measurement is taken at the `:` prompt, after the paragraph has run. That is
+why `verify-keys` passed while the owner watched backspace fail, and why the
+22 Aug note said a piped session "emitted byte 8 correctly".
+
+Measured with `don`'s `login` paragraph lifted out, i.e. the state `$LOGIN`
+leaves:
+
+| TERM | `@TERM.TYPE` | cub1 | kbs | el | cup | `@(IT$CUB)` |
+|---|---|---|---|---|---|---|
+| unset - runtime gives `xterm-256color` | empty | 0 | 0 | 0 | 0 | **0** |
+| `zzz` | empty | 0 | 0 | 0 | 0 | **0** |
+| `xterm` | `xterm` | 1 (8) | 1 (127) | 3 | 16 | 1 (8) |
+| `windows` | `windows` | 1 (8) | 1 (127) | 3 | 16 | 1 (8) |
+
+**`kbs` WAS EMPTY TOO**, so `_INPUT:90`'s lookup returned nothing at that
+prompt. The 19 Aug `_KEYCODE` fix and `erase.keys = char(8):char(127)` were both
+working around this, and the `char(8)` erase of 22 Aug stands - it is the right
+change independently, and this makes the capability correct as well.
+
+**THE FIX, `LOGIN`:** downcase, ask, and check. `kernel(K$TERM.TYPE, s)` returns
+the type in force after the attempt and leaves it unchanged on failure
+(`op_kernel.c:226-232`), so a mismatch is the failure; fall back to `windows`.
+`TERM:245-246` is the same test on the same two calls. **NOT MEASURED ON AN
+INSTALL YET** - it is a source change made after this cycle, so it owes a
+`cycle.ps1`.
+
+**UPSTREAM HAS IT TOO — `UPSTREAM_FIXES.md` #12.** `LOGIN:79` unchecked,
+`terminfo/x/xterm` only, `CPROC:284-285` against `:366`, and its clear screen is
+`LOGIN:97` inside the same subroutine.
+
+***AND IT CORRECTS A CLAIM IN §5.18***, which is why this took three sessions to
+find: that section says `env('TERM')` "never runs" and that `$TERM` cannot
+change the terminal type. Both are wrong, and wrong for the same reason as the
+`cub1` question — the measurement behind them was taken at the `:` prompt.
+
 ### 5.19 The full-screen editors carry their own key tables (19 Aug 2026)
 
 **Owner, 19 Aug 2026: "fix backspace in ED and UPDATE.RECORD".** §5.17 had
@@ -3326,12 +3401,14 @@ in `sdsys/voc_template/login` and `sdsys/newvoc/login` is `TERM WINDOWS`, and
 `LOGIN:116`'s fallback is `'windows'`. **The other 61 entries are still shipped**
 — the owner asked for a copy and a default, not a cull.
 
-**THE VOC `login` PARAGRAPH IS WHAT DECIDES THIS, AND `LOGIN:116` IS NEARLY DEAD
-CODE.** Measured: `system(7)` already answers `vt100` by the time anything can
-look, so `LOGIN:115`'s `env('TERM')` branch never runs — **neither `$TERM` nor
-`sd -TERM <type>` changes the terminal type**, only typing `TERM x`. The
-paragraph runs after the subroutine and sets it unconditionally. Both were
-changed so they cannot disagree, but the paragraph is the one that acts.
+***THE PARAGRAPH-IS-WHAT-DECIDES CLAIM THAT STOOD HERE IS WRONG — §5.20,
+22 Aug 2026.*** It said `system(7)` already answers by the time anything can
+look, so `LOGIN`'s `env('TERM')` branch never runs, and that neither `$TERM`
+nor `sd -TERM` changes the terminal type. **`env('TERM')` decides it for the
+whole of `$LOGIN`**, which is where the password prompt and the clear screen
+are; the paragraph runs at `CPROC:411`, after `$LOGIN` returns at `:324`, and
+only repairs it from the `:` prompt onwards. The measurement behind the old
+claim was taken at that prompt. Both places must still name the same type.
 
 **CLEAR SCREEN WAS NEVER BROKEN.** `@(-1)` emits `27 91 72 27 91 74` =
 `ESC [ H ESC [ J`, and `@(5,3)` emits `ESC [ 4 ; 6 H` — both correct, measured

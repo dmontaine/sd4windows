@@ -22919,3 +22919,73 @@ without having checked anything is indistinguishable from one that passed.  The
 others were verify-sshonly's section 4 row - non-decisive, never passed, answered
 nothing for four runs - and VerifyInstall1's -Quiet output going to a file nobody
 read.
+
+---
+
+## FORTY-FIRST SESSION - cub1 was empty because no terminal type had loaded
+
+The open item from the fortieth session, and it was open for the right reason:
+the note refused to guess.  The guess everyone would have made - something
+differs about a real console - was wrong.  The console was never the variable.
+
+WHAT IS ACTUALLY WRONG.  LOGIN takes the terminal name from env('TERM') and
+calls kernel(K$TERM.TYPE, s) without checking it worked.  tsettermtype() opens
+the terminfo file first and calls free_terminfo() only after the open succeeds
+(sdtermlb.c:167, :173), so a name with no entry leaves tinfo as it was - and on
+the FIRST call of a session there is nothing there.  sdtgetstr() then returns ""
+for EVERY capability id, not the one asked for.  So the fault was never "cub1 is
+missing"; it was "no terminal type has loaded at all".
+
+THE NAME IS xterm-256color AND NOTHING ON THE WINDOWS SIDE SET IT.  TERM is
+empty at Machine, User and Process scope; env('TERM') inside SD answers
+xterm-256color.  The MSYS2 runtime supplies it.  terminfo/x holds only xterm.
+
+WHY IT LOOKED LIKE A CONSOLE PROBLEM.  The account's VOC login paragraph sets
+the type again - TERM WINDOWS - and that call succeeds.  But CPROC calls $LOGIN
+at :324 and runs the paragraph at :411, so the repair lands AFTER the login
+sequence.  require.credential's password prompt is at LOGIN:592, inside it.  The
+password prompt and the sign-on clear screen are the only two places in a
+session that are always in the unrepaired state, and every instrument in gplbld
+measures at the ':' prompt, which is always repaired.
+
+THE LESSON IS THE FORTIETH SESSION'S OWN, ONE LEVEL UP.  That session wrote: "a
+pass on the instrument that can be driven is not a pass on the thing being asked
+about", about a pipe that could not exercise the erase.  Same shape here, but the
+axis was time rather than the instrument - a pipe would have shown the fault
+perfectly well if it had been asked during login instead of after it.
+
+HOW IT WAS MEASURED, since the state cannot be observed from the ':' prompt: the
+account's login paragraph was lifted out to a $HOLD record and put back, which
+leaves a session in exactly the state $LOGIN leaves.  With it out, TERM unset and
+TERM=zzz both gave an empty @TERM.TYPE and zero-length cub1, kbs, el and cup;
+TERM=xterm and TERM=windows gave all four correct.  The paragraph was restored
+and compared against the shipped sdsys/voc_template/login.
+
+kbs WAS EMPTY TOO, which back-dates two earlier fixes.  _INPUT:90's
+terminfo('kbs') returned nothing at that prompt, so the 19 Aug _KEYCODE work and
+the additive erase.keys = char(8):char(127) were both compensating for this.  The
+22 Aug char(8) erase stands on its own merits - BS-space-BS is the portable
+erase and should never have rested on a capability - and is not reverted.
+
+THE FIX IS IN LOGIN, NOT IN C.  kernel(K$TERM.TYPE, s) returns the type in force
+after the attempt and leaves it unchanged on failure (op_kernel.c:226-232), so a
+mismatch is the failure; downcase first because settermtype() lowercases the name
+it stores.  TERM:245-246 already does exactly this test for the TERM verb - the
+login path was the one place that did not.
+
+IT COMPILES CLEAN AND IT HAS NOT RUN.  The changed file and the file from HEAD
+were both compiled in a user account, where the SYSCOM includes do not resolve:
+both produced the same 14 errors, shifted by exactly the number of lines added.
+That is a syntax check and nothing more - K$TERM.TYPE and downcase were never
+resolved.  It owes a cycle.
+
+AND IT CORRECTS A CLAIM IN 5.18, which is why the question survived three
+sessions.  That section said env('TERM') never runs and that $TERM cannot change
+the terminal type.  Both are wrong, and wrong for the same reason as the cub1
+question: the measurement behind them was taken at the ':' prompt.
+
+UPSTREAM HAS THE SAME DEFECT - UPSTREAM_FIXES.md #12.  LOGIN:79 unchecked, the
+same free_terminfo() ordering, CPROC:284-285 against :366, and no terminfo entry
+for xterm-256color, screen or tmux-256color either - so on upstream it is the
+graphical terminal and the ssh session that fail and the kernel VT that works.
+Its sign-on clear screen, LOGIN:97, is inside the same subroutine.
