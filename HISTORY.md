@@ -23783,3 +23783,32 @@ stars as you type, and asked twice.
 23 Aug 2026 - and the leg 1 regression is closed by observation: owner confirmed
 set.password shows stars and asks twice, at a real console on the 10:01:45
 install.  The suite could not have told anyone that, before or after.
+
+--------------------------------------------------------------------------
+
+23 Aug 2026, forty-third session - WHAT IT LEAVES
+
+State: install 10:01:45, assert-current clean, -Run b15 green on all 26, and the
+console path confirmed by hand.  Nothing owed.  Spent b1-b15.
+
+What it did, in order: reshaped the installer's closing dialog on the owner's
+ask; found and fixed two stale verifiers; surveyed section 7 step 13 and found
+it was six legs rather than three; built leg 1, shipped a cleartext password
+prompt with it, and reverted the same day; had step 13 DROPPED as a migration on
+the owner's question "is this conversion really necessary"; removed the Linux
+client from the project; and wrote setup-devbox.ps1.
+
+THE THREAD RUNNING THROUGH IT, and it is the part worth carrying: four times an
+instrument written this session reported the easy signal instead of the
+meaningful one - an exit code, a mode register, a read that succeeded with the
+wrong bytes - and each time produced a confident YES.  The fourth one shipped.
+Section 8 already warned about the mirror image, a check that FAILS without
+meaning it teaching people to re-run until green.  The version that bit here is
+worse: a check that PASSES without meaning it, because nobody re-runs it.
+
+AND THE STRUCTURAL HALF IS UNCHANGED: all 26 verifiers drive SD down a pipe, so
+the console, the terminal and the installer's own prompts have no automated
+coverage at all.  probe-keys.ps1 and a person's eyes are the whole of it.
+
+In flight: setup-devbox.ps1 is untested on a fresh machine; the owner is trying
+it on a laptop and will report back.  Do not rewrite it before that.

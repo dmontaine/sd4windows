@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 23 Aug 2026, end of the forty-second session.
+**Last updated:** 23 Aug 2026, end of the forty-third session.
 
 ---
 
@@ -61,6 +61,20 @@ something came to be the way it is.
 > ***THE LINUX CLIENT IS OUT OF THE PROJECT*** (owner) — repository deleted,
 > tree archived to `Projects\linuxsdclilib.zip` and pCloud, kept because
 > `sdb_ai` may be advanced as its own Linux line. §2.
+>
+> ### ONE THING IS IN FLIGHT AND IT IS THE OWNER'S
+>
+> **`gplbld/setup-devbox.ps1` is written and NOT YET RUN ON A FRESH MACHINE.**
+> It builds a development box from nothing - MSYS2, the pacman list, libsodium
+> from source, Inno Setup, the four repositories as siblings, then `make sd`.
+> **The owner is testing it on a laptop and will report back.**
+>
+> ***DO NOT REWRITE IT BEFORE THAT REPORT ARRIVES.*** What has been verified
+> here is only what this machine allows: it parses, `-CheckOnly` reports 9 of 9
+> packages and four clones with no problems, and the build step's
+> `cygpath`/`make -C` construction was checked with `make -n`. **The install
+> paths have executed nowhere** - winget fetching MSYS2, the pacman run, the
+> libsodium build. §2 has the detail.
 >
 > ### THE RUN BEFORE IT, KEPT ONLY TO BRACKET THE REVERT
 >
@@ -209,7 +223,16 @@ something came to be the way it is.
 > 2. **§7 step 14 - the API session's identity**, the last of the original
 >    five. §THE FILE HALF IS CLOSED. ***It cannot be fixed at the fork***:
 >    SCRAM authenticates in the child, so `sdwind` does not know the caller at
->    spawn time.
+>    spawn time. **The S4U route needs a probe before it is chosen** - an
+>    identification-level token cannot be passed to `CreateProcessAsUser`.
+> 3. **Tier curation - §8, and it is the OWNER'S, not a session's.** The
+>    mechanism is built and verified; **the 30 / 45 / 65 split of the 149
+>    verbs is not done**, and the first-pass split written 17 Aug was never
+>    reviewed. It is in the archive rather than here because it will move
+>    when he reads it.
+> 4. **`Projects\GPL.BP` has no remote** - 212 files, 9 references, and §2
+>    calls it *"genuinely valuable"*. **One machine, no backup.** Not a task
+>    in the code, and the cheapest risk on this list to close.
 >
 > ### TWO THINGS NOT CLAIMED, BECAUSE NOTHING EXERCISED THEM
 >
