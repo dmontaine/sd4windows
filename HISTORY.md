@@ -22873,3 +22873,49 @@ documentation because a python heredoc died on a literal backslash - "\Users"
 read as an escape - while the git commit on the following line ran anyway.  Two
 were caught by checking git show --stat afterwards.  BUILD BACKSLASHES WITH
 chr(92) IN THESE SCRIPTS, OR USE THE EDITOR.
+
+
+## FORTIETH SESSION, part 5 - assert-current catches a rename
+
+Owner's instruction, after the lower-case work exposed the hole: a rename moved
+no timestamp, so the guard could not see one.  git mv preserves mtime, the
+renamed accounts record was not newer than the install, and NOTHING WAS RAISED.
+Four other files in that commit forced the cycle; had the rename been the only
+change it would have shipped untested and the guard would have said the tree
+matched source.
+
+A CASE-ONLY RENAME IS THE HARD HALF and it is the one that happened.  Windows
+compares names case-insensitively, so SDSYS and sdsys are the same file to
+Test-Path, to -eq and to a hashtable lookup.  Only an ORDINAL comparison sees the
+difference - -cne.
+
+SECTION B2 compares source and installed file NAMES under sdsys\, which is the
+tree stage.py copies path for path.  gplsrc is compiled and gplbld drives the
+install; neither has an image to compare against.
+
+THE EXCLUSIONS WERE MEASURED RATHER THAN GUESSED.  Comparing the two trees on a
+known-good install gave exactly SEVEN source paths with no counterpart, every one
+a bare README holding an otherwise-empty build-output directory in git.  Nothing
+else differed, so the check is silent on a current tree - which keeps this file's
+bias intact: a false stale costs one install, a false current costs an
+investigation.
+
+PROVED BOTH WAYS ON THE REAL TREE, not only in a scratch harness.  With the
+install put back to SDSYS it reports "sdsys\accounts\sdsys is installed as
+sdsys\accounts\SDSYS" and exits 1 - WHILE THE TIMESTAMP CHECK BESIDE IT STILL
+SAYS "no source file is newer than the install", which is the blind spot made
+visible in one screen.  Restored, it exits 0.
+
+AND THE FIRST VERSION OF THE FIX WAS ITSELF A FALSE CURRENT, which is worth more
+than the fix.  It built the installed path as "Join-Path $instTree 'sdsys'" - but
+$instTree IS ALREADY ...\ProgramData\SD\sdsys, so it looked for sdsys\sdsys,
+found nothing, SKIPPED THE WHOLE COMPARISON AND PRINTED "no source file is
+renamed" ANYWAY.  It sailed past the very rename it had just been written for,
+and only firing it deliberately at a known-bad tree caught that.  A guard that
+cannot run now says so and exits 1.
+
+THE GENERAL SHAPE, third time this session: a check that reports a clean result
+without having checked anything is indistinguishable from one that passed.  The
+others were verify-sshonly's section 4 row - non-decisive, never passed, answered
+nothing for four runs - and VerifyInstall1's -Quiet output going to a file nobody
+read.

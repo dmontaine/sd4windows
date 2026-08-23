@@ -252,7 +252,7 @@ pipe, reported as fixed, and was still dead at the real prompt — because a pip
 could not exercise the erase. **A pass on the instrument that can be driven is
 not a pass on the thing being asked about.**
 
-### THE THREE ITEMS THE FORTIETH SESSION LEAVES
+### WHAT THE FORTIETH SESSION LEAVES
 
 **1. `verify-sshonly` IS CLOSED - exit 0, every check, 22 Aug 2026.** First
 clean run since the gate was added, and 5.6.2's deny rights are now measured
@@ -305,7 +305,7 @@ part of what it returns.*
   exited 0.** The protection always held; the exit code lied. Demonstrated in
   isolation both ways.
 
-**2. ACCOUNT NAMES ARE LOWER CASE - DONE 22 Aug 2026, CYCLE OWED.** Owner's
+**2. ACCOUNT NAMES ARE LOWER CASE - DONE AND CONFIRMED 22 Aug 2026.** Owner's
 instruction, on seeing `sdsys\accounts\DON` beside `user_accounts\don` for one
 person. The ACCOUNTS record id **is a file name**, so the register was the last
 part of the tree still shouting after e1095ab lowered every other SDSYS name.
@@ -335,10 +335,12 @@ literals and prose in `stage.py` and `bootstrap.py` updated to match.
 record is still found by `Test-Path` on the lower name, so adopt's reinstall
 detection is unaffected.
 
-***A GAP THIS EXPOSED IN `assert-current`:*** **a `git mv` rename does not make
-the tree stale.** The guard compares mtimes and `git mv` preserves them, so the
-renamed record raised nothing. Four other files forced the cycle this time -
-had the rename been the *only* change, it would have shipped untested.
+***A GAP THIS EXPOSED IN `assert-current`, NOW FIXED:*** **a rename moved no
+timestamp, so the guard could not see one.** `git mv` preserves mtime, the
+renamed record was not newer than the install, and nothing was raised. Four
+other files forced the cycle that time; had the rename been the only change it
+would have shipped untested. Section **B2** now compares source and installed
+file NAMES under `sdsys\`. See item 3.
 
 **RUN AND CONFIRMED** on the 22 Aug 19:38:32 install, `assert-current` exit 0:
 
@@ -362,7 +364,37 @@ PASS**, on the same install, `-Account sdacctb7` / `-Prefix sdarb7`:
 key now written lower - and `verify-accountrules` **34/34**, which is where the
 `.ToUpper()` message assertions live. **`b7` is spent.**
 
-**3. THE POST-INSTALL CHECK IS BUILT AND HAS RUN INSIDE REAL INSTALLS.**
+**3. `assert-current` CATCHES A RENAME - ADDED 22 Aug 2026, section B2.**
+Every other check in that file compares TIMESTAMPS, and a rename moves none.
+
+**A CASE-ONLY RENAME IS THE HARD HALF**, and it is the one that happened:
+Windows compares names case-insensitively, so `SDSYS` and `sdsys` are the same
+file to `Test-Path`, to `-eq`, and to a hashtable. Only an **ordinal**
+comparison sees it - `-cne`.
+
+**IT COMPARES `sdsys\` ONLY**, because that is the tree `stage.py` copies path
+for path. `gplsrc` is compiled and `gplbld` drives the install; neither has an
+image to compare against.
+
+**THE EXCLUSIONS WERE MEASURED:** on a known-good install exactly **seven**
+source paths had no counterpart, all a bare `README` holding an empty
+build-output directory in git. Nothing else differed, so the check is silent on
+a current tree.
+
+**PROVED BOTH WAYS ON THE REAL TREE**, not just in a scratch harness: with the
+install put back to `SDSYS` it reports
+`sdsys\accounts\sdsys is installed as sdsys\accounts\SDSYS` and exits 1 - while
+the timestamp check beside it still says *"no source file is newer"*, which is
+the blind spot made visible. Restored, it exits 0.
+
+***AND THE FIRST VERSION OF THE FIX WAS ITSELF A FALSE CURRENT.*** It built the
+installed path as `Join-Path $instTree 'sdsys'` - but `$instTree` **is already**
+`...\ProgramData\SD\sdsys`, so it looked for `sdsys\sdsys`, found nothing,
+skipped the comparison **and printed "no source file is renamed" anyway**. It
+sailed past the very rename it was written for. A guard that cannot run now
+**says so and exits 1**.
+
+**4. THE POST-INSTALL CHECK IS BUILT AND HAS RUN INSIDE REAL INSTALLS.**
 `check-install.ps1`, written 22 Aug 2026 on the owner's instruction: a
 post-install verify that runs as the last step *"without complication"*,
 explicitly **not** as comprehensive as the development suite. Reached through
