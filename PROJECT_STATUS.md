@@ -1364,6 +1364,45 @@ the client, not a staging post the server is travelling towards.**
 
 ## 2. Environment
 
+**SETTING A NEW MACHINE UP IS A SCRIPT NOW, NOT THIS SECTION READ CAREFULLY:
+`gplbld/setup-devbox.ps1`.** Elevated, idempotent, and safe to re-run — every
+step checks before it acts. **`-CheckOnly` surveys a machine and changes
+nothing, and needs no elevation**, which makes it the thing to run first on a
+strange box.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File setup-devbox.ps1 -CheckOnly
+```
+
+**IT RUNS BEFORE THIS REPOSITORY EXISTS**, so it reads nothing from the tree it
+lives in and clones `sd4windows` itself. Fetch it alone with `curl.exe -fLo`
+from the raw GitHub URL in its header.
+
+It does MSYS2, the pacman list, **libsodium from source into `/usr/local`**,
+Inno Setup 6 at the path `cycle.ps1` hardcodes, the **four** repositories as
+siblings, `sdb64`'s `origin/dev` fetch, and ends with **`make sd` — because the
+build is the only real test of the environment**.
+
+**TWO THINGS IT CANNOT DO, AND IT SAYS SO RATHER THAN FAILING LATE:** it cannot
+create **SSH keys** (two remotes are `git@github.com`), and it cannot fetch
+**`Projects\GPL.BP`**, which has no remote. A machine it builds can build and
+test SD; it cannot do the attribution work this section is written around until
+that tree is copied across by hand.
+
+***MSYS2'S OWN `git` IS DELIBERATELY NOT IN THE PACKAGE LIST***, and the first
+draft had it. `-CheckOnly` on the reference machine reported it missing — on
+the machine that builds SD, ships installers and passes all 26 verifiers. So it
+was never a requirement: cloning is Windows `git` from PowerShell, and nothing
+in the Makefile or `gplbld/*.py` shells out to git at all. **A setup script that
+reports a working machine as incomplete teaches the operator to ignore it.**
+
+***NOT YET RUN ON A FRESH MACHINE.*** Verified here only in the ways this
+machine allows: it parses, `-CheckOnly` reports 9 of 9 packages and four clones
+with no problems, and the `cygpath`/`make -C` construction of the build step was
+checked with `make -n`. **The install paths — winget fetching MSYS2, the pacman
+run, the libsodium build — have not executed anywhere.** A laptop is the rig,
+and §7 step 2's VM is the other one.
+
 MSYS2 lives at `C:\msys64`. It was installed but completely empty of tooling
 when this work started; everything below was installed during the port.
 
