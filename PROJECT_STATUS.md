@@ -6334,20 +6334,44 @@ the staging script and the Inno installer were all finished and removed.
        for the same reason. Exercised down a pipe: it declines to answer rather
        than answering the wrong question.
 
-       ***RUN ONCE, 23 Aug 2026, AND THE PROBE WAS WRONG - IT ANSWERED "YES" ON
-       A RUN WHERE `read()` HAD FAILED.*** The output said
-       `bytes: (read returned -1)` and then *"the mode we set survived a Cygwin
-       read unchanged"*, because **all it compared was the mode bits, and a read
-       that never happened cannot disturb them.** The verdict is void; do not
-       carry it forward. **A check that passes without meaning it is worse than
-       no check** - §8's intermittent entry makes the same argument from the
-       other direction.
-       **Rebuilt with a `read()` that must SUCCEED before YES is available**,
-       `errno` printed on failure, **a control read before anything of ours is
-       set**, and - if the deciding read fails - **the entry mode restored and
-       the read retried**, so a failure can be pinned on `SetConsoleMode` or
-       declared INCONCLUSIVE rather than read as a NO by whoever wants an
-       answer. **It needs running again.**
+       ***RUN TWICE, 23 Aug 2026, AND IT ANSWERED "YES" BOTH TIMES WITHOUT
+       EARNING IT. NEITHER VERDICT MEANS ANYTHING - do not carry either
+       forward.*** The two failures were different and the second is the more
+       instructive:
+
+       1. **It answered YES on a run where `read()` had FAILED.** The output
+          said `bytes: (read returned -1)` and then *"the mode we set survived
+          a Cygwin read unchanged"* - because **all it compared was the mode
+          bits, and a read that never happened cannot disturb them.**
+       2. **It answered YES on a run where the ARROW KEY HAD STOPPED
+          ARRIVING.** The control read gave `27 91 68`; the deciding read gave
+          `13`. The read succeeded and the mode survived, so the probe was
+          satisfied - **it never compared the bytes**, which is the only part
+          SD actually cares about.
+
+       ***AND THE SECOND RUN CANNOT BE READ AS A "NO" EITHER, because it had a
+       buffering artefact underneath it.*** The control read returned
+       `27 91 68` **and stopped**, leaving the operator's Enter in the queue -
+       so the deciding read may have been satisfied by that leftover CR before
+       any key was pressed. **Two explanations and no way to tell them apart:**
+       the mode change broke arrow delivery, or step 6 measured step 4's
+       leftovers.
+
+       **Rebuilt a third time, and every condition below was added after a run
+       that answered YES without it.** YES now requires **a read that
+       succeeded, a mode that survived, AND BYTES THAT MATCH THE CONTROL**.
+       Each measured read **flushes the queue first and consumes the whole
+       line including the CR**, so nothing leaks between steps. If the bytes
+       change, the entry mode is **restored and the key read again** - coming
+       back pins it on `SetConsoleMode`, not coming back prints INCONCLUSIVE
+       and says so. **It needs running a third time.**
+
+       **THE LESSON IS NOT ABOUT THIS PROBE.** Three times the instrument
+       reported the easy signal - an exit code, a mode register - instead of
+       the meaningful one. §8's intermittent entry warns about the same shape from
+       the other direction: *a check that fails without meaning it teaches
+       whoever meets it to re-run until green.* **A check that PASSES without
+       meaning it is worse, because nobody re-runs it at all.**
 
        ***TWO THINGS THAT FIRST RUN DID ESTABLISH, and they hold whatever the
        verdict becomes.*** `isatty` is 1 on both descriptors and both carry real
