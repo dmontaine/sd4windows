@@ -5575,8 +5575,16 @@ the staging script and the Inno installer were all finished and removed.
    **Owner wants a form for account setup with these privileges** eventually
    (§5.14); `ED` is the interim editor.
 
-8. **Make everything lower case that can be** (§5.12). **THE FILE-NAME HALF IS
-   DONE AND MEASURED; THE ACCOUNT-NAME HALF IS UNTOUCHED.** §5.12 carries what
+8. **CLOSED 22 Aug 2026 - BOTH HALVES.** (§5.12) The file-name half was done
+   and measured earlier; **the account-name half landed 22 Aug** - `CREATEA`
+   downcases the register key, `adopt-account.ps1` follows, and the shipped
+   `accounts/SDSYS` record is renamed `accounts/sdsys`. Confirmed on the
+   19:38:32 install: `LIST ACCOUNTS` shows `don` and `sdsys`, matching
+   `user_accounts\don` and `sdu_don`. `verify-createaccount` every row and
+   `verify-accountrules` 34/34. **It was three lines, not the five-program
+   refactor this step feared** - the lookup is case-insensitive on NTFS and
+   displayed names upcase at the point of use, both measured. See
+   §WHAT THE FORTIETH SESSION LEAVES item 2. §5.12 carries what
    moved, what was left deliberately, the four traps for anyone scripting a fold
    again, and the two instruments that are not obvious — read it before the next
    rename rather than re-deriving any of it here.
