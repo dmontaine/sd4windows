@@ -5,21 +5,23 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 22 Aug 2026, end of the forty-first session.
+**Last updated:** 22 Aug 2026, forty-second session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NOTHING IS OWED. THREE ITEMS CLOSED, AND ONE OF THEM WAS A CRASH.
+> ## NOTHING IS OWED. THE SUITE IS CLEAN ON THIS INSTALL, BOTH HALVES.
 >
-> **End of the forty-first session, 22 Aug 2026.** Install **22 Aug 21:34:25**,
-> `assert-current` **exit 0**, `bin\` still the 21 Aug 11:33:36 build - no C has
-> changed - so `make sd` is not needed. **THE SUITE HAS NOT BEEN RUN ON THIS
-> INSTALL**; the `-Run b3` results below are from the 18:24:18 tree.
-> **Spent: `b1`-`b8`. Start at `b9` and check it free first.**
+> **Forty-second session, 22 Aug 2026.** Install **22 Aug 21:34:25**,
+> `assert-current` **the installed tree matches source**, `bin\` still the
+> 21 Aug 11:33:36 build - no C has changed - so `make sd` is not needed.
+> **THE SUITE RAN ON THIS INSTALL, 22:13:01-22:25:29: unelevated 8/8, elevated
+> 17/17**, the first run with no failing step in either half. Counts in
+> §THE SUITE ON THE 21:34:25 TREE. **Spent: `b1`-`b9`. Start at `b10` and check
+> it free first.**
 >
-> ### WHAT CLOSED, ALL THREE MEASURED ON A CYCLED TREE
+> ### WHAT THE FORTY-FIRST SESSION CLOSED, ALL THREE MEASURED ON A CYCLED TREE
 >
 > 1. **`cub1` WAS EMPTY BECAUSE NO TYPE HAD LOADED - §5.20.** The MSYS2 runtime
 >    hands SD `TERM=xterm-256color` even when Windows sets none, there is no
@@ -71,10 +73,10 @@ something came to be the way it is.
 > Before the change, the fortieth session left: install **22 Aug 19:38:32**,
 > `assert-current` **exit 0**.
 >
-> **THE SUITE, `-Run b3`: unelevated 8/8, elevated 15/16**, and its one failure
-> - `verify-sshonly` - **was closed afterwards**: exit 0, every check, on the
-> `b6` run. *(That was the fortieth session's count. `b8` has been spent since -
-> the header above has the current one.)*
+> **THE FORTIETH SESSION'S COUNT WAS 8/8 AND 15/16 ON `-Run b3`**, its one
+> failure `verify-sshonly`. Superseded - the header above carries the current
+> one, and `verify-sshonly` has since passed both standalone (`b6`) and under
+> the runner (`b9`).
 >
 > **EVERYTHING THE FORTIETH SESSION OPENED IS CLOSED.** The install's last mile
 > was rebuilt from about a dozen sittings in front of real installs; account
@@ -92,9 +94,10 @@ something came to be the way it is.
 > 2. Section 7 steps **12** (remove the BASIC layer's Windows branches - Windows
 >    arm, drop the conditional, delete the Linux arm; **not** `LOGIN`'s forced
 >    administrator rights, which 5.6 rejects), **9**, **10**, **13**.
-> 3. **RUN THE SUITE ON THIS TREE.** It has not been run since the 21:34:25
->    install, and two verifiers changed today - `verify-notyet.ps1` is new and in
->    the runner, and `check-install.ps1` was fixed under it. Start at `b9`.
+> 3. **DONE, forty-second session** - the suite ran on the 21:34:25 install and
+>    every step exited 0. `verify-notyet` passed **through the runner** rather
+>    than by hand, and `verify-sshonly` passed **under the runner** for the first
+>    time. Next run starts at `b10`.
 >
 > ***AND ONE THING IS OPEN THAT IS NOT A TASK: the pre-fix clear-screen bytes***
 > in 5.20's last paragraph. A capture on the pre-fix build began with
@@ -243,50 +246,42 @@ code is also 1. **What it cost:** VerifyInstall2 has **nine `exit 2` paths**
 every *"the suite could not run"* was delivered as *"a step failed"*. **A reused
 prefix and a broken product were indistinguishable from the exit code.**
 
-### THE SUITE ON THE 18:24:18 TREE — `-Run b3`, 22 Aug 2026
+### THE SUITE ON THE 21:34:25 TREE — `-Run b9`, 22 Aug 2026
 
-**Unelevated 8/8. Elevated 15/16.** `assert-current` exit 0 throughout. The only
-failure is `verify-sshonly`, which is item 1 below and understood.
+**Unelevated 8/8. Elevated 17/17. Every step exit 0 — the first run with no
+failure in either half.** `assert-current: the installed tree matches source`,
+read out of `verify-fold`'s own log. Ran 22:13:01–22:25:29; transcripts under
+`%LOCALAPPDATA%\SD-verify` (**UTF-16 — `tr -d '\000'` before grepping**).
 
 ```
-verify-credacl  verify-osusers  verify-nocase  verify-setpw
-verify-allowgroups  verify-keys  verify-editkeys  verify-lcnames      all exit 0
+verify-credacl  verify-osusers  verify-nocase  verify-setpw  verify-allowgroups
+verify-keys  verify-editkeys  verify-lcnames 142/142                all exit 0
 
-verify-fold  verify-nonet  verify-createaccount  verify-tiers  verify-catgate
-verify-accountacl  verify-routes  verify-accountrules  verify-delaccount
-verify-peerlog  verify-apiadmin  verify-apiname  verify-apiport
-verify-scramlogin  verify-tierapi                                    all exit 0
-verify-sshonly                                                          exit 1
+verify-fold 10/10        verify-nonet 17/17         verify-notyet 13/13
+verify-createaccount     verify-tiers all           verify-catgate 25/25
+verify-accountacl 21/21  verify-routes 33/33        verify-accountrules 34/34
+verify-delaccount 38/38  verify-sshonly             verify-peerlog 21/21
+verify-apiadmin 22/23    verify-apiname 17/17       verify-apiport all
+verify-scramlogin 40/40  verify-tierapi 16/16                       all exit 0
 ```
 
-**`b3` IS SPENT. `b4` was checked free.**
+`verify-apiadmin`'s 23rd is the standing N/A, not a failure.
 
-**IT TOOK TWO ATTEMPTS AND THE SECOND WAS NOT A RE-RUN.** The first handover UAC
-prompt was declined, so the elevated half never started — and the message for
-that is **indistinguishable from having no desktop to prompt on** (§4.0.1). The
-unelevated 8/8 stood, nothing had changed on disk since, so only
-`VerifyInstall2.ps1 -Run b3` was run rather than repeating the eight. **That is
-also why `b3`'s prefixes were still unspent after the first attempt** — nothing
-elevated had run to spend them.
+**THREE THINGS THIS RUN SETTLED THAT THE STEP COUNTS DO NOT SAY.**
+`verify-notyet` is new and passed **through the runner** rather than by hand;
+`verify-sshonly` — `b3`'s one failure — passed **under the runner**, where
+before it had only passed standalone on `b6`; and `verify-lcnames` hit
+**142/142**, so §8's intermittent did not bite.
 
-***AND IT NEARLY PRODUCED A STALE-RESULT REPORT.*** With no elevated summary from
-that attempt, the newest `post-cycle-2*.txt` on disk was **the `b2` run from ten
-that morning**, and it was about to be read out as the result. The file name
-carries the stamp; the summary inside does not say which install it describes.
+**`b9` IS SPENT, and `b1`–`b9` with it. `b10` was free when this was written.**
+`verify-createaccount` leaves `sdacctb9` and `user_accounts\sdacctb9` in place
+**on purpose** — removing them is `DELETE.ACCOUNT`'s job and §7 step 1c has not
+been decided. That is not residue to tidy.
 
-**ONE GAP THIS EXPOSED, NOW FIXED (both files are `$neverShipped`, no cycle):**
-
-- **`verify-sshonly` was the ONLY verifier with no `Start-Transcript`** — and it
-  is the one that keeps failing. It *looked* covered because the normal path
-  passes `-Quiet`, which files each step separately; run directly, as a declined
-  handover leaves you doing, its output reached a console and stopped there.
-  **The `b3` detail is lost that way** — the summary says exit 1 and nothing
-  says why. It has one now.
-- **`VerifyInstall1` kept no transcript either**, only the exit-code summary,
-  while its own header argues from the transcript trail that *"not one of the
-  seven appears in any transcript"*. Four verifiers — `verify-allowgroups`,
-  `verify-credacl`, `verify-nocase`, `verify-setpw` — have no transcript of
-  their own, so on that path their detail was unrecoverable. It has one now.
+**THE `b3` RUN'S OWN NARRATIVE IS COMPRESSED OUT** under §0.5 — the two runner
+defects above are the durable part, the stale-summary near-miss is §START HERE's
+first trap, and the two missing `Start-Transcript`s it exposed
+(`verify-sshonly`, `VerifyInstall1`) were fixed that day. HISTORY has the rest.
 
 ### THE INSTALL'S LAST MILE — REBUILT 22 Aug 2026, AND CONFIRMED WORKING
 
@@ -713,8 +708,8 @@ running anything** and refuses, naming every clash at once. **A Windows local
 user survives an uninstall**, so a fresh install is *not* a fresh set of names —
 that is the assumption this guard exists to break. Spent: everything up to
 `sdtiert8`/`sdacct32`/`sdacl12`/`sdapia14`/`sdrt8`/`sdar6`/`sddel7`, plus
-`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` and `b2`** — thirteen
-derived names each. **Pick a fresh token; `b3` has not been checked.** The check
+`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` to `b9`** — thirteen
+derived names each. **Pick a fresh token; `b10` was free on 22 Aug.** The check
 is two lines and costs nothing: `Get-LocalUser -Name "<prefix>*"` and
 `Get-LocalGroup -Name "sdu_<prefix>*"` must both come back empty.
 

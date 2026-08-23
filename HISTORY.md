@@ -23212,3 +23212,40 @@ TWO FAULTS FOUND BY RUNNING IT TWICE INSTEAD OF ONCE:
   the path stayed doubled, the "already attached" test never matched, and the
   second run tried to add a share that was already there.  It uses .Replace()
   now - a literal string method with no escaping layer to lose.
+
+## FORTY-SECOND SESSION - the suite is clean on this install, both halves
+
+22 Aug 2026.  VerifyInstall1.ps1 -ThenElevated -Run b9 on the 21:34:25 install,
+22:13:01-22:25:29, run by the owner.  UNELEVATED 8/8, ELEVATED 17/17, every step
+exit 0.  assert-current reported the installed tree matches source, read out of
+verify-fold's log rather than assumed.  PROJECT_STATUS section THE SUITE ON THE
+21:34:25 TREE has the per-verifier counts.
+
+THIS IS THE FIRST RUN WITH NO FAILURE IN EITHER HALF.  The previous best was
+8/8 and 15/16 on b3.  Three results carry more than their step count:
+
+  verify-notyet is new this week and had only ever been run by hand.  13/13
+  through the runner.
+
+  verify-sshonly - b3's one failure - passed UNDER THE RUNNER.  It had passed
+  standalone on b6, which is a weaker claim: the runner is the path that will
+  be taken again.
+
+  verify-lcnames hit 142/142, so the intermittent in section 8 did not bite.
+  It is the only one of the eight long enough to hit it, so a clean run is
+  evidence about that verifier and not about the intermittent.
+
+NOTHING WAS BUILT OR CHANGED THIS SESSION BEFORE THE RUN, deliberately.  The
+cycle rule says a cycle ends at the next source change, and the install was the
+one the forty-first session left, so the tree had to be measured before any
+step 12 work could start.  The step 12 survey that was under way while it ran is
+read-only against C:\Users\dmont\Projects\GPL.BP and touched no source.
+
+PROJECT_STATUS's b3 section is superseded and compressed to a pointer: the two
+runner defects it found are kept, the two-attempt narrative and the stale-summary
+near-miss are not - the trap survives as START HERE's first trap.
+
+ONE THING TO KNOW BEFORE READING THESE LOGS: the per-step files under
+%LOCALAPPDATA%\SD-verify are UTF-16.  grep matches nothing against them and
+reports no error, which looks exactly like a verifier that printed nothing.
+tr -d '\000' first.
