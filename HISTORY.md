@@ -23779,3 +23779,7 @@ down a pipe, which is precisely how leg 1 shipped a cleartext password prompt
 past a fully green suite earlier the same day.  probe-keys.ps1 at a real console
 is the check, and the cheapest direct one is set.password at a plain sd prompt -
 stars as you type, and asked twice.
+
+23 Aug 2026 - and the leg 1 regression is closed by observation: owner confirmed
+set.password shows stars and asks twice, at a real console on the 10:01:45
+install.  The suite could not have told anyone that, before or after.

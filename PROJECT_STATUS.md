@@ -44,9 +44,12 @@ something came to be the way it is.
 > powershell -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-keys.ps1
 > ```
 >
-> **And the cheapest direct check of the thing that broke** is `set.password`
-> at a plain `sd` prompt: it must show **stars as you type**, not the password,
-> and must ask **twice**. That was the failure, and nothing automated covers it.
+> ***AND THE THING THAT BROKE IS CONFIRMED FIXED BY OBSERVATION*** - owner,
+> 23 Aug 2026, at a real console on this install: `set.password` **shows stars**
+> and **asks twice**. That is the leg 1 regression closed by looking at it,
+> which is the only way it could be closed. **Re-check it the same way after
+> anything touches `linuxio.c` or the installer's password step** - nothing
+> automated covers it and nothing is going to.
 >
 > ### WHAT THE SESSION DECIDED, BECAUSE IT CHANGES WHAT COMES NEXT
 >
