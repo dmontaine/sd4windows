@@ -51,9 +51,8 @@ something came to be the way it is.
 >
 > ### WHAT IS LEFT, cheapest first
 >
-> 1. **§7 step 10** - admin forms (§5.14), open-ended.
-> 2. **§7 step 13** - Stage 2, native Win32, the largest.
-> 3. **A REMOTE API SESSION STILL RUNS AS LocalSystem** - the last of the
+> 1. **§7 step 13** - Stage 2, native Win32, the largest.
+> 2. **A REMOTE API SESSION STILL RUNS AS LocalSystem** - the last of the
 >    original five. §THE FILE HALF IS CLOSED. The choice is S4U plus
 >    `CreateProcessAsUser` versus accepting a service identity behind the
 >    `op_dio2.c` gate that already holds.
@@ -3773,27 +3772,34 @@ It grants no access the user does not already have at a command prompt, which
 is precisely why §5.7's service model — not a block on `SH` — is what makes the
 data tree private.
 
-### 5.14 Administration should be forms, not remembered command lines (goal, 13 Aug 2026)
+### 5.14 Administrative logic goes in a subroutine, because the forms are a SEPARATE PROJECT (owner, 23 Aug 2026)
 
-Goal from the repository owner on 13 Aug 2026, for **after the system runs
-well** — not now, and not a reason to hold anything else up. Much of what
-administration currently requires is a command line somebody has to remember,
-or a record edited by hand in `MODIFY`. The intent is a set of admin helpers
-that put a form in front of the same work.
+**THE FORMS THEMSELVES ARE OUT OF SCOPE HERE.** Owner's decision, 23 Aug 2026:
+they belong to **a set of GUI utilities that will be created**, and they are
+**not necessary for a working SD**. §7 step 10 is removed on that ruling. What
+was a goal for "after the system runs well" is now somebody else's deliverable,
+and this file should stop implying SD owes it.
 
-Recorded here because it changes how several things on the §7 list should be
-built, and that is cheaper to know before writing them than after. **The rule
-that follows: new administrative capability goes in a subroutine with a verb
-over it**, not in a verb that holds the logic, so a form added later calls the
-same subroutine instead of reimplementing it or shelling out to the verb.
+**THE RULE SURVIVES, AND IT MATTERS MORE THAN IT DID, NOT LESS: new
+administrative capability goes in a SUBROUTINE with a verb over it**, not in a
+verb that holds the logic. While the forms were going to live here, that was a
+convenience — a later form could call the same code instead of reimplementing
+it. Now that they live in another project, it is the only way in: **something
+outside this repository can call a catalogued subroutine or the API, and can do
+nothing whatever with logic buried inside a verb** except drive the verb blind
+and scrape what it prints.
+
 `GPL.BP/CRED_SET` and `CRED_VERIFY` with `SET_ACC_PASSWORD` over them are the
-pattern to copy, and `SET.PASSWORD` is already prompt-driven, which is the
-right precedent.
+pattern to copy, and `SET.PASSWORD` is already prompt-driven, which is the right
+precedent.
 
-The two clearest cases are **the grants verb** (§7 step 5), edited through
-`MODIFY ACCOUNTS` today, and **the batch allowlist** (§8), where `ED VOC
-ALLOWED` is workable and a form is better — particularly as it is the one place
-that has to enforce the no-arguments and VOC-type rules recorded there.
+**WHAT IS STILL SHAPED LIKE A COMMAND LINE, for whoever writes those utilities:**
+the grants verb (§7 step 5), edited through `MODIFY ACCOUNTS`; `os.users` (§7
+step 7) and `batch.jobs` (§7 step 9), both edited with `ED` from SDSYS. The
+batch list is the one with rules a form could enforce at the point of setting up
+rather than at 3am — a single name, no arguments, `PA` or `S` only — which §7
+step 9 records as the part it could not fully deliver without a verb to edit the
+list with.
 
 ### 5.15 Embedded Python is dropped; the API is the point (decided 13 Aug 2026)
 
@@ -5858,8 +5864,10 @@ the staging script and the Inno installer were all finished and removed.
    stale because it exists and then refuses to run on the strength of its own
    newness.
 
-   **Owner wants a form for account setup with these privileges** eventually
-   (§5.14); `ED` is the interim editor.
+   **A form for account setup with these privileges belongs to the GUI
+   utilities, which are a SEPARATE PROJECT** - owner, 23 Aug 2026, §5.14 and
+   §7 step 10. `ED` from SDSYS is the editor here and is not an interim
+   measure any more.
 
 8. **CLOSED 22 Aug 2026 - BOTH HALVES.** (§5.12) The file-name half was done
    and measured earlier; **the account-name half landed 22 Aug** - `CREATEA`
@@ -5986,11 +5994,26 @@ the staging script and the Inno installer were all finished and removed.
    that is load-bearing rather than incidental: `verify-batchjob.ps1` plants
    and removes its own VOC probes through a piped session, because doing it
    with `sd DELETE VOC x` is the very thing being measured.
-10. **Write the admin helpers** (§5.14). Forms over the administrative work
-    that is command lines and hand-edited records today, once the system runs
-    well enough to be worth using. The sequencing note matters more than the
-    step: put administrative logic in subroutines from now on, so a form can
-    call it later without reimplementing it.
+10. **REMOVED FROM THIS PROJECT — owner, 23 Aug 2026.** It read *"write the
+    admin helpers (§5.14) — forms over the administrative work that is command
+    lines and hand-edited records today"*. **The forms will be part of a set of
+    GUI utilities that will be created, and they are not necessary for a working
+    SD**, so they are not this repository's to build and their absence is not a
+    gap in it.
+
+    **THE SEQUENCING RULE IS NOT REMOVED WITH THEM — §5.14 keeps it, and it is
+    now load-bearing rather than convenient.** Administrative logic goes in a
+    subroutine with a verb over it, because a utility outside this repository
+    can call a catalogued subroutine or the API and can do nothing with logic
+    buried inside a verb. **The step went; the constraint on how everything else
+    here is written did not.**
+
+    **ONE DANGLING POINTER IS LEFT ON PURPOSE.** `gpl.bp/LOGIN:890` still says
+    *"until there is a verb to edit the list with (step 10)"*. It is a comment,
+    and correcting it means a source change, which makes the installed tree
+    stale and costs a whole cycle — on a tree that had just gone 27 of 27.
+    **Fix it the next time `LOGIN` is edited for a real reason**, and read it
+    meanwhile as "until the GUI utilities exist".
 11. **CLOSED — `SDConnectLocal()` CARRIES A SESSION.** Verified on the 12:28:49
     install of 17 Aug 2026: `make check-local` on the installed pair,
     `assert-current` exit 0, `WHO -> 2 DON`. Five runs in all, four in

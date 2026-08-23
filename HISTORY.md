@@ -23476,3 +23476,28 @@ THE START HERE BLOCK WAS REWRITTEN AS STATE RATHER THAN DIARY.  It had grown
 three "then this happened" sections across one session - the 21:34:25 install,
 the 22:50:18 one, the wasted cycle.  The next session needs the position, not
 the route to it; the route is here.
+
+## FORTY-SECOND SESSION, part 8 - section 7 step 10 is removed from this project
+
+23 Aug 2026, owner's decision: the admin forms "will be a part of a set of gui
+utilities that will be created, but is not necessary for a working SD".  Step 10
+is struck and 5.14 is rewritten around what is left of it.
+
+WHAT WAS REMOVED AND WHAT WAS NOT.  The DELIVERABLE went - forms over the
+administrative work that is command lines and hand-edited records today.  The
+RULE stayed, and it is stronger now than when it was written: administrative
+logic goes in a subroutine with a verb over it, because a utility outside this
+repository can call a catalogued subroutine or the API and can do NOTHING with
+logic buried inside a verb except drive it blind and scrape what it prints.
+While the forms were going to live here that rule was a convenience; now it is
+the only way in.
+
+So 5.14 is retitled from a goal to a rule, and it now names what is still shaped
+like a command line for whoever writes those utilities: the grants verb, os.users
+and batch.jobs.
+
+ONE DANGLING POINTER IS LEFT DELIBERATELY.  gpl.bp/LOGIN:890 still says "(step
+10)".  Correcting a COMMENT means a source change, which makes the installed
+tree stale and costs a cycle - on a tree that had just gone 27 of 27.  It is
+recorded in step 10 instead, to be fixed the next time LOGIN is edited for a
+real reason.  Documentation accuracy is worth a lot; it is not worth an install.
