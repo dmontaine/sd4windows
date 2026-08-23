@@ -101,19 +101,51 @@ something came to be the way it is.
 > tree archived to `Projects\linuxsdclilib.zip` and pCloud, kept because
 > `sdb_ai` may be advanced as its own Linux line. §2.
 >
-> ### ONE THING IS IN FLIGHT AND IT IS THE OWNER'S
+> ### setup-devbox HAS BEEN RUN, AND IT FOUND FOUR THINGS
 >
-> **`gplbld/setup-devbox.ps1` is written and NOT YET RUN ON A FRESH MACHINE.**
-> It builds a development box from nothing - MSYS2, the pacman list, libsodium
-> from source, Inno Setup, the four repositories as siblings, then `make sd`.
-> **The owner is testing it on a laptop and will report back.**
+> **Owner ran it on his laptop, 23 Aug 2026, and reported back; the "do not
+> rewrite" hold is over.** It finished with 3 problems, of which **one was
+> real**. All four defects below are fixed in the same commit as this entry.
 >
-> ***DO NOT REWRITE IT BEFORE THAT REPORT ARRIVES.*** What has been verified
-> here is only what this machine allows: it parses, `-CheckOnly` reports 9 of 9
-> packages and four clones with no problems, and the build step's
-> `cygpath`/`make -C` construction was checked with `make -n`. **The install
-> paths have executed nowhere** - winget fetching MSYS2, the pacman run, the
-> libsodium build. §2 has the detail.
+> **THE LAPTOP WAS NOT A FRESH MACHINE, so the two biggest paths STILL have
+> not executed:** MSYS2 was already at `C:\msys64` and all 9 packages were
+> already present, so **winget fetching MSYS2 and the pacman run are still
+> unexercised**. What did execute for the first time: **the libsodium build,
+> which worked**, and **the Inno Setup install**, which did not.
+>
+> 1. ***ISCC WAS NOT WHERE THE SCRIPT LOOKED.*** It printed *"[done] Inno Setup
+>    6 installed"* and *"[PROBLEM] Inno Setup is not at ..."* on consecutive
+>    lines. Two causes fit and the printout cannot separate them - winget
+>    returning before the files settled, or a per-user/non-default location -
+>    so **both are handled**: `Resolve-Iscc` reads the **`Inno Setup 6_is1`
+>    uninstall key's `InstallLocation`**, which is what Inno's own installer
+>    writes, and Step-Inno retries for ten seconds. ***`cycle.ps1` NO LONGER
+>    HARDCODES IT EITHER*** - same lookup, default path tried first, so on a
+>    machine where it is in the usual place nothing about a cycle changes.
+> 2. **`diffutils` WAS MISSING FROM THE PACMAN LIST.** libsodium's configure
+>    printed *"cmp: command not found"* three times and *"diff: command not
+>    found"* once. **This machine is missing it too** - so it is a longstanding
+>    gap in the list, not a laptop condition. Not fatal: configure treats a
+>    missing `cmp` as "the files differ" and carries on.
+> 3. ***THE SCRIPT DID `pacman -Sy` AND THEN `pacman -S`, WHICH IS A PARTIAL
+>    UPGRADE.*** The comment above the line already said `-Syu`; the code said
+>    `-Sy`. That combination installs packages built against libraries newer
+>    than the ones on disk and is a documented way to break an Arch-derived
+>    toolchain. **It is harmless on the fresh machine this script is for and
+>    dangerous on the machines it gets RE-RUN on** - which is how it survived
+>    a clean laptop run. Now `-Syu`, and it says out loud that this upgrades
+>    the whole MSYS2 installation.
+> 4. **ONE MISSING KEY WAS REPORTED AS THREE FAILURES.** With no SSH key the
+>    script said so, then **attempted the two `git@` clones anyway**, so the
+>    summary carried 1 "left for a person" and 2 "problems" for a single
+>    cause - burying item 1, the only real one. It also **hung on github.com's
+>    host-key prompt** before failing. The ssh clones are now **skipped** when
+>    there is no key.
+>
+> ***THE NEXT RUN SHOULD BE ON A VM SNAPSHOT, NOT THE LAPTOP*** - owner's own
+> suggestion and it is right. §7 step 2 already documents a reusable rig.
+> Nothing exercises the MSYS2 or pacman paths short of a machine that has
+> neither, and those are the two steps with the most left to go wrong.
 >
 > ### THE RUN BEFORE IT, KEPT ONLY TO BRACKET THE REVERT
 >
@@ -1442,9 +1474,9 @@ lives in and clones `sd4windows` itself. Fetch it alone with `curl.exe -fLo`
 from the raw GitHub URL in its header.
 
 It does MSYS2, the pacman list, **libsodium from source into `/usr/local`**,
-Inno Setup 6 at the path `cycle.ps1` hardcodes, the **four** repositories as
-siblings, `sdb64`'s `origin/dev` fetch, and ends with **`make sd` — because the
-build is the only real test of the environment**.
+Inno Setup 6, the **four** repositories as siblings, `sdb64`'s `origin/dev`
+fetch, and ends with **`make sd` — because the build is the only real test of
+the environment**.
 
 **TWO THINGS IT CANNOT DO, AND IT SAYS SO RATHER THAN FAILING LATE:** it cannot
 create **SSH keys** (two remotes are `git@github.com`), and it cannot fetch
@@ -1459,12 +1491,22 @@ was never a requirement: cloning is Windows `git` from PowerShell, and nothing
 in the Makefile or `gplbld/*.py` shells out to git at all. **A setup script that
 reports a working machine as incomplete teaches the operator to ignore it.**
 
-***NOT YET RUN ON A FRESH MACHINE.*** Verified here only in the ways this
-machine allows: it parses, `-CheckOnly` reports 9 of 9 packages and four clones
-with no problems, and the `cygpath`/`make -C` construction of the build step was
-checked with `make -n`. **The install paths — winget fetching MSYS2, the pacman
-run, the libsodium build — have not executed anywhere.** A laptop is the rig,
-and §7 step 2's VM is the other one.
+***RUN ONCE, 23 Aug 2026, ON THE OWNER'S LAPTOP — AND THE LAPTOP WAS NOT A
+FRESH MACHINE.*** §setup-devbox HAS BEEN RUN has the four defects it found and
+what was done about each. What matters for this section:
+
+- **Executed for the first time: the libsodium build (worked) and the Inno
+  Setup install (found four defects between them).**
+- ***STILL UNEXERCISED ANYWHERE: winget fetching MSYS2, and the pacman run.***
+  Both were skipped because `C:\msys64` and all 9 packages were already there.
+  **These are the two steps with the most left to go wrong** and no run so far
+  has touched either.
+- **`diffutils` was missing from the package list** and is missing on this
+  machine too, so the list is now 10.
+
+**THE NEXT RUN WANTS A VM SNAPSHOT OF A CLEAN WINDOWS**, not a developer's
+laptop — §7 step 2 documents a reusable rig. Nothing short of a machine with
+no MSYS2 will exercise the remaining two paths.
 
 MSYS2 lives at `C:\msys64`. It was installed but completely empty of tooling
 when this work started; everything below was installed during the port.

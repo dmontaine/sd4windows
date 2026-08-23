@@ -23862,3 +23862,51 @@ Nothing was installed, cycled or rebuilt: the probe does not touch the installed
 tree.  State is unchanged from the forty-third session - install 10:01:45, b1-b15
 spent, next run b16.  setup-devbox.ps1 is still in flight and still not to be
 rewritten.
+
+--------------------------------------------------------------------------
+
+23 Aug 2026 - setup-devbox.ps1's first real run, and the four things it found
+
+The owner ran it on his laptop and reported back, which lifted the "do not
+rewrite before that report arrives" hold.  It finished with 3 problems, of
+which one was real; all four defects below are fixed in the same commit.
+
+THE RUN DID NOT TEST WHAT IT MOST NEEDED TO.  The laptop already had MSYS2 at
+C:\msys64 and all 9 packages, so winget fetching MSYS2 and the pacman run were
+both skipped and are STILL unexercised anywhere.  What executed for the first
+time was the libsodium build, which worked, and the Inno Setup install, which
+did not.  Next run wants a clean VM snapshot; the owner suggested it himself.
+
+1. ISCC not where the script looked.  "[done] Inno Setup 6 installed" and
+   "[PROBLEM] Inno Setup is not at ..." on consecutive lines.  Two causes fit -
+   winget returning before the files settled, or a per-user/non-default
+   location - and the printout cannot separate them, so both are handled:
+   Resolve-Iscc reads the Inno Setup 6_is1 uninstall key's InstallLocation, and
+   Step-Inno retries for ten seconds.  cycle.ps1:83 no longer hardcodes the
+   path either; same lookup, default tried first, so nothing changes on a
+   machine where Inno is in the usual place.
+
+2. diffutils missing from the pacman list.  libsodium's configure printed "cmp:
+   command not found" three times and "diff: command not found" once.  The
+   reference machine is missing it too, so this was a longstanding gap in the
+   list rather than anything about the laptop.  Not fatal - configure treats a
+   missing cmp as "the files differ" - which is exactly why nobody had seen it.
+
+3. pacman -Sy then pacman -S, which is a PARTIAL UPGRADE.  The comment above
+   the line already said -Syu and the code said -Sy.  It installs packages
+   built against libraries newer than those on disk, and on an Arch-derived
+   system that is a documented way to break a toolchain.  IT IS HARMLESS ON THE
+   FRESH MACHINE THIS SCRIPT IS FOR AND DANGEROUS ON THE ONES IT GETS RE-RUN
+   ON, which is how it survived a clean laptop run and would have bitten the
+   build machine.  Now -Syu, saying out loud that it upgrades everything.
+
+4. One missing SSH key reported as three failures.  The script said "no SSH
+   key", then attempted both git@ clones anyway, so the summary carried one
+   "left for a person" and two "problems" for a single cause - burying item 1,
+   the only real one.  It also sat on github.com's host-key prompt before
+   failing.  The ssh clones are now skipped when there is no key.
+
+THE PATTERN WORTH CARRYING: three of the four are invisible on a machine that
+is already set up, and item 3 is worse than invisible there - the case the
+script handles correctly is the fresh one, and the case it got wrong is the
+re-run.  A setup script is tested by the machine that needs it least.
