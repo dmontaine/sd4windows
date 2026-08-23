@@ -11,44 +11,74 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## ONE CYCLE IS OWED AND NOTHING ELSE IS. NO `make sd`.
+> ## NOTHING IS OWED. ALL 26 VERIFIERS GREEN IN ONE RUN, `-Run b14`.
 >
-> **End of the forty-second session, 23 Aug 2026.** ***SOURCE HAS MOVED PAST THE
-> INSTALL** - PROC, SED and UPDATE.RECORD were removed after the last green run,
-> so `assert-current` WILL refuse and is right to.* **BASIC changed and C did
-> not, so `make sd` is NOT needed** - `bin\` was built 22 Aug 23:43:35 and is
-> still current.
+> **End of the forty-third session, 23 Aug 2026.** Install **23 Aug 08:08:32**,
+> `assert-current` matched source at **every** step, and `-Run b14` at
+> **9 of 9 unelevated and 17 of 17 elevated - every verifier in the tree, every
+> one exit 0, zero `[FAIL]` in either half.** That is a single clean sweep on one
+> install, not results composed across runs.
+>
+> **THE SUITE IS 26** - 9 unelevated, 17 elevated; `verify-editkeys` went with
+> the editors. **Spent: `b1`-`b14`. Next is `b15`.**
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b15
 > ```
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b12
-> ```
+> An ORDINARY window, about six UAC prompts (§4.0).
 >
-> **Elevated for the first, an ORDINARY window for the second** (§4.0), about
-> **six** UAC prompts. **Spent: `b1`-`b11`; `b12` has not been checked.**
-> **THE SUITE IS 26 NOW, not 27** - `verify-editkeys` went with the editors.
-> **The one file to watch compiling is `CPROC`**, the only one edited.
+> ### WHAT b12 FOUND ON THE WAY, AND IT WAS THE TESTS
 >
-> ### WHERE IT WAS WHEN IT WAS LAST GREEN
+> The first run on this install was `b12`: 9 of 9 unelevated but **15 of 17
+> elevated**, `verify-tiers` failing 8 checks and `verify-tierapi` 3. ***BOTH
+> WERE STALE TEST CONSTANTS, NOT THE PRODUCT*** - VOC counts written before
+> PROC, SED and UPDATE.RECORD went. Corrected, re-derived, and green ever since.
+> **Neither cost a cycle**: both are on `assert-current`'s `$neverShipped` list,
+> and both call `assert-current` themselves before running.
 >
-> Install **22 Aug 23:46:31**, `assert-current` **matched source**, and the
-> suite `-Run b11` at **10/10 unelevated, 17/17 elevated - every verifier in the
-> tree, every one exit 0**. §THE SUITE ON THE 23:46:31 TREE has the counts.
-> **That is the baseline the owed cycle has to get back to**, less
-> `verify-editkeys`.
+> ***AND `b13` IS SPENT WITHOUT A FULL RUN BEHIND IT.*** The two fixes were
+> re-run standalone on the `b13` prefixes before the sweep, which is why the
+> sweep is `b14`. A prefix already spent makes `VerifyInstall2` **exit 2**, and
+> `VerifyInstall1:381` passes the child's code off as its own - so it would have
+> read as *"a step failed"* rather than *"the suite could not run"*.
 >
-> ### WHAT THE OWED CYCLE CARRIES: PROC, SED AND UPDATE.RECORD ARE REMOVED
+> ### WHAT THE NUMBERS BECAME, AND WHY THEY ARE DERIVED RATHER THAN BLESSED
+>
+> Three NEWVOC records went - `listpq`, `sed`, `update.record` - so **407 names
+> ship, 404 reach a full VOC** (less `%t` and the two list records), and `sed`
+> left `TIER.OMIT.STANDARD`, so **the omit list is 17**. Then
+> **ADMINISTRATOR 404+10+4 = 418**, **PROGRAMMER 404+4 = 408**, **STANDARD
+> 404-17+4 = 391** - and all three match what the failing run observed, with no
+> residue. ***STANDARD FELL BY 2 WHERE THE OTHERS FELL BY 3, BECAUSE IT NEVER
+> HAD `sed` TO LOSE*** - it was already withheld. That asymmetry is what shows
+> the two changes are consistent with each other rather than one masking the
+> other, and it is why these are re-derivations and not a failing run copied
+> into the expectations. `verify-tiers.ps1`'s header carries the arithmetic.
+>
+> **THE CHECK THAT CAUGHT IT IS THE ONE WORTH KEEPING.** `verify-tiers` holds
+> its own copy of the omit list **and compares it against the shipped record**;
+> that comparison is what reported *"shipped TIER.OMIT.STANDARD matches this
+> test: expected 0, got 1"*. Without it the stale copy would have gone on
+> silently withholding a verb that no longer exists.
+>
+> ### THE PREVIOUS GREEN TREE, SUPERSEDED BY THE ONE ABOVE
+>
+> Install **22 Aug 23:46:31**, `-Run b11` at **10/10 unelevated, 17/17
+> elevated**; §THE SUITE ON THE 23:46:31 TREE has the counts. **Kept only
+> because the counts differ** - 10 unelevated then, 9 now, `verify-editkeys`
+> having gone with the editors between the two.
+>
+> ### WHAT THIS INSTALL CARRIES: PROC, SED AND UPDATE.RECORD ARE REMOVED
 >
 > **Owner, 23 Aug 2026: they are "not necessary for a working SD".** Deleted:
 > `gpl.bp/PROC`, `gpl.bp/SED`, `gpl.bp/UPDREC`, their VOC records, `listpq`,
 > `sed` from `TIER.OMIT.STANDARD`, and `verify-editkeys.ps1`, which tested
 > nothing else. `CPROC`'s `PQ` dispatch now **refuses by name** (message 10099)
 > rather than falling through to *"invalid dispatch code"* - the record is valid
-> PROC, it is the interpreter that is gone. **A CYCLE IS OWED, and BASIC changed
-> but C did not, so `make sd` is NOT needed.** The suite is **26** from now on.
+> PROC, it is the interpreter that is gone. **Cycled and green on the 08:08:32
+> install**; BASIC changed and C did not, so no `make sd` was needed. The suite
+> is **26** from now on.
 >
 > **THREE THINGS DELIBERATELY LEFT, each checked rather than assumed:**
 > **`$QPROC`** is the QUERY processor - `LIST`, `COUNT`, `SELECT`, `SORT` - and a
@@ -58,6 +88,48 @@ something came to be the way it is.
 > (`opcodes.h:441`), so deleting them would have removed a language feature.
 > **The `proc.*` SYSCOM common slots also stay**: removing common-block slots
 > shifts every slot after them, which is §7 step 1's `struct PCFG` hazard.
+>
+> ### THE CLOSING DIALOG IS RESHAPED, AND IT IS ON THE 08:08:32 INSTALL
+>
+> Owner, 23 Aug 2026: *"this dialog is very tall, can it be made wider and
+> shorter?"* **`MsgBox` has no width** - Windows sizes it and Inno exposes no
+> control - so `sd.iss` now draws it as a `TSetupForm`, `ShowSummaryBox` just
+> above `CurStepChanged`. `sd.iss` mtime **08:05:40**, inside the **08:08:32**
+> install, **so the box at the end of that install was the new one.**
+>
+> **WIDENING ALONE DOES NOT DO IT, AND THAT IS THE PART WORTH CARRYING.**
+> Measured with `TextRenderer.MeasureText` before anything was built: 450px
+> column **675px** tall, 800px column **555px** - 18% - and 800px with the blank
+> lines collapsed **345px**. **The fifteen blank separator lines cost more
+> height than the narrow column does.** So each paragraph is its own
+> `TNewStaticText` with a 7px gap instead of a 15px empty line, split on the
+> blank lines the string already holds - **not one word of the message
+> changed**.
+>
+> **THE WIDTH IS THE OWNER'S, MEASURED ON HIS SCREEN.** `MsgBox` **454x885**;
+> the first attempt, `ScaleX(820)`, **1413x493**, which he called *"way too
+> wide"*; his instruction was halfway, so `ScaleX(542)` - **940x533**, **40%
+> shorter**. Re-measure rather than nudge it.
+>
+> **TWO WORDINGS WENT WITH IT, owner, 23 Aug 2026.** The account is named
+> **lower case** - `Uppercase` became `Lowercase` at both `AccountMsg` sites,
+> because the account-name half of §5.12 landed on 22 Aug and `LIST ACCOUNTS`
+> answers `don`, so the box was spelling it a way nothing else does. And
+> *"SD is installed."* left the body for the **window title**: a `MsgBox` is
+> captioned `Setup` and cannot be told otherwise, a `TSetupForm` can.
+>
+> ***AND DO NOT WRITE `{username}` IN A BRACE COMMENT*** - Pascal comments do
+> not nest, the constant's closing brace ENDS THE COMMENT, and the prose after
+> it compiles as code. *"Identifier expected"*, pointing at a line of English.
+> Cost a compile here; the trap is written at the site.
+>
+> **SEEN AND ACCEPTED, owner, 23 Aug 2026: "dialog looked fine",** on the
+> 08:08:32 install. **The session that wrote it could only MEASURE it** -
+> `GetWindowRect` gives the geometry, but the screen grab caught the desktop
+> behind the dialog, because `SetForegroundWindow` is refused to a background
+> process. That is the general trap and it is worth carrying: **a window can be
+> measured from a script but not photographed by one.** If it ever needs another
+> pass, the width is the one line to change and it is commented.
 >
 > ### STEP 12 - A TCL TOKEN IS NOT SPLIT AT A BACKSLASH
 >
@@ -384,7 +456,8 @@ standalone on `b6`; `verify-lcnames` hit **142/142 on both**, so §8's
 intermittent did not bite either time; and **nothing is outside a runner any
 more** (§4.0).
 
-**`b11` IS SPENT, and `b1`–`b11` with it. `b12` has not been checked.**
+**`b1`–`b14` ARE ALL SPENT** (23 Aug 2026; `b13` on two standalone re-runs
+rather than a full sweep). **`b15` has not been checked.**
 `verify-createaccount` leaves `sdacctb11` and `user_accounts\sdacctb11` in place
 **on purpose** — removing them is `DELETE.ACCOUNT`'s job and §7 step 1c has not
 been decided. That is not residue to tidy.
@@ -726,7 +799,7 @@ narrative.
 | 4 | `verify-routes` rewritten; `verify-accountrules` written for the refusal paths |
 
 **ALL FOUR PHASES ARE NOW DONE *AND* MEASURED ON ONE INSTALL**, so the next
-source change starts from a known tree. **What is left is in §WHAT IS OWED and
+source change starts from a known tree. **What is left is in §WHAT IS LEFT, cheapest first and
 item 2 below, and neither is a phase item**: the API session's token, and the
 fact that nothing has ever crossed the network.
 
@@ -748,7 +821,7 @@ fact that nothing has ever crossed the network.
    a changelog behind source; nothing reads it.
 
 2. **The two that outlive the plan.** The API session's TOKEN is still
-   LocalSystem — §WHAT IS OWED, and the only large item left. And **nothing has
+   LocalSystem — §WHAT IS LEFT, cheapest first, and the only large item left. And **nothing has
    ever crossed the network**: every API measurement has gone to
    `127.0.0.1:4243`. The bind is asserted `0.0.0.0` and the firewall rule exists,
    but the second machine in §7 step 2 is what settles it.
@@ -819,8 +892,8 @@ running anything** and refuses, naming every clash at once. **A Windows local
 user survives an uninstall**, so a fresh install is *not* a fresh set of names —
 that is the assumption this guard exists to break. Spent: everything up to
 `sdtiert8`/`sdacct32`/`sdacl12`/`sdapia14`/`sdrt8`/`sdar6`/`sddel7`, plus
-`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` to `b11`** — thirteen
-derived names each. **Pick a fresh token; `b12` has not been checked.** The check
+`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` to `b14`** — thirteen
+derived names each. **Pick a fresh token; `b15` has not been checked.** The check
 is two lines and costs nothing: `Get-LocalUser -Name "<prefix>*"` and
 `Get-LocalGroup -Name "sdu_<prefix>*"` must both come back empty.
 
@@ -1108,7 +1181,8 @@ has the six entry points and the read/write axis.
 
 **THE TOKEN HALF: OPEN, AND IT IS THE ONLY LARGE ITEM LEFT.** `sdwind` `fork()`s
 the session, so it inherits the LocalSystem service token. Only the session's
-REACH was narrowed; its IDENTITY is untouched. §WHAT IS OWED carries it.
+REACH was narrowed; its IDENTITY is untouched. §WHAT IS LEFT, cheapest
+first carries it.
 
 ### What fixing it involves — kept because the reasoning is what dates
 

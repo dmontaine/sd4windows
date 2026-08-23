@@ -23579,3 +23579,77 @@ inherited: "cycle.ps1 runs make sd" (it stages bin\ and does not build), 5.17's
 present-tense description of editors that no longer exist, the tier-list
 sentence naming SED, and section 4's verify-editkeys row - struck rather than
 deleted, because the 14/14 was real and its subject is not.
+
+--------------------------------------------------------------------------
+
+23 Aug 2026, forty-third session - THE OWED CYCLE IS SPENT, AND THE TWO
+FAILURES IT FOUND WERE THE TESTS RATHER THAN THE PRODUCT
+
+Install 23 Aug 08:08:32, assert-current exit 0, -Run b12: 9 of 9 unelevated and
+15 of 17 elevated.  The two: verify-tiers, 8 failing checks, and verify-tierapi,
+3 - both carrying VOC counts written before PROC, SED and UPDATE.RECORD went.
+
+WHY THIS IS A DIAGNOSIS AND NOT A RE-BLESSING.  Three NEWVOC records were
+deleted (listpq, sed, update.record) and "sed" left TIER.OMIT.STANDARD with
+them, so 407 names ship, 404 reach a full VOC, and the omit list is 17.  That
+gives 418 / 408 / 391, which is exactly what the failing run observed - and
+STANDARD fell by 2 where the other two fell by 3, because STANDARD never had
+"sed" to lose.  The asymmetry is the part that matters: it is what shows the two
+changes are consistent with each other, and it could not come out right if
+something unintended had also gone missing.  The counts were re-derived from
+verify-tiers.ps1's own arithmetic, not copied off the failure.
+
+THE CHECK THAT CAUGHT IT IS THE DESIGN WORKING.  verify-tiers holds its own copy
+of the omit list AND compares it against the shipped record, which is why the
+first failing line was "shipped TIER.OMIT.STANDARD matches this test: expected
+0, got 1".  The header comment says a test carrying a stale copy of the thing
+under test is no test; the comparison is what makes the copy legitimate.
+
+NEITHER FIX COST A CYCLE.  Both scripts are on assert-current's $neverShipped
+list, and assert-current was run after the edits and exited 0.
+
+ALSO THIS SESSION: the installer's closing dialog was reshaped on the owner's
+ask - "very tall, can it be made wider and shorter".  MsgBox has no width, so it
+is a TSetupForm now.  MEASURED FIRST, AND THE MEASUREMENT CHANGED THE DESIGN:
+widening 450px to 800px buys only 18% of the height, while the fifteen blank
+separator lines cost more than the narrow column does - so each paragraph became
+its own control with a 7px gap, splitting on the blank lines the string already
+held, and not one word of the message changed.  454x885 to 940x533.  The width
+is the owner's: the first attempt at ScaleX(820) was "way too wide" and he asked
+for halfway.
+
+TWO WORDINGS WENT WITH IT: the account is named lower case (Uppercase became
+Lowercase at both AccountMsg sites - LIST ACCOUNTS has answered "don" since
+22 Aug, so the box was spelling it a way nothing else does), and "SD is
+installed." moved from the first body line to the window title, which a MsgBox
+cannot have and a TSetupForm can.
+
+AND A TRAP PAID FOR: {username} inside a { } Pascal comment ends the comment,
+because Pascal comments do not nest.  The prose after it compiles as code and
+ISCC answers "Identifier expected" pointing at a line of English.  Same class as
+the square bracket the AdoptAccount comment already warns about.
+
+BOTH RE-RUNS ARE GREEN, same install: verify-tiers 22/22 (08:33:02),
+verify-tierapi 16/16 (08:34:53), zero [FAIL] in either.  The two "FAILED
+QMError()" lines in the tierapi log are its negative controls - a wrong password
+refused and one tier refused entry to another's account - and are what make its
+successes mean anything.
+
+SO ALL 26 ARE GREEN ON THE 08:08:32 INSTALL, BUT NOT IN ONE RUN: 24 in b12 and 2
+standalone after it.  That composes only because the install never changed
+between them and assert-current was exit 0 throughout - which is what the cycle
+rule actually asks for.  A single clean sweep has still not been taken.
+
+AND THE TWO STANDALONE RUNS SPENT THE b13 PREFIXES (sdtiertb13*, sdtapib13*), so
+the next full run is -Run b14.  b13 would answer "prefix already spent", which
+VerifyInstall2 reports as exit 2 and VerifyInstall1 passes off as its own code -
+so it would read as a failing step rather than a suite that could not start.
+
+AND THEN THE CLEAN SWEEP WAS TAKEN: -Run b14 on the same 08:08:32 install,
+9 of 9 unelevated and 17 of 17 elevated, every step exit 0, zero [FAIL] in
+either half, and assert-current matched source at every one of its checks.  So
+the paragraph above about "green on one install but not in one run" is
+superseded - it is one run now.  Spent: b1-b14; next is b15.
+
+The record of it: VerifyInstall1-20260823-083945.log and
+post-cycle-elevated-20260823-083945.log.
