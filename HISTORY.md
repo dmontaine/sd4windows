@@ -23812,3 +23812,53 @@ coverage at all.  probe-keys.ps1 and a person's eyes are the whole of it.
 
 In flight: setup-devbox.ps1 is untested on a fresh machine; the owner is trying
 it on a laptop and will report back.  Do not rewrite it before that.
+
+--------------------------------------------------------------------------
+
+23 Aug 2026, forty-fourth session - THE S4U PROBE, AND STEP 14 HAS AN ANSWER
+
+Section 7 step 14 shape (b) had said since 21 Aug that the S4U route "needs a
+probe before it is chosen", because an identification-level token cannot be
+passed to CreateProcessAsUser and S4U was believed to yield one.  Written:
+gplbld/probe-s4u.c and probe-s4u.ps1, on probe-console's pattern - source,
+runner and .exe all listed on assert-current's $neverShipped in the same commit.
+
+Three runs against target test1.  From don, unelevated and elevated alike:
+SeTcbPrivilege absent, untrusted LSA connection, Identification-level token,
+cannot open a world-readable file, refused.  From LocalSystem: SeTcbPrivilege
+enabled, LsaRegisterLogonProcess succeeds, Impersonation-level token, and
+CreateProcessAsUser WORKS.  The child's own whoami read gitorli\test1.
+
+Corrections to what step 14 said.  The refusal lands one call earlier than
+written - DuplicateTokenEx to a primary token fails with 1346, so
+CreateProcessAsUser is never reached.  TCB alone is enough; nothing here is
+trusted for delegation.  SeAssignPrimaryTokenPrivilege reads DISABLED on the
+LocalSystem token and the call works anyway.  And lpDesktop must be NULL:
+naming winsta0\default creates a process that then produces nothing, an S4U
+logon being a network logon with no interactive rights.
+
+WHAT THE PROBE DID NOT DECIDE, and this is deliberate: shape (a) versus shape
+(b) is still the owner's, and the choice is now about where SCRAM lives rather
+than about whether a token can be had.  Step 15 is unblocked by the same
+reading; its ten ACL sites are untouched.
+
+THE PROBE WAS WRONG ONCE BEFORE IT WAS RIGHT, in exactly the way the
+forty-third session's thread describes.  Step 5 first read identity with
+GetUserName after impersonating, which an identification-level token answers
+perfectly well - and on the first run the target defaulted to the caller, so it
+could not have distinguished anything at all.  Replaced with an attempt to OPEN
+a file, which is the thing identification level refuses.  Written down because
+the fix was to make the probe try to ACT rather than to ask.
+
+TWO POWERSHELL TRAPS PAID FOR, both in probe-s4u.ps1's header.  schtasks
+/Delete for a task that is not there writes to stderr, and under
+$ErrorActionPreference = 'Stop' that is a terminating NativeCommandError - the
+script exited 1 right after printing the RUN 2 banner, with no error text, which
+reads exactly like the measurement finding nothing.  And `& $exe` lost about ten
+lines of the probe's output, the whole VERDICT block among them, while lines
+either side survived; both runs now redirect through cmd to a file.
+
+Nothing was installed, cycled or rebuilt: the probe does not touch the installed
+tree.  State is unchanged from the forty-third session - install 10:01:45, b1-b15
+spent, next run b16.  setup-devbox.ps1 is still in flight and still not to be
+rewritten.

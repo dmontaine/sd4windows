@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 23 Aug 2026, end of the forty-third session.
+**Last updated:** 23 Aug 2026, end of the forty-fourth session.
 
 ---
 
@@ -32,6 +32,45 @@ something came to be the way it is.
 >
 > **An ORDINARY window, not elevated** - it refuses an elevated one, and that is
 > load-bearing (§4.0). About six UAC prompts; it is not unattended.
+>
+> ### S4U IS MEASURED: LocalSystem CAN STAND IN AN SD USER'S SHOES
+>
+> **Forty-fourth session, 23 Aug 2026. `gplbld/probe-s4u.c` + `probe-s4u.ps1`,
+> three runs, target `test1`.** §7 step 14 said the S4U route "needs a probe
+> before it is chosen". It is run and the answer is **yes**:
+>
+> | run as | SeTcb | LSA | S4U token | can act | `CreateProcessAsUser` |
+> |---|---|---|---|---|---|
+> | `don`, unelevated | absent | untrusted | Identification | no | refused |
+> | `don`, elevated | absent | untrusted | Identification | no | refused |
+> | **LocalSystem** | **enabled** | **trusted** | **Impersonation** | **yes** | **WORKS** |
+>
+> **The child's own `whoami` read `gitorli\test1`** - identity by readback, not
+> by a return code. The negative control held: the same token duplicated down
+> to identification level was refused.
+>
+> **THREE CORRECTIONS TO WHAT STEP 14 SAID, and the first is the useful one.**
+>
+> - **The refusal lands one call EARLIER than written.** Step 14 says an
+>   identification token "cannot be passed to `CreateProcessAsUser`". It never
+>   reaches it: **`DuplicateTokenEx(..., TokenPrimary, ...)` itself fails**
+>   with `ERROR_BAD_IMPERSONATION_LEVEL` (1346). Conclusion right, mechanism
+>   wrong - and it matters because that is where the error will appear.
+> - **TCB alone is enough.** Step 14 offered "TCB *or* the account is trusted
+>   for delegation". Nothing here is trusted for delegation.
+> - **`SeAssignPrimaryTokenPrivilege` reads DISABLED on the LocalSystem token
+>   and `CreateProcessAsUser` works anyway** - Windows enables it as needed.
+>   It looks like a blocker in the probe's step 1 and is not one.
+>
+> **AND `lpDesktop` MUST BE NULL, NOT `winsta0\default`.** With the window
+> station named the process is created and then produces nothing; inheriting
+> this process's desktop works. An S4U logon is a *network* logon and the user
+> has no interactive rights.
+>
+> ***WHAT THIS DOES NOT SETTLE: WHERE THE CALL GOES.*** Shape (a) vs (b) is
+> still a decision - §7 step 14 - and it is the owner's. The probe removes the
+> unknown that was blocking it, nothing more. **It also unblocks step 15**,
+> which needs the same call at the session sites.
 >
 > ### THE ONE THING THE SUITE STILL CANNOT SEE
 >
@@ -223,8 +262,9 @@ something came to be the way it is.
 > 2. **§7 step 14 - the API session's identity**, the last of the original
 >    five. §THE FILE HALF IS CLOSED. ***It cannot be fixed at the fork***:
 >    SCRAM authenticates in the child, so `sdwind` does not know the caller at
->    spawn time. **The S4U route needs a probe before it is chosen** - an
->    identification-level token cannot be passed to `CreateProcessAsUser`.
+>    spawn time. ***THE S4U PROBE IS RUN AND SHAPE (b) IS AVAILABLE*** - see
+>    directly below. What is left is a decision and then the work, not a
+>    question.
 > 3. **Tier curation - §8, and it is the OWNER'S, not a session's.** The
 >    mechanism is built and verified; **the 30 / 45 / 65 split of the 149
 >    verbs is not done**, and the first-pass split written 17 Aug was never
@@ -6508,13 +6548,32 @@ the staging script and the Inno installer were all finished and removed.
     a. **Authenticate in `sdwind` first, then spawn as the user.** Moves SCRAM
        out of BASIC into C — the larger change, and it relocates the one piece
        of security logic currently readable as BASIC.
-    b. **Let the session take the token after it authenticates.** But SCRAM
-       means **the server never holds the password**, so `LogonUser` is not
-       available; only **S4U**, which yields an *identification*-level token
-       unless the service holds TCB or the account is trusted for delegation —
-       ***and an identification token cannot be passed to
-       `CreateProcessAsUser`***. **Check that before choosing it**; a probe
-       would answer it in one run.
+    b. **Let the session take the token after it authenticates.** SCRAM means
+       **the server never holds the password**, so `LogonUser` is not
+       available; only **S4U**.
+
+    ***THE PROBE IS RUN, 23 Aug 2026, AND SHAPE (b) IS AVAILABLE.***
+    `gplbld/probe-s4u.c`, driven by `probe-s4u.ps1`; §S4U IS MEASURED has the
+    table and the three corrections. From **LocalSystem** the S4U token comes
+    back at **Impersonation** level and `CreateProcessAsUser` **works** — the
+    child's own `whoami` read `gitorli\test1`. From `don`, elevated or not, it
+    is Identification and refused. **`SeTcbPrivilege` is the discriminator**:
+    it gates `LsaRegisterLogonProcess`, and the trusted LSA connection is what
+    raises the level.
+
+    **TWO SHAPES OF (b), AND THE PROBE MEASURED BOTH.** The session can be
+    **re-spawned** with `CreateProcessAsUser`, or — much smaller — it can
+    **impersonate in place**: `ImpersonateLoggedOnUser` on the S4U token
+    worked and could open a file. ***BUT IMPERSONATION IS PER-THREAD AND DOES
+    NOT REACH BACKWARDS***: handles already open keep the access they were
+    opened with, and any thread that did not impersonate is unaffected. In
+    `sdwind`'s child that is most of the process.
+
+    **WHAT IS STILL A DECISION, AND IT IS THE OWNER'S:** (a) moves SCRAM into
+    C and spawns as the user; (b) keeps SCRAM in BASIC and takes the token
+    afterwards, at the cost of a window between `execl` and the token change
+    during which the session is LocalSystem. **The probe removed the unknown,
+    not the choice.**
 
     **NEITHER NEEDS THE RUNTIME CHANGED.** That was step 13's assumption and it
     did not survive examination. **Until one is chosen the honest position is
@@ -6533,6 +6592,11 @@ the staging script and the Inno installer were all finished and removed.
     **It needs `CreateProcessAsUser` at the sites that create sessions — not a
     runtime swap**, for the reasons in step 13. It is the largest thing left in
     this file and it is a design job before it is a coding one.
+
+    **THE CALL IT NEEDS IS MEASURED WORKING, 23 Aug 2026** — step 14's probe,
+    from LocalSystem, with an S4U token and no password. That removes the one
+    technical unknown this step shared with step 14; the design job is
+    untouched, and §What fixing it involves' ten ACL sites are still the work.
 
 ## 8. Open questions
 
