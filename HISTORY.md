@@ -23039,3 +23039,44 @@ a suspicion rather than a finding.
 THE HONEST STATE: the LOGIN change is committed, is five lines, and does the same
 test TERM:245-246 already does, so it is harmless - but it is not justified by a
 demonstrated defect and must not be described as one until a cycled tree says so.
+
+SETTLED, on a cycled tree - install 22 Aug 20:57:34, assert-current exit 0.
+
+THE INSTRUMENT WAS THE WHOLE PROBLEM, and it took until the third attempt to
+build the right one.  The question is about the state $LOGIN leaves, and the only
+place that can see it is the account's login paragraph FIRST SENTENCE - ahead of
+its own TERM WINDOWS.  Every earlier reading was taken at the ':' prompt, which
+is always after that repair, and all three were worthless.  A toggle that inserts
+RUN BP ZZTIPROBE at line 2 and takes it out again is about thirty lines of BASIC.
+
+WHAT IT SAYS: term.type = windows while env.TERM = xterm-256color.  Had the first
+lookup succeeded, settermtype() would have stored the name it was handed, so
+"windows" can only have come from the fallback - the attempt before it failed.
+cub1 1 (byte 8), kbs 1, el 3, cup 16, clear 6, @(-1) 6, @(-9) 1.  The defect is
+real and the fix works.
+
+AND THERE IS NO LAUNCH-CHAIN DIFFERENCE, which this file suspected for an hour on
+the strength of two measurements that were not measuring the same thing.
+PowerShell Start-Job and cmd /c give byte-identical probe output.
+
+ONE THING IS NOT EXPLAINED AND IS NOT CLAIMED AS UNDERSTOOD.  The pre-fix byte
+capture began with ESC[H ESC[J immediately before the LOGIN:278 banner, where
+with no fallback LOGIN:200's @(-1) should have emitted nothing, and nothing in C
+hardcodes that sequence.  That capture came off an already-stale tree with a
+runaway session and two kills in flight, so it is the weakest datum here - but
+"weakest" is not "explained".  Capturing the same bytes from a build without the
+fix, on a clean tree, would settle it.
+
+TWO OPERATIONAL TRAPS PAID FOR, both cheap to repeat:
+
+echo OFF | sd IN A CONSOLE MAKES A SESSION NOBODY CAN END.  It gets a console for
+output and a pipe at EOF for input, so it takes no keystrokes and rings the bell;
+the owner reported exactly that.  CloseMainWindow() does nothing - a console
+process has no main window - so the X button is the graceful end and Stop-Process
+is not.  Pointed at a file instead of a console it runs away: 3.8 MB before it
+was killed.
+
+Select-String -SimpleMatch WITH REGEX ESCAPES, AND "$TERM" IN DOUBLE QUOTES, in
+one line.  The pattern matched nothing and PowerShell had already eaten the
+variable, so a check that the fix was present reported it absent.  START HERE
+already carries the -SimpleMatch half; the interpolation half is new.

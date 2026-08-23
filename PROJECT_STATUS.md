@@ -11,39 +11,46 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## ONE THING IS OWED: A CYCLE FOR THE `LOGIN` TERMINAL-TYPE FIX.
+> ## NOTHING IS OWED. THE TREE IS CURRENT AND THE `LOGIN` FIX IS PROVEN.
 >
-> **End of the forty-first session, 22 Aug 2026.** **THE TREE IS STALE** -
-> `sdsys/gpl.bp/LOGIN` changed after the last cycle, so `assert-current` now
-> exits 1 and 21 of the 24 verifiers will refuse. **Run `cycle.ps1` before
-> believing any measurement.** `bin\` is still the 21 Aug 11:33:36 build - no C
-> has changed - so `make sd` is not needed.
+> **End of the forty-first session, 22 Aug 2026.** Install **22 Aug 20:57:34**,
+> `assert-current` **exit 0**, `bin\` still the 21 Aug 11:33:36 build - no C has
+> changed - so `make sd` is not needed. **THE SUITE HAS NOT BEEN RUN ON THIS
+> INSTALL**; the fortieth session's `-Run b3` results below are from the
+> 18:24:18 tree. **Spent: `b1`-`b7`. Start at `b8`.**
 >
-> **WHAT THE CHANGE IS AND WHAT IT ALREADY COST TO GET WRONG: §5.20.** The
-> first `settermtype()` of a session fails, because the MSYS2 runtime hands SD
-> `TERM=xterm-256color` and there is no such terminfo entry - and until one
-> loads **every** capability is empty, for the whole of `$LOGIN`. That is the
-> answer to what was item 2 below. **The fix compiles clean against a control
-> and has NOT been run.**
+> **WHAT THE CHANGE IS: §5.20.** The first `settermtype()` of a session fails,
+> because the MSYS2 runtime hands SD `TERM=xterm-256color` and there is no such
+> terminfo entry - and until one loads **every** capability is empty, for the
+> whole of `$LOGIN`. `LOGIN` now checks and falls back to `windows`. That is the
+> answer to what was item 2 below, and it is measured on this install.
 >
-> ***THE DIAGNOSIS BEHIND THAT CHANGE IS NOT SETTLED - READ §5.20's BANNER
-> FIRST.*** Two of its measurements contradict each other, the owner's
-> observation matches the one that says there is no fault, and the tree was
-> already stale when the second was taken. **Do not build on §5.20 and do not
-> take the `LOGIN` change as justified.** It is committed, it is five lines,
-> and it is harmless either way - `TERM:245-246` already does the same test -
-> but it is not yet a fix for a demonstrated defect.
->
-> **WHAT TO DO, IN ORDER:** run `cycle.ps1`, then re-run the terminal-type
-> probe under **both** launch chains - PowerShell `Start-Job` and `cmd /c` -
-> printing `env('TERM')` and `@TERM.TYPE`. That is the one variable that was
-> never controlled.
+> **THE CHANGE IS PROVEN ON THIS TREE - §5.20.** With the probe as the login
+> paragraph's first sentence, `@TERM.TYPE` reads `windows` while `env('TERM')`
+> reads `xterm-256color`: the first lookup failed and the fallback caught it.
+> Identical under both launch chains.
 >
 > ***NOT THE INSTALLER'S PASSWORD PROMPT - THAT WAS ALREADY FIXED AND PASSES
 > EITHER WAY.*** Owner, 22 Aug 2026. `_INPUT:187` erases with `char(8)`, so it
 > never touches the capability, and `sd -QUIET off` skips `LOGIN:200`'s clear
 > screen twice over - on `system(1026)` and on `CMD.QUIET`. **The installer
 > session has no capability-dependent output left at all.**
+>
+> ***AND NEVER ASK THIS CLASS OF QUESTION AT THE `:` PROMPT.*** Everything there
+> is after the paragraph has run `TERM WINDOWS`. Three separate readings were
+> taken there and all three were worthless.
+>
+> **TWO OPERATIONAL TRAPS PAID FOR HERE:**
+>
+> - ***`echo OFF | sd` IN A CONSOLE MAKES AN UNUSABLE SESSION.*** It gets a
+>   console for output and a **pipe at EOF for input**, so it accepts no
+>   keystrokes and rings the bell. `CloseMainWindow()` does nothing - a console
+>   process has no main window. **The X button is the graceful end;
+>   `Stop-Process` is not.** With stdout to a file instead it runs away - 3.8 MB
+>   before it was killed.
+> - **`Select-String -SimpleMatch` with regex escapes, and `"$TERM"` in double
+>   quotes.** Both bit again in one line: the pattern matched nothing and
+>   PowerShell had already eaten the variable. §START HERE's third trap.
 >
 > Before the change, the fortieth session left: install **22 Aug 19:38:32**,
 > `assert-current` **exit 0**.
@@ -63,11 +70,13 @@ something came to be the way it is.
 >    It needs a Windows account **not already in `sdusers`**; `don` has been in
 >    it since an earlier install, so every branch was proved by forcing the
 >    state. Minutes, and it is the path a real user hits first.
-> 2. **WHY `cub1` CAME BACK EMPTY is ANSWERED - §5.20, 22 Aug 2026.** It was
->    never about the console: no terminal type had loaded, so every capability
->    was empty, and the repair runs after `$LOGIN` rather than before the
->    prompt. **`LOGIN` is fixed and owes the cycle above.** Upstream has the
->    same defect - `UPSTREAM_FIXES.md` #12.
+> 2. **WHY `cub1` CAME BACK EMPTY is ANSWERED AND FIXED - §5.20, 22 Aug 2026.**
+>    It was never about the console: no terminal type had loaded, so every
+>    capability was empty, and the repair runs after `$LOGIN` rather than before
+>    the prompt. **Fixed and measured on the 20:57:34 install.** Upstream has
+>    the same defect - `UPSTREAM_FIXES.md` #12. *One loose end, deliberately not
+>    claimed as understood: the pre-fix clear-screen bytes. §5.20's last
+>    paragraph.*
 > 3. **THE ONLY LARGE ITEM: a remote API session still runs as LocalSystem.**
 >    §THE FILE HALF IS CLOSED, and §What fixing it involves.
 > 4. **Nothing has ever crossed the network to the API port** - every
@@ -3241,34 +3250,43 @@ nothing in `gplbld` drives `COMO`, so it would ship unmeasured.
 
 ### 5.20 `cub1` was empty because NO type had loaded, not because cub1 was missing (22 Aug 2026)
 
-> ## THIS SECTION IS CONTRADICTED BY A LATER MEASUREMENT THE SAME DAY. DO NOT ACT ON IT.
+> ## SETTLED ON A CYCLED TREE - install 22 Aug 20:57:34, `assert-current` exit 0.
 >
-> **The owner reported that a plain `sd` DOES clear the screen at sign-on**, and
-> a raw byte capture agrees: a session's output **begins** with
-> `27 91 72 27 91 74` = `ESC[H ESC[J`, once, immediately before the `LOGIN:278`
-> banner. That is `LOGIN:200`'s `@(-1)` working - so a terminal type **had**
-> loaded, with TERM unset.
+> **THE FIRST LOOKUP DOES FAIL, AND THE FALLBACK IS WHAT SAVES IT.** Measured
+> with the probe as the login paragraph's **FIRST SENTENCE**, which is the only
+> place that sees the state `$LOGIN` leaves:
 >
-> **That cannot sit beside the table below**, which reports `@TERM.TYPE` empty
-> and `cub1`/`kbs`/`el`/`cup` all zero in the same condition. The VOC paragraph
-> runs at `CPROC:411`, after both `:168` and `:200`, so it cannot be what
-> differs.
+> ```
+> term.type  = [windows]        env.TERM   = [xterm-256color]
+> cub1.len   = 1 (byte 8)       kbs.len    = 1      el.len   = 3
+> cup.len    = 16               clear.len  = 6      at.cs.len = 6
+> ```
 >
-> **THE ONE UNCONTROLLED VARIABLE IS THE LAUNCH CHAIN.** The table was measured
-> through PowerShell `Start-Job`; the byte capture through `cmd /c`.
-> `printenv` reports `xterm-256color` from both - but `printenv` is not
-> `sd.exe`. **The next step is a probe that prints `env('TERM')` and
-> `@TERM.TYPE` run identically under both chains, on a tree that has just been
-> cycled.**
+> ***`term.type` IS `windows` WHILE `env.TERM` IS `xterm-256color`, AND THAT IS
+> THE WHOLE PROOF.*** Had the first lookup succeeded, `settermtype()` would have
+> stored the name it was given. `windows` can only have come from the fallback,
+> so the attempt before it failed. **The defect is real and the fix works.**
 >
-> **THE TREE WAS ALREADY STALE WHEN THE CAPTURE WAS TAKEN**, and two `sd`
-> sessions were `Stop-Process`'d during it - against this file's own rule. Both
-> are reasons to re-measure rather than to reason further. **The `LOGIN` change
-> is committed and is NOT justified by anything below until this is settled.**
+> **AND THERE IS NO LAUNCH-CHAIN DIFFERENCE** - the suspicion this section
+> carried for an hour. PowerShell `Start-Job` and `cmd /c` give **byte-identical
+> probe output**.
 >
-> *Also seen and not diagnosed: `echo OFF | sd.exe > file` never exits - 3.8 MB
-> and 944 KB in two runs. The same body piped through `Start-Job` exits
-> cleanly.*
+> ***WHY EVERY EARLIER READING WAS WORTHLESS, which is the reusable part:*** they
+> were taken at the `:` prompt, which is **always after** the paragraph has run
+> `TERM WINDOWS`. A question about `$LOGIN` can only be answered from inside the
+> paragraph's first line. The `-Cleanup`-style toggle that puts it there and
+> takes it out again is three dozen lines of BASIC and is worth rebuilding rather
+> than re-deriving.
+>
+> **ONE THING IS STILL UNEXPLAINED AND IS NOT CLAIMED AS UNDERSTOOD.** A raw
+> byte capture on the **pre-fix** build began with `27 91 72 27 91 74` -
+> `ESC[H ESC[J`, once, immediately before the `LOGIN:278` banner. With no
+> fallback, `LOGIN:200`'s `@(-1)` should have been empty there, and **nothing in
+> C hardcodes that sequence** (grepped). That capture was taken on an already
+> stale tree, with a runaway session and two `Stop-Process` kills in flight, so
+> it is the least trustworthy datum here - but it is not explained. **What would
+> settle it:** capture the same bytes from a build without the fix, on a clean
+> tree.
 
 **Answers the open item "WHY `cub1` CAME BACK EMPTY".** Measured on the
 22 Aug 19:38:32 install, `assert-current` exit 0.
