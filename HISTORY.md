@@ -22753,3 +22753,65 @@ this check it is exactly right - the question is whether the person who just
 installed SD can use it, and an elevated token answers as Administrators.
 -NoExit for the same reason the gravestone gives: the third thing that killed
 that step was the console vanishing before anything could be read.
+
+
+## FORTIETH SESSION, part 3 - the install's last mile, rebuilt from a dozen sittings
+
+All of it came from the owner in front of real installs, saying what was wrong.
+ENDED WITH TWO INSTALLS ON THE 18:24:18 TREE - one developer-style, one as a user
+would run it - BOTH CORRECT (owner). assert-current exit 0.
+
+**THE SECOND ONE DID NOT ASK FOR A PASSWORD, AND THAT IS RIGHT.**
+PasswordStepWanted is (AdoptCode = 0), true only when ADOPT has just MADE the
+account.  The data tree survives a reinstall (Check: DataTreeAbsent), so DON was
+still in ACCOUNTS, ADOPT answered 2 - already there, left alone - and an existing
+account keeps whatever password it had.  Asking again would have been the fault.
+An account with no password is asked by LOGIN the first time its owner opens it.
+
+**THE SHAPE THAT SHIPPED**, after four intermediate versions that did not:
+Setup finishes, the Finished page says a window will open and what it does, and
+DeinitializeSetup launches finish-install.ps1 and exits.  That hook is the only
+one with BOTH properties - wizard already destroyed, Setup's elevated token still
+held.  The script runs "sd -QUIET off" (LOGIN asks, then off executes, so the
+session ends without the user) and then check-install.ps1 in the same window,
+which closes on a keypress.
+
+SUPERSEDED AND RECORDED AS SUCH, so the git log is not mistaken for the current
+state: the postinstall tickbox (asked a second time for one action), -NoExit
+(left a live prompt to type "exit" at), "type off" in 10089/10093 (nothing to
+type now), and TakeAccountPassword at ssPostInstall (opened SD behind the wizard).
+
+**TWO SELF-INFLICTED FAULTS WORTH NOT REPEATING.**
+
+  * NEVER PUT A REAL NEWLINE IN A MESSAGE FILE.  messages.c:316 turns each into a
+    FIELD MARK and display renders those as unprintable characters.  The
+    supported break is the two-character escape "
+" at messages.c:334.  17
+    shipped messages already used it; nothing said so anywhere.
+  * A LONGER FinishedLabel CAPTION IS SILENTLY CLIPPED.  Inno auto-sizes it to
+    the stock text and cuts anything longer mid-sentence with NO warning - the
+    assignment succeeds and the words are simply not drawn.  Grow Height from
+    the parent's ClientHeight first.
+
+**THE BACKSPACE TOOK TWO FIXES BECAUSE IT HAD TWO FAULTS**, and the second is the
+one that matters for how this went wrong.  The BYTE fix (_INPUT compared against
+the single byte kbs named, and APPENDED the unmatched one, so backspace made a
+password longer) was measured working through a pipe and reported as fixed.  IT
+WAS STILL DEAD AT THE REAL PROMPT, because the ERASE was broken separately:
+@(IT$CUB) returned EMPTY in the installer's console, so only the space reached
+the screen and the cursor walked forward.  The owner's screenshot -
+"********    ******" - was the whole diagnosis.  Now char(8).
+
+WHY cub1 WAS EMPTY THERE IS STILL NOT ESTABLISHED.  terminfo is installed, the
+windows entry carries cub1=, and a piped session on the same install emitted
+byte 8 correctly.  Left open rather than guessed.
+
+**THE LESSON THAT COST THE MOST, and it recurred twice in one session:** a pass
+on the instrument that can be driven is not a pass on the thing being asked
+about.  The pipe could not exercise the erase, and PROJECT_STATUS briefly
+recorded backspace as "confirmed working" on the strength of it.  The same shape
+appeared again in the keypress guard: ReadKey was assumed to THROW where there is
+no console, the way Read-Host does, and a try/catch was written round it.  IT
+BLOCKS.  A background job hung until killed - the unbounded-wait fault section 8
+records costing three runs, reintroduced by the line meant to prevent it.
+[Console]::IsInputRedirected is the real guard, and it was re-measured.

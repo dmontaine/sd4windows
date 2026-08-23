@@ -151,69 +151,60 @@ code is also 1. **What it cost:** VerifyInstall2 has **nine `exit 2` paths**
 every *"the suite could not run"* was delivered as *"a step failed"*. **A reused
 prefix and a broken product were indistinguishable from the exit code.**
 
-### THE INSTALL'S PASSWORD PROMPT — NINE FAULTS, ALL FIXED 22 Aug 2026
+### THE INSTALL'S LAST MILE — REBUILT 22 Aug 2026, AND CONFIRMED WORKING
 
-Owner watching a real install. **A cycle is owed for five of them** (messages,
-`LOGIN`, `sd.iss`, `check-install.ps1`); `_INPUT` is already in the 16:04
-install.
+Everything below came from the owner sitting in front of real installs and
+saying what was wrong, over about a dozen rounds. **Two installs on the
+18:24:18 tree — one run as a developer would, one as a user would — both
+completed correctly (owner).** `assert-current` exit 0.
 
-1. **BACKSPACE DID NOT ERASE — and it was worse than a dead key.**
-   `_INPUT:120` compared the raw byte against the **one** byte `terminfo('kbs')`
-   named, so it never saw the binding table `_KEYCODE` fixed on 19 Aug. It is
-   the **third member of the family that file names** (`UPDREC`, `SED` are the
-   other two) and was missed. With no forward-delete in a single-line INPUT the
-   unmatched byte fell to the catch-all case and was **APPENDED** — on a
-   password prompt backspace made the entry *longer* and echoed another `*`.
-   Now both 8 and 127 erase, `kbs` still counts, strictly additive.
+**WHAT THE SHAPE IS NOW**, because several intermediate versions are recorded in
+git and none of them is what ships:
 
-   **THAT WAS ONLY HALF OF IT, AND THE HALF NOBODY COULD SEE.** With the byte
-   matching fixed the key *still* looked dead, because the ERASE ITSELF was
-   broken separately: `_INPUT:155` erased with `@(IT$CUB) : ' ' : @(IT$CUB)`,
-   and **`@(IT$CUB)` came back EMPTY in the installer's console** — so all that
-   reached the screen was the space, and the cursor walked *forward*. The
-   owner's screenshot is the whole diagnosis: `********    ******`, four
-   backspaces, four spaces, no escape garbage. **Now `char(8)`**, the portable
-   BS-space-BS; `cub1` for the `windows` type is `\b` anyway, so nothing that
-   worked before changes.
+- Setup does its work, shows the closing box, and **the Finished page says a
+  window will open and what it will do**.
+- On Finish, Setup launches **`finish-install.ps1` from `DeinitializeSetup`**
+  and exits. That hook is the only one with **both** properties needed: the
+  wizard is already destroyed *and* Setup's elevated token is still held.
+- That one script runs **`sd -QUIET off`** — LOGIN asks for the password, then
+  `off` executes, so **the session ends without the user** — and then calls
+  **`check-install.ps1`** in the same window, which **closes on a keypress**.
 
-   **WHY `cub1` WAS EMPTY THERE IS NOT ESTABLISHED — open.** terminfo is
-   installed (100 entries), the `windows` entry is present and carries
-   `cub1=\b`, and a **piped** session on the same install emitted byte 8
-   correctly. Something differs about a real console. Not guessed at.
+**THE FOUR THINGS THAT WERE SUPERSEDED, so the git log is not read as current:**
+the `postinstall` tickbox (removed — it asked a second time for one action);
+`-NoExit` (removed — it left a live prompt to type `exit` at); "type `off`" in
+messages 10089/10093 (removed — nothing to type now); and `TakeAccountPassword`
+at `ssPostInstall` (moved — it opened SD behind the wizard).
 
-   ***A CORRECTION THIS FILE BRIEFLY CARRIED:*** it said backspace was
-   *"CONFIRMED WORKING by the owner, elevated and ordinary PowerShell"*. That
-   confirmation was of the **piped test**, not of the install's prompt, and the
-   screenshot arrived minutes later showing the prompt still failing. **A pass
-   on the instrument I could drive was read as a pass on the thing being
-   asked about.**
-2. **UNPRINTABLE CHARACTERS — self-inflicted, and the mechanism is exact.**
-   `messages.c:316` turns every **real newline** in a message file into a
-   **FIELD MARK**, which `display` renders as garbage. **The supported line
-   break is the two-character escape `\n`** (`messages.c:334` → LF+CR); 17
-   shipped messages already use it. Measured on 1425: `dcount(m, char(254))=1`
-   — no field marks — and trailing bytes `10 13`.
-   ***THE RULE: NEVER PUT A REAL NEWLINE IN A MESSAGE FILE.***
-3. **The two-password explanation confused.** Owner's framing, now in 10089: at
-   the keyboard you need only your **Windows** password; from another computer,
-   over ssh or the API, only **this** one.
-4. **No blank line** between paragraph and `New password:` — added in `LOGIN`,
-   not the message, because a message ending in blank lines invites the next
-   editor to trim them as trailing whitespace.
-5. **`type off` was said only after the password was set** — now up front in
-   10089 as well. The closing dialog always said it and was still missed.
-6. **The banner buried the question.** `-QUIET` on the install's session
-   (`CMD_QUIET`, `sd.c:347`, tested at `LOGIN:234`). **Suppressed there only** —
-   the banner an ordinary `sd` prints, which `LOGIN` marks as required by GPL
-   clause 1, is untouched.
-7. **Setup waited on the check window.** `postinstall` now also carries
-   **`nowait`**; `-NoExit` still keeps the window. Not the `nowait` that killed
-   the old password step — that hid a console for a command which exited at once.
-8. **No explanation of the check**, and 9. **no way to refuse it.** The tickbox
-   always was a refusal, but one line on a page somebody is clicking Finish on
-   is not a decision anyone makes. It now describes what will happen, and
-   `check-install.ps1` explains itself and **asks**, with `-Yes` for callers
-   that are not people.
+**THE TWO THAT WERE MINE AND ARE WORTH NOT REPEATING:**
+
+1. ***NEVER PUT A REAL NEWLINE IN A MESSAGE FILE.*** `messages.c:316` turns each
+   into a **FIELD MARK**, which `display` renders as unprintable characters. The
+   supported break is the two-character escape `
+` (`messages.c:334` → LF+CR);
+   17 shipped messages already used it and nothing said so. Measured on 1425:
+   `dcount(m, char(254))=1`, trailing bytes `10 13`.
+2. **A LONGER `FinishedLabel` CAPTION IS SILENTLY CLIPPED.** Inno auto-sizes it
+   to the stock text; a longer one is cut mid-sentence with **no warning at
+   all** — the assignment succeeds and the words are simply not drawn. Grow
+   `Height` from the parent's `ClientHeight` first.
+
+**AND THE BACKSPACE, WHICH TOOK TWO FIXES BECAUSE IT HAD TWO FAULTS:**
+
+- **The byte** — `_INPUT` compared against the single byte `kbs` named and
+  **appended** the unmatched one, so backspace made a password *longer*. It
+  reads raw bytes with `keyinc()` and so never saw the table `_KEYCODE` fixed on
+  19 Aug: the third member of the family that file names (`UPDREC`, `SED`).
+- **The erase** — `@(IT$CUB)` returned **empty** in the installer's console, so
+  only the space reached the screen and the cursor walked forward. Now
+  `char(8)`. **WHY `cub1` WAS EMPTY THERE IS STILL NOT ESTABLISHED**: terminfo
+  is installed, the `windows` entry carries `cub1=`, and a *piped* session on
+  the same install emitted byte 8 correctly.
+
+***THE LESSON THAT COST THE MOST:*** the byte fix was measured working through a
+pipe, reported as fixed, and was still dead at the real prompt — because a pipe
+could not exercise the erase. **A pass on the instrument that can be driven is
+not a pass on the thing being asked about.**
 
 ### THE THREE ITEMS THE FORTIETH SESSION LEAVES
 
@@ -260,23 +251,27 @@ lower now. The record keys *inside* `accounts` were not part of that change.
 LOGIN (21), APISRVR (5), DELACC (4), GRANTA (4). **`CREATEA` ships**, so this
 costs a cycle.
 
-**3. THE POST-INSTALL CHECK IS BUILT — AND HAS NEVER RUN INSIDE AN INSTALL.**
+**3. THE POST-INSTALL CHECK IS BUILT AND HAS RUN INSIDE REAL INSTALLS.**
 `check-install.ps1`, written 22 Aug 2026 on the owner's instruction: a
 post-install verify that runs as the last step *"without complication"*,
-explicitly **not** as comprehensive as the development suite.
+explicitly **not** as comprehensive as the development suite. Reached through
+`finish-install.ps1`; see §THE INSTALL'S LAST MILE above for the shape.
 
-**WHAT IS PROVEN AND WHAT IS NOT — the distinction matters here.**
+**WHAT IS PROVEN AND WHAT IS STILL NOT — the distinction is the point.**
 
-- **Proven:** it parses, and on the live 10:28:16 install it reports every
-  section `[ok]` and reads the catalogue as **129 entries**, matching the
-  install. All three membership branches produce correct text, and the
-  elevated false-pass warning fires — **all by forcing the state**, because
-  `don` is already in `sdusers` from an earlier install.
-- **NOT proven:** the checkbox has never appeared on a Finished page, the
-  Start Menu shortcut has never been created, and **the `[not yet]` path has
-  never run against a genuinely stale token.** Two cycles were launched for
-  this and **both UAC prompts were declined**, so nothing was installed.
-  `assert-current` reports `check-install.ps1`, `stage.py` and `sd.iss` stale.
+- **Proven on the machine:** two installs on the 18:24:18 tree, developer-style
+  and user-style, both completed correctly (owner). On the live install it
+  reports every section `[ok]` and reads the catalogue as **129 entries**.
+- **Proven only by forcing the state:** all three membership branches and the
+  elevated false-pass banner. `don` has been in `sdusers` since an earlier
+  install, so **the `[not yet]` path has still never met a genuinely stale
+  token** — the one path that matters most at install time, and the one this
+  machine cannot produce without a new user account.
+- **Measured, not assumed:** `-NoPause`'s guard. `ReadKey` **blocks** rather
+  than throwing in a console-less host, so the try/catch written first was no
+  guard at all; `[Console]::IsInputRedirected` is. Re-measured after the fix.
+- **Follows but is unobserved:** that a *real* console **does** pause.
+  `IsInputRedirected` is false there by definition.
 
 **THE DESIGN, in one line each:**
 
@@ -290,20 +285,27 @@ explicitly **not** as comprehensive as the development suite.
   installer never added you"*.
 - **The check it exists for** is the catalogue count: the 16 Aug 2026
   catalogue-less install had every file present and the service running.
-- **Not elevated, deliberately** (`sd.iss` `[Icons]` and the `[Run]` entry both
-  say so). Administrators read the data tree through their own ACE, so an
-  elevated run passes regardless — a **false pass on the only question the
-  script asks**. It does not refuse the way `verify-credacl` does, because a
-  worried user right-clicking "Run as administrator" must learn something; it
-  runs and says what the answer is worth, twice.
-- **`postinstall` + `-NoExit`.** The `"Run as: Original user"` behaviour that
-  killed the SDSYS password step is exactly what this wants. `-NoExit` because
-  the third thing that killed that step was the console vanishing unread.
+- **ELEVATED AT INSTALL TIME, UNELEVATED FROM THE START MENU** — and the
+  asymmetry is the design, not an oversight. One script means one token, and
+  the password step **must** have Setup's, so the install-time run answers the
+  database question about the **administrator** token. It says so twice, in a
+  banner and beside the answer it affects. **It is still the right trade:**
+  unelevated, the catalogue check — the whole reason the file exists — cannot
+  run at all on the installing user's token, because the tree is unreadable
+  until they sign out. A labelled answer beats a deferred one. The Start Menu
+  run is the one that answers it properly, and it does not elevate.
+- **It does not refuse an elevated run** the way `verify-credacl` does: a
+  worried user right-clicking "Run as administrator" must learn something
+  rather than meet a blank refusal.
+- **A keypress closes it**, not `-NoExit` and not a typed `exit`. Guarded by
+  `[Console]::IsInputRedirected`, because `ReadKey` **blocks** rather than
+  throwing where there is no console.
 - **A Start Menu shortcut, and it is not a convenience:** the install-time run
-  is *always* the incomplete one, so the re-run is how the check ever finishes.
+  cannot answer the token question, so the re-run is how the check ever
+  finishes.
 
-**NEXT: one cycle proves all of it** — the Finished-page checkbox, the shortcut,
-and (only after signing out and back in) the `[not yet]` → `[ok]` transition.
+**WHAT REMAINS UNOBSERVED** is narrow: the `[not yet]` path against a real
+stale token, which needs a Windows account that is not already in `sdusers`.
 
 **THE ORIGINAL FINDING THAT PROMPTED IT, kept because the reasoning still binds:
 the DEVELOPMENT suite is the thing that does not exist as a shipped check.**
