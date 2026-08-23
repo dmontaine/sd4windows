@@ -23706,3 +23706,40 @@ break key itself in software - trap_break was always a software flag.
 
 Section 7 step 13 now records the decision; steps 14 and 15 are the outcomes it
 was for - the API session's identity, and a private data tree.
+
+--------------------------------------------------------------------------
+
+23 Aug 2026 - THE LINUX CLIENT IS OUT OF SCOPE, AND IT WAS ALREADY BROKEN
+
+Owner: "this build is windows only and I think the number of users that want to
+connect from a linux client to a windows server are very small."  So
+../linuxsdclilib is not cloned, not synced and not a duty.  Section 2's table
+said "keep in sync where the code is shared", which had not been true for eight
+days and which the file gave no way to notice.
+
+WHAT IT WAS, MEASURED RATHER THAN ASSUMED.  linuxsdclilib stopped at 15 Aug,
+f6ab707 - the SV_ transposition fix - and has NO SCRAM at all: grep -rli scram
+answers 8 files in gplsrc/sdclilib, 11 in winsdclilib, 0 there.  It calls
+message_pair(SrvrLogin, ...), request 24, which APISRVR:338 marks "RETIRED,
+always refused" - phase 5 on 20 Aug made SCRAM the only network login with no
+fallback by design.  So it cannot log in to a current server at all: 5275 and a
+dropped connection.  The cleartext exposure only bites against a pre-20-Aug
+server, which makes this a broken client rather than a live leak.
+
+AND IT IS THE SAME FAILURE SECTION 2 ALREADY RECORDS, IN THE REPOSITORY THE FIX
+DID NOT REACH.  The 32-bit client shipped without SCRAM because winsdclilib had
+not moved since 15 Aug - the same date.  The remedy was "one hop instead of
+two", and it redirected the WINDOWS mirror only; linuxsdclilib stayed two hops
+from the truth with nothing comparing them.  sdclilib32 still is.
+
+THE METHOD IS THE PART TO KEEP: a feature sweep, not only a constant sweep.
+Section 2 already said to grep every tree before changing a shared CONSTANT.
+"grep -rli scram" across the trees found this in one second.  The same question
+asked of a FEATURE would have caught it on 20 Aug.
+
+Context: this came out of a question about scripting a fresh development
+machine.  The set is four repositories now - sd4windows, sdb64, winsdclilib,
+sdclilib32 - and the script is not written.  The blocker for it is not the
+script: GPL.BP (212 files, 9 references) and gplsrc (118 files, 3 references)
+are plain directories with NO REMOTE, so nothing can clone them, and GPL.BP
+exists on one machine with no backup.

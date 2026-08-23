@@ -1516,7 +1516,7 @@ rather than deleted; read it before syncing anything.
 |---|---|---|
 | `../sdb64` | upstream Linux project, `main` + `origin/dev` | **read-only.** Fixes it needs go in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) |
 | `../winsdclilib` | **a mirror of `gplsrc/sdclilib/`**, not its source | **push to it** when the client changes here |
-| `../linuxsdclilib` | the Linux client library | **keep in sync** where the code is shared |
+| `../linuxsdclilib` | the Linux client library | ***OUT OF SCOPE, owner, 23 Aug 2026.*** Not maintained, not cloned, not synced |
 | `../sdclilib32` | the 32-bit `qmclilib.dll` for mvDeveloper. **Holds no source** — its `Makefile` `SRCDIR` points into this tree | build and test it after a client change |
 | this repository | the port, and the client library's home | — |
 
@@ -1524,15 +1524,43 @@ rather than deleted; read it before syncing anything.
 it, and `qmclilib.dll` must stay a single file that can be copied beside an
 application, which is what chose PBKDF2 over Argon2 for SCRAM.
 
+***THE LINUX CLIENT IS DROPPED, AND IT WAS ALREADY BROKEN WHEN THE DECISION WAS
+TAKEN.*** Owner, 23 Aug 2026: *"this build is windows only and I think the
+number of users that want to connect from a linux client to a windows server
+are very small."* **It is not cloned, not synced, and not a duty.**
+
+**WHAT IT WAS FOUND TO BE, because the row above claimed it was kept in sync
+and that had not been true for eight days.** `linuxsdclilib` stopped at
+**15 Aug**, `f6ab707` — the SV_ transposition fix — and **has no SCRAM at all**
+(`grep -rli scram`: 8 files here, 11 in `winsdclilib`, **0** there). It calls
+`message_pair(SrvrLogin, ...)`, **request 24**, which `APISRVR:338` marks
+*"RETIRED, always refused"*: phase 5 on 20 Aug made SCRAM the only network
+login, **with no fallback by design**. ***So it cannot log in to a current
+server at all*** — 5275 and a dropped connection. The cleartext exposure only
+matters against a pre-20-Aug server.
+
+***IT IS THE SAME FAILURE THIS SECTION ALREADY RECORDS, IN THE REPOSITORY THE
+FIX DID NOT REACH.*** The 32-bit client shipped without SCRAM because
+`winsdclilib` had not moved since **15 Aug** — the same date. The remedy was
+"one hop instead of two", and it redirected the **Windows** mirror only;
+`linuxsdclilib` stayed two hops from the truth with nothing comparing them.
+**`sdclilib32` still is.** A `grep -rli scram` across the trees is what caught
+this and costs a second.
+
 **THE SAME CONSTANT LIVES IN A DOZEN PLACES ACROSS THESE TREES**, and that is
 not hypothetical: it is how the `SV_EMSG_PAIR`/`SV_ECONTXT` transposition
 survived from 5 to 15 Aug 2026 in three repositories at once. **Before changing
 any shared constant, grep them all:**
 
 ```sh
-grep -rn "define SV_" ../sdb64 ../winsdclilib ../linuxsdclilib ../sdclilib32 . \
+grep -rn "define SV_" ../sdb64 ../winsdclilib ../sdclilib32 . \
     --include=*.h --include=*.bi --include=*.c
 ```
+
+*`../linuxsdclilib` dropped from that list 23 Aug 2026 with the tree itself.*
+**AND THE SAME SWEEP IS WORTH RUNNING FOR A FEATURE, NOT ONLY A CONSTANT** -
+`grep -rli scram` over those trees is what found the Linux client three
+phases behind, in one second, after eight days of nothing noticing.
 
 **THAT TRANSPOSITION IS SETTLED AND THIS SECTION CARRIED IT AS OPEN FOR SIX
 DAYS.** All four trees now read `SV_EMSG_PAIR=6, SV_ECONTXT=7`, `sdb64` was
