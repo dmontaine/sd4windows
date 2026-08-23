@@ -66,15 +66,22 @@ something came to be the way it is.
 >
 > ### WHAT IS ACTUALLY LEFT, cheapest first
 >
-> 1. ***`check-install` CRASHED ON THE ONE PATH IT EXISTS FOR. FIXED, NOT YET
->    RE-RUN.*** `gplbld/verify-notyet.ps1` ran 22 Aug 2026 and found it on the
->    first honest attempt. **The tree is stale - `check-install.ps1` ships - so
->    this owes a cycle and then the verifier:**
+> 1. ***CLOSED - 13/13 on the 22 Aug 21:34:25 install.*** `check-install`
+>    crashed on the one path it exists for; `gplbld/verify-notyet.ps1` found it
+>    and now guards it. **It is in `VerifyInstall2.ps1`'s step list** - placed
+>    early, and it spends no prefix.
 >
->    ```powershell
->    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
->    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-notyet.ps1
+>    **WHAT THE STALE TOKEN NOW GETS**, which is what the whole design was for:
+>
 >    ```
+>    [not yet] You are in the "sdusers" group, but this sign-in does not have it yet.
+>    [not yet] The database could not be read on this sign-in.
+>    [not yet] The network options could not be checked on this sign-in.
+>    Nothing is wrong.
+>    3 check(s) need you to SIGN OUT AND BACK IN before they can be made.
+>    ```
+>
+>    exit 0 - and the same account one group later reports every section `[ok]`.
 >
 >    **WHAT IT FOUND:** `Test-Path` **throws** on an ACL denial instead of
 >    returning `$false`, and `check-install.ps1:82` sets
