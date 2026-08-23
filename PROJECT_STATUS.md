@@ -340,8 +340,21 @@ the tree stale.** The guard compares mtimes and `git mv` preserves them, so the
 renamed record raised nothing. Four other files forced the cycle this time -
 had the rename been the *only* change, it would have shipped untested.
 
-**NOT YET RUN.** A cycle is owed: `CREATEA` is BASIC and must be recompiled into
-`gcat`, and `stage.py`/`bootstrap.py` build the tree.
+**RUN AND CONFIRMED** on the 22 Aug 19:38:32 install, `assert-current` exit 0:
+
+```
+Account.............   Pathname......................   Windows Group......
+don                    C:/ProgramData/SD/user_accounts/don    sdu_don
+sdsys                  C:\ProgramData\SD\sdsys                sdsys
+```
+
+`sdsys\accounts\don` now matches `user_accounts\don` and `sdu_don`. **And the
+case-insensitive lookup is confirmed in the product, not just in the probe:**
+`LOGTO SDSYS` resolves the renamed lower-case record - `3 SDSYS from DON`.
+
+*`LIST ACCOUNTS` from a USER account still answers "File not found" - that is
+unchanged and correct: `ACCOUNTS` is absent from an account VOC, as
+`verify-lcnames` records. It has to be run from SDSYS.*
 
 **3. THE POST-INSTALL CHECK IS BUILT AND HAS RUN INSIDE REAL INSTALLS.**
 `check-install.ps1`, written 22 Aug 2026 on the owner's instruction: a
