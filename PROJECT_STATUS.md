@@ -244,7 +244,7 @@ at `ssPostInstall` (moved — it opened SD behind the wizard).
 - **The erase** — `@(IT$CUB)` returned **empty** in the installer's console, so
   only the space reached the screen and the cursor walked forward. Now
   `char(8)`. **WHY `cub1` WAS EMPTY THERE IS STILL NOT ESTABLISHED**: terminfo
-  is installed, the `windows` entry carries `cub1=`, and a *piped* session on
+  is installed, the `windows` entry carries `cub1=\b`, and a *piped* session on
   the same install emitted byte 8 correctly.
 
 ***THE LESSON THAT COST THE MOST:*** the byte fix was measured working through a
