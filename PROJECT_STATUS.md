@@ -5,54 +5,82 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 22 Aug 2026, fortieth session.
+**Last updated:** 22 Aug 2026, end of the fortieth session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## THE CYCLE AND THE SUITE ARE DONE. NO CYCLE IS OWED.
+> ## NOTHING IS OWED. THE TREE IS CURRENT AND THE SUITE HAS RUN.
 >
-> **Fortieth session, 22 Aug 2026.** Install **22 Aug 10:28:16**, `assert-current`
-> **exit 0**, `gcat` 129/129, `GPL.BP.OUT` 190/190, `bin\` still the 21 Aug
-> 11:33:36 build — no C has changed.
+> **End of the fortieth session, 22 Aug 2026.** Install **22 Aug 19:38:32**,
+> `assert-current` **exit 0**, `bin\` still the 21 Aug 11:33:36 build - **no C
+> has changed since**, so `make sd` is not needed for anything below.
 >
-> **THE DIRECTORY PAGE IS GONE — the owner watched the wizard and confirmed it.**
-> That was the whole point of the cycle. `InstallLocation` in
-> `HKLM\...\Uninstall\{…}_is1` reads `C:\Program Files\SD\`, which is the half a
-> script can check; the absent page is the half only a person can. Adoption ran
-> as designed — `adopt-account.log`: *"don now has an SD account"*.
+> **THE SUITE, `-Run b3`: unelevated 8/8, elevated 15/16**, and its one failure
+> - `verify-sshonly` - **was closed afterwards**: exit 0, every check, on the
+> `b6` run. **Spent: `b1`-`b7`. Start at `b8` and check it free first.**
 >
-> **THE SUITE RAN, `-Run b2`: unelevated 8/8, elevated 15/16.** The only failure
-> was `verify-sshonly`, and it is **now closed** — see item 1 below.
-> **`b2` is spent. Pick a fresh token.**
+> **EVERYTHING THE SESSION OPENED IS CLOSED.** The install's last mile was
+> rebuilt from about a dozen sittings in front of real installs; account names
+> are lower case; `assert-current` now catches a rename. §WHAT THE FORTIETH
+> SESSION LEAVES has all four with what was measured.
 >
-> ### WHAT TO DO NEXT, and none of it needs a cycle first
+> ### WHAT IS ACTUALLY LEFT, cheapest first
 >
-> 1. ~~`verify-sshonly`~~ **CLOSED 22 Aug** — exit 0, every check. §5.6.2 is
->    measured over ssh at last; the `Error 5` was a second gate, not a fault.
-> 2. **Account names should be lower case** — owner's instruction. `CREATEA:489`.
-> 3. **The post-install verify does not exist**, and a claim says it does.
+> 1. **`check-install`'s `[not yet]` path has never met a real stale token.**
+>    It needs a Windows account **not already in `sdusers`**; `don` has been in
+>    it since an earlier install, so every branch was proved by forcing the
+>    state. Minutes, and it is the path a real user hits first.
+> 2. **WHY `cub1` CAME BACK EMPTY** in the installer's console - open, and
+>    deliberately not guessed at. terminfo is installed, the `windows` entry
+>    carries `cub1=\b`, and a **piped** session on the same install emitted
+>    byte 8 correctly. Something differs about a real console.
+> 3. **THE ONLY LARGE ITEM: a remote API session still runs as LocalSystem.**
+>    §THE FILE HALF IS CLOSED, and §What fixing it involves.
+> 4. **Nothing has ever crossed the network to the API port** - every
+>    measurement went to `127.0.0.1:4243`. §7 step 2 **names the reusable VM
+>    rig** and is worth reading before rebuilding one.
+> 5. §7 steps **12** (remove the BASIC layer's Windows branches - Windows arm,
+>    drop the conditional, delete the Linux arm; **not** `LOGIN`'s forced
+>    administrator rights, which §5.6 rejects), **9**, **10**, **13**.
 >
-> **THE THREE SCRIPTS EDITED THIS SESSION ARE ALL ON `$neverShipped`**, so the
-> install is still current and the next measurement can be taken without paying
-> for a cycle: `verify-sshonly.ps1`, `VerifyInstall1.ps1`, `VerifyInstall2.ps1`.
->
-> **WHY TWO COMMANDS AND NOT ONE, since it keeps being asked:** `cycle.ps1` must
-> be elevated and `VerifyInstall1` must not, and **an elevated parent cannot make
-> a genuine unelevated child** — `runas /trustlevel` yields a *restricted* token,
-> not this user's normal one, and `verify-credacl` answered by the wrong token
-> is worse than not run. It could be collapsed by **inverting**: one unelevated
-> entry point that elevates for the cycle, drops back for the unelevated checks,
-> then elevates for `VerifyInstall2`. **Not built.**
+> ### THE STANDING COMMANDS
 >
 > ```powershell
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run <fresh>
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b8
 > ```
+>
+> **The first is ELEVATED, the second an ORDINARY window** - it refuses an
+> elevated one, and that is load-bearing (§4.0). Expect **about four UAC
+> prompts**; it is not unattended. **A declined prompt and a desktop-less shell
+> give the SAME message**, so neither can be told from the other (§4.0.1).
+>
+> **WHY TWO AND NOT ONE:** `cycle.ps1` must be elevated and `VerifyInstall1`
+> must not, and **an elevated parent cannot make a genuine unelevated child** -
+> `runas /trustlevel` yields a *restricted* token, and `verify-credacl` answered
+> by the wrong token is worse than not run. Collapsible by **inverting** - one
+> unelevated entry point that elevates for the cycle and drops back. **Not
+> built.**
+>
+> ### THREE TRAPS THIS SESSION PAID FOR, ALL CHEAP TO REPEAT
+>
+> - ***A STALE LOG LOOKS EXACTLY LIKE A FRESH ONE.*** The file name carries the
+>   timestamp; **the content never says which run it describes**. Three times a
+>   declined UAC prompt left the previous run's log newest and it was nearly
+>   reported as current. **Check the log's time against the install's.**
+> - ***NEVER PUT A REAL NEWLINE IN A MESSAGE FILE.*** `messages.c:316` turns
+>   each into a **field mark**, which `display` renders as unprintable
+>   characters. The supported break is the two-character escape `\n`
+>   (`messages.c:334`).
+> - ***A POWERSHELL FUNCTION RETURNS EVERYTHING IT WRITES TO THE OUTPUT
+>   STREAM.*** `Write-Output` beside a `return` yields an **array**. It cost two
+>   bugs here, one of which made a refusal exit 0. Use `Write-Host` in any
+>   function whose value is read.
 
 > **THE STALE-SEGMENT NOTE THAT STOOD HERE IS SPENT — the cycle cleared it.**
 > It said every `sd` session aborted with `Process terminated` and gave an
