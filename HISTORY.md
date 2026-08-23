@@ -23326,3 +23326,44 @@ naming it that way.  verify-fold section 4 checks this in SDSYS but types the
 name in lower case.  It was seen once, in an account whose bp directory was
 hand-made, so it is not evidence yet - but if it holds, a user typing upper case
 re-introduces exactly the upper-case names section 5.12 removed.
+
+## FORTY-SECOND SESSION, part 4 - step 12 measured, and a verifier for it
+
+22 Aug 2026.  Cycle run by the owner, install 22:50:18, assert-current exit 0.
+The three BASIC changes from part 2 are now on the installed tree and the defect
+among them is closed by measurement rather than by having been written:
+
+  CT VOC C:\Temp\zznosuch  ->  Record 'C:\Temp\zznosuch' not found   <- whole
+  CT VOC a,b               ->  Record 'a' / Record ',' / Record 'b'  <- still splits
+
+THE SECOND LINE IS THE POINT.  A whole path coming back could equally mean CT
+never reaches the parser, in which case the test would pass just as happily with
+the defect restored.  Both readings together are what make it evidence.
+
+THE INSTRUMENT HAD TO CHANGE BETWEEN THE TWO INSTALLS, and the reason is worth
+keeping: RUN echoes both names through message 5073 only once the account HAS AN
+OBJECT PART to look in.  On the pre-fix tree don's account had a bp.out - left
+by the probe's own compile - so RUN answered "Program BP.OUT C: not found".  On
+the freshly cycled tree nothing has been compiled, bp.out does not exist, and
+RUN answers "Cannot find item to run" without echoing anything.  CT reads the
+VOC, which every account has from the moment it is made.
+
+gplbld/verify-parsertokens.ps1 now guards it: 7 of 7 decisive, unelevated,
+spends no prefix, creates nothing.  It is in VerifyInstall1 and on
+assert-current's $neverShipped list, both in the commit that created it.
+
+TWO THINGS FOUND WHILE ADDING IT, both stale claims rather than new work:
+
+  EVERY VERIFIER IS NOW IN A RUNNER - 26 of them, 9 unelevated and 17 elevated,
+  checked by listing both step tables against the directory rather than by eye.
+  VerifyInstall1's header still said "eight verifiers need elevation and are
+  still not in either runner" and named eight that are all now in one.  The file
+  it was written to prevent - a guard nobody runs - is structurally closed, and
+  the header now says what keeps it closed: add the row in the same commit.
+
+  verify-nocase.ps1 computed the account name with .ToUpper(), and its own
+  comment said that line would have to change when step 8's account-name half
+  landed.  That landed on 22 Aug.  It kept working only because NTFS is
+  case-insensitive, so the stale form resolved to the same directory instead of
+  failing - which is exactly how a stale instrument survives unnoticed.  Now
+  .ToLower(), and it prints "account don" rather than "account DON".

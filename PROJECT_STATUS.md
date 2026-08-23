@@ -21,18 +21,24 @@ something came to be the way it is.
 > §THE SUITE ON THE 21:34:25 TREE. **Spent: `b1`-`b9`. Start at `b10` and check
 > it free first.**
 >
-> ***THE INSTALL IS NOW STALE AND A CYCLE IS OWED - THAT WAS THE PRICE OF THE
-> NEXT PIECE OF WORK.*** Three BASIC files changed **after** the suite ran, so
-> **every result above describes the tree as it was at 22:25 and none of them
-> covers the change**: `PARSER`, `QPROC` and `CREATEA` (§7 step 12).
-> **`assert-current` will now refuse, correctly.** The change has **not been
-> compiled**, let alone run. Run the cycle, then the suite at `b10`.
+> ***THE CYCLE WAS RUN AND SECTION 7 STEP 12 IS MEASURED, NOT MERELY WRITTEN.***
+> **Install 22 Aug 22:50:18, `assert-current` exit 0.** Three BASIC files
+> changed - `PARSER`, `QPROC`, `CREATEA` - and the defect among them is closed
+> on the installed tree: **`verify-parsertokens` 7 of 7 decisive**, and
+> `verify-nocase` 3 of 3.
 >
-> **WHAT THE CHANGE IS, in one line each:** a TCL token is no longer split at a
-> backslash - **a measured defect, not tidying** (`RUN BP C:\Temp\zznosuch`
-> answered *"Program BP.OUT `C:` not found"*); `QPROC`'s `is.windows` is gone
-> because `system(91)` cannot vary; and `CREATEA`'s `/home/sd/...` fallbacks are
-> Windows paths. §7 step 12 has the survey behind all three.
+> **THE FIX AND ITS CONTROL, both on this install:** `CT VOC C:\Temp\zznosuch`
+> comes back **whole**, where the 21:34:25 tree answered `Record 'C:'`; and
+> `CT VOC a,b` **still splits** into `a`, `,`, `b`. Without that second reading
+> the first proves nothing - a `CT` that never reached the parser would look
+> identical.
+>
+> **WHAT IS STILL OWED ON THIS INSTALL: THE SUITE.** Only two verifiers have run
+> here. `verify-createaccount` covers the `CREATEA` change and
+> `verify-fold`/`verify-lcnames` exercise the query path `QPROC` sits on, and
+> **none of the three has been run since the cycle**. `verify-parsertokens` is
+> in `VerifyInstall1`, so the one command below covers it too. **Start at
+> `b10`.**
 >
 > ### WHAT THE FORTY-FIRST SESSION CLOSED, ALL THREE MEASURED ON A CYCLED TREE
 >
@@ -104,12 +110,9 @@ something came to be the way it is.
 >    REACH, not identity**: the containment gate holds over the network, and the
 >    token is still LocalSystem because `sdwind` `fork()`s it and Windows has no
 >    `setuid`.
-> 2. Section 7 step **12 is written but UNVERIFIED** - three files changed, no
->    compile yet. **The next cycle is what closes it**, and `verify-nocase`
->    (`QPROC`) and `verify-createaccount` (`CREATEA`) already cover two of the
->    three. **`PARSER` has no verifier and needs one**: the check is
->    `RUN BP C:\Temp\zznosuch`, which must echo the whole path rather than
->    `C:`. Then steps **9**, **10**, **13**.
+> 2. Section 7 step **12 is CLOSED and measured** - `verify-parsertokens` 7/7 on
+>    the 22:50:18 install. What is left of it is **`verify-createaccount`, which
+>    has not run since the cycle**. Then steps **9**, **10**, **13**.
 > 3. **DONE, forty-second session** - the suite ran on the 21:34:25 install and
 >    every step exited 0. `verify-notyet` passed **through the runner** rather
 >    than by hand, and `verify-sshonly` passed **under the runner** for the first
@@ -1458,10 +1461,11 @@ as it stood — every measurement with the reasoning that produced it — is in
 HISTORY, *"ARCHIVE 21 Aug 2026 - section 4's measurement record"*. Nothing was
 deleted, and the three corrections made on the way are noted where they belong.
 
-### 4.0 The verifier inventory — all 24, and which are actually run
+### 4.0 The verifier inventory — all 26, and which are actually run
 
 **WRITTEN 22 Aug 2026 BECAUSE THE SET HAD NEVER BEEN WRITTEN DOWN.** There are
-**24** `verify-*.ps1` in `gplbld`. `post-cycle-elevated.ps1` ran **nine** of
+**26** `verify-*.ps1` in `gplbld` — 24 when this was written, plus
+`verify-notyet` and `verify-parsertokens`. `post-cycle-elevated.ps1` ran **nine** of
 them, and the other fifteen were reachable only by remembering they existed.
 **Three of the twenty-four — `verify-scramlogin`, `verify-setpw`,
 `verify-tierapi` — were not named anywhere in this file at all**, so a session
@@ -1470,7 +1474,7 @@ happened to `verify-delaccount`, which went a whole phase unrun; the difference
 is that this list makes the next one visible instead of waiting for it to be
 missed again. **Add a row here in the same commit that adds a verifier.**
 
-**ALL 24 ARE ON `assert-current`'s `$neverShipped` LIST** — checked by name,
+**ALL 26 ARE ON `assert-current`'s `$neverShipped` LIST** — checked by name,
 22 Aug 2026, not by eye: two earlier attempts to audit this by grepping a line
 range and by regex both reported files missing that were not. Grep for
 `'<name>'` **quoted**, or the answer is wrong.
@@ -1512,7 +1516,7 @@ unelevated runner could not start a service anyway.
 **Run after a cycle, UNELEVATED — `post-cycle-unelevated.ps1`, NEW 22 Aug 2026,
 and it spends no prefixes at all:** `verify-credacl`, `verify-nocase`,
 `verify-setpw`, `verify-allowgroups`, `verify-keys`, `verify-editkeys`,
-`verify-lcnames`. Nothing there creates a Windows account, so unlike the
+`verify-lcnames`, `verify-parsertokens`. Nothing there creates a Windows account, so unlike the
 elevated runner it is free to re-run.
 
 ```powershell
@@ -1701,7 +1705,9 @@ looks surprising. The header carries the suite's **current pass counts** and
 they are not repeated here (§0 rule 3).
 
 **A ROW IS EVIDENCE ABOUT THE INSTALL IT NAMES AND NOTHING SINCE.** Only
-21 Aug 2026's **17:18:11** install (`sd.exe` `CB9C4E0460B175F5`) is current.
+22 Aug 2026's **22:50:18** install is current (`sd.exe` `CB9C4E0460B175F5`,
+unchanged since 21 Aug because no C has changed — the hash is not evidence
+that anything else is, and the mtime comparison is what settles the rest).
 Dating the tree before believing a result is §6's most expensive lesson.
 
 **WHY SO MANY ROWS NAME A CONTROL, stated once instead of in each of them.** A
@@ -1772,6 +1778,7 @@ pipe, 10053 is the gate refusing the person.
 | **The data-tree ACLs are right, checked from the outside** | 14 Aug | Exactly `sdusers:(OI)(CI)(M)`, `Administrators:(OI)(CI)(F)`, `SYSTEM:(OI)(CI)(F)`, no `BUILTIN\Users` — and a session whose token lacks `sdusers` refused on every path inside. **`Test-Path` on the directory itself still answers True** (§6): check the contents, or you will conclude the ACL never applied |
 | **Directory files open `DHF_NOCASE`** | 17 Aug, 20:10:31 | `verify-nocase`: directory file `FL$NOCASE` **1**, dynamic file **0**. Both read 0 on the 17:36:21 install, so the flag is being read rather than invented, and `dh_open.c:549` still takes a dynamic file's flags from its own header |
 | **Case-insensitive queries against a directory file — the behaviour, not the flag** | 17 Aug, 20:34:04 | `verify-nocase` exit 0 with `SYSTEM(91)` answering 1, then by hand: `SELECT BP WITH @ID = "sue"` finds record `SUE`, **`SELECT VOC WITH @ID = "who"` finds nothing**. The dynamic file is the control and is the only reason the first half means anything. This is `QPROC:499` running for the first time |
+| **A TCL token is not split at a backslash, and still is at a comma** | 22 Aug, 22:50:18 | `verify-parsertokens`, **7 of 7 decisive**. `CT VOC C:\Temp\zznosuch` comes back whole where the 21:34:25 install answered `Record 'C:'`; **the comma row is the control that makes it evidence** — `CT VOC a,b` still splits into `a`, `,` and `b`, so the parser is demonstrably in the path rather than bypassed. §7 step 12 |
 | **The lower-case fold, the renames, and the tiers** | 18–19 Aug, various | `verify-fold`, `verify-lcnames` and `verify-tiers`, each with its own control — §5.12 carries what moved, what was left deliberately, and the four traps for anyone scripting a fold again |
 
 #### The install, the service and the second machine
@@ -6004,6 +6011,18 @@ the staging script and the Inno installer were all finished and removed.
     **`sdb64` has the same unguarded line** (`sd64/sdsys/GPL.BP/PARSER:116`)
     **and it is correct there** — that tree is Linux-only, so no
     `UPSTREAM_FIXES.md` entry.
+
+    **MEASURED ON THE INSTALLED TREE, 22 Aug 22:50:18, and guarded from now
+    on.** `gplbld/verify-parsertokens.ps1` is new, **7 of 7 decisive**, and it
+    is in `VerifyInstall1` because it needs no elevation and spends no prefix.
+    **It asks two questions, not one:** the backslash path must come back whole
+    **and** `CT VOC a,b` must still split into `a`, `,`, `b` - without the
+    second, a `CT` that never reached the parser would pass just as happily with
+    the defect restored. **`CT` and not `RUN`, and that is not a preference:**
+    `RUN` echoes both names only once the account has an object part to look in,
+    and on a freshly made account nothing has been compiled, so it answers
+    *"Cannot find item to run"* and echoes nothing. That is how the original
+    instrument stopped working between two installs on the same day.
 
     **ALSO DONE:** `QPROC`'s `is.windows` is gone — `system(91)` is a constant
     1, so `if is.windows and is.dir` tested something that could not vary; and
