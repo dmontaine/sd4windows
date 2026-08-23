@@ -26,9 +26,17 @@ something came to be the way it is.
 > answer to what was item 2 below. **The fix compiles clean against a control
 > and has NOT been run.**
 >
-> **THE MEASUREMENT THAT MATTERS AFTER THE CYCLE** is the installer's own
-> password prompt: type a character, press backspace, and watch it erase. Every
-> piped instrument here answers the wrong question - see §5.20.
+> ***NOT THE INSTALLER'S PASSWORD PROMPT - THAT WAS ALREADY FIXED AND PASSES
+> EITHER WAY.*** Owner, 22 Aug 2026, correcting the first version of this
+> handoff. `_INPUT:187` erases with `char(8)`, so it never touches the
+> capability, and `sd -QUIET off` skips `LOGIN:200`'s clear screen twice over -
+> on `system(1026)` and on `CMD.QUIET`. **The installer session has no
+> capability-dependent output left at all, so this change is a no-op there.**
+>
+> **THE MEASUREMENT THAT DISCRIMINATES** is a plain `sd` - no command, real
+> console, not quiet - typed into a console with text on the screen.
+> `LOGIN:200`'s `display @(-1)` is the only capability-dependent thing left in
+> `$LOGIN`. **Before: the screen is not cleared at sign-on. After: it is.**
 >
 > Before the change, the fortieth session left: install **22 Aug 19:38:32**,
 > `assert-current` **exit 0**.
@@ -3272,6 +3280,28 @@ the type in force after the attempt and leaves it unchanged on failure
 `TERM:245-246` is the same test on the same two calls. **NOT MEASURED ON AN
 INSTALL YET** - it is a source change made after this cycle, so it owes a
 `cycle.ps1`.
+
+***WHAT THE FIX DOES NOT DO, AND THE FIRST WRITE-UP OF IT SAID OTHERWISE.***
+Owner, 22 Aug 2026: *"the installers password prompt was already fixed"*.
+Correct, and it makes the obvious test worthless - **it passes either way**:
+
+- `_INPUT:187` erases with `char(8)` and never asks for the capability.
+- `_INPUT:117`'s `erase.keys = char(8):char(127)` is additive, so the empty
+  `kbs` at `:90` costs nothing either.
+- `sd -QUIET off` skips `LOGIN:200`'s clear screen **twice** - `system(1026)`
+  is `off`, and `CMD.QUIET` is set.
+
+**So the installer session has no capability-dependent output left, and this
+change is a no-op there.** What it fixes is `LOGIN:200` for an ordinary
+interactive session - the sign-on clear screen, the only `@()` call left in
+`$LOGIN` besides the `sdterm`-only `:205` - and the root cause the two `_INPUT`
+changes were working around. **That, not backspace, is what a cycle has to
+show.**
+
+*`clear` was not measured empty directly; cub1, kbs, el and cup were. It
+follows from the code rather than from the table: `sdtgetstr()` returns
+`null_string` at `sdtermlb.c:395` before it ever looks at the name, so with
+`tinfo` NULL every id is empty.*
 
 **UPSTREAM HAS IT TOO — `UPSTREAM_FIXES.md` #12.** `LOGIN:79` unchecked,
 `terminfo/x/xterm` only, `CPROC:284-285` against `:366`, and its clear screen is

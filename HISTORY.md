@@ -22989,3 +22989,24 @@ same free_terminfo() ordering, CPROC:284-285 against :366, and no terminfo entry
 for xterm-256color, screen or tmux-256color either - so on upstream it is the
 graphical terminal and the ssh session that fail and the kernel VT that works.
 Its sign-on clear screen, LOGIN:97, is inside the same subroutine.
+
+CORRECTION, same day, from the owner: "the installers password prompt was
+already fixed".  Right, and it invalidates the test the first write-up of this
+work proposed.  _INPUT:187 erases with char(8) and never asks for the
+capability; _INPUT:117's erase.keys = char(8):char(127) is additive, so the empty
+kbs costs nothing either; and sd -QUIET off skips LOGIN:200's clear screen twice
+over, on system(1026) and on CMD.QUIET.  THE INSTALLER SESSION HAS NO
+CAPABILITY-DEPENDENT OUTPUT LEFT, so this change is a no-op there and "watch
+backspace erase" would have passed before and after.
+
+What the change actually fixes is LOGIN:200 for an ordinary interactive session
+- the sign-on clear screen, the only @() call left in $LOGIN apart from the
+sdterm-only :205 - and the root cause that both _INPUT changes were working
+around.  That is what the cycle has to show.
+
+THE SHAPE IS THIS FILE'S OWN LESSON A THIRD TIME.  The fortieth session wrote
+that a pass on the instrument that can be driven is not a pass on the thing being
+asked about.  Then the timing, not the instrument, turned out to be the axis for
+cub1.  Then the proposed proof of THAT was a test whose outcome did not depend on
+the change at all.  A check that cannot fail is worth what a check that cannot
+run is worth, and this document has now recorded both within a day.
