@@ -66,10 +66,21 @@ something came to be the way it is.
 >
 > ### WHAT IS ACTUALLY LEFT, cheapest first
 >
-> 1. **`check-install`'s `[not yet]` path has never met a real stale token.**
->    It needs a Windows account **not already in `sdusers`**; `don` has been in
->    it since an earlier install, so every branch was proved by forcing the
->    state. Minutes, and it is the path a real user hits first.
+> 1. **`check-install`'s `[not yet]` path - THE HARNESS IS WRITTEN, IT HAS NOT
+>    RUN.** `gplbld/verify-notyet.ps1`, 22 Aug 2026. One **elevated** command:
+>
+>    ```powershell
+>    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-notyet.ps1
+>    ```
+>
+>    **THE ORDER IS THE DESIGN:** take the token BEFORE adding the account to
+>    `sdusers`. A logon after the add carries it and reports `[ok]`, which is
+>    why the obvious version of this test cannot reach the branch at all. A
+>    second run on a fresh token is the control, so token age is the only
+>    variable. Its header has the rest.
+>
+>    **DELIBERATELY NOT IN `post-cycle-elevated.ps1` YET** - it has never
+>    passed, and a verifier joins the runner after it has, not before.
 > 2. **WHY `cub1` CAME BACK EMPTY is ANSWERED AND FIXED - §5.20, 22 Aug 2026.**
 >    It was never about the console: no terminal type had loaded, so every
 >    capability was empty, and the repair runs after `$LOGIN` rather than before
