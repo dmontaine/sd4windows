@@ -11,79 +11,78 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NOTHING IS OWED. THE SUITE IS CLEAN ON THIS INSTALL, BOTH HALVES.
+> ## NOTHING IS OWED. 27 OF 27, AND STEPS 12 AND 9 ARE BOTH MEASURED.
 >
-> **Forty-second session, 22 Aug 2026.** Install **22 Aug 21:34:25**,
-> `assert-current` **the installed tree matches source**, `bin\` still the
-> 21 Aug 11:33:36 build - no C has changed - so `make sd` is not needed.
-> **THE SUITE RAN ON THIS INSTALL, 22:13:01-22:25:29: unelevated 8/8, elevated
-> 17/17**, the first run with no failing step in either half. Counts in
-> §THE SUITE ON THE 21:34:25 TREE. **Spent: `b1`-`b9`. Start at `b10` and check
-> it free first.**
+> **End of the forty-second session, 23 Aug 2026.** Install **22 Aug 23:46:31**,
+> `assert-current` **the installed tree matches source**, `bin\` built
+> **22 Aug 23:43:35** - C changed this session, so the binary is new.
+> **Spent: `b1`-`b11`. Start at `b12` and check it free first.**
 >
-> ***THE CYCLE WAS RUN AND SECTION 7 STEP 12 IS MEASURED, NOT MERELY WRITTEN.***
-> **Install 22 Aug 22:50:18, `assert-current` exit 0.** Three BASIC files
-> changed - `PARSER`, `QPROC`, `CREATEA` - and the defect among them is closed
-> on the installed tree: **`verify-parsertokens` 7 of 7 decisive**, and
-> `verify-nocase` 3 of 3.
+> **THE SUITE, `-Run b11`, 23:47:58-00:00:59: UNELEVATED 10/10, ELEVATED 17/17 -
+> every verifier in the tree, every one exit 0.** §THE SUITE ON THE 23:46:31
+> TREE has the counts. Two verifiers are new this session and both are in the
+> unelevated runner: `verify-parsertokens` and `verify-batchjob`.
 >
-> **THE FIX AND ITS CONTROL, both on this install:** `CT VOC C:\Temp\zznosuch`
-> comes back **whole**, where the 21:34:25 tree answered `Record 'C:'`; and
-> `CT VOC a,b` **still splits** into `a`, `,`, `b`. Without that second reading
-> the first proves nothing - a `CT` that never reached the parser would look
-> identical.
+> ### STEP 12 - A TCL TOKEN IS NOT SPLIT AT A BACKSLASH
 >
-> **AND THE WHOLE SUITE HAS RUN ON IT: 9/9 AND 17/17, 23:00:31-23:13:22.**
-> **That is every verifier in the tree** - the unelevated half now carries
-> `verify-parsertokens`, so 26 of 26 ran and every one exited 0.
-> `verify-createaccount` passed with its decisive rows, including a real `ssh`
-> admission and `LogonUser` INTERACTIVE **refused 1385**, so the `CREATEA` edit
-> disturbed nothing. **Spent: `b1`-`b10`. Start at `b11` and check it free
-> first.**
+> `PARSER` kept the LINUX arm of a conditional upstream guards with
+> `if not(is.windows)`, on a Windows-only build where `\` is a path separator.
+> **`verify-parsertokens` 7 of 7 decisive.** `CT VOC C:\Temp\zznosuch` comes
+> back **whole** where the pre-fix tree answered `Record 'C:'`, and `CT VOC a,b`
+> **still splits** - without that second reading the first proves nothing, since
+> a `CT` that never reached the parser would look identical. `QPROC`'s dead
+> `is.windows` went with it. §7 step 12.
 >
-> ***ONE CHANGE IS STILL UNEXERCISED AND IS NOT CLAIMED:*** `CREATEA`'s
-> `USRDIR`/`GRPDIR` fallback only runs when `CONFIG('USRDIR')` is **empty**, and
-> the shipped `sd.conf` always sets it. Nothing has taken that branch; what the
-> suite shows is that the surrounding path is unharmed.
+> ### STEP 9 - A SCHEDULED JOB MAY RUN THE COMMANDS ITS ACCOUNT IS LISTED FOR
 >
-> ***THEN STEP 9 WAS BUILT AND THE TREE IS STALE AGAIN. A CYCLE IS OWED, AND
-> THIS ONE CHANGES C.*** `sd.c`, `LOGIN`, `stage.py`, `sd.iss`, three new
-> messages, a dictionary and a new verifier. §7 step 9 has what was built and
-> the two things §8 specified that turned out to be wrong.
+> The elevation gate on `sd <command>` moved out of `sd.c` and into `LOGIN`,
+> where it became a list - **owner's decision, 22 Aug, from three offered.**
+> **Elevation still passes on its own**, so nothing an administrator does
+> changed; an account passes for the commands named in `@SDSYS/batch.jobs`;
+> everyone else is refused by `LOGIN`, with a message saying which of three.
+> **The interactive `:` prompt is untouched - only `SYSTEM(1026)` is gated.**
 >
-> ***BECAUSE C CHANGED, `make sd` COMES FIRST. `cycle.ps1` DOES NOT BUILD*** -
-> it stages what is already in `bin\`. Getting that wrong cost a cycle on
-> 22 Aug: the 23:40:28 install carried the **21 Aug** `sd.exe`, and
-> `assert-current` caught it. **It compares against the OLDEST binary in
-> `bin\`**, which was `sdclilib.dll`, so rebuilding the server alone would not
-> have cleared it either - `make sd` depends on `sdclilib`, which is why one
-> build does. **Built 22 Aug 23:43:35, `gplobj/sd.o` rebuilt with it, and the
-> new `sd.exe` hashes DIFFERENT from the installed one** - so the change is in
-> the binary and the install is one cycle behind it.
+> **`verify-batchjob` 10 of 10 decisive, and THREE ROWS CARRY IT:** *listed: the
+> paragraph RAN*, *ELEVATED with no entry: still runs*, and *entry removed:
+> refused again*. The five refusals mean nothing without them - a gate that
+> refused everything would pass those five. **And *an ordinary token cannot
+> WRITE batch.jobs*, which is the whole of the control.** §7 step 9 has what
+> §8 got wrong and why the list is not in the VOC.
 >
-> **THE ONE-LINE VERSION:** a scheduled job can now run a command, because the
-> elevation gate on `sd <command>` moved from `sd.c` into `LOGIN` and became a
-> list - **elevation still passes on its own**, and an account passes for the
-> commands named in `@SDSYS/batch.jobs`. **The interactive `:` prompt is
-> untouched.**
+> ### WHAT IS LEFT, cheapest first
 >
-> **THE BOOTSTRAP RISK IS CLEARED.** `cycle.ps1 -SkipInstall` ran 23:36:19 and
-> reached *"Successful compile"*: **`compile: LOGIN` 0 error(s) with no
-> "is not assigned a value"** - the warning `bootstrap.py:310` kills the whole
-> bootstrap on, and the reason `batch.command` is assigned at the top of the
-> subroutine. **`WRITE_INSTALL_DICTS` wrote `batch.jobs.dic` `@`, `@ID` and
-> `COMMAND`**, and **Inno compiled `sd.iss`**, so `SecureBatchJobs`'s Pascal is
-> sound. The four warnings in that log - `PRIVILEGED_COMMANDS`, `INP_LN`,
-> `ACC.REC`, `I` - are pre-existing and are *"assigned a value but never used"*,
-> which is the other warning and is not fatal.
+> 1. **§7 step 10** - admin forms (§5.14), open-ended.
+> 2. **§7 step 13** - Stage 2, native Win32, the largest.
+> 3. **A REMOTE API SESSION STILL RUNS AS LocalSystem** - the last of the
+>    original five. §THE FILE HALF IS CLOSED. The choice is S4U plus
+>    `CreateProcessAsUser` versus accepting a service identity behind the
+>    `op_dio2.c` gate that already holds.
 >
-> **WHAT -SkipInstall DOES NOT SHOW:** it stops before installing, so **nothing
-> in step 9 has RUN**. The installed tree is still 22:50:18 and stale.
+> ### TWO THINGS NOT CLAIMED, BECAUSE NOTHING EXERCISED THEM
 >
-> **AND THE SUITE COSTS MORE UAC PROMPTS NOW: about six, not four.**
-> `verify-batchjob` raises two of its own, because writing a probe record into
-> a list that is read-only to `sdusers` needs an elevated child while the
-> measurement itself must keep an ordinary token.
+> - **`CREATEA`'s `USRDIR`/`GRPDIR` fallback** runs only when `CONFIG('USRDIR')`
+>   is **empty**, and the shipped `sd.conf` always sets it. The suite shows the
+>   path around it is unharmed, not that the fallback works.
+> - **§8's "any prompt is fatal"** for a batch job: nothing stops the *command*
+>   prompting. The list limits what may run, not what what-may-run does.
+>
+> ### THREE OPERATIONAL FACTS THIS SESSION PAID FOR
+>
+> - ***`make sd` COMES FIRST WHEN C CHANGES. `cycle.ps1` DOES NOT BUILD*** - it
+>   stages what is already in `bin\`. A cycle was spent on 22 Aug installing the
+>   previous day's `sd.exe`. **`assert-current` compares against the OLDEST
+>   binary in `bin\`**, so rebuilding the server alone would not clear it -
+>   `make sd` depends on `sdclilib`, which is why one build does. **Check the
+>   hash, not the size:** the new `sd.exe` was byte-identical in length to the
+>   old one.
+> - **THE SUITE NOW COSTS ABOUT SIX UAC PROMPTS, not four.**
+>   `verify-batchjob` raises two of its own: writing into a list that is
+>   read-only to `sdusers` needs an elevated child, while the measurement must
+>   keep an ordinary token.
+> - **AN SD DIRECTORY FILE CARRIES NO MARKER ON DISK.** A provisioned one and a
+>   hand-made one are indistinguishable, and an empty one gives `rmdir` no
+>   reason to object - a probe deleted `don`'s `bp` this session. **Ask the VOC,
+>   not the filesystem:** `CT VOC bp` names what was provisioned.
 >
 > ### WHAT THE FORTY-FIRST SESSION CLOSED, ALL THREE MEASURED ON A CYCLED TREE
 >
@@ -310,23 +309,26 @@ code is also 1. **What it cost:** VerifyInstall2 has **nine `exit 2` paths**
 every *"the suite could not run"* was delivered as *"a step failed"*. **A reused
 prefix and a broken product were indistinguishable from the exit code.**
 
-### THE SUITE ON THE 22:50:18 TREE — `-Run b10`, 22 Aug 2026
+### THE SUITE ON THE 23:46:31 TREE — `-Run b11`, 22–23 Aug 2026
 
-**Unelevated 9/9. Elevated 17/17. TWENTY-SIX OF TWENTY-SIX — every verifier in
-the tree, every one exit 0.** Ran 23:00:31–23:13:22, with
+**Unelevated 10/10. Elevated 17/17. TWENTY-SEVEN OF TWENTY-SEVEN — every
+verifier in the tree, every one exit 0.** Ran 23:47:58–00:00:59, with
 `assert-current: the installed tree matches source` read out of `verify-fold`'s
 own log. Transcripts under `%LOCALAPPDATA%\SD-verify` (**UTF-16 — `tr -d '\000'`
 before grepping, or a plain grep reports a verifier that printed nothing**).
 
-**The counts below are `b10`'s** and are identical to `b9`'s, which ran the same
-seventeen elevated steps on the **21:34:25** tree at 8/8 and 17/17 — the first
-sweep with no failing step, and the baseline §7 step 12's fix was measured
-against. `verify-parsertokens` is the ninth unelevated step and is new.
+**The counts below were read out of the `b11` logs, not carried over**, and the
+seventeen elevated ones are identical to `b10`'s and `b9`'s. `b9` on the
+**21:34:25** tree was the first sweep with no failing step, at 8/8 and 17/17,
+and is the baseline §7 step 12's fix was measured against. The unelevated half
+has grown by two this session: `verify-parsertokens` (step 12) and
+`verify-batchjob` (step 9). **`verify-lcnames` has now hit 142/142 on three
+consecutive installs**, so §8's intermittent has not bitten since 22 Aug.
 
 ```
 verify-credacl  verify-osusers  verify-nocase 3/3  verify-setpw
 verify-allowgroups  verify-keys  verify-editkeys  verify-lcnames 142/142
-verify-parsertokens 7/7                                          all exit 0
+verify-parsertokens 7/7  verify-batchjob 10/10                   all exit 0
 
 verify-fold 10/10        verify-nonet 17/17         verify-notyet 13/13
 verify-createaccount     verify-tiers all           verify-catgate 25/25
@@ -345,8 +347,8 @@ standalone on `b6`; `verify-lcnames` hit **142/142 on both**, so §8's
 intermittent did not bite either time; and **nothing is outside a runner any
 more** (§4.0).
 
-**`b10` IS SPENT, and `b1`–`b10` with it. `b11` has not been checked.**
-`verify-createaccount` leaves `sdacctb10` and `user_accounts\sdacctb10` in place
+**`b11` IS SPENT, and `b1`–`b11` with it. `b12` has not been checked.**
+`verify-createaccount` leaves `sdacctb11` and `user_accounts\sdacctb11` in place
 **on purpose** — removing them is `DELETE.ACCOUNT`'s job and §7 step 1c has not
 been decided. That is not residue to tidy.
 
@@ -780,8 +782,8 @@ running anything** and refuses, naming every clash at once. **A Windows local
 user survives an uninstall**, so a fresh install is *not* a fresh set of names —
 that is the assumption this guard exists to break. Spent: everything up to
 `sdtiert8`/`sdacct32`/`sdacl12`/`sdapia14`/`sdrt8`/`sdar6`/`sddel7`, plus
-`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` to `b10`** — thirteen
-derived names each. **Pick a fresh token; `b10` is spent.** The check
+`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` to `b11`** — thirteen
+derived names each. **Pick a fresh token; `b12` has not been checked.** The check
 is two lines and costs nothing: `Get-LocalUser -Name "<prefix>*"` and
 `Get-LocalGroup -Name "sdu_<prefix>*"` must both come back empty.
 
@@ -1832,6 +1834,7 @@ pipe, 10053 is the gate refusing the person.
 | **The data-tree ACLs are right, checked from the outside** | 14 Aug | Exactly `sdusers:(OI)(CI)(M)`, `Administrators:(OI)(CI)(F)`, `SYSTEM:(OI)(CI)(F)`, no `BUILTIN\Users` — and a session whose token lacks `sdusers` refused on every path inside. **`Test-Path` on the directory itself still answers True** (§6): check the contents, or you will conclude the ACL never applied |
 | **Directory files open `DHF_NOCASE`** | 17 Aug, 20:10:31 | `verify-nocase`: directory file `FL$NOCASE` **1**, dynamic file **0**. Both read 0 on the 17:36:21 install, so the flag is being read rather than invented, and `dh_open.c:549` still takes a dynamic file's flags from its own header |
 | **Case-insensitive queries against a directory file — the behaviour, not the flag** | 17 Aug, 20:34:04 | `verify-nocase` exit 0 with `SYSTEM(91)` answering 1, then by hand: `SELECT BP WITH @ID = "sue"` finds record `SUE`, **`SELECT VOC WITH @ID = "who"` finds nothing**. The dynamic file is the control and is the only reason the first half means anything. This is `QPROC:499` running for the first time |
+| **A scheduled job runs the commands its account is listed for, and nothing else** | 22 Aug, 23:46:31 | `verify-batchjob`, **10 of 10 decisive**, run with an ORDINARY token because an elevated one passes the gate by design. Refused unlisted; **RAN** once the record was written; refused again once it was removed; refused with an argument though listed; refused when the VOC record is not PA/S; **still RAN elevated with no record at all**; and an ordinary token **cannot write** `batch.jobs`. **The two "RAN" rows are what make the five refusals evidence** — a gate that refused everything would pass those five. §7 step 9 |
 | **A TCL token is not split at a backslash, and still is at a comma** | 22 Aug, 22:50:18 | `verify-parsertokens`, **7 of 7 decisive**. `CT VOC C:\Temp\zznosuch` comes back whole where the 21:34:25 install answered `Record 'C:'`; **the comma row is the control that makes it evidence** — `CT VOC a,b` still splits into `a`, `,` and `b`, so the parser is demonstrably in the path rather than bypassed. §7 step 12 |
 | **The lower-case fold, the renames, and the tiers** | 18–19 Aug, various | `verify-fold`, `verify-lcnames` and `verify-tiers`, each with its own control — §5.12 carries what moved, what was left deliberately, and the four traps for anyone scripting a fold again |
 
@@ -5925,10 +5928,13 @@ the staging script and the Inno installer were all finished and removed.
    `pterm(PT$INVERT, -1)` first, then set. **Harmless today only because
    inversion is already off everywhere** — latent, and ours (the lines carry a
    `14 Aug 26 Windows port` marker), so no `UPSTREAM_FIXES.md` entry.
-9. **BUILT 22 Aug 2026, NOT YET COMPILED OR RUN.** A scheduled job can log in
-   and run a command the administrator has named for its account. **Everything
-   below is written and nothing below is measured** — the cycle that compiles
-   it is owed, and `verify-batchjob.ps1` is the instrument.
+9. **CLOSED AND MEASURED, 22–23 Aug 2026.** A scheduled job can log in and run
+   a command the administrator has named for its account. **`verify-batchjob`
+   10 of 10 decisive on the 23:46:31 install**, and the three rows that carry it
+   are *listed: the paragraph RAN*, *ELEVATED with no entry: still runs* and
+   *entry removed: refused again* — the five refusals prove nothing without
+   them. ***An ordinary token cannot WRITE `batch.jobs`*** is the whole of the
+   control, and it is a row too.
 
    **TWO THINGS §8 SPECIFIED TURNED OUT TO BE WRONG, both measured before
    changing anything, and both are the reason this was not a half-hour job.**

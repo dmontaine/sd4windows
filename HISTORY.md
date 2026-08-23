@@ -23439,3 +23439,40 @@ variables and bootstrap.py:310 fails the whole bootstrap on any "is not assigned
 a value" warning.  batch.command is assigned at the top for that reason;
 batch.ok is assigned inside the subroutine, which is the same shape as cred.ok
 and therefore already proven to compile.
+
+## FORTY-SECOND SESSION, part 7 - step 9 measured, 27 of 27, and a cycle wasted
+
+22-23 Aug 2026.  Install 22 Aug 23:46:31, assert-current green.  Suite -Run b11,
+23:47:58-00:00:59: UNELEVATED 10/10, ELEVATED 17/17 - every verifier in the
+tree.  Counts read out of the b11 logs rather than carried over from b10; they
+match.
+
+STEP 9 IS CLOSED.  verify-batchjob, 10 of 10 decisive, with an ordinary token
+because an elevated one passes the gate by design:
+
+  unlisted                      refused, did not run
+  listed                        THE PARAGRAPH RAN
+  listed + an argument          refused
+  listed but VOC type not PA/S  refused on TYPE
+  entry removed                 refused again
+  ELEVATED, no entry at all     STILL RAN
+  ordinary token writing it     REFUSED - the ACL, which is the whole control
+
+The two "RAN" rows are what make the five refusals mean anything.  A gate that
+refused everything would pass all five, and that is the failure this shape of
+test exists to catch.
+
+A CYCLE WAS WASTED AND THE REASON IS MINE.  I wrote in the handoff that the
+cycle "runs make sd".  It does not: cycle.ps1 stages whatever is already in
+bin\, so the 23:40:28 install carried the 21 Aug sd.exe and assert-current
+refused - correctly, and with the right instruction.  Two things came out of it
+worth keeping.  The guard compares against the OLDEST binary in bin\, which was
+sdclilib.dll, so rebuilding the server alone would not have cleared it; make sd
+depends on sdclilib, which handles the UCRT64 switch itself, so one build does.
+And the rebuilt sd.exe was byte-identical in SIZE to the old one - the hash is
+what showed the edit had reached the binary.
+
+THE START HERE BLOCK WAS REWRITTEN AS STATE RATHER THAN DIARY.  It had grown
+three "then this happened" sections across one session - the 21:34:25 install,
+the 22:50:18 one, the wasted cycle.  The next session needs the position, not
+the route to it; the route is here.
