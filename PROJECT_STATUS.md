@@ -11,24 +11,40 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NOTHING IS OWED. THE TREE IS CURRENT AND THE `LOGIN` FIX IS PROVEN.
+> ## NOTHING IS OWED. THREE ITEMS CLOSED, AND ONE OF THEM WAS A CRASH.
 >
-> **End of the forty-first session, 22 Aug 2026.** Install **22 Aug 20:57:34**,
+> **End of the forty-first session, 22 Aug 2026.** Install **22 Aug 21:34:25**,
 > `assert-current` **exit 0**, `bin\` still the 21 Aug 11:33:36 build - no C has
 > changed - so `make sd` is not needed. **THE SUITE HAS NOT BEEN RUN ON THIS
-> INSTALL**; the fortieth session's `-Run b3` results below are from the
-> 18:24:18 tree. **Spent: `b1`-`b7`. Start at `b8`.**
+> INSTALL**; the `-Run b3` results below are from the 18:24:18 tree.
+> **Spent: `b1`-`b8`. Start at `b9` and check it free first.**
 >
-> **WHAT THE CHANGE IS: §5.20.** The first `settermtype()` of a session fails,
-> because the MSYS2 runtime hands SD `TERM=xterm-256color` and there is no such
-> terminfo entry - and until one loads **every** capability is empty, for the
-> whole of `$LOGIN`. `LOGIN` now checks and falls back to `windows`. That is the
-> answer to what was item 2 below, and it is measured on this install.
+> ### WHAT CLOSED, ALL THREE MEASURED ON A CYCLED TREE
 >
-> **THE CHANGE IS PROVEN ON THIS TREE - §5.20.** With the probe as the login
-> paragraph's first sentence, `@TERM.TYPE` reads `windows` while `env('TERM')`
-> reads `xterm-256color`: the first lookup failed and the fallback caught it.
-> Identical under both launch chains.
+> 1. **`cub1` WAS EMPTY BECAUSE NO TYPE HAD LOADED - §5.20.** The MSYS2 runtime
+>    hands SD `TERM=xterm-256color` even when Windows sets none, there is no
+>    such terminfo entry, and until one loads **every** capability is empty for
+>    the whole of `$LOGIN`. `LOGIN` now checks and falls back to `windows`.
+>    Proven with the probe as the login paragraph's **first sentence**:
+>    `@TERM.TYPE` reads `windows` while `env('TERM')` reads `xterm-256color`, so
+>    the first lookup failed and the fallback caught it.
+> 2. ***`check-install` CRASHED ON THE ONE PATH IT EXISTS FOR*** - the item 1
+>    below. `Test-Path` **throws** on an ACL denial and that script sets
+>    `$ErrorActionPreference = 'Stop'` for itself, so on a token that does not
+>    carry `sdusers` yet it aborted with *"Access is denied"* and printed
+>    nothing. Fixed with `Test-PathState`; `verify-notyet.ps1` guards it,
+>    **13/13**, and is in `VerifyInstall2.ps1`'s step list.
+> 3. **THE API HAS CROSSED A REAL NETWORK** - the item 4 below. Bridged guest
+>    **10.0.0.143** to this host **10.0.0.3**: admitted with a live session,
+>    wrong password refused, and **`SDSYS` refused over the wire**.
+>    `gplbld/stage-apiremote.ps1` makes the rig repeatable.
+>
+> ***THE COMMON CAUSE, AND IT IS THE ONE TO CARRY:*** all three had gone
+> unanswered because **the instrument could not reach the condition**. Every
+> `cub1` reading was taken at the `:` prompt, which is always after the login
+> paragraph has repaired the type; every `[not yet]` proof was made on a token
+> that already had the group; every API measurement went to loopback. **A branch
+> proved by construction is not a branch that has run.**
 >
 > ***NOT THE INSTALLER'S PASSWORD PROMPT - THAT WAS ALREADY FIXED AND PASSES
 > EITHER WAY.*** Owner, 22 Aug 2026. `_INPUT:187` erases with `char(8)`, so it
@@ -57,7 +73,8 @@ something came to be the way it is.
 >
 > **THE SUITE, `-Run b3`: unelevated 8/8, elevated 15/16**, and its one failure
 > - `verify-sshonly` - **was closed afterwards**: exit 0, every check, on the
-> `b6` run. **Spent: `b1`-`b7`. Start at `b8` and check it free first.**
+> `b6` run. *(That was the fortieth session's count. `b8` has been spent since -
+> the header above has the current one.)*
 >
 > **EVERYTHING THE FORTIETH SESSION OPENED IS CLOSED.** The install's last mile
 > was rebuilt from about a dozen sittings in front of real installs; account
@@ -66,101 +83,30 @@ something came to be the way it is.
 >
 > ### WHAT IS ACTUALLY LEFT, cheapest first
 >
-> 1. ***CLOSED - 13/13 on the 22 Aug 21:34:25 install.*** `check-install`
->    crashed on the one path it exists for; `gplbld/verify-notyet.ps1` found it
->    and now guards it. **It is in `VerifyInstall2.ps1`'s step list** - placed
->    early, and it spends no prefix.
+> 1. **A REMOTE API SESSION STILL RUNS AS LocalSystem** - the only large item,
+>    and the only one of the original five still open. Section THE FILE HALF IS
+>    CLOSED, and section What fixing it involves. **What 22 Aug measured was
+>    REACH, not identity**: the containment gate holds over the network, and the
+>    token is still LocalSystem because `sdwind` `fork()`s it and Windows has no
+>    `setuid`.
+> 2. Section 7 steps **12** (remove the BASIC layer's Windows branches - Windows
+>    arm, drop the conditional, delete the Linux arm; **not** `LOGIN`'s forced
+>    administrator rights, which 5.6 rejects), **9**, **10**, **13**.
+> 3. **RUN THE SUITE ON THIS TREE.** It has not been run since the 21:34:25
+>    install, and two verifiers changed today - `verify-notyet.ps1` is new and in
+>    the runner, and `check-install.ps1` was fixed under it. Start at `b9`.
 >
->    **WHAT THE STALE TOKEN NOW GETS**, which is what the whole design was for:
+> ***AND ONE THING IS OPEN THAT IS NOT A TASK: the pre-fix clear-screen bytes***
+> in 5.20's last paragraph. A capture on the pre-fix build began with
+> `ESC[H ESC[J` where `LOGIN:200` should have emitted nothing, and nothing in C
+> hardcodes that sequence. It was taken on a stale tree mid-runaway, so it is the
+> weakest datum in this file - but weakest is not explained, and it is recorded
+> rather than tidied away.
 >
->    ```
->    [not yet] You are in the "sdusers" group, but this sign-in does not have it yet.
->    [not yet] The database could not be read on this sign-in.
->    [not yet] The network options could not be checked on this sign-in.
->    Nothing is wrong.
->    3 check(s) need you to SIGN OUT AND BACK IN before they can be made.
->    ```
->
->    exit 0 - and the same account one group later reports every section `[ok]`.
->
->    **WHAT IT FOUND:** `Test-Path` **throws** on an ACL denial instead of
->    returning `$false`, and `check-install.ps1:82` sets
->    `$ErrorActionPreference = 'Stop'` for itself - so on a token that does not
->    carry `sdusers` yet it **aborted with "Access is denied"** at what was
->    line 352, `Test-Path -LiteralPath $SysDir`. That is the first thing a real
->    user does, and the `[not yet]` design exists precisely to be kind to it.
->    `sd.conf` had the same shape one section down, where a denial made it
->    announce *"the network API is switched off"* - a false statement rather
->    than a crash. Both now go through `Test-PathState`, which answers
->    **present / missing / unreadable**, because "cannot see it" is not "it is
->    not there" and `-ErrorAction SilentlyContinue` would have reported a
->    healthy database as MISSING.
->
->    **WHY IT WAS INVISIBLE:** every previous proof of that branch was made by
->    forcing the state on a token that already had the group, so nothing ever
->    reached those lines without rights.
->
->    **THE ORDER IS THE DESIGN:** take the token BEFORE adding the account to
->    `sdusers`. A logon after the add carries it and reports `[ok]`. The
->    control is the same account one group apart - measured, **token T 9
->    groups, token F 10**.
->
->    ***THE HARNESS COST FOUR RUNS AND EVERY FAULT WAS MINE***, three of them
->    traps this file already records: `2>&1` where `*>&1` was needed
->    (`Write-Host` is the INFORMATION stream); a function's `Write-Output`
->    becoming part of its return value; and `RunImpersonated` binding the
->    **Action** overload, so a scriptblock's value is discarded. The fourth is
->    new and worth carrying: ***`Translate([NTAccount])` does not reliably
->    succeed while impersonating another user***, and a `catch` around it reads
->    a failure as "not a member" - so the membership row **passed for the wrong
->    reason** until a row expecting `True` sat beside it. **Compare SIDs.**
->
->    **DELIBERATELY NOT IN `post-cycle-elevated.ps1` YET** - it has never
->    passed, and a verifier joins the runner after it has, not before.
-> 2. **WHY `cub1` CAME BACK EMPTY is ANSWERED AND FIXED - §5.20, 22 Aug 2026.**
->    It was never about the console: no terminal type had loaded, so every
->    capability was empty, and the repair runs after `$LOGIN` rather than before
->    the prompt. **Fixed and measured on the 20:57:34 install.** Upstream has
->    the same defect - `UPSTREAM_FIXES.md` #12. *One loose end, deliberately not
->    claimed as understood: the pre-fix clear-screen bytes. §5.20's last
->    paragraph.*
-> 3. **THE ONLY LARGE ITEM: a remote API session still runs as LocalSystem.**
->    §THE FILE HALF IS CLOSED, and §What fixing it involves.
-> 4. ***CLOSED 22 Aug 2026 - THE API HAS NOW BEEN REACHED ACROSS A REAL
->    NETWORK.*** Bridged VirtualBox guest **10.0.0.143** to this host
->    **10.0.0.3**, over the physical WiFi segment, `sdapib8` / `SDAPIB8`:
->
->    ```
->    connecting as sdapib8 to SDAPIB8 with the right password ...
->      admitted        WHO -> 4 SDAPIB8
->    connecting with a WRONG password (this MUST be refused) ...
->      refused: Invalid username or password
->    connecting to SDSYS (this MUST be refused) ...
->      refused: User not allowed in requested account
->    ```
->
->    **THREE OUTCOMES AND THE THIRD IS THE ONE THAT MATTERS:** `ACC$GROUP`
->    containment held **over the network**, not only on loopback. §8's
->    LocalSystem note is unaffected - what was measured is REACH, not identity.
->
->    **THE GUEST NEEDED TWO FILES AND NO TOOLCHAIN**, which is the reusable
->    part: `remote-connect-test.exe` and `sdclilib.dll` are native UCRT64 and
->    import **only** `KERNEL32`, `WS2_32`, `bcrypt` and the UCRT
->    `api-ms-win-crt-*` set - no `msys-2.0.dll`. Verified with `objdump -p`
->    before copying, then run on a clean guest. `gplbld/stage-apiremote.ps1`
->    does the host half and prints the guest command.
->
->    **WHAT THE HOST SIDE WAS**: `verify-apiport.ps1 -Prefix sdapib8 -Keep` -
->    all checks passed on loopback first, which is the control that makes the
->    guest run attributable to the address and nothing else.
->
->    **BRIDGING WAS CONFIRMED BEFORE ANYTHING WAS BLAMED ON SD**, as §7 step 2
->    advises: the host ARP table carried the guest's own MAC,
->    `10.0.0.143  08-00-27-ae-ce-7c`. **`Windows 11 Clone` is the only VM of the
->    four with `nic1=bridged`** - the other three are NAT and cannot do this.
-> 5. §7 steps **12** (remove the BASIC layer's Windows branches - Windows arm,
->    drop the conditional, delete the Linux arm; **not** `LOGIN`'s forced
->    administrator rights, which §5.6 rejects), **9**, **10**, **13**.
+> **CLOSED 22 Aug and compressed to pointers, because the detail belongs in the
+> sections rather than here:** `cub1` (5.20), `check-install`'s `[not yet]` path
+> (item 2 of the closed list above, and `verify-notyet.ps1`'s own header), and
+> the API over a real network (7 step 2, and `stage-apiremote.ps1`'s header).
 >
 > ### THE STANDING COMMANDS
 >
@@ -169,7 +115,7 @@ something came to be the way it is.
 > ```
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b8
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b9
 > ```
 >
 > **The first is ELEVATED, the second an ORDINARY window** - it refuses an
