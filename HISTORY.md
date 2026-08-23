@@ -23547,3 +23547,35 @@ conclusion, and its row in section 4's verified table is STRUCK rather than
 deleted - the measurement was real, its subject is not.
 
 NOT COMPILED.  BASIC changed and C did not, so the next cycle needs no make sd.
+
+## HANDOFF, end of the forty-second session, 23 Aug 2026
+
+ONE CYCLE IS OWED AND NOTHING ELSE IS.  Source moved past the install when PROC,
+SED and UPDATE.RECORD were removed, so assert-current will refuse and is right
+to.  BASIC changed and C did not: bin\ was built 22 Aug 23:43:35 and no make sd
+is needed.  PROJECT_STATUS's START HERE carries the two commands, in order.
+
+WHERE IT WAS WHEN LAST GREEN: install 22 Aug 23:46:31, assert-current matched
+source, suite -Run b11 at 10/10 unelevated and 17/17 elevated - every verifier in
+the tree.  That is the baseline the owed cycle has to return to, LESS
+verify-editkeys, which was deleted with the editors it tested.  The suite is 26
+from now on and b12 is the next free prefix.
+
+WHAT THIS SESSION DID, in the order it happened: ran the suite on the tree the
+forty-first session left (8/8, 17/17); closed section 7 step 12 by finding and
+fixing a measured defect in PARSER; closed step 9 by building the batch gate and
+proving it with verify-batchjob; had step 10 removed from the project by the
+owner; and removed PROC, SED and UPDATE.RECORD on the owner's instruction.
+
+THE START HERE BLOCK WAS REWRITTEN TWICE, and the second time for a reason worth
+recording: it had become a chronological account of one session - three separate
+"then this happened" sections - when what the next session needs first is what
+is OWED.  The owed cycle is now the first thing in the file, the last green
+state is second, and the closed work is below both.  A handoff is a position,
+not a diary; the diary is here.
+
+FOUR CLAIMS IN THAT FILE WERE CORRECTED RATHER THAN LEFT, all of them mine or
+inherited: "cycle.ps1 runs make sd" (it stages bin\ and does not build), 5.17's
+present-tense description of editors that no longer exist, the tier-list
+sentence naming SED, and section 4's verify-editkeys row - struck rather than
+deleted, because the 14/14 was real and its subject is not.

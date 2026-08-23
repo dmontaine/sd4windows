@@ -5,23 +5,59 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 22 Aug 2026, forty-second session.
+**Last updated:** 23 Aug 2026, end of the forty-second session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NOTHING IS OWED. 27 OF 27, AND STEPS 12 AND 9 ARE BOTH MEASURED.
+> ## ONE CYCLE IS OWED AND NOTHING ELSE IS. NO `make sd`.
 >
-> **End of the forty-second session, 23 Aug 2026.** Install **22 Aug 23:46:31**,
-> `assert-current` **the installed tree matches source**, `bin\` built
-> **22 Aug 23:43:35** - C changed this session, so the binary is new.
-> **Spent: `b1`-`b11`. Start at `b12` and check it free first.**
+> **End of the forty-second session, 23 Aug 2026.** ***SOURCE HAS MOVED PAST THE
+> INSTALL** - PROC, SED and UPDATE.RECORD were removed after the last green run,
+> so `assert-current` WILL refuse and is right to.* **BASIC changed and C did
+> not, so `make sd` is NOT needed** - `bin\` was built 22 Aug 23:43:35 and is
+> still current.
 >
-> **THE SUITE, `-Run b11`, 23:47:58-00:00:59: UNELEVATED 10/10, ELEVATED 17/17 -
-> every verifier in the tree, every one exit 0.** §THE SUITE ON THE 23:46:31
-> TREE has the counts. Two verifiers are new this session and both are in the
-> unelevated runner: `verify-parsertokens` and `verify-batchjob`.
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b12
+> ```
+>
+> **Elevated for the first, an ORDINARY window for the second** (§4.0), about
+> **six** UAC prompts. **Spent: `b1`-`b11`; `b12` has not been checked.**
+> **THE SUITE IS 26 NOW, not 27** - `verify-editkeys` went with the editors.
+> **The one file to watch compiling is `CPROC`**, the only one edited.
+>
+> ### WHERE IT WAS WHEN IT WAS LAST GREEN
+>
+> Install **22 Aug 23:46:31**, `assert-current` **matched source**, and the
+> suite `-Run b11` at **10/10 unelevated, 17/17 elevated - every verifier in the
+> tree, every one exit 0**. §THE SUITE ON THE 23:46:31 TREE has the counts.
+> **That is the baseline the owed cycle has to get back to**, less
+> `verify-editkeys`.
+>
+> ### WHAT THE OWED CYCLE CARRIES: PROC, SED AND UPDATE.RECORD ARE REMOVED
+>
+> **Owner, 23 Aug 2026: they are "not necessary for a working SD".** Deleted:
+> `gpl.bp/PROC`, `gpl.bp/SED`, `gpl.bp/UPDREC`, their VOC records, `listpq`,
+> `sed` from `TIER.OMIT.STANDARD`, and `verify-editkeys.ps1`, which tested
+> nothing else. `CPROC`'s `PQ` dispatch now **refuses by name** (message 10099)
+> rather than falling through to *"invalid dispatch code"* - the record is valid
+> PROC, it is the interpreter that is gone. **A CYCLE IS OWED, and BASIC changed
+> but C did not, so `make sd` is NOT needed.** The suite is **26** from now on.
+>
+> **THREE THINGS DELIBERATELY LEFT, each checked rather than assumed:**
+> **`$QPROC`** is the QUERY processor - `LIST`, `COUNT`, `SELECT`, `SORT` - and a
+> different program from `$PROC` despite the name; **`PDBG`/`PDEBUG`** turned out
+> to be the PHANTOM debugger, not PROC's; and **`_KEYEDIT`/`KEYCODE.H`** are
+> language runtime, not editor-private - `KEYEDIT` is a BASIC opcode
+> (`opcodes.h:441`), so deleting them would have removed a language feature.
+> **The `proc.*` SYSCOM common slots also stay**: removing common-block slots
+> shifts every slot after them, which is §7 step 1's `struct PCFG` hazard.
 >
 > ### STEP 12 - A TCL TOKEN IS NOT SPLIT AT A BACKSLASH
 >
@@ -56,25 +92,6 @@ something came to be the way it is.
 >    original five. §THE FILE HALF IS CLOSED. The choice is S4U plus
 >    `CreateProcessAsUser` versus accepting a service identity behind the
 >    `op_dio2.c` gate that already holds.
->
-> ### AND THEN PROC, SED AND UPDATE.RECORD WERE REMOVED - THE TREE IS STALE
->
-> **Owner, 23 Aug 2026: they are "not necessary for a working SD".** Deleted:
-> `gpl.bp/PROC`, `gpl.bp/SED`, `gpl.bp/UPDREC`, their VOC records, `listpq`,
-> `sed` from `TIER.OMIT.STANDARD`, and `verify-editkeys.ps1`, which tested
-> nothing else. `CPROC`'s `PQ` dispatch now **refuses by name** (message 10099)
-> rather than falling through to *"invalid dispatch code"* - the record is valid
-> PROC, it is the interpreter that is gone. **A CYCLE IS OWED, and BASIC changed
-> but C did not, so `make sd` is NOT needed.** The suite is **26** from now on.
->
-> **THREE THINGS DELIBERATELY LEFT, each checked rather than assumed:**
-> **`$QPROC`** is the QUERY processor - `LIST`, `COUNT`, `SELECT`, `SORT` - and a
-> different program from `$PROC` despite the name; **`PDBG`/`PDEBUG`** turned out
-> to be the PHANTOM debugger, not PROC's; and **`_KEYEDIT`/`KEYCODE.H`** are
-> language runtime, not editor-private - `KEYEDIT` is a BASIC opcode
-> (`opcodes.h:441`), so deleting them would have removed a language feature.
-> **The `proc.*` SYSCOM common slots also stay**: removing common-block slots
-> shifts every slot after them, which is §7 step 1's `struct PCFG` hazard.
 >
 > ### TWO THINGS NOT CLAIMED, BECAUSE NOTHING EXERCISED THEM
 >
@@ -3651,10 +3668,11 @@ instrument is **what SD executes**, not what it echoes: `COUNTX<erase> VOC` runs
 `COUNTX VOC` and answers "not in your VOC" if it did not. `gplbld/verify-keys.ps1`,
 unelevated, needs no account and no terminal.
 
-**THE EDITORS ARE THE SAME FAMILY AND ARE NOW FIXED — §5.19, 19 Aug 2026.**
-`UPDREC` reads raw bytes with `keyin()` and carries its own table, and `SED`
-does the same; both bound `char(127)` to Delete, so Backspace deleted forwards
-inside them.
+**THE EDITORS WERE THE SAME FAMILY, WERE FIXED ON 19 Aug, AND WERE REMOVED ON
+23 Aug — §5.19.** `UPDREC` read raw bytes with `keyin()` and carried its own
+table, and `SED` did the same; both bound `char(127)` to Delete, so Backspace
+deleted forwards inside them. **Neither exists now**, so what is below applies
+to the command line alone.
 
 **TWO THINGS THIS PARAGRAPH USED TO SAY ARE WRONG, and §5.19 has the
 measurements.** It listed **`ED`**, which is the LINE editor: it reads with
@@ -6168,7 +6186,9 @@ recorded in **`ACCOUNTS` field 5** (`ACC$TIER`, `KEYS.H:281`), and the omit and
 add lists held as **data** in `NEWVOC/TIER.OMIT.STANDARD` and
 `NEWVOC/TIER.ADD.ADMINISTRATOR` so the shipped posture changes without
 recompiling. Owner's approach: **capability by VOC content** — take `BASIC`,
-`CATALOG`, `RUN`, `ED`, `SED` and the rest off accounts that do not need them.
+`CATALOG`, `RUN`, `ED` and the rest off accounts that do not need them.
+(`SED` was in that list until 23 Aug 2026, when the editor was removed and the
+`TIER.OMIT.STANDARD` line went with it.)
 Idiomatic MV, and it needs no C.
 
 **WHAT IS STILL OPEN IS THE CURATION, NOT THE MECHANISM.** What exists is the
