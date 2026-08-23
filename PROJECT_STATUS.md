@@ -33,12 +33,18 @@ something came to be the way it is.
 > the first proves nothing - a `CT` that never reached the parser would look
 > identical.
 >
-> **WHAT IS STILL OWED ON THIS INSTALL: THE SUITE.** Only two verifiers have run
-> here. `verify-createaccount` covers the `CREATEA` change and
-> `verify-fold`/`verify-lcnames` exercise the query path `QPROC` sits on, and
-> **none of the three has been run since the cycle**. `verify-parsertokens` is
-> in `VerifyInstall1`, so the one command below covers it too. **Start at
-> `b10`.**
+> **AND THE WHOLE SUITE HAS RUN ON IT: 9/9 AND 17/17, 23:00:31-23:13:22.**
+> **That is every verifier in the tree** - the unelevated half now carries
+> `verify-parsertokens`, so 26 of 26 ran and every one exited 0.
+> `verify-createaccount` passed with its decisive rows, including a real `ssh`
+> admission and `LogonUser` INTERACTIVE **refused 1385**, so the `CREATEA` edit
+> disturbed nothing. **Spent: `b1`-`b10`. Start at `b11` and check it free
+> first.**
+>
+> ***ONE CHANGE IS STILL UNEXERCISED AND IS NOT CLAIMED:*** `CREATEA`'s
+> `USRDIR`/`GRPDIR` fallback only runs when `CONFIG('USRDIR')` is **empty**, and
+> the shipped `sd.conf` always sets it. Nothing has taken that branch; what the
+> suite shows is that the surrounding path is unharmed.
 >
 > ### WHAT THE FORTY-FIRST SESSION CLOSED, ALL THREE MEASURED ON A CYCLED TREE
 >
@@ -110,9 +116,9 @@ something came to be the way it is.
 >    REACH, not identity**: the containment gate holds over the network, and the
 >    token is still LocalSystem because `sdwind` `fork()`s it and Windows has no
 >    `setuid`.
-> 2. Section 7 step **12 is CLOSED and measured** - `verify-parsertokens` 7/7 on
->    the 22:50:18 install. What is left of it is **`verify-createaccount`, which
->    has not run since the cycle**. Then steps **9**, **10**, **13**.
+> 2. Section 7 step **12 is CLOSED and measured** - `verify-parsertokens` 7/7,
+>    and the whole suite green on the same install. Then steps **9**, **10**,
+>    **13**.
 > 3. **DONE, forty-second session** - the suite ran on the 21:34:25 install and
 >    every step exited 0. `verify-notyet` passed **through the runner** rather
 >    than by hand, and `verify-sshonly` passed **under the runner** for the first
@@ -265,16 +271,23 @@ code is also 1. **What it cost:** VerifyInstall2 has **nine `exit 2` paths**
 every *"the suite could not run"* was delivered as *"a step failed"*. **A reused
 prefix and a broken product were indistinguishable from the exit code.**
 
-### THE SUITE ON THE 21:34:25 TREE — `-Run b9`, 22 Aug 2026
+### THE SUITE ON THE 22:50:18 TREE — `-Run b10`, 22 Aug 2026
 
-**Unelevated 8/8. Elevated 17/17. Every step exit 0 — the first run with no
-failure in either half.** `assert-current: the installed tree matches source`,
-read out of `verify-fold`'s own log. Ran 22:13:01–22:25:29; transcripts under
-`%LOCALAPPDATA%\SD-verify` (**UTF-16 — `tr -d '\000'` before grepping**).
+**Unelevated 9/9. Elevated 17/17. TWENTY-SIX OF TWENTY-SIX — every verifier in
+the tree, every one exit 0.** Ran 23:00:31–23:13:22, with
+`assert-current: the installed tree matches source` read out of `verify-fold`'s
+own log. Transcripts under `%LOCALAPPDATA%\SD-verify` (**UTF-16 — `tr -d '\000'`
+before grepping, or a plain grep reports a verifier that printed nothing**).
+
+**The counts below are `b10`'s** and are identical to `b9`'s, which ran the same
+seventeen elevated steps on the **21:34:25** tree at 8/8 and 17/17 — the first
+sweep with no failing step, and the baseline §7 step 12's fix was measured
+against. `verify-parsertokens` is the ninth unelevated step and is new.
 
 ```
-verify-credacl  verify-osusers  verify-nocase  verify-setpw  verify-allowgroups
-verify-keys  verify-editkeys  verify-lcnames 142/142                all exit 0
+verify-credacl  verify-osusers  verify-nocase 3/3  verify-setpw
+verify-allowgroups  verify-keys  verify-editkeys  verify-lcnames 142/142
+verify-parsertokens 7/7                                          all exit 0
 
 verify-fold 10/10        verify-nonet 17/17         verify-notyet 13/13
 verify-createaccount     verify-tiers all           verify-catgate 25/25
@@ -286,14 +299,15 @@ verify-scramlogin 40/40  verify-tierapi 16/16                       all exit 0
 
 `verify-apiadmin`'s 23rd is the standing N/A, not a failure.
 
-**THREE THINGS THIS RUN SETTLED THAT THE STEP COUNTS DO NOT SAY.**
-`verify-notyet` is new and passed **through the runner** rather than by hand;
-`verify-sshonly` — `b3`'s one failure — passed **under the runner**, where
-before it had only passed standalone on `b6`; and `verify-lcnames` hit
-**142/142**, so §8's intermittent did not bite.
+**WHAT THE TWO RUNS SETTLED THAT THE STEP COUNTS DO NOT SAY.** `verify-notyet`
+passed **through the runner** rather than by hand; `verify-sshonly` — `b3`'s one
+failure — passed **under the runner**, where before it had only passed
+standalone on `b6`; `verify-lcnames` hit **142/142 on both**, so §8's
+intermittent did not bite either time; and **nothing is outside a runner any
+more** (§4.0).
 
-**`b9` IS SPENT, and `b1`–`b9` with it. `b10` was free when this was written.**
-`verify-createaccount` leaves `sdacctb9` and `user_accounts\sdacctb9` in place
+**`b10` IS SPENT, and `b1`–`b10` with it. `b11` has not been checked.**
+`verify-createaccount` leaves `sdacctb10` and `user_accounts\sdacctb10` in place
 **on purpose** — removing them is `DELETE.ACCOUNT`'s job and §7 step 1c has not
 been decided. That is not residue to tidy.
 
@@ -727,8 +741,8 @@ running anything** and refuses, naming every clash at once. **A Windows local
 user survives an uninstall**, so a fresh install is *not* a fresh set of names —
 that is the assumption this guard exists to break. Spent: everything up to
 `sdtiert8`/`sdacct32`/`sdacl12`/`sdapia14`/`sdrt8`/`sdar6`/`sddel7`, plus
-`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` to `b9`** — thirteen
-derived names each. **Pick a fresh token; `b10` was free on 22 Aug.** The check
+`sdapin1`–`2` and `sdapi4`, **and now the whole of `b1` to `b10`** — thirteen
+derived names each. **Pick a fresh token; `b10` is spent.** The check
 is two lines and costs nothing: `Get-LocalUser -Name "<prefix>*"` and
 `Get-LocalGroup -Name "sdu_<prefix>*"` must both come back empty.
 

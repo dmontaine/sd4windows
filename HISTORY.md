@@ -23367,3 +23367,24 @@ TWO THINGS FOUND WHILE ADDING IT, both stale claims rather than new work:
   case-insensitive, so the stale form resolved to the same directory instead of
   failing - which is exactly how a stale instrument survives unnoticed.  Now
   .ToLower(), and it prints "account don" rather than "account DON".
+
+## FORTY-SECOND SESSION, part 5 - 26 of 26, on the tree that carries the fix
+
+22 Aug 2026.  VerifyInstall1.ps1 -ThenElevated -Run b10 on the 22:50:18 install,
+23:00:31-23:13:22.  UNELEVATED 9/9, ELEVATED 17/17 - every verifier in the tree,
+every one exit 0, assert-current green inside verify-fold.
+
+WHAT THIS RUN ADDS OVER b9, which was also clean: it is the first sweep that
+covers the step 12 change, and it is the first that leaves NOTHING outside a
+runner - verify-parsertokens is the ninth unelevated step, so all 26 ran from
+one command.  verify-createaccount passed with its decisive rows, including
+LogonUser INTERACTIVE refused 1385 and a real ssh admission, so the CREATEA edit
+disturbed nothing around it.  verify-lcnames hit 142/142 for the second time
+today, on a different install.
+
+ONE CHANGE IS STILL UNEXERCISED AND IS NOT CLAIMED AS VERIFIED.  CREATEA's
+USRDIR/GRPDIR fallback is reached only when CONFIG('USRDIR') is empty, and the
+shipped sd.conf always sets it.  Nothing in the suite takes that branch.  What
+26/26 shows is that the path around it is unharmed - not that the fallback
+works.  Recorded rather than rounded up, because the difference is exactly the
+one this file exists to keep.
