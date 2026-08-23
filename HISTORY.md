@@ -23653,3 +23653,56 @@ superseded - it is one run now.  Spent: b1-b14; next is b15.
 
 The record of it: VerifyInstall1-20260823-083945.log and
 post-cycle-elevated-20260823-083945.log.
+
+--------------------------------------------------------------------------
+
+23 Aug 2026 - SECTION 7 STEP 13 IS DROPPED AS A MIGRATION (owner), AND THE
+ONE LEG THAT WAS ATTEMPTED IS WHY
+
+The question that ended it: "is this conversion really necessary - the system
+seems to work fine with Cygwin dependencies."  It is the right question and the
+answer is no.
+
+STEP 13 WAS NEVER ABOUT REMOVING CYGWIN.  Its own text claimed it for the
+service-account model and a data tree private from SD's own users; section 8
+claimed it for making tiers 1 and 2 real; the installer's first page states the
+limit in as many words.  User isolation was the objective and dropping MSYS2
+was an assumed route to it - a route nobody had checked against the goal.
+
+IT IS NOT REQUIRED FOR EITHER OUTCOME.  Win32 calls work from an MSYS2 build
+and this tree already makes them in five files.  The API session's LocalSystem
+token is blocked by SCRAM authenticating in the CHILD after execl, not by the
+runtime.  Section 5.7's model needs CreateProcessAsUser at particular sites.
+
+WHAT MSYS2 COSTS IS REAL AND ALREADY PAID: the /dev/shm fstab mapping, AF_UNIX
+invisible to native Windows, cygwin pid != windows pid, the dual path
+namespace, select() permanently ready on an attached handle, msys-2.0.dll and
+the two-components rule, and the tty layer.  All documented, all worked around,
+none breaking the product.
+
+AND THE RISK PROFILE IS THE WRONG SHAPE.  The legs land on console, terminal,
+shared memory and process creation - exactly the paths the 26-verifier suite
+structurally cannot test, because every verifier drives SD down a pipe.
+
+LEG 1 DEMONSTRATED THAT AT SMALL SCALE.  linuxio.c's six termios calls were
+converted to the Console API and reverted the same day: the installer's
+post-install prompt echoed the password in CLEARTEXT, printed its stars a whole
+line at a time, and froze without asking for the confirmation.  SetConsoleMode
+is available under MSYS2, not sufficient - Cygwin's tty layer sits in front of
+the console and does canonical mode and echo in userspace.
+
+THE INSTRUMENT COULD NOT HAVE CAUGHT IT, AND THAT IS THE LESSON WORTH KEEPING.
+probe-console.c calls tcsetattr(raw) at step 3 and never undoes it, so every
+reading after that was taken with Cygwin ALREADY in raw mode.  It proved
+SetConsoleMode sticks and does not disturb key delivery - both true - and never
+observed what SetConsoleMode alone does, which is what decided the leg.  A
+contaminated control produces a confident answer to a question that was never
+asked.  Four times that probe reported the easy signal instead of the
+meaningful one; this was the fourth and the only one that shipped.
+
+TWO MEASUREMENTS SURVIVE, for a flip forced by some other reason: the console
+mode SD wants is 0x2e8, and processed input must be OFF because SD handles the
+break key itself in software - trap_break was always a software flag.
+
+Section 7 step 13 now records the decision; steps 14 and 15 are the outcomes it
+was for - the API session's identity, and a private data tree.

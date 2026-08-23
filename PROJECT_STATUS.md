@@ -11,14 +11,15 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## ONE CYCLE IS OWED. `make sd` IS ALREADY DONE - C CHANGED THIS TIME.
+> ## ONE CYCLE IS OWED, AND THE INSTALLED TREE IS BROKEN UNTIL IT RUNS.
 >
-> **End of the forty-third session, 23 Aug 2026.** ***SOURCE HAS MOVED PAST THE
-> INSTALL*** - §7 step 13 leg 1 landed, so `assert-current` WILL refuse and is
-> right to. **`bin\` was rebuilt 23 Aug 09:39:** `sd.exe` MD5
-> `1bea0e93...` against the installed `ec8581a1...`, so the hash moved, which is
-> the check that matters (§"THREE OPERATIONAL FACTS": the previous rebuild was
-> byte-identical in *length*).
+> **End of the forty-third session, 23 Aug 2026.** ***THE INSTALL ON THIS
+> MACHINE HAS A BROKEN POST-INSTALL PASSWORD PROMPT*** - it **echoes the
+> password in cleartext**, prints its stars a whole line at a time, and then
+> **freezes without asking for the confirmation**. That was §7 step 13 leg 1.
+> **The source is already reverted and rebuilt**; the cycle is what puts a
+> working installer back on the machine. **`make sd` IS DONE** - `bin\` rebuilt
+> 23 Aug, `sd.exe` MD5 `0e742883`.
 >
 > ```powershell
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
@@ -28,12 +29,15 @@ something came to be the way it is.
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b15
 > ```
 >
-> ***AND THEN `probe-keys.ps1`, IN A REAL CONSOLE, BECAUSE THE SUITE CANNOT
-> TEST WHAT CHANGED.*** Leg 1 alters the **console** input path, and every
-> verifier drives SD **down a pipe** - where the new code answers "not a
-> console" and does nothing, exactly as the old `tcgetattr` failure did. **A
-> green suite says the change broke nothing else; it says nothing about the
-> change.** Arrow keys and backspace are the thing to look at (§5.18).
+> **The password typed at the broken prompt was displayed on screen - change
+> it.**
+>
+> ***§7 STEP 13 IS DROPPED (owner, 23 Aug 2026), AND LEG 1 IS THE EVIDENCE FOR
+> DROPPING IT.*** The suite was green throughout and **could never have caught
+> this**: every verifier drives SD **down a pipe**, so the console path is
+> skipped entirely. It took a person typing a password into a real console.
+> **`probe-keys.ps1` is what covers that ground**, and is worth a run after the
+> cycle for that reason rather than because anything changed.
 >
 > ```powershell
 > powershell -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-keys.ps1
@@ -187,11 +191,16 @@ something came to be the way it is.
 >
 > ### WHAT IS LEFT, cheapest first
 >
-> 1. **§7 step 13** - Stage 2, native Win32, the largest.
-> 2. **A REMOTE API SESSION STILL RUNS AS LocalSystem** - the last of the
->    original five. §THE FILE HALF IS CLOSED. The choice is S4U plus
->    `CreateProcessAsUser` versus accepting a service identity behind the
->    `op_dio2.c` gate that already holds.
+> ***§7 STEP 13 - "Stage 2, native Win32" - IS DROPPED, owner, 23 Aug 2026.***
+> It was never the objective; user isolation was, and that does not need the
+> runtime changed. Step 13 carries the reasoning and the survey.
+>
+> 1. **§7 step 15 - a data tree private from SD's own users** (§5.7). The
+>    largest thing left, and a design job before a coding one.
+> 2. **§7 step 14 - the API session's identity**, the last of the original
+>    five. §THE FILE HALF IS CLOSED. ***It cannot be fixed at the fork***:
+>    SCRAM authenticates in the child, so `sdwind` does not know the caller at
+>    spawn time.
 >
 > ### TWO THINGS NOT CLAIMED, BECAUSE NOTHING EXERCISED THEM
 >
@@ -1334,11 +1343,15 @@ Two stages:
 - **Stage 1 (current).** Build and run on the MSYS2 POSIX runtime. The runtime
   supplies `fork`, `termios` and the passwd database, so only what it genuinely
   lacks has to be rewritten. Produces a working baseline to test against.
-- **Stage 2 (not started).** Move to native Win32 and drop the
-  `msys-2.0.dll` dependency: `fork` → `CreateProcess`, `termios` → Console API,
-  passwd/group → Windows authentication.
+- **Stage 2 - NOT BEING DONE, owner, 23 Aug 2026.** It read *"move to native
+  Win32 and drop the `msys-2.0.dll` dependency"*. **Dropping MSYS2 was an
+  assumed route to user isolation, not the objective**, and it is not required
+  for it: Win32 calls work from an MSYS2 build and this tree already makes
+  them. §7 step 13 has the survey, the four reasons, and what the one
+  attempted leg cost. **The outcomes it was for are §7 steps 14 and 15.**
 
-The client library is already at stage 2 — see §5.3.
+The client library is native Win32 already — see §5.3. **That is a property of
+the client, not a staging post the server is travelling towards.**
 
 ## 2. Environment
 
@@ -4430,7 +4443,8 @@ Each of these cost real time. Read before debugging anything similar.
     from a native Windows shell**, which is how a user runs it anyway.
   - **Launched natively with stdin/stdout redirected it blocks in terminal
     setup** and writes nothing at all — killed after two minutes, no output on
-    either stream. `termios` → Console API is §7 step 13, unported.
+    either stream. `termios` → Console API **was attempted on 23 Aug 2026 and
+    reverted** - §7 step 13 - so this stays true and now stays true on purpose.
 
   **So a `WHO` measurement needs a person at a terminal**, and a claim of one
   in §4 belongs to whichever install a person was sitting at. What CAN be read
@@ -6257,188 +6271,152 @@ the staging script and the Inno installer were all finished and removed.
       relocatable install is not a thing this port has.
     - **`LOGIN`'s forced administrator rights** on any console session, which
       **§5.6 rejects on purpose**.
-13. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
-    are fork+exec, none need copy-on-write, so this is tractable), `termios` →
-    Console API, passwd/group → Windows authentication. **The service-account
-    model in §5.7 belongs here**, and until it lands the data tree is not
-    genuinely private from SD's own users.
+13. **DROPPED AS A MIGRATION — owner's decision, 23 Aug 2026.** It read
+    *"Stage 2, native Win32"* and it is not being done. **What replaces it is
+    steps 14 and 15 below**, which are the two outcomes it was ever for.
 
-    **SURVEYED AGAINST THE SOURCE, 23 Aug 2026, AND THE THREE LEGS ABOVE ARE
-    HALF OF IT.** The three that were named are all real and all confirmed;
-    three more were not named and two of those are load-bearing. **This step is
-    not "three conversions", it is moving the server off the MSYS2 runtime**,
-    which is the thing §5.4's two-toolchain split exists to postpone.
+    **THE QUESTION THAT ENDED IT, and it is the right one to ask of any
+    remaining Linux-ism:** *"is this conversion really necessary — the system
+    seems to work fine with Cygwin dependencies."*
 
-    **COUNTS ARE CODE LINES WITH COMMENT LINES EXCLUDED**, which is not
-    pedantry: the first pass of this table said `sys/cygwin.h` was **14 calls**
-    and it is **6**, the other eight being the comments that explain them. In
-    this file a raw `grep -c` is not a measurement.
+    ### Why it went, in the order the reasons matter
 
-    | leg | measured | in the framing above? |
-    |---|---|---|
-    | `fork` → `CreateProcess` | **5 sites**, `op_kernel.c:701`, `op_sh.c:379`, `sdwind.c:491`, `sysseg.c:643`, `sysseg.c:745` - **every one fork+exec**, claim holds | yes |
-    | `termios` → Console API | **11 sites, 2 files** (`linuxio.c` 6, `lnxport.c` 5) - the smallest leg | yes |
-    | passwd/group → Windows auth | **22 sites, 5 files** - `linuxlb.c` 14, `ingroup.c` 3, `op_dio2.c` 3, `linuxio.c` 1, `sdext_eguid.c` 1; `linuxlb.c` is **already part Win32** | yes |
-    | **`sys/cygwin.h`** | **6 sites, 3 files** - `cygwin_conv_path` x2 (`op_dio2.c:1226`, `op_kernel.c:577`), `cygwin_internal` x2 (`op_kernel.c:595`, `sysseg.c:412`), `cygwin_attach_handle_to_fd` x2 (`win32pipe.c:133`, `:140`) | **NO** |
-    | **POSIX shm + semaphores** | **17 sites, 6 files** - `sysseg.c` 6, `sdsem.c` 3, `sdidx.c` 2, `sdwind.c` 2, `win32sem.c`/`.h` 4 | **NO** |
-    | `select()`/poll semantics | §7 step 11 already measured the difference | **NO** |
+    **1. IT WAS NEVER ABOUT REMOVING CYGWIN.** Read what this step actually
+    claimed for itself: *"the service-account model in §5.7 belongs here, and
+    until it lands the data tree is not genuinely private from SD's own
+    users"*; §8's tiers entry, *"until §5.7's service model, every tier is
+    enforced by the user's own Windows token"*; and the installer's own first
+    page, *"SD users are not isolated from each other"*. **The objective was
+    user isolation and a private data tree. Dropping MSYS2 was an assumed
+    route to it, never the goal** — and the route was never checked against
+    the goal until it was queried.
 
-    ***THE SMALL ONE IS SMALLER THAN IT LOOKED AND THE BIG ONE IS STILL BIG.***
-    `sys/cygwin.h` is the MSYS2 runtime's **own** API - in a native build those
-    functions do not exist at all - but it is **six calls**, and two of them are
-    in `win32pipe.c`, which §7 step 11 already moved off the hot path. The
-    shm/semaphore pair is the real one: it **is SYSSEG**, the segment the whole
-    product lives in, and on MSYS2 it reaches `/dev/shm` through the
-    `etc/fstab` mapping the install already depends on (§6).
+    **2. IT IS NOT REQUIRED FOR EITHER OUTCOME.** Win32 calls work from an
+    MSYS2 build and **this tree already makes them** — `win32sem.c`,
+    `win32peer.c`, `win32pipe.c`, `win32audit.c`, `linuxlb.c`. The API
+    session's LocalSystem token was never blocked by the runtime: it is
+    blocked by **SCRAM authenticating in the CHILD, after `execl`**, so
+    `sdwind` does not know the caller at spawn time. That is an architecture
+    question. §5.7's service model likewise needs `CreateProcessAsUser` **at
+    particular sites**, not a runtime swap.
 
-    **THE TOOLCHAIN FLIP IS NOT THE HARD PART.** `UCRT_CC` is already wired in
-    the Makefile and **three things already build native** - `sdclilib`,
-    `sdsvc` and the check probes. The hard part is the POSIX surface above.
+    **3. WHAT MSYS2 COSTS IS REAL, KNOWN, AND ALREADY PAID.** The `/dev/shm`
+    `etc/fstab` mapping (§6); AF_UNIX invisible to native Windows (§8, which
+    killed the Linux client contract); Cygwin pid ≠ Windows pid (`K_WINPID`);
+    the dual `C:/` and `/c/` namespace (`K_WINPATH`, `net_normalise`);
+    `select()` permanently ready on an attached handle (§7 step 11); shipping
+    `msys-2.0.dll` under the two-components rule (§5.8); and the tty layer,
+    which is what leg 1 hit. **Every one is documented and worked around, and
+    none of them is breaking the product.**
 
-    **SO IT IS INCREMENTAL, AND THAT IS THE ONE PIECE OF GOOD NEWS.** Win32
-    calls work perfectly well from an MSYS2 build, so each leg can be converted
-    **with the tree still building and the 26-verifier suite still running**,
-    and the toolchain flipped last, once nothing POSIX-only is left. **Do not
-    do this as a big-bang rewrite**; there is no reason to and no way to test
-    one.
+    **4. AND THE RISK PROFILE IS THE WRONG SHAPE.** The legs land on the
+    console, the terminal, shared memory and process creation — ***precisely
+    the paths the 26-verifier suite structurally CANNOT test***, because every
+    verifier drives SD down a pipe. **High blast radius, no automated
+    coverage.** Leg 1 was the mild version of that and it still shipped a
+    cleartext password prompt; SYSSEG would not have been mild.
 
-    ***BUT NOT IN THE OBVIOUS ORDER. THE `sys/cygwin.h` LEG MUST GO LAST, NOT
-    FIRST, AND THAT IS THE ONE THING TO CARRY OUT OF THIS SURVEY.*** It looks
-    like the cheapest leg - six calls - and it is the one that must not be
-    touched early, because **all six exist only to bridge a gap the flip
-    removes, so they delete themselves rather than needing conversion:**
+    ### What leg 1 cost, kept because it is the evidence for the decision
 
-    - **`K_WINPID`** translates the MSYS2 pid to the Windows one. Native,
-      `getpid()` **is** the Windows pid, so the case becomes `getpid()`.
-      Same for `sysseg.c:412`'s `win_pid()`.
-    - **`K_WINPATH`** translates POSIX→Windows because SD's paths are POSIX
-      **under MSYS2**. Native, every path is already a Windows path and the
-      case becomes the identity function.
-    - **`net_normalise()`** folds `C:/...` and `/c/...` into one namespace so
-      the containment gate's prefix test means anything. ***That dual spelling
-      is created by the MSYS2 runtime and does not exist natively.***
-    - `win32pipe.c`'s two are already off the hot path (§7 step 11).
+    `linuxio.c`'s six termios calls were converted to the Console API on
+    23 Aug 2026 and **reverted the same day**. The installer's post-install
+    prompt **echoed the password in cleartext**, printed its stars afterwards
+    a whole line at a time, and froze without asking for the confirmation.
 
-    **AND `net_normalise()` IS THE ONE THAT WOULD HURT.** It is inside the API
-    containment gate. Hand-rolling a native fold while `getcwd()` still answers
-    `/c/...` would either duplicate the runtime's work or **break the gate**,
-    and the gate is the only thing standing in front of a LocalSystem session.
-    Convert it **at** the flip, in the same change that makes `getcwd()` native,
-    or not at all.
+    ***`SetConsoleMode` IS AVAILABLE UNDER MSYS2, NOT SUFFICIENT.*** Cygwin's
+    tty layer sits in front of the console and implements termios **in
+    userspace** — canonical line buffering and echo are **Cygwin's**, not the
+    console driver's. Removing `tcsetattr` left Cygwin echoing and
+    line-buffering.
 
-    ***AND "termios → Console API" IS TWO LEGS, NOT ONE.*** `linuxio.c`'s 6
-    sites are the session terminal and really are Console API work.
-    **`lnxport.c`'s 5 are SERIAL PORTS** - "Port i/o opcodes for Linux/FreeBSD",
-    on `sq_file->fu` - and their Windows target is `GetCommState`/`SetCommState`,
-    a different API for a different feature. ***It is compiled and linked***
-    (`SRCS` is a wildcard over `gplsrc/*.c`, so every file is), but **no
-    verifier drives it**, so converting it would ship unmeasured - the same
-    objection that keeps `$COMO` upper case in §7 step 8.
+    ***AND THE INSTRUMENT COULD NOT HAVE CAUGHT IT, BECAUSE ITS CONTROL WAS
+    CONTAMINATED.*** `probe-console.c` calls `tcsetattr(raw)` at step 3 and
+    never undoes it, so every later reading was taken with **Cygwin already in
+    raw mode**. It proved `SetConsoleMode` sticks and does not disturb key
+    delivery — both true — and never observed what `SetConsoleMode` **alone**
+    does, which was the question that decided the leg. **"Can I set this?"
+    answered in place of "is this sufficient?"** The caveat is now the first
+    thing in that file, above its own verdict logic.
 
-    **THE ORDER THAT FOLLOWS FROM ALL OF THAT**, runtime-independent work
-    first, entangled work at the flip:
+    **TWO MEASUREMENTS SURVIVE AND ARE WORTH KEEPING** if a flip is ever
+    forced for some other reason:
 
-    1. **`linuxio.c` termios → Console API** - 6 sites, one file, permanent
-       whichever runtime it builds under. `verify-keys` §3 is the standing
-       guard (§5.18).
+    - **The console mode SD actually wants is `0x2e8`** — line input off, echo
+      off, **processed input off**, virtual-terminal input on. It is what the
+      console is already in and what Cygwin's `tcsetattr(raw)` leaves it at.
+    - ***Processed input must be OFF, and that is a fact about SD rather than
+      about Cygwin.*** `linuxio.c` sets `ISIG`, so the obvious conversion turns
+      it on and breaks the break key: **SD handles break in software**,
+      comparing the incoming byte against `tio.break_char` and calling
+      `break_key()`. The byte has to reach SD. `set_term()`'s `trap_break` has
+      always been a software flag; only the termios call made it look
+      otherwise.
 
-       ***BUILT 23 Aug 2026, IT BROKE THE INSTALLER'S PASSWORD PROMPT, AND IT
-       IS REVERTED. DO NOT RETRY IT BEFORE THE FLIP.***
+    ### The survey, kept because it is what the successor needs
 
-       **THE SYMPTOM, and it is the worst kind**: the post-install password
-       prompt **echoed the password in CLEARTEXT**, then printed its stars
-       after the fact - one per character, the whole line at once - and then
-       **froze without ever asking for the confirmation**. Owner, 23 Aug 2026.
+    **Counts are code lines with comment lines excluded** — the first pass of
+    this table said `sys/cygwin.h` was 14 calls and it is **6**, the rest being
+    the comments explaining them. **A raw `grep -c` is not a measurement here.**
 
-       ***THE CAUSE: `SetConsoleMode` IS NOT SUFFICIENT UNDER MSYS2, ONLY
-       AVAILABLE.*** Cygwin's tty layer sits **in front of** the console and
-       implements termios **in userspace** - canonical line buffering and echo
-       are done by CYGWIN, not by the Windows console driver. `SetConsoleMode`
-       changes the driver's mode and **does not tell Cygwin to stop echoing or
-       stop line-buffering**. Deleting `tcsetattr` therefore left Cygwin in
-       canonical+echo mode: it echoed the typed line, handed SD the whole line
-       at once, and SD printed its stars afterwards.
+    | leg | measured |
+    |---|---|
+    | `fork` → `CreateProcess` | **5 sites**, `op_kernel.c:701`, `op_sh.c:379`, `sdwind.c:491`, `sysseg.c:643`, `sysseg.c:745` — **every one fork+exec**, none needs copy-on-write |
+    | `termios` | **11 sites, 2 files** — `linuxio.c` 6 (session terminal), `lnxport.c` 5 (**serial ports**, a different Win32 API and no verifier drives it) |
+    | passwd/group | **22 sites, 5 files** — `linuxlb.c` 14, `ingroup.c` 3, `op_dio2.c` 3, `linuxio.c` 1, `sdext_eguid.c` 1 |
+    | `sys/cygwin.h` | **6 sites, 3 files** — `cygwin_conv_path` ×2, `cygwin_internal` ×2, `cygwin_attach_handle_to_fd` ×2 |
+    | POSIX shm + semaphores | **17 sites, 6 files** — `sysseg.c` 6, `sdsem.c` 3, `sdidx.c` 2, `sdwind.c` 2, `win32sem.c`/`.h` 4. **This is SYSSEG** |
+    | `select()`/poll semantics | §7 step 11 measured the difference |
 
-       ***AND THE PROBE COULD NOT HAVE CAUGHT IT, BECAUSE ITS CONTROL WAS
-       CONTAMINATED.*** `probe-console` calls `tcsetattr(raw)` at step 3 **and
-       never undoes it**, so every reading after that was taken with **Cygwin
-       already in raw mode**. It proved `SetConsoleMode` sticks and does not
-       disturb key delivery - both true - but it **never tested whether
-       `SetConsoleMode` ALONE produces raw mode**, which was the question that
-       decided the leg. ***It answered "can I set this?" when what mattered was
-       "is this sufficient?"***
+    ***THE `sys/cygwin.h` SIX WOULD DELETE THEMSELVES AT A FLIP RATHER THAN
+    NEEDING CONVERSION*** — `K_WINPID` becomes `getpid()`, `K_WINPATH` becomes
+    the identity function, and `net_normalise()` folds a dual namespace that
+    does not exist natively. **Do not "convert" them early**: `net_normalise()`
+    is inside the API containment gate, the only thing in front of a
+    LocalSystem session, and hand-rolling a native fold while `getcwd()` still
+    answers `/c/...` would either duplicate the runtime or break the gate.
 
-       **SO LEG 1 MOVES WITH THE TOOLCHAIN FLIP**, like the `sys/cygwin.h`
-       calls, and for the same reason: it is entangled with the runtime rather
-       than merely running under it. **The order in this section is otherwise
-       unchanged - start at leg 2, passwd/group, which touches none of this.**
+    **The toolchain flip itself was never the hard part** — `UCRT_CC` is wired
+    in the Makefile and `sdclilib`, `sdsvc` and the check probes already build
+    native.
 
-       **WHAT SURVIVES AND IS WORTH KEEPING.** The measured target mode is
-       real: **`0x2e8`** - line off, echo off, **processed input OFF**, VT input
-       on. And the reason processed input must be off is a finding about SD
-       rather than about Cygwin: ***SD handles the break key itself, in
-       software***, comparing the incoming byte against `tio.break_char` and
-       calling `break_key()`, so the byte has to reach it and processed input
-       is what would intercept it first. `set_term()`'s `trap_break` has always
-       been a software flag. **Both facts hold at the flip; only the timing was
-       wrong.**
+14. **The API session's identity.** `sdwind.c:491` `fork()`s the session, so it
+    inherits the service's LocalSystem token. **What 22 Aug measured was REACH,
+    not identity** — the `op_dio2.c` containment gate holds over the network.
+    §THE FILE HALF IS CLOSED, and §What fixing it involves.
 
-       ***THE SUITE WOULD NEVER HAVE CAUGHT THIS EITHER, AND THAT IS THE
-       STRUCTURAL POINT.*** Every verifier drives SD **down a pipe**, where the
-       console path is skipped entirely. **A fully green 26 says nothing about
-       this code.** It was found by a person typing a password into a real
-       console - which is what `probe-keys.ps1` exists for and what the handoff
-       had already said to run. **Run it before believing any future version of
-       this leg.**
-
-       ***TWO THINGS THAT FIRST RUN DID ESTABLISH, and they hold whatever the
-       verdict becomes.*** `isatty` is 1 on both descriptors and both carry real
-       console handles, **so the question is live** rather than academic. And
-       the console reads **`0x2e8`** on entry - line input off, echo off,
-       processed input off, **virtual-terminal input ON** - and **Cygwin's own
-       `tcsetattr(raw)` leaves it at `0x2e8`, unchanged**. So ***Cygwin is
-       already driving `SetConsoleMode` itself***, translating termios into
-       console modes, and **`0x2e8` is the mode the native code has to
-       reproduce** - which is worth having whichever way the leg goes.
-
-       **AND THE OUTPUT STAIRCASED**, because step 3 clears `OPOST` and a bare
-       `\n` then does not return the carriage. Fixed with CRLF throughout. It
-       is cosmetic, but it made the first run's verdict hard to read at exactly
-       the moment it needed reading.
-
-       **`probe-console.c`, `.ps1` and `.exe` are all on `assert-current`'s
-       `$neverShipped` list, in the commit that created them** - the rule
-       `verify-scram.c` was added without and paid for. The `.exe` matters most:
-       the runner **compiles on every run**, so an unlisted one would report the
-       tree stale the moment anybody used the instrument.
-    2. **passwd/group → Windows auth** - 22 sites; `linuxlb.c` holds 14 and is
-       already part Win32, so this extends work already begun.
-    3. **`fork` → `CreateProcess`, the 4 non-`sdwind` sites.** Entangled but
-       not with the flip: the children are MSYS2 programs and the parents
-       `dup2()` Cygwin descriptors onto their handles, so each needs care.
-    4. **shm/semaphores → `CreateFileMapping` + named objects** - 17 sites and
-       it **is** SYSSEG. The riskiest, and worth its own cycle.
-    5. **The toolchain flip, `sys/cygwin.h` deleting itself with it.**
-    6. `lnxport.c`, only if serial ports are wanted, and only with a verifier.
-
-    ***AND THE API-SESSION TOKEN CANNOT BE FIXED WHERE THE HANDOFF IMPLIES.***
-    `sdwind.c:491` cannot `CreateProcessAsUser`, because **the SCRAM exchange
-    happens in the CHILD, in `APISRVR`, after the `execl`** - at fork time
-    `sdwind` does not yet know who the caller is. That leaves two shapes, and
-    it is a decision rather than a discovery:
+    ***IT CANNOT BE FIXED AT THE FORK, and that is the thing to know before
+    planning it.*** The SCRAM exchange happens **in the child, in `APISRVR`,
+    after the `execl`**, so at spawn time `sdwind` does not yet know who the
+    caller is. Two shapes, and it is a decision rather than a discovery:
 
     a. **Authenticate in `sdwind` first, then spawn as the user.** Moves SCRAM
-       out of BASIC into C - the larger change, and it relocates the one piece
-       of security logic that is currently readable as BASIC.
+       out of BASIC into C — the larger change, and it relocates the one piece
+       of security logic currently readable as BASIC.
     b. **Let the session take the token after it authenticates.** But SCRAM
        means **the server never holds the password**, so `LogonUser` is not
        available; only **S4U**, which yields an *identification*-level token
-       unless the service holds TCB or the account is trusted for delegation -
+       unless the service holds TCB or the account is trusted for delegation —
        ***and an identification token cannot be passed to
-       `CreateProcessAsUser`***. This needs checking before it is chosen.
+       `CreateProcessAsUser`***. **Check that before choosing it**; a probe
+       would answer it in one run.
 
-    **Until one is chosen the honest position is §THE FILE HALF IS CLOSED's:**
-    the containment gate holds, and the token is LocalSystem.
+    **NEITHER NEEDS THE RUNTIME CHANGED.** That was step 13's assumption and it
+    did not survive examination. **Until one is chosen the honest position is
+    §THE FILE HALF IS CLOSED's: the containment gate holds, and the token is
+    LocalSystem.**
+
+15. **A data tree private from SD's own users** — §5.7's service-account model.
+    Today every SD process opens the database **as the person running it**, so
+    anyone who can use SD on this machine can read another account's files
+    from outside SD. **The installer's first page says so in as many words**,
+    which makes it a stated limit rather than a hidden one.
+
+    **This is what makes tiers 1 and 2 real.** §8: tier 3 is real because
+    Windows enforces it; the other two are only ever as real as the ACLs.
+
+    **It needs `CreateProcessAsUser` at the sites that create sessions — not a
+    runtime swap**, for the reasons in step 13. It is the largest thing left in
+    this file and it is a design job before it is a coding one.
 
 ## 8. Open questions
 
