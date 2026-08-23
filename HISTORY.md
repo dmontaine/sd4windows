@@ -23080,3 +23080,67 @@ Select-String -SimpleMatch WITH REGEX ESCAPES, AND "$TERM" IN DOUBLE QUOTES, in
 one line.  The pattern matched nothing and PowerShell had already eaten the
 variable, so a check that the fix was present reported it absent.  START HERE
 already carries the -SimpleMatch half; the interpolation half is new.
+
+## FORTY-FIRST SESSION, part 2 - check-install crashed on the one path it exists for
+
+verify-notyet.ps1 was written for item 1 of "what is actually left": the [not
+yet] branch had never met a genuinely stale token, because the only account on
+this machine has been in sdusers since an earlier install.  It found a real
+defect on the first run that was honest enough to reach the branch.
+
+TEST-PATH THROWS ON AN ACL DENIAL rather than returning $false, and
+check-install.ps1:82 sets $ErrorActionPreference = 'Stop' for itself - so the
+'Continue' set at the call site never reached it.  On a token without sdusers the
+script ABORTED with "Access is denied" at line 352, Test-Path -LiteralPath
+$SysDir, and printed nothing at all.  That is the first thing a real user does
+after installing, and the whole point of the third outcome is to be kind to it.
+
+THE SAME SHAPE ONE SECTION DOWN WAS WORSE THAN A CRASH.  Test-Path on sd.conf
+left $apiPort null on a denial, and the script then announced "The network API is
+switched off, so nothing is listening for it" - a false statement about the
+user's install, delivered confidently.
+
+BOTH GO THROUGH Test-PathState NOW, which answers present / missing /
+unreadable.  Three answers and not two, for the same reason the script has three
+outcomes: "cannot see it" is not "it is not there".  -ErrorAction
+SilentlyContinue was considered and rejected - it turns a denial into $false,
+which would report a present and healthy database as MISSING.
+
+WHY IT WAS INVISIBLE FOR SO LONG: every previous proof of that branch was made by
+forcing the state on a token that already carried the group, so nothing had ever
+reached those lines without the rights to read the tree.  A branch proved by
+construction is not a branch that has run.
+
+THE CONTROL IS WHAT MAKES IT ATTRIBUTABLE.  Same account, same minute, two
+tokens: token T taken before the group was added - 9 groups - and token F taken
+after - 10 groups.  check-install completes cleanly on F and dies on T.
+
+THE HARNESS COST FOUR ELEVATED RUNS AND EVERY FAULT IN IT WAS MINE.  Three were
+traps this repository already records, met again in one file:
+
+  2>&1 WHERE *>&1 WAS NEEDED.  check-install writes with Write-Host, which is the
+  INFORMATION stream in PowerShell 5+.  Measured on the real script: 0 characters
+  against 596.
+
+  A FUNCTION RETURNS EVERYTHING IT WRITES TO THE OUTPUT STREAM.  The crash
+  diagnostic was written with Write-Output, so it became part of the return value
+  and $stale.Crash read off the resulting array gave nothing - the "*** check-
+  install DID NOT FINISH ***" block never appeared while every check depending on
+  it failed.
+
+  RunImpersonated BINDS THE Action OVERLOAD, so a scriptblock's value is
+  discarded and the caller gets $null.  Fixed in one call site and missed in the
+  other, which is why every impersonated call now goes through one helper.
+
+THE FOURTH IS NEW AND IS THE ONE WORTH CARRYING: Translate([NTAccount]) DOES NOT
+RELIABLY SUCCEED WHILE IMPERSONATING ANOTHER USER, and the try/catch around it -
+copied from check-install's own loop, where it is correct because that script
+runs as the user itself - reads a failure as "not a member".  So the row "token T
+does NOT carry it" PASSED FOR THE WRONG REASON from the moment section 1 first
+went green, and only broke cover when a row expecting True was put beside it and
+answered False for a token check-install called [ok] one line later.  COMPARE
+SIDS.  A SID comparison needs no name lookup and cannot fail that way.
+
+THE GENERAL SHAPE, and it is this file's recurring one: a check that cannot fail
+is worth exactly what a check that cannot run is worth.  Two of the four faults
+above were silent passes rather than errors.

@@ -66,18 +66,47 @@ something came to be the way it is.
 >
 > ### WHAT IS ACTUALLY LEFT, cheapest first
 >
-> 1. **`check-install`'s `[not yet]` path - THE HARNESS IS WRITTEN, IT HAS NOT
->    RUN.** `gplbld/verify-notyet.ps1`, 22 Aug 2026. One **elevated** command:
+> 1. ***`check-install` CRASHED ON THE ONE PATH IT EXISTS FOR. FIXED, NOT YET
+>    RE-RUN.*** `gplbld/verify-notyet.ps1` ran 22 Aug 2026 and found it on the
+>    first honest attempt. **The tree is stale - `check-install.ps1` ships - so
+>    this owes a cycle and then the verifier:**
 >
 >    ```powershell
+>    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 >    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-notyet.ps1
 >    ```
 >
+>    **WHAT IT FOUND:** `Test-Path` **throws** on an ACL denial instead of
+>    returning `$false`, and `check-install.ps1:82` sets
+>    `$ErrorActionPreference = 'Stop'` for itself - so on a token that does not
+>    carry `sdusers` yet it **aborted with "Access is denied"** at what was
+>    line 352, `Test-Path -LiteralPath $SysDir`. That is the first thing a real
+>    user does, and the `[not yet]` design exists precisely to be kind to it.
+>    `sd.conf` had the same shape one section down, where a denial made it
+>    announce *"the network API is switched off"* - a false statement rather
+>    than a crash. Both now go through `Test-PathState`, which answers
+>    **present / missing / unreadable**, because "cannot see it" is not "it is
+>    not there" and `-ErrorAction SilentlyContinue` would have reported a
+>    healthy database as MISSING.
+>
+>    **WHY IT WAS INVISIBLE:** every previous proof of that branch was made by
+>    forcing the state on a token that already had the group, so nothing ever
+>    reached those lines without rights.
+>
 >    **THE ORDER IS THE DESIGN:** take the token BEFORE adding the account to
->    `sdusers`. A logon after the add carries it and reports `[ok]`, which is
->    why the obvious version of this test cannot reach the branch at all. A
->    second run on a fresh token is the control, so token age is the only
->    variable. Its header has the rest.
+>    `sdusers`. A logon after the add carries it and reports `[ok]`. The
+>    control is the same account one group apart - measured, **token T 9
+>    groups, token F 10**.
+>
+>    ***THE HARNESS COST FOUR RUNS AND EVERY FAULT WAS MINE***, three of them
+>    traps this file already records: `2>&1` where `*>&1` was needed
+>    (`Write-Host` is the INFORMATION stream); a function's `Write-Output`
+>    becoming part of its return value; and `RunImpersonated` binding the
+>    **Action** overload, so a scriptblock's value is discarded. The fourth is
+>    new and worth carrying: ***`Translate([NTAccount])` does not reliably
+>    succeed while impersonating another user***, and a `catch` around it reads
+>    a failure as "not a member" - so the membership row **passed for the wrong
+>    reason** until a row expecting `True` sat beside it. **Compare SIDs.**
 >
 >    **DELIBERATELY NOT IN `post-cycle-elevated.ps1` YET** - it has never
 >    passed, and a verifier joins the runner after it has, not before.
