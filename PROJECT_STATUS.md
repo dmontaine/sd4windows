@@ -21,6 +21,19 @@ something came to be the way it is.
 > §THE SUITE ON THE 21:34:25 TREE. **Spent: `b1`-`b9`. Start at `b10` and check
 > it free first.**
 >
+> ***THE INSTALL IS NOW STALE AND A CYCLE IS OWED - THAT WAS THE PRICE OF THE
+> NEXT PIECE OF WORK.*** Three BASIC files changed **after** the suite ran, so
+> **every result above describes the tree as it was at 22:25 and none of them
+> covers the change**: `PARSER`, `QPROC` and `CREATEA` (§7 step 12).
+> **`assert-current` will now refuse, correctly.** The change has **not been
+> compiled**, let alone run. Run the cycle, then the suite at `b10`.
+>
+> **WHAT THE CHANGE IS, in one line each:** a TCL token is no longer split at a
+> backslash - **a measured defect, not tidying** (`RUN BP C:\Temp\zznosuch`
+> answered *"Program BP.OUT `C:` not found"*); `QPROC`'s `is.windows` is gone
+> because `system(91)` cannot vary; and `CREATEA`'s `/home/sd/...` fallbacks are
+> Windows paths. §7 step 12 has the survey behind all three.
+>
 > ### WHAT THE FORTY-FIRST SESSION CLOSED, ALL THREE MEASURED ON A CYCLED TREE
 >
 > 1. **`cub1` WAS EMPTY BECAUSE NO TYPE HAD LOADED - §5.20.** The MSYS2 runtime
@@ -91,9 +104,12 @@ something came to be the way it is.
 >    REACH, not identity**: the containment gate holds over the network, and the
 >    token is still LocalSystem because `sdwind` `fork()`s it and Windows has no
 >    `setuid`.
-> 2. Section 7 steps **12** (remove the BASIC layer's Windows branches - Windows
->    arm, drop the conditional, delete the Linux arm; **not** `LOGIN`'s forced
->    administrator rights, which 5.6 rejects), **9**, **10**, **13**.
+> 2. Section 7 step **12 is written but UNVERIFIED** - three files changed, no
+>    compile yet. **The next cycle is what closes it**, and `verify-nocase`
+>    (`QPROC`) and `verify-createaccount` (`CREATEA`) already cover two of the
+>    three. **`PARSER` has no verifier and needs one**: the check is
+>    `RUN BP C:\Temp\zznosuch`, which must echo the whole path rather than
+>    `C:`. Then steps **9**, **10**, **13**.
 > 3. **DONE, forty-second session** - the suite ran on the 21:34:25 install and
 >    every step exited 0. `verify-notyet` passed **through the runner** rather
 >    than by hand, and `verify-sshonly` passed **under the runner** for the first
@@ -5966,22 +5982,53 @@ the staging script and the Inno installer were all finished and removed.
     **no reader at all** in the shipped BASIC tree. A constant that is always
     true does not need testing.
 
-    **WHAT TO ACTUALLY DO**, and it is smaller than the old wording suggested:
+    **SURVEYED AND ACTED ON, 22 Aug 2026, forty-second session. THE SOURCE IS
+    `C:\Users\dmont\Projects\GPL.BP`** — 212 files, **25 carry platform
+    references**, and **10 of those do not ship here at all** (`VBSRVR`,
+    `ADMSRVR`, `SETQ`, `LGNPORT`, `PASSWD`, `QMPKG`, `CREATEU`, `ADMUSER`,
+    `ACCRST`, `DELUSER`). **The idiom is a bare `windows`**, set by
+    `windows = system(91)` (`CPROC:251`, `LOGIN:91`) — *not* `is.windows`,
+    which is why grepping for that finds nothing and looks like the logic is
+    gone.
 
-    - Source is `C:\Users\dmont\Projects\GPL.BP` — 212 files, 25 with platform
-      references. **The idiom is a bare `windows`**, set by
-      `windows = system(91)` (`CPROC:251`, `LOGIN:91`) — *not* `is.windows`,
-      which is why grepping for that finds nothing and looks like the logic is
-      gone. Uses in the five stripped files: `LOGIN` 4, `CONFIG` 3, `CPROC` 3,
-      `CREATEA` 4, `PARSER` 2.
-    - Start at `CPROC`'s `dir.separator` — shipped `= '/'` (`CPROC:290`),
-      original `= if windows then '\' else '/'` (`CPROC:323`) — because `@ds`
-      is SYSCOM slot 57 and compilation depends on it: `BCOMP` opens
-      `@sdsys:@ds:'bin'`. **`/` is what works today on the MSYS2 runtime**, so
-      the burden is on changing it, not on keeping it.
-    - **DO NOT TAKE EVERY WINDOWS ARM BLIND.** `LOGIN`'s forced administrator
-      rights on any console session, which **§5.6 rejects on purpose**. Judge
-      each arm against the port's own decisions.
+    **ONE LIVE DEFECT, AND IT WAS THE WRONG ARM RATHER THAN A MISSING ONE.**
+    `PARSER` split every TCL token at the first backslash: upstream guards that
+    line with `if not(is.windows)`, and the port **kept the Linux body and
+    dropped the guard**. **Measured, not read** — `RUN BP C:\Temp\zznosuch`
+    answered *"Program BP.OUT **C:** not found"*, while `C:/Temp/zznosuch` and a
+    bare name came through whole. `RUN` is the instrument because message 5073
+    echoes both names it was given; `COUNT` does not, and `@parser` cannot be
+    called from a probe program because `!PARSER` is `$internal`. **The
+    reachable case is `CREATE.ACCOUNT OTHER <name> <path>`**, which takes its
+    pathname through the parser at `CREATEA:466`. Fixed by deleting the split.
+    **`sdb64` has the same unguarded line** (`sd64/sdsys/GPL.BP/PARSER:116`)
+    **and it is correct there** — that tree is Linux-only, so no
+    `UPSTREAM_FIXES.md` entry.
+
+    **ALSO DONE:** `QPROC`'s `is.windows` is gone — `system(91)` is a constant
+    1, so `if is.windows and is.dir` tested something that could not vary; and
+    `CREATEA`'s `USRDIR`/`GRPDIR` fallbacks were `/home/sd/...`, replaced with
+    the paths `config.c` already defaults to.
+
+    **WHAT WAS DELIBERATELY NOT TAKEN, each judged against this port's own
+    decisions rather than by platform test:**
+
+    - **Every `upcase()` Windows arm** — `LOGIN` 305, 433, 445, `CREATEA` 128,
+      169, `CPROC` 2222. §5.12 went the other way on purpose, and `CPROC`'s is
+      superseded outright by the three-case fold at `CPROC:2253`–`2255`.
+    - **`CPROC`'s `dir.separator` stays `/`** (`CPROC:290`; upstream
+      `= if windows then '\' else '/'` at `:323`). `@ds` is SYSCOM slot 57 and
+      compilation depends on it — `BCOMP` opens `@sdsys:@ds:'bin'` — and `/` is
+      what works on the MSYS2 runtime, so the burden is on changing it.
+    - **`CONFIG` keeps printing `SH`, `SH1` and `SPOOLER`** (upstream hides them
+      on Windows, `CONFIG` 136, 143). **This port has a real `SH`** — step 7 —
+      and all three are live in `config.h`/`op_config.c`, so the upstream arm
+      would hide settings that work here. **Do not "restore" it.**
+    - **`CREATEA`'s `@DRIVE` flash-drive branch** (`CREATEA:218`). The installer
+      pins `C:\Program Files\SD` and no longer offers a location at all, so a
+      relocatable install is not a thing this port has.
+    - **`LOGIN`'s forced administrator rights** on any console session, which
+      **§5.6 rejects on purpose**.
 13. **Stage 2, native Win32.** `fork` → `CreateProcess` (all five call sites
     are fork+exec, none need copy-on-write, so this is tractable), `termios` →
     Console API, passwd/group → Windows authentication. **The service-account

@@ -23249,3 +23249,80 @@ ONE THING TO KNOW BEFORE READING THESE LOGS: the per-step files under
 %LOCALAPPDATA%\SD-verify are UTF-16.  grep matches nothing against them and
 reports no error, which looks exactly like a verifier that printed nothing.
 tr -d '\000' first.
+
+## FORTY-SECOND SESSION, part 2 - section 7 step 12, and one measured defect
+
+22 Aug 2026.  Surveyed C:\Users\dmont\Projects\GPL.BP against the shipped tree
+under the 21 Aug ruling: take the Windows arm, drop the conditional, delete the
+Linux arm, judging each arm against this port's own decisions.
+
+THE SURVEY IS SMALLER THAN IT LOOKS.  212 files, 25 with platform references, of
+which TEN DO NOT SHIP HERE AT ALL - VBSRVR, ADMSRVR, SETQ, LGNPORT, PASSWD,
+QMPKG, CREATEU, ADMUSER, ACCRST, DELUSER.  Of the fifteen that do ship, only
+five carried live branches, and most of the arms turned out to be upcase()
+calls that section 5.12 has deliberately gone the other way on.
+
+THE ONE DEFECT WAS THE WRONG ARM, NOT A MISSING ONE.  PARSER split every TCL
+token at the first backslash.  Upstream guards that line with "if
+not(is.windows)"; the port kept the Linux body and dropped the guard, on a
+Windows-only build where a backslash is a path separator.  CREATE.ACCOUNT OTHER
+takes its pathname through that parser, so a native path was truncated at the
+first backslash.
+
+MEASURED, AND THE FIRST TWO INSTRUMENTS COULD NOT REACH IT - which is the
+forty-first session's lesson repeating.  COUNT does not echo the name it was
+refused, so all three of its answers looked identical.  A BASIC probe calling
+@parser directly does not compile in a user account: !PARSER is $internal and
+@parser is not assigned outside one.  What worked was RUN, because message 5073
+echoes BOTH names it was given:
+
+  RUN BP C:\Temp\zznosuch  ->  Program BP.OUT C: not found      <- truncated
+  RUN BP C:/Temp/zznosuch  ->  Program BP.OUT C:/Temp/zznosuch not found
+  RUN BP zznosuch          ->  Program BP.OUT zznosuch not found
+
+SDB64 HAS THE SAME UNGUARDED LINE AND IT IS CORRECT THERE - sd64/sdsys/GPL.BP/
+PARSER:116.  That tree is Linux-only, so it collapsed the same conditional in
+the opposite direction.  No UPSTREAM_FIXES.md entry: a defect for us is the
+right answer for them.
+
+ALSO CHANGED: QPROC's is.windows is gone (system(91) is a constant 1, so "if
+is.windows and is.dir" tested something that cannot vary), and CREATEA's
+USRDIR/GRPDIR fallbacks are Windows paths instead of /home/sd/... .
+
+NONE OF IT IS COMPILED YET.  Source changed after the suite ran, so the install
+is stale and assert-current will refuse.  That is the ordering the cycle rule
+demands and it was taken deliberately: measure first, then change.
+
+## FORTY-SECOND SESSION, part 3 - a probe deleted a file out of don's account
+
+22 Aug 2026.  Recorded because the mistake is easy to repeat and the recovery
+depended on one fact that is not obvious.
+
+WHAT HAPPENED.  Probing the parser meant writing a BASIC program into
+user_accounts\don\bp.  Afterwards the probe was cleaned up - and "bp" and
+"BP.OUT" were both removed, on the assumption that writing the program had
+created them.  BP.OUT was indeed the probe's.  bp WAS THE INSTALL'S, and
+deleting it left don unable to compile anything.
+
+WHY IT WAS NOT OBVIOUS.  AN SD DIRECTORY FILE CARRIES NO MARKER ON DISK - it is
+a bare directory, so cat and stacks look exactly like a directory made by hand,
+and an empty one gives rmdir no reason to object.  Timestamps did not settle it
+either: writing a record into bp had already bumped its mtime to the probe's.
+
+WHAT SETTLED IT, AND IS THE THING TO REMEMBER: ASK THE VOC, NOT THE FILESYSTEM.
+"CT VOC bp" returned "File for BASIC programs" / "bp" - the record CREATEA
+writes at 1077 for every account it makes.  So the file was provisioned and the
+directory was mine to put back.  The same call showed BP.OUT was NOT
+provisioned: TIER.ADD.ADMINISTRATOR does not name it, so the record found there
+- "F" / "BP.OUT", upper case - had been written by the probe's own compile.
+
+RESTORED AND CHECKED: bp recreated, COUNT bp answers "0 record(s) counted", its
+ACL and owner are identical to cat and stacks (all three inherited, owner
+GITORLI\don), and the stray BP.OUT VOC record was deleted.
+
+AND ONE OBSERVATION WORTH TESTING PROPERLY LATER, NOT A FINDING: "BASIC BP x"
+typed in UPPER case created the object part as "BP.OUT" and wrote a VOC record
+naming it that way.  verify-fold section 4 checks this in SDSYS but types the
+name in lower case.  It was seen once, in an account whose bp directory was
+hand-made, so it is not evidence yet - but if it holds, a user typing upper case
+re-introduces exactly the upper-case names section 5.12 removed.
