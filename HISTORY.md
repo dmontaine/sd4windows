@@ -23144,3 +23144,13 @@ SIDS.  A SID comparison needs no name lookup and cannot fail that way.
 THE GENERAL SHAPE, and it is this file's recurring one: a check that cannot fail
 is worth exactly what a check that cannot run is worth.  Two of the four faults
 above were silent passes rather than errors.
+
+CLOSED, 13/13, on the 22 Aug 21:34:25 install.  The stale token now gets three
+[not yet] lines, "Nothing is wrong", "3 check(s) need you to SIGN OUT AND BACK IN
+before they can be made", and exit 0; the same account one group later reports
+every section [ok].  Token T 9 groups, token F 10, and nothing else differs
+between the two runs.
+
+verify-notyet.ps1 is now in VerifyInstall2.ps1's step list, placed early: it
+creates one Windows account under a fixed name and removes it in the same run,
+so there is no prefix to spend and nothing for a later step to collide with.
