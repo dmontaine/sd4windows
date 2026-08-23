@@ -305,20 +305,43 @@ part of what it returns.*
   exited 0.** The protection always held; the exit code lied. Demonstrated in
   isolation both ways.
 
-**2. ACCOUNT NAMES SHOULD BE LOWER CASE.** Owner's instruction, 22 Aug 2026,
-on seeing `sdsys\accounts\DON` beside `user_accounts\don`.
+**2. ACCOUNT NAMES ARE LOWER CASE - DONE 22 Aug 2026, CYCLE OWED.** Owner's
+instruction, on seeing `sdsys\accounts\DON` beside `user_accounts\don` for one
+person. The ACCOUNTS record id **is a file name**, so the register was the last
+part of the tree still shouting after e1095ab lowered every other SDSYS name.
 
-- `CREATEA:489` — `acc.name = upcase(acc.name)`, the register key.
-- `CREATEA:750` — upstream's own comment: *"account names are (historically?)
-  always upper case"*. The question mark is upstream's.
-- `adopt-account.ps1:132` — `.ToUpperInvariant()`, mirroring it deliberately.
+**IT WAS A THREE-LINE CHANGE, NOT THE FIVE-PROGRAM REFACTOR THIS ENTRY FEARED**,
+and the difference was settled by measurement rather than reading:
 
-**It disagrees with e1095ab**, which made SDSYS *file* names lower case —
-`verify-lcnames` proves `accounts`, `messages`, `qfile`, `os.users` are all
-lower now. The record keys *inside* `accounts` were not part of that change.
-**Blast radius, because ACCOUNTS is read by key:** CPROC (47 `upcase` uses),
-LOGIN (21), APISRVR (5), DELACC (4), GRANTA (4). **`CREATEA` ships**, so this
-costs a cycle.
+- **The lookup is CASE-INSENSITIVE.** A directory-file record is a file on
+  NTFS. A probe read `DON`, `don`, `Don`, `SDSYS` and `sdsys` from the register
+  and **found all five**. So `MODIFYA:112`, `CPROC:2643` and `LOGIN:913` keep
+  their `upcase()` on the key they were handed and still hit the record. The
+  47/21/5/4/4 `upcase` counts this entry used to quote were never the blast
+  radius.
+- **Displayed names never came from the register.** `MODIFYA:112` upcases what
+  the *user typed* before `sysmsg(10087)` sees it - *"account names are always
+  upper case"* - so message text is unchanged and the verifiers asserting an
+  upper-case name in output still hold.
+- **`CREATEA:801` is the ONLY writer** of a register key in the whole tree.
+
+**WHAT CHANGED:** `CREATEA` downcases instead of upcasing (for a USER account
+the name arrived lower already - `acc.uname` is downcased at `:371` - so that
+line was undoing work done 200 lines earlier); `adopt-account.ps1` follows it;
+the shipped `accounts/SDSYS` record is renamed `accounts/sdsys`, with the
+literals and prose in `stage.py` and `bootstrap.py` updated to match.
+
+**BACKWARD COMPATIBLE BY THE SAME PROPERTY:** an older install's upper-case
+record is still found by `Test-Path` on the lower name, so adopt's reinstall
+detection is unaffected.
+
+***A GAP THIS EXPOSED IN `assert-current`:*** **a `git mv` rename does not make
+the tree stale.** The guard compares mtimes and `git mv` preserves them, so the
+renamed record raised nothing. Four other files forced the cycle this time -
+had the rename been the *only* change, it would have shipped untested.
+
+**NOT YET RUN.** A cycle is owed: `CREATEA` is BASIC and must be recompiled into
+`gcat`, and `stage.py`/`bootstrap.py` build the tree.
 
 **3. THE POST-INSTALL CHECK IS BUILT AND HAS RUN INSIDE REAL INSTALLS.**
 `check-install.ps1`, written 22 Aug 2026 on the owner's instruction: a
