@@ -101,11 +101,13 @@ something came to be the way it is.
 > tree archived to `Projects\linuxsdclilib.zip` and pCloud, kept because
 > `sdb_ai` may be advanced as its own Linux line. §2.
 >
-> ### setup-devbox HAS BEEN RUN, AND IT FOUND FOUR THINGS
+> ### setup-devbox HAS BEEN RUN, AND IT FOUND FIVE THINGS
 >
 > **Owner ran it on his laptop, 23 Aug 2026, and reported back; the "do not
 > rewrite" hold is over.** It finished with 3 problems, of which **one was
-> real**. All four defects below are fixed in the same commit as this entry.
+> real**. All five items below are fixed in the same commit as this entry.
+> **Item 5 came from a question afterwards, not from the run**, and is the
+> owner's ruling rather than something the run exposed.
 >
 > **THE LAPTOP WAS NOT A FRESH MACHINE, so the two biggest paths STILL have
 > not executed:** MSYS2 was already at `C:\msys64` and all 9 packages were
@@ -141,6 +143,13 @@ something came to be the way it is.
 >    cause - burying item 1, the only real one. It also **hung on github.com's
 >    host-key prompt** before failing. The ssh clones are now **skipped** when
 >    there is no key.
+> 5. **IT NAMED `gh` IN ITS ADVICE AND NEVER INSTALLED IT** - found on the
+>    owner's question *"does the installer install gh"*, not in the run. It
+>    read fine here because this machine happens to have `gh`; on a fresh box
+>    it is `gh: command not found` at the moment somebody is already stuck.
+>    ***THE OWNER'S RULING: INSTALL BOTH `git` AND `gh`*** - `Step-Gh`, winget
+>    `GitHub.cli`. §2 records why this cuts across the MSYS2-`git` reasoning
+>    and why it still stands.
 >
 > ***THE NEXT RUN SHOULD BE ON A VM SNAPSHOT, NOT THE LAPTOP*** - owner's own
 > suggestion and it is right. §7 step 2 already documents a reusable rig.
@@ -1473,10 +1482,20 @@ powershell -ExecutionPolicy Bypass -File setup-devbox.ps1 -CheckOnly
 lives in and clones `sd4windows` itself. Fetch it alone with `curl.exe -fLo`
 from the raw GitHub URL in its header.
 
-It does MSYS2, the pacman list, **libsodium from source into `/usr/local`**,
-Inno Setup 6, the **four** repositories as siblings, `sdb64`'s `origin/dev`
-fetch, and ends with **`make sd` — because the build is the only real test of
-the environment**.
+It does **Git for Windows** and **GitHub CLI (`gh`)**, MSYS2, the pacman list,
+**libsodium from source into `/usr/local`**, Inno Setup 6, the **four**
+repositories as siblings, `sdb64`'s `origin/dev` fetch, and ends with **`make
+sd` — because the build is the only real test of the environment**.
+
+***`gh` IS INSTALLED ON THE OWNER'S INSTRUCTION, 23 Aug 2026, AND IT CUTS
+ACROSS THE PARAGRAPH BELOW ABOUT MSYS2'S `git`.*** Both are recorded because
+the two look contradictory otherwise. Nothing in the project calls `gh` — no
+Makefile, no `gplbld` script — so by the "not a requirement, do not install
+it" reasoning it would stay out. **What earns it a place is the one step this
+script cannot do for anybody: the SSH key.** That is the step the first real
+run died on, `gh ssh-key add` is the shortest way through it, and the script
+had been *naming* `gh` in its advice while never installing it — which is the
+worst of the three options.
 
 **TWO THINGS IT CANNOT DO, AND IT SAYS SO RATHER THAN FAILING LATE:** it cannot
 create **SSH keys** (two remotes are `git@github.com`), and it cannot fetch

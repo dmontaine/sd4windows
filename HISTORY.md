@@ -23910,3 +23910,32 @@ THE PATTERN WORTH CARRYING: three of the four are invisible on a machine that
 is already set up, and item 3 is worse than invisible there - the case the
 script handles correctly is the fresh one, and the case it got wrong is the
 re-run.  A setup script is tested by the machine that needs it least.
+
+23 Aug 2026 - and a fifth: the script named gh and never installed it
+
+Found by the owner asking "does the installer install gh", not by the run.  The
+only mention of gh in the whole repository was one line of advice in Step-Ssh -
+"gh ssh-key add ~\.ssh\id_ed25519.pub" - and nothing installed it.  It read
+perfectly well on the reference machine, which has gh 2.97.0; on the fresh
+machine the script exists for it is "gh: command not found" at the moment
+somebody is already stuck on the one step the script cannot do for them.
+
+Same shape as the four above: correct on the machine that needs it least.
+
+OWNER'S RULING: INSTALL BOTH git AND gh.  git was already installed by
+Step-Git; Step-Gh is new, winget GitHub.cli, and it mirrors Step-Git including
+the "installed but not on PATH in this session" caveat.  The ssh advice now
+checks for gh rather than assuming it, because a just-installed gh is not on
+the running session's PATH.
+
+RECORDED BECAUSE IT CUTS ACROSS SECTION 2'S OWN ARGUMENT.  MSYS2's git was
+deliberately kept out of the pacman list on the grounds that nothing in the
+project uses it, and nothing uses gh either.  What earns gh a place is that the
+SSH key is the one step this script cannot perform, it is the step the first
+real run died on, and naming a tool without installing it is worse than either
+installing it or not mentioning it.
+
+A latent double-report went with it: under -CheckOnly with git absent, Step-Git
+printed "git is missing" from Install-Winget and then "installed but not on
+PATH" about an install that never happened.  Both steps now return on the
+install's own verdict.  Same one-cause-two-reports defect as the ssh clones.
