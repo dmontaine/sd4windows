@@ -6342,48 +6342,54 @@ the staging script and the Inno installer were all finished and removed.
        whichever runtime it builds under. `verify-keys` §3 is the standing
        guard (§5.18).
 
-       ***ANSWERED YES ON THE THIRD RUN, AND BUILT.*** `probe-console.ps1`,
-       real console, 23 Aug 2026: control `27 91 68`, deciding read
-       `27 91 68`, mode `0x2e9` unchanged after. **A read succeeded, the bytes
-       matched the control, and the mode survived** - all three, which is what
-       the first two runs each failed to establish while answering YES anyway.
-       **`SetConsoleMode` from an MSYS2 process sticks and does not disturb key
-       delivery**, so the leg was doable before the flip. *(The prediction
-       recorded here was NO. It was wrong, and the earlier run's stray `13` was
-       the buffering artefact, not a broken arrow.)*
+       ***BUILT 23 Aug 2026, IT BROKE THE INSTALLER'S PASSWORD PROMPT, AND IT
+       IS REVERTED. DO NOT RETRY IT BEFORE THE FLIP.***
 
-       **WHAT WAS BUILT.** `gplsrc/win32console.c` and `.h`, and `linuxio.c`'s
-       six termios calls are gone. **A separate translation unit because
-       `windows.h` must not enter an MSYS2-runtime file** - the rule
-       `win32pipe.h` and `win32audit.h` already follow, §5.4. **It is in
-       `gpl.src`**, which is the explicit list `SDOBJS` is built from; the
-       `gplsrc/*.c` wildcard nearby is a different variable and does **not**
-       feed the link, which cost one failed link to discover.
+       **THE SYMPTOM, and it is the worst kind**: the post-install password
+       prompt **echoed the password in CLEARTEXT**, then printed its stars
+       after the fact - one per character, the whole line at once - and then
+       **froze without ever asking for the confirmation**. Owner, 23 Aug 2026.
 
-       ***THE MODE IS THE MEASURED ONE, `0x2e8`.*** Line input off, echo off,
-       **processed input OFF**, virtual-terminal input on.
+       ***THE CAUSE: `SetConsoleMode` IS NOT SUFFICIENT UNDER MSYS2, ONLY
+       AVAILABLE.*** Cygwin's tty layer sits **in front of** the console and
+       implements termios **in userspace** - canonical line buffering and echo
+       are done by CYGWIN, not by the Windows console driver. `SetConsoleMode`
+       changes the driver's mode and **does not tell Cygwin to stop echoing or
+       stop line-buffering**. Deleting `tcsetattr` therefore left Cygwin in
+       canonical+echo mode: it echoed the typed line, handed SD the whole line
+       at once, and SD printed its stars afterwards.
 
-       ***AND `ENABLE_PROCESSED_INPUT` OFF IS THE FINDING, NOT A DETAIL.***
-       `linuxio.c` sets `ISIG`, so the obvious conversion turns processed input
-       **on** - and that is wrong. **SD handles the break key itself, in
-       software**, comparing the incoming byte against `tio.break_char` and
-       calling `break_key()` (`linuxio.c`'s input loop). For that the byte has
-       to REACH SD, and processed input is exactly what intercepts it first.
-       The measurement agrees: **Cygwin's raw mode leaves processed input off
-       despite `ISIG` being on.** So `set_term()`'s `trap_break` toggle now
-       changes **no console bit at all** - it always was a software flag, and
-       only the termios call made it look otherwise. ***The probe's own step 5
-       set that bit ON, so the instrument asked for a mode SD must not use;
-       it answered the question it was built for and would have been the wrong
-       thing to copy.***
+       ***AND THE PROBE COULD NOT HAVE CAUGHT IT, BECAUSE ITS CONTROL WAS
+       CONTAMINATED.*** `probe-console` calls `tcsetattr(raw)` at step 3 **and
+       never undoes it**, so every reading after that was taken with **Cygwin
+       already in raw mode**. It proved `SetConsoleMode` sticks and does not
+       disturb key delivery - both true - but it **never tested whether
+       `SetConsoleMode` ALONE produces raw mode**, which was the question that
+       decided the leg. ***It answered "can I set this?" when what mattered was
+       "is this sufficient?"***
 
-       ***THE SUITE CANNOT TEST THIS, AND THAT IS STRUCTURAL.*** Every verifier
-       drives SD **down a pipe**, where `GetConsoleMode` fails, the new code
-       answers "not a console" and does nothing - which is what a failed
-       `tcgetattr` meant before. **A green suite proves the change broke
-       nothing else and says nothing about the change.** `probe-keys.ps1`, in a
-       real console, is the check; `verify-keys` §3 still guards what SD does
-       with a byte once it has one.
+       **SO LEG 1 MOVES WITH THE TOOLCHAIN FLIP**, like the `sys/cygwin.h`
+       calls, and for the same reason: it is entangled with the runtime rather
+       than merely running under it. **The order in this section is otherwise
+       unchanged - start at leg 2, passwd/group, which touches none of this.**
+
+       **WHAT SURVIVES AND IS WORTH KEEPING.** The measured target mode is
+       real: **`0x2e8`** - line off, echo off, **processed input OFF**, VT input
+       on. And the reason processed input must be off is a finding about SD
+       rather than about Cygwin: ***SD handles the break key itself, in
+       software***, comparing the incoming byte against `tio.break_char` and
+       calling `break_key()`, so the byte has to reach it and processed input
+       is what would intercept it first. `set_term()`'s `trap_break` has always
+       been a software flag. **Both facts hold at the flip; only the timing was
+       wrong.**
+
+       ***THE SUITE WOULD NEVER HAVE CAUGHT THIS EITHER, AND THAT IS THE
+       STRUCTURAL POINT.*** Every verifier drives SD **down a pipe**, where the
+       console path is skipped entirely. **A fully green 26 says nothing about
+       this code.** It was found by a person typing a password into a real
+       console - which is what `probe-keys.ps1` exists for and what the handoff
+       had already said to run. **Run it before believing any future version of
+       this leg.**
 
        ***TWO THINGS THAT FIRST RUN DID ESTABLISH, and they hold whatever the
        verdict becomes.*** `isatty` is 1 on both descriptors and both carry real
