@@ -356,6 +356,12 @@ case-insensitive lookup is confirmed in the product, not just in the probe:**
 unchanged and correct: `ACCOUNTS` is absent from an account VOC, as
 `verify-lcnames` records. It has to be run from SDSYS.*
 
+**AND THE TWO VERIFIERS THAT COULD HAVE CAUGHT A CASE-SENSITIVE READER BOTH
+PASS**, on the same install, `-Account sdacctb7` / `-Prefix sdarb7`:
+`verify-createaccount` every row - including **`record in ACCOUNTS: yes`** for a
+key now written lower - and `verify-accountrules` **34/34**, which is where the
+`.ToUpper()` message assertions live. **`b7` is spent.**
+
 **3. THE POST-INSTALL CHECK IS BUILT AND HAS RUN INSIDE REAL INSTALLS.**
 `check-install.ps1`, written 22 Aug 2026 on the owner's instruction: a
 post-install verify that runs as the last step *"without complication"*,
