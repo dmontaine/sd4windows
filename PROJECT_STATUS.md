@@ -46,6 +46,30 @@ something came to be the way it is.
 > the shipped `sd.conf` always sets it. Nothing has taken that branch; what the
 > suite shows is that the surrounding path is unharmed.
 >
+> ***THEN STEP 9 WAS BUILT AND THE TREE IS STALE AGAIN. A CYCLE IS OWED, AND
+> THIS ONE CHANGES C.*** `sd.c`, `LOGIN`, `stage.py`, `sd.iss`, three new
+> messages, a dictionary and a new verifier - **so `make sd` runs this time**,
+> unlike every cycle since 21 Aug. **None of it has been compiled.** §7 step 9
+> has what was built and the two things §8 specified that turned out to be
+> wrong.
+>
+> **THE ONE-LINE VERSION:** a scheduled job can now run a command, because the
+> elevation gate on `sd <command>` moved from `sd.c` into `LOGIN` and became a
+> list - **elevation still passes on its own**, and an account passes for the
+> commands named in `@SDSYS/batch.jobs`. **The interactive `:` prompt is
+> untouched.**
+>
+> **THE FIRST RISK TO CHECK IS THE BOOTSTRAP, not the feature.** `LOGIN` gained
+> variables, and `bootstrap.py:310` **fails the whole bootstrap** on any
+> *"is not assigned a value"* warning. `batch.command` is assigned at the top of
+> the subroutine for exactly that reason. If the cycle dies there, that is
+> where to look - `cycle.ps1 -SkipInstall` is the cheap way to find out.
+>
+> **AND THE SUITE COSTS MORE UAC PROMPTS NOW: about six, not four.**
+> `verify-batchjob` raises two of its own, because writing a probe record into
+> a list that is read-only to `sdusers` needs an elevated child while the
+> measurement itself must keep an ordinary token.
+>
 > ### WHAT THE FORTY-FIRST SESSION CLOSED, ALL THREE MEASURED ON A CYCLED TREE
 >
 > 1. **`cub1` WAS EMPTY BECAUSE NO TYPE HAD LOADED - §5.20.** The MSYS2 runtime
@@ -1475,11 +1499,11 @@ as it stood — every measurement with the reasoning that produced it — is in
 HISTORY, *"ARCHIVE 21 Aug 2026 - section 4's measurement record"*. Nothing was
 deleted, and the three corrections made on the way are noted where they belong.
 
-### 4.0 The verifier inventory — all 26, and which are actually run
+### 4.0 The verifier inventory — all 27, and which are actually run
 
 **WRITTEN 22 Aug 2026 BECAUSE THE SET HAD NEVER BEEN WRITTEN DOWN.** There are
-**26** `verify-*.ps1` in `gplbld` — 24 when this was written, plus
-`verify-notyet` and `verify-parsertokens`. `post-cycle-elevated.ps1` ran **nine** of
+**27** `verify-*.ps1` in `gplbld` — 24 when this was written, plus
+`verify-notyet`, `verify-parsertokens` and `verify-batchjob`. `post-cycle-elevated.ps1` ran **nine** of
 them, and the other fifteen were reachable only by remembering they existed.
 **Three of the twenty-four — `verify-scramlogin`, `verify-setpw`,
 `verify-tierapi` — were not named anywhere in this file at all**, so a session
@@ -1488,7 +1512,7 @@ happened to `verify-delaccount`, which went a whole phase unrun; the difference
 is that this list makes the next one visible instead of waiting for it to be
 missed again. **Add a row here in the same commit that adds a verifier.**
 
-**ALL 26 ARE ON `assert-current`'s `$neverShipped` LIST** — checked by name,
+**ALL 27 ARE ON `assert-current`'s `$neverShipped` LIST** — checked by name,
 22 Aug 2026, not by eye: two earlier attempts to audit this by grepping a line
 range and by regex both reported files missing that were not. Grep for
 `'<name>'` **quoted**, or the answer is wrong.
@@ -1530,7 +1554,8 @@ unelevated runner could not start a service anyway.
 **Run after a cycle, UNELEVATED — `post-cycle-unelevated.ps1`, NEW 22 Aug 2026,
 and it spends no prefixes at all:** `verify-credacl`, `verify-nocase`,
 `verify-setpw`, `verify-allowgroups`, `verify-keys`, `verify-editkeys`,
-`verify-lcnames`, `verify-parsertokens`. Nothing there creates a Windows account, so unlike the
+`verify-lcnames`, `verify-parsertokens`, `verify-batchjob`. Nothing there creates a Windows
+account, so unlike the
 elevated runner it is free to re-run.
 
 ```powershell
@@ -5885,11 +5910,61 @@ the staging script and the Inno installer were all finished and removed.
    `pterm(PT$INVERT, -1)` first, then set. **Harmless today only because
    inversion is already off everywhere** — latent, and ours (the lines carry a
    `14 Aug 26 Windows port` marker), so no `UPSTREAM_FIXES.md` entry.
-9. **Let a scheduled job log in** (§8). The allowlist and the batch account
-   that grants nobody. Not urgent — the install half of the problem is solved
-   by ordering (step 3) — but it is what MV users expect and it needs no new
-   C code. Build it against the constraints written into §8, particularly the
-   no-arguments rule, which is the part doing the security work.
+9. **BUILT 22 Aug 2026, NOT YET COMPILED OR RUN.** A scheduled job can log in
+   and run a command the administrator has named for its account. **Everything
+   below is written and nothing below is measured** — the cycle that compiles
+   it is owed, and `verify-batchjob.ps1` is the instrument.
+
+   **TWO THINGS §8 SPECIFIED TURNED OUT TO BE WRONG, both measured before
+   changing anything, and both are the reason this was not a half-hour job.**
+
+   a. ***"IT NEEDS NO NEW C CODE" WAS FALSE.*** `sd <command>` was gated on
+      `check_admin()` (`sd.c`), and **a scheduled task is not elevated**, so it
+      never reached `LOGIN` at all. Measured: `sd COUNT VOC` from an ordinary
+      shell answered *"This command needs an elevated session"*, exit 1.
+      **Owner's decision, 22 Aug 2026, from three offered: the gate moves to
+      `LOGIN` and becomes a list — step 7's shape.** Elevation still passes on
+      its own, so nothing an administrator does today changes; an account with
+      the command on its list passes too; everyone else is refused as before,
+      by `LOGIN`, with a message saying which.
+   b. ***THE LIST CANNOT LIVE IN SDSYS's VOC***, which is where §8 put it.
+      **`sdsys\voc` grants `sdusers` Modify** — measured 22 Aug by writing a
+      file into it from an ordinary token — and **a VOC record cannot carry an
+      ACL of its own**, so the list would have been decoration, which is
+      exactly what happened to `$CRED`. It is **`@SDSYS/batch.jobs`**, a
+      directory file, **one record per account**, one command name per line
+      (value marks are read too, because the dictionary describes `COMMAND` as
+      multivalued and `ED` invites one per line). **Locked read-only to
+      `sdusers` by `secure-osusers.ps1`** — the same script, which takes
+      `-Path` and was never os.users-specific — called from `[Code]` as
+      `SecureBatchJobs` with the exit code checked.
+
+   **WHERE THE GATE IS:** `LOGIN`'s `batch.permitted`, reached from the block
+   immediately before the success audit, so **a refusal leaves through
+   `terminate.connection` and is written to the audit trail with a reason**
+   without a second call site. The audit record now names the command when
+   there is one. `CPROC` does not pick the command up until its single-command
+   branch, which is after the whole login paragraph — **nothing has run when
+   the gate decides.**
+
+   **THE CONSTRAINTS FROM §8, AND WHAT EACH BECAME:** one token and no
+   arguments — enforced, and it is the line doing the security work; `PA` and
+   `S` VOC types only — enforced on the leading characters of field 1, because
+   a type code may be followed by prose (`File for BASIC programs` is how
+   `CREATEA` writes a file pointer); unique across the list, or `-A` must match
+   — **free by construction**, since the record is keyed by `initial.account`,
+   which is already what `-A` set; `@logname` — **not touched, and that needs
+   checking on the cycle**: a batch logon has a real Windows user behind it, so
+   the "no person" case §8 anticipated may not arise.
+
+   **STILL OPEN, and it is §8's own "any prompt is fatal":** nothing here stops
+   the *command itself* prompting. A paragraph that asks a question will sit
+   there. The list limits what may run, not what what-may-run does.
+
+   **THE INTERACTIVE PATH IS UNTOUCHED** — only `SYSTEM(1026)` is gated — and
+   that is load-bearing rather than incidental: `verify-batchjob.ps1` plants
+   and removes its own VOC probes through a piped session, because doing it
+   with `sd DELETE VOC x` is the very thing being measured.
 10. **Write the admin helpers** (§5.14). Forms over the administrative work
     that is command lines and hand-edited records today, once the system runs
     well enough to be worth using. The sequencing note matters more than the
@@ -6138,7 +6213,14 @@ trap. A tier reading equal to `voc_template`'s record count means the session is
 in **SDSYS** and the account was never created; check that first, and never read
 a tier number without it.
 
-### Open: what may a scheduled job run? (the login half is answered)
+### ANSWERED IN CODE 22 Aug 2026, UNMEASURED: what may a scheduled job run?
+
+**§7 step 9 is the answer and carries what was built.** Read that first; what
+follows is the design as it was written, kept because the reasoning still holds
+and because **two of its specifics were wrong and the corrections are worth
+seeing beside them** — `sd <command>` was elevation-gated in C, so "needs no new
+C code" was false; and the list could not live in SDSYS's VOC, which grants
+`sdusers` Modify. Both measured before anything was changed.
 
 **The login half answers itself under §5.6:** a scheduled task runs as a Windows
 user, and if that user has an SD account, `sd` puts it there with nothing asked.

@@ -23388,3 +23388,54 @@ shipped sd.conf always sets it.  Nothing in the suite takes that branch.  What
 26/26 shows is that the path around it is unharmed - not that the fallback
 works.  Recorded rather than rounded up, because the difference is exactly the
 one this file exists to keep.
+
+## FORTY-SECOND SESSION, part 6 - step 9 built: a scheduled job may run a listed command
+
+22 Aug 2026.  Written, not measured - the cycle that compiles it is owed.
+
+TWO OF SECTION 8'S SPECIFICS WERE WRONG, and both were measured before anything
+was changed rather than discovered afterwards.
+
+  "IT NEEDS NO NEW C CODE."  sd.c gated every command line on check_admin(),
+  and a scheduled task is not elevated, so it never reached LOGIN.  Measured
+  from an ordinary shell: "sd COUNT VOC" -> "This command needs an elevated
+  session", exit 1.  Owner asked, 22 Aug, and chose from three: move the gate
+  into LOGIN and make it a list, which is step 7's shape.  Elevation still
+  passes on its own, so the administrator path is unchanged; an account passes
+  for the commands named on its list; everyone else is refused as before.
+
+  THE LIST CANNOT LIVE IN SDSYS's VOC.  Section 8 designed it as an X-type VOC
+  record.  sdsys\voc grants sdusers Modify - measured by writing a file into it
+  from an ordinary token - and a VOC record cannot carry an ACL of its own, so
+  the list would have been decoration.  That is precisely what happened to
+  $CRED and what step 7 built secure-osusers.ps1 to prevent.  It is a separate
+  file, @SDSYS/batch.jobs, locked by that same script, which takes -Path and
+  was never os.users-specific.
+
+WHAT WAS BUILT: sd.c drops check_admin() from the command path and says why;
+LOGIN gains batch.permitted, reached just before the success audit so a refusal
+leaves through terminate.connection and is audited with a reason; messages
+10096-10098; batch.jobs and its dictionary staged empty; SecureBatchJobs in
+sd.iss with its exit code checked and its own failure message; and
+verify-batchjob.ps1.
+
+THE VERIFIER TAUGHT SOMETHING WHILE BEING WRITTEN, which is the part worth
+keeping.  Its first draft cleaned up with "sd DELETE VOC zzbatchpa" - and that
+is exactly what the new gate refuses, so the setup would have failed for the
+same reason as a genuine defect.  ONLY THE COMMAND LINE IS GATED: commands
+piped into a plain "sd" session are untouched, and the verifier plants and
+removes its probes that way.  A gate that had broken the interactive path would
+have been found by a person, not by this script.
+
+IT MEASURES BOTH DIRECTIONS.  Refused before the entry exists, RUNS once it is
+written, refused again once it is removed, refused with an argument though
+listed, refused when the VOC record is not PA or S, RUNS ELEVATED with no entry
+at all, and an ordinary token cannot write the list.  The paragraph it runs is
+"COUNT VOC", because "N record(s) counted" cannot be mistaken for a banner or an
+empty session - "it did not refuse" is not evidence that it ran.
+
+THE FIRST THING TO WATCH ON THE CYCLE IS NOT THE FEATURE.  LOGIN gained
+variables and bootstrap.py:310 fails the whole bootstrap on any "is not assigned
+a value" warning.  batch.command is assigned at the top for that reason;
+batch.ok is assigned inside the subroutine, which is the same shape as cred.ok
+and therefore already proven to compile.
