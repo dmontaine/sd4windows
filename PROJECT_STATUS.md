@@ -26,17 +26,24 @@ something came to be the way it is.
 > answer to what was item 2 below. **The fix compiles clean against a control
 > and has NOT been run.**
 >
-> ***NOT THE INSTALLER'S PASSWORD PROMPT - THAT WAS ALREADY FIXED AND PASSES
-> EITHER WAY.*** Owner, 22 Aug 2026, correcting the first version of this
-> handoff. `_INPUT:187` erases with `char(8)`, so it never touches the
-> capability, and `sd -QUIET off` skips `LOGIN:200`'s clear screen twice over -
-> on `system(1026)` and on `CMD.QUIET`. **The installer session has no
-> capability-dependent output left at all, so this change is a no-op there.**
+> ***THE DIAGNOSIS BEHIND THAT CHANGE IS NOT SETTLED - READ §5.20's BANNER
+> FIRST.*** Two of its measurements contradict each other, the owner's
+> observation matches the one that says there is no fault, and the tree was
+> already stale when the second was taken. **Do not build on §5.20 and do not
+> take the `LOGIN` change as justified.** It is committed, it is five lines,
+> and it is harmless either way - `TERM:245-246` already does the same test -
+> but it is not yet a fix for a demonstrated defect.
 >
-> **THE MEASUREMENT THAT DISCRIMINATES** is a plain `sd` - no command, real
-> console, not quiet - typed into a console with text on the screen.
-> `LOGIN:200`'s `display @(-1)` is the only capability-dependent thing left in
-> `$LOGIN`. **Before: the screen is not cleared at sign-on. After: it is.**
+> **WHAT TO DO, IN ORDER:** run `cycle.ps1`, then re-run the terminal-type
+> probe under **both** launch chains - PowerShell `Start-Job` and `cmd /c` -
+> printing `env('TERM')` and `@TERM.TYPE`. That is the one variable that was
+> never controlled.
+>
+> ***NOT THE INSTALLER'S PASSWORD PROMPT - THAT WAS ALREADY FIXED AND PASSES
+> EITHER WAY.*** Owner, 22 Aug 2026. `_INPUT:187` erases with `char(8)`, so it
+> never touches the capability, and `sd -QUIET off` skips `LOGIN:200`'s clear
+> screen twice over - on `system(1026)` and on `CMD.QUIET`. **The installer
+> session has no capability-dependent output left at all.**
 >
 > Before the change, the fortieth session left: install **22 Aug 19:38:32**,
 > `assert-current` **exit 0**.
@@ -3233,6 +3240,35 @@ at it.)*
 nothing in `gplbld` drives `COMO`, so it would ship unmeasured.
 
 ### 5.20 `cub1` was empty because NO type had loaded, not because cub1 was missing (22 Aug 2026)
+
+> ## THIS SECTION IS CONTRADICTED BY A LATER MEASUREMENT THE SAME DAY. DO NOT ACT ON IT.
+>
+> **The owner reported that a plain `sd` DOES clear the screen at sign-on**, and
+> a raw byte capture agrees: a session's output **begins** with
+> `27 91 72 27 91 74` = `ESC[H ESC[J`, once, immediately before the `LOGIN:278`
+> banner. That is `LOGIN:200`'s `@(-1)` working - so a terminal type **had**
+> loaded, with TERM unset.
+>
+> **That cannot sit beside the table below**, which reports `@TERM.TYPE` empty
+> and `cub1`/`kbs`/`el`/`cup` all zero in the same condition. The VOC paragraph
+> runs at `CPROC:411`, after both `:168` and `:200`, so it cannot be what
+> differs.
+>
+> **THE ONE UNCONTROLLED VARIABLE IS THE LAUNCH CHAIN.** The table was measured
+> through PowerShell `Start-Job`; the byte capture through `cmd /c`.
+> `printenv` reports `xterm-256color` from both - but `printenv` is not
+> `sd.exe`. **The next step is a probe that prints `env('TERM')` and
+> `@TERM.TYPE` run identically under both chains, on a tree that has just been
+> cycled.**
+>
+> **THE TREE WAS ALREADY STALE WHEN THE CAPTURE WAS TAKEN**, and two `sd`
+> sessions were `Stop-Process`'d during it - against this file's own rule. Both
+> are reasons to re-measure rather than to reason further. **The `LOGIN` change
+> is committed and is NOT justified by anything below until this is settled.**
+>
+> *Also seen and not diagnosed: `echo OFF | sd.exe > file` never exits - 3.8 MB
+> and 944 KB in two runs. The same body piped through `Start-Job` exits
+> cleanly.*
 
 **Answers the open item "WHY `cub1` CAME BACK EMPTY".** Measured on the
 22 Aug 19:38:32 install, `assert-current` exit 0.

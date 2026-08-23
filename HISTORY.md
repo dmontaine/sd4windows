@@ -23010,3 +23010,32 @@ asked about.  Then the timing, not the instrument, turned out to be the axis for
 cub1.  Then the proposed proof of THAT was a test whose outcome did not depend on
 the change at all.  A check that cannot fail is worth what a check that cannot
 run is worth, and this document has now recorded both within a day.
+
+SECOND CORRECTION, same day, and this one contradicts the finding itself.  Asked
+whether a plain sd clears the screen at sign-on, the owner said it does.  A raw
+byte capture agrees: a session's output BEGINS with 27 91 72 27 91 74 -
+ESC[H ESC[J - once, immediately before the LOGIN:278 banner.  That is LOGIN:200's
+@(-1) working, with TERM unset, which is precisely the condition this entry says
+leaves every capability empty.
+
+BOTH MEASUREMENTS ARE MINE AND THEY CANNOT BOTH MEAN WHAT I SAID.  The paragraph
+runs at CPROC:411, after :168 and after :200, so it is not the difference.  The
+one variable never controlled is the launch chain: the capability table came from
+a PowerShell Start-Job, the byte capture from cmd /c.  printenv reports
+xterm-256color under both, but printenv is not sd.exe.
+
+WHAT IT COST TO GET THAT FAR, recorded because both are rule breaches rather than
+bad luck.  The capture was taken on a tree that was ALREADY STALE - this session
+had changed LOGIN hours earlier - and when the capture ran away, two sd sessions
+were Stop-Process'd, which this file's own operational rule forbids on a tree you
+still want to measure.  Neither result should have been believed and the second
+one was.
+
+ALSO SEEN, NOT DIAGNOSED: echo OFF | sd.exe > file never exits.  Two runs
+produced 3.8 MB and 944 KB before being killed.  The same command body piped
+through Start-Job exits cleanly, so stdout-to-a-file is the suspect, and that is
+a suspicion rather than a finding.
+
+THE HONEST STATE: the LOGIN change is committed, is five lines, and does the same
+test TERM:245-246 already does, so it is harmless - but it is not justified by a
+demonstrated defect and must not be described as one until a cycled tree says so.
