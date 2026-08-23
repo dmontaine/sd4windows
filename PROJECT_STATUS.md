@@ -151,6 +151,51 @@ code is also 1. **What it cost:** VerifyInstall2 has **nine `exit 2` paths**
 every *"the suite could not run"* was delivered as *"a step failed"*. **A reused
 prefix and a broken product were indistinguishable from the exit code.**
 
+### THE SUITE ON THE 18:24:18 TREE — `-Run b3`, 22 Aug 2026
+
+**Unelevated 8/8. Elevated 15/16.** `assert-current` exit 0 throughout. The only
+failure is `verify-sshonly`, which is item 1 below and understood.
+
+```
+verify-credacl  verify-osusers  verify-nocase  verify-setpw
+verify-allowgroups  verify-keys  verify-editkeys  verify-lcnames      all exit 0
+
+verify-fold  verify-nonet  verify-createaccount  verify-tiers  verify-catgate
+verify-accountacl  verify-routes  verify-accountrules  verify-delaccount
+verify-peerlog  verify-apiadmin  verify-apiname  verify-apiport
+verify-scramlogin  verify-tierapi                                    all exit 0
+verify-sshonly                                                          exit 1
+```
+
+**`b3` IS SPENT. `b4` was checked free.**
+
+**IT TOOK TWO ATTEMPTS AND THE SECOND WAS NOT A RE-RUN.** The first handover UAC
+prompt was declined, so the elevated half never started — and the message for
+that is **indistinguishable from having no desktop to prompt on** (§4.0.1). The
+unelevated 8/8 stood, nothing had changed on disk since, so only
+`VerifyInstall2.ps1 -Run b3` was run rather than repeating the eight. **That is
+also why `b3`'s prefixes were still unspent after the first attempt** — nothing
+elevated had run to spend them.
+
+***AND IT NEARLY PRODUCED A STALE-RESULT REPORT.*** With no elevated summary from
+that attempt, the newest `post-cycle-2*.txt` on disk was **the `b2` run from ten
+that morning**, and it was about to be read out as the result. The file name
+carries the stamp; the summary inside does not say which install it describes.
+
+**ONE GAP THIS EXPOSED, NOW FIXED (both files are `$neverShipped`, no cycle):**
+
+- **`verify-sshonly` was the ONLY verifier with no `Start-Transcript`** — and it
+  is the one that keeps failing. It *looked* covered because the normal path
+  passes `-Quiet`, which files each step separately; run directly, as a declined
+  handover leaves you doing, its output reached a console and stopped there.
+  **The `b3` detail is lost that way** — the summary says exit 1 and nothing
+  says why. It has one now.
+- **`VerifyInstall1` kept no transcript either**, only the exit-code summary,
+  while its own header argues from the transcript trail that *"not one of the
+  seven appears in any transcript"*. Four verifiers — `verify-allowgroups`,
+  `verify-credacl`, `verify-nocase`, `verify-setpw` — have no transcript of
+  their own, so on that path their detail was unrecoverable. It has one now.
+
 ### THE INSTALL'S LAST MILE — REBUILT 22 Aug 2026, AND CONFIRMED WORKING
 
 Everything below came from the owner sitting in front of real installs and
