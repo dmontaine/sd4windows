@@ -126,9 +126,38 @@ something came to be the way it is.
 >    paragraph.*
 > 3. **THE ONLY LARGE ITEM: a remote API session still runs as LocalSystem.**
 >    §THE FILE HALF IS CLOSED, and §What fixing it involves.
-> 4. **Nothing has ever crossed the network to the API port** - every
->    measurement went to `127.0.0.1:4243`. §7 step 2 **names the reusable VM
->    rig** and is worth reading before rebuilding one.
+> 4. ***CLOSED 22 Aug 2026 - THE API HAS NOW BEEN REACHED ACROSS A REAL
+>    NETWORK.*** Bridged VirtualBox guest **10.0.0.143** to this host
+>    **10.0.0.3**, over the physical WiFi segment, `sdapib8` / `SDAPIB8`:
+>
+>    ```
+>    connecting as sdapib8 to SDAPIB8 with the right password ...
+>      admitted        WHO -> 4 SDAPIB8
+>    connecting with a WRONG password (this MUST be refused) ...
+>      refused: Invalid username or password
+>    connecting to SDSYS (this MUST be refused) ...
+>      refused: User not allowed in requested account
+>    ```
+>
+>    **THREE OUTCOMES AND THE THIRD IS THE ONE THAT MATTERS:** `ACC$GROUP`
+>    containment held **over the network**, not only on loopback. §8's
+>    LocalSystem note is unaffected - what was measured is REACH, not identity.
+>
+>    **THE GUEST NEEDED TWO FILES AND NO TOOLCHAIN**, which is the reusable
+>    part: `remote-connect-test.exe` and `sdclilib.dll` are native UCRT64 and
+>    import **only** `KERNEL32`, `WS2_32`, `bcrypt` and the UCRT
+>    `api-ms-win-crt-*` set - no `msys-2.0.dll`. Verified with `objdump -p`
+>    before copying, then run on a clean guest. `gplbld/stage-apiremote.ps1`
+>    does the host half and prints the guest command.
+>
+>    **WHAT THE HOST SIDE WAS**: `verify-apiport.ps1 -Prefix sdapib8 -Keep` -
+>    all checks passed on loopback first, which is the control that makes the
+>    guest run attributable to the address and nothing else.
+>
+>    **BRIDGING WAS CONFIRMED BEFORE ANYTHING WAS BLAMED ON SD**, as §7 step 2
+>    advises: the host ARP table carried the guest's own MAC,
+>    `10.0.0.143  08-00-27-ae-ce-7c`. **`Windows 11 Clone` is the only VM of the
+>    four with `nic1=bridged`** - the other three are NAT and cannot do this.
 > 5. §7 steps **12** (remove the BASIC layer's Windows branches - Windows arm,
 >    drop the conditional, delete the Linux arm; **not** `LOGIN`'s forced
 >    administrator rights, which §5.6 rejects), **9**, **10**, **13**.

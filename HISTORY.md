@@ -23154,3 +23154,61 @@ between the two runs.
 verify-notyet.ps1 is now in VerifyInstall2.ps1's step list, placed early: it
 creates one Windows account under a fixed name and removes it in the same run,
 so there is no prefix to spend and nothing for a later step to collide with.
+
+## FORTY-FIRST SESSION, part 3 - the API reached across a real network
+
+Item 4 of "what is actually left" is closed.  Until today every API measurement
+went to 127.0.0.1:4243, and loopback could never settle it - nor could
+connecting to this host's own LAN address FROM this host, which the local stack
+short-circuits without touching the wire.  The client had to run on another
+machine, which is what section 7 step 2's VM rig is for.
+
+WHAT WAS MEASURED.  Bridged VirtualBox guest 10.0.0.143 to this host 10.0.0.3,
+over the physical WiFi segment: admitted as sdapib8 into SDAPIB8 with a real
+session (WHO -> 4 SDAPIB8), a wrong password refused, and SDSYS refused with
+"User not allowed in requested account".  The third is the one that matters -
+the ACC$GROUP containment gate holds OVER THE NETWORK and not only on loopback.
+Section 8's LocalSystem note is untouched: what was measured is reach, not
+identity.
+
+THE CONTROL CAME FIRST.  verify-apiport.ps1 -Prefix sdapib8 -Keep passed every
+check on loopback and left the fixture up, so the guest run differs from it in
+the address and in nothing else - including that the client spoke SCRAM, sent no
+cleartext login, and put the password nowhere in the bytes.
+
+THE GUEST NEEDED TWO FILES AND NO TOOLCHAIN, which is the reusable finding.
+remote-connect-test.exe and sdclilib.dll are native UCRT64 and import only
+KERNEL32, WS2_32, bcrypt and the UCRT api-ms-win-crt-* set.  Checked with
+objdump -p BEFORE copying, because a kit that pulled in msys-2.0.dll fails on a
+clean guest as "unable to start correctly", which names nothing.
+
+BRIDGING WAS CONFIRMED BEFORE ANYTHING COULD BE BLAMED ON SD, as section 7 step
+2 advises: the host ARP table carried the guest's own MAC, 10.0.0.143
+08-00-27-ae-ce-7c.  Windows 11 Clone is the ONLY one of the four VMs with
+nic1=bridged - the other three are NAT and cannot answer this question at all.
+
+gplbld/stage-apiremote.ps1 does the host half and prints the guest command.  It
+does not drive the guest: section 7 step 2 forbids guestcontrol, which needs
+guest credentials.  What it does do is rule the host out first - kit not stale,
+no MSYS2 imports, VM actually bridged, SD on 0.0.0.0, a firewall rule that
+admits the port - so a failure on the guest starts with the host already
+eliminated.
+
+IT DERIVES THE HOST ADDRESS FROM THE VM'S OWN BRIDGE ADAPTER rather than
+guessing.  This machine has 10.0.0.3 on WiFi and 10.0.0.13 on Ethernet, and only
+the bridged one is reachable from the guest; picking the wrong one looks exactly
+like a firewall problem.
+
+TWO FAULTS FOUND BY RUNNING IT TWICE INSTEAD OF ONCE:
+
+  A RUNNING VM IS LOCKED, so a permanent sharedfolder add fails with "already
+  locked for a session".  That is why step 2 says --transient.  The first
+  version read VMState after using it.
+
+  AND THE IDEMPOTENCE CHECK WAS DEFEATED BY BACKSLASH HALVING.  showvminfo
+  doubles the backslashes in a path; undoing that with -replace needs four in
+  the pattern, and four is exactly the count that gets halved on the way into
+  the file.  Written with two, the regex replaced each backslash with itself,
+  the path stayed doubled, the "already attached" test never matched, and the
+  second run tried to add a share that was already there.  It uses .Replace()
+  now - a literal string method with no escaping layer to lose.
