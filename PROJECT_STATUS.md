@@ -24,9 +24,47 @@ something came to be the way it is.
 >
 > `bin/sd.exe` is `275CFB03E142AA2C`, built 24 Aug 14:58:14, `make sd` exit 0,
 > and `assert-current` reports "no source newer" against it. Eight source
-> files are newer than the 13:36:51 install. **`-SkipInstall` first is the
-> cheap compile check** — the changes below touch `SYSCOM/ERR.H`, which every
-> `gpl.bp` program `$include`s.
+> files are newer than the 13:36:51 install.
+>
+> ### `-SkipInstall` ALREADY RAN AND IS CLEAN — 15:04:09, 184 COMPILES, 0 ERRORS
+>
+> Transcript `%LOCALAPPDATA%\SD-verify\cycle-20260824-150409.log`, elevated
+> by `Start-Process -Verb RunAs` from the agent's shell. **So the only thing
+> the full cycle still has to do is install.**
+>
+> | probe | expected | observed |
+> |---|---|---|
+> | compiles reporting `0 error(s)` | all of them | **184, and no line matches `[1-9] error(s)`** |
+> | `is not assigned a value` in the log | **absent** | **absent** — the ERRGEN trap did not fire |
+> | staged `gpl.bp.out` | one fewer than 13:35:58's 187 | **186** — `OPGEN`'s object is no longer built |
+> | staged `GPL.BP/OPGEN` | absent | **absent** |
+> | staged `ERRTEXT.H` rows `4100`/`4101`/`-10303` | present | **lines 98, 99, 216** |
+> | staged `SYSCOM/ERR.H` `SD$SCRAM.ERR` | present | **line 286** |
+> | installer built | yes | **`sd-setup-W1.0-0.exe`, 4,801,889 bytes, 15:04:46** |
+>
+> **`is not assigned a value` is the decisive row**, not the error count: that
+> is the tell a broken `SYSCOM/ERR.H` leaves, and it does **not** fail a
+> compile — §5.8 and the 13 Aug ERRGEN entry in HISTORY.md.
+>
+> **`$BCOMP` went 88079 → 88070.** Expected and attributable, not derived to
+> the byte: [BCOMP:113](sdb_ai/sd64/sdsys/gpl.bp/BCOMP:113) is `$include opcodes.h`,
+> and session 50's regeneration dropped `SDPYOBJ` from both the
+> `prefixed.opcodes` and `prefixed.opcode.values` string literals.
+>
+> ### TWO THINGS THE `-SkipInstall` RUN LEFT BEHIND
+>
+> 1. ***SD IS STOPPED.*** `cycle.ps1` step 1 stops the service and nothing
+>    restarts it, by design (`cycle.ps1:136`). The full cycle stops it again
+>    at step 1, so this only matters if you wanted SD up meanwhile.
+> 2. **`C:\Users\dmont\stagetest` and `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`
+>    are from 15:04.** The full cycle rebuilds the stage with `--force`, so
+>    neither is reused and neither needs cleaning.
+>
+> **INSTRUMENT NOTE FOR THE NEXT SESSION THAT ELEVATES THIS WAY.**
+> `Start-Process -Verb RunAs -Wait` **does not set `$LASTEXITCODE`** — it was
+> empty, and the harness reported "exit code 0" for the *launcher*, which
+> would have been the same had the cycle aborted at step 2. **Read the
+> transcript.** Use `-PassThru` and `.ExitCode` if a code is wanted.
 >
 > ### BOTH OPGEN LOOSE ENDS ARE CLOSED — session 51
 >
@@ -57,10 +95,11 @@ something came to be the way it is.
 >
 > ### §7 IS EMPTY AND §8 TIER WORK IS CLOSED. ASK BEFORE STARTING ANYTHING.
 >
-> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** One commit: the two
-> OPGEN comments, `ERR.H`/`ERRTEXT.H` regenerated, the changelog entry
-> for both, and `make sd`. **Nothing was installed and nothing was
-> verified on an install** - the cycle above is what session 52 owes.
+> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** Two commits: the
+> two OPGEN comments with `ERR.H`/`ERRTEXT.H` regenerated, the changelog
+> entry for both and `make sd`; then the `-SkipInstall` result above.
+> **Nothing was installed** - the install is what session 52 owes, and
+> the compile behind it is already measured.
 >
 > ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** The owner ruled the split,
 > session 50 transcribed it to disk, the cycle at 13:36:51 installed it,

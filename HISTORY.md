@@ -27,6 +27,67 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-first session, part 2: `cycle.ps1 -SkipInstall` clean, 184 compiles
+
+**Commit:** the commit carrying this entry. Documentation only.
+
+**RAN AT 15:04:09**, elevated by `Start-Process -Verb RunAs` issued from the
+agent's own shell on the owner's instruction; transcript
+`%LOCALAPPDATA%\SD-verify\cycle-20260824-150409.log`. Reached step 4 and
+stopped: installer `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, 4,801,889
+bytes, 15:04:46. **The installed tree is untouched and still STALE.**
+
+**184 compiles, every one `0 error(s)`**, and no line in the transcript matches
+`[1-9][0-9]* error(s)`.
+
+**THE DECISIVE ROW IS NOT THE ERROR COUNT.** A broken `SYSCOM/ERR.H` does not
+fail a compile - it leaves every `ER$` constant undefined and the compiler says
+`is not assigned a value`, then the program aborts at run time (§5.8, and the
+13 Aug 2026 ERRGEN entry in this file). **That string is absent from the whole
+transcript**, which is what says the regenerated `ERR.H` is sound. The only
+warnings are four `is assigned a value but never used`, a different message and
+pre-existing.
+
+**COUNTS AGAINST THE 13:35:58 CYCLE, which is the comparison that makes them
+evidence rather than plausible numbers:**
+
+| | 13:35:58 | 15:04:09 |
+|---|---|---|
+| `gcat` | 126 | 126 |
+| `gpl.bp.out` | 187 | **186** |
+| `$CPROC` | 25418 | 25418 |
+| `$BCOMP` | 88079 | **88070** |
+
+`gpl.bp.out` **one fewer** is `OPGEN`'s compiled object no longer being built -
+a positive control on the delete, since the file being absent from the stage
+and its object being absent are separate facts.
+
+`$BCOMP` **nine bytes smaller** is expected and attributable but **not derived
+to the byte, and is not claimed to be**: `BCOMP:113` is `$include opcodes.h`,
+and session 50's regeneration dropped `SDPYOBJ` from the `prefixed.opcodes` and
+`prefixed.opcode.values` string literals, which are data in the object rather
+than compile-time defines.
+
+**THE STAGED TREE CARRIES THE CHANGES** - `GPL.BP/OPGEN` absent,
+`GPL.BP/ERRTEXT.H` rows for `4100`/`4101`/`-10303` at lines 98, 99 and 216,
+`SYSCOM/ERR.H:286` `SD$SCRAM.ERR`, `GPL.BP/BCOMP:66` naming `gen_includes.py`.
+Checked on disk in `C:\Users\dmont\stagetest`, not inferred from the log.
+
+**INSTRUMENT DEFECT, AND THE SECOND ONE THIS SESSION.**
+`Start-Process -Verb RunAs -Wait` **does not set `$LASTEXITCODE`**. It came back
+empty, and the harness reported the run as "exit code 0" - which was the
+*launcher's* code and would have read identically had the cycle aborted at step
+2. The 42-second wall time is what prompted reading the transcript instead of
+believing it. **A future session elevating this way must read the transcript,
+or pass `-PassThru` and take `.ExitCode`.**
+
+**SD IS LEFT STOPPED.** `cycle.ps1` step 1 stops the service and nothing
+restarts it (`cycle.ps1:136`, deliberate). The full cycle stops it again at
+step 1, so it only matters to someone wanting SD up in between.
+
+**STILL OPEN: THE INSTALL.** `assert-current` still exits 1; the full
+`cycle.ps1` is the owner's, at the wizard.
+
 ## 24 Aug 2026 — Fifty-first session: both OPGEN loose ends closed, ERR.H and ERRTEXT.H regenerated
 
 **Commit:** the commit carrying this entry. Comments, generated data,
