@@ -102,6 +102,56 @@ mismatch (SED removal, 23 Aug).
 1 for two reasons — the `writeport` binary change and the tier data changes.
 One cycle covers both.
 
+## 24 Aug 2026 — Fiftieth session, part 3: the cycle landed at 13:36:51
+
+**Commit:** the commit carrying this entry.  Documentation of what a fresh
+tree measured.
+
+**The cycle ran and reported CYCLE COMPLETE.**  `sd.exe F53AE8F87BC55326`
+(the writeport-carrying binary), installed at 13:36:51.  `gcat 126 (staged
+126)`, `GPL.BP.OUT 187 (staged 187)`, `$BCOMP 88,079`, `assert-current: the
+installed tree matches source`.  Log at
+`%LOCALAPPDATA%\SD-verify\cycle-20260824-133558.log`.
+
+**MEASURED WITHOUT ELEVATION, and the reason to record each is that the
+verifier that could have covered them in one shot needs elevation this
+session did not have:**
+
+- `TIER.OMIT.STANDARD` installed vs source: **byte-identical**, 43 lines
+  (1 description + 42 verbs).  `TIER.ADD.ADMINISTRATOR` installed vs source:
+  **byte-identical**, 22 lines (1 + 21).
+- The 13 verb files deleted this session (12 from newvoc, umask from
+  voc_template) are all **absent from the install**.
+- Installed `newvoc/` holds **119 V verbs, 395 total records**, and
+  `voc_template/` holds **140 V verbs, 425 total records** — matches the
+  arithmetic used to derive the expected `COUNT VOC` values.
+- `sdsys/accounts/DON` field 5 reads **`ADMINISTRATOR`** — the ADOPT
+  default fired on the install's own account.
+- Piping `WHO ; COUNT VOC ; OFF` into `sd.exe` as an unelevated interactive
+  session (`don` = current Windows user), `LOGTO DON` then `COUNT VOC`
+  returned **`417 record(s) counted`** — the ADMINISTRATOR arithmetic
+  exactly (392 real newvoc records + 21 admin-add + 4 CREATEA additions).
+- `LIST VOC` for a chosen set: admin verbs (`sh`, `!`, `config`,
+  `create.account`, `modify.password`) all present, programmer verbs
+  (`basic`, `phantom`, `pstat`, `pdebug`) present, standard-with-move
+  (`search`, `report.src`) present, and the three that must be absent
+  (`umask`, `TIER.OMIT.STANDARD`, `TIER.ADD.ADMINISTRATOR`) all report
+  `not found`.
+
+**verify-lineendings.ps1 also ran** because it needs no elevation and is
+the cheap tree-sanity check: **17/17 PASS**, every decisive row PASS.  The
+tier data changes did not disturb what session 49 closed.
+
+**NOT YET RUN**, because it needs elevation: `verify-tiers.ps1 -Prefix
+sdtierc`.  The DON observation above is only the ADMIN tier; the between-
+tier controls (STANDARD lacking the 42, PROGRAMMER having the 42 and
+lacking the 21) need `CREATE.ACCOUNT` for three fresh accounts.  Expected
+counts: STANDARD 354, PROGRAMMER 396, ADMINISTRATOR 417.
+
+**Nothing carried over as broken.**  `bin\sd.exe` is `F53AE8F87BC55326`
+and matches the install, no source is newer than the install.  The
+writeport fix landed with it, unverifiable without a real port device.
+
 ## 24 Aug 2026 — Forty-ninth session, END: a cycle was reported run and had not installed
 
 **Commit:** the commit carrying this entry. Documentation only.

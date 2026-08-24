@@ -5,53 +5,63 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the fiftieth session (owner review prep).
+**Last updated:** 24 Aug 2026, end of the fiftieth session (split ruled, on disk, cycled).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: RUN THE CYCLE. THE TIER SPLIT AND WRITEPORT BOTH LAND IN IT.
+> ## NEXT: RUN `verify-tiers -Prefix sdtierc` FOR THE 3-TIER CONTROL. ADMIN HALF ALREADY MEASURED.
 >
-> ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** Session 49 closed §7 steps
-> 14 and 16 (a)+(b). Session 50 hoisted the first-pass tier split for owner
-> review, **the owner ruled all four open calls** (see §8 "THE SPLIT,
-> settled 24 Aug 2026"), and **session 50 then transcribed the ruled split
-> to disk** — 12 verb files deleted from `sdsys/newvoc/`, `umask` deleted
-> from `sdsys/voc_template/`, `TIER.OMIT.STANDARD` grown 17→42,
-> `TIER.ADD.ADMINISTRATOR` grown 10→21, `verify-tiers.ps1` count arithmetic
-> re-derived, changelog entry written. Two commits: `82f5c66` (handoff docs)
-> and the commit carrying this update (disk apply).
+> ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** The owner ruled the split,
+> session 50 transcribed it to disk, and **the cycle at 13:36:51 installed
+> it** — `sd.exe F53AE8F87BC55326` (also carries the `writeport` fix from
+> session 49), `assert-current: the installed tree matches source`. Three
+> commits over the session: `82f5c66` handoff docs, `d913eac` disk apply,
+> and the commit carrying this update.
 >
-> **STILL NO COMPILE, NO CYCLE, NO INSTALL** — the installed tree is unchanged
-> from session 49 and `assert-current` now exits 1 for two reasons: the
-> `writeport` fix in `gplsrc/op_seqio.c` and the tier data files. **One cycle
-> lands both.** Owner's cycle, elevated PowerShell:
+> ### WHAT WAS MEASURED THIS TURN, WITHOUT ELEVATION
+>
+> | probe | expected | observed |
+> |---|---|---|
+> | installed `sd.exe` | matches source | `F53AE8F87BC55326`, 13:36:51 install |
+> | installed `TIER.OMIT.STANDARD` vs source | identical, 43 lines | **identical, 43 lines** |
+> | installed `TIER.ADD.ADMINISTRATOR` vs source | identical, 22 lines | **identical, 22 lines** |
+> | 13 deleted verb files absent from install | none present | **none present** |
+> | installed `newvoc/` V-verb count | 119 | **119** (395 total records) |
+> | installed `voc_template/` V-verb count | 140 | **140** (425 total records) |
+> | `DON` `ACCOUNTS` field 5 | `ADMINISTRATOR` | **`ADMINISTRATOR`** |
+> | `DON` `COUNT VOC` | 417 | **417** — the ADMIN arithmetic exactly |
+> | admin verbs (`sh`, `!`, `config`, `create.account`, `modify.password`) in DON's VOC | present | **present** |
+> | programmer verbs (`basic`, `phantom`, `pstat`, `pdebug`) in DON's VOC | present | **present** |
+> | standard-with-move (`search`, `report.src`) in DON's VOC | present (admin gets all) | **present** |
+> | `umask` in DON's VOC | absent | **`'umask' not found`** |
+> | `TIER.OMIT.STANDARD` / `TIER.ADD.ADMINISTRATOR` as VOC records in DON | absent | **`not found`** for both |
+> | `verify-lineendings.ps1` | 17/17 PASS | **17/17 PASS**, all decisive rows PASS |
+>
+> ### WHAT STILL NEEDS THE OWNER'S ELEVATED SHELL
+>
+> **`verify-tiers.ps1 -Prefix sdtierc` — one command, and this is the
+> decisive one.** DON is the admin observation; the between-tier controls
+> (STANDARD lacks the 42, PROGRAMMER has the 42 and lacks the 21,
+> ADMINISTRATOR has both) need `CREATE.ACCOUNT` for three fresh accounts,
+> which is gated on `K$ADMINISTRATOR`. Expected counts: STANDARD 354,
+> PROGRAMMER 396, ADMINISTRATOR 417. The section 0 cross-check between the
+> script's `$Withheld`/`$AdminVerbs` and the shipped TIER records also fires,
+> so a mismatch between this commit and any later hand edit fails there.
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-tiers.ps1 -Prefix sdtierc
 > ```
 >
-> ### VERIFY AFTER THE CYCLE
+> **Prefixes `sdtierb`, `sdapiidb18`–`sdapiidb32` are spent.** Any fresh
+> prefix works.
 >
-> `verify-tiers.ps1 -Prefix sdtierc` (any fresh prefix — `sdtierb` is spent
-> per HISTORY). Expected counts after the cycle: STANDARD 354, PROGRAMMER 396,
-> ADMINISTRATOR 417 — each derived arithmetically in the verify-tiers header,
-> not blessed from a passing run. `verify-lineendings.ps1` and
-> `verify-apiidentity -Prefix sdapiidb33` also confirm the tree.
+> ### THE WRITEPORT FIX LANDED IN THIS CYCLE TOO
 >
-> **Numbers to spot-check by eye** on the fresh install, without running any
-> verifier: `Get-Content C:\ProgramData\SD\sdsys\newvoc\TIER.OMIT.STANDARD |
-> Measure-Object -Line` should read 43 lines (1 description + 42 verbs), and
-> the ADD list 22 lines (1 + 21). If either differs, the shipped file was not
-> the one this session wrote.
->
-> ### THE WRITEPORT FIX ALSO LANDS
->
-> `gplsrc/op_seqio.c:1762`, `UPSTREAM_FIXES.md` #14. It cannot be verified
-> without a real port device, so its landing is announcement rather than
-> proof — see session 49's "THE TREE IS STALE" section below for what was
-> observed then.
+> `gplsrc/op_seqio.c:1762`, `UPSTREAM_FIXES.md` #14, in the same
+> `F53AE8F87BC55326` binary. It cannot be verified without a real port
+> device, so its landing is announcement rather than proof.
 >
 > ### WHAT SESSION 49 CLOSED, IN ONE TABLE
 >
@@ -7001,7 +7011,7 @@ Aug when the read-only inspectors moved down from PROGRAMMER.
 **Total: 21 + 42 + 77 = 140 verbs.** Matches the 141 in today's `voc_template`
 less UMASK, which is being removed. Every verb accounted for exactly once.
 
-**LANDED ON DISK 24 Aug 2026, awaiting a cycle to install:**
+**LANDED ON DISK 24 Aug 2026, and installed at 13:36:51 in the same session:**
 
 1. `sdsys/voc_template/umask` and `sdsys/newvoc/umask` deleted (UMASK
    removal).
@@ -7016,9 +7026,14 @@ less UMASK, which is being removed. Every verb accounted for exactly once.
    `$AdminVerbs` to 21, each grouped by rationale.
 6. `changelog` entry written for the user-visible change.
 
-**One `cycle.ps1` installs it, and `verify-tiers.ps1` measures it** — the
-count arithmetic and the cross-check between the shipped TIER records and the
-test's own lists both fire, so a wrong number surfaces at once.
+**Cycled at 13:36:51.** `sd.exe F53AE8F87BC55326`, `assert-current: the
+installed tree matches source`. The installed `TIER.OMIT.STANDARD` (43
+lines) and `TIER.ADD.ADMINISTRATOR` (22 lines) are byte-identical to source,
+the 13 deleted verb files are absent from the install, and `DON COUNT VOC`
+returned **417** — the ADMINISTRATOR arithmetic exactly. `verify-tiers.ps1
+-Prefix sdtierc` is the between-tier control that still needs elevation and
+is not yet run this session; see the START HERE table at the top for the
+full list of what has been measured.
 
 ### ANSWERED IN CODE 22 Aug 2026, UNMEASURED: what may a scheduled job run?
 
