@@ -27,6 +27,53 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session: the class fix is half measured, and the measured half does not work
+
+**Commit:** the commit carrying this entry. **No install, no cycle, no source
+change to `sd.exe`** — `probe-impfork.c`/`.ps1` are on `assert-current`'s
+`$neverShipped`, so the 24 Aug 10:34:44 install stays current. Nothing was
+elevated.
+
+**What was owed:** step 14 was diagnosed end to end and the next move was the
+owner's choice between a narrow fix (re-impersonate after each `fork()`) and a
+class fix (`cygwin_internal(CW_SET_EXTERNAL_TOKEN)`). The class option was
+recorded as **"unproven here"** and was the only unknown in the decision.
+`$neverShipped` is what made it answerable without spending a cycle.
+
+**Built:** a **Q4** leg in `gplbld/probe-impfork.c` — `q4_run`, `q4_report`,
+`q4_holds`, `q4_snap`, plus a `--q4check` self-test mode that impersonates a
+duplicate of the process's own token and needs no elevation. Exit codes gained
+bit 4 (`R_EXTTOK`); completed measurements are now 8..15. No collision with
+`R_CALL`=4, which is only ever returned bare.
+
+**Measured, unelevated:** form 1 — the bare `CW_SET_EXTERNAL_TOKEN` call —
+returned 0 with `errno` 0 and the thread token was still `NONE` after `fork()`.
+**The bare call does not carry it.** Controls held first: row 0 impersonated,
+and the plain `fork()` at row 1 lost it, so the run reproduced the defect
+before testing the fix.
+
+**Not measured, and the instrument says so rather than guessing:** form 2 —
+register, then `seteuid(target)`, then `fork`. `--q4check` necessarily targets
+its own uid, and `seteuid()` to the uid you already hold returns 0 from a fast
+path without touching the user context, so the runtime never adopts the
+registered token.
+
+**THE NEAR-MISS IS THE POINT OF THIS ENTRY.** The first version of `q4_report`
+printed form 2 as **"lost"** on that run. It was a confident verdict on a form
+that had never executed — the same shape as the three false verdicts of 23 Aug.
+What caught it was reading the note line the row printed (`seteuid(197609)`
+against `uid 197609`), i.e. rule 1: the instrument showed its real inputs.
+`q4_report` now separates **three** non-results — seteuid never attempted,
+seteuid refused, and target-uid-already-euid — from an actual loss, and the
+fix was to the class rather than to that one row.
+
+**Still open:** `gplbld/probe-impfork.ps1 -Account test1` from an elevated
+window supplies a differing uid via S4U and settles form 2. No `-Prefix`, so no
+`b`-token is spent. Form 2 carrying ⇒ two working options for the owner to
+choose between; form 2 losing ⇒ the class option is **struck**, not left open.
+
+---
+
 ## 24 Aug 2026 — Forty-eighth session: the fork is cleared, b28's instrument is cleared, and the fault is inside the session
 
 **Commit:** the commit carrying this entry. No install, no cycle, no source

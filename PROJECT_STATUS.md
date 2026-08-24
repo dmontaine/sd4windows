@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the forty-eighth session.
+**Last updated:** 24 Aug 2026, end of the forty-ninth session.
 
 ---
 
@@ -36,7 +36,21 @@ something came to be the way it is.
 > | | |
 > |---|---|
 > | **Narrow** | re-impersonate after each `fork()`. Fixes this path. **`PHANTOM` (`op_kernel.c:735`) and `SH` (`op_sh.c:379`, the same site) still drop it**, silently, as they do today |
-> | **Class** | `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` — the runtime carries the token across `fork`/`exec`. Covers everything, and is unproven here |
+> | **Class** | `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` — the runtime carries the token across `fork`/`exec`. Covers everything. **Half measured 24 Aug: the bare call LOST it; register-then-`seteuid` is untested and is the form that matters** |
+>
+> ### THE CLASS HALF IS ONE ELEVATED RUN FROM BEING SETTLED — AND IT COSTS NO CYCLE
+>
+> `probe-impfork` gained a **Q4** leg that answers it without touching
+> `sd.exe`. The unelevated `--q4check` has already banked half the answer and
+> **refuses the other half out loud** rather than guessing it. Finish with:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-impfork.ps1 -Account test1
+> ```
+>
+> **Elevated window; no `-Prefix`, so no `b`-token is spent.** Form 2 carrying
+> means the owner picks between two *working* options; form 2 losing means the
+> class option is **struck** rather than left open. §7 step 14 has the table.
 >
 > **`fork()` reverting the thread is a RUNTIME behaviour, measured both in a
 > forked Cygwin child and a direct process** (`gplbld/probe-impfork.c`, Q3). It
@@ -6037,6 +6051,47 @@ the staging script and the Inno installer were all finished and removed.
     newlines to field marks whenever exactly one side is a directory file
     (`COPY:220-229`); `BINARY` is what SUPPRESSES that and is implied only when
     both sides are directory files. **The record must be LF-only** - §6.
+
+    ***THE CLASS OPTION IS HALF MEASURED, 24 Aug 2026, AND THE MEASURED HALF
+    DOES NOT WORK.*** `probe-impfork.c` gained a **Q4** leg asking whether
+    `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` carries the impersonation across
+    `fork()`. It costs **no cycle** — the file is on `assert-current`'s
+    `$neverShipped` list — and it needs no edit to `sd.exe`.
+
+    **Two forms, because the bare call may be a no-op by design.** It
+    *registers* a token for the runtime to adopt at its next user-context
+    change; **register-then-`seteuid`** is the sequence Cygwin's own callers
+    use. Measuring only the bare call would report "the class fix fails" for a
+    form never exercised.
+
+    | form | result |
+    |---|---|
+    | 1 — `CW_SET_EXTERNAL_TOKEN`, then `fork` | **LOST.** Call returned 0, `errno` 0, thread token still `NONE` after the fork |
+    | 2 — register, then `seteuid(target)`, then `fork` | **NOT MEASURED** — needs a target uid *differing* from the runtime's euid |
+
+    Measured by `probe-impfork.exe --q4check <writable-dir>`, **unelevated**,
+    which impersonates the process's own duplicated token. Controls held: row
+    0 impersonated, and the plain `fork()` at row 1 lost it, so the run
+    reproduced the defect before testing the fix.
+
+    ***WHY `--q4check` CANNOT FINISH IT, AND THE INSTRUMENT NOW SAYS SO
+    ITSELF.*** It necessarily targets its own uid, and `seteuid()` to the uid
+    you already hold returns 0 from a fast path without touching the user
+    context — so the runtime never adopts the registered token. Reporting that
+    as "lost" would be a verdict on a form that never ran. `q4_report` refuses
+    it out loud as **NOT MEASURED**, alongside "seteuid never attempted" and
+    "seteuid refused", which are three different things and not one.
+
+    **TO FINISH IT: `gplbld/probe-impfork.ps1 -Account test1`, from an ELEVATED
+    window.** No switch needed — Q4 runs inside `measure()`, so both the forked
+    child and direct legs carry it. That supplies the differing uid via S4U.
+    Exit codes gained **bit 4** (`R_EXTTOK`), so a completed measurement is now
+    8..15; it does not collide with `R_CALL`=4, which is only returned bare.
+
+    **WHAT IT DECIDES.** Form 2 carrying ⇒ the class fix is real and the
+    owner chooses between two *working* options. Form 2 also losing ⇒ the
+    decision collapses to the narrow fix and the class option should be
+    **struck, not left open as "unproven"**.
 
     **Step 14 is now *measured and failing* rather than *built and unverified*.
     A fix lands on `sd.exe`, so it owes a full `cycle.ps1` and a suite run.**
