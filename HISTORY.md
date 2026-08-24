@@ -24308,3 +24308,44 @@ NOT the empty string - casting does not rescue it, only an explicit $null test
 does.  Calling .Trim() on it throws.  Three runs were spent before the catch
 block was made to print the failing line number, which found it at once.  Print
 the line number rather than guessing at the cause.
+
+Correction: 23 Aug 2026 - the elevated hang is not a product defect, and the guard it asked for already existed
+
+Corrects the entry above it, "the elevated hang is diagnosed: it is a password
+prompt, not start-up", written earlier the same day.  The diagnosis of WHERE it
+blocks was right.  Three conclusions drawn from it were wrong.
+
+WRONG 1: "the prompt has no non-interactive behaviour".  It has one and it
+works.  LOGIN:639 reaches the prompt only when kernel(K$TTY,0) # '', which is
+ttyname(fileno(stdin)) at kernel.c:250, and the comment block above that line
+already explains at length that a piped session must not be prompted or it would
+eat the script as password attempts.  The guard was written 21 Aug 2026 and
+measured then.
+
+WRONG 2: "a scheduled job on a password-less account hangs exactly like this".
+It does not.  A scheduled task has no tty, so K$TTY is empty and the prompt is
+skipped.
+
+WRONG 3: "b16 cannot complete because of it" and "that row is now the one
+failing check".  Both attempts at b16 were lost to elevation refusals before any
+step ran, so no b16 result exists.  verify-batchjob's elevated row is UNMEASURED
+on this install, not failing - and Invoke-SdCommand drives sd through Start-Job
+(verify-batchjob.ps1:150), which has no console, so the suite would take the
+redirected-stdin path anyway.
+
+WHAT WAS ACTUALLY MEASURED, one elevated session, both cases, install 17:47:55:
+stdin inherited from a console prompts and HANGS, killed at 20s; stdin
+redirected from a file does NOT prompt and exits in 1 second, reaching dispatch
+with "ZZNOSUCHVERB is not in your VOC".  So the condition is a console with
+nobody at it, not a non-interactive session.
+
+HOW THE WRONG CONCLUSIONS GOT WRITTEN, since that is the reusable part.  The
+probe redirected stdout and left stdin inherited, which is a combination nothing
+else in this project produces - the verifiers pipe, a scheduled job has no
+console, a person at a console types.  The measurement was real and the
+generalisation from it was not tested.  ASKING "WHO ELSE PRODUCES THIS EXACT
+CONDITION" WOULD HAVE CAUGHT IT, and it took four greps to answer once asked.
+
+WHAT IS LEFT IS A DECISION AND NOT A BUG: whether "sd <command>" should ask for
+a password at all, which SYSTEM(1026) would gate the same way section 7 step 9
+gates the command itself.  Owner's call.  Not started.

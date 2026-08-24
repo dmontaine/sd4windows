@@ -11,13 +11,14 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## DIAGNOSED 23 Aug 2026: ELEVATED `sd <command>` SITS AT A PASSWORD PROMPT
+> ## CLOSED 23 Aug 2026: THE "ELEVATED HANG" WAS THE PROBE, NOT THE PRODUCT
 >
 > ***THE FORTY-FOURTH SESSION LEFT THIS AS AN UNEXPLAINED START-UP HANG. IT IS
-> NEITHER UNEXPLAINED NOR IN START-UP.*** On the **17:47:55** install an
-> elevated `sd <command>` blocks for ever at the account's *"needs a password"*
-> prompt, waiting on stdin that never arrives. `b16` cannot complete because of
-> it.
+> NEITHER UNEXPLAINED, NOR IN START-UP, NOR A DEFECT.*** On the **17:47:55**
+> install an elevated `sd <command>` **run from a console with nobody at it**
+> blocks at the account's *"needs a password"* prompt, waiting on stdin that
+> never arrives. **Redirect stdin and it does not prompt at all** — the
+> correction below has the table. **`b16` is unaffected and still unspent.**
 >
 > **MEASURED, elevated, 25-second timeout — AND WITH THE REDIRECTED STDOUT READ
 > BACK.** 802 bytes, ending:
@@ -68,13 +69,35 @@ something came to be the way it is.
 >   somebody types. `sd ZZNOSUCHVERB` never reaches it, and `CPROC:2562`
 >   records that `!elevate` answers 0 at once when already elevated.
 >
-> ### WHAT IS OWED IS A PRODUCT FIX, NOT AN INVESTIGATION
+> ### CORRECTION, SAME DAY: THERE IS NO PRODUCT DEFECT HERE
 >
-> ***A NON-INTERACTIVE SESSION MUST NOT SIT AT THAT PROMPT FOR EVER.*** Not a
-> test artefact: §7 step 9's whole subject is `sd <command>` run unattended, and
-> a **scheduled job on a password-less account hangs exactly like this** instead
-> of failing. Decide the behaviour — refuse with a message, or skip the prompt
-> when stdin is not a terminal — then fix it. `LOGIN`'s password step, `_INPUT`.
+> ***THIS BLOCK FIRST SAID A NON-INTERACTIVE SESSION HANGS AND A SCHEDULED JOB
+> WOULD HANG WITH IT. BOTH WERE WRONG, AND THE GUARD THEY ASKED FOR ALREADY
+> EXISTS.*** `LOGIN:639` reaches the prompt only when
+> `kernel(K$TTY,0) # ''` — `ttyname(fileno(stdin))`, `kernel.c:250`. **Stdin
+> not a terminal already skips it.**
+>
+> **MEASURED 23 Aug 2026, one elevated session, both cases, same install:**
+>
+> | stdin | prompted | result |
+> |---|---|---|
+> | inherited from a console | yes | ***HUNG***, killed at 20s |
+> | redirected from a file | **no** | **exited in 1s** — reached dispatch, *"ZZNOSUCHVERB is not in your VOC"* |
+>
+> ***SO THE CONDITION IS "A CONSOLE WITH NOBODY AT IT", NOT "NON-INTERACTIVE".***
+> A scheduled task has no tty and takes row 2. **`Invoke-SdCommand` uses
+> `Start-Job`** (`verify-batchjob.ps1:150`), which has no console, so **the suite
+> takes row 2 as well.**
+>
+> ***AND `b16` WAS NEVER OBSERVED FAILING.*** Both attempts were lost to
+> elevation refusals (§4.0.1) before any step ran, so *"that row is now the one
+> failing check"* was an **inference from a hand-run probe, not a result.**
+> `verify-batchjob`'s elevated row is **unmeasured on this install**, not failing.
+>
+> **WHAT REMAINS IS A DECISION, NOT A BUG.** Whether `sd <command>` should ask
+> for a password at all — `SYSTEM(1026)` would gate it the way §7 step 9 gates
+> the command itself. **Owner's call; not started.** The prompt itself was
+> reviewed at a real console and works (stars, asks twice).
 >
 > **WHY THE ACCOUNT HAS NO PASSWORD:** `cycle.ps1` deletes both trees, so the
 > 17:47:55 install recreated `don`. **Why `b15`'s 10:01:45 install did not hit
