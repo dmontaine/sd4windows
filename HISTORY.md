@@ -27,6 +27,81 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-first session, part 3: the cycle installed, and cycle.ps1 was corrupting its own transcripts
+
+**Commit:** the commit carrying this entry. One script fix (`gplbld/cycle.ps1`)
+and documentation.
+
+**THE OWNER RAN THE FULL CYCLE. INSTALL AT 15:14:28**, `sd.exe`
+`275CFB03E142AA2C`, `assert-current` **exit 0**, transcript
+`%LOCALAPPDATA%\SD-verify\cycle-20260824-151325.log` reading `CYCLE COMPLETE`.
+Steps 1-8 all ran; both trees deleted and recreated. Installed counts equal the
+staged ones - `gcat` 126, `GPL.BP.OUT` 186, `$BCOMP` 88,070 - and the
+credential register holds 1 account with a password.
+
+**VERIFIED ON DISK RATHER THAN READ OFF THE LOG**: `GPL.BP/OPGEN` absent,
+`GPL.BP.OUT/OPGEN` absent (the object, a separate fact from the source),
+`GPL.BP/ERRTEXT.H` rows at 98/99/216, `SYSCOM/ERR.H:286`, `GPL.BP/BCOMP` naming
+`gen_includes.py` at 22 and 66, and zero `SDPYOBJ` in `GPL.BP/OPCODES.H`.
+
+**THE CHECK THAT MAKES IT MORE THAN "THE FILES COPIED".** `ERRTEXT.H` is
+`$include`d, so its rows only reach a running system by being compiled *into*
+`!ERRTEXT`. All three new texts are present in compiled `GPL.BP.OUT/ERRTEXT`
+**and in `gcat/!ERRTEXT`, which is what actually executes**. The two differ in
+126 bytes, all of them the fixed-width name field (`!ERRTEXT` against
+`ERRTEXT`, space padding against NUL); same 11,321 bytes, identical after it.
+
+**BOTH CONTROLS RAN**, so those greps are not trivially true: the pre-existing
+row `DLL not found` **is** found in the same object, and `SDPYOBJ` is **absent
+from compiled `GPL.BP.OUT/BCOMP`**, so the OPCODES.H change propagated through
+the compile rather than only onto disk.
+
+***WHAT WAS NOT DONE, SAID PLAINLY: `!ERRTEXT` WAS NEVER CALLED.*** No BASIC
+was run to display `errtext(4100)`. Doing it needs a program compiled into the
+fresh install, and the static chain above was judged to cover it. The
+behavioural proof is still owed if a future session wants it.
+
+## `cycle.ps1` STARTED A TRANSCRIPT AND NEVER STOPPED ONE
+
+**FOUND BY NOTICING THREE LOG FILES CHANGE SIZE AT 15:15**, two of them from
+runs hours earlier. PowerShell 5.1 keeps a transcript **active** until it is
+stopped or the session ends, and supports several concurrently - every active
+one receives every line. `cycle.ps1:81` called `Start-Transcript` and nothing
+ever called `Stop-Transcript`, so a second run in the **same** elevated window
+left the first run's log open and recording.
+
+**IT HAD ALREADY CORRUPTED THE RECORD.** `cycle-20260824-133558.log` - the log
+for the **13:36:51 install PROJECT_STATUS cites** - now holds **two**
+`CYCLE COMPLETE` lines and two step-1 banners; `verify-tiers-20260824-134341.log`
+has an entire cycle appended after its own output. Neither carries a
+`transcript end` marker, because neither was ever stopped. **Both are
+contaminated and should not be read as single runs.** Untouched, and still
+trustworthy: `verify-tiers-20260824-141122.log` (the 22/22) and
+`cycle-20260824-150409.log`.
+
+**WHY IT SURVIVED FIFTY SESSIONS.** A run launched as its own process
+(`powershell -File ...`) closes the file at process exit, so its log is clean
+and carries an end marker - which is how every agent-launched run looked. The
+bleed appears only when the **documented** usage is followed literally: typing
+the script path at an already-open elevated prompt, which is the usage the
+script is written for.
+
+**FIXED**: `StopCycleTranscript` in `gplbld/cycle.ps1`, called on all four exit
+paths - `Fail`, the `-SkipInstall` early exit, the `assert-current` failure
+tail, and the success tail. Parse-check **0 errors and 6 function definitions
+where HEAD had 5**, which is the check that catches the BOM-shaped failure
+where a file parses clean and its functions have been swallowed; no BOM, LF
+only. `cycle.ps1` is on `assert-current`'s `$neverShipped` list, so the fix
+**costs no cycle** - confirmed by `assert-current` exit 0 after the edit.
+
+**STILL OPEN FOR THE OWNER**: an elevated window open from before the fix still
+holds those stale transcripts. Closing the window ends them.
+
+**ALSO CORRECTED**: PROJECT_STATUS's `THE TREE IS STALE. ONE CHANGE IS BUILT
+AND NOT INSTALLED` block, session 49's, has been false since the 13:36:51
+cycle installed the `writeport` fix, and session 50 handed over with it still
+reading as current state. Marked superseded rather than deleted.
+
 ## 24 Aug 2026 — Fifty-first session, part 2: `cycle.ps1 -SkipInstall` clean, 184 compiles
 
 **Commit:** the commit carrying this entry. Documentation only.

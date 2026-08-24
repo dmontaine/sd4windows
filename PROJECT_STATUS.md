@@ -11,59 +11,83 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: ONE CYCLE IS OWED. IT IS THE ONLY THING BLOCKING.
+> ## NEXT: NOTHING IS BLOCKING. §7 IS EMPTY, §8 IS CLOSED — ASK.
 >
-> ***THE TREE IS STALE, `assert-current` EXITS 1, AND IT ALREADY DID BEFORE
-> SESSION 51 TOUCHED ANYTHING*** — session 50's `OPCODES.H` regeneration and
-> the `OPGEN` delete never reached an install. Everything below batches into
-> that one owed cycle.
+> ***THE CYCLE RAN AT 15:13:25, THE INSTALL LANDED AT 15:14:28, AND
+> `assert-current` EXITS 0.*** `sd.exe` `275CFB03E142AA2C`. Transcript
+> `%LOCALAPPDATA%\SD-verify\cycle-20260824-151325.log`, `CYCLE COMPLETE`,
+> steps 1-8 all ran, both trees deleted and recreated. Installed counts match
+> the staged ones exactly — `gcat` 126 (staged 126), `GPL.BP.OUT` 186 (staged
+> 186), `$BCOMP` 88,070 — and the credential register has **1 account with a
+> password**, so the suite will not stall at a password prompt.
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
->
-> `bin/sd.exe` is `275CFB03E142AA2C`, built 24 Aug 14:58:14, `make sd` exit 0,
-> and `assert-current` reports "no source newer" against it. Eight source
-> files are newer than the 13:36:51 install.
->
-> ### `-SkipInstall` ALREADY RAN AND IS CLEAN — 15:04:09, 184 COMPILES, 0 ERRORS
->
-> Transcript `%LOCALAPPDATA%\SD-verify\cycle-20260824-150409.log`, elevated
-> by `Start-Process -Verb RunAs` from the agent's shell. **So the only thing
-> the full cycle still has to do is install.**
+> ### THE INSTALL WAS VERIFIED ON DISK, NOT READ OFF THE CYCLE LOG
 >
 > | probe | expected | observed |
 > |---|---|---|
-> | compiles reporting `0 error(s)` | all of them | **184, and no line matches `[1-9] error(s)`** |
-> | `is not assigned a value` in the log | **absent** | **absent** — the ERRGEN trap did not fire |
-> | staged `gpl.bp.out` | one fewer than 13:35:58's 187 | **186** — `OPGEN`'s object is no longer built |
-> | staged `GPL.BP/OPGEN` | absent | **absent** |
-> | staged `ERRTEXT.H` rows `4100`/`4101`/`-10303` | present | **lines 98, 99, 216** |
-> | staged `SYSCOM/ERR.H` `SD$SCRAM.ERR` | present | **line 286** |
-> | installer built | yes | **`sd-setup-W1.0-0.exe`, 4,801,889 bytes, 15:04:46** |
+> | `assert-current` | exit 0 | **exit 0**, "no source file is newer than the install" |
+> | installed `GPL.BP/OPGEN` | absent | **absent** |
+> | installed `GPL.BP.OUT/OPGEN` | absent | **absent** — the object, a separate fact from the source |
+> | installed `GPL.BP/ERRTEXT.H` rows `4100`/`4101`/`-10303` | present | **lines 98, 99, 216** |
+> | installed `SYSCOM/ERR.H` `SD$SCRAM.ERR` | present | **line 286** |
+> | installed `GPL.BP/BCOMP` naming `gen_includes.py` | present | **lines 22 and 66** |
+> | installed `GPL.BP/OPCODES.H` `SDPYOBJ` | **absent** | **0 occurrences** |
+> | **compiled `GPL.BP.OUT/ERRTEXT` carries the three new texts** | present | **all three** |
+> | **catalogued `gcat/!ERRTEXT` carries them** | present | **all three** |
 >
-> **`is not assigned a value` is the decisive row**, not the error count: that
-> is the tell a broken `SYSCOM/ERR.H` leaves, and it does **not** fail a
-> compile — §5.8 and the 13 Aug ERRGEN entry in HISTORY.md.
+> **THE LAST TWO ROWS ARE THE ONES THAT MATTER**, and they are why this is more
+> than "the files copied". `ERRTEXT.H` is `$include`d, so the strings only
+> reach a running system by being compiled *into* `!ERRTEXT` — and `gcat/!ERRTEXT`
+> is what actually executes. It differs from `GPL.BP.OUT/ERRTEXT` in **126
+> bytes, all of them the fixed-width name field** (`!ERRTEXT` against `ERRTEXT`,
+> space padding against NUL); same 11,321 bytes, identical thereafter.
 >
-> **`$BCOMP` went 88079 → 88070.** Expected and attributable, not derived to
-> the byte: [BCOMP:113](sdb_ai/sd64/sdsys/gpl.bp/BCOMP:113) is `$include opcodes.h`,
-> and session 50's regeneration dropped `SDPYOBJ` from both the
-> `prefixed.opcodes` and `prefixed.opcode.values` string literals.
+> **BOTH CONTROLS WERE RUN, so the greps above are not trivially true**: the
+> pre-existing row `DLL not found` **is** found in the same object (the search
+> can see embedded strings at all), and `SDPYOBJ` is **absent from compiled
+> `GPL.BP.OUT/BCOMP`** (the OPCODES.H change propagated through the compile,
+> not just onto disk).
 >
-> ### TWO THINGS THE `-SkipInstall` RUN LEFT BEHIND
+> ***WHAT WAS NOT DONE: `!ERRTEXT` WAS NEVER CALLED.*** No BASIC was run to
+> display `errtext(4100)`. That would need a program compiled into the fresh
+> install, and the static chain above was judged to cover it. **If a future
+> session wants the behavioural proof, it is still owed.**
 >
-> 1. ***SD IS STOPPED.*** `cycle.ps1` step 1 stops the service and nothing
->    restarts it, by design (`cycle.ps1:136`). The full cycle stops it again
->    at step 1, so this only matters if you wanted SD up meanwhile.
-> 2. **`C:\Users\dmont\stagetest` and `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`
->    are from 15:04.** The full cycle rebuilds the stage with `--force`, so
->    neither is reused and neither needs cleaning.
+> ### A DEFECT IN `cycle.ps1` WAS FOUND WHILE CHECKING, AND FIXED
 >
-> **INSTRUMENT NOTE FOR THE NEXT SESSION THAT ELEVATES THIS WAY.**
-> `Start-Process -Verb RunAs -Wait` **does not set `$LASTEXITCODE`** — it was
-> empty, and the harness reported "exit code 0" for the *launcher*, which
-> would have been the same had the cycle aborted at step 2. **Read the
+> ***`cycle.ps1` STARTED A TRANSCRIPT AND NEVER STOPPED IT.*** PowerShell 5.1
+> keeps a transcript **active** until it is stopped or the session ends, and
+> supports several at once — every active one receives every line. Two runs in
+> **one** elevated window therefore left the first log open and recording the
+> second.
+>
+> **IT HAD ALREADY CORRUPTED THE RECORD.** After the 15:13:25 cycle,
+> `cycle-20260824-133558.log` — the log for the **13:36:51 install that this
+> file cites** — holds **two** `CYCLE COMPLETE` lines and two step-1 banners,
+> and `verify-tiers-20260824-134341.log` has an entire cycle appended after its
+> own output. Neither carries a `transcript end` marker, because neither was
+> ever stopped. **Treat both as contaminated.** The decisive
+> `verify-tiers-20260824-141122.log` (22/22) is **untouched**, as is
+> `cycle-20260824-150409.log`.
+>
+> **WHY IT SURVIVED THIS LONG**: a run launched as its own process
+> (`powershell -File`) closes the file at process exit, so its log is clean and
+> carries an end marker. The bleed only appears when the documented usage is
+> followed literally — typing the script path at an already-open elevated
+> prompt.
+>
+> **FIXED**: `StopCycleTranscript` in `gplbld/cycle.ps1`, called on all four
+> exit paths (`Fail`, `-SkipInstall`, the `assert-current` failure, and the
+> success tail). Parse-check 0 errors, **6 functions where HEAD had 5** so
+> nothing was swallowed, no BOM, LF only. `cycle.ps1` is on `assert-current`'s
+> `$neverShipped` list, so **the fix costs no cycle** — confirmed, exit 0 after
+> the edit. **Any elevated window still open from before the fix still holds
+> those stale transcripts; close it.**
+>
+> **INSTRUMENT NOTE FOR THE NEXT SESSION THAT ELEVATES BY SCRIPT.**
+> `Start-Process -Verb RunAs -Wait` **does not set `$LASTEXITCODE`** — it comes
+> back empty and the harness then reports the *launcher's* 0, which reads the
+> same whether the cycle completed or aborted at step 2. **Read the
 > transcript.** Use `-PassThru` and `.ExitCode` if a code is wanted.
 >
 > ### BOTH OPGEN LOOSE ENDS ARE CLOSED — session 51
@@ -84,9 +108,12 @@ something came to be the way it is.
 >    `locate errno in err<1> setting pos` over two arrays the generator builds
 >    in step, so a mid-table insertion carries no positional dependency.
 >
-> **NOTHING IN 1 OR 2 IS VERIFIED ON AN INSTALL**, and there is no verifier for
-> error text. After the cycle the check is `assert-current` exit 0 plus a
-> `gen_includes.py --check` that still reads four in sync.
+> **BOTH ARE NOW ON THE INSTALL** — the 15:13:25 cycle, verified in the
+> table at the top of this block. `assert-current` exit 0 and
+> `gen_includes.py --check` still reads four in sync. **There is still no
+> verifier for error text**, and `!ERRTEXT` was never called; the proof
+> is that the strings are compiled into `gcat/!ERRTEXT`, not that anyone
+> watched it print one.
 >
 > ### §7 STEP 9 VERIFIER, NEVER STARTED
 >
@@ -95,11 +122,11 @@ something came to be the way it is.
 >
 > ### §7 IS EMPTY AND §8 TIER WORK IS CLOSED. ASK BEFORE STARTING ANYTHING.
 >
-> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** Two commits: the
+> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** Three commits: the
 > two OPGEN comments with `ERR.H`/`ERRTEXT.H` regenerated, the changelog
-> entry for both and `make sd`; then the `-SkipInstall` result above.
-> **Nothing was installed** - the install is what session 52 owes, and
-> the compile behind it is already measured.
+> entry for both and `make sd`; the `-SkipInstall` result; then the
+> owner's full cycle at 15:13:25, its verification, and the `cycle.ps1`
+> transcript fix. **The install is current and nothing is owed.**
 >
 > ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** The owner ruled the split,
 > session 50 transcribed it to disk, the cycle at 13:36:51 installed it,
@@ -273,10 +300,17 @@ something came to be the way it is.
 > refuses, correctly. Clear it by rebooting and re-running that script, or
 > `reg unload HKU\S-1-5-21-3329101812-2004472801-1855080994-2150` elevated.
 >
-> ### THE TREE IS STALE. ONE CHANGE IS BUILT AND NOT INSTALLED
+> ### SUPERSEDED — THIS BLOCK DESCRIBES A TREE THAT WAS INSTALLED ON 24 Aug
+>
+> ***EVERYTHING BELOW UNTIL THE NEXT `###` IS SESSION 49's STATE AND IS NO
+> LONGER TRUE.*** The `writeport` fix it says is uninstalled was installed by
+> the **13:36:51** cycle, and the tree has been cycled twice more since
+> (15:04:09 `-SkipInstall`, 15:13:25 full). `assert-current` exits **0**.
+> Kept for the transcript names only. *Marked 24 Aug 2026, session 51 — it
+> was already false when session 50 handed over.*
 >
 > **`op_seqio.c:1762`, the `writeport` CR-only fix** (§7 step 16, and
-> `UPSTREAM_FIXES.md` #14). **`assert-current` exits 1.**
+> `UPSTREAM_FIXES.md` #14).
 >
 > | | |
 > |---|---|
