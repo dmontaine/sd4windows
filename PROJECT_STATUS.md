@@ -6467,6 +6467,31 @@ the staging script and the Inno installer were all finished and removed.
     binary read can be affected — mark mapping is the discriminator, exactly as
     the step said.
 
+    ***`cycle.ps1 -SkipInstall` IS DONE — 12:10:03***, staged tree whole with
+    the same counts as the previous run (`gcat` 126, `gpl.bp.out` 187, `$BCOMP`
+    88079), installer 4,803,270 bytes, **951 bytes larger**, consistent with the
+    changed `sd.exe`. **Still owed: a full `cycle.ps1`, which needs a person at
+    the wizard.**
+
+    ***THE VERIFIER IS WRITTEN AND IS NOT A ONE-LINER, FOR ONE REASON:***
+    `gplbld/verify-lineendings.ps1`, on `$neverShipped` in the same commit.
+    Six checks, and **two of them are controls on the FIX rather than on the
+    defect** — which is what stops it scoring green on a change that is wrong:
+
+    | check | why it exists |
+    |---|---|
+    | CRLF record reads with no trailing CR | the defect |
+    | LF control reads identically to it | proves the two spellings now agree |
+    | `READSEQ` lines carry no CR | the defect on the sequential path |
+    | ***CRLF straddling the 2048-byte buffer boundary*** | **the case no small fixture reaches**; line 1 must read 2047, not 2048 |
+    | ***a LONE CR survives as data*** | **a fix that stripped every CR would pass everything above** |
+    | `READCSV` last field is clean | the RFC 4180 round trip |
+
+    It **refuses the null case out loud**: if the instrument produces no
+    readings the run is VOID, not a pass, because every "carrying a CR: 0"
+    check would otherwise be satisfied by absence. Fixture words end in
+    different letters so a last-character reading cannot be right by accident.
+
     ### (a) MAKE THE READERS TOLERANT - a defect fix, do this first
 
     Treat `\r\n` as the terminator at the two read sites; **leave a lone `\r`
