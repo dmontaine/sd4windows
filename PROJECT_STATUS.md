@@ -6429,6 +6429,44 @@ the staging script and the Inno installer were all finished and removed.
     `CONFIGF`, `BBPROC`, `PROG_INFO`, `SDCLIENT`, `BCOMP`. The write path was
     never missing; it was never grepped for under its own name.
 
+    ***(a) IS WRITTEN, 24 Aug 2026. IT HAS COMPILED AND NOTHING HAS RUN IT
+    (§0 rule 2).*** `bin/sd.exe` 12:05:15, `make sd` clean, both changed files
+    clean on their own under `-Wall -Wformat=2`. **`cycle.ps1 -SkipInstall` is
+    NOT yet run** — the elevation was declined — so the tree is STALE and
+    nothing has been staged.
+
+    | part | where |
+    |---|---|
+    | directory-record read: CRLF folds to ONE field mark | `op_dio3.c`, the mapping loop, rewritten as a compactor |
+    | trailing terminator at EOF drops `\r\n`, not just `\n` | `op_dio3.c`, the `remaining_bytes == 0` block |
+    | `READSEQ` (and so `READCSV`) strips a CR before the LF | `op_seqio.c`, the normal-file branch |
+
+    ***TWO CORRECTIONS TO THIS STEP'S OWN SITE LIST, BOTH FOUND BY OPENING THE
+    FILES.*** They are why "four hardcoded sites" understated the work:
+
+    1. ***`op_seqio.c:1152`/`:1153` IS THE PORT/FIFO BRANCH, NOT `READSEQ` ON A
+       FILE.*** The branch that reads an ordinary record is
+       **`op_seqio.c:1244`**, which this step never listed. Fixing only the
+       listed lines would have changed nothing that `READSEQ` on a directory
+       file actually executes. **The port/FIFO branch is deliberately LEFT
+       ALONE** — a CRLF arriving on a port or socket may be protocol rather
+       than a text line ending, and §5's `inewline`/`onewline` pair is the
+       per-channel setting that already governs that. Named here so the
+       omission is a decision and not an oversight.
+    2. ***EVERY ONE OF THESE READERS IS CHUNKED, SO A CRLF CAN STRADDLE A
+       BUFFER BOUNDARY.*** `SEQ_BUFFER_SIZE` is **2048** and
+       `MAX_T1_BUFFER_SIZE` is **31744**. At 2 KB this is not an edge case: in
+       a large CSV a terminator landing across a boundary is close to certain.
+       Both fixes therefore **hold the CR back** rather than looking at the
+       byte before the LF, and both emit it as data if no LF follows —
+       including at end of file, where a deferred CR would otherwise be
+       swallowed.
+
+    **A LONE CR IS LEFT ALONE THROUGHOUT**, which is the rule this step set and
+    what `BCOMP:1672` already assumes. **Image mode is untouched**, so no
+    binary read can be affected — mark mapping is the discriminator, exactly as
+    the step said.
+
     ### (a) MAKE THE READERS TOLERANT - a defect fix, do this first
 
     Treat `\r\n` as the terminator at the two read sites; **leave a lone `\r`

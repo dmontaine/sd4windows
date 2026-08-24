@@ -27,6 +27,59 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: step 16 (a) is written; the step's own site list was wrong twice
+
+**Commit:** the commit carrying this entry. **`sd.exe` changed**, so the
+11:15:29 install is now STALE. `make sd` clean, `bin/sd.exe` 12:05:15, both
+changed files clean on their own under `-Wall -Wformat=2`. **`cycle.ps1
+-SkipInstall` has NOT run** — the elevation was declined — so nothing is
+staged and this is compiled, not cycled.
+
+**What changed:** `op_dio3.c`'s directory-record mapping loop now folds CRLF to
+ONE field mark and drops a trailing `\r\n` at end of record; `op_seqio.c`'s
+normal-file `READSEQ` branch strips a CR immediately before the LF. **Because
+`READCSV` compiles to `OP.READSEQ` (`BCOMP:10230`), the second fix covers both**
+— which is also why the CR only ever appeared on the last field of a CSV row.
+
+***THE STEP'S SITE LIST WAS WRONG IN TWO WAYS, AND BOTH ONLY SHOWED UP ON
+OPENING THE FILES.*** This is the interesting part of the entry.
+
+1. **`op_seqio.c:1152`/`:1153` is the PORT/FIFO branch, not `READSEQ` on a
+   file.** The branch that reads an ordinary record is **`op_seqio.c:1244`**,
+   which the step never listed. Patching only the listed lines would have
+   compiled, passed review, and changed nothing that `READSEQ` on a directory
+   file executes. The port/FIFO branch is **deliberately left alone**: a CRLF
+   on a port or socket may be protocol rather than a text line ending, and
+   `inewline`/`onewline` already exist as the per-channel setting for that.
+2. **Every one of these readers is chunked.** `SEQ_BUFFER_SIZE` is **2048**;
+   `MAX_T1_BUFFER_SIZE` is 31744. The step's "treat `\r\n` as the terminator"
+   reads as a one-line change and is not: at 2 KB, a CRLF straddling a buffer
+   boundary is not an edge case but near-certain in a large CSV. Both fixes
+   hold the CR back across the boundary rather than inspecting the byte before
+   the LF, and both emit it as data when no LF follows — including at end of
+   file, where a deferred CR would otherwise be silently swallowed.
+
+**That second one would have been a nasty defect to ship**: correct on every
+small test fixture, wrong roughly once per 2 KB on real data, and presenting as
+occasional stray CRs with no pattern a reader could see.
+
+**A lone CR is left alone throughout**, per the step's own rule and what
+`BCOMP:1672` assumes. **Image mode is untouched**, so no binary read can be
+affected.
+
+**A self-inflicted delay worth recording:** `make sd` was invoked three times
+as `bash -lc 'make sd'` without the `cd`, each time failing with *"No rule to
+make target 'sd'"* — the exact thing the `sd4windows-build-shell` memory warns
+about (*"the `cd` is required in every invocation, not just the first"*). The
+fix was the other half of the same memory: put it in a `.sh` and run
+`bash -l <script>`.
+
+**Still owed:** `cycle.ps1 -SkipInstall`, then a full `cycle.ps1` and a re-run
+of the two measurement scripts, whose CRLF legs should now fold. The
+before-numbers to compare against are in the entries below.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: step 16's blocker is answered, and READCSV turns out to corrupt data
 
 **Commit:** the commit carrying this entry. **Still no source change** — the
