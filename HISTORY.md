@@ -27,6 +27,73 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: step 16 started. The docs settle the argument, and both halves are now measured
+
+**Commit:** the commit carrying this entry. **No source change** — everything
+here reads the documentation and the 11:15:29 install, which `assert-current`
+says matches source, so the cycle stands and step 14's verification is
+untouched.
+
+**The owner populated `..\sdhelp`** with the OpenQM 2.6.6 help, the 3rd-party
+PDFs, the SD Linux help and an empty `SD Core for Windows 1.0-0 Docs` folder —
+the last **deliberately empty, as a home for new documentation**, not an
+omission. 2,138 files, 2,044 of them `.htm`.
+
+**1. THE DOCUMENTATION TURNS (b) FROM A PRODUCT DECISION INTO A CONFORMANCE
+FIX.** `qmhelp_2-6-6/directoryfiles.htm` says a record's field marks are
+converted to *"the **operating system dependent** representation of a
+newline"*, and that on read *"the newlines are translated to field marks"*.
+On Windows the OS representation is CRLF, so **SD emitting LF on Windows
+deviates from its own documented design** — this port would be restoring the
+spec rather than imposing a preference. Two more explicit claims:
+`qmb_writecsv.htm` — *"QM adheres to the CSV standard (RFC 4180)"* — and
+`csv.htm`, mode 1 *"conforms to the CSV format specification (RFC 4180)"*.
+RFC 4180 §2.1 specifies CRLF. The same file also documents that binary data in
+directory files **requires `MARK.MAPPING` to suppress translation**, which is
+the documented expectation behind step 16's open `bp.out` question.
+
+**2. `SETPTR … NEWLINE CRLF` REACHES THE DISK.** The resource note named this
+the first thing to test because it could shrink (b) dramatically. It does.
+Two legs of one report differing in a single token, hold files read as bytes:
+CRLF leg 133 bytes with 3 CRLF pairs, LF control 130 bytes with none — exactly
+three bytes apart. **Everything through a print unit can already emit CRLF
+today**, so the two CSV paths genuinely disagree: `LIST … CSV LPTR n` is
+reachable-conformant now and `WRITECSV` is not.
+
+**A source reading was corrected by that measurement, which is the point of
+taking it.** `to_file.c:128`'s `case NL: emit(pu, Newline, NewlineBytes)` was
+read earlier in the session as proof the global wins on the hold-file path.
+It does not: that `case NL:` handles an embedded newline as PRINT CONTROL —
+the same distinction the resource note already draws for `to_file.c:107` and
+CR — and the terminator comes from `pu->newline` before it reaches there.
+
+**3. THE (a) DEFECT IS NOW MEASURED RATHER THAN INFERRED.** A record planted
+into a directory file from outside SD with CRLF — what an external editor does,
+which is what directory files exist for — read back through `READ`: fields 1
+and 2 come back LEN 6 and 5 with **LASTCHAR=13**, against the LF control's LEN
+5 and 4 with LASTCHAR=65. **Every CRLF-terminated field keeps a trailing CR.**
+Field 3 is unterminated in both and clean in both, which pins the fault to
+terminator handling rather than content.
+
+**THE FIRST ATTEMPT AT THAT INSTRUMENT VOIDED, AND CORRECTLY.** A stray
+`SRC = ZZCRTEST.ARG` line left from drafting aborted the program at line 2.
+The script reported *"VOID: the instrument produced no FIELD lines, so nothing
+was measured"* rather than reporting that no CR survived — the null-case
+refusal doing exactly its job on its first real outing.
+
+**Both instruments plant and then remove their own fixtures**;
+`scratchpad/measure-newline.ps1` and `measure-read.ps1`. An empty `BP.OUT`
+directory is left in the `don` account — normal for an account that has
+compiled anything, and deliberately not deleted, since a VOC pointer may
+reference it.
+
+**Still open in step 16:** (a) itself is unwritten — four hardcoded read sites
+(`op_dio3.c:1172`, `:1182`, `op_seqio.c:1152`, `:1153`). And (b) still owes an
+answer on how binary object code in `bp.out` survives the mark mapping before
+`Newline` is touched.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: STEP 14 IS CLOSED. An API session runs as the caller, files and all
 
 **Commit:** the commit carrying this entry. Owner ran `cycle.ps1`; install

@@ -6329,6 +6329,63 @@ the staging script and the Inno installer were all finished and removed.
     and every byte count this file quotes for them (`gcat/$CPROC` 25,208;
     `$LOGIN` 6,160) are untouched by either change.
 
+    ***STARTED 24 Aug 2026. THREE THINGS ARE NOW MEASURED OR DOCUMENTED, AND
+    TWO OF THEM CHANGE THE SHAPE OF THE WORK.*** All three cost **no cycle** —
+    they read the docs and the 11:15:29 install, which `assert-current` says
+    matches source.
+
+    **1. THE DOCUMENTATION SAYS CRLF-ON-WINDOWS IS THE DESIGN, SO (b) IS A
+    CONFORMANCE FIX RATHER THAN A PRODUCT DECISION.** From the owner's
+    `..\sdhelp` collection, 24 Aug 2026:
+
+    | source | words |
+    |---|---|
+    | `qmhelp_2-6-6/directoryfiles.htm` | field marks are converted to *"the **operating system dependent** representation of a newline"*, and on read *"the newlines are translated to field marks"* |
+    | `qmhelp_2-6-6/qmb_writecsv.htm` | *"QM adheres to the CSV standard (RFC 4180)."* |
+    | `qmhelp_2-6-6/csv.htm` | mode 1 *"produces output that conforms to the CSV format specification (RFC 4180)"* |
+
+    **"Operating system dependent" is the whole argument.** On Windows that is
+    CRLF, so SD emitting LF is a deviation from its own documented design, not
+    a preference this port would be imposing. RFC 4180 §2.1 specifies CRLF, and
+    **both** CSV paths claim conformance.
+
+    ***2. `SETPTR … NEWLINE CRLF` REACHES THE DISK. MEASURED — AND IT SHRINKS
+    (b).*** The resource note called this the first thing to test. Two legs,
+    one report, differing in one token; hold files read back as bytes:
+
+    | leg | size | CR | LF | CRLF pairs |
+    |---|---|---|---|---|
+    | `NEWLINE CRLF` | 133 | 3 | 3 | **3** |
+    | `NEWLINE LF` (control) | 130 | 0 | 3 | 0 |
+
+    Exactly three bytes apart — the three added CRs. **So everything that goes
+    through a print unit can already emit CRLF today**, including
+    `LIST … CSV LPTR n`. **The two CSV paths therefore DO disagree**, which
+    step 16 predicted and left open: the report path is reachable-conformant
+    now, `WRITECSV` is not.
+
+    ***CORRECTION IN THE SAME BREATH:*** an earlier reading of this step took
+    `to_file.c:128`'s `case NL: emit(pu, Newline, NewlineBytes)` as proof the
+    global wins on the hold-file path. **The measurement says otherwise.** That
+    `case NL:` handles an embedded newline as PRINT CONTROL — the same
+    distinction the resource note already draws for `to_file.c:107` and CR —
+    and the line terminator is emitted from `pu->newline` before it gets there.
+
+    ***3. THE (a) DEFECT IS CONFIRMED END TO END, NOT INFERRED.*** A record
+    planted into a directory file from outside SD with CRLF, which is exactly
+    what an external editor does, read back through `READ`:
+
+    | record | bytes | field 1 | field 2 | field 3 |
+    |---|---|---|---|---|
+    | CRLF | 18 | LEN=6 **LASTCHAR=13** | LEN=5 **LASTCHAR=13** | LEN=5 LASTCHAR=65 |
+    | LF (control) | 16 | LEN=5 LASTCHAR=65 | LEN=4 LASTCHAR=65 | LEN=5 LASTCHAR=65 |
+
+    **Every CRLF-terminated field keeps a trailing CR.** The third field is
+    unterminated in both records and comes back clean either way, which pins it
+    to terminator handling rather than to content. Instruments and fixtures are
+    `scratchpad/measure-newline.ps1` and `measure-read.ps1`; both plant, read
+    and then remove their own fixtures.
+
     ### (a) MAKE THE READERS TOLERANT - a defect fix, do this first
 
     Treat `\r\n` as the terminator at the two read sites; **leave a lone `\r`
