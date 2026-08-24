@@ -102,6 +102,70 @@ mismatch (SED removal, 23 Aug).
 1 for two reasons — the `writeport` binary change and the tier data changes.
 One cycle covers both.
 
+## 24 Aug 2026 — Fiftieth session, part 4: verify-tiers hung in an elevated run because LOGIN resets TERM
+
+**Commit:** the commit carrying this entry.  Script change only.
+
+**AN ELEVATED `verify-tiers.ps1 -Prefix sdtierc` RAN AND HUNG at section 3.**
+Sections 0, 1 and 2 all PASSed - the OMIT list matches the test, the ADD
+list matches the test, sdtierc1/2/3 were created with the right tiers, and
+DON's `ACC$TIER` is still `ADMINISTRATOR`.  Section 3 printed its header
+and nothing else.  The child sd.exe sat consuming no CPU, and the pipe
+never returned - the user Ctrl-C'd out of it.
+
+**ROOT CAUSE: `LOGIN` at `sdsys/gpl.bp/LOGIN:201-209` re-initialises
+`PU$WIDTH` and `PU$LENGTH` on every account switch**, reading `env('LINES')`
+/ `env('COLUMNS')` first and falling to `terminfo` and then to
+`DEFAULT.DEPTH` (about 24 lines) when both are empty.  In an elevated
+PowerShell neither is set.  `verify-tiers`'s `Invoke-SD` sent
+
+    LOGTO SDSYS
+    TERM 200,9999
+    <caller's commands, which for section 3 begin with LOGTO sdtierc1>
+
+so the caller's own `LOGTO` wiped the wide TERM.  Section 3's `LIST VOC`
+of 65 quoted verbs then paginated past the default page, and the pager's
+"press RETURN" prompt reads the same stdin the pipe is filling.  OFF had
+already been written, so no answer arrived, so the process sat forever.
+
+**WHY THIS WORKED ON 17 Aug 2026 AND NOT ON 24 Aug**, and the two facts
+are the whole finding: the code that resets TERM has not changed since
+17 Aug, and the failure only appeared once the split grew section 3's
+`LIST VOC` from `17 Withheld + 10 AdminVerbs + 2 ListRecs = 29 items` to
+`42 + 21 + 2 = 65 items`.  29 lines fitted inside the default page depth;
+65 does not.  Same LOGIN behaviour, changed input.
+
+**MEASURED (unelevated, as DON, LOGTO to DON's own account since sdtierc1
+refuses):**
+
+- Sequence `LOGTO SDSYS -> TERM -> LOGTO DON -> LIST VOC(65)` timed out
+  at the 15s bound this test used.
+- Sequence `LOGTO SDSYS -> LOGTO DON -> TERM -> LIST VOC(65)` returned
+  the full 65-item listing in about 1s.
+
+The difference is one line's position.
+
+**FIXED IN `verify-tiers.ps1`'s `Invoke-SD` ONLY**: after every `LOGTO`
+in the caller's own commands, a fresh `TERM 200,9999` is inserted.  The
+initial `LOGTO SDSYS` / `TERM` prefix stays.  Parse-check on the fixed
+file: 0 errors, 2077 tokens, no embedded BOM.  Reproducer sequence with
+the fix's exact shape returns in 1.1s and lists 63 records + 2
+`not found`, which is what the pre-fix sequence produced when it did not
+hang.
+
+**NOT SPREAD to the other eighteen verifiers, each of which has its own
+`Invoke-SD` copy** (grep for `function Invoke-SD` under `gplbld/`).  None
+today produces enough output per LOGTO to hit the trap.  Marked in the
+fixed function's comment and in `PROJECT_STATUS.md` START HERE so the
+pattern travels with the next verifier that grows.
+
+**NEXT-RUN PREFIX IS `sdtierd`.**  `sdtierc1/2/3` are half-installed - the
+Windows accounts and the SD register records were created, the VOC
+directories exist, and none of section 3, 4 or 5 ran - so
+`CREATE.ACCOUNT` would refuse `sdtierc*` on a rerun (which is what
+`verify-tiers`'s check at section 1 is for).  Cleanup at leisure with
+`DELETE.ACCOUNT` inside SD.
+
 ## 24 Aug 2026 — Fiftieth session, part 3: the cycle landed at 13:36:51
 
 **Commit:** the commit carrying this entry.  Documentation of what a fresh

@@ -41,21 +41,52 @@ something came to be the way it is.
 >
 > ### WHAT STILL NEEDS THE OWNER'S ELEVATED SHELL
 >
-> **`verify-tiers.ps1 -Prefix sdtierc` — one command, and this is the
+> **`verify-tiers.ps1 -Prefix sdtierd` — one command, and this is the
 > decisive one.** DON is the admin observation; the between-tier controls
 > (STANDARD lacks the 42, PROGRAMMER has the 42 and lacks the 21,
 > ADMINISTRATOR has both) need `CREATE.ACCOUNT` for three fresh accounts,
 > which is gated on `K$ADMINISTRATOR`. Expected counts: STANDARD 354,
-> PROGRAMMER 396, ADMINISTRATOR 417. The section 0 cross-check between the
+> PROGRAMMER 396, ADMINISTRATOR 417. Section 0's cross-check between the
 > script's `$Withheld`/`$AdminVerbs` and the shipped TIER records also fires,
 > so a mismatch between this commit and any later hand edit fails there.
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-tiers.ps1 -Prefix sdtierc
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-tiers.ps1 -Prefix sdtierd
 > ```
 >
-> **Prefixes `sdtierb`, `sdapiidb18`–`sdapiidb32` are spent.** Any fresh
-> prefix works.
+> **Prefix `sdtierc` is spent** — an elevated run passed sections 0–2 (all
+> PASS) then hung in section 3, and the Windows accounts sdtierc1/2/3 plus
+> their SD register records are left behind. `sdtierb`, `sdapiidb18`–`b32`
+> are the older spent prefixes.
+>
+> ### THE HANG: LOGIN RESETS TERM ON EVERY ACCOUNT SWITCH. `verify-tiers` IS FIXED.
+>
+> ***THIS TRAP IS SHARED BY EVERY VERIFIER THAT HAS AN `Invoke-SD` — TODAY
+> ONLY `verify-tiers` PRODUCES ENOUGH OUTPUT TO HIT IT.*** `LOGIN` at
+> `gpl.bp/LOGIN:201-209` re-initialises `PU$WIDTH` and `PU$LENGTH` from
+> `env('LINES')` and `env('COLUMNS')` every time it runs. An elevated PS
+> session usually has neither set, so `terminfo` supplies a default around
+> 24 lines. `Invoke-SD` sent `LOGTO SDSYS` then `TERM 200,9999` then the
+> caller's commands — so the caller's own `LOGTO sdtierc1` wiped `TERM`,
+> and section 3's `LIST VOC` of 65 quoted verbs paginated. The page prompt
+> reads the same stdin the script is feeding, and OFF had already been
+> written, so no answer ever arrived.
+>
+> **WHY IT PASSED ON 17 Aug AND NOT ON 24 Aug.** The split moved Section 3's
+> `LIST VOC` from ~29 items to 65. Twenty-nine fitted inside the default
+> page depth; sixty-five does not. Same code, changed input.
+>
+> **`verify-tiers.ps1`'s `Invoke-SD` now re-applies `TERM 200,9999` after
+> every `LOGTO` in the caller's commands.** Parse-check passes, and the
+> reproducer with the fix's exact command sequence returns in one second
+> against DON's VOC — the same sequence without the fix hangs indefinitely.
+>
+> **THE OTHER EIGHTEEN VERIFIERS EACH CARRY THEIR OWN `Invoke-SD` COPY** and
+> each has this trap latent. They pass today because none produces more
+> than a page of output per LOGTO. If a future edit grows one of them the
+> failure mode will be the same hang, and the fix pattern the same — carry
+> it across when you touch that verifier, or fold `Invoke-SD` into a shared
+> helper.
 >
 > ### THE WRITEPORT FIX LANDED IN THIS CYCLE TOO
 >
