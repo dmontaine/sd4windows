@@ -85,19 +85,34 @@ something came to be the way it is.
 > | redirected from a file | **no** | **exited in 1s** — reached dispatch, *"ZZNOSUCHVERB is not in your VOC"* |
 >
 > ***SO THE CONDITION IS "A CONSOLE WITH NOBODY AT IT", NOT "NON-INTERACTIVE".***
-> A scheduled task has no tty and takes row 2. **`Invoke-SdCommand` uses
-> `Start-Job`** (`verify-batchjob.ps1:150`), which has no console, so **the suite
-> takes row 2 as well.**
+> A scheduled task has no tty and takes row 2, as do the **unelevated** verifier
+> rows — `Invoke-SdCommand` uses `Start-Job` (`verify-batchjob.ps1:150`), which
+> has no console.
 >
-> ***AND `b16` WAS NEVER OBSERVED FAILING.*** Both attempts were lost to
-> elevation refusals (§4.0.1) before any step ran, so *"that row is now the one
-> failing check"* was an **inference from a hand-run probe, not a result.**
-> `verify-batchjob`'s elevated row is **unmeasured on this install**, not failing.
+> ***BUT THE ELEVATED HALF TAKES ROW 1, SO `b16` WILL HANG THERE.*** Corrected
+> a second time, and this is the operative fact:
+> **`verify-batchjob.ps1:85` runs `& $sdExe $paName` DIRECTLY** — not through
+> `Start-Job` — inside the child launched by `Start-Process -Verb RunAs` (`:297`),
+> which has a console. **`:123` sets `$account = $env:USERNAME.ToLower()`, so it
+> runs as `don`**, and `don` has no password on this install. That is row 1
+> exactly.
 >
-> **WHAT REMAINS IS A DECISION, NOT A BUG.** Whether `sd <command>` should ask
-> for a password at all — `SYSTEM(1026)` would gate it the way §7 step 9 gates
-> the command itself. **Owner's call; not started.** The prompt itself was
-> reviewed at a real console and works (stars, asks twice).
+> ***AND IT WILL RECUR ON EVERY CYCLE.*** `cycle.ps1` deletes both trees, so each
+> install recreates `don` with no password. **This is not a one-off condition of
+> the 17:47:55 tree.** `b15` passed on 10:01:45 because `don` had a password on
+> *that* tree. **Suspected cause of the difference: that cycle ran `-Silent`**, so
+> the installer's password step never asked — unconfirmed, and worth confirming
+> before relying on it.
+>
+> ***SO THE FORTY-FOURTH SESSION'S "that row is now the one failing check" WAS
+> RIGHT***, reached by the wrong route. What was never true is that it is a
+> *start-up* block, or that a scheduled job hangs, or that the pcode ACL or the
+> elevation helper is involved.
+>
+> **CHEAPEST WAY THROUGH: give `don` a password**, at a console, and `b16` runs.
+> The prompt is doing its job. **The product question — whether `sd <command>`
+> should ask at all, which `SYSTEM(1026)` would gate the way §7 step 9 gates the
+> command — is the owner's and is NOT needed to unblock `b16`.**
 >
 > **WHY THE ACCOUNT HAS NO PASSWORD:** `cycle.ps1` deletes both trees, so the
 > 17:47:55 install recreated `don`. **Why `b15`'s 10:01:45 install did not hit

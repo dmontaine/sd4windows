@@ -24349,3 +24349,34 @@ CONDITION" WOULD HAVE CAUGHT IT, and it took four greps to answer once asked.
 WHAT IS LEFT IS A DECISION AND NOT A BUG: whether "sd <command>" should ask for
 a password at all, which SYSTEM(1026) would gate the same way section 7 step 9
 gates the command itself.  Owner's call.  Not started.
+
+Correction to the correction, 23 Aug 2026 - the elevated verify row DOES take the hanging path
+
+The entry above says "the suite takes row 2 as well".  That is wrong for the
+ELEVATED half, and the elevated half is the one b16 stops in.
+
+WHAT WAS CHECKED AND WHAT WAS NOT.  Invoke-SdCommand does use Start-Job
+(verify-batchjob.ps1:150) and has no console, so every UNELEVATED row is
+unaffected - that much was right.  But the elevated row does not go through
+Invoke-SdCommand at all.  verify-batchjob.ps1:85 runs "& $sdExe $paName"
+DIRECTLY, inside the child that :297 launches with Start-Process -Verb RunAs,
+which has a console; and :123 sets $account = $env:USERNAME.ToLower(), so it
+runs as don, who has no password on this install.  That is the hanging case
+exactly.  ONE GREP FURTHER WOULD HAVE FOUND IT - the mistake was checking the
+helper the file defines and assuming every row uses it.
+
+SO THE FORTY-FOURTH SESSION'S CLAIM "that row is now the one failing check" WAS
+RIGHT, by a wrong route.  What stays withdrawn: that it is a start-up block,
+that a scheduled job hangs the same way, that the prompt has no non-interactive
+behaviour, and that the pcode ACL or the elevation helper is involved.
+
+AND IT WILL RECUR ON EVERY CYCLE, which is the part that matters going forward.
+cycle.ps1 deletes both trees, so every install recreates don with no password.
+b15 passed on the 10:01:45 tree because don had a password there.  SUSPECTED
+cause of the difference: that cycle ran -Silent and the installer's password
+step never asked.  NOT CONFIRMED - check it before relying on it.
+
+CHEAPEST WAY THROUGH: give don a password at a console and b16 runs.  Whether
+"sd <command>" should ask for a password at all - SYSTEM(1026) would gate it the
+way section 7 step 9 gates the command itself - is a separate decision and is
+the owner's.
