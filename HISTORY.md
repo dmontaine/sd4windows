@@ -27,6 +27,73 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: STEP 14 IS CLOSED. An API session runs as the caller, files and all
+
+**Commit:** the commit carrying this entry. Owner ran `cycle.ps1`; install
+**11:15:29**, `sd.exe` `7DDC68F6595382A6`, `assert-current` exit 0.
+`verify-apiidentity -Prefix sdapiidb32`, exit 0, decisive row PASS.
+
+**THREE INSTRUMENTS, AND TWO OF THEM COULD NOT HAVE SPOKEN BEFORE.**
+
+| instrument | `b28`/`b31` | `b32` |
+|---|---|---|
+| owner of `ZZAPI` | `NT AUTHORITY\SYSTEM` | **`GITORLI\sdapiidb32`** |
+| control `ZZLOCAL` | `GITORLI\don` | `GITORLI\don` |
+| DENY fixture over the API | OPENED | **REFUSED, `status 3001`** |
+| `API IDENTITY LOST` in errlog | twice | **absent** |
+
+The DENY row is the one worth noting. §7 recorded those three ACL rows as
+**non-decisive** because a LocalSystem session holds `SeBackupPrivilege` and
+bypasses DACLs outright — no arrangement of grants could gate it, which is why
+`b27` and `b28` opened all three. **It is now refused**, so the row that was
+useless as an instrument has become evidence, and it is evidence of a different
+kind from ownership: not "whose name goes on a new file" but "what this token
+may open".
+
+**The errlog alarm is a real control and not merely a silence.** It is the same
+`check.identity` (`APISRVR:578`, `:921`) that printed both lines on `b31`,
+unchanged since, and **both call sites were exercised this run** — the session
+attached to `SDAPIIDB32` (the LOGTO group check, which is the fork that used to
+drop it) and then wrote the record. Silence there is a pass.
+
+**AND THE RUN EXPOSED A DEFECT IN THE VERIFIER THAT HAD BEEN THERE SINCE b18.**
+A residue check after the "PASSED" showed the throwaway account, its SD record
+and its profile all still present, moments after the script printed *"account
+sdapiidb32 removed"*.
+
+Two faults in two lines, and the second hid the first:
+
+1. **`DELETE.ACCOUNT` takes the account name and nothing else.** The script
+   passed `<name> USER`, mirroring `CREATE.ACCOUNT`'s leading type keyword onto
+   a verb that has none. `DELACC:103` — *"Check no further command arguments"* —
+   rejects it with sysmsg 2018 **before deleting anything**.
+2. **The success message was unconditional**, reading neither the output nor
+   the resulting state. The fixtures block immediately below it *does* check
+   and warn; the account half never got the same treatment.
+
+So every run `b18`–`b32` leaked an account, a group and a profile while
+reporting otherwise. **That is the backlog `clean-test-profiles.ps1` keeps
+being asked to clear**, and its cause was never in `clean-test-profiles`.
+
+**Fixed and then tested rather than assumed** — the argument is dropped, and
+the claim now anchors on the SD account record and the local user actually
+being gone, printing `DELETE.ACCOUNT`'s raw output whenever they are not.
+`verify-apiidentity.ps1` is on `$neverShipped`, so the fix cost no cycle. The
+corrected form was then run for real against the leftover account: *"Group:
+sdu_sdapiidb32 Deleted / OS User: sdapiidb32 Deleted"*, and the after-state
+confirmed both gone.
+
+**One thing genuinely left behind, and SD says so itself.** `DELETE.ACCOUNT`
+printed *"Warning: the Windows profile for sdapiidb32 was left behind"*, and
+`clean-test-profiles.ps1` then refused it as a **STUCK HIVE** — account gone,
+so nobody is signed in, but the registry hive was never unloaded and a profile
+cannot be removed while loaded. It names the SID and the two remedies. Both
+instruments behaved correctly; this is the residue being visible, not hidden.
+
+**Open:** §7 step 16, line endings — now the only item left.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: the class fix is CHOSEN and BUILT; it has compiled and nothing has run it
 
 **Commit:** the commit carrying this entry. Owner chose the **class** fix after

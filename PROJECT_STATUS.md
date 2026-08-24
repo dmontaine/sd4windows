@@ -11,89 +11,48 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: §7 STEP 14 IS DIAGNOSED END TO END. THE FIX IS NOT WRITTEN, AND CHOOSING ITS SHAPE IS THE FIRST DECISION.
+> ## NEXT: §7 STEP 16, LINE ENDINGS. IT IS THE ONLY THING LEFT OPEN.
 >
-> ***END OF THE FORTY-EIGHTH SESSION, 24 Aug 2026.*** Step 14 asked whether an
-> API session runs as the user who logged in. **It does not, and the whole
-> chain is now measured rather than argued.**
+> ***END OF THE FORTY-NINTH SESSION, 24 Aug 2026.***
 >
-> | step | what happens |
-> |---|---|
-> | `APISRVR:1472` | `K$ASSUME.USER` impersonates the caller — **works** |
-> | `APISRVR:439` `vb.account` | the account switch, a **post-login** request |
-> | `APISRVR:566` | `is_grp_member(...)` — BASIC, calling `!ps_script` |
-> | `op_sh.c:379` | **`fork()`**, then execs `powershell.exe` |
-> | → | **the impersonation is silently gone** |
-> | `vb.open` / `vb.write` | run as LocalSystem → a SYSTEM-owned record |
+> ### STEP 14 IS CLOSED — BUILT, CYCLED AND VERIFIED. AN API SESSION NOW RUNS AS THE CALLER
 >
-> Confirmed from inside the live session (`b31`, install 10:34:44, `sd.exe`
-> `779B85854AEEE5AC`) by two errlog lines — *"API IDENTITY LOST at LOGTO group
-> check"* and *"…at record write"*. Full detail and the four instruments in
-> **§7 step 14**; do not re-derive it.
+> Install **11:15:29**, `sd.exe` `7DDC68F6595382A6`, `assert-current` exit 0.
+> `verify-apiidentity -Prefix sdapiidb32` exit 0, decisive row PASS.
 >
-> ### THE DECISION TO MAKE FIRST — IT IS THE OWNER'S, NOT A TECHNICAL TOSS-UP
+> | instrument | before (`b28`/`b31`) | after (`b32`) |
+> |---|---|---|
+> | owner of `ZZAPI` | `NT AUTHORITY\SYSTEM` | **`GITORLI\sdapiidb32`** |
+> | DENY fixture over the API | OPENED | **REFUSED, `status 3001`** |
+> | `API IDENTITY LOST` in errlog | twice | **absent** |
 >
-> | | |
-> |---|---|
-> | **Narrow** | re-impersonate after each `fork()`. Fixes this path. **`PHANTOM` (`op_kernel.c:735`) and `SH` (`op_sh.c:379`, the same site) still drop it**, silently, as they do today |
-> | **Class** | ~~`cygwin_internal(CW_SET_EXTERNAL_TOKEN)`~~ — **MEASURED 24 Aug AND IT WORKS, but it is `CW_SET_EXTERNAL_TOKEN` *plus* `seteuid()`. The bare call alone LOST it.** Covers everything |
+> The fix is `CW_SET_EXTERNAL_TOKEN` **plus `seteuid`**, all in
+> `gplsrc/win32s4u.c`, **no BASIC change**. `SYSTEM(28)` (`op_sys.c:228`) is
+> the only BASIC-visible consequence and **has no caller in `gpl.bp`**, which
+> is what chose class over narrow. §7 step 14 has the detail.
 >
-> ### BOTH OPTIONS NOW WORK, SO THE DECISION IS A TRADE AND NOT A GAMBLE
+> ### NEXT: §7 STEP 16, LINE ENDINGS — NOW THE ONLY THING OPEN
 >
-> Measured by `probe-impfork.ps1 -Account test1` (elevated, **no cycle** — the
-> probe is on `$neverShipped`; `assert-current` exit 0 either side). Exit 15,
-> both legs, both instruments — thread token *and* file ownership.
+> Untouched. **SD reads only LF and writes only LF, on a Windows-only
+> product.** (a) tolerant readers is a defect fix; (b) writing CRLF is a
+> product decision with the stronger case — `WRITECSV` is documented as RFC
+> 4180, which specifies CRLF, and emits LF. **Read step 16's resource note
+> before costing (b): `SETPTR … NEWLINE CRLF` is already live per print unit
+> and it may be half built.**
 >
-> | | |
-> |---|---|
-> | plain `fork()` (control) | token `NONE`, file **SYSTEM** — the defect, reproduced first |
-> | `CW_SET_EXTERNAL_TOKEN` alone, then `fork()` | token `NONE`, file **SYSTEM** — **the bare call is not the fix** |
-> | register **+ `seteuid`**, then `fork()` | token `target`, file **`GITORLI\test1`** — ***carried*** |
+> ### ONE THING LEFT ON THE FLOOR, AND IT NEEDS A REBOOT
 >
-> **THE COST OF THE CLASS OPTION IS ONE `seteuid`, AND ITS BLAST RADIUS IS
-> SURVEYED**: the *real* uid stays 18, so `getpwuid(getuid())` at
-> `linuxlb.c:95`/`:213` and `sdfix.c:1548` are unaffected. **The single visible
-> change is `op_sys.c:228`**, which reports `geteuid()` to BASIC. §7 step 14
-> has the full table.
->
-> ### THE CLASS FIX IS CHOSEN AND BUILT — OWNER, 24 Aug 2026. IT HAS COMPILED AND NOTHING HAS RUN IT
->
-> `SYSTEM(28)` (`op_sys.c:228`, `geteuid()`) is the only BASIC-visible change
-> and **it has no caller anywhere in `gpl.bp`**, which is what decided it
-> against the narrow fix. All of it is in `gplsrc/win32s4u.c` — **no BASIC
-> change**, because `K$ASSUME.USER` already routes to `AssumeUserIdentity()`.
-> It **fails closed**: a login whose identity cannot be adopted is refused.
->
-> **`make sd` then `cycle.ps1 -SkipInstall` are done** — 198 BASIC programs,
-> zero errors, staged tree whole, installer built 11:10:08. **`cycle.ps1`
-> contains no `make`**, so the build was run first and `bin/sd.exe` checked
-> newer than source.
->
-> ### THE TREE IS NOW STALE, AND THAT IS CORRECT
->
-> `assert-current` exits 1 — source is newer than the 10:34:44 install. **Any
-> reading taken from the installed tree now is void.** What is owed:
->
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
->
-> **A person must be at the wizard**, then the verify suite from your own
-> terminal (§4.0.1 — an agent cannot run `VerifyInstall1`). **The pass
-> condition is already built: `API IDENTITY LOST` vanishing from the errlog**,
-> plus `ZZAPI` owned by the caller rather than `NT AUTHORITY\SYSTEM`. Prefix
-> **`b32` or later**.
->
-> **`fork()` reverting the thread is a RUNTIME behaviour, measured both in a
-> forked Cygwin child and a direct process** (`gplbld/probe-impfork.c`, Q3). It
-> is not something SD does and not something SD can notice: nothing calls
-> `RevertUserIdentity()`, and `win32s4u.c` gets no signal.
+> `C:\Users\sdapiidb32` survives as a **stuck hive** — its account is gone, so
+> nobody is signed in, but the registry hive was never unloaded and a profile
+> cannot be removed while it is loaded. `clean-test-profiles.ps1` names it and
+> refuses, correctly. Clear it by rebooting and re-running that script, or
+> `reg unload HKU\S-1-5-21-3329101812-2004472801-1855080994-2150` elevated.
 >
 > ### THE INSTALL IS CURRENT — MEASURE BEFORE YOU EDIT ANYTHING
 >
-> Installed 24 Aug 10:34:44, `assert-current` passes. **A cycle ends at the next
-> source change**, so take any reading you want from this tree *first*.
-> **Prefixes `sdapiidb18`–`b31` are spent; use `b32` or later.**
+> Installed 24 Aug **11:15:29**, `assert-current` passes. **A cycle ends at the
+> next source change**, so take any reading you want from this tree *first*.
+> **Prefixes `sdapiidb18`–`b32` are spent; use `b33` or later.**
 >
 > ### WHAT IS ALREADY BUILT, SO IT IS NOT BUILT AGAIN
 >
@@ -108,24 +67,31 @@ something came to be the way it is.
 > - **`gplbld/probe-sessionfork.ps1`** — watches `Win32_ProcessStartTrace` during
 >   a live API session. `-SelfTestOnly` proves it fires without spending a cycle.
 >
-> ### ALSO OPEN AND NOT STARTED: §7 STEP 16, LINE ENDINGS
+> ### INSTRUMENTS THAT LIED, 23–24 Aug. ALL ARE FIXED; THE PATTERN IS NOT.
 >
-> Untouched this session. **SD reads only LF and writes only LF, on a
-> Windows-only product.** (a) tolerant readers is a defect fix; (b) writing CRLF
-> is a product decision with the stronger case — `WRITECSV` is documented as RFC
-> 4180, which specifies CRLF, and emits LF. **Read step 16's resource note
-> before costing (b): `SETPTR … NEWLINE CRLF` is already live per print unit and
-> it may be half built.**
+> `ImpersonatingUser()` returned SD's belief rather than asking Windows.
+> `probe-sessionfork` read a Cygwin `fork`+`exec` — **two** Windows process
+> creations — as one, and got the right verdict for the wrong reason.
+> `clean-test-profiles` printed *"someone is signed in"* about deleted accounts.
+> **24 Aug adds two more.** `q4_report` called a form **"lost"** that a
+> `seteuid` fast path had meant never ran — caught only because the row printed
+> its real inputs. And **`verify-apiidentity` announced *"account removed"*
+> unconditionally for `b18`–`b31` while `DELETE.ACCOUNT` was refusing its
+> arguments outright** (below). **Each was a value measured with an explanation
+> bolted on that was not.** §6 and §0 carry the rules; the habit they need is
+> separating what was read from what it was taken to mean.
 >
-> ### THREE INSTRUMENTS LIED THIS SESSION. ALL THREE ARE FIXED; THE PATTERN IS NOT.
+> ### THE VERIFIER WAS LEAKING AN ACCOUNT PER RUN, AND SAYING IT WAS NOT
 >
-> `ImpersonatingUser()` returned SD's belief rather than asking Windows, and
-> would have answered (b) confidently wrong. `probe-sessionfork` read a Cygwin
-> `fork`+`exec` — **two** Windows process creations — as one, and got the right
-> verdict for the wrong reason. `clean-test-profiles` printed *"someone is
-> signed in"* about deleted accounts. **Each was a value that was measured with
-> an explanation bolted on that was not.** §6 and §0 carry the rules; the habit
-> they need is separating what was read from what it was taken to mean.
+> `verify-apiidentity.ps1` called `DELETE.ACCOUNT <name> USER`. **The verb takes
+> the account name and nothing else** — `DELACC:103` rejects any further token
+> with sysmsg 2018 *before deleting anything* — and the next line announced
+> success without reading the output or the state. So **every run from `b18` to
+> `b32` left its Windows account, SD record and profile behind**; that is the
+> backlog `clean-test-profiles.ps1` keeps being asked to clear. Fixed 24 Aug:
+> the argument is dropped and the claim now anchors on **the account record and
+> the local user actually being gone**, printing the raw output when they are
+> not. The corrected form was then run for real and removed both.
 
 ---
 
@@ -1403,6 +1369,8 @@ carries the warning in its own comment. Do not hand-roll it a third time.
 | **`SDConnectLocal()` carries a session** | 17 Aug, 12:28:49 | `make check-local` on the installed pair, `assert-current` exit 0, `WHO -> 2 DON`. **`DON` admitted and `SDSYS` refused** with *"User not allowed in requested account"* — `DON` alone would be equally consistent with a check that never executed, which is why the pair is evidence and either half alone is worthless |
 | **`errlog` is written per connection, and trimmed** | 21 Aug, 17:18:11 | `verify-peerlog`. `sdwind.c`'s `log_message()` gained the trim the `sd` side always had |
 | **`!valid_os_name` refuses a qualified login name, the client cannot tell why, and the trail can** | 22 Aug, 08:32:03 | `verify-apiname -Prefix sdapin2`, **17 of 17**, owner's elevated run; `sdapin1` was 13/13 on 21 Aug, 17:18:11, before the audit half existed. **The control is the same account and password admitted bare**, which is what makes the four refusals evidence rather than four accounts that did not exist: `COMPUTER\name`, `computer\name`, a **spaced** name and **`name@computer`** (the UPN shape) all refused. **All four return the byte-identical text a WRONG PASSWORD returns** — `Invalid username or password`. **THE AUDIT HALF IS THE REVERSAL**: on `sdapin1` the `audit` file *"did not grow at all"* across the five refused attempts, and on `sdapin2` it grows once per refusal with a distinct `reason=`, the name sanitised to `GITORLI?sdapin2`, and no raw backslash anywhere. The 33-character control is refused CLIENT-side with different text (`Invalid user name`, `sdclilib.c:1218`), so the length cap and the charset check are two limits and not one seen twice. §2 has why refusing costs no legitimate login; §8 has the audit record |
+
+| **An API session runs as the user who logged in — files and all** | 24 Aug, 11:15:29 | `verify-apiidentity -Prefix sdapiidb32`, `assert-current` exit 0, `sd.exe` `7DDC68F6595382A6`. **`ZZAPI` owned `GITORLI\sdapiidb32`** where `b28` read `NT AUTHORITY\SYSTEM`; the control `ZZLOCAL`, written by a local elevated session, reads `GITORLI\don`, so the two owners differ and ownership is tracking the writer. **The DENY fixture is now REFUSED (`status 3001`)** — it OPENED on `b27`/`b28` because a LocalSystem session holds `SeBackupPrivilege` and bypasses DACLs outright, so that row flipping is a second, independent instrument saying the session is no longer LocalSystem. **And `API IDENTITY LOST` is absent from the errlog** — the same `check.identity` (`APISRVR:578`, `:921`) that printed it twice on `b31`, unchanged, with both call sites exercised this run (`vb.account` attached, then the write). §7 step 14 |
 
 #### The foundations, observed 13 Aug 2026
 
@@ -6160,17 +6128,28 @@ the staging script and the Inno installer were all finished and removed.
     Then `cycle.ps1 -SkipInstall` 11:10:08 — **198 BASIC programs, zero
     non-zero error counts**, staged tree whole, installer built 4,801,598 bytes.
 
-    ***WHAT IS OWED, AND IT NEEDS A PERSON.*** A full `cycle.ps1` (a person at
-    the wizard) then the verify suite from the owner's own terminal (§4.0.1).
-    **The confirmation is already built and costs nothing extra:**
-    `K$IMPERSONATING` (62) logs only when SD's belief and Windows disagree, so
-    **`API IDENTITY LOST` disappearing from the errlog is the pass**, and
-    `verify-apiidentity.ps1` should show `ZZAPI` owned by the caller rather
-    than `NT AUTHORITY\SYSTEM`. Use prefix **`b32` or later**.
+    ***VERIFIED — 24 Aug 2026, install 11:15:29, `sd.exe` `7DDC68F6595382A6`,
+    `assert-current` exit 0.*** `verify-apiidentity -Prefix sdapiidb32`, exit 0,
+    the decisive row PASS. **STEP 14 IS CLOSED.**
 
-    **A changelog entry was written in the same commit** (`sdsys/changelog`,
-    24 Aug). It describes the fixed behaviour; **if the cycle disproves it, it
-    needs revising** exactly as the 23 Aug entry was.
+    | instrument | `b28` (before) | `b32` (after) |
+    |---|---|---|
+    | owner of `ZZAPI` | `NT AUTHORITY\SYSTEM` | **`GITORLI\sdapiidb32`** |
+    | control `ZZLOCAL` | `GITORLI\don` | `GITORLI\don` |
+    | DENY fixture over the API | OPENED | **REFUSED, `status 3001`** |
+    | `API IDENTITY LOST` in errlog | twice (`b31`) | **absent** |
+
+    **THREE INSTRUMENTS, AND THE SECOND TWO WERE NOT AVAILABLE BEFORE.** The
+    DENY fixture *could not* gate a LocalSystem session — `SeBackupPrivilege`
+    bypasses DACLs outright, which is why §7 recorded those rows as
+    non-decisive. **Its flipping to REFUSED is therefore evidence in its own
+    right**, not a repeat of the ownership reading. And the errlog alarm is the
+    *same* `check.identity` (`APISRVR:578`, `:921`) that fired twice on `b31`,
+    unchanged since, with **both call sites exercised this run** — the account
+    attach and the write. Its silence is a pass, not a removed check.
+
+    **The changelog entry written ahead of verification now stands** and needs
+    no revision.
 
 15. **A data tree private from SD's own users** — §5.7's service-account model.
 
