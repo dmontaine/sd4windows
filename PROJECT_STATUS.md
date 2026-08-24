@@ -1103,8 +1103,15 @@ it do instead, and who can tell?"**
   reason not to take it wholesale is unchanged, that the reformat would bury the
   port's own changes.
 
-**Release identity was not taken either.** Dev bumps to 1.0-3; we are 1.0-2, and
-that is not something to change by inference. Owner's call.
+**Release identity was not taken either, and is now RULED.** Owner, 24 Aug 2026:
+*"our numbering sequence is different than upstream, hence the W in front of the
+number."* **`SD_REV_STAMP` is `W1.0-0` and does not track upstream** - the `W`
+marks a separate sequence, so `sdb64` at `1.0-2` and dev at `1.0-3` are not
+numbers to follow. Do not "catch up" the trailing digit; it would imply a parity
+this port does not claim. (The C side is `MAJOR_REV 1`, `MINOR_REV 0`, `BUILD 2`
+in
+[gplsrc/revstamp.h:41-44](sdb_ai/sd64/gplsrc/revstamp.h:41); only the stamp
+string differs from upstream, and deliberately.)
 
 **The TCL verb surface is written down**, in [docs/TCL_VERBS.md](docs/TCL_VERBS.md)
 — SD's commands against OpenQM 2.6.6, supplied by the owner 14 Aug 2026. Read it
@@ -1243,7 +1250,17 @@ sdhelp` is a copy of that — so it is **not** unique material, and an earlier
 draft of this entry saying it "carries modifications that exist nowhere else"
 was wrong. **It is NOT in the `sdb64` clone**, measured: that repository holds
 no `.htm` at all, only the two `Documentation/` lists above. So it cannot be
-fetched from the tree we already clone; ask the owner.
+fetched from the tree we already clone.
+
+**RULED 24 Aug 2026.** Owner: *"we do not care about sdhelp_2-6-6 other than
+when it helps us write documentation. However setup devbox should include the
+whole `..\sdhelp` tree, as the documentation process may happen on another
+computer and I want those resources handy."*
+**`setup-devbox.ps1` now has a `Step-SdHelp`**: `-SdHelpSource <path>` copies the
+tree to `<Root>\sdhelp` and verifies the file count; without it the tree is
+reported as a hand-carry item beside `Projects\GPL.BP` rather than passed over
+in silence. **It is not cloned and not vendored** - 30 MB of third-party PDF and
+HTML, and this repository takes no binaries.
 
 **Local shape:** not a repository — no `.git`, no remote — and
 `setup-devbox.ps1` does not fetch it, **so a machine built from that script
@@ -5593,9 +5610,20 @@ the staging script and the Inno installer were all finished and removed.
    credentials — **do not drive the guest with `guestcontrol`**, which does.
    Read §6's two RDP traps first; between them they cost most of an hour.
 
-   **AND IT IS THE RIG THE ONE REMAINING NETWORK CLAIM NEEDS.** Nothing has ever
-   crossed the network to the API port — every measurement has gone to
-   `127.0.0.1:4243`. This is how that gets settled.
+   ***THE CLAIM THAT USED TO SIT HERE WAS WRONG AND IS WITHDRAWN, 24 Aug 2026.***
+   It read *"nothing has ever crossed the network to the API port - every
+   measurement has gone to `127.0.0.1:4243`"*. **The owner corrected it, and
+   this file's own archive proves him right**: HISTORY.md, *"FORTY-FIRST SESSION,
+   part 3 - the API reached across a real network"*. A bridged VirtualBox guest
+   at `10.0.0.143` reached this host at `10.0.0.3` over the physical WiFi
+   segment - admitted as `sdapib8` into `SDAPIB8` with a real session
+   (`WHO -> 4 SDAPIB8`), a wrong password refused, and `SDSYS` refused with
+   *"User not allowed in requested account"*. **That third row is the one that
+   matters: the `ACC$GROUP` containment gate holds OVER THE NETWORK**, not only
+   on loopback. `gplbld/stage-apiremote.ps1` does the host half.
+
+   **The rig is still worth keeping for anything else that needs a second
+   machine**, which is why the detail above stays.
 3. **Installer loose ends**, none of them blocking:
 
    - **CORRECTED 15 Aug 2026: the owner has seen the closing dialog and has

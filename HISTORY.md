@@ -27,6 +27,46 @@ corrected.
 
 ---
 
+## Correction: 24 Aug 2026 — "nothing has ever crossed the network to the API port" was false, and had been for weeks
+
+**Commit:** the commit carrying this entry. Corrects PROJECT_STATUS.md §7
+step 2.
+
+**THE CLAIM.** §7 step 2 carried *"AND IT IS THE RIG THE ONE REMAINING NETWORK
+CLAIM NEEDS. Nothing has ever crossed the network to the API port - every
+measurement has gone to `127.0.0.1:4243`."* It was still there on 24 Aug 2026
+and was offered to the owner as open work.
+
+**THE OWNER CORRECTED IT**: *"this has already been done, we checked the API
+port from a virtual machine, this is an error in history."*
+
+**HE IS RIGHT, AND THE EVIDENCE WAS IN THIS FILE THE WHOLE TIME** - the entry
+*"FORTY-FIRST SESSION, part 3 - the API reached across a real network"*. A
+bridged VirtualBox guest at `10.0.0.143` reached this host at `10.0.0.3` over
+the physical WiFi segment: admitted as `sdapib8` into `SDAPIB8` with a real
+session (`WHO -> 4 SDAPIB8`), a wrong password refused, and `SDSYS` refused with
+*"User not allowed in requested account"*. `gplbld/stage-apiremote.ps1` exists
+for the host half and is in the tree.
+
+**WHY IT SURVIVED.** The claim also appears twice inside *"ARCHIVE 21 Aug 2026 -
+the phase-by-phase header, as it stood when the plan closed"*. Those two are
+**correct as archive** - they record what the header said that day and are
+append-only. What was wrong is that §7 step 2 in the LIVE document was never
+updated when part 3 closed the item, so a true statement about the past kept
+reading as a statement about the present.
+
+***THE LESSON IS NOT "READ HISTORY.MD HARDER."*** I did search the record before
+asking, with `grep` for the claim's own wording - which found the stale copies
+and not the entry that refuted them, because that entry never uses the phrase.
+**A claim of the form "X has never happened" cannot be checked by searching for
+"X has never happened"; it has to be checked by searching for X.** The grep that
+would have worked was for `stage-apiremote`, or for the VM's address, or simply
+for the file `gplbld/stage-apiremote.ps1` sitting in the tree.
+
+**WHAT WAS CHANGED**: §7 step 2's claim is withdrawn in place, naming the entry
+that settles it. The VM rig detail stays - it is still the only way to answer
+anything needing a second machine.
+
 ## 24 Aug 2026 — Fifty-first session, part 6: 29 of 29, and the transcript defect actually closed
 
 **Commit:** the commit carrying this entry. Three script changes
