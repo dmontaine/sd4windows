@@ -224,6 +224,46 @@ something came to be the way it is.
 > afterwards - which is exactly the condition item 6 above was fixed for, and
 > makes this run the test of it.
 >
+> ***IT HAS RUN, 23 Aug 2026, AND THE TWO PATHS NOTHING HAD EVER EXECUTED BOTH
+> WORKED.*** **winget installing MSYS2**, and **the pacman run** — 8 packages
+> including the new `diffutils`, and libsodium's configure printed **no
+> `cmp`/`diff` errors this time**, which is that fix confirmed. Git, gh and
+> Inno all installed. **Items 1, 2, 3 and 6 of the six above are now proved on
+> a machine that had none of it.**
+>
+> ***AND INNO WENT PER-USER***, to
+> `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe` — `Resolve-Iscc` found it,
+> and that is almost certainly what the laptop hit too, so item 1 was a
+> *location* problem and not the race it might also have been.
+>
+> ### WHAT THE CLEAN VM FOUND, AND THE FIRST ONE KILLED THE RUN
+>
+> 7. ***`git` WAS INSTALLED AND THEN NOT FOUND, AND THE SCRIPT DIED ON IT.***
+>    A process keeps the PATH it started with, so the just-installed `git` was
+>    still *"not recognized"* — `Step-Clone` called it anyway and threw
+>    `CommandNotFoundException`, which under `$ErrorActionPreference = 'Stop'`
+>    **took the whole script down**: no clones, no build, **no summary**, on a
+>    machine that was otherwise nearly ready. ***THE SCRIPT DETECTED THE
+>    CONDITION, REPORTED IT, AND THEN WALKED INTO IT ANYWAY*** — the same shape
+>    as the `schtasks` stderr bug earlier the same day. **Three fixes, not
+>    one**: `Update-SessionPath` re-reads Machine+User PATH from the registry
+>    after every winget install (which is all "open a new window" does);
+>    `Resolve-Tool` falls back to known install locations; and `Step-Clone`
+>    **skips with a message** when git is unusable instead of calling it.
+> 8. ***THE SUMMARY IS NOW UNKILLABLE.*** Every step runs inside a `try`, so a
+>    failure is reported *as* a failure and `Step-Report` still runs. **Losing
+>    the report is worse than the failure it was reporting.**
+> 9. **`cycle.ps1` WOULD NOT HAVE FOUND THAT PER-USER INNO** — it read only the
+>    two **HKLM** keys, and a per-user install writes **HKCU**. So the message
+>    `setup-devbox` prints — *"cycle.ps1 … will find this one"* — **was false
+>    when written.** Both now read the same four keys plus the `LOCALAPPDATA`
+>    path.
+>
+> **VERIFIED HERE BEFORE GOING BACK TO THE VM**, since none of these branches
+> can be reached on a machine that already has the tools: PATH rebuild
+> 11 → 589 chars with `git` findable after it, `Step-Clone` returning normally
+> with git unusable, and `Step-Report` still running after a step throws.
+>
 > ### THE RUN BEFORE IT, KEPT ONLY TO BRACKET THE REVERT
 >
 > `-Run b14` on the **08:08:32** install was green on the same 9 + 17, and that

@@ -24069,3 +24069,54 @@ cat -v.  Also walked into "echo WHO | sd" in a console, which section START
 HERE already records as making an unusable session: it hung and the stray
 sd.exe had to be killed.  Both are written down in the memory file rather than
 here, because neither is about SD.
+
+23 Aug 2026 - the clean-VM run: the last two unexercised paths worked, and three more defects
+
+Owner ran setup-devbox.ps1 on a fresh VirtualBox clone, DevInstallTest, with no
+SSH key on it.  This is the run the laptop could not be.
+
+WHAT IT PROVED, and it is the whole reason a clean machine was wanted: winget
+installing MSYS2 and the pacman run BOTH EXECUTED FOR THE FIRST TIME ANYWHERE
+and both worked - 8 packages including the new diffutils, and libsodium's
+configure printed no cmp/diff errors this time, which confirms that fix.  git,
+gh and Inno Setup all installed.  Inno went PER-USER, to
+%LOCALAPPDATA%\Programs\Inno Setup 6, and Resolve-Iscc found it - so the
+laptop's "not at C:\Program Files (x86)" was a LOCATION problem and very
+probably not the race it might also have been.
+
+THEN IT DIED, AND THE WAY IT DIED IS THE FINDING.  A process keeps the PATH it
+started with, so the git winget had just installed was still "not recognized".
+Step-Git detected exactly that and printed "[BY HAND] git was installed but is
+not on PATH in this session".  Step-Clone then called git clone anyway, threw
+CommandNotFoundException, and under $ErrorActionPreference = 'Stop' that ended
+the script where it stood: no clones, no build, and NO SUMMARY, on a machine
+that was otherwise nearly ready.
+
+DETECTED, REPORTED, AND WALKED INTO ANYWAY - the same shape as the schtasks
+stderr bug earlier the same day, and worth naming as a pattern rather than a
+one-off.  Three fixes, because "re-run in a new window" is not a fix when
+rebuilding the variable is three lines:
+
+  - Update-SessionPath re-reads Machine+User PATH from the registry after every
+    winget install, which is all that opening a new window does;
+  - Resolve-Tool falls back to known install locations for git and gh and puts
+    the directory on PATH, so plain `git` works for the rest of the run;
+  - Step-Clone skips with a message when git is unusable instead of calling it.
+
+AND THE SUMMARY IS NOW UNKILLABLE.  Every step runs inside a try, so a failure
+is reported as a failure and Step-Report still runs.  Losing the report is worse
+than the failure it was reporting - the machine WAS most of the way set up and
+the run said nothing about what had been done or was still owed.
+
+A THIRD ONE, AND IT WAS MINE.  cycle.ps1's ISCC fallback read only the two HKLM
+uninstall keys, and a PER-USER Inno install writes HKCU - so it would have
+reported ISCC missing on that VM, while setup-devbox.ps1 was printing "cycle.ps1
+tries the default first and then the registry, so it will find this one".  That
+promise was false when it was written.  Both now read the same four keys plus
+the LOCALAPPDATA path.
+
+VERIFIED ON THIS MACHINE BEFORE HANDING BACK, because none of these branches can
+be reached on a box that already has the tools - which is exactly how they
+survived: PATH rebuilt from 11 chars to 589 with git findable afterwards,
+Step-Clone returning normally with git unusable, and Step-Report still running
+after a step throws.
