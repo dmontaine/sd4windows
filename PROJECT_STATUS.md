@@ -5,41 +5,50 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the fiftieth session (split ruled, cycled, verified 22/22).
+**Last updated:** 24 Aug 2026, fifty-first session (OPGEN loose ends closed; one cycle owed).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: TWO SMALL LOOSE ENDS FROM THE OPGEN PORT, THEN ASK.
+> ## NEXT: ONE CYCLE IS OWED. IT IS THE ONLY THING BLOCKING.
 >
-> ***OPGEN IS PORTED TO `gplbld/gen_includes.py` AND ITS BASIC SOURCE IS
-> DELETED*** — session 50 part 7 (commit carrying this update). The port
-> handles a fourth C-header-to-BASIC output (`gplsrc/opcodes.h` →
-> `sdsys/gpl.bp/OPCODES.H`); OPCODES.H was regenerated in the same commit,
-> which also removed a stale `OP.SDPYOBJ` entry the embedded-Python removal
-> of 13 Aug had left behind (nobody could run OPGEN on Windows to catch
-> it). `gen_includes.py --check` reports all four outputs in sync; Python
-> parse clean, no embedded BOM, LF only.
+> ***THE TREE IS STALE, `assert-current` EXITS 1, AND IT ALREADY DID BEFORE
+> SESSION 51 TOUCHED ANYTHING*** — session 50's `OPCODES.H` regeneration and
+> the `OPGEN` delete never reached an install. Everything below batches into
+> that one owed cycle.
 >
-> ### TWO SMALL LOOSE ENDS
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
 >
-> 1. **Two comments still tell readers to run OPGEN.** [BCOMP:62](sdb_ai/sd64/sdsys/gpl.bp/BCOMP:62)
->    says *"SDBasic include record is generated using the OPGEN program"* and
->    [gplsrc/opcodes.h:32-36](sdb_ai/sd64/gplsrc/opcodes.h:32) tells you to
->    *"run OPGEN"*. Both should point at `gplbld/gen_includes.py` instead.
->    Docs only, no cycle owed.
-> 2. **`sdsys/syscom/ERR.H` and `sdsys/gpl.bp/ERRTEXT.H` are pre-existing
->    stale** — the finding fell out of running `gen_includes.py --check`.
->    `gplsrc/err.h` grew `SD$SCRAM.ERR` on 19 Aug and codes `4100`/`4101`
->    that never made it into the BASIC-side headers — exactly the
->    ERRGEN-not-run failure mode `gen_includes.py`'s own docstring warns
->    about. Fix is one `python gplbld/gen_includes.py` run inside sd64,
->    from the repo root — no --check. It rewrites all four outputs; the
->    OPCODES.H write is a no-op because the port already regenerated it.
->    **BUT** landing new ERR.H entries changes the BASIC error table
->    and may need a cycle (`SECOND.COMPILE` uses ERR.H via `$include`);
->    do it deliberately.
+> `bin/sd.exe` is `275CFB03E142AA2C`, built 24 Aug 14:58:14, `make sd` exit 0,
+> and `assert-current` reports "no source newer" against it. Eight source
+> files are newer than the 13:36:51 install. **`-SkipInstall` first is the
+> cheap compile check** — the changes below touch `SYSCOM/ERR.H`, which every
+> `gpl.bp` program `$include`s.
+>
+> ### BOTH OPGEN LOOSE ENDS ARE CLOSED — session 51
+>
+> 1. **The two "run OPGEN" comments now name `gplbld/gen_includes.py`** —
+>    [BCOMP:64-67](sdb_ai/sd64/sdsys/gpl.bp/BCOMP:64) and
+>    [gplsrc/opcodes.h:36-46](sdb_ai/sd64/gplsrc/opcodes.h:36), each with a
+>    dated START-HISTORY line. **The control that mattered**: `--check` still
+>    reports `OPCODES.H` in sync *after* the `opcodes.h` edit, and that
+>    header's own description says its layout "is known to" the generator, so
+>    the edit could have moved the output.
+> 2. **`ERR.H` and `ERRTEXT.H` regenerated**, all four outputs in sync. The
+>    drift was smaller than session 50 read it: `SYSCOM/ERR.H` already carried
+>    `ER$SRVRERR 4100` and `ER$INV.NBR 4101` (hand-added 19 Aug) and lacked
+>    only `SD$SCRAM.ERR -10303`; `ERRTEXT.H` lacked the text rows for all
+>    three. Additive and callerless — nothing in `sdsys/` names any of the
+>    three, and [ERRTEXT:50](sdb_ai/sd64/sdsys/gpl.bp/ERRTEXT:50) looks up with
+>    `locate errno in err<1> setting pos` over two arrays the generator builds
+>    in step, so a mid-table insertion carries no positional dependency.
+>
+> **NOTHING IN 1 OR 2 IS VERIFIED ON AN INSTALL**, and there is no verifier for
+> error text. After the cycle the check is `assert-current` exit 0 plus a
+> `gen_includes.py --check` that still reads four in sync.
 >
 > ### §7 STEP 9 VERIFIER, NEVER STARTED
 >
@@ -47,6 +56,11 @@ something came to be the way it is.
 > left" review. Not begun this session.
 >
 > ### §7 IS EMPTY AND §8 TIER WORK IS CLOSED. ASK BEFORE STARTING ANYTHING.
+>
+> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** One commit: the two
+> OPGEN comments, `ERR.H`/`ERRTEXT.H` regenerated, the changelog entry
+> for both, and `make sd`. **Nothing was installed and nothing was
+> verified on an install** - the cycle above is what session 52 owes.
 >
 > ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** The owner ruled the split,
 > session 50 transcribed it to disk, the cycle at 13:36:51 installed it,
