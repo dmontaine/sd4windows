@@ -24549,3 +24549,23 @@ backslash it goes in a file written with the Write tool.
 STATE: a cycle is owed - messages/10089 ships, so assert-current is at exit 1.
 Only a person can run it now, and it will collect a password, which is what b16
 needs.
+
+23 Aug 2026 - rule 3: an instrument shows what it did, not just what it concluded
+
+Owner accepted this after three false verdicts in one session, all the same
+shape: a confident conclusion from an instrument that never reached the
+condition.  "sd reported no output" - stdout was redirected to a file nobody
+read, and the prompt was in it, which cost a day.  A probe parameter named
+$args - a PowerShell AUTOMATIC variable - was clobbered, so Start-Process got
+no switches, setup ran non-silently, the gate correctly did not fire and the
+verdict passed trivially.  And a suite row was called "the one failing check"
+on a suite that had never run a step.
+
+The rule: a probe prints the real inputs it used - actual command line and
+arguments, resolved paths, target - the before AND after state it compared,
+and it must detect and refuse the null case out loud.  A test that passes
+because it did nothing must fail.
+
+THE PART WORTH CARRYING: the fix is never the one-line cause.  Renaming $args
+fixes that probe; echoing the arguments and refusing an empty list fixes the
+class.  Ask what would have caught it, not what caused it.

@@ -113,6 +113,39 @@ and believing `<<'EOF'` is safe is what walked into it again on 23 Aug 2026.
 build the separator with `chr(92)` — but prefer the file. A file is also
 re-runnable, diffable, and can be parse-checked before it is run.
 
+## An instrument shows what it DID, not just what it concluded
+
+Owner's instruction, 23 Aug 2026, after three false verdicts in one session.
+**Every one of them was a confident conclusion drawn from an instrument that
+never reached the condition it claimed to measure.**
+
+**A verdict with no evidence of what was actually measured is not a result.**
+Any probe, test or verifier must print, in its own output:
+
+1. ***THE REAL INPUTS IT USED*** — the exact command line and arguments passed,
+   the resolved paths, the target account. Not what it intended to pass.
+2. **The state it compared — BEFORE and AFTER**, not just the conclusion drawn
+   from them.
+3. ***AND IT MUST REFUSE THE NULL CASE OUT LOUD.*** If the measurement could
+   have run against nothing, test for that and say so. **A test that passes
+   because it did nothing must fail, not pass.**
+
+**WHAT THIS COST ON 23 Aug 2026, three times:**
+
+- **`sd` reported "no output"** — stdout had been redirected to a file nobody
+  read. The password prompt was in it the whole time. *One day.*
+- **A probe's parameter was named `$args`**, a PowerShell **automatic**
+  variable, so it was clobbered and `Start-Process` received **no switches**.
+  Setup ran non-silently, the gate correctly did not fire, and the verdict logic
+  passed *trivially*. Caught only because the echoed line read `setup ` with
+  nothing after it — **rule 1 above is what caught it.**
+- **A suite row was called "the one failing check"** on a suite that had never
+  run a step.
+
+**THE FIX IS NEVER THE ONE-LINE CAUSE.** Renaming `$args` fixes that probe;
+echoing the arguments and refusing an empty list fixes the *class*. **Ask what
+would have caught it, not what caused it.**
+
 ## You must maintain these files, cheaply
 
 Standing instruction from the repository owner, 14 Aug 2026: **the ratio of
