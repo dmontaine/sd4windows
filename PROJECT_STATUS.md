@@ -180,11 +180,33 @@ something came to be the way it is.
 > stay in permanently. `logmsg` → errlog, which is already per-connection and
 > trimmed.
 >
-> ***NEXT ACTION: `make sd` IS DONE (24 Aug 10:30:42, no warnings, objects
-> cleared first). THE TREE OWES ONE `cycle.ps1`, THEN READ THE ERRLOG.***
-> `assert-current` refuses now: `sd.exe` hash differs and 6 source files are
-> newer. Expect two lines per API session if the diagnosis holds — one at the
-> group check, one at the write.
+> ***MEASURED AND CONFIRMED, `b31`, ON THE 10:34:44 INSTALL (`sd.exe`
+> `779B85854AEEE5AC`).*** Both predicted lines fired, from inside the session:
+>
+> ```
+> 24 Aug 26 10:37:17 User 7 (pid 1498, sdapiidb31):
+>    API IDENTITY LOST at LOGTO group check - session believes it is
+>    sdapiidb31 but the thread holds the service token
+> 24 Aug 26 10:37:17 User 7 (pid 1498, sdapiidb31):
+>    API IDENTITY LOST at record write - ...
+> ```
+>
+> **THE IDENTITY IS ALREADY GONE AT THE GROUP CHECK.** That is the half that was
+> inference until now: (a2) proved the session forks there, probe-impfork proved
+> `fork()` drops impersonation, but nothing had read the live session's own
+> token. Now it has, and the two agree. The same run reproduced `b28` exactly —
+> `ZZLOCAL` `GITORLI\don`, `ZZAPI` `NT AUTHORITY\SYSTEM` — and
+> `verify-apiidentity` FAILED on its one decisive check, as it should.
+>
+> ***STEP 14 IS DIAGNOSED, END TO END, WITH NO INFERENCE LEFT IN THE CHAIN.***
+> What remains is the FIX, which is a separate piece of work and is NOT started:
+> `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` for the class, or re-impersonation
+> after each fork for the narrow case. `PHANTOM` and `SH` fork at the same site,
+> so the narrow fix leaves them open.
+>
+> **The errlog line is permanent and costs nothing when healthy** — it fires only
+> when the two fields disagree, so once the fix lands it goes silent, and its
+> going silent is itself the confirmation.
 > ### DO NOT RE-TRY AN ACL FIXTURE. IT CANNOT ANSWER THIS QUESTION.
 >
 > `b27` and `b28` both opened all three ACL fixtures — including one whose

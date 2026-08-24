@@ -163,8 +163,38 @@ healthy session and can stay in.
 
 `make sd` done 24 Aug 10:30:42 with `gplobj/*.o` cleared first (two headers
 changed and the Makefile tracks no header dependencies). No warnings.
-**UNMEASURED: the tree owes one cycle** - `assert-current` refuses, `sd.exe`
-hash differs and 6 source files are newer.
+
+**MEASURED AND CONFIRMED THE SAME DAY - `b31`, on the 10:34:44 install
+(`sd.exe` `779B85854AEEE5AC`, cycled with the C change, hash checked at step
+8).** Both predicted lines fired:
+
+```
+24 Aug 26 10:37:17 User 7 (pid 1498, sdapiidb31):
+   API IDENTITY LOST at LOGTO group check - session believes it is
+   sdapiidb31 but the thread holds the service token
+24 Aug 26 10:37:17 User 7 (pid 1498, sdapiidb31):
+   API IDENTITY LOST at record write - ...
+```
+
+**The identity is ALREADY GONE at the group check**, which is the half that was
+inference until now. (a2) proved the session forks there and probe-impfork
+proved `fork()` drops impersonation, but nothing had read the live session's own
+thread token; now it has, and every instrument agrees. The same run reproduced
+b28 exactly - `ZZLOCAL` `GITORLI\don`, `ZZAPI` `NT AUTHORITY\SYSTEM` - and
+`verify-apiidentity` FAILED on its one decisive check, which is the correct
+outcome and not a regression.
+
+The session's own log line carries the divergence in one string: it knows it is
+`sdapiidb31` (so `process.username` was set correctly) while the thread holds
+the service token. That is the two-field design earning its keep - either field
+alone reads as normal.
+
+**STEP 14 IS DIAGNOSED END TO END WITH NO INFERENCE LEFT.** What remains is the
+FIX, not started: `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` for the class, or
+re-impersonation after each fork for the narrow case. `PHANTOM` and `SH` fork at
+the same site, so the narrow fix leaves them open. The errlog line is permanent
+and silent when healthy, so it going quiet is itself the confirmation the fix
+worked.
 
 **ANSWERED THE SAME DAY BY (a2) - THE SESSION DOES FORK, AND THE CALL SITE IS
 THE LOGTO GROUP CHECK.** `probe-sessionfork.ps1 -Prefix sdapiidb30`, on the
