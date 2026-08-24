@@ -105,6 +105,14 @@ something came to be the way it is.
 > newline mapping today**, since that file is a directory file and nothing
 > shipped calls `MAPMARKS`. **DH files are not affected by either half**, so
 > `gcat`, `VOC` and the byte counts this file quotes for them do not move.
+>
+> ***AND READ STEP 16'S RESOURCE NOTE BEFORE COSTING (b) — IT MAY ALREADY BE
+> HALF BUILT.*** `SETPTR` takes **`NEWLINE CR|LF|CRLF` per print unit**, the
+> keyword is live in our own `SETPTR`, and `op_tio.c` emits `pu->newline`
+> rather than the global. So Ladybridge's answer was a per-channel setting,
+> not a constant, and the terminal already defaults to `"\r\n"`
+> (`tio.h:162`). **The one-test question: does `SETPTR … NEWLINE CRLF`
+> actually reach the disk**, given `to_file.c:128` still emits the global.
 
 ---
 
@@ -785,6 +793,14 @@ machine, and nothing in the build depends on any of them:
   23 Aug 2026: he copied it here so the material was available without a
   network round trip, *"it is not a part of this project and ... can always be
   retrieved from other projects"*. **It needs no backup and no remote.**
+
+  ***IT HAS ANSWERED A REAL QUESTION ONCE, WHICH IS THE ARGUMENT FOR KEEPING
+  IT TO HAND.*** §7 step 16's resource note: `SETPTR`'s `NEWLINE CR|LF|CRLF`
+  keyword is in this tree, and finding it showed that Ladybridge's answer to
+  line endings was a per-print-unit setting rather than a compile-time
+  constant — and that the mechanism is still in our own tree, unstripped.
+  **The C sibling yielded nothing on the same question**, so search the BASIC
+  first when the question is about behaviour rather than plumbing.
 
   **It is still the thing to READ** when the question is what the port removed:
   it retains real Windows code that this repository's `sdsys/gpl.bp` had
@@ -6004,9 +6020,10 @@ the staging script and the Inno installer were all finished and removed.
     below confirms.) **So editing a BASIC program externally works, which is
     the one case the feature exists for.** Nothing else is protected.
 
-    **THERE IS NO `'\r'` CHAR LITERAL ANYWHERE IN THE C TREE** - checked
-    24 Aug 2026. The only CR handling is `linuxio.c:617` (terminal input) and
-    `op_seqio.c:1697` (serial ports); neither touches a file.
+    **NEITHER RECORD READ PATH HAS ANY CR HANDLING** - checked 24 Aug 2026.
+    CR literals do exist elsewhere in the C tree (twelve, in seven files; see
+    the correction in the resource note below), but none of them is on the
+    path that turns a file's bytes into a record.
 
     | direction | site | today |
     |---|---|---|
@@ -6095,6 +6112,64 @@ the staging script and the Inno installer were all finished and removed.
     mark today - so (b) changes the shape of that edge case without creating
     it.
 
+    ### RESOURCE NOTE: THE REFERENCE TREES WERE SEARCHED 24 Aug 2026
+
+    Owner's suggestion — ScarletDME kept `if windows` blocks that Ladybridge
+    stripped from the GPL version and that SD stripped again, so they might
+    record how line endings were handled. **They do, and the answer is a
+    DESIGN rather than a constant.** Recorded here so nobody searches twice.
+
+    ***`C:\Users\dmont\Projects\gplsrc` (original ScarletDME C): NOTHING.***
+    `qmdefs.h:84-85` is already `Newline "\n"` / `NewlineBytes 1`, identical to
+    ours, with the same eight parameterised write sites. **No `#ifdef WIN32`,
+    `WINDOWS` or `MSDOS` conditional survives anywhere in that tree** — §2's
+    "Ladybridge stripped the Windows code thoroughly" is exactly right for C.
+
+    ***`C:\Users\dmont\Projects\GPL.BP` (original ScarletDME BASIC): THE
+    ANSWER.*** `SETPTR` takes a **`NEWLINE CR|LF|CRLF`** keyword, per PRINT
+    UNIT — `newline = char(13)` / `char(10)` / `char(13):char(10)` — and
+    reports it back in its own listing. **Ladybridge's answer to this question
+    was to let the caller say what it wants, per output channel.**
+
+    ***AND IT IS STILL IN THIS TREE, UNSTRIPPED. THIS IS THE MOST USEFUL THING
+    IN THIS STEP.***
+
+    | piece | where |
+    |---|---|
+    | `NEWLINE CR/LF/CRLF` keyword, documented and parsed | `gpl.bp/SETPTR:57`, `:423-434`, reported back at `:702-704` |
+    | per-print-unit storage | `tio.h:111` `char newline[2+1]` |
+    | set / read from BASIC | `op_tio.c:1575-1577`, `:1783`, default `"\n"` at `:3408` |
+    | emitted at end of line | `op_tio.c:2147`, `:2651`, `:2667` — `pu->newline`, **not** the global |
+
+    **SO THE CSV-FOR-EXCEL CASE MAY ALREADY BE REACHABLE TODAY**, with
+    `SETPTR` … `NEWLINE CRLF` and `PRINT ON`. ***UNMEASURED, AND IT IS THE
+    FIRST THING TO TEST BECAUSE IT COULD SHRINK (b) DRAMATICALLY:***
+    `to_file.c:128`'s `case NL:` still emits the **global** `Newline`, so
+    whether `pu->newline` actually reaches the disk in a hold file is not
+    established. Write a hold file both ways and read the bytes.
+
+    **THE TERMINAL ALREADY HAS ITS OWN PAIR, AND IT IS ALREADY CRLF** —
+    `tio.h:162-163`, `onewline` init `"\r\n"` and `inewline` init `13`,
+    settable from BASIC (`op_tio.c:2304`, `:2312`) and used for console and
+    socket output (`:3296`-`:3303`). **The codebase's habit is a newline
+    setting PER CHANNEL, and only file I/O was left on the global.**
+
+    ***THAT REFRAMES (b): IT IS NOT "FLIP THE CONSTANT", IT IS "EXTEND THE
+    PER-CHANNEL MODEL THAT ALREADY EXISTS TO `WRITESEQ` AND THE
+    DIRECTORY-FILE WRITE".*** More work than two lines, far safer, idiomatic
+    for this codebase, and it leaves SD's own internal files alone unless the
+    caller asks otherwise — which removes most of the cost listed above.
+
+    ***CORRECTION, 24 Aug 2026: an earlier draft of this step said "there is no
+    `'\r'` char literal anywhere in the C tree". That was a malformed grep and
+    it is false*** — there are twelve, in seven files. **None is on the record
+    read path, which is the claim that matters and still stands.** Two are
+    worth copying rather than re-deriving: **`config.c:172` is
+    `while ((p > rec) && ((p[-1] == '\r') || (p[-1] == '\n')))`** — the §6 CRLF
+    fix, already implemented, and the worked precedent for (a) — and
+    `op_sh.c:188` scans for either terminator the same way. `to_file.c:107` and
+    `op_tio.c:3865` handle CR as PRINT CONTROL (column reset), which is a
+    different thing and must not be confused with line-ending translation.
     ### HOW TO MEASURE EITHER, because no existing verifier can
 
     Every verifier writes its fixtures with LF and drives SD down a pipe. The
