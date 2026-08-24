@@ -24165,3 +24165,46 @@ green on the 17:47:55 install, verify-pcodeacl PASSED under the runner both
 times - so the morning's pcode ACL fix holds in the suite and not only
 standalone - and verify-lcnames clean at 142 of 142, which is the verifier
 section 8's intermittent has always been about.
+
+23 Aug 2026, forty-fourth session - WHAT IT LEAVES
+
+State: install 17:47:55, assert-current clean, and ONE THING OWED - an elevated
+"sd <command>" session blocks for ever during start-up, which stops b16
+completing.  b16 is UNSPENT.
+
+What it did: ran the S4U probe and answered section 7 step 14 shape (b);
+surveyed section 7 step 15 and found its premise stale and a writable pcode
+library instead; locked that library and verified the fix on a cycled tree;
+fixed six defects in setup-devbox.ps1 across a laptop run and a clean-VM run,
+including the https clone change that lets a bare machine finish; and corrected
+section 4.0.1, which wrongly said an agent can run the verify suite.
+
+THE THING IT BROKE, OR AT LEAST THE THING THAT BROKE ON ITS WATCH.  Elevated
+"sd WHO" and "sd ZZNOSUCHVERB" both hang, killed by a 25s timeout, blocked
+rather than looping, no output and no errlog.  A nonexistent verb hanging means
+start-up, not dispatch.  Unelevated sd <command> still works and 9 of 10
+unelevated verifiers pass.  It worked on the 10:01:45 install under b15.
+
+THE ONLY SHIPPED DELTA between those installs is the pcode ACL - but an
+elevated token holds Administrators, which had Full on sdsys\bin BEFORE AND
+AFTER, so the mechanism does not add up and the ACL must not be reverted on
+suspicion alone.  The unverified alternative is section 7 step 4's elevation
+helper: sd.exe stays unelevated for life and talks to sd-elevate-helper.ps1
+over a pipe, and an already-elevated session negotiating that non-interactively
+would block on a pipe read exactly like this.  Nobody traced it.
+
+HOW THE SESSION WENT WRONG, because it is worth not repeating.  Five hung
+windows, most of them mine.  Two came from believing section 4.0.1's claim that
+an agent can elevate - it can, but only DIRECTLY; a verifier the agent launches
+is refused with "The operation was canceled by the user" and nobody is asked,
+and backgrounded it hangs with no consent.exe at all.  Two more came from
+probing elevated SD without a timeout.  The last came from spawning a four-agent
+workflow to investigate a bug whose decisive measurement was already in hand -
+which the owner stopped, and rightly.
+
+USE A TIMEOUT ON EVERY ELEVATED SD PROBE.  An SD console session cannot be
+killed by Stop-Process or taskkill /F from an ordinary token; clearing one costs
+an elevation.
+
+In flight: setup-devbox.ps1's clean-VM run got as far as the clone step before
+the git-PATH defect stopped it; that is fixed and unretested on a fresh VM.

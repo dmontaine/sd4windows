@@ -11,7 +11,66 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NOTHING IS OWED. ALL 26 VERIFIERS GREEN ON THE 10:01:45 INSTALL, `-Run b15`.
+> ## SOMETHING IS OWED, AND IT BLOCKS THE SUITE: ELEVATED `sd <command>` HANGS.
+>
+> ***END OF THE FORTY-FOURTH SESSION, 23 Aug 2026. READ THIS BEFORE ANYTHING
+> ELSE.*** On the **17:47:55** install, an **elevated** `sd <command>` session
+> **blocks for ever during start-up**. `b16` cannot complete because of it.
+>
+> **MEASURED, from an elevated shell, each killed by a 25-second timeout:**
+>
+> ```
+> elevated=True
+> WHO          : *** HUNG *** killed after 25s
+> ZZNOSUCHVERB : *** HUNG *** killed after 25s
+> ```
+>
+> ***A VERB THAT DOES NOT EXIST HANGS TOO***, so it never reaches dispatch —
+> this is session start-up, not the command. The process is **blocked, not
+> looping**: CPU grew ~0.03s per 2s. **No output, no `errlog` entry.**
+>
+> **WHAT STILL WORKS, so the fault is narrow:** *unelevated* `sd <command>`
+> (`verify-batchjob`'s earlier rows pass), and ordinary piped sessions — **9 of
+> 10 unelevated verifiers passed**, including `verify-lcnames` 142/142 and the
+> new `verify-pcodeacl` 4/4.
+>
+> **IT WORKED ON THE 10:01:45 INSTALL** — `b15` passed
+> `verify-batchjob`, whose *"ELEVATED with no entry: still runs"* row is exactly
+> this path. That row is now the **one** failing check.
+>
+> ### THE SUSPECT, AND WHY IT IS NOT PROVEN
+>
+> ***THE ONLY CHANGE THAT SHIPS between those two installs is the pcode ACL***
+> — `secure-pcode.ps1`, `sd.iss`'s `SecurePcode`, `stage.py`. Everything else
+> today (`probe-s4u`, `setup-devbox`, `cycle.ps1`, `assert-current`) never
+> reaches an install.
+>
+> ***BUT THE MECHANISM DOES NOT ADD UP, AND THAT GAP IS THE WORK.*** An elevated
+> token holds `BUILTIN\Administrators`, which has **Full on `sdsys\bin` both
+> before and after** the change — only the `sdusers` entry moved, `(M)` → `(RX)`.
+> A blocked *elevated* process is not explained by it. **Do not assume the ACL
+> and do not revert it blindly; find the blocking call.**
+>
+> **THE OTHER HYPOTHESIS, UNVERIFIED:** §7 step 4's **elevation helper**.
+> `sd.exe` stays unelevated for life and negotiates with
+> `sd-elevate-helper.ps1` over a pipe; a session that is *already* elevated
+> doing that non-interactively would block on a pipe read exactly like this.
+> **Nobody has traced it.** `sd-elevate.ps1`, `sd-elevate-helper.ps1`.
+>
+> ### HOW TO PICK IT UP
+>
+> 1. **`b16` IS UNSPENT** — no `b16` user or `sdu_` group was ever created, and
+>    the spent-prefix check is only that. Reuse it.
+> 2. **Reproduce in one step, no suite needed:** elevated,
+>    `sd ZZNOSUCHVERB` from `C:\ProgramData\SD\user_accounts\don`, **with a
+>    timeout** — it hangs. That is the whole bug.
+> 3. ***USE A TIMEOUT ON EVERY ELEVATED SD PROBE.*** Five windows were hung
+>    today; an SD console session **cannot be killed by `Stop-Process` or
+>    `taskkill /F` from an ordinary token** and needs elevation to clear.
+> 4. **§4.0.1 — AN AGENT CANNOT RUN THE VERIFY SUITE.** Corrected this session
+>    and it cost two attempts; read it before trying.
+>
+> ### THE PREVIOUS GREEN STATE, KEPT FOR THE BRACKET
 >
 > **End of the forty-third session, 23 Aug 2026.** Install **23 Aug 10:01:45**,
 > `assert-current` matched source, and `-Run b15` at **9 of 9 unelevated and 17
