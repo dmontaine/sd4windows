@@ -27,6 +27,64 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: step 16's blocker is answered, and READCSV turns out to corrupt data
+
+**Commit:** the commit carrying this entry. **Still no source change** — the
+11:15:29 install and `assert-current` exit 0 throughout. Owner asked for the
+`bp.out` blocker plus `WRITECSV`, `READCSV`, `WRITESEQ` and `READSEQ` measured
+before anything is written.
+
+**THE BLOCKER IS ANSWERED AND OBJECT CODE IS NOT AT RISK.**
+***`sdsys/gpl.bp/BASIC:239` is `mark.mapping out.f, off`*** — the `BASIC` verb
+turns mapping off on the output file before writing object code. Corroborated
+without reading that line at all, by a byte census of the shipped tree:
+`gpl.bp/SETPTR` (source, 32,799 bytes) holds **929 LF and zero field marks**,
+so mapping ran and converted every FM; `gpl.bp.out/SETPTR` (object, 7,702
+bytes) holds **5 field marks, 62 subvalue marks, and raw LF and CR as data**,
+so mapping did not run. **Changing `Newline` cannot corrupt object code**, and
+the feared "corrupt catalogue" failure is off the table.
+
+**THE REASON THAT QUESTION LOOKED UNANSWERABLE WAS A GREP FOR THE WRONG
+TOKEN.** The step recorded *"No shipped BASIC program calls `MAPMARKS` — the
+only hit is `BCOMP:9073`, which is the compiler EMITTING the opcode"*, and
+concluded the write path was "somewhere not yet located". `MAPMARKS` is the
+**opcode**; the **statement** is `MARK.MAPPING`, which appears **27 times in 13
+shipped programs**. The path was never missing — it was never searched for
+under its own name. Same shape as the `-SimpleMatch` and case-insensitivity
+traps in §6: the search was fine, the token was wrong.
+
+**ALL FOUR SEQUENTIAL STATEMENTS MEASURED**, read fixtures planted with CRLF
+from outside SD, write output read back as raw bytes:
+
+| statement | today |
+|---|---|
+| `WRITESEQ` | LF only — `41 4C 50 48 41 0A 42 45 54 41 0A` |
+| `WRITECSV` | LF only — `41 31 2C 42 31 0A 41 32 2C 42 32 0A` |
+| `READSEQ` | keeps the CR on every line (`LEN=6 LASTCHAR=13`), the unterminated last line clean at `LASTCHAR=65` |
+| `READCSV` | keeps the CR on the **last field of every row** — `P LEN=2 LAST=49`, `Q LEN=3 LAST=13` |
+
+***`READCSV` IS THE FINDING.*** The first field is clean because a comma
+terminates it; the last field inherits the line terminator's CR. **Reading a
+conformant RFC 4180 CSV — what Excel writes — silently appends a CR to one
+field per row.** That is wrong data, not untidy data, on the exact path
+`csv.htm` and `qmb_writecsv.htm` claim conformance for. It moves (a) from
+tolerance to a correctness fix, and it is the strongest single argument in the
+step. `WRITECSV` emitting LF makes the same claim false in the other
+direction.
+
+**The instrument voided once first, again correctly.** `LOOP WHILE READSEQ …
+DO` did not compile — the compiler read `READSEQ` and `READCSV` as variables
+and reported *"Unrecognised statement"* — and both write legs reported
+*"EMPTY - nothing measured"* rather than a terminator. Rewritten as
+`LOOP / READSEQ … ELSE EXIT / REPEAT`.
+
+**Fixtures plant and remove themselves**; `scratchpad/measure-seqcsv.ps1`.
+
+**Still open:** (a) is unwritten — four hardcoded read sites. Nothing now
+blocks (b) technically; what remains for it is the owner's call on scope.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: step 16 started. The docs settle the argument, and both halves are now measured
 
 **Commit:** the commit carrying this entry. **No source change** — everything

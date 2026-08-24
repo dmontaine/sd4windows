@@ -6386,6 +6386,49 @@ the staging script and the Inno installer were all finished and removed.
     `scratchpad/measure-newline.ps1` and `measure-read.ps1`; both plant, read
     and then remove their own fixtures.
 
+    ***4. ALL FOUR SEQUENTIAL STATEMENTS MEASURED, 24 Aug 2026 — AND `READCSV`
+    IS A DATA-CORRUPTION DEFECT ON THE DOCUMENTED INTEROP PATH.*** Read
+    fixtures were planted with **CRLF from outside SD**, which is what Excel
+    and an external editor produce; write output was read back as raw bytes.
+
+    | statement | today | evidence |
+    |---|---|---|
+    | `WRITESEQ` | **LF only** | `41 4C 50 48 41 0A 42 45 54 41 0A` |
+    | `WRITECSV` | **LF only** | `41 31 2C 42 31 0A 41 32 2C 42 32 0A` — **so the RFC 4180 claim is false today** |
+    | `READSEQ` | **keeps the CR on every line** | `LEN=6 LASTCHAR=13`, `LEN=5 LASTCHAR=13`; the unterminated third line reads `LASTCHAR=65` — the built-in control |
+    | `READCSV` | **keeps the CR on the LAST FIELD of every row** | row 1 `P LEN=2 LAST=49`, **`Q LEN=3 LAST=13`**; row 2 the same |
+
+    ***`READCSV` IS THE ONE TO LEAD WITH.*** The first field is clean because a
+    comma terminates it; the last field inherits the line terminator's CR. So
+    **reading a conformant CSV silently appends a CR to one field per row** —
+    not an aesthetic issue but wrong data, on the exact path `csv.htm` and
+    `qmb_writecsv.htm` claim RFC 4180 conformance for. It makes (a) a
+    correctness fix rather than tolerance.
+
+    ***5. THE `bp.out` QUESTION THAT BLOCKED (b) IS ANSWERED. OBJECT CODE IS
+    NOT AT RISK.*** ***`sdsys/gpl.bp/BASIC:239` is `mark.mapping out.f, off`***
+    — the `BASIC` verb disables mapping on the object file before writing it.
+    Confirmed independently by a byte census of the shipped tree:
+
+    | file | 0x0A LF | 0x0D CR | 0xFE FM | 0xFD SVM |
+    |---|---|---|---|---|
+    | `gpl.bp/SETPTR` (source, 32,799 b) | 929 | 0 | **0** | 0 |
+    | `gpl.bp.out/SETPTR` (object, 7,702 b) | 82 | 53 | **5** | 62 |
+
+    The source record has **no field marks** — every one became an LF, so
+    mapping ran. The object keeps its field marks *and* carries raw LF and CR
+    as data, so mapping did not run. **Changing `Newline` therefore cannot
+    corrupt object code**, and the failure this step feared — "a corrupt
+    catalogue rather than a line-ending change" — is off the table.
+
+    ***CORRECTION: THE CLAIM THAT NOTHING CALLS IT WAS A GREP FOR THE WRONG
+    TOKEN.*** This step said *"No shipped BASIC program calls `MAPMARKS` — the
+    only hit is `BCOMP:9073`"*. `MAPMARKS` is the **opcode**; the **statement**
+    is `MARK.MAPPING`, and it appears **27 times in 13 shipped programs** —
+    `BASIC`, `CATALOG`, `COPY`, `COPYP`, `MAPCAT`, `APISRVR`, `CT`, `CNAME`,
+    `CONFIGF`, `BBPROC`, `PROG_INFO`, `SDCLIENT`, `BCOMP`. The write path was
+    never missing; it was never grepped for under its own name.
+
     ### (a) MAKE THE READERS TOLERANT - a defect fix, do this first
 
     Treat `\r\n` as the terminator at the two read sites; **leave a lone `\r`
@@ -6404,6 +6447,10 @@ the staging script and the Inno installer were all finished and removed.
     holding both spellings during a transition.
 
     ### (b) WRITE CRLF - a product decision, and it needs one thing settled first
+
+    ***ANSWERED 24 Aug 2026 — `gpl.bp/BASIC:239`, `mark.mapping out.f, off`,
+    corroborated by a byte census. THIS NO LONGER BLOCKS (b); the paragraph is
+    kept because its reasoning is why the question mattered.***
 
     ***THE OPEN QUESTION THAT BLOCKS IT: HOW DOES BINARY OBJECT CODE IN
     `bp.out` SURVIVE THE FIELD-MARK/NEWLINE MAPPING TODAY?*** `bp.out` and
