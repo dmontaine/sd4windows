@@ -24955,3 +24955,97 @@ login failure naming message 5277 is also a finding, not a broken test, and the
 script says so on the way out.
 
 Only parse-checked and reasoned about here.  Nothing has executed it.
+
+## 24 Aug 2026 — Step 14 is measured: the API session authenticates as the user and writes as LocalSystem
+
+Forty-seventh session. `verify-apiidentity` reached its own measurement for the
+first time since it was written. The answer is negative and it is a product
+finding, not a test fault.
+
+```
+ZZLOCAL (written by the local elevated session): GITORLI\don
+ZZAPI   (written by the API session)           : NT AUTHORITY\SYSTEM
+```
+
+Run `b28`, install 23 Aug 21:25:18, `assert-current` exit 0. PROJECT_STATUS
+§7 step 14 has the conclusion and what to test next; this entry is how it was
+reached, because four of the five runs it took were instrument faults and the
+sequence is the reusable part.
+
+**The fixture problem the session opened with.** The last session could not get
+a VOC F-pointer planted: `SET.FILE` is a cross-account verb and refuses with
+2201, and `CREATE.FILE ... DYNAMIC PATHNAME` half-succeeds — it writes the VOC
+entry and then stops at 6128 before adding `@ID` (`CREATEF:471-486`), leaving a
+pointer to a structurally incomplete file. **The owner supplied the route:**
+create a directory-type file, write the VOC item into it as plain text, and
+`COPY` it into VOC. It worked first time. `COPY` maps newlines to field marks
+whenever exactly one side is a directory file (`COPY:220-229`), and `copy.htm`
+says so outright — `BINARY` is what SUPPRESSES the translation.
+
+**One correction to it, and it is measured:** the record must be **LF-only**.
+`op_dio3.c:1180` maps `\n` to a field mark and never touches `\r`, and the
+record is opened `O_BINARY` (`dh_file.c:230`). A CRLF file yields field 1
+`"F\r"` and a pathname with a trailing CR — the `config.c` trap one file over.
+SD is self-consistent here (`sddefs.h:65` defines `Newline` as `"\n"`, and
+upstream `sdb64` is byte-identical), so only hand-authored files are exposed.
+
+**The four instrument faults, in order.**
+
+- **b24** — WHO was parsed with `^\s*\d+\s+(\S+)`, which also matches COPY's
+  own `1 record(s) copied.`, so two success lines were read as WHO reports and
+  a step that had entirely succeeded was failed. Replaced with an
+  account-shaped match to end of line, deliberately **not** case-insensitive:
+  under `(?i)` the `[A-Z]` class matches the `r` of `record(s)` and the bug
+  returns.
+- **b25** — `icacls /inheritance:r /T` ran before the grant. A fixture
+  directory whose ACEs are all inherited is left with an **empty DACL**, and
+  owner-implicit rights cover `READ_CONTROL` and `WRITE_DAC` but **not
+  `FILE_TRAVERSE`** — so icacls could not descend into the directory it had
+  just emptied, printed `<path>\*: Access is denied` and **exited 0**. The
+  children kept `sdusers:(OI)(CI)(M)`, which the API account is in, while the
+  directory read back clean. **This was written up mid-session as a product
+  finding and retracted.** Fixed by granting first and stripping second, and by
+  reading icacls' output rather than its exit code.
+- **b26** — the readback asserted the directory rather than `%0`, and died on a
+  bare `Get-Acl : Access is denied` that named no object.
+- **b27** — with the ACLs finally provably correct at `%0`, **all three
+  fixtures still opened**, including one granting the account alone and one
+  granting it nothing. No single token does both. LocalSystem holds
+  `SeBackupPrivilege`, which bypasses DACLs outright, so **no ACL fixture can
+  ever gate an uncontained session.** The whole approach was wrong.
+
+**What replaced it, and why it is not vulnerable to the same thing.** A
+directory-type file stores each record as a real file, so the owner of a record
+is the OS identity that wrote it. `vb.write` (request 16, `APISRVR:900`) writes
+one from the API session and `COPY` writes another from a local elevated
+session. **The two owners differing is the control** — without it, "owned by
+SYSTEM" could just mean SD always creates as SYSTEM. A privilege that lets a
+token OPEN a file it has no ACE on does not change whose name goes on a file it
+CREATES.
+
+**Two Windows facts were measured with scratch probes rather than reasoned**,
+after two wrong predictions in a row: a child locked against its own owner is
+still `Get-Acl`-readable, so owner `READ_CONTROL` works; an untouched child
+under an emptied parent is not, so traversal is what fails. Both are in §6.
+
+**Two bugs were caught by unit tests before they cost a run**, both PowerShell
+rather than Windows: passing an array to a `ValueFromRemainingArguments`
+parameter nests it, so icacls received the whole command line as one path; and
+`@(@('/grant') + $grants, @('/inheritance:r'))` parses as three passes, because
+`,` binds tighter than `+`. The tests lift the real functions out of the script
+by AST so they cannot drift from it.
+
+**Also found:** `C:\Users\dmont\Projects\sdhelp`, 783 files of command
+documentation, which §2 had never recorded — a cold session could not have
+known it existed. And the verifier count in §4.0 was wrong in both directions
+(heading 27, body 26, actual 28).
+
+**What is NOT established.** Why the impersonation does not govern. The hook
+fires and returns true (`APISRVR:1472` is unconditional and a false return
+leaves through `exit.vb.scram.fail`), `win32s4u.c:184` refuses an
+Identification-level token, and nothing calls `RevertUserIdentity()`. The
+prime suspect is the runtime: `probe-impersonate.c`, which PROJECT_STATUS cites
+as showing `ImpersonateLoggedOnUser` governs MSYS2's `open()`, was a
+**standalone program started by `schtasks`**, while an API session is a
+`fork()`ed and `exec()`d Cygwin child. Re-run that probe from a forked child
+before spending anything on a fix.

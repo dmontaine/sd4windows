@@ -5,117 +5,85 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 23 Aug 2026, end of the forty-sixth session.
+**Last updated:** 24 Aug 2026, end of the forty-seventh session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: §7 STEP 14 IS STILL UNMEASURED. `verify-apiidentity`'s FIXTURE MECHANISM NEEDS ONE MORE CHANGE.
+> ## NEXT: §7 STEP 14 IS MEASURED AND THE ANSWER IS NO. THE API SESSION AUTHENTICATES AS THE USER AND STILL WRITES AS LocalSystem.
 >
-> ***END OF THE FORTY-SIXTH SESSION, 23 Aug 2026.*** Runs `b18` through `b23`
-> all VOIDed on this single verifier. The install tree remains green for
-> everything else — the b17 bracket below still stands.
+> ***END OF THE FORTY-SEVENTH SESSION, 24 Aug 2026.*** `verify-apiidentity`
+> reached its own measurement for the first time since it was written. `b18`
+> to `b27` were all instrument faults, listed below so none is repeated; `b28`
+> is a result. The `b17` bracket still stands for everything else.
 >
-> The verifier now authenticates and account-attaches correctly. What still
-> fails is Step 3's fixture planting — and the last fault turned out to be a
-> **product bug in `CREATEF.b`**, not a test fault. Options and command are at
-> the bottom of this block.
+> ### THE FINDING, WITH THE CONTROL THAT MAKES IT ONE
 >
-> ### FOUR FAULTS FIXED THIS SESSION, ONE STILL BLOCKS
->
-> | # | fault | fix | still owed? |
-> |---|---|---|---|
-> | 1 | embedded BOM at verify-apiidentity.ps1:113 → crashed on script load, VerifyInstall2 harness scored the crash `exit 0` (empty step log + stale `$LASTEXITCODE`) | 3 bytes stripped; parse+byte-scan check now in CLAUDE.md rules | harness guard: 0-byte step log ⇒ FAIL (not written) |
-> | 2 | SCRAM authenticated but no account attach → every `vb.open` returned `ER_NVR` (3007) | added `SrvrAccount = 3` packet after SCRAM (mirrors sdclilib.c:1241) | no |
-> | 3 | Step 3 used `SET.FILE` which is a cross-account verb (SETFILE.b:29 = `SET.FILE account file.name pointer.name`) → refused every call with sysmsg 2201 | switched to `CREATE.FILE ... DYNAMIC PATHNAME <path>` | no |
-> | 4 | `CREATEF.b:30-31` doc comment says `{DIRECTORY path}` but parser checks `KW$PATHNAME` (PARSER.H:61) | verifier uses `PATHNAME`; CREATEF's stale comment logged as side finding | no in verifier; the CREATEF comment is a trivial one-line product fix |
-> | 5 | `CREATE.FILE ZZID DYNAMIC PATHNAME <path> NO.QUERY` half-succeeds: writes DICT and DATA physical files and the VOC F-record, then **STOPs at sysmsg 6128** (`Unable to open newly created dictionary`, CREATEF.b:474) before adding `@ID`. VOC entry present; physical file structurally incomplete; API `vb.open` returns `ER_FNF` (3003) | **NOT FIXED — this is a product bug in `sdb_ai/sd64/sdsys/gpl.bp/CREATEF` or the underlying `create.file <path> dynamic` on Windows** | YES |
->
-> ### TWO WAYS FORWARD, PICK ONE
->
-> **Option W (workaround, RECOMMENDED for closing step 14):**
-> Drop `PATHNAME` from Step 3's `CREATE.FILE` calls. SD then creates
-> `ZZIDALLOW`/`ZZIDDENY` inside the account dir (this is the code path every
-> fresh account uses — known good). Then break inheritance on `ZZIDDENY` and
-> its `.DIC`, grant only `SYSTEM` + `Administrators`. Impersonation test
-> unchanged: the API session's `sdu_sdapiidb<n>` group grant reaches ALLOW,
-> the broken-inheritance DENY refuses it. No cycle needed — verifier is
-> `$neverShipped`. Then run:
->
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiidentity.ps1 -Prefix sdapiidb24
+> ```
+> ZZLOCAL (written by the local elevated session): GITORLI\don
+> ZZAPI   (written by the API session)           : NT AUTHORITY\SYSTEM
 > ```
 >
-> **Option P (fix the product):**
-> Debug why `open "DICT", file.name` at `CREATEF.b:471-475` fails on a
-> just-created external-path file on Windows. Adds a real cycle. Not blocking
-> step 14 — do it after W closes step 14 and step 14 is measured.
+> A directory-type file stores each record as a real file on disk, so the
+> OWNER of a record is the OS identity that wrote it. **The two owners
+> differ** — that is the control, and without it "owned by SYSTEM" could
+> merely mean SD always creates as SYSTEM. Ownership tracks the writing
+> session; the API session's is `NT AUTHORITY\SYSTEM`.
 >
-> ### ALSO OWED WHEN EDITING Step 3 (small rule-tightening)
+> **`K$ASSUME.USER` FIRES, RETURNS TRUE, AND DOES NOT GOVERN THE FILE LAYER.**
+> The hook is unconditional at `APISRVR:1472` and a false return jumps to
+> `exit.vb.scram.fail` before `logged.in`, so any session that logged in ran
+> it and it succeeded. `win32s4u.c:184` refuses an Identification-level token
+> rather than impersonating with one, and **nothing anywhere calls
+> `RevertUserIdentity()`**. The call is real; its effect is absent.
 >
-> My Step 3 check found `Created DATA part as` twice and declared success while
-> the files were structurally broken — the check saw the success anchor but
-> missed the subsequent **stop-sysmsg**. Tighten the disqualifier list to
-> include `Unable to`, and treat **any stop-sysmsg text after the successes as
-> a failure**. The CLAUDE.md rule "A check must anchor on the SUCCESS wording"
-> already prescribes this — my implementation was too narrow.
+> ### WHERE TO LOOK, AND ONE PIECE OF EVIDENCE THAT IS WEAKER THAN IT READS
 >
-> ### TWO NEW PROJECT RULES ADDED THIS SESSION — READ THEM
+> §7 step 14 cites `gplbld/probe-impersonate.c` as showing
+> `ImpersonateLoggedOnUser` governs the MSYS2 runtime's `open()`. **That probe
+> was a STANDALONE program started by `schtasks`.** An API session is a
+> `fork()`ed and `exec()`d Cygwin child of `sdwind`, and the Cygwin runtime
+> keeps its own idea of the user fixed at process start. **Re-run that probe
+> from a forked child before trusting shape (b) any further** — it is the
+> cheapest thing that could overturn the design decision.
 >
-> - [`CLAUDE.md` §"Verify a script loads before you submit it for execution"](CLAUDE.md#verify-a-script-loads-before-you-submit-it-for-execution) — parse-check + byte-scan (embedded BOM) every script before handing it to the owner's terminal or a cycle. Parse alone doesn't catch the BOM class.
-> - [`CLAUDE.md` §"A check must anchor on the SUCCESS wording"](CLAUDE.md#a-check-must-anchor-on-the-success-wording-not-on-any-string-the-failure-also-carries) — `-match 'ZZIDALLOW'` was matching echoed command lines and "not found" errors. Match tool's positive-path success wording; add disqualifier control.
+> ### DO NOT RE-TRY AN ACL FIXTURE. IT CANNOT ANSWER THIS QUESTION.
 >
-> ### FIVE VOID LOGS, ALL UNDER `C:\Users\dmont\AppData\Local\SD-verify\`
+> `b27` and `b28` both opened all three ACL fixtures — including one whose
+> `%0` grants the account alone and one that grants it nothing — with the
+> DACLs verified correct at `%0` in the same run. No single token does that.
+> **A LocalSystem session holds `SeBackupPrivilege`, which bypasses DACLs
+> outright**, so no arrangement of grants can gate it. The three rows are kept
+> as readings and marked non-decisive; they no longer set the exit code.
+> **Ownership is the instrument that works, because a privilege that lets a
+> token OPEN what it has no ACE on does not change whose name goes on a file
+> it CREATES.**
 >
-> - **b18** stamp `221042` — step-17 log **EMPTY** (crash on load); harness said 18/18 green ← the false green that started this
-> - **b19** stamp `225106` — `ER_NVR` (no SrvrAccount attach yet)
-> - **b20** stamp `230118` — `ER_NVR` (first attach attempt didn't stick)
-> - **b21** stamp `232930` — `SET.FILE` refused sysmsg 2201 ("Account name not in register")
-> - **b22** stamp `234412` — `CREATE.FILE ... DYNAMIC DIRECTORY` refused ("Unexpected token (DIRECTORY)")
-> - **b23** stamp `234840` — `CREATE.FILE ... DYNAMIC PATHNAME` half-succeeded; API `vb.open` returned `ER_FNF`
+> ### THE FOUR INSTRUMENT FAULTS, SO NONE IS PAID FOR TWICE
 >
-> ### SIDE FINDING (not fixed, filed for later)
+> | run | fault | now |
+> |---|---|---|
+> | `b24` | WHO parsed with `^\s*\d+\s+(\S+)`, which also matches COPY's `1 record(s) copied.` | `Get-WhoAccounts`, account-shaped to end of line, deliberately NOT case-insensitive |
+> | `b25` | `icacls /inheritance:r /T` ran FIRST, emptied the parent DACL, then could not walk in — children kept inherited `sdusers:(M)`, and `icacls` exited **0** having said `Access is denied` | grant first, strip second; `Assert-Icacls` reads the output, not just the exit code |
+> | `b26` | readback asserted the DIRECTORY, not `%0`, and died on a bare `Get-Acl : Access is denied` naming no object | assertions are on the files; every read names its object first |
+> | `b27` | ACL fixtures cannot discriminate at all (above) | ownership probe |
 >
-> `sdb_ai/sd64/sdsys/gpl.bp/CREATEF:30-31` doc comment reads `{DIRECTORY
-> path}` but its parser at :183 checks `KW$PATHNAME` (PARSER.H:61 defines
-> that as 46). b22 followed the stale comment and paid a run for it. One-line
-> comment fix in shipped BASIC.
+> §6 carries the three Windows facts these rest on — owner-implicit rights do
+> not cover `FILE_TRAVERSE`, `icacls` exits 0 having failed part of a `/T`
+> walk, and `/inheritance:r` on a directory holding only inherited ACEs leaves
+> it empty.
 >
-> ### AGENT CANNOT RUN `VerifyInstall1` (§4.0.1 still holds)
->
-> Nested elevations from an agent shell are silently refused; two prior
-> sessions were burned on this. The verify suite runs in a person's own
-> ordinary terminal. An agent CAN run `verify-apiidentity.ps1` standalone from
-> an elevated PowerShell IF that elevated window is opened by the owner (one
-> UAC click), but the full suite is the owner's terminal only.
->
-> ### THE b17 BRACKET, STILL VALID FOR EVERYTHING EXCEPT STEP 14 EFFECT
->
-> **`b17` (install 23 Aug 21:25:18)** — 10/10 unelevated + 17/17 elevated,
-> every step `exit 0`, zero `[FAIL]`. §7 step 14's **call chain** proved to
-> work then: SCRAM login, `K$ASSUME.USER`, `ImpersonateLoggedOnUser` all fired
-> against a live API login with message 5277 appearing nowhere. `sd.exe` hash
-> **43C22DDB082D2748**, built 21:18:39 — the binary carrying `K_ASSUME_USER`.
->
-> **What b17 did NOT prove and what verify-apiidentity was built to prove:**
-> the IMPERSONATION EFFECT — that an API session logged in as user X is
-> confined to files X may read at the OS layer. A green suite of 27 would
-> look identical if the token changed and the file layer ignored it. That is
-> what remains to close.
->
-> ### TO CLOSE STEP 14 AFTER OPTION W SUCCEEDS
->
-> After a standalone `verify-apiidentity` PASSES (not VOIDs), run the full
-> suite (person's own ordinary terminal per §4.0.1):
+> ### TO RE-RUN IT
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b24
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiidentity.ps1 -Prefix sdapiidb29
 > ```
 >
-> A green `b24` closes step 14 for real. Suite count is still 28 (10
-> unelevated + 18 elevated). No commit is owed for the b17 → b24 transition
-> unless a fix lands on `sd.exe`; the verifier is `$neverShipped`.
+> Standalone, from an elevated window the owner opened (§4.0.1). It is
+> `$neverShipped`, so editing it costs no cycle. Prefixes `b18`-`b28` are
+> spent. **A fix to step 14 lands on `sd.exe` and therefore owes a full
+> `cycle.ps1` and a fresh suite run.**
 
 ---
 
@@ -515,7 +483,7 @@ needed the first time somebody pushes, and git explains that clearly by itself.
 
 ***MSYS2'S OWN `git` IS DELIBERATELY NOT IN THE PACKAGE LIST***, and the first
 draft had it. `-CheckOnly` on the reference machine reported it missing — on
-the machine that builds SD, ships installers and passes all 27 verifiers. So it
+the machine that builds SD, ships installers and runs the whole suite. So it
 was never a requirement: cloning is Windows `git` from PowerShell, and nothing
 in the Makefile or `gplbld/*.py` shells out to git at all. **A setup script that
 reports a working machine as incomplete teaches the operator to ignore it.**
@@ -775,8 +743,18 @@ values are still transposed, that `sdsys/syscom/sdclilib.h` "deliberately
 defines neither" (it defines both, at `:127`), and that our BASIC therefore
 cannot tell a transport failure from a context error.*
 
-Two local trees, neither part of this repository, both absent on a fresh
-machine, and nothing in the build depends on either:
+***THE COMMAND DOCUMENTATION IS AT `C:\Users\dmont\Projects\sdhelp` AND THIS
+SECTION DID NOT MENTION IT UNTIL 24 Aug 2026.*** 783 HTML files, one per verb
+and keyword — the OpenQM/SD reference the owner supplied. **Read it before
+inferring a verb's syntax from its BASIC source**: `copy.htm` states outright
+that `BINARY` *suppresses* the field-mark/newline translation between a hashed
+and a directory file, which is what made the `COPY` route in §7 step 14 safe to
+build, and `create_file.htm` says `PATHNAME` names a directory the file is
+created **under**. A cold session could not previously have known it existed.
+Strip the tags to read it: `sed -e 's/<[^>]*>//g' <file>.htm`.
+
+Three more local trees, none part of this repository, all absent on a fresh
+machine, and nothing in the build depends on any of them:
 
 - **`C:\Users\dmont\Projects\gplsrc`** — original GPL ScarletDME C source.
   Limited value: Ladybridge stripped the Windows code thoroughly. Still useful
@@ -913,10 +891,27 @@ as it stood — every measurement with the reasoning that produced it — is in
 HISTORY, *"ARCHIVE 21 Aug 2026 - section 4's measurement record"*. Nothing was
 deleted, and the three corrections made on the way are noted where they belong.
 
-### 4.0 The verifier inventory — all 27, and which are actually run
+### 4.0 The verifier inventory — all 28, and which are actually run
+
+***COUNT CORRECTED 24 Aug 2026: `ls verify-*.ps1 | wc -l` says **28**, where
+the heading said 27 and the paragraph below said 26.*** The two that were never
+added here are **`verify-apiidentity`** (§7 step 14 — measured for the first
+time on 24 Aug, run `b28`, and it FAILS on a real product finding) and
+**`verify-pcodeacl`** (§7 step 15). Both are on `$neverShipped`. **Count the
+directory rather than trusting this line** — it has now been wrong twice, in
+both directions, which is what the rule below exists to stop.
+
+***THERE IS ALSO ONE NON-VERIFIER TEST, AND IT IS IN NEITHER RUNNER:***
+`gplbld/test-apiidentity-units.ps1`. It unit-tests `verify-apiidentity`'s two
+helpers by lifting them out of that script **by AST**, so it cannot drift from
+what it tests. Unelevated, no SD, no account, no install, touches only
+`%TEMP%` — it makes no claim about the installed tree, which is why it is not
+named `verify-*` and spends no prefix. **Run it after editing that verifier**:
+both cases it covers are bugs that were paid for in real runs (§6's WHO-pattern
+and `icacls`-ordering traps).
 
 **WRITTEN 22 Aug 2026 BECAUSE THE SET HAD NEVER BEEN WRITTEN DOWN.** There are
-**26** `verify-*.ps1` in `gplbld` — 24 when this was written, plus
+**28** `verify-*.ps1` in `gplbld` — 24 when this was written, plus
 `verify-notyet`, `verify-parsertokens` and `verify-batchjob`, less
 `verify-editkeys`, removed 23 Aug with the editors it tested. `post-cycle-elevated.ps1` ran **nine** of
 them, and the other fifteen were reachable only by remembering they existed.
@@ -3256,6 +3251,56 @@ session cannot.
 
 Each of these cost real time. Read before debugging anything similar.
 
+- **`icacls /inheritance:r /T` BEFORE THE GRANT EMPTIES THE PARENT, LOSES THE
+  WALK, AND EXITS 0 HAVING SAID SO. IT COST TWO RUNS AND ALMOST SHIPPED A
+  FALSE PRODUCT FINDING.** 24 Aug 2026, `verify-apiidentity` `b25`/`b26`.
+  A fixture directory whose ACEs are all inherited has an **empty DACL** after
+  `/inheritance:r`, and **owner-implicit rights cover `READ_CONTROL` and
+  `WRITE_DAC` but NOT `FILE_TRAVERSE`** - so icacls cannot descend into the
+  directory it has just emptied. It prints `<path>\*: Access is denied.` on
+  stderr and **exits 0**, because the item named on the command line
+  succeeded. The children keep their stale inherited ACEs - here
+  `sdusers:(OI)(CI)(M)` from `C:\ProgramData\SD` - while the DIRECTORY reads
+  back perfectly clean.
+
+  **THE ORDER IS GRANT FIRST, STRIP SECOND.** The explicit ACE is then already
+  in place when the inherited ones go, access is never lost, and the walk
+  completes. `Set-FixtureAcl` in `verify-apiidentity.ps1` is the worked form.
+
+  **AND THE EXIT CODE IS NOT THE INSTRUMENT.** Read the output for
+  `Access is denied` and for `Failed processing [1-9]`; `Assert-Icacls` does.
+  Both `b25` and `b26` were scored on that silence.
+
+  **Measured, not reasoned** - two scratch probes separated the two candidate
+  causes: a child locked against its owner is still `Get-Acl`-readable (so
+  owner `READ_CONTROL` works), while an untouched child under an emptied
+  parent is not (so traversal is what fails).
+
+- **ASSERT THE ACL ON THE OBJECT THAT GETS OPENED, WHICH FOR A DYNAMIC FILE IS
+  `%0` AND NOT THE DIRECTORY.** Same session. `op_dio1.c:734` only `stat()`s
+  the directory and then tests for `<path>/%0`; with it, `dh_open()` opens the
+  subfiles (`dh_open.c:122`), and **without it the file becomes a
+  DIRECTORY_FILE and `op_dio1.c:866` opens nothing at all**. So a directory
+  whose DACL looks right proves nothing about the file, and a fixture that
+  loses its `%0` silently stops being able to deny anything.
+
+- **AN ACL CANNOT GATE A LocalSystem SESSION AT ALL, SO DO NOT BUILD A
+  PERMISSION FIXTURE TO TEST ONE.** 24 Aug 2026, `b27`. LocalSystem holds
+  `SeBackupPrivilege`, which bypasses DACLs outright - measured indirectly but
+  unambiguously: three fixtures with DACLs verified correct at `%0`, one
+  granting the account alone and one granting it nothing, **all opened**, which
+  no single token can do. **Ownership is the instrument that survives this**,
+  because a privilege that lets a token OPEN a file it has no ACE on does not
+  change whose name goes on a file it CREATES. §7 step 14.
+
+- **A `^\s*\d+\s+(\S+)` "session and account" PATTERN ALSO MATCHES
+  `1 record(s) copied.`** 24 Aug 2026, `b24`. Parsing `WHO` that way turned two
+  COPY success lines into two extra WHO reports and failed a step that had
+  entirely succeeded. Match an ACCOUNT-SHAPED token to end of line, and
+  **do not make it case-insensitive** - under `(?i)` an `[A-Z]` class matches
+  the `r` of `record(s)` and the bug returns, which is this section's
+  `-match` trap arriving from a new direction. `Get-WhoAccounts` is the form,
+  with a unit test that runs the real b24 transcript through it.
 - **NAMING A SCRIPT WITH A PATH SEPARATOR IN `stage.py` OR `sd.iss` SILENTLY
   UN-EXCLUDES IT FROM `assert-current`.** Hit 20 Aug 2026. A comment in
   `stage.py`'s `SD_CONF` block said *"Measured 20 Aug 2026
@@ -5764,40 +5809,69 @@ the staging script and the Inno installer were all finished and removed.
     `AssumeUserIdentity` returned 1 on every live API login, so the S4U logon
     and `ImpersonateLoggedOnUser` both work in the real session.
 
-    **THE RISK NAMED BEFOREHAND DID NOT MATERIALISE.** The session writes as the
-    user after the switch, and nothing it must write - `errlog`, `pstmp`, the
-    audit trail - refused. Watched for, not merely absent.
+    **THE RISK NAMED BEFOREHAND DID NOT MATERIALISE.** Nothing the session must
+    write - `errlog`, `pstmp`, the audit trail - refused. Watched for, not
+    merely absent. *Corrected 24 Aug 2026: this said "the session writes as the
+    user after the switch", which `b28` disproved - it writes as
+    `NT AUTHORITY\SYSTEM`. The absence of refusals is explained by that, not by
+    the switch working.*
 
-    ***AND HERE IS WHAT IS STILL NOT VERIFIED, WHICH IS THE POINT OF THE STEP.***
-    **Nothing has observed the EFFECT.** No check asks whether an API session is
-    now confined to what the user may read; a green 27 would look identical if
-    the token changed and the file layer ignored it. **The call is proven, the
-    consequence is not.**
+    ***MEASURED 24 Aug 2026 ON THE 23 Aug 21:25:18 INSTALL, AND THE EFFECT IS
+    ABSENT.*** `gplbld/verify-apiidentity.ps1 -Prefix sdapiidb28`, run `b28`,
+    `assert-current` exit 0. The call was already proven by `b17`; this is the
+    consequence, and it is negative.
 
-    ***THE VERIFIER IS WRITTEN AND UNRUN: `gplbld/verify-apiidentity.ps1`,***
-    elevated step **17 of 18**, added to `VerifyInstall2`'s list after
-    `verify-scramlogin` (it needs a working SCRAM login before its answer means
-    anything) and before `verify-tierapi`, which stays last for its own reason.
+    ```
+    ZZLOCAL (written by the local elevated session): GITORLI\don
+    ZZAPI   (written by the API session)           : NT AUTHORITY\SYSTEM
+    ```
 
-    **Two fixtures, built and destroyed by the script:** `allow`, granted to the
-    throwaway account, and `deny`, ACL'd **SYSTEM and Administrators only with
-    inheritance broken** - `sdsys\$cred`'s shape. Each gets a VOC F-pointer via
-    `SET.FILE`, and a live API session sends **request 4, `vb.open`**, for both.
-    One request, one answer, no command parsing in the way.
+    **The instrument is OWNERSHIP, not access.** A directory-type file stores
+    each record as a real file, so the owner of a record is the OS identity
+    that wrote it. `vb.write` (request 16, `APISRVR:900`) writes one from the
+    API session; `COPY` writes the other from a local elevated session.
+    **The two owners differing is the control** - it is what makes the API
+    reading evidence rather than a statement about who owns the tree.
 
-    ***THE ALLOW FIXTURE IS THE CONTROL AND IT CARRIES THE TEST.*** A refusal on
-    `deny` means nothing alone - a wrong path, a mistyped pointer and an ACL
-    denial are indistinguishable. If `allow` does not open the script reports
-    **VOID, exit 2** and refuses to call `deny` a pass.
+    **So `K$ASSUME.USER` fires, succeeds, and does not govern the file layer.**
+    The hook is unconditional at `APISRVR:1472` and a false return jumps to
+    `exit.vb.scram.fail` before `logged.in`, so a session that logged in ran it
+    and it returned true. `win32s4u.c:184` refuses an Identification-level
+    token rather than impersonating with one, and **nothing calls
+    `RevertUserIdentity()` anywhere in the tree.**
 
-    **THREE THINGS CHECKED WHILE WRITING IT, EACH OF WHICH WOULD HAVE INVERTED
-    THE RESULT:** `vb.open` signals failure in **`ServerError`, not `Status`**;
-    `Invoke-ScramFirst`/`Final` return `.Response`, not a bare status; and the
-    throwaway account is asserted **not** to be an Administrator, or the `deny`
-    fixture does not deny it.
+    ***THE EVIDENCE FOR SHAPE (b) IS WEAKER THAN THIS SECTION READS, AND THAT
+    IS THE FIRST THING TO RE-TEST.*** `probe-impersonate.c` above is cited as
+    showing `ImpersonateLoggedOnUser` governs the MSYS2 runtime's `open()`.
+    **It was a STANDALONE program started by `schtasks`.** An API session is a
+    `fork()`ed and `exec()`d Cygwin child of `sdwind`, and the runtime fixes
+    its own idea of the user at process start. **Re-run that probe from a
+    forked child** before spending anything on a fix; it is the cheapest thing
+    that could overturn the choice of shape (b).
 
-    **Until it runs, step 14 stays *built and working* rather than *doing what
-    it was for*.**
+    ***AN ACL FIXTURE CANNOT ANSWER THIS AND MUST NOT BE RE-TRIED.*** `b27` and
+    `b28` both opened all three ACL fixtures - including one whose `%0` grants
+    the account alone, and one that grants it nothing - with every DACL
+    verified correct at `%0` in the same run. No single token does both.
+    **A LocalSystem session holds `SeBackupPrivilege`, which bypasses DACLs
+    outright**, so no arrangement of grants gates it. Those three rows are kept
+    in the verifier as readings, marked non-decisive, and do not set the exit
+    code. Ownership works precisely because a privilege that lets a token OPEN
+    what it has no ACE on does not change whose name goes on a file it CREATES.
+
+    **HOW THE FIXTURES GET INTO VOC, because two obvious routes are dead.**
+    `SET.FILE` is a CROSS-ACCOUNT verb (`SETFILE.b:29`) and refuses with 2201;
+    `CREATE.FILE ... DYNAMIC PATHNAME` half-succeeds, writing the VOC entry and
+    then stopping at 6128 before adding `@ID` (`CREATEF:471-486`), which is a
+    product bug and still open. What works, and is what the verifier does:
+    **create the file plainly, move it, then write the VOC F-pointer as text
+    into a DIRECTORY-type scratch file and `COPY` it into VOC.** COPY maps
+    newlines to field marks whenever exactly one side is a directory file
+    (`COPY:220-229`); `BINARY` is what SUPPRESSES that and is implied only when
+    both sides are directory files. **The record must be LF-only** - §6.
+
+    **Step 14 is now *measured and failing* rather than *built and unverified*.
+    A fix lands on `sd.exe`, so it owes a full `cycle.ps1` and a suite run.**
 
 15. **A data tree private from SD's own users** — §5.7's service-account model.
 
