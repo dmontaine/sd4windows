@@ -128,7 +128,52 @@ So any `PHANTOM` (`op_kernel.c:735`) or `SH` (`op_sh.c:379`) taken by an
 impersonated session drops it back to LocalSystem, and nothing in `win32s4u.c`
 can detect it. Shape (b) owes an answer to this whatever fixes b28.
 
-**WHAT IS STILL OPEN, AND IT IS A REAL TENSION - DO NOT PAPER OVER IT.**
+**ANSWERED THE SAME DAY BY (a2) - THE SESSION DOES FORK, AND THE CALL SITE IS
+THE LOGTO GROUP CHECK.** `probe-sessionfork.ps1 -Prefix sdapiidb30`, on the
+09:53:11 install: `sdwind` made one fork clone (`sdwind.exe` 15812) whose exec
+target was the session (`sd.exe` 4448), and **the session then made two fork
+clones of its own, both exec'ing `powershell.exe`** (14612→29948,
+34624→27640).
+
+**WHY THE EARLIER READING MISSED IT, WHICH IS THE REUSABLE PART.** "Nothing on
+the API login-to-write path forks" came from grepping the C tree for `fork(`.
+`is_grp_member` is BASIC calling `!ps_script`; it reaches `op_sh.c:379` and
+forks there, but the call originates at `APISRVR:566`, so no amount of C
+grepping shows it on that path. **A control-flow question answered by grepping
+one language of a two-language system is answered wrong.**
+
+The chain, end to end: `K$ASSUME.USER` impersonates at `APISRVR:1472` and works
+(`b17`); the client then sends SrvrAccount, `vb.account` (`:439`) runs
+`is_grp_member(kernel(K$USERNAME,0), acc.group)` at `:566`; that is `!ps_script`
+into `op_sh.c:379`'s `fork()` and an exec of `powershell.exe` (`:308`); the
+impersonation is silently gone; `vb.open` and `vb.write` then run as LocalSystem
+and produce the SYSTEM-owned record `b28` read. **`APISRVR:1470`'s own comment
+names its killer** - the account's files "are opened at LOGTO, which is after,
+and that is what makes this worth doing".
+
+**MEASURED vs INFERRED, kept apart deliberately.** Measured: the session forks
+twice into PowerShell, `fork()` drops impersonation, the record is SYSTEM-owned.
+Inferred: that *this* fork is the one that drops it in the live session - from
+the source path plus probe-impfork, not from reading the live session's token.
+(b) is now a confirmation rather than a search.
+
+**AND THE FIX IS WIDER THAN THIS CALL.** `PHANTOM` (`op_kernel.c:735`) and `SH`
+(`op_sh.c:379`, the same site) fork too. Moving `is_grp_member` alone leaves the
+class open. `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` addresses the class;
+re-impersonating after each fork is the narrow fix.
+
+**THE INSTRUMENT FAULT PAID FOR ON THE WAY, so it is not repeated.** `b29`
+reported the right verdict for the wrong reason. A Cygwin `fork()`+`exec()` is
+**two** Windows process creations: the clone carries the PARENT's image name,
+then the exec target starts as a separate process and the clone exits. The first
+version read that pair as "a session forking a child" - so it called `sdwind`'s
+own spawn (`sdwind.c:491`, which happens BEFORE the hook and was never in
+question) a fork by the session. Corrected to resolve clone→target pairs and
+re-run as `b30`. The correction also made it **name the exec target**, which is
+the thing that identifies the call site at all: `powershell.exe` is what says
+`!ps_script`.
+
+**WHAT WAS STILL OPEN WHEN THE ABOVE WAS WRITTEN, kept for the reasoning:**
 **Nothing on the API login-to-write path forks.** The server's only `fork()`
 sites are `op_kernel.c:735` (PHANTOM), `op_sh.c:379` (SH), `sdwind.c:491` (the
 spawn itself, which is *before* the hook) and `sysseg.c:643`/`:745` (SD

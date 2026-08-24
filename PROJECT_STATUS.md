@@ -104,32 +104,49 @@ something came to be the way it is.
 > drops it back to LocalSystem with no error** — and `AssumeUserIdentity` has
 > no way to notice. Shape (b) has to answer this whatever fixes b28.
 >
-> ### THE ONE TENSION LEFT, AND IT IS THE NEXT THING TO MEASURE
+> ### (a2) ANSWERED IT, 24 Aug: THE SESSION FORKS TWICE, BOTH TIMES INTO PowerShell
 >
-> **NOTHING ON THE API LOGIN-TO-WRITE PATH FORKS.** The server's only `fork()`
-> sites are `op_kernel.c:735` (PHANTOM), `op_sh.c:379` (SH), `sdwind.c:491`
-> (the spawn itself, *before* the hook) and `sysseg.c:643`/`:745` (SD start-up).
-> b28's flow is SCRAM → `vb.account` → `vb.open` → `vb.write` and takes none of
-> them. **So either the session forks somewhere not yet found, or something
-> outside Q3's 14 steps drops it.** Do not guess between those — measure.
+> `probe-sessionfork.ps1 -Prefix sdapiidb30`, on the 09:53:11 install.
 >
-> **(a2) BUILT AND PRE-FLIGHTED, NOT YET RUN — `gplbld/probe-sessionfork.ps1`.**
-> It watches `Win32_ProcessStartTrace` while a live `verify-apiidentity` run
-> logs in and writes, and asks whether the session process creates any child at
-> all. An event trace, not polling, because a short-lived fork would be *missed*
-> by polling and the miss would read as "did not fork". Filters on
-> **`ParentProcessID`, never `CommandLine`** — that is the self-match trap in §6.
+> ```
+> FORK CLONES MADE BY sdwind (sdwind.c:491, before the hook): 1
+>   pid 15812  sdwind.exe          <- the spawn, never in question
+> API SESSIONS (the exec targets of those clones): 1
+>   pid 4448   sd.exe              <- THE SESSION
+> fork clones made BY a session: 2
+>   clone sd.exe pid 14612 -> powershell.exe pid 29948
+>   clone sd.exe pid 34624 -> powershell.exe pid 27640
+> ```
 >
-> ***IT COSTS NO CODE CHANGE, BUT IT IS NOT FREE: it gates on `assert-current`
-> (`verify-apiidentity.ps1:409`), so it needs a CURRENT TREE.*** The banner
-> change of 24 Aug made the tree stale, so **a `cycle.ps1` is owed before (a2)
-> can run at all**. `-SelfTestOnly` proves the instrument fires without a cycle
-> and was measured doing so; it prints that it measured nothing about SD.
-> Prefix **b29 or later**.
+> ***THE WHOLE CHAIN, AND IT CLOSES b28.***
 >
-> **(b) COSTS A CYCLE:** `ImpersonatingUser()` (`win32s4u.c:230`) exists and
-> **has no caller anywhere**; reporting it at write time is decisive but lands
-> on `sd.exe`.
+> | step | what happens |
+> |---|---|
+> | `APISRVR:1472` | `K$ASSUME.USER` impersonates the caller. **Works** (`b17`). |
+> | `APISRVR:439` `vb.account` | the account switch, a **post-login** request |
+> | `APISRVR:566` | `is_grp_member(kernel(K$USERNAME,0), acc.group)` |
+> | `!ps_script` → `op_sh.c:379` | **`cpid = fork()`**, then execs `powershell.exe` (`:308`) |
+> | → | **the impersonation is silently gone** (probe-impfork, both legs) |
+> | `vb.open` / `vb.write` | run as LocalSystem → the SYSTEM-owned record `b28` read |
+>
+> ***THE COMMENT AT `APISRVR:1470` NAMES ITS OWN KILLER.*** It says the account's
+> files "are opened at LOGTO, which is after, and that is what makes this worth
+> doing" — and LOGTO is exactly where the group check forks the identity away.
+>
+> **MEASURED vs INFERRED, because they are not the same here.** *Measured:* the
+> session forks twice into PowerShell; `fork()` drops impersonation; the record
+> is SYSTEM-owned. *Inferred:* that **this** fork is the one that drops it in the
+> live session — from the source path plus probe-impfork, not from reading the
+> session's own token. **(b) is what would confirm it directly**, and it is now
+> a confirmation rather than a search.
+>
+> ***AND THE FIX IS WIDER THAN THIS ONE CALL.*** `PHANTOM` (`op_kernel.c:735`)
+> and `SH` (`op_sh.c:379`, the same site) fork too, so **any** of them taken by
+> an impersonated session drops it. A fix that only moves `is_grp_member` leaves
+> the class open. `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` — so the runtime
+> carries the token across fork/exec — is the candidate that addresses the class;
+> `RevertUserIdentity()`/re-impersonation after each fork is the narrow one.
+> **Either lands on `sd.exe` and owes a full `cycle.ps1`.**
 >
 > ### DO NOT RE-TRY AN ACL FIXTURE. IT CANNOT ANSWER THIS QUESTION.
 >
@@ -6071,13 +6088,51 @@ the staging script and the Inno installer were all finished and removed.
     LocalSystem with no error**, and nothing in `win32s4u.c` can notice. Shape
     (b) owes an answer to this whatever fixes b28.
 
-    ***THE TENSION THIS LEAVES, WHICH IS THE NEXT THING TO MEASURE.***
-    **Nothing on the API login-to-write path forks.** The server's only `fork()`
-    sites are PHANTOM, `SH`, `sdwind.c:491` (the spawn itself, before the hook)
-    and `sysseg.c:643`/`:745` (start-up); b28's flow — SCRAM, `vb.account`,
-    `vb.open`, `vb.write` — takes none of them. **So either the session forks
-    somewhere not yet found, or something outside Q3's 14 steps drops it. Do
-    not guess between those.**
+    ***RESOLVED BY (a2), 24 Aug 2026: THE SESSION FORKS, AND THE CALL SITE IS
+    THE LOGTO GROUP CHECK.*** The earlier reading of this — "nothing on the API
+    login-to-write path forks" — was wrong because it looked only for literal
+    `fork()` in C. `is_grp_member` is BASIC calling `!ps_script`, which reaches
+    `op_sh.c:379` and forks there; grepping the C tree for `fork(` never showed
+    it, because the call comes from `APISRVR:566`.
+
+    `probe-sessionfork.ps1 -Prefix sdapiidb30`, on the 09:53:11 install:
+    sdwind made **1** fork clone (`sdwind.exe` 15812) whose exec target was the
+    session (`sd.exe` 4448); **the session then made 2 fork clones of its own,
+    both exec'ing `powershell.exe`** (14612→29948, 34624→27640).
+
+    | step | what happens |
+    |---|---|
+    | `APISRVR:1472` | `K$ASSUME.USER` impersonates the caller. Works (`b17`) |
+    | `APISRVR:439` `vb.account` | the account switch, a **post-login** request |
+    | `APISRVR:566` | `is_grp_member(kernel(K$USERNAME,0), acc.group)` |
+    | `!ps_script` → `op_sh.c:379` | `cpid = fork()`, then execs `powershell.exe` (`:308`) |
+    | → | the impersonation is silently gone |
+    | `vb.open` / `vb.write` | run as LocalSystem → `b28`'s SYSTEM-owned record |
+
+    **`APISRVR:1470`'s own comment names its killer**: the account's files "are
+    opened at LOGTO, which is after, and that is what makes this worth doing".
+    LOGTO is where the group check forks the identity away.
+
+    **MEASURED vs INFERRED.** *Measured*: the session forks twice into
+    PowerShell; `fork()` drops impersonation; the record is SYSTEM-owned.
+    *Inferred*: that **this** fork is the one that drops it in the live session.
+    **(b) is now a confirmation rather than a search.**
+
+    ***THE FIX IS WIDER THAN THIS CALL.*** `PHANTOM` (`op_kernel.c:735`) and
+    `SH` (`op_sh.c:379`, the same site) fork too, so any of them taken by an
+    impersonated session drops it. Moving `is_grp_member` alone leaves the class
+    open. `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` addresses the class;
+    re-impersonating after each fork is the narrow fix. Either lands on
+    `sd.exe`.
+
+    **THE INSTRUMENT FAULT THAT CAME WITH IT, so it is not repeated.** `b29`
+    reported "the session does fork" **for the wrong reason**: a Cygwin
+    `fork()`+`exec()` is **two** Windows process creations — the clone carries
+    the *parent's* image name, then the exec target starts as a new process —
+    and the first version read that pair as "session forks child". It was
+    calling `sdwind`'s own spawn a fork by the session. Corrected to resolve
+    clone→target pairs, and re-run as `b30`; the corrected run also **names the
+    exec target**, which is what identifies the call site at all.
 
     **(a2) IS BUILT AND PRE-FLIGHTED — `gplbld/probe-sessionfork.ps1`, 24 Aug
     2026.** It watches `Win32_ProcessStartTrace` while a live
