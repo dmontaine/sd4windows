@@ -5,22 +5,52 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the forty-ninth session.
+**Last updated:** 24 Aug 2026, end of the fiftieth session (owner review prep).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: CYCLE THE `writeport` FIX IN, THEN §7 IS EMPTY. AFTER THAT, ASK.
+> ## NEXT: TRANSCRIBE THE RULED TIER SPLIT TO DISK, THEN BATCH-CYCLE WITH WRITEPORT.
 >
-> ***END OF THE FORTY-NINTH SESSION, 24 Aug 2026.*** **Steps 14 and 16 both
-> closed** — each built, cycled and verified here. §7 has no open *work* item.
-> **One built-but-uninstalled change is outstanding** (below), and after it
-> what remains is §8's open questions and the **curation** half of the tier
-> work: the mechanism is built and verified, the 30/45/65 verb split has never
-> been reviewed by the owner. **Neither is chosen — ask before starting one.**
+> ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** Session 49 closed §7 steps
+> 14 and 16 (a)+(b). Session 50 hoisted the first-pass tier split for owner
+> review and **the owner ruled all four open calls** (see §8 "THE SPLIT,
+> settled 24 Aug 2026"): debug family (`pstat` `pdebug` `pdump` `dump`) to
+> PROGRAMMER; read-only inspectors (`search` `list.diff` `list.item`
+> `list.common` `list.vars` `report.src` `report.style` `format`) to STANDARD;
+> `SET.DATE` stays ADMIN; **`UMASK` removed entirely** — POSIX file-mode-bits
+> call, essentially inert on Windows.
 >
-> ### WHAT THIS SESSION CLOSED, IN ONE TABLE
+> **NOTHING WAS APPLIED TO DISK THIS SESSION.** No compile, no cycle, no
+> install. The installed tree is unchanged from session 49; the "THE TREE IS
+> STALE" section below is session 49's and still describes today accurately.
+>
+> ### WHAT LANDS IN THE NEXT CYCLE, batched with the writeport fix
+>
+> The split is a data-only change — no C, no BASIC:
+>
+> 1. Delete `sdsys/voc_template/umask` and `sdsys/newvoc/umask` (UMASK gone).
+> 2. Delete 11 files from `sdsys/newvoc/` (move A verbs to voc_template-only):
+>    `config`, `listu`, `list.readu`, `list.locks`, `clear.locks`, `lock`,
+>    `logout`, `set.date`, `sh`, `!`, `clean.account`.
+> 3. Rewrite `sdsys/newvoc/TIER.ADD.ADMINISTRATOR` to hold the 21 A verbs
+>    (currently 10).
+> 4. Rewrite `sdsys/newvoc/TIER.OMIT.STANDARD` to hold the 42 P verbs
+>    (currently 17, and includes `sh`/`!` that will no longer be in newvoc).
+> 5. Update `gplbld/verify-tiers.ps1` count derivations — the header block at
+>    lines 21–38 walks through the arithmetic and needs re-derivation from the
+>    post-deletion NEWVOC record count (currently 407 with 12 deletions
+>    pending, plus 2 TIER list records and `%t` that never copy). Derive the
+>    three expected counts fresh — never copy them off a passing run.
+> 6. `changelog` entry — three-tier split now curates 140 verbs.
+> 7. **The writeport fix in `gplsrc/op_seqio.c:1762` lands in the same
+>    cycle** (it is what has kept `assert-current` at exit 1 since 12:36:09).
+>
+> One `cycle.ps1` covers all of it, and `verify-tiers.ps1` and
+> `verify-lineendings.ps1` afterwards. Owner's cycle.
+>
+> ### WHAT SESSION 49 CLOSED, IN ONE TABLE
 >
 > | | install | verifier |
 > |---|---|---|
@@ -6800,11 +6830,12 @@ recompiling. Owner's approach: **capability by VOC content** — take `BASIC`,
 `TIER.OMIT.STANDARD` line went with it.)
 Idiomatic MV, and it needs no C.
 
-**WHAT IS STILL OPEN IS THE CURATION, NOT THE MECHANISM.** What exists is the
-capability cut — eighteen ids withheld from STANDARD, nine added for
-ADMINISTRATOR. **The 30 / 45 / 65 split of the 149 verbs is not done**, and the
-first-pass split written on 17 Aug was **never reviewed by the owner**; it is in
-the archive rather than here, because it will move when he reads it.
+**WHAT IS STILL OPEN IS APPLYING THE CURATION, NOT DECIDING IT.** What exists
+in the installed tree is the capability cut — seventeen ids withheld from
+STANDARD, ten added for ADMINISTRATOR. **The full three-tier split of the 141
+verbs is now ruled** — owner review 24 Aug 2026, session 50, below. It has not
+yet been transcribed into `TIER.OMIT.STANDARD` and `TIER.ADD.ADMINISTRATOR`
+and it needs a cycle to land.
 
 **THREE THINGS THIS QUESTION USED TO BE BLOCKED ON HAVE SINCE LANDED**, which
 narrows it considerably:
@@ -6841,6 +6872,150 @@ decides what they may **reach**. Neither substitutes for the other.
 trap. A tier reading equal to `voc_template`'s record count means the session is
 in **SDSYS** and the account was never created; check that first, and never read
 a tier number without it.
+
+#### THE SPLIT, settled 24 Aug 2026
+
+**The split covers every verb in the current 141-entry `voc_template`.** Nothing
+unaccounted for, nothing named that no longer exists — cross-checked 24 Aug
+2026. Cumulative: `PROGRAMMER` gets STANDARD plus its own, `ADMINISTRATOR` gets
+everything.
+
+**HOW IT GOT HERE.** The first-pass split written 17 Aug is at HISTORY.md line
+22086, marked "not reviewed by the owner ... expect entries to move." Session
+50 lifted it, adjusted it for three verb changes since (`SED` and
+`UPDATE.RECORD` removed session 42, `MODIFY.PASSWORD` added 17 Aug per
+`CREATEA:72`), and put four remaining calls to the owner. **Owner ruled them
+24 Aug 2026, session 50:** debug family moves to PROGRAMMER; the read-only
+inspectors move to STANDARD; `SET.DATE` stays ADMIN; **`UMASK` is removed
+entirely** — it is a POSIX file-mode-bits call, essentially inert on Windows
+where security is ACL-based (`verify-accountacl`), so the verb is misleading
+rather than useful. `op_umask` in `gplsrc/op_misc.c:1503` and `int.umask` in
+`CPROC:3301` stay compiled but callerless, as `$MICRO` and `$NLS` are.
+
+**REMOVED FROM EVERY TIER (8) — one new on 24 Aug 2026 (`UMASK`):**
+```
+micro  nls  set.language  load.language
+set.server  delete.server  list.servers  umask
+```
+The first seven are already gone from both VOCs; UMASK still needs its
+`voc_template/umask` and `newvoc/umask` records deleted. **One cycle-worth of
+change on disk.**
+
+**ADMINISTRATOR only (21).** These are moved into voc_template-only by adding
+to `NEWVOC/TIER.ADD.ADMINISTRATOR` and (for those still in NEWVOC) removing
+the record from NEWVOC.
+
+- **A1, account and grant administration (11) — owner-ruled 17 Aug, in the
+  installed tree today:**
+  ```
+  create.account  delete.account  modify.account  update.account  clean.account
+  grant  revoke  list.grants  unlock  modify.password  encrypt.field
+  ```
+- **A2, system-wide state (8):** `logout` refuses to log out another user's
+  process unless caller is admin (`CPROC:3110`), so the tier is a policy call,
+  not a security one. `SET.DATE` confirmed admin 24 Aug even though it only
+  sets the SD process date-offset and does not touch the OS clock — SD's own
+  clock is a system-wide fact once the daemon holds it.
+  ```
+  config  listu  list.readu  list.locks  clear.locks  lock  logout  set.date
+  ```
+- **A3, shell escapes (2) — owner-ruled 16 Aug, "same class as MICRO":**
+  ```
+  sh  !
+  ```
+
+**PROGRAMMER adds (42).**
+
+- **P1, compilers, editors, code catalogue (15) — thirteen owner-ruled 17 Aug**
+  (`BASIC`, `CATALOG`, `RUN`, `ED`, `COPY` off standard; `MODIFY`,
+  `COMPILE.DICT`, `GENERATE`, `PHANTOM` — 17 Aug rulings; plus aliases
+  `CATALOGUE`, `DELETE.CATALOG`, `DELETE.CATALOGUE`, `EDIT`, `CD`). `MAP`
+  and `DEBUG` need `BASIC`-produced object.
+  ```
+  basic  catalog  catalogue  delete.catalog  delete.catalogue
+  compile.dict  cd  generate  phantom  run  map  debug
+  ed  edit  modify
+  ```
+- **P2, file and index definition (14):**
+  ```
+  create.file  delete.file  clear.file  configure.file
+  analyse.file  analyze.file  fstat  hsm  set.trigger
+  create.index  delete.index  build.index  make.index  list.index
+  ```
+- **P3, bulk record edit (9)** — cut from the earlier 17 when the read-only
+  inspectors moved to STANDARD 24 Aug:
+  ```
+  copy  copyp  delete  rename  reformat  sreformat
+  sort.item  delete.common  cname
+  ```
+- **P4, process introspection (4) — owner-ruled 24 Aug**, moved from
+  ADMINISTRATOR: a programmer needs these to debug their own code.
+  ```
+  pstat  pdebug  pdump  dump
+  ```
+
+**STANDARD (77). The application floor**, owner-ruled 16 Aug that `LIST` and
+`SELECT` stay in STANDARD and by extension the query family. Grew by 8 on 24
+Aug when the read-only inspectors moved down from PROGRAMMER.
+
+- **S1, query and list processing (10) — application core, owner-ruled floor:**
+  ```
+  select  sselect  qselect  nselect
+  list  sort  sum  list.label  sort.label  list.files
+  ```
+- **S2, named lists (10):**
+  ```
+  get.list  save.list  form.list  copy.list  merge.list  delete.list
+  list.union  list.inter  clear.select  clearselect
+  ```
+- **S3, spool and print (7):**
+  ```
+  setptr  spool  sp.open  sp.close  sp.view  printer  como
+  ```
+- **S4, session and environment (23):**
+  ```
+  logto  quit  stop  abort  clear.abort  go  if  set  show  option  alias
+  set.exit.status  set.file  term  pterm  date  time  date.format
+  who  who.am.i  status  release  autologout
+  ```
+- **S5, screen and messages (10):**
+  ```
+  message  logmsg  bell  echo  hush  pause  sleep  clr  cs  ct
+  ```
+- **S6, prompt and input state (9):**
+  ```
+  clear.input  clearinput  clear.prompts  clearprompts
+  clear.data  cleardata  clear.stack  get.stack  save.stack
+  ```
+- **S7, read-only inspectors (8) — owner-ruled 24 Aug**, moved from PROGRAMMER:
+  they read only, they need no BASIC or catalogue, an application can and does
+  invoke them.
+  ```
+  search  list.diff  list.item  list.common  list.vars
+  report.src  report.style  format
+  ```
+
+**Total: 21 + 42 + 77 = 140 verbs.** Matches the 141 in today's `voc_template`
+less UMASK, which is being removed. Every verb accounted for exactly once.
+
+**WHAT LANDS THIS ON DISK, in one commit and one cycle:**
+
+1. `sdsys/voc_template/umask` and `sdsys/newvoc/umask` deleted (UMASK
+   removal).
+2. `sdsys/newvoc/TIER.OMIT.STANDARD` grows to hold every P1–P4 verb plus every
+   A1–A3 verb that is still in newvoc — the union that STANDARD does not
+   receive.
+3. `sdsys/newvoc/TIER.ADD.ADMINISTRATOR` grows to hold every A1–A3 verb
+   copied out of voc_template.
+4. `changelog` entry.
+5. `gplbld/cycle.ps1` — no C or BASIC change, but the bootstrap re-copies
+   NEWVOC into every fresh account.
+
+`verify-tiers.ps1` runs against the new lists unchanged — the count assertions
+derive from list length, not hard-coded numbers. Add a fourth control row:
+STANDARD now holds the 8 inspectors, PROGRAMMER holds them too, ADMINISTRATOR
+holds them — a copy loop that got the tier for the S7 group wrong would fail
+on that row.
 
 ### ANSWERED IN CODE 22 Aug 2026, UNMEASURED: what may a scheduled job run?
 

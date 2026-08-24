@@ -27,6 +27,42 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fiftieth session: tier split hoisted, reviewed and ruled. Not yet on disk.
+
+**Commit:** the commit carrying this entry. Documentation only — no compile,
+no cycle, no install.
+
+**THE FIRST-PASS SPLIT was in HISTORY.md line 22086 and had been since 17
+Aug**, marked "not reviewed by the owner ... expect entries to move." Session
+50 lifted it into PROJECT_STATUS.md §8, adjusted it for three verb changes
+since (`SED` and `UPDATE.RECORD` removed session 42, `MODIFY.PASSWORD` added
+17 Aug per `CREATEA:72`), grouped by rationale so the owner could rule by
+class, and named the four remaining calls.
+
+**Cross-checked**: every current verb in `voc_template` appears in exactly one
+tier bucket; nothing missing, nothing named that no longer exists.
+
+**OWNER RULED THE FOUR OPEN CALLS SAME SESSION, 24 Aug 2026:**
+
+| open call | ruling |
+|---|---|
+| A3 debug family (`pstat` `pdebug` `pdump` `dump`) | PROGRAMMER |
+| P3 read-only inspectors (`search` `list.diff` `list.item` `list.common` `list.vars` `report.src` `report.style` `format`) | STANDARD |
+| A2 `SET.DATE` | ADMIN |
+| A4 `UMASK` | **REMOVED from every tier** — POSIX file-mode-bits call, essentially inert on Windows where security is ACL-based (`verify-accountacl`); the verb is misleading rather than useful. Kept compiled (`gplsrc/op_misc.c:1503`, `CPROC:3301`), callerless like `$MICRO` and `$NLS`. |
+
+**FINAL SHAPE, 140 verbs (`voc_template` less UMASK):** ADMIN 21, PROGRAMMER
+adds 42, STANDARD 77. PROJECT_STATUS.md §8 "THE SPLIT, settled 24 Aug 2026"
+carries every verb by name, so the disk apply is transcription rather than
+re-derivation.
+
+**NOTHING WAS APPLIED TO DISK THIS SESSION.** The `writeport` fix carried
+over from session 49 is still built (`bin/sd.exe F53AE8F87BC55326`) and not
+installed. The next cycle transcribes the split (delete 12 verb files from
+NEWVOC, rewrite the two TIER lists, update `verify-tiers.ps1` count
+arithmetic, changelog) AND lands writeport in one go — exactly the "batch
+with next real change" the session 49 handoff called for.
+
 ## 24 Aug 2026 — Forty-ninth session, END: a cycle was reported run and had not installed
 
 **Commit:** the commit carrying this entry. Documentation only.
