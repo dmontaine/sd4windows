@@ -27,6 +27,53 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: step 16 (a) is VERIFIED, 14/14
+
+**Commit:** the commit carrying this entry. Owner ran the full `cycle.ps1`;
+install **12:15:51**, `sd.exe` `7F587B82B63569C8`, `assert-current` exit 0.
+`verify-lineendings.ps1` exit 0, **14 of 14 decisive checks PASS**, no residue.
+
+| reading | before (11:15:29) | after (12:15:51) |
+|---|---|---|
+| CRLF record, field lengths | 6, 5, 5 — `LAST=13` on 1 and 2 | **5, 5, 6 — `LAST=65, 88, 89`** |
+| LF control | 5, 4, 5 | **5, 5, 6 — identical to the CRLF record** |
+| `READSEQ` line 1 | `LEN=6 LAST=13` | **`LEN=4 LAST=65`** |
+| `READCSV` last field | `QLEN=3 QLAST=13` | **`QLEN=2 QLAST=49`** |
+| **straddle, line 1** | *never tested* | **`LEN=2047 LAST=80`** |
+| **lone CR record** | *never tested* | **1 field, `LEN=11 LAST=90`** |
+
+**The CRLF and LF records now read identically field for field**, which is the
+whole claim of (a) in one row. **The two rows that never existed before are the
+ones that make it a verification rather than a demonstration**: the straddle
+proves the CR is carried across a 2048-byte buffer boundary rather than found
+by looking behind the LF, and the lone-CR row proves the change did not simply
+strip every CR. Fixture words end in different letters (`A/X/Y`, `A/B/C`,
+`P/Q`, `Z`) so no last-character reading can be right by coincidence.
+
+**Changelog entry written** — this one is user-visible in a way most are not:
+the symptom was an invisible extra character on the end of every line, and the
+Excel CSV case is the one a user would actually hit.
+
+***UPSTREAM: ENTRY #13, AND IT IS DELIBERATELY NARROWER THAN THE FIX.*** The
+code is byte-identical in `sdb64` (`op_seqio.c:1147`, and the same `op_dio3.c`
+mapping loop), so by the letter of CLAUDE.md the whole thing qualifies. **The
+owner's steer is why it does not get written up that way: `sdb64` is Linux
+only, where LF is the norm**, so files written locally are unaffected and the
+"an editor wrote CRLF" case barely arises. What survives the platform argument
+is **`READCSV` alone**: RFC 4180 §2.1 specifies CRLF on every platform, a CSV
+arriving from Excel is CRLF whatever reads it, and upstream's own docs claim
+conformance. So #13 is scoped to CSV, marked low severity, and leads with the
+caveat rather than burying it. It also carries the straddle warning, because
+the obvious one-line patch is wrong for the same reason ours would have been.
+
+**Still open in step 16:** (b), the write side. `WRITECSV` still emits LF, so
+the RFC 4180 claim is still false in the other direction. Nothing blocks it
+technically — `SETPTR … NEWLINE CRLF` is measured working and object code is
+measured safe — and the record's reframing (extend the per-channel model rather
+than flip the global) now looks clearly right.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: step 16 (a) is written; the step's own site list was wrong twice
 
 **Commit:** the commit carrying this entry. **`sd.exe` changed**, so the

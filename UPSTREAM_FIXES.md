@@ -960,3 +960,71 @@ Confirmed by lifting the account's `login` paragraph out of the way and reading
 the capabilities back: with a `$TERM` that has no entry, `cub1`, `kbs`, `el`
 and `cup` all came back zero-length; with one that has an entry, all four were
 correct.
+
+---
+
+## 13. `READCSV` leaves a carriage return on the last field of every row of an RFC 4180 CSV
+
+**Status:** PROPOSED, 24 Aug 2026
+**Affects:** `sd64/gplsrc/op_seqio.c` — the `memchr(p, '\x0A', bytes)` line in
+`op_readseq()`'s normal-file branch (`1147` on `main` at the time of writing)
+**Severity:** low, and **the platform caveat belongs at the top**: `sdb64` is
+Linux-only, where LF is the norm, so files written locally are unaffected and
+most users will never see this. It is an **interop** defect, not a general
+reading defect, and that is why this entry is scoped to CSV rather than
+written up as "SD reads CRLF files wrongly".
+
+**Why CSV is different from the rest.** RFC 4180 §2.1 specifies **CRLF** as the
+record separator, on every platform. So a *conformant* CSV is CRLF even when it
+was produced on Linux, and a CSV that arrives from Excel or any Windows tool
+certainly is. `qmb_writecsv.htm` and `csv.htm` both state conformance in as
+many words — *"QM adheres to the CSV standard (RFC 4180)"* — so this is a claim
+the documentation already makes.
+
+**What happens.** `READCSV` compiles to `OP.READSEQ` (`BCOMP`'s `st.readcsv:`
+emits `OP.READSEQ` and then parses), and `op_readseq()` searches only for LF:
+
+```c
+q = memchr(p, '\x0A', bytes);
+if (q != NULL) /* Found a LF.  Copy to but not including LF */
+{
+  n = q - p;
+  ts_copy(p, n);          /* the CR before the LF is still in here */
+```
+
+The line therefore keeps the CR, and the CSV parser then splits it on commas.
+**Only the last field is affected**, because a comma terminates all the others
+and the line terminator terminates only the last — which is what makes it
+awkward to notice: `A1,B1<CR><LF>` yields `A1` and `B1<CR>`.
+
+**A suggested fix, and the trap in it.** The obvious patch is to look at the
+byte before the LF:
+
+```c
+  n = q - p;
+  if ((n > 0) && (p[n - 1] == '\x0D'))
+    ts_copy(p, n - 1);
+  else
+    ts_copy(p, n);
+```
+
+**That alone is not correct, and this is the part worth reading.** This loop is
+fed from a buffer of `SEQ_BUFFER_SIZE`, which is **2048**, and it accumulates
+across refills. A CRLF can therefore land with the CR as the last byte of one
+buffer and the LF as the first byte of the next, in which case the CR has
+already been copied and `p[n - 1]` is not it. At 2 KB that is not a rare edge
+case — over a large CSV it is close to certain. A correct fix has to **hold a
+trailing CR back** rather than look behind the LF, decide when the next buffer
+arrives, and emit it as data if no LF follows (including at end of file, where
+a deferred CR would otherwise be dropped).
+
+**Leave a lone CR alone.** A CR that is not followed by LF is data, not a
+terminator; stripping every CR would pass a naive test and corrupt records.
+`BCOMP`'s own source reader already takes this view — it strips a *trailing*
+CR from each line and nothing else.
+
+**Not reproduced against upstream.** Per this file's standing caveat, the
+reading above is from upstream's source. It *was* reproduced in the Windows
+port, whose code at these lines was byte-identical before the fix: a CSV
+planted with CRLF read back with the last field one byte long and ending in
+character 13, against an LF control that did not.

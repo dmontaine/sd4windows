@@ -1372,6 +1372,8 @@ carries the warning in its own comment. Do not hand-roll it a third time.
 
 | **An API session runs as the user who logged in — files and all** | 24 Aug, 11:15:29 | `verify-apiidentity -Prefix sdapiidb32`, `assert-current` exit 0, `sd.exe` `7DDC68F6595382A6`. **`ZZAPI` owned `GITORLI\sdapiidb32`** where `b28` read `NT AUTHORITY\SYSTEM`; the control `ZZLOCAL`, written by a local elevated session, reads `GITORLI\don`, so the two owners differ and ownership is tracking the writer. **The DENY fixture is now REFUSED (`status 3001`)** — it OPENED on `b27`/`b28` because a LocalSystem session holds `SeBackupPrivilege` and bypasses DACLs outright, so that row flipping is a second, independent instrument saying the session is no longer LocalSystem. **And `API IDENTITY LOST` is absent from the errlog** — the same `check.identity` (`APISRVR:578`, `:921`) that printed it twice on `b31`, unchanged, with both call sites exercised this run (`vb.account` attached, then the write). §7 step 14 |
 
+| **SD reads CRLF files correctly, and a lone CR is still data** | 24 Aug, 12:15:51 | `verify-lineendings`, **14/14 decisive**, `assert-current` exit 0. A directory-file record planted with CRLF from outside SD now reads **identically to the LF control** (fields 5, 5, 6) where it previously kept a `LAST=13` on every terminated field; `READSEQ` and `READCSV` likewise, the latter mattering because a conformant RFC 4180 CSV used to lose its last field per row to a stray CR. **Two controls are on the FIX, not the defect**: a CRLF placed exactly on the 2048-byte `SEQ_BUFFER_SIZE` boundary folds (line 1 reads 2047, not 2048), which is the case no small fixture reaches; and `LEFT<CR>RIGHTZ` stays **one field of 11 bytes**, so the change did not simply strip every CR. §7 step 16 (a) |
+
 #### The foundations, observed 13 Aug 2026
 
 Nothing since has contradicted any of them, and re-verifying them is not worth a
@@ -6467,11 +6469,25 @@ the staging script and the Inno installer were all finished and removed.
     binary read can be affected — mark mapping is the discriminator, exactly as
     the step said.
 
-    ***`cycle.ps1 -SkipInstall` IS DONE — 12:10:03***, staged tree whole with
-    the same counts as the previous run (`gcat` 126, `gpl.bp.out` 187, `$BCOMP`
-    88079), installer 4,803,270 bytes, **951 bytes larger**, consistent with the
-    changed `sd.exe`. **Still owed: a full `cycle.ps1`, which needs a person at
-    the wizard.**
+    ***(a) IS VERIFIED — 24 Aug 2026, install 12:15:51, `sd.exe`
+    `7F587B82B63569C8`, `assert-current` exit 0.***
+    `verify-lineendings.ps1` exit 0, **14 of 14 decisive checks PASS.**
+
+    | reading | before (11:15:29) | after (12:15:51) |
+    |---|---|---|
+    | CRLF record, field lengths | 6, 5, 5 — `LAST=13` on 1 and 2 | **5, 5, 6 — `LAST=65, 88, 89`** |
+    | LF control | 5, 4, 5 | **5, 5, 6 — identical to the CRLF record** |
+    | `READSEQ` line 1 | `LEN=6 LAST=13` | **`LEN=4 LAST=65`** |
+    | `READCSV` last field | `QLEN=3 QLAST=13` | **`QLEN=2 QLAST=49`** |
+    | **straddle, line 1** | *never tested* | **`LEN=2047 LAST=80`** — folded across the boundary |
+    | **lone CR record** | *never tested* | **1 field, `LEN=11 LAST=90`** — CR preserved as data |
+
+    **The two rows that were never tested before are the ones that matter.**
+    The straddle proves the CR is carried across a 2048-byte buffer boundary
+    rather than found by looking behind the LF; the lone-CR row proves the fix
+    did not simply strip every CR. Fixture words end in **different letters**
+    (`A/X/Y`, `A/B/C`, `P/Q`, `Z`), so no last-character reading is right by
+    coincidence. No residue left in `bp`, `BP.OUT` or `cat`.
 
     ***THE VERIFIER IS WRITTEN AND IS NOT A ONE-LINER, FOR ONE REASON:***
     `gplbld/verify-lineendings.ps1`, on `$neverShipped` in the same commit.
