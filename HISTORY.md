@@ -25049,3 +25049,77 @@ as showing `ImpersonateLoggedOnUser` governs MSYS2's `open()`, was a
 **standalone program started by `schtasks`**, while an API session is a
 `fork()`ed and `exec()`d Cygwin child. Re-run that probe from a forked child
 before spending anything on a fix.
+
+## 24 Aug 2026 — Line endings: the concern is valid, and Ladybridge's answer is still in our tree
+
+Same session as the step 14 entry above, after it. Raised by the repository
+owner. PROJECT_STATUS §7 step 16 is the task and carries the conclusions; this
+is how they were reached, and what was got wrong on the way.
+
+**The owner's opening point:** directory files exist so EXTERNAL EDITORS can
+edit BASIC programs; OpenQM was originally a Windows product and is believed to
+have used CRLF; Linux moved to LF; ScarletDME and `sdb64` inherit that, and this
+port inherited it from them without the reversal ever being weighed. On Windows
+most editors save CRLF.
+
+**Checked before agreeing, and it split.** `BCOMP:1672`, in `get.line:`, is
+`if src[1] = char(13) then src = src[1,len(src)-1]` under the comment *"Remove
+trailing CR for cross-platform compatibility"*. **So the one case the feature
+exists for is already safe**, which is why this has never bitten. Directory-file
+DATA records (`op_dio3.c:1180`) and `READSEQ` (`op_seqio.c:1152`) are not.
+
+**His second point is the stronger one and moved the task's centre of gravity:**
+*"if a user wants to create a csv file to be read by Excel, or a document to be
+loaded into notepad or imported into word, i'm sure the crlf standard would be
+expected."* That is a requirement about what SD **produces**, not what it
+tolerates, and RFC 4180 specifies CRLF for CSV. It turned the write side from an
+option into the half with the better case.
+
+**"Is it as simple as replacing `\n` with `\r\n`?" — no, and the reason is the
+shape of the work.** All EIGHT write sites already route through
+`Newline`/`NewlineBytes`, including the file-position arithmetic at
+`op_seqio.c:1717`, so the write half really is close to two lines at
+`sddefs.h:65-66`. The read half is FOUR hardcoded sites — `op_dio3.c:1172`,
+`:1182`, `op_seqio.c:1152`, and a hardcoded `posn += 1` at `:1153` past a
+terminator that would become two bytes. **Change the constant alone and SD
+writes `\r\n`, maps the `\n` to a field mark, leaves the `\r` on every field,
+and desyncs every `READSEQ` position** — it corrupts its own files on the next
+read. That is why (a) is a prerequisite for (b) and not an alternative.
+
+**THE OWNER'S RESEARCH SUGGESTION PAID OFF, AND IT IS THE MOST USEFUL RESULT OF
+THE NIGHT.** He suggested ScarletDME might still carry `if windows` blocks
+showing how line endings were handled.
+
+- **`Projects\gplsrc` (original ScarletDME C): nothing.** `qmdefs.h:84-85` is
+  already `Newline "\n"` / `NewlineBytes 1`, identical to ours with the same
+  eight parameterised writers, and **no `#ifdef WIN32`, `WINDOWS` or `MSDOS`
+  survives anywhere in that tree.**
+- **`Projects\GPL.BP` (original ScarletDME BASIC): the answer, and it is a
+  DESIGN rather than a constant.** `SETPTR` takes **`NEWLINE CR|LF|CRLF`**, per
+  PRINT UNIT.
+- ***AND IT IS STILL IN OUR TREE, UNSTRIPPED*** — `gpl.bp/SETPTR:57`,
+  `:423-434`, `:702-704`; `tio.h:111`; `op_tio.c:1575-1577`, `:1783`, `:3408`;
+  and `op_tio.c:2147`/`:2651`/`:2667` emit `pu->newline`, **not** the global.
+  The terminal has its own pair already defaulting to CRLF (`tio.h:162-163`).
+
+**So the codebase's habit is a newline setting PER CHANNEL and only file I/O was
+left on the global**, which reframes (b) from "flip the constant" to "extend the
+model that already exists". It also raises a one-test question that could shrink
+(b) a lot: **the CSV case may already be reachable with `SETPTR … NEWLINE CRLF`
+and `PRINT ON`** — unmeasured, because `to_file.c:128`'s `case NL:` still emits
+the global `Newline`, so whether `pu->newline` reaches the disk is not
+established.
+
+***A CLAIM OF MINE PROVED WRONG AND IS RECORDED HERE BECAUSE THE ARCHIVE IS THE
+PLACE FOR IT.*** I reported, in the file and in a commit message, that **"there
+is no `'\r'` char literal anywhere in the C tree"**. A malformed `grep -P`
+pattern; it is false, and there are twelve in seven files. **The claim that
+mattered — none on the record read path — survives.** But two of the twelve are
+things a successor would otherwise rebuild from scratch: **`config.c:172` is
+`while ((p > rec) && ((p[-1] == '\r') || (p[-1] == '\n')))`**, the §6 CRLF fix
+already implemented and the worked precedent for (a), and `op_sh.c:188` scans
+for either terminator the same way. `to_file.c:107` and `op_tio.c:3865` handle
+CR as PRINT CONTROL, a different thing that must not be confused with it.
+**The lesson is the one this file keeps recording: verify the instrument. A
+`grep` that returns nothing is a result that has to be trusted, and this one
+was not checked against a known-present string.**
