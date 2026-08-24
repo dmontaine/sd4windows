@@ -27,6 +27,107 @@ corrected.
 
 ---
 
+## 23 Aug 2026 - The forty-sixth session: verify-apiidentity, four faults deep, product bug at the bottom
+
+**Commits:** two commits documented in this entry. **b17 install (23 Aug
+21:25:18)** was the starting bracket; nothing shipped in `sd.exe` this session,
+so no new install is owed. The verifier is `$neverShipped`.
+
+**What was owed at the top of the session:** run `b18` — verify-apiidentity,
+handed over unrun by the forty-fifth session, was step 17 of the elevated
+suite. Meant to close §7 step 14 by exercising the impersonation EFFECT (does
+the API session actually see files as the authenticated user?), which the
+green `b17` had proved the *call chain* of but not the outcome of.
+
+**What happened:** `b18` scored `exit 0 18/18` on the elevated suite —
+**FALSE GREEN.** verify-apiidentity's step-17 log was 0 bytes. The verifier
+crashed on load with `The term 'ï»¿function' is not recognized`. Cause:
+embedded UTF-8 BOM at line 113, immediately before `function New-SdConnection`
+— exactly where the previous session had spliced the AST-extracted SCRAM
+client. Windows PowerShell 5.1 reads a no-BOM script as ANSI, so the three
+bytes rendered as `ï»¿` and the parser tried to invoke a command called
+`ï»¿function`.
+
+The **harness scored the crash `exit 0`** because a PowerShell
+`CommandNotFoundException` doesn't set `$LASTEXITCODE` — `VerifyInstall2.ps1:521`
+read the stale `0` from step 16, and with no `[FAIL]` marker in the empty log,
+`:548` printed ` OK`. The b18 summary file recorded step 17 as `exit 0`.
+Guard for `VerifyInstall2` — 0-byte step log ⇒ FAIL — was proposed, not
+written; still owed.
+
+**Four subsequent runs, each peeling back one more fault:**
+
+- **b19** (stamp `225106`, VOID): fixed the BOM (3 bytes stripped). SCRAM
+  login succeeded but every `vb.open` returned `ER_NVR (3007) = No VOC record`.
+  The raw client had inherited the SCRAM half from verify-scramlogin but not
+  the account-attach half. `sdclilib.c:1241` shows the required step:
+  `message_pair(SrvrAccount, account, strlen(account))` after login. Added
+  `$SrvrAccount = 3` constant and the packet.
+- **b20** (stamp `230118`, VOID): same `ER_NVR`. The reason turned out to be
+  b19's diagnostic script — I'd inspected `sdapiidb19/voc` counting files, but
+  VOC is a **dynamic (hash) file** (verify-nocase confirmed on 22 Aug), so
+  files-per-record inspection tells you nothing. Every voc dir showed `total
+  entries: 2` (the `%0` and `%1` hash bucket files). Wrong instrument.
+- **b21** (stamp `232930`, VOID): switched Step 3 to print raw output and
+  added `WHO` probes bracketing LOGTO and SET.FILE. Raw output showed **SET.FILE
+  refused every call with sysmsg 2201** — *"Account name '...' is not in
+  register"*. `SETFILE.b:29` documents it as `SET.FILE account file.name
+  pointer.name` — it's a cross-account verb, treats the first arg as an SD
+  account name to look up in ACCOUNTS, not as a filesystem path. And my Step 3
+  check said *"confirmed: SET.FILE ran... and CT VOC sees both records"* —
+  **false positive**: `-match 'ZZIDALLOW'` matched the echoed command line and
+  the `Record 'ZZIDALLOW' not found` error text. Class violation of the
+  instrument rule.
+- **b22** (stamp `234412`, VOID): switched to `CREATE.FILE ZZIDALLOW DYNAMIC
+  DIRECTORY <path> NO.QUERY` following `CREATEF.b:30-31`'s doc comment
+  `{DIRECTORY path}`. SD refused: *"Unexpected token (DIRECTORY)"*. The parser
+  code at `CREATEF.b:183` checks `KW$PATHNAME` (`PARSER.H:61` = 46). **The doc
+  comment is stale**; sibling verbs are explicit (`CREATE.INDEX ... PATHNAME
+  akpath` at `CREATEI.b:29`, `AS PATHNAME path` at `SETPTR.b:43`).
+- **b23** (stamp `234840`, VOID): switched `DIRECTORY` → `PATHNAME`.
+  CREATE.FILE printed `Created DICT part as ...`, `Created DATA part as ...`,
+  wrote the VOC F-record (CT VOC confirmed with `1: F`, `2: /allow/ZZIDALLOW`,
+  `3: /allow/ZZIDALLOW.DIC`), then **STOPPED at sysmsg 6128** *"Unable to open
+  newly created dictionary"* (`CREATEF.b:471-475`). The `@ID` metadata record
+  was never added, so the physical file is structurally incomplete. The API
+  session's `vb.open` returns `ER_FNF (3003) = File not found`. **This is a
+  product bug in `CREATEF.b` or the underlying BASIC `create.file <path>
+  dynamic` statement handling of external paths on Windows.** Not fixed this
+  session. Option W (drop PATHNAME, put fixtures inside the account dir and
+  ACL them) is documented in PROJECT_STATUS.md's START HERE.
+
+**Two rules added to CLAUDE.md this session, both born of the above:**
+
+- ***Verify a script loads before you submit it for execution.*** A script
+  handed to the owner's terminal, `cycle.ps1`, or `VerifyInstall1` fails
+  away from you. Parse-check + byte-scan every file first. **Measured
+  finding: a naive parse-check alone doesn't catch the BOM class** — the
+  broken file at HEAD parsed with 0 errors but silently lost the
+  `New-SdConnection` function (parsed as a command call swallowing its body).
+  Both checks are required.
+- ***A check must anchor on the SUCCESS wording, not on any string the
+  failure also carries.*** Tightening of the instrument rule. Prescribes two
+  mechanical controls: match the tool's positive-path success text (for SD
+  verbs, `display sysmsg(...)` names them); AND match the failure wording and
+  refuse if it appears.
+
+**Side finding, not fixed, filed for later:** `sdb_ai/sd64/sdsys/gpl.bp/CREATEF:30-31`
+doc comment reads `{DIRECTORY path}` but its parser at :183 checks
+`KW$PATHNAME`. One-line trivial fix in shipped BASIC; costs a cycle to test
+since it's in `sdsys/`. b22 followed the stale comment and paid a run.
+
+**What is still owed for step 14:** Option W or Option P per START HERE.
+Option W is a small verifier edit (drop PATHNAME, put fixtures in the account
+dir, ACL for deny) that avoids the CREATEF bug entirely; no cycle. Option P
+debugs the CREATEF bug; needs a cycle. **Recommended order:** W first to
+close step 14, then P separately.
+
+**Session cost:** two commits, five wasted verify runs (`b19` through `b23`),
+one false-green run (`b18`). The final Option W is not written; the next
+session should write it and run once for the answer.
+
+---
+
 ## 22 Aug 2026 - VerifyInstall1/2, the install location pinned, and what the installer cannot do
 
 **Commits:** `b9d2e8e` and the handoff above it. **END OF THE THIRTY-NINTH
