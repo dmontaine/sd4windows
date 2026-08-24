@@ -6021,6 +6021,26 @@ the staging script and the Inno installer were all finished and removed.
     *"Derived items"* beside `DS '/'`. **Upstream `sdb64` is byte-identical**,
     so changing it is a deliberate divergence rather than a fix.
 
+    ***THE WRITERS ARE PARAMETERISED AND THE READERS ARE NOT. THAT ASYMMETRY IS
+    THE SHAPE OF THE WORK, AND IT IS WHY (b) ALONE CORRUPTS THE TREE.*** All
+    **eight** write sites go through `Newline`/`NewlineBytes`, including the
+    file-position arithmetic at `op_seqio.c:1717` — so the write half really is
+    close to a two-line change at `sddefs.h:65-66`. The read half is **four
+    hardcoded sites**: `op_dio3.c:1172` (the trailing-newline drop),
+    `op_dio3.c:1182` (the mapping loop), `op_seqio.c:1152` (the terminator
+    search) and `op_seqio.c:1153` (**a hardcoded `posn += 1`** past a
+    terminator that would become two bytes). **Change the constant on its own
+    and SD writes `\r\n`, maps the `\n` to a field mark, leaves the `\r` on the
+    end of every field, and desyncs every `READSEQ` position.** So (a) is a
+    PREREQUISITE for (b), not an alternative to it.
+
+    *And note what that asymmetry implies: a two-byte-capable newline constant,
+    with every write site routed through it, is not what a Linux-only codebase
+    would carry — it would inline `"\n"`. It is consistent with the owner's
+    account that the write side was built for CRLF and later pointed at LF,
+    which makes (b) closer to restoring an intended capability than to adding
+    one. **Do not read that as permission to skip (a).***
+
     ***SCOPE, MEASURED, AND IT IS NARROWER THAN IT LOOKS: DH FILES ARE NOT
     AFFECTED.*** `Newline` reaches only the four write sites above. A DH file
     stores field marks in its own format, so `gcat`, `VOC`, `$CRED`, `ACCOUNTS`
