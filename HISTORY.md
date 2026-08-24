@@ -25171,3 +25171,29 @@ can always supply it again. `sdhelp` carries modifications that exist nowhere
 else, which is why it is on pCloud, and it is the material from which SD for
 Windows' own documentation will eventually be written. Recorded because that
 intent lives nowhere in the tree and would not survive the session.
+
+**`..\sdhelp`, THIRD AND FINAL CORRECTION THE SAME NIGHT.** Owner: *"the
+upstream copy has all the modifications, the one on the c drive is just a copy
+of that - other than some removed commands, the tcl and basic definitions are
+right"*, and separately that the pCloud backup is the archive under its own
+name. Three things I had written are struck: that it carries modifications
+existing nowhere else (**it is a copy; upstream holds the modified original**),
+that a page cannot be trusted to describe any particular product (**the TCL and
+BASIC definitions are right; the delta is removed commands**), and that the
+backup name was unknown (**it is `sdhelp_2-6-6 20260221 AM`, the archive name,
+which is the proper name of the set — `sdhelp\` is just the unpacked
+convenience**). **The over-correction was mine and it was the more damaging of
+the two errors**: an entry saying a reference is unreliable page by page costs
+a successor the reference itself, where the truth is that it is reliable for
+syntax and merely documents some commands this port removed — a failure that
+announces itself the moment the command is tried.
+
+**Found while checking it, and worth having on its own:**
+`../sdb64/sd64/Documentation/` holds **`Basic Command List SD 0.8.0.txt`** (520
+lines) and **`TCL Command List SD 0.8.0.txt`** (212 lines), both headed *"usage
+the same as OpenQM 2.6.6"* and marking commands **unique to SD with `*`**.
+**That is the natural companion to `sdhelp`** — the HTML gives the syntax,
+these give the roster — and between them the "removed commands" caveat is
+answerable without guessing. Measured at the same time: **`sdb64` holds no
+`.htm` at all**, so the HTML set cannot be fetched from the clone we already
+have.

@@ -778,52 +778,58 @@ values are still transposed, that `sdsys/syscom/sdclilib.h` "deliberately
 defines neither" (it defines both, at `:127`), and that our BASIC therefore
 cannot tell a transport failure from a context error.*
 
-***THE COMMAND DOCUMENTATION IS AT `C:\Users\dmont\Projects\sdhelp` AND THIS
+***THE COMMAND DOCUMENTATION IS AT `C:\Users\dmont\Projects\sdhelp`, AND THIS
 SECTION DID NOT MENTION IT UNTIL 24 Aug 2026.*** 783 HTML files, one per verb,
 keyword and BASIC statement. **Read it before inferring a verb's syntax from
-its BASIC source** — it has already settled three questions in one session:
-`copy.htm` states outright that `BINARY` *suppresses* the field-mark/newline
-translation between a hashed and a directory file, which is what made the
-`COPY` route in §7 step 14 safe to build; `create_file.htm` says `PATHNAME`
-names a directory the file is created **under**; and `csv.htm` claims RFC 4180
-conformance, which is what turned §7 step 16(b) into a testable gap rather
-than a preference. Strip the tags to read it:
-`sed -e 's/<[^>]*>//g' <file>.htm`.
+its BASIC source** — it settled three questions in one session: `copy.htm` says
+outright that `BINARY` *suppresses* the field-mark/newline translation between
+a hashed and a directory file, which is what made the `COPY` route in §7 step
+14 safe to build; `create_file.htm` says `PATHNAME` names a directory the file
+is created **under**; and `csv.htm` claims RFC 4180 conformance, which turned
+§7 step 16(b) into a testable gap rather than a preference. Strip the tags to
+read it: `sed -e 's/<[^>]*>//g' <file>.htm`.
 
-***IT IS NOT A REPOSITORY AND `setup-devbox.ps1` DOES NOT FETCH IT, SO A
-MACHINE BUILT FROM THAT SCRIPT WILL NOT HAVE IT.*** No `.git`, no remote — an
-unpacked archive, from `sdhelp_2-6-6 20260221 AM.zip` (1.87 MB) or the matching
-`.7z` beside it in `Projects\`.
+***IT IS TRUSTWORTHY FOR SYNTAX. THE DELTA IS REMOVED COMMANDS — owner,
+24 Aug 2026:*** *"other than some removed commands, the tcl and basic
+definitions are right."* It is an OpenQM 2.6.6 base **partly modified for the
+Linux SD**, so it is not stock OpenQM documentation — but the definitions
+themselves are correct, and the failure mode is a page describing a command
+this port no longer has, which announces itself the moment the command is
+tried. *An earlier draft of this entry called it untrustworthy page by page;
+that was an over-correction and is struck.* **Confirm against source when the
+answer decides a cycle** — `COPY:220-229` was checked before `copy.htm` was
+relied on — and remember this tree has removed verbs since (§5.19 `SED` and
+`UPDATE.RECORD`, SDNet's three `*.SERVER` verbs) and that `CREATEF`'s own doc
+comment is stale in a way that cost run `b22`.
 
-**IT IS BACKED UP — owner, 24 Aug 2026: there is a copy on pCloud *under a
-different name*.** So it is not resting on one disk, unlike what this entry
-first said. ***The pCloud name is not recorded here and was not asked for, so
-searching that store for "sdhelp" may find nothing — ask him rather than
-concluding it is absent.***
+***AND THE COMMAND LISTS THAT SAY WHAT STILL EXISTS ARE IN THE `sdb64` CLONE
+ALREADY*** — `../sdb64/sd64/Documentation/`, two files, found 24 Aug 2026:
+**`Basic Command List SD 0.8.0.txt`** (520 lines) and **`TCL Command List SD
+0.8.0.txt`** (212 lines). Both head with *"usage the same as OpenQM 2.6.6"* and
+mark commands **unique to SD with `*`**. **That is the natural companion to
+`sdhelp`**: the HTML gives the syntax, these give the roster. Between them they
+answer the "removed commands" caveat above without guessing.
 
-***IT IS AN OpenQM 2.6.6 BASE THAT HAS BEEN PARTLY MODIFIED FOR THE LINUX SD —
-owner, 24 Aug 2026 — AND "PARTLY" IS THE WORD THAT MATTERS.*** The archive name
-carries `2-6-6`, the same vintage as [docs/TCL_VERBS.md](docs/TCL_VERBS.md)
-above, but the pages have been revised towards SD unevenly and **nothing marks
-which page is which**. So a given page may describe OpenQM 2.6.6, may describe
-Linux SD, and in neither case describes this port. That is a stronger caution
-than a plain version skew, because there is no tell to read.
+***PROVENANCE, CORRECTED 24 Aug 2026: THE `C:` COPY IS A COPY.*** Owner: **the
+upstream copy carries all the modifications**, and `C:\Users\dmont\Projects\
+sdhelp` is a copy of that — so it is **not** unique material, and an earlier
+draft of this entry saying it "carries modifications that exist nowhere else"
+was wrong. **It is NOT in the `sdb64` clone**, measured: that repository holds
+no `.htm` at all, only the two `Documentation/` lists above. So it cannot be
+fetched from the tree we already clone; ask the owner.
 
-**Confirm against source when the answer matters.** This port has removed verbs
-(§5.19 `SED` and `UPDATE.RECORD`, SDNet's three `*.SERVER` verbs), changed
-others (§5.12's fold, the four-way route model), and carries at least one verb
-whose own doc comment is stale — `CREATEF`'s `{DIRECTORY path}` against its
-`KW$PATHNAME` parser, which cost run `b22`. The `COPY` conclusion above was
-checked against `COPY:220-229` before it was relied on, and that is the pattern.
+**Local shape:** not a repository — no `.git`, no remote — and
+`setup-devbox.ps1` does not fetch it, **so a machine built from that script
+will not have it**. It is unpacked from `sdhelp_2-6-6 20260221 AM.zip`
+(1.87 MB) or the matching `.7z` beside it in `Projects\`. **The backup on
+pCloud is that archive, under that name** — `sdhelp_2-6-6 20260221 AM` — which
+is the proper name of the set; the `sdhelp\` directory is just the unpacked
+convenience. *(An earlier draft said the pCloud name was unknown.)*
 
-***IT IS NOT THROW-AWAY, AND THAT DISTINGUISHES IT FROM `Projects\GPL.BP`.***
-That tree is a convenience copy of upstream and can always be fetched again;
-**this one carries modifications that exist nowhere else**, which is why it is
-on pCloud and why re-downloading stock OpenQM documentation would not replace
-it. ***AND IT HAS A FUTURE ROLE — owner, 24 Aug 2026: it is the material from
-which SD for Windows' own documentation will eventually be written.*** Treat it
-as project material to be preserved and built on, not as a reference lying
-around.
+***IT HAS A FUTURE ROLE — owner, 24 Aug 2026: it is the material from which SD
+for Windows' own documentation will eventually be written.*** That is why it is
+kept rather than re-fetched, and it is worth knowing before anyone treats it as
+disposable the way §2 records `Projects\GPL.BP`.
 
 Three more local trees, none part of this repository, all absent on a fresh
 machine, and nothing in the build depends on any of them:
