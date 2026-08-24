@@ -6692,6 +6692,51 @@ the staging script and the Inno installer were all finished and removed.
     **27** (10 unelevated). §STEP 15 SURVEYED has the readings and why `(RX)`
     rather than removing `sdusers`.
 
+    ***MEASURED 24 Aug 2026 ON THE OWNER'S INSTRUCTION - "I measure all eight
+    first, then you rule once." THE RULING IS STILL OWED; EVERYTHING BELOW IS
+    EVIDENCE, NOT A DECISION.*** Instrument: `gplbld/probe-syswrites.ps1`, on
+    the 15:14:28 install, `assert-current` exit 0.
+
+    | target | `sdusers` now | a stock VOC names it? | ordinary session writes it? | who writes it | candidate |
+    |---|---|---|---|---|---|
+    | **`$ipc`** | `(I)(OI)(CI)(M)` | **yes** | ***YES - `%0` modified by every session*** | every session; `PHANTOM` writes its command here (`sd.c:55`), `APISRVR:214` opens it | ***KEEP Modify*** |
+    | `$map` | `(I)(OI)(CI)(M)` | yes | no | install | read-only |
+    | `messages` | `(I)(OI)(CI)(M)` | yes | no | install | read-only |
+    | `newvoc` | `(I)(OI)(CI)(M)` | yes | no | install writes; `CREATE.ACCOUNT` reads | read-only |
+    | `accounts` | `(I)(OI)(CI)(M)` | **no** | no | `CREATE.ACCOUNT`/`DELETE.ACCOUNT`, administrator | read-only |
+    | `bp` | `(I)(OI)(CI)(M)` | **no** | no | compiling into SDSYS's `bp`, which needs `LOGTO SDSYS` and elevation | read-only |
+    | `cat` | `(I)(OI)(CI)(M)` | **no** | no | `CATALOG` in SDSYS, elevated. **The directory is empty - 0 files** | read-only |
+    | `sd.conf` | `(I)(M)` | n/a | no | `CONFIG`, administrator | read-only |
+
+    **THE SECOND COLUMN IS SD'S OWN ANSWER, not mine**:
+    [op_dio2.c:1405](sdb_ai/sd64/gplsrc/op_dio2.c:1405) `net_sysdir_shared[]`
+    lists the SDSYS entries a stock account VOC names. **Four of the eight are
+    not on it**, so an ordinary account does not reference them at all - which
+    is a stronger statement than "this one session did not write them".
+
+    ***SO SEVEN OF THE EIGHT ARE READ-ONLY CANDIDATES AND `$ipc` IS NOT.***
+    `$ipc` is the only one an ordinary session was measured writing, and the
+    source says why: it is how a phantom is handed its command.
+
+    **WHAT THE MEASUREMENT DOES NOT COVER, said plainly rather than left to be
+    assumed:**
+
+    - **One session, nine verbs**, verified 9 of 9 echoed with `CREATE.FILE`
+      confirmed to have taken - the probe refuses its own result otherwise.
+    - ***PHANTOM, THE SPOOLER AND SAVED LISTS ARE NOT MEASURED.*** A widened
+      pass adding them **hung** and left two `sd.exe` behind (cleared with
+      `Stop-Process`, no elevation) - the LOGIN/TERM pagination family again.
+      It changes no row: `PHANTOM` writes into `$ipc`, which is already the one
+      staying writable.
+    - **The four "administrator writes it" rows are REASONED, not measured.**
+      Nobody denied `sdusers` write and watched those verbs still work. That is
+      what a `secure-*.ps1` plus a verifier would settle, and it is the work the
+      ruling authorises rather than something already done.
+
+    **IF THE RULING IS "LOCK THE SEVEN"**, the shape already exists:
+    `secure-gcat.ps1` and `secure-pcode.ps1` are the precedent, and
+    `verify-pcodeacl.ps1` is the guard pattern. Both go on `$neverShipped`.
+
     ***WHAT REMAINS OF THIS STEP AFTER THAT.*** The rest of the inherited
     `sdusers:(M)` list is untouched — `accounts`, `$map`, `$ipc`, `messages`,
     `newvoc`, `bp`, `cat`, `sd.conf`. **Each needs its own judgement, not a

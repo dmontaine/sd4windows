@@ -27,6 +27,56 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-first session, part 7: §7 step 15's eight targets measured, ruling owed
+
+**Commit:** the commit carrying this entry. One new probe
+(`gplbld/probe-syswrites.ps1`), its `$neverShipped` entry, and documentation.
+
+**THE OWNER CHOSE "I measure all eight first, then you rule once"**, so this is
+evidence and not a decision. §7 step 15 carries the table.
+
+**THE RESULT IN ONE LINE: `$ipc` is the only one of the eight an ordinary
+session writes.** `$ipc\%0` is modified by every session; `accounts`, `$map`,
+`messages`, `newvoc`, `bp`, `cat` and `sd.conf` were untouched.
+
+**TWO INDEPENDENT AXES, which is what makes it more than one run.** The
+empirical one is the probe. The other is **SD's own answer**:
+`op_dio2.c:1405`'s `net_sysdir_shared[]` lists the SDSYS entries a stock
+account VOC names, and `accounts`, `bp`, `cat` and `sd.conf` are **not on it** -
+an ordinary account does not reference them at all.
+
+**THE PROBE REFUSES ITS OWN RESULT**, which it had to do three times before it
+produced one worth keeping:
+
+- **A UTF-8 BOM on the pipe.** PowerShell 5.1 puts one in front of the first
+  byte sent to a native exe; SD read it as a verb and answered *"<BOM> is not in
+  your VOC"*. `$OutputEncoding` does not remove it - **not as a local and not as
+  `$global:` either** - and routing through `cmd.exe`'s `<` broke the feed
+  entirely, 0 of 9 verbs echoed. The body begins with a newline, so the BOM
+  lands on that empty line and cannot eat a verb; the probe now asserts that
+  (*at most one* "not in your VOC") instead of trusting it.
+- **`CREATE.FILE ZZW... 1 1` answered "Unexpected token (1)"** - my syntax, not
+  SD's. The file was never created, so the run proved nothing about write paths,
+  and the probe said so and exited 1 rather than reporting seven "untouched".
+- **The ACL survey called `$cred` "(none)"** when `icacls` had exited 5 with
+  *Access is denied* - a control passing without reading anything. It now
+  separates DENIED from none, and an unelevated `sdusers` member being refused
+  even the ACL read is the stronger result, so that control passes on either.
+
+**WHAT IS NOT MEASURED, and the table says so**: PHANTOM, the spooler and saved
+lists. The widened pass **hung** and left two `sd.exe` behind - owned by the
+invoking user, cleared with `Stop-Process`, no elevation needed, service
+unaffected. Same family as the LOGIN/TERM pagination hang. It changes no row,
+because PHANTOM writes into `$ipc` and `$ipc` is the one staying writable.
+
+**And the four "an administrator writes it" rows are REASONED, not measured** -
+nobody denied `sdusers` write and watched `CREATE.ACCOUNT` still work. That is
+what the ruling would authorise, not something already done.
+
+**`assert-current` exit 0 after adding the probe**, because it was listed on
+`$neverShipped` in this commit - the rule a new script in `gplbld` has to obey
+or the tree reports stale on the strength of its own newness.
+
 ## Correction: 24 Aug 2026 — "nothing has ever crossed the network to the API port" was false, and had been for weeks
 
 **Commit:** the commit carrying this entry. Corrects PROJECT_STATUS.md §7
