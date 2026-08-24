@@ -11,10 +11,13 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: §7 STEP 16 **(b)**, THE WRITE SIDE. IT IS THE ONLY THING LEFT OPEN.
+> ## NEXT: NOTHING IN §7 IS OPEN. PICK UP FROM §8, OR ASK THE OWNER.
 >
-> ***END OF THE FORTY-NINTH SESSION, 24 Aug 2026.*** Steps 14 and 16 (a) both
-> closed this session, each built, cycled and verified.
+> ***END OF THE FORTY-NINTH SESSION, 24 Aug 2026.*** **Steps 14 and 16 both
+> closed**, each built, cycled and verified in this session. §7 now has no open
+> item. §8's open questions and the curation half of the tier work (§8, "how
+> many kinds of user") are what remain, and neither is chosen — **ask before
+> starting one.**
 >
 > ### STEP 14 IS CLOSED — AN API SESSION NOW RUNS AS THE CALLER
 >
@@ -40,24 +43,21 @@ something came to be the way it is.
 > last field of every row. **Two checks are controls on the FIX**: a CRLF on
 > the 2048-byte buffer boundary folds, and a lone CR survives as data.
 >
-> ### NEXT: §7 STEP 16 (b), THE WRITE SIDE — AND IT IS NO LONGER A GAMBLE
+> ### STEP 16 (b) IS CLOSED TOO — SD NOW WRITES CRLF WHERE IT CAN BE READ
 >
-> `WRITESEQ` and `WRITECSV` still emit **LF**, so `WRITECSV` remains
-> **non-conformant against its own documented RFC 4180 claim**. Three things
-> that were unknown when this step was raised are now measured, and all three
-> make (b) smaller:
+> Install **12:36:09**, `sd.exe` `070A9C52E293B2FA`, `assert-current` exit 0.
+> `verify-lineendings` exit 0, **17/17 decisive**, read side and write side.
 >
-> - **`SETPTR … NEWLINE CRLF` already reaches the disk** — so every print-unit
->   path can emit CRLF today. `LIST … CSV LPTR n` is already reachable-conformant.
-> - **Object code cannot be corrupted by it** — `gpl.bp/BASIC:239` is
->   `mark.mapping out.f, off`, confirmed by byte census. The old blocker is gone.
-> - **The docs make it a conformance fix, not a preference** —
->   `directoryfiles.htm` says the newline is *"the operating system dependent
->   representation"*, and on Windows that is CRLF.
+> **The owner's rule decided the scope**, 24 Aug: a **directory** file's records
+> are real OS files that external programs read and write, so they get the
+> platform's line ending; **dynamic (DH)** files cannot be read from outside and
+> do not matter. **Every site `Newline` reaches is on the external side of that
+> line, and no DH path uses it at all**, so it resolved to `sddefs.h:65-66` —
+> now `"\r\n"` / `2`. `DS` stays `/` (§7 step 12).
 >
-> **The shape to build is the record's own reframing: EXTEND THE PER-CHANNEL
-> MODEL** (`pu->newline`, `onewline`/`inewline`) to `WRITESEQ` and the
-> directory-file write — **not** flip the global `Newline`. §7 step 16 (b).
+> `WRITECSV` now emits `A1,B1␍␊`, **conformant with the RFC 4180 claim its own
+> documentation has always made**. Verified by reading **raw bytes**, because
+> the reader now folds CRLF and a round trip through SD would pass regardless.
 >
 > ### ONE THING LEFT ON THE FLOOR, AND IT NEEDS A REBOOT
 >
@@ -69,7 +69,7 @@ something came to be the way it is.
 >
 > ### THE INSTALL IS CURRENT — MEASURE BEFORE YOU EDIT ANYTHING
 >
-> Installed 24 Aug **12:15:51**, `sd.exe` `7F587B82B63569C8`,
+> Installed 24 Aug **12:36:09**, `sd.exe` `070A9C52E293B2FA`,
 > `assert-current` passes. **A cycle ends at the next source change**, so take
 > any reading you want from this tree *first*.
 > **Prefixes `sdapiidb18`–`b32` are spent; use `b33` or later.**
@@ -1395,6 +1395,7 @@ carries the warning in its own comment. Do not hand-roll it a third time.
 
 | **An API session runs as the user who logged in — files and all** | 24 Aug, 11:15:29 | `verify-apiidentity -Prefix sdapiidb32`, `assert-current` exit 0, `sd.exe` `7DDC68F6595382A6`. **`ZZAPI` owned `GITORLI\sdapiidb32`** where `b28` read `NT AUTHORITY\SYSTEM`; the control `ZZLOCAL`, written by a local elevated session, reads `GITORLI\don`, so the two owners differ and ownership is tracking the writer. **The DENY fixture is now REFUSED (`status 3001`)** — it OPENED on `b27`/`b28` because a LocalSystem session holds `SeBackupPrivilege` and bypasses DACLs outright, so that row flipping is a second, independent instrument saying the session is no longer LocalSystem. **And `API IDENTITY LOST` is absent from the errlog** — the same `check.identity` (`APISRVR:578`, `:921`) that printed it twice on `b31`, unchanged, with both call sites exercised this run (`vb.account` attached, then the write). §7 step 14 |
 
+| **SD writes CRLF to everything externally readable** | 24 Aug, 12:36:09 | `verify-lineendings`, **17/17 decisive**, `assert-current` exit 0, `sd.exe` `070A9C52E293B2FA`. Read as **raw bytes, not through SD** — since the reader now folds CRLF, a round trip through SD would have reported success whatever was on disk. `WRITESEQ` → `ONE␍␊TWO␍␊`; **`WRITECSV` → `A1,B1␍␊A2,B2␍␊`, conformant with the RFC 4180 claim its own documentation makes**; a directory-file record write → `RA␍␊RB␍␊RC␍␊`. **All fourteen (a) checks still pass**, so the write change did not regress the read change. The owner's rule was external readability, and **no DH path uses `Newline` at all**. §7 step 16 (b) |
 | **SD reads CRLF files correctly, and a lone CR is still data** | 24 Aug, 12:15:51 | `verify-lineendings`, **14/14 decisive**, `assert-current` exit 0. A directory-file record planted with CRLF from outside SD now reads **identically to the LF control** (fields 5, 5, 6) where it previously kept a `LAST=13` on every terminated field; `READSEQ` and `READCSV` likewise, the latter mattering because a conformant RFC 4180 CSV used to lose its last field per row to a stray CR. **Two controls are on the FIX, not the defect**: a CRLF placed exactly on the 2048-byte `SEQ_BUFFER_SIZE` boundary folds (line 1 reads 2047, not 2048), which is the case no small fixture reaches; and `LEFT<CR>RIGHTZ` stays **one field of 11 bytes**, so the change did not simply strip every CR. §7 step 16 (a) |
 
 #### The foundations, observed 13 Aug 2026
@@ -6589,6 +6590,22 @@ the staging script and the Inno installer were all finished and removed.
 
     **`DS` STAYS `/`.** §7 step 12's ruling is unaffected — the two "derived
     items" are not one decision.
+
+    ***(b) IS VERIFIED — 24 Aug 2026, install 12:36:09, `sd.exe`
+    `070A9C52E293B2FA`, `assert-current` exit 0. `verify-lineendings` exit 0,
+    **17/17 decisive**. STEP 16 IS CLOSED, BOTH HALVES.***
+
+    | what SD wrote | bytes on disk |
+    |---|---|
+    | `WRITESEQ` | `4F 4E 45 **0D 0A** 54 57 4F **0D 0A**` |
+    | `WRITECSV` | `41 31 2C 42 31 **0D 0A** 41 32 2C 42 32 **0D 0A**` — **RFC 4180 at last** |
+    | directory-file record write | `52 41 **0D 0A** 52 42 **0D 0A** 52 43 **0D 0A**` |
+
+    **Read as RAW BYTES, not through SD** — the fix to (a) means a round trip
+    through SD would report success whatever is on disk, so reading it back
+    through SD would have been no check at all. **And all fourteen (a) checks
+    still pass**, straddle and lone-CR controls included, so (b) did not
+    regress (a).
 
     ***CYCLED TO `-SkipInstall`, 12:33:07, AND ONE NUMBER IS THE CONTROL.***
     198 programs, no non-zero error counts, installer 4,802,959 bytes. **Phase

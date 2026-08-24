@@ -27,6 +27,42 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: STEP 16 IS CLOSED, 17/17. §7 has nothing open
+
+**Commit:** the commit carrying this entry. Owner ran the full `cycle.ps1`;
+install **12:36:09**, `sd.exe` `070A9C52E293B2FA`, `assert-current` exit 0.
+`verify-lineendings` exit 0, **17 of 17 decisive checks PASS**, no residue.
+
+| what SD wrote | bytes on disk |
+|---|---|
+| `WRITESEQ` | `4F 4E 45 0D 0A 54 57 4F 0D 0A` |
+| `WRITECSV` | `41 31 2C 42 31 0D 0A 41 32 2C 42 32 0D 0A` |
+| directory-file record write | `52 41 0D 0A 52 42 0D 0A 52 43 0D 0A` |
+
+**`WRITECSV` is conformant with the RFC 4180 claim its own documentation has
+always made** — the defect that made (b) worth doing rather than merely tidy.
+
+***THE WRITE CHECKS READ RAW BYTES, AND THAT IS THE WHOLE POINT.*** (a) folds
+CRLF on the way in, so a round trip through SD would report success whatever is
+actually on disk — a write verifier that read back through SD would have been a
+check with no subject. **And all fourteen (a) checks still pass**, straddle and
+lone-CR controls included, so (b) did not regress (a).
+
+***THE VERIFIER VOIDED ONCE FIRST, FOR THE THIRD TIME THIS SESSION, AND AGAIN
+CORRECTLY.*** The new write block used `WRITE REC TO F, id ELSE …`; plain
+`WRITE` takes `ON ERROR`, not `ELSE`, so the compile failed with *"25:
+Misplaced ELSE"* and the run reported ***"the instrument produced no readings —
+nothing was measured, and that is NOT a pass"***, exit 2. Every one of the
+seventeen assertions would otherwise have been satisfied by absence. The
+null-case refusal has now paid for itself three times in one session.
+
+**§7 HAS NO OPEN ITEM.** Steps 14 and 16 both closed here. What remains is §8's
+open questions and the **curation** half of the tier work — the mechanism is
+built and verified, the 30/45/65 verb split has never been reviewed by the
+owner. **Neither is chosen; ask before starting one.**
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: step 16 (b) decided and written. The owner's rule was better than the options
 
 **Commit:** the commit carrying this entry. Ten earlier commits **pushed** to
