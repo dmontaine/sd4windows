@@ -779,14 +779,38 @@ defines neither" (it defines both, at `:127`), and that our BASIC therefore
 cannot tell a transport failure from a context error.*
 
 ***THE COMMAND DOCUMENTATION IS AT `C:\Users\dmont\Projects\sdhelp` AND THIS
-SECTION DID NOT MENTION IT UNTIL 24 Aug 2026.*** 783 HTML files, one per verb
-and keyword — the OpenQM/SD reference the owner supplied. **Read it before
-inferring a verb's syntax from its BASIC source**: `copy.htm` states outright
-that `BINARY` *suppresses* the field-mark/newline translation between a hashed
-and a directory file, which is what made the `COPY` route in §7 step 14 safe to
-build, and `create_file.htm` says `PATHNAME` names a directory the file is
-created **under**. A cold session could not previously have known it existed.
-Strip the tags to read it: `sed -e 's/<[^>]*>//g' <file>.htm`.
+SECTION DID NOT MENTION IT UNTIL 24 Aug 2026.*** 783 HTML files, one per verb,
+keyword and BASIC statement. **Read it before inferring a verb's syntax from
+its BASIC source** — it has already settled three questions in one session:
+`copy.htm` states outright that `BINARY` *suppresses* the field-mark/newline
+translation between a hashed and a directory file, which is what made the
+`COPY` route in §7 step 14 safe to build; `create_file.htm` says `PATHNAME`
+names a directory the file is created **under**; and `csv.htm` claims RFC 4180
+conformance, which is what turned §7 step 16(b) into a testable gap rather
+than a preference. Strip the tags to read it:
+`sed -e 's/<[^>]*>//g' <file>.htm`.
+
+***IT IS NOT A REPOSITORY AND `setup-devbox.ps1` DOES NOT FETCH IT, SO A
+MACHINE BUILT FROM THAT SCRIPT WILL NOT HAVE IT.*** No `.git`, no remote — an
+unpacked archive, from `sdhelp_2-6-6 20260221 AM.zip` (1.87 MB) or the matching
+`.7z` beside it in `Projects\`.
+
+**IT IS BACKED UP — owner, 24 Aug 2026: there is a copy on pCloud *under a
+different name*.** So it is not resting on one disk, unlike what this entry
+first said. ***The pCloud name is not recorded here and was not asked for, so
+searching that store for "sdhelp" may find nothing — ask him rather than
+concluding it is absent.***
+
+***AND IT IS A 2.6.6-VINTAGE REFERENCE, SO IT DESCRIBES THE VERB SET AS
+DESIGNED RATHER THAN AS THIS TREE SHIPS IT.*** The archive name carries
+`2-6-6`, the same vintage as [docs/TCL_VERBS.md](docs/TCL_VERBS.md) above. This
+port has since removed verbs (§5.19 `SED` and `UPDATE.RECORD`, SDNet's three
+`*.SERVER` verbs), changed others (§5.12's fold, the four-way route model), and
+carries at least one verb whose own doc comment is stale — `CREATEF`'s
+`{DIRECTORY path}` against its `KW$PATHNAME` parser, which cost run `b22`.
+**Confirm against source when the answer matters**: the `COPY` conclusion above
+was checked against `COPY:220-229` before it was relied on, and that is the
+pattern to copy.
 
 Three more local trees, none part of this repository, all absent on a fresh
 machine, and nothing in the build depends on any of them:

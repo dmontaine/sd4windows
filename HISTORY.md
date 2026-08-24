@@ -25140,3 +25140,19 @@ and so goes through a print unit and `pu->newline`, while `WRITECSV` goes
 through the global — so the two CSV paths may already disagree, and if
 `SETPTR … NEWLINE CRLF` works then `LIST … CSV` can be made conformant while
 `WRITECSV` cannot.
+
+**`..\sdhelp` WRITTEN UP PROPERLY, 24 Aug 2026.** It had been added to §2
+earlier the same night with only its contents described. What was missing is
+what a cold session needs: **it is not a repository** — no `.git`, no remote —
+and **`setup-devbox.ps1` does not fetch it**, so a machine built from that
+script will not have it. It is an unpacked archive, `sdhelp_2-6-6 20260221
+AM.zip`/`.7z`, and the `2-6-6` in that name makes it the same vintage as
+`docs/TCL_VERBS.md`. **Owner: there is a copy on pCloud under a different
+name**, so it is backed up — the name was not asked for and is not recorded,
+which is itself worth knowing before anyone searches that store for "sdhelp"
+and concludes it is absent. **The caveat that matters for using it:** a
+2.6.6-vintage reference describes the verb set as designed, not as this tree
+ships it — `SED`, `UPDATE.RECORD` and the three `*.SERVER` verbs are gone, the
+fold and the route model changed others, and `CREATEF`'s own doc comment is
+stale in a way that cost run `b22`. Confirm against source when the answer
+matters, as was done for `COPY:220-229` before `copy.htm` was relied on.
