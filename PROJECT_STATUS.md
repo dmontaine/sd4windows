@@ -5,151 +5,87 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 23 Aug 2026, end of the forty-fourth session.
+**Last updated:** 23 Aug 2026, end of the forty-fifth session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## CLOSED 23 Aug 2026: THE "ELEVATED HANG" WAS THE PROBE, NOT THE PRODUCT
+> ## `b16` IS READY TO RUN. THE "ELEVATED HANG" IS CLOSED - IT WAS A MISSING PASSWORD
 >
-> ***THE FORTY-FOURTH SESSION LEFT THIS AS AN UNEXPLAINED START-UP HANG. IT IS
-> NEITHER UNEXPLAINED, NOR IN START-UP, NOR A DEFECT.*** On the **17:47:55**
-> install an elevated `sd <command>` **run from a console with nobody at it**
-> blocks at the account's *"needs a password"* prompt, waiting on stdin that
-> never arrives. **Redirect stdin and it does not prompt at all** — the
-> correction below has the table. **`b16` is unaffected and still unspent.**
+> ***END OF THE FORTY-FIFTH SESSION, 23 Aug 2026.*** The forty-fourth session
+> handed this over as *"elevated `sd <command>` blocks for ever during start-up"*,
+> with the pcode ACL and the elevation helper as suspects. **Neither was
+> involved, and there was no start-up block.** `don` had **no password**, so an
+> elevated session at a **console** stopped at the credential prompt with nobody
+> there to type.
 >
-> **MEASURED, elevated, 25-second timeout — AND WITH THE REDIRECTED STDOUT READ
-> BACK.** 802 bytes, ending:
+> **MEASURED, install 17:47:55, in a real elevated console:**
 >
-> ```
-> Account DON needs a password.
-> ...
-> To set no password for now, press Enter on an empty line.
->
-> New password:
-> ```
->
-> **CPU 0.016s → 0.297s across 26s** — blocked on a read, not looping. No
-> `errlog` entry because, from SD's side, nothing has gone wrong.
->
-> ***"NO OUTPUT" MEANT "OUTPUT NOT LOOKED AT", AND THAT IS THE LESSON.*** The
-> earlier measurement redirected stdout to a file and reported the session
-> silent. The prompt was in that file the whole time. **Read the redirect before
-> calling a blocked process silent.**
->
-> **WHAT STILL WORKS, so the fault is narrow:** *unelevated* `sd <command>`
-> (`verify-batchjob`'s earlier rows pass), and ordinary piped sessions — **9 of
-> 10 unelevated verifiers passed**, including `verify-lcnames` 142/142 and the
-> new `verify-pcodeacl` 4/4.
->
-> **IT WORKED ON THE 10:01:45 INSTALL** — `b15` passed
-> `verify-batchjob`, whose *"ELEVATED with no entry: still runs"* row is exactly
-> this path. That row is now the **one** failing check.
->
-> ### WHY ELEVATED AND NOT UNELEVATED — IT IS §7 STEP 9's GATE, WORKING
->
-> **Unelevated is refused EARLIER and never reaches the password step.**
-> Control, same probe, same install: *"ZZNOSUCHVERB is not a command that
-> account DON may run from the command line"* — `LOGIN`'s `batch.jobs` gate.
-> **Elevation passes that gate on its own** (§7 step 9), so an elevated session
-> carries on into set-up and meets the prompt. Both halves are behaving as
-> designed; the defect is that the prompt has **no non-interactive behaviour**.
->
-> ### BOTH SUSPECTS THIS FILE NAMED ARE DEAD
->
-> - ***THE PCODE ACL IS NOT INVOLVED.*** It was only ever "the one shipped
->   delta", and this file already said the mechanism did not add up. It does
->   not. **Do not revert it.**
-> - ***THE ELEVATION HELPER IS NOT ON THE START-UP PATH.*** No C source
->   references it. `elevate()` has **one caller** (`CPROC:189`) and it is
->   `CPROC:2571`, inside `int.logto:`, guarded by
->   `if upcase(new.account) = "SDSYS"` — the **`LOGTO SDSYS`** path, a verb
->   somebody types. `sd ZZNOSUCHVERB` never reaches it, and `CPROC:2562`
->   records that `!elevate` answers 0 at once when already elevated.
->
-> ### CORRECTION, SAME DAY: THERE IS NO PRODUCT DEFECT HERE
->
-> ***THIS BLOCK FIRST SAID A NON-INTERACTIVE SESSION HANGS AND A SCHEDULED JOB
-> WOULD HANG WITH IT. BOTH WERE WRONG, AND THE GUARD THEY ASKED FOR ALREADY
-> EXISTS.*** `LOGIN:639` reaches the prompt only when
-> `kernel(K$TTY,0) # ''` — `ttyname(fileno(stdin))`, `kernel.c:250`. **Stdin
-> not a terminal already skips it.**
->
-> **MEASURED 23 Aug 2026, one elevated session, both cases, same install:**
->
-> | stdin | prompted | result |
+> | | before | after the owner set a password, 19:39:56 |
 > |---|---|---|
-> | inherited from a console | yes | ***HUNG***, killed at 20s |
-> | redirected from a file | **no** | **exited in 1s** — reached dispatch, *"ZZNOSUCHVERB is not in your VOC"* |
+> | bare `& sd ZZNOSUCHVERB` | ***HUNG***, killed at 20s | **0.4s**, no prompt, *"not in your VOC"* |
+> | `$cred` register | ***0 records*** | `DON`, version 2, SCRAM-SHA-256, StoredKey present |
 >
-> ***SO THE CONDITION IS "A CONSOLE WITH NOBODY AT IT", NOT "NON-INTERACTIVE".***
-> A scheduled task has no tty and takes row 2, as do the **unelevated** verifier
-> rows — `Invoke-SdCommand` uses `Start-Job` (`verify-batchjob.ps1:150`), which
-> has no console.
+> ***THE ROOT CAUSE IS THAT A `-Silent` INSTALL COLLECTS NO PASSWORD.***
+> `sd.iss:1276` is `if InstallReachedPostInstall and not WizardSilent then
+> RunFinishingStep;`, and `RunFinishingStep` (`:1211`) is where the password is
+> taken - by leaving the user in an SD session, owner's decision of 21 Aug 2026.
+> The 17:47:55 cycle ran `-Silent`, so **no account had a credential at all**: no
+> ssh, no API. `b15` passed on 10:01:45 because that install was not silent.
+> ***NOTHING SHIPPED BETWEEN THE TWO INSTALLS CAUSED IT*** - the pcode ACL was
+> never involved at any point, and must not be reverted.
 >
-> ***BUT THE ELEVATED HALF TAKES ROW 1, SO `b16` WILL HANG THERE.*** Corrected
-> a second time, and this is the operative fact:
-> **`verify-batchjob.ps1:85` runs `& $sdExe $paName` DIRECTLY** — not through
-> `Start-Job` — inside the child launched by `Start-Process -Verb RunAs` (`:297`),
-> which has a console. **`:123` sets `$account = $env:USERNAME.ToLower()`, so it
-> runs as `don`**, and `don` has no password on this install. That is row 1
-> exactly.
+> ### TWO GUARDS ARE IN. NEITHER SHIPS, SO NO CYCLE IS OWED
 >
-> ### CONFIRMED: A `-Silent` INSTALL COLLECTS NO PASSWORD, AND NOTHING SAYS SO
+> - ***`verify-batchjob.ps1:85` NOW RUNS `$null | & $sdExe $paName`.*** Its
+>   elevated child comes from `Start-Process -Verb RunAs` and **has a console**,
+>   which the bare call handed to `sd` as stdin; `LOGIN:639` saw a tty and asked
+>   a credential-less account to set a password. **This is what would have
+>   stalled `b16`.** Measured in a real elevated console: bare call **TTY**,
+>   `$null |` **NOTTY**, command then returns in 0.3s.
+> - **`cycle.ps1` step 9 counts `sdsys\$cred`** before `assert-current`, and when
+>   it is empty names the cause, the cost and the remedy. ***It READS the
+>   register rather than inferring from `-Silent`***, so a non-silent install
+>   where somebody pressed Enter on an empty line is caught too.
 >
-> **The owner's report — *"I entered a password at the last install"* — is what
-> found this. He did; not on this one.** The chain is measured end to end:
+> ***EVERY CYCLE RECREATES THE TREE, SO THIS RECURS.*** `cycle.ps1` deletes both
+> trees, and a `-Silent` cycle leaves the next install with no credential again.
+> **The guards make it visible and non-blocking; they do not remove it.**
 >
-> 1. **`sd.iss:1276`** — `if InstallReachedPostInstall and not WizardSilent then
->    RunFinishingStep;`. ***The password step is SKIPPED OUTRIGHT when silent.***
-> 2. `RunFinishingStep` (`sd.iss:1211`) launches `finish-install.ps1`, which is
->    where the password is taken — owner's decision of 21 Aug 2026, collected by
->    leaving the user in an SD session rather than by a wizard page (`:1157`).
-> 3. **The 17:47:55 cycle ran `-Silent`.** Already recorded above.
-> 4. ***THE `$cred` REGISTER HOLDS ZERO RECORDS*** — read elevated, 23 Aug 2026.
->    Not "no record for `don`": **none for anybody.**
+> ### OPEN, AND IT IS THE OWNER'S
 >
-> **SO EVERY `-Silent` CYCLE LEAVES AN INSTALL WITH NO CREDENTIAL AT ALL** — no
-> ssh, no API, and any elevated console `sd <command>` stops at the prompt. `b15`
-> passed on 10:01:45 because that install was not silent.
+> **Should a silent install be allowed to finish with no credential?** Three
+> options weighed 23 Aug 2026: leave it, since the guards cover the cycle; have
+> the installer say so in its own log, which costs a cycle and closes it for real
+> users; or refuse `/SILENT` unless an explicit `/NOPASSWORD` is also given.
+> **Not decided. Do not implement one without asking.**
 >
-> ***THE INSTALLER IS SILENT ABOUT ITS OWN SILENCE.*** Nothing warns, and the
-> tree looks complete. This has now cost two sessions.
+> ### RUN THIS
 >
-> ***SO THE FORTY-FOURTH SESSION'S "that row is now the one failing check" WAS
-> RIGHT***, reached by the wrong route. What was never true is that it is a
-> *start-up* block, or that a scheduled job hangs, or that the pcode ACL or the
-> elevation helper is involved.
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b16
+> ```
 >
-> **CHEAPEST WAY THROUGH: give `don` a password**, at a console, and `b16` runs.
-> The prompt is doing its job. **The product question — whether `sd <command>`
-> should ask at all, which `SYSTEM(1026)` would gate the way §7 step 9 gates the
-> command — is the owner's and is NOT needed to unblock `b16`.**
+> **`b16` IS UNSPENT** - the two lost attempts created no user and no `sdu_`
+> group, and the spent-prefix check is only that. The suite is **27** - 10
+> unelevated, 17 elevated. An **ORDINARY** window: it refuses an elevated one and
+> that is load-bearing (§4.0). About six UAC prompts; it is not unattended.
+> ***AND IT MUST BE A PERSON'S OWN TERMINAL - AN AGENT CANNOT RUN IT (§4.0.1).***
 >
-> **WHY THE ACCOUNT HAS NO PASSWORD:** `cycle.ps1` deletes both trees, so the
-> 17:47:55 install recreated `don`. **Why `b15`'s 10:01:45 install did not hit
-> it is NOT established** — most likely a password was set on that tree during
-> the session. Do not go looking for a regression between the two installs.
+> ### THE PROBING RULES, AND THEY COST TWO SESSIONS
 >
-> ### HOW TO PICK IT UP
->
-> 1. **`b16` IS UNSPENT** — no `b16` user or `sdu_` group was ever created, and
->    the spent-prefix check is only that. Reuse it.
-> 2. **Reproduce in one step, no suite needed:** elevated,
->    `sd ZZNOSUCHVERB` from `C:\ProgramData\SD\user_accounts\don`, **with a
->    timeout, and READ THE REDIRECTED STDOUT** — the prompt is in it.
-> 3. ***USE A TIMEOUT ON EVERY ELEVATED SD PROBE.*** Five windows were hung
->    on 23 Aug; an SD console session **cannot be killed by `Stop-Process` or
->    `taskkill /F` from an ordinary token** and needs elevation to clear.
-> 3a. ***AND PLAN THE RECOVERY BEFORE THE KILL.*** §6: killing an `sd` session
->    **costs the install, not just the session** — stale user-table entries make
->    later sessions answer `Forced logout`. Run elevated **`sd -cleanup`**
->    straight after, in the same elevated context. Done on 23 Aug and the
->    install was measured healthy afterwards.
-> 4. **§4.0.1 — AN AGENT CANNOT RUN THE VERIFY SUITE.** Corrected this session
->    and it cost two attempts; read it before trying.
+> 1. ***USE A TIMEOUT ON EVERY ELEVATED SD PROBE, AND READ THE REDIRECTED
+>    STDOUT.*** *"No output"* meant *"output not looked at"* for a whole day - the
+>    password prompt was in the capture file the entire time.
+> 2. ***PLAN THE RECOVERY BEFORE THE KILL.*** §6: killing an `sd` session **costs
+>    the install, not just the session** - stale user-table entries make later
+>    sessions answer `Forced logout`. Run elevated **`sd -cleanup`** straight
+>    after, in the same elevated context. Done 23 Aug; install measured healthy.
+> 3. **A BARE `& exe` IN A CONSOLE GIVES THE CHILD A TTY.** `$null |`, `'' |` and
+>    `Start-Job` all give NOTTY. **It cannot be measured from an agent shell** -
+>    that host's own stdin is already a pipe, so both forms read NOTTY there.
+> 4. **§4.0.1 - AN AGENT CANNOT RUN THE VERIFY SUITE.** Read it before trying.
 >
 > ### THE PREVIOUS GREEN STATE, KEPT FOR THE BRACKET
 >

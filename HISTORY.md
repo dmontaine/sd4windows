@@ -24456,3 +24456,30 @@ Unelevated the read throws and the branch reports "cannot say", exercised here.
 
 STILL OPEN AND IT IS THE OWNER'S: whether a silent install should be allowed to
 finish at all without a credential.
+
+23 Aug 2026 - don has a password, the hang is closed, and b16 is ready
+
+The owner set it at 19:39:56.  Confirmed elevated rather than taken on trust,
+and the second reading is the one that matters:
+
+  $cred record 'DON'  version=2  mech=SCRAM-SHA-256  storedkey present, 44 chars
+  BARE "& sd ZZNOSUCHVERB" in an elevated console: 0.4s, no prompt,
+       "ZZNOSUCHVERB is not in your VOC"
+
+BARE ON PURPOSE - without guard 1's "$null |" - so it tests the ACCOUNT and not
+the guard.  The same call was killed at 20s earlier the same day on the same
+install.  44 chars is base64 of a 32-byte SHA-256, which is the right shape for
+CRED$STOREDKEY.
+
+So the forty-fourth session's blocker is closed at its root, and guard 1 is now
+defence for the next cycle rather than the thing that unblocks this one - which
+is the right place for it, since every -Silent cycle recreates the condition.
+
+PROJECT_STATUS's START HERE was compressed from 140 lines to 75 in the same
+commit, under section 0 rule 5: the saga is closed, so it keeps its conclusion
+and the four probing rules, and this file keeps the record.  Nothing was
+dropped that was not already here.
+
+STILL OPEN AND STILL THE OWNER'S: whether a silent install should be allowed to
+finish with no credential at all.  Three options are written up in START HERE.
+Do not implement one without asking.
