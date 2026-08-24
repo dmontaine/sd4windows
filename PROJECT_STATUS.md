@@ -11,7 +11,54 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: NOTHING IS BLOCKING. §7 IS EMPTY, §8 IS CLOSED — ASK.
+> ## NEXT: ONE CYCLE, AND IT BLOCKS THE MEASUREMENT THE OWNER ASKED FOR.
+>
+> ***MODIFY WAS REMOVED FROM SD CORE*** (owner's ruling, 24 Aug 2026), so
+> `assert-current` exits 1 and a cycle is owed.
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> After it: `verify-tiers` and `verify-tierapi` are what prove it, and the new
+> counts are **354 / 395 / 416** (STANDARD unchanged - MODIFY was already
+> withheld from it).
+>
+> ### AND THE PHANTOM/SPOOLER MEASUREMENT IS NOW BEHIND THAT CYCLE
+>
+> The owner's ruling on §7 step 15 was ***"lock nothing until phantom and
+> spooler are measured"***. That measurement needs a current tree, and the
+> MODIFY removal made the tree stale in the same session - so **it could not be
+> taken and is now sequenced after the cycle.** Doing the deletion first was the
+> wrong order; the measurement was the cheaper half and should have gone first.
+> **Nothing is lost, one cycle is spent.**
+>
+> `gplbld/probe-syswrites.ps1` is the instrument and already carries the
+> nine-verb pass. What it still needs is PHANTOM, the spooler and saved lists -
+> the pass that **hung** last time, which has to be fixed before it can measure
+> anything (`SETPTR`/`SELECT`/`SAVE.LIST` are the suspects, and the family is
+> the LOGIN/TERM pagination hang).
+>
+> ### ***`assert-current` CANNOT SEE A DELETION.*** FOUND 24 Aug 2026
+>
+> `assert-current.ps1:544-562` walks **source -> install** and asks whether each
+> source file is in the install. **It never walks the other way**, so a file
+> that is in the install and no longer in source is invisible, and a
+> deletion-only change reports the tree **current**.
+>
+> **IT HAS ALREADY HAPPENED SILENTLY.** Session 50 deleted `GPL.BP/OPGEN`; the
+> installed tree still carried it afterwards and the guard said nothing. It was
+> noticed only because that commit also *edited* files, which is what made the
+> tree stale. **A commit that only deletes gets a green guard.**
+>
+> **THE FIX NEEDS A DESIGN CALL, WHICH IS WHY IT IS NOT DONE HERE.** A naive
+> reverse walk flags everything the install legitimately creates and source
+> never had - `gcat`, `gpl.bp.out`, `errlog`, `$ipc\%0`, account data - so it
+> would report stale on every run for ever, and a guard that always cries wolf
+> is worse than the gap. **The shape that would work is to compare the install
+> against WHAT `stage.py` SHIPS, not against the whole source tree.** That is a
+> real piece of work and the owner's call.
+
 >
 > ***THE CYCLE RAN AT 15:13:25, THE INSTALL LANDED AT 15:14:28, AND
 > `assert-current` EXITS 0.*** `sd.exe` `275CFB03E142AA2C`. Transcript
@@ -7433,8 +7480,10 @@ Aug when the read-only inspectors moved down from PROGRAMMER.
   report.src  report.style  format
   ```
 
-**Total: 21 + 42 + 77 = 140 verbs.** Matches the 141 in today's `voc_template`
-less UMASK, which is being removed. Every verb accounted for exactly once.
+**Total: 21 + 41 + 77 = 139 verbs.** *(Was 21 + 42 + 77 = 140 until MODIFY
+was removed from SD Core on 24 Aug 2026 - it was one of the 42 PROGRAMMER
+verbs withheld from STANDARD, so only that middle number moves.)* Every verb
+accounted for exactly once.
 
 **LANDED ON DISK 24 Aug 2026, and installed at 13:36:51 in the same session:**
 

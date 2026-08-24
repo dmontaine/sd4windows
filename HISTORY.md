@@ -27,6 +27,106 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-first session, part 9: assert-current cannot see a deletion
+
+**Commit:** the commit carrying this entry. Documentation only - the fix is
+NOT made, and the entry says why.
+
+**FOUND WHILE REMOVING MODIFY.** Three source files were deleted and
+`assert-current` reported *"no source file is renamed relative to the install"*
+and named only the one file that had been **edited**. The installed tree still
+holds `GPL.BP/MODIFY`, `voc_template/modify` and `newvoc/modify`, and the guard
+does not say so.
+
+**THE CAUSE IS ONE-DIRECTIONAL.** `assert-current.ps1:544-562` builds a lookup
+of the installed tree, then walks **source** and asks of each file *"is it in
+the install, and spelled the same way?"*. Nothing walks the install and asks
+*"is this still in source?"* - so a file the install has and source no longer
+does is invisible.
+
+***IT HAS ALREADY COST SOMETHING, QUIETLY.*** Session 50 deleted
+`GPL.BP/OPGEN` and its entry says *"no cycle owed"*. The installed tree kept
+`GPL.BP/OPGEN` afterwards, and the guard was green on that point. What made
+that tree stale was the *edit* to `OPCODES.H` in the same commit, not the
+delete. **A commit that only deletes would have passed.**
+
+**WHY IT IS DOCUMENTED AND NOT FIXED.** The obvious fix - walk the install and
+flag anything not in source - flags everything the install legitimately creates:
+`gcat`, `gpl.bp.out`, `errlog`, `pcode`, `$ipc\%0`, `$hold`, account data, the
+whole runtime. It would report stale on every run for ever. **A guard that
+always fires is worse than the gap it closes**, and this file's own header makes
+the opposite trade deliberately ("a false stale costs one install"), which only
+holds while a stale verdict still means something.
+
+**The shape that would work**: compare the installed tree against **what
+`stage.py` ships**, which is already the authority on what belongs in an
+install, rather than against the source tree as a whole. That is a real piece
+of work and it is the owner's call, so it is written down rather than started.
+
+**A SEQUENCING MISTAKE IN THE SAME SESSION, recorded because it cost a cycle's
+wait.** The owner ruled *"lock nothing until phantom and spooler are measured"*
+and, separately, that MODIFY could go. **The MODIFY deletion was done first**,
+which made the tree stale - and a measurement taken from a stale tree is void
+(CLAUDE.md). So the phantom/spooler pass now has to wait for the cycle, when it
+could have been taken beforehand for nothing. **Order the cheap measurement
+before the change that invalidates it.**
+
+## 24 Aug 2026 — Fifty-first session, part 8: MODIFY removed from SD Core
+
+**Commit:** the commit carrying this entry. Product data and BASIC removed, two
+verifiers re-derived, changelog. ***A CYCLE IS OWED.***
+
+**OWNER'S RULING, 24 Aug 2026**: *"modify can be deleted, it is not a feature
+that will be available in SD Core."* Same treatment UMASK got the same day.
+
+***THE SCOPE WAS WRONG WHEN HE APPROVED IT, AND THAT IS THE PART WORTH
+KEEPING.*** The confirming question described MODIFY as *"implemented in
+`gpl.bp/MODIFY` and `gpl.bp/MODIFYA`"* and he approved on that description.
+**`gpl.bp/MODIFYA` IS NOT PART OF MODIFY.** Its own header reads *"MODIFY.ACCOUNT
+verb - Add / Delete user from group account"*, it catalogues as `$MODIFYA`,
+`voc_template/modify.account` dispatches to it, and `CPROC:201` lists
+`"$MODIFYA"` in `privileged_commands` against the comment `*"MODIFY.ACCOUNT"`.
+**Deleting it would have removed an ADMINISTRATOR verb the same ruling
+explicitly kept.** Caught by reading the file before deleting it rather than
+trusting the name; the owner confirmed the corrected scope.
+
+**The near-miss has a general shape**: `MODIFY`, `MODIFYA`, `MODIFY.ACCOUNT`,
+`MODIFY.PASSWORD` and BCOMP's restricted **statement** `MODIFY` are five
+different things sharing a prefix. A name is not a dependency.
+
+**REMOVED**: `sdsys/gpl.bp/MODIFY`, `sdsys/voc_template/modify`,
+`sdsys/newvoc/modify`, and the `modify` line from
+`sdsys/newvoc/TIER.OMIT.STANDARD`.
+
+**KEPT, checked by name**: `gpl.bp/MODIFYA`, `voc_template/modify.account`,
+`voc_template/modify.password`, and `BCOMP:394` - that last is the compiler's
+restricted-BASIC-statement list (`BREAKPOINT`, `QUIT`, `RUN`...), not the verb.
+
+**THE COUNTS WERE RE-DERIVED FROM THE DIRECTORY, NOT ADJUSTED BY ONE.** After
+the deletion `newvoc` holds 394 names, less `%t` and the two TIER lists = 391
+records reaching a full VOC; `TIER.OMIT.STANDARD` is 41 and
+`TIER.ADD.ADMINISTRATOR` 21:
+
+| tier | was | now |
+|---|---|---|
+| STANDARD | 354 | **354 - unchanged** |
+| PROGRAMMER | 396 | **395** |
+| ADMINISTRATOR | 417 | **416** |
+
+***STANDARD NOT MOVING IS A CHECK ON THE ARITHMETIC, NOT A COINCIDENCE.***
+MODIFY was withheld from STANDARD already, so it leaves both sides of
+`391 - 41` at once. If STANDARD had moved, the derivation would be wrong.
+
+**Both copies updated in the same commit** - `verify-tiers.ps1` (header
+arithmetic, `$Withheld`, the three counts) and `verify-tierapi.ps1` (its two
+counts and its header) - which is the rule part 5 of this session wrote after
+those two numbers drifted apart. **Cross-checked through the AST**: `$Withheld`
+holds 41 entries and no `modify`, matching the shipped `TIER.OMIT.STANDARD` at
+41, which is what `verify-tiers` section 0 compares.
+
+**NOT CYCLED.** `assert-current` will now exit 1. The next cycle lands this,
+and `verify-tiers` plus `verify-tierapi` are what prove it.
+
 ## 24 Aug 2026 — Fifty-first session, part 7: §7 step 15's eight targets measured, ruling owed
 
 **Commit:** the commit carrying this entry. One new probe
