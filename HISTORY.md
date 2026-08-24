@@ -24621,3 +24621,45 @@ can only be exercised for real on a tree where some account has no credential -
 which the installer now makes harder to produce, silent installs being refused.
 
 Spent: b1-b16.  Next is b17.
+
+Correction: 23 Aug 2026 - Projects\GPL.BP is a convenience copy, not unique material, and never needed a backup
+
+This file and PROJECT_STATUS have called Projects\GPL.BP "genuinely valuable",
+"the one still exposed", "one machine, no backup" and "nothing here can recreate
+it", and listed backing it up as the cheapest open risk.  ALL OF THAT IS WRONG.
+
+The owner, asked to approve a remote for it: "That is a copy from either the
+github repo for scarletdme or sdb64 on codeberg.  I copied it here so that if
+information was needed from it it was locally available.  It is not a part of
+this project and is throw-away as it can always be retrieved from other
+projects."
+
+So there is no risk and no task.  The four passages are corrected in place and
+the item is struck from WHAT IS LEFT.
+
+WHAT WAS MEASURED WHILE GETTING THERE, kept because it is useful and because
+part of it survives the correction:
+
+  Projects\GPL.BP vs this repository's sdsys/gpl.bp - 212 files against 200,
+  170 names shared, and NOT ONE of the 170 byte-identical; 42 files only in the
+  standalone tree, 30 only in the repository.  So the two really are different
+  trees and the standalone one is still the thing to READ when the question is
+  what the port stripped.  That half of the old claim stands.
+
+  Projects\GPL.BP vs ../sdb64's sd64/sdsys/GPL.BP - 214 files there against 212
+  here, 176 names in common, 36 absent from sdb64: _login, _banner, accrst,
+  accsve, the .SCR screens.  SO SDB64 ALONE IS NOT WHERE IT CAME FROM, and
+  re-fetching means ScarletDME on GitHub as well as the Codeberg clone.  That
+  detail is now in section 2 so nobody re-derives it.
+
+WHAT I DID AND UNDID: I had already run git init and committed all 212 files
+locally, before asking where the remote should go.  The commit was made on the
+false premise; the .git directory is removed and the 212 files are untouched.
+Nothing was pushed anywhere - the publish question is what surfaced the truth.
+
+THE PATTERN, AND IT IS THE SECOND TIME TODAY.  The record stated something
+confidently, four separate times, and the person who was there corrected it in
+one sentence.  The first was "don has no password" versus "I entered a password
+at the last install".  ASKING BEFORE PUBLISHING IS WHAT CAUGHT THIS ONE: had the
+task been done silently, a throw-away tree would have been published under his
+account and the wrong claim would have been reinforced rather than found.

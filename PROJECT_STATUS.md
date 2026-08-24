@@ -560,9 +560,11 @@ something came to be the way it is.
 >    verbs is not done**, and the first-pass split written 17 Aug was never
 >    reviewed. It is in the archive rather than here because it will move
 >    when he reads it.
-> 4. **`Projects\GPL.BP` has no remote** - 212 files, 9 references, and §2
->    calls it *"genuinely valuable"*. **One machine, no backup.** Not a task
->    in the code, and the cheapest risk on this list to close.
+> 4. ***NOT A TASK - CORRECTED 23 Aug 2026.*** This read *"`Projects\GPL.BP`
+>    has no remote, one machine, no backup"* and called it the cheapest risk
+>    here. **The owner put it there himself as a local convenience copy of
+>    upstream and calls it throw-away.** §2 has what it is and where it comes
+>    back from. **Nothing to back up; do not open this again.**
 >
 > ### TWO THINGS NOT CLAIMED, BECAUSE NOTHING EXERCISED THEM
 >
@@ -1755,10 +1757,11 @@ run died on, `gh ssh-key add` is the shortest way through it, and the script
 had been *naming* `gh` in its advice while never installing it — which is the
 worst of the three options.
 
-***ONE THING IT CANNOT DO, AND IT SAYS SO RATHER THAN FAILING LATE:*** it
-cannot fetch **`Projects\GPL.BP`**, which has no remote. A machine it builds
-can build and test SD; it cannot do the attribution work this section is
-written around until that tree is copied across by hand.
+***ONE THING IT DOES NOT DO, AND IT DOES NOT MATTER:*** it does not fetch
+**`Projects\GPL.BP`**, which has no remote because it is a **convenience copy of
+upstream**, not project material (§2, corrected 23 Aug 2026). A machine it
+builds can build and test SD; for the attribution work, clone ScarletDME or
+sdb64 rather than copying that tree across by hand.
 
 **IT USED TO BE TWO. SSH KEYS STOPPED BEING A BLOCKER 23 Aug 2026** (owner's
 decision, before the first clean-VM run). **All three GitHub repositories are
@@ -1985,10 +1988,12 @@ repository, not a source dump.
 **AND IT IS COPIED TO pCloud** (owner, 23 Aug 2026), so it is not resting on
 one disk.
 
-***`Projects\GPL.BP` IS THE ONE STILL EXPOSED*** — 212 files, 9 references,
-**no remote**, and §2 calls it *"genuinely valuable"*: it is the original
-ScarletDME BASIC that retains Windows code this repository's `sdsys/gpl.bp`
-had stripped, and §7 step 12 worked from it. **Nothing here can recreate it.**
+***`Projects\GPL.BP` IS NOT EXPOSED, AND THIS SAID IT WAS.*** Corrected
+23 Aug 2026 on the owner's word: it is a **copy he took from upstream so the
+material was available locally**, and it is **throw-away - it can always be
+fetched again**. The claim *"nothing here can recreate it"* was true only of
+this repository and was written as though the tree were unique. §2 has the
+detail and the measurement.
 
 **AND THE TWO ENDS CANNOT TALK ANYWAY, measured 23 Aug 2026:** this port's
 client sends **request 47** for SCRAM and upstream's dispatch table **ends at
@@ -2037,9 +2042,25 @@ machine, and nothing in the build depends on either:
   Limited value: Ladybridge stripped the Windows code thoroughly. Still useful
   for recovering text mangled by the `qm`→`sd` rename.
 - **`C:\Users\dmont\Projects\GPL.BP`** — original ScarletDME BASIC source, 212
-  files. **This one is genuinely valuable** and is what §7 step 12 works from:
+  files. **A LOCAL CONVENIENCE COPY OF UPSTREAM, AND THROW-AWAY** — owner,
+  23 Aug 2026: he copied it here so the material was available without a
+  network round trip, *"it is not a part of this project and ... can always be
+  retrieved from other projects"*. **It needs no backup and no remote.**
+
+  **It is still the thing to READ** when the question is what the port removed:
   it retains real Windows code that this repository's `sdsys/gpl.bp` had
-  stripped. See §5.4.
+  stripped, which is what §7 step 12 worked from. See §5.4.
+
+  ***WHERE IT COMES BACK FROM, MEASURED 23 Aug 2026 RATHER THAN ASSUMED:***
+  **`../sdb64` is NOT a superset.** Its `sd64/sdsys/GPL.BP` holds 214 files
+  against this tree's 212, **176 names in common and 36 absent** — `_login`,
+  `_banner`, `accrst`, `accsve`, the `.SCR` screens. Those 36 come from
+  **ScarletDME on GitHub**, the older project sdb64 succeeded. **Re-fetching
+  means both, not just the Codeberg clone.**
+
+  **AND IT IS A DIFFERENT TREE FROM `sdsys/gpl.bp`, WHICH IS EASY TO ASSUME IT
+  IS NOT:** 212 files against 200, 170 shared names, and **not one of the 170 is
+  byte-identical**. 42 exist only here, 30 only in the repository.
 ## 3. Current state
 
 ### Building
