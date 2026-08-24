@@ -5,13 +5,17 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the forty-seventh session.
+**Last updated:** 24 Aug 2026, end of the forty-eighth session.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: §7 STEP 14 IS MEASURED AND THE ANSWER IS NO. THE API SESSION AUTHENTICATES AS THE USER AND STILL WRITES AS LocalSystem.
+> ## NEXT: §7 STEP 14 — THE IMPERSONATION IS LOST BETWEEN THE SCRAM HOOK AND THE WRITE. THE RUNTIME, THE FORK AND THE INSTRUMENT ARE ALL CLEARED.
+>
+> ***THE 48th SESSION NARROWED IT; THE 47th's b28 IS BELOW AND STILL STANDS.***
+> Read "THE FORKED-CHILD RE-RUN IS DONE" first — it says what has been ruled
+> out, and the next measurement is (a) there, which costs no cycle.
 >
 > ***END OF THE FORTY-SEVENTH SESSION, 24 Aug 2026.*** `verify-apiidentity`
 > reached its own measurement for the first time since it was written. `b18`
@@ -38,15 +42,57 @@ something came to be the way it is.
 > rather than impersonating with one, and **nothing anywhere calls
 > `RevertUserIdentity()`**. The call is real; its effect is absent.
 >
-> ### WHERE TO LOOK, AND ONE PIECE OF EVIDENCE THAT IS WEAKER THAN IT READS
+> ### THE FORKED-CHILD RE-RUN IS DONE, 24 Aug 2026, AND IT CLEARED THE RUNTIME
 >
-> §7 step 14 cites `gplbld/probe-impersonate.c` as showing
-> `ImpersonateLoggedOnUser` governs the MSYS2 runtime's `open()`. **That probe
-> was a STANDALONE program started by `schtasks`.** An API session is a
-> `fork()`ed and `exec()`d Cygwin child of `sdwind`, and the Cygwin runtime
-> keeps its own idea of the user fixed at process start. **Re-run that probe
-> from a forked child before trusting shape (b) any further** — it is the
-> cheapest thing that could overturn the design decision.
+> ***FORTY-EIGHTH SESSION.*** `gplbld/probe-impfork` — the re-run this section
+> used to ask for, plus the leg that checks b28's own instrument. Both legs
+> **exit 11** (access governed, ownership tracks the token), so the two rows
+> are identical and **THE FORK MAKES NO DIFFERENCE**:
+>
+> | leg | forbidden file while impersonating | file created while impersonating |
+> |---|---|---|
+> | fork()ed and exec()d Cygwin child | **refused, errno 13** | owned `GITORLI\test1` |
+> | direct, started by cmd.exe (control) | **refused, errno 13** | owned `GITORLI\test1` |
+>
+> **THREE THINGS ARE NOW EXONERATED AND MUST NOT BE RE-INVESTIGATED.**
+>
+> 1. **The fork.** The suspicion this section carried — that a Cygwin child
+>    fixes its idea of the user at process start — is **answered NO**.
+>    `probe-impersonate`'s result transfers to the API session's shape.
+> 2. **The runtime's owner-stamping.** The hypothesis that MSYS2 stamps a new
+>    file from its cached user was **specifically tested and is wrong**: the
+>    Cygwin `uid` read **18 (SYSTEM) throughout both legs** while the created
+>    file still came out owned by `test1`. **The POSIX uid does not decide the
+>    owner; the thread token does.**
+> 3. **b28's instrument.** Ownership tracks the writing thread, so
+>    `verify-apiidentity` measured what it claimed to.
+>
+> ### SO THE FAULT IS INSIDE THE SESSION, AND THE FINDING IS NOW SHARPER
+>
+> **`AssumeUserIdentity` SUCCEEDS AT LOGIN AND THE THREAD IS NO LONGER
+> IMPERSONATING BY THE TIME THE SESSION WRITES.** That follows from b28 plus
+> this probe and needs no further measurement to state. The other branch —
+> that `ZZAPI` already existed, so the write changed no owner — is **closed**:
+> it is a fresh record name and `verify-apiidentity.ps1:938` already refuses
+> the null case by requiring the file on disk.
+>
+> Nothing in our tree does it: `RevertUserIdentity()` has **no caller**
+> (`op_kernel.c:284` says so deliberately), there are **no threads** in
+> `gplsrc`, and `sdext_eguid.c`'s `seteuid` is reachable only from an explicit
+> `op_sdext.c:343` extension call, not from login or write.
+>
+> ### THE NEXT MEASUREMENT, AND THE CHEAP ONE COMES FIRST
+>
+> **(a) NO CYCLE — extend `probe-impfork`.** It creates its file *immediately*
+> after impersonating; a real session does much else first. Impersonate, then
+> do what a session does between SCRAM and a write, re-checking the owner
+> after each — whatever drops it is isolated **without touching `sd.exe`**.
+> **Do this before (b).**
+>
+> **(b) COSTS A CYCLE — ask the live session.** `ImpersonatingUser()` exists in
+> `win32s4u.c:230` and **has no caller anywhere**. Reporting it at write time
+> is decisive, but it lands on `sd.exe` and owes a full `cycle.ps1` and a
+> suite run.
 >
 > ### DO NOT RE-TRY AN ACL FIXTURE. IT CANNOT ANSWER THIS QUESTION.
 >
@@ -5926,14 +5972,53 @@ the staging script and the Inno installer were all finished and removed.
     token rather than impersonating with one, and **nothing calls
     `RevertUserIdentity()` anywhere in the tree.**
 
-    ***THE EVIDENCE FOR SHAPE (b) IS WEAKER THAN THIS SECTION READS, AND THAT
-    IS THE FIRST THING TO RE-TEST.*** `probe-impersonate.c` above is cited as
-    showing `ImpersonateLoggedOnUser` governs the MSYS2 runtime's `open()`.
-    **It was a STANDALONE program started by `schtasks`.** An API session is a
-    `fork()`ed and `exec()`d Cygwin child of `sdwind`, and the runtime fixes
-    its own idea of the user at process start. **Re-run that probe from a
-    forked child** before spending anything on a fix; it is the cheapest thing
-    that could overturn the choice of shape (b).
+    ***RE-TESTED FROM A FORKED CHILD, 24 Aug 2026, AND SHAPE (b) SURVIVES IT.***
+    `gplbld/probe-impfork.c` + `.ps1`, as LocalSystem via `schtasks`, target
+    `test1`. This section used to say the evidence was weaker than it read,
+    because `probe-impersonate` was a **standalone** program started by
+    `schtasks` while an API session is `fork()`ed and `exec()`d. **The two
+    configurations behave identically** — both legs exit 11:
+
+    | leg | forbidden while impersonating | created while impersonating |
+    |---|---|---|
+    | fork()ed and exec()d Cygwin child | refused, errno 13 | owned `GITORLI\test1` |
+    | direct, started by cmd.exe (control) | refused, errno 13 | owned `GITORLI\test1` |
+
+    Both legs run from one binary against one set of fixtures, so the only
+    difference between the rows is how the process started. **The fork is not
+    the explanation for b28.**
+
+    ***AND THE SAME RUN CLEARED b28's OWN INSTRUMENT, WHICH IS WHY IT CARRIED A
+    SECOND LEG.*** b28's control — a record written by the local session owned
+    `GITORLI\don`, one written by the API session owned SYSTEM — is equally
+    consistent with the runtime stamping a new file from its **own cached
+    user**, which `fork()` carried in from the service and which the thread
+    token does not touch. That would have made ownership the wrong instrument.
+    **It was tested directly and it is wrong**: the Cygwin `uid` read **18
+    (SYSTEM) throughout both legs** while the file created in the same breath
+    came out owned by `test1`. **The POSIX uid does not decide the owner; the
+    thread token does.** Ownership means what b28 took it to mean.
+
+    ***SO THE FINDING SHARPENS WITHOUT A FURTHER MEASUREMENT.***
+    `AssumeUserIdentity` succeeds at login (b17) and **the thread is no longer
+    impersonating by the time the session writes** (b28 + this probe). The
+    other branch — `ZZAPI` already existing, so the write changed no owner —
+    is closed: fresh record name, and `verify-apiidentity.ps1:938` refuses the
+    null case by requiring the file on disk.
+
+    **NOTHING IN OUR TREE DROPS IT**, checked 24 Aug: `RevertUserIdentity()`
+    has no caller (`op_kernel.c:284` withholds it from BASIC on purpose), there
+    are **no threads** anywhere in `gplsrc`, and `sdext_eguid.c`'s `seteuid` is
+    reachable only from `op_sdext.c:343`, an explicit extension call that is
+    not on the login or write path.
+
+    ***NEXT, AND THE CHEAP ONE COMES FIRST.*** (a) **No cycle**: `probe-impfork`
+    creates its file *immediately* after impersonating, where a real session
+    does much else first. Extend it to re-check the owner after each thing a
+    session does between SCRAM and a write, and whatever drops the token is
+    isolated without touching `sd.exe`. (b) **Costs a cycle**:
+    `ImpersonatingUser()` (`win32s4u.c:230`) exists and **has no caller** —
+    reporting it at write time is decisive but lands on `sd.exe`.
 
     ***AN ACL FIXTURE CANNOT ANSWER THIS AND MUST NOT BE RE-TRIED.*** `b27` and
     `b28` both opened all three ACL fixtures - including one whose `%0` grants

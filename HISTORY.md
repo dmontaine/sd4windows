@@ -27,6 +27,92 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-eighth session: the fork is cleared, b28's instrument is cleared, and the fault is inside the session
+
+**Commit:** the commit carrying this entry. No install, no cycle, no source
+change to `sd.exe`; the b17 install (23 Aug 21:25:18) is unchanged and
+`assert-current` was exit 0 either side. New files
+`gplbld/probe-impfork.c`, `.ps1`, `.exe`, on `$neverShipped` in this commit.
+
+**FILE-ORDER NOTE:** rule 2 says newest first, but the forty-seventh session
+appended its two **24 Aug** entries at the END of this file — *Step 14 is
+measured* and *Line endings*. They are older than this one despite sitting
+below it.
+
+**What was owed:** PROJECT_STATUS §7 step 14 named re-running
+`probe-impersonate` **from a forked child** as the cheapest thing that could
+overturn shape (b) — that probe was a standalone program started by `schtasks`,
+while an API session is `fork()`ed and `exec()`d (`sdwind.c:491`).
+
+**Done, and the answer is NO — the fork makes no difference.** `probe-impfork`
+runs one binary against one set of fixtures twice: once in a `fork()`ed and
+`exec()`d child, once directly, the child first so the parent cannot
+contaminate it. Both legs **exit 11**.
+
+| leg | forbidden while impersonating | created while impersonating |
+|---|---|---|
+| fork()ed and exec()d Cygwin child | refused, errno 13 | owned `GITORLI\test1` |
+| direct, started by cmd.exe (control) | refused, errno 13 | owned `GITORLI\test1` |
+
+**A SECOND LEG WAS ADDED BECAUSE b28's CONTROL DOES NOT SEPARATE TWO
+EXPLANATIONS, AND THAT WAS WORTH TESTING EVEN THOUGH IT WAS WRONG.** b28 read
+`ZZLOCAL`→`GITORLI\don`, `ZZAPI`→SYSTEM and called the difference the control.
+In **both** readings the owner equals the identity of the *process* that wrote
+it, so it is equally consistent with the runtime stamping a new file from its
+**own cached user** — which `fork()` carries in from the service and which the
+thread token does not touch. If that held, ownership was the wrong instrument
+and step 14's conclusion was unsound.
+
+**It does not hold.** The Cygwin `uid` read **18 (SYSTEM) throughout both
+legs**, printed before, during and after the switch, while the file created in
+the same breath came out owned by `test1`. **The POSIX uid does not decide the
+owner; the thread token does.** b28 measured what it claimed to.
+
+**SO THE FINDING SHARPENS WITH NO FURTHER MEASUREMENT.** `AssumeUserIdentity`
+succeeds at login (b17) and the thread is **no longer impersonating by the time
+the session writes** (b28 + this). The other branch — `ZZAPI` already existing,
+so the write changed no owner — is closed: fresh record name, and
+`verify-apiidentity.ps1:938` already refuses that null case. Nothing in our
+tree drops it: `RevertUserIdentity()` has no caller, `gplsrc` has **no
+threads**, and `sdext_eguid.c`'s `seteuid` is reachable only from
+`op_sdext.c:343`, off the login and write paths.
+
+**TWO DRIVER FAULTS PAID FOR, BOTH BEFORE THE MEASUREMENT, EACH COSTING ONE UAC
+CLICK RATHER THAN A RUN.**
+
+1. ***`Assert-Icacls` REFUSED THE SUCCESS PATH*** — it disqualified on the
+   substring `Failed processing`, which `icacls` prints on **every success** as
+   *"Successfully processed 1 files; Failed processing 0 files"*. This is
+   CLAUDE.md's check-anchoring trap **inverted**: a disqualifier anchored on
+   wording the success output also carries. Now parses the counts, anchors on
+   the success wording, and refuses the null case (0 files processed). Six unit
+   tests, the function **lifted out by AST** so it cannot drift, case 1 being
+   real `icacls` output captured live rather than typed from memory.
+2. ***`schtasks /TR` IS CAPPED AT 261 CHARACTERS*** — *"Value for '/TR' option
+   cannot be more than 261 character(s)"*. `probe-impersonate` took two fixture
+   paths and fit; this takes four and does not. The command now goes in a
+   `.cmd` in `C:\Windows\Temp` and `/TR` carries only that path (36 chars).
+   **Written `-Encoding ascii`**: PS 5.1's `utf8` writes a BOM, and a BOM atop a
+   `.cmd` is fed to the interpreter as part of line 1 — the embedded-BOM trap in
+   the one file type where it is silent.
+
+**Also fixed:** the first failure left fixtures behind, and `/inheritance:r` on
+a fresh directory leaves an **empty DACL**, so they could not be removed
+without elevation. One `Remove-Fixtures` now serves every exit path and each
+run sweeps `sdprobe-impf-*` leftovers first.
+
+**What is next, and the cheap one is first.** (a) **No cycle**: `probe-impfork`
+creates its file *immediately* after impersonating; a real session does much
+else in between. Extend it to re-check the owner after each thing a session
+does between SCRAM and a write — that isolates whatever drops the token without
+touching `sd.exe`. (b) **Costs a cycle**: `ImpersonatingUser()`
+(`win32s4u.c:230`) exists and **has no caller anywhere**; reporting it at write
+time is decisive but lands on `sd.exe`.
+
+**Transcript:** `%LOCALAPPDATA%\SD-verify\probe-impfork.txt`.
+
+---
+
 ## 23 Aug 2026 - The forty-sixth session: verify-apiidentity, four faults deep, product bug at the bottom
 
 **Commits:** two commits documented in this entry. **b17 install (23 Aug
