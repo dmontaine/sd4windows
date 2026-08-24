@@ -67,10 +67,23 @@ something came to be the way it is.
 > refuses, correctly. Clear it by rebooting and re-running that script, or
 > `reg unload HKU\S-1-5-21-3329101812-2004472801-1855080994-2150` elevated.
 >
-> ### THE INSTALL IS CURRENT — MEASURE BEFORE YOU EDIT ANYTHING
+> ### ONE UNVERIFIED CHANGE IS IN THE TREE — A CYCLE IS OWED
 >
-> Installed 24 Aug **12:36:09**, `sd.exe` `070A9C52E293B2FA`,
-> `assert-current` passes. **A cycle ends at the next source change**, so take
+> **`op_seqio.c:1762`, the `writeport` CR-only fix** (§7 step 16, and
+> `UPSTREAM_FIXES.md` #14). Compiled and cycled to `-SkipInstall` 12:48:38 —
+> 198 programs, staged tree whole — but **`sd.exe` changed, so the tree is
+> STALE and `assert-current` refuses.** A full `cycle.ps1` is owed before any
+> measurement.
+>
+> **It cannot be verified even then**: exercising `WRITESEQ` to a port needs a
+> real port device and no verifier here reaches it. **Worth batching with the
+> next real change rather than spending a cycle on alone** — that is the
+> owner's call, not a decision already taken.
+>
+> ### THE LAST CURRENT INSTALL, FOR THE RECORD
+>
+> Installed 24 Aug **12:36:09**, `sd.exe` `070A9C52E293B2FA` — current until
+> the `writeport` edit above. **A cycle ends at the next source change**, so take
 > any reading you want from this tree *first*.
 > **Prefixes `sdapiidb18`–`b32` are spent; use `b33` or later.**
 >
@@ -6582,11 +6595,22 @@ the staging script and the Inno installer were all finished and removed.
     1. **`Newline` has EIGHT MORE uses that write the ERRLOG** — `k_error.c`
        ×6, `sdwind.c` ×2. They move with it, which on Windows is wanted (the
        log opens in Notepad) but was never listed as a consequence.
-    2. **Ports and FIFOs do NOT use it.** `op_seqio.c:1738` writes its own
-       terminator, so no socket or port is affected. **That call is
+    2. **Ports and FIFOs do NOT use it.** `op_seqio.c` writes its own
+       terminator, so no socket or port was affected by (b). **That call was
        `writeport(fu, "\r\n", 1)` — a two-character literal with length 1, so
-       it emits CR only.** Latent defect, untouched here because it is outside
-       both (b) and the owner's rule; recorded so it is not lost.
+       it emitted CR only.** ***FIXED separately, 24 Aug 2026 — count is now
+       2 (`op_seqio.c:1762`), on the owner's instruction.*** It is **not** part
+       of (b) and does not use `Newline`: a port is not a directory file, so
+       the external-readability rule never reached it. `writeport()`'s third
+       argument is a byte count (`lnxport.c:88`), the literal is the statement
+       of intent, and `onewline` (`tio.h:162`) is init `"\r\n"` for
+       character-device output. **Upstream `sdb64` has the identical line —
+       `UPSTREAM_FIXES.md` #14.** The neighbouring `WRITEBLK` port write
+       correctly appends nothing and was left alone.
+       ***IT IS COMPILED AND CYCLED TO `-SkipInstall` (12:48:38) BUT CANNOT BE
+       TESTED HERE*** — exercising it needs a real port device, and no verifier
+       in this project can reach it. That is weaker evidence than everything
+       else in this step and is stated rather than glossed.
 
     **`DS` STAYS `/`.** §7 step 12's ruling is unaffected — the two "derived
     items" are not one decision.

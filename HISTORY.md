@@ -27,6 +27,51 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: the `writeport` CR-only bug, fixed on the owner's instruction
+
+**Commit:** the commit carrying this entry. **`sd.exe` changed**, so the
+12:36:09 install is STALE and `assert-current` refuses. `cycle.ps1
+-SkipInstall` 12:48:38 clean — 198 programs, phase 3 byte-identical again,
+installer 4,803,761 bytes. **A full cycle is owed.**
+
+**The defect.** `op_writeseq()`'s `SQ_PORT` branch was
+`writeport(fu, "\r\n", 1)`. `writeport()`'s third argument is a **byte count**
+(`lnxport.c:88`), so the call passed a two-character literal and asked for one
+byte: **every `WRITESEQ` to a port terminated its line with a bare CR and the
+LF was never sent.** Count corrected to 2 (`op_seqio.c:1762`).
+
+**The literal is the statement of intent and the count contradicted it.** If CR
+alone were wanted the string would be `"\r"`. Nothing else disagrees:
+`onewline` (`tio.h:162`) is init `"\r\n"` for character-device output.
+
+**IT IS NOT PART OF STEP 16 (b) AND DOES NOT USE `Newline`.** A port is not a
+directory file, so the owner's external-readability rule never reached it. This
+is the separate defect of a call that never did what it was written to do — and
+unlike the CRLF work it carries **no platform argument**: the count is wrong on
+Linux exactly as much as here.
+
+**Reachability was checked rather than assumed.** `lnxport.c` appears in
+neither `gpl.src` nor the Makefile by name, which looked at first like dead
+code — but `lnxport.o` is built and `nm` finds `openport` and `writeport` in
+the linked `sd.exe`, so the path is live.
+
+**The neighbouring call was left alone deliberately.** `op_writeblk()`'s port
+branch writes `src_str->bytes` and appends no terminator, which is correct —
+`WRITEBLK` is a block write and must not add one.
+
+***AND IT CANNOT BE VERIFIED HERE.*** Exercising it needs a real port device;
+no verifier in this project reaches that path, and `verify-lineendings` does
+not pretend to. So this change is **compiled and staged, and its correctness
+rests on the signature of `writeport()` and the length of the literal** — both
+in the source, neither observed running. That is weaker than everything else
+closed today and is recorded as such.
+
+**Upstream `sdb64` has the identical line** (`op_seqio.c:1590`), so
+`UPSTREAM_FIXES.md` #14 was added. Unlike #13 it carries no platform caveat,
+and it says plainly that it was not reproduced even here.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: STEP 16 IS CLOSED, 17/17. §7 has nothing open
 
 **Commit:** the commit carrying this entry. Owner ran the full `cycle.ps1`;

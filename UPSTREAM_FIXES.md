@@ -1028,3 +1028,52 @@ reading above is from upstream's source. It *was* reproduced in the Windows
 port, whose code at these lines was byte-identical before the fix: a CSV
 planted with CRLF read back with the last field one byte long and ending in
 character 13, against an LF control that did not.
+
+---
+
+## 14. `WRITESEQ` to a port sends a bare CR: the byte count is 1 on a two-character literal
+
+**Status:** PROPOSED, 24 Aug 2026
+**Affects:** `sd64/gplsrc/op_seqio.c` — `op_writeseq()`'s `SQ_PORT` branch
+(`1590` on `main` at the time of writing)
+**Severity:** low reach, unambiguous defect. It only affects `WRITESEQ` to a
+**port**, so most installations will never execute it — but where it does run,
+the line terminator has always been wrong and nothing reports it.
+
+**Unlike entry #13 there is no platform argument here.** This is not about
+which line ending a platform prefers; it is a call that does not do what it was
+written to do, on Linux exactly as much as anywhere else.
+
+**Upstream today:**
+
+```c
+    if (!writeport(fu, "\r\n", 1))
+      goto exit_op_writeseq;
+```
+
+`writeport()`'s third argument is a **byte count** — `bool writeport(int hPort,
+char* str, int16_t bytes)` in `lnxport.c`. So the call passes a two-character
+literal and asks for **one** byte: every `WRITESEQ` to a port terminates its
+line with a bare **CR**, and the LF is never sent.
+
+**The literal is the statement of intent, and the count contradicts it.** If CR
+alone were wanted the string would be `"\r"`. Nothing else in the file
+disagrees: `onewline` (`tio.h`) is initialised to `"\r\n"` for character-device
+output, which is the conventional terminator for a serial device.
+
+**The fix:**
+
+```c
+    if (!writeport(fu, "\r\n", 2))
+```
+
+**Note the neighbouring call is correct and should not be changed.**
+`op_writeblk()`'s port branch writes `src_str->bytes` and appends no terminator
+at all, which is right — `WRITEBLK` is a block write and must not add one.
+
+**Not reproduced, and this one cannot easily be.** Per this file's standing
+caveat the reading is from source. It was **not** reproduced even in the
+Windows port, because exercising it needs a real port device; the defect is
+asserted from the signature of `writeport()` and the length of the literal,
+both of which are in the code above. That is weaker evidence than this file's
+other entries and is stated rather than glossed.
