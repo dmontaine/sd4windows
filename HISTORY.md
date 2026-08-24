@@ -101,13 +101,53 @@ a fresh directory leaves an **empty DACL**, so they could not be removed
 without elevation. One `Remove-Fixtures` now serves every exit path and each
 run sweeps `sdprobe-impf-*` leftovers first.
 
-**What is next, and the cheap one is first.** (a) **No cycle**: `probe-impfork`
-creates its file *immediately* after impersonating; a real session does much
-else in between. Extend it to re-check the owner after each thing a session
-does between SCRAM and a write — that isolates whatever drops the token without
-touching `sd.exe`. (b) **Costs a cycle**: `ImpersonatingUser()`
-(`win32s4u.c:230`) exists and **has no caller anywhere**; reporting it at write
-time is decisive but lands on `sd.exe`.
+**THE BISECT WAS DONE IN THE SAME SESSION (Q3), AND ONLY `fork()` DROPS IT.**
+Q1/Q2 create their file immediately after impersonating; a real session does
+much else first. Q3 performs, one at a time, what APISRVR actually does between
+the hook and the write, reading back the thread token AND creating a file after
+**every** step — both instruments kept because they can disagree. Both legs
+identical on all 14 rows.
+
+| step | token after | owner of file made after |
+|---|---|---|
+| `usleep`, `stat`, `open`/`read`/`close`, `opendir`/`readdir`, `chdir` (the account switch), `getcwd`, `getpwuid`, `getpwnam`, socket `send`/`recv` (the request loop), `select`, signal delivery, `LsaDeregisterLogonProcess` | `target` | `GITORLI\test1` |
+| **`fork()` + `waitpid`** | **NONE** | **`NT AUTHORITY\SYSTEM`** |
+
+**`LsaDeregisterLogonProcess` WAS IN THE LIST BECAUSE THE PRODUCT DOES IT AND
+NEITHER PROBE EVER HAD.** `win32s4u.c:208`'s `exit_assume:` runs on the success
+path too — `ok = 1` falls straight into it — while both probes simply leak
+`hlsa`. That is a real difference between the instrument and the thing it
+models, which is where a probe that works and a product that does not can
+diverge. It returns `STATUS_SUCCESS` and **the impersonation survives it**, so
+it is not the explanation. Two of my hypotheses were killed by measurement this
+session; recording both, because the reasoning behind each was plausible.
+
+**THE `fork()` RESULT MATTERS BEYOND b28, AND IS THE session's own finding.**
+It reverts the thread to the process token **silently**, with no error anywhere.
+So any `PHANTOM` (`op_kernel.c:735`) or `SH` (`op_sh.c:379`) taken by an
+impersonated session drops it back to LocalSystem, and nothing in `win32s4u.c`
+can detect it. Shape (b) owes an answer to this whatever fixes b28.
+
+**WHAT IS STILL OPEN, AND IT IS A REAL TENSION - DO NOT PAPER OVER IT.**
+**Nothing on the API login-to-write path forks.** The server's only `fork()`
+sites are `op_kernel.c:735` (PHANTOM), `op_sh.c:379` (SH), `sdwind.c:491` (the
+spawn itself, which is *before* the hook) and `sysseg.c:643`/`:745` (SD
+start-up). b28's flow is SCRAM, `vb.account`, `vb.open`, `vb.write` and takes
+none of them. So either the session forks somewhere not yet found, or something
+outside Q3's fourteen steps drops it. **Guessing between those is what the next
+session must not do.**
+
+**Next:** (a2) no cycle — watch the session process for a fork during a live
+`verify-apiidentity` run; costs a prefix token, not an install. (b) costs a
+cycle — `ImpersonatingUser()` (`win32s4u.c:230`) exists and has no caller
+anywhere; reporting it at write time is decisive but lands on `sd.exe`.
+
+**Both self-test modes exist because Q1/Q2/Q3 only execute after a successful
+S4U logon**, so their first exercise would otherwise be the elevated run:
+`--ownercheck` for the owner reader, `--q3check` for the whole Q3 sequence.
+`--q3check` doubles as a control — with nothing impersonated it must report the
+loss at step 0, which proves the detection fires rather than merely never
+firing.
 
 **Transcript:** `%LOCALAPPDATA%\SD-verify\probe-impfork.txt`.
 

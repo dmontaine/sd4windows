@@ -81,18 +81,45 @@ something came to be the way it is.
 > `gplsrc`, and `sdext_eguid.c`'s `seteuid` is reachable only from an explicit
 > `op_sdext.c:343` extension call, not from login or write.
 >
-> ### THE NEXT MEASUREMENT, AND THE CHEAP ONE COMES FIRST
+> ### STEP (a) IS DONE TOO: ONLY `fork()` DROPS IT, AND 13 OTHER THINGS DO NOT
 >
-> **(a) NO CYCLE — extend `probe-impfork`.** It creates its file *immediately*
-> after impersonating; a real session does much else first. Impersonate, then
-> do what a session does between SCRAM and a write, re-checking the owner
-> after each — whatever drops it is isolated **without touching `sd.exe`**.
-> **Do this before (b).**
+> `probe-impfork`'s **Q3** bisect. After impersonating it performs, one at a
+> time, what APISRVR actually does between the hook and the write, reading back
+> the thread token **and** creating a file after **every** step. **Both legs
+> identical on all 14 rows.**
 >
-> **(b) COSTS A CYCLE — ask the live session.** `ImpersonatingUser()` exists in
-> `win32s4u.c:230` and **has no caller anywhere**. Reporting it at write time
-> is decisive, but it lands on `sd.exe` and owes a full `cycle.ps1` and a
-> suite run.
+> | held (token `target`, file owned `GITORLI\test1`) | lost |
+> |---|---|
+> | `usleep`, `stat`, `open`/`read`/`close`, `opendir`/`readdir`, **`chdir`** (the account switch), `getcwd`, `getpwuid`, `getpwnam`, **socket `send`/`recv`** (the request loop), `select`, signal delivery, **`LsaDeregisterLogonProcess`** | **`fork()`** — token `NONE`, file owned `NT AUTHORITY\SYSTEM` |
+>
+> ***TWO MORE HYPOTHESES KILLED BY MEASUREMENT, BOTH MINE.*** The runtime does
+> not stamp the owner from its cached user (above), and
+> `LsaDeregisterLogonProcess` — which `win32s4u.c:208` **does call on the
+> success path**, and which neither probe had ever done — returns
+> `STATUS_SUCCESS` and **the impersonation survives it**.
+>
+> ***AND A CONSEQUENCE FOR SHAPE (b) THAT OUTLIVES THIS BUG.*** `fork()`
+> silently reverts the thread to the process token. So **any `PHANTOM`
+> (`op_kernel.c:735`) or `SH` (`op_sh.c:379`) taken by an impersonated session
+> drops it back to LocalSystem with no error** — and `AssumeUserIdentity` has
+> no way to notice. Shape (b) has to answer this whatever fixes b28.
+>
+> ### THE ONE TENSION LEFT, AND IT IS THE NEXT THING TO MEASURE
+>
+> **NOTHING ON THE API LOGIN-TO-WRITE PATH FORKS.** The server's only `fork()`
+> sites are `op_kernel.c:735` (PHANTOM), `op_sh.c:379` (SH), `sdwind.c:491`
+> (the spawn itself, *before* the hook) and `sysseg.c:643`/`:745` (SD start-up).
+> b28's flow is SCRAM → `vb.account` → `vb.open` → `vb.write` and takes none of
+> them. **So either the session forks somewhere not yet found, or something
+> outside Q3's 14 steps drops it.** Do not guess between those — measure.
+>
+> **(a2) NO CYCLE:** watch whether the session process forks between login and
+> write during a live `verify-apiidentity` run. Costs a prefix token, not an
+> install.
+>
+> **(b) COSTS A CYCLE:** `ImpersonatingUser()` (`win32s4u.c:230`) exists and
+> **has no caller anywhere**; reporting it at write time is decisive but lands
+> on `sd.exe`.
 >
 > ### DO NOT RE-TRY AN ACL FIXTURE. IT CANNOT ANSWER THIS QUESTION.
 >
@@ -6012,13 +6039,38 @@ the staging script and the Inno installer were all finished and removed.
     reachable only from `op_sdext.c:343`, an explicit extension call that is
     not on the login or write path.
 
-    ***NEXT, AND THE CHEAP ONE COMES FIRST.*** (a) **No cycle**: `probe-impfork`
-    creates its file *immediately* after impersonating, where a real session
-    does much else first. Extend it to re-check the owner after each thing a
-    session does between SCRAM and a write, and whatever drops the token is
-    isolated without touching `sd.exe`. (b) **Costs a cycle**:
-    `ImpersonatingUser()` (`win32s4u.c:230`) exists and **has no caller** —
-    reporting it at write time is decisive but lands on `sd.exe`.
+    ***THE BISECT IS DONE, 24 Aug 2026, AND ONLY `fork()` DROPS IT.***
+    `probe-impfork`'s Q3 leg performs, one at a time, what APISRVR does between
+    the hook and the write, reading back the thread token **and** creating a
+    file after **every** step. Both legs identical on all 14 rows.
+
+    | step | token after | owner of file made after |
+    |---|---|---|
+    | `usleep`, `stat`, `open`/`read`/`close`, `opendir`, **`chdir`**, `getcwd`, `getpwuid`, `getpwnam`, **socket `send`/`recv`**, `select`, signal delivery, **`LsaDeregisterLogonProcess`** | `target` | `GITORLI\test1` |
+    | **`fork()` + `waitpid`** | **NONE** | **`NT AUTHORITY\SYSTEM`** |
+
+    **`LsaDeregisterLogonProcess` WAS TESTED BECAUSE THE PRODUCT DOES IT AND
+    NEITHER PROBE DID** — `win32s4u.c:208`'s `exit_assume:` runs on the success
+    path too (`ok = 1` falls into it), while both probes leak `hlsa`. It
+    returns `STATUS_SUCCESS` and **the impersonation survives it**, so that
+    difference is not the explanation either.
+
+    ***THE `fork()` RESULT MATTERS BEYOND b28.*** It reverts the thread to the
+    process token **silently**, so **any `PHANTOM` (`op_kernel.c:735`) or `SH`
+    (`op_sh.c:379`) taken by an impersonated session drops it back to
+    LocalSystem with no error**, and nothing in `win32s4u.c` can notice. Shape
+    (b) owes an answer to this whatever fixes b28.
+
+    ***THE TENSION THIS LEAVES, WHICH IS THE NEXT THING TO MEASURE.***
+    **Nothing on the API login-to-write path forks.** The server's only `fork()`
+    sites are PHANTOM, `SH`, `sdwind.c:491` (the spawn itself, before the hook)
+    and `sysseg.c:643`/`:745` (start-up); b28's flow — SCRAM, `vb.account`,
+    `vb.open`, `vb.write` — takes none of them. **So either the session forks
+    somewhere not yet found, or something outside Q3's 14 steps drops it. Do
+    not guess between those.** (a2) **No cycle**: watch the session process for
+    a fork during a live `verify-apiidentity` run — costs a prefix token, not
+    an install. (b) **Costs a cycle**: `ImpersonatingUser()` (`win32s4u.c:230`)
+    exists and has no caller; reporting it at write time is decisive.
 
     ***AN ACL FIXTURE CANNOT ANSWER THIS AND MUST NOT BE RE-TRIED.*** `b27` and
     `b28` both opened all three ACL fixtures - including one whose `%0` grants
