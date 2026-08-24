@@ -54,6 +54,65 @@ so read it as part of the same check.
 legitimate — say which warning, and why it does not apply, before you run.
 Overriding one you never saw is what this rule exists to stop.
 
+## Run standing procedures exactly as written
+
+Standing instruction from the repository owner, 23 Aug 2026, after a session
+ran `cycle.ps1 -Silent` instead of the documented `cycle.ps1`. His words: *"If I
+had been asked I would have asked for clarification and said no."*
+
+**The standing commands are written with their arguments** — in this file and in
+PROJECT_STATUS.md's "START HERE". **Anything you add to one is a change to the
+owner's procedure, and it needs his yes first.** A flag that exists, is
+documented, and is off by default is not thereby approved: `-Silent` was all
+three.
+
+**THE TELL IS WHO THE SHORTCUT IS FOR.** If the benefit is *"then nobody has to
+be present"* or *"then I don't have to hand this back"*, stop and ask. That is
+the whole class:
+
+- **Unattended operation is not a goal of this project.** A cycle needs a person
+  at the wizard; the verify suite needs a person's own terminal (§4.0.1); SD
+  cannot be installed silently at all (owner, 23 Aug 2026). **An agent
+  optimising toward "no human needed" is optimising against the design.**
+- **The work does not get better, only more autonomous.** `-Silent` did not make
+  that cycle a better test. It made it one nobody watched, and it produced an
+  install with no password on any account — handed over as an unexplained hang
+  in SD's start-up, and it cost two sessions.
+
+**Asking is cheap and he answers in a sentence.** The cost of not asking is
+carried by whoever picks the session up.
+
+**This is about deviating, not about doing.** Running the documented command as
+documented needs no permission, and neither does ordinary reading, searching or
+building.
+
+## Never inline a script that contains a backslash
+
+Owner, 23 Aug 2026: this trap *"has caused many many redos"*. It is a hard rule
+now, not a caution.
+
+**If a Python or PowerShell snippet contains `\` — and on Windows that means any
+path — write it to a file with the Write tool and run the file.** Do not pipe it
+through a heredoc, `-c`, or `-Command`. Checking is mechanical: *does my inline
+script contain a backslash?* Then it does not go inline.
+
+**THERE ARE TWO FAILURE MODES AND KNOWING ONLY THE FIRST IS WHY THIS KEEPS
+HAPPENING:**
+
+1. **Unquoted heredoc (`<<EOF`)** — the *shell* eats `\` and expands `$`.
+   Widely known, and the reason people reach for `<<'EOF'`.
+2. **Quoted heredoc (`<<'EOF'`) feeding Python** — the shell is now innocent and
+   **Python's own string literals** still interpret the escapes. `"C:\Users\..."`
+   in Python source is `\U`, a truncated `\UXXXXXXXX` escape, and it fails at
+   *parse* time. `"C:\temp"` is worse: `\t` is a tab and it fails **silently**.
+
+**Quoting the heredoc fixes 1 and does nothing for 2.** That is the whole trap,
+and believing `<<'EOF'` is safe is what walked into it again on 23 Aug 2026.
+
+**If something truly must be inline**, use a raw string (`r'C:\Users\...'`) or
+build the separator with `chr(92)` — but prefer the file. A file is also
+re-runnable, diffable, and can be parse-checked before it is run.
+
 ## You must maintain these files, cheaply
 
 Standing instruction from the repository owner, 14 Aug 2026: **the ratio of

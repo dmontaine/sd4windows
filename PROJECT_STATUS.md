@@ -53,13 +53,41 @@ something came to be the way it is.
 > trees, and a `-Silent` cycle leaves the next install with no credential again.
 > **The guards make it visible and non-blocking; they do not remove it.**
 >
-> ### OPEN, AND IT IS THE OWNER'S
+> ### DECIDED 23 Aug 2026: SD CANNOT BE INSTALLED SILENTLY, AND THERE IS NO SWITCH
 >
-> **Should a silent install be allowed to finish with no credential?** Three
-> options weighed 23 Aug 2026: leave it, since the guards cover the cycle; have
-> the installer say so in its own log, which costs a cycle and closes it for real
-> users; or refuse `/SILENT` unless an explicit `/NOPASSWORD` is also given.
-> **Not decided. Do not implement one without asking.**
+> ***OWNER'S RULING, IN HIS WORDS:*** *"unattended deployment is not supported in
+> sd - install can only happen at the keyboard or in a remoted session. Both
+> silents should be gone."*
+>
+> - **`sd.iss` `InitializeSetup` refuses `/SILENT` and `/VERYSILENT` outright**,
+>   with a message saying why and naming the keyboard and Remote Desktop as the
+>   two ways to install. ***NO ESCAPE FLAG.*** An earlier draft offered
+>   `/NOPASSWORD=yes`; he removed it - *"a switch that buys a credential-less
+>   system is a switch somebody will paste from a forum"*.
+> - ***`cycle.ps1 -Silent` IS DELETED.*** Added 17 Aug 2026 with the script,
+>   never part of anybody's pattern, used once - by a session that wanted a cycle
+>   nobody had to watch - and that use cost two sessions. `cycle.ps1`'s `.NOTES`
+>   carries why, so it does not get re-added as a convenience.
+> - **`DeinitializeSetup` keeps `not WizardSilent`** as a second line of defence
+>   even though it should now be unreachable; what it guards is a password prompt
+>   with nobody to answer it.
+>
+> **MEASURED on the rebuilt installer, 23 Aug 2026**, with the arguments echoed
+> so an empty argument list could not read as a pass: `/VERYSILENT` **exit 1,
+> refusal logged**; `/VERYSILENT /NOPASSWORD=yes` **exit 1, refusal logged**;
+> install stamp and credential register untouched by both.
+>
+> **THE WORDING WENT WITH IT, both places somebody chooses to set no password**
+> - the installer's finishing text and **message 10089**, which is the actual
+> decision point. Both used to name ssh and the API and stop, which reads as
+> *"some features are unavailable"*. Both now say the account can be used **only
+> at that computer - keyboard, or Remote Desktop or similar - and only from a
+> session run as administrator**. Remote Desktop is named because it feels like
+> connecting from another machine and is not (§5.6.2 puts it with the console).
+>
+> ***A CYCLE IS OWED AND ONLY A PERSON CAN RUN IT***: `messages/10089` ships, so
+> `assert-current` is at **exit 1** until one runs. The cycle will also collect a
+> password, which is what `b16` needs.
 >
 > ### RUN THIS
 >

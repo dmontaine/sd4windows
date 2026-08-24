@@ -24483,3 +24483,69 @@ dropped that was not already here.
 STILL OPEN AND STILL THE OWNER'S: whether a silent install should be allowed to
 finish with no credential at all.  Three options are written up in START HERE.
 Do not implement one without asking.
+
+23 Aug 2026 - SD cannot be installed silently, and two rules came out of how that happened
+
+Owner's ruling, in his words: "unattended deployment is not supported in sd -
+install can only happen at the keyboard or in a remoted session.  Both silents
+should be gone."
+
+WHAT WAS BUILT FIRST AND WITHDRAWN.  The first version gated a silent install
+behind /NOPASSWORD=yes and had cycle.ps1 pass it.  He removed the escape: a
+switch that buys a credential-less system is a switch somebody will paste from
+a forum.  sd.iss InitializeSetup now refuses /SILENT and /VERYSILENT outright,
+naming the keyboard and Remote Desktop as the two ways to install.
+DeinitializeSetup keeps "not WizardSilent" as a second line of defence even
+though it should be unreachable, because what it guards is a password prompt
+with nobody to answer it.
+
+cycle.ps1 -Silent IS DELETED.  git says it arrived 17 Aug 2026 in commit
+91d8b0d, the commit that CREATED cycle.ps1 - an off-by-default convenience
+nobody asked for, whose own help said the wizard pages are part of what a cycle
+is meant to show.  It was then used exactly once, by the forty-fourth session,
+to run a cycle nobody had to watch.  cycle.ps1's .NOTES now carries that story
+so it is not re-added as a convenience.
+
+MEASURED on the rebuilt installer: /VERYSILENT exit 1 with the refusal logged,
+/VERYSILENT /NOPASSWORD=yes exit 1 with the refusal logged, install stamp and
+credential register untouched by both.
+
+AND THE FIRST RUN OF THAT TEST REPORTED A PASS WHILE TESTING NOTHING.  The
+probe's function took a parameter named $args, which is a PowerShell AUTOMATIC
+variable, so it was clobbered and Start-Process received no switches at all -
+setup ran NON-silently, the gate correctly did not fire, and the verdict logic
+("install untouched, credential intact") passed trivially.  Caught by the
+echoed command line reading "setup" with nothing after it.  THE FIX THAT
+MATTERS IS NOT THE RENAME: the probe now ECHOES the arguments it passes and
+refuses to run with fewer than two, so an empty argument list cannot look like
+a successful refusal again.  Same shape as the morning's fault - a real-looking
+verdict from an instrument that never reached the condition.
+
+RULE 1, CLAUDE.md "Run standing procedures exactly as written".  Owner: "If I
+had been asked I would have asked for clarification and said no."  The standing
+commands are written WITH their arguments; anything added to one is a change to
+his procedure and needs a yes first.  A flag that exists, is documented and is
+off by default is not thereby approved - -Silent was all three.  THE TELL IS
+WHO THE SHORTCUT IS FOR: if the benefit is "then nobody has to be present" or
+"then I do not have to hand this back", stop and ask.  Unattended operation is
+not a goal of this project - a cycle needs a person at the wizard, the verify
+suite needs a person's own terminal, and now the installer refuses silence
+outright.
+
+RULE 2, CLAUDE.md "Never inline a script that contains a backslash".  Owner:
+the heredoc trap "has caused many many redos".  It bit again during this very
+session.  THE REASON IT RECURS IS THAT THE WIDELY-KNOWN HALF IS ONLY HALF:
+
+  1. Unquoted heredoc - the SHELL eats backslashes and expands $.
+  2. Quoted heredoc feeding Python - the shell is innocent and PYTHON'S OWN
+     string literals still interpret the escapes.  "C:\Users" is a truncated
+     \UXXXXXXXX escape and fails at parse time; "C:\temp" silently becomes a
+     tab.
+
+Quoting fixes 1 and does nothing for 2, so reaching for <<'EOF' feels like the
+fix and is not.  The rule is mechanical: if an inline script contains a
+backslash it goes in a file written with the Write tool.
+
+STATE: a cycle is owed - messages/10089 ships, so assert-current is at exit 1.
+Only a person can run it now, and it will collect a password, which is what b16
+needs.
