@@ -102,34 +102,47 @@ something came to be the way it is.
 > hard to reach on purpose: silent installs are refused, so the only way in is a
 > person pressing Enter on an empty line at the password prompt.
 >
-> ### `b16` RAN GREEN. THE TREE IS 23 Aug 20:22:25 AND EVERYTHING TODAY IS ON IT
+> ### `b17` RAN GREEN ON 23 Aug 21:25:18, WITH THE STEP 14 IDENTITY CHANGE ON IT
 >
 > ***10 of 10 unelevated, 17 of 17 elevated, every step exit 0, zero `[FAIL]`.***
 > Confirmed from the summary file and the elevated log **independently of the
 > screen**, with `[FAIL]` counted by **regex** — `-SimpleMatch` is the 22 Aug bug
 > that reported five failures as none. Both logs are stamped after the run's own
-> start, so neither is the stale-log trap, and the steps name **install 20:22:25**.
+> start, so neither is the stale-log trap, and the steps name **install 21:25:18**.
+> `sd.exe` **43C22DDB082D2748**, built 21:18:39 — the binary carrying
+> `K_ASSUME_USER`.
 >
-> ***THE ROW THAT WAS THE WHOLE HUNT PASSED:*** `verify-batchjob`'s
-> *"ELEVATED with no entry: still runs"*. So did `verify-pcodeacl` 4/4 and
-> `verify-lcnames` 142/142.
+> ***WHAT THIS DOES AND DOES NOT SAY ABOUT STEP 14 — READ BOTH HALVES.***
+> The hook **fails closed**, so the five API verifiers passing is a positive
+> result and not merely an absence of breakage: `verify-scramlogin`,
+> `verify-apiadmin`, `verify-apiname`, `verify-apiport` and `verify-tierapi` all
+> log in over the API, and **message 5277 appears nowhere in the log**, so
+> `AssumeUserIdentity` returned 1 every time. **The S4U logon and
+> `ImpersonateLoggedOnUser` both work against a live API login.**
 >
-> **Spent: `b1`-`b16`. Next is `b17`.** The suite is **27** — 10 unelevated,
+> ***BUT NOTHING HAS OBSERVED THE EFFECT, WHICH IS THE POINT OF THE STEP.***
+> No check asks whether an API session is now confined to what the user may
+> read. **A green 27 would look identical if the token changed and the file
+> layer ignored it.** §7 step 14 names the verifier that would close this.
+>
+> ***AND `b16`'s ROW STILL HOLDS:*** `verify-batchjob`'s *"ELEVATED with no
+> entry: still runs"*, `verify-pcodeacl` 4/4, `verify-lcnames` 142/142.
+>
+> **Spent: `b1`-`b17`. Next is `b18`.** The suite is **27** — 10 unelevated,
 > 17 elevated.
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b17
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b18
 > ```
 >
 > An **ORDINARY** window: it refuses an elevated one and that is load-bearing
 > (§4.0). About six UAC prompts; it is not unattended.
 > ***AND IT MUST BE A PERSON'S OWN TERMINAL - AN AGENT CANNOT RUN IT (§4.0.1).***
 >
-> ***ONE THING PASSED WITHOUT BEING EXERCISED, AND IT IS NOT A RESULT:***
-> `verify-batchjob.ps1:85`'s `$null |`. `don` holds a password on this tree, so
-> the prompt it guards against never arose — **the row passed by not needing it.**
-> It is measured standalone in an elevated console and nowhere else. It will only
-> be exercised for real on a tree where some account has no credential.
+> ***STILL PASSING WITHOUT BEING EXERCISED, THROUGH TWO RUNS NOW:***
+> `verify-batchjob.ps1:85`'s `$null |`. `don` holds a password on every cycled
+> tree, so the prompt it guards against never arises — **the row passes by not
+> needing it.** Measured standalone in an elevated console and nowhere else.
 >
 > ### THE PROBING RULES, AND THEY COST TWO SESSIONS
 >
@@ -7018,19 +7031,30 @@ the staging script and the Inno installer were all finished and removed.
     static"* pointing at the project's own header. They take `windows.h` and
     their own header only, and use `malloc` rather than `k_alloc`.
 
-    ***WHAT IS OWED: A CYCLE AND THE SUITE, AND ONLY A PERSON CAN RUN THEM.***
-    `make sd` is done and `cycle.ps1 -SkipInstall` staged and compiled clean -
-    187 programs, no errors. **The API verifiers are the test**:
-    `verify-scramlogin`, `verify-apiadmin`, `verify-apiname`, `verify-apiport`,
-    `verify-tierapi`. They all log in over the API and so all now cross this
-    code.
+    ***CYCLED AND RUN, 23 Aug 2026: INSTALL 21:25:18, `-Run b17` GREEN AT 10 AND
+    17.*** All five API verifiers passed and **message 5277 appears nowhere in
+    the log**. Because the hook fails closed that is a POSITIVE result:
+    `AssumeUserIdentity` returned 1 on every live API login, so the S4U logon
+    and `ImpersonateLoggedOnUser` both work in the real session.
 
-    ***THE RISK TO WATCH, NAMED BECAUSE NOTHING HAS EXERCISED IT:*** after the
-    switch the session writes as the USER. Anything it must write that only
-    LocalSystem could reach would now fail - `errlog`, `pstmp`, the audit
-    trail. The audit ACL is append-only for `sdusers` and should hold; nobody
-    has watched it. **A failing API verifier is more likely to be this than a
-    broken login.**
+    **THE RISK NAMED BEFOREHAND DID NOT MATERIALISE.** The session writes as the
+    user after the switch, and nothing it must write - `errlog`, `pstmp`, the
+    audit trail - refused. Watched for, not merely absent.
+
+    ***AND HERE IS WHAT IS STILL NOT VERIFIED, WHICH IS THE POINT OF THE STEP.***
+    **Nothing has observed the EFFECT.** No check asks whether an API session is
+    now confined to what the user may read; a green 27 would look identical if
+    the token changed and the file layer ignored it. **The call is proven, the
+    consequence is not.**
+
+    ***THE VERIFIER THAT WOULD CLOSE IT, AND IT IS NOT WRITTEN:***
+    `verify-apiidentity`. Give it the shape `probe-impersonate.ps1` already
+    uses - a directory ACL'd **SYSTEM and Administrators only**, inheritance
+    broken, holding an SD file - then have a **live API session** try to read
+    it. As LocalSystem it opens; as the user it must be refused. ***THE CONTROL
+    IS THE SAME FILE OPENING FOR SOMETHING THAT IS STILL LocalSystem***, or the
+    refusal proves only that the path was wrong. Until that runs, step 14 is
+    *built and working* rather than *doing what it was for*.
 
 15. **A data tree private from SD's own users** — §5.7's service-account model.
 

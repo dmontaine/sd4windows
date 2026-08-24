@@ -24762,3 +24762,45 @@ session writes as the USER, so anything it must write that only LocalSystem
 could reach would now fail - errlog, pstmp, the audit trail.  The audit ACL is
 append-only for sdusers and should hold, but nobody has watched it.  A failing
 API verifier is more likely to be that than a broken login.
+
+23 Aug 2026 - b17 green on install 21:25:18, carrying the step 14 identity change
+
+Owner cycled and ran the suite from his own terminal.  10 of 10 unelevated,
+17 of 17 elevated, every step exit 0.
+
+CONFIRMED INDEPENDENTLY OF THE SCREEN: the unelevated summary holds 10 step
+lines all "exit 0"; the elevated log holds 17 step lines and no non-zero exit;
+[FAIL] counted by REGEX is 0 in both; both logs post-date the 21:28:15 start, so
+neither is the stale-log trap; and the steps name install 21:25:18.  sd.exe
+43C22DDB082D2748, built 21:18:39 - the binary carrying K_ASSUME_USER, 13,364
+bytes larger than the 20:22 one.
+
+WHAT IT PROVES ABOUT STEP 14, AND IT IS MORE THAN "NOTHING BROKE".  The hook
+fails closed: if kernel(K$ASSUME.USER) returns 0, APISRVR refuses the login with
+message 5277 and logged.in is never set.  All five API verifiers passed -
+verify-scramlogin, verify-apiadmin, verify-apiname, verify-apiport,
+verify-tierapi - and MESSAGE 5277 APPEARS NOWHERE IN THE LOG.  So
+AssumeUserIdentity returned 1 on every live API login: the S4U logon and
+ImpersonateLoggedOnUser both work in the real session, not just in a probe.
+
+THE RISK NAMED BEFORE THE RUN DID NOT MATERIALISE.  After the switch the session
+writes as the user, so errlog, pstmp or the audit trail could have refused a
+write LocalSystem used to get.  None did.  Recorded as watched-for rather than
+as absent, because the two read the same in a green log and only one of them is
+evidence.
+
+AND HERE IS WHAT IS STILL NOT VERIFIED, WHICH IS THE POINT OF THE STEP.  NOTHING
+HAS OBSERVED THE EFFECT.  No check asks whether an API session is now confined
+to what the user may read.  A green 27 would look EXACTLY THE SAME if the token
+changed and the file layer ignored it - and the file layer ignoring it was a
+live possibility until probe-impersonate measured otherwise, so this is not a
+theoretical gap.  The call is proven; the consequence is not.
+
+WHAT WOULD CLOSE IT: verify-apiidentity, not written.  Same shape as
+probe-impersonate.ps1's fixtures - a directory ACL'd SYSTEM and Administrators
+only, inheritance broken, holding an SD file - read through a LIVE API session.
+As LocalSystem it opens; as the user it must be refused.  The control is the
+same file still opening for something that is genuinely still LocalSystem, or
+the refusal proves only that the path was wrong.
+
+Spent: b1-b17.  Next is b18.
