@@ -24718,3 +24718,47 @@ $cred, which excludes ordinary users, so the reader cannot already be the user.
 
 NOT DONE: the change itself.  One hook at APISRVR:1442, where logged.in is set,
 plus the C behind a new kernel key.
+
+23 Aug 2026 - section 7 step 14 shape (b) is BUILT: the API session becomes the authenticated user
+
+Owner chose shape (b) after probe-impersonate settled the open question.  BUILT
+AND NOT VERIFIED - section 0 rule 2.  It has compiled; nothing has run it.
+
+WHAT WAS ADDED.  gplsrc/win32s4u.c and .h, new: an S4U logon followed by
+ImpersonateLoggedOnUser, modelled on probe-s4u.c and probe-impersonate.c, which
+between them measured every call in it.  Kernel key 61 - K_ASSUME_USER in
+keys.h, K$ASSUME.USER in INT$KEYS.H - dispatched in op_kernel.c beside
+K_SET_USERNAME and gated the same way, on HDR_INTERNAL.  gpl.src gains
+win32s4u; L_FLAGS gains -lsecur32, where the Lsa* calls actually live.  Message
+5277 for the refusal.
+
+THE HOOK IS ONE LINE IN APISRVR's vb.scram.final AND ITS POSITION IS THE WHOLE
+CONTROL: it sits BEFORE logged.in = @true, so a refusal leaves the caller
+authenticated into nothing and the dispatcher goes on admitting only requests
+24, 25, 47 and 48.  Setting logged.in first and impersonating after would leave
+a session that believes it is the user while holding the service's token, which
+is worse than one that never started.
+
+A BUILD PAID FOR A RULE NOBODY HAD WRITTEN DOWN: win32*.c FILES NEVER INCLUDE
+sd.h.  sd.h defines Private, STRING, Sleep and GetCurrentProcessId as macros
+and every one collides with windows.h; the failure is "expected identifier or (
+before static" pointing at the project's own header, which reads like a
+corrupted file rather than a collision.  win32audit.c, win32sem.c and
+win32peer.c all take windows.h and their own header and nothing else, and use
+malloc rather than k_alloc.  win32s4u.c now says so at the top.
+
+STATE: make sd is done and cycle.ps1 -SkipInstall staged and compiled clean -
+187 programs, no errors, installer built.  A FULL CYCLE IS OWED AND AN AGENT
+CANNOT RUN ONE ANY MORE: -Silent was deleted earlier today, so the wizard runs
+and a person must answer it.  That invariant was created this session and this
+is the first thing it stopped.
+
+WHAT THE SUITE WILL ACTUALLY TEST.  Every API verifier now crosses this code -
+verify-scramlogin, verify-apiadmin, verify-apiname, verify-apiport,
+verify-tierapi - because all of them log in over the API.
+
+THE RISK TO WATCH, NAMED RATHER THAN DISCOVERED LATER: after the switch the
+session writes as the USER, so anything it must write that only LocalSystem
+could reach would now fail - errlog, pstmp, the audit trail.  The audit ACL is
+append-only for sdusers and should hold, but nobody has watched it.  A failing
+API verifier is more likely to be that than a broken login.

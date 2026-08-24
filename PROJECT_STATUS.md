@@ -6992,9 +6992,45 @@ the staging script and the Inno installer were all finished and removed.
     (b) work is that the account files are opened at `LOGTO`, which is *after*.
 
     **NEITHER NEEDS THE RUNTIME CHANGED.** That was step 13's assumption and it
-    did not survive examination. **Until one is chosen the honest position is
-    §THE FILE HALF IS CLOSED's: the containment gate holds, and the token is
-    LocalSystem.**
+    did not survive examination.
+
+    ***SHAPE (b) IS CHOSEN AND BUILT - OWNER, 23 Aug 2026. BUILT IS NOT
+    VERIFIED (§0 rule 2): IT HAS COMPILED AND NOTHING HAS RUN IT.***
+
+    | part | where |
+    |---|---|
+    | S4U logon + impersonate | `gplsrc/win32s4u.c`, `.h` - new |
+    | kernel key **61** | `keys.h` `K_ASSUME_USER`, `INT$KEYS.H` `K$ASSUME.USER` |
+    | dispatcher, `$internal` only | `op_kernel.c`, beside `K_SET_USERNAME` |
+    | the hook | `APISRVR` `vb.scram.final`, **before `logged.in = @true`** |
+    | refusal | message **5277** |
+    | link | `-lsecur32` in `L_FLAGS`; `win32s4u` in `gpl.src` |
+
+    ***IT FAILS CLOSED, AND THAT IS THE WHOLE CONTROL.*** The call sits before
+    `logged.in` is set, so a refusal leaves the caller authenticated into
+    nothing - the dispatcher goes on admitting only 24, 25, 47 and 48. Setting
+    `logged.in` first would leave a session that believes it is the user while
+    holding the service's token, **which is worse than one that never started.**
+
+    **`win32*.c` FILES NEVER INCLUDE `sd.h`**, and this cost a build: `sd.h`
+    defines `Private`, `STRING`, `Sleep` and `GetCurrentProcessId` as macros and
+    every one collides with `windows.h`, giving *"expected identifier or ( before
+    static"* pointing at the project's own header. They take `windows.h` and
+    their own header only, and use `malloc` rather than `k_alloc`.
+
+    ***WHAT IS OWED: A CYCLE AND THE SUITE, AND ONLY A PERSON CAN RUN THEM.***
+    `make sd` is done and `cycle.ps1 -SkipInstall` staged and compiled clean -
+    187 programs, no errors. **The API verifiers are the test**:
+    `verify-scramlogin`, `verify-apiadmin`, `verify-apiname`, `verify-apiport`,
+    `verify-tierapi`. They all log in over the API and so all now cross this
+    code.
+
+    ***THE RISK TO WATCH, NAMED BECAUSE NOTHING HAS EXERCISED IT:*** after the
+    switch the session writes as the USER. Anything it must write that only
+    LocalSystem could reach would now fail - `errlog`, `pstmp`, the audit
+    trail. The audit ACL is append-only for `sdusers` and should hold; nobody
+    has watched it. **A failing API verifier is more likely to be this than a
+    broken login.**
 
 15. **A data tree private from SD's own users** — §5.7's service-account model.
 
