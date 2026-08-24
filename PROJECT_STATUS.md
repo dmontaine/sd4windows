@@ -97,12 +97,26 @@ something came to be the way it is.
 > runs as `don`**, and `don` has no password on this install. That is row 1
 > exactly.
 >
-> ***AND IT WILL RECUR ON EVERY CYCLE.*** `cycle.ps1` deletes both trees, so each
-> install recreates `don` with no password. **This is not a one-off condition of
-> the 17:47:55 tree.** `b15` passed on 10:01:45 because `don` had a password on
-> *that* tree. **Suspected cause of the difference: that cycle ran `-Silent`**, so
-> the installer's password step never asked — unconfirmed, and worth confirming
-> before relying on it.
+> ### CONFIRMED: A `-Silent` INSTALL COLLECTS NO PASSWORD, AND NOTHING SAYS SO
+>
+> **The owner's report — *"I entered a password at the last install"* — is what
+> found this. He did; not on this one.** The chain is measured end to end:
+>
+> 1. **`sd.iss:1276`** — `if InstallReachedPostInstall and not WizardSilent then
+>    RunFinishingStep;`. ***The password step is SKIPPED OUTRIGHT when silent.***
+> 2. `RunFinishingStep` (`sd.iss:1211`) launches `finish-install.ps1`, which is
+>    where the password is taken — owner's decision of 21 Aug 2026, collected by
+>    leaving the user in an SD session rather than by a wizard page (`:1157`).
+> 3. **The 17:47:55 cycle ran `-Silent`.** Already recorded above.
+> 4. ***THE `$cred` REGISTER HOLDS ZERO RECORDS*** — read elevated, 23 Aug 2026.
+>    Not "no record for `don`": **none for anybody.**
+>
+> **SO EVERY `-Silent` CYCLE LEAVES AN INSTALL WITH NO CREDENTIAL AT ALL** — no
+> ssh, no API, and any elevated console `sd <command>` stops at the prompt. `b15`
+> passed on 10:01:45 because that install was not silent.
+>
+> ***THE INSTALLER IS SILENT ABOUT ITS OWN SILENCE.*** Nothing warns, and the
+> tree looks complete. This has now cost two sessions.
 >
 > ***SO THE FORTY-FOURTH SESSION'S "that row is now the one failing check" WAS
 > RIGHT***, reached by the wrong route. What was never true is that it is a

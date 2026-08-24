@@ -24380,3 +24380,36 @@ CHEAPEST WAY THROUGH: give don a password at a console and b16 runs.  Whether
 "sd <command>" should ask for a password at all - SYSTEM(1026) would gate it the
 way section 7 step 9 gates the command itself - is a separate decision and is
 the owner's.
+
+23 Aug 2026 - a -Silent install collects no password, and the $cred register was empty
+
+Found by the owner's disbelief: "this is strange because I entered a password at
+the last install".  He did.  Not on this one.
+
+MEASURED, elevated: C:\ProgramData\SD\sdsys\$cred holds ZERO records.  Not "no
+record for don" - none for any account.  So nothing had ever been stored on this
+tree, which is why LOGIN:757 finds has.cred false and asks.
+
+THE CHAIN, all from source plus that one reading.  sd.iss:1276 is
+"if InstallReachedPostInstall and not WizardSilent then RunFinishingStep;", so
+the password step is skipped outright on a silent install.  RunFinishingStep
+(sd.iss:1211) launches finish-install.ps1, which is where the password is taken -
+the owner's decision of 21 Aug 2026 was to collect it by leaving the user in an
+SD session rather than by a wizard page (sd.iss:1157).  The 17:47:55 cycle ran
+-Silent, which this file already recorded without connecting it to anything.
+
+CONSEQUENCE, AND IT IS BIGGER THAN THE HANG.  A -Silent cycle produces an
+install with no credential at all: no ssh login, no API login, and any elevated
+console "sd <command>" stops at the prompt.  The tree otherwise looks complete
+and nothing warns.  b15 passed on the 10:01:45 install because that one was not
+silent.
+
+WHAT THIS EXPLAINS THAT WAS PREVIOUSLY WRITTEN AS A MYSTERY: why the fault
+appeared between two installs a few hours apart with "only the pcode ACL"
+shipping between them.  Nothing shipped that caused it.  The difference was
+-Silent, and the pcode ACL was never involved at any point.
+
+THE OWNER'S MEMORY WAS THE INSTRUMENT.  Four sessions of measurement had not
+found this; one sentence of "that does not match what I did" did.  When a
+finding contradicts what the person who was there remembers, the finding is the
+thing to re-check first.
