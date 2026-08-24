@@ -801,16 +801,29 @@ first said. ***The pCloud name is not recorded here and was not asked for, so
 searching that store for "sdhelp" may find nothing — ask him rather than
 concluding it is absent.***
 
-***AND IT IS A 2.6.6-VINTAGE REFERENCE, SO IT DESCRIBES THE VERB SET AS
-DESIGNED RATHER THAN AS THIS TREE SHIPS IT.*** The archive name carries
-`2-6-6`, the same vintage as [docs/TCL_VERBS.md](docs/TCL_VERBS.md) above. This
-port has since removed verbs (§5.19 `SED` and `UPDATE.RECORD`, SDNet's three
-`*.SERVER` verbs), changed others (§5.12's fold, the four-way route model), and
-carries at least one verb whose own doc comment is stale — `CREATEF`'s
-`{DIRECTORY path}` against its `KW$PATHNAME` parser, which cost run `b22`.
-**Confirm against source when the answer matters**: the `COPY` conclusion above
-was checked against `COPY:220-229` before it was relied on, and that is the
-pattern to copy.
+***IT IS AN OpenQM 2.6.6 BASE THAT HAS BEEN PARTLY MODIFIED FOR THE LINUX SD —
+owner, 24 Aug 2026 — AND "PARTLY" IS THE WORD THAT MATTERS.*** The archive name
+carries `2-6-6`, the same vintage as [docs/TCL_VERBS.md](docs/TCL_VERBS.md)
+above, but the pages have been revised towards SD unevenly and **nothing marks
+which page is which**. So a given page may describe OpenQM 2.6.6, may describe
+Linux SD, and in neither case describes this port. That is a stronger caution
+than a plain version skew, because there is no tell to read.
+
+**Confirm against source when the answer matters.** This port has removed verbs
+(§5.19 `SED` and `UPDATE.RECORD`, SDNet's three `*.SERVER` verbs), changed
+others (§5.12's fold, the four-way route model), and carries at least one verb
+whose own doc comment is stale — `CREATEF`'s `{DIRECTORY path}` against its
+`KW$PATHNAME` parser, which cost run `b22`. The `COPY` conclusion above was
+checked against `COPY:220-229` before it was relied on, and that is the pattern.
+
+***IT IS NOT THROW-AWAY, AND THAT DISTINGUISHES IT FROM `Projects\GPL.BP`.***
+That tree is a convenience copy of upstream and can always be fetched again;
+**this one carries modifications that exist nowhere else**, which is why it is
+on pCloud and why re-downloading stock OpenQM documentation would not replace
+it. ***AND IT HAS A FUTURE ROLE — owner, 24 Aug 2026: it is the material from
+which SD for Windows' own documentation will eventually be written.*** Treat it
+as project material to be preserved and built on, not as a reference lying
+around.
 
 Three more local trees, none part of this repository, all absent on a fresh
 machine, and nothing in the build depends on any of them:

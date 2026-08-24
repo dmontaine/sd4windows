@@ -25156,3 +25156,18 @@ ships it — `SED`, `UPDATE.RECORD` and the three `*.SERVER` verbs are gone, the
 fold and the route model changed others, and `CREATEF`'s own doc comment is
 stale in a way that cost run `b22`. Confirm against source when the answer
 matters, as was done for `COPY:220-229` before `copy.htm` was relied on.
+
+**CORRECTION AND ADDITION, same night: `..\sdhelp` is not a plain 2.6.6
+reference and it is not disposable.** Owner, 24 Aug 2026: *"it has been partly
+modified for the linux verson of SD, eventually it will be a resource for
+creating our own documentation."* Two things follow, and the first makes the
+entry written an hour earlier both wrong and not cautious enough. **It is an
+OpenQM 2.6.6 base revised towards Linux SD UNEVENLY, with nothing marking which
+page is which** — so a page may describe OpenQM 2.6.6, may describe Linux SD,
+and in neither case describes this port. A plain version skew has a tell; this
+does not. **And it is project material rather than a convenience copy** — the
+opposite of `Projects\GPL.BP`, which §2 records as throw-away because upstream
+can always supply it again. `sdhelp` carries modifications that exist nowhere
+else, which is why it is on pCloud, and it is the material from which SD for
+Windows' own documentation will eventually be written. Recorded because that
+intent lives nowhere in the tree and would not survive the session.
