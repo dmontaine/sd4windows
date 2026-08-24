@@ -6952,6 +6952,45 @@ the staging script and the Inno installer were all finished and removed.
     during which the session is LocalSystem. **The probe removed the unknown,
     not the choice.**
 
+    ***THE SECOND UNKNOWN IS NOW MEASURED TOO, 23 Aug 2026, AND SHAPE (b)
+    SURVIVES IT.*** `gplbld/probe-impersonate.c` + `.ps1`, as LocalSystem via
+    `schtasks`, target `test1`. **`ImpersonateLoggedOnUser` DOES govern the
+    MSYS2 runtime's `open()`** — which is how SD opens every data file
+    (`dh_file.c:815` `OpenFile()` calls POSIX `open()`), and the thing nobody
+    had tested. It was the last thing that could have killed (b) outright.
+
+    | leg | result |
+    |---|---|
+    | control A, as LocalSystem | both files **OPENED** |
+    | while impersonating `test1` | allowed **OPENED**, forbidden **refused, errno 13** |
+    | control B, after `RevertToSelf` | forbidden **OPENED** again |
+
+    **Identity by readback** — the thread token was queried and read
+    `GITORLI\test1`. **And the control that matters is that `test1` is NOT an
+    Administrator**, which `probe-impersonate.ps1` refuses to run without: the
+    forbidden fixture grants Administrators, so an admin target would have read
+    it anyway and the run would have reported a false negative.
+
+    ***THE RECOMMENDATION, AND THE REASON IS NOT THE CRYPTO.*** Shape **(b)**.
+    Shape (a) must replace `fork` + `dup2(conn,0/1)` + `execl` (`sdwind.c:491`)
+    with `CreateProcessAsUser` **while handing a socket to an MSYS2 child as
+    POSIX fd 0** — the least-charted part of the whole step, and unprobed.
+    (b) does not touch the spawn path at all and has **one hook point**:
+    `logged.in = @true` at `APISRVR:1442`, the single place SCRAM succeeds.
+
+    **THE WINDOW IS NARROWER THAN THIS ENTRY IMPLIED.** Before `logged.in` the
+    dispatcher admits **only requests 24, 25, 47 and 48** — 24 is retired and
+    answers 5275, and 47/48 are the two halves of SCRAM. So the LocalSystem
+    window contains **server-controlled code only**, not attacker-steered work.
+    And a window is inherent either way: **SCRAM must read `$cred`, which is
+    closed to everyone but SYSTEM and Administrators**, so the reader cannot
+    already be the user.
+
+    ***KNOWN LIMIT, UNCHANGED AND NOT MEASURED AWAY:*** impersonation is
+    per-thread and **does not reach backwards**. Handles opened before the
+    switch — the shared segment, `$cred` — keep LocalSystem access. What makes
+    (b) work is that the account files are opened at `LOGTO`, which is *after*.
+
     **NEITHER NEEDS THE RUNTIME CHANGED.** That was step 13's assumption and it
     did not survive examination. **Until one is chosen the honest position is
     §THE FILE HALF IS CLOSED's: the containment gate holds, and the token is

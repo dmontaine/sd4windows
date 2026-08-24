@@ -24663,3 +24663,58 @@ one sentence.  The first was "don has no password" versus "I entered a password
 at the last install".  ASKING BEFORE PUBLISHING IS WHAT CAUGHT THIS ONE: had the
 task been done silently, a throw-away tree would have been published under his
 account and the wrong claim would have been reinforced rather than found.
+
+23 Aug 2026 - impersonation DOES govern MSYS2's open(), so section 7 step 14 shape (b) survives
+
+The last thing that could have killed shape (b) outright is measured and it did
+not.  gplbld/probe-impersonate.c and .ps1, new, on assert-current's
+$neverShipped in the same commit.
+
+THE QUESTION NOBODY HAD ASKED.  probe-s4u proved the TOKEN half: from
+LocalSystem an S4U logon returns an Impersonation-level token and
+CreateProcessAsUser works.  It proved nothing about file access, and SD does not
+open files with CreateFile - dh_file.c:815 OpenFile() calls POSIX open(), which
+goes through msys-2.0.dll.  A runtime deciding access from the PROCESS token, or
+from cached POSIX ownership, would have ignored the thread token entirely and
+shape (b) would have bought nothing.
+
+MEASURED, as LocalSystem via schtasks, target test1:
+
+  control A, as LocalSystem       both files OPENED
+  while impersonating test1       allowed OPENED, forbidden refused errno 13
+  control B, after RevertToSelf   forbidden OPENED again
+
+Identity by readback - the thread token was queried and read GITORLI\test1.
+Built with the MSYS2 gcc, not UCRT64, because the runtime is the subject.
+
+THE CONTROL THAT MATTERS IS THE ONE ABOUT THE TARGET.  test1 must NOT be an
+Administrator: the forbidden fixture grants Administrators, so an admin target
+would have opened it anyway and the run would have read as "impersonation does
+nothing".  probe-impersonate.ps1 refuses to run in that case rather than
+producing the false negative.  Both fixtures are built by the script and removed
+after, so the measurement does not depend on the state of the real tree.
+
+TWO BUGS OF MINE IN THE S4U BLOCK, AND THE RECORD HAD WARNED ABOUT ONE.  The
+first run failed with STATUS_NOT_SUPPORTED (0xC00000BB).  Cause: DomainName left
+empty - a LOCAL account needs the machine name - and MaximumLength set equal to
+Length, when Length excludes the terminator and MaximumLength includes it.
+PROBE-S4U.C:591 CARRIES A COMMENT SAYING EXACTLY THAT SECOND MISTAKE GIVES "A
+CALL THAT LOOKS CORRECT", and I wrote the code without reading it.  That is the
+CLAUDE.md "search the record" rule failing on its first real outing, in a file
+I had already opened.  Fixed by mirroring probe-s4u.c, which is what should have
+happened first.
+
+WHAT THIS SETTLES AND WHAT IT DOES NOT.  It settles that (b) is viable.  The
+shape is still the owner's choice, and the known limit is untouched:
+impersonation is per-thread and does not reach backwards, so handles opened
+before the switch - shared segment, $cred - keep LocalSystem access.  What makes
+(b) work is that account files are opened at LOGTO, after the switch.
+
+TWO THINGS FOUND WHILE READING, both narrowing the case against (b).  The
+dispatcher admits only requests 24, 25, 47 and 48 before logged.in, so the
+LocalSystem window holds server-controlled code and nothing an unauthenticated
+client can steer.  And a window is inherent to either shape: SCRAM must read
+$cred, which excludes ordinary users, so the reader cannot already be the user.
+
+NOT DONE: the change itself.  One hook at APISRVR:1442, where logged.in is set,
+plus the C behind a new kernel key.
