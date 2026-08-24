@@ -72,6 +72,32 @@ something came to be the way it is.
 > unknown that was blocking it, nothing more. **It also unblocks step 15**,
 > which needs the same call at the session sites.
 >
+> ### STEP 15 SURVEYED, AND IT FOUND A WRITABLE INTERPRETER
+>
+> **23 Aug 2026, measured on the 10:01:45 install with `assert-current` exit 0.
+> §7 step 15 has the whole survey; two things from it belong up here.**
+>
+> ***THE STEP'S OPENING CLAIM WAS STALE.*** It said any SD user can read another
+> account's files from outside SD. **§8's "B work" already closed that** —
+> `user_accounts\don` is `sdu_don` + Administrators + SYSTEM with **no
+> `sdusers`**, and `verify-accountacl` guards it. Account privacy does not need
+> the service-account model.
+>
+> ***WHAT IT FOUND INSTEAD IS AN INTEGRITY HOLE.***
+> **`C:\ProgramData\SD\sdsys\bin\pcode` is `sdusers:(M)` — writable by every SD
+> user.** `sysseg.c:189/193/279` reads it into the shared segment at start and
+> every session executes it (`sd.c:847`), **so replacing it runs your code in
+> SDSYS's and an administrator's sessions** at the next SD start. **Proved by
+> writing a file there as unelevated `don` and removing it** - not by reading
+> the ACL. The installer discloses the *confidentiality* limit (`sd.iss:778`,
+> `:1407`) and says nothing about this.
+>
+> **THE FIX IS ONE `secure-*.ps1` AND ONE `sd.iss` CALL.** That directory holds
+> only `pcode` and `pcode.old`, and only the daemon reads it, once, as
+> LocalSystem - sessions take pcode from shared memory. It can drop `sdusers`
+> outright. ***NOT DONE HERE: an installer ACL change needs a cycle to verify,
+> and b16 is unspent.***
+>
 > ### THE ONE THING THE SUITE STILL CANNOT SEE
 >
 > ***A GREEN 26 SAYS NOTHING ABOUT THE CONSOLE.*** Every verifier drives SD
@@ -6669,22 +6695,81 @@ the staging script and the Inno installer were all finished and removed.
     LocalSystem.**
 
 15. **A data tree private from SD's own users** — §5.7's service-account model.
-    Today every SD process opens the database **as the person running it**, so
-    anyone who can use SD on this machine can read another account's files
-    from outside SD. **The installer's first page says so in as many words**,
-    which makes it a stated limit rather than a hidden one.
+
+    ***SURVEYED 23 Aug 2026, AND THIS STEP IS MUCH SMALLER THAN IT READS.***
+    Measured on the 10:01:45 install, `assert-current` exit 0. What follows
+    replaces the old opening claim, which was that *"anyone who can use SD on
+    this machine can read another account's files from outside SD"*.
+
+    ***THAT IS NO LONGER TRUE, AND §8's "B WORK" IS WHY.*** Account privacy is
+    **already enforced by the OS**, and it shipped without this step being
+    updated to say so:
+
+    | path | DACL as installed |
+    |---|---|
+    | `user_accounts\don` | `sdu_don:(OI)(CI)(M)`, Administrators, SYSTEM — **no `sdusers`** |
+    | `user_accounts` container | locked; refuses even its own user's DACL read |
+    | `sdsys\$cred`, `pstmp`, `audit` | no `sdusers` at all |
+    | `gcat`, `os.users`, `batch.jobs`, `gpl.bp.out` | `sdusers:(OI)(CI)(RX)` — read-only |
+
+    `sdu_don` contains only `don`; `test1` is an `sdusers` member and is not in
+    it. `secure-account-dirs.ps1` stamps existing accounts, `CREATEA` stamps new
+    ones, and `verify-accountacl` guards that the two agree. **So the
+    service-account model is not needed for account-to-account privacy** — the
+    per-account group already does it, and §5.7's objection that it *"adds a
+    Windows-user-to-account mapping to maintain"* is stale: the group is
+    **derived** from the directory name (`sdu_<name>`) and `GRANT` maintains it.
+
+    ***WHAT IS ACTUALLY LEFT IS AN INTEGRITY HOLE, NOT A CONFIDENTIALITY ONE,
+    AND IT IS WORSE THAN THE ONE THE STEP WAS WRITTEN ABOUT.*** Everything under
+    `C:\ProgramData\SD` that nothing stamped still inherits `sdusers:(OI)(CI)(M)`
+    — **Modify, not read** — including `sdsys\bin`, `accounts`, `$map`, `$ipc`,
+    `messages`, `newvoc`, `bp`, `cat` and `sd.conf`.
+
+    **`sdsys\bin\pcode` IS THE ONE THAT MATTERS.** `sysseg.c:189` builds
+    `<sysdir>/bin/pcode`, `:193` opens it and `:279` reads it into the shared
+    segment; every session then executes it through `load_pcode()`
+    (`sd.c:847`). **So any `sdusers` member can replace the pcode every
+    session runs, including SDSYS's and an administrator's**, taking effect at
+    the next SD start.
+
+    ***PROVED BY WRITING, NOT BY READING THE ACL***: as `GITORLI\don`,
+    **unelevated** — so the `Administrators` ACE is deny-only and cannot be the
+    grant — a file was created in `C:\ProgramData\SD\sdsys\bin` and removed
+    again. The grant is `sdusers:(M)`.
+
+    **THE INSTALLER DISCLOSES THE OTHER THING.** `sd.iss:778` and `:1407` say a
+    user can *"read and rewrite any other account's files"* — confidentiality,
+    between accounts. **Neither says the interpreter itself is writable**, and a
+    reader would not take it from those words.
+
+    ***AND THE FIX IS SMALL, WHICH IS THE POINT OF THE SURVEY.*** Only the
+    daemon reads that file, once, at startup and as LocalSystem — sessions take
+    pcode from shared memory, and the executables live in `{app}` and not here
+    (`sdwind.c:477`), so `bin` holds **only `pcode` and `pcode.old`**. It can
+    drop `sdusers` entirely with nothing to lose. That is one `secure-*.ps1` and
+    one `sd.iss` call, **not** the service-account model. **It needs a cycle to
+    verify, so it is not done here.**
 
     **This is what makes tiers 1 and 2 real.** §8: tier 3 is real because
     Windows enforces it; the other two are only ever as real as the ACLs.
 
-    **It needs `CreateProcessAsUser` at the sites that create sessions — not a
-    runtime swap**, for the reasons in step 13. It is the largest thing left in
-    this file and it is a design job before it is a coding one.
+    ***"IT NEEDS `CreateProcessAsUser` AT THE SITES THAT CREATE SESSIONS" IS
+    NOT ENOUGH, AND THE SURVEY IS WHY.*** There are only three such sites —
+    `sdwind.c:491` (API, parent is the service), `op_kernel.c:701` (PHANTOM),
+    and `sdclilib.c:1597` (`SDConnectLocal`). ***THE PATH SD USERS ACTUALLY
+    TAKE HAS NO SITE AT ALL***: §5.6.2 makes accounts **ssh-only**, sshd
+    creates that session as the user, and `sd.exe` is then simply the user's
+    own process. Nothing inside SD spawns it, so no call placed inside SD can
+    change its token. Making *that* run as a service identity means `sd.exe`
+    becoming a thin client of `sdwind` — a far larger change than this step's
+    one sentence implies, and the transport for it already exists (§7 step 11).
 
-    **THE CALL IT NEEDS IS MEASURED WORKING, 23 Aug 2026** — step 14's probe,
-    from LocalSystem, with an S4U token and no password. That removes the one
-    technical unknown this step shared with step 14; the design job is
-    untouched, and §What fixing it involves' ten ACL sites are still the work.
+    **THE CALL ITSELF IS MEASURED WORKING, 23 Aug 2026** — step 14's probe,
+    from LocalSystem, with an S4U token and no password. Note it points the
+    *opposite* way to this step: S4U makes a session run **as the user**, while
+    §5.7's model makes it run **as the service**. Both are coherent; they are
+    different architectures and only one can be built.
 
 ## 8. Open questions
 

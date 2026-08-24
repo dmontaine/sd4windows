@@ -23973,3 +23973,52 @@ THE ORDER IS THE POINT.  CLAUDE.md's rule that a cycle ends at the next source
 change is about SD test cycles, but it applies whole: every source change was
 made and checked BEFORE the fresh machine was spent, because a fresh machine is
 the one resource here that cannot be re-used.
+
+23 Aug 2026 - section 7 step 15 surveyed: the premise was stale, the hole was elsewhere
+
+Taken up as the next item while the DevInstallTest VM installed.  Step 15 says
+it is "a design job before it is a coding one", so this is that job's first
+half: find out what is actually true before designing against it.  Measured on
+the 10:01:45 install, assert-current exit 0.
+
+THE STEP'S OPENING CLAIM WAS OUT OF DATE.  It read "anyone who can use SD on
+this machine can read another account's files from outside SD".  Section 8's
+"B work" closed that and nobody reconciled the two sections: user_accounts\don
+is sdu_don + Administrators + SYSTEM with NO sdusers, the container refuses
+even its own user's DACL read, sdu_don contains only don, and test1 - an
+sdusers member - is not in it.  secure-account-dirs.ps1 stamps existing
+accounts, CREATEA stamps new ones, verify-accountacl guards that the two agree.
+Section 5.7's objection that per-account ACLs would "add a Windows-user-to-
+account mapping to maintain" is stale too: the group is DERIVED from the
+directory name and GRANT maintains it.
+
+WHAT IS LEFT IS AN INTEGRITY HOLE AND IT IS WORSE THAN THE ONE THE STEP WAS
+ABOUT.  Everything under C:\ProgramData\SD that nothing stamped still inherits
+sdusers:(OI)(CI)(M) - Modify, not read - including sdsys\bin, accounts, $map,
+$ipc, messages, newvoc, bp, cat and sd.conf.
+
+sdsys\bin\pcode is the one that matters.  sysseg.c:189 builds <sysdir>/bin/pcode,
+:193 opens it, :279 reads it into the shared segment, and every session executes
+it through load_pcode() (sd.c:847).  So any sdusers member can replace the pcode
+that SDSYS's and an administrator's sessions run, taking effect at the next SD
+start.  PROVED BY WRITING, NOT BY READING THE ACL: as GITORLI\don, unelevated -
+so the Administrators ACE is deny-only and cannot be the grant - a file was
+created in that directory and removed again.
+
+The installer discloses the other thing.  sd.iss:778 and :1407 say a user can
+"read and rewrite any other account's files", which is confidentiality between
+accounts; neither says the interpreter is writable, and a reader would not take
+it from those words.
+
+AND "CreateProcessAsUser AT THE SITES THAT CREATE SESSIONS" IS NOT ENOUGH.
+There are three such sites - sdwind.c:491, op_kernel.c:701, sdclilib.c:1597 -
+and the path SD users actually take has none: 5.6.2 makes accounts ssh-only,
+sshd creates that session as the user, and sd.exe is then just the user's own
+process.  No call placed inside SD can change its token.  Note also that step
+14's S4U result points the OPPOSITE way to 5.7's model: S4U makes a session run
+as the USER, 5.7 makes it run as the SERVICE.  Both coherent, only one buildable.
+
+Nothing was changed in the product.  The pcode fix is one secure-*.ps1 and one
+sd.iss call - that directory holds only pcode and pcode.old, and only the daemon
+reads it, once, as LocalSystem - but an installer ACL change needs a cycle to
+verify and b16 is unspent, so it is recorded and not done.
