@@ -12,6 +12,48 @@ approach has already been tried.
 This project moves between sessions, machines and accounts. Nothing carries
 over except what is written in those two files.
 
+## Search the record before you run anything
+
+Standing instruction from the repository owner, 23 Aug 2026, after three or
+four consecutive sessions where the thing that went wrong **was already written
+down before the session started.** Sessions are not being lost to unknowns.
+They are being lost to warnings that were on disk and unread.
+
+**Before running a command, grep both documents for what you are about to
+run** — the **verb, script, path or flag you are about to type**, most
+distinctive token first. From the repository root:
+
+```sh
+grep -n -i -E 'echo WHO \| sd' PROJECT_STATUS.md HISTORY.md
+```
+
+Read every hit. A hit is normally a session that has already paid for it.
+
+**A broad term returns dozens of hits. Narrow it, do not skip it** — add a
+second stage for warning language, which reliably cuts it to a readable
+handful:
+
+```sh
+grep -n -i -E 'cycle\.ps1' PROJECT_STATUS.md HISTORY.md |
+  grep -i -E 'NEVER|DO NOT|CANNOT|MUST|trap|hung|hang|cost|refus|wrong|stale'
+```
+
+**Everything needs the check except this list:** reading a file, `grep`/`find`,
+and read-only `git` (`log`, `show`, `status`, `diff`). If you are deciding
+whether something is harmless enough to skip, that is the moment the rule is
+for — run the grep.
+
+**It applies to the first attempt, not just a retry**, and to commands that
+look trivial. What was walked into on 23 Aug 2026 was `echo WHO | sd`, which
+§START HERE already recorded as making an unusable session; it hung, and the
+stray `sd.exe` cost an elevation to clear. **Some warnings are in the memory
+file rather than these two** — the `MEMORY.md` index is loaded every session,
+so read it as part of the same check.
+
+**Finding a warning does not forbid the command.** Overriding a stale one is
+legitimate — say which warning, and why it does not apply, before you run.
+Overriding one you never saw is what this rule exists to stop.
+
 ## You must maintain these files, cheaply
 
 Standing instruction from the repository owner, 14 Aug 2026: **the ratio of

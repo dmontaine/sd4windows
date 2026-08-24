@@ -24208,3 +24208,48 @@ an elevation.
 
 In flight: setup-devbox.ps1's clean-VM run got as far as the clone step before
 the git-PATH defect stopped it; that is fixed and unretested on a fresh VM.
+
+23 Aug 2026 - a project rule: search the record before running anything
+
+Owner's instruction, and it is standing: "history has to be checked for relevant
+warnings before running any process".  His reason, in his words - three or four
+sessions in a row where the indication is that history warned against what was
+done.
+
+WHERE IT LIVES: CLAUDE.md, section "Search the record before you run anything",
+directly after "Read this first".  It is in CLAUDE.md rather than here because
+CLAUDE.md is loaded every session whether or not anybody opens a file.
+PROJECT_STATUS section 0 carries a pointer to it and no restatement.
+
+THE RULE IS A GREP, NOT AN INSTRUCTION TO BE CAREFUL.  Before running a command,
+grep PROJECT_STATUS.md and HISTORY.md for the verb, script, path or flag in it,
+and read the hits.  Everything needs it except reading a file, grep/find, and
+read-only git.  That exemption list is deliberately an EXCLUSION list: an
+inclusion list would need a judgement about whether this particular command is
+risky enough to check, and that judgement is the thing that has been failing.
+
+A BROAD TERM IS UNREADABLE AND THAT IS WHY THE RULE CARRIES A SECOND STAGE.
+Measured while writing it: "cycle.ps1" returns 73 hits across the two files and
+"sd -start" returns 130, so "read every hit" would have been ignored on exactly
+the commands that matter most.  Piping the hits through a warning-word filter -
+NEVER, DO NOT, CANNOT, MUST, trap, hung, hang, cost, refus, wrong, stale - cuts
+those to 18 and 40.  Both forms are in CLAUDE.md and both were run as written
+before being written down.
+
+THE EVIDENCE WAS ALREADY IN THIS FILE, WHICH IS THE POINT.  The 23 Aug entry on
+locking the pcode library records walking into "echo WHO | sd" in a console,
+with the note that section START HERE "already records" it as making an unusable
+session; it hung and the stray sd.exe cost an elevation to clear.  A warning on
+disk, in a file the session had read, not connected to the command when it was
+typed.
+
+TWO THINGS THE RULE SAYS OUT LOUD, because both are how it failed before.  It
+applies to the FIRST attempt and not only to a retry, and to commands that look
+trivial - "echo WHO | sd" looks like nothing.  And a warning found does not
+forbid the command: overriding a stale one is legitimate, but name the warning
+and why it does not apply before running.
+
+NOT DONE, DELIBERATELY: no script and no hook.  A new gplbld script joins
+assert-current's $neverShipped list and then needs maintaining, and the rule is
+one grep.  A PreToolUse hook that greps before every command is the escalation
+if this fails again; it is the owner's call, not a session's.

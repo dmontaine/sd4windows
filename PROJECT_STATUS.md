@@ -1582,6 +1582,15 @@ for a cold agent that will act on this: terse, factual, `file:line` over
 description. No emphasis for effect, no narrative, no argument. The `changelog`
 is the exception and stays plain English for users.
 
+> ***READING THESE FILES IS NOT THE SAME AS SEARCHING THEM, AND THE PROJECT RULE
+> IS TO SEARCH.*** Owner's instruction, 23 Aug 2026: **grep PROJECT_STATUS.md
+> and HISTORY.md for the verb, script or flag in any command before running it.**
+> `CLAUDE.md` §"Search the record before you run anything" is the rule; it is
+> there rather than here because it is loaded every session and this section is
+> not. **Three or four consecutive sessions lost time to a warning that was
+> already on disk** — most recently `echo WHO | sd` on 23 Aug 2026, which
+> §START HERE already recorded as making an unusable session.
+
 1. **Same commit as the work.** If a commit changes what builds, runs, is
    decided, or is next, it changes this file.
 2. **Verified means you watched it, this session.** Compiling is not running.
