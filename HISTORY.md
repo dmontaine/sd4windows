@@ -27,6 +27,64 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: step 16 (b) decided and written. The owner's rule was better than the options
+
+**Commit:** the commit carrying this entry. Ten earlier commits **pushed** to
+`origin/main` (`3fde7fa..2035f76`) before this work began. `sd.exe` changed, so
+the 12:15:51 install is STALE; `cycle.ps1 -SkipInstall` at 12:33:07 is clean
+and **nothing has run it**.
+
+***THE RULING.*** Asked to choose between three scopes, the owner supplied a
+different and better discriminator: *"everything including record writes to
+files that are directory as they may be read and written by external programs.
+anything involving dynamic files, it doesn't matter as they can't be directly
+read through external programs."* **External readability, not statement type**
+— which is also the documented purpose of directory files.
+
+***AND THAT RULE RESOLVES TO THE CONSTANT.*** Surveyed: every site `Newline`
+reaches is on the external side of that line — directory-record writes,
+`WRITESEQ`/`WRITECSV`, `COMO`, hold files, errlog — and **no DH path uses the
+macro at all**. So `sddefs.h:65-66` becomes `"\r\n"` / `2`.
+
+**That deliberately overrides this step's own "it is not flip the constant, it
+is extend the per-channel model" advice**, and the override is stated rather
+than quietly taken. The three things that made flipping wrong are each now
+answered: object code is provably safe (`gpl.bp/BASIC:239`), the readers are
+tolerant ((a), verified 12:15:51), and the internal-files cost is exactly what
+the owner just ruled on. `DS` stays `/` — step 12's ruling is untouched, and
+the two "derived items" were never one decision.
+
+***IT IS A RESTORATION AND THE CODE SAYS SO.*** `k_error.c:605-611` uses this
+macro *"instead of the more obvious use of `\n`"* so that it can *"do our own
+handling of the CRLF newline pair on Windows"* — written when `Newline` was
+`"\r\n"`. `tio.h:111`'s `char newline[2+1]` is the same tell. This corroborates
+the owner's account that OpenQM was originally a Windows product.
+
+***TWO THINGS THE STEP'S OWN EIGHT-SITE SURVEY MISSED.***
+
+1. **Eight further uses write the ERRLOG** — `k_error.c` ×6, `sdwind.c` ×2.
+   They move with the constant. Wanted on Windows, but never listed.
+2. **Ports and FIFOs do not use it**, so no socket is affected —
+   `op_seqio.c:1738` writes its own terminator. **And that call is
+   `writeport(fu, "\r\n", 1)`: a two-character literal with length 1, so it
+   emits CR only.** A latent defect, left alone because it is outside both (b)
+   and the owner's rule, recorded so it is not lost again.
+
+***THE CYCLE PRODUCED A CONTROL, NOT JUST AN ABSENCE OF ERRORS.*** Phase 3 is
+**byte-identical** to the pre-change run: `$CPROC` 25418, `$BCOMP` 88079,
+`gcat` 126, `gpl.bp.out` 187. Those counts not moving is positive evidence that
+the object and catalogue paths never touch `Newline` — until now an inference
+from `mark.mapping out.f, off` rather than a measurement.
+
+**`verify-lineendings.ps1` gained three write checks**, each reading the file
+back as **raw bytes** rather than through SD. That is the point: (a) now folds
+CRLF on the way in, so a round trip through SD would report success whatever is
+actually on disk.
+
+**Owed:** a full `cycle.ps1` with a person at the wizard, then the verifier.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: step 16 (a) is VERIFIED, 14/14
 
 **Commit:** the commit carrying this entry. Owner ran the full `cycle.ps1`;

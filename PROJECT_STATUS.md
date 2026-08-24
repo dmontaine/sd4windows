@@ -6548,6 +6548,61 @@ the staging script and the Inno installer were all finished and removed.
     `newvoc`, `messages` and `bp` whichever way (b) goes, and accepts a tree
     holding both spellings during a transition.
 
+    ***(b) IS DECIDED AND WRITTEN, 24 Aug 2026. COMPILED AND CYCLED TO
+    `-SkipInstall`; NOTHING HAS RUN IT.***
+
+    ***THE OWNER'S RULE, AND IT IS BETTER THAN THE THREE OPTIONS IT WAS ASKED
+    TO CHOOSE BETWEEN:*** *"everything including record writes to files that
+    are directory as they may be read and written by external programs.
+    anything involving dynamic files, it doesn't matter as they can't be
+    directly read through external programs."* **The discriminator is EXTERNAL
+    READABILITY, not the statement.** It is also the documented purpose of
+    directory files (`directoryfiles.htm`: data *"to be processed from outside
+    of QM"*).
+
+    ***THAT RULE RESOLVES TO THE CONSTANT, WHICH IS WHY THIS OVERRIDES THIS
+    STEP'S OWN "DO NOT FLIP THE GLOBAL" ADVICE.*** Surveyed 24 Aug: **every
+    site `Newline` reaches is on the external side of the owner's line** —
+    directory-record writes, `WRITESEQ`/`WRITECSV`, `COMO`, hold files, errlog
+    — and **no DH path uses the macro at all**. `sddefs.h:65-66` is now
+    `"\r\n"` / `2`. The three objections that made "flip it" wrong before are
+    all now answered: object code is safe (`gpl.bp/BASIC:239`), the readers are
+    tolerant ((a), verified), and the internal-files cost is what the owner
+    just ruled on.
+
+    ***IT IS A RESTORATION, NOT AN INVENTION — `k_error.c:605-611` SAYS SO.***
+    It uses this macro *"instead of the more obvious use of `\n`"* precisely so
+    it can *"do our own handling of the CRLF newline pair on Windows"*. That
+    comment was written when `Newline` was `"\r\n"`. `tio.h:111`'s
+    per-print-unit `char newline[2+1]` is the same tell.
+
+    ***TWO THINGS THE EIGHT-SITE SURVEY IN THIS STEP MISSED.***
+
+    1. **`Newline` has EIGHT MORE uses that write the ERRLOG** — `k_error.c`
+       ×6, `sdwind.c` ×2. They move with it, which on Windows is wanted (the
+       log opens in Notepad) but was never listed as a consequence.
+    2. **Ports and FIFOs do NOT use it.** `op_seqio.c:1738` writes its own
+       terminator, so no socket or port is affected. **That call is
+       `writeport(fu, "\r\n", 1)` — a two-character literal with length 1, so
+       it emits CR only.** Latent defect, untouched here because it is outside
+       both (b) and the owner's rule; recorded so it is not lost.
+
+    **`DS` STAYS `/`.** §7 step 12's ruling is unaffected — the two "derived
+    items" are not one decision.
+
+    ***CYCLED TO `-SkipInstall`, 12:33:07, AND ONE NUMBER IS THE CONTROL.***
+    198 programs, no non-zero error counts, installer 4,802,959 bytes. **Phase
+    3 is byte-identical to the pre-change run** — `gcat` 126, `gpl.bp.out` 187,
+    `$CPROC` **25418**, `$BCOMP` **88079**. Those byte counts not moving is
+    positive evidence that the object and catalogue paths do not go through
+    `Newline`, which until now was an inference from `mark.mapping out.f, off`.
+
+    **`verify-lineendings.ps1` gained three write checks** — `WRITESEQ`,
+    `WRITECSV` and a directory-record write, each read back as **raw bytes**.
+    That last part matters: SD now folds CRLF on the way in, so a round trip
+    through SD would report success whatever is on disk. **Owed: a full
+    `cycle.ps1`, then the verifier.**
+
     ### (b) WRITE CRLF - a product decision, and it needs one thing settled first
 
     ***ANSWERED 24 Aug 2026 — `gpl.bp/BASIC:239`, `mark.mapping out.f, off`,
