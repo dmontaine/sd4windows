@@ -11,44 +11,47 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: TRANSCRIBE THE RULED TIER SPLIT TO DISK, THEN BATCH-CYCLE WITH WRITEPORT.
+> ## NEXT: RUN THE CYCLE. THE TIER SPLIT AND WRITEPORT BOTH LAND IN IT.
 >
 > ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** Session 49 closed §7 steps
 > 14 and 16 (a)+(b). Session 50 hoisted the first-pass tier split for owner
-> review and **the owner ruled all four open calls** (see §8 "THE SPLIT,
-> settled 24 Aug 2026"): debug family (`pstat` `pdebug` `pdump` `dump`) to
-> PROGRAMMER; read-only inspectors (`search` `list.diff` `list.item`
-> `list.common` `list.vars` `report.src` `report.style` `format`) to STANDARD;
-> `SET.DATE` stays ADMIN; **`UMASK` removed entirely** — POSIX file-mode-bits
-> call, essentially inert on Windows.
+> review, **the owner ruled all four open calls** (see §8 "THE SPLIT,
+> settled 24 Aug 2026"), and **session 50 then transcribed the ruled split
+> to disk** — 12 verb files deleted from `sdsys/newvoc/`, `umask` deleted
+> from `sdsys/voc_template/`, `TIER.OMIT.STANDARD` grown 17→42,
+> `TIER.ADD.ADMINISTRATOR` grown 10→21, `verify-tiers.ps1` count arithmetic
+> re-derived, changelog entry written. Two commits: `82f5c66` (handoff docs)
+> and the commit carrying this update (disk apply).
 >
-> **NOTHING WAS APPLIED TO DISK THIS SESSION.** No compile, no cycle, no
-> install. The installed tree is unchanged from session 49; the "THE TREE IS
-> STALE" section below is session 49's and still describes today accurately.
+> **STILL NO COMPILE, NO CYCLE, NO INSTALL** — the installed tree is unchanged
+> from session 49 and `assert-current` now exits 1 for two reasons: the
+> `writeport` fix in `gplsrc/op_seqio.c` and the tier data files. **One cycle
+> lands both.** Owner's cycle, elevated PowerShell:
 >
-> ### WHAT LANDS IN THE NEXT CYCLE, batched with the writeport fix
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
 >
-> The split is a data-only change — no C, no BASIC:
+> ### VERIFY AFTER THE CYCLE
 >
-> 1. Delete `sdsys/voc_template/umask` and `sdsys/newvoc/umask` (UMASK gone).
-> 2. Delete 11 files from `sdsys/newvoc/` (move A verbs to voc_template-only):
->    `config`, `listu`, `list.readu`, `list.locks`, `clear.locks`, `lock`,
->    `logout`, `set.date`, `sh`, `!`, `clean.account`.
-> 3. Rewrite `sdsys/newvoc/TIER.ADD.ADMINISTRATOR` to hold the 21 A verbs
->    (currently 10).
-> 4. Rewrite `sdsys/newvoc/TIER.OMIT.STANDARD` to hold the 42 P verbs
->    (currently 17, and includes `sh`/`!` that will no longer be in newvoc).
-> 5. Update `gplbld/verify-tiers.ps1` count derivations — the header block at
->    lines 21–38 walks through the arithmetic and needs re-derivation from the
->    post-deletion NEWVOC record count (currently 407 with 12 deletions
->    pending, plus 2 TIER list records and `%t` that never copy). Derive the
->    three expected counts fresh — never copy them off a passing run.
-> 6. `changelog` entry — three-tier split now curates 140 verbs.
-> 7. **The writeport fix in `gplsrc/op_seqio.c:1762` lands in the same
->    cycle** (it is what has kept `assert-current` at exit 1 since 12:36:09).
+> `verify-tiers.ps1 -Prefix sdtierc` (any fresh prefix — `sdtierb` is spent
+> per HISTORY). Expected counts after the cycle: STANDARD 354, PROGRAMMER 396,
+> ADMINISTRATOR 417 — each derived arithmetically in the verify-tiers header,
+> not blessed from a passing run. `verify-lineendings.ps1` and
+> `verify-apiidentity -Prefix sdapiidb33` also confirm the tree.
 >
-> One `cycle.ps1` covers all of it, and `verify-tiers.ps1` and
-> `verify-lineendings.ps1` afterwards. Owner's cycle.
+> **Numbers to spot-check by eye** on the fresh install, without running any
+> verifier: `Get-Content C:\ProgramData\SD\sdsys\newvoc\TIER.OMIT.STANDARD |
+> Measure-Object -Line` should read 43 lines (1 description + 42 verbs), and
+> the ADD list 22 lines (1 + 21). If either differs, the shipped file was not
+> the one this session wrote.
+>
+> ### THE WRITEPORT FIX ALSO LANDS
+>
+> `gplsrc/op_seqio.c:1762`, `UPSTREAM_FIXES.md` #14. It cannot be verified
+> without a real port device, so its landing is announcement rather than
+> proof — see session 49's "THE TREE IS STALE" section below for what was
+> observed then.
 >
 > ### WHAT SESSION 49 CLOSED, IN ONE TABLE
 >
@@ -6998,24 +7001,24 @@ Aug when the read-only inspectors moved down from PROGRAMMER.
 **Total: 21 + 42 + 77 = 140 verbs.** Matches the 141 in today's `voc_template`
 less UMASK, which is being removed. Every verb accounted for exactly once.
 
-**WHAT LANDS THIS ON DISK, in one commit and one cycle:**
+**LANDED ON DISK 24 Aug 2026, awaiting a cycle to install:**
 
 1. `sdsys/voc_template/umask` and `sdsys/newvoc/umask` deleted (UMASK
    removal).
-2. `sdsys/newvoc/TIER.OMIT.STANDARD` grows to hold every P1–P4 verb plus every
-   A1–A3 verb that is still in newvoc — the union that STANDARD does not
-   receive.
-3. `sdsys/newvoc/TIER.ADD.ADMINISTRATOR` grows to hold every A1–A3 verb
-   copied out of voc_template.
-4. `changelog` entry.
-5. `gplbld/cycle.ps1` — no C or BASIC change, but the bootstrap re-copies
-   NEWVOC into every fresh account.
+2. Eleven verb files deleted from `sdsys/newvoc/`: `config`, `listu`,
+   `list.readu`, `list.locks`, `clear.locks`, `lock`, `logout`, `set.date`,
+   `sh`, `!`, `clean.account`. Their voc_template records stay and the
+   admin tier reaches them via TIER.ADD.ADMINISTRATOR.
+3. `sdsys/newvoc/TIER.OMIT.STANDARD` rewritten to 42 P verbs (was 17).
+4. `sdsys/newvoc/TIER.ADD.ADMINISTRATOR` rewritten to 21 A verbs (was 10).
+5. `gplbld/verify-tiers.ps1` count arithmetic re-derived — STANDARD 354,
+   PROGRAMMER 396, ADMINISTRATOR 417; `$Withheld` grew to 42 verbs and
+   `$AdminVerbs` to 21, each grouped by rationale.
+6. `changelog` entry written for the user-visible change.
 
-`verify-tiers.ps1` runs against the new lists unchanged — the count assertions
-derive from list length, not hard-coded numbers. Add a fourth control row:
-STANDARD now holds the 8 inspectors, PROGRAMMER holds them too, ADMINISTRATOR
-holds them — a copy loop that got the tier for the S7 group wrong would fail
-on that row.
+**One `cycle.ps1` installs it, and `verify-tiers.ps1` measures it** — the
+count arithmetic and the cross-check between the shipped TIER records and the
+test's own lists both fire, so a wrong number surfaces at once.
 
 ### ANSWERED IN CODE 22 Aug 2026, UNMEASURED: what may a scheduled job run?
 

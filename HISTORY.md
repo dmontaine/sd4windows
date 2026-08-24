@@ -63,6 +63,45 @@ NEWVOC, rewrite the two TIER lists, update `verify-tiers.ps1` count
 arithmetic, changelog) AND lands writeport in one go — exactly the "batch
 with next real change" the session 49 handoff called for.
 
+## 24 Aug 2026 — Fiftieth session, part 2: ruled split transcribed to disk
+
+**Commit:** the commit carrying this entry. Data and script change; no C, no
+BASIC.
+
+**On the owner's word to continue after the rulings** (session 50 above),
+the split was written to disk in one commit:
+
+- Twelve verb files deleted from `sdsys/newvoc/`: `config`, `listu`,
+  `list.readu`, `list.locks`, `clear.locks`, `lock`, `logout`, `set.date`,
+  `sh`, `!`, `clean.account`, `umask`. All 141→140 verbs still live in
+  `voc_template`; a plain or programmer account no longer receives any of
+  these because they are no longer in NEWVOC.
+- `sdsys/voc_template/umask` deleted too — UMASK is gone from the product.
+- `sdsys/newvoc/TIER.OMIT.STANDARD` rewritten from 17 to 42 verbs; sh and !
+  removed from it because they are no longer in NEWVOC at all, and 27 new
+  P-verb ids added.
+- `sdsys/newvoc/TIER.ADD.ADMINISTRATOR` rewritten from 10 to 21 verbs; the
+  11 A verbs that moved out of NEWVOC (all A2 + A3 + `clean.account`) join
+  the 10 A1 records already there.
+- `gplbld/verify-tiers.ps1` count arithmetic re-derived — STANDARD from 391
+  to 354, PROGRAMMER from 408 to 396, ADMINISTRATOR from 418 to 417 (grew
+  by 11 through ADD and lost 12 through the NEWVOC deletions). `$Withheld`
+  and `$AdminVerbs` regrouped by rationale so a reader sees which class each
+  verb belongs to.
+- `changelog` entry — user-facing, plain English, per CLAUDE.md's exception.
+
+**Cross-checks that ran before the write**, so the failure mode is not "the
+list I typed by hand disagreed with the split I typed by hand": every P and A
+verb in the writeup was diffed against `voc_template`, all 141 covered
+exactly once and no ghost entries. **Cross-check that will run at the next
+cycle**: `verify-tiers.ps1` section 0 compares the shipped TIER records
+against its own `$Withheld`/`$AdminVerbs`, which is what caught the last
+mismatch (SED removal, 23 Aug).
+
+**NOT CYCLED. The installed tree is unchanged.** `assert-current` now exits
+1 for two reasons — the `writeport` binary change and the tier data changes.
+One cycle covers both.
+
 ## 24 Aug 2026 — Forty-ninth session, END: a cycle was reported run and had not installed
 
 **Commit:** the commit carrying this entry. Documentation only.
