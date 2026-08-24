@@ -5,20 +5,37 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the fiftieth session (split ruled, on disk, cycled).
+**Last updated:** 24 Aug 2026, end of the fiftieth session (split ruled, cycled, verified 22/22).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: RUN `verify-tiers -Prefix sdtierc` FOR THE 3-TIER CONTROL. ADMIN HALF ALREADY MEASURED.
+> ## NEXT: §7 IS EMPTY AND §8 TIER WORK IS CLOSED. ASK BEFORE STARTING ANYTHING.
 >
 > ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** The owner ruled the split,
-> session 50 transcribed it to disk, and **the cycle at 13:36:51 installed
-> it** — `sd.exe F53AE8F87BC55326` (also carries the `writeport` fix from
-> session 49), `assert-current: the installed tree matches source`. Three
-> commits over the session: `82f5c66` handoff docs, `d913eac` disk apply,
-> and the commit carrying this update.
+> session 50 transcribed it to disk, the cycle at 13:36:51 installed it,
+> and **`verify-tiers.ps1 -Prefix sdtierd` at 14:11:22 returned 22 of 22
+> PASS** — including the between-tier controls (STANDARD lacks the 42
+> withheld and the 21 admin, PROGRAMMER has the 42 and lacks the 21,
+> ADMINISTRATOR has both) and the durability check (UPDATE.ACCOUNT does
+> not restore what CREATE.ACCOUNT withheld). Section 3's COUNT VOC landed
+> on **354 / 396 / 417 exactly**, the arithmetic in the verify-tiers
+> header. **The three-tier split is settled, on disk, installed, and
+> verified end to end.**
+>
+> Five commits this session: `82f5c66` handoff docs, `d913eac` disk apply,
+> `e8bf060` cycle handoff, `7ca4597` verify-tiers Invoke-SD fix (the LOGIN
+> TERM-reset trap; see the block below headed "THE HANG"), and the commit
+> carrying this update.
+>
+> ### CLEAN THE HALF-INSTALLED PREFIXES AT LEISURE
+>
+> `sdtierc1/2/3` (the hung run before the Invoke-SD fix) and `sdtierd1/2/3`
+> (the passing run — Cleanup removed their Windows accounts but leaves the
+> SD register records "in place - remove with DELETE.ACCOUNT" by design).
+> Nothing blocks on them. Removing with `DELETE.ACCOUNT sdtierc1` etc.
+> inside SD when convenient.
 >
 > ### WHAT WAS MEASURED THIS TURN, WITHOUT ELEVATION
 >
@@ -39,25 +56,29 @@ something came to be the way it is.
 > | `TIER.OMIT.STANDARD` / `TIER.ADD.ADMINISTRATOR` as VOC records in DON | absent | **`not found`** for both |
 > | `verify-lineendings.ps1` | 17/17 PASS | **17/17 PASS**, all decisive rows PASS |
 >
-> ### WHAT STILL NEEDS THE OWNER'S ELEVATED SHELL
+> ### VERIFY-TIERS 22/22 PASS AT 14:11:22 - THE DECISIVE RESULT
 >
-> **`verify-tiers.ps1 -Prefix sdtierd` — one command, and this is the
-> decisive one.** DON is the admin observation; the between-tier controls
-> (STANDARD lacks the 42, PROGRAMMER has the 42 and lacks the 21,
-> ADMINISTRATOR has both) need `CREATE.ACCOUNT` for three fresh accounts,
-> which is gated on `K$ADMINISTRATOR`. Expected counts: STANDARD 354,
-> PROGRAMMER 396, ADMINISTRATOR 417. Section 0's cross-check between the
-> script's `$Withheld`/`$AdminVerbs` and the shipped TIER records also fires,
-> so a mismatch between this commit and any later hand edit fails there.
+> Transcript: `%LOCALAPPDATA%\SD-verify\verify-tiers-20260824-141122.log`.
+> Every one of the twenty-two rows PASS on the 13:36:51 install:
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-tiers.ps1 -Prefix sdtierd
-> ```
+> | section | check | expected | observed |
+> |---|---|---|---|
+> | 0 | shipped OMIT vs test's `$Withheld` | 0 diffs | **0 diffs** |
+> | 0 | shipped ADD vs test's `$AdminVerbs` | 0 diffs | **0 diffs** |
+> | 2 | sdtierd1/2/3 `ACC$TIER` | STANDARD / PROGRAMMER / ADMIN | **matches** |
+> | 3 | STANDARD `COUNT VOC` | 354 | **354** |
+> | 3 | PROGRAMMER `COUNT VOC` | 396 | **396** |
+> | 3 | ADMINISTRATOR `COUNT VOC` | 417 | **417** |
+> | 4 | STANDARD missing 42 withheld / 21 admin | 42 / 21 | **42 / 21** |
+> | 4 | PROGRAMMER missing 42 withheld / 21 admin | 0 / 21 | **0 / 21** |
+> | 4 | ADMINISTRATOR missing 42 withheld / 21 admin | 0 / 0 | **0 / 0** |
+> | 5 | STANDARD after UPDATE.ACCOUNT | 354, 42 still missing | **354, 42** |
 >
-> **Prefix `sdtierc` is spent** — an elevated run passed sections 0–2 (all
-> PASS) then hung in section 3, and the Windows accounts sdtierc1/2/3 plus
-> their SD register records are left behind. `sdtierb`, `sdapiidb18`–`b32`
-> are the older spent prefixes.
+> Section 4 is the decisive between-tier control: PROGRAMMER at "0
+> withheld missing, 21 admin missing" is the row that stops a broken
+> copy loop from passing STANDARD trivially. Section 5 is the durability
+> half - UPDATE.ACCOUNT does not restore what CREATE.ACCOUNT withheld,
+> which is the whole reason `ACC$TIER` exists.
 >
 > ### THE HANG: LOGIN RESETS TERM ON EVERY ACCOUNT SWITCH. `verify-tiers` IS FIXED.
 >
@@ -6874,12 +6895,11 @@ recompiling. Owner's approach: **capability by VOC content** — take `BASIC`,
 `TIER.OMIT.STANDARD` line went with it.)
 Idiomatic MV, and it needs no C.
 
-**WHAT IS STILL OPEN IS APPLYING THE CURATION, NOT DECIDING IT.** What exists
-in the installed tree is the capability cut — seventeen ids withheld from
-STANDARD, ten added for ADMINISTRATOR. **The full three-tier split of the 141
-verbs is now ruled** — owner review 24 Aug 2026, session 50, below. It has not
-yet been transcribed into `TIER.OMIT.STANDARD` and `TIER.ADD.ADMINISTRATOR`
-and it needs a cycle to land.
+**CLOSED 24 Aug 2026, session 50.** The full three-tier split is ruled,
+on disk, installed at 13:36:51, and **verified end to end by
+`verify-tiers.ps1 -Prefix sdtierd` at 14:11:22 — 22 of 22 PASS**. The
+subsection below carries the settled split; the START HERE at the top of
+this file carries the verify table.
 
 **THREE THINGS THIS QUESTION USED TO BE BLOCKED ON HAVE SINCE LANDED**, which
 narrows it considerably:
@@ -7057,14 +7077,13 @@ less UMASK, which is being removed. Every verb accounted for exactly once.
    `$AdminVerbs` to 21, each grouped by rationale.
 6. `changelog` entry written for the user-visible change.
 
-**Cycled at 13:36:51.** `sd.exe F53AE8F87BC55326`, `assert-current: the
-installed tree matches source`. The installed `TIER.OMIT.STANDARD` (43
-lines) and `TIER.ADD.ADMINISTRATOR` (22 lines) are byte-identical to source,
-the 13 deleted verb files are absent from the install, and `DON COUNT VOC`
-returned **417** — the ADMINISTRATOR arithmetic exactly. `verify-tiers.ps1
--Prefix sdtierc` is the between-tier control that still needs elevation and
-is not yet run this session; see the START HERE table at the top for the
-full list of what has been measured.
+**Cycled at 13:36:51 and verified at 14:11:22.** `sd.exe
+F53AE8F87BC55326`, `assert-current: the installed tree matches source`.
+`verify-tiers.ps1 -Prefix sdtierd` returned **22 of 22 PASS**: COUNT VOC
+per tier landed on 354 / 396 / 417 exactly, every between-tier control
+row PASSed, and `UPDATE.ACCOUNT` on the standard account did not restore
+the 42 withheld verbs. See the START HERE table at the top of this file
+for the row-by-row.
 
 ### ANSWERED IN CODE 22 Aug 2026, UNMEASURED: what may a scheduled job run?
 

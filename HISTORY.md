@@ -102,6 +102,53 @@ mismatch (SED removal, 23 Aug).
 1 for two reasons — the `writeport` binary change and the tier data changes.
 One cycle covers both.
 
+## 24 Aug 2026 — Fiftieth session, part 5: verify-tiers 22/22 PASS. The split is settled end to end.
+
+**Commit:** the commit carrying this entry.  Documentation only.
+
+**AN ELEVATED `verify-tiers.ps1 -Prefix sdtierd` RAN AT 14:11:22 AND
+PASSED EVERY ROW.**  Transcript at
+`%LOCALAPPDATA%\SD-verify\verify-tiers-20260824-141122.log`.
+
+- **Section 0** - shipped `TIER.OMIT.STANDARD` and `TIER.ADD.ADMINISTRATOR`
+  match the test's own `$Withheld`/`$AdminVerbs`, both length 42 and 21.
+- **Section 2** - sdtierd1/2/3 `ACC$TIER` reads STANDARD, PROGRAMMER,
+  ADMINISTRATOR; DON still ADMINISTRATOR.
+- **Section 3** - `COUNT VOC` landed on **354 / 396 / 417 exactly**, which
+  is the arithmetic in the verify-tiers header (392 real newvoc records
+  minus 42 or plus 21, plus 4 CREATEA additions).
+- **Section 4 - the decisive between-tier control.**  STANDARD is missing
+  all 42 withheld and all 21 admin verbs.  PROGRAMMER is missing 0 of the
+  42 and all 21 admin - and this is the row that stops a broken copy
+  loop from passing the STANDARD row trivially, because a loop that
+  skipped nothing would fail here and only here.  ADMINISTRATOR is
+  missing neither.  Neither list record ever landed in any account's VOC.
+- **Section 5 - the durability half.**  UPDATE.ACCOUNT on the standard
+  account left it at 354, all 42 still missing.  Before `ACC$TIER` was
+  written (17 Aug), update.voc re-copied the whole of NEWVOC and this
+  restored every withheld verb; the tier record is the whole reason
+  update.voc's filter has a tier to look at.
+
+**MEASURED, NOT REASONED.**  Each of the three counts was derived on
+paper before the run and typed into the verify script from that
+derivation, not blessed from a passing run.  Section 0's cross-check
+between the test's own lists and the shipped TIER records catches the
+mode where a later hand edit diverges from what this session committed.
+
+**Cleanup:** verify-tiers's Remove-Made deleted the Windows accounts
+sdtierd1/2/3 (and their profile directories) but leaves the SD register
+records "in place - remove with DELETE.ACCOUNT" by design.  Same shape
+for the sdtierc* left by the pre-fix hang.  Nothing blocks on them;
+remove at leisure inside SD.
+
+**SECTION 8 TIER WORK IS CLOSED.**  The mechanism has been built and
+verified since 17 Aug (three tiers, `PROGRAMMER` keyword, `ACC$TIER`
+recorded, tier data in `TIER.OMIT.STANDARD`/`TIER.ADD.ADMINISTRATOR`,
+update.voc filter).  The curation ruling and the disk transcription
+landed 24 Aug.  What remains open in section 8 is `OS.EXECUTE`
+provenance and the ssh-server-not-installed case, both structural, both
+noted where they live.
+
 ## 24 Aug 2026 — Fiftieth session, part 4: verify-tiers hung in an elevated run because LOGIN resets TERM
 
 **Commit:** the commit carrying this entry.  Script change only.
