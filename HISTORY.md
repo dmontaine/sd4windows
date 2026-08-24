@@ -27,6 +27,44 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, END: a cycle was reported run and had not installed
+
+**Commit:** the commit carrying this entry. Documentation only.
+
+**Checked against the transcripts rather than the report, and they disagree.**
+The cycle for the `writeport` fix was reported done. It had not installed:
+
+| | |
+|---|---|
+| installed `sd.exe` | `070A9C52E293B2FA`, 12:36:09 — the step 16 (b) build, file dated 12:31:50 |
+| `bin/sd.exe` | `F53AE8F87BC55326`, 12:47:43 — carries the fix |
+| last log reaching phase 5 | `cycle-20260824-123527.log`, 12:37:08 |
+| last log of any kind | `cycle-20260824-124801.log`, **`-SkipInstall` only**, 12:48:38 |
+
+`assert-current` exits 1 and names `gplsrc\op_seqio.c` as newer than the
+install. **No transcript after 12:37:08 reaches phase 5**, so whatever ran
+either stopped at `-SkipInstall` or never started.
+
+**Nothing is broken by this.** The installed tree is the fully verified step 16
+(b) one; the `writeport` fix is simply not in it. What would have been damaging
+is writing a handoff that said otherwise — the next session would have taken
+readings from a tree it believed contained a change that was never installed,
+which is the exact failure §6's *"the installed data tree is never upgraded"*
+entry and the 18 Aug stale-binary cycle both record.
+
+**THE GENERAL POINT, since this is the second time today the record and the
+report disagreed.** `verify-apiidentity` said *"account removed"* about an
+account that was still there; a cycle was said to be run that had not
+installed. **Both were caught the same way — by looking at the state rather
+than reading the claim.** `assert-current` exists precisely for this and it
+did its job; the only thing needed was to run it before believing anything.
+
+**Owed:** a full `cycle.ps1` to install the `writeport` fix, or a decision to
+batch it with the next change. It cannot be verified either way — no verifier
+here reaches a port device.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: the `writeport` CR-only bug, fixed on the owner's instruction
 
 **Commit:** the commit carrying this entry. **`sd.exe` changed**, so the

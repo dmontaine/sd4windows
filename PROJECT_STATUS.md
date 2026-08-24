@@ -11,13 +11,29 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: NOTHING IN §7 IS OPEN. PICK UP FROM §8, OR ASK THE OWNER.
+> ## NEXT: CYCLE THE `writeport` FIX IN, THEN §7 IS EMPTY. AFTER THAT, ASK.
 >
 > ***END OF THE FORTY-NINTH SESSION, 24 Aug 2026.*** **Steps 14 and 16 both
-> closed**, each built, cycled and verified in this session. §7 now has no open
-> item. §8's open questions and the curation half of the tier work (§8, "how
-> many kinds of user") are what remain, and neither is chosen — **ask before
-> starting one.**
+> closed** — each built, cycled and verified here. §7 has no open *work* item.
+> **One built-but-uninstalled change is outstanding** (below), and after it
+> what remains is §8's open questions and the **curation** half of the tier
+> work: the mechanism is built and verified, the 30/45/65 verb split has never
+> been reviewed by the owner. **Neither is chosen — ask before starting one.**
+>
+> ### WHAT THIS SESSION CLOSED, IN ONE TABLE
+>
+> | | install | verifier |
+> |---|---|---|
+> | **§7 step 14** — an API session runs as the caller | 11:15:29 `7DDC68F6595382A6` | `verify-apiidentity -Prefix sdapiidb32`, decisive row PASS |
+> | **§7 step 16 (a)** — readers accept CRLF | 12:15:51 `7F587B82B63569C8` | `verify-lineendings` 14/14 |
+> | **§7 step 16 (b)** — writers emit CRLF | 12:36:09 `070A9C52E293B2FA` | `verify-lineendings` 17/17 |
+>
+> **Three defects were found in the instruments and the record while doing it**,
+> and each is written up where it happened: `verify-apiidentity` had been
+> **leaking an account per run since `b18`** while reporting otherwise; step
+> 16's site list named a branch that was **never `READSEQ`**; and the same list
+> missed that **every reader is chunked**, where a CRLF on a 2 KB boundary
+> would have been wrong once per 2 KB of real data.
 >
 > ### STEP 14 IS CLOSED — AN API SESSION NOW RUNS AS THE CALLER
 >
@@ -67,23 +83,29 @@ something came to be the way it is.
 > refuses, correctly. Clear it by rebooting and re-running that script, or
 > `reg unload HKU\S-1-5-21-3329101812-2004472801-1855080994-2150` elevated.
 >
-> ### ONE UNVERIFIED CHANGE IS IN THE TREE — A CYCLE IS OWED
+> ### THE TREE IS STALE. ONE CHANGE IS BUILT AND NOT INSTALLED
 >
 > **`op_seqio.c:1762`, the `writeport` CR-only fix** (§7 step 16, and
-> `UPSTREAM_FIXES.md` #14). Compiled and cycled to `-SkipInstall` 12:48:38 —
-> 198 programs, staged tree whole — but **`sd.exe` changed, so the tree is
-> STALE and `assert-current` refuses.** A full `cycle.ps1` is owed before any
-> measurement.
+> `UPSTREAM_FIXES.md` #14). **`assert-current` exits 1.**
 >
-> **It cannot be verified even then**: exercising `WRITESEQ` to a port needs a
-> real port device and no verifier here reaches it. **Worth batching with the
-> next real change rather than spending a cycle on alone** — that is the
-> owner's call, not a decision already taken.
+> | | |
+> |---|---|
+> | installed `sd.exe` | `070A9C52E293B2FA`, **12:36:09** — the step 16 (b) build |
+> | `bin/sd.exe` | `F53AE8F87BC55326`, 12:47:43 — carries the `writeport` fix |
+> | last **full** cycle | `cycle-20260824-123527.log`, ended 12:37:08 |
+> | last run of any kind | `cycle-20260824-124801.log`, **`-SkipInstall` only**, 12:48:38 |
 >
-> ### THE LAST CURRENT INSTALL, FOR THE RECORD
+> ***A FULL `cycle.ps1` WAS BELIEVED RUN AND WAS NOT.*** Checked against the
+> transcripts, not against the report: **no log after 12:37:08 reaches phase
+> 5**, and the installed binary is still dated 12:31:50. Whatever ran either
+> stopped at `-SkipInstall` or did not start. **Nothing is broken by this** —
+> the installed tree is the fully verified step 16 (b) one — but the
+> `writeport` fix is **not in it**, and no measurement taken now describes it.
 >
-> Installed 24 Aug **12:36:09**, `sd.exe` `070A9C52E293B2FA` — current until
-> the `writeport` edit above. **A cycle ends at the next source change**, so take
+> **It cannot be verified even after a cycle**: exercising `WRITESEQ` to a port
+> needs a real port device and no verifier here reaches it. **So consider
+> batching it with the next real change rather than spending a cycle on it
+> alone** — the owner's call, not a decision already taken. **A cycle ends at the next source change**, so take
 > any reading you want from this tree *first*.
 > **Prefixes `sdapiidb18`–`b32` are spent; use `b33` or later.**
 >
