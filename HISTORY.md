@@ -24022,3 +24022,50 @@ Nothing was changed in the product.  The pcode fix is one secure-*.ps1 and one
 sd.iss call - that directory holds only pcode and pcode.old, and only the daemon
 reads it, once, as LocalSystem - but an installer ACL change needs a cycle to
 verify and b16 is unspent, so it is recorded and not done.
+
+23 Aug 2026 - the pcode library is locked, and the fix is verified on a cycled tree
+
+Owner's instruction after the step 15 survey found it.  Install 17:47:55,
+cycle.ps1 exit 0, assert-current matched source.
+
+WHAT SHIPPED.  secure-pcode.ps1, modelled on secure-gcat.ps1 because it is the
+same control one level down - gcat decides WHICH catalogued program runs, this
+decides what the interpreter running it IS.  Called from sd.iss's SecurePcode
+beside SecureGcat, staged by stage.py, and it reports by name in the closing
+dialog if it did not run, like the credential store and the catalogue.
+
+(RX) AND NOT "REMOVE sdusers", AND THAT IS A DECISION.  The threat is write;
+the contents are the same pcode every install gets, built from public source,
+so read is worth nothing to an attacker.  Removing sdusers outright would stop
+an ordinary token ENUMERATING the directory, and this project has paid for that
+once already - check-install.ps1 aborted with "Access is denied" because
+Test-Path THROWS on an ACL denial.  verify-pcodeacl.ps1 therefore treats "can
+read, cannot write" as the pass condition and reports a both-denied run as a
+DIFFERENT failure with a different fix, rather than as success.
+
+MEASURED WITH THE BEFORE AND A CONTROL.  As unelevated don, in sdusers: write
+to the directory DENIED, pcode opened for write DENIED, enumerate still OK -
+against ALLOWED for the first two on the same machine before the cycle.
+verify-pcodeacl 4 of 4, exit 0.  THE SUITE IS 27 NOW - 10 unelevated, 17
+elevated - and the count is updated in section 4.0 and the header.
+
+AND SD STILL RUNS, which is the functional half and not a formality: sysseg.c
+:193 fails hard with "Cannot read pcode file" if the daemon cannot read it, so
+"sd -start exited with 0", sdwind up at 17:48:04 and no pcode error in the log
+is the proof that the lock did not lock out the one reader that matters.
+
+TWO THINGS NOT DONE, both deliberate.  The rest of the inherited sdusers:(M)
+list is untouched - accounts, $map, $ipc, messages, newvoc, bp, cat, sd.conf -
+because sessions genuinely write some of them and the "read-only to sdusers"
+answer does not transfer; each needs its own judgement.  And the cycle ran
+-Silent, so the wizard pages were not reviewed by a person this time; section 7
+step 3 wants that and this change does not touch them.
+
+A TRAP PAID FOR AGAIN, TWICE IN ONE SESSION.  A heredoc halved the backslashes
+in "<sysdir>\bin" and Python read the result as \b, writing a literal backspace
+byte into the changelog - invisible when read back, and the editing tools then
+could not match the string.  Fixed with chr(92)/chr(8) and confirmed with
+cat -v.  Also walked into "echo WHO | sd" in a console, which section START
+HERE already records as making an unusable session: it hung and the stray
+sd.exe had to be killed.  Both are written down in the memory file rather than
+here, because neither is about SD.

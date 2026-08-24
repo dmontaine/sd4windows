@@ -23,7 +23,7 @@ something came to be the way it is.
 > measures is the one with §7 step 13 leg 1 backed out. Installed `sd.exe` MD5
 > **`0e742883`**, which is the reverted build.
 >
-> **Spent: `b1`-`b15`. Next is `b16`.** The suite is **26** — 9 unelevated, 17
+> **Spent: `b1`-`b15`. Next is `b16`.** The suite is **27** — **10** unelevated, 17
 > elevated.
 >
 > ```powershell
@@ -92,11 +92,35 @@ something came to be the way it is.
 > the ACL. The installer discloses the *confidentiality* limit (`sd.iss:778`,
 > `:1407`) and says nothing about this.
 >
-> **THE FIX IS ONE `secure-*.ps1` AND ONE `sd.iss` CALL.** That directory holds
-> only `pcode` and `pcode.old`, and only the daemon reads it, once, as
-> LocalSystem - sessions take pcode from shared memory. It can drop `sdusers`
-> outright. ***NOT DONE HERE: an installer ACL change needs a cycle to verify,
-> and b16 is unspent.***
+> ***FIXED AND VERIFIED ON A CYCLED TREE, install 23 Aug 17:47:55***, owner's
+> instruction the same day. `secure-pcode.ps1` (new, ships), called from
+> `sd.iss`'s `SecurePcode` beside `SecureGcat`, staged by `stage.py`.
+>
+> **`(RX)`, NOT "REMOVE `sdusers`", AND THAT IS A DECISION NOT A COMPROMISE.**
+> The threat is **write**; the contents are the same pcode every install gets,
+> built from public source, so read is worth nothing to an attacker. Removing
+> `sdusers` outright would stop an ordinary token **enumerating** the directory,
+> and this project has already paid for that once — `check-install.ps1` aborted
+> with *"Access is denied"* because `Test-Path` **throws** on an ACL denial.
+>
+> **MEASURED, WITH THE BEFORE AND THE CONTROL:** as unelevated `don`, write to
+> the directory **DENIED**, `pcode` opened for write **DENIED**, and
+> **enumerate still OK** — against ALLOWED for the first two before the cycle.
+> **And SD still runs**: `"sd -start" exited with 0`, `sdwind` up at 17:48:04,
+> no pcode error logged — which is the functional proof, since `sysseg.c:193`
+> fails hard if it cannot read that file.
+>
+> **`verify-pcodeacl.ps1` GUARDS IT — 4 of 4, exit 0**, unelevated, and it
+> refuses an elevated session for `verify-credacl`'s reason. It is in
+> `VerifyInstall1`'s list beside `verify-credacl`. ***THE SUITE IS 27 NOW —
+> 10 unelevated, 17 elevated.***
+>
+> ***WHAT WAS NOT DONE: the rest of the Modify list.*** `accounts`, `$map`,
+> `$ipc`, `messages`, `newvoc`, `bp`, `cat` and `sd.conf` still inherit
+> `sdusers:(M)`. Only `bin` was in scope. §7 step 15 has the list.
+>
+> ***AND THE CYCLE RAN `-Silent`***, so the wizard pages were not reviewed by a
+> person this time — §7 step 3 wants that, and this change does not touch them.
 >
 > ### THE ONE THING THE SUITE STILL CANNOT SEE
 >
@@ -1558,7 +1582,7 @@ needed the first time somebody pushes, and git explains that clearly by itself.
 
 ***MSYS2'S OWN `git` IS DELIBERATELY NOT IN THE PACKAGE LIST***, and the first
 draft had it. `-CheckOnly` on the reference machine reported it missing — on
-the machine that builds SD, ships installers and passes all 26 verifiers. So it
+the machine that builds SD, ships installers and passes all 27 verifiers. So it
 was never a requirement: cloning is Windows `git` from PowerShell, and nothing
 in the Makefile or `gplbld/*.py` shells out to git at all. **A setup script that
 reports a working machine as incomplete teaches the operator to ignore it.**
@@ -1938,7 +1962,7 @@ as it stood — every measurement with the reasoning that produced it — is in
 HISTORY, *"ARCHIVE 21 Aug 2026 - section 4's measurement record"*. Nothing was
 deleted, and the three corrections made on the way are noted where they belong.
 
-### 4.0 The verifier inventory — all 26, and which are actually run
+### 4.0 The verifier inventory — all 27, and which are actually run
 
 **WRITTEN 22 Aug 2026 BECAUSE THE SET HAD NEVER BEEN WRITTEN DOWN.** There are
 **26** `verify-*.ps1` in `gplbld` — 24 when this was written, plus
@@ -6743,13 +6767,20 @@ the staging script and the Inno installer were all finished and removed.
     between accounts. **Neither says the interpreter itself is writable**, and a
     reader would not take it from those words.
 
-    ***AND THE FIX IS SMALL, WHICH IS THE POINT OF THE SURVEY.*** Only the
-    daemon reads that file, once, at startup and as LocalSystem — sessions take
-    pcode from shared memory, and the executables live in `{app}` and not here
-    (`sdwind.c:477`), so `bin` holds **only `pcode` and `pcode.old`**. It can
-    drop `sdusers` entirely with nothing to lose. That is one `secure-*.ps1` and
-    one `sd.iss` call, **not** the service-account model. **It needs a cycle to
-    verify, so it is not done here.**
+    ***THAT HALF IS DONE AND VERIFIED, 23 Aug 2026, install 17:47:55.***
+    `secure-pcode.ps1` grants `sdusers:(OI)(CI)(RX)` — **read, not write** —
+    called from `sd.iss`'s `SecurePcode` beside `SecureGcat` and staged by
+    `stage.py`. `verify-pcodeacl.ps1` guards it, 4 of 4, and the suite is
+    **27** (10 unelevated). §STEP 15 SURVEYED has the readings and why `(RX)`
+    rather than removing `sdusers`.
+
+    ***WHAT REMAINS OF THIS STEP AFTER THAT.*** The rest of the inherited
+    `sdusers:(M)` list is untouched — `accounts`, `$map`, `$ipc`, `messages`,
+    `newvoc`, `bp`, `cat`, `sd.conf`. **Each needs its own judgement, not a
+    sweep**: sessions genuinely write some of them, so the `gcat`/`pcode`
+    answer of "read-only to `sdusers`" does not transfer. `accounts` is the
+    obvious next one to weigh. **None of this is the service-account model,
+    which the survey above shows account privacy no longer needs.**
 
     **This is what makes tiers 1 and 2 real.** §8: tier 3 is real because
     Windows enforces it; the other two are only ever as real as the ACLs.
