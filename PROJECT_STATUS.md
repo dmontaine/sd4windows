@@ -53,6 +53,53 @@ something came to be the way it is.
 > install, and the static chain above was judged to cover it. **If a future
 > session wants the behavioural proof, it is still owed.**
 >
+> ### THE VERIFY SUITE IS PRE-FLIGHTED AND READY. IT IS THE OWNER'S TO RUN.
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b33
+> ```
+>
+> **From an ORDINARY PowerShell — it refuses an elevated one** (verify-credacl
+> asks what an ordinary token can do, and Administrators are granted Full by
+> `secure-cred.ps1`, so an elevated run would pass while proving the opposite).
+> §4.0.1: an agent may not run it; a nested elevation is refused with *"The
+> operation was canceled by the user"* and **no dialog is ever shown**. Expect
+> roughly **five UAC prompts** — `verify-osusers` raises two, `verify-batchjob`
+> two, and the `-ThenElevated` handover one.
+>
+> **`b33` is the token.** §4.0 records `sdapiidb18`–`b32` as spent; `b33`
+> appears nowhere else, and `Get-LocalUser` shows **no leftover `b*` or
+> `sdtier*` account** at all.
+>
+> | pre-flight probe | expected | observed |
+> |---|---|---|
+> | `assert-current` | exit 0 | **exit 0**, install 15:14:28 |
+> | SD service | Running | **Running** — a stopped server passes `assert-current` and fails every verifier |
+> | `gplbld\*.ps1` parse-check | 0 errors | **64 scripts, 0 errors** |
+> | embedded BOM (any hit past offset 0) | none | **none**; 2 files carry a *leading* BOM at offset 0, which is legal |
+> | CR bytes in any script | 0 | **0** |
+> | every `verify-*.ps1` named in a runner | all | **29 of 29, after the fix below** |
+>
+> ### A VERIFIER WAS IN NEITHER RUNNER, WHICH IS THE FAILURE THE RUNNER WARNS ABOUT
+>
+> ***`verify-lineendings.ps1` was written 23 Aug and added to no step table***,
+> so neither runner has ever executed it. VerifyInstall1's own header names
+> this exact route — *"a verifier nobody runs is a guard that has already
+> stopped guarding, and nothing reports its absence"*, returning *"the moment a
+> verifier is added without a row in one of the two tables"*. **The header's
+> counts were stale in a way that hid it**: they read 26 / 9 / 17 while the
+> directory held 29.
+>
+> **Fixed** — added to `VerifyInstall1` (no elevation, no prefix, no account,
+> cleans up its own fixtures, raises no UAC prompt), and the counts re-derived
+> to 29 / 11 / 18. Parse-check 0 errors, `$steps` confirmed through the **AST**
+> rather than by grep, `assert-current` still exit 0.
+>
+> **RUN BEFORE WIRING IT IN, so it is not added untested**:
+> `verify-lineendings` on the 15:14:28 install, **17 of 17 PASS, exit 0** —
+> including both controls, the 2048-boundary straddle (line 1 reads 2047) and
+> the lone CR surviving as data.
+>
 > ### A DEFECT IN `cycle.ps1` WAS FOUND WHILE CHECKING, AND FIXED
 >
 > ***`cycle.ps1` STARTED A TRANSCRIPT AND NEVER STOPPED IT.*** PowerShell 5.1

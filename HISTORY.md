@@ -27,6 +27,63 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-first session, part 4: suite pre-flighted, and a verifier was in neither runner
+
+**Commit:** the commit carrying this entry. One script change
+(`gplbld/VerifyInstall1.ps1`) and documentation.
+
+**THE SUITE WAS NOT RUN BY THE AGENT.** §4.0.1 is unambiguous - the verify
+suite is run by a person from their own ordinary terminal, an agent may not run
+`VerifyInstall1`, and *"do not spend a `-Run` token finding this out again"*.
+The request was answered by pre-flighting it instead and handing over the
+command with the token.
+
+**PRE-FLIGHT, all of it cheap and none of it spending a prefix**: `assert-current`
+exit 0; **the SD service is Running** (a stopped server passes `assert-current`
+on hashes and mtimes and then fails every verifier, which is the runner's own
+guard); **64 `gplbld\*.ps1` parse-checked, 0 errors**; **0 embedded BOMs**;
+0 CR bytes; no leftover `b*` or `sdtier*` local account. Token **`b33`** - §4.0
+records `sdapiidb18`-`b32` spent and `b33` appears nowhere else.
+
+**A FALSE ALARM OF MY OWN MAKING, corrected in passing**: the first BOM sweep
+flagged `verify-tierapi.ps1` and `verify-tiers.ps1`. Both carry a BOM **at
+offset 0**, which is legal and is what PowerShell 5.1 wants; CLAUDE.md's rule is
+*"any hit past offset 0"*. The check was too broad, not the files.
+
+## `verify-lineendings.ps1` WAS IN NEITHER RUNNER
+
+**Found by listing both runners' step tables against the directory** - which is
+what VerifyInstall1's header says to do, and what nobody had done since the file
+was written on 23 Aug. It is section 7 step 16's guard, it has never been run by
+either runner, and **nothing reported its absence**, which is the failure that
+file was created to prevent: *"a verifier nobody runs is a guard that has
+already stopped guarding"*.
+
+**THE STALE COUNTS ARE WHAT HID IT.** The header read *"There are TWENTY-SIX
+verify-*.ps1 here; this file runs NINE and hands the other SEVENTEEN to
+VerifyInstall2"*. The directory held **29**, the tables held 10 and 18. Anyone
+checking the invariant by reading the sentence rather than counting the
+directory would have concluded it held. The counts are now 29 / 11 / 18, with a
+note saying to re-derive them from the directory rather than adjust them by one.
+
+**MEASURED BEFORE WIRING IT IN**, so a guard is not added untested:
+`verify-lineendings.ps1` against the 15:14:28 install, **17 of 17 PASS, exit
+0**, every row decisive - both controls included, the CRLF straddling the
+2048-byte `SEQ_BUFFER_SIZE` boundary folding to 2047 and the lone CR surviving
+as 11 bytes of data. It also confirms the `writeport`-carrying binary did not
+regress step 16.
+
+**Placed in `VerifyInstall1`**: no elevation, no prefix, no account, cleans up
+its own fixtures, raises no UAC prompt, so it does not change what the runner
+costs a person to sit through. Parse-check 0 errors, and `$steps` was confirmed
+**through the AST** - 11 outer hashtables - rather than by grepping for the row
+I had just written. `VerifyInstall1.ps1` is on `$neverShipped`, so no cycle.
+
+**WHAT THIS SAYS ABOUT THE OTHER 28.** Coverage is now 29 of 29 and the check
+that found the gap carries a control (an invented name still reports as an
+orphan). Being in a table is not the same as passing; this only says none is
+forgotten.
+
 ## 24 Aug 2026 — Fifty-first session, part 3: the cycle installed, and cycle.ps1 was corrupting its own transcripts
 
 **Commit:** the commit carrying this entry. One script fix (`gplbld/cycle.ps1`)
