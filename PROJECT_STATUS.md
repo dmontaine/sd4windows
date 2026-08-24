@@ -36,21 +36,30 @@ something came to be the way it is.
 > | | |
 > |---|---|
 > | **Narrow** | re-impersonate after each `fork()`. Fixes this path. **`PHANTOM` (`op_kernel.c:735`) and `SH` (`op_sh.c:379`, the same site) still drop it**, silently, as they do today |
-> | **Class** | `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` — the runtime carries the token across `fork`/`exec`. Covers everything. **Half measured 24 Aug: the bare call LOST it; register-then-`seteuid` is untested and is the form that matters** |
+> | **Class** | ~~`cygwin_internal(CW_SET_EXTERNAL_TOKEN)`~~ — **MEASURED 24 Aug AND IT WORKS, but it is `CW_SET_EXTERNAL_TOKEN` *plus* `seteuid()`. The bare call alone LOST it.** Covers everything |
 >
-> ### THE CLASS HALF IS ONE ELEVATED RUN FROM BEING SETTLED — AND IT COSTS NO CYCLE
+> ### BOTH OPTIONS NOW WORK, SO THE DECISION IS A TRADE AND NOT A GAMBLE
 >
-> `probe-impfork` gained a **Q4** leg that answers it without touching
-> `sd.exe`. The unelevated `--q4check` has already banked half the answer and
-> **refuses the other half out loud** rather than guessing it. Finish with:
+> Measured by `probe-impfork.ps1 -Account test1` (elevated, **no cycle** — the
+> probe is on `$neverShipped`; `assert-current` exit 0 either side). Exit 15,
+> both legs, both instruments — thread token *and* file ownership.
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-impfork.ps1 -Account test1
-> ```
+> | | |
+> |---|---|
+> | plain `fork()` (control) | token `NONE`, file **SYSTEM** — the defect, reproduced first |
+> | `CW_SET_EXTERNAL_TOKEN` alone, then `fork()` | token `NONE`, file **SYSTEM** — **the bare call is not the fix** |
+> | register **+ `seteuid`**, then `fork()` | token `target`, file **`GITORLI\test1`** — ***carried*** |
 >
-> **Elevated window; no `-Prefix`, so no `b`-token is spent.** Form 2 carrying
-> means the owner picks between two *working* options; form 2 losing means the
-> class option is **struck** rather than left open. §7 step 14 has the table.
+> **THE COST OF THE CLASS OPTION IS ONE `seteuid`, AND ITS BLAST RADIUS IS
+> SURVEYED**: the *real* uid stays 18, so `getpwuid(getuid())` at
+> `linuxlb.c:95`/`:213` and `sdfix.c:1548` are unaffected. **The single visible
+> change is `op_sys.c:228`**, which reports `geteuid()` to BASIC. §7 step 14
+> has the full table.
+>
+> **WHAT IS STILL THE OWNER'S:** narrow (small, leaves `PHANTOM`/`SH` dropping
+> it silently) vs class (covers them, moves the BASIC-visible euid). **Nothing
+> is written yet, and either lands on `sd.exe` — so it owes a full `cycle.ps1`
+> and a suite run.**
 >
 > **`fork()` reverting the thread is a RUNTIME behaviour, measured both in a
 > forked Cygwin child and a direct process** (`gplbld/probe-impfork.c`, Q3). It
@@ -6052,46 +6061,52 @@ the staging script and the Inno installer were all finished and removed.
     (`COPY:220-229`); `BINARY` is what SUPPRESSES that and is implied only when
     both sides are directory files. **The record must be LF-only** - §6.
 
-    ***THE CLASS OPTION IS HALF MEASURED, 24 Aug 2026, AND THE MEASURED HALF
-    DOES NOT WORK.*** `probe-impfork.c` gained a **Q4** leg asking whether
-    `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` carries the impersonation across
-    `fork()`. It costs **no cycle** — the file is on `assert-current`'s
-    `$neverShipped` list — and it needs no edit to `sd.exe`.
-
-    **Two forms, because the bare call may be a no-op by design.** It
-    *registers* a token for the runtime to adopt at its next user-context
-    change; **register-then-`seteuid`** is the sequence Cygwin's own callers
-    use. Measuring only the bare call would report "the class fix fails" for a
-    form never exercised.
+    ***THE CLASS OPTION IS MEASURED AND IT WORKS — 24 Aug 2026. BUT NOT AS THE
+    ONE CALL THIS ENTRY NAMED: IT IS A PAIR.*** `probe-impfork.c` gained a
+    **Q4** leg. It costs **no cycle** — the file is on `assert-current`'s
+    `$neverShipped` list — and it needed no edit to `sd.exe`.
+    `probe-impfork.ps1 -Account test1`, elevated, `assert-current` exit 0
+    either side, install 24 Aug 10:34:44 unchanged. **Exit 15 on both legs.**
 
     | form | result |
     |---|---|
-    | 1 — `CW_SET_EXTERNAL_TOKEN`, then `fork` | **LOST.** Call returned 0, `errno` 0, thread token still `NONE` after the fork |
-    | 2 — register, then `seteuid(target)`, then `fork` | **NOT MEASURED** — needs a target uid *differing* from the runtime's euid |
+    | 1 — `CW_SET_EXTERNAL_TOKEN`, then `fork` | **LOST.** Returned 0, `errno` 0, thread token `NONE`, file owned by SYSTEM |
+    | 2 — register, then `seteuid(target)`, then `fork` | ***CARRIED.*** Thread token `target` **and** file owned `GITORLI\test1` |
 
-    Measured by `probe-impfork.exe --q4check <writable-dir>`, **unelevated**,
-    which impersonates the process's own duplicated token. Controls held: row
-    0 impersonated, and the plain `fork()` at row 1 lost it, so the run
-    reproduced the defect before testing the fix.
+    **THE BARE CALL IS NOT THE FIX, AND THAT IS THE FINDING.** It only
+    *registers* a token; **`seteuid()` is what makes the runtime adopt it**,
+    which is why Cygwin's own callers do the pair. Row 4 and row 6 differ by
+    nothing else.
 
-    ***WHY `--q4check` CANNOT FINISH IT, AND THE INSTRUMENT NOW SAYS SO
-    ITSELF.*** It necessarily targets its own uid, and `seteuid()` to the uid
-    you already hold returns 0 from a fast path without touching the user
-    context — so the runtime never adopts the registered token. Reporting that
-    as "lost" would be a verdict on a form that never ran. `q4_report` refuses
-    it out loud as **NOT MEASURED**, alongside "seteuid never attempted" and
-    "seteuid refused", which are three different things and not one.
+    **Both instruments agree, in both legs** — the `fork()`ed and `exec()`d
+    child (the API session's shape) and the direct control, identical rows.
+    **Row 1 is the control and it reproduced the defect first**: a plain
+    `fork()` gave token `NONE` and a SYSTEM-owned file, so the run demonstrated
+    the fault before testing the cure.
 
-    **TO FINISH IT: `gplbld/probe-impfork.ps1 -Account test1`, from an ELEVATED
-    window.** No switch needed — Q4 runs inside `measure()`, so both the forked
-    child and direct legs carry it. That supplies the differing uid via S4U.
-    Exit codes gained **bit 4** (`R_EXTTOK`), so a completed measurement is now
-    8..15; it does not collide with `R_CALL`=4, which is only returned bare.
+    ***THE NULL CASE WAS REAL AND WAS CAUGHT BEFORE IT LIED.*** The unelevated
+    `--q4check` mode necessarily targets its own uid, and `seteuid()` to the
+    uid you already hold returns 0 from a fast path without touching the user
+    context — the first `q4_report` printed that as form 2 **"lost"**, a
+    verdict on something that never ran. `q4_report` now separates **three**
+    non-results (never attempted, refused, target uid already the euid) from a
+    loss, and the elevated run shows `seteuid(197957) from euid 18`, so the
+    guard confirms it was genuinely exercised rather than assumed.
 
-    **WHAT IT DECIDES.** Form 2 carrying ⇒ the class fix is real and the
-    owner chooses between two *working* options. Form 2 also losing ⇒ the
-    decision collapses to the narrow fix and the class option should be
-    **struck, not left open as "unproven"**.
+    ***WHAT THE CLASS FIX WOULD CHANGE BESIDES THE TOKEN — SURVEYED, 13 SITES.***
+    `seteuid` moves the **effective** uid only; **the real uid stays 18
+    (SYSTEM)**, which the probe shows directly (`uid 18 euid 197957`). So:
+
+    | site | effect |
+    |---|---|
+    | `linuxlb.c:95`, `:213` `getpwuid(getuid())` | **unaffected** — real uid |
+    | `sdfix.c:1548` `getuid()` in a dump name | **unaffected** — real uid |
+    | `op_sys.c:228` `geteuid()` exposed to BASIC | **CHANGES** — the one visible behavioural difference |
+    | `ingroup.c:76` `getegid()` | unaffected by `seteuid` alone; **would change if the fix also calls `setegid`** |
+    | `sdext_eguid.c:67` | already does this pair; off the login/write path |
+
+    **So the decision is now between two WORKING options**, and the class one
+    costs a `seteuid` whose blast radius is the single `op_sys.c:228` reading.
 
     **Step 14 is now *measured and failing* rather than *built and unverified*.
     A fix lands on `sd.exe`, so it owes a full `cycle.ps1` and a suite run.**

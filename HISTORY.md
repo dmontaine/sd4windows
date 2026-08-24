@@ -27,6 +27,62 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: the class fix works, and it is a PAIR of calls rather than the one this project kept naming
+
+**Commit:** the commit carrying this entry. **Supersedes the entry directly
+below**, which recorded form 2 as unmeasured; it was, until this run. No
+install, no cycle, no change to `sd.exe`. `assert-current` exit 0 either side,
+install 24 Aug 10:34:44 unchanged, `sd.exe` `779B85854AEEE5AC`.
+
+**Run:** `gplbld/probe-impfork.ps1 -Account test1`, elevated — one UAC click,
+asked for beforehand per §4.0.1a. `test1` confirmed present, enabled and NOT an
+Administrator first, so the forbidden fixture was genuinely forbidden. No
+`-Prefix`, so no `b`-token was spent. **Exit 15 on both legs**
+(8 base + 1 access + 2 ownership + 4 external token).
+
+**Result — both instruments, both legs (forked+exec'd child and direct
+control), identical rows:**
+
+| row | token after | owner of file made after |
+|---|---|---|
+| plain `fork()` — the control | `NONE` | `NT AUTHORITY\SYSTEM` |
+| `CW_SET_EXTERNAL_TOKEN`, then `fork()` | `NONE` | `NT AUTHORITY\SYSTEM` |
+| register **+ `seteuid`**, then `fork()` | **`target`** | **`GITORLI\test1`** |
+
+**THE HEADLINE IS THE SHAPE, NOT THE YES.** PROJECT_STATUS had named the class
+fix as `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` since 24 Aug. **That call alone
+does not carry the identity** — it only *registers* a token; `seteuid()` is
+what makes the runtime adopt it. Rows 4 and 6 differ by nothing else. A build
+that had implemented what the entry literally said would have compiled, run,
+returned 0 from every call, and not worked.
+
+**The control did its job:** row 1 reproduced the defect (token `NONE`,
+SYSTEM-owned file) before either form was tried, so "carried" at row 6 is a
+change from a demonstrated fault and not from an assumed one.
+
+**And the null-case guard added earlier in this session paid for itself the
+same day.** The elevated run printed `seteuid(197957) from euid 18` — the uids
+genuinely differ, so the fast path that made `--q4check` unable to answer did
+not apply here. Without that guard the two runs would have disagreed with no
+visible reason why.
+
+**Surveyed, because the class fix has a second-order cost:** 13 POSIX uid
+sites in `gplsrc`. `seteuid` moves the **effective** uid only — the probe shows
+`uid 18 euid 197957`, so the real uid stays SYSTEM. `getpwuid(getuid())` at
+`linuxlb.c:95` and `:213`, and `sdfix.c:1548`, are unaffected. **The one
+visible behavioural change is `op_sys.c:228`**, which reports `geteuid()` to
+BASIC. `ingroup.c:76` uses `getegid()` and would change only if the fix also
+calls `setegid`. `sdext_eguid.c:67` already does this pair and is off the
+login/write path.
+
+**Still open, and it is the owner's:** narrow (re-impersonate after each
+`fork()`; small, leaves `PHANTOM` at `op_kernel.c:735` and `SH` at
+`op_sh.c:379` dropping it silently) versus class (covers them; moves the
+BASIC-visible euid). **Nothing is written.** Either lands on `sd.exe` and so
+owes a full `cycle.ps1` and a suite run.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session: the class fix is half measured, and the measured half does not work
 
 **Commit:** the commit carrying this entry. **No install, no cycle, no source
