@@ -102,6 +102,55 @@ mismatch (SED removal, 23 Aug).
 1 for two reasons — the `writeport` binary change and the tier data changes.
 One cycle covers both.
 
+## 24 Aug 2026 — Fiftieth session, part 6: the LOGIN-TERM-reset trap closed for every verifier that carries it
+
+**Commit:** the commit carrying this entry.  Script change only, in fifteen
+verifiers.
+
+**PART 4 FIXED THE TRAP IN `verify-tiers.ps1` ONLY** on the argument that
+none of the other verifiers today produces enough LIST output per LOGTO to
+hit it.  That argument fails the rule at CLAUDE.md's "instrument shows what
+it did": leaving fifteen copies of the same bug intact just because they do
+not fire yet is exactly the shape of "silent full-VOC failure" - the next
+edit that grows one of them re-lives verify-tiers's afternoon.  So the fix
+travelled to every Invoke-SD copy that prepended a `TERM` before the
+caller's commands:
+
+- **Seven canonical five-line copies**, byte-identical to the pre-fix
+  `verify-tiers`: `verify-accountacl`, `verify-accountrules`,
+  `verify-apiport`, `verify-delaccount`, `verify-routes`,
+  `verify-scramlogin`, `verify-tierapi`.
+- **Three Start-Job wrappers** with the same `'LOGTO SDSYS', 'TERM 200,9999'`
+  prefix and a timeout jacket around the pipe: `verify-catgate`,
+  `verify-nonet`, `verify-fold`.
+- **Four TERM-only prefixes** (no `LOGTO SDSYS` up front, caller inherits
+  the invoking session's account): `verify-osusers`, `verify-keys`,
+  `verify-lcnames`, `verify-setpw`.
+- **Two per-shape variants**: `verify-apiname` (same `LOGTO SDSYS`+TERM
+  shape but uses `$ESC` instead of `` `e ``), and `verify-apiadmin`'s
+  **`Invoke-SDIn`** (per-account form, `LOGTO $account`+TERM prefix).
+
+**The same fix in every one**: a small loop over `$commands` that appends
+`TERM 200,9999` after any element matching `^\s*LOGTO\b`, and the `$body`
+line switched from `$commands` to the expanded array.  The initial TERM in
+the prefix stays.
+
+**PARSE-CHECK AND BYTE-SCAN** on all fifteen: zero errors, no embedded
+BOM.  Token counts recorded in the commit message so a later corruption
+that parses cleanly (as the 23 Aug BOM did in `verify-apiidentity` - see
+CLAUDE.md's "an instrument shows what it did") is still visible.
+
+**TWO VERIFIERS DELIBERATELY LEFT ALONE**: `verify-apiidentity` never
+prepends TERM (the caller supplies it, and its Invoke-SD is shaped for
+API-transport tests rather than driving SD interactively);
+`verify-createaccount` prepends only `LOGTO SDSYS` and no TERM.  Neither
+can leak a TERM it did not set - the trap requires a wide TERM to be
+present and then wiped.
+
+**NOT RE-RUN**, because no cycle is owed by any of this - these are all
+gplbld/ scripts and `assert-current` deliberately excludes them.  A future
+run of any of the fifteen exercises the fix on its actual output.
+
 ## 24 Aug 2026 — Fiftieth session, part 5: verify-tiers 22/22 PASS. The split is settled end to end.
 
 **Commit:** the commit carrying this entry.  Documentation only.

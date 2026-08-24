@@ -102,12 +102,19 @@ something came to be the way it is.
 > reproducer with the fix's exact command sequence returns in one second
 > against DON's VOC — the same sequence without the fix hangs indefinitely.
 >
-> **THE OTHER EIGHTEEN VERIFIERS EACH CARRY THEIR OWN `Invoke-SD` COPY** and
-> each has this trap latent. They pass today because none produces more
-> than a page of output per LOGTO. If a future edit grows one of them the
-> failure mode will be the same hang, and the fix pattern the same — carry
-> it across when you touch that verifier, or fold `Invoke-SD` into a shared
-> helper.
+> **THE SAME FIX SPREAD TO EVERY OTHER VERIFIER THAT PREPENDED A `TERM`
+> BEFORE THE CALLER'S COMMANDS**, so the class is closed rather than left
+> latent — session 50 part 6: `verify-accountacl`, `verify-accountrules`,
+> `verify-apiport`, `verify-delaccount`, `verify-routes`,
+> `verify-scramlogin`, `verify-tierapi` (the seven canonical five-line
+> shape); `verify-catgate`, `verify-nonet`, `verify-fold` (Start-Job
+> wrappers with the same prefix); `verify-osusers`, `verify-keys`,
+> `verify-lcnames`, `verify-setpw` (TERM-only prefix); `verify-apiname`
+> (with its `$ESC` variant); and `verify-apiadmin`'s `Invoke-SDIn` (a
+> per-account form). Each parse-checks 0 errors and carries no embedded
+> BOM. Two verifiers were skipped deliberately: `verify-apiidentity` has
+> no TERM prefix by design (the caller supplies it) and `verify-createaccount`
+> has no TERM prefix at all — neither can leak a TERM it never set.
 >
 > ### THE WRITEPORT FIX LANDED IN THIS CYCLE TOO
 >
