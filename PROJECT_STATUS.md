@@ -148,6 +148,43 @@ something came to be the way it is.
 > `RevertUserIdentity()`/re-impersonation after each fork is the narrow one.
 > **Either lands on `sd.exe` and owes a full `cycle.ps1`.**
 >
+> ### (b) IS BUILT AND OWES ONE CYCLE — AND ITS INSTRUMENT WAS THE DEFECT
+>
+> ***`ImpersonatingUser()` WOULD HAVE ANSWERED (b) WRONG, CONFIDENTLY.*** Step
+> 14 (b) was written as *"it exists, call it at write time and the answer is
+> direct"*. It was:
+>
+> ```c
+> return (s4u_token != NULL) ? 1 : 0;
+> ```
+>
+> — whether **this file still holds a handle**, not whether the thread is
+> impersonating. `fork()` reverts the thread and clears nothing (
+> `RevertUserIdentity()` has no caller either), so **at the moment the identity
+> is gone it returned 1.** It had no callers, so nothing had ever caught it, and
+> its own comment says *"a caller that believes it impersonated and did not is
+> the failure this whole file is written to avoid."*
+>
+> **Fixed to ask Windows** — `OpenThreadToken`, where `ERROR_NO_TOKEN` **is** the
+> answer rather than an error — and to return the **name**, because "whose
+> identity" is the question and a boolean cannot carry it. `HoldingUserToken()`
+> is split out as the belief, so the two can be **compared** rather than
+> confused.
+>
+> | new | what |
+> |---|---|
+> | `K$IMPERSONATING` (62) | `<1>` identity Windows says, `<2>` token held. **`<1>` empty with `<2>` true IS the defect** |
+> | `APISRVR` `check.identity` | called after the `is_grp_member` group check **and** at the record write — two points, so "lost at LOGTO" is told apart from "lost later" |
+>
+> **It logs only the DISAGREEMENT**, so a healthy session is silent and it can
+> stay in permanently. `logmsg` → errlog, which is already per-connection and
+> trimmed.
+>
+> ***NEXT ACTION: `make sd` IS DONE (24 Aug 10:30:42, no warnings, objects
+> cleared first). THE TREE OWES ONE `cycle.ps1`, THEN READ THE ERRLOG.***
+> `assert-current` refuses now: `sd.exe` hash differs and 6 source files are
+> newer. Expect two lines per API session if the diagnosis holds — one at the
+> group check, one at the write.
 > ### DO NOT RE-TRY AN ACL FIXTURE. IT CANNOT ANSWER THIS QUESTION.
 >
 > `b27` and `b28` both opened all three ACL fixtures — including one whose

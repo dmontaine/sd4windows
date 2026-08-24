@@ -128,6 +128,44 @@ So any `PHANTOM` (`op_kernel.c:735`) or `SH` (`op_sh.c:379`) taken by an
 impersonated session drops it back to LocalSystem, and nothing in `win32s4u.c`
 can detect it. Shape (b) owes an answer to this whatever fixes b28.
 
+**AND (b)'s INSTRUMENT WAS ITSELF THE DEFECT, 24 Aug 2026.** Step 14 (b) was
+recorded as the easy one: `ImpersonatingUser()` exists at `win32s4u.c:230`, call
+it at write time, done. It was:
+
+```c
+return (s4u_token != NULL) ? 1 : 0;
+```
+
+That is whether the file still holds a HANDLE, not whether the thread is
+impersonating. `fork()` reverts the thread and clears nothing -
+`RevertUserIdentity()` has no caller either - so **at the exact moment the
+identity is gone it returned 1**. Called at write time as step 14 instructed, it
+would have reported "still impersonating" and appeared to contradict b28's
+SYSTEM-owned record: a confident wrong answer from the instrument sent to
+confirm the finding.
+
+**It had no callers, which is why nothing had ever caught it**, and its own
+comment reads *"a caller that believes it impersonated and did not is the
+failure this whole file is written to avoid."* The comment was right and the
+code did the opposite. A dead function's comment is not evidence about the code
+beneath it.
+
+Fixed to ask Windows - `OpenThreadToken`, treating `ERROR_NO_TOKEN` as the
+ANSWER rather than an error - and to return the NAME, since "whose identity" is
+the question and a boolean cannot carry it. `HoldingUserToken()` is split out as
+the belief so the two can be compared rather than confused; no single value can
+express "SD thinks it is the user and the thread is not", which is the whole
+condition. `K$IMPERSONATING` (62) returns both as two fields, and APISRVR's
+`check.identity` is called at two points - after the `is_grp_member` group check
+and at the record write - so "lost at LOGTO" is distinguishable from "lost
+later". It writes to the errlog ONLY when the two disagree, so it is silent on a
+healthy session and can stay in.
+
+`make sd` done 24 Aug 10:30:42 with `gplobj/*.o` cleared first (two headers
+changed and the Makefile tracks no header dependencies). No warnings.
+**UNMEASURED: the tree owes one cycle** - `assert-current` refuses, `sd.exe`
+hash differs and 6 source files are newer.
+
 **ANSWERED THE SAME DAY BY (a2) - THE SESSION DOES FORK, AND THE CALL SITE IS
 THE LOGTO GROUP CHECK.** `probe-sessionfork.ps1 -Prefix sdapiidb30`, on the
 09:53:11 install: `sdwind` made one fork clone (`sdwind.exe` 15812) whose exec
