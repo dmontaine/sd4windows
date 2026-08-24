@@ -102,6 +102,59 @@ mismatch (SED removal, 23 Aug).
 1 for two reasons — the `writeport` binary change and the tier data changes.
 One cycle covers both.
 
+## 24 Aug 2026 — Fiftieth session, part 7: OPGEN ported to gen_includes.py, BASIC source deleted
+
+**Commit:** the commit carrying this entry.  Developer-tooling change only;
+no cycle owed.
+
+**OPGEN was a developer-only tool** — end users never touched it, no
+`$execute` ever ran it, and it existed for adding a VM opcode.  Under
+"we do not support Linux, we are not coupled with upstream" (owner,
+24 Aug 2026), leaving it in `sdsys/gpl.bp/` reads as *"here is how you
+regenerate OPCODES.H"* and none of it was true here: OPGEN needs `./gplsrc`
+inside SD, which the Windows install layout never provides.
+
+**Ported into `gplbld/gen_includes.py`** as a fourth C-header-to-BASIC
+output alongside REVSTAMP.H / ERR.H / ERRTEXT.H.  The script now takes
+`gplsrc/opcodes.h` and writes `sdsys/gpl.bp/OPCODES.H`, replacing the
+BASIC OPGEN character-for-character.  Preserved quirks include the
+OCONV(0, 'MX')=='00' anomaly and the ordered insertion into the
+prefixed opcode tables.
+
+**BASIC source `sdsys/gpl.bp/OPGEN` deleted.**  No VOC pointer, no
+$execute, no other reference in the shipped tree.  The
+`gpl.bp.out/OPGEN` compiled object will simply not be regenerated on the
+next cycle.
+
+**OPCODES.H REGENERATED IN THE SAME COMMIT AND HAS ONE REAL CONTENT
+CHANGE**: the `OP.SDPYOBJ` line (opcode 0xCFFE = 53246) is gone, and the
+two prefixed-name / prefixed-value tables shift by one entry as a
+consequence.  SDPYOBJ was the embedded-Python opcode retired 13 Aug
+(§5.15); `gplsrc/opcodes.h:622` now marks 0xCFFE as `op_illegal` but no
+one could regenerate OPCODES.H on Windows, so the stale `OP.SDPYOBJ`
+survived until this port.  Nothing references it (BCOMP compiles it out
+of BASIC source at line :645), so this is dead-weight cleanup rather
+than a live fix.
+
+**MEASURED**: `python gplbld/gen_includes.py --check` on the post-regen
+tree reports `in sync sdsys\gpl.bp\OPCODES.H` (and REVSTAMP.H); py_compile
+on gen_includes.py: 0 errors; regenerated OPCODES.H is 636 lines, zero
+CR bytes, LF only — same shape as the tracked file was.
+
+**FOUND WHILE RUNNING --check, LEFT AS A SEPARATE FINDING**: the SYSCOM
+`ERR.H` and GPL.BP `ERRTEXT.H` are pre-existing stale.  `gplsrc/err.h`
+grew `SD$SCRAM.ERR` on 19 Aug and `4100`/`4101` codes that never made it
+into the BASIC-side outputs — exactly the ERRGEN-not-run failure mode
+`gen_includes.py`'s docstring warns about (*"ERRGEN was the dangerous
+one"*).  Fix is one `python gplbld/gen_includes.py` run, but landing new
+error rows changes the BASIC error table and wants a deliberate cycle;
+next session's judgement.
+
+**TWO COMMENTS STILL POINT AT OPGEN AS IF IT WERE RUNNABLE**, left for
+next session:
+`sdsys/gpl.bp/BCOMP:62` (*"generated using the OPGEN program"*) and
+`gplsrc/opcodes.h:32-36` (*"run OPGEN"* — the C header the port reads).
+
 ## 24 Aug 2026 — Fiftieth session, part 6: the LOGIN-TERM-reset trap closed for every verifier that carries it
 
 **Commit:** the commit carrying this entry.  Script change only, in fifteen
