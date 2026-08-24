@@ -24413,3 +24413,46 @@ THE OWNER'S MEMORY WAS THE INSTRUMENT.  Four sessions of measurement had not
 found this; one sentence of "that does not match what I did" did.  When a
 finding contradicts what the person who was there remembers, the finding is the
 thing to re-check first.
+
+23 Aug 2026 - two guards against the silent install's missing password
+
+Neither is shipped - both are on assert-current's $neverShipped list - so no
+cycle is owed and assert-current stayed at exit 0 across the change.
+
+GUARD 1, verify-batchjob.ps1:85, and it is the one that unblocks b16.  The
+elevated child is launched by Start-Process -Verb RunAs and therefore HAS a
+console, so a bare "& $sdExe $paName" handed that console to sd as stdin;
+LOGIN:639 saw a tty, decided somebody was there to type, and asked a
+credential-less account for a password.  The line is now
+"$null | & $sdExe $paName".
+
+MEASURED IN A REAL ELEVATED CONSOLE before the edit, because this could not be
+settled from the unelevated shell - both forms read NOTTY there, the host's own
+stdin already being a pipe:
+
+  bare      & bash -c 'test -t 0'   TTY
+  $null |   & bash                  NOTTY
+  '' |      & bash                  NOTTY
+  Start-Job & bash                  NOTTY
+
+and then the real command through the winning form: 0.3 seconds, no prompt,
+"ZZNOSUCHVERB is not in your VOC".  Start-Job would have worked too - it is why
+Invoke-SdCommand never hit this - but a pipe keeps the measurement in the
+process that holds the elevated token.
+
+IT DOES NOT WEAKEN THE ROW.  The subject is whether an elevated session may
+still RUN the command; the credential prompt is a different subject that was
+standing in the way.
+
+GUARD 2, cycle.ps1, new step 9 before assert-current.  It counts the records in
+sdsys\$cred and says so.  Empty gets a yellow block naming the cause
+(sd.iss:1276), the consequences - no ssh, no API, elevated "sd <command>" blocks
+at a console - and the one-word remedy.  READ RATHER THAN INFERRED FROM -Silent:
+a non-silent install where the user pressed Enter on an empty line is the same
+state and deserves the same warning, and if the password step is ever made to
+run silently the check keeps working unchanged.  cycle.ps1 is already elevated,
+which is what makes $cred readable - it is SYSTEM and Administrators only.
+Unelevated the read throws and the branch reports "cannot say", exercised here.
+
+STILL OPEN AND IT IS THE OWNER'S: whether a silent install should be allowed to
+finish at all without a credential.
