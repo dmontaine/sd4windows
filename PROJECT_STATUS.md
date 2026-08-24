@@ -85,15 +85,26 @@ something came to be the way it is.
 > spent. **A fix to step 14 lands on `sd.exe` and therefore owes a full
 > `cycle.ps1` and a fresh suite run.**
 >
-> ### ALSO NEW AND NOT STARTED: §7 STEP 16, CRLF FROM AN EXTERNAL EDITOR
+> ### ALSO NEW AND NOT STARTED: §7 STEP 16, LINE ENDINGS
 >
-> Owner, 24 Aug 2026. Directory files exist so external editors can edit BASIC
-> programs, and on Windows editors save **CRLF** — but the record read maps
-> `\n` only. **`BCOMP:1672` already strips a trailing CR**, so the BASIC case
-> is safe; **directory-file DATA records and `READSEQ` are not**, and
-> `READSEQ` is a mainstream path for §1's intended user. Step 16 has the two
-> sites, the `config.c` precedent in §6, and why the reader fix and the
-> question of writing CRLF are separate pieces of work.
+> Owner, 24 Aug 2026. **SD reads only LF and writes only LF, on a Windows-only
+> product.** Two pieces of work and the WRITE half has the stronger case — his
+> words: *"if a user wants to create a csv file to be read by Excel, or a
+> document to be loaded into notepad or imported into word, i'm sure the crlf
+> standard would be expected."* That is about what SD **produces**, not what
+> it tolerates.
+>
+> **`BCOMP:1672` already strips a trailing CR**, so editing a BASIC program
+> externally is safe — the one case directory files exist for. Nothing else
+> is: `op_dio3.c:1180` and `op_seqio.c:1152` map `\n` only, and there is no
+> `'\r'` char literal anywhere in the C tree.
+>
+> **Step 16 splits it: (a) tolerant readers, a defect fix, first — (b) write
+> CRLF, a product decision.** (b) has one blocker to settle before it can even
+> be costed: **how binary object code in `bp.out` survives the field-mark /
+> newline mapping today**, since that file is a directory file and nothing
+> shipped calls `MAPMARKS`. **DH files are not affected by either half**, so
+> `gcat`, `VOC` and the byte counts this file quotes for them do not move.
 
 ---
 
@@ -5967,75 +5978,113 @@ the staging script and the Inno installer were all finished and removed.
     §5.7's model makes it run **as the service**. Both are coherent; they are
     different architectures and only one can be built.
 
-16. **CRLF FROM AN EXTERNAL EDITOR CORRUPTS EVERY FIELD OF A DIRECTORY-FILE
-    RECORD, AND `READSEQ` LINE.** Raised by the repository owner, 24 Aug 2026.
-    **Not started.** His reasoning, which is the part to keep: **directory
-    files exist so that EXTERNAL EDITORS can edit BASIC programs**, OpenQM was
-    originally a Windows product and is believed to have used CRLF then; the
-    Linux version moved to LF, ScarletDME and `sdb64` inherit that, and this
-    port inherited it from them without ever weighing the reversal. **On
-    Windows most editors save CRLF.**
+16. **LINE ENDINGS: SD READS ONLY LF AND WRITES ONLY LF, ON A WINDOWS-ONLY
+    PRODUCT.** Raised by the repository owner, 24 Aug 2026. **Not started, and
+    it is two pieces of work.** His reasoning, which is the part that dates:
+    **directory files exist so that EXTERNAL EDITORS can edit BASIC programs**;
+    OpenQM was originally a Windows product and is believed to have used CRLF
+    then; the Linux version moved to LF, ScarletDME and `sdb64` inherit that,
+    and this port inherited it from them **without the reversal ever being
+    weighed**.
 
-    **THE COMPILER IS ALREADY SAFE AND THAT IS WHY THIS HAS NOT BITTEN YET.**
+    ***AND THE WRITE SIDE IS THE HALF WITH THE STRONGER CASE - owner,
+    24 Aug 2026:*** *"if a user wants to create a csv file to be read by Excel,
+    or a document to be loaded into notepad or imported into word, i'm sure the
+    crlf standard would be expected."* **That is a requirement about what SD
+    PRODUCES, not merely tolerance of what it is given**, and RFC 4180 does
+    specify CRLF for CSV. A `WRITESEQ` that emits LF is not wrong on Linux and
+    is a defect on a Windows-only product whose intended user (§1) is a Windows
+    developer using SD as a back end data store.
+
+    **THE COMPILER IS ALREADY SAFE, WHICH IS WHY THIS HAS NOT BITTEN YET.**
     `BCOMP:1672`, in `get.line:` - the main source-line reader - is
     `if src[1] = char(13) then src = src[1,len(src)-1]` under the comment
     *"Remove trailing CR for cross-platform compatibility"*. (`src[1]` is the
     RIGHTMOST character in this dialect, as the `~` continuation test two lines
     below confirms.) **So editing a BASIC program externally works, which is
-    the case the feature exists for.**
+    the one case the feature exists for.** Nothing else is protected.
 
-    **WHAT IS NOT SAFE**, and there is **no `'\r'` char literal anywhere in the
-    C tree** - checked 24 Aug 2026; the only CR handling is `linuxio.c:617` for
-    terminal input and `op_seqio.c:1697` for serial ports, neither of which
-    touches a file:
+    **THERE IS NO `'\r'` CHAR LITERAL ANYWHERE IN THE C TREE** - checked
+    24 Aug 2026. The only CR handling is `linuxio.c:617` (terminal input) and
+    `op_seqio.c:1697` (serial ports); neither touches a file.
 
-    | path | site | effect |
+    | direction | site | today |
     |---|---|---|
     | directory-file record READ | `op_dio3.c:1180` | maps `\n` to a field mark, leaves `\r` - **every field gains a trailing CR** |
     | `READSEQ` | `op_seqio.c:1152` | splits on `'\n'` only - every line gains a trailing CR |
+    | directory-file record WRITE | `op_dio3.c:1385`, `:1399` | field mark to `Newline` |
+    | `WRITESEQ` | `op_seqio.c:1712`, `:1726` | `Newline` |
+    | `COMO` | `op_tio.c:2986` | `Newline` |
+    | hold files | `to_file.c:129`, `:340` | `Newline` |
 
-    **`READSEQ` IS THE ONE THAT MATTERS MOST FOR THIS PRODUCT.** §1 says the
-    intended user is *"a Windows developer using SD as a back end data store"*.
-    Reading a text file produced by any Windows tool is a mainstream path for
-    that user, and today it returns data with a CR on the end of every line.
+    `Newline` is `sddefs.h:65`, `"\n"`, `NewlineBytes 1`, sitting under
+    *"Derived items"* beside `DS '/'`. **Upstream `sdb64` is byte-identical**,
+    so changing it is a deliberate divergence rather than a fix.
 
-    **THE SHAPE ALREADY HAS A SCAR HERE:** §6's `config.c` entry - it stripped
-    `\n` but not `\r`, so `SDSYS` became `C:\ProgramData\SD\sdsys\r` and every
-    path built from it was wrong, while numeric parameters were unaffected
-    because `sscanf` stops at the `\r`. Same defect, different file, and it
-    reads as a path problem rather than a parsing one.
+    ***SCOPE, MEASURED, AND IT IS NARROWER THAN IT LOOKS: DH FILES ARE NOT
+    AFFECTED.*** `Newline` reaches only the four write sites above. A DH file
+    stores field marks in its own format, so `gcat`, `VOC`, `$CRED`, `ACCOUNTS`
+    and every byte count this file quotes for them (`gcat/$CPROC` 25,208;
+    `$LOGIN` 6,160) are untouched by either change.
 
-    **TWO SEPARABLE PIECES OF WORK. THE FIRST IS A DEFECT FIX, THE SECOND IS A
-    PRODUCT DECISION AND IS THE OWNER'S.**
+    ### (a) MAKE THE READERS TOLERANT - a defect fix, do this first
 
-    a. **Make the readers tolerant.** Treat `\r\n` as the terminator at the two
-       sites above; **leave a lone `\r` alone**, because it is data. This is
-       exactly what `BCOMP` already does and it is the smaller change. Note the
-       existing trailing-newline handling at `op_dio3.c:1169` drops a final
-       `\n` - it must drop a final `\r\n` too, or the last field keeps its CR.
-       **Mark mapping is the discriminator**: it is off in image mode
-       (`MAPMARKS`), which is the binary path, so folding CRLF in non-image
-       mode does not touch binary reads.
+    Treat `\r\n` as the terminator at the two read sites; **leave a lone `\r`
+    alone**, because it is data. This is exactly what `BCOMP` already does.
+    Two details that are easy to miss:
 
-    b. **Whether SD should WRITE CRLF.** `sddefs.h:65` `Newline "\n"` feeds the
-       directory-file write (`op_dio3.c:1385`, `:1399`), `WRITESEQ`
-       (`op_seqio.c:1712`, `:1726`), `COMO` (`op_tio.c:2986`) and the hold
-       files (`to_file.c:129`, `:340`). Upstream `sdb64` is byte-identical here,
-       so this is a deliberate divergence rather than a fix. **It would make
-       every file SD writes open correctly in Notepad**, which is a real
-       Windows usability gain - and it changes bytes that shipped records and
-       verifiers assert on. **Do (a) first: it removes the corruption risk on
-       its own, and it is what makes (b) safe to consider, since a tolerant
-       reader accepts the LF records already shipped in `voc_template`,
-       `newvoc` and `messages` whichever way (b) goes.**
+    - The existing trailing-newline handling at `op_dio3.c:1169` drops a final
+      `\n`; it must drop a final `\r\n` too, or the last field keeps its CR.
+    - **Mark mapping is the discriminator.** It is off in image mode, which is
+      the binary path, so folding CRLF in non-image mode cannot touch a
+      binary read.
 
-    **HOW TO MEASURE IT, because none of the existing verifiers can.** Every
-    verifier drives SD down a pipe and writes its fixtures with LF. The test is
-    to write a record file with **CRLF** into a directory file from outside SD -
-    which is what an editor does - then read it back through SD and compare the
-    field against the intended value. `verify-apiidentity`'s ZZIDSRC mechanism
-    is the worked example of planting a directory-file record from PowerShell;
-    the byte readback there (`$bytes -contains 13`) is the assertion inverted.
+    **(a) STANDS ON ITS OWN AND IS WHAT MAKES (b) SAFE TO CONSIDER**, because a
+    tolerant reader accepts the LF records already shipped in `voc_template`,
+    `newvoc`, `messages` and `bp` whichever way (b) goes, and accepts a tree
+    holding both spellings during a transition.
+
+    ### (b) WRITE CRLF - a product decision, and it needs one thing settled first
+
+    ***THE OPEN QUESTION THAT BLOCKS IT: HOW DOES BINARY OBJECT CODE IN
+    `bp.out` SURVIVE THE FIELD-MARK/NEWLINE MAPPING TODAY?*** `bp.out` and
+    `gpl.bp.out` are DIRECTORY files (§5.12) holding object code, and
+    `op_dio1.c:867` sets `mark_mapping = TRUE` unconditionally on every
+    directory-file open. **No shipped BASIC program calls `MAPMARKS`** - the
+    only hit is `BCOMP:9073`, which is the compiler EMITTING the opcode - and
+    `BCOMP` writes no object record with a plain `write`, so the write happens
+    somewhere not yet located. **Find that path before changing `Newline`**: if
+    object code goes through the mapping, a two-byte newline changes every
+    object file on disk, and the failure would look like a corrupt catalogue
+    rather than a line-ending change.
+
+    **THE ARGUMENT FOR (b) IS A STANDING INSTRUCTION, NOT JUST TASTE.** §5.16
+    rule 1: *"Every Linux-ism that remains is to be converted to its Windows
+    equivalent where one exists"* - and `Newline "\n"` is precisely that.
+    **The counter-precedent is its own sibling**: §7 step 12 deliberately left
+    `dir.separator` as `/` because `@ds` is load-bearing for compilation. So
+    the two constants under *"Derived items"* are not one decision, and
+    `Newline` needs its own judgement rather than automatic conversion.
+
+    **What (b) would cost, so it is weighed rather than discovered:** shipped
+    directory-file records stay LF while newly written ones become CRLF, so a
+    tree holds both - harmless given (a), untidy, and worth deciding whether
+    `stage.py` normalises. Anything asserting exact byte counts on a directory
+    file or on `COMO`/hold output moves. And the mapping is already lossy in
+    one direction - data containing a literal newline round-trips as a field
+    mark today - so (b) changes the shape of that edge case without creating
+    it.
+
+    ### HOW TO MEASURE EITHER, because no existing verifier can
+
+    Every verifier writes its fixtures with LF and drives SD down a pipe. The
+    test for (a) is to plant a record file with **CRLF** into a directory file
+    from OUTSIDE SD - which is what an editor does - then read it back through
+    SD and compare the field against the intended value.
+    `verify-apiidentity`'s ZZIDSRC mechanism is the worked example of planting
+    a directory-file record from PowerShell, and its byte readback
+    (`$bytes -contains 13`) is the assertion inverted. The test for (b) is the
+    same fixture in reverse: have SD write, and read the bytes.
 
 ## 8. Open questions
 
