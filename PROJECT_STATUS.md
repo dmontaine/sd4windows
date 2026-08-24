@@ -102,23 +102,34 @@ something came to be the way it is.
 > hard to reach on purpose: silent installs are refused, so the only way in is a
 > person pressing Enter on an empty line at the password prompt.
 >
-> ### RUN THIS
+> ### `b16` RAN GREEN. THE TREE IS 23 Aug 20:22:25 AND EVERYTHING TODAY IS ON IT
+>
+> ***10 of 10 unelevated, 17 of 17 elevated, every step exit 0, zero `[FAIL]`.***
+> Confirmed from the summary file and the elevated log **independently of the
+> screen**, with `[FAIL]` counted by **regex** — `-SimpleMatch` is the 22 Aug bug
+> that reported five failures as none. Both logs are stamped after the run's own
+> start, so neither is the stale-log trap, and the steps name **install 20:22:25**.
+>
+> ***THE ROW THAT WAS THE WHOLE HUNT PASSED:*** `verify-batchjob`'s
+> *"ELEVATED with no entry: still runs"*. So did `verify-pcodeacl` 4/4 and
+> `verify-lcnames` 142/142.
+>
+> **Spent: `b1`-`b16`. Next is `b17`.** The suite is **27** — 10 unelevated,
+> 17 elevated.
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b16
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b17
 > ```
 >
-> **`b16` IS UNSPENT** - the two lost attempts created no user and no `sdu_`
-> group, and the spent-prefix check is only that. The suite is **27** - 10
-> unelevated, 17 elevated. An **ORDINARY** window: it refuses an elevated one and
-> that is load-bearing (§4.0). About six UAC prompts; it is not unattended.
+> An **ORDINARY** window: it refuses an elevated one and that is load-bearing
+> (§4.0). About six UAC prompts; it is not unattended.
 > ***AND IT MUST BE A PERSON'S OWN TERMINAL - AN AGENT CANNOT RUN IT (§4.0.1).***
 >
-> **ONE THING IN IT IS NEW AND UNEXERCISED:** `verify-batchjob.ps1:85`'s
-> `$null |`. It was measured in an elevated console standalone, **not through a
-> suite run.** If `b16` stops anywhere, that line is the first place to look —
-> and `don` now has a password, so the prompt it guards against should not arise
-> on this tree at all.
+> ***ONE THING PASSED WITHOUT BEING EXERCISED, AND IT IS NOT A RESULT:***
+> `verify-batchjob.ps1:85`'s `$null |`. `don` holds a password on this tree, so
+> the prompt it guards against never arose — **the row passed by not needing it.**
+> It is measured standalone in an elevated console and nowhere else. It will only
+> be exercised for real on a tree where some account has no credential.
 >
 > ### THE PROBING RULES, AND THEY COST TWO SESSIONS
 >

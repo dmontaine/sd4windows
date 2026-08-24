@@ -24595,3 +24595,29 @@ through it: verify-batchjob.ps1:85's "$null |", measured standalone in an
 elevated console but not under the runner.  With don holding a password on this
 tree the prompt it guards against should not arise at all, so a green b16 will
 not prove that guard - it will only fail to need it.
+
+23 Aug 2026 - b16 green on install 20:22:25: 10 of 10 and 17 of 17
+
+Owner ran VerifyInstall1 -ThenElevated -Run b16 from his own ordinary terminal.
+Every step exit 0 in both halves.
+
+CONFIRMED INDEPENDENTLY OF THE SCREEN, because a pasted transcript and a stale
+log look alike: the unelevated summary file holds 10 step lines all "exit 0";
+the elevated log holds 17 step lines and no non-zero exit; [FAIL] counted by
+REGEX - not -SimpleMatch, which is the 22 Aug bug that read five failures as
+none - is 0 in both.  Both logs are stamped after the run started (20:27:56 and
+20:39:12 against a 20:26:38 start), and the steps name install 20:22:25, which
+is the tree the cycle produced.
+
+THE ROW THAT WAS THE WHOLE HUNT PASSED: verify-batchjob's "ELEVATED with no
+entry: still runs".  verify-pcodeacl 4/4 and verify-lcnames 142/142 as well.
+Everything this session changed is now on a tree with a green suite behind it.
+
+ONE THING PASSED WITHOUT BEING EXERCISED AND IT IS NOT A RESULT.
+verify-batchjob.ps1:85's "$null |" guard: don holds a password on this tree,
+so the credential prompt never arose and the row passed by not NEEDING the
+guard.  It is measured standalone in an elevated console and nowhere else.  It
+can only be exercised for real on a tree where some account has no credential -
+which the installer now makes harder to produce, silent installs being refused.
+
+Spent: b1-b16.  Next is b17.
