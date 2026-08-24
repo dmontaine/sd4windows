@@ -113,6 +113,41 @@ and believing `<<'EOF'` is safe is what walked into it again on 23 Aug 2026.
 build the separator with `chr(92)` — but prefer the file. A file is also
 re-runnable, diffable, and can be parse-checked before it is run.
 
+## Verify a script loads before you submit it for execution
+
+Owner, 23 Aug 2026: too many broken scripts have been **submitted for
+execution** — handed to him to run, or fed to a cycle or the verify suite — and
+each costs a wasted run or an investigation before anyone learns it never
+started. **A script you have not watched load is not ready to submit.**
+
+**The trigger is the handoff, not the typing.** The moment a script goes to the
+owner's terminal, into `cycle.ps1`, or into `VerifyInstall1`, its failure lands
+away from you. Load it first with the tooling that will run it and **watch the
+result — do not hand it over `unrun`.** §START HERE's `verify-apiidentity` was
+handed over `unrun, deliberately`; it carried an embedded BOM, died on load as
+step 17 of `b18`, and the empty step scored a false green.
+
+**Use the check that CATCHES THE BREAK — a parse-check alone is not it, and this
+is measured, not assumed.** The BOM'd file parsed with **0 errors**: `ParseFile`
+on the broken bytes returned no error and 18 functions instead of 19, because
+`New-SdConnection` had parsed as a command call that swallowed its own body. So
+run both, and both cost no cycle:
+
+1. **Parse or compile, for syntax** — PowerShell
+   `[System.Management.Automation.Language.Parser]::ParseFile($p,[ref]$t,[ref]$e)`
+   with `$p` a **forward-slash** path (so the call carries no backslash, per the
+   rule above), then assert `$e.Count -eq 0`; it does not execute the script.
+   Python: `python -m py_compile file.py`.
+2. **Byte-scan for the encoding gremlins the parser waves through** —
+   `grep -a -b -o $'\xEF\xBB\xBF' file`; any hit past offset 0 is an embedded
+   BOM. A stray `\t`-as-tab hides from `py_compile` the same way, so a script
+   with a backslash still takes the file route above, never a heredoc.
+
+**The check itself obeys the instrument rule:** echo the resolved path and the
+counts — 0 parse errors on a file the parser found none of your functions in is
+not a pass. **The one exemption is the inline one-liner whose failure you see at
+once**; you are already watching it, so there is nothing to pre-check.
+
 ## An instrument shows what it DID, not just what it concluded
 
 Owner's instruction, 23 Aug 2026, after three false verdicts in one session.
@@ -145,6 +180,46 @@ Any probe, test or verifier must print, in its own output:
 **THE FIX IS NEVER THE ONE-LINE CAUSE.** Renaming `$args` fixes that probe;
 echoing the arguments and refusing an empty list fixes the *class*. **Ask what
 would have caught it, not what caused it.**
+
+## A check must anchor on the SUCCESS wording, not on any string the failure also carries
+
+Owner's rule, 23 Aug 2026, after `verify-apiidentity` was reported "confirmed"
+on a Step 3 that had actually been refused. A tightening of the instrument
+rule; it sits here because it is a specific trap that keeps recurring.
+
+**A verification is a claim about a specific outcome.** Its match text has to
+be one that appears **only when that outcome happened**, and cannot appear when
+the tool refused, printed a "not found" message, or merely echoed its own
+input. **A pattern shared by the success and failure outputs is not a check —
+it is a false positive with a check's name on it.**
+
+***THE TRAP ON 23 Aug 2026, and what a real check would have looked like.***
+Step 3 was `Invoke-SD ... "SET.FILE $allowDir ZZIDALLOW" ...` and the guard
+was `$out -match 'ZZIDALLOW'`. SD **refused** with *"Account name '...' is not
+in register"* and later *"Record 'ZZIDALLOW' not found"*. `ZZIDALLOW` appeared
+in **the echoed command**, **the refusal**, **the CT VOC error** — three
+places on the failure path — so the match reported success. Three runs (`b19`,
+`b20`, `b21`) VOIDed downstream before anyone read Step 3's raw output.
+
+**Two mechanical fixes for the class:**
+
+1. ***MATCH THE SUCCESS WORDING THE TOOL PRINTS ON THE POSITIVE PATH.*** Not
+   the argument you passed in and not the id you asked about — those are
+   already in the failure output. Look at the tool's success output once
+   (`Password set`, `File created`, `Record 'x' is a file pointer to ...`) and
+   anchor there. For SD verbs the source in `sdsys/gpl.bp/<VERB>` names the
+   `display sysmsg(...)` calls; either the success text or the sysmsg id
+   itself is a safe anchor.
+2. ***CONTROL: MATCH THE FAILURE WORDING TOO, AND REFUSE IF IT APPEARS.***
+   `not in register`, `not found`, `syntax error`, and the tool's own error
+   framing (`ER_`, `sysmsg 2201`) are all disqualifiers. A step where the
+   positive pattern matches AND a disqualifier matches is not a pass either.
+
+**The rule also demands the output stays visible.** Rule 1 of the instrument
+section says to print what the tool actually did; **echoing the output when it
+looked wrong** is not enough here. Print Step 3's raw output every time. A
+subtle refusal that only becomes obvious in retrospect is one no *conditional*
+print will catch, because the condition is the thing that was wrong.
 
 ## You must maintain these files, cheaply
 
