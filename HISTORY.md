@@ -24804,3 +24804,53 @@ same file still opening for something that is genuinely still LocalSystem, or
 the refusal proves only that the path was wrong.
 
 Spent: b1-b17.  Next is b18.
+
+23 Aug 2026 - verify-apiidentity written and HANDED OVER UNRUN; the suite is 28
+
+The end-to-end check section 7 step 14 was missing.  b17 proved the CALL - the
+hook fails closed, five API verifiers passed, message 5277 never fired - and
+proved nothing about the EFFECT.  A green 27 would have looked identical if the
+token changed and the file layer ignored it.
+
+WHAT IT DOES.  Two fixtures built and destroyed by the script: allow, granted
+to the throwaway account, and deny, ACL'd SYSTEM and Administrators only with
+inheritance broken, which is sdsys\$cred's shape.  Each gets a VOC F-pointer
+planted with SET.FILE from a local elevated session.  A LIVE API session then
+logs in with SCRAM and sends request 4 - vb.open - for both.  One request, one
+answer, no command parsing in the way.
+
+THE ALLOW FIXTURE IS THE CONTROL AND IT CARRIES THE WHOLE TEST.  A refusal on
+deny means nothing alone: a wrong path, a mistyped VOC pointer and a real ACL
+denial are indistinguishable.  If allow does not open the script reports VOID,
+exit 2, and refuses to call deny a pass.
+
+THREE ASSUMPTIONS CHECKED WHILE WRITING IT, EACH OF WHICH WOULD HAVE INVERTED
+THE ANSWER.  vb.open signals failure in ServerError, NOT Status - APISRVR sets
+server.error, and Status is SD's STATUS(); judging on Status would have called
+every refusal a success.  Invoke-ScramFirst and Invoke-ScramFinal return an
+object with .Response, not a bare status, so the login check was wrong too.  And
+the throwaway account is asserted NOT to be an Administrator, or the deny
+fixture does not deny it and a false negative reads as a real finding.  All
+three were caught by reading verify-scramlogin.ps1 and APISRVR rather than by
+assuming; none would have announced itself at run time.
+
+THE SCRAM CLIENT IS COPIED VERBATIM from verify-scramlogin.ps1 - thirteen
+functions extracted with the PowerShell AST rather than retyped, so it cannot
+have drifted in transcription.  Duplicated rather than shared because factoring
+it out would mean editing a verifier that passes.  Recorded so that a protocol
+change is known to need both.
+
+WIRED IN: VerifyInstall2 gains -ApiIdPrefix, its default sdapiid$Run, and the
+step AFTER verify-scramlogin - it needs a working SCRAM login before its answer
+means anything - and BEFORE verify-tierapi, which stays last for the reason its
+own comment gives.  assert-current's $neverShipped gains it in the same commit.
+THE SUITE IS 28: 10 unelevated, 18 elevated.
+
+HANDED OVER UNRUN, DELIBERATELY, and START HERE says how to read its three
+outcomes: PASSED closes step 14; VOID exit 2 is a TEST fault and the deny
+refusal must not be read as a result; FAILED with deny OPENED is a PRODUCT
+finding - the session logs in as the user and is not confined to them.  A SCRAM
+login failure naming message 5277 is also a finding, not a broken test, and the
+script says so on the way out.
+
+Only parse-checked and reasoned about here.  Nothing has executed it.

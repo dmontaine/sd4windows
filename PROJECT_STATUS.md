@@ -11,7 +11,49 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## `b16` IS READY TO RUN. THE "ELEVATED HANG" IS CLOSED - IT WAS A MISSING PASSWORD
+> ## NEXT: RUN `b18`. IT CARRIES ONE VERIFIER NOBODY HAS EVER RUN.
+>
+> ***END OF THE FORTY-FIFTH SESSION, 23 Aug 2026.*** The tree is green and
+> current; what is owed is a single suite run.
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b18
+> ```
+>
+> ***THE SUITE IS 28 NOW — 10 unelevated, 18 elevated.*** The new one is
+> **`verify-apiidentity.ps1`, elevated step 17 of 18**, written at the end of
+> this session and **HANDED OVER UNRUN, deliberately.** Everything else in the
+> suite passed on `b17`.
+>
+> ### WHAT `verify-apiidentity` IS FOR, AND WHY A GREEN `b17` DID NOT COVER IT
+>
+> §7 step 14 shape (b) is built and works: the API session takes the
+> authenticated user's Windows identity. `b17` proved the CALL succeeds — the
+> hook fails closed, five API verifiers passed, and message 5277 never fired.
+> ***IT PROVED NOTHING ABOUT THE EFFECT***, and a green 27 would have looked
+> identical if the token changed and the file layer ignored it.
+>
+> It opens two fixtures over a **live API session**: one the throwaway user may
+> read, one ACL'd like `sdsys\$cred` — SYSTEM and Administrators only,
+> inheritance broken. **The first must open and the second must be refused.**
+>
+> ### HOW TO READ ITS THREE OUTCOMES, BECAUSE THEY MEAN DIFFERENT THINGS
+>
+> | it says | what that means |
+> |---|---|
+> | **PASSED** | §7 step 14 is doing what it was built for. Close it. |
+> | **VOID, exit 2** | the ALLOW fixture did not open either, so the VOC pointer or the path is wrong. **A TEST FAULT, not a product one** — do not read the DENY refusal as a result. |
+> | **FAILED, DENY opened** | ***A PRODUCT FINDING.*** The session logs in as the user and is NOT confined to them. Step 14 is half done. |
+>
+> **A SCRAM login failure here is also a finding, not a broken test:** if the
+> reply text is message 5277, `K$ASSUME.USER` refused and that is the answer.
+> The script says so on the way out.
+>
+> **It is `$neverShipped` and costs no cycle to change.** The SCRAM client in it
+> is copied verbatim from `verify-scramlogin.ps1`, extracted with the PowerShell
+> AST rather than retyped.
+>
+> ### HOW THE "ELEVATED HANG" WAS CLOSED - IT WAS A MISSING PASSWORD
 >
 > ***END OF THE FORTY-FIFTH SESSION, 23 Aug 2026.*** The forty-fourth session
 > handed this over as *"elevated `sd <command>` blocks for ever during start-up"*,
@@ -128,8 +170,8 @@ something came to be the way it is.
 > ***AND `b16`'s ROW STILL HOLDS:*** `verify-batchjob`'s *"ELEVATED with no
 > entry: still runs"*, `verify-pcodeacl` 4/4, `verify-lcnames` 142/142.
 >
-> **Spent: `b1`-`b17`. Next is `b18`.** The suite is **27** — 10 unelevated,
-> 17 elevated.
+> **Spent: `b1`-`b17`. Next is `b18`.** The suite was **27** on that run and is
+> **28** now — 10 unelevated, 18 elevated, `verify-apiidentity` added after it.
 >
 > ```powershell
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b18
@@ -7047,14 +7089,30 @@ the staging script and the Inno installer were all finished and removed.
     the token changed and the file layer ignored it. **The call is proven, the
     consequence is not.**
 
-    ***THE VERIFIER THAT WOULD CLOSE IT, AND IT IS NOT WRITTEN:***
-    `verify-apiidentity`. Give it the shape `probe-impersonate.ps1` already
-    uses - a directory ACL'd **SYSTEM and Administrators only**, inheritance
-    broken, holding an SD file - then have a **live API session** try to read
-    it. As LocalSystem it opens; as the user it must be refused. ***THE CONTROL
-    IS THE SAME FILE OPENING FOR SOMETHING THAT IS STILL LocalSystem***, or the
-    refusal proves only that the path was wrong. Until that runs, step 14 is
-    *built and working* rather than *doing what it was for*.
+    ***THE VERIFIER IS WRITTEN AND UNRUN: `gplbld/verify-apiidentity.ps1`,***
+    elevated step **17 of 18**, added to `VerifyInstall2`'s list after
+    `verify-scramlogin` (it needs a working SCRAM login before its answer means
+    anything) and before `verify-tierapi`, which stays last for its own reason.
+
+    **Two fixtures, built and destroyed by the script:** `allow`, granted to the
+    throwaway account, and `deny`, ACL'd **SYSTEM and Administrators only with
+    inheritance broken** - `sdsys\$cred`'s shape. Each gets a VOC F-pointer via
+    `SET.FILE`, and a live API session sends **request 4, `vb.open`**, for both.
+    One request, one answer, no command parsing in the way.
+
+    ***THE ALLOW FIXTURE IS THE CONTROL AND IT CARRIES THE TEST.*** A refusal on
+    `deny` means nothing alone - a wrong path, a mistyped pointer and an ACL
+    denial are indistinguishable. If `allow` does not open the script reports
+    **VOID, exit 2** and refuses to call `deny` a pass.
+
+    **THREE THINGS CHECKED WHILE WRITING IT, EACH OF WHICH WOULD HAVE INVERTED
+    THE RESULT:** `vb.open` signals failure in **`ServerError`, not `Status`**;
+    `Invoke-ScramFirst`/`Final` return `.Response`, not a bare status; and the
+    throwaway account is asserted **not** to be an Administrator, or the `deny`
+    fixture does not deny it.
+
+    **Until it runs, step 14 stays *built and working* rather than *doing what
+    it was for*.**
 
 15. **A data tree private from SD's own users** — §5.7's service-account model.
 
