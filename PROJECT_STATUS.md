@@ -11,11 +11,12 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: §7 STEP 16, LINE ENDINGS. IT IS THE ONLY THING LEFT OPEN.
+> ## NEXT: §7 STEP 16 **(b)**, THE WRITE SIDE. IT IS THE ONLY THING LEFT OPEN.
 >
-> ***END OF THE FORTY-NINTH SESSION, 24 Aug 2026.***
+> ***END OF THE FORTY-NINTH SESSION, 24 Aug 2026.*** Steps 14 and 16 (a) both
+> closed this session, each built, cycled and verified.
 >
-> ### STEP 14 IS CLOSED — BUILT, CYCLED AND VERIFIED. AN API SESSION NOW RUNS AS THE CALLER
+> ### STEP 14 IS CLOSED — AN API SESSION NOW RUNS AS THE CALLER
 >
 > Install **11:15:29**, `sd.exe` `7DDC68F6595382A6`, `assert-current` exit 0.
 > `verify-apiidentity -Prefix sdapiidb32` exit 0, decisive row PASS.
@@ -31,14 +32,32 @@ something came to be the way it is.
 > the only BASIC-visible consequence and **has no caller in `gpl.bp`**, which
 > is what chose class over narrow. §7 step 14 has the detail.
 >
-> ### NEXT: §7 STEP 16, LINE ENDINGS — NOW THE ONLY THING OPEN
+> ### STEP 16 (a) IS CLOSED TOO — SD NOW READS CRLF FILES CORRECTLY
 >
-> Untouched. **SD reads only LF and writes only LF, on a Windows-only
-> product.** (a) tolerant readers is a defect fix; (b) writing CRLF is a
-> product decision with the stronger case — `WRITECSV` is documented as RFC
-> 4180, which specifies CRLF, and emits LF. **Read step 16's resource note
-> before costing (b): `SETPTR … NEWLINE CRLF` is already live per print unit
-> and it may be half built.**
+> Install **12:15:51**, `sd.exe` `7F587B82B63569C8`, `assert-current` exit 0.
+> `verify-lineendings` exit 0, **14/14 decisive**. A CRLF record now reads
+> **identically to the LF control**; `READCSV` no longer leaves a CR on the
+> last field of every row. **Two checks are controls on the FIX**: a CRLF on
+> the 2048-byte buffer boundary folds, and a lone CR survives as data.
+>
+> ### NEXT: §7 STEP 16 (b), THE WRITE SIDE — AND IT IS NO LONGER A GAMBLE
+>
+> `WRITESEQ` and `WRITECSV` still emit **LF**, so `WRITECSV` remains
+> **non-conformant against its own documented RFC 4180 claim**. Three things
+> that were unknown when this step was raised are now measured, and all three
+> make (b) smaller:
+>
+> - **`SETPTR … NEWLINE CRLF` already reaches the disk** — so every print-unit
+>   path can emit CRLF today. `LIST … CSV LPTR n` is already reachable-conformant.
+> - **Object code cannot be corrupted by it** — `gpl.bp/BASIC:239` is
+>   `mark.mapping out.f, off`, confirmed by byte census. The old blocker is gone.
+> - **The docs make it a conformance fix, not a preference** —
+>   `directoryfiles.htm` says the newline is *"the operating system dependent
+>   representation"*, and on Windows that is CRLF.
+>
+> **The shape to build is the record's own reframing: EXTEND THE PER-CHANNEL
+> MODEL** (`pu->newline`, `onewline`/`inewline`) to `WRITESEQ` and the
+> directory-file write — **not** flip the global `Newline`. §7 step 16 (b).
 >
 > ### ONE THING LEFT ON THE FLOOR, AND IT NEEDS A REBOOT
 >
@@ -50,9 +69,13 @@ something came to be the way it is.
 >
 > ### THE INSTALL IS CURRENT — MEASURE BEFORE YOU EDIT ANYTHING
 >
-> Installed 24 Aug **11:15:29**, `assert-current` passes. **A cycle ends at the
-> next source change**, so take any reading you want from this tree *first*.
+> Installed 24 Aug **12:15:51**, `sd.exe` `7F587B82B63569C8`,
+> `assert-current` passes. **A cycle ends at the next source change**, so take
+> any reading you want from this tree *first*.
 > **Prefixes `sdapiidb18`–`b32` are spent; use `b33` or later.**
+>
+> **`verify-lineendings.ps1` needs no prefix and no elevation**, and cleans up
+> after itself — it is the cheapest way to confirm a tree is sane.
 >
 > ### WHAT IS ALREADY BUILT, SO IT IS NOT BUILT AGAIN
 >
