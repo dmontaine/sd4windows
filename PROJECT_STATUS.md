@@ -85,9 +85,22 @@ something came to be the way it is.
 > session run as administrator**. Remote Desktop is named because it feels like
 > connecting from another machine and is not (§5.6.2 puts it with the console).
 >
-> ***A CYCLE IS OWED AND ONLY A PERSON CAN RUN IT***: `messages/10089` ships, so
-> `assert-current` is at **exit 1** until one runs. The cycle will also collect a
-> password, which is what `b16` needs.
+> ***THAT CYCLE HAS RUN — INSTALL 23 Aug 20:22:25, AND `b16` IS READY.***
+> Owner ran it, non-silent, and **read the new wording at a real prompt: "wording
+> was fine"** — which is the only way message 10089 could be checked, since it
+> ships and nothing automated renders it.
+>
+> ```
+> credential register: 1 account(s) with a password
+> installed at: 23 Aug 20:22:25
+> assert-current: the installed tree matches source
+> CYCLE COMPLETE
+> ```
+>
+> **`cycle.ps1`'s new step 9 reported the healthy case correctly on its first
+> real run.** Its *empty* branch is still unexercised on a live cycle and is now
+> hard to reach on purpose: silent installs are refused, so the only way in is a
+> person pressing Enter on an empty line at the password prompt.
 >
 > ### RUN THIS
 >
@@ -100,6 +113,12 @@ something came to be the way it is.
 > unelevated, 17 elevated. An **ORDINARY** window: it refuses an elevated one and
 > that is load-bearing (§4.0). About six UAC prompts; it is not unattended.
 > ***AND IT MUST BE A PERSON'S OWN TERMINAL - AN AGENT CANNOT RUN IT (§4.0.1).***
+>
+> **ONE THING IN IT IS NEW AND UNEXERCISED:** `verify-batchjob.ps1:85`'s
+> `$null |`. It was measured in an elevated console standalone, **not through a
+> suite run.** If `b16` stops anywhere, that line is the first place to look —
+> and `don` now has a password, so the prompt it guards against should not arise
+> on this tree at all.
 >
 > ### THE PROBING RULES, AND THEY COST TWO SESSIONS
 >

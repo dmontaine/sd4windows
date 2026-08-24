@@ -24569,3 +24569,29 @@ because it did nothing must fail.
 THE PART WORTH CARRYING: the fix is never the one-line cause.  Renaming $args
 fixes that probe; echoing the arguments and refusing an empty list fixes the
 class.  Ask what would have caught it, not what caused it.
+
+23 Aug 2026 - the cycle ran: install 20:22:25, wording confirmed at a real prompt
+
+Owner ran cycle.ps1 non-silently and read the new message 10089 at the password
+prompt: "wording was fine".  That is the only way it could be checked - 10089
+ships, and nothing automated renders it.  The installer's finishing text was
+on the same run.
+
+From the transcript, cycle-20260823-202142.log:
+
+  credential register: 1 account(s) with a password
+  installed at: 23 Aug 20:22:25
+  assert-current: the installed tree matches source
+  CYCLE COMPLETE
+
+cycle.ps1 step 9 - the credential guard added earlier the same day - reported
+the healthy case correctly on its first real run.  Its EMPTY branch is still
+unexercised on a live cycle and is now deliberately hard to reach: silent
+installs are refused outright, so the only remaining way in is a person
+pressing Enter on an empty line at the prompt.
+
+b16 is ready and unspent.  One thing inside the suite is new and has not run
+through it: verify-batchjob.ps1:85's "$null |", measured standalone in an
+elevated console but not under the runner.  With don holding a password on this
+tree the prompt it guards against should not arise at all, so a green b16 will
+not prove that guard - it will only fail to need it.
