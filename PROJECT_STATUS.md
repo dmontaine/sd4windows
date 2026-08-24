@@ -53,6 +53,48 @@ something came to be the way it is.
 > install, and the static chain above was judged to cover it. **If a future
 > session wants the behavioural proof, it is still owed.**
 >
+> ### EVERYTHING PASSES. `verify-tierapi -Prefix sdtapib34` IS 16/16.
+>
+> **15:53:28**, transcript `verify-tierapi-20260824-155328.log`. The three rows
+> that failed as `b33` now read `354 -> 354`, `396 -> 396`, `417 -> 417`.
+> Verified on the transcript, not the console: **0 `[FAIL]` rows, 16 `[PASS]`,
+> and the success wording `16 / 16 checks passed` present once.** The two bare
+> `FAILED` strings in it are the **controls** - a wrong password refused and a
+> cross-account attach refused - which are meant to fail.
+>
+> **So the whole suite is green**: `VerifyInstall1` 11/11, `VerifyInstall2`
+> 17/18 plus this re-run of the eighteenth. **29 of 29.**
+>
+> ### THE TRANSCRIPT DEFECT WAS BIGGER THAN THE `cycle.ps1` FIX, AND IS NOW CLOSED
+>
+> ***THE EARLIER CLAIM THAT FIXING `cycle.ps1` HANDLED IT WAS TOO NARROW.***
+> A sweep of all 64 `gplbld\*.ps1` for `Start-Transcript` with no
+> `Stop-Transcript` - the check that should have run with that fix - found two
+> more: **`VerifyInstall1.ps1` and `verify-sshonly.ps1`**. (`VerifyInstall2.ps1`
+> looked like a third and is not; both its hits are prose.)
+>
+> **AND IT WAS STILL HAPPENING, MEASURED**: the single `verify-tierapi` run at
+> 15:53 appended itself to **`cycle-20260824-133558.log`,
+> `cycle-20260824-151325.log` AND `verify-tiers-20260824-134341.log`** - three
+> logs from earlier runs, all still open in that window, all growing at once.
+> ***THE ELEVATED WINDOW FROM BEFORE THE FIX IS STILL OPEN. CLOSING IT ENDS
+> THIS***; the fix cannot reach transcripts already open in a live session.
+>
+> **THE FIX IS NOW A GUARD BEFORE `Start-Transcript`, IN ALL THREE FILES** -
+> close every transcript already active, so at most one is open and it belongs
+> to the run that opened it. One insertion per file, inside `try`/`catch`, so
+> it cannot alter control flow - which matters because `VerifyInstall1` has ten
+> exit points and `verify-sshonly` thirteen, and threading a stop through all
+> of them is the riskier change. It prints how many it closed.
+>
+> **TESTED BY REPRODUCING THE BLEED, not by reading the code**: with two
+> transcripts open, one `Write-Output` lands in **both** files; the guard then
+> reports `closed 2`, and the next transcript receives the next line while the
+> two older files receive **nothing**. The null case is tested out loud too -
+> with nothing open the guard reports 0 and does not throw. 64/64 parse clean,
+> function counts unchanged, `assert-current` exit 0, all three on
+> `$neverShipped` so no cycle.
+>
 > ### THE SUITE RAN AS `b33`: 28 OF 29 PASS, AND THE ONE FAILURE WAS A STALE VERIFIER
 >
 > **15:30:08 to 15:43**, on the 15:14:28 install. Summaries:
@@ -228,24 +270,35 @@ something came to be the way it is.
 >
 > ### §7 IS EMPTY AND §8 TIER WORK IS CLOSED. ASK BEFORE STARTING ANYTHING.
 >
-> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** Five commits: the
-> two OPGEN comments with `ERR.H`/`ERRTEXT.H` regenerated, the changelog
-> entry for both and `make sd`; the `-SkipInstall` result; the owner's
-> full cycle at 15:13:25 with its verification and the `cycle.ps1`
-> transcript fix; the suite pre-flight that found `verify-lineendings`
-> in neither runner; and the `b33` suite result with the
-> `verify-tierapi` count fix. **The install is current.**
+> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** Six commits, and
+> **the install is current with the suite at 29 of 29.** The OPGEN
+> comments with `ERR.H`/`ERRTEXT.H` regenerated, the changelog and
+> `make sd`; the `-SkipInstall` result; the owner's cycle at 15:13:25
+> with its verification; the suite pre-flight; the `b33` result with
+> the `verify-tierapi` count fix; and the transcript class fix with
+> the `b34` re-run at 16/16.
 >
-> **THREE INSTRUMENT DEFECTS THIS SESSION, none of them in SD**, which
-> is the pattern worth carrying forward: `cycle.ps1` never stopped its
-> transcript, `verify-lineendings` was in no runner, and
-> `verify-tierapi` carried pre-split counts. **Every one was found by
-> checking an instrument against something independent** - a file size
-> that moved, both step tables listed against the directory, and a
-> second verifier measuring the same install in the same run.
+> **FOUR INSTRUMENT DEFECTS THIS SESSION AND NOT ONE DEFECT IN SD.**
+> `cycle.ps1`, `VerifyInstall1.ps1` and `verify-sshonly.ps1` never
+> stopped their transcripts; `verify-lineendings` was in no runner;
+> `verify-tierapi` carried pre-split counts; and **three of my own
+> checks were wrong in a way that read as a pass** - `grep -c $'\r'`
+> reporting line counts as CR counts, a BOM sweep that flagged legal
+> offset-0 BOMs, and an `iconv -f UTF-16LE` of a UTF-8 transcript that
+> returned 0 failures because it decoded nothing.
 >
-> **ONE THING IS OWED**: `verify-tierapi -Prefix sdtapib34`, to run the
-> file that was fixed but not re-executed.
+> ***THE ONE TRANSFERABLE LESSON: EVERY ONE WAS CAUGHT BY A SECOND,
+> INDEPENDENT READING, NEVER BY RE-READING THE FIRST.*** A file size
+> that moved when nothing should have; both step tables listed against
+> the directory; a second verifier measuring the same install in the
+> same run; a git blob known to be LF; and two counters that could not
+> both be zero. **Where a check had no independent second reading, it
+> was believed and it was wrong.**
+>
+> **ONE THING FOR THE OWNER, NOT A TASK**: the elevated window open
+> since before the transcript fix still holds stale transcripts and is
+> still appending to them. **Closing it ends that**; no source change
+> can, and the guard only protects runs started afterwards.
 >
 > ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** The owner ruled the split,
 > session 50 transcribed it to disk, the cycle at 13:36:51 installed it,

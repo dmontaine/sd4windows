@@ -27,6 +27,72 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-first session, part 6: 29 of 29, and the transcript defect actually closed
+
+**Commit:** the commit carrying this entry. Three script changes
+(`cycle.ps1`, `VerifyInstall1.ps1`, `verify-sshonly.ps1`) and documentation.
+
+**`verify-tierapi.ps1 -Prefix sdtapib34`, 15:53:28, 16 of 16 PASS.** The three
+rows that failed as `b33` now read 354, 396 and 417 against expectations of
+354, 396 and 417. **Read off the transcript rather than the console**: 0
+`[FAIL]` rows, 16 `[PASS]`, and the success wording `16 / 16 checks passed`
+present once. The two bare `FAILED` strings are the controls - a wrong password
+refused, and STANDARD credentials refused entry to the ADMINISTRATOR account -
+and are meant to be there.
+
+**The suite is therefore 29 of 29** across the `b33` run plus this re-run.
+
+## THE `cycle.ps1` TRANSCRIPT FIX DID NOT CLOSE THE CLASS, AND SAYING IT DID WAS WRONG
+
+Part 3 fixed `cycle.ps1` and reported the defect handled. **The sweep that
+should have accompanied it - every `gplbld\*.ps1` with a `Start-Transcript`
+and no `Stop-Transcript` - was only run now**, and found two more:
+`VerifyInstall1.ps1` and `verify-sshonly.ps1`. `VerifyInstall2.ps1` appeared in
+the first pass and is a false positive: both its hits are inside comments,
+which is why the sweep filters comment lines.
+
+**CLAUDE.md says the fix is never the one-line cause - ask what would have
+caught it.** What would have caught it is the four-line sweep above, and it was
+available at the time.
+
+**IT WAS STILL ACTIVELY CORRUPTING LOGS, and that is measured rather than
+argued.** The single `verify-tierapi` run at 15:53 appended itself to
+`cycle-20260824-133558.log`, `cycle-20260824-151325.log` and
+`verify-tiers-20260824-134341.log` simultaneously - three logs from runs hours
+earlier, all still open in the owner's window. **A fix in the source cannot
+close a transcript already open in a live session; only ending that session
+does.** The window from before the fix is still open.
+
+**THE FIX**: a guard immediately before `Start-Transcript` in all three files,
+closing every transcript already active in the session, so at most one is open
+and it belongs to the run that opened it. `Stop-Transcript` throws when none is
+running, which is the loop's exit condition and not an error. One insertion per
+file, inside `try`/`catch`, so control flow is untouched - deliberate, because
+`VerifyInstall1` has ten exit points and `verify-sshonly` thirteen, and
+threading a stop through every one of them is the riskier edit. The guard
+prints how many it closed, so it is not silent.
+
+**TESTED BY REPRODUCING THE DEFECT.** With two transcripts open, one
+`Write-Output` lands in **both** files - that is the bleed, made to happen on
+demand. The guard then reports `closed 2`, and a newly started transcript
+receives the next line while the two older files receive **nothing**. The null
+case is refused out loud as well: with nothing open the guard reports 0 and
+does not throw, so it cannot pass by having done nothing.
+
+**64/64 parse clean, function counts unchanged, `assert-current` exit 0.** All
+three files are on `$neverShipped`, so no cycle.
+
+**INSTRUMENT CORRECTION, THE THIRD THIS SESSION AND THE CLOSEST CALL.** The
+first read of the b34 transcript used `iconv -f UTF-16LE`, on the assumption
+that PowerShell transcripts are UTF-16. It returned **0 for the success wording
+AND 0 for `[FAIL]`** - and 0 failures was about to be reported as evidence.
+**The file is UTF-8 with a leading BOM**; the decode produced nothing and both
+counts were measuring an empty stream. It was caught only because a transcript
+with no success line *and* no failure line is impossible, so the pair of zeroes
+disagreed with each other. **Two counters that must not both be zero is a
+cheaper null-case check than either counter alone** - the same lesson as the
+`grep -c $'\r'` mistake in part 1, arriving by a different route.
+
 ## 24 Aug 2026 — Fifty-first session, part 5: the b33 suite, 28 of 29, and the failure was a stale verifier
 
 **Commit:** the commit carrying this entry. One script change
