@@ -27,6 +27,73 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-first session, part 5: the b33 suite, 28 of 29, and the failure was a stale verifier
+
+**Commit:** the commit carrying this entry. One script change
+(`gplbld/verify-tierapi.ps1`) and documentation.
+
+**THE OWNER RAN `VerifyInstall1.ps1 -ThenElevated -Run b33`**, 15:30:08 to
+15:43, against the 15:14:28 install. `VerifyInstall1` **11/11 exit 0**;
+`VerifyInstall2` **17/18 exit 0**. Summaries in
+`post-cycle-unelevated-20260824-153008.txt` and
+`post-cycle-20260824-153134.txt`.
+
+**`verify-lineendings` ran inside a runner for the first time** - added to
+VerifyInstall1 earlier the same session, in neither table since it was written
+on 23 Aug - and exited 0.
+
+## THE ONE FAILURE WAS THE INSTRUMENT, NOT THE INSTALL
+
+`verify-tierapi.ps1` exit 1, three failing checks, all the same fault:
+
+    [FAIL] STANDARD      VOC count: expected 391, got 354
+    [FAIL] PROGRAMMER    VOC count: expected 408, got 396
+    [FAIL] ADMINISTRATOR VOC count: expected 418, got 417
+
+**354/396/417 IS THE SETTLED SPLIT.** It is the arithmetic in
+`verify-tiers.ps1`'s own header - installed NEWVOC holds 395 names, less `%t`
+and the two TIER lists leaves 392 records, CREATEA adds four - giving
+`392-42+4 = 354`, `392+4 = 396`, `392+21+4 = 417`.
+
+**THE CORROBORATION IS IN THE SAME RUN, which is what makes this a reading and
+not an argument.** Step 5 of the same suite is `verify-tiers`, and it **PASSED
+on exactly 354/396/417** against accounts made by the same `CREATE.ACCOUNT` on
+the same install, minutes earlier. Two instruments measured one install; the
+one carrying current numbers agreed with it.
+
+**CAUSE: THE THREE COUNTS LIVE IN TWO FILES.** Session 50 re-derived them in
+`verify-tiers.ps1` when the owner's split landed and did not touch the copy in
+`verify-tierapi.ps1`, which stayed on the pre-split 391/408/418. This is the
+same class as the SED-removal mismatch of 23 Aug, and it will recur.
+
+***A POINTER WAS ALREADY THERE AND DID NOT PREVENT IT.***
+`verify-tierapi.ps1:186` read *"the arithmetic behind all three is in
+verify-tiers.ps1's header"*. The reason that was not enough is worth stating:
+**nothing fails when the two copies disagree with each other.** The only thing
+that fails is the INSTALL disagreeing with whichever copy is stale - which is
+one whole cycle plus a suite run later, and presents as a product defect.
+`verify-tiers.ps1` section 0 compares its own lists against the SHIPPED TIER
+records, so it self-checks; `verify-tierapi` has no equivalent and cannot get
+one cheaply, because the count is the whole measurement.
+
+**FIXED**: lines 17, 135-137 and 184 now read 354/396/417, with a dated note
+saying the numbers live in two files and must move in the same commit.
+Parse-check 0 errors, **8 function definitions as before**, and the three
+values read back **through the AST** rather than by grepping for the line just
+written. The script also refuses to write if any `Voc = 391/408/418` survives.
+`verify-tierapi.ps1` is on `$neverShipped`, so no cycle; `assert-current` still
+exit 0. Its leading BOM at offset 0 was preserved - it is legal, and PowerShell
+5.1 wants it.
+
+***NOT RE-RUN, AND THAT IS THE OPEN ITEM.*** The change is three constants
+corroborated by `verify-tiers` in the same run, but `verify-tierapi` has not
+been executed since. It is elevated and spends three account names, so it needs
+a fresh prefix - `b34` is free.
+
+**RESIDUE**: every b33 step that made an account removed the Windows account and
+left the SD `ACCOUNTS` and `$CRED` records in place by design, on top of session
+50's `sdtierc1/2/3` and `sdtierd1/2/3`. Nothing blocks on them.
+
 ## 24 Aug 2026 — Fifty-first session, part 4: suite pre-flighted, and a verifier was in neither runner
 
 **Commit:** the commit carrying this entry. One script change

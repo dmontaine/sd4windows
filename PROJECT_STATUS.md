@@ -53,6 +53,65 @@ something came to be the way it is.
 > install, and the static chain above was judged to cover it. **If a future
 > session wants the behavioural proof, it is still owed.**
 >
+> ### THE SUITE RAN AS `b33`: 28 OF 29 PASS, AND THE ONE FAILURE WAS A STALE VERIFIER
+>
+> **15:30:08 to 15:43**, on the 15:14:28 install. Summaries:
+> `post-cycle-unelevated-20260824-153008.txt` and
+> `post-cycle-20260824-153134.txt`.
+>
+> | half | result |
+> |---|---|
+> | `VerifyInstall1`, 11 steps, ordinary token | **11/11 exit 0** |
+> | `VerifyInstall2`, 18 steps, elevated | **17/18 exit 0** |
+>
+> **`verify-lineendings` ran inside a runner for the first time and exited 0** —
+> it had been in neither table since 23 Aug.
+>
+> ***THE ONE FAILURE IS `verify-tierapi`, AND THE INSTALL IS NOT WHAT IS
+> WRONG.*** Three checks failed, all three the same thing:
+>
+> ```
+> [FAIL] STANDARD      VOC count: expected 391, got 354
+> [FAIL] PROGRAMMER    VOC count: expected 408, got 396
+> [FAIL] ADMINISTRATOR VOC count: expected 418, got 417
+> ```
+>
+> **354 / 396 / 417 is the settled split** — the arithmetic in
+> `verify-tiers.ps1`'s header (`392 - 42 + 4`, `392 + 4`, `392 + 21 + 4`). The
+> decisive corroboration is in the **same run**: step 5, `verify-tiers`,
+> **PASSED** on exactly 354 / 396 / 417 against accounts created by the same
+> `CREATE.ACCOUNT`. Two verifiers measured the same install; the one with
+> current numbers passed.
+>
+> **CAUSE**: the three counts live in **two** files. Session 50 re-derived them
+> in `verify-tiers.ps1` and left `verify-tierapi.ps1` on the pre-split values.
+> `verify-tierapi.ps1:186` *already* said *"the arithmetic behind all three is
+> in verify-tiers.ps1's header"* — a pointer was not enough, because **nothing
+> fails when the two copies disagree**, only when the install disagrees with
+> the stale copy.
+>
+> **FIXED** — `verify-tierapi.ps1` lines 17, 135-137 and 184 now read
+> 354/396/417, with a dated note saying the numbers live in two files and must
+> move together. Parse-check 0 errors, 8 functions as before, and the values
+> read back **through the AST** rather than by grep. On `$neverShipped`, so no
+> cycle; `assert-current` still exit 0.
+>
+> ***NOT RE-RUN.*** The fix is three constants and is corroborated by
+> `verify-tiers` in the same run, but `verify-tierapi` itself has not been
+> executed since. It is elevated and spends three account names, so it needs a
+> fresh prefix — **`b34`**:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-tierapi.ps1 -Prefix sdtapib34
+> ```
+>
+> ### LEFTOVER `b33` REGISTER RECORDS, BY DESIGN
+>
+> Every step that made an account removed its **Windows** account and left the
+> SD `ACCOUNTS` and `$CRED` records *"in place - remove with DELETE.ACCOUNT"*.
+> That is on top of `sdtierc1/2/3` and `sdtierd1/2/3` from session 50. Nothing
+> blocks on them.
+>
 > ### THE VERIFY SUITE IS PRE-FLIGHTED AND READY. IT IS THE OWNER'S TO RUN.
 >
 > ```powershell
@@ -169,11 +228,24 @@ something came to be the way it is.
 >
 > ### §7 IS EMPTY AND §8 TIER WORK IS CLOSED. ASK BEFORE STARTING ANYTHING.
 >
-> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** Three commits: the
+> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** Five commits: the
 > two OPGEN comments with `ERR.H`/`ERRTEXT.H` regenerated, the changelog
-> entry for both and `make sd`; the `-SkipInstall` result; then the
-> owner's full cycle at 15:13:25, its verification, and the `cycle.ps1`
-> transcript fix. **The install is current and nothing is owed.**
+> entry for both and `make sd`; the `-SkipInstall` result; the owner's
+> full cycle at 15:13:25 with its verification and the `cycle.ps1`
+> transcript fix; the suite pre-flight that found `verify-lineendings`
+> in neither runner; and the `b33` suite result with the
+> `verify-tierapi` count fix. **The install is current.**
+>
+> **THREE INSTRUMENT DEFECTS THIS SESSION, none of them in SD**, which
+> is the pattern worth carrying forward: `cycle.ps1` never stopped its
+> transcript, `verify-lineendings` was in no runner, and
+> `verify-tierapi` carried pre-split counts. **Every one was found by
+> checking an instrument against something independent** - a file size
+> that moved, both step tables listed against the directory, and a
+> second verifier measuring the same install in the same run.
+>
+> **ONE THING IS OWED**: `verify-tierapi -Prefix sdtapib34`, to run the
+> file that was fixed but not re-executed.
 >
 > ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** The owner ruled the split,
 > session 50 transcribed it to disk, the cycle at 13:36:51 installed it,
