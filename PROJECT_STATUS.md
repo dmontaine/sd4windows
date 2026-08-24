@@ -56,10 +56,33 @@ something came to be the way it is.
 > change is `op_sys.c:228`**, which reports `geteuid()` to BASIC. §7 step 14
 > has the full table.
 >
-> **WHAT IS STILL THE OWNER'S:** narrow (small, leaves `PHANTOM`/`SH` dropping
-> it silently) vs class (covers them, moves the BASIC-visible euid). **Nothing
-> is written yet, and either lands on `sd.exe` — so it owes a full `cycle.ps1`
-> and a suite run.**
+> ### THE CLASS FIX IS CHOSEN AND BUILT — OWNER, 24 Aug 2026. IT HAS COMPILED AND NOTHING HAS RUN IT
+>
+> `SYSTEM(28)` (`op_sys.c:228`, `geteuid()`) is the only BASIC-visible change
+> and **it has no caller anywhere in `gpl.bp`**, which is what decided it
+> against the narrow fix. All of it is in `gplsrc/win32s4u.c` — **no BASIC
+> change**, because `K$ASSUME.USER` already routes to `AssumeUserIdentity()`.
+> It **fails closed**: a login whose identity cannot be adopted is refused.
+>
+> **`make sd` then `cycle.ps1 -SkipInstall` are done** — 198 BASIC programs,
+> zero errors, staged tree whole, installer built 11:10:08. **`cycle.ps1`
+> contains no `make`**, so the build was run first and `bin/sd.exe` checked
+> newer than source.
+>
+> ### THE TREE IS NOW STALE, AND THAT IS CORRECT
+>
+> `assert-current` exits 1 — source is newer than the 10:34:44 install. **Any
+> reading taken from the installed tree now is void.** What is owed:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **A person must be at the wizard**, then the verify suite from your own
+> terminal (§4.0.1 — an agent cannot run `VerifyInstall1`). **The pass
+> condition is already built: `API IDENTITY LOST` vanishing from the errlog**,
+> plus `ZZAPI` owned by the caller rather than `NT AUTHORITY\SYSTEM`. Prefix
+> **`b32` or later**.
 >
 > **`fork()` reverting the thread is a RUNTIME behaviour, measured both in a
 > forked Cygwin child and a direct process** (`gplbld/probe-impfork.c`, Q3). It
@@ -6108,8 +6131,46 @@ the staging script and the Inno installer were all finished and removed.
     **So the decision is now between two WORKING options**, and the class one
     costs a `seteuid` whose blast radius is the single `op_sys.c:228` reading.
 
-    **Step 14 is now *measured and failing* rather than *built and unverified*.
-    A fix lands on `sd.exe`, so it owes a full `cycle.ps1` and a suite run.**
+    ***THE CLASS FIX IS BUILT — 24 Aug 2026. BUILT IS NOT VERIFIED (§0 rule 2):
+    IT HAS COMPILED AND NOTHING HAS RUN IT.***
+
+    | part | where |
+    |---|---|
+    | `adopt_in_runtime()` — the pair, register then `seteuid` | `gplsrc/win32s4u.c`, new static |
+    | called on success, **fails closed** | `win32s4u.c`, after `ImpersonateLoggedOnUser` |
+    | euid restored on revert | `RevertUserIdentity()` |
+    | includes | `<unistd.h>`, `<pwd.h>`, `<sys/cygwin.h>`, **after `windows.h`** |
+
+    **NO BASIC CHANGE AND NO NEW ENTRY POINT.** `K$ASSUME.USER` already routes
+    to `AssumeUserIdentity()` (`op_kernel.c:289`), so extending that one
+    function covers the hook; callers need not know it now takes two calls.
+
+    **IT REFUSES THE NULL CASE INTERNALLY.** `seteuid()` to the uid already
+    held returns 0 from a fast path *without* adopting the token, so
+    `adopt_in_runtime` refuses when the euid already equals the target rather
+    than reporting a success whose identity would die at the first fork. It
+    also **reads the euid back** rather than trusting `seteuid`'s return.
+
+    **`setegid` IS DELIBERATELY NOT CALLED.** `ingroup.c:76` reads `getegid()`
+    and *does* have callers; the measurement did not need it.
+
+    **Compiled clean:** `make sd` (`win32s4u.o`, `sd` linked, `bin/sd.exe`
+    11:08:43 — newer than source, checked, because **`cycle.ps1` contains no
+    `make`** and a C change can otherwise be cycled against a stale binary).
+    Then `cycle.ps1 -SkipInstall` 11:10:08 — **198 BASIC programs, zero
+    non-zero error counts**, staged tree whole, installer built 4,801,598 bytes.
+
+    ***WHAT IS OWED, AND IT NEEDS A PERSON.*** A full `cycle.ps1` (a person at
+    the wizard) then the verify suite from the owner's own terminal (§4.0.1).
+    **The confirmation is already built and costs nothing extra:**
+    `K$IMPERSONATING` (62) logs only when SD's belief and Windows disagree, so
+    **`API IDENTITY LOST` disappearing from the errlog is the pass**, and
+    `verify-apiidentity.ps1` should show `ZZAPI` owned by the caller rather
+    than `NT AUTHORITY\SYSTEM`. Use prefix **`b32` or later**.
+
+    **A changelog entry was written in the same commit** (`sdsys/changelog`,
+    24 Aug). It describes the fixed behaviour; **if the cycle disproves it, it
+    needs revising** exactly as the 23 Aug entry was.
 
 15. **A data tree private from SD's own users** — §5.7's service-account model.
 

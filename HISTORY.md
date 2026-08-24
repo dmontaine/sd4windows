@@ -27,6 +27,69 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Forty-ninth session, continued: the class fix is CHOSEN and BUILT; it has compiled and nothing has run it
+
+**Commit:** the commit carrying this entry. Owner chose the **class** fix after
+asking for a recommendation. **`sd.exe` changed, so the 10:34:44 install is now
+STALE and `assert-current` exits 1 — correctly.**
+
+**What decided it, and it was one grep.** The only cost the survey found
+against the class option was `geteuid()` at `op_sys.c:228`, exposed to BASIC as
+`SYSTEM(28)`. **It has no caller anywhere in `sdsys/gpl.bp` or `gplsrc`** — the
+only uid reading that ever had one was `SYSTEM(27)`, and the Windows port
+already removed it from `WRITE_INSTALL_DICTS:24`. A cost with no consumer is
+not a cost, which left the narrow fix with nothing to recommend it against
+CLAUDE.md's own standing rule (*"the fix is never the one-line cause"*) and
+against leaving `PHANTOM` and `SH` as live instances of the same defect.
+
+**Built, all of it in `gplsrc/win32s4u.c`:** a static `adopt_in_runtime()` that
+does `getpwnam` → `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` → `seteuid`, called
+from `AssumeUserIdentity()` after `ImpersonateLoggedOnUser` succeeds.
+**No BASIC change and no new entry point** — `K$ASSUME.USER` already routes to
+that one function (`op_kernel.c:289`), so callers need not know the identity
+now takes two calls to take on.
+
+**It fails closed**, consistent with the file's existing doctrine: if the
+runtime will not adopt the token the thread is reverted and FALSE returned, so
+APISRVR refuses the login. A session that is the user only until it forks is
+the defect, not a partial success.
+
+**Two internal null-case refusals, both from this session's own near-miss:**
+`adopt_in_runtime` refuses when the euid already equals the target (the
+`seteuid` fast path adopts nothing), and it **reads the euid back** rather than
+trusting `seteuid`'s return code.
+
+**`setegid` is deliberately not called.** `ingroup.c:76` reads `getegid()` and
+does have callers; the measurement did not need it. Widening the change to
+match a symmetry nobody asked for would have added the one uid consumer that
+actually exists.
+
+**THE TRAP THIS SESSION DID NOT FALL INTO, because the record was grepped
+first.** `cycle.ps1` contains **no `make`** (PROJECT_STATUS §6; it cost a whole
+cycle on 18 Aug, when `to_file.c` was edited at 19:15 and cycled at 19:38
+against a 17:17 binary, with *both* `assert-current` checks passing). So
+`make sd` was run first and `bin/sd.exe` was checked newer than source —
+11:08:43 against 11:07:35 — before anything was cycled.
+
+**Compiled clean.** `win32s4u.c` alone under the project's own flags
+(`-Wall -Wformat=2`), zero warnings; then `make sd`; then `cycle.ps1
+-SkipInstall` at the owner's instruction — **198 BASIC programs, not one with a
+non-zero error count**, staged tree whole (`gcat` 126, `gpl.bp.out` 187,
+`$BCOMP` 88079), installer built 4,801,598 bytes at 11:10:08.
+
+**Changelog entry written in the same commit**, per CLAUDE.md. It describes the
+fixed behaviour and **is ahead of verification** — if the cycle disproves it,
+it gets revised the way the 23 Aug entry was.
+
+**Still owed, and it needs a person:** a full `cycle.ps1` with someone at the
+wizard, then the verify suite from the owner's own terminal (§4.0.1). **The
+pass condition is already built and costs nothing extra** — `K$IMPERSONATING`
+logs only on disagreement, so `API IDENTITY LOST` *disappearing* from the
+errlog is the confirmation, with `ZZAPI` owned by the caller rather than
+`NT AUTHORITY\SYSTEM`. Prefix `b32` or later.
+
+---
+
 ## 24 Aug 2026 — Forty-ninth session, continued: the class fix works, and it is a PAIR of calls rather than the one this project kept naming
 
 **Commit:** the commit carrying this entry. **Supersedes the entry directly
