@@ -113,9 +113,19 @@ something came to be the way it is.
 > them. **So either the session forks somewhere not yet found, or something
 > outside Q3's 14 steps drops it.** Do not guess between those — measure.
 >
-> **(a2) NO CYCLE:** watch whether the session process forks between login and
-> write during a live `verify-apiidentity` run. Costs a prefix token, not an
-> install.
+> **(a2) BUILT AND PRE-FLIGHTED, NOT YET RUN — `gplbld/probe-sessionfork.ps1`.**
+> It watches `Win32_ProcessStartTrace` while a live `verify-apiidentity` run
+> logs in and writes, and asks whether the session process creates any child at
+> all. An event trace, not polling, because a short-lived fork would be *missed*
+> by polling and the miss would read as "did not fork". Filters on
+> **`ParentProcessID`, never `CommandLine`** — that is the self-match trap in §6.
+>
+> ***IT COSTS NO CODE CHANGE, BUT IT IS NOT FREE: it gates on `assert-current`
+> (`verify-apiidentity.ps1:409`), so it needs a CURRENT TREE.*** The banner
+> change of 24 Aug made the tree stale, so **a `cycle.ps1` is owed before (a2)
+> can run at all**. `-SelfTestOnly` proves the instrument fires without a cycle
+> and was measured doing so; it prints that it measured nothing about SD.
+> Prefix **b29 or later**.
 >
 > **(b) COSTS A CYCLE:** `ImpersonatingUser()` (`win32s4u.c:230`) exists and
 > **has no caller anywhere**; reporting it at write time is decisive but lands
@@ -6067,10 +6077,29 @@ the staging script and the Inno installer were all finished and removed.
     and `sysseg.c:643`/`:745` (start-up); b28's flow — SCRAM, `vb.account`,
     `vb.open`, `vb.write` — takes none of them. **So either the session forks
     somewhere not yet found, or something outside Q3's 14 steps drops it. Do
-    not guess between those.** (a2) **No cycle**: watch the session process for
-    a fork during a live `verify-apiidentity` run — costs a prefix token, not
-    an install. (b) **Costs a cycle**: `ImpersonatingUser()` (`win32s4u.c:230`)
-    exists and has no caller; reporting it at write time is decisive.
+    not guess between those.**
+
+    **(a2) IS BUILT AND PRE-FLIGHTED — `gplbld/probe-sessionfork.ps1`, 24 Aug
+    2026.** It watches `Win32_ProcessStartTrace` while a live
+    `verify-apiidentity` run logs in and writes, and asks whether the session
+    creates any child at all. **An event trace rather than polling**, because a
+    fork that exits in milliseconds would be missed by polling and the miss
+    would read as "did not fork". **It filters on `ParentProcessID` and never on
+    `CommandLine`** (§6's self-match trap), which also separates the two kinds
+    of `sd.exe` for free: sessions are children of `sdwind`, the verifier's own
+    `Invoke-SD` calls are children of the verifier. It refuses three null cases
+    — the trace not firing (self-tested first, measured working), no starts at
+    all during a run that demonstrably happened, and no child of `sdwind` seen,
+    since without identifying the session "it did not fork" is not a claim it
+    may make. **No switch skips `assert-current`, deliberately.**
+
+    ***IT NEEDS A CURRENT TREE.*** `verify-apiidentity.ps1:409` gates on
+    `assert-current`, and the 24 Aug banner change made the tree stale, so **a
+    `cycle.ps1` is owed before (a2) runs**. `-SelfTestOnly` proves the
+    instrument fires without spending one. Prefix **b29 or later**.
+
+    **(b) Costs a cycle**: `ImpersonatingUser()` (`win32s4u.c:230`) exists and
+    has no caller; reporting it at write time is decisive.
 
     ***AN ACL FIXTURE CANNOT ANSWER THIS AND MUST NOT BE RE-TRIED.*** `b27` and
     `b28` both opened all three ACL fixtures - including one whose `%0` grants
