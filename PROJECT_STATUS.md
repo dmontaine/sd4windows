@@ -113,6 +113,12 @@ something came to be the way it is.
 > not a constant, and the terminal already defaults to `"\r\n"`
 > (`tio.h:162`). **The one-test question: does `SETPTR … NEWLINE CRLF`
 > actually reach the disk**, given `to_file.c:128` still emits the global.
+>
+> ***THE SHARPEST WAY TO STATE (b): `WRITECSV` IS DOCUMENTED AS RFC 4180 AND
+> EMITS LF.*** `sdhelp/csv.htm` claims conformance in as many words, RFC 4180
+> specifies CRLF, and `BCOMP:11366` compiles `WRITECSV` to `OP.WRITESEQ` —
+> the global `Newline`. It is a named, shipped verb that does not meet a
+> standard SD's own documentation cites, on the platform this port is for.
 
 ---
 
@@ -6011,6 +6017,30 @@ the staging script and the Inno installer were all finished and removed.
     specify CRLF for CSV. A `WRITESEQ` that emits LF is not wrong on Linux and
     is a defect on a Windows-only product whose intended user (§1) is a Windows
     developer using SD as a back end data store.
+
+    ***AND SD HAS DEDICATED CSV STATEMENTS, SO THIS IS A CONFORMANCE CLAIM SD
+    ALREADY MAKES AND DOES NOT MEET — owner, 24 Aug 2026.*** `WRITECSV`,
+    `READCSV`, `MATREADCSV`, `INPUTCSV` and `PRINTCSV` are shipped statements,
+    with `OP_FORMCSV` and `OP_CSVDQ` in `op_str5.c` and a `CSV` report keyword
+    in the query processor. **`sdhelp/csv.htm` says the output *"conforms to
+    the CSV format specification (RFC 4180)"* in as many words, and RFC 4180
+    specifies CRLF as the record separator.**
+
+    **`WRITECSV` EMITS LF.** `BCOMP:11366` `st.writecsv:` assembles the line
+    and then sets `opcode = OP.WRITESEQ`, so it inherits `op_seqio.c:1712`'s
+    global `Newline`. `sdhelp/sdb_writecsv.htm` describes it only as *"written
+    to the file with a newline appended"* — it does not say which. **So the
+    owner's Excel case is not hypothetical: it is a named verb, documented as
+    RFC 4180, that is not RFC 4180 on the platform this port exists for.**
+    That gives (b) a concrete acceptance test instead of a matter of taste.
+
+    ***AND THE TWO CSV OUTPUT PATHS MAY ALREADY DISAGREE — MEASURE BEFORE
+    ASSUMING.*** The query processor's `CSV` keyword produces a REPORT, which
+    goes through a print unit and therefore through `pu->newline`; `WRITECSV`
+    goes through `WRITESEQ` and the global. If `SETPTR … NEWLINE CRLF` works
+    (see the resource note), then `LIST … CSV` can already be made conformant
+    while `WRITECSV` cannot — an inconsistency worth knowing before choosing
+    where to fix it.
 
     **THE COMPILER IS ALREADY SAFE, WHICH IS WHY THIS HAS NOT BITTEN YET.**
     `BCOMP:1672`, in `get.line:` - the main source-line reader - is

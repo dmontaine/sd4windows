@@ -25123,3 +25123,20 @@ CR as PRINT CONTROL, a different thing that must not be confused with it.
 **The lesson is the one this file keeps recording: verify the instrument. A
 `grep` that returns nothing is a result that has to be trusted, and this one
 was not checked against a known-present string.**
+
+**LATER THE SAME NIGHT — `WRITECSV` GIVES STEP 16 A SPEC TO FAIL AGAINST.**
+Owner: *"by the way, there are readcsv and writecsv BASIC commands"*. They are
+shipped statements (`WRITECSV`, `READCSV`, `MATREADCSV`, `INPUTCSV`,
+`PRINTCSV`), with `OP_FORMCSV`/`OP_CSVDQ` in `op_str5.c` and a `CSV` report
+keyword in the query processor. **`sdhelp/csv.htm` states the output *"conforms
+to the CSV format specification (RFC 4180)"*, and RFC 4180 specifies CRLF as
+the record separator.** `BCOMP:11366` `st.writecsv:` assembles the line and
+then sets `opcode = OP.WRITESEQ`, so it inherits `op_seqio.c:1712`'s global
+`Newline` — **LF**. So the Excel case is not hypothetical: a named verb,
+documented as RFC 4180, is not RFC 4180 on the platform this port exists for,
+and (b) gains a concrete acceptance test rather than a matter of taste. **Also
+noted, and unmeasured:** the query processor's `CSV` keyword produces a REPORT
+and so goes through a print unit and `pu->newline`, while `WRITECSV` goes
+through the global — so the two CSV paths may already disagree, and if
+`SETPTR … NEWLINE CRLF` works then `LIST … CSV` can be made conformant while
+`WRITECSV` cannot.
