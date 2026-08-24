@@ -11,23 +11,32 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## SOMETHING IS OWED, AND IT BLOCKS THE SUITE: ELEVATED `sd <command>` HANGS.
+> ## DIAGNOSED 23 Aug 2026: ELEVATED `sd <command>` SITS AT A PASSWORD PROMPT
 >
-> ***END OF THE FORTY-FOURTH SESSION, 23 Aug 2026. READ THIS BEFORE ANYTHING
-> ELSE.*** On the **17:47:55** install, an **elevated** `sd <command>` session
-> **blocks for ever during start-up**. `b16` cannot complete because of it.
+> ***THE FORTY-FOURTH SESSION LEFT THIS AS AN UNEXPLAINED START-UP HANG. IT IS
+> NEITHER UNEXPLAINED NOR IN START-UP.*** On the **17:47:55** install an
+> elevated `sd <command>` blocks for ever at the account's *"needs a password"*
+> prompt, waiting on stdin that never arrives. `b16` cannot complete because of
+> it.
 >
-> **MEASURED, from an elevated shell, each killed by a 25-second timeout:**
+> **MEASURED, elevated, 25-second timeout — AND WITH THE REDIRECTED STDOUT READ
+> BACK.** 802 bytes, ending:
 >
 > ```
-> elevated=True
-> WHO          : *** HUNG *** killed after 25s
-> ZZNOSUCHVERB : *** HUNG *** killed after 25s
+> Account DON needs a password.
+> ...
+> To set no password for now, press Enter on an empty line.
+>
+> New password:
 > ```
 >
-> ***A VERB THAT DOES NOT EXIST HANGS TOO***, so it never reaches dispatch —
-> this is session start-up, not the command. The process is **blocked, not
-> looping**: CPU grew ~0.03s per 2s. **No output, no `errlog` entry.**
+> **CPU 0.016s → 0.297s across 26s** — blocked on a read, not looping. No
+> `errlog` entry because, from SD's side, nothing has gone wrong.
+>
+> ***"NO OUTPUT" MEANT "OUTPUT NOT LOOKED AT", AND THAT IS THE LESSON.*** The
+> earlier measurement redirected stdout to a file and reported the session
+> silent. The prompt was in that file the whole time. **Read the redirect before
+> calling a blocked process silent.**
 >
 > **WHAT STILL WORKS, so the fault is narrow:** *unelevated* `sd <command>`
 > (`verify-batchjob`'s earlier rows pass), and ordinary piped sessions — **9 of
@@ -38,24 +47,39 @@ something came to be the way it is.
 > `verify-batchjob`, whose *"ELEVATED with no entry: still runs"* row is exactly
 > this path. That row is now the **one** failing check.
 >
-> ### THE SUSPECT, AND WHY IT IS NOT PROVEN
+> ### WHY ELEVATED AND NOT UNELEVATED — IT IS §7 STEP 9's GATE, WORKING
 >
-> ***THE ONLY CHANGE THAT SHIPS between those two installs is the pcode ACL***
-> — `secure-pcode.ps1`, `sd.iss`'s `SecurePcode`, `stage.py`. Everything else
-> today (`probe-s4u`, `setup-devbox`, `cycle.ps1`, `assert-current`) never
-> reaches an install.
+> **Unelevated is refused EARLIER and never reaches the password step.**
+> Control, same probe, same install: *"ZZNOSUCHVERB is not a command that
+> account DON may run from the command line"* — `LOGIN`'s `batch.jobs` gate.
+> **Elevation passes that gate on its own** (§7 step 9), so an elevated session
+> carries on into set-up and meets the prompt. Both halves are behaving as
+> designed; the defect is that the prompt has **no non-interactive behaviour**.
 >
-> ***BUT THE MECHANISM DOES NOT ADD UP, AND THAT GAP IS THE WORK.*** An elevated
-> token holds `BUILTIN\Administrators`, which has **Full on `sdsys\bin` both
-> before and after** the change — only the `sdusers` entry moved, `(M)` → `(RX)`.
-> A blocked *elevated* process is not explained by it. **Do not assume the ACL
-> and do not revert it blindly; find the blocking call.**
+> ### BOTH SUSPECTS THIS FILE NAMED ARE DEAD
 >
-> **THE OTHER HYPOTHESIS, UNVERIFIED:** §7 step 4's **elevation helper**.
-> `sd.exe` stays unelevated for life and negotiates with
-> `sd-elevate-helper.ps1` over a pipe; a session that is *already* elevated
-> doing that non-interactively would block on a pipe read exactly like this.
-> **Nobody has traced it.** `sd-elevate.ps1`, `sd-elevate-helper.ps1`.
+> - ***THE PCODE ACL IS NOT INVOLVED.*** It was only ever "the one shipped
+>   delta", and this file already said the mechanism did not add up. It does
+>   not. **Do not revert it.**
+> - ***THE ELEVATION HELPER IS NOT ON THE START-UP PATH.*** No C source
+>   references it. `elevate()` has **one caller** (`CPROC:189`) and it is
+>   `CPROC:2571`, inside `int.logto:`, guarded by
+>   `if upcase(new.account) = "SDSYS"` — the **`LOGTO SDSYS`** path, a verb
+>   somebody types. `sd ZZNOSUCHVERB` never reaches it, and `CPROC:2562`
+>   records that `!elevate` answers 0 at once when already elevated.
+>
+> ### WHAT IS OWED IS A PRODUCT FIX, NOT AN INVESTIGATION
+>
+> ***A NON-INTERACTIVE SESSION MUST NOT SIT AT THAT PROMPT FOR EVER.*** Not a
+> test artefact: §7 step 9's whole subject is `sd <command>` run unattended, and
+> a **scheduled job on a password-less account hangs exactly like this** instead
+> of failing. Decide the behaviour — refuse with a message, or skip the prompt
+> when stdin is not a terminal — then fix it. `LOGIN`'s password step, `_INPUT`.
+>
+> **WHY THE ACCOUNT HAS NO PASSWORD:** `cycle.ps1` deletes both trees, so the
+> 17:47:55 install recreated `don`. **Why `b15`'s 10:01:45 install did not hit
+> it is NOT established** — most likely a password was set on that tree during
+> the session. Do not go looking for a regression between the two installs.
 >
 > ### HOW TO PICK IT UP
 >
@@ -63,10 +87,15 @@ something came to be the way it is.
 >    the spent-prefix check is only that. Reuse it.
 > 2. **Reproduce in one step, no suite needed:** elevated,
 >    `sd ZZNOSUCHVERB` from `C:\ProgramData\SD\user_accounts\don`, **with a
->    timeout** — it hangs. That is the whole bug.
+>    timeout, and READ THE REDIRECTED STDOUT** — the prompt is in it.
 > 3. ***USE A TIMEOUT ON EVERY ELEVATED SD PROBE.*** Five windows were hung
->    today; an SD console session **cannot be killed by `Stop-Process` or
+>    on 23 Aug; an SD console session **cannot be killed by `Stop-Process` or
 >    `taskkill /F` from an ordinary token** and needs elevation to clear.
+> 3a. ***AND PLAN THE RECOVERY BEFORE THE KILL.*** §6: killing an `sd` session
+>    **costs the install, not just the session** — stale user-table entries make
+>    later sessions answer `Forced logout`. Run elevated **`sd -cleanup`**
+>    straight after, in the same elevated context. Done on 23 Aug and the
+>    install was measured healthy afterwards.
 > 4. **§4.0.1 — AN AGENT CANNOT RUN THE VERIFY SUITE.** Corrected this session
 >    and it cost two attempts; read it before trying.
 >

@@ -24253,3 +24253,58 @@ NOT DONE, DELIBERATELY: no script and no hook.  A new gplbld script joins
 assert-current's $neverShipped list and then needs maintaining, and the rule is
 one grep.  A PreToolUse hook that greps before every command is the escalation
 if this fails again; it is the owner's call, not a session's.
+
+23 Aug 2026 - the elevated hang is diagnosed: it is a password prompt, not start-up
+
+The forty-fourth session handed over "an elevated sd <command> blocks for ever
+during start-up", with the pcode ACL and the elevation helper as suspects and a
+warning that the ACL's mechanism did not add up.  It does not add up because the
+ACL has nothing to do with it.
+
+WHAT IT ACTUALLY IS.  An elevated "sd ZZNOSUCHVERB" reaches the account's "needs
+a password" prompt and blocks on a read that never gets input.  Captured 802
+bytes of redirected stdout ending "New password:".  CPU 0.016s to 0.297s across
+26 seconds - blocked, not looping, which matches the earlier reading exactly.
+No errlog entry because nothing has gone wrong from SD's side.
+
+"NO OUTPUT" MEANT "OUTPUT NOT LOOKED AT".  The earlier measurement redirected
+stdout to a file, reported the session silent, and the prompt was sitting in
+that file.  This is the whole reason the fault looked like an unexplained block
+in start-up for a day.  Read the redirect before calling a blocked process
+silent.
+
+WHY ELEVATED AND NOT UNELEVATED, AND BOTH HALVES ARE THE PRODUCT WORKING.  The
+unelevated control on the same install is refused earlier - "ZZNOSUCHVERB is not
+a command that account DON may run from the command line", which is LOGIN's
+batch.jobs gate from section 7 step 9.  Elevation passes that gate on its own,
+so an elevated session carries on into set-up and meets the password prompt.
+The defect is that the prompt has no non-interactive behaviour.
+
+THE ELEVATION HELPER IS NOT ON THE START-UP PATH, which closes the second
+suspect on source alone and cost four greps.  No C source references it.
+elevate() has one caller, recorded at CPROC:189, and it is CPROC:2571 inside
+int.logto:, guarded by "if upcase(new.account) = SDSYS" - the LOGTO SDSYS path,
+a verb somebody types.  A nonexistent verb never reaches it.  CPROC:2562 also
+records that !elevate answers 0 at once when the session is already elevated, so
+it would not block even if reached.
+
+WHAT IS OWED IS A PRODUCT FIX.  A scheduled job on a password-less account hangs
+exactly like this rather than failing, and unattended "sd <command>" is section 7
+step 9's whole subject.  Decide whether the prompt should refuse with a message
+or be skipped when stdin is not a terminal.  Not started.
+
+METHOD, because the kill was the risk.  Section 6 says killing an sd session
+costs the install and not just the session: check_lost_users() leaves stale
+user-table entries and later sessions are answered Forced logout.  So the probe
+runs elevated "sd -cleanup" immediately after its own kill, in the same elevated
+context, and the recovery was ordered BEFORE the reporting - an exception in the
+output section had previously landed between the two, which would have poisoned
+the install by way of a probe written not to.  Install measured healthy
+afterwards: unelevated session normal, no Forced logout, sdwind up.
+
+A POWERSHELL TRAP PAID FOR HERE.  Get-Content -Raw on an EMPTY file emits
+nothing, and [string](Get-Content ...) of an empty command result is $null and
+NOT the empty string - casting does not rescue it, only an explicit $null test
+does.  Calling .Trim() on it throws.  Three runs were spent before the catch
+block was made to print the failing line number, which found it at once.  Print
+the line number rather than guessing at the cause.
