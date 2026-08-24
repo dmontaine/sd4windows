@@ -11,273 +11,75 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: §7 STEP 14 — THE IMPERSONATION IS LOST BETWEEN THE SCRAM HOOK AND THE WRITE. THE RUNTIME, THE FORK AND THE INSTRUMENT ARE ALL CLEARED.
+> ## NEXT: §7 STEP 14 IS DIAGNOSED END TO END. THE FIX IS NOT WRITTEN, AND CHOOSING ITS SHAPE IS THE FIRST DECISION.
 >
-> ***THE 48th SESSION NARROWED IT; THE 47th's b28 IS BELOW AND STILL STANDS.***
-> Read "THE FORKED-CHILD RE-RUN IS DONE" first — it says what has been ruled
-> out, and the next measurement is (a) there, which costs no cycle.
->
-> ***END OF THE FORTY-SEVENTH SESSION, 24 Aug 2026.*** `verify-apiidentity`
-> reached its own measurement for the first time since it was written. `b18`
-> to `b27` were all instrument faults, listed below so none is repeated; `b28`
-> is a result. The `b17` bracket still stands for everything else.
->
-> ### THE FINDING, WITH THE CONTROL THAT MAKES IT ONE
->
-> ```
-> ZZLOCAL (written by the local elevated session): GITORLI\don
-> ZZAPI   (written by the API session)           : NT AUTHORITY\SYSTEM
-> ```
->
-> A directory-type file stores each record as a real file on disk, so the
-> OWNER of a record is the OS identity that wrote it. **The two owners
-> differ** — that is the control, and without it "owned by SYSTEM" could
-> merely mean SD always creates as SYSTEM. Ownership tracks the writing
-> session; the API session's is `NT AUTHORITY\SYSTEM`.
->
-> **`K$ASSUME.USER` FIRES, RETURNS TRUE, AND DOES NOT GOVERN THE FILE LAYER.**
-> The hook is unconditional at `APISRVR:1472` and a false return jumps to
-> `exit.vb.scram.fail` before `logged.in`, so any session that logged in ran
-> it and it succeeded. `win32s4u.c:184` refuses an Identification-level token
-> rather than impersonating with one, and **nothing anywhere calls
-> `RevertUserIdentity()`**. The call is real; its effect is absent.
->
-> ### THE FORKED-CHILD RE-RUN IS DONE, 24 Aug 2026, AND IT CLEARED THE RUNTIME
->
-> ***FORTY-EIGHTH SESSION.*** `gplbld/probe-impfork` — the re-run this section
-> used to ask for, plus the leg that checks b28's own instrument. Both legs
-> **exit 11** (access governed, ownership tracks the token), so the two rows
-> are identical and **THE FORK MAKES NO DIFFERENCE**:
->
-> | leg | forbidden file while impersonating | file created while impersonating |
-> |---|---|---|
-> | fork()ed and exec()d Cygwin child | **refused, errno 13** | owned `GITORLI\test1` |
-> | direct, started by cmd.exe (control) | **refused, errno 13** | owned `GITORLI\test1` |
->
-> **THREE THINGS ARE NOW EXONERATED AND MUST NOT BE RE-INVESTIGATED.**
->
-> 1. **The fork.** The suspicion this section carried — that a Cygwin child
->    fixes its idea of the user at process start — is **answered NO**.
->    `probe-impersonate`'s result transfers to the API session's shape.
-> 2. **The runtime's owner-stamping.** The hypothesis that MSYS2 stamps a new
->    file from its cached user was **specifically tested and is wrong**: the
->    Cygwin `uid` read **18 (SYSTEM) throughout both legs** while the created
->    file still came out owned by `test1`. **The POSIX uid does not decide the
->    owner; the thread token does.**
-> 3. **b28's instrument.** Ownership tracks the writing thread, so
->    `verify-apiidentity` measured what it claimed to.
->
-> ### SO THE FAULT IS INSIDE THE SESSION, AND THE FINDING IS NOW SHARPER
->
-> **`AssumeUserIdentity` SUCCEEDS AT LOGIN AND THE THREAD IS NO LONGER
-> IMPERSONATING BY THE TIME THE SESSION WRITES.** That follows from b28 plus
-> this probe and needs no further measurement to state. The other branch —
-> that `ZZAPI` already existed, so the write changed no owner — is **closed**:
-> it is a fresh record name and `verify-apiidentity.ps1:938` already refuses
-> the null case by requiring the file on disk.
->
-> Nothing in our tree does it: `RevertUserIdentity()` has **no caller**
-> (`op_kernel.c:284` says so deliberately), there are **no threads** in
-> `gplsrc`, and `sdext_eguid.c`'s `seteuid` is reachable only from an explicit
-> `op_sdext.c:343` extension call, not from login or write.
->
-> ### STEP (a) IS DONE TOO: ONLY `fork()` DROPS IT, AND 13 OTHER THINGS DO NOT
->
-> `probe-impfork`'s **Q3** bisect. After impersonating it performs, one at a
-> time, what APISRVR actually does between the hook and the write, reading back
-> the thread token **and** creating a file after **every** step. **Both legs
-> identical on all 14 rows.**
->
-> | held (token `target`, file owned `GITORLI\test1`) | lost |
-> |---|---|
-> | `usleep`, `stat`, `open`/`read`/`close`, `opendir`/`readdir`, **`chdir`** (the account switch), `getcwd`, `getpwuid`, `getpwnam`, **socket `send`/`recv`** (the request loop), `select`, signal delivery, **`LsaDeregisterLogonProcess`** | **`fork()`** — token `NONE`, file owned `NT AUTHORITY\SYSTEM` |
->
-> ***TWO MORE HYPOTHESES KILLED BY MEASUREMENT, BOTH MINE.*** The runtime does
-> not stamp the owner from its cached user (above), and
-> `LsaDeregisterLogonProcess` — which `win32s4u.c:208` **does call on the
-> success path**, and which neither probe had ever done — returns
-> `STATUS_SUCCESS` and **the impersonation survives it**.
->
-> ***AND A CONSEQUENCE FOR SHAPE (b) THAT OUTLIVES THIS BUG.*** `fork()`
-> silently reverts the thread to the process token. So **any `PHANTOM`
-> (`op_kernel.c:735`) or `SH` (`op_sh.c:379`) taken by an impersonated session
-> drops it back to LocalSystem with no error** — and `AssumeUserIdentity` has
-> no way to notice. Shape (b) has to answer this whatever fixes b28.
->
-> ### (a2) ANSWERED IT, 24 Aug: THE SESSION FORKS TWICE, BOTH TIMES INTO PowerShell
->
-> `probe-sessionfork.ps1 -Prefix sdapiidb30`, on the 09:53:11 install.
->
-> ```
-> FORK CLONES MADE BY sdwind (sdwind.c:491, before the hook): 1
->   pid 15812  sdwind.exe          <- the spawn, never in question
-> API SESSIONS (the exec targets of those clones): 1
->   pid 4448   sd.exe              <- THE SESSION
-> fork clones made BY a session: 2
->   clone sd.exe pid 14612 -> powershell.exe pid 29948
->   clone sd.exe pid 34624 -> powershell.exe pid 27640
-> ```
->
-> ***THE WHOLE CHAIN, AND IT CLOSES b28.***
+> ***END OF THE FORTY-EIGHTH SESSION, 24 Aug 2026.*** Step 14 asked whether an
+> API session runs as the user who logged in. **It does not, and the whole
+> chain is now measured rather than argued.**
 >
 > | step | what happens |
 > |---|---|
-> | `APISRVR:1472` | `K$ASSUME.USER` impersonates the caller. **Works** (`b17`). |
+> | `APISRVR:1472` | `K$ASSUME.USER` impersonates the caller — **works** |
 > | `APISRVR:439` `vb.account` | the account switch, a **post-login** request |
-> | `APISRVR:566` | `is_grp_member(kernel(K$USERNAME,0), acc.group)` |
-> | `!ps_script` → `op_sh.c:379` | **`cpid = fork()`**, then execs `powershell.exe` (`:308`) |
-> | → | **the impersonation is silently gone** (probe-impfork, both legs) |
-> | `vb.open` / `vb.write` | run as LocalSystem → the SYSTEM-owned record `b28` read |
+> | `APISRVR:566` | `is_grp_member(...)` — BASIC, calling `!ps_script` |
+> | `op_sh.c:379` | **`fork()`**, then execs `powershell.exe` |
+> | → | **the impersonation is silently gone** |
+> | `vb.open` / `vb.write` | run as LocalSystem → a SYSTEM-owned record |
 >
-> ***THE COMMENT AT `APISRVR:1470` NAMES ITS OWN KILLER.*** It says the account's
-> files "are opened at LOGTO, which is after, and that is what makes this worth
-> doing" — and LOGTO is exactly where the group check forks the identity away.
+> Confirmed from inside the live session (`b31`, install 10:34:44, `sd.exe`
+> `779B85854AEEE5AC`) by two errlog lines — *"API IDENTITY LOST at LOGTO group
+> check"* and *"…at record write"*. Full detail and the four instruments in
+> **§7 step 14**; do not re-derive it.
 >
-> **MEASURED vs INFERRED, because they are not the same here.** *Measured:* the
-> session forks twice into PowerShell; `fork()` drops impersonation; the record
-> is SYSTEM-owned. *Inferred:* that **this** fork is the one that drops it in the
-> live session — from the source path plus probe-impfork, not from reading the
-> session's own token. **(b) is what would confirm it directly**, and it is now
-> a confirmation rather than a search.
+> ### THE DECISION TO MAKE FIRST — IT IS THE OWNER'S, NOT A TECHNICAL TOSS-UP
 >
-> ***AND THE FIX IS WIDER THAN THIS ONE CALL.*** `PHANTOM` (`op_kernel.c:735`)
-> and `SH` (`op_sh.c:379`, the same site) fork too, so **any** of them taken by
-> an impersonated session drops it. A fix that only moves `is_grp_member` leaves
-> the class open. `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` — so the runtime
-> carries the token across fork/exec — is the candidate that addresses the class;
-> `RevertUserIdentity()`/re-impersonation after each fork is the narrow one.
-> **Either lands on `sd.exe` and owes a full `cycle.ps1`.**
->
-> ### (b) IS BUILT AND OWES ONE CYCLE — AND ITS INSTRUMENT WAS THE DEFECT
->
-> ***`ImpersonatingUser()` WOULD HAVE ANSWERED (b) WRONG, CONFIDENTLY.*** Step
-> 14 (b) was written as *"it exists, call it at write time and the answer is
-> direct"*. It was:
->
-> ```c
-> return (s4u_token != NULL) ? 1 : 0;
-> ```
->
-> — whether **this file still holds a handle**, not whether the thread is
-> impersonating. `fork()` reverts the thread and clears nothing (
-> `RevertUserIdentity()` has no caller either), so **at the moment the identity
-> is gone it returned 1.** It had no callers, so nothing had ever caught it, and
-> its own comment says *"a caller that believes it impersonated and did not is
-> the failure this whole file is written to avoid."*
->
-> **Fixed to ask Windows** — `OpenThreadToken`, where `ERROR_NO_TOKEN` **is** the
-> answer rather than an error — and to return the **name**, because "whose
-> identity" is the question and a boolean cannot carry it. `HoldingUserToken()`
-> is split out as the belief, so the two can be **compared** rather than
-> confused.
->
-> | new | what |
+> | | |
 > |---|---|
-> | `K$IMPERSONATING` (62) | `<1>` identity Windows says, `<2>` token held. **`<1>` empty with `<2>` true IS the defect** |
-> | `APISRVR` `check.identity` | called after the `is_grp_member` group check **and** at the record write — two points, so "lost at LOGTO" is told apart from "lost later" |
+> | **Narrow** | re-impersonate after each `fork()`. Fixes this path. **`PHANTOM` (`op_kernel.c:735`) and `SH` (`op_sh.c:379`, the same site) still drop it**, silently, as they do today |
+> | **Class** | `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` — the runtime carries the token across `fork`/`exec`. Covers everything, and is unproven here |
 >
-> **It logs only the DISAGREEMENT**, so a healthy session is silent and it can
-> stay in permanently. `logmsg` → errlog, which is already per-connection and
-> trimmed.
+> **`fork()` reverting the thread is a RUNTIME behaviour, measured both in a
+> forked Cygwin child and a direct process** (`gplbld/probe-impfork.c`, Q3). It
+> is not something SD does and not something SD can notice: nothing calls
+> `RevertUserIdentity()`, and `win32s4u.c` gets no signal.
 >
-> ***MEASURED AND CONFIRMED, `b31`, ON THE 10:34:44 INSTALL (`sd.exe`
-> `779B85854AEEE5AC`).*** Both predicted lines fired, from inside the session:
+> ### THE INSTALL IS CURRENT — MEASURE BEFORE YOU EDIT ANYTHING
 >
-> ```
-> 24 Aug 26 10:37:17 User 7 (pid 1498, sdapiidb31):
->    API IDENTITY LOST at LOGTO group check - session believes it is
->    sdapiidb31 but the thread holds the service token
-> 24 Aug 26 10:37:17 User 7 (pid 1498, sdapiidb31):
->    API IDENTITY LOST at record write - ...
-> ```
+> Installed 24 Aug 10:34:44, `assert-current` passes. **A cycle ends at the next
+> source change**, so take any reading you want from this tree *first*.
+> **Prefixes `sdapiidb18`–`b31` are spent; use `b32` or later.**
 >
-> **THE IDENTITY IS ALREADY GONE AT THE GROUP CHECK.** That is the half that was
-> inference until now: (a2) proved the session forks there, probe-impfork proved
-> `fork()` drops impersonation, but nothing had read the live session's own
-> token. Now it has, and the two agree. The same run reproduced `b28` exactly —
-> `ZZLOCAL` `GITORLI\don`, `ZZAPI` `NT AUTHORITY\SYSTEM` — and
-> `verify-apiidentity` FAILED on its one decisive check, as it should.
+> ### WHAT IS ALREADY BUILT, SO IT IS NOT BUILT AGAIN
 >
-> ***STEP 14 IS DIAGNOSED, END TO END, WITH NO INFERENCE LEFT IN THE CHAIN.***
-> What remains is the FIX, which is a separate piece of work and is NOT started:
-> `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` for the class, or re-impersonation
-> after each fork for the narrow case. `PHANTOM` and `SH` fork at the same site,
-> so the narrow fix leaves them open.
+> - **`K$IMPERSONATING` (62)** — `<1>` the identity Windows says this thread has,
+>   `<2>` whether SD holds a token. **`<1>` empty with `<2>` true IS the defect.**
+>   `APISRVR`'s `check.identity` logs it at the group check and at the write,
+>   **only when the two disagree** — so a healthy session is silent, and **its
+>   going quiet is how you will know a fix worked.**
+> - **`gplbld/probe-impfork.c`** — is the runtime governing `open()`, does
+>   ownership track the token, and the Q3 bisect of what drops impersonation.
+>   `--q3check` and `--ownercheck` self-test without elevation.
+> - **`gplbld/probe-sessionfork.ps1`** — watches `Win32_ProcessStartTrace` during
+>   a live API session. `-SelfTestOnly` proves it fires without spending a cycle.
 >
-> **The errlog line is permanent and costs nothing when healthy** — it fires only
-> when the two fields disagree, so once the fix lands it goes silent, and its
-> going silent is itself the confirmation.
-> ### DO NOT RE-TRY AN ACL FIXTURE. IT CANNOT ANSWER THIS QUESTION.
+> ### ALSO OPEN AND NOT STARTED: §7 STEP 16, LINE ENDINGS
 >
-> `b27` and `b28` both opened all three ACL fixtures — including one whose
-> `%0` grants the account alone and one that grants it nothing — with the
-> DACLs verified correct at `%0` in the same run. No single token does that.
-> **A LocalSystem session holds `SeBackupPrivilege`, which bypasses DACLs
-> outright**, so no arrangement of grants can gate it. The three rows are kept
-> as readings and marked non-decisive; they no longer set the exit code.
-> **Ownership is the instrument that works, because a privilege that lets a
-> token OPEN what it has no ACE on does not change whose name goes on a file
-> it CREATES.**
+> Untouched this session. **SD reads only LF and writes only LF, on a
+> Windows-only product.** (a) tolerant readers is a defect fix; (b) writing CRLF
+> is a product decision with the stronger case — `WRITECSV` is documented as RFC
+> 4180, which specifies CRLF, and emits LF. **Read step 16's resource note
+> before costing (b): `SETPTR … NEWLINE CRLF` is already live per print unit and
+> it may be half built.**
 >
-> ### THE FOUR INSTRUMENT FAULTS, SO NONE IS PAID FOR TWICE
+> ### THREE INSTRUMENTS LIED THIS SESSION. ALL THREE ARE FIXED; THE PATTERN IS NOT.
 >
-> | run | fault | now |
-> |---|---|---|
-> | `b24` | WHO parsed with `^\s*\d+\s+(\S+)`, which also matches COPY's `1 record(s) copied.` | `Get-WhoAccounts`, account-shaped to end of line, deliberately NOT case-insensitive |
-> | `b25` | `icacls /inheritance:r /T` ran FIRST, emptied the parent DACL, then could not walk in — children kept inherited `sdusers:(M)`, and `icacls` exited **0** having said `Access is denied` | grant first, strip second; `Assert-Icacls` reads the output, not just the exit code |
-> | `b26` | readback asserted the DIRECTORY, not `%0`, and died on a bare `Get-Acl : Access is denied` naming no object | assertions are on the files; every read names its object first |
-> | `b27` | ACL fixtures cannot discriminate at all (above) | ownership probe |
->
-> §6 carries the three Windows facts these rest on — owner-implicit rights do
-> not cover `FILE_TRAVERSE`, `icacls` exits 0 having failed part of a `/T`
-> walk, and `/inheritance:r` on a directory holding only inherited ACEs leaves
-> it empty.
->
-> ### TO RE-RUN IT
->
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-apiidentity.ps1 -Prefix sdapiidb29
-> ```
->
-> Standalone, from an elevated window the owner opened (§4.0.1). It is
-> `$neverShipped`, so editing it costs no cycle. Prefixes `b18`-`b28` are
-> spent. **A fix to step 14 lands on `sd.exe` and therefore owes a full
-> `cycle.ps1` and a fresh suite run.**
->
-> ### ALSO NEW AND NOT STARTED: §7 STEP 16, LINE ENDINGS
->
-> Owner, 24 Aug 2026. **SD reads only LF and writes only LF, on a Windows-only
-> product.** Two pieces of work and the WRITE half has the stronger case — his
-> words: *"if a user wants to create a csv file to be read by Excel, or a
-> document to be loaded into notepad or imported into word, i'm sure the crlf
-> standard would be expected."* That is about what SD **produces**, not what
-> it tolerates.
->
-> **`BCOMP:1672` already strips a trailing CR**, so editing a BASIC program
-> externally is safe — the one case directory files exist for. Nothing else
-> is: `op_dio3.c:1180` and `op_seqio.c:1152` map `\n` only, and there is no
-> `'\r'` char literal anywhere in the C tree.
->
-> **Step 16 splits it: (a) tolerant readers, a defect fix, first — (b) write
-> CRLF, a product decision.** (b) has one blocker to settle before it can even
-> be costed: **how binary object code in `bp.out` survives the field-mark /
-> newline mapping today**, since that file is a directory file and nothing
-> shipped calls `MAPMARKS`. **DH files are not affected by either half**, so
-> `gcat`, `VOC` and the byte counts this file quotes for them do not move.
->
-> ***AND READ STEP 16'S RESOURCE NOTE BEFORE COSTING (b) — IT MAY ALREADY BE
-> HALF BUILT.*** `SETPTR` takes **`NEWLINE CR|LF|CRLF` per print unit**, the
-> keyword is live in our own `SETPTR`, and `op_tio.c` emits `pu->newline`
-> rather than the global. So Ladybridge's answer was a per-channel setting,
-> not a constant, and the terminal already defaults to `"\r\n"`
-> (`tio.h:162`). **The one-test question: does `SETPTR … NEWLINE CRLF`
-> actually reach the disk**, given `to_file.c:128` still emits the global.
->
-> ***THE SHARPEST WAY TO STATE (b): `WRITECSV` IS DOCUMENTED AS RFC 4180 AND
-> EMITS LF.*** `sdhelp/csv.htm` claims conformance in as many words, RFC 4180
-> specifies CRLF, and `BCOMP:11366` compiles `WRITECSV` to `OP.WRITESEQ` —
-> the global `Newline`. It is a named, shipped verb that does not meet a
-> standard SD's own documentation cites, on the platform this port is for.
+> `ImpersonatingUser()` returned SD's belief rather than asking Windows, and
+> would have answered (b) confidently wrong. `probe-sessionfork` read a Cygwin
+> `fork`+`exec` — **two** Windows process creations — as one, and got the right
+> verdict for the wrong reason. `clean-test-profiles` printed *"someone is
+> signed in"* about deleted accounts. **Each was a value that was measured with
+> an explanation bolted on that was not.** §6 and §0 carry the rules; the habit
+> they need is separating what was read from what it was taken to mean.
 
 ---
 
