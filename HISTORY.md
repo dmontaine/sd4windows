@@ -24120,3 +24120,48 @@ be reached on a box that already has the tools - which is exactly how they
 survived: PATH rebuilt from 11 chars to 589 with git findable afterwards,
 Step-Clone returning normally with git unusable, and Step-Report still running
 after a step throws.
+
+23 Aug 2026 - b16 could not be run by an agent, and 4.0.1 was over-generalised
+
+Two attempts, both lost, and nothing to show for either except the correction.
+
+FIRST ATTEMPT, BACKGROUNDED.  The unelevated half got 9 of 10 verifiers green -
+including verify-pcodeacl at 4 of 4, its first run inside the suite, and
+verify-lcnames at 142 of 142 - then verify-batchjob printed "A UAC PROMPT IS
+COMING" and stopped.  It sat ten minutes with no output.  NO consent.exe ever
+existed, so nothing was ever waiting for a click: a detached process has no
+desktop to display consent on.
+
+SECOND ATTEMPT, FOREGROUND.  Got as far as verify-osusers, which reported
+"elevation for Grant did not happen: The operation was canceled by the user" -
+and the owner was never asked.  That is the 19 Aug claim's exact symptom, on a
+run started from the foreground, where a DIRECT Start-Process -Verb RunAs from
+the same shell had worked four times the same day.
+
+SO SECTION 4.0.1 WAS RIGHT AND WRONG IN BOTH DIRECTIONS.  The 19 Aug claim was
+right about the suite and wrong about the mechanism; the 22 Aug correction was
+right about the mechanism and wrong to generalise from one direct call to
+everything an agent launches.  What actually holds:
+
+  Start-Process -Verb RunAs issued DIRECTLY by the agent's shell   WORKS
+  the same call made by a verifier the agent launched              REFUSED
+  the whole suite launched as a background task                    HANGS
+
+The practical rule was never wrong and is the one to keep: THE VERIFY SUITE IS
+RUN BY A PERSON FROM THEIR OWN ORDINARY TERMINAL.  An agent may run cycle.ps1
+and one-off elevated commands; it may not run VerifyInstall1.
+
+NOTHING WAS LEFT BEHIND EITHER TIME, checked rather than assumed: no b16 user or
+sdu_ group, no os.users record, batch.jobs empty, no stray sd.exe after the one
+hung session was killed - and that kill itself needed elevation, because an SD
+console process in another session refuses Stop-Process and taskkill /F alike
+from an ordinary token.  verify-osusers says it too: "Nothing was measured and
+nothing was left behind."  b16 IS THEREFORE NOT SPENT and is still the next
+token: the spent-prefix check in VerifyInstall2 is purely "does a Windows user
+or sdu_ group with this prefix exist", and none does.
+
+WHAT THE TWO RUNS DID ESTABLISH, since the unelevated half is real: 9 of 10
+green on the 17:47:55 install, verify-pcodeacl PASSED under the runner both
+times - so the morning's pcode ACL fix holds in the suite and not only
+standalone - and verify-lcnames clean at 142 of 142, which is the verifier
+section 8's intermittent has always been about.

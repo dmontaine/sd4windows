@@ -33,6 +33,13 @@ something came to be the way it is.
 > **An ORDINARY window, not elevated** - it refuses an elevated one, and that is
 > load-bearing (§4.0). About six UAC prompts; it is not unattended.
 >
+> ***AND IT MUST BE A PERSON'S OWN TERMINAL - AN AGENT CANNOT RUN IT.***
+> Measured 23 Aug 2026, twice, `b16` lost both times: the suite's own
+> elevations come back *"The operation was canceled by the user"* **with no
+> dialog ever shown**, and backgrounded it hangs for ever with no `consent.exe`
+> at all. **§4.0.1 has the table.** Nothing is left behind and the token is not
+> spent, so **`b16` is still the next one**.
+>
 > ### S4U IS MEASURED: LocalSystem CAN STAND IN AN SD USER'S SHOES
 >
 > **Forty-fourth session, 23 Aug 2026. `gplbld/probe-s4u.c` + `probe-s4u.ps1`,
@@ -2179,7 +2186,35 @@ adopted, `$cred` and `gcat` carry the right ACLs, the API port is listening.
 so they would need that call made conditional before any of them could ship.
 **Not started; recorded so the next session does not rediscover the blocker.**
 
-### 4.0.1 An agent shell CAN elevate here, and that was the premise of the split
+### 4.0.1 An agent shell can elevate ONLY DIRECTLY — the suite's own elevations are refused
+
+> ***CORRECTED 23 Aug 2026, AND THE SECTION BELOW IS TRUE ONLY OF THE SIMPLE
+> CASE.*** Two attempts to run `-Run b16` from an agent shell were lost to
+> this, so it is stated before the older text rather than after it.
+>
+> | what elevates | result |
+> |---|---|
+> | **`Start-Process -Verb RunAs` issued DIRECTLY by the agent's shell** | **WORKS** — measured 4× on 23 Aug: `probe-s4u` twice, `cycle.ps1`, and killing a hung `sd.exe` |
+> | **the same call made by a verifier the agent launched** | ***REFUSED*** — `verify-osusers`: *"elevation for Grant did not happen: The operation was canceled by the user"*, **with no dialog shown to the owner** |
+> | the whole suite launched as a BACKGROUND task | ***HANGS FOR EVER*** — `verify-batchjob` printed *"A UAC PROMPT IS COMING"* and stopped; **no `consent.exe` ever existed**, and the run sat 10 minutes with no output |
+>
+> **SO THE 19 Aug CLAIM WAS RIGHT ABOUT THE SUITE AND WRONG ABOUT THE MECHANISM,
+> and the 22 Aug correction below was right about the mechanism and wrong to
+> generalise it.** *"The operation was canceled by the user"* with **nobody
+> having been asked** is the signature; a nested launch has no desktop to put
+> consent on, and the owner sees nothing at all.
+>
+> ***THE PRACTICAL RULE IS UNCHANGED AND IS THE ONE TO FOLLOW: THE VERIFY SUITE
+> IS RUN BY A PERSON, FROM THEIR OWN ORDINARY TERMINAL.*** An agent may run
+> `cycle.ps1` and one-off elevated commands; it may not run `VerifyInstall1`.
+> **Do not spend a `-Run` token finding this out again.**
+>
+> **NOTHING IS LEFT BEHIND WHEN IT FAILS THIS WAY** — checked 23 Aug: no `b16`
+> user or `sdu_` group, no `os.users` record, `batch.jobs` empty, no stray
+> `sd.exe`. `verify-osusers` says so itself: *"Nothing was measured and nothing
+> was left behind."* **So the token is NOT spent and can be reused.**
+
+### 4.0.1a The older entry, kept because its measurement was real
 
 **MEASURED 22 Aug 2026, twice, and it contradicts a claim this file has acted on
 since 19 Aug.** `post-cycle-elevated.ps1`'s header says an agent shell cannot
