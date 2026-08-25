@@ -5,68 +5,109 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, fifty-first session (OPGEN loose ends closed; one cycle owed).
+**Last updated:** 24 Aug 2026, end of the fifty-first session (install current; ACL lock ruled, not yet built).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: ONE CYCLE, AND IT BLOCKS THE MEASUREMENT THE OWNER ASKED FOR.
+> ## NEXT: IMPLEMENT THE ACL LOCK THE OWNER RULED. NOTHING IS BLOCKING IT.
 >
-> ***MODIFY WAS REMOVED FROM SD CORE*** (owner's ruling, 24 Aug 2026), so
-> `assert-current` exits 1 and a cycle is owed.
+> ***THE TREE IS CURRENT AND EVERYTHING SESSION 51 TOUCHED IS VERIFIED.***
+> Install **16:50:02**, `sd.exe` `275CFB03E142AA2C`, `assert-current` **exit
+> 0**. Take any reading you like before you change anything - and **take the
+> cheap measurement BEFORE the change that invalidates it**, which session 51
+> got wrong once and paid a cycle's wait for.
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
+> ### THE TASK: LOCK SEVEN DIRECTORIES TO `sdusers:(RX)`, LEAVE `$ipc` ALONE
 >
-> After it: `verify-tiers` and `verify-tierapi` are what prove it, and the new
-> counts are **354 / 395 / 416** (STANDARD unchanged - MODIFY was already
-> withheld from it).
+> ***OWNER'S RULING, 24 Aug 2026, ON A COMPLETED MEASUREMENT.*** §7 step 15 has
+> the evidence table. The seven: **`accounts`, `$map`, `messages`, `newvoc`,
+> `bp`, `cat`** (all under `<DataDir>\sdsys`) and **`sd.conf`** (at
+> `<DataDir>` root). ***`$ipc` KEEPS `(M)`*** - it is the only one of the eight
+> that anything writes, measured across an ordinary 15-verb session, the
+> spooler, the saved-list family and a phantom.
 >
-> ### AND THE PHANTOM/SPOOLER MEASUREMENT IS NOW BEHIND THAT CYCLE
+> **FOUR PIECES, and the shape is already decided by precedent:**
 >
-> The owner's ruling on §7 step 15 was ***"lock nothing until phantom and
-> spooler are measured"***. That measurement needs a current tree, and the
-> MODIFY removal made the tree stale in the same session - so **it could not be
-> taken and is now sequenced after the cycle.** Doing the deletion first was the
-> wrong order; the measurement was the cheaper half and should have gone first.
-> **Nothing is lost, one cycle is spent.**
+> 1. **`gplbld/secure-sysdirs.ps1`**, modelled on
+>    [secure-pcode.ps1](sdb_ai/sd64/gplbld/secure-pcode.ps1) - read that file
+>    first, it is the template and its header explains every choice. Same
+>    `-Path` string array, **SIDs not names** for the two built-ins
+>    (`*S-1-5-18`, `*S-1-5-32-544`), `/inheritance:r` **in the same `icacls`
+>    call** as the grants, the `try/catch` that exists because a native
+>    command's stderr TERMINATES under `ErrorActionPreference Stop`, and exit
+>    0 / 1 / 2.
+>    ***THE ONE THING THE PRECEDENT DOES NOT COVER: `sd.conf` IS A FILE.***
+>    `(OI)(CI)` are container-inherit flags and are invalid on a file - it
+>    needs a plain `(RX)`. Branch on `PSIsContainer`.
+> 2. **`gplbld/verify-sysdiracl.ps1`**, on the
+>    [verify-pcodeacl.ps1](sdb_ai/sd64/gplbld/verify-pcodeacl.ps1) pattern.
+>    ***`$ipc` IS THE NEGATIVE CONTROL AND IS NOT OPTIONAL***: it must still be
+>    WRITABLE by an ordinary token. Without that row a verifier that locked
+>    everything, or one that locked nothing, both pass.
+>    **Prove the write, do not read the ACE** - create a file as an unelevated
+>    user and remove it, which is what `secure-pcode.ps1`'s header says it did.
+> 3. **`sd.iss`**: a `SecureSysdirs` function beside `SecurePcode`
+>    ([sd.iss:1578](sdb_ai/sd64/gplbld/sd.iss:1578)) and a call in the
+>    `ssPostInstall` block beside `PcodeMsg := SecurePcode`
+>    ([sd.iss:1882](sdb_ai/sd64/gplbld/sd.iss:1882)). `LockOsUsersPath`
+>    ([sd.iss:1355](sdb_ai/sd64/gplbld/sd.iss:1355)) is the helper.
+>    ***IT MUST RUN AFTER THE DATA-TREE `icacls`, or inheritance puts the
+>    Modify straight back*** - the ordering rule every one of these scripts
+>    carries. Follow the precedent's failure message too: it names the manual
+>    command, because an ACL that is the whole of a control fails silently.
+> 4. **Both new scripts onto `assert-current`'s `$neverShipped` IN THE SAME
+>    COMMIT** ([assert-current.ps1:187](sdb_ai/sd64/gplbld/assert-current.ps1:187)).
+>    A script in `gplbld` that is not on that list makes the tree report stale
+>    because it exists, and then every verifier refuses.
 >
-> `gplbld/probe-syswrites.ps1` is the instrument and already carries the
-> nine-verb pass. What it still needs is PHANTOM, the spooler and saved lists -
-> the pass that **hung** last time, which has to be fixed before it can measure
-> anything (`SETPTR`/`SELECT`/`SAVE.LIST` are the suspects, and the family is
-> the LOGIN/TERM pagination hang).
+> **THEN ONE CYCLE, AND WHAT IT HAS TO PROVE IS NOT THE ACLs.** It is that
+> ***`CREATE.ACCOUNT`, `CATALOG` and `CONFIG` STILL WORK*** - those write
+> `accounts`, `cat` and `sd.conf`, and §7 step 15 marks those three rows
+> **reasoned, not measured**. Nobody has yet denied `sdusers` write and watched
+> them succeed. `verify-createaccount` and `verify-tiers` cover the first.
 >
-> ### ***`assert-current` CANNOT SEE A DELETION.*** FOUND 24 Aug 2026
+> ### THE INSTRUMENT LESSON FROM SESSION 51, IN ONE LINE
 >
-> `assert-current.ps1:544-562` walks **source -> install** and asks whether each
-> source file is in the install. **It never walks the other way**, so a file
-> that is in the install and no longer in source is invisible, and a
-> deletion-only change reports the tree **current**.
+> ***FOUR SEPARATE CHECKS REPORTED CLEANLY WHILE MEASURING NOTHING***: a
+> `grep -c $'\r'` whose pattern reached grep empty (so it returned line
+> counts), an `iconv -f UTF-16LE` of a UTF-8 file (decoded nothing, reported 0
+> failures), an `icacls` that had been **denied** and rendered as "(none)", and
+> an SD session fed from a file that ran **no commands** and exited in 1.3s
+> looking like a pass. **Every one was caught by a second independent reading,
+> never by re-reading the first.** Make an instrument prove it reached its
+> subject before believing what it says.
 >
-> **IT HAS ALREADY HAPPENED SILENTLY.** Session 50 deleted `GPL.BP/OPGEN`; the
-> installed tree still carried it afterwards and the guard said nothing. It was
-> noticed only because that commit also *edited* files, which is what made the
-> tree stale. **A commit that only deletes gets a green guard.**
+> **DRIVING SD FROM A SCRIPT - the harness facts, measured**: a PowerShell
+> **pipe** runs verbs and echoes them, but never signals EOF, so an unanswered
+> prompt blocks for ever and a **phantom inherits the pipe** and stops the job
+> completing. **File redirection runs nothing at all.** `cmd /c "sd.exe < f"`
+> echoed 0 of 9. Use the pipe, answer every prompt (`SETPTR` asks *"OK to set
+> new parameters (Y/N)?"* at `SETPTR:558`), and give `PHANTOM` its own
+> fire-and-forget pass. `gplbld/probe-syswrites.ps1` does all of this already.
 >
-> **THE FIX NEEDS A DESIGN CALL, WHICH IS WHY IT IS NOT DONE HERE.** A naive
-> reverse walk flags everything the install legitimately creates and source
-> never had - `gcat`, `gpl.bp.out`, `errlog`, `$ipc\%0`, account data - so it
-> would report stale on every run for ever, and a guard that always cries wolf
-> is worse than the gap. **The shape that would work is to compare the install
-> against WHAT `stage.py` SHIPS, not against the whole source tree.** That is a
-> real piece of work and the owner's call.
-
+> ### ALSO OPEN, AND IT IS THE OWNER'S CALL
 >
-> ***THE CYCLE RAN AT 15:13:25, THE INSTALL LANDED AT 15:14:28, AND
-> `assert-current` EXITS 0.*** `sd.exe` `275CFB03E142AA2C`. Transcript
-> `%LOCALAPPDATA%\SD-verify\cycle-20260824-151325.log`, `CYCLE COMPLETE`,
-> steps 1-8 all ran, both trees deleted and recreated. Installed counts match
-> the staged ones exactly — `gcat` 126 (staged 126), `GPL.BP.OUT` 186 (staged
-> 186), `$BCOMP` 88,070 — and the credential register has **1 account with a
-> password**, so the suite will not stall at a password prompt.
+> ***`assert-current` CANNOT SEE A DELETION.*** It walks source -> install and
+> asks whether each source file is installed; nothing walks the other way, so a
+> deletion-only commit reports the tree **current**. It has already happened
+> silently (session 50's `OPGEN` delete). **The naive fix makes it cry wolf for
+> ever** - `gcat`, `gpl.bp.out`, `errlog` and all account data are in the
+> install and never in source. The shape that would work is comparing the
+> install against **what `stage.py` ships**. Not started; needs a decision.
+>
+> ### §7 STEP 9's VERIFIER IS STILL UN-STARTED, and §7 is otherwise empty.
+>
+> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026*** - handed off on low
+> credits, at a clean boundary: **ten commits, all pushed, nothing half-done.**
+> OPGEN's two loose ends closed and `ERR.H`/`ERRTEXT.H` regenerated; the
+> transcript defect closed across three scripts; `verify-lineendings` put into
+> a runner it had never been in; `verify-tierapi`'s pre-split counts fixed;
+> MODIFY removed, cycled and verified at **354 / 395 / 416** by both tier
+> verifiers; and §7 step 15 measured end to end. **The suite last ran green at
+> 29 of 29** (`b33` plus the `b34` re-run). Prefixes to `b35` are spent - use
+> `b36` or later.
 >
 > ### THE INSTALL WAS VERIFIED ON DISK, NOT READ OFF THE CYCLE LOG
 >
