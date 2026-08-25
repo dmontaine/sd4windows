@@ -5,13 +5,78 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, fifty-fifth session. ***THE ssh SCOPING DEFECT IS FIXED AND BOTH BRANCHES ARE VERIFIED*** on clean guests — `sshremote` unticked gives `RemoteAddress=127.0.0.1`, ticked gives `Any`, `probe-sshfirewall.ps1` PASSED on each. ***NEXT, AND NOT STARTED: the owner has ruled SD must REFUSE TO INSTALL beside another ssh server*** — it fixes a live hole (a third-party sshd holds port 22 and SD installs anyway), and it takes `limitssh` off the tasks page. START HERE has the rule, the measurements behind it, and the knock-on work.
+**Last updated:** 25 Aug 2026, fifty-fifth session. ***THE REFUSE-TO-INSTALL RULING IS BUILT AND VERIFIED ON THREE GUESTS*** - SD now refuses beside an ssh server it does not own, `limitssh` is a statement rather than a tick box, and every new code path is exercised. The ssh firewall defect is closed, both branches. ***OPEN: only the remote-block control, which needs a BRIDGED NIC.*** Four false statements were found in the installer dialogs by reading them on screen - see START HERE, the pattern matters more than the four.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: THE REFUSE-TO-INSTALL WORK IS WRITTEN AND HAS NEVER BEEN COMPILED. IT NEEDS A CYCLE, THEN TWO GUESTS.
+> ## NEXT: NOTHING IS HALF-DONE. THE REFUSE-TO-INSTALL WORK IS COMPLETE AND VERIFIED.
+>
+> ***PROVEN ON THREE GUESTS, WITH THE REAL INSTALLER*** (11:54:26 build, SHA256
+> `033A6A94…67102`), 25 Aug 2026:
+>
+> | guest | ssh state | preflight | result |
+> |---|---|---|---|
+> | `sshRemoteTest-A2` | Windows' ssh, unconfigured, SD installed | CLEAR | wizard ran; tasks page **2 boxes** (`sshremote` correctly hidden by its `Check`) |
+> | `sshRemoteTest-A2`, armed | `PermitRootLogin no` added | **REFUSE** | ***refused at `InitializeSetup`, NO WIZARD DRAWN***, box named `Added: PermitRootLogin no.`, "Nothing on this computer has been changed" |
+> | `sshNoServer` | **no ssh at all** | CLEAR | wizard ran; tasks page ***3 boxes***, `sshremote` present and unticked, ***no `limitssh`***; install completed |
+>
+> ***EVERY NEW CODE PATH IS EXERCISED.*** The `dontcopy` extract, the
+> `InitializeSetup` call, reading the exit code, reading the reason file
+> (arrived clean — the UTF-8-without-BOM choice was right), the refusal dialog,
+> `limitssh` gone from `[Tasks]`, and ***`ApplyAllowGroups` running with no task
+> gate*** — the last one confirmed by its own outcome box on the `sshNoServer`
+> install: *"ssh is now limited to members of "sdusers" and the administrators
+> group."*
+>
+> **And the end state was measured, not assumed**: `probe-sshfirewall.ps1
+> -Expect Restricted` → `RemoteAddress = 127.0.0.1` as the installer left it,
+> `-Installed -Restrict` printing `ssh is reachable FROM THIS MACHINE ONLY`
+> exit 0, both loopback families REACHABLE. ***PASSED.***
+>
+> ### THE ONE THING STILL UNPROVEN, AND IT NEEDS HARDWARE
+>
+> ***THAT THE SCOPING ACTUALLY BLOCKS A REMOTE MACHINE.*** A VirtualBox NAT
+> port-forward cannot show it — with the rule wide open, `Get-NetTCPConnection`
+> showed **no inbound connection ever reached sshd**, because the NAT engine
+> completes the handshake itself. **It needs a BRIDGED NIC and a dial from
+> another machine** (§7 step 2). Everything else about §5.9 is now measured.
+>
+> ### WHAT READING THE DIALOGS COST AND EARNED, WHICH IS THE SESSION'S REAL LESSON
+>
+> The owner read the boxes on screen while they were up and found ***four***
+> false or misleading statements the code had outgrown, none of which any grep
+> would have surfaced:
+>
+> | said | actually |
+> |---|---|
+> | "Program files … **you can change this**" | `DisableDirPage=yes` — there is no directory page |
+> | "By default it can be reached only from this machine. The options page can open it…" | true only when SD installs the server; `ApplySshFirewall` exits unless `SshWasAbsent` |
+> | "kept as sshd_config.before-sd, and **uninstalling SD puts it back**" | `-Remove` strips SD's block; it never copies the backup over. **In TWO places; the first fix missed the second** |
+> | "**The original** sshd_config was kept…" | on a no-ssh machine the file was created by the OpenSSH install minutes earlier, not by the reader. Now "Any existing" |
+>
+> ***THE PATTERN, NOT THE FOUR SENTENCES, IS THE FINDING.*** `sd.iss`'s
+> `wpSelectTasks` MsgBox comment has been recording it across three rewordings:
+> *"each time the text went on asserting the old shape until somebody noticed"*.
+> It needed a fourth today. **When changing behaviour in this file, READ THE
+> DIALOGS** — the disclosure page and that MsgBox both now carry a note saying
+> so, where an editor will be looking.
+>
+> ### RIG NOTES, TWO OF THEM PAID FOR TODAY
+>
+> ***NEVER RUN THE INSTALLER STRAIGHT OFF THE `sdout` SHARE.*** The guest holds
+> the build output open and the next ISCC dies with *"The output file appears to
+> be in use (32)"* — after a full stage, so it costs a cycle. **Copy it to the
+> guest's own disk first** (`C:\Users\don\`) and run it there.
+>
+> ***NO HARD-CODED DRIVE LETTERS IN GUEST SCRIPTS.*** A transient share does not
+> get a stable one: two shares came up `Y:` and `Z:`, one share came up `Z:`
+> alone. Derive it — `$PSScriptRoot`, falling back to `MyInvocation`, because
+> `$PSScriptRoot` is empty in some hosts. This bit twice, because the first fix
+> was applied to one script instead of all of them.
+>
+> ## HOW THE REFUSE-TO-INSTALL WORK WAS BUILT (it is now done - see above)
 >
 > ***WHAT IS DONE, AND HOW FAR EACH PART IS TRUSTED:***
 >
@@ -260,22 +325,30 @@ something came to be the way it is.
 > ***CLONE, DO NOT SNAPSHOT*** — owner, 24 Aug 2026. `VBoxManage clonevm` took
 > **25 seconds** against minutes for a snapshot restore.
 >
-> ***PASS `--options keephwuuids,keepallmacs`. BOTH. CORRECTED 25 Aug 2026 AND
-> THE EARLIER ADVICE HERE WAS WRONG*** — it said `keephwuuids` alone and added
-> that MACs could differ freely because "activation doesn't hinge on that".
-> **It does.** Measured, one variable changed:
+> ***PASS `--options keephwuuids,keepallmacs`*** — prudent, and cheap.
 >
-> | clone | hardware uuid | MAC | Windows says |
-> |---|---|---|---|
-> | with `keephwuuids` only | same | **new** | `LicenseStatus = 5 (Notification)` |
-> | with both options | same | same | ***`LicenseStatus = 1 (Licensed)`*** |
+> ***BUT THE REASON GIVEN HERE EARLIER ON 25 Aug WAS WRONG, AND IT IS WITHDRAWN.***
+> It claimed, as a measured finding, that the NIC MAC is part of Windows'
+> activation hardware hash, on the strength of two clones: `keephwuuids` alone
+> read `LicenseStatus = 5 (Notification)`, both options read `1 (Licensed)`.
 >
-> The NIC MAC is part of Windows' activation hardware hash. **The cost is that
-> clones sharing a MAC must not run at the same time** — sequential test runs
-> are fine, and two guests up at once need one of them re-cloned with a fresh
-> MAC and re-activated. `pre.ps1`-style probes should check `LicenseStatus`
-> before anything else, because an unlicensed guest is a rig fault, not a
-> result.
+> ***ACTIVATION IS TRANSIENT AFTER BOOT AND THAT CONFOUNDED IT.*** Measured
+> later the same day on ONE guest, two minutes apart: **`5 (Notification)` at
+> ~4 minutes' uptime, `1 (Licensed)` at ~6**, with `LicenseStatusReason
+> 0x4004F401` and `GracePeriodRemaining 0`. Windows comes up in Notification
+> and flips once it revalidates over the network. **Both earlier readings were
+> single early samples, so they establish nothing about MACs.**
+>
+> **WHAT TO ACTUALLY DO:** pass both options anyway — it costs nothing and
+> keeps the guest as close to the template as possible — and ***POLL
+> `LicenseStatus`, NEVER SAMPLE IT ONCE.*** `pre.ps1` now waits up to five
+> minutes for it to settle. Clones sharing a MAC still must not run at the same
+> time.
+>
+> **The lesson is the one §"AN INSTRUMENT SHOWS WHAT IT DID" already states**: a
+> confident conclusion drawn from an instrument that never controlled for the
+> variable that mattered. It was written into this file and HISTORY as measured
+> fact and had to be withdrawn hours later.
 >
 > ***DRIVE FILES IN AND RESULTS OUT WITH TWO SHARED FOLDERS.*** `guestcontrol`
 > is forbidden (§7 step 2) and unnecessary:

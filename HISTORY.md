@@ -27,6 +27,69 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-fifth session, part 4: the refuse-to-install ruling is verified on three guests, and a morning finding is withdrawn
+
+**COMPLETE.** With the 11:54:26 installer (SHA256 `033A6A94…67102`):
+
+| guest | ssh state | preflight | result |
+|---|---|---|---|
+| `sshRemoteTest-A2` | Windows' ssh, unconfigured, SD installed | CLEAR | wizard ran, 2 boxes |
+| same, armed with `PermitRootLogin no` | configured | **REFUSE** | refused at `InitializeSetup`, **no wizard**, named the directive |
+| `sshNoServer` | **none** | CLEAR | wizard ran, **3 boxes**, no `limitssh`, install completed |
+
+Every new path exercised: the `dontcopy` extract, the `InitializeSetup` call,
+the exit code, the reason file (clean - the UTF-8-without-BOM choice was
+right), the refusal dialog, `limitssh` gone, and `ApplyAllowGroups` running
+with **no task gate**, confirmed by its own outcome box. End state measured by
+`probe-sshfirewall.ps1 -Expect Restricted`: `RemoteAddress = 127.0.0.1` as the
+installer left it, both loopback families REACHABLE, PASSED.
+
+***CORRECTION: THE MORNING'S "THE MAC IS PART OF THE ACTIVATION HASH" FINDING
+IS WITHDRAWN.*** It was recorded in PROJECT_STATUS and in this file as a
+measured result, from two clones read once each shortly after boot -
+`keephwuuids` alone giving `LicenseStatus 5 (Notification)`, both options
+giving `1 (Licensed)`.
+
+**Activation is TRANSIENT after boot and that confounded it.** One guest, two
+minutes apart: `5 (Notification)` at ~4 minutes' uptime, `1 (Licensed)` at ~6,
+`LicenseStatusReason 0x4004F401`, `GracePeriodRemaining 0`. Windows comes up in
+Notification and flips once it revalidates over the network. Both earlier
+readings were single early samples and establish nothing about MACs.
+
+Pass `keephwuuids,keepallmacs` anyway - it costs nothing and keeps the clone
+closer to the template - but **poll `LicenseStatus`, never sample it once**.
+`pre.ps1` now waits up to five minutes. This is §"AN INSTRUMENT SHOWS WHAT IT
+DID" exactly: a confident conclusion from an instrument that never controlled
+for the variable that mattered, written up as fact and withdrawn hours later.
+
+***FOUR FALSE STATEMENTS IN THE INSTALLER DIALOGS, ALL FOUND BY THE OWNER
+READING THE BOXES ON SCREEN.*** "Program files … you can change this"
+(`DisableDirPage=yes`); "the options page can open it to other computers"
+(true only when SD installs the server); "uninstalling SD puts it back" about
+`sshd_config.before-sd` (`-Remove` strips SD's block, it never copies the
+backup - **and this one was in TWO places, the first fix missing the second**);
+and "The original sshd_config", on a machine where the file had been created by
+the OpenSSH install ten minutes earlier - now "Any existing", the owner's
+wording.
+
+**The pattern is the finding.** `sd.iss`'s `wpSelectTasks` comment has tracked
+it across three rewordings - *"each time the text went on asserting the old
+shape until somebody noticed"* - and it needed a fourth today. Both that box
+and the disclosure page now carry a note telling an editor to read the dialogs
+when behaviour changes.
+
+**TWO RIG LESSONS PAID FOR.** Never run the installer off the `sdout` share -
+the guest holds the build output open and the next ISCC dies with "the output
+file appears to be in use (32)" after a full stage; copy it to the guest's disk
+first. And no hard-coded drive letters in guest scripts: a transient share came
+up `Y:`+`Z:` with two mounted and `Z:` alone with one. That bit twice, because
+the first fix was applied to one script instead of all.
+
+**Still unproven, unchanged:** that the scoping blocks a REMOTE machine. Needs
+a bridged NIC.
+
+---
+
 ## 25 Aug 2026 — Fifty-fifth session, part 3: the refuse-to-install ruling is built, and it has never been compiled
 
 The detection half is proven; the installer half is written and untested. Said
