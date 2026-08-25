@@ -27,6 +27,79 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-seventh session, part 4: the first cycle run, the refusal that earned its keep, and sdsys/bp emptied
+
+**Commit:** this one. `sdsys/bp/` (5 deletions + README), `gplbld/stage.py`,
+`PROJECT_STATUS.md`, `sdsys/changelog`.
+
+***`cycle.ps1 -SkipInstall` RUN TWICE. FIRST EXIT 1, THEN EXIT 0.***
+Logs `cycle-20260825-163058.log` and `cycle-20260825-164823.log`.
+
+### The first run found a real defect, and it was not this session's
+
+```
+stage: these are on the upgrade replace list but are EMPTY in the staged
+tree, so an upgrade would delete them and copy nothing back: bp.out
+```
+
+**One of the four refusals the fifty-sixth session built, firing on its first
+real run, and correct.** `bp.out` is in `SDSYS_EMPTY`, whose comment says
+"filled by the bootstrap" - but the bootstrap compiles `gpl.bp`, never
+`sdsys/bp`, so it staged empty while sitting on the replace list.
+
+**The staged tree made it decisive rather than inferred:**
+`gpl.bp.out` 185 files, `gcat` 125, `pcode.out` 56, `bin` 2 - all filled, all
+correctly on the replace list. `cat`, `prt`, `$hold` all stage 0 and are all on
+`SDSYS_PRESERVE`. **`bp.out` staged 0 and was on replace - the only one of its
+kind.**
+
+### The owner's ruling went further than the fix
+
+*"bp.out should be added to SDSYS_PRESERVE and the 5 files currently in sdsys
+bp should be deleted. They are not needed in this version."* And on `VFS.CLS`:
+*"I dont think we support virtual file systems."*
+
+So `PCL`, `PCL.GRID`, `U0032`, `U50BB` and `VFS.CLS` are deleted. Checked
+before deleting, because deleting is the part that cannot be undone by reading:
+
+- **The `pcl` VOC entry is a K-type keyword, value 186** - *"Keyword to specify
+  PCL printer"*, a `SETPTR` keyword. It never pointed at the BP program, so
+  nothing in the VOC breaks.
+- **`gpl.bp/PCL` exists and DIFFERS from `sdsys/bp/PCL`.** Same header,
+  divergent body - a second, older copy. The catalogued `$PCL` comes from
+  `gpl.bp`, and it is untouched.
+- The other four have no `gpl.bp` counterpart and no VOC entry.
+
+***THE DIRECTORY HAD TO SURVIVE THE FILES.*** `voc_template/bp` is an
+**F-pointer**, so every account's VOC resolves BP through it, and `sd.iss` ACLs
+`sdsys\bp` via `secure-sysdirs.ps1`. Git cannot track an empty directory
+either. So `bp` moved `SDSYS_SHIP` -> `SDSYS_EMPTY` with a `README` placeholder
+matching `bp.out`'s, and **both `bp` and `bp.out` went on `SDSYS_PRESERVE`** -
+SD ships nothing into either, so anything in them belongs to the site, which is
+`cat`'s argument exactly.
+
+### The second run, and what it proves
+
+Exit **0** in 42s. **194 BASIC programs, not one non-zero `N error(s)`**,
+`$CREATEA added to global catalogue` - so the `CREATEA` change of part 2
+compiles, which `bbcmp.py` could not tell us. Both `sd.conf` variants staged
+*and* packaged (`sd.conf`, `sd-standalone.conf` both in the ISCC compress
+list). ***The real ISCC compiled the whole `sd.iss` with `/DStage`***, generated
+`upgrade.iss` include and all - `sd-setup-W1.0-0.exe`, 4,818,214 bytes. That is
+the gap the two harnesses could not close.
+
+**Still not proven: the install itself.** `-SkipInstall` does not reach it, and
+the verify suite is a person's job (section 4.0.1).
+
+### An instrument note that would have cost a session
+
+***`Start-Process -Verb RunAs -Wait` DOES NOT SET `$LASTEXITCODE`.*** The
+24 Aug entry records this and it was followed: `-PassThru` and `.ExitCode`.
+**The first run returned 1 and `$LASTEXITCODE` would have read 0** - a failed
+cycle reported as a green one, with a 53 KB transcript nobody would have opened.
+
+---
+
 ## 25 Aug 2026 - Fifty-seventh session, part 3: apiremote becomes opt-in, and the wording that found it
 
 **Commit:** this one. `gplbld/sd.iss`, `PROJECT_STATUS.md`, `sdsys/changelog`.

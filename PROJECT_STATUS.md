@@ -26,6 +26,25 @@ something came to be the way it is.
 >
 > ### 1. RUN A FULL CYCLE AND THE VERIFY SUITE. IT IS NO LONGER JUST A CONFIDENCE RUN.
 >
+> ***THE `-SkipInstall` HALF IS GREEN AS OF 25 Aug 2026, 16:48:23 — EXIT 0,
+> INSTALLER BUILT.*** `cycle-20260825-164823.log`. **194 BASIC programs, not one
+> non-zero `N error(s)`**, `$CREATEA added to global catalogue`, both `sd.conf`
+> variants staged and packaged, and **the real ISCC compiled the whole `sd.iss`
+> with `/DStage`** — `sd-setup-W1.0-0.exe`, 4,818,214 bytes. So the build, the
+> BASIC and the installer script are all proven. **What remains is the install
+> itself and the suite**, which `-SkipInstall` deliberately does not reach.
+>
+> ***AND THE RUN BEFORE IT FOUND A REAL DEFECT, WHICH IS WHY THIS SECTION SAID
+> TO EXPECT ONE.*** 16:30:58 exited **1** — not a compile failure but
+> `stage.py`'s own refusal: ***`bp.out` was on the upgrade replace list while
+> staging EMPTY***, so an upgrade would have deleted the installed objects and
+> copied nothing back. Fixed under item 5's entry and in §7 step 3. **The four
+> refusals earned their keep on their first real run.**
+>
+> **NOTE FOR WHOEVER RUNS THE FULL ONE**: `Start-Process -Verb RunAs -Wait`
+> **does not set `$LASTEXITCODE`** — use `-PassThru` and `.ExitCode`, or a
+> failed cycle reads as success. The first run above would have looked green.
+>
 > ***THE LAST GREEN SUITE WAS 31/31, 386 PASS, ON `b37` AND `b38`, 24 Aug*** —
 > before the ssh-firewall fix, before `limitssh` left `[Tasks]`, before
 > `ssh-preflight.ps1`, before four dialog rewordings. **The tree is STALE right
@@ -920,7 +939,7 @@ something came to be the way it is.
 >
 > | check | result |
 > |---|---|
-> | installed `sdsys/bp/` after cycle | **exactly 5 files**: PCL, PCL.GRID, U0032, U50BB, VFS.CLS |
+> | ~~installed `sdsys/bp/` after cycle~~ | ~~**exactly 5 files**: PCL, PCL.GRID, U0032, U50BB, VFS.CLS~~ — **SUPERSEDED 25 Aug 2026: all five deleted on the owner's ruling, SD now ships nothing into it.** The measurement was real; its subject is gone |
 > | `verify-scramlogin` step 9b | 40/40, `TESTSDCLI compiles` / `!sdclient connected over SCRAM` / `TESTSDCLI PASSED` |
 > | finally cleanup | `TESTSDCLI removed from sdsys/bp (source lives in gplbld/testsdcli.bp)`, and `ls sdsys/bp/` after the run still shows exactly 5 files, `bp.OUT` clean of TESTSDCLI |
 > | rest of the suite | 31/31 on `b38` UTF-16LE decoded, 386 `[PASS]` across the 19 elevated logs, 0 `[FAIL]` |
@@ -7346,10 +7365,24 @@ the staging script and the Inno installer were all finished and removed.
      dropped from `sdsys/bp/`, one (`TESTSDCLI`) moved to
      [gplbld/testsdcli.bp](sdb_ai/sd64/gplbld/testsdcli.bp) with
      `verify-scramlogin.ps1` drop-into-place + finally-block cleanup so it
-     stays out of every end user's install. What remains in `sdsys/bp/` is
-     the shape the product ships with: `PCL`, `PCL.GRID` (printer control),
-     `U0032` and `U50BB` (the two documented user exits), and `VFS.CLS`
-     (template VFS class module). Changelog carries the user-facing note.
+     stays out of every end user's install.
+
+     ***SUPERSEDED 25 Aug 2026 — `sdsys/bp/` IS NOW EMPTY AND SD SHIPS NOTHING
+     INTO IT.*** This bullet said what remained was "the shape the product
+     ships with": `PCL`, `PCL.GRID`, `U0032`, `U50BB`, `VFS.CLS`. Owner's
+     ruling: **none is needed in this version, and VFS is not a supported
+     feature**, so a template class module for one was describing something
+     unusable. `gpl.bp/PCL` is the PCL that is compiled and catalogued;
+     `sdsys/bp/PCL` was a second, **divergent** copy (they differ). The `pcl`
+     VOC entry is a **K-type keyword, 186** — a `SETPTR` keyword, unrelated to
+     either program, and untouched.
+
+     **The directory still exists and had to**: `voc_template/bp` is an
+     F-pointer, and `sd.iss` ACLs `sdsys\bp` through `secure-sysdirs.ps1`. So
+     `bp` moved from `SDSYS_SHIP` to `SDSYS_EMPTY`, and **`bp` and `bp.out`
+     are both now on `SDSYS_PRESERVE`** — SD ships nothing into either, so
+     anything there belongs to the site. That is `cat`'s argument exactly.
+     Changelog carries the user-facing note.
      Same-commit updates to `stage.py`'s `('bp', ...)` comment,
      `assert-current.ps1`'s `$neverShipped` (`testsdcli.bp`), and this
      bullet. **Not yet cycled** - the change is source-only, and
