@@ -81,6 +81,43 @@ something came to be the way it is.
 >    element silently became **two** elements. Parenthesise every `+` inside
 >    `@( ... )`. It cost one confusing `ISCC` error.
 >
+> ### THE WHOLE REMAINING TASK LIST, COMPILED 24 Aug 2026 ON THE OWNER'S ASK
+>
+> §7 steps 0-2 and 4-14 are CLOSED. What is left, in the file, is:
+>
+> | § | task | state |
+> |---|---|---|
+> | 15 | **this ACL lock** | built, **one cycle owed** |
+> | 16 | **line endings** - SD reads and writes LF only on a Windows-only product | not started, **largest item**; **(a) READ side is a PREREQUISITE for (b)** |
+> | 3 | installer loose ends - the `limitssh`/`AllowGroups` task and the mandatory-ssh path have **never been seen** (this box already has OpenSSH); no data-tree upgrade path | not started, none blocking |
+> | 9 | the step 9 verifier - nothing stops a scheduled job's **command** prompting; `@logname` never checked on a cycle | never started |
+> | **17** | ***REVISIT `setup-devbox.ps1` - LEFT PARTIALLY WORKING*** (owner, 24 Aug 2026) | **clone step onwards never ran on a bare machine** |
+>
+> **Plus, and it is the owner's call:** `assert-current` **cannot see a
+> deletion** - it walks source -> install only, so a deletion-only commit
+> reports the tree current, which has already happened silently. The naive fix
+> cries wolf for ever; the shape that would work compares the install against
+> what `stage.py` ships. Not started.
+>
+> **And two undiagnosed §8 items**, neither blocking: the first verifier run
+> after a cycle sometimes fails checks the second passes (~2 in 10, three
+> explanations already dead), and `BASIC` once produced no object in SDSYS on a
+> reused file name, not reproduced since.
+>
+> ### STEP 17 IN ONE PARAGRAPH, BECAUSE IT IS THE NEWEST AND THE LEAST WRITTEN DOWN
+>
+> `setup-devbox.ps1` builds a development machine from nothing. On the clean VM
+> (`DevInstallTest`, 23 Aug 2026) **winget→MSYS2 and the pacman run worked for
+> the first time** - then it **died at `Step-Clone`**, because a running process
+> keeps the PATH it started with and the `git` winget had just installed was
+> still *"not recognized"*. `Step-Git` **detected and printed exactly that**,
+> and `Step-Clone` called `git clone` anyway. ***So the clones, `make sd` and
+> the summary have NEVER run on a bare machine.*** Three fixes went in
+> (`Update-SessionPath`, `Resolve-Tool` fallbacks, `Step-Clone` skipping) and
+> were verified **only by forcing each branch on a machine that already had the
+> tools** - which is not a clean run and must not be read as one. **The task is
+> one end-to-end run on a clean snapshot, through `make sd`.**
+>
 > ### `$ipc` KEEPS `(M)`, AND THAT IS A DECISION, NOT AN OVERSIGHT
 >
 > It is the only one of the eight that anything writes - every session modifies
@@ -1065,16 +1102,20 @@ what was done about each. What matters for this section:
 
 - **Executed for the first time: the libsodium build (worked) and the Inno
   Setup install (found four defects between them).**
-- ***STILL UNEXERCISED ANYWHERE: winget fetching MSYS2, and the pacman run.***
-  Both were skipped because `C:\msys64` and all 9 packages were already there.
-  **These are the two steps with the most left to go wrong** and no run so far
-  has touched either.
 - **`diffutils` was missing from the package list** and is missing on this
   machine too, so the list is now 10.
+- ***"STILL UNEXERCISED ANYWHERE: winget fetching MSYS2, and the pacman run"
+  WAS TRUE WHEN WRITTEN AND IS NOT NOW.*** Corrected 24 Aug 2026. The clean-VM
+  run later the same day **executed both for the first time and both worked** —
+  8 packages including the new `diffutils`, and libsodium's configure printed no
+  `cmp`/`diff` errors.
 
-**THE NEXT RUN WANTS A VM SNAPSHOT OF A CLEAN WINDOWS**, not a developer's
-laptop — §7 step 2 documents a reusable rig. Nothing short of a machine with
-no MSYS2 will exercise the remaining two paths.
+***THE CLEAN-VM RUN HAPPENED AND DID NOT FINISH — §7 STEP 17 IS THE TASK.***
+A fresh VirtualBox clone, `DevInstallTest`, 23 Aug 2026. It got tools installed
+and then **died at `Step-Clone`** on a PATH that a running process cannot see
+updated, so **the clones, `make sd` and the summary have never run on a bare
+machine**. Three fixes went in and are **unretested on a fresh VM**. §7 step 17
+has the detail and the rig; §7 step 2 documents the VM.
 
 MSYS2 lives at `C:\msys64`. It was installed but completely empty of tooling
 when this work started; everything below was installed during the port.
@@ -7443,6 +7484,90 @@ the staging script and the Inno installer were all finished and removed.
     (`$bytes -contains 13`) is the assertion inverted. The test for (b) is the
     same fixture in reverse: have SD write, and read the bytes.
 
+
+17. **REVISIT `setup-devbox.ps1` — IT WAS LEFT PARTIALLY WORKING.** Owner,
+    24 Aug 2026. **The last work on it stopped mid-verification, not at a
+    finished state**, and this step exists so that is not rediscovered by
+    somebody trying to build a machine with it.
+
+    `gplbld/setup-devbox.ps1` builds a **development** machine from nothing:
+    Git for Windows, `gh`, MSYS2, the pacman list, libsodium from source, Inno
+    Setup 6, the four sibling repositories, `sdb64`'s `origin/dev` fetch, and
+    `make sd` at the end because the build is the only real test of the
+    environment. §2 has the description; it is on `$neverShipped` and reaches
+    no install. **`-CheckOnly` surveys a machine, changes nothing and needs no
+    elevation** — run that first on any strange box.
+
+    ***WHAT IS ACTUALLY OUTSTANDING, from the record rather than from
+    memory.*** Two runs exist: the owner's laptop (23 Aug, not a fresh
+    machine) and a fresh VirtualBox clone `DevInstallTest` (23 Aug).
+
+    | leg | state |
+    |---|---|
+    | winget → MSYS2, and the pacman run | **executed for the first time on the clean VM and both worked** — 8 packages including `diffutils`, libsodium's configure clean |
+    | Git / `gh` / Inno Setup install | worked; **Inno went PER-USER** to `%LOCALAPPDATA%\Programs\Inno Setup 6` |
+    | the clone step onwards | ***NEVER REACHED ON A FRESH MACHINE*** |
+
+    ***THE CLEAN-VM RUN DIED AT `Step-Clone` AND EVERYTHING AFTER IT IS
+    UNTESTED ON A BARE BOX*** — the clones, `make sd`, and the summary. A
+    process keeps the PATH it started with, so the `git` winget had just
+    installed was still *"not recognized"*; `Step-Git` **detected and reported
+    exactly that**, and `Step-Clone` then called `git clone` anyway and threw
+    under `ErrorActionPreference = 'Stop'`, ending the run where it stood. No
+    clones, no build, **and no summary**, on a machine that was otherwise
+    nearly ready.
+
+    **THREE FIXES WENT IN AND ARE UNRETESTED ON A FRESH VM**, which is the
+    whole of this step: `Update-SessionPath` re-reads Machine+User PATH from
+    the registry after every winget install; `Resolve-Tool` falls back to known
+    install locations for `git` and `gh`; `Step-Clone` skips with a message
+    when git is unusable instead of calling it. **Every step now runs inside a
+    `try` so `Step-Report` cannot be lost** — losing the report was worse than
+    the failure it was reporting.
+
+    **They were verified on a machine that already had the tools**, by forcing
+    each branch — PATH rebuilt from 11 chars to 589 with git findable
+    afterwards, `Step-Clone` returning normally with git unusable, `Step-Report`
+    still running after a step throws. ***That is not the same as a clean run
+    and must not be read as one.***
+
+    ***THE TASK IS ONE RUN ON A CLEAN SNAPSHOT, END TO END, THROUGH `make sd`.***
+    §7 step 2 documents the reusable rig (VM `Windows 11 Clone`, snapshot
+    `Before SD install`, NIC bridged, files in over
+    `VBoxManage sharedfolder add --transient --automount` — **do not drive the
+    guest with `guestcontrol`**, which needs guest credentials). `DevInstallTest`
+    was the clone used last time.
+
+    **KNOWN GAPS THAT ARE NOT DEFECTS, so they are not chased on the way:**
+
+    - It does **not** fetch `Projects\GPL.BP` — a convenience copy of upstream,
+      no remote, not project material.
+    - `..\sdhelp` is copied only when `-SdHelpSource <path>` is given
+      (`Step-SdHelp`, owner's ruling 24 Aug 2026); without it the tree is
+      **reported as a hand-carry item** rather than passed over in silence. It
+      is 30 MB of third-party PDF and HTML and is deliberately not vendored.
+    - Clones are `https` and the `git@` **push** URL is set afterwards with
+      `git remote set-url --push`, so a machine with no SSH key still finishes.
+      A key is needed the first time somebody pushes and git says so itself.
+
+    ***AND ONE THING THAT BROKE ON ITS WATCH AND WAS NEVER TRACED*** — recorded
+    here because a session picking this up will meet it. On the install of that
+    day, elevated `sd WHO` and `sd ZZNOSUCHVERB` **both hung** (killed by a 25s
+    timeout, blocked rather than looping, no output and no errlog); unelevated
+    `sd <command>` still worked. A nonexistent verb hanging means **start-up,
+    not dispatch**. The only shipped delta was the pcode ACL, but an elevated
+    token holds Administrators, which had Full on `sdsys\bin` **before and
+    after** — so the mechanism does not add up and **the ACL must not be
+    reverted on suspicion**. The untested alternative is step 4's elevation
+    helper: `sd.exe` stays unelevated for life and talks to
+    `sd-elevate-helper.ps1` over a pipe, and an already-elevated session
+    negotiating that non-interactively would block on a pipe read exactly like
+    this. **Nobody traced it**, and it is not known to be reproducible on a
+    current install.
+
+    ***USE A TIMEOUT ON EVERY ELEVATED SD PROBE.*** An SD console session
+    cannot be killed by `Stop-Process` or `taskkill /F` from an ordinary token;
+    clearing one costs an elevation. That session lost five windows to it.
 ## 8. Open questions
 
 **COMPRESSED 21 Aug 2026, thirty-eighth session**, under §0 rule 5. Closed and
