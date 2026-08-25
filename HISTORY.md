@@ -27,6 +27,55 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-second session, part 3: the installer's password step moves to MODIFY.PASSWORD
+
+**Commit:** the commit carrying this entry. Fixes the regression recorded in part 2.
+
+**OWNER'S RULING.** `finish-install.ps1` now runs `sd -QUIET MODIFY.PASSWORD
+<user>` instead of `sd -QUIET off`. **`LOGIN:669` is unchanged** — step 9's
+ruling stands. Asking for the password is now what the command DOES rather than
+a side effect of logging in, so no future change to how LOGIN treats a command
+line can silently remove it again. The session still closes itself, which was
+the 22 Aug requirement.
+
+***THE OWNER'S FIRST IDEA WAS `-internal`, AND IT CORRECTED A FALSE CLAIM OF
+MINE EVEN THOUGH IT DOES NOT WORK HERE.*** I had written that SD *"cannot tell
+the two apart from the inside"*. Wrong. Checking his idea found that
+`bootstrap.py:153` runs every `-internal` session with `input=b'
+'` — **stdin
+is a pipe, so `K$TTY` is empty for all of them** — which means the tty test
+already separates bootstrap from any console session, and `-internal` was never
+needed as the signal. What blocks it at THIS call site is different:
+`sd.c:589-594` forces `-INTERNAL` to the **SDSYS** account and refuses any
+other, so it would have set SDSYS's password rather than the user's, silently.
+
+**CHECKED IN THE VERB BEFORE CHANGING THE CALLER**, which is exactly the step
+skipped when the regression was introduced: self-closing (`sd.c:645`), two
+hidden prompts (`SET_ACC_PASSWORD:174`, `:184`), the fresh-account message
+(`:152`), no current-password demand when there is no credential (`:159`), the
+decline path (`:176`), the administrator gate (`:113`), and case folding
+(`:80`, `account = upcase(token)`). `MODIFY.PASSWORD` was confirmed present in
+the adopted account's VOC on the live install.
+
+***`-User` CHANGED FROM A WEAK CHECK TO A LOAD-BEARING ARGUMENT.*** It was
+*"used ONLY to look for a credential afterwards"*; it is now what names the
+account, so a wrong value sets the wrong password or is refused with *"Account
+%1 not in register"*. `sd.iss:1292` passes `-User "{username}"` — checked
+rather than assumed.
+
+**THE $cred READ-BACK IS KEPT AND ITS COMMENT REWRITTEN.** That check is what
+caught the regression, and the comment above it had *predicted* the regression
+in as many words while the step still passed `off`. The failure mode is
+narrower now, but the check still covers the class: a refused verb, a session
+that never started, a `$cred` that was not writable.
+
+**NOT RUN.** Parse-clean, no BOM, no CR, and `MODIFY.PASSWORD` cannot be
+exercised from an unelevated agent shell (`sd.c` `check_admin()` refuses a
+command line without elevation). **What the next cycle must show is the wizard
+ASKING, and `check-install` not printing "No password was set".**
+
+---
+
 ## 24 Aug 2026 — Fifty-second session, part 2: the ACL lock is verified, and step 9's ruling broke the installer
 
 **Commit:** the commit carrying this entry.

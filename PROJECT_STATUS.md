@@ -5,18 +5,23 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, fifty-second session (ACL lock CLOSED and verified; one open regression in the installer password step).
+**Last updated:** 24 Aug 2026, fifty-second session (ACL lock CLOSED; installer password step moved to MODIFY.PASSWORD, not yet run).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: DECIDE ONE THING. A FRESH INSTALL NO LONGER COLLECTS A PASSWORD.
+> ## NEXT: ONE CYCLE, TO PROVE THE WIZARD ASKS FOR A PASSWORD AGAIN.
 >
-> ***OPEN REGRESSION, INTRODUCED AND MEASURED 24 Aug 2026. THE PRODUCT IS IN
-> THIS STATE NOW.*** Step 9's ruling - *"sd &lt;command&gt; is batch, so not
-> interactive"* - was implemented as `and batch.command = ''` at
-> [LOGIN:669](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:669). **It breaks the installer's
+> ***THE REGRESSION IS FIXED IN SOURCE AND THE FIX HAS NOT RUN.*** It is the
+> only thing outstanding. **What the cycle must show is the wizard asking for a
+> password and `check-install` NOT printing "No password was set".**
+>
+> ### WHAT HAPPENED, KEPT BECAUSE THE LESSON IS THE VALUABLE PART
+>
+> Step 9's ruling - *"sd &lt;command&gt; is batch, so not interactive"* - was
+> implemented as `and batch.command = ''` at
+> [LOGIN:669](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:669). **It broke the installer's
 > password step**, which the owner found on the 18:03:37 install: the wizard
 > never asked.
 >
@@ -37,20 +42,43 @@ something came to be the way it is.
 > - `batch.command` is empty, so the 21 Aug rule applies unchanged. The owner
 > did this and the account has a password.
 >
-> ***THE DECISION, AND SD CANNOT MAKE IT FROM THE INSIDE.*** The installer's
-> session and the hang case are indistinguishable - both elevated, both a real
-> console (`K$TTY`), both carrying a command. **The only difference is whether
-> a person is sitting there.** So one of three:
+> ### THE FIX, RULED BY THE OWNER 24 Aug 2026: CHANGE THE INSTALLER
 >
-> | | |
-> |---|---|
-> | 1 | **Revert `LOGIN:669`.** Installer works; the ruling is owed again. Costs a cycle |
-> | 2 | **Keep it, change the installer** so `off`-as-self-close stops being load-bearing. Honours the ruling; a product change |
-> | 3 | **Keep both**, and rely on `finish-install.ps1`'s existing check to tell the user their account has no password |
+> ***`finish-install.ps1` NOW RUNS `sd -QUIET MODIFY.PASSWORD <user>` INSTEAD
+> OF `sd -QUIET off`.*** `LOGIN:669` is UNCHANGED - the ruling stands.
+> **Asking is now what the command DOES**, rather than a side effect of logging
+> in, so no future change to how LOGIN treats a command line can remove it
+> again. The session still closes itself, which was the 22 Aug requirement.
 >
-> **Nothing has been changed on the strength of a recommendation.** 2 is the
-> suggestion - it honours the ruling and removes a trick that file's own
-> comment calls a silent-failure risk.
+> **THE OWNER'S FIRST IDEA WAS `-internal`, AND IT IS BLOCKED AT THIS CALL SITE
+> ONLY** - [sd.c:589-594](sdb_ai/sd64/gplsrc/sd.c:589) forces `-INTERNAL` to
+> the **SDSYS** account and refuses any other, so it would set SDSYS's password
+> rather than the user's, silently. **But it was the right instinct and it
+> corrected a false claim in this file**: *"SD cannot tell the two apart"* was
+> wrong. [bootstrap.py:153](sdb_ai/sd64/gplbld/bootstrap.py:153) runs every
+> `-internal` session with `input=b'\n'`, so **stdin is a pipe and `K$TTY` is
+> empty for all of them** - the tty test already separates bootstrap from any
+> console session.
+>
+> **CHECKED IN THE VERB BEFORE CHANGING THE CALLER**, which is the discipline
+> that was missing the first time:
+>
+> | requirement | where | behaviour |
+> |---|---|---|
+> | self-closing | `sd.c:645` | single command, so SD runs it and exits |
+> | prompts, hidden | `SET_ACC_PASSWORD:174,:184` | `New password:` / `Repeat new password:` |
+> | fresh account | `:152` | *"has no password set. Setting the first one."* |
+> | no current password demanded | `:159` | `if own and has.cred` - skipped when there is none |
+> | declining still works | `:176` | empty -> *"Password not changed."*, `stop` |
+> | administrator gate | `:113` | and `finish-install.ps1` is elevated |
+> | case | `:80` | `account = upcase(token)`, so `{username}` goes through as-is |
+> | the verb resolves | measured | `MODIFY.PASSWORD` is in the adopted account's VOC |
+>
+> ***AND `-User` STOPPED BEING A WEAK CHECK AND BECAME LOAD-BEARING.*** It was
+> *"used ONLY to look for a credential afterwards"*; it is now the argument to
+> the verb, so a wrong value sets the wrong account's password or is refused
+> with *"Account %1 not in register"*. `sd.iss:1292` passes
+> `-User "{username}"`, checked.
 >
 > **THE SUITE IS UNAFFECTED AND CAN RUN**: every verifier drives `sd` down a
 > pipe (`K$TTY` empty, so the prompt was already skipped before this change),
@@ -149,7 +177,7 @@ something came to be the way it is.
 > | § | task | state |
 > |---|---|---|
 > | 15 | **the ACL lock** | ***CLOSED*** - cycled and verified 18:03:37, 16/16. `CATALOG`/`CONFIG` hand-run still owed |
-> | 9 | ***`sd <command>` no longer prompts*** - built and COMPILED (190 programs, 0 errors) and cycled. ***BUT IT BROKE THE INSTALLER'S PASSWORD STEP*** - see the top of this section | **open regression, decision owed** |
+> | 9 | ***`sd <command>` no longer prompts*** - built, compiled, cycled. It broke the installer's password step; **FIXED** by moving that step to `MODIFY.PASSWORD` (owner's ruling). **The fix has not run** | needs one cycle |
 > | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. `sdsys\bp` still ships **21 test programs** to end users. No data-tree upgrade path | 3 open bullets; **one is now cheap** |
 > | — | ***NEW, FOUND 24 Aug WHILE CHECKING STEP 3, AND IT IS THE OWNER'S CALL***: `ApplyAllowGroups` is gated **only** on the task, not on `SshWasAbsent` as the firewall step is - so on a machine with a **stock** foreign `sshd_config` a default-ticked box edits it. `allow-ssh-groups.ps1`'s header says the rule is carried by the task being "unticked by default"; **it is ticked by default.** §5.9 has the table | decision not started |
 > | 9 | ***RULED AND BUILT 24 Aug 2026*** - owner: *"only batch, so not interactive"*. `sd <command>` no longer prompts; `LOGIN:640`. **A VERIFIER IS OWED** and `verify-batchjob` will not catch a regression (it pipes `$null`, so the old gate already skipped). Plus `@logname`, never checked on a cycle | **built, not compiled, not run** |
