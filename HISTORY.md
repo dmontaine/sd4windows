@@ -27,6 +27,61 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-sixth session: the styled sample documentation page, and what converting three help pages found
+
+**Commit:** this one. START HERE item 2, which the previous session left as the
+one documentation task an AI session could do without the owner present.
+
+**WHAT IS THERE.** `gplbld/mkdoc.py` renders Markdown to one self-contained
+HTML file with the CSS embedded, and `docs/sample/file-commands.md` is the
+sample: the real `create.file`, `clear.file` and `delete.file` pages from
+`..\sdhelp`, as one topic page rather than three. Rendered to
+`docs/sample/file-commands.html`, 18 KB, 13 anchors, no external asset of any
+kind. The generated HTML is gitignored; the Markdown is the source.
+
+**NOTHING IS WIRED IN, DELIBERATELY.** `stage.py` and `sd.iss` do not name
+`mkdoc.py` or the `.md`. Naming either is what puts a file under
+`assert-current`'s `$shipsAs` valve, and from that moment a documentation edit
+costs a full cycle. `mkdoc.py` went on `$neverShipped` in this commit under
+step 7's rule; the valve reinstates it automatically when `stage.py` finally
+names it, so nothing has to remember to undo that.
+
+**THE PRINT STYLESHEET HAD A REAL BUG AND ONLY LOOKING FOUND IT.** `@media
+print` set `body{color:#000}` but left the colour *variables* at their
+dark-mode values, so on a machine in dark mode the subtitle, the section
+labels, the table headings and the panel behind every code block still printed
+pale grey on white. Fixed by resetting the whole palette inside the print
+block rather than the two elements that happened to be visible. Measured with
+its control: the browser forced to **dark**, the print rules rendered as screen
+rules, black on white throughout.
+
+**A SECOND ONE CAUGHT BY THE BYTE-SCAN, IN THE SCRIPT'S OWN BOM CHECK.** The
+BOM test was written as a literal U+FEFF in the source, so `mkdoc.py` carried a
+BOM of its own at offset 10766 and every future scan of it would have reported
+a hit. Now `chr(0xFEFF)`. CLAUDE.md's scan found this on the first run of it.
+
+**WHAT THE CONVERSION FOUND IN THE DOCUMENTATION, which is the argument for
+writing it against source.** `create_file.htm` documents `ENCRYPT keyname`;
+`gpl.bp/CREATEF` has no reference to encryption at all, so the token reaches
+`CREATEF:251` and stops with *Unexpected token*. Its see-also names
+`CREATE.KEY` and `ENCRYPT.FILE`, neither of which is in `voc_template`.
+`../sdb64` is the same, so this is not ours and is not an UPSTREAM_FIXES entry
+- encryption went when OpenQM was GPL'd, and the help was never updated. The
+rot runs the other way too: `CREATEF`'s own header comment says `DIRECTORY
+path` where the keyword is `PATHNAME` (`CREATEF:183`). PROJECT_STATUS §2's
+sdhelp entry carries all of it.
+
+**NO CHANGELOG ENTRY.** Nothing here reaches a user's machine: `mkdoc.py` is
+not staged, no documentation is installed yet, and the only shipped file
+touched is none.
+
+**STILL OPEN — four yes/no questions for the owner, all listed in START HERE
+item 2:** lower-case commands, dark mode, the sidebar table of contents, and
+one page per topic against one page per verb. Also unbuilt: an index page, and
+`setup-devbox.ps1` does not install python-markdown.
+
+---
+
 ## 25 Aug 2026 — Fifty-fifth session, part 5: the documentation phase is scoped, and the changelog turns out to be in the wrong place
 
 Design questions from the owner, answered and recorded in START HERE rather

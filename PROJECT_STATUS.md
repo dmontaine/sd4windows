@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, end of fifty-fifth session. ***CODE IS ESSENTIALLY DONE FOR 1.0-0; THE DOCUMENTATION PHASE IS NEXT.*** The refuse-to-install ruling is built and verified on three guests, and the ssh firewall defect is closed on both branches. ***THE ONE THING NOBODY HAS DONE IS RUN THE SUITE SINCE ANY OF IT*** - last green was b37/b38 on 24 Aug, and the tree is STALE, so a full cycle comes first. Documentation decisions are agreed and recorded in START HERE; the owner asked for a styled sample page to judge before anything is committed to.
+**Last updated:** 25 Aug 2026, fifty-sixth session. ***CODE IS ESSENTIALLY DONE FOR 1.0-0; THE DOCUMENTATION PHASE IS NEXT.*** The refuse-to-install ruling is built and verified on three guests, and the ssh firewall defect is closed on both branches. ***THE ONE THING NOBODY HAS DONE IS RUN THE SUITE SINCE ANY OF IT*** - last green was b37/b38 on 24 Aug, and the tree is STALE, so a full cycle comes first. ***THE STYLED SAMPLE PAGE IS BUILT AND NEEDS TEN MINUTES OF THE OWNER'S EYES*** - `docs\sample\file-commands.html`, START HERE item 2, with four yes/no questions listed there.
 
 ---
 
@@ -28,12 +28,42 @@ something came to be the way it is.
 > This is the owner's own next task; he said he would do the run and verify in
 > a fresh session.
 >
-> ### 2. BUILD ONE STYLED SAMPLE DOCUMENTATION PAGE — THE OWNER ASKED FOR IT
+> ### 2. THE SAMPLE PAGE IS BUILT. IT IS WAITING TO BE JUDGED — 25 Aug 2026
 >
-> Take a real chunk of SD documentation, render it the way §"DOCUMENTATION
-> DECISIONS" below says, and let him judge the look before anything is
-> committed to. **He asked for a sample rather than a description, and he is
-> right to** — "can Markdown be pretty" is not a question prose answers well.
+> ***OPEN
+> `C:\Users\dmont\Projects\sd4windows\docs\sample\file-commands.html`*** —
+> double-click, no server, no install. Source
+> [docs/sample/file-commands.md](docs/sample/file-commands.md), renderer
+> [gplbld/mkdoc.py](sdb_ai/sd64/gplbld/mkdoc.py) (python-markdown 3.10.2,
+> already on this machine; `setup-devbox.ps1` does **not** install it yet).
+> Rebuild: `python sdb_ai/sd64/gplbld/mkdoc.py --in docs/sample --out
+> docs/sample`.
+>
+> Content is the real `create.file`, `clear.file` and `delete.file` pages from
+> `..\sdhelp`, every keyword checked against `gpl.bp/CREATEF`.
+>
+> ***FOUR THINGS NEED A YES OR NO. All are cheap to change:***
+>
+> | | |
+> |---|---|
+> | **lower-case commands** — `create.file`, not `CREATE.FILE` | §5.12 rules lower case everywhere it can be, so the sample follows it. `..\sdhelp` is upper case throughout, so this is a visible break with the source material |
+> | **dark mode follows the machine** | ~15 lines of the CSS. Strike it and every reader gets white |
+> | **sidebar table of contents, `h2` and `h3`** | one line to drop it to `h2` only, or to a box above the text |
+> | **one page per topic, not per verb** | the sample is a topic page holding three verbs; `..\sdhelp` is one file per verb, 783 of them |
+>
+> **NOT BUILT, DELIBERATELY:** no index page, and `mkdoc.py` is **not** wired
+> into `stage.py` or `sd.iss`. Naming a `.md` in either is what puts it under
+> `assert-current`'s `$shipsAs` valve, after which every documentation edit
+> costs a full cycle — correct once documentation ships, a toll while the
+> format is still being judged. `mkdoc.py` itself is on `$neverShipped`
+> ([assert-current.ps1:484](sdb_ai/sd64/gplbld/assert-current.ps1:484)) for the
+> same reason, and the valve reinstates it automatically when `stage.py` names
+> it.
+>
+> **THE CONVERSION FOUND A DOCUMENTATION DEFECT, which is the argument for
+> doing this against source rather than from a detached copy:** §2's sdhelp
+> entry now carries it — `create_file.htm` documents `ENCRYPT keyname` and two
+> see-also verbs that this port does not have.
 >
 > ### 3. THE DATA-TREE UPGRADE PATH IS DECIDED AND NOT BUILT
 >
@@ -2312,6 +2342,24 @@ answer decides a cycle** — `COPY:220-229` was checked before `copy.htm` was
 relied on — and remember this tree has removed verbs since (§5.19 `SED` and
 `UPDATE.RECORD`, SDNet's three `*.SERVER` verbs) and that `CREATEF`'s own doc
 comment is stale in a way that cost run `b22`.
+
+***MEASURED 25 Aug 2026 WHILE WRITING THE SAMPLE PAGE: THE DELTA IS NOT ONLY
+WHOLE VERBS. IT IS KEYWORDS INSIDE A VERB THAT STILL EXISTS.***
+`create_file.htm` documents `ENCRYPT keyname`; `gpl.bp/CREATEF` contains **no
+reference to encryption at all** — 0 hits — so the token falls through the
+keyword `case` to `CREATEF:251`, `stop sysmsg(2018, token)`, *Unexpected
+token*. Its see-also names `CREATE.KEY` and `ENCRYPT.FILE`; neither is in
+`sdsys/voc_template`. `KW$ENCRYPT` is defined at `syscom/PARSER.H:226` and used
+by nothing, and `voc_template/encrypt` is the type-K record for it. **Not ours
+and not a defect** — `../sdb64`'s `CREATEF` has 0 hits too, so encryption went
+when OpenQM was GPL'd, and there is nothing for UPSTREAM_FIXES. **It is the
+documentation that is stale, and only a page-by-page pass against source finds
+the rest.** The reverse also happens, which is why the pass has to go both
+ways: `CREATEF`'s own header comment says `DIRECTORY path` where the real
+keyword is `PATHNAME` (`CREATEF:183`) — there, the help page is the one that is
+right. Two other pieces of the sample checked out against source: the `.dic`
+suffix is lower case on a real install (the page says `.DIC`), and `pathname`
+requires an existing directory (`CREATEF:191`, sysmsg 6110).
 
 ***AND THE COMMAND LISTS THAT SAY WHAT STILL EXISTS ARE IN THE `sdb64` CLONE
 ALREADY*** — `../sdb64/sd64/Documentation/`, two files, found 24 Aug 2026:
