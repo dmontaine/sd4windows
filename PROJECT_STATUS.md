@@ -5,25 +5,56 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the fifty-second session (steps 9 and 15 closed; suite 30/30 on b36; one CATALOG measurement owed).
+**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 fully closed; probe-catprivate 3/3, CATALOG proven writing sdsys\cat under the lock.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: ONE SMALL MEASUREMENT IS OWED. NOTHING IS BLOCKING.
+> ## NEXT: NOTHING IS OWED. RUN THE SUITE AT 31 WHEN CONVENIENT.
 >
-> ***END OF THE FIFTY-SECOND SESSION, 24 Aug 2026*** — handed off on low
-> credits at a clean boundary: **thirteen commits, all pushed, nothing
-> half-done, working tree clean.** Install **18:19:17**, `assert-current`
-> matches source, suite green at **30 of 30** on `b36`.
+> ***END OF THE FIFTY-THIRD SESSION, 24 Aug 2026*** — step 15 fully closed.
+> `probe-catprivate.ps1` ran green on the current install at **19:26:48**:
+> **3/3 checks agreed**, CATPRV192648 added to private catalogue, count 0→1,
+> `C:\ProgramData\SD\sdsys\cat\CATPRV192648` written and cleaned. Transcript
+> at `%LOCALAPPDATA%\SD-verify\probe-catprivate-20260824-192648.log`.
 >
-> ### THE ONE THING OWED: PROVE `CATALOG` STILL WRITES `sdsys\cat`
+> ### STEP 15 IS NOW MEASURED, NOT REASONED, ON ALL FOUR ROWS
 >
-> §7 step 15 has the recipe and the reasoning. It is **one elevated hand-run**,
-> spends no prefix, and the shape is `verify-catgate.ps1:234-261` copied rather
-> than invented. ***I WAS BUILDING THIS PROBE WHEN THE SESSION ENDED — NOTHING
-> WAS WRITTEN, so there is no half-finished script to find.***
+> | writer | how proven |
+> |---|---|
+> | `CREATE.ACCOUNT` | 24 Aug session-52 install 18:19:17 wrote `accounts\don` into a locked directory |
+> | `CATALOG` (private) | 24 Aug 19:26:48 — `probe-catprivate.ps1` 3/3 |
+> | `CATALOG` (global, `$`-prefix) | `verify-catgate` 25/25 (`gcat` locked long before this step) |
+> | `CONFIG` | closed by source — nothing in SD writes `sd.conf`; `config.c:152` and `sysdump.c:49` are `fopen("r")`, `op_config.c` does no file I/O |
+>
+> ### NEXT: THE SUITE AT 31, WHEN CONVENIENT
+>
+> `verify-cmdaudit` joined `VerifyInstall2` after `b36`, so green becomes
+> **31 of 31**. ***PREFIXES TO `b36` ARE SPENT — USE `b37` OR LATER.***
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b37
+> ```
+>
+> ***AND OPEN A FRESH ELEVATED WINDOW FOR IT AND FOR EVERY CYCLE.*** See the
+> transcript note below — `cycle.ps1` warns, but the habit is the fix.
+>
+> ### THE PROBE, KEPT BECAUSE THE MEASUREMENT MIGHT NEED TO BE RE-TAKEN
+>
+> [probe-catprivate.ps1](sdb_ai/sd64/gplbld/probe-catprivate.ps1), 15,255
+> bytes, listed in `assert-current.ps1`'s `$neverShipped`. Copies
+> `verify-catgate.ps1`'s `Invoke-SD` verbatim; per-run names embed the
+> timestamp; backs `gcat` up under `%LOCALAPPDATA%\SD-verify` first;
+> three-way decisive check with the anchor on sysmsg 3031's positive
+> wording. A future change to the ACL lock or to CATALOG can re-take
+> the measurement in one elevated hand-run:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-catprivate.ps1
+> ```
+>
+> ## THE DETAIL BELOW IS THE PREVIOUS SESSION'S RECORD
 >
 > ***AND ITS SIBLING IS ALREADY CLOSED, BY SOURCE.*** `CONFIG` cannot be broken
 > by this lock: **nothing in SD writes `sd.conf`** — every `config_path` use in
@@ -7398,9 +7429,11 @@ the staging script and the Inno installer were all finished and removed.
       what a `secure-*.ps1` plus a verifier would settle, and it is the work the
       ruling authorises rather than something already done.
 
-    ***STEP 15 IS CLOSED — CYCLED AND VERIFIED, 24 Aug 2026, INSTALL 18:03:37,
-    `assert-current` EXIT 0.*** `verify-sysdiracl` **16 of 16 decisive, exit
-    0**, unelevated as `GITORLI\don`.
+    ***STEP 15 IS FULLY CLOSED — ACL LOCK CYCLED, VERIFIED, AND ALL FOUR
+    WRITERS MEASURED. 24 Aug 2026.*** `verify-sysdiracl` 16/16 on the
+    18:03:37 install; `probe-catprivate` 3/3 at 19:26:48; `CREATE.ACCOUNT`
+    wrote a locked `accounts` on the same 18:03:37 install; `CONFIG`
+    closed by source (nothing in SD writes `sd.conf`).
 
     | measured | result |
     |---|---|
@@ -7433,29 +7466,21 @@ the staging script and the Inno installer were all finished and removed.
     `verify-apiport.ps1`, which edits `APIPORT` from PowerShell (elevated).
     **No hand-run is owed for this half.**
 
-    ***THE `CATALOG` HALF IS STILL OWED, AND IT IS NOW A NARROW QUESTION.***
+    ***THE `CATALOG` HALF IS CLOSED, 24 Aug 2026, 19:26:48*** —
+    [probe-catprivate.ps1](sdb_ai/sd64/gplbld/probe-catprivate.ps1)
+    ran green on the current install, **3/3 checks agreed**:
+    `sdsys\cat` grew 0→1, `C:\ProgramData\SD\sdsys\cat\CATPRV192648`
+    was written, and SD said `CATPRV192648 added to private catalogue`
+    (sysmsg 3031). Transcript at
+    `%LOCALAPPDATA%\SD-verify\probe-catprivate-20260824-192648.log`.
     [CATALOG:87](sdb_ai/sd64/sdsys/gpl.bp/CATALOG:87) sets
-    `private.catalogue = 'cat'`, so a **private** catalogue in SDSYS is what
-    writes `sdsys\cat` — the locked directory. `GLOBAL` writes `gcat`, which
-    `secure-gcat.ps1` already locked long before this step and which
-    `verify-catgate` covers at 25/25.
-
-    **THE RECIPE IS PROVEN AND SHOULD BE COPIED, NOT INVENTED** —
-    `verify-catgate.ps1:234-261`: `CREATE.FILE <x> DIRECTORY`, write a
-    two-line source with `Set-Content -Encoding Ascii`, `BASIC <x> <prog>`,
-    then `CATALOG <x> <prog>` **without** a `$` prefix, since the prefix
-    implies GLOBAL (`CATALOG:28-29`). Measure `sdsys\cat` before and after.
-    **`DELETE.FILE <x> FORCE` to clean up — FORCE, not a piped `Y`**, because
-    `DELETEF` prompts separately for DATA and DICT. **Back up `gcat` first**
-    (HISTORY, 17 Aug): a bad catalogue can lock you out of SD. Elevated, and
-    a piped session can still hang on an unexpected prompt, so give it a
-    timeout.
-
-    ***THE OLD CLAIM, KEPT BECAUSE THE `CATALOG` HALF OF IT STANDS.*** The install
-    catalogues into the STAGING tree, and nothing on the install path runs
-    `CONFIG`, so neither `cat` nor `sd.conf` was written under its new ACL.
-    **Both need a hand-run from an elevated session** — that is what is left of
-    this step's evidence, and it is small.
+    `private.catalogue = 'cat'`, and the write in
+    [CATALOG:424](sdb_ai/sd64/sdsys/gpl.bp/CATALOG:424) landed as designed
+    — the sdusers:(RX) lock passed the write through the Administrators:(F)
+    grant. Cleanup was clean; `gcat` was backed up and untouched (no `$`
+    prefix on the call name). The probe stays in the tree, listed in
+    `assert-current.ps1`'s `$neverShipped`, so the measurement can be
+    re-taken in one hand-run after any change to the ACL lock or CATALOG.
 
     The four pieces, all in one commit:
 

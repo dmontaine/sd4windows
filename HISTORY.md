@@ -27,6 +27,46 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-third session: probe-catprivate closes step 15's last owed row
+
+Step 15's CATALOG row was reasoned rather than measured. Built
+`probe-catprivate.ps1` in `gplbld/`, copying `verify-catgate.ps1`'s
+`Invoke-SD` verbatim, and ran it on the b36-era install (18:19:17,
+`assert-current` matches source, no source change since — a cycle ends
+at the next source change, CLAUDE.md §"testing").
+
+**Result 19:26:48, 3/3 checks agreed.** `sdsys\cat` grew 0→1;
+`C:\ProgramData\SD\sdsys\cat\CATPRV192648` written; SD said
+`CATPRV192648 added to private catalogue` (sysmsg 3031). Cleanup
+clean. Transcript
+`%LOCALAPPDATA%\SD-verify\probe-catprivate-20260824-192648.log`.
+`gcat` was backed up (per HISTORY 17 Aug) and untouched — no `$`
+prefix on the call name, so `check.global` read gcat but did not
+write it.
+
+**Design notes carried in the probe.** Success anchor is sysmsg 3031's
+positive wording, not the call name or the file — both appear on
+refusals (§"instrument" rule, `verify-apiidentity`). Three independent
+decisive checks — count grew, file present, said success — must all
+agree. Null-case refusal: if the target is present BEFORE, exit 2
+rather than measure a trivially-satisfied AFTER. Raw SD output printed
+unconditionally for the decisive step. Verdict last, after cleanup
+prose (`verify-createaccount` and `verify-sshonly`'s 24 Aug fix).
+Per-run names embed the timestamp so residue never masquerades as
+success. Parse-checked (`ParseFile` 0 errors), byte-scanned for BOM
+(none), listed in `assert-current.ps1`'s `$neverShipped` in the same
+commit — an unlisted probe would report the tree stale the moment
+anybody used it.
+
+Step 15 is now measured on all four writers: `CREATE.ACCOUNT`
+(session-52 install 18:19:17), `CATALOG` private (this run), `CATALOG`
+global via `verify-catgate` (25/25), and `CONFIG` closed by source
+(nothing in SD writes `sd.conf`; every `config_path` use is
+`fopen("r")` and `op_config.c` does no file I/O).
+
+Next: the suite at 31 of 31 on `b37` or later — `verify-cmdaudit`
+joined `VerifyInstall2` after `b36`, and prefixes to `b36` are spent.
+
 ## 24 Aug 2026 — Fifty-second session, part 6: verify-cmdaudit built, and CONFIG cannot be broken by the ACL lock
 
 **Commit:** the commit carrying this entry. End of the session.
