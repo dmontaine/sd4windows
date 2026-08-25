@@ -749,7 +749,7 @@ something came to be the way it is.
 > |---|---|
 > | `sshremote` visible in the wizard | **yes, and UNTICKED** — `Check: SshServerAbsent` + `Flags: unchecked` both behave |
 > | `limitssh` wording from commit `493bf9b` | in situ, leads with **"DISABLES scp and sftp for everyone"**, ticked by default |
-> | `apiremote` vs `sshremote` asymmetry | real in the wizard, not just in source |
+> | ~~`apiremote` vs `sshremote` asymmetry~~ | **GONE 25 Aug 2026** — it was real in the wizard when this was measured, and the owner removed it: `apiremote` is now `Flags: unchecked` like `sshremote`. Row struck rather than deleted, because the observation was real |
 > | mandatory-ssh path (`install-ssh.ps1`) | ran, ~17 min, OpenSSH Server installed and `sshd` Running/Automatic |
 > | `ApplyAllowGroups` | reported *"ssh is now limited to members of sdusers…, original sshd_config kept as sshd_config.before-sd"* — one of its three outcomes, observed |
 > | the closing dialog | **reported the firewall failure honestly** rather than swallowing it; that is what made this findable |
@@ -9948,8 +9948,17 @@ corroboration of `verify-delaccount`.
 *"api through an ssh tunnel should be removed, it should only be allowed to the
 port, normally 4243."* `sdwind.c open_api_listener()` binds `INADDR_ANY`,
 `stage.py` ships `APIPORT=4243` **active**, and `gplbld/api-firewall.ps1` owns an
-`SD-API-In-TCP` rule the installer creates (task `apiremote`, **ticked by
-default**) and the uninstaller removes.
+`SD-API-In-TCP` rule the installer creates (task `apiremote`, ***`Flags:
+unchecked` since 25 Aug 2026*** — it was ticked by default until then; the owner
+made it opt-in on finding that the two remote options defaulted opposite ways)
+and the uninstaller removes.
+
+***THAT IS A NARROWING OF POSTURE, NOT A REVERSAL OF THE 21 Aug DECISION.***
+`APIPORT=4243` still ships **active** and `sdwind.c` still binds `INADDR_ANY`,
+so the API is on and the port is open on the machine. What changed is only the
+firewall rule the installer leaves behind: loopback unless asked. The cost is
+recorded at the task itself — somebody who wanted a remote client and did not
+read the task list now gets *"cannot connect"*.
 
 **WHAT CHANGED IS NOT THE ARGUMENT FOR POSTURE B — IT IS WHAT STANDS IN FRONT OF
 THE PORT.** Posture B was settled when the API login was cleartext and a session

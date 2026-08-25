@@ -27,6 +27,61 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-seventh session, part 3: apiremote becomes opt-in, and the wording that found it
+
+**Commit:** this one. `gplbld/sd.iss`, `PROJECT_STATUS.md`, `sdsys/changelog`.
+
+**Owner's decision, reversing the 21 Aug default.** `apiremote` is now
+`Flags: unchecked`, so a default installation leaves the SD API reachable from
+this computer only.
+
+***IT WAS FOUND BY WRITING A SUMMARY LINE, WHICH IS THE PART WORTH KEEPING.***
+The owner gave a caption for the mode page's first option - *"Full installation
+- multiple users, optional remote ssh, optional SD API"*. Checking it against
+source produced three findings in a row:
+
+1. **"optional SD API" was not true in the way it reads.** No checkbox turns the
+   API off; `APIPORT=4243` ships active. What is optional is remote *reach*, so
+   the caption became *"optional remote API access"*.
+2. **The two remote options defaulted OPPOSITE ways** - `sshremote`
+   `Flags: unchecked`, `apiremote` ticked - and both open a port to the LAN.
+   Describing both as "optional" was true and still misleading.
+3. ***AND THE MODE-PAGE MEMO WAS FLATLY WRONG ABOUT IT.*** It said of the API
+   *"by default only this computer can reach it"*, which was the **ssh**
+   sentence pattern-matched onto the API. Written this session, false the day it
+   was written.
+
+The owner then removed the asymmetry rather than the confusion: both remote
+options are now off until ticked, and the memo says so in one clause instead of
+warning the reader that the two differ.
+
+**The superseded argument is kept in `sd.iss` rather than deleted** - it says an
+API nobody can reach ships a feature that does not work, with *"cannot
+connect"* as the symptom of not reading the task list. That cost is real and is
+now recorded at the task, beside the decision that accepted it.
+
+**`PROJECT_STATUS` corrected in two places**: the §5.9 observation row recording
+the asymmetry is **struck, not deleted** (the observation was real when made),
+and the posture-B section now says `Flags: unchecked` and states plainly that
+this narrows the firewall rule and does **not** reverse the 21 Aug decision -
+`APIPORT` still ships active and `sdwind.c` still binds `INADDR_ANY`.
+
+### The backslash rule bit three times in one session
+
+`\P`, `\a` and `\n` written through `<<'PYEOF'` heredocs into Python all lost a
+backslash. The `\a` one was the worst: it reached `sdsys/changelog` as a **BEL
+character** inside a path a user is meant to type -
+`C:` then `Program Files` then `SD` then BEL then `pi-firewall.ps1`. It was
+caught by scanning every touched file for bytes below 32, not by reading.
+
+**CLAUDE.md predicted all three** and the rule is to write a file with the
+editing tools instead. Repaired with `chr(92)`, which that rule names as the
+inline escape hatch. **A control-character scan is a cheap standing check after
+any generated edit** - it also confirmed the one stray byte in `HISTORY.md`
+(`cub1=` BEL... backspace, 22 Aug) is deliberate data, not damage.
+
+---
+
 ## 25 Aug 2026 - Fifty-seventh session, part 2: the stand-alone behaviour is wired
 
 **Commit:** this one. `gplbld/sd.iss`, `gplbld/stage.py`, `gpl.bp/CREATEA`,
