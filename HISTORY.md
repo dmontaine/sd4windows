@@ -27,6 +27,75 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-fifth session, part 2: run B closes the sshremote pair, and the owner rules SD must refuse to install beside another ssh server
+
+**RUN B PASSED**, so both branches are now verified on clean, licensed guests
+with the 08:50:13 installer:
+
+| run | `sshremote` | `RemoteAddress` as the installer left it | closing dialog | probe |
+|---|---|---|---|---|
+| 24 Aug | unticked | `Any` | *"Setting who may reach ssh FAILED"* | the defect |
+| A2 | unticked | `127.0.0.1` | — | PASSED |
+| B | **ticked** | `Any` | *"Other computers on your network CAN now connect to this one over ssh, because you asked for that."* | PASSED |
+
+The run-B dialog is the `Code = 0` + `Wanted` path at `sd.iss:1074`, and it is
+the direct contrast with 24 Aug's FAILED on the same line of the same box.
+
+***THE `-Expect` SWITCH EARNED ITSELF ON ITS FIRST USE.*** Under `-Expect Open`
+the probe asserted `RemoteAddress is Any, and the sshremote task was ticked -
+correct`, and **skipped** `-Installed -Restrict` deliberately rather than
+undoing the state it was measuring. Without it the same run would have read as
+a failure.
+
+**Ticking the box was done by keyboard and verified before proceeding**: Down
+to the second item, Space, screenshot, confirm all four ticked, then Next. The
+Ready page then listed the ssh task, which is independent corroboration of the
+checkbox state.
+
+***THE OWNER'S NEW RULING, AND NONE OF IT IS BUILT.*** In his words: *"I would
+actually prefer that SD refused to install if another ssh server is installed…
+If we support only the windows ssh server, then we know what it is that is
+being used and we have control over how it is configured."* And, on a
+pre-configured Microsoft server: *"I lean toward refusing in both cases because
+the pre-existing configuration could defeat our security. If the user wants to
+change our security policy after the fact, that is not on us."*
+
+**IT FIXES A LIVE HOLE.** `sd.iss:687` asks whether MICROSOFT's OpenSSH is
+present, so on a machine running Bitvise or freeSSHd `SshWasAbsent` is True:
+SD installs Windows OpenSSH, which cannot bind port 22 because the other server
+holds it, and nothing in the install says so.
+
+**AND REFUSAL 2 IS NARROWER THAN THE THREAT** — it tests only
+`AllowGroups|AllowUsers|DenyGroups|DenyUsers`, not `Match` or `ForceCommand`.
+A pre-existing `Match Group x / ForceCommand none` sits after SD's block, since
+SD inserts before the first `Match`, and overrides SD's ForceCommand for those
+users. That is the 21 Aug failure arriving through somebody else's config.
+
+**THE DETECTION IS MEASURED, NOT GUESSED.** Stock
+`sshd_config_default` is 88 lines but only **4 effective directives**, so
+comparing effective directives is stable across Windows updates, which rewrite
+comments. A naive "any `Match` block" test would be wrong — stock ships one.
+
+***AND IT SURFACED A FALSE STATEMENT IN THE INSTALLER.*** The disclosure page
+says *"IF THIS MACHINE ALREADY HAS AN SSH SERVER, SD LEAVES IT ALONE… changes
+neither its configuration nor its firewall rule."* `ApplySshFirewall` is gated
+on `SshWasAbsent` and is safe; **`ApplyAllowGroups` (`sd.iss:1000`) is gated
+only on the task and DOES edit an existing `sshd_config`** unless refusal 2
+fires. PROJECT_STATUS already recorded the behaviour as "the exposure §5.9
+leaves as an owner decision"; the installer's own page contradicted it.
+
+**`limitssh` STOPS BEING A TICK BOX** under the ruling, on the owner's
+reasoning: *"Seeing a tick box a user just assumes it is an option."* It
+becomes a statement on the "Before you install" page, which already has the
+precedent in its `OPENSSH SERVER - INSTALLED, NOT OPTIONAL` section. That
+supersedes commit 903a139, which gave `limitssh` its own group — committed
+alone precisely so it is a clean single revert.
+
+**Still unproven, unchanged**: that the scoping blocks a REMOTE machine. Needs
+a bridged NIC; a NAT port-forward cannot show it.
+
+---
+
 ## 25 Aug 2026 — Fifty-fifth session: the ssh scoping fix is verified on a clean guest, and cloning needs `keepallmacs` too
 
 **THE FIX WORKS.** `ssh-firewall.ps1` now passes `'127.0.0.1'` alone. Cycled

@@ -5,13 +5,118 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, fifty-fifth session. ***THE ssh SCOPING DEFECT IS FIXED AND THE FIX HAS NEVER RUN*** — `ssh-firewall.ps1` could never scope ssh (Windows rejects `::1` in `-RemoteAddress`), so every install that put ssh on left port 22 open to the LAN; [:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150) now passes `'127.0.0.1'` alone. **Needs a cycle, then a fresh clone, then `probe-sshfirewall.ps1`** — START HERE. Previously: step 17 CLOSED, the guest freezes were the host's Hyper-V/NEM fallback (§6), `sdhelp` cancelled by the owner.
+**Last updated:** 25 Aug 2026, fifty-fifth session. ***THE ssh SCOPING DEFECT IS FIXED AND BOTH BRANCHES ARE VERIFIED*** on clean guests — `sshremote` unticked gives `RemoteAddress=127.0.0.1`, ticked gives `Any`, `probe-sshfirewall.ps1` PASSED on each. ***NEXT, AND NOT STARTED: the owner has ruled SD must REFUSE TO INSTALL beside another ssh server*** — it fixes a live hole (a third-party sshd holds port 22 and SD installs anyway), and it takes `limitssh` off the tasks page. START HERE has the rule, the measurements behind it, and the knock-on work.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: A REAL DEFECT IS OPEN. ssh SCOPING HAS NEVER WORKED, ON ANY MACHINE.
+> ## NEXT: THE OWNER HAS RULED THAT SD MUST REFUSE TO INSTALL BESIDE ANOTHER ssh SERVER. NONE OF IT IS BUILT.
+>
+> Owner, 25 Aug 2026, in his words: *"I would actually prefer that SD refused
+> to install if another ssh server is installed. It adds a layer of
+> unpredictability. If we support only the windows ssh server, then we know
+> what it is that is being used and we have control over how it is
+> configured."* And on the pre-configured case: *"I lean toward refusing in
+> both cases because the pre-existing configuration could defeat our security.
+> If the user wants to change our security policy after the fact, that is not
+> on us."*
+>
+> ### IT FIXES A HOLE THAT IS LIVE TODAY, NOT ONLY A TIDINESS PROBLEM
+>
+> [sd.iss:687](sdb_ai/sd64/gplbld/sd.iss:687) is
+> `SshWasAbsent := not FileExists('{sys}\OpenSSH\sshd.exe')` — it asks whether
+> **Microsoft's** OpenSSH is present. On a machine running Bitvise, freeSSHd or
+> any other server, that answers **True**: SD decides there is no ssh server,
+> installs Windows OpenSSH, and it cannot bind port 22 because the other server
+> holds it. **SD's whole access path is then broken and nothing in the install
+> says so.**
+>
+> ***AND REFUSAL 2 IS NARROWER THAN THE THREAT.***
+> [allow-ssh-groups.ps1:141](sdb_ai/sd64/gplbld/allow-ssh-groups.ps1:141) tests
+> only `AllowGroups|AllowUsers|DenyGroups|DenyUsers`. It does **not** look for
+> `Match` or `ForceCommand` — so a pre-existing
+> `Match Group developers / ForceCommand none` sits AFTER SD's block (SD
+> inserts before the first `Match`) and **overrides SD's ForceCommand for those
+> users**. An `sdsshonly` account then lands at a PowerShell prompt: exactly
+> the 21 Aug failure, arriving through somebody else's config, with refusal 2
+> seeing nothing to object to.
+>
+> ### THE RULE TO IMPLEMENT — all in `InitializeSetup`, before anything changes, NO override switch
+>
+> The no-escape-switch shape follows the owner's own unattended-install ruling
+> at [sd.iss:689](sdb_ai/sd64/gplbld/sd.iss:689).
+>
+> | refuse when | catches |
+> |---|---|
+> | TCP 22 listening and the owning image is not `{sys}\OpenSSH\sshd.exe` | a live third-party server |
+> | an ssh service registered whose ImagePath is not that path | third-party server installed but stopped |
+> | live `sshd_config` **effective directives** differ from `sshd_config_default`'s, after removing SD's fenced block | a hand-configured Microsoft server |
+>
+> ***THE THIRD TEST IS ROBUST AND THAT WAS MEASURED.*** Stock
+> `C:\Windows\System32\OpenSSH\sshd_config_default` is 88 lines but only
+> **4 effective directives** (`AuthorizedKeysFile`, `Subsystem sftp`,
+> `Match Group administrators`, its `AuthorizedKeysFile`). Comparing effective
+> directives only is therefore stable across Windows updates, which rewrite
+> comments — 95% of that file. **Do NOT test "any Match block means somebody
+> configured this": stock already ships one.** Verified on the owner's own
+> machine that the only delta from stock is SD's own marker block, so an SD
+> upgrade passes.
+>
+> ### THE KNOCK-ON WORK, WHICH IS MOST OF IT
+>
+> 1. `limitssh` leaves `[Tasks]` and becomes a **statement** on the "Before you
+>    install" page. Owner's reason, and it is a good one: *"Seeing a tick box a
+>    user just assumes it is an option."* That page already has the precedent —
+>    the section headed `OPENSSH SERVER - INSTALLED, NOT OPTIONAL`.
+> 2. `ApplyAllowGroups` ([sd.iss:1000](sdb_ai/sd64/gplbld/sd.iss:1000)) loses
+>    its task gate.
+> 3. ***THE DISCLOSURE PAGE CURRENTLY LIES AND MUST BE REWRITTEN.*** It says
+>    *"IF THIS MACHINE ALREADY HAS AN SSH SERVER, SD LEAVES IT ALONE… changes
+>    neither its configuration nor its firewall rule."* `ApplySshFirewall` is
+>    gated on `SshWasAbsent` and is safe; **`ApplyAllowGroups` is not, and DOES
+>    edit an existing `sshd_config`** unless refusal 2 fires. Under the new
+>    ruling the sentence is wrong in the other direction too — SD will refuse,
+>    not leave alone.
+> 4. The refusal message must name what was found and what to do about it.
+> 5. Changelog entry — this can block an install outright.
+> 6. §5.9 and §7 step 3 record the ruling.
+> 7. ***TEST BOTH POLARITIES.*** A guest with a hand-edited `sshd_config` to
+>    prove the refusal fires, and a clean guest to prove it does NOT
+>    false-refuse. **A false refusal is the worse failure** — it blocks an
+>    install that should have worked.
+>
+> ***REVERT [903a139](sdb_ai/sd64/gplbld/sd.iss) FIRST, OR FOLD IT IN.*** That
+> commit gave `limitssh` its own group `"How ssh sessions work:"`. Under this
+> ruling `limitssh` leaves the tasks page entirely and the group disappears, so
+> it was committed alone to make it a clean single revert.
+>
+> ## THE ssh FIREWALL DEFECT IS CLOSED — BOTH BRANCHES VERIFIED 25 Aug 2026
+>
+> [ssh-firewall.ps1:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150) passes
+> `'127.0.0.1'` alone; Windows rejects any IPv6 loopback literal in
+> `-RemoteAddress`, so the old `@('127.0.0.1','::1')` threw on every run and
+> left the rule at `Any` — port 22 open to the LAN on every install where SD
+> installed ssh. Never worked; invisible for eight days because
+> `ApplySshFirewall` only runs when `SshWasAbsent`.
+>
+> | run | `sshremote` | `RemoteAddress` as the installer left it | closing dialog | probe |
+> |---|---|---|---|---|
+> | 24 Aug | unticked | `Any` | *"Setting who may reach ssh FAILED"* | defect |
+> | **A2**, 25 Aug | unticked | ***`127.0.0.1`*** | — | **PASSED** |
+> | **B**, 25 Aug | **ticked** | `Any` | *"Other computers … CAN now connect … because you asked for that"* | **PASSED** |
+>
+> Both loopback families stayed REACHABLE under the restriction
+> (`127.0.0.1:22` AF_INET, `::1:22` AF_INET6), which is what made dropping
+> `::1` safe — `sshd` binds `:::22` as well as `0.0.0.0:22`.
+>
+> ***STILL UNPROVEN AND IT NEEDS A BRIDGED NIC:*** that the scoping actually
+> blocks a REMOTE machine. A VirtualBox NAT port-forward cannot show it — with
+> the rule wide open, `Get-NetTCPConnection` showed **no inbound connection
+> ever reached sshd**, because the NAT engine completes the handshake itself.
+> §7 step 2 already said NAT cannot be used for host→guest.
+>
+> ## HOW THAT DEFECT WAS FOUND, AND THE RIG NOTES THAT CAME OUT OF IT
 >
 > ***CLOSED 25 Aug 2026 — FIXED, CYCLED, AND VERIFIED ON A CLEAN GUEST.***
 > Found 24 Aug on the first install ever done on a machine with no OpenSSH
@@ -688,7 +793,7 @@ something came to be the way it is.
 > |---|---|---|
 > | 15 | ***CLOSED IN FULL 24 Aug 2026.*** ACL lock re-verified 16/16 on the 18:19:17 install; `probe-catprivate` 3/3 at 19:26:48 measured CATALOG writing `sdsys\cat` under the lock; `CONFIG` closed by source (nothing in SD writes `sd.conf`); `CREATE.ACCOUNT` cycled and measured. Suite re-run at 31/31 on `b37` | closed |
 > | 9 | ***CLOSED.*** `sd <command>` no longer prompts (`LOGIN:669`), the installer's password step moved to `MODIFY.PASSWORD`, both cycled and verified, `verify-cmdaudit` passes 7/7 in `VerifyInstall2` on `b37`. ***The behavioural half cannot be automated*** - the gate is reachable only by a person at their own elevated console; that console probe is the one remaining decision | closed |
-> | 3 | installer loose ends. ~~`sshremote`/mandatory-ssh still needs the VM~~ ***RUN 24 Aug 2026 AND IT FOUND A LIVE DEFECT*** - `ssh-firewall.ps1` has never been able to scope ssh, so every install that puts ssh on leaves **port 22 open to the LAN**; one-line fix measured, **not yet approved or made**, START HERE. Remote-block control still unproven, needs a bridged NIC. ~~`sdsys\bp` still ships 21 test programs~~ ***CLOSED 24 Aug***. No data-tree upgrade path | **1 OPEN DEFECT** + 2 open bullets |
+> | 3 | installer loose ends. ~~`sshremote`/mandatory-ssh still needs the VM~~ ***RUN 24 Aug 2026 AND IT FOUND A LIVE DEFECT*** - `ssh-firewall.ps1` has never been able to scope ssh, so every install that puts ssh on leaves **port 22 open to the LAN**; one-line fix measured, **not yet approved or made**, START HERE. Remote-block control still unproven, needs a bridged NIC. ~~`sdsys\bp` still ships 21 test programs~~ ***CLOSED 24 Aug***. No data-tree upgrade path | ssh firewall defect **CLOSED**, both branches verified; **NEW: refuse-to-install ruling, not started** + 2 open bullets |
 > | — | ***CLOSED 24 Aug 2026, §5.9*** - owner picked **C** (keep default-ticked; the description carries the warning), with the strengthening: the wizard description now leads with `DISABLES scp and sftp for everyone` rather than burying it after a comma and inside a parenthesis. A/B rejected on-record: A trades one problem for a globally weaker default; B reintroduces the "task a one-shot" trap [allow-ssh-groups.ps1:22-27](sdb_ai/sd64/gplbld/allow-ssh-groups.ps1:22) says the 21 Aug flip fixed. [sd.iss:210](sdb_ai/sd64/gplbld/sd.iss:210) rewritten; the stale header at `allow-ssh-groups.ps1:31` was fixed earlier the same day; changelog carries the user-facing note | closed |
 > | 17 | ***CLOSED 24 Aug 2026, fifty-fourth session.*** `setup-devbox.ps1` ran end to end on the bare VM, ~17 min, **exit 0**, through `make sd`; the `-Syu` skip fired and `pacman -S --needed` installed all 8 packages; clones, build and report all reached for the first time. **The two earlier wedges were the host's Hyper-V/NEM fallback, not the script** (§6). `sdhelp` was raised as an open requirement and **the owner cancelled it the same day** | closed |
 >
