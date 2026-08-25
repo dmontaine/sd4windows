@@ -27,6 +27,47 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-sixth session, part 6: Correction: the open ".dic set" question was the wrong question
+
+**Commit:** this one. Documentation only. Part 2 recorded the `.dic` set as
+"not replaced, widening it is a one-line change and needs a decision", and
+START HERE item 3 said the same. **That framing was wrong and is corrected at
+the source.**
+
+**ALL EIGHT DICTIONARIES HAVE ONE TRACKED SOURCE**, which the earlier entry did
+not know: `gplbld/FILES_DICTS`, 76 records keyed `<file>^<record>` — `voc.dic`
+16, `dict.dic` 34, `$map.dic` 11, `accounts.dic` 5, `os.users.dic` 5,
+`batch.jobs.dic` 3, `$hold.dic` 1, `dir_dict` 1. `gpl.bp/WRITE_INSTALL_DICTS`
+reads it at bootstrap and writes each record into the named dictionary.
+
+**THEY LAND IN TWO SHAPES**, which is why they were in different buckets:
+`os.users.dic` and `batch.jobs.dic` are DIRECTORY files declared in
+`SDSYS_EMPTY`; `voc.dic`, `dict.dic`, `accounts.dic`, `$map.dic` and
+`$hold.dic` are DYNAMIC files created by `sd -i` and declared nowhere.
+
+***WHOLESALE REPLACEMENT IS WRONG FOR THE REASON `cat` IS PRESERVED.*** A
+dictionary is a place an administrator legitimately adds items - a derived
+I-type, a local D-type - and copying the shipped one over theirs destroys that
+silently. **And `WRITE_INSTALL_DICTS` already merges**: `WRITE DICT.REC ON
+DICT.FILE.VAR, FILE_REC_NAME` at :107, per record, no `CLEARFILE` and no
+delete. So re-running it updates the shipped items and leaves a user's own
+alone - `UPDATE.ACCOUNT`'s shape exactly, which the owner has already ruled
+correct for VOC.
+
+**The real task is to run it as an upgrade step.** `bootstrap.py`'s
+`BOOTSTRAP_ONLY` already places `FILES_DICTS` inside the data tree and removes
+it afterwards, because the same program needs it there at build time. The
+mechanism exists; the sequencing is not built.
+
+***AND A TRAP FOR ANYONE MEASURING THIS: `ls` OF A DYNAMIC FILE SHOWS `%0` AND
+`%1` AND NOTHING ELSE.*** The installed `voc.dic` lists two entries against 16
+in `FILES_DICTS`, which reads as a half-populated dictionary and is not one -
+the records are in the hash buckets, and `%0` holds `DISPATCH` and `PROCESSOR`.
+Nothing is broken today. A directory listing is not an instrument for a hashed
+file.
+
+---
+
 ## 25 Aug 2026 — Fifty-sixth session, part 5: the {app} half of the deletion gap, which part 4 left open
 
 **Commit:** this one. Part 4 closed the data-tree half and wrote the `{app}`

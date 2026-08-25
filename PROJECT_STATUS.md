@@ -74,13 +74,47 @@ something came to be the way it is.
 > `$hold` and `voc` still there and unchanged; `gcat` and `gpl.bp.out` refreshed
 > to the new build; `sdsys\changelog` gone and `{app}\changelog` present.
 >
-> **KNOWN AND DELIBERATE, NARROWER THAN THE RULING'S WORDING:** the `.dic` set
-> the bootstrap creates — `voc.dic`, `dict.dic`, `accounts.dic`, `$map`,
-> `$map.dic` — is **not** replaced. §7 step 3's ruling lists "the `.dic` set" as
-> replaceable, but those files are named in no list in `stage.py`, and the
-> safety property is precisely that only a declared name can be deleted.
-> Widening it is a one-line change and needs a decision; leaving it means a
-> dictionary change in a new release does not reach an upgraded install.
+> ***THE `.dic` SET: THE OPEN QUESTION WAS THE WRONG ONE, MEASURED 25 Aug
+> 2026.*** This entry used to say "widening the replace list is a one-line
+> change and needs a decision". **Replacing them is the wrong mechanism, and
+> the right one already exists and is already the ruling for VOC.**
+>
+> **All eight dictionaries have ONE source and it is tracked:**
+> [gplbld/FILES_DICTS](sdb_ai/sd64/gplbld/FILES_DICTS), 76 records, keyed
+> `<file>^<record>` — `voc.dic` 16, `dict.dic` 34, `$map.dic` 11,
+> `accounts.dic` 5, `os.users.dic` 5, `batch.jobs.dic` 3, `$hold.dic` 1,
+> `dir_dict` 1. [gpl.bp/WRITE_INSTALL_DICTS](sdb_ai/sd64/sdsys/gpl.bp/WRITE_INSTALL_DICTS)
+> reads it at bootstrap and writes each record into the named dictionary.
+>
+> **They land in two shapes, which is why they sit in different buckets:**
+>
+> | | |
+> |---|---|
+> | `os.users.dic`, `batch.jobs.dic` | **directory files**, declared in `SDSYS_EMPTY`, so `stage.py` knows them. On `SDSYS_PRESERVE` |
+> | `voc.dic`, `dict.dic`, `accounts.dic`, `$map.dic`, `$hold.dic` | **dynamic files**, created by `sd -i`, declared nowhere — out of the upgrade's reach by construction |
+>
+> ***WHOLESALE REPLACEMENT IS WRONG FOR THE REASON `cat` IS PRESERVED.*** A
+> dictionary is a place an administrator legitimately adds items — a derived
+> I-type, a local D-type. Copying the shipped `voc.dic` over theirs destroys
+> that silently, which is the same argument that kept the private catalogue.
+>
+> ***`WRITE_INSTALL_DICTS` ALREADY MERGES.*** `WRITE DICT.REC ON
+> DICT.FILE.VAR, FILE_REC_NAME` at :107 — **per record, no `CLEARFILE`, no
+> delete** — so re-running it adds and updates the shipped items and leaves a
+> user's own alone. It is `UPDATE.ACCOUNT`'s shape exactly, and the owner has
+> already ruled that shape correct for VOC.
+>
+> **So the real task is: run `WRITE_INSTALL_DICTS` as an upgrade step.**
+> `bootstrap.py`'s `BOOTSTRAP_ONLY` already places `FILES_DICTS` inside the
+> data tree and removes it afterwards, because the same program needs it there
+> at build time — so the mechanism exists, it is the sequencing that is not
+> built. **Not started; it is the last known gap in the upgrade path.**
+>
+> **Nothing is broken today**, checked rather than assumed: the installed
+> `voc.dic` is a hashed file whose `%0` bucket holds `DISPATCH` and
+> `PROCESSOR`, so the records are there. A bare `ls` of a dynamic file shows
+> only `%0`/`%1` and reads as an empty dictionary — do not draw that conclusion
+> from a directory listing.
 >
 > ### 4. THE REMOTE-BLOCK CONTROL STILL NEEDS A BRIDGED NIC
 >
