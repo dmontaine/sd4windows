@@ -109,9 +109,34 @@ something came to be the way it is.
 > which is PowerShell and is not compiled.
 >
 > ***THE HAZARD IS A FUTURE RUN, NOT THIS ONE***: a compile failure in a window
-> that has stopped recording would leave no evidence at all. Not fixed - the
-> workaround is one line of habit, and a real fix means not relying on
-> `Start-Transcript` for native output.
+> that has stopped recording would leave no evidence at all.
+>
+> ***`cycle.ps1` NOW SAYS SO OUT LOUD, 24 Aug 2026 - THE LOSS IS NO LONGER
+> SILENT.*** A `$global:` flag set on the first run makes every later run in the
+> same window print a warning naming exactly what will be missing, **at the top
+> AND again beside the final verdict** - because a warning six minutes and
+> several thousand lines from the end is one nobody reads, which is how this
+> went unnoticed.
+>
+> **THE FLAG TRACKS THE DEGRADATION EXACTLY, measured, not assumed**: typed at a
+> prompt (the documented invocation) the script runs IN the session, so the flag
+> persists and the second run warns; launched as `powershell -File` it is a new
+> process, the flag is absent AND the transcript is fresh, so it stays quiet.
+> **No false positive in either direction.**
+>
+> ***IT WARNS RATHER THAN REFUSES, DELIBERATELY.*** The run itself is sound -
+> every check `cycle.ps1` makes is its own `Write-Host`. What is lost is the
+> ability to read WHY afterwards, and blocking a cycle over that would cost more
+> than it saves.
+>
+> ***THE I/O WAS DELIBERATELY NOT RE-PLUMBED.*** The obvious fix - capture the
+> native output and re-emit it - is **forbidden at the step that matters**:
+> `cycle.ps1:363`'s own comment says output must go to the console and NOT to a
+> pipe or redirect, because **`sd -start` forks `sdwind`, which inherits whatever
+> handle it is given and holds it for life** - §6, and it cost a session.
+> `bootstrap.py` shows a FILE handle is safe where a pipe is not, so a real fix
+> exists, but it changes the most load-bearing script in the project and cannot
+> be tested without spending cycles. **Left as a decision.**
 >
 > ### WHAT THE CYCLE PROVED, AND WHAT IT DID NOT
 >
