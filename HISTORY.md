@@ -27,6 +27,77 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-fifth session, part 3: the refuse-to-install ruling is built, and it has never been compiled
+
+The detection half is proven; the installer half is written and untested. Said
+that way round on purpose - the two have very different standing.
+
+**PROVEN.** `ssh-preflight.ps1`, three checks, run before any file is written:
+what ssh services are installed (matched on image path, not a product-name
+list), who holds port 22, and whether anybody has configured the Windows
+server. `probe-sshpreflight.ps1` exercised all four cases on
+`sshRemoteTest-A2`: clear on a stock machine with SD installed, refuse on a
+hand-configured `sshd_config` naming the added directive, refuse on a stopped
+third-party service naming it and its path, clear again after restore. The
+last case is what proves the first two were not residue.
+
+***THE FIRST DRAFT COMMITTED THE FAILURE THE WHOLE DESIGN WARNS ABOUT.*** Run
+on the owner's own machine - Microsoft's server, SD installed, nothing wrong -
+it exited 2 and would have refused the install. `Get-Process().Path` cannot
+read a SYSTEM-owned process unelevated, so port 22's owner came back "(path
+unavailable)" and the script called that "cannot determine". A false refusal
+is the worse failure and it was caught by running the control first, on a
+machine that had to come back clear.
+
+Two structural fixes, not one patch: the service scan now runs FIRST and the
+port check uses its result, so a process named `sshd` matched to Microsoft's
+registered `sshd` service needs no path lookup at all; and elevation is
+reported rather than assumed. The null case is still a refusal, but "cannot
+determine" now means the instrument genuinely failed rather than that it was
+pointed at something it had no right to read.
+
+**WRITTEN, NEVER COMPILED** - `sd.iss`: a `dontcopy` entry (the first in this
+file) so `ExtractTemporaryFile` can unpack the check before the copy step;
+the `InitializeSetup` call with two refusal dialogs, one for "the check would
+not run" and one for "the check refused"; `limitssh` removed from `[Tasks]`;
+`ApplyAllowGroups`' task gate removed; and the disclosure page rewritten.
+
+***THE DISCLOSURE PAGE WAS MAKING A FALSE PROMISE AND NOW DOES NOT.*** It said
+SD "changes neither its configuration nor its firewall rule" on a machine that
+already had ssh. `ApplySshFirewall` is gated on `SshWasAbsent` and was safe;
+`ApplyAllowGroups` was gated only on the task and DID edit an existing
+`sshd_config`. It now says SD will refuse such a machine outright, and carries
+the ssh-session behaviour as a statement.
+
+***AND THE `wpSelectTasks` MsgBox WAS REWORDED FOR THE FOURTH TIME, WHICH ITS
+OWN COMMENT PREDICTED.*** That comment reads: *"the history of this box is the
+point: three rewordings, each one made necessary by a change somewhere else in
+the file, and each time the text went on asserting the old shape until somebody
+noticed."* It was still telling the reader to untick "Limit ssh to SD users and
+administrators" - a checkbox that no longer exists on the page they are looking
+at. Fourth time. The pattern is the finding, not the sentence.
+
+**WHY THE OPT-OUT COULD GO AT ALL.** The `limitssh` box existed for the machine
+whose ssh server SD did not install. That machine is now refused at
+`InitializeSetup`, so it never reaches the tasks page; the only machine that
+does is one whose server SD installed and nobody else has configured, where
+there was never a case for declining. Owner's reason for removing the box
+itself: *"Seeing a tick box a user just assumes it is an option."*
+
+**Tasks page is now three boxes** - `addtopath`, `sshremote`, `apiremote` -
+and the two under "Remote access:" are finally parallel. That resolves the
+owner's original complaint better than commit 903a139's regroup did, which is
+why that commit was reverted first.
+
+**NEXT, AND IN THIS ORDER**: `cycle.ps1 -SkipInstall` for ISCC, because Inno
+compiles `[Code]` at build time and nothing here has been near it; then a clean
+guest that must still install (false refusal is the worse failure); then a
+guest with a hand-edited `sshd_config` that must be refused before the wizard
+is drawn. The probe proves the script refuses; what is untested is that sd.iss
+calls it and acts on the exit code.
+
+---
+
 ## 25 Aug 2026 — Fifty-fifth session, part 2: run B closes the sshremote pair, and the owner rules SD must refuse to install beside another ssh server
 
 **RUN B PASSED**, so both branches are now verified on clean, licensed guests

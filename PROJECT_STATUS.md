@@ -11,7 +11,44 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: THE OWNER HAS RULED THAT SD MUST REFUSE TO INSTALL BESIDE ANOTHER ssh SERVER. NONE OF IT IS BUILT.
+> ## NEXT: THE REFUSE-TO-INSTALL WORK IS WRITTEN AND HAS NEVER BEEN COMPILED. IT NEEDS A CYCLE, THEN TWO GUESTS.
+>
+> ***WHAT IS DONE, AND HOW FAR EACH PART IS TRUSTED:***
+>
+> | part | state |
+> |---|---|
+> | [ssh-preflight.ps1](sdb_ai/sd64/gplbld/ssh-preflight.ps1) — the three checks | ***PROVEN both polarities*** on a guest by [probe-sshpreflight.ps1](sdb_ai/sd64/gplbld/probe-sshpreflight.ps1): clear / refuse-on-config / refuse-on-service / clear-after-restore, 4 of 4 |
+> | `stage.py` ships it to `{app}`; `assert-current` lists the probe | edited, `py_compile` clean |
+> | `sd.iss` — `dontcopy` entry, `InitializeSetup` call, both refusal dialogs | ***WRITTEN, NEVER COMPILED*** |
+> | `sd.iss` — `limitssh` removed from `[Tasks]` | written, never compiled |
+> | `sd.iss` — `ApplyAllowGroups` task gate removed | written, never compiled |
+> | `sd.iss` — disclosure page rewritten, and the `wpSelectTasks` MsgBox reworded a **fourth** time | written, never compiled |
+> | changelog | two entries, in |
+>
+> ***THE NEXT ACTION IS `cycle.ps1 -SkipInstall` (ELEVATED, OWNER'S SHELL).***
+> Nothing here has been through ISCC. Inno compiles `[Code]` at build time, so
+> a Pascal slip surfaces there and nowhere earlier — **do not test any of this
+> with the 08:50:13 installer, which predates all of it.**
+>
+> ***THEN TWO GUESTS, AND THE SECOND ONE IS THE IMPORTANT ONE:***
+>
+> 1. **A clean guest must still install.** A false refusal is the worse
+>    failure — it turns away an install that should have worked. `pre.ps1` then
+>    the wizard: the tasks page must now show **three** boxes (`addtopath`,
+>    `sshremote`, `apiremote`) and **no** `limitssh`, and the install must
+>    complete.
+> 2. **A guest with a hand-edited `sshd_config` must be refused** at
+>    `InitializeSetup`, before the wizard is drawn, naming the added directive,
+>    with nothing changed. `probe-sshpreflight.ps1` proves the *script* does
+>    this; what is untested is that **`sd.iss` calls it and acts on the exit
+>    code**.
+>
+> ***AND ONE THING NO GUEST WILL CATCH:*** `ExtractTemporaryFile` throws if the
+> `dontcopy` entry is missing or misnamed. It is named explicitly in `[Files]`
+> rather than swept up by a wildcard, so a rename breaks the build rather than
+> the install — but check the ISCC output says it embedded it.
+>
+> ## THE RULING AND THE REASONING BEHIND IT
 >
 > Owner, 25 Aug 2026, in his words: *"I would actually prefer that SD refused
 > to install if another ssh server is installed. It adds a layer of
