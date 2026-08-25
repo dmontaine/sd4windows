@@ -27,6 +27,110 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-fourth session: step 17 CLOSED — `setup-devbox.ps1` ran end to end on a bare VM, once the host stopped stealing AMD-V
+
+**THE RESULT.** The script was fetched fresh from `main` and **hash-verified in
+the guest before running** — 43,408 bytes, SHA256
+`e10bd921a752c39fd76e638f040c879838a89dc5a67cb3b197050caeb940595f`, identical to
+the host copy — so there is no doubt which version ran. Session 53's attempt had
+unknowingly used an older copy. On VM `Windows 11 DevEnvInstallTest` from
+snapshot `Before setup-devbox`: 22:16:05 to ~22:33 host time, **exit code 0**,
+last line `setup-devbox: finished, no problems.`
+
+Legs, in the script's own words:
+
+- `git is usable in THIS session - git version 2.55.0.windows.3`
+- `gh is usable in THIS session - gh version 2.98.0 (2026-08-20)`
+- `MSYS2 installed`, then ***the fix fired for the first time***:
+  `MSYS2 was installed by THIS run, so pacman -Syu is skipped.` followed by
+  `[done] installed gcc make pkgconf libxcrypt-devel libbsd python
+  mingw-w64-ucrt-x86_64-gcc diffutils`
+- `libsodium built into /usr/local`
+- `Inno Setup 6 installed`, **per-user** at
+  `C:\Users\don\AppData\Local\Programs\Inno Setup 6\ISCC.exe`
+- all four siblings cloned — `sd4windows`, `sdb64`, `winsdclilib`, `sdclilib32`
+  — and `sdb64 origin/dev is fetched`
+- `built C:\Users\don\Projects\sd4windows\sdb_ai\sd64\bin\sd.exe` /
+  `the toolchain works end to end`
+- `No problems.` and `LEFT FOR A PERSON (3)`
+
+**THE `-Syu` SKIP IS NOW OBSERVED RATHER THAN PARSE-CHECKED.** `pacman -S
+--needed` resolved and downloaded all 8 packages against the database shipped
+with the installer, with no refresh. The concern that a just-unpacked sync
+database might not resolve them was unfounded.
+
+***WHAT ACTUALLY COST THE SESSION WAS THE HOST, AND IT WAS MISREAD TWICE.***
+Two runs wedged the guest before one succeeded. `VBox.log` carried
+`HM: HMR3Init: Attempting fall back to NEM: AMD-V is not available` — VirtualBox
+was on the **Windows Hyper-V backend**, not native AMD-V, because VBS held the
+CPU. **The same line is in session 53's `VBox.log.1`**, so both wedges happened
+on it. The freeze looks exactly like an application hang: desktop stops
+repainting, tray clock frozen, keystrokes and Ctrl+C ignored, power-off needed.
+Session 53 read it as `pacman` blocking on a file lock; this session hit the
+identical freeze **inside the MSYS2 installer's own extraction at 42%, before
+pacman ran at all**.
+
+**What separated wedge from slow work**, without guest credentials: the
+differencing `.vdi` grew **0 bytes in 60 s** (owner independently confirmed
+VirtualBox's disk indicator was idle) while `CPU/Load/User` held a steady ~41%,
+about two cores spinning. `VBox.log` showed no Guru Meditation and the host had
+15.7 GB free, ruling out memory pressure.
+
+**Clearing it took four host switches and three reboots, and the obvious one was
+not enough.** Memory Integrity off, Virtual Machine Platform off (nothing used
+it — no WSL distro, no Docker), `bcdedit /set hypervisorlaunchtype off`, and
+finally the `DeviceGuard\Scenarios\WindowsHello` `Enabled` value set to 0.
+***Turning Windows Hello off in Settings does not clear that key*** — it is the
+Enhanced Sign-in Security platform flag, and it overrode a
+`hypervisorlaunchtype` that was **already `Off`** across three reboots. All host
+changes were made by the owner; an agent must not touch security settings.
+§6 carries the trap and the verification wording.
+
+***THIS WEAKENS SESSION 53's PACMAN DIAGNOSIS WITHOUT OVERTURNING IT.*** The
+`-Syu` reasoning stands on its own merits — a mapped `msys-2.0.dll` genuinely
+cannot be replaced — and the skip is now observed working. But the *symptom* it
+was inferred from, an unresponsive terminal, may have been the host rather than
+pacman. Recorded so nobody treats that inference as independently confirmed.
+
+**A CHEAP TECHNIQUE WORTH KEEPING: READ GUEST OUTPUT THROUGH THE CLIPBOARD.**
+The VM's clipboard is bidirectional, so `Ctrl+Shift+A` then `Ctrl+Shift+C` in the
+guest (`1d 2a 1e 9e aa 9d`, `1d 2a 2e ae aa 9d`) followed by `Get-Clipboard -Raw`
+on the host pulled the entire 191-line console buffer across as text. Screenshots
+had cost real time and lost nine minutes of output behind an installer window.
+`guestcontrol` is still forbidden and still not needed.
+
+**Still open, and it is the owner's:** `sdhelp` is not installed. See the
+correction below.
+
+---
+
+## Correction: 24 Aug 2026 — "report `sdhelp` as a hand-carry item" was never the owner's ruling
+
+PROJECT_STATUS.md §7 step 17 listed, under **"KNOWN GAPS THAT ARE NOT
+DEFECTS"**, that `..\sdhelp` is copied only under `-SdHelpSource <path>` and
+otherwise **reported** as a hand-carry item, attributing that to
+*"owner's ruling 24 Aug 2026"*.
+
+**That attribution was wrong.** On seeing the end-to-end run the owner said
+`sdhelp` did not install, and corrected the record: *"I said I wanted sdhelp
+because the next phase, documentation, was likely to be on another computer and
+I wanted it installed."* His original wording, already quoted correctly in §2,
+is *"setup devbox should include the whole `..\sdhelp` tree… and I want those
+resources handy."*
+
+So **reporting it was the script's behaviour, not his decision**, and it is an
+open requirement rather than an accepted gap. It has been moved to the open
+items at the top of §7 step 17 and must not be re-filed as "not a defect".
+
+**What it needs is a decision on where the tree comes from.** It has no remote
+and is 30 MB / ~1300 files of third-party OpenQM 2.6.6 and SD PDF and HTML,
+which the no-binaries rule keeps out of this repository. Options: a release
+artefact, a pCloud fetch of `sdhelp_2-6-6 20260221 AM`, or `-SdHelpSource`
+documented as the supported route. **`-SdHelpSource` exists and has never been
+run.**
+
+---
+
 ## 24 Aug 2026 — Fifty-third session, part 6: step 17 attempt 2 — two fixes proven, a new wall found and fixed unrun
 
 The owner made a VirtualBox VM available (`Windows 11

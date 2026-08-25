@@ -5,99 +5,92 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 closed; suite 31/31 on b37 AND b38; SDSYS BP trimmed; §5.9 closed. ***STEP 17 IS MID-FLIGHT: the MSYS2 hang is DIAGNOSED and FIXED but the fixed script has NEVER RUN — that is the next session's first job.***
+**Last updated:** 24 Aug 2026, end of fifty-fourth session — ***STEP 17 IS CLOSED***: `setup-devbox.ps1` ran end to end on a bare VM, exit 0, through `make sd`. **The two guest freezes were the host's Hyper-V/NEM fallback, not the script** (§6). ***OPEN: the owner wants `sdhelp` INSTALLED, not reported*** — this file had that wrong.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: FINISH STEP 17. THE FIX IS IN; IT HAS NEVER BEEN RUN.
+> ## NEXT: STEP 17 IS CLOSED. `setup-devbox.ps1` RAN END TO END ON A BARE VM.
 >
-> ***THE VM IS READY AND WAITING.*** VirtualBox 7.2.14, VM
-> **`Windows 11 DevEnvInstallTest`**, UUID
-> `47b7584f-f4a0-4db5-bca9-534c478adce7`, snapshot
-> **`Before setup-devbox`** (`d0bb8989-a107-46c8-a86d-479c80aa1b00`),
-> **already restored to that snapshot and powered off.** NAT NIC, Guest
-> Additions 7.2.14 run level 3.
+> 24 Aug 2026, 22:16:05 to 22:33 host time, ~17 minutes, ***exit code 0***,
+> last line `setup-devbox: finished, no problems.` Console transcript quoted
+> in HISTORY.md, fifty-fourth session.
 >
-> ### THE MSYS2 HANG IS DIAGNOSED AND THE FIX IS COMMITTED, UNRUN
->
-> `pacman -Syu` on a tree **this run just unpacked** wants to replace
-> `msys-2.0.dll` — which the `bash.exe` running it has mapped — so Windows
-> refuses, pacman prints *"terminate other MSYS2 programs before
-> proceeding"* and **blocks for ever**. ***`--noconfirm` DOES NOT HELP***:
-> it answers the Y/N, it does not make a loaded DLL replaceable. **Measured
-> 24 Aug 2026 at 21:01** — terminal stopped repainting, neither Enter nor
-> two Ctrl+C reached it, VM rolled back.
->
-> **THE FIX**: `Step-Msys` sets `$script:MsysJustInstalled` when winget
-> installs MSYS2; `Step-Packages` skips `-Syu` when that flag is set and
-> goes straight to `pacman -S --needed`. **The stale-tree path is
-> unchanged** and still gets its `-Syu` — that is the case the
-> partial-upgrade rule is written for. Parse-checked 0 errors, 27
-> functions, no BOM. ***IT HAS NOT BEEN RUN ONCE.***
->
-> ### HOW TO DRIVE THE GUEST — THIS WORKED, USE IT
->
-> `guestcontrol` needs guest credentials and §7 step 2 forbids it. **The
-> keyboard route works and needs none.** From Git Bash with
-> `export PATH="/c/Program Files/Oracle/VirtualBox:$PATH"`:
->
-> | need | command |
+> | leg | result, first time ever on a bare machine unless noted |
 > |---|---|
-> | start | `VBoxManage startvm <uuid> --type gui` |
-> | see the screen | `VBoxManage controlvm <uuid> screenshotpng <file>` then Read the png |
-> | Win+X | `keyboardputscancode e0 5b 2d ad e0 db` |
-> | then `A` (Terminal Admin) | `keyboardputscancode 1e 9e` |
-> | Enter | `keyboardputscancode 1c 9c` |
-> | Ctrl+C | `keyboardputscancode 1d 2e ae 9d` |
-> | roll back | `controlvm <uuid> poweroff`, `snapshot <uuid> restore "Before setup-devbox"` |
+> | Preflight | elevated, winget found |
+> | Git 2.55.0.windows.3 | `git is usable in THIS session` (also proven 24 Aug) |
+> | GitHub CLI 2.98.0 | `gh is usable in THIS session` (also proven 24 Aug) |
+> | MSYS2 | installed clean to `C:\msys64` |
+> | MSYS2 packages | ***THE `-Syu` SKIP FIRED***, then `[done] installed gcc make pkgconf libxcrypt-devel libbsd python mingw-w64-ucrt-x86_64-gcc diffutils` |
+> | libsodium | built from source into `/usr/local` |
+> | Inno Setup 6 | installed **PER-USER** at `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe` |
+> | ssh | correctly reported as not needed for setup |
+> | clones | all four siblings: `sd4windows`, `sdb64`, `winsdclilib`, `sdclilib32`; `sdb64 origin/dev is fetched` |
+> | `make sd` | `built C:\Users\don\Projects\sd4windows\sdb_ai\sd64\bin\sd.exe`, `the toolchain works end to end` |
+> | report | printed, `LEFT FOR A PERSON (3)` |
 >
-> ***UAC DOES NOT PROMPT ON THIS VM*** — Win+X → A gave an elevated
-> `Administrator: Windows PowerShell` at `PS C:\Users\don>` directly.
+> ### THE `-Syu` SKIP IS NOW OBSERVED, NOT JUST PARSE-CHECKED
 >
-> ***`keyboardputstring` DROPS CHARACTERS ON A LONG STRING.*** The first
-> `curl` line lost 15 characters mid-URL and curl answered *"(2) no URL
-> specified"*. **Send it in ~25-character chunks with `sleep 0.4` between
-> them** — that worked first time and downloaded all 39,896 bytes.
+> `MSYS2 was installed by THIS run, so pacman -Syu is skipped.` printed, and
+> `pacman -S --needed` then installed all 8 missing packages against the
+> shipped database without a refresh. **The worry that a just-unpacked sync
+> database could not resolve them was unfounded** — it resolved and downloaded
+> every one.
 >
-> ### THE TWO COMMANDS, IN THE GUEST'S ELEVATED POWERSHELL
+> ### WHAT ACTUALLY COST THIS SESSION: THE HOST, NOT THE SCRIPT
 >
-> ```
-> curl.exe -fLo setup-devbox.ps1 https://raw.githubusercontent.com/dmontaine/sd4windows/main/sdb_ai/sd64/gplbld/setup-devbox.ps1
-> powershell -ExecutionPolicy Bypass -File .\setup-devbox.ps1
-> ```
+> ***TWO RUNS WEDGED THE GUEST BEFORE ONE SUCCEEDED, AND IT WAS THE HOST'S
+> HYPERVISOR.*** VirtualBox was logging
+> `HM: HMR3Init: Attempting fall back to NEM: AMD-V is not available` — running
+> on the **Windows Hyper-V backend** rather than native AMD-V, because VBS held
+> the CPU. On that backend the guest froze twice under sustained disk I/O: once
+> at `pacman -Syu` (session 53) and once inside the MSYS2 installer's own
+> extraction at 42%, ***before pacman ran at all***. **§6 has the trap and the
+> four host switches it took to clear.** Cleared, the same script ran straight
+> through first attempt.
 >
-> **Fetch it fresh** — the fix is on `main`, and the copy in the guest at
-> the time of the hang is the OLD one.
+> ***THIS WEAKENS, BUT DOES NOT OVERTURN, SESSION 53's PACMAN DIAGNOSIS.***
+> That hang was read from *"terminal stopped repainting, neither Enter nor two
+> Ctrl+C reached it"* — which is exactly what a NEM wedge looks like. The
+> `-Syu` reasoning stands on its own merits (a mapped `msys-2.0.dll` genuinely
+> cannot be replaced) and the skip is now observed working. But **the symptom
+> it was inferred from may have been the host, not pacman.**
 >
-> ### WHAT THE ABORTED RUN ALREADY PROVED, SO DO NOT RE-LITIGATE IT
+> ### THE ONE THING THE OWNER WANTS THAT THIS DOES NOT DO
 >
-> | leg | result, 24 Aug 2026 |
-> |---|---|
-> | Preflight | elevated ✓, winget found ✓ |
-> | Git | installed, ***`git is usable in THIS session`*** — `Update-SessionPath` **WORKS**, first bare-box proof |
-> | GitHub CLI | installed, ***`gh is usable in THIS session`*** — same fix, second proof |
-> | MSYS2 | **installed clean** to `C:\msys64`, ~4 min |
-> | MSYS2 packages | ***HUNG HERE*** — now fixed, unrun |
-> | libsodium, Inno, ssh, **clone**, **`make sd`**, report | ***STILL NEVER REACHED ON A BARE MACHINE*** |
+> ***`sdhelp` IS NOT INSTALLED AND HE WANTS IT INSTALLED.*** Owner, 24 Aug
+> 2026, correcting this file: the documentation phase is likely to happen on
+> **another computer** and he wants the help set **placed by the script**, not
+> reported. This file previously framed "report it as a hand-carry item" as
+> **his ruling**; that was wrong. §7 step 17 carries it, HISTORY.md has the
+> `Correction:` entry.
 >
-> ***TWO OF THE THREE 23-Aug FIXES ARE NOW PROVEN ON A BARE BOX.***
-> `Update-SessionPath` and `Resolve-Tool` both did their job. The third —
-> `Step-Clone` skipping when git is unusable — is still untested, and on
-> this run git IS usable, so it will not be exercised. That is fine: the
-> task is the end-to-end run, not that one branch.
+> It is 30 MB / ~1300 files of third-party OpenQM 2.6.6 and SD PDF+HTML with no
+> remote, and the no-binaries rule keeps it out of this repository, so **this
+> needs a decision on where it comes from**: a release artefact, a pCloud fetch,
+> or `-SdHelpSource` with a documented path. `-SdHelpSource` exists and is
+> ***untested***.
 >
-> ### NOTE FOR THE RECORD: THE VM IS NOT A STOCK ISO
+> ### THE RIG, AND HOW TO READ ITS OUTPUT CHEAPLY
 >
-> Chrome, pCloud Drive and Winhance are pre-installed and a *"Windows
-> Security — Actions recommended"* toast sits in the tray. **Not a defect
-> for step 17** — setup-devbox is idempotent and reports pre-existing
-> tooling as *"already present"* — but it is not the pristine box the step
-> imagines, and a green run on it is slightly weaker evidence than a green
-> run on a stock install. Say so when closing the step.
+> VM **`Windows 11 DevEnvInstallTest`** `47b7584f-f4a0-4db5-bca9-534c478adce7`,
+> snapshot **`Before setup-devbox`** `d0bb8989-a107-46c8-a86d-479c80aa1b00`.
+> **Left running with the finished install on it** — restore the snapshot
+> before reusing. §7 step 17 has the keyboard recipe; UAC does not prompt.
 >
-> ## THE REST OF THE SESSION CLOSED CLEAN
+> ***CAPTURE GUEST OUTPUT THROUGH THE CLIPBOARD, NOT SCREENSHOTS.*** Clipboard
+> is bidirectional. In the guest Ctrl+Shift+A then Ctrl+Shift+C
+> (`1d 2a 1e 9e aa 9d` then `1d 2a 2e ae aa 9d`), then `Get-Clipboard -Raw` on
+> the host — that pulled the whole 191-line console buffer out as text.
+> **Screenshots cost this session real time and missed nine minutes of output**
+> behind an installer window.
+>
+> **THE VM IS NOT A STOCK ISO** — Chrome, pCloud and Winhance are pre-installed,
+> so a green run on it is slightly weaker evidence than one on a pristine box.
+> Recorded as agreed when the step was opened.
+> ## THE FIFTY-THIRD SESSION'S RECORD FROM HERE DOWN — IT CLOSED CLEAN
 >
 > Step 15 fully closed; the SDSYS BP trim cycled and shipped; suite green
 > at 31/31 on both `b37` AND `b38` (386 PASS 0 FAIL each). **Three
@@ -1568,12 +1561,15 @@ what was done about each. What matters for this section:
   8 packages including the new `diffutils`, and libsodium's configure printed no
   `cmp`/`diff` errors.
 
-***THE CLEAN-VM RUN HAPPENED AND DID NOT FINISH — §7 STEP 17 IS THE TASK.***
-A fresh VirtualBox clone, `DevInstallTest`, 23 Aug 2026. It got tools installed
-and then **died at `Step-Clone`** on a PATH that a running process cannot see
-updated, so **the clones, `make sd` and the summary have never run on a bare
-machine**. Three fixes went in and are **unretested on a fresh VM**. §7 step 17
-has the detail and the rig; §7 step 2 documents the VM.
+***THE CLEAN-VM RUN FINISHED ON THE THIRD ATTEMPT, 24 Aug 2026 — §7 STEP 17 IS
+CLOSED.*** Attempt 1 (`DevInstallTest`, 23 Aug) died at `Step-Clone` on a PATH a
+running process cannot see updated; attempts 1 and 2 on `DevEnvInstallTest`
+(24 Aug) wedged the guest, which turned out to be the host's Hyper-V/NEM
+fallback rather than anything in the script (§6). **Attempt 3 ran end to end,
+exit 0, through `make sd`** — the clones, the build and the summary are all
+now proven on a bare machine. §7 step 17 has the detail and the rig; §7 step 2
+documents the VM. ***Still open there: the owner wants `sdhelp` INSTALLED, not
+reported.***
 
 MSYS2 lives at `C:\msys64`. It was installed but completely empty of tooling
 when this work started; everything below was installed during the port.
@@ -1869,6 +1865,15 @@ tree to `<Root>\sdhelp` and verifies the file count; without it the tree is
 reported as a hand-carry item beside `Projects\GPL.BP` rather than passed over
 in silence. **It is not cloned and not vendored** - 30 MB of third-party PDF and
 HTML, and this repository takes no binaries.
+
+***THAT DOES NOT SATISFY THE RULING ABOVE, AND §7 STEP 17 USED TO CLAIM IT
+DID.*** Owner, 24 Aug 2026, on the end-to-end run: **`sdhelp` did not install,
+and he wants it installed** - reporting it is not what he asked for. The
+default path of a bare-machine setup still leaves the tree absent, which is
+exactly the case the ruling names (documentation happening on another
+computer). **Deciding where it comes from is the open work** - release
+artefact, pCloud fetch, or `-SdHelpSource` documented as the supported route.
+`-SdHelpSource` has never been run.
 
 **Local shape:** not a repository — no `.git`, no remote — and
 `setup-devbox.ps1` does not fetch it, **so a machine built from that script
@@ -4448,6 +4453,51 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- ***A VIRTUALBOX GUEST THAT FREEZES UNDER DISK LOAD IS THE HOST'S HYPERVISOR,
+  NOT THE GUEST'S WORKLOAD. IT COST TWO WEDGED RUNS AND MOST OF A SESSION,
+  AND IT WAS MISDIAGNOSED AS THE WORKLOAD BOTH TIMES.*** 24 Aug 2026, step 17.
+  **THE TELL IS ONE LINE IN `VBox.log`:**
+  `HM: HMR3Init: Attempting fall back to NEM: AMD-V is not available`. VirtualBox
+  is then running on the **Windows Hyper-V platform** (`WinHvPlatform.dll`)
+  instead of native AMD-V, which is slow and wedges guests. **Grep that line
+  before believing anything a VM tells you.**
+
+  ***THE SYMPTOM LOOKS EXACTLY LIKE AN APPLICATION HANG, WHICH IS THE TRAP.***
+  The guest desktop stops repainting — **tray clock frozen** — keystrokes and
+  Ctrl+C do not reach it, and it must be powered off. Session 53 read that as
+  `pacman` blocking on a file lock; this session hit the identical freeze
+  **inside the MSYS2 installer's own extraction, before pacman ran at all**.
+
+  ***HOW TO TELL A WEDGE FROM SLOW WORK, since the screen is useless either
+  way*** — both are cheap and neither needs guest credentials:
+
+  | instrument | wedged | alive |
+  |---|---|---|
+  | differencing `.vdi` size, sampled 60 s apart | **0 bytes** growth | grows |
+  | `VBoxManage metrics query <vm> CPU/Load/User` | steady, ~2 cores spinning | varies |
+  | guest tray clock across two screenshots | frozen | advances |
+
+  **CLEARING IT TAKES FOUR HOST SWITCHES AND THE OBVIOUS ONE IS NOT ENOUGH.**
+  Anything in the Hyper-V family holds AMD-V exclusively. On this host all four
+  were needed, each with a reboot: **Memory Integrity** off (Core isolation),
+  **Virtual Machine Platform** off, `bcdedit /set hypervisorlaunchtype off`,
+  and — the one that actually released it — the
+  `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\WindowsHello`
+  `Enabled` value set to **0**. ***TURNING WINDOWS HELLO OFF IN SETTINGS DOES
+  NOT CLEAR THAT KEY***; it is the Enhanced Sign-in Security platform flag and
+  it survived three reboots. `hypervisorlaunchtype` was **already `Off`** and
+  was being overridden by it.
+
+  ***VERIFY ON THE SUCCESS WORDING, NOT THE ERROR'S ABSENCE.*** Host side,
+  `(Get-CimInstance Win32_ComputerSystem).HypervisorPresent` must read
+  **False**, and `Win32_Processor`'s `SecondLevelAddressTranslationExtensions`
+  and `VMMonitorModeExtensions` must flip **False to True** — they read False
+  *because* a hypervisor is holding them, so their return is the positive
+  proof. Guest side, `VBox.log` must carry `HM: Using AMD-V implementation 2.0`
+  and `HM: VT-x/AMD-V enable method: VirtualBox`. **Security note: Memory
+  Integrity is a real protection and this lowers it. It is the owner's call,
+  it is reversible, and an agent must not make it.**
 
 - **`icacls /inheritance:r /T` BEFORE THE GRANT EMPTIES THE PARENT, LOSES THE
   WALK, AND EXITS 0 HAVING SAID SO. IT COST TWO RUNS AND ALMOST SHIPPED A
@@ -8227,7 +8277,32 @@ the staging script and the Inno installer were all finished and removed.
     same fixture in reverse: have SD write, and read the bytes.
 
 
-17. **REVISIT `setup-devbox.ps1` — IT WAS LEFT PARTIALLY WORKING.** Owner,
+17. ***CLOSED 24 Aug 2026, fifty-fourth session — `setup-devbox.ps1` RAN END
+    TO END ON A BARE VM***, ~17 minutes, **exit 0**, through `make sd`, last
+    line `setup-devbox: finished, no problems.` START HERE has the leg-by-leg
+    table and HISTORY.md the transcript. **Two things stay open and neither
+    blocks building a machine:**
+
+    - ***`sdhelp` IS NOT INSTALLED AND THE OWNER WANTS IT INSTALLED.*** His
+      correction, 24 Aug 2026: *"the next phase, documentation, was likely to
+      be on another computer and I wanted it installed."* **This file used to
+      record "report it as a hand-carry item" as HIS RULING. That was wrong**
+      — it was the script's behaviour, not his decision, and the entry below
+      under "KNOWN GAPS THAT ARE NOT DEFECTS" mis-stated it. Placing it needs
+      a decision on **where it comes from**: it has no remote and is 30 MB /
+      ~1300 files of third-party OpenQM 2.6.6 and SD PDF+HTML, which the
+      no-binaries rule keeps out of this repository. Options are a release
+      artefact, a pCloud fetch, or `-SdHelpSource <path>` documented as the
+      supported route — **`-SdHelpSource` exists and has never been run.**
+    - **Inno Setup went PER-USER again**, to
+      `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe`. `cycle.ps1` tries the
+      default then the registry so it finds it; recorded because a cycle
+      reporting ISCC missing wants that path.
+
+    ***THE STEP'S OWN HISTORY IS KEPT BELOW*** because it records what each
+    attempt cost and the rig that ran them.
+
+    **REVISIT `setup-devbox.ps1` — IT WAS LEFT PARTIALLY WORKING.** Owner,
     24 Aug 2026. **The last work on it stopped mid-verification, not at a
     finished state**, and this step exists so that is not rediscovered by
     somebody trying to build a machine with it.
@@ -8316,7 +8391,14 @@ the staging script and the Inno installer were all finished and removed.
     "pacman is waiting for input" was the obvious diagnosis and it was
     wrong — it was waiting on a file lock only process death clears.
 
-    **THE FIX, COMMITTED AND UNRUN**: `Step-Msys` sets
+    ***ATTEMPT 3, 24 Aug 2026 — GREEN, AND THE STEP CLOSED.*** Same VM, same
+    snapshot, same script (hash checked in the guest against the host copy
+    before running). The only thing changed was the **host**: AMD-V released
+    to VirtualBox, §6. Ran through in ~17 minutes, exit 0. START HERE has the
+    legs.
+
+    **THE FIX, ONCE COMMITTED AND UNRUN, IS NOW OBSERVED WORKING**:
+    `Step-Msys` sets
     `$script:MsysJustInstalled` when winget installs MSYS2;
     `Step-Packages` skips `-Syu` on that flag and runs
     `pacman -S --needed` alone. **Safe because a freshly-unpacked tree has
@@ -8324,7 +8406,11 @@ the staging script and the Inno installer were all finished and removed.
     which is the harmless case the existing `-Sy` note already described.
     **The stale-tree path is untouched** and still gets `-Syu`, since a
     months-old MSYS2 is what the partial-upgrade rule exists for.
-    Parse-checked: 0 errors, 27 functions, no BOM.
+    Parse-checked: 0 errors, 27 functions, no BOM. **Then run: attempt 3
+    printed `MSYS2 was installed by THIS run, so pacman -Syu is skipped.` and
+    `pacman -S --needed` installed all 8 packages against the shipped
+    database.** The worry that a just-unpacked sync database could not resolve
+    them was unfounded.
 
     ***DRIVING THE GUEST WITHOUT CREDENTIALS — THE RECIPE THAT WORKED.***
     `guestcontrol` is forbidden (needs guest credentials, §7 step 2), but
@@ -8345,10 +8431,14 @@ the staging script and the Inno installer were all finished and removed.
 
     - It does **not** fetch `Projects\GPL.BP` — a convenience copy of upstream,
       no remote, not project material.
-    - `..\sdhelp` is copied only when `-SdHelpSource <path>` is given
-      (`Step-SdHelp`, owner's ruling 24 Aug 2026); without it the tree is
-      **reported as a hand-carry item** rather than passed over in silence. It
-      is 30 MB of third-party PDF and HTML and is deliberately not vendored.
+    - ***THE `sdhelp` BULLET THAT SAT HERE WAS WRONG AND IS WITHDRAWN,
+      24 Aug 2026.*** It read that `..\sdhelp` being copied only under
+      `-SdHelpSource <path>`, and otherwise **reported as a hand-carry item**,
+      was the ***owner's ruling***. **It was not his ruling and it is not a
+      gap he accepts** — he wants the help set *installed*, because the
+      documentation phase is likely to happen on another computer. Moved to
+      the open items at the top of this step; do not re-file it as
+      "not a defect".
     - Clones are `https` and the `git@` **push** URL is set afterwards with
       `git remote set-url --push`, so a machine with no SSH key still finishes.
       A key is needed the first time somebody pushes and git says so itself.
