@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, fifty-sixth session. ***CODE IS ESSENTIALLY DONE FOR 1.0-0; THE DOCUMENTATION PHASE IS NEXT.*** The refuse-to-install ruling is built and verified on three guests, and the ssh firewall defect is closed on both branches. ***THE ONE THING NOBODY HAS DONE IS RUN THE SUITE SINCE ANY OF IT*** - last green was b37/b38 on 24 Aug, and the tree is STALE, so a full cycle comes first. ***THE DATA-TREE UPGRADE PATH IS BUILT*** - the owner ruled "installer replaces the shipped subset in place", and `sdsys\changelog` moves to `{app}`; both are source-only and **no installer has been built from either**, so item 1's cycle now tests them too. The documentation format is approved and scoped; it starts AFTER 1.0-0, on the owner's instruction.
+**Last updated:** 25 Aug 2026, fifty-sixth session. ***CODE IS ESSENTIALLY DONE FOR 1.0-0; THE DOCUMENTATION PHASE IS NEXT.*** The refuse-to-install ruling is built and verified on three guests, and the ssh firewall defect is closed on both branches. ***THE ONE THING NOBODY HAS DONE IS RUN THE SUITE SINCE ANY OF IT*** - last green was b37/b38 on 24 Aug, and the tree is STALE, so a full cycle comes first. ***THE DATA-TREE UPGRADE PATH IS BUILT, AND `assert-current` CAN NOW SEE A DELETION*** (section B3, measured both ways on the real trees). The owner ruled "installer replaces the shipped subset in place", and `sdsys\changelog` moves to `{app}`. All of it is source-only and **no installer has been built from any of it**, so item 1's cycle now tests it too. The documentation format is approved and scoped; it starts AFTER 1.0-0, on the owner's instruction.
 
 ---
 
@@ -1105,11 +1105,12 @@ something came to be the way it is.
 > status list, read each step's body or check the code - a heading is a claim
 > like any other.**
 >
-> **Plus, and it is the owner's call:** `assert-current` **cannot see a
-> deletion** - it walks source -> install only, so a deletion-only commit
-> reports the tree current, which has already happened silently. The naive fix
-> cries wolf for ever; the shape that would work compares the install against
-> what `stage.py` ships. Not started.
+> ~~**Plus, and it is the owner's call:** `assert-current` **cannot see a
+> deletion**~~ ***CLOSED 25 Aug 2026*** - section B3 asks
+> `stage.py --list-mirrors` which `sdsys` directories are a verbatim copy of
+> source and walks install -> source inside those only. 2955 files checked on
+> the real tree, 0 reported; the same function given `accounts` reports 17, so
+> the zero is measured rather than empty. See §"ALSO OPEN" below, now struck.
 >
 > **And two undiagnosed §8 items**, neither blocking: the first verifier run
 > after a cycle sometimes fails checks the second passes (~2 in 10, three
@@ -1157,15 +1158,36 @@ something came to be the way it is.
 > new parameters (Y/N)?"* at `SETPTR:558`), and give `PHANTOM` its own
 > fire-and-forget pass. `gplbld/probe-syswrites.ps1` does all of this already.
 >
-> ### ALSO OPEN, AND IT IS THE OWNER'S CALL
+> ### ~~ALSO OPEN, AND IT IS THE OWNER'S CALL~~ CLOSED 25 Aug 2026
 >
-> ***`assert-current` CANNOT SEE A DELETION.*** It walks source -> install and
-> asks whether each source file is installed; nothing walks the other way, so a
-> deletion-only commit reports the tree **current**. It has already happened
-> silently (session 50's `OPGEN` delete). **The naive fix makes it cry wolf for
-> ever** - `gcat`, `gpl.bp.out`, `errlog` and all account data are in the
-> install and never in source. The shape that would work is comparing the
-> install against **what `stage.py` ships**. Not started; needs a decision.
+> ***`assert-current` COULD NOT SEE A DELETION. IT CAN NOW*** — section **B3**,
+> [assert-current.ps1](sdb_ai/sd64/gplbld/assert-current.ps1). B and B2 walk
+> source -> install and ask whether each source file is installed; nothing
+> walked the other way, so a deletion-only commit reported the tree
+> **current** — twice, silently (`OPGEN`, then `MODIFY`).
+>
+> **It took the shape this entry predicted: compare the install against what
+> `stage.py` ships.** `stage.py --list-mirrors` names the seven `sdsys`
+> directories that are a verbatim copy of source, B3 walks only those, and
+> anything found in the install and not in source is a deletion that has not
+> shipped. **`accounts` is deliberately not one of them** and that is what
+> stops the cry-wolf failure this entry warned about — it ships holding the
+> `SDSYS` record and then accumulates every account the user creates.
+>
+> ***MEASURED BOTH WAYS ON THE REAL TREES, because a check that always returns
+> nothing looks the same whether it works or not:***
+>
+> | mirror list | checked | reported |
+> |---|---|---|
+> | the real seven | **2955 files** | 0 — and 0 skipped |
+> | `accounts`, as a control | 18 | ***17*** — `don` and the sixteen `b38` test accounts |
+>
+> `test-deletioncheck-units.ps1` lifts `Find-InstalledDeletions` out of the
+> guard by AST and covers the rest: a planted `gpl.bp\MODIFY` found by name, a
+> nested deletion, a case-only rename **not** double-reported (B2 owns that),
+> and a missing mirror directory reported as skipped rather than passed.
+> 12 checks. **Adding a directory to `SDSYS_MIRROR` is the only way to widen
+> it**, and that list carries the per-directory measurement.
 >
 > ### §7 STEP 9's VERIFIER IS STILL UN-STARTED, and §7 is otherwise empty.
 >
@@ -7042,7 +7064,9 @@ the staging script and the Inno installer were all finished and removed.
      Same-commit updates to `stage.py`'s `('bp', ...)` comment,
      `assert-current.ps1`'s `$neverShipped` (`testsdcli.bp`), and this
      bullet. **Not yet cycled** - the change is source-only, and
-     `assert-current` cannot see a deletion (the open item next paragraph),
+     `assert-current` could not see a deletion at the time (closed 25 Aug 2026,
+     section B3 - it can now, and `sdsys\bp` is one of the seven directories it
+     watches),
      so the b37 install still has the 16 files until the next cycle.
    - ***THE DATA-TREE UPGRADE PATH IS DECIDED, 25 Aug 2026, AND NOT BUILT.***
      Owner's ruling, and it follows what the Linux side already does rather

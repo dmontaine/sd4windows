@@ -27,6 +27,59 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-sixth session, part 4: assert-current can see a deletion
+
+**Commit:** this one. Closes the item opened on 24 Aug in *"assert-current
+cannot see a deletion"*, which was documented rather than fixed because the
+obvious fix cries wolf for ever.
+
+**IT TOOK THE SHAPE THAT ENTRY PREDICTED** — compare the install against what
+`stage.py` ships, not against the source tree as a whole. `stage.py` grew
+`SDSYS_MIRROR` and a `--list-mirrors` switch; `assert-current` section B3 asks
+it, walks install -> source inside those directories only, and reports anything
+the install has that source no longer does.
+
+**WHY THAT DOES NOT CRY WOLF.** A directory qualifies only if the install never
+writes into it. `gcat`, `gpl.bp.out`, `voc`, `errlog`, `$ipc` and the account
+data are not on the list and are never opened, so the check is silent on a
+healthy tree instead of firing on every run for ever.
+
+***accounts IS THE ONE THAT DISQUALIFIES ITSELF, AND MEASURING SAID SO.***
+Comparing each `SDSYS_SHIP` directory against `C:\ProgramData\SD\sdsys` gave 0
+installed-not-in-source for `gpl.bp` (198), `syscom` (15), `newvoc` (394),
+`voc_template` (424), `messages` (1909), `sd.voclib` (10) and `bp` (5) — and
+**17 of 18 for `accounts`**: `don` plus the sixteen `b38` test accounts. Seven
+mirrors, and the eighth left off with its reason recorded beside it.
+
+**THE ZERO IS MEASURED, NOT EMPTY.** On a healthy tree this check correctly
+returns nothing, so a run that had silently stopped working would look exactly
+like a run that passed. Two things stop that reading: `Find-InstalledDeletions`
+returns a `Checked` count and B3 refuses a zero one out loud, and the same
+function pointed at `accounts` on the same real trees returns 17.
+
+**`test-deletioncheck-units.ps1`**, 12 checks, lifts the function out of the
+guard by AST rather than copying it. It covers a planted `gpl.bp\MODIFY` found
+by name, a nested deletion, the cry-wolf control both ways, a case-only rename
+**not** reported (B2 owns that, with `-cne`; reporting it here as well would
+send the reader hunting a file that is not missing), and a missing mirror
+directory reported as skipped rather than passed.
+
+**No changelog entry:** `assert-current.ps1` is on its own `$neverShipped`
+list and never reaches a user's machine.
+
+**WHAT IT DOES NOT COVER, LEFT OPEN RATHER THAN QUIETLY ASSUMED AWAY:** a
+deletion under `{app}`. A script removed from `gplbld` lingers in
+`C:\Program Files\SD` — Inno's `[Files]` copies and overwrites but does NOT
+remove a file that is absent from the new version, which is the whole reason
+`[InstallDelete]` exists. `sd.iss`'s own comment there says `{app}` is
+*"replaced on upgrade and removed on uninstall"*, and that is right about
+overwriting and about uninstalling and wrong about a retired file. The exposure
+is small - a stale `.ps1` that nothing invokes - and the fix is the same
+`SDSYS_RETIRED` shape aimed at `{app}`. Not built; the item this entry closes
+was about the data tree.
+
+---
+
 ## 25 Aug 2026 — Fifty-sixth session, part 3: the documentation format is approved, and the first document set is scoped
 
 **Commit:** with part 2. The owner judged the sample page and the answer was
