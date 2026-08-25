@@ -27,6 +27,38 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-third session, part 2: suite runs green at 31 of 31 on b37
+
+`VerifyInstall1 -ThenElevated -Run b37`, from a fresh elevated window per
+the transcript-degradation habit. Result:
+
+- `VerifyInstall1`: 12/12 exit 0 (unelevated).
+- `VerifyInstall2`: 19/19 exit 0 (elevated), 386 `[PASS]` rows, 0 `[FAIL]`
+  across the 19 UTF-16LE per-step logs.
+
+**Decoder was proven to reach the text before believing the zero** —
+session 51/52's lesson (an ASCII grep on UTF-16LE bytes matches nothing
+and reads as a clean run). Each log went through
+`iconv -f UTF-16LE -t UTF-8`, and each step's positive `[PASS]` count was
+asserted individually — 7 for verify-cmdaudit, 25 for verify-catgate, 40
+for verify-scramlogin, 4 for verify-apiidentity, and so on. Only after
+every step showed a positive count was the aggregate `[FAIL]=0` trusted.
+
+**Session 52's verdict-line fix observed working on its first suite run**
+(both verifiers are elevated and spend a name, so session 52 could not
+re-run them). Both printed the expected shape at the tail:
+
+- `verify-createaccount: PASSED - 18 of 18 decisive checks passed, 18 row(s) in all.`
+- `verify-sshonly: PASSED - 12 of 12 decisive checks passed, 15 row(s) in all.`
+
+Verdict is last, after cleanup prose, so a `tail` reads it — the whole
+point of the fix.
+
+Prefixes to `b37` are now spent — next suite run needs `b38` or later.
+Suite log at
+`%LOCALAPPDATA%\SD-verify\post-cycle-elevated-20260824-193534.log`
+and the 19 per-step logs share the `20260824-193834-` timestamp.
+
 ## 24 Aug 2026 — Fifty-third session: probe-catprivate closes step 15's last owed row
 
 Step 15's CATALOG row was reasoned rather than measured. Built

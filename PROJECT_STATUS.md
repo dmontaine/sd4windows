@@ -5,15 +5,49 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 fully closed; probe-catprivate 3/3, CATALOG proven writing sdsys\cat under the lock.
+**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 fully closed (probe-catprivate 3/3); suite green at **31 of 31 on b37**, 386 PASS 0 FAIL, verdict lines on verify-createaccount and verify-sshonly observed working.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: NOTHING IS OWED. RUN THE SUITE AT 31 WHEN CONVENIENT.
+> ## NEXT: NOTHING IS OWED. NOTHING IS BLOCKING. CLEAN HANDOFF.
 >
-> ***END OF THE FIFTY-THIRD SESSION, 24 Aug 2026*** — step 15 fully closed.
+> ***END OF THE FIFTY-THIRD SESSION, 24 Aug 2026*** — step 15 fully closed
+> and the suite ran green at **31 of 31 on `b37`**. Working tree clean,
+> two commits pushed (`ce47d74` probe-catprivate, docs on this run).
+>
+> ### THE SUITE ON b37 — 31/31, 386 PASS, 0 FAIL, DECODER PROVEN
+>
+> | half | result |
+> |---|---|
+> | `VerifyInstall1`, 12 steps, ordinary token | **12/12 exit 0** |
+> | `VerifyInstall2`, 19 steps, elevated | **19/19 exit 0** — 386 `[PASS]` rows, **0 `[FAIL]`** across the 19 UTF-16LE per-step logs |
+>
+> ***THE DECODER WAS PROVEN TO REACH THE TEXT*** before believing the zero
+> `[FAIL]` count — session 51/52's lesson. `iconv -f UTF-16LE -t UTF-8` on
+> each log, then a POSITIVE `[PASS]` count per step (7 for verify-cmdaudit,
+> 25 for verify-catgate, 40 for verify-scramlogin, ...). An ASCII grep on
+> the raw UTF-16LE bytes would have matched nothing and reported a false
+> clean; the assertion is on the positive count, not the absent negative.
+>
+> ***PREFIXES TO `b37` ARE NOW SPENT — USE `b38` OR LATER.***
+>
+> ### THE TWO NEW VERDICT LINES ARE OBSERVED WORKING
+>
+> Session 52 added a verdict line to `verify-createaccount` and
+> `verify-sshonly` because a `tail` of a run with no verdict was showing
+> only cleanup prose, and a decisive failure would hide in it. Neither
+> verifier had been re-run in session 52 (both are elevated and spend a
+> name). On this `b37` run they printed exactly the shape built:
+>
+> - `verify-createaccount: PASSED - 18 of 18 decisive checks passed, 18 row(s) in all.`
+> - `verify-sshonly: PASSED - 12 of 12 decisive checks passed, 15 row(s) in all.`
+>
+> Last, after the cleanup prose, so a `tail` reads it.
+>
+> ### STEP 15 CLOSED EARLIER IN THE SESSION
+>
 > `probe-catprivate.ps1` ran green on the current install at **19:26:48**:
 > **3/3 checks agreed**, CATPRV192648 added to private catalogue, count 0→1,
 > `C:\ProgramData\SD\sdsys\cat\CATPRV192648` written and cleaned. Transcript
@@ -27,18 +61,6 @@ something came to be the way it is.
 > | `CATALOG` (private) | 24 Aug 19:26:48 — `probe-catprivate.ps1` 3/3 |
 > | `CATALOG` (global, `$`-prefix) | `verify-catgate` 25/25 (`gcat` locked long before this step) |
 > | `CONFIG` | closed by source — nothing in SD writes `sd.conf`; `config.c:152` and `sysdump.c:49` are `fopen("r")`, `op_config.c` does no file I/O |
->
-> ### NEXT: THE SUITE AT 31, WHEN CONVENIENT
->
-> `verify-cmdaudit` joined `VerifyInstall2` after `b36`, so green becomes
-> **31 of 31**. ***PREFIXES TO `b36` ARE SPENT — USE `b37` OR LATER.***
->
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b37
-> ```
->
-> ***AND OPEN A FRESH ELEVATED WINDOW FOR IT AND FOR EVERY CYCLE.*** See the
-> transcript note below — `cycle.ps1` warns, but the habit is the fix.
 >
 > ### THE PROBE, KEPT BECAUSE THE MEASUREMENT MIGHT NEED TO BE RE-TAKEN
 >
