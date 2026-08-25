@@ -27,6 +27,61 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-second session, part 5: the suite is green at 30 of 30, and the first reading of it was a false clean
+
+**Commit:** the commit carrying this entry. Documentation only.
+
+**`b36`, on the 18:19:17 install.** `VerifyInstall1` **12 of 12** and
+`VerifyInstall2` **18 of 18**, every step exit 0. **Prefixes to `b36` are
+spent.** `verify-sysdiracl` passed in its **first suite run**, so §7 step 15's
+guard is now part of the standing suite rather than a script run by hand.
+
+### ***THE ELEVATED PER-STEP LOGS ARE UTF-16LE, AND AN ASCII GREP OVER THEM REPORTS A CLEAN RUN***
+
+**The first pass over these logs asked for `[FAIL]` and got 0 — from a file the
+pattern could not match a single byte of.** Had the run genuinely failed, that
+reading would have been identical. It is session 51's `iconv` trap arriving
+from the opposite direction: there, a UTF-16LE decode of a UTF-8 file decoded
+nothing and reported 0 failures; here, a UTF-8 pattern against a UTF-16LE file
+matched nothing and reported 0 failures.
+
+**THE RULE, and it costs one extra line:** decode first —
+`iconv -f UTF-16LE -t UTF-8 <log>` — and **prove the decoder reached the text
+with a POSITIVE count before believing a zero**. The control used here was 16
+`PASS` lines in `verify-tierapi`; only then does `FAIL=0` mean anything. Across
+the 18 elevated logs, decoded: **0 `[FAIL]`, 379 `[PASS]`.**
+
+### TWO ROWS THAT LOOK WRONG AND ARE NOT
+
+- **`verify-apiadmin: 22/23`.** The twenty-third row is `[N/A ]`: *"API session
+  is NOT running as SYSTEM: OS.EXECUTE was refused, so the probe could not
+  ask"*. The probe could not ask **because the gate worked**. Not a failure.
+- **`verify-createaccount` and `verify-sshonly` print no "N of N" line at
+  all.** Both carry PASS rows and no FAIL rows, but neither states a verdict of
+  its own. ***That is a reporting gap and it is worth closing***: §0's rule is
+  to anchor on the success wording a tool prints, and these two print none, so
+  the only available check is the absence of failures — which is exactly the
+  shape that just produced a false clean above.
+
+### CORRECTION: `verify-sshonly` PASSES, WHERE §4 SAID IT EXITS 1
+
+§4's table read *"exit 1 — **OPEN, and the owner's call**. Every `ssh` attempt
+was refused, **including the control**… this file now asserts a premise the
+product no longer has"*. **It exits 0 with 15 PASS and 0 FAIL**:
+`LogonUser INTERACTIVE` refused 1385, `NETWORK_CLEARTEXT` and `NETWORK`
+admitted, ssh admitted **with a password and with a key**, and still admitted
+with the account also in `Users`. Whatever the 21 Aug failure was, it is gone —
+and the row was never re-checked after it. Corrected in place.
+
+**That makes FIVE status claims found stale in one session** — §7 step 16
+(closed, heading said not started), §7 step 9 (a decision, not a missing
+verifier, and its hang had been traced), §7 step 3's `limitssh` half (stopped
+needing a VM on 21 Aug), the untraced-hang paragraph, and now this. The pattern
+is the same every time: **the code or a later entry was right and a summary
+line was left behind.**
+
+---
+
 ## 24 Aug 2026 — Fifty-second session, part 4: both changes verified, and a transcript that stopped recording
 
 **Commit:** the commit carrying this entry.

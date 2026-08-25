@@ -5,21 +5,46 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, fifty-second session (steps 9 and 15 closed and verified on the 18:19:17 install; suite owed).
+**Last updated:** 24 Aug 2026, end of the fifty-second session (steps 9 and 15 closed; suite green at 30 of 30 on b36).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: RUN THE SUITE. EVERYTHING ELSE THIS SESSION IS CLOSED AND VERIFIED.
+> ## NEXT: NOTHING IS BLOCKING. THE SUITE IS GREEN AT 30 OF 30.
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b36
-> ```
+> ***THE SESSION CLOSED CLEAN.*** Install **18:19:17**, `assert-current` matches
+> source, suite run **`b36`** at **30 of 30** - `VerifyInstall1` 12 of 12 and
+> `VerifyInstall2` 18 of 18, every step exit 0. ***PREFIXES TO `b36` ARE NOW
+> SPENT; USE `b37` OR LATER.***
 >
-> ***FROM AN ORDINARY TERMINAL, BY A PERSON*** (§4.0.1 - an agent may run
-> `cycle.ps1` but not this). Prefixes to `b35` are spent. **`VerifyInstall1` is
-> now 12 steps**, so green is **30 of 30**.
+> ### VERIFIED ON THE TRANSCRIPTS, AND THE FIRST READING WAS A FALSE CLEAN
+>
+> ***THE ELEVATED PER-STEP LOGS ARE UTF-16LE.*** An ASCII `grep '[FAIL]'` over
+> them matches **nothing** and reads as a clean run - the same false clean
+> session 51 recorded for an `iconv` that decoded nothing, arriving from the
+> opposite direction. **Decode first, and prove the decoder reached the text
+> before believing a zero**: `iconv -f UTF-16LE -t UTF-8 <log>`, then assert a
+> POSITIVE count - 16 `PASS` lines in `verify-tierapi` - and only then trust the
+> `FAIL` count of 0.
+>
+> | half | result |
+> |---|---|
+> | `VerifyInstall1`, **12** steps, ordinary token | **12/12 exit 0** - `verify-sysdiracl` passed in its FIRST suite run |
+> | `VerifyInstall2`, 18 steps, elevated | **18/18 exit 0**, **0 `[FAIL]` rows**, **379 `[PASS]` rows** |
+>
+> **TWO ROWS THAT LOOK WRONG AND ARE NOT.** `verify-apiadmin: 22/23` - the
+> twenty-third is `[N/A ]`, because the probe could not ask *precisely since*
+> `OS.EXECUTE` was correctly refused. And `verify-createaccount` and
+> `verify-sshonly` print **no "N of N" line at all**: both have PASS rows and no
+> FAIL rows, but neither states a verdict. **That is a reporting gap worth
+> closing** - a verifier with no success wording cannot be checked the way
+> §0 requires.
+>
+> ***AND `verify-sshonly` PASSED, WHERE §4 SAID IT EXITS 1.*** Corrected there.
+> 15 PASS, 0 FAIL: `LogonUser INTERACTIVE` refused 1385, `NETWORK_CLEARTEXT`
+> and `NETWORK` admitted, ssh admitted with a password **and** with a key. The
+> row had not been re-checked since 21 Aug.
 >
 > ### THE INSTALL IS 18:19:17 AND BOTH CHANGES ARE VERIFIED ON IT
 >
@@ -1876,7 +1901,7 @@ all-checks are **first recorded results ever**; `verify-tierapi` 15/16 and
 | `verify-nonet` | 16/17 — `CT VOC UNLOCK shows a V type code` wanted `^\s*\d*\s*V\s*$` and SD prints **`1: V`**. **The colon was missing, so it had failed every run since it was written.** `verify-lcnames:767` had it right all along. Fixed |
 | `verify-tierapi` | 15/16 — `bound to 127.0.0.1 only` **expected `$false` of an expression that asks "is it 0.0.0.0"**, so it failed *because the server was correct*. **Posture B left behind**, which Phase 1 reversed on 21 Aug. `verify-apiport` asked the same question the right way round two steps earlier and got the opposite answer — **that disagreement is what makes it a test bug and not a finding**. Fixed |
 | `verify-fold` | exit 2 — `CREATE.FILE ZZUCFOLD1` met *"DATA part of file already exists"*. **Residue from two interrupted runs**, not a defect. Clear it with `verify-fold.ps1 -Cleanup` |
-| `verify-sshonly` | exit 1 — **OPEN, and the owner's call**. Every `ssh` attempt was refused, **including the control**, because it builds a plain local account in **no SD group** and `sshd`'s `AllowGroups` now names `sdssh`. The test predates §5.6.2's own change. `verify-createaccount` step 3 already proves ssh works on an SD-made account, so nothing is unmeasured — but this file now asserts a premise the product no longer has |
+| `verify-sshonly` | ***exit 0, 15 PASS, 0 FAIL — CORRECTED 24 Aug 2026 on the `b36` run.*** This row said *"exit 1 — OPEN, and the owner's call"*, that every `ssh` attempt was refused **including the control**, and that the test asserted a premise the product no longer had. **It passes**: `ssh-only: LogonUser INTERACTIVE` refused 1385, `NETWORK_CLEARTEXT` and `NETWORK` admitted, ssh admitted with a password **and** with a key, and still admitted with the account also in `Users`. Whatever the 21 Aug failure was, it is gone; the row was never re-checked after it |
 
 **THREE OF THE FIVE WERE FAULTS IN THE TESTS OR IN MY WIRING, NOT IN SD**, and
 two of those had been failing silently for as long as they had existed —
