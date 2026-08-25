@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the fifty-second session (steps 9 and 15 closed; suite green at 30 of 30 on b36).
+**Last updated:** 24 Aug 2026, end of the fifty-second session (steps 9 and 15 closed; suite green 30 of 30, and verify-cmdaudit added as the 31st).
 
 ---
 
@@ -32,6 +32,10 @@ something came to be the way it is.
 > |---|---|
 > | `VerifyInstall1`, **12** steps, ordinary token | **12/12 exit 0** - `verify-sysdiracl` passed in its FIRST suite run |
 > | `VerifyInstall2`, 18 steps, elevated | **18/18 exit 0**, **0 `[FAIL]` rows**, **379 `[PASS]` rows** |
+> 
+> ***THE SUITE IS 31 FROM THE NEXT RUN***: `verify-cmdaudit` joined
+> `VerifyInstall2` after `b36`, so green becomes **31 of 31**. It spends no
+> prefix, so it costs nothing to re-run.
 >
 > **ONE ROW THAT LOOKS WRONG AND IS NOT.** `verify-apiadmin: 22/23` - the
 > twenty-third is `[N/A ]`, because the probe could not ask *precisely since*
@@ -300,7 +304,7 @@ something came to be the way it is.
 > | § | task | state |
 > |---|---|---|
 > | 15 | **the ACL lock** | ***CLOSED*** - re-verified on the 18:19:17 install, 16/16. `CATALOG`/`CONFIG` hand-run still owed |
-> | 9 | ***`sd <command>` no longer prompts***, installer step moved to `MODIFY.PASSWORD`, **both cycled and verified**. ***THE VERIFIER IS SCOPED AND THE BEHAVIOURAL HALF CANNOT BE AUTOMATED*** - the gate is reachable only by a person at their own elevated console. Build the audit-trail check; the console probe is a decision | closed; **one verifier scoped, not built** |
+> | 9 | ***CLOSED.*** `sd <command>` no longer prompts, the installer step moved to `MODIFY.PASSWORD`, both cycled and verified, and **`verify-cmdaudit` is built and passing 5/5** in `VerifyInstall2`. ***THE BEHAVIOURAL HALF CANNOT BE AUTOMATED*** - the gate is reachable only by a person at their own elevated console; that console probe is the one remaining decision | closed |
 > | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. `sdsys\bp` still ships **21 test programs** to end users. No data-tree upgrade path | 3 open bullets; **one is now cheap** |
 > | — | ***NEW, FOUND 24 Aug WHILE CHECKING STEP 3, AND IT IS THE OWNER'S CALL***: `ApplyAllowGroups` is gated **only** on the task, not on `SshWasAbsent` as the firewall step is - so on a machine with a **stock** foreign `sshd_config` a default-ticked box edits it. `allow-ssh-groups.ps1`'s header says the rule is carried by the task being "unticked by default"; **it is ticked by default.** §5.9 has the table | decision not started |
 > | 9 | ***RULED AND BUILT 24 Aug 2026*** - owner: *"only batch, so not interactive"*. `sd <command>` no longer prompts; `LOGIN:640`. **A VERIFIER IS OWED** and `verify-batchjob` will not catch a regression (it pipes `$null`, so the old gate already skipped). Plus `@logname`, never checked on a cycle | **built, not compiled, not run** |
@@ -6459,8 +6463,33 @@ the staging script and the Inno installer were all finished and removed.
 
    **WHAT IS ACHIEVABLE, in the order worth doing it:**
 
-   1. ***THE AUDIT OBSERVABLE — automatable, cheap, and it needs neither a
-      console nor a credential-less account.***
+   1. ***BUILT AND VERIFIED 24 Aug 2026 — `gplbld/verify-cmdaudit.ps1`,
+      5 of 5 decisive, exit 0, on the 18:19:17 install.*** Elevated, in
+      `VerifyInstall2` beside `verify-notyet`; spends **no prefix**, creates no
+      account. The two records it produced, from LOGIN's two branches:
+
+      ```
+      19:09:49 user=don uid=26 pid=258 LOGIN account=DON command=COUNT VOC
+      19:09:50 user=don uid=27 pid=260 LOGIN account=DON
+      ```
+
+      **It refuses the null case**: if the audit trail did not grow, nothing
+      reached LOGIN and it fails rather than describing an empty string.
+      **`Get-LoginRecords` is a pure function**, unit-tested by
+      `test-verdict-units.ps1` — **54 of 54** — including the ordering trap
+      below and three null cases; and the control was run, perturbing the order
+      made it fail 4 of 54.
+
+      ***THE ORDERING TRAP, because it would report the regression as a pass:***
+      `LOGIN account=X command=Y` **also matches** a pattern looking for
+      `LOGIN account=X`, so the command form must be tested FIRST. Backwards,
+      every command session reads as interactive — which is exactly what a
+      regression looks like.
+
+      ***AND WHAT IT DOES NOT PROVE, kept in its header:*** that the prompt was
+      skipped. It proves the gate's INPUT, not the branch.
+
+      The original reasoning:
       [LOGIN:722-726](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:722) writes
       `LOGIN account=x` when `batch.command` is empty and
       `LOGIN account=x command=y` when it is not. **That is the new conjunct's
