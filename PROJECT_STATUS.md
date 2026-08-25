@@ -300,7 +300,7 @@ something came to be the way it is.
 > | § | task | state |
 > |---|---|---|
 > | 15 | **the ACL lock** | ***CLOSED*** - re-verified on the 18:19:17 install, 16/16. `CATALOG`/`CONFIG` hand-run still owed |
-> | 9 | ***`sd <command>` no longer prompts*** - and the installer's password step now uses `MODIFY.PASSWORD`. ***BOTH CYCLED AND VERIFIED*** on the 18:19:17 install: 1 credential written | ***CLOSED*** |
+> | 9 | ***`sd <command>` no longer prompts***, installer step moved to `MODIFY.PASSWORD`, **both cycled and verified**. ***THE VERIFIER IS SCOPED AND THE BEHAVIOURAL HALF CANNOT BE AUTOMATED*** - the gate is reachable only by a person at their own elevated console. Build the audit-trail check; the console probe is a decision | closed; **one verifier scoped, not built** |
 > | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. `sdsys\bp` still ships **21 test programs** to end users. No data-tree upgrade path | 3 open bullets; **one is now cheap** |
 > | — | ***NEW, FOUND 24 Aug WHILE CHECKING STEP 3, AND IT IS THE OWNER'S CALL***: `ApplyAllowGroups` is gated **only** on the task, not on `SshWasAbsent` as the firewall step is - so on a machine with a **stock** foreign `sshd_config` a default-ticked box edits it. `allow-ssh-groups.ps1`'s header says the rule is carried by the task being "unticked by default"; **it is ticked by default.** §5.9 has the table | decision not started |
 > | 9 | ***RULED AND BUILT 24 Aug 2026*** - owner: *"only batch, so not interactive"*. `sd <command>` no longer prompts; `LOGIN:640`. **A VERIFIER IS OWED** and `verify-batchjob` will not catch a regression (it pipes `$null`, so the old gate already skipped). Plus `@logname`, never checked on a cycle | **built, not compiled, not run** |
@@ -6415,14 +6415,78 @@ the staging script and the Inno installer were all finished and removed.
    | does an **ssh** session carry one? | **no** — `allow-ssh-groups.ps1:183` writes `ForceCommand "<sd.exe>"` with **no arguments**, so it is empty and ssh still prompts |
    | block balance after the edit | **identical to HEAD** — `then` 57, `end` 72, `begin case` 3, `loop`/`repeat` 7, `for`/`next` 2 |
 
-   ***A VERIFIER FOR IT IS OWED AND IS NOT TRIVIAL.*** `verify-batchjob` will
-   **not** catch a regression: `verify-batchjob.ps1:112` pipes `$null` into
-   `sd`, so `K$TTY` is empty and the old gate already skipped the prompt. The
-   decisive test is elevated, **console stdin inherited**, on an account with
-   no password — which is the hanging case, so it needs the 23 Aug probe's
-   shape: a timeout, and `sd -cleanup` in the **same elevated context**,
-   ordered **before** any reporting. §6: killing an `sd` session costs the
-   install, not just the session.
+   ***A VERIFIER FOR IT IS OWED. SCOPED 24 Aug 2026, AND THE ANSWER IS THAT THE
+   BEHAVIOURAL HALF CANNOT BE AUTOMATED.*** Written up rather than started,
+   because the cost is in the constraints and they are not obvious.
+
+   **TWO CLAIMS NEED PROVING**, and they are not the same size:
+
+   | # | claim |
+   |---|---|
+   | 1 | elevated + console + **no credential** + a command -> **no prompt**, the command runs (the ruling) |
+   | 2 | the same **without** a command -> **still prompts** (the 21 Aug rule, intact) |
+
+   ***THE TRAP THAT WOULD BE WALKED INTO FIRST: ANY PIPED TEST IS A FALSE
+   PASS.*** `K$TTY` is `ttyname(fileno(stdin))`, so a pipe empties it and the
+   prompt never fires **whatever LOGIN does**. `verify-batchjob` will not catch
+   a regression for exactly this reason - `verify-batchjob.ps1:112` pipes
+   `$null`. A piped run proves nothing and looks identical to a pass.
+
+   ***FOUR CONSTRAINTS COMPOUND, AND TOGETHER THEY CLOSE THE DOOR:***
+
+   - **A real console** is required, per the trap above.
+   - **An account with NO SD credential.** `don` has one. ***`SDSYS` CANNOT BE
+     BORROWED***: [LOGIN:411](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:411) answers a
+     non-internal `-Aname` with *"You can only log in to your own account"* and
+     terminates; only `-internal` forces SDSYS, and `-internal` is **exempt
+     from this gate entirely**. That kills the cheap route.
+   - **An elevated token** — `K$ADMINISTRATOR`, and `sd.c` `check_admin()`
+     refuses a command line without one.
+   - **Running AS that account**, since `initial.account` is the caller's own.
+
+   **AND THE LAST TWO CANNOT BE HAD TOGETHER FOR A TEST ACCOUNT.** SD accounts
+   are ssh-only: `LogonUser INTERACTIVE` is **refused 1385**, measured by
+   `verify-sshonly`. `NETWORK`/`NETWORK_CLEARTEXT` are admitted but the token
+   is **UAC-filtered**, so it is not elevated and `sd <command>` is refused
+   outright. An elevated token for another local user, non-interactively, needs
+   either `LocalAccountTokenFilterPolicy` — **a machine-wide security
+   weakening, not acceptable** — or a UAC prompt, which needs a person.
+
+   ***SO THE GATE IS REACHABLE ONLY BY A PERSON AT THEIR OWN ELEVATED CONSOLE.***
+   That is not a gap in the test suite so much as a property of the thing being
+   tested, and **it is why the regression was found by the owner running the
+   installer and by no test at all.**
+
+   **WHAT IS ACHIEVABLE, in the order worth doing it:**
+
+   1. ***THE AUDIT OBSERVABLE — automatable, cheap, and it needs neither a
+      console nor a credential-less account.***
+      [LOGIN:722-726](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:722) writes
+      `LOGIN account=x` when `batch.command` is empty and
+      `LOGIN account=x command=y` when it is not. **That is the new conjunct's
+      own input, made visible**, so a verifier can prove LOGIN saw a non-empty
+      `batch.command` for `sd <command>` and an empty one for plain `sd`. Four
+      verifiers already read the audit trail (`verify-peerlog`, `verify-apiname`,
+      `verify-createaccount`, `verify-credacl`), so the machinery exists.
+      ***SAY WHAT IT DOES NOT PROVE***: that the prompt was skipped. It proves
+      the input, not the branch.
+   2. **The end-to-end guard already runs every cycle** — `cycle.ps1`'s
+      `credential register: N account(s) with a password`, which prints
+      *"NO ACCOUNT HAS A PASSWORD"* on zero. **Note what it now guards**: since
+      the password step moved to `MODIFY.PASSWORD`, it no longer depends on
+      LOGIN's prompt, so it protects the installer rather than this gate.
+   3. **A person-in-the-loop probe**, if the behavioural proof is wanted. Needs
+      a fresh ADMINISTRATOR-tier account **not** in `sdsshonly`, an elevated
+      console opened as that user by hand, then two timed runs. ***THE CONTROL
+      MUST BE A TIMEOUT AND A KILL***, because you cannot script an answer to a
+      prompt that only appears when stdin is a real console. Kill, then
+      `sd -cleanup` **in the same elevated context, ordered before any
+      reporting** - §6: stale user-table entries make later sessions answer
+      *Forced logout*, so it costs the install and not just the session.
+
+   **RECOMMENDATION: build (1), rely on (2), and leave (3) as the owner's
+   call.** It is the only part that proves the behaviour and it cannot be
+   automated at any price this project should pay.
 
    ***THE THREE CLAIMS THAT MADE IT LOOK LIKE A DEFECT ARE ALL WITHDRAWN***
    (HISTORY.md, 23 Aug 2026, *"the elevated hang is diagnosed"* plus its two
