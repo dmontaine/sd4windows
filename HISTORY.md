@@ -27,6 +27,94 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-second session: the ACL lock the owner ruled is built, not yet cycled
+
+**Commit:** the commit carrying this entry. §7 step 15.
+
+**FOUR PIECES, ONE COMMIT.** `gplbld/secure-sysdirs.ps1` (new, ships),
+`gplbld/verify-sysdiracl.ps1` (new, `$neverShipped`), `SecureSysdirs` in
+`sd.iss:1650` called from `ssPostInstall` at `sd.iss:1994`, and the wiring:
+`stage.py` ships the lock, `assert-current` excludes the guard,
+`VerifyInstall1` runs the guard beside `verify-pcodeacl`. Changelog entry in
+the same commit.
+
+**THE SEVEN**: `accounts`, `$map`, `messages`, `newvoc`, `bp`, `cat` under
+`<DataDir>\sdsys`, and `sd.conf` at `<DataDir>`. `sdusers` goes from `(M)` to
+`(RX)`. **`$ipc` deliberately untouched** — the one an ordinary session was
+measured writing.
+
+**NOTHING HAS RUN AGAINST AN INSTALL.** The tree is stale by design;
+`assert-current` refuses, naming `secure-sysdirs.ps1`, `sd.iss` and
+`stage.py`. What was measured instead, none of it a cycle:
+
+- **The lock against a scratch directory and a scratch file, 9 of 9**, ACLs
+  read back from disk: `sdusers:(OI)(CI)(RX)` on the directory,
+  `sdusers:(RX)` on the file, child inheriting `(I)(RX)`, inheritance stripped
+  on both. **This is the leg with no precedent** — `secure-pcode.ps1` locks
+  only directories, and `(OI)(CI)` are container-inherit flags that `icacls`
+  refuses on a file, so `sd.conf` branches on `PSIsContainer`.
+- **`sd.iss`'s `[Code]` section extracted to a minimal `.iss` and compiled by
+  ISCC** — *"Compiling [Code] section"*, exit 0, with `function SecureSysdirs`
+  asserted present in what was compiled and the extraction bounded at the next
+  section header (taking it to EOF dragged in `[Registry]` and failed for an
+  unrelated reason, after the Pascal had already compiled).
+- **cycle.ps1's ISPP lint run early**, and **proved able to fail** on a control
+  line — it is clean.
+- Four changed `.ps1` parsed (0 errors, function counts as expected) and
+  byte-scanned for BOM and CR.
+
+**BASELINE TAKEN BEFORE THE CHANGE**, on the 16:50:02 install: all eight
+targets carried `sdusers:(I)(OI)(CI)(M)` except `sd.conf` at `(I)(M)` — which
+is also the on-disk confirmation that `sd.conf` is a file and needs the branch.
+
+### THREE THINGS THAT COST TIME, ALL WRITTEN WHERE THEY HAPPENED
+
+1. ***A COMMENT IN `sd.iss` MADE THE WHOLE TREE REPORT STALE.***
+   `assert-current`'s cross-check decides whether a `$neverShipped` file really
+   ships by scanning `sd.iss` and `stage.py` for the name **preceded by a quote
+   or a path separator** — the test that tells a ship list from a remark. A new
+   comment named `probe-syswrites.ps1` with its directory, which reinstated it
+   under the guard: `assert-current` printed *"now appears in stage.py or
+   sd.iss, so it is watched again"* and reported **4** stale files instead of
+   3. **Caught by running `assert-current` after the edit, not by reading it.**
+   The rule is now written in `sd.iss` at the place the mistake was made: name
+   a non-shipping script bare in those two files, or not at all.
+
+2. ***THE HANDOFF ASKED FOR BOTH NEW SCRIPTS ON `$neverShipped` AND THAT HALF
+   WAS WRONG.*** `secure-sysdirs.ps1` **ships**, like `secure-pcode.ps1`, so it
+   must stay watched — and because the list is self-policing, the entry would
+   have been reinstated by the cross-check and rotted into a comment shaped
+   like a rule. Only `verify-sysdiracl.ps1` is listed. Note at
+   `assert-current.ps1:308`.
+
+3. ***IN A POWERSHELL ARRAY LITERAL, `A, B + C, D` PARSES AS `(A, B) + (C, D)`.***
+   Array concatenation, not string concatenation. `('OutputDir=' + $work)`
+   written without brackets became **two** elements, and ISCC answered
+   *"Directive "C:\Users\..." has no value"* — an error that names neither the
+   cause nor the file that produced it. Parenthesise every `+` inside `@( )`.
+
+### AND ONE THING THE PRE-FLIGHT ESTABLISHED THAT IS WORTH KEEPING
+
+***THE NULL CASE IS REFUSED TWICE, BY TWO MECHANISMS, AND ONLY ONE IS THE
+SCRIPT'S.*** `-Path ''` never reaches the script's own guard: PowerShell's
+**parameter binder** rejects it first with *"Missing an argument for parameter
+'Path'"* and it exits 1 having run no line of its own. `-Path ' '` binds as one
+blank element and does reach the guard, which exits 2. Both refuse; neither
+passes silently. Written into `secure-sysdirs.ps1` so the guard is not deleted
+on the strength of the binder alone.
+
+### STILL OPEN
+
+**ONE CYCLE, AND WHAT IT HAS TO PROVE IS NOT THE ACLs.** It is that
+`CREATE.ACCOUNT`, `CATALOG` and `CONFIG` still work — the three rows §7 step 15
+marks **reasoned, not measured**. Nobody has ever denied `sdusers` write and
+watched them succeed. `verify-createaccount` and `verify-tiers` cover the
+first; **`CATALOG` and `CONFIG` are covered by nothing** and need a hand-run.
+`VerifyInstall1` is now 12 steps and the suite is 30. Prefixes to `b35` are
+spent.
+
+---
+
 ## 24 Aug 2026 — Fifty-first session, part 10: MODIFY cycled, and phantom/spooler measured
 
 **Commit:** the commit carrying this entry. Probe change and documentation.

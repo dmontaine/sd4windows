@@ -5,68 +5,89 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the fifty-first session (install current; ACL lock ruled, not yet built).
+**Last updated:** 24 Aug 2026, fifty-second session (ACL lock built and pre-flighted; tree stale, one cycle owed).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: IMPLEMENT THE ACL LOCK THE OWNER RULED. NOTHING IS BLOCKING IT.
+> ## NEXT: RUN ONE CYCLE. THE ACL LOCK IS BUILT AND NOTHING ELSE IS OUTSTANDING.
 >
-> ***THE TREE IS CURRENT AND EVERYTHING SESSION 51 TOUCHED IS VERIFIED.***
-> Install **16:50:02**, `sd.exe` `275CFB03E142AA2C`, `assert-current` **exit
-> 0**. Take any reading you like before you change anything - and **take the
-> cheap measurement BEFORE the change that invalidates it**, which session 51
-> got wrong once and paid a cycle's wait for.
+> ***THE TREE IS DELIBERATELY STALE AND THAT IS THE ONLY THING IN THE WAY.***
+> `assert-current` REFUSES, naming three files: `secure-sysdirs.ps1`, `sd.iss`
+> and `stage.py`. Every verifier calls it first, so **nothing can be measured
+> until one cycle has run**. From an ELEVATED PowerShell, and a person has to
+> be at the wizard:
 >
-> ### THE TASK: LOCK SEVEN DIRECTORIES TO `sdusers:(RX)`, LEAVE `$ipc` ALONE
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
 >
-> ***OWNER'S RULING, 24 Aug 2026, ON A COMPLETED MEASUREMENT.*** §7 step 15 has
-> the evidence table. The seven: **`accounts`, `$map`, `messages`, `newvoc`,
-> `bp`, `cat`** (all under `<DataDir>\sdsys`) and **`sd.conf`** (at
-> `<DataDir>` root). ***`$ipc` KEEPS `(M)`*** - it is the only one of the eight
-> that anything writes, measured across an ordinary 15-verb session, the
-> spooler, the saved-list family and a phantom.
+> ### WHAT THE CYCLE HAS TO PROVE IS NOT THE ACLs
 >
-> **FOUR PIECES, and the shape is already decided by precedent:**
+> ***IT IS THAT `CREATE.ACCOUNT`, `CATALOG` AND `CONFIG` STILL WORK.*** Those
+> write `accounts`, `cat` and `sd.conf`, and §7 step 15 marks those three rows
+> **reasoned, not measured** - nobody has ever denied `sdusers` write and
+> watched them succeed. That is the whole risk in this change.
+> `verify-createaccount` and `verify-tiers` cover the first;
+> **`CATALOG` and `CONFIG` are covered by nothing and will need a hand-run.**
 >
-> 1. **`gplbld/secure-sysdirs.ps1`**, modelled on
->    [secure-pcode.ps1](sdb_ai/sd64/gplbld/secure-pcode.ps1) - read that file
->    first, it is the template and its header explains every choice. Same
->    `-Path` string array, **SIDs not names** for the two built-ins
->    (`*S-1-5-18`, `*S-1-5-32-544`), `/inheritance:r` **in the same `icacls`
->    call** as the grants, the `try/catch` that exists because a native
->    command's stderr TERMINATES under `ErrorActionPreference Stop`, and exit
->    0 / 1 / 2.
->    ***THE ONE THING THE PRECEDENT DOES NOT COVER: `sd.conf` IS A FILE.***
->    `(OI)(CI)` are container-inherit flags and are invalid on a file - it
->    needs a plain `(RX)`. Branch on `PSIsContainer`.
-> 2. **`gplbld/verify-sysdiracl.ps1`**, on the
->    [verify-pcodeacl.ps1](sdb_ai/sd64/gplbld/verify-pcodeacl.ps1) pattern.
->    ***`$ipc` IS THE NEGATIVE CONTROL AND IS NOT OPTIONAL***: it must still be
->    WRITABLE by an ordinary token. Without that row a verifier that locked
->    everything, or one that locked nothing, both pass.
->    **Prove the write, do not read the ACE** - create a file as an unelevated
->    user and remove it, which is what `secure-pcode.ps1`'s header says it did.
-> 3. **`sd.iss`**: a `SecureSysdirs` function beside `SecurePcode`
->    ([sd.iss:1578](sdb_ai/sd64/gplbld/sd.iss:1578)) and a call in the
->    `ssPostInstall` block beside `PcodeMsg := SecurePcode`
->    ([sd.iss:1882](sdb_ai/sd64/gplbld/sd.iss:1882)). `LockOsUsersPath`
->    ([sd.iss:1355](sdb_ai/sd64/gplbld/sd.iss:1355)) is the helper.
->    ***IT MUST RUN AFTER THE DATA-TREE `icacls`, or inheritance puts the
->    Modify straight back*** - the ordering rule every one of these scripts
->    carries. Follow the precedent's failure message too: it names the manual
->    command, because an ACL that is the whole of a control fails silently.
-> 4. **Both new scripts onto `assert-current`'s `$neverShipped` IN THE SAME
->    COMMIT** ([assert-current.ps1:187](sdb_ai/sd64/gplbld/assert-current.ps1:187)).
->    A script in `gplbld` that is not on that list makes the tree report stale
->    because it exists, and then every verifier refuses.
+> Then the suite, **from an ordinary terminal, by a person** (§4.0.1 - an agent
+> may run `cycle.ps1` but not this). **Prefixes to `b35` are spent, use `b36`
+> or later:**
 >
-> **THEN ONE CYCLE, AND WHAT IT HAS TO PROVE IS NOT THE ACLs.** It is that
-> ***`CREATE.ACCOUNT`, `CATALOG` and `CONFIG` STILL WORK*** - those write
-> `accounts`, `cat` and `sd.conf`, and §7 step 15 marks those three rows
-> **reasoned, not measured**. Nobody has yet denied `sdusers` write and watched
-> them succeed. `verify-createaccount` and `verify-tiers` cover the first.
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b36
+> ```
+>
+> **`VerifyInstall1` is now 12 steps, not 11** - `verify-sysdiracl` was added
+> beside `verify-pcodeacl`. So the suite is **30**, and green is **30 of 30**.
+>
+> ### WHAT WAS BUILT, 24 Aug 2026, FIFTY-SECOND SESSION
+>
+> §7 step 15 has the detail and the evidence. Four pieces, one commit: the lock
+> [secure-sysdirs.ps1](sdb_ai/sd64/gplbld/secure-sysdirs.ps1), the guard
+> [verify-sysdiracl.ps1](sdb_ai/sd64/gplbld/verify-sysdiracl.ps1),
+> `SecureSysdirs` at [sd.iss:1650](sdb_ai/sd64/gplbld/sd.iss:1650) called at
+> [sd.iss:1994](sdb_ai/sd64/gplbld/sd.iss:1994), and the wiring into
+> `stage.py`, `assert-current` and `VerifyInstall1`.
+>
+> ***NOT A LINE OF IT HAS RUN AGAINST AN INSTALL.*** What HAS been measured,
+> and it is more than a parse-check:
+>
+> | check | result |
+> |---|---|
+> | `secure-sysdirs.ps1` on a scratch **directory** and a scratch **file** | **9 of 9**, ACLs read back from disk |
+> | `sd.iss` `[Code]` extracted to a minimal `.iss`, through `ISCC` | *"Compiling [Code] section"*, **exit 0** |
+> | ISPP `#`-at-start-of-line lint, **and a control proving it can fail** | clean |
+> | all four changed `.ps1` parsed, byte-scanned for BOM and CR | 0 errors, none found |
+>
+> ### THREE THINGS THIS SESSION LEARNED THE HARD WAY, ALL CHEAP TO REPEAT
+>
+> 1. ***A COMMENT IN `sd.iss` CAN TURN THE WHOLE TREE STALE.*** `assert-current`
+>    decides whether a `$neverShipped` file really ships by scanning `sd.iss`
+>    and `stage.py` for the name **preceded by a quote or a path separator**.
+>    Writing a development probe's name with its directory in a new comment
+>    reinstated it under the guard. **Name a non-shipping script bare in those
+>    two files, or not at all.** Caught by running `assert-current` after the
+>    edit, not by reading it.
+> 2. ***THE HANDOFF WAS WRONG ABOUT `$neverShipped` AND THE PRECEDENT WAS
+>    RIGHT.*** It asked for BOTH new scripts on that list; `secure-sysdirs.ps1`
+>    **ships**, so it must stay watched - and the list is self-policing, so the
+>    entry would have been reinstated and rotted into a comment shaped like a
+>    rule. Only the verifier is listed.
+> 3. ***IN A POWERSHELL ARRAY LITERAL, `A, B + C, D` IS `(A, B) + (C, D)`.***
+>    Array concatenation, not string concatenation - so an `'OutputDir=' + $x`
+>    element silently became **two** elements. Parenthesise every `+` inside
+>    `@( ... )`. It cost one confusing `ISCC` error.
+>
+> ### `$ipc` KEEPS `(M)`, AND THAT IS A DECISION, NOT AN OVERSIGHT
+>
+> It is the only one of the eight that anything writes - every session modifies
+> `$ipc\%0`, `PHANTOM` writes its command there (`sd.c:55`), `APISRVR:214`
+> opens it. `verify-sysdiracl` carries it as a **negative control**: a run
+> where `$ipc` has stopped being writable FAILS, because without that row a
+> verifier that locked everything and one that locked nothing both pass.
 >
 > ### THE INSTRUMENT LESSON FROM SESSION 51, IN ONE LINE
 >
@@ -1509,15 +1530,19 @@ as it stood — every measurement with the reasoning that produced it — is in
 HISTORY, *"ARCHIVE 21 Aug 2026 - section 4's measurement record"*. Nothing was
 deleted, and the three corrections made on the way are noted where they belong.
 
-### 4.0 The verifier inventory — all 28, and which are actually run
+### 4.0 The verifier inventory — count the directory, and which are actually run
 
-***COUNT CORRECTED 24 Aug 2026: `ls verify-*.ps1 | wc -l` says **28**, where
-the heading said 27 and the paragraph below said 26.*** The two that were never
-added here are **`verify-apiidentity`** (§7 step 14 — measured for the first
-time on 24 Aug, run `b28`, and it FAILS on a real product finding) and
-**`verify-pcodeacl`** (§7 step 15). Both are on `$neverShipped`. **Count the
-directory rather than trusting this line** — it has now been wrong twice, in
-both directions, which is what the rule below exists to stop.
+***COUNT CORRECTED 24 Aug 2026: `ls verify-*.ps1 | wc -l` says **30**.*** It
+said 28 earlier the same day, where the heading said 27 and the paragraph below
+said 26. The additions since are `verify-lineendings` (§7 step 16 (a)) and
+**`verify-sysdiracl`** (§7 step 15's second guard, in `VerifyInstall1` beside
+`verify-pcodeacl`). The two that were never added here are
+**`verify-apiidentity`** (§7 step 14 — measured for the first time on 24 Aug,
+run `b28`, and it FAILS on a real product finding) and **`verify-pcodeacl`**
+(§7 step 15). All are on `$neverShipped`. **Count the directory rather than
+trusting this line** — it has now been wrong three times, in both directions,
+which is what the rule below exists to stop. The heading no longer carries a
+number for the same reason.
 
 ***THERE IS ALSO ONE NON-VERIFIER TEST, AND IT IS IN NEITHER RUNNER:***
 `gplbld/test-apiidentity-units.ps1`. It unit-tests `verify-apiidentity`'s two
@@ -6839,17 +6864,73 @@ the staging script and the Inno installer were all finished and removed.
       what a `secure-*.ps1` plus a verifier would settle, and it is the work the
       ruling authorises rather than something already done.
 
-    **IF THE RULING IS "LOCK THE SEVEN"**, the shape already exists:
-    `secure-gcat.ps1` and `secure-pcode.ps1` are the precedent, and
-    `verify-pcodeacl.ps1` is the guard pattern. Both go on `$neverShipped`.
+    ***THE RULING WAS "LOCK THE SEVEN", AND IT IS BUILT — 24 Aug 2026,
+    FIFTY-SECOND SESSION. WRITTEN AND PRE-FLIGHTED, NOT YET CYCLED.*** Four
+    pieces, all in one commit:
 
-    ***WHAT REMAINS OF THIS STEP AFTER THAT.*** The rest of the inherited
-    `sdusers:(M)` list is untouched — `accounts`, `$map`, `$ipc`, `messages`,
-    `newvoc`, `bp`, `cat`, `sd.conf`. **Each needs its own judgement, not a
-    sweep**: sessions genuinely write some of them, so the `gcat`/`pcode`
-    answer of "read-only to `sdusers`" does not transfer. `accounts` is the
-    obvious next one to weigh. **None of this is the service-account model,
-    which the survey above shows account privacy no longer needs.**
+    | piece | file |
+    |---|---|
+    | the lock | [secure-sysdirs.ps1](sdb_ai/sd64/gplbld/secure-sysdirs.ps1) |
+    | the guard | [verify-sysdiracl.ps1](sdb_ai/sd64/gplbld/verify-sysdiracl.ps1) |
+    | the caller | `SecureSysdirs`, [sd.iss:1650](sdb_ai/sd64/gplbld/sd.iss:1650), called at [sd.iss:1994](sdb_ai/sd64/gplbld/sd.iss:1994) |
+    | wiring | `stage.py` ships the lock; `assert-current` `$neverShipped` takes the guard; `VerifyInstall1` runs it |
+
+    **`sd.conf` IS A FILE AND THE SIX ARE DIRECTORIES**, so the grant branches
+    on `PSIsContainer`: `(OI)(CI)` are container-inherit flags and `icacls`
+    refuses them on a file. That is the one thing the `secure-pcode.ps1`
+    precedent does not cover, and it is **measured working** — a scratch
+    directory and a scratch file, both restamped, read back from disk:
+    `sdusers:(OI)(CI)(RX)` on the directory, `sdusers:(RX)` on the file, the
+    child inheriting `(I)(RX)`, inheritance stripped on both. 9 of 9.
+
+    ***THE NULL CASE IS REFUSED TWICE, BY TWO MECHANISMS, AND ONLY ONE OF THEM
+    IS THE SCRIPT'S.*** `-Path ''` never reaches the guard at all — PowerShell's
+    **parameter binder** rejects it first and the script exits 1 having run no
+    line of its own. `-Path ' '` binds as one blank element and reaches the
+    guard, which exits 2. Both refuse; neither passes silently. Do not delete
+    the guard on the strength of the binder.
+
+    **`sd.iss` COMPILES**: the `[Code]` section extracted to a minimal `.iss`
+    and put through `ISCC` — *"Compiling [Code] section"*, exit 0, with
+    `function SecureSysdirs` asserted present in what was compiled. The ISPP
+    `#`-at-start-of-line lint is clean **and was proved able to fail** on a
+    control line. Neither is a cycle.
+
+    ***`secure-sysdirs.ps1` IS NOT ON `$neverShipped` AND MUST NOT BE — the
+    handoff asked for both scripts there and that half was wrong.*** It ships,
+    like `secure-pcode.ps1`; and the list is self-policing, so an entry for it
+    would be reinstated by the cross-check and rot into a comment that looks
+    like a rule. The note is at
+    [assert-current.ps1:308](sdb_ai/sd64/gplbld/assert-current.ps1:308).
+
+    ***AND A COMMENT IN `sd.iss` CAN MAKE THE WHOLE TREE REPORT STALE.***
+    `assert-current` decides whether a `$neverShipped` file really ships by
+    scanning `sd.iss` and `stage.py` for the name **preceded by a quote or a
+    path separator**. Writing a development probe's name with its directory in
+    a new comment reinstated it and turned the guard red — caught, and the rule
+    is now written where the mistake was made. **Name a non-shipping script
+    bare in those two files, or not at all.**
+
+    ***WHAT THE CYCLE HAS TO PROVE IS NOT THE ACLs.*** It is that
+    `CREATE.ACCOUNT`, `CATALOG` and `CONFIG` still work — the three rows this
+    step marks **reasoned, not measured**. Nobody has yet denied `sdusers`
+    write and watched them succeed. `verify-createaccount` and `verify-tiers`
+    cover the first.
+
+    ***AND ONE INTERACTION WITH STEP 14, NOTED BEFORE IT BITES.*** These grants
+    keep working for the API only because an API session is forked by `sdwind`
+    and runs **as LocalSystem**, which `*S-1-5-18` covers. That is exactly the
+    finding step 14 calls a defect and may fix. **If an API session is ever
+    confined to the calling user, an API-driven `CREATE.ACCOUNT` starts failing
+    on this ACL** — the two steps have to be weighed together, and the fix
+    would be to grant the API's identity rather than to unlock `accounts`.
+    Reasoned, not measured.
+
+    ***WHAT REMAINS OF THIS STEP AFTER THAT.*** Nothing on the
+    `sdusers:(M)` list except `$ipc`, which stays writable by decision and is
+    `verify-sysdiracl`'s negative control. **None of this is the
+    service-account model, which the survey above shows account privacy no
+    longer needs.**
 
     **This is what makes tiers 1 and 2 real.** §8: tier 3 is real because
     Windows enforces it; the other two are only ever as real as the ACLs.
