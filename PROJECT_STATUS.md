@@ -11,7 +11,7 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT SESSION: FOUR THINGS, IN THIS ORDER. NOTHING IS BROKEN.
+> ## NEXT SESSION: FIVE THINGS, IN THIS ORDER. NOTHING IS BROKEN.
 >
 > The refuse-to-install work is **complete and verified on three guests** (see
 > below). What follows is confidence, then the documentation phase.
@@ -142,6 +142,50 @@ something came to be the way it is.
 > That the ssh scoping blocks a REMOTE machine is the one §5.9 claim never
 > measured. NAT cannot show it.
 >
+> ### 5. THE STAND-ALONE INSTALL OPTION — ASKED FOR 25 Aug 2026, NOTHING BUILT
+>
+> Owner's request, in his words: *"another option for users, a stand-alone
+> system option. No ssh, no api, just the ability to quickly install — intent,
+> use by a single user, the installer."*
+>
+> ***IT REVERSES THE 16 Aug 2026 RULING FOR ONE SCENARIO, AND WHOEVER BUILDS IT
+> MUST READ THAT RULING FIRST*** (HISTORY, fifty-... "the first install on a
+> machine with no ssh", and the `[Tasks]` comment at
+> [sd.iss:110](sdb_ai/sd64/gplbld/sd.iss:110)). ssh was made mandatory
+> **because** `sdsshonly` denies the console and RDP to every account
+> `CREATE.ACCOUNT` makes, so without ssh those accounts can sign in nowhere.
+> The owner's stated intent — one user, the installer — sidesteps it, because
+> that account is an administrator and is never put in `sdsshonly`. **The
+> sidestep holds only while nobody runs `create.account`.**
+>
+> ***DECIDED, 25 Aug 2026: `create.account` REFUSES ON A STAND-ALONE SYSTEM AND
+> SAYS WHY.*** Not "allow it and document single-user", and **not** a
+> console-capable third account kind — that is `RDPACCOUNT`, which was built and
+> deleted. The installer leaves a marker in `sdsys` and `CREATEA` reads it; the
+> one-shot `$adopt.<user>` marker is the pattern to copy.
+>
+> ***STILL TO DECIDE — TWO THINGS, AND THE FIRST IS A SECURITY DECISION:***
+>
+> | | |
+> |---|---|
+> | does the ssh preflight still refuse? | A stand-alone install neither installs nor configures an ssh server, so the reason for the refusal does not apply — but relaxing a check verified on three guests the same week is the owner's call, not a builder's |
+> | how the choice is offered | A page after Welcome, or a box on the tasks page. It has to be early enough to change the disclosure page, which describes ssh |
+>
+> ***FOUR FACTS ESTABLISHED WHILE SCOPING IT, so nobody re-derives them:***
+>
+> - ***`APIPORT` UNSET MEANS SD OPENS NO PORT AT ALL*** —
+>   [sdwind.c:351](sdb_ai/sd64/gplsrc/sdwind.c:351), *"APIPORT not set - the
+>   default, and not a failure"*, and `sdwind.c:310`. So "no API" is a real
+>   state, not just a firewall rule. A stand-alone `sd.conf` omits `APIPORT`.
+> - ***`APILOGIN` IS NOT AN OFF SWITCH.*** It decides whether the API demands a
+>   password (`op_kernel.c:848`); `APILOGIN=0` is the WEAKER setting, not the
+>   safer one. Do not reach for it here.
+> - **The installing user's own account needs no ssh.** `CREATEA` puts only
+>   non-administrators in `sdsshonly`, and `LOGIN` admits the console when
+>   elevated.
+> - **`sd.conf` is `onlyifdoesntexist`**, so a stand-alone variant is written on
+>   a first install only — an upgrade will not rewrite it.
+>
 > ---
 >
 > ## DOCUMENTATION DECISIONS, AGREED 25 Aug 2026
@@ -243,6 +287,27 @@ something came to be the way it is.
 > | Security Improvements | |
 > | Other Hardening | |
 > | Historical features not available in SD Core | |
+>
+> ***AND ONE THE OWNER NAMED EXPLICITLY, 25 Aug 2026, BECAUSE A TESTER WILL
+> ASSUME OTHERWISE:*** *"note that this version does not support multi-user on
+> windows server using rdp"*. **It belongs in the notes, stated plainly.** It is
+> not an oversight and not a gap to be filled later — it follows from the access
+> model and is already settled:
+>
+> - `sdsshonly` carries **both** `SeDenyInteractiveLogonRight` **and**
+>   `SeDenyRemoteInteractiveLogonRight`
+>   ([deny-logon.ps1:29](sdb_ai/sd64/gplbld/deny-logon.ps1:29)), and `CREATEA`
+>   joins every non-administrator account to it — so an SD account is denied the
+>   physical console and Remote Desktop together.
+> - **`RDPACCOUNT` was built to lift exactly this and was deleted after a day**
+>   (§"`RDPACCOUNT` was built and then deleted"): one Windows setting covers RDP
+>   and the keyboard, so lifting the RDP denial lifted the console denial with
+>   it. `CREATEA:683` also records that multi-user RDP means Windows CALs, *"so
+>   a site that wants it is buying a commercial product, and it is outside this
+>   port's focus."*
+> - **The rule that holds without exception:** nobody SD creates can log in to
+>   Windows at this machine unless they are already a Windows administrator.
+>   Concurrent users reach SD **over ssh**, which is what the ssh path is for.
 >
 > **Nearly every row already has its answer written down in this file**, which
 > is the payoff for keeping it: account types §5.6, admin/programmer verbs and

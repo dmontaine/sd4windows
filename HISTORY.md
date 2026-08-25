@@ -27,6 +27,53 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-sixth session, part 8: a stand-alone install option is asked for, and one documentation fact is nailed down
+
+**Commit:** this one. Documentation only - **nothing is built**, and the
+scoping is recorded so the next session does not re-derive it.
+
+**THE REQUEST**, owner, 25 Aug 2026: *"another option for users, a stand-alone
+system option. No ssh, no api, just the ability to quickly install - intent, use
+by a single user, the installer."*
+
+***IT REVERSES THE 16 Aug 2026 RULING FOR ONE SCENARIO.*** ssh was made
+mandatory that day **because** `sdsshonly` denies the console and RDP to every
+account `CREATE.ACCOUNT` makes, so on a machine with no ssh those accounts can
+sign in nowhere at all. The owner's stated intent sidesteps that - the
+installing user is an administrator and is never put in `sdsshonly` - but the
+sidestep holds only while nobody runs `create.account`.
+
+**DECIDED: `create.account` REFUSES ON A STAND-ALONE SYSTEM AND SAYS WHY.** The
+two alternatives were put and rejected: "allow it and document single-user"
+just moves the 16 Aug defect into the documentation, and a console-capable
+third account kind is `RDPACCOUNT`, which was built and deleted on 21 Aug. The
+marker pattern to copy is the one-shot `$adopt.<user>` file.
+
+**Still open and left open**: whether the ssh preflight still refuses a
+stand-alone install on a machine with a foreign ssh server, and whether the
+choice is a wizard page or a task box. Both are in START HERE item 5.
+
+***AND THE DOCUMENTATION FACT THE OWNER NAMED, which is the part that is
+actionable today:*** *"note that this version does not support multi-user on
+windows server using rdp - should be in the notes."* Verified against source
+rather than taken on trust: `sdsshonly` carries BOTH
+`SeDenyInteractiveLogonRight` and `SeDenyRemoteInteractiveLogonRight`
+(`deny-logon.ps1:29`), `CREATEA` joins every non-administrator account to it,
+and `RDPACCOUNT` was built to lift exactly this and deleted after a day because
+one Windows setting covers RDP and the keyboard together. `CREATEA:683` adds
+that multi-user RDP means Windows CALs, *"so a site that wants it is buying a
+commercial product, and it is outside this port's focus."* It is now a named
+item in the tester documentation brief, not a footnote to be discovered.
+
+**FOUR FACTS ESTABLISHED WHILE SCOPING, recorded so they are not re-derived:**
+`APIPORT` unset means SD opens no port at all (`sdwind.c:351`), so "no API" is
+a real state; `APILOGIN` is NOT an off switch - it decides whether the API
+demands a password, and 0 is the weaker setting; the installing user's own
+account needs no ssh; and `sd.conf` is `onlyifdoesntexist`, so a stand-alone
+variant is written on a first install only.
+
+---
+
 ## 25 Aug 2026 — Fifty-sixth session, part 7: the WRITE_INSTALL_DICTS upgrade step
 
 **Commit:** this one. Part 6 said the real task was running the program rather
