@@ -27,6 +27,58 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-second session, part 4: both changes verified, and a transcript that stopped recording
+
+**Commit:** the commit carrying this entry.
+
+### THE CYCLE PASSED. Install **18:19:17**, `assert-current` matches source.
+
+| check | result |
+|---|---|
+| **`credential register: 1 account(s) with a password`** | the password step ran and wrote a credential |
+| `verify-sysdiracl` | **PASSED**, 16/16, unelevated |
+| `accounts\don` | written 18:19, into a directory already at `(RX)` |
+| staged vs installed | `gcat 125/125`, `GPL.BP.OUT 185/185`, `$BCOMP 88,070` |
+
+***THE CREDENTIAL LINE IS THE DECISIVE ONE AND IT CANNOT BE A FALSE POSITIVE.***
+`cycle.ps1:597-611` counts files in `$cred`, and the ZERO case prints
+*"NO ACCOUNT HAS A PASSWORD"* rather than a count. Step 6 had deleted the whole
+tree and the only step that writes `$cred` is the password step. So
+`MODIFY.PASSWORD` ran, asked, and the answer landed. **Step 9's regression is
+closed and step 15 is re-verified on a second install.**
+
+### ***A FRESH ELEVATED WINDOW PER CYCLE — THE TRANSCRIPT STOPS RECORDING***
+
+**Found reading the log of a run that PASSED**, which is the only reason it was
+found at all. Session 51's fix cured the transcript BLEED. What is left is
+different: repeated `Start-Transcript`/`Stop-Transcript` in ONE PowerShell 5.1
+window **progressively loses NATIVE-COMMAND output**.
+
+| run | bytes | compiles logged | ISCC logged |
+|---|---|---|---|
+| 17:59:51 | 614,422 | 190 | yes |
+| 18:02:52 | 34,813 | 146 | no |
+| **18:18:03** | **1,933** | **0** | no |
+
+**The last log holds ZERO lines of native output** — no compiles, no ISCC, no
+installer — **while all 19 PowerShell `Write-Host` lines survived**. The guard
+reported **0 stale transcripts**, so every run stopped cleanly; this is not the
+old bug wearing a new face.
+
+**WHY THE RUN IS STILL TRUSTWORTHY**, stated rather than assumed: every check
+`cycle.ps1` makes is its own `Write-Host`, step 3's structural counts included,
+and all of those survived. The BASIC compile evidence is independently covered
+by the 17:59:51 `-SkipInstall` run — 190 programs at `0 error(s)` — and the only
+source change since was `finish-install.ps1`, which is PowerShell and is not
+compiled.
+
+***THE HAZARD IS THE NEXT RUN, NOT THIS ONE.*** A compile failure in a window
+that has stopped recording would leave no evidence anywhere. Not fixed: the
+workaround is one line of habit, and a real fix means not depending on
+`Start-Transcript` to capture native output at all.
+
+---
+
 ## 24 Aug 2026 — Fifty-second session, part 3: the installer's password step moves to MODIFY.PASSWORD
 
 **Commit:** the commit carrying this entry. Fixes the regression recorded in part 2.

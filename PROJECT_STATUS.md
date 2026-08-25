@@ -5,17 +5,69 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, fifty-second session (ACL lock CLOSED; installer password step moved to MODIFY.PASSWORD, not yet run).
+**Last updated:** 24 Aug 2026, fifty-second session (steps 9 and 15 closed and verified on the 18:19:17 install; suite owed).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: ONE CYCLE, TO PROVE THE WIZARD ASKS FOR A PASSWORD AGAIN.
+> ## NEXT: RUN THE SUITE. EVERYTHING ELSE THIS SESSION IS CLOSED AND VERIFIED.
 >
-> ***THE REGRESSION IS FIXED IN SOURCE AND THE FIX HAS NOT RUN.*** It is the
-> only thing outstanding. **What the cycle must show is the wizard asking for a
-> password and `check-install` NOT printing "No password was set".**
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b36
+> ```
+>
+> ***FROM AN ORDINARY TERMINAL, BY A PERSON*** (§4.0.1 - an agent may run
+> `cycle.ps1` but not this). Prefixes to `b35` are spent. **`VerifyInstall1` is
+> now 12 steps**, so green is **30 of 30**.
+>
+> ### THE INSTALL IS 18:19:17 AND BOTH CHANGES ARE VERIFIED ON IT
+>
+> | check | result |
+> |---|---|
+> | ***`credential register: 1 account(s) with a password`*** | **the password step ran and wrote a credential** |
+> | `assert-current` | matches source |
+> | `verify-sysdiracl` | **PASSED**, 16/16 - the seven locked, `$ipc` still writable |
+> | `accounts\don` | written 18:19, into a directory already at `(RX)` |
+> | staged vs installed | `gcat 125/125`, `GPL.BP.OUT 185/185`, `$BCOMP 88,070` |
+>
+> **THE CREDENTIAL LINE IS THE DECISIVE ONE.** `cycle.ps1:597-611` counts files
+> in `$cred` and the ZERO case prints *"NO ACCOUNT HAS A PASSWORD"* instead, so
+> the reading cannot be a false positive. Step 6 deleted the tree and the only
+> step that writes `$cred` is the password step - so `MODIFY.PASSWORD` ran,
+> asked, and the answer landed. **Step 9's regression is closed.**
+>
+> ### ***A FRESH ELEVATED WINDOW PER CYCLE. THE TRANSCRIPT STOPS RECORDING OTHERWISE.***
+>
+> **FOUND 24 Aug 2026 reading the log of a run that passed.** Session 51's fix
+> cured the transcript BLEED; what is left is that repeated
+> `Start-Transcript`/`Stop-Transcript` in ONE PowerShell 5.1 window
+> **progressively loses NATIVE-COMMAND output**. Three runs, same window:
+>
+> | run | bytes | compiles logged | ISCC logged |
+> |---|---|---|---|
+> | 17:59:51 | 614,422 | 190 | yes |
+> | 18:02:52 | 34,813 | 146 | no |
+> | **18:18:03** | **1,933** | ***0*** | **no** |
+>
+> **The 18:18:03 log holds ZERO lines of native output** - no compiles, no
+> ISCC, no installer - **while all 19 PowerShell `Write-Host` lines survived**,
+> and the guard reported **0 stale transcripts**, so every run stopped cleanly.
+> It is not the old bug.
+>
+> **WHY THAT RUN IS STILL TRUSTWORTHY, said explicitly rather than assumed:**
+> every check `cycle.ps1` makes is its own `Write-Host`, including step 3's
+> structural counts, and all of those survived. The BASIC compile evidence is
+> independently covered by the 17:59:51 `-SkipInstall` run - **190 programs at
+> `0 error(s)`** - and the only source change since was `finish-install.ps1`,
+> which is PowerShell and is not compiled.
+>
+> ***THE HAZARD IS A FUTURE RUN, NOT THIS ONE***: a compile failure in a window
+> that has stopped recording would leave no evidence at all. Not fixed - the
+> workaround is one line of habit, and a real fix means not relying on
+> `Start-Transcript` for native output.
+>
+> ### WHAT THE CYCLE PROVED, AND WHAT IT DID NOT
 >
 > ### WHAT HAPPENED, KEPT BECAUSE THE LESSON IS THE VALUABLE PART
 >
@@ -176,8 +228,8 @@ something came to be the way it is.
 >
 > | § | task | state |
 > |---|---|---|
-> | 15 | **the ACL lock** | ***CLOSED*** - cycled and verified 18:03:37, 16/16. `CATALOG`/`CONFIG` hand-run still owed |
-> | 9 | ***`sd <command>` no longer prompts*** - built, compiled, cycled. It broke the installer's password step; **FIXED** by moving that step to `MODIFY.PASSWORD` (owner's ruling). **The fix has not run** | needs one cycle |
+> | 15 | **the ACL lock** | ***CLOSED*** - re-verified on the 18:19:17 install, 16/16. `CATALOG`/`CONFIG` hand-run still owed |
+> | 9 | ***`sd <command>` no longer prompts*** - and the installer's password step now uses `MODIFY.PASSWORD`. ***BOTH CYCLED AND VERIFIED*** on the 18:19:17 install: 1 credential written | ***CLOSED*** |
 > | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. `sdsys\bp` still ships **21 test programs** to end users. No data-tree upgrade path | 3 open bullets; **one is now cheap** |
 > | — | ***NEW, FOUND 24 Aug WHILE CHECKING STEP 3, AND IT IS THE OWNER'S CALL***: `ApplyAllowGroups` is gated **only** on the task, not on `SshWasAbsent` as the firewall step is - so on a machine with a **stock** foreign `sshd_config` a default-ticked box edits it. `allow-ssh-groups.ps1`'s header says the rule is carried by the task being "unticked by default"; **it is ticked by default.** §5.9 has the table | decision not started |
 > | 9 | ***RULED AND BUILT 24 Aug 2026*** - owner: *"only batch, so not interactive"*. `sd <command>` no longer prompts; `LOGIN:640`. **A VERIFIER IS OWED** and `verify-batchjob` will not catch a regression (it pipes `$null`, so the old gate already skipped). Plus `@logname`, never checked on a cycle | **built, not compiled, not run** |
