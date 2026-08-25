@@ -148,21 +148,42 @@ something came to be the way it is.
 > system option. No ssh, no api, just the ability to quickly install — intent,
 > use by a single user, the installer."*
 >
-> ***IT REVERSES THE 16 Aug 2026 RULING FOR ONE SCENARIO, AND WHOEVER BUILDS IT
-> MUST READ THAT RULING FIRST*** (HISTORY, fifty-... "the first install on a
-> machine with no ssh", and the `[Tasks]` comment at
+> ***WHAT IT IS FOR, and it decides the scope*** — owner, 25 Aug 2026:
+> *"education, hobby use where the intent is to learn the language or test some
+> code, not have a production system."* **One account, the installer's own,
+> period.** Read that before treating any of the production machinery as
+> missing here.
+>
+> ***IT REVERSES THE 16 Aug 2026 RULING FOR ONE SCENARIO*** (HISTORY, "the first
+> install on a machine with no ssh", and the `[Tasks]` comment at
 > [sd.iss:110](sdb_ai/sd64/gplbld/sd.iss:110)). ssh was made mandatory
 > **because** `sdsshonly` denies the console and RDP to every account
 > `CREATE.ACCOUNT` makes, so without ssh those accounts can sign in nowhere.
-> The owner's stated intent — one user, the installer — sidesteps it, because
-> that account is an administrator and is never put in `sdsshonly`. **The
-> sidestep holds only while nobody runs `create.account`.**
+> That does not apply to the installing user: they are an administrator and are
+> never put in `sdsshonly`.
 >
-> ***DECIDED, 25 Aug 2026: `create.account` REFUSES ON A STAND-ALONE SYSTEM AND
-> SAYS WHY.*** Not "allow it and document single-user", and **not** a
-> console-capable third account kind — that is `RDPACCOUNT`, which was built and
-> deleted. The installer leaves a marker in `sdsys` and `CREATEA` reads it; the
-> one-shot `$adopt.<user>` marker is the pattern to copy.
+> ***DECIDED 25 Aug 2026, AND IT IS NARROWER THAN THE FIRST DRAFT OF THIS ENTRY:
+> `create.account USER` REFUSES ON A STAND-ALONE SYSTEM AND SAYS WHY.
+> `create.account GROUP` IS UNTOUCHED.***
+>
+> **The distinction is real, was checked in `CREATEA`, and it is what keeps the
+> education case whole:**
+>
+> | form | on a stand-alone system |
+> |---|---|
+> | `create.account user <n>` | makes a **Windows user**, joined to `sdsshonly` unless an administrator (`CREATEA:714`, from `acc.uname`) — denied console and RDP, and with no ssh it can sign in **nowhere**. This is the dead account, and the one to refuse |
+> | `create.account group <n>` | makes a **workspace** under `group_accounts` (`CREATEA:143`). No Windows user, no login, nothing joined — `acc.uname` is never assigned on this arm (`CREATEA:279`) |
+>
+> ***SO A LEARNER CAN STILL SEPARATE THEIR WORK INTO ACCOUNTS, which is what an
+> account IS in a Pick system*** — `create.account group myproject`, then
+> `logto myproject`. An elevated session skips the `ACC$GROUP` test (§7 step 0),
+> and the single user on a stand-alone box is elevated, so group accounts are
+> reachable without any of the group-membership machinery.
+>
+> **Not** "allow it and document single-user", and **not** a console-capable
+> third account kind — that is `RDPACCOUNT`, built and deleted. The installer
+> leaves a marker in `sdsys` and `CREATEA` reads it; the one-shot
+> `$adopt.<user>` marker is the pattern to copy.
 >
 > ***STILL TO DECIDE — TWO THINGS, AND THE FIRST IS A SECURITY DECISION:***
 >

@@ -49,6 +49,24 @@ just moves the 16 Aug defect into the documentation, and a console-capable
 third account kind is `RDPACCOUNT`, which was built and deleted on 21 Aug. The
 marker pattern to copy is the one-shot `$adopt.<user>` file.
 
+***NARROWED THE SAME DAY, AND THE NARROWING IS THE USEFUL PART.*** The owner
+pushed back - *"I don't see create account as a problem. if the user installs
+the stand alone system they get one account, period, their own. it is an option
+for education, hobby use where the intent is to learn the language or test some
+code, not have a production system"* - and checking `CREATEA` against that
+intent found the ruling was too broad. **`create.account GROUP` creates no
+Windows user at all**: it makes a workspace under `group_accounts`
+(`CREATEA:143`), and `acc.uname` - the variable `CREATEA:714` passes to
+`os_group("ADDMEM", "sdsshonly", ...)` - is never assigned on that arm
+(`CREATEA:279`). Only the USER form makes a login that cannot log in.
+
+**So the refusal is `create.account USER` only.** A learner keeps the thing an
+account actually is in a Pick system: `create.account group myproject` then
+`logto myproject`, with no Windows user, no login and no group-membership
+machinery - an elevated session skips the `ACC$GROUP` test (§7 step 0) and the
+single user on a stand-alone box is elevated. **The first draft of this entry
+would have blocked the education case it was written to serve.**
+
 **Still open and left open**: whether the ssh preflight still refuses a
 stand-alone install on a machine with a foreign ssh server, and whether the
 choice is a wizard page or a task box. Both are in START HERE item 5.
