@@ -27,6 +27,56 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-sixth session, part 7: the WRITE_INSTALL_DICTS upgrade step
+
+**Commit:** this one. Part 6 said the real task was running the program rather
+than widening a list; the owner asked for it, and it is built.
+
+***THE REASON THE DICTIONARIES ARE BUILT AT INSTALL, IN THE OWNER'S WORDS,
+25 Aug 2026:*** *"we have no binary bits in the repository, however dictionary
+files are more efficient as dynamic files, so they are created and loaded
+during install."* That is the whole design, and it had never been written down
+anywhere - the same reasoning that makes the pcode build Python rather than a
+shipped binary. `gplbld/FILES_DICTS` is the tracked source; the dictionaries
+are the build product.
+
+**WHAT IS BUILT.** `gplbld/upgrade-dicts.ps1` runs
+`sd -internal RUN gpl.bp WRITE_INSTALL_DICTS NO.PAGE` and then
+`sd -internal THIRD.COMPILE` - the second is not optional, dictionary I-types
+are compiled and `bootstrap.py` runs the same pair. `RefreshDictionaries` in
+`sd.iss` calls it at `ssPostInstall`, gated on `DataTreeWasAbsent` so a first
+install skips it, and reports each exit code separately in the closing box.
+`stage.py` ships `FILES_DICTS` to `{app}\gplbld` - never into the data tree,
+because it is a build input and `WRITE_INSTALL_DICTS` reads it as
+`@sdsys:"/gplbld/FILES_DICTS"`, so the script places it, runs, and removes it
+in a `finally`, exactly as `bootstrap.py` does at build time.
+
+**THE CHECK ANCHORS ON THE PROGRAM'S OWN SUCCESS WORDING AND COUNTS.** It
+requires `COMPLETE`, counts the `DICTIONARY: <file> <record>` lines it prints
+once per record, and compares them against a record count taken from the source
+BEFORE the run. Seven failure strings are disqualifiers. An absent or empty
+`FILES_DICTS` exits 4 before anything starts - without that the program
+transfers nothing and still prints `COMPLETE`, which is the null case the
+instrument rule exists for.
+
+***THE `[Code]` SECTION WAS COMPILED, WITH A CONTROL, AND IT CAUGHT A REAL
+DEFECT.*** `sd.iss`'s Pascal fails only at ISCC, so the section was lifted into
+a harness and compiled: exit 0, and the same section with one deliberate Pascal
+error fails. The first run failed at a line of ordinary-looking Pascal -
+**two of the new message branches wrapped `#13#10` onto the START of a line**,
+which ISPP reads as a preprocessor directive. That is the fault that cost a
+cycle on 19 Aug 2026, and it is what `cycle.ps1` lints for before it stages
+anything. Reading the code would not have found it; compiling it did.
+
+**Changelog carries the user-facing half**: dictionaries are brought up to date
+automatically on upgrade, shipped entries are added and updated, and anything
+the user wrote themselves survives.
+
+**UNTESTED IN THE SAME WAY AS THE REST OF THE UPGRADE PATH:** it has never run
+on a machine. It needs the guest that already has SD.
+
+---
+
 ## 25 Aug 2026 — Fifty-sixth session, part 6: Correction: the open ".dic set" question was the wrong question
 
 **Commit:** this one. Documentation only. Part 2 recorded the `.dic` set as

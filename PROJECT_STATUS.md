@@ -104,11 +104,32 @@ something came to be the way it is.
 > user's own alone. It is `UPDATE.ACCOUNT`'s shape exactly, and the owner has
 > already ruled that shape correct for VOC.
 >
-> **So the real task is: run `WRITE_INSTALL_DICTS` as an upgrade step.**
-> `bootstrap.py`'s `BOOTSTRAP_ONLY` already places `FILES_DICTS` inside the
-> data tree and removes it afterwards, because the same program needs it there
-> at build time — so the mechanism exists, it is the sequencing that is not
-> built. **Not started; it is the last known gap in the upgrade path.**
+> ***BUILT 25 Aug 2026.***
+> [upgrade-dicts.ps1](sdb_ai/sd64/gplbld/upgrade-dicts.ps1) runs
+> `sd -internal RUN gpl.bp WRITE_INSTALL_DICTS NO.PAGE` and then
+> `sd -internal THIRD.COMPILE` — the second is **not optional**, dictionary
+> I-types are compiled and `bootstrap.py` runs it in the same pair.
+> `RefreshDictionaries` in `sd.iss` calls it at `ssPostInstall`, gated on
+> `DataTreeWasAbsent` so a first install skips it.
+>
+> | | |
+> |---|---|
+> | the input | `stage.py` now ships `gplbld\FILES_DICTS` to **`{app}\gplbld`**, never into the data tree. The script places it at `sdsys\gplbld\FILES_DICTS`, runs, and removes it in a `finally` — the same place and the same reason as `bootstrap.py`'s `BOOTSTRAP_ONLY` |
+> | the check | counts `DICTIONARY: <file> <record>` lines against the record count taken from the source **before** the run, and requires the program's own `COMPLETE`. Disqualifiers: `ERROR OPENING FILE`, `PROCESS ABORTED`, `READLIST EMPTY`, `NO DIRECTORY RECORDS FOUND`, `ERROR CANNOT OPEN`, `CANNOT READ TRANSFER_FILE`, `Command requires administrator privileges` |
+> | the null case | an absent or empty `FILES_DICTS` exits **4** before starting anything — the program would otherwise transfer nothing and still print `COMPLETE` |
+> | exit codes | 0 done · 3 SD would not start · 4 no `FILES_DICTS` shipped · 1 ran and failed. Each gets its own sentence in the closing box |
+> | ordering | after the four ACL steps (each grants `BUILTIN\Administrators` full control, so nothing it writes is blocked) and before `AdoptAccount` |
+>
+> ***PROVEN AS FAR AS IT CAN BE WITHOUT AN INSTALL: the `[Code]` section
+> COMPILES, with a control.*** `sd.iss`'s Pascal only fails at ISCC, so it was
+> lifted into a harness and compiled — exit 0, and the same section with one
+> deliberate Pascal error fails. **That run caught a real defect**: two of the
+> new message branches wrapped `#13#10` onto the start of a line, which ISPP
+> reads as a preprocessor directive. It is the fault that cost a cycle on
+> 19 Aug 2026 and the reason `cycle.ps1` lints for it.
+>
+> **UNTESTED, and it is the same gap as the rest of the upgrade path:** it has
+> never run on a machine. Needs the guest that already has SD.
 >
 > **Nothing is broken today**, checked rather than assumed: the installed
 > `voc.dic` is a hashed file whose `%0` bucket holds `DISPATCH` and
