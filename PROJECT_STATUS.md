@@ -88,9 +88,10 @@ something came to be the way it is.
 > | § | task | state |
 > |---|---|---|
 > | 15 | **this ACL lock** | built, **one cycle owed** |
+> | 9 | ***`sd <command>` no longer prompts*** - owner's ruling, built the same day. **A BASIC change, so it has NOT compiled**; `cycle.ps1 -SkipInstall` is the cheap gate. **Batch it into the SAME cycle as step 15** rather than spending two | built, needs the cycle |
 > | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. `sdsys\bp` still ships **21 test programs** to end users. No data-tree upgrade path | 3 open bullets; **one is now cheap** |
 > | — | ***NEW, FOUND 24 Aug WHILE CHECKING STEP 3, AND IT IS THE OWNER'S CALL***: `ApplyAllowGroups` is gated **only** on the task, not on `SshWasAbsent` as the firewall step is - so on a machine with a **stock** foreign `sshd_config` a default-ticked box edits it. `allow-ssh-groups.ps1`'s header says the rule is carried by the task being "unticked by default"; **it is ticked by default.** §5.9 has the table | decision not started |
-> | 9 | ***NOT A VERIFIER AND NOT A BUG - IT IS ONE DECISION, AND IT IS THE OWNER'S***: should `sd <command>` ask for a password at all? `SYSTEM(1026)` would gate it the way step 9 gates the command itself. Plus `@logname`, never checked on a cycle | decision not started; the gate itself is CLOSED at 10/10 |
+> | 9 | ***RULED AND BUILT 24 Aug 2026*** - owner: *"only batch, so not interactive"*. `sd <command>` no longer prompts; `LOGIN:640`. **A VERIFIER IS OWED** and `verify-batchjob` will not catch a regression (it pipes `$null`, so the old gate already skipped). Plus `@logname`, never checked on a cycle | **built, not compiled, not run** |
 > | **17** | ***REVISIT `setup-devbox.ps1` - LEFT PARTIALLY WORKING*** (owner, 24 Aug 2026) | **clone step onwards never ran on a bare machine** |
 >
 > ***THE FIRST VERSION OF THIS TABLE LISTED STEP 16 AS "not started, largest
@@ -6171,11 +6172,40 @@ the staging script and the Inno installer were all finished and removed.
    the *command itself* prompting. A paragraph that asks a question will sit
    there. The list limits what may run, not what what-may-run does.
 
-   ***WHAT THAT LEAVES IS ONE DECISION, AND IT IS THE OWNER'S — NOT A VERIFIER
-   AND NOT A BUG.*** Stated 24 Aug 2026 because this file has twice implied
-   otherwise. **Should `sd <command>` ask for a password at all?**
-   `SYSTEM(1026)` would gate it the way this step gates the command itself.
-   Not started.
+   ***RULED AND BUILT — OWNER, 24 Aug 2026: "only batch, so not
+   interactive."*** `sd <command>` no longer asks for a password. **BUILT IS
+   NOT VERIFIED (§0 rule 2): it has not compiled and nothing has run it.**
+
+   **The change is at [LOGIN:640](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:640)** — one
+   conjunct, `and batch.command = ''`, plus `batch.command = trim(system(1026))`
+   hoisted out of the batch gate below it so both tests can see it. **Same
+   guard**, so it is set in exactly the cases it was before and the audit
+   record is unchanged.
+
+   ***IT IS NOT THE SAME EXEMPTION AS `K$TTY`, WHICH IS WHY ONE DID NOT ALREADY
+   COVER IT.*** `K$TTY` asks whether there is a terminal; this asks whether
+   anybody is being invited to sit at it. `sd COUNT VOC` typed at a console
+   **has** a tty (`/dev/cons0`) and must still not stop — it is a one-shot
+   command. That console case is the one that **hung** and was mis-diagnosed
+   three times.
+
+   **CHECKED BEFORE BUILDING, because the risk was silently disabling the
+   21 Aug rule on the main path:**
+
+   | question | answer |
+   |---|---|
+   | what is `SYSTEM(1026)`? | `single_command`, `kernel.h:64`, *"User typed SD xxx"*, built at `sd.c:681-695` |
+   | does an **ssh** session carry one? | **no** — `allow-ssh-groups.ps1:183` writes `ForceCommand "<sd.exe>"` with **no arguments**, so it is empty and ssh still prompts |
+   | block balance after the edit | **identical to HEAD** — `then` 57, `end` 72, `begin case` 3, `loop`/`repeat` 7, `for`/`next` 2 |
+
+   ***A VERIFIER FOR IT IS OWED AND IS NOT TRIVIAL.*** `verify-batchjob` will
+   **not** catch a regression: `verify-batchjob.ps1:112` pipes `$null` into
+   `sd`, so `K$TTY` is empty and the old gate already skipped the prompt. The
+   decisive test is elevated, **console stdin inherited**, on an account with
+   no password — which is the hanging case, so it needs the 23 Aug probe's
+   shape: a timeout, and `sd -cleanup` in the **same elevated context**,
+   ordered **before** any reporting. §6: killing an `sd` session costs the
+   install, not just the session.
 
    ***THE THREE CLAIMS THAT MADE IT LOOK LIKE A DEFECT ARE ALL WITHDRAWN***
    (HISTORY.md, 23 Aug 2026, *"the elevated hang is diagnosed"* plus its two
