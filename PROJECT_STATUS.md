@@ -410,15 +410,14 @@ something came to be the way it is.
 >
 > ### THE WHOLE REMAINING TASK LIST, COMPILED 24 Aug 2026 ON THE OWNER'S ASK
 >
-> §7 steps 0-2, 4-14 **and 16** are CLOSED. What is left, in the file, is:
+> §7 steps 0-2, 4-16 are CLOSED. What is left, in the file, is:
 >
 > | § | task | state |
 > |---|---|---|
-> | 15 | **the ACL lock** | ***CLOSED*** - re-verified on the 18:19:17 install, 16/16. `CATALOG`/`CONFIG` hand-run still owed |
-> | 9 | ***CLOSED.*** `sd <command>` no longer prompts, the installer step moved to `MODIFY.PASSWORD`, both cycled and verified, and **`verify-cmdaudit` is built and passing 5/5** in `VerifyInstall2`. ***THE BEHAVIOURAL HALF CANNOT BE AUTOMATED*** - the gate is reachable only by a person at their own elevated console; that console probe is the one remaining decision | closed |
+> | 15 | ***CLOSED IN FULL 24 Aug 2026.*** ACL lock re-verified 16/16 on the 18:19:17 install; `probe-catprivate` 3/3 at 19:26:48 measured CATALOG writing `sdsys\cat` under the lock; `CONFIG` closed by source (nothing in SD writes `sd.conf`); `CREATE.ACCOUNT` cycled and measured. Suite re-run at 31/31 on `b37` | closed |
+> | 9 | ***CLOSED.*** `sd <command>` no longer prompts (`LOGIN:669`), the installer's password step moved to `MODIFY.PASSWORD`, both cycled and verified, `verify-cmdaudit` passes 7/7 in `VerifyInstall2` on `b37`. ***The behavioural half cannot be automated*** - the gate is reachable only by a person at their own elevated console; that console probe is the one remaining decision | closed |
 > | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. `sdsys\bp` still ships **21 test programs** to end users. No data-tree upgrade path | 3 open bullets; **one is now cheap** |
 > | — | ***NEW, FOUND 24 Aug WHILE CHECKING STEP 3, AND IT IS THE OWNER'S CALL***: `ApplyAllowGroups` is gated **only** on the task, not on `SshWasAbsent` as the firewall step is - so on a machine with a **stock** foreign `sshd_config` a default-ticked box edits it. `allow-ssh-groups.ps1`'s header says the rule is carried by the task being "unticked by default"; **it is ticked by default.** §5.9 has the table | decision not started |
-> | 9 | ***RULED AND BUILT 24 Aug 2026*** - owner: *"only batch, so not interactive"*. `sd <command>` no longer prompts; `LOGIN:640`. **A VERIFIER IS OWED** and `verify-batchjob` will not catch a regression (it pipes `$null`, so the old gate already skipped). Plus `@logname`, never checked on a cycle | **built, not compiled, not run** |
 > | **17** | ***REVISIT `setup-devbox.ps1` - LEFT PARTIALLY WORKING*** (owner, 24 Aug 2026) | **clone step onwards never ran on a bare machine** |
 >
 > ***THE FIRST VERSION OF THIS TABLE LISTED STEP 16 AS "not started, largest
