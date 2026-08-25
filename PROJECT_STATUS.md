@@ -6836,8 +6836,60 @@ the staging script and the Inno installer were all finished and removed.
      bullet. **Not yet cycled** - the change is source-only, and
      `assert-current` cannot see a deletion (the open item next paragraph),
      so the b37 install still has the 16 files until the next cycle.
-   - **There is no upgrade path for the data tree**, and §6 records what that
-     already cost. It will cost more once there is real data in a tree.
+   - ***THE DATA-TREE UPGRADE PATH IS DECIDED, 25 Aug 2026, AND NOT BUILT.***
+     Owner's ruling, and it follows what the Linux side already does rather
+     than inventing anything: **preserve the user's own files, replace all the
+     shipped ones.**
+
+     ***THE PRECEDENT IS `C:\Users\dmont\Projects\sd-scripts\deletesd.sh`***,
+     the Linux delete script. It copies `ACCOUNTS` aside, moves `/etc/sd.conf`
+     aside, then `rm -fr /usr/local/sdsys` outright and reinstalls. It keeps
+     the `sdsys`/`sdusers` groups unless accounts were deleted, on the stated
+     assumption that SD is about to be reinstalled. **The split is clean there
+     because `ACCOUNTS` is its own directory - and `sdsys\accounts` is a
+     directory here too, so the same split is available.**
+
+     ***WHAT WINDOWS MUST PRESERVE THAT LINUX DID NOT HAVE TO.*** The Linux
+     script keeps two things. This port has more user state than that, and one
+     of them is sharp:
+
+     | preserve | holds |
+     |---|---|
+     | ***`sdsys\$cred`*** | ***the credential register - every account's password*** |
+     | `sdsys\accounts` | the account register |
+     | `sdsys\os.users` | Windows-account to SD-account links, a Windows-only concept |
+     | `sdsys\cat` | the private catalogue - programs the user catalogued |
+     | `sdsys\batch.jobs`, `sdsys\prt` | queued jobs, spool |
+     | `sd.conf` | configuration, and nothing in SD writes it (§7 step 15) |
+
+     ***`$cred` IS THE ONE THAT MUST NOT BE MISSED.*** Losing it is not
+     "reinstall and carry on" - every account becomes unreachable over ssh and
+     the API, which is exactly the state a silent install produced and which
+     took two sessions to diagnose (`sd.iss` InitializeSetup records it). A
+     straight port of `deletesd.sh`, preserving only accounts and the config,
+     would do that silently.
+
+     **EVERYTHING ELSE IS REPLACEABLE, AND THAT IS THE WHOLE POINT** - `gcat`
+     (125 files), `gpl.bp.out` (185), `pcode.out`, `messages`, `syscom`,
+     `sd.voclib`, `terminfo` and `terminfo.src`, `bp` and `bp.out`, and the
+     `.dic` set. **`gcat` and `gpl.bp.out` are where every BASIC fix lives**,
+     so replacing them is what turns "we cannot ship a fix to an installed
+     machine" into "we can".
+
+     ***VOC IS ALREADY SOLVED AND NEEDS NO NEW MECHANISM.*** Owner, 25 Aug
+     2026: that is what the **`UPDATE.ACCOUNT`** verb is for, and **it has to
+     be run on each account** to update that account's VOC. It ships in
+     `sdsys/voc_template/update.account`, and `sdsys/changelog` has been
+     telling users to run it for exactly this for years. So `voc` and
+     `voc_template` are not a design problem - they are a step in the upgrade
+     instructions.
+
+     **STILL TO DECIDE, and it is the only open part:** whether Windows copies
+     the Linux dance (uninstall preserves the set above, reinstall lays down
+     fresh shipped content) or the installer replaces the shipped subset in
+     place. The first reuses machinery that exists - the uninstaller already
+     offers to remove the database and defaults to keeping it - and matches
+     the platform SD came from.
 4. **CLOSED — BUILT AND VERIFIED 16 Aug 2026, thirteenth session**, on the
    12:18:42 install. The audit trail: `audit_message()` in `k_error.c`, reached
    from BASIC as `kernel(K$AUDIT, text)` (key 57, `keys.h` and `INT$KEYS.H`).
