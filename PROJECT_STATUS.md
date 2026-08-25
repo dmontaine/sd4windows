@@ -6739,6 +6739,24 @@ the staging script and the Inno installer were all finished and removed.
     **27** (10 unelevated). §STEP 15 SURVEYED has the readings and why `(RX)`
     rather than removing `sdusers`.
 
+    ***COVERAGE COMPLETED 24 Aug 2026 ON THE 16:50:02 INSTALL.*** The owner's
+    ruling was "lock nothing until phantom and spooler are measured" - **both
+    now are**, and the answer did not move: `$ipc` is the only one of the eight
+    that anything writes.
+
+    | pass | verbs | verified by | result |
+    |---|---|---|---|
+    | ordinary session | 15, incl. **`SETPTR`** (spooler) and `SELECT`/`SAVE.LIST`/`GET.LIST`/`DELETE.LIST` | **15 of 15 echoed**, `CREATE.FILE` confirmed | only `$ipc\%0` |
+    | **PHANTOM** | `PHANTOM COUNT VOC` | **a second `sd.exe` appeared** (0 -> 2) | only `$ipc\%0` |
+
+    **THE SPOOLER NEEDED AN ANSWER, NOT A WORKAROUND.** `SETPTR` asks *"OK to
+    set new parameters (Y/N)?"* (`SETPTR:558`) and hung until `Y` was supplied -
+    isolated per verb with a 20s timeout, which is how it was found rather than
+    guessed. `PHANTOM` cannot go in the same session at all: the phantom child
+    inherits the pipe, so the job never completes even after the parent exits.
+    It gets its own pass, and that pass **refuses itself** if no second
+    `sd.exe` ever appears.
+
     ***MEASURED 24 Aug 2026 ON THE OWNER'S INSTRUCTION - "I measure all eight
     first, then you rule once." THE RULING IS STILL OWED; EVERYTHING BELOW IS
     EVIDENCE, NOT A DECISION.*** Instrument: `gplbld/probe-syswrites.ps1`, on

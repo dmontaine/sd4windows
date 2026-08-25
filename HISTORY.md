@@ -27,6 +27,58 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-first session, part 10: MODIFY cycled, and phantom/spooler measured
+
+**Commit:** the commit carrying this entry. Probe change and documentation.
+
+**THE CYCLE LANDED THE MODIFY REMOVAL.** Install **16:50:02**, `assert-current`
+exit 0, **190 compiles all `0 error(s)`**, no `is not assigned a value`.
+`gcat` 126 -> **125** and `gpl.bp.out` 186 -> **185** - one fewer catalogued
+program and one fewer compiled object, which are separate facts from the source
+file being gone and together are the positive control on the delete. Checked on
+disk: `GPL.BP/MODIFY`, `voc_template/modify`, `newvoc/modify` and
+`gcat/$MODIFY` all absent; `GPL.BP/MODIFYA`, `modify.account`,
+`modify.password`, `gcat/$MODIFYA` and `gcat/$MODIFY.PASSWORD` all present.
+
+**THEN THE MEASUREMENT THE OWNER ASKED FOR, in the right order this time.**
+"Lock nothing until phantom and spooler are measured" - both are measured and
+the answer is unchanged: **`$ipc` is the only one of the eight anything
+writes**. 15 of 15 verbs echoed in the ordinary pass (now including `SETPTR`
+and the saved-list family), and the phantom pass saw `sd.exe` go 0 -> 2.
+
+## THREE WRONG READINGS BEFORE THE RIGHT ONE, AND THE LAST WAS THE WORST
+
+**1. "SETPTR spins for ever at EOF."** Inferred from reading `SETPTR:557-561` -
+an unbounded `loop ... input yn ... until yn = 'Y'`. Plausible, and it was
+stated before it was measured.
+
+**2. "SD does not spin at EOF - it terminates the session."** Measured, and the
+measurement was worthless. Feeding SD through
+`Start-Process -RedirectStandardInput` made every case exit in ~1.3s, which
+looked like a clean answer. **It was 408 bytes of banner and "Process
+terminated" with NO VERB EXECUTED.** A file-fed session does not run commands
+at all. So a fast exit proved nothing about EOF handling, and the conclusion
+drawn from it is withdrawn. ***WHAT SD DOES AT EOF REMAINS UNMEASURED.***
+
+**3. What actually settled it** was isolating each verb in its own piped
+session with a 20-second timeout: `SETPTR` hangs, `SETPTR` + `Y` returns in
+0.5s, `PHANTOM` hangs, and `SELECT`/`SAVE.LIST`/`GET.LIST`/`DELETE.LIST` all
+return. **The `Y` case is the control**: supplying the answer removes the hang,
+which is what makes `SETPTR:558` the cause rather than a nearby suspect.
+
+**THE PATTERN IS THE SAME ONE THIS SESSION KEEPS PAYING FOR.** Every wrong
+reading came from an instrument that had not been shown to reach the thing it
+claimed to measure - a grep whose pattern was empty, an `iconv` that decoded
+nothing, an `icacls` that was denied, and now a session that ran no commands.
+**Each looked like a clean result.** The cure is the same every time: make the
+instrument prove it did something before believing what it says.
+
+**THE HARNESS FACTS, for whoever drives SD from a script next**: a PowerShell
+**pipe** runs verbs and echoes them but never signals EOF, so an unanswered
+prompt blocks and a phantom holding the pipe stops the job completing.
+**File redirection runs nothing.** `cmd /c "sd.exe < file"` echoed 0 of 9. The
+pipe, with prompts answered and PHANTOM given its own pass, is what works.
+
 ## 24 Aug 2026 — Fifty-first session, part 9: assert-current cannot see a deletion
 
 **Commit:** the commit carrying this entry. Documentation only - the fix is
