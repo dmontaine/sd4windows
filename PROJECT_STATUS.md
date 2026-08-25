@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of fifty-fourth session — ***STEP 17 IS CLOSED***: `setup-devbox.ps1` ran end to end on a bare VM, exit 0, through `make sd`. **The two guest freezes were the host's Hyper-V/NEM fallback, not the script** (§6). ***OPEN: the owner wants `sdhelp` INSTALLED, not reported*** — this file had that wrong.
+**Last updated:** 24 Aug 2026, end of fifty-fourth session — ***STEP 17 IS CLOSED, WITH NOTHING OUTSTANDING***: `setup-devbox.ps1` ran end to end on a bare VM, exit 0, through `make sd`. **The two guest freezes were the host's Hyper-V/NEM fallback, not the script** (§6). **`sdhelp` was briefly an open requirement and the owner CANCELLED it the same day** — he fetches it from his P drive when he wants it.
 
 ---
 
@@ -58,20 +58,23 @@ something came to be the way it is.
 > cannot be replaced) and the skip is now observed working. But **the symptom
 > it was inferred from may have been the host, not pacman.**
 >
-> ### THE ONE THING THE OWNER WANTS THAT THIS DOES NOT DO
+> ### `sdhelp`: RAISED AND CANCELLED THE SAME DAY — DO NOT REOPEN IT
 >
-> ***`sdhelp` IS NOT INSTALLED AND HE WANTS IT INSTALLED.*** Owner, 24 Aug
-> 2026, correcting this file: the documentation phase is likely to happen on
-> **another computer** and he wants the help set **placed by the script**, not
-> reported. This file previously framed "report it as a hand-carry item" as
-> **his ruling**; that was wrong. §7 step 17 carries it, HISTORY.md has the
-> `Correction:` entry.
+> ***THE OWNER CANCELLED THE REQUEST, 24 Aug 2026:*** *"cancel the sdhelp
+> request — I will just download it from my P drive if needed."* **So the
+> script's current behaviour — report `sdhelp` as a hand-carry item and place
+> nothing — is CORRECT AND ACCEPTED**, and nothing is outstanding.
 >
-> It is 30 MB / ~1300 files of third-party OpenQM 2.6.6 and SD PDF+HTML with no
-> remote, and the no-binaries rule keeps it out of this repository, so **this
-> needs a decision on where it comes from**: a release artefact, a pCloud fetch,
-> or `-SdHelpSource` with a documented path. `-SdHelpSource` exists and is
-> ***untested***.
+> ***READ THE TWO STEPS THAT GOT HERE, BECAUSE THE END STATE LOOKS LIKE THE
+> START AND IS NOT.*** This file first recorded "report it as a hand-carry
+> item" as **his ruling**, which he had never made — he had asked for it to be
+> installed, for a documentation phase on another machine. He corrected that,
+> it was an open requirement for a few hours, and then he withdrew it. **The
+> behaviour is unchanged; what changed is that it is now genuinely his
+> decision.** HISTORY.md has the `Correction:` entry and the withdrawal.
+>
+> `-SdHelpSource <path>` still exists and is still ***untested***. Nobody needs
+> to test it.
 >
 > ### THE RIG, AND HOW TO READ ITS OUTPUT CHEAPLY
 >
@@ -534,7 +537,7 @@ something came to be the way it is.
 > | 9 | ***CLOSED.*** `sd <command>` no longer prompts (`LOGIN:669`), the installer's password step moved to `MODIFY.PASSWORD`, both cycled and verified, `verify-cmdaudit` passes 7/7 in `VerifyInstall2` on `b37`. ***The behavioural half cannot be automated*** - the gate is reachable only by a person at their own elevated console; that console probe is the one remaining decision | closed |
 > | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. ~~`sdsys\bp` still ships 21 test programs~~ ***CLOSED 24 Aug*** - 15 dropped, `TESTSDCLI` moved to `gplbld/testsdcli.bp` with drop-into-place. No data-tree upgrade path | 2 open bullets |
 > | — | ***CLOSED 24 Aug 2026, §5.9*** - owner picked **C** (keep default-ticked; the description carries the warning), with the strengthening: the wizard description now leads with `DISABLES scp and sftp for everyone` rather than burying it after a comma and inside a parenthesis. A/B rejected on-record: A trades one problem for a globally weaker default; B reintroduces the "task a one-shot" trap [allow-ssh-groups.ps1:22-27](sdb_ai/sd64/gplbld/allow-ssh-groups.ps1:22) says the 21 Aug flip fixed. [sd.iss:210](sdb_ai/sd64/gplbld/sd.iss:210) rewritten; the stale header at `allow-ssh-groups.ps1:31` was fixed earlier the same day; changelog carries the user-facing note | closed |
-> | **17** | ***`setup-devbox.ps1` - MID-FLIGHT, 24 Aug 2026.*** Reached MSYS2 on a bare box for the first time; `Update-SessionPath` and `Resolve-Tool` **both proven working**; hung at `pacman -Syu` replacing a loaded `msys-2.0.dll`. **Fix committed, never run.** VM `Windows 11 DevEnvInstallTest` restored to snapshot `Before setup-devbox` and ready. START HERE has the drive-the-guest recipe | **fix unrun; clone/`make sd`/report still never reached** |
+> | 17 | ***CLOSED 24 Aug 2026, fifty-fourth session.*** `setup-devbox.ps1` ran end to end on the bare VM, ~17 min, **exit 0**, through `make sd`; the `-Syu` skip fired and `pacman -S --needed` installed all 8 packages; clones, build and report all reached for the first time. **The two earlier wedges were the host's Hyper-V/NEM fallback, not the script** (§6). `sdhelp` was raised as an open requirement and **the owner cancelled it the same day** | closed |
 >
 > ***THE FIRST VERSION OF THIS TABLE LISTED STEP 16 AS "not started, largest
 > item". IT WAS CLOSED THE SAME DAY, BOTH HALVES.*** The step's HEADING still
@@ -1866,14 +1869,16 @@ reported as a hand-carry item beside `Projects\GPL.BP` rather than passed over
 in silence. **It is not cloned and not vendored** - 30 MB of third-party PDF and
 HTML, and this repository takes no binaries.
 
-***THAT DOES NOT SATISFY THE RULING ABOVE, AND §7 STEP 17 USED TO CLAIM IT
-DID.*** Owner, 24 Aug 2026, on the end-to-end run: **`sdhelp` did not install,
-and he wants it installed** - reporting it is not what he asked for. The
-default path of a bare-machine setup still leaves the tree absent, which is
-exactly the case the ruling names (documentation happening on another
-computer). **Deciding where it comes from is the open work** - release
-artefact, pCloud fetch, or `-SdHelpSource` documented as the supported route.
-`-SdHelpSource` has never been run.
+***THE RULING ABOVE WAS WITHDRAWN BY THE OWNER ON 24 Aug 2026 AND THIS IS THE
+CURRENT POSITION.*** Seeing the first end-to-end run he noted `sdhelp` did not
+install and said he wanted it installed; hours later he cancelled the request:
+*"cancel the sdhelp request - I will just download it from my P drive if
+needed."* **So a machine built by this script deliberately does NOT have the
+tree, and that is accepted.** The `Step-SdHelp` report is the whole of what is
+wanted. `-SdHelpSource` has never been run and does not need to be.
+
+**Do not re-derive the original ruling from the quote above and reopen this.**
+The quote is kept because it explains why `Step-SdHelp` exists at all.
 
 **Local shape:** not a repository — no `.git`, no remote — and
 `setup-devbox.ps1` does not fetch it, **so a machine built from that script
@@ -8280,20 +8285,17 @@ the staging script and the Inno installer were all finished and removed.
 17. ***CLOSED 24 Aug 2026, fifty-fourth session — `setup-devbox.ps1` RAN END
     TO END ON A BARE VM***, ~17 minutes, **exit 0**, through `make sd`, last
     line `setup-devbox: finished, no problems.` START HERE has the leg-by-leg
-    table and HISTORY.md the transcript. **Two things stay open and neither
-    blocks building a machine:**
+    table and HISTORY.md the transcript. ***NOTHING IS OUTSTANDING.*** One
+    note worth keeping:
 
-    - ***`sdhelp` IS NOT INSTALLED AND THE OWNER WANTS IT INSTALLED.*** His
-      correction, 24 Aug 2026: *"the next phase, documentation, was likely to
-      be on another computer and I wanted it installed."* **This file used to
-      record "report it as a hand-carry item" as HIS RULING. That was wrong**
-      — it was the script's behaviour, not his decision, and the entry below
-      under "KNOWN GAPS THAT ARE NOT DEFECTS" mis-stated it. Placing it needs
-      a decision on **where it comes from**: it has no remote and is 30 MB /
-      ~1300 files of third-party OpenQM 2.6.6 and SD PDF+HTML, which the
-      no-binaries rule keeps out of this repository. Options are a release
-      artefact, a pCloud fetch, or `-SdHelpSource <path>` documented as the
-      supported route — **`-SdHelpSource` exists and has never been run.**
+    - ***`sdhelp` WAS RAISED AS AN OPEN REQUIREMENT AND THE OWNER CANCELLED IT
+      THE SAME DAY.*** 24 Aug 2026: *"cancel the sdhelp request — I will just
+      download it from my P drive if needed."* **The script's behaviour is
+      correct as it stands** — report it, place nothing. Read §2's `sdhelp`
+      paragraph before touching this: the position arrived here by way of a
+      wrong attribution and a correction, so **the end state looks like the
+      start state and is not the same thing**. `-SdHelpSource` remains
+      untested and does not need testing.
     - **Inno Setup went PER-USER again**, to
       `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe`. `cycle.ps1` tries the
       default then the registry so it finds it; recorded because a cycle
@@ -8431,14 +8433,15 @@ the staging script and the Inno installer were all finished and removed.
 
     - It does **not** fetch `Projects\GPL.BP` — a convenience copy of upstream,
       no remote, not project material.
-    - ***THE `sdhelp` BULLET THAT SAT HERE WAS WRONG AND IS WITHDRAWN,
-      24 Aug 2026.*** It read that `..\sdhelp` being copied only under
-      `-SdHelpSource <path>`, and otherwise **reported as a hand-carry item**,
-      was the ***owner's ruling***. **It was not his ruling and it is not a
-      gap he accepts** — he wants the help set *installed*, because the
-      documentation phase is likely to happen on another computer. Moved to
-      the open items at the top of this step; do not re-file it as
-      "not a defect".
+    - `..\sdhelp` is copied only under `-SdHelpSource <path>`; without one it
+      is **reported as a hand-carry item** rather than passed over in silence.
+      It is 30 MB of third-party PDF and HTML and is not vendored.
+      ***THIS BULLET ONCE CITED AN "OWNER'S RULING" HE HAD NEVER MADE***, was
+      withdrawn on 24 Aug 2026 when he said he wanted the tree installed, and
+      is restored only because he then **cancelled that request the same day**
+      — *"I will just download it from my P drive if needed."* **Now it really
+      is his decision.** The three-step path is spelled out in §2's `sdhelp`
+      paragraph; do not compress it back to "always was a known gap".
     - Clones are `https` and the `git@` **push** URL is set afterwards with
       `git remote set-url --push`, so a machine with no SSH key still finishes.
       A key is needed the first time somebody pushes and git says so itself.

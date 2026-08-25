@@ -27,6 +27,35 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-fourth session, part 2: the `sdhelp` request is withdrawn by the owner
+
+Hours after the correction recorded below, the owner cancelled the requirement
+outright: *"cancel the sdhelp request — I will just download it from my P drive
+if needed."*
+
+**So `setup-devbox.ps1` is correct as it stands.** It reports `Projects\sdhelp`
+as a hand-carry item and places nothing, a machine it builds deliberately does
+not have the tree, and `-SdHelpSource` stays untested because nothing needs it.
+
+***THE REASON THIS GETS ITS OWN ENTRY IS THAT THE END STATE LOOKS IDENTICAL TO
+THE START STATE AND IS NOT.*** The behaviour never changed. What changed is who
+decided it:
+
+1. PROJECT_STATUS §7 step 17 recorded "report it as a hand-carry item" as the
+   **owner's ruling** — an attribution he had never made.
+2. He corrected that on seeing the first end-to-end run: he had asked for the
+   tree to be *installed*, for a documentation phase on another machine. It
+   became a genuine open requirement.
+3. He then withdrew the request. The same behaviour is now **actually his
+   decision**.
+
+**A future session that finds only step 1 or only step 3 will conclude the
+correction was noise.** It was not. The record carries all three so nobody
+either reopens the request or re-files the original misattribution as if it had
+been right all along.
+
+---
+
 ## 24 Aug 2026 — Fifty-fourth session: step 17 CLOSED — `setup-devbox.ps1` ran end to end on a bare VM, once the host stopped stealing AMD-V
 
 **THE RESULT.** The script was fetched fresh from `main` and **hash-verified in
