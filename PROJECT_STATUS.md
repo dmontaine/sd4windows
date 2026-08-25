@@ -88,7 +88,8 @@ something came to be the way it is.
 > | § | task | state |
 > |---|---|---|
 > | 15 | **this ACL lock** | built, **one cycle owed** |
-> | 3 | installer loose ends - the `limitssh`/`AllowGroups` task and the mandatory-ssh path have **never been seen** (this box already has OpenSSH); no data-tree upgrade path | not started, none blocking |
+> | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. `sdsys\bp` still ships **21 test programs** to end users. No data-tree upgrade path | 3 open bullets; **one is now cheap** |
+> | — | ***NEW, FOUND 24 Aug WHILE CHECKING STEP 3, AND IT IS THE OWNER'S CALL***: `ApplyAllowGroups` is gated **only** on the task, not on `SshWasAbsent` as the firewall step is - so on a machine with a **stock** foreign `sshd_config` a default-ticked box edits it. `allow-ssh-groups.ps1`'s header says the rule is carried by the task being "unticked by default"; **it is ticked by default.** §5.9 has the table | decision not started |
 > | 9 | ***NOT A VERIFIER AND NOT A BUG - IT IS ONE DECISION, AND IT IS THE OWNER'S***: should `sd <command>` ask for a password at all? `SYSTEM(1026)` would gate it the way step 9 gates the command itself. Plus `@logname`, never checked on a cycle | decision not started; the gate itself is CLOSED at 10/10 |
 > | **17** | ***REVISIT `setup-devbox.ps1` - LEFT PARTIALLY WORKING*** (owner, 24 Aug 2026) | **clone step onwards never ran on a bare machine** |
 >
@@ -2097,11 +2098,22 @@ of an ordinary user's program reaching the OS had already answered on an install
 - **The installer's own path through the ssh options.** The reworded closing
   dialog **has** been seen and read on screen (17 Aug, *"looks fine"*). What is
   still unseen is the **`limitssh` task** and **`ApplyAllowGroups` reporting any
-  of its three outcomes**, and neither can be seen here: `Check: SshServerAbsent`
-  is false on a machine that already has OpenSSH, so the tick box never appears.
-  **It needs the VM from §7 step 2.** Compiling an Inno script proves the Pascal
-  parses and nothing more — the two defects already recorded in that script both
-  compiled perfectly.
+  of its three outcomes**.
+
+  ***"NEITHER CAN BE SEEN HERE … IT NEEDS THE VM" IS WITHDRAWN, 24 Aug 2026.***
+  It rested on `Check: SshServerAbsent` gating the task. **`limitssh` lost its
+  `Check` on 21 Aug 2026** ([sd.iss:210](sdb_ai/sd64/gplbld/sd.iss:210) carries
+  none) and is offered on every install, **ticked by default**;
+  `ApplyAllowGroups` is gated on `WizardIsTaskSelected('limitssh')`
+  (`sd.iss:965`), so it runs here too. **Both are visible on the next ordinary
+  cycle — no VM.** `sshremote` is the one that still needs it
+  ([sd.iss:139](sdb_ai/sd64/gplbld/sd.iss:139) keeps the `Check`).
+
+  **This is the third claim in this file to survive the change that falsified
+  it** — `sd.iss`'s own comment at :2390 recorded the change the day it
+  happened, and three sections went on asserting the old shape. Compiling an
+  Inno script proves the Pascal parses and nothing more — the two defects
+  already recorded in that script both compiled perfectly.
 
 - **That SD works over an ssh session AT A REAL TERMINAL — only the tty half is
   left.** The two separately are done: an ssh session lands inside SD (above),
@@ -2949,8 +2961,43 @@ server we did not install" is a separate rule from optionality. `SshWasAbsent`
 is cached in `InitializeSetup` — from `ssPostInstall` the live test answers
 False everywhere, so "did we put this here?" is otherwise unanswerable, and
 both the firewall step and the report depend on it. `limitssh` (was
-`installssh\allowgroups`) is now top-level and **its own `Check` is the only
-thing left** keeping it off somebody else's server.
+`installssh\allowgroups`) is now top-level.
+
+***"ITS OWN `Check` IS THE ONLY THING LEFT KEEPING IT OFF SOMEBODY ELSE'S
+SERVER" IS WRONG AND IS WITHDRAWN, 24 Aug 2026.*** `limitssh` **has no
+`Check`** — it lost one on 21 Aug 2026 ([sd.iss:210](sdb_ai/sd64/gplbld/sd.iss:210)),
+is offered on every install, and has no `Flags: unchecked`, so it is **ticked by
+default**. `sshremote` is the task that still carries `Check: SshServerAbsent`
+(`sd.iss:139`).
+
+***AND THE TWO ssh STEPS ARE GATED DIFFERENTLY, WHICH IS THE PART THAT MATTERS
+AND WAS NOT WRITTEN DOWN ANYWHERE.*** Measured in the source, 24 Aug 2026:
+
+| step | gate | so on a machine with somebody else's sshd |
+|---|---|---|
+| `ApplySshFirewall` | ***`if not SshWasAbsent then Exit`*** (`sd.iss`) | **never runs.** The rule is structurally safe |
+| `ApplyAllowGroups` | ***only*** `WizardIsTaskSelected('limitssh')` (`sd.iss:965`) | **RUNS, on a default-ticked box** |
+
+**So `sshd_config` is protected by neither a `Check` nor `SshWasAbsent`** — it
+is protected by **refusal 2 inside `allow-ssh-groups.ps1`**: an existing
+`AllowGroups`, `AllowUsers`, `DenyGroups` or `DenyUsers` line is somebody's
+policy and the script exits 2 leaving it alone. That backstop is real and is
+tested (`verify-allowgroups`, four foreign-policy shapes refused).
+
+***BUT `allow-ssh-groups.ps1`'s OWN HEADER STATES A PREMISE THAT IS FALSE.***
+Lines 30-34 say the §5.9 rule *"is carried by the task being **unticked by
+default**"*. **It is ticked by default.** The header names refusal 2 as "the
+real backstop" in the same breath, so the script's behaviour is right and only
+its stated reasoning is wrong — but the gap it leaves is real: **on a machine
+whose `sshd_config` is STOCK — no `AllowGroups` line, which is exactly what
+this machine was found with on 21 Aug 2026 — refusal 2 does not fire, and a
+default-ticked box edits an ssh server SD did not install.**
+
+***THAT IS A DECISION FOR THE OWNER, NOT A DEFECT TO FIX QUIETLY.*** The
+options are to restore `Flags: unchecked` on `limitssh`, to gate
+`ApplyAllowGroups` on `SshWasAbsent` the way the firewall step is, or to rule
+that a stock config is fair game because the task names what it does. **Not
+started, and nothing has been changed on the strength of this reading.**
 
 **The uninstaller does not widen the rule back.** Deliberate asymmetry with
 `RemoveAllowGroups`: restoring it means opening a port on the way out.
@@ -5809,11 +5856,28 @@ the staging script and the Inno installer were all finished and removed.
      kind. **Grep the emitted string, not the file**, if this is ever checked
      again — the comments are the reason a plain grep looks alarming.
 
-     **The `AllowGroups` task is still unseen** and cannot be seen here — it is
-     hidden by `Check: SshServerAbsent` on this machine (§4 Not verified). **It
-     is no longer a subtask**: renamed `limitssh` and promoted on 16 Aug 2026
-     when its parent went (§5.9). *Pointer corrected 21 Aug 2026: this said
-     "header item 1", and that header was archived.*
+     ***THE "CANNOT BE SEEN HERE" HALF OF THIS IS STALE — CORRECTED 24 Aug
+     2026.*** It said the `AllowGroups` task *"is hidden by
+     `Check: SshServerAbsent` on this machine"* and needed the VM.
+     **`limitssh` LOST ITS `Check` ON 21 Aug 2026 AND HAS NONE**
+     ([sd.iss:210](sdb_ai/sd64/gplbld/sd.iss:210) is `Name:` +
+     `Description:` + `GroupDescription:` and nothing else). It is offered on
+     **every** install and, having no `Flags: unchecked`, is **ticked by
+     default**. `sd.iss`'s own comment at :2390 says so — *"Only ONE option
+     vanishes now"*. So this needs **the next ordinary cycle, not a VM**: look
+     at the tasks page.
+
+     **`ApplyAllowGroups` runs here too**, for the same reason — `sd.iss:965`
+     gates it on `WizardIsTaskSelected('limitssh')`, which is true by default —
+     so its three outcomes are observable on this machine as well.
+
+     **What genuinely still needs the VM is `sshremote`**, which **does** keep
+     `Check: SshServerAbsent` ([sd.iss:139](sdb_ai/sd64/gplbld/sd.iss:139)) —
+     see the mandatory-ssh bullet below.
+
+     **It is no longer a subtask**: renamed `limitssh` and promoted on 16 Aug
+     2026 when its parent went (§5.9). *Pointer corrected 21 Aug 2026: this
+     said "header item 1", and that header was archived.*
    - **CLOSED AND VERIFIED 17 Aug 2026 (§4) — `deny-logon.ps1`'s outcome is
      now checked, and the rights are confirmed applied.** It moved from
      `[Run]` to `ApplyDenyLogon` in `[Code]` at `ssPostInstall`
