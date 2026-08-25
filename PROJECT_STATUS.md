@@ -1186,8 +1186,30 @@ something came to be the way it is.
 > guard by AST and covers the rest: a planted `gpl.bp\MODIFY` found by name, a
 > nested deletion, a case-only rename **not** double-reported (B2 owns that),
 > and a missing mirror directory reported as skipped rather than passed.
-> 12 checks. **Adding a directory to `SDSYS_MIRROR` is the only way to widen
-> it**, and that list carries the per-directory measurement.
+> **Adding a directory to `SDSYS_MIRROR` is the only way to widen it**, and
+> that list carries the per-directory measurement.
+>
+> ***AND SECTION B4 CLOSES THE SAME GAP IN `{app}`, WHICH sd.iss's OWN COMMENT
+> HAD ASSUMED AWAY.*** That comment said everything under `{app}` is *"replaced
+> on upgrade"*. **Inno overwrites; it never removes a file absent from the new
+> version** — that is what `[InstallDelete]` is for — so a script dropped from
+> `stage.py` sat in `C:\Program Files\SD` until an uninstall.
+>
+> | | |
+> |---|---|
+> | noticing one | B4 asks the existing **`$shipsAs`** valve — "is this name quoted in `stage.py` or `sd.iss`" — of every top-level file in `{app}`. No second list: retiring a script removes its name, and the same valve reports the leftover |
+> | removing one | `stage.py` `PF_RETIRED`, which emits an **ungated** `[InstallDelete]` under `{app}`. Empty today, correctly: all 22 installed `.ps1` are still named in `stage.py` |
+> | measured | `no leftover files in C:\Program Files\SD (22 checked)`, and the same function with one name pretended retired reports exactly that name |
+> | scope | **top level only.** `usr\bin` holds the binaries and the MSYS2 DLL closure, which `stage.py` *computes* with `objdump` rather than naming, so a name-based check there would report every DLL |
+>
+> `test-deletioncheck-units.ps1` covers both halves — 19 checks, including that
+> Inno's own `unins000.*` is not counted and that `usr\` is not descended into.
+>
+> **The one false negative, in its exact shape:** `$shipsAs` needs the name
+> **quoted or path-prefixed**, so a retired script named bare in a comment is
+> correctly seen as unshipped — but one still written `'foo.ps1'` in the
+> comment explaining its removal reads as shipped and is missed. **When
+> retiring a script, take its name out of the quotes.**
 >
 > ### §7 STEP 9's VERIFIER IS STILL UN-STARTED, and §7 is otherwise empty.
 >

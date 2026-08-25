@@ -27,6 +27,61 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-sixth session, part 5: the {app} half of the deletion gap, which part 4 left open
+
+**Commit:** this one. Part 4 closed the data-tree half and wrote the `{app}`
+half down as "not built"; the owner asked for it, so it is built.
+
+**THE COMMENT IN sd.iss WAS THE WHOLE REASON IT LOOKED CLOSED.** It said
+everything under `{app}` is *"replaced on upgrade and removed on uninstall"*.
+Right about overwriting, right about uninstalling, **wrong about a retired
+file**: Inno's `[Files]` copies and overwrites and never removes a file absent
+from the new version, which is the entire reason `[InstallDelete]` exists. So a
+script dropped from `stage.py` sat in `C:\Program Files\SD` until an uninstall.
+Corrected in place, per the standing rule about wrong comments.
+
+**NOTICING ONE COSTS NO NEW LIST.** Section B4 asks the `$shipsAs` valve that
+already exists — *is this name quoted or path-prefixed in `stage.py` or
+`sd.iss`* — of every top-level file in `{app}`. That is the definition of
+shipping used everywhere else in the guard, and retiring a script removes its
+name, so the same valve that reinstates a `$neverShipped` script reports the
+leftover. **Removing one** is `stage.py`'s new `PF_RETIRED`, which emits an
+**ungated** `[InstallDelete]`: a retired name can only be present if a previous
+version put it there, so gating it would mean asking `DataTreeWasAbsent` a
+question about a different directory.
+
+**MEASURED: `no leftover files in C:\Program Files\SD (22 checked)`**, and
+`PF_RETIRED` is correctly empty - all 22 installed `.ps1` are still named in
+`stage.py`. The zero is not an empty instrument: the same function run against
+the real `{app}` with one name pretended retired reports exactly that name.
+
+***TWO BUGS OF MY OWN, BOTH CAUGHT BY AN INSTRUMENT RATHER THAN BY READING.***
+
+- **A backslash in a Python string literal, the exact trap CLAUDE.md names.**
+  Adding `C:\Program Files\SD` to the generated file's header made `\P` an
+  invalid escape - a SyntaxWarning today, an error in a later Python. Fixed by
+  making the header a RAW string, and `python -W error::SyntaxWarning` is what
+  showed it.
+- **And the raw string then broke the generated file**, because `'''\` swallows
+  the newline in an ordinary literal and is a literal backslash in a raw one -
+  so `upgrade.iss` began with a bare `\` and ISCC answered *'Unrecognized
+  parameter name "\"'* on line 1. **Only compiling the generated output found
+  that**; every unit test still passed, because the tests read the entry lines
+  and the damage was in the header.
+
+**WHAT IT DELIBERATELY DOES NOT COVER:** `usr\bin`. The binaries and the MSYS2
+DLL closure are COMPUTED by `stage.py` with `objdump` rather than named, so
+there is no list to compare against and a name-based check there would report
+every DLL as unshipped.
+
+**And one false negative, in its exact shape:** `$shipsAs` requires the name to
+be quoted or path-prefixed, so a retired script named bare in a comment is
+correctly seen as unshipped - but one still written `'foo.ps1'` in the comment
+explaining its removal reads as shipped and is missed. When retiring a script,
+take its name out of the quotes.
+
+---
+
 ## 25 Aug 2026 — Fifty-sixth session, part 4: assert-current can see a deletion
 
 **Commit:** this one. Closes the item opened on 24 Aug in *"assert-current
