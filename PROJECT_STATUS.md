@@ -83,15 +83,22 @@ something came to be the way it is.
 >
 > ### THE WHOLE REMAINING TASK LIST, COMPILED 24 Aug 2026 ON THE OWNER'S ASK
 >
-> §7 steps 0-2 and 4-14 are CLOSED. What is left, in the file, is:
+> §7 steps 0-2, 4-14 **and 16** are CLOSED. What is left, in the file, is:
 >
 > | § | task | state |
 > |---|---|---|
 > | 15 | **this ACL lock** | built, **one cycle owed** |
-> | 16 | **line endings** - SD reads and writes LF only on a Windows-only product | not started, **largest item**; **(a) READ side is a PREREQUISITE for (b)** |
 > | 3 | installer loose ends - the `limitssh`/`AllowGroups` task and the mandatory-ssh path have **never been seen** (this box already has OpenSSH); no data-tree upgrade path | not started, none blocking |
 > | 9 | the step 9 verifier - nothing stops a scheduled job's **command** prompting; `@logname` never checked on a cycle | never started |
 > | **17** | ***REVISIT `setup-devbox.ps1` - LEFT PARTIALLY WORKING*** (owner, 24 Aug 2026) | **clone step onwards never ran on a bare machine** |
+>
+> ***THE FIRST VERSION OF THIS TABLE LISTED STEP 16 AS "not started, largest
+> item". IT WAS CLOSED THE SAME DAY, BOTH HALVES.*** The step's HEADING still
+> said "Not started" while its own body said `STEP 16 IS CLOSED`, and the
+> heading was read without reading on. **The owner caught it.** Corrected at
+> the source: step 16's first line now carries its status. **When compiling a
+> status list, read each step's body or check the code - a heading is a claim
+> like any other.**
 >
 > **Plus, and it is the owner's call:** `assert-current` **cannot see a
 > deletion** - it walks source -> install only, so a deletion-only commit
@@ -7010,9 +7017,24 @@ the staging script and the Inno installer were all finished and removed.
     §5.7's model makes it run **as the service**. Both are coherent; they are
     different architectures and only one can be built.
 
-16. **LINE ENDINGS: SD READS ONLY LF AND WRITES ONLY LF, ON A WINDOWS-ONLY
-    PRODUCT.** Raised by the repository owner, 24 Aug 2026. **Not started, and
-    it is two pieces of work.** His reasoning, which is the part that dates:
+16. ***CLOSED 24 Aug 2026, BOTH HALVES — SD NOW READS AND WRITES CRLF.***
+    (a) verified on install 12:15:51, (b) on install 12:36:09, **17/17
+    decisive**; the closure and its evidence are at the end of this step.
+    Commits `6120642` (a), `2a30af1` (b) and `2f4c47c` (the separate `writeport`
+    count defect, `UPSTREAM_FIXES` #14, **not verifiable here** — it needs a
+    real port device).
+
+    ***THIS HEADING SAID "Not started, and it is two pieces of work" UNTIL
+    24 Aug 2026, WITH THE CLOSURE ALREADY WRITTEN IN ITS OWN BODY.*** A session
+    compiling the remaining task list read the heading, did not read on, and
+    reported step 16 as the largest outstanding item — to the owner, who knew
+    better. **A step's status belongs in its first line or the first line is a
+    trap**, and §0's rule about not restating a finding in several places does
+    not exempt the one line every reader starts from.
+
+    LINE ENDINGS: SD READ ONLY LF AND WROTE ONLY LF, ON A WINDOWS-ONLY
+    PRODUCT. Raised by the repository owner, 24 Aug 2026. His reasoning, which
+    is the part that dates:
     **directory files exist so that EXTERNAL EDITORS can edit BASIC programs**;
     OpenQM was originally a Windows product and is believed to have used CRLF
     then; the Linux version moved to LF, ScarletDME and `sdb64` inherit that,
