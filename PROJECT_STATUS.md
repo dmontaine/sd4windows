@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of fifty-fourth session. ***A REAL DEFECT IS OPEN AND UNFIXED: `ssh-firewall.ps1` has NEVER been able to scope ssh, so every install that puts ssh on leaves port 22 open to the LAN.*** One-line fix, measured, not yet approved or made — START HERE. Also this session: **step 17 CLOSED** (`setup-devbox.ps1` ran end to end on a bare VM, exit 0, through `make sd`); the two guest freezes were the host's Hyper-V/NEM fallback, not the script (§6); `sdhelp` was raised and **cancelled by the owner** the same day.
+**Last updated:** 25 Aug 2026, fifty-fifth session. ***THE ssh SCOPING DEFECT IS FIXED AND THE FIX HAS NEVER RUN*** — `ssh-firewall.ps1` could never scope ssh (Windows rejects `::1` in `-RemoteAddress`), so every install that put ssh on left port 22 open to the LAN; [:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150) now passes `'127.0.0.1'` alone. **Needs a cycle, then a fresh clone, then `probe-sshfirewall.ps1`** — START HERE. Previously: step 17 CLOSED, the guest freezes were the host's Hyper-V/NEM fallback (§6), `sdhelp` cancelled by the owner.
 
 ---
 
@@ -14,8 +14,10 @@ something came to be the way it is.
 > ## NEXT: A REAL DEFECT IS OPEN. ssh SCOPING HAS NEVER WORKED, ON ANY MACHINE.
 >
 > Found 24 Aug 2026 on the FIRST install ever performed on a machine with no
-> OpenSSH server. **The fix is one line and is measured, not reasoned. It has
-> NOT been made yet — the owner was asked and the session ended first.**
+> OpenSSH server. ***THE FIX IS MADE (owner approved 25 Aug 2026) AND IS
+> UNTESTED*** — [ssh-firewall.ps1:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150)
+> now passes `'127.0.0.1'` alone. Parse-checked 0 errors, 2 functions, no BOM.
+> **It has not been through a cycle and has never run.** Next three steps below.
 >
 > ### THE DEFECT
 >
@@ -58,10 +60,11 @@ something came to be the way it is.
 >
 > ### THE ORDER TO DO IT IN, TOMORROW
 >
-> 1. Make the one-line fix at `ssh-firewall.ps1:113`, with a comment recording
->    why `::1` cannot be passed. **Owner has not yet approved it** — it is
->    security-relevant behaviour, so ask.
-> 2. `cycle.ps1` (ELEVATED, owner's shell) to rebuild the installer.
+> 1. ~~Make the one-line fix~~ ***DONE 25 Aug 2026***, owner approved. The
+>    restrict branch carries the whole measurement as a comment, and the
+>    changelog carries a user-facing security notice.
+> 2. `cycle.ps1` (ELEVATED, owner's shell) to rebuild the installer. **The
+>    fix makes the 23:01:04 installer stale — do not test with it.**
 > 3. Clone `Windows 11 - sshRemoteTest-B` — or re-clone from
 >    `Windows 11 - Template` — install with `sshremote` **UNTICKED**, then run
 >    [probe-sshfirewall.ps1](sdb_ai/sd64/gplbld/probe-sshfirewall.ps1). It must
