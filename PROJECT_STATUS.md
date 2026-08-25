@@ -5,17 +5,44 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 fully closed (probe-catprivate 3/3); suite green at **31 of 31 on b37**, 386 PASS 0 FAIL, verdict lines on verify-createaccount and verify-sshonly observed working.
+**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 fully closed; suite green at 31/31 on b37; step-3 bullet closed by dropping 15 test programs from `sdsys/bp/` and moving TESTSDCLI to `gplbld/testsdcli.bp` (verify-scramlogin drop-into-place). ***NEEDS ONE CYCLE*** to purge the 16 files from the installed tree.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: NOTHING IS OWED. NOTHING IS BLOCKING. CLEAN HANDOFF.
+> ## NEXT: ONE CYCLE + ONE SUITE RUN TO PROVE THE BP TRIM
 >
-> ***END OF THE FIFTY-THIRD SESSION, 24 Aug 2026*** — step 15 fully closed
-> and the suite ran green at **31 of 31 on `b37`**. Working tree clean,
-> two commits pushed (`ce47d74` probe-catprivate, docs on this run).
+> ***END OF THE FIFTY-THIRD SESSION, 24 Aug 2026*** — step 15 fully closed;
+> the suite ran green at **31 of 31 on `b37`**; and the step-3 bullet
+> *"`sdsys\bp` still ships 21 test programs"* is closed at source: 15 test
+> files deleted, `TESTSDCLI` moved to
+> [gplbld/testsdcli.bp](sdb_ai/sd64/gplbld/testsdcli.bp) and
+> `verify-scramlogin.ps1` drops it into place at run time. `stage.py`'s
+> `('bp', ...)` note updated; `assert-current.ps1`'s `$neverShipped`
+> gained `testsdcli.bp`; changelog carries the user-facing note.
+>
+> ***BUT THE CHANGE IS SOURCE-ONLY UNTIL A CYCLE, AND `assert-current`
+> CANNOT SEE A DELETION*** (§7 open item). The b37 install still holds all
+> 16 of those files. Two hand-runs prove the whole thing:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> Fresh elevated window (transcript-degradation habit). After it lands,
+> the suite at 31/31 on **`b38`** or later (prefixes to `b37` are spent):
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b38
+> ```
+>
+> **What the cycle proves**: that the installed `sdsys/bp/` shrinks to five
+> files (`PCL`, `PCL.GRID`, `U0032`, `U50BB`, `VFS.CLS`) and nothing on the
+> install path breaks. **What the suite proves**: that `verify-scramlogin`'s
+> drop-into-place still passes step 9b — `TESTSDCLI compiles`,
+> `!sdclient connected over SCRAM`, `TESTSDCLI PASSED` — and that its
+> finally block leaves no residue in `sdsys/bp` afterwards.
 >
 > ### THE SUITE ON b37 — 31/31, 386 PASS, 0 FAIL, DECODER PROVEN
 >
@@ -416,7 +443,7 @@ something came to be the way it is.
 > |---|---|---|
 > | 15 | ***CLOSED IN FULL 24 Aug 2026.*** ACL lock re-verified 16/16 on the 18:19:17 install; `probe-catprivate` 3/3 at 19:26:48 measured CATALOG writing `sdsys\cat` under the lock; `CONFIG` closed by source (nothing in SD writes `sd.conf`); `CREATE.ACCOUNT` cycled and measured. Suite re-run at 31/31 on `b37` | closed |
 > | 9 | ***CLOSED.*** `sd <command>` no longer prompts (`LOGIN:669`), the installer's password step moved to `MODIFY.PASSWORD`, both cycled and verified, `verify-cmdaudit` passes 7/7 in `VerifyInstall2` on `b37`. ***The behavioural half cannot be automated*** - the gate is reachable only by a person at their own elevated console; that console probe is the one remaining decision | closed |
-> | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. `sdsys\bp` still ships **21 test programs** to end users. No data-tree upgrade path | 3 open bullets; **one is now cheap** |
+> | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. ~~`sdsys\bp` still ships 21 test programs~~ ***CLOSED 24 Aug*** - 15 dropped, `TESTSDCLI` moved to `gplbld/testsdcli.bp` with drop-into-place. No data-tree upgrade path | 2 open bullets |
 > | — | ***NEW, FOUND 24 Aug WHILE CHECKING STEP 3, AND IT IS THE OWNER'S CALL***: `ApplyAllowGroups` is gated **only** on the task, not on `SshWasAbsent` as the firewall step is - so on a machine with a **stock** foreign `sshd_config` a default-ticked box edits it. `allow-ssh-groups.ps1`'s header says the rule is carried by the task being "unticked by default"; **it is ticked by default.** §5.9 has the table | decision not started |
 > | **17** | ***REVISIT `setup-devbox.ps1` - LEFT PARTIALLY WORKING*** (owner, 24 Aug 2026) | **clone step onwards never ran on a bare machine** |
 >
@@ -6245,9 +6272,19 @@ the staging script and the Inno installer were all finished and removed.
      `SYSCOM/ERR.H`, `GPL.BP/ERRTEXT.H` and `GPL.BP/REVSTAMP.H`. Regenerating
      also dropped `OP.SDPYOBJ`, left behind when embedded Python went on
      13 Aug. Nothing to port.
-   - **`sdsys/BP` ships and holds test programs** (`sdTests`, `BIGSTR_TEST`).
-     Harmless, and the Linux install did the same, but decide whether an end
-     user should get them.
+   - ***CLOSED 24 Aug 2026, FIFTY-THIRD SESSION*** - fifteen test programs
+     dropped from `sdsys/bp/`, one (`TESTSDCLI`) moved to
+     [gplbld/testsdcli.bp](sdb_ai/sd64/gplbld/testsdcli.bp) with
+     `verify-scramlogin.ps1` drop-into-place + finally-block cleanup so it
+     stays out of every end user's install. What remains in `sdsys/bp/` is
+     the shape the product ships with: `PCL`, `PCL.GRID` (printer control),
+     `U0032` and `U50BB` (the two documented user exits), and `VFS.CLS`
+     (template VFS class module). Changelog carries the user-facing note.
+     Same-commit updates to `stage.py`'s `('bp', ...)` comment,
+     `assert-current.ps1`'s `$neverShipped` (`testsdcli.bp`), and this
+     bullet. **Not yet cycled** - the change is source-only, and
+     `assert-current` cannot see a deletion (the open item next paragraph),
+     so the b37 install still has the 16 files until the next cycle.
    - **There is no upgrade path for the data tree**, and §6 records what that
      already cost. It will cost more once there is real data in a tree.
 4. **CLOSED — BUILT AND VERIFIED 16 Aug 2026, thirteenth session**, on the

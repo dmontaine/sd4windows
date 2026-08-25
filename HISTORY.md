@@ -27,6 +27,49 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-third session, part 3: SDSYS BP trimmed to its five utility programs
+
+`sdsys/bp/` shipped 21 files, of which 16 were developer test programs
+that had no business on an end user's disk. §7 step 3's third bullet
+(*"decide whether an end user should get them"*) — the owner ruled to
+drop them.
+
+**Fifteen deleted outright**, safe because a `grep -r -l -w <name>
+sdb_ai/sd64/` found no reference to any of them anywhere in the tree:
+`BIGSTR_TEST`, `MSGTEST`, `PCODE_LIST`, `SDTEST_V8`, `SD_ENCRYPT`,
+`SD_ENCRYPT_B64`, `SD_ENCRYPT_EXT`, `SD_EXT`, `TEST.THEN.ELSE`,
+`TESTCRED`, `TESTSCRAM`, `TESTSZ`, `pref_t`, `sdTests`, `tilde_test`.
+
+**`TESTSDCLI` moved to `gplbld/testsdcli.bp`** (via `git mv` — history
+preserved). `verify-scramlogin.ps1` is the one caller; it drove
+`BASIC BP TESTSDCLI` / `RUN BP TESTSDCLI` against the installed source.
+Now it drops `testsdcli.bp` into `C:\ProgramData\SD\sdsys\bp\TESTSDCLI`
+at run time (elevated, so the `sdusers:(RX)` lock from step 15 doesn't
+block) and removes both the source and the `.OUT` in the outer
+`finally`, regardless of `-Keep`. The flag is initialised at the top of
+the script so a failure before step 9b cannot leave the file behind.
+
+**What stays in `sdsys/bp/`**: `PCL`, `PCL.GRID` (Ladybridge printer
+control), `U0032` (0032 user exit, Log user off), `U50BB` (50BB user
+exit, `@WHO`), `VFS.CLS` (template VFS class module). Five files, all
+Ladybridge 2005–2006 originals with real product roles.
+
+**Same-commit updates so nothing drifts**: `stage.py`'s `('bp', ...)`
+description rewritten from the dead *"see the note in the header about
+tests"* to name the five programs and record the drop; `assert-current`'s
+`$neverShipped` gained `testsdcli.bp` under §7 step 7's rule; the
+`changelog` carries the user-facing note (last four paragraphs plain
+English, naming every removed program).
+
+**The change is source-only.** `assert-current` cannot see a deletion
+(one of the open items on the same section-7 list), so the b37 install
+still holds all 16 files until the next cycle. Two hand-runs then prove
+end-to-end: one `cycle.ps1` to install the trimmed tree, one
+`VerifyInstall1 -ThenElevated -Run b38` to prove `verify-scramlogin`'s
+drop-into-place still passes step 9b (TESTSDCLI compiles, `!sdclient
+connected over SCRAM`, `TESTSDCLI PASSED`) and leaves no residue in
+`sdsys/bp` afterwards.
+
 ## 24 Aug 2026 — Fifty-third session, part 2: suite runs green at 31 of 31 on b37
 
 `VerifyInstall1 -ThenElevated -Run b37`, from a fresh elevated window per
