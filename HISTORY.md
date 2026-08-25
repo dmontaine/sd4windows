@@ -27,6 +27,90 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-sixth session, part 3: the documentation format is approved, and the first document set is scoped
+
+**Commit:** with part 2. The owner judged the sample page and the answer was
+*"I like the format"*, singling out the aggregate-by-function shape - *"'File
+commands' rather than the more typical 'one command at a time' format"*.
+
+**THE BRIEF, in his words and recorded in START HERE §DOCUMENTATION DECISIONS:**
+
+- ***`..\sdhelp` IS A RESOURCE, NOT A SOURCE TO COPY.*** *"Use the documents in
+  ..\sdhelp as resources but do not copy them verbatim. Always make sure to
+  wrap in the changes we have made for our version."* The sample page is closer
+  to a transcription than the brief allows and must not be read as the model
+  for how much to carry over.
+- **Aggregate by function.** One topic page holds the verbs that belong
+  together; sdhelp's one-file-per-verb shape is not the model.
+- ***THE FIRST SET IS FOR TESTERS AND DOCUMENTS THE DELTA, NOT THE PRODUCT.***
+  They *"will already be familiar with Pick-like systems, especially openQM,
+  and will only need documentation to tell them how SD Core for Windows is
+  different."* Ten topics, his list, in START HERE. Nearly every one already
+  has its answer in PROJECT_STATUS, which is the payoff for keeping that file.
+- **Sequencing: after 1.0-0.** *"Let's finish up the remaining tasks to get to
+  1.0-0 and then start on documentation."*
+
+**Not separately ruled on:** lower-case commands, dark mode, and the sidebar
+table of contents. *"I like the format"* covers the page as rendered, so they
+stand as shipped; each is a one-line change.
+
+---
+
+## 25 Aug 2026 — Fifty-sixth session, part 2: the data-tree upgrade path is built, and the changelog leaves the database
+
+**Commit:** this one. Two rulings from the owner, both taken because §7 step 3
+had reserved them and building the wrong one costs installer surgery and guest
+cycles.
+
+**RULING 1: THE INSTALLER REPLACES THE SHIPPED SUBSET IN PLACE.** The Linux
+dance - uninstall preserves, reinstall lays down fresh - was rejected because
+the uninstaller's existing machinery keeps the WHOLE database, so the split was
+new code either way, and because it puts the preserve list in two files that
+must agree about `$cred` or every account loses its password.
+
+**RULING 2: `sdsys\changelog` MOVES TO `{app}`.** It shipped into the data tree,
+which the installer never overwrote, so a user's changelog was frozen at their
+install date - in the one file whose whole job is telling them what changed.
+Under `{app}` Inno replaces it on upgrade with no custom code, so it is right
+regardless of the upgrade path.
+
+**THE LIST IS GENERATED, AND THAT IS THE DESIGN.** `stage.py` computes the
+replace list as `SDSYS_SHIP + SDSYS_EMPTY + terminfo` minus `SDSYS_PRESERVE`,
+writes `<stage>\upgrade.iss`, and `sd.iss:359` includes it. A copy of that list
+living in `sd.iss` would be a second list to keep true, and what it would go
+stale about is which directories an upgrade DELETES from a live database - the
+same argument that made the MSYS2 DLL closure computed rather than listed.
+
+**THE SAFETY PROPERTY IS THE DEFAULT.** Only a name `stage.py` deliberately
+stages can be deleted, so `voc`, `$map`, `errlog`, `stacks` and `dir_dict` are
+out of reach however that file is edited. A preserve list applied to
+`os.listdir()` would have deleted any directory nobody had thought of.
+
+**MEASURED, NOT ASSERTED.** `test-upgradeiss-units.py` imports `stage.py`
+rather than restating its lists and passes 49 checks, including all four
+refusals. The generated sections were then compiled by the real ISCC on a fake
+stage tree - **with a control**: the same file given `Type: NoSuchType` fails,
+so the pass is not ISCC quietly ignoring the include. That run also settled
+that `Check:` is legal in `[InstallDelete]`.
+
+**AND IT FOUND A TRAP BY DOING IT.** The first probe harness put the
+`#include` after `[Code]`, where `;` is not a comment: ISCC compiled the
+generated file's header as Pascal and answered *"'BEGIN' expected"* on line 1
+of a file containing no Pascal. `sd.iss` has the include in `[Files]`, and the
+comment there now says why it must not move.
+
+**STILL UNTESTED, AND IT IS THE HALF THAT MATTERS: no installer has been built
+from any of this and no upgrade has been run.** START HERE item 3 lists what to
+check on a guest that already has SD.
+
+**KNOWN NARROWING, recorded rather than folded in:** the `.dic` set the
+bootstrap creates - `voc.dic`, `dict.dic`, `accounts.dic`, `$map`, `$map.dic` -
+is not replaced, though step 3's ruling lists it as replaceable. Those files
+are named in no list in `stage.py`, and the safety property is that only a
+declared name can be deleted. Widening it needs a decision.
+
+---
+
 ## 25 Aug 2026 — Fifty-sixth session: the styled sample documentation page, and what converting three help pages found
 
 **Commit:** this one. START HERE item 2, which the previous session left as the

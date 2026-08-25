@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, fifty-sixth session. ***CODE IS ESSENTIALLY DONE FOR 1.0-0; THE DOCUMENTATION PHASE IS NEXT.*** The refuse-to-install ruling is built and verified on three guests, and the ssh firewall defect is closed on both branches. ***THE ONE THING NOBODY HAS DONE IS RUN THE SUITE SINCE ANY OF IT*** - last green was b37/b38 on 24 Aug, and the tree is STALE, so a full cycle comes first. ***THE STYLED SAMPLE PAGE IS BUILT AND NEEDS TEN MINUTES OF THE OWNER'S EYES*** - `docs\sample\file-commands.html`, START HERE item 2, with four yes/no questions listed there.
+**Last updated:** 25 Aug 2026, fifty-sixth session. ***CODE IS ESSENTIALLY DONE FOR 1.0-0; THE DOCUMENTATION PHASE IS NEXT.*** The refuse-to-install ruling is built and verified on three guests, and the ssh firewall defect is closed on both branches. ***THE ONE THING NOBODY HAS DONE IS RUN THE SUITE SINCE ANY OF IT*** - last green was b37/b38 on 24 Aug, and the tree is STALE, so a full cycle comes first. ***THE DATA-TREE UPGRADE PATH IS BUILT*** - the owner ruled "installer replaces the shipped subset in place", and `sdsys\changelog` moves to `{app}`; both are source-only and **no installer has been built from either**, so item 1's cycle now tests them too. The documentation format is approved and scoped; it starts AFTER 1.0-0, on the owner's instruction.
 
 ---
 
@@ -28,50 +28,59 @@ something came to be the way it is.
 > This is the owner's own next task; he said he would do the run and verify in
 > a fresh session.
 >
-> ### 2. THE SAMPLE PAGE IS BUILT. IT IS WAITING TO BE JUDGED — 25 Aug 2026
+> ### 2. DOCUMENTATION IS APPROVED AND SCOPED. IT STARTS *AFTER* 1.0-0 — OWNER, 25 Aug 2026
 >
-> ***OPEN
-> `C:\Users\dmont\Projects\sd4windows\docs\sample\file-commands.html`*** —
-> double-click, no server, no install. Source
+> ***"Let's finish up the remaining tasks to get to 1.0-0 and then start on
+> documentation."*** So do not open the documentation phase while anything
+> under item 3 or the §7 step 3 bullets is outstanding. Everything needed to
+> start is written down in §"DOCUMENTATION DECISIONS" below — **the format is
+> settled, the audience is settled, and the topic list is his, verbatim.**
+>
+> **The sample was judged and passed:** *"I like the format"*, and the
+> aggregate-by-function shape was singled out. Sample at
+> `docs\sample\file-commands.html`, source
 > [docs/sample/file-commands.md](docs/sample/file-commands.md), renderer
-> [gplbld/mkdoc.py](sdb_ai/sd64/gplbld/mkdoc.py) (python-markdown 3.10.2,
-> already on this machine; `setup-devbox.ps1` does **not** install it yet).
-> Rebuild: `python sdb_ai/sd64/gplbld/mkdoc.py --in docs/sample --out
-> docs/sample`.
+> [gplbld/mkdoc.py](sdb_ai/sd64/gplbld/mkdoc.py) (python-markdown 3.10.2 is on
+> this machine; `setup-devbox.ps1` does **not** install it yet). Rebuild:
+> `python sdb_ai/sd64/gplbld/mkdoc.py --in docs/sample --out docs/sample`.
 >
-> Content is the real `create.file`, `clear.file` and `delete.file` pages from
-> `..\sdhelp`, every keyword checked against `gpl.bp/CREATEF`.
+> **NOT BUILT, DELIBERATELY:** no index page, and `mkdoc.py` is **not** wired
+> into `stage.py` or `sd.iss`. Naming a `.md` in either puts it under
+> `assert-current`'s `$shipsAs` valve, after which every documentation edit
+> costs a full cycle. `mkdoc.py` is on `$neverShipped`
+> ([assert-current.ps1:484](sdb_ai/sd64/gplbld/assert-current.ps1:484)) for the
+> same reason, and the valve reinstates it by itself when `stage.py` names it.
 >
-> ***FOUR THINGS NEED A YES OR NO. All are cheap to change:***
+> ### 3. THE DATA-TREE UPGRADE PATH IS BUILT, AND NO INSTALLER HAS EVER BEEN BUILT FROM IT
+>
+> ***THE OPEN PART IS CLOSED: THE INSTALLER REPLACES THE SHIPPED SUBSET IN
+> PLACE*** — owner, 25 Aug 2026. One step, no uninstall first, and the preserve
+> list lives in one file instead of being split across the installer and the
+> uninstaller, which are two places that would have to agree about `$cred`.
+> **In the same ruling `sdsys\changelog` moves to `{app}`**, where Inno replaces
+> it on upgrade with no custom code at all.
 >
 > | | |
 > |---|---|
-> | **lower-case commands** — `create.file`, not `CREATE.FILE` | §5.12 rules lower case everywhere it can be, so the sample follows it. `..\sdhelp` is upper case throughout, so this is a visible break with the source material |
-> | **dark mode follows the machine** | ~15 lines of the CSS. Strike it and every reader gets white |
-> | **sidebar table of contents, `h2` and `h3`** | one line to drop it to `h2` only, or to a box above the text |
-> | **one page per topic, not per verb** | the sample is a topic page holding three verbs; `..\sdhelp` is one file per verb, 783 of them |
+> | the list | `stage.py` `SDSYS_PRESERVE` (9 names), `SDSYS_RETIRED` (1), and a replace list **computed** as the ship lists minus preserve — 16 names |
+> | the entries | `stage.py` `write_upgrade_iss()` writes `<stage>\upgrade.iss`; `sd.iss:359` `#include`s it. **Generated, not written**, so it cannot drift from the tree it describes |
+> | the gate | `DataTreeUpgrade` in `[Code]`, `not DataTreeWasAbsent` — the same cached answer `DataTreeAbsent` reads |
+> | proven | ISCC compiles the generated sections, **with a control that fails**; `Check:` is legal in `[InstallDelete]`. `test-upgradeiss-units.py`, 49 checks, covers the classification and four refusals |
 >
-> **NOT BUILT, DELIBERATELY:** no index page, and `mkdoc.py` is **not** wired
-> into `stage.py` or `sd.iss`. Naming a `.md` in either is what puts it under
-> `assert-current`'s `$shipsAs` valve, after which every documentation edit
-> costs a full cycle — correct once documentation ships, a toll while the
-> format is still being judged. `mkdoc.py` itself is on `$neverShipped`
-> ([assert-current.ps1:484](sdb_ai/sd64/gplbld/assert-current.ps1:484)) for the
-> same reason, and the valve reinstates it automatically when `stage.py` names
-> it.
+> ***WHAT IS UNTESTED IS THE PART THAT MATTERS: NO INSTALLER HAS BEEN BUILT
+> FROM THIS AND NO UPGRADE HAS BEEN RUN.*** A full `cycle.ps1` proves the first
+> half; the second needs **a guest that already has SD, installed over**. Check
+> after it: `$cred`, `accounts`, `cat`, `os.users`, `batch.jobs`, `prt`,
+> `$hold` and `voc` still there and unchanged; `gcat` and `gpl.bp.out` refreshed
+> to the new build; `sdsys\changelog` gone and `{app}\changelog` present.
 >
-> **THE CONVERSION FOUND A DOCUMENTATION DEFECT, which is the argument for
-> doing this against source rather than from a detached copy:** §2's sdhelp
-> entry now carries it — `create_file.htm` documents `ENCRYPT keyname` and two
-> see-also verbs that this port does not have.
->
-> ### 3. THE DATA-TREE UPGRADE PATH IS DECIDED AND NOT BUILT
->
-> §7 step 3 carries the ruling in full: preserve `$cred`, `accounts`,
-> `os.users`, `cat`, `batch.jobs`, `prt` and `sd.conf`; replace everything else.
-> `UPDATE.ACCOUNT`, run per account, handles VOC. The only open part is whether
-> the uninstaller preserves and the installer relays, or the installer replaces
-> the shipped subset in place.
+> **KNOWN AND DELIBERATE, NARROWER THAN THE RULING'S WORDING:** the `.dic` set
+> the bootstrap creates — `voc.dic`, `dict.dic`, `accounts.dic`, `$map`,
+> `$map.dic` — is **not** replaced. §7 step 3's ruling lists "the `.dic` set" as
+> replaceable, but those files are named in no list in `stage.py`, and the
+> safety property is precisely that only a declared name can be deleted.
+> Widening it is a one-line change and needs a decision; leaving it means a
+> dictionary change in a new release does not reach an upgraded install.
 >
 > ### 4. THE REMOTE-BLOCK CONTROL STILL NEEDS A BRIDGED NIC
 >
@@ -142,6 +151,55 @@ something came to be the way it is.
 > but it is a binary, its toolchain is long abandoned, and **Windows blocks CHM
 > files opened from a network path**. That produces a "help does not work"
 > support problem which never reproduces on the developer's own machine.
+>
+> ### RULED 25 Aug 2026 ON SEEING THE SAMPLE. THESE FOUR ARE THE BRIEF
+>
+> ***1. `..\sdhelp` IS A RESOURCE, NOT A SOURCE TO COPY.*** Owner: *"use the
+> documents in `..\sdhelp` as resources but do not copy them verbatim. Always
+> make sure to wrap in the changes we have made for our version."* **The sample
+> page is closer to a transcription than the brief allows** — it is a format
+> demonstration and should not be taken as the model for how much of a help
+> page to carry over. Every page is rewritten for this port, with our
+> behaviour folded in. §2's sdhelp entry is why that is not pedantry: three
+> defects in three pages, in one afternoon.
+>
+> ***2. AGGREGATE BY FUNCTION.*** Owner singled this out: *"I like the way you
+> have aggregated by function 'File commands' rather than the more typical
+> 'one command at a time' format."* So a topic page holds the verbs that belong
+> together. `..\sdhelp`'s one-file-per-verb shape is not the model.
+>
+> ***3. THE FIRST DOCUMENT SET IS FOR TESTERS, AND ITS AUDIENCE DECIDES ITS
+> CONTENT.*** They *"will already be familiar with Pick-like systems,
+> especially openQM, and will only need documentation to tell them how SD Core
+> for Windows is different."* **So it documents the DELTA, not the product.**
+> Anything true of stock OpenQM is out of scope for this set; comprehensive
+> documentation comes later. His topic list, verbatim — *"Things that are
+> unique to SD Core"*:
+>
+> | | |
+> |---|---|
+> | Installation | |
+> | Account types | Standard, Programmer, Administrator, Group |
+> | Admin Only Commands | and how to use them |
+> | Programmer / Admin Commands | and how to use them |
+> | SSH Access | |
+> | API Access | |
+> | Lower case and case conversion | |
+> | Security Improvements | |
+> | Other Hardening | |
+> | Historical features not available in SD Core | |
+>
+> **Nearly every row already has its answer written down in this file**, which
+> is the payoff for keeping it: account types §5.6, admin/programmer verbs and
+> the tiers §5.11, ssh §5.9, the API §5.13, case §5.12, the ACL and hardening
+> work §7 steps 14-15, and the removed features §"SDNet is gone" and §5.19.
+> **Write from source and from here, not from `..\sdhelp`.**
+>
+> ***4. THE THREE STYLE SUB-CHOICES IN THE SAMPLE WERE NOT CALLED OUT
+> INDIVIDUALLY*** — lower-case commands, dark mode following the machine, and
+> the sidebar table of contents. *"I like the format"* covers the page as
+> rendered, so **they stand as shipped**; none has been separately ruled on and
+> any of them is a one-line change.
 >
 > ## THE REFUSE-TO-INSTALL WORK, COMPLETE AND VERIFIED 25 Aug 2026
 >
@@ -7034,12 +7092,46 @@ the staging script and the Inno installer were all finished and removed.
      `voc_template` are not a design problem - they are a step in the upgrade
      instructions.
 
-     **STILL TO DECIDE, and it is the only open part:** whether Windows copies
-     the Linux dance (uninstall preserves the set above, reinstall lays down
-     fresh shipped content) or the installer replaces the shipped subset in
-     place. The first reuses machinery that exists - the uninstaller already
-     offers to remove the database and defaults to keeping it - and matches
-     the platform SD came from.
+     ***DECIDED AND BUILT 25 Aug 2026. THE INSTALLER REPLACES THE SHIPPED
+     SUBSET IN PLACE.*** The Linux dance - uninstall preserves, reinstall lays
+     down fresh - was rejected on two grounds: the uninstaller's existing
+     machinery keeps the WHOLE database, so "keep the user's half, drop the
+     shipped half" was new code either way; and it splits the preserve list
+     across the uninstaller and the installer, two places that must agree
+     about `$cred` or the user loses every password.
+
+     **The mechanism, and why it is generated rather than written.**
+     [stage.py](sdb_ai/sd64/gplbld/stage.py) computes the replace list as
+     `SDSYS_SHIP + SDSYS_EMPTY + terminfo` **minus** `SDSYS_PRESERVE`, writes
+     `<stage>\upgrade.iss` with an `[InstallDelete]` and a `[Files]` section
+     gated on `Check: DataTreeUpgrade`, and
+     [sd.iss:359](sdb_ai/sd64/gplbld/sd.iss:359) `#include`s it. A
+     hand-written copy of that list in `sd.iss` would be a second list that
+     must agree with the first, and the thing it would go stale about is which
+     directories an upgrade DELETES from a live database.
+
+     ***THE SAFETY PROPERTY IS THE DEFAULT, NOT THE LIST.*** Only a name
+     `stage.py` deliberately puts in the tree can ever be deleted, so `voc`,
+     `$map`, `errlog`, `stacks`, `dir_dict` and the rest of what the bootstrap
+     and the running system create are out of reach however that file is
+     edited. A preserve list applied to `os.listdir()` would have had the
+     opposite default - a directory nobody had thought of would be deleted.
+
+     **Four refusals, because half a pair destroys data:** an empty replace
+     directory (delete with nothing to copy back), a preserve name the staged
+     tree does not have, a preserve name no ship list declares (the dangerous
+     typo - the name it meant to protect falls into the replace list), and a
+     retired name a ship list still declares. A tree staged without
+     `--bootstrap` emits `#error` rather than a partial list.
+
+     **`SDSYS_PRESERVE` is three names wider than the ruling above**, flagged
+     rather than folded in: `os.users.dic` and `batch.jobs.dic` because a
+     dictionary belongs with its file, and `$hold` because the spooler hold
+     file is the user's own saved output.
+
+     **`sdsys\changelog` moved to `{app}` in the same ruling** and is on the
+     new `SDSYS_RETIRED` list, so an upgrade deletes the frozen copy rather
+     than asking the user to. See START HERE item 3 for what is still untested.
 4. **CLOSED — BUILT AND VERIFIED 16 Aug 2026, thirteenth session**, on the
    12:18:42 install. The audit trail: `audit_message()` in `k_error.c`, reached
    from BASIC as `kernel(K$AUDIT, text)` (key 57, `keys.h` and `INT$KEYS.H`).
