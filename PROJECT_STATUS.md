@@ -5793,12 +5793,14 @@ the staging script and the Inno installer were all finished and removed.
      are both hidden. Structurally the same hole as the `AllowGroups` task
      above. **It needs the VM from step 2** (`Windows 11 Clone`, snapshot
      `Before SD install`).
-   - **`GPL.BP/OPGEN` is not ported** to `gen_includes.py`. It generates
-     `GPL.BP/OPCODES.H` from `gplsrc/opcodes.h` and reads `./gplsrc` the way
-     the others did, but nothing ever `$execute`d it, so it breaks no compile —
-     it simply cannot be run on an installed system. Port it before opcodes
-     ever need regenerating, and verify byte for byte against the tracked
-     `OPCODES.H`; its hex formatting is not obvious from the source.
+   - ***CLOSED 24 Aug 2026, FIFTY-FIRST SESSION — this bullet was stale and is
+     rewritten rather than deleted.*** It read *"`GPL.BP/OPGEN` is not ported
+     to `gen_includes.py` … port it before opcodes ever need regenerating"*.
+     **`GPL.BP/OPGEN` is gone** — removed with a changelog entry — and
+     `gplbld/gen_includes.py` generates `GPL.BP/OPCODES.H` alongside
+     `SYSCOM/ERR.H`, `GPL.BP/ERRTEXT.H` and `GPL.BP/REVSTAMP.H`. Regenerating
+     also dropped `OP.SDPYOBJ`, left behind when embedded Python went on
+     13 Aug. Nothing to port.
    - **`sdsys/BP` ships and holds test programs** (`sdTests`, `BIGSTR_TEST`).
      Harmless, and the Linux install did the same, but decide whether an end
      user should get them.
@@ -6917,14 +6919,29 @@ the staging script and the Inno installer were all finished and removed.
     write and watched them succeed. `verify-createaccount` and `verify-tiers`
     cover the first.
 
-    ***AND ONE INTERACTION WITH STEP 14, NOTED BEFORE IT BITES.*** These grants
-    keep working for the API only because an API session is forked by `sdwind`
-    and runs **as LocalSystem**, which `*S-1-5-18` covers. That is exactly the
-    finding step 14 calls a defect and may fix. **If an API session is ever
-    confined to the calling user, an API-driven `CREATE.ACCOUNT` starts failing
-    on this ACL** — the two steps have to be weighed together, and the fix
-    would be to grant the API's identity rather than to unlock `accounts`.
-    Reasoned, not measured.
+    ***AN INTERACTION WITH STEP 14, AND IT IS PRESENT-TENSE, NOT FUTURE.***
+    **Step 14 CLOSED on 24 Aug 2026 and an API session now runs as the calling
+    user**, not as LocalSystem — `AssumeUserIdentity()` impersonates and
+    `adopt_in_runtime()` carries it into the MSYS2 runtime. So `*S-1-5-18` no
+    longer covers an API session's writes, and the S4U token is unelevated.
+    **Anything administrative reached over the API now meets these ACLs as an
+    ordinary user.**
+
+    **WHAT IS ESTABLISHED, AND WHAT IS NOT:**
+
+    - `verify-tierapi` runs `CREATE.ACCOUNT` from an **elevated local**
+      `sd.exe` (it refuses an unelevated shell, `verify-tierapi.ps1:122`), so
+      that path holds an Administrators token and is unaffected.
+    - `CREATE.ACCOUNT` is gated on `kernel(K$ADMINISTRATOR,-1)` at
+      [CREATEA:186](sdb_ai/sd64/sdsys/GPL.BP/CREATEA:186), and `USR_ADMIN` is
+      settable only by `LOGIN`/`CPROC` ([op_kernel.c:393](sdb_ai/sd64/gplsrc/op_kernel.c:393)).
+    - ***WHETHER AN API SESSION EVER CARRIES `USR_ADMIN` IS NOT ESTABLISHED
+      HERE.*** If it never does, SD refuses the verb before the ACL is reached
+      and this is a non-issue. If it can, an API-driven `CREATE.ACCOUNT` will
+      now fail on the `accounts` ACL — and the fix is to grant the API's
+      identity, **not** to unlock `accounts`.
+    - **The cycle plus `verify-apiadmin` and `verify-tierapi` are what settle
+      it.** Read those two before concluding anything.
 
     ***WHAT REMAINS OF THIS STEP AFTER THAT.*** Nothing on the
     `sdusers:(M)` list except `$ipc`, which stays writable by decision and is
