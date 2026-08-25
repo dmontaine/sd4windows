@@ -192,6 +192,31 @@ something came to be the way it is.
 > | does the ssh preflight still refuse? | A stand-alone install neither installs nor configures an ssh server, so the reason for the refusal does not apply — but relaxing a check verified on three guests the same week is the owner's call, not a builder's |
 > | how the choice is offered | A page after Welcome, or a box on the tasks page. It has to be early enough to change the disclosure page, which describes ssh |
 >
+> ***SWITCHING BETWEEN THE TWO ACCOUNTS IS NOT A PROBLEM — asked and answered
+> 25 Aug 2026.*** A stand-alone system still has two accounts, the user's own
+> and `SDSYS`. Owner: *"the user can login as themselves and then do a logto
+> sdsys, and that still works over ssh. or they can run an elevated session and
+> log directly into sdsys."* Both routes hold on a stand-alone box, and neither
+> needs ssh or the API:
+>
+> - **`LOGTO SDSYS` ASKS FOR NO PASSWORD.** `LOGTO.STEP.UP` was deleted 14 Aug
+>   2026; `CPROC:2568` calls `elevate('START','')` and the gate is elevation.
+>   So the switch does not depend on the install-ending password step at all.
+> - **An already-elevated session switches with no prompt**:
+>   [sd-elevate.ps1:105](sdb_ai/sd64/gplbld/sd-elevate.ps1:105) is
+>   `if ($elevated) { exit 0 }`, before anything touches UAC.
+>
+> ***AND THAT RESOLVES A COMMENT THAT READS AS A GUARANTEE AND IS ACTUALLY
+> POLICY-DEPENDENT.*** `CPROC:2566` and `sd-elevate.ps1:23` both say `!elevate`
+> *"cannot work over ssh"* because UAC has no interactive desktop there. **That
+> is true only when a PROMPT is needed.** An ssh session whose token is already
+> elevated never reaches the prompt and succeeds at `:105` — which is the
+> owner's observation. Whether an ssh token is elevated depends on
+> `LocalAccountTokenFilterPolicy` and the account kind, **which §5.6.2 records
+> as never measured** (*"it must be measured before anyone relies on remote
+> administration"*). ***Do not restate either comment as absolute until somebody
+> measures it.*** It changes nothing for stand-alone, where there is no ssh.
+>
 > ***FOUR FACTS ESTABLISHED WHILE SCOPING IT, so nobody re-derives them:***
 >
 > - ***`APIPORT` UNSET MEANS SD OPENS NO PORT AT ALL*** —
@@ -3832,11 +3857,22 @@ administrator an SD one.
 Access to other accounts is **granted, not shared**, so there is no second
 password to know and none to rotate; `@logname` does not change on `LOGTO`, so
 everything downstream attributes to whoever authenticated; and every login and
-`LOGTO` is logged. `LOGTO SDSYS` re-prompts — the one exception to "granted,
-not prompted" — and **asks for the caller's own password, not an SDSYS one**,
-which is easy to get backwards and is the whole point: an SDSYS password would
-be a second shared secret held by every administrator, which is the OpenQM
-weakness this exists to remove.
+`LOGTO` is logged.
+
+***CORRECTED 25 Aug 2026 — THIS PARAGRAPH WAS STALE BY ELEVEN DAYS.*** It read:
+*"`LOGTO SDSYS` re-prompts — the one exception to 'granted, not prompted' — and
+asks for the caller's own password, not an SDSYS one, which is easy to get
+backwards and is the whole point: an SDSYS password would be a second shared
+secret held by every administrator, which is the OpenQM weakness this exists to
+remove."* **`LOGTO SDSYS` asks for no password at all.**
+`LOGTO.STEP.UP` was deleted on 14 Aug 2026 — `CPROC:3798` says so in as many
+words, *"there is no password to re-ask for now: the gate is elevation and it
+is applied at login"* — and §5.6's five rules already recorded the reversal.
+**What `CPROC:2568` actually does is call `elevate('START','')`**: 0 when the
+session is already elevated, a UAC consent prompt otherwise, and `sysmsg(10002)`
+with an audited `LOGTO REFUSED` when that fails. The reasoning about a shared
+SDSYS secret still holds and is why there is no SDSYS password to ask for; it
+was the *mechanism* that changed.
 
 **What the audit half has to do, when it is built** (§7 step 4). Attribution is
 SD-internal and does not depend on §5.7's service model, so it lands with the
