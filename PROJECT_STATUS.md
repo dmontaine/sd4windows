@@ -5,9 +5,9 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, **end of the fifty-sixth session**, handed off on low credits at a clean boundary: **9 commits, working tree clean, nothing half-done.**
+**Last updated:** 25 Aug 2026, **fifty-seventh session**, which built item 5's wizard page and nothing behind it. Working tree clean.
 
-***EVERYTHING THIS SESSION BUILT IS SOURCE-ONLY AND NO INSTALLER HAS BEEN BUILT FROM ANY OF IT.*** That is the single most important sentence here. The tree was already STALE when the session started - last green suite was b37/b38 on 24 Aug - and five source changes have landed since, so **item 1's full cycle is now the first test of all of them, not just a confidence run.** Use `b39` or later.
+***EVERYTHING THIS SESSION BUILT IS SOURCE-ONLY AND NO INSTALLER HAS BEEN BUILT FROM ANY OF IT.*** That is the single most important sentence here. The tree was already STALE when the session started - last green suite was b37/b38 on 24 Aug - and six source changes have landed since, so **item 1's full cycle is now the first test of all of them, not just a confidence run.** Use `b39` or later.
 
 **Built and committed, none of it run on a machine:** the data-tree upgrade path (owner ruled *"installer replaces the shipped subset in place"*); `sdsys\changelog` moved to `{app}`; `assert-current` section **B3** can see a deletion in the data tree and **B4** a leftover in `{app}`; and `upgrade-dicts.ps1` reapplies the shipped dictionary items on an upgrade. Each was measured as far as it can be without an install - unit tests, ISCC compiles of the generated sections and of `[Code]`, each with a control that fails.
 
@@ -20,7 +20,9 @@ something came to be the way it is.
 > ## NEXT SESSION: FIVE THINGS, IN THIS ORDER. NOTHING IS BROKEN.
 >
 > The refuse-to-install work is **complete and verified on three guests** (see
-> below). Item 1 is now the first real test of five source changes as well.
+> below). Item 1 is now the first real test of six source changes as well —
+> the sixth is the stand-alone mode page, whose option is deliberately refused
+> at the page until the behaviour behind it exists (item 5).
 >
 > ### 1. RUN A FULL CYCLE AND THE VERIFY SUITE. IT IS NO LONGER JUST A CONFIDENCE RUN.
 >
@@ -165,7 +167,7 @@ something came to be the way it is.
 > That the ssh scoping blocks a REMOTE machine is the one §5.9 claim never
 > measured. NAT cannot show it.
 >
-> ### 5. THE STAND-ALONE INSTALL OPTION — ASKED FOR 25 Aug 2026, NOTHING BUILT
+> ### 5. THE STAND-ALONE INSTALL OPTION — THE WIZARD PAGE IS BUILT, THE BEHAVIOUR IS NOT
 >
 > Owner's request, in his words: *"another option for users, a stand-alone
 > system option. No ssh, no api, just the ability to quickly install — intent,
@@ -208,12 +210,53 @@ something came to be the way it is.
 > leaves a marker in `sdsys` and `CREATEA` reads it; the one-shot
 > `$adopt.<user>` marker is the pattern to copy.
 >
-> ***STILL TO DECIDE — TWO THINGS, AND THE FIRST IS A SECURITY DECISION:***
+> ***HOW THE CHOICE IS OFFERED — ANSWERED 25 Aug 2026 AND BUILT.*** Owner:
+> *"New page after welcome, with text explaining what each option offers
+> (complete description, not a one liner)."*
+>
+> | | |
+> |---|---|
+> | the page | `ModePage`, `CreateCustomPage(wpWelcome, ...)`, two `TNewRadioButton`s over one read-only `TNewMemo` holding **both** complete descriptions — neither is revealed by clicking, since a reader who never clicks the other radio never reads what they turned down |
+> | why a memo | a label sized for shorter text silently drops the overflow — measured on this file's own `FinishedLabel`. A memo with a scrollbar cannot clip at any DPI |
+> | the disclosure page | re-anchored on `ModePage.ID` and rewritten from the live radio in `CurPageChanged`, so **Back → change mind → Forward** cannot leave the ssh paragraphs on screen for a stand-alone install |
+> | one text, not two | `DisclosureText(Standalone)` — common paragraphs written once, three mode-conditional points. The full branch is the existing wording **verbatim** |
+> | the tasks MsgBox | now also gated on `not StandaloneChosen`; every sentence of it is false on a stand-alone install |
+>
+> ***THE OPTION IS INERT AND IS REFUSED OUT LOUD. `NextButtonClick` REFUSES TO
+> LEAVE THE MODE PAGE WITH STAND-ALONE SELECTED, AND THAT FUNCTION IS A
+> SCAFFOLD TO DELETE*** ([sd.iss](sdb_ai/sd64/gplbld/sd.iss), search
+> `A SCAFFOLD, AND IT IS MEANT TO BE DELETED`). Nothing acts on the answer yet —
+> `[Run]`, `sd.conf`, `sshremote` and `CREATEA` are all still unconditional — so
+> accepting it would install ssh, open 4243 and kill scp **having just promised
+> otherwise**. That is this file's recurring fault built on purpose; the refusal
+> makes the page safe to put through a cycle and judge on screen.
+>
+> ***PROVEN AS FAR AS IT CAN BE WITHOUT AN INSTALL:*** ISPP lint clean; the
+> `[Code]` section extracted to a harness and compiled by the real ISCC, **exit
+> 0 with 38 routines**, against **two controls that both fail on the injected
+> line** — a bad property inside `StandaloneChosen`, and `#13#10` wrapped to the
+> start of a line in the new text (the fault that cost a cycle on 19 Aug).
+> `RichEditViewer.Lines.Text` was confirmed writable **by compiling it**, with
+> its own failing control, not by reading the help.
+>
+> ***UNSEEN: nobody has looked at this page.*** Layout, wrapping and how much of
+> the memo is visible before scrolling are all unmeasured. So is whether
+> `Lines.Text` on a non-rich `RichEditViewer` renders as expected. Look at both
+> pages at the next cycle.
+>
+> ***STILL TO DECIDE — ONE THING, AND IT IS A SECURITY DECISION:***
 >
 > | | |
 > |---|---|
 > | does the ssh preflight still refuse? | A stand-alone install neither installs nor configures an ssh server, so the reason for the refusal does not apply — but relaxing a check verified on three guests the same week is the owner's call, not a builder's |
-> | how the choice is offered | A page after Welcome, or a box on the tasks page. It has to be early enough to change the disclosure page, which describes ssh |
+>
+> ***AND IT IS NOT A ONE-LINE CHANGE EITHER WAY, WHICH THE QUESTION DID NOT
+> KNOW.*** The preflight runs in `InitializeSetup`
+> ([sd.iss:829](sdb_ai/sd64/gplbld/sd.iss:829)) — **before the wizard is drawn,
+> so before the mode can have been chosen.** "Skip it when stand-alone" cannot
+> be a `Check:`; it means moving the call to `NextButtonClick` on the mode page,
+> which also moves where a refusal costs the user something. Keeping the refusal
+> is the only answer that changes no structure.
 >
 > ***SWITCHING BETWEEN THE TWO ACCOUNTS IS NOT A PROBLEM — asked and answered
 > 25 Aug 2026.*** A stand-alone system still has two accounts, the user's own

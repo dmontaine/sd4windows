@@ -27,6 +27,85 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-seventh session: the stand-alone mode page, and nothing behind it
+
+**Commit:** this one. `gplbld/sd.iss` only.
+
+**The owner answered one of item 5's two open questions:** *"New page after
+welcome, with text explaining what each option offers (complete description,
+not a one liner)."* Built. The other - whether the ssh preflight still refuses
+on a stand-alone install - is still open.
+
+**AND THE QUESTION AS ASKED HAD A WRONG ASSUMPTION IN IT, found while building.**
+The preflight runs in `InitializeSetup` (`sd.iss:829`), which is **before the
+wizard is drawn**, so the mode cannot be known there. "Skip it when stand-alone
+is chosen" is therefore not a `Check:` - it means relocating the call to
+`NextButtonClick`, which also moves the point at which a refusal has already
+cost the user something. Keeping the refusal is the only answer that changes no
+structure. Recorded so the decision is taken knowing its price.
+
+### What is built
+
+`ModePage` via `CreateCustomPage(wpWelcome, ...)`: two `TNewRadioButton`s over
+one read-only `TNewMemo` carrying **both** complete descriptions at once.
+Neither is revealed by clicking, deliberately - a reader who never clicks the
+other radio would never read what they were turning down, and the choice cannot
+be changed from inside SD afterwards.
+
+**A memo rather than a label under each option**, and the reason is measured in
+this repository rather than assumed: `FinishedLabel` was given more text than it
+had been sized for and Windows drew none of the overflow. A memo with a
+scrollbar cannot clip at any DPI or wizard style.
+
+`SummaryPage` re-anchored on `ModePage.ID`, and its text rewritten in
+`CurPageChanged` from the live radio button rather than once at creation - Back
+is a supported way through an Inno wizard, so a reader who reads the full
+disclosure, goes back and picks stand-alone must not be shown ssh paragraphs
+again. `DisclosureText(Standalone)` writes the common paragraphs once with three
+mode-conditional points; **the full branch is the existing wording verbatim**,
+not re-drafted. The `wpSelectTasks` MsgBox is now also gated on
+`not StandaloneChosen`, every sentence of it being false on a stand-alone
+install.
+
+### The option is refused at the page, and that function is a scaffold
+
+**Nothing acts on the answer yet** - `[Run]`, the `sd.conf` carrying `APIPORT`,
+the `sshremote` task and `CREATEA` are all still unconditional. An install that
+accepted stand-alone today would install ssh, open 4243 and stop scp working
+for everyone, **having just shown the reader a page promising it would do none
+of those things**. That is this file's oldest recurring fault - four rewordings
+of the tasks MsgBox, the disclosure page's two false statements in one day -
+built on purpose.
+
+So `NextButtonClick` refuses to leave the mode page with stand-alone selected
+and says why. It is marked in the source as a scaffold to delete when the
+behaviour lands. It also makes the page safe to put through a cycle, which is
+what the owner asked to be able to look at.
+
+**No changelog entry, deliberately.** The changelog ships to users; announcing
+an option that is refused would be an untrue entry in the one file whose job is
+telling people what changed.
+
+### What it was checked with, and the controls
+
+ISPP `#`-at-line-start lint clean. The `[Code]` section extracted to a harness
+and compiled by the real ISCC - exit 0, **38 routines, matching the count in
+`sd.iss`** - against **two controls, each failing on exactly the line injected**:
+a bad property inside `StandaloneChosen`, and `#13#10` wrapped onto the start of
+a line in the new text, which is the fault that cost a cycle on 19 Aug 2026.
+
+`TOutputMsgMemoWizardPage.RichEditViewer.Lines.Text` was confirmed **writable by
+compiling it**, in a separate throwaway probe with its own failing control,
+rather than by reading the Inno help. Without that the design would not have
+worked and it would have been found on a guest.
+
+**UNSEEN, and it is the part that matters next: nobody has looked at either
+page.** Layout, wrapping, how much of the memo shows before scrolling, and
+whether `Lines.Text` on a non-rich `RichEditViewer` renders as intended are all
+unmeasured. Look at both at the next cycle.
+
+---
+
 ## 25 Aug 2026 — Fifty-sixth session, part 9: handed off at a clean boundary
 
 **Commit:** this one. **9 commits, working tree clean, nothing half-done.**
