@@ -27,6 +27,101 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-second session, part 2: the ACL lock is verified, and step 9's ruling broke the installer
+
+**Commit:** the commit carrying this entry.
+
+### STEP 15 IS CLOSED. Install **18:03:37**, `assert-current` exit 0.
+
+`verify-sysdiracl` **16 of 16 decisive, exit 0**, run unelevated as
+`GITORLI\don` — which is the only token the question means anything from.
+
+| measured | result |
+|---|---|
+| six directories | `sdusers:(OI)(CI)(RX)`, **no `(I)`** — inheritance stripped |
+| `sd.conf` | `sdusers:(RX)`, no container flags — **the file branch works on a real install** |
+| **`$ipc`, the negative control** | `(I)(OI)(CI)(M)` — untouched and **still writable** |
+| write, all seven | **refused** — proved by writing, not by reading the ACE |
+| read, all seven | **allowed** — nothing locked too hard |
+
+***THE ROW THAT WAS ONLY REASONED IS NOW MEASURED.*** `SecureSysdirs` runs
+before `AdoptAccount` in `ssPostInstall`, and `sdsys\accounts\don` was written
+at **18:04**, after the 18:03:37 install, **into a directory already at
+`(RX)`**. So `CREATE.ACCOUNT` works with `sdusers` denied. `$cred` answers
+`Permission denied` to an ordinary token, which is `secure-cred.ps1` working
+and a positive control on the reading.
+
+**`CATALOG` and `CONFIG` remain reasoned**: the install catalogues into the
+STAGING tree and nothing on the install path runs `CONFIG`, so neither `cat`
+nor `sd.conf` was written under its new ACL. A hand-run from an elevated
+session is what is left, and it is small.
+
+**The `-SkipInstall` gate before it was worth the two minutes**: 190 programs,
+**0 non-zero error counts**, `LOGIN` itself `0 error(s)` then `$LOGIN added to
+global catalogue`. `$BCOMP` reads 88070 against the 88079 last recorded — that
+is session 51's `OPCODES.H` regeneration dropping `OP.SDPYOBJ`, already
+recorded as absent from compiled `BCOMP`; `gcat` 125 and `gpl.bp.out` 185 are
+MODIFY's removal. `$CPROC` unchanged at 25418.
+
+### AND STEP 9'S RULING BROKE THE INSTALLER'S PASSWORD STEP
+
+***FOUND BY THE OWNER ON THE INSTALL ITSELF: the wizard never asked.*** This is
+a regression introduced the same session and it is OPEN.
+
+**THE CHAIN.** `finish-install.ps1:131` runs `sd -QUIET off`. **`off` is passed
+as a single command deliberately**, so the session closes itself once the
+password is set — owner, 22 Aug 2026, *"the paragraph that runs the password
+entry should be able to log out without the user having to do it."* It works
+because SD runs LOGIN **first**: `require.credential` prompts, and only then
+does `off` execute. Step 9's ruling was implemented as `and batch.command = ''`
+at `LOGIN:669`, which suppresses exactly that prompt.
+
+***THE FILE PREDICTED THIS EXACT FAILURE AND IT WAS READ AFTERWARDS.*** The
+comment above that call says passing `off` *"adds a way to fail SILENTLY that
+did not exist before: if the prompt never appears… `off` runs immediately, SD
+exits, and the user is never asked."* **The reusable rule: read the CALL SITES
+of the thing being gated before gating it.** Three checks were run before
+building — what `SYSTEM(1026)` is, whether ssh carries one, block balance —
+and all three asked *"is the mechanism right?"*. **None asked "who else relies
+on the behaviour being removed?"**, and one `grep` for the callers would have
+found it.
+
+**WORKAROUND, NO CYCLE**: plain `sd` elevated with no command still prompts —
+`batch.command` is empty, so the 21 Aug rule applies unchanged. The owner ran
+it and the account has a password.
+
+***THE DECISION IS THE OWNER'S AND SD CANNOT MAKE IT FROM THE INSIDE.*** The
+installer's session and the hang case are indistinguishable: both elevated,
+both a real console (`K$TTY` non-empty), both carrying a command. **The only
+difference is whether a person is sitting there**, which is not observable.
+Three options, recorded in §START HERE: revert `LOGIN:669`; keep it and change
+the installer so `off`-as-self-close stops being load-bearing; or keep both and
+rely on `finish-install.ps1`'s existing check. **Nothing has been changed.**
+
+**THE SUITE IS UNAFFECTED**: every verifier drives `sd` down a pipe, so `K$TTY`
+is empty and the prompt was already skipped before this change;
+`verify-batchjob.ps1:112` pipes `$null`; `adopt-account.ps1` uses `-internal`,
+which is exempt.
+
+### FOUR STATUS CLAIMS CHECKED THIS SESSION, THREE WERE STALE
+
+On the owner's *"we keep finding things that were already done"*. Step 16 was
+**closed** while its heading said *"Not started"*; step 9 was one decision, not
+a missing verifier, and the hang it named had been traced and corrected twice;
+step 3's `limitssh` half stopped needing a VM on 21 Aug when the task lost its
+`Check`, and **three sections** went on saying otherwise. Each was corrected at
+the source rather than only in the summary.
+
+***AND CHECKING STEP 3 TURNED UP A NEW DECISION.*** `ApplySshFirewall` exits on
+`not SshWasAbsent`; **`ApplyAllowGroups` has no such gate** — only the task,
+which is ticked by default. `sshd_config` is protected by refusal 2 inside
+`allow-ssh-groups.ps1`, which is real and tested — but **that script's header
+says the rule is carried by the task being "unticked by default", and it is
+ticked by default.** On a machine with a STOCK foreign `sshd_config` a
+default-ticked box edits it. Owner's call; §5.9 has the table.
+
+---
+
 ## 24 Aug 2026 — Fifty-second session: the ACL lock the owner ruled is built, not yet cycled
 
 **Commit:** the commit carrying this entry. §7 step 15.

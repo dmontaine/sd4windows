@@ -5,13 +5,74 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, fifty-second session (ACL lock built and pre-flighted; tree stale, one cycle owed).
+**Last updated:** 24 Aug 2026, fifty-second session (ACL lock CLOSED and verified; one open regression in the installer password step).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: RUN ONE CYCLE. THE ACL LOCK IS BUILT AND NOTHING ELSE IS OUTSTANDING.
+> ## NEXT: DECIDE ONE THING. A FRESH INSTALL NO LONGER COLLECTS A PASSWORD.
+>
+> ***OPEN REGRESSION, INTRODUCED AND MEASURED 24 Aug 2026. THE PRODUCT IS IN
+> THIS STATE NOW.*** Step 9's ruling - *"sd &lt;command&gt; is batch, so not
+> interactive"* - was implemented as `and batch.command = ''` at
+> [LOGIN:669](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:669). **It breaks the installer's
+> password step**, which the owner found on the 18:03:37 install: the wizard
+> never asked.
+>
+> **THE CHAIN**: [finish-install.ps1:131](sdb_ai/sd64/gplbld/finish-install.ps1:131)
+> runs `sd -QUIET off`. **`off` is passed as a single command ON PURPOSE** so
+> the session closes itself once the password is set (owner, 22 Aug 2026:
+> *"the paragraph that runs the password entry should be able to log out
+> without the user having to do it"*). It works because LOGIN runs FIRST, so
+> `require.credential` prompts and only then does `off` execute. The new
+> conjunct suppresses that prompt.
+>
+> ***THAT FILE PREDICTED THIS EXACT FAILURE*** - the comment above the call
+> says passing `off` *"adds a way to fail SILENTLY... if the prompt never
+> appears, `off` runs immediately, SD exits, and the user is never asked"*.
+> **The call sites of a thing being gated must be read BEFORE gating it.**
+>
+> **WORKAROUND, NO CYCLE**: plain `sd` elevated, with no command, still prompts
+> - `batch.command` is empty, so the 21 Aug rule applies unchanged. The owner
+> did this and the account has a password.
+>
+> ***THE DECISION, AND SD CANNOT MAKE IT FROM THE INSIDE.*** The installer's
+> session and the hang case are indistinguishable - both elevated, both a real
+> console (`K$TTY`), both carrying a command. **The only difference is whether
+> a person is sitting there.** So one of three:
+>
+> | | |
+> |---|---|
+> | 1 | **Revert `LOGIN:669`.** Installer works; the ruling is owed again. Costs a cycle |
+> | 2 | **Keep it, change the installer** so `off`-as-self-close stops being load-bearing. Honours the ruling; a product change |
+> | 3 | **Keep both**, and rely on `finish-install.ps1`'s existing check to tell the user their account has no password |
+>
+> **Nothing has been changed on the strength of a recommendation.** 2 is the
+> suggestion - it honours the ruling and removes a trick that file's own
+> comment calls a silent-failure risk.
+>
+> **THE SUITE IS UNAFFECTED AND CAN RUN**: every verifier drives `sd` down a
+> pipe (`K$TTY` empty, so the prompt was already skipped before this change),
+> `verify-batchjob.ps1:112` pipes `$null`, and `adopt-account.ps1` uses
+> `-internal`, which is exempt.
+>
+> ## STEP 15 IS DONE. THE ACL LOCK IS CYCLED AND VERIFIED.
+>
+> Install **18:03:37**, `assert-current` **exit 0**, `verify-sysdiracl`
+> **16 of 16 decisive, exit 0** unelevated - including the `$ipc` negative
+> control, still writable. `CREATE.ACCOUNT` wrote `accounts\don` at 18:04 into
+> a directory already locked. **`CATALOG` and `CONFIG` are still only reasoned**
+> and need a hand-run. §7 step 15 has the table.
+>
+> **Then the suite, from an ordinary terminal, by a person** (§4.0.1). Prefixes
+> to `b35` are spent:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b36
+> ```
+>
+> ## SUPERSEDED: THE CYCLE THIS SECTION ASKED FOR HAS RUN
 >
 > ***THE TREE IS DELIBERATELY STALE AND THAT IS THE ONLY THING IN THE WAY.***
 > `assert-current` REFUSES, naming three files: `secure-sysdirs.ps1`, `sd.iss`
@@ -87,8 +148,8 @@ something came to be the way it is.
 >
 > | § | task | state |
 > |---|---|---|
-> | 15 | **this ACL lock** | built, **one cycle owed** |
-> | 9 | ***`sd <command>` no longer prompts*** - owner's ruling, built the same day. **A BASIC change, so it has NOT compiled**; `cycle.ps1 -SkipInstall` is the cheap gate. **Batch it into the SAME cycle as step 15** rather than spending two | built, needs the cycle |
+> | 15 | **the ACL lock** | ***CLOSED*** - cycled and verified 18:03:37, 16/16. `CATALOG`/`CONFIG` hand-run still owed |
+> | 9 | ***`sd <command>` no longer prompts*** - built and COMPILED (190 programs, 0 errors) and cycled. ***BUT IT BROKE THE INSTALLER'S PASSWORD STEP*** - see the top of this section | **open regression, decision owed** |
 > | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. `sdsys\bp` still ships **21 test programs** to end users. No data-tree upgrade path | 3 open bullets; **one is now cheap** |
 > | — | ***NEW, FOUND 24 Aug WHILE CHECKING STEP 3, AND IT IS THE OWNER'S CALL***: `ApplyAllowGroups` is gated **only** on the task, not on `SshWasAbsent` as the firewall step is - so on a machine with a **stock** foreign `sshd_config` a default-ticked box edits it. `allow-ssh-groups.ps1`'s header says the rule is carried by the task being "unticked by default"; **it is ticked by default.** §5.9 has the table | decision not started |
 > | 9 | ***RULED AND BUILT 24 Aug 2026*** - owner: *"only batch, so not interactive"*. `sd <command>` no longer prompts; `LOGIN:640`. **A VERIFIER IS OWED** and `verify-batchjob` will not catch a regression (it pipes `$null`, so the old gate already skipped). Plus `@logname`, never checked on a cycle | **built, not compiled, not run** |
@@ -7030,9 +7091,33 @@ the staging script and the Inno installer were all finished and removed.
       what a `secure-*.ps1` plus a verifier would settle, and it is the work the
       ruling authorises rather than something already done.
 
-    ***THE RULING WAS "LOCK THE SEVEN", AND IT IS BUILT — 24 Aug 2026,
-    FIFTY-SECOND SESSION. WRITTEN AND PRE-FLIGHTED, NOT YET CYCLED.*** Four
-    pieces, all in one commit:
+    ***STEP 15 IS CLOSED — CYCLED AND VERIFIED, 24 Aug 2026, INSTALL 18:03:37,
+    `assert-current` EXIT 0.*** `verify-sysdiracl` **16 of 16 decisive, exit
+    0**, unelevated as `GITORLI\don`.
+
+    | measured | result |
+    |---|---|
+    | six directories | `sdusers:(OI)(CI)(RX)` — **no `(I)`**, so inheritance stripped |
+    | `sd.conf` | `sdusers:(RX)` — **no container flags; the file branch works** |
+    | ***`$ipc`, the negative control*** | `sdusers:(I)(OI)(CI)(M)` — **untouched, and still WRITABLE by an ordinary token** |
+    | all seven, write probed | **refused**, proved by writing rather than by reading the ACE |
+    | all seven, read probed | **allowed** — nothing was locked too hard |
+
+    ***AND THE ROW THAT WAS ONLY REASONED IS NOW MEASURED: `CREATE.ACCOUNT`
+    WORKS WITH `accounts` LOCKED.*** `SecureSysdirs` runs **before**
+    `AdoptAccount` in `ssPostInstall`, and `sdsys\accounts\don` was written at
+    **18:04**, after the 18:03:37 install, into a directory already at `(RX)`.
+    `user_accounts\don` exists. **`$cred` answers `Permission denied` to an
+    ordinary token**, which is `secure-cred.ps1` working and a positive control
+    on the reading.
+
+    ***`CATALOG` AND `CONFIG` ARE STILL ONLY REASONED.*** The install
+    catalogues into the STAGING tree, and nothing on the install path runs
+    `CONFIG`, so neither `cat` nor `sd.conf` was written under its new ACL.
+    **Both need a hand-run from an elevated session** — that is what is left of
+    this step's evidence, and it is small.
+
+    The four pieces, all in one commit:
 
     | piece | file |
     |---|---|
