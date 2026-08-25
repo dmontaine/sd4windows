@@ -27,6 +27,45 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-third session, part 4: BP trim cycled, suite green on b38, one comment-fix follow-up
+
+The BP trim went to disk. One `cycle.ps1`, one
+`VerifyInstall1 -ThenElevated -Run b38`. Install at 20:06:38, all 19
+elevated steps exit 0, **386 `[PASS]` rows and 0 `[FAIL]`** across the
+UTF-16LE per-step logs (decoder proven reaching text again — session
+51/52's rule).
+
+**End-to-end proof of the trim**:
+
+- Installed `sdsys/bp/` shows exactly the five kept files: `PCL`,
+  `PCL.GRID`, `U0032`, `U50BB`, `VFS.CLS`. The 16 test files are gone.
+- `verify-scramlogin` step 9b prints all five decisive `[PASS]` rows
+  including `TESTSDCLI PASSED`, so the drop-into-place shape works.
+- The finally-block cleanup ran (`TESTSDCLI removed from sdsys/bp
+  (source lives in gplbld/testsdcli.bp)`), and `ls sdsys/bp/` after
+  the whole suite completed still showed exactly the five files.
+  `bp.OUT` is clean of `TESTSDCLI` too.
+
+**One self-caused nag caught and fixed**: `verify-scramlogin`'s log
+carried a warning *"note: testsdcli.bp now appears in stage.py or
+sd.iss, so it is watched again"*. My own comment in `stage.py` from
+the previous commit wrote `gplbld/testsdcli.bp` with a path separator
+before the name — exactly the trap `assert-current.ps1:497` names in
+as many words: *"Name a non-shipping script bare in those two files,
+or not at all."* Rewritten to `testsdcli.bp under gplbld` with a
+pointer to the rule. `grep` confirms no path-anchored `testsdcli` hits
+in `stage.py` or `sd.iss` now, and an unelevated run of
+`assert-current` prints no reinstatement note.
+
+**The fix triggers `assert-current`'s cry-wolf-on-comment behaviour**
+— the same open item on the section-7 list. `stage.py` is now newer
+than the b38 install, so every verifier that calls `assert-current`
+will refuse until the next cycle bakes it in. Deliberately not cycled
+again: the change is comment-only, the suite passed at b38, and the
+cost of an extra cycle purely to clear a comment update is not worth
+it. It clears naturally the next time someone cycles for another
+reason.
+
 ## 24 Aug 2026 — Fifty-third session, part 3: SDSYS BP trimmed to its five utility programs
 
 `sdsys/bp/` shipped 21 files, of which 16 were developer test programs

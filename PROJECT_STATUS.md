@@ -5,44 +5,53 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 fully closed; suite green at 31/31 on b37; step-3 bullet closed by dropping 15 test programs from `sdsys/bp/` and moving TESTSDCLI to `gplbld/testsdcli.bp` (verify-scramlogin drop-into-place). ***NEEDS ONE CYCLE*** to purge the 16 files from the installed tree.
+**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 fully closed; suite green at **31/31 on b37 AND b38**, 386 PASS 0 FAIL each; SDSYS BP trimmed to five utility programs, cycled and installed; verify-scramlogin drop-into-place proven; one tiny cry-wolf-on-comment left in `stage.py` that clears on the next cycle whenever that happens (no urgency).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: ONE CYCLE + ONE SUITE RUN TO PROVE THE BP TRIM
+> ## NEXT: NOTHING IS OWED. NOTHING IS BLOCKING. CLEAN HANDOFF.
 >
 > ***END OF THE FIFTY-THIRD SESSION, 24 Aug 2026*** — step 15 fully closed;
-> the suite ran green at **31 of 31 on `b37`**; and the step-3 bullet
-> *"`sdsys\bp` still ships 21 test programs"* is closed at source: 15 test
-> files deleted, `TESTSDCLI` moved to
-> [gplbld/testsdcli.bp](sdb_ai/sd64/gplbld/testsdcli.bp) and
-> `verify-scramlogin.ps1` drops it into place at run time. `stage.py`'s
-> `('bp', ...)` note updated; `assert-current.ps1`'s `$neverShipped`
-> gained `testsdcli.bp`; changelog carries the user-facing note.
+> the SDSYS BP trim cycled and shipped; suite green at 31/31 on both `b37`
+> AND `b38` (386 PASS 0 FAIL each). Working tree carries one tiny follow-up
+> commit (comment fix in `stage.py`) that leaves the tree "STALE by
+> comment" until the next cycle — no urgency.
 >
-> ***BUT THE CHANGE IS SOURCE-ONLY UNTIL A CYCLE, AND `assert-current`
-> CANNOT SEE A DELETION*** (§7 open item). The b37 install still holds all
-> 16 of those files. Two hand-runs prove the whole thing:
+> ### THE BP TRIM IS PROVEN END-TO-END ON b38
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
+> | check | result |
+> |---|---|
+> | installed `sdsys/bp/` after cycle | **exactly 5 files**: PCL, PCL.GRID, U0032, U50BB, VFS.CLS |
+> | `verify-scramlogin` step 9b | 40/40, `TESTSDCLI compiles` / `!sdclient connected over SCRAM` / `TESTSDCLI PASSED` |
+> | finally cleanup | `TESTSDCLI removed from sdsys/bp (source lives in gplbld/testsdcli.bp)`, and `ls sdsys/bp/` after the run still shows exactly 5 files, `bp.OUT` clean of TESTSDCLI |
+> | rest of the suite | 31/31 on `b38` UTF-16LE decoded, 386 `[PASS]` across the 19 elevated logs, 0 `[FAIL]` |
 >
-> Fresh elevated window (transcript-degradation habit). After it lands,
-> the suite at 31/31 on **`b38`** or later (prefixes to `b37` are spent):
+> ### AND ONE SMALL SELF-CAUSED NOISE, CAUGHT AND FIXED
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b38
-> ```
+> `verify-scramlogin`'s b38 log carried a warning:
+> *"note: testsdcli.bp now appears in stage.py or sd.iss, so it is watched
+> again"*. My own comment in `stage.py` wrote `gplbld/testsdcli.bp` with a
+> path separator before the name — exactly the trap
+> [assert-current.ps1:497](sdb_ai/sd64/gplbld/assert-current.ps1:497) warns
+> about, in as many words: *"Name a non-shipping script bare in those two
+> files, or not at all."* Fixed in `stage.py` (the name is now written bare,
+> with a pointer to the rule); grep confirms no path-anchored `testsdcli`
+> hits in `stage.py` or `sd.iss`; assert-current no longer emits the note.
 >
-> **What the cycle proves**: that the installed `sdsys/bp/` shrinks to five
-> files (`PCL`, `PCL.GRID`, `U0032`, `U50BB`, `VFS.CLS`) and nothing on the
-> install path breaks. **What the suite proves**: that `verify-scramlogin`'s
-> drop-into-place still passes step 9b — `TESTSDCLI compiles`,
-> `!sdclient connected over SCRAM`, `TESTSDCLI PASSED` — and that its
-> finally block leaves no residue in `sdsys/bp` afterwards.
+> **The fix triggers `assert-current`'s cry-wolf-on-comment behaviour** —
+> the same open item on the section-7 list. `stage.py` is now newer than
+> the b38 install, and every verifier that calls `assert-current` will
+> refuse until the next cycle bakes it in. **No urgency**: the change is
+> comment-only, the suite already passed at b38, and the cost of an
+> extra cycle purely to clear a comment update is not worth it. It clears
+> naturally the next time someone cycles for another reason.
+>
+> ### PREFIXES TO `b38` ARE SPENT — USE `b39` OR LATER
+>
+> Only relevant if someone re-runs the suite before the next cycle bakes
+> the comment fix in; assert-current will refuse until then.
 >
 > ### THE SUITE ON b37 — 31/31, 386 PASS, 0 FAIL, DECODER PROVEN
 >
