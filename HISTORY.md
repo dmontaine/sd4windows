@@ -27,6 +27,45 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-sixth session, part 9: handed off at a clean boundary
+
+**Commit:** this one. **9 commits, working tree clean, nothing half-done.**
+Handed off on low credits, deliberately, between phases.
+
+***THE ONE THING THE NEXT SESSION MUST NOT MISS: everything this session built
+is SOURCE-ONLY, and no installer has been built from any of it.*** The tree was
+already stale when the session began and five source changes have landed since,
+so START HERE item 1's cycle is the first real test of all of them rather than
+the confidence run it was written as.
+
+**Built:** the data-tree upgrade path; `sdsys\changelog` moved to `{app}`;
+`assert-current` sections B3 (a deletion in the data tree) and B4 (a leftover in
+`{app}`); `upgrade-dicts.ps1`. Each measured as far as it can be without an
+install - unit tests, an ISCC compile of the generated `[InstallDelete]` and
+`[Files]`, an ISCC compile of the whole `[Code]` section - **each with a control
+that fails**, because on healthy input every one of these checks correctly
+returns nothing and a broken one looks identical.
+
+**Decided, not built:** the documentation format and the tester brief (starts
+after 1.0-0, owner's instruction); the stand-alone install option, with
+`create.account USER` ruled to refuse and two questions still open.
+
+***FOUR OF THIS SESSION'S DEFECTS WERE FOUND BY AN INSTRUMENT AND NONE BY
+READING***, which is the pattern worth carrying: a literal BOM in `mkdoc.py`
+(byte-scan), a print stylesheet that kept dark-mode variables (looking at the
+rendered page), a `\` at the head of a generated file (ISCC), and `#13#10` at
+the start of two Pascal lines (ISCC again) - the last being the fault that cost
+a cycle on 19 Aug. Reading the code found none of them.
+
+***AND THREE STALE CLAIMS IN THE RECORD WERE CORRECTED, all found by checking
+source before writing:*** §5.6.2 said `LOGTO SDSYS` re-prompts for a password
+(deleted 14 Aug); the `.dic` set was recorded as needing a wider replace list
+when it needs `WRITE_INSTALL_DICTS`; and `sd.iss` said `{app}` is *"replaced on
+upgrade"* when Inno never removes a retired file. **The file disagreeing with
+itself is the normal case here, not the exception.**
+
+---
+
 ## 25 Aug 2026 — Fifty-sixth session, part 8: a stand-alone install option is asked for, and one documentation fact is nailed down
 
 **Commit:** this one. Documentation only - **nothing is built**, and the

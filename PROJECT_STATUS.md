@@ -5,7 +5,13 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, fifty-sixth session. ***CODE IS ESSENTIALLY DONE FOR 1.0-0; THE DOCUMENTATION PHASE IS NEXT.*** The refuse-to-install ruling is built and verified on three guests, and the ssh firewall defect is closed on both branches. ***THE ONE THING NOBODY HAS DONE IS RUN THE SUITE SINCE ANY OF IT*** - last green was b37/b38 on 24 Aug, and the tree is STALE, so a full cycle comes first. ***THE DATA-TREE UPGRADE PATH IS BUILT, AND `assert-current` CAN NOW SEE A DELETION*** (section B3, measured both ways on the real trees). The owner ruled "installer replaces the shipped subset in place", and `sdsys\changelog` moves to `{app}`. All of it is source-only and **no installer has been built from any of it**, so item 1's cycle now tests it too. The documentation format is approved and scoped; it starts AFTER 1.0-0, on the owner's instruction.
+**Last updated:** 25 Aug 2026, **end of the fifty-sixth session**, handed off on low credits at a clean boundary: **9 commits, working tree clean, nothing half-done.**
+
+***EVERYTHING THIS SESSION BUILT IS SOURCE-ONLY AND NO INSTALLER HAS BEEN BUILT FROM ANY OF IT.*** That is the single most important sentence here. The tree was already STALE when the session started - last green suite was b37/b38 on 24 Aug - and five source changes have landed since, so **item 1's full cycle is now the first test of all of them, not just a confidence run.** Use `b39` or later.
+
+**Built and committed, none of it run on a machine:** the data-tree upgrade path (owner ruled *"installer replaces the shipped subset in place"*); `sdsys\changelog` moved to `{app}`; `assert-current` section **B3** can see a deletion in the data tree and **B4** a leftover in `{app}`; and `upgrade-dicts.ps1` reapplies the shipped dictionary items on an upgrade. Each was measured as far as it can be without an install - unit tests, ISCC compiles of the generated sections and of `[Code]`, each with a control that fails.
+
+**Decided, not built:** the documentation format is approved and the tester brief is written (item 2) - it starts AFTER 1.0-0, on the owner's instruction. The **stand-alone install option** is scoped with one ruling made and two questions open (item 5).
 
 ---
 
@@ -14,16 +20,33 @@ something came to be the way it is.
 > ## NEXT SESSION: FIVE THINGS, IN THIS ORDER. NOTHING IS BROKEN.
 >
 > The refuse-to-install work is **complete and verified on three guests** (see
-> below). What follows is confidence, then the documentation phase.
+> below). Item 1 is now the first real test of five source changes as well.
 >
-> ### 1. RUN A FULL CYCLE AND THE VERIFY SUITE. NOTHING HAS BEEN CHECKED END TO END SINCE THE INSTALLER SURGERY.
+> ### 1. RUN A FULL CYCLE AND THE VERIFY SUITE. IT IS NO LONGER JUST A CONFIDENCE RUN.
 >
 > ***THE LAST GREEN SUITE WAS 31/31, 386 PASS, ON `b37` AND `b38`, 24 Aug*** —
 > before the ssh-firewall fix, before `limitssh` left `[Tasks]`, before
 > `ssh-preflight.ps1`, before four dialog rewordings. **The tree is STALE right
-> now** (every cycle this session was `-SkipInstall`, which leaves the install
-> untouched), so `assert-current` refuses every verifier until a full
-> `cycle.ps1`. ***Use `b39` or later — prefixes to `b38` are spent.***
+> now**, so `assert-current` refuses every verifier until a full `cycle.ps1`.
+> ***Use `b39` or later — prefixes to `b38` are spent.***
+>
+> ***AND IT IS THE FIRST ISCC BUILD OF EVERYTHING THE FIFTY-SIXTH SESSION DID.***
+> None of the following has ever been through a real build or install, so
+> **expect this cycle to find things, and read its output rather than skimming
+> for green**:
+>
+> | | |
+> |---|---|
+> | `stage.py` writes `<stage>\upgrade.iss`, and `sd.iss` `#include`s it | if `/DStage` is not absolute the include resolves elsewhere and ISCC stops. `cycle.ps1` passes an absolute one |
+> | `stage.py` ships `FILES_DICTS` and `changelog` to `{app}` | a missing either is a deliberate build failure, not a warning |
+> | `sd.iss` gained `DataTreeUpgrade` and `RefreshDictionaries` | the `[Code]` section compiles — checked with a control — but has never run |
+> | `assert-current` gained B3 and B4 | both are silent on this machine today; B4 needs `{app}` present, so it cannot run before an install |
+> | the changelog has three new entries | user-facing, and unread by anyone |
+>
+> **On a FIRST install none of the upgrade machinery fires at all** — it is all
+> gated on `DataTreeUpgrade`. So a green cycle proves the build and the
+> first-install path, and proves **nothing** about the upgrade path. That needs
+> item 3's second guest.
 >
 > This is the owner's own next task; he said he would do the run and verify in
 > a fresh session.
