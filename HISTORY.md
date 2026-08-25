@@ -27,6 +27,90 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-second session, part 6: verify-cmdaudit built, and CONFIG cannot be broken by the ACL lock
+
+**Commit:** the commit carrying this entry. End of the session.
+
+### `verify-cmdaudit.ps1` — the automatable half of §7 step 9, built and RUN
+
+**5 of 5 decisive, exit 0, on the 18:19:17 install**, elevated. In
+`VerifyInstall2` beside `verify-notyet`; spends no prefix. The two records it
+produced, which are LOGIN's two branches:
+
+```
+19:09:49 user=don uid=26 pid=258 LOGIN account=DON command=COUNT VOC
+19:09:50 user=don uid=27 pid=260 LOGIN account=DON
+```
+
+`LOGIN:722-726` writes `command=` only when `batch.command` is non-empty, and
+that branch reads **the same variable the password gate reads three lines
+above** — so it is not a proxy for the gate's input, it **is** the input. A
+regression that moved or dropped the assignment hoisted to `LOGIN:668` stops
+the command form appearing.
+
+***IT DOES NOT PROVE THE PROMPT WAS SKIPPED***, and the header says so. That is
+the branch, and §7 step 9 has the four constraints that make it unautomatable.
+
+**The ordering trap is pinned by a test** because getting it wrong reports the
+regression as a pass: `LOGIN account=X command=Y` also matches a pattern
+looking for `LOGIN account=X`. `Get-LoginRecords` is pure and
+`test-verdict-units.ps1` lifts it by AST — **54 of 54** — and **the control was
+run**: swapping the branches failed 4 of 54, restoring returned 54 of 54.
+
+### ***CONFIG CANNOT BE BROKEN BY THE ACL LOCK, AND §7 STEP 15'S ROW WAS WRONG***
+
+That row said `sd.conf` is written by *"`CONFIG`, administrator"*. **Nothing in
+SD writes `sd.conf` at all.** Measured in source, 24 Aug 2026:
+
+- every use of `config_path` in the C tree is a **read** — `config.c:152` and
+  `sysdump.c:49`, both `fopen(..., "r")`;
+- `op_config.c` performs **no file I/O whatever**, so `CONFIG param value` sets
+  the running value in the shared segment and never the file;
+- `GPL.BP/CONFIG` names `sd.conf` nowhere — its only file access is `!less` on
+  `contrib` and `licence`.
+
+**The only writers are outside SD**: the installer, elevated, and
+`verify-apiport.ps1`, which edits `APIPORT` from PowerShell, elevated. So that
+half of step 15's owed evidence is closed by source and **no hand-run is owed
+for it**.
+
+### WHAT IS STILL OWED, AND IT IS SMALL
+
+**Prove `CATALOG` still writes `sdsys\cat`.** `CATALOG:87` sets
+`private.catalogue = 'cat'`, so a **private** catalogue in SDSYS is what
+touches the locked directory; `GLOBAL` writes `gcat`, which `secure-gcat.ps1`
+locked long ago and `verify-catgate` covers at 25/25.
+
+**Copy the recipe, do not invent one** — `verify-catgate.ps1:234-261`:
+`CREATE.FILE <x> DIRECTORY`, a two-line source written with
+`Set-Content -Encoding Ascii`, `BASIC <x> <prog>`, then `CATALOG <x> <prog>`
+**without** a `$` prefix, since the prefix implies GLOBAL (`CATALOG:28-29`).
+Measure `sdsys\cat` before and after. `DELETE.FILE <x> FORCE` to clean up —
+**FORCE, not a piped `Y`**, because `DELETEF` prompts separately for DATA and
+DICT. **Back up `gcat` first.** Elevated, with a timeout: a piped session still
+hangs on an unexpected prompt.
+
+***THE PROBE WAS NOT STARTED.*** The session ended on low credits at the point
+of writing it, so there is no half-finished script to find.
+
+### THE TWO LESSONS THIS SESSION PAID FOR
+
+1. ***FIVE STATUS CLAIMS WERE FOUND STALE*** — step 16 closed under a heading
+   saying "Not started"; step 9 a decision rather than a missing verifier, its
+   hang already traced and corrected twice; step 3's `limitssh` half unblocked
+   on 21 Aug with three sections still saying otherwise; `verify-sshonly`
+   passing where §4 said it exits 1; and the `CONFIG` row above. **Every time
+   the code or a later entry was right and a summary line was left behind.**
+2. ***I INTRODUCED A REGRESSION BY GATING A BEHAVIOUR WITHOUT READING ITS CALL
+   SITES.*** `LOGIN`'s password prompt gained `and batch.command = ''`, which
+   broke the installer's password step — `finish-install.ps1` passed `off` as a
+   command and relied on that prompt. **The comment above that call had
+   predicted the failure in as many words, and I read it afterwards.** Three
+   checks were run before building and all three asked whether the mechanism
+   was right; none asked who relied on the behaviour being removed.
+
+---
+
 ## 24 Aug 2026 — Fifty-second session, part 5: the suite is green at 30 of 30, and the first reading of it was a false clean
 
 **Commit:** the commit carrying this entry. Documentation only.

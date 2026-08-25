@@ -5,13 +5,71 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of the fifty-second session (steps 9 and 15 closed; suite green 30 of 30, and verify-cmdaudit added as the 31st).
+**Last updated:** 24 Aug 2026, end of the fifty-second session (steps 9 and 15 closed; suite 30/30 on b36; one CATALOG measurement owed).
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: NOTHING IS BLOCKING. THE SUITE IS GREEN AT 30 OF 30.
+> ## NEXT: ONE SMALL MEASUREMENT IS OWED. NOTHING IS BLOCKING.
+>
+> ***END OF THE FIFTY-SECOND SESSION, 24 Aug 2026*** — handed off on low
+> credits at a clean boundary: **thirteen commits, all pushed, nothing
+> half-done, working tree clean.** Install **18:19:17**, `assert-current`
+> matches source, suite green at **30 of 30** on `b36`.
+>
+> ### THE ONE THING OWED: PROVE `CATALOG` STILL WRITES `sdsys\cat`
+>
+> §7 step 15 has the recipe and the reasoning. It is **one elevated hand-run**,
+> spends no prefix, and the shape is `verify-catgate.ps1:234-261` copied rather
+> than invented. ***I WAS BUILDING THIS PROBE WHEN THE SESSION ENDED — NOTHING
+> WAS WRITTEN, so there is no half-finished script to find.***
+>
+> ***AND ITS SIBLING IS ALREADY CLOSED, BY SOURCE.*** `CONFIG` cannot be broken
+> by this lock: **nothing in SD writes `sd.conf`** — every `config_path` use in
+> the C tree is `fopen(..., "r")` and `op_config.c` does no file I/O at all.
+> §7 step 15 carries the correction; the row that blamed `CONFIG` was wrong.
+>
+> ### THEN THE SUITE AGAIN, AT 31
+>
+> `verify-cmdaudit` joined `VerifyInstall2` after `b36`, so green becomes
+> **31 of 31**. ***PREFIXES TO `b36` ARE SPENT — USE `b37` OR LATER.***
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b37
+> ```
+>
+> ***AND OPEN A FRESH ELEVATED WINDOW FOR IT AND FOR EVERY CYCLE.*** See the
+> transcript note below — `cycle.ps1` now warns, but the habit is the fix.
+>
+> ### WHAT THIS SESSION CLOSED
+>
+> | | |
+> |---|---|
+> | §7 **step 15** | the ACL lock — built, cycled, `verify-sysdiracl` **16/16**, and `CREATE.ACCOUNT` measured writing a locked `accounts` |
+> | §7 **step 9** | `sd <command>` no longer prompts; the installer moved to `MODIFY.PASSWORD`; **`verify-cmdaudit` 5/5** |
+> | two verifiers | `verify-createaccount` and `verify-sshonly` now print a verdict line |
+> | `cycle.ps1` | warns when its own transcript has stopped recording |
+>
+> ### FIVE STATUS CLAIMS WERE FOUND STALE, AND THAT IS THE LESSON
+>
+> §7 step 16 was **closed** while its heading said *"Not started"*; step 9 was a
+> decision, not a missing verifier, and the hang it named had been traced and
+> corrected twice; step 3's `limitssh` half stopped needing a VM on 21 Aug;
+> §4 said `verify-sshonly` exits 1 and it passes; and the `sd.conf`/`CONFIG` row
+> above. **Every time, the code or a later entry was right and a summary line
+> was left behind.** ***Check a status claim against the source before acting on
+> it.***
+>
+> ### AND I INTRODUCED ONE REGRESSION, WHICH IS THE OTHER LESSON
+>
+> Gating LOGIN's password prompt on `batch.command = ''` broke the installer's
+> password step, because `finish-install.ps1` passed `off` as a command and
+> relied on that prompt. **The file predicted it in as many words and I read the
+> comment afterwards.** ***Read the CALL SITES of a behaviour before gating
+> it.*** Fixed by moving the step to `MODIFY.PASSWORD`, cycled, verified.
+>
+> ## THE DETAIL BELOW IS THE SESSION'S RECORD
 >
 > ***THE SESSION CLOSED CLEAN.*** Install **18:19:17**, `assert-current` matches
 > source, suite run **`b36`** at **30 of 30** - `VerifyInstall1` 12 of 12 and
@@ -7360,7 +7418,40 @@ the staging script and the Inno installer were all finished and removed.
     ordinary token**, which is `secure-cred.ps1` working and a positive control
     on the reading.
 
-    ***`CATALOG` AND `CONFIG` ARE STILL ONLY REASONED.*** The install
+    ***THE `CONFIG` HALF IS CLOSED BY SOURCE, 24 Aug 2026, AND THE ROW ABOVE
+    IS WRONG.*** It says `sd.conf` is written by *"`CONFIG`, administrator"*.
+    **Nothing in SD writes `sd.conf` at all.** Every use of `config_path` in
+    the C tree is a read — [config.c:152](sdb_ai/sd64/gplsrc/config.c:152) and
+    [sysdump.c:49](sdb_ai/sd64/gplsrc/sysdump.c:49), both `fopen(..., "r")` —
+    and `op_config.c` does **no file I/O whatever**, so `CONFIG param value`
+    sets the running value in the shared segment and never the file.
+    `GPL.BP/CONFIG` names `sd.conf` nowhere; its only file access is `!less` on
+    `contrib` and `licence`.
+
+    **So locking `sd.conf` to `(RX)` cannot break `CONFIG`, and the only
+    writers are outside SD**: the installer (elevated) and
+    `verify-apiport.ps1`, which edits `APIPORT` from PowerShell (elevated).
+    **No hand-run is owed for this half.**
+
+    ***THE `CATALOG` HALF IS STILL OWED, AND IT IS NOW A NARROW QUESTION.***
+    [CATALOG:87](sdb_ai/sd64/sdsys/gpl.bp/CATALOG:87) sets
+    `private.catalogue = 'cat'`, so a **private** catalogue in SDSYS is what
+    writes `sdsys\cat` — the locked directory. `GLOBAL` writes `gcat`, which
+    `secure-gcat.ps1` already locked long before this step and which
+    `verify-catgate` covers at 25/25.
+
+    **THE RECIPE IS PROVEN AND SHOULD BE COPIED, NOT INVENTED** —
+    `verify-catgate.ps1:234-261`: `CREATE.FILE <x> DIRECTORY`, write a
+    two-line source with `Set-Content -Encoding Ascii`, `BASIC <x> <prog>`,
+    then `CATALOG <x> <prog>` **without** a `$` prefix, since the prefix
+    implies GLOBAL (`CATALOG:28-29`). Measure `sdsys\cat` before and after.
+    **`DELETE.FILE <x> FORCE` to clean up — FORCE, not a piped `Y`**, because
+    `DELETEF` prompts separately for DATA and DICT. **Back up `gcat` first**
+    (HISTORY, 17 Aug): a bad catalogue can lock you out of SD. Elevated, and
+    a piped session can still hang on an unexpected prompt, so give it a
+    timeout.
+
+    ***THE OLD CLAIM, KEPT BECAUSE THE `CATALOG` HALF OF IT STANDS.*** The install
     catalogues into the STAGING tree, and nothing on the install path runs
     `CONFIG`, so neither `cat` nor `sd.conf` was written under its new ACL.
     **Both need a hand-run from an elevated session** — that is what is left of
