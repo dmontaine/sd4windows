@@ -27,6 +27,70 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-fifth session: the ssh scoping fix is verified on a clean guest, and cloning needs `keepallmacs` too
+
+**THE FIX WORKS.** `ssh-firewall.ps1` now passes `'127.0.0.1'` alone. Cycled
+(`Successful compile (5.875 sec)`, installer 08:50:13, 4,789,119 bytes,
+SHA256 `DFF4AA24…BE2182`) and installed on a clean guest with `sshremote` left
+UNTICKED:
+
+| | 24 Aug, broken | 25 Aug, fixed |
+|---|---|---|
+| `RemoteAddress` **as the installer left it** | `Any` | ***`127.0.0.1`*** |
+| `-Installed -Restrict` | `FAILED - ...loopback IPv6...`, exit 1 | ***`ssh is reachable FROM THIS MACHINE ONLY`***, exit 0 |
+| `127.0.0.1:22` AF_INET | — | REACHABLE |
+| `::1:22` AF_INET6 | — | REACHABLE |
+| verdict | defect confirmed | ***`probe-sshfirewall: PASSED`*** |
+
+**The first row is the result**: the installer scopes the rule itself, with no
+manual step. The check anchors on the success wording `ssh is reachable FROM
+THIS MACHINE ONLY`, not on the absence of an error.
+
+***CLONING NEEDS `--options keephwuuids,keepallmacs`, AND THE ADVICE WRITTEN
+YESTERDAY WAS WRONG.*** It said `keephwuuids` alone, and said explicitly that
+distinct MACs were preferable because "activation doesn't hinge on that". The
+owner spotted the clone was unlicensed. Measured, one variable changed:
+
+| clone | hardware uuid | MAC | Windows |
+|---|---|---|---|
+| `keephwuuids` only | same | **new** | `LicenseStatus = 5 (Notification)` |
+| both options | same | same | `LicenseStatus = 1 (Licensed)` |
+
+The NIC MAC is part of Windows' activation hardware hash. **Clones sharing a
+MAC must not run simultaneously**; sequential runs are fine. Both mis-cloned
+guests were deleted and re-cloned from `Windows 11 - Template`.
+
+***AND THE PROBE CAUGHT IT, WHICH IS THE POINT OF THE NULL-CASE RULE.***
+`pre.ps1` reported `pre.ps1: FAILED - 1 premise check(s) failed. Do NOT read
+the install result as meaningful.` on the unlicensed guest, before any install
+ran. An unlicensed guest is a rig fault, not a result.
+
+**`probe-sshfirewall.ps1` GAINED `-Expect Restricted|Open`.** `RemoteAddress=Any`
+is CORRECT when `sshremote` was ticked and is the 24 Aug defect when it was
+not; the rule alone cannot distinguish them, and a probe that flags both as
+failure is one people learn to ignore. The caller now states what was chosen in
+the wizard. Under `-Expect Open` the probe also **skips** the
+`-Installed -Restrict` step deliberately, rather than undoing the state it is
+measuring.
+
+**TASKS PAGE REGROUPED**, owner's observation on reading it during the run: the
+pane with three ssh-ish checkboxes was confusing. Cause: only two of the three
+were about remote access. `sshremote` and `apiremote` both answer "who may
+reach this machine from elsewhere"; `limitssh` governs what EVERY ssh session
+does and who may use ssh at all, locally included. `limitssh` moved to its own
+group `"How ssh sessions work:"` and declared after `apiremote` — the
+declaration had to move because Inno emits a group header per RUN of tasks
+sharing a GroupDescription, so renaming alone would have produced two "Remote
+access:" headers with this wedged between them.
+
+***THIS REGROUP MAY BE SHORT-LIVED, AND THAT IS EXPECTED.*** The owner went on
+to rule that SD should REFUSE TO INSTALL when another ssh server is present -
+see the next entry when it is written. Under that ruling `limitssh` stops being
+a tick box at all, becomes a statement on the "Before you install" page, and
+this group disappears.
+
+---
+
 ## 24 Aug 2026 — Fifty-fourth session, part 3: the first install on a machine with no ssh, and it found that ssh scoping has never worked
 
 §7 step 3's `sshremote` bullet had been blocked on "needs a VM" since 16 Aug.

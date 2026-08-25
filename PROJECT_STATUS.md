@@ -13,11 +13,26 @@ something came to be the way it is.
 
 > ## NEXT: A REAL DEFECT IS OPEN. ssh SCOPING HAS NEVER WORKED, ON ANY MACHINE.
 >
-> Found 24 Aug 2026 on the FIRST install ever performed on a machine with no
-> OpenSSH server. ***THE FIX IS MADE (owner approved 25 Aug 2026) AND IS
-> UNTESTED*** — [ssh-firewall.ps1:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150)
-> now passes `'127.0.0.1'` alone. Parse-checked 0 errors, 2 functions, no BOM.
-> **It has not been through a cycle and has never run.** Next three steps below.
+> ***CLOSED 25 Aug 2026 — FIXED, CYCLED, AND VERIFIED ON A CLEAN GUEST.***
+> Found 24 Aug on the first install ever done on a machine with no OpenSSH
+> server; fixed at
+> [ssh-firewall.ps1:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150), which now
+> passes `'127.0.0.1'` alone. Re-tested 25 Aug on `sshRemoteTest-A2` with the
+> 08:50:13 installer:
+>
+> | | 24 Aug, broken | 25 Aug, fixed |
+> |---|---|---|
+> | `RemoteAddress` ***as the installer left it*** | `Any` | ***`127.0.0.1`*** |
+> | `-Installed -Restrict` | `FAILED - ...loopback IPv6...` exit **1** | ***`ssh is reachable FROM THIS MACHINE ONLY`*** exit **0** |
+> | `127.0.0.1:22` AF_INET / `::1:22` AF_INET6 | — | REACHABLE / REACHABLE |
+> | `probe-sshfirewall.ps1` | — | ***PASSED*** |
+>
+> **The top row is the result**: the installer now scopes the rule itself, with
+> no manual step. The keep-below is the history of how it was found.
+>
+> ***WHAT IS STILL NOT PROVEN, AND IT NEEDS A BRIDGED NIC:*** that the scoping
+> actually blocks a REMOTE machine. See the NAT note further down — a
+> port-forward cannot show it.
 >
 > ### THE DEFECT
 >
@@ -101,9 +116,24 @@ something came to be the way it is.
 > ### RIG TECHNIQUE THAT PAID FOR ITSELF, AND ONE THAT DID NOT
 >
 > ***CLONE, DO NOT SNAPSHOT*** — owner, 24 Aug 2026. `VBoxManage clonevm` took
-> **25 seconds** against minutes for a snapshot restore. ***PASS
-> `--options keephwuuids`*** or Windows can demand reactivation; the first clone
-> here kept it only by luck, through a hardware UUID inherited from the template.
+> **25 seconds** against minutes for a snapshot restore.
+>
+> ***PASS `--options keephwuuids,keepallmacs`. BOTH. CORRECTED 25 Aug 2026 AND
+> THE EARLIER ADVICE HERE WAS WRONG*** — it said `keephwuuids` alone and added
+> that MACs could differ freely because "activation doesn't hinge on that".
+> **It does.** Measured, one variable changed:
+>
+> | clone | hardware uuid | MAC | Windows says |
+> |---|---|---|---|
+> | with `keephwuuids` only | same | **new** | `LicenseStatus = 5 (Notification)` |
+> | with both options | same | same | ***`LicenseStatus = 1 (Licensed)`*** |
+>
+> The NIC MAC is part of Windows' activation hardware hash. **The cost is that
+> clones sharing a MAC must not run at the same time** — sequential test runs
+> are fine, and two guests up at once need one of them re-cloned with a fresh
+> MAC and re-activated. `pre.ps1`-style probes should check `LicenseStatus`
+> before anything else, because an unlicensed guest is a rig fault, not a
+> result.
 >
 > ***DRIVE FILES IN AND RESULTS OUT WITH TWO SHARED FOLDERS.*** `guestcontrol`
 > is forbidden (§7 step 2) and unnecessary:
@@ -6555,6 +6585,15 @@ the staging script and the Inno installer were all finished and removed.
      **Re-take the measurement with**
      [probe-sshfirewall.ps1](sdb_ai/sd64/gplbld/probe-sshfirewall.ps1), which
      refuses the null case and names the socket address family on every dial.
+
+     ***FIXED AND VERIFIED 25 Aug 2026.***
+     [ssh-firewall.ps1:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150) passes
+     `'127.0.0.1'` alone; Windows rejects any IPv6 loopback literal there.
+     Re-tested on `sshRemoteTest-A2` with the 08:50:13 installer: the rule read
+     ***`RemoteAddress = 127.0.0.1` as the installer left it***, `-Installed
+     -Restrict` printed `ssh is reachable FROM THIS MACHINE ONLY` and exited 0,
+     and both `127.0.0.1:22` (AF_INET) and `::1:22` (AF_INET6) stayed
+     REACHABLE. `probe-sshfirewall.ps1` PASSED.
 
      ***STILL UNPROVEN, AND IT NEEDS A BRIDGED NIC:*** that the scoping actually
      blocks a REMOTE machine. A VirtualBox NAT port-forward cannot show it — the
