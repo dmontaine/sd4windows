@@ -33,13 +33,34 @@ something came to be the way it is.
 > | `VerifyInstall1`, **12** steps, ordinary token | **12/12 exit 0** - `verify-sysdiracl` passed in its FIRST suite run |
 > | `VerifyInstall2`, 18 steps, elevated | **18/18 exit 0**, **0 `[FAIL]` rows**, **379 `[PASS]` rows** |
 >
-> **TWO ROWS THAT LOOK WRONG AND ARE NOT.** `verify-apiadmin: 22/23` - the
+> **ONE ROW THAT LOOKS WRONG AND IS NOT.** `verify-apiadmin: 22/23` - the
 > twenty-third is `[N/A ]`, because the probe could not ask *precisely since*
-> `OS.EXECUTE` was correctly refused. And `verify-createaccount` and
-> `verify-sshonly` print **no "N of N" line at all**: both have PASS rows and no
-> FAIL rows, but neither states a verdict. **That is a reporting gap worth
-> closing** - a verifier with no success wording cannot be checked the way
-> §0 requires.
+> `OS.EXECUTE` was correctly refused.
+>
+> ***AND THE TWO VERIFIERS WITH NO VERDICT LINE ARE FIXED*** - owner's
+> instruction, 24 Aug 2026. `verify-createaccount` and `verify-sshonly` printed
+> no "N of N" wording at all, so the only available check was the ABSENCE of
+> failure - which is exactly the shape that had just produced a false clean.
+> Both now end with a `Write-Verdict` line, **last, after the cleanup prose**,
+> because a `tail` of the log is how these are read and the prose was what it
+> showed.
+>
+> **IT REFUSES THE NULL CASE**: a run that recorded no DECISIVE row prints
+> *"NO DECISIVE CHECK RAN, so this run proves nothing"* and sets `$fatal`, so it
+> exits 1. It sets the flag rather than returning a code, so none of
+> `verify-sshonly`'s **fourteen** exit points had to change - and so nothing
+> lands in the pipeline.
+>
+> ***TESTED, AND THE TEST IS KEPT***: `gplbld/test-verdict-units.ps1`, on
+> `$neverShipped`, lifts the function out of BOTH scripts **by AST** so it
+> cannot drift. **29 of 29**, covering all-pass, a decisive failure, no-decisive
+> -row, and empty results. **It also asserts the two copies are byte-identical**
+> - the "if one changes, change both" comment is otherwise a hope, and session
+> 51 paid for that exact shape with the tier VOC counts. **The control was run**:
+> perturbing one copy made it fail 2 of 29, and restoring returned 29 of 29.
+>
+> ***NEITHER VERIFIER HAS BEEN RE-RUN.*** Both are elevated and spend an account
+> name, so the verdict lines will first be seen on the **`b37`** suite run.
 >
 > ***AND `verify-sshonly` PASSED, WHERE §4 SAID IT EXITS 1.*** Corrected there.
 > 15 PASS, 0 FAIL: `LogonUser INTERACTIVE` refused 1385, `NETWORK_CLEARTEXT`
@@ -1760,7 +1781,12 @@ trusting this line** — it has now been wrong three times, in both directions,
 which is what the rule below exists to stop. The heading no longer carries a
 number for the same reason.
 
-***THERE IS ALSO ONE NON-VERIFIER TEST, AND IT IS IN NEITHER RUNNER:***
+***THERE ARE ALSO TWO NON-VERIFIER TESTS, AND NEITHER IS IN A RUNNER.*** The
+second is `gplbld/test-verdict-units.ps1` (24 Aug 2026): it lifts the
+`Write-Verdict` function out of **both** `verify-createaccount.ps1` and
+`verify-sshonly.ps1` by AST, checks all four cases including the two null ones,
+and **asserts the two copies are byte-identical**. Unelevated, no SD, no
+account, no install — run it after editing either verifier. The first is
 `gplbld/test-apiidentity-units.ps1`. It unit-tests `verify-apiidentity`'s two
 helpers by lifting them out of that script **by AST**, so it cannot drift from
 what it tests. Unelevated, no SD, no account, no install, touches only
