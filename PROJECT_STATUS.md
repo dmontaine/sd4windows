@@ -89,7 +89,7 @@ something came to be the way it is.
 > |---|---|---|
 > | 15 | **this ACL lock** | built, **one cycle owed** |
 > | 3 | installer loose ends - the `limitssh`/`AllowGroups` task and the mandatory-ssh path have **never been seen** (this box already has OpenSSH); no data-tree upgrade path | not started, none blocking |
-> | 9 | the step 9 verifier - nothing stops a scheduled job's **command** prompting; `@logname` never checked on a cycle | never started |
+> | 9 | ***NOT A VERIFIER AND NOT A BUG - IT IS ONE DECISION, AND IT IS THE OWNER'S***: should `sd <command>` ask for a password at all? `SYSTEM(1026)` would gate it the way step 9 gates the command itself. Plus `@logname`, never checked on a cycle | decision not started; the gate itself is CLOSED at 10/10 |
 > | **17** | ***REVISIT `setup-devbox.ps1` - LEFT PARTIALLY WORKING*** (owner, 24 Aug 2026) | **clone step onwards never ran on a bare machine** |
 >
 > ***THE FIRST VERSION OF THIS TABLE LISTED STEP 16 AS "not started, largest
@@ -6107,6 +6107,28 @@ the staging script and the Inno installer were all finished and removed.
    the *command itself* prompting. A paragraph that asks a question will sit
    there. The list limits what may run, not what what-may-run does.
 
+   ***WHAT THAT LEAVES IS ONE DECISION, AND IT IS THE OWNER'S — NOT A VERIFIER
+   AND NOT A BUG.*** Stated 24 Aug 2026 because this file has twice implied
+   otherwise. **Should `sd <command>` ask for a password at all?**
+   `SYSTEM(1026)` would gate it the way this step gates the command itself.
+   Not started.
+
+   ***THE THREE CLAIMS THAT MADE IT LOOK LIKE A DEFECT ARE ALL WITHDRAWN***
+   (HISTORY.md, 23 Aug 2026, *"the elevated hang is diagnosed"* plus its two
+   corrections — read all three, the first is wrong):
+
+   | withdrawn claim | what is true |
+   |---|---|
+   | *"the prompt has no non-interactive behaviour"* | **it has one and it works** — `LOGIN:641` prompts only when `kernel(K$TTY,0) # ''`, `ttyname(fileno(stdin))` at `kernel.c:250`, written and measured 21 Aug |
+   | *"a scheduled job on a password-less account hangs like this"* | **it does not** — a scheduled task has no tty, so the prompt is skipped |
+   | *"start-up block; the pcode ACL or the elevation helper"* | neither is involved; `elevate()`'s one caller is `CPROC:2571`, on the `LOGTO SDSYS` path |
+
+   **THE REAL CONDITION IS A CONSOLE WITH NOBODY AT IT** — stdin inherited from
+   a console, no typist — which nothing in this project produces except a probe
+   that redirected stdout and left stdin alone. The one place it bit,
+   `verify-batchjob`'s **elevated** row, is fixed: `verify-batchjob.ps1:112`
+   pipes `$null` into `sd`.
+
    **THE INTERACTIVE PATH IS UNTOUCHED** — only `SYSTEM(1026)` is gated — and
    that is load-bearing rather than incidental: `verify-batchjob.ps1` plants
    and removes its own VOC probes through a piped session, because doing it
@@ -7572,20 +7594,34 @@ the staging script and the Inno installer were all finished and removed.
       `git remote set-url --push`, so a machine with no SSH key still finishes.
       A key is needed the first time somebody pushes and git says so itself.
 
-    ***AND ONE THING THAT BROKE ON ITS WATCH AND WAS NEVER TRACED*** — recorded
-    here because a session picking this up will meet it. On the install of that
-    day, elevated `sd WHO` and `sd ZZNOSUCHVERB` **both hung** (killed by a 25s
-    timeout, blocked rather than looping, no output and no errlog); unelevated
-    `sd <command>` still worked. A nonexistent verb hanging means **start-up,
-    not dispatch**. The only shipped delta was the pcode ACL, but an elevated
-    token holds Administrators, which had Full on `sdsys\bin` **before and
-    after** — so the mechanism does not add up and **the ACL must not be
-    reverted on suspicion**. The untested alternative is step 4's elevation
-    helper: `sd.exe` stays unelevated for life and talks to
-    `sd-elevate-helper.ps1` over a pipe, and an already-elevated session
-    negotiating that non-interactively would block on a pipe read exactly like
-    this. **Nobody traced it**, and it is not known to be reproducible on a
-    current install.
+    ***THE "UNTRACED HANG" THAT USED TO SIT HERE WAS TRACED THE NEXT DAY AND
+    THE PARAGRAPH IS WITHDRAWN.*** Corrected 24 Aug 2026. It said elevated
+    `sd WHO` and `sd ZZNOSUCHVERB` hung, that this meant **start-up not
+    dispatch**, that the **pcode ACL** was the only shipped delta and "must not
+    be reverted on suspicion", and that step 4's **elevation helper** was the
+    untested alternative. **Every one of those is withdrawn** — HISTORY.md,
+    23 Aug 2026, *"the elevated hang is diagnosed"* and its two corrections.
+
+    **WHAT IT ACTUALLY IS**: the session reaches the account's password prompt
+    and blocks on a read that never gets input — 802 bytes of redirected stdout
+    ending `New password:`. Neither the ACL nor the helper is involved, and the
+    helper is **not on the start-up path** at all (`elevate()` has one caller,
+    `CPROC:2571`, inside the `LOGTO SDSYS` branch).
+
+    **THE CONDITION IS A CONSOLE WITH NOBODY AT IT — not a non-interactive
+    session**, and that distinction is the whole correction. `LOGIN:641`
+    prompts only when `kernel(K$ADMINISTRATOR,-1) and kernel(K$TTY,0) # ''`,
+    and `K$TTY` is `ttyname(fileno(stdin))` (`kernel.c:250`), so a piped
+    session and a scheduled task are **already** skipped. The probe that
+    started this redirected **stdout** and left **stdin inherited from a
+    console** — a combination nothing else in the project produces.
+    ***"NO OUTPUT" MEANT "OUTPUT NOT LOOKED AT"***: the prompt was sitting in
+    the redirect file the whole time.
+
+    **AND IT IS FIXED WHERE IT BIT**: `verify-batchjob.ps1:112` now runs
+    `$null | & $sdExe $paName`, so the elevated row takes the redirected-stdin
+    path. That row is why the suite could not complete on 23 Aug; it passed in
+    the `b33` run.
 
     ***USE A TIMEOUT ON EVERY ELEVATED SD PROBE.*** An SD console session
     cannot be killed by `Stop-Process` or `taskkill /F` from an ordinary token;
