@@ -27,6 +27,89 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-fourth session, part 3: the first install on a machine with no ssh, and it found that ssh scoping has never worked
+
+§7 step 3's `sshremote` bullet had been blocked on "needs a VM" since 16 Aug.
+The owner supplied `Windows 11 - sshRemoteTest`. **The very first run found a
+live defect, and it is still open.**
+
+***THE DEFECT.*** [ssh-firewall.ps1:113](sdb_ai/sd64/gplbld/ssh-firewall.ps1:113)
+does `Set-NetFirewallRule -RemoteAddress @('127.0.0.1','::1')`. **Windows
+rejects any IPv6 loopback literal in `-RemoteAddress`** — *"An unspecified,
+multicast, broadcast, or loopback IPv6 address was specified"* — so the call
+throws, the `catch` reports `FAILED`, exit 1, and the rule is left at
+`RemoteAddress=Any`. **Port 22 is open to the local network on every install
+where SD installs ssh**, which is exactly the exposure §5.9 was written to
+prevent, and the by-hand recovery the closing dialog names fails identically.
+
+***IT IS NOT A REGRESSION. IT HAS NEVER WORKED.*** `ApplySshFirewall` exits
+early unless `SshWasAbsent`, so on every machine it had ever run on — all of
+which already had sshd — the step did nothing at all. Eight days inert.
+
+**THE FIX, MEASURED RATHER THAN REASONED**: pass `127.0.0.1` alone. Each
+candidate was tried separately on the VM — `@('127.0.0.1','::1')` rejected,
+`127.0.0.1` accepted, `127.0.0.1/32` accepted and normalised, `::1` rejected.
+Dropping `::1` was then **checked for safety rather than assumed**, because
+`sshd` binds `:::22` as well as `0.0.0.0:22`: with the rule scoped to
+`127.0.0.1` alone, both `127.0.0.1:22` and `::1:22` stayed REACHABLE, which
+confirms ssh-firewall.ps1's own header claim that Windows does not filter
+loopback. **The fix was not made — it is security-relevant and the owner had
+not answered before the session ended.**
+
+**WHAT ELSE RUN A PROVED, all first observations.** `sshremote` appeared in the
+wizard and was unticked (`Check: SshServerAbsent` and `Flags: unchecked` both
+behaving); `limitssh` appeared ticked with commit `493bf9b`'s new wording
+leading with *"DISABLES scp and sftp for everyone"*; the `apiremote`/`sshremote`
+asymmetry is real in the wizard; `install-ssh.ps1` ran and left `sshd`
+Running/Automatic; `ApplyAllowGroups` reported *"ssh is now limited to members
+of sdusers…, original sshd_config kept as sshd_config.before-sd"*. **The closing
+dialog disclosed the firewall failure rather than swallowing it, and that is the
+only reason any of this was findable.**
+
+**RUN B IS UNRUN, AND WOULD HAVE PASSED BY ACCIDENT.** Ticking `sshremote`
+calls `-Open`, which sets `RemoteAddress Any` — and `Any` is exactly what the
+broken path leaves behind. Run B exercises the working branch and cannot reveal
+this bug. Recorded so nobody reads a green run B as coverage.
+
+**KEPT**: [probe-sshfirewall.ps1](sdb_ai/sd64/gplbld/probe-sshfirewall.ps1),
+listed in `assert-current.ps1`'s `$neverShipped` in this commit per §7 step 7's
+rule. It refuses the null case (nothing listening on 22, capability query
+returning nothing) and exits 2 rather than passing.
+
+***TWO INSTRUMENT LESSONS, BOTH PAID FOR.***
+
+1. **A NAT port-forward cannot prove a remote machine is blocked.** `natpf1`
+   host:2222 → guest:22 looked like it connected in both polarities. With the
+   rule wide open, `Get-NetTCPConnection` showed **no inbound connection had
+   ever reached sshd** — VirtualBox's NAT engine completes the handshake itself.
+   Both readings measured nothing. §7 step 2 already recorded that NAT cannot be
+   used because the host must open a connection *to* the guest; that was read
+   too late. **The remote-block control remains unproven and needs a bridged NIC.**
+2. **`New-Object Net.Sockets.TcpClient` defaults to AF_INET and cannot dial an
+   IPv6 literal.** The first `::1` dial returned *"None of the discovered or
+   specified addresses match the socket address family"*, which reads exactly
+   like "::1 is blocked" — and the whole safety of the fix turned on that
+   answer. It was caught before being believed. `probe-sshfirewall.ps1` names
+   the address family on every dial.
+
+**RIG NOTES.** Owner, 24 Aug 2026: ***clone, do not snapshot*** — `clonevm` took
+25 seconds against minutes for a restore. ***Pass `--options keephwuuids`***, or
+Windows can demand reactivation; the first clone kept its hardware UUID only by
+luck, inherited from the template, and was re-cloned properly once the owner
+raised it. Files go in and results come back through **two transient shared
+folders** (`--automount`, no guest credentials, `guestcontrol` still forbidden);
+they mount as `Z:` and `Y:`, survive a guest reboot, and a probe writing
+`Start-Transcript -Path Y:\out.txt` puts its whole output on the host as text —
+far better than screenshots or typing long commands through `keyboardputstring`.
+
+**LEFT AS**: `Windows 11 - sshRemoteTest` running and **spent** (its rule was
+hand-set to `Any` during testing); `Windows 11 - sshRemoteTest-B`
+(`b9324686-03a4-4db8-808f-48f55a67edcf`) pristine and never booted;
+installer at `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe` built 23:01:04, which a
+fix will make stale.
+
+---
+
 ## 24 Aug 2026 — Fifty-fourth session, part 2: the `sdhelp` request is withdrawn by the owner
 
 Hours after the correction recorded below, the owner cancelled the requirement

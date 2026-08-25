@@ -5,13 +5,133 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of fifty-fourth session — ***STEP 17 IS CLOSED, WITH NOTHING OUTSTANDING***: `setup-devbox.ps1` ran end to end on a bare VM, exit 0, through `make sd`. **The two guest freezes were the host's Hyper-V/NEM fallback, not the script** (§6). **`sdhelp` was briefly an open requirement and the owner CANCELLED it the same day** — he fetches it from his P drive when he wants it.
+**Last updated:** 24 Aug 2026, end of fifty-fourth session. ***A REAL DEFECT IS OPEN AND UNFIXED: `ssh-firewall.ps1` has NEVER been able to scope ssh, so every install that puts ssh on leaves port 22 open to the LAN.*** One-line fix, measured, not yet approved or made — START HERE. Also this session: **step 17 CLOSED** (`setup-devbox.ps1` ran end to end on a bare VM, exit 0, through `make sd`); the two guest freezes were the host's Hyper-V/NEM fallback, not the script (§6); `sdhelp` was raised and **cancelled by the owner** the same day.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: STEP 17 IS CLOSED. `setup-devbox.ps1` RAN END TO END ON A BARE VM.
+> ## NEXT: A REAL DEFECT IS OPEN. ssh SCOPING HAS NEVER WORKED, ON ANY MACHINE.
+>
+> Found 24 Aug 2026 on the FIRST install ever performed on a machine with no
+> OpenSSH server. **The fix is one line and is measured, not reasoned. It has
+> NOT been made yet — the owner was asked and the session ended first.**
+>
+> ### THE DEFECT
+>
+> [ssh-firewall.ps1:113](sdb_ai/sd64/gplbld/ssh-firewall.ps1:113):
+>
+> ```
+> Set-NetFirewallRule -Name $rule.Name -RemoteAddress @('127.0.0.1', '::1') -Enabled True
+> ```
+>
+> ***WINDOWS REJECTS ANY IPv6 LOOPBACK LITERAL IN `-RemoteAddress`*** —
+> *"An unspecified, multicast, broadcast, or loopback IPv6 address was
+> specified."* The call throws, the `catch` at :120 reports `FAILED`, exit 1,
+> and the rule is **left at `RemoteAddress=Any`**. So **port 22 is open to the
+> local network on every install where SD installs ssh**, which is precisely the
+> exposure §5.9 exists to prevent. **The by-hand recovery the closing dialog
+> tells the user to run fails identically**, so the restricted state is
+> unreachable by any documented route.
+>
+> ***IT SAT UNSEEN FOR EIGHT DAYS BECAUSE THE STEP NEVER RAN.***
+> `ApplySshFirewall` exits early unless `SshWasAbsent`, and every machine it had
+> ever run on already had sshd. This is not a regression — **it has never
+> worked.**
+>
+> ### THE FIX, AND THE MEASUREMENT THAT VALIDATES IT
+>
+> **Pass `127.0.0.1` alone.** Measured on the VM, each candidate separately:
+>
+> | passed to `-RemoteAddress` | Windows |
+> |---|---|
+> | `@('127.0.0.1','::1')` — today's code | **rejected** |
+> | `127.0.0.1` | **accepted** |
+> | `127.0.0.1/32` | accepted, normalises to `127.0.0.1` |
+> | `::1` | **rejected** |
+>
+> ***DROPPING `::1` IS SAFE AND THAT WAS CHECKED, NOT ASSUMED*** — it mattered
+> because `sshd` binds `:::22` as well as `0.0.0.0:22`. With the rule scoped to
+> `127.0.0.1` alone, **both** `127.0.0.1:22` and `::1:22` stayed **REACHABLE**,
+> confirming ssh-firewall.ps1's own header claim that Windows does not filter
+> loopback traffic. Keep that reasoning in the comment when fixing it.
+>
+> ### THE ORDER TO DO IT IN, TOMORROW
+>
+> 1. Make the one-line fix at `ssh-firewall.ps1:113`, with a comment recording
+>    why `::1` cannot be passed. **Owner has not yet approved it** — it is
+>    security-relevant behaviour, so ask.
+> 2. `cycle.ps1` (ELEVATED, owner's shell) to rebuild the installer.
+> 3. Clone `Windows 11 - sshRemoteTest-B` — or re-clone from
+>    `Windows 11 - Template` — install with `sshremote` **UNTICKED**, then run
+>    [probe-sshfirewall.ps1](sdb_ai/sd64/gplbld/probe-sshfirewall.ps1). It must
+>    print `PASSED`.
+> 4. **RUN B is still unrun**: install with `sshremote` **TICKED**, expect
+>    `RemoteAddress=Any`. ***IT WOULD HAVE PASSED BY ACCIDENT TODAY*** — ticking
+>    calls `-Open`, which sets `Any`, and `Any` is exactly what the broken path
+>    leaves behind. Run B exercises the working branch and **cannot reveal this
+>    bug**; do not read it as coverage.
+>
+> ### WHAT RUN A ALREADY PROVED, SO DO NOT RE-LITIGATE IT
+>
+> | first-ever observation | result |
+> |---|---|
+> | `sshremote` visible in the wizard | **yes, and UNTICKED** — `Check: SshServerAbsent` + `Flags: unchecked` both behave |
+> | `limitssh` wording from commit `493bf9b` | in situ, leads with **"DISABLES scp and sftp for everyone"**, ticked by default |
+> | `apiremote` vs `sshremote` asymmetry | real in the wizard, not just in source |
+> | mandatory-ssh path (`install-ssh.ps1`) | ran, ~17 min, OpenSSH Server installed and `sshd` Running/Automatic |
+> | `ApplyAllowGroups` | reported *"ssh is now limited to members of sdusers…, original sshd_config kept as sshd_config.before-sd"* — one of its three outcomes, observed |
+> | the closing dialog | **reported the firewall failure honestly** rather than swallowing it; that is what made this findable |
+>
+> ### THE RIG, AS LEFT
+>
+> | VM | uuid | state |
+> |---|---|---|
+> | `Windows 11 - sshRemoteTest` | `051ce6f5-b663-4a75-be60-f52db7cfbdb2` | **RUNNING**, has the failed-scoping install; its rule was hand-set to `Any` during testing, so it is **spent** — do not measure it again |
+> | `Windows 11 - sshRemoteTest-B` | `b9324686-03a4-4db8-808f-48f55a67edcf` | pristine, never booted, for run B |
+> | `Windows 11 DevEnvInstallTest` | `47b7584f-f4a0-4db5-bca9-534c478adce7` | poweroff, holds the finished step-17 install |
+>
+> Installer at `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, built **23:01:04**,
+> SHA256 `AE236A2D…4E87F3F9`, newer than `sd.iss`, `allow-ssh-groups.ps1` and
+> `stage.py`. **A fix at step 1 makes it stale — rebuild before testing.**
+>
+> ### RIG TECHNIQUE THAT PAID FOR ITSELF, AND ONE THAT DID NOT
+>
+> ***CLONE, DO NOT SNAPSHOT*** — owner, 24 Aug 2026. `VBoxManage clonevm` took
+> **25 seconds** against minutes for a snapshot restore. ***PASS
+> `--options keephwuuids`*** or Windows can demand reactivation; the first clone
+> here kept it only by luck, through a hardware UUID inherited from the template.
+>
+> ***DRIVE FILES IN AND RESULTS OUT WITH TWO SHARED FOLDERS.*** `guestcontrol`
+> is forbidden (§7 step 2) and unnecessary:
+>
+> ```
+> VBoxManage sharedfolder add <uuid> --name sdout --hostpath C:/Users/dmont/sdout --transient --automount --readonly
+> VBoxManage sharedfolder add <uuid> --name xfer  --hostpath <scratch>          --transient --automount
+> ```
+>
+> They mount as `Z:` and `Y:`, **survive a guest reboot**, and a probe that does
+> `Start-Transcript -Path Y:\out.txt` puts its whole output back on the host as
+> text. That beats screenshots and beats typing long commands through
+> `keyboardputstring`, which drops characters.
+>
+> ***THE NAT PORT-FORWARD CONTROL IS WORTHLESS AND THE RECORD ALREADY SAID SO.***
+> Tried `natpf1` host:2222 → guest:22 to prove a remote machine is blocked.
+> **VirtualBox's NAT engine completes the handshake itself**: with the rule wide
+> open, `Get-NetTCPConnection` showed **no inbound connection ever reached
+> sshd**, so both polarities measured nothing. §7 step 2 already says NAT cannot
+> be used because the host must open a connection *to* the guest. **Proving the
+> remote block needs a BRIDGED NIC.** That control is still outstanding and is
+> the one thing about §5.9 that remains unproven.
+>
+> ***AND ONE FALSE READING CAUGHT BEFORE IT WAS BELIEVED.*** A first dial of
+> `::1` reported *"None of the discovered or specified addresses match the socket
+> address family"*, which reads exactly like "::1 is blocked". It was
+> `New-Object Net.Sockets.TcpClient` defaulting to **AF_INET**, which cannot dial
+> an IPv6 literal at all. The instrument never reached the condition.
+> `probe-sshfirewall.ps1` names the address family on every dial for this reason.
+>
+> ## EARLIER THE SAME SESSION: STEP 17 CLOSED — `setup-devbox.ps1` RAN END TO END ON A BARE VM.
 >
 > 24 Aug 2026, 22:16:05 to 22:33 host time, ~17 minutes, ***exit code 0***,
 > last line `setup-devbox: finished, no problems.` Console transcript quoted
@@ -535,7 +655,7 @@ something came to be the way it is.
 > |---|---|---|
 > | 15 | ***CLOSED IN FULL 24 Aug 2026.*** ACL lock re-verified 16/16 on the 18:19:17 install; `probe-catprivate` 3/3 at 19:26:48 measured CATALOG writing `sdsys\cat` under the lock; `CONFIG` closed by source (nothing in SD writes `sd.conf`); `CREATE.ACCOUNT` cycled and measured. Suite re-run at 31/31 on `b37` | closed |
 > | 9 | ***CLOSED.*** `sd <command>` no longer prompts (`LOGIN:669`), the installer's password step moved to `MODIFY.PASSWORD`, both cycled and verified, `verify-cmdaudit` passes 7/7 in `VerifyInstall2` on `b37`. ***The behavioural half cannot be automated*** - the gate is reachable only by a person at their own elevated console; that console probe is the one remaining decision | closed |
-> | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. ~~`sdsys\bp` still ships 21 test programs~~ ***CLOSED 24 Aug*** - 15 dropped, `TESTSDCLI` moved to `gplbld/testsdcli.bp` with drop-into-place. No data-tree upgrade path | 2 open bullets |
+> | 3 | installer loose ends. ~~`sshremote`/mandatory-ssh still needs the VM~~ ***RUN 24 Aug 2026 AND IT FOUND A LIVE DEFECT*** - `ssh-firewall.ps1` has never been able to scope ssh, so every install that puts ssh on leaves **port 22 open to the LAN**; one-line fix measured, **not yet approved or made**, START HERE. Remote-block control still unproven, needs a bridged NIC. ~~`sdsys\bp` still ships 21 test programs~~ ***CLOSED 24 Aug***. No data-tree upgrade path | **1 OPEN DEFECT** + 2 open bullets |
 > | — | ***CLOSED 24 Aug 2026, §5.9*** - owner picked **C** (keep default-ticked; the description carries the warning), with the strengthening: the wizard description now leads with `DISABLES scp and sftp for everyone` rather than burying it after a comma and inside a parenthesis. A/B rejected on-record: A trades one problem for a globally weaker default; B reintroduces the "task a one-shot" trap [allow-ssh-groups.ps1:22-27](sdb_ai/sd64/gplbld/allow-ssh-groups.ps1:22) says the 21 Aug flip fixed. [sd.iss:210](sdb_ai/sd64/gplbld/sd.iss:210) rewritten; the stale header at `allow-ssh-groups.ps1:31` was fixed earlier the same day; changelog carries the user-facing note | closed |
 > | 17 | ***CLOSED 24 Aug 2026, fifty-fourth session.*** `setup-devbox.ps1` ran end to end on the bare VM, ~17 min, **exit 0**, through `make sd`; the `-Syu` skip fired and `pacman -S --needed` installed all 8 packages; clones, build and report all reached for the first time. **The two earlier wedges were the host's Hyper-V/NEM fallback, not the script** (§6). `sdhelp` was raised as an open requirement and **the owner cancelled it the same day** | closed |
 >
@@ -6409,12 +6529,35 @@ the staging script and the Inno installer were all finished and removed.
      **Cost if it regresses:** an account in `sdsshonly` on a machine where the
      rights never landed is not confined at all — it can sign in at the console
      — and before this the install said nothing.
-   - **THE MANDATORY-SSH PATH CANNOT BE TESTED ON THIS MACHINE**, which already
-     has OpenSSH — `SshServerAbsent` is false here, so only the "already
-     present, leave it alone" branch ever runs, and `sshremote` and `limitssh`
-     are both hidden. Structurally the same hole as the `AllowGroups` task
-     above. **It needs the VM from step 2** (`Windows 11 Clone`, snapshot
-     `Before SD install`).
+   - ***THE MANDATORY-SSH PATH WAS TESTED 24 Aug 2026 AND IT FOUND A REAL
+     DEFECT. THE DEFECT IS OPEN.*** VM `Windows 11 - sshRemoteTest`, the first
+     machine with no OpenSSH server this has ever run on.
+
+     **What worked**: `sshremote` appeared in the wizard and was unticked,
+     `limitssh` appeared ticked with its new wording, `install-ssh.ps1` ran and
+     left `sshd` Running/Automatic, `ApplyAllowGroups` reported its applied
+     outcome, and the closing dialog **disclosed the failure below instead of
+     swallowing it**.
+
+     ***WHAT FAILED: `ssh-firewall.ps1` HAS NEVER BEEN ABLE TO SCOPE ssh.***
+     [ssh-firewall.ps1:113](sdb_ai/sd64/gplbld/ssh-firewall.ps1:113) passes
+     `@('127.0.0.1','::1')` to `Set-NetFirewallRule -RemoteAddress`; **Windows
+     rejects any IPv6 loopback literal there**, the call throws, and the rule
+     stays `RemoteAddress=Any` — **port 22 open to the LAN, the exposure §5.9
+     exists to prevent**. The documented by-hand recovery fails identically.
+     Unseen for eight days because `ApplySshFirewall` exits early unless
+     `SshWasAbsent`. **One-line fix — pass `127.0.0.1` alone — measured safe;
+     START HERE has the candidate table and the ordering.** Not yet approved.
+
+     **Re-take the measurement with**
+     [probe-sshfirewall.ps1](sdb_ai/sd64/gplbld/probe-sshfirewall.ps1), which
+     refuses the null case and names the socket address family on every dial.
+
+     ***STILL UNPROVEN, AND IT NEEDS A BRIDGED NIC:*** that the scoping actually
+     blocks a REMOTE machine. A VirtualBox NAT port-forward cannot show it — the
+     NAT engine completes the handshake itself and nothing reaches `sshd`,
+     measured 24 Aug 2026 with the rule wide open. §7 step 2 already said NAT
+     cannot be used for host→guest.
    - ***CLOSED 24 Aug 2026, FIFTY-FIRST SESSION — this bullet was stale and is
      rewritten rather than deleted.*** It read *"`GPL.BP/OPGEN` is not ported
      to `gen_includes.py` … port it before opcodes ever need regenerating"*.
