@@ -167,7 +167,7 @@ something came to be the way it is.
 > That the ssh scoping blocks a REMOTE machine is the one §5.9 claim never
 > measured. NAT cannot show it.
 >
-> ### 5. THE STAND-ALONE INSTALL OPTION — THE WIZARD PAGE IS BUILT, THE BEHAVIOUR IS NOT
+> ### 5. THE STAND-ALONE INSTALL OPTION — BUILT END TO END, NEVER RUN
 >
 > Owner's request, in his words: *"another option for users, a stand-alone
 > system option. No ssh, no api, just the ability to quickly install — intent,
@@ -222,14 +222,38 @@ something came to be the way it is.
 > | one text, not two | `DisclosureText(Standalone)` — common paragraphs written once, three mode-conditional points. The full branch is the existing wording **verbatim** |
 > | the tasks MsgBox | now also gated on `not StandaloneChosen`; every sentence of it is false on a stand-alone install |
 >
-> ***THE OPTION IS INERT AND IS REFUSED OUT LOUD. `NextButtonClick` REFUSES TO
-> LEAVE THE MODE PAGE WITH STAND-ALONE SELECTED, AND THAT FUNCTION IS A
-> SCAFFOLD TO DELETE*** ([sd.iss](sdb_ai/sd64/gplbld/sd.iss), search
-> `A SCAFFOLD, AND IT IS MEANT TO BE DELETED`). Nothing acts on the answer yet —
-> `[Run]`, `sd.conf`, `sshremote` and `CREATEA` are all still unconditional — so
-> accepting it would install ssh, open 4243 and kill scp **having just promised
-> otherwise**. That is this file's recurring fault built on purpose; the refusal
-> makes the page safe to put through a cycle and judge on screen.
+> ***THE BEHAVIOUR IS WIRED, AND THE `NextButtonClick` SCAFFOLD IS GONE.***
+> Every step the mode page promises is now conditional:
+>
+> | | |
+> |---|---|
+> | `sd.conf` | **two staged files, one destination.** `stage.py` `sd_conf_standalone()` derives the stand-alone one from `SD_CONF` by commenting out `APIPORT=4243` and **refuses if that line is not found** — a silent miss would ship a stand-alone box with the API listening. `[Files]` picks one with `Check:`, `DestName: sd.conf` |
+> | OpenSSH | `[Run]` install-ssh gains `and not StandaloneChosen` |
+> | sshd_config | `ApplyAllowGroups` exits — this is the step that stops scp working, so it is the one the promise is about |
+> | firewall | `ApplySshFirewall` and `ApplyApiFirewall` both exit. **No `-Restrict` rule either**: a rule naming a port nothing listens on describes a service that does not exist |
+> | the marker | `WriteStandaloneMarker` writes `sdsys\$standalone` **after** `AdoptAccount`, and a failed write gets its own paragraph in the closing dialog |
+> | `CREATEA` | refuses `create.account user` with **sysmsg 10100**, sited **after `gosub more.args` so `ADOPT` is known** — the installer's own account step is `CREATE.ACCOUNT USER <name> ADOPT` and would otherwise be refused by the marker it just wrote |
+> | closing dialog | `SshReport` gains a stand-alone branch; the password paragraph no longer claims the password is "what reaches the account ... over ssh or the API", which is false here |
+>
+> ***AN UPGRADE NEVER RE-ASKS, AND A STAND-ALONE SYSTEM STAYS ONE.***
+> `StandaloneWasMarked` is sampled once in `InitializeSetup` — **this installer
+> writes that marker itself, so a live `FileExists` would answer False for the
+> whole wizard and True afterwards**, which is the shape of the bug that skipped
+> ~3,260 files and exited 0. `StandaloneChosen` then reads marker → upgrade →
+> radio, in that order, and `ShouldSkipPage` hides the mode page on any upgrade.
+> The marker is **in no ship list**, so the generated `upgrade.iss` cannot delete
+> it — the same default that protects `voc` and `errlog`.
+>
+> ***THE ONE THING GATED ON UNSPECIFIED BEHAVIOUR, AND IT IS COSMETIC.*** The
+> `sshremote` **`[Tasks]` `Check:`** may not hide the box. Inno's documentation
+> says only that *"Setup might call each check function several times"* and
+> promises nothing about re-evaluating on page show; measured with
+> `probe-taskcheck.iss`, `InitializeWizard` runs first (so the radio is never
+> nil) but the check fired **once, straight after the wizard was built** — before
+> a reader could have touched the mode page. **The safety is not there**:
+> `ApplySshFirewall` exits at install time, where the answer is certain. Worst
+> case is a visible checkbox that does nothing. ***Look at the tasks page on a
+> stand-alone run;*** if the box is there, move that choice onto the mode page.
 >
 > ***PROVEN AS FAR AS IT CAN BE WITHOUT AN INSTALL:*** ISPP lint clean; the
 > `[Code]` section extracted to a harness and compiled by the real ISCC, **exit

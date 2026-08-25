@@ -27,6 +27,96 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-seventh session, part 2: the stand-alone behaviour is wired
+
+**Commit:** this one. `gplbld/sd.iss`, `gplbld/stage.py`, `gpl.bp/CREATEA`,
+`sdsys/messages/10100` (new), `sdsys/changelog`.
+
+Part 1 built the page and refused the option because nothing acted on it. Every
+step now does, and the `NextButtonClick` scaffold is deleted.
+
+### What each promise is carried by
+
+| promise | mechanism |
+|---|---|
+| no API, no port | `stage.py` `sd_conf_standalone()` derives a second `sd.conf` from `SD_CONF` with `APIPORT` commented out; `[Files]` picks one with `Check:` and `DestName: sd.conf` |
+| no ssh server | `[Run]` install-ssh gains `and not StandaloneChosen` |
+| ssh config untouched | `ApplyAllowGroups` exits - the step that actually stops scp working |
+| no firewall rule | `ApplySshFirewall` and `ApplyApiFirewall` exit. Not even `-Restrict`: a rule naming a port nothing listens on describes a service that does not exist |
+| `create.account user` refused | `CREATEA` reads `sdsys\$standalone`, sysmsg **10100** |
+
+### Three things that were nearly got wrong, recorded because they are the reasoning
+
+***THE INSTALLER CREATES ITS OWN ACCOUNT THROUGH THE VERB IT NOW REFUSES.***
+`gplbld/adopt-account.ps1` runs `sd -internal CREATE.ACCOUNT USER <name> ADOPT`,
+which is the same arm. A refusal placed before `gosub more.args` would have made
+a stand-alone system **impossible to install** - the marker would refuse the
+install that wrote it. The test sits after `more.args`, where `adopt` is known,
+and the marker is written after `AdoptAccount` as a second line of defence.
+
+***A LIVE `FileExists` FOR THE MARKER WOULD HAVE BEEN THE ~3,260-FILES BUG
+AGAIN.*** This installer writes the marker itself at ssPostInstall, so a Check
+reading the disk would answer False for the whole wizard and True afterwards.
+`StandaloneWasMarked` is sampled once in `InitializeSetup`, exactly as
+`DataTreeWasAbsent` and `SshWasAbsent` are, and for the same reason.
+
+***THE GUARD ON THE DERIVED sd.conf FIRED ON ITS OWN SUCCESS.*** The first
+version tested `APIPORT_LINE in out` as a disqualifier - and the commented-out
+replacement CONTAINS that substring, so every build was refused. It is the trap
+CLAUDE.md names in as many words: a check has to anchor on something only the
+real outcome produces. Now line-wise, in `_active_apiport()`, with the reasoning
+at the function.
+
+### Upgrades
+
+`StandaloneChosen` reads marker, then upgrade, then radio. `ShouldSkipPage`
+hides the mode page on any upgrade: the tree already carries the answer and
+`sd.conf` is `onlyifdoesntexist`, so offering the choice would change nothing -
+the same false promise the un-untickable checkbox was removed for. The marker is
+in no ship list, so the generated `upgrade.iss` cannot delete it.
+
+### Measured, with controls
+
+- ISPP lint clean. `[Code]` harness compiled by ISCC, **39 routines**, exit 0.
+- **A second harness** compiles the real `[Tasks]` plus every new `Check:`
+  expression against the real `[Code]` - because `Check:` parameters are not in
+  the `[Code]` section and were therefore untested by the first. **Control: an
+  undefined function in a `Check:` is a compile error** (*"Required function or
+  procedure 'NoSuchFlag' not found"*), so the pass means the expressions really
+  do resolve. Boolean `and`/`not` in `Check:` is supported - also measured.
+- `stage.py`: the two configs differ in **exactly one setting**, and a reworded
+  `SD_CONF` is **refused** rather than silently mis-derived.
+- `sdsys/messages/10100` written as bytes to match its neighbours: LF-only, one
+  trailing LF, and the in-message break written as a literal backslash-n rather
+  than a newline. A repeated `%1` is an existing shipping idiom (6162, 6195) -
+  checked before relying on it.
+
+**AND THE BACKSLASH RULE CAUGHT THIS ENTRY ITSELF.** The line above arrived in
+this file as a real newline: it was written through a `<<'PYEOF'` heredoc, and
+CLAUDE.md's failure mode 2 is exactly that - *"the shell is now innocent and
+Python's own string literals still interpret the escapes"*. Quoting the heredoc
+does not help. Written with the editing tool instead, which is what the rule
+says to do.
+
+***THE BASIC IS NOT COMPILED.*** `bbcmp.py` only handles BBPROC, BCOMP and
+PATHTKN, so it cannot validate `CREATEA` - and an instrument that fails for its
+own limitations could not tell a real error from its gap. What was checked is
+mechanical: every symbol used (`ospath`, `OS$EXISTS`, `ER$FAILED`, `sysmsg`,
+`@sdsys`, `@ds`) is an existing idiom in the same file, `adopt` is assigned at
+`:217` well before the test at `:326`, and the blocks balance.
+**`cycle.ps1 -SkipInstall` is the cheap way to compile it and has not been run.**
+
+### And a Git Bash trap worth having written down
+
+`probe-taskcheck.exe /VERYSILENT` **hung for two minutes on the interactive
+wizard.** MSYS rewrote the `/VERYSILENT` argument as a POSIX path: the Inno log
+recorded the command line it actually received as
+`"C:/Program Files/Git/VERYSILENT"`. Any `/FLAG` argument passed to a native
+Windows exe from the Bash tool is mangled this way - `ISCC /DStage=...` would be
+too. Launch such things from PowerShell, or use `MSYS_NO_PATHCONV=1`.
+
+---
+
 ## 25 Aug 2026 - Fifty-seventh session: the stand-alone mode page, and nothing behind it
 
 **Commit:** this one. `gplbld/sd.iss` only.
