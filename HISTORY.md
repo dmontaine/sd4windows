@@ -27,6 +27,58 @@ corrected.
 
 ---
 
+## 25 Aug 2026 — Fifty-fifth session, part 5: the documentation phase is scoped, and the changelog turns out to be in the wrong place
+
+Design questions from the owner, answered and recorded in START HERE rather
+than left in a conversation.
+
+**THE WORK STAYS IN THIS REPOSITORY.** Documentation has to ship with the code,
+be versioned with it and be checkable against source. A separate project
+recreates the drift this codebase keeps paying for - on this day alone four
+statements in the installer dialogs had quietly stopped being true, and a
+writer working from a detached copy would have documented all four faithfully.
+
+**WHAT IS TRIMMED IS `PROJECT_STATUS`, NOT `HISTORY`.** PROJECT_STATUS is read
+every session; HISTORY is read on demand, so its length costs nothing. Compress
+the closed steps into HISTORY, which this file already does in places. HISTORY
+itself stays append-only.
+
+**DOCUMENTATION SHIPS TO `{app}\doc\` WITH A START MENU SHORTCUT.** Everything
+under `{app}` is replaced on upgrade and removed on uninstall, which is the
+lifecycle documentation wants. The user's Documents folder is wrong three ways:
+it is their space, it would never be updated, and uninstall would leave it.
+
+***AND THAT EXPOSED A DEFECT IN THE SAME FAMILY AS THE UPGRADE PATH:
+`sdsys\changelog` SHIPS INTO THE DATA TREE***, which the installer never
+overwrites. A user's changelog is frozen at their install date and can never be
+updated - in the one file whose entire job is telling them what changed. Not
+yet decided, not yet a task, but it probably wants moving to `{app}`.
+
+**FORMAT: Markdown in the repository, single-file HTML generated at stage
+time.** Every Windows machine has a browser; a single file with embedded CSS
+has no asset folder to break; it works offline, which matters on the machines
+SD installs on; and the user can print to PDF from the browser, so no PDF needs
+shipping - which the no-binaries rule forbids anyway, and is why `sdhelp` is
+hand-carried.
+
+Converter: a small pure-Python Markdown library from a `gplbld/` script,
+installed by `setup-devbox.ps1`. **Pandoc rejected** - a binary dependency cuts
+against building from source. **CHM rejected**, and not only for being a
+binary: its toolchain is abandoned and Windows blocks CHM files opened from a
+network path, which is a "help does not work" support problem that never
+reproduces on the developer's own machine.
+
+**NEXT SESSION'S FIRST TASK IS THE OWNER'S OWN**: a full cycle and the verify
+suite. Nothing has been checked end to end since the installer surgery - last
+green was 31/31 on b37/b38, before the ssh-firewall fix, before limitssh left
+the tasks page, before ssh-preflight.ps1 and four dialog rewordings. The tree is
+STALE, so assert-current refuses every verifier until that cycle runs. Then a
+styled sample documentation page, which he asked for rather than a description
+- the right call, since "can Markdown be pretty" is not a question prose
+answers well.
+
+---
+
 ## 25 Aug 2026 — Fifty-fifth session, part 4: the refuse-to-install ruling is verified on three guests, and a morning finding is withdrawn
 
 **COMPLETE.** With the 11:54:26 installer (SHA256 `033A6A94…67102`):

@@ -5,13 +5,115 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, fifty-fifth session. ***THE REFUSE-TO-INSTALL RULING IS BUILT AND VERIFIED ON THREE GUESTS*** - SD now refuses beside an ssh server it does not own, `limitssh` is a statement rather than a tick box, and every new code path is exercised. The ssh firewall defect is closed, both branches. ***OPEN: only the remote-block control, which needs a BRIDGED NIC.*** Four false statements were found in the installer dialogs by reading them on screen - see START HERE, the pattern matters more than the four.
+**Last updated:** 25 Aug 2026, end of fifty-fifth session. ***CODE IS ESSENTIALLY DONE FOR 1.0-0; THE DOCUMENTATION PHASE IS NEXT.*** The refuse-to-install ruling is built and verified on three guests, and the ssh firewall defect is closed on both branches. ***THE ONE THING NOBODY HAS DONE IS RUN THE SUITE SINCE ANY OF IT*** - last green was b37/b38 on 24 Aug, and the tree is STALE, so a full cycle comes first. Documentation decisions are agreed and recorded in START HERE; the owner asked for a styled sample page to judge before anything is committed to.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: NOTHING IS HALF-DONE. THE REFUSE-TO-INSTALL WORK IS COMPLETE AND VERIFIED.
+> ## NEXT SESSION: FOUR THINGS, IN THIS ORDER. NOTHING IS BROKEN.
+>
+> The refuse-to-install work is **complete and verified on three guests** (see
+> below). What follows is confidence, then the documentation phase.
+>
+> ### 1. RUN A FULL CYCLE AND THE VERIFY SUITE. NOTHING HAS BEEN CHECKED END TO END SINCE THE INSTALLER SURGERY.
+>
+> ***THE LAST GREEN SUITE WAS 31/31, 386 PASS, ON `b37` AND `b38`, 24 Aug*** —
+> before the ssh-firewall fix, before `limitssh` left `[Tasks]`, before
+> `ssh-preflight.ps1`, before four dialog rewordings. **The tree is STALE right
+> now** (every cycle this session was `-SkipInstall`, which leaves the install
+> untouched), so `assert-current` refuses every verifier until a full
+> `cycle.ps1`. ***Use `b39` or later — prefixes to `b38` are spent.***
+>
+> This is the owner's own next task; he said he would do the run and verify in
+> a fresh session.
+>
+> ### 2. BUILD ONE STYLED SAMPLE DOCUMENTATION PAGE — THE OWNER ASKED FOR IT
+>
+> Take a real chunk of SD documentation, render it the way §"DOCUMENTATION
+> DECISIONS" below says, and let him judge the look before anything is
+> committed to. **He asked for a sample rather than a description, and he is
+> right to** — "can Markdown be pretty" is not a question prose answers well.
+>
+> ### 3. THE DATA-TREE UPGRADE PATH IS DECIDED AND NOT BUILT
+>
+> §7 step 3 carries the ruling in full: preserve `$cred`, `accounts`,
+> `os.users`, `cat`, `batch.jobs`, `prt` and `sd.conf`; replace everything else.
+> `UPDATE.ACCOUNT`, run per account, handles VOC. The only open part is whether
+> the uninstaller preserves and the installer relays, or the installer replaces
+> the shipped subset in place.
+>
+> ### 4. THE REMOTE-BLOCK CONTROL STILL NEEDS A BRIDGED NIC
+>
+> That the ssh scoping blocks a REMOTE machine is the one §5.9 claim never
+> measured. NAT cannot show it.
+>
+> ---
+>
+> ## DOCUMENTATION DECISIONS, AGREED 25 Aug 2026
+>
+> ### WHERE THE WORK LIVES: THIS REPOSITORY, WITH `PROJECT_STATUS` TRIMMED
+>
+> ***NOT A NEW PROJECT.*** Documentation has to ship with the code, be versioned
+> with it and be checkable against source. A separate repository recreates the
+> drift this codebase keeps paying for — **on 25 Aug alone, four statements in
+> the installer dialogs had quietly stopped being true**, and a writer working
+> from a detached copy would have faithfully documented all four.
+>
+> ***THE SIZE PROBLEM IS `PROJECT_STATUS` ONLY.*** It is read every session;
+> `HISTORY` is read on demand, so its length costs nothing. Compress the closed
+> steps — 0-2 and 4-17 — into `HISTORY`, which this file already does in places
+> (*"Detail compressed 21 Aug 2026 under §0.5"*). ***DO NOT REWRITE `HISTORY`***:
+> rule 1 is append-only and it has earned its keep repeatedly.
+>
+> ### WHERE THE DOCUMENTATION SHIPS: `{app}\doc\`, NOT THE USER'S DOCUMENTS FOLDER
+>
+> Everything under `{app}` is *"replaced on upgrade and removed on uninstall"*,
+> which is exactly the lifecycle documentation wants. A Start Menu shortcut goes
+> beside the two that exist (`{group}\SD`, `{group}\Check the SD installation`).
+> The user's Documents folder is wrong three ways: it is their space, it would
+> never be updated, and uninstall would leave it behind.
+>
+> ***AND THIS EXPOSED A REAL DEFECT, RECORDED HERE BECAUSE IT IS THE SAME FAMILY
+> AS THE UPGRADE PATH: `sdsys\changelog` SHIPS INTO THE DATA TREE***, which the
+> installer never overwrites. **A user's changelog is therefore frozen at their
+> install date and can never be updated** — in the one file whose entire job is
+> telling them what changed. It probably wants moving to `{app}` too. Not yet
+> decided; not yet raised as a task.
+>
+> ### THE FORMAT: MARKDOWN IN THE REPOSITORY, SINGLE-FILE HTML AT STAGE TIME
+>
+> Every Windows machine has a browser, so there is nothing to install and no
+> format to explain. **Single file with embedded CSS** — no asset folder to
+> break. Works offline, which matters on the machines SD installs on. The user
+> can print to PDF from the browser, so **no PDF needs shipping, which the
+> no-binaries rule forbids anyway** (it is why `sdhelp` is hand-carried).
+>
+> ***WHAT ACTUALLY MAKES THEM LOOK GOOD*** — about 100 lines of CSS, written
+> once and shared:
+>
+> | | |
+> |---|---|
+> | line length capped ~70-75 characters | the single biggest win; full-width text is what makes docs look amateur |
+> | a system font stack | no web fonts, so no network dependency and no licence question |
+> | real table and code-block styling | technical documentation lives or dies on these |
+> | a table of contents with anchors | long reference pages are unusable without one |
+> | a print stylesheet | so browser-to-PDF comes out clean |
+>
+> ***THE CONVERTER: a small pure-Python Markdown library*** (`markdown` or
+> `mistune`) called from a `gplbld/` script. It fits the existing Python build,
+> and `setup-devbox.ps1` can install it beside the rest of the tooling. Writing
+> the documentation in HTML directly avoids the dependency and is much worse to
+> write and review; **pandoc is the better converter and is rejected** — a
+> binary dependency cuts against building from source.
+>
+> ***CHM IS REJECTED, AND NOT ONLY FOR THE OBVIOUS REASON.*** It is the classic
+> Windows help format with real advantages — F1 integration, built-in search —
+> but it is a binary, its toolchain is long abandoned, and **Windows blocks CHM
+> files opened from a network path**. That produces a "help does not work"
+> support problem which never reproduces on the developer's own machine.
+>
+> ## THE REFUSE-TO-INSTALL WORK, COMPLETE AND VERIFIED 25 Aug 2026
 >
 > ***PROVEN ON THREE GUESTS, WITH THE REAL INSTALLER*** (11:54:26 build, SHA256
 > `033A6A94…67102`), 25 Aug 2026:
