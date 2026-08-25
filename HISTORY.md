@@ -27,6 +27,60 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-third session, part 5: §5.9 closed, wizard warning strengthened
+
+§5.9 had been "decision not started" since 24 Aug: the `limitssh` task
+became default-ticked on 21 Aug (deliberate flip, sd.iss:181-186) but
+that put a globally-effective change (ForceCommand into `sd`,
+scp/sftp disabled) one Enter-key away from a click-through admin on
+any machine that already used sshd.
+
+**The stale header caught while sketching options.**
+`allow-ssh-groups.ps1:31` still said the task was "unticked by
+default", and the header claimed that carried §5.9's *"never
+reconfigure an ssh server we did not install"* rule. Neither half
+held: the task is TICKED (no `Flags: unchecked` at sd.iss:210) and
+what actually backstops §5.9 is refusal 2 in the script (existing
+`AllowGroups`/`AllowUsers`/`DenyGroups`/`DenyUsers`) plus the task
+description. Header corrected in a separate commit (`aa663ab`) so the
+decision saw the current shape.
+
+**Three shapes weighed on-record:**
+
+- **A**: add `Flags: unchecked` at sd.iss:210. Safer default, but
+  trades one problem (stock-sshd-in-use silent break) for a global
+  one (SD's security model becomes opt-in and forgotten). Reverts
+  the 21 Aug flip whose stated rationale is deliberate.
+- **B**: restore the `SshWasAbsent` gate at sd.iss:965. Preserves
+  default-ticked when SD installs sshd itself, but reintroduces the
+  exact "task a one-shot" trap [allow-ssh-groups.ps1:22-27] records
+  the 21 Aug flip fixed — SD's first install puts sshd on the
+  machine for ever, so after cycle 1 the box could never be offered
+  again.
+- **C**: no gate change; the description carries the warning.
+  Doesn't catch stock-sshd-in-use silent-tick, but the code has
+  three other layers (`-Installed` refusal for CLI, refusal 2 for
+  configured-policy machines, description text).
+
+**Owner picked C, with the strengthening:** the wizard description at
+[sd.iss:210] now leads with the destructive edge rather than burying
+it. Old: *"Limit ssh to SD users and administrators, and put every
+ssh session straight into SD (disables scp and sftp)"*. New:
+*"DISABLES scp and sftp for everyone: puts every ssh session straight
+into SD, and limits ssh to SD users and administrators"*. Puts the
+sharp edge before the promise, where a reader who scans still
+catches it. Behaviour unchanged; still ticked by default; still
+unticks in the wizard; refusal 2 still fires on configured policy.
+
+**Changelog carries the user-facing note**, naming both the old and
+new wording and stating what did not change.
+
+**Not cycled** — the change is a text edit to sd.iss, so the b38
+install still shows the old wording. Joins `stage.py`'s comment fix
+and `allow-ssh-groups.ps1`'s header fix as the third
+STALE-by-not-yet-cycled item on the tree; all three clear on the
+next cycle whenever that happens.
+
 ## 24 Aug 2026 — Fifty-third session, part 4: BP trim cycled, suite green on b38, one comment-fix follow-up
 
 The BP trim went to disk. One `cycle.ps1`, one
