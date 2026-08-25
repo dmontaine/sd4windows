@@ -27,6 +27,77 @@ corrected.
 
 ---
 
+## 24 Aug 2026 — Fifty-third session, part 6: step 17 attempt 2 — two fixes proven, a new wall found and fixed unrun
+
+The owner made a VirtualBox VM available (`Windows 11
+DevEnvInstallTest`, `47b7584f-f4a0-4db5-bca9-534c478adce7`) and gave
+standing permission to drive it. Took snapshot `Before setup-devbox`
+(`d0bb8989-a107-46c8-a86d-479c80aa1b00`) first, then ran
+`setup-devbox.ps1` fetched fresh from `main`.
+
+**HOW THE GUEST WAS DRIVEN, since §7 step 2 forbids `guestcontrol`
+(guest credentials).** `VBoxManage controlvm keyboardputscancode` and
+`keyboardputstring`, with `screenshotpng` read back as the only
+feedback channel. **UAC never prompted on this VM** — Win+X
+(`e0 5b 2d ad e0 db`) then `A` (`1e 9e`) opened
+`Administrator: Windows PowerShell` at `PS C:\Users\don>` directly.
+***`keyboardputstring` DROPS CHARACTERS ON A LONG STRING***: the
+108-character `curl` line lost 15 mid-URL and curl answered *"(2) no
+URL specified"*. Re-sent in ~25-character chunks with `sleep 0.4`
+between them and it went through, downloading all 39,896 bytes.
+
+**TWO OF THE THREE 23-AUG FIXES ARE NOW PROVEN ON A BARE BOX**, which
+is what this attempt was for. Git 2.55.0 installed and the script
+printed *"git is usable in THIS session"*; GitHub CLI 2.98.0 the same.
+`Update-SessionPath` and `Resolve-Tool` both did their job, and the
+`Step-Clone` failure that killed attempt 1 did not recur. MSYS2 then
+installed clean to `C:\msys64` in about four minutes.
+
+**THEN IT HUNG AT `pacman -Syu`, AND THE OWNER RECOGNISED THE PLACE** —
+*"this is where the install hung the last time we tried this"*.
+
+**WHAT IT IS.** On a tree the installer has just unpacked, `-Syu` wants
+to upgrade the runtime itself — `msys-2.0.dll` and the pacman/bash
+packages around it. `Invoke-Msys` runs inside a `bash.exe` that has
+that DLL mapped; Windows will not replace a mapped image; pacman prints
+*"terminate other MSYS2 programs before proceeding"* and blocks for
+ever. The terminal stopped repainting at 21:01 — **neither Enter nor
+two Ctrl+C reached it** — and the VM had to be powered off and rolled
+back to the snapshot. It is the same condition MSYS2's own
+documentation describes when it says to close every shell after the
+first `-Syu` and open a new one.
+
+***`--noconfirm` DOES NOT HELP, AND THAT WAS THE FIRST WRONG READING.***
+The obvious diagnosis was "pacman is waiting for input", and Enter was
+sent on that theory. It was wrong: `--noconfirm` answers the Y/N
+prompt, it does not make a loaded DLL replaceable. What pacman was
+waiting on was a file lock that only ending the process clears — which
+is why nothing typed at it made any difference.
+
+**THE FIX.** `Step-Msys` sets `$script:MsysJustInstalled` when winget
+installs MSYS2; `Step-Packages` skips `-Syu` when that flag is set and
+runs `pacman -S --needed` alone. Safe because a freshly-unpacked tree
+has no version skew — its packages and its database ship from the same
+release — which is precisely the harmless case the existing `-Sy` note
+in that function already described without acting on it. **The
+stale-tree path is unchanged** and still gets its `-Syu`: a months-old
+MSYS2 is the case the partial-upgrade rule exists for, and it does not
+hang there because a long-installed tree usually has a current runtime.
+Flag initialised `$false` at the top, so stale-tree is the default.
+
+***THE FIX HAS NEVER BEEN RUN.*** Parse-checked (0 errors, 27
+functions, no BOM) and committed; the session ended on credits before
+it could be exercised. The VM is restored to `Before setup-devbox` and
+powered off, ready. Everything after the packages step — libsodium,
+Inno, ssh, the clones, `make sd`, the report — **still has never run on
+a bare machine**, which remains the whole of step 17.
+
+**THE VM IS NOT A STOCK ISO** and the record should carry it: Chrome,
+pCloud Drive and Winhance are pre-installed. Not a defect —
+setup-devbox is idempotent and reports pre-existing tooling as "already
+present" — but a green run on this box is slightly weaker evidence than
+one on a pristine install, and closing step 17 should say so.
+
 ## 24 Aug 2026 — Fifty-third session, part 5: §5.9 closed, wizard warning strengthened
 
 §5.9 had been "decision not started" since 24 Aug: the `limitssh` task

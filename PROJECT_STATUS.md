@@ -5,19 +5,106 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 fully closed; suite green at **31/31 on b37 AND b38**; SDSYS BP trimmed to five utility programs, cycled and installed; §5.9 closed (option C picked, wizard description strengthened to lead with `DISABLES scp and sftp`); three not-yet-cycled comment/text edits (stage.py, allow-ssh-groups.ps1, sd.iss) all clear on the next cycle whenever that happens.
+**Last updated:** 24 Aug 2026, end of fifty-third session — step 15 closed; suite 31/31 on b37 AND b38; SDSYS BP trimmed; §5.9 closed. ***STEP 17 IS MID-FLIGHT: the MSYS2 hang is DIAGNOSED and FIXED but the fixed script has NEVER RUN — that is the next session's first job.***
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT: NOTHING IS OWED. NOTHING IS BLOCKING. CLEAN HANDOFF.
+> ## NEXT: FINISH STEP 17. THE FIX IS IN; IT HAS NEVER BEEN RUN.
 >
-> ***END OF THE FIFTY-THIRD SESSION, 24 Aug 2026*** — step 15 fully closed;
-> the SDSYS BP trim cycled and shipped; suite green at 31/31 on both `b37`
-> AND `b38` (386 PASS 0 FAIL each). Working tree carries one tiny follow-up
-> commit (comment fix in `stage.py`) that leaves the tree "STALE by
-> comment" until the next cycle — no urgency.
+> ***THE VM IS READY AND WAITING.*** VirtualBox 7.2.14, VM
+> **`Windows 11 DevEnvInstallTest`**, UUID
+> `47b7584f-f4a0-4db5-bca9-534c478adce7`, snapshot
+> **`Before setup-devbox`** (`d0bb8989-a107-46c8-a86d-479c80aa1b00`),
+> **already restored to that snapshot and powered off.** NAT NIC, Guest
+> Additions 7.2.14 run level 3.
+>
+> ### THE MSYS2 HANG IS DIAGNOSED AND THE FIX IS COMMITTED, UNRUN
+>
+> `pacman -Syu` on a tree **this run just unpacked** wants to replace
+> `msys-2.0.dll` — which the `bash.exe` running it has mapped — so Windows
+> refuses, pacman prints *"terminate other MSYS2 programs before
+> proceeding"* and **blocks for ever**. ***`--noconfirm` DOES NOT HELP***:
+> it answers the Y/N, it does not make a loaded DLL replaceable. **Measured
+> 24 Aug 2026 at 21:01** — terminal stopped repainting, neither Enter nor
+> two Ctrl+C reached it, VM rolled back.
+>
+> **THE FIX**: `Step-Msys` sets `$script:MsysJustInstalled` when winget
+> installs MSYS2; `Step-Packages` skips `-Syu` when that flag is set and
+> goes straight to `pacman -S --needed`. **The stale-tree path is
+> unchanged** and still gets its `-Syu` — that is the case the
+> partial-upgrade rule is written for. Parse-checked 0 errors, 27
+> functions, no BOM. ***IT HAS NOT BEEN RUN ONCE.***
+>
+> ### HOW TO DRIVE THE GUEST — THIS WORKED, USE IT
+>
+> `guestcontrol` needs guest credentials and §7 step 2 forbids it. **The
+> keyboard route works and needs none.** From Git Bash with
+> `export PATH="/c/Program Files/Oracle/VirtualBox:$PATH"`:
+>
+> | need | command |
+> |---|---|
+> | start | `VBoxManage startvm <uuid> --type gui` |
+> | see the screen | `VBoxManage controlvm <uuid> screenshotpng <file>` then Read the png |
+> | Win+X | `keyboardputscancode e0 5b 2d ad e0 db` |
+> | then `A` (Terminal Admin) | `keyboardputscancode 1e 9e` |
+> | Enter | `keyboardputscancode 1c 9c` |
+> | Ctrl+C | `keyboardputscancode 1d 2e ae 9d` |
+> | roll back | `controlvm <uuid> poweroff`, `snapshot <uuid> restore "Before setup-devbox"` |
+>
+> ***UAC DOES NOT PROMPT ON THIS VM*** — Win+X → A gave an elevated
+> `Administrator: Windows PowerShell` at `PS C:\Users\don>` directly.
+>
+> ***`keyboardputstring` DROPS CHARACTERS ON A LONG STRING.*** The first
+> `curl` line lost 15 characters mid-URL and curl answered *"(2) no URL
+> specified"*. **Send it in ~25-character chunks with `sleep 0.4` between
+> them** — that worked first time and downloaded all 39,896 bytes.
+>
+> ### THE TWO COMMANDS, IN THE GUEST'S ELEVATED POWERSHELL
+>
+> ```
+> curl.exe -fLo setup-devbox.ps1 https://raw.githubusercontent.com/dmontaine/sd4windows/main/sdb_ai/sd64/gplbld/setup-devbox.ps1
+> powershell -ExecutionPolicy Bypass -File .\setup-devbox.ps1
+> ```
+>
+> **Fetch it fresh** — the fix is on `main`, and the copy in the guest at
+> the time of the hang is the OLD one.
+>
+> ### WHAT THE ABORTED RUN ALREADY PROVED, SO DO NOT RE-LITIGATE IT
+>
+> | leg | result, 24 Aug 2026 |
+> |---|---|
+> | Preflight | elevated ✓, winget found ✓ |
+> | Git | installed, ***`git is usable in THIS session`*** — `Update-SessionPath` **WORKS**, first bare-box proof |
+> | GitHub CLI | installed, ***`gh is usable in THIS session`*** — same fix, second proof |
+> | MSYS2 | **installed clean** to `C:\msys64`, ~4 min |
+> | MSYS2 packages | ***HUNG HERE*** — now fixed, unrun |
+> | libsodium, Inno, ssh, **clone**, **`make sd`**, report | ***STILL NEVER REACHED ON A BARE MACHINE*** |
+>
+> ***TWO OF THE THREE 23-Aug FIXES ARE NOW PROVEN ON A BARE BOX.***
+> `Update-SessionPath` and `Resolve-Tool` both did their job. The third —
+> `Step-Clone` skipping when git is unusable — is still untested, and on
+> this run git IS usable, so it will not be exercised. That is fine: the
+> task is the end-to-end run, not that one branch.
+>
+> ### NOTE FOR THE RECORD: THE VM IS NOT A STOCK ISO
+>
+> Chrome, pCloud Drive and Winhance are pre-installed and a *"Windows
+> Security — Actions recommended"* toast sits in the tray. **Not a defect
+> for step 17** — setup-devbox is idempotent and reports pre-existing
+> tooling as *"already present"* — but it is not the pristine box the step
+> imagines, and a green run on it is slightly weaker evidence than a green
+> run on a stock install. Say so when closing the step.
+>
+> ## THE REST OF THE SESSION CLOSED CLEAN
+>
+> Step 15 fully closed; the SDSYS BP trim cycled and shipped; suite green
+> at 31/31 on both `b37` AND `b38` (386 PASS 0 FAIL each). **Three
+> not-yet-cycled text edits** (`stage.py`, `allow-ssh-groups.ps1`,
+> `sd.iss`) leave the tree STALE-by-comment until the next cycle — none
+> changes behaviour, so there is no urgency, but **`assert-current` refuses
+> until then**, which blocks any verifier run.
 >
 > ### THE BP TRIM IS PROVEN END-TO-END ON b38
 >
@@ -454,7 +541,7 @@ something came to be the way it is.
 > | 9 | ***CLOSED.*** `sd <command>` no longer prompts (`LOGIN:669`), the installer's password step moved to `MODIFY.PASSWORD`, both cycled and verified, `verify-cmdaudit` passes 7/7 in `VerifyInstall2` on `b37`. ***The behavioural half cannot be automated*** - the gate is reachable only by a person at their own elevated console; that console probe is the one remaining decision | closed |
 > | 3 | installer loose ends. ***THE `limitssh` HALF IS NO LONGER BLOCKED ON A VM*** - it lost its `Check` on 21 Aug and is on every install, **ticked by default**, so the next ordinary cycle shows it. `sshremote`/mandatory-ssh still needs the VM. ~~`sdsys\bp` still ships 21 test programs~~ ***CLOSED 24 Aug*** - 15 dropped, `TESTSDCLI` moved to `gplbld/testsdcli.bp` with drop-into-place. No data-tree upgrade path | 2 open bullets |
 > | — | ***CLOSED 24 Aug 2026, §5.9*** - owner picked **C** (keep default-ticked; the description carries the warning), with the strengthening: the wizard description now leads with `DISABLES scp and sftp for everyone` rather than burying it after a comma and inside a parenthesis. A/B rejected on-record: A trades one problem for a globally weaker default; B reintroduces the "task a one-shot" trap [allow-ssh-groups.ps1:22-27](sdb_ai/sd64/gplbld/allow-ssh-groups.ps1:22) says the 21 Aug flip fixed. [sd.iss:210](sdb_ai/sd64/gplbld/sd.iss:210) rewritten; the stale header at `allow-ssh-groups.ps1:31` was fixed earlier the same day; changelog carries the user-facing note | closed |
-> | **17** | ***REVISIT `setup-devbox.ps1` - LEFT PARTIALLY WORKING*** (owner, 24 Aug 2026) | **clone step onwards never ran on a bare machine** |
+> | **17** | ***`setup-devbox.ps1` - MID-FLIGHT, 24 Aug 2026.*** Reached MSYS2 on a bare box for the first time; `Update-SessionPath` and `Resolve-Tool` **both proven working**; hung at `pacman -Syu` replacing a loaded `msys-2.0.dll`. **Fix committed, never run.** VM `Windows 11 DevEnvInstallTest` restored to snapshot `Before setup-devbox` and ready. START HERE has the drive-the-guest recipe | **fix unrun; clone/`make sd`/report still never reached** |
 >
 > ***THE FIRST VERSION OF THIS TABLE LISTED STEP 16 AS "not started, largest
 > item". IT WAS CLOSED THE SAME DAY, BOTH HALVES.*** The step's HEADING still
@@ -8192,6 +8279,67 @@ the staging script and the Inno installer were all finished and removed.
     `VBoxManage sharedfolder add --transient --automount` — **do not drive the
     guest with `guestcontrol`**, which needs guest credentials). `DevInstallTest`
     was the clone used last time.
+
+    ***ATTEMPT 2, 24 Aug 2026 — GOT FURTHER, AND FOUND THE NEXT WALL.***
+    VM **`Windows 11 DevEnvInstallTest`**
+    (`47b7584f-f4a0-4db5-bca9-534c478adce7`), snapshot
+    **`Before setup-devbox`** (`d0bb8989-a107-46c8-a86d-479c80aa1b00`),
+    **restored and powered off, ready for the next attempt.**
+
+    | leg | result |
+    |---|---|
+    | Preflight | elevated ✓, winget ✓ |
+    | Git 2.55.0 | installed, ***`git is usable in THIS session`*** |
+    | GitHub CLI 2.98.0 | installed, ***`gh is usable in THIS session`*** |
+    | MSYS2 | installed clean to `C:\msys64`, ~4 min |
+    | MSYS2 packages | ***HUNG*** — see below |
+    | everything after | still never reached |
+
+    ***`Update-SessionPath` AND `Resolve-Tool` ARE NOW PROVEN ON A BARE
+    BOX*** — two of the three 23-Aug fixes, and the exact failure they were
+    written for did not recur. `Step-Clone`'s skip-when-git-unusable branch
+    stays untested, and will not be exercised on a run where git works;
+    that is acceptable, the task is the end-to-end run.
+
+    ***THE HANG: `pacman -Syu` CANNOT REPLACE A RUNTIME IT IS RUNNING ON.***
+    On a tree just unpacked by the installer, `-Syu` wants to upgrade
+    `msys-2.0.dll` and the pacman/bash packages around it. `Invoke-Msys`
+    runs inside a `bash.exe` that has that DLL mapped, Windows refuses to
+    replace a mapped image, pacman prints *"terminate other MSYS2 programs
+    before proceeding"* and **blocks indefinitely**. Terminal stopped
+    repainting at 21:01; **neither Enter nor two Ctrl+C reached it**; the
+    VM had to be powered off and rolled back. Same shape MSYS2's own docs
+    describe when they say close every shell after the first `-Syu`.
+
+    ***`--noconfirm` DOES NOT HELP, AND THAT WAS THE FIRST WRONG READING.***
+    It answers the Y/N prompt; it does not make a loaded DLL replaceable.
+    "pacman is waiting for input" was the obvious diagnosis and it was
+    wrong — it was waiting on a file lock only process death clears.
+
+    **THE FIX, COMMITTED AND UNRUN**: `Step-Msys` sets
+    `$script:MsysJustInstalled` when winget installs MSYS2;
+    `Step-Packages` skips `-Syu` on that flag and runs
+    `pacman -S --needed` alone. **Safe because a freshly-unpacked tree has
+    no skew** — its packages and its database ship from the same release,
+    which is the harmless case the existing `-Sy` note already described.
+    **The stale-tree path is untouched** and still gets `-Syu`, since a
+    months-old MSYS2 is what the partial-upgrade rule exists for.
+    Parse-checked: 0 errors, 27 functions, no BOM.
+
+    ***DRIVING THE GUEST WITHOUT CREDENTIALS — THE RECIPE THAT WORKED.***
+    `guestcontrol` is forbidden (needs guest credentials, §7 step 2), but
+    `keyboardputscancode`/`keyboardputstring` plus `screenshotpng` is
+    enough, and **UAC never prompted on this VM** — Win+X (`e0 5b 2d ad e0
+    db`) then `A` (`1e 9e`) gave an elevated PowerShell directly. Enter is
+    `1c 9c`, Ctrl+C is `1d 2e ae 9d`. ***`keyboardputstring` DROPS
+    CHARACTERS ON A LONG STRING*** — a 108-character `curl` line lost 15
+    of them mid-URL; **send ~25-char chunks with `sleep 0.4` between**.
+    START HERE carries the table.
+
+    **THE VM IS NOT A STOCK ISO**: Chrome, pCloud and Winhance are
+    pre-installed. Not a defect — setup-devbox reports pre-existing tools
+    as "already present" — but a green run on it is weaker evidence than
+    one on a pristine box, and closing the step should say so.
 
     **KNOWN GAPS THAT ARE NOT DEFECTS, so they are not chased on the way:**
 
