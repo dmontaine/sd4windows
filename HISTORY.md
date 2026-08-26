@@ -37212,3 +37212,37 @@ granting it is an administrator's job. What was missing was two things:
 **The fourth rule is the one worth having written down:** once field 1 or 2
 says `yes`, nothing in SD limits what that person then does. The boundary from
 there is their own Windows account's permissions.
+
+### A subvalue token, and the guard that a token search would not have been
+
+Owner, 26 Aug 2026: *"add a token for sub values ~` ... thank you forgot about
+subvalues, never use them myself."* `@sm` now converts to `` ~` `` the same way
+`@vm` converts to `~~`.
+
+***THE INTERESTING PART IS NOT THE SECOND TOKEN.*** The first version guarded
+the conversion by searching for `~~` in the data and asking the user about it.
+**That guard was not sufficient and would not have looked wrong for a long
+time.** A literal `~` sitting immediately *before* a mark merges with the
+substitution: `a~` + `@vm` + `b` becomes `a~~~b`, and reading that back left to
+right gives `a` + `@vm` + `~b` — the tilde has moved to the other side of the
+mark, and no search for `~~` in the original would have caught it.
+
+**So the guard is now a round trip.** `EDIT` converts the record to tokens,
+converts it straight back, and compares. If the result is not what it started
+with, the record cannot be represented in the editor and the verb refuses and
+names `ed`. Three lines, and it catches every ambiguity including the ones
+nobody has thought of — text marks among them, which is why their absence is
+now safe rather than merely undocumented.
+
+`gplbld/test-edittokens-units.py` is the control, listed on `$neverShipped` in
+the same commit. It models `change()` as Python's `str.replace` — left to
+right, non-overlapping, which is the same rule — and asserts both directions
+over 14 records: **14 of 14 correct, 10 editable and 4 refused.** ***It refuses
+the null case as well***: a guard that answered "refused" to everything would
+otherwise pass a table of nothing but negatives, so the test asserts that both
+outcomes occur.
+
+**And one markdown fault the rendered page caught, again.** `` ``~``` `` in a
+table cell rendered as `<code>~</code>` — the backtick vanished. A backtick
+inside a code span needs the doubled fence *and* padding spaces: `` `` ~` `` ``.
+The markdown looked right; only the HTML said otherwise.
