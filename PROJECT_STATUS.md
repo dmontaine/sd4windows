@@ -61,6 +61,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ⬜ | **H.4** | **Remote-block control — the one dial and its control.** `sshNoServer` with a bridged NIC; three installs also close 5's SKIP | — |
+| ◐ | **H.4a** | **The ssh remote-block RUNBOOK.** Guest `sshRemoteTest-C1` cloned and bridged, both probes built and self-tested — **done**. The seven steps need a person at the wizard, and the `Open` leg must run FIRST | partly |
 | ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** Open: that one SKIP, the unseen mode page, and one security question that is the owner's | partly |
 | ⬜ | **7.18** | ***THE LAST DEVELOPMENT TASK: CLEAN UP.*** 16 SD test accounts, 8 leaked Windows users + 8 groups, 30 orphaned profile directories, ~25 scratch files in the home directory. **Keep `sdout`; ask about `~/sdclilib`.** And `setup-devbox.ps1` needs its COVERAGE verified, not just that it runs | — |
 
@@ -725,12 +726,30 @@ the measurement. Nothing was judged on it.
 > `probe-sshfirewall.ps1 -Expect Restricted|Open` is already that pair; what it
 > lacks is a remote dialer.
 >
-> ***AND ONE GUEST CLOSES ITEM 4 AND ITEM 5's SKIP TOGETHER — `sshNoServer`,
-> WHICH ALREADY EXISTS.*** It is the guest with **no ssh at all** from the
-> fifty-fifth session's three-guest run. Set its NIC to **bridged** (it is a
-> clone of `Windows 11 - Template`, so this is a VirtualBox setting, not new
-> rig work) and three installs answer everything machine-dependent that is
-> left:
+> ***AND ONE GUEST CLOSES ITEM 4 AND ITEM 5's SKIP TOGETHER.***
+>
+> ***CORRECTION, 26 Aug 2026, SAME DAY: `sshNoServer` DOES NOT EXIST.*** This
+> entry said *"which already exists"* — written without looking. `VBoxManage
+> list vms` registers **only `Windows 11 - Template` and `Beardog`**; every ssh
+> test clone was deleted after use, which HISTORY records for two of them. **A
+> guest named in the record is not a guest on the machine.**
+>
+> ***THE RIG IS STILL BETTER THAN THAT ENTRY CLAIMED, THOUGH: the template is
+> ALREADY BRIDGED.*** `nic1="bridged"` over the `Realtek 8852BE Wireless LAN`
+> adapter, host at **10.0.0.3** — the same segment the API crossed at
+> `10.0.0.143`. No NIC change is needed at all.
+>
+> ***CLONED 26 Aug 2026 AND WAITING: `sshRemoteTest-C1`.*** Made with
+> `--options keephwuuids,keepallmacs` on the owner's reminder, and **verified
+> to have kept both**: MAC `080027AECE7C` and hardware UUID
+> `59d00c9d-…-c4cf197890aa`, identical to the template, bridged on the same
+> adapter.
+>
+> ***SO THE TEMPLATE AND THE CLONE SHARE A MAC AND MUST NEVER RUN AT THE SAME
+> TIME.*** Sequential runs are fine; both up at once is an address collision on
+> the bridged segment. Nothing was running when the clone was made.
+>
+> **Three installs answer everything machine-dependent that is left:**
 >
 > | run | what it settles |
 > |---|---|
@@ -741,6 +760,62 @@ the measurement. Nothing was judged on it.
 > **That is the whole of the machine-dependent work left before 1.0-0.** Item 5
 > points here rather than repeating it.
 >
+> ### 4a. THE ssh REMOTE-BLOCK RUNBOOK — THE GUEST IS CLONED AND THE PROBES ARE BUILT
+>
+> ***THE TEST ITSELF HAS NEVER BEEN RUN. NOTHING BELOW IS A RESULT.*** This is
+> a runbook and a state-of-the-rig, and the claim §5.9 has never measured is
+> still unmeasured.
+>
+> ***EVERYTHING THAT DOES NOT NEED A PERSON IS DONE, 26 Aug 2026.*** The clone
+> exists, the rig is bridged, both probes are written and self-tested. **What is
+> left needs somebody at the wizard, because SD cannot be installed silently.**
+>
+> | | |
+> |---|---|
+> | guest | **`sshRemoteTest-C1`**, cloned from `Windows 11 - Template` with `keephwuuids,keepallmacs`, **verified to have kept both** |
+> | network | bridged on `Realtek 8852BE Wireless LAN`, **already set on the template** — no change needed. Host is `10.0.0.3` |
+> | host probe | [probe-sshremote.ps1](sdb_ai/sd64/gplbld/probe-sshremote.ps1) — **new**, dials the guest. `-SelfTest` 4 of 4 |
+> | guest probe | [probe-sshfirewall.ps1](sdb_ai/sd64/gplbld/probe-sshfirewall.ps1) — existing, reads the rule and dials loopback |
+>
+> ***THE TEMPLATE AND THE CLONE SHARE A MAC. NEVER RUN BOTH AT ONCE.***
+>
+> ***RUN THE `Open` LEG FIRST. THIS IS NOT A PREFERENCE.*** It is the only
+> thing that proves the guest is up, `sshd` is listening and the bridge works.
+> A `Blocked` leg run first would refuse identically on a guest that never
+> booted, and `probe-sshremote.ps1` says so in its own closing sentence rather
+> than claiming a proof it has not got.
+>
+> | # | on | do | expect |
+> |---|---|---|---|
+> | 1 | host | start `sshRemoteTest-C1`, note its address (`ipconfig` in the guest) | `10.0.0.x` |
+> | 2 | guest | install SD, **TICK `sshremote`** | rule becomes `RemoteAddress=Any` |
+> | 3 | guest | `probe-sshfirewall.ps1 -Expect Open` | exit 0 |
+> | 4 | **host** | `probe-sshremote.ps1 -Guest <addr> -Expect Open` | ***CONNECTED*** — the reachability witness |
+> | 5 | guest | uninstall, reinstall, **LEAVE `sshremote` UNTICKED** | rule becomes `127.0.0.1` |
+> | 6 | guest | `probe-sshfirewall.ps1 -Expect Restricted` | exit 0 |
+> | 7 | **host** | `probe-sshremote.ps1 -Guest <addr> -Expect Blocked` | ***did not connect*** — **and step 4 is what makes this mean something** |
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Open
+> ```
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Blocked
+> ```
+>
+> **Step 7 will sit for the full timeout rather than answer at once** —
+> measured in the self-test: this network **DROPS** rather than sending RST, so
+> a blocked dial times out. Do not read the pause as a hang.
+>
+> ***AND THE SAME GUEST THEN CLOSES ITEM 5's SKIP*** — it has never had
+> OpenSSH, so a **stand-alone** install on it is the first machine where
+> `SshServerAbsent` is true and `not StandaloneChosen` is the operative half of
+> the `[Run]` gate. Look at the mode page and the tasks page while the wizard
+> is open (item 5, *"UNSEEN"*), and run
+> [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1) after.
+>
+> **Delete `sshRemoteTest-C1` when done** — §7 step 18 is the cleanup task and
+> a spent clone is exactly its subject.
+
 > ### 5. THE STAND-ALONE INSTALL OPTION — BUILT, INSTALLED AND VERIFIED: 21 PASS, 0 FAIL, 1 SKIP
 >
 > ***THE HEADING SAID "NEVER RUN" UNTIL 26 Aug 2026, ABOVE A BODY RECORDING A

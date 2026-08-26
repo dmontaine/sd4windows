@@ -30354,3 +30354,56 @@ case [0] a positive control. Same lesson as `check-stale-leads.py` — a checker
 that can only run against the real trees exits 0 forever and nobody learns
 whether it still works. On `$neverShipped`, listed in the commit that created
 it.
+
+## 26 Aug 2026 — The ssh remote-block rig: cloned, probed, and everything short of the wizard
+
+**FIFTY-NINTH SESSION, part 15.** The owner said to continue with the remaining
+ssh test. Everything that does not need a person is done; the test itself has
+**not** run.
+
+***FIRST, A CORRECTION TO SOMETHING WRITTEN EARLIER THE SAME DAY.*** Item 4's
+plan said one guest closes it and item 5's SKIP — *"`sshNoServer`, WHICH ALREADY
+EXISTS"*. **It does not.** `VBoxManage list vms` registers only
+`Windows 11 - Template` and `Beardog`; every ssh test clone was deleted after
+use. **That was my own stale claim, made hours earlier, about a machine I had
+not looked at** — the fifth of the day and the only one that was mine.
+
+***THE RIG IS BETTER THAN THAT ENTRY CLAIMED, THOUGH.*** The template is
+**already bridged** on `Realtek 8852BE Wireless LAN`, host at `10.0.0.3` — the
+same segment the API crossed at `10.0.0.143`. No NIC work at all.
+
+***CLONED: `sshRemoteTest-C1`.*** The owner interrupted to say *"remember when
+making a clone that the uuids and macs have to be in the clone"*, so
+`--options keephwuuids,keepallmacs`, and **verified rather than assumed**: MAC
+`080027AECE7C` and hardware UUID `59d00c9d-…` identical to the template, same
+bridge adapter. **They therefore share a MAC and must never run at once**;
+nothing was running when the clone was made.
+
+***BUILT: `probe-sshremote.ps1`, THE HOST HALF.*** `probe-sshfirewall.ps1` runs
+on the guest and dials loopback; nothing had ever dialled the guest from
+outside. The new probe takes `-Guest` and a required `-Expect Open|Blocked`,
+names the address family on every dial (the recorded `TcpClient` AF_INET trap),
+and prints connect / refuse / time-out as different answers, since a DROP and a
+closed port mean different things.
+
+***ITS DESIGN IS THE CONTROL, NOT THE DIAL.*** A refused dial proves nothing —
+a guest that never booted refuses identically. So the `Open` leg **must run
+first**, and a `Blocked` run taken without either a preceding `Open` run or a
+`-ControlPort` witness **says so in its own closing sentence and does not claim
+a proof**. `-SelfTest` is 4 of 4 against local targets and needs no guest.
+
+***ONE SELF-TEST LABEL WAS WRONG AND WAS FIXED RATHER THAN LEFT.*** The first
+case read *"closed local port refuses"* while its own detail printed *"no
+answer within 1500ms"* — this machine **DROPS rather than sending RST**, so the
+case never measured the refusal it named. Relabelled to what is actually
+asserted. **It is also operationally useful: expect the real `Blocked` leg to
+sit for the full timeout rather than answer at once, and do not read the pause
+as a hang.**
+
+***AND THE TASK-TABLE CHECKER EARNED ITS KEEP TWICE IN TEN MINUTES.*** Adding
+item 4a with no table row: *"entry H.4a has NO ROW in the task table"*. Adding
+the row as `partly`: *"marked PARTLY but its entry contains nothing still open
+— tick it off"* — which was **a real documentation gap, not a pattern miss**:
+the runbook never said the test had not been run. It says so now, first line.
+Both were caught by a script, in the same session in which four such claims had
+survived months of human reading.
