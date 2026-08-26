@@ -624,10 +624,42 @@ the measurement. Nothing was judged on it.
 > gplobj/*.o && make sd` first — removing header defines shifts everything after
 > them and stale objects read the wrong offsets — then a full cycle.
 >
-> ### 4. THE REMOTE-BLOCK CONTROL STILL NEEDS A BRIDGED NIC
+> ### 4. THE REMOTE-BLOCK CONTROL — ONE DIAL AND ITS CONTROL, ON A RIG THAT ALREADY EXISTS
 >
 > That the ssh scoping blocks a REMOTE machine is the one §5.9 claim never
 > measured. NAT cannot show it.
+>
+> ***RE-CHECKED 26 Aug 2026 ON THE OWNER'S QUESTION — "we did a comprehensive
+> ssh test using a VM, make sure this is not already done". IT IS NOT.*** The
+> VM ssh work was extensive and is not in doubt; **every ssh reachability dial
+> in it went to LOOPBACK.** Searched for any dial to port 22 from a
+> non-loopback address: **none**, and the search is a working instrument
+> because it finds the remote **API** dials (`10.0.0.143` → `10.0.0.3`) in four
+> places. The fifty-fifth session says so itself: *"Still unproven, unchanged:
+> that the scoping blocks a REMOTE machine."*
+>
+> ***WHAT IS ALREADY PROVEN, so nobody re-runs it:*** the rule reads
+> `RemoteAddress = 127.0.0.1` **as the installer leaves it** (this was the
+> defect — it read `Any` before 25 Aug), `-Installed -Restrict` prints its
+> success wording and exits 0, and `127.0.0.1:22` (AF_INET) and `::1:22`
+> (AF_INET6) are both REACHABLE. `probe-sshfirewall.ps1` PASSED.
+>
+> ***THE GAP IS A CONFIGURATION READING STANDING IN FOR A BEHAVIOURAL ONE.***
+> We know the instrument reads the rule correctly — that is how the 24 Aug
+> defect was caught. Nobody has confirmed that a rule reading `127.0.0.1`
+> actually refuses a remote connection.
+>
+> ***AND "NEEDS A BRIDGED NIC" OVERSTATES THE COST: THE RIG EXISTS AND HAS DONE
+> THIS DIRECTION.*** §7 step 2 keeps `Windows 11 Clone`, snapshot
+> `Before SD install`, **bridged over the WiFi adapter**, and it is how the API
+> was reached across a real network. So: SD on a bridged guest, then dial the
+> guest's port 22 from the host.
+>
+> ***THE CONTROL IS THE POINT, NOT THE DIAL.*** A refused dial proves nothing
+> on its own — an unreachable guest refuses identically. **The same dial must
+> SUCCEED with `sshremote` ticked**, where the rule is `RemoteAddress=Any`.
+> `probe-sshfirewall.ps1 -Expect Restricted|Open` is already that pair; what it
+> lacks is a remote dialer.
 >
 > ### 5. THE STAND-ALONE INSTALL OPTION — BUILT END TO END, NEVER RUN
 >
@@ -3947,10 +3979,20 @@ Windows version.
 
 ### Not verified — treat as unknown
 
-**SWEPT 21 Aug 2026 AND SWEPT AGAIN WHILE COMPRESSING.** Twelve claims here
-have been struck or narrowed since 21 Aug because the thing they called unknown
-had been measured, in several cases **hundreds of lines above the entry still
-calling it unknown**. They are in the archive with what settled each.
+**SWEPT 21 Aug 2026, AGAIN WHILE COMPRESSING, AND AGAIN 26 Aug 2026.**
+**Fourteen** claims here have been struck or narrowed since 21 Aug because the
+thing they called unknown had been measured, in several cases **hundreds of
+lines above the entry still calling it unknown**. They are in the archive with
+what settled each.
+
+**THE 26 Aug SWEEP READ ALL SEVEN LIVE ENTRIES AND FOUND EXACTLY ONE ROTTEN**
+— the ssh-options bullet, whose two halves were closed by a ruling and by two
+on-screen observations. **The other six were checked and stand**, which is
+worth stating: `K$SET.USERNAME`'s non-`$internal` refusal has **no verifier at
+all** (grepped `gplbld` for it — no hits, against `CRED_VERIFY` as the control),
+and interactive SD **over ssh at a real terminal** appears nowhere but in this
+claim and its own archive copy. A sweep that reports only what it struck reads
+as if the rest were unexamined.
 
 **THE PATTERN IS WORTH KNOWING BEFORE READING THE REST.** The header was
 rewritten every phase and this list was not, so **what rots here is specifically
@@ -3999,9 +4041,27 @@ of an ordinary user's program reaching the OS had already answered on an install
   list on purpose.
 
 - **The installer's own path through the ssh options.** The reworded closing
-  dialog **has** been seen and read on screen (17 Aug, *"looks fine"*). What is
-  still unseen is the **`limitssh` task** and **`ApplyAllowGroups` reporting any
-  of its three outcomes**.
+  dialog **has** been seen and read on screen (17 Aug, *"looks fine"*).
+  ~~What is still unseen is the **`limitssh` task** and **`ApplyAllowGroups`
+  reporting any of its three outcomes**.~~ ***BOTH HALVES ARE CLOSED AND THIS
+  WAS THE FOURTEENTH STALE CLAIM IN THIS LIST — struck 26 Aug 2026.***
+
+  - **`limitssh` is no longer a task at all**, so there is nothing left to see:
+    the refuse-to-install ruling removed it, and `sd.iss` now declares exactly
+    three — `addtopath`, `sshremote`, `apiremote` (checked by grepping
+    `^Name: "` , which returns those three and nothing else).
+  - **`ApplyAllowGroups` reported its outcome on screen, twice.** 24 Aug on
+    `Windows 11 - sshRemoteTest`, *"ssh is now limited to members …"*; 25 Aug
+    across the three-guest run, *"running with no task gate, confirmed by its
+    own outcome box"*. HISTORY.md, fifty-fourth session part 3 and fifty-fifth
+    part 4.
+
+  ***THE ENTRY BELOW IT PREDICTED THIS EXACTLY AND STILL DID NOT SAVE IT.*** It
+  says both are *"visible on the next ordinary cycle — no VM"*; several ordinary
+  cycles then ran, the VM runs saw them too, and **the sentence above it went on
+  saying "still unseen"** because nothing sends a reader back to the opening
+  line of a bullet whose body they just corrected. **When you withdraw part of
+  an entry, re-read its first sentence.**
 
   ***"NEITHER CAN BE SEEN HERE … IT NEEDS THE VM" IS WITHDRAWN, 24 Aug 2026.***
   It rested on `Check: SshServerAbsent` gating the task. **`limitssh` lost its
@@ -7823,8 +7883,18 @@ the staging script and the Inno installer were all finished and removed.
      `Description:` + `GroupDescription:` and nothing else). It is offered on
      **every** install and, having no `Flags: unchecked`, is **ticked by
      default**. `sd.iss`'s own comment at :2390 says so — *"Only ONE option
-     vanishes now"*. So this needs **the next ordinary cycle, not a VM**: look
-     at the tasks page.
+     vanishes now"*. ~~So this needs **the next ordinary cycle, not a VM**:
+     look at the tasks page.~~
+
+     ***CLOSED 26 Aug 2026, AND NOT BY LOOKING — THE SUBJECT WAS REMOVED.***
+     The refuse-to-install ruling took `limitssh` off the tasks page entirely;
+     `sd.iss` declares three tasks and it is not one of them (`addtopath`,
+     `sshremote`, `apiremote`). `ApplyAllowGroups` now runs with **no task
+     gate** and has reported its outcome on screen twice — 24 Aug on
+     `sshRemoteTest`, 25 Aug across the three-guest run. **Everything above
+     this paragraph describes a tickbox that no longer exists**; it is kept
+     because the reasoning about `Check:` and default-ticked state is still how
+     the remaining two tasks behave.
 
      **`ApplyAllowGroups` runs here too**, for the same reason — `sd.iss:965`
      gates it on `WizardIsTaskSelected('limitssh')`, which is true by default —

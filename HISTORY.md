@@ -30035,3 +30035,81 @@ where the answer is certain, and a stand-alone `sd.conf` opens no socket. **The
 real answer is still open: move both choices onto the mode page**, where the
 value is known when it is read. That needs the same look at a live stand-alone
 wizard that item 5's "UNSEEN" note asks for.
+
+## 26 Aug 2026 — The ssh scoping remote-block is NOT already done, and the rig for it already exists
+
+**FIFTY-NINTH SESSION, part 8.** The owner asked whether the comprehensive VM
+ssh testing had already closed the remote-block control. **It had not**, and
+the check is worth recording so nobody re-derives it.
+
+**Every ssh reachability dial in the record goes to LOOPBACK.** Searched both
+documents for a dial to port 22 from a non-loopback address: **none**. The
+search is a working instrument, not an absence of evidence — the same pattern
+finds the remote **API** dials (`10.0.0.143` → `10.0.0.3`) in four places. The
+fifty-fifth session's own closing line agrees: *"Still unproven, unchanged:
+that the scoping blocks a REMOTE machine."*
+
+**WHAT THE VM WORK DID PROVE, so it is not re-run:** the rule reads
+`RemoteAddress = 127.0.0.1` **as the installer leaves it** — which was the whole
+defect, since it read `Any` before 25 Aug — `-Installed -Restrict` prints its
+success wording and exits 0, both loopback families are REACHABLE, and
+`probe-sshfirewall.ps1` PASSED. Plus the preflight across four cases and three
+guests, and the `sshremote` ticked/unticked pair.
+
+***THE GAP IS A CONFIGURATION READING STANDING IN FOR A BEHAVIOURAL ONE.*** We
+know the instrument reads the rule correctly — that is how the 24 Aug defect was
+caught. **Nobody has confirmed that a rule reading `127.0.0.1` actually refuses
+a remote connection.**
+
+***AND "NEEDS A BRIDGED NIC" OVERSTATES THE COST.*** §7 step 2 keeps
+`Windows 11 Clone`, snapshot `Before SD install`, bridged over the WiFi adapter,
+and that rig has already carried a host→guest connection across a real network
+for the API. The remaining work is SD on a bridged guest and one dial to its
+port 22.
+
+***THE CONTROL IS THE POINT, NOT THE DIAL.*** A refused dial proves nothing on
+its own — an unreachable guest refuses identically, which is this project's
+standing null-case failure. The same dial must **succeed** with `sshremote`
+ticked, where the rule is `RemoteAddress=Any`.
+`probe-sshfirewall.ps1 -Expect Restricted|Open` is already that pair; what it
+lacks is a remote dialer.
+
+## 26 Aug 2026 — §4's "Not verified" swept: one of seven had rotted, and the entry below it had predicted exactly that
+
+**FIFTY-NINTH SESSION, part 9.** §4's *"Not verified — treat as unknown"* was
+read entry by entry against the record, on the reasoning its own header gives:
+what rots there is specifically a claim that something has **not** been done.
+
+**FOURTEENTH STALE CLAIM: the installer's ssh-options bullet**, whose opening
+sentence read *"What is still unseen is the `limitssh` task and
+`ApplyAllowGroups` reporting any of its three outcomes"*. Both halves are shut:
+
+- **`limitssh` is not a task any more.** The refuse-to-install ruling removed
+  it; `sd.iss` declares three — `addtopath`, `sshremote`, `apiremote`. There is
+  nothing left to look at.
+- **`ApplyAllowGroups` reported its outcome on screen twice** — 24 Aug on
+  `Windows 11 - sshRemoteTest` (*"ssh is now limited to members …"*), 25 Aug
+  across the three-guest run, *"with no task gate, confirmed by its own outcome
+  box"*.
+
+***AND THE PARAGRAPH DIRECTLY BELOW IT HAD PREDICTED THIS.*** It says both are
+*"visible on the next ordinary cycle — no VM"*. Several ordinary cycles then
+ran, the VM runs saw them too, and **the bullet's first sentence went on saying
+"still unseen"** — because a reader who corrects the body of an entry does not
+get sent back to its opening line. **The rule earned: when you withdraw part of
+an entry, re-read its first sentence.** That is the same shape as the fifty-
+eighth session's handoff describing a machine nobody had re-read.
+
+**THE OTHER SIX WERE CHECKED AND STAND**, which is recorded deliberately —
+a sweep that reports only what it struck reads as though the rest were never
+examined. Two spot-checks with controls:
+
+| claim | how it was checked | verdict |
+|---|---|---|
+| `kernel(K$SET.USERNAME,…)` refused outside `$internal` | grepped all of `gplbld` for `SET.USERNAME` — **no verifier names it**, against `CRED_VERIFY` as a control that does hit | stands, genuinely uncovered |
+| interactive SD over ssh **at a real terminal** | appears only in the claim itself and its archive copy | stands |
+
+`AllowGroups`' four patterns stay deliberately unknown (§5.6.2); semaphore
+contention, competing sessions and real application data remain exercise gaps;
+the daemon's `check_lost_users` entry still has symptom without cause; RDP is
+closed and kept as a trap.
