@@ -30589,3 +30589,71 @@ matched inside the quotation and reported the entry as leading open. **A checker
 cannot tell a quoted claim from a live one.** Reworded rather than exempted, and
 the rule is in the entry: do not quote a superseded status line verbatim —
 describe it.
+
+## HANDOFF, end of the fifty-ninth session, 26 Aug 2026
+
+**13 commits, working tree clean, pushed.** The session opened on `pull
+continue` and spent itself on one theme that was not planned: **status text in
+PROJECT_STATUS.md had rotted in five separate places, and every one of them
+cost real work or nearly did.**
+
+***WHAT WAS ACTUALLY PROVEN.***
+
+| | |
+|---|---|
+| **item 3** | the data-tree upgrade **had already run** on 25 Aug and was recorded as "not yet done", because the scoring failed and nobody re-read the tree. Scored 55 PASS / 0 FAIL / 1 SKIP. `RefreshDictionaries` fired for the first time ever — 76 of 76, its log unread for a day |
+| **item 4** | ***the ssh scoping blocks a REMOTE machine*** — the §5.9 claim outstanding since 13 Aug. Rule `Any` → CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms with port 5040 answering in 23ms as the witness |
+| **§7 step 3** | closed by the above, **and it was the only thing in the stated 1.0-0 gate** |
+| the machine | host FULL install 21:57, suite green 31/31, 923 `PASS`, `-Run b43`. Three source fixes built and checked on the installed tree |
+
+***THE FIVE STALE CLAIMS, BECAUSE THE PATTERN MATTERS MORE THAN ANY ONE OF
+THEM.*** §4's ssh-options bullet; §7 step 3's `limitssh` bullet; **step 14,
+which said "WHAT IS STILL A DECISION, AND IT IS THE OWNER'S" 338 lines above
+"STEP 14 IS CLOSED"** and was reported to the owner as open work; item 5's own
+heading reading "NEVER RUN" above a 21-PASS run; and "`sdclilib32` is still two
+hops away", a week after the Makefile that fixed it. **A sixth was mine** —
+item 4's plan named a guest that no longer existed.
+
+**The owner's diagnosis was the accurate one:** *"i have been getting a
+different list of things left to do each time i ask."* A reader stops at the
+first status sentence, and whoever corrects the body of an entry is never sent
+back to its opening line — so the fault survives exactly the attention that
+produced the correction.
+
+***WHAT WAS BUILT ABOUT IT, at his suggestion: a task table at the top, 25
+rows, checked off.*** And because a hand-kept table is another place status is
+stated, `check-stale-leads.py` verifies every row against its entry in both
+directions and refuses if the table is missing. It caught its own author four
+times in one evening.
+
+***FOUR NEW INSTRUMENTS, ALL ON `$neverShipped`, ALL WITH CONTROLS THAT HAVE
+BEEN WATCHED FAILING.*** `check-stale-leads.py` (+ `test-staleleads-units.py`,
+8 of 8), `check-client-sync.py` (12 checks, the three client trees **in sync**;
+`--self-test` 6 of 6), `probe-sshremote.ps1` (`-SelfTest` 4 of 4), and
+`verify-upgrade.ps1` now scoring the creation times it had always recorded and
+never read.
+
+***THE INSTRUMENT LESSONS THIS SESSION PAID FOR, all the same shape:*** an
+`os.walk` that swallowed a permission error and scored the SHA of nothing as a
+FAIL; `Start-Process -PassThru` losing `ExitCode` unless the handle is touched,
+so a log read `exit ` with nothing after it; `-Expect` documented as "REQUIRED
+THINKING" while defaulting to one of its own two answers, which named a defect
+that was not there **and changed the machine on the way**; and a
+`Format-Table -AutoSize` summary truncating its observed column to `...e`.
+
+***THE NEAR MISS WORTH REMEMBERING.*** With the guest on a **Public** network
+profile every inbound port was dropped, and the `Blocked` leg of the ssh test
+**passes perfectly on such a machine** — having measured nothing. It was one
+command away from being recorded as the proof of §5.9. The `Open` leg is what
+caught it, and "never take the Blocked leg until the Open leg has passed from
+the host on the same guest" is now a runbook precondition.
+
+***STATE AT HANDOFF.*** Host: FULL install, suite green, **`b43` spent, use
+`b44`**. Guest **`sshRemoteTest-C1` is still running** with SD installed,
+profile Private, ssh rule `127.0.0.1` — **it shares a MAC with
+`Windows 11 - Template`, so never run both at once.** It has **never had
+OpenSSH**, which makes it the rig item 5's SKIP has wanted since 25 Aug.
+
+***THREE ROWS OPEN, AND THE TABLE IS THE AUTHORITY:*** `7.18` cleanup (which
+now includes the spent clone), `H.5` stand-alone, `H.2` documentation — which
+his own gate no longer blocks.

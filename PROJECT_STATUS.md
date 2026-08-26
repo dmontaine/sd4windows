@@ -5,7 +5,15 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, **end of the fifty-eighth session**, handed off at a clean boundary: **8 commits, working tree clean.** VFS is stripped and green; items 3 and 5 both have instruments now, and **the machine is a STAND-ALONE install, snapshotted and one step from closing item 3.**
+**Last updated:** 26 Aug 2026, **end of the fifty-ninth session**, handed off at a clean boundary: **13 commits, working tree clean, pushed.**
+
+***THE STATED 1.0-0 GATE IS EMPTY.*** Item 2's rule is *"do not open the documentation phase while anything under item 3 or the §7 step 3 bullets is outstanding"*. **Item 3 closed this morning; §7 step 3's last bullet closed tonight.** Nothing named in that gate is outstanding.
+
+***TWO THINGS WERE PROVEN THAT HAD BEEN OUTSTANDING FOR WEEKS.*** The **data-tree upgrade** — which had already run on 25 Aug and been recorded as "not yet done", because the scoring failed and nobody re-read the tree — scored 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` fired for the first time ever, 76 of 76. And ***the ssh scoping is now measured to block a REMOTE machine***, the §5.9 claim outstanding since 13 Aug: rule `Any` → dial CONNECTED 23ms, rule `127.0.0.1` → dropped 4003ms with another port on the same guest answering in 23ms as the witness.
+
+***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT".*** It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*. `check-stale-leads.py` now finds that shape mechanically and checks the table against the entries in both directions.
+
+***THE MACHINE, AND IT IS NOT ALL ON ONE BOX.*** The host carries a **FULL** install (21:57) with the suite green — 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`. **`b43` is spent — use `b44`.** And ***guest `sshRemoteTest-C1` is still running***, SD installed, network profile **Private**, ssh rule at `127.0.0.1`. **It shares a MAC with `Windows 11 - Template` — never run both at once.**
 
 ***THE TREE IS CURRENT AND THE WHOLE SUITE IS GREEN: 31/31 STEPS, 929 `PASS` LINES, ZERO `[FAIL]`, ON THE 19:49:47 INSTALL.*** `assert-current` was run again live at the end of the session and exits 0, so **every verifier will run**. `sd.exe` is now `5BD2F83F43BB9B27` — **changed, and correctly so: the C changed this session.** Item 1 has the identifiers and what the run does *not* cover.
 
@@ -84,6 +92,36 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 ## NEXT SESSION: START HERE, IT IS SHORT
 
 > ## NEXT SESSION: NOTHING IS BROKEN AND NOTHING IS HALF-DONE.
+>
+> ***THREE ROWS ARE OPEN AND THAT IS THE WHOLE LIST — the table above is the
+> authority, not this box.***
+>
+> | | |
+> |---|---|
+> | **7.18** | **cleanup, the last development task.** 16 SD test accounts, 8 leaked Windows users + 8 groups, 30 orphaned profile directories, ~25 scratch files in `~`. **Two leaks to fix while you are there**, and `sshRemoteTest-C1` is now its subject too |
+> | **H.5** | stand-alone: **one SKIP**, the **unseen mode page**, and one security question that is the owner's |
+> | **H.2** | documentation — **approved, scoped, and starts AFTER 1.0-0 by his instruction.** The gate is now empty, so this is a decision he can take |
+>
+> ***THE CHEAPEST NEXT MOVE IS H.5, AND THE RIG IS ALREADY STANDING.***
+> `sshRemoteTest-C1` **has never had OpenSSH**, which is the one thing this
+> project has never had and item 5's SKIP has been waiting on since 25 Aug. A
+> stand-alone install on it is the first machine where `SshServerAbsent` is
+> true, so `not StandaloneChosen` is finally the operative half of the `[Run]`
+> gate — **the mode page's first promise, never once tested.** Item 4a has the
+> rig, and item 5 has the checklist and `verify-standalone.ps1`.
+>
+> ***FOUR NEW INSTRUMENTS THIS SESSION, ALL ON `$neverShipped`, ALL WITH
+> CONTROLS.*** Do not re-derive them:
+>
+> | | |
+> |---|---|
+> | `check-stale-leads.py` | entries whose opening status is contradicted later, **and** the task table against the entries. `test-staleleads-units.py` is its control, 8 of 8 |
+> | `check-client-sync.py` | the API client across the three trees. **12 checks, 0 failed — they are in sync.** `--self-test` 6 of 6 |
+> | `probe-sshremote.ps1` | the HOST half of the ssh test. `-SelfTest` 4 of 4 |
+> | `verify-upgrade.ps1` | now scores the creation times it had always recorded and never read |
+>
+> ***RUN `check-stale-leads.py` BEFORE YOU ANSWER ANY "WHAT IS LEFT" QUESTION.***
+> It is one second and it is the difference between the table and a guess.
 >
 > **The suite is green — 31/31, 923 `PASS`, zero `[FAIL]`, zero `[SKIP]`, on
 > the 21:57 FULL install of 25 Aug 2026**, run as `-ThenElevated -Run b43`.
