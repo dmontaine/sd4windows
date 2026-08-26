@@ -37292,3 +37292,73 @@ Every backslash is doubled, which is why micro's own `c.yaml` reads `\.`.
 an escape YAML does not define, rejects lookaround RE2 cannot do, and compiles
 each pattern. **24 patterns, 0 bad**, and it was run against a deliberately
 broken file first to prove it can fail.
+
+## 26 Aug 2026 - The suite is green, and CONFIG GPL stops shelling out to a pager Windows does not have
+
+**Commit:** see the commit that carries this entry. Sixty-first session.
+
+### The b44 suite, and the two failures that were the arithmetic working
+
+`verify-tiers` and `verify-tierapi` failed on the 26 Aug 14:50 install: six
+checks, every one a constant the returning `MICRO` verb moved. **The product
+was right and the verifiers were stale.** Re-run after correcting them:
+**22/22 and 16/16.**
+
+***THE CHECK THAT DID NOT MOVE IS WHAT PROVED IT.*** `STANDARD` read **354**
+before any constant was touched, while `PROGRAMMER` and `ADMINISTRATOR` read
+396 and 417 - because `micro` joins `NEWVOC` and `TIER.OMIT.STANDARD` at once
+and so lands on both sides of the subtraction. `micro` fills exactly the slot
+`modify` vacated on 24 Aug, which is why the numbers are the pre-24-Aug ones
+rather than merely near them. And `withheld capabilities MISSING: 42` on the
+standard account with `0` on the other two is the wiring proved end to end, not
+just the arithmetic.
+
+### CONFIG GPL and CONFIG CONTRIB
+
+`CONFIG:154` and `:161` were `execute "!less " : @sdsys:@ds:'licence'`.
+***TWO INDEPENDENT REASONS THAT NEVER WORKED ON WINDOWS***, either enough
+alone: there is no `less` on a Windows machine and the install ships none; and
+`!` is CPROC's shell escape, gated on `OS.USERS` field 1, so an ordinary user
+was refused first - with wording about the operating system shell naming
+neither the verb nor the licence. **Displaying a licence must not require shell
+permission**, which is why finding a Windows pager would not have been a fix.
+
+**The text is an X-type record in SDSYS's VOC now**, printed with SD's own
+pagination - the `kernel(K$PAGINATE, ...)` idiom `CPROC:525` uses.
+
+***IN `voc_template` AND NOT `newvoc`, AND THAT IS THE WHOLE OF THE DESIGN.***
+`voc_template` is the administrative superset that becomes SDSYS's own VOC;
+`newvoc` is what `CREATEA` copies into every account it makes. The licence is
+44 KB - in `newvoc` it would land in every account's VOC and be copied again by
+every `UPDATE.ACCOUNT`, for text nobody reads twice. `BBPROC:186` copies
+`voc_template` unfiltered, so the two records arrive in SDSYS and nowhere else.
+
+**The files still ship, and that is not redundancy.** SD is GPL-3,
+`sdsys/licence` is the distribution's only copy of the licence, and `sd.iss`
+has no `LicenseFile` - deleting it would ship a GPL program with no licence
+readable by anyone who had not started SD. So `gplbld/mkvocdoc.py` generates
+the records FROM the files and `--check` asserts they still agree.
+
+### Two things checked rather than assumed, and both were wrong
+
+***`SETPU` DOES NOT SET PAGINATION.*** The first draft wrote
+`setpu 'PAGINATE', @true`. `SETPU` takes a numeric `PU$` key and a unit number
+and is for print units; pagination is `kernel(K$PAGINATE, ...)`. Found by
+grepping for how anything else does it, not by compiling.
+
+***AND `sysmsg(2200)` IS "Cannot open accounts register"***, not "cannot open
+VOC" - it would have printed a confident, wrong diagnosis. The refusal is plain
+text now, as the rest of `CONFIG` already does.
+
+### The licence named a licence SD does not use
+
+The text said the install and delete scripts were under the **Black Oak Model
+License v1.0.0**. ***THE ONLY REFERENCE TO IT IN THE WHOLE REPOSITORY WAS THAT
+LINE*** - no source file carries the header. It covered the Linux shell
+scripts this port replaced outright, and the PowerShell that replaced them
+carries no licence header, so the file's own next sentence already covers them:
+*"If no other license is indicated then the license is the GPL v3.0."*
+
+**The LGPL line is genuine and stays** - `gplsrc/sdclilib/` carries LGPL v3
+headers throughout. Both files also lose their `[Press 'q' to exit]` banner and
+`contrib` its 19 lines of trailing pager padding.
