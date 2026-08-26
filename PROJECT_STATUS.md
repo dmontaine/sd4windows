@@ -15,7 +15,9 @@ something came to be the way it is.
 
 ***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT", AND RUN THE CHECKER FIRST.*** `python sdb_ai/sd64/gplbld/check-stale-leads.py` — one second, exit 0 today, and it is the difference between the table and a guess. It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*.
 
-***H.2's ONE DECISION IS ANSWERED — OWNER, 26 Aug 2026: THE DOCUMENTATION TOOLCHAIN TARGETS THE MSYS2 PYTHON.*** `mkdoc.py` is the only thing in the whole build with a third-party dependency — `markdown` — and the gap was bigger than the package: it was installed for the **Windows** python (3.13.14) and not for the **MSYS2** python `setup-devbox.ps1` installs (3.12.13), so on a fresh box `python mkdoc.py` failed at the *interpreter*. **`python-markdown` is now in `setup-devbox.ps1`'s package list**, and `-CheckOnly` names it as the one thing missing on this host. ***So nothing about H.2 is now waiting on anyone*** — format, audience, where the work lives, where it ships and his verbatim topic list were already settled. **The phase can start.**
+***H.2 HAS STARTED. THE FIRST TESTER DOCUMENT SET IS DRAFTED — 11 PAGES, Markdown + HTML + PDF, COVERING EVERY ROW OF HIS TOPIC LIST.*** It lives at `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`, **outside this repository on his instruction of 26 Aug 2026** — which defers §"WHERE THE WORK LIVES" rather than withdrawing it. **It is not yet reviewed**, and 14 questions are waiting on him in `QUESTIONS-2026-08-26.md` beside the set. ***One of them is a defect in a file that ships***: the changelog's 21 Aug entry sends users to `C:\ProgramData\SD\sdsys\sd.conf`, and the file is at `C:\ProgramData\SD\sd.conf` (`sddefs.h:262`, `sd.iss:407`).
+
+***THE INTERPRETER DECISION IS ANSWERED — OWNER, 26 Aug 2026: THE MSYS2 PYTHON.*** `mkdoc.py` is the only thing in the whole build with a third-party dependency — `markdown` — and the gap was bigger than the package: it was installed for the **Windows** python (3.13.14) and not for the **MSYS2** python `setup-devbox.ps1` installs (3.12.13), so on a fresh box `python mkdoc.py` failed at the *interpreter*. **`python-markdown` is now in `setup-devbox.ps1`'s package list**, and `-CheckOnly` names it as the one thing missing on this host.
 
 ***ONE COMMAND IS OWED ON THIS MACHINE, AND IT IS THE ONLY THING BETWEEN HERE AND WRITING.*** The package is chosen but not installed here yet; until it is, `mkdoc.py` runs only under the Windows python. Either re-run `setup-devbox.ps1` elevated, or install the one package inside MSYS2: `pacman -S --needed python-markdown`.
 
@@ -61,7 +63,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — **FULL install 21:57, 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`** | 25 Aug 2026 |
-| ⬜ | **H.2** | Documentation — **approved, scoped, the 1.0-0 gate empty and the last decision taken.** Format, audience, where it lives, where it ships, the topic list and the interpreter are all settled; `python-markdown` is in `setup-devbox.ps1`. ***Nothing is waiting on anyone. Not a page is written*** | — |
+| ⬜ | **H.2** | Documentation — ***STARTED 26 Aug 2026. THE FIRST TESTER SET IS DRAFTED*** — 11 pages, Markdown + HTML + PDF, in `..\sdhelp\SD Core for Windows 1.0-0 Docs`, **outside this repository on the owner's instruction**. Every row of his topic list is covered. **Not yet reviewed**, and 14 questions are waiting on him in `QUESTIONS-2026-08-26.md` | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -194,17 +196,51 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `elev_piped=refused`. `icacls` reports *"Failed processing 0 files"*, and
 > `secure-account-dirs` *"0 failed"*. **Read them before reporting them.**
 >
-> ### 2. DOCUMENTATION — NOT YET BUILT, AND ONE DECISION IS THE OWNER'S
+> ### 2. DOCUMENTATION — STARTED. THE FIRST SET IS DRAFTED AND NOT YET REVIEWED
 >
-> ***THE GATE IS EMPTY, SO STARTING IS NOW A DECISION HE CAN TAKE.*** His
-> instruction, 25 Aug 2026, was *"let's finish up the remaining tasks to get to
-> 1.0-0 and then start on documentation"*, and the two things that gate named —
-> item 3 and the §7 step 3 bullets — both went on 25 and 26 Aug.
+> ***THE FIRST TESTER DOCUMENT SET WAS WRITTEN 26 Aug 2026*** — eleven pages,
+> Markdown + HTML + PDF, covering every row of the owner's topic list. **It is
+> not yet approved**, and 14 questions are waiting on him.
 >
-> ***WHAT IS SETTLED:*** the format, the audience, where the work lives, where
-> it ships, and the topic list, which is his verbatim. All of it is in
+> ***IT LIVES OUTSIDE THIS REPOSITORY, ON HIS INSTRUCTION OF 26 Aug 2026:***
+> `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`, *"for now,
+> they are not a part of the repository"*. **That reverses §"WHERE THE WORK
+> LIVES" below for the time being** — read the two together, and note the 25 Aug
+> reasoning for keeping it in the repository has not been withdrawn, only
+> deferred. **Question 3 in `QUESTIONS-2026-08-26.md` asks him to settle it.**
+>
+> ***THE ONE ERROR HE CAUGHT, AND IT IS WORTH NOT REPEATING.*** A first draft
+> said accounts SD creates *"sign in over ssh and nothing else"*. **Wrong**: they
+> cannot log in to **Windows**, and they reach SD over ssh **or through an API
+> client**. A standard-tier account with `api` and no `ssh` is an ordinary thing
+> — someone running a custom GUI client — and is probably the commonest shape a
+> deployed system has. The API is not a developers-and-administrators feature.
+> Corrected in four pages.
+>
+> ***WHAT WAS SETTLED BEFORE IT STARTED:*** the format, the audience, where it
+> ships, and the topic list, which is his verbatim. All of it is in
 > §"DOCUMENTATION DECISIONS" and §"THESE FOUR ARE THE BRIEF" below, and those
 > two sections were deliberately left untouched by the 26 Aug prune.
+>
+> ***THE TOOLCHAIN IS TWO SCRIPTS AND BOTH ARE ON `$neverShipped`:***
+> `mkdoc.py` renders Markdown to single-file HTML, and **`mkpdf.ps1`, new
+> 26 Aug 2026**, prints that HTML with headless Edge. **`mkpdf.ps1` had to be
+> listed in `assert-current.ps1` in the same commit** — a `gplbld` script not on
+> that list makes the tree report stale *because it exists*, and then every
+> verifier refuses. Checked live afterwards: `assert-current` exit 0.
+>
+> ```
+> python sdb_ai/sd64/gplbld/mkdoc.py --in <dir> --out <dir>
+> powershell -File sdb_ai\sd64\gplbld\mkpdf.ps1 -In <dir>
+> ```
+>
+> ***AND `mkpdf.ps1` CARRIES ONE TRAP THAT COST A RUN.*** `Start-Process
+> -ArgumentList` with an **array** joins the elements with spaces and quotes
+> nothing, so a switch whose value contains a space becomes several arguments.
+> It passed on `docs\sample` and failed on all eleven pages of *"SD Core for
+> Windows 1.0-0 Docs"* — browser exit **13**, no PDF, the only difference being
+> the spaces in the directory name. The argument list is now built as one
+> string with the quoting written out.
 >
 > ***THE SAMPLE WAS JUDGED AND PASSED:*** *"I like the format"*, and the
 > aggregate-by-function shape was singled out. Sample at

@@ -27,6 +27,89 @@ corrected.
 
 ---
 
+## 26 Aug 2026 — Sixty-first session, part 2: H.2 starts, and the first tester document set is drafted
+
+Eleven pages, Markdown + HTML + PDF, at
+`C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`. **Outside this
+repository, on the owner's instruction** — *"for now, they are not a part of the
+repository"*. That defers the 25 Aug "WHERE THE WORK LIVES" decision rather than
+withdrawing it; question 3 of the review list asks him to settle it, because
+moving a `.md` into the ship list puts it under `assert-current`'s guard and
+every documentation edit then costs a full cycle.
+
+**Every row of his topic list is covered**, one page each, aggregated by
+function as he asked: installation, account types, administrator commands,
+programmer commands, ssh, API, lower case, security, other hardening, and what
+is not in SD Core — plus a start-here index.
+
+**WRITTEN FROM SOURCE AND FROM THE HANDOFF FILES, NOT FROM `..\sdhelp`**, per
+the brief. The changelog turned out to be the single most valuable source: it
+is written in plain English for users and its 3,703 lines index exactly what a
+tester would notice.
+
+***THE OWNER CAUGHT ONE REAL ERROR, AND IT IS THE KIND WORTH RECORDING.*** A
+first draft said accounts SD creates *"sign in over ssh and nothing else"*, and
+framed the API as a developer-and-administrator feature. **Both wrong.** What
+the access model denies is **Windows interactive logon** — the console and RDP.
+An SD account reaches SD **over ssh or through an API client**, and
+`create.account user <name> ssh|api|both|none` exists precisely to say which.
+**A standard-tier account with `api` and no `ssh` is an ordinary thing** —
+somebody running a custom GUI client — and is probably the commonest shape a
+deployed system has. Corrected in four pages; the `RDPACCOUNT` changelog entry
+had it right all along (*"SD accounts reach the machine over ssh or through an
+API client"*) and the draft had narrowed it.
+
+**ONE DEFECT FOUND IN A FILE THAT SHIPS.** The changelog entry of 21 Aug 2026,
+"THE API IS REACHED AT ITS OWN PORT NOW", tells users to edit
+`C:\ProgramData\SD\sdsys\sd.conf` — twice. **The file is at
+`C:\ProgramData\SD\sd.conf`**: `gplsrc/sddefs.h:262` `SD_CONFIG_DEFAULT`, and
+`sd.iss:407` installs it to `{#DataDir}`, not into `sdsys`. The documents carry
+the correct path; the changelog has not been touched, because it ships and the
+correction is the owner's call. Question 1.
+
+**TWO ARITHMETIC CORRECTIONS AGAINST THE CHANGELOG'S OWN NUMBERS**, both found
+by checking `verify-tiers.ps1` rather than trusting prose. The tier-split entry
+of 24 Aug says a programmer account gets *"42 more"* than standard; it is now
+**41**, because `modify` was removed later the same day and left
+`TIER.OMIT.STANDARD`. Counted from the record: 41 lines and 21 lines. The VOC
+totals are 354 / 395 / 416 and are re-derived, not copied.
+
+**AND ONE STALE CLAIM NOT REPEATED.** The 18 Aug changelog says `OS.USERS` field
+2 `OS.EX` is *"stored but not yet enforced"*. The 19 Aug entry enforces it. The
+documents describe the enforced behaviour and print the four-row truth table.
+
+### The toolchain
+
+`mkdoc.py` was already written. **`mkpdf.ps1` is new**: it prints mkdoc's HTML
+with headless Edge, which adds no dependency because Edge is on every supported
+Windows machine — the same argument that chose the browser as the reader. It
+writes PDFs **outside** the repository and nothing it produces is tracked,
+staged or installed, so the no-binaries rule and the "no PDF ships" ruling both
+stand.
+
+***IT HAD TO GO ON `$neverShipped` IN THE SAME COMMIT.*** A `gplbld` script not
+on that list makes the tree report stale **because it exists**, and then every
+verifier refuses. Found by reading `assert-current.ps1` before committing, which
+is what the search rule is for; `cleanup-devlitter.ps1`'s own comment says the
+same thing three lines above where `mkpdf.ps1` now sits. Checked live afterwards:
+**`assert-current` exit 0**, `sd.exe` still `5BD2F83F43BB9B27`.
+
+***AND IT CARRIED A TRAP THAT COST A RUN, WHICH THE SAMPLE COULD NOT HAVE
+CAUGHT.*** `Start-Process -ArgumentList` with an **array** joins the elements
+with spaces and quotes nothing, so a switch whose value contains a space becomes
+several arguments. It passed on `docs\sample` and then failed on **all eleven**
+pages of *"SD Core for Windows 1.0-0 Docs"* — browser exit **13**, no PDF
+written, the only difference being the spaces in the directory name. The
+argument list is now built as one string with the quoting written out.
+
+**A parse-check would not have caught either fault in this script.** The first
+version died at run time on `[System.IO.Path]::GetChangeExtension` — the method
+is `ChangeExtension` — with 0 parse errors. Both were caught by running it and
+reading the output, and the null-case guard (`sources 0` is refused out loud)
+is what makes "11 of 11 written" mean something.
+
+---
+
 ## 26 Aug 2026 — Sixty-first session: PROJECT_STATUS pruned for the documentation phase, and a warning that was unfindable
 
 **Documentation only. No source changed, nothing that ships was touched, and no
