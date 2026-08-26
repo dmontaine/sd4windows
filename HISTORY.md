@@ -27,6 +27,62 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-seventh session, part 5: VFS scoped for removal, and the owner's guess about Ladybridge confirmed
+
+**Commit:** this one. `PROJECT_STATUS.md` only - **nothing removed yet, on the
+owner's sequencing** (*"we will do it after the current task"*). The detail is
+in START HERE item 3a so none of it is re-derived.
+
+**Why it came up:** `sdsys/bp/VFS.CLS` was deleted in part 4 because VFS is not
+supported, and the owner then asked whether the C remnants could go too, with
+one condition: *"check first whether anything writes VFS_FILE or SEL_VFS to
+disk."*
+
+### The answer, and the two he did not name are the interesting ones
+
+**Neither `VFS_FILE` nor `SEL_VFS` reaches disk.** Both are runtime-only, and
+neither is ever even assigned: `fvar->type` only ever receives `INITIAL_FVAR`,
+`DYNAMIC_FILE` or `DIRECTORY_FILE`, and `select_ftype[]` is never written.
+
+***BUT TWO OTHER VFS VALUES ARE PERSISTED-FORMAT, AND CHECKING ONLY THE NAMED
+TWO WOULD HAVE MISSED THEM.*** `DHF_VFS` (0x40) is a **file-header** bit -
+`dh.h:98` says the LS 16 bits come from the file header - and `PF_IS_VFS`
+(0x00200000) is a **compiled-object header** flag read as `pgm->flags`.
+
+Both are still safe, for the same reason: **nothing sets either.** `DHF_VFS`
+occurs once, its own `#define`, and is excluded from `DHF_CREATE` (0xB8), so no
+SD build can create a file carrying it; `PF_IS_VFS` is tested and printed but
+BCOMP has no directive that sets it. **The rule attached: retire the two bit
+values, do not recycle them** - `ACC$USERS` field 4's reasoning.
+
+### The real defect is that the BASIC advertises what the C lacks
+
+`FTYPE:50` returns `'VFS'` for a `VFS:` pathname and `_VOC_REF:191` has a branch
+for one, while **nothing in the C open path recognises `VFS:` at all**, and
+errors 3038-3040 are defined and never raised. A `VFS:` F-pointer is therefore
+reported as a VFS, passes the resolver, and fails in the C with an unrelated
+error. Until part 4 SD also shipped a template class module for writing one.
+
+### The owner's guess was right, and it makes this upstream's
+
+He said: *"My guess is that Ladybridge never ported the VFS system to the GPL
+version on purpose."* `../sdb64/sd64/gplsrc` is **identical, value for value** -
+`VFS_FILE` 2 hits, `SEL_VFS` 1, `DHF_VFS` 1, `PF_IS_VFS` 3, the same counts as
+here - its C open path does not know `VFS:`, its `FTYPE:50` carries the same
+line, and it **still ships `sdsys/BP/VFS.CLS`**. So the gap is in the GPL
+release, not introduced by this port, and it earns an `UPSTREAM_FIXES.md`
+entry - written in the same commit as the fix, per section 0.
+
+***AND THE COMPARISON WAS WRONG THE FIRST TIME, WHICH IS THE PART TO REMEMBER.***
+The clone's source is at `sdb64/sd64/gplsrc`, one level deeper than the obvious
+`sdb64/gplsrc`. The first grep returned **0 hits for all four values** and read
+exactly like "upstream has already removed VFS" - a confident conclusion from an
+instrument that had reached nothing. What exposed it was a control in the same
+run: `DHF_NOCASE` and `DYNAMIC_FILE` also returned 0, which is impossible in a
+real tree. **Grep the clone with a symbol that must be there.**
+
+---
+
 ## 25 Aug 2026 - Fifty-seventh session, part 4: the first cycle run, the refusal that earned its keep, and sdsys/bp emptied
 
 **Commit:** this one. `sdsys/bp/` (5 deletions + README), `gplbld/stage.py`,
