@@ -30234,3 +30234,83 @@ traceback came from the `print` BEFORE the write**, so the file was untouched;
 had the print come after, the file would have been half-written. Set
 `PYTHONIOENCODING=utf-8`, and do not echo the marks. The file itself is fine:
 it is read and written explicitly as UTF-8 with `newline=''`.
+
+## 26 Aug 2026 — Step 18 added: clean up after development, and the survey found two leaks
+
+**FIFTY-NINTH SESSION, part 12.** Owner asked for a final development-phase
+task: test accounts in SD, test user directories under `\Users`, and a home
+directory littered with `sd*` items — with `setup-devbox.ps1` **verified and
+retained**. Added as §7 step 18 and table row `7.18`. **Nothing was deleted**;
+the survey is a set of real readings taken the same day.
+
+***IT IS LAST FOR A STRUCTURAL REASON.*** `cycle.ps1` deletes both SD trees and
+**neither the Windows users nor the profile directories**, so every cycle and
+suite run adds to the pile — `b43` alone made 16 register entries and 12
+profiles. Cleaning before item 4's guest work would simply be re-done.
+
+| | counted |
+|---|---|
+| SD register | **18 records, 16 of them test**; `don` and `sdsys` are the real ones |
+| `user_accounts` directories | **3** — and that already disagrees with 16 |
+| Windows local users `sd*` | **8**, all `sdapiidb*`, against 16 users total |
+| `sdu_*` groups | **8** matching them, against 37 groups total |
+| profile dirs under `C:\Users` | **30**, from `b41`/`b42`/`b43` |
+| `sd*` items in the home directory | **29** |
+
+***TWO DISTINCT LEAKS, AND NEITHER WAS KNOWN.***
+
+1. **`verify-apiidentity.ps1` does not delete the Windows user it creates.**
+   Every other verifier does — which is why `sdapiid` accounts survive back to
+   `b31` on 24 Aug and **no other prefix survives at all.** Fix it in the same
+   task or the next runs replace them.
+2. **The other verifiers delete the user and leave the PROFILE.** That is a
+   different leak and the reason the profile pile (30) is far larger than the
+   user pile (8). Most of those 30 are orphaned: account gone, directory
+   standing.
+
+***TWO ITEMS IN THE HOME DIRECTORY ARE NOT LITTER.*** `sdout` is
+[cycle.ps1:61](sdb_ai/sd64/gplbld/cycle.ps1:61)'s default `-Out` — live build
+output, holding the installer the upgrade test used. `~/sdclilib` is
+**31 Jul 2026, predating this port's work**, and holds `linuxsdclilib` and
+`msvcsdclilib`, which look like the separate client packages; unreferenced by
+the repository, **but that is not evidence it is disposable.** Flagged to ask,
+with `SD AI Modification Snapshots_20260610.zip` (52 MB) and
+`sd-preclean-backup\`.
+
+***A MEASUREMENT ALMOST WENT IN WRONG, AND IT IS THE SAME SHAPE AS THE OTHERS.***
+A first pass reported `sdclilib` as *"referenced in 12 files"* and would have
+recorded it must-keep for the wrong reason: **the repository has its own
+`gplsrc/sdclilib`** and the grep was matching that. Re-run against the home path
+specifically: zero hits. **Grep the PATH, not the basename.**
+
+***"RETAINED" WAS ALREADY TRUE AND "VERIFIED" IS NOT WHAT STEP 17 PROVED.***
+`setup-devbox.ps1` is tracked in git, so nothing in the home-directory sweep can
+lose it. Step 17 proved it *runs*; what has never been checked is whether it
+installs everything a new machine now needs — and §"DOCUMENTATION DECISIONS"
+already names one it does not: **`python-markdown`, which `mkdoc.py` requires.**
+Verify COVERAGE against what the build uses, not that the script exits 0.
+
+## 26 Aug 2026 — The new step tripped the checker, and the checker was right to be suspicious but wrong about why
+
+**FIFTY-NINTH SESSION, part 13.** Adding step 18 made
+`check-stale-leads.py` report *"7.18 is marked OPEN but its entry leads with a
+closure"*. **The entry contains no closure.** The match was at a line inside
+**§8's preamble** — *"Closed and superseded material is in HISTORY"*.
+
+***THE LAST STEP IN §7 HAS NO NEXT ENTRY INSIDE §7***, so its range ran to the
+next START HERE item and swallowed §8. Every earlier step was bounded by the
+one after it, so the bug could not appear until something became the last step —
+and step 17 had never tripped it only because §8's first closure word sits
+further from it. Fixed by clamping a §7 entry's end to §7's own end.
+
+**A regression case went into `test-staleleads-units.py` in the same commit** —
+plant `CLOSED DONE VERIFIED` immediately after §8's heading and require the run
+to stay clean. **8 of 8.** The check that catches a boundary bug has to be a
+boundary case; the seven existing ones all injected defects *inside* an entry
+and none of them could have found this.
+
+**And one shell mistake worth the line:** `python ... | tail -6; echo $?`
+reports **`tail`'s** exit code, not python's — it printed `EXIT=0` on a run that
+had just reported drift. Redirect to a file and test the real status, or read
+`PIPESTATUS`. That is the same class as everything else here: an instrument
+answering a question next to the one asked.

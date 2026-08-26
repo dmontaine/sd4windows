@@ -62,6 +62,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ⬜ | **H.4** | **Remote-block control — the one dial and its control.** `sshNoServer` with a bridged NIC; three installs also close 5's SKIP | — |
 | ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** Open: that one SKIP, the unseen mode page, and one security question that is the owner's | partly |
+| ⬜ | **7.18** | ***THE LAST DEVELOPMENT TASK: CLEAN UP.*** 16 SD test accounts, 8 leaked Windows users + 8 groups, 30 orphaned profile directories, ~25 scratch files in the home directory. **Keep `sdout`; ask about `~/sdclilib`.** And `setup-devbox.ps1` needs its COVERAGE verified, not just that it runs | — |
 
 **Legend** — ✅ closed and verified · ◐ **partly**: some parts closed,
 some open, and the row says which · ⬜ open · ➖ removed or superseded,
@@ -10266,6 +10267,93 @@ the staging script and the Inno installer were all finished and removed.
     ***USE A TIMEOUT ON EVERY ELEVATED SD PROBE.*** An SD console session
     cannot be killed by `Stop-Process` or `taskkill /F` from an ordinary token;
     clearing one costs an elevation. That session lost five windows to it.
+
+18. ***OPEN — THE LAST TASK OF THE DEVELOPMENT PHASE. CLEAN UP AFTER
+    DEVELOPMENT.*** Owner, 26 Aug 2026. **Nothing here has been done**; the
+    survey below was taken that day and every count is a real reading, not an
+    estimate.
+
+    ***IT IS LAST FOR A STRUCTURAL REASON, NOT AS A COURTESY.*** Every cycle and
+    every suite run creates a fresh crop of accounts, Windows users and profile
+    directories — `b43` made 16 register entries and 12 profiles on 25 Aug
+    alone. **`cycle.ps1` deletes both SD trees and NEITHER the Windows users nor
+    the profiles**, which is exactly why they accumulate. Cleaning before the
+    remaining test runs would simply be re-done, so this runs **after** item 4's
+    guest work and the last suite run, and the machine is never cycled again
+    afterwards without repeating it.
+
+    ### (a) SD's own account register — 16 test accounts
+
+    `C:\ProgramData\SD\sdsys\accounts` holds **18 records; `don` and `sdsys` are
+    the only real ones.** The rest are `b43`'s: `sdacctb43`, `sdaclb43`,
+    `sdapib43`, `sdapiidb43`, `sdarb43n`, `sdarb43p`, `sdcatgb43`, `sdrtb43a`,
+    `sdrtb43s`, `sdscramb43`, `sdtapib431/2/3`, `sdtiertb431/2/3`.
+
+    ***AND THE REGISTER ALREADY DISAGREES WITH THE DIRECTORIES, WHICH IS WORTH
+    UNDERSTANDING BEFORE DELETING ANYTHING.*** `C:\ProgramData\SD\user_accounts`
+    holds only **three** — `don`, `sdacctb43`, `sdapiidb43` — against sixteen
+    register entries. Find out which is right before writing a script that
+    trusts either. `delete.account` is the verb; `verify-delaccount.ps1` already
+    exercises it.
+
+    ### (b) Windows users and groups — 8 and 8, and a LEAK to fix
+
+    `sdapiidb31`, `b33`, `b36`, `b37`, `b38`, `b41`, `b42`, `b43` still exist as
+    **enabled local users**, each with its `sdu_<name>` group — 16 objects,
+    against 16 total local users and 37 local groups on the machine.
+
+    ***ONLY THE `sdapiid` PREFIX LEAKED, AND THAT IS THE FINDING.*** Every other
+    verifier deletes the Windows user it made. **`verify-apiidentity.ps1` does
+    not** — which is why its accounts go back to `b31` on 24 Aug while no other
+    prefix survives at all. **Fix the leak in the same task**, or the next runs
+    put them straight back.
+
+    ### (c) Profile directories under `C:\Users` — 30, and a SECOND leak
+
+    Thirty `sd*` profile directories, all from `b41`, `b42` and `b43`.
+    ***MOST ARE ORPHANED: the account is gone and the profile is not.*** So the
+    other verifiers delete the user and leave the profile behind — a different
+    leak from (b), and the reason this is the largest pile. `sdtapib4NN` appears
+    three times per run.
+
+    ### (d) The home directory — 29 `sd*` items, and TWO of them are not litter
+
+    | | |
+    |---|---|
+    | ***KEEP `sdout`*** | **live build output** — [cycle.ps1:61](sdb_ai/sd64/gplbld/cycle.ps1:61) is `[string] $Out = 'C:\Users\dmont\sdout'`, and it holds the installer the upgrade test used. Written 21:56 on 25 Aug |
+    | ***ASK about `~/sdclilib`*** | 31 Jul 2026, **predating this port's work**, holding `linuxsdclilib` and `msvcsdclilib` — which look like the separate client packages §"client distribution" describes. **Unreferenced by the repository, but that is not evidence it is disposable** |
+    | ASK about two more | `SD AI Modification Snapshots_20260610.zip` (**52 MB**, 13 Aug) and `sd-preclean-backup\` (14 Aug) — both look deliberate |
+
+    **The remaining ~25 are development scratch from 14–17 Aug**: install logs
+    (`sdinstall.log`, `sd-normal-install.log`, two 1 MB `.innolog`s), captured
+    transcripts (`sd-createaccount.txt`, `sd-denytest.txt`, `sd-sshinstall.txt`
+    …), one-off scripts (`sdclean.ps1`, `sdfirst`/`sdfinal`/`sdverify.ps1`), and
+    the run directories `sdrun`, `sdrun2`, `sdrun3`, `sdcycle`, `sdconftest`,
+    `sdmarkers`, `sdxfer` — **none referenced by anything in the repository**,
+    checked by grepping each name across `gplbld`.
+
+    ***THE ONE MEASUREMENT THAT ALMOST WENT IN WRONG.*** A first pass reported
+    `sdclilib` as *"referenced in 12 files"* and would have been recorded as
+    must-keep for the wrong reason. **The repository has its own
+    `gplsrc/sdclilib`**, and the grep was matching that. Re-run against the
+    home path specifically: **zero hits.** Grep the PATH, not the basename.
+
+    ### (e) `setup-devbox.ps1` — verify and retain
+
+    ***"RETAINED" IS ALREADY TRUE AND NOT BY BEING IN THE HOME DIRECTORY:*** it
+    is [gplbld/setup-devbox.ps1](sdb_ai/sd64/gplbld/setup-devbox.ps1),
+    **tracked in git**. Nothing in (d) can lose it.
+
+    ***"VERIFIED" IS NOT SATISFIED BY STEP 17, AND THERE IS A KNOWN GAP.***
+    Step 17 records that it ran end to end on 24 Aug — that it *works*. What
+    has never been checked is whether it still installs **everything a new
+    machine now needs**, and §"DOCUMENTATION DECISIONS" already names one it
+    does not: ***`python-markdown` is on this machine and `setup-devbox.ps1`
+    does not install it***, so `mkdoc.py` would fail on a fresh box. **Verify
+    coverage against what the build actually uses, not that the script exits
+    0** — and it wants a clean guest, which item 4's rig provides.
+
+
 ## 8. Open questions
 
 **COMPRESSED 21 Aug 2026, thirty-eighth session**, under §0 rule 5. Closed and
