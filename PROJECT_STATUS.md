@@ -785,15 +785,33 @@ the measurement. Nothing was judged on it.
 > booted, and `probe-sshremote.ps1` says so in its own closing sentence rather
 > than claiming a proof it has not got.
 >
+> ***THE INSTALLER, AND WHICH BUILD IT IS.*** Owner, 26 Aug 2026: *"you can
+> copy the installer to `P:\` it is available from host and vm - ip address of
+> vm is 10.0.0.143."* **Copied and verified byte for byte:**
+>
+> | | |
+> |---|---|
+> | on the guest | ***`P:\sd-setup-W1.0-0.exe`*** — `P:` is reachable from both |
+> | built | **25 Aug 21:56:55**, 4,819,028 bytes |
+> | SHA256 | `57228B09EF23DFC2C0DE36E11B695E93F03A38FA6389B77E84963DF568082249` — **checked equal at both ends**, not assumed from a copy that reported success |
+> | what it carries | the 21:57 cycle's build, so **this session's three fixes are in it**: the `apiremote` gate, and `$null = $p.Handle` in both scripts |
+> | guest address | **10.0.0.143** |
+>
+> ***SO THE TASKS PAGE IS WORTH A LOOK ON STEP 2 FOR A SECOND REASON.***
+> `apiremote` now carries `Check: not StandaloneChosen` and this is a FULL
+> install, so **the box must still be there**. That is the regression this
+> session's one-line change could have caused, and it has only been reasoned
+> about, never seen.
+>
 > | # | on | do | expect |
 > |---|---|---|---|
-> | 1 | host | start `sshRemoteTest-C1`, note its address (`ipconfig` in the guest) | `10.0.0.x` |
-> | 2 | guest | install SD, **TICK `sshremote`** | rule becomes `RemoteAddress=Any` |
+> | 1 | host | start `sshRemoteTest-C1` | it comes up at **10.0.0.143** |
+> | 2 | guest | run **`P:\sd-setup-W1.0-0.exe`**, **TICK `sshremote`**, and **look at the tasks page** | rule becomes `RemoteAddress=Any`; `apiremote` **present** |
 > | 3 | guest | `probe-sshfirewall.ps1 -Expect Open` | exit 0 |
-> | 4 | **host** | `probe-sshremote.ps1 -Guest <addr> -Expect Open` | ***CONNECTED*** — the reachability witness |
-> | 5 | guest | uninstall, reinstall, **LEAVE `sshremote` UNTICKED** | rule becomes `127.0.0.1` |
+> | 4 | **host** | `probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Open` | ***CONNECTED*** — the reachability witness |
+> | 5 | guest | uninstall, reinstall from `P:\`, **LEAVE `sshremote` UNTICKED** | rule becomes `127.0.0.1` |
 > | 6 | guest | `probe-sshfirewall.ps1 -Expect Restricted` | exit 0 |
-> | 7 | **host** | `probe-sshremote.ps1 -Guest <addr> -Expect Blocked` | ***did not connect*** — **and step 4 is what makes this mean something** |
+> | 7 | **host** | `probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Blocked` | ***did not connect*** — **and step 4 is what makes this mean something** |
 >
 > ```
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Open
@@ -801,6 +819,13 @@ the measurement. Nothing was judged on it.
 > ```
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Blocked
 > ```
+>
+> **`P:\` sidesteps the shared-folder rig entirely**, and with it the two rig
+> lessons that cost time before: *"never run the installer off the `sdout`
+> share"* — the guest holds the build output open and the next `ISCC` dies with
+> *"the output file appears to be in use (32)"* — and *"no hard-coded drive
+> letters"*, since a transient share came up `Y:`+`Z:` with two mounted and
+> `Z:` alone with one. **`P:\` is neither `sdout` nor transient.**
 >
 > **Step 7 will sit for the full timeout rather than answer at once** —
 > measured in the self-test: this network **DROPS** rather than sending RST, so

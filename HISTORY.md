@@ -30407,3 +30407,36 @@ the row as `partly`: *"marked PARTLY but its entry contains nothing still open
 the runbook never said the test had not been run. It says so now, first line.
 Both were caught by a script, in the same session in which four such claims had
 survived months of human reading.
+
+## 26 Aug 2026 — "step 2 where is sd installer": the runbook named neither the build nor the route
+
+**FIFTY-NINTH SESSION, part 16.** The owner read the runbook written minutes
+earlier and asked where the installer was. **The table said "install SD" and
+named neither which build nor how it reaches the guest** — the same gap this
+project's instrument rule names, in a document rather than a script: a step
+whose real inputs are not stated.
+
+**He supplied the route:** *"you can copy the installer to `P:\` it is
+available from host and vm - ip address of vm is 10.0.0.143."*
+
+**Copied and VERIFIED, not assumed from a copy that reported success:**
+`P:\sd-setup-W1.0-0.exe`, 4,819,028 bytes, SHA256
+`57228B09EF23DFC2C0DE36E11B695E93F03A38FA6389B77E84963DF568082249` — **read
+back at both ends and compared.**
+
+***AND IT MATTERS WHICH BUILD IT IS.*** It is the 21:56:55 installer from
+tonight's cycle, so **this session's three fixes are in it**: the `apiremote`
+gate, and `$null = $p.Handle` in `upgrade-dicts.ps1` and `adopt-account.ps1`.
+
+***SO STEP 2 GAINED A SECOND PURPOSE.*** This is a **full** install, so
+`apiremote`'s new `Check: not StandaloneChosen` must leave the box **present**.
+That is the regression the one-line change could have caused; it has been
+reasoned about from `FullRadio.Checked := True` and **never seen on screen**.
+The runbook now says to look.
+
+***`P:\` ALSO SIDESTEPS THE SHARED-FOLDER RIG AND BOTH OF ITS RECORDED
+LESSONS***: *"never run the installer off the `sdout` share"* — the guest holds
+the build output open and the next `ISCC` dies with *"the output file appears to
+be in use (32)"* — and *"no hard-coded drive letters"*, after a transient share
+came up `Y:`+`Z:` with two mounted and `Z:` alone with one. **`P:\` is neither
+`sdout` nor transient**, so neither applies.
