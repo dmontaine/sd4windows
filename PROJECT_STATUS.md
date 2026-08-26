@@ -796,6 +796,8 @@ the measurement. Nothing was judged on it.
 > | SHA256 | `57228B09EF23DFC2C0DE36E11B695E93F03A38FA6389B77E84963DF568082249` — **checked equal at both ends**, not assumed from a copy that reported success |
 > | what it carries | the 21:57 cycle's build, so **this session's three fixes are in it**: the `apiremote` gate, and `$null = $p.Handle` in both scripts |
 > | guest address | **10.0.0.143** |
+> | also on `P:\` | ***`probe-sshfirewall.ps1`***, 9,244 bytes, SHA256 `97848043A644274A…E8C4CB` — copied 26 Aug 2026, **hash checked at both ends, and the COPY itself parse-checked on `P:\`**: 0 errors, 6 functions, no BOM, so it will load on the guest rather than dying at step 3 |
+> | NOT on `P:\`, deliberately | `probe-sshremote.ps1` — it runs on the **host**, from the repository. Only the guest-side halves need copying |
 >
 > ***SO THE TASKS PAGE IS WORTH A LOOK ON STEP 2 FOR A SECOND REASON.***
 > `apiremote` now carries `Check: not StandaloneChosen` and this is a FULL
@@ -807,10 +809,10 @@ the measurement. Nothing was judged on it.
 > |---|---|---|---|
 > | 1 | host | start `sshRemoteTest-C1` | it comes up at **10.0.0.143** |
 > | 2 | guest | run **`P:\sd-setup-W1.0-0.exe`**, **TICK `sshremote`**, and **look at the tasks page** | rule becomes `RemoteAddress=Any`; `apiremote` **present** |
-> | 3 | guest | `probe-sshfirewall.ps1 -Expect Open` | exit 0 |
+> | 3 | guest | **elevated**: `P:\probe-sshfirewall.ps1 -Expect Open` | exit 0 |
 > | 4 | **host** | `probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Open` | ***CONNECTED*** — the reachability witness |
 > | 5 | guest | uninstall, reinstall from `P:\`, **LEAVE `sshremote` UNTICKED** | rule becomes `127.0.0.1` |
-> | 6 | guest | `probe-sshfirewall.ps1 -Expect Restricted` | exit 0 |
+> | 6 | guest | **elevated**: `P:\probe-sshfirewall.ps1 -Expect Restricted` | exit 0 |
 > | 7 | **host** | `probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Blocked` | ***did not connect*** — **and step 4 is what makes this mean something** |
 >
 > ```
