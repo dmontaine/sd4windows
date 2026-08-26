@@ -31,6 +31,15 @@ something came to be the way it is.
 > has SD, and item 5 has one open question that is the owner's to answer.
 > **Item 2 does not start until 1.0-0.**
 >
+> ***ITEM 5 NOW HAS AN INSTRUMENT*** —
+> [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1), 7 sections,
+> every absence paired with a control. Its three gates are proven; **sections 1
+> to 7 have never run, because there is no stand-alone install to run them
+> against.** ***Proving item 5 costs TWO cycles, not one*** — a stand-alone box
+> cannot run the 31-step suite, so it is: cycle stand-alone → run the verifier
+> elevated → look at the mode and tasks pages while the wizard is up → cycle
+> full to put the machine back. Read item 5 before starting.
+>
 > **`b42` is spent — use `b43`.** And `-Run` does nothing without
 > `-ThenElevated`; item 1 carries that trap.
 >
@@ -515,6 +524,60 @@ something came to be the way it is.
 > start of a line in the new text (the fault that cost a cycle on 19 Aug).
 > `RichEditViewer.Lines.Text` was confirmed writable **by compiling it**, with
 > its own failing control, not by reading the help.
+>
+> ***IT NOW HAS AN INSTRUMENT — [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1),
+> WRITTEN 25 Aug 2026.*** Item 5 was the only built behaviour in the project
+> with no verifier, which is why it kept being described as "unmeasured": there
+> was nothing to run. Seven sections, and **every absence is paired with a
+> control**, because *"Get-NetFirewallRule found no SD rule"* and *"the query
+> returned nothing at all"* are the same answer otherwise.
+>
+> | section | what it measures | its control |
+> |---|---|---|
+> | 0 | **refuses unless `sdsys\$standalone` is there** | — this IS the null-case guard, see below |
+> | 1 | the marker exists and says what it is | a name that is not there reads absent |
+> | 2 | `sd.conf` has **no ACTIVE `APIPORT` line**, line-wise, exactly as `stage.py` `_active_apiport()` does it | the commented-out line **is** present, and the file holds other live settings |
+> | 3 | nothing LISTENING on 4243 | the listener query returns rows at all |
+> | 4 | no SD firewall rule | `Get-NetFirewallRule` returns the machine's rules |
+> | 5 | sshd not running, `sshd_config` carries no `AllowGroups` | `Get-Service` finds a service that certainly exists |
+> | 6 | `create.account user` **refused**, anchored on **sysmsg 10100's own wording** | two disqualifiers: 10007's *"Created"* absent, and no Windows user made |
+> | 7 | `create.account group` **still works**, anchored on **sysmsg 10014** | disqualifier: 10100 did **not** fire on this arm |
+>
+> ***SECTION 0 IS THE WHOLE REASON IT IS SAFE TO TRUST.*** Every check asks
+> whether something is ABSENT — so on a machine with no SD at all, **every one
+> would answer "absent" and the run would report a clean pass having measured
+> nothing.** That is the exact failure the instrument rule names. It exits **2**,
+> not 1: nothing failed, the test does not apply.
+>
+> ***PROVEN, AND ONLY THIS MUCH — all three gates, in the file as it stands:***
+>
+> | | |
+> |---|---|
+> | `assert-current` | passes |
+> | the elevation guard | **both polarities**: refuses unelevated at 20:46:42, passes elevated at 20:47:12 (`elevated as: GITORLI\don`) |
+> | section 0 | refuses on this full install, exit 2, *"the data tree IS present, so SD is installed - as a FULL installation"* |
+>
+> ***SECTIONS 1 THROUGH 7 HAVE NEVER RUN. There is no stand-alone install to
+> run them against*** — that is the same gap as before, now with something
+> waiting for it rather than a list of things to eyeball.
+>
+> ***IT IS DELIBERATELY NOT IN `VerifyInstall2`.*** The suite runs against a
+> full installation, where this refuses by design; wiring it in would add a step
+> that always exits 2. It is run by hand, elevated, after a stand-alone cycle.
+>
+> ***AND IT IS ON `assert-current`'s `$neverShipped` LIST, added in the commit
+> that created it*** — §7 step 7's rule. **It walked straight into the trap that
+> rule exists for**: its first run refused because `verify-standalone.ps1` was
+> newer than the install, so the verifier blocked itself on the strength of its
+> own newness. The list is self-policing — if `stage.py` or `sd.iss` ever names
+> it, it goes back under the guard by itself.
+>
+> ***WHAT PROVING ITEM 5 ACTUALLY COSTS, and it is worth knowing before
+> starting: TWO cycles, not one.*** A stand-alone install leaves the machine
+> with no ssh, no API and no `sdsshonly` accounts, so the 31-step suite cannot
+> run on it. The sequence is: cycle choosing **stand-alone** → `verify-standalone.ps1`
+> elevated → **look at the mode page and the tasks page while the wizard is
+> open** → cycle choosing **full** to put the machine back.
 >
 > ***UNSEEN: nobody has looked at this page.*** Layout, wrapping and how much of
 > the memo is visible before scrolling are all unmeasured. So is whether

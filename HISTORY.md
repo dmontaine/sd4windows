@@ -27,6 +27,102 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-eighth session, part 4: item 5 gets an instrument - verify-standalone.ps1
+
+**Commit:** this one. `gplbld/verify-standalone.ps1` (new),
+`gplbld/assert-current.ps1`, `PROJECT_STATUS.md`.
+
+**Why.** Item 5 - the stand-alone install - was the only built behaviour in the
+project with **no verifier**. That is why it kept being written up as
+"unmeasured": there was nothing to run. Everything about it had been proven
+without touching a machine (ISPP lint, the `[Code]` section compiled in a
+harness, controls that fail on an injected fault), and none of that is a
+measurement of an installed system.
+
+### What it measures, and why every section carries a control
+
+Seven sections. **Every check asks whether something is ABSENT** - no APIPORT,
+no open port, no firewall rule, no ssh server - and an absence and a broken
+instrument give the same answer, so each is paired with a control that must see
+the things genuinely there.
+
+| section | measures | control |
+|---|---|---|
+| 0 | refuses unless `sdsys\$standalone` exists | the null-case guard itself |
+| 1 | the marker exists and says what it is | a name that is not there reads absent |
+| 2 | no ACTIVE `APIPORT` line, **line-wise, exactly as `stage.py` `_active_apiport()`** | the commented-out line IS there; the file holds other live settings |
+| 3 | nothing listening on 4243 | the listener query returns rows |
+| 4 | no SD firewall rule | `Get-NetFirewallRule` returns the machine's rules |
+| 5 | sshd not running, no `AllowGroups` in `sshd_config` | `Get-Service` finds a service that exists |
+| 6 | `create.account user` refused, anchored on **sysmsg 10100's wording** | disqualifiers: 10007's "Created" absent, no Windows user made |
+| 7 | `create.account group` still works, anchored on **sysmsg 10014** | disqualifier: 10100 did not fire on this arm |
+
+**Section 2 copies `stage.py`'s line-wise test on purpose.** `stage.py` records
+the trap: testing whether the text CONTAINS `APIPORT=4243` fires on the
+commented-out replacement, because that string contains this one. A check has
+to anchor on something only the real outcome produces.
+
+**Section 6's anchor is the message, not the account name.** The name is echoed
+by the command line, by the refusal and by any error about it - matching on it
+would report success on all three failure paths, which is exactly how a refused
+step came to be reported as confirmed on 23 Aug.
+
+**Section 7 is not decoration.** The ruling was that the USER form is refused
+and the GROUP form is untouched. A run proving only the refusal would be
+equally consistent with `CREATEA` refusing everything, which would break the
+education case the option exists for.
+
+### Section 0 is what makes the rest trustworthy
+
+On a machine with **no SD at all**, every absence above answers "absent" and
+the run reports a clean pass having measured nothing. It exits **2**, not 1:
+nothing failed, the test does not apply. Both "cannot run" cases are
+distinguished - no data tree, and a data tree with no marker.
+
+### Proven, and only this much
+
+| gate | result |
+|---|---|
+| `assert-current` | passes |
+| the elevation guard | **both polarities** - refuses unelevated 20:46:42, passes elevated 20:47:12, `elevated as: GITORLI\don` |
+| section 0 | refuses on this full install, exit 2, *"the data tree IS present, so SD is installed - as a FULL installation"* |
+
+**Sections 1 to 7 have never run**, because there is no stand-alone install to
+run them against. The "no data tree at all" branch of section 0 is also
+unexercised; it is one `Test-Path` and it is stated rather than glossed.
+
+### It walked into the trap its own list entry exists for
+
+***THE FIRST RUN REFUSED ITSELF.*** `assert-current` reported
+*"STALE: 1 source file(s) are newer than the install: gplbld\verify-standalone.ps1"* -
+the verifier blocking itself on the strength of its own newness, which is
+exactly what §7 step 7's rule describes and what cost a run on 17 Aug 2026 with
+`verify-tiers.ps1`. Fixed the documented way: added to `assert-current.ps1`'s
+`$neverShipped`, **in the commit that created it**. That list is self-policing -
+if `stage.py` or `sd.iss` ever names the script, the cross-check puts it back
+under the guard by itself.
+
+### Two decisions recorded
+
+**It is deliberately NOT wired into `VerifyInstall2`.** The suite runs against a
+full installation, where this refuses by design; adding it would contribute a
+step that always exits 2.
+
+**Proving item 5 costs TWO cycles, not one**, and that is worth knowing before
+starting. A stand-alone box has no ssh, no API and no `sdsshonly` accounts, so
+the 31-step suite cannot run on it: cycle stand-alone -> run the verifier
+elevated -> **look at the mode page and the tasks page while the wizard is
+open** (both are still unseen, and the `sshremote` checkbox may be visible) ->
+cycle full to put the machine back.
+
+### Unchanged
+
+The ssh-preflight question in item 5 is still the owner's, and it is not a
+one-line change either way - the preflight runs in `InitializeSetup`, before
+the wizard is drawn.
+
+---
+
 ## 25 Aug 2026 - Fifty-eighth session, part 3: GREEN. 31/31, 929 PASS, and the VFS removal checked on the machine
 
 **Commit:** this one. `PROJECT_STATUS.md` only. Closes item 3a.
