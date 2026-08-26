@@ -11,7 +11,7 @@ something came to be the way it is.
 
 ***WHAT IS BUILT AND VERIFIED:*** the stand-alone **wizard page and all the behaviour behind it** — the mode page, a second `sd.conf` with no `APIPORT`, every ssh and firewall step gated, the `sdsys\$standalone` marker, and `CREATEA` refusing `create.account user` with sysmsg 10100. `apiremote` is now opt-in, matching `sshremote`.
 
-***ITEM 3 IS CLOSED. THE UPGRADE PATH HAS RUN AND IS MEASURED*** — the install went over the top at 21:21 on 25 Aug and was found by re-reading the tree rather than by running anything, because the fifty-eighth session's handoff did not know it had happened. `verify-upgrade.ps1 -Compare`, elevated, **21:48:14: 55 PASS, 0 FAIL, 1 SKIP of 56 rows, exit 0.** `RefreshDictionaries` fired on the same install — **76 of 76 dictionary records, `COMPLETE`** — closing the other half. **Three source fixes are made and unbuilt**, waiting on the cycle back to a full install.
+***ITEM 3 IS CLOSED AND THE MACHINE IS BACK TO NORMAL.*** The upgrade ran over the top at 21:21 on 25 Aug and was found by re-reading the tree, because the fifty-eighth session's handoff did not know it had happened. `verify-upgrade.ps1 -Compare`, elevated, **21:48:14: 55 PASS, 0 FAIL, 1 SKIP of 56 rows, exit 0.** `RefreshDictionaries` fired on the same install — **76 of 76 dictionary records, `COMPLETE`** — closing the other half. Then a full cycle put the machine back: **FULL install 21:57, suite `-Run b43`, 31/31 steps exit 0, 923 `PASS`, zero `[FAIL]`, zero `[SKIP]`**, with the session's three fixes built and checked on the installed tree.
 
 **Decided, not built:** documentation starts AFTER 1.0-0 on the owner's instruction (item 2). **VFS removal (item 3a) is DONE AND PROVEN ON A MACHINE** — cycled, suite green, and the removal itself checked directly on the installed tree because **the suite has no VFS step**. `UPSTREAM_FIXES.md` entry 15 is written.
 
@@ -23,18 +23,20 @@ something came to be the way it is.
 
 > ## NEXT SESSION: NOTHING IS BROKEN AND NOTHING IS HALF-DONE.
 >
-> **The suite is green — 31/31, 929 `PASS`, zero `[FAIL]`, on the 19:49:47
-> install of 25 Aug 2026.** Item 3a (VFS) is closed: made, built, cycled and
-> checked on the machine. Item 1 is the record of the run.
+> **The suite is green — 31/31, 923 `PASS`, zero `[FAIL]`, zero `[SKIP]`, on
+> the 21:57 FULL install of 25 Aug 2026**, run as `-ThenElevated -Run b43`.
+> `assert-current` clean. Items 3 and 3a are both closed.
 >
-> ***THE LIVE WORK IS 3 AND 5***: the upgrade path needs a guest that already
-> has SD, and item 5 has one open question that is the owner's to answer.
+> ***THE MACHINE IS IN ITS USUAL STATE — a FULL install.*** It carried a
+> stand-alone one earlier that evening; the cycle at 21:57 put it back, and the
+> `sdsys\$standalone` marker is gone (checked, with `voc` present as the
+> control). **`b43` is spent — use `b44`.**
+>
+> ***THE LIVE WORK IS ITEM 5 AND ITEM 4.*** Both need **a guest that never had
+> OpenSSH** — item 5's one SKIP, item 4's remote-block control, and the
+> `apiremote`/`sshremote` tasks-page question below all sit behind that one
+> requirement. Item 5 also has an open question that is the owner's to answer.
 > **Item 2 does not start until 1.0-0.**
->
-> ***READ THIS FIRST: THE MACHINE IS NOT IN ITS USUAL STATE.*** It carries a
-> **STAND-ALONE** install (20:56:03) — no ssh config of SD's, no API port, and
-> `create.account user` refused. **The 31-step suite cannot run on it.** Getting
-> back to normal is one full cycle, choosing the full option.
 >
 > ***THE UPGRADE ALREADY RAN — 25 Aug 2026 at 21:21, AND THE FIFTY-EIGHTH
 > SESSION'S HANDOFF DID NOT KNOW IT.*** That handoff says the probes are planted
@@ -80,8 +82,7 @@ something came to be the way it is.
 > user-added existed. **The merge semantics — "adds and updates the shipped
 > items and leaves a user's own alone" — are still unproven on a machine.**
 >
-> ***THEN, AND ONLY THEN, cycle back to a FULL install and run the suite with
-> `-Run b43`.***
+> ***THAT CYCLE IS DONE: FULL install 21:57, suite green with `-Run b43`.***
 >
 > ***ITEM 5 IS PROVEN ON A MACHINE: 21 PASS, 0 FAIL, 1 SKIP*** —
 > [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1). The one SKIP
@@ -91,16 +92,32 @@ something came to be the way it is.
 > never had OpenSSH — the same requirement item 4 and `probe-sshfirewall.ps1`
 > carry.
 >
-> ***THREE SOURCE FIXES ARE MADE AND WAITING FOR THE NEXT CYCLE. NONE HAS BEEN
-> BUILT.*** They were folded in on 26 Aug because the cycle back to a full
-> install has to happen anyway, and each would otherwise cost a cycle of its
-> own:
+> ***THE THREE SOURCE FIXES ARE BUILT, INSTALLED AND GREEN*** — cycled to a
+> **FULL** install at **21:57**, suite `-ThenElevated -Run b43` at 21:58:53.
+> **31/31 steps, every one exit 0; 923 `PASS` lines, ZERO `[FAIL]`, ZERO
+> `[SKIP]`.** The machine is back in its usual state.
 >
 > | | |
 > |---|---|
-> | `apiremote` gated | [sd.iss:325](sdb_ai/sd64/gplbld/sd.iss:325) now carries `Check: not StandaloneChosen`. The exact form is already used at :162 and :408, and `StandaloneChosen` is at :1067 — **but ISCC has not compiled it**, because that needs a staged tree. `cycle.ps1 -SkipInstall` is the cheap proof |
-> | `$null = $p.Handle` | in `upgrade-dicts.ps1` and `adopt-account.ps1`. Both logged `exit ` with nothing after it |
-> | the summary table | `verify-upgrade.ps1` truncated its Observed column to `...e` on the 21:48 run — **a regression from the creation-time rows added the same day**, whose long ISO timestamps pushed `Format-Table -AutoSize` over the console width |
+> | `apiremote` gated | [sd.iss:325](sdb_ai/sd64/gplbld/sd.iss:325) carries `Check: not StandaloneChosen`. **ISCC compiled it** — proven by the installer building and installing, which is what the entry above said was still owed |
+> | `$null = $p.Handle` | in `upgrade-dicts.ps1` and `adopt-account.ps1`. **Checked on the INSTALLED copies**, 1 hit each, against a control string that returns 0 — not inferred from the cycle exiting 0 |
+> | the summary table | `verify-upgrade.ps1` no longer truncates its Observed column to `...e` |
+>
+> ***THE apiremote FIX IS CORRECT ON A FULL INSTALL BY CONSTRUCTION, AND THAT
+> WAS THE REGRESSION RISK.*** `FullRadio.Checked := True`
+> ([sd.iss:1332](sdb_ai/sd64/gplbld/sd.iss:1332)) runs in `InitializeWizard`,
+> so when the `[Tasks]` `Check:` fires `StandaloneChosen` is already False and
+> the box shows. This cycle was a full install and is green.
+>
+> ***BUT IT INHERITS `sshremote`'s KNOWN LIMITATION AND DOES NOT ESCAPE IT —
+> READ THIS BEFORE CALLING THE DEFECT CLOSED.*** Item 5 records that a
+> `[Tasks]` `Check:` fires **once, straight after the wizard is built**, before
+> a reader could have touched the mode page — measured with
+> `probe-taskcheck.iss`. So on a **stand-alone** install the box **may still
+> appear**. The fix brings `apiremote` to parity with `sshremote`; it does not
+> prove either one hides. **The real answer is still open: move both choices
+> onto the mode page.** Nothing is exposed either way — `ApplyApiFirewall`
+> exits at install time, where the answer is certain.
 >
 > ***THE `Handle` FAULT, MEASURED WITH A CONTROL.*** `Start-Process -PassThru`
 > returns a Process whose `ExitCode` reads `$null` after `WaitForExit` unless
@@ -111,7 +128,7 @@ something came to be the way it is.
 > diagnostic: the first-ever upgrade logged a blank where SD's exit code
 > belonged, for both calls.
 >
-> **`b42` is spent — use `b43`.** And `-Run` does nothing without
+> **`b43` is spent — use `b44`.** And `-Run` does nothing without
 > `-ThenElevated`; item 1 carries that trap.
 >
 > ***TWO LEADS SIT IN ITEM 3a AND NEITHER IS A FINDING YET*** — the three
@@ -119,7 +136,23 @@ something came to be the way it is.
 > source records that no longer exist. Read what is written there before
 > acting: the first is explicitly NOT established as dead code.
 >
-> ### 1. DONE — 25 Aug 2026, THE 19:49:47 INSTALL. 31/31 STEPS, 929 `PASS`, ZERO `[FAIL]`.
+> ### 1. DONE — 25 Aug 2026, THE 21:57 FULL INSTALL. 31/31 STEPS, 923 `PASS`, ZERO `[FAIL]`, ZERO `[SKIP]`.
+>
+> ***THE CURRENT MACHINE. Everything below this table describes EARLIER runs
+> and is kept only for comparison.***
+>
+> | | |
+> |---|---|
+> | install | **25 Aug 21:57**, a **FULL** install — the cycle that put the machine back after the stand-alone one |
+> | the suite | **21:58:53** unelevated, **22:00:32** elevated, `-ThenElevated -Run b43`. 12 + 19 = **31 steps, every one exit 0** |
+> | counted | **923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`** — a plain grep over the 47 files of the run. Both counters read, because two counters that cannot both be zero is the cheap null-case guard |
+> | the token | `b43` reached the elevated half — visible in the account names it made (`sdacctb43`, `sdtiertb43`, `sdcatgb43`…), which is what proves `-Run` was not silently ignored |
+> | `sd.exe` | `5BD2F83F43BB9B27` — **unchanged, and correctly so: no C changed this session** |
+> | `gcat` / `gpl.bp.out` | **125 / 184** — unchanged from the 19:49:47 run |
+> | `assert-current` | **clean**, printed *"the installed tree matches source"* at every verifier that calls it |
+> | the session's fixes | all three built; the two `$null = $p.Handle` lines **checked on the INSTALLED copies**, 1 hit each against a control string returning 0 |
+>
+> **The 19:49:47 record follows, unchanged.**
 >
 > ***THE FIFTY-EIGHTH SESSION'S WORK IS CYCLED AND VERIFIED.*** The 17:17:57
 > figures below are the fifty-seventh session's and are kept for comparison;

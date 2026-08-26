@@ -29979,3 +29979,59 @@ width. So this is repairing what that change broke, not tidying old code. The
 table is now `Check, Result` — the full values are already printed per check —
 and every non-PASS row is then printed underneath in full, so the rows that
 need reading cannot be the ones that got dropped.
+
+## 26 Aug 2026 — Back to a full install: 31/31, 923 PASS, and the three fixes are built
+
+**FIFTY-NINTH SESSION, part 6.** The owner cycled to a **FULL** install
+(**21:57**) and ran the suite `-ThenElevated -Run b43` — unelevated half
+21:58:53, elevated half 22:00:32. **31 steps, every one exit 0. 923 `PASS`
+lines, zero `[FAIL]`, zero `[SKIP]`**, counted by a plain grep over the run's
+47 files with both counters read.
+
+**The `-Run` token is proven to have reached the elevated half**, which matters
+because `-Run` is silently ignored without `-ThenElevated` and a 12-of-31 run
+prints something that reads like a finished suite. The evidence is the account
+names the elevated steps created — `sdacctb43`, `sdtiertb43`, `sdcatgb43`,
+`sdaclb43`, `sdrtb43` and the rest — not the switch having been typed.
+
+| | |
+|---|---|
+| `sd.exe` | `5BD2F83F43BB9B27` — unchanged, correctly: no C changed this session |
+| `gcat` / `gpl.bp.out` | 125 / 184, unchanged from the 19:49:47 run |
+| `assert-current` | clean, at every verifier that calls it |
+| `sdsys\$standalone` | **absent** — checked with `voc` present as the control, so the machine really is full and not merely reported as such |
+
+**The three fixes were checked ON THE INSTALLED TREE, not inferred from the
+cycle exiting 0** — `grep -c` for `$null = $p.Handle` in
+`C:\Program Files\SD\upgrade-dicts.ps1` and `adopt-account.ps1`, 1 hit each,
+against a control string that returns 0 so the grep is known to discriminate.
+
+**And the `sd.iss` change is compile-proven by the installer existing.** The
+previous commit recorded `Check: not StandaloneChosen` as unverified because
+ISCC needs a staged tree; the cycle staged one, ISCC built the installer, and
+it installed. That caveat is spent.
+
+## 26 Aug 2026 — The apiremote fix reaches parity with sshremote and inherits its limitation
+
+**FIFTY-NINTH SESSION, part 7.** Worth writing down because it is easy to read
+the green cycle as "the defect is closed", and it is only half closed.
+
+**The full-install direction is correct BY CONSTRUCTION, and that was the
+regression risk of the change.** `FullRadio.Checked := True` runs in
+`InitializeWizard`, so by the time the `[Tasks]` `Check:` fires
+`StandaloneChosen` is already False and the box shows. This cycle was a full
+install and is green.
+
+**The stand-alone direction is NOT established, and the fix cannot establish
+it.** Item 5 already records, measured with `probe-taskcheck.iss`, that a
+`[Tasks]` `Check:` fires **once, straight after the wizard is built** — before
+a reader could have touched the mode page. So on a stand-alone install the
+`apiremote` box **may still appear**, exactly as `sshremote`'s may. What the
+change bought is parity and an honest declaration of intent; it did not buy the
+behaviour.
+
+**Nothing is exposed either way** — `ApplyApiFirewall` exits at install time,
+where the answer is certain, and a stand-alone `sd.conf` opens no socket. **The
+real answer is still open: move both choices onto the mode page**, where the
+value is known when it is read. That needs the same look at a live stand-alone
+wizard that item 5's "UNSEEN" note asks for.
