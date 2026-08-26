@@ -37096,3 +37096,60 @@ so a full VOC is 392 and the three totals are 417 / 396 / 354. **A standard
 account is unchanged at 354**, because `micro` joined `NEWVOC` and the omit
 list at once. Page 05 of the tester set carries the arithmetic and now says why
 it did not move.
+
+### Then a second gate, because the owner's model of it was not what was built
+
+Owner, 26 Aug 2026: *"If a programmer or administrator connects through ssh
+these commands should be available for them if possible. Of course these
+commands will only work if the user has OS.EXECUTE privileges. If not, they
+should get a message that the command is not available."*
+
+***"OF COURSE" WAS NOT TRUE OF WHAT HAD BEEN BUILT, AND SAYING SO IS THE POINT
+OF THIS ENTRY.*** `EDIT` is `$internal`, so `os_permitted()` admits it on
+`HDR_INTERNAL` (`op_sh.c:157`) and never reads `os.users` at all - the tier was
+the only gate. His sentence describes a second gate, so there is one now:
+`check.permitted` reads `os.users` field 2 itself.
+
+**It is tested in BASIC rather than by dropping `$internal` and letting C do
+it.** C's refusal is `k_error(sysmsg(10054))` - an abort, mid-program, *after*
+the working copy has been written, with wording about "the operating system
+shell" that names neither the verb nor what to ask for. The BASIC test refuses
+before anything is created and prints the field to ask an administrator for,
+which is what he asked for.
+
+It mirrors `os_permitted()` in the direction it fails: **missing file or
+missing record means no**, and an elevated session passes on its own so an
+empty list cannot lock the machine's own administrator out.
+
+**A session with no terminal is refused first and separately** - `kernel(K$TTY,
+0)` empty, which is an API session or a piped script. Telling one of those
+about `os.users` would answer a question it did not ask.
+
+### ssh: it should work, and the reason is one line of C
+
+`connection_type` **defaults to `CN_CONSOLE`** (`kernel.h:55`) and only `-P`
+(phantom), `-C` (SDLocal) and `-N` (network server) change it. An ssh session
+runs `sd.exe` through `ForceCommand` with none of those, so it stays
+`CN_CONSOLE` - and `op_sh.c:348` only builds an output pipe when the connection
+is **not** `CN_CONSOLE`. The child therefore inherits the ssh terminal rather
+than being read through a pipe, which is exactly what a full-screen editor
+needs.
+
+***THAT IS READ FROM SOURCE, NOT MEASURED.*** Whether Microsoft Edit and micro
+actually drive a Windows ConPTY correctly through the MSYS2 `fork()` and the
+PowerShell wrapper is a question for the cycle, and page 07 asks testers to
+report it if the console and ssh behave differently.
+
+### And a wrong anchor got as far as a rendered page
+
+`06-administrator-commands.md` linked
+`#both-editors-need-os-execute-permission-as-well-as-the-verb`. The renderer's
+slugify strips the dot rather than replacing it, so the real id is
+`...-osexecute-...`. **The markdown-side link check could not see it** - it only
+proves the page exists.
+
+`tools/checklinks.py` is new: it reads the RENDERED pages, collects every
+`id="..."`, and checks every `](NN-page.html#anchor)` in the markdown against
+them. `release.ps1` runs it and refuses to write the zip on a broken link, the
+same shape as the staleness refusal. First run: **73 links checked, 0 broken**,
+which is the first time every cross-page link in the set has been verified.
