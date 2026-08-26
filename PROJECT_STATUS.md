@@ -11,7 +11,7 @@ something came to be the way it is.
 
 ***WHAT IS BUILT AND VERIFIED:*** the stand-alone **wizard page and all the behaviour behind it** — the mode page, a second `sd.conf` with no `APIPORT`, every ssh and firewall step gated, the `sdsys\$standalone` marker, and `CREATEA` refusing `create.account user` with sysmsg 10100. `apiremote` is now opt-in, matching `sshremote`.
 
-***THE UPGRADE PATH HAS NOW RUN — 25 Aug 2026, 21:21, and it was found by re-reading the tree rather than by running anything (item 3).*** Scored read-only on 26 Aug: **42 PASS, 0 FAIL, 2 not measurable unelevated.** One elevated `verify-upgrade.ps1 -Compare` makes it official; **do not re-run `-Snapshot`.**
+***ITEM 3 IS CLOSED. THE UPGRADE PATH HAS RUN AND IS MEASURED*** — the install went over the top at 21:21 on 25 Aug and was found by re-reading the tree rather than by running anything, because the fifty-eighth session's handoff did not know it had happened. `verify-upgrade.ps1 -Compare`, elevated, **21:48:14: 55 PASS, 0 FAIL, 1 SKIP of 56 rows, exit 0.** `RefreshDictionaries` fired on the same install — **76 of 76 dictionary records, `COMPLETE`** — closing the other half. **Three source fixes are made and unbuilt**, waiting on the cycle back to a full install.
 
 **Decided, not built:** documentation starts AFTER 1.0-0 on the owner's instruction (item 2). **VFS removal (item 3a) is DONE AND PROVEN ON A MACHINE** — cycled, suite green, and the removal itself checked directly on the installed tree because **the suite has no VFS step**. `UPSTREAM_FIXES.md` entry 15 is written.
 
@@ -61,15 +61,24 @@ something came to be the way it is.
 > the package cache with one `Provenance` field added, which `-Compare` now
 > announces so a moved snapshot can never read as one written there.
 >
-> ***SO ITEM 3 NEEDS ONE COMMAND, ELEVATED, AND NOTHING ELSE:***
+> ***ITEM 3 IS CLOSED. `-Compare` RAN ELEVATED AT 21:48:14 — 55 PASS, 0 FAIL,
+> 1 SKIP, of 56 rows, exit 0.*** The one SKIP is `errlog`, absent before the
+> upgrade too. `$cred` — the row the read-only pass could not reach — **passed
+> on both hash and creation time**, so that dry-run FAIL was a permission
+> artefact and nothing else. The probe is consumed; `-Compare` cannot be
+> re-run against this state.
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-upgrade.ps1 -Compare
-> ```
+> ***AND `RefreshDictionaries` FIRED FOR THE FIRST TIME EVER ON THE SAME
+> INSTALL, which nothing was watching for.*** `C:\ProgramData\SD\upgrade-dicts.log`,
+> written 21:22:14 and unread until 26 Aug: **76 of 76 records transferred,
+> `COMPLETE=True`**, `THIRD.COMPILE` compiled 17 I-types, and the temporary
+> `sdsys\gplbld` was removed in the `finally`. That closes the other half of
+> item 3 that was marked *"never run on a machine"*.
 >
-> **It is one-shot: it deletes the surviving probe on the way out.** Expect 0
-> FAIL and one SKIP (`errlog`, absent before the upgrade too); `$cred` is the
-> 44th row and only an elevated run can read it.
+> ***WHAT THAT RUN DOES NOT PROVE, and it is the interesting half:*** it was an
+> upgrade **from the same build**, so no dictionary record differed and nothing
+> user-added existed. **The merge semantics — "adds and updates the shipped
+> items and leaves a user's own alone" — are still unproven on a machine.**
 >
 > ***THEN, AND ONLY THEN, cycle back to a FULL install and run the suite with
 > `-Run b43`.***
@@ -82,14 +91,25 @@ something came to be the way it is.
 > never had OpenSSH — the same requirement item 4 and `probe-sshfirewall.ps1`
 > carry.
 >
-> ***ONE DEFECT IS KNOWN AND NOT FIXED: `apiremote` is offered on a stand-alone
-> install.*** [sd.iss:317](sdb_ai/sd64/gplbld/sd.iss:317) gives it
-> `Flags: unchecked` and **no `Check:` at all**, where `sshremote` two entries
-> above carries the `StandaloneChosen` gate. Not dangerous — `ApplyApiFirewall`
-> exits and `sd.conf` opens no socket — but the page offers a capability that
-> cannot exist, two screens after promising no port was opened. **One line,
-> `Check: not StandaloneChosen`, and it costs a cycle**, so fold it in with the
-> cycle back to full.
+> ***THREE SOURCE FIXES ARE MADE AND WAITING FOR THE NEXT CYCLE. NONE HAS BEEN
+> BUILT.*** They were folded in on 26 Aug because the cycle back to a full
+> install has to happen anyway, and each would otherwise cost a cycle of its
+> own:
+>
+> | | |
+> |---|---|
+> | `apiremote` gated | [sd.iss:325](sdb_ai/sd64/gplbld/sd.iss:325) now carries `Check: not StandaloneChosen`. The exact form is already used at :162 and :408, and `StandaloneChosen` is at :1067 — **but ISCC has not compiled it**, because that needs a staged tree. `cycle.ps1 -SkipInstall` is the cheap proof |
+> | `$null = $p.Handle` | in `upgrade-dicts.ps1` and `adopt-account.ps1`. Both logged `exit ` with nothing after it |
+> | the summary table | `verify-upgrade.ps1` truncated its Observed column to `...e` on the 21:48 run — **a regression from the creation-time rows added the same day**, whose long ISO timestamps pushed `Format-Table -AutoSize` over the console width |
+>
+> ***THE `Handle` FAULT, MEASURED WITH A CONTROL.*** `Start-Process -PassThru`
+> returns a Process whose `ExitCode` reads `$null` after `WaitForExit` unless
+> the handle was cached first — a child exiting **7** reports null without the
+> line and **7** with it. **Five scripts use that shape; only these two capture
+> the code, and NEITHER JUDGES ON IT** (both anchor on the tool's own output
+> wording instead, which is why no verdict was ever wrong). The cost was
+> diagnostic: the first-ever upgrade logged a blank where SD's exit code
+> belonged, for both calls.
 >
 > **`b42` is spent — use `b43`.** And `-Run` does nothing without
 > `-ThenElevated`; item 1 carries that trap.
@@ -220,7 +240,26 @@ something came to be the way it is.
 > ([assert-current.ps1:484](sdb_ai/sd64/gplbld/assert-current.ps1:484)) for the
 > same reason, and the valve reinstates it by itself when `stage.py` names it.
 >
-> ### 3. THE DATA-TREE UPGRADE PATH IS BUILT, AND NO INSTALLER HAS EVER BEEN BUILT FROM IT
+> ### 3. THE DATA-TREE UPGRADE PATH IS BUILT, RUN AND MEASURED — CLOSED 26 Aug 2026
+
+***`verify-upgrade.ps1 -Compare`, ELEVATED, 21:48:14: 55 PASS, 0 FAIL, 1 SKIP
+of 56 rows, exit 0.*** The upgrade replaced the shipped subset in place, kept
+every preserved name byte-identical **and not recreated**, left the unlisted
+names alone, and removed the retired one. The single SKIP is `errlog`, absent
+before the upgrade too. `$cred` passed on both hash and creation time.
+
+***AND `RefreshDictionaries` RAN ON THE SAME INSTALL, ITS LOG UNREAD FOR A
+DAY.*** `C:\ProgramData\SD\upgrade-dicts.log`, 21:22:14: **76 of 76 records
+transferred, `COMPLETE=True`**, `THIRD.COMPILE` compiled 17 I-types,
+`sdsys\gplbld` removed in the `finally`. Every entry below that says *"never
+run on a machine"* is now spent — **except one**: it was an upgrade from the
+**same build**, so no record differed and nothing user-added existed. ***The
+merge semantics are still unproven.***
+
+***AND ITS LOG PRINTED `exit ` WITH NOTHING AFTER IT, TWICE.*** The
+`$null = $p.Handle` fault, fixed 26 Aug and unbuilt — the START HERE box has
+the measurement. Nothing was judged on it.
+
 >
 > ***THE OPEN PART IS CLOSED: THE INSTALLER REPLACES THE SHIPPED SUBSET IN
 > PLACE*** — owner, 25 Aug 2026. One step, no uninstall first, and the preserve

@@ -29902,3 +29902,80 @@ produced a confident verdict about a directory that was never read. PowerShell's
 The one-line cause is `onerror`; **the class is that "it returned a value"
 is not evidence it measured anything**, and an empty-input hash is a value like
 any other.
+
+## 26 Aug 2026 — Item 3 closed: 55 PASS, 0 FAIL, and the dictionary step had run unwatched
+
+**FIFTY-NINTH SESSION, part 3.** `verify-upgrade.ps1 -Compare`, elevated,
+**21:48:14: 55 passed, 0 failed, 1 skipped, of 56 rows, exit 0.** The skip is
+`errlog`, absent before the upgrade too.
+
+**`$cred` settles the dry run's one FAIL.** It passed on both hash
+(`D8BB9316...` either side) and creation time, confirming that the read-only
+pass's FAIL was the `os.walk` permission artefact and nothing about the tree.
+The row count moved 44 → 56 because the creation-time rows added 11 preserve
+checks and 1 aggregate.
+
+**AND `RefreshDictionaries` HAD FIRED ON THE SAME INSTALL, WITH NOBODY
+LOOKING.** `C:\ProgramData\SD\upgrade-dicts.log` was written at **21:22:14** and
+went unread for a day: **76 of 76 records transferred, `COMPLETE=True`**,
+`THIRD.COMPILE` compiled 17 I-types, and the temporary `sdsys\gplbld` was
+removed in the `finally`. Its gate is `if DataTreeWasAbsent then Exit`, so a
+first install skips it and **every cycle this machine has ever run was a first
+install** — this was its first execution ever.
+
+***WHAT IT DOES NOT PROVE.*** The upgrade was from the **same build**, so no
+dictionary record differed and no user-added item existed. The merge claim —
+*"adds and updates the shipped items and leaves a user's own alone"* — is
+**still unproven on a machine**, and proving it needs a record deliberately
+added to a shipped dictionary before an upgrade.
+
+## 26 Aug 2026 — "exit " with nothing after it: Start-Process -PassThru loses ExitCode unless the handle is touched
+
+**FIFTY-NINTH SESSION, part 4.** Both `sd` invocations in the first-ever
+`upgrade-dicts` run logged `exit ` — a blank where the exit code belonged.
+`Invoke-Sd` uses the documented-correct form (`-PassThru`, then
+`$p.WaitForExit($ms)`, then `$p.ExitCode`), so this is **not** the
+`Start-Process -Wait` trap PROJECT_STATUS already records for `cycle.ps1`.
+
+**Measured with a control rather than asserted**: a child exiting **7**, run
+twice through the identical code path, differing only in whether `$p.Handle`
+was read before waiting.
+
+| | ExitCode |
+|---|---|
+| handle not touched | **null** — prints as `exit ` |
+| `$null = $p.Handle` first | **7** |
+
+**The class was checked before the fix was written.** Five scripts under
+`gplbld` use `Start-Process -PassThru` with `WaitForExit`:
+`adopt-account.ps1`, `probe-sessionfork.ps1`, `upgrade-dicts.ps1`,
+`verify-accountrules.ps1`, `verify-peerlog.ps1`. **None caches the handle.**
+Only two capture the code at all — `adopt-account.ps1` and `upgrade-dicts.ps1`
+— **and neither judges on it**: both anchor on the tool's own output wording
+(`upgrade-dicts` on the `DICTIONARY:` count plus `COMPLETE` plus a disqualifier
+list, which is CLAUDE.md's success-wording rule done right). **So no verdict in
+this project was ever wrong because of it**; the cost is that a failure would
+be diagnosed from a log with the exit code missing. Fixed in both, unbuilt.
+
+**Worth noting which rule caught it.** Nothing failed. The run was green and the
+step succeeded. It was found by *reading what the instrument printed* — rule 1
+of the instrument section, "show the real inputs it used" — and the tell was a
+format string that had produced an empty field. The same tell caught the
+`$args` clobbering on 23 Aug, where the echoed line read `setup ` with nothing
+after it.
+
+## 26 Aug 2026 — The summary table truncated to "...e", and it was this session's own regression
+
+**FIFTY-NINTH SESSION, part 5.** `verify-upgrade.ps1`'s closing summary is
+`$results | Format-Table -AutoSize`, and `-AutoSize` fits the console by
+**truncating the last column**. On the 21:48 run every long row's Observed read
+`...e`, `...3`, `...5`. The per-check lines above it are complete, so nothing
+was lost — but a summary whose observed column is an ellipsis is not showing
+what it did.
+
+**It was made worse by the creation-time rows added earlier the same day**,
+whose 28-character ISO timestamps as Expected values pushed the table over the
+width. So this is repairing what that change broke, not tidying old code. The
+table is now `Check, Result` — the full values are already printed per check —
+and every non-PASS row is then printed underneath in full, so the rows that
+need reading cannot be the ones that got dropped.
