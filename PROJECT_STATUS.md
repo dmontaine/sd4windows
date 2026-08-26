@@ -277,6 +277,46 @@ something came to be the way it is.
 > `gpl.bp`, `gpl.bp.out` and `pcode.out`, so the `find` that reports
 > `_EXTENDLIST` absent is a working instrument.
 >
+> ***CHECKING THE PCODE LISTS AFTER THE DELETE TURNED UP TWO MORE THINGS.
+> NEITHER IS ACTED ON, AND THE FIRST IS DELIBERATELY LEFT UNRESOLVED.***
+>
+> **The invariant was verified and it holds**, and it is not the one a count
+> comparison tests: the three lists are **not** required to be equal.
+> `pcode.h` is what `sd.exe` LOADS; `pcode_bld.py` and `gplbld/COMP_PCODE`
+> BUILD the library. A name loaded but not built is **fatal** — SD prints
+> *"Pcode item X not found"* and will not start. A name built but not loaded is
+> **harmless**. Measured after the delete: **zero** in the fatal direction
+> against either builder. Counts differ (52 loaded, 55 and 58 built) and that is
+> fine.
+>
+> ***THE FIRST INSTRUMENT FOR THIS WAS WRONG AND SAID SO LOUDLY, which is the
+> only reason it was caught.*** Its regex character class was `[A-Z0-9$.]`,
+> with **no underscore**, so every name with an internal underscore was invisible
+> on the builder side while the loader side built its names from
+> `Pcode(voc_ref)` and kept them. It reported `_VOC_REF` and `_VOC_CAT` as
+> **loaded but never built** — which would mean SD could not start, on a tree
+> that had just compiled 182 programs. **A "fatal" verdict contradicted by the
+> tree still running is the tell**; the fix was one character class.
+>
+> 1. **`_FMTS`, `_ICONVS` and `_OCONVS` are built into the pcode library and
+>    `pcode.h` does not declare them** — no C source names `pcode_fmts`,
+>    `pcode_iconvs` or `pcode_oconvs` (control: `pcode_dellist`, 1 hit).
+>    ***DO NOT READ THAT AS DEAD AND DO NOT DELETE THEM ON THE STRENGTH OF THIS
+>    NOTE.*** The *functions* are not orphaned: `FMTS`/`ICONVS`/`OCONVS` are VM
+>    opcodes — [opcodes.h:661](sdb_ai/sd64/gplsrc/opcodes.h:661)
+>    `_extop_("MVDS", "FMT", "FMTS")`, dispatched by `op_mvds()`
+>    ([op_mvfun.c:590](sdb_ai/sd64/gplsrc/op_mvfun.c:590)) — so the language
+>    feature works without these records. **Whether the records themselves are
+>    reachable by another route was NOT established**: `BCOMP`, `ICOMP` and
+>    `FMTSUB` all name them and that was not chased down. This is a lead, not a
+>    finding.
+> 2. **`gplbld/COMP_PCODE` names `_LOGIN`, `_TTYGET` and `_TTYSET`, and those
+>    three source records do not exist** — they went from `pcode.h` on
+>    15 Jun 24. `COMP_PCODE` is **not run** by `cycle.ps1`, `stage.py` or
+>    `bootstrap.py`; `pcode_bld.py` is. So it is dormant rather than broken, but
+>    it would fail if anybody ran it, and it is the kind of thing that is only
+>    ever found at the worst moment.
+>
 > **THE RECORD OF WHY IT WAS DONE IS BELOW, UNCHANGED.**
 >
 > ***OWNER'S DECISION: DO IT AFTER THE CURRENT TASK***, and *"inform the SD
