@@ -10602,7 +10602,7 @@ the staging script and the Inno installer were all finished and removed.
     ***BOTH ENDS ARE FIXED AND THE FIXES ARE INDEPENDENT.*** The sweep now
     exits 1 whenever a stuck hive remains, whatever else succeeded; and
     `cleanup-devlitter` judges on `$pAfter` rather than on the exit code it was
-    handed. ***SKIPPED IS NOT DONE*** — and an instrument that prints the
+    handed. ***A SKIPPED STEP IS NOT A FINISHED ONE*** — and an instrument that prints the
     disagreement and then contradicts it in its closing line is worse than one
     that prints nothing, because the closing line is what gets read.
 
