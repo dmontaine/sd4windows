@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, **end of the fifty-seventh session**. Working tree clean, 10 commits, nothing half-done.
+**Last updated:** 25 Aug 2026, **end of the fifty-seventh session**, handed off at a clean boundary: **11 commits, working tree clean, nothing half-done, and the suite green.**
 
 ***THE TREE IS CURRENT AND THE WHOLE SUITE IS GREEN: 31/31 STEPS, ZERO FAILURES, ON THE 17:17:57 INSTALL.*** That reverses the sentence that stood here for two sessions. `assert-current` is clean on every section, so **every verifier will run**; item 1 has the identifiers and what the run does *not* cover.
 
@@ -3309,11 +3309,17 @@ HISTORY entry carrying how it was found and what it cost; go there when a row
 looks surprising. The header carries the suite's **current pass counts** and
 they are not repeated here (§0 rule 3).
 
-**A ROW IS EVIDENCE ABOUT THE INSTALL IT NAMES AND NOTHING SINCE.** Only
-22 Aug 2026's **22:50:18** install is current (`sd.exe` `CB9C4E0460B175F5`,
-unchanged since 21 Aug because no C has changed — the hash is not evidence
-that anything else is, and the mtime comparison is what settles the rest).
-Dating the tree before believing a result is §6's most expensive lesson.
+**A ROW IS EVIDENCE ABOUT THE INSTALL IT NAMES AND NOTHING SINCE.** The current
+install is **25 Aug 2026, 17:17:57** (`sd.exe` `275CFB03E142AA2C`, unchanged
+since 24 Aug because no C has changed — the hash is not evidence that anything
+else is, and the mtime comparison is what settles the rest). Dating the tree
+before believing a result is §6's most expensive lesson. *(This paragraph named
+the 22 Aug 22:50:18 install until 25 Aug 2026; it had gone stale across three
+installs, in the section this file calls its most useful.)*
+
+| claim | when | measurement |
+|---|---|---|
+| **The whole suite passes on everything the fifty-seventh session built** | 25 Aug, 17:17:57 install | `VerifyInstall1 -ThenElevated -Run b41` — **12 unelevated + 19 elevated steps, all exit 0**, **979 `PASS`**, and the eight failure-shaped lines each read and benign. `assert-current` clean on every section: rename walk, B3 over **six** mirrors / 2,951 files, B4 25 checked, nothing newer. Installer `sd-setup-W1.0-0.exe` 4,818,601 bytes. **Does NOT cover the upgrade path** (gated on `DataTreeUpgrade`, this was a first install) **or the stand-alone install** (no suite step chooses it — all 31 ran the full installation) |
 
 **WHY SO MANY ROWS NAME A CONTROL, stated once instead of in each of them.** A
 refusal proves nothing on its own: a gate that refuses everything, a filter that
