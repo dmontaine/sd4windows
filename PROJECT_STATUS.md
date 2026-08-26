@@ -5,7 +5,9 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 26 Aug 2026, **end of the fifty-ninth session**, handed off at a clean boundary: **13 commits, working tree clean, pushed.**
+**Last updated:** 26 Aug 2026, **end of the SIXTIETH session**, handed off at a clean boundary: working tree clean, pushed.
+
+***THE DEVELOPMENT PHASE IS CLOSED. 7.18 AND H.5 BOTH WENT TODAY, AND H.2 IS THE ONLY OPEN ROW.*** H.5 was measured on a guest at 01:46:11 — **21 PASS, 0 FAIL, 0 SKIP** — and the row that had never once been measurable, `no ssh server on this machine at all`, fired its strong form. 7.18's cleanup ran and was read back independently: **0 profile directories, 0 `ProfileList` entries, 0 `sd*` users**, and nothing over-deleted.
 
 ***THE STATED 1.0-0 GATE IS EMPTY.*** Item 2's rule is *"do not open the documentation phase while anything under item 3 or the §7 step 3 bullets is outstanding"*. **Item 3 closed this morning; §7 step 3's last bullet closed tonight.** Nothing named in that gate is outstanding.
 
@@ -13,7 +15,7 @@ something came to be the way it is.
 
 ***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT".*** It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*. `check-stale-leads.py` now finds that shape mechanically and checks the table against the entries in both directions.
 
-***THE MACHINE, AND IT IS NOT ALL ON ONE BOX.*** The host carries a **FULL** install (21:57) with the suite green — 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`. **`b43` is spent — use `b44`.** And ***guest `sshRemoteTest-C1` is POWERED OFF*** (VirtualBox, since 26 Aug 07:01:00 — read from `VBoxManage`, not assumed), SD installed, network profile **Private**, ssh rule at `127.0.0.1`. **It has NO snapshots**, so it cannot be put back to a pre-SD state. **It shares a MAC with `Windows 11 - Template` — never run both at once.**
+***THE MACHINE.*** The host carries a **FULL** install (25 Aug 21:57) with the suite green — 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`. **`b43` is spent — use `b44`.** Nothing this session changed anything that ships, so that install still matches source. ***`sshRemoteTest-C1` IS GONE*** — deleted by the 7.18 cleanup. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`.
 
 ***THE TREE IS CURRENT AND THE WHOLE SUITE IS GREEN: 31/31 STEPS, 929 `PASS` LINES, ZERO `[FAIL]`, ON THE 19:49:47 INSTALL.*** `assert-current` was run again live at the end of the session and exits 0, so **every verifier will run**. `sd.exe` is now `5BD2F83F43BB9B27` — **changed, and correctly so: the C changed this session.** Item 1 has the identifiers and what the run does *not* cover.
 
@@ -70,7 +72,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
 | ✅ | **H.4a** | **The ssh remote-block RUNBOOK — run and passed.** Kept for the next guest: item 5's SKIP wants the same rig. ***The `Open` leg must run FIRST***, and the precondition is a **Private** network profile on the guest | 25 Aug 2026 |
-| ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** ***Security question ANSWERED (preflight still refuses). Pages SEEN 26 Aug on `sdStandalone-C1`: layout, wrapping and memo all correct, and NO `sshremote`/`apiremote` boxes — so neither choice needs moving to the mode page.*** Open: **that one SKIP**, and it now has the rig | partly |
+| ✅ | **H.5** | Stand-alone install — ***CLOSED. 21 PASS / 0 FAIL / 0 SKIP*** on guest `sdStandalone-C1`, 01:46:11. The SKIP fired its strong form (`no ssh server on this machine at all`); pages seen and correct with **no `sshremote`/`apiremote` boxes**; preflight question answered — it still refuses | 26 Aug 2026 |
 | ✅ | **7.18** | ***THE LAST DEVELOPMENT TASK — CLEAN UP. DONE.*** Two runs of `cleanup-devlitter.ps1` either side of a reboot: **0 profile dirs, 0 `ProfileList` entries, 0 `sd*` users, only `sdout` in `~`, clone gone** — read back independently. **Nothing over-deleted**: the five real SD groups, `don` and `test1` all present | 26 Aug 2026 |
 
 **Legend** — ✅ closed and verified · ◐ **partly**: some parts closed,
@@ -93,37 +95,54 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 > ## NEXT SESSION: NOTHING IS BROKEN AND NOTHING IS HALF-DONE.
 >
-> ***TWO ROWS ARE OPEN AND ONE OF THEM IS NOT DEVELOPMENT — the table above
-> is the authority, not this box.*** **7.18 closed 26 Aug 2026**, so the
-> development phase comes down to **H.5**; **H.2** is the phase after 1.0-0.
+> ## THE DEVELOPMENT PHASE IS CLOSED. ONE ROW IS OPEN AND IT IS NOT DEVELOPMENT.
+>
+> ***7.18 AND H.5 BOTH CLOSED 26 Aug 2026, THE SIXTIETH SESSION.*** The table
+> above is the authority, not this box.
 >
 > | | |
 > |---|---|
-> | ~~**7.18**~~ | ***CLOSED 26 Aug 2026.*** Cleanup done and verified on the machine: 0 profile dirs, 0 `ProfileList` entries, 0 `sd*` users, only `sdout` in `~`, clone gone, and the five real SD groups untouched. **`cleanup-devlitter.ps1` is kept — the piles come back the moment testing resumes** |
-> | **H.5** | stand-alone: ***ONE THING LEFT — the SKIP***, and the rig is standing (`sdStandalone-C1`, cloned 26 Aug, hardwareuuid and MAC verified kept). Security question answered; pages seen and correct, with **no `sshremote`/`apiremote` boxes**. Run `P:erify-standalone.ps1` elevated ON THE GUEST |
-> | **H.2** | documentation — **approved, scoped, and starts AFTER 1.0-0 by his instruction.** The gate is now empty, so this is a decision he can take |
+> | ~~**7.18**~~ | ***CLOSED.*** Cleanup done and verified on the machine: 0 profile dirs, 0 `ProfileList` entries, 0 `sd*` users, only `sdout` in `~`, clone gone, the five real SD groups untouched. **`cleanup-devlitter.ps1` is KEPT — the piles come back the moment testing resumes** |
+> | ~~**H.5**~~ | ***CLOSED. 21 PASS / 0 FAIL / 0 SKIP*** on guest `sdStandalone-C1`, 01:46:11. The SKIP fired its strong form at last; pages seen and correct; the preflight question answered — it still refuses |
+> | **H.2** | ***THE ONLY OPEN ROW.*** Documentation — approved and scoped, and it starts AFTER 1.0-0 by his instruction. **The gate is empty and both development rows are closed, so this is now a decision he can take** |
 >
-> ***H.5 IS STILL THE CHEAPEST NEXT MOVE, BUT NOT ON THE STANDING GUEST — IT
-> IS SPENT.*** This box said *"the rig is already standing, `sshRemoteTest-C1`
-> has never had OpenSSH"*. **It had none when it was cloned and SD's own
-> installer put it there**: `ApplySshFirewall` only runs when `SshWasAbsent`,
-> and item 4 records `sshd` listening on it. So `SshServerAbsent` is now FALSE
-> there, exactly as on the host, and it has no snapshot to go back to.
-> Corrected 26 Aug 2026 on the owner's challenge, against `VBoxManage`.
+> ***WHAT H.2 NEEDS BEFORE IT STARTS, AND IT IS ONE DECISION.***
+> `mkdoc.py` is the only thing in the whole build with a third-party
+> dependency — `markdown`, and every other import across the ten `gplbld/*.py`
+> files is stdlib or local. **But the gap is bigger than the package**: it is
+> installed for the **Windows** python (3.13.14), not the **MSYS2** python
+> `setup-devbox.ps1` installs (3.12.13). On a fresh box `python mkdoc.py` fails
+> at the *interpreter*. ***Which interpreter the documentation toolchain
+> targets is his call***, and `setup-devbox.ps1` follows from the answer.
+> `mkdoc.py:41` already exits 2 naming `pip install markdown`, so it fails
+> loudly rather than quietly.
 >
-> ***AND THE PRECONDITION WAS NEVER SCARCE, WHICH IS THE PART THIS FILE GOT
-> WRONG.*** *"A guest that never had OpenSSH"* has been read as something the
-> project has been waiting on since 25 Aug. **It is a 25-second `VBoxManage
-> clonevm` from `Windows 11 - Template`, and the owner has done it at least
-> five times** — all but the last clone deleted. Item 5's SKIP is not blocked
-> on a rig; it is blocked on nobody having run a **stand-alone** install on a
-> fresh one.
+> ***ONE THING IS LEFT ON THE MACHINES AND IT IS NOT A TASK.*** Guest
+> `sdStandalone-C1` is still registered, powered off, carrying the stand-alone
+> install that closed H.5. **It shares MAC `080027AECE7C` with
+> `Windows 11 - Template` — never run both at once.** Delete it when nobody
+> wants to look at that install again:
+> `cleanup-devlitter.ps1` does not touch it (its `$VMName` is the older clone),
+> so it goes by hand with `VBoxManage unregistervm sdStandalone-C1 --delete`.
 >
-> **So: clone the template, install stand-alone on the clone.** That clone is
-> the first machine where `SshServerAbsent` is true AND stand-alone is chosen,
-> so `not StandaloneChosen` is finally the operative half of the `[Run]` gate —
-> **the mode page's first promise, never once tested.** Item 4a has the rig
-> notes, item 5 the checklist and `verify-standalone.ps1`.
+> ***THE HOST IS A FULL INSTALL AND THE SUITE IS GREEN — b43, 31/31, 923 PASS,
+> ZERO `[FAIL]`, ZERO `[SKIP]`.*** Nothing this session changed anything that
+> ships: every commit touched documentation or a `gplbld` script, and all of
+> those are on `$neverShipped`. **`b43` is spent — use `b44`.**
+>
+> ***FIVE INSTRUMENTS, ALL ON `$neverShipped`, ALL WITH CONTROLS.*** Do not
+> re-derive them:
+>
+> | | |
+> |---|---|
+> | `cleanup-devlitter.ps1` | **NEW.** Step 18's one command: users, `sdu_` groups, the profile sweep, the home directory, the VM. `-SelfTest` / `-List` / act. **Needs a REBOOT between the accounts and the profiles** — a loaded hive cannot be removed, and after a suite run every hive is loaded |
+> | `check-stale-leads.py` | now **THREE** phases. Phase 3 is new: an entry that records a person SEEING something and later denies anyone has. `test-staleleads-units.py` is its control, **13 of 13** |
+> | `check-client-sync.py` | the API client across the three trees. 12 checks, 0 failed. `--self-test` 6 of 6 |
+> | `probe-sshremote.ps1` | the HOST half of the ssh test. `-SelfTest` 4 of 4 |
+> | `verify-standalone.ps1` | now runs **on a guest**, via `-Installer` + `-InstallerSha256` in place of `assert-current`. All four refusal paths exercised |
+>
+> ***RUN `check-stale-leads.py` BEFORE YOU ANSWER ANY "WHAT IS LEFT" QUESTION.***
+> One second, and it is the difference between the table and a guess.
 >
 > ***FOUR NEW INSTRUMENTS THIS SESSION, ALL ON `$neverShipped`, ALL WITH
 > CONTROLS.*** Do not re-derive them:
@@ -982,12 +1001,37 @@ the measurement. Nothing was judged on it.
 > **Delete `sshRemoteTest-C1` when done** — §7 step 18 is the cleanup task and
 > a spent clone is exactly its subject.
 
-> ### 5. THE STAND-ALONE INSTALL OPTION — BUILT, INSTALLED AND VERIFIED: 21 PASS, 0 FAIL, 1 SKIP
+> ### 5. THE STAND-ALONE INSTALL OPTION — CLOSED 26 Aug 2026. 21 PASS, 0 FAIL, ***0 SKIP***.
 >
-> ***THE HEADING SAID "NEVER RUN" UNTIL 26 Aug 2026, ABOVE A BODY RECORDING A
-> REAL INSTALL AND A 21-PASS VERIFIER RUN.*** It was run on 25 Aug at 20:56:03
-> and measured at 21:06:58. **What is genuinely left is the ONE SKIP and the
-> unseen mode page** — item 4 carries the plan, and both want the same guest.
+> ***CLOSED, AND THE LAST ROW OF THE DEVELOPMENT PHASE WITH IT.*** Measured on
+> `sdStandalone-C1` at 01:46:11, 26 Aug 2026 — a guest cloned that evening from
+> `Windows 11 - Template`, install 01:30:27. **21 passed, 0 failed, 0 skipped,
+> of 21 rows**, and the closing *"BUT N CHECK(S) COULD NOT BE MADE"* paragraph
+> is gone.
+>
+> ***THE ROW THAT HAD NEVER BEEN MEASURED FIRED THE STRONG FORM:***
+> `no ssh server on this machine at all — expected True, got True`. On the host
+> this was a SKIP with its reason, because OpenSSH has been there since 14 Aug
+> and a stand-alone install neither adds nor removes one. On a guest that never
+> had it, `SshServerAbsent` is TRUE, so `not StandaloneChosen` is finally the
+> operative half of the `[Run]` gate — **the mode page's first promise, tested
+> at last.** `no sshd_config to have been changed` passed on the same footing:
+> there is no `sshd_config` on that machine at all.
+>
+> ***AND THE OTHER TWO OPEN ITEMS CLOSED THE SAME EVENING.*** The pages were
+> looked at — *"layout, wrapping ok memo ok -- no ssh or api remote boxes"* —
+> and the ssh-preflight security question was answered by the owner: **it still
+> refuses, and that needs no code change.**
+>
+> ***CURRENCY WAS ESTABLISHED WITHOUT `assert-current`, DELIBERATELY AND OUT
+> LOUD.*** There is no source tree on a guest, so the run used
+> `-Installer P:\sd-setup-W1.0-0.exe -InstallerSha256 57228B09…82249`: the
+> installer is the exact build named, and the data tree (01:30:27) postdates it
+> (25 Aug 21:56:55). ***It does not prove the install came from that file***,
+> nothing on a guest can, and both the inputs block and the verdict say which
+> proof was used.
+>
+> **The history below is kept as the record of how it was built.**
 >
 > Owner's request, in his words: *"another option for users, a stand-alone
 > system option. No ssh, no api, just the ability to quickly install — intent,

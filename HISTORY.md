@@ -31054,3 +31054,53 @@ worth the warning**: a `grep -c` of each filename across `stage.py` and `sd.iss`
 reported `assert-current.ps1` shipping 5 times and `PROJECT_STATUS.md` 46 times.
 Every hit was a COMMENT naming the file. ***Grep the declaration, not the
 basename*** — step 18(d) already records the same trap in the other direction.
+
+## 26 Aug 2026 — H.5 closed on a guest. THE DEVELOPMENT PHASE IS CLOSED.
+
+**SIXTIETH SESSION, part 9 and last.** `verify-standalone.ps1` run by the owner
+on guest `sdStandalone-C1`, elevated, 01:46:11. Install 01:30:27, from
+`P:\sd-setup-W1.0-0.exe`.
+
+***21 PASSED, 0 FAILED, 0 SKIPPED, OF 21 ROWS*** — and the closing *"BUT N
+CHECK(S) COULD NOT BE MADE"* paragraph is absent, which is the shape that says
+the pass covers everything it names.
+
+***THE ROW THAT HAD NEVER BEEN MEASURABLE FIRED ITS STRONG FORM:***
+`no ssh server on this machine at all — expected True, got True`. On the host
+this was a SKIP carrying its reason: OpenSSH has been there since 14 Aug, so
+`SshServerAbsent` is false and the install-ssh step is skipped for the WRONG
+reason. On a guest that never had it, `not StandaloneChosen` is finally the
+operative half of the `[Run]` gate. **The mode page's first promise, tested for
+the first time since it was written.** `no sshd_config to have been changed`
+passed on the same footing — that machine has no `sshd_config` at all.
+
+***CURRENCY WITHOUT `assert-current`, AND SAID OUT LOUD.*** There is no source
+tree on a guest, so the run used `-Installer` + `-InstallerSha256`. It proved
+the installer is the exact build named (`57228B09…82249`) and that the data
+tree postdates it. ***It does not prove the install came from that file***,
+nothing on a guest can, and the script prints that in its own output. Both the
+inputs block and the verdict name which proof was used, because two runs of
+this script can now differ in what they established.
+
+***WHAT H.5 TOOK, IN ORDER:*** the security question answered by the owner (the
+preflight still refuses, no code change); the pages looked at (*"layout,
+wrapping ok memo ok -- no ssh or api remote boxes"*, which also withdrew the
+instruction to move those choices onto the mode page); a 25-second `clonevm`
+with `hardwareuuid` and MAC verified kept; and one elevated run.
+
+***THE PRECONDITION WAS NEVER SCARCE, AND THAT WAS THIS FILE'S ERROR.***
+"A guest that never had OpenSSH" had been written up as something the project
+waited on from 25 Aug. It is a 25-second clone the owner had already made five
+times. **The SKIP was never blocked on a rig; it was blocked on nobody running
+a stand-alone install on a fresh one.**
+
+***WHAT REMAINS.*** **H.2 only, and it is the phase after 1.0-0.** It carries
+one decision: which interpreter the documentation toolchain targets — `markdown`
+is installed for the Windows python, not the MSYS2 one `setup-devbox.ps1`
+installs, so on a fresh box `mkdoc.py` fails at the interpreter rather than the
+package.
+
+***ON THE MACHINES.*** Host: FULL install, suite green, **`b43` spent, use
+`b44`**. `sshRemoteTest-C1` deleted by the cleanup. `sdStandalone-C1` still
+registered and powered off — **it shares MAC `080027AECE7C` with the template,
+so never run both at once** — and goes by hand when nobody needs that install.
