@@ -27,6 +27,88 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-eighth session, part 3: GREEN. 31/31, 929 PASS, and the VFS removal checked on the machine
+
+**Commit:** this one. `PROJECT_STATUS.md` only. Closes item 3a.
+
+**The owner ran two full cycles and the suite.** Read from the transcripts in
+`%LOCALAPPDATA%\SD-verify\` rather than taken on his summary, per the standing
+rule - and the ordering was not what it looked like at first glance.
+
+| when | what |
+|---|---|
+| 18:28:47 | full cycle, all 8 steps, install **18:29:50** |
+| 18:31:14 | `VerifyInstall1 -ThenElevated -Run b42` -> 18:44 |
+| 19:48:55 | **a second full cycle**, install **19:49:47** |
+
+***THE SUITE RAN BETWEEN THE TWO CYCLES, AND THAT IS FINE - BUT IT HAD TO BE
+CHECKED, NOT ASSUMED.*** A verify run followed by a reinstall would normally
+mean the verdict describes bits that no longer exist. It does not here: **no
+source changed between them.** `find -newermt` over `sdsys`, `gplsrc` and
+`gplbld` returns only two `.exe` files under `gplsrc/sdclilib/localtest/`, both
+stamped 18:40 and 18:42 - **build artefacts of the verify run itself**. Same
+`sd.exe` hash, same mirror count, same `gcat`/`gpl.bp.out` in both cycles. So
+the second cycle is a reinstall of identical source and the suite's verdict
+still describes the code that is installed.
+
+### The numbers
+
+- **31/31 steps exit 0** - `VerifyInstall1: every step exited 0` (12
+  unelevated) and `VerifyInstall2: all 19 steps exited 0`.
+- **929 `PASS`, 0 `[FAIL]`**, a plain grep over the 46 files of the run.
+  ***Both counters, not one*** - two counters that cannot both be zero is the
+  cheap null-case guard, and a 0/0 result would have meant nothing ran.
+  **Do not set 929 against the fifty-seventh session's 979**; different runs.
+- `sd.exe` **`5BD2F83F43BB9B27`** - changed from `275CFB03E142AA2C`, correctly:
+  the C changed this session.
+- `assert-current` clean inside both cycles **and run again live at the end of
+  this session, exit 0**.
+- **Mirrors 2,950 files, one fewer than the 17:17 run's 2,951** - and that one
+  is `_EXTENDLIST`. Only `gpl.bp` of the six mirrored directories holds it, so
+  exactly one, which is what makes the number a real confirmation.
+- `gcat` 125, `gpl.bp.out` **184** (was 185), installed matching staged exactly.
+- Credential register: **1 account with a password**, so a person drove the
+  wizard - that register is the thing the `-Silent` install got wrong.
+
+### The four failure-shaped lines, read
+
+All four are the measurement, not a failure. `verify-credacl` raises
+`TerminatingError(Get-Acl): "Attempted to perform an unauthorized operation."`
+- **that is its test**, and the next line reads *"Access is denied - which is
+the expected answer"*. `verify-osusers` prints *"Error 2 executing operating
+system command"* while scoring `elev_piped=refused`. `icacls` reports *"Failed
+processing 0 files"* and `secure-account-dirs` *"0 failed"*.
+
+### The VFS removal was checked separately, because the suite has no step for it
+
+Done on `C:\ProgramData\SD\sdsys`, every check paired with a control:
+
+| | removed | control |
+|---|---|---|
+| `$define FL$TYPE.VFS` | 0 | `FL$TYPE.SEQ` 1 |
+| `$define ER$VFS.*` | 0 | `ER$ENCRYPTED` 1 |
+| `$define FVAR.NET` | 0 | `FVAR.SEQ` 1 |
+| `_EXTENDLIST` in `gpl.bp`, `gpl.bp.out`, `pcode.out` | absent in all three | `_DELLIST` present in all three |
+| `VFS` in `FTYPE` with comments stripped | 0 | the `@SDSYS` line, 1 |
+
+***THE FIRST VERSION OF THAT CHECK WAS WRONG, AND THE WAY IT WAS WRONG IS THE
+REUSABLE PART.*** It grepped for the bare names `FL$TYPE.VFS` and `FVAR.NET`
+and reported **1 and 2 hits** - which read as "the removal did not land". Both
+were the **history comments that deliberately name what was removed**. A
+pattern that matches the removal notice as readily as the definition is not a
+check; it is the same trap as anchoring on a string the failure path also
+carries. Anchoring on `^ *$define` and pairing every line with a control is
+what made it decisive.
+
+### Still open, and unchanged by any of this
+
+The **upgrade path** (item 3) - all of it gated on `DataTreeUpgrade`, and both
+of these were first installs, so none of it ran. And the **stand-alone
+install** (item 5) - the suite has no step that chooses it, so all 31 steps ran
+the full installation.
+
+---
+
 ## 25 Aug 2026 - Fifty-eighth session, part 2: EXTENDLIST deleted, NET_FILE and its BASIC mirror removed
 
 **Commit:** this one. The two findings recorded in part 1 as needing a ruling.

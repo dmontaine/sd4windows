@@ -5,15 +5,15 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, **end of the fifty-eighth session**: VFS is stripped from the C and the BASIC, and **the tree is STALE and owes ONE full cycle.**
+**Last updated:** 25 Aug 2026, **end of the fifty-eighth session**: VFS is stripped from the C and the BASIC, **cycled, and green — 31/31 steps, 929 `PASS`, zero failures.**
 
-***THE TREE IS STALE. `sd.exe` WAS RELINKED AND NOTHING HAS BEEN INSTALLED SINCE, SO `assert-current` CHECK A WILL FAIL AND EVERY VERIFIER WILL REFUSE.*** One full `cycle.ps1` clears it. The 17:17:57 install was green 31/31 (item 1, kept as the record) and **that install is the one this session superseded** - do not read item 1 as describing what is on the machine now.
+***THE TREE IS CURRENT AND THE WHOLE SUITE IS GREEN: 31/31 STEPS, 929 `PASS` LINES, ZERO `[FAIL]`, ON THE 19:49:47 INSTALL.*** `assert-current` was run again live at the end of the session and exits 0, so **every verifier will run**. `sd.exe` is now `5BD2F83F43BB9B27` — **changed, and correctly so: the C changed this session.** Item 1 has the identifiers and what the run does *not* cover.
 
 ***WHAT IS BUILT AND VERIFIED:*** the stand-alone **wizard page and all the behaviour behind it** — the mode page, a second `sd.conf` with no `APIPORT`, every ssh and firewall step gated, the `sdsys\$standalone` marker, and `CREATEA` refusing `create.account user` with sysmsg 10100. `apiremote` is now opt-in, matching `sshremote`.
 
 ***WHAT IS BUILT AND STILL UNRUN — and it is now a SHORT list:*** the **upgrade path** (all of it gated on `DataTreeUpgrade`, and this was a first install, so none of it executed — item 3), and the **stand-alone install itself**, because the suite has no step that chooses it: all 31 steps ran the full installation. Building it broke nothing; none of its behaviour has been exercised on a machine.
 
-**Decided, not built:** documentation starts AFTER 1.0-0 on the owner's instruction (item 2). **VFS removal (item 3a) is DONE** - `make sd` clean with zero warnings, `cycle.ps1 -SkipInstall` clean, `UPSTREAM_FIXES.md` entry 15 written. **It owes the full cycle.**
+**Decided, not built:** documentation starts AFTER 1.0-0 on the owner's instruction (item 2). **VFS removal (item 3a) is DONE AND PROVEN ON A MACHINE** — cycled, suite green, and the removal itself checked directly on the installed tree because **the suite has no VFS step**. `UPSTREAM_FIXES.md` entry 15 is written.
 
 **One question is still the owner's:** whether the ssh preflight should still refuse on a stand-alone install (item 5). It is not a one-line change either way — the preflight runs in `InitializeSetup`, before the wizard exists.
 
@@ -21,31 +21,67 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT SESSION: NOTHING IS BROKEN, BUT THE TREE OWES ONE FULL CYCLE.
+> ## NEXT SESSION: NOTHING IS BROKEN AND NOTHING IS HALF-DONE.
 >
-> **VFS removal (item 3a) landed and the C was rebuilt.** `-SkipInstall` is
-> clean; nothing has been installed since, so `assert-current` fails Check A
-> and **every verifier refuses until a cycle runs**. That cycle is the first
-> thing to do, and it needs a person at the wizard:
+> **The suite is green — 31/31, 929 `PASS`, zero `[FAIL]`, on the 19:49:47
+> install of 25 Aug 2026.** Item 3a (VFS) is closed: made, built, cycled and
+> checked on the machine. Item 1 is the record of the run.
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
+> ***THE LIVE WORK IS 3 AND 5***: the upgrade path needs a guest that already
+> has SD, and item 5 has one open question that is the owner's to answer.
+> **Item 2 does not start until 1.0-0.**
 >
-> **Then the suite**, from an ordinary terminal, with a fresh `-Run` prefix
-> (`b41` is spent; use `b42`). Item 1 has the shape of a green run to compare
-> against, and its warning about `-Run` doing nothing without `-ThenElevated`.
+> **`b42` is spent — use `b43`.** And `-Run` does nothing without
+> `-ThenElevated`; item 1 carries that trap.
 >
-> ***THE LIVE WORK AFTER THAT IS 3 AND 5***: the upgrade path needs a guest
-> that already has SD, and item 5 has one open question that is the owner's to
-> answer. **Item 2 does not start until 1.0-0.** Item 3a has two adjacent
-> findings that need a ruling and are named there.
+> ***TWO LEADS SIT IN ITEM 3a AND NEITHER IS A FINDING YET*** — the three
+> `_FMTS`/`_ICONVS`/`_OCONVS` pcode records, and `COMP_PCODE` naming three
+> source records that no longer exist. Read what is written there before
+> acting: the first is explicitly NOT established as dead code.
 >
-> ### 1. THE RECORD OF A GREEN RUN — 25 Aug 2026, THE 17:17:57 INSTALL. 31/31, ZERO FAILURES.
+> ### 1. DONE — 25 Aug 2026, THE 19:49:47 INSTALL. 31/31 STEPS, 929 `PASS`, ZERO `[FAIL]`.
 >
-> ***SUPERSEDED AS A DESCRIPTION OF THE MACHINE: the fifty-eighth session
-> relinked `sd.exe` and did not install.*** Kept because it is what a green
-> run looks like, and the next cycle is measured against it.
+> ***THE FIFTY-EIGHTH SESSION'S WORK IS CYCLED AND VERIFIED.*** The 17:17:57
+> figures below are the fifty-seventh session's and are kept for comparison;
+> **the identifiers that describe the machine today are these:**
+>
+> | | |
+> |---|---|
+> | cycles | **two**, both full and both clean: 18:28:47 (install 18:29:50) and 19:48:55 (install **19:49:47**). No source changed between them — the second is a reinstall of identical source |
+> | the suite | ran at **18:31:14** against the 18:29:50 install, `-ThenElevated -Run b42`. 12 unelevated + 19 elevated, **every step exit 0** |
+> | counted | **929 `PASS`, 0 `[FAIL]`** — a plain grep over the 46 files of the run. Both counters checked, because two counters that cannot both be zero is the cheap null-case guard |
+> | `sd.exe` | `5BD2F83F43BB9B27` — **changed from `275CFB03E142AA2C`, and correctly so: the C changed** |
+> | `assert-current` | clean in both cycles **and run again live at the end of the session, exit 0** |
+> | mirrors | **2,950** files across six directories — **one fewer than the 2,951 of the 17:17 run, and that one is `_EXTENDLIST`** |
+> | `gcat` / `gpl.bp.out` | 125 / **184** (was 185 — the deleted program), installed matching staged exactly |
+> | the wizard | credential register holds **1 account with a password**, so it was driven by a person — that register is what the `-Silent` install got wrong |
+>
+> ***THE FOUR FAILURE-SHAPED LINES WERE READ AND ALL FOUR ARE THE MEASUREMENT
+> ITSELF, not a failure.*** `verify-credacl` raises
+> `TerminatingError(Get-Acl): "Attempted to perform an unauthorized
+> operation."` — that IS its test, and the next line says *"Access is denied -
+> which is the expected answer"*. `verify-osusers` prints *"Error 2 executing
+> operating system command"* while scoring `elev_piped=refused`. `icacls`
+> reports *"Failed processing 0 files"*, and `secure-account-dirs` *"0
+> failed"*.
+>
+> ***THE VFS REMOVAL WAS CHECKED SEPARATELY, BECAUSE THE SUITE HAS NO STEP FOR
+> IT*** — done on the installed tree, every check against a control:
+>
+> | on `C:\ProgramData\SD\sdsys` | removed | control |
+> |---|---|---|
+> | `$define FL$TYPE.VFS` | **0** | `FL$TYPE.SEQ` 1 |
+> | `$define ER$VFS.*` | **0** | `ER$ENCRYPTED` 1 |
+> | `$define FVAR.NET` | **0** | `FVAR.SEQ` 1 |
+> | `_EXTENDLIST` in `gpl.bp`, `gpl.bp.out`, `pcode.out` | **absent in all three** | `_DELLIST` present in all three |
+> | `VFS` in `FTYPE`, comments stripped | **0** | the `@SDSYS` line, 1 |
+>
+> ***THE FIRST VERSION OF THAT CHECK WAS WRONG AND IS WORTH THE WARNING.*** It
+> grepped for the bare names `FL$TYPE.VFS` and `FVAR.NET` and reported 1 and 2
+> hits — **the history comments that deliberately name what was removed.** A
+> pattern that matches the removal notice as readily as the definition is not a
+> check. Anchoring on `^ *$define` and pairing each with a control is what made
+> it decisive.
 >
 > ***THE FULL CYCLE AND THE WHOLE SUITE ARE GREEN ON THE FIFTY-SEVENTH
 > SESSION'S WORK.*** Nothing here is outstanding. It is kept as the record of
@@ -210,13 +246,14 @@ something came to be the way it is.
 > only `%0`/`%1` and reads as an empty dictionary — do not draw that conclusion
 > from a directory listing.
 >
-> ### 3a. STRIP VFS FROM THE C — DONE 25 Aug 2026. OWES THE FULL CYCLE.
+> ### 3a. STRIP VFS FROM THE C — CLOSED 25 Aug 2026. CYCLED AND VERIFIED.
 >
-> ***THE WORK IS MADE AND BUILT. WHAT IS OUTSTANDING IS THE CYCLE***, which is
-> the same cycle the whole tree owes. 13 C sites across 8 files, 9 BASIC edits
-> across 4 files, `SYSCOM/ERR.H` and `GPL.BP/ERRTEXT.H` regenerated by
-> `gen_includes.py`, `UPSTREAM_FIXES.md` **entry 15** written. HISTORY.md,
-> "Fifty-eighth session", carries the measurements.
+> ***NOTHING IS OUTSTANDING.*** 13 C sites across 8 files, 9 BASIC edits across
+> 4 files, `SYSCOM/ERR.H` and `GPL.BP/ERRTEXT.H` regenerated by
+> `gen_includes.py`, `UPSTREAM_FIXES.md` **entry 15** written. Two full cycles
+> and the suite green; **the removal was checked directly on the installed tree
+> because the suite has no VFS step** — item 1 carries that table and its
+> controls. HISTORY.md, "Fifty-eighth session" parts 1 and 2, has the rest.
 >
 > | | |
 > |---|---|
