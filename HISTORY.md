@@ -37153,3 +37153,62 @@ proves the page exists.
 them. `release.ps1` runs it and refuses to write the zip on a broken link, the
 same shape as the staleness refusal. First run: **73 links checked, 0 broken**,
 which is the first time every cross-page link in the set has been verified.
+
+### The cycle compiled it, and the staged tree was read rather than the run believed
+
+`cycle.ps1 -SkipInstall`, 26 Aug 2026 14:13. **The evidence is the staged tree
+at `C:\Users\dmont\stagetest`, not the transcript**: `gcat/$EDIT` and
+`gpl.bp.out/EDIT` both exist, so the BASIC parsed and catalogued itself; both
+`newvoc/edit` and `newvoc/micro` read `CA $EDIT`; `TIER.OMIT.STANDARD` holds
+42 with `micro` in it; `ProgramFiles/install-editors.ps1` is staged; the old
+`gpl.bp/MICRO` is gone.
+
+**`gcat` is 125 and `gpl.bp.out` is 184 — both unchanged**, which is the check
+that nearly went unmade: `$MICRO` left as `$EDIT` arrived, so a count comparison
+alone would have read as "nothing happened".
+
+***AND THE INSTALLED TREE IS UNTOUCHED, WHICH IS WHAT `-SkipInstall` MEANS.***
+`C:\ProgramData\SD\sdsys\gcat` still holds `$MICRO` and its `newvoc/edit`
+still reads `CA $ED`. Looking there first is what raised the question; looking
+at the stage answered it. **No session has typed `edit` yet.**
+
+### The value-mark convention, and what it cannot do
+
+Owner's idea, 26 Aug 2026: *"I do have an idea that we could let users enter
+value marks by putting `~~` in their edit, which would then be converted to a
+value mark on save."* Done, and both ways round - `@vm` becomes `~~` on the way
+INTO the editor as well, or a record that already had multivalues would come
+back mangled.
+
+**Three limits, all documented rather than left to be found:**
+
+1. **Subvalue marks are not converted.** There is no token for `@sm`, so a
+   record holding one still reaches the editor as a control character. A second
+   token is one line; it is not there because nobody asked and an unused
+   convention is one more thing to get wrong.
+2. **A record that already contains `~~` as data is asked about**, because the
+   conversion back cannot tell the two apart. Refusing outright would make such
+   a record uneditable, which is worse.
+3. **A compiled dictionary is still truncated to 15 fields** while it is being
+   edited, as `MICRO` always did.
+
+### OS.EXECUTE: the documentation covered it, and not where anyone would look
+
+The owner asked whether the set covers `OS.EXECUTE` and, if not, for a section
+on the limits placed on shell access. **It did** - page 06, under
+*Administrator commands*, which is the right home for the mechanics because
+granting it is an administrator's job. What was missing was two things:
+
+- **how you actually grant it.** The page named the file and the fields and
+  never showed the record being written. It does now, with the four
+  combinations of the two fields and the note that the key is the WINDOWS login
+  name.
+- **the position, stated where a tester looks for it.** Page 12 (*Security*)
+  had no section on reaching the operating system at all. It has one now: the
+  three doors (`sh`/`!`, `OS.EXECUTE`, the editors), the four rules that hold
+  for all three, and the pointer to page 06 for the record format. It does not
+  repeat the format, so there is one place to change.
+
+**The fourth rule is the one worth having written down:** once field 1 or 2
+says `yes`, nothing in SD limits what that person then does. The boundary from
+there is their own Windows account's permissions.
