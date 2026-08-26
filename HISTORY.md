@@ -37246,3 +37246,49 @@ outcomes occur.
 table cell rendered as `<code>~</code>` — the backtick vanished. A backtick
 inside a code span needs the doubled fence *and* padding spaces: `` `` ~` `` ``.
 The markdown looked right; only the HTML said otherwise.
+
+### Syntax highlighting for SD BASIC, and the word lists come out of the compiler
+
+Owner, 26 Aug 2026: *"micro has support for syntax highlighting, this version
+of edit does not. Take a look at the online documentation for micro and see if
+we can add syntax highlighting for BASIC code."*
+
+**Read from micro's own documentation rather than remembered.** Syntax files
+are YAML in `<config>/syntax/`, a `filetype`, a `detect` block matching a
+regex against the FILE NAME, and `rules` of patterns and start/end regions.
+
+***THE PART THAT DECIDED THE DESIGN IS WHERE micro LOOKS FOR THEM.*** The
+config directory is `$MICRO_CONFIG_HOME`, else `$XDG_CONFIG_HOME/micro`, else
+`~/.config/micro`. **Only the first is any use here**: the other two are
+per-profile, and accounts SD creates cannot log in to Windows, so a syntax file
+in a profile is one they could never be given. SD ships
+`gplbld/microcfg/` to `C:\Program Files\SD\micro` and `EDIT` names it in
+`MICRO_CONFIG_HOME` when it launches micro — `kernel(K$WINPATH, '/micro')`, the
+same conversion `ELEVATE` makes for its helper.
+
+**And detection is on the WORKING COPY's name, which is the only name micro
+sees.** A record called `MY.REPORT` tells it nothing, so a BP record's working
+copy is now `<record>.editing.sdbasic` and the syntax file detects
+`\.sdbasic$`. `.editing` stays in front of it so a copy left behind is still
+recognisable as one. Anything not from a BP file stays plain text, which is the
+right answer for a VOC entry.
+
+### The word lists are generated, and that is the point
+
+`gplbld/mkbasicsyntax.py` reads **`BCOMP`'s own tables** — `statements`,
+`non.debug.statements`, `restricted.statements`, `reserved.names` and
+`intrinsics` — and emits the YAML: **218 statements, 37 reserved words, 176
+intrinsic functions**. Nobody proof-read 431 names, and the highlighting cannot
+drift from the language.
+
+***AND A REGEX WRITTEN THE NATURAL WAY WOULD HAVE BROKEN THE WHOLE FILE.***
+Inside a double-quoted YAML scalar `\.` is not a legal escape, so a pattern
+containing `REMOVE\.BREAK\.HANDLER` makes the FILE invalid, not just the
+pattern — and **micro reports a syntax file it cannot parse by not
+highlighting**, which looks exactly like a file that did not match the name.
+Every backslash is doubled, which is why micro's own `c.yaml` reads `\.`.
+
+`gplbld/checksyntax.py` is the control: it walks every quoted scalar, rejects
+an escape YAML does not define, rejects lookaround RE2 cannot do, and compiles
+each pattern. **24 patterns, 0 bad**, and it was run against a deliberately
+broken file first to prove it can fail.
