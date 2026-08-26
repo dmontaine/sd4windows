@@ -37061,3 +37061,38 @@ System32\edit.exe and exiting 0.
 Nor has the wiring been exercised: no cycle has installed a tree with `$EDIT`
 in its gcat, so *"edit bp myprog opens Microsoft Edit"* is a claim about source
 and not yet a measurement.
+
+### The same day, a second editor - and it is one program, not two
+
+Owner, 26 Aug 2026: *"use as a template the program you made for microsoft edit
+and make another one for micro ... so programmers and administrators have two
+full screen editors available to them, one called with the verb micro and the
+other with the verb edit."*
+
+***IT IS ONE PROGRAM WITH TWO VOC ENTRIES, WHICH IS A DEVIATION FROM WHAT WAS
+ASKED AND IS FLAGGED AS ONE.*** Everything either verb does is identical - the
+working copy, the save query, the compile-and-catalogue loop, the cleanup - and
+a second copy of that is a second place for the next defect to be fixed in only
+one. That is the shape of `MICRO`'s own three faults, and of the 32-bit
+client's middle hop before it was removed. `EDIT` reads `cmd<1>`, the verb as
+typed, and picks from a two-row table; splitting them later is a copy and one
+VOC edit.
+
+**`micro` is `zyedidia.micro`**, and its manifest was read rather than assumed:
+`Installer Type: portable (zip)`, which is the type winget can install with
+`--scope machine`. It never ships with Windows, so unlike Microsoft Edit it is
+always a download.
+
+***AND THE SCRIPT WILL NOT FALL BACK TO A PER-USER INSTALL IF MACHINE SCOPE IS
+REFUSED.*** A fallback would report success and leave SD's own accounts with
+nothing, since they cannot log in to Windows and so can never reach another
+profile's `%LOCALAPPDATA%`. It reports the refusal instead. `install-edit.ps1`
+became `install-editors.ps1` in the same commit; it had existed for part of one
+day and never shipped in a release under the old name.
+
+**The counts were re-derived, not nudged.** After the change: `newvoc` holds
+**395** records, `TIER.OMIT.STANDARD` **42**, `TIER.ADD.ADMINISTRATOR` **21**,
+so a full VOC is 392 and the three totals are 417 / 396 / 354. **A standard
+account is unchanged at 354**, because `micro` joined `NEWVOC` and the omit
+list at once. Page 05 of the tester set carries the arithmetic and now says why
+it did not move.
