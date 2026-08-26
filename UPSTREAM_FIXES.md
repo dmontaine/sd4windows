@@ -1178,6 +1178,18 @@ invoked: `pcode.h` declares `Pcode(extendlist)` and no C source calls
 `op_dio4.c:137`, so call sites are written literally and the search does find
 them.)
 
+**This port has deleted `_EXTENDLIST`, and the two things that made it safe are
+worth stating because neither is obvious.** First, `load_pcode()`
+(`sd.c:847`) walks the pcode library and matches on
+`obj->ext_hdr.prog.program_name` — entries are found **by name**, not by
+ordinal — so removing one shifts nothing. `pcode.h`'s own history block already
+records the precedent: *"15 Jun 24 mab - remove banner, login, pickmsg, ttyset,
+ttyget from pcode"*. Second, the removal has to touch all four places or SD will
+not start at all: the `Pcode()` line in `pcode.h`, the name in the pcode build
+list, the name in `COMP_PCODE`, and the source record. A `Pcode()` entry with no
+library object makes `load_pcode()` print *"Pcode item EXTENDLIST not found"*
+and refuse to start, which is at least a loud failure.
+
 **Not reproduced against upstream, per this file's standing caveat.** The
 reading is from `sdb64` source. What *was* run is the removal itself, in the
 Windows port: with all of the above gone, `make sd` compiles clean with

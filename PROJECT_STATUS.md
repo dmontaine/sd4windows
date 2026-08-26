@@ -227,23 +227,55 @@ something came to be the way it is.
 > | retired, not freed | `DHF_VFS` 0x40, `PF_IS_VFS` 0x00200000, and errors 3038-3040. Comments stand where the `#define`s were |
 > | left alone, per the ruling | `gplsrc/sdclilib/err.h` — the shipped client library's public header |
 >
-> ***TWO ADJACENT FINDINGS, NEITHER ACTED ON, BOTH NEEDING A RULING.***
+> ***TWO ADJACENT FINDINGS — BOTH RULED ON AND BOTH DONE, 25 Aug 2026.*** The
+> owner approved each **for this cycle**, which is the whole reason they were
+> raised before it rather than after: folding them in cost no extra cycle and
+> deferring them would have cost a full one each.
 >
-> 1. **`GPL.BP/_EXTENDLIST` is unreachable.** Its description named the VFS as
->    its caller. `pcode.h` declares `Pcode(extendlist)` so it is loaded by name
->    at start-up, and **no C source calls `pcode_extendlist`** — control:
->    `pcode_dellist` is called at `op_dio4.c:137`, so call sites are literal and
->    the grep does find them. **Not deleted**: that is a pcode-table change
->    across `pcode.h`, `pcode_bld.py`, `gplbld/COMP_PCODE` and what installs,
->    which is not the change that was scoped. Its description now says it has no
->    caller instead of naming one.
-> 2. **`NET_FILE` 4 ([descr.h:318](sdb_ai/sd64/gplsrc/descr.h:318)) is a lone
->    orphan `#define`** — the only occurrence in this tree's whole `gplsrc`;
->    upstream has **30**. Left behind by `c893308` *"Remove SDNet"*. Same class
->    of dead code and the same reasoning as this item, but it is SDNet's
->    leftover, not VFS's. Found because upstream's `op_dio3.c:493` reads
->    `(fvar->type != NET_FILE) && (fvar->type != VFS_FILE)` where this tree had
->    only the VFS half.
+> 1. **`GPL.BP/_EXTENDLIST` is DELETED.** Unreachable — its description named
+>    the VFS as its caller and **no C source called `pcode_extendlist`**
+>    (control: `pcode_dellist` is called at `op_dio4.c:137`, so call sites are
+>    literal and the grep does find them). Removed from `pcode.h`,
+>    `gplbld/pcode_bld.py`, `gplbld/COMP_PCODE`, and the source file is gone.
+>    **No `SDSYS_RETIRED` entry is needed, and that was read rather than
+>    assumed**: `write_upgrade_iss()` emits `Type: filesandordirs` for every
+>    *directory* on the replace list, so an upgrade deletes `gpl.bp`,
+>    `gpl.bp.out` and `pcode.out` outright before copying — a file inside one
+>    of them cannot survive. `SDSYS_RETIRED` is for a top-level name under
+>    `sdsys` that source no longer ships, which this is not.
+> 2. **`NET_FILE` 4 is REMOVED from `descr.h`, and so is its BASIC mirror.**
+>    `descr.h` says *"Tokens also in BP DEBUG.H"*, so `FVAR.NET` went from
+>    `GPL.BP/DEBUG.H` with it, along with the `DEBUG` arm that printed
+>    *" (Networked)"* for a file type nothing can produce. Runtime-only value,
+>    so **no retirement** — unlike VFS's two bit values.
+>
+>    ***THE SWEEP FOUND THE REST OF THE SDNet RESIDUE IS DELIBERATE, NOT
+>    LEFTOVER, so it was not touched.*** `NETFILES`, `K$SDNET`, `USR_SDNET`,
+>    `sdnet.h` and `SrvrOpenSDNet` are all still there **by ruling** —
+>    [sd.h:272](sdb_ai/sd64/gplsrc/sd.h:272), [op_dio1.c:635](sdb_ai/sd64/gplsrc/op_dio1.c:635)
+>    and [op_kernel.c:516](sdb_ai/sd64/gplsrc/op_kernel.c:516) each say so in
+>    place, and §8 has the reasoning. `sdnet.h` in particular is **not** SDNet:
+>    it is the socket/termios portability header. `NET_FILE` was the one
+>    genuine orphan, at 1 occurrence here against upstream's 9.
+>
+> ***MEASURED AFTER THE SECOND ROUND, 18:19 — the numbers moved exactly as
+> predicted, which is the check that the removal did what it claimed:***
+> `gpl.bp.out` **185 → 184** (one program), `gcat` **125 → 125** (unchanged —
+> `_EXTENDLIST` was `$internal` with no `$catalog`), compiles **183 → 182**, the
+> six WARNINGs still byte-identical. `make sd` 84 files, exit 0, zero warnings.
+> Installer 4,819,017 bytes at 18:20:01.
+>
+> ***AND THE PCODE TABLE IS PROVEN, not merely assumed to still agree.***
+> `load_pcode` ([sd.c:847](sdb_ai/sd64/gplsrc/sd.c:847)) matches on
+> `obj->ext_hdr.prog.program_name`, so entries are found **by name** and nothing
+> shifts — but the real evidence is that `sd.exe` calls it for **every**
+> `Pcode()` entry at **every** start-up, and the bootstrap then compiled 182
+> programs. A disagreement between `pcode.h` and the library would have printed
+> *"Pcode item X not found"* and SD would not have started at all, so **182
+> successful compiles is the positive anchor** — not the absence of an error
+> string. Control on the staging check: `_DELLIST` is present in all three of
+> `gpl.bp`, `gpl.bp.out` and `pcode.out`, so the `find` that reports
+> `_EXTENDLIST` absent is a working instrument.
 >
 > **THE RECORD OF WHY IT WAS DONE IS BELOW, UNCHANGED.**
 >

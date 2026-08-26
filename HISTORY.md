@@ -27,6 +27,86 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-eighth session, part 2: EXTENDLIST deleted, NET_FILE and its BASIC mirror removed
+
+**Commit:** this one. The two findings recorded in part 1 as needing a ruling.
+
+**The owner ruled on both, and ruled them INTO this cycle.** That is the point
+worth keeping: they were raised *before* the full cycle rather than after,
+because folding them in cost nothing and deferring either would have cost a
+whole cycle of its own. `sd.exe` does not build reproducibly, so any change the
+server links costs an install.
+
+### 1. `GPL.BP/_EXTENDLIST` is deleted
+
+Removed from `gplsrc/pcode.h` (the `Pcode(extendlist)` entry),
+`gplbld/pcode_bld.py`, `gplbld/COMP_PCODE`, and the source file itself.
+
+**No `SDSYS_RETIRED` entry is needed, and that was READ rather than assumed.**
+`stage.py` `write_upgrade_iss()` emits, for every *directory* on the upgrade
+replace list, `Name: "{#DataDir}\sdsys\<d>"; Type: filesandordirs` in
+`[InstallDelete]` **before** the `[Files]` copy - so an upgrade deletes
+`gpl.bp`, `gpl.bp.out` and `pcode.out` outright and a file inside one of them
+cannot survive. `SDSYS_RETIRED` is for a top-level name under `sdsys` that
+source no longer ships, which this is not.
+
+**The pcode table does not shift, and that was also read.** `load_pcode`
+(`sd.c:847`) walks the library and matches on
+`obj->ext_hdr.prog.program_name` - **by name**, not by ordinal. Precedent is
+already in `pcode.h`'s own history block: *"15 Jun 24 mab - remove banner,
+login, pickmsg, ttyset, ttyget from pcode"*.
+
+### 2. `NET_FILE` and `FVAR.NET` are removed
+
+`#define NET_FILE 4` was the only occurrence in this tree's entire `gplsrc`,
+against upstream's 9 files. Its last reader went with `netfiles.c` on
+18 Aug 2026. `descr.h` says *"Tokens also in BP DEBUG.H"*, so `FVAR.NET` went
+from `GPL.BP/DEBUG.H` too, along with the `DEBUG` arm that printed
+*" (Networked)"* for a file type nothing can produce - the same defect class as
+the VFS one, one layer down. Runtime-only value, so **no retirement**, unlike
+VFS's two bit values.
+
+***THE SWEEP FOR OTHER SDNet LEFTOVERS FOUND THE RESIDUE IS DELIBERATE, and
+nothing else was touched.*** `NETFILES` (config), `K$SDNET` /
+`K$GET.SDNET.CONNECTIONS`, `USR_SDNET`, `SrvrOpenSDNet` and `sdnet.h` are all
+still present **by ruling**, each said in place: `sd.h:272`, `op_dio1.c:635`,
+`op_kernel.c:516`, and §8. **`sdnet.h` is not SDNet** despite the name - it is
+the socket/termios portability header the client library and terminal i/o both
+include. Counts against upstream, with `DYNAMIC_FILE` 9/9 as the control:
+`netfiles` 10/10, `sdnet` 12/12, `NETFILES` 10/10 - identical - and `NET_FILE`
+**1 here against 9 there**, which is what singled it out as the orphan.
+
+### Measured
+
+| | before | after |
+|---|---|---|
+| `gpl.bp.out` | 185 | **184** - one program |
+| `gcat` | 125 | **125** - unchanged, `_EXTENDLIST` was `$internal` with no `$catalog` |
+| compiles at `0 error(s)` | 183 | **182** |
+| compile WARNINGs | 6 | **6, byte-identical** |
+| `bin/sd.exe` | 1,957,049 | 1,957,014 |
+| installer | 4,819,689 | 4,819,017 |
+
+`make sd` after `rm -f gplobj/*.o`: 84 files, exit 0, **zero warnings**.
+`cycle.ps1 -SkipInstall` 18:19:26, exit 0, staged tree whole.
+
+***THE PCODE LIBRARY IS PROVEN AGAINST `pcode.h`, AND THE ANCHOR IS THE
+POSITIVE ONE.*** `sd.exe` calls `load_pcode` for **every** `Pcode()` entry at
+**every** start-up, so a disagreement would print *"Pcode item X not found"*
+and SD would not start. **The evidence is the 182 successful compiles**, not
+the absence of that string - a bootstrap that never ran SD would also produce
+no error text. Control on the staging check: `_DELLIST` is present in all three
+of `gpl.bp`, `gpl.bp.out` and `pcode.out`, so the `find` reporting
+`_EXTENDLIST` absent is a working instrument and not an empty search.
+
+### Still open
+
+***THE FULL CYCLE. UNCHANGED FROM PART 1*** - `-SkipInstall` does not install,
+`sd.exe` was relinked twice, and every verifier refuses until one cycle clears
+`assert-current` Check A.
+
+---
+
 ## 25 Aug 2026 - Fifty-eighth session: VFS stripped from the C and the BASIC
 
 **Commits:** this one. PROJECT_STATUS.md item 3a, closed as far as a cycle can
