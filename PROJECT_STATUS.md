@@ -13,7 +13,7 @@ something came to be the way it is.
 
 ***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT".*** It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*. `check-stale-leads.py` now finds that shape mechanically and checks the table against the entries in both directions.
 
-***THE MACHINE, AND IT IS NOT ALL ON ONE BOX.*** The host carries a **FULL** install (21:57) with the suite green — 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`. **`b43` is spent — use `b44`.** And ***guest `sshRemoteTest-C1` is still running***, SD installed, network profile **Private**, ssh rule at `127.0.0.1`. **It shares a MAC with `Windows 11 - Template` — never run both at once.**
+***THE MACHINE, AND IT IS NOT ALL ON ONE BOX.*** The host carries a **FULL** install (21:57) with the suite green — 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`. **`b43` is spent — use `b44`.** And ***guest `sshRemoteTest-C1` is POWERED OFF*** (VirtualBox, since 26 Aug 07:01:00 — read from `VBoxManage`, not assumed), SD installed, network profile **Private**, ssh rule at `127.0.0.1`. **It has NO snapshots**, so it cannot be put back to a pre-SD state. **It shares a MAC with `Windows 11 - Template` — never run both at once.**
 
 ***THE TREE IS CURRENT AND THE WHOLE SUITE IS GREEN: 31/31 STEPS, 929 `PASS` LINES, ZERO `[FAIL]`, ON THE 19:49:47 INSTALL.*** `assert-current` was run again live at the end of the session and exits 0, so **every verifier will run**. `sd.exe` is now `5BD2F83F43BB9B27` — **changed, and correctly so: the C changed this session.** Item 1 has the identifiers and what the run does *not* cover.
 
@@ -70,7 +70,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
 | ✅ | **H.4a** | **The ssh remote-block RUNBOOK — run and passed.** Kept for the next guest: item 5's SKIP wants the same rig. ***The `Open` leg must run FIRST***, and the precondition is a **Private** network profile on the guest | 25 Aug 2026 |
-| ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** Open: that one SKIP, the unseen mode page, and one security question that is the owner's | partly |
+| ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** Open: that one SKIP, **what the mode and tasks pages LOOKED like** (the page itself has been used — he chose stand-alone on it), and one security question that is the owner's | partly |
 | ⬜ | **7.18** | ***THE LAST DEVELOPMENT TASK: CLEAN UP.*** **The three leaks are FIXED in source and NOTHING HAS BEEN DELETED YET** — that pass still runs last. 8 leaked Windows users + 8 groups, 30 profile directories **+ 47 stale `ProfileList` entries nothing had counted**, ~25 scratch files in the home directory. **Keep `sdout`; ask about `~/sdclilib`.** (a) and (e) are answered in the entry | — |
 
 **Legend** — ✅ closed and verified · ◐ **partly**: some parts closed,
@@ -99,16 +99,30 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | | |
 > |---|---|
 > | **7.18** | **cleanup, the last development task.** ***The leaks are fixed in source (26 Aug, sixtieth session) and NOTHING HAS BEEN DELETED.*** What is left is the deleting itself, elevated, after the guest work: 8 Windows users + 8 groups, 30 profile directories **and 47 stale `ProfileList` entries the survey never counted**, ~25 scratch files in `~`. `sshRemoteTest-C1` is its subject too |
-> | **H.5** | stand-alone: **one SKIP**, the **unseen mode page**, and one security question that is the owner's |
+> | **H.5** | stand-alone: **one SKIP**, **what the mode and tasks pages looked like** (the page has been used — not unseen), and one security question that is the owner's |
 > | **H.2** | documentation — **approved, scoped, and starts AFTER 1.0-0 by his instruction.** The gate is now empty, so this is a decision he can take |
 >
-> ***THE CHEAPEST NEXT MOVE IS H.5, AND THE RIG IS ALREADY STANDING.***
-> `sshRemoteTest-C1` **has never had OpenSSH**, which is the one thing this
-> project has never had and item 5's SKIP has been waiting on since 25 Aug. A
-> stand-alone install on it is the first machine where `SshServerAbsent` is
-> true, so `not StandaloneChosen` is finally the operative half of the `[Run]`
-> gate — **the mode page's first promise, never once tested.** Item 4a has the
-> rig, and item 5 has the checklist and `verify-standalone.ps1`.
+> ***H.5 IS STILL THE CHEAPEST NEXT MOVE, BUT NOT ON THE STANDING GUEST — IT
+> IS SPENT.*** This box said *"the rig is already standing, `sshRemoteTest-C1`
+> has never had OpenSSH"*. **It had none when it was cloned and SD's own
+> installer put it there**: `ApplySshFirewall` only runs when `SshWasAbsent`,
+> and item 4 records `sshd` listening on it. So `SshServerAbsent` is now FALSE
+> there, exactly as on the host, and it has no snapshot to go back to.
+> Corrected 26 Aug 2026 on the owner's challenge, against `VBoxManage`.
+>
+> ***AND THE PRECONDITION WAS NEVER SCARCE, WHICH IS THE PART THIS FILE GOT
+> WRONG.*** *"A guest that never had OpenSSH"* has been read as something the
+> project has been waiting on since 25 Aug. **It is a 25-second `VBoxManage
+> clonevm` from `Windows 11 - Template`, and the owner has done it at least
+> five times** — all but the last clone deleted. Item 5's SKIP is not blocked
+> on a rig; it is blocked on nobody having run a **stand-alone** install on a
+> fresh one.
+>
+> **So: clone the template, install stand-alone on the clone.** That clone is
+> the first machine where `SshServerAbsent` is true AND stand-alone is chosen,
+> so `not StandaloneChosen` is finally the operative half of the `[Run]` gate —
+> **the mode page's first promise, never once tested.** Item 4a has the rig
+> notes, item 5 the checklist and `verify-standalone.ps1`.
 >
 > ***FOUR NEW INSTRUMENTS THIS SESSION, ALL ON `$neverShipped`, ALL WITH
 > CONTROLS.*** Do not re-derive them:
@@ -783,9 +797,12 @@ the measurement. Nothing was judged on it.
 > actually refuses a remote connection.
 >
 > ***AND "NEEDS A BRIDGED NIC" OVERSTATES THE COST: THE RIG EXISTS AND HAS DONE
-> THIS DIRECTION.*** §7 step 2 keeps `Windows 11 Clone`, snapshot
+> THIS DIRECTION.*** §7 step 2 describes `Windows 11 Clone`, snapshot
 > `Before SD install`, **bridged over the WiFi adapter**, and it is how the API
-> was reached across a real network. So: SD on a bridged guest, then dial the
+> was reached across a real network. ***THAT VM NO LONGER EXISTS*** — checked
+> with `VBoxManage list vms`, 26 Aug 2026: only `Beardog`,
+> `Windows 11 - Template` and `sshRemoteTest-C1` remain. Clones are made and
+> deleted routinely; **read the rig off `VBoxManage`, not off this file.** So: SD on a bridged guest, then dial the
 > guest's port 22 from the host.
 >
 > ***THE CONTROL IS THE POINT, NOT THE DIAL.*** A refused dial proves nothing
@@ -823,7 +840,7 @@ the measurement. Nothing was judged on it.
 > |---|---|
 > | full, `sshremote` **unticked** | rule scoped to `127.0.0.1`; dial host → guest:22 must be **REFUSED** — item 4's treatment |
 > | full, `sshremote` **ticked** | rule `Any`; the **same dial must SUCCEED** — item 4's control, and the half without which the first row means nothing |
-> | **stand-alone** | item 5's one SKIP. `SshServerAbsent` is **true** here, so `not StandaloneChosen` is finally the operative half of the `[Run]` gate — the mode page's first promise. Also the **unseen mode page**, and whether `apiremote`/`sshremote` actually hide |
+> | **stand-alone** | item 5's one SKIP. `SshServerAbsent` is **true** here, so `not StandaloneChosen` is finally the operative half of the `[Run]` gate — the mode page's first promise. Also **what the mode and tasks pages look like**, and whether `apiremote`/`sshremote` actually hide |
 >
 > **That is the whole of the machine-dependent work left before 1.0-0.** Item 5
 > points here rather than repeating it.
@@ -952,10 +969,12 @@ the measurement. Nothing was judged on it.
 > measured in the self-test: this network **DROPS** rather than sending RST, so
 > a blocked dial times out. Do not read the pause as a hang.
 >
-> ***AND THE SAME GUEST THEN CLOSES ITEM 5's SKIP*** — it has never had
-> OpenSSH, so a **stand-alone** install on it is the first machine where
-> `SshServerAbsent` is true and `not StandaloneChosen` is the operative half of
-> the `[Run]` gate. Look at the mode page and the tasks page while the wizard
+> ***THIS GUEST CANNOT ALSO CLOSE ITEM 5's SKIP — RUNNING THE RUNBOOK SPENDS
+> IT.*** This entry said the same guest would do both. It will not: step 2
+> installs SD with `sshremote` ticked, which installs OpenSSH, and from then on
+> `SshServerAbsent` is false there. **Item 5's SKIP needs its OWN fresh clone**
+> — 25 seconds from `Windows 11 - Template` — where a **stand-alone** install
+> makes `not StandaloneChosen` the operative half of the `[Run]` gate. Look at the mode page and the tasks page while the wizard
 > is open (item 5, *"UNSEEN"*), and run
 > [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1) after.
 >
@@ -1157,10 +1176,28 @@ the measurement. Nothing was judged on it.
 > elevated → **look at the mode page and the tasks page while the wizard is
 > open** → cycle choosing **full** to put the machine back.
 >
-> ***UNSEEN: nobody has looked at this page.*** Layout, wrapping and how much of
-> the memo is visible before scrolling are all unmeasured. So is whether
-> `Lines.Text` on a non-rich `RichEditViewer` renders as expected. Look at both
-> pages at the next cycle.
+> ***THE PAGE HAS BEEN SEEN AND IT WORKS. WHAT IS UNRECORDED IS NARROWER THAN
+> THIS ENTRY SAID FOR A DAY.*** It read *"UNSEEN: nobody has looked at this
+> page"* until 26 Aug 2026 — **69 lines below its own record of the owner
+> cycling and CHOOSING stand-alone**, which cannot be done anywhere but on this
+> page, by clicking its radio. The install at 20:56:03 and the marker at
+> 20:56:29 are the proof: the page drew, the radio worked, and the choice
+> reached `StandaloneChosen`. Corrected on the owner's challenge — he said it
+> sounded like things already done, and on one of the three he was right.
+>
+> ***WHAT IS GENUINELY UNMEASURED, AND IT IS COSMETIC.*** Nobody wrote down
+> what the page LOOKED like: layout, wrapping, how much of the memo is visible
+> before scrolling, and whether `Lines.Text` on a non-rich `RichEditViewer`
+> renders as expected. Same for the tasks page — whether the `sshremote` and
+> `apiremote` boxes appeared on a stand-alone run is unrecorded either way.
+> **Look at both pages at the next stand-alone cycle and write down what you
+> saw**, which is the step that was missed last time rather than the looking.
+>
+> ***AND `check-stale-leads.py` DOES NOT CATCH THIS SHAPE.*** It compares
+> open-words against closed-words; this was an entry contradicting itself on a
+> matter of FACT, with no status word involved on either side. See the note in
+> §0 — an entry that records an observation and then denies it is a defect the
+> current checker is blind to.
 >
 > ***STILL TO DECIDE — ONE THING, AND IT IS A SECURITY DECISION:***
 >

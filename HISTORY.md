@@ -30749,3 +30749,65 @@ exit code — so it was green throughout. Re-anchored on the phase 1 count, and
 install, suite green, **`b43` spent, use `b44`**; guest `sshRemoteTest-C1` still
 running. **No account, user, group, profile or file was deleted this session.**
 Three rows still open — `7.18` (the deleting itself), `H.5`, `H.2`.
+
+## 26 Aug 2026 — H.5 said "nobody has looked at this page" 69 lines below its own record of the owner using it
+
+**SIXTIETH SESSION, part 2.** Raised by the owner on being given an explanation
+of H.5: *"a lot of H-5 sounds like things that have already been done."* He was
+right on one of the three, and the check took four greps.
+
+| item 5's three open claims | verdict |
+|---|---|
+| the one SKIP | **stands** — `verify-standalone-20260825-210658.log`: 21 passed, 0 failed, 1 skipped of 22, and the SKIP names its own reason, *"it needs a guest that never had OpenSSH"*. All seven runs are on this host, none on a guest |
+| the unseen mode page | ***FALSE, AND IT WAS FALSE IN ITS OWN ENTRY*** |
+| the ssh preflight question | **stands** — no ruling in either document |
+
+***THE CONTRADICTION.*** Line 1091 recorded *"the owner cycled choosing
+stand-alone (install 20:56:03, marker written 20:56:29)"*. Line 1160, in the
+same entry, said *"UNSEEN: nobody has looked at this page"*. **Choosing
+stand-alone cannot be done anywhere but on that page**, by clicking its radio,
+and the install and the marker prove the choice reached `StandaloneChosen`. The
+narrower true claim - nobody wrote down what it LOOKED like - is what the entry
+now carries, in three places plus the task table.
+
+***`check-stale-leads.py` IS BLIND TO THIS SHAPE AND THAT IS THE LESSON.*** It
+matches open-words against closed-words. Here both statements are FACTUAL and
+neither carries a status word, so nothing fired - the entry was internally
+inconsistent and scored clean. **Phase 1 finds a stale STATUS; nothing finds a
+stale FACT.**
+
+***AND THE EXPLANATION THAT SURFACED IT WAS BUILT BY RELAYING THE ENTRY.***
+Asked to explain H.5, the answer restated the entry rather than checking it -
+against a file whose §0 says to check. The owner's instinct did the work the
+instrument did not.
+
+## 26 Aug 2026 — The rig described in this file was not the rig on the box
+
+**SIXTIETH SESSION, part 3.** Raised by the owner: *"we already did a guest that
+never had openssh - it was a vm clone"*, and *"we have had multiple clones, at
+least 5 over the course of the project. all but the last one have been
+deleted."* Both correct, and both contradicted what was written.
+
+***FOUR STALE FACTS, ALL READ OFF `VBoxManage` IN TWO COMMANDS.***
+
+| the file said | the box says |
+|---|---|
+| guest `sshRemoteTest-C1` **is still running** | **powered off**, since 26 Aug 07:01:00 |
+| it **has never had OpenSSH** | SD's installer put OpenSSH there. `ApplySshFirewall` runs only when `SshWasAbsent`, and item 4 records `sshd` listening. `SshServerAbsent` is now FALSE on it |
+| `Windows 11 Clone`, snapshot `Before SD install` is the rig | **that VM does not exist.** Only `Beardog`, `Windows 11 - Template`, `sshRemoteTest-C1` remain |
+| — | `sshRemoteTest-C1` has **no snapshots**, so it cannot be put back |
+
+***AND THE PRECONDITION WAS NEVER SCARCE, WHICH IS THE REAL ERROR.*** *"A guest
+that never had OpenSSH"* had been written up as something the project had been
+waiting on since 25 Aug, and named as the reason item 5's SKIP and item 4 had to
+share one guest. **It is a 25-second `clonevm` from the template, done at least
+five times already.** The SKIP was never blocked on a rig; it was blocked on
+nobody running a STAND-ALONE install on a fresh one. Running item 4a's runbook
+SPENDS a clone, because its step 2 ticks `sshremote` — so the two tasks need two
+clones, not one.
+
+***THE PATTERN ACROSS PARTS 2 AND 3 IS ONE PATTERN.*** Both were entries stating
+facts that were true when written and had since been made false - by the
+project's own installer in one case, by ordinary VM housekeeping in the other -
+and both survived a checker whose phases only compare status words. **A rig is
+state, not documentation: read it off `VBoxManage`, not off this file.**
