@@ -30811,3 +30811,68 @@ facts that were true when written and had since been made false - by the
 project's own installer in one case, by ordinary VM housekeeping in the other -
 and both survived a checker whose phases only compare status words. **A rig is
 state, not documentation: read it off `VBoxManage`, not off this file.**
+
+## 26 Aug 2026 — Phase 3, and what it cost to make it precise enough to be worth running
+
+**SIXTIETH SESSION, part 4.** Owner: *"build the checker."*
+`check-stale-leads.py` gains a third phase for the fault parts 2 and 3 found —
+an entry that records a person SEEING something and later denies anyone has.
+
+***IT FOUND A BUG IN THE EXISTING CHECKER ON ITS FIRST RUN.*** START HERE items
+were never bounded: a `> ### N.` item's range ran to the next such item, and the
+LAST one has none, so it ran into section 7 — **item 5 was reported holding 110
+observation lines and a denial 5,800 lines outside itself.** Phase 1 had
+survived this by luck, because it only asks which status word comes FIRST.
+Fixing it by hand then failed AGAIN: bounding START HERE at the next `## `
+still let item 5 run 1,200 lines past itself, because the heading that ends it
+is inside the blockquote and reads `> ##`. ***Three of the same fault is what
+made it general*** — one `bound()`, and every heading is a boundary.
+
+***THE PRECISION WORK IS THE REAL STORY, AND THE FIRST CUT WAS USELESS.***
+Co-occurrence of "an observation" and "a denial" reported **8 entries on a
+clean file, every one legitimate**. Three rounds, each measured:
+
+| | hits | what changed |
+|---|---|---|
+| first cut | 8 | denial + observation anywhere in one entry |
+| quoted/struck spans blanked | 7 | *quoting* a denial is not making one |
+| **denials about SEEING only** | 2 | dropped "nothing has run it" — see below |
+| wrapped quotations, banner form | **0** | a quote that breaks across lines; `UNSEEN:` case-sensitive |
+
+***SEEING IS THE DISCRIMINATOR AND IT IS NOT A TRICK TO FIT ONE CASE.***
+Anything that RUNS leaves a transcript, an exit code and a PASS count, so "has
+it run" is answered by evidence and phases 1 and 2 already police it. **The
+only claims that cannot be settled that way are the ones a person has to look
+at** — a wizard page, a dialog's wrapping, whether a checkbox appeared. That is
+where "nobody has looked" gets written and where it rots in silence, because
+looking leaves no artefact. Every false hit dropped was of the form *"nothing
+has run it"*, where "it" is genuinely un-run and no regex can tell it is a
+different subject.
+
+***THE MUST-CATCH FIXTURE IS ITEM 5's OWN WITHDRAWN WORDING***, restored
+verbatim into a copy. Five new cases: the real claim caught, the bare `UNSEEN:`
+banner caught, and three that must NOT fire — a quoted denial, past-tense
+prose, and a denial with no observation. **13 of 13**, and ***the two
+must-catch rows were watched going RED with the phase disabled*** before being
+restored. The three negative rows stay green against a dead phase, which is
+exactly why the must-catch pair is the load-bearing half.
+
+***AND IT REPORTS ZERO ON THIS FILE, WHICH IS ONLY MEANINGFUL BECAUSE IT SAYS
+WHY:*** the null-case guard prints 6 observation lines and 2 denial lines, so a
+clean zero cannot be a pattern that matches nothing.
+
+***THE LIMIT IS IN THE DOCSTRING, BECAUSE IT IS THE IMPORTANT PART.*** All
+three phases compare this file against ITSELF. Part 3's stale facts —
+*"guest is still running"*, *"never had OpenSSH"* — were consistent on the page
+and false against VirtualBox. **A rig is state; read it off `VBoxManage`.** No
+checker over a document can know that.
+
+***ONE SELF-INFLICTED DETOUR WORTH RECORDING.*** Two edits to this file were
+attempted through an inline heredoc containing regex backslashes, against
+CLAUDE.md's hard rule. The shell and Python each ate a layer: an anchor failed
+to match and `\d` raised a SyntaxWarning. **The rule is not about heredoc
+quoting, it is about backslashes** — the editing tools have no escaping layer
+and were what finished the job. A second slip in the same session:
+`a, b = starts[k], bound(a, ...)` reads `a` from the PREVIOUS iteration,
+because a tuple's right-hand side is evaluated in full before any binding.
+`py_compile` passes it happily.

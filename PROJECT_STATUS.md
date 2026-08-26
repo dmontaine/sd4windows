@@ -1193,11 +1193,15 @@ the measurement. Nothing was judged on it.
 > **Look at both pages at the next stand-alone cycle and write down what you
 > saw**, which is the step that was missed last time rather than the looking.
 >
-> ***AND `check-stale-leads.py` DOES NOT CATCH THIS SHAPE.*** It compares
-> open-words against closed-words; this was an entry contradicting itself on a
-> matter of FACT, with no status word involved on either side. See the note in
-> §0 — an entry that records an observation and then denies it is a defect the
-> current checker is blind to.
+> ***IT NOW HAS A CHECKER — `check-stale-leads.py` PHASE 3, BUILT 26 Aug 2026
+> ON THE OWNER'S INSTRUCTION.*** Phases 1 and 2 compare status words and this
+> fault has none, so the entry scored clean while contradicting itself. Phase 3
+> pairs a record of a person **SEEING** something against a later denial that
+> anyone has. ***Its must-catch fixture is this entry's own withdrawn wording***,
+> restored verbatim into a copy — **13 of 13** in `test-staleleads-units.py`,
+> and the two must-catch rows were watched going **RED** with the phase
+> disabled. It reports **0** on this file, with the null-case guard printing 6
+> observation and 2 denial lines so a clean zero is not a silent one.
 >
 > ***STILL TO DECIDE — ONE THING, AND IT IS A SECURITY DECISION:***
 >
