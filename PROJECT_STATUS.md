@@ -805,6 +805,44 @@ the measurement. Nothing was judged on it.
 > session's one-line change could have caused, and it has only been reasoned
 > about, never seen.
 >
+> ***PRECONDITION FOUND BY RUNNING IT, 25 Aug 2026 23:47: THE GUEST MUST BE ON
+> A **PRIVATE** NETWORK PROFILE, OR EVERY LEG OF THIS TEST IS MEANINGLESS.***
+>
+> The first host dial, `-Expect Open` with the rule at `RemoteAddress=Any` and
+> `probe-sshfirewall` reporting PASSED on the guest, **did not connect**. It was
+> not the ssh rule:
+>
+> | from the host, to 10.0.0.143 | |
+> |---|---|
+> | ARP | **resolves**, `08-00-27-AE-CE-7C` — the clone's own MAC, so layer 2 is fine |
+> | route | via **Wi-Fi 10.0.0.3**, the bridged adapter and the only one up |
+> | ICMP | no reply |
+> | ports 22, 135, 445, 3389, 5985 | ***all dropped*** |
+>
+> **Everything inbound is dropped, not just 22**, which is a machine-wide block.
+> SD's rule reads `Profile: Private` — and **SD never sets that**, it only
+> reports it (`ssh-firewall.ps1` has no profile assignment), so it is
+> OpenSSH's. On a guest whose connection is categorised **Public**, a
+> Private-profile rule does not apply at all.
+>
+> ***AND THIS IS PRECISELY THE FALSE GREEN THE CONTROL EXISTS TO CATCH.*** Run
+> the `Blocked` leg on this guest and it PASSES — on a machine that refuses
+> everything from everybody, having measured nothing about SD. The whole
+> project's null-case rule in one reading. **Never take the `Blocked` leg
+> without the `Open` leg passing first on the same guest.**
+>
+> **Check on the guest, elevated:** `Get-NetConnectionProfile`. If
+> `NetworkCategory` is `Public`,
+> `Set-NetConnectionProfile -InterfaceIndex <n> -NetworkCategory Private`.
+>
+> ***A SECOND, SMALLER OBSERVATION WORTH KEEPING.*** If the rule really is
+> Private-only wherever OpenSSH creates it, then on a **Public** network
+> `sshremote` ticked admits nobody, while the closing dialog says *"other
+> computers MAY reach this machine over ssh"*. Not measured beyond this guest,
+> and **not to be written up as a defect until somebody checks what profile
+> OpenSSH's rule carries on a fresh install** — but it is the kind of promise
+> §7 step 3 has caught being false three times.
+>
 > | # | on | do | expect |
 > |---|---|---|---|
 > | 1 | host | start `sshRemoteTest-C1` | it comes up at **10.0.0.143** |

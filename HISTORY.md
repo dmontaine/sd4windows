@@ -30484,3 +30484,43 @@ back for the Open leg. **Item 4 asks whether a rule reading `127.0.0.1` blocks a
 remote machine — that is FIREWALL behaviour, not installer behaviour**, and the
 installer path was already proven on three guests on 25 Aug. Toggling the rule
 is the right instrument; a reinstall would test something already known.
+
+## 25 Aug 2026, 23:47 — The Open leg failed, and that is the control working exactly as designed
+
+**FIFTY-NINTH SESSION, part 18.** With the guest in the Open state — rule at
+`RemoteAddress=Any`, `probe-sshfirewall.ps1 -Expect Open` **PASSED** on the
+guest at 23:44:15 — the host dial **did not connect**.
+
+***IT IS NOT THE ssh RULE, AND THE DIAGNOSIS TOOK FOUR READINGS:***
+
+| from the host to 10.0.0.143 | |
+|---|---|
+| ARP | **resolves**, `08-00-27-AE-CE-7C` — the clone's own MAC, so layer 2 works |
+| route | via **Wi-Fi 10.0.0.3**, the bridged adapter, and the only host NIC up |
+| ICMP | no reply |
+| ports 22, 135, 445, 3389, 5985 | ***every one dropped*** |
+
+**Everything inbound is dropped, not only 22** — a machine-wide block. The
+guest's connection is categorised **Public** and SD's rule reads
+`Profile: Private`; a Private-profile rule does not apply on a Public network.
+**SD does not set that profile** — `ssh-firewall.ps1` contains no profile
+assignment, only a read at :74 — so it is OpenSSH's.
+
+***THIS IS THE FALSE GREEN THE CONTROL EXISTS TO CATCH, AND IT WAS ONE COMMAND
+AWAY.*** The plan at that moment was to take the `Blocked` leg first, because
+the guest happened to be in the restricted state. **On this guest the `Blocked`
+leg PASSES** — every port is refused from everybody — and it would have been
+recorded as "the ssh scoping blocks a remote machine", the §5.9 claim that has
+been outstanding since 13 Aug, **having measured nothing whatsoever.**
+
+**The rule earned, and it is now a precondition in the runbook: never take the
+`Blocked` leg until the `Open` leg has passed FROM THE HOST on the same guest.**
+`probe-sshfirewall.ps1` passing on the guest is not that witness — it dials
+loopback, which is exactly the gap item 4 exists to close.
+
+***A SECOND, SMALLER OBSERVATION, DELIBERATELY NOT WRITTEN UP AS A DEFECT.***
+If OpenSSH's rule is Private-only wherever it is created, then on a **Public**
+network `sshremote` ticked admits nobody while the closing dialog promises
+*"other computers MAY reach this machine over ssh"*. That is the shape §7 step 3
+has caught three times — but **what profile OpenSSH's rule carries on a fresh
+install has not been measured**, so it stays a lead.
