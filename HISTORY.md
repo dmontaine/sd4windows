@@ -30969,3 +30969,39 @@ rebooting; they find nothing the second time.
 needed to catch this was ON SCREEN and correct. What failed was the closing
 sentence, which is the only line anyone reads. A verdict that contradicts the
 instrument above it is worse than no verdict.
+
+## 26 Aug 2026 — Step 18 is closed. The development phase has one row left.
+
+**SIXTIETH SESSION, part 7.** Two runs of `cleanup-devlitter.ps1` either side of
+a reboot, by the owner, elevated. **Read back independently afterwards rather
+than taken off the transcript.**
+
+| | before | after |
+|---|---|---|
+| `C:\Users` `sd*` directories | 30 | **0** |
+| `sd*` `ProfileList` entries | 77 | **0** |
+| local `sd*` users | 8 | **0** |
+| `sdu_` groups | 8 + 2 | **`sdu_don`, `sdu_test1`** only |
+| `sd*` in the home directory | 28 | **`sdout`** only |
+| the VM clone | present | gone |
+
+***NOTHING WAS OVER-DELETED.*** All five real SD groups — `sdadmins`, `sdapi`,
+`sdssh`, `sdsshonly`, `sdusers` — present, and so are `don` and `test1`. The
+blast-radius argument held on a real run: **the pattern is what protected them**,
+and requiring a run suffix is what makes bare `sdapi` and `sdssh` unmatchable.
+
+***RUN 1 CLEARED EVERYTHING BUT THE 30 LOADED PROFILES; RUN 2, AFTER A REBOOT,
+TOOK THOSE.*** Run 1 also removed the **47 stale `ProfileList` entries** that no
+survey before this morning had counted. Two runs and a reboot is the normal
+shape, not a fault, and `-List` now says so before anything is deleted.
+
+***THE ENTRY IS KEPT RATHER THAN ARCHIVED, DELIBERATELY.*** The piles return the
+moment testing resumes — the leak fixes stop them GROWING, not appearing — so
+`cleanup-devlitter.ps1` is a standing tool, not a one-off.
+
+***WHAT IS LEFT OF THE DEVELOPMENT PHASE: H.5, AND IT IS ONE CLONE AND ONE
+WIZARD.*** The security question is answered (the preflight still refuses). What
+remains is the SKIP — a stand-alone install on a machine that never had OpenSSH,
+which is a 25-second `clonevm` from the template — and writing down what the
+mode and tasks pages look like. **H.2 is the phase after 1.0-0**, and carries one
+open decision: which interpreter the documentation toolchain targets.

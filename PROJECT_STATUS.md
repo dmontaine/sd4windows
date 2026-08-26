@@ -71,7 +71,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
 | ✅ | **H.4a** | **The ssh remote-block RUNBOOK — run and passed.** Kept for the next guest: item 5's SKIP wants the same rig. ***The `Open` leg must run FIRST***, and the precondition is a **Private** network profile on the guest | 25 Aug 2026 |
 | ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** ***The security question is ANSWERED — the preflight still refuses, 26 Aug, no code change.*** Open: that one SKIP, and **what the mode and tasks pages LOOKED like** (the page itself has been used — he chose stand-alone on it) | partly |
-| ⬜ | **7.18** | ***THE LAST DEVELOPMENT TASK: CLEAN UP.*** Leaks FIXED in source; **NOTHING DELETED YET.** ***The pass is now ONE elevated command — `cleanup-devlitter.ps1 -IncludeVM`.*** 8 users + 8 groups, 30 profile dirs **+ 47 stale `ProfileList` entries nothing had counted**, ~25 home items, and the spent clone. **`sdout` is kept.** (a), (e) and all three cleanup decisions are answered in the entry | — |
+| ✅ | **7.18** | ***THE LAST DEVELOPMENT TASK — CLEAN UP. DONE.*** Two runs of `cleanup-devlitter.ps1` either side of a reboot: **0 profile dirs, 0 `ProfileList` entries, 0 `sd*` users, only `sdout` in `~`, clone gone** — read back independently. **Nothing over-deleted**: the five real SD groups, `don` and `test1` all present | 26 Aug 2026 |
 
 **Legend** — ✅ closed and verified · ◐ **partly**: some parts closed,
 some open, and the row says which · ⬜ open · ➖ removed or superseded,
@@ -93,12 +93,13 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 > ## NEXT SESSION: NOTHING IS BROKEN AND NOTHING IS HALF-DONE.
 >
-> ***THREE ROWS ARE OPEN AND THAT IS THE WHOLE LIST — the table above is the
-> authority, not this box.***
+> ***TWO ROWS ARE OPEN AND ONE OF THEM IS NOT DEVELOPMENT — the table above
+> is the authority, not this box.*** **7.18 closed 26 Aug 2026**, so the
+> development phase comes down to **H.5**; **H.2** is the phase after 1.0-0.
 >
 > | | |
 > |---|---|
-> | **7.18** | **cleanup, the last development task.** ***Leaks fixed in source, NOTHING DELETED, and the pass is now ONE command:*** `cleanup-devlitter.ps1 -IncludeVM`, elevated, after the guest work. Run `-List` first. 8 users + 8 groups, 30 profile dirs **and 47 stale `ProfileList` entries the survey never counted**, ~25 home items, and the spent clone |
+> | ~~**7.18**~~ | ***CLOSED 26 Aug 2026.*** Cleanup done and verified on the machine: 0 profile dirs, 0 `ProfileList` entries, 0 `sd*` users, only `sdout` in `~`, clone gone, and the five real SD groups untouched. **`cleanup-devlitter.ps1` is kept — the piles come back the moment testing resumes** |
 > | **H.5** | stand-alone: **one SKIP**, and **what the mode and tasks pages looked like** (the page has been used — not unseen). ***The security question is answered: the preflight still refuses.*** Both remaining halves need one fresh clone and a person at the wizard |
 > | **H.2** | documentation — **approved, scoped, and starts AFTER 1.0-0 by his instruction.** The gate is now empty, so this is a decision he can take |
 >
@@ -10545,16 +10546,33 @@ the staging script and the Inno installer were all finished and removed.
     cannot be killed by `Stop-Process` or `taskkill /F` from an ordinary token;
     clearing one costs an elevation. That session lost five windows to it.
 
-18. ***OPEN — THE LAST TASK OF THE DEVELOPMENT PHASE. CLEAN UP AFTER
-    DEVELOPMENT.*** Owner, 26 Aug 2026. **Nothing has been DELETED**; the
-    survey below was taken that day and every count is a real reading, not an
-    estimate.
+18. ***CLOSED 26 Aug 2026, SIXTIETH SESSION — THE LAST TASK OF THE DEVELOPMENT
+    PHASE IS DONE, AND VERIFIED ON THE MACHINE RATHER THAN OFF THE
+    TRANSCRIPT.*** Two runs of `cleanup-devlitter.ps1` either side of a reboot,
+    by the owner, elevated.
 
-    ***THE THREE LEAKS ARE NOW FIXED IN SOURCE. THE DELETING IS STILL TO DO,
-    AND STILL RUNS LAST.*** 26 Aug 2026, sixtieth session. Nothing was removed
-    from the machine — the fixes stop the piles GROWING, so the one cleanup
-    pass at the end is not immediately undone. All four scripts are on
-    `$neverShipped`, so none of this owes a cycle.
+    | read back independently | |
+    |---|---|
+    | `C:\Users` `sd*` directories | **0** (was 30) |
+    | `sd*` `ProfileList` entries | **0** (was 77) |
+    | local `sd*` users | **0** (was 8) |
+    | `sdu_` groups | **`sdu_don`, `sdu_test1`** — the two real ones, and only those |
+    | `sd*` in the home directory | **`sdout`**, and only `sdout` |
+    | VMs | `Beardog` and `Windows 11 - Template`. The clone is gone |
+
+    ***NOTHING WAS OVER-DELETED, WHICH IS THE HALF WORTH CHECKING.*** All five
+    real SD groups — `sdadmins`, `sdapi`, `sdssh`, `sdsshonly`, `sdusers` —
+    are present, as are the accounts `don` and `test1`. The blast radius held.
+
+    ***IT TOOK TWO RUNS AND A REBOOT, AND THAT IS THE NORMAL SHAPE.***
+    Run 1 cleared the accounts, groups, home directory, VM and **47 stale
+    `ProfileList` entries**, then skipped 30 profiles whose hives were loaded.
+    Reboot. Run 2 removed those 30 and reported *"done - every section reached
+    zero."* **The reasoning below is kept because the piles will return the
+    moment testing resumes** — the leak fixes stop them growing, not appearing.
+
+    ***THE THREE LEAKS WERE FIXED IN SOURCE FIRST, WHICH IS WHY THIS STUCK.***
+    All five scripts are on `$neverShipped`, so none of it owed a cycle.
 
     ***AND THE DELETING IS NOW ONE COMMAND —
     [cleanup-devlitter.ps1](sdb_ai/sd64/gplbld/cleanup-devlitter.ps1), written
