@@ -216,12 +216,14 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > Working tree
 > `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`, branch
 > `main`, remote `origin` set to `git@github.com:dmontaine/SDCoreWindowsDocs.git`.
-> **14 pages plus the review list, 16 tracked files, three commits, head
-> `b71aa2a`.** A copy is also on the P drive.
+> **14 pages plus the review list, 16 tracked files, four commits, head
+> `af9b37f`, pushed.** A copy is also on the P drive — **taken before the last
+> three pages existed, so it is stale.**
 >
-> ***IT HAS NOT BEEN PUSHED.*** `git ls-remote origin` returned **no refs** on
-> 26 Aug 2026, so the GitHub side is still empty and the first push is
-> `git push -u origin main` with nothing to reconcile.
+> ***THE PAGES ARE NUMBERED `00`–`13`, FLAT, AND THAT IS LOAD-BEARING.*** They
+> were briefly `01a`/`01b`/`06a` and it put them in a different order in
+> Explorer than in the renderer — §6's hyphen-collation trap. **Do not
+> reintroduce a letter suffix to avoid a rename.**
 >
 > ***A CAUTION IN THIS FILE SAYING "DO NOT `git init` THAT FOLDER" WAS WRONG AND
 > IS STRUCK*** — written a few minutes before he did it, on the belief that a
@@ -3999,6 +4001,28 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- ***WINDOWS AND PYTHON DISAGREE ABOUT WHERE A HYPHEN SORTS, SO A FILE CAN BE
+  LISTED IN ONE ORDER BY EXPLORER AND ANOTHER BY A BUILD SCRIPT.*** 26 Aug
+  2026, the documentation set. **Explorer's collation ignores the hyphen**, so
+  `01a-first-run` sorts **before** `01-installation`. **Python's `sorted()`
+  compares bytes**, where `-` is `0x2D` and `a` is `0x61`, so it sorts
+  **after**.
+
+  **What it cost:** three new pages were rendered by `mkdoc.py` in the intended
+  reading order and listed by the folder in a different one — the walkthrough
+  above the installation page it was written to follow. The owner looked in the
+  folder, did not find them, and reported them missing. **They had been there
+  and pushed for an hour.**
+
+  ***THE FIX IS NOT TO PICK A SORT — IT IS TO USE NAMES THAT CANNOT DISAGREE.***
+  A flat `00`–`13` with no letter suffixes sorts identically under both rules.
+  **Anywhere an ordering is user-visible AND consumed by a script, check it in
+  both**: `Get-ChildItem | Sort-Object Name` and the script's own listing.
+
+  **`stage.py` and the mirror walks sort file names too.** Nothing has gone
+  wrong there — the names in play are unambiguous — but the same discrepancy is
+  latent wherever a name mixes `-` with a letter at the same position.
 
 - ***PIPING A COMMAND INTO `sd` HANGS THE SESSION AND LEAVES A STRAY PROCESS.
   `echo WHO | sd` IS THE ONE THAT KEEPS BEING TYPED, AND IT LOOKS LIKE
