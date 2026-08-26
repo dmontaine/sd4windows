@@ -211,13 +211,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > reversal and what the old ruling was protecting against. ***That rule stays
 > in force for `sd4windows`***; it simply does not travel.
 >
-> ***THE SET IS ALREADY A LOCAL GIT REPOSITORY, COMMITTED, AND THAT IS THE
-> STATE TO PICK UP.*** He ran `git init` on
-> `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs` on 26 Aug
-> 2026; the initial commit is **`b79d251`**, 13 files, on branch `main`. He also
-> has a copy on the P drive. **The GitHub repository does not exist yet** — he
-> creates it 27 Aug, and the local history pushes into it with
-> `git remote add` + `git push -u origin main`.
+> ***THE DOCUMENTATION REPOSITORY IS
+> [github.com/dmontaine/SDCoreWindowsDocs](https://github.com/dmontaine/SDCoreWindowsDocs).***
+> Working tree
+> `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`, branch
+> `main`, remote `origin` set to `git@github.com:dmontaine/SDCoreWindowsDocs.git`.
+> **14 pages plus the review list, 16 tracked files, three commits, head
+> `b71aa2a`.** A copy is also on the P drive.
+>
+> ***IT HAS NOT BEEN PUSHED.*** `git ls-remote origin` returned **no refs** on
+> 26 Aug 2026, so the GitHub side is still empty and the first push is
+> `git push -u origin main` with nothing to reconcile.
 >
 > ***A CAUTION IN THIS FILE SAYING "DO NOT `git init` THAT FOLDER" WAS WRONG AND
 > IS STRUCK*** — written a few minutes before he did it, on the belief that a
@@ -432,13 +436,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > alongside their Markdown. **Nothing about `sd4windows` changes: no binary
 > becomes trackable here.**
 >
-> ***STATE ON THE NIGHT OF 26 Aug 2026:*** the **GitHub** repository does not
-> exist yet — he creates it on the 27th. **The folder is already a local git
-> repository**, initial commit `b79d251` on `main`, with a copy on the P drive
-> as well. It pushes into the GitHub one with `git remote add` +
-> `git push -u origin main`; ***create the GitHub repository EMPTY***, because a
-> README or licence there makes the histories unrelated and the push is
-> refused.
+> ***THE REPOSITORY IS
+> [github.com/dmontaine/SDCoreWindowsDocs](https://github.com/dmontaine/SDCoreWindowsDocs)***,
+> created 26 Aug 2026 and **created empty**, which is what the first push
+> needed. Working tree
+> `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`, `origin` set,
+> head `b71aa2a`, **not yet pushed**.
 >
 > ***THE MARKDOWN IS TRACKED AND THE GENERATED `.html`/`.pdf` ARE NOT***, which
 > is not a ruling — it is the reversible direction, since tracked-then-ignored
