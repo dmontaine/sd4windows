@@ -10574,6 +10574,38 @@ the staging script and the Inno installer were all finished and removed.
     | 4 | the home directory, `sd*` minus `sdout` |
     | 5 | `sshRemoteTest-C1`, only with `-IncludeVM`, and it refuses a RUNNING VM |
 
+    ***IT NEEDS A REBOOT BETWEEN THE ACCOUNTS AND THE PROFILES, AND THAT IS THE
+    NORMAL CASE RATHER THAN AN EDGE ONE.*** A profile cannot be removed while
+    its registry hive is loaded, and after a suite run **every** hive still is:
+    **35 of 35 on 24 Aug, 30 of 30 on 26 Aug.** So the first run clears the
+    accounts, groups, home directory and VM, section [3] skips all 30 as STUCK
+    HIVE, and the run exits 1 having done four fifths of the job.
+
+    **Run it, reboot, run it again.** Sections 1, 2, 4 and 5 are not undone by
+    the reboot — they simply find nothing the second time. `-List` now counts
+    the loaded hives and says so **before** anything is deleted, which is the
+    part that had to be learned by doing it twice.
+
+    ***THE FIRST REAL RUN, 26 Aug 2026, AND THE DEFECT IT EXPOSED.*** It
+    removed **8 users, 8 groups, 27 home items, the VM, and 47 stale
+    `ProfileList` entries** — then printed ***`cleanup-devlitter: done.`***
+    three lines under its own summary reading ***`profiles matching : 77 ->
+    30`***. **Exit 0, with 30 profiles left.**
+
+    ***THE CAUSE WAS IN THE SWEEP, NOT THE CALLER.***
+    `clean-test-profiles.ps1`'s stuck-hive `exit 1` sat INSIDE
+    `if ($targets.Count -eq 0)`, so it fired only when **nothing** was
+    removable. Given a mix — 47 removable, 30 stuck — it removed the 47,
+    reported *"removed 47, failed 0"* (true), and exited 0. The caller believed
+    the exit code over its own AFTER counts.
+
+    ***BOTH ENDS ARE FIXED AND THE FIXES ARE INDEPENDENT.*** The sweep now
+    exits 1 whenever a stuck hive remains, whatever else succeeded; and
+    `cleanup-devlitter` judges on `$pAfter` rather than on the exit code it was
+    handed. ***SKIPPED IS NOT DONE*** — and an instrument that prints the
+    disagreement and then contradicts it in its closing line is worse than one
+    that prints nothing, because the closing line is what gets read.
+
     ***ACCOUNTS BEFORE PROFILES, AND THAT ORDER IS THE POINT.***
     `clean-test-profiles.ps1` refuses a profile whose SID still has a local
     account — deliberately, so it only ever touches orphans. That is what left

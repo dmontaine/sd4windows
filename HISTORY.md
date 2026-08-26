@@ -30924,3 +30924,48 @@ thing a future edit trips over.
 H.5: clone the template, install **stand-alone** on it, look at the mode and
 tasks pages **and write down what you saw**, run `verify-standalone.ps1`.
 Both need an elevated shell; H.5 also needs a person at the wizard.
+
+## 26 Aug 2026 — The cleanup ran, worked, and said "done" over 30 profiles it had skipped
+
+**SIXTIETH SESSION, part 6.** First real run of `cleanup-devlitter.ps1 -IncludeVM`,
+by the owner, elevated. It did most of the job and then lied about the rest.
+
+***WHAT IT REMOVED:*** 8 Windows users, 8 `sdu_` groups, 27 home items, the
+`sshRemoteTest-C1` clone, and — via the sweep — ***all 47 stale `ProfileList`
+entries***, the pile nothing had counted before this morning. `sdout` untouched.
+
+***WHAT IT THEN PRINTED:***
+
+```
+  profiles matching    : 77 -> 30
+cleanup-devlitter: done.
+```
+
+**Exit 0, three lines under its own summary saying 30 remained.**
+
+***THE CAUSE WAS THE SWEEP'S EXIT CODE, NOT THE CALLER.***
+`clean-test-profiles.ps1` refuses a profile whose registry hive is loaded — a
+profile cannot be removed while it is — and its `exit 1` for that case sat
+INSIDE `if ($targets.Count -eq 0)`. So it only ever fired when **nothing** was
+removable. This machine had both kinds: 47 whose directories were long gone and
+30 whose hives were loaded. It removed the 47, printed *"removed 47, failed 0"*
+— true, and about the removals ATTEMPTED — and exited 0. Nothing accounted for
+the 30 never attempted.
+
+***AND THE CALLER BELIEVED THE EXIT CODE OVER ITS OWN NUMBERS.***
+`cleanup-devlitter` had already computed `77 -> 30` and printed it, then took
+`$LASTEXITCODE = 0` as the verdict.
+
+***BOTH ENDS FIXED, INDEPENDENTLY.*** The sweep exits 1 whenever a stuck hive
+remains, whatever else succeeded. The caller judges on `$pAfter`, so it does not
+depend on the other fix being right. **SKIPPED IS NOT DONE.**
+
+***AND THE REBOOT IS NOW SAID UP FRONT.*** A loaded hive is the NORMAL state
+after a suite run — 35 of 35 on 24 Aug, 30 of 30 on 26 Aug — so `-List` counts
+them before anything is deleted. Sections 1, 2, 4 and 5 are not undone by
+rebooting; they find nothing the second time.
+
+***THE LESSON IS THE ONE §0 ALREADY CARRIES, IN A NEW PLACE.*** Every count
+needed to catch this was ON SCREEN and correct. What failed was the closing
+sentence, which is the only line anyone reads. A verdict that contradicts the
+instrument above it is worse than no verdict.
