@@ -5,15 +5,15 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, **end of the fifty-seventh session**, handed off at a clean boundary: **11 commits, working tree clean, nothing half-done, and the suite green.**
+**Last updated:** 25 Aug 2026, **end of the fifty-eighth session**: VFS is stripped from the C and the BASIC, and **the tree is STALE and owes ONE full cycle.**
 
-***THE TREE IS CURRENT AND THE WHOLE SUITE IS GREEN: 31/31 STEPS, ZERO FAILURES, ON THE 17:17:57 INSTALL.*** That reverses the sentence that stood here for two sessions. `assert-current` is clean on every section, so **every verifier will run**; item 1 has the identifiers and what the run does *not* cover.
+***THE TREE IS STALE. `sd.exe` WAS RELINKED AND NOTHING HAS BEEN INSTALLED SINCE, SO `assert-current` CHECK A WILL FAIL AND EVERY VERIFIER WILL REFUSE.*** One full `cycle.ps1` clears it. The 17:17:57 install was green 31/31 (item 1, kept as the record) and **that install is the one this session superseded** - do not read item 1 as describing what is on the machine now.
 
 ***WHAT IS BUILT AND VERIFIED:*** the stand-alone **wizard page and all the behaviour behind it** — the mode page, a second `sd.conf` with no `APIPORT`, every ssh and firewall step gated, the `sdsys\$standalone` marker, and `CREATEA` refusing `create.account user` with sysmsg 10100. `apiremote` is now opt-in, matching `sshremote`.
 
 ***WHAT IS BUILT AND STILL UNRUN — and it is now a SHORT list:*** the **upgrade path** (all of it gated on `DataTreeUpgrade`, and this was a first install, so none of it executed — item 3), and the **stand-alone install itself**, because the suite has no step that chooses it: all 31 steps ran the full installation. Building it broke nothing; none of its behaviour has been exercised on a machine.
 
-**Decided, not built:** documentation starts AFTER 1.0-0 on the owner's instruction (item 2). **Stripping VFS from the C** is agreed, scoped and deliberately not started (item 3a) — it goes after this, and it earns an `UPSTREAM_FIXES.md` entry.
+**Decided, not built:** documentation starts AFTER 1.0-0 on the owner's instruction (item 2). **VFS removal (item 3a) is DONE** - `make sd` clean with zero warnings, `cycle.ps1 -SkipInstall` clean, `UPSTREAM_FIXES.md` entry 15 written. **It owes the full cycle.**
 
 **One question is still the owner's:** whether the ssh preflight should still refuse on a stand-alone install (item 5). It is not a one-line change either way — the preflight runs in `InitializeSetup`, before the wizard exists.
 
@@ -21,17 +21,31 @@ something came to be the way it is.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT SESSION: NOTHING IS BROKEN, AND ITEM 1 IS ALREADY DONE.
+> ## NEXT SESSION: NOTHING IS BROKEN, BUT THE TREE OWES ONE FULL CYCLE.
 >
-> **The suite is green — 31/31, zero failures, on the 17:17:57 install of
-> 25 Aug 2026.** Item 1 is kept below as the record, not as work.
+> **VFS removal (item 3a) landed and the C was rebuilt.** `-SkipInstall` is
+> clean; nothing has been installed since, so `assert-current` fails Check A
+> and **every verifier refuses until a cycle runs**. That cycle is the first
+> thing to do, and it needs a person at the wizard:
 >
-> ***THE LIVE WORK IS 3, 3a AND 5***, in whichever order suits: the upgrade path
-> needs a guest that already has SD; VFS removal is agreed and scoped and comes
-> after this session's work is proven; and item 5 has one open question that is
-> the owner's to answer. **Item 2 does not start until 1.0-0.**
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
 >
-> ### 1. DONE — 25 Aug 2026, THE 17:17:57 INSTALL. 31/31 STEPS, ZERO FAILURES.
+> **Then the suite**, from an ordinary terminal, with a fresh `-Run` prefix
+> (`b41` is spent; use `b42`). Item 1 has the shape of a green run to compare
+> against, and its warning about `-Run` doing nothing without `-ThenElevated`.
+>
+> ***THE LIVE WORK AFTER THAT IS 3 AND 5***: the upgrade path needs a guest
+> that already has SD, and item 5 has one open question that is the owner's to
+> answer. **Item 2 does not start until 1.0-0.** Item 3a has two adjacent
+> findings that need a ruling and are named there.
+>
+> ### 1. THE RECORD OF A GREEN RUN — 25 Aug 2026, THE 17:17:57 INSTALL. 31/31, ZERO FAILURES.
+>
+> ***SUPERSEDED AS A DESCRIPTION OF THE MACHINE: the fifty-eighth session
+> relinked `sd.exe` and did not install.*** Kept because it is what a green
+> run looks like, and the next cycle is measured against it.
 >
 > ***THE FULL CYCLE AND THE WHOLE SUITE ARE GREEN ON THE FIFTY-SEVENTH
 > SESSION'S WORK.*** Nothing here is outstanding. It is kept as the record of
@@ -196,7 +210,42 @@ something came to be the way it is.
 > only `%0`/`%1` and reads as an empty dictionary — do not draw that conclusion
 > from a directory listing.
 >
-> ### 3a. STRIP VFS FROM THE C — AGREED 25 Aug 2026, DELIBERATELY NOT STARTED
+> ### 3a. STRIP VFS FROM THE C — DONE 25 Aug 2026. OWES THE FULL CYCLE.
+>
+> ***THE WORK IS MADE AND BUILT. WHAT IS OUTSTANDING IS THE CYCLE***, which is
+> the same cycle the whole tree owes. 13 C sites across 8 files, 9 BASIC edits
+> across 4 files, `SYSCOM/ERR.H` and `GPL.BP/ERRTEXT.H` regenerated by
+> `gen_includes.py`, `UPSTREAM_FIXES.md` **entry 15** written. HISTORY.md,
+> "Fifty-eighth session", carries the measurements.
+>
+> | | |
+> |---|---|
+> | `make sd` | after `rm -f gplobj/*.o`. 84 files, exit 0, **zero warnings** under `-Wall -Wformat=2` |
+> | `cycle.ps1 -SkipInstall` | 18:08:26, exit 0. 183 `0 error(s)`, **zero** non-zero. Staged tree whole. Installer 4,819,689 bytes |
+> | the 6 compile WARNINGs | **byte-identical to the 17:17 green run's.** None introduced |
+> | `_VOC_REF` | proven *running*, not just compiling: it resolves every VOC file reference, so the bootstrap's 183 compiles are that edited control flow executing |
+> | retired, not freed | `DHF_VFS` 0x40, `PF_IS_VFS` 0x00200000, and errors 3038-3040. Comments stand where the `#define`s were |
+> | left alone, per the ruling | `gplsrc/sdclilib/err.h` — the shipped client library's public header |
+>
+> ***TWO ADJACENT FINDINGS, NEITHER ACTED ON, BOTH NEEDING A RULING.***
+>
+> 1. **`GPL.BP/_EXTENDLIST` is unreachable.** Its description named the VFS as
+>    its caller. `pcode.h` declares `Pcode(extendlist)` so it is loaded by name
+>    at start-up, and **no C source calls `pcode_extendlist`** — control:
+>    `pcode_dellist` is called at `op_dio4.c:137`, so call sites are literal and
+>    the grep does find them. **Not deleted**: that is a pcode-table change
+>    across `pcode.h`, `pcode_bld.py`, `gplbld/COMP_PCODE` and what installs,
+>    which is not the change that was scoped. Its description now says it has no
+>    caller instead of naming one.
+> 2. **`NET_FILE` 4 ([descr.h:318](sdb_ai/sd64/gplsrc/descr.h:318)) is a lone
+>    orphan `#define`** — the only occurrence in this tree's whole `gplsrc`;
+>    upstream has **30**. Left behind by `c893308` *"Remove SDNet"*. Same class
+>    of dead code and the same reasoning as this item, but it is SDNet's
+>    leftover, not VFS's. Found because upstream's `op_dio3.c:493` reads
+>    `(fvar->type != NET_FILE) && (fvar->type != VFS_FILE)` where this tree had
+>    only the VFS half.
+>
+> **THE RECORD OF WHY IT WAS DONE IS BELOW, UNCHANGED.**
 >
 > ***OWNER'S DECISION: DO IT AFTER THE CURRENT TASK***, and *"inform the SD
 > Linux folks if needed by adding to UPSTREAM_FIXES"*. His reason is a standing

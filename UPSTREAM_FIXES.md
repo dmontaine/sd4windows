@@ -1077,3 +1077,115 @@ Windows port, because exercising it needs a real port device; the defect is
 asserted from the signature of `writeport()` and the length of the literal,
 both of which are in the code above. That is weaker evidence than this file's
 other entries and is stated rather than glossed.
+
+---
+
+## 15. The BASIC advertises a virtual file system the C has never implemented, so a `VFS:` file pointer is reported as valid and then fails to open
+
+**Status:** PROPOSED, 25 Aug 2026
+**Affects:** `sd64/gplsrc/descr.h`, `dh.h`, `err.h`, `kernel.c`, `kernel.h`,
+`keys.h`, `op_dio3.c`, `pdump.c`; `sd64/sdsys/GPL.BP/FTYPE`, `_VOC_REF`,
+`_EXTENDLIST`; `sd64/sdsys/BP/VFS.CLS` — `main` and `dev`
+**Severity:** low, and it is a documentation-and-dead-code problem rather than
+a crash. But it misleads: SD tells an administrator that a file pointer is a
+valid virtual file system and then refuses to open it with an unrelated error.
+
+**What is there today.** The BASIC half of SD knows about virtual file
+systems. The C half does not.
+
+| Where | What it says |
+|---|---|
+| `GPL.BP/FTYPE:50` | `if upcase(path[1,4]) = 'VFS:' then return ('VFS')` |
+| `GPL.BP/_VOC_REF` | a branch that skips absolutising a `VFS:` pathname |
+| `SYSCOM/KEYS.H` | `FL$TYPE.VFS 6`, a FILEINFO file type |
+| `SYSCOM/ERR.H` | `ER$VFS.NAME` 3038, `ER$VFS.CLASS` 3039, `ER$VFS.NGLBL` 3040 |
+| `sdsys/BP/VFS.CLS` | a template VFS class module, shipped to every installation |
+| the C open path | ***nothing recognises a `VFS:` pathname at all*** |
+
+`grep -rn 'VFS:' sd64/gplsrc` returns **nothing**. There is no code anywhere in
+the C that looks at the first four characters of a pathname for `VFS:`, no
+handler is ever loaded, and errors 3038-3040 are defined and **never raised** —
+`grep -rn 'ER_VFS_' sd64/gplsrc` finds only the three `#define` lines in
+`err.h`.
+
+**So this is what an administrator sees.** Write a VOC F-pointer whose
+pathname is `VFS:something`, and:
+
+1. `LISTF` reports its type as `VFS`, because `FTYPE` says so.
+2. `_VOC_REF` resolves the name and deliberately leaves the pathname relative,
+   because it believes a VFS handler will interpret it.
+3. `OPEN` then fails in the C with whatever error a directory named `VFS:`
+   produces on the platform — on Linux, a path-not-found.
+
+The first two steps confirm the thing exists. The third denies it. Nothing in
+between says "virtual file systems are not supported", because no code
+believes that.
+
+**The four internal values, and which of them reach disk.** This is the
+question that decides whether the definitions can simply be deleted, and it has
+a different answer for each:
+
+| Value | Where | Persisted? |
+|---|---|---|
+| `VFS_FILE` 5 (`descr.h:318`) | `fvar->type`, the runtime `FILE_VAR` | **No.** And never assigned — `fvar->type` only ever receives `INITIAL_FVAR`, `DIRECTORY_FILE`, `DYNAMIC_FILE`, `SEQ_FILE` or `NET_FILE`. It is read once, at `op_dio3.c:493`, in a guard that cannot fire |
+| `SEL_VFS` 2 (`dh.h:154`) | indexes `select_ftype[]`, an in-memory array | **No.** Never assigned and never compared; the `#define` is its only occurrence in the tree |
+| `DHF_VFS` 0x40 (`dh.h:105`) | **a file-header bit** — `dh.h:98`, *"LS 16 bits come from file header"* | **Yes, in format** — but never set, and excluded from `DHF_CREATE` (0xB8), so no SD build has ever created a file carrying it |
+| `PF_IS_VFS` 0x00200000 (`kernel.h:101`) | **a compiled-object header flag** (`pgm->flags`) | **Yes, in format** — tested at `kernel.c:591`, printed at `pdump.c:227`, and never set: BCOMP has no directive that would set it |
+
+**The fix, and the one rule that goes with it.** Remove the definitions and
+their three uses. The uses are all no-ops:
+
+```c
+/* op_dio3.c - fvar->type is never VFS_FILE, so the last test is always true */
+-  if ((field_no != 0) && (fvar->type != NET_FILE) && (fvar->type != VFS_FILE)) {
++  if ((field_no != 0) && (fvar->type != NET_FILE)) {
+
+/* kernel.c - PF_IS_VFS is never set, so it never selects this branch */
+-      || (process.program.flags & (PF_IS_TRIGGER | PF_IS_VFS | HDR_IS_CLASS))) {
++      || (process.program.flags & (PF_IS_TRIGGER | HDR_IS_CLASS))) {
+
+/* pdump.c - drop the two lines that print "VFS handler" */
+```
+
+and in the BASIC, drop `FTYPE`'s `VFS:` case and `_VOC_REF`'s branch, so every
+pathname is absolutised — which is what the C has always required.
+
+***RETIRE `DHF_VFS`'s 0x40 AND `PF_IS_VFS`'s 0x00200000. DO NOT RECYCLE
+THEM.*** Both live in a persisted header format. No SD build ever wrote either,
+but a file or an object produced by another MultiValue implementation could
+carry the bit, and a future feature that reused the value would then read it as
+its own. Leaving a comment where the `#define` was costs nothing:
+
+```c
+/* 0x00000040 is RETIRED - do not recycle.  It was DHF_VFS, and it is a
+   file-header bit, so a file from another MultiValue implementation could
+   carry it.  No SD build ever set it: it is not in DHF_CREATE. */
+```
+
+Error numbers 3038-3040 are worth retiring for a second reason: `gplsrc/sdclilib/err.h`
+carries its own copy of them, and that is the client library's **public** error
+header. Removing codes there is an API change to a shipped library rather than
+an internal tidy-up, so this port left that file alone and the numbers stay
+claimed.
+
+**Two other pieces of the same feature.** `sdsys/BP/VFS.CLS` is a template
+class module for writing a VFS handler — it is shipped to every installation
+and describes an interface nothing calls. And `GPL.BP/_EXTENDLIST`, whose own
+description says *"Used by the VFS on actions that require a partial list to be
+completed"*, is a pcode program that is loaded by name at start-up and never
+invoked: `pcode.h` declares `Pcode(extendlist)` and no C source calls
+`pcode_extendlist`. (Control for that grep: `pcode_dellist` is called at
+`op_dio4.c:137`, so call sites are written literally and the search does find
+them.)
+
+**Not reproduced against upstream, per this file's standing caveat.** The
+reading is from `sdb64` source. What *was* run is the removal itself, in the
+Windows port: with all of the above gone, `make sd` compiles clean with
+`-Wall -Wformat=2` and no warning, which is the evidence that nothing depended
+on any of it.
+
+**Why upstream might reasonably decline this.** If a VFS implementation is
+planned, the right fix is the opposite one — implement the C side, or make
+`FTYPE` and `_VOC_REF` say plainly that the feature is not available in this
+build. What should not stay is the present state, where two of the three layers
+report success and the third fails for an unrelated reason.
