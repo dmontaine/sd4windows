@@ -84,6 +84,9 @@ something came to be the way it is.
 >
 > ***THAT CYCLE IS DONE: FULL install 21:57, suite green with `-Run b43`.***
 >
+> ***ITEM 5's SKIP AND ITEM 4 SHARE ONE GUEST — see item 4, which carries the
+> three-run plan on `sshNoServer`. Do not plan them separately.***
+>
 > ***ITEM 5 IS PROVEN ON A MACHINE: 21 PASS, 0 FAIL, 1 SKIP*** —
 > [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1). The one SKIP
 > is *"no ssh server was installed"*, which **this machine structurally cannot
@@ -660,6 +663,22 @@ the measurement. Nothing was judged on it.
 > SUCCEED with `sshremote` ticked**, where the rule is `RemoteAddress=Any`.
 > `probe-sshfirewall.ps1 -Expect Restricted|Open` is already that pair; what it
 > lacks is a remote dialer.
+>
+> ***AND ONE GUEST CLOSES ITEM 4 AND ITEM 5's SKIP TOGETHER — `sshNoServer`,
+> WHICH ALREADY EXISTS.*** It is the guest with **no ssh at all** from the
+> fifty-fifth session's three-guest run. Set its NIC to **bridged** (it is a
+> clone of `Windows 11 - Template`, so this is a VirtualBox setting, not new
+> rig work) and three installs answer everything machine-dependent that is
+> left:
+>
+> | run | what it settles |
+> |---|---|
+> | full, `sshremote` **unticked** | rule scoped to `127.0.0.1`; dial host → guest:22 must be **REFUSED** — item 4's treatment |
+> | full, `sshremote` **ticked** | rule `Any`; the **same dial must SUCCEED** — item 4's control, and the half without which the first row means nothing |
+> | **stand-alone** | item 5's one SKIP. `SshServerAbsent` is **true** here, so `not StandaloneChosen` is finally the operative half of the `[Run]` gate — the mode page's first promise. Also the **unseen mode page**, and whether `apiremote`/`sshremote` actually hide |
+>
+> **That is the whole of the machine-dependent work left before 1.0-0.** Item 5
+> points here rather than repeating it.
 >
 > ### 5. THE STAND-ALONE INSTALL OPTION — BUILT END TO END, NEVER RUN
 >
