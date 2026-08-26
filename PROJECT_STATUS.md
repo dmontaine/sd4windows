@@ -19,6 +19,66 @@ something came to be the way it is.
 
 ---
 
+---
+
+## THE TASK TABLE — READ THIS BEFORE ANSWERING "WHAT IS LEFT"
+
+Owner's instruction, 26 Aug 2026, after being given a different list of
+outstanding work three times in one session: **a table at the top, checked off
+as items finish, so nobody searches history to find out what is done.**
+
+***IT IS THE AUTHORITY ON STATUS. The entries below carry the reasoning; this
+carries the state.*** If they disagree, that is a defect — and it is checked
+rather than trusted: `python sdb_ai/sd64/gplbld/check-stale-leads.py` verifies
+every row against its entry, **in both directions**, and exits non-zero on
+drift. Run it before answering the question this table exists to answer.
+
+**`ID` is what the checker matches on. Do not renumber; steps 4–13 have carried
+their numbers since 13 Aug 2026 and the rest of the file cites them.**
+
+| | ID | what | settled |
+|---|---|---|---|
+| ✅ | **7.0** | Linux access model restored, installed, verified end to end | 14 Aug 2026 |
+| ✅ | **7.1** | Account-model loose ends; `CREATUSR` gone | 16 Aug 2026 |
+| ✅ | **7.2** | Second machine — the VirtualBox rig. **Still the rig for 4** | 15 Aug 2026 |
+| ◐ | **7.3** | Installer loose ends — **one bullet open, and it is the only thing in the stated 1.0-0 gate**: the remote-block control. See item 4 | — |
+| ✅ | **7.4** | Built and verified | 16 Aug 2026 |
+| ✅ | **7.5** | `GPL.BP/GRANTA`, (f) included | 16 Aug 2026 |
+| ✅ | **7.6** | The API works end to end | 17 Aug 2026 |
+| ✅ | **7.7** | `SH` and `OS.EXECUTE` permitted by a list, both halves | 17 Aug 2026 |
+| ✅ | **7.8** | Lower case everywhere, both halves | 22 Aug 2026 |
+| ✅ | **7.9** | Scheduled jobs — closed and measured | 23 Aug 2026 |
+| ➖ | **7.10** | Removed from this project — owner | 23 Aug 2026 |
+| ✅ | **7.11** | `SDConnectLocal()` carries a session | verified |
+| ➖ | **7.12** | Rewritten on the owner's ruling. **Do not restore the old shape** | 21 Aug 2026 |
+| ➖ | **7.13** | Dropped as a migration — owner | 23 Aug 2026 |
+| ✅ | **7.14** | **API session identity — shape (b), the session becomes the authenticated user.** Decided 23 Aug, closed 24th: `verify-apiidentity` exit 0, `ZZAPI` owned by the user where `b28` had `NT AUTHORITY\SYSTEM` | 24 Aug 2026 |
+| ✅ | **7.15** | Data tree private from SD's own users — ACL lock, all four writers | 24 Aug 2026 |
+| ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
+| ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
+| ✅ | **H.1** | The cycle and suite record — **FULL install 21:57, 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`** | 25 Aug 2026 |
+| ⬜ | **H.2** | Documentation — **approved and scoped; starts AFTER 1.0-0 by the owner's instruction.** Not blocked, deliberately not started | — |
+| ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
+| ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
+| ⬜ | **H.4** | **Remote-block control — the one dial and its control.** `sshNoServer` with a bridged NIC; three installs also close 5's SKIP | — |
+| ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** Open: that one SKIP, the unseen mode page, and one security question that is the owner's | partly |
+
+**Legend** — ✅ closed and verified · ◐ **partly**: some parts closed,
+some open, and the row says which · ⬜ open · ➖ removed or superseded,
+kept so the number is not reused.
+
+***◐ IS NOT A SOFTER ⬜.*** It means the entry legitimately contains **both** a
+closure and an open claim, and the checker REQUIRES both to be present. **7.3
+and H.5 are the two**: most of each is done, and the remainder is named in the
+row itself so nobody has to open the entry to find out what is left.
+
+***WHAT IS NOT IN THIS TABLE, ON PURPOSE.*** §4's *"Not verified — treat as
+unknown"* holds the **exercise gaps** — semaphore contention, competing
+sessions, real application data, interactive SD over ssh at a real terminal,
+`K$SET.USERNAME`'s non-`$internal` refusal, and the daemon's `check_lost_users`
+symptom-without-cause. **None is a task with an owner; each is a thing nobody
+has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
+
 ## NEXT SESSION: START HERE, IT IS SHORT
 
 > ## NEXT SESSION: NOTHING IS BROKEN AND NOTHING IS HALF-DONE.
@@ -9247,7 +9307,11 @@ the staging script and the Inno installer were all finished and removed.
     **The changelog entry written ahead of verification now stands** and needs
     no revision.
 
-15. **A data tree private from SD's own users** — §5.7's service-account model.
+15. ***CLOSED 24 Aug 2026 — ACL lock cycled, verified, all four writers
+    measured.*** `verify-sysdiracl` 16/16 on the 18:03:37 install;
+    `probe-catprivate` 3/3. The closure statement is in the body.
+
+    **A data tree private from SD's own users** — §5.7's service-account model.
 
     ***SURVEYED 23 Aug 2026, AND THIS STEP IS MUCH SMALLER THAN IT READS.***
     Measured on the 10:01:45 install, `assert-current` exit 0. What follows

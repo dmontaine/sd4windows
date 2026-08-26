@@ -30176,3 +30176,61 @@ RULE TURNED ON THE TOOL.***
 being open. Left as it is: the tool ranks for reading and says so, and
 tightening the pattern to remove it would risk a false negative, which is the
 worse error here.
+
+## 26 Aug 2026 — The task table, and the checker that stops it becoming the next thing that rots
+
+**FIFTY-NINTH SESSION, part 11.** Owner: *"In another project i was working on,
+there was a task list table maintained at the top of the PROJECT_STATUS file
+and as items were finished they were checked off so that no searching through
+history was not required."* Built.
+
+**24 rows — §7's steps 0–17 as `7.N`, START HERE's items as `H.N`** — with a
+mark, a one-line what, and the date it settled. It sits directly above START
+HERE and declares itself the authority on status; the entries keep the
+reasoning.
+
+***THE OBVIOUS OBJECTION IS THE WHOLE DESIGN PROBLEM: A HAND-KEPT TABLE AT THE
+TOP IS ANOTHER PLACE STATUS IS STATED, AND STATUS TEXT ROTTING IS THE FAULT IT
+EXISTS TO FIX.*** Four entries that same day led with a status they had
+themselves withdrawn. A table would rot identically and more visibly.
+
+**So it is checked, not trusted.** `check-stale-leads.py` gained a second phase
+that verifies every row against its entry **in both directions**:
+
+| drift | caught as |
+|---|---|
+| row ticked done, entry leads with an open claim | contradiction |
+| **row marked open, entry leads with a closure** | *"FINISHED WORK NEVER TICKED OFF"* — the step 14 fault |
+| row whose ID has no entry | renumbering or typo |
+| entry with no row | new work not tracked |
+| table missing or its row format changed | **refuses**, exit 2 — does not report a clean run |
+
+***A THIRD MARK WAS NEEDED AND IT IS NOT A SOFTER "OPEN".*** The first run
+reported drift on 7.3 and H.5, and both reports were correct: each is **partly**
+done, and a binary mark cannot say so. `◐` asserts the entry holds **both** a
+closure and something still open, and the checker requires both — so it cannot
+be used to silence either of the first two checks. An entry marked `◐` with
+nothing open must be ticked; one with no closure must be marked open.
+
+***AND THE CHECKER NOW HAS A CONTROL TEST, WHICH IS THE PART THAT MAKES A CLEAN
+RUN WORTH ANYTHING.*** `test-staleleads-units.py`: copies PROJECT_STATUS.md to
+`%TEMP%`, injects one defect at a time, requires a non-zero exit and the right
+message. **7 of 7**, and case [0] is a POSITIVE control — the unmodified file
+must pass, or every injected failure below it proves nothing. Case [1] is the
+step 14 fault mechanised: flip `7.14` from ticked to open and the checker must
+say so.
+
+**Both are on `assert-current`'s `$neverShipped`, listed in the commit that
+created them, per §7 step 7's rule.** `check-stale-leads.py` also stopped
+hard-coding the document path — it resolves from its own location, and takes an
+explicit path, which is how the control test runs it against a corrupted copy.
+**A script that could only ever be run against the real file could never be
+watched failing.**
+
+***ONE SMALL TRAP PAID FOR ALONG THE WAY.*** An inline patch script died with
+`UnicodeEncodeError: 'charmap' codec can't encode character '⬜'` — this
+console is cp1252 and the mark is U+2B1C. **It failed harmlessly because the
+traceback came from the `print` BEFORE the write**, so the file was untouched;
+had the print come after, the file would have been half-written. Set
+`PYTHONIOENCODING=utf-8`, and do not echo the marks. The file itself is fine:
+it is read and written explicitly as UTF-8 with `newline=''`.
