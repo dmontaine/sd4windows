@@ -7444,6 +7444,19 @@ the staging script and the Inno installer were all finished and removed.
      are both now on `SDSYS_PRESERVE`** — SD ships nothing into either, so
      anything there belongs to the site. That is `cat`'s argument exactly.
      Changelog carries the user-facing note.
+
+     ***AND `bp` CAME OFF `SDSYS_MIRROR` IN THE SAME BREATH — it stopped
+     qualifying the moment SD stopped shipping into it.*** That list's rule is
+     *"a directory qualifies only if the install NEVER writes into it"*, so
+     that "installed but not in source" can only mean an unshipped deletion.
+     `sdsys\bp` is now the opposite: it is preserved **because** the site
+     writes there. **Left on the list it would have fired on the first person
+     to use it as intended** — B3 walks install → source, one site program in
+     SDSYS's BP reads as an unshipped deletion, `assert-current` goes red and
+     every verifier refuses behind it. Nothing is lost: SD ships no file there
+     whose deletion needs catching. `sdsys/bp/README` was already safe — the
+     source → install walk excludes `README` by name
+     ([assert-current.ps1:665](sdb_ai/sd64/gplbld/assert-current.ps1:665)).
      Same-commit updates to `stage.py`'s `('bp', ...)` comment,
      `assert-current.ps1`'s `$neverShipped` (`testsdcli.bp`), and this
      bullet. **Not yet cycled** - the change is source-only, and
