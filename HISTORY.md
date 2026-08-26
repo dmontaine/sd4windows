@@ -36889,3 +36889,94 @@ package.
 `b44`**. `sshRemoteTest-C1` deleted by the cleanup. `sdStandalone-C1` still
 registered and powered off — **it shares MAC `080027AECE7C` with the template,
 so never run both at once** — and goes by hand when nobody needs that install.
+
+---
+
+## 26 Aug 2026 - The eighteen answers applied, and the documentation left this repository for good
+
+**Commit:** see the commit that carries this entry. Sixty-first session.
+
+The owner answered the review list beside the first tester set. **Sixteen of
+the eighteen are applied; two are open** and are now at the top of
+`QUESTIONS-2026-08-26.md` in the docs repository - q7 (the `limitssh` default,
+re-asked with four options after *"not sure what you are proposing"*) and q14
+(he did not answer it). The per-question record lives in that file, not here.
+
+**The tree moved twice in one day.** The owner took it out of `sdhelp` to
+`C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` and restructured it
+into `Testing` / `User` / `Technical`, each with `markdown`, `html` and `pdf`.
+A session that had listed `Projects\*` a few minutes earlier reported the docs
+repository as "not cloned anywhere"; it was one directory deeper than the
+listing went, and then it was somewhere else again. **`ls` at session start is
+a snapshot, not a subscription** - the same lesson as the concurrent-session
+entry of 18 Aug, in a smaller form.
+
+### What left `sd4windows`
+
+`mkdoc.py` and `mkpdf.ps1` are gone from `gplbld` and **both entries were
+removed from `assert-current.ps1`'s `$neverShipped` in the same commit**, with
+a comment standing where they were. An entry there for a file that does not
+exist is caught by nothing - the list is only filtered against what `gplbld`
+holds - so a stale name would have read as though the script were still here.
+`setup-devbox.ps1` keeps `python-markdown`: the pages are still rendered on
+this box.
+
+`tools\release.ps1` is new, in the docs repository. It renders only what
+changed, and **refuses to write the zip if any generated page is older than its
+Markdown**. That refusal is the point of it: moving out of `sd4windows` gave up
+the only automatic check that a page still matched the product, and zipping by
+hand would have added a second way to drift.
+
+### The changelog fix does not make the tree stale, and that was measured
+
+Two wrong statements in the 21 Aug API entry were silently corrected (q1, q8):
+`sd.conf`'s path, and *"which no account joins unless you put it there"*, which
+contradicted the sentence after it - `CREATEA:1428` joins `sdapi` for you when
+`create.account` is given `api`. `assert-current` afterwards: **exit 0**, with
+`EXEMPT: sdsys\changelog is newer than the install`. **So the correction
+reaches an installed system only at its next install** - which is the
+data-tree-changelog defect PROJECT_STATUS raised on 25 Aug, biting for the
+first time.
+
+### The lineage on page 00 was wrong
+
+Reviewed by the owner the same day. SD Core is a **version of SD** carrying
+elements of the main SD version and of ScarletDME; **ScarletDME forked the
+original GPL release of OpenQM 2.6.6**. The page had said *"a port of
+ScarletDME, which is a fork of OpenQM"*.
+
+**The consequence is not cosmetic.** The GPL release did not carry every
+feature of the commercial OpenQM 2.6.6, and **no documentation specific to the
+GPL version was ever released** - so *"anything true of stock OpenQM is out of
+scope"* was pointing testers at documents that are not authoritative for this
+product. The page now calls them a reference and says this set covers what SD
+Core adds, changes and removes.
+
+### The bolding pass, and why the Markdown could not be trusted to show it
+
+q12 is *bold lower case for verbs*. The verb list is read from `sdsys/newvoc`
+and the two `TIER.*` records rather than written by hand, and only a span that
+is **entirely** a verb name is bolded - a command with arguments stays plain,
+which is q11's distinction made visible.
+
+**The first pass broke 18 lines and the source looked plausible on every one of
+them.** A span already sitting inside `**...**` or `***...***` cannot simply be
+wrapped again. They came out in three rounds, each round found by a different
+instrument:
+
+- **8 lines** carrying a literal `****`, found by grepping the Markdown.
+- **4 more** where the enclosing run was `***...***`, found by grepping for the
+  two together - a `****` grep does not see these.
+- **6 more** that broke nothing visible in the source at all, found only by
+  **rendering the pages and reading the HTML**: `</strong><code>x</code>
+  <strong>` is the signature of a bold run split in two, and it leaves the verb
+  the one unbolded word in a bold sentence.
+
+The checker reads the rendered pages for a literal `*` in prose, `<strong>`
+inside `<strong>`, and that split-run signature. Final run: **15 pages, 0 stray
+asterisks, 0 nested bold, 198 bolded verbs.**
+
+**The general form is worth keeping:** a text transform whose output is rendered
+has to be checked in the rendered form. Two thirds of the damage was findable in
+the source only once you knew the third pattern to look for, and the last third
+was not findable there at all.

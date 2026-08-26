@@ -15,13 +15,13 @@ something came to be the way it is.
 
 ***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT", AND RUN THE CHECKER FIRST.*** `python sdb_ai/sd64/gplbld/check-stale-leads.py` — one second, exit 0 today, and it is the difference between the table and a guess. It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*.
 
-***H.2 HAS STARTED. THE FIRST TESTER DOCUMENT SET IS DRAFTED — 11 PAGES, Markdown + HTML + PDF, COVERING EVERY ROW OF HIS TOPIC LIST.*** **It is not yet reviewed**, and 14 questions are waiting on him in `QUESTIONS-2026-08-26.md` beside the set. ***One of them is a defect in a file that ships***: the changelog's 21 Aug entry sends users to `C:\ProgramData\SD\sdsys\sd.conf`, and the file is at `C:\ProgramData\SD\sd.conf` (`sddefs.h:262`, `sd.iss:407`).
+***H.2 — THE TESTER SET IS 15 PAGES AND THE OWNER HAS ANSWERED THE REVIEW LIST. SIXTEEN OF THE EIGHTEEN QUESTIONS ARE APPLIED; TWO ARE OPEN AND ARE AT THE TOP OF `QUESTIONS-2026-08-26.md`*** — **q7**, the `limitssh` default (re-asked with four options; he said the proposal was not clear) and **q14**, whether the unmeasured ssh-elevation caveat is stated to testers. ***THE DOCUMENTATION AND ITS TOOLCHAIN NO LONGER LIVE HERE***: repository `SDCoreWindowsDocs`, working tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, head `8b7639d`. `mkdoc.py` and `mkpdf.ps1` are **gone from `gplbld` and off `$neverShipped`** (q15).
 
-***THE DOCUMENTATION GETS ITS OWN GitHub REPOSITORY, AND IT WILL NOT CARRY THE NO-BINARIES RULE — OWNER, 26 Aug 2026.*** That **reverses** §"WHERE THE WORK LIVES", which said documentation lives here; the entry keeps what the old ruling was protecting against, because **drift is now caught by a person or not at all**. ***`sd4windows` is unchanged — no binary becomes trackable in THIS repository.*** The repository does not exist yet (he makes it 27 Aug); the drafted set is at `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs` with **a copy on the P drive**, and ***that folder must not be `git init`ed*** — it would have to be reconciled with the new repository.
+***THE DOCUMENTATION GETS ITS OWN GitHub REPOSITORY, AND IT WILL NOT CARRY THE NO-BINARIES RULE — OWNER, 26 Aug 2026.*** That **reverses** §"WHERE THE WORK LIVES", which said documentation lives here; the entry keeps what the old ruling was protecting against, because **drift is now caught by a person or not at all**. ***`sd4windows` is unchanged — no binary becomes trackable in THIS repository.*** ***AND THE MOVE IS NOW COMPLETE***: `SDCoreWindowsDocs` exists, the tree was moved by the owner out of `sdhelp` to `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` and restructured into `Testing` / `User` / `Technical`, each `markdown` + `html` + `pdf`, and the two render scripts went with it. **The P-drive copy is stale.**
 
 ***THE INTERPRETER DECISION IS ANSWERED — OWNER, 26 Aug 2026: THE MSYS2 PYTHON.*** `mkdoc.py` is the only thing in the whole build with a third-party dependency — `markdown` — and the gap was bigger than the package: it was installed for the **Windows** python (3.13.14) and not for the **MSYS2** python `setup-devbox.ps1` installs (3.12.13), so on a fresh box `python mkdoc.py` failed at the *interpreter*. **`python-markdown` is now in `setup-devbox.ps1`'s package list**, and `-CheckOnly` names it as the one thing missing on this host.
 
-***ONE COMMAND IS OWED ON THIS MACHINE, AND IT IS THE ONLY THING BETWEEN HERE AND WRITING.*** The package is chosen but not installed here yet; until it is, `mkdoc.py` runs only under the Windows python. Either re-run `setup-devbox.ps1` elevated, or install the one package inside MSYS2: `pacman -S --needed python-markdown`.
+***ONE COMMAND IS STILL OWED ON THIS MACHINE, AND NOTHING IS BLOCKED ON IT.*** The package is chosen but not installed for the MSYS2 python here; `mkdoc.py` runs under the **Windows** python (3.13.14, `markdown` 3.10.2) and that is what rendered every page of the tester set. Either re-run `setup-devbox.ps1` elevated, or install the one package inside MSYS2: `pacman -S --needed python-markdown`. ***`mkdoc.py` ITSELF IS NO LONGER IN THIS REPOSITORY*** — see the H.2 entry.
 
 ***THE MACHINE.*** The host carries a **FULL** install (25 Aug 2026, 21:57) with the suite green — **31/31 steps, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`**, `sd.exe` `5BD2F83F43BB9B27`, `assert-current` clean and run live at the end of the sixtieth session. **`b43` is spent — use `b44`.** Nothing since has changed anything that ships, so that install still matches source. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
 
@@ -65,7 +65,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — **FULL install 21:57, 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`** | 25 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***STARTED 26 Aug 2026. THE FIRST TESTER SET IS DRAFTED*** — 11 pages, Markdown + HTML + PDF, covering every row of the owner's topic list. ***IT GETS ITS OWN GitHub REPOSITORY, WITHOUT THE NO-BINARIES RULE*** (owner, 26 Aug); **not created yet**. Drafted at `..\sdhelp\SD Core for Windows 1.0-0 Docs`, copy on the P drive. **Not yet reviewed** — 16 questions are waiting on him | — |
+| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, head `8b7639d`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. `User` and `Technical` sets are empty scaffolding | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -198,51 +198,63 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `elev_piped=refused`. `icacls` reports *"Failed processing 0 files"*, and
 > `secure-account-dirs` *"0 failed"*. **Read them before reporting them.**
 >
-> ### 2. DOCUMENTATION — STARTED. THE FIRST SET IS DRAFTED AND NOT YET REVIEWED
+> ### 2. DOCUMENTATION — H.2 IS STILL OPEN. THE TESTER SET IS REVIEWED; THE OTHER TWO SETS ARE NOT WRITTEN
 >
-> ***THE FIRST TESTER DOCUMENT SET WAS WRITTEN 26 Aug 2026*** — eleven pages,
-> Markdown + HTML + PDF, covering every row of the owner's topic list. **It is
-> not yet approved**, and 14 questions are waiting on him.
+> **H.2 stays open**: `User` and `Technical` are empty, and two review
+> questions are unanswered. What follows is what is settled.
 >
-> ***QUESTION 3 IS ANSWERED AND IT SETTLES WHERE THIS LIVES: ITS OWN GitHub
-> REPOSITORY, WITH NO NO-BINARIES RULE.*** Owner, 26 Aug 2026 — *"there will be
-> a separate repository on github for all the documentation we create. It will
-> not have the no binary bits rule."* §"WHERE THE WORK LIVES" below carries the
-> reversal and what the old ruling was protecting against. ***That rule stays
-> in force for `sd4windows`***; it simply does not travel.
+> ***NOTHING ABOUT THE DOCUMENTATION IS IN THIS REPOSITORY ANY MORE.***
+> Repository
+> [SDCoreWindowsDocs](https://github.com/dmontaine/SDCoreWindowsDocs), working
+> tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` — **the owner
+> moved it out of `sdhelp` on 26 Aug 2026** — branch `main`, head `8b7639d`,
+> **not pushed**. The P-drive copy is stale. Three sets, each `markdown` +
+> `html` + `pdf`: `Testing` holds the 15-page tester set, `User` and
+> `Technical` are empty.
 >
-> ***THE DOCUMENTATION REPOSITORY IS
-> [github.com/dmontaine/SDCoreWindowsDocs](https://github.com/dmontaine/SDCoreWindowsDocs).***
-> Working tree
-> `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`, branch
-> `main`, remote `origin` set to `git@github.com:dmontaine/SDCoreWindowsDocs.git`.
-> **14 pages plus the review list, 16 tracked files, four commits, head
-> `af9b37f`, pushed.** A copy is also on the P drive — **taken before the last
-> three pages existed, so it is stale.**
+> ***HE ALSO REVIEWED PAGE 00 AND THE LINEAGE IN IT WAS WRONG.*** SD Core is a
+> version of SD carrying elements of the main SD version and of ScarletDME;
+> **ScarletDME forked the original GPL release of OpenQM 2.6.6**, which did not
+> carry every feature of the commercial 2.6.6 and **for which no documentation
+> was ever released**. So *"anything true of stock OpenQM is out of scope"* is
+> struck: the OpenQM documents are a **reference, not an authority**. Head
+> `076fdd7`.
 >
-> ***THE PAGES ARE NUMBERED `00`–`13`, FLAT, AND THAT IS LOAD-BEARING.*** They
+> ***THE OWNER ANSWERED THE 18-QUESTION REVIEW LIST ON 26 Aug 2026. SIXTEEN ARE
+> APPLIED; TWO ARE OPEN*** and are at the top of `QUESTIONS-2026-08-26.md` —
+> **q7** the `limitssh` default, re-asked with four options because *"not sure
+> what you are proposing"*, and **q14**, which he did not answer. The rest of
+> the answers and what each changed are in that file; **do not re-derive them
+> here.**
+>
+> ***THE PAGES ARE NUMBERED `00`–`14`, FLAT, AND THAT IS LOAD-BEARING.*** They
 > were briefly `01a`/`01b`/`06a` and it put them in a different order in
 > Explorer than in the renderer — §6's hyphen-collation trap. **Do not
 > reintroduce a letter suffix to avoid a rename.**
 >
-> ***A CAUTION IN THIS FILE SAYING "DO NOT `git init` THAT FOLDER" WAS WRONG AND
-> IS STRUCK*** — written a few minutes before he did it, on the belief that a
-> local repository would have to be reconciled with the GitHub one. **It does
-> not.** ***The one real gotcha is the opposite of what that said***: if the
-> GitHub repository is created **with** a README, licence or `.gitignore`, the
-> two histories are unrelated and the push is refused. **Create it empty**, or
-> expect `--allow-unrelated-histories`.
+> ***THE TOOLCHAIN WENT WITH IT (q15) AND `$neverShipped` LOST BOTH NAMES.***
+> `mkdoc.py` and `mkpdf.ps1` are `tools\` in the docs repository, along with
+> **`release.ps1`**, which renders only what changed, **refuses to zip when any
+> generated page is older than its Markdown**, and prints a SHA256.
+> `assert-current.ps1` carries a comment where the two entries were saying not
+> to re-add them. `setup-devbox.ps1` still installs python-markdown, because the
+> pages are rendered on this box.
 >
-> **Identity is set per repository, not globally, on this machine** — the docs
-> repository was given `dmontaine <bigriverguy@posteo.net>` locally, matching
-> `sd4windows`. A new clone on another machine needs the same, or commits fail
-> with *"unable to auto-detect email address"*.
+> ```
+> tools\release.ps1                 (in the docs repository, not here)
+> ```
 >
-> ***WHAT MOVING IT RAISES, AND NEITHER IS DECIDED*** — questions 15 and 16:
-> whether `mkdoc.py` and `mkpdf.ps1` follow the documentation into the new
-> repository or stay in `gplbld`, and whether the rendered PDFs are tracked
-> there or generated on demand. **A tracked PDF re-renders to a large binary
-> diff on every edit**, which is a real cost even where the rule permits it.
+> ***THE CHANGELOG FIX OF 26 Aug DOES NOT MAKE THE TREE STALE.*** Two wrong
+> statements in the 21 Aug API entry were silently corrected (`sd.conf`'s path,
+> and the `sdapi` wording). Measured after: `assert-current` **exit 0** — it
+> prints `EXEMPT: sdsys\changelog is newer than the install`. **So the
+> correction reaches an installed system only at the next install**, and no
+> verifier is blocked meanwhile.
+>
+> **Identity is set per repository, not globally, on this machine** — a new
+> clone needs `user.name`/`user.email` set, or commits fail with *"unable to
+> auto-detect email address"*. The docs repository's `README.md` carries that
+> and the build commands.
 >
 > ***THE ONE ERROR HE CAUGHT, AND IT IS WORTH NOT REPEATING.*** A first draft
 > said accounts SD creates *"sign in over ssh and nothing else"*. **Wrong**: they
@@ -250,41 +262,21 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > client**. A standard-tier account with `api` and no `ssh` is an ordinary thing
 > — someone running a custom GUI client — and is probably the commonest shape a
 > deployed system has. The API is not a developers-and-administrators feature.
-> Corrected in four pages.
 >
 > ***WHAT WAS SETTLED BEFORE IT STARTED:*** the format, the audience, where it
 > ships, and the topic list, which is his verbatim. All of it is in
 > §"DOCUMENTATION DECISIONS" and §"THESE FOUR ARE THE BRIEF" below, and those
 > two sections were deliberately left untouched by the 26 Aug prune.
 >
-> ***THE TOOLCHAIN IS TWO SCRIPTS AND BOTH ARE ON `$neverShipped`:***
-> `mkdoc.py` renders Markdown to single-file HTML, and **`mkpdf.ps1`, new
-> 26 Aug 2026**, prints that HTML with headless Edge. **`mkpdf.ps1` had to be
-> listed in `assert-current.ps1` in the same commit** — a `gplbld` script not on
-> that list makes the tree report stale *because it exists*, and then every
-> verifier refuses. Checked live afterwards: `assert-current` exit 0.
->
-> ```
-> python sdb_ai/sd64/gplbld/mkdoc.py --in <dir> --out <dir>
-> powershell -File sdb_ai\sd64\gplbld\mkpdf.ps1 -In <dir>
-> ```
->
-> ***AND `mkpdf.ps1` CARRIES ONE TRAP THAT COST A RUN.*** `Start-Process
-> -ArgumentList` with an **array** joins the elements with spaces and quotes
-> nothing, so a switch whose value contains a space becomes several arguments.
-> It passed on `docs\sample` and failed on all eleven pages of *"SD Core for
-> Windows 1.0-0 Docs"* — browser exit **13**, no PDF, the only difference being
-> the spaces in the directory name. The argument list is now built as one
-> string with the quoting written out.
->
 > ***THE SAMPLE WAS JUDGED AND PASSED:*** *"I like the format"*, and the
 > aggregate-by-function shape was singled out. Sample at
 > `docs\sample\file-commands.html`, source
-> [docs/sample/file-commands.md](docs/sample/file-commands.md), renderer
-> [gplbld/mkdoc.py](sdb_ai/sd64/gplbld/mkdoc.py). Rebuild it with:
+> [docs/sample/file-commands.md](docs/sample/file-commands.md). ***THE RENDERER
+> IS NO LONGER IN THIS REPOSITORY*** (q15, 26 Aug 2026) — rebuilding the sample
+> now reaches across to the docs repository:
 >
 > ```
-> python sdb_ai/sd64/gplbld/mkdoc.py --in docs/sample --out docs/sample
+> python "C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs\tools\mkdoc.py" --in docs/sample --out docs/sample
 > ```
 >
 > ***THE INTERPRETER DECISION IS ANSWERED — OWNER, 26 Aug 2026: THE MSYS2
@@ -311,24 +303,26 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > nothing else.
 >
 > ***AND IT IS NOT YET INSTALLED HERE.*** Until it is, `mkdoc.py` runs only
-> under the Windows python. Re-run `setup-devbox.ps1` elevated, or run the one
-> `pacman` line above inside MSYS2.
-> [mkdoc.py:41](sdb_ai/sd64/gplbld/mkdoc.py:41) exits 2 naming
-> `pip install markdown` if it is missing, so it fails loudly either way.
+> under the Windows python, which is what has rendered every page so far. It
+> exits 2 naming `pip install markdown` if the import is missing, so it fails
+> loudly either way.
 >
-> ***NOT WIRED IN, DELIBERATELY:*** there is no index page, and `mkdoc.py` is
-> **not** named by `stage.py` or `sd.iss`. Naming a `.md` in either puts it
-> under `assert-current`'s `$shipsAs` valve, **after which every documentation
-> edit costs a full cycle**. `mkdoc.py` is on `$neverShipped`
-> ([assert-current.ps1:484](sdb_ai/sd64/gplbld/assert-current.ps1:484)) for the
-> same reason, and the valve reinstates it by itself when `stage.py` names it.
-> **Wire it up at the end of the phase, not the start.**
+> ***THE `$neverShipped` HALF OF THIS IS SPENT.*** `mkdoc.py` and `mkpdf.ps1`
+> left `gplbld` on 26 Aug 2026 (q15) and both entries were removed in the same
+> commit; a comment stands where they were. **What still holds is the reason:**
+> naming a `.md` in `stage.py` or `sd.iss` puts it under `assert-current`'s
+> `$shipsAs` valve, **after which every documentation edit costs a full cycle**.
+> Documentation does not ship from this repository, so nothing has to be wired
+> up here at all.
 >
 > ***ONE DEFECT THE PHASE WILL HAVE TO RULE ON.*** `sdsys\changelog` ships into
 > the **data tree**, which the installer never overwrites, so a user's changelog
 > is frozen at their install date — in the one file whose entire job is telling
 > them what changed. It probably wants moving to `{app}` beside the
 > documentation. Raised 25 Aug 2026; not decided, and not yet a task.
+> ***IT HAS NOW BITTEN ONCE***: the two silent corrections of 26 Aug (q1, q8)
+> reach an installed system only at its next install, and `assert-current`
+> exempts the file by name rather than reporting the tree stale.
 >
 > ### 3. THE DATA-TREE UPGRADE PATH — CLOSED 26 Aug 2026, RUN AND MEASURED
 >
@@ -442,13 +436,15 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > [github.com/dmontaine/SDCoreWindowsDocs](https://github.com/dmontaine/SDCoreWindowsDocs)***,
 > created 26 Aug 2026 and **created empty**, which is what the first push
 > needed. Working tree
-> `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`, `origin` set,
-> head `b71aa2a`, **not yet pushed**.
+> `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` — the owner moved it
+> out of `sdhelp` the same day — `origin` set, head `8b7639d`, **not pushed
+> since `af9b37f`**.
 >
-> ***THE MARKDOWN IS TRACKED AND THE GENERATED `.html`/`.pdf` ARE NOT***, which
-> is not a ruling — it is the reversible direction, since tracked-then-ignored
-> leaves binaries in history for ever. `.gitignore` in that repository carries
-> the three options and question 16 asks him to choose.
+> ***THE MARKDOWN IS TRACKED AND THE GENERATED `.html`/`.pdf`/`.zip` ARE NOT.***
+> Ruled 26 Aug 2026, question 16: the pages are rendered after a change, only
+> the ones that changed, and the two eventual deliverables — a PDF download and
+> the pages on a web site — are both built from the Markdown at release time.
+> `tools\release.ps1` there does it and refuses on a stale page.
 >
 > ***WHAT THE OLD RULING WAS FOR, BECAUSE THE RISK IT NAMED IS REAL AND IS NOW
 > UNMANAGED.*** It read: *"documentation has to ship with the code, be versioned
