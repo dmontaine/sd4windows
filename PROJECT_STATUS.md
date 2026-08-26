@@ -185,8 +185,48 @@ something came to be the way it is.
 > | the gate | `DataTreeUpgrade` in `[Code]`, `not DataTreeWasAbsent` — the same cached answer `DataTreeAbsent` reads |
 > | proven | ISCC compiles the generated sections, **with a control that fails**; `Check:` is legal in `[InstallDelete]`. `test-upgradeiss-units.py`, 49 checks, covers the classification and four refusals |
 >
-> ***WHAT IS UNTESTED IS THE PART THAT MATTERS: NO INSTALLER HAS BEEN BUILT
-> FROM THIS AND NO UPGRADE HAS BEEN RUN.*** A full `cycle.ps1` proves the first
+> ***IT NOW HAS AN INSTRUMENT — [verify-upgrade.ps1](sdb_ai/sd64/gplbld/verify-upgrade.ps1),
+> WRITTEN 25 Aug 2026, AND THE MACHINE IS SNAPSHOTTED AND WAITING.*** Run
+> `-Snapshot` before the upgrade and `-Compare` after.
+>
+> ***THE NULL CASE IS THE WHOLE DIFFICULTY AND HASHING DOES NOT SOLVE IT.***
+> *"The preserved files are unchanged"* passes **perfectly** on an upgrade that
+> never ran. And comparing content does not rescue it: an upgrade from the same
+> source copies back **byte-identical** files, so *"the replaced files changed"*
+> is false on a legitimate upgrade — Inno even gives a copied file its SOURCE
+> file's timestamp.
+>
+> ***SO THE INSTRUMENT IS A PAIR OF PROBES THAT MUST DISAGREE.*** `-Snapshot`
+> plants the same marker in `sdsys\bp` (on `SDSYS_PRESERVE`, empty, so a stray
+> file is harmless — **must survive**) and in `sdsys\gcat` (on the replace list,
+> deleted whole by `Type: filesandordirs` — **must be gone**). Both surviving
+> means the installer never ran; both gone means it replaced something it was
+> told to keep. **Only the disagreement is consistent with a real upgrade**, and
+> it stays decisive when every copied byte is identical.
+>
+> **The retired name is FORCED**, because a first install never creates
+> `sdsys\changelog` and this machine has only ever had first installs — so the
+> delete would be measured against a file already absent. `-Snapshot` creates
+> it, which is `verify-notyet.ps1`'s technique.
+>
+> ***IT IS THE ONE VERIFIER THAT MUST NOT CALL `assert-current`***, and that is
+> deliberate: an upgrade test needs the install to be the OLD build while source
+> is the NEW one, so between the two runs the tree is **expected** to be stale.
+> `-Compare` records the `sd.exe` hash on both sides instead. It is on
+> `$neverShipped` regardless — it could not block itself, but it would have made
+> every OTHER verifier refuse.
+>
+> **PROVEN: the `-Snapshot` half, 21:18:08** — 11 preserve, 14 replace, 3
+> unnamed names each with kind, count, hash and creation time; both probes
+> planted and read back. ***`-Compare` HAS NEVER RUN.***
+>
+> ***TO FINISH IT, and the machine is already snapshotted:*** install
+> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe` **over the top** — not `cycle.ps1`,
+> which deletes both trees — then run `-Compare`. The machine is currently a
+> **stand-alone** install, so this also exercises `StandaloneWasMarked` and
+> "a stand-alone system stays one", untested too.
+>
+> ***WHAT WAS UNTESTED, AND THE HALF THAT STILL IS: NO UPGRADE HAS BEEN RUN.*** A full `cycle.ps1` proves the first
 > half; the second needs **a guest that already has SD, installed over**. Check
 > after it: `$cred`, `accounts`, `cat`, `os.users`, `batch.jobs`, `prt`,
 > `$hold` and `voc` still there and unchanged; `gcat` and `gpl.bp.out` refreshed

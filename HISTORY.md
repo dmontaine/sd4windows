@@ -27,6 +27,105 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-eighth session, part 6: item 3 gets an instrument - verify-upgrade.ps1
+
+**Commit:** this one. `gplbld/verify-upgrade.ps1` (new),
+`gplbld/assert-current.ps1`, `PROJECT_STATUS.md`.
+
+**Why now.** The upgrade path is the largest untested thing in the project, and
+after the stand-alone cycle **this machine is in exactly the state item 3 asks
+for**: SD installed, ready to be installed over. It had the same problem item 5
+had - no instrument - so there was nothing to run even with the machine ready.
+
+### The null case is the whole difficulty, and hashing does not solve it
+
+*"The preserved files are unchanged"* passes **perfectly** on an upgrade that
+never ran: nothing happened, so nothing changed, so every preservation check is
+green. That is a test that passes because it did nothing.
+
+***AND COMPARING CONTENT DOES NOT RESCUE IT.*** An upgrade built from the same
+source copies back **byte-identical** files, so *"the replaced files changed"*
+is false on a legitimate upgrade. Timestamps do not help either - Inno gives a
+copied file its SOURCE file's timestamp.
+
+### So the instrument is a pair of probe files that must DISAGREE
+
+`-Snapshot` writes the same marker into two directories:
+
+| probe | why that directory | must |
+|---|---|---|
+| `sdsys\bp\$upgrade-probe` | `bp` is on `SDSYS_PRESERVE`, and SD ships nothing into it, so it is empty and a stray file is harmless | **SURVIVE** |
+| `sdsys\gcat\$upgrade-probe` | `gcat` is on the computed replace list, so `upgrade.iss` deletes it whole with `Type: filesandordirs` before `[Files]` copies it back | **BE GONE** |
+
+**Neither alone proves anything.** Both surviving means the installer never
+ran; both gone means it replaced something it was told to keep. Only the
+disagreement is consistent with an upgrade that did what it says - and it stays
+decisive when every copied byte is identical.
+
+### The retired name is forced, because this machine cannot reach it otherwise
+
+`SDSYS_RETIRED` deletes `sdsys\changelog` on upgrade, and it is DELETE-ONLY: a
+first install never creates it. Every cycle this machine has run was a first
+install, so the file is already absent and the check would pass having measured
+nothing. `-Snapshot` **creates** it, putting the tree in the state an
+upgrade-from-older would be in. Forcing a state to reach a branch is
+`verify-notyet.ps1`'s technique, for the same reason.
+
+### It is the one verifier that must NOT call assert-current
+
+`assert-current` compares the INSTALL against SOURCE. An upgrade test needs the
+install to be the OLD build while source is the NEW one, so between `-Snapshot`
+and `-Compare` **the tree is expected to be stale** and that guard would make
+the script unable to run at all. What replaces it: `-Compare` records the
+`sd.exe` hash on both sides and says in the transcript what was upgraded to
+what.
+
+**It is on `$neverShipped` all the same, listed proactively.** It could not
+block *itself* - it never calls the guard - but it would have made every OTHER
+verifier refuse, which is worse: the cause is a file none of them mention.
+
+### PROVEN: the -Snapshot half, 21:18:08
+
+11 preserve names, 14 replace, 3 unnamed, each with its kind, item count,
+content hash and creation time in the transcript. Both probes planted and read
+back. `sd.exe` recorded at `5BD2F83F43BB9B27`. **`-Compare` has never run**;
+it needs the upgrade.
+
+### THE SAME PowerShell TRAP, THREE TIMES IN ONE SESSION
+
+***AND THE THIRD TIME WAS INSIDE THE FIX FOR THE SECOND.*** Worth the space
+because knowing about it demonstrably did not prevent it.
+
+A function returns everything written to its output stream, so `Write-Output`
+beside a `return` makes the caller's value an ARRAY.
+
+1. **`Snapshot-Names`** used `Write-Output` for its per-name rows. The rows
+   never printed, and the JSON state file came back with `Preserve` holding
+   `Count`, `Length`, `LongLength`, `Rank`, `SyncRoot` - `System.Array`'s own
+   members. It happened to still work, because member enumeration over the
+   array found the hashtable, which is the worst kind of wrong.
+2. **`Assert-Map`, written as the guard against exactly that**, made the same
+   mistake. And here the symptom was different and nastier: the call sat inside
+   `if (-not (Assert-Map ...))`, so the expression **consumed** the output and
+   nothing printed at all, while `-not @('msg', $true)` evaluated `$false` -
+   **the guard passed by accident.**
+
+**The tell was silence where a line was expected**, not a visible array. Fixed
+with `Write-Host` in both, and the class-level guard is that `Snapshot-Names`'s
+result now has its shape asserted - hashtable, and the right number of names -
+before anything is written to disk. Saved to memory as
+`powershell-write-output-in-functions`.
+
+### What is still open
+
+**The upgrade itself.** The machine is snapshotted and waiting: install
+`C:\Users\dmont\sdout\sd-setup-W1.0-0.exe` over the top - **not** `cycle.ps1`,
+which deletes both trees - then run `-Compare`. Note the machine is currently a
+**stand-alone** install, so the upgrade also exercises `StandaloneWasMarked`
+and "a stand-alone system stays one", which is untested too.
+
+---
+
 ## 25 Aug 2026 - Fifty-eighth session, part 5: the stand-alone install RUNS, and the verifier had two defects of its own
 
 **Commit:** this one. `gplbld/verify-standalone.ps1`, `PROJECT_STATUS.md`.
