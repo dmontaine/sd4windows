@@ -31005,3 +31005,52 @@ remains is the SKIP — a stand-alone install on a machine that never had OpenSS
 which is a 25-second `clonevm` from the template — and writing down what the
 mode and tasks pages look like. **H.2 is the phase after 1.0-0**, and carries one
 open decision: which interpreter the documentation toolchain targets.
+
+## 26 Aug 2026 — The mode page seen, and the tasks-page question answered on the only machine that could ask it
+
+**SIXTIETH SESSION, part 8.** `sdStandalone-C1` cloned from the template —
+`hardwareuuid` and `macaddress1` both verified equal to the template's,
+VM UUID different, which is the correct pass condition for
+`--options=keephwuuids,keepallmacs`. Stand-alone install run on it by the owner.
+
+***WHAT HE SAW:*** *"layout, wrapping ok memo ok -- no ssh or api remote
+boxes"*.
+
+| | |
+|---|---|
+| mode page | draws correctly; the memo does not clip and `Lines.Text` on a non-rich `RichEditViewer` renders as intended |
+| tasks page | ***NEITHER `sshremote` NOR `apiremote` is shown*** |
+
+***THAT CLOSES THE COSMETIC QUESTION AND WITHDRAWS THE WORK IT ASKED FOR.***
+Item 5 said *"look at the tasks page on a stand-alone run; if the box is there,
+move that choice onto the mode page."* It is not there. **Do not carry out that
+restructuring.**
+
+***IT DOES NOT OVERTURN `probe-taskcheck.iss`.*** That probe measured WHEN the
+check first fires — once, straight after the wizard is built, before anyone
+could touch the mode page — and that remains what it measured. Whether Inno
+calls it again before drawing the page was never known and its documentation
+declines to promise. **What is now known is the OUTCOME on one real install.**
+The mechanism is still unspecified, so do not restate this as "Inno
+re-evaluates on page show"; the guarantee is still `ApplySshFirewall` exiting
+at install time.
+
+***AND ONLY THIS MACHINE COULD HAVE ANSWERED IT.*** `sshremote`'s check is
+`SshServerAbsent and not StandaloneChosen`. On the host `SshServerAbsent` is
+false, so the box hides for the WRONG reason and proves nothing. On a guest
+that never had OpenSSH it is true, making `not StandaloneChosen` the operative
+half — the same requirement item 5's SKIP carries.
+
+***THE `P:\` HANDOVER, VERIFIED BOTH WAYS.*** `sd-setup-W1.0-0.exe` SHA256
+`57228B09…82249`, identical to `sdout`'s copy; `verify-standalone.ps1` SHA256
+`DF52DD72…B75FE`, identical to source, and **the COPY on `P:\` was parse-checked
+in place — 0 errors, 4 functions, no BOM, LF-only** — because a BOM sails
+through a parse-check and dies on load, which cost a step-17 run once.
+
+***AND NO SHIPPED FILE HAS CHANGED SINCE THAT INSTALLER WAS BUILT*** (25 Aug
+21:56:55). Everything committed since is documentation or a `gplbld` script, and
+all eleven are on `$neverShipped`. **The first check of that was WRONG and is
+worth the warning**: a `grep -c` of each filename across `stage.py` and `sd.iss`
+reported `assert-current.ps1` shipping 5 times and `PROJECT_STATUS.md` 46 times.
+Every hit was a COMMENT naming the file. ***Grep the declaration, not the
+basename*** — step 18(d) already records the same trap in the other direction.

@@ -70,7 +70,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
 | ✅ | **H.4a** | **The ssh remote-block RUNBOOK — run and passed.** Kept for the next guest: item 5's SKIP wants the same rig. ***The `Open` leg must run FIRST***, and the precondition is a **Private** network profile on the guest | 25 Aug 2026 |
-| ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** ***The security question is ANSWERED — the preflight still refuses, 26 Aug, no code change.*** Open: that one SKIP, and **what the mode and tasks pages LOOKED like** (the page itself has been used — he chose stand-alone on it) | partly |
+| ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** ***Security question ANSWERED (preflight still refuses). Pages SEEN 26 Aug on `sdStandalone-C1`: layout, wrapping and memo all correct, and NO `sshremote`/`apiremote` boxes — so neither choice needs moving to the mode page.*** Open: **that one SKIP**, and it now has the rig | partly |
 | ✅ | **7.18** | ***THE LAST DEVELOPMENT TASK — CLEAN UP. DONE.*** Two runs of `cleanup-devlitter.ps1` either side of a reboot: **0 profile dirs, 0 `ProfileList` entries, 0 `sd*` users, only `sdout` in `~`, clone gone** — read back independently. **Nothing over-deleted**: the five real SD groups, `don` and `test1` all present | 26 Aug 2026 |
 
 **Legend** — ✅ closed and verified · ◐ **partly**: some parts closed,
@@ -100,7 +100,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | | |
 > |---|---|
 > | ~~**7.18**~~ | ***CLOSED 26 Aug 2026.*** Cleanup done and verified on the machine: 0 profile dirs, 0 `ProfileList` entries, 0 `sd*` users, only `sdout` in `~`, clone gone, and the five real SD groups untouched. **`cleanup-devlitter.ps1` is kept — the piles come back the moment testing resumes** |
-> | **H.5** | stand-alone: **one SKIP**, and **what the mode and tasks pages looked like** (the page has been used — not unseen). ***The security question is answered: the preflight still refuses.*** Both remaining halves need one fresh clone and a person at the wizard |
+> | **H.5** | stand-alone: ***ONE THING LEFT — the SKIP***, and the rig is standing (`sdStandalone-C1`, cloned 26 Aug, hardwareuuid and MAC verified kept). Security question answered; pages seen and correct, with **no `sshremote`/`apiremote` boxes**. Run `P:erify-standalone.ps1` elevated ON THE GUEST |
 > | **H.2** | documentation — **approved, scoped, and starts AFTER 1.0-0 by his instruction.** The gate is now empty, so this is a decision he can take |
 >
 > ***H.5 IS STILL THE CHEAPEST NEXT MOVE, BUT NOT ON THE STANDING GUEST — IT
@@ -1072,8 +1072,29 @@ the measurement. Nothing was judged on it.
 > nil) but the check fired **once, straight after the wizard was built** — before
 > a reader could have touched the mode page. **The safety is not there**:
 > `ApplySshFirewall` exits at install time, where the answer is certain. Worst
-> case is a visible checkbox that does nothing. ***Look at the tasks page on a
-> stand-alone run;*** if the box is there, move that choice onto the mode page.
+> case is a visible checkbox that does nothing.
+>
+> ***ANSWERED 26 Aug 2026, ON THE FIRST INSTALL THAT COULD EVER ASK IT: THE
+> BOXES ARE NOT THERE.*** Owner, looking at the wizard on `sdStandalone-C1`
+> during a stand-alone install: *"no ssh or api remote boxes"*. **So the
+> `Check:` does hide them, and NEITHER CHOICE NEEDS MOVING TO THE MODE PAGE.**
+> That instruction is withdrawn; do not carry out the restructuring it asked
+> for.
+>
+> ***IT DOES NOT OVERTURN `probe-taskcheck.iss`, AND SAYING SO MATTERS.*** That
+> probe measured WHEN the check first fires — once, straight after the wizard is
+> built — and that is still what it measured. What was never known is whether
+> Inno calls it AGAIN before drawing the page, which its documentation declines
+> to promise either way. **The observed outcome is that the boxes end up
+> hidden.** The mechanism is still unspecified, so do not restate this as "Inno
+> re-evaluates on page show" — what is known is the result on one real install,
+> and the guarantee remains `ApplySshFirewall` exiting at install time.
+>
+> ***AND THIS IS THE ONLY MACHINE THE QUESTION COULD BE PUT TO.*** `sshremote`'s
+> check is `SshServerAbsent and not StandaloneChosen`; on the host
+> `SshServerAbsent` is false, so the box is hidden for the WRONG reason and
+> proves nothing. On this guest it is true, which makes `not StandaloneChosen`
+> the operative half — the same reason item 5's SKIP needed this rig.
 >
 > ***PROVEN AS FAR AS IT CAN BE WITHOUT AN INSTALL:*** ISPP lint clean; the
 > `[Code]` section extracted to a harness and compiled by the real ISCC, **exit
@@ -1177,7 +1198,14 @@ the measurement. Nothing was judged on it.
 > elevated → **look at the mode page and the tasks page while the wizard is
 > open** → cycle choosing **full** to put the machine back.
 >
-> ***THE PAGE HAS BEEN SEEN AND IT WORKS. WHAT IS UNRECORDED IS NARROWER THAN
+> ***AND WHAT IT LOOKED LIKE IS NOW RECORDED — 26 Aug 2026, `sdStandalone-C1`.***
+> Owner, at the wizard: ***"layout, wrapping ok memo ok -- no ssh or api remote
+> boxes"***. So the mode page draws correctly at that DPI, the memo does not
+> clip, `Lines.Text` on a non-rich `RichEditViewer` renders as intended, and the
+> tasks page offers neither remote-access box. **The looking is done; only the
+> SKIP is left.**
+>
+> ***THE PAGE HAD BEEN SEEN ALL ALONG. WHAT WAS UNRECORDED IS NARROWER THAN
 > THIS ENTRY SAID FOR A DAY.*** It read *"UNSEEN: nobody has looked at this
 > page"* until 26 Aug 2026 — **69 lines below its own record of the owner
 > cycling and CHOOSING stand-alone**, which cannot be done anywhere but on this
