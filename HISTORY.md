@@ -30113,3 +30113,66 @@ examined. Two spot-checks with controls:
 contention, competing sessions and real application data remain exercise gaps;
 the daemon's `check_lost_users` entry still has symptom without cause; RDP is
 closed and kept as a trap.
+
+## 26 Aug 2026 — "A different list each time I ask": four entries led with a status they had themselves withdrawn
+
+**FIFTY-NINTH SESSION, part 10.** The owner said he had been getting a
+different list of outstanding work every time he asked, and that he thought the
+step 14 decision had already been made. **Both were right, and the second is
+the diagnosis of the first.**
+
+***STEP 14 IS CLOSED AND HAS BEEN SINCE 24 Aug 2026*** — install 11:15:29,
+`verify-apiidentity -Prefix sdapiidb32` exit 0, the decisive row PASS, `ZZAPI`
+owned by `GITORLI\sdapiidb32` where `b28` had `NT AUTHORITY\SYSTEM`. Owner
+chose shape (b) on 23 Aug; it was built the same day, cycled green as `b17`,
+and closed on the 24th. **`verify-apiidentity` has run in every suite since,
+including tonight's `b43`.**
+
+**It was reported as an open owner decision because the entry's 35th line says
+*"WHAT IS STILL A DECISION, AND IT IS THE OWNER'S"* and its 372nd says *"STEP
+14 IS CLOSED."*** The correction was appended; the lead was never struck.
+
+***FOUR ENTRIES HAD THIS SHAPE ON ONE DAY:***
+
+| entry | led with | actually |
+|---|---|---|
+| §4's ssh-options bullet | *"still unseen is the `limitssh` task…"* | `limitssh` is not a task; `ApplyAllowGroups` seen twice |
+| §7 step 3's `limitssh` bullet | *"needs the next ordinary cycle: look at the tasks page"* | same — the subject was removed |
+| §7 step 14 | *"WHAT IS STILL A DECISION"* | closed 24 Aug, 338 lines below |
+| START HERE item 5 **heading** | *"BUILT END TO END, NEVER RUN"* | run 20:56:03, verified 21:06:58, 21 PASS |
+
+***THE MECHANISM, AND IT IS NOT CARELESSNESS.*** A reader — human or agent —
+stops at the first status sentence in an entry. Someone who corrects the body
+of an entry is never sent back to its opening line. So the fault survives
+exactly the kind of attention that produced the correction. Three careful reads
+in one session each reported a different list **because each stopped at a
+different line.**
+
+***THE FIX IS A SCRIPT, NOT A RESOLUTION TO READ MORE CAREFULLY.***
+`gplbld/check-stale-leads.py` reports entries whose opening status claim is
+contradicted later in the same entry. Listed on `assert-current`'s
+`$neverShipped` in the commit that created it, per §7 step 7's rule. §0 now
+says to run it before answering "what is left".
+
+***IT NEEDED TWO CORRECTIONS OF ITS OWN, AND THE FIRST IS THE PROJECT'S OWN
+RULE TURNED ON THE TOOL.***
+
+1. **It could not show improvement.** The first version compared "the earliest
+   open claim" against "the latest closed claim" independently, so an entry
+   FIXED by moving its closure to the head still flagged — the kept reasoning
+   below contains open-words preceding the trailing closure. It reported **14
+   before and 14 after four repairs.** An instrument that reads the same on a
+   fixed tree and a broken one is measuring nothing. Now it asks which kind of
+   claim comes **first**: 14 → 2.
+2. **Its entry boundaries were too wide.** `^N. **` matches numbered items
+   anywhere, so §6's traps were swept into §7's steps — one entry spanned
+   1,087 lines and surfaced the Memory Integrity caution (*"it is the owner's
+   call, and an agent must not make it"*) as outstanding work. **A standing
+   caution is not a task.** Section 7 is now bounded by its own headings, and
+   the script refuses if it cannot find them: 63 entries → 24, 2 hits → 1.
+
+**The one remaining hit is a known false positive** — item 4 matched on "has
+**DONE** this direction", a verb phrase, in an entry that correctly leads with
+being open. Left as it is: the tool ranks for reading and says so, and
+tightening the pattern to remove it would risk a false negative, which is the
+worse error here.

@@ -680,7 +680,12 @@ the measurement. Nothing was judged on it.
 > **That is the whole of the machine-dependent work left before 1.0-0.** Item 5
 > points here rather than repeating it.
 >
-> ### 5. THE STAND-ALONE INSTALL OPTION — BUILT END TO END, NEVER RUN
+> ### 5. THE STAND-ALONE INSTALL OPTION — BUILT, INSTALLED AND VERIFIED: 21 PASS, 0 FAIL, 1 SKIP
+>
+> ***THE HEADING SAID "NEVER RUN" UNTIL 26 Aug 2026, ABOVE A BODY RECORDING A
+> REAL INSTALL AND A 21-PASS VERIFIER RUN.*** It was run on 25 Aug at 20:56:03
+> and measured at 21:06:58. **What is genuinely left is the ONE SKIP and the
+> unseen mode page** — item 4 carries the plan, and both want the same guest.
 >
 > Owner's request, in his words: *"another option for users, a stand-alone
 > system option. No ssh, no api, just the ability to quickly install — intent,
@@ -2902,6 +2907,24 @@ is the exception and stays plain English for users.
 > not. **Three or four consecutive sessions lost time to a warning that was
 > already on disk** — most recently `echo WHO | sd` on 23 Aug 2026, which
 > §START HERE already recorded as making an unusable session.
+
+> ***AND WHEN YOU CLOSE PART OF AN ENTRY, FIX ITS FIRST SENTENCE.*** Owner,
+> 26 Aug 2026: *"i have been getting a different list of things left to do each
+> time i ask"* — and *"step 14, I thought that decision had already been
+> made"*. **He was right.** Four entries that day led with a superseded "still
+> open" paragraph and carried their own correction further down; step 14 said
+> *"WHAT IS STILL A DECISION, AND IT IS THE OWNER'S"* **338 lines above**
+> *"STEP 14 IS CLOSED."* **A reader stops at the first status sentence**, so
+> such an entry misleads everyone who does not read all of it — and three
+> careful reads in one session each reported a different list because each
+> stopped at a different line.
+>
+> **Run `python sdb_ai/sd64/gplbld/check-stale-leads.py` before answering
+> "what is left".** It reports entries whose opening status claim is
+> contradicted later in the same entry. It ranks for reading and does not
+> decide; a hit can be a verb-phrase "done" in an entry that is genuinely open.
+> **An entry may narrate "this was open, then it closed" — but it must say so
+> FIRST.**
 
 1. **Same commit as the work.** If a commit changes what builds, runs, is
    decided, or is next, it changes this file.
@@ -8815,7 +8838,20 @@ the staging script and the Inno installer were all finished and removed.
     in the Makefile and `sdclilib`, `sdsvc` and the check probes already build
     native.
 
-14. **The API session's identity.** `sdwind.c:491` `fork()`s the session, so it
+14. ***CLOSED AND VERIFIED 24 Aug 2026 — install 11:15:29, `verify-apiidentity`
+    exit 0, the decisive row PASS. `ZZAPI` is owned by `GITORLI\sdapiidb32`
+    where `b28` had `NT AUTHORITY\SYSTEM`.*** Shape **(b)** was chosen by the
+    owner on 23 Aug and built; the closure statement is at the end of this
+    entry.
+
+    ***THE NEXT FOUR PARAGRAPHS ARE THE PROBLEM STATEMENT AS IT STOOD ON
+    22 Aug AND ARE KEPT FOR THE REASONING, NOT THE STATUS.*** One of them says
+    *"WHAT IS STILL A DECISION, AND IT IS THE OWNER'S"* — **that was true for
+    one day.** It sat 338 lines above *"STEP 14 IS CLOSED"* until 26 Aug 2026
+    and was reported as open work to the owner, who knew better and said so.
+    `gplbld/check-stale-leads.py` now finds this shape mechanically.
+
+    **The API session's identity.** `sdwind.c:491` `fork()`s the session, so it
     inherits the service's LocalSystem token. **What 22 Aug measured was REACH,
     not identity** — the `op_dio2.c` containment gate holds over the network.
     §THE FILE HALF IS CLOSED, and §What fixing it involves.
@@ -8849,7 +8885,10 @@ the staging script and the Inno installer were all finished and removed.
     opened with, and any thread that did not impersonate is unaffected. In
     `sdwind`'s child that is most of the process.
 
-    **WHAT IS STILL A DECISION, AND IT IS THE OWNER'S:** (a) moves SCRAM into
+    ~~**WHAT IS STILL A DECISION, AND IT IS THE OWNER'S:**~~ ***DECIDED
+    23 Aug 2026 — SHAPE (b), AND IT IS BUILT AND VERIFIED. Read the head of
+    this entry.*** The two shapes are kept because the reasoning is why (b) was
+    right: (a) moves SCRAM into
     C and spawns as the user; (b) keeps SCRAM in BASIC and takes the token
     afterwards, at the cost of a window between `execl` and the token change
     during which the session is LocalSystem. **The probe removed the unknown,
