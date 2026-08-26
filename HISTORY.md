@@ -30314,3 +30314,43 @@ reports **`tail`'s** exit code, not python's — it printed `EXIT=0` on a run th
 had just reported drift. Redirect to a file and test the real status, or read
 `PIPESTATUS`. That is the same class as everything else here: an instrument
 answering a question next to the one asked.
+
+## 26 Aug 2026 — The client trees: corrected by the owner, measured, and now checked
+
+**FIFTY-NINTH SESSION, part 14.** Two corrections and one stale claim.
+
+***`~/sdclilib` IS LITTER — owner: "i have other copies."*** Step 18 had it
+flagged must-ask, on the reasoning that its `linuxsdclilib`/`msvcsdclilib`
+contents looked like the separate client packages. **They are not.** The client
+trees are `..\winsdclilib` and `..\sdclilib32`, one level up in `Projects\`,
+and §"The sibling repositories" has named both since 19 Aug. **A directory whose
+contents resemble a known thing is not that thing** — the check that settles it
+is where the build points, not what the name suggests.
+
+***THE OWNER'S STATEMENT OF THE DUTY:*** they *"contain the api clients that
+have been maintained by this project and need to be in sync with the files
+internal to the project. those were created so that client installers could be
+made as opposed to the user having to look through the installed system to find
+them."*
+
+***MEASURED THE SAME DAY: IN SYNC.*** `check-client-sync.py`, **12 checks, 0
+failed** — seven source files byte-identical between `gplsrc/sdclilib` and
+`../winsdclilib`; `sdclilib32`'s `SRCDIR` resolving into this tree; its DLLs
+(20 Aug 12:37) newer than the newest library source (20 Aug 12:32); both
+sibling repositories clean and level with origin.
+
+***AND "sdclilib32 IS STILL TWO HOPS AWAY AND NOTHING COMPARES IT" WAS STALE ON
+BOTH HALVES.*** `sdclilib32/Makefile:44` is
+`SRCDIR ?= ../sd4windows/sdb_ai/sd64/gplsrc/sdclilib`, and its own comment at
+:36 records *"19 Aug 26 - REPOINTED FROM ../winsdclilib TO THE SD FOR WINDOWS
+TREE"*. **It has been one hop since the same day the Windows mirror was**, and
+the file that recorded that fix went on asserting the old shape for a week.
+Now something does compare it, including a check that `SRCDIR` has not gone
+back via the mirror.
+
+**The checker takes three optional paths and has `--self-test`**, which builds
+broken fixtures in `%TEMP%` and requires a rejection from each: **6 of 6**, with
+case [0] a positive control. Same lesson as `check-stale-leads.py` — a checker
+that can only run against the real trees exits 0 forever and nobody learns
+whether it still works. On `$neverShipped`, listed in the commit that created
+it.

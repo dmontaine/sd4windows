@@ -3339,8 +3339,15 @@ still open elsewhere.*** It had stopped at **15 Aug** with **no SCRAM at all**
 while this section claimed it was "kept in sync" — **the same date and the same
 symptom as the 32-bit client that shipped sending passwords in clear.** That
 was fixed by making `gplsrc/sdclilib/` the source of truth, "one hop instead of
-two" — but that redirected the **Windows** mirror only. **`sdclilib32` is still
-two hops away and nothing compares it.**
+two" — but that redirected the **Windows** mirror only. ~~**`sdclilib32` is still
+two hops away and nothing compares it.**~~ ***BOTH HALVES ARE STALE, corrected
+26 Aug 2026.*** `sdclilib32/Makefile:44` reads
+`SRCDIR ?= ../sd4windows/sdb_ai/sd64/gplsrc/sdclilib` and its own comment at
+:36 records the change — *"19 Aug 26 - REPOINTED FROM ../winsdclilib TO THE SD
+FOR WINDOWS TREE"* — so it has been **one hop since the same day the mirror
+was**. And [check-client-sync.py](sdb_ai/sd64/gplbld/check-client-sync.py) now
+compares it, including a check that `SRCDIR` has not gone back via the mirror.
+**The claim outlived its own fix by a week in the file that recorded the fix.**
 
 **THE SAME CONSTANT LIVES IN A DOZEN PLACES ACROSS THESE TREES**, and that is
 not hypothetical: it is how the `SV_EMSG_PAIR`/`SV_ECONTXT` transposition
@@ -10321,8 +10328,39 @@ the staging script and the Inno installer were all finished and removed.
     | | |
     |---|---|
     | ***KEEP `sdout`*** | **live build output** — [cycle.ps1:61](sdb_ai/sd64/gplbld/cycle.ps1:61) is `[string] $Out = 'C:\Users\dmont\sdout'`, and it holds the installer the upgrade test used. Written 21:56 on 25 Aug |
-    | ***ASK about `~/sdclilib`*** | 31 Jul 2026, **predating this port's work**, holding `linuxsdclilib` and `msvcsdclilib` — which look like the separate client packages §"client distribution" describes. **Unreferenced by the repository, but that is not evidence it is disposable** |
+    | ***`~/sdclilib` IS LITTER — owner, 26 Aug 2026*** | *"~\sdclilib is litter, I have other copies."* **It is not a sibling repository and never was.** The real client trees are `..\winsdclilib` and `..\sdclilib32`, one level up in `Projects\`, and neither is touched by this task |
     | ASK about two more | `SD AI Modification Snapshots_20260610.zip` (**52 MB**, 13 Aug) and `sd-preclean-backup\` (14 Aug) — both look deliberate |
+
+    ***THE FIRST PASS GOT THIS WRONG AND THE OWNER CORRECTED IT.*** It read
+    `~/sdclilib`'s `linuxsdclilib`/`msvcsdclilib` contents as *"the separate
+    client packages"* and flagged it must-ask. **The separate client packages
+    are `..\winsdclilib` and `..\sdclilib32`** — §"The sibling repositories"
+    names both and this file has described them since 19 Aug. **A directory
+    whose contents resemble a known thing is not that thing**, and the check
+    that settles it is where the repository points, not what the name suggests.
+
+    ### (d2) The two client trees must stay in sync — and now something checks
+
+    Owner, 26 Aug 2026: `..\sdclilib32` and `..\winsdclilib` *"contain the api
+    clients that have been maintained by this project and need to be in sync
+    with the files internal to the project. those were created so that client
+    installers could be made as opposed to the user having to look through the
+    installed system to find them."*
+
+    ***MEASURED THE SAME DAY AND THEY ARE IN SYNC:***
+    [check-client-sync.py](sdb_ai/sd64/gplbld/check-client-sync.py), **12
+    checks, 0 failed.** All seven source files byte-identical between
+    `gplsrc/sdclilib` and `../winsdclilib`; `sdclilib32`'s `SRCDIR` resolving
+    into this tree; its DLLs (20 Aug 12:37) newer than the newest library
+    source (20 Aug 12:32). Both sibling repositories clean and level with
+    their origins.
+
+    **It exists because the absence of it has cost twice** — the 32-bit client
+    that shipped sending passwords in clear, and the `SV_EMSG_PAIR`
+    transposition that survived ten days in three repositories. Both were
+    found by a human running a grep on a hunch; neither by anything that runs.
+    **`--self-test` builds broken fixtures and requires a rejection from each:
+    6 of 6, case [0] a positive control.**
 
     **The remaining ~25 are development scratch from 14–17 Aug**: install logs
     (`sdinstall.log`, `sd-normal-install.log`, two 1 MB `.innolog`s), captured
