@@ -30440,3 +30440,47 @@ the build output open and the next `ISCC` dies with *"the output file appears to
 be in use (32)"* — and *"no hard-coded drive letters"*, after a transient share
 came up `Y:`+`Z:` with two mounted and `Z:` alone with one. **`P:\` is neither
 `sdout` nor transient**, so neither applies.
+
+## 26 Aug 2026 — A probe named a defect that was not there, and changed the machine on the way
+
+**FIFTY-NINTH SESSION, part 17.** First run of the ssh remote-block runbook, on
+guest `VIRTUAL` at **23:36:11**, elevated. `probe-sshfirewall.ps1` was invoked
+**bare**, and printed:
+
+> `[FAIL] sshremote was NOT ticked but RemoteAddress is Any - port 22 is open to
+> the local network. This is the 24 Aug 2026 defect`
+
+***THERE WAS NO DEFECT. `sshremote` HAD BEEN TICKED***, as the runbook's step 2
+says, and `RemoteAddress=Any` is the correct state for that.
+
+***THE EVIDENCE IS IN THE PROBE'S OWN OUTPUT.*** Since the 25 Aug fix, an
+UNTICKED `sshremote` makes the installer run `-Restrict` — and the same run
+demonstrated that path works, reaching `RemoteAddress=127.0.0.1` at exit 0. **An
+untick would therefore have left `127.0.0.1`, not `Any`.** `Any` is what a
+ticked box looks like.
+
+***THE CAUSE: `-Expect` WAS DOCUMENTED AS "REQUIRED THINKING" AND DEFAULTED TO
+ONE OF ITS OWN TWO ANSWERS.*** Omitting it did not prompt; it silently asserted
+`Restricted`. A parameter that decides which of two OPPOSITE outcomes counts as
+a pass must not have a default. **Mandatory prompts; a default guesses.**
+
+***AND IT WAS NOT ONLY A WRONG VERDICT — IT CHANGED THE MACHINE.*** The recovery
+section runs `ssh-firewall.ps1 -Installed -Restrict`, which `-Expect Open`
+deliberately **skips**, *"rather than undoing the state it is measuring"*.
+Reading the default undid the exact state the next runbook step needed:
+`RemoteAddress` went `Any` → `127.0.0.1` in the middle of the Open leg.
+
+**FIXED:** `[Parameter(Mandatory = $true)]`, no default. Verified by the check
+that catches the break rather than by reading the diff — a bare invocation now
+fails **at parameter binding, before the body runs**, with *"Cannot process
+command because of one or more missing mandatory parameters: Expect"*, and a
+bad value is refused by the `ValidateSet` as a control. Re-copied to `P:\`,
+hashes compared, and **the copy re-parsed on `P:\`**.
+
+***THE RECOVERY COSTS NO REINSTALL, AND THAT IS WORTH KNOWING.*** The guest is
+now in the restricted state, which is the Blocked leg's state — so the host
+dial can be taken immediately, then `ssh-firewall.ps1 -Installed -Open` puts it
+back for the Open leg. **Item 4 asks whether a rule reading `127.0.0.1` blocks a
+remote machine — that is FIREWALL behaviour, not installer behaviour**, and the
+installer path was already proven on three guests on 25 Aug. Toggling the rule
+is the right instrument; a reinstall would test something already known.
