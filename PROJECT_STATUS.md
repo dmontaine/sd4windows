@@ -251,6 +251,14 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > correction reaches an installed system only at the next install**, and no
 > verifier is blocked meanwhile.
 >
+> ***q18 LEAVES A PIECE OF WORK BEHIND AND IT IS NOT A TASK YET.*** The ruling
+> is that a **client** installer carries the DLLs, the documentation and the
+> related utilities, **no source of any kind**, and creates a `docs`
+> subdirectory holding the GitHub references. That is a change to
+> `sdclient.iss` / `qmclient.iss` in the client repositories — **not to
+> `sd.iss`** — and it has not been made. Page 10 of the tester set says plainly
+> that W1.0-0 does not ship it.
+>
 > **Identity is set per repository, not globally, on this machine** — a new
 > clone needs `user.name`/`user.email` set, or commits fail with *"unable to
 > auto-detect email address"*. The docs repository's `README.md` carries that
