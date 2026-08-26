@@ -27,6 +27,76 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-eighth session, part 7: handoff, and why -Compare could not find a file that existed
+
+**Commit:** this one. `gplbld/verify-upgrade.ps1`, `PROJECT_STATUS.md`.
+
+### The defect, and it is an environment fact worth more than the fix
+
+`verify-upgrade.ps1 -Snapshot` reported success and the state file read back at
+13,927 bytes. `-Compare`, from the owner's own elevated shell at **21:22:59**,
+reported ***"CANNOT RUN - no snapshot"*** at the same literal path.
+**Both were telling the truth.**
+
+***THE AGENT'S TOOLING RUNS INSIDE A PACKAGED (MSIX) APP, AND ONLY ITS WRITES
+ARE REDIRECTED.*** Reads of `%LOCALAPPDATA%` fall through to the real location
+when nothing shadows them - which is why reading the owner's transcripts has
+worked all along, and why the path looked shared. Writes land in
+`...\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Local\`.
+
+**Measured, not inferred** - `probe-redirection.ps1` wrote a uniquely-named
+marker to three candidates and then looked for that name under the package
+cache:
+
+| write target | redirected? |
+|---|---|
+| `C:\Users\dmont\AppData\Local\SD-verify` | **yes** |
+| `C:\ProgramData\SD-verify` | no |
+| `C:\Users\dmont\sdout` | no |
+
+`Get-ChildItem -Recurse` had already found **two** copies of the snapshot, which
+is what pointed at it.
+
+**Fixed:** `$StatePath` now defaults to
+`C:\ProgramData\SD-verify\upgrade-snapshot.json`. ProgramData is not redirected
+and the script already requires elevation. Two instrument fixes went with it,
+because the one-line cause is never the fix: `-Snapshot` now **reads the file
+back and reports its length**, refusing if it is not there (a redirected write
+still "succeeds" from inside); and the missing-snapshot message now **lists the
+directory's contents**, so the next reader sees at a glance what is and is not
+there instead of hunting for a file that exists.
+
+Saved to memory as `localappdata-writes-are-redirected`.
+
+### State at handoff
+
+***THE MACHINE IS A STAND-ALONE INSTALL (20:56:03) AND THAT IS NOT ITS USUAL
+STATE.*** The 31-step suite cannot run on it. One full cycle, choosing the full
+option, puts it back.
+
+***IT IS ALSO ONE STEP FROM CLOSING ITEM 3.*** The probe pair is already planted
+in the tree and `sdsys\changelog` is already forced, so the upgrade test needs
+only: re-run `-Snapshot` (the earlier one wrote where the owner could not see
+it), install `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe` **over the top** - not
+`cycle.ps1`, which deletes both trees - then `-Compare`.
+
+**Known and not fixed:** `apiremote` is offered on a stand-alone install -
+`sd.iss:317` has no `Check:` at all. One line, costs a cycle, so it belongs
+with the cycle back to full.
+
+### The session in one line
+
+VFS stripped, cycled and green (31/31, 929 PASS); `_EXTENDLIST` and `NET_FILE`
+removed on the owner's ruling; items 3 and 5 both went from "no instrument" to
+having one, and item 5's is proven on a machine at 21 PASS / 0 FAIL / 1 SKIP.
+
+**Three of this session's defects were in the instruments rather than the
+product**, and all three failed against code that was doing the right thing:
+`sshd is not running`, a teardown that removed only a directory, and a state
+file written somewhere the reader could not look.
+
+---
+
 ## 25 Aug 2026 - Fifty-eighth session, part 6: item 3 gets an instrument - verify-upgrade.ps1
 
 **Commit:** this one. `gplbld/verify-upgrade.ps1` (new),

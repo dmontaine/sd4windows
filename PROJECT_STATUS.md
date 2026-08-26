@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, **end of the fifty-eighth session**: VFS is stripped from the C and the BASIC, **cycled, and green — 31/31 steps, 929 `PASS`, zero failures.**
+**Last updated:** 25 Aug 2026, **end of the fifty-eighth session**, handed off at a clean boundary: **8 commits, working tree clean.** VFS is stripped and green; items 3 and 5 both have instruments now, and **the machine is a STAND-ALONE install, snapshotted and one step from closing item 3.**
 
 ***THE TREE IS CURRENT AND THE WHOLE SUITE IS GREEN: 31/31 STEPS, 929 `PASS` LINES, ZERO `[FAIL]`, ON THE 19:49:47 INSTALL.*** `assert-current` was run again live at the end of the session and exits 0, so **every verifier will run**. `sd.exe` is now `5BD2F83F43BB9B27` — **changed, and correctly so: the C changed this session.** Item 1 has the identifiers and what the run does *not* cover.
 
@@ -31,14 +31,50 @@ something came to be the way it is.
 > has SD, and item 5 has one open question that is the owner's to answer.
 > **Item 2 does not start until 1.0-0.**
 >
-> ***ITEM 5 NOW HAS AN INSTRUMENT*** —
-> [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1), 7 sections,
-> every absence paired with a control. Its three gates are proven; **sections 1
-> to 7 have never run, because there is no stand-alone install to run them
-> against.** ***Proving item 5 costs TWO cycles, not one*** — a stand-alone box
-> cannot run the 31-step suite, so it is: cycle stand-alone → run the verifier
-> elevated → look at the mode and tasks pages while the wizard is up → cycle
-> full to put the machine back. Read item 5 before starting.
+> ***READ THIS FIRST: THE MACHINE IS NOT IN ITS USUAL STATE.*** It carries a
+> **STAND-ALONE** install (20:56:03) — no ssh config of SD's, no API port, and
+> `create.account user` refused. **The 31-step suite cannot run on it.** Getting
+> back to normal is one full cycle, choosing the full option.
+>
+> ***AND IT IS ONE STEP FROM CLOSING ITEM 3.*** The probes are already planted
+> in the tree and `sdsys\changelog` is already forced, so the upgrade test needs
+> only this, in order, elevated:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-upgrade.ps1 -Snapshot
+> ```
+> ```
+> C:\Users\dmont\sdout\sd-setup-W1.0-0.exe
+> ```
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-upgrade.ps1 -Compare
+> ```
+>
+> **`-Snapshot` must be re-run** — the earlier one wrote its state file where the
+> owner's shell could not see it (item 3 has the measurement). Install **over the
+> top**; do NOT run `cycle.ps1`, which deletes both trees. Because the machine is
+> stand-alone, this also exercises `StandaloneWasMarked` and *"a stand-alone
+> system stays one"*, untested too.
+>
+> ***THEN, AND ONLY THEN, cycle back to a FULL install and run the suite with
+> `-Run b43`.***
+>
+> ***ITEM 5 IS PROVEN ON A MACHINE: 21 PASS, 0 FAIL, 1 SKIP*** —
+> [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1). The one SKIP
+> is *"no ssh server was installed"*, which **this machine structurally cannot
+> measure**: OpenSSH has been here since 14 Aug, so `SshServerAbsent` is false
+> and the install-ssh step is skipped for the WRONG REASON. It needs a guest that
+> never had OpenSSH — the same requirement item 4 and `probe-sshfirewall.ps1`
+> carry.
+>
+> ***ONE DEFECT IS KNOWN AND NOT FIXED: `apiremote` is offered on a stand-alone
+> install.*** [sd.iss:317](sdb_ai/sd64/gplbld/sd.iss:317) gives it
+> `Flags: unchecked` and **no `Check:` at all**, where `sshremote` two entries
+> above carries the `StandaloneChosen` gate. Not dangerous — `ApplyApiFirewall`
+> exits and `sd.conf` opens no socket — but the page offers a capability that
+> cannot exist, two screens after promising no port was opened. **One line,
+> `Check: not StandaloneChosen`, and it costs a cycle**, so fold it in with the
+> cycle back to full.
 >
 > **`b42` is spent — use `b43`.** And `-Run` does nothing without
 > `-ThenElevated`; item 1 carries that trap.
