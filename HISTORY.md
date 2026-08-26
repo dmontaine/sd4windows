@@ -27,6 +27,98 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-eighth session, part 5: the stand-alone install RUNS, and the verifier had two defects of its own
+
+**Commit:** this one. `gplbld/verify-standalone.ps1`, `PROJECT_STATUS.md`.
+
+***ITEM 5'S BEHAVIOUR IS MEASURED ON A MACHINE FOR THE FIRST TIME.*** The owner
+cycled choosing stand-alone - install **20:56:03**, marker written 20:56:29 -
+and `verify-standalone.ps1` ran at 21:06:58: **21 PASS, 0 FAIL, 1 SKIP, exit 0.**
+
+| | measured |
+|---|---|
+| marker | present, non-empty, names the group-account way out |
+| `sd.conf` | 0 active `APIPORT` lines; control, the commented-out line is present |
+| port 4243 | nothing listening; control, 35 listening ports on the machine |
+| firewall | 0 SD rules; control, 538 rules on the machine |
+| ssh config | 0 `AllowGroups`; and `sshd_config` last written 20:52:30 against an install at 20:56:03 |
+| `create.account user` | **refused, sysmsg 10100 in the raw output**, no `Created`, no Windows user made |
+| `create.account group` | **`Group:  sdg_sdsagroup created`**, directory made, 10100 did not fire on that arm |
+
+The 20:52:30 on `sshd_config` is the **uninstall** step of that same cycle
+stripping the previous full install's block - `sd.iss`, *"Uninstall ALWAYS
+strips SD's block (RemoveAllowGroups)"*. Both correct, and it is what makes the
+mtime comparison meaningful.
+
+### The one SKIP, and the branch it hides
+
+*"No ssh server was installed"* **cannot be measured on this machine.** OpenSSH
+has been here since **14 Aug 10:34**, installed for this project, and a
+stand-alone install neither adds an ssh server nor removes one - §5.9, SD never
+touches an ssh server it did not install.
+
+***AND THAT IS NOT MERELY A MISSING ROW.*** The `[Run]` install-ssh gate is
+`Check: SshServerAbsent and not StandaloneChosen` (`sd.iss:682`). On this
+machine `SshServerAbsent` is **false**, so the step is skipped **for the wrong
+reason** and nothing is learned about whether `not StandaloneChosen` would have
+stopped it - **the mode page's first promise.** It needs a machine that never
+had OpenSSH: the same requirement `probe-sshfirewall.ps1` carries, and the
+reason the ssh firewall defect sat unseen for eight days.
+
+### Two defects in the verifier, both found by running it, both the instrument
+
+***NEITHER WAS THE INSTALLER, AND BOTH FAILED AGAINST AN INSTALLER THAT HAD
+DONE EVERYTHING RIGHT.*** That is the point worth keeping.
+
+1. **`Note 'sshd is not running' $false` scored FAIL on the 21:00:35 run.** It
+   asserted a state that is only true on a machine that never had ssh. The
+   promise it was reaching for - *"no ssh configuration was changed"* - is
+   measurable here two independent ways, and now is: no `AllowGroups`, and
+   `sshd_config` predating the install. The unmeasurable half is a `Skip`.
+2. **The teardown removed only the DIRECTORY**, so the 21:04:40 run met
+   *"Account already exists"* and section 7 failed. `CREATE.ACCOUNT GROUP`
+   makes **three** things - the directory, an entry in the accounts register,
+   and the Windows group `sdg_<name>` - and the register entry is the one that
+   bites, because nothing under `group_accounts` hints it is still there.
+   There are now **two teardowns**, before and after, which is
+   `verify-catgate.ps1`'s split and for its reason. Measured: the pre-teardown
+   found and removed the leftover, and `DELETE.ACCOUNT` takes the Windows group
+   with it.
+
+### SKIP is now a first-class result
+
+It appears in the summary table, is counted separately, and **the closing
+PASSED sentence names how many rows it does not cover**. A green run that
+quietly dropped a row it could not measure is the shape of every false green in
+this project's history, so the alternative - omitting the row - was not
+available.
+
+### The apiremote checkbox, seen on the mode page's own tasks page
+
+The owner looked at the tasks page on this stand-alone run and asked whether it
+should be offering the API port. **It should not.**
+[sd.iss:317](sdb_ai/sd64/gplbld/sd.iss:317) gives `apiremote` `Flags: unchecked`
+and **no `Check:` at all**, where `sshremote` two entries above carries
+`Check: SshServerAbsent and not StandaloneChosen`. When `apiremote` became
+opt-in last session it never got a gate. **Not fixed in this commit** - it is an
+`sd.iss` change and costs a cycle, so it is better folded in with whatever else
+is outstanding. Item 5 carries it.
+
+**It is not dangerous, only dishonest.** `ApplyApiFirewall` exits on
+`StandaloneChosen`, so ticking it writes no rule; a stand-alone `sd.conf`
+comments out `APIPORT`, so SD opens no socket (`sdwind.c:351`). What is wrong is
+that the page offers a capability that cannot exist, two screens after the mode
+page promised *"no network port was opened"*.
+
+***AND THE TASKS-PAGE QUESTION ITEM 5 ACTUALLY WANTED ANSWERED IS STILL OPEN.***
+The `sshremote` box was ABSENT from that page, which looks like proof that
+Inno re-evaluates a `[Tasks]` `Check:` when the page is shown. **It is not.**
+`sshd` is present and Running here, so `SshServerAbsent` is false and that box
+would be hidden on a full install too. The screenshot is equally consistent with
+the check working and with it never re-firing.
+
+---
+
 ## 25 Aug 2026 - Fifty-eighth session, part 4: item 5 gets an instrument - verify-standalone.ps1
 
 **Commit:** this one. `gplbld/verify-standalone.ps1` (new),

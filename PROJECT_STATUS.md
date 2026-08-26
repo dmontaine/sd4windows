@@ -549,17 +549,57 @@ something came to be the way it is.
 > nothing.** That is the exact failure the instrument rule names. It exits **2**,
 > not 1: nothing failed, the test does not apply.
 >
-> ***PROVEN, AND ONLY THIS MUCH — all three gates, in the file as it stands:***
+> ***RUN ON A REAL STAND-ALONE INSTALL, 25 Aug 2026, 21:06:58 — 21 PASS, 0 FAIL,
+> 1 SKIP, exit 0.*** The owner cycled choosing stand-alone (install **20:56:03**,
+> marker written 20:56:29) and every section 1-7 ran for the first time.
 >
 > | | |
 > |---|---|
-> | `assert-current` | passes |
-> | the elevation guard | **both polarities**: refuses unelevated at 20:46:42, passes elevated at 20:47:12 (`elevated as: GITORLI\don`) |
-> | section 0 | refuses on this full install, exit 2, *"the data tree IS present, so SD is installed - as a FULL installation"* |
+> | the marker | present, non-empty, and it names the group-account way out |
+> | `sd.conf` | **0 active `APIPORT` lines**, with the commented-out line present as the control |
+> | port 4243 | **nothing listening**, against 35 listening ports on the machine as the control |
+> | firewall | **0 SD rules**, against 538 rules on the machine as the control |
+> | ssh config | **0 `AllowGroups`**, and `sshd_config` last written **20:52:30** against an install at **20:56:03** — older, so this install did not touch it |
+> | `create.account user` | **refused, sysmsg 10100 in the raw output**, no `Created` message, no Windows user made |
+> | `create.account group` | **`Group:  sdg_sdsagroup created`**, the directory made, 10100 did not fire on that arm |
 >
-> ***SECTIONS 1 THROUGH 7 HAVE NEVER RUN. There is no stand-alone install to
-> run them against*** — that is the same gap as before, now with something
-> waiting for it rather than a list of things to eyeball.
+> ***THE ONE SKIP IS HONEST AND IT IS NOT A PASS.*** *"no ssh server was
+> installed"* cannot be measured on this machine: **OpenSSH has been here since
+> 14 Aug 10:34, installed for this project**, and a stand-alone install neither
+> adds an ssh server nor removes one (§5.9 — SD never touches an ssh server it
+> did not install). So the row is reported as **SKIP with its reason**, and the
+> closing sentence refuses to claim it.
+>
+> ***AND THAT SKIP HIDES THE ONE BRANCH THIS MACHINE STRUCTURALLY CANNOT
+> TEST.*** The `[Run]` install-ssh gate is
+> `Check: SshServerAbsent and not StandaloneChosen`
+> ([sd.iss:682](sdb_ai/sd64/gplbld/sd.iss:682)). Here `SshServerAbsent` is
+> **false**, so the step is skipped **for the wrong reason** and nothing is
+> learned about whether `not StandaloneChosen` would have stopped it — which is
+> the mode page's FIRST promise. ***It needs a machine that never had OpenSSH***,
+> the same requirement `probe-sshfirewall.ps1` carries and the reason the ssh
+> firewall defect sat unseen for eight days.
+>
+> ***TWO DEFECTS IN THE VERIFIER ITSELF WERE FOUND BY RUNNING IT, and both were
+> the instrument and not the installer.*** They are worth reading because both
+> are the same shape as the traps this project already documents:
+>
+> 1. **`Note 'sshd is not running' $false` FAILED against a correct installer**
+>    on the 21:00:35 run. It asserted something only true on a machine that
+>    never had ssh. Now a `Skip` with its reason, plus two real measurements of
+>    the promise that *is* testable — no `AllowGroups`, and `sshd_config`
+>    predating the install.
+> 2. **The teardown removed only the DIRECTORY**, so the second run met
+>    *"Account already exists"* and section 7 failed — again against a correct
+>    installer. `CREATE.ACCOUNT GROUP` makes **three** things: the directory,
+>    an entry in the accounts register, and the Windows group `sdg_<name>`.
+>    There are now **two teardowns**, before and after, which is
+>    `verify-catgate.ps1`'s split and for its reason.
+>
+> ***A `SKIP` IS NOW A FIRST-CLASS RESULT***, listed in the summary table and
+> counted separately, and the closing PASSED sentence names how many rows it
+> does **not** cover. A green run that quietly dropped a row it could not
+> measure is the shape of every false green in this project's history.
 >
 > ***IT IS DELIBERATELY NOT IN `VerifyInstall2`.*** The suite runs against a
 > full installation, where this refuses by design; wiring it in would add a step
