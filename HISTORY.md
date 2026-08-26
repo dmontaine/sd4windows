@@ -36980,3 +36980,84 @@ asterisks, 0 nested bold, 198 bolded verbs.**
 has to be checked in the rendered form. Two thirds of the damage was findable in
 the source only once you knew the third pattern to look for, and the last third
 was not findable there at all.
+
+---
+
+## 26 Aug 2026 - The full-screen editor comes back as EDIT, and MICRO's three defects go with it
+
+**Commit:** see the commit that carries this entry. Sixty-first session.
+
+Owner's ruling, 26 Aug 2026: *"I had a command in sdb64 called Micro, I would
+like you to port it to our version of sd, clean up the code so that it works
+better and wire it in the same way it was in SDB64 ... Wire it so that the
+command is called edit and calls the Microsoft edit terminal editor. It should
+be available to Programmers and Administrators."*
+
+***THIS REVERSES THE RULING OF 17 Aug 2026***, which removed `MICRO` because an
+external editor is a way out of SD onto the machine underneath it. The reversal
+is deliberate and the containment argument is answered rather than dropped: the
+gate is now the **account tier** rather than nothing, an editor is not a shell,
+and the API cannot reach it.
+
+### What was already right, and was nearly changed for nothing
+
+**`edit` was already in `TIER.OMIT.STANDARD`.** It was a second name for `ED` —
+`newvoc/edit` field 3 read `$ED` — so "available to programmers and
+administrators" needed no tier work at all, only the pointer changed. **The
+consequence to tell users about is the opposite one:** anybody who has been
+typing `edit` for the line editor now gets a full screen. That is in the
+changelog and on three pages of the tester set.
+
+**`edit.exe` is already on this machine** — `C:\Windows\System32\edit.exe`,
+Microsoft Edit 1.2.1, measured 26 Aug 2026 — because current Windows builds
+carry it. So the installer step is a check first and a winget install only on a
+machine without one.
+
+***AND THE winget LINE THE OWNER GAVE WOULD NOT HAVE WORKED FOR SD's OWN USERS.***
+`winget install Microsoft.Edit` with no scope is a **per-user** install: it
+lands in `%LOCALAPPDATA%\Microsoft\WinGet\Packages` of whoever ran it.
+Measured here - that is exactly where this machine's 2.0.0 copy sits, with no
+entry in `WinGet\Links`. The installer runs elevated, so that profile is the
+installing administrator's or SYSTEM's, and **accounts SD creates cannot log in
+to Windows at all**, so they could never reach it. `--scope machine` is in the
+shipped script and in every place the command is quoted.
+
+### The three defects in MICRO, all still upstream
+
+Written up as UPSTREAM_FIXES #16 and fixed in `EDIT`:
+
+1. **Nothing checked that the editor existed.** `!micro` on a machine without
+   `micro` failed, the working copy read back unchanged, and the program
+   printed ***"Record is unchanged"*** — a confident wrong answer with nothing
+   naming the cause.
+2. **The working copy was deleted on one exit path out of six**, so a session
+   that went wrong left `<record>.editing` in `$hold` for ever, and the next
+   edit of that record started from the stale copy.
+3. **The editor was given a relative path**, `$HOLD/name`, which resolved only
+   because the process happened to be standing in the account directory.
+   `fileinfo(fvar, FL$PATH)` is what actually knows.
+
+`EDIT` also drops MICRO's absolute screen positions - it wrote as low as
+`@(0,27)`, off the bottom of a 25-line terminal.
+
+### The gate is HDR_INTERNAL, and that is the whole of why the tier can be the gate
+
+`MICRO` reached the editor through `execute "!micro"`, which is CPROC's shell
+escape and therefore carried **`OS.USERS` field 1** - the wrong gate for a verb
+the owner wants tier-gated. `EDIT` is `$internal` and uses the `os.execute`
+statement, so `os_permitted()` (`op_sh.c:157`) admits it on `HDR_INTERNAL`
+before any of that. **`$internal` cannot be forged**: `BCOMP:2864` honours it
+only for a session that is itself internal and elevated.
+
+### What has NOT been done
+
+***NOTHING HAS COMPILED `EDIT`.*** `gpl.bp` is compiled by `BASIC gpl.bp *`
+inside `SECOND.COMPILE`, which runs during a bootstrap, so there is no offline
+BASIC parser to check it with - `cycle.ps1 -SkipInstall` is the first thing
+that will say whether it parses. The PowerShell half **was** checked: parse 0
+errors, no BOM, and `install-edit.ps1 -CheckOnly` run live, finding
+System32\edit.exe and exiting 0.
+
+Nor has the wiring been exercised: no cycle has installed a tree with `$EDIT`
+in its gcat, so *"edit bp myprog opens Microsoft Edit"* is a claim about source
+and not yet a measurement.

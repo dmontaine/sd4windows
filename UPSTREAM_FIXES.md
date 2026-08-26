@@ -1201,3 +1201,43 @@ planned, the right fix is the opposite one — implement the C side, or make
 `FTYPE` and `_VOC_REF` say plainly that the feature is not available in this
 build. What should not stay is the present state, where two of the three layers
 report success and the third fails for an unrelated reason.
+
+## 16. `MICRO` reports "Record is unchanged" when the editor is not installed, and leaves its working copy behind on every exit but one
+
+`GPL.BP/MICRO` runs an external editor on a copy of the record and reads the
+copy back. Three faults, all still in `sdb64` as of the clone at
+`sdb64/sd64/sdsys/GPL.BP/MICRO`.
+
+**1. Nothing checks that the editor exists.** `Editor = "micro"` is hard-coded
+and reached through `execute "!" : editor : ...`. On a machine with no `micro`
+the shell escape fails, the working copy is read back unchanged, and the
+program prints ***"Record is unchanged"*** and offers `<E>xit or <R>e-edit`.
+**That is a confident wrong answer**: the user is told their edit made no
+difference when in fact no editor ever ran. Nothing in the output names the
+cause, and `micro` is not installed by default on any of the four
+distributions ScarletDME targeted.
+
+**2. The working copy is deleted on one exit path out of six.** `delete
+TempFile,TempRecordName` is inside `if Response = "E"`. Every other way out —
+an empty record, a write error, `<N>o` at the save prompt, a failed read-back,
+a missing record name — reaches `End_Program` with the copy still in `$HOLD`.
+So a session that goes wrong leaves `<record>.editing` in the user's hold file
+permanently, and the next `MICRO` on the same record silently starts from
+whatever that stale copy contains rather than from the record.
+
+**3. The editor is given a relative path.** `"'" : TempFileName : "/" :
+TempRecordName : "'"` is `$HOLD/name`, which resolves only because the process
+happens to be sitting in the account directory. `fileinfo(fvar, FL$PATH)` is
+what actually knows where a directory file lives, and it costs one line.
+
+**What this port did with it, for whatever it is worth to upstream.** `MICRO`
+was removed here on 17 Aug 2026 on a containment argument — an external editor
+is a way out of SD — and brought back on 26 Aug 2026 as `EDIT`, rewritten with
+all three fixed and gated on the account tier rather than on the `OS.USERS`
+shell list. The rewrite is `sdsys/gpl.bp/EDIT` and its header records what
+changed and why, line by line, so the three fixes can be lifted without taking
+the Windows-specific parts.
+
+**Not reproduced against upstream, per this file's standing caveat.** Fault 1
+was reasoned from the source and from the absence of any `micro` check;
+faults 2 and 3 are structural and readable in the same file.
