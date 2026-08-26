@@ -15,7 +15,9 @@ something came to be the way it is.
 
 ***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT", AND RUN THE CHECKER FIRST.*** `python sdb_ai/sd64/gplbld/check-stale-leads.py` — one second, exit 0 today, and it is the difference between the table and a guess. It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*.
 
-***H.2 HAS STARTED. THE FIRST TESTER DOCUMENT SET IS DRAFTED — 11 PAGES, Markdown + HTML + PDF, COVERING EVERY ROW OF HIS TOPIC LIST.*** It lives at `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`, **outside this repository on his instruction of 26 Aug 2026** — which defers §"WHERE THE WORK LIVES" rather than withdrawing it. **It is not yet reviewed**, and 14 questions are waiting on him in `QUESTIONS-2026-08-26.md` beside the set. ***One of them is a defect in a file that ships***: the changelog's 21 Aug entry sends users to `C:\ProgramData\SD\sdsys\sd.conf`, and the file is at `C:\ProgramData\SD\sd.conf` (`sddefs.h:262`, `sd.iss:407`).
+***H.2 HAS STARTED. THE FIRST TESTER DOCUMENT SET IS DRAFTED — 11 PAGES, Markdown + HTML + PDF, COVERING EVERY ROW OF HIS TOPIC LIST.*** **It is not yet reviewed**, and 14 questions are waiting on him in `QUESTIONS-2026-08-26.md` beside the set. ***One of them is a defect in a file that ships***: the changelog's 21 Aug entry sends users to `C:\ProgramData\SD\sdsys\sd.conf`, and the file is at `C:\ProgramData\SD\sd.conf` (`sddefs.h:262`, `sd.iss:407`).
+
+***THE DOCUMENTATION GETS ITS OWN GitHub REPOSITORY, AND IT WILL NOT CARRY THE NO-BINARIES RULE — OWNER, 26 Aug 2026.*** That **reverses** §"WHERE THE WORK LIVES", which said documentation lives here; the entry keeps what the old ruling was protecting against, because **drift is now caught by a person or not at all**. ***`sd4windows` is unchanged — no binary becomes trackable in THIS repository.*** The repository does not exist yet (he makes it 27 Aug); the drafted set is at `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs` with **a copy on the P drive**, and ***that folder must not be `git init`ed*** — it would have to be reconciled with the new repository.
 
 ***THE INTERPRETER DECISION IS ANSWERED — OWNER, 26 Aug 2026: THE MSYS2 PYTHON.*** `mkdoc.py` is the only thing in the whole build with a third-party dependency — `markdown` — and the gap was bigger than the package: it was installed for the **Windows** python (3.13.14) and not for the **MSYS2** python `setup-devbox.ps1` installs (3.12.13), so on a fresh box `python mkdoc.py` failed at the *interpreter*. **`python-markdown` is now in `setup-devbox.ps1`'s package list**, and `-CheckOnly` names it as the one thing missing on this host.
 
@@ -63,7 +65,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — **FULL install 21:57, 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`** | 25 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***STARTED 26 Aug 2026. THE FIRST TESTER SET IS DRAFTED*** — 11 pages, Markdown + HTML + PDF, in `..\sdhelp\SD Core for Windows 1.0-0 Docs`, **outside this repository on the owner's instruction**. Every row of his topic list is covered. **Not yet reviewed**, and 14 questions are waiting on him in `QUESTIONS-2026-08-26.md` | — |
+| ⬜ | **H.2** | Documentation — ***STARTED 26 Aug 2026. THE FIRST TESTER SET IS DRAFTED*** — 11 pages, Markdown + HTML + PDF, covering every row of the owner's topic list. ***IT GETS ITS OWN GitHub REPOSITORY, WITHOUT THE NO-BINARIES RULE*** (owner, 26 Aug); **not created yet**. Drafted at `..\sdhelp\SD Core for Windows 1.0-0 Docs`, copy on the P drive. **Not yet reviewed** — 16 questions are waiting on him | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -202,12 +204,39 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > Markdown + HTML + PDF, covering every row of the owner's topic list. **It is
 > not yet approved**, and 14 questions are waiting on him.
 >
-> ***IT LIVES OUTSIDE THIS REPOSITORY, ON HIS INSTRUCTION OF 26 Aug 2026:***
-> `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`, *"for now,
-> they are not a part of the repository"*. **That reverses §"WHERE THE WORK
-> LIVES" below for the time being** — read the two together, and note the 25 Aug
-> reasoning for keeping it in the repository has not been withdrawn, only
-> deferred. **Question 3 in `QUESTIONS-2026-08-26.md` asks him to settle it.**
+> ***QUESTION 3 IS ANSWERED AND IT SETTLES WHERE THIS LIVES: ITS OWN GitHub
+> REPOSITORY, WITH NO NO-BINARIES RULE.*** Owner, 26 Aug 2026 — *"there will be
+> a separate repository on github for all the documentation we create. It will
+> not have the no binary bits rule."* §"WHERE THE WORK LIVES" below carries the
+> reversal and what the old ruling was protecting against. ***That rule stays
+> in force for `sd4windows`***; it simply does not travel.
+>
+> ***THE SET IS ALREADY A LOCAL GIT REPOSITORY, COMMITTED, AND THAT IS THE
+> STATE TO PICK UP.*** He ran `git init` on
+> `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs` on 26 Aug
+> 2026; the initial commit is **`b79d251`**, 13 files, on branch `main`. He also
+> has a copy on the P drive. **The GitHub repository does not exist yet** — he
+> creates it 27 Aug, and the local history pushes into it with
+> `git remote add` + `git push -u origin main`.
+>
+> ***A CAUTION IN THIS FILE SAYING "DO NOT `git init` THAT FOLDER" WAS WRONG AND
+> IS STRUCK*** — written a few minutes before he did it, on the belief that a
+> local repository would have to be reconciled with the GitHub one. **It does
+> not.** ***The one real gotcha is the opposite of what that said***: if the
+> GitHub repository is created **with** a README, licence or `.gitignore`, the
+> two histories are unrelated and the push is refused. **Create it empty**, or
+> expect `--allow-unrelated-histories`.
+>
+> **Identity is set per repository, not globally, on this machine** — the docs
+> repository was given `dmontaine <bigriverguy@posteo.net>` locally, matching
+> `sd4windows`. A new clone on another machine needs the same, or commits fail
+> with *"unable to auto-detect email address"*.
+>
+> ***WHAT MOVING IT RAISES, AND NEITHER IS DECIDED*** — questions 15 and 16:
+> whether `mkdoc.py` and `mkpdf.ps1` follow the documentation into the new
+> repository or stay in `gplbld`, and whether the rendered PDFs are tracked
+> there or generated on demand. **A tracked PDF re-renders to a large binary
+> diff on every edit**, which is a real cost even where the rule permits it.
 >
 > ***THE ONE ERROR HE CAUGHT, AND IT IS WORTH NOT REPEATING.*** A first draft
 > said accounts SD creates *"sign in over ssh and nothing else"*. **Wrong**: they
@@ -391,13 +420,44 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ## DOCUMENTATION DECISIONS, AGREED 25 Aug 2026
 >
-> ### WHERE THE WORK LIVES: THIS REPOSITORY, WITH `PROJECT_STATUS` TRIMMED
+> ### WHERE THE WORK LIVES: ~~THIS REPOSITORY~~ ***REVERSED 26 Aug 2026 — ITS OWN GitHub REPOSITORY***
 >
-> ***NOT A NEW PROJECT.*** Documentation has to ship with the code, be versioned
+> ***OWNER'S DECISION, 26 Aug 2026, AND IT OVERRIDES THE 25 Aug RULING BELOW:***
+> *"there will be a separate repository on github for all the documentation we
+> create. It will not have the no binary bits rule."*
+>
+> **So the documentation is a project of its own**, and ***the no-binaries rule
+> in CLAUDE.md is a `sd4windows` rule only*** — it does not travel to the
+> documentation repository, which may therefore track the rendered PDFs
+> alongside their Markdown. **Nothing about `sd4windows` changes: no binary
+> becomes trackable here.**
+>
+> ***STATE ON THE NIGHT OF 26 Aug 2026:*** the **GitHub** repository does not
+> exist yet — he creates it on the 27th. **The folder is already a local git
+> repository**, initial commit `b79d251` on `main`, with a copy on the P drive
+> as well. It pushes into the GitHub one with `git remote add` +
+> `git push -u origin main`; ***create the GitHub repository EMPTY***, because a
+> README or licence there makes the histories unrelated and the push is
+> refused.
+>
+> ***THE MARKDOWN IS TRACKED AND THE GENERATED `.html`/`.pdf` ARE NOT***, which
+> is not a ruling — it is the reversible direction, since tracked-then-ignored
+> leaves binaries in history for ever. `.gitignore` in that repository carries
+> the three options and question 16 asks him to choose.
+>
+> ***WHAT THE OLD RULING WAS FOR, BECAUSE THE RISK IT NAMED IS REAL AND IS NOW
+> UNMANAGED.*** It read: *"documentation has to ship with the code, be versioned
 > with it and be checkable against source. A separate repository recreates the
-> drift this codebase keeps paying for — **on 25 Aug alone, four statements in
-> the installer dialogs had quietly stopped being true**, and a writer working
-> from a detached copy would have faithfully documented all four.
+> drift this codebase keeps paying for — on 25 Aug alone, four statements in the
+> installer dialogs had quietly stopped being true, and a writer working from a
+> detached copy would have faithfully documented all four."*
+>
+> **That was not answered, it was outweighed.** A documentation repository
+> cannot be checked against source by anything that runs, so ***drift is now
+> caught by a person or not at all***. Two consequences to carry: write from
+> source and from this file rather than from a rendered page, and **re-read the
+> installer dialogs and the changelog whenever a release moves**, because
+> nothing will fail if a page goes stale.
 >
 > ***THE SIZE PROBLEM IS `PROJECT_STATUS` ONLY.*** It is read every session;
 > `HISTORY` is read on demand, so its length costs nothing. Compress the closed

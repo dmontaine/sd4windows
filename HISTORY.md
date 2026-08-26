@@ -27,6 +27,85 @@ corrected.
 
 ---
 
+## 26 Aug 2026 — Sixty-first session, part 3: the documentation gets its own repository, and one caution here was wrong
+
+**OWNER'S DECISION, 26 Aug 2026**, and it reverses the 25 Aug ruling *"WHERE THE
+WORK LIVES: THIS REPOSITORY"*:
+
+> *"There will be a separate repository on github for all the documentation we
+> create. It will not have the no binary bits rule."*
+
+***THE NO-BINARIES RULE IS A `sd4windows` RULE AND DOES NOT TRAVEL.*** Nothing
+about this repository changes; no binary becomes trackable here. The
+documentation repository may track its rendered PDFs.
+
+***WHAT THE OLD RULING WAS PROTECTING AGAINST IS NOW UNMANAGED, AND THAT IS THE
+PART TO CARRY.*** It read: *"a separate repository recreates the drift this
+codebase keeps paying for — on 25 Aug alone, four statements in the installer
+dialogs had quietly stopped being true, and a writer working from a detached
+copy would have faithfully documented all four."* **That was outweighed, not
+answered.** A documentation repository cannot be checked against source by
+anything that runs, so **drift is caught by a person or not at all**. Write from
+source and from PROJECT_STATUS rather than from a rendered page, and re-read the
+dialogs and the changelog whenever a release moves.
+
+### What is on disk tonight
+
+The folder is `C:\Users\dmont\Projects\sdhelp\SD Core for Windows 1.0-0 Docs`,
+with a copy on the P drive. **He ran `git init` on it**; initial commit
+**`b79d251`**, 13 files, 2,165 lines, branch `main`. The GitHub repository does
+not exist yet — 27 Aug.
+
+**Markdown is tracked; the generated `.html` and `.pdf` are ignored.** ***Not a
+ruling — the reversible direction.*** Ignored-then-tracked costs two deleted
+lines; tracked-then-ignored leaves ~200 KB binaries in history for ever. The
+`.gitignore` carries the three options and question 16 asks him to choose.
+***Ignoring them does not delete them***: all 12 PDFs are on disk beside the
+Markdown, and in the P-drive copy.
+
+### WHY THE PDFs EXIST, stated by the owner 26 Aug 2026
+
+***THEY ARE THE DELIVERABLE, NOT A CONVENIENCE.*** *"When I am ready to release
+the product and the documentation, I will zip the pdf documentation and it and
+the installer I will make shared on pcloud so that people can download them.
+Eventually I would like to put our deliverables on SourceForge."*
+
+**This settles what question 16 is really asking.** The PDFs are a **release
+artefact**, so they do not need to be in git history to serve their purpose —
+they need to be *reproducible at release time* from tracked Markdown, which is
+exactly what `mkdoc.py` + `mkpdf.ps1` do. The current `.gitignore` therefore
+already fits the workflow; the open part is only whether he wants the
+convenience of a clone carrying them.
+
+**It also means the documentation acquires a release step**, which does not
+exist yet: render every page fresh, zip the PDFs, and stamp the zip with the
+release it belongs to. Doing it by hand risks shipping a PDF older than its
+Markdown — the exact drift the separate-repository decision already gave up the
+automatic guard against. **Offered, not built**; not started and not a task.
+
+**Identity is per repository on this machine, not global.** The docs repository
+was given `dmontaine <bigriverguy@posteo.net>` locally, matching this one. A
+clone elsewhere needs the same or commits fail with *"unable to auto-detect
+email address"* — which is how the first attempt failed.
+
+### A caution written here was wrong, four minutes old
+
+***PROJECT_STATUS was given "DO NOT `git init` THAT FOLDER"*** on the reasoning
+that a local repository would have to be reconciled with the GitHub one. **It
+does not** — `git remote add` then `git push -u origin main` is the whole of it.
+Struck, and the withdrawal is quoted in place rather than erased.
+
+***THE REAL GOTCHA IS THE OPPOSITE.*** If the GitHub repository is created
+**with** a README, licence or `.gitignore`, the histories are unrelated and the
+push is refused. **Create it empty.**
+
+Recorded because the fault is a general one and not about git: a caution was
+written into the handoff document from reasoning alone, minutes before anyone
+tried the thing it forbade, and it would have cost the next session a
+workaround for a problem that does not exist.
+
+---
+
 ## 26 Aug 2026 — Sixty-first session, part 2: H.2 starts, and the first tester document set is drafted
 
 Eleven pages, Markdown + HTML + PDF, at
