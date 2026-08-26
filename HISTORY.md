@@ -27,6 +27,5629 @@ corrected.
 
 ---
 
+## 26 Aug 2026 — Sixty-first session: PROJECT_STATUS pruned for the documentation phase, and a warning that was unfindable
+
+**Documentation only. No source changed, nothing that ships was touched, and no
+cycle was spent.** The development phase closed the night before; this is the
+rollover into H.2.
+
+**WHAT WAS CUT, AND IT WAS ROUGHLY HALF THE FILE.** PROJECT_STATUS.md went from
+11,455 lines to about 6,400. Two sections were the bulk:
+
+- **Section 7, 2,653 lines, every step in it closed.** §0 rule 5 says a closed
+  step compresses to its conclusion in the same commit and that had never been
+  done for steps 3, 9 and 12 to 18. It is now nineteen short numbered entries.
+- **"START HERE — IT IS SHORT", 2,926 lines.** Twelve sessions had each added a
+  handoff to the top without removing the one below.
+
+Both moved **verbatim** into this file as `ARCHIVE 26 Aug 2026` entries, the
+pattern set by the 21 Aug archives. **Nothing was deleted.**
+
+**WHAT WAS DELIBERATELY NOT TOUCHED**: §"DOCUMENTATION DECISIONS" and §"RULED
+25 Aug 2026 ON SEEING THE SAMPLE. THESE FOUR ARE THE BRIEF" — they are the live
+brief for H.2 — and §6 traps, which rule 4 protects from being cut for size.
+
+**THE ENTRY SHAPE HAD TO SURVIVE THE CUT, AND THE FIRST ATTEMPT DID NOT.** A
+first pass replaced section 7 with a table and dropped START HERE's `> ### N.`
+items. `check-stale-leads.py` immediately reported **26 rows, 0 entries, 26
+disagreements** — correctly: the table's guarantee is that every row is checked
+against an entry, and compressing the entries out of existence removes the
+check rather than satisfying it. Rewritten as short entries in the shapes the
+checker indexes. **26 rows, 26 entries, agreement in both directions, exit 0.**
+
+**AND THE CONTROL FAILED FOR A REASON WORTH RECORDING.**
+`test-staleleads-units.py` anchors its two must-catch phase 3 fixtures on a
+line inside item 5 — *"WHAT IS GENUINELY UNMEASURED, AND IT IS COSMETIC"* —
+which **H.5 closing had withdrawn**: the pages were looked at and written down.
+Restoring it to keep the control running would have put a withdrawn claim back
+into the handoff document, **which is the exact fault the checker exists to
+find**. So the anchor moved to item 5's replacement wording and the fixture kept
+its shape: it still needs a line sitting after an `OBSERVE_PAT` line, and item 5
+still records *"The owner cycled choosing stand-alone"* above it for case [e] to
+strip. **13 of 13, with the two must-catch rows watched firing on the new
+anchor.**
+
+**THREE STALE CLAIMS FOUND AND FIXED WHILE READING:**
+
+1. **The header said *"one question is still the owner's: whether the ssh
+   preflight should still refuse on a stand-alone install"*.** It was answered
+   on 26 Aug — it still refuses, his call, no code change — and the answer was
+   already 1,250 lines below in item 5 and already ticked in the H.5 row. Same
+   shape as step 14, and the checker does not see it because the header is not
+   an entry.
+2. **The legend said *"7.3 and H.5 are the two [◐ rows]"*** when both had been
+   ticked ✅. No row carries ◐ today.
+3. **The header carried two contradictory machine paragraphs** — 923 `PASS` on
+   the 21:57 install and 929 `PASS` on the superseded 19:49:47 one, the second
+   also claiming `sd.exe` had changed where the first said it had not.
+
+***AND ONE WARNING TURNED OUT TO BE UNFINDABLE BY THE PROCEDURE THAT MANDATES
+FINDING IT.*** §0 says *"most recently `echo WHO | sd` on 23 Aug 2026, which
+§START HERE already recorded as making an unusable session"*. **START HERE never
+recorded it** — checked against the pristine pre-prune file, so this was not
+caused by the cut — and **§6 had no entry either**. CLAUDE.md tells every
+session to grep PROJECT_STATUS and HISTORY for a command before running it, and
+for this command the only hit in PROJECT_STATUS was the dangling pointer.
+
+**It is now a §6 trap**, written as the class rather than the one command,
+because the mechanism was already diagnosed here on 23 Aug and never promoted:
+**SD is blocked on a prompt it can never be answered** — an elevated
+`sd <command>` was found sitting at `New password:`, CPU 0.016s to 0.297s over
+26 seconds, **blocked, not looping, and with no errlog entry because nothing has
+gone wrong from SD's side.** The entry names the shape that works
+(`Invoke-SD`'s `Start-Job` + timeout + a script ending `OFF`) and the cleanup a
+timed-out session needs, since it holds its user-table slot and locks and
+`cycle.ps1` will then refuse to start.
+
+**H.2's LAST DECISION WAS PUT TO THE OWNER AND ANSWERED THE SAME DAY: THE MSYS2
+PYTHON.** `mkdoc.py` needs `markdown`, which was installed for the Windows
+python (3.13.14) and not for the MSYS2 python `setup-devbox.ps1` installs
+(3.12.13); the script installed neither, so on a fresh box it failed at the
+**interpreter**, not the import.
+
+`python-markdown` is now in `setup-devbox.ps1`'s `$PacmanPackages`. **A package
+and not `pip install`, for a measured reason**: the MSYS2 python has *no pip at
+all* — `python -m pip --version` answers *"No module named pip"* — so the pip
+route would need `python-pip` first and then an unpinned download outside
+pacman. **`msys/python-markdown` is 3.10.2-1, the same version the sample was
+rendered with.**
+
+***AND A NEAR MISS WORTH RECORDING.*** The first `pacman -Ss python-markdown`
+was read through `head -20` and appeared to list only `mingw32/`, `mingw64/`,
+`ucrt64/` and `clangarm64/` builds — which would have made the MSYS2 ruling look
+unimplementable and sent this to pip. **The msys package was below the cut.**
+Re-queried with an explicit `grep -E '^msys/'` and it is there. *Do not conclude
+"not packaged" from a truncated search.*
+
+**VERIFIED, NOT ASSUMED.** `setup-devbox.ps1` parse-checked (0 errors, **27
+functions** — the null-case guard, since 0 errors on a file the parser found no
+functions in is not a pass), BOM-scanned clean, LF endings intact. Then
+`-CheckOnly` was run on this host as §2 documents it: **`missing:
+python-markdown`, and it is the ONLY missing package** — every other one was
+already present — so that line is the change firing and nothing else. It hands
+over `pacman -S --needed python-markdown`.
+
+**NOT INSTALLED ON THIS MACHINE YET**, deliberately: installing it is a change
+to the owner's box and `setup-devbox.ps1` is his to run elevated. Until it is,
+`mkdoc.py` runs only under the Windows python. **This also closes step 17's one
+known coverage gap.**
+
+**STILL OVER THE CEILING, AND SAID OUT LOUD RATHER THAN FIXED QUIETLY.** §0 rule
+5's ~3,500 lines is not reachable from here without cutting §6 traps — which
+rule 4 forbids and which is now the largest section — or §5's decisions, which
+are the *why* that does not survive in a diff. Raised for the owner; the ceiling
+and both protected sections stand as written until he rules.
+
+---
+
+## ARCHIVE 26 Aug 2026 — START HERE's closed record, sessions 49 to 60, in full
+
+NOT A SESSION ENTRY. This is PROJECT_STATUS.md's "NEXT SESSION: START HERE"
+box as it stood at the end of the sixtieth session, moved here on 26 Aug 2026
+when that file was pruned for the documentation phase.
+
+**The section is headed "IT IS SHORT" and had reached 2,926 lines** — a
+quarter of the handoff document — because twelve sessions each added their
+handoff to the top and none removed the one below. Everything in it below the
+current state was closed: items 3, 3a, 4, 4a and 5, the refuse-to-install work,
+the ssh firewall defect, the rig notes, and the session-by-session records back
+to the forty-ninth. **Each of those sessions already has its own dated entry
+above in this file**; this archive keeps the box's own wording, which was
+written for a reader acting on it and is often the clearer account.
+
+WHAT STAYED IN PROJECT_STATUS, and is therefore not repeated here: the state of
+the machine, the suite command and its `-Run` trap, the five standing
+instruments, the `sdStandalone-C1` guest, and **§"DOCUMENTATION DECISIONS" and
+§"THESE FOUR ARE THE BRIEF" in full** — those two are the live brief for H.2
+and were not touched.
+
+Read it if you need to know how items 3 to 5 were decided, what the guests
+proved, or what a rig technique cost. **Nothing here describes work that is
+outstanding**, and one thing in it is stale on purpose: item 5's *"open
+question that is the owner's to answer"* was **answered on 26 Aug 2026** — the
+ssh preflight still refuses on a stand-alone install, and the answer sits
+further down the same entry.
+
+---
+
+> ## NEXT SESSION: NOTHING IS BROKEN AND NOTHING IS HALF-DONE.
+>
+> ## THE DEVELOPMENT PHASE IS CLOSED. ONE ROW IS OPEN AND IT IS NOT DEVELOPMENT.
+>
+> ***7.18 AND H.5 BOTH CLOSED 26 Aug 2026, THE SIXTIETH SESSION.*** The table
+> above is the authority, not this box.
+>
+> | | |
+> |---|---|
+> | ~~**7.18**~~ | ***CLOSED.*** Cleanup done and verified on the machine: 0 profile dirs, 0 `ProfileList` entries, 0 `sd*` users, only `sdout` in `~`, clone gone, the five real SD groups untouched. **`cleanup-devlitter.ps1` is KEPT — the piles come back the moment testing resumes** |
+> | ~~**H.5**~~ | ***CLOSED. 21 PASS / 0 FAIL / 0 SKIP*** on guest `sdStandalone-C1`, 01:46:11. The SKIP fired its strong form at last; pages seen and correct; the preflight question answered — it still refuses |
+> | **H.2** | ***THE ONLY OPEN ROW.*** Documentation — approved and scoped, and it starts AFTER 1.0-0 by his instruction. **The gate is empty and both development rows are closed, so this is now a decision he can take** |
+>
+> ***WHAT H.2 NEEDS BEFORE IT STARTS, AND IT IS ONE DECISION.***
+> `mkdoc.py` is the only thing in the whole build with a third-party
+> dependency — `markdown`, and every other import across the ten `gplbld/*.py`
+> files is stdlib or local. **But the gap is bigger than the package**: it is
+> installed for the **Windows** python (3.13.14), not the **MSYS2** python
+> `setup-devbox.ps1` installs (3.12.13). On a fresh box `python mkdoc.py` fails
+> at the *interpreter*. ***Which interpreter the documentation toolchain
+> targets is his call***, and `setup-devbox.ps1` follows from the answer.
+> `mkdoc.py:41` already exits 2 naming `pip install markdown`, so it fails
+> loudly rather than quietly.
+>
+> ***ONE THING IS LEFT ON THE MACHINES AND IT IS NOT A TASK.*** Guest
+> `sdStandalone-C1` is still registered, powered off, carrying the stand-alone
+> install that closed H.5. **It shares MAC `080027AECE7C` with
+> `Windows 11 - Template` — never run both at once.** Delete it when nobody
+> wants to look at that install again:
+> `cleanup-devlitter.ps1` does not touch it (its `$VMName` is the older clone),
+> so it goes by hand with `VBoxManage unregistervm sdStandalone-C1 --delete`.
+>
+> ***THE HOST IS A FULL INSTALL AND THE SUITE IS GREEN — b43, 31/31, 923 PASS,
+> ZERO `[FAIL]`, ZERO `[SKIP]`.*** Nothing this session changed anything that
+> ships: every commit touched documentation or a `gplbld` script, and all of
+> those are on `$neverShipped`. **`b43` is spent — use `b44`.**
+>
+> ***FIVE INSTRUMENTS, ALL ON `$neverShipped`, ALL WITH CONTROLS.*** Do not
+> re-derive them:
+>
+> | | |
+> |---|---|
+> | `cleanup-devlitter.ps1` | **NEW.** Step 18's one command: users, `sdu_` groups, the profile sweep, the home directory, the VM. `-SelfTest` / `-List` / act. **Needs a REBOOT between the accounts and the profiles** — a loaded hive cannot be removed, and after a suite run every hive is loaded |
+> | `check-stale-leads.py` | now **THREE** phases. Phase 3 is new: an entry that records a person SEEING something and later denies anyone has. `test-staleleads-units.py` is its control, **13 of 13** |
+> | `check-client-sync.py` | the API client across the three trees. 12 checks, 0 failed. `--self-test` 6 of 6 |
+> | `probe-sshremote.ps1` | the HOST half of the ssh test. `-SelfTest` 4 of 4 |
+> | `verify-standalone.ps1` | now runs **on a guest**, via `-Installer` + `-InstallerSha256` in place of `assert-current`. All four refusal paths exercised |
+>
+> ***RUN `check-stale-leads.py` BEFORE YOU ANSWER ANY "WHAT IS LEFT" QUESTION.***
+> One second, and it is the difference between the table and a guess.
+>
+> ***FOUR NEW INSTRUMENTS THIS SESSION, ALL ON `$neverShipped`, ALL WITH
+> CONTROLS.*** Do not re-derive them:
+>
+> | | |
+> |---|---|
+> | `check-stale-leads.py` | entries whose opening status is contradicted later, **and** the task table against the entries. `test-staleleads-units.py` is its control, 8 of 8 |
+> | `check-client-sync.py` | the API client across the three trees. **12 checks, 0 failed — they are in sync.** `--self-test` 6 of 6 |
+> | `probe-sshremote.ps1` | the HOST half of the ssh test. `-SelfTest` 4 of 4 |
+> | `verify-upgrade.ps1` | now scores the creation times it had always recorded and never read |
+>
+> ***RUN `check-stale-leads.py` BEFORE YOU ANSWER ANY "WHAT IS LEFT" QUESTION.***
+> It is one second and it is the difference between the table and a guess.
+>
+> **The suite is green — 31/31, 923 `PASS`, zero `[FAIL]`, zero `[SKIP]`, on
+> the 21:57 FULL install of 25 Aug 2026**, run as `-ThenElevated -Run b43`.
+> `assert-current` clean. Items 3 and 3a are both closed.
+>
+> ***THE MACHINE IS IN ITS USUAL STATE — a FULL install.*** It carried a
+> stand-alone one earlier that evening; the cycle at 21:57 put it back, and the
+> `sdsys\$standalone` marker is gone (checked, with `voc` present as the
+> control). **`b43` is spent — use `b44`.**
+>
+> ***THE LIVE WORK IS ITEM 5 AND ITEM 4.*** Both need **a guest that never had
+> OpenSSH** — item 5's one SKIP, item 4's remote-block control, and the
+> `apiremote`/`sshremote` tasks-page question below all sit behind that one
+> requirement. Item 5 also has an open question that is the owner's to answer.
+> **Item 2 does not start until 1.0-0.**
+>
+> ***THE UPGRADE ALREADY RAN — 25 Aug 2026 at 21:21, AND THE FIFTY-EIGHTH
+> SESSION'S HANDOFF DID NOT KNOW IT.*** That handoff says the probes are planted
+> and the test is still to do. **They were planted at 21:14, the installer ran
+> over the top at 21:21, and only the SCORING was missing** — `-Compare` refused
+> at 21:22:59 because the snapshot was at the redirected path, and the redirection
+> was diagnosed without anyone re-reading the tree. **Do not re-run `-Snapshot`;
+> it would overwrite the pre-upgrade state with the post-upgrade one and destroy
+> the measurement.**
+>
+> ***SCORED READ-ONLY, 26 Aug 2026: 42 PASS, 0 FAIL, 2 not measurable.***
+> Evidence the install happened, from the tree itself:
+>
+> | | |
+> |---|---|
+> | `unins000.dat` | rewritten **21:21** — Inno writes it at the end of every install |
+> | the 14 replace names | **every one recreated at 21:21:5x** |
+> | the 11 preserve names | **every one still 20:56:03**, hashes byte-identical to the snapshot |
+> | the probe pair | `bp\$upgrade-probe` **survived**, `gcat\$upgrade-probe` **gone** — the required disagreement |
+> | `sdsys\changelog` | **gone**; `{app}\changelog` present |
+>
+> ***THE SNAPSHOT IS RECOVERED AND IN PLACE***, at
+> `C:\ProgramData\SD-verify\upgrade-snapshot.json` — copied byte-for-byte out of
+> the package cache with one `Provenance` field added, which `-Compare` now
+> announces so a moved snapshot can never read as one written there.
+>
+> ***ITEM 3 IS CLOSED. `-Compare` RAN ELEVATED AT 21:48:14 — 55 PASS, 0 FAIL,
+> 1 SKIP, of 56 rows, exit 0.*** The one SKIP is `errlog`, absent before the
+> upgrade too. `$cred` — the row the read-only pass could not reach — **passed
+> on both hash and creation time**, so that dry-run FAIL was a permission
+> artefact and nothing else. The probe is consumed; `-Compare` cannot be
+> re-run against this state.
+>
+> ***AND `RefreshDictionaries` FIRED FOR THE FIRST TIME EVER ON THE SAME
+> INSTALL, which nothing was watching for.*** `C:\ProgramData\SD\upgrade-dicts.log`,
+> written 21:22:14 and unread until 26 Aug: **76 of 76 records transferred,
+> `COMPLETE=True`**, `THIRD.COMPILE` compiled 17 I-types, and the temporary
+> `sdsys\gplbld` was removed in the `finally`. That closes the other half of
+> item 3 that was marked *"never run on a machine"*.
+>
+> ***WHAT THAT RUN DOES NOT PROVE, and it is the interesting half:*** it was an
+> upgrade **from the same build**, so no dictionary record differed and nothing
+> user-added existed. **The merge semantics — "adds and updates the shipped
+> items and leaves a user's own alone" — are still unproven on a machine.**
+>
+> ***THAT CYCLE IS DONE: FULL install 21:57, suite green with `-Run b43`.***
+>
+> ***ITEM 5's SKIP AND ITEM 4 SHARE ONE GUEST — see item 4, which carries the
+> three-run plan on `sshNoServer`. Do not plan them separately.***
+>
+> ***ITEM 5 IS PROVEN ON A MACHINE: 21 PASS, 0 FAIL, 1 SKIP*** —
+> [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1). The one SKIP
+> is *"no ssh server was installed"*, which **this machine structurally cannot
+> measure**: OpenSSH has been here since 14 Aug, so `SshServerAbsent` is false
+> and the install-ssh step is skipped for the WRONG REASON. It needs a guest that
+> never had OpenSSH — the same requirement item 4 and `probe-sshfirewall.ps1`
+> carry.
+>
+> ***THE THREE SOURCE FIXES ARE BUILT, INSTALLED AND GREEN*** — cycled to a
+> **FULL** install at **21:57**, suite `-ThenElevated -Run b43` at 21:58:53.
+> **31/31 steps, every one exit 0; 923 `PASS` lines, ZERO `[FAIL]`, ZERO
+> `[SKIP]`.** The machine is back in its usual state.
+>
+> | | |
+> |---|---|
+> | `apiremote` gated | [sd.iss:325](sdb_ai/sd64/gplbld/sd.iss:325) carries `Check: not StandaloneChosen`. **ISCC compiled it** — proven by the installer building and installing, which is what the entry above said was still owed |
+> | `$null = $p.Handle` | in `upgrade-dicts.ps1` and `adopt-account.ps1`. **Checked on the INSTALLED copies**, 1 hit each, against a control string that returns 0 — not inferred from the cycle exiting 0 |
+> | the summary table | `verify-upgrade.ps1` no longer truncates its Observed column to `...e` |
+>
+> ***THE apiremote FIX IS CORRECT ON A FULL INSTALL BY CONSTRUCTION, AND THAT
+> WAS THE REGRESSION RISK.*** `FullRadio.Checked := True`
+> ([sd.iss:1332](sdb_ai/sd64/gplbld/sd.iss:1332)) runs in `InitializeWizard`,
+> so when the `[Tasks]` `Check:` fires `StandaloneChosen` is already False and
+> the box shows. This cycle was a full install and is green.
+>
+> ***BUT IT INHERITS `sshremote`'s KNOWN LIMITATION AND DOES NOT ESCAPE IT —
+> READ THIS BEFORE CALLING THE DEFECT CLOSED.*** Item 5 records that a
+> `[Tasks]` `Check:` fires **once, straight after the wizard is built**, before
+> a reader could have touched the mode page — measured with
+> `probe-taskcheck.iss`. So on a **stand-alone** install the box **may still
+> appear**. The fix brings `apiremote` to parity with `sshremote`; it does not
+> prove either one hides. **The real answer is still open: move both choices
+> onto the mode page.** Nothing is exposed either way — `ApplyApiFirewall`
+> exits at install time, where the answer is certain.
+>
+> ***THE `Handle` FAULT, MEASURED WITH A CONTROL.*** `Start-Process -PassThru`
+> returns a Process whose `ExitCode` reads `$null` after `WaitForExit` unless
+> the handle was cached first — a child exiting **7** reports null without the
+> line and **7** with it. **Five scripts use that shape; only these two capture
+> the code, and NEITHER JUDGES ON IT** (both anchor on the tool's own output
+> wording instead, which is why no verdict was ever wrong). The cost was
+> diagnostic: the first-ever upgrade logged a blank where SD's exit code
+> belonged, for both calls.
+>
+> **`b43` is spent — use `b44`.** And `-Run` does nothing without
+> `-ThenElevated`; item 1 carries that trap.
+>
+> ***TWO LEADS SIT IN ITEM 3a AND NEITHER IS A FINDING YET*** — the three
+> `_FMTS`/`_ICONVS`/`_OCONVS` pcode records, and `COMP_PCODE` naming three
+> source records that no longer exist. Read what is written there before
+> acting: the first is explicitly NOT established as dead code.
+>
+> ### 1. DONE — 25 Aug 2026, THE 21:57 FULL INSTALL. 31/31 STEPS, 923 `PASS`, ZERO `[FAIL]`, ZERO `[SKIP]`.
+>
+> ***THE CURRENT MACHINE. Everything below this table describes EARLIER runs
+> and is kept only for comparison.***
+>
+> | | |
+> |---|---|
+> | install | **25 Aug 21:57**, a **FULL** install — the cycle that put the machine back after the stand-alone one |
+> | the suite | **21:58:53** unelevated, **22:00:32** elevated, `-ThenElevated -Run b43`. 12 + 19 = **31 steps, every one exit 0** |
+> | counted | **923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`** — a plain grep over the 47 files of the run. Both counters read, because two counters that cannot both be zero is the cheap null-case guard |
+> | the token | `b43` reached the elevated half — visible in the account names it made (`sdacctb43`, `sdtiertb43`, `sdcatgb43`…), which is what proves `-Run` was not silently ignored |
+> | `sd.exe` | `5BD2F83F43BB9B27` — **unchanged, and correctly so: no C changed this session** |
+> | `gcat` / `gpl.bp.out` | **125 / 184** — unchanged from the 19:49:47 run |
+> | `assert-current` | **clean**, printed *"the installed tree matches source"* at every verifier that calls it |
+> | the session's fixes | all three built; the two `$null = $p.Handle` lines **checked on the INSTALLED copies**, 1 hit each against a control string returning 0 |
+>
+> **The 19:49:47 record follows, unchanged.**
+>
+> ***THE FIFTY-EIGHTH SESSION'S WORK IS CYCLED AND VERIFIED.*** The 17:17:57
+> figures below are the fifty-seventh session's and are kept for comparison;
+> **the identifiers that describe the machine today are these:**
+>
+> | | |
+> |---|---|
+> | cycles | **two**, both full and both clean: 18:28:47 (install 18:29:50) and 19:48:55 (install **19:49:47**). No source changed between them — the second is a reinstall of identical source |
+> | the suite | ran at **18:31:14** against the 18:29:50 install, `-ThenElevated -Run b42`. 12 unelevated + 19 elevated, **every step exit 0** |
+> | counted | **929 `PASS`, 0 `[FAIL]`** — a plain grep over the 46 files of the run. Both counters checked, because two counters that cannot both be zero is the cheap null-case guard |
+> | `sd.exe` | `5BD2F83F43BB9B27` — **changed from `275CFB03E142AA2C`, and correctly so: the C changed** |
+> | `assert-current` | clean in both cycles **and run again live at the end of the session, exit 0** |
+> | mirrors | **2,950** files across six directories — **one fewer than the 2,951 of the 17:17 run, and that one is `_EXTENDLIST`** |
+> | `gcat` / `gpl.bp.out` | 125 / **184** (was 185 — the deleted program), installed matching staged exactly |
+> | the wizard | credential register holds **1 account with a password**, so it was driven by a person — that register is what the `-Silent` install got wrong |
+>
+> ***THE FOUR FAILURE-SHAPED LINES WERE READ AND ALL FOUR ARE THE MEASUREMENT
+> ITSELF, not a failure.*** `verify-credacl` raises
+> `TerminatingError(Get-Acl): "Attempted to perform an unauthorized
+> operation."` — that IS its test, and the next line says *"Access is denied -
+> which is the expected answer"*. `verify-osusers` prints *"Error 2 executing
+> operating system command"* while scoring `elev_piped=refused`. `icacls`
+> reports *"Failed processing 0 files"*, and `secure-account-dirs` *"0
+> failed"*.
+>
+> ***THE VFS REMOVAL WAS CHECKED SEPARATELY, BECAUSE THE SUITE HAS NO STEP FOR
+> IT*** — done on the installed tree, every check against a control:
+>
+> | on `C:\ProgramData\SD\sdsys` | removed | control |
+> |---|---|---|
+> | `$define FL$TYPE.VFS` | **0** | `FL$TYPE.SEQ` 1 |
+> | `$define ER$VFS.*` | **0** | `ER$ENCRYPTED` 1 |
+> | `$define FVAR.NET` | **0** | `FVAR.SEQ` 1 |
+> | `_EXTENDLIST` in `gpl.bp`, `gpl.bp.out`, `pcode.out` | **absent in all three** | `_DELLIST` present in all three |
+> | `VFS` in `FTYPE`, comments stripped | **0** | the `@SDSYS` line, 1 |
+>
+> ***THE FIRST VERSION OF THAT CHECK WAS WRONG AND IS WORTH THE WARNING.*** It
+> grepped for the bare names `FL$TYPE.VFS` and `FVAR.NET` and reported 1 and 2
+> hits — **the history comments that deliberately name what was removed.** A
+> pattern that matches the removal notice as readily as the definition is not a
+> check. Anchoring on `^ *$define` and pairing each with a control is what made
+> it decisive.
+>
+> ***THE FULL CYCLE AND THE WHOLE SUITE ARE GREEN ON THE FIFTY-SEVENTH
+> SESSION'S WORK.*** Nothing here is outstanding. It is kept as the record of
+> what was verified and against what.
+>
+> | | |
+> |---|---|
+> | install | **25 Aug 17:17:57**, from `sd-setup-W1.0-0.exe`, 4,818,601 bytes, built 17:17:43 |
+> | `sd.exe` | `275CFB03E142AA2C` — unchanged, 24 Aug 14:58, and **correctly so: no C changed this session** |
+> | unelevated | `VerifyInstall1 -ThenElevated -Run b41` — **12 steps, all exit 0** |
+> | elevated | `VerifyInstall2` — **19 steps, all exit 0** |
+> | `assert-current` | clean on every section: rename walk, B3 across **six** mirrors (2,951 files), B4 (25 checked), nothing newer than the install |
+>
+> **Counted rather than taken on exit codes: 979 `PASS` lines**, and every one of
+> the eight failure-shaped lines was read and is benign — `icacls` reporting
+> *"Failed processing 0 files"*, `secure-account-dirs` reporting `0 failed`, one
+> comment, and two `verify-tierapi` refusals inside its own **[6] The controls**
+> section, each scored `[PASS] expected False, got False`. ***Do not compare 979
+> against the "386 PASS" recorded for `b37`/`b38`*** — that figure was counted
+> differently; this one is a plain grep.
+>
+> ***WHAT IT DOES NOT COVER, AND IT IS THE SAME GAP AS BEFORE: THE UPGRADE
+> PATH.*** All of it is gated on `DataTreeUpgrade` and this was a first install,
+> so **none of it ran**. Item 3 still needs a guest that already has SD.
+>
+> ***AND THE STAND-ALONE INSTALL IS EQUALLY UNPROVEN.*** The suite has no step
+> that chooses it, so **all 31 steps ran the FULL installation**. What is
+> verified is that building it broke nothing; what is unverified is every line
+> of behaviour behind the mode page. See item 5.
+>
+> ***TWO REAL DEFECTS WERE FOUND GETTING HERE — both from the fifty-sixth
+> session, both invisible without a real run:*** `bp.out` on the upgrade replace
+> list while staging empty (`stage.py` refused the build, correctly), and
+> `sdsys\changelog` reading as STALE after it moved to `{app}`, which stopped
+> the suite at its first step. Both fixed; HISTORY parts 4 and 6.
+>
+> ***ONE PROCEDURAL TRAP WORTH THE NEXT SESSION'S TIME.*** `-Run` on its own does
+> nothing — it is *"ignored without `-ThenElevated`"*. Without that switch
+> `VerifyInstall1` runs its 12 unelevated steps, prints **"every step exited 0"**
+> and stops, which reads exactly like a finished suite and is **12 of 31**. The
+> whole suite is one command, from an **ordinary** terminal (two processes with
+> the correct token each is the design), ~4 UAC prompts:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run bNN
+> ```
+>
+> **A `-Run` prefix is spent once.** `b41` is used; `b39` and `b40` were spent on
+> the aborted runs.
+>
+> **NOTE ON RUNNING `cycle.ps1` FROM A SCRIPT**: `Start-Process -Verb RunAs
+> -Wait` **does not set `$LASTEXITCODE`** — use `-PassThru` and `.ExitCode`, or a
+> failed cycle reads as success. The 16:30:58 run exited **1** where
+> `$LASTEXITCODE` read 0.
+>
+> ### 2. DOCUMENTATION IS APPROVED AND SCOPED. IT STARTS *AFTER* 1.0-0 — OWNER, 25 Aug 2026
+>
+> ***"Let's finish up the remaining tasks to get to 1.0-0 and then start on
+> documentation."*** So do not open the documentation phase while anything
+> under item 3 or the §7 step 3 bullets is outstanding. Everything needed to
+> start is written down in §"DOCUMENTATION DECISIONS" below — **the format is
+> settled, the audience is settled, and the topic list is his, verbatim.**
+>
+> **The sample was judged and passed:** *"I like the format"*, and the
+> aggregate-by-function shape was singled out. Sample at
+> `docs\sample\file-commands.html`, source
+> [docs/sample/file-commands.md](docs/sample/file-commands.md), renderer
+> [gplbld/mkdoc.py](sdb_ai/sd64/gplbld/mkdoc.py) (python-markdown 3.10.2 is on
+> this machine; `setup-devbox.ps1` does **not** install it yet). Rebuild:
+> `python sdb_ai/sd64/gplbld/mkdoc.py --in docs/sample --out docs/sample`.
+>
+> **NOT BUILT, DELIBERATELY:** no index page, and `mkdoc.py` is **not** wired
+> into `stage.py` or `sd.iss`. Naming a `.md` in either puts it under
+> `assert-current`'s `$shipsAs` valve, after which every documentation edit
+> costs a full cycle. `mkdoc.py` is on `$neverShipped`
+> ([assert-current.ps1:484](sdb_ai/sd64/gplbld/assert-current.ps1:484)) for the
+> same reason, and the valve reinstates it by itself when `stage.py` names it.
+>
+> ### 3. THE DATA-TREE UPGRADE PATH IS BUILT, RUN AND MEASURED — CLOSED 26 Aug 2026
+
+***`verify-upgrade.ps1 -Compare`, ELEVATED, 21:48:14: 55 PASS, 0 FAIL, 1 SKIP
+of 56 rows, exit 0.*** The upgrade replaced the shipped subset in place, kept
+every preserved name byte-identical **and not recreated**, left the unlisted
+names alone, and removed the retired one. The single SKIP is `errlog`, absent
+before the upgrade too. `$cred` passed on both hash and creation time.
+
+***AND `RefreshDictionaries` RAN ON THE SAME INSTALL, ITS LOG UNREAD FOR A
+DAY.*** `C:\ProgramData\SD\upgrade-dicts.log`, 21:22:14: **76 of 76 records
+transferred, `COMPLETE=True`**, `THIRD.COMPILE` compiled 17 I-types,
+`sdsys\gplbld` removed in the `finally`. Every entry below that says *"never
+run on a machine"* is now spent — **except one**: it was an upgrade from the
+**same build**, so no record differed and nothing user-added existed. ***The
+merge semantics are still unproven.***
+
+***AND ITS LOG PRINTED `exit ` WITH NOTHING AFTER IT, TWICE.*** The
+`$null = $p.Handle` fault, fixed 26 Aug and unbuilt — the START HERE box has
+the measurement. Nothing was judged on it.
+
+>
+> ***THE OPEN PART IS CLOSED: THE INSTALLER REPLACES THE SHIPPED SUBSET IN
+> PLACE*** — owner, 25 Aug 2026. One step, no uninstall first, and the preserve
+> list lives in one file instead of being split across the installer and the
+> uninstaller, which are two places that would have to agree about `$cred`.
+> **In the same ruling `sdsys\changelog` moves to `{app}`**, where Inno replaces
+> it on upgrade with no custom code at all.
+>
+> | | |
+> |---|---|
+> | the list | `stage.py` `SDSYS_PRESERVE` (9 names), `SDSYS_RETIRED` (1), and a replace list **computed** as the ship lists minus preserve — 16 names |
+> | the entries | `stage.py` `write_upgrade_iss()` writes `<stage>\upgrade.iss`; `sd.iss:359` `#include`s it. **Generated, not written**, so it cannot drift from the tree it describes |
+> | the gate | `DataTreeUpgrade` in `[Code]`, `not DataTreeWasAbsent` — the same cached answer `DataTreeAbsent` reads |
+> | proven | ISCC compiles the generated sections, **with a control that fails**; `Check:` is legal in `[InstallDelete]`. `test-upgradeiss-units.py`, 49 checks, covers the classification and four refusals |
+>
+> ***IT NOW HAS AN INSTRUMENT — [verify-upgrade.ps1](sdb_ai/sd64/gplbld/verify-upgrade.ps1),
+> WRITTEN 25 Aug 2026, AND THE MACHINE IS SNAPSHOTTED AND WAITING.*** Run
+> `-Snapshot` before the upgrade and `-Compare` after.
+>
+> ***THE NULL CASE IS THE WHOLE DIFFICULTY AND HASHING DOES NOT SOLVE IT.***
+> *"The preserved files are unchanged"* passes **perfectly** on an upgrade that
+> never ran. And comparing content does not rescue it: an upgrade from the same
+> source copies back **byte-identical** files, so *"the replaced files changed"*
+> is false on a legitimate upgrade — Inno even gives a copied file its SOURCE
+> file's timestamp.
+>
+> ***SO THE INSTRUMENT IS A PAIR OF PROBES THAT MUST DISAGREE.*** `-Snapshot`
+> plants the same marker in `sdsys\bp` (on `SDSYS_PRESERVE`, empty, so a stray
+> file is harmless — **must survive**) and in `sdsys\gcat` (on the replace list,
+> deleted whole by `Type: filesandordirs` — **must be gone**). Both surviving
+> means the installer never ran; both gone means it replaced something it was
+> told to keep. **Only the disagreement is consistent with a real upgrade**, and
+> it stays decisive when every copied byte is identical.
+>
+> **The retired name is FORCED**, because a first install never creates
+> `sdsys\changelog` and this machine has only ever had first installs — so the
+> delete would be measured against a file already absent. `-Snapshot` creates
+> it, which is `verify-notyet.ps1`'s technique.
+>
+> ***IT IS THE ONE VERIFIER THAT MUST NOT CALL `assert-current`***, and that is
+> deliberate: an upgrade test needs the install to be the OLD build while source
+> is the NEW one, so between the two runs the tree is **expected** to be stale.
+> `-Compare` records the `sd.exe` hash on both sides instead. It is on
+> `$neverShipped` regardless — it could not block itself, but it would have made
+> every OTHER verifier refuse.
+>
+> **PROVEN: the `-Snapshot` half, 21:18:08** — 11 preserve, 14 replace, 3
+> unnamed names each with kind, count, hash and creation time; both probes
+> planted and read back.
+>
+> ***AND THE UPGRADE ITSELF RAN AT 21:21 THE SAME EVENING. NOBODY NOTICED,
+> BECAUSE THE SCORING FAILED AND THE FAILURE WAS READ AS "NOT YET DONE".***
+> `-Compare` refused at 21:22:59 (*"no snapshot"*, the redirected path); that
+> was diagnosed correctly and the handoff was then written as though the
+> installer had never been run. **It had.** Found 26 Aug by reading the tree:
+> `unins000.dat` rewritten 21:21, all 14 replace names recreated at 21:21:5x,
+> all 11 preserve names still 20:56:03 and byte-identical, the probe pair in
+> the required disagreement, `sdsys\changelog` gone.
+>
+> ***SCORED READ-ONLY, 26 Aug 2026: 42 PASS, 0 FAIL, 2 not measurable.*** The
+> two are `$cred` (administrators-only, so an unelevated walk cannot read it)
+> and `errlog` (absent before the upgrade too — a genuine `SKIP` in the
+> instrument as well).
+>
+> ***THE SNAPSHOT IS RECOVERED TO `C:\ProgramData\SD-verify\upgrade-snapshot.json`***
+> — copied byte-for-byte from the package cache, one `Provenance` field added
+> and every original field asserted identical after the rewrite. **So finishing
+> item 3 is one elevated command, `-Compare`, and `-Snapshot` must NOT be
+> re-run**: it would overwrite the pre-upgrade state with the post-upgrade one.
+> `-Compare` is one-shot — it removes the surviving probe as it exits.
+>
+> ***BECAUSE THE MACHINE IS STAND-ALONE, THIS RUN ALSO COVERED
+> `StandaloneWasMarked` AND "a stand-alone system stays one"*** — `$standalone`
+> is on the unnamed list and survived the upgrade.
+>
+> ***TWO INSTRUMENT DEFECTS FIXED IN THE SAME COMMIT, and the first is the
+> interesting one:***
+>
+> 1. ***`-Compare` RECORDED EVERY NAME'S CREATION TIME AND NEVER READ IT BACK.***
+>    `Get-Fingerprint`'s own comment says CreationTime *"is what distinguishes
+>    'left alone' from 'deleted and recreated with identical contents', which is
+>    the case content hashing cannot see"* — and section [2] scored on the hash
+>    alone. A preserved directory wrongly deleted and restored from the same
+>    build is byte-identical and passed. Both directions are now scored:
+>    preserved names must not move (**hard** — NTFS tunneling can only hide a
+>    move, never invent one), and the replace side is counted in **aggregate**
+>    with zero-moved as the null case, because per-name it is tunneling-fragile.
+>    On this run: **11 of 11 same, 14 of 14 moved.**
+> 2. **A moved snapshot was indistinguishable from one written in place.**
+>    `-Compare` printed only the path it read. It now announces a `Provenance`
+>    field when the file carries one; `-Snapshot` never writes it, so its
+>    presence is the whole signal.
+>
+> ***WHAT WAS UNTESTED, AND THE HALF THAT STILL IS: NO UPGRADE HAS BEEN RUN.*** A full `cycle.ps1` proves the first
+> half; the second needs **a guest that already has SD, installed over**. Check
+> after it: `$cred`, `accounts`, `cat`, `os.users`, `batch.jobs`, `prt`,
+> `$hold` and `voc` still there and unchanged; `gcat` and `gpl.bp.out` refreshed
+> to the new build; `sdsys\changelog` gone and `{app}\changelog` present.
+>
+> ***THE `.dic` SET: THE OPEN QUESTION WAS THE WRONG ONE, MEASURED 25 Aug
+> 2026.*** This entry used to say "widening the replace list is a one-line
+> change and needs a decision". **Replacing them is the wrong mechanism, and
+> the right one already exists and is already the ruling for VOC.**
+>
+> **All eight dictionaries have ONE source and it is tracked:**
+> [gplbld/FILES_DICTS](sdb_ai/sd64/gplbld/FILES_DICTS), 76 records, keyed
+> `<file>^<record>` — `voc.dic` 16, `dict.dic` 34, `$map.dic` 11,
+> `accounts.dic` 5, `os.users.dic` 5, `batch.jobs.dic` 3, `$hold.dic` 1,
+> `dir_dict` 1. [gpl.bp/WRITE_INSTALL_DICTS](sdb_ai/sd64/sdsys/gpl.bp/WRITE_INSTALL_DICTS)
+> reads it at bootstrap and writes each record into the named dictionary.
+>
+> **They land in two shapes, which is why they sit in different buckets:**
+>
+> | | |
+> |---|---|
+> | `os.users.dic`, `batch.jobs.dic` | **directory files**, declared in `SDSYS_EMPTY`, so `stage.py` knows them. On `SDSYS_PRESERVE` |
+> | `voc.dic`, `dict.dic`, `accounts.dic`, `$map.dic`, `$hold.dic` | **dynamic files**, created by `sd -i`, declared nowhere — out of the upgrade's reach by construction |
+>
+> ***WHOLESALE REPLACEMENT IS WRONG FOR THE REASON `cat` IS PRESERVED.*** A
+> dictionary is a place an administrator legitimately adds items — a derived
+> I-type, a local D-type. Copying the shipped `voc.dic` over theirs destroys
+> that silently, which is the same argument that kept the private catalogue.
+>
+> ***`WRITE_INSTALL_DICTS` ALREADY MERGES.*** `WRITE DICT.REC ON
+> DICT.FILE.VAR, FILE_REC_NAME` at :107 — **per record, no `CLEARFILE`, no
+> delete** — so re-running it adds and updates the shipped items and leaves a
+> user's own alone. It is `UPDATE.ACCOUNT`'s shape exactly, and the owner has
+> already ruled that shape correct for VOC.
+>
+> ***BUILT 25 Aug 2026.***
+> [upgrade-dicts.ps1](sdb_ai/sd64/gplbld/upgrade-dicts.ps1) runs
+> `sd -internal RUN gpl.bp WRITE_INSTALL_DICTS NO.PAGE` and then
+> `sd -internal THIRD.COMPILE` — the second is **not optional**, dictionary
+> I-types are compiled and `bootstrap.py` runs it in the same pair.
+> `RefreshDictionaries` in `sd.iss` calls it at `ssPostInstall`, gated on
+> `DataTreeWasAbsent` so a first install skips it.
+>
+> | | |
+> |---|---|
+> | the input | `stage.py` now ships `gplbld\FILES_DICTS` to **`{app}\gplbld`**, never into the data tree. The script places it at `sdsys\gplbld\FILES_DICTS`, runs, and removes it in a `finally` — the same place and the same reason as `bootstrap.py`'s `BOOTSTRAP_ONLY` |
+> | the check | counts `DICTIONARY: <file> <record>` lines against the record count taken from the source **before** the run, and requires the program's own `COMPLETE`. Disqualifiers: `ERROR OPENING FILE`, `PROCESS ABORTED`, `READLIST EMPTY`, `NO DIRECTORY RECORDS FOUND`, `ERROR CANNOT OPEN`, `CANNOT READ TRANSFER_FILE`, `Command requires administrator privileges` |
+> | the null case | an absent or empty `FILES_DICTS` exits **4** before starting anything — the program would otherwise transfer nothing and still print `COMPLETE` |
+> | exit codes | 0 done · 3 SD would not start · 4 no `FILES_DICTS` shipped · 1 ran and failed. Each gets its own sentence in the closing box |
+> | ordering | after the four ACL steps (each grants `BUILTIN\Administrators` full control, so nothing it writes is blocked) and before `AdoptAccount` |
+>
+> ***PROVEN AS FAR AS IT CAN BE WITHOUT AN INSTALL: the `[Code]` section
+> COMPILES, with a control.*** `sd.iss`'s Pascal only fails at ISCC, so it was
+> lifted into a harness and compiled — exit 0, and the same section with one
+> deliberate Pascal error fails. **That run caught a real defect**: two of the
+> new message branches wrapped `#13#10` onto the start of a line, which ISPP
+> reads as a preprocessor directive. It is the fault that cost a cycle on
+> 19 Aug 2026 and the reason `cycle.ps1` lints for it.
+>
+> **UNTESTED, and it is the same gap as the rest of the upgrade path:** it has
+> never run on a machine. Needs the guest that already has SD.
+>
+> **Nothing is broken today**, checked rather than assumed: the installed
+> `voc.dic` is a hashed file whose `%0` bucket holds `DISPATCH` and
+> `PROCESSOR`, so the records are there. A bare `ls` of a dynamic file shows
+> only `%0`/`%1` and reads as an empty dictionary — do not draw that conclusion
+> from a directory listing.
+>
+> ### 3a. STRIP VFS FROM THE C — CLOSED 25 Aug 2026. CYCLED AND VERIFIED.
+>
+> ***NOTHING IS OUTSTANDING.*** 13 C sites across 8 files, 9 BASIC edits across
+> 4 files, `SYSCOM/ERR.H` and `GPL.BP/ERRTEXT.H` regenerated by
+> `gen_includes.py`, `UPSTREAM_FIXES.md` **entry 15** written. Two full cycles
+> and the suite green; **the removal was checked directly on the installed tree
+> because the suite has no VFS step** — item 1 carries that table and its
+> controls. HISTORY.md, "Fifty-eighth session" parts 1 and 2, has the rest.
+>
+> | | |
+> |---|---|
+> | `make sd` | after `rm -f gplobj/*.o`. 84 files, exit 0, **zero warnings** under `-Wall -Wformat=2` |
+> | `cycle.ps1 -SkipInstall` | 18:08:26, exit 0. 183 `0 error(s)`, **zero** non-zero. Staged tree whole. Installer 4,819,689 bytes |
+> | the 6 compile WARNINGs | **byte-identical to the 17:17 green run's.** None introduced |
+> | `_VOC_REF` | proven *running*, not just compiling: it resolves every VOC file reference, so the bootstrap's 183 compiles are that edited control flow executing |
+> | retired, not freed | `DHF_VFS` 0x40, `PF_IS_VFS` 0x00200000, and errors 3038-3040. Comments stand where the `#define`s were |
+> | left alone, per the ruling | `gplsrc/sdclilib/err.h` — the shipped client library's public header |
+>
+> ***TWO ADJACENT FINDINGS — BOTH RULED ON AND BOTH DONE, 25 Aug 2026.*** The
+> owner approved each **for this cycle**, which is the whole reason they were
+> raised before it rather than after: folding them in cost no extra cycle and
+> deferring them would have cost a full one each.
+>
+> 1. **`GPL.BP/_EXTENDLIST` is DELETED.** Unreachable — its description named
+>    the VFS as its caller and **no C source called `pcode_extendlist`**
+>    (control: `pcode_dellist` is called at `op_dio4.c:137`, so call sites are
+>    literal and the grep does find them). Removed from `pcode.h`,
+>    `gplbld/pcode_bld.py`, `gplbld/COMP_PCODE`, and the source file is gone.
+>    **No `SDSYS_RETIRED` entry is needed, and that was read rather than
+>    assumed**: `write_upgrade_iss()` emits `Type: filesandordirs` for every
+>    *directory* on the replace list, so an upgrade deletes `gpl.bp`,
+>    `gpl.bp.out` and `pcode.out` outright before copying — a file inside one
+>    of them cannot survive. `SDSYS_RETIRED` is for a top-level name under
+>    `sdsys` that source no longer ships, which this is not.
+> 2. **`NET_FILE` 4 is REMOVED from `descr.h`, and so is its BASIC mirror.**
+>    `descr.h` says *"Tokens also in BP DEBUG.H"*, so `FVAR.NET` went from
+>    `GPL.BP/DEBUG.H` with it, along with the `DEBUG` arm that printed
+>    *" (Networked)"* for a file type nothing can produce. Runtime-only value,
+>    so **no retirement** — unlike VFS's two bit values.
+>
+>    ***THE SWEEP FOUND THE REST OF THE SDNet RESIDUE IS DELIBERATE, NOT
+>    LEFTOVER, so it was not touched.*** `NETFILES`, `K$SDNET`, `USR_SDNET`,
+>    `sdnet.h` and `SrvrOpenSDNet` are all still there **by ruling** —
+>    [sd.h:272](sdb_ai/sd64/gplsrc/sd.h:272), [op_dio1.c:635](sdb_ai/sd64/gplsrc/op_dio1.c:635)
+>    and [op_kernel.c:516](sdb_ai/sd64/gplsrc/op_kernel.c:516) each say so in
+>    place, and §8 has the reasoning. `sdnet.h` in particular is **not** SDNet:
+>    it is the socket/termios portability header. `NET_FILE` was the one
+>    genuine orphan, at 1 occurrence here against upstream's 9.
+>
+> ***MEASURED AFTER THE SECOND ROUND, 18:19 — the numbers moved exactly as
+> predicted, which is the check that the removal did what it claimed:***
+> `gpl.bp.out` **185 → 184** (one program), `gcat` **125 → 125** (unchanged —
+> `_EXTENDLIST` was `$internal` with no `$catalog`), compiles **183 → 182**, the
+> six WARNINGs still byte-identical. `make sd` 84 files, exit 0, zero warnings.
+> Installer 4,819,017 bytes at 18:20:01.
+>
+> ***AND THE PCODE TABLE IS PROVEN, not merely assumed to still agree.***
+> `load_pcode` ([sd.c:847](sdb_ai/sd64/gplsrc/sd.c:847)) matches on
+> `obj->ext_hdr.prog.program_name`, so entries are found **by name** and nothing
+> shifts — but the real evidence is that `sd.exe` calls it for **every**
+> `Pcode()` entry at **every** start-up, and the bootstrap then compiled 182
+> programs. A disagreement between `pcode.h` and the library would have printed
+> *"Pcode item X not found"* and SD would not have started at all, so **182
+> successful compiles is the positive anchor** — not the absence of an error
+> string. Control on the staging check: `_DELLIST` is present in all three of
+> `gpl.bp`, `gpl.bp.out` and `pcode.out`, so the `find` that reports
+> `_EXTENDLIST` absent is a working instrument.
+>
+> ***CHECKING THE PCODE LISTS AFTER THE DELETE TURNED UP TWO MORE THINGS.
+> NEITHER IS ACTED ON, AND THE FIRST IS DELIBERATELY LEFT UNRESOLVED.***
+>
+> **The invariant was verified and it holds**, and it is not the one a count
+> comparison tests: the three lists are **not** required to be equal.
+> `pcode.h` is what `sd.exe` LOADS; `pcode_bld.py` and `gplbld/COMP_PCODE`
+> BUILD the library. A name loaded but not built is **fatal** — SD prints
+> *"Pcode item X not found"* and will not start. A name built but not loaded is
+> **harmless**. Measured after the delete: **zero** in the fatal direction
+> against either builder. Counts differ (52 loaded, 55 and 58 built) and that is
+> fine.
+>
+> ***THE FIRST INSTRUMENT FOR THIS WAS WRONG AND SAID SO LOUDLY, which is the
+> only reason it was caught.*** Its regex character class was `[A-Z0-9$.]`,
+> with **no underscore**, so every name with an internal underscore was invisible
+> on the builder side while the loader side built its names from
+> `Pcode(voc_ref)` and kept them. It reported `_VOC_REF` and `_VOC_CAT` as
+> **loaded but never built** — which would mean SD could not start, on a tree
+> that had just compiled 182 programs. **A "fatal" verdict contradicted by the
+> tree still running is the tell**; the fix was one character class.
+>
+> 1. **`_FMTS`, `_ICONVS` and `_OCONVS` are built into the pcode library and
+>    `pcode.h` does not declare them** — no C source names `pcode_fmts`,
+>    `pcode_iconvs` or `pcode_oconvs` (control: `pcode_dellist`, 1 hit).
+>    ***DO NOT READ THAT AS DEAD AND DO NOT DELETE THEM ON THE STRENGTH OF THIS
+>    NOTE.*** The *functions* are not orphaned: `FMTS`/`ICONVS`/`OCONVS` are VM
+>    opcodes — [opcodes.h:661](sdb_ai/sd64/gplsrc/opcodes.h:661)
+>    `_extop_("MVDS", "FMT", "FMTS")`, dispatched by `op_mvds()`
+>    ([op_mvfun.c:590](sdb_ai/sd64/gplsrc/op_mvfun.c:590)) — so the language
+>    feature works without these records. **Whether the records themselves are
+>    reachable by another route was NOT established**: `BCOMP`, `ICOMP` and
+>    `FMTSUB` all name them and that was not chased down. This is a lead, not a
+>    finding.
+> 2. **`gplbld/COMP_PCODE` names `_LOGIN`, `_TTYGET` and `_TTYSET`, and those
+>    three source records do not exist** — they went from `pcode.h` on
+>    15 Jun 24. `COMP_PCODE` is **not run** by `cycle.ps1`, `stage.py` or
+>    `bootstrap.py`; `pcode_bld.py` is. So it is dormant rather than broken, but
+>    it would fail if anybody ran it, and it is the kind of thing that is only
+>    ever found at the worst moment.
+>
+> **THE RECORD OF WHY IT WAS DONE IS BELOW, UNCHANGED.**
+>
+> ***OWNER'S DECISION: DO IT AFTER THE CURRENT TASK***, and *"inform the SD
+> Linux folks if needed by adding to UPSTREAM_FIXES"*. His reason is a standing
+> preference worth quoting: *"i generally dislike code that is left in a code
+> base when it is not used, it has a way of coming back to bite one in the
+> ass."*
+>
+> ***VFS IS ALREADY BROKEN END TO END, WHICH IS THE ACTUAL DEFECT.*** The BASIC
+> advertises a feature the C does not implement:
+>
+> | | |
+> |---|---|
+> | `gpl.bp/FTYPE:50` | `if upcase(path[1,4]) = 'VFS:' then return ('VFS')` |
+> | `gpl.bp/_VOC_REF:191` | a branch that skips absolutising a `VFS:` pathname |
+> | the C open path | ***nothing recognises `VFS:` at all*** |
+> | `err.h` 3038–3040 | `ER_VFS_NAME`, `ER_VFS_CLASS`, `ER_VFS_NGLBL` — defined, **never raised** |
+>
+> So a VOC F-pointer at `VFS:something` is reported as a VFS by `FTYPE`, passes
+> `_VOC_REF`, then fails in the C with an unrelated error.
+>
+> ***THE PERSISTENCE QUESTION IS ANSWERED — owner asked it before agreeing, and
+> it is the one that decides whether removal is safe.***
+>
+> | value | where | persisted? |
+> |---|---|---|
+> | `VFS_FILE` 5 ([descr.h:318](sdb_ai/sd64/gplsrc/descr.h:318)) | `fvar->type`, the **runtime** `FILE_VAR` | **no.** And never assigned — `fvar->type` only ever gets `INITIAL_FVAR`/`DYNAMIC_FILE`/`DIRECTORY_FILE`. Read once, `op_dio3.c:505`, a guard that cannot fire |
+> | `SEL_VFS` 2 ([dh.h:154](sdb_ai/sd64/gplsrc/dh.h:154)) | indexes `select_ftype[]`, a `Public int` | **no.** Never assigned or compared; the `#define` is its only occurrence |
+> | ***`DHF_VFS` 0x40*** ([dh.h:105](sdb_ai/sd64/gplsrc/dh.h:105)) | ***a FILE-HEADER bit*** — `dh.h:98`, *"LS 16 bits come from file header"* | ***yes, in format*** — but **never set**, and excluded from `DHF_CREATE` (0xB8), so no SD build can create a file carrying it |
+> | ***`PF_IS_VFS` 0x00200000*** ([kernel.h:101](sdb_ai/sd64/gplsrc/kernel.h:101)) | ***a COMPILED-OBJECT header flag*** (`pgm->flags`) | ***yes, in format*** — tested at `kernel.c:673`, printed at `pdump.c:227`, **never set**: BCOMP has no directive for it |
+>
+> ***SO REMOVAL IS SAFE, WITH ONE RULE: RETIRE THE TWO BIT VALUES, DO NOT
+> RECYCLE THEM.*** Same reasoning as `ACC$USERS` field 4 (§7 step 5) — a file
+> from another MultiValue implementation could carry `0x40`.
+>
+> ***IT IS UPSTREAM'S, MEASURED 25 Aug 2026 — the owner guessed "Ladybridge
+> never ported the VFS system to the GPL version on purpose" and the clone
+> agrees.*** `../sdb64/sd64/gplsrc` is **identical, value for value**:
+> `VFS_FILE` 2 hits, `SEL_VFS` 1, `DHF_VFS` 1, `PF_IS_VFS` 3 — the same counts
+> as here — its C open path does not know `VFS:` either, its `FTYPE:50` carries
+> the same line, and it **still ships `sdsys/BP/VFS.CLS`**. ***So this earns an
+> `UPSTREAM_FIXES.md` entry, written in the same commit as the fix*** per §0.
+>
+> **The comparison needed a control and the first attempt was wrong.** The
+> clone's source is at `sdb64/sd64/gplsrc`, one level deeper than
+> `sdb64/gplsrc`; the first grep returned **0 hits for all four values** and
+> would have read as "upstream already removed it". `DHF_NOCASE` and
+> `DYNAMIC_FILE` returning 0 in the same run is what exposed it. **Grep the
+> clone with a symbol that must be there.**
+>
+> **Scope:** 13 C sites across 8 files, 11 BASIC sites, and `ERR.H`,
+> `ERRTEXT.H`, `KEYS.H` regenerated by `gen_includes.py`. ***One judgement call
+> left:*** `gplsrc/sdclilib/err.h` carries its own copy of 3038–3040 and that is
+> the **client library's public error header**, so removing codes there is an
+> API change to a shipped DLL, not an internal tidy-up. Leave it unless the
+> owner says otherwise.
+>
+> ***IT IS A C CHANGE, SO `cycle.ps1` WILL NOT BUILD IT*** (§6). `rm -f
+> gplobj/*.o && make sd` first — removing header defines shifts everything after
+> them and stale objects read the wrong offsets — then a full cycle.
+>
+> ### 4. THE REMOTE-BLOCK CONTROL — ***CLOSED 25 Aug 2026. THE SCOPING BLOCKS A REMOTE MACHINE.***
+>
+> That the ssh scoping blocks a REMOTE machine is the one §5.9 claim never
+> measured. NAT cannot show it.
+>
+> ***CLOSED 25 Aug 2026, 23:5x — THE SCOPING BLOCKS A REMOTE MACHINE. MEASURED,
+> WITH ITS CONTROL, FROM ONE HOST TO ONE GUEST.*** The §5.9 claim outstanding
+> since 13 Aug 2026 is proven. Host `10.0.0.3`, guest `sshRemoteTest-C1` at
+> `10.0.0.143`, bridged, guest network profile **Private**, `sshd` listening on
+> `:::22` and `0.0.0.0:22`.
+>
+> | the rule on the guest | host dial to `10.0.0.143:22` | same-run witness |
+> |---|---|---|
+> | `RemoteAddress = Any` | ***CONNECTED, 23ms*** | — |
+> | `RemoteAddress = 127.0.0.1` | ***dropped, 4003ms*** | port **5040 REACHABLE in 23ms**, ARP state **Reachable** |
+>
+> ***THE SECOND ROW IS ONLY EVIDENCE BECAUSE OF THE FIRST AND THE WITNESS.***
+> Nothing changed between the two dials except the firewall rule — same guest,
+> same network profile, same host, minutes apart — and in the blocked run
+> another port on that guest answered in 23ms while 22 sat for the full
+> timeout. **A guest that was merely unreachable would have failed both dials
+> and answered on nothing.** It did exactly that an hour earlier, which is what
+> the precondition above records.
+>
+> ***THE CHAIN IS NOW COMPLETE, AND IT IS TWO SEPARATE MEASUREMENTS.*** That
+> the INSTALLER writes `127.0.0.1` when `sshremote` is unticked was proven on
+> **three guests on 25 Aug**; that the value it writes **actually refuses a
+> remote machine** is proven here. Neither implies the other, and until today
+> only the first had been taken.
+>
+> **The rule was toggled with `ssh-firewall.ps1 -Installed -Open|-Restrict`
+> rather than by reinstalling, deliberately**: item 4 asks about firewall
+> behaviour, not installer behaviour, and a reinstall would have re-measured
+> the half that was already proven.
+>
+> ***RE-CHECKED 26 Aug 2026 ON THE OWNER'S QUESTION — "we did a comprehensive
+> ssh test using a VM, make sure this is not already done". IT IS NOT.*** The
+> VM ssh work was extensive and is not in doubt; **every ssh reachability dial
+> in it went to LOOPBACK.** Searched for any dial to port 22 from a
+> non-loopback address: **none**, and the search is a working instrument
+> because it finds the remote **API** dials (`10.0.0.143` → `10.0.0.3`) in four
+> places. The fifty-fifth session says so itself: *"Still unproven, unchanged:
+> that the scoping blocks a REMOTE machine."*
+>
+> ***WHAT IS ALREADY PROVEN, so nobody re-runs it:*** the rule reads
+> `RemoteAddress = 127.0.0.1` **as the installer leaves it** (this was the
+> defect — it read `Any` before 25 Aug), `-Installed -Restrict` prints its
+> success wording and exits 0, and `127.0.0.1:22` (AF_INET) and `::1:22`
+> (AF_INET6) are both REACHABLE. `probe-sshfirewall.ps1` PASSED.
+>
+> ***THE GAP IS A CONFIGURATION READING STANDING IN FOR A BEHAVIOURAL ONE.***
+> We know the instrument reads the rule correctly — that is how the 24 Aug
+> defect was caught. Nobody has confirmed that a rule reading `127.0.0.1`
+> actually refuses a remote connection.
+>
+> ***AND "NEEDS A BRIDGED NIC" OVERSTATES THE COST: THE RIG EXISTS AND HAS DONE
+> THIS DIRECTION.*** §7 step 2 describes `Windows 11 Clone`, snapshot
+> `Before SD install`, **bridged over the WiFi adapter**, and it is how the API
+> was reached across a real network. ***THAT VM NO LONGER EXISTS*** — checked
+> with `VBoxManage list vms`, 26 Aug 2026: only `Beardog`,
+> `Windows 11 - Template` and `sshRemoteTest-C1` remain. Clones are made and
+> deleted routinely; **read the rig off `VBoxManage`, not off this file.** So: SD on a bridged guest, then dial the
+> guest's port 22 from the host.
+>
+> ***THE CONTROL IS THE POINT, NOT THE DIAL.*** A refused dial proves nothing
+> on its own — an unreachable guest refuses identically. **The same dial must
+> SUCCEED with `sshremote` ticked**, where the rule is `RemoteAddress=Any`.
+> `probe-sshfirewall.ps1 -Expect Restricted|Open` is already that pair; what it
+> lacks is a remote dialer.
+>
+> ***AND ONE GUEST CLOSES ITEM 4 AND ITEM 5's SKIP TOGETHER.***
+>
+> ***CORRECTION, 26 Aug 2026, SAME DAY: `sshNoServer` DOES NOT EXIST.*** This
+> entry said *"which already exists"* — written without looking. `VBoxManage
+> list vms` registers **only `Windows 11 - Template` and `Beardog`**; every ssh
+> test clone was deleted after use, which HISTORY records for two of them. **A
+> guest named in the record is not a guest on the machine.**
+>
+> ***THE RIG IS STILL BETTER THAN THAT ENTRY CLAIMED, THOUGH: the template is
+> ALREADY BRIDGED.*** `nic1="bridged"` over the `Realtek 8852BE Wireless LAN`
+> adapter, host at **10.0.0.3** — the same segment the API crossed at
+> `10.0.0.143`. No NIC change is needed at all.
+>
+> ***CLONED 26 Aug 2026 AND WAITING: `sshRemoteTest-C1`.*** Made with
+> `--options keephwuuids,keepallmacs` on the owner's reminder, and **verified
+> to have kept both**: MAC `080027AECE7C` and hardware UUID
+> `59d00c9d-…-c4cf197890aa`, identical to the template, bridged on the same
+> adapter.
+>
+> ***SO THE TEMPLATE AND THE CLONE SHARE A MAC AND MUST NEVER RUN AT THE SAME
+> TIME.*** Sequential runs are fine; both up at once is an address collision on
+> the bridged segment. Nothing was running when the clone was made.
+>
+> **Three installs answer everything machine-dependent that is left:**
+>
+> | run | what it settles |
+> |---|---|
+> | full, `sshremote` **unticked** | rule scoped to `127.0.0.1`; dial host → guest:22 must be **REFUSED** — item 4's treatment |
+> | full, `sshremote` **ticked** | rule `Any`; the **same dial must SUCCEED** — item 4's control, and the half without which the first row means nothing |
+> | **stand-alone** | item 5's one SKIP. `SshServerAbsent` is **true** here, so `not StandaloneChosen` is finally the operative half of the `[Run]` gate — the mode page's first promise. Also **what the mode and tasks pages look like**, and whether `apiremote`/`sshremote` actually hide |
+>
+> **That is the whole of the machine-dependent work left before 1.0-0.** Item 5
+> points here rather than repeating it.
+>
+> ### 4a. THE ssh REMOTE-BLOCK RUNBOOK — ***RUN, AND PASSED***
+>
+> ***RUN AND PASSED, 25 Aug 2026. ITEM 4 HAS THE RESULT AND THE CONTROL.***
+> This entry carried a not-yet-measured banner for about an hour. It is kept
+> as the runbook, because the sequence below is what the next guest needs and
+> item 5's SKIP still wants it.
+>
+> *(That banner was reworded rather than quoted here: `check-stale-leads.py`
+> matched the original phrasing inside its own historical quotation and flagged
+> this entry. A checker cannot tell a quoted claim from a live one, so do not
+> quote a superseded status line verbatim - describe it.)*
+>
+> ***WHAT ACTUALLY HAPPENED DIFFERED FROM STEPS 5–7 AND THAT IS THE USEFUL
+> PART.*** No uninstall and no reinstall: the rule was toggled with
+> `ssh-firewall.ps1 -Installed -Open` and `-Restrict`, which measures firewall
+> behaviour — the thing item 4 actually asks about — without re-measuring the
+> installer path that three guests already proved on 25 Aug. **Two dials, one
+> toggle, no second install.**
+>
+> ***EVERYTHING THAT DOES NOT NEED A PERSON IS DONE, 26 Aug 2026.*** The clone
+> exists, the rig is bridged, both probes are written and self-tested. **What is
+> left needs somebody at the wizard, because SD cannot be installed silently.**
+>
+> | | |
+> |---|---|
+> | guest | **`sshRemoteTest-C1`**, cloned from `Windows 11 - Template` with `keephwuuids,keepallmacs`, **verified to have kept both** |
+> | network | bridged on `Realtek 8852BE Wireless LAN`, **already set on the template** — no change needed. Host is `10.0.0.3` |
+> | host probe | [probe-sshremote.ps1](sdb_ai/sd64/gplbld/probe-sshremote.ps1) — **new**, dials the guest. `-SelfTest` 4 of 4 |
+> | guest probe | [probe-sshfirewall.ps1](sdb_ai/sd64/gplbld/probe-sshfirewall.ps1) — existing, reads the rule and dials loopback |
+>
+> ***THE TEMPLATE AND THE CLONE SHARE A MAC. NEVER RUN BOTH AT ONCE.***
+>
+> ***RUN THE `Open` LEG FIRST. THIS IS NOT A PREFERENCE.*** It is the only
+> thing that proves the guest is up, `sshd` is listening and the bridge works.
+> A `Blocked` leg run first would refuse identically on a guest that never
+> booted, and `probe-sshremote.ps1` says so in its own closing sentence rather
+> than claiming a proof it has not got.
+>
+> ***THE INSTALLER, AND WHICH BUILD IT IS.*** Owner, 26 Aug 2026: *"you can
+> copy the installer to `P:\` it is available from host and vm - ip address of
+> vm is 10.0.0.143."* **Copied and verified byte for byte:**
+>
+> | | |
+> |---|---|
+> | on the guest | ***`P:\sd-setup-W1.0-0.exe`*** — `P:` is reachable from both |
+> | built | **25 Aug 21:56:55**, 4,819,028 bytes |
+> | SHA256 | `57228B09EF23DFC2C0DE36E11B695E93F03A38FA6389B77E84963DF568082249` — **checked equal at both ends**, not assumed from a copy that reported success |
+> | what it carries | the 21:57 cycle's build, so **this session's three fixes are in it**: the `apiremote` gate, and `$null = $p.Handle` in both scripts |
+> | guest address | **10.0.0.143** |
+> | also on `P:\` | ***`probe-sshfirewall.ps1`***, 9,244 bytes, SHA256 `97848043A644274A…E8C4CB` — copied 26 Aug 2026, **hash checked at both ends, and the COPY itself parse-checked on `P:\`**: 0 errors, 6 functions, no BOM, so it will load on the guest rather than dying at step 3 |
+> | NOT on `P:\`, deliberately | `probe-sshremote.ps1` — it runs on the **host**, from the repository. Only the guest-side halves need copying |
+>
+> ***SO THE TASKS PAGE IS WORTH A LOOK ON STEP 2 FOR A SECOND REASON.***
+> `apiremote` now carries `Check: not StandaloneChosen` and this is a FULL
+> install, so **the box must still be there**. That is the regression this
+> session's one-line change could have caused, and it has only been reasoned
+> about, never seen.
+>
+> ***PRECONDITION FOUND BY RUNNING IT, 25 Aug 2026 23:47: THE GUEST MUST BE ON
+> A **PRIVATE** NETWORK PROFILE, OR EVERY LEG OF THIS TEST IS MEANINGLESS.***
+>
+> The first host dial, `-Expect Open` with the rule at `RemoteAddress=Any` and
+> `probe-sshfirewall` reporting PASSED on the guest, **did not connect**. It was
+> not the ssh rule:
+>
+> | from the host, to 10.0.0.143 | |
+> |---|---|
+> | ARP | **resolves**, `08-00-27-AE-CE-7C` — the clone's own MAC, so layer 2 is fine |
+> | route | via **Wi-Fi 10.0.0.3**, the bridged adapter and the only one up |
+> | ICMP | no reply |
+> | ports 22, 135, 445, 3389, 5985 | ***all dropped*** |
+>
+> **Everything inbound is dropped, not just 22**, which is a machine-wide block.
+> SD's rule reads `Profile: Private` — and **SD never sets that**, it only
+> reports it (`ssh-firewall.ps1` has no profile assignment), so it is
+> OpenSSH's. On a guest whose connection is categorised **Public**, a
+> Private-profile rule does not apply at all.
+>
+> ***AND THIS IS PRECISELY THE FALSE GREEN THE CONTROL EXISTS TO CATCH.*** Run
+> the `Blocked` leg on this guest and it PASSES — on a machine that refuses
+> everything from everybody, having measured nothing about SD. The whole
+> project's null-case rule in one reading. **Never take the `Blocked` leg
+> without the `Open` leg passing first on the same guest.**
+>
+> **Check on the guest, elevated:** `Get-NetConnectionProfile`. If
+> `NetworkCategory` is `Public`,
+> `Set-NetConnectionProfile -InterfaceIndex <n> -NetworkCategory Private`.
+>
+> ***A SECOND, SMALLER OBSERVATION WORTH KEEPING.*** If the rule really is
+> Private-only wherever OpenSSH creates it, then on a **Public** network
+> `sshremote` ticked admits nobody, while the closing dialog says *"other
+> computers MAY reach this machine over ssh"*. Not measured beyond this guest,
+> and **not to be written up as a defect until somebody checks what profile
+> OpenSSH's rule carries on a fresh install** — but it is the kind of promise
+> §7 step 3 has caught being false three times.
+>
+> | # | on | do | expect |
+> |---|---|---|---|
+> | 1 | host | start `sshRemoteTest-C1` | it comes up at **10.0.0.143** |
+> | 2 | guest | run **`P:\sd-setup-W1.0-0.exe`**, **TICK `sshremote`**, and **look at the tasks page** | rule becomes `RemoteAddress=Any`; `apiremote` **present** |
+> | 3 | guest | **elevated**: `P:\probe-sshfirewall.ps1 -Expect Open` | exit 0 |
+> | 4 | **host** | `probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Open` | ***CONNECTED*** — the reachability witness |
+> | 5 | guest | uninstall, reinstall from `P:\`, **LEAVE `sshremote` UNTICKED** | rule becomes `127.0.0.1` |
+> | 6 | guest | **elevated**: `P:\probe-sshfirewall.ps1 -Expect Restricted` | exit 0 |
+> | 7 | **host** | `probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Blocked` | ***did not connect*** — **and step 4 is what makes this mean something** |
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Open
+> ```
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-sshremote.ps1 -Guest 10.0.0.143 -Expect Blocked
+> ```
+>
+> **`P:\` sidesteps the shared-folder rig entirely**, and with it the two rig
+> lessons that cost time before: *"never run the installer off the `sdout`
+> share"* — the guest holds the build output open and the next `ISCC` dies with
+> *"the output file appears to be in use (32)"* — and *"no hard-coded drive
+> letters"*, since a transient share came up `Y:`+`Z:` with two mounted and
+> `Z:` alone with one. **`P:\` is neither `sdout` nor transient.**
+>
+> **Step 7 will sit for the full timeout rather than answer at once** —
+> measured in the self-test: this network **DROPS** rather than sending RST, so
+> a blocked dial times out. Do not read the pause as a hang.
+>
+> ***THIS GUEST CANNOT ALSO CLOSE ITEM 5's SKIP — RUNNING THE RUNBOOK SPENDS
+> IT.*** This entry said the same guest would do both. It will not: step 2
+> installs SD with `sshremote` ticked, which installs OpenSSH, and from then on
+> `SshServerAbsent` is false there. **Item 5's SKIP needs its OWN fresh clone**
+> — 25 seconds from `Windows 11 - Template` — where a **stand-alone** install
+> makes `not StandaloneChosen` the operative half of the `[Run]` gate. Look at the mode page and the tasks page while the wizard
+> is open (item 5, *"UNSEEN"*), and run
+> [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1) after.
+>
+> **Delete `sshRemoteTest-C1` when done** — §7 step 18 is the cleanup task and
+> a spent clone is exactly its subject.
+
+> ### 5. THE STAND-ALONE INSTALL OPTION — CLOSED 26 Aug 2026. 21 PASS, 0 FAIL, ***0 SKIP***.
+>
+> ***CLOSED, AND THE LAST ROW OF THE DEVELOPMENT PHASE WITH IT.*** Measured on
+> `sdStandalone-C1` at 01:46:11, 26 Aug 2026 — a guest cloned that evening from
+> `Windows 11 - Template`, install 01:30:27. **21 passed, 0 failed, 0 skipped,
+> of 21 rows**, and the closing *"BUT N CHECK(S) COULD NOT BE MADE"* paragraph
+> is gone.
+>
+> ***THE ROW THAT HAD NEVER BEEN MEASURED FIRED THE STRONG FORM:***
+> `no ssh server on this machine at all — expected True, got True`. On the host
+> this was a SKIP with its reason, because OpenSSH has been there since 14 Aug
+> and a stand-alone install neither adds nor removes one. On a guest that never
+> had it, `SshServerAbsent` is TRUE, so `not StandaloneChosen` is finally the
+> operative half of the `[Run]` gate — **the mode page's first promise, tested
+> at last.** `no sshd_config to have been changed` passed on the same footing:
+> there is no `sshd_config` on that machine at all.
+>
+> ***AND THE OTHER TWO OPEN ITEMS CLOSED THE SAME EVENING.*** The pages were
+> looked at — *"layout, wrapping ok memo ok -- no ssh or api remote boxes"* —
+> and the ssh-preflight security question was answered by the owner: **it still
+> refuses, and that needs no code change.**
+>
+> ***CURRENCY WAS ESTABLISHED WITHOUT `assert-current`, DELIBERATELY AND OUT
+> LOUD.*** There is no source tree on a guest, so the run used
+> `-Installer P:\sd-setup-W1.0-0.exe -InstallerSha256 57228B09…82249`: the
+> installer is the exact build named, and the data tree (01:30:27) postdates it
+> (25 Aug 21:56:55). ***It does not prove the install came from that file***,
+> nothing on a guest can, and both the inputs block and the verdict say which
+> proof was used.
+>
+> **The history below is kept as the record of how it was built.**
+>
+> Owner's request, in his words: *"another option for users, a stand-alone
+> system option. No ssh, no api, just the ability to quickly install — intent,
+> use by a single user, the installer."*
+>
+> ***WHAT IT IS FOR, and it decides the scope*** — owner, 25 Aug 2026:
+> *"education, hobby use where the intent is to learn the language or test some
+> code, not have a production system."* **One account, the installer's own,
+> period.** Read that before treating any of the production machinery as
+> missing here.
+>
+> ***IT REVERSES THE 16 Aug 2026 RULING FOR ONE SCENARIO*** (HISTORY, "the first
+> install on a machine with no ssh", and the `[Tasks]` comment at
+> [sd.iss:110](sdb_ai/sd64/gplbld/sd.iss:110)). ssh was made mandatory
+> **because** `sdsshonly` denies the console and RDP to every account
+> `CREATE.ACCOUNT` makes, so without ssh those accounts can sign in nowhere.
+> That does not apply to the installing user: they are an administrator and are
+> never put in `sdsshonly`.
+>
+> ***DECIDED 25 Aug 2026, AND IT IS NARROWER THAN THE FIRST DRAFT OF THIS ENTRY:
+> `create.account USER` REFUSES ON A STAND-ALONE SYSTEM AND SAYS WHY.
+> `create.account GROUP` IS UNTOUCHED.***
+>
+> **The distinction is real, was checked in `CREATEA`, and it is what keeps the
+> education case whole:**
+>
+> | form | on a stand-alone system |
+> |---|---|
+> | `create.account user <n>` | makes a **Windows user**, joined to `sdsshonly` unless an administrator (`CREATEA:714`, from `acc.uname`) — denied console and RDP, and with no ssh it can sign in **nowhere**. This is the dead account, and the one to refuse |
+> | `create.account group <n>` | makes a **workspace** under `group_accounts` (`CREATEA:143`). No Windows user, no login, nothing joined — `acc.uname` is never assigned on this arm (`CREATEA:279`) |
+>
+> ***SO A LEARNER CAN STILL SEPARATE THEIR WORK INTO ACCOUNTS, which is what an
+> account IS in a Pick system*** — `create.account group myproject`, then
+> `logto myproject`. An elevated session skips the `ACC$GROUP` test (§7 step 0),
+> and the single user on a stand-alone box is elevated, so group accounts are
+> reachable without any of the group-membership machinery.
+>
+> **Not** "allow it and document single-user", and **not** a console-capable
+> third account kind — that is `RDPACCOUNT`, built and deleted. The installer
+> leaves a marker in `sdsys` and `CREATEA` reads it; the one-shot
+> `$adopt.<user>` marker is the pattern to copy.
+>
+> ***HOW THE CHOICE IS OFFERED — ANSWERED 25 Aug 2026 AND BUILT.*** Owner:
+> *"New page after welcome, with text explaining what each option offers
+> (complete description, not a one liner)."*
+>
+> | | |
+> |---|---|
+> | the page | `ModePage`, `CreateCustomPage(wpWelcome, ...)`, two `TNewRadioButton`s over one read-only `TNewMemo` holding **both** complete descriptions — neither is revealed by clicking, since a reader who never clicks the other radio never reads what they turned down |
+> | why a memo | a label sized for shorter text silently drops the overflow — measured on this file's own `FinishedLabel`. A memo with a scrollbar cannot clip at any DPI |
+> | the disclosure page | re-anchored on `ModePage.ID` and rewritten from the live radio in `CurPageChanged`, so **Back → change mind → Forward** cannot leave the ssh paragraphs on screen for a stand-alone install |
+> | one text, not two | `DisclosureText(Standalone)` — common paragraphs written once, three mode-conditional points. The full branch is the existing wording **verbatim** |
+> | the tasks MsgBox | now also gated on `not StandaloneChosen`; every sentence of it is false on a stand-alone install |
+>
+> ***THE BEHAVIOUR IS WIRED, AND THE `NextButtonClick` SCAFFOLD IS GONE.***
+> Every step the mode page promises is now conditional:
+>
+> | | |
+> |---|---|
+> | `sd.conf` | **two staged files, one destination.** `stage.py` `sd_conf_standalone()` derives the stand-alone one from `SD_CONF` by commenting out `APIPORT=4243` and **refuses if that line is not found** — a silent miss would ship a stand-alone box with the API listening. `[Files]` picks one with `Check:`, `DestName: sd.conf` |
+> | OpenSSH | `[Run]` install-ssh gains `and not StandaloneChosen` |
+> | sshd_config | `ApplyAllowGroups` exits — this is the step that stops scp working, so it is the one the promise is about |
+> | firewall | `ApplySshFirewall` and `ApplyApiFirewall` both exit. **No `-Restrict` rule either**: a rule naming a port nothing listens on describes a service that does not exist |
+> | the marker | `WriteStandaloneMarker` writes `sdsys\$standalone` **after** `AdoptAccount`, and a failed write gets its own paragraph in the closing dialog |
+> | `CREATEA` | refuses `create.account user` with **sysmsg 10100**, sited **after `gosub more.args` so `ADOPT` is known** — the installer's own account step is `CREATE.ACCOUNT USER <name> ADOPT` and would otherwise be refused by the marker it just wrote |
+> | closing dialog | `SshReport` gains a stand-alone branch; the password paragraph no longer claims the password is "what reaches the account ... over ssh or the API", which is false here |
+>
+> ***AN UPGRADE NEVER RE-ASKS, AND A STAND-ALONE SYSTEM STAYS ONE.***
+> `StandaloneWasMarked` is sampled once in `InitializeSetup` — **this installer
+> writes that marker itself, so a live `FileExists` would answer False for the
+> whole wizard and True afterwards**, which is the shape of the bug that skipped
+> ~3,260 files and exited 0. `StandaloneChosen` then reads marker → upgrade →
+> radio, in that order, and `ShouldSkipPage` hides the mode page on any upgrade.
+> The marker is **in no ship list**, so the generated `upgrade.iss` cannot delete
+> it — the same default that protects `voc` and `errlog`.
+>
+> ***THE ONE THING GATED ON UNSPECIFIED BEHAVIOUR, AND IT IS COSMETIC.*** The
+> `sshremote` **`[Tasks]` `Check:`** may not hide the box. Inno's documentation
+> says only that *"Setup might call each check function several times"* and
+> promises nothing about re-evaluating on page show; measured with
+> `probe-taskcheck.iss`, `InitializeWizard` runs first (so the radio is never
+> nil) but the check fired **once, straight after the wizard was built** — before
+> a reader could have touched the mode page. **The safety is not there**:
+> `ApplySshFirewall` exits at install time, where the answer is certain. Worst
+> case is a visible checkbox that does nothing.
+>
+> ***ANSWERED 26 Aug 2026, ON THE FIRST INSTALL THAT COULD EVER ASK IT: THE
+> BOXES ARE NOT THERE.*** Owner, looking at the wizard on `sdStandalone-C1`
+> during a stand-alone install: *"no ssh or api remote boxes"*. **So the
+> `Check:` does hide them, and NEITHER CHOICE NEEDS MOVING TO THE MODE PAGE.**
+> That instruction is withdrawn; do not carry out the restructuring it asked
+> for.
+>
+> ***IT DOES NOT OVERTURN `probe-taskcheck.iss`, AND SAYING SO MATTERS.*** That
+> probe measured WHEN the check first fires — once, straight after the wizard is
+> built — and that is still what it measured. What was never known is whether
+> Inno calls it AGAIN before drawing the page, which its documentation declines
+> to promise either way. **The observed outcome is that the boxes end up
+> hidden.** The mechanism is still unspecified, so do not restate this as "Inno
+> re-evaluates on page show" — what is known is the result on one real install,
+> and the guarantee remains `ApplySshFirewall` exiting at install time.
+>
+> ***AND THIS IS THE ONLY MACHINE THE QUESTION COULD BE PUT TO.*** `sshremote`'s
+> check is `SshServerAbsent and not StandaloneChosen`; on the host
+> `SshServerAbsent` is false, so the box is hidden for the WRONG reason and
+> proves nothing. On this guest it is true, which makes `not StandaloneChosen`
+> the operative half — the same reason item 5's SKIP needed this rig.
+>
+> ***PROVEN AS FAR AS IT CAN BE WITHOUT AN INSTALL:*** ISPP lint clean; the
+> `[Code]` section extracted to a harness and compiled by the real ISCC, **exit
+> 0 with 38 routines**, against **two controls that both fail on the injected
+> line** — a bad property inside `StandaloneChosen`, and `#13#10` wrapped to the
+> start of a line in the new text (the fault that cost a cycle on 19 Aug).
+> `RichEditViewer.Lines.Text` was confirmed writable **by compiling it**, with
+> its own failing control, not by reading the help.
+>
+> ***IT NOW HAS AN INSTRUMENT — [verify-standalone.ps1](sdb_ai/sd64/gplbld/verify-standalone.ps1),
+> WRITTEN 25 Aug 2026.*** Item 5 was the only built behaviour in the project
+> with no verifier, which is why it kept being described as "unmeasured": there
+> was nothing to run. Seven sections, and **every absence is paired with a
+> control**, because *"Get-NetFirewallRule found no SD rule"* and *"the query
+> returned nothing at all"* are the same answer otherwise.
+>
+> | section | what it measures | its control |
+> |---|---|---|
+> | 0 | **refuses unless `sdsys\$standalone` is there** | — this IS the null-case guard, see below |
+> | 1 | the marker exists and says what it is | a name that is not there reads absent |
+> | 2 | `sd.conf` has **no ACTIVE `APIPORT` line**, line-wise, exactly as `stage.py` `_active_apiport()` does it | the commented-out line **is** present, and the file holds other live settings |
+> | 3 | nothing LISTENING on 4243 | the listener query returns rows at all |
+> | 4 | no SD firewall rule | `Get-NetFirewallRule` returns the machine's rules |
+> | 5 | sshd not running, `sshd_config` carries no `AllowGroups` | `Get-Service` finds a service that certainly exists |
+> | 6 | `create.account user` **refused**, anchored on **sysmsg 10100's own wording** | two disqualifiers: 10007's *"Created"* absent, and no Windows user made |
+> | 7 | `create.account group` **still works**, anchored on **sysmsg 10014** | disqualifier: 10100 did **not** fire on this arm |
+>
+> ***SECTION 0 IS THE WHOLE REASON IT IS SAFE TO TRUST.*** Every check asks
+> whether something is ABSENT — so on a machine with no SD at all, **every one
+> would answer "absent" and the run would report a clean pass having measured
+> nothing.** That is the exact failure the instrument rule names. It exits **2**,
+> not 1: nothing failed, the test does not apply.
+>
+> ***RUN ON A REAL STAND-ALONE INSTALL, 25 Aug 2026, 21:06:58 — 21 PASS, 0 FAIL,
+> 1 SKIP, exit 0.*** The owner cycled choosing stand-alone (install **20:56:03**,
+> marker written 20:56:29) and every section 1-7 ran for the first time.
+>
+> | | |
+> |---|---|
+> | the marker | present, non-empty, and it names the group-account way out |
+> | `sd.conf` | **0 active `APIPORT` lines**, with the commented-out line present as the control |
+> | port 4243 | **nothing listening**, against 35 listening ports on the machine as the control |
+> | firewall | **0 SD rules**, against 538 rules on the machine as the control |
+> | ssh config | **0 `AllowGroups`**, and `sshd_config` last written **20:52:30** against an install at **20:56:03** — older, so this install did not touch it |
+> | `create.account user` | **refused, sysmsg 10100 in the raw output**, no `Created` message, no Windows user made |
+> | `create.account group` | **`Group:  sdg_sdsagroup created`**, the directory made, 10100 did not fire on that arm |
+>
+> ***THE ONE SKIP IS HONEST AND IT IS NOT A PASS.*** *"no ssh server was
+> installed"* cannot be measured on this machine: **OpenSSH has been here since
+> 14 Aug 10:34, installed for this project**, and a stand-alone install neither
+> adds an ssh server nor removes one (§5.9 — SD never touches an ssh server it
+> did not install). So the row is reported as **SKIP with its reason**, and the
+> closing sentence refuses to claim it.
+>
+> ***AND THAT SKIP HIDES THE ONE BRANCH THIS MACHINE STRUCTURALLY CANNOT
+> TEST.*** The `[Run]` install-ssh gate is
+> `Check: SshServerAbsent and not StandaloneChosen`
+> ([sd.iss:682](sdb_ai/sd64/gplbld/sd.iss:682)). Here `SshServerAbsent` is
+> **false**, so the step is skipped **for the wrong reason** and nothing is
+> learned about whether `not StandaloneChosen` would have stopped it — which is
+> the mode page's FIRST promise. ***It needs a machine that never had OpenSSH***,
+> the same requirement `probe-sshfirewall.ps1` carries and the reason the ssh
+> firewall defect sat unseen for eight days.
+>
+> ***TWO DEFECTS IN THE VERIFIER ITSELF WERE FOUND BY RUNNING IT, and both were
+> the instrument and not the installer.*** They are worth reading because both
+> are the same shape as the traps this project already documents:
+>
+> 1. **`Note 'sshd is not running' $false` FAILED against a correct installer**
+>    on the 21:00:35 run. It asserted something only true on a machine that
+>    never had ssh. Now a `Skip` with its reason, plus two real measurements of
+>    the promise that *is* testable — no `AllowGroups`, and `sshd_config`
+>    predating the install.
+> 2. **The teardown removed only the DIRECTORY**, so the second run met
+>    *"Account already exists"* and section 7 failed — again against a correct
+>    installer. `CREATE.ACCOUNT GROUP` makes **three** things: the directory,
+>    an entry in the accounts register, and the Windows group `sdg_<name>`.
+>    There are now **two teardowns**, before and after, which is
+>    `verify-catgate.ps1`'s split and for its reason.
+>
+> ***A `SKIP` IS NOW A FIRST-CLASS RESULT***, listed in the summary table and
+> counted separately, and the closing PASSED sentence names how many rows it
+> does **not** cover. A green run that quietly dropped a row it could not
+> measure is the shape of every false green in this project's history.
+>
+> ***IT IS DELIBERATELY NOT IN `VerifyInstall2`.*** The suite runs against a
+> full installation, where this refuses by design; wiring it in would add a step
+> that always exits 2. It is run by hand, elevated, after a stand-alone cycle.
+>
+> ***AND IT IS ON `assert-current`'s `$neverShipped` LIST, added in the commit
+> that created it*** — §7 step 7's rule. **It walked straight into the trap that
+> rule exists for**: its first run refused because `verify-standalone.ps1` was
+> newer than the install, so the verifier blocked itself on the strength of its
+> own newness. The list is self-policing — if `stage.py` or `sd.iss` ever names
+> it, it goes back under the guard by itself.
+>
+> ***WHAT PROVING ITEM 5 ACTUALLY COSTS, and it is worth knowing before
+> starting: TWO cycles, not one.*** A stand-alone install leaves the machine
+> with no ssh, no API and no `sdsshonly` accounts, so the 31-step suite cannot
+> run on it. The sequence is: cycle choosing **stand-alone** → `verify-standalone.ps1`
+> elevated → **look at the mode page and the tasks page while the wizard is
+> open** → cycle choosing **full** to put the machine back.
+>
+> ***AND WHAT IT LOOKED LIKE IS NOW RECORDED — 26 Aug 2026, `sdStandalone-C1`.***
+> Owner, at the wizard: ***"layout, wrapping ok memo ok -- no ssh or api remote
+> boxes"***. So the mode page draws correctly at that DPI, the memo does not
+> clip, `Lines.Text` on a non-rich `RichEditViewer` renders as intended, and the
+> tasks page offers neither remote-access box. **The looking is done; only the
+> SKIP is left.**
+>
+> ***THE PAGE HAD BEEN SEEN ALL ALONG. WHAT WAS UNRECORDED IS NARROWER THAN
+> THIS ENTRY SAID FOR A DAY.*** It read *"UNSEEN: nobody has looked at this
+> page"* until 26 Aug 2026 — **69 lines below its own record of the owner
+> cycling and CHOOSING stand-alone**, which cannot be done anywhere but on this
+> page, by clicking its radio. The install at 20:56:03 and the marker at
+> 20:56:29 are the proof: the page drew, the radio worked, and the choice
+> reached `StandaloneChosen`. Corrected on the owner's challenge — he said it
+> sounded like things already done, and on one of the three he was right.
+>
+> ***WHAT IS GENUINELY UNMEASURED, AND IT IS COSMETIC.*** Nobody wrote down
+> what the page LOOKED like: layout, wrapping, how much of the memo is visible
+> before scrolling, and whether `Lines.Text` on a non-rich `RichEditViewer`
+> renders as expected. Same for the tasks page — whether the `sshremote` and
+> `apiremote` boxes appeared on a stand-alone run is unrecorded either way.
+> **Look at both pages at the next stand-alone cycle and write down what you
+> saw**, which is the step that was missed last time rather than the looking.
+>
+> ***IT NOW HAS A CHECKER — `check-stale-leads.py` PHASE 3, BUILT 26 Aug 2026
+> ON THE OWNER'S INSTRUCTION.*** Phases 1 and 2 compare status words and this
+> fault has none, so the entry scored clean while contradicting itself. Phase 3
+> pairs a record of a person **SEEING** something against a later denial that
+> anyone has. ***Its must-catch fixture is this entry's own withdrawn wording***,
+> restored verbatim into a copy — **13 of 13** in `test-staleleads-units.py`,
+> and the two must-catch rows were watched going **RED** with the phase
+> disabled. It reports **0** on this file, with the null-case guard printing 6
+> observation and 2 denial lines so a clean zero is not a silent one.
+>
+> ***ANSWERED 26 Aug 2026 — THE ssh PREFLIGHT STILL REFUSES ON A STAND-ALONE
+> INSTALL. OWNER'S DECISION, AND IT NEEDS NO CODE CHANGE.***
+>
+> | | |
+> |---|---|
+> | does the ssh preflight still refuse? | **Yes.** Asked and answered 26 Aug 2026. A stand-alone install neither installs nor configures an ssh server, so the reason for the refusal does not apply — but relaxing a check verified on three guests the same week was his call, and he kept it |
+>
+> ***SO NOTHING IS BUILT FOR THIS, DELIBERATELY.*** Keeping the refusal is the
+> only answer that changes no structure — see the next paragraph for why the
+> alternative was not a `Check:`. **Do not reopen it as a tidiness item.**
+>
+> ***AND IT IS NOT A ONE-LINE CHANGE EITHER WAY, WHICH THE QUESTION DID NOT
+> KNOW.*** The preflight runs in `InitializeSetup`
+> ([sd.iss:829](sdb_ai/sd64/gplbld/sd.iss:829)) — **before the wizard is drawn,
+> so before the mode can have been chosen.** "Skip it when stand-alone" cannot
+> be a `Check:`; it means moving the call to `NextButtonClick` on the mode page,
+> which also moves where a refusal costs the user something. Keeping the refusal
+> is the only answer that changes no structure.
+>
+> ***SWITCHING BETWEEN THE TWO ACCOUNTS IS NOT A PROBLEM — asked and answered
+> 25 Aug 2026.*** A stand-alone system still has two accounts, the user's own
+> and `SDSYS`. Owner: *"the user can login as themselves and then do a logto
+> sdsys, and that still works over ssh. or they can run an elevated session and
+> log directly into sdsys."* Both routes hold on a stand-alone box, and neither
+> needs ssh or the API:
+>
+> - **`LOGTO SDSYS` ASKS FOR NO PASSWORD.** `LOGTO.STEP.UP` was deleted 14 Aug
+>   2026; `CPROC:2568` calls `elevate('START','')` and the gate is elevation.
+>   So the switch does not depend on the install-ending password step at all.
+> - **An already-elevated session switches with no prompt**:
+>   [sd-elevate.ps1:105](sdb_ai/sd64/gplbld/sd-elevate.ps1:105) is
+>   `if ($elevated) { exit 0 }`, before anything touches UAC.
+>
+> ***AND THAT RESOLVES A COMMENT THAT READS AS A GUARANTEE AND IS ACTUALLY
+> POLICY-DEPENDENT.*** `CPROC:2566` and `sd-elevate.ps1:23` both say `!elevate`
+> *"cannot work over ssh"* because UAC has no interactive desktop there. **That
+> is true only when a PROMPT is needed.** An ssh session whose token is already
+> elevated never reaches the prompt and succeeds at `:105` — which is the
+> owner's observation. Whether an ssh token is elevated depends on
+> `LocalAccountTokenFilterPolicy` and the account kind, **which §5.6.2 records
+> as never measured** (*"it must be measured before anyone relies on remote
+> administration"*). ***Do not restate either comment as absolute until somebody
+> measures it.*** It changes nothing for stand-alone, where there is no ssh.
+>
+> ***FOUR FACTS ESTABLISHED WHILE SCOPING IT, so nobody re-derives them:***
+>
+> - ***`APIPORT` UNSET MEANS SD OPENS NO PORT AT ALL*** —
+>   [sdwind.c:351](sdb_ai/sd64/gplsrc/sdwind.c:351), *"APIPORT not set - the
+>   default, and not a failure"*, and `sdwind.c:310`. So "no API" is a real
+>   state, not just a firewall rule. A stand-alone `sd.conf` omits `APIPORT`.
+> - ***`APILOGIN` IS NOT AN OFF SWITCH.*** It decides whether the API demands a
+>   password (`op_kernel.c:848`); `APILOGIN=0` is the WEAKER setting, not the
+>   safer one. Do not reach for it here.
+> - **The installing user's own account needs no ssh.** `CREATEA` puts only
+>   non-administrators in `sdsshonly`, and `LOGIN` admits the console when
+>   elevated.
+> - **`sd.conf` is `onlyifdoesntexist`**, so a stand-alone variant is written on
+>   a first install only — an upgrade will not rewrite it.
+>
+> ---
+>
+
+> ---
+
+> ## THE REFUSE-TO-INSTALL WORK, COMPLETE AND VERIFIED 25 Aug 2026
+>
+> ***PROVEN ON THREE GUESTS, WITH THE REAL INSTALLER*** (11:54:26 build, SHA256
+> `033A6A94…67102`), 25 Aug 2026:
+>
+> | guest | ssh state | preflight | result |
+> |---|---|---|---|
+> | `sshRemoteTest-A2` | Windows' ssh, unconfigured, SD installed | CLEAR | wizard ran; tasks page **2 boxes** (`sshremote` correctly hidden by its `Check`) |
+> | `sshRemoteTest-A2`, armed | `PermitRootLogin no` added | **REFUSE** | ***refused at `InitializeSetup`, NO WIZARD DRAWN***, box named `Added: PermitRootLogin no.`, "Nothing on this computer has been changed" |
+> | `sshNoServer` | **no ssh at all** | CLEAR | wizard ran; tasks page ***3 boxes***, `sshremote` present and unticked, ***no `limitssh`***; install completed |
+>
+> ***EVERY NEW CODE PATH IS EXERCISED.*** The `dontcopy` extract, the
+> `InitializeSetup` call, reading the exit code, reading the reason file
+> (arrived clean — the UTF-8-without-BOM choice was right), the refusal dialog,
+> `limitssh` gone from `[Tasks]`, and ***`ApplyAllowGroups` running with no task
+> gate*** — the last one confirmed by its own outcome box on the `sshNoServer`
+> install: *"ssh is now limited to members of "sdusers" and the administrators
+> group."*
+>
+> **And the end state was measured, not assumed**: `probe-sshfirewall.ps1
+> -Expect Restricted` → `RemoteAddress = 127.0.0.1` as the installer left it,
+> `-Installed -Restrict` printing `ssh is reachable FROM THIS MACHINE ONLY`
+> exit 0, both loopback families REACHABLE. ***PASSED.***
+>
+> ### THE ONE THING STILL UNPROVEN, AND IT NEEDS HARDWARE
+>
+> ***THAT THE SCOPING ACTUALLY BLOCKS A REMOTE MACHINE.*** A VirtualBox NAT
+> port-forward cannot show it — with the rule wide open, `Get-NetTCPConnection`
+> showed **no inbound connection ever reached sshd**, because the NAT engine
+> completes the handshake itself. **It needs a BRIDGED NIC and a dial from
+> another machine** (§7 step 2). Everything else about §5.9 is now measured.
+>
+> ### WHAT READING THE DIALOGS COST AND EARNED, WHICH IS THE SESSION'S REAL LESSON
+>
+> The owner read the boxes on screen while they were up and found ***four***
+> false or misleading statements the code had outgrown, none of which any grep
+> would have surfaced:
+>
+> | said | actually |
+> |---|---|
+> | "Program files … **you can change this**" | `DisableDirPage=yes` — there is no directory page |
+> | "By default it can be reached only from this machine. The options page can open it…" | true only when SD installs the server; `ApplySshFirewall` exits unless `SshWasAbsent` |
+> | "kept as sshd_config.before-sd, and **uninstalling SD puts it back**" | `-Remove` strips SD's block; it never copies the backup over. **In TWO places; the first fix missed the second** |
+> | "**The original** sshd_config was kept…" | on a no-ssh machine the file was created by the OpenSSH install minutes earlier, not by the reader. Now "Any existing" |
+>
+> ***THE PATTERN, NOT THE FOUR SENTENCES, IS THE FINDING.*** `sd.iss`'s
+> `wpSelectTasks` MsgBox comment has been recording it across three rewordings:
+> *"each time the text went on asserting the old shape until somebody noticed"*.
+> It needed a fourth today. **When changing behaviour in this file, READ THE
+> DIALOGS** — the disclosure page and that MsgBox both now carry a note saying
+> so, where an editor will be looking.
+>
+> ### RIG NOTES, TWO OF THEM PAID FOR TODAY
+>
+> ***NEVER RUN THE INSTALLER STRAIGHT OFF THE `sdout` SHARE.*** The guest holds
+> the build output open and the next ISCC dies with *"The output file appears to
+> be in use (32)"* — after a full stage, so it costs a cycle. **Copy it to the
+> guest's own disk first** (`C:\Users\don\`) and run it there.
+>
+> ***NO HARD-CODED DRIVE LETTERS IN GUEST SCRIPTS.*** A transient share does not
+> get a stable one: two shares came up `Y:` and `Z:`, one share came up `Z:`
+> alone. Derive it — `$PSScriptRoot`, falling back to `MyInvocation`, because
+> `$PSScriptRoot` is empty in some hosts. This bit twice, because the first fix
+> was applied to one script instead of all of them.
+>
+> ## HOW THE REFUSE-TO-INSTALL WORK WAS BUILT (it is now done - see above)
+>
+> ***WHAT IS DONE, AND HOW FAR EACH PART IS TRUSTED:***
+>
+> | part | state |
+> |---|---|
+> | [ssh-preflight.ps1](sdb_ai/sd64/gplbld/ssh-preflight.ps1) — the three checks | ***PROVEN both polarities*** on a guest by [probe-sshpreflight.ps1](sdb_ai/sd64/gplbld/probe-sshpreflight.ps1): clear / refuse-on-config / refuse-on-service / clear-after-restore, 4 of 4 |
+> | `stage.py` ships it to `{app}`; `assert-current` lists the probe | edited, `py_compile` clean |
+> | `sd.iss` — `dontcopy` entry, `InitializeSetup` call, both refusal dialogs | ***WRITTEN, NEVER COMPILED*** |
+> | `sd.iss` — `limitssh` removed from `[Tasks]` | written, never compiled |
+> | `sd.iss` — `ApplyAllowGroups` task gate removed | written, never compiled |
+> | `sd.iss` — disclosure page rewritten, and the `wpSelectTasks` MsgBox reworded a **fourth** time | written, never compiled |
+> | changelog | two entries, in |
+>
+> ***THE NEXT ACTION IS `cycle.ps1 -SkipInstall` (ELEVATED, OWNER'S SHELL).***
+> Nothing here has been through ISCC. Inno compiles `[Code]` at build time, so
+> a Pascal slip surfaces there and nowhere earlier — **do not test any of this
+> with the 08:50:13 installer, which predates all of it.**
+>
+> ***THEN TWO GUESTS, AND THE SECOND ONE IS THE IMPORTANT ONE:***
+>
+> 1. **A clean guest must still install.** A false refusal is the worse
+>    failure — it turns away an install that should have worked. `pre.ps1` then
+>    the wizard: the tasks page must now show **three** boxes (`addtopath`,
+>    `sshremote`, `apiremote`) and **no** `limitssh`, and the install must
+>    complete.
+> 2. **A guest with a hand-edited `sshd_config` must be refused** at
+>    `InitializeSetup`, before the wizard is drawn, naming the added directive,
+>    with nothing changed. `probe-sshpreflight.ps1` proves the *script* does
+>    this; what is untested is that **`sd.iss` calls it and acts on the exit
+>    code**.
+>
+> ***AND ONE THING NO GUEST WILL CATCH:*** `ExtractTemporaryFile` throws if the
+> `dontcopy` entry is missing or misnamed. It is named explicitly in `[Files]`
+> rather than swept up by a wildcard, so a rename breaks the build rather than
+> the install — but check the ISCC output says it embedded it.
+>
+> ## THE RULING AND THE REASONING BEHIND IT
+>
+> Owner, 25 Aug 2026, in his words: *"I would actually prefer that SD refused
+> to install if another ssh server is installed. It adds a layer of
+> unpredictability. If we support only the windows ssh server, then we know
+> what it is that is being used and we have control over how it is
+> configured."* And on the pre-configured case: *"I lean toward refusing in
+> both cases because the pre-existing configuration could defeat our security.
+> If the user wants to change our security policy after the fact, that is not
+> on us."*
+>
+> ### IT FIXES A HOLE THAT IS LIVE TODAY, NOT ONLY A TIDINESS PROBLEM
+>
+> [sd.iss:687](sdb_ai/sd64/gplbld/sd.iss:687) is
+> `SshWasAbsent := not FileExists('{sys}\OpenSSH\sshd.exe')` — it asks whether
+> **Microsoft's** OpenSSH is present. On a machine running Bitvise, freeSSHd or
+> any other server, that answers **True**: SD decides there is no ssh server,
+> installs Windows OpenSSH, and it cannot bind port 22 because the other server
+> holds it. **SD's whole access path is then broken and nothing in the install
+> says so.**
+>
+> ***AND REFUSAL 2 IS NARROWER THAN THE THREAT.***
+> [allow-ssh-groups.ps1:141](sdb_ai/sd64/gplbld/allow-ssh-groups.ps1:141) tests
+> only `AllowGroups|AllowUsers|DenyGroups|DenyUsers`. It does **not** look for
+> `Match` or `ForceCommand` — so a pre-existing
+> `Match Group developers / ForceCommand none` sits AFTER SD's block (SD
+> inserts before the first `Match`) and **overrides SD's ForceCommand for those
+> users**. An `sdsshonly` account then lands at a PowerShell prompt: exactly
+> the 21 Aug failure, arriving through somebody else's config, with refusal 2
+> seeing nothing to object to.
+>
+> ### THE RULE TO IMPLEMENT — all in `InitializeSetup`, before anything changes, NO override switch
+>
+> The no-escape-switch shape follows the owner's own unattended-install ruling
+> at [sd.iss:689](sdb_ai/sd64/gplbld/sd.iss:689).
+>
+> | refuse when | catches |
+> |---|---|
+> | TCP 22 listening and the owning image is not `{sys}\OpenSSH\sshd.exe` | a live third-party server |
+> | an ssh service registered whose ImagePath is not that path | third-party server installed but stopped |
+> | live `sshd_config` **effective directives** differ from `sshd_config_default`'s, after removing SD's fenced block | a hand-configured Microsoft server |
+>
+> ***THE THIRD TEST IS ROBUST AND THAT WAS MEASURED.*** Stock
+> `C:\Windows\System32\OpenSSH\sshd_config_default` is 88 lines but only
+> **4 effective directives** (`AuthorizedKeysFile`, `Subsystem sftp`,
+> `Match Group administrators`, its `AuthorizedKeysFile`). Comparing effective
+> directives only is therefore stable across Windows updates, which rewrite
+> comments — 95% of that file. **Do NOT test "any Match block means somebody
+> configured this": stock already ships one.** Verified on the owner's own
+> machine that the only delta from stock is SD's own marker block, so an SD
+> upgrade passes.
+>
+> ### THE KNOCK-ON WORK, WHICH IS MOST OF IT
+>
+> 1. `limitssh` leaves `[Tasks]` and becomes a **statement** on the "Before you
+>    install" page. Owner's reason, and it is a good one: *"Seeing a tick box a
+>    user just assumes it is an option."* That page already has the precedent —
+>    the section headed `OPENSSH SERVER - INSTALLED, NOT OPTIONAL`.
+> 2. `ApplyAllowGroups` ([sd.iss:1000](sdb_ai/sd64/gplbld/sd.iss:1000)) loses
+>    its task gate.
+> 3. ***THE DISCLOSURE PAGE CURRENTLY LIES AND MUST BE REWRITTEN.*** It says
+>    *"IF THIS MACHINE ALREADY HAS AN SSH SERVER, SD LEAVES IT ALONE… changes
+>    neither its configuration nor its firewall rule."* `ApplySshFirewall` is
+>    gated on `SshWasAbsent` and is safe; **`ApplyAllowGroups` is not, and DOES
+>    edit an existing `sshd_config`** unless refusal 2 fires. Under the new
+>    ruling the sentence is wrong in the other direction too — SD will refuse,
+>    not leave alone.
+> 4. The refusal message must name what was found and what to do about it.
+> 5. Changelog entry — this can block an install outright.
+> 6. §5.9 and §7 step 3 record the ruling.
+> 7. ***TEST BOTH POLARITIES.*** A guest with a hand-edited `sshd_config` to
+>    prove the refusal fires, and a clean guest to prove it does NOT
+>    false-refuse. **A false refusal is the worse failure** — it blocks an
+>    install that should have worked.
+>
+> ***REVERT [903a139](sdb_ai/sd64/gplbld/sd.iss) FIRST, OR FOLD IT IN.*** That
+> commit gave `limitssh` its own group `"How ssh sessions work:"`. Under this
+> ruling `limitssh` leaves the tasks page entirely and the group disappears, so
+> it was committed alone to make it a clean single revert.
+>
+> ## THE ssh FIREWALL DEFECT IS CLOSED — BOTH BRANCHES VERIFIED 25 Aug 2026
+>
+> [ssh-firewall.ps1:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150) passes
+> `'127.0.0.1'` alone; Windows rejects any IPv6 loopback literal in
+> `-RemoteAddress`, so the old `@('127.0.0.1','::1')` threw on every run and
+> left the rule at `Any` — port 22 open to the LAN on every install where SD
+> installed ssh. Never worked; invisible for eight days because
+> `ApplySshFirewall` only runs when `SshWasAbsent`.
+>
+> | run | `sshremote` | `RemoteAddress` as the installer left it | closing dialog | probe |
+> |---|---|---|---|---|
+> | 24 Aug | unticked | `Any` | *"Setting who may reach ssh FAILED"* | defect |
+> | **A2**, 25 Aug | unticked | ***`127.0.0.1`*** | — | **PASSED** |
+> | **B**, 25 Aug | **ticked** | `Any` | *"Other computers … CAN now connect … because you asked for that"* | **PASSED** |
+>
+> Both loopback families stayed REACHABLE under the restriction
+> (`127.0.0.1:22` AF_INET, `::1:22` AF_INET6), which is what made dropping
+> `::1` safe — `sshd` binds `:::22` as well as `0.0.0.0:22`.
+>
+> ***STILL UNPROVEN AND IT NEEDS A BRIDGED NIC:*** that the scoping actually
+> blocks a REMOTE machine. A VirtualBox NAT port-forward cannot show it — with
+> the rule wide open, `Get-NetTCPConnection` showed **no inbound connection
+> ever reached sshd**, because the NAT engine completes the handshake itself.
+> §7 step 2 already said NAT cannot be used for host→guest.
+>
+> ## HOW THAT DEFECT WAS FOUND, AND THE RIG NOTES THAT CAME OUT OF IT
+>
+> ***CLOSED 25 Aug 2026 — FIXED, CYCLED, AND VERIFIED ON A CLEAN GUEST.***
+> Found 24 Aug on the first install ever done on a machine with no OpenSSH
+> server; fixed at
+> [ssh-firewall.ps1:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150), which now
+> passes `'127.0.0.1'` alone. Re-tested 25 Aug on `sshRemoteTest-A2` with the
+> 08:50:13 installer:
+>
+> | | 24 Aug, broken | 25 Aug, fixed |
+> |---|---|---|
+> | `RemoteAddress` ***as the installer left it*** | `Any` | ***`127.0.0.1`*** |
+> | `-Installed -Restrict` | `FAILED - ...loopback IPv6...` exit **1** | ***`ssh is reachable FROM THIS MACHINE ONLY`*** exit **0** |
+> | `127.0.0.1:22` AF_INET / `::1:22` AF_INET6 | — | REACHABLE / REACHABLE |
+> | `probe-sshfirewall.ps1` | — | ***PASSED*** |
+>
+> **The top row is the result**: the installer now scopes the rule itself, with
+> no manual step. The keep-below is the history of how it was found.
+>
+> ***WHAT IS STILL NOT PROVEN, AND IT NEEDS A BRIDGED NIC:*** that the scoping
+> actually blocks a REMOTE machine. See the NAT note further down — a
+> port-forward cannot show it.
+>
+> ### THE DEFECT
+>
+> [ssh-firewall.ps1:113](sdb_ai/sd64/gplbld/ssh-firewall.ps1:113):
+>
+> ```
+> Set-NetFirewallRule -Name $rule.Name -RemoteAddress @('127.0.0.1', '::1') -Enabled True
+> ```
+>
+> ***WINDOWS REJECTS ANY IPv6 LOOPBACK LITERAL IN `-RemoteAddress`*** —
+> *"An unspecified, multicast, broadcast, or loopback IPv6 address was
+> specified."* The call throws, the `catch` at :120 reports `FAILED`, exit 1,
+> and the rule is **left at `RemoteAddress=Any`**. So **port 22 is open to the
+> local network on every install where SD installs ssh**, which is precisely the
+> exposure §5.9 exists to prevent. **The by-hand recovery the closing dialog
+> tells the user to run fails identically**, so the restricted state is
+> unreachable by any documented route.
+>
+> ***IT SAT UNSEEN FOR EIGHT DAYS BECAUSE THE STEP NEVER RAN.***
+> `ApplySshFirewall` exits early unless `SshWasAbsent`, and every machine it had
+> ever run on already had sshd. This is not a regression — **it has never
+> worked.**
+>
+> ### THE FIX, AND THE MEASUREMENT THAT VALIDATES IT
+>
+> **Pass `127.0.0.1` alone.** Measured on the VM, each candidate separately:
+>
+> | passed to `-RemoteAddress` | Windows |
+> |---|---|
+> | `@('127.0.0.1','::1')` — today's code | **rejected** |
+> | `127.0.0.1` | **accepted** |
+> | `127.0.0.1/32` | accepted, normalises to `127.0.0.1` |
+> | `::1` | **rejected** |
+>
+> ***DROPPING `::1` IS SAFE AND THAT WAS CHECKED, NOT ASSUMED*** — it mattered
+> because `sshd` binds `:::22` as well as `0.0.0.0:22`. With the rule scoped to
+> `127.0.0.1` alone, **both** `127.0.0.1:22` and `::1:22` stayed **REACHABLE**,
+> confirming ssh-firewall.ps1's own header claim that Windows does not filter
+> loopback traffic. Keep that reasoning in the comment when fixing it.
+>
+> ### THE ORDER TO DO IT IN, TOMORROW
+>
+> 1. ~~Make the one-line fix~~ ***DONE 25 Aug 2026***, owner approved. The
+>    restrict branch carries the whole measurement as a comment, and the
+>    changelog carries a user-facing security notice.
+> 2. `cycle.ps1` (ELEVATED, owner's shell) to rebuild the installer. **The
+>    fix makes the 23:01:04 installer stale — do not test with it.**
+> 3. Clone `Windows 11 - sshRemoteTest-B` — or re-clone from
+>    `Windows 11 - Template` — install with `sshremote` **UNTICKED**, then run
+>    [probe-sshfirewall.ps1](sdb_ai/sd64/gplbld/probe-sshfirewall.ps1). It must
+>    print `PASSED`.
+> 4. **RUN B is still unrun**: install with `sshremote` **TICKED**, expect
+>    `RemoteAddress=Any`. ***IT WOULD HAVE PASSED BY ACCIDENT TODAY*** — ticking
+>    calls `-Open`, which sets `Any`, and `Any` is exactly what the broken path
+>    leaves behind. Run B exercises the working branch and **cannot reveal this
+>    bug**; do not read it as coverage.
+>
+> ### WHAT RUN A ALREADY PROVED, SO DO NOT RE-LITIGATE IT
+>
+> | first-ever observation | result |
+> |---|---|
+> | `sshremote` visible in the wizard | **yes, and UNTICKED** — `Check: SshServerAbsent` + `Flags: unchecked` both behave |
+> | `limitssh` wording from commit `493bf9b` | in situ, leads with **"DISABLES scp and sftp for everyone"**, ticked by default |
+> | ~~`apiremote` vs `sshremote` asymmetry~~ | **GONE 25 Aug 2026** — it was real in the wizard when this was measured, and the owner removed it: `apiremote` is now `Flags: unchecked` like `sshremote`. Row struck rather than deleted, because the observation was real |
+> | mandatory-ssh path (`install-ssh.ps1`) | ran, ~17 min, OpenSSH Server installed and `sshd` Running/Automatic |
+> | `ApplyAllowGroups` | reported *"ssh is now limited to members of sdusers…, original sshd_config kept as sshd_config.before-sd"* — one of its three outcomes, observed |
+> | the closing dialog | **reported the firewall failure honestly** rather than swallowing it; that is what made this findable |
+>
+> ### THE RIG, AS LEFT
+>
+> | VM | uuid | state |
+> |---|---|---|
+> | `Windows 11 - sshRemoteTest` | `051ce6f5-b663-4a75-be60-f52db7cfbdb2` | **RUNNING**, has the failed-scoping install; its rule was hand-set to `Any` during testing, so it is **spent** — do not measure it again |
+> | `Windows 11 - sshRemoteTest-B` | `b9324686-03a4-4db8-808f-48f55a67edcf` | pristine, never booted, for run B |
+> | `Windows 11 DevEnvInstallTest` | `47b7584f-f4a0-4db5-bca9-534c478adce7` | poweroff, holds the finished step-17 install |
+>
+> Installer at `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, built **23:01:04**,
+> SHA256 `AE236A2D…4E87F3F9`, newer than `sd.iss`, `allow-ssh-groups.ps1` and
+> `stage.py`. **A fix at step 1 makes it stale — rebuild before testing.**
+>
+> ### RIG TECHNIQUE THAT PAID FOR ITSELF, AND ONE THAT DID NOT
+>
+> ***CLONE, DO NOT SNAPSHOT*** — owner, 24 Aug 2026. `VBoxManage clonevm` took
+> **25 seconds** against minutes for a snapshot restore.
+>
+> ***PASS `--options keephwuuids,keepallmacs`*** — prudent, and cheap.
+>
+> ***BUT THE REASON GIVEN HERE EARLIER ON 25 Aug WAS WRONG, AND IT IS WITHDRAWN.***
+> It claimed, as a measured finding, that the NIC MAC is part of Windows'
+> activation hardware hash, on the strength of two clones: `keephwuuids` alone
+> read `LicenseStatus = 5 (Notification)`, both options read `1 (Licensed)`.
+>
+> ***ACTIVATION IS TRANSIENT AFTER BOOT AND THAT CONFOUNDED IT.*** Measured
+> later the same day on ONE guest, two minutes apart: **`5 (Notification)` at
+> ~4 minutes' uptime, `1 (Licensed)` at ~6**, with `LicenseStatusReason
+> 0x4004F401` and `GracePeriodRemaining 0`. Windows comes up in Notification
+> and flips once it revalidates over the network. **Both earlier readings were
+> single early samples, so they establish nothing about MACs.**
+>
+> **WHAT TO ACTUALLY DO:** pass both options anyway — it costs nothing and
+> keeps the guest as close to the template as possible — and ***POLL
+> `LicenseStatus`, NEVER SAMPLE IT ONCE.*** `pre.ps1` now waits up to five
+> minutes for it to settle. Clones sharing a MAC still must not run at the same
+> time.
+>
+> **The lesson is the one §"AN INSTRUMENT SHOWS WHAT IT DID" already states**: a
+> confident conclusion drawn from an instrument that never controlled for the
+> variable that mattered. It was written into this file and HISTORY as measured
+> fact and had to be withdrawn hours later.
+>
+> ***DRIVE FILES IN AND RESULTS OUT WITH TWO SHARED FOLDERS.*** `guestcontrol`
+> is forbidden (§7 step 2) and unnecessary:
+>
+> ```
+> VBoxManage sharedfolder add <uuid> --name sdout --hostpath C:/Users/dmont/sdout --transient --automount --readonly
+> VBoxManage sharedfolder add <uuid> --name xfer  --hostpath <scratch>          --transient --automount
+> ```
+>
+> They mount as `Z:` and `Y:`, **survive a guest reboot**, and a probe that does
+> `Start-Transcript -Path Y:\out.txt` puts its whole output back on the host as
+> text. That beats screenshots and beats typing long commands through
+> `keyboardputstring`, which drops characters.
+>
+> ***THE NAT PORT-FORWARD CONTROL IS WORTHLESS AND THE RECORD ALREADY SAID SO.***
+> Tried `natpf1` host:2222 → guest:22 to prove a remote machine is blocked.
+> **VirtualBox's NAT engine completes the handshake itself**: with the rule wide
+> open, `Get-NetTCPConnection` showed **no inbound connection ever reached
+> sshd**, so both polarities measured nothing. §7 step 2 already says NAT cannot
+> be used because the host must open a connection *to* the guest. **Proving the
+> remote block needs a BRIDGED NIC.** That control is still outstanding and is
+> the one thing about §5.9 that remains unproven.
+>
+> ***AND ONE FALSE READING CAUGHT BEFORE IT WAS BELIEVED.*** A first dial of
+> `::1` reported *"None of the discovered or specified addresses match the socket
+> address family"*, which reads exactly like "::1 is blocked". It was
+> `New-Object Net.Sockets.TcpClient` defaulting to **AF_INET**, which cannot dial
+> an IPv6 literal at all. The instrument never reached the condition.
+> `probe-sshfirewall.ps1` names the address family on every dial for this reason.
+>
+> ## EARLIER THE SAME SESSION: STEP 17 CLOSED — `setup-devbox.ps1` RAN END TO END ON A BARE VM.
+>
+> 24 Aug 2026, 22:16:05 to 22:33 host time, ~17 minutes, ***exit code 0***,
+> last line `setup-devbox: finished, no problems.` Console transcript quoted
+> in HISTORY.md, fifty-fourth session.
+>
+> | leg | result, first time ever on a bare machine unless noted |
+> |---|---|
+> | Preflight | elevated, winget found |
+> | Git 2.55.0.windows.3 | `git is usable in THIS session` (also proven 24 Aug) |
+> | GitHub CLI 2.98.0 | `gh is usable in THIS session` (also proven 24 Aug) |
+> | MSYS2 | installed clean to `C:\msys64` |
+> | MSYS2 packages | ***THE `-Syu` SKIP FIRED***, then `[done] installed gcc make pkgconf libxcrypt-devel libbsd python mingw-w64-ucrt-x86_64-gcc diffutils` |
+> | libsodium | built from source into `/usr/local` |
+> | Inno Setup 6 | installed **PER-USER** at `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe` |
+> | ssh | correctly reported as not needed for setup |
+> | clones | all four siblings: `sd4windows`, `sdb64`, `winsdclilib`, `sdclilib32`; `sdb64 origin/dev is fetched` |
+> | `make sd` | `built C:\Users\don\Projects\sd4windows\sdb_ai\sd64\bin\sd.exe`, `the toolchain works end to end` |
+> | report | printed, `LEFT FOR A PERSON (3)` |
+>
+> ### THE `-Syu` SKIP IS NOW OBSERVED, NOT JUST PARSE-CHECKED
+>
+> `MSYS2 was installed by THIS run, so pacman -Syu is skipped.` printed, and
+> `pacman -S --needed` then installed all 8 missing packages against the
+> shipped database without a refresh. **The worry that a just-unpacked sync
+> database could not resolve them was unfounded** — it resolved and downloaded
+> every one.
+>
+> ### WHAT ACTUALLY COST THIS SESSION: THE HOST, NOT THE SCRIPT
+>
+> ***TWO RUNS WEDGED THE GUEST BEFORE ONE SUCCEEDED, AND IT WAS THE HOST'S
+> HYPERVISOR.*** VirtualBox was logging
+> `HM: HMR3Init: Attempting fall back to NEM: AMD-V is not available` — running
+> on the **Windows Hyper-V backend** rather than native AMD-V, because VBS held
+> the CPU. On that backend the guest froze twice under sustained disk I/O: once
+> at `pacman -Syu` (session 53) and once inside the MSYS2 installer's own
+> extraction at 42%, ***before pacman ran at all***. **§6 has the trap and the
+> four host switches it took to clear.** Cleared, the same script ran straight
+> through first attempt.
+>
+> ***THIS WEAKENS, BUT DOES NOT OVERTURN, SESSION 53's PACMAN DIAGNOSIS.***
+> That hang was read from *"terminal stopped repainting, neither Enter nor two
+> Ctrl+C reached it"* — which is exactly what a NEM wedge looks like. The
+> `-Syu` reasoning stands on its own merits (a mapped `msys-2.0.dll` genuinely
+> cannot be replaced) and the skip is now observed working. But **the symptom
+> it was inferred from may have been the host, not pacman.**
+>
+> ### `sdhelp`: RAISED AND CANCELLED THE SAME DAY — DO NOT REOPEN IT
+>
+> ***THE OWNER CANCELLED THE REQUEST, 24 Aug 2026:*** *"cancel the sdhelp
+> request — I will just download it from my P drive if needed."* **So the
+> script's current behaviour — report `sdhelp` as a hand-carry item and place
+> nothing — is CORRECT AND ACCEPTED**, and nothing is outstanding.
+>
+> ***READ THE TWO STEPS THAT GOT HERE, BECAUSE THE END STATE LOOKS LIKE THE
+> START AND IS NOT.*** This file first recorded "report it as a hand-carry
+> item" as **his ruling**, which he had never made — he had asked for it to be
+> installed, for a documentation phase on another machine. He corrected that,
+> it was an open requirement for a few hours, and then he withdrew it. **The
+> behaviour is unchanged; what changed is that it is now genuinely his
+> decision.** HISTORY.md has the `Correction:` entry and the withdrawal.
+>
+> `-SdHelpSource <path>` still exists and is still ***untested***. Nobody needs
+> to test it.
+>
+> ### THE RIG, AND HOW TO READ ITS OUTPUT CHEAPLY
+>
+> VM **`Windows 11 DevEnvInstallTest`** `47b7584f-f4a0-4db5-bca9-534c478adce7`,
+> snapshot **`Before setup-devbox`** `d0bb8989-a107-46c8-a86d-479c80aa1b00`.
+> **Left running with the finished install on it** — restore the snapshot
+> before reusing. §7 step 17 has the keyboard recipe; UAC does not prompt.
+>
+> ***CAPTURE GUEST OUTPUT THROUGH THE CLIPBOARD, NOT SCREENSHOTS.*** Clipboard
+> is bidirectional. In the guest Ctrl+Shift+A then Ctrl+Shift+C
+> (`1d 2a 1e 9e aa 9d` then `1d 2a 2e ae aa 9d`), then `Get-Clipboard -Raw` on
+> the host — that pulled the whole 191-line console buffer out as text.
+> **Screenshots cost this session real time and missed nine minutes of output**
+> behind an installer window.
+>
+> **THE VM IS NOT A STOCK ISO** — Chrome, pCloud and Winhance are pre-installed,
+> so a green run on it is slightly weaker evidence than one on a pristine box.
+> Recorded as agreed when the step was opened.
+> ## THE FIFTY-THIRD SESSION'S RECORD FROM HERE DOWN — IT CLOSED CLEAN
+>
+> Step 15 fully closed; the SDSYS BP trim cycled and shipped; suite green
+> at 31/31 on both `b37` AND `b38` (386 PASS 0 FAIL each). **Three
+> not-yet-cycled text edits** (`stage.py`, `allow-ssh-groups.ps1`,
+> `sd.iss`) leave the tree STALE-by-comment until the next cycle — none
+> changes behaviour, so there is no urgency, but **`assert-current` refuses
+> until then**, which blocks any verifier run.
+>
+> ### THE BP TRIM IS PROVEN END-TO-END ON b38
+>
+> | check | result |
+> |---|---|
+> | ~~installed `sdsys/bp/` after cycle~~ | ~~**exactly 5 files**: PCL, PCL.GRID, U0032, U50BB, VFS.CLS~~ — **SUPERSEDED 25 Aug 2026: all five deleted on the owner's ruling, SD now ships nothing into it.** The measurement was real; its subject is gone |
+> | `verify-scramlogin` step 9b | 40/40, `TESTSDCLI compiles` / `!sdclient connected over SCRAM` / `TESTSDCLI PASSED` |
+> | finally cleanup | `TESTSDCLI removed from sdsys/bp (source lives in gplbld/testsdcli.bp)`, and `ls sdsys/bp/` after the run still shows exactly 5 files, `bp.OUT` clean of TESTSDCLI |
+> | rest of the suite | 31/31 on `b38` UTF-16LE decoded, 386 `[PASS]` across the 19 elevated logs, 0 `[FAIL]` |
+>
+> ### AND ONE SMALL SELF-CAUSED NOISE, CAUGHT AND FIXED
+>
+> `verify-scramlogin`'s b38 log carried a warning:
+> *"note: testsdcli.bp now appears in stage.py or sd.iss, so it is watched
+> again"*. My own comment in `stage.py` wrote `gplbld/testsdcli.bp` with a
+> path separator before the name — exactly the trap
+> [assert-current.ps1:497](sdb_ai/sd64/gplbld/assert-current.ps1:497) warns
+> about, in as many words: *"Name a non-shipping script bare in those two
+> files, or not at all."* Fixed in `stage.py` (the name is now written bare,
+> with a pointer to the rule); grep confirms no path-anchored `testsdcli`
+> hits in `stage.py` or `sd.iss`; assert-current no longer emits the note.
+>
+> **The fix triggers `assert-current`'s cry-wolf-on-comment behaviour** —
+> the same open item on the section-7 list. `stage.py` is now newer than
+> the b38 install, and every verifier that calls `assert-current` will
+> refuse until the next cycle bakes it in. **No urgency**: the change is
+> comment-only, the suite already passed at b38, and the cost of an
+> extra cycle purely to clear a comment update is not worth it. It clears
+> naturally the next time someone cycles for another reason.
+>
+> ### PREFIXES TO `b38` ARE SPENT — USE `b39` OR LATER
+>
+> Only relevant if someone re-runs the suite before the next cycle bakes
+> the comment fix in; assert-current will refuse until then.
+>
+> ### THE SUITE ON b37 — 31/31, 386 PASS, 0 FAIL, DECODER PROVEN
+>
+> | half | result |
+> |---|---|
+> | `VerifyInstall1`, 12 steps, ordinary token | **12/12 exit 0** |
+> | `VerifyInstall2`, 19 steps, elevated | **19/19 exit 0** — 386 `[PASS]` rows, **0 `[FAIL]`** across the 19 UTF-16LE per-step logs |
+>
+> ***THE DECODER WAS PROVEN TO REACH THE TEXT*** before believing the zero
+> `[FAIL]` count — session 51/52's lesson. `iconv -f UTF-16LE -t UTF-8` on
+> each log, then a POSITIVE `[PASS]` count per step (7 for verify-cmdaudit,
+> 25 for verify-catgate, 40 for verify-scramlogin, ...). An ASCII grep on
+> the raw UTF-16LE bytes would have matched nothing and reported a false
+> clean; the assertion is on the positive count, not the absent negative.
+>
+> ***PREFIXES TO `b37` ARE NOW SPENT — USE `b38` OR LATER.***
+>
+> ### THE TWO NEW VERDICT LINES ARE OBSERVED WORKING
+>
+> Session 52 added a verdict line to `verify-createaccount` and
+> `verify-sshonly` because a `tail` of a run with no verdict was showing
+> only cleanup prose, and a decisive failure would hide in it. Neither
+> verifier had been re-run in session 52 (both are elevated and spend a
+> name). On this `b37` run they printed exactly the shape built:
+>
+> - `verify-createaccount: PASSED - 18 of 18 decisive checks passed, 18 row(s) in all.`
+> - `verify-sshonly: PASSED - 12 of 12 decisive checks passed, 15 row(s) in all.`
+>
+> Last, after the cleanup prose, so a `tail` reads it.
+>
+> ### STEP 15 CLOSED EARLIER IN THE SESSION
+>
+> `probe-catprivate.ps1` ran green on the current install at **19:26:48**:
+> **3/3 checks agreed**, CATPRV192648 added to private catalogue, count 0→1,
+> `C:\ProgramData\SD\sdsys\cat\CATPRV192648` written and cleaned. Transcript
+> at `%LOCALAPPDATA%\SD-verify\probe-catprivate-20260824-192648.log`.
+>
+> ### STEP 15 IS NOW MEASURED, NOT REASONED, ON ALL FOUR ROWS
+>
+> | writer | how proven |
+> |---|---|
+> | `CREATE.ACCOUNT` | 24 Aug session-52 install 18:19:17 wrote `accounts\don` into a locked directory |
+> | `CATALOG` (private) | 24 Aug 19:26:48 — `probe-catprivate.ps1` 3/3 |
+> | `CATALOG` (global, `$`-prefix) | `verify-catgate` 25/25 (`gcat` locked long before this step) |
+> | `CONFIG` | closed by source — nothing in SD writes `sd.conf`; `config.c:152` and `sysdump.c:49` are `fopen("r")`, `op_config.c` does no file I/O |
+>
+> ### THE PROBE, KEPT BECAUSE THE MEASUREMENT MIGHT NEED TO BE RE-TAKEN
+>
+> [probe-catprivate.ps1](sdb_ai/sd64/gplbld/probe-catprivate.ps1), 15,255
+> bytes, listed in `assert-current.ps1`'s `$neverShipped`. Copies
+> `verify-catgate.ps1`'s `Invoke-SD` verbatim; per-run names embed the
+> timestamp; backs `gcat` up under `%LOCALAPPDATA%\SD-verify` first;
+> three-way decisive check with the anchor on sysmsg 3031's positive
+> wording. A future change to the ACL lock or to CATALOG can re-take
+> the measurement in one elevated hand-run:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-catprivate.ps1
+> ```
+>
+> ## THE DETAIL BELOW IS THE PREVIOUS SESSION'S RECORD
+>
+> ***AND ITS SIBLING IS ALREADY CLOSED, BY SOURCE.*** `CONFIG` cannot be broken
+> by this lock: **nothing in SD writes `sd.conf`** — every `config_path` use in
+> the C tree is `fopen(..., "r")` and `op_config.c` does no file I/O at all.
+> §7 step 15 carries the correction; the row that blamed `CONFIG` was wrong.
+>
+> ### THEN THE SUITE AGAIN, AT 31
+>
+> `verify-cmdaudit` joined `VerifyInstall2` after `b36`, so green becomes
+> **31 of 31**. ***PREFIXES TO `b36` ARE SPENT — USE `b37` OR LATER.***
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b37
+> ```
+>
+> ***AND OPEN A FRESH ELEVATED WINDOW FOR IT AND FOR EVERY CYCLE.*** See the
+> transcript note below — `cycle.ps1` now warns, but the habit is the fix.
+>
+> ### WHAT THIS SESSION CLOSED
+>
+> | | |
+> |---|---|
+> | §7 **step 15** | the ACL lock — built, cycled, `verify-sysdiracl` **16/16**, and `CREATE.ACCOUNT` measured writing a locked `accounts` |
+> | §7 **step 9** | `sd <command>` no longer prompts; the installer moved to `MODIFY.PASSWORD`; **`verify-cmdaudit` 5/5** |
+> | two verifiers | `verify-createaccount` and `verify-sshonly` now print a verdict line |
+> | `cycle.ps1` | warns when its own transcript has stopped recording |
+>
+> ### FIVE STATUS CLAIMS WERE FOUND STALE, AND THAT IS THE LESSON
+>
+> §7 step 16 was **closed** while its heading said *"Not started"*; step 9 was a
+> decision, not a missing verifier, and the hang it named had been traced and
+> corrected twice; step 3's `limitssh` half stopped needing a VM on 21 Aug;
+> §4 said `verify-sshonly` exits 1 and it passes; and the `sd.conf`/`CONFIG` row
+> above. **Every time, the code or a later entry was right and a summary line
+> was left behind.** ***Check a status claim against the source before acting on
+> it.***
+>
+> ### AND I INTRODUCED ONE REGRESSION, WHICH IS THE OTHER LESSON
+>
+> Gating LOGIN's password prompt on `batch.command = ''` broke the installer's
+> password step, because `finish-install.ps1` passed `off` as a command and
+> relied on that prompt. **The file predicted it in as many words and I read the
+> comment afterwards.** ***Read the CALL SITES of a behaviour before gating
+> it.*** Fixed by moving the step to `MODIFY.PASSWORD`, cycled, verified.
+>
+> ## THE DETAIL BELOW IS THE SESSION'S RECORD
+>
+> ***THE SESSION CLOSED CLEAN.*** Install **18:19:17**, `assert-current` matches
+> source, suite run **`b36`** at **30 of 30** - `VerifyInstall1` 12 of 12 and
+> `VerifyInstall2` 18 of 18, every step exit 0. ***PREFIXES TO `b36` ARE NOW
+> SPENT; USE `b37` OR LATER.***
+>
+> ### VERIFIED ON THE TRANSCRIPTS, AND THE FIRST READING WAS A FALSE CLEAN
+>
+> ***THE ELEVATED PER-STEP LOGS ARE UTF-16LE.*** An ASCII `grep '[FAIL]'` over
+> them matches **nothing** and reads as a clean run - the same false clean
+> session 51 recorded for an `iconv` that decoded nothing, arriving from the
+> opposite direction. **Decode first, and prove the decoder reached the text
+> before believing a zero**: `iconv -f UTF-16LE -t UTF-8 <log>`, then assert a
+> POSITIVE count - 16 `PASS` lines in `verify-tierapi` - and only then trust the
+> `FAIL` count of 0.
+>
+> | half | result |
+> |---|---|
+> | `VerifyInstall1`, **12** steps, ordinary token | **12/12 exit 0** - `verify-sysdiracl` passed in its FIRST suite run |
+> | `VerifyInstall2`, 18 steps, elevated | **18/18 exit 0**, **0 `[FAIL]` rows**, **379 `[PASS]` rows** |
+> 
+> ***THE SUITE IS 31 FROM THE NEXT RUN***: `verify-cmdaudit` joined
+> `VerifyInstall2` after `b36`, so green becomes **31 of 31**. It spends no
+> prefix, so it costs nothing to re-run.
+>
+> **ONE ROW THAT LOOKS WRONG AND IS NOT.** `verify-apiadmin: 22/23` - the
+> twenty-third is `[N/A ]`, because the probe could not ask *precisely since*
+> `OS.EXECUTE` was correctly refused.
+>
+> ***AND THE TWO VERIFIERS WITH NO VERDICT LINE ARE FIXED*** - owner's
+> instruction, 24 Aug 2026. `verify-createaccount` and `verify-sshonly` printed
+> no "N of N" wording at all, so the only available check was the ABSENCE of
+> failure - which is exactly the shape that had just produced a false clean.
+> Both now end with a `Write-Verdict` line, **last, after the cleanup prose**,
+> because a `tail` of the log is how these are read and the prose was what it
+> showed.
+>
+> **IT REFUSES THE NULL CASE**: a run that recorded no DECISIVE row prints
+> *"NO DECISIVE CHECK RAN, so this run proves nothing"* and sets `$fatal`, so it
+> exits 1. It sets the flag rather than returning a code, so none of
+> `verify-sshonly`'s **fourteen** exit points had to change - and so nothing
+> lands in the pipeline.
+>
+> ***TESTED, AND THE TEST IS KEPT***: `gplbld/test-verdict-units.ps1`, on
+> `$neverShipped`, lifts the function out of BOTH scripts **by AST** so it
+> cannot drift. **29 of 29**, covering all-pass, a decisive failure, no-decisive
+> -row, and empty results. **It also asserts the two copies are byte-identical**
+> - the "if one changes, change both" comment is otherwise a hope, and session
+> 51 paid for that exact shape with the tier VOC counts. **The control was run**:
+> perturbing one copy made it fail 2 of 29, and restoring returned 29 of 29.
+>
+> ***NEITHER VERIFIER HAS BEEN RE-RUN.*** Both are elevated and spend an account
+> name, so the verdict lines will first be seen on the **`b37`** suite run.
+>
+> ***AND `verify-sshonly` PASSED, WHERE §4 SAID IT EXITS 1.*** Corrected there.
+> 15 PASS, 0 FAIL: `LogonUser INTERACTIVE` refused 1385, `NETWORK_CLEARTEXT`
+> and `NETWORK` admitted, ssh admitted with a password **and** with a key. The
+> row had not been re-checked since 21 Aug.
+>
+> ### THE INSTALL IS 18:19:17 AND BOTH CHANGES ARE VERIFIED ON IT
+>
+> | check | result |
+> |---|---|
+> | ***`credential register: 1 account(s) with a password`*** | **the password step ran and wrote a credential** |
+> | `assert-current` | matches source |
+> | `verify-sysdiracl` | **PASSED**, 16/16 - the seven locked, `$ipc` still writable |
+> | `accounts\don` | written 18:19, into a directory already at `(RX)` |
+> | staged vs installed | `gcat 125/125`, `GPL.BP.OUT 185/185`, `$BCOMP 88,070` |
+>
+> **THE CREDENTIAL LINE IS THE DECISIVE ONE.** `cycle.ps1:597-611` counts files
+> in `$cred` and the ZERO case prints *"NO ACCOUNT HAS A PASSWORD"* instead, so
+> the reading cannot be a false positive. Step 6 deleted the tree and the only
+> step that writes `$cred` is the password step - so `MODIFY.PASSWORD` ran,
+> asked, and the answer landed. **Step 9's regression is closed.**
+>
+> ### ***A FRESH ELEVATED WINDOW PER CYCLE. THE TRANSCRIPT STOPS RECORDING OTHERWISE.***
+>
+> **FOUND 24 Aug 2026 reading the log of a run that passed.** Session 51's fix
+> cured the transcript BLEED; what is left is that repeated
+> `Start-Transcript`/`Stop-Transcript` in ONE PowerShell 5.1 window
+> **progressively loses NATIVE-COMMAND output**. Three runs, same window:
+>
+> | run | bytes | compiles logged | ISCC logged |
+> |---|---|---|---|
+> | 17:59:51 | 614,422 | 190 | yes |
+> | 18:02:52 | 34,813 | 146 | no |
+> | **18:18:03** | **1,933** | ***0*** | **no** |
+>
+> **The 18:18:03 log holds ZERO lines of native output** - no compiles, no
+> ISCC, no installer - **while all 19 PowerShell `Write-Host` lines survived**,
+> and the guard reported **0 stale transcripts**, so every run stopped cleanly.
+> It is not the old bug.
+>
+> **WHY THAT RUN IS STILL TRUSTWORTHY, said explicitly rather than assumed:**
+> every check `cycle.ps1` makes is its own `Write-Host`, including step 3's
+> structural counts, and all of those survived. The BASIC compile evidence is
+> independently covered by the 17:59:51 `-SkipInstall` run - **190 programs at
+> `0 error(s)`** - and the only source change since was `finish-install.ps1`,
+> which is PowerShell and is not compiled.
+>
+> ***THE HAZARD IS A FUTURE RUN, NOT THIS ONE***: a compile failure in a window
+> that has stopped recording would leave no evidence at all.
+>
+> ***`cycle.ps1` NOW SAYS SO OUT LOUD, 24 Aug 2026 - THE LOSS IS NO LONGER
+> SILENT.*** A `$global:` flag set on the first run makes every later run in the
+> same window print a warning naming exactly what will be missing, **at the top
+> AND again beside the final verdict** - because a warning six minutes and
+> several thousand lines from the end is one nobody reads, which is how this
+> went unnoticed.
+>
+> **THE FLAG TRACKS THE DEGRADATION EXACTLY, measured, not assumed**: typed at a
+> prompt (the documented invocation) the script runs IN the session, so the flag
+> persists and the second run warns; launched as `powershell -File` it is a new
+> process, the flag is absent AND the transcript is fresh, so it stays quiet.
+> **No false positive in either direction.**
+>
+> ***IT WARNS RATHER THAN REFUSES, DELIBERATELY.*** The run itself is sound -
+> every check `cycle.ps1` makes is its own `Write-Host`. What is lost is the
+> ability to read WHY afterwards, and blocking a cycle over that would cost more
+> than it saves.
+>
+> ***THE I/O WAS DELIBERATELY NOT RE-PLUMBED.*** The obvious fix - capture the
+> native output and re-emit it - is **forbidden at the step that matters**:
+> `cycle.ps1:363`'s own comment says output must go to the console and NOT to a
+> pipe or redirect, because **`sd -start` forks `sdwind`, which inherits whatever
+> handle it is given and holds it for life** - §6, and it cost a session.
+> `bootstrap.py` shows a FILE handle is safe where a pipe is not, so a real fix
+> exists, but it changes the most load-bearing script in the project and cannot
+> be tested without spending cycles. **Left as a decision.**
+>
+> ### WHAT THE CYCLE PROVED, AND WHAT IT DID NOT
+>
+> ### WHAT HAPPENED, KEPT BECAUSE THE LESSON IS THE VALUABLE PART
+>
+> Step 9's ruling - *"sd &lt;command&gt; is batch, so not interactive"* - was
+> implemented as `and batch.command = ''` at
+> [LOGIN:669](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:669). **It broke the installer's
+> password step**, which the owner found on the 18:03:37 install: the wizard
+> never asked.
+>
+> **THE CHAIN**: [finish-install.ps1:131](sdb_ai/sd64/gplbld/finish-install.ps1:131)
+> runs `sd -QUIET off`. **`off` is passed as a single command ON PURPOSE** so
+> the session closes itself once the password is set (owner, 22 Aug 2026:
+> *"the paragraph that runs the password entry should be able to log out
+> without the user having to do it"*). It works because LOGIN runs FIRST, so
+> `require.credential` prompts and only then does `off` execute. The new
+> conjunct suppresses that prompt.
+>
+> ***THAT FILE PREDICTED THIS EXACT FAILURE*** - the comment above the call
+> says passing `off` *"adds a way to fail SILENTLY... if the prompt never
+> appears, `off` runs immediately, SD exits, and the user is never asked"*.
+> **The call sites of a thing being gated must be read BEFORE gating it.**
+>
+> **WORKAROUND, NO CYCLE**: plain `sd` elevated, with no command, still prompts
+> - `batch.command` is empty, so the 21 Aug rule applies unchanged. The owner
+> did this and the account has a password.
+>
+> ### THE FIX, RULED BY THE OWNER 24 Aug 2026: CHANGE THE INSTALLER
+>
+> ***`finish-install.ps1` NOW RUNS `sd -QUIET MODIFY.PASSWORD <user>` INSTEAD
+> OF `sd -QUIET off`.*** `LOGIN:669` is UNCHANGED - the ruling stands.
+> **Asking is now what the command DOES**, rather than a side effect of logging
+> in, so no future change to how LOGIN treats a command line can remove it
+> again. The session still closes itself, which was the 22 Aug requirement.
+>
+> **THE OWNER'S FIRST IDEA WAS `-internal`, AND IT IS BLOCKED AT THIS CALL SITE
+> ONLY** - [sd.c:589-594](sdb_ai/sd64/gplsrc/sd.c:589) forces `-INTERNAL` to
+> the **SDSYS** account and refuses any other, so it would set SDSYS's password
+> rather than the user's, silently. **But it was the right instinct and it
+> corrected a false claim in this file**: *"SD cannot tell the two apart"* was
+> wrong. [bootstrap.py:153](sdb_ai/sd64/gplbld/bootstrap.py:153) runs every
+> `-internal` session with `input=b'\n'`, so **stdin is a pipe and `K$TTY` is
+> empty for all of them** - the tty test already separates bootstrap from any
+> console session.
+>
+> **CHECKED IN THE VERB BEFORE CHANGING THE CALLER**, which is the discipline
+> that was missing the first time:
+>
+> | requirement | where | behaviour |
+> |---|---|---|
+> | self-closing | `sd.c:645` | single command, so SD runs it and exits |
+> | prompts, hidden | `SET_ACC_PASSWORD:174,:184` | `New password:` / `Repeat new password:` |
+> | fresh account | `:152` | *"has no password set. Setting the first one."* |
+> | no current password demanded | `:159` | `if own and has.cred` - skipped when there is none |
+> | declining still works | `:176` | empty -> *"Password not changed."*, `stop` |
+> | administrator gate | `:113` | and `finish-install.ps1` is elevated |
+> | case | `:80` | `account = upcase(token)`, so `{username}` goes through as-is |
+> | the verb resolves | measured | `MODIFY.PASSWORD` is in the adopted account's VOC |
+>
+> ***AND `-User` STOPPED BEING A WEAK CHECK AND BECAME LOAD-BEARING.*** It was
+> *"used ONLY to look for a credential afterwards"*; it is now the argument to
+> the verb, so a wrong value sets the wrong account's password or is refused
+> with *"Account %1 not in register"*. `sd.iss:1292` passes
+> `-User "{username}"`, checked.
+>
+> **THE SUITE IS UNAFFECTED AND CAN RUN**: every verifier drives `sd` down a
+> pipe (`K$TTY` empty, so the prompt was already skipped before this change),
+> `verify-batchjob.ps1:112` pipes `$null`, and `adopt-account.ps1` uses
+> `-internal`, which is exempt.
+>
+> ## STEP 15 IS DONE. THE ACL LOCK IS CYCLED AND VERIFIED.
+>
+> Install **18:03:37**, `assert-current` **exit 0**, `verify-sysdiracl`
+> **16 of 16 decisive, exit 0** unelevated - including the `$ipc` negative
+> control, still writable. `CREATE.ACCOUNT` wrote `accounts\don` at 18:04 into
+> a directory already locked. **`CATALOG` and `CONFIG` are still only reasoned**
+> and need a hand-run. §7 step 15 has the table.
+>
+> **Then the suite, from an ordinary terminal, by a person** (§4.0.1). Prefixes
+> to `b35` are spent:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b36
+> ```
+>
+> ## SUPERSEDED: THE CYCLE THIS SECTION ASKED FOR HAS RUN
+>
+> ***THE TREE IS DELIBERATELY STALE AND THAT IS THE ONLY THING IN THE WAY.***
+> `assert-current` REFUSES, naming three files: `secure-sysdirs.ps1`, `sd.iss`
+> and `stage.py`. Every verifier calls it first, so **nothing can be measured
+> until one cycle has run**. From an ELEVATED PowerShell, and a person has to
+> be at the wizard:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ### WHAT THE CYCLE HAS TO PROVE IS NOT THE ACLs
+>
+> ***IT IS THAT `CREATE.ACCOUNT`, `CATALOG` AND `CONFIG` STILL WORK.*** Those
+> write `accounts`, `cat` and `sd.conf`, and §7 step 15 marks those three rows
+> **reasoned, not measured** - nobody has ever denied `sdusers` write and
+> watched them succeed. That is the whole risk in this change.
+> `verify-createaccount` and `verify-tiers` cover the first;
+> **`CATALOG` and `CONFIG` are covered by nothing and will need a hand-run.**
+>
+> Then the suite, **from an ordinary terminal, by a person** (§4.0.1 - an agent
+> may run `cycle.ps1` but not this). **Prefixes to `b35` are spent, use `b36`
+> or later:**
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b36
+> ```
+>
+> **`VerifyInstall1` is now 12 steps, not 11** - `verify-sysdiracl` was added
+> beside `verify-pcodeacl`. So the suite is **30**, and green is **30 of 30**.
+>
+> ### WHAT WAS BUILT, 24 Aug 2026, FIFTY-SECOND SESSION
+>
+> §7 step 15 has the detail and the evidence. Four pieces, one commit: the lock
+> [secure-sysdirs.ps1](sdb_ai/sd64/gplbld/secure-sysdirs.ps1), the guard
+> [verify-sysdiracl.ps1](sdb_ai/sd64/gplbld/verify-sysdiracl.ps1),
+> `SecureSysdirs` at [sd.iss:1650](sdb_ai/sd64/gplbld/sd.iss:1650) called at
+> [sd.iss:1994](sdb_ai/sd64/gplbld/sd.iss:1994), and the wiring into
+> `stage.py`, `assert-current` and `VerifyInstall1`.
+>
+> ***NOT A LINE OF IT HAS RUN AGAINST AN INSTALL.*** What HAS been measured,
+> and it is more than a parse-check:
+>
+> | check | result |
+> |---|---|
+> | `secure-sysdirs.ps1` on a scratch **directory** and a scratch **file** | **9 of 9**, ACLs read back from disk |
+> | `sd.iss` `[Code]` extracted to a minimal `.iss`, through `ISCC` | *"Compiling [Code] section"*, **exit 0** |
+> | ISPP `#`-at-start-of-line lint, **and a control proving it can fail** | clean |
+> | all four changed `.ps1` parsed, byte-scanned for BOM and CR | 0 errors, none found |
+>
+> ### THREE THINGS THIS SESSION LEARNED THE HARD WAY, ALL CHEAP TO REPEAT
+>
+> 1. ***A COMMENT IN `sd.iss` CAN TURN THE WHOLE TREE STALE.*** `assert-current`
+>    decides whether a `$neverShipped` file really ships by scanning `sd.iss`
+>    and `stage.py` for the name **preceded by a quote or a path separator**.
+>    Writing a development probe's name with its directory in a new comment
+>    reinstated it under the guard. **Name a non-shipping script bare in those
+>    two files, or not at all.** Caught by running `assert-current` after the
+>    edit, not by reading it.
+> 2. ***THE HANDOFF WAS WRONG ABOUT `$neverShipped` AND THE PRECEDENT WAS
+>    RIGHT.*** It asked for BOTH new scripts on that list; `secure-sysdirs.ps1`
+>    **ships**, so it must stay watched - and the list is self-policing, so the
+>    entry would have been reinstated and rotted into a comment shaped like a
+>    rule. Only the verifier is listed.
+> 3. ***IN A POWERSHELL ARRAY LITERAL, `A, B + C, D` IS `(A, B) + (C, D)`.***
+>    Array concatenation, not string concatenation - so an `'OutputDir=' + $x`
+>    element silently became **two** elements. Parenthesise every `+` inside
+>    `@( ... )`. It cost one confusing `ISCC` error.
+>
+> ### THE WHOLE REMAINING TASK LIST, COMPILED 24 Aug 2026 ON THE OWNER'S ASK
+>
+> §7 steps 0-2, 4-16 are CLOSED. What is left, in the file, is:
+>
+> | § | task | state |
+> |---|---|---|
+> | 15 | ***CLOSED IN FULL 24 Aug 2026.*** ACL lock re-verified 16/16 on the 18:19:17 install; `probe-catprivate` 3/3 at 19:26:48 measured CATALOG writing `sdsys\cat` under the lock; `CONFIG` closed by source (nothing in SD writes `sd.conf`); `CREATE.ACCOUNT` cycled and measured. Suite re-run at 31/31 on `b37` | closed |
+> | 9 | ***CLOSED.*** `sd <command>` no longer prompts (`LOGIN:669`), the installer's password step moved to `MODIFY.PASSWORD`, both cycled and verified, `verify-cmdaudit` passes 7/7 in `VerifyInstall2` on `b37`. ***The behavioural half cannot be automated*** - the gate is reachable only by a person at their own elevated console; that console probe is the one remaining decision | closed |
+> | 3 | installer loose ends. ~~`sshremote`/mandatory-ssh still needs the VM~~ ***RUN 24 Aug 2026 AND IT FOUND A LIVE DEFECT*** - `ssh-firewall.ps1` has never been able to scope ssh, so every install that puts ssh on leaves **port 22 open to the LAN**; one-line fix measured, **not yet approved or made**, START HERE. Remote-block control still unproven, needs a bridged NIC. ~~`sdsys\bp` still ships 21 test programs~~ ***CLOSED 24 Aug***. No data-tree upgrade path | ssh firewall defect **CLOSED**, both branches verified; **NEW: refuse-to-install ruling, not started** + 2 open bullets |
+> | — | ***CLOSED 24 Aug 2026, §5.9*** - owner picked **C** (keep default-ticked; the description carries the warning), with the strengthening: the wizard description now leads with `DISABLES scp and sftp for everyone` rather than burying it after a comma and inside a parenthesis. A/B rejected on-record: A trades one problem for a globally weaker default; B reintroduces the "task a one-shot" trap [allow-ssh-groups.ps1:22-27](sdb_ai/sd64/gplbld/allow-ssh-groups.ps1:22) says the 21 Aug flip fixed. [sd.iss:210](sdb_ai/sd64/gplbld/sd.iss:210) rewritten; the stale header at `allow-ssh-groups.ps1:31` was fixed earlier the same day; changelog carries the user-facing note | closed |
+> | 17 | ***CLOSED 24 Aug 2026, fifty-fourth session.*** `setup-devbox.ps1` ran end to end on the bare VM, ~17 min, **exit 0**, through `make sd`; the `-Syu` skip fired and `pacman -S --needed` installed all 8 packages; clones, build and report all reached for the first time. **The two earlier wedges were the host's Hyper-V/NEM fallback, not the script** (§6). `sdhelp` was raised as an open requirement and **the owner cancelled it the same day** | closed |
+>
+> ***THE FIRST VERSION OF THIS TABLE LISTED STEP 16 AS "not started, largest
+> item". IT WAS CLOSED THE SAME DAY, BOTH HALVES.*** The step's HEADING still
+> said "Not started" while its own body said `STEP 16 IS CLOSED`, and the
+> heading was read without reading on. **The owner caught it.** Corrected at
+> the source: step 16's first line now carries its status. **When compiling a
+> status list, read each step's body or check the code - a heading is a claim
+> like any other.**
+>
+> ~~**Plus, and it is the owner's call:** `assert-current` **cannot see a
+> deletion**~~ ***CLOSED 25 Aug 2026*** - section B3 asks
+> `stage.py --list-mirrors` which `sdsys` directories are a verbatim copy of
+> source and walks install -> source inside those only. 2955 files checked on
+> the real tree, 0 reported; the same function given `accounts` reports 17, so
+> the zero is measured rather than empty. See §"ALSO OPEN" below, now struck.
+>
+> **And two undiagnosed §8 items**, neither blocking: the first verifier run
+> after a cycle sometimes fails checks the second passes (~2 in 10, three
+> explanations already dead), and `BASIC` once produced no object in SDSYS on a
+> reused file name, not reproduced since.
+>
+> ### STEP 17 IN ONE PARAGRAPH, BECAUSE IT IS THE NEWEST AND THE LEAST WRITTEN DOWN
+>
+> `setup-devbox.ps1` builds a development machine from nothing. On the clean VM
+> (`DevInstallTest`, 23 Aug 2026) **winget→MSYS2 and the pacman run worked for
+> the first time** - then it **died at `Step-Clone`**, because a running process
+> keeps the PATH it started with and the `git` winget had just installed was
+> still *"not recognized"*. `Step-Git` **detected and printed exactly that**,
+> and `Step-Clone` called `git clone` anyway. ***So the clones, `make sd` and
+> the summary have NEVER run on a bare machine.*** Three fixes went in
+> (`Update-SessionPath`, `Resolve-Tool` fallbacks, `Step-Clone` skipping) and
+> were verified **only by forcing each branch on a machine that already had the
+> tools** - which is not a clean run and must not be read as one. **The task is
+> one end-to-end run on a clean snapshot, through `make sd`.**
+>
+> ### `$ipc` KEEPS `(M)`, AND THAT IS A DECISION, NOT AN OVERSIGHT
+>
+> It is the only one of the eight that anything writes - every session modifies
+> `$ipc\%0`, `PHANTOM` writes its command there (`sd.c:55`), `APISRVR:214`
+> opens it. `verify-sysdiracl` carries it as a **negative control**: a run
+> where `$ipc` has stopped being writable FAILS, because without that row a
+> verifier that locked everything and one that locked nothing both pass.
+>
+> ### THE INSTRUMENT LESSON FROM SESSION 51, IN ONE LINE
+>
+> ***FOUR SEPARATE CHECKS REPORTED CLEANLY WHILE MEASURING NOTHING***: a
+> `grep -c $'\r'` whose pattern reached grep empty (so it returned line
+> counts), an `iconv -f UTF-16LE` of a UTF-8 file (decoded nothing, reported 0
+> failures), an `icacls` that had been **denied** and rendered as "(none)", and
+> an SD session fed from a file that ran **no commands** and exited in 1.3s
+> looking like a pass. **Every one was caught by a second independent reading,
+> never by re-reading the first.** Make an instrument prove it reached its
+> subject before believing what it says.
+>
+> **DRIVING SD FROM A SCRIPT - the harness facts, measured**: a PowerShell
+> **pipe** runs verbs and echoes them, but never signals EOF, so an unanswered
+> prompt blocks for ever and a **phantom inherits the pipe** and stops the job
+> completing. **File redirection runs nothing at all.** `cmd /c "sd.exe < f"`
+> echoed 0 of 9. Use the pipe, answer every prompt (`SETPTR` asks *"OK to set
+> new parameters (Y/N)?"* at `SETPTR:558`), and give `PHANTOM` its own
+> fire-and-forget pass. `gplbld/probe-syswrites.ps1` does all of this already.
+>
+> ### ~~ALSO OPEN, AND IT IS THE OWNER'S CALL~~ CLOSED 25 Aug 2026
+>
+> ***`assert-current` COULD NOT SEE A DELETION. IT CAN NOW*** — section **B3**,
+> [assert-current.ps1](sdb_ai/sd64/gplbld/assert-current.ps1). B and B2 walk
+> source -> install and ask whether each source file is installed; nothing
+> walked the other way, so a deletion-only commit reported the tree
+> **current** — twice, silently (`OPGEN`, then `MODIFY`).
+>
+> **It took the shape this entry predicted: compare the install against what
+> `stage.py` ships.** `stage.py --list-mirrors` names the seven `sdsys`
+> directories that are a verbatim copy of source, B3 walks only those, and
+> anything found in the install and not in source is a deletion that has not
+> shipped. **`accounts` is deliberately not one of them** and that is what
+> stops the cry-wolf failure this entry warned about — it ships holding the
+> `SDSYS` record and then accumulates every account the user creates.
+>
+> ***MEASURED BOTH WAYS ON THE REAL TREES, because a check that always returns
+> nothing looks the same whether it works or not:***
+>
+> | mirror list | checked | reported |
+> |---|---|---|
+> | the real seven | **2955 files** | 0 — and 0 skipped |
+> | `accounts`, as a control | 18 | ***17*** — `don` and the sixteen `b38` test accounts |
+>
+> `test-deletioncheck-units.ps1` lifts `Find-InstalledDeletions` out of the
+> guard by AST and covers the rest: a planted `gpl.bp\MODIFY` found by name, a
+> nested deletion, a case-only rename **not** double-reported (B2 owns that),
+> and a missing mirror directory reported as skipped rather than passed.
+> **Adding a directory to `SDSYS_MIRROR` is the only way to widen it**, and
+> that list carries the per-directory measurement.
+>
+> ***AND SECTION B4 CLOSES THE SAME GAP IN `{app}`, WHICH sd.iss's OWN COMMENT
+> HAD ASSUMED AWAY.*** That comment said everything under `{app}` is *"replaced
+> on upgrade"*. **Inno overwrites; it never removes a file absent from the new
+> version** — that is what `[InstallDelete]` is for — so a script dropped from
+> `stage.py` sat in `C:\Program Files\SD` until an uninstall.
+>
+> | | |
+> |---|---|
+> | noticing one | B4 asks the existing **`$shipsAs`** valve — "is this name quoted in `stage.py` or `sd.iss`" — of every top-level file in `{app}`. No second list: retiring a script removes its name, and the same valve reports the leftover |
+> | removing one | `stage.py` `PF_RETIRED`, which emits an **ungated** `[InstallDelete]` under `{app}`. Empty today, correctly: all 22 installed `.ps1` are still named in `stage.py` |
+> | measured | `no leftover files in C:\Program Files\SD (22 checked)`, and the same function with one name pretended retired reports exactly that name |
+> | scope | **top level only.** `usr\bin` holds the binaries and the MSYS2 DLL closure, which `stage.py` *computes* with `objdump` rather than naming, so a name-based check there would report every DLL |
+>
+> `test-deletioncheck-units.ps1` covers both halves — 19 checks, including that
+> Inno's own `unins000.*` is not counted and that `usr\` is not descended into.
+>
+> **The one false negative, in its exact shape:** `$shipsAs` needs the name
+> **quoted or path-prefixed**, so a retired script named bare in a comment is
+> correctly seen as unshipped — but one still written `'foo.ps1'` in the
+> comment explaining its removal reads as shipped and is missed. **When
+> retiring a script, take its name out of the quotes.**
+>
+> ### §7 STEP 9's VERIFIER IS STILL UN-STARTED, and §7 is otherwise empty.
+>
+> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026*** - handed off on low
+> credits, at a clean boundary: **ten commits, all pushed, nothing half-done.**
+> OPGEN's two loose ends closed and `ERR.H`/`ERRTEXT.H` regenerated; the
+> transcript defect closed across three scripts; `verify-lineendings` put into
+> a runner it had never been in; `verify-tierapi`'s pre-split counts fixed;
+> MODIFY removed, cycled and verified at **354 / 395 / 416** by both tier
+> verifiers; and §7 step 15 measured end to end. **The suite last ran green at
+> 29 of 29** (`b33` plus the `b34` re-run). Prefixes to `b35` are spent - use
+> `b36` or later.
+>
+> ### THE INSTALL WAS VERIFIED ON DISK, NOT READ OFF THE CYCLE LOG
+>
+> | probe | expected | observed |
+> |---|---|---|
+> | `assert-current` | exit 0 | **exit 0**, "no source file is newer than the install" |
+> | installed `GPL.BP/OPGEN` | absent | **absent** |
+> | installed `GPL.BP.OUT/OPGEN` | absent | **absent** — the object, a separate fact from the source |
+> | installed `GPL.BP/ERRTEXT.H` rows `4100`/`4101`/`-10303` | present | **lines 98, 99, 216** |
+> | installed `SYSCOM/ERR.H` `SD$SCRAM.ERR` | present | **line 286** |
+> | installed `GPL.BP/BCOMP` naming `gen_includes.py` | present | **lines 22 and 66** |
+> | installed `GPL.BP/OPCODES.H` `SDPYOBJ` | **absent** | **0 occurrences** |
+> | **compiled `GPL.BP.OUT/ERRTEXT` carries the three new texts** | present | **all three** |
+> | **catalogued `gcat/!ERRTEXT` carries them** | present | **all three** |
+>
+> **THE LAST TWO ROWS ARE THE ONES THAT MATTER**, and they are why this is more
+> than "the files copied". `ERRTEXT.H` is `$include`d, so the strings only
+> reach a running system by being compiled *into* `!ERRTEXT` — and `gcat/!ERRTEXT`
+> is what actually executes. It differs from `GPL.BP.OUT/ERRTEXT` in **126
+> bytes, all of them the fixed-width name field** (`!ERRTEXT` against `ERRTEXT`,
+> space padding against NUL); same 11,321 bytes, identical thereafter.
+>
+> **BOTH CONTROLS WERE RUN, so the greps above are not trivially true**: the
+> pre-existing row `DLL not found` **is** found in the same object (the search
+> can see embedded strings at all), and `SDPYOBJ` is **absent from compiled
+> `GPL.BP.OUT/BCOMP`** (the OPCODES.H change propagated through the compile,
+> not just onto disk).
+>
+> ***WHAT WAS NOT DONE: `!ERRTEXT` WAS NEVER CALLED.*** No BASIC was run to
+> display `errtext(4100)`. That would need a program compiled into the fresh
+> install, and the static chain above was judged to cover it. **If a future
+> session wants the behavioural proof, it is still owed.**
+>
+> ### EVERYTHING PASSES. `verify-tierapi -Prefix sdtapib34` IS 16/16.
+>
+> **15:53:28**, transcript `verify-tierapi-20260824-155328.log`. The three rows
+> that failed as `b33` now read `354 -> 354`, `396 -> 396`, `417 -> 417`.
+> Verified on the transcript, not the console: **0 `[FAIL]` rows, 16 `[PASS]`,
+> and the success wording `16 / 16 checks passed` present once.** The two bare
+> `FAILED` strings in it are the **controls** - a wrong password refused and a
+> cross-account attach refused - which are meant to fail.
+>
+> **So the whole suite is green**: `VerifyInstall1` 11/11, `VerifyInstall2`
+> 17/18 plus this re-run of the eighteenth. **29 of 29.**
+>
+> ### THE TRANSCRIPT DEFECT WAS BIGGER THAN THE `cycle.ps1` FIX, AND IS NOW CLOSED
+>
+> ***THE EARLIER CLAIM THAT FIXING `cycle.ps1` HANDLED IT WAS TOO NARROW.***
+> A sweep of all 64 `gplbld\*.ps1` for `Start-Transcript` with no
+> `Stop-Transcript` - the check that should have run with that fix - found two
+> more: **`VerifyInstall1.ps1` and `verify-sshonly.ps1`**. (`VerifyInstall2.ps1`
+> looked like a third and is not; both its hits are prose.)
+>
+> **AND IT WAS STILL HAPPENING, MEASURED**: the single `verify-tierapi` run at
+> 15:53 appended itself to **`cycle-20260824-133558.log`,
+> `cycle-20260824-151325.log` AND `verify-tiers-20260824-134341.log`** - three
+> logs from earlier runs, all still open in that window, all growing at once.
+> ***THE ELEVATED WINDOW FROM BEFORE THE FIX IS STILL OPEN. CLOSING IT ENDS
+> THIS***; the fix cannot reach transcripts already open in a live session.
+>
+> **THE FIX IS NOW A GUARD BEFORE `Start-Transcript`, IN ALL THREE FILES** -
+> close every transcript already active, so at most one is open and it belongs
+> to the run that opened it. One insertion per file, inside `try`/`catch`, so
+> it cannot alter control flow - which matters because `VerifyInstall1` has ten
+> exit points and `verify-sshonly` thirteen, and threading a stop through all
+> of them is the riskier change. It prints how many it closed.
+>
+> **TESTED BY REPRODUCING THE BLEED, not by reading the code**: with two
+> transcripts open, one `Write-Output` lands in **both** files; the guard then
+> reports `closed 2`, and the next transcript receives the next line while the
+> two older files receive **nothing**. The null case is tested out loud too -
+> with nothing open the guard reports 0 and does not throw. 64/64 parse clean,
+> function counts unchanged, `assert-current` exit 0, all three on
+> `$neverShipped` so no cycle.
+>
+> ### THE SUITE RAN AS `b33`: 28 OF 29 PASS, AND THE ONE FAILURE WAS A STALE VERIFIER
+>
+> **15:30:08 to 15:43**, on the 15:14:28 install. Summaries:
+> `post-cycle-unelevated-20260824-153008.txt` and
+> `post-cycle-20260824-153134.txt`.
+>
+> | half | result |
+> |---|---|
+> | `VerifyInstall1`, 11 steps, ordinary token | **11/11 exit 0** |
+> | `VerifyInstall2`, 18 steps, elevated | **17/18 exit 0** |
+>
+> **`verify-lineendings` ran inside a runner for the first time and exited 0** —
+> it had been in neither table since 23 Aug.
+>
+> ***THE ONE FAILURE IS `verify-tierapi`, AND THE INSTALL IS NOT WHAT IS
+> WRONG.*** Three checks failed, all three the same thing:
+>
+> ```
+> [FAIL] STANDARD      VOC count: expected 391, got 354
+> [FAIL] PROGRAMMER    VOC count: expected 408, got 396
+> [FAIL] ADMINISTRATOR VOC count: expected 418, got 417
+> ```
+>
+> **354 / 396 / 417 is the settled split** — the arithmetic in
+> `verify-tiers.ps1`'s header (`392 - 42 + 4`, `392 + 4`, `392 + 21 + 4`). The
+> decisive corroboration is in the **same run**: step 5, `verify-tiers`,
+> **PASSED** on exactly 354 / 396 / 417 against accounts created by the same
+> `CREATE.ACCOUNT`. Two verifiers measured the same install; the one with
+> current numbers passed.
+>
+> **CAUSE**: the three counts live in **two** files. Session 50 re-derived them
+> in `verify-tiers.ps1` and left `verify-tierapi.ps1` on the pre-split values.
+> `verify-tierapi.ps1:186` *already* said *"the arithmetic behind all three is
+> in verify-tiers.ps1's header"* — a pointer was not enough, because **nothing
+> fails when the two copies disagree**, only when the install disagrees with
+> the stale copy.
+>
+> **FIXED** — `verify-tierapi.ps1` lines 17, 135-137 and 184 now read
+> 354/396/417, with a dated note saying the numbers live in two files and must
+> move together. Parse-check 0 errors, 8 functions as before, and the values
+> read back **through the AST** rather than by grep. On `$neverShipped`, so no
+> cycle; `assert-current` still exit 0.
+>
+> ***NOT RE-RUN.*** The fix is three constants and is corroborated by
+> `verify-tiers` in the same run, but `verify-tierapi` itself has not been
+> executed since. It is elevated and spends three account names, so it needs a
+> fresh prefix — **`b34`**:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-tierapi.ps1 -Prefix sdtapib34
+> ```
+>
+> ### LEFTOVER `b33` REGISTER RECORDS, BY DESIGN
+>
+> Every step that made an account removed its **Windows** account and left the
+> SD `ACCOUNTS` and `$CRED` records *"in place - remove with DELETE.ACCOUNT"*.
+> That is on top of `sdtierc1/2/3` and `sdtierd1/2/3` from session 50. Nothing
+> blocks on them.
+>
+> ### THE VERIFY SUITE IS PRE-FLIGHTED AND READY. IT IS THE OWNER'S TO RUN.
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b33
+> ```
+>
+> **From an ORDINARY PowerShell — it refuses an elevated one** (verify-credacl
+> asks what an ordinary token can do, and Administrators are granted Full by
+> `secure-cred.ps1`, so an elevated run would pass while proving the opposite).
+> §4.0.1: an agent may not run it; a nested elevation is refused with *"The
+> operation was canceled by the user"* and **no dialog is ever shown**. Expect
+> roughly **five UAC prompts** — `verify-osusers` raises two, `verify-batchjob`
+> two, and the `-ThenElevated` handover one.
+>
+> **`b33` is the token.** §4.0 records `sdapiidb18`–`b32` as spent; `b33`
+> appears nowhere else, and `Get-LocalUser` shows **no leftover `b*` or
+> `sdtier*` account** at all.
+>
+> | pre-flight probe | expected | observed |
+> |---|---|---|
+> | `assert-current` | exit 0 | **exit 0**, install 15:14:28 |
+> | SD service | Running | **Running** — a stopped server passes `assert-current` and fails every verifier |
+> | `gplbld\*.ps1` parse-check | 0 errors | **64 scripts, 0 errors** |
+> | embedded BOM (any hit past offset 0) | none | **none**; 2 files carry a *leading* BOM at offset 0, which is legal |
+> | CR bytes in any script | 0 | **0** |
+> | every `verify-*.ps1` named in a runner | all | **29 of 29, after the fix below** |
+>
+> ### A VERIFIER WAS IN NEITHER RUNNER, WHICH IS THE FAILURE THE RUNNER WARNS ABOUT
+>
+> ***`verify-lineendings.ps1` was written 23 Aug and added to no step table***,
+> so neither runner has ever executed it. VerifyInstall1's own header names
+> this exact route — *"a verifier nobody runs is a guard that has already
+> stopped guarding, and nothing reports its absence"*, returning *"the moment a
+> verifier is added without a row in one of the two tables"*. **The header's
+> counts were stale in a way that hid it**: they read 26 / 9 / 17 while the
+> directory held 29.
+>
+> **Fixed** — added to `VerifyInstall1` (no elevation, no prefix, no account,
+> cleans up its own fixtures, raises no UAC prompt), and the counts re-derived
+> to 29 / 11 / 18. Parse-check 0 errors, `$steps` confirmed through the **AST**
+> rather than by grep, `assert-current` still exit 0.
+>
+> **RUN BEFORE WIRING IT IN, so it is not added untested**:
+> `verify-lineendings` on the 15:14:28 install, **17 of 17 PASS, exit 0** —
+> including both controls, the 2048-boundary straddle (line 1 reads 2047) and
+> the lone CR surviving as data.
+>
+> ### A DEFECT IN `cycle.ps1` WAS FOUND WHILE CHECKING, AND FIXED
+>
+> ***`cycle.ps1` STARTED A TRANSCRIPT AND NEVER STOPPED IT.*** PowerShell 5.1
+> keeps a transcript **active** until it is stopped or the session ends, and
+> supports several at once — every active one receives every line. Two runs in
+> **one** elevated window therefore left the first log open and recording the
+> second.
+>
+> **IT HAD ALREADY CORRUPTED THE RECORD.** After the 15:13:25 cycle,
+> `cycle-20260824-133558.log` — the log for the **13:36:51 install that this
+> file cites** — holds **two** `CYCLE COMPLETE` lines and two step-1 banners,
+> and `verify-tiers-20260824-134341.log` has an entire cycle appended after its
+> own output. Neither carries a `transcript end` marker, because neither was
+> ever stopped. **Treat both as contaminated.** The decisive
+> `verify-tiers-20260824-141122.log` (22/22) is **untouched**, as is
+> `cycle-20260824-150409.log`.
+>
+> **WHY IT SURVIVED THIS LONG**: a run launched as its own process
+> (`powershell -File`) closes the file at process exit, so its log is clean and
+> carries an end marker. The bleed only appears when the documented usage is
+> followed literally — typing the script path at an already-open elevated
+> prompt.
+>
+> **FIXED**: `StopCycleTranscript` in `gplbld/cycle.ps1`, called on all four
+> exit paths (`Fail`, `-SkipInstall`, the `assert-current` failure, and the
+> success tail). Parse-check 0 errors, **6 functions where HEAD had 5** so
+> nothing was swallowed, no BOM, LF only. `cycle.ps1` is on `assert-current`'s
+> `$neverShipped` list, so **the fix costs no cycle** — confirmed, exit 0 after
+> the edit. **Any elevated window still open from before the fix still holds
+> those stale transcripts; close it.**
+>
+> **INSTRUMENT NOTE FOR THE NEXT SESSION THAT ELEVATES BY SCRIPT.**
+> `Start-Process -Verb RunAs -Wait` **does not set `$LASTEXITCODE`** — it comes
+> back empty and the harness then reports the *launcher's* 0, which reads the
+> same whether the cycle completed or aborted at step 2. **Read the
+> transcript.** Use `-PassThru` and `.ExitCode` if a code is wanted.
+>
+> ### BOTH OPGEN LOOSE ENDS ARE CLOSED — session 51
+>
+> 1. **The two "run OPGEN" comments now name `gplbld/gen_includes.py`** —
+>    [BCOMP:64-67](sdb_ai/sd64/sdsys/gpl.bp/BCOMP:64) and
+>    [gplsrc/opcodes.h:36-46](sdb_ai/sd64/gplsrc/opcodes.h:36), each with a
+>    dated START-HISTORY line. **The control that mattered**: `--check` still
+>    reports `OPCODES.H` in sync *after* the `opcodes.h` edit, and that
+>    header's own description says its layout "is known to" the generator, so
+>    the edit could have moved the output.
+> 2. **`ERR.H` and `ERRTEXT.H` regenerated**, all four outputs in sync. The
+>    drift was smaller than session 50 read it: `SYSCOM/ERR.H` already carried
+>    `ER$SRVRERR 4100` and `ER$INV.NBR 4101` (hand-added 19 Aug) and lacked
+>    only `SD$SCRAM.ERR -10303`; `ERRTEXT.H` lacked the text rows for all
+>    three. Additive and callerless — nothing in `sdsys/` names any of the
+>    three, and [ERRTEXT:50](sdb_ai/sd64/sdsys/gpl.bp/ERRTEXT:50) looks up with
+>    `locate errno in err<1> setting pos` over two arrays the generator builds
+>    in step, so a mid-table insertion carries no positional dependency.
+>
+> **BOTH ARE NOW ON THE INSTALL** — the 15:13:25 cycle, verified in the
+> table at the top of this block. `assert-current` exit 0 and
+> `gen_includes.py --check` still reads four in sync. **There is still no
+> verifier for error text**, and `!ERRTEXT` was never called; the proof
+> is that the strings are compiled into `gcat/!ERRTEXT`, not that anyone
+> watched it print one.
+>
+> ### §7 STEP 9 VERIFIER, NEVER STARTED
+>
+> Was the second mechanical item that came out of the "what tasks are
+> left" review. Not begun this session.
+>
+> ### §7 IS EMPTY AND §8 TIER WORK IS CLOSED. ASK BEFORE STARTING ANYTHING.
+>
+> ***END OF THE FIFTY-FIRST SESSION, 24 Aug 2026.*** Six commits, and
+> **the install is current with the suite at 29 of 29.** The OPGEN
+> comments with `ERR.H`/`ERRTEXT.H` regenerated, the changelog and
+> `make sd`; the `-SkipInstall` result; the owner's cycle at 15:13:25
+> with its verification; the suite pre-flight; the `b33` result with
+> the `verify-tierapi` count fix; and the transcript class fix with
+> the `b34` re-run at 16/16.
+>
+> **FOUR INSTRUMENT DEFECTS THIS SESSION AND NOT ONE DEFECT IN SD.**
+> `cycle.ps1`, `VerifyInstall1.ps1` and `verify-sshonly.ps1` never
+> stopped their transcripts; `verify-lineendings` was in no runner;
+> `verify-tierapi` carried pre-split counts; and **three of my own
+> checks were wrong in a way that read as a pass** - `grep -c $'\r'`
+> reporting line counts as CR counts, a BOM sweep that flagged legal
+> offset-0 BOMs, and an `iconv -f UTF-16LE` of a UTF-8 transcript that
+> returned 0 failures because it decoded nothing.
+>
+> ***THE ONE TRANSFERABLE LESSON: EVERY ONE WAS CAUGHT BY A SECOND,
+> INDEPENDENT READING, NEVER BY RE-READING THE FIRST.*** A file size
+> that moved when nothing should have; both step tables listed against
+> the directory; a second verifier measuring the same install in the
+> same run; a git blob known to be LF; and two counters that could not
+> both be zero. **Where a check had no independent second reading, it
+> was believed and it was wrong.**
+>
+> **ONE THING FOR THE OWNER, NOT A TASK**: the elevated window open
+> since before the transcript fix still holds stale transcripts and is
+> still appending to them. **Closing it ends that**; no source change
+> can, and the guard only protects runs started afterwards.
+>
+> ***END OF THE FIFTIETH SESSION, 24 Aug 2026.*** The owner ruled the split,
+> session 50 transcribed it to disk, the cycle at 13:36:51 installed it,
+> and **`verify-tiers.ps1 -Prefix sdtierd` at 14:11:22 returned 22 of 22
+> PASS** — including the between-tier controls (STANDARD lacks the 42
+> withheld and the 21 admin, PROGRAMMER has the 42 and lacks the 21,
+> ADMINISTRATOR has both) and the durability check (UPDATE.ACCOUNT does
+> not restore what CREATE.ACCOUNT withheld). Section 3's COUNT VOC landed
+> on **354 / 396 / 417 exactly**, the arithmetic in the verify-tiers
+> header. **The three-tier split is settled, on disk, installed, and
+> verified end to end.**
+>
+> Five commits this session: `82f5c66` handoff docs, `d913eac` disk apply,
+> `e8bf060` cycle handoff, `7ca4597` verify-tiers Invoke-SD fix (the LOGIN
+> TERM-reset trap; see the block below headed "THE HANG"), and the commit
+> carrying this update.
+>
+> ### CLEAN THE HALF-INSTALLED PREFIXES AT LEISURE
+>
+> `sdtierc1/2/3` (the hung run before the Invoke-SD fix) and `sdtierd1/2/3`
+> (the passing run — Cleanup removed their Windows accounts but leaves the
+> SD register records "in place - remove with DELETE.ACCOUNT" by design).
+> Nothing blocks on them. Removing with `DELETE.ACCOUNT sdtierc1` etc.
+> inside SD when convenient.
+>
+> ### WHAT WAS MEASURED THIS TURN, WITHOUT ELEVATION
+>
+> | probe | expected | observed |
+> |---|---|---|
+> | installed `sd.exe` | matches source | `F53AE8F87BC55326`, 13:36:51 install |
+> | installed `TIER.OMIT.STANDARD` vs source | identical, 43 lines | **identical, 43 lines** |
+> | installed `TIER.ADD.ADMINISTRATOR` vs source | identical, 22 lines | **identical, 22 lines** |
+> | 13 deleted verb files absent from install | none present | **none present** |
+> | installed `newvoc/` V-verb count | 119 | **119** (395 total records) |
+> | installed `voc_template/` V-verb count | 140 | **140** (425 total records) |
+> | `DON` `ACCOUNTS` field 5 | `ADMINISTRATOR` | **`ADMINISTRATOR`** |
+> | `DON` `COUNT VOC` | 417 | **417** — the ADMIN arithmetic exactly |
+> | admin verbs (`sh`, `!`, `config`, `create.account`, `modify.password`) in DON's VOC | present | **present** |
+> | programmer verbs (`basic`, `phantom`, `pstat`, `pdebug`) in DON's VOC | present | **present** |
+> | standard-with-move (`search`, `report.src`) in DON's VOC | present (admin gets all) | **present** |
+> | `umask` in DON's VOC | absent | **`'umask' not found`** |
+> | `TIER.OMIT.STANDARD` / `TIER.ADD.ADMINISTRATOR` as VOC records in DON | absent | **`not found`** for both |
+> | `verify-lineendings.ps1` | 17/17 PASS | **17/17 PASS**, all decisive rows PASS |
+>
+> ### VERIFY-TIERS 22/22 PASS AT 14:11:22 - THE DECISIVE RESULT
+>
+> Transcript: `%LOCALAPPDATA%\SD-verify\verify-tiers-20260824-141122.log`.
+> Every one of the twenty-two rows PASS on the 13:36:51 install:
+>
+> | section | check | expected | observed |
+> |---|---|---|---|
+> | 0 | shipped OMIT vs test's `$Withheld` | 0 diffs | **0 diffs** |
+> | 0 | shipped ADD vs test's `$AdminVerbs` | 0 diffs | **0 diffs** |
+> | 2 | sdtierd1/2/3 `ACC$TIER` | STANDARD / PROGRAMMER / ADMIN | **matches** |
+> | 3 | STANDARD `COUNT VOC` | 354 | **354** |
+> | 3 | PROGRAMMER `COUNT VOC` | 396 | **396** |
+> | 3 | ADMINISTRATOR `COUNT VOC` | 417 | **417** |
+> | 4 | STANDARD missing 42 withheld / 21 admin | 42 / 21 | **42 / 21** |
+> | 4 | PROGRAMMER missing 42 withheld / 21 admin | 0 / 21 | **0 / 21** |
+> | 4 | ADMINISTRATOR missing 42 withheld / 21 admin | 0 / 0 | **0 / 0** |
+> | 5 | STANDARD after UPDATE.ACCOUNT | 354, 42 still missing | **354, 42** |
+>
+> Section 4 is the decisive between-tier control: PROGRAMMER at "0
+> withheld missing, 21 admin missing" is the row that stops a broken
+> copy loop from passing STANDARD trivially. Section 5 is the durability
+> half - UPDATE.ACCOUNT does not restore what CREATE.ACCOUNT withheld,
+> which is the whole reason `ACC$TIER` exists.
+>
+> ### THE HANG: LOGIN RESETS TERM ON EVERY ACCOUNT SWITCH. `verify-tiers` IS FIXED.
+>
+> ***THIS TRAP IS SHARED BY EVERY VERIFIER THAT HAS AN `Invoke-SD` — TODAY
+> ONLY `verify-tiers` PRODUCES ENOUGH OUTPUT TO HIT IT.*** `LOGIN` at
+> `gpl.bp/LOGIN:201-209` re-initialises `PU$WIDTH` and `PU$LENGTH` from
+> `env('LINES')` and `env('COLUMNS')` every time it runs. An elevated PS
+> session usually has neither set, so `terminfo` supplies a default around
+> 24 lines. `Invoke-SD` sent `LOGTO SDSYS` then `TERM 200,9999` then the
+> caller's commands — so the caller's own `LOGTO sdtierc1` wiped `TERM`,
+> and section 3's `LIST VOC` of 65 quoted verbs paginated. The page prompt
+> reads the same stdin the script is feeding, and OFF had already been
+> written, so no answer ever arrived.
+>
+> **WHY IT PASSED ON 17 Aug AND NOT ON 24 Aug.** The split moved Section 3's
+> `LIST VOC` from ~29 items to 65. Twenty-nine fitted inside the default
+> page depth; sixty-five does not. Same code, changed input.
+>
+> **`verify-tiers.ps1`'s `Invoke-SD` now re-applies `TERM 200,9999` after
+> every `LOGTO` in the caller's commands.** Parse-check passes, and the
+> reproducer with the fix's exact command sequence returns in one second
+> against DON's VOC — the same sequence without the fix hangs indefinitely.
+>
+> **THE SAME FIX SPREAD TO EVERY OTHER VERIFIER THAT PREPENDED A `TERM`
+> BEFORE THE CALLER'S COMMANDS**, so the class is closed rather than left
+> latent — session 50 part 6: `verify-accountacl`, `verify-accountrules`,
+> `verify-apiport`, `verify-delaccount`, `verify-routes`,
+> `verify-scramlogin`, `verify-tierapi` (the seven canonical five-line
+> shape); `verify-catgate`, `verify-nonet`, `verify-fold` (Start-Job
+> wrappers with the same prefix); `verify-osusers`, `verify-keys`,
+> `verify-lcnames`, `verify-setpw` (TERM-only prefix); `verify-apiname`
+> (with its `$ESC` variant); and `verify-apiadmin`'s `Invoke-SDIn` (a
+> per-account form). Each parse-checks 0 errors and carries no embedded
+> BOM. Two verifiers were skipped deliberately: `verify-apiidentity` has
+> no TERM prefix by design (the caller supplies it) and `verify-createaccount`
+> has no TERM prefix at all — neither can leak a TERM it never set.
+>
+> ### THE WRITEPORT FIX LANDED IN THIS CYCLE TOO
+>
+> `gplsrc/op_seqio.c:1762`, `UPSTREAM_FIXES.md` #14, in the same
+> `F53AE8F87BC55326` binary. It cannot be verified without a real port
+> device, so its landing is announcement rather than proof.
+>
+> ### WHAT SESSION 49 CLOSED, IN ONE TABLE
+>
+> | | install | verifier |
+> |---|---|---|
+> | **§7 step 14** — an API session runs as the caller | 11:15:29 `7DDC68F6595382A6` | `verify-apiidentity -Prefix sdapiidb32`, decisive row PASS |
+> | **§7 step 16 (a)** — readers accept CRLF | 12:15:51 `7F587B82B63569C8` | `verify-lineendings` 14/14 |
+> | **§7 step 16 (b)** — writers emit CRLF | 12:36:09 `070A9C52E293B2FA` | `verify-lineendings` 17/17 |
+>
+> **Three defects were found in the instruments and the record while doing it**,
+> and each is written up where it happened: `verify-apiidentity` had been
+> **leaking an account per run since `b18`** while reporting otherwise; step
+> 16's site list named a branch that was **never `READSEQ`**; and the same list
+> missed that **every reader is chunked**, where a CRLF on a 2 KB boundary
+> would have been wrong once per 2 KB of real data.
+>
+> ### STEP 14 IS CLOSED — AN API SESSION NOW RUNS AS THE CALLER
+>
+> Install **11:15:29**, `sd.exe` `7DDC68F6595382A6`, `assert-current` exit 0.
+> `verify-apiidentity -Prefix sdapiidb32` exit 0, decisive row PASS.
+>
+> | instrument | before (`b28`/`b31`) | after (`b32`) |
+> |---|---|---|
+> | owner of `ZZAPI` | `NT AUTHORITY\SYSTEM` | **`GITORLI\sdapiidb32`** |
+> | DENY fixture over the API | OPENED | **REFUSED, `status 3001`** |
+> | `API IDENTITY LOST` in errlog | twice | **absent** |
+>
+> The fix is `CW_SET_EXTERNAL_TOKEN` **plus `seteuid`**, all in
+> `gplsrc/win32s4u.c`, **no BASIC change**. `SYSTEM(28)` (`op_sys.c:228`) is
+> the only BASIC-visible consequence and **has no caller in `gpl.bp`**, which
+> is what chose class over narrow. §7 step 14 has the detail.
+>
+> ### STEP 16 (a) IS CLOSED TOO — SD NOW READS CRLF FILES CORRECTLY
+>
+> Install **12:15:51**, `sd.exe` `7F587B82B63569C8`, `assert-current` exit 0.
+> `verify-lineendings` exit 0, **14/14 decisive**. A CRLF record now reads
+> **identically to the LF control**; `READCSV` no longer leaves a CR on the
+> last field of every row. **Two checks are controls on the FIX**: a CRLF on
+> the 2048-byte buffer boundary folds, and a lone CR survives as data.
+>
+> ### STEP 16 (b) IS CLOSED TOO — SD NOW WRITES CRLF WHERE IT CAN BE READ
+>
+> Install **12:36:09**, `sd.exe` `070A9C52E293B2FA`, `assert-current` exit 0.
+> `verify-lineendings` exit 0, **17/17 decisive**, read side and write side.
+>
+> **The owner's rule decided the scope**, 24 Aug: a **directory** file's records
+> are real OS files that external programs read and write, so they get the
+> platform's line ending; **dynamic (DH)** files cannot be read from outside and
+> do not matter. **Every site `Newline` reaches is on the external side of that
+> line, and no DH path uses it at all**, so it resolved to `sddefs.h:65-66` —
+> now `"\r\n"` / `2`. `DS` stays `/` (§7 step 12).
+>
+> `WRITECSV` now emits `A1,B1␍␊`, **conformant with the RFC 4180 claim its own
+> documentation has always made**. Verified by reading **raw bytes**, because
+> the reader now folds CRLF and a round trip through SD would pass regardless.
+>
+> ### ONE THING LEFT ON THE FLOOR, AND IT NEEDS A REBOOT
+>
+> `C:\Users\sdapiidb32` survives as a **stuck hive** — its account is gone, so
+> nobody is signed in, but the registry hive was never unloaded and a profile
+> cannot be removed while it is loaded. `clean-test-profiles.ps1` names it and
+> refuses, correctly. Clear it by rebooting and re-running that script, or
+> `reg unload HKU\S-1-5-21-3329101812-2004472801-1855080994-2150` elevated.
+>
+> ### SUPERSEDED — THIS BLOCK DESCRIBES A TREE THAT WAS INSTALLED ON 24 Aug
+>
+> ***EVERYTHING BELOW UNTIL THE NEXT `###` IS SESSION 49's STATE AND IS NO
+> LONGER TRUE.*** The `writeport` fix it says is uninstalled was installed by
+> the **13:36:51** cycle, and the tree has been cycled twice more since
+> (15:04:09 `-SkipInstall`, 15:13:25 full). `assert-current` exits **0**.
+> Kept for the transcript names only. *Marked 24 Aug 2026, session 51 — it
+> was already false when session 50 handed over.*
+>
+> **`op_seqio.c:1762`, the `writeport` CR-only fix** (§7 step 16, and
+> `UPSTREAM_FIXES.md` #14).
+>
+> | | |
+> |---|---|
+> | installed `sd.exe` | `070A9C52E293B2FA`, **12:36:09** — the step 16 (b) build |
+> | `bin/sd.exe` | `F53AE8F87BC55326`, 12:47:43 — carries the `writeport` fix |
+> | last **full** cycle | `cycle-20260824-123527.log`, ended 12:37:08 |
+> | last run of any kind | `cycle-20260824-124801.log`, **`-SkipInstall` only**, 12:48:38 |
+>
+> ***A FULL `cycle.ps1` WAS BELIEVED RUN AND WAS NOT.*** Checked against the
+> transcripts, not against the report: **no log after 12:37:08 reaches phase
+> 5**, and the installed binary is still dated 12:31:50. Whatever ran either
+> stopped at `-SkipInstall` or did not start. **Nothing is broken by this** —
+> the installed tree is the fully verified step 16 (b) one — but the
+> `writeport` fix is **not in it**, and no measurement taken now describes it.
+>
+> **It cannot be verified even after a cycle**: exercising `WRITESEQ` to a port
+> needs a real port device and no verifier here reaches it. **So consider
+> batching it with the next real change rather than spending a cycle on it
+> alone** — the owner's call, not a decision already taken. **A cycle ends at the next source change**, so take
+> any reading you want from this tree *first*.
+> **Prefixes `sdapiidb18`–`b32` are spent; use `b33` or later.**
+>
+> **`verify-lineendings.ps1` needs no prefix and no elevation**, and cleans up
+> after itself — it is the cheapest way to confirm a tree is sane.
+>
+> ### WHAT IS ALREADY BUILT, SO IT IS NOT BUILT AGAIN
+>
+> - **`K$IMPERSONATING` (62)** — `<1>` the identity Windows says this thread has,
+>   `<2>` whether SD holds a token. **`<1>` empty with `<2>` true IS the defect.**
+>   `APISRVR`'s `check.identity` logs it at the group check and at the write,
+>   **only when the two disagree** — so a healthy session is silent, and **its
+>   going quiet is how you will know a fix worked.**
+> - **`gplbld/probe-impfork.c`** — is the runtime governing `open()`, does
+>   ownership track the token, and the Q3 bisect of what drops impersonation.
+>   `--q3check` and `--ownercheck` self-test without elevation.
+> - **`gplbld/probe-sessionfork.ps1`** — watches `Win32_ProcessStartTrace` during
+>   a live API session. `-SelfTestOnly` proves it fires without spending a cycle.
+>
+> ### INSTRUMENTS THAT LIED, 23–24 Aug. ALL ARE FIXED; THE PATTERN IS NOT.
+>
+> `ImpersonatingUser()` returned SD's belief rather than asking Windows.
+> `probe-sessionfork` read a Cygwin `fork`+`exec` — **two** Windows process
+> creations — as one, and got the right verdict for the wrong reason.
+> `clean-test-profiles` printed *"someone is signed in"* about deleted accounts.
+> **24 Aug adds two more.** `q4_report` called a form **"lost"** that a
+> `seteuid` fast path had meant never ran — caught only because the row printed
+> its real inputs. And **`verify-apiidentity` announced *"account removed"*
+> unconditionally for `b18`–`b31` while `DELETE.ACCOUNT` was refusing its
+> arguments outright** (below). **Each was a value measured with an explanation
+> bolted on that was not.** §6 and §0 carry the rules; the habit they need is
+> separating what was read from what it was taken to mean.
+>
+> ### THE VERIFIER WAS LEAKING AN ACCOUNT PER RUN, AND SAYING IT WAS NOT
+>
+> `verify-apiidentity.ps1` called `DELETE.ACCOUNT <name> USER`. **The verb takes
+> the account name and nothing else** — `DELACC:103` rejects any further token
+> with sysmsg 2018 *before deleting anything* — and the next line announced
+> success without reading the output or the state. So **every run from `b18` to
+> `b32` left its Windows account, SD record and profile behind**; that is the
+> backlog `clean-test-profiles.ps1` keeps being asked to clear. Fixed 24 Aug:
+> the argument is dropped and the claim now anchors on **the account record and
+> the local user actually being gone**, printing the raw output when they are
+> not. The corrected form was then run for real and removed both.
+
+---
+
+## ARCHIVE 26 Aug 2026 — section 7's nineteen closed steps, in full
+
+NOT A SESSION ENTRY. This is the whole body of PROJECT_STATUS.md section 7 —
+steps 0 to 18 — moved here on 26 Aug 2026 when that file was pruned for the
+documentation phase. It was 2,653 lines, a quarter of the handoff document,
+and **every step in it is closed**: the development phase ended with 7.18 and
+H.5 on 26 Aug 2026 and section 7 has no open row.
+
+MOVED RATHER THAN DELETED under §0 rule 5 — *"when a §7 step closes, compress
+its §4 and §7 material to the conclusion"*. PROJECT_STATUS keeps each step's
+conclusion, its date and its evidence; everything else — the problem
+statements, the surveys, the reasoning that was live while the step was open,
+and the measurement transcripts — is below.
+
+Two earlier archives already hold the same steps as they stood on 21 Aug 2026:
+"ARCHIVE 21 Aug 2026 - section 7's closed steps 0, 1, 2, 4, 5 and 6" and
+"ARCHIVE 21 Aug 2026 - section 7's closed steps 7, 8 and 11". This one
+supersedes neither; it is the state at the end of the development phase, and
+steps 3, 9 and 12 to 18 appear here for the first time.
+
+Read it if you need to know how a step was decided or what was ruled out on the
+way. **Nothing here describes work that is outstanding.**
+
+---
+
+0. **CLOSED — 14 Aug 2026, sixth session. THE LINUX ACCESS MODEL IS RESTORED,
+   INSTALLED AND VERIFIED END TO END (§5.6, §4).** All five rules observed, both
+   `LOGTO` paths, `CREATE.ACCOUNT` at 16 of 16.
+
+   **`git show f9edab0:sdb_ai/sd64/sdsys/GPL.BP/LOGIN`, lines 185–270, is the
+   specification** — this repository's own pre-port source. The five rules in
+   §5.6 are transcribed from it, not designed here. Read it before changing
+   anything about who may enter which account.
+
+   **The one deliberate departure from `f9edab0`: an elevated session skips the
+   `ACC$GROUP` test**, because `ACCOUNTS/SDSYS` names a Linux group that does
+   not exist on Windows. **And `IsElevated()` is not `IsAdmin()`** — a
+   UAC-filtered token carries `Administrators` as deny-only, so the two answer
+   different questions and both are wanted (`linuxlb.c`).
+
+   *(Detail compressed 21 Aug 2026 under §0.5.)*
+
+1. **CLOSED 16 Aug 2026, sixteenth session — the loose ends the account model
+   left are all tied off.** a and c went that session, b was superseded by
+   step 0b, and d, e and f were already done.
+
+   **The one thing worth carrying forward: `CREATUSR` is gone**, including the
+   `struct PCFG` field. Removing a `config.h` field means
+   **`rm -f gplobj/*.o` before `make sd`** — the Makefile tracks no header
+   dependencies, so every field after the removed one shifts and stale objects
+   read the wrong offsets. §6 carries that trap.
+
+   *(Detail compressed 21 Aug 2026 under §0.5.)*
+
+2. **DONE 15 Aug 2026, tenth session (§4).** A VirtualBox guest served as the
+   second machine: install byte-identical, all four counts matching, `COUNT VOC`
+   431, and **the RDP refusal measured with a control**. §5.6.2 is complete.
+
+   **THE RIG IS REUSABLE AND IS THE REASON THIS STEP IS NOT CUT TO ONE LINE.**
+   VM `Windows 11 Clone`, snapshot `Before SD install`, NIC **bridged** — NAT
+   cannot be used, since the host must open a connection *to* the guest.
+   Bridging over the WiFi adapter worked here, which is not guaranteed; the host
+   ARP entry carrying the VM's own MAC is how to tell it is working before
+   blaming anything else. Files reach the guest through
+   `VBoxManage sharedfolder add --transient --automount`, which needs no guest
+   credentials — **do not drive the guest with `guestcontrol`**, which does.
+   Read §6's two RDP traps first; between them they cost most of an hour.
+
+   ***THE CLAIM THAT USED TO SIT HERE WAS WRONG AND IS WITHDRAWN, 24 Aug 2026.***
+   It read *"nothing has ever crossed the network to the API port - every
+   measurement has gone to `127.0.0.1:4243`"*. **The owner corrected it, and
+   this file's own archive proves him right**: HISTORY.md, *"FORTY-FIRST SESSION,
+   part 3 - the API reached across a real network"*. A bridged VirtualBox guest
+   at `10.0.0.143` reached this host at `10.0.0.3` over the physical WiFi
+   segment - admitted as `sdapib8` into `SDAPIB8` with a real session
+   (`WHO -> 4 SDAPIB8`), a wrong password refused, and `SDSYS` refused with
+   *"User not allowed in requested account"*. **That third row is the one that
+   matters: the `ACC$GROUP` containment gate holds OVER THE NETWORK**, not only
+   on loopback. `gplbld/stage-apiremote.ps1` does the host half.
+
+   **The rig is still worth keeping for anything else that needs a second
+   machine**, which is why the detail above stays.
+3. **Installer loose ends**, none of them blocking:
+
+   - **CORRECTED 15 Aug 2026: the owner has seen the closing dialog and has
+     screenshotted it before now.** This file's "nobody has seen it" was simply
+     wrong. It was watched again in the tenth session, and **reading it found a
+     defect that compiling never would**: it ended by offering
+     `net localgroup sdusers <name> /add` for somebody who already has a Windows
+     account, which **cannot work** — `sdusers` grants access to the files,
+     login needs a linked SD account, so such a user is refused with `Account X
+     not in register`, the exact symptom `don` had before step 1f. **Owner's
+     decision, 15 Aug 2026: drop those lines**, rather than document `ADOPT`,
+     which stays undocumented. Done, `sd.iss:493`, with a `changelog` entry.
+
+     **AND READ ON SCREEN 17 Aug 2026, owner, on the 13:43:00 install:
+     "looks fine".** So the source re-check below and the rendered dialog
+     agree, and this bullet is closed. The `limitssh` paragraph below is not.
+
+     **RE-CHECKED AGAINST SOURCE 17 Aug 2026 and it has stayed dropped:**
+     `net localgroup` occurs in `sd.iss` at lines 67 and 926 **only inside
+     comments recording why it went**, and nowhere in the string the closing
+     `MsgBox` emits. Reading the whole box again found nothing else of that
+     kind. **Grep the emitted string, not the file**, if this is ever checked
+     again — the comments are the reason a plain grep looks alarming.
+
+     ***THE "CANNOT BE SEEN HERE" HALF OF THIS IS STALE — CORRECTED 24 Aug
+     2026.*** It said the `AllowGroups` task *"is hidden by
+     `Check: SshServerAbsent` on this machine"* and needed the VM.
+     **`limitssh` LOST ITS `Check` ON 21 Aug 2026 AND HAS NONE**
+     ([sd.iss:210](sdb_ai/sd64/gplbld/sd.iss:210) is `Name:` +
+     `Description:` + `GroupDescription:` and nothing else). It is offered on
+     **every** install and, having no `Flags: unchecked`, is **ticked by
+     default**. `sd.iss`'s own comment at :2390 says so — *"Only ONE option
+     vanishes now"*. ~~So this needs **the next ordinary cycle, not a VM**:
+     look at the tasks page.~~
+
+     ***CLOSED 26 Aug 2026, AND NOT BY LOOKING — THE SUBJECT WAS REMOVED.***
+     The refuse-to-install ruling took `limitssh` off the tasks page entirely;
+     `sd.iss` declares three tasks and it is not one of them (`addtopath`,
+     `sshremote`, `apiremote`). `ApplyAllowGroups` now runs with **no task
+     gate** and has reported its outcome on screen twice — 24 Aug on
+     `sshRemoteTest`, 25 Aug across the three-guest run. **Everything above
+     this paragraph describes a tickbox that no longer exists**; it is kept
+     because the reasoning about `Check:` and default-ticked state is still how
+     the remaining two tasks behave.
+
+     **`ApplyAllowGroups` runs here too**, for the same reason — `sd.iss:965`
+     gates it on `WizardIsTaskSelected('limitssh')`, which is true by default —
+     so its three outcomes are observable on this machine as well.
+
+     **What genuinely still needs the VM is `sshremote`**, which **does** keep
+     `Check: SshServerAbsent` ([sd.iss:139](sdb_ai/sd64/gplbld/sd.iss:139)) —
+     see the mandatory-ssh bullet below.
+
+     **It is no longer a subtask**: renamed `limitssh` and promoted on 16 Aug
+     2026 when its parent went (§5.9). *Pointer corrected 21 Aug 2026: this
+     said "header item 1", and that header was archived.*
+   - **CLOSED AND VERIFIED 17 Aug 2026 (§4) — `deny-logon.ps1`'s outcome is
+     now checked, and the rights are confirmed applied.** It moved from
+     `[Run]` to `ApplyDenyLogon` in `[Code]` at `ssPostInstall`
+     (`sd.iss:691`), exit code checked, failure
+     named in the closing `MsgBox`. **The script was never the problem** — it
+     validates every `NTSTATUS` and throws, so its exit code always meant
+     something; `[Run]` simply discarded it. Third such step fixed this session,
+     after `SecureCredStore` and alongside the two the file already had.
+
+     **Ordering: it now runs after the whole `[Run]` section instead of before
+     the data-tree `icacls`, and that is safe** — the rights are held by the
+     GROUP, so nothing already done depends on when they land, and it is called
+     **before `AdoptAccount`**, so no SD account exists before the confinement.
+
+     **No read-back here, deliberately:** confirming the rights afterwards needs
+     `LsaEnumerateAccountRights`, and `verify-sshonly.ps1` already dumps and
+     checks them. A second implementation would be a second thing to keep true.
+
+     **Cost if it regresses:** an account in `sdsshonly` on a machine where the
+     rights never landed is not confined at all — it can sign in at the console
+     — and before this the install said nothing.
+   - ***THE MANDATORY-SSH PATH WAS TESTED 24 Aug 2026 AND IT FOUND A REAL
+     DEFECT.*** ~~THE DEFECT IS OPEN.~~ ***FIXED 25 Aug AND THE FIX IS NOW
+     PROVEN END TO END — see "FIXED AND VERIFIED" below, and item 4 for
+     the remote dial. Struck 25 Aug 2026; it had sat 22 lines above its own
+     correction.*** VM `Windows 11 - sshRemoteTest`, the first
+     machine with no OpenSSH server this has ever run on.
+
+     **What worked**: `sshremote` appeared in the wizard and was unticked,
+     `limitssh` appeared ticked with its new wording, `install-ssh.ps1` ran and
+     left `sshd` Running/Automatic, `ApplyAllowGroups` reported its applied
+     outcome, and the closing dialog **disclosed the failure below instead of
+     swallowing it**.
+
+     ***WHAT FAILED: `ssh-firewall.ps1` HAS NEVER BEEN ABLE TO SCOPE ssh.***
+     [ssh-firewall.ps1:113](sdb_ai/sd64/gplbld/ssh-firewall.ps1:113) passes
+     `@('127.0.0.1','::1')` to `Set-NetFirewallRule -RemoteAddress`; **Windows
+     rejects any IPv6 loopback literal there**, the call throws, and the rule
+     stays `RemoteAddress=Any` — **port 22 open to the LAN, the exposure §5.9
+     exists to prevent**. The documented by-hand recovery fails identically.
+     Unseen for eight days because `ApplySshFirewall` exits early unless
+     `SshWasAbsent`. **One-line fix — pass `127.0.0.1` alone — measured safe;
+     START HERE has the candidate table and the ordering.** Not yet approved.
+
+     **Re-take the measurement with**
+     [probe-sshfirewall.ps1](sdb_ai/sd64/gplbld/probe-sshfirewall.ps1), which
+     refuses the null case and names the socket address family on every dial.
+
+     ***FIXED AND VERIFIED 25 Aug 2026.***
+     [ssh-firewall.ps1:150](sdb_ai/sd64/gplbld/ssh-firewall.ps1:150) passes
+     `'127.0.0.1'` alone; Windows rejects any IPv6 loopback literal there.
+     Re-tested on `sshRemoteTest-A2` with the 08:50:13 installer: the rule read
+     ***`RemoteAddress = 127.0.0.1` as the installer left it***, `-Installed
+     -Restrict` printed `ssh is reachable FROM THIS MACHINE ONLY` and exited 0,
+     and both `127.0.0.1:22` (AF_INET) and `::1:22` (AF_INET6) stayed
+     REACHABLE. `probe-sshfirewall.ps1` PASSED.
+
+     ***STILL UNPROVEN, AND IT NEEDS A BRIDGED NIC:*** that the scoping actually
+     blocks a REMOTE machine. A VirtualBox NAT port-forward cannot show it — the
+     NAT engine completes the handshake itself and nothing reaches `sshd`,
+     measured 24 Aug 2026 with the rule wide open. §7 step 2 already said NAT
+     cannot be used for host→guest.
+   - ***CLOSED 24 Aug 2026, FIFTY-FIRST SESSION — this bullet was stale and is
+     rewritten rather than deleted.*** It read *"`GPL.BP/OPGEN` is not ported
+     to `gen_includes.py` … port it before opcodes ever need regenerating"*.
+     **`GPL.BP/OPGEN` is gone** — removed with a changelog entry — and
+     `gplbld/gen_includes.py` generates `GPL.BP/OPCODES.H` alongside
+     `SYSCOM/ERR.H`, `GPL.BP/ERRTEXT.H` and `GPL.BP/REVSTAMP.H`. Regenerating
+     also dropped `OP.SDPYOBJ`, left behind when embedded Python went on
+     13 Aug. Nothing to port.
+   - ***CLOSED 24 Aug 2026, FIFTY-THIRD SESSION*** - fifteen test programs
+     dropped from `sdsys/bp/`, one (`TESTSDCLI`) moved to
+     [gplbld/testsdcli.bp](sdb_ai/sd64/gplbld/testsdcli.bp) with
+     `verify-scramlogin.ps1` drop-into-place + finally-block cleanup so it
+     stays out of every end user's install.
+
+     ***SUPERSEDED 25 Aug 2026 — `sdsys/bp/` IS NOW EMPTY AND SD SHIPS NOTHING
+     INTO IT.*** This bullet said what remained was "the shape the product
+     ships with": `PCL`, `PCL.GRID`, `U0032`, `U50BB`, `VFS.CLS`. Owner's
+     ruling: **none is needed in this version, and VFS is not a supported
+     feature**, so a template class module for one was describing something
+     unusable. `gpl.bp/PCL` is the PCL that is compiled and catalogued;
+     `sdsys/bp/PCL` was a second, **divergent** copy (they differ). The `pcl`
+     VOC entry is a **K-type keyword, 186** — a `SETPTR` keyword, unrelated to
+     either program, and untouched.
+
+     **The directory still exists and had to**: `voc_template/bp` is an
+     F-pointer, and `sd.iss` ACLs `sdsys\bp` through `secure-sysdirs.ps1`. So
+     `bp` moved from `SDSYS_SHIP` to `SDSYS_EMPTY`, and **`bp` and `bp.out`
+     are both now on `SDSYS_PRESERVE`** — SD ships nothing into either, so
+     anything there belongs to the site. That is `cat`'s argument exactly.
+     Changelog carries the user-facing note.
+
+     ***AND `bp` CAME OFF `SDSYS_MIRROR` IN THE SAME BREATH — it stopped
+     qualifying the moment SD stopped shipping into it.*** That list's rule is
+     *"a directory qualifies only if the install NEVER writes into it"*, so
+     that "installed but not in source" can only mean an unshipped deletion.
+     `sdsys\bp` is now the opposite: it is preserved **because** the site
+     writes there. **Left on the list it would have fired on the first person
+     to use it as intended** — B3 walks install → source, one site program in
+     SDSYS's BP reads as an unshipped deletion, `assert-current` goes red and
+     every verifier refuses behind it. Nothing is lost: SD ships no file there
+     whose deletion needs catching. `sdsys/bp/README` was already safe — the
+     source → install walk excludes `README` by name
+     ([assert-current.ps1:665](sdb_ai/sd64/gplbld/assert-current.ps1:665)).
+     Same-commit updates to `stage.py`'s `('bp', ...)` comment,
+     `assert-current.ps1`'s `$neverShipped` (`testsdcli.bp`), and this
+     bullet. **Not yet cycled** - the change is source-only, and
+     `assert-current` could not see a deletion at the time (closed 25 Aug 2026,
+     section B3 - it can now, and `sdsys\bp` is one of the seven directories it
+     watches),
+     so the b37 install still has the 16 files until the next cycle.
+   - ***THE DATA-TREE UPGRADE PATH IS DECIDED, 25 Aug 2026, AND NOT BUILT.***
+     Owner's ruling, and it follows what the Linux side already does rather
+     than inventing anything: **preserve the user's own files, replace all the
+     shipped ones.**
+
+     ***THE PRECEDENT IS `C:\Users\dmont\Projects\sd-scripts\deletesd.sh`***,
+     the Linux delete script. It copies `ACCOUNTS` aside, moves `/etc/sd.conf`
+     aside, then `rm -fr /usr/local/sdsys` outright and reinstalls. It keeps
+     the `sdsys`/`sdusers` groups unless accounts were deleted, on the stated
+     assumption that SD is about to be reinstalled. **The split is clean there
+     because `ACCOUNTS` is its own directory - and `sdsys\accounts` is a
+     directory here too, so the same split is available.**
+
+     ***WHAT WINDOWS MUST PRESERVE THAT LINUX DID NOT HAVE TO.*** The Linux
+     script keeps two things. This port has more user state than that, and one
+     of them is sharp:
+
+     | preserve | holds |
+     |---|---|
+     | ***`sdsys\$cred`*** | ***the credential register - every account's password*** |
+     | `sdsys\accounts` | the account register |
+     | `sdsys\os.users` | Windows-account to SD-account links, a Windows-only concept |
+     | `sdsys\cat` | the private catalogue - programs the user catalogued |
+     | `sdsys\batch.jobs`, `sdsys\prt` | queued jobs, spool |
+     | `sd.conf` | configuration, and nothing in SD writes it (§7 step 15) |
+
+     ***`$cred` IS THE ONE THAT MUST NOT BE MISSED.*** Losing it is not
+     "reinstall and carry on" - every account becomes unreachable over ssh and
+     the API, which is exactly the state a silent install produced and which
+     took two sessions to diagnose (`sd.iss` InitializeSetup records it). A
+     straight port of `deletesd.sh`, preserving only accounts and the config,
+     would do that silently.
+
+     **EVERYTHING ELSE IS REPLACEABLE, AND THAT IS THE WHOLE POINT** - `gcat`
+     (125 files), `gpl.bp.out` (185), `pcode.out`, `messages`, `syscom`,
+     `sd.voclib`, `terminfo` and `terminfo.src`, `bp` and `bp.out`, and the
+     `.dic` set. **`gcat` and `gpl.bp.out` are where every BASIC fix lives**,
+     so replacing them is what turns "we cannot ship a fix to an installed
+     machine" into "we can".
+
+     ***VOC IS ALREADY SOLVED AND NEEDS NO NEW MECHANISM.*** Owner, 25 Aug
+     2026: that is what the **`UPDATE.ACCOUNT`** verb is for, and **it has to
+     be run on each account** to update that account's VOC. It ships in
+     `sdsys/voc_template/update.account`, and `sdsys/changelog` has been
+     telling users to run it for exactly this for years. So `voc` and
+     `voc_template` are not a design problem - they are a step in the upgrade
+     instructions.
+
+     ***DECIDED AND BUILT 25 Aug 2026. THE INSTALLER REPLACES THE SHIPPED
+     SUBSET IN PLACE.*** The Linux dance - uninstall preserves, reinstall lays
+     down fresh - was rejected on two grounds: the uninstaller's existing
+     machinery keeps the WHOLE database, so "keep the user's half, drop the
+     shipped half" was new code either way; and it splits the preserve list
+     across the uninstaller and the installer, two places that must agree
+     about `$cred` or the user loses every password.
+
+     **The mechanism, and why it is generated rather than written.**
+     [stage.py](sdb_ai/sd64/gplbld/stage.py) computes the replace list as
+     `SDSYS_SHIP + SDSYS_EMPTY + terminfo` **minus** `SDSYS_PRESERVE`, writes
+     `<stage>\upgrade.iss` with an `[InstallDelete]` and a `[Files]` section
+     gated on `Check: DataTreeUpgrade`, and
+     [sd.iss:359](sdb_ai/sd64/gplbld/sd.iss:359) `#include`s it. A
+     hand-written copy of that list in `sd.iss` would be a second list that
+     must agree with the first, and the thing it would go stale about is which
+     directories an upgrade DELETES from a live database.
+
+     ***THE SAFETY PROPERTY IS THE DEFAULT, NOT THE LIST.*** Only a name
+     `stage.py` deliberately puts in the tree can ever be deleted, so `voc`,
+     `$map`, `errlog`, `stacks`, `dir_dict` and the rest of what the bootstrap
+     and the running system create are out of reach however that file is
+     edited. A preserve list applied to `os.listdir()` would have had the
+     opposite default - a directory nobody had thought of would be deleted.
+
+     **Four refusals, because half a pair destroys data:** an empty replace
+     directory (delete with nothing to copy back), a preserve name the staged
+     tree does not have, a preserve name no ship list declares (the dangerous
+     typo - the name it meant to protect falls into the replace list), and a
+     retired name a ship list still declares. A tree staged without
+     `--bootstrap` emits `#error` rather than a partial list.
+
+     **`SDSYS_PRESERVE` is three names wider than the ruling above**, flagged
+     rather than folded in: `os.users.dic` and `batch.jobs.dic` because a
+     dictionary belongs with its file, and `$hold` because the spooler hold
+     file is the user's own saved output.
+
+     **`sdsys\changelog` moved to `{app}` in the same ruling** and is on the
+     new `SDSYS_RETIRED` list, so an upgrade deletes the frozen copy rather
+     than asking the user to. See START HERE item 3 for what is still untested.
+4. **CLOSED — BUILT AND VERIFIED 16 Aug 2026, thirteenth session**, on the
+   12:18:42 install. The audit trail: `audit_message()` in `k_error.c`, reached
+   from BASIC as `kernel(K$AUDIT, text)` (key 57, `keys.h` and `INT$KEYS.H`).
+   Every login, refused login, `LOGTO` and refused `LOGTO` is recorded with
+   user, uid, pid and reason. `LOGIN` writes its record at the single point a
+   login has succeeded, and `terminate.connection` writes every refusal, so a
+   refusal added later is recorded whether or not its author thinks about the
+   trail. The file is `sdsys/audit`, ACL'd append-only for `sdusers` by
+   `secure-audit.ps1` — that ACL is the whole of the protection.
+
+   *(Detail compressed 21 Aug 2026 under §0.5; the record is in HISTORY,
+   16 Aug, and in the archive entry of 21 Aug.)*
+
+5. **CLOSED 16 Aug 2026, fourteenth session — (f) included.** `GPL.BP/GRANTA`
+   serves **`GRANT <account> TO <user>`**, **`REVOKE <account> FROM <user>`**
+   and **`LIST.GRANTS <account>`** from one program behind three
+   `VOC_TEMPLATE` entries; bare `GRANT <account>` lists too. `!os_group` gained
+   `LISTMEM`. Watched reaching the audit trail at 14:48 from an unelevated
+   session that had entered SDSYS, with the Windows group edited and correctly
+   reverted.
+
+   **`ACC$USERS` is gone and field 4 is NOT REUSED** — records written 13–14 Aug
+   still carry a grant list there, and an installed tree is never upgraded.
+   That is the one thing here that constrains future work.
+
+   *(Detail compressed 21 Aug 2026 under §0.5.)*
+
+6. **CLOSED 17 Aug 2026, nineteenth session — THE API WORKS END TO END**, and
+   **Phase 1 on 21 Aug 2026 changed what it exposes**. Verified originally by
+   `verify-apiport.ps1 -Prefix sdapi2` against the 16:5x install: a remote
+   session opened over the port, **the wrong password refused by `!CRED_VERIFY`
+   and SDSYS refused by the `ACC$GROUP` test**, with different messages — which
+   is what makes the admitted case mean anything.
+
+   **TWO CLAIMS THIS STEP CARRIED ARE NOW FALSE, and they are corrected rather
+   than left to mislead.** It said the transport was *"loopback TCP with ssh
+   carrying it (posture B)"* and that *"`APIPORT` defaults off"*. Phase 1
+   reversed both on the owner's decision of 21 Aug 2026: the listener binds
+   `INADDR_ANY`, `APIPORT=4243` ships **active**, and the installer opens a
+   firewall rule. §8 has the reversal; the header has the measurements.
+
+   **What still holds from this step:** the listener lives in `sdwind`; an
+   account needs `$cred` **and** `sdapi` membership; `!CRED_VERIFY` and the
+   `ACC$GROUP` test are the two gates, and they answer differently on purpose.
+
+   *(Detail compressed 21 Aug 2026 under §0.5; SCRAM superseded the cleartext
+   login on 20 Aug and the containment gate landed on 21 Aug — both have their
+   own HISTORY entries.)*
+7. **CLOSED — BOTH HALVES. `SH` AND `OS.EXECUTE` ARE PERMITTED BY A LIST, NOT BY
+   ELEVATION.** The BASIC half landed 17 Aug 2026 and the C half on 19 Aug;
+   `verify-osusers.ps1` **24/24** on the 16:38:01 install. §4 has the four-row
+   `SH` table and what each row is for.
+
+   ***"WHAT IS NOT DONE, AND IT IS HALF THE FEATURE" STOOD HERE UNTIL
+   21 Aug 2026 AND WAS TWO DAYS STALE WHEN THE PHASES BEGAN.*** It said field 2
+   `OS.EX` was "stored, dictionaried and read by nobody" and that gating it
+   needed C. **That C was written on 19 Aug** — `os_permitted()`, `op_sh.c:150`,
+   called at `:209`. The same claim had propagated into §4 and §8 and is struck
+   in all three places.
+
+   **THE PROBLEM IT SOLVED (§8).** The gate at `CPROC`'s `os.command:` label
+   admitted only `K$ADMINISTRATOR`, which is `IsElevated()`, and an ssh session
+   can never be elevated — so programmers, the one group that needs a shell,
+   were the one group that could never have one, while `OS.EXECUTE` stayed
+   ungated for everybody. The visible control was denied to the people who
+   needed it and the capability it guards was open to those who did not.
+
+   **WHAT WAS BUILT:** `@SDSYS/OS.USERS`, a directory file, **one record per
+   account**, keyed by account name. Field 1 `SH`, field 2 `OS.EX`, each `yes`
+   or anything else. Dictionary `OS.USERS.DIC` shipped as source in
+   `gplbld/FILES_DICTS` and written at bootstrap by `WRITE_INSTALL_DICTS`.
+   **Both files are staged empty by `stage.py`, and that is load-bearing** —
+   `WRITE_INSTALL_DICTS` `OPENPATH`s the dictionary rather than creating it, so
+   an unstaged file would ship with no dictionary. Admin edits with `ED` from
+   SDSYS. Message 10053.
+
+   **THE C GATE HAS THREE WAYS IN, and the first is what keeps `SH` working.**
+   `HDR_INTERNAL`: the `SH` verb reaches the OS by `CPROC` itself calling
+   `os.execute`, so in C the verb and the statement are the same code and cannot
+   be told apart. `CPROC` is `$internal` and has already applied the finer rule,
+   so trusting the marker leaves `SH` unchanged — **and it cannot be forged**,
+   because `BCOMP:2864` honours `$INTERNAL` only for a session that is itself
+   internal **and** elevated. Then an elevated session, and `OS.USERS` field 2.
+   Checked rather than assumed: all 13 programs in the shipped tree that call
+   `os.execute` are `$internal`.
+
+   **THE TRUTH TABLE IS WHAT MAKES IT EVIDENCE** — a gate that refused
+   everything, or read field 1 by mistake, could not produce it:
+
+   ```
+   unlisted            SH refused    OS.EXECUTE refused
+   SH=yes OS.EX=no     SH RUNS       OS.EXECUTE refused
+   SH=no  OS.EX=yes    SH refused    OS.EXECUTE RUNS
+   elevated            SH runs       OS.EXECUTE RUNS
+   ```
+
+   **The middle two rows are one record each, read in one session, and they are
+   the whole proof that the two fields are independent.** Note `SH` implies
+   `OS.EX` and cannot not (`CPROC:3465`); the useful combination is the third
+   row — programs may shell out, the person at the prompt may not.
+
+   **THE ACL IS THE ENTIRE CONTROL.** `gplbld/secure-osusers.ps1` grants
+   `sdusers` **(RX) — read, not modify**, which is the difference from
+   `secure-cred.ps1`: `CPROC` reads the list from the user's own process, so
+   they must read it and must never write it. Called from `[Code]` as
+   `SecureOsUsers`, **exit code checked**. Without it any SD user adds their own
+   name and the file is decoration — exactly what happened to `$CRED`.
+
+   **ELEVATION STILL PASSES ON ITS OWN**, deliberately: an empty `OS.USERS` must
+   not lock the machine's own administrator out of `SH`. **The metacharacter ban
+   is lifted for a listed account only**, so an elevated session that is not
+   listed keeps `!valid_shell_cmd` exactly as before.
+
+   **NOT IN `NEWVOC`, and that was reconsidered mid-design.** Everything in
+   `NEWVOC` is copied into every account's VOC unless excluded in **two** places,
+   and the tier lists' fail-safe is *permissive* — a missing record means the
+   full VOC. **A permission list needs the opposite default** and must not
+   inherit that convention.
+
+   **TWO THINGS FOR WHOEVER TOUCHES THE VERIFIER.** It runs unelevated and
+   **prompts for UAC twice itself**: the measurement must not be elevated or
+   `CPROC:3448` admits it on `K$ADMINISTRATOR` and `OS.USERS` is never consulted,
+   while writing the record and removing it again must be. And **a new verifier
+   must go on `assert-current`'s `$neverShipped` list**, or it reports the tree
+   stale because it exists and then refuses to run on the strength of its own
+   newness.
+
+   **A form for account setup with these privileges belongs to the GUI
+   utilities, which are a SEPARATE PROJECT** - owner, 23 Aug 2026, §5.14 and
+   §7 step 10. `ED` from SDSYS is the editor here and is not an interim
+   measure any more.
+
+8. **CLOSED 22 Aug 2026 - BOTH HALVES.** (§5.12) The file-name half was done
+   and measured earlier; **the account-name half landed 22 Aug** - `CREATEA`
+   downcases the register key, `adopt-account.ps1` follows, and the shipped
+   `accounts/SDSYS` record is renamed `accounts/sdsys`. Confirmed on the
+   19:38:32 install: `LIST ACCOUNTS` shows `don` and `sdsys`, matching
+   `user_accounts\don` and `sdu_don`. `verify-createaccount` every row and
+   `verify-accountrules` 34/34. **It was three lines, not the five-program
+   refactor this step feared** - the lookup is case-insensitive on NTFS and
+   displayed names upcase at the point of use, both measured. See
+   §WHAT THE FORTIETH SESSION LEAVES item 2. §5.12 carries what
+   moved, what was left deliberately, the four traps for anyone scripting a fold
+   again, and the two instruments that are not obvious — read it before the next
+   rename rather than re-deriving any of it here.
+
+   *(Working detail compressed 21 Aug 2026 under §0 rule 5 — the
+   `CASE_INSENSITIVE_FILE_SYSTEM` analysis, the case-inversion investigation and
+   its eight eliminated candidates are in HISTORY, "ARCHIVE 21 Aug 2026 -
+   section 7's closed steps 7, 8 and 11".)*
+
+   **DONE AND VERIFIED**, each on the install named in §5.12:
+
+   - **The three-case fold — as typed, then down, then up** — at the 74 parser
+     sites **and in `_VOC_REF`**, which every BASIC `OPEN` goes through and which
+     had no fold at all. `verify-fold` 10/10. **It is additive**: with every id
+     upper case the new attempt can never hit, so it changed no behaviour and
+     could not break anything.
+   - **Every name in the installed `sdsys` is lower case on disk**, and so is
+     each account's `voc` — `verify-lcnames` 115/115. 2,968 files, 12 SDSYS
+     directories, 73 record ids in `gplbld/FILES_DICTS`.
+   - **792 TCL command ids**, plus `$savedlists`, `$hold`, and
+     `bp`/`bp.out`/`gpl.bp`/`gpl.bp.out`.
+   - **The tiers came through it unaffected** — `verify-tiers` 22/22.
+
+   **THE TERMINAL HALF NEEDS NO WORK AT ALL**, which took a session to establish
+   and is easy to re-open by mistake. Case inversion is **off** for every session
+   a real user gets, and not because the C setters are dead: `LOGIN:266` does set
+   it, and the VOC `login` paragraph — run at session start and again on every
+   `LOGTO` — turns it off afterwards and wins. **The authoritative place to
+   change this behaviour is the paragraph**, in `newvoc/login` and
+   `voc_template/login`, not C and not `$LOGIN`.
+
+   **WHAT IS LEFT, in the order it should be taken:**
+
+   - **The account-name half**, which is the wide one: `LOGIN` 281, 321, 339,
+     383, 690 and `CPROC` 2531, 2577, 2579, plus the audit lines 2601, 2619,
+     3686 — about **11 sites**. Removing those `upcase()` calls is what makes
+     `sue` and `SUE` one account, and the `$CRED` register is keyed the same way.
+     **Sequencing matters**: case-insensitive *comparison* is what makes today's
+     upcasing harmless, so removing the upcasing first would make them two
+     accounts. **707 `upcase(` calls in `gpl.bp` are NOT all in scope** — most
+     are VOC verb lookup, `Y`/`N` answers and record types, which must stay.
+   - **The dictionary and VOC ids** that have not moved. `$COMMAND.STACK` is the
+     **last control** `verify-lcnames` §3 owns — whatever moves it must bring a
+     replacement, or §3 can no longer tell a rename from a sweep.
+   - **`$COMO` is deliberately still upper case**: `COMO:44` and `PHANTOM:59`
+     define the on-disk name and the VOC id with the same `$define`, so splitting
+     them is `CREATEA`'s `fn`/`os.name` pattern again — and nothing in `gplbld`
+     drives `COMO`, so it would ship unmeasured.
+
+   **A SEPARATE REAL DEFECT, FOUND ON THE WAY AND NOT FIXED: `SET_PASSWD`'s
+   case-inversion save/restore can never restore On.** `op_pterm` returns the
+   **new** value, and a **negative** argument is what reports without setting, so
+   `SET_PASSWD:88` `was.inverted = pterm(PT$INVERT, @false)` saves the *off* it
+   just wrote and `:98` restores that. The fix is to read with
+   `pterm(PT$INVERT, -1)` first, then set. **Harmless today only because
+   inversion is already off everywhere** — latent, and ours (the lines carry a
+   `14 Aug 26 Windows port` marker), so no `UPSTREAM_FIXES.md` entry.
+9. **CLOSED AND MEASURED, 22–23 Aug 2026.** A scheduled job can log in and run
+   a command the administrator has named for its account. **`verify-batchjob`
+   10 of 10 decisive on the 23:46:31 install**, and the three rows that carry it
+   are *listed: the paragraph RAN*, *ELEVATED with no entry: still runs* and
+   *entry removed: refused again* — the five refusals prove nothing without
+   them. ***An ordinary token cannot WRITE `batch.jobs`*** is the whole of the
+   control, and it is a row too.
+
+   **TWO THINGS §8 SPECIFIED TURNED OUT TO BE WRONG, both measured before
+   changing anything, and both are the reason this was not a half-hour job.**
+
+   a. ***"IT NEEDS NO NEW C CODE" WAS FALSE.*** `sd <command>` was gated on
+      `check_admin()` (`sd.c`), and **a scheduled task is not elevated**, so it
+      never reached `LOGIN` at all. Measured: `sd COUNT VOC` from an ordinary
+      shell answered *"This command needs an elevated session"*, exit 1.
+      **Owner's decision, 22 Aug 2026, from three offered: the gate moves to
+      `LOGIN` and becomes a list — step 7's shape.** Elevation still passes on
+      its own, so nothing an administrator does today changes; an account with
+      the command on its list passes too; everyone else is refused as before,
+      by `LOGIN`, with a message saying which.
+   b. ***THE LIST CANNOT LIVE IN SDSYS's VOC***, which is where §8 put it.
+      **`sdsys\voc` grants `sdusers` Modify** — measured 22 Aug by writing a
+      file into it from an ordinary token — and **a VOC record cannot carry an
+      ACL of its own**, so the list would have been decoration, which is
+      exactly what happened to `$CRED`. It is **`@SDSYS/batch.jobs`**, a
+      directory file, **one record per account**, one command name per line
+      (value marks are read too, because the dictionary describes `COMMAND` as
+      multivalued and `ED` invites one per line). **Locked read-only to
+      `sdusers` by `secure-osusers.ps1`** — the same script, which takes
+      `-Path` and was never os.users-specific — called from `[Code]` as
+      `SecureBatchJobs` with the exit code checked.
+
+   **WHERE THE GATE IS:** `LOGIN`'s `batch.permitted`, reached from the block
+   immediately before the success audit, so **a refusal leaves through
+   `terminate.connection` and is written to the audit trail with a reason**
+   without a second call site. The audit record now names the command when
+   there is one. `CPROC` does not pick the command up until its single-command
+   branch, which is after the whole login paragraph — **nothing has run when
+   the gate decides.**
+
+   **THE CONSTRAINTS FROM §8, AND WHAT EACH BECAME:** one token and no
+   arguments — enforced, and it is the line doing the security work; `PA` and
+   `S` VOC types only — enforced on the leading characters of field 1, because
+   a type code may be followed by prose (`File for BASIC programs` is how
+   `CREATEA` writes a file pointer); unique across the list, or `-A` must match
+   — **free by construction**, since the record is keyed by `initial.account`,
+   which is already what `-A` set; `@logname` — **not touched, and that needs
+   checking on the cycle**: a batch logon has a real Windows user behind it, so
+   the "no person" case §8 anticipated may not arise.
+
+   **STILL OPEN, and it is §8's own "any prompt is fatal":** nothing here stops
+   the *command itself* prompting. A paragraph that asks a question will sit
+   there. The list limits what may run, not what what-may-run does.
+
+   ***RULED AND BUILT — OWNER, 24 Aug 2026: "only batch, so not
+   interactive."*** `sd <command>` no longer asks for a password. **BUILT IS
+   NOT VERIFIED (§0 rule 2): it has not compiled and nothing has run it.**
+
+   **The change is at [LOGIN:640](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:640)** — one
+   conjunct, `and batch.command = ''`, plus `batch.command = trim(system(1026))`
+   hoisted out of the batch gate below it so both tests can see it. **Same
+   guard**, so it is set in exactly the cases it was before and the audit
+   record is unchanged.
+
+   ***IT IS NOT THE SAME EXEMPTION AS `K$TTY`, WHICH IS WHY ONE DID NOT ALREADY
+   COVER IT.*** `K$TTY` asks whether there is a terminal; this asks whether
+   anybody is being invited to sit at it. `sd COUNT VOC` typed at a console
+   **has** a tty (`/dev/cons0`) and must still not stop — it is a one-shot
+   command. That console case is the one that **hung** and was mis-diagnosed
+   three times.
+
+   **CHECKED BEFORE BUILDING, because the risk was silently disabling the
+   21 Aug rule on the main path:**
+
+   | question | answer |
+   |---|---|
+   | what is `SYSTEM(1026)`? | `single_command`, `kernel.h:64`, *"User typed SD xxx"*, built at `sd.c:681-695` |
+   | does an **ssh** session carry one? | **no** — `allow-ssh-groups.ps1:183` writes `ForceCommand "<sd.exe>"` with **no arguments**, so it is empty and ssh still prompts |
+   | block balance after the edit | **identical to HEAD** — `then` 57, `end` 72, `begin case` 3, `loop`/`repeat` 7, `for`/`next` 2 |
+
+   ***A VERIFIER FOR IT IS OWED. SCOPED 24 Aug 2026, AND THE ANSWER IS THAT THE
+   BEHAVIOURAL HALF CANNOT BE AUTOMATED.*** Written up rather than started,
+   because the cost is in the constraints and they are not obvious.
+
+   **TWO CLAIMS NEED PROVING**, and they are not the same size:
+
+   | # | claim |
+   |---|---|
+   | 1 | elevated + console + **no credential** + a command -> **no prompt**, the command runs (the ruling) |
+   | 2 | the same **without** a command -> **still prompts** (the 21 Aug rule, intact) |
+
+   ***THE TRAP THAT WOULD BE WALKED INTO FIRST: ANY PIPED TEST IS A FALSE
+   PASS.*** `K$TTY` is `ttyname(fileno(stdin))`, so a pipe empties it and the
+   prompt never fires **whatever LOGIN does**. `verify-batchjob` will not catch
+   a regression for exactly this reason - `verify-batchjob.ps1:112` pipes
+   `$null`. A piped run proves nothing and looks identical to a pass.
+
+   ***FOUR CONSTRAINTS COMPOUND, AND TOGETHER THEY CLOSE THE DOOR:***
+
+   - **A real console** is required, per the trap above.
+   - **An account with NO SD credential.** `don` has one. ***`SDSYS` CANNOT BE
+     BORROWED***: [LOGIN:411](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:411) answers a
+     non-internal `-Aname` with *"You can only log in to your own account"* and
+     terminates; only `-internal` forces SDSYS, and `-internal` is **exempt
+     from this gate entirely**. That kills the cheap route.
+   - **An elevated token** — `K$ADMINISTRATOR`, and `sd.c` `check_admin()`
+     refuses a command line without one.
+   - **Running AS that account**, since `initial.account` is the caller's own.
+
+   **AND THE LAST TWO CANNOT BE HAD TOGETHER FOR A TEST ACCOUNT.** SD accounts
+   are ssh-only: `LogonUser INTERACTIVE` is **refused 1385**, measured by
+   `verify-sshonly`. `NETWORK`/`NETWORK_CLEARTEXT` are admitted but the token
+   is **UAC-filtered**, so it is not elevated and `sd <command>` is refused
+   outright. An elevated token for another local user, non-interactively, needs
+   either `LocalAccountTokenFilterPolicy` — **a machine-wide security
+   weakening, not acceptable** — or a UAC prompt, which needs a person.
+
+   ***SO THE GATE IS REACHABLE ONLY BY A PERSON AT THEIR OWN ELEVATED CONSOLE.***
+   That is not a gap in the test suite so much as a property of the thing being
+   tested, and **it is why the regression was found by the owner running the
+   installer and by no test at all.**
+
+   **WHAT IS ACHIEVABLE, in the order worth doing it:**
+
+   1. ***BUILT AND VERIFIED 24 Aug 2026 — `gplbld/verify-cmdaudit.ps1`,
+      5 of 5 decisive, exit 0, on the 18:19:17 install.*** Elevated, in
+      `VerifyInstall2` beside `verify-notyet`; spends **no prefix**, creates no
+      account. The two records it produced, from LOGIN's two branches:
+
+      ```
+      19:09:49 user=don uid=26 pid=258 LOGIN account=DON command=COUNT VOC
+      19:09:50 user=don uid=27 pid=260 LOGIN account=DON
+      ```
+
+      **It refuses the null case**: if the audit trail did not grow, nothing
+      reached LOGIN and it fails rather than describing an empty string.
+      **`Get-LoginRecords` is a pure function**, unit-tested by
+      `test-verdict-units.ps1` — **54 of 54** — including the ordering trap
+      below and three null cases; and the control was run, perturbing the order
+      made it fail 4 of 54.
+
+      ***THE ORDERING TRAP, because it would report the regression as a pass:***
+      `LOGIN account=X command=Y` **also matches** a pattern looking for
+      `LOGIN account=X`, so the command form must be tested FIRST. Backwards,
+      every command session reads as interactive — which is exactly what a
+      regression looks like.
+
+      ***AND WHAT IT DOES NOT PROVE, kept in its header:*** that the prompt was
+      skipped. It proves the gate's INPUT, not the branch.
+
+      The original reasoning:
+      [LOGIN:722-726](sdb_ai/sd64/sdsys/gpl.bp/LOGIN:722) writes
+      `LOGIN account=x` when `batch.command` is empty and
+      `LOGIN account=x command=y` when it is not. **That is the new conjunct's
+      own input, made visible**, so a verifier can prove LOGIN saw a non-empty
+      `batch.command` for `sd <command>` and an empty one for plain `sd`. Four
+      verifiers already read the audit trail (`verify-peerlog`, `verify-apiname`,
+      `verify-createaccount`, `verify-credacl`), so the machinery exists.
+      ***SAY WHAT IT DOES NOT PROVE***: that the prompt was skipped. It proves
+      the input, not the branch.
+   2. **The end-to-end guard already runs every cycle** — `cycle.ps1`'s
+      `credential register: N account(s) with a password`, which prints
+      *"NO ACCOUNT HAS A PASSWORD"* on zero. **Note what it now guards**: since
+      the password step moved to `MODIFY.PASSWORD`, it no longer depends on
+      LOGIN's prompt, so it protects the installer rather than this gate.
+   3. **A person-in-the-loop probe**, if the behavioural proof is wanted. Needs
+      a fresh ADMINISTRATOR-tier account **not** in `sdsshonly`, an elevated
+      console opened as that user by hand, then two timed runs. ***THE CONTROL
+      MUST BE A TIMEOUT AND A KILL***, because you cannot script an answer to a
+      prompt that only appears when stdin is a real console. Kill, then
+      `sd -cleanup` **in the same elevated context, ordered before any
+      reporting** - §6: stale user-table entries make later sessions answer
+      *Forced logout*, so it costs the install and not just the session.
+
+   **RECOMMENDATION: build (1), rely on (2), and leave (3) as the owner's
+   call.** It is the only part that proves the behaviour and it cannot be
+   automated at any price this project should pay.
+
+   ***THE THREE CLAIMS THAT MADE IT LOOK LIKE A DEFECT ARE ALL WITHDRAWN***
+   (HISTORY.md, 23 Aug 2026, *"the elevated hang is diagnosed"* plus its two
+   corrections — read all three, the first is wrong):
+
+   | withdrawn claim | what is true |
+   |---|---|
+   | *"the prompt has no non-interactive behaviour"* | **it has one and it works** — `LOGIN:641` prompts only when `kernel(K$TTY,0) # ''`, `ttyname(fileno(stdin))` at `kernel.c:250`, written and measured 21 Aug |
+   | *"a scheduled job on a password-less account hangs like this"* | **it does not** — a scheduled task has no tty, so the prompt is skipped |
+   | *"start-up block; the pcode ACL or the elevation helper"* | neither is involved; `elevate()`'s one caller is `CPROC:2571`, on the `LOGTO SDSYS` path |
+
+   **THE REAL CONDITION IS A CONSOLE WITH NOBODY AT IT** — stdin inherited from
+   a console, no typist — which nothing in this project produces except a probe
+   that redirected stdout and left stdin alone. The one place it bit,
+   `verify-batchjob`'s **elevated** row, is fixed: `verify-batchjob.ps1:112`
+   pipes `$null` into `sd`.
+
+   **THE INTERACTIVE PATH IS UNTOUCHED** — only `SYSTEM(1026)` is gated — and
+   that is load-bearing rather than incidental: `verify-batchjob.ps1` plants
+   and removes its own VOC probes through a piped session, because doing it
+   with `sd DELETE VOC x` is the very thing being measured.
+10. **REMOVED FROM THIS PROJECT — owner, 23 Aug 2026.** It read *"write the
+    admin helpers (§5.14) — forms over the administrative work that is command
+    lines and hand-edited records today"*. **The forms will be part of a set of
+    GUI utilities that will be created, and they are not necessary for a working
+    SD**, so they are not this repository's to build and their absence is not a
+    gap in it.
+
+    **THE SEQUENCING RULE IS NOT REMOVED WITH THEM — §5.14 keeps it, and it is
+    now load-bearing rather than convenient.** Administrative logic goes in a
+    subroutine with a verb over it, because a utility outside this repository
+    can call a catalogued subroutine or the API and can do nothing with logic
+    buried inside a verb. **The step went; the constraint on how everything else
+    here is written did not.**
+
+    **ONE DANGLING POINTER IS LEFT ON PURPOSE.** `gpl.bp/LOGIN:890` still says
+    *"until there is a verb to edit the list with (step 10)"*. It is a comment,
+    and correcting it means a source change, which makes the installed tree
+    stale and costs a whole cycle — on a tree that had just gone 27 of 27.
+    **Fix it the next time `LOGIN` is edited for a real reason**, and read it
+    meanwhile as "until the GUI utilities exist".
+11. **CLOSED — `SDConnectLocal()` CARRIES A SESSION.** Verified on the 12:28:49
+    install of 17 Aug 2026: `make check-local` on the installed pair,
+    `assert-current` exit 0, `WHO -> 2 DON`. Five runs in all, four in
+    development and one on the install, exit 0 each time.
+
+    *(Compressed 21 Aug 2026 under §0 rule 5. The named-pipe attempt, the
+    transport options as they were framed, and the diagnosis in the order it
+    happened are in HISTORY, "ARCHIVE 21 Aug 2026 - section 7's closed steps 7,
+    8 and 11". Two stale headings — "AND NOT RUN", then "CALLED, AND IT DOES NOT
+    WORK" — were struck from this step on 21 Aug; both had been refuted by this
+    step's own body.)*
+
+    **`SDConnectLocal()` AS ORIGINALLY WRITTEN COULD NEVER HAVE WORKED**, on
+    this platform or any other, and it took three independent faults with it.
+    **All three still matter to any successor:**
+
+    a. **The client and the server disagreed about `-C`.** The client built
+       `sd.exe -Q -C <pipename>` with the name as a SEPARATE argument, while
+       `sd.c` parsed `sscanf(argv[arg], "-C%d!%d", …)` and `exit(1)`ed on
+       anything else. **The same mismatch is in `sdb64`, byte for byte** —
+       `UPSTREAM_FIXES.md` #4. `sd.c` now takes either form and **consumes the
+       name argument**, which it must: the option loop stops at the first
+       argument not beginning with `-`, so the name would otherwise be taken for
+       a command to execute.
+    b. **The client looked for `sd.exe` inside the DATA tree.** It is now found
+       **beside the DLL** through `GetModuleHandleEx(FROM_ADDRESS)`, which needs
+       no configuration and follows the install wherever `{app}` puts it.
+       **The path is quoted too**: it is under `C:\Program Files`, and an
+       unquoted spaced path in `CreateProcessA` with a NULL application name
+       makes Windows try `C:\Program.exe` first — a hijack, not just a bug.
+    c. **The access argument to `cygwin_attach_handle_to_fd()` must MATCH THE
+       HANDLE**, not describe what the descriptor is for. Passing `GENERIC_READ`
+       for descriptor 0 — the obvious thing to write — **succeeds**, and the
+       descriptor then fails `read()` with `EBADF`.
+
+    **WHAT THE TRANSPORT IS NOW: two anonymous pipes handed to the child as its
+    STANDARD HANDLES**, so Cygwin builds descriptors 0 and 1 itself and its
+    `PeekNamedPipe`-based `select()` answers honestly. **The command line is
+    `-Q -C1!0`, and the order matters** — `sd.c` does `dup2(RxPipe, 0);
+    dup2(TxPipe, 1)`, so rx must be 0 and tx must be 1. An earlier note in this
+    file said `-C0!1`; it was wrong. **Inheritance is restricted to exactly
+    those two handles** with `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`, because plain
+    `bInheritHandles = TRUE` copies every inheritable handle the process owns
+    into a long-lived `sd.exe`, and this library is loaded into somebody else's
+    application.
+
+    **WHY THE NAMED PIPE WENT, and it is not a bug left to find:** a descriptor
+    made by `cygwin_attach_handle_to_fd()` is reported **permanently ready** by
+    `select()`, so `sdpoll()` spins and `sd.exe` never answers — §6 has it.
+    **Do not spend another cycle looking for a flag**; six combinations of the
+    name and access arguments, `O_NONBLOCK` and `F_SETOWN` were all measured.
+    `gplsrc/win32pipe.c` stays but has left the hot path, and `sd.c`'s
+    `-C <pipename>` branch now **refuses with a diagnostic** rather than hanging,
+    because silent-and-never-answering is the worst thing to leave callable.
+
+    **THE FRAMING THAT WAS WRONG, kept because it is the reusable part:** the
+    peer identity never came from the pipe. `SDConnectLocal()` gets identity
+    because it **spawns `sd.exe` with `CreateProcessA`**, so the server is a
+    child running under the caller's own token. The pipe only carries bytes —
+    which is why the socket option's stated cost and the named pipe's stated
+    benefit were both illusory. §8 has where peer identity actually comes from
+    (`GetExtendedTcpTable`).
+
+    **RE-RUN IT AFTER ANY CYCLE, UNELEVATED:**
+
+    ```sh
+    cd sdb_ai/sd64 && make check-local
+    ```
+
+    **It carries its own control, and that is the reason to trust it:** `DON`
+    admitted, `SDSYS` **refused** with *"User not allowed in requested account"*
+    — the `ACC$GROUP` grant check running. `DON` succeeding alone would prove
+    nothing, since a check that never ran would admit it too. Exit codes say
+    which happened: 1 `DON` refused, 2 `SDSYS` admitted (so the check did not
+    run and the first result is worthless), 3 the session opened but `WHO`
+    failed. **It is deliberately NOT in `make check`** — everything there runs
+    without a server; this measures the installed tree and is subject to the
+    cycle rule.
+
+    **`strace` IS THE TOOL FOR ANYTHING THAT PRINTS NOTHING AND EXITS NOTHING.**
+    `/c/msys64/usr/bin/strace.exe`, works on any Cygwin binary including
+    `sd.exe`, and it answered in one run what three cycles could not. There is no
+    `gdb` in this MSYS2 install.
+
+    **The vendored client's own docs were wrong and are corrected**: both
+    `README.md` and `USER_GUIDE.md` said the Windows DLL does not provide
+    `SDConnectLocal` and that it is "Linux-specific". It is exported — ordinal 6,
+    checked with `objdump -p`.
+12. **REWRITTEN ON THE OWNER'S RULING, 21 Aug 2026. DO NOT RESTORE THE
+    BRANCHES.** This step used to read *"Restore the BASIC layer's Windows
+    branches from the external `GPL.BP` tree, then set `SYSTEM(91)` to 1 and
+    assign `is_nt`"*. **There should be no Windows branches in this version of
+    SD, because it is Windows only** — the same rule CLAUDE.md already states
+    for the C code (*"do not add `#ifdef` branches to keep Linux building —
+    replace Linux code outright"*), now stated for the BASIC layer.
+
+    **A branch implies a non-Windows arm to fall back to, and there is none.**
+    So the work is: **take the Windows arm from the external tree, drop the
+    conditional, and delete the Linux arm.** `if windows then '\' else '/'`
+    becomes whichever separator this port actually wants — decided on its
+    merits, not by a platform test.
+
+    **THE SWITCHES ARE DEAD WEIGHT UNDER THIS RULING, not a thing to turn on.**
+    `SYSTEM(91)` already answers **1** (`op_sys.c:282`, 17 Aug 2026, flipped to
+    fix case-insensitive `@ID` matching — §5.4). `SYSTEM(1006)`/`is_nt` has
+    **no reader at all** in the shipped BASIC tree. A constant that is always
+    true does not need testing.
+
+    **SURVEYED AND ACTED ON, 22 Aug 2026, forty-second session. THE SOURCE IS
+    `C:\Users\dmont\Projects\GPL.BP`** — 212 files, **25 carry platform
+    references**, and **10 of those do not ship here at all** (`VBSRVR`,
+    `ADMSRVR`, `SETQ`, `LGNPORT`, `PASSWD`, `QMPKG`, `CREATEU`, `ADMUSER`,
+    `ACCRST`, `DELUSER`). **The idiom is a bare `windows`**, set by
+    `windows = system(91)` (`CPROC:251`, `LOGIN:91`) — *not* `is.windows`,
+    which is why grepping for that finds nothing and looks like the logic is
+    gone.
+
+    **ONE LIVE DEFECT, AND IT WAS THE WRONG ARM RATHER THAN A MISSING ONE.**
+    `PARSER` split every TCL token at the first backslash: upstream guards that
+    line with `if not(is.windows)`, and the port **kept the Linux body and
+    dropped the guard**. **Measured, not read** — `RUN BP C:\Temp\zznosuch`
+    answered *"Program BP.OUT **C:** not found"*, while `C:/Temp/zznosuch` and a
+    bare name came through whole. `RUN` is the instrument because message 5073
+    echoes both names it was given; `COUNT` does not, and `@parser` cannot be
+    called from a probe program because `!PARSER` is `$internal`. **The
+    reachable case is `CREATE.ACCOUNT OTHER <name> <path>`**, which takes its
+    pathname through the parser at `CREATEA:466`. Fixed by deleting the split.
+    **`sdb64` has the same unguarded line** (`sd64/sdsys/GPL.BP/PARSER:116`)
+    **and it is correct there** — that tree is Linux-only, so no
+    `UPSTREAM_FIXES.md` entry.
+
+    **MEASURED ON THE INSTALLED TREE, 22 Aug 22:50:18, and guarded from now
+    on.** `gplbld/verify-parsertokens.ps1` is new, **7 of 7 decisive**, and it
+    is in `VerifyInstall1` because it needs no elevation and spends no prefix.
+    **It asks two questions, not one:** the backslash path must come back whole
+    **and** `CT VOC a,b` must still split into `a`, `,`, `b` - without the
+    second, a `CT` that never reached the parser would pass just as happily with
+    the defect restored. **`CT` and not `RUN`, and that is not a preference:**
+    `RUN` echoes both names only once the account has an object part to look in,
+    and on a freshly made account nothing has been compiled, so it answers
+    *"Cannot find item to run"* and echoes nothing. That is how the original
+    instrument stopped working between two installs on the same day.
+
+    **ALSO DONE:** `QPROC`'s `is.windows` is gone — `system(91)` is a constant
+    1, so `if is.windows and is.dir` tested something that could not vary; and
+    `CREATEA`'s `USRDIR`/`GRPDIR` fallbacks were `/home/sd/...`, replaced with
+    the paths `config.c` already defaults to.
+
+    **WHAT WAS DELIBERATELY NOT TAKEN, each judged against this port's own
+    decisions rather than by platform test:**
+
+    - **Every `upcase()` Windows arm** — `LOGIN` 305, 433, 445, `CREATEA` 128,
+      169, `CPROC` 2222. §5.12 went the other way on purpose, and `CPROC`'s is
+      superseded outright by the three-case fold at `CPROC:2253`–`2255`.
+    - **`CPROC`'s `dir.separator` stays `/`** (`CPROC:290`; upstream
+      `= if windows then '\' else '/'` at `:323`). `@ds` is SYSCOM slot 57 and
+      compilation depends on it — `BCOMP` opens `@sdsys:@ds:'bin'` — and `/` is
+      what works on the MSYS2 runtime, so the burden is on changing it.
+    - **`CONFIG` keeps printing `SH`, `SH1` and `SPOOLER`** (upstream hides them
+      on Windows, `CONFIG` 136, 143). **This port has a real `SH`** — step 7 —
+      and all three are live in `config.h`/`op_config.c`, so the upstream arm
+      would hide settings that work here. **Do not "restore" it.**
+    - **`CREATEA`'s `@DRIVE` flash-drive branch** (`CREATEA:218`). The installer
+      pins `C:\Program Files\SD` and no longer offers a location at all, so a
+      relocatable install is not a thing this port has.
+    - **`LOGIN`'s forced administrator rights** on any console session, which
+      **§5.6 rejects on purpose**.
+13. **DROPPED AS A MIGRATION — owner's decision, 23 Aug 2026.** It read
+    *"Stage 2, native Win32"* and it is not being done. **What replaces it is
+    steps 14 and 15 below**, which are the two outcomes it was ever for.
+
+    **THE QUESTION THAT ENDED IT, and it is the right one to ask of any
+    remaining Linux-ism:** *"is this conversion really necessary — the system
+    seems to work fine with Cygwin dependencies."*
+
+    ### Why it went, in the order the reasons matter
+
+    **1. IT WAS NEVER ABOUT REMOVING CYGWIN.** Read what this step actually
+    claimed for itself: *"the service-account model in §5.7 belongs here, and
+    until it lands the data tree is not genuinely private from SD's own
+    users"*; §8's tiers entry, *"until §5.7's service model, every tier is
+    enforced by the user's own Windows token"*; and the installer's own first
+    page, *"SD users are not isolated from each other"*. **The objective was
+    user isolation and a private data tree. Dropping MSYS2 was an assumed
+    route to it, never the goal** — and the route was never checked against
+    the goal until it was queried.
+
+    **2. IT IS NOT REQUIRED FOR EITHER OUTCOME.** Win32 calls work from an
+    MSYS2 build and **this tree already makes them** — `win32sem.c`,
+    `win32peer.c`, `win32pipe.c`, `win32audit.c`, `linuxlb.c`. The API
+    session's LocalSystem token was never blocked by the runtime: it is
+    blocked by **SCRAM authenticating in the CHILD, after `execl`**, so
+    `sdwind` does not know the caller at spawn time. That is an architecture
+    question. §5.7's service model likewise needs `CreateProcessAsUser` **at
+    particular sites**, not a runtime swap.
+
+    **3. WHAT MSYS2 COSTS IS REAL, KNOWN, AND ALREADY PAID.** The `/dev/shm`
+    `etc/fstab` mapping (§6); AF_UNIX invisible to native Windows (§8, which
+    killed the Linux client contract); Cygwin pid ≠ Windows pid (`K_WINPID`);
+    the dual `C:/` and `/c/` namespace (`K_WINPATH`, `net_normalise`);
+    `select()` permanently ready on an attached handle (§7 step 11); shipping
+    `msys-2.0.dll` under the two-components rule (§5.8); and the tty layer,
+    which is what leg 1 hit. **Every one is documented and worked around, and
+    none of them is breaking the product.**
+
+    **4. AND THE RISK PROFILE IS THE WRONG SHAPE.** The legs land on the
+    console, the terminal, shared memory and process creation — ***precisely
+    the paths the 26-verifier suite structurally CANNOT test***, because every
+    verifier drives SD down a pipe. **High blast radius, no automated
+    coverage.** Leg 1 was the mild version of that and it still shipped a
+    cleartext password prompt; SYSSEG would not have been mild.
+
+    ### What leg 1 cost, kept because it is the evidence for the decision
+
+    `linuxio.c`'s six termios calls were converted to the Console API on
+    23 Aug 2026 and **reverted the same day**. The installer's post-install
+    prompt **echoed the password in cleartext**, printed its stars afterwards
+    a whole line at a time, and froze without asking for the confirmation.
+
+    ***`SetConsoleMode` IS AVAILABLE UNDER MSYS2, NOT SUFFICIENT.*** Cygwin's
+    tty layer sits in front of the console and implements termios **in
+    userspace** — canonical line buffering and echo are **Cygwin's**, not the
+    console driver's. Removing `tcsetattr` left Cygwin echoing and
+    line-buffering.
+
+    ***AND THE INSTRUMENT COULD NOT HAVE CAUGHT IT, BECAUSE ITS CONTROL WAS
+    CONTAMINATED.*** `probe-console.c` calls `tcsetattr(raw)` at step 3 and
+    never undoes it, so every later reading was taken with **Cygwin already in
+    raw mode**. It proved `SetConsoleMode` sticks and does not disturb key
+    delivery — both true — and never observed what `SetConsoleMode` **alone**
+    does, which was the question that decided the leg. **"Can I set this?"
+    answered in place of "is this sufficient?"** The caveat is now the first
+    thing in that file, above its own verdict logic.
+
+    **TWO MEASUREMENTS SURVIVE AND ARE WORTH KEEPING** if a flip is ever
+    forced for some other reason:
+
+    - **The console mode SD actually wants is `0x2e8`** — line input off, echo
+      off, **processed input off**, virtual-terminal input on. It is what the
+      console is already in and what Cygwin's `tcsetattr(raw)` leaves it at.
+    - ***Processed input must be OFF, and that is a fact about SD rather than
+      about Cygwin.*** `linuxio.c` sets `ISIG`, so the obvious conversion turns
+      it on and breaks the break key: **SD handles break in software**,
+      comparing the incoming byte against `tio.break_char` and calling
+      `break_key()`. The byte has to reach SD. `set_term()`'s `trap_break` has
+      always been a software flag; only the termios call made it look
+      otherwise.
+
+    ### The survey, kept because it is what the successor needs
+
+    **Counts are code lines with comment lines excluded** — the first pass of
+    this table said `sys/cygwin.h` was 14 calls and it is **6**, the rest being
+    the comments explaining them. **A raw `grep -c` is not a measurement here.**
+
+    | leg | measured |
+    |---|---|
+    | `fork` → `CreateProcess` | **5 sites**, `op_kernel.c:701`, `op_sh.c:379`, `sdwind.c:491`, `sysseg.c:643`, `sysseg.c:745` — **every one fork+exec**, none needs copy-on-write |
+    | `termios` | **11 sites, 2 files** — `linuxio.c` 6 (session terminal), `lnxport.c` 5 (**serial ports**, a different Win32 API and no verifier drives it) |
+    | passwd/group | **22 sites, 5 files** — `linuxlb.c` 14, `ingroup.c` 3, `op_dio2.c` 3, `linuxio.c` 1, `sdext_eguid.c` 1 |
+    | `sys/cygwin.h` | **6 sites, 3 files** — `cygwin_conv_path` ×2, `cygwin_internal` ×2, `cygwin_attach_handle_to_fd` ×2 |
+    | POSIX shm + semaphores | **17 sites, 6 files** — `sysseg.c` 6, `sdsem.c` 3, `sdidx.c` 2, `sdwind.c` 2, `win32sem.c`/`.h` 4. **This is SYSSEG** |
+    | `select()`/poll semantics | §7 step 11 measured the difference |
+
+    ***THE `sys/cygwin.h` SIX WOULD DELETE THEMSELVES AT A FLIP RATHER THAN
+    NEEDING CONVERSION*** — `K_WINPID` becomes `getpid()`, `K_WINPATH` becomes
+    the identity function, and `net_normalise()` folds a dual namespace that
+    does not exist natively. **Do not "convert" them early**: `net_normalise()`
+    is inside the API containment gate, the only thing in front of a
+    LocalSystem session, and hand-rolling a native fold while `getcwd()` still
+    answers `/c/...` would either duplicate the runtime or break the gate.
+
+    **The toolchain flip itself was never the hard part** — `UCRT_CC` is wired
+    in the Makefile and `sdclilib`, `sdsvc` and the check probes already build
+    native.
+
+14. ***CLOSED AND VERIFIED 24 Aug 2026 — install 11:15:29, `verify-apiidentity`
+    exit 0, the decisive row PASS. `ZZAPI` is owned by `GITORLI\sdapiidb32`
+    where `b28` had `NT AUTHORITY\SYSTEM`.*** Shape **(b)** was chosen by the
+    owner on 23 Aug and built; the closure statement is at the end of this
+    entry.
+
+    ***THE NEXT FOUR PARAGRAPHS ARE THE PROBLEM STATEMENT AS IT STOOD ON
+    22 Aug AND ARE KEPT FOR THE REASONING, NOT THE STATUS.*** One of them says
+    *"WHAT IS STILL A DECISION, AND IT IS THE OWNER'S"* — **that was true for
+    one day.** It sat 338 lines above *"STEP 14 IS CLOSED"* until 26 Aug 2026
+    and was reported as open work to the owner, who knew better and said so.
+    `gplbld/check-stale-leads.py` now finds this shape mechanically.
+
+    **The API session's identity.** `sdwind.c:491` `fork()`s the session, so it
+    inherits the service's LocalSystem token. **What 22 Aug measured was REACH,
+    not identity** — the `op_dio2.c` containment gate holds over the network.
+    §THE FILE HALF IS CLOSED, and §What fixing it involves.
+
+    ***IT CANNOT BE FIXED AT THE FORK, and that is the thing to know before
+    planning it.*** The SCRAM exchange happens **in the child, in `APISRVR`,
+    after the `execl`**, so at spawn time `sdwind` does not yet know who the
+    caller is. Two shapes, and it is a decision rather than a discovery:
+
+    a. **Authenticate in `sdwind` first, then spawn as the user.** Moves SCRAM
+       out of BASIC into C — the larger change, and it relocates the one piece
+       of security logic currently readable as BASIC.
+    b. **Let the session take the token after it authenticates.** SCRAM means
+       **the server never holds the password**, so `LogonUser` is not
+       available; only **S4U**.
+
+    ***THE PROBE IS RUN, 23 Aug 2026, AND SHAPE (b) IS AVAILABLE.***
+    `gplbld/probe-s4u.c`, driven by `probe-s4u.ps1`; §S4U IS MEASURED has the
+    table and the three corrections. From **LocalSystem** the S4U token comes
+    back at **Impersonation** level and `CreateProcessAsUser` **works** — the
+    child's own `whoami` read `gitorli\test1`. From `don`, elevated or not, it
+    is Identification and refused. **`SeTcbPrivilege` is the discriminator**:
+    it gates `LsaRegisterLogonProcess`, and the trusted LSA connection is what
+    raises the level.
+
+    **TWO SHAPES OF (b), AND THE PROBE MEASURED BOTH.** The session can be
+    **re-spawned** with `CreateProcessAsUser`, or — much smaller — it can
+    **impersonate in place**: `ImpersonateLoggedOnUser` on the S4U token
+    worked and could open a file. ***BUT IMPERSONATION IS PER-THREAD AND DOES
+    NOT REACH BACKWARDS***: handles already open keep the access they were
+    opened with, and any thread that did not impersonate is unaffected. In
+    `sdwind`'s child that is most of the process.
+
+    ~~**WHAT IS STILL A DECISION, AND IT IS THE OWNER'S:**~~ ***DECIDED
+    23 Aug 2026 — SHAPE (b), AND IT IS BUILT AND VERIFIED. Read the head of
+    this entry.*** The two shapes are kept because the reasoning is why (b) was
+    right: (a) moves SCRAM into
+    C and spawns as the user; (b) keeps SCRAM in BASIC and takes the token
+    afterwards, at the cost of a window between `execl` and the token change
+    during which the session is LocalSystem. **The probe removed the unknown,
+    not the choice.**
+
+    ***THE SECOND UNKNOWN IS NOW MEASURED TOO, 23 Aug 2026, AND SHAPE (b)
+    SURVIVES IT.*** `gplbld/probe-impersonate.c` + `.ps1`, as LocalSystem via
+    `schtasks`, target `test1`. **`ImpersonateLoggedOnUser` DOES govern the
+    MSYS2 runtime's `open()`** — which is how SD opens every data file
+    (`dh_file.c:815` `OpenFile()` calls POSIX `open()`), and the thing nobody
+    had tested. It was the last thing that could have killed (b) outright.
+
+    | leg | result |
+    |---|---|
+    | control A, as LocalSystem | both files **OPENED** |
+    | while impersonating `test1` | allowed **OPENED**, forbidden **refused, errno 13** |
+    | control B, after `RevertToSelf` | forbidden **OPENED** again |
+
+    **Identity by readback** — the thread token was queried and read
+    `GITORLI\test1`. **And the control that matters is that `test1` is NOT an
+    Administrator**, which `probe-impersonate.ps1` refuses to run without: the
+    forbidden fixture grants Administrators, so an admin target would have read
+    it anyway and the run would have reported a false negative.
+
+    ***THE RECOMMENDATION, AND THE REASON IS NOT THE CRYPTO.*** Shape **(b)**.
+    Shape (a) must replace `fork` + `dup2(conn,0/1)` + `execl` (`sdwind.c:491`)
+    with `CreateProcessAsUser` **while handing a socket to an MSYS2 child as
+    POSIX fd 0** — the least-charted part of the whole step, and unprobed.
+    (b) does not touch the spawn path at all and has **one hook point**:
+    `logged.in = @true` at `APISRVR:1442`, the single place SCRAM succeeds.
+
+    **THE WINDOW IS NARROWER THAN THIS ENTRY IMPLIED.** Before `logged.in` the
+    dispatcher admits **only requests 24, 25, 47 and 48** — 24 is retired and
+    answers 5275, and 47/48 are the two halves of SCRAM. So the LocalSystem
+    window contains **server-controlled code only**, not attacker-steered work.
+    And a window is inherent either way: **SCRAM must read `$cred`, which is
+    closed to everyone but SYSTEM and Administrators**, so the reader cannot
+    already be the user.
+
+    ***KNOWN LIMIT, UNCHANGED AND NOT MEASURED AWAY:*** impersonation is
+    per-thread and **does not reach backwards**. Handles opened before the
+    switch — the shared segment, `$cred` — keep LocalSystem access. What makes
+    (b) work is that the account files are opened at `LOGTO`, which is *after*.
+
+    **NEITHER NEEDS THE RUNTIME CHANGED.** That was step 13's assumption and it
+    did not survive examination.
+
+    ***SHAPE (b) IS CHOSEN AND BUILT - OWNER, 23 Aug 2026. BUILT IS NOT
+    VERIFIED (§0 rule 2): IT HAS COMPILED AND NOTHING HAS RUN IT.***
+
+    | part | where |
+    |---|---|
+    | S4U logon + impersonate | `gplsrc/win32s4u.c`, `.h` - new |
+    | kernel key **61** | `keys.h` `K_ASSUME_USER`, `INT$KEYS.H` `K$ASSUME.USER` |
+    | dispatcher, `$internal` only | `op_kernel.c`, beside `K_SET_USERNAME` |
+    | the hook | `APISRVR` `vb.scram.final`, **before `logged.in = @true`** |
+    | refusal | message **5277** |
+    | link | `-lsecur32` in `L_FLAGS`; `win32s4u` in `gpl.src` |
+
+    ***IT FAILS CLOSED, AND THAT IS THE WHOLE CONTROL.*** The call sits before
+    `logged.in` is set, so a refusal leaves the caller authenticated into
+    nothing - the dispatcher goes on admitting only 24, 25, 47 and 48. Setting
+    `logged.in` first would leave a session that believes it is the user while
+    holding the service's token, **which is worse than one that never started.**
+
+    **`win32*.c` FILES NEVER INCLUDE `sd.h`**, and this cost a build: `sd.h`
+    defines `Private`, `STRING`, `Sleep` and `GetCurrentProcessId` as macros and
+    every one collides with `windows.h`, giving *"expected identifier or ( before
+    static"* pointing at the project's own header. They take `windows.h` and
+    their own header only, and use `malloc` rather than `k_alloc`.
+
+    ***CYCLED AND RUN, 23 Aug 2026: INSTALL 21:25:18, `-Run b17` GREEN AT 10 AND
+    17.*** All five API verifiers passed and **message 5277 appears nowhere in
+    the log**. Because the hook fails closed that is a POSITIVE result:
+    `AssumeUserIdentity` returned 1 on every live API login, so the S4U logon
+    and `ImpersonateLoggedOnUser` both work in the real session.
+
+    **THE RISK NAMED BEFOREHAND DID NOT MATERIALISE.** Nothing the session must
+    write - `errlog`, `pstmp`, the audit trail - refused. Watched for, not
+    merely absent. *Corrected 24 Aug 2026: this said "the session writes as the
+    user after the switch", which `b28` disproved - it writes as
+    `NT AUTHORITY\SYSTEM`. The absence of refusals is explained by that, not by
+    the switch working.*
+
+    ***MEASURED 24 Aug 2026 ON THE 23 Aug 21:25:18 INSTALL, AND THE EFFECT IS
+    ABSENT.*** `gplbld/verify-apiidentity.ps1 -Prefix sdapiidb28`, run `b28`,
+    `assert-current` exit 0. The call was already proven by `b17`; this is the
+    consequence, and it is negative.
+
+    ```
+    ZZLOCAL (written by the local elevated session): GITORLI\don
+    ZZAPI   (written by the API session)           : NT AUTHORITY\SYSTEM
+    ```
+
+    **The instrument is OWNERSHIP, not access.** A directory-type file stores
+    each record as a real file, so the owner of a record is the OS identity
+    that wrote it. `vb.write` (request 16, `APISRVR:900`) writes one from the
+    API session; `COPY` writes the other from a local elevated session.
+    **The two owners differing is the control** - it is what makes the API
+    reading evidence rather than a statement about who owns the tree.
+
+    **So `K$ASSUME.USER` fires, succeeds, and does not govern the file layer.**
+    The hook is unconditional at `APISRVR:1472` and a false return jumps to
+    `exit.vb.scram.fail` before `logged.in`, so a session that logged in ran it
+    and it returned true. `win32s4u.c:184` refuses an Identification-level
+    token rather than impersonating with one, and **nothing calls
+    `RevertUserIdentity()` anywhere in the tree.**
+
+    ***RE-TESTED FROM A FORKED CHILD, 24 Aug 2026, AND SHAPE (b) SURVIVES IT.***
+    `gplbld/probe-impfork.c` + `.ps1`, as LocalSystem via `schtasks`, target
+    `test1`. This section used to say the evidence was weaker than it read,
+    because `probe-impersonate` was a **standalone** program started by
+    `schtasks` while an API session is `fork()`ed and `exec()`d. **The two
+    configurations behave identically** — both legs exit 11:
+
+    | leg | forbidden while impersonating | created while impersonating |
+    |---|---|---|
+    | fork()ed and exec()d Cygwin child | refused, errno 13 | owned `GITORLI\test1` |
+    | direct, started by cmd.exe (control) | refused, errno 13 | owned `GITORLI\test1` |
+
+    Both legs run from one binary against one set of fixtures, so the only
+    difference between the rows is how the process started. **The fork is not
+    the explanation for b28.**
+
+    ***AND THE SAME RUN CLEARED b28's OWN INSTRUMENT, WHICH IS WHY IT CARRIED A
+    SECOND LEG.*** b28's control — a record written by the local session owned
+    `GITORLI\don`, one written by the API session owned SYSTEM — is equally
+    consistent with the runtime stamping a new file from its **own cached
+    user**, which `fork()` carried in from the service and which the thread
+    token does not touch. That would have made ownership the wrong instrument.
+    **It was tested directly and it is wrong**: the Cygwin `uid` read **18
+    (SYSTEM) throughout both legs** while the file created in the same breath
+    came out owned by `test1`. **The POSIX uid does not decide the owner; the
+    thread token does.** Ownership means what b28 took it to mean.
+
+    ***SO THE FINDING SHARPENS WITHOUT A FURTHER MEASUREMENT.***
+    `AssumeUserIdentity` succeeds at login (b17) and **the thread is no longer
+    impersonating by the time the session writes** (b28 + this probe). The
+    other branch — `ZZAPI` already existing, so the write changed no owner —
+    is closed: fresh record name, and `verify-apiidentity.ps1:938` refuses the
+    null case by requiring the file on disk.
+
+    **NOTHING IN OUR TREE DROPS IT**, checked 24 Aug: `RevertUserIdentity()`
+    has no caller (`op_kernel.c:284` withholds it from BASIC on purpose), there
+    are **no threads** anywhere in `gplsrc`, and `sdext_eguid.c`'s `seteuid` is
+    reachable only from `op_sdext.c:343`, an explicit extension call that is
+    not on the login or write path.
+
+    ***THE BISECT IS DONE, 24 Aug 2026, AND ONLY `fork()` DROPS IT.***
+    `probe-impfork`'s Q3 leg performs, one at a time, what APISRVR does between
+    the hook and the write, reading back the thread token **and** creating a
+    file after **every** step. Both legs identical on all 14 rows.
+
+    | step | token after | owner of file made after |
+    |---|---|---|
+    | `usleep`, `stat`, `open`/`read`/`close`, `opendir`, **`chdir`**, `getcwd`, `getpwuid`, `getpwnam`, **socket `send`/`recv`**, `select`, signal delivery, **`LsaDeregisterLogonProcess`** | `target` | `GITORLI\test1` |
+    | **`fork()` + `waitpid`** | **NONE** | **`NT AUTHORITY\SYSTEM`** |
+
+    **`LsaDeregisterLogonProcess` WAS TESTED BECAUSE THE PRODUCT DOES IT AND
+    NEITHER PROBE DID** — `win32s4u.c:208`'s `exit_assume:` runs on the success
+    path too (`ok = 1` falls into it), while both probes leak `hlsa`. It
+    returns `STATUS_SUCCESS` and **the impersonation survives it**, so that
+    difference is not the explanation either.
+
+    ***THE `fork()` RESULT MATTERS BEYOND b28.*** It reverts the thread to the
+    process token **silently**, so **any `PHANTOM` (`op_kernel.c:735`) or `SH`
+    (`op_sh.c:379`) taken by an impersonated session drops it back to
+    LocalSystem with no error**, and nothing in `win32s4u.c` can notice. Shape
+    (b) owes an answer to this whatever fixes b28.
+
+    ***RESOLVED BY (a2), 24 Aug 2026: THE SESSION FORKS, AND THE CALL SITE IS
+    THE LOGTO GROUP CHECK.*** The earlier reading of this — "nothing on the API
+    login-to-write path forks" — was wrong because it looked only for literal
+    `fork()` in C. `is_grp_member` is BASIC calling `!ps_script`, which reaches
+    `op_sh.c:379` and forks there; grepping the C tree for `fork(` never showed
+    it, because the call comes from `APISRVR:566`.
+
+    `probe-sessionfork.ps1 -Prefix sdapiidb30`, on the 09:53:11 install:
+    sdwind made **1** fork clone (`sdwind.exe` 15812) whose exec target was the
+    session (`sd.exe` 4448); **the session then made 2 fork clones of its own,
+    both exec'ing `powershell.exe`** (14612→29948, 34624→27640).
+
+    | step | what happens |
+    |---|---|
+    | `APISRVR:1472` | `K$ASSUME.USER` impersonates the caller. Works (`b17`) |
+    | `APISRVR:439` `vb.account` | the account switch, a **post-login** request |
+    | `APISRVR:566` | `is_grp_member(kernel(K$USERNAME,0), acc.group)` |
+    | `!ps_script` → `op_sh.c:379` | `cpid = fork()`, then execs `powershell.exe` (`:308`) |
+    | → | the impersonation is silently gone |
+    | `vb.open` / `vb.write` | run as LocalSystem → `b28`'s SYSTEM-owned record |
+
+    **`APISRVR:1470`'s own comment names its killer**: the account's files "are
+    opened at LOGTO, which is after, and that is what makes this worth doing".
+    LOGTO is where the group check forks the identity away.
+
+    **MEASURED vs INFERRED.** *Measured*: the session forks twice into
+    PowerShell; `fork()` drops impersonation; the record is SYSTEM-owned.
+    *Inferred*: that **this** fork is the one that drops it in the live session.
+    **(b) is now a confirmation rather than a search.**
+
+    ***THE FIX IS WIDER THAN THIS CALL.*** `PHANTOM` (`op_kernel.c:735`) and
+    `SH` (`op_sh.c:379`, the same site) fork too, so any of them taken by an
+    impersonated session drops it. Moving `is_grp_member` alone leaves the class
+    open. `cygwin_internal(CW_SET_EXTERNAL_TOKEN)` addresses the class;
+    re-impersonating after each fork is the narrow fix. Either lands on
+    `sd.exe`.
+
+    **THE INSTRUMENT FAULT THAT CAME WITH IT, so it is not repeated.** `b29`
+    reported "the session does fork" **for the wrong reason**: a Cygwin
+    `fork()`+`exec()` is **two** Windows process creations — the clone carries
+    the *parent's* image name, then the exec target starts as a new process —
+    and the first version read that pair as "session forks child". It was
+    calling `sdwind`'s own spawn a fork by the session. Corrected to resolve
+    clone→target pairs, and re-run as `b30`; the corrected run also **names the
+    exec target**, which is what identifies the call site at all.
+
+    **(a2) IS BUILT AND PRE-FLIGHTED — `gplbld/probe-sessionfork.ps1`, 24 Aug
+    2026.** It watches `Win32_ProcessStartTrace` while a live
+    `verify-apiidentity` run logs in and writes, and asks whether the session
+    creates any child at all. **An event trace rather than polling**, because a
+    fork that exits in milliseconds would be missed by polling and the miss
+    would read as "did not fork". **It filters on `ParentProcessID` and never on
+    `CommandLine`** (§6's self-match trap), which also separates the two kinds
+    of `sd.exe` for free: sessions are children of `sdwind`, the verifier's own
+    `Invoke-SD` calls are children of the verifier. It refuses three null cases
+    — the trace not firing (self-tested first, measured working), no starts at
+    all during a run that demonstrably happened, and no child of `sdwind` seen,
+    since without identifying the session "it did not fork" is not a claim it
+    may make. **No switch skips `assert-current`, deliberately.**
+
+    ***IT NEEDS A CURRENT TREE.*** `verify-apiidentity.ps1:409` gates on
+    `assert-current`, and the 24 Aug banner change made the tree stale, so **a
+    `cycle.ps1` is owed before (a2) runs**. `-SelfTestOnly` proves the
+    instrument fires without spending one. Prefix **b29 or later**.
+
+    **(b) Costs a cycle**: `ImpersonatingUser()` (`win32s4u.c:230`) exists and
+    has no caller; reporting it at write time is decisive.
+
+    ***AN ACL FIXTURE CANNOT ANSWER THIS AND MUST NOT BE RE-TRIED.*** `b27` and
+    `b28` both opened all three ACL fixtures - including one whose `%0` grants
+    the account alone, and one that grants it nothing - with every DACL
+    verified correct at `%0` in the same run. No single token does both.
+    **A LocalSystem session holds `SeBackupPrivilege`, which bypasses DACLs
+    outright**, so no arrangement of grants gates it. Those three rows are kept
+    in the verifier as readings, marked non-decisive, and do not set the exit
+    code. Ownership works precisely because a privilege that lets a token OPEN
+    what it has no ACE on does not change whose name goes on a file it CREATES.
+
+    **HOW THE FIXTURES GET INTO VOC, because two obvious routes are dead.**
+    `SET.FILE` is a CROSS-ACCOUNT verb (`SETFILE.b:29`) and refuses with 2201;
+    `CREATE.FILE ... DYNAMIC PATHNAME` half-succeeds, writing the VOC entry and
+    then stopping at 6128 before adding `@ID` (`CREATEF:471-486`), which is a
+    product bug and still open. What works, and is what the verifier does:
+    **create the file plainly, move it, then write the VOC F-pointer as text
+    into a DIRECTORY-type scratch file and `COPY` it into VOC.** COPY maps
+    newlines to field marks whenever exactly one side is a directory file
+    (`COPY:220-229`); `BINARY` is what SUPPRESSES that and is implied only when
+    both sides are directory files. **The record must be LF-only** - §6.
+
+    ***THE CLASS OPTION IS MEASURED AND IT WORKS — 24 Aug 2026. BUT NOT AS THE
+    ONE CALL THIS ENTRY NAMED: IT IS A PAIR.*** `probe-impfork.c` gained a
+    **Q4** leg. It costs **no cycle** — the file is on `assert-current`'s
+    `$neverShipped` list — and it needed no edit to `sd.exe`.
+    `probe-impfork.ps1 -Account test1`, elevated, `assert-current` exit 0
+    either side, install 24 Aug 10:34:44 unchanged. **Exit 15 on both legs.**
+
+    | form | result |
+    |---|---|
+    | 1 — `CW_SET_EXTERNAL_TOKEN`, then `fork` | **LOST.** Returned 0, `errno` 0, thread token `NONE`, file owned by SYSTEM |
+    | 2 — register, then `seteuid(target)`, then `fork` | ***CARRIED.*** Thread token `target` **and** file owned `GITORLI\test1` |
+
+    **THE BARE CALL IS NOT THE FIX, AND THAT IS THE FINDING.** It only
+    *registers* a token; **`seteuid()` is what makes the runtime adopt it**,
+    which is why Cygwin's own callers do the pair. Row 4 and row 6 differ by
+    nothing else.
+
+    **Both instruments agree, in both legs** — the `fork()`ed and `exec()`d
+    child (the API session's shape) and the direct control, identical rows.
+    **Row 1 is the control and it reproduced the defect first**: a plain
+    `fork()` gave token `NONE` and a SYSTEM-owned file, so the run demonstrated
+    the fault before testing the cure.
+
+    ***THE NULL CASE WAS REAL AND WAS CAUGHT BEFORE IT LIED.*** The unelevated
+    `--q4check` mode necessarily targets its own uid, and `seteuid()` to the
+    uid you already hold returns 0 from a fast path without touching the user
+    context — the first `q4_report` printed that as form 2 **"lost"**, a
+    verdict on something that never ran. `q4_report` now separates **three**
+    non-results (never attempted, refused, target uid already the euid) from a
+    loss, and the elevated run shows `seteuid(197957) from euid 18`, so the
+    guard confirms it was genuinely exercised rather than assumed.
+
+    ***WHAT THE CLASS FIX WOULD CHANGE BESIDES THE TOKEN — SURVEYED, 13 SITES.***
+    `seteuid` moves the **effective** uid only; **the real uid stays 18
+    (SYSTEM)**, which the probe shows directly (`uid 18 euid 197957`). So:
+
+    | site | effect |
+    |---|---|
+    | `linuxlb.c:95`, `:213` `getpwuid(getuid())` | **unaffected** — real uid |
+    | `sdfix.c:1548` `getuid()` in a dump name | **unaffected** — real uid |
+    | `op_sys.c:228` `geteuid()` exposed to BASIC | **CHANGES** — the one visible behavioural difference |
+    | `ingroup.c:76` `getegid()` | unaffected by `seteuid` alone; **would change if the fix also calls `setegid`** |
+    | `sdext_eguid.c:67` | already does this pair; off the login/write path |
+
+    **So the decision is now between two WORKING options**, and the class one
+    costs a `seteuid` whose blast radius is the single `op_sys.c:228` reading.
+
+    ***THE CLASS FIX IS BUILT — 24 Aug 2026. BUILT IS NOT VERIFIED (§0 rule 2):
+    IT HAS COMPILED AND NOTHING HAS RUN IT.***
+
+    | part | where |
+    |---|---|
+    | `adopt_in_runtime()` — the pair, register then `seteuid` | `gplsrc/win32s4u.c`, new static |
+    | called on success, **fails closed** | `win32s4u.c`, after `ImpersonateLoggedOnUser` |
+    | euid restored on revert | `RevertUserIdentity()` |
+    | includes | `<unistd.h>`, `<pwd.h>`, `<sys/cygwin.h>`, **after `windows.h`** |
+
+    **NO BASIC CHANGE AND NO NEW ENTRY POINT.** `K$ASSUME.USER` already routes
+    to `AssumeUserIdentity()` (`op_kernel.c:289`), so extending that one
+    function covers the hook; callers need not know it now takes two calls.
+
+    **IT REFUSES THE NULL CASE INTERNALLY.** `seteuid()` to the uid already
+    held returns 0 from a fast path *without* adopting the token, so
+    `adopt_in_runtime` refuses when the euid already equals the target rather
+    than reporting a success whose identity would die at the first fork. It
+    also **reads the euid back** rather than trusting `seteuid`'s return.
+
+    **`setegid` IS DELIBERATELY NOT CALLED.** `ingroup.c:76` reads `getegid()`
+    and *does* have callers; the measurement did not need it.
+
+    **Compiled clean:** `make sd` (`win32s4u.o`, `sd` linked, `bin/sd.exe`
+    11:08:43 — newer than source, checked, because **`cycle.ps1` contains no
+    `make`** and a C change can otherwise be cycled against a stale binary).
+    Then `cycle.ps1 -SkipInstall` 11:10:08 — **198 BASIC programs, zero
+    non-zero error counts**, staged tree whole, installer built 4,801,598 bytes.
+
+    ***VERIFIED — 24 Aug 2026, install 11:15:29, `sd.exe` `7DDC68F6595382A6`,
+    `assert-current` exit 0.*** `verify-apiidentity -Prefix sdapiidb32`, exit 0,
+    the decisive row PASS. **STEP 14 IS CLOSED.**
+
+    | instrument | `b28` (before) | `b32` (after) |
+    |---|---|---|
+    | owner of `ZZAPI` | `NT AUTHORITY\SYSTEM` | **`GITORLI\sdapiidb32`** |
+    | control `ZZLOCAL` | `GITORLI\don` | `GITORLI\don` |
+    | DENY fixture over the API | OPENED | **REFUSED, `status 3001`** |
+    | `API IDENTITY LOST` in errlog | twice (`b31`) | **absent** |
+
+    **THREE INSTRUMENTS, AND THE SECOND TWO WERE NOT AVAILABLE BEFORE.** The
+    DENY fixture *could not* gate a LocalSystem session — `SeBackupPrivilege`
+    bypasses DACLs outright, which is why §7 recorded those rows as
+    non-decisive. **Its flipping to REFUSED is therefore evidence in its own
+    right**, not a repeat of the ownership reading. And the errlog alarm is the
+    *same* `check.identity` (`APISRVR:578`, `:921`) that fired twice on `b31`,
+    unchanged since, with **both call sites exercised this run** — the account
+    attach and the write. Its silence is a pass, not a removed check.
+
+    **The changelog entry written ahead of verification now stands** and needs
+    no revision.
+
+15. ***CLOSED 24 Aug 2026 — ACL lock cycled, verified, all four writers
+    measured.*** `verify-sysdiracl` 16/16 on the 18:03:37 install;
+    `probe-catprivate` 3/3. The closure statement is in the body.
+
+    **A data tree private from SD's own users** — §5.7's service-account model.
+
+    ***SURVEYED 23 Aug 2026, AND THIS STEP IS MUCH SMALLER THAN IT READS.***
+    Measured on the 10:01:45 install, `assert-current` exit 0. What follows
+    replaces the old opening claim, which was that *"anyone who can use SD on
+    this machine can read another account's files from outside SD"*.
+
+    ***THAT IS NO LONGER TRUE, AND §8's "B WORK" IS WHY.*** Account privacy is
+    **already enforced by the OS**, and it shipped without this step being
+    updated to say so:
+
+    | path | DACL as installed |
+    |---|---|
+    | `user_accounts\don` | `sdu_don:(OI)(CI)(M)`, Administrators, SYSTEM — **no `sdusers`** |
+    | `user_accounts` container | locked; refuses even its own user's DACL read |
+    | `sdsys\$cred`, `pstmp`, `audit` | no `sdusers` at all |
+    | `gcat`, `os.users`, `batch.jobs`, `gpl.bp.out` | `sdusers:(OI)(CI)(RX)` — read-only |
+
+    `sdu_don` contains only `don`; `test1` is an `sdusers` member and is not in
+    it. `secure-account-dirs.ps1` stamps existing accounts, `CREATEA` stamps new
+    ones, and `verify-accountacl` guards that the two agree. **So the
+    service-account model is not needed for account-to-account privacy** — the
+    per-account group already does it, and §5.7's objection that it *"adds a
+    Windows-user-to-account mapping to maintain"* is stale: the group is
+    **derived** from the directory name (`sdu_<name>`) and `GRANT` maintains it.
+
+    ***WHAT IS ACTUALLY LEFT IS AN INTEGRITY HOLE, NOT A CONFIDENTIALITY ONE,
+    AND IT IS WORSE THAN THE ONE THE STEP WAS WRITTEN ABOUT.*** Everything under
+    `C:\ProgramData\SD` that nothing stamped still inherits `sdusers:(OI)(CI)(M)`
+    — **Modify, not read** — including `sdsys\bin`, `accounts`, `$map`, `$ipc`,
+    `messages`, `newvoc`, `bp`, `cat` and `sd.conf`.
+
+    **`sdsys\bin\pcode` IS THE ONE THAT MATTERS.** `sysseg.c:189` builds
+    `<sysdir>/bin/pcode`, `:193` opens it and `:279` reads it into the shared
+    segment; every session then executes it through `load_pcode()`
+    (`sd.c:847`). **So any `sdusers` member can replace the pcode every
+    session runs, including SDSYS's and an administrator's**, taking effect at
+    the next SD start.
+
+    ***PROVED BY WRITING, NOT BY READING THE ACL***: as `GITORLI\don`,
+    **unelevated** — so the `Administrators` ACE is deny-only and cannot be the
+    grant — a file was created in `C:\ProgramData\SD\sdsys\bin` and removed
+    again. The grant is `sdusers:(M)`.
+
+    **THE INSTALLER DISCLOSES THE OTHER THING.** `sd.iss:778` and `:1407` say a
+    user can *"read and rewrite any other account's files"* — confidentiality,
+    between accounts. **Neither says the interpreter itself is writable**, and a
+    reader would not take it from those words.
+
+    ***THAT HALF IS DONE AND VERIFIED, 23 Aug 2026, install 17:47:55.***
+    `secure-pcode.ps1` grants `sdusers:(OI)(CI)(RX)` — **read, not write** —
+    called from `sd.iss`'s `SecurePcode` beside `SecureGcat` and staged by
+    `stage.py`. `verify-pcodeacl.ps1` guards it, 4 of 4, and the suite is
+    **27** (10 unelevated). §STEP 15 SURVEYED has the readings and why `(RX)`
+    rather than removing `sdusers`.
+
+    ***COVERAGE COMPLETED 24 Aug 2026 ON THE 16:50:02 INSTALL.*** The owner's
+    ruling was "lock nothing until phantom and spooler are measured" - **both
+    now are**, and the answer did not move: `$ipc` is the only one of the eight
+    that anything writes.
+
+    | pass | verbs | verified by | result |
+    |---|---|---|---|
+    | ordinary session | 15, incl. **`SETPTR`** (spooler) and `SELECT`/`SAVE.LIST`/`GET.LIST`/`DELETE.LIST` | **15 of 15 echoed**, `CREATE.FILE` confirmed | only `$ipc\%0` |
+    | **PHANTOM** | `PHANTOM COUNT VOC` | **a second `sd.exe` appeared** (0 -> 2) | only `$ipc\%0` |
+
+    **THE SPOOLER NEEDED AN ANSWER, NOT A WORKAROUND.** `SETPTR` asks *"OK to
+    set new parameters (Y/N)?"* (`SETPTR:558`) and hung until `Y` was supplied -
+    isolated per verb with a 20s timeout, which is how it was found rather than
+    guessed. `PHANTOM` cannot go in the same session at all: the phantom child
+    inherits the pipe, so the job never completes even after the parent exits.
+    It gets its own pass, and that pass **refuses itself** if no second
+    `sd.exe` ever appears.
+
+    ***MEASURED 24 Aug 2026 ON THE OWNER'S INSTRUCTION - "I measure all eight
+    first, then you rule once." THE RULING IS STILL OWED; EVERYTHING BELOW IS
+    EVIDENCE, NOT A DECISION.*** Instrument: `gplbld/probe-syswrites.ps1`, on
+    the 15:14:28 install, `assert-current` exit 0.
+
+    | target | `sdusers` now | a stock VOC names it? | ordinary session writes it? | who writes it | candidate |
+    |---|---|---|---|---|---|
+    | **`$ipc`** | `(I)(OI)(CI)(M)` | **yes** | ***YES - `%0` modified by every session*** | every session; `PHANTOM` writes its command here (`sd.c:55`), `APISRVR:214` opens it | ***KEEP Modify*** |
+    | `$map` | `(I)(OI)(CI)(M)` | yes | no | install | read-only |
+    | `messages` | `(I)(OI)(CI)(M)` | yes | no | install | read-only |
+    | `newvoc` | `(I)(OI)(CI)(M)` | yes | no | install writes; `CREATE.ACCOUNT` reads | read-only |
+    | `accounts` | `(I)(OI)(CI)(M)` | **no** | no | `CREATE.ACCOUNT`/`DELETE.ACCOUNT`, administrator | read-only |
+    | `bp` | `(I)(OI)(CI)(M)` | **no** | no | compiling into SDSYS's `bp`, which needs `LOGTO SDSYS` and elevation | read-only |
+    | `cat` | `(I)(OI)(CI)(M)` | **no** | no | `CATALOG` in SDSYS, elevated. **The directory is empty - 0 files** | read-only |
+    | `sd.conf` | `(I)(M)` | n/a | no | `CONFIG`, administrator | read-only |
+
+    **THE SECOND COLUMN IS SD'S OWN ANSWER, not mine**:
+    [op_dio2.c:1405](sdb_ai/sd64/gplsrc/op_dio2.c:1405) `net_sysdir_shared[]`
+    lists the SDSYS entries a stock account VOC names. **Four of the eight are
+    not on it**, so an ordinary account does not reference them at all - which
+    is a stronger statement than "this one session did not write them".
+
+    ***SO SEVEN OF THE EIGHT ARE READ-ONLY CANDIDATES AND `$ipc` IS NOT.***
+    `$ipc` is the only one an ordinary session was measured writing, and the
+    source says why: it is how a phantom is handed its command.
+
+    **WHAT THE MEASUREMENT DOES NOT COVER, said plainly rather than left to be
+    assumed:**
+
+    - **One session, nine verbs**, verified 9 of 9 echoed with `CREATE.FILE`
+      confirmed to have taken - the probe refuses its own result otherwise.
+    - ***PHANTOM, THE SPOOLER AND SAVED LISTS ARE NOT MEASURED.*** A widened
+      pass adding them **hung** and left two `sd.exe` behind (cleared with
+      `Stop-Process`, no elevation) - the LOGIN/TERM pagination family again.
+      It changes no row: `PHANTOM` writes into `$ipc`, which is already the one
+      staying writable.
+    - **The four "administrator writes it" rows are REASONED, not measured.**
+      Nobody denied `sdusers` write and watched those verbs still work. That is
+      what a `secure-*.ps1` plus a verifier would settle, and it is the work the
+      ruling authorises rather than something already done.
+
+    ***STEP 15 IS FULLY CLOSED — ACL LOCK CYCLED, VERIFIED, AND ALL FOUR
+    WRITERS MEASURED. 24 Aug 2026.*** `verify-sysdiracl` 16/16 on the
+    18:03:37 install; `probe-catprivate` 3/3 at 19:26:48; `CREATE.ACCOUNT`
+    wrote a locked `accounts` on the same 18:03:37 install; `CONFIG`
+    closed by source (nothing in SD writes `sd.conf`).
+
+    | measured | result |
+    |---|---|
+    | six directories | `sdusers:(OI)(CI)(RX)` — **no `(I)`**, so inheritance stripped |
+    | `sd.conf` | `sdusers:(RX)` — **no container flags; the file branch works** |
+    | ***`$ipc`, the negative control*** | `sdusers:(I)(OI)(CI)(M)` — **untouched, and still WRITABLE by an ordinary token** |
+    | all seven, write probed | **refused**, proved by writing rather than by reading the ACE |
+    | all seven, read probed | **allowed** — nothing was locked too hard |
+
+    ***AND THE ROW THAT WAS ONLY REASONED IS NOW MEASURED: `CREATE.ACCOUNT`
+    WORKS WITH `accounts` LOCKED.*** `SecureSysdirs` runs **before**
+    `AdoptAccount` in `ssPostInstall`, and `sdsys\accounts\don` was written at
+    **18:04**, after the 18:03:37 install, into a directory already at `(RX)`.
+    `user_accounts\don` exists. **`$cred` answers `Permission denied` to an
+    ordinary token**, which is `secure-cred.ps1` working and a positive control
+    on the reading.
+
+    ***THE `CONFIG` HALF IS CLOSED BY SOURCE, 24 Aug 2026, AND THE ROW ABOVE
+    IS WRONG.*** It says `sd.conf` is written by *"`CONFIG`, administrator"*.
+    **Nothing in SD writes `sd.conf` at all.** Every use of `config_path` in
+    the C tree is a read — [config.c:152](sdb_ai/sd64/gplsrc/config.c:152) and
+    [sysdump.c:49](sdb_ai/sd64/gplsrc/sysdump.c:49), both `fopen(..., "r")` —
+    and `op_config.c` does **no file I/O whatever**, so `CONFIG param value`
+    sets the running value in the shared segment and never the file.
+    `GPL.BP/CONFIG` names `sd.conf` nowhere; its only file access is `!less` on
+    `contrib` and `licence`.
+
+    **So locking `sd.conf` to `(RX)` cannot break `CONFIG`, and the only
+    writers are outside SD**: the installer (elevated) and
+    `verify-apiport.ps1`, which edits `APIPORT` from PowerShell (elevated).
+    **No hand-run is owed for this half.**
+
+    ***THE `CATALOG` HALF IS CLOSED, 24 Aug 2026, 19:26:48*** —
+    [probe-catprivate.ps1](sdb_ai/sd64/gplbld/probe-catprivate.ps1)
+    ran green on the current install, **3/3 checks agreed**:
+    `sdsys\cat` grew 0→1, `C:\ProgramData\SD\sdsys\cat\CATPRV192648`
+    was written, and SD said `CATPRV192648 added to private catalogue`
+    (sysmsg 3031). Transcript at
+    `%LOCALAPPDATA%\SD-verify\probe-catprivate-20260824-192648.log`.
+    [CATALOG:87](sdb_ai/sd64/sdsys/gpl.bp/CATALOG:87) sets
+    `private.catalogue = 'cat'`, and the write in
+    [CATALOG:424](sdb_ai/sd64/sdsys/gpl.bp/CATALOG:424) landed as designed
+    — the sdusers:(RX) lock passed the write through the Administrators:(F)
+    grant. Cleanup was clean; `gcat` was backed up and untouched (no `$`
+    prefix on the call name). The probe stays in the tree, listed in
+    `assert-current.ps1`'s `$neverShipped`, so the measurement can be
+    re-taken in one hand-run after any change to the ACL lock or CATALOG.
+
+    The four pieces, all in one commit:
+
+    | piece | file |
+    |---|---|
+    | the lock | [secure-sysdirs.ps1](sdb_ai/sd64/gplbld/secure-sysdirs.ps1) |
+    | the guard | [verify-sysdiracl.ps1](sdb_ai/sd64/gplbld/verify-sysdiracl.ps1) |
+    | the caller | `SecureSysdirs`, [sd.iss:1650](sdb_ai/sd64/gplbld/sd.iss:1650), called at [sd.iss:1994](sdb_ai/sd64/gplbld/sd.iss:1994) |
+    | wiring | `stage.py` ships the lock; `assert-current` `$neverShipped` takes the guard; `VerifyInstall1` runs it |
+
+    **`sd.conf` IS A FILE AND THE SIX ARE DIRECTORIES**, so the grant branches
+    on `PSIsContainer`: `(OI)(CI)` are container-inherit flags and `icacls`
+    refuses them on a file. That is the one thing the `secure-pcode.ps1`
+    precedent does not cover, and it is **measured working** — a scratch
+    directory and a scratch file, both restamped, read back from disk:
+    `sdusers:(OI)(CI)(RX)` on the directory, `sdusers:(RX)` on the file, the
+    child inheriting `(I)(RX)`, inheritance stripped on both. 9 of 9.
+
+    ***THE NULL CASE IS REFUSED TWICE, BY TWO MECHANISMS, AND ONLY ONE OF THEM
+    IS THE SCRIPT'S.*** `-Path ''` never reaches the guard at all — PowerShell's
+    **parameter binder** rejects it first and the script exits 1 having run no
+    line of its own. `-Path ' '` binds as one blank element and reaches the
+    guard, which exits 2. Both refuse; neither passes silently. Do not delete
+    the guard on the strength of the binder.
+
+    **`sd.iss` COMPILES**: the `[Code]` section extracted to a minimal `.iss`
+    and put through `ISCC` — *"Compiling [Code] section"*, exit 0, with
+    `function SecureSysdirs` asserted present in what was compiled. The ISPP
+    `#`-at-start-of-line lint is clean **and was proved able to fail** on a
+    control line. Neither is a cycle.
+
+    ***`secure-sysdirs.ps1` IS NOT ON `$neverShipped` AND MUST NOT BE — the
+    handoff asked for both scripts there and that half was wrong.*** It ships,
+    like `secure-pcode.ps1`; and the list is self-policing, so an entry for it
+    would be reinstated by the cross-check and rot into a comment that looks
+    like a rule. The note is at
+    [assert-current.ps1:308](sdb_ai/sd64/gplbld/assert-current.ps1:308).
+
+    ***AND A COMMENT IN `sd.iss` CAN MAKE THE WHOLE TREE REPORT STALE.***
+    `assert-current` decides whether a `$neverShipped` file really ships by
+    scanning `sd.iss` and `stage.py` for the name **preceded by a quote or a
+    path separator**. Writing a development probe's name with its directory in
+    a new comment reinstated it and turned the guard red — caught, and the rule
+    is now written where the mistake was made. **Name a non-shipping script
+    bare in those two files, or not at all.**
+
+    ***WHAT THE CYCLE HAS TO PROVE IS NOT THE ACLs.*** It is that
+    `CREATE.ACCOUNT`, `CATALOG` and `CONFIG` still work — the three rows this
+    step marks **reasoned, not measured**. Nobody has yet denied `sdusers`
+    write and watched them succeed. `verify-createaccount` and `verify-tiers`
+    cover the first.
+
+    ***AN INTERACTION WITH STEP 14, AND IT IS PRESENT-TENSE, NOT FUTURE.***
+    **Step 14 CLOSED on 24 Aug 2026 and an API session now runs as the calling
+    user**, not as LocalSystem — `AssumeUserIdentity()` impersonates and
+    `adopt_in_runtime()` carries it into the MSYS2 runtime. So `*S-1-5-18` no
+    longer covers an API session's writes, and the S4U token is unelevated.
+    **Anything administrative reached over the API now meets these ACLs as an
+    ordinary user.**
+
+    **WHAT IS ESTABLISHED, AND WHAT IS NOT:**
+
+    - `verify-tierapi` runs `CREATE.ACCOUNT` from an **elevated local**
+      `sd.exe` (it refuses an unelevated shell, `verify-tierapi.ps1:122`), so
+      that path holds an Administrators token and is unaffected.
+    - `CREATE.ACCOUNT` is gated on `kernel(K$ADMINISTRATOR,-1)` at
+      [CREATEA:186](sdb_ai/sd64/sdsys/GPL.BP/CREATEA:186), and `USR_ADMIN` is
+      settable only by `LOGIN`/`CPROC` ([op_kernel.c:393](sdb_ai/sd64/gplsrc/op_kernel.c:393)).
+    - ***WHETHER AN API SESSION EVER CARRIES `USR_ADMIN` IS NOT ESTABLISHED
+      HERE.*** If it never does, SD refuses the verb before the ACL is reached
+      and this is a non-issue. If it can, an API-driven `CREATE.ACCOUNT` will
+      now fail on the `accounts` ACL — and the fix is to grant the API's
+      identity, **not** to unlock `accounts`.
+    - **The cycle plus `verify-apiadmin` and `verify-tierapi` are what settle
+      it.** Read those two before concluding anything.
+
+    ***WHAT REMAINS OF THIS STEP AFTER THAT.*** Nothing on the
+    `sdusers:(M)` list except `$ipc`, which stays writable by decision and is
+    `verify-sysdiracl`'s negative control. **None of this is the
+    service-account model, which the survey above shows account privacy no
+    longer needs.**
+
+    **This is what makes tiers 1 and 2 real.** §8: tier 3 is real because
+    Windows enforces it; the other two are only ever as real as the ACLs.
+
+    ***"IT NEEDS `CreateProcessAsUser` AT THE SITES THAT CREATE SESSIONS" IS
+    NOT ENOUGH, AND THE SURVEY IS WHY.*** There are only three such sites —
+    `sdwind.c:491` (API, parent is the service), `op_kernel.c:701` (PHANTOM),
+    and `sdclilib.c:1597` (`SDConnectLocal`). ***THE PATH SD USERS ACTUALLY
+    TAKE HAS NO SITE AT ALL***: §5.6.2 makes accounts **ssh-only**, sshd
+    creates that session as the user, and `sd.exe` is then simply the user's
+    own process. Nothing inside SD spawns it, so no call placed inside SD can
+    change its token. Making *that* run as a service identity means `sd.exe`
+    becoming a thin client of `sdwind` — a far larger change than this step's
+    one sentence implies, and the transport for it already exists (§7 step 11).
+
+    **THE CALL ITSELF IS MEASURED WORKING, 23 Aug 2026** — step 14's probe,
+    from LocalSystem, with an S4U token and no password. Note it points the
+    *opposite* way to this step: S4U makes a session run **as the user**, while
+    §5.7's model makes it run **as the service**. Both are coherent; they are
+    different architectures and only one can be built.
+
+16. ***CLOSED 24 Aug 2026, BOTH HALVES — SD NOW READS AND WRITES CRLF.***
+    (a) verified on install 12:15:51, (b) on install 12:36:09, **17/17
+    decisive**; the closure and its evidence are at the end of this step.
+    Commits `6120642` (a), `2a30af1` (b) and `2f4c47c` (the separate `writeport`
+    count defect, `UPSTREAM_FIXES` #14, **not verifiable here** — it needs a
+    real port device).
+
+    ***THIS HEADING SAID "Not started, and it is two pieces of work" UNTIL
+    24 Aug 2026, WITH THE CLOSURE ALREADY WRITTEN IN ITS OWN BODY.*** A session
+    compiling the remaining task list read the heading, did not read on, and
+    reported step 16 as the largest outstanding item — to the owner, who knew
+    better. **A step's status belongs in its first line or the first line is a
+    trap**, and §0's rule about not restating a finding in several places does
+    not exempt the one line every reader starts from.
+
+    LINE ENDINGS: SD READ ONLY LF AND WROTE ONLY LF, ON A WINDOWS-ONLY
+    PRODUCT. Raised by the repository owner, 24 Aug 2026. His reasoning, which
+    is the part that dates:
+    **directory files exist so that EXTERNAL EDITORS can edit BASIC programs**;
+    OpenQM was originally a Windows product and is believed to have used CRLF
+    then; the Linux version moved to LF, ScarletDME and `sdb64` inherit that,
+    and this port inherited it from them **without the reversal ever being
+    weighed**.
+
+    ***AND THE WRITE SIDE IS THE HALF WITH THE STRONGER CASE - owner,
+    24 Aug 2026:*** *"if a user wants to create a csv file to be read by Excel,
+    or a document to be loaded into notepad or imported into word, i'm sure the
+    crlf standard would be expected."* **That is a requirement about what SD
+    PRODUCES, not merely tolerance of what it is given**, and RFC 4180 does
+    specify CRLF for CSV. A `WRITESEQ` that emits LF is not wrong on Linux and
+    is a defect on a Windows-only product whose intended user (§1) is a Windows
+    developer using SD as a back end data store.
+
+    ***AND SD HAS DEDICATED CSV STATEMENTS, SO THIS IS A CONFORMANCE CLAIM SD
+    ALREADY MAKES AND DOES NOT MEET — owner, 24 Aug 2026.*** `WRITECSV`,
+    `READCSV`, `MATREADCSV`, `INPUTCSV` and `PRINTCSV` are shipped statements,
+    with `OP_FORMCSV` and `OP_CSVDQ` in `op_str5.c` and a `CSV` report keyword
+    in the query processor. **`sdhelp/csv.htm` says the output *"conforms to
+    the CSV format specification (RFC 4180)"* in as many words, and RFC 4180
+    specifies CRLF as the record separator.**
+
+    **`WRITECSV` EMITS LF.** `BCOMP:11366` `st.writecsv:` assembles the line
+    and then sets `opcode = OP.WRITESEQ`, so it inherits `op_seqio.c:1712`'s
+    global `Newline`. `sdhelp/sdb_writecsv.htm` describes it only as *"written
+    to the file with a newline appended"* — it does not say which. **So the
+    owner's Excel case is not hypothetical: it is a named verb, documented as
+    RFC 4180, that is not RFC 4180 on the platform this port exists for.**
+    That gives (b) a concrete acceptance test instead of a matter of taste.
+
+    ***AND THE TWO CSV OUTPUT PATHS MAY ALREADY DISAGREE — MEASURE BEFORE
+    ASSUMING.*** The query processor's `CSV` keyword produces a REPORT, which
+    goes through a print unit and therefore through `pu->newline`; `WRITECSV`
+    goes through `WRITESEQ` and the global. If `SETPTR … NEWLINE CRLF` works
+    (see the resource note), then `LIST … CSV` can already be made conformant
+    while `WRITECSV` cannot — an inconsistency worth knowing before choosing
+    where to fix it.
+
+    **THE COMPILER IS ALREADY SAFE, WHICH IS WHY THIS HAS NOT BITTEN YET.**
+    `BCOMP:1672`, in `get.line:` - the main source-line reader - is
+    `if src[1] = char(13) then src = src[1,len(src)-1]` under the comment
+    *"Remove trailing CR for cross-platform compatibility"*. (`src[1]` is the
+    RIGHTMOST character in this dialect, as the `~` continuation test two lines
+    below confirms.) **So editing a BASIC program externally works, which is
+    the one case the feature exists for.** Nothing else is protected.
+
+    **NEITHER RECORD READ PATH HAS ANY CR HANDLING** - checked 24 Aug 2026.
+    CR literals do exist elsewhere in the C tree (twelve, in seven files; see
+    the correction in the resource note below), but none of them is on the
+    path that turns a file's bytes into a record.
+
+    | direction | site | today |
+    |---|---|---|
+    | directory-file record READ | `op_dio3.c:1180` | maps `\n` to a field mark, leaves `\r` - **every field gains a trailing CR** |
+    | `READSEQ` | `op_seqio.c:1152` | splits on `'\n'` only - every line gains a trailing CR |
+    | directory-file record WRITE | `op_dio3.c:1385`, `:1399` | field mark to `Newline` |
+    | `WRITESEQ` | `op_seqio.c:1712`, `:1726` | `Newline` |
+    | `COMO` | `op_tio.c:2986` | `Newline` |
+    | hold files | `to_file.c:129`, `:340` | `Newline` |
+
+    `Newline` is `sddefs.h:65`, `"\n"`, `NewlineBytes 1`, sitting under
+    *"Derived items"* beside `DS '/'`. **Upstream `sdb64` is byte-identical**,
+    so changing it is a deliberate divergence rather than a fix.
+
+    ***THE WRITERS ARE PARAMETERISED AND THE READERS ARE NOT. THAT ASYMMETRY IS
+    THE SHAPE OF THE WORK, AND IT IS WHY (b) ALONE CORRUPTS THE TREE.*** All
+    **eight** write sites go through `Newline`/`NewlineBytes`, including the
+    file-position arithmetic at `op_seqio.c:1717` — so the write half really is
+    close to a two-line change at `sddefs.h:65-66`. The read half is **four
+    hardcoded sites**: `op_dio3.c:1172` (the trailing-newline drop),
+    `op_dio3.c:1182` (the mapping loop), `op_seqio.c:1152` (the terminator
+    search) and `op_seqio.c:1153` (**a hardcoded `posn += 1`** past a
+    terminator that would become two bytes). **Change the constant on its own
+    and SD writes `\r\n`, maps the `\n` to a field mark, leaves the `\r` on the
+    end of every field, and desyncs every `READSEQ` position.** So (a) is a
+    PREREQUISITE for (b), not an alternative to it.
+
+    *And note what that asymmetry implies: a two-byte-capable newline constant,
+    with every write site routed through it, is not what a Linux-only codebase
+    would carry — it would inline `"\n"`. It is consistent with the owner's
+    account that the write side was built for CRLF and later pointed at LF,
+    which makes (b) closer to restoring an intended capability than to adding
+    one. **Do not read that as permission to skip (a).***
+
+    ***SCOPE, MEASURED, AND IT IS NARROWER THAN IT LOOKS: DH FILES ARE NOT
+    AFFECTED.*** `Newline` reaches only the four write sites above. A DH file
+    stores field marks in its own format, so `gcat`, `VOC`, `$CRED`, `ACCOUNTS`
+    and every byte count this file quotes for them (`gcat/$CPROC` 25,208;
+    `$LOGIN` 6,160) are untouched by either change.
+
+    ***STARTED 24 Aug 2026. THREE THINGS ARE NOW MEASURED OR DOCUMENTED, AND
+    TWO OF THEM CHANGE THE SHAPE OF THE WORK.*** All three cost **no cycle** —
+    they read the docs and the 11:15:29 install, which `assert-current` says
+    matches source.
+
+    **1. THE DOCUMENTATION SAYS CRLF-ON-WINDOWS IS THE DESIGN, SO (b) IS A
+    CONFORMANCE FIX RATHER THAN A PRODUCT DECISION.** From the owner's
+    `..\sdhelp` collection, 24 Aug 2026:
+
+    | source | words |
+    |---|---|
+    | `qmhelp_2-6-6/directoryfiles.htm` | field marks are converted to *"the **operating system dependent** representation of a newline"*, and on read *"the newlines are translated to field marks"* |
+    | `qmhelp_2-6-6/qmb_writecsv.htm` | *"QM adheres to the CSV standard (RFC 4180)."* |
+    | `qmhelp_2-6-6/csv.htm` | mode 1 *"produces output that conforms to the CSV format specification (RFC 4180)"* |
+
+    **"Operating system dependent" is the whole argument.** On Windows that is
+    CRLF, so SD emitting LF is a deviation from its own documented design, not
+    a preference this port would be imposing. RFC 4180 §2.1 specifies CRLF, and
+    **both** CSV paths claim conformance.
+
+    ***2. `SETPTR … NEWLINE CRLF` REACHES THE DISK. MEASURED — AND IT SHRINKS
+    (b).*** The resource note called this the first thing to test. Two legs,
+    one report, differing in one token; hold files read back as bytes:
+
+    | leg | size | CR | LF | CRLF pairs |
+    |---|---|---|---|---|
+    | `NEWLINE CRLF` | 133 | 3 | 3 | **3** |
+    | `NEWLINE LF` (control) | 130 | 0 | 3 | 0 |
+
+    Exactly three bytes apart — the three added CRs. **So everything that goes
+    through a print unit can already emit CRLF today**, including
+    `LIST … CSV LPTR n`. **The two CSV paths therefore DO disagree**, which
+    step 16 predicted and left open: the report path is reachable-conformant
+    now, `WRITECSV` is not.
+
+    ***CORRECTION IN THE SAME BREATH:*** an earlier reading of this step took
+    `to_file.c:128`'s `case NL: emit(pu, Newline, NewlineBytes)` as proof the
+    global wins on the hold-file path. **The measurement says otherwise.** That
+    `case NL:` handles an embedded newline as PRINT CONTROL — the same
+    distinction the resource note already draws for `to_file.c:107` and CR —
+    and the line terminator is emitted from `pu->newline` before it gets there.
+
+    ***3. THE (a) DEFECT IS CONFIRMED END TO END, NOT INFERRED.*** A record
+    planted into a directory file from outside SD with CRLF, which is exactly
+    what an external editor does, read back through `READ`:
+
+    | record | bytes | field 1 | field 2 | field 3 |
+    |---|---|---|---|---|
+    | CRLF | 18 | LEN=6 **LASTCHAR=13** | LEN=5 **LASTCHAR=13** | LEN=5 LASTCHAR=65 |
+    | LF (control) | 16 | LEN=5 LASTCHAR=65 | LEN=4 LASTCHAR=65 | LEN=5 LASTCHAR=65 |
+
+    **Every CRLF-terminated field keeps a trailing CR.** The third field is
+    unterminated in both records and comes back clean either way, which pins it
+    to terminator handling rather than to content. Instruments and fixtures are
+    `scratchpad/measure-newline.ps1` and `measure-read.ps1`; both plant, read
+    and then remove their own fixtures.
+
+    ***4. ALL FOUR SEQUENTIAL STATEMENTS MEASURED, 24 Aug 2026 — AND `READCSV`
+    IS A DATA-CORRUPTION DEFECT ON THE DOCUMENTED INTEROP PATH.*** Read
+    fixtures were planted with **CRLF from outside SD**, which is what Excel
+    and an external editor produce; write output was read back as raw bytes.
+
+    | statement | today | evidence |
+    |---|---|---|
+    | `WRITESEQ` | **LF only** | `41 4C 50 48 41 0A 42 45 54 41 0A` |
+    | `WRITECSV` | **LF only** | `41 31 2C 42 31 0A 41 32 2C 42 32 0A` — **so the RFC 4180 claim is false today** |
+    | `READSEQ` | **keeps the CR on every line** | `LEN=6 LASTCHAR=13`, `LEN=5 LASTCHAR=13`; the unterminated third line reads `LASTCHAR=65` — the built-in control |
+    | `READCSV` | **keeps the CR on the LAST FIELD of every row** | row 1 `P LEN=2 LAST=49`, **`Q LEN=3 LAST=13`**; row 2 the same |
+
+    ***`READCSV` IS THE ONE TO LEAD WITH.*** The first field is clean because a
+    comma terminates it; the last field inherits the line terminator's CR. So
+    **reading a conformant CSV silently appends a CR to one field per row** —
+    not an aesthetic issue but wrong data, on the exact path `csv.htm` and
+    `qmb_writecsv.htm` claim RFC 4180 conformance for. It makes (a) a
+    correctness fix rather than tolerance.
+
+    ***5. THE `bp.out` QUESTION THAT BLOCKED (b) IS ANSWERED. OBJECT CODE IS
+    NOT AT RISK.*** ***`sdsys/gpl.bp/BASIC:239` is `mark.mapping out.f, off`***
+    — the `BASIC` verb disables mapping on the object file before writing it.
+    Confirmed independently by a byte census of the shipped tree:
+
+    | file | 0x0A LF | 0x0D CR | 0xFE FM | 0xFD SVM |
+    |---|---|---|---|---|
+    | `gpl.bp/SETPTR` (source, 32,799 b) | 929 | 0 | **0** | 0 |
+    | `gpl.bp.out/SETPTR` (object, 7,702 b) | 82 | 53 | **5** | 62 |
+
+    The source record has **no field marks** — every one became an LF, so
+    mapping ran. The object keeps its field marks *and* carries raw LF and CR
+    as data, so mapping did not run. **Changing `Newline` therefore cannot
+    corrupt object code**, and the failure this step feared — "a corrupt
+    catalogue rather than a line-ending change" — is off the table.
+
+    ***CORRECTION: THE CLAIM THAT NOTHING CALLS IT WAS A GREP FOR THE WRONG
+    TOKEN.*** This step said *"No shipped BASIC program calls `MAPMARKS` — the
+    only hit is `BCOMP:9073`"*. `MAPMARKS` is the **opcode**; the **statement**
+    is `MARK.MAPPING`, and it appears **27 times in 13 shipped programs** —
+    `BASIC`, `CATALOG`, `COPY`, `COPYP`, `MAPCAT`, `APISRVR`, `CT`, `CNAME`,
+    `CONFIGF`, `BBPROC`, `PROG_INFO`, `SDCLIENT`, `BCOMP`. The write path was
+    never missing; it was never grepped for under its own name.
+
+    ***(a) IS WRITTEN, 24 Aug 2026. IT HAS COMPILED AND NOTHING HAS RUN IT
+    (§0 rule 2).*** `bin/sd.exe` 12:05:15, `make sd` clean, both changed files
+    clean on their own under `-Wall -Wformat=2`. **`cycle.ps1 -SkipInstall` is
+    NOT yet run** — the elevation was declined — so the tree is STALE and
+    nothing has been staged.
+
+    | part | where |
+    |---|---|
+    | directory-record read: CRLF folds to ONE field mark | `op_dio3.c`, the mapping loop, rewritten as a compactor |
+    | trailing terminator at EOF drops `\r\n`, not just `\n` | `op_dio3.c`, the `remaining_bytes == 0` block |
+    | `READSEQ` (and so `READCSV`) strips a CR before the LF | `op_seqio.c`, the normal-file branch |
+
+    ***TWO CORRECTIONS TO THIS STEP'S OWN SITE LIST, BOTH FOUND BY OPENING THE
+    FILES.*** They are why "four hardcoded sites" understated the work:
+
+    1. ***`op_seqio.c:1152`/`:1153` IS THE PORT/FIFO BRANCH, NOT `READSEQ` ON A
+       FILE.*** The branch that reads an ordinary record is
+       **`op_seqio.c:1244`**, which this step never listed. Fixing only the
+       listed lines would have changed nothing that `READSEQ` on a directory
+       file actually executes. **The port/FIFO branch is deliberately LEFT
+       ALONE** — a CRLF arriving on a port or socket may be protocol rather
+       than a text line ending, and §5's `inewline`/`onewline` pair is the
+       per-channel setting that already governs that. Named here so the
+       omission is a decision and not an oversight.
+    2. ***EVERY ONE OF THESE READERS IS CHUNKED, SO A CRLF CAN STRADDLE A
+       BUFFER BOUNDARY.*** `SEQ_BUFFER_SIZE` is **2048** and
+       `MAX_T1_BUFFER_SIZE` is **31744**. At 2 KB this is not an edge case: in
+       a large CSV a terminator landing across a boundary is close to certain.
+       Both fixes therefore **hold the CR back** rather than looking at the
+       byte before the LF, and both emit it as data if no LF follows —
+       including at end of file, where a deferred CR would otherwise be
+       swallowed.
+
+    **A LONE CR IS LEFT ALONE THROUGHOUT**, which is the rule this step set and
+    what `BCOMP:1672` already assumes. **Image mode is untouched**, so no
+    binary read can be affected — mark mapping is the discriminator, exactly as
+    the step said.
+
+    ***(a) IS VERIFIED — 24 Aug 2026, install 12:15:51, `sd.exe`
+    `7F587B82B63569C8`, `assert-current` exit 0.***
+    `verify-lineendings.ps1` exit 0, **14 of 14 decisive checks PASS.**
+
+    | reading | before (11:15:29) | after (12:15:51) |
+    |---|---|---|
+    | CRLF record, field lengths | 6, 5, 5 — `LAST=13` on 1 and 2 | **5, 5, 6 — `LAST=65, 88, 89`** |
+    | LF control | 5, 4, 5 | **5, 5, 6 — identical to the CRLF record** |
+    | `READSEQ` line 1 | `LEN=6 LAST=13` | **`LEN=4 LAST=65`** |
+    | `READCSV` last field | `QLEN=3 QLAST=13` | **`QLEN=2 QLAST=49`** |
+    | **straddle, line 1** | *never tested* | **`LEN=2047 LAST=80`** — folded across the boundary |
+    | **lone CR record** | *never tested* | **1 field, `LEN=11 LAST=90`** — CR preserved as data |
+
+    **The two rows that were never tested before are the ones that matter.**
+    The straddle proves the CR is carried across a 2048-byte buffer boundary
+    rather than found by looking behind the LF; the lone-CR row proves the fix
+    did not simply strip every CR. Fixture words end in **different letters**
+    (`A/X/Y`, `A/B/C`, `P/Q`, `Z`), so no last-character reading is right by
+    coincidence. No residue left in `bp`, `BP.OUT` or `cat`.
+
+    ***THE VERIFIER IS WRITTEN AND IS NOT A ONE-LINER, FOR ONE REASON:***
+    `gplbld/verify-lineendings.ps1`, on `$neverShipped` in the same commit.
+    Six checks, and **two of them are controls on the FIX rather than on the
+    defect** — which is what stops it scoring green on a change that is wrong:
+
+    | check | why it exists |
+    |---|---|
+    | CRLF record reads with no trailing CR | the defect |
+    | LF control reads identically to it | proves the two spellings now agree |
+    | `READSEQ` lines carry no CR | the defect on the sequential path |
+    | ***CRLF straddling the 2048-byte buffer boundary*** | **the case no small fixture reaches**; line 1 must read 2047, not 2048 |
+    | ***a LONE CR survives as data*** | **a fix that stripped every CR would pass everything above** |
+    | `READCSV` last field is clean | the RFC 4180 round trip |
+
+    It **refuses the null case out loud**: if the instrument produces no
+    readings the run is VOID, not a pass, because every "carrying a CR: 0"
+    check would otherwise be satisfied by absence. Fixture words end in
+    different letters so a last-character reading cannot be right by accident.
+
+    ### (a) MAKE THE READERS TOLERANT - a defect fix, do this first
+
+    Treat `\r\n` as the terminator at the two read sites; **leave a lone `\r`
+    alone**, because it is data. This is exactly what `BCOMP` already does.
+    Two details that are easy to miss:
+
+    - The existing trailing-newline handling at `op_dio3.c:1169` drops a final
+      `\n`; it must drop a final `\r\n` too, or the last field keeps its CR.
+    - **Mark mapping is the discriminator.** It is off in image mode, which is
+      the binary path, so folding CRLF in non-image mode cannot touch a
+      binary read.
+
+    **(a) STANDS ON ITS OWN AND IS WHAT MAKES (b) SAFE TO CONSIDER**, because a
+    tolerant reader accepts the LF records already shipped in `voc_template`,
+    `newvoc`, `messages` and `bp` whichever way (b) goes, and accepts a tree
+    holding both spellings during a transition.
+
+    ***(b) IS DECIDED AND WRITTEN, 24 Aug 2026. COMPILED AND CYCLED TO
+    `-SkipInstall`; NOTHING HAS RUN IT.***
+
+    ***THE OWNER'S RULE, AND IT IS BETTER THAN THE THREE OPTIONS IT WAS ASKED
+    TO CHOOSE BETWEEN:*** *"everything including record writes to files that
+    are directory as they may be read and written by external programs.
+    anything involving dynamic files, it doesn't matter as they can't be
+    directly read through external programs."* **The discriminator is EXTERNAL
+    READABILITY, not the statement.** It is also the documented purpose of
+    directory files (`directoryfiles.htm`: data *"to be processed from outside
+    of QM"*).
+
+    ***THAT RULE RESOLVES TO THE CONSTANT, WHICH IS WHY THIS OVERRIDES THIS
+    STEP'S OWN "DO NOT FLIP THE GLOBAL" ADVICE.*** Surveyed 24 Aug: **every
+    site `Newline` reaches is on the external side of the owner's line** —
+    directory-record writes, `WRITESEQ`/`WRITECSV`, `COMO`, hold files, errlog
+    — and **no DH path uses the macro at all**. `sddefs.h:65-66` is now
+    `"\r\n"` / `2`. The three objections that made "flip it" wrong before are
+    all now answered: object code is safe (`gpl.bp/BASIC:239`), the readers are
+    tolerant ((a), verified), and the internal-files cost is what the owner
+    just ruled on.
+
+    ***IT IS A RESTORATION, NOT AN INVENTION — `k_error.c:605-611` SAYS SO.***
+    It uses this macro *"instead of the more obvious use of `\n`"* precisely so
+    it can *"do our own handling of the CRLF newline pair on Windows"*. That
+    comment was written when `Newline` was `"\r\n"`. `tio.h:111`'s
+    per-print-unit `char newline[2+1]` is the same tell.
+
+    ***TWO THINGS THE EIGHT-SITE SURVEY IN THIS STEP MISSED.***
+
+    1. **`Newline` has EIGHT MORE uses that write the ERRLOG** — `k_error.c`
+       ×6, `sdwind.c` ×2. They move with it, which on Windows is wanted (the
+       log opens in Notepad) but was never listed as a consequence.
+    2. **Ports and FIFOs do NOT use it.** `op_seqio.c` writes its own
+       terminator, so no socket or port was affected by (b). **That call was
+       `writeport(fu, "\r\n", 1)` — a two-character literal with length 1, so
+       it emitted CR only.** ***FIXED separately, 24 Aug 2026 — count is now
+       2 (`op_seqio.c:1762`), on the owner's instruction.*** It is **not** part
+       of (b) and does not use `Newline`: a port is not a directory file, so
+       the external-readability rule never reached it. `writeport()`'s third
+       argument is a byte count (`lnxport.c:88`), the literal is the statement
+       of intent, and `onewline` (`tio.h:162`) is init `"\r\n"` for
+       character-device output. **Upstream `sdb64` has the identical line —
+       `UPSTREAM_FIXES.md` #14.** The neighbouring `WRITEBLK` port write
+       correctly appends nothing and was left alone.
+       ***IT IS COMPILED AND CYCLED TO `-SkipInstall` (12:48:38) BUT CANNOT BE
+       TESTED HERE*** — exercising it needs a real port device, and no verifier
+       in this project can reach it. That is weaker evidence than everything
+       else in this step and is stated rather than glossed.
+
+    **`DS` STAYS `/`.** §7 step 12's ruling is unaffected — the two "derived
+    items" are not one decision.
+
+    ***(b) IS VERIFIED — 24 Aug 2026, install 12:36:09, `sd.exe`
+    `070A9C52E293B2FA`, `assert-current` exit 0. `verify-lineendings` exit 0,
+    **17/17 decisive**. STEP 16 IS CLOSED, BOTH HALVES.***
+
+    | what SD wrote | bytes on disk |
+    |---|---|
+    | `WRITESEQ` | `4F 4E 45 **0D 0A** 54 57 4F **0D 0A**` |
+    | `WRITECSV` | `41 31 2C 42 31 **0D 0A** 41 32 2C 42 32 **0D 0A**` — **RFC 4180 at last** |
+    | directory-file record write | `52 41 **0D 0A** 52 42 **0D 0A** 52 43 **0D 0A**` |
+
+    **Read as RAW BYTES, not through SD** — the fix to (a) means a round trip
+    through SD would report success whatever is on disk, so reading it back
+    through SD would have been no check at all. **And all fourteen (a) checks
+    still pass**, straddle and lone-CR controls included, so (b) did not
+    regress (a).
+
+    ***CYCLED TO `-SkipInstall`, 12:33:07, AND ONE NUMBER IS THE CONTROL.***
+    198 programs, no non-zero error counts, installer 4,802,959 bytes. **Phase
+    3 is byte-identical to the pre-change run** — `gcat` 126, `gpl.bp.out` 187,
+    `$CPROC` **25418**, `$BCOMP` **88079**. Those byte counts not moving is
+    positive evidence that the object and catalogue paths do not go through
+    `Newline`, which until now was an inference from `mark.mapping out.f, off`.
+
+    **`verify-lineendings.ps1` gained three write checks** — `WRITESEQ`,
+    `WRITECSV` and a directory-record write, each read back as **raw bytes**.
+    That last part matters: SD now folds CRLF on the way in, so a round trip
+    through SD would report success whatever is on disk. **Owed: a full
+    `cycle.ps1`, then the verifier.**
+
+    ### (b) WRITE CRLF - a product decision, and it needs one thing settled first
+
+    ***ANSWERED 24 Aug 2026 — `gpl.bp/BASIC:239`, `mark.mapping out.f, off`,
+    corroborated by a byte census. THIS NO LONGER BLOCKS (b); the paragraph is
+    kept because its reasoning is why the question mattered.***
+
+    ***THE OPEN QUESTION THAT BLOCKS IT: HOW DOES BINARY OBJECT CODE IN
+    `bp.out` SURVIVE THE FIELD-MARK/NEWLINE MAPPING TODAY?*** `bp.out` and
+    `gpl.bp.out` are DIRECTORY files (§5.12) holding object code, and
+    `op_dio1.c:867` sets `mark_mapping = TRUE` unconditionally on every
+    directory-file open. **No shipped BASIC program calls `MAPMARKS`** - the
+    only hit is `BCOMP:9073`, which is the compiler EMITTING the opcode - and
+    `BCOMP` writes no object record with a plain `write`, so the write happens
+    somewhere not yet located. **Find that path before changing `Newline`**: if
+    object code goes through the mapping, a two-byte newline changes every
+    object file on disk, and the failure would look like a corrupt catalogue
+    rather than a line-ending change.
+
+    **THE ARGUMENT FOR (b) IS A STANDING INSTRUCTION, NOT JUST TASTE.** §5.16
+    rule 1: *"Every Linux-ism that remains is to be converted to its Windows
+    equivalent where one exists"* - and `Newline "\n"` is precisely that.
+    **The counter-precedent is its own sibling**: §7 step 12 deliberately left
+    `dir.separator` as `/` because `@ds` is load-bearing for compilation. So
+    the two constants under *"Derived items"* are not one decision, and
+    `Newline` needs its own judgement rather than automatic conversion.
+
+    **What (b) would cost, so it is weighed rather than discovered:** shipped
+    directory-file records stay LF while newly written ones become CRLF, so a
+    tree holds both - harmless given (a), untidy, and worth deciding whether
+    `stage.py` normalises. Anything asserting exact byte counts on a directory
+    file or on `COMO`/hold output moves. And the mapping is already lossy in
+    one direction - data containing a literal newline round-trips as a field
+    mark today - so (b) changes the shape of that edge case without creating
+    it.
+
+    ### RESOURCE NOTE: THE REFERENCE TREES WERE SEARCHED 24 Aug 2026
+
+    Owner's suggestion — ScarletDME kept `if windows` blocks that Ladybridge
+    stripped from the GPL version and that SD stripped again, so they might
+    record how line endings were handled. **They do, and the answer is a
+    DESIGN rather than a constant.** Recorded here so nobody searches twice.
+
+    ***`C:\Users\dmont\Projects\gplsrc` (original ScarletDME C): NOTHING.***
+    `qmdefs.h:84-85` is already `Newline "\n"` / `NewlineBytes 1`, identical to
+    ours, with the same eight parameterised write sites. **No `#ifdef WIN32`,
+    `WINDOWS` or `MSDOS` conditional survives anywhere in that tree** — §2's
+    "Ladybridge stripped the Windows code thoroughly" is exactly right for C.
+
+    ***`C:\Users\dmont\Projects\GPL.BP` (original ScarletDME BASIC): THE
+    ANSWER.*** `SETPTR` takes a **`NEWLINE CR|LF|CRLF`** keyword, per PRINT
+    UNIT — `newline = char(13)` / `char(10)` / `char(13):char(10)` — and
+    reports it back in its own listing. **Ladybridge's answer to this question
+    was to let the caller say what it wants, per output channel.**
+
+    ***AND IT IS STILL IN THIS TREE, UNSTRIPPED. THIS IS THE MOST USEFUL THING
+    IN THIS STEP.***
+
+    | piece | where |
+    |---|---|
+    | `NEWLINE CR/LF/CRLF` keyword, documented and parsed | `gpl.bp/SETPTR:57`, `:423-434`, reported back at `:702-704` |
+    | per-print-unit storage | `tio.h:111` `char newline[2+1]` |
+    | set / read from BASIC | `op_tio.c:1575-1577`, `:1783`, default `"\n"` at `:3408` |
+    | emitted at end of line | `op_tio.c:2147`, `:2651`, `:2667` — `pu->newline`, **not** the global |
+
+    **SO THE CSV-FOR-EXCEL CASE MAY ALREADY BE REACHABLE TODAY**, with
+    `SETPTR` … `NEWLINE CRLF` and `PRINT ON`. ***UNMEASURED, AND IT IS THE
+    FIRST THING TO TEST BECAUSE IT COULD SHRINK (b) DRAMATICALLY:***
+    `to_file.c:128`'s `case NL:` still emits the **global** `Newline`, so
+    whether `pu->newline` actually reaches the disk in a hold file is not
+    established. Write a hold file both ways and read the bytes.
+
+    **THE TERMINAL ALREADY HAS ITS OWN PAIR, AND IT IS ALREADY CRLF** —
+    `tio.h:162-163`, `onewline` init `"\r\n"` and `inewline` init `13`,
+    settable from BASIC (`op_tio.c:2304`, `:2312`) and used for console and
+    socket output (`:3296`-`:3303`). **The codebase's habit is a newline
+    setting PER CHANNEL, and only file I/O was left on the global.**
+
+    ***THAT REFRAMES (b): IT IS NOT "FLIP THE CONSTANT", IT IS "EXTEND THE
+    PER-CHANNEL MODEL THAT ALREADY EXISTS TO `WRITESEQ` AND THE
+    DIRECTORY-FILE WRITE".*** More work than two lines, far safer, idiomatic
+    for this codebase, and it leaves SD's own internal files alone unless the
+    caller asks otherwise — which removes most of the cost listed above.
+
+    ***CORRECTION, 24 Aug 2026: an earlier draft of this step said "there is no
+    `'\r'` char literal anywhere in the C tree". That was a malformed grep and
+    it is false*** — there are twelve, in seven files. **None is on the record
+    read path, which is the claim that matters and still stands.** Two are
+    worth copying rather than re-deriving: **`config.c:172` is
+    `while ((p > rec) && ((p[-1] == '\r') || (p[-1] == '\n')))`** — the §6 CRLF
+    fix, already implemented, and the worked precedent for (a) — and
+    `op_sh.c:188` scans for either terminator the same way. `to_file.c:107` and
+    `op_tio.c:3865` handle CR as PRINT CONTROL (column reset), which is a
+    different thing and must not be confused with line-ending translation.
+    ### HOW TO MEASURE EITHER, because no existing verifier can
+
+    Every verifier writes its fixtures with LF and drives SD down a pipe. The
+    test for (a) is to plant a record file with **CRLF** into a directory file
+    from OUTSIDE SD - which is what an editor does - then read it back through
+    SD and compare the field against the intended value.
+    `verify-apiidentity`'s ZZIDSRC mechanism is the worked example of planting
+    a directory-file record from PowerShell, and its byte readback
+    (`$bytes -contains 13`) is the assertion inverted. The test for (b) is the
+    same fixture in reverse: have SD write, and read the bytes.
+
+
+17. ***CLOSED 24 Aug 2026, fifty-fourth session — `setup-devbox.ps1` RAN END
+    TO END ON A BARE VM***, ~17 minutes, **exit 0**, through `make sd`, last
+    line `setup-devbox: finished, no problems.` START HERE has the leg-by-leg
+    table and HISTORY.md the transcript. ***NOTHING IS OUTSTANDING.*** One
+    note worth keeping:
+
+    - ***`sdhelp` WAS RAISED AS AN OPEN REQUIREMENT AND THE OWNER CANCELLED IT
+      THE SAME DAY.*** 24 Aug 2026: *"cancel the sdhelp request — I will just
+      download it from my P drive if needed."* **The script's behaviour is
+      correct as it stands** — report it, place nothing. Read §2's `sdhelp`
+      paragraph before touching this: the position arrived here by way of a
+      wrong attribution and a correction, so **the end state looks like the
+      start state and is not the same thing**. `-SdHelpSource` remains
+      untested and does not need testing.
+    - **Inno Setup went PER-USER again**, to
+      `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe`. `cycle.ps1` tries the
+      default then the registry so it finds it; recorded because a cycle
+      reporting ISCC missing wants that path.
+
+    ***THE STEP'S OWN HISTORY IS KEPT BELOW*** because it records what each
+    attempt cost and the rig that ran them.
+
+    **REVISIT `setup-devbox.ps1` — IT WAS LEFT PARTIALLY WORKING.** Owner,
+    24 Aug 2026. **The last work on it stopped mid-verification, not at a
+    finished state**, and this step exists so that is not rediscovered by
+    somebody trying to build a machine with it.
+
+    `gplbld/setup-devbox.ps1` builds a **development** machine from nothing:
+    Git for Windows, `gh`, MSYS2, the pacman list, libsodium from source, Inno
+    Setup 6, the four sibling repositories, `sdb64`'s `origin/dev` fetch, and
+    `make sd` at the end because the build is the only real test of the
+    environment. §2 has the description; it is on `$neverShipped` and reaches
+    no install. **`-CheckOnly` surveys a machine, changes nothing and needs no
+    elevation** — run that first on any strange box.
+
+    ***WHAT IS ACTUALLY OUTSTANDING, from the record rather than from
+    memory.*** Two runs exist: the owner's laptop (23 Aug, not a fresh
+    machine) and a fresh VirtualBox clone `DevInstallTest` (23 Aug).
+
+    | leg | state |
+    |---|---|
+    | winget → MSYS2, and the pacman run | **executed for the first time on the clean VM and both worked** — 8 packages including `diffutils`, libsodium's configure clean |
+    | Git / `gh` / Inno Setup install | worked; **Inno went PER-USER** to `%LOCALAPPDATA%\Programs\Inno Setup 6` |
+    | the clone step onwards | ***NEVER REACHED ON A FRESH MACHINE*** |
+
+    ***THE CLEAN-VM RUN DIED AT `Step-Clone` AND EVERYTHING AFTER IT IS
+    UNTESTED ON A BARE BOX*** — the clones, `make sd`, and the summary. A
+    process keeps the PATH it started with, so the `git` winget had just
+    installed was still *"not recognized"*; `Step-Git` **detected and reported
+    exactly that**, and `Step-Clone` then called `git clone` anyway and threw
+    under `ErrorActionPreference = 'Stop'`, ending the run where it stood. No
+    clones, no build, **and no summary**, on a machine that was otherwise
+    nearly ready.
+
+    **THREE FIXES WENT IN AND ARE UNRETESTED ON A FRESH VM**, which is the
+    whole of this step: `Update-SessionPath` re-reads Machine+User PATH from
+    the registry after every winget install; `Resolve-Tool` falls back to known
+    install locations for `git` and `gh`; `Step-Clone` skips with a message
+    when git is unusable instead of calling it. **Every step now runs inside a
+    `try` so `Step-Report` cannot be lost** — losing the report was worse than
+    the failure it was reporting.
+
+    **They were verified on a machine that already had the tools**, by forcing
+    each branch — PATH rebuilt from 11 chars to 589 with git findable
+    afterwards, `Step-Clone` returning normally with git unusable, `Step-Report`
+    still running after a step throws. ***That is not the same as a clean run
+    and must not be read as one.***
+
+    ***THE TASK IS ONE RUN ON A CLEAN SNAPSHOT, END TO END, THROUGH `make sd`.***
+    §7 step 2 documents the reusable rig (VM `Windows 11 Clone`, snapshot
+    `Before SD install`, NIC bridged, files in over
+    `VBoxManage sharedfolder add --transient --automount` — **do not drive the
+    guest with `guestcontrol`**, which needs guest credentials). `DevInstallTest`
+    was the clone used last time.
+
+    ***ATTEMPT 2, 24 Aug 2026 — GOT FURTHER, AND FOUND THE NEXT WALL.***
+    VM **`Windows 11 DevEnvInstallTest`**
+    (`47b7584f-f4a0-4db5-bca9-534c478adce7`), snapshot
+    **`Before setup-devbox`** (`d0bb8989-a107-46c8-a86d-479c80aa1b00`),
+    **restored and powered off, ready for the next attempt.**
+
+    | leg | result |
+    |---|---|
+    | Preflight | elevated ✓, winget ✓ |
+    | Git 2.55.0 | installed, ***`git is usable in THIS session`*** |
+    | GitHub CLI 2.98.0 | installed, ***`gh is usable in THIS session`*** |
+    | MSYS2 | installed clean to `C:\msys64`, ~4 min |
+    | MSYS2 packages | ***HUNG*** — see below |
+    | everything after | still never reached |
+
+    ***`Update-SessionPath` AND `Resolve-Tool` ARE NOW PROVEN ON A BARE
+    BOX*** — two of the three 23-Aug fixes, and the exact failure they were
+    written for did not recur. `Step-Clone`'s skip-when-git-unusable branch
+    stays untested, and will not be exercised on a run where git works;
+    that is acceptable, the task is the end-to-end run.
+
+    ***THE HANG: `pacman -Syu` CANNOT REPLACE A RUNTIME IT IS RUNNING ON.***
+    On a tree just unpacked by the installer, `-Syu` wants to upgrade
+    `msys-2.0.dll` and the pacman/bash packages around it. `Invoke-Msys`
+    runs inside a `bash.exe` that has that DLL mapped, Windows refuses to
+    replace a mapped image, pacman prints *"terminate other MSYS2 programs
+    before proceeding"* and **blocks indefinitely**. Terminal stopped
+    repainting at 21:01; **neither Enter nor two Ctrl+C reached it**; the
+    VM had to be powered off and rolled back. Same shape MSYS2's own docs
+    describe when they say close every shell after the first `-Syu`.
+
+    ***`--noconfirm` DOES NOT HELP, AND THAT WAS THE FIRST WRONG READING.***
+    It answers the Y/N prompt; it does not make a loaded DLL replaceable.
+    "pacman is waiting for input" was the obvious diagnosis and it was
+    wrong — it was waiting on a file lock only process death clears.
+
+    ***ATTEMPT 3, 24 Aug 2026 — GREEN, AND THE STEP CLOSED.*** Same VM, same
+    snapshot, same script (hash checked in the guest against the host copy
+    before running). The only thing changed was the **host**: AMD-V released
+    to VirtualBox, §6. Ran through in ~17 minutes, exit 0. START HERE has the
+    legs.
+
+    **THE FIX, ONCE COMMITTED AND UNRUN, IS NOW OBSERVED WORKING**:
+    `Step-Msys` sets
+    `$script:MsysJustInstalled` when winget installs MSYS2;
+    `Step-Packages` skips `-Syu` on that flag and runs
+    `pacman -S --needed` alone. **Safe because a freshly-unpacked tree has
+    no skew** — its packages and its database ship from the same release,
+    which is the harmless case the existing `-Sy` note already described.
+    **The stale-tree path is untouched** and still gets `-Syu`, since a
+    months-old MSYS2 is what the partial-upgrade rule exists for.
+    Parse-checked: 0 errors, 27 functions, no BOM. **Then run: attempt 3
+    printed `MSYS2 was installed by THIS run, so pacman -Syu is skipped.` and
+    `pacman -S --needed` installed all 8 packages against the shipped
+    database.** The worry that a just-unpacked sync database could not resolve
+    them was unfounded.
+
+    ***DRIVING THE GUEST WITHOUT CREDENTIALS — THE RECIPE THAT WORKED.***
+    `guestcontrol` is forbidden (needs guest credentials, §7 step 2), but
+    `keyboardputscancode`/`keyboardputstring` plus `screenshotpng` is
+    enough, and **UAC never prompted on this VM** — Win+X (`e0 5b 2d ad e0
+    db`) then `A` (`1e 9e`) gave an elevated PowerShell directly. Enter is
+    `1c 9c`, Ctrl+C is `1d 2e ae 9d`. ***`keyboardputstring` DROPS
+    CHARACTERS ON A LONG STRING*** — a 108-character `curl` line lost 15
+    of them mid-URL; **send ~25-char chunks with `sleep 0.4` between**.
+    START HERE carries the table.
+
+    **THE VM IS NOT A STOCK ISO**: Chrome, pCloud and Winhance are
+    pre-installed. Not a defect — setup-devbox reports pre-existing tools
+    as "already present" — but a green run on it is weaker evidence than
+    one on a pristine box, and closing the step should say so.
+
+    **KNOWN GAPS THAT ARE NOT DEFECTS, so they are not chased on the way:**
+
+    - It does **not** fetch `Projects\GPL.BP` — a convenience copy of upstream,
+      no remote, not project material.
+    - `..\sdhelp` is copied only under `-SdHelpSource <path>`; without one it
+      is **reported as a hand-carry item** rather than passed over in silence.
+      It is 30 MB of third-party PDF and HTML and is not vendored.
+      ***THIS BULLET ONCE CITED AN "OWNER'S RULING" HE HAD NEVER MADE***, was
+      withdrawn on 24 Aug 2026 when he said he wanted the tree installed, and
+      is restored only because he then **cancelled that request the same day**
+      — *"I will just download it from my P drive if needed."* **Now it really
+      is his decision.** The three-step path is spelled out in §2's `sdhelp`
+      paragraph; do not compress it back to "always was a known gap".
+    - Clones are `https` and the `git@` **push** URL is set afterwards with
+      `git remote set-url --push`, so a machine with no SSH key still finishes.
+      A key is needed the first time somebody pushes and git says so itself.
+
+    ***THE "UNTRACED HANG" THAT USED TO SIT HERE WAS TRACED THE NEXT DAY AND
+    THE PARAGRAPH IS WITHDRAWN.*** Corrected 24 Aug 2026. It said elevated
+    `sd WHO` and `sd ZZNOSUCHVERB` hung, that this meant **start-up not
+    dispatch**, that the **pcode ACL** was the only shipped delta and "must not
+    be reverted on suspicion", and that step 4's **elevation helper** was the
+    untested alternative. **Every one of those is withdrawn** — HISTORY.md,
+    23 Aug 2026, *"the elevated hang is diagnosed"* and its two corrections.
+
+    **WHAT IT ACTUALLY IS**: the session reaches the account's password prompt
+    and blocks on a read that never gets input — 802 bytes of redirected stdout
+    ending `New password:`. Neither the ACL nor the helper is involved, and the
+    helper is **not on the start-up path** at all (`elevate()` has one caller,
+    `CPROC:2571`, inside the `LOGTO SDSYS` branch).
+
+    **THE CONDITION IS A CONSOLE WITH NOBODY AT IT — not a non-interactive
+    session**, and that distinction is the whole correction. `LOGIN:641`
+    prompts only when `kernel(K$ADMINISTRATOR,-1) and kernel(K$TTY,0) # ''`,
+    and `K$TTY` is `ttyname(fileno(stdin))` (`kernel.c:250`), so a piped
+    session and a scheduled task are **already** skipped. The probe that
+    started this redirected **stdout** and left **stdin inherited from a
+    console** — a combination nothing else in the project produces.
+    ***"NO OUTPUT" MEANT "OUTPUT NOT LOOKED AT"***: the prompt was sitting in
+    the redirect file the whole time.
+
+    **AND IT IS FIXED WHERE IT BIT**: `verify-batchjob.ps1:112` now runs
+    `$null | & $sdExe $paName`, so the elevated row takes the redirected-stdin
+    path. That row is why the suite could not complete on 23 Aug; it passed in
+    the `b33` run.
+
+    ***USE A TIMEOUT ON EVERY ELEVATED SD PROBE.*** An SD console session
+    cannot be killed by `Stop-Process` or `taskkill /F` from an ordinary token;
+    clearing one costs an elevation. That session lost five windows to it.
+
+18. ***CLOSED 26 Aug 2026, SIXTIETH SESSION — THE LAST TASK OF THE DEVELOPMENT
+    PHASE IS DONE, AND VERIFIED ON THE MACHINE RATHER THAN OFF THE
+    TRANSCRIPT.*** Two runs of `cleanup-devlitter.ps1` either side of a reboot,
+    by the owner, elevated.
+
+    | read back independently | |
+    |---|---|
+    | `C:\Users` `sd*` directories | **0** (was 30) |
+    | `sd*` `ProfileList` entries | **0** (was 77) |
+    | local `sd*` users | **0** (was 8) |
+    | `sdu_` groups | **`sdu_don`, `sdu_test1`** — the two real ones, and only those |
+    | `sd*` in the home directory | **`sdout`**, and only `sdout` |
+    | VMs | `Beardog` and `Windows 11 - Template`. The clone is gone |
+
+    ***NOTHING WAS OVER-DELETED, WHICH IS THE HALF WORTH CHECKING.*** All five
+    real SD groups — `sdadmins`, `sdapi`, `sdssh`, `sdsshonly`, `sdusers` —
+    are present, as are the accounts `don` and `test1`. The blast radius held.
+
+    ***IT TOOK TWO RUNS AND A REBOOT, AND THAT IS THE NORMAL SHAPE.***
+    Run 1 cleared the accounts, groups, home directory, VM and **47 stale
+    `ProfileList` entries**, then skipped 30 profiles whose hives were loaded.
+    Reboot. Run 2 removed those 30 and reported *"done - every section reached
+    zero."* **The reasoning below is kept because the piles will return the
+    moment testing resumes** — the leak fixes stop them growing, not appearing.
+
+    ***THE THREE LEAKS WERE FIXED IN SOURCE FIRST, WHICH IS WHY THIS STUCK.***
+    All five scripts are on `$neverShipped`, so none of it owed a cycle.
+
+    ***AND THE DELETING IS NOW ONE COMMAND —
+    [cleanup-devlitter.ps1](sdb_ai/sd64/gplbld/cleanup-devlitter.ps1), written
+    26 Aug 2026.*** Elevated. `-SelfTest` checks the name rules and changes
+    nothing; `-List` shows what would go; no switch acts; `-IncludeVM` also
+    deletes the spent clone.
+
+    ```
+    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1 -List
+    ```
+
+    | section | what |
+    |---|---|
+    | 1 | the leaked Windows users |
+    | 2 | their `sdu_` groups |
+    | 3 | **calls `clean-test-profiles.ps1`** rather than reimplementing it — that script owns the `ProfileList` half |
+    | 4 | the home directory, `sd*` minus `sdout` |
+    | 5 | `sshRemoteTest-C1`, only with `-IncludeVM`, and it refuses a RUNNING VM |
+
+    ***IT NEEDS A REBOOT BETWEEN THE ACCOUNTS AND THE PROFILES, AND THAT IS THE
+    NORMAL CASE RATHER THAN AN EDGE ONE.*** A profile cannot be removed while
+    its registry hive is loaded, and after a suite run **every** hive still is:
+    **35 of 35 on 24 Aug, 30 of 30 on 26 Aug.** So the first run clears the
+    accounts, groups, home directory and VM, section [3] skips all 30 as STUCK
+    HIVE, and the run exits 1 having done four fifths of the job.
+
+    **Run it, reboot, run it again.** Sections 1, 2, 4 and 5 are not undone by
+    the reboot — they simply find nothing the second time. `-List` now counts
+    the loaded hives and says so **before** anything is deleted, which is the
+    part that had to be learned by doing it twice.
+
+    ***THE FIRST REAL RUN, 26 Aug 2026, AND THE DEFECT IT EXPOSED.*** It
+    removed **8 users, 8 groups, 27 home items, the VM, and 47 stale
+    `ProfileList` entries** — then printed ***`cleanup-devlitter: done.`***
+    three lines under its own summary reading ***`profiles matching : 77 ->
+    30`***. **Exit 0, with 30 profiles left.**
+
+    ***THE CAUSE WAS IN THE SWEEP, NOT THE CALLER.***
+    `clean-test-profiles.ps1`'s stuck-hive `exit 1` sat INSIDE
+    `if ($targets.Count -eq 0)`, so it fired only when **nothing** was
+    removable. Given a mix — 47 removable, 30 stuck — it removed the 47,
+    reported *"removed 47, failed 0"* (true), and exited 0. The caller believed
+    the exit code over its own AFTER counts.
+
+    ***BOTH ENDS ARE FIXED AND THE FIXES ARE INDEPENDENT.*** The sweep now
+    exits 1 whenever a stuck hive remains, whatever else succeeded; and
+    `cleanup-devlitter` judges on `$pAfter` rather than on the exit code it was
+    handed. ***A SKIPPED STEP IS NOT A FINISHED ONE*** — and an instrument that prints the
+    disagreement and then contradicts it in its closing line is worse than one
+    that prints nothing, because the closing line is what gets read.
+
+    ***ACCOUNTS BEFORE PROFILES, AND THAT ORDER IS THE POINT.***
+    `clean-test-profiles.ps1` refuses a profile whose SID still has a local
+    account — deliberately, so it only ever touches orphans. That is what left
+    **7 profiles unreachable behind 8 accounts nothing would delete.** Remove
+    the accounts first and they become ordinary orphans.
+
+    ***THE NAME PATTERN IS READ OUT OF `clean-test-profiles.ps1`, NOT COPIED.***
+    Two copies is two things to keep in step, and that file's own history is a
+    record of exactly that drifting — its stem list reached 3 of 14. It refuses
+    to run if it cannot find the pattern, or if that script does not parse.
+
+    ***THE SAFETY ARGUMENT, AND A CONTROL THAT CORRECTED IT.*** The machine
+    carries seven real sd-prefixed groups — `sdadmins`, `sdapi`, `sdssh`,
+    `sdsshonly`, `sdusers`, `sdu_don`, `sdu_test1` — and `don` and `test1` are
+    real accounts. Two things were claimed to keep them out: the `sdu_` gate,
+    and the pattern. ***A control removed the gate and the self-test stayed
+    GREEN*** — so it is **the PATTERN that protects them**, and the gate is the
+    redundant layer. `sdapi` and `sdssh` **are stems**; they are excluded only
+    because the pattern has required a run suffix since 26 Aug 2026.
+    **`-SelfTest` now asserts that every bare stem fails to match**, and
+    loosening the suffix makes it exit 2 naming those two as real groups —
+    watched failing, 14 cases, before the pattern was restored.
+
+    ***THE THREE CLEANUP DECISIONS, TAKEN BY THE OWNER 26 Aug 2026:*** the home
+    sweep removes **the ~25 scratch files and directories, `~/sdclilib`, and
+    `sd-preclean-backup`**; `sshRemoteTest-C1` **is deleted** with the rest. And
+    one item resolved itself — ***`SD AI Modification Snapshots_20260610.zip`
+    (52 MB) is already gone***, so only `sd-preclean-backup` was left to ask
+    about, and it proved to be 6 near-empty entries plus a 359-byte `sd.conf`.
+
+    | | what was measured | fix |
+    |---|---|---|
+    | `clean-test-profiles.ps1` reached almost none of it | **9 of 30** directories, **22 of 77** profile entries, **3 of the 14** stems `VerifyInstall2.ps1` composes | stem list completed, suffix now `[a-z]?[0-9]+[a-z0-9]*`, `-SelfTest` added. **30/30, 77/77, 14/14** |
+    | **47 STALE `ProfileList` ENTRIES — not in the survey at all** | directory gone, registry entry standing; 43 removable now, 4 blocked behind a live account | the two verifiers that deleted the DIRECTORY now remove the PROFILE |
+    | `verify-apiidentity` left 8 users + 8 groups | `DELETE.ACCOUNT` was **refused every run from b33 to b43** | the call is fixed; see below |
+
+    ***THE apiidentity LEAK WAS NOT WHAT (b) BELOW SAYS IT WAS, AND THE
+    CORRECTION MATTERS.*** (b) reads *"every other verifier deletes the Windows
+    user it made; `verify-apiidentity.ps1` does not"*. **The verb does that
+    itself** — `DELACC:46`, `:308-345`, and `verify-apiadmin`'s own `b43`
+    transcript is the control: *"Delete account SDAPIAB43, its directory and
+    its Windows account sdapiab43 (Y/N)? Y"* → group deleted, OS user deleted.
+    What actually happened is in `b43`'s apiidentity transcript, section [9]:
+
+    ```
+    :DELETE.ACCOUNT SDAPIIDB43 Y
+    Unexpected token (Y)
+    ```
+
+    **The confirmation was on the COMMAND LINE.** `DELACC:104` rejects a
+    further token with sysmsg 2018 before deleting anything, so the verb did
+    nothing at all — SD register record, Windows user, `sdu_` group and profile
+    all survived, every run. ***The cause is PowerShell precedence, not SD:***
+    `@("DELETE.ACCOUNT " + $Prefix.ToUpper(), 'Y')` is `A + (B, C)`, so the
+    `'Y'` joined the ARRAY and `string + array` flattened it with `$OFS`.
+    Measured — the expression as written returns **`.Count = 1`**. It is the
+    trap already in the memory file as *"PowerShell array literal `+`"*, and
+    `verify-apiadmin` escaped it only by using interpolation.
+
+    ***AND IT IS THE SAME sysmsg 2018, IN THE SAME LINE, AS THE 24 Aug FIX.***
+    That fix removed a stray `USER` token and made the teardown print the raw
+    output — **which it then did, every run for two days, unread**, underneath a
+    closing line saying `PASSED` and an exit code of 0. So the fix here is not
+    only the call: the closing sentence now names the litter, and the sequence
+    asserts its own line count before it is sent.
+
+    ***(a) IS ANSWERED AND IT IS NOT A DISAGREEMENT.*** The 18-vs-3 gap below is
+    by design: seven verifiers deliberately keep the register record
+    ([verify-accountacl.ps1:483](sdb_ai/sd64/gplbld/verify-accountacl.ps1:483) —
+    *"removing the register record here would hide a `CREATE.ACCOUNT` that had
+    half failed"*) while deleting the directory. **And all 16 are `b43`'s
+    alone** — no `b41` or `b42` record survives, because `cycle.ps1` deletes both
+    trees. ***The register is one run's residue, not an accumulating pile***, so
+    it needs no cleanup script; the next cycle clears it.
+
+    ***(e) IS MEASURED AND `setup-devbox.ps1` IS COMPLETE FOR THE BUILD.***
+    Every import across the ten `gplbld/*.py` files is stdlib or local except
+    **one**: `markdown`, in `mkdoc.py` only. So the coverage gap is documentation
+    tooling and nothing else. ***But it is bigger than the missing package, and
+    that is the new part:*** `markdown` is installed for the **Windows** python
+    (3.13.14, markdown 3.10.2), not the **MSYS2** python `setup-devbox.ps1`
+    installs (3.12.13, no markdown). On a fresh box `python mkdoc.py` fails at
+    the *interpreter*, not the module. **Which interpreter the documentation
+    toolchain targets is a decision, not a one-line addition**, and it belongs
+    with item 2. `mkdoc.py:41` already exits 2 with a message naming
+    `pip install markdown`, so it fails loudly — but its parenthetical
+    (*"the documentation format has not been ruled on"*) is now stale: it was
+    ruled on 25 Aug.
+
+    ***IT IS LAST FOR A STRUCTURAL REASON, NOT AS A COURTESY.*** Every cycle and
+    every suite run creates a fresh crop of accounts, Windows users and profile
+    directories — `b43` made 16 register entries and 12 profiles on 25 Aug
+    alone. **`cycle.ps1` deletes both SD trees and NEITHER the Windows users nor
+    the profiles**, which is exactly why they accumulate. Cleaning before the
+    remaining test runs would simply be re-done, so this runs **after** item 4's
+    guest work and the last suite run, and the machine is never cycled again
+    afterwards without repeating it.
+
+    ### (a) SD's own account register — 16 test accounts
+
+    `C:\ProgramData\SD\sdsys\accounts` holds **18 records; `don` and `sdsys` are
+    the only real ones.** The rest are `b43`'s: `sdacctb43`, `sdaclb43`,
+    `sdapib43`, `sdapiidb43`, `sdarb43n`, `sdarb43p`, `sdcatgb43`, `sdrtb43a`,
+    `sdrtb43s`, `sdscramb43`, `sdtapib431/2/3`, `sdtiertb431/2/3`.
+
+    ***AND THE REGISTER ALREADY DISAGREES WITH THE DIRECTORIES, WHICH IS WORTH
+    UNDERSTANDING BEFORE DELETING ANYTHING.*** `C:\ProgramData\SD\user_accounts`
+    holds only **three** — `don`, `sdacctb43`, `sdapiidb43` — against sixteen
+    register entries. Find out which is right before writing a script that
+    trusts either. `delete.account` is the verb; `verify-delaccount.ps1` already
+    exercises it.
+
+    ### (b) Windows users and groups — 8 and 8, and a LEAK to fix
+
+    `sdapiidb31`, `b33`, `b36`, `b37`, `b38`, `b41`, `b42`, `b43` still exist as
+    **enabled local users**, each with its `sdu_<name>` group — 16 objects,
+    against 16 total local users and 37 local groups on the machine.
+
+    ***ONLY THE `sdapiid` PREFIX LEAKED, AND THAT IS THE FINDING.*** Every other
+    verifier deletes the Windows user it made. **`verify-apiidentity.ps1` does
+    not** — which is why its accounts go back to `b31` on 24 Aug while no other
+    prefix survives at all. **Fix the leak in the same task**, or the next runs
+    put them straight back.
+
+    ### (c) Profile directories under `C:\Users` — 30, and a SECOND leak
+
+    Thirty `sd*` profile directories, all from `b41`, `b42` and `b43`.
+    ***MOST ARE ORPHANED: the account is gone and the profile is not.*** So the
+    other verifiers delete the user and leave the profile behind — a different
+    leak from (b), and the reason this is the largest pile. `sdtapib4NN` appears
+    three times per run.
+
+    ### (d) The home directory — 29 `sd*` items, and TWO of them are not litter
+
+    | | |
+    |---|---|
+    | ***KEEP `sdout`*** | **live build output** — [cycle.ps1:61](sdb_ai/sd64/gplbld/cycle.ps1:61) is `[string] $Out = 'C:\Users\dmont\sdout'`, and it holds the installer the upgrade test used. Written 21:56 on 25 Aug |
+    | ***`~/sdclilib` IS LITTER — owner, 26 Aug 2026*** | *"~\sdclilib is litter, I have other copies."* **It is not a sibling repository and never was.** The real client trees are `..\winsdclilib` and `..\sdclilib32`, one level up in `Projects\`, and neither is touched by this task |
+    | ASK about two more | `SD AI Modification Snapshots_20260610.zip` (**52 MB**, 13 Aug) and `sd-preclean-backup\` (14 Aug) — both look deliberate |
+
+    ***THE FIRST PASS GOT THIS WRONG AND THE OWNER CORRECTED IT.*** It read
+    `~/sdclilib`'s `linuxsdclilib`/`msvcsdclilib` contents as *"the separate
+    client packages"* and flagged it must-ask. **The separate client packages
+    are `..\winsdclilib` and `..\sdclilib32`** — §"The sibling repositories"
+    names both and this file has described them since 19 Aug. **A directory
+    whose contents resemble a known thing is not that thing**, and the check
+    that settles it is where the repository points, not what the name suggests.
+
+    ### (d2) The two client trees must stay in sync — and now something checks
+
+    Owner, 26 Aug 2026: `..\sdclilib32` and `..\winsdclilib` *"contain the api
+    clients that have been maintained by this project and need to be in sync
+    with the files internal to the project. those were created so that client
+    installers could be made as opposed to the user having to look through the
+    installed system to find them."*
+
+    ***MEASURED THE SAME DAY AND THEY ARE IN SYNC:***
+    [check-client-sync.py](sdb_ai/sd64/gplbld/check-client-sync.py), **12
+    checks, 0 failed.** All seven source files byte-identical between
+    `gplsrc/sdclilib` and `../winsdclilib`; `sdclilib32`'s `SRCDIR` resolving
+    into this tree; its DLLs (20 Aug 12:37) newer than the newest library
+    source (20 Aug 12:32). Both sibling repositories clean and level with
+    their origins.
+
+    **It exists because the absence of it has cost twice** — the 32-bit client
+    that shipped sending passwords in clear, and the `SV_EMSG_PAIR`
+    transposition that survived ten days in three repositories. Both were
+    found by a human running a grep on a hunch; neither by anything that runs.
+    **`--self-test` builds broken fixtures and requires a rejection from each:
+    6 of 6, case [0] a positive control.**
+
+    **The remaining ~25 are development scratch from 14–17 Aug**: install logs
+    (`sdinstall.log`, `sd-normal-install.log`, two 1 MB `.innolog`s), captured
+    transcripts (`sd-createaccount.txt`, `sd-denytest.txt`, `sd-sshinstall.txt`
+    …), one-off scripts (`sdclean.ps1`, `sdfirst`/`sdfinal`/`sdverify.ps1`), and
+    the run directories `sdrun`, `sdrun2`, `sdrun3`, `sdcycle`, `sdconftest`,
+    `sdmarkers`, `sdxfer` — **none referenced by anything in the repository**,
+    checked by grepping each name across `gplbld`.
+
+    ***THE ONE MEASUREMENT THAT ALMOST WENT IN WRONG.*** A first pass reported
+    `sdclilib` as *"referenced in 12 files"* and would have been recorded as
+    must-keep for the wrong reason. **The repository has its own
+    `gplsrc/sdclilib`**, and the grep was matching that. Re-run against the
+    home path specifically: **zero hits.** Grep the PATH, not the basename.
+
+    ### (e) `setup-devbox.ps1` — verify and retain
+
+    ***"RETAINED" IS ALREADY TRUE AND NOT BY BEING IN THE HOME DIRECTORY:*** it
+    is [gplbld/setup-devbox.ps1](sdb_ai/sd64/gplbld/setup-devbox.ps1),
+    **tracked in git**. Nothing in (d) can lose it.
+
+    ***"VERIFIED" IS NOT SATISFIED BY STEP 17, AND THERE IS A KNOWN GAP.***
+    Step 17 records that it ran end to end on 24 Aug — that it *works*. What
+    has never been checked is whether it still installs **everything a new
+    machine now needs**, and §"DOCUMENTATION DECISIONS" already names one it
+    does not: ***`python-markdown` is on this machine and `setup-devbox.ps1`
+    does not install it***, so `mkdoc.py` would fail on a fresh box. **Verify
+    coverage against what the build actually uses, not that the script exits
+    0** — and it wants a clean guest, which item 4's rig provides.
+
+
+
+---
+
 ## 25 Aug 2026 - Fifty-eighth session, part 7: handoff, and why -Compare could not find a file that existed
 
 **Commit:** this one. `gplbld/verify-upgrade.ps1`, `PROJECT_STATUS.md`.
