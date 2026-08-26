@@ -11,7 +11,7 @@ something came to be the way it is.
 
 ***WHAT IS BUILT AND VERIFIED:*** the stand-alone **wizard page and all the behaviour behind it** — the mode page, a second `sd.conf` with no `APIPORT`, every ssh and firewall step gated, the `sdsys\$standalone` marker, and `CREATEA` refusing `create.account user` with sysmsg 10100. `apiremote` is now opt-in, matching `sshremote`.
 
-***WHAT IS BUILT AND STILL UNRUN — and it is now a SHORT list:*** the **upgrade path** (all of it gated on `DataTreeUpgrade`, and this was a first install, so none of it executed — item 3), and the **stand-alone install itself**, because the suite has no step that chooses it: all 31 steps ran the full installation. Building it broke nothing; none of its behaviour has been exercised on a machine.
+***THE UPGRADE PATH HAS NOW RUN — 25 Aug 2026, 21:21, and it was found by re-reading the tree rather than by running anything (item 3).*** Scored read-only on 26 Aug: **42 PASS, 0 FAIL, 2 not measurable unelevated.** One elevated `verify-upgrade.ps1 -Compare` makes it official; **do not re-run `-Snapshot`.**
 
 **Decided, not built:** documentation starts AFTER 1.0-0 on the owner's instruction (item 2). **VFS removal (item 3a) is DONE AND PROVEN ON A MACHINE** — cycled, suite green, and the removal itself checked directly on the installed tree because **the suite has no VFS step**. `UPSTREAM_FIXES.md` entry 15 is written.
 
@@ -36,25 +36,40 @@ something came to be the way it is.
 > `create.account user` refused. **The 31-step suite cannot run on it.** Getting
 > back to normal is one full cycle, choosing the full option.
 >
-> ***AND IT IS ONE STEP FROM CLOSING ITEM 3.*** The probes are already planted
-> in the tree and `sdsys\changelog` is already forced, so the upgrade test needs
-> only this, in order, elevated:
+> ***THE UPGRADE ALREADY RAN — 25 Aug 2026 at 21:21, AND THE FIFTY-EIGHTH
+> SESSION'S HANDOFF DID NOT KNOW IT.*** That handoff says the probes are planted
+> and the test is still to do. **They were planted at 21:14, the installer ran
+> over the top at 21:21, and only the SCORING was missing** — `-Compare` refused
+> at 21:22:59 because the snapshot was at the redirected path, and the redirection
+> was diagnosed without anyone re-reading the tree. **Do not re-run `-Snapshot`;
+> it would overwrite the pre-upgrade state with the post-upgrade one and destroy
+> the measurement.**
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-upgrade.ps1 -Snapshot
-> ```
-> ```
-> C:\Users\dmont\sdout\sd-setup-W1.0-0.exe
-> ```
+> ***SCORED READ-ONLY, 26 Aug 2026: 42 PASS, 0 FAIL, 2 not measurable.***
+> Evidence the install happened, from the tree itself:
+>
+> | | |
+> |---|---|
+> | `unins000.dat` | rewritten **21:21** — Inno writes it at the end of every install |
+> | the 14 replace names | **every one recreated at 21:21:5x** |
+> | the 11 preserve names | **every one still 20:56:03**, hashes byte-identical to the snapshot |
+> | the probe pair | `bp\$upgrade-probe` **survived**, `gcat\$upgrade-probe` **gone** — the required disagreement |
+> | `sdsys\changelog` | **gone**; `{app}\changelog` present |
+>
+> ***THE SNAPSHOT IS RECOVERED AND IN PLACE***, at
+> `C:\ProgramData\SD-verify\upgrade-snapshot.json` — copied byte-for-byte out of
+> the package cache with one `Provenance` field added, which `-Compare` now
+> announces so a moved snapshot can never read as one written there.
+>
+> ***SO ITEM 3 NEEDS ONE COMMAND, ELEVATED, AND NOTHING ELSE:***
+>
 > ```
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-upgrade.ps1 -Compare
 > ```
 >
-> **`-Snapshot` must be re-run** — the earlier one wrote its state file where the
-> owner's shell could not see it (item 3 has the measurement). Install **over the
-> top**; do NOT run `cycle.ps1`, which deletes both trees. Because the machine is
-> stand-alone, this also exercises `StandaloneWasMarked` and *"a stand-alone
-> system stays one"*, untested too.
+> **It is one-shot: it deletes the surviving probe on the way out.** Expect 0
+> FAIL and one SKIP (`errlog`, absent before the upgrade too); `$cred` is the
+> 44th row and only an elevated run can read it.
 >
 > ***THEN, AND ONLY THEN, cycle back to a FULL install and run the suite with
 > `-Run b43`.***
@@ -254,13 +269,50 @@ something came to be the way it is.
 >
 > **PROVEN: the `-Snapshot` half, 21:18:08** — 11 preserve, 14 replace, 3
 > unnamed names each with kind, count, hash and creation time; both probes
-> planted and read back. ***`-Compare` HAS NEVER RUN.***
+> planted and read back.
 >
-> ***TO FINISH IT, and the machine is already snapshotted:*** install
-> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe` **over the top** — not `cycle.ps1`,
-> which deletes both trees — then run `-Compare`. The machine is currently a
-> **stand-alone** install, so this also exercises `StandaloneWasMarked` and
-> "a stand-alone system stays one", untested too.
+> ***AND THE UPGRADE ITSELF RAN AT 21:21 THE SAME EVENING. NOBODY NOTICED,
+> BECAUSE THE SCORING FAILED AND THE FAILURE WAS READ AS "NOT YET DONE".***
+> `-Compare` refused at 21:22:59 (*"no snapshot"*, the redirected path); that
+> was diagnosed correctly and the handoff was then written as though the
+> installer had never been run. **It had.** Found 26 Aug by reading the tree:
+> `unins000.dat` rewritten 21:21, all 14 replace names recreated at 21:21:5x,
+> all 11 preserve names still 20:56:03 and byte-identical, the probe pair in
+> the required disagreement, `sdsys\changelog` gone.
+>
+> ***SCORED READ-ONLY, 26 Aug 2026: 42 PASS, 0 FAIL, 2 not measurable.*** The
+> two are `$cred` (administrators-only, so an unelevated walk cannot read it)
+> and `errlog` (absent before the upgrade too — a genuine `SKIP` in the
+> instrument as well).
+>
+> ***THE SNAPSHOT IS RECOVERED TO `C:\ProgramData\SD-verify\upgrade-snapshot.json`***
+> — copied byte-for-byte from the package cache, one `Provenance` field added
+> and every original field asserted identical after the rewrite. **So finishing
+> item 3 is one elevated command, `-Compare`, and `-Snapshot` must NOT be
+> re-run**: it would overwrite the pre-upgrade state with the post-upgrade one.
+> `-Compare` is one-shot — it removes the surviving probe as it exits.
+>
+> ***BECAUSE THE MACHINE IS STAND-ALONE, THIS RUN ALSO COVERED
+> `StandaloneWasMarked` AND "a stand-alone system stays one"*** — `$standalone`
+> is on the unnamed list and survived the upgrade.
+>
+> ***TWO INSTRUMENT DEFECTS FIXED IN THE SAME COMMIT, and the first is the
+> interesting one:***
+>
+> 1. ***`-Compare` RECORDED EVERY NAME'S CREATION TIME AND NEVER READ IT BACK.***
+>    `Get-Fingerprint`'s own comment says CreationTime *"is what distinguishes
+>    'left alone' from 'deleted and recreated with identical contents', which is
+>    the case content hashing cannot see"* — and section [2] scored on the hash
+>    alone. A preserved directory wrongly deleted and restored from the same
+>    build is byte-identical and passed. Both directions are now scored:
+>    preserved names must not move (**hard** — NTFS tunneling can only hide a
+>    move, never invent one), and the replace side is counted in **aggregate**
+>    with zero-moved as the null case, because per-name it is tunneling-fragile.
+>    On this run: **11 of 11 same, 14 of 14 moved.**
+> 2. **A moved snapshot was indistinguishable from one written in place.**
+>    `-Compare` printed only the path it read. It now announces a `Provenance`
+>    field when the file carries one; `-Snapshot` never writes it, so its
+>    presence is the whole signal.
 >
 > ***WHAT WAS UNTESTED, AND THE HALF THAT STILL IS: NO UPGRADE HAS BEEN RUN.*** A full `cycle.ps1` proves the first
 > half; the second needs **a guest that already has SD, installed over**. Check

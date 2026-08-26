@@ -29819,3 +29819,86 @@ these give the roster — and between them the "removed commands" caveat is
 answerable without guessing. Measured at the same time: **`sdb64` holds no
 `.htm` at all**, so the HTML set cannot be fetched from the clone we already
 have.
+
+## 26 Aug 2026 — The upgrade had already run. The failure was the scoring, and it was read as "not yet done"
+
+**FIFTY-NINTH SESSION, part 1.** The fifty-eighth session's handoff says the
+machine is *"one step from closing item 3"* and lists three commands: re-run
+`-Snapshot`, install over the top, run `-Compare`. **The middle one had already
+happened.** The installer ran over the existing tree at **21:21 on 25 Aug**;
+`-Compare` refused at 21:22:59 with *"CANNOT RUN - no snapshot"*, that refusal
+was correctly diagnosed as the `%LOCALAPPDATA%` redirection, and the handoff was
+then written from the pre-install picture. Nobody re-read the tree.
+
+**Found by reading the tree before running anything**, which is the only reason
+`-Snapshot` was not re-run — and re-running it would have overwritten the
+pre-upgrade state with the post-upgrade one and destroyed the measurement
+permanently.
+
+| evidence | reading |
+|---|---|
+| `C:\Program Files\SD\unins000.dat` | rewritten **21:21** — Inno writes it at the end of every install |
+| the 14 replace names | **every one recreated 21:21:5x** |
+| the 11 preserve names | **every one still 20:56:03**, hashes byte-identical to the 21:18 snapshot |
+| `sdsys\bp\$upgrade-probe` | **survived** |
+| `sdsys\gcat\$upgrade-probe` | **gone** — the required disagreement |
+| `sdsys\changelog` | **gone**; `{app}\changelog` present |
+
+**Scored read-only against the recovered snapshot: 42 PASS, 0 FAIL, 2 not
+measurable** — `$cred` (administrators-only) and `errlog` (absent before the
+upgrade too, a genuine `SKIP` in the instrument as well). One elevated
+`-Compare` makes it official.
+
+**The snapshot was recovered, not regenerated.** It was intact in the package
+cache at 13,927 bytes. The recovery inserts one `Provenance` field after the
+opening brace and copies every other byte through, then asserts the rewrite
+parses, has exactly one more field, and that every original field is identical.
+The write to `C:\ProgramData` was **measured** afterwards by looking for a
+shadow copy of the same name under the package cache — one copy, the original,
+so the ProgramData write landed. `PlantedChangelog` was `false` in the
+snapshot, which reads as "not forced" but means the opposite: `changelog` was
+already there, planted by an **earlier** `-Snapshot` at 21:14.
+
+## 26 Aug 2026 — verify-upgrade recorded every creation time and never read one back
+
+**FIFTY-NINTH SESSION, part 2.** `Get-Fingerprint` records `Created` for every
+name and its own comment says why: CreationTime *"is what distinguishes 'left
+alone' from 'deleted and recreated with identical contents', which is the case
+content hashing cannot see"*. **Section [2] then scored on the hash alone**, so
+a preserved directory wrongly deleted and restored from the same build was
+byte-identical and passed perfectly. The snapshot was carrying the one
+measurement that would have caught it, into a comparison that threw it away.
+
+**Both directions are now scored, and they are NOT scored the same way, because
+NTFS file-system tunneling is real:** a name deleted and recreated in the same
+parent inside the tunnel window can inherit its own former creation time.
+
+- **Preserved names: hard per-name check.** Tunneling can only ever *hide* a
+  move, never invent one, so a preserved name whose creation time moved is
+  never a false alarm.
+- **Replaced names: counted in aggregate**, with zero-moved scored as the null
+  case. Per-name it would be tunneling-fragile; in aggregate it is decisive,
+  because tunneling cannot hide every name across an install taking minutes.
+  This also repairs the weakest part of the script — *"replaced present"* and
+  *"replaced not empty"* are **both true of a tree nobody touched**, so until
+  now the probe pair carried the entire weight of "did this actually happen".
+
+Measured on this run: **11 of 11 preserve same, 14 of 14 replace moved.**
+
+**Second fix in the same commit: a moved snapshot read as one written in
+place.** `-Compare` printed only the path it read. It now announces a
+`Provenance` field when the file carries one, and `-Snapshot` never writes that
+field, so its presence is the whole signal.
+
+**And one false FAIL, in this session's own throwaway dry-run script, worth
+recording because it is the documented class exactly.** A read-only Python
+mirror of `-Compare` reported `$cred` **changed**, with a real before-hash and a
+real after-hash. The after-hash was `E3B0C44298FC1C14...` — **the SHA256 of the
+empty string**, which is what this fingerprinting scheme yields for a directory
+containing no files. `os.walk` **swallows a permission error by default and
+yields nothing**, so an administrators-only directory hashed as an empty one and
+produced a confident verdict about a directory that was never read. PowerShell's
+`Get-Fingerprint` gets this right with `-ErrorAction Stop` and reports `Skip`.
+The one-line cause is `onerror`; **the class is that "it returned a value"
+is not evidence it measured anything**, and an empty-input hash is a value like
+any other.
