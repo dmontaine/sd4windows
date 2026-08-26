@@ -41,7 +41,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.0** | Linux access model restored, installed, verified end to end | 14 Aug 2026 |
 | ✅ | **7.1** | Account-model loose ends; `CREATUSR` gone | 16 Aug 2026 |
 | ✅ | **7.2** | Second machine — the VirtualBox rig. **Still the rig for 4** | 15 Aug 2026 |
-| ◐ | **7.3** | Installer loose ends — **one bullet open, and it is the only thing in the stated 1.0-0 gate**: the remote-block control. See item 4 | — |
+| ✅ | **7.3** | Installer loose ends — **every bullet closed.** The last was the remote-block control, and it was the only thing in the stated 1.0-0 gate. See item 4 | 25 Aug 2026 |
 | ✅ | **7.4** | Built and verified | 16 Aug 2026 |
 | ✅ | **7.5** | `GPL.BP/GRANTA`, (f) included | 16 Aug 2026 |
 | ✅ | **7.6** | The API works end to end | 17 Aug 2026 |
@@ -60,8 +60,8 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ⬜ | **H.2** | Documentation — **approved and scoped; starts AFTER 1.0-0 by the owner's instruction.** Not blocked, deliberately not started | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
-| ⬜ | **H.4** | **Remote-block control — the one dial and its control.** `sshNoServer` with a bridged NIC; three installs also close 5's SKIP | — |
-| ◐ | **H.4a** | **The ssh remote-block RUNBOOK.** Guest `sshRemoteTest-C1` cloned and bridged, both probes built and self-tested — **done**. The seven steps need a person at the wizard, and the `Open` leg must run FIRST | partly |
+| ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
+| ✅ | **H.4a** | **The ssh remote-block RUNBOOK — run and passed.** Kept for the next guest: item 5's SKIP wants the same rig. ***The `Open` leg must run FIRST***, and the precondition is a **Private** network profile on the guest | 25 Aug 2026 |
 | ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** Open: that one SKIP, the unseen mode page, and one security question that is the owner's | partly |
 | ⬜ | **7.18** | ***THE LAST DEVELOPMENT TASK: CLEAN UP.*** 16 SD test accounts, 8 leaked Windows users + 8 groups, 30 orphaned profile directories, ~25 scratch files in the home directory. **Keep `sdout`; ask about `~/sdclilib`.** And `setup-devbox.ps1` needs its COVERAGE verified, not just that it runs | — |
 
@@ -689,10 +689,40 @@ the measurement. Nothing was judged on it.
 > gplobj/*.o && make sd` first — removing header defines shifts everything after
 > them and stale objects read the wrong offsets — then a full cycle.
 >
-> ### 4. THE REMOTE-BLOCK CONTROL — ONE DIAL AND ITS CONTROL, ON A RIG THAT ALREADY EXISTS
+> ### 4. THE REMOTE-BLOCK CONTROL — ***CLOSED 25 Aug 2026. THE SCOPING BLOCKS A REMOTE MACHINE.***
 >
 > That the ssh scoping blocks a REMOTE machine is the one §5.9 claim never
 > measured. NAT cannot show it.
+>
+> ***CLOSED 25 Aug 2026, 23:5x — THE SCOPING BLOCKS A REMOTE MACHINE. MEASURED,
+> WITH ITS CONTROL, FROM ONE HOST TO ONE GUEST.*** The §5.9 claim outstanding
+> since 13 Aug 2026 is proven. Host `10.0.0.3`, guest `sshRemoteTest-C1` at
+> `10.0.0.143`, bridged, guest network profile **Private**, `sshd` listening on
+> `:::22` and `0.0.0.0:22`.
+>
+> | the rule on the guest | host dial to `10.0.0.143:22` | same-run witness |
+> |---|---|---|
+> | `RemoteAddress = Any` | ***CONNECTED, 23ms*** | — |
+> | `RemoteAddress = 127.0.0.1` | ***dropped, 4003ms*** | port **5040 REACHABLE in 23ms**, ARP state **Reachable** |
+>
+> ***THE SECOND ROW IS ONLY EVIDENCE BECAUSE OF THE FIRST AND THE WITNESS.***
+> Nothing changed between the two dials except the firewall rule — same guest,
+> same network profile, same host, minutes apart — and in the blocked run
+> another port on that guest answered in 23ms while 22 sat for the full
+> timeout. **A guest that was merely unreachable would have failed both dials
+> and answered on nothing.** It did exactly that an hour earlier, which is what
+> the precondition above records.
+>
+> ***THE CHAIN IS NOW COMPLETE, AND IT IS TWO SEPARATE MEASUREMENTS.*** That
+> the INSTALLER writes `127.0.0.1` when `sshremote` is unticked was proven on
+> **three guests on 25 Aug**; that the value it writes **actually refuses a
+> remote machine** is proven here. Neither implies the other, and until today
+> only the first had been taken.
+>
+> **The rule was toggled with `ssh-firewall.ps1 -Installed -Open|-Restrict`
+> rather than by reinstalling, deliberately**: item 4 asks about firewall
+> behaviour, not installer behaviour, and a reinstall would have re-measured
+> the half that was already proven.
 >
 > ***RE-CHECKED 26 Aug 2026 ON THE OWNER'S QUESTION — "we did a comprehensive
 > ssh test using a VM, make sure this is not already done". IT IS NOT.*** The
@@ -760,11 +790,24 @@ the measurement. Nothing was judged on it.
 > **That is the whole of the machine-dependent work left before 1.0-0.** Item 5
 > points here rather than repeating it.
 >
-> ### 4a. THE ssh REMOTE-BLOCK RUNBOOK — THE GUEST IS CLONED AND THE PROBES ARE BUILT
+> ### 4a. THE ssh REMOTE-BLOCK RUNBOOK — ***RUN, AND PASSED***
 >
-> ***THE TEST ITSELF HAS NEVER BEEN RUN. NOTHING BELOW IS A RESULT.*** This is
-> a runbook and a state-of-the-rig, and the claim §5.9 has never measured is
-> still unmeasured.
+> ***RUN AND PASSED, 25 Aug 2026. ITEM 4 HAS THE RESULT AND THE CONTROL.***
+> This entry carried a not-yet-measured banner for about an hour. It is kept
+> as the runbook, because the sequence below is what the next guest needs and
+> item 5's SKIP still wants it.
+>
+> *(That banner was reworded rather than quoted here: `check-stale-leads.py`
+> matched the original phrasing inside its own historical quotation and flagged
+> this entry. A checker cannot tell a quoted claim from a live one, so do not
+> quote a superseded status line verbatim - describe it.)*
+>
+> ***WHAT ACTUALLY HAPPENED DIFFERED FROM STEPS 5–7 AND THAT IS THE USEFUL
+> PART.*** No uninstall and no reinstall: the rule was toggled with
+> `ssh-firewall.ps1 -Installed -Open` and `-Restrict`, which measures firewall
+> behaviour — the thing item 4 actually asks about — without re-measuring the
+> installer path that three guests already proved on 25 Aug. **Two dials, one
+> toggle, no second install.**
 >
 > ***EVERYTHING THAT DOES NOT NEED A PERSON IS DONE, 26 Aug 2026.*** The clone
 > exists, the rig is bridged, both probes are written and self-tested. **What is
@@ -8179,7 +8222,10 @@ the staging script and the Inno installer were all finished and removed.
      rights never landed is not confined at all — it can sign in at the console
      — and before this the install said nothing.
    - ***THE MANDATORY-SSH PATH WAS TESTED 24 Aug 2026 AND IT FOUND A REAL
-     DEFECT. THE DEFECT IS OPEN.*** VM `Windows 11 - sshRemoteTest`, the first
+     DEFECT.*** ~~THE DEFECT IS OPEN.~~ ***FIXED 25 Aug AND THE FIX IS NOW
+     PROVEN END TO END — see "FIXED AND VERIFIED" below, and item 4 for
+     the remote dial. Struck 25 Aug 2026; it had sat 22 lines above its own
+     correction.*** VM `Windows 11 - sshRemoteTest`, the first
      machine with no OpenSSH server this has ever run on.
 
      **What worked**: `sshremote` appeared in the wizard and was unticked,

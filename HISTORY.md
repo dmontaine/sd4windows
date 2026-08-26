@@ -30524,3 +30524,68 @@ network `sshremote` ticked admits nobody while the closing dialog promises
 *"other computers MAY reach this machine over ssh"*. That is the shape §7 step 3
 has caught three times — but **what profile OpenSSH's rule carries on a fresh
 install has not been measured**, so it stays a lead.
+
+## 25 Aug 2026, 23:5x — ITEM 4 IS CLOSED: the ssh scoping blocks a remote machine
+
+**FIFTY-NINTH SESSION, part 19.** The §5.9 claim outstanding since 13 Aug 2026
+is measured. Host `10.0.0.3`, guest `sshRemoteTest-C1` at `10.0.0.143`,
+bridged, guest network profile **Private**, `sshd` on `:::22` and `0.0.0.0:22`.
+
+| the rule on the guest | host dial to `10.0.0.143:22` | same-run witness |
+|---|---|---|
+| `RemoteAddress = Any` | ***CONNECTED, 23ms*** | — |
+| `RemoteAddress = 127.0.0.1` | ***dropped, 4003ms*** | port **5040 REACHABLE in 23ms**, ARP **Reachable** |
+
+***THE SECOND ROW IS ONLY EVIDENCE BECAUSE OF THE FIRST AND THE WITNESS.***
+Nothing changed between the dials but the firewall rule — same guest, same
+profile, same host, minutes apart — and in the blocked run another port on that
+guest answered in 23ms while 22 sat for the full timeout. An hour earlier the
+same guest failed BOTH dials and answered on nothing, which is what a rig fault
+looks like and why the precondition now exists.
+
+***THE CHAIN IS TWO SEPARATE MEASUREMENTS AND BOTH ARE NOW TAKEN.*** That the
+INSTALLER writes `127.0.0.1` on an unticked `sshremote` was proven on three
+guests on 25 Aug; that the value **actually refuses a remote machine** is proven
+here. Neither implies the other.
+
+**The rule was toggled with `ssh-firewall.ps1 -Installed -Open|-Restrict`
+rather than by reinstalling** — item 4 asks about firewall behaviour, and a
+reinstall would have re-measured the half already proven.
+
+***FINDING THE CONTROL PORT TOOK A REFUSAL FIRST.*** `-ControlPort 445` made
+the probe exit 2 — *"the control port did not answer either, so a blocked ssh
+dial would prove nothing"* — which is the guard working, not a failure. A scan
+found **5040** (Connected Devices Platform) answering on the Private profile;
+135, 139, 445, 3389, 5985, 7680 and ICMP are all dropped even now.
+
+***AND THAT CLOSES §7 STEP 3, WHICH WAS THE ONLY THING IN THE STATED 1.0-0
+GATE.*** Item 2's rule is *"do not open the documentation phase while anything
+under item 3 or the §7 step 3 bullets is outstanding"*. Item 3 closed this
+morning; step 3's last bullet closed tonight.
+
+## 25 Aug 2026 — Closing an item ticked three rows and left all three READING as open
+
+**FIFTY-NINTH SESSION, part 20.** Marking 7.3, H.4 and H.4a done changed the
+marks and left the descriptions saying *"one bullet open, and it is the only
+thing in the stated 1.0-0 gate"*, *"`sshNoServer` with a bridged NIC"* — a guest
+that does not exist — and *"the seven steps need a person at the wizard"*.
+**A ticked row that reads as open is a stale lead paragraph one line long.**
+
+**`check-stale-leads.py` did not catch it**, because phase 2 compares the mark
+against the ENTRY and never against the row. A row-text check was added — and
+***it does not catch these three either***, which is recorded rather than
+glossed: `OPEN_PAT` is tuned for entry prose (*"still a decision"*, *"never been
+run"*) and matches none of that wording. All three were rewritten by hand.
+
+**The check is kept as an explicitly PARTIAL guard**, and its comment says so:
+it catches a row that says "still open" or "not yet built", and **a clean phase
+2 is not proof that every ticked row reads as done**. Broadening it to catch
+"needs a person at the wizard" would flag legitimate open and partly rows, and a
+false positive trains people to ignore the whole run.
+
+***THE CHECKER ALSO FLAGGED MY OWN NARRATION, CORRECTLY AND UNHELPFULLY.***
+Rewriting item 4a's lead, I quoted the superseded banner verbatim; `OPEN_PAT`
+matched inside the quotation and reported the entry as leading open. **A checker
+cannot tell a quoted claim from a live one.** Reworded rather than exempted, and
+the rule is in the entry: do not quote a superseded status line verbatim —
+describe it.
