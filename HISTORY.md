@@ -30657,3 +30657,95 @@ OpenSSH**, which makes it the rig item 5's SKIP has wanted since 25 Aug.
 ***THREE ROWS OPEN, AND THE TABLE IS THE AUTHORITY:*** `7.18` cleanup (which
 now includes the spent clone), `H.5` stand-alone, `H.2` documentation — which
 his own gate no longer blocks.
+
+## 26 Aug 2026 — Three leaks in the test rig, and the one that mattered was a PowerShell precedence bug
+
+**SIXTIETH SESSION.** Item 7.18's leaks fixed in source. **Nothing was
+deleted** — the cleanup pass still runs last, per the entry's own ordering.
+All four scripts are on `$neverShipped`; no cycle owed.
+
+***THE SWEEP REACHED ALMOST NONE OF THE LITTER IT WAS WRITTEN FOR.***
+`clean-test-profiles.ps1` matched **9 of 30** profile directories, **22 of 77**
+`Win32_UserProfile` entries, and **3 of the 14** stems `VerifyInstall2.ps1`
+composes. The 24 Aug repair took the run-token `b` into the stem for `sdacct`,
+`sdssh` and `sdapiid` and left eleven stems untouched — `sdar`, `sdapin`,
+`sdapi` and `sdscram` were never listed at all. Fixed with a completed stem
+list and suffix `[a-z]?[0-9]+[a-z0-9]*`; **30/30, 77/77, 14/14** after.
+
+***THE NOTE THAT REJECTED THIS FIX IN ADVANCE WAS OVERRIDDEN, AND IT SAID SO
+IN THE FILE.*** It argued a wider suffix class widens every stem's blast
+radius. The replacement is **narrower**: the old suffix could be empty, so
+bare stems matched themselves (`sdacct`, `sdrt`, `sdtapi` — measured on the
+control), and the completed list adds `sdapi` and `sdssh`, which are **real SD
+group names**. Requiring a run suffix closes that; `sdsshprobe` and `sdnotyet`
+are literals instead. `-SelfTest` carries 24 must-match and 18 must-not rows;
+the same fixtures against the old pattern **fail 15**.
+
+***47 STALE `ProfileList` ENTRIES, WHICH NO SURVEY HAD COUNTED.*** Directory
+gone, registry entry standing — the state that makes Windows recreate a profile
+as `C:\Users\<name>.<COMPUTERNAME>`. 43 removable now, 4 blocked behind a live
+account, none loaded. Step 18 counted 30 directories; the real pile is 77.
+`verify-accountacl.ps1` and `verify-createaccount.ps1` deleted the DIRECTORY
+with `Remove-Item`; both now remove the PROFILE with `Remove-CimInstance`.
+**No cause was assigned to the other 39** — two verifiers cannot account for
+eight stems, and inventing the rest is what §0 forbids.
+
+***AND THE ONE THAT COST EIGHT ACCOUNTS WAS NOT WHAT STEP 18(b) SAID.*** It
+read *"every other verifier deletes the Windows user it made; verify-apiidentity
+does not"*. **`DELETE.ACCOUNT` does that itself** (`DELACC:46`, `:308-345`), and
+`verify-apiadmin`'s `b43` transcript is the control — prompt answered, group
+deleted, OS user deleted. apiidentity's `b43` transcript, section [9]:
+
+```
+:DELETE.ACCOUNT SDAPIIDB43 Y
+Unexpected token (Y)
+```
+
+**The confirmation was on the command line**, so `DELACC:104` refused with
+sysmsg 2018 before deleting anything, and register record, user, group and
+profile all survived every run from `b33` to `b43`. ***The cause is PowerShell,
+not SD:*** `@("DELETE.ACCOUNT " + $Prefix.ToUpper(), 'Y')` parses as
+`A + (B, C)`, so `'Y'` joined the array and `string + array` flattened it with
+`$OFS`. The expression as written returns **`.Count = 1`** — measured. It is
+the trap already in the memory file as *"PowerShell array literal `+`"*.
+
+***THE 24 Aug FIX HAD ALREADY MADE THIS VISIBLE AND IT WAS READ BY NOBODY.***
+Same sysmsg, same line, same "an extra word became an argument" shape — that
+fix removed a stray `USER` and added the raw-output print, which then printed
+the refusal every run for two days underneath `PASSED` and exit 0. So the
+repair is three things, not one: the call is interpolated; the sequence
+**asserts its own line count before it is sent**; and the closing sentence now
+names the litter instead of claiming a clean run. The exit code is deliberately
+unchanged — a cleanup failure is not a product failure.
+
+***(a) IS NOT A DISAGREEMENT.*** 18 register records against 3 directories is by
+design — seven verifiers keep the record deliberately
+(`verify-accountacl.ps1:483`) while deleting the directory — and **all 16 are
+`b43`'s**, because `cycle.ps1` deletes both trees. One run's residue, not a
+pile. It needs no cleanup script.
+
+***(e) `setup-devbox.ps1` IS COMPLETE FOR THE BUILD.*** Every import across the
+ten `gplbld/*.py` files is stdlib or local except **one**: `markdown`, in
+`mkdoc.py`. The gap is bigger than the package, though — `markdown` is installed
+for the **Windows** python (3.13.14), not the **MSYS2** python the script
+installs (3.12.13). On a fresh box `python mkdoc.py` fails at the interpreter.
+**Which interpreter the documentation toolchain targets is a decision**, so it
+is left with item 2. `mkdoc.py:41` already exits 2 rather than failing quietly.
+
+***THE CHECKER CRIED WOLF AND THE DIAGNOSIS HAD BEEN WRITTEN WITHOUT THE CODE
+BEING CHANGED.*** `check-stale-leads.py` bounded the LAST section 7 entry at
+end-of-file, so it inherited every status word in sections 8 and 9. Diagnosed
+the day step 18 was added; it fired again on the next edit to that entry, over
+text 546 lines outside the section. Now clamped to `sec7_b`.
+
+***AND ITS UNIT TEST FOR EXACTLY THAT CASE WAS PASSING WITHOUT MEASURING IT.***
+*"closure text after section 8 must not leak back"* asserted `rc=0` and a
+**phase 2** string, while the leak is a **phase 1** flag that never touches the
+exit code — so it was green throughout. Re-anchored on the phase 1 count, and
+**verified by disabling the clamp and watching the case go red** (7 of 8, exit
+1) before restoring it. 8 of 8 after.
+
+***STATE AT HANDOFF.*** Unchanged from the fifty-ninth session's: host FULL
+install, suite green, **`b43` spent, use `b44`**; guest `sshRemoteTest-C1` still
+running. **No account, user, group, profile or file was deleted this session.**
+Three rows still open — `7.18` (the deleting itself), `H.5`, `H.2`.

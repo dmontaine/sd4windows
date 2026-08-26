@@ -71,7 +71,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
 | ✅ | **H.4a** | **The ssh remote-block RUNBOOK — run and passed.** Kept for the next guest: item 5's SKIP wants the same rig. ***The `Open` leg must run FIRST***, and the precondition is a **Private** network profile on the guest | 25 Aug 2026 |
 | ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** Open: that one SKIP, the unseen mode page, and one security question that is the owner's | partly |
-| ⬜ | **7.18** | ***THE LAST DEVELOPMENT TASK: CLEAN UP.*** 16 SD test accounts, 8 leaked Windows users + 8 groups, 30 orphaned profile directories, ~25 scratch files in the home directory. **Keep `sdout`; ask about `~/sdclilib`.** And `setup-devbox.ps1` needs its COVERAGE verified, not just that it runs | — |
+| ⬜ | **7.18** | ***THE LAST DEVELOPMENT TASK: CLEAN UP.*** **The three leaks are FIXED in source and NOTHING HAS BEEN DELETED YET** — that pass still runs last. 8 leaked Windows users + 8 groups, 30 profile directories **+ 47 stale `ProfileList` entries nothing had counted**, ~25 scratch files in the home directory. **Keep `sdout`; ask about `~/sdclilib`.** (a) and (e) are answered in the entry | — |
 
 **Legend** — ✅ closed and verified · ◐ **partly**: some parts closed,
 some open, and the row says which · ⬜ open · ➖ removed or superseded,
@@ -98,7 +98,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > | | |
 > |---|---|
-> | **7.18** | **cleanup, the last development task.** 16 SD test accounts, 8 leaked Windows users + 8 groups, 30 orphaned profile directories, ~25 scratch files in `~`. **Two leaks to fix while you are there**, and `sshRemoteTest-C1` is now its subject too |
+> | **7.18** | **cleanup, the last development task.** ***The leaks are fixed in source (26 Aug, sixtieth session) and NOTHING HAS BEEN DELETED.*** What is left is the deleting itself, elevated, after the guest work: 8 Windows users + 8 groups, 30 profile directories **and 47 stale `ProfileList` entries the survey never counted**, ~25 scratch files in `~`. `sshRemoteTest-C1` is its subject too |
 > | **H.5** | stand-alone: **one SKIP**, the **unseen mode page**, and one security question that is the owner's |
 > | **H.2** | documentation — **approved, scoped, and starts AFTER 1.0-0 by his instruction.** The gate is now empty, so this is a decision he can take |
 >
@@ -10500,9 +10500,74 @@ the staging script and the Inno installer were all finished and removed.
     clearing one costs an elevation. That session lost five windows to it.
 
 18. ***OPEN — THE LAST TASK OF THE DEVELOPMENT PHASE. CLEAN UP AFTER
-    DEVELOPMENT.*** Owner, 26 Aug 2026. **Nothing here has been done**; the
+    DEVELOPMENT.*** Owner, 26 Aug 2026. **Nothing has been DELETED**; the
     survey below was taken that day and every count is a real reading, not an
     estimate.
+
+    ***THE THREE LEAKS ARE NOW FIXED IN SOURCE. THE DELETING IS STILL TO DO,
+    AND STILL RUNS LAST.*** 26 Aug 2026, sixtieth session. Nothing was removed
+    from the machine — the fixes stop the piles GROWING, so the one cleanup
+    pass at the end is not immediately undone. All four scripts are on
+    `$neverShipped`, so none of this owes a cycle.
+
+    | | what was measured | fix |
+    |---|---|---|
+    | `clean-test-profiles.ps1` reached almost none of it | **9 of 30** directories, **22 of 77** profile entries, **3 of the 14** stems `VerifyInstall2.ps1` composes | stem list completed, suffix now `[a-z]?[0-9]+[a-z0-9]*`, `-SelfTest` added. **30/30, 77/77, 14/14** |
+    | **47 STALE `ProfileList` ENTRIES — not in the survey at all** | directory gone, registry entry standing; 43 removable now, 4 blocked behind a live account | the two verifiers that deleted the DIRECTORY now remove the PROFILE |
+    | `verify-apiidentity` left 8 users + 8 groups | `DELETE.ACCOUNT` was **refused every run from b33 to b43** | the call is fixed; see below |
+
+    ***THE apiidentity LEAK WAS NOT WHAT (b) BELOW SAYS IT WAS, AND THE
+    CORRECTION MATTERS.*** (b) reads *"every other verifier deletes the Windows
+    user it made; `verify-apiidentity.ps1` does not"*. **The verb does that
+    itself** — `DELACC:46`, `:308-345`, and `verify-apiadmin`'s own `b43`
+    transcript is the control: *"Delete account SDAPIAB43, its directory and
+    its Windows account sdapiab43 (Y/N)? Y"* → group deleted, OS user deleted.
+    What actually happened is in `b43`'s apiidentity transcript, section [9]:
+
+    ```
+    :DELETE.ACCOUNT SDAPIIDB43 Y
+    Unexpected token (Y)
+    ```
+
+    **The confirmation was on the COMMAND LINE.** `DELACC:104` rejects a
+    further token with sysmsg 2018 before deleting anything, so the verb did
+    nothing at all — SD register record, Windows user, `sdu_` group and profile
+    all survived, every run. ***The cause is PowerShell precedence, not SD:***
+    `@("DELETE.ACCOUNT " + $Prefix.ToUpper(), 'Y')` is `A + (B, C)`, so the
+    `'Y'` joined the ARRAY and `string + array` flattened it with `$OFS`.
+    Measured — the expression as written returns **`.Count = 1`**. It is the
+    trap already in the memory file as *"PowerShell array literal `+`"*, and
+    `verify-apiadmin` escaped it only by using interpolation.
+
+    ***AND IT IS THE SAME sysmsg 2018, IN THE SAME LINE, AS THE 24 Aug FIX.***
+    That fix removed a stray `USER` token and made the teardown print the raw
+    output — **which it then did, every run for two days, unread**, underneath a
+    closing line saying `PASSED` and an exit code of 0. So the fix here is not
+    only the call: the closing sentence now names the litter, and the sequence
+    asserts its own line count before it is sent.
+
+    ***(a) IS ANSWERED AND IT IS NOT A DISAGREEMENT.*** The 18-vs-3 gap below is
+    by design: seven verifiers deliberately keep the register record
+    ([verify-accountacl.ps1:483](sdb_ai/sd64/gplbld/verify-accountacl.ps1:483) —
+    *"removing the register record here would hide a `CREATE.ACCOUNT` that had
+    half failed"*) while deleting the directory. **And all 16 are `b43`'s
+    alone** — no `b41` or `b42` record survives, because `cycle.ps1` deletes both
+    trees. ***The register is one run's residue, not an accumulating pile***, so
+    it needs no cleanup script; the next cycle clears it.
+
+    ***(e) IS MEASURED AND `setup-devbox.ps1` IS COMPLETE FOR THE BUILD.***
+    Every import across the ten `gplbld/*.py` files is stdlib or local except
+    **one**: `markdown`, in `mkdoc.py` only. So the coverage gap is documentation
+    tooling and nothing else. ***But it is bigger than the missing package, and
+    that is the new part:*** `markdown` is installed for the **Windows** python
+    (3.13.14, markdown 3.10.2), not the **MSYS2** python `setup-devbox.ps1`
+    installs (3.12.13, no markdown). On a fresh box `python mkdoc.py` fails at
+    the *interpreter*, not the module. **Which interpreter the documentation
+    toolchain targets is a decision, not a one-line addition**, and it belongs
+    with item 2. `mkdoc.py:41` already exits 2 with a message naming
+    `pip install markdown`, so it fails loudly — but its parenthetical
+    (*"the documentation format has not been ruled on"*) is now stale: it was
+    ruled on 25 Aug.
 
     ***IT IS LAST FOR A STRUCTURAL REASON, NOT AS A COURTESY.*** Every cycle and
     every suite run creates a fresh crop of accounts, Windows users and profile
