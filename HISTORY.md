@@ -27,6 +27,70 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-seventh session, part 7: GREEN. 31/31 steps, zero failures
+
+**Commit:** this one. `PROJECT_STATUS.md` only.
+
+***THE FULL CYCLE AND THE WHOLE SUITE PASSED ON THE 17:17:57 INSTALL.***
+`sd-setup-W1.0-0.exe`, 4,818,601 bytes, built 17:17:43. `sd.exe`
+`275CFB03E142AA2C` - unchanged from 24 Aug, and correctly so: **no C changed
+this session**. `VerifyInstall1 -ThenElevated -Run b41`: 12 unelevated steps
+and 19 elevated, every one exit 0. `assert-current` clean on every section,
+including B3 across **six** mirrors and 2,951 files.
+
+**Counted rather than believed: 979 `PASS` lines.** Eight lines matched a
+failure-shaped grep and **all eight were read and are benign** - `icacls`
+saying *"Failed processing 0 files"*, `secure-account-dirs` saying `0 failed`,
+one comment, and two `verify-tierapi` refusals inside its own *[6] The
+controls* section, each scored `[PASS] expected False, got False`. **979 is not
+comparable to the "386 PASS" recorded for b37/b38**; that was counted some other
+way and the two should never be set against each other.
+
+### What it does not cover, said before anyone reads the number as "done"
+
+**The upgrade path did not run at all** - every part of it is gated on
+`DataTreeUpgrade` and this was a first install. Item 3 still needs a guest that
+already has SD.
+
+***AND NEITHER DID THE STAND-ALONE INSTALL.*** The suite has no step that
+chooses it, so **all 31 steps ran the FULL installation**. What is proven is
+that building the stand-alone option broke nothing; what is unproven is every
+line of behaviour behind the mode page - the second `sd.conf`, the gated ssh and
+firewall steps, the marker, and `CREATEA`'s refusal.
+
+### The trap that cost two runs, worth more than the green
+
+***`-Run` ALONE DOES NOTHING.*** It is *"ignored without `-ThenElevated`"*
+(`VerifyInstall1.ps1` param block). Run without that switch, VerifyInstall1
+executes its 12 unelevated steps, prints **"VerifyInstall1: every step exited
+0."** and stops.
+
+**That reads exactly like a finished suite and is 12 of 31.** The owner spotted
+it - *"the verify did not run the 18 or 19 check window that usually takes a
+long time"* - which is `VerifyInstall2`'s nineteen. The command handed over was
+missing the switch; the fix is one flag, and the failure mode is a green
+summary, which is the dangerous kind.
+
+**The whole suite is one command, from an ORDINARY terminal:**
+
+    VerifyInstall1.ps1 -ThenElevated -Run bNN
+
+Two processes with the correct token each is the design - an elevated parent
+cannot manufacture an ordinary child, and `runas /trustlevel` yields a
+RESTRICTED token rather than this user's normal one. ~4 UAC prompts. **A prefix
+is spent once**: b39 and b40 went on the aborted runs, b41 on this one.
+
+### And a third heredoc backslash failure in one session
+
+Writing this very entry's PROJECT_STATUS block through a `<<'PYEOF'` heredoc
+died on `C:` + `Users` - Python read the backslash-U as a truncated
+`UXXXXXXXX` escape and failed at **parse** time, so nothing was written.
+CLAUDE.md's failure mode 2, third occurrence today. The block was written to a
+file with the editing tools and spliced by a script that reads it, so no Python
+string literal ever contained a backslash.
+
+---
+
 ## 25 Aug 2026 - Fifty-seventh session, part 6: the first full cycle, and a false STALE that stopped the suite
 
 **Commit:** this one. `gplbld/stage.py` (`--list-retired`), `gplbld/assert-current.ps1`.

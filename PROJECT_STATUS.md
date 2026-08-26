@@ -5,72 +5,87 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 25 Aug 2026, **fifty-seventh session**, which built item 5's wizard page and nothing behind it. Working tree clean.
+**Last updated:** 25 Aug 2026, **end of the fifty-seventh session**. Working tree clean, 10 commits, nothing half-done.
 
-***EVERYTHING THIS SESSION BUILT IS SOURCE-ONLY AND NO INSTALLER HAS BEEN BUILT FROM ANY OF IT.*** That is the single most important sentence here. The tree was already STALE when the session started - last green suite was b37/b38 on 24 Aug - and six source changes have landed since, so **item 1's full cycle is now the first test of all of them, not just a confidence run.** Use `b39` or later.
+***THE TREE IS CURRENT AND THE WHOLE SUITE IS GREEN: 31/31 STEPS, ZERO FAILURES, ON THE 17:17:57 INSTALL.*** That reverses the sentence that stood here for two sessions. `assert-current` is clean on every section, so **every verifier will run**; item 1 has the identifiers and what the run does *not* cover.
 
-**Built and committed, none of it run on a machine:** the data-tree upgrade path (owner ruled *"installer replaces the shipped subset in place"*); `sdsys\changelog` moved to `{app}`; `assert-current` section **B3** can see a deletion in the data tree and **B4** a leftover in `{app}`; and `upgrade-dicts.ps1` reapplies the shipped dictionary items on an upgrade. Each was measured as far as it can be without an install - unit tests, ISCC compiles of the generated sections and of `[Code]`, each with a control that fails.
+***WHAT IS BUILT AND VERIFIED:*** the stand-alone **wizard page and all the behaviour behind it** — the mode page, a second `sd.conf` with no `APIPORT`, every ssh and firewall step gated, the `sdsys\$standalone` marker, and `CREATEA` refusing `create.account user` with sysmsg 10100. `apiremote` is now opt-in, matching `sshremote`.
 
-**Decided, not built:** the documentation format is approved and the tester brief is written (item 2) - it starts AFTER 1.0-0, on the owner's instruction. The **stand-alone install option** is scoped with one ruling made and two questions open (item 5).
+***WHAT IS BUILT AND STILL UNRUN — and it is now a SHORT list:*** the **upgrade path** (all of it gated on `DataTreeUpgrade`, and this was a first install, so none of it executed — item 3), and the **stand-alone install itself**, because the suite has no step that chooses it: all 31 steps ran the full installation. Building it broke nothing; none of its behaviour has been exercised on a machine.
+
+**Decided, not built:** documentation starts AFTER 1.0-0 on the owner's instruction (item 2). **Stripping VFS from the C** is agreed, scoped and deliberately not started (item 3a) — it goes after this, and it earns an `UPSTREAM_FIXES.md` entry.
+
+**One question is still the owner's:** whether the ssh preflight should still refuse on a stand-alone install (item 5). It is not a one-line change either way — the preflight runs in `InitializeSetup`, before the wizard exists.
 
 ---
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ## NEXT SESSION: FIVE THINGS, IN THIS ORDER. NOTHING IS BROKEN.
+> ## NEXT SESSION: NOTHING IS BROKEN, AND ITEM 1 IS ALREADY DONE.
 >
-> The refuse-to-install work is **complete and verified on three guests** (see
-> below). Item 1 is now the first real test of six source changes as well —
-> the sixth is the stand-alone mode page, whose option is deliberately refused
-> at the page until the behaviour behind it exists (item 5).
+> **The suite is green — 31/31, zero failures, on the 17:17:57 install of
+> 25 Aug 2026.** Item 1 is kept below as the record, not as work.
 >
-> ### 1. RUN A FULL CYCLE AND THE VERIFY SUITE. IT IS NO LONGER JUST A CONFIDENCE RUN.
+> ***THE LIVE WORK IS 3, 3a AND 5***, in whichever order suits: the upgrade path
+> needs a guest that already has SD; VFS removal is agreed and scoped and comes
+> after this session's work is proven; and item 5 has one open question that is
+> the owner's to answer. **Item 2 does not start until 1.0-0.**
 >
-> ***THE `-SkipInstall` HALF IS GREEN AS OF 25 Aug 2026, 16:48:23 — EXIT 0,
-> INSTALLER BUILT.*** `cycle-20260825-164823.log`. **194 BASIC programs, not one
-> non-zero `N error(s)`**, `$CREATEA added to global catalogue`, both `sd.conf`
-> variants staged and packaged, and **the real ISCC compiled the whole `sd.iss`
-> with `/DStage`** — `sd-setup-W1.0-0.exe`, 4,818,214 bytes. So the build, the
-> BASIC and the installer script are all proven. **What remains is the install
-> itself and the suite**, which `-SkipInstall` deliberately does not reach.
+> ### 1. DONE — 25 Aug 2026, THE 17:17:57 INSTALL. 31/31 STEPS, ZERO FAILURES.
 >
-> ***AND THE RUN BEFORE IT FOUND A REAL DEFECT, WHICH IS WHY THIS SECTION SAID
-> TO EXPECT ONE.*** 16:30:58 exited **1** — not a compile failure but
-> `stage.py`'s own refusal: ***`bp.out` was on the upgrade replace list while
-> staging EMPTY***, so an upgrade would have deleted the installed objects and
-> copied nothing back. Fixed under item 5's entry and in §7 step 3. **The four
-> refusals earned their keep on their first real run.**
->
-> **NOTE FOR WHOEVER RUNS THE FULL ONE**: `Start-Process -Verb RunAs -Wait`
-> **does not set `$LASTEXITCODE`** — use `-PassThru` and `.ExitCode`, or a
-> failed cycle reads as success. The first run above would have looked green.
->
-> ***THE LAST GREEN SUITE WAS 31/31, 386 PASS, ON `b37` AND `b38`, 24 Aug*** —
-> before the ssh-firewall fix, before `limitssh` left `[Tasks]`, before
-> `ssh-preflight.ps1`, before four dialog rewordings. **The tree is STALE right
-> now**, so `assert-current` refuses every verifier until a full `cycle.ps1`.
-> ***Use `b39` or later — prefixes to `b38` are spent.***
->
-> ***AND IT IS THE FIRST ISCC BUILD OF EVERYTHING THE FIFTY-SIXTH SESSION DID.***
-> None of the following has ever been through a real build or install, so
-> **expect this cycle to find things, and read its output rather than skimming
-> for green**:
+> ***THE FULL CYCLE AND THE WHOLE SUITE ARE GREEN ON THE FIFTY-SEVENTH
+> SESSION'S WORK.*** Nothing here is outstanding. It is kept as the record of
+> what was verified and against what.
 >
 > | | |
 > |---|---|
-> | `stage.py` writes `<stage>\upgrade.iss`, and `sd.iss` `#include`s it | if `/DStage` is not absolute the include resolves elsewhere and ISCC stops. `cycle.ps1` passes an absolute one |
-> | `stage.py` ships `FILES_DICTS` and `changelog` to `{app}` | a missing either is a deliberate build failure, not a warning |
-> | `sd.iss` gained `DataTreeUpgrade` and `RefreshDictionaries` | the `[Code]` section compiles — checked with a control — but has never run |
-> | `assert-current` gained B3 and B4 | both are silent on this machine today; B4 needs `{app}` present, so it cannot run before an install |
-> | the changelog has three new entries | user-facing, and unread by anyone |
+> | install | **25 Aug 17:17:57**, from `sd-setup-W1.0-0.exe`, 4,818,601 bytes, built 17:17:43 |
+> | `sd.exe` | `275CFB03E142AA2C` — unchanged, 24 Aug 14:58, and **correctly so: no C changed this session** |
+> | unelevated | `VerifyInstall1 -ThenElevated -Run b41` — **12 steps, all exit 0** |
+> | elevated | `VerifyInstall2` — **19 steps, all exit 0** |
+> | `assert-current` | clean on every section: rename walk, B3 across **six** mirrors (2,951 files), B4 (25 checked), nothing newer than the install |
 >
-> **On a FIRST install none of the upgrade machinery fires at all** — it is all
-> gated on `DataTreeUpgrade`. So a green cycle proves the build and the
-> first-install path, and proves **nothing** about the upgrade path. That needs
-> item 3's second guest.
+> **Counted rather than taken on exit codes: 979 `PASS` lines**, and every one of
+> the eight failure-shaped lines was read and is benign — `icacls` reporting
+> *"Failed processing 0 files"*, `secure-account-dirs` reporting `0 failed`, one
+> comment, and two `verify-tierapi` refusals inside its own **[6] The controls**
+> section, each scored `[PASS] expected False, got False`. ***Do not compare 979
+> against the "386 PASS" recorded for `b37`/`b38`*** — that figure was counted
+> differently; this one is a plain grep.
 >
-> This is the owner's own next task; he said he would do the run and verify in
-> a fresh session.
+> ***WHAT IT DOES NOT COVER, AND IT IS THE SAME GAP AS BEFORE: THE UPGRADE
+> PATH.*** All of it is gated on `DataTreeUpgrade` and this was a first install,
+> so **none of it ran**. Item 3 still needs a guest that already has SD.
+>
+> ***AND THE STAND-ALONE INSTALL IS EQUALLY UNPROVEN.*** The suite has no step
+> that chooses it, so **all 31 steps ran the FULL installation**. What is
+> verified is that building it broke nothing; what is unverified is every line
+> of behaviour behind the mode page. See item 5.
+>
+> ***TWO REAL DEFECTS WERE FOUND GETTING HERE — both from the fifty-sixth
+> session, both invisible without a real run:*** `bp.out` on the upgrade replace
+> list while staging empty (`stage.py` refused the build, correctly), and
+> `sdsys\changelog` reading as STALE after it moved to `{app}`, which stopped
+> the suite at its first step. Both fixed; HISTORY parts 4 and 6.
+>
+> ***ONE PROCEDURAL TRAP WORTH THE NEXT SESSION'S TIME.*** `-Run` on its own does
+> nothing — it is *"ignored without `-ThenElevated`"*. Without that switch
+> `VerifyInstall1` runs its 12 unelevated steps, prints **"every step exited 0"**
+> and stops, which reads exactly like a finished suite and is **12 of 31**. The
+> whole suite is one command, from an **ordinary** terminal (two processes with
+> the correct token each is the design), ~4 UAC prompts:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run bNN
+> ```
+>
+> **A `-Run` prefix is spent once.** `b41` is used; `b39` and `b40` were spent on
+> the aborted runs.
+>
+> **NOTE ON RUNNING `cycle.ps1` FROM A SCRIPT**: `Start-Process -Verb RunAs
+> -Wait` **does not set `$LASTEXITCODE`** — use `-PassThru` and `.ExitCode`, or a
+> failed cycle reads as success. The 16:30:58 run exited **1** where
+> `$LASTEXITCODE` read 0.
 >
 > ### 2. DOCUMENTATION IS APPROVED AND SCOPED. IT STARTS *AFTER* 1.0-0 — OWNER, 25 Aug 2026
 >
