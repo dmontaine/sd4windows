@@ -30876,3 +30876,51 @@ and were what finished the job. A second slip in the same session:
 `a, b = starts[k], bound(a, ...)` reads `a` from the PREVIOUS iteration,
 because a tuple's right-hand side is evaluated in full before any binding.
 `py_compile` passes it happily.
+
+## 26 Aug 2026 — Step 18 becomes one command, and a control corrected the safety argument
+
+**SIXTIETH SESSION, part 5.** Owner: *"lets finish the remaining tasks to close
+out the development phase."* Three rows open, two of them development —
+**7.18** and **H.5**; H.2 is the phase after 1.0-0.
+
+***THREE DECISIONS TAKEN, AND ONE OF THEM CLOSES A THIRD OF H.5.***
+
+| | |
+|---|---|
+| the ssh preflight on a stand-alone install | ***STILL REFUSES.*** Owner's call, and it needs **no code change** — keeping it is the only answer that moves no structure. Do not reopen it as tidiness |
+| the home sweep | removes the ~25 scratch items, `~/sdclilib` and `sd-preclean-backup`. `sdout` kept |
+| `sshRemoteTest-C1` | deleted with the rest — H.5 needs a fresh clone anyway |
+
+***AND ONE ITEM ANSWERED ITSELF:*** `SD AI Modification Snapshots_20260610.zip`,
+the 52 MB file flagged must-ask, **is already gone**. `sd-preclean-backup`
+turned out to be 6 entries of 1 byte each plus a 359-byte `sd.conf` — a
+skeleton, not a backup.
+
+***`cleanup-devlitter.ps1`, THE ONE COMMAND.*** Users, then their `sdu_` groups,
+then `clean-test-profiles.ps1`, then the home directory, then the VM behind
+`-IncludeVM`. `-SelfTest` / `-List` / act, matching the sweep's own contract.
+**Accounts before profiles is load-bearing**: the sweep refuses a profile whose
+SID still has an account, which is what left 7 profiles behind 8 accounts.
+**It reads its pattern out of `clean-test-profiles.ps1` rather than copying it**,
+and refuses if that script does not parse.
+
+***A CONTROL CORRECTED THE SAFETY ARGUMENT, WHICH IS THE PART WORTH KEEPING.***
+The file claimed two independent things keep the real groups out: the `sdu_`
+gate and the pattern. **Removing the gate and re-running the self-test came
+back GREEN** — so it is the PATTERN that protects them and the gate is
+redundant. `sdapi` and `sdssh` ARE stems; they are excluded only because the
+pattern has required a run suffix since this morning, a change made for
+coverage and which turns out to be a safety property.
+
+**So it is asserted directly now.** `-SelfTest` requires every bare stem to
+fail. Loosening the suffix back to optional makes it **exit 2 on 14 cases**,
+naming `sdapi` and `sdssh` as real groups — ***watched failing, then the
+pattern restored***; `clean-test-profiles.ps1`'s own self-test caught it
+independently, 5 of 18. A property nobody knew was load-bearing is now the
+thing a future edit trips over.
+
+***WHAT IS LEFT OF THE DEVELOPMENT PHASE, IN TWO LINES.*** 7.18: run
+`cleanup-devlitter.ps1 -List`, then without `-List`, then `-IncludeVM`.
+H.5: clone the template, install **stand-alone** on it, look at the mode and
+tasks pages **and write down what you saw**, run `verify-standalone.ps1`.
+Both need an elevated shell; H.5 also needs a person at the wizard.

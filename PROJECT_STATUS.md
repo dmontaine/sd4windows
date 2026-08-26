@@ -70,8 +70,8 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
 | ✅ | **H.4a** | **The ssh remote-block RUNBOOK — run and passed.** Kept for the next guest: item 5's SKIP wants the same rig. ***The `Open` leg must run FIRST***, and the precondition is a **Private** network profile on the guest | 25 Aug 2026 |
-| ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** Open: that one SKIP, **what the mode and tasks pages LOOKED like** (the page itself has been used — he chose stand-alone on it), and one security question that is the owner's | partly |
-| ⬜ | **7.18** | ***THE LAST DEVELOPMENT TASK: CLEAN UP.*** **The three leaks are FIXED in source and NOTHING HAS BEEN DELETED YET** — that pass still runs last. 8 leaked Windows users + 8 groups, 30 profile directories **+ 47 stale `ProfileList` entries nothing had counted**, ~25 scratch files in the home directory. **Keep `sdout`; ask about `~/sdclilib`.** (a) and (e) are answered in the entry | — |
+| ◐ | **H.5** | Stand-alone install — **built, installed, 21 PASS / 0 FAIL / 1 SKIP.** ***The security question is ANSWERED — the preflight still refuses, 26 Aug, no code change.*** Open: that one SKIP, and **what the mode and tasks pages LOOKED like** (the page itself has been used — he chose stand-alone on it) | partly |
+| ⬜ | **7.18** | ***THE LAST DEVELOPMENT TASK: CLEAN UP.*** Leaks FIXED in source; **NOTHING DELETED YET.** ***The pass is now ONE elevated command — `cleanup-devlitter.ps1 -IncludeVM`.*** 8 users + 8 groups, 30 profile dirs **+ 47 stale `ProfileList` entries nothing had counted**, ~25 home items, and the spent clone. **`sdout` is kept.** (a), (e) and all three cleanup decisions are answered in the entry | — |
 
 **Legend** — ✅ closed and verified · ◐ **partly**: some parts closed,
 some open, and the row says which · ⬜ open · ➖ removed or superseded,
@@ -98,8 +98,8 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > | | |
 > |---|---|
-> | **7.18** | **cleanup, the last development task.** ***The leaks are fixed in source (26 Aug, sixtieth session) and NOTHING HAS BEEN DELETED.*** What is left is the deleting itself, elevated, after the guest work: 8 Windows users + 8 groups, 30 profile directories **and 47 stale `ProfileList` entries the survey never counted**, ~25 scratch files in `~`. `sshRemoteTest-C1` is its subject too |
-> | **H.5** | stand-alone: **one SKIP**, **what the mode and tasks pages looked like** (the page has been used — not unseen), and one security question that is the owner's |
+> | **7.18** | **cleanup, the last development task.** ***Leaks fixed in source, NOTHING DELETED, and the pass is now ONE command:*** `cleanup-devlitter.ps1 -IncludeVM`, elevated, after the guest work. Run `-List` first. 8 users + 8 groups, 30 profile dirs **and 47 stale `ProfileList` entries the survey never counted**, ~25 home items, and the spent clone |
+> | **H.5** | stand-alone: **one SKIP**, and **what the mode and tasks pages looked like** (the page has been used — not unseen). ***The security question is answered: the preflight still refuses.*** Both remaining halves need one fresh clone and a person at the wizard |
 > | **H.2** | documentation — **approved, scoped, and starts AFTER 1.0-0 by his instruction.** The gate is now empty, so this is a decision he can take |
 >
 > ***H.5 IS STILL THE CHEAPEST NEXT MOVE, BUT NOT ON THE STANDING GUEST — IT
@@ -1203,11 +1203,16 @@ the measurement. Nothing was judged on it.
 > disabled. It reports **0** on this file, with the null-case guard printing 6
 > observation and 2 denial lines so a clean zero is not a silent one.
 >
-> ***STILL TO DECIDE — ONE THING, AND IT IS A SECURITY DECISION:***
+> ***ANSWERED 26 Aug 2026 — THE ssh PREFLIGHT STILL REFUSES ON A STAND-ALONE
+> INSTALL. OWNER'S DECISION, AND IT NEEDS NO CODE CHANGE.***
 >
 > | | |
 > |---|---|
-> | does the ssh preflight still refuse? | A stand-alone install neither installs nor configures an ssh server, so the reason for the refusal does not apply — but relaxing a check verified on three guests the same week is the owner's call, not a builder's |
+> | does the ssh preflight still refuse? | **Yes.** Asked and answered 26 Aug 2026. A stand-alone install neither installs nor configures an ssh server, so the reason for the refusal does not apply — but relaxing a check verified on three guests the same week was his call, and he kept it |
+>
+> ***SO NOTHING IS BUILT FOR THIS, DELIBERATELY.*** Keeping the refusal is the
+> only answer that changes no structure — see the next paragraph for why the
+> alternative was not a `Check:`. **Do not reopen it as a tidiness item.**
 >
 > ***AND IT IS NOT A ONE-LINE CHANGE EITHER WAY, WHICH THE QUESTION DID NOT
 > KNOW.*** The preflight runs in `InitializeSetup`
@@ -10550,6 +10555,54 @@ the staging script and the Inno installer were all finished and removed.
     from the machine — the fixes stop the piles GROWING, so the one cleanup
     pass at the end is not immediately undone. All four scripts are on
     `$neverShipped`, so none of this owes a cycle.
+
+    ***AND THE DELETING IS NOW ONE COMMAND —
+    [cleanup-devlitter.ps1](sdb_ai/sd64/gplbld/cleanup-devlitter.ps1), written
+    26 Aug 2026.*** Elevated. `-SelfTest` checks the name rules and changes
+    nothing; `-List` shows what would go; no switch acts; `-IncludeVM` also
+    deletes the spent clone.
+
+    ```
+    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1 -List
+    ```
+
+    | section | what |
+    |---|---|
+    | 1 | the leaked Windows users |
+    | 2 | their `sdu_` groups |
+    | 3 | **calls `clean-test-profiles.ps1`** rather than reimplementing it — that script owns the `ProfileList` half |
+    | 4 | the home directory, `sd*` minus `sdout` |
+    | 5 | `sshRemoteTest-C1`, only with `-IncludeVM`, and it refuses a RUNNING VM |
+
+    ***ACCOUNTS BEFORE PROFILES, AND THAT ORDER IS THE POINT.***
+    `clean-test-profiles.ps1` refuses a profile whose SID still has a local
+    account — deliberately, so it only ever touches orphans. That is what left
+    **7 profiles unreachable behind 8 accounts nothing would delete.** Remove
+    the accounts first and they become ordinary orphans.
+
+    ***THE NAME PATTERN IS READ OUT OF `clean-test-profiles.ps1`, NOT COPIED.***
+    Two copies is two things to keep in step, and that file's own history is a
+    record of exactly that drifting — its stem list reached 3 of 14. It refuses
+    to run if it cannot find the pattern, or if that script does not parse.
+
+    ***THE SAFETY ARGUMENT, AND A CONTROL THAT CORRECTED IT.*** The machine
+    carries seven real sd-prefixed groups — `sdadmins`, `sdapi`, `sdssh`,
+    `sdsshonly`, `sdusers`, `sdu_don`, `sdu_test1` — and `don` and `test1` are
+    real accounts. Two things were claimed to keep them out: the `sdu_` gate,
+    and the pattern. ***A control removed the gate and the self-test stayed
+    GREEN*** — so it is **the PATTERN that protects them**, and the gate is the
+    redundant layer. `sdapi` and `sdssh` **are stems**; they are excluded only
+    because the pattern has required a run suffix since 26 Aug 2026.
+    **`-SelfTest` now asserts that every bare stem fails to match**, and
+    loosening the suffix makes it exit 2 naming those two as real groups —
+    watched failing, 14 cases, before the pattern was restored.
+
+    ***THE THREE CLEANUP DECISIONS, TAKEN BY THE OWNER 26 Aug 2026:*** the home
+    sweep removes **the ~25 scratch files and directories, `~/sdclilib`, and
+    `sd-preclean-backup`**; `sshRemoteTest-C1` **is deleted** with the rest. And
+    one item resolved itself — ***`SD AI Modification Snapshots_20260610.zip`
+    (52 MB) is already gone***, so only `sd-preclean-backup` was left to ask
+    about, and it proved to be 6 near-empty entries plus a 359-byte `sd.conf`.
 
     | | what was measured | fix |
     |---|---|---|
