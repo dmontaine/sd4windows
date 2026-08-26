@@ -27,6 +27,67 @@ corrected.
 
 ---
 
+## 25 Aug 2026 - Fifty-seventh session, part 6: the first full cycle, and a false STALE that stopped the suite
+
+**Commit:** this one. `gplbld/stage.py` (`--list-retired`), `gplbld/assert-current.ps1`.
+
+**The owner ran the full cycle and `VerifyInstall1 -Run b39`.** The install was
+good - `gcat` 125 of 125 staged, `GPL.BP.OUT` 185 of 185, `$BCOMP` 88,070 bytes,
+credential register holding one account with a password, `sd.exe` matching,
+B3 clean across **six** mirrored directories (the `bp` removal took effect) and
+B4 clean.
+
+***AND assert-current REFUSED ANYWAY, ON A PERFECTLY GOOD INSTALL.***
+
+```
+STALE: sdsys/changelog  is not in the install at all
+```
+
+**`VerifyInstall1` stopped at its first step.** The cause is the source -> install
+rename walk: it reports any source file under `sdsys` that is not installed
+under `sdsys`, and `changelog` moved to `{app}` on 25 Aug 2026 - deliberately,
+because the data tree is never overwritten and a user's changelog was frozen at
+their install date. The source deliberately stays at `sdsys/changelog`. Checked
+rather than assumed: `C:/Program Files/SD/changelog` is present, 191,697 bytes,
+and `C:/ProgramData/SD/sdsys/changelog` is correctly absent.
+
+**The fix reads the list rather than copying it.** `stage.py` gained
+`--list-retired` beside `--list-mirrors`, answered before any machine check for
+the same reason; `assert-current` reads it and skips those names in the walk,
+matching on the first path segment so a retired directory covers its contents.
+`$stagePy` and `$python` were **hoisted** above both readers - the mirrors block
+that defined them runs later in the file, so leaving them there would have left
+the retired list empty and the fix silently inert.
+
+**Proven by running it:** *"1 retired name(s) excluded from the rename walk:
+changelog"*, and the walk passes. Parse-check 0 errors with **4 functions, the
+same count as HEAD**, no BOM, no stray control bytes.
+
+### The second staleness was self-inflicted, and it is worth the entry
+
+Editing `stage.py` at 17:11 put it newer than the 17:07 install, so
+`assert-current` went red again - correctly. **The owner was mid-verification
+and a build input was changed under him.** Confine a mid-run fix to files that
+are genuinely exempt, or expect to pay for a cycle.
+
+***AND `stage.py` HAS NEVER BEEN EXEMPT, THOUGH IT IS ON `$neverShipped`
+TWICE.*** Its own line 4 - `# command line: python3 gplbld/stage.py` - contains
+`/stage.py`, and `$shipsAs` matches a name preceded by a quote or a separator,
+so the header comment reads as ship evidence. `cycle.ps1` scores **0** in both
+scanned files and is genuinely exempt, which is why an earlier session could say
+fixing it cost no cycle.
+
+**Left as it is, deliberately.** `stage.py` decides what gets staged, so a change
+to it genuinely can invalidate an install: the accidental reinstatement gives
+the right answer and the `$neverShipped` entry is the wrong part. Loosening a
+staleness guard to buy back a cycle is the trade this project keeps refusing.
+
+**Noticed while there, not fixed:** `$neverShipped` holds duplicate entries for
+`cycle.ps1`, `stage.py` and `sdsys`, and a `foo.ps1` that looks like debris.
+
+---
+
+
 ## 25 Aug 2026 - Fifty-seventh session, part 5: VFS scoped for removal, and the owner's guess about Ladybridge confirmed
 
 **Commit:** this one. `PROJECT_STATUS.md` only - **nothing removed yet, on the
