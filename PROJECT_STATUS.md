@@ -15,7 +15,7 @@ something came to be the way it is.
 
 ***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT", AND RUN THE CHECKER FIRST.*** `python sdb_ai/sd64/gplbld/check-stale-leads.py` — one second, exit 0 today, and it is the difference between the table and a guess. It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*.
 
-***H.2 — THE TESTER SET IS 15 PAGES AND THE OWNER HAS ANSWERED THE REVIEW LIST. SIXTEEN OF THE EIGHTEEN QUESTIONS ARE APPLIED; TWO ARE OPEN AND ARE AT THE TOP OF `QUESTIONS-2026-08-26.md`*** — **q7**, the `limitssh` default (re-asked with four options; he said the proposal was not clear) and **q14**, whether the unmeasured ssh-elevation caveat is stated to testers. ***THE DOCUMENTATION AND ITS TOOLCHAIN NO LONGER LIVE HERE***: repository `SDCoreWindowsDocs`, working tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, head `8b7639d`. `mkdoc.py` and `mkpdf.ps1` are **gone from `gplbld` and off `$neverShipped`** (q15).
+***H.2 — THE TESTER SET IS 15 PAGES AND THE OWNER HAS ANSWERED THE REVIEW LIST. SIXTEEN OF THE EIGHTEEN QUESTIONS ARE APPLIED; TWO ARE OPEN AND ARE AT THE TOP OF `QUESTIONS-2026-08-26.md`*** — **q7**, the `limitssh` default (re-asked with four options; he said the proposal was not clear) and **q14**, whether the unmeasured ssh-elevation caveat is stated to testers. ***THE DOCUMENTATION AND ITS TOOLCHAIN NO LONGER LIVE HERE***: repository `SDCoreWindowsDocs`, working tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, head `076fdd7`, pushed. `mkdoc.py` and `mkpdf.ps1` are **gone from `gplbld` and off `$neverShipped`** (q15).
 
 ***THE DOCUMENTATION GETS ITS OWN GitHub REPOSITORY, AND IT WILL NOT CARRY THE NO-BINARIES RULE — OWNER, 26 Aug 2026.*** That **reverses** §"WHERE THE WORK LIVES", which said documentation lives here; the entry keeps what the old ruling was protecting against, because **drift is now caught by a person or not at all**. ***`sd4windows` is unchanged — no binary becomes trackable in THIS repository.*** ***AND THE MOVE IS NOW COMPLETE***: `SDCoreWindowsDocs` exists, the tree was moved by the owner out of `sdhelp` to `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` and restructured into `Testing` / `User` / `Technical`, each `markdown` + `html` + `pdf`, and the two render scripts went with it. **The P-drive copy is stale.**
 
@@ -65,7 +65,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — **FULL install 21:57, 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`** | 25 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, head `8b7639d`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. `User` and `Technical` sets are empty scaffolding | — |
+| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, head `076fdd7`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. `User` and `Technical` sets are empty scaffolding | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -207,8 +207,8 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > Repository
 > [SDCoreWindowsDocs](https://github.com/dmontaine/SDCoreWindowsDocs), working
 > tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` — **the owner
-> moved it out of `sdhelp` on 26 Aug 2026** — branch `main`, head `8b7639d`,
-> **not pushed**. The P-drive copy is stale. Three sets, each `markdown` +
+> moved it out of `sdhelp` on 26 Aug 2026** — branch `main`, head `076fdd7`,
+> **pushed**. The P-drive copy is stale. Three sets, each `markdown` +
 > `html` + `pdf`: `Testing` holds the 15-page tester set, `User` and
 > `Technical` are empty.
 >
@@ -445,8 +445,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > created 26 Aug 2026 and **created empty**, which is what the first push
 > needed. Working tree
 > `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` — the owner moved it
-> out of `sdhelp` the same day — `origin` set, head `8b7639d`, **not pushed
-> since `af9b37f`**.
+> out of `sdhelp` the same day — `origin` set, head `076fdd7`, **pushed**.
 >
 > ***THE MARKDOWN IS TRACKED AND THE GENERATED `.html`/`.pdf`/`.zip` ARE NOT.***
 > Ruled 26 Aug 2026, question 16: the pages are rendered after a change, only
