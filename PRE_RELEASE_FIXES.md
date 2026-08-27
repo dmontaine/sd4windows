@@ -52,6 +52,7 @@ should be fixed, **M** minor.
 | 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27, **unfixed here** | `gpl.bp/DELETEF:233` |
 | 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
+| 29 | **B** | ***`micro` CANNOT SAVE FOR AN UNELEVATED ACCOUNT*** — its config home is a read-only Program Files directory that it must write to | `gpl.bp/EDIT:219` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -771,3 +772,60 @@ written with a restrictive ACL; and whether `sdsys` itself should stop being
 `sdusers`-writable, which is a wider question than this entry. Raised while
 writing *SD TCL - Processes and Phantoms*, which tells the reader to treat a
 dump as the data of the program that produced it.
+
+## 29. `micro` cannot save for an unelevated account — **B**
+
+***THE EDITORS' WHOLE PURPOSE IS EDITING AND SAVING, AND SAVING IS WHAT FAILS.***
+Found 27 Aug 2026 by the owner running the one test only a person can run —
+`micro bp ZZMARKS` from an unelevated console. micro drew correctly, the SD
+BASIC syntax highlighting worked, every mark token converted exactly as
+specified, and the save produced:
+
+```
+Permission denied. Save with sudo not supported on Windows
+```
+
+**`EDIT:219` sets `MICRO_CONFIG_HOME` to `C:\Program Files\SD\micro`.** That
+directory is `BUILTIN\Users:(I)(RX)` — read and execute, no write — and micro
+writes into its config home. An ordinary account therefore cannot save.
+
+***WHAT WAS ELIMINATED FIRST, BECAUSE THE OBVIOUS SUSPECTS WERE ALL INNOCENT:***
+
+| suspect | measurement | verdict |
+|---|---|---|
+| the working copy's ACL | owned by `don`, `sdu_don` Modify; exclusive open for write **succeeded** as `don` unelevated | not it |
+| the `$hold` directory | creating a new file in it as `don` unelevated **succeeded** | not it |
+| SD still holding the file open across `os.execute` | `tools\probes\p26-holdopen.b` writes a record into `$hold` then, **from inside `os.execute`** — the same place the editor runs — opens it exclusively. `EXCLUSIVE-OPEN-OK`, with the after-close attempt as the control | not it |
+| micro's config home | creating a file there as `don` unelevated raises `UnauthorizedAccessException` | ***this*** |
+
+**And micro demonstrably writes there**: `bindings.json` and `buffers/history`
+are in it, owned by `don`, both written on 27 Aug. `backups/` has never been
+created at all.
+
+***THIS IS WHY 26 Aug's "BOTH EDITORS WORK" DID NOT CATCH IT.*** `don` is a
+member of Windows `Administrators`, so an **elevated** session writes Program
+Files without trouble; an unelevated one gets `Administrators` deny-only in its
+token and falls back to `Users:(RX)`. The editors were tested from an elevated
+session. **Item 5.3 of START HERE says "an unelevated console" precisely
+because that is the case that had never been run.**
+
+> ***DO NOT FIX THIS BY GRANTING WRITE ON THE PROGRAM FILES DIRECTORY.***
+> micro loads Lua plugins from its config home and executes them. A directory
+> under `C:\Program Files` that every SD user can write is a directory where
+> any user can drop code that runs inside every other user's editor session,
+> with that user's rights. It would trade a save failure for a privilege
+> escalation.
+
+**The shape of a real fix is a decision, not an edit**, and it is the owner's:
+micro takes one `-config-dir` for both its read-only configuration and its
+writable state, so they cannot simply be split. The options are a per-account
+config directory inside the account (losing the single machine-wide copy of
+`sdbasic.yaml`, or copying it in), or a writable state directory outside
+Program Files with the syntax file copied to it at install time.
+
+**`edit` — Microsoft Edit — sets no `MICRO_CONFIG_HOME` and is not affected by
+this**, but it has not been retried unelevated since the cycle, so do not read
+that as tested.
+
+**The working copy left in `$hold` during the failed session is not a second
+defect**: `EDIT` cleans up when `os.execute` returns, and micro was still open.
