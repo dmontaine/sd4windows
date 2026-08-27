@@ -37391,3 +37391,120 @@ window is installed and unobserved.
 **Open, none started:** the shipped-scripts documentation gap; bundling micro
 with the installer (decided, licence question settled, nothing built); and
 questions 7 and 14 of the review list.
+
+## 26 Aug 2026 - The b46 run was 31/31, not 19/19, and the PASS counter had been reading 27 files of 47
+
+**Commit:** see the commit that carries this entry. Sixty-second session,
+opening. No source changed; this is a check of the last cycle and the repairs
+it found in the record.
+
+`git pull` already up to date at `b2b4718`, working tree clean.
+`assert-current` run live: **exit 0**, install **26 Aug 17:14:03**, `sd.exe`
+`8E6A6CF45AA6F20A` - so the 61st session's cycle is still current and its
+measurements still stand. `check-stale-leads.py` exit 0, 26 rows.
+
+### The cycle was fine. The two things written down about it were not
+
+***IT WAS 31/31, RECORDED AS "19 of 19".*** `VerifyInstall2` prints *"all 19
+steps exited 0"* and `VerifyInstall1` prints *"every step exited 0"* with **no
+number**. Quoting the second on its own turns a full run into something a reader
+cannot tell from a 19-step one. Read out of the transcripts:
+`post-cycle-unelevated-20260826-171534.txt` **12 of 12 exit 0**,
+`post-cycle-20260826-171706.txt` **19 of 19 exit 0**. START HERE's `-Run` trap
+already warned about this in the other direction (12 of 31 reading as a finished
+suite); the mirror image is now beside it.
+
+***AND THE `PASS` COUNTER HAD NEVER READ THE ELEVATED HALF.*** The recorded
+method - *"a plain grep over the run's 47 files"* - was reproduced exactly: over
+`b43`'s 47 files it still returns **923**, the number this project has carried
+since 25 Aug. **20 of those 47 files are UTF-16LE** (`VerifyInstall2`'s per-step
+logs, from `Start-Transcript` in the elevated child), and grep matches nothing in
+a UTF-16LE file. Decoded, `b43` is **1446** and `b46` is **1485** flat, **991**
+de-duplicated.
+
+**The undercount is the harmless half.** Every elevated step's `[FAIL]` line
+lives in exactly the files the grep could not read, and the counters were
+recorded as *"the cheap null-case guard"*. **Decoded, both runs really are `0`
+`[FAIL]` / `0` `[SKIP]`** - so the verdict was right and the instrument was not.
+What carried those runs was the step exit codes.
+
+**Controlled rather than asserted, both ways:** the decode is proved to have
+reached something (523 `PASS` inside the UTF-16 files, non-zero), and the
+`[FAIL]` pattern is proved to discriminate (`20260823-081128-05-verify-tiers.log`
+returns 8 when decoded). A zero from an unread file and a zero from a clean file
+are otherwise identical.
+
+**De-duplication matters and is not symmetric.** The unelevated per-verifier
+logs are copied wholesale into `VerifyInstall1-<stamp>.log`; the elevated
+per-step logs are **not** in `post-cycle-elevated-<stamp>.log`, because
+`VerifyInstall2` is invoked `-Quiet` and its Tee holds only the summary. So the
+honest total is `VerifyInstall1-<stamp>.log` plus the 19 numbered logs.
+
+**The pattern is bare `PASS`, and that is not sloppiness.** The verifiers use
+three formats - `[PASS] <claim>`, a table column, and a closing `PASSED` line.
+`[PASS]` alone scores `b46` as 601 and drops whole verifiers to zero.
+
+### Four places in PROJECT_STATUS.md still described the 25 Aug install
+
+"THE MACHINE", the START HERE suite command, its `-Run` warning and item 1's
+table all carried the 21:57 install, `sd.exe` `5BD2F83F43BB9B27`, `923 PASS` and
+***"`b43` is spent - use `b44`"*** - ten lines below a header saying `b46` is
+spent. **`check-stale-leads.py` cannot see this**: it checks the task table
+against the entries, and this drift was in the narrative. All four now read the
+17:14:03 install, `8E6A6CF45AA6F20A`, 31/31, 991 `PASS`, `b47`. `H.1` moved to
+26 Aug with it, and the checker still exits 0.
+
+**"Nothing since has changed anything that ships" was false when written** - the
+26 Aug work shipped `$EDIT`, `install-editors.ps1`, the micro syntax file, the
+licence VOC records and a new binary. It is true again now, and it now says so
+with `assert-current`'s live exit code rather than by assertion.
+
+## 26 Aug 2026 - Eight of the seventeen SD BASIC pages, and measuring them found defects
+
+**Commit:** see the commit that carries this entry. Sixty-second session.
+
+`01` Program Structure, `02` Program Control, `03` Math Functions, `04` String
+Functions, `05` Dynamic Arrays, `06` Data Conversion, `07` File Handling and
+`08` Select Lists, in `SDCoreWindowsDocs`, rendered to HTML and PDF.
+`checklinks` **52 links, 0 broken**. Map ruled by the owner; `docmap.py`
+assigns **411 of 411** names `BCOMP` accepts to exactly one document.
+
+### The roster came from the compiler, and the examples from the machine
+
+Not from `..\sdhelp`. `BCOMP`'s own tables give 218 statements, 37 reserved
+words and 176 intrinsics; diffed against the historic by-type roster, **8
+things the old docs describe are gone and 59 exist that it never listed**.
+
+Every example was compiled and run on the 17:14:03 install, through a probe
+written into `C:\ProgramData\SD\user_accounts\don\bp` - **writable without
+elevation where `sdsys\bp` is not** - and fed to SD down section 6's
+`Invoke-SD` pipe. The runner refuses a run that did not print its own START and
+END markers, and it earned that four times: `replace(a,2,2,'R')`,
+`matbuild ... using`, `errmsg 1000` and `selectv` into `dcount()` all failed to
+compile or aborted, and every one of them had already been written into a draft
+page as though it worked.
+
+***THE DEFECTS ARE IN THE ENTRY, NOT REPEATED HERE.*** `matbuild ... using`
+(upstream's - `st.matbuild` is byte-identical to `../sdb64`'s), `errmsg` in the
+statement table but not compilable, and `on n goto` clamping instead of falling
+through are the three that are not documented anywhere.
+
+### The title page
+
+Owner, 26 Aug 2026: every document opens on a page carrying its name and
+subject, `Copyright (c) 2026 Donald Montaine`, the release, and **CC BY-SA
+4.0** with a summary and the licence URL. **Built by `mkdoc.py`** rather than
+pasted into seventeen files, and `mkdoc.py` refuses to write a page that
+renders without it. `.subtitle` was removed from the stylesheet with the
+element it styled.
+
+***THE FIRST INSTRUMENT FOR THE PAGE BREAK WAS WRONG AND SAID SO.*** Page
+counts on a real document read **6 with the break and 6 without** - the content
+rounded the same either way. That is not evidence the break works; it is
+evidence the test cannot see it. The decisive control is a **one-paragraph
+document**: **2 pages with the break, 1 without**, both halves run. Only then
+was the break reported as working.
+
+**Also corrected:** PROJECT_STATUS pinned the docs repository at head `076fdd7`
+in four places and it had moved. Re-pinning re-arms the trap, so those now name
+the branch; the one historical reference stays.

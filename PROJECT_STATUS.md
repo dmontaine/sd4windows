@@ -15,9 +15,9 @@ something came to be the way it is.
 
 ***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT", AND RUN THE CHECKER FIRST.*** `python sdb_ai/sd64/gplbld/check-stale-leads.py` — one second, exit 0 today, and it is the difference between the table and a guess. It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*.
 
-***H.2 — THE TESTER SET IS 15 PAGES AND THE OWNER HAS ANSWERED THE REVIEW LIST. SIXTEEN OF THE EIGHTEEN QUESTIONS ARE APPLIED; TWO ARE OPEN AND ARE AT THE TOP OF `QUESTIONS-2026-08-26.md`*** — **q7**, the `limitssh` default (re-asked with four options; he said the proposal was not clear) and **q14**, whether the unmeasured ssh-elevation caveat is stated to testers. ***THE DOCUMENTATION AND ITS TOOLCHAIN NO LONGER LIVE HERE***: repository `SDCoreWindowsDocs`, working tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, head `076fdd7`, pushed. `mkdoc.py` and `mkpdf.ps1` are **gone from `gplbld` and off `$neverShipped`** (q15).
+***H.2 — THE TESTER SET IS 15 PAGES AND THE OWNER HAS ANSWERED THE REVIEW LIST. SIXTEEN OF THE EIGHTEEN QUESTIONS ARE APPLIED; TWO ARE OPEN AND ARE AT THE TOP OF `QUESTIONS-2026-08-26.md`*** — **q7**, the `limitssh` default (re-asked with four options; he said the proposal was not clear) and **q14**, whether the unmeasured ssh-elevation caveat is stated to testers. ***THE DOCUMENTATION AND ITS TOOLCHAIN NO LONGER LIVE HERE***: repository `SDCoreWindowsDocs`, working tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, pushed. `mkdoc.py` and `mkpdf.ps1` are **gone from `gplbld` and off `$neverShipped`** (q15).
 
-***TWO FULL-SCREEN EDITORS ARE BACK, `edit` AND `micro`, AND BOTH ARE UNCOMPILED SOURCE UNTIL SOMEBODY RUNS A CYCLE.*** Owner, 26 Aug 2026, reversing the 17 Aug removal of `MICRO`. **One program, two VOC entries**: `sdsys/gpl.bp/EDIT` is the old `MICRO` ported with its three defects fixed (§UPSTREAM_FIXES #16), and it reads field 1 of the command line to choose between `edit.exe` and `micro.exe`. `newvoc/edit` and `newvoc/micro` (and both `voc_template` records) are `CA $EDIT`; the old `MICRO` source is deleted. **`edit` was already in `TIER.OMIT.STANDARD`; `micro` was added to it**, so the list is **42** and a standard account's count does not move — it is on both sides of the arithmetic. `gplbld/install-editors.ps1` is new and shipped, `sd.iss` runs it unconditionally, and it **refuses to fall back to a per-user winget install**. ***THERE ARE TWO GATES, NOT ONE*** (owner, 26 Aug 2026): the VOC tier decides who has the verb, and **`os.users` field 2 - the `OS.EXECUTE` field - decides whether it runs**. `check.permitted` in `EDIT` tests it rather than leaving it to `os_permitted()`, which would never see it: the program is `$internal`, so `op_sh.c:157` admits it on `HDR_INTERNAL`. It also refuses a session with **no terminal** - an API session or a piped script. **The editors should work over ssh**: `connection_type` is `CN_CONSOLE` for an ssh session (`kernel.h:55` is the default and only `-P`, `-C` and `-N` change it), so `op_sh.c:348` does not pipe the child and the editor gets the terminal. **Not measured.** ***GREEN AND CURRENT AS OF 26 Aug 2026 17:14. THIS IS THE STATE TO START FROM.*** Cycle complete, install **17:14:03**, `sd.exe` **`8E6A6CF45AA6F20A`** (moved from `5BD2F83F43BB9B27` - the first C change since 25 Aug: `win32vt.c` and the `sdtermlb.c` reorder). `assert-current` **exit 0**. Suite **`-Run b46`: 19 of 19 steps exited 0** - ***`b46` IS SPENT, USE `b47`***. **Verified in the install by reading it, not by trusting the run**: `gcat/$EDIT`, `newvoc/micro` -> `$EDIT`, `TIER.OMIT.STANDARD` 42, `voc_template/$licence` 44,529 bytes, `$contrib` 627, the micro syntax file and `install-editors.ps1` both shipped, and no Black Oak in the licence. ***AND `config gpl` / `config contrib` RUN END TO END***: 915 lines back through `Invoke-SD`'s harness, the whole GPL present, no Black Oak - so the 44 KB VOC record, the one part of that design nobody had exercised, works. ***WHAT IS NOT DONE: `edit` and `micro` HAVE NOT BEEN RETRIED SINCE THE VT CHANGE***, so ANSI positioning from a PowerShell window is built and installed but unwitnessed. **Three things are open and none is started**: the shipped-scripts documentation gap (25 PowerShell scripts ship, 4 documented; `install-ssh.ps1` matters most because page 01 promises a retry command it never prints); **bundling micro with the installer** (decided 26 Aug, licence question settled, nothing built); and questions **7** and **14** in `QUESTIONS-2026-08-26.md`. 
+***TWO FULL-SCREEN EDITORS ARE BACK, `edit` AND `micro`, AND BOTH ARE UNCOMPILED SOURCE UNTIL SOMEBODY RUNS A CYCLE.*** Owner, 26 Aug 2026, reversing the 17 Aug removal of `MICRO`. **One program, two VOC entries**: `sdsys/gpl.bp/EDIT` is the old `MICRO` ported with its three defects fixed (§UPSTREAM_FIXES #16), and it reads field 1 of the command line to choose between `edit.exe` and `micro.exe`. `newvoc/edit` and `newvoc/micro` (and both `voc_template` records) are `CA $EDIT`; the old `MICRO` source is deleted. **`edit` was already in `TIER.OMIT.STANDARD`; `micro` was added to it**, so the list is **42** and a standard account's count does not move — it is on both sides of the arithmetic. `gplbld/install-editors.ps1` is new and shipped, `sd.iss` runs it unconditionally, and it **refuses to fall back to a per-user winget install**. ***THERE ARE TWO GATES, NOT ONE*** (owner, 26 Aug 2026): the VOC tier decides who has the verb, and **`os.users` field 2 - the `OS.EXECUTE` field - decides whether it runs**. `check.permitted` in `EDIT` tests it rather than leaving it to `os_permitted()`, which would never see it: the program is `$internal`, so `op_sh.c:157` admits it on `HDR_INTERNAL`. It also refuses a session with **no terminal** - an API session or a piped script. **The editors should work over ssh**: `connection_type` is `CN_CONSOLE` for an ssh session (`kernel.h:55` is the default and only `-P`, `-C` and `-N` change it), so `op_sh.c:348` does not pipe the child and the editor gets the terminal. **Not measured.** ***GREEN AND CURRENT AS OF 26 Aug 2026 17:14. THIS IS THE STATE TO START FROM.*** Cycle complete, install **17:14:03**, `sd.exe` **`8E6A6CF45AA6F20A`** (moved from `5BD2F83F43BB9B27` - the first C change since 25 Aug: `win32vt.c` and the `sdtermlb.c` reorder). `assert-current` **exit 0**. Suite **`-Run b46`: 31 of 31 steps exited 0 - 12 unelevated + 19 elevated, 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`** - ***`b46` IS SPENT, USE `b47`***. *(This line read "19 of 19" until 26 Aug 2026: that is the elevated half's own summary, quoted alone. Corrected from the transcripts, with the counts remeasured - §6, "the PASS count was grepped out of files nothing could read".)* **Verified in the install by reading it, not by trusting the run**: `gcat/$EDIT`, `newvoc/micro` -> `$EDIT`, `TIER.OMIT.STANDARD` 42, `voc_template/$licence` 44,529 bytes, `$contrib` 627, the micro syntax file and `install-editors.ps1` both shipped, and no Black Oak in the licence. ***AND `config gpl` / `config contrib` RUN END TO END***: 915 lines back through `Invoke-SD`'s harness, the whole GPL present, no Black Oak - so the 44 KB VOC record, the one part of that design nobody had exercised, works. ***WHAT IS NOT DONE: `edit` and `micro` HAVE NOT BEEN RETRIED SINCE THE VT CHANGE***, so ANSI positioning from a PowerShell window is built and installed but unwitnessed. **Three things are open and none is started**: the shipped-scripts documentation gap (25 PowerShell scripts ship, 4 documented; `install-ssh.ps1` matters most because page 01 promises a retry command it never prints); **bundling micro with the installer** (decided 26 Aug, licence question settled, nothing built); and questions **7** and **14** in `QUESTIONS-2026-08-26.md`. 
 
 ***THE EDITORS RUN. `edit` AND `micro` BOTH TESTED ON THE INSTALL OF 26 Aug 2026 AND BOTH WORK*** (owner). The fault that stopped them first time was a **POSIX path handed to a Windows program**: `fileinfo(FL$PATH)` answers `/cygdrive/c/...` - measured with `ANALYSE.FILE`, and **`sd.conf`'s `C:\ProgramData\...` makes it look otherwise, which is why it was measured**. `kernel(K$WINPATH)` converts it, and an empty answer is refused rather than passed on. ***IT WAS NOT AN ERROR AT EITHER END***: Windows read the path as drive-relative, so micro said *"parent dirs don't exist"* and Microsoft Edit said nothing at all. ***STILL UNCOMPILED AFTER THAT CYCLE***: a blank line before each of the four prompts. ***IT COMPILES. MEASURED, NOT REPORTED*** — `cycle.ps1 -SkipInstall`, 26 Aug 2026 14:13, and the staged tree at `C:\Users\dmont\stagetest` was read rather than the run's output believed: `ProgramData\sdsys\gcat\$EDIT` and `gpl.bp.out\EDIT` both exist, `newvoc/edit` and `newvoc/micro` both read `CA $EDIT`, `TIER.OMIT.STANDARD` holds 42, `ProgramFiles\install-editors.ps1` is there and the old `gpl.bp/MICRO` is gone. **`gcat` is still 125 and `gpl.bp.out` still 184** — `$MICRO` left as `$EDIT` arrived. ***IT HAS STILL NEVER RUN***: `-SkipInstall` stops before installing, so `C:\ProgramData\SD` is untouched and no session has typed `edit`. **A full `cycle.ps1` is what tests it**, and the mark-token conversion added afterwards has not been compiled at all. ***THE TOKENS ARE `~~` FOR A VALUE MARK AND `~` + backtick FOR A SUBVALUE MARK***, and the guard is a **round trip** rather than a search for the tokens: `EDIT` converts the record, converts it back, and refuses the record if the result differs. `gplbld/test-edittokens-units.py` proves that in Python against 14 records (10 editable, 4 refused, both non-zero) and is on `$neverShipped`. ***DECIDED 26 Aug 2026, NOT YET BUILT: `micro` WILL SHIP WITH SD RATHER THAN BE FETCHED BY winget.*** Owner's ruling, and **his reason is the one that decides it, not size**: a bundled micro is *pinned to the SD release*, so *"if someone asks us a question about 1.0-0 we know exactly which micro they have installed"*. winget cannot give that - two machines installed a month apart run different editors and nobody knows. It also fixes the case the present design structurally cannot: **an offline machine, a policy-blocked winget or a Server SKU with no App Installer gets no `micro` at all today.** ***SEQUENCING IS HIS AND IT IS DELIBERATE: finish the current validation pass first, and only when that is stable add micro and cycle again.*** **Licence is clear** - micro is MIT, so binary redistribution is permitted provided the copyright and permission notice ship with it, and aggregating an MIT program beside GPL-3 SD raises nothing. **The no-binaries rule is not in the way either**: it governs the REPOSITORY, and the installer already carries binaries the repository does not hold - `dll_closure()` computes the MSYS2 DLL set off the build machine and nothing binary is tracked. **Measured for the decision**: micro's win64 zip is 5,148,356 bytes against an installer of 4,830,157. ***THE THIRD-PARTY LICENCE QUESTION IS SETTLED AND NEEDED NO JUDGEMENT***: micro's repository root carries **`LICENSE` (1,086 bytes) and `LICENSE-THIRD-PARTY` (64,173 bytes)**, so upstream has already assembled the dependency notices. **Ship all three files together** - the executable and both licence files in the same directory - and the obligation is met by mirroring what micro itself distributes. *(An earlier note here said micro carried no third-party file. That was wrong: it read the contents of `LICENSE` rather than the repository listing.)* ***AND `micro` HIGHLIGHTS SD BASIC; `edit` CANNOT.*** `gplbld/microcfg/syntax/sdbasic.yaml` **ships** (so it is NOT on `$neverShipped`) and is **generated from `BCOMP`'s own tables** by `mkbasicsyntax.py` — 218 statements, 37 reserved words, 176 intrinsics. `EDIT` names `C:\Program Files\SD\micro` in `MICRO_CONFIG_HOME`, which is micro's only machine-wide config route; the other two are per-profile and SD's accounts have no Windows profile. Detection is on the working copy's name — a BP record is written as `<record>.editing.sdbasic`. `checksyntax.py` is the control (**24 patterns, 0 bad**): inside a double-quoted YAML scalar `\.` is not a legal escape, so a natural-looking regex invalidates the whole file and **micro reports that by not highlighting**.
 
@@ -27,7 +27,7 @@ something came to be the way it is.
 
 ***ONE COMMAND IS STILL OWED ON THIS MACHINE, AND NOTHING IS BLOCKED ON IT.*** The package is chosen but not installed for the MSYS2 python here; `mkdoc.py` runs under the **Windows** python (3.13.14, `markdown` 3.10.2) and that is what rendered every page of the tester set. Either re-run `setup-devbox.ps1` elevated, or install the one package inside MSYS2: `pacman -S --needed python-markdown`. ***`mkdoc.py` ITSELF IS NO LONGER IN THIS REPOSITORY*** — see the H.2 entry.
 
-***THE MACHINE.*** The host carries a **FULL** install (25 Aug 2026, 21:57) with the suite green — **31/31 steps, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`**, `sd.exe` `5BD2F83F43BB9B27`, `assert-current` clean and run live at the end of the sixtieth session. **`b43` is spent — use `b44`.** Nothing since has changed anything that ships, so that install still matches source. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
+***THE MACHINE.*** The host carries a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` **exit 0 run live at the start of the sixty-second session**, so the install still matches source and every verifier will run. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
 
 ***ONE DEFECT IS RAISED AND UNDECIDED, AND THE DOCUMENTATION PHASE WILL MEET IT.*** `sdsys\changelog` ships into the **data tree**, which the installer never overwrites, so a user's changelog is frozen at their install date — in the one file whose entire job is telling them what changed. It probably wants moving to `{app}` beside the documentation. Raised 25 Aug 2026; not decided, and not yet a task.
 
@@ -68,8 +68,8 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.15** | Data tree private from SD's own users — ACL lock, all four writers | 24 Aug 2026 |
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
-| ✅ | **H.1** | The cycle and suite record — **FULL install 21:57, 31/31, 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b43`** | 25 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, head `076fdd7`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. `User` and `Technical` sets are empty scaffolding | — |
+| ✅ | **H.1** | The cycle and suite record — **FULL install 26 Aug 17:14:03, 31/31 (12+19), 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b46`**, `assert-current` exit 0 live on 26 Aug | 26 Aug 2026 |
+| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS UNDER WAY — a 17-document SD BASIC reference, map approved by the owner 26 Aug 2026. `01`–`08` written, rendered to HTML and PDF, `checklinks` 52 links 0 broken.*** `Technical` is still empty scaffolding | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -123,14 +123,22 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > the design — about four UAC prompts:
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b44
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b47
 > ```
 >
 > ***`-Run` ON ITS OWN DOES NOTHING*** — it is *"ignored without
 > `-ThenElevated`"*. Without that switch `VerifyInstall1` runs its 12 unelevated
 > steps, prints **"every step exited 0"** and stops, which reads exactly like a
-> finished suite and is **12 of 31**. ***`b43` IS SPENT — USE `b44`.*** A `-Run`
+> finished suite and is **12 of 31**. ***`b46` IS SPENT — USE `b47`.*** A `-Run`
 > prefix is spent once.
+>
+> ***AND THE SAME TRAP RUNS THE OTHER WAY, WHICH IS HOW `b46` GOT WRITTEN DOWN
+> WRONG.*** The two halves print **different** summary lines and neither names
+> the suite: `VerifyInstall1` prints *"every step exited 0"* with **no number**
+> (12), and `VerifyInstall2` prints *"all 19 steps exited 0"* (19). Quoting the
+> second on its own — which the 61st session did — records a green 31-step run
+> as **"19 of 19"**, and the next reader cannot tell it from a run where the
+> unelevated half never happened. **Write down both numbers, or write `31/31`.**
 >
 > **AND `Start-Process -Verb RunAs -Wait` DOES NOT SET `$LASTEXITCODE`** — use
 > `-PassThru` and `.ExitCode`, or a failed `cycle.ps1` reads as success. One run
@@ -178,15 +186,19 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > | | |
 > |---|---|
-> | install | **25 Aug 2026, 21:57**, a **FULL** install — the cycle that put the machine back after the stand-alone one |
-> | the suite | **31/31 steps, every one exit 0. 923 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`**, run as `-ThenElevated -Run b43`. Both counters read, because two counters that cannot both be zero is the cheap null-case guard |
-> | `sd.exe` | `5BD2F83F43BB9B27` |
+> | install | **26 Aug 2026, 17:14:03**, a **FULL** install — `cycle-20260826-171313.log`, the cycle that built `$EDIT` |
+> | the suite | **31/31 steps, every one exit 0** — **12** unelevated (`VerifyInstall1-20260826-171534.log`) + **19** elevated (`post-cycle-20260826-171706.txt`), run as `-ThenElevated -Run b46`. **991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** Both counters read, because two counters that cannot both be zero is the cheap null-case guard |
+> | `sd.exe` | `8E6A6CF45AA6F20A` |
 > | `gcat` / `gpl.bp.out` | **125 / 184** |
-> | `assert-current` | **clean**, run live again at the end of the sixtieth session, exit 0 — so every verifier will run |
+> | `assert-current` | **exit 0**, run live at the start of the sixty-second session — so every verifier will run |
 >
-> **Nothing since has changed anything that ships.** Every commit of the
-> sixtieth session touched documentation or a `gplbld` script, and all of those
-> are on `$neverShipped`.
+> ***THE `-Run` TOKEN IS PROVEN TO HAVE REACHED THE ELEVATED HALF*** — the
+> evidence is the account names its steps created, `sdacctb46`, `sdtiertb46`,
+> `sdcatgb46`, `sdaclb46`, `sdrtb46` and the rest, in
+> `post-cycle-20260826-171706.txt`. Not the switch having been typed.
+>
+> **Nothing since has changed anything that ships**, and that is measured
+> rather than assumed: `assert-current` exits 0 on this tree today.
 >
 > ***WHAT THAT RUN DOES NOT COVER, AND EACH GAP WAS CLOSED SEPARATELY.*** The
 > **upgrade path** is gated on `DataTreeUpgrade` and that was a first install,
@@ -204,17 +216,89 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### 2. DOCUMENTATION — H.2 IS STILL OPEN. THE TESTER SET IS REVIEWED; THE OTHER TWO SETS ARE NOT WRITTEN
 >
-> **H.2 stays open**: `User` and `Technical` are empty, and two review
-> questions are unanswered. What follows is what is settled.
+> **H.2 stays open**: the `User` set is two pages into seventeen, `Technical`
+> is empty, and two review questions are unanswered. What follows is what is
+> settled.
+>
+> ***THE `User` SET IS AN SD BASIC REFERENCE, AND THE MAP IS RULED.*** Owner,
+> 26 Aug 2026: seventeen documents, **grouped by function**, each titled
+> `SD Basic - <category>`. ***WRITTEN: `01` Program Structure, `02` Program
+> Control, `03` Math Functions, `04` String Functions, `05` Dynamic Arrays,
+> `06` Data Conversion, `07` File Handling, `08` Select Lists*** — eight of
+> seventeen, all rendered to HTML **and PDF**, `checklinks` **52 links, 0
+> broken**. Next: `09` Alternate Key Indexes through `17` Debugging. Numbers
+> are one flat run for the whole `User` set, **no letter suffixes** — §6's
+> hyphen-collation trap.
+>
+> ***EVERY DOCUMENT NOW OPENS ON A GENERATED TITLE PAGE — OWNER, 26 Aug
+> 2026.*** Name, subject, `Copyright © 2026 Donald Montaine`, the release it
+> shipped with, and **CC BY-SA 4.0** with a three-paragraph summary and
+> `https://creativecommons.org/licenses/by-sa/4.0/`. **It is built by
+> `mkdoc.py`, not pasted into each file** — the Markdown supplies only `Title:`
+> and `Subtitle:`. `mkdoc.py` **refuses to write a page** that renders without
+> the title page, the copyright or the licence URL. ***THIS ALSO CHANGES THE
+> `Testing` SET AT ITS NEXT RENDER***, which has not been re-rendered.
+>
+> ***THE PAGE BREAK WAS VERIFIED WITH A CONTROL, AND THE FIRST INSTRUMENT WAS
+> WRONG.*** Comparing page counts on a real document gave 6 with the break and
+> 6 without — the content rounded the same either way, so it proved nothing.
+> The decisive test is a **one-paragraph document**: 2 pages with the break,
+> **1 without**. Both halves were run.
+>
+> ***COVERAGE IS CHECKED, NOT ASSUMED***: `scratchpad\docmap.py` assigns every
+> name `BCOMP` accepts to exactly one document and exits non-zero on a gap —
+> **411 of 411 assigned**. Rebuild it in `gplbld` if the set is ever picked up
+> on another machine.
+>
+> ***THE ROSTER COMES FROM `BCOMP`'s OWN TABLES, NOT FROM `..\sdhelp`.*** The
+> same extraction `gplbld/mkbasicsyntax.py` uses gives **218 statements, 37
+> reserved words, 176 intrinsics** — what this port's compiler actually
+> accepts. Diffed against the historic by-type roster: **8 things the old docs
+> describe are gone** (`rsd`, `stope`, `stopm`, `encrypt()`, `decrypt()`,
+> `ttyget()`, `ttyset`, `connect.port()`) and **59 exist that the old roster
+> never listed** — `sdencrypt()`, `sddecrypt()`, `checksum()`, `randomize`,
+> `sysmsg()`, `vartype()`, the `ak*` family, the debug family, `printcsv`,
+> `sendmail` among them. **Do not take a function list from the help tree.**
+>
+> ***WHAT MEASURING FOUND THAT NO DOCUMENT RECORDS, AND SOME OF IT IS
+> DEFECTS.*** Each was reproduced on the 17:14:03 install.
+>
+> | | |
+> |---|---|
+> | ***`matbuild ... using` DOES NOT WORK*** | the keyword compiles as a **variable** and the program aborts with *"Unassigned variable USING"*. Tried in both cases. **`st.matbuild` is byte-identical to `../sdb64`'s, so it is upstream's defect, not ours.** The delimiter is always `@fm` |
+> | ***`errmsg` IS IN `BCOMP`'s STATEMENT TABLE AND DOES NOT COMPILE*** | *"Unrecognised statement"*. Its opcode was removed 28 Jul 24 and the name was left behind. **Being in the table is not evidence a statement exists** — the roster needs compiling, not just reading |
+> | ***`on n goto` CLAMPS, IT DOES NOT FALL THROUGH*** | with two labels, `on 0` and `on -1` both go to **label 1** and `on 3` goes to **label 2**. So there is no "none of the above", and a zero — what an empty variable evaluates to — silently runs the first branch |
+> | ***`locate`'s SUBSCRIPT DEPTH CHOOSES THE LEVEL*** | `arr<f>` searches FIELDS, `arr<f,v>` searches VALUES. One subscript on a value list finds nothing and returns an insertion point, which reads like a working search. The statement form **requires** the brackets |
+> | `div()` is not `/` | `div(7,2)` is **3**: the intrinsic compiles to `OP.QUOTIENT` (`BCOMP:476`), not to the `/` opcode of the same name |
+> | `idiv()` changes rounding | truncates on two integers, **floors** if either is floating point: `idiv(-7,2)` is `-3`, `idiv(-7.0,2)` is `-4` |
+> | `num('')` is **true** | the empty string passes the test people use as a validator |
+> | `selectv` is not a dynamic array | `vartype()` **11**; `dcount()` on it fails *"Data cannot be converted to a string"*. Read it with `readnext ... from` |
+> | the format qualifier has no keyword | `t '10R2'` works, `t fmt '10R2'` compiles `fmt` as a variable |
+> | `getlist`/`savelist` need `then`/`else` | without one the error is *"Expected THEN or ELSE"* reported against the **next** statement |
+> | `fileinfo` has no record count | key 6 is minimum modulus. Use `selectinfo(list, 3)` |
+> | a trailing `@fm` becomes an id | `formlist` on three ids built with `id : @fm` produced **four** entries, the last empty |
+>
+> ***AND EVERY EXAMPLE IS MEASURED, WHICH IS NOT DECORATION — IT CAUGHT FOUR
+> WRONG ANSWERS THE REFERENCE WOULD HAVE PRODUCED.*** `div(7,2)` is **3**, not
+> `3.5`, because the intrinsic `DIV()` compiles to `OP.QUOTIENT` and not to the
+> `/` opcode that shares its name (`BCOMP:476`); `idiv()` truncates on two
+> integers and **floors** if either is floating point, so `idiv(-7,2)` is `-3`
+> and `idiv(-7.0,2)` is `-4`; `num('')` is **true**; `shift()` right-shifts
+> **unsigned**, so `shift(-1,1)` is `2147483647`. The probe route is a program
+> written into `C:\ProgramData\SD\user_accounts\don\bp` — **writable without
+> elevation, where `sdsys\bp` is not** — then `BASIC`/`RUN` down §6's
+> `Invoke-SD` pipe. Runner kept at
+> `scratchpad\run-zzmath.ps1`; it refuses a run that did not print its own
+> START and END markers.
 >
 > ***NOTHING ABOUT THE DOCUMENTATION IS IN THIS REPOSITORY ANY MORE.***
 > Repository
 > [SDCoreWindowsDocs](https://github.com/dmontaine/SDCoreWindowsDocs), working
 > tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` — **the owner
-> moved it out of `sdhelp` on 26 Aug 2026** — branch `main`, head `076fdd7`,
+> moved it out of `sdhelp` on 26 Aug 2026** — branch `main`,
 > **pushed**. The P-drive copy is stale. Three sets, each `markdown` +
-> `html` + `pdf`: `Testing` holds the 15-page tester set, `User` and
-> `Technical` are empty.
+> `html` + `pdf`: `Testing` holds the 15-page tester set, `User` holds the
+> SD BASIC reference in progress, `Technical` is empty.
 >
 > ***HE ALSO REVIEWED PAGE 00 AND THE LINEAGE IN IT WAS WRONG.*** SD Core is a
 > version of SD carrying elements of the main SD version and of ScarletDME;
@@ -449,7 +533,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > created 26 Aug 2026 and **created empty**, which is what the first push
 > needed. Working tree
 > `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` — the owner moved it
-> out of `sdhelp` the same day — `origin` set, head `076fdd7`, **pushed**.
+> out of `sdhelp` the same day — `origin` set, **pushed**.
 >
 > ***THE MARKDOWN IS TRACKED AND THE GENERATED `.html`/`.pdf`/`.zip` ARE NOT.***
 > Ruled 26 Aug 2026, question 16: the pages are rendered after a change, only
@@ -4008,6 +4092,47 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- ***THE SUITE'S `PASS` COUNT WAS GREPPED OUT OF FILES NOTHING COULD READ, AND
+  THE `[FAIL]` HALF OF THE NULL-CASE GUARD WAS THE HALF THAT WENT BLIND.***
+  Found 26 Aug 2026, the sixty-second session, while checking the `b46` cycle.
+
+  **`VerifyInstall2` writes its 19 per-step logs as UTF-16LE** — they open
+  `FF FE` — because they come from `Start-Transcript` in the elevated child.
+  Everything else in a run is UTF-8 or UTF-8-with-BOM. ***`grep` reads a
+  UTF-16LE file as binary and matches nothing in it***, silently, exit 1.
+
+  **The recipe in the record was *"a plain grep over the run's 47 files"*, and
+  it is reproducible: over `b43`'s 47 files it returns `923` — the number this
+  file has carried since 25 Aug — while decoding the 20 UTF-16LE files first
+  returns `1446`.** So the grep read **27 of 47 files**.
+
+  ***THE PASS UNDERCOUNT IS THE HARMLESS HALF. THE POINT IS THAT `0 [FAIL]` WAS
+  NOT A MEASUREMENT OF THE ELEVATED HALF AT ALL*** — every elevated step's
+  `[FAIL]` line lives in exactly the files the grep could not read. The counters
+  were recorded as *"the cheap null-case guard"*, and for 19 of the 31 steps the
+  guard was itself the null case. **Both runs really are clean** — decoded,
+  `b43` and `b46` are both `0 [FAIL]`, `0 [SKIP]` — **so the verdict was right
+  and the instrument was not.** What actually carried those runs was the step
+  exit codes, which `VerifyInstall1`/`2` check themselves.
+
+  ***THE FIX IS TO DECODE, AND TO PROVE THE DECODE REACHED SOMETHING.*** Count
+  per encoding and print the UTF-16 subtotal; if it is `0`, the decode did
+  nothing and the total is a lie. And control the failure pattern against a run
+  that DID fail — `20260823-081128-05-verify-tiers.log` carries 8 `[FAIL]` when
+  decoded, so a `[FAIL]` grep that finds none there is broken, not lucky.
+
+  ***AND THE PATTERN IS BARE `PASS`, NOT `[PASS]` — DO NOT "TIDY" IT.*** The
+  verifiers do not agree on a format: some print `[PASS] <claim>`, others a
+  table row whose last column is `PASS`, others a closing `verify-x: PASSED`.
+  Anchoring on `[PASS]` scores `b46` as **601** instead of **991** and drops
+  whole verifiers to zero. Every count in this file is bare `PASS`.
+
+  **`991` is `b46` de-duplicated**: the unelevated per-verifier logs are copied
+  wholesale into `VerifyInstall1-<stamp>.log`, so a flat sum over all 47 files
+  double-counts them (it gives `1485`). The elevated per-step logs are **not**
+  duplicated in `post-cycle-elevated-<stamp>.log`, because `VerifyInstall2` is
+  invoked `-Quiet` and its Tee holds only the summary.
 
 - ***WINDOWS AND PYTHON DISAGREE ABOUT WHERE A HYPHEN SORTS, SO A FILE CAN BE
   LISTED IN ONE ORDER BY EXPLORER AND ANOTHER BY A BUILD SCRIPT.*** 26 Aug
