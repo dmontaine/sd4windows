@@ -38480,3 +38480,76 @@ the password rule is the USER arm's alone and a GROUP account reaches neither
 write-once rule and one of the three doors can be exercised with no prompt.
 The administrator downgrade still cannot be: it needs a USER account at the
 ADMINISTRATOR tier, which is one command for him to type.
+
+## 27 Aug 2026 - The tier change is measured and works, and it disproved one of the build session's claims
+
+**Commit:** see the commit that carries this entry. Same session, after the cycle.
+
+The owner ran the elevated half at his own terminal - an elevated agent was
+attempted three times and never took, because Claude Code had been launched
+from Explorer and a process token is fixed at creation. The agent ran the
+unelevated half and diffed the Windows side from outside SD.
+
+***THE TWO NUMBERS ARE THE EVIDENCE, AND BOTH WERE COUNTED FROM SOURCE BEFORE
+THE RUN.*** `TIER.OMIT.STANDARD` holds **42** ids, `TIER.ADD.ADMINISTRATOR`
+**21**. Every `voc.delta` move reported exactly one of those or zero: 42 added
+on STANDARD to PROGRAMMER, 42 removed coming back, 21 removed leaving
+ADMINISTRATOR. A number that matches a prediction made from a different source
+is worth more than a number that merely looks plausible.
+
+***THE TEST THE DESIGN RESTS ON, AND THE FIRST ATTEMPT AT IT PROVED NOTHING.***
+SUSPENDED to STANDARD with field 6 holding `PROGRAMMER` gave 42 removed - and
+**a blank field 6 also ranks 2**, so that run could not tell "field 6 was read"
+from "field 6 defaulted". The discriminating case is a field 6 of `STANDARD`
+(rank 1): SUSPENDED to PROGRAMMER gave **42 added**, where a lost field 6 would
+have given 0. Only the second run says the round trip is lossless.
+
+**The Windows side was diffed before and after, with a control.** SD's message
+is a claim; `os.users/b48adm` went `yes`/`yes` to **gone**, Windows
+`Administrators` **MEMBER to removed**, `sdapi` **MEMBER to removed**, `sdssh`
+**kept** - the half that would look identical if `route.apply` had done nothing
+- and `sdusers` untouched. `don`'s record and memberships are unchanged, so the
+removals tracked the account acted on.
+
+**The LOGTO door was measured unelevated and in a pair**: `logto b48susp`
+(SUSPENDED) answered *"Account B48SUSP is suspended"*, `logto b48tier`
+(STANDARD) answered *"User not allowed in requested account"*, and `who` read
+`8 DON` after both. Two accounts differing only in tier, two different
+refusals.
+
+### The write-once rule never fires, and four documents said it was the reason
+
+`SYSCOM/KEYS.H`, `tier.set`'s banner, PROJECT_STATUS.md and this file all
+stated that field 6 is safe because `MODIFYA` writes it *only on the transition
+into SUSPENDED*. The second `modify.account b48tier suspended` answered
+***"B48TIER is already SUSPENDED; nothing changed"*** - sysmsg 10110, the
+**equality guard** at the top of `tier.set`, returning before the field-6 write
+is reached.
+
+**It is unreachable, not merely unexercised.** `old.tier` is upcased and
+trimmed and `want.tier` is one of four upper-case literals, so reaching that
+write with `want.tier = 'SUSPENDED'` already implies `old.tier # 'SUSPENDED'`.
+
+***THE BEHAVIOUR IS RIGHT AND ONLY THE EXPLANATION IS WRONG.*** Field 6 is
+preserved and the round trip is lossless. What is wrong is four documents
+naming the wrong guard - which survives exactly until somebody deletes the
+equality guard believing the other one is holding. PRE_RELEASE_FIXES 21.
+
+***AND IT IS NOT FIXED IN SOURCE, ON PURPOSE, WHICH IS THE SEQUENCING POINT.***
+Editing `MODIFYA` or `KEYS.H` - **even only their comments** - moves the mtime,
+`assert-current` then fails, and every verifier that calls it refuses. **The
+suite has not run.** So the tree is left CURRENT for `-Run b48` and the
+correction is queued. Only the Markdown was changed.
+
+### Two things found by running it that reading it had not
+
+**`LOGTO` out of SDSYS drops `K$ADMINISTRATOR` (`CPROC:2713`)** - so
+`sdtcl.ps1`, which opens with `LOGTO don`, **cannot drive `MODIFY.ACCOUNT` at
+all**, elevated or not. Caught by reading the source before handing over the
+command list rather than by a wasted elevated run.
+
+**`create.account` says a password was not set and never says why**
+(`CREATEA:498`, sysmsg 10008). The two cases a caller cannot tell apart are the
+two likely ones - the entries did not match, or Windows rejected the password
+on policy - and somebody in the second case can retype a matching pair for
+ever. PRE_RELEASE_FIXES 22.

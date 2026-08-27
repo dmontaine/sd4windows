@@ -44,6 +44,8 @@ should be fixed, **M** minor.
 | ~~18~~ | **M** | ~~A text mark reaches the editor as a raw control character~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
 | 19 | **B** | ***The tier change and `SUSPENDED` compile but have never RUN, and there is no verifier*** | `gpl.bp/MODIFYA` |
 | 20 | **S** | A suspended administrator is still a Windows administrator | `gpl.bp/MODIFYA` |
+| 21 | **S** | ***The write-once rule on `ACC$PRIOR.TIER` is unreachable, and four documents say it is what makes field 6 safe*** | `gpl.bp/MODIFYA` |
+| 22 | **M** | `create.account` says a password was not set and never says why | `gpl.bp/CREATEA:498` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -553,3 +555,48 @@ test field 5. It matters where a suspension is being used to contain somebody
 rather than to park an account, and that distinction is worth a sentence in
 page 32 when it is written.
 
+
+---
+
+## 21. The write-once rule on `ACC$PRIOR.TIER` is unreachable — **S**
+
+Measured 27 Aug 2026 by running it. `SYSCOM/KEYS.H`, `tier.set`'s banner,
+PROJECT_STATUS.md's START HERE and HISTORY.md all state that field 6 is safe
+because `MODIFY.ACCOUNT` writes it **only on the transition into SUSPENDED**.
+
+A second `modify.account <acct> suspended` answered ***"B48TIER is already
+SUSPENDED; nothing changed"*** — sysmsg 10110, the **equality guard** at the
+top of `tier.set`, returning before the field-6 write is reached.
+
+**It is unreachable rather than merely unexercised.** `old.tier` is upcased and
+trimmed and `want.tier` is one of four upper-case literals, so reaching the
+write with `want.tier = 'SUSPENDED'` already implies `old.tier # 'SUSPENDED'`.
+
+***THE BEHAVIOUR IS CORRECT AND ONLY THE EXPLANATION IS WRONG*** — field 6 is
+preserved, and the round trip was measured lossless (SUSPENDED with field 6
+`STANDARD` → PROGRAMMER gave **42 added**, where a lost field 6 would have
+given 0). So this is not a defect in what SD does; it is four documents
+describing the wrong guard, which is the kind of thing that survives until
+somebody deletes the equality guard and believes the other one is holding.
+
+**The fix**: delete the unreachable inner test, and say at the equality guard
+that it is also what protects field 6. **Not done here on purpose** — editing
+`MODIFYA` or `KEYS.H`, even only their comments, moves the mtime and
+`assert-current` then refuses every verifier. The suite has not run. Do this
+with whatever next changes source.
+
+---
+
+## 22. `create.account` says a password was not set and never says why — **M**
+
+Seen 27 Aug 2026 while making a test account. `CREATEA:498` calls
+`set_passwd()`, and on failure prints sysmsg 10008 — *"Warning, user created
+but password not set, Retry (Y/N)"* — with **no reason**.
+
+The two candidates a caller cannot tell apart are the two most likely ones:
+**the two entries did not match**, and **Windows rejected the password** on
+length or complexity policy. The retry loop is friendly, but somebody who hits
+the second case can retype a matching pair for ever.
+
+`!set_passwd` knows which it was. Passing that back, or printing the two cases
+distinctly, is the fix.
