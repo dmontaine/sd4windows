@@ -46,6 +46,7 @@ should be fixed, **M** minor.
 | 20 | **S** | A suspended administrator is still a Windows administrator | `gpl.bp/MODIFYA` |
 | 21 | **S** | ***The write-once rule on `ACC$PRIOR.TIER` is unreachable, and four documents say it is what makes field 6 safe*** | `gpl.bp/MODIFYA` |
 | 22 | **M** | `create.account` says a password was not set and never says why | `gpl.bp/CREATEA:498` |
+| 23 | **S** | ***`term default` sets 20x24, the MINIMUM width, not SD's 120x36 default*** — UPSTREAM #24, **unfixed here** | `gpl.bp/TERM:165` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -600,3 +601,38 @@ the second case can retype a matching pair for ever.
 
 `!set_passwd` knows which it was. Passing that back, or printing the two cases
 distinctly, is the fix.
+
+---
+
+## 23. `term default` sets the minimum width, not the default — **S**
+
+Found 27 Aug 2026 while writing *SD TCL - The Terminal and the Session*, by
+running the verb rather than by reading it. `term default` then `term`:
+
+```
+Page width: 20
+Page depth: 24
+```
+
+**SD's default terminal size is 120 x 36.** `gpl.bp/INT$KEYS.H` defines
+`DEFAULT.WIDTH 120` and `DEFAULT.DEPTH 36`, and `LOGIN:213-221` uses both as
+the fallback when `LINES`/`COLUMNS` and terminfo say nothing. `TERM:165` sets
+`width = MIN.WIDTH` — 20 — and hard-codes depth 24.
+
+***THIS IS NOT COSMETIC.*** The shipped `@` dictionary records and the default
+`LIST` layouts are formatted for 120 columns; the changelog records that work.
+At 20 columns every standard report wraps. **A user who types `term default` to
+put things back makes the display worse**, and has no reason to suspect the
+verb they just used.
+
+**Also upstream's** — `sdb64`'s `GPL.BP/TERM` carries the identical lines
+164-166 and the identical constants — so it is filed as UPSTREAM_FIXES #24 as
+well. Being upstream's is not a reason to ship it.
+
+**The fix is two lines** and is written out in the upstream entry. Do not do it
+without a cycle: `TERM` is BASIC, so it costs one.
+
+**Documented meanwhile rather than left to surprise somebody**:
+*SD TCL - The Terminal and the Session* and tester page 13 both state the
+120 x 36 default, both say `term default` does not restore it, and both give
+`term 120,36` as what does.

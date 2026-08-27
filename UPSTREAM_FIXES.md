@@ -1615,3 +1615,66 @@ nobody can answer.
 tree has the same two unguarded calls at `DELETEF:222` and `DELETEF:297`.
 
 `PROPOSED`
+
+---
+
+## 24. `TERM DEFAULT` sets the MINIMUM width, not the default width
+
+`GPL.BP/TERM`, the `KW$DEFAULT` arm:
+
+```
+      case keyword = KW$DEFAULT                  ;* TERM DEFAULT
+         width = MIN.WIDTH
+         depth = if @term.type = 'sdterm' then 25 else 24
+```
+
+`GPL.BP/INT$KEYS.H` defines six constants, six lines apart:
+
+```
+      $define MIN.WIDTH           20
+      $define DEFAULT.WIDTH      120
+      $define MAX.WIDTH        32767
+      $define MIN.DEPTH           10
+      $define DEFAULT.DEPTH       36
+      $define MAX.DEPTH        32767
+```
+
+***THE VERB CALLED `DEFAULT` USES `MIN.WIDTH` WHERE `DEFAULT.WIDTH` IS PLAINLY
+MEANT***, and hard-codes 24 rather than `DEFAULT.DEPTH`. The result is that
+`TERM DEFAULT` sets the page to **20 x 24** — the narrowest SD will accept.
+
+**`LOGIN` uses the right pair**, which is what makes this a slip rather than a
+disagreement about what the default is:
+
+```
+      s = env('LINES');
+      if not(s matches '1N0N') then s = terminfo('lines')
+      if s <= 0 then s = DEFAULT.DEPTH
+      setpu PU$LENGTH, -1, max(s, MIN.DEPTH)
+
+      s = env('COLUMNS');
+      if not(s matches '1N0N') then s = terminfo('cols')
+      if s <= 0 then s = DEFAULT.WIDTH
+      setpu PU$WIDTH, -1, max(s, MIN.WIDTH)
+```
+
+So a session that starts with nothing to go on gets 120 x 36, and typing
+`TERM DEFAULT` in that same session narrows it to 20 x 24.
+
+***IT MATTERS MORE THAN A COSMETIC DEFAULT WOULD.*** SD's shipped `@` dictionary
+records and default `LIST` layouts are formatted for 120 columns - the changelog
+records that work explicitly - so a page of 20 columns wraps every standard
+report. A user who runs `TERM DEFAULT` to "put things back" makes the display
+worse and has no reason to suspect the verb.
+
+**The fix is two lines**: `width = DEFAULT.WIDTH` and `depth = DEFAULT.DEPTH`.
+The `sdterm` special case for depth 25 may be deliberate and can stay as an
+override if so; the point is that neither branch should be reaching for
+`MIN.WIDTH`.
+
+**Measured on SD Core for Windows W1.0-0** - `term default` then `term`
+reported `Page width: 20`, `Page depth: 24`. Upstream `sd64/sdsys/GPL.BP/TERM`
+carries the identical three lines at 164-166 and the identical constants at
+`INT$KEYS.H:37-42`, so this is not a port artefact.
+
+`PROPOSED`

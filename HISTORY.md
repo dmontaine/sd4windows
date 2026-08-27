@@ -38617,3 +38617,37 @@ documented on `29` as unmeasurable down a pipe, with the reason.
 **`Stop-Process` was NOT used on the stray**, per the standing rule. The install
 still served sessions throughout - `listu` and three later measurement runs all
 completed - so the damage is held slots and exclusive access, not a wedged tree.
+
+### The 120x36 default, and the defect that stating it uncovered
+
+Owner's correction, 27 Aug 2026: SD's default terminal size is **120 x 36**,
+not 80 x 24, and it should be said on page 29 and in the tester set. Verified in
+source rather than taken on trust - `gpl.bp/INT$KEYS.H:37-42` defines
+`DEFAULT.WIDTH 120` and `DEFAULT.DEPTH 36`, and `LOGIN:213-221` uses both as the
+fallback after `LINES`/`COLUMNS` and terminfo. **Not cosmetic**: the shipped `@`
+dictionary records and default `LIST` layouts are formatted for 120 columns, and
+the changelog records that work being done.
+
+***AND STATING IT DISPROVED SOMETHING WRITTEN AN HOUR EARLIER.*** Page 29 had
+already recorded `term default` reporting **20 x 24**, with a caveat explaining
+it as an artefact of the piped session it was measured in. **That explanation
+was wrong.** `TERM:165` sets `width = MIN.WIDTH` and hard-codes depth 24; it
+ignores `DEFAULT.WIDTH` and `DEFAULT.DEPTH`, which sit six lines away in the
+same header and are the pair `LOGIN` uses. It does this in **every** session.
+
+**The measurement was right and the reasoning around it was not** - which is the
+failure mode the instrument rule is aimed at, arriving from the other direction
+than usual. The number was real, quoted, and labelled as measured; what was
+invented was the explanation, and a caveat that says "this is an artefact of how
+I measured it" is itself a claim that has to be checked.
+
+**The verb called `default` narrows the page to the minimum SD accepts**, so
+somebody typing it to put things back makes the display worse and has no reason
+to suspect the verb. Upstream `sdb64` carries the identical three lines at
+`GPL.BP/TERM:164-166` and the identical constants, so it is **UPSTREAM_FIXES #24
+and PRE_RELEASE_FIXES #23** - both files, per the 26 Aug rule that a defect in
+both trees belongs in both.
+
+**Not fixed in source**: `TERM` is BASIC and the fix costs a cycle, and the tree
+is being kept current for `-Run b48`. Documented on page 29 and tester pages 02
+and 13 instead, all three giving `term 120,36` as what actually restores it.
