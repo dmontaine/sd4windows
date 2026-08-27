@@ -37771,3 +37771,82 @@ whose fix touches `txn.c` and BCOMP's code generation. It is with the owner.
 **Half of it must not be done**: `txn_depth--` in `op_txncmt()` alone would make
 `SYSTEM(1008)` trustworthy while the loss stayed, which is worse than both being
 visibly wrong.
+
+---
+
+## 26 Aug 2026 - The syntax card, and the restricted commands leave the User set
+
+**Commit:** the commit carrying this entry. Sixty-third session, third part.
+Docs repository at `3ea95ca`. **No source that ships changed** - the tree still
+owes the one cycle the previous entry describes, and nothing here touches it.
+
+Owner asked for an eighteenth document: *"syntax is just the syntax of each
+command and function, no explanation - just a quick lookup if someone forgets
+the syntax"*, alphabetical. Then, on seeing it: take the restricted commands
+off it and put them under `Technical` as *SD Basic - Restricted Commands*, and
+the same for the one name that is in a table with nothing behind it.
+
+### It is generated, and that is the whole point
+
+A lookup card's value is that every name is on it. A hand-written list of four
+hundred entries is a list with omissions nobody notices, and the reader
+concludes the missing one does not exist. So `tools/mksyntax.py` takes the
+roster from `BCOMP`'s own tables and **refuses to write a page unless every
+name has a line**. It also refuses in the other direction: two names carried
+over from an earlier, buggy extraction - `LINE` and `SYNTAX` - were caught as
+not accepted by `BCOMP` and removed.
+
+**173 of the 447 lines are read out of the compiler rather than typed.** BCOMP
+dispatches each intrinsic through an `on i goto` list that is POSITIONAL
+against the name list, and every entry carries the name in a trailing comment -
+so the argument count can be lifted, and the comment is a free alignment
+control. The script asserts both lists are the same length and that every
+comment matches its name before using either. The one comment that is an
+abbreviation rather than the name - `ARGCT` for `ARG.COUNT` - is an explicit
+exception rather than a loosened comparison, because loosening it would throw
+away the only control there is.
+
+Getting the extraction right took three passes and each failure was visible
+rather than silent: an unanchored prefix matched `int.intrinsics` inside
+`intrinsics` (212 names, not 175); a `$` anchor broke on
+`;* INMAT      (Special case for matrix name)`; and the name lists start with
+an initialiser rather than an append, which is where the last off-by-one was.
+
+### The split
+
+| | |
+|---|---|
+| `User/18-sd-basic-syntax.md` | **372** names an application may use |
+| `Technical/01-sd-basic-restricted-commands.md` | **75** it may not |
+
+75 = **36** restricted statements + **38** internal-only intrinsics + `ERRMSG`.
+All three classes are disjoint from each other and from every other table -
+checked before the split, not assumed - so the two pages **partition** the
+roster and the script enforces that: a name cannot fall down the gap.
+
+**The internal-only 38 had no home before this.** They were never on the card,
+because `mksyntax.py` builds from the public tables; now they are documented.
+
+**The Technical page leads with how each kind fails**, because two of the three
+name something other than the cause. A restricted statement gives
+*"Unrecognised statement"* against the right line. An internal-only FUNCTION is
+read as a matrix reference, so the complaint is *"Matrix X is not referenced in
+a DIM statement"* at the LAST line of the program - and with three or more
+arguments it is *"Right bracket not found where expected"* instead.
+
+### What was NOT done, and why
+
+***Document 09 Alternate Key Indexes is 8 of 8 restricted commands.*** The
+whole page is `akclear`, `akdelete`, `akenable`, `akread`, `akrelease`,
+`akwrite`, `create.ak` and `delete.ak` and nothing else. The ruling was about
+the card, so the page was left where it is and the question raised in START
+HERE. `13` and `16` carry a few each; `17` is fine, because `debug` - the one
+name on it that is not restricted - is what that page is about.
+
+`docmap.py` was deliberately left assigning the restricted names to User
+documents, and now carries a comment saying why: it answers *"is every name
+explained somewhere in the User set"*, and it still is.
+
+**`checklinks` on `Technical` refuses** - one page, no cross-references, no
+links at all. That is its guard working. Run it there when there is a second
+page.

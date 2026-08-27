@@ -15,7 +15,7 @@ something came to be the way it is.
 
 ***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT", AND RUN THE CHECKER FIRST.*** `python sdb_ai/sd64/gplbld/check-stale-leads.py` — one second, exit 0 today, and it is the difference between the table and a guess. It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*.
 
-***H.2 — THE `User` SET IS FINISHED, 17 OF 17 SD BASIC PAGES (26 Aug 2026). THE TESTER SET IS 15 PAGES AND THE OWNER HAS ANSWERED THE REVIEW LIST. SIXTEEN OF THE EIGHTEEN QUESTIONS ARE APPLIED; TWO ARE OPEN AND ARE AT THE TOP OF `QUESTIONS-2026-08-26.md`*** — **q7**, the `limitssh` default (re-asked with four options; he said the proposal was not clear) and **q14**, whether the unmeasured ssh-elevation caveat is stated to testers. ***THE DOCUMENTATION AND ITS TOOLCHAIN NO LONGER LIVE HERE***: repository `SDCoreWindowsDocs`, working tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, pushed. `mkdoc.py` and `mkpdf.ps1` are **gone from `gplbld` and off `$neverShipped`** (q15).
+***H.2 — THE `User` SET IS 18 PAGES AND `Technical` HAS STARTED (26 Aug 2026). THE TESTER SET IS 15 PAGES AND THE OWNER HAS ANSWERED THE REVIEW LIST. SIXTEEN OF THE EIGHTEEN QUESTIONS ARE APPLIED; TWO ARE OPEN AND ARE AT THE TOP OF `QUESTIONS-2026-08-26.md`*** — **q7**, the `limitssh` default (re-asked with four options; he said the proposal was not clear) and **q14**, whether the unmeasured ssh-elevation caveat is stated to testers. ***THE DOCUMENTATION AND ITS TOOLCHAIN NO LONGER LIVE HERE***: repository `SDCoreWindowsDocs`, working tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, pushed. `mkdoc.py` and `mkpdf.ps1` are **gone from `gplbld` and off `$neverShipped`** (q15).
 
 ***TWO FULL-SCREEN EDITORS ARE BACK, `edit` AND `micro`, AND BOTH ARE UNCOMPILED SOURCE UNTIL SOMEBODY RUNS A CYCLE.*** Owner, 26 Aug 2026, reversing the 17 Aug removal of `MICRO`. **One program, two VOC entries**: `sdsys/gpl.bp/EDIT` is the old `MICRO` ported with its three defects fixed (§UPSTREAM_FIXES #16), and it reads field 1 of the command line to choose between `edit.exe` and `micro.exe`. `newvoc/edit` and `newvoc/micro` (and both `voc_template` records) are `CA $EDIT`; the old `MICRO` source is deleted. **`edit` was already in `TIER.OMIT.STANDARD`; `micro` was added to it**, so the list is **42** and a standard account's count does not move — it is on both sides of the arithmetic. `gplbld/install-editors.ps1` is new and shipped, `sd.iss` runs it unconditionally, and it **refuses to fall back to a per-user winget install**. ***THERE ARE TWO GATES, NOT ONE*** (owner, 26 Aug 2026): the VOC tier decides who has the verb, and **`os.users` field 2 - the `OS.EXECUTE` field - decides whether it runs**. `check.permitted` in `EDIT` tests it rather than leaving it to `os_permitted()`, which would never see it: the program is `$internal`, so `op_sh.c:157` admits it on `HDR_INTERNAL`. It also refuses a session with **no terminal** - an API session or a piped script. **The editors should work over ssh**: `connection_type` is `CN_CONSOLE` for an ssh session (`kernel.h:55` is the default and only `-P`, `-C` and `-N` change it), so `op_sh.c:348` does not pipe the child and the editor gets the terminal. **Not measured.** ***GREEN AND CURRENT AS OF 26 Aug 2026 17:14. THIS IS THE STATE TO START FROM.*** Cycle complete, install **17:14:03**, `sd.exe` **`8E6A6CF45AA6F20A`** (moved from `5BD2F83F43BB9B27` - the first C change since 25 Aug: `win32vt.c` and the `sdtermlb.c` reorder). `assert-current` **exit 0**. Suite **`-Run b46`: 31 of 31 steps exited 0 - 12 unelevated + 19 elevated, 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`** - ***`b46` IS SPENT, USE `b47`***. *(This line read "19 of 19" until 26 Aug 2026: that is the elevated half's own summary, quoted alone. Corrected from the transcripts, with the counts remeasured - §6, "the PASS count was grepped out of files nothing could read".)* **Verified in the install by reading it, not by trusting the run**: `gcat/$EDIT`, `newvoc/micro` -> `$EDIT`, `TIER.OMIT.STANDARD` 42, `voc_template/$licence` 44,529 bytes, `$contrib` 627, the micro syntax file and `install-editors.ps1` both shipped, and no Black Oak in the licence. ***AND `config gpl` / `config contrib` RUN END TO END***: 915 lines back through `Invoke-SD`'s harness, the whole GPL present, no Black Oak - so the 44 KB VOC record, the one part of that design nobody had exercised, works. ***WHAT IS NOT DONE: `edit` and `micro` HAVE NOT BEEN RETRIED SINCE THE VT CHANGE***, so ANSI positioning from a PowerShell window is built and installed but unwitnessed. **Three things are open and none is started**: the shipped-scripts documentation gap (25 PowerShell scripts ship, 4 documented; `install-ssh.ps1` matters most because page 01 promises a retry command it never prints); **bundling micro with the installer** (decided 26 Aug, licence question settled, nothing built); and questions **7** and **14** in `QUESTIONS-2026-08-26.md`. 
 
@@ -69,7 +69,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — **FULL install 26 Aug 17:14:03, 31/31 (12+19), 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b46`**, `assert-current` exit 0 live on 26 Aug | 26 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS FINISHED — all 17 SD BASIC pages written and rendered, `docmap` 411 of 411, `checklinks` 110 links 0 broken (26 Aug 2026).*** `Technical` is still empty scaffolding, and the shipped-scripts gap is untouched | — |
+| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS 18 PAGES and the `Technical` set has its first, `01` Restricted Commands — `docmap` 411 of 411, `checklinks` 114 links 0 broken on `User` (26 Aug 2026). `18` and `Technical/01` are generated and partition the roster, 447 of 447. OPEN: document `09` is 8 of 8 restricted commands and may belong in `Technical` too — the owner's call.*** `Technical` is still empty scaffolding, and the shipped-scripts gap is untouched | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -112,12 +112,42 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > commit carrying this line; `SDCoreWindowsDocs` at `4317766`. Nothing is in
 > flight.
 >
-> ***THE `User` SET IS FINISHED — 17 OF 17 SD BASIC PAGES.*** `14` Locks and
-> Transactions, `15` Sockets, `16` System and Environment and `17` Debugging
-> were written this session. `docmap` **411 of 411**, `checklinks` **110 links,
-> 0 broken**, all seventeen rendered to HTML and PDF. **Nothing that ships
-> changed**, so the 17:14:03 install still matches source and `b47` is still
-> the next free suite prefix.
+> ***THE `User` SET IS 18 PAGES AND THE `Technical` SET HAS STARTED.*** `14`
+> Locks and Transactions, `15` Sockets, `16` System and Environment, `17`
+> Debugging and `18` Syntax were written this session, and `Technical/01`
+> SD Basic - Restricted Commands. `docmap` **411 of 411**, `checklinks`
+> **114 links, 0 broken** on `User`, everything rendered to HTML and PDF.
+>
+> ***`18` AND `Technical/01` ARE GENERATED, NOT EDITED, AND THEY PARTITION THE
+> ROSTER.*** `tools\mksyntax.py` writes both from `BCOMP`'s own tables and
+> **refuses unless every name is on exactly one of them** — 372 + 75 = **447**.
+> It lifts the argument count for 173 functions straight out of the compiler's
+> dispatch table, which is positional against the name list and carries each
+> name in a comment it checks against. **Edit `tools\syntax-shapes.txt` and
+> regenerate; do not edit either page.**
+>
+> | | |
+> |---|---|
+> | `User\markdown\18-sd-basic-syntax.md` | 372 names an application may use, one alphabetical run, syntax only |
+> | `Technical\markdown\01-sd-basic-restricted-commands.md` | 75 it may not — 36 restricted statements, 38 internal-only functions, and `errmsg` |
+>
+> ***ONE QUESTION IS OPEN AND IT IS THE OWNER'S: DOCUMENT 09.*** `09 Alternate
+> Key Indexes` is **8 of 8 restricted commands** — `akclear`, `akdelete`,
+> `akenable`, `akread`, `akrelease`, `akwrite`, `create.ak`, `delete.ak`, and
+> nothing else. The ruling was about the syntax card, so **the page was left
+> where it is** rather than moved unasked. If restricted commands belong in
+> `Technical`, that whole page belongs there too. `13` and `16` carry a few
+> each and are mixed; **`17` is fine** — the one name on it that is not
+> restricted, `debug`, is what the page is about.
+>
+> **`docmap.py` was deliberately not changed** and now says why: it answers
+> *"is every name explained somewhere in the `User` set"*, and it still is,
+> because the pages that explain them have not moved. Move the names in
+> `docmap` only if the pages move.
+>
+> **`checklinks` on `Technical` refuses today and is right to** — one page, no
+> cross-references, so it finds no links at all. Run it there once there is a
+> second page.
 >
 > ***`H.2` IS STILL OPEN AND WHAT IS LEFT IS NAMED.*** The `Technical` set is
 > empty scaffolding; questions **7** and **14** in `QUESTIONS-2026-08-26.md`
