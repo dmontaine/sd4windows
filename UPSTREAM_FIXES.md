@@ -1230,7 +1230,32 @@ TempRecordName : "'"` is `$HOLD/name`, which resolves only because the process
 happens to be sitting in the account directory. `fileinfo(fvar, FL$PATH)` is
 what actually knows where a directory file lives, and it costs one line.
 
-**What this port did with it, for whatever it is worth to upstream.** `MICRO`
+**4. Value and subvalue marks are handed to the editor raw.** Added 27 Aug
+2026. `Write TempRecord to Tempfile,TempRecordName` (`MICRO:194`) writes the
+record to `$HOLD` exactly as it stands, and `MICRO:184` reads it back the same
+way. A **field** mark is fine — a directory file writes one field per line and
+the editor sees lines. A **value** mark and a **subvalue** mark are not: they
+are `x'FD'` and `x'FC'`, control characters in the middle of a line, and what
+becomes of them is entirely up to the editor. Nothing in `MICRO` converts,
+escapes, checks or warns.
+
+So `MICRO` on a multivalued record is a silent data risk rather than an error:
+an editor that drops the character loses the value boundary, one that
+"corrects" it changes the record, and either way the user is asked *"Save?"*
+about a record something other than their own editing has already altered.
+**The obvious case is a dictionary record**, which is the kind of record
+`MICRO` exists to edit and the kind most likely to be multivalued.
+
+**What this port did with it.** Marks are converted to typeable tokens on the
+way out and back on the way in — `~~` for a value mark, `` ~` `` for a
+subvalue mark, `~-` for a literal tilde where one would otherwise be misread —
+and the conversion is lossless for every record, proved over every arrangement
+of those characters and over all 197 shipped source records before it was
+built. `sdsys/gpl.bp/EDIT`, `escape.tildes` and `process.record`. A **text**
+mark is still passed through raw and that is stated rather than hidden.
+
+**What this port did with the rest of it, for whatever it is worth to
+upstream.** `MICRO`
 was removed here on 17 Aug 2026 on a containment argument — an external editor
 is a way out of SD — and brought back on 26 Aug 2026 as `EDIT`, rewritten with
 all three fixed and gated on the account tier rather than on the `OS.USERS`

@@ -24,7 +24,7 @@ should be fixed, **M** minor.
 
 | | SEV | what | where |
 |---|---|---|---|
-| 1 | **B** | The `edit` / `micro` refusal message is malformed | `sdsys/gpl.bp/EDIT` |
+| ~~1~~ | **B** | ~~The `edit` / `micro` refusal message is malformed~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
 | 2 | **B** | The installing user gets no `OS.EXECUTE` | `gplbld/adopt-account.ps1` |
 | 3 | **S** | The live `SDSYS` VOC does not match `voc_template` | `sdsys/voc_template` |
 | 4 | **S** | Tester page 07 says a standard account has 77 verbs; it has 81 | docs repo |
@@ -40,6 +40,8 @@ should be fixed, **M** minor.
 | 14 | **S** | `delete.file ... no.query` still prompts, so it cannot run unattended — UPSTREAM #23, **unfixed here** | `gpl.bp/DELETEF:222` |
 | 15 | **M** | `delete.index` will not match a lower-case index name, though `list.index` will — UPSTREAM #22, **unfixed here** | `gpl.bp/DELETEI:155` |
 | 16 | **S** | A killed session blocks exclusive access, says nothing about why, and only an administrator can clear it | `gplsrc/sd.c:333` |
+| ~~17~~ | **B** | ~~`edit` / `micro` refuse a record whose text looks like a mark token~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
+| 18 | **M** | A text mark reaches the editor as a raw control character, unconverted and undetected | `sdsys/gpl.bp/EDIT` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -49,37 +51,6 @@ documenting, two were fixed here and two were not, and nothing recorded which
 was which.
 
 ---
-
-## 1. The `edit` / `micro` refusal message is malformed — **B**
-
-Reported by the owner, 26 Aug 2026.
-
-`check.permitted` builds a multi-line refusal by concatenating `char(10)` — a
-bare LF — and `EDIT:273` prints the whole thing with **one** `crt`. Eight sites
-build text this way: `EDIT` lines 236, 362, 374, 397, 426, 432 (which converts
-field marks to `char(10)` wholesale), 503 and 557.
-
-***CONFIRMED ON A REAL CONSOLE BY THE OWNER, 26 Aug 2026.*** A bare LF advances
-a line without returning to column 0, so every line after the first starts where
-the previous one ended:
-
-```
-:edit bp test
-edit is not available to don.
-                            It runs an editor outside SD, so it needs OS.EXECUTE permission: field 2 of your record in
-the SD system file os.users, which only an administrator can change.
-                                                                    ed, the line editor, needs none of this.
-```
-
-**A pipe hides it.** Through `sdtcl`, `edit voc =` returns two clean lines,
-because there the LF *is* the separator. **Test this one on a console.**
-
-**The fix is one `crt` per line** rather than one `crt` of an embedded-LF
-string. §7.16 established that this port writes CRLF to everything externally
-readable; the terminal path was not part of that work.
-
-**Look at the whole family, not just this message.** `char(10)` as a line
-separator inside a single write is the class.
 
 ## 2. The installing user gets no `OS.EXECUTE` — **B**
 
@@ -384,6 +355,102 @@ because the same §6 entry records the sweep on 22 Aug 2026 doing the opposite
 and forcing out healthy sessions for twenty minutes. A sweep that misses dead
 entries and evicts live ones is one bug or two, and nobody has looked.
 
+## 18. A text mark reaches the editor as a raw control character — **M**
+
+Found 27 Aug 2026 while correcting the changelog for item 17, and **the entry
+it corrects was itself wrong**: the changelog said text marks were *"covered by
+that same refusal rather than being left to surprise you"*, and they never
+were. The round trip only ever converted `@vm` and `@sm`, so a record
+containing `@tm` converts to itself, compares equal, and passes the guard
+untouched. It then goes to the editor as `x'FB'`.
+
+**Nothing is known to be lost** — whether the mark survives depends entirely on
+what the editor does with a stray control character, and neither `edit` nor
+`micro` has been tried on such a record.
+
+***THE OWNER'S 27 Aug INSTRUCTION NAMED THREE MARKS — field, value and
+subvalue — AND NOT THIS ONE***, so a fourth token was not added unasked. The
+options are a token (`~^` would fit the family), a refusal that actually
+detects `@tm`, or leaving it and saying so. **Today it is the third**, and
+both the changelog and *SD TCL - Editing* now say so plainly.
+
+---
+
 ## DONE
 
-*(nothing yet)*
+## 1. The `edit` / `micro` refusal message is malformed — **B** — DONE 27 Aug 2026
+
+Reported by the owner, 26 Aug 2026; seen again by him on 27 Aug in the refusal
+that raised item 17.
+
+`check.permitted` built a multi-line refusal by concatenating `char(10)` — a
+bare LF — and `EDIT` printed the whole thing with **one** `crt`. Eight sites
+built text that way. A bare LF advances a line without returning to column 0,
+so every line after the first started where the previous one ended:
+
+```
+:edit bp test
+edit is not available to don.
+                            It runs an editor outside SD, so it needs OS.EXECUTE permission: field 2 of your record in
+the SD system file os.users, which only an administrator can change.
+                                                                    ed, the line editor, needs none of this.
+```
+
+**A pipe hides it**, which is why it survived: down a pipe the LF *is* the
+separator and the same message reads perfectly.
+
+***FIXED AT THE ONE PRINT SITE, NOT THE EIGHT BUILDERS.*** `end.program` now
+splits `error.text` on `char(10)` and writes one `crt` per line. That is the
+fix for the class rather than for the message: a message written next year
+cannot reintroduce it.
+
+**Not verified on a console yet** — it is compiled BASIC and wants a cycle.
+
+## 17. `edit` / `micro` refuse a record whose text looks like a mark token — **B** — DONE 27 Aug 2026
+
+Reported by the owner, 27 Aug 2026, editing a source record in `SDSYS`:
+
+```
+This record cannot be edited with micro.
+Its text and the ~~ and ~` marks cannot be told apart, so saving it would
+change data you did not edit.
+ed, the line editor, handles it without any of this.
+```
+
+His ruling with it: ***"the whole purpose of these editors is primarily to edit
+source code without having to use ED... the conversion of field, value and
+subvalue marks needs to be handled seamlessly, just like CRLF or LF."***
+
+**The guard was doing what it was written to do.** `process.record` converted
+`@vm` to `~~` and `@sm` to `` ~` ``, converted back, and refused any record
+where the two differed. Three kinds of text tripped it: a literal `~~`, a
+literal `` ~` ``, or a `~` immediately before a mark.
+
+***AND `sdsys/gpl.bp/EDIT` WAS THE ONLY SOURCE RECORD IN THE SHIPPED TREE THAT
+IT REFUSED.*** Measured across `sdsys` and `user_accounts`: the only other hits
+are `gcat` and `gpl.bp.out` object records, which nobody edits. **The program
+refused itself, because it carries the token strings as constants.**
+
+**The fix is an escape character.** `~` now escapes, and a tilde is written
+`~-` **only where the next character would make the pair look like a token** —
+another `~`, a backtick, a `-`, `@vm` or `@sm`. Everywhere else it is left
+alone, so `a~b` is still `a~b` in the editor and ordinary source reads
+normally. `escape.tildes` in `EDIT`, and the decode is three `change()` calls
+whose order is load-bearing in both directions.
+
+**The round-trip check stays** and is now expected never to fire; if it does,
+that is a defect in `EDIT` rather than a property of the record, and its
+message says so.
+
+***PROVED BEFORE THE CYCLE, NOT AFTER.*** `gplbld/test-edittokens-units.py`
+runs the same algorithm over **every string up to six characters** drawn from
+`~`, `` ` ``, `-`, `@vm`, `@sm` and one ordinary letter — **55,987 of them, 0
+lossy** — and over **all 197 shipped `gpl.bp` records, 17 of which contain a
+tilde, 0 lossy**. It asserts the corpus contains tildes, because a lossless
+answer over records with no tilde in them would be true and would prove
+nothing.
+
+**Not upstream.** `sdb64`'s `GPL.BP/MICRO` does no mark conversion at all —
+see UPSTREAM_FIXES #16, fault 4, added the same day.
+
+**Not verified on a console yet** — it is compiled BASIC and wants a cycle.

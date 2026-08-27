@@ -37965,3 +37965,128 @@ forcing out healthy sessions, so it may be one bug or two.
 - **A quoted exe path at the start of a PowerShell line needs `&`** - without it
   the switch is a parser error and nothing runs. Cost the owner a failed paste
   during an elevated recovery.
+
+## 27 Aug 2026 - The editors refuse the one record that proves they should not, and the SD TCL editing page
+
+**Commit:** see the commit that carries this entry. Sixty-fifth session.
+
+Opened on `pull`; both repositories up to date, `assert-current` **exit 0**
+live, install 26 Aug 21:17:22, `sd.exe` `DF77FD6D61DE5184`. **The tree is
+STALE at the end of it** - `sdsys/gpl.bp/EDIT` changed and nothing has been
+installed since. **`sd.exe` did not move**, so it is a cycle and not a rebuild.
+
+### The owner stopped the session: micro refused a source record
+
+He was editing in `SDSYS` and got the round-trip refusal. His instruction:
+*"the whole purpose of these editors is primarily to edit source code without
+having to use ED... the conversion of field, value and subvalue marks needs to
+be handled seamlessly, just like CRLF or LF was converted."*
+
+***AND THE RECORD IT REFUSED WAS `gpl.bp/EDIT`, WHICH IS THE PROGRAM DOING THE
+REFUSING.*** Measured across `sdsys` and `user_accounts`: it is the **only**
+source record in the shipped tree that trips the guard. The others that match
+are `gcat` and `gpl.bp.out` object code, which nobody edits. `EDIT` carries
+`'~~'` and `'~' : char(96)` as constants, so its own text looks like its own
+tokens.
+
+**The guard was not wrong about the ambiguity, only about the remedy.** Three
+kinds of text tripped it - a literal `~~`, a literal `` ~` ``, or a `~`
+immediately before a mark - and in each case converting back really does give a
+different record. What was wrong was answering that with a refusal.
+
+### The fix is an escape character, and the conditional part is the point
+
+`~` escapes. A tilde is written `~-` **only where the character after it would
+make the pair look like a token** - another `~`, a backtick, a `-`, `@vm` or
+`@sm`. Everywhere else it is untouched, so `a~b` is still `a~b` and ordinary
+source reads normally.
+
+***UNCONDITIONAL ESCAPING WOULD HAVE BEEN SHORTER AND WOULD NOT HAVE MET THE
+INSTRUCTION.*** Escaping every tilde is two `change()` calls each way and needs
+no loop; it also shows `~-` wherever the author wrote `~`, which is exactly the
+kind of "the editor changed my file" that the request was about. The
+conditional form needs a scan for the tildes - `count()` and the third argument
+of `index()`, so a record with no tilde costs one `count()`.
+
+**`-` is in the dangerous set although it is not a token on its own.** Without
+it, a literal `~-` in the data decodes to a bare `~`. That is the sort of thing
+a table of cases finds and reasoning does not.
+
+***THE DECODE ORDER IS LOAD-BEARING IN BOTH DIRECTIONS.*** `~~` before `` ~` ``,
+or `` ~~` `` - a value mark then a backtick - reads as a tilde then a subvalue
+mark. `~-` last, or an escaped tilde in front of a mark is unescaped before the
+mark is recognised.
+
+### It was proved before the cycle, not after
+
+`gplbld/test-edittokens-units.py` was rewritten: it now runs the same algorithm
+over **every string up to six characters** built from `~`, `` ` ``, `-`, `@vm`,
+`@sm` and one ordinary letter - **55,987, none lossy** - and over **all 197
+shipped `gpl.bp` records, 17 of which contain a tilde, none lossy.**
+
+**The old file's null-case guard had to be replaced rather than kept.** It
+asserted that the guard refused *something*, so that a check refusing
+everything could not pass by accident. There is nothing left to refuse. What
+replaces it is an assertion that the corpus **contains tildes at all**: a
+lossless answer over records with no tilde in them would be true and would
+prove nothing.
+
+### Two more things went with it
+
+***PRE_RELEASE ITEM 1, the malformed refusal***, which the owner's paste showed
+again. Fixed at `end.program` - the **one** print site - by splitting
+`error.text` on `char(10)` and writing one `crt` per line, not at the eight
+places that build the text. A message written next year cannot reintroduce it.
+
+***AND THE CHANGELOG WAS WRONG ABOUT TEXT MARKS, AND HAD BEEN SINCE IT WAS
+WRITTEN.*** It said they were *"covered by that same refusal rather than being
+left to surprise you"*. They never were: the round trip only converted `@vm`
+and `@sm`, so a record containing `@tm` converts to itself, compares equal and
+passes untouched. It reaches the editor as `x'FB'`. **Pre-release item 18**,
+open - his instruction named three marks and not this one, so a fourth token
+was not added unasked.
+
+**UPSTREAM_FIXES #16 gained a fourth fault.** `sdb64`'s `GPL.BP/MICRO` does no
+mark conversion at all - `MICRO:194` writes the record to `$HOLD` raw - so a
+multivalued record goes to the editor with `x'FD'` in the middle of a line and
+what happens to it is the editor's business. Different defect from ours, worse,
+and still there.
+
+### The other leg nobody had tested
+
+His second sentence was about `$hold`, and it is a separate mechanism: `$hold`
+is a **directory** file, so writing a record there turns field marks into line
+separators on disk and reading it back turns them into field marks again.
+**Nothing had ever tested that.** `tools/probes/p25-holdtrip.b` is new, 15
+cases, and it prints both lengths, both field counts and the position and
+character code of the first difference rather than a verdict. **Compiled clean
+with `sdcompile.ps1`, never run** - the tree is stale, and a result taken from
+it now would be void.
+
+### SD TCL page 25, and driving ED down a pipe
+
+`25-sd-tcl-editing.md`, measured in six `sdtcl` runs with no hang. **The rule
+that made that safe was reading every `input` site in `ED` before sending
+anything.** What prompts: `FD`, `DELETE`, `SAVE`/`FI` to a *different* name,
+`LOAD`, `UNLOAD`, `ed` with no file or record name, and any unrecognised
+command. What does not: `I` **with text**, `FI` with no name, `Q` on an
+unchanged record.
+
+**Three things the page records that are measured and were not written down
+anywhere:**
+
+- ***`P` LEAVES THE CURRENT LINE AT THE LAST LINE IT PRINTED.*** `P20` then
+  `DE` on a three-line record deletes **line 3**, not line 1. "Display" does
+  not sound like a move.
+- ***`XEQ` SEES THE FILED RECORD, NOT THE BUFFER.*** `XEQ ct @FILE @ID` printed
+  the old text while the screen held the edited text.
+- ***A PRESTORED EDIT SEQUENCE IS NOT AN UNATTENDED MECHANISM.*** One bad
+  command abandons the rest of the sequence **and then asks a question** -
+  *"Did you mean to insert this text (Y/N)?"* - read from whatever the
+  session's input is. Field 1 is the `E` marker and is not run: an unrecognised
+  command in field 2 is reported as *"at line 2 of prestored commands"*.
+
+**`sdtcl`'s echo guard warns on an editor session and is right to be ignored
+there.** The lines after `ed` are eaten by `ED`, not echoed by TCL, so the
+count is legitimately short. The transcript reaching `:OFF` is what says the
+run finished.

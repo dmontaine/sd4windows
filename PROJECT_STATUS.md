@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 26 Aug 2026, **end of the SIXTY-THIRD session**. ***NOT a clean boundary: three C files changed after the documentation was finished, so the tree is STALE and owes one cycle.*** See the box in START HERE.
+**Last updated:** 27 Aug 2026, **SIXTY-FIFTH session**. ***NOT a clean boundary: `sdsys/gpl.bp/EDIT` changed after the last cycle, so the tree is STALE and owes one.*** See the box in START HERE.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -19,7 +19,7 @@ something came to be the way it is.
 
 ***TWO FULL-SCREEN EDITORS ARE BACK, `edit` AND `micro`, AND BOTH ARE UNCOMPILED SOURCE UNTIL SOMEBODY RUNS A CYCLE.*** Owner, 26 Aug 2026, reversing the 17 Aug removal of `MICRO`. **One program, two VOC entries**: `sdsys/gpl.bp/EDIT` is the old `MICRO` ported with its three defects fixed (§UPSTREAM_FIXES #16), and it reads field 1 of the command line to choose between `edit.exe` and `micro.exe`. `newvoc/edit` and `newvoc/micro` (and both `voc_template` records) are `CA $EDIT`; the old `MICRO` source is deleted. **`edit` was already in `TIER.OMIT.STANDARD`; `micro` was added to it**, so the list is **42** and a standard account's count does not move — it is on both sides of the arithmetic. `gplbld/install-editors.ps1` is new and shipped, `sd.iss` runs it unconditionally, and it **refuses to fall back to a per-user winget install**. ***THERE ARE TWO GATES, NOT ONE*** (owner, 26 Aug 2026): the VOC tier decides who has the verb, and **`os.users` field 2 - the `OS.EXECUTE` field - decides whether it runs**. `check.permitted` in `EDIT` tests it rather than leaving it to `os_permitted()`, which would never see it: the program is `$internal`, so `op_sh.c:157` admits it on `HDR_INTERNAL`. It also refuses a session with **no terminal** - an API session or a piped script. **The editors should work over ssh**: `connection_type` is `CN_CONSOLE` for an ssh session (`kernel.h:55` is the default and only `-P`, `-C` and `-N` change it), so `op_sh.c:348` does not pipe the child and the editor gets the terminal. **Not measured.** ***GREEN AND CURRENT AS OF 26 Aug 2026 17:14. THIS IS THE STATE TO START FROM.*** Cycle complete, install **17:14:03**, `sd.exe` **`8E6A6CF45AA6F20A`** (moved from `5BD2F83F43BB9B27` - the first C change since 25 Aug: `win32vt.c` and the `sdtermlb.c` reorder). `assert-current` **exit 0**. Suite **`-Run b46`: 31 of 31 steps exited 0 - 12 unelevated + 19 elevated, 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`** - ***`b46` IS SPENT, USE `b47`***. *(This line read "19 of 19" until 26 Aug 2026: that is the elevated half's own summary, quoted alone. Corrected from the transcripts, with the counts remeasured - §6, "the PASS count was grepped out of files nothing could read".)* **Verified in the install by reading it, not by trusting the run**: `gcat/$EDIT`, `newvoc/micro` -> `$EDIT`, `TIER.OMIT.STANDARD` 42, `voc_template/$licence` 44,529 bytes, `$contrib` 627, the micro syntax file and `install-editors.ps1` both shipped, and no Black Oak in the licence. ***AND `config gpl` / `config contrib` RUN END TO END***: 915 lines back through `Invoke-SD`'s harness, the whole GPL present, no Black Oak - so the 44 KB VOC record, the one part of that design nobody had exercised, works. ***WHAT IS NOT DONE: `edit` and `micro` HAVE NOT BEEN RETRIED SINCE THE VT CHANGE***, so ANSI positioning from a PowerShell window is built and installed but unwitnessed. **Three things are open and none is started**: the shipped-scripts documentation gap (25 PowerShell scripts ship, 4 documented; `install-ssh.ps1` matters most because page 01 promises a retry command it never prints); **bundling micro with the installer** (decided 26 Aug, licence question settled, nothing built); and questions **7** and **14** in `QUESTIONS-2026-08-26.md`. 
 
-***THE EDITORS RUN. `edit` AND `micro` BOTH TESTED ON THE INSTALL OF 26 Aug 2026 AND BOTH WORK*** (owner). The fault that stopped them first time was a **POSIX path handed to a Windows program**: `fileinfo(FL$PATH)` answers `/cygdrive/c/...` - measured with `ANALYSE.FILE`, and **`sd.conf`'s `C:\ProgramData\...` makes it look otherwise, which is why it was measured**. `kernel(K$WINPATH)` converts it, and an empty answer is refused rather than passed on. ***IT WAS NOT AN ERROR AT EITHER END***: Windows read the path as drive-relative, so micro said *"parent dirs don't exist"* and Microsoft Edit said nothing at all. ***STILL UNCOMPILED AFTER THAT CYCLE***: a blank line before each of the four prompts. ***IT COMPILES. MEASURED, NOT REPORTED*** — `cycle.ps1 -SkipInstall`, 26 Aug 2026 14:13, and the staged tree at `C:\Users\dmont\stagetest` was read rather than the run's output believed: `ProgramData\sdsys\gcat\$EDIT` and `gpl.bp.out\EDIT` both exist, `newvoc/edit` and `newvoc/micro` both read `CA $EDIT`, `TIER.OMIT.STANDARD` holds 42, `ProgramFiles\install-editors.ps1` is there and the old `gpl.bp/MICRO` is gone. **`gcat` is still 125 and `gpl.bp.out` still 184** — `$MICRO` left as `$EDIT` arrived. ***IT HAS STILL NEVER RUN***: `-SkipInstall` stops before installing, so `C:\ProgramData\SD` is untouched and no session has typed `edit`. **A full `cycle.ps1` is what tests it**, and the mark-token conversion added afterwards has not been compiled at all. ***THE TOKENS ARE `~~` FOR A VALUE MARK AND `~` + backtick FOR A SUBVALUE MARK***, and the guard is a **round trip** rather than a search for the tokens: `EDIT` converts the record, converts it back, and refuses the record if the result differs. `gplbld/test-edittokens-units.py` proves that in Python against 14 records (10 editable, 4 refused, both non-zero) and is on `$neverShipped`. ***DECIDED 26 Aug 2026, NOT YET BUILT: `micro` WILL SHIP WITH SD RATHER THAN BE FETCHED BY winget.*** Owner's ruling, and **his reason is the one that decides it, not size**: a bundled micro is *pinned to the SD release*, so *"if someone asks us a question about 1.0-0 we know exactly which micro they have installed"*. winget cannot give that - two machines installed a month apart run different editors and nobody knows. It also fixes the case the present design structurally cannot: **an offline machine, a policy-blocked winget or a Server SKU with no App Installer gets no `micro` at all today.** ***SEQUENCING IS HIS AND IT IS DELIBERATE: finish the current validation pass first, and only when that is stable add micro and cycle again.*** **Licence is clear** - micro is MIT, so binary redistribution is permitted provided the copyright and permission notice ship with it, and aggregating an MIT program beside GPL-3 SD raises nothing. **The no-binaries rule is not in the way either**: it governs the REPOSITORY, and the installer already carries binaries the repository does not hold - `dll_closure()` computes the MSYS2 DLL set off the build machine and nothing binary is tracked. **Measured for the decision**: micro's win64 zip is 5,148,356 bytes against an installer of 4,830,157. ***THE THIRD-PARTY LICENCE QUESTION IS SETTLED AND NEEDED NO JUDGEMENT***: micro's repository root carries **`LICENSE` (1,086 bytes) and `LICENSE-THIRD-PARTY` (64,173 bytes)**, so upstream has already assembled the dependency notices. **Ship all three files together** - the executable and both licence files in the same directory - and the obligation is met by mirroring what micro itself distributes. *(An earlier note here said micro carried no third-party file. That was wrong: it read the contents of `LICENSE` rather than the repository listing.)* ***AND `micro` HIGHLIGHTS SD BASIC; `edit` CANNOT.*** `gplbld/microcfg/syntax/sdbasic.yaml` **ships** (so it is NOT on `$neverShipped`) and is **generated from `BCOMP`'s own tables** by `mkbasicsyntax.py` — 218 statements, 37 reserved words, 176 intrinsics. `EDIT` names `C:\Program Files\SD\micro` in `MICRO_CONFIG_HOME`, which is micro's only machine-wide config route; the other two are per-profile and SD's accounts have no Windows profile. Detection is on the working copy's name — a BP record is written as `<record>.editing.sdbasic`. `checksyntax.py` is the control (**24 patterns, 0 bad**): inside a double-quoted YAML scalar `\.` is not a legal escape, so a natural-looking regex invalidates the whole file and **micro reports that by not highlighting**.
+***THE EDITORS RUN. `edit` AND `micro` BOTH TESTED ON THE INSTALL OF 26 Aug 2026 AND BOTH WORK*** (owner). The fault that stopped them first time was a **POSIX path handed to a Windows program**: `fileinfo(FL$PATH)` answers `/cygdrive/c/...` - measured with `ANALYSE.FILE`, and **`sd.conf`'s `C:\ProgramData\...` makes it look otherwise, which is why it was measured**. `kernel(K$WINPATH)` converts it, and an empty answer is refused rather than passed on. ***IT WAS NOT AN ERROR AT EITHER END***: Windows read the path as drive-relative, so micro said *"parent dirs don't exist"* and Microsoft Edit said nothing at all. ***STILL UNCOMPILED AFTER THAT CYCLE***: a blank line before each of the four prompts. ***IT COMPILES. MEASURED, NOT REPORTED*** — `cycle.ps1 -SkipInstall`, 26 Aug 2026 14:13, and the staged tree at `C:\Users\dmont\stagetest` was read rather than the run's output believed: `ProgramData\sdsys\gcat\$EDIT` and `gpl.bp.out\EDIT` both exist, `newvoc/edit` and `newvoc/micro` both read `CA $EDIT`, `TIER.OMIT.STANDARD` holds 42, `ProgramFiles\install-editors.ps1` is there and the old `gpl.bp/MICRO` is gone. **`gcat` is still 125 and `gpl.bp.out` still 184** — `$MICRO` left as `$EDIT` arrived. ***IT HAS STILL NEVER RUN***: `-SkipInstall` stops before installing, so `C:\ProgramData\SD` is untouched and no session has typed `edit`. **A full `cycle.ps1` is what tests it**, and the mark-token conversion added afterwards has not been compiled at all. ***THE TOKENS ARE `~~` FOR A VALUE MARK, `~` + backtick FOR A SUBVALUE MARK, AND - SINCE 27 Aug 2026 - `~-` FOR A LITERAL TILDE WHERE ONE WOULD BE MISREAD.*** **The refusal is gone**: the conversion is lossless for every record, on the owner's ruling of 27 Aug after `micro` refused `gpl.bp/EDIT` itself. See the START HERE box. `gplbld/test-edittokens-units.py` proves it in Python over 55,987 exhaustive strings and all 197 shipped `gpl.bp` records, and is on `$neverShipped`. ***DECIDED 26 Aug 2026, NOT YET BUILT: `micro` WILL SHIP WITH SD RATHER THAN BE FETCHED BY winget.*** Owner's ruling, and **his reason is the one that decides it, not size**: a bundled micro is *pinned to the SD release*, so *"if someone asks us a question about 1.0-0 we know exactly which micro they have installed"*. winget cannot give that - two machines installed a month apart run different editors and nobody knows. It also fixes the case the present design structurally cannot: **an offline machine, a policy-blocked winget or a Server SKU with no App Installer gets no `micro` at all today.** ***SEQUENCING IS HIS AND IT IS DELIBERATE: finish the current validation pass first, and only when that is stable add micro and cycle again.*** **Licence is clear** - micro is MIT, so binary redistribution is permitted provided the copyright and permission notice ship with it, and aggregating an MIT program beside GPL-3 SD raises nothing. **The no-binaries rule is not in the way either**: it governs the REPOSITORY, and the installer already carries binaries the repository does not hold - `dll_closure()` computes the MSYS2 DLL set off the build machine and nothing binary is tracked. **Measured for the decision**: micro's win64 zip is 5,148,356 bytes against an installer of 4,830,157. ***THE THIRD-PARTY LICENCE QUESTION IS SETTLED AND NEEDED NO JUDGEMENT***: micro's repository root carries **`LICENSE` (1,086 bytes) and `LICENSE-THIRD-PARTY` (64,173 bytes)**, so upstream has already assembled the dependency notices. **Ship all three files together** - the executable and both licence files in the same directory - and the obligation is met by mirroring what micro itself distributes. *(An earlier note here said micro carried no third-party file. That was wrong: it read the contents of `LICENSE` rather than the repository listing.)* ***AND `micro` HIGHLIGHTS SD BASIC; `edit` CANNOT.*** `gplbld/microcfg/syntax/sdbasic.yaml` **ships** (so it is NOT on `$neverShipped`) and is **generated from `BCOMP`'s own tables** by `mkbasicsyntax.py` — 218 statements, 37 reserved words, 176 intrinsics. `EDIT` names `C:\Program Files\SD\micro` in `MICRO_CONFIG_HOME`, which is micro's only machine-wide config route; the other two are per-profile and SD's accounts have no Windows profile. Detection is on the working copy's name — a BP record is written as `<record>.editing.sdbasic`. `checksyntax.py` is the control (**24 patterns, 0 bad**): inside a double-quoted YAML scalar `\.` is not a legal escape, so a natural-looking regex invalidates the whole file and **micro reports that by not highlighting**.
 
 ***THE DOCUMENTATION GETS ITS OWN GitHub REPOSITORY, AND IT WILL NOT CARRY THE NO-BINARIES RULE — OWNER, 26 Aug 2026.*** That **reverses** §"WHERE THE WORK LIVES", which said documentation lives here; the entry keeps what the old ruling was protecting against, because **drift is now caught by a person or not at all**. ***`sd4windows` is unchanged — no binary becomes trackable in THIS repository.*** ***AND THE MOVE IS NOW COMPLETE***: `SDCoreWindowsDocs` exists, the tree was moved by the owner out of `sdhelp` to `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs` and restructured into `Testing` / `User` / `Technical`, each `markdown` + `html` + `pdf`, and the two render scripts went with it. **The P-drive copy is stale.**
 
@@ -27,7 +27,7 @@ something came to be the way it is.
 
 ***ONE COMMAND IS STILL OWED ON THIS MACHINE, AND NOTHING IS BLOCKED ON IT.*** The package is chosen but not installed for the MSYS2 python here; `mkdoc.py` runs under the **Windows** python (3.13.14, `markdown` 3.10.2) and that is what rendered every page of the tester set. Either re-run `setup-devbox.ps1` elevated, or install the one package inside MSYS2: `pacman -S --needed python-markdown`. ***`mkdoc.py` ITSELF IS NO LONGER IN THIS REPOSITORY*** — see the H.2 entry.
 
-***THE MACHINE — AND THE INSTALL IS NOW STALE, 26 Aug 2026 20:40.*** `bin/sd.exe` was rebuilt after three one-line C fixes and nothing has been installed since, so `assert-current` will fail Check A and every verifier that calls it will refuse. **The reading below is what the install WAS, and it is still what the suite scores once a cycle re-lays it.** The host carries a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
+***THE MACHINE — AND THE INSTALL IS STALE AGAIN, 27 Aug 2026, FOR A DIFFERENT REASON.*** *(This paragraph led with the 26 Aug 20:40 staleness — three rebuilt C files — and the owner's cycle at 21:17:22 closed that. What makes it stale now is BASIC: `sdsys/gpl.bp/EDIT`. **`sd.exe` has NOT moved**, so `assert-current` fails on the source-mtime comparison rather than on Check A.)* See the START HERE box for the fix and what to run. **The reading below is what the install IS, and it is what the suite scores once a cycle re-lays it.** The host carries a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
 
 ***THE `SD TCL` REFERENCE HAS STARTED AND IT LIVES IN THE `User` SET, NUMBERED FROM 19.*** Owner's ruling, 26 Aug 2026, on both questions: the TCL pages continue `User/` rather than taking a set of their own, and they are named `NN-sd-tcl-<topic>.md`. **The plan is 12 topic pages plus a generated syntax card at `31`, and it is checked rather than asserted** — every one of the **144** verbs is on exactly one page, verified in both directions. `19` command processor, `20` files and records and `21` query processor are written; `22` select lists is next. ***THE ROSTER IS 144, NOT 140***, and the difference is the four records that are a keyword AND a verb — `break`, `count`, `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and `count voc with dispatch # ""` answers 144. `tools\sdtcl.ps1` is how the TCL pages are measured.
 
@@ -73,7 +73,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — **FULL install 26 Aug 17:14:03, 31/31 (12+19), 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b46`**, `assert-current` exit 0 live on 26 Aug | 26 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS 18 PAGES and the `Technical` set has its first, `01` Restricted Commands — `docmap` 411 of 411, `checklinks` 114 links 0 broken on `User` (26 Aug 2026). `18` and `Technical/01` are generated and partition the roster, 447 of 447. OPEN: document `09` is 8 of 8 restricted commands and may belong in `Technical` too — the owner's call.*** `Technical` is still empty scaffolding, and the shipped-scripts gap is untouched | — |
+| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS 25 PAGES — 18 SD BASIC plus SD TCL `19` to `25` — and the `Technical` set has its first, `01` Restricted Commands. `docmap` 411 of 411, `checklinks` 143 links 0 broken on `User` (27 Aug 2026). `18` and `Technical/01` are generated and partition the roster, 447 of 447. OPEN: document `09` is 8 of 8 restricted commands and may belong in `Technical` too — the owner's call.*** `Technical` is still empty scaffolding, and the shipped-scripts gap is untouched | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -110,22 +110,102 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
 >
-> ### HANDOFF, END OF THE SIXTY-FOURTH SESSION
+> ### HANDOFF, SIXTY-FIFTH SESSION
 >
-> **Both repositories are committed, pushed and clean.** Nothing is in flight.
-> ***THE MACHINE IS GREEN: `assert-current` exit 0, install 26 Aug 21:17:22,
-> `sd.exe` `DF77FD6D61DE5184`.*** The owner ran the cycle this session, so the
-> stale-tree box that stood here is gone and the three C fixes are installed.
+> ## ***THE TREE IS STALE AND OWES ONE CYCLE. `sdsys/gpl.bp/EDIT` CHANGED AND NOTHING HAS BEEN INSTALLED SINCE.***
+>
+> `assert-current` was **exit 0, run live at the start of 27 Aug**, before the
+> edit; it will **fail now**, and every verifier that calls it will refuse. The
+> install is still **26 Aug 21:17:22**, `sd.exe` `DF77FD6D61DE5184` — **the
+> binary did not move, only BASIC did**, so this costs a cycle and not a
+> rebuild.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
 >
 > ***USE `-Run b48`. `b47` IS SPENT*** — 15 accounts in the register carry the
-> `b47` prefix from the cycle's own suite run. *(This box said "use b47" until
-> the register was read.)*
+> `b47` prefix from the cycle's own suite run.
 >
-> ***THE `SD TCL` REFERENCE IS THE WORK NOW, AND IT IS HALF DONE: 19 TO 24 ARE
-> WRITTEN, 25 TO 30 ARE NOT, AND `31` IS THE GENERATED CARD.*** It lives in the
+> ### WHAT CHANGED AND WHY — THE OWNER STOPPED THE SESSION TO REPORT IT
+>
+> ***`micro` REFUSED A SOURCE RECORD, AND `gpl.bp/EDIT` WAS THE ONLY SOURCE
+> RECORD IN THE SHIPPED TREE ITS OWN GUARD COULD REFUSE.*** His ruling with it:
+> *"the whole purpose of these editors is primarily to edit source code without
+> having to use ED... the conversion of field, value and subvalue marks needs to
+> be handled seamlessly, just like CRLF or LF."*
+>
+> **The round-trip guard was doing what it was written to do** — convert `@vm`
+> and `@sm` to tokens, convert back, refuse anything that came back different.
+> Three kinds of text tripped it: a literal `~~`, a literal `` ~` ``, or a `~`
+> immediately before a mark. **`EDIT` carries the token strings as constants.**
+> Measured across `sdsys` and `user_accounts`: the only other hits are `gcat`
+> and `gpl.bp.out` object records, which nobody edits.
+>
+> ***THE FIX IS AN ESCAPE CHARACTER, AND IT IS CONDITIONAL ON PURPOSE.*** `~`
+> now escapes; a tilde is written `~-` **only where the next character would
+> make the pair look like a token** — another `~`, a backtick, a `-`, `@vm` or
+> `@sm`. Everywhere else it is left alone, so `a~b` is still `a~b` and ordinary
+> source reads normally. **Escaping every tilde would have been simpler and
+> would not have been seamless.** `escape.tildes` in `EDIT`; the decode is three
+> `change()` calls whose **order is load-bearing in both directions** and the
+> code says why.
+>
+> ***PROVED BEFORE THE CYCLE, NOT AFTER.***
+> `gplbld/test-edittokens-units.py` runs the same algorithm over **every string
+> up to six characters** built from `~`, `` ` ``, `-`, `@vm`, `@sm` and one
+> ordinary letter — **55,987, none lossy** — and over **all 197 shipped
+> `gpl.bp` records, 17 of them containing a tilde, none lossy**. It asserts the
+> corpus contains tildes: a lossless answer over records with no tilde in them
+> would be true and would prove nothing.
+>
+> ***PRE_RELEASE ITEM 1 WENT IN THE SAME EDIT*** — the malformed refusal he saw
+> again in the same paste. Fixed at `end.program`, the **one** print site, by
+> splitting `error.text` on `char(10)` and writing one `crt` per line, rather
+> than at the eight places that build the text. **Neither fix is verified: both
+> are compiled BASIC and want the cycle above.**
+>
+> ***AND ONE THING IS NOW KNOWN AND NOT FIXED: A TEXT MARK REACHES THE EDITOR
+> RAW.*** Pre-release item 18. The old guard never detected `@tm` either — a
+> record containing one converts to itself and passes — so **the changelog's
+> claim that text marks were "covered by that same refusal" was never true**
+> and is corrected. His instruction named field, value and subvalue marks and
+> not this one, so a fourth token was not added unasked.
+>
+> ### AFTER THE CYCLE, IN THIS ORDER
+>
+> 1. **`micro gpl.bp EDIT` from an elevated console** — the exact record that
+>    failed. It should open. **A console, not a pipe**: both verbs refuse a
+>    session with no terminal, and a pipe also hides the item 1 layout fault.
+> 2. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`** in the docs
+>    repository — new, and it measures the *other* leg of what he asked for:
+>    whether a record survives the trip through `$hold`, which is a
+>    **directory** file, so field marks become line separators on disk.
+>    **Nothing had ever tested that leg.** 15 cases, compiled clean 27 Aug with
+>    `sdcompile.ps1`, **never run**.
+> 3. Then the suite, `-Run b48`.
+>
+> ***THE `SD TCL` REFERENCE IS THE WORK, AND `25` IS NOW WRITTEN: 19 TO 25 ARE
+> DONE, 26 TO 30 ARE NOT, AND `31` IS THE GENERATED CARD.*** It lives in the
 > `User` set on the owner's ruling — numbering continues from 19, names are
-> `NN-sd-tcl-<topic>.md`. `checklinks` **140 links, 0 broken** across 24 pages,
-> everything rendered to HTML and PDF.
+> `NN-sd-tcl-<topic>.md`. `checklinks` **143 links, 0 broken** across 25 pages.
+>
+> ***PAGE 25's `edit`/`micro` SECTIONS DESCRIBE THE FIXED BEHAVIOUR, WHICH IS
+> NOT YET INSTALLED.*** Its `ed` listings are all measured and stand; the two
+> full-screen verbs are described from source because they cannot be driven
+> down a pipe at all. **Re-read that section once the cycle lands.**
+>
+> ***AND `ed` CAN BE DRIVEN DOWN A PIPE, WHICH IS HOW `25` WAS MEASURED.*** Six
+> `sdtcl` runs, no hang. **The rule that made it safe: read every `input` site
+> in `ED` before sending anything** — `FD`, `DELETE`, `SAVE`/`FI` to a
+> *different* name, `LOAD`, `UNLOAD`, `ed` with no file or record name, and an
+> unrecognised command all prompt. `I` **with text**, `FI` with no name, and `Q`
+> on an unchanged record do not.
+>
+> **`sdtcl`'s echo guard warns on an editor session and is right to be ignored
+> there** — the lines after `ed` are eaten by `ED`, not echoed by TCL, so the
+> count is legitimately short. The transcript reaching `:OFF` is what says the
+> run finished.
 >
 > | | |
 > |---|---|
@@ -135,7 +215,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | ✅ `22` | select lists |
 > | ✅ `23` | alternate key indexes |
 > | ✅ `24` | programs and the catalogue |
-> | `25` | editing — `ed`, `edit`, `micro`. **Note PRE_RELEASE_FIXES item 1: the refusal message is broken** |
+> | ✅ `25` | editing — `ed`, `edit`, `micro`. Its `edit`/`micro` half describes behaviour the cycle has not installed yet |
 > | `26` | printing and spooling |
 > | `27` | the terminal and the session |
 > | `28` | processes and phantoms |
