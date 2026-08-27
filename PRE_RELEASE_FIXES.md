@@ -468,11 +468,15 @@ flags rather than testing the tier itself.
 simple-token arm splits at a space, a comma, a bracket or a quote and at
 nothing else, so `os-on` arrives as one token with `keyword = -1`.
 
-***AN ADMINISTRATOR IS NOT REFUSED BY `os.set`, WHICH IS THE OPPOSITE OF
-`route.set` BESIDE IT.*** ssh and the API are a **rule** for an administrator
-and `MODIFY.ACCOUNT` refuses to touch them (10083); operating-system access is a
-**default**, so `os-off` works on one. That asymmetry is the whole difference
-between the third of the three and the other two.
+***AN ADMINISTRATOR IS NOT REFUSED BY `os.set` — AND THE OWNER HAS SINCE RULED
+THAT IT MUST BE.*** The version committed treats ssh and the API as a **rule**
+and operating-system access as a **default**, so `os-off` works on an
+administrator. **He overturned that the same afternoon**: *"administrators have
+full access, there should be no way to turn it off."* **Not yet built** — the
+code, both programs' headers and *SD TCL - The edit Screen Editor* all still
+argue the old way. PROJECT_STATUS.md's START HERE box carries the fix and the
+second ruling that came with it (an administrator account must be downgradable
+to programmer or standard, which `MODIFY.ACCOUNT` cannot do at all today).
 
 **Not verified** — it is compiled BASIC and wants a cycle. After one, `os.users`
 should hold a `don` record with two `yes` fields.

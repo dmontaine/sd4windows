@@ -224,11 +224,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > token with `keyword = -1`. *(He settled it mid-task: his first message mixed
 > `OS-ON` with `sh.on`, and he chose the hyphen for all four.)*
 >
-> ***`os.set` DOES NOT REFUSE AN ADMINISTRATOR, WHICH IS THE OPPOSITE OF
-> `route.set` BESIDE IT.*** ssh and the API are a **rule** and `MODIFY.ACCOUNT`
-> refuses to touch them (10083); operating-system access is a **default**, so
-> `os-off` works on one. That asymmetry is the difference between the third of
-> the three and the other two, and it is written into both programs' headers.
+> ***`os.set` DOES NOT REFUSE AN ADMINISTRATOR — AND THE OWNER HAS SINCE RULED
+> THAT IT MUST.*** The reasoning committed with it was that ssh and the API are
+> a **rule** while operating-system access is a **default**. **He overturned
+> that the same afternoon**: *"administrators have full access, there should be
+> no way to turn it off."* See the two rulings at the top of this box; **the
+> code, both programs' headers and page 26 all still argue the old way.**
 >
 > ***THE 26 Aug RULING HAD A SECOND HALF AND IT WAS DELIBERATELY NOT DONE:***
 > teaching `EDIT`'s `check.permitted` the ADMINISTRATOR tier as well. One list
@@ -243,6 +244,85 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `OS.EXECUTE` and the editors, and granting one without the other leaves an
 > administrator able to run `os.execute` from BASIC and refused at the prompt.
 > **That half is a judgement call**: he named `os.execute`, not `sh`.
+>
+> ## ***TWO RULINGS ARRIVED AT THE END OF THE SESSION AND NEITHER IS BUILT. THE FIRST ONE MEANS THE TREE CURRENTLY DOES THE OPPOSITE OF WHAT HE DECIDED.***
+>
+> He gave both and then said to save them for the next session rather than
+> implement them. **They are the first work of the sixty-sixth session.**
+>
+> ### 1. AN ADMINISTRATOR'S ACCESS CANNOT BE TURNED OFF — AND THE CODE SAYS IT CAN
+>
+> His words: ***"administrators have full access, there should be no way to turn
+> it off."***
+>
+> ***THIS REVERSES A JUDGEMENT CALL MADE EARLIER THE SAME DAY AND COMMITTED.***
+> `MODIFYA`'s `os.set` deliberately does **not** refuse an administrator, on the
+> argument that operating-system access is a *default* while ssh and the API are
+> a *rule*. **He has ruled it is a rule.** So today `modify.account don os-off`
+> would work and must not.
+>
+> **The fix is the guard from `route.set`, twenty lines above it**, and a
+> message of its own — 10083 says *"always has both ssh and the API"*, which is
+> the wrong text here:
+>
+> ```
+>    if is_grp_member(acc.user, "S-1-5-32-544") then
+>       @system.return.code = -ER$FAILED
+>       crt sysmsg(<new>, acc.user)
+>       return
+>    end
+> ```
+>
+> **`route.set` tests Windows `Administrators` membership by SID and not the SD
+> tier**, because the group name is translated on a localised Windows. Use the
+> same test, so the two guards cannot drift.
+>
+> ***AND THE HEADERS IN BOTH PROGRAMS ARGUE FOR THE OLD BEHAVIOUR IN SO MANY
+> WORDS.*** `MODIFYA`'s `os.set` banner and its START-HISTORY entry, and
+> `CREATEA`'s call-site comment, all say the asymmetry is deliberate. **Rewrite
+> them, do not leave them contradicting the code.** *SD TCL - The edit Screen
+> Editor* says *"It is a default, not a rule"* and lists `os-off`/`sh-off`
+> without qualification; that wants a line about administrators too.
+>
+> **What does NOT change**: `CREATEA` still writes the record — it is the
+> mechanism both gates read, and `os_permitted()` has no idea what a tier is.
+> The rule is enforced at SD's verbs, exactly as it is for ssh and the API,
+> whose underlying state is a Windows group an administrator could also change
+> with `net localgroup`.
+>
+> ### 2. AN ADMINISTRATOR ACCOUNT CAN BE DOWNGRADED TO PROGRAMMER OR STANDARD
+>
+> His words: ***"however, an administrator account should be able to be
+> downgraded to programmer or standard."*** **Nothing is built.** `MODIFY.ACCOUNT`
+> has no way to change a tier today; the tier is a create-time property.
+>
+> ***WHAT WAS ESTABLISHED BEFORE HE STOPPED THE INVESTIGATION*** — so the next
+> session does not re-derive it:
+>
+> | | |
+> |---|---|
+> | the tier lives in | `ACC$TIER`, field 5 of the account's `accounts` register record — `syscom/KEYS.H:282` |
+> | who reads it | `LOGIN` only: `LOGIN:268` in the walk over every account when the release stamp moves, and `LOGIN:1161`. Both do `update.voc.tier = acc.rec<ACC$TIER>` then `gosub update.voc` |
+> | how the VOC is built from it | `CREATEA` — `NEWVOC` less `TIER.OMIT.STANDARD` for STANDARD, plus `TIER.ADD.ADMINISTRATOR` for ADMINISTRATOR. **`TIER.OMIT.STANDARD` is 42 names** |
+> | the Windows half | the `ADMINISTRATOR` keyword also sets `make.admin`, which puts the Windows user in `Administrators`, so the tier and that membership track each other |
+> | the gate on the verb | `MODIFY.ACCOUNT` is already `kernel(K$ADMINISTRATOR, -1)`, i.e. elevation |
+>
+> ***FIVE QUESTIONS IT HAS TO ANSWER, AND THEY ARE HIS, NOT THE NEXT SESSION'S
+> TO GUESS:***
+>
+> 1. **Does the VOC change at once, or at the next login?** Setting `ACC$TIER`
+>    alone leaves the account with an administrator's VOC until `update.voc`
+>    next runs, which is a release change. **A downgrade that takes effect
+>    "sometime" is not a downgrade** — so probably at once, which means
+>    re-running the tier VOC build outside `CREATEA`.
+> 2. **Does it remove the Windows user from `Administrators`?** If not, the
+>    account is a "programmer" whose session still elevates.
+> 3. **Does it withdraw ssh and the API?** An administrator has both as a rule;
+>    a programmer's are keyword-set, so a downgrade has to choose what they
+>    become.
+> 4. **Does it delete the `os.users` record** the ADMINISTRATOR default wrote?
+>    By ruling 1 the record exists *because* they are an administrator.
+> 5. **Upgrade too, or downgrade only?** He said downgraded.
 >
 > ### AFTER THE CYCLE, IN THIS ORDER
 >

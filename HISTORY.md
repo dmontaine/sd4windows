@@ -38226,3 +38226,51 @@ to read them side by side does not "fix" one of them.
   one say yes - which is worth keeping rather than tidying away.
 - Messages **10102 to 10105**; 10102 is shared by `CREATEA` and `MODIFYA`, which
   is the same idea as `say.access` sharing four with `CREATE.ACCOUNT`.
+
+### Two rulings arrived at the end and neither is built
+
+He gave both and then said to save them for the next session rather than
+implement them, so they are recorded and the code is not touched.
+
+***1. "ADMINISTRATORS HAVE FULL ACCESS, THERE SHOULD BE NO WAY TO TURN IT
+OFF."*** **This overturns a judgement call made and committed earlier the same
+day.** `MODIFYA`'s `os.set` deliberately does not refuse an administrator, on
+the argument that ssh and the API are a RULE while operating-system access is a
+DEFAULT. He has ruled it is a rule. **So the tree currently does the opposite of
+what he decided**, and both programs' headers and page 26 argue for the old
+behaviour in so many words - they have to be rewritten with the code, not left
+contradicting it.
+
+The fix is the guard from `route.set` twenty lines above, which tests Windows
+`Administrators` membership BY SID because the group name is translated on a
+localised Windows, plus a message of its own: 10083 says *"always has both ssh
+and the API"*, which is the wrong text.
+
+**What does not change is `CREATEA` still writing the record.** It is the
+mechanism both gates read and `os_permitted()` has no idea what a tier is. The
+rule is enforced at SD's verbs, exactly as it is for ssh and the API, whose
+underlying state is a Windows group an administrator could equally change with
+`net localgroup`.
+
+***2. "AN ADMINISTRATOR ACCOUNT SHOULD BE ABLE TO BE DOWNGRADED TO PROGRAMMER OR
+STANDARD."*** Nothing is built; `MODIFY.ACCOUNT` cannot change a tier at all,
+because the tier is a create-time property.
+
+**What was established before he stopped the investigation**, so it is not
+re-derived: the tier is `ACC$TIER`, field 5 of the register record
+(`syscom/KEYS.H:282`); **`LOGIN` is its only reader** - `LOGIN:268` in the walk
+over every account when the release stamp moves, and `LOGIN:1161`, both doing
+`update.voc.tier = acc.rec<ACC$TIER>` then `gosub update.voc`; the VOC itself is
+built by `CREATEA` from `NEWVOC` less `TIER.OMIT.STANDARD` or plus
+`TIER.ADD.ADMINISTRATOR`; and the `ADMINISTRATOR` keyword also sets
+`make.admin`, which puts the Windows user in `Administrators`, so the tier and
+that membership track each other.
+
+**Five questions it has to answer and they are his**: whether the VOC changes at
+once or at the next login (setting `ACC$TIER` alone leaves an administrator's
+VOC in place until a release change, and a downgrade that takes effect
+"sometime" is not one); whether the Windows `Administrators` membership goes;
+what happens to ssh and the API, which an administrator holds as a rule and a
+programmer holds by keyword; whether the `os.users` record goes, since by ruling
+1 it exists *because* they are an administrator; and whether upgrade is wanted
+too, or downgrade only. PROJECT_STATUS.md's START HERE box carries all five.
