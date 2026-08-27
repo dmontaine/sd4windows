@@ -38784,3 +38784,128 @@ the working tree.
   answers a date, `date 4 jul 2026` answers `21370`.
 - **`printer` does `setptr`'s job in keywords and does not confirm**, which
   makes it the form for a phantom or a script; `setptr` needs `brief`.
+
+## 27 Aug 2026 - The owner corrects the BASIC set, an Administrator set appears, and micro cannot save
+
+Four pieces, in the order they happened. All of it is in `SDCoreWindowsDocs`
+except the fix lists.
+
+### Object programming and local routines were stubs, and three of their claims were wrong
+
+His correction: both are supported, he has used objects since 2006, and they
+were never well documented in the 2.6.6 manuals either. Page 01 had eight lines
+on local routines, about twenty-five on classes, no example of either, and the
+line *"nothing in SD itself does"* — while `gpl.bp/SDCLIENT` is a class module
+of 1,040 lines with 33 members and both lifecycle hooks, and `gpl.bp/DEBUG`
+has five local subroutines.
+
+***THE MEASURING IS WHAT FOUND THE ERRORS. Four drafts failed before one ran***,
+and each failure is a documented fact on the new page `18`:
+
+- a local subroutine is `gosub name(args)`, **not** `call` — `call` looks in the
+  catalogue and dies at run time
+- a local function needs `deffun name(args) local` first, or the compiler reads
+  the call as a subscripted array
+- **a local routine that falls into its own `end` STOPS THE PROGRAM** — the
+  compiler emits `end` there as a stop, not a return. No error, no output, and
+  a live object still runs its destructor, so it looks like a clean finish
+- a private member from outside is *"Unrecognised property/method name"* — from
+  outside the class the name does not exist at all
+
+***AND THE SCOPE MODEL IS THE OPPOSITE OF WHAT A MODERN-LANGUAGE PROGRAMMER
+EXPECTS***: a local routine **sees** the main program's variables; only its
+arguments and `private` names do not leak back. Shared by default, private on
+request. Probes `p18-class-base.b`, `p18-class.b`, `p18-objects.b`.
+
+### His standing direction for the whole set, which is bigger than one page
+
+*"SD Core is not designed primarily for traditional pick programmers ... The
+purpose of SD Core is to present a modern version of multivalue programming.
+Features that mimic modern languages while maintaining the benefits of a
+typeless system without the rigidity of strict normalization. All of the
+documentation should be oriented in stressing what SD does now with the
+historical features document but not primary."* **The security work is his own
+example of it.** That reorientation is not done — it touches every page's
+framing and is a workstream of its own.
+
+### The Administrator set, because an administrator may want to withhold it
+
+His instruction. It is a **separate deliverable**, not a page inside `User`:
+`01` accounts and security (page 32 moved whole), `02` sessions and locks, `03`
+operating system access. `release.ps1 -Set Administrator` needed no change - it
+was only ever a path join.
+
+***SETS NEVER LINK TO EACH OTHER AND `checklinks` ENFORCES IT FOR FREE***,
+because it resolves each set's links against that set's own `html` directory,
+so a cross-set link is simply broken. That was a habit before; withholding
+makes it load-bearing.
+
+**`sh` and `!` were written fresh** — page 19 had only ever named them in two
+tables. Measured: pipes and redirection **do** work for a listed account and the
+working directory persists between invocations; the shell is Windows PowerShell
+5.1, so `&&` is a parser error; `sh sd` is refused by SD's own nested-session
+guard, and `SD_SESSION=1` is how it knows. The three-outcome table is read off
+`CPROC`'s `os.command`, where the metacharacter ban applies **only** to the
+unlisted. `os.users` is keyed to `@logname`, the person, not the account.
+
+**`sdtcl.ps1` lost two whole transcripts before any of that could be measured.**
+Native stderr arrives at `Receive-Job` as an ErrorRecord and under
+`ErrorActionPreference='Stop'` it killed the script and threw away every command
+before it. Both cases were real. `Receive-Job` now runs under `'Continue'` with
+the error stream **kept and flattened, not discarded** — a refusal is usually
+the thing being measured.
+
+### The tool that should have existed, and the card
+
+**`tools/tclmap.py`** asks the question `docmap.py` does not: not *is this name
+assigned to a document* but *does that document actually document it*. Evidence
+is the verb backticked, or opening a line inside a fenced syntax block; prose
+does not count. **144 of 144, 0 exempt.** Its one exemption turned out to be
+false and was removed — `set.date` was exempted as "named on Accounts and
+Security" and was in fact named on a **User** page, an administrator verb
+half-documented in the set an administrator may withhold.
+
+**`tools/mktclsyntax.py`** writes `95-sd-tcl-syntax.md` and refuses if a verb
+has no line or a line names a non-verb; it caught `selecte`, a BASIC statement.
+144 verbs, standard 81 / programmer 42 / administrator 21, the tier read from
+the same two lists `CREATEA` uses. **The 81 agrees with the corrected count in
+PRE_RELEASE 4, not the tester set's stale 77.**
+
+***THE `START-DESCRIPTION` BLOCKS ARE A CONTROL, NOT A SOURCE.*** Sixty-three of
+the ninety-seven catalogued verbs carry one; none is used as content, because
+they are in another notation and several are stale. The script reports where a
+block names a keyword the card does not. **Seven leads on the first run, six of
+them real omissions** — `cd local`/`all`, `delete.index all`, `fstat
+global`/`reset`, `map file`, `option all off`, `setptr default` — two of which
+were gaps in the subject pages as well.
+
+### PRE_RELEASE 29: micro cannot save, and it is a B
+
+The owner ran the one test a pipe cannot: `micro bp ZZMARKS` at a real console,
+unelevated. ***MICRO DREW, HIGHLIGHTED AND CONVERTED EVERY MARK TOKEN
+CORRECTLY*** — the editor, the path conversion and the mark grammar are all now
+witnessed. Then the save failed with *"Permission denied. Save with sudo not
+supported on Windows"*.
+
+`EDIT:219` points `MICRO_CONFIG_HOME` at `C:\Program Files\SD\micro`, which is
+`Users:(RX)`, and micro writes into its config home.
+
+***THE OBVIOUS SUSPECTS WERE EACH ELIMINATED BY MEASUREMENT BEFORE THAT WAS
+CLAIMED***: the working copy's ACL (owned by `don`, exclusive open for write
+succeeded unelevated), the `$hold` directory (creating a file in it succeeded),
+and SD still holding the file open across `os.execute` — `p26-holdopen.b` opens
+the working copy exclusively **from inside `os.execute`**, the same place the
+editor runs, and got `EXCLUSIVE-OPEN-OK` with the after-close attempt as the
+control.
+
+**26 Aug's "both editors work" missed it because `don` is in Windows
+`Administrators`** — an elevated session writes Program Files without trouble.
+Item 5.3 said "an unelevated console" for exactly this reason.
+
+***THE FIX MUST NOT BE TO GRANT WRITE ON THAT DIRECTORY***: micro loads and
+executes Lua plugins from its config home, so a user-writable directory under
+Program Files lets any SD user run code in every other user's editor session.
+
+**`ZZMARKS` came back byte-identical** after the failed save, so nothing is
+lost; page 27 says so and points readers at `ed`. **The old item 5.3 command
+could never have worked** — `gpl.bp` does not resolve in a user account.

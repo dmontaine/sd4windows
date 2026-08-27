@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THE TREE IS CURRENT*** (`assert-current` exit 0 live, install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`) ***AND MUST STAY THAT WAY UNTIL `-Run b48` HAS RUN — do not edit any source file first, not even a comment.*** An elevated `sd -cleanup` is owed. The tier change and SUSPENDED are **measured and work**. ***ALL FOURTEEN `SD TCL` TOPIC PAGES, `19` TO `32`, ARE WRITTEN AND ALL 144 VERBS HAVE A PAGE***; only the generated card at `33` is left. **Five new pre-release entries, 24 to 28**, and **three new upstream ones, 25 to 27**. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THE TREE IS CURRENT*** (`assert-current` exit 0 live, install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`) ***AND MUST STAY THAT WAY UNTIL `-Run b48` HAS RUN — do not edit any source file first, not even a comment.*** An elevated `sd -cleanup` is owed. The tier change and SUSPENDED are **measured and work**. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Six new pre-release entries, 24 to 29 — and 29 is a `B` blocker: `micro` cannot save for an unelevated account.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -110,11 +110,27 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
 >
-> ### HANDOFF, SIXTY-SIXTH SESSION — READ THE FIVE NUMBERED ITEMS FIRST
+> ### HANDOFF, SIXTY-SEVENTH SESSION — READ THE FIVE NUMBERED ITEMS FIRST
 >
-> ***THE SESSION ENDED ON CREDIT, NOT ON A PROBLEM.*** The owner is continuing
-> from a different account. Both repositories are **pushed and clean**:
-> `sd4windows` and `SDCoreWindowsDocs`. Nothing is half-written.
+> ***THE SESSION ENDED ON THE OWNER STARTING A NEW ONE, NOT ON A PROBLEM.***
+> Both repositories are **pushed and clean**. Nothing is half-written.
+>
+> ***THE ONE THING TO PICK UP IS PRE_RELEASE 29, AND IT IS A `B`.*** `micro`
+> draws, edits and highlights correctly and **cannot save** for an unelevated
+> account: `EDIT:219` points `MICRO_CONFIG_HOME` at `C:\Program Files\SD\micro`,
+> which is `Users:(RX)`, and micro writes into its config home. The obvious
+> suspects were each eliminated by measurement first — the working copy's ACL,
+> the `$hold` directory, and SD holding the file open across `os.execute` — and
+> the entry carries the whole chain. ***THE FIX IS A DESIGN DECISION AND IT IS
+> THE OWNER'S; DO NOT JUST GRANT WRITE ON THAT DIRECTORY***, because micro
+> executes Lua plugins from it and that would trade a save failure for a
+> privilege escalation.
+>
+> ***WHAT THE SAME TEST PROVED WORKS***, and it had been unwitnessed since
+> 26 Aug: micro drew, the SD BASIC highlighting was live, the POSIX-to-Windows
+> path conversion was right, and **every mark token converted exactly as
+> specified**. `ZZMARKS` came back **byte-identical** after the failed save —
+> `1D65F19475F3CA5DCC5D594897F6B9CB` — so nothing is lost when it fails.
 >
 > ## ***1. THE TREE IS CURRENT AND MUST STAY THAT WAY UNTIL THE SUITE RUNS.***
 >
@@ -210,7 +226,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >    **`Account B48ADM is suspended`**, then `modify.account b48adm programmer
 >    ssh` to restore. **Do the unsuspended attempt too** — a refusal that would
 >    have happened anyway proves nothing.
-> 3. **`micro gpl.bp EDIT`** from an unelevated console. A console, not a pipe.
+> 3. ***THE EDITOR TEST IS DONE AND IT FOUND PRE_RELEASE 29.*** Two things are
+>    left from it. **`edit` — Microsoft Edit — has NOT been retried unelevated**;
+>    it sets no `MICRO_CONFIG_HOME` so it should be unaffected, but that is
+>    reasoning, not a measurement. And **the working copy was still in `$hold`
+>    after both micro and sd had exited**, where `EDIT`'s own history block
+>    claims it cleans up on every exit — but how that session ended is unknown,
+>    so **one clean repeat settles it** rather than a defect being filed on a
+>    guess. *(The command in the old item 5.3 could never have worked:
+>    `gpl.bp` does not resolve in a user account — "File not found" — so it
+>    needs `logto sdsys`, which needs elevation. Use `micro bp ZZMARKS`, the
+>    fixture in `don`'s BP; `tools\probes\make-zzmarks.py` rebuilds it.)*
 > 4. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`**, docs repo —
 >    15 cases, compiled clean 27 Aug, **never run**.
 > 5. **Then `verify-tierchange.ps1` can be written** — the behaviour is known
@@ -219,26 +245,36 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### THE DOCUMENTATION STATE
 >
-> ***THE `SD TCL` REFERENCE IS FINISHED EXCEPT FOR THE GENERATED CARD.***
-> `19` to `32` are all written, 27 Aug 2026, and **coverage is 144 of 144 —
-> every verb is on exactly one page, checked in both directions.** Only `33`,
-> the generated syntax card, is left.
+> ***BOTH REFERENCES ARE COMPLETE. FOUR SETS NOW, NOT THREE.***
 >
-> ***THE HANDOFF'S "17 LEFT" WAS SHORT BY SEVEN AND THAT IS THE REUSABLE
-> LESSON.*** Seven verbs were counted as covered and were on no page:
-> `phantom`, `listu`, `status`, `lock`, `create.account`, `modify.account` and
-> `grant` each appeared only as a passing mention or as a substring of another
-> name, and `echo`, `time` and `printer` had no home at all. **A verb's name
-> appearing in a page is not the same question as the verb being documented
-> there**, and the earlier count had answered the first. The three that belong
-> on the new pages went there; `echo` and the `date`/`time` pair went to `29`
-> and `printer` to `28`, both already written.
+> | | |
+> |---|---|
+> | `Testing/` | 15 pages, unchanged |
+> | `User/` | 33. SD BASIC `01`-`18`, SD TCL `19`-`31`, cards at `94` and `95` |
+> | `Administrator/` | **new** — `01` accounts and security, `02` sessions and locks, `03` operating system access |
+> | `Technical/` | `01` restricted commands, still the only one |
 >
-> ***THERE IS STILL NO CHECKER FOR THIS AND IT IS THE OBVIOUS NEXT TOOL.***
-> `docmap.py` does exactly this job for the BASIC roster and exits non-zero on
-> a gap; the TCL roster has nothing, so the count lives in prose and drifted.
-> The roster itself is mechanical — `newvoc`'s 123 verb records plus
-> `newvoc/TIER.ADD.ADMINISTRATOR`'s 21 is exactly 144, with no overlap.
+> `docmap` **411 of 411**, `tclmap` **144 of 144**, `checklinks` 185/0 on `User`
+> and 6/0 on `Administrator`, HTML and PDF current for both.
+>
+> ***THE ADMINISTRATOR SET IS A SEPARATE DELIVERABLE SO IT CAN BE WITHHELD***
+> — owner's ruling. **Sets never link to each other**, and `checklinks`
+> enforces that for free because it resolves each set's links against that
+> set's own `html` directory. Verified zero cross-links each way. Name a page
+> in another set in words, never as a link.
+>
+> ***THE SYNTAX CARDS LIVE AT `94` ONWARDS*** — owner's ruling, so that adding
+> another card never renumbers a subject page. `94` SD BASIC, `95` SD TCL.
+>
+> ***THE "17 LEFT" IN THE LAST HANDOFF WAS SHORT BY SEVEN, AND THE FIX IS A
+> TOOL, NOT A CORRECTION.*** Seven verbs were counted as covered and were on no
+> page — `listu` inside a warning, `lock` inside the word "unlock",
+> `create.account` inside a keyword table on the editor page — because the
+> count was answering *does this string occur* and the question is *is this
+> verb explained here*. **`tools\tclmap.py` now asks the second one**: it
+> requires evidence on the page, the verb backticked or opening a line inside a
+> fenced syntax block, and prose does not count. It found seven problems on its
+> first run and `mktclsyntax.py`'s completeness gate found more.
 >
 > **The tester set carries the tier change** (six pages) **and the 120 × 36
 > default** (pages 02 and 13). `06` also gained the four `os.users` keywords,
