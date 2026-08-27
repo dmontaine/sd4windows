@@ -109,7 +109,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ### HANDOFF, END OF THE SIXTY-THIRD SESSION
 >
 > **Both repositories are committed, pushed and clean.** `sd4windows` at the
-> commit carrying this line; `SDCoreWindowsDocs` at `27a2773`. Nothing is in
+> commit carrying this line; `SDCoreWindowsDocs` at `4317766`. Nothing is in
 > flight.
 >
 > ***THE `User` SET IS FINISHED — 17 OF 17 SD BASIC PAGES.*** `14` Locks and
