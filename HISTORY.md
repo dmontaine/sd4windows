@@ -37556,3 +37556,32 @@ down a pipe, so there is no terminal: `input`, `keyin()` and the editing keys
 are described from source and the page says so at the top rather than implying
 they were exercised. `terminfo('name')` returning empty in that session is
 itself recorded, because a program run from the API sees the same thing.
+
+## 26 Aug 2026 - Handoff at an account change: the tooling leaves the scratchpad
+
+**Commit:** see the commit that carries this entry. Sixty-second session,
+closing. Credits ran low and the work moves to another account.
+
+**Both repositories committed, pushed and clean.** 13 of the 17 SD BASIC pages
+written and rendered; `checklinks` 89 links 0 broken; `docmap.py` 411 of 411.
+Left: `14` Locks and Transactions, `15` Sockets, `16` System and Environment,
+`17` Debugging.
+
+***THE ONE THING THAT WOULD HAVE BEEN LOST.*** Every measured value in this
+document set came from tooling built in the **session scratchpad**, which does
+not survive an account change. Three tools moved into the docs repository's
+`tools\` and each was run from its new location before this was written:
+`sdprobe.ps1` (the probe harness that refuses a run missing its own START/END
+markers - the 200-byte guard fired on the smoke test, correctly),
+`docmap.py` (coverage, non-zero on a gap) and `linkup.py` (links only to pages
+that exist).
+
+`pdfpage1.py` was NOT moved. It tried to extract page 1 text from a PDF to
+prove the title page stands alone, and returned nothing - Chromium subsets its
+fonts, so the strings are not recoverable that way. **The instrument that does
+work is the one-paragraph control**: 2 pages with the break, 1 without. Keeping
+a tool that returns nothing would have been worse than keeping none.
+
+**`14` and `15` need two SD sessions at once** - a held lock and a socket with
+something at the other end. Everything through `13` was measurable from one
+piped session; those two are not, and that is the next session's first problem.

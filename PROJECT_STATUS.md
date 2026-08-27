@@ -106,6 +106,44 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
 >
+> ### HANDOFF, END OF THE SIXTY-SECOND SESSION — ACCOUNT CHANGED HERE
+>
+> **Both repositories are committed, pushed and clean.** `sd4windows` at the
+> commit carrying this line; `SDCoreWindowsDocs` likewise. Nothing is in flight.
+>
+> ***THE WORK IS `H.2` AND IT IS 13 OF 17 SD BASIC PAGES.*** Written and
+> rendered: `01`–`13`. **Left: `14` Locks and Transactions, `15` Sockets, `16`
+> System and Environment, `17` Debugging.** `14` and `15` are the two that need
+> **two SD sessions at once** — a lock one session holds while another tries
+> for it, and a socket with something at the other end. Everything up to `13`
+> was measurable from a single piped session; those two are not.
+>
+> ***THE TOOLING MOVED OUT OF THE SESSION SCRATCHPAD ON PURPOSE, BECAUSE A
+> SCRATCHPAD DOES NOT SURVIVE AN ACCOUNT CHANGE.*** All three are in the docs
+> repository, `tools\`, and all three have been run from there:
+>
+> | | |
+> |---|---|
+> | `tools\sdprobe.ps1` | ***how every measured value in the set was produced.*** Writes a BASIC probe into an account's BP, runs it down §6's `Invoke-SD` pipe, and **REFUSES a run that did not print its own START and END markers**. It has refused four real drafts |
+> | `tools\docmap.py` | assigns every name `BCOMP` accepts to exactly one document; exits non-zero on a gap. **411 of 411** today |
+> | `tools\linkup.py` | turns `*SD Basic - X*` into a link **only for pages that exist**, so `checklinks` stays meaningful |
+>
+> ***THE METHOD IS THE POINT, NOT THE PAGE COUNT.*** The roster comes from
+> `BCOMP`'s own tables, never from `..\sdhelp`, and every example is compiled
+> and run before it is written down. That has caught **eight** statements
+> drafted as though they worked — and three behaviours (`matbuild ... using`,
+> `errmsg`, `on n goto` clamping) that are recorded nowhere else. **Do not
+> relax it to go faster; it is the only reason the set is worth anything.**
+>
+> **Render with** `python tools\mkdoc.py --in User\markdown --out User\html`,
+> then `powershell -File tools\mkpdf.ps1 -In User\html -Out User\pdf`, then
+> `python tools\checklinks.py User\markdown User\html` — **89 links, 0
+> broken** at handoff.
+>
+> ***THE MACHINE IS UNTOUCHED BY ALL OF THIS.*** No source that ships changed
+> this session, so the 17:14:03 install still matches source and `b47` is still
+> the next free suite prefix.
+>
 > ***RUN `python sdb_ai/sd64/gplbld/check-stale-leads.py` BEFORE YOU ANSWER ANY
 > "WHAT IS LEFT" QUESTION.*** One second, and it is the difference between the
 > table and a guess.
