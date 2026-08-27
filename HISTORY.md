@@ -37362,3 +37362,32 @@ carries no licence header, so the file's own next sentence already covers them:
 **The LGPL line is genuine and stays** - `gplsrc/sdclilib/` carries LGPL v3
 headers throughout. Both files also lose their `[Press 'q' to exit]` banner and
 `contrib` its 19 lines of trailing pager padding.
+
+## 26 Aug 2026 - The whole batch lands green: 19/19, and CONFIG GPL reads a 44 KB VOC record
+
+**Commit:** see the commit that carries this entry. Sixty-first session, closing.
+
+Cycle at 17:14:03, `assert-current` exit 0, `VerifyInstall1 -ThenExecuted
+-Run b46` **19 of 19 steps exited 0**. `b46` is spent.
+
+***`sd.exe` MOVED TO `8E6A6CF45AA6F20A`*** from `5BD2F83F43BB9B27` - the first
+binary change since 25 Aug, carrying `win32vt.c` and the `sdtermlb.c` reorder.
+
+**Read out of the install rather than taken from the run:** `gcat/$EDIT`,
+`newvoc/micro` pointing at `$EDIT`, `TIER.OMIT.STANDARD` at 42,
+`voc_template/$licence` 44,529 bytes, `$contrib` 627, the micro syntax file and
+`install-editors.ps1` both in Program Files, and no Black Oak in the licence.
+
+***AND THE ONE PART OF THE DESIGN NOBODY HAD EXERCISED WORKS.*** `CONFIG GPL`
+through the verifiers' own harness returned **915 lines**, the whole GPL, with
+no Black Oak - so a 44 KB record in SDSYS's VOC reads back intact and pages
+through SD's own paginator. `CONFIG CONTRIB` likewise, showing the agent/model
+list.
+
+**What is built and unwitnessed:** `edit` and `micro` have not been retried
+since the console VT change went in, so ANSI positioning from a PowerShell
+window is installed and unobserved.
+
+**Open, none started:** the shipped-scripts documentation gap; bundling micro
+with the installer (decided, licence question settled, nothing built); and
+questions 7 and 14 of the review list.
