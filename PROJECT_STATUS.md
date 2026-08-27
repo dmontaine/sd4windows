@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**. ***A CLEAN BOUNDARY: the owner ran the cycle, `assert-current` is exit 0 live, install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`.*** The tier work **compiles** — 189 units at 0 errors, no new warnings — and **none of its behaviour is tested**, because `MODIFY.ACCOUNT` needs elevation. ***THE TIER CHANGE AND SUSPENDED ARE MEASURED AND WORK*** — the owner ran the elevated half, the agent the unelevated half; the Windows side was diffed from outside SD with a control. **The suite has NOT run: `-Run b48`, and the tree is deliberately left current so it can.** One claim of the build session's is wrong and the code still says it — START HERE, "the write-once rule never fires".
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THE TREE IS CURRENT*** (`assert-current` exit 0 live, install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`) ***AND MUST STAY THAT WAY UNTIL `-Run b48` HAS RUN — do not edit any source file first, not even a comment.*** An elevated `sd -cleanup` is owed. The tier change and SUSPENDED are **measured and work**; `SD TCL` 19 to 29 are done. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -110,24 +110,121 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
 >
-> ### HANDOFF, SIXTY-FIFTH SESSION
+> ### HANDOFF, SIXTY-SIXTH SESSION — READ THE FIVE NUMBERED ITEMS FIRST
 >
-> ## ***THE TREE IS STALE AND OWES ONE CYCLE. `sdsys/gpl.bp/EDIT` CHANGED AND NOTHING HAS BEEN INSTALLED SINCE.***
+> ***THE SESSION ENDED ON CREDIT, NOT ON A PROBLEM.*** The owner is continuing
+> from a different account. Both repositories are **pushed and clean**:
+> `sd4windows` and `SDCoreWindowsDocs`. Nothing is half-written.
 >
-> `assert-current` was **exit 0, run live at the start of 27 Aug**, before the
-> edit; it will **fail now**, and every verifier that calls it will refuse. The
-> install is still **26 Aug 21:17:22**, `sd.exe` `DF77FD6D61DE5184` — **the
-> binary did not move, only BASIC did**, so this costs a cycle and not a
-> rebuild.
+> ## ***1. THE TREE IS CURRENT AND MUST STAY THAT WAY UNTIL THE SUITE RUNS.***
+>
+> `assert-current` **exit 0, run live 27 Aug**. Install **27 Aug 12:06:20**,
+> `sd.exe` `DF77FD6D61DE5184`, `gcat`/`gpl.bp.out` **125 / 184**.
+>
+> **`-Run b48` HAS NOT RUN AND IS THE BIGGEST THING OUTSTANDING.** `b47`'s
+> accounts went with the fresh install, so `b48` is clean.
+>
+> ***DO NOT EDIT ANY SOURCE FILE BEFORE IT — NOT EVEN A COMMENT.*** Editing
+> `MODIFYA`, `KEYS.H` or `TERM` moves the mtime, `assert-current` then fails,
+> and **every verifier that calls it refuses**. Two fixes are queued behind this
+> for exactly that reason (item 4).
+>
+> ## ***2. AN ELEVATED `sd -cleanup` IS OWED.***
+>
+> A measurement batch containing `clearinput` hung and was killed. `listu`
+> showed **User 7 (12:42)** and **User 12 (13:14)** stale beside the live one,
+> plus one stray `sd.exe`. **`Stop-Process` was NOT used**, per the rule.
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> & "C:\Program Files\SD\usr\bin\sd.exe" -cleanup
 > ```
 >
-> ***USE `-Run b48`. `b47` IS SPENT*** — 15 accounts in the register carry the
-> `b47` prefix from the cycle's own suite run.
+> **The install still serves sessions** — `listu` and four later runs all
+> completed — so this is held slots and exclusive access, not a wedged tree.
+> `BUILD.INDEX` and anything else wanting exclusive access will be refused until
+> it is cleared, **so do this before the suite.**
 >
-> ### WHAT CHANGED AND WHY — THE OWNER STOPPED THE SESSION TO REPORT IT
+> ***THE LESSON IS THE CLASS, AND IT IS NOW ON PAGE 29.*** Every program in that
+> batch was scanned for `input` and `keyin` and all were clean. `clearinput`
+> does not PROMPT for input, it DISCARDS it — and in a piped session the input
+> stream **is** the script, so it threw away the commands that had not run yet,
+> including the `off`. **The question is not "does it prompt" but "does it touch
+> the input stream".**
+>
+> ## ***3. THE TIER WORK IS MEASURED AND WORKS. THREE FIXTURES ARE LEFT BEHIND.***
+>
+> Full detail below in "THE TIER CHANGE AND SUSPENDED ARE MEASURED AND WORK".
+> The short form: `modify.account` moves an account between STANDARD,
+> PROGRAMMER, ADMINISTRATOR and SUSPENDED in either direction, the VOC delta
+> reported the predicted **42** and **21** every time, and the Windows side was
+> diffed from outside SD with `don` as an unchanged control.
+>
+> | account | state | why it is still there |
+> |---|---|---|
+> | `b48tier` | PROGRAMMER, group | the fixture for the **"left alone"** test, item 5 |
+> | `b48susp` | ***SUSPENDED***, group | **KEEP IT SUSPENDED** — the only unelevated LOGTO-door fixture |
+> | `b48adm` | PROGRAMMER, user | password known to the owner; the fixture for the ssh and API doors |
+>
+> **`delete.account` prompts unconditionally** (`DELACC:242`, no `no.query`), so
+> do not tear them down from a pipe. The next fresh install removes them, which
+> is what happened to `b47`'s fifteen.
+>
+> ## ***4. TWO SOURCE FIXES ARE QUEUED AND DELIBERATELY NOT MADE.***
+>
+> Both cost a cycle, and item 1 is why neither was done.
+>
+> | | |
+> |---|---|
+> | **PRE_RELEASE 21** | the **write-once rule** on `ACC$PRIOR.TIER` is *unreachable* — the equality guard at the top of `tier.set` returns first. Field 6 IS safe; four documents name the wrong guard. Delete the inner test, say it at the equality guard |
+> | **PRE_RELEASE 23 / UPSTREAM 24** | ***`term default` sets 20 × 24***, the MINIMUM width, not SD's **120 × 36**. `TERM:165` uses `MIN.WIDTH` where `DEFAULT.WIDTH` is six lines away in the same header. **Two lines.** Upstream has it identically |
+>
+> ## ***5. WHAT IS STILL NOT MEASURED, IN THE ORDER THE FIXTURES SUIT.***
+>
+> 1. ***THE "LEFT ALONE" COUNT.*** Every run reported `0 left alone`, which is a
+>    rule **never exercised**, not a rule that passed. Elevated: `logto b48tier`
+>    (elevation bypasses the group test), edit a VOC record `TIER.OMIT.STANDARD`
+>    names — `ed voc basic`, `I` with text, `FI` — then `logto sdsys` and
+>    `modify.account b48tier standard`. **Expect `41 removed, 1 left alone`.**
+> 2. ***THE ssh/CONSOLE DOOR (`LOGIN`) AND THE API DOOR (`APISRVR`).*** Neither
+>    has been reached. Suspend `b48adm`, `ssh b48adm@localhost` must answer
+>    **`Account B48ADM is suspended`**, then `modify.account b48adm programmer
+>    ssh` to restore. **Do the unsuspended attempt too** — a refusal that would
+>    have happened anyway proves nothing.
+> 3. **`micro gpl.bp EDIT`** from an unelevated console. A console, not a pipe.
+> 4. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`**, docs repo —
+>    15 cases, compiled clean 27 Aug, **never run**.
+> 5. **Then `verify-tierchange.ps1` can be written** — the behaviour is known
+>    now, so it can be built against a live install instead of guessed at.
+>    PRE_RELEASE 19 lists what it must cover.
+>
+> ### THE DOCUMENTATION STATE
+>
+> ***`SD TCL` 19 TO 29 ARE DONE; 30, 31, 32 ARE NOT.*** Coverage is **127 of the
+> 144 verbs** and the 17 left partition cleanly — the roster and the split are
+> below. `28` printing and spooling and `29` the terminal and the session were
+> written this session, measured with `tools\sdtcl.ps1`.
+>
+> **The tester set carries the tier change** (six pages) **and the 120 × 36
+> default** (pages 02 and 13). `06` also gained the four `os.users` keywords,
+> which had never been in the tester set at all.
+>
+> ***THREE TOOL FACTS LEARNT THE HARD WAY THIS SESSION:***
+>
+> - **`sdtcl.ps1` CANNOT DRIVE `MODIFY.ACCOUNT`.** It opens with `LOGTO don`,
+>   and `CPROC:2713` drops `K$ADMINISTRATOR` on any `logto` whose target is not
+>   SDSYS. Type those at an elevated `sd` prompt, or `logto sdsys` and stay.
+> - **The PDF step is separate and gets forgotten.** Pages 19–27 shipped with no
+>   PDF at all until the owner noticed. **Check markdown against PDF, never HTML
+>   against PDF** — re-rendering touches every HTML mtime and reports the whole
+>   set as stale. The one-liner is in the docs `README.md`.
+> - **`CREATE.ACCOUNT USER` prompts for a password** and `NO.QUERY` does not
+>   suppress it. A group account does not (`CREATEA:517`), which is what made
+>   the tier round trip scriptable.
+>
+> ### WHAT CHANGED AND WHY — SIXTY-FIFTH SESSION, AND IT IS NOW INSTALLED
+>
+> *(Kept because the cycle of 27 Aug 12:06 is what installed it, and neither
+> screen editor has been run since. Nothing below is outstanding work.)*
 >
 > ***`micro` REFUSED A SOURCE RECORD, AND `gpl.bp/EDIT` WAS THE ONLY SOURCE
 > RECORD IN THE SHIPPED TREE ITS OWN GUARD COULD REFUSE.*** His ruling with it:

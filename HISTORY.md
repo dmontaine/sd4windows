@@ -38651,3 +38651,35 @@ both trees belongs in both.
 **Not fixed in source**: `TERM` is BASIC and the fix costs a cycle, and the tree
 is being kept current for `-Run b48`. Documented on page 29 and tester pages 02
 and 13 instead, all three giving `term 120,36` as what actually restores it.
+
+### Session end, and what the handoff had to carry
+
+The sixty-sixth session ended on credit rather than on a problem; the owner
+continues from a different account. Both repositories pushed and clean.
+
+**PROJECT_STATUS.md's START HERE was rewritten to five numbered items**, because
+the box still opened with the sixty-fifth session's *"THE TREE IS STALE AND OWES
+ONE CYCLE"* — true when written, false since 12:06, and the first thing a cold
+session would have acted on. The 65th's EDIT record below it is kept and
+relabelled: it is what the cycle installed, not outstanding work.
+
+***THE TWO ITEMS THAT HAD TO BE FIRST, BECAUSE BOTH ARE SEQUENCING TRAPS:***
+
+1. **The tree is CURRENT and must stay so until `-Run b48`.** Two source fixes
+   are queued and deliberately not made (PRE_RELEASE 21 and 23). Editing
+   `MODIFYA`, `KEYS.H` or `TERM` — *even only a comment* — moves the mtime,
+   `assert-current` fails, and every verifier refuses. A session that tidied the
+   queued comment fix first would lose the suite run and not know why.
+2. **An elevated `sd -cleanup` is owed** for the two stale user-table slots, and
+   it has to happen **before** the suite: `BUILD.INDEX` and anything else
+   wanting exclusive access is refused while they are held.
+
+**Three fixtures are named with the reason each is still there** — `b48susp`
+in particular, because it is the only unelevated LOGTO-door fixture and
+"tidying up" would destroy the one thing that can test that door.
+
+**And three tool facts learnt the hard way are recorded as tool facts, not as
+narrative**: `sdtcl.ps1` cannot drive `MODIFY.ACCOUNT` (it opens with
+`LOGTO don` and `CPROC:2713` drops the flag); the PDF step is separate and is
+checked markdown-against-PDF, never HTML-against-PDF; and
+`CREATE.ACCOUNT USER` prompts for a password where a group account does not.
