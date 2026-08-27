@@ -47,6 +47,11 @@ should be fixed, **M** minor.
 | 21 | **S** | ***The write-once rule on `ACC$PRIOR.TIER` is unreachable, and four documents say it is what makes field 6 safe*** | `gpl.bp/MODIFYA` |
 | 22 | **M** | `create.account` says a password was not set and never says why | `gpl.bp/CREATEA:498` |
 | 23 | **S** | ***`term default` sets 20x24, the MINIMUM width, not SD's 120x36 default*** — UPSTREAM #24, **unfixed here** | `gpl.bp/TERM:165` |
+| 24 | **S** | ***`sd -cleanup` never releases a dead session's task locks*** — UPSTREAM #25, **unfixed here** | `gplsrc/clopts.c:300` |
+| 25 | **S** | `encrypt.field` is in every administrator's VOC and `$CRYPTO` is not in the distribution — UPSTREAM #26, **unfixed here** | `sdsys/voc_template/encrypt.field` |
+| 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27, **unfixed here** | `gpl.bp/DELETEF:233` |
+| 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
+| 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -636,3 +641,133 @@ without a cycle: `TERM` is BASIC, so it costs one.
 *SD TCL - The Terminal and the Session* and tester page 13 both state the
 120 x 36 default, both say `term default` does not restore it, and both give
 `term 120,36` as what does.
+
+## 24. `sd -cleanup` never releases a dead session's task locks — **S**
+
+**UPSTREAM_FIXES #25. Live in this tree**, read at `gplsrc/clopts.c:299-302`
+and confirmed identical on upstream `main`.
+
+`remove_user()` takes the dead user's number into `user_no` and then uses
+`process.user_no` in the **task-lock** loop, where the three loops below it —
+file locks, record locks, group locks — all use `user_no`. `cleanup()` never
+becomes a user, so `process.user_no` is **zero**, a free slot is also zero, and
+the loop clears free slots and nothing else. **No task lock is released by
+cleanup at all.**
+
+***IT MATTERS HERE MORE THAN THE ONE-WORD FIX SUGGESTS.*** `sd -cleanup` is
+this project's standard recovery from a killed session and appears in
+PROJECT_STATUS.md, in `sdtcl.ps1`'s and `sdprobe.ps1`'s timeout banners, and in
+the tester documentation. **All of it promises a recovery that is incomplete**,
+and the gap is invisible until something takes a task lock. Nothing in the
+shipped tree does, so this has never been hit; an application that guards a
+nightly job with `lock 3` would hit it the first time it was killed.
+
+**The remaining ways out are `unlock tasklock` *n*, elevated, or restarting
+SD.** Both are documented on *SD TCL - Locks*, which states the defect rather
+than leaving it to be discovered.
+
+**The fix is one word**, in C, so it costs a full cycle rather than a
+`-SkipInstall`.
+
+## 25. `encrypt.field` is in every administrator's VOC and `$CRYPTO` does not exist — **S**
+
+**UPSTREAM_FIXES #26. Live in this tree**, measured 27 Aug 2026 on the
+12:06:20 install:
+
+```
+:encrypt.field
+00001FCB: Unable to load '$CRYPTO' object code at line 1550 of $CPROC
+```
+
+`sdsys/voc_template/encrypt.field` is `CA $CRYPTO 6`; the name is in
+`newvoc/TIER.ADD.ADMINISTRATOR`, so **every administrator account gets it**.
+There is no `$CRYPTO` in `sdsys/gpl.bp`, none in the installed `gcat`, and
+nothing of that name anywhere under `C:\ProgramData\SD`.
+
+***THIS IS A SHIPPED VERB THAT CANNOT WORK***, and the message it produces
+names `$CPROC` and an internal line number rather than what the user typed.
+**Removing the VOC record is the smaller and more honest fix** — *Verb not
+found* is a better answer than a loader error — and nothing in the
+documentation or the tester set refers to the verb.
+
+**Decide before release**: ship a `$CRYPTO`, or drop the record from
+`voc_template` and from `TIER.ADD.ADMINISTRATOR`. Either is a data change, so a
+cycle, not a rebuild.
+
+## 26. `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — **S**
+
+**UPSTREAM_FIXES #27, and separate from #14** — that one is
+`check.sdsys.file`, on the system-account path. This one is on the ordinary
+path, in the caller's own account, and **it fires on every file created and
+deleted using the project's own house style.**
+
+`DELETEF:233` guards message 6135, *OK to delete DATA portion*, on `force`
+alone; `no.query` is not tested there or at the matching test for the
+dictionary part. And `CREATEF`'s *Form operating system file name from VOC
+record name* block upper-cases the name before storing it, while `DELETEF`
+compares against the name **as the caller typed it**. So the two differ
+whenever the verb was typed in lower case, and both prompts fire.
+
+***MEASURED, AND IT COST A RUN BEFORE IT WAS UNDERSTOOD.***
+`tools\probes\p31-locks.b` in the docs repository first hung on exactly this
+and left a user-table entry and an `RU` lock on a `voc` record. It now stacks
+`data 'Y'` answers and captures the output, which is where the evidence comes
+from:
+
+```
+OK to delete DATA portion 'ZZLK31A'? Y | DATA portion 'ZZLK31A' deleted |
+OK to delete DICT portion 'ZZLK31A.DIC'? Y | DICT portion 'ZZLK31A.DIC' deleted |
+VOC entry 'zzlk31a' deleted
+```
+
+***THE LOWER-CASE HOUSE STYLE IS WHAT MAKES THIS OURS TO WORRY ABOUT.*** Step
+7.8 made lower case the way commands are written here and the documentation
+teaches it. Upstream's convention hides the same code. **Anything that drives
+SD non-interactively and deletes a work file is exposed** — the verify suite,
+build scripts, and every probe in the docs repository.
+
+Comparing case-insensitively, or honouring `no.query` beside `force`, both fix
+it; the upstream entry argues for the first. BASIC, so `-SkipInstall` will tell
+you it compiles and a full cycle is needed to test it.
+
+## 27. `modify.account` *acc* `add`/`delete` writes no audit record — **M**
+
+`GRANTA` writes `kernel(K$AUDIT, 'GRANT account=... to=...')` after every
+successful group edit, and the same for `REVOKE`. **`MODIFYA:344`'s `add` and
+`delete` arms make the identical `os_group('ADDMEM'/'DELMEM', ...)` call and
+write nothing.**
+
+So *who may enter this account* can be changed by two different verbs and only
+one of them leaves a trail. **The audit file is the answer to "who granted
+this", and it is silently incomplete.** Windows' own security log still records
+the group change, which is the reason this is **M** and not **S** — but the
+whole point of having SD's own trail is not having to correlate the two.
+
+Either add the two `K$AUDIT` calls, or **retire `add`/`delete` in favour of
+`grant`/`revoke`**, which say what they mean and are what the documentation
+teaches. *SD TCL - Accounts and Security* recommends `grant`/`revoke` and says
+why meanwhile.
+
+## 28. A process dump is written where every SD user can read it — **M**
+
+`pdump.c:97` writes `sddump.`*n* into the directory named by `DUMPDIR`, or into
+`sysseg->sysdir` when `DUMPDIR` is empty — which is how SD ships. Measured
+27 Aug 2026: an ordinary account's `pdump` of its own session produced a
+21,567-byte `C:\ProgramData\SD\sdsys\sddump.27`, and `icacls` on it reports
+`GITORLI\sdusers:(I)(M)` — **every SD user has Modify on it.**
+
+**The file holds application data**: `@`-variables, `@SENTENCE` and
+`@COMMAND`, the call stack, open files and their locks, and named and unnamed
+common. A dump taken to investigate a fault in one account is readable by every
+other.
+
+***THE EXISTING CONTROL GUARDS THE WRONG HALF.*** `PDUMP=1` in the
+configuration stops an unelevated session **dumping** a process running under
+another username. Nothing stops it **reading** a dump that is already there.
+
+**Three things to decide**, none of them large: whether the installer should
+set `DUMPDIR` to somewhere administrator-only; whether the dump should be
+written with a restrictive ACL; and whether `sdsys` itself should stop being
+`sdusers`-writable, which is a wider question than this entry. Raised while
+writing *SD TCL - Processes and Phantoms*, which tells the reader to treat a
+dump as the data of the program that produced it.

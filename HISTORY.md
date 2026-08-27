@@ -38683,3 +38683,104 @@ narrative**: `sdtcl.ps1` cannot drive `MODIFY.ACCOUNT` (it opens with
 `LOGTO don` and `CPROC:2713` drops the flag); the PDF step is separate and is
 checked markdown-against-PDF, never HTML-against-PDF; and
 `CREATE.ACCOUNT USER` prompts for a password where a group account does not.
+
+## 27 Aug 2026 - SD TCL 30, 31 and 32, and a verb count that had been answering the wrong question
+
+**The last three topic pages of the SD TCL reference are written**, so `19` to
+`32` are all done and only the generated card at `33` is left. Docs repo commit
+`10b4579`; `checklinks` 183 links 0 broken across 32 `User` pages, HTML and PDF
+both rendered by `tools\release.ps1 -Set User -NoZip`. Nothing in `sd4windows`'
+source was touched — `assert-current` **exit 0, run live afterwards**, so
+`-Run b48` is still unblocked.
+
+### The handoff's "17 verbs left" was short by seven, and the reason generalises
+
+The plan named 17 verbs for the three pages. **Ten more had no page**, and
+seven of those had been counted as covered: `phantom`, `listu`, `status`,
+`lock`, `create.account`, `modify.account` and `grant` each appeared only as a
+passing mention or as a substring of a longer name — `listu` in a warning on
+page 23, `lock` inside "unlock", `create.account` inside a keyword table on the
+`edit` page. `echo`, `time` and `printer` had no mention at all.
+
+***THE COUNT HAD BEEN ANSWERING "DOES THE NAME APPEAR" AND NOT "IS THE VERB
+DOCUMENTED".*** Measured with a scoring script narrow enough to tell the two
+apart — a verb counts only if it is backticked on the page or begins a line
+inside a fenced syntax block — which is what turned 127-of-144 into the real
+118, and then into 144 with the ten placed.
+
+**`echo` and the `date`/`time` pair went to `29` and `printer` to `28`**, both
+already-written pages, because that is where they belong; the other seven went
+onto the new pages. **The tier tables were rebuilt from `newvoc` rather than
+carried over**: `listu` and `logout` are administrator verbs, not standard, and
+`list.readu`, `list.locks`, `lock`, `clear.locks` and `unlock` all are too —
+only `release` is in an ordinary account.
+
+***THE ROSTER IS MECHANICAL AND THERE IS STILL NO CHECKER FOR IT.*** `newvoc`'s
+123 verb records plus `newvoc/TIER.ADD.ADMINISTRATOR`'s 21 is exactly 144, no
+overlap. `docmap.py` does this job for the BASIC roster and exits non-zero on a
+gap; the TCL roster has nothing, so the number lived in prose and drifted. That
+is the obvious next tool.
+
+### What was measured, and the two verbs that must never be
+
+Six `sdtcl` batches and two new probes, `tools\probes\p30-processes.b` and
+`p31-locks.b`. `p31-locks` takes an update lock, a read lock, a file lock and a
+task lock and runs `list.readu` and `list.locks` against itself — one session is
+enough because `getlocks()` reports the caller's own locks, and contention is a
+different question already measured on document 14.
+
+***`phantom` AND `pdebug` ARE DESCRIBED FROM SOURCE AND WERE DELIBERATELY NOT
+RUN.*** The grep rule caught `phantom` before it cost anything: HISTORY, 24 Aug
+2026, records that a phantom child inherits the pipe and the job never
+completes even after the parent exits. `pdebug` polls `keyready()`/`keyin()`,
+so down a pipe it eats the commands that have not run yet, **and** starts a
+phantom when given an argument.
+
+### The one run that did hang, and what it turned into
+
+`p31-locks` first ended with `delete.file zzlock31 no.query`, which hung and
+was killed — a second stale user-table slot, User 19, and an `RU` lock left on
+record `zzlock31` in `don`'s own `voc`.
+
+***THE CAUSE IS A DEFECT AND IT IS NOW PRE_RELEASE 26 / UPSTREAM 27.***
+`DELETEF:233` guards *OK to delete DATA portion* on `force` alone — `no.query`
+is not tested there or at the matching dictionary test — and `CREATEF`
+upper-cases the OS name into the VOC while `DELETEF` compares against the name
+**as typed**. So a lower-case `create.file` / `delete.file` pair prompts twice,
+which is every file this project makes. **It is distinct from PRE_RELEASE 14**,
+which is the system-account prompt.
+
+**The rerun proves it rather than asserting it**: `data 'Y'` answers stacked
+before the `execute`, output captured rather than printed, so the prompt text
+itself is the evidence and the run cannot hang. The probe passed its guard end
+to end.
+
+### Five pre-release entries and three upstream ones
+
+| | |
+|---|---|
+| PRE_RELEASE 24 / UPSTREAM 25 | ***`sd -cleanup` never releases a dead session's task locks.*** `clopts.c:300` tests `process.user_no` where the three loops below it use `user_no`; `cleanup()` never becomes a user, so that is zero, a free slot is zero, and the loop clears free slots only. **The recovery this project documents everywhere is incomplete** |
+| PRE_RELEASE 25 / UPSTREAM 26 | `encrypt.field` is `CA $CRYPTO` in `voc_template` and in `TIER.ADD.ADMINISTRATOR`, and **there is no `$CRYPTO` in the distribution** — none in `gpl.bp`, none in the installed `gcat`, and nothing of that name tracked upstream either. Measured: *Unable to load '$CRYPTO' object code at line 1550 of $CPROC* |
+| PRE_RELEASE 26 / UPSTREAM 27 | the `delete.file` prompt above |
+| PRE_RELEASE 27 | `modify.account` *acc* `add`/`delete` makes the same group edit as `grant`/`revoke` and **writes no audit record**, so the trail is silently incomplete |
+| PRE_RELEASE 28 | `pdump` writes `sddump.`*n* into the system directory when `DUMPDIR` is empty, which is how SD ships. Measured: 21,567 bytes, `icacls` reports `sdusers:(I)(M)`. It holds `@`-variables, the call stack and common — **application data, readable by every SD user**. `PDUMP=1` stops the dumping and not the reading |
+
+All three upstream entries were confirmed on `main` with `git show`, not from
+the working tree.
+
+### Smaller things learnt, kept because they are cheap to lose
+
+- **`logout` with no argument is `quit`.** It ends your own session, which is
+  worth knowing before typing it intending to list something.
+- **`list.locks` is task locks and `list.readu` is database locks**, and they
+  share nothing. `unlock` straddles the two and is the only verb that does.
+- **`unlock` names a file by NUMBER**, from `list.readu`'s `File` column;
+  `release` names it by name. That is not an inconsistency — one acts on the
+  machine's open files, the other on your own locks in your own account.
+- **`pstat` asks rather than reads**, waiting up to four seconds, so
+  *(Not responding)* is how you tell a dead session from a busy one.
+- **`date` prints the time and `time` prints the date**, and `date` with an
+  argument converts in whichever direction the argument implies: `date 20000`
+  answers a date, `date 4 jul 2026` answers `21370`.
+- **`printer` does `setptr`'s job in keywords and does not confirm**, which
+  makes it the form for a phantom or a script; `setptr` needs `brief`.

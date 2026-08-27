@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THE TREE IS CURRENT*** (`assert-current` exit 0 live, install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`) ***AND MUST STAY THAT WAY UNTIL `-Run b48` HAS RUN — do not edit any source file first, not even a comment.*** An elevated `sd -cleanup` is owed. The tier change and SUSPENDED are **measured and work**; `SD TCL` 19 to 29 are done. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THE TREE IS CURRENT*** (`assert-current` exit 0 live, install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`) ***AND MUST STAY THAT WAY UNTIL `-Run b48` HAS RUN — do not edit any source file first, not even a comment.*** An elevated `sd -cleanup` is owed. The tier change and SUSPENDED are **measured and work**. ***ALL FOURTEEN `SD TCL` TOPIC PAGES, `19` TO `32`, ARE WRITTEN AND ALL 144 VERBS HAVE A PAGE***; only the generated card at `33` is left. **Five new pre-release entries, 24 to 28**, and **three new upstream ones, 25 to 27**. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -29,9 +29,9 @@ something came to be the way it is.
 
 ***THE MACHINE — AND THE INSTALL IS CURRENT, 27 Aug 2026 12:06:20.*** *(This paragraph has led with a staleness twice: 26 Aug 20:40, three rebuilt C files, closed by the owner's 21:17:22 cycle; then `gpl.bp/EDIT`, closed by his 27 Aug 12:05 cycle, which also carried the tier work. **`sd.exe` has not moved since 26 Aug** — `DF77FD6D61DE5184` — because both were BASIC.)* `assert-current` **exit 0, run live 27 Aug**: 2969 files across 6 mirrors, nothing newer, 26 leftover names checked. **`gcat` 125 / `gpl.bp.out` 184, unmoved.** ***THE REGISTER HOLDS ONLY `don` AND `sdsys`*** — the fresh install took `b47`'s fifteen accounts with it, so **`b48` is clean**. **The suite has NOT been run against this install**; the green reading below is the 26 Aug one and is what `b48` re-scores. The host previously carried a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
 
-***THE `SD TCL` REFERENCE HAS STARTED AND IT LIVES IN THE `User` SET, NUMBERED FROM 19.*** Owner's ruling, 26 Aug 2026, on both questions: the TCL pages continue `User/` rather than taking a set of their own, and they are named `NN-sd-tcl-<topic>.md`. **The plan is 12 topic pages plus a generated syntax card at `31`, and it is checked rather than asserted** — every one of the **144** verbs is on exactly one page, verified in both directions. `19` command processor, `20` files and records and `21` query processor are written; `22` select lists is next. ***THE ROSTER IS 144, NOT 140***, and the difference is the four records that are a keyword AND a verb — `break`, `count`, `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and `count voc with dispatch # ""` answers 144. `tools\sdtcl.ps1` is how the TCL pages are measured.
+***THE `SD TCL` REFERENCE HAS STARTED AND IT LIVES IN THE `User` SET, NUMBERED FROM 19.*** Owner's ruling, 26 Aug 2026, on both questions: the TCL pages continue `User/` rather than taking a set of their own, and they are named `NN-sd-tcl-<topic>.md`. **The plan is 14 topic pages plus a generated syntax card at `33`, and it is checked rather than asserted** — every one of the **144** verbs is on exactly one page, verified in both directions. ***`19` TO `32` ARE ALL WRITTEN (27 Aug 2026) AND THE ROSTER CLOSES AT 144 OF 144.*** ***THE ROSTER IS 144, NOT 140***, and the difference is the four records that are a keyword AND a verb — `break`, `count`, `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and `count voc with dispatch # ""` answers 144. `tools\sdtcl.ps1` is how the TCL pages are measured.
 
-***THE DOCUMENTATION PHASE IS FINDING DEFECTS, AND THEY HAVE THEIR OWN LIST: [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md).*** Ten entries as of 26 Aug 2026, two of them raised by the owner - the malformed `edit`/`micro` refusal and the installing user having no `OS.EXECUTE`. **It is maintained the way UPSTREAM_FIXES.md is**: add an entry in the same commit as the finding, move it to DONE when fixed. Writing a reference checks every claim against what SD does, which is not the same exercise as testing that it works, and it is turning things up that the suite does not.
+***THE DOCUMENTATION PHASE IS FINDING DEFECTS, AND THEY HAVE THEIR OWN LIST: [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md).*** **Twenty-eight entries as of 27 Aug 2026**, five of them (24 to 28) from writing SD TCL `30` to `32`, and two raised by the owner - the malformed `edit`/`micro` refusal and the installing user having no `OS.EXECUTE`. **It is maintained the way UPSTREAM_FIXES.md is**: add an entry in the same commit as the finding, move it to DONE when fixed. Writing a reference checks every claim against what SD does, which is not the same exercise as testing that it works, and it is turning things up that the suite does not.
 
 ***ONE DEFECT IS RAISED AND UNDECIDED, AND THE DOCUMENTATION PHASE WILL MEET IT.*** `sdsys\changelog` ships into the **data tree**, which the installer never overwrites, so a user's changelog is frozen at their install date — in the one file whose entire job is telling them what changed. It probably wants moving to `{app}` beside the documentation. Raised 25 Aug 2026; not decided, and not yet a task.
 
@@ -73,7 +73,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — **FULL install 26 Aug 17:14:03, 31/31 (12+19), 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b46`**, `assert-current` exit 0 live on 26 Aug | 26 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS 27 PAGES — 18 SD BASIC plus SD TCL `19` to `27` — and the `Technical` set has its first, `01` Restricted Commands. `docmap` 411 of 411, `checklinks` 157 links 0 broken on `User` (27 Aug 2026). `18` and `Technical/01` are generated and partition the roster, 447 of 447. OPEN: document `09` is 8 of 8 restricted commands and may belong in `Technical` too — the owner's call.*** `Technical` is still empty scaffolding, and the shipped-scripts gap is untouched | — |
+| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS 32 PAGES — 18 SD BASIC plus SD TCL `19` to `32`, ALL FOURTEEN TOPIC PAGES — and the `Technical` set has its first, `01` Restricted Commands. `docmap` 411 of 411, `checklinks` 183 links 0 broken on `User`, HTML and PDF both current (27 Aug 2026). `18` and `Technical/01` are generated and partition the roster, 447 of 447. ALL 144 TCL VERBS HAVE A PAGE. LEFT: the generated TCL syntax card at `33`. OPEN: document `09` is 8 of 8 restricted commands and may belong in `Technical` too — the owner's call.*** `Technical` is still empty scaffolding, and the shipped-scripts gap is untouched | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -131,18 +131,38 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ## ***2. AN ELEVATED `sd -cleanup` IS OWED.***
 >
-> A measurement batch containing `clearinput` hung and was killed. `listu`
-> showed **User 7 (12:42)** and **User 12 (13:14)** stale beside the live one,
-> plus one stray `sd.exe`. **`Stop-Process` was NOT used**, per the rule.
+> Two batches have hung and been killed, in two sessions. `listu` on 27 Aug at
+> 13:54 showed **User 12 (13:14)** and **User 19 (13:53)** stale beside the live
+> one. **`Stop-Process` was NOT used** either time, per the rule.
 >
 > ```
 > & "C:\Program Files\SD\usr\bin\sd.exe" -cleanup
 > ```
 >
-> **The install still serves sessions** — `listu` and four later runs all
-> completed — so this is held slots and exclusive access, not a wedged tree.
-> `BUILD.INDEX` and anything else wanting exclusive access will be refused until
-> it is cleared, **so do this before the suite.**
+> **The install still serves sessions** — every run since has completed,
+> including a probe and six `sdtcl` batches — so this is held slots and
+> exclusive access, not a wedged tree. `BUILD.INDEX` and anything else wanting
+> exclusive access will be refused until it is cleared, **so do this before the
+> suite.**
+>
+> ***AND THEN ONE MORE COMMAND, BECAUSE USER 19 LEFT A LOCK BEHIND.*** It died
+> holding an `RU` lock on record `zzlock31` in `don`'s own `voc`, and a work
+> file of that name is still in the account. **`sd -cleanup` releases record
+> locks, so it clears the lock**; then, in `don`:
+>
+> ```
+> delete.file zzlock31 force no.query
+> ```
+>
+> **`force` is not optional and `no.query` is not enough** — that is
+> PRE_RELEASE 26, found by the run that hung. The next fresh install removes
+> the file anyway.
+>
+> ***`sd -cleanup` WILL NOT GIVE BACK A TASK LOCK, WHICH IS PRE_RELEASE 24.***
+> Neither dead session held one, so nothing is owed here today. It matters for
+> the next one: `clopts.c:300` tests the cleaning process's own user number
+> instead of the dead one's, so the loop matches only free slots. The way out
+> would be `unlock tasklock` *n*, elevated.
 >
 > ***THE LESSON IS THE CLASS, AND IT IS NOW ON PAGE 29.*** Every program in that
 > batch was scanned for `input` and `keyin` and all were clean. `clearinput`
@@ -199,10 +219,26 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### THE DOCUMENTATION STATE
 >
-> ***`SD TCL` 19 TO 29 ARE DONE; 30, 31, 32 ARE NOT.*** Coverage is **127 of the
-> 144 verbs** and the 17 left partition cleanly — the roster and the split are
-> below. `28` printing and spooling and `29` the terminal and the session were
-> written this session, measured with `tools\sdtcl.ps1`.
+> ***THE `SD TCL` REFERENCE IS FINISHED EXCEPT FOR THE GENERATED CARD.***
+> `19` to `32` are all written, 27 Aug 2026, and **coverage is 144 of 144 —
+> every verb is on exactly one page, checked in both directions.** Only `33`,
+> the generated syntax card, is left.
+>
+> ***THE HANDOFF'S "17 LEFT" WAS SHORT BY SEVEN AND THAT IS THE REUSABLE
+> LESSON.*** Seven verbs were counted as covered and were on no page:
+> `phantom`, `listu`, `status`, `lock`, `create.account`, `modify.account` and
+> `grant` each appeared only as a passing mention or as a substring of another
+> name, and `echo`, `time` and `printer` had no home at all. **A verb's name
+> appearing in a page is not the same question as the verb being documented
+> there**, and the earlier count had answered the first. The three that belong
+> on the new pages went there; `echo` and the `date`/`time` pair went to `29`
+> and `printer` to `28`, both already written.
+>
+> ***THERE IS STILL NO CHECKER FOR THIS AND IT IS THE OBVIOUS NEXT TOOL.***
+> `docmap.py` does exactly this job for the BASIC roster and exits non-zero on
+> a gap; the TCL roster has nothing, so the count lives in prose and drifted.
+> The roster itself is mechanical — `newvoc`'s 123 verb records plus
+> `newvoc/TIER.ADD.ADMINISTRATOR`'s 21 is exactly 144, with no overlap.
 >
 > **The tester set carries the tier change** (six pages) **and the 120 × 36
 > default** (pages 02 and 13). `06` also gained the four `os.users` keywords,
@@ -607,15 +643,19 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > cannot drive `MODIFY.ACCOUNT` at all**, elevated or not. Type those at an
 > elevated `sd` prompt, or `logto sdsys` and stay there.
 >
-> ***THE `SD TCL` REFERENCE IS THE WORK: 19 TO 29 ARE DONE, 30 TO 32 ARE NOT,
-> AND `33` IS THE GENERATED CARD.*** **Coverage is 127 of the 144 verbs**, and
-> the 17 left partition cleanly: `30` takes `pstat` `pdebug` `pdump` `logout`,
-> `31` takes `list.locks` `list.readu` `clear.locks` `unlock` `release`, and `32`
-> takes `clean.account` `delete.account` `update.account` `modify.password`
-> `list.grants` `revoke` `encrypt.field` `config`. **Nothing is orphaned and
-> nothing is claimed twice.** It lives in the
-> `User` set on the owner's ruling — numbering continues from 19, names are
-> `NN-sd-tcl-<topic>.md`. `checklinks` **157 links, 0 broken** across 27 pages.
+> ***THE `SD TCL` REFERENCE IS DONE BAR `33`: `19` TO `32` ARE ALL WRITTEN AND
+> COVERAGE IS 144 OF 144.*** `30` processes and phantoms, `31` locks and `32`
+> accounts and security were written 27 Aug 2026. It lives in the `User` set on
+> the owner's ruling — numbering continues from 19, names are
+> `NN-sd-tcl-<topic>.md`. `checklinks` **183 links, 0 broken** across 32 pages,
+> HTML and PDF both rendered by `tools\release.ps1 -Set User -NoZip`.
+>
+> ***`phantom` AND `pdebug` ARE DESCRIBED FROM SOURCE AND WERE DELIBERATELY NOT
+> RUN.*** A phantom child inherits the pipe a scripted session is fed down, so
+> the job never completes even after the parent exits — HISTORY.md, 24 Aug
+> 2026, two `sd.exe` left behind. `pdebug` polls `keyready()`/`keyin()`, so down
+> a pipe it eats the commands that have not run yet. **Neither may be added to a
+> probe or an `sdtcl` batch.** Page 30 says so on the page.
 >
 > ***PAGES 26 AND 27 DESCRIBE BEHAVIOUR THAT IS NOW INSTALLED (cycle
 > 27 Aug 12:06:20) AND STILL UNWITNESSED — neither screen editor has been run
@@ -653,9 +693,9 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | ✅ `27` | `micro`, the capable one |
 > | ✅ `28` | printing and spooling |
 > | ✅ `29` | the terminal and the session |
-> | `30` | processes and phantoms |
-> | `31` | locks |
-> | `32` | accounts and security |
+> | ✅ `30` | processes and phantoms |
+> | ✅ `31` | locks |
+> | ✅ `32` | accounts and security |
 > | `33` | **syntax — generated, all 144 verbs** |
 >
 > ***THE EDITORS TOOK THREE PAGES AND EVERYTHING AFTER THEM MOVED UP BY TWO.***
@@ -721,7 +761,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > documented) is untouched.
 >
 > ***DEFECTS FOUND WHILE DOCUMENTING NOW HAVE THEIR OWN LIST:
-> [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md), 16 ENTRIES.*** Read it before
+> [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md), 28 ENTRIES.*** Read it before
 > planning release work; this box does not repeat it.
 >
 > ***A DEFECT IN BOTH TREES GOES IN BOTH FILES.*** Owner's correction, 26 Aug

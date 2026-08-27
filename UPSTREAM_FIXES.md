@@ -1678,3 +1678,164 @@ carries the identical three lines at 164-166 and the identical constants at
 `INT$KEYS.H:37-42`, so this is not a port artefact.
 
 `PROPOSED`
+
+## 25. `sd -cleanup` never releases a dead process's task locks
+
+`remove_user()` in `gplsrc/clopts.c` gives back everything a lost process was
+holding. It takes the dead user's number from the user table entry it was
+handed:
+
+```c
+Private void remove_user(USER_ENTRY* uptr) {
+  ...
+  user_no = uptr->uid;
+```
+
+and then uses `user_no` for the file locks, the record locks and the group
+locks. **The task-lock loop, which comes first, uses a different variable:**
+
+```c
+  /* Give away process locks */
+
+  for (i = 0; i < 64; i++) {
+    if (sysseg->task_locks[i] == process.user_no)
+      sysseg->task_locks[i] = 0;
+  }
+```
+
+`process.user_no` is **the cleaning process's own** user number, not the dead
+one's. So the loop clears the wrong process's task locks, and the dead
+process's stay set.
+
+***IT IS WORSE THAN "CLEARS THE WRONG ONES", BECAUSE OF WHERE IT RUNS.***
+`cleanup()` attaches to the shared segment and walks the user table; it never
+becomes a user, so `process.user_no` is zero. A free task lock slot is also
+zero. The loop therefore matches every **free** slot and sets it to zero again
+— a complete no-op — and **no task lock is ever released by cleanup at all.**
+
+**The consequence is a lock that outlives every recovery an administrator has.**
+`LIST.LOCKS` shows the number owned by a user number nothing is behind;
+`CLEAR.LOCKS` refuses it because it is not the caller's; the process it belongs
+to cannot release it because it is dead. The only ways out are
+`UNLOCK TASKLOCK n`, which is the forced form and needs administrator rights,
+or restarting SD. A program that guards a nightly job with `LOCK 3` and is
+killed while holding it will not run again.
+
+**The fix is one word**: `process.user_no` → `user_no`, matching the three
+loops below it in the same function.
+
+`kill_process()` in `gplsrc/kernel.c` does the equivalent thing correctly for a
+process that ends normally — there `process.user_no` **is** the right variable,
+because the process is releasing its own. That is very likely where the line
+was copied from.
+
+**Read in this port's tree and confirmed identical on upstream `main`** at
+`sd64/gplsrc/clopts.c:299-302`. Not reproduced against upstream — see the note
+at the head of this file — but the reasoning needs nothing outside the twelve
+lines quoted.
+
+`PROPOSED`
+
+## 26. `ENCRYPT.FIELD` is in every administrator's VOC and the program behind it does not exist
+
+`sdsys/VOC_TEMPLATE/ENCRYPT.FIELD` is a catalogued verb pointing at `$CRYPTO`:
+
+```
+V
+CA
+$CRYPTO
+6
+```
+
+***THERE IS NO `$CRYPTO` ANYWHERE IN THE DISTRIBUTION.*** No source in
+`sdsys/GPL.BP`, nothing tracked under that name at all — checked with
+`git ls-tree -r --name-only main`, which finds no file whose name contains
+`CRYPTO` on either side.
+
+Typing the verb produces a loader error rather than anything a user can act on.
+Measured on this port, where the VOC record and the missing program are the
+same ones:
+
+```
+:encrypt.field
+00001FCB: Unable to load '$CRYPTO' object code at line 1550 of $CPROC
+```
+
+**It fails at the point of loading, so no argument form behaves any better**,
+and the message names `$CPROC` and an internal line number rather than the verb
+that was typed.
+
+**Two ways to close it**, and the choice is upstream's: ship the program, or
+remove the VOC record. **Removing it is the smaller change and the honest one**
+— a name that is not recognised is a better answer than a loader error, and
+`ENCRYPT.FIELD` is not documented anywhere in the distribution, so nothing
+would break.
+
+`PROPOSED`
+
+## 27. `DELETE.FILE ... NO.QUERY` also prompts whenever the stored path differs from the name as typed, which `CREATE.FILE` guarantees for a lower-case name
+
+**Separate from #23, which is the system-account prompt.** This one is on the
+ordinary path and fires for a file in the caller's own account.
+
+`GPL.BP/DELETEF` compares the pathname held in the VOC record against the file
+name the caller typed, and asks about the difference:
+
+```
+            default.path = file.name
+
+            if data.path # default.path then
+               if not(force) then
+                  loop
+                     display sysmsg(6135, data.path) :  ;* OK to delete DATA portion 'xx'?
+                     input yn
+```
+
+***THE GUARD IS `FORCE` ALONE. `NO.QUERY` IS NOT TESTED*** — here, or at the
+matching test for the dictionary part a little further down. Both prompt.
+
+***AND `CREATE.FILE` MAKES THE TWO DIFFER BY DEFAULT.*** Unless the
+`CREATE.FILE.CASE` option is set, `GPL.BP/CREATEF` upper-cases the operating
+system name before storing it in VOC field 2:
+
+```
+   if option(OPT.CREATE.FILE.CASE) then
+      os.name = ospath(file.name, OS$MAPPED.NAME)
+   end else
+      os.name = ospath(upcase(file.name), OS$MAPPED.NAME)
+   end
+```
+
+while `DELETEF` keeps `file.name` exactly as the caller typed it whenever the
+VOC read at the top of `delete.file` succeeded. **So `CREATE.FILE mydata`
+followed by `DELETE.FILE mydata NO.QUERY` prompts twice** — once for the data
+part, once for the dictionary — where `CREATE.FILE MYDATA` and
+`DELETE.FILE MYDATA NO.QUERY` prompt not at all. The only difference is the
+case the user typed.
+
+**Measured on this port**, where the two prompts were captured rather than
+answered from a terminal:
+
+```
+OK to delete DATA portion 'ZZLK31A'? Y | DATA portion 'ZZLK31A' deleted |
+OK to delete DICT portion 'ZZLK31A.DIC'? Y | DICT portion 'ZZLK31A.DIC' deleted |
+VOC entry 'zzlk31a' deleted
+```
+
+The last line is the tell: the VOC id is `zzlk31a` and the paths are
+`ZZLK31A`. **An earlier run without the stacked answers hung**, ate the
+commands that followed, and left a user-table entry that needed an elevated
+`sd -cleanup`.
+
+**The point of the test is worth keeping** — a file whose data lives somewhere
+other than the default place is worth confirming before deleting. **Comparing
+case-insensitively is what makes it mean that**, since a name that differs only
+in case is the default place. Honouring `NO.QUERY` as well as `FORCE` would be
+the smaller fix and would leave interactive behaviour unchanged.
+
+**Confirmed identical on upstream `main`**: `sd64/sdsys/GPL.BP/DELETEF:219-225`
+and `sd64/sdsys/GPL.BP/CREATEF:371-375`, the block commented *Form operating
+system file name from VOC record name*. Upstream is upper-case-first by
+convention, so the case is rarer there than here, and the code is the same.
+
+`PROPOSED`
