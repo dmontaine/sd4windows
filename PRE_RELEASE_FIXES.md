@@ -42,7 +42,7 @@ should be fixed, **M** minor.
 | 16 | **S** | A killed session blocks exclusive access, says nothing about why, and only an administrator can clear it | `gplsrc/sd.c:333` |
 | ~~17~~ | **B** | ~~`edit` / `micro` refuse a record whose text looks like a mark token~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
 | ~~18~~ | **M** | ~~A text mark reaches the editor as a raw control character~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
-| 19 | **B** | ***The tier change and `SUSPENDED` have never compiled or run, and there is no verifier*** | `gpl.bp/MODIFYA` |
+| 19 | **B** | ***The tier change and `SUSPENDED` compile but have never RUN, and there is no verifier*** | `gpl.bp/MODIFYA` |
 | 20 | **S** | A suspended administrator is still a Windows administrator | `gpl.bp/MODIFYA` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
@@ -486,17 +486,31 @@ system"*.
 
 ---
 
-## 19. The tier change and `SUSPENDED` have never compiled or run — **B**
+## 19. The tier change and `SUSPENDED` compile but have never run — **B**
 
 Built 27 Aug 2026, sixty-sixth session. `MODIFY.ACCOUNT` gained four tier
 keywords, `SUSPENDED` became a fourth `ACC$TIER` value with `ACC$PRIOR.TIER`
 (field 6) beside it, and three doors learnt to refuse a suspended account.
-**Six files changed and none of them has been through BCOMP.**
 
-**The only structural check run was a differential block-depth count against
-HEAD** — no block left open, and nothing else. It says nothing about statement
-syntax, about BCOMP's *"is not assigned a value"*, or about whether the ten new
-message records (10106–10115) resolve at all.
+***THE CYCLE OF 27 Aug 12:05 SETTLED THE COMPILE AND NOTHING ELSE.*** `MODIFYA`
+0 errors, 189 units all clean, **zero `is not assigned a value` warnings**, and
+the four benign warnings appear in identical counts in the 11:11 log that
+predates the commit. The messages and both dictionary items are in the install
+and **both dictionary items resolve** — `list sd.accounts` prints a `Tier`
+column and `list sd.accounts tier prior.tier` prints `Tier` and `Was`.
+
+***NOT ONE LINE OF `tier.set` HAS EXECUTED.*** `MODIFY.ACCOUNT` is
+`kernel(K$ADMINISTRATOR,-1)`, seeded from `IsElevated()` at process start, so
+an unelevated session stops at 2001 before the parser. `voc.delta`, the three
+doors, the write-once rule on field 6 and ruling 1's refusal are all
+unexercised.
+
+***AND THE TEST CANNOT BE PIPED.*** `CREATE.ACCOUNT USER` prompts for a
+password — mandatory since 21 Aug 2026, and `NO.QUERY` does not suppress it; it
+covers the confirmation at `CREATEA:501`. A prompt in a piped session eats the
+following lines and waits, and `sdtcl.ps1`'s banner is explicit that the
+timeout path **costs the install**, not just the run. It has to be typed at an
+interactive elevated session.
 
 ***AND THERE IS NO VERIFIER.*** `verify-tierchange.ps1` does not exist, because
 §"Verify a script loads before you submit it for execution" forbids handing

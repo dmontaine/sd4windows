@@ -38411,3 +38411,39 @@ PRE_RELEASE_FIXES 19 carries what it has to cover, including the two checks a
 naive version passes by accident — the write-once rule only fails on the
 *second* suspension, and the "left alone" count needs a hand-edited VOC record
 to mean anything.
+
+### The cycle ran, and it settled exactly one of the two questions
+
+Owner ran it: install **27 Aug 12:06:20**, `sd.exe` `DF77FD6D61DE5184` unmoved,
+`assert-current` **exit 0 run live**. **It compiles** — `MODIFYA` 0 errors, 189
+units all clean, and **zero `is not assigned a value` warnings**, which was the
+specific risk the init block was written against. The control is the 11:11
+cycle log from before the commit: the four benign `assigned but never used`
+warnings appear there in *identical counts*, so this work added none.
+
+**Read from the install rather than from the run's output**: all ten messages
+present; `gcat` 125 / `gpl.bp.out` 184 unmoved (no program added); `gcat/$MODIFYA`
+carries `SUSPENDED` ×7 against **0** in the HEAD~1 source, and `S-1-5-32-544`
+×3 — exactly `route.set`, `os.set`, `tier.set`.
+
+***THE DICTIONARY WORK IS PROVED END TO END, AND THE FIRST ATTEMPT AT PROVING
+IT WAS A FALSE NEGATIVE.*** `list accounts` answered *"File not found"* — which
+was a true answer to the wrong question: `accounts` is in `voc_template` and
+**not in `newvoc`**, so no user account has that pointer. The one a user
+account gets is `sd.accounts`, a Q pointer to SDSYS. `list sd.accounts` prints
+a **`Tier`** column reading `ADMINISTRATOR`, and `list sd.accounts tier
+prior.tier` prints **`Tier` and `Was`**. Reading the first result as "the
+dictionary failed" would have sent the next session to rewrite working code.
+
+**Two START HERE items closed by measurement**: `os.users/don` holds two `yes`
+lines, and **`sh dir` unelevated returns a real listing** with the recorded
+refusal wording (10053) absent.
+
+***AND NOT ONE LINE OF `tier.set` HAS EXECUTED.*** `MODIFY.ACCOUNT` is
+`kernel(K$ADMINISTRATOR,-1)`, seeded from `IsElevated()` at process start, so
+an unelevated session stops at 2001 before the parser. `voc.delta`, the three
+doors and the write-once rule on field 6 are all untouched. **The round trip
+also cannot be piped**: `CREATE.ACCOUNT USER` prompts for a password and
+`NO.QUERY` does not suppress it — it covers the confirmation at `CREATEA:501` —
+and `sdtcl.ps1`'s banner is explicit that the timeout path costs the install.
+That is why the handoff is a typed checklist and not a script.

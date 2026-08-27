@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**. ***NOT a clean boundary, and the gap is now six files wide: `gpl.bp/EDIT`, `MODIFYA`, `CREATEA`, `LOGIN`, `CPROC`, `APISRVR` and `SYSCOM/KEYS.H` have all changed since the last cycle. NOTHING IN THAT LIST HAS COMPILED.*** `sd.exe` has not moved, so it is one cycle and not a rebuild. See the box in START HERE.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**. ***A CLEAN BOUNDARY: the owner ran the cycle, `assert-current` is exit 0 live, install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`.*** The tier work **compiles** — 189 units at 0 errors, no new warnings — and **none of its behaviour is tested**, because `MODIFY.ACCOUNT` needs elevation. See the box in START HERE for what is left and why a piped session must not run it.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -27,7 +27,7 @@ something came to be the way it is.
 
 ***ONE COMMAND IS STILL OWED ON THIS MACHINE, AND NOTHING IS BLOCKED ON IT.*** The package is chosen but not installed for the MSYS2 python here; `mkdoc.py` runs under the **Windows** python (3.13.14, `markdown` 3.10.2) and that is what rendered every page of the tester set. Either re-run `setup-devbox.ps1` elevated, or install the one package inside MSYS2: `pacman -S --needed python-markdown`. ***`mkdoc.py` ITSELF IS NO LONGER IN THIS REPOSITORY*** — see the H.2 entry.
 
-***THE MACHINE — AND THE INSTALL IS STALE AGAIN, 27 Aug 2026, FOR A DIFFERENT REASON.*** *(This paragraph led with the 26 Aug 20:40 staleness — three rebuilt C files — and the owner's cycle at 21:17:22 closed that. What makes it stale now is BASIC: `sdsys/gpl.bp/EDIT`. **`sd.exe` has NOT moved**, so `assert-current` fails on the source-mtime comparison rather than on Check A.)* See the START HERE box for the fix and what to run. **The reading below is what the install IS, and it is what the suite scores once a cycle re-lays it.** The host carries a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
+***THE MACHINE — AND THE INSTALL IS CURRENT, 27 Aug 2026 12:06:20.*** *(This paragraph has led with a staleness twice: 26 Aug 20:40, three rebuilt C files, closed by the owner's 21:17:22 cycle; then `gpl.bp/EDIT`, closed by his 27 Aug 12:05 cycle, which also carried the tier work. **`sd.exe` has not moved since 26 Aug** — `DF77FD6D61DE5184` — because both were BASIC.)* `assert-current` **exit 0, run live 27 Aug**: 2969 files across 6 mirrors, nothing newer, 26 leftover names checked. **`gcat` 125 / `gpl.bp.out` 184, unmoved.** ***THE REGISTER HOLDS ONLY `don` AND `sdsys`*** — the fresh install took `b47`'s fifteen accounts with it, so **`b48` is clean**. **The suite has NOT been run against this install**; the green reading below is the 26 Aug one and is what `b48` re-scores. The host previously carried a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
 
 ***THE `SD TCL` REFERENCE HAS STARTED AND IT LIVES IN THE `User` SET, NUMBERED FROM 19.*** Owner's ruling, 26 Aug 2026, on both questions: the TCL pages continue `User/` rather than taking a set of their own, and they are named `NN-sd-tcl-<topic>.md`. **The plan is 12 topic pages plus a generated syntax card at `31`, and it is checked rather than asserted** — every one of the **144** verbs is on exactly one page, verified in both directions. `19` command processor, `20` files and records and `21` query processor are written; `22` select lists is next. ***THE ROSTER IS 144, NOT 140***, and the difference is the four records that are a keyword AND a verb — `break`, `count`, `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and `count voc with dispatch # ""` answers 144. `tools\sdtcl.ps1` is how the TCL pages are measured.
 
@@ -350,70 +350,95 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >   whole bootstrap (`bootstrap.py:229`). `tier.close.template` exists only so
 >   that every mention of `tvoctmpl.f` stands below its `openpath`.
 >
-> ### WHAT IS NOT DONE, AND IT IS NOT SMALL
+> ### THE CYCLE RAN. WHAT IT PROVED, AND WHAT IT CANNOT
 >
-> 1. ***NOTHING HAS COMPILED.*** The only structural check run was a
->    differential block-depth count against HEAD — every file's depth unchanged,
->    and the two with a new block showing exactly the two extra counted changes
->    netting to zero. **That proves no block is left open and nothing else.**
-> 2. **There is no `verify-tierchange.ps1`**, deliberately: a verifier that has
->    never been loaded against a live install is what §"Verify a script loads"
->    forbids handing over, and it cannot be loaded until the cycle runs. What it
->    has to cover is in [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md).
-> 3. **`verify-tiers.ps1` is the suite row that knows about tier VOCs.** It
->    asserts `gcat` 125 and `gpl.bp.out` 184; **no program was added**, so both
->    should hold. Watch it anyway.
-> 4. **Page 32, *accounts and security*, is unwritten** and is where all of this
->    belongs. The changelog carries it meanwhile; page 26 got the `os-off` half.
+> **Cycle 27 Aug 2026, install `12:06:20`, `sd.exe` `DF77FD6D61DE5184`** —
+> unmoved, as it should be for a BASIC-only change. `assert-current` **exit 0,
+> run live**, 2969 files across 6 mirrored directories. **`b47`'s accounts went
+> with the fresh install: the register holds `don` and `sdsys` and nothing
+> else, so `b48` is clean.**
 >
-> ### AFTER THE CYCLE, IN THIS ORDER
+> ***IT COMPILES, AND THE CONTROL IS THE PREVIOUS CYCLE'S LOG.*** `MODIFYA`
+> **0 error(s)**, `$MODIFYA added to global catalogue`; **189 compile units,
+> every one 0 errors**; **zero `is not assigned a value` warnings**. The four
+> benign `assigned but never used` warnings appear in *identical counts* in the
+> 11:11 log, which predates the commit — so **this work added no warning**.
+> `gcat` 125 and `gpl.bp.out` 184, unmoved: no program was added.
 >
-> 1. ***READ `C:\ProgramData\SD\sdsys\os.users`.*** It should now hold a
->    `don` record of two `yes` lines, written by the install's own
->    `adopt-account.ps1`. **It held nothing before this change**, so an empty
->    directory is the whole failure and is worth checking first — it costs one
->    `dir`.
-> 2. **`micro gpl.bp EDIT` from an UNELEVATED console** — the exact record that
->    failed, from the session that was refused. It should open now for both
->    reasons at once. **A console, not a pipe**: both verbs refuse a session
->    with no terminal, and a pipe also hides the item 1 layout fault.
-> 3. **`sh dir` unelevated**, which is the field-1 half and was refused before.
-> 4. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`** in the docs
->    repository — new, and it measures the *other* leg of the mark question:
->    whether a record survives the trip through `$hold`, which is a
->    **directory** file, so field marks become line separators on disk.
->    **Nothing had ever tested that leg.** 15 cases, compiled clean 27 Aug with
->    `sdcompile.ps1`, **never run**.
-> 5. ***`modify.account don os-off` FROM AN ELEVATED SESSION.*** Ruling 1 in one
->    line. It must print **`don is an administrator and always reaches the
->    operating system`** and change nothing. **Read the raw output** — the old
->    behaviour printed `os.users: don has SH yes, OS.EXECUTE no` and succeeded,
->    so the two are not confusable, but the check is the SUCCESS wording of the
->    refusal and not the account name, which both paths carry.
-> 6. ***THE TIER ROUND TRIP, ON A THROWAWAY ACCOUNT AND NOT ON `don`.*** Make a
->    `b48` PROGRAMMER account, then:
->    `suspended` → try to `ssh` in (refused) → `logto` from another unelevated
->    account (refused) → `programmer` → back in. **`ct accounts <name>` after
->    each step** is the instrument: field 5 and field 6 are the whole state and
->    everything else is inference.
-> 7. **`list accounts`** — the columns have changed. `PATH DESCR TIER BY @ID`,
->    and `GROUP` is gone from the default. If the `Tier` column is missing, the
->    dictionary did not load and steps 5–6 are measuring nothing.
-> 8. ***`modify.account <b48acct> standard` ON AN ADMINISTRATOR MUST BE
->    REFUSED*** until the access is named. That refusal is the only proof the
+> **VERIFIED BY READING THE INSTALL, NOT THE RUN'S OUTPUT:**
+>
+> | | |
+> |---|---|
+> | messages `10106`–`10115` | all ten present in `C:\ProgramData\SD\sdsys\messages` |
+> | `accounts.dic` | `TIER` (field 5, *Tier*, 13L) and `PRIOR.TIER` (field 6, *Was*, 13L) both present; `@` reads `PATH DESCR TIER BY @ID` |
+> | ***both dictionary items RESOLVE*** | `list sd.accounts` prints a **`Tier`** column reading `ADMINISTRATOR` for `don`; `list sd.accounts tier prior.tier` prints **`Tier` and `Was`**. That heading has no other source, so it cannot appear on a failure path |
+> | `ct sd.accounts don` | field 5 `ADMINISTRATOR`, **field 6 absent** — correct for an unsuspended account |
+> | the compiled object | `gcat/$MODIFYA` carries `SUSPENDED` ×7 (HEAD~1 source: **0**), `S-1-5-32-544` ×3 — exactly `route.set`, `os.set`, `tier.set` — and both TIER list names |
+> | ***START HERE item 1*** | `os.users/don` holds two `yes` lines. **Closed** |
+> | ***START HERE item 3*** | **`sh dir` unelevated returns a real listing.** The recorded refusal wording — *"not permitted to use the operating system shell"* (10053) — is absent. **Closed** |
+>
+> ***NOTHING BEHAVIOURAL ABOUT THE TIER VERBS IS TESTED, AND THAT IS A HARD
+> LIMIT AND NOT AN OMISSION.*** `MODIFY.ACCOUNT` is
+> `kernel(K$ADMINISTRATOR,-1)`, seeded from `IsElevated()` at process start, so
+> **an unelevated session cannot reach one line of `tier.set`** — it stops at
+> 2001 before the parser. Still completely unexercised: **`voc.delta`**, the
+> three suspension doors, the write-once rule on field 6, ruling 1's refusal.
+>
+> ***AND THE ROUND TRIP MUST NOT GO DOWN A PIPE.*** `CREATE.ACCOUNT USER`
+> **prompts for a password** — mandatory since 21 Aug, and `NO.QUERY` does not
+> suppress it, it covers the confirmation at `CREATEA:501`. A prompt in a piped
+> session eats the following lines and waits for ever, and `sdtcl.ps1`'s own
+> banner is explicit that the timeout path **costs the install**: the dead
+> session keeps its user-table slot and recovery is `sd -cleanup` plus a
+> service restart. **Type it at an interactive elevated SD session.**
+>
+> ### WHAT IS LEFT, AND ALL OF IT NEEDS ELEVATION OR A CONSOLE
+>
+> 1. ***`modify.account don os-off`*** — ruling 1 in one line. Must print
+>    **`don is an administrator and always reaches the operating system`** and
+>    change nothing. The anchor is that sentence, not the account name, which
+>    the old success path also printed.
+> 2. ***THE TIER ROUND TRIP, on a `b48` account and never on `don`.***
+>    `create.account user b48tier programmer` (it will ask for a password) then,
+>    checking `ct sd.accounts b48tier` after **every** step — fields 5 and 6 are
+>    the whole state and everything else is inference:
+>
+>    | step | expect |
+>    |---|---|
+>    | `modify.account b48tier standard` | `Account B48TIER is now STANDARD`, and a **non-zero** removed count |
+>    | `modify.account b48tier suspended` | field 5 `SUSPENDED`, **field 6 `STANDARD`**, VOC counts all zero |
+>    | `modify.account b48tier suspended` again | ***field 6 STILL `STANDARD`.*** This is the write-once rule and **it only fails on the second suspension** — a test that suspends once passes it by accident |
+>    | ssh in as `b48tier` | `Account B48TIER is suspended` |
+>    | `logto b48tier` from an unelevated `don` | refused |
+>    | `modify.account b48tier programmer` | back, field 6 cleared, the removed records **added back** |
+> 3. ***THE "LEFT ALONE" COUNT NEEDS A HAND-EDITED RECORD TO MEAN ANYTHING.***
+>    Before a downgrade, change one VOC record the lower tier omits. It must be
+>    **counted and kept**. Nothing else tests that rule, and it is the one that
+>    stops a downgrade destroying somebody's work under a verb's name.
+> 4. ***`modify.account b48tier standard` ON AN ADMINISTRATOR MUST BE REFUSED***
+>    until the access is named (10111). That refusal is the only proof the
 >    parser reached the second token at all.
-> 9. Then the suite, `-Run b48`. ***WATCH `verify-tiers` AND `verify-tierapi`***
->    — both make an ADMINISTRATOR-tier account, so both now exercise
->    `grant.os.access` and its teardown, which is free coverage nobody had to
->    write.
+> 5. **`micro gpl.bp EDIT` from an UNELEVATED console** — the record that failed,
+>    from the session that was refused. **A console, not a pipe**: both verbs
+>    refuse a session with no terminal.
+> 6. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`** in the docs
+>    repository — 15 cases, compiled clean 27 Aug, **never run**.
+> 7. Then the suite, **`-Run b48`**. ***WATCH `verify-tiers` AND
+>    `verify-tierapi`*** — both make an ADMINISTRATOR-tier account, so both
+>    exercise `grant.os.access` and its teardown for free.
+>
+> **Then `verify-tierchange.ps1` can be written**, and not before: it cannot be
+> load-checked against a live install until the behaviour above is known to
+> work. PRE_RELEASE_FIXES 19 carries the full list of what it must cover.
 >
 > ***THE `SD TCL` REFERENCE IS THE WORK: 19 TO 27 ARE DONE, 28 TO 32 ARE NOT,
 > AND `33` IS THE GENERATED CARD.*** It lives in the
 > `User` set on the owner's ruling — numbering continues from 19, names are
 > `NN-sd-tcl-<topic>.md`. `checklinks` **157 links, 0 broken** across 27 pages.
 >
-> ***PAGES 26 AND 27 DESCRIBE THE FIXED BEHAVIOUR, WHICH IS NOT YET
-> INSTALLED.*** Page 25's `ed` listings are all measured and stand; the two
+> ***PAGES 26 AND 27 DESCRIBE BEHAVIOUR THAT IS NOW INSTALLED (cycle
+> 27 Aug 12:06:20) AND STILL UNWITNESSED — neither screen editor has been run
+> since.*** Page 25's `ed` listings are all measured and stand; the two
 > screen verbs are described from source, because they cannot be driven down a
 > pipe at all. **Re-read 26 and 27 once the cycle lands.**
 >
