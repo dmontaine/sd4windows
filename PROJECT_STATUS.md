@@ -69,7 +69,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — **FULL install 26 Aug 17:14:03, 31/31 (12+19), 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b46`**, `assert-current` exit 0 live on 26 Aug | 26 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS UNDER WAY — a 17-document SD BASIC reference, map approved by the owner 26 Aug 2026. `01`–`08` written, rendered to HTML and PDF, `checklinks` 52 links 0 broken.*** `Technical` is still empty scaffolding | — |
+| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS UNDER WAY — a 17-document SD BASIC reference, map approved by the owner 26 Aug 2026. `01`–`13` written, rendered to HTML and PDF, `checklinks` 89 links 0 broken.*** `Technical` is still empty scaffolding | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -224,9 +224,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 26 Aug 2026: seventeen documents, **grouped by function**, each titled
 > `SD Basic - <category>`. ***WRITTEN: `01` Program Structure, `02` Program
 > Control, `03` Math Functions, `04` String Functions, `05` Dynamic Arrays,
-> `06` Data Conversion, `07` File Handling, `08` Select Lists*** — eight of
-> seventeen, all rendered to HTML **and PDF**, `checklinks` **52 links, 0
-> broken**. Next: `09` Alternate Key Indexes through `17` Debugging. Numbers
+> `06` Data Conversion, `07` File Handling, `08` Select Lists, `09` Alternate
+> Key Indexes, `10` Sequential Files, `11` CSV Files, `12` Terminal Input and
+> Output, `13` Printing*** — thirteen of seventeen, all rendered to HTML **and
+> PDF**, `checklinks` **89 links, 0 broken**. Next: `14` Locks and
+> Transactions, `15` Sockets, `16` System and Environment, `17` Debugging.
+> Numbers
 > are one flat run for the whole `User` set, **no letter suffixes** — §6's
 > hyphen-collation trap.
 >
@@ -277,6 +280,13 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | `getlist`/`savelist` need `then`/`else` | without one the error is *"Expected THEN or ELSE"* reported against the **next** statement |
 > | `fileinfo` has no record count | key 6 is minimum modulus. Use `selectinfo(list, 3)` |
 > | a trailing `@fm` becomes an id | `formlist` on three ids built with `id : @fm` produced **four** entries, the last empty |
+> | ***AN INDEX TAKES THREE STEPS AND EACH REPORTS SUCCESS ALONE*** | `create.index` makes an **empty** index; an **already-open file variable never sees it** (`indices()` empty, `fileinfo(f,13)` 0) until close and reopen; `build.index` needs **exclusive access and your own session counts** — *"Cannot gain exclusive access to file"*, rc **3021**. Only after close, build, reopen did `selectindex` return ids |
+> | `selectindex` returns two different things | with a value, the record **ids**; **without one, the distinct index VALUES**. Nothing says which |
+> | `selectleft`/`selectright`/`setleft`/`setright` take no `then`/`else` | writing one is *"Unrecognised statement"*. They take `setting` and `to` |
+> | `openseq`'s `then`/`else` is not success/failure | `then` = the file existed, `else` = it was **created** (or the open failed) |
+> | `csvdq()` is a **de**-quoter | it splits one CSV line into field-mark separated fields. There is no matching function that quotes one |
+> | `printer file` takes the unit after `on` | `printer file on 1 'F','R'`; the positional form is a compile error. `printer.setting` takes **three** arguments |
+> | sequential writes are **CRLF** | measured byte for byte: `65 66 13 10 67 68 13 10` |
 >
 > ***AND EVERY EXAMPLE IS MEASURED, WHICH IS NOT DECORATION — IT CAUGHT FOUR
 > WRONG ANSWERS THE REFERENCE WOULD HAVE PRODUCED.*** `div(7,2)` is **3**, not

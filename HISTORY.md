@@ -37508,3 +37508,51 @@ was the break reported as working.
 **Also corrected:** PROJECT_STATUS pinned the docs repository at head `076fdd7`
 in four places and it had moved. Re-pinning re-arms the trap, so those now name
 the branch; the one historical reference stays.
+
+## 26 Aug 2026 - Documents 09 to 13, and an index that reports success three times while finding nothing
+
+**Commit:** see the commit that carries this entry. Sixty-second session,
+continuing.
+
+`09` Alternate Key Indexes, `10` Sequential Files, `11` CSV Files, `12`
+Terminal Input and Output, `13` Printing. Thirteen of seventeen written, HTML
+and PDF, `checklinks` **89 links, 0 broken**, `docmap.py` still **411 of 411**.
+
+### The index finding is the one worth carrying
+
+`create.index` said *"Added index for TOWN"* with `@system.return.code` 0, and
+the program that had the file open could not see the index at all -
+`indices(f)` empty, `fileinfo(f,13)` zero. **An open file variable carries the
+index list it had when it was opened.** After close and reopen the index was
+there and `selectindex` still returned nothing, because `create.index` records
+a definition and does not walk the data. `build.index` then refused with
+*"Cannot gain exclusive access to file"*, rc **3021**, because the same session
+still held the file. Close, build (*"3 records processed"*), reopen: two ids.
+
+**Three steps, each reporting success on its own, and the failure mode of
+stopping early is an index that exists and matches nothing.**
+
+### And SELECTINDEX has two meanings
+
+`selectindex 'TOWN', 'LONDON'` returns the record **ids**. `selectindex 'TOWN'`
+returns the distinct index **values**. Measured both. Dropping the value
+argument gives a list of values that reads as a list of ids and finds nothing.
+
+### The rest
+
+`openseq`'s `then` means the file existed and `else` means it was created, so
+an `else` branch written as an error handler refuses to create the file it was
+meant to create. `csvdq()` is a **de**-quoter that splits a CSV line, not a
+quoter - the name reads the other way. `writeseq` writes **CRLF**, measured as
+`65 66 13 10 67 68 13 10`. `printer file` takes its unit after `on`.
+
+**Four syntax errors were caught by compiling rather than by review:**
+`selectright ... then/else`, `printer file 1, ...`, `printer.setting` with two
+arguments of three, and a `heading` whose quoting was wrong. Each had been
+written from a signature that looked complete.
+
+***PAGE 12 IS THE FIRST THAT COULD NOT BE FULLY MEASURED.*** The probe runs
+down a pipe, so there is no terminal: `input`, `keyin()` and the editing keys
+are described from source and the page says so at the top rather than implying
+they were exercised. `terminfo('name')` returning empty in that session is
+itself recorded, because a program run from the API sees the same thing.
