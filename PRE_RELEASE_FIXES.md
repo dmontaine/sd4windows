@@ -5,9 +5,15 @@ or fixing before W1.0-0 is released. Started 26 Aug 2026.
 
 **This file is maintained, not written once.** Add an entry when the
 documentation work turns something up; move it to DONE with a date and the
-commit when it is fixed. It is for this port's own defects — anything that is
-also in `sdb64` goes in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) instead, and
-four already have (#17 to #20).
+commit when it is fixed.
+
+***IT LISTS WHAT WE WOULD SHIP, NOT WHOSE FAULT IT IS.*** Owner's correction,
+26 Aug 2026. [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) answers a different
+question — *the maintainer of `sdb64` should know about this* — and **a defect
+in both trees belongs in both files.** Being upstream's bug has never been a
+reason to ship it, and being fixed upstream is not being fixed here. Entries
+11 to 13 below are exactly that case and were missed for a day by a rule that
+said otherwise.
 
 **Why a separate file.** Writing a reference forces every claim to be checked
 against what SD actually does, which is a different exercise from testing that
@@ -28,6 +34,16 @@ should be fixed, **M** minor.
 | 8 | **M** | `help` is an empty stub and F1 reaches it | `CPROC:2498` |
 | 9 | **M** | `umask` is implemented and unreachable | `CPROC:3301` |
 | 10 | **M** | Two verifiers carry a dead ANSI strip | `gplbld` |
+| 11 | **B** | ***Nested `commit` silently loses the outer transaction's writes*** — UPSTREAM #17, **unfixed here** | `gplsrc/txn.c` |
+| 12 | **S** | Error 3023 tells the user the disk may be full — UPSTREAM #20, **unfixed here** | `sdsys/messages/1407` |
+| 13 | **M** | `qselect` prints its message without the list number — UPSTREAM #21, **unfixed here** | `gpl.bp/QSELECT:240` |
+
+***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
+listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
+UPSTREAM_FIXES number in its own history block. **They are the reason 11 to 13
+are worth stating separately**: four upstream defects were found while
+documenting, two were fixed here and two were not, and nothing recorded which
+was which.
 
 ---
 
@@ -223,6 +239,56 @@ correctly with `[char]27`.
 Not shipped, so it costs nothing at release — but it silently mis-scores any
 check whose anchor spans an escape sequence, and it did exactly that on
 26 Aug 2026 before the raw output was read.
+
+---
+
+# UPSTREAM DEFECTS WE STILL SHIP
+
+**The analysis is in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) and is not repeated
+here.** What these entries add is the only thing that file does not say:
+***whether our own tree still carries it.*** Checked against the source, not
+remembered.
+
+## 11. Nested `commit` silently loses the outer transaction's writes — **B**
+
+**UPSTREAM_FIXES #17. Live in this tree, verified 26 Aug 2026:** `txn_depth` is
+incremented at `gplsrc/txn.c:96` and decremented at `:592`, and `op_txncmt()`
+does **neither** — it touches neither `txn_depth` nor the transaction stack.
+
+***THIS IS THE ONE THAT MATTERS ON THE WHOLE LIST.*** It is silent partial data
+loss inside the one construct whose entire purpose is that there is no such
+thing, and `system(1008)` climbs for ever so nothing reports it.
+
+***DO NOT FIX HALF OF IT.*** Decrementing `txn_depth` in `op_txncmt()` would
+make `system(1008)` trustworthy while the data-loss path stayed, which is worse
+than both being visibly wrong. The owner has it in front of him and the
+sequencing is his.
+
+## 12. Error 3023 tells the user the disk may be full — **S**
+
+**UPSTREAM_FIXES #20. Live in this tree, verified 26 Aug 2026** — our
+`sdsys/messages/1407` still reads:
+
+```
+Error %d (o/s %d) writing record (Possible full disk?)
+```
+
+Error **3023** is *"write/delete with no lock"*, so the first application to
+wrap a working `WRITE` in a transaction without locking first is sent to check
+disk space. **Ships in the message file, so it costs no rebuild** — the fix is
+a second message id special-cased at the call site, leaving 1407 accurate for
+the disk-full case it was written for.
+
+## 13. `qselect` prints its message without the list number — **M**
+
+**UPSTREAM_FIXES #21. Live in this tree, measured 26 Aug 2026** —
+`gpl.bp/QSELECT:240` passes one argument to a two-parameter message, so every
+successful `qselect` ends with a dangling *"select list "*. `NSELECT:112` two
+files away supplies both and is the model. One line, and `tgt.list` is already
+in hand on the line above.
+
+Documented as a known blemish in the select-lists page so a reader does not go
+looking for a list that is there.
 
 ---
 

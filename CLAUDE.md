@@ -247,13 +247,22 @@ him** — he does not read them. So:
   is at `../sdb64`, and a bug carrying a `Composer AI - 2026/06/10` marker is
   ours rather than upstream's unless the underlying flaw is there too. It is
   written for the upstream maintainer, so plain English and self-contained.
-- **[PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md) is the third**, maintained the
-  same way: **this port's own** defects and gaps that need deciding or fixing
-  before W1.0-0 ships. Add an entry in the same commit as the finding and move
-  it to DONE with a date when it is fixed. Most of it comes from writing the
-  documentation, because making a sentence true checks something that testing
-  that it works does not. **If it is also in `sdb64` it belongs in
-  UPSTREAM_FIXES.md instead** — one defect, one file.
+- **[PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md) is the third**: everything that
+  needs deciding or fixing before W1.0-0 ships. Add an entry in the same commit
+  as the finding and move it to DONE with a date when it is fixed. Most of it
+  comes from writing the documentation, because making a sentence true checks
+  something that testing that it works does not.
+
+  ***THE TWO FIX FILES ANSWER DIFFERENT QUESTIONS, AND A DEFECT IN BOTH TREES
+  GOES IN BOTH.*** Owner, 26 Aug 2026, correcting the "one defect, one file"
+  rule that stood here for one session and was wrong. **UPSTREAM_FIXES.md says
+  *"the maintainer of `sdb64` should know about this"*; PRE_RELEASE_FIXES.md
+  says *"we would ship this"*** — and being upstream's bug has never been a
+  reason to ship it. So: file it upstream if `sdb64` has it too, **and** list it
+  here for as long as our own tree still carries it, pointing at the upstream
+  entry rather than repeating the analysis. **Being fixed upstream is not being
+  fixed here.** Three entries were found this way the day the rule was
+  corrected, one of them silent data loss.
 
 Full rules in §0 of PROJECT_STATUS.md. Follow those; this file only points.
 
