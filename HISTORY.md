@@ -38136,3 +38136,49 @@ installs - **micro 2.0.15** - and Microsoft Edit's out of `draw_menubar.rs` at
 tag **v1.2.1**, which is the version on this machine. Microsoft Edit turns out
 to have **no help screen at all**: its Help menu holds only *About*, and the
 menu bar - which prints each command's shortcut beside it - is the help.
+
+### And an administrator stopped having to elevate
+
+Owner, 27 Aug 2026: administrators are to *"have access to os.execute, ssh and
+api by default without escalating"*. Pre-release item 2.
+
+***TWO OF THE THREE ALREADY HELD, AND IT WAS RE-MEASURED RATHER THAN QUOTED.***
+`Get-LocalGroupMember` on this install: `don` - the ADMINISTRATOR-tier account
+the installer adopted - is in **both `sdssh` and `sdapi`**. `CREATEA` has given
+an administrator both routes since 21 Aug and no keyword can take either away.
+
+**`OS.EXECUTE` was the one that did not.** `os.users` shipped with **0
+records**, and both gates that read it - `CPROC`'s `sh` gate on field 1, and
+`op_sh.c`'s `os_permitted()` on field 2, which is also what `EDIT`'s
+`check.permitted` reads - fall back to *elevation*. `kernel.c` seeds
+`USR_ADMIN` from `IsElevated()` and says why: *"An administrator who has not
+elevated is an ordinary SD user, exactly as on Linux."* So the whole of the
+symptom was an empty list plus a deliberate design.
+
+**The fix is one place**: `CREATEA`'s new `grant.os.access`. An
+ADMINISTRATOR-tier **USER** account is written into `os.users` as it is created,
+ADOPT included, with both fields `yes`. `DELACC` removes it again, but only
+where SD is deleting the Windows login itself - the record is keyed by the
+PERSON, so removing it for a login that survives would take a permission from
+somebody who still has a reason to hold it. Without that the verify suite, which
+makes an ADMINISTRATOR account every run, would leave one behind each time.
+
+***THE 26 Aug RULING HAD A SECOND HALF AND IT WAS DELIBERATELY NOT DONE***, and
+that is the decision to argue with if anyone disagrees: teaching `EDIT`'s
+`check.permitted` the ADMINISTRATOR tier as well. **One list already answers
+"may this person reach the operating system"**, and a tier test beside it makes
+the answer depend on two things that can disagree. They do not even ask the same
+question: `os.users` is keyed by a **person**, a tier belongs to an **account**,
+and a person can `logto` between accounts of different tiers. **The cost is
+stated rather than hidden**: an administrator whose record is deleted or set to
+`no` is refused, instead of the tier overriding it. That reads as correct - a
+default that can be edited - but it is a narrowing and the owner was told so.
+
+**Both fields, and that half is a judgement call.** He named `os.execute`, not
+`sh`. They are the two halves of one capability, and granting field 2 alone
+would leave an administrator able to run `os.execute` from BASIC and refused at
+the prompt, which is not what "unlimited access" means.
+
+**Three new messages, 10102 to 10104** - granted, already listed, and could not
+be updated. The middle one exists because *"the administrator still cannot use
+the shell"* is otherwise a question with nothing to read.

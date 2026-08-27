@@ -25,7 +25,7 @@ should be fixed, **M** minor.
 | | SEV | what | where |
 |---|---|---|---|
 | ~~1~~ | **B** | ~~The `edit` / `micro` refusal message is malformed~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
-| 2 | **B** | The installing user gets no `OS.EXECUTE` | `gplbld/adopt-account.ps1` |
+| ~~2~~ | **B** | ~~The installing user gets no `OS.EXECUTE`~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/CREATEA` |
 | 3 | **S** | The live `SDSYS` VOC does not match `voc_template` | `sdsys/voc_template` |
 | 4 | **S** | Tester page 07 says a standard account has 77 verbs; it has 81 | docs repo |
 | 5 | **S** | `.d name` cannot find a lower-case VOC record typed in upper case | `CPROC:1119` |
@@ -51,57 +51,6 @@ documenting, two were fixed here and two were not, and nothing recorded which
 was which.
 
 ---
-
-## 2. The installing user gets no `OS.EXECUTE` — **B**
-
-Owner's instruction, 26 Aug 2026: the installer should be an administrator and
-have ssh, api and `OS.EXECUTE` in his own account automatically.
-
-***TWO OF THE THREE ALREADY HOLD AND SHOULD NOT BE REDONE:***
-
-| | |
-|---|---|
-| tier | `CREATEA:1320` — `if adopt and tier = 'STANDARD' then tier = 'ADMINISTRATOR'`. The adopted account is already ADMINISTRATOR; `sdsys/accounts/don` field 5 reads `ADMINISTRATOR` on this install |
-| ssh + api | `CREATEA:1322` — an administrator always has both routes and no keyword can take either away. Owner's rule, 21 Aug 2026 |
-| `OS.EXECUTE` | **missing** |
-
-**Measured 26 Aug 2026: `C:\ProgramData\SD\sdsys\os.users` holds 0 records** on
-a freshly installed system, so nobody has `OS.EXECUTE` or `SH` by that route.
-`adopt-account.ps1` runs `CREATE.ACCOUNT USER <name> ADOPT` and writes no
-`os.users` record.
-
-**This is why item 1 is being seen at all, and the owner's console confirms
-it.** `EDIT`'s `check.permitted` admits an administrator through
-`kernel(K$ADMINISTRATOR, -1)`, which requires elevation. An unelevated session
-belonging to the installing user therefore falls past that test to the
-`os.users` lookup, finds no record, and gets the refusal — in the malformed
-form above. The message read *"edit is not available to don"*, and `don` **is**
-the ADMINISTRATOR-tier adopted account. **So the two items are one symptom:**
-fixing 2 stops most people ever seeing 1, and 1 still needs fixing for everyone
-who legitimately lacks the permission.
-
-***RULED BY THE OWNER, 26 Aug 2026, AND IT IS BOTH HALVES:***
-
-1. **The installing user gets `OS.EXECUTE` automatically** — an `os.users`
-   record with field 2 `yes`, written by `adopt-account.ps1` alongside the
-   ADOPT it already runs.
-2. **Administrators get `edit` and `micro` automatically.** *"administrators
-   should have automatic edit and micro access."* So `EDIT`'s
-   `check.permitted` must accept the **ADMINISTRATOR tier**, not only
-   `kernel(K$ADMINISTRATOR, -1)`, which is an *elevation* test and is false in
-   an ordinary unelevated session.
-
-**The two are not the same change and both are wanted.** (1) grants
-`OS.EXECUTE` generally — `sh` and `!` as well as the editors. (2) makes the
-editors work for an administrator whatever `os.users` says. **Together they mean
-an administrator never meets this refusal**, which is the point.
-
-***THE TIER IS AVAILABLE TO `EDIT` AND IS NOT WHAT IT READS TODAY.*** Field 5
-of the account's `accounts` register record is `ADMINISTRATOR`
-(`syscom/KEYS.H:282`, `ACC$TIER`); `check.permitted` reads `K$ADMINISTRATOR`
-and `os.users` field 2 and never looks at it. **Keep the no-terminal refusal
-regardless of tier** — an API session or a piped script still cannot run a
-full-screen editor, and that check is right.
 
 ## 3. The live `SDSYS` VOC does not match `voc_template` — **S**
 
@@ -461,3 +410,53 @@ written `~,`.
 Proved the same way as item 17, over an alphabet that now includes `!`, `,` and
 `@tm`: exhaustive to length 6 in the routine test and **once to length 7,
 5,380,840 strings, none lost.**
+
+## 2. The installing user gets no `OS.EXECUTE` — **B** — DONE 27 Aug 2026
+
+Owner's instruction, 26 Aug 2026 and again on the 27th: administrators are to
+*"have access to os.execute, ssh and api by default without escalating"*.
+
+***TWO OF THE THREE ALREADY HELD, AND THAT WAS RE-MEASURED RATHER THAN
+QUOTED.*** `CREATEA` gives an ADMINISTRATOR both routes and no keyword can take
+either away (21 Aug 2026); `MODIFY.ACCOUNT` refuses to remove them for the same
+reason (10083). Checked live on this install, 27 Aug: `Get-LocalGroupMember`
+shows `don` — the ADMINISTRATOR-tier account the installer adopted — in **both
+`sdssh` and `sdapi`**.
+
+**`OS.EXECUTE` was the one that did not**, and `C:\ProgramData\SD\sdsys\os.users`
+held **0 records** on a fresh install, so nobody had it. Both gates that read
+that list — `CPROC`'s `sh` gate on field 1, and `op_sh.c`'s `os_permitted()` on
+field 2, which is also what `EDIT`'s `check.permitted` reads — fall back to
+*elevation*, and an unelevated administrator is an ordinary user by design
+(`kernel.c`: *"An administrator who has not elevated is an ordinary SD user,
+exactly as on Linux"*). That is why he met *"edit is not available to don"*.
+
+**The fix is one place: `CREATEA`'s new `grant.os.access`.** An
+ADMINISTRATOR-tier **USER** account is written into `os.users` as it is created
+— ADOPT included, so the installing user gets it — with **both** fields `yes`.
+
+***IT IS DATA, NOT A SECOND GATE, AND THAT IS THE PART WORTH KEEPING.*** The
+26 Aug ruling had a second half: teach `EDIT`'s `check.permitted` the
+ADMINISTRATOR tier as well. **That was deliberately not done.** One list already
+answers *"may this person reach the operating system"*; it is readable and
+editable; a tier test beside it would make the answer depend on two things that
+can disagree, and `os.users` is keyed by **person** while a tier belongs to an
+**account**, so the two do not even ask the same question. The cost of the
+narrower choice: an administrator whose record is deleted or set to `no` **is**
+refused, rather than the tier overriding. That reads as correct — a default that
+can be edited — but it is a narrowing of the earlier ruling and is flagged as
+one.
+
+**Both fields, not only field 2.** They are the two halves of one capability —
+field 1 is the `sh` verb and `!`, field 2 is `OS.EXECUTE` from a program and the
+editors. Granting one and not the other would leave an administrator able to run
+`os.execute` from BASIC and refused at the prompt.
+
+**And `DELETE.ACCOUNT` takes it away again**, but only where SD is deleting the
+Windows login itself: the record is keyed by the person, so removing it for a
+login that survives would take a permission from somebody who still has a reason
+to hold it. Without that, the verify suite would leave one behind every run.
+
+**Not verified** — it is compiled BASIC and wants a cycle. After one, `os.users`
+should hold a `don` record with two `yes` fields.
+

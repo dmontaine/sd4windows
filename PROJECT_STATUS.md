@@ -191,18 +191,64 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > are left-to-right scans now. **Proved exhaustively to length 6 in the routine
 > test and once to length 7 — 5,380,840 strings, none lost.**
 >
+> ### AND AN ADMINISTRATOR NO LONGER ELEVATES TO REACH THE OPERATING SYSTEM
+>
+> Owner, 27 Aug 2026: administrators are to *"have access to os.execute, ssh
+> and api by default without escalating"*. **Pre-release item 2, closed.**
+>
+> ***TWO OF THE THREE ALREADY HELD, AND IT WAS RE-MEASURED RATHER THAN
+> QUOTED.*** `Get-LocalGroupMember` on this install, 27 Aug: `don` is in
+> **both `sdssh` and `sdapi`**. `CREATEA` has given an ADMINISTRATOR both
+> routes since 21 Aug and no keyword can take either away.
+>
+> **`OS.EXECUTE` was the one that did not**, and `os.users` held **0 records**
+> on a fresh install. Both gates that read that list — `CPROC`'s `sh` gate on
+> field 1 and `op_sh.c`'s `os_permitted()` on field 2, which is also what
+> `EDIT` reads — fall back to *elevation*, and an unelevated administrator is
+> an ordinary user by design. That is the whole of why he met *"edit is not
+> available to don"*.
+>
+> **One place: `CREATEA`'s new `grant.os.access`.** An ADMINISTRATOR-tier
+> **USER** account is written into `os.users` as it is created — ADOPT
+> included — with **both** fields `yes`. `DELACC` removes it again, but only
+> where SD is deleting the Windows login itself.
+>
+> ***THE 26 Aug RULING HAD A SECOND HALF AND IT WAS DELIBERATELY NOT DONE:***
+> teaching `EDIT`'s `check.permitted` the ADMINISTRATOR tier as well. One list
+> already answers *"may this person reach the operating system"*, and a tier
+> test beside it makes the answer depend on two things that can disagree —
+> `os.users` is keyed by **person**, a tier belongs to an **account**. **The
+> cost is stated rather than hidden**: an administrator whose record is deleted
+> or set to `no` IS refused, instead of the tier overriding. That is a
+> narrowing of his earlier ruling and he has been told so.
+>
+> **Both fields, not only field 2** — field 1 is `sh` and `!`, field 2 is
+> `OS.EXECUTE` and the editors, and granting one without the other leaves an
+> administrator able to run `os.execute` from BASIC and refused at the prompt.
+> **That half is a judgement call**: he named `os.execute`, not `sh`.
+>
 > ### AFTER THE CYCLE, IN THIS ORDER
 >
-> 1. **`micro gpl.bp EDIT` from an elevated console** — the exact record that
->    failed. It should open. **A console, not a pipe**: both verbs refuse a
->    session with no terminal, and a pipe also hides the item 1 layout fault.
-> 2. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`** in the docs
->    repository — new, and it measures the *other* leg of what he asked for:
+> 1. ***READ `C:\ProgramData\SD\sdsys\os.users`.*** It should now hold a
+>    `don` record of two `yes` lines, written by the install's own
+>    `adopt-account.ps1`. **It held nothing before this change**, so an empty
+>    directory is the whole failure and is worth checking first — it costs one
+>    `dir`.
+> 2. **`micro gpl.bp EDIT` from an UNELEVATED console** — the exact record that
+>    failed, from the session that was refused. It should open now for both
+>    reasons at once. **A console, not a pipe**: both verbs refuse a session
+>    with no terminal, and a pipe also hides the item 1 layout fault.
+> 3. **`sh dir` unelevated**, which is the field-1 half and was refused before.
+> 4. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`** in the docs
+>    repository — new, and it measures the *other* leg of the mark question:
 >    whether a record survives the trip through `$hold`, which is a
 >    **directory** file, so field marks become line separators on disk.
 >    **Nothing had ever tested that leg.** 15 cases, compiled clean 27 Aug with
 >    `sdcompile.ps1`, **never run**.
-> 3. Then the suite, `-Run b48`.
+> 5. Then the suite, `-Run b48`. ***WATCH `verify-tiers` AND `verify-tierapi`***
+>    — both make an ADMINISTRATOR-tier account, so both now exercise
+>    `grant.os.access` and its teardown, which is free coverage nobody had to
+>    write.
 >
 > ***THE `SD TCL` REFERENCE IS THE WORK: 19 TO 27 ARE DONE, 28 TO 32 ARE NOT,
 > AND `33` IS THE GENERATED CARD.*** It lives in the
