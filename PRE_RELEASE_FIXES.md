@@ -39,6 +39,7 @@ should be fixed, **M** minor.
 | 13 | **M** | `qselect` prints its message without the list number — UPSTREAM #21, **unfixed here** | `gpl.bp/QSELECT:240` |
 | 14 | **S** | `delete.file ... no.query` still prompts, so it cannot run unattended — UPSTREAM #23, **unfixed here** | `gpl.bp/DELETEF:222` |
 | 15 | **M** | `delete.index` will not match a lower-case index name, though `list.index` will — UPSTREAM #22, **unfixed here** | `gpl.bp/DELETEI:155` |
+| 16 | **S** | A killed session blocks exclusive access, says nothing about why, and only an administrator can clear it | `gplsrc/sd.c:333` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -322,7 +323,49 @@ different authors, same shape: two commands that should agree about a name and
 one of them folds case. Whatever policy is settled for one should settle the
 other.
 
----
+## 16. A killed session blocks exclusive access, explains nothing, and only an administrator can clear it — **S**
+
+***THIS ONE IS OURS, AND IT FOLLOWS FROM OUR OWN HARDENING.*** Upstream's
+`-CLEANUP` runs unguarded (`sdb64 gplsrc/sd.c:297`); ours calls `check_admin()`
+first (`gplsrc/sd.c:333`), which asks `IsElevated()`. That was the 15 Aug 2026
+decision to gate every administrative switch, and **the reasoning still looks
+right** — `cleanup()` acts on everybody's sessions. What was not considered is
+what an ordinary user does afterwards.
+
+**The chain, all of it measured on 26 Aug 2026:**
+
+| | |
+|---|---|
+| a session dies without logging out | its user-table slot survives; `listu` still lists it |
+| `build.index` on a file it had open | *"Cannot gain exclusive access to file"* — **in a session that never opened the file** |
+| `logout` *n* | *"Force logout initiated"*, then the entry reads **`(logout pending)` for ever** — logout signals a process that no longer exists |
+| `sd -cleanup` | clears it, and **requires elevation** |
+| `logout` itself | is an **administrator** verb, so it is not a programmer's route either |
+
+***THE MESSAGE IS THE WORST PART.*** *"Cannot gain exclusive access to file"*
+points at the file. Nothing points at a dead session, and the user has no reason
+to run `listu` — which is administrator-only anyway. **A programmer whose ssh
+connection drops cannot fix their own `build.index`, and cannot find out why.**
+Dropped connections are routine over ssh, which is the access route this port is
+built around.
+
+**Two independent things to decide, and they are separable:**
+
+1. **Diagnosis.** The refusal could name the session holding the file, the way
+   `sdprobe2.ps1` requires a contender to name the holder before a lock
+   measurement counts. That is useful even when the holder is alive.
+2. **Recovery.** Either let `logout` *n* reap a slot whose process is gone
+   instead of marking it pending for ever, or give an unprivileged user some
+   way to clear their own dead session. `-CLEANUP` acting on everybody is a
+   fair reason to keep its gate; it is not a reason to leave the user stuck.
+
+***WHAT WAS NOT ESTABLISHED, SO DO NOT ASSUME IT.*** `sdwind`'s
+`check_lost_users()` sweep is supposed to reap these every five minutes.
+**Neither observation ran long enough to test it** — the two stale entries were
+watched for about four and about three minutes before being cleared by hand. So
+it is still open whether the sweep works here, and PROJECT_STATUS §6 records it
+misbehaving on 22 Aug 2026 by forcing out healthy sessions instead. **Time the
+next one properly before concluding anything.**
 
 ## DONE
 
