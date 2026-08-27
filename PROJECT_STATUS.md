@@ -479,6 +479,23 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > so it can be built against a live install instead of guessed at.
 > PRE_RELEASE_FIXES 19 carries what it must cover.
 >
+> ### THE TESTER SET IS UPDATED; THE `User` SET IS NOT
+>
+> **Six pages, docs commit `db1a3d7`, 15 rendered, `checklinks` 76 links 0
+> broken.** `05` carries the fourth tier and the rewritten "Changing an account
+> afterwards"; `08`, `09` and `12` say what a suspension is **not** — an SD
+> control and not a Windows one. `00`'s index line changed with `05`'s subtitle.
+>
+> ***`06` GAINED THE FOUR `os.users` KEYWORDS, WHICH WERE NEVER IN THE TESTER
+> SET AT ALL*** — a gap left by the 27 Aug work rather than by this one. That
+> section documented only hand-editing with `ed` and never said an
+> ADMINISTRATOR account gets both fields unasked. **The hand-edit route stays**,
+> because it is the only way out of the case the keywords refuse.
+>
+> **The `User` set still has nothing on any of it.** Page `32`, *accounts and
+> security*, is where it belongs and is unwritten; page `26` has the `os-off`
+> refusal and that is all. The changelog covers it meanwhile.
+>
 > ### TWO SAFETY NOTES THAT STILL STAND
 >
 > 1. **Never `Stop-Process` an sd session on a tree you still want to measure.**
