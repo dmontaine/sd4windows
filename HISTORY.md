@@ -38553,3 +38553,67 @@ command list rather than by a wasted elevated run.
 two likely ones - the entries did not match, or Windows rejected the password
 on policy - and somebody in the second case can retype a matching pair for
 ever. PRE_RELEASE_FIXES 22.
+
+## 27 Aug 2026 - SD TCL 28 and 29, and a killed session that cost two user-table slots
+
+**Commit:** see the commit that carries this entry. Same session.
+
+Coverage moves **109 to 127 of the 144 verbs**. The roster was rebuilt from the
+shipped VOC by CPROC's own rule - field 1 `V`, or a `K` record carrying a verb
+from field 3 (`CPROC:1718`) - and came out at exactly **144 / CA 97 / IN 45 /
+OS 2**, matching the recorded counts. That match is what says the rule is right;
+a roster built by a slightly wrong rule scores every coverage question wrong in
+the same direction and looks tidy doing it.
+
+The 17 left partition cleanly into the three unwritten pages: `30` takes
+`pstat` `pdebug` `pdump` `logout`, `31` takes `list.locks` `list.readu`
+`clear.locks` `unlock` `release`, `32` takes the eight account verbs.
+
+### What is measured on them
+
+`28` is the PROMPT half of printing - page 13 has the statements and it does not
+repeat them. The `KEEP.OPEN` flag appearing in `setptr display`'s Options column
+after `sp.open` and gone after `sp.close` is the whole proof of both verbs,
+because neither prints anything. A full `como` capture read back with `ct` shows
+the fact worth knowing: **a COMO records the prompts and the command echoes, not
+just the output**, and `como off` is captured as the last line before it closes.
+
+**Two hazards are documented because they are not guessable.** `setptr` ASKS
+before changing a unit - `BRIEF` is the switch - so a `setptr` in a phantom, a
+script or an API session hangs. `sp.view` is a three-prompt full-screen form and
+cannot be driven down a pipe at all, so it is described from source like the
+screen editors.
+
+`29` separates **`term` (the page) from `pterm` (the wire)**, which is the
+confusion the page exists to end. `hush` was measured by sending `who` twice and
+getting one line back: **it suppresses the command echo as well as the output**,
+so an unmatched `hush on` looks exactly like a hang.
+
+***`term default` REPORTED 20x24 AND IS QUOTED WITH THE CAVEAT.*** The session
+was piped and had no real terminal, so it had no size to fall back to. The
+number is labelled as measured rather than as the answer to expect - at a
+console it will differ, and printing it bare would have been a false general
+claim from a true particular one.
+
+### The cost, and it was self-inflicted
+
+***A BATCH CONTAINING `clearinput` HUNG, WAS KILLED, AND LEFT TWO SESSIONS IN
+THE USER TABLE.*** `listu` afterwards showed **User 7 (12:42)** and **User 12
+(13:14)** stale beside the live one, and one stray `sd.exe` whose parent was the
+killed job's PowerShell. **Recovery is `sd -cleanup`, which is elevated**, so it
+was handed to the owner rather than attempted.
+
+**The pre-flight check that was run was the wrong one.** Every program in the
+batch was scanned for `input` and `keyin` statements and all were clean - but
+`clearinput` does not PROMPT for input, it DISCARDS it, and in a piped session
+the input stream *is* the script. Discarding unread input discards the commands
+that have not run yet, including the `off` that ends the session.
+
+***THE FIX IS THE CLASS, NOT THE VERB.*** "Does it prompt?" is too narrow;
+the question is **"does it touch the input stream?"** - and `clearinput` and
+`clearprompts` are the two verbs whose entire purpose is that. Both are now
+documented on `29` as unmeasurable down a pipe, with the reason.
+
+**`Stop-Process` was NOT used on the stray**, per the standing rule. The install
+still served sessions throughout - `listu` and three later measurement runs all
+completed - so the damage is held slots and exclusive access, not a wedged tree.

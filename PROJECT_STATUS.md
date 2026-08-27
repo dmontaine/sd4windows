@@ -510,8 +510,13 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > cannot drive `MODIFY.ACCOUNT` at all**, elevated or not. Type those at an
 > elevated `sd` prompt, or `logto sdsys` and stay there.
 >
-> ***THE `SD TCL` REFERENCE IS THE WORK: 19 TO 27 ARE DONE, 28 TO 32 ARE NOT,
-> AND `33` IS THE GENERATED CARD.*** It lives in the
+> ***THE `SD TCL` REFERENCE IS THE WORK: 19 TO 29 ARE DONE, 30 TO 32 ARE NOT,
+> AND `33` IS THE GENERATED CARD.*** **Coverage is 127 of the 144 verbs**, and
+> the 17 left partition cleanly: `30` takes `pstat` `pdebug` `pdump` `logout`,
+> `31` takes `list.locks` `list.readu` `clear.locks` `unlock` `release`, and `32`
+> takes `clean.account` `delete.account` `update.account` `modify.password`
+> `list.grants` `revoke` `encrypt.field` `config`. **Nothing is orphaned and
+> nothing is claimed twice.** It lives in the
 > `User` set on the owner's ruling — numbering continues from 19, names are
 > `NN-sd-tcl-<topic>.md`. `checklinks` **157 links, 0 broken** across 27 pages.
 >
@@ -549,8 +554,8 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | ✅ `25` | `ed`, the line editor |
 > | ✅ `26` | `edit`, the plain screen editor |
 > | ✅ `27` | `micro`, the capable one |
-> | `28` | printing and spooling |
-> | `29` | the terminal and the session |
+> | ✅ `28` | printing and spooling |
+> | ✅ `29` | the terminal and the session |
 > | `30` | processes and phantoms |
 > | `31` | locks |
 > | `32` | accounts and security |
