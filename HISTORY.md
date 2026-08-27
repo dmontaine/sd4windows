@@ -38447,3 +38447,36 @@ also cannot be piped**: `CREATE.ACCOUNT USER` prompts for a password and
 `NO.QUERY` does not suppress it — it covers the confirmation at `CREATEA:501` —
 and `sdtcl.ps1`'s banner is explicit that the timeout path costs the install.
 That is why the handoff is a typed checklist and not a script.
+
+### The owner elevates the agent, and elevation loses tests as well as gaining them
+
+He asked whether starting Claude Code from an elevated shell would give the
+agent elevated access. **It does**, and the mechanism was read rather than
+assumed: a Windows token is fixed at process creation and children inherit it,
+`kernel.c:240` sets `USR_ADMIN` from `IsElevated()` when the connection is not
+`CN_SOCKET`, and `IsElevated()` is `getgroups()` on the process token — UAC's
+filtered token carries `Administrators` **deny-only**, which Cygwin omits, so
+the group's absence *is* the elevation question (`linuxlb.c:150`).
+`modify.account` is in `TIER.ADD.ADMINISTRATOR`, so it is already in `don`'s
+VOC and no `logto sdsys` is needed, which matters because that is what would
+have put a UAC prompt in front of him once per run.
+
+***THE PART WORTH KEEPING IS THAT ELEVATION IS NOT STRICTLY BETTER.*** An
+elevated session **cannot** measure the LOGTO refusal, because the suspension
+test sits after `logto.authorised`'s privileged bypasses — the judgement call
+made when it was written. `logto <suspended>` from an elevated session
+therefore SUCCEEDS, correctly, and reading that as a broken door would send
+somebody to break working code. An elevated process also cannot spawn an
+unelevated child without explicit token work, so the unelevated half of the
+test plan is lost for as long as the session lives. The two halves are
+complementary; START HERE now carries the table and the sequencing, which is
+that the elevated run leaves a second account **suspended** behind it for an
+unelevated session to test the door against.
+
+**A GROUP ACCOUNT IS WHAT MAKES THE ROUND TRIP PIPEABLE AT ALL.**
+`CREATE.ACCOUNT USER` prompts for a password; `CREATEA:517` says outright that
+the password rule is the USER arm's alone and a GROUP account reaches neither
+`create_user()` nor `set_passwd()`. So the whole of `voc.delta`, the field-6
+write-once rule and one of the three doors can be exercised with no prompt.
+The administrator downgrade still cannot be: it needs a USER account at the
+ADMINISTRATOR tier, which is one command for him to type.

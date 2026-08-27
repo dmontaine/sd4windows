@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**. ***A CLEAN BOUNDARY: the owner ran the cycle, `assert-current` is exit 0 live, install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`.*** The tier work **compiles** — 189 units at 0 errors, no new warnings — and **none of its behaviour is tested**, because `MODIFY.ACCOUNT` needs elevation. See the box in START HERE for what is left and why a piped session must not run it.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**. ***A CLEAN BOUNDARY: the owner ran the cycle, `assert-current` is exit 0 live, install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`.*** The tier work **compiles** — 189 units at 0 errors, no new warnings — and **none of its behaviour is tested**, because `MODIFY.ACCOUNT` needs elevation. ***THE NEXT SESSION IS ELEVATED ON THE OWNER'S DECISION*** — START HERE opens with why, what it reaches, and the trap that an elevated `logto` into a suspended account SUCCEEDS by design.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -392,40 +392,99 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > session keeps its user-table slot and recovery is `sd -cleanup` plus a
 > service restart. **Type it at an interactive elevated SD session.**
 >
-> ### WHAT IS LEFT, AND ALL OF IT NEEDS ELEVATION OR A CONSOLE
+> ### ***THE NEXT SESSION IS ELEVATED, ON PURPOSE. READ THIS BEFORE RUNNING ANYTHING.***
 >
-> 1. ***`modify.account don os-off`*** — ruling 1 in one line. Must print
->    **`don is an administrator and always reaches the operating system`** and
->    change nothing. The anchor is that sentence, not the account name, which
->    the old success path also printed.
-> 2. ***THE TIER ROUND TRIP, on a `b48` account and never on `don`.***
->    `create.account user b48tier programmer` (it will ask for a password) then,
->    checking `ct sd.accounts b48tier` after **every** step — fields 5 and 6 are
->    the whole state and everything else is inference:
+> The owner is restarting Claude Code from an elevated shell so the agent can
+> reach `MODIFY.ACCOUNT`, which is `kernel(K$ADMINISTRATOR,-1)`. **This is his
+> decision, taken 27 Aug 2026 after being told the cost**, and it is not the
+> project drifting toward unattended operation — he is at the machine and the
+> alternative was typing the same commands himself.
 >
->    | step | expect |
->    |---|---|
->    | `modify.account b48tier standard` | `Account B48TIER is now STANDARD`, and a **non-zero** removed count |
->    | `modify.account b48tier suspended` | field 5 `SUSPENDED`, **field 6 `STANDARD`**, VOC counts all zero |
->    | `modify.account b48tier suspended` again | ***field 6 STILL `STANDARD`.*** This is the write-once rule and **it only fails on the second suspension** — a test that suspends once passes it by accident |
->    | ssh in as `b48tier` | `Account B48TIER is suspended` |
->    | `logto b48tier` from an unelevated `don` | refused |
->    | `modify.account b48tier programmer` | back, field 6 cleared, the removed records **added back** |
-> 3. ***THE "LEFT ALONE" COUNT NEEDS A HAND-EDITED RECORD TO MEAN ANYTHING.***
->    Before a downgrade, change one VOC record the lower tier omits. It must be
->    **counted and kept**. Nothing else tests that rule, and it is the one that
->    stops a downgrade destroying somebody's work under a verb's name.
-> 4. ***`modify.account b48tier standard` ON AN ADMINISTRATOR MUST BE REFUSED***
->    until the access is named (10111). That refusal is the only proof the
->    parser reached the second token at all.
-> 5. **`micro gpl.bp EDIT` from an UNELEVATED console** — the record that failed,
->    from the session that was refused. **A console, not a pipe**: both verbs
->    refuse a session with no terminal.
-> 6. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`** in the docs
->    repository — 15 cases, compiled clean 27 Aug, **never run**.
-> 7. Then the suite, **`-Run b48`**. ***WATCH `verify-tiers` AND
->    `verify-tierapi`*** — both make an ADMINISTRATOR-tier account, so both
->    exercise `grant.os.access` and its teardown for free.
+> ***WHY IT WORKS***, verified rather than assumed: a Windows token is fixed at
+> process creation and children inherit it, so an elevated agent's `sd.exe` is
+> elevated. `kernel.c:240` — `if (IsElevated() && (connection_type !=
+> CN_SOCKET))`. `IsElevated()` is `getgroups()` on the process token, and UAC's
+> filtered token carries `Administrators` **deny-only**, which Cygwin omits, so
+> the group's absence *is* the elevation question (`linuxlb.c:150`). A piped
+> local session is `CN_CONSOLE`, so the network guard does not fire.
+> `modify.account` is in `TIER.ADD.ADMINISTRATOR`, so it is already in `don`'s
+> VOC — **no `logto sdsys`, therefore no UAC prompt from `sdtcl.ps1`.**
+>
+> ***AND THE ELEVATED SESSION CANNOT TEST THE THING IT MOST LOOKS ABLE TO.***
+>
+> **`logto <suspended account>` FROM AN ELEVATED SESSION SUCCEEDS, AND THAT IS
+> CORRECT.** The suspension test sits *after* `logto.authorised`'s two
+> privileged bypasses — a judgement call recorded at the site. An elevated
+> session therefore passes straight through. ***Reading that as "the door does
+> not work" would send somebody to break working code.*** The LOGTO refusal can
+> only be measured from an **unelevated** session, and an elevated process
+> cannot spawn an unelevated child without explicit token work.
+>
+> **So elevating LOSES tests as well as gaining them.** The two halves are
+> complementary and both are needed:
+>
+> | | elevated | unelevated |
+> |---|---|---|
+> | ruling 1's refusal, the tier writes, `voc.delta`, field 6 | ✅ | ✗ (stops at 2001) |
+> | the LOGTO door, `sh dir`, an ssh login refusal | ✗ | ✅ |
+>
+> ***SEQUENCE IT SO NEITHER HALF IS WASTED***: the elevated session leaves a
+> second account **suspended** behind it, and an unelevated session then tests
+> the door against it. Do not delete it first.
+>
+> ### THE ELEVATED RUN — EVERY COMMAND BELOW IS PROMPT-FREE
+>
+> **A GROUP ACCOUNT IS THE WHOLE TRICK.** `CREATEA:517` is explicit: *"THE
+> PASSWORD RULE IS THE USER ARM'S ALONE. A GROUP account reaches neither
+> `create_user()` nor `set_passwd()`"*. So it can be created down a pipe, where
+> `CREATE.ACCOUNT USER` **prompts for a password and would hang the session** —
+> and `sdtcl.ps1`'s banner is explicit that the timeout path costs the install.
+> Syntax is `CREATE.ACCOUNT GROUP <name> {NO.QUERY}` (`CREATEA:573`), no path.
+>
+> Through `tools\sdtcl.ps1` (defaults to account `don`, which is
+> ADMINISTRATOR-tier and holds the verbs). **`ct sd.accounts` after every step —
+> fields 5 and 6 are the whole state and everything else is inference.**
+>
+> | command | what proves it worked |
+> |---|---|
+> | `modify.account don os-off` | **`don is an administrator and always reaches the operating system`**. Ruling 1. Anchor on that sentence, **not** on `don`, which the old success path also printed |
+> | `create.account group b48tier no.query` | field 5 `STANDARD` — `CREATEA:895` writes it explicitly, it is not left blank |
+> | `modify.account b48tier programmer` | `Account B48TIER is now PROGRAMMER` **and a non-zero ADDED count** — this is `voc.delta`'s ADD path, and a zero count is a failure wearing a success message |
+> | `modify.account b48tier suspended` | field 5 `SUSPENDED`, **field 6 `PROGRAMMER`**, VOC counts all zero |
+> | `modify.account b48tier suspended` **again** | ***field 6 STILL `PROGRAMMER`.*** The write-once rule, and **it can only fail on the second suspension** — one suspension passes it by accident |
+> | `modify.account b48tier standard` | field 6 **cleared**, and a non-zero REMOVED count (`voc.delta`'s DELETE path, PROGRAMMER→STANDARD) |
+> | `create.account group b48susp no.query` then `modify.account b48susp suspended` | **leave this one suspended** for the unelevated door test |
+>
+> ***THE "LEFT ALONE" COUNT NEEDS A HAND-EDITED RECORD OR IT MEANS NOTHING.***
+> Before the downgrade, overwrite one VOC record in `b48tier` that STANDARD
+> omits. It must come back **counted and kept**, not deleted. It is the rule
+> that stops a downgrade destroying somebody's work under a verb's name, and
+> nothing else exercises it.
+>
+> ### WHAT EVEN AN ELEVATED SESSION STILL CANNOT DO
+>
+> - **The administrator downgrade** — Windows `Administrators` removal, the
+>   `os.users` removal, and the 10111 required-access refusal. All three need a
+>   USER account at the ADMINISTRATOR tier, and creating one prompts for a
+>   password. **One command for the owner to type**; after that the agent can
+>   drive the rest.
+> - **The ssh/console door** (`LOGIN`) and **the API door** (`APISRVR`) — both
+>   need a user account too.
+> - **`micro gpl.bp EDIT`** from an unelevated console; a console, not a pipe.
+> - **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`**, docs repo, 15
+>   cases, compiled clean 27 Aug, never run.
+> - **The suite, `-Run b48`.** `b47`'s accounts went with the fresh install, so
+>   `b48` is clean.
+>
+> ### TWO SAFETY NOTES FOR AN ELEVATED AGENT
+>
+> 1. **Never `Stop-Process` an sd session on a tree you still want to measure.**
+>    The dead session keeps its user-table slot, `LOGOUT n` only marks it
+>    *(logout pending)*, and recovery is `sd -cleanup` plus a service restart.
+> 2. **`delete.account` prompts unconditionally** (`DELACC:242`, there is no
+>    `no.query`), so **do not try to tear the test accounts down from a pipe.**
+>    Leave them: the next fresh install removes them, which is what happened to
+>    `b47`'s fifteen.
 >
 > **Then `verify-tierchange.ps1` can be written**, and not before: it cannot be
 > load-checked against a live install until the behaviour above is known to
