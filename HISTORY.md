@@ -38274,3 +38274,140 @@ what happens to ssh and the API, which an administrator holds as a rule and a
 programmer holds by keyword; whether the `os.users` record goes, since by ruling
 1 it exists *because* they are an administrator; and whether upgrade is wanted
 too, or downgrade only. PROJECT_STATUS.md's START HERE box carries all five.
+
+## 27 Aug 2026 - Both rulings built, and SUSPENDED becomes the fourth tier
+
+**Commit:** see the commit that carries this entry. Sixty-sixth session.
+
+Opened on `pull`; both repositories already up to date. The owner then named
+the outstanding `create.account`/`modify.account` work and added a requirement:
+a fourth trust level, **SUSPENDED**, *"so that an account can be temporarily
+denied access"*. **The tree was already STALE and now owes a much bigger
+cycle** — `MODIFYA`, `CREATEA`, `LOGIN`, `CPROC`, `APISRVR` and `SYSCOM/KEYS.H`
+all changed, and **nothing has compiled**. `sd.exe` did not move.
+
+### Ruling 1: an administrator's operating-system access is a rule
+
+`os.set` carries `route.set`'s `S-1-5-32-544` guard now, by SID, with its own
+message 10106 — 10083 says *"always has both ssh and the API"*, which is the
+wrong text after `os-off`. **Both directions**, as `route.set` does: `os-on` on
+an administrator is asking this verb to set something it does not decide.
+
+**The reversed argument was kept rather than deleted**, in `os.set`'s banner
+and as a `[SUPERSEDED]` block in the START-HISTORY entry that made it. The
+`CREATEA` call site, the changelog entry and page 26 all argued the old way and
+are rewritten.
+
+**The cost is stated at the site**: an administrator ADOPTed over a Windows
+user whose `os.users` record already said `no` keeps it — `grant.os.access`
+leaves an existing record alone — and no verb can now change it. `ed os.users`
+from SDSYS is the way out, which page 26 already documented.
+
+### Ruling 2 and SUSPENDED, and his question is what decided the shape
+
+He was asked the five questions the previous session left and answered four
+directly. On the fifth he asked back: *"what if an account moves from programmer
+to standard to suspended, does it have to be resumed prior to each change or can
+they just happen naturally without an intermediate resume"*.
+
+**No intermediate resume, under any of the three designs** — but only one of
+them needs a rule to make that safe, and stating the rule is what settled the
+data model. **Field 6 is written ONLY on the transition INTO SUSPENDED.**
+Without that test, suspending an already-suspended account stores `SUSPENDED`
+as the prior tier and the real one is gone.
+
+His answers: SUSPENDED is a value of `ACC$TIER` (field 5) with the displaced
+tier in `ACC$PRIOR.TIER` (field 6); a suspension is enforced at SD's doors and
+withdraws nothing on Windows; the VOC changes **at once**; a downgrade out of
+ADMINISTRATOR takes the Windows `Administrators` membership and the `os.users`
+record automatically but **the caller must name** what ssh and the API become;
+and there is **no `resume` keyword** — coming back names the destination tier.
+
+### A claim made to him during the questions was wrong
+
+He was told field 6 *"still shows in LIST ACCOUNTS"*, and one of his choices
+rested on it. ***`accounts.dic` held `@ID`, `PATH`, `DESCR` and `GROUP` and
+nothing else, so `ACC$TIER` has been invisible since it was added on 17 Aug.***
+Corrected to him at once and **made true rather than withdrawn**: `TIER` and
+`PRIOR.TIER` are new records in `gplbld/FILES_DICTS/`, which
+`WRITE_INSTALL_DICTS` `SSELECT`s at bootstrap, so no manifest needed touching.
+
+**The default listing is `PATH DESCR TIER BY @ID` now.** `GROUP` came out:
+`PATH DESCR GROUP TIER` is 123 columns against a 120-column default, and
+`ACC$GROUP` is always `sdu_`/`sdg_` plus the account name, so it is the column
+that tells a reader nothing the id does not. Both remain available by name.
+
+### The VOC is a delta, and that is forced rather than chosen
+
+`CREATEA` builds a VOC into an empty directory and **then** writes the
+account's file pointers into it, so re-running that build on a live account
+would copy NEWVOC over every `F` pointer the account has accumulated. What is
+safe is to move only the records two tiers disagree about.
+
+The three tiers nest — STANDARD ⊂ PROGRAMMER ⊂ ADMINISTRATOR — so the
+difference between any two is one or both of `TIER.OMIT.STANDARD` and
+`TIER.ADD.ADMINISTRATOR`. **Both are read from NEWVOC rather than reproduced**,
+so `voc.delta` holds the tier arithmetic and no tier data, and a verb added to
+either list reaches all three readers at once.
+
+***A downgrade deletes only what it would have written.*** Each id is rebuilt
+from its source file with `CREATEA`'s own transformation and compared with what
+the account's VOC actually holds; anything different is **counted and left**,
+and the count is printed. Deleting by id alone would destroy a user's own work
+under a verb's name and look like success.
+
+### `update.voc` had to learn SUSPENDED or a release update would strip it
+
+`LOGIN:268`'s walk visits **every** account in the register, suspended ones
+included, and `update.voc` reads anything that is not blank, PROGRAMMER or
+ADMINISTRATOR as *"apply the standard omit list"*. A suspended administrator
+would have come back holding a standard VOC, and lifting the suspension would
+not have put it back — **exactly the failure `ACC$TIER` was added on 17 Aug to
+stop**, arriving through the field that was meant to prevent it. Fixed at both
+sites that set `update.voc.tier` from a record: the walk and `get.acc.tier`.
+
+### Two judgement calls, marked at their sites
+
+**An elevated or internal session can still `LOGTO` a suspended account** — the
+test sits after `logto.authorised`'s two privileged bypasses. He has ruled
+twice that an administrator's access cannot be turned off, looking at a
+suspended account is the ordinary reason to have one, and anyone elevated can
+lift it anyway. If wrong, the fix is to move the block above the internal test,
+not to add a second one.
+
+**Nobody may suspend `@logname`'s account or the one they are standing in.**
+The way back would be `sd -internal`, which is undocumented and elevated.
+
+### What was checked, and what that is worth
+
+`LOGIN`'s own header names the trap this work walked toward: BCOMP's *"is not
+assigned a value"* is a **warning** that `bootstrap.py:229` fails the whole
+bootstrap on, and BCOMP reads the source **in order** — so a variable assigned
+in a routine standing textually *below* the one reading it counts as unassigned
+however the control flow runs. `MODIFYA` gained the same init block LOGIN
+carries, and `tier.close.template` exists only so that every mention of
+`tvoctmpl.f` stands below its `openpath`.
+
+***THE STRUCTURAL CHECK WAS DIFFERENTIAL, AND THE FIRST ATTEMPT AT IT WAS
+WORTHLESS.*** A block-balance checker written for SD BASIC was calibrated on
+three files that had NOT been changed — and went negative on all three. Two
+rounds of fixes (`locked` and `on error` open blocks; a bare `end` at depth 0
+is the program terminator) still left `CPROC` at +3 and `APISRVR` at +32 on
+untouched source, so the model is wrong and a "final depth 0" from it would
+have been luck.
+
+**What is valid is the difference.** Same file at HEAD against the working
+tree: every depth unchanged, and the two files with a new block showing exactly
+two extra counted changes netting to zero. **That proves no block is left open
+and nothing else** — not statement syntax, not unassigned variables, not
+whether ten new message records resolve. A checker that cannot calibrate still
+answers a comparative question honestly, and saying which question is the whole
+of its value.
+
+**No verifier was written**, deliberately: §"Verify a script loads before you
+submit it for execution" forbids handing over one that has never been loaded
+against a live install, and it cannot be until the cycle runs.
+PRE_RELEASE_FIXES 19 carries what it has to cover, including the two checks a
+naive version passes by accident — the write-once rule only fails on the
+*second* suspension, and the "left alone" count needs a hand-edited VOC record
+to mean anything.

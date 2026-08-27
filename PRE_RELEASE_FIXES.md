@@ -42,6 +42,8 @@ should be fixed, **M** minor.
 | 16 | **S** | A killed session blocks exclusive access, says nothing about why, and only an administrator can clear it | `gplsrc/sd.c:333` |
 | ~~17~~ | **B** | ~~`edit` / `micro` refuse a record whose text looks like a mark token~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
 | ~~18~~ | **M** | ~~A text mark reaches the editor as a raw control character~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
+| 19 | **B** | ***The tier change and `SUSPENDED` have never compiled or run, and there is no verifier*** | `gpl.bp/MODIFYA` |
+| 20 | **S** | A suspended administrator is still a Windows administrator | `gpl.bp/MODIFYA` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -468,16 +470,72 @@ flags rather than testing the tier itself.
 simple-token arm splits at a space, a comma, a bracket or a quote and at
 nothing else, so `os-on` arrives as one token with `keyword = -1`.
 
-***AN ADMINISTRATOR IS NOT REFUSED BY `os.set` — AND THE OWNER HAS SINCE RULED
-THAT IT MUST BE.*** The version committed treats ssh and the API as a **rule**
-and operating-system access as a **default**, so `os-off` works on an
+***AN ADMINISTRATOR IS NOW REFUSED BY `os.set`, BUILT 27 Aug 2026.*** The
+version first committed treated ssh and the API as a **rule** and
+operating-system access as a **default**, so `os-off` worked on an
 administrator. **He overturned that the same afternoon**: *"administrators have
-full access, there should be no way to turn it off."* **Not yet built** — the
-code, both programs' headers and *SD TCL - The edit Screen Editor* all still
-argue the old way. PROJECT_STATUS.md's START HERE box carries the fix and the
-second ruling that came with it (an administrator account must be downgradable
-to programmer or standard, which `MODIFY.ACCOUNT` cannot do at all today).
+full access, there should be no way to turn it off."* `os.set` carries
+`route.set`'s `S-1-5-32-544` guard now, with its own message **10106**, and the
+three places that argued the old way — both program headers, the changelog
+entry, and page 26 — are rewritten.
 
 **Not verified** — it is compiled BASIC and wants a cycle. After one, `os.users`
-should hold a `don` record with two `yes` fields.
+should hold a `don` record with two `yes` fields, and `modify.account don
+os-off` should print *"don is an administrator and always reaches the operating
+system"*.
+
+---
+
+## 19. The tier change and `SUSPENDED` have never compiled or run — **B**
+
+Built 27 Aug 2026, sixty-sixth session. `MODIFY.ACCOUNT` gained four tier
+keywords, `SUSPENDED` became a fourth `ACC$TIER` value with `ACC$PRIOR.TIER`
+(field 6) beside it, and three doors learnt to refuse a suspended account.
+**Six files changed and none of them has been through BCOMP.**
+
+**The only structural check run was a differential block-depth count against
+HEAD** — no block left open, and nothing else. It says nothing about statement
+syntax, about BCOMP's *"is not assigned a value"*, or about whether the ten new
+message records (10106–10115) resolve at all.
+
+***AND THERE IS NO VERIFIER.*** `verify-tierchange.ps1` does not exist, because
+§"Verify a script loads before you submit it for execution" forbids handing
+over one that has never been loaded against a live install — and it cannot be,
+until the cycle runs. **What it has to cover, so the next session does not
+re-derive it:**
+
+| | |
+|---|---|
+| the round trip | PROGRAMMER → SUSPENDED → PROGRAMMER leaves field 5 back at PROGRAMMER, field 6 empty, and the VOC record count unchanged |
+| the write-once rule | SUSPENDED twice must leave field 6 holding the ORIGINAL tier, not `SUSPENDED`. **This is the one a naive test passes by accident** — it only fails on the second suspension |
+| the three doors | ssh/console (`LOGIN`), `logto` from an unelevated account (`CPROC`), and the API (`APISRVR`, which answers 10003 and must NOT be distinguishable from "no such account") |
+| the required keyword | `modify.account x programmer` on an administrator is REFUSED with 10111; with `both` it succeeds |
+| what leaves with ADMINISTRATOR | out of Windows `Administrators`, and the `os.users` record gone |
+| **the "left alone" count** | edit one VOC record in the account first, then downgrade. It must be **counted and kept**, not deleted. Nothing else tests that rule |
+| the null case | a tier change that matched nothing must FAIL, not pass: assert the VOC record count actually MOVED before believing a green |
+
+**Anchor on the success wording, not the account name.** `Account %1 is now %2`
+is 10109 and appears only on the positive path; the account name appears in
+every refusal too.
+
+---
+
+## 20. A suspended administrator is still a Windows administrator — **S**
+
+Owner's ruling of 27 Aug 2026 is that a suspension is enforced at SD's doors
+and withdraws **nothing** on Windows, which is what makes lifting one free —
+there is no prior state to record and restore. The consequence, stated rather
+than discovered later:
+
+- The account's user stays in Windows `Administrators`, so they can still
+  elevate **on the machine**. SD refuses them; Windows does not.
+- Their `os.users` record survives, so `OS.EXECUTE` and the screen editors are
+  still permitted **to that person** from any account they can still reach.
+- The ssh connection is still accepted and `sd` still starts. The refusal comes
+  from `LOGIN`, not from `sshd`.
+
+**None of this lets them back into the suspended account** — all three doors
+test field 5. It matters where a suspension is being used to contain somebody
+rather than to park an account, and that distinction is worth a sentence in
+page 32 when it is written.
 

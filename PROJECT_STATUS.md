@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-FIFTH session**. ***NOT a clean boundary: `sdsys/gpl.bp/EDIT` changed after the last cycle, so the tree is STALE and owes one.*** See the box in START HERE.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**. ***NOT a clean boundary, and the gap is now six files wide: `gpl.bp/EDIT`, `MODIFYA`, `CREATEA`, `LOGIN`, `CPROC`, `APISRVR` and `SYSCOM/KEYS.H` have all changed since the last cycle. NOTHING IN THAT LIST HAS COMPILED.*** `sd.exe` has not moved, so it is one cycle and not a rebuild. See the box in START HERE.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -245,84 +245,126 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > administrator able to run `os.execute` from BASIC and refused at the prompt.
 > **That half is a judgement call**: he named `os.execute`, not `sh`.
 >
-> ## ***TWO RULINGS ARRIVED AT THE END OF THE SESSION AND NEITHER IS BUILT. THE FIRST ONE MEANS THE TREE CURRENTLY DOES THE OPPOSITE OF WHAT HE DECIDED.***
+> ## ***BOTH RULINGS ARE BUILT, AND SO IS A FOURTH TIER HE ADDED THE NEXT DAY. NONE OF IT HAS COMPILED.***
 >
-> He gave both and then said to save them for the next session rather than
-> implement them. **They are the first work of the sixty-sixth session.**
+> Sixty-sixth session.  He opened it by naming the outstanding
+> `create.account`/`modify.account` work and adding **SUSPENDED**, *"a fourth
+> trust level ... so that an account can be temporarily denied access"*.
 >
-> ### 1. AN ADMINISTRATOR'S ACCESS CANNOT BE TURNED OFF — AND THE CODE SAYS IT CAN
+> ***THE TREE OWED A CYCLE BEFORE ANY OF THIS AND NOW OWES A BIGGER ONE.***
+> `gpl.bp/EDIT` was already uncompiled; **`MODIFYA`, `CREATEA`, `LOGIN`,
+> `CPROC`, `APISRVR` and `SYSCOM/KEYS.H` have all changed since.** `sd.exe`
+> has NOT moved — it is still a cycle and not a rebuild. **Nothing below has
+> been compiled, let alone run.** Use `-Run b48`.
 >
-> His words: ***"administrators have full access, there should be no way to turn
-> it off."***
+> ### 1. AN ADMINISTRATOR'S ACCESS CANNOT BE TURNED OFF — BUILT
 >
-> ***THIS REVERSES A JUDGEMENT CALL MADE EARLIER THE SAME DAY AND COMMITTED.***
-> `MODIFYA`'s `os.set` deliberately does **not** refuse an administrator, on the
-> argument that operating-system access is a *default* while ssh and the API are
-> a *rule*. **He has ruled it is a rule.** So today `modify.account don os-off`
-> would work and must not.
+> `MODIFYA`'s `os.set` carries `route.set`'s `S-1-5-32-544` guard, by SID, with
+> its own message **10106** (10083 says *"always has both ssh and the API"*,
+> which is the wrong text for `os-off`). **Both directions**, as `route.set`
+> does. The three places that argued the old way are rewritten: both program
+> headers, the changelog entry, and page 26.
 >
-> **The fix is the guard from `route.set`, twenty lines above it**, and a
-> message of its own — 10083 says *"always has both ssh and the API"*, which is
-> the wrong text here:
+> **The cost is stated at `os.set` rather than hidden**: an administrator
+> ADOPTed over a Windows user whose `os.users` record already said `no` keeps
+> it — `grant.os.access` leaves an existing record alone (10103) — and no verb
+> can now change it. `ed os.users <name>` from SDSYS is the way out.
 >
-> ```
->    if is_grp_member(acc.user, "S-1-5-32-544") then
->       @system.return.code = -ER$FAILED
->       crt sysmsg(<new>, acc.user)
->       return
->    end
-> ```
+> ### 2. THE TIER IS SETTABLE, AND SUSPENDED IS THE FOURTH — BUILT
 >
-> **`route.set` tests Windows `Administrators` membership by SID and not the SD
-> tier**, because the group name is translated on a localised Windows. Use the
-> same test, so the two guards cannot drift.
+> `MODIFY.ACCOUNT <account> STANDARD | PROGRAMMER | ADMINISTRATOR | SUSPENDED`,
+> any direction, no intermediate step. **`tier.set` in `MODIFYA`** plus
+> `voc.delta` and seven small routines under it.
 >
-> ***AND THE HEADERS IN BOTH PROGRAMS ARGUE FOR THE OLD BEHAVIOUR IN SO MANY
-> WORDS.*** `MODIFYA`'s `os.set` banner and its START-HISTORY entry, and
-> `CREATEA`'s call-site comment, all say the asymmetry is deliberate. **Rewrite
-> them, do not leave them contradicting the code.** *SD TCL - The edit Screen
-> Editor* says *"It is a default, not a rule"* and lists `os-off`/`sh-off`
-> without qualification; that wants a line about administrators too.
+> ***HIS ANSWERS TO THE FIVE QUESTIONS, WHICH ARE RULINGS AND NOT DEDUCTIONS:***
 >
-> **What does NOT change**: `CREATEA` still writes the record — it is the
-> mechanism both gates read, and `os_permitted()` has no idea what a tier is.
-> The rule is enforced at SD's verbs, exactly as it is for ssh and the API,
-> whose underlying state is a Windows group an administrator could also change
-> with `net localgroup`.
->
-> ### 2. AN ADMINISTRATOR ACCOUNT CAN BE DOWNGRADED TO PROGRAMMER OR STANDARD
->
-> His words: ***"however, an administrator account should be able to be
-> downgraded to programmer or standard."*** **Nothing is built.** `MODIFY.ACCOUNT`
-> has no way to change a tier today; the tier is a create-time property.
->
-> ***WHAT WAS ESTABLISHED BEFORE HE STOPPED THE INVESTIGATION*** — so the next
-> session does not re-derive it:
->
-> | | |
+> | question | his answer |
 > |---|---|
-> | the tier lives in | `ACC$TIER`, field 5 of the account's `accounts` register record — `syscom/KEYS.H:282` |
-> | who reads it | `LOGIN` only: `LOGIN:268` in the walk over every account when the release stamp moves, and `LOGIN:1161`. Both do `update.voc.tier = acc.rec<ACC$TIER>` then `gosub update.voc` |
-> | how the VOC is built from it | `CREATEA` — `NEWVOC` less `TIER.OMIT.STANDARD` for STANDARD, plus `TIER.ADD.ADMINISTRATOR` for ADMINISTRATOR. **`TIER.OMIT.STANDARD` is 42 names** |
-> | the Windows half | the `ADMINISTRATOR` keyword also sets `make.admin`, which puts the Windows user in `Administrators`, so the tier and that membership track each other |
-> | the gate on the verb | `MODIFY.ACCOUNT` is already `kernel(K$ADMINISTRATOR, -1)`, i.e. elevation |
+> | where SUSPENDED lives | **field 5**, a fourth value of `ACC$TIER`; the tier it displaced goes to **field 6, `ACC$PRIOR.TIER`** |
+> | what a suspension stops | **SD refuses at every door**; nothing is withdrawn on Windows |
+> | when the VOC changes | **at once**, not at the next login |
+> | what leaves with ADMINISTRATOR | Windows `Administrators` **and** the `os.users` record, automatically |
+> | ssh and the API on a downgrade | **the caller names them** — `modify.account don programmer both` — refused with 10111 otherwise |
+> | a `resume` keyword | **no** — coming back names the destination tier |
 >
-> ***FIVE QUESTIONS IT HAS TO ANSWER, AND THEY ARE HIS, NOT THE NEXT SESSION'S
-> TO GUESS:***
+> ***HIS OWN QUESTION IS WHAT DECIDED THE SHAPE***: *"does it have to be
+> resumed prior to each change or can they just happen naturally"*. No
+> intermediate resume, ever. **Field 6 is written ONLY on the transition INTO
+> SUSPENDED** — without that test, suspending twice stores `SUSPENDED` as the
+> prior tier and the real one is gone — and cleared by any move to a named
+> tier.
 >
-> 1. **Does the VOC change at once, or at the next login?** Setting `ACC$TIER`
->    alone leaves the account with an administrator's VOC until `update.voc`
->    next runs, which is a release change. **A downgrade that takes effect
->    "sometime" is not a downgrade** — so probably at once, which means
->    re-running the tier VOC build outside `CREATEA`.
-> 2. **Does it remove the Windows user from `Administrators`?** If not, the
->    account is a "programmer" whose session still elevates.
-> 3. **Does it withdraw ssh and the API?** An administrator has both as a rule;
->    a programmer's are keyword-set, so a downgrade has to choose what they
->    become.
-> 4. **Does it delete the `os.users` record** the ADMINISTRATOR default wrote?
->    By ruling 1 the record exists *because* they are an administrator.
-> 5. **Upgrade too, or downgrade only?** He said downgraded.
+> **THREE DOORS, AND THEY WERE FOUND BY READING RATHER THAN ASSUMED**:
+> `LOGIN` (after the case statement, so both arms), `CPROC`'s
+> `logto.authorised`, `APISRVR`'s `vb.account`. The API one **reuses 10003**
+> like every other refusal there, so the API does not tell a caller which of
+> the three reasons applied.
+>
+> ***AND `update.voc` HAD TO LEARN SUSPENDED OR A RELEASE UPDATE WOULD STRIP
+> IT.*** `LOGIN:268`'s walk visits **every** account, suspended ones included,
+> and `update.voc` reads anything not blank/PROGRAMMER/ADMINISTRATOR as *apply
+> the standard omit list*. A suspended administrator would have come back
+> holding a standard VOC. Fixed at both sites that set `update.voc.tier` from
+> a record — the walk and `get.acc.tier`.
+>
+> **THE VOC IS A DELTA AND NOT A REBUILD, and that is forced.** `CREATEA`
+> builds into an empty directory and *then* writes the account's file pointers;
+> re-running it on a live account would copy NEWVOC over every `F` pointer.
+> The three tiers nest, so the difference between any two is one or both of
+> `TIER.OMIT.STANDARD` and `TIER.ADD.ADMINISTRATOR` — **read from NEWVOC, not
+> reproduced**, so `voc.delta` holds the arithmetic and no tier data.
+>
+> ***A DOWNGRADE DELETES ONLY WHAT IT WOULD HAVE WRITTEN.*** Each id is rebuilt
+> from the source file with `CREATEA`'s own transformation and compared with
+> what the account's VOC holds; anything different is **counted and left**, and
+> the count is printed (10113). Deleting by id alone would destroy a user's own
+> work under a verb's name.
+>
+> ### TWO JUDGEMENT CALLS, MARKED AT THEIR SITES AND NOT HIS
+>
+> 1. **An elevated or internal session can still `LOGTO` a suspended account.**
+>    The test sits *after* `logto.authorised`'s two privileged bypasses. He has
+>    ruled twice that an administrator's access cannot be turned off, looking at
+>    a suspended account is the ordinary reason to have one, and anyone elevated
+>    can lift it anyway. **If that is wrong the fix is to move the block above
+>    the internal test** — not to add a second one.
+> 2. **Nobody may suspend `@logname`'s account or the one they are standing in**
+>    (10112). The way back would be `sd -internal`, which is undocumented.
+>
+> ### WHAT THIS TOUCHED BESIDES THE VERBS
+>
+> - **`SYSCOM/KEYS.H`** — `ACC$PRIOR.TIER` 6, and `ACC$TIER`'s fourth value.
+>   Field 6 is a clean first use; field 4 is the poisoned one.
+> - **Messages 10106–10115**, ten of them. 10105 was the previous highest.
+> - **`gplbld/FILES_DICTS/accounts.dic^TIER` and `^PRIOR.TIER`**, new, plus a
+>   rewritten `^@`. ***`LIST ACCOUNTS` HAS NEVER SHOWN THE TIER*** — the
+>   dictionary held `@ID`, `PATH`, `DESCR`, `GROUP` and nothing else, so field 5
+>   has been invisible since 17 Aug. **The default listing is
+>   `PATH DESCR TIER BY @ID` now**: `GROUP` came out because it is always
+>   `sdu_`/`sdg_` plus the account name, and `PATH DESCR GROUP TIER` is 123
+>   columns against a 120 default. `WRITE_INSTALL_DICTS` `SSELECT`s the
+>   directory, so new files need no manifest entry.
+> - **`MODIFYA` has a BCOMP init block at the top**, the same one and the same
+>   reason `LOGIN` carries: `rank.out` is read in `voc.delta` and assigned in
+>   `tier.rank` forty lines below it, and *"is not assigned a value"* fails the
+>   whole bootstrap (`bootstrap.py:229`). `tier.close.template` exists only so
+>   that every mention of `tvoctmpl.f` stands below its `openpath`.
+>
+> ### WHAT IS NOT DONE, AND IT IS NOT SMALL
+>
+> 1. ***NOTHING HAS COMPILED.*** The only structural check run was a
+>    differential block-depth count against HEAD — every file's depth unchanged,
+>    and the two with a new block showing exactly the two extra counted changes
+>    netting to zero. **That proves no block is left open and nothing else.**
+> 2. **There is no `verify-tierchange.ps1`**, deliberately: a verifier that has
+>    never been loaded against a live install is what §"Verify a script loads"
+>    forbids handing over, and it cannot be loaded until the cycle runs. What it
+>    has to cover is in [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md).
+> 3. **`verify-tiers.ps1` is the suite row that knows about tier VOCs.** It
+>    asserts `gcat` 125 and `gpl.bp.out` 184; **no program was added**, so both
+>    should hold. Watch it anyway.
+> 4. **Page 32, *accounts and security*, is unwritten** and is where all of this
+>    belongs. The changelog carries it meanwhile; page 26 got the `os-off` half.
 >
 > ### AFTER THE CYCLE, IN THIS ORDER
 >
@@ -342,7 +384,25 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >    **directory** file, so field marks become line separators on disk.
 >    **Nothing had ever tested that leg.** 15 cases, compiled clean 27 Aug with
 >    `sdcompile.ps1`, **never run**.
-> 5. Then the suite, `-Run b48`. ***WATCH `verify-tiers` AND `verify-tierapi`***
+> 5. ***`modify.account don os-off` FROM AN ELEVATED SESSION.*** Ruling 1 in one
+>    line. It must print **`don is an administrator and always reaches the
+>    operating system`** and change nothing. **Read the raw output** — the old
+>    behaviour printed `os.users: don has SH yes, OS.EXECUTE no` and succeeded,
+>    so the two are not confusable, but the check is the SUCCESS wording of the
+>    refusal and not the account name, which both paths carry.
+> 6. ***THE TIER ROUND TRIP, ON A THROWAWAY ACCOUNT AND NOT ON `don`.*** Make a
+>    `b48` PROGRAMMER account, then:
+>    `suspended` → try to `ssh` in (refused) → `logto` from another unelevated
+>    account (refused) → `programmer` → back in. **`ct accounts <name>` after
+>    each step** is the instrument: field 5 and field 6 are the whole state and
+>    everything else is inference.
+> 7. **`list accounts`** — the columns have changed. `PATH DESCR TIER BY @ID`,
+>    and `GROUP` is gone from the default. If the `Tier` column is missing, the
+>    dictionary did not load and steps 5–6 are measuring nothing.
+> 8. ***`modify.account <b48acct> standard` ON AN ADMINISTRATOR MUST BE
+>    REFUSED*** until the access is named. That refusal is the only proof the
+>    parser reached the second token at all.
+> 9. Then the suite, `-Run b48`. ***WATCH `verify-tiers` AND `verify-tierapi`***
 >    — both make an ADMINISTRATOR-tier account, so both now exercise
 >    `grant.os.access` and its teardown, which is free coverage nobody had to
 >    write.
