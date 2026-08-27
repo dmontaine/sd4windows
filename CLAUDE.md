@@ -247,6 +247,13 @@ him** — he does not read them. So:
   is at `../sdb64`, and a bug carrying a `Composer AI - 2026/06/10` marker is
   ours rather than upstream's unless the underlying flaw is there too. It is
   written for the upstream maintainer, so plain English and self-contained.
+- **[PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md) is the third**, maintained the
+  same way: **this port's own** defects and gaps that need deciding or fixing
+  before W1.0-0 ships. Add an entry in the same commit as the finding and move
+  it to DONE with a date when it is fixed. Most of it comes from writing the
+  documentation, because making a sentence true checks something that testing
+  that it works does not. **If it is also in `sdb64` it belongs in
+  UPSTREAM_FIXES.md instead** — one defect, one file.
 
 Full rules in §0 of PROJECT_STATUS.md. Follow those; this file only points.
 

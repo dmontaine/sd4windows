@@ -29,6 +29,10 @@ something came to be the way it is.
 
 ***THE MACHINE — AND THE INSTALL IS NOW STALE, 26 Aug 2026 20:40.*** `bin/sd.exe` was rebuilt after three one-line C fixes and nothing has been installed since, so `assert-current` will fail Check A and every verifier that calls it will refuse. **The reading below is what the install WAS, and it is still what the suite scores once a cycle re-lays it.** The host carries a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
 
+***THE `SD TCL` REFERENCE HAS STARTED AND IT LIVES IN THE `User` SET, NUMBERED FROM 19.*** Owner's ruling, 26 Aug 2026, on both questions: the TCL pages continue `User/` rather than taking a set of their own, and they are named `NN-sd-tcl-<topic>.md`. **The plan is 12 topic pages plus a generated syntax card at `31`, and it is checked rather than asserted** — every one of the **144** verbs is on exactly one page, verified in both directions. `19` command processor, `20` files and records and `21` query processor are written; `22` select lists is next. ***THE ROSTER IS 144, NOT 140***, and the difference is the four records that are a keyword AND a verb — `break`, `count`, `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and `count voc with dispatch # ""` answers 144. `tools\sdtcl.ps1` is how the TCL pages are measured.
+
+***THE DOCUMENTATION PHASE IS FINDING DEFECTS, AND THEY HAVE THEIR OWN LIST: [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md).*** Ten entries as of 26 Aug 2026, two of them raised by the owner - the malformed `edit`/`micro` refusal and the installing user having no `OS.EXECUTE`. **It is maintained the way UPSTREAM_FIXES.md is**: add an entry in the same commit as the finding, move it to DONE when fixed. Writing a reference checks every claim against what SD does, which is not the same exercise as testing that it works, and it is turning things up that the suite does not.
+
 ***ONE DEFECT IS RAISED AND UNDECIDED, AND THE DOCUMENTATION PHASE WILL MEET IT.*** `sdsys\changelog` ships into the **data tree**, which the installer never overwrites, so a user's changelog is frozen at their install date — in the one file whose entire job is telling them what changed. It probably wants moving to `{app}` beside the documentation. Raised 25 Aug 2026; not decided, and not yet a task.
 
 ---
@@ -171,7 +175,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > construct whose entire purpose is that there is no such thing.
 >
 > ***THE TOOLING MOVED OUT OF THE SESSION SCRATCHPAD ON PURPOSE, BECAUSE A
-> SCRATCHPAD DOES NOT SURVIVE AN ACCOUNT CHANGE.*** Seven instruments are now
+> SCRATCHPAD DOES NOT SURVIVE AN ACCOUNT CHANGE.*** Eight instruments are now
 > in the docs repository's `tools\`, and every one has been run from there.
 > **The probe sources are kept too, in `tools\probes\`, with a README saying
 > which runner takes which** — a number with no way to reproduce it is a number
@@ -179,6 +183,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > | | |
 > |---|---|
+> | `tools\sdtcl.ps1` | ***the TCL half of the same idea***, and how the SD TCL pages are measured: run the command, quote what SD said. **Refuses a transcript with fewer command echoes than commands sent.** Defaults to a USER account - `LOGTO SDSYS` asks UAC when the session is not already elevated, so measuring in SDSYS puts a consent prompt in front of whoever is at the machine, once per run |
 > | `tools\sdprobe.ps1` | ***how most measured values in the set were produced.*** Writes a BASIC probe into an account's BP, runs it down §6's `Invoke-SD` pipe, and **REFUSES a run that did not print its own START and END markers**. It has refused six real drafts |
 > | `tools\sdprobe2.ps1` | ***TWO SESSIONS AT ONCE***, which is the only way any lock can be measured — every `RECORDLOCKED()` code above zero is the self-answer. **It refuses unless the two report different user numbers AND the contender names the holder**; a pair that ran one after the other prints exactly the numbers a reader expects from a working test |
 > | `tools\sdcompile.ps1` | compile only. **Half of what a reference has to say is a refusal** — `errmsg`, the internal-only intrinsics, the restricted statements — and `sdprobe`'s guard requires `0 error(s)`, so it can only ever refuse those. `-ExpectErrors` refuses a probe that was meant to fail and compiled |
