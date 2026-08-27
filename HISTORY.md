@@ -37850,3 +37850,118 @@ explained somewhere in the User set"*, and it still is.
 **`checklinks` on `Technical` refuses** - one page, no cross-references, no
 links at all. That is its guard working. Run it there when there is a second
 page.
+
+## 26 Aug 2026 - The SD TCL reference starts, the roster is 144 not 140, and fixing three defects made three published pages wrong
+
+**Commit:** see the commit that carries this entry. Sixty-fourth session.
+
+Opened on `pull`; both repositories already up to date. The owner ran the cycle
+mid-session, so the tree went from STALE to current: install **21:17:22**,
+`sd.exe` `DF77FD6D61DE5184`, `assert-current` exit 0.
+
+### The TCL set: six of twelve topic pages
+
+`19` command processor, `20` files and records, `21` query processor, `22`
+select lists, `23` alternate key indexes, `24` programs and the catalogue.
+Owner's rulings: they continue the `User` set from **19**, named
+`NN-sd-tcl-<topic>.md`, ending in their own generated card at `31`.
+`checklinks` **140 links, 0 broken** across 24 pages.
+
+**The plan is checked, not asserted** - every one of the 144 verbs is on exactly
+one page, verified in both directions before a word was written.
+
+### The roster is 144, and 140 is the number a careless count gives
+
+***FOUR RECORDS ARE A KEYWORD AND A VERB*** - `break`, `count`, `display`,
+`off`. `CPROC:1718` re-parses a `K` record from field 3 when it is typed as a
+command, and fields 3 onward of those four are a complete verb record. A tally
+of "field 1 begins with V" misses all of them, which is how `Testing/07` came to
+say a standard account has **77** verbs when it has **81**.
+
+**Confirmed three independent ways.** `CREATEA:961`-`996` copies every `newvoc`
+record except the two list records and, for a standard tier, the 42 omitted
+names - filtering by name, never by type. SD's own VOC dictionary encodes the
+same rule in its I-type `DISPATCH` field. And `count voc with dispatch # ""`
+answers **144**, with `CA` 97, `IN` 45, `OS` 2.
+
+### PRE_RELEASE_FIXES.md, and the rule that first hid three entries
+
+New maintained file, 16 entries, named in CLAUDE.md beside UPSTREAM_FIXES.md.
+Two entries are the owner's: the malformed `edit`/`micro` refusal, and the
+installing user having no `OS.EXECUTE`.
+
+***THE FIRST VERSION OF ITS RULE WAS WRONG AND THE OWNER CAUGHT IT.*** It read
+*"if it is also in `sdb64` it belongs in UPSTREAM_FIXES.md instead - one defect,
+one file"*, which conflates *who else has this* with *what we ship*. Checked
+rather than assumed, and the answer was not uniform: of the four upstream
+defects found last session, **#18 and #19 are fixed here and #17 and #20 are
+not**, and nothing recorded which was which. **A defect in both trees now goes
+in both files.**
+
+Three more went upstream this session, all found while measuring: **#21**
+`QSELECT` omits the list number from its own completion message, **#22**
+`DELETE.INDEX` will not match a lower-case index name where `LIST.INDEX` will,
+**#23** `DELETE.FILE ... NO.QUERY` still prompts when part of the file is in the
+system account.
+
+### Fixing three defects made three published pages wrong
+
+***THIS IS THE COST THE SEPARATE DOCUMENTATION REPOSITORY WAS ACCEPTED WITH, and
+it arrived within a day.*** The three C fixes were verified with the three
+probes START HERE named - `system(1010)` now reads `Windows`, `config()` no
+longer aborts on a long name, keep-alive can be turned off - and each of those
+made a measured page false:
+
+| page | said |
+|---|---|
+| `16` | `system(1010)` answers `Linux`, and warned readers off it |
+| `16` | a nine-character `config()` name aborts the caller |
+| `15` | keep-alive cannot be turned off and reports success anyway |
+
+All three were true when written. **Nothing failed when they stopped being
+true.** Corrected the same session. **The pages most at risk are the ones whose
+value is a measured defect**, because those are exactly the ones a fix
+invalidates - so after a C fix lands, grep the `User` set for what it claimed.
+
+### Two sessions were lost to prompts, and the rule is prevention
+
+`tools\sdtcl.ps1` is new - the TCL half of `sdprobe.ps1`, and how these pages
+are measured. Two lessons are in its header rather than in anyone's memory.
+
+***NEVER SEND A COMMAND THAT CAN PROMPT.*** A prompt eats the following lines as
+its answers and the session waits for ever. `COPY` prompts when a select list is
+active (`NO.QUERY` guards it - the first hang was avoidable and was my error);
+`DELETE.FILE` prompts **through** `NO.QUERY` when a part is in the system
+account, which is #23 and was not avoidable. The remedy since: read every verb's
+`input` sites in source before sending it, which found four hazards in document
+24 before any of them cost anything.
+
+***AND KILLING A HUNG SESSION COSTS THE INSTALL.*** PROJECT_STATUS §6 already
+said so; the runner's timeout path did it anyway, twice. **The slot survives,
+`LOGOUT n` only marks it `(logout pending)`** because logout signals a process
+that is gone, `BUILD.INDEX` is refused with *"Cannot gain exclusive access"* in
+a session that never opened the file, and recovery is an elevated `sd -cleanup`.
+Pre-release item 16.
+
+***AND THE AUTOMATIC SWEEP DOES NOT RECOVER IT - MEASURED.*** User 58 was
+listed by `LISTU` from 22:57 to 23:07 with `sdwind` running, which is at least
+two full five-minute `check_lost_users()` intervals. **The entry outlived the
+mechanism meant to remove it.** Why is still open, and §6 names the two
+candidates; that same entry has the sweep doing the opposite on 22 Aug and
+forcing out healthy sessions, so it may be one bug or two.
+
+### Smaller things worth not rediscovering
+
+- ***`b47` IS SPENT.*** 15 accounts in the register carry the prefix from the
+  cycle's own suite run, while START HERE still said to use it. **Use `b48`.**
+- **`logto sdsys` does ask UAC**, and the owner clicking those prompts is what
+  let six measurement runs through. `sdtcl.ps1` therefore defaults to a **user**
+  account, not `SDSYS` - the group fallback cannot help, because the `SDSYS`
+  register entry names a group that does not exist on Windows.
+- **`` `e `` is not an escape in Windows PowerShell 5.1** - already in §6, and
+  walked into anyway by copying `Invoke-SD` verbatim without grepping for it.
+  It mis-scored a verification pass as 7 of 8 FAIL on a run where all 8 had
+  worked; **printing the raw output is the only reason it was caught.**
+- **A quoted exe path at the start of a PowerShell line needs `&`** - without it
+  the switch is a parser error and nothing runs. Cost the owner a failed paste
+  during an elevated recovery.

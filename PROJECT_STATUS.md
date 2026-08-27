@@ -110,17 +110,50 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
 >
-> ### HANDOFF, END OF THE SIXTY-THIRD SESSION
+> ### HANDOFF, END OF THE SIXTY-FOURTH SESSION
 >
-> **Both repositories are committed, pushed and clean.** `sd4windows` at the
-> commit carrying this line; `SDCoreWindowsDocs` at `4317766`. Nothing is in
-> flight.
+> **Both repositories are committed, pushed and clean.** Nothing is in flight.
+> ***THE MACHINE IS GREEN: `assert-current` exit 0, install 26 Aug 21:17:22,
+> `sd.exe` `DF77FD6D61DE5184`.*** The owner ran the cycle this session, so the
+> stale-tree box that stood here is gone and the three C fixes are installed.
 >
-> ***THE `User` SET IS 18 PAGES AND THE `Technical` SET HAS STARTED.*** `14`
-> Locks and Transactions, `15` Sockets, `16` System and Environment, `17`
-> Debugging and `18` Syntax were written this session, and `Technical/01`
-> SD Basic - Restricted Commands. `docmap` **411 of 411**, `checklinks`
-> **114 links, 0 broken** on `User`, everything rendered to HTML and PDF.
+> ***USE `-Run b48`. `b47` IS SPENT*** — 15 accounts in the register carry the
+> `b47` prefix from the cycle's own suite run. *(This box said "use b47" until
+> the register was read.)*
+>
+> ***THE `SD TCL` REFERENCE IS THE WORK NOW, AND IT IS HALF DONE: 19 TO 24 ARE
+> WRITTEN, 25 TO 30 ARE NOT, AND `31` IS THE GENERATED CARD.*** It lives in the
+> `User` set on the owner's ruling — numbering continues from 19, names are
+> `NN-sd-tcl-<topic>.md`. `checklinks` **140 links, 0 broken** across 24 pages,
+> everything rendered to HTML and PDF.
+>
+> | | |
+> |---|---|
+> | ✅ `19` | the command processor |
+> | ✅ `20` | files and records |
+> | ✅ `21` | the query processor |
+> | ✅ `22` | select lists |
+> | ✅ `23` | alternate key indexes |
+> | ✅ `24` | programs and the catalogue |
+> | `25` | editing — `ed`, `edit`, `micro`. **Note PRE_RELEASE_FIXES item 1: the refusal message is broken** |
+> | `26` | printing and spooling |
+> | `27` | the terminal and the session |
+> | `28` | processes and phantoms |
+> | `29` | locks |
+> | `30` | accounts and security |
+> | `31` | **syntax — generated, all 144 verbs** |
+>
+> ***THE PLAN IS CHECKED, NOT ASSERTED: every one of the 144 verbs is on exactly
+> one page, verified in both directions.*** The roster is 144 and not 140
+> because four records are a keyword **and** a verb — `break`, `count`,
+> `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC
+> dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and
+> `count voc with dispatch # ""` answers 144. `CA` 97, `IN` 45, `OS` 2.
+>
+> ***FOR `31`, THE SYNTAX COMES FROM EACH VERB'S OWN `START-DESCRIPTION`
+> BLOCK*** — 166 of the 178 catalogued verb records have one. The 81 internal
+> and OS verbs have no program to read, so they need a hand-kept shapes file the
+> way `syntax-shapes.txt` serves the BASIC card.
 >
 > ***`18` AND `Technical/01` ARE GENERATED, NOT EDITED, AND THEY PARTITION THE
 > ROSTER.*** `tools\mksyntax.py` writes both from `BCOMP`'s own tables and
@@ -158,21 +191,28 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > are unanswered; the shipped-scripts gap (25 PowerShell scripts ship, 4
 > documented) is untouched.
 >
-> ***FOUR DEFECTS WERE FOUND WHILE MEASURING, NONE IS FIXED, AND ALL FOUR ARE
-> WRITTEN UP AS [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) #17 TO #20.*** Every one
-> is **upstream's** — checked against `../sdb64` on `main` and, where the file
-> exists there, `dev` — and every one is documented in the pages rather than
-> worked around. **They are raised for the owner, not started:**
+> ***DEFECTS FOUND WHILE DOCUMENTING NOW HAVE THEIR OWN LIST:
+> [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md), 16 ENTRIES.*** Read it before
+> planning release work; this box does not repeat it.
 >
-> | | |
-> |---|---|
-> | **#17** | `commit` neither decrements `txn_depth` nor pops `txn_stack`, so `system(1008)` climbs for ever **and a nested `commit` loses the outer transaction's writes** |
-> | **#18** | `config()` with a name over eight characters pushes an **uninitialised descriptor** and aborts the caller |
-> | **#19** | `set.socket.mode(s, 6, 0)` returns success and turns keep-alive **on** — `n = TRUE;` discards the argument |
-> | **#20** | error **3023** is *"write/delete with no lock"* and `messages/1407` renders it ***"Possible full disk?"*** |
+> ***A DEFECT IN BOTH TREES GOES IN BOTH FILES.*** Owner's correction, 26 Aug
+> 2026, replacing a "one defect, one file" rule that had stood for one session
+> and hid three things. `UPSTREAM_FIXES.md` says *the `sdb64` maintainer should
+> know*; `PRE_RELEASE_FIXES.md` says *we would ship this*. **Being fixed
+> upstream is not being fixed here** — of the four found last session, #18 and
+> #19 are now fixed in this tree and **#17 and #20 are not**, and nothing had
+> recorded which was which.
 >
-> **#17 is the one that matters** — it is silent partial data loss inside a
-> construct whose entire purpose is that there is no such thing.
+> **#17 is still the one that matters** — silent partial data loss inside a
+> construct whose entire purpose is that there is no such thing. It is
+> pre-release item 11, verified live here: `txn_depth` is `++` at `txn.c:96`,
+> `--` at `:592`, and `op_txncmt()` touches neither. ***Do not fix half of it.***
+>
+> **Three more went upstream this session** — #21 `QSELECT` loses the list
+> number from its own message, #22 `DELETE.INDEX` will not match a lower-case
+> index name where `LIST.INDEX` will, #23 `DELETE.FILE ... NO.QUERY` still
+> prompts when part of the file is in the system account. All three are live
+> here too, as pre-release items 13, 15 and 14.
 >
 > ***THE TOOLING MOVED OUT OF THE SESSION SCRATCHPAD ON PURPOSE, BECAUSE A
 > SCRATCHPAD DOES NOT SURVIVE AN ACCOUNT CHANGE.*** Eight instruments are now
@@ -218,59 +258,28 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `python tools\checklinks.py User\markdown User\html` — **110 links, 0
 > broken** at handoff.
 >
-> ***THE MACHINE WAS UNTOUCHED BY THE DOCUMENTATION, AND IS NOT UNTOUCHED
-> NOW.*** `assert-current` was **exit 0 run live at the start of the
-> sixty-third session**, before any probe, and every measurement in documents
-> 14 to 17 was taken on the 17:14:03 install while it still matched source.
-> **Then three C files were changed on the owner's ruling — see the box
-> below — so the install is STALE and owes one cycle.** Everything measured
-> before the build stands; nothing measured after it would.
+> ***THE THREE C FIXES ARE INSTALLED AND EACH WAS RE-MEASURED, 26 Aug 2026.***
+> The cycle ran at 21:17:22 and `assert-current` is **exit 0**. Verified with
+> the three probes this box used to name, each run through
+> `tools\sdprobe.ps1`:
 >
-> ---
+> | probe | reads | was |
+> |---|---|---|
+> | `p16-system.b` | `system(1010)=[Windows]` | `Linux` |
+> | `p16c-config.b` | `config(NOSUCHKEY)=[] status=1004`, **`neither aborted`** | aborted the caller |
+> | `p15-sockets.b` | `set.keepalive(0)=1`, **`keepalive.now=0`** | `1` / `1` |
 >
-> ### ⚠ THE TREE IS STALE AND OWES ONE CYCLE — 26 Aug 2026
+> ***AND FIXING THEM MADE THREE PUBLISHED PAGES WRONG, WHICH IS THE COST THE
+> SEPARATE DOCUMENTATION REPOSITORY WAS ACCEPTED WITH.*** Nothing fails when a
+> page goes stale; a person has to notice. Corrected the same session:
+> `16` said `system(1010)` answers `Linux` and warned readers off it, and said
+> a nine-character `config()` name aborts the caller; `15` said keep-alive
+> could not be turned off. **All three were true when written and were false
+> the moment the fixes installed.**
 >
-> **Three one-line C fixes were made after the documentation was finished**,
-> on the owner's ruling, and **nothing has been installed or verified since**.
-> `assert-current` will now fail on Check A: `bin/sd.exe` was rebuilt at
-> **20:40**, the install is **17:14:03**, and `sd.exe` does not build
-> reproducibly (§6), so only an install clears it. ***Every verifier is
-> blocked until then*** — `verify-createaccount` and the rest refuse without
-> `assert-current`.
->
-> **The build is clean and that is all that is claimed**: `make sd` exit 0,
-> **0 warnings, 0 errors**, all 96 objects rebuilt (a header changed and the
-> Makefile's `SDHDRS` dependency is deliberately blunt). Evidence the platform
-> string reached the object code: in the new `bin/sd.exe`, `Windows` followed
-> by NUL appears **twice** and `Linux` followed by NUL **zero** times, against
-> a control literal that does match.
->
-> | | |
-> |---|---|
-> | `gplsrc/sddefs.h` | `PLATFORM_NAME` is `"Windows"`. Changes `SYSTEM(1010)` **and** BCOMP's `$IFDEF` token, `SD.LINUX` → `SD.WINDOWS`. Checked before changing: nothing in `gplsrc` or `sdsys` tests either name |
-> | `gplsrc/op_config.c` | the `InitDescr` pair moved above the early exit, which now returns an empty string with `ER_NOT_FOUND` — the same shape as an unknown name. UPSTREAM_FIXES #18 |
-> | `gplsrc/op_skt.c` | `n = TRUE;` deleted from the keep-alive case. UPSTREAM_FIXES #19 |
->
-> ***THE VERIFICATION AFTER THE CYCLE IS THREE EXISTING PROBES AND THREE
-> LINES.*** They are in the docs repository, `tools\probes\`, and each is run
-> with `tools\sdprobe.ps1 -Source <probe>`:
->
-> | probe | the line to read | before | after |
-> |---|---|---|---|
-> | `p16-system.b` | `system(1010)=[...]` | `Linux` | **`Windows`** |
-> | `p16c-config.b` | the two lines after `ZZMATH.END` | aborts on `NOSUCHKEY` | `config(NOSUCHKEY)=[] status=1004`, then `neither aborted` |
-> | `p15-sockets.b` | `set.keepalive(0)=` / `keepalive.now=` | `1` / `1` | `1` / **`0`** |
->
-> **`p16c-config.b` still puts its two calls after the END marker**, because
-> that is where they belonged when the second one aborted. If the fix holds,
-> move them above it and let the guard cover them.
->
-> ***THE FOURTH DEFECT, UPSTREAM #17, IS NOT FIXED AND WAS NOT MEANT TO BE.***
-> Nested `commit` losing the outer transaction's writes is silent partial data
-> loss, and the owner has it in front of him. **Do not fix half of it**:
-> decrementing `txn_depth` in `op_txncmt()` would make `system(1008)`
-> trustworthy while the data-loss path stayed, which is worse than both being
-> visibly wrong.
+> **So: after any C fix lands, grep the `User` set for what it claimed.** The
+> pages most at risk are the ones whose value is a measured defect, because
+> those are exactly the ones a fix invalidates.
 >
 > ---
 >
