@@ -38090,3 +38090,49 @@ anywhere:**
 there.** The lines after `ed` are eaten by `ED`, not echoed by TCL, so the
 count is legitimately short. The transcript reaching `:OFF` is what says the
 run finished.
+
+### Then the owner fixed the grammar and split the page in three
+
+**Three corrections, all his, the same afternoon.**
+
+***1. THE TEXT MARK, AND A RULE FOR RUNS OF MARKS.*** `~!` is a text mark, and
+consecutive marks are separated by a comma - *"text mark, text mark, value mark
+would be `~!,~!,~~`"*. That closed pre-release item 18 about an hour after it
+was opened.
+
+***2. HIS FIRST PROPOSAL WAS `` `~ `` AND HE WITHDREW IT HIMSELF.*** He asked
+whether a token led by a backtick was a problem *"as it changes the pattern
+where every mark conversion starts with a ~"*. **It is, and not cosmetically.**
+A backtick-led token makes the BACKTICK a second escape-introducing character
+needing its own escape - a whole second mechanism - and `` ~` `` and `` `~ ``
+are anagrams, so a run of marks comes out as ``~``~`` and only a strict
+left-to-right scanner can read it. With `~!` a backtick is an ordinary
+character again and needs nothing.
+
+**One token is not his and is forced:** `~,` for a literal comma standing
+between two marks, because `~~,~~` already means two value marks.
+
+***AND THE DECODE STOPPED BEING `change()` CALLS.*** A run separator is a token
+that exists only by virtue of **where it sits**, and `change()` rewrites the
+whole string with no notion of where it is; a later pass can also cut a token an
+earlier pass created. `marks.out` and `marks.back` are left-to-right scans.
+**Proved exhaustively to length 6 in the routine test and once to length 7 -
+5,380,840 strings, none lost - plus all 197 shipped `gpl.bp` records.**
+
+***3. TWO THINGS THE EDITING PAGE SAID WERE WRONG.*** It offered `ed` as *"the
+one that always works"* and said `edit` *"needs the editor installed"*. **SD's
+installer installs both editors**, machine-wide, so availability is not the
+difference. What is: `ed` runs INSIDE SD and needs neither a terminal nor
+`OS.EXECUTE`.
+
+***AND THE PAGE BECAME THREE***, on his suggestion: `25` `ed`, `26` `edit`,
+`27` `micro`. **Everything after them moved up by two and the generated syntax
+card is `33`.** `26` carries the mechanics both screen editors share and `27`
+links to it.
+
+**The key tables are measured, from the editors and not from memory.** micro's
+came out of the default bindings and help text inside the executable SD
+installs - **micro 2.0.15** - and Microsoft Edit's out of `draw_menubar.rs` at
+tag **v1.2.1**, which is the version on this machine. Microsoft Edit turns out
+to have **no help screen at all**: its Help menu holds only *About*, and the
+menu bar - which prints each command's shortcut beside it - is the help.

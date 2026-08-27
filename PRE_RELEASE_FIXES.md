@@ -41,7 +41,7 @@ should be fixed, **M** minor.
 | 15 | **M** | `delete.index` will not match a lower-case index name, though `list.index` will — UPSTREAM #22, **unfixed here** | `gpl.bp/DELETEI:155` |
 | 16 | **S** | A killed session blocks exclusive access, says nothing about why, and only an administrator can clear it | `gplsrc/sd.c:333` |
 | ~~17~~ | **B** | ~~`edit` / `micro` refuse a record whose text looks like a mark token~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
-| 18 | **M** | A text mark reaches the editor as a raw control character, unconverted and undetected | `sdsys/gpl.bp/EDIT` |
+| ~~18~~ | **M** | ~~A text mark reaches the editor as a raw control character~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -355,25 +355,6 @@ because the same §6 entry records the sweep on 22 Aug 2026 doing the opposite
 and forcing out healthy sessions for twenty minutes. A sweep that misses dead
 entries and evicts live ones is one bug or two, and nobody has looked.
 
-## 18. A text mark reaches the editor as a raw control character — **M**
-
-Found 27 Aug 2026 while correcting the changelog for item 17, and **the entry
-it corrects was itself wrong**: the changelog said text marks were *"covered by
-that same refusal rather than being left to surprise you"*, and they never
-were. The round trip only ever converted `@vm` and `@sm`, so a record
-containing `@tm` converts to itself, compares equal, and passes the guard
-untouched. It then goes to the editor as `x'FB'`.
-
-**Nothing is known to be lost** — whether the mark survives depends entirely on
-what the editor does with a stray control character, and neither `edit` nor
-`micro` has been tried on such a record.
-
-***THE OWNER'S 27 Aug INSTRUCTION NAMED THREE MARKS — field, value and
-subvalue — AND NOT THIS ONE***, so a fourth token was not added unasked. The
-options are a token (`~^` would fit the family), a refusal that actually
-detects `@tm`, or leaving it and saying so. **Today it is the third**, and
-both the changelog and *SD TCL - Editing* now say so plainly.
-
 ---
 
 ## DONE
@@ -435,8 +416,11 @@ refused itself, because it carries the token strings as constants.**
 `~-` **only where the next character would make the pair look like a token** —
 another `~`, a backtick, a `-`, `@vm` or `@sm`. Everywhere else it is left
 alone, so `a~b` is still `a~b` in the editor and ordinary source reads
-normally. `escape.tildes` in `EDIT`, and the decode is three `change()` calls
-whose order is load-bearing in both directions.
+normally. `marks.out` in `EDIT`. *(It was
+`escape.tildes` and three `change()` calls for about an hour; item 18 added a
+third mark and the run separator the same day, and the decode had to become a
+left-to-right scan — a separator is a token that exists only by virtue of where
+it sits, and `change()` has no notion of where it is.)*
 
 **The round-trip check stays** and is now expected never to fire; if it does,
 that is a defect in `EDIT` rather than a property of the record, and its
@@ -454,3 +438,26 @@ nothing.
 see UPSTREAM_FIXES #16, fault 4, added the same day.
 
 **Not verified on a console yet** — it is compiled BASIC and wants a cycle.
+
+## 18. A text mark reaches the editor as a raw control character — **M** — DONE 27 Aug 2026
+
+Found 27 Aug 2026 while correcting the changelog for item 17, and **the entry it
+corrected was itself wrong**: the changelog said text marks were *"covered by
+that same refusal rather than being left to surprise you"*, and they never were.
+The round trip only converted `@vm` and `@sm`, so a record containing `@tm`
+converted to itself, compared equal, and passed the guard untouched. It then
+went to the editor as `x'FB'`.
+
+***THE OWNER ADDED THE MARK THE SAME DAY.*** `~!` is a text mark, and it is
+`~!` rather than his first proposal `` `~ `` because he spotted that a token led
+by a backtick breaks the rule that every token starts with `~` — which would
+make the backtick a second escape-introducing character needing its own escape.
+
+**And with three marks the runs needed separating.** Consecutive marks are now
+written with a comma between their tokens — `~!,~!,~~` — because token against
+token they cannot be read. A literal comma standing in exactly that position is
+written `~,`.
+
+Proved the same way as item 17, over an alphabet that now includes `!`, `,` and
+`@tm`: exhaustive to length 6 in the routine test and **once to length 7,
+5,380,840 strings, none lost.**
