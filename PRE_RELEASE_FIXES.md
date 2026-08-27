@@ -359,13 +359,30 @@ built around.
    way to clear their own dead session. `-CLEANUP` acting on everybody is a
    fair reason to keep its gate; it is not a reason to leave the user stuck.
 
-***WHAT WAS NOT ESTABLISHED, SO DO NOT ASSUME IT.*** `sdwind`'s
-`check_lost_users()` sweep is supposed to reap these every five minutes.
-**Neither observation ran long enough to test it** — the two stale entries were
-watched for about four and about three minutes before being cleared by hand. So
-it is still open whether the sweep works here, and PROJECT_STATUS §6 records it
-misbehaving on 22 Aug 2026 by forcing out healthy sessions instead. **Time the
-next one properly before concluding anything.**
+***AND THE AUTOMATIC SWEEP DOES NOT RECOVER IT. MEASURED 26 Aug 2026.***
+`sdwind`'s `check_lost_users()` is supposed to find an entry whose process is
+gone — `kill(pid, 0)` — every five minutes and shell out to `sd -cleanup`.
+
+**User 58, pid 363, logged in 22:57, was still listed by `listu` at 23:07** with
+`sdwind` running throughout. **Ten minutes is at least two full sweep
+intervals**, so this is not a case of not having waited: the entry outlived the
+mechanism meant to remove it, and was cleared only by an elevated `sd -cleanup`
+run by hand.
+
+*(An earlier draft of this entry said the sweep had not been given long enough
+to judge, which was true of the first stale entry — watched about four minutes
+— and is not true of this one.)*
+
+**So there is no automatic recovery, not merely an awkward manual one.** That
+raises the cost of everything above: the user cannot fix it, cannot diagnose it,
+and waiting does not help either.
+
+**What is still open is WHY**, and PROJECT_STATUS §6 already says not to guess
+between the two candidates — `sd -cleanup` misjudging, or `kill(pid, 0)`
+answering wrongly for an MSYS2 pid. **That question is now worth answering**,
+because the same §6 entry records the sweep on 22 Aug 2026 doing the opposite
+and forcing out healthy sessions for twenty minutes. A sweep that misses dead
+entries and evicts live ones is one bug or two, and nobody has looked.
 
 ## DONE
 
