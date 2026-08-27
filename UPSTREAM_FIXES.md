@@ -1455,3 +1455,51 @@ makes this failure appear late, in production, in code that has been tested.
 `tools/probes/p14c-txn.b`, section 6.
 
 `PROPOSED`
+
+## 21. `QSELECT` prints its completion message with the list number missing
+
+`sdsys/MESSAGES/3261` takes two parameters, in `sdb64` as here:
+
+```
+%1 record(s) selected to select list %2
+```
+
+`NSELECT` supplies both. `QSELECT` supplies only the first:
+
+```
+NSELECT:108   display sysmsg(3261, record.count, to.list)   ;* correct
+QSELECT:231   display sysmsg(3261, @system.return.code)     ;* %2 never supplied
+```
+
+So every successful `QSELECT` ends its line with a dangling *"select list "*
+and no number:
+
+```
+:qselect voc saving 3
+14 record(s) selected to select list
+```
+
+**It matters more than a cosmetic blemish because the list number is the one
+piece of information the user needs next.** `QSELECT` takes `TO n`, so the
+result may be in any list from 0 to 10, and the message whose job is to say
+which one is silent about it. The value is in hand at the call site — `tgt.list`
+is what the line above it passes to `FORMLIST`:
+
+```
+   formlist list to tgt.list
+   @system.return.code = selectinfo(tgt.list, SL$COUNT)
+   display sysmsg(3261, @system.return.code)
+```
+
+**The fix is one line**, and `NSELECT` two files away is the model:
+
+```
+   display sysmsg(3261, @system.return.code, tgt.list)
+```
+
+**Measured on SD Core for Windows W1.0-0**, both with the default target and
+with an explicit `TO 2`; the number is absent either way, while `SELECT` and
+`NSELECT` print theirs correctly in the same session. Line numbers above are
+`sdb64`'s (`QSELECT:231`); this tree has the same statement at `QSELECT:240`.
+
+`PROPOSED`
