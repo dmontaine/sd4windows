@@ -37585,3 +37585,107 @@ a tool that returns nothing would have been worse than keeping none.
 **`14` and `15` need two SD sessions at once** - a held lock and a socket with
 something at the other end. Everything through `13` was measurable from one
 piped session; those two are not, and that is the next session's first problem.
+
+---
+
+## 26 Aug 2026 - Documents 14 to 17, three instruments that did not exist, and four defects found by measuring
+
+**Commit:** the commit carrying this entry. Sixty-third session. Docs repository
+at `27a2773`. **Nothing that ships changed**; `assert-current` exit 0 at the
+start of the session and the 17:14:03 install still matches source.
+
+***THE `User` SET IS FINISHED.*** `14` Locks and Transactions, `15` Sockets,
+`16` System and Environment, `17` Debugging. `docmap` 411 of 411 across all
+seventeen, `checklinks` 110 links 0 broken, HTML and PDF rendered.
+
+### The previous session named the problem and it was the right one
+
+*"`14` and `15` need two SD sessions at once"*. That was correct for `14` and
+**wrong for `15`**, and the difference is worth keeping.
+
+- **Locks genuinely need two sessions.** Every `RECORDLOCKED()` code above zero
+  is the self-answer, so a single session cannot see -1, -2 or -3 at all.
+  `tools\sdprobe2.ps1` runs two `sd.exe` under separate `Start-Job` pipes.
+  **`PHANTOM` is deliberately not used** - HISTORY 24 Aug: the child inherits
+  the pipe and the job never completes.
+- **Sockets need one.** `create.server.socket` calls `listen()`
+  ([op_skt.c:1022](sdb_ai/sd64/gplsrc/op_skt.c:1022)), so the client sits in
+  the backlog until the same session accepts it. Both ends in one program.
+- **`17` needed a third instrument for a different reason.** `$DEBUG`'s own
+  test is `full.screen = terminfo('sreg') # ''` (`DEBUG:522`), and `sreg` is an
+  SD-client capability the `windows` terminal definition does not carry - only
+  `sdterm` and the AccuTerm entries define it. So the debugger runs
+  line-oriented **here, always**, and `tools\sddebug.ps1` drives it down a
+  pipe. A thirteen-command drive completed in 0.8 s.
+
+### The two-session guard is the whole tool
+
+Two sessions that ran one after the other produce exactly the numbers a reader
+expects from a working test: `RECORDLOCKED()` 0, locks granted, no contention.
+`sdprobe2.ps1` refuses unless **the two user numbers differ** and **the
+contender's `SAW.USERNO` equals the holder's**. Both runs passed on the second
+attempt; the first was refused because `create.file zzlockf 3 1` is not the
+verb's syntax and both sessions found no file - the guard caught it, the
+transcript did not have to be read.
+
+**The rendezvous is a file, not a timer**, and phase 2 needed a *second* file:
+a `filelock` on the data file blocks the other session's writes to it too, so a
+signal record inside the locked file deadlocks the pair.
+
+### What the measurements found
+
+Full table in PROJECT_STATUS §"WHAT DOCUMENTS 14 TO 17 ADDED". The four that
+are defects:
+
+1. ***Inside a transaction, `write` and `delete` need the lock ALREADY held***
+   (`op_dio3.c:770`, `:325`). The message is `messages/1407`, *"Error 3023
+   (o/s 0) writing record (Possible full disk?)"* - `ER_NOLOCK` wearing a disk
+   error's words.
+2. ***`system(1008)` never decrements on a commit.*** `txn_depth--` is only in
+   `rollback()` ([txn.c:592](sdb_ai/sd64/gplsrc/txn.c:592)) and BCOMP compiles
+   `commit` as a jump **past** `end transaction`, so `op_txnend` never runs.
+   Measured: the first transaction reported level 1, the fourth level 2, none
+   nested.
+3. ***A `commit` inside a nested transaction abandons the outer one.***
+   `op_txncmt` sets `process.txn_id = 0` and does not pop `txn_stack`. Measured:
+   inner write landed, **outer write lost**, no message.
+4. ***`config()` with a name over eight characters aborts the caller.***
+   `op_config.c:60` exits before `result` is initialised and the uninitialised
+   descriptor is pushed. Wrong *case* is benign - `''` with status 1004.
+
+**All four are upstream's** - `sdb64` carries the identical code and the
+identical message. **None is fixed**; the documentation phase does not touch
+shipping source, and the owner's sequencing ruling of 26 Aug says finish the
+current validation pass first.
+
+***AND ONE ALREADY-WRITTEN PAGE WAS WRONG.*** Page 07 told the reader to convert
+a `/cygdrive/` path with `kernel(K$WINPATH, ...)`. `KERNEL` is in BCOMP's
+`int.intrinsics` list, so an ordinary program cannot call it - measured, the
+compile fails. Corrected in the page. **The compiler's complaint for any
+unknown function is *"Matrix X is not referenced in a DIM statement"* at the
+LAST line of the program**, which is why nobody had noticed.
+
+### The socket trap is the one to remember
+
+`read.socket`'s timeout is ignored unless the socket is blocking, and **no
+socket starts out blocking** - `socket.info(s, 4)` reads 0 on every new one.
+Measured: flags 0 with a 5000 ms timeout returned in **0 ms**; flag 1 waited
+2025 ms. On loopback, and in any test where the reply is already buffered, the
+non-blocking read returns the data and everything looks right. **It passes its
+own tests and fails over a network.**
+
+### Two probe patterns worth reusing
+
+**Anything that can block goes after the probe's END marker.** `server.addr()`
+on an unresolvable name blocks in the OS resolver with no bound - the first run
+lost every measurement after it and had to be repeated. Moved after `END`, the
+guard passes and the hang is the last thing that happens. Same for `config()`'s
+abort. **Neither left a stray `sd.exe`**: both sessions exited on their own
+once the blocked call returned, checked with `Get-Process`.
+
+**A probe that aborts is still a result** - `os.execute` in an account without
+the right prints *"don is not permitted to use OS.EXECUTE"* and stops the
+program, so `sdprobe.ps1` refuses the run and the refusal is the measurement.
+
+The sixteen probe sources are in the docs repository's `tools\probes\` with a
+README mapping each to its runner, for the same reason the runners are there.

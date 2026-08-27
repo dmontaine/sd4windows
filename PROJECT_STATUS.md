@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 26 Aug 2026, **end of the SIXTY-FIRST session**, handed off at a clean boundary.
+**Last updated:** 26 Aug 2026, **end of the SIXTY-THIRD session**, handed off at a clean boundary.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -15,7 +15,7 @@ something came to be the way it is.
 
 ***READ THE TASK TABLE BELOW BEFORE ANSWERING "WHAT IS LEFT", AND RUN THE CHECKER FIRST.*** `python sdb_ai/sd64/gplbld/check-stale-leads.py` — one second, exit 0 today, and it is the difference between the table and a guess. It exists because the owner was given a different list three times in one session, and he was right: **four entries led with a status they had themselves withdrawn**, step 14 saying *"WHAT IS STILL A DECISION"* **338 lines above** *"STEP 14 IS CLOSED"*.
 
-***H.2 — THE TESTER SET IS 15 PAGES AND THE OWNER HAS ANSWERED THE REVIEW LIST. SIXTEEN OF THE EIGHTEEN QUESTIONS ARE APPLIED; TWO ARE OPEN AND ARE AT THE TOP OF `QUESTIONS-2026-08-26.md`*** — **q7**, the `limitssh` default (re-asked with four options; he said the proposal was not clear) and **q14**, whether the unmeasured ssh-elevation caveat is stated to testers. ***THE DOCUMENTATION AND ITS TOOLCHAIN NO LONGER LIVE HERE***: repository `SDCoreWindowsDocs`, working tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, pushed. `mkdoc.py` and `mkpdf.ps1` are **gone from `gplbld` and off `$neverShipped`** (q15).
+***H.2 — THE `User` SET IS FINISHED, 17 OF 17 SD BASIC PAGES (26 Aug 2026). THE TESTER SET IS 15 PAGES AND THE OWNER HAS ANSWERED THE REVIEW LIST. SIXTEEN OF THE EIGHTEEN QUESTIONS ARE APPLIED; TWO ARE OPEN AND ARE AT THE TOP OF `QUESTIONS-2026-08-26.md`*** — **q7**, the `limitssh` default (re-asked with four options; he said the proposal was not clear) and **q14**, whether the unmeasured ssh-elevation caveat is stated to testers. ***THE DOCUMENTATION AND ITS TOOLCHAIN NO LONGER LIVE HERE***: repository `SDCoreWindowsDocs`, working tree `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, pushed. `mkdoc.py` and `mkpdf.ps1` are **gone from `gplbld` and off `$neverShipped`** (q15).
 
 ***TWO FULL-SCREEN EDITORS ARE BACK, `edit` AND `micro`, AND BOTH ARE UNCOMPILED SOURCE UNTIL SOMEBODY RUNS A CYCLE.*** Owner, 26 Aug 2026, reversing the 17 Aug removal of `MICRO`. **One program, two VOC entries**: `sdsys/gpl.bp/EDIT` is the old `MICRO` ported with its three defects fixed (§UPSTREAM_FIXES #16), and it reads field 1 of the command line to choose between `edit.exe` and `micro.exe`. `newvoc/edit` and `newvoc/micro` (and both `voc_template` records) are `CA $EDIT`; the old `MICRO` source is deleted. **`edit` was already in `TIER.OMIT.STANDARD`; `micro` was added to it**, so the list is **42** and a standard account's count does not move — it is on both sides of the arithmetic. `gplbld/install-editors.ps1` is new and shipped, `sd.iss` runs it unconditionally, and it **refuses to fall back to a per-user winget install**. ***THERE ARE TWO GATES, NOT ONE*** (owner, 26 Aug 2026): the VOC tier decides who has the verb, and **`os.users` field 2 - the `OS.EXECUTE` field - decides whether it runs**. `check.permitted` in `EDIT` tests it rather than leaving it to `os_permitted()`, which would never see it: the program is `$internal`, so `op_sh.c:157` admits it on `HDR_INTERNAL`. It also refuses a session with **no terminal** - an API session or a piped script. **The editors should work over ssh**: `connection_type` is `CN_CONSOLE` for an ssh session (`kernel.h:55` is the default and only `-P`, `-C` and `-N` change it), so `op_sh.c:348` does not pipe the child and the editor gets the terminal. **Not measured.** ***GREEN AND CURRENT AS OF 26 Aug 2026 17:14. THIS IS THE STATE TO START FROM.*** Cycle complete, install **17:14:03**, `sd.exe` **`8E6A6CF45AA6F20A`** (moved from `5BD2F83F43BB9B27` - the first C change since 25 Aug: `win32vt.c` and the `sdtermlb.c` reorder). `assert-current` **exit 0**. Suite **`-Run b46`: 31 of 31 steps exited 0 - 12 unelevated + 19 elevated, 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`** - ***`b46` IS SPENT, USE `b47`***. *(This line read "19 of 19" until 26 Aug 2026: that is the elevated half's own summary, quoted alone. Corrected from the transcripts, with the counts remeasured - §6, "the PASS count was grepped out of files nothing could read".)* **Verified in the install by reading it, not by trusting the run**: `gcat/$EDIT`, `newvoc/micro` -> `$EDIT`, `TIER.OMIT.STANDARD` 42, `voc_template/$licence` 44,529 bytes, `$contrib` 627, the micro syntax file and `install-editors.ps1` both shipped, and no Black Oak in the licence. ***AND `config gpl` / `config contrib` RUN END TO END***: 915 lines back through `Invoke-SD`'s harness, the whole GPL present, no Black Oak - so the 44 KB VOC record, the one part of that design nobody had exercised, works. ***WHAT IS NOT DONE: `edit` and `micro` HAVE NOT BEEN RETRIED SINCE THE VT CHANGE***, so ANSI positioning from a PowerShell window is built and installed but unwitnessed. **Three things are open and none is started**: the shipped-scripts documentation gap (25 PowerShell scripts ship, 4 documented; `install-ssh.ps1` matters most because page 01 promises a retry command it never prints); **bundling micro with the installer** (decided 26 Aug, licence question settled, nothing built); and questions **7** and **14** in `QUESTIONS-2026-08-26.md`. 
 
@@ -69,7 +69,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — **FULL install 26 Aug 17:14:03, 31/31 (12+19), 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`, `-Run b46`**, `assert-current` exit 0 live on 26 Aug | 26 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS UNDER WAY — a 17-document SD BASIC reference, map approved by the owner 26 Aug 2026. `01`–`13` written, rendered to HTML and PDF, `checklinks` 89 links 0 broken.*** `Technical` is still empty scaffolding | — |
+| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS FINISHED — all 17 SD BASIC pages written and rendered, `docmap` 411 of 411, `checklinks` 110 links 0 broken (26 Aug 2026).*** `Technical` is still empty scaffolding, and the shipped-scripts gap is untouched | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -106,43 +106,87 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
 >
-> ### HANDOFF, END OF THE SIXTY-SECOND SESSION — ACCOUNT CHANGED HERE
+> ### HANDOFF, END OF THE SIXTY-THIRD SESSION
 >
 > **Both repositories are committed, pushed and clean.** `sd4windows` at the
-> commit carrying this line; `SDCoreWindowsDocs` likewise. Nothing is in flight.
+> commit carrying this line; `SDCoreWindowsDocs` at `27a2773`. Nothing is in
+> flight.
 >
-> ***THE WORK IS `H.2` AND IT IS 13 OF 17 SD BASIC PAGES.*** Written and
-> rendered: `01`–`13`. **Left: `14` Locks and Transactions, `15` Sockets, `16`
-> System and Environment, `17` Debugging.** `14` and `15` are the two that need
-> **two SD sessions at once** — a lock one session holds while another tries
-> for it, and a socket with something at the other end. Everything up to `13`
-> was measurable from a single piped session; those two are not.
+> ***THE `User` SET IS FINISHED — 17 OF 17 SD BASIC PAGES.*** `14` Locks and
+> Transactions, `15` Sockets, `16` System and Environment and `17` Debugging
+> were written this session. `docmap` **411 of 411**, `checklinks` **110 links,
+> 0 broken**, all seventeen rendered to HTML and PDF. **Nothing that ships
+> changed**, so the 17:14:03 install still matches source and `b47` is still
+> the next free suite prefix.
 >
-> ***THE TOOLING MOVED OUT OF THE SESSION SCRATCHPAD ON PURPOSE, BECAUSE A
-> SCRATCHPAD DOES NOT SURVIVE AN ACCOUNT CHANGE.*** All three are in the docs
-> repository, `tools\`, and all three have been run from there:
+> ***`H.2` IS STILL OPEN AND WHAT IS LEFT IS NAMED.*** The `Technical` set is
+> empty scaffolding; questions **7** and **14** in `QUESTIONS-2026-08-26.md`
+> are unanswered; the shipped-scripts gap (25 PowerShell scripts ship, 4
+> documented) is untouched.
+>
+> ***FOUR DEFECTS WERE FOUND WHILE MEASURING, NONE IS FIXED, AND ALL FOUR ARE
+> WRITTEN UP AS [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) #17 TO #20.*** Every one
+> is **upstream's** — checked against `../sdb64` on `main` and, where the file
+> exists there, `dev` — and every one is documented in the pages rather than
+> worked around. **They are raised for the owner, not started:**
 >
 > | | |
 > |---|---|
-> | `tools\sdprobe.ps1` | ***how every measured value in the set was produced.*** Writes a BASIC probe into an account's BP, runs it down §6's `Invoke-SD` pipe, and **REFUSES a run that did not print its own START and END markers**. It has refused four real drafts |
-> | `tools\docmap.py` | assigns every name `BCOMP` accepts to exactly one document; exits non-zero on a gap. **411 of 411** today |
+> | **#17** | `commit` neither decrements `txn_depth` nor pops `txn_stack`, so `system(1008)` climbs for ever **and a nested `commit` loses the outer transaction's writes** |
+> | **#18** | `config()` with a name over eight characters pushes an **uninitialised descriptor** and aborts the caller |
+> | **#19** | `set.socket.mode(s, 6, 0)` returns success and turns keep-alive **on** — `n = TRUE;` discards the argument |
+> | **#20** | error **3023** is *"write/delete with no lock"* and `messages/1407` renders it ***"Possible full disk?"*** |
+>
+> **#17 is the one that matters** — it is silent partial data loss inside a
+> construct whose entire purpose is that there is no such thing.
+>
+> ***THE TOOLING MOVED OUT OF THE SESSION SCRATCHPAD ON PURPOSE, BECAUSE A
+> SCRATCHPAD DOES NOT SURVIVE AN ACCOUNT CHANGE.*** Seven instruments are now
+> in the docs repository's `tools\`, and every one has been run from there.
+> **The probe sources are kept too, in `tools\probes\`, with a README saying
+> which runner takes which** — a number with no way to reproduce it is a number
+> the next session has to take on trust:
+>
+> | | |
+> |---|---|
+> | `tools\sdprobe.ps1` | ***how most measured values in the set were produced.*** Writes a BASIC probe into an account's BP, runs it down §6's `Invoke-SD` pipe, and **REFUSES a run that did not print its own START and END markers**. It has refused six real drafts |
+> | `tools\sdprobe2.ps1` | ***TWO SESSIONS AT ONCE***, which is the only way any lock can be measured — every `RECORDLOCKED()` code above zero is the self-answer. **It refuses unless the two report different user numbers AND the contender names the holder**; a pair that ran one after the other prints exactly the numbers a reader expects from a working test |
+> | `tools\sdcompile.ps1` | compile only. **Half of what a reference has to say is a refusal** — `errmsg`, the internal-only intrinsics, the restricted statements — and `sdprobe`'s guard requires `0 error(s)`, so it can only ever refuse those. `-ExpectErrors` refuses a probe that was meant to fail and compiled |
+> | `tools\sddebug.ps1` | compiles with `DEBUGGING` and **drives the debugger from a script**. It works because `TERMINFO('sreg')` is empty on the `windows` terminal type, so `$DEBUG` takes its line-oriented path and a pipe can answer it. Refuses a run with no `>` prompt |
+> | `tools\docmap.py` | assigns every name `BCOMP` accepts to exactly one document; exits non-zero on a gap. **411 of 411** today, across all seventeen |
 > | `tools\linkup.py` | turns `*SD Basic - X*` into a link **only for pages that exist**, so `checklinks` stays meaningful |
+> | `tools\probes\` | the sixteen probe sources, with a README mapping each to its runner |
 >
 > ***THE METHOD IS THE POINT, NOT THE PAGE COUNT.*** The roster comes from
 > `BCOMP`'s own tables, never from `..\sdhelp`, and every example is compiled
 > and run before it is written down. That has caught **eight** statements
-> drafted as though they worked — and three behaviours (`matbuild ... using`,
-> `errmsg`, `on n goto` clamping) that are recorded nowhere else. **Do not
-> relax it to go faster; it is the only reason the set is worth anything.**
+> drafted as though they worked, three behaviours recorded nowhere else
+> (`matbuild ... using`, `errmsg`, `on n goto` clamping), and — this session —
+> **three upstream defects and one advice in an already-written page that was
+> simply wrong** (page 07 told the reader to convert a POSIX path with
+> `kernel(K$WINPATH, ...)`; an ordinary program cannot call `kernel()` at all).
+> **Do not relax it to go faster; it is the only reason the set is worth
+> anything.**
+>
+> ***AND TWO PATTERNS ARE WORTH REUSING RATHER THAN REDISCOVERING.***
+> **Anything that can block goes AFTER the probe's END marker**, so the
+> measurement is banked before the risk is taken — that is how
+> `server.addr()`'s resolver hang and `config()`'s abort were both measured
+> without losing the rest of the run. And **two contending sessions rendezvous
+> through a file, never a timer**: a slow compile turns a staggered pair into a
+> measurement of nothing that still prints numbers. When one session holds a
+> **file** lock the rendezvous needs a *second* file, or each waits for a write
+> the other cannot make.
 >
 > **Render with** `python tools\mkdoc.py --in User\markdown --out User\html`,
 > then `powershell -File tools\mkpdf.ps1 -In User\html -Out User\pdf`, then
-> `python tools\checklinks.py User\markdown User\html` — **89 links, 0
+> `python tools\checklinks.py User\markdown User\html` — **110 links, 0
 > broken** at handoff.
 >
 > ***THE MACHINE IS UNTOUCHED BY ALL OF THIS.*** No source that ships changed
 > this session, so the 17:14:03 install still matches source and `b47` is still
-> the next free suite prefix.
+> the next free suite prefix. `assert-current` **exit 0 run live at the start
+> of the sixty-third session**, before any probe.
 >
 > ***RUN `python sdb_ai/sd64/gplbld/check-stale-leads.py` BEFORE YOU ANSWER ANY
 > "WHAT IS LEFT" QUESTION.*** One second, and it is the difference between the
@@ -260,16 +304,26 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ***THE `User` SET IS AN SD BASIC REFERENCE, AND THE MAP IS RULED.*** Owner,
 > 26 Aug 2026: seventeen documents, **grouped by function**, each titled
-> `SD Basic - <category>`. ***WRITTEN: `01` Program Structure, `02` Program
-> Control, `03` Math Functions, `04` String Functions, `05` Dynamic Arrays,
-> `06` Data Conversion, `07` File Handling, `08` Select Lists, `09` Alternate
-> Key Indexes, `10` Sequential Files, `11` CSV Files, `12` Terminal Input and
-> Output, `13` Printing*** — thirteen of seventeen, all rendered to HTML **and
-> PDF**, `checklinks` **89 links, 0 broken**. Next: `14` Locks and
-> Transactions, `15` Sockets, `16` System and Environment, `17` Debugging.
-> Numbers
+> `SD Basic - <category>`. ***ALL SEVENTEEN ARE WRITTEN: `01` Program
+> Structure, `02` Program Control, `03` Math Functions, `04` String Functions,
+> `05` Dynamic Arrays, `06` Data Conversion, `07` File Handling, `08` Select
+> Lists, `09` Alternate Key Indexes, `10` Sequential Files, `11` CSV Files,
+> `12` Terminal Input and Output, `13` Printing, `14` Locks and Transactions,
+> `15` Sockets, `16` System and Environment, `17` Debugging*** — all rendered
+> to HTML **and PDF**, `docmap` **411 of 411**, `checklinks` **110 links, 0
+> broken**. Numbers
 > are one flat run for the whole `User` set, **no letter suffixes** — §6's
 > hyphen-collation trap.
+>
+> ***`14` AND `15` NEEDED INSTRUMENTS THAT DID NOT EXIST, AND THE REASON IS
+> WORTH KEEPING.*** A lock you hold yourself answers a different question from
+> one somebody else holds — every `RECORDLOCKED()` code above zero is the
+> self-answer — so `sdprobe2.ps1` runs **two sessions at once** and refuses a
+> run in which they did not demonstrably contend. Sockets went the other way:
+> `create.server.socket` calls `listen()`, so **one** session can be both ends
+> on loopback, and the client waits in the backlog until the same session
+> accepts it. `17` needed a third, `sddebug.ps1`, because the debugger is
+> line-oriented on this port and can therefore be driven down a pipe.
 >
 > ***EVERY DOCUMENT NOW OPENS ON A GENERATED TITLE PAGE — OWNER, 26 Aug
 > 2026.*** Name, subject, `Copyright © 2026 Donald Montaine`, the release it
@@ -325,6 +379,33 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | `csvdq()` is a **de**-quoter | it splits one CSV line into field-mark separated fields. There is no matching function that quotes one |
 > | `printer file` takes the unit after `on` | `printer file on 1 'F','R'`; the positional form is a compile error. `printer.setting` takes **three** arguments |
 > | sequential writes are **CRLF** | measured byte for byte: `65 66 13 10 67 68 13 10` |
+>
+> ***AND WHAT DOCUMENTS 14 TO 17 ADDED, 26 Aug 2026.*** Same install. The three
+> marked ***upstream*** are in `sdb64` unchanged and **none is fixed**.
+>
+> | | |
+> |---|---|
+> | ***inside a transaction, `write` and `delete` need the lock ALREADY HELD*** | `ER_NOLOCK` **3023**, and `messages/1407` renders it *"Error 3023 (o/s 0) writing record (Possible full disk?)"* — a lock error wearing a disk error's message. `op_dio3.c:770` and `:325`, `if (pcfg.must_lock \|\| txn_id)`. The same `write` succeeds outside a transaction |
+> | ***reaching `end transaction` with no `commit` discards everything, silently*** | measured: the record still read its pre-transaction value. There is no implicit commit |
+> | ***`system(1008)` never decrements on a commit*** — upstream | `txn_depth--` is only in `rollback()` (`txn.c:592`), and BCOMP compiles `commit` as a jump **past** `end transaction`. So the level is permanently wrong after the first committed transaction. **Test `system(1007)`**, which is 0 outside one |
+> | ***a `commit` inside a NESTED transaction abandons the outer one*** — upstream | measured: the inner write landed, **the outer write was lost**, `system(1007)` read 0 after the inner commit. `op_txncmt` does not pop `txn_stack` |
+> | `recordlocked()` sets `status()` to the **owner's user number** | measured across two sessions on all five refusal paths. It is the only way to find out who holds a record |
+> | a plain `readu` waits **250 ms per retry** and does not time out | measured 252 ms, released by the other session. `op_lock.c:515`, `Sleep(250)` |
+> | a `lock` with no `else` **retries for ever** | BCOMP generates `sleep 1` + jump back as the default `else` |
+> | a **file** lock stops locking, not reading | measured: `readu ... locked` refused on every record, a plain `read` returned normally |
+> | ***`read.socket`'s timeout is ignored unless the socket is blocking, and no socket starts blocking*** | measured: flags 0 with a 5000 ms timeout returned in **0 ms**; flag 1 waited 2025 ms. **The bug passes its own tests** — on loopback the data is already there |
+> | a closed peer is **7013 or 1008**, depending which end closed | a loop guarded only on 7013 ran all 21 of its iterations |
+> | `set.socket.mode` key 6 ignores its argument | `set.socket.mode(s, 6, 0)` returns **1** and keep-alive reads **1**. `op_skt.c` sets `n = TRUE` unconditionally |
+> | `server.addr('localhost')` is **`::1`** while `create.server.socket('127.0.0.1')` is IPv4 | and an unresolvable name **blocks in the OS resolver** — still not back after 45 s, with no way to bound it from BASIC |
+> | ***`config()` names are case sensitive and at most 8 characters*** — upstream | wrong case is `''` + status 1004; **nine characters aborts the caller** with *"Data cannot be converted to a string"*, because `op_config.c:60` exits before `result` is initialised |
+> | `env()` is case sensitive | `env('path')` is 0 characters where `env('PATH')` is 926. Windows is case-insensitive everywhere else |
+> | `system(1010)` answers **`Linux`** on Windows | so does `system(1006)` with `0`. **`system(91)` is the one that is right** |
+> | ***`kernel()` is internal-only, and page 07's advice was wrong*** | it told the reader to convert a POSIX path with `kernel(K$WINPATH, ...)`. An ordinary program cannot call `kernel()` at all — **corrected in the page this session** |
+> | an unknown function reads as a **matrix** | `v = testlock(5)` gives *"Matrix TESTLOCK is not referenced in a DIM statement"* at the **last line of the program**. With three arguments it is *"Right bracket not found where expected"* instead |
+> | `sdencrypt()` has no usable key from an ordinary account | a passphrase gives status **10204**, a key-length error. The derivation function is `sdext()`, which is internal-only |
+> | `os.execute` **aborts** when the account lacks the right | *"don is not permitted to use OS.EXECUTE"*. No `else`, no `on error`, no status to test |
+> | the debugger is **line-mode on this port, always** | `full.screen` is `terminfo('sreg') # ''` (`DEBUG:522`), and `sreg` is an SD-client capability the `windows` definition does not carry. Nothing is lost, and it means the debugger **can be driven from a pipe** |
+> | `debug` and `pdebug` are on `TIER.OMIT.STANDARD` | a standard account has neither verb; the `debug` **statement** is its only way in |
 >
 > ***AND EVERY EXAMPLE IS MEASURED, WHICH IS NOT DECORATION — IT CAUGHT FOUR
 > WRONG ANSWERS THE REFERENCE WOULD HAVE PRODUCED.*** `div(7,2)` is **3**, not
@@ -2259,12 +2340,23 @@ of an ordinary user's program reaching the OS had already answered on an install
   rather than `conhost`'s. §7 step 2's rig is what would answer it.
 
 - **Semaphore locking under contention.** The semaphores have never been
-  observed held, so the `sdsem.c` port is exercised only in the uncontended
-  case.
+  observed **held** — nothing has watched one block. They are no longer
+  exercised only in the uncontended case, though: the record-lock contention
+  below runs through `StartExclusive(REC_LOCK_SEM, ...)`
+  ([op_lock.c:591](sdb_ai/sd64/gplsrc/op_lock.c:591)) from two sessions at
+  once, and it did not misbehave. **What is unmeasured is the blocking path,
+  not the code path.**
 
-- **Contention.** Two sessions have coexisted and `LISTU` listed both, so
-  multi-user attach works. What is untried is two sessions *competing*: record
-  locking between real users, and the API server path.
+- ***CONTENTION — THE RECORD-LOCK HALF IS CLOSED, 26 Aug 2026. THE API HALF IS
+  NOT.*** Two sessions ran at once on the 17:14:03 install (users 73/74, then
+  76/77) and **competed**: `recordlocked()` answered -1, -2 and -3 for another
+  session's read, update and file lock, every `locked` clause fired with
+  `status()` carrying the holder's user number, a plain `readu` waited 252 ms
+  and was released by the other session, and a task lock refused the second
+  taker. `tools\sdprobe2.ps1` in the docs repository is the instrument and it
+  **refuses a run in which the two did not demonstrably overlap**. ***What is
+  still untried is the API server path*** — contention between an API session
+  and a local one.
 
 - **Writing and reading application data.** The bootstrap creates and reads
   system files; the scratch accounts hold nothing but a VOC.

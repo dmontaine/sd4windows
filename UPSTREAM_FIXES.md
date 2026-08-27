@@ -1241,3 +1241,203 @@ the Windows-specific parts.
 **Not reproduced against upstream, per this file's standing caveat.** Fault 1
 was reasoned from the source and from the absence of any `micro` check;
 faults 2 and 3 are structural and readable in the same file.
+
+---
+
+## 17. `COMMIT` never ends the transaction it commits: the level counter only ever climbs, and a nested `COMMIT` silently loses the outer transaction's writes
+
+Two symptoms, one cause. Both measured in this port, and the code is identical
+in `sdb64` — `main` and `dev` both have `txn_depth++` at `txn.c:96` and
+`txn_depth--` only at `txn.c:592`, inside `rollback()`.
+
+**`op_txncmt()` does not undo what `op_txnbgn()` did.** `op_txnbgn()` does two
+things: it increments `txn_depth`, and — if a transaction is already running —
+it pushes the running one onto `txn_stack`. `op_txncmt()` writes the cache out,
+clears `process.txn_id` and releases the locks, and then returns. **It does not
+decrement `txn_depth` and it does not pop `txn_stack`.** The only place either
+happens is `rollback()`, which `op_txnend()` calls.
+
+**And `COMMIT` is compiled as a jump past `END TRANSACTION`.** `BCOMP`'s
+`st.commit` emits `OP.TXNCMT` and then jumps to the transaction's exit label,
+which is after the `OP.TXNEND` that `BEGIN TRANSACTION` emitted at the end
+label. So on the committed path `op_txnend()` never runs, and nothing ever
+reverses the two effects.
+
+**Symptom 1 — `SYSTEM(1008)` is wrong for the rest of the session.** Key 1008
+returns `txn_depth` (`op_sys.c`). Measured, four transactions in one program,
+**none of them nested**:
+
+| | |
+|---|---|
+| first transaction, inside | `SYSTEM(1008)` = **1** |
+| after its `COMMIT` | **1** — not 0 |
+| fourth transaction, inside | **2** |
+| after a `ROLLBACK` | back to the value before it — rollback is balanced |
+
+So a program cannot ask "am I in a transaction?" with key 1008. `SYSTEM(1007)`
+is correct — it is `process.txn_id`, and `op_txncmt()` does clear that.
+
+**Symptom 2 — a nested `COMMIT` abandons the outer transaction, and its writes
+are lost with no message.** Measured: an outer transaction wrote `R2`, an inner
+one wrote `R3` and committed, then the outer one committed.
+
+| | |
+|---|---|
+| the inner record `R3` | `inner` — landed |
+| the outer record `R2` | ***unchanged — the write vanished*** |
+| `SYSTEM(1007)` after the inner `COMMIT` | **0** — the session is in no transaction at all |
+| `SYSTEM(1008)` delta over the pair | **+2** |
+
+The inner `COMMIT` sets `process.txn_id = 0` and leaves the outer transaction's
+cache on `txn_stack`, orphaned. The outer `COMMIT` then commits an empty cache.
+**The all-or-nothing guarantee is not merely weakened here, it is inverted**:
+part of the transaction lands and part does not, which is the one outcome a
+transaction exists to prevent.
+
+**A fix has to cover both, and the second is the dangerous one.** Decrementing
+`txn_depth` in `op_txncmt()` fixes symptom 1 on its own; symptom 2 needs the
+`txn_stack` pop as well, so that a nested `COMMIT` reinstates the parent
+transaction rather than ending all of them. Either `op_txncmt()` takes over
+that bookkeeping, or `st.commit` stops jumping past `OP.TXNEND` — but note that
+`op_txnend()` as written calls `rollback()` unconditionally, so it cannot
+simply be allowed to run after a commit.
+
+**Reproduced in this tree, not against upstream**, per this file's standing
+caveat. Probe: `tools/probes/p14c-txn.b` in the `SDCoreWindowsDocs` repository.
+
+`PROPOSED`
+
+---
+
+## 18. `CONFIG()` with a name longer than eight characters returns an uninitialised descriptor, and the caller aborts on a value that was never written
+
+`op_config.c`, identical on `sdb64` `main` and `dev`:
+
+```c
+  char param[8 + 1];
+  DESCRIPTOR result;
+  ...
+  descr = e_stack - 1;
+  if (k_get_c_string(descr, param, 8) < 1)
+    goto exit_op_config;
+
+  InitDescr(&result, INTEGER);      /* <-- skipped by the goto above */
+  result.data.value = 0;
+  ...
+exit_op_config:
+  k_dismiss();
+  *(e_stack++) = result;            /* <-- pushes whatever was on the stack */
+```
+
+**The early exit jumps over the only initialisation of `result`.** A name that
+does not fit the nine-byte buffer takes that path, and the automatic
+`DESCRIPTOR` is pushed onto the e-stack with whatever type byte happened to be
+in that stack slot.
+
+Measured in this port: `CONFIG('NOSUCHKEY')` — nine characters — aborted the
+program with ***"Data cannot be converted to a string"***. The same call with
+eight characters is well behaved: an unknown eight-character name falls through
+to the final `else` and returns an empty string with `ER_NOT_FOUND`, and that
+is what a long name should do too.
+
+**It is a two-line fix**: move the `InitDescr` pair above the
+`k_get_c_string()` test, or set `process.status = ER_NOT_FOUND` and initialise
+before the `goto`. `op_pconfig()` has the same `char param[8 + 1]` at the same
+offset and is worth reading at the same time.
+
+**Not a security issue, but not a tidy one either** — what is pushed is
+whatever the previous e-stack user left, so the failure is not reproducible
+from the source alone and will differ between builds.
+
+**Reproduced in this tree, not against upstream.** Probe:
+`tools/probes/p16c-config.b`.
+
+`PROPOSED`
+
+---
+
+## 19. `SET.SOCKET.MODE(s, SKT$INFO.KEEP.ALIVE, 0)` reports success and enables keep-alive
+
+`op_skt.c`, `op_setskt()`, unchanged on `sdb64` `main`:
+
+```c
+    case SKT_INFO_KEEP_ALIVE:
+      GetInt(descr);
+      n = (descr->data.value != 0);
+      n = TRUE;                       /* <-- the argument is discarded */
+      setsockopt(sockvar->socket_handle, SOL_SOCKET, SO_KEEPALIVE, ...);
+```
+
+The value the caller passed is read, converted, and then overwritten
+unconditionally. The function returns 1 — success — because `process.status`
+is untouched.
+
+Measured in this port on an accepted connection:
+
+| | |
+|---|---|
+| `SET.SOCKET.MODE(s, 6, 0)` | returned **1** |
+| `SOCKET.INFO(s, 6)` afterwards | **1** — keep-alive is on |
+
+`SOCKET.INFO` reads the real socket option with `getsockopt()`, so the two
+disagree and the enquiry is the one telling the truth. The other two keys in
+the same `switch` — blocking and `TCP_NODELAY` — both honour their argument,
+so this reads as a debugging line left behind rather than a decision.
+
+**The fix is to delete the `n = TRUE;` line.** Anything that relies on turning
+keep-alive off — a short-lived connection through a NAT with a low idle
+timeout, a test — is silently getting the opposite today, and being told it
+worked.
+
+**Reproduced in this tree, not against upstream.** Probe:
+`tools/probes/p15-sockets.b`.
+
+`PROPOSED`
+
+---
+
+## 20. Message 1407 tells a user the disk may be full when the real fault is a missing lock
+
+`sdsys/MESSAGES/1407` is, in `sdb64` as here:
+
+```
+1407:1:Error %d (o/s %d) writing record (Possible full disk?)
+```
+
+It is used for every failure of a `WRITE`, and one of those failures has
+nothing to do with the disk. `op_dio3.c` refuses a write or a delete with
+`ER_NOLOCK` (**3023**, *"attempt to write/delete record with no lock"*)
+whenever the caller is inside a transaction or `MUSTLOCK` is configured:
+
+```c
+  if (pcfg.must_lock || (txn_id != 0)) {
+    if (!check_lock(fvar, lock_id, id_len)) {
+      process.status = -ER_NOLOCK;
+```
+
+So the first time an application wraps an existing, working `WRITE` in a
+transaction without taking the lock first, the program aborts with:
+
+```
+Error 3023 (o/s 0) writing record (Possible full disk?)
+```
+
+**The number is right and the sentence is misleading**, and it is misleading in
+the direction that costs the most time: it sends the reader to check disk
+space, on a machine where the same write succeeded a moment earlier outside the
+transaction. The o/s error is `0`, which is the tell, but only for somebody who
+already suspects the message.
+
+**The cheapest fix is to special-case 3023 at the call site** — the status is
+in hand there — rather than to reword 1407, which is accurate for the
+disk-full case it was written for. A second message id costs nothing.
+
+Worth saying plainly because it is the rule as much as the message: **inside a
+transaction every record written or deleted must already be locked by the
+session**, and outside one no lock is needed at all. That difference is what
+makes this failure appear late, in production, in code that has been tested.
+
+**Reproduced in this tree, not against upstream.** Probe:
+`tools/probes/p14c-txn.b`, section 6.
+
+`PROPOSED`
