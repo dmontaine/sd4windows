@@ -37689,3 +37689,85 @@ program, so `sdprobe.ps1` refuses the run and the refusal is the measurement.
 
 The sixteen probe sources are in the docs repository's `tools\probes\` with a
 README mapping each to its runner, for the same reason the runners are there.
+
+---
+
+## 26 Aug 2026 - The three one-line fixes, and the tree is stale again
+
+**Commit:** the commit carrying this entry. Sixty-third session, second half.
+The owner read the defect list from documents 14 to 17 and ruled: fix the three
+one-liners. ***NOTHING IS INSTALLED OR VERIFIED - the tree owes one cycle.***
+
+| file | change |
+|---|---|
+| `gplsrc/sddefs.h` | `PLATFORM_NAME` `"Linux"` -> `"Windows"` |
+| `gplsrc/op_config.c` | `InitDescr` pair moved above the early exit; that exit now returns `''` + `ER_NOT_FOUND` |
+| `gplsrc/op_skt.c` | `n = TRUE;` deleted from the keep-alive case |
+
+### The grep rule earned its keep on the first one
+
+`PLATFORM_NAME` looked like a string with one reader. **PROJECT_STATUS 5.10 and
+the Linux-isms table both already carried it**, and both named a consequence
+that was not in the defect report: `BCOMP:706` is
+
+```
+   add 'SD.':upcase(system(1010)), "10" to defined.tokens
+```
+
+so the change moves the `$IFDEF` token from `SD.LINUX` to `SD.WINDOWS`. The
+record said *"nothing tests that token, so it is latent"*. **Checked rather than
+taken**: `grep -rn 'SD.LINUX|SD.WINDOWS' gplsrc sdsys` returns nothing at all,
+so no shipped program's compilation moves. Recorded in the changelog anyway,
+because it is user-visible to anyone who has written `$IFDEF` against this port.
+
+### The config fix is three lines, not one, and the third line is the point
+
+Moving the `InitDescr` pair above the test stops the uninitialised push. It
+would have left `CONFIG('NOSUCHKEY')` returning **integer 0**, while an unknown
+*eight*-character name returns `''` with `ER_NOT_FOUND` from the final `else`.
+Two different answers for two spellings of "there is no such parameter" is a
+smaller version of the same defect, so the early exit sets the same shape:
+
+```c
+  if (k_get_c_string(descr, param, 8) < 1) {
+    InitDescr(&result, STRING);
+    result.data.str.saddr = NULL;
+    process.status = ER_NOT_FOUND;
+    goto exit_op_config;
+  }
+```
+
+**`op_pconfig()` has the identical `char param[8 + 1]` and was left alone** - a
+different function, a different tail, and nobody has measured it.
+
+### What is claimed about the build, and what is not
+
+`make sd` through MSYS2: **exit 0, 0 warnings, 0 errors, 96 objects**, all of
+them rebuilt because a header changed and the Makefile's `SDHDRS` dependency is
+deliberately blunt. `bin/sd.exe` **20:40** against an install of 17:14:03.
+(The first build was 20:35; a second followed, because the SET.SOCKET.MODE and
+SOCKET.INFO key lists in the same file's DESCRIPTION block did not mention
+keep-alive at all. A source change after a build voids the build, so it was
+rebuilt rather than left claimed.)
+
+**That the platform string reached the object code is measured, not assumed**:
+in the new binary `Windows` followed by NUL appears **twice** and `Linux`
+followed by NUL **zero** times. *The first attempt at that check reported 0 and
+0* - `strings` does not exist in this shell and the errors were sent to
+`/dev/null`. **Two counters that cannot both be zero is what caught it**, the
+same cheap guard as the `SD-verify` transcript decode. Redone with `grep -a -o
+-P` and a control literal that does match.
+
+***NOTHING ELSE IS CLAIMED.*** The two logic fixes cannot be shown by a string
+scan, and no probe was run after the build: a cycle ends at the next source
+change, so any reading taken now is void. The verification is three existing
+probes and three lines, written out in START HERE's stale-tree box.
+
+### The fourth defect is deliberately not fixed
+
+UPSTREAM #17 - a nested `COMMIT` abandoning the outer transaction and losing its
+writes - is the only one of the four that is data loss, and it is the only one
+whose fix touches `txn.c` and BCOMP's code generation. It is with the owner.
+**Half of it must not be done**: `txn_depth--` in `op_txncmt()` alone would make
+`SYSTEM(1008)` trustworthy while the loss stayed, which is worse than both being
+visibly wrong.

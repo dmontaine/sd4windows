@@ -1352,6 +1352,16 @@ from the source alone and will differ between builds.
 **Reproduced in this tree, not against upstream.** Probe:
 `tools/probes/p16c-config.b`.
 
+***FIXED IN THIS PORT, 26 Aug 2026, and the fix is three lines.*** The
+`InitDescr` pair moved above the `k_get_c_string()` test so no path can reach
+the tail with `result` unwritten, and the early exit now returns **the same
+shape as the final else** — an empty `STRING` with `ER_NOT_FOUND` — rather than
+the integer zero the initialisation sets. A name that is too long is a name
+that does not exist, and a caller should not be able to tell those two apart.
+`gplsrc/op_config.c`; the comment at the site says the same thing. **The same
+`char param[8 + 1]` is in `op_pconfig()` and was left alone** — it is a
+different function with a different tail and nobody has measured it.
+
 `PROPOSED`
 
 ---
@@ -1391,6 +1401,10 @@ worked.
 
 **Reproduced in this tree, not against upstream.** Probe:
 `tools/probes/p15-sockets.b`.
+
+***FIXED IN THIS PORT, 26 Aug 2026, by deleting the line.*** `gplsrc/op_skt.c`;
+the comment left in its place records what the measurement was, so the next
+reader does not have to wonder whether the line was load-bearing.
 
 `PROPOSED`
 

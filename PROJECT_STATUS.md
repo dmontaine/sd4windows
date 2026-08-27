@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 26 Aug 2026, **end of the SIXTY-THIRD session**, handed off at a clean boundary.
+**Last updated:** 26 Aug 2026, **end of the SIXTY-THIRD session**. ***NOT a clean boundary: three C files changed after the documentation was finished, so the tree is STALE and owes one cycle.*** See the box in START HERE.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -27,7 +27,7 @@ something came to be the way it is.
 
 ***ONE COMMAND IS STILL OWED ON THIS MACHINE, AND NOTHING IS BLOCKED ON IT.*** The package is chosen but not installed for the MSYS2 python here; `mkdoc.py` runs under the **Windows** python (3.13.14, `markdown` 3.10.2) and that is what rendered every page of the tester set. Either re-run `setup-devbox.ps1` elevated, or install the one package inside MSYS2: `pacman -S --needed python-markdown`. ***`mkdoc.py` ITSELF IS NO LONGER IN THIS REPOSITORY*** — see the H.2 entry.
 
-***THE MACHINE.*** The host carries a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` **exit 0 run live at the start of the sixty-second session**, so the install still matches source and every verifier will run. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
+***THE MACHINE — AND THE INSTALL IS NOW STALE, 26 Aug 2026 20:40.*** `bin/sd.exe` was rebuilt after three one-line C fixes and nothing has been installed since, so `assert-current` will fail Check A and every verifier that calls it will refuse. **The reading below is what the install WAS, and it is still what the suite scores once a cycle re-lays it.** The host carries a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
 
 ***ONE DEFECT IS RAISED AND UNDECIDED, AND THE DOCUMENTATION PHASE WILL MEET IT.*** `sdsys\changelog` ships into the **data tree**, which the installer never overwrites, so a user's changelog is frozen at their install date — in the one file whose entire job is telling them what changed. It probably wants moving to `{app}` beside the documentation. Raised 25 Aug 2026; not decided, and not yet a task.
 
@@ -183,10 +183,61 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `python tools\checklinks.py User\markdown User\html` — **110 links, 0
 > broken** at handoff.
 >
-> ***THE MACHINE IS UNTOUCHED BY ALL OF THIS.*** No source that ships changed
-> this session, so the 17:14:03 install still matches source and `b47` is still
-> the next free suite prefix. `assert-current` **exit 0 run live at the start
-> of the sixty-third session**, before any probe.
+> ***THE MACHINE WAS UNTOUCHED BY THE DOCUMENTATION, AND IS NOT UNTOUCHED
+> NOW.*** `assert-current` was **exit 0 run live at the start of the
+> sixty-third session**, before any probe, and every measurement in documents
+> 14 to 17 was taken on the 17:14:03 install while it still matched source.
+> **Then three C files were changed on the owner's ruling — see the box
+> below — so the install is STALE and owes one cycle.** Everything measured
+> before the build stands; nothing measured after it would.
+>
+> ---
+>
+> ### ⚠ THE TREE IS STALE AND OWES ONE CYCLE — 26 Aug 2026
+>
+> **Three one-line C fixes were made after the documentation was finished**,
+> on the owner's ruling, and **nothing has been installed or verified since**.
+> `assert-current` will now fail on Check A: `bin/sd.exe` was rebuilt at
+> **20:40**, the install is **17:14:03**, and `sd.exe` does not build
+> reproducibly (§6), so only an install clears it. ***Every verifier is
+> blocked until then*** — `verify-createaccount` and the rest refuse without
+> `assert-current`.
+>
+> **The build is clean and that is all that is claimed**: `make sd` exit 0,
+> **0 warnings, 0 errors**, all 96 objects rebuilt (a header changed and the
+> Makefile's `SDHDRS` dependency is deliberately blunt). Evidence the platform
+> string reached the object code: in the new `bin/sd.exe`, `Windows` followed
+> by NUL appears **twice** and `Linux` followed by NUL **zero** times, against
+> a control literal that does match.
+>
+> | | |
+> |---|---|
+> | `gplsrc/sddefs.h` | `PLATFORM_NAME` is `"Windows"`. Changes `SYSTEM(1010)` **and** BCOMP's `$IFDEF` token, `SD.LINUX` → `SD.WINDOWS`. Checked before changing: nothing in `gplsrc` or `sdsys` tests either name |
+> | `gplsrc/op_config.c` | the `InitDescr` pair moved above the early exit, which now returns an empty string with `ER_NOT_FOUND` — the same shape as an unknown name. UPSTREAM_FIXES #18 |
+> | `gplsrc/op_skt.c` | `n = TRUE;` deleted from the keep-alive case. UPSTREAM_FIXES #19 |
+>
+> ***THE VERIFICATION AFTER THE CYCLE IS THREE EXISTING PROBES AND THREE
+> LINES.*** They are in the docs repository, `tools\probes\`, and each is run
+> with `tools\sdprobe.ps1 -Source <probe>`:
+>
+> | probe | the line to read | before | after |
+> |---|---|---|---|
+> | `p16-system.b` | `system(1010)=[...]` | `Linux` | **`Windows`** |
+> | `p16c-config.b` | the two lines after `ZZMATH.END` | aborts on `NOSUCHKEY` | `config(NOSUCHKEY)=[] status=1004`, then `neither aborted` |
+> | `p15-sockets.b` | `set.keepalive(0)=` / `keepalive.now=` | `1` / `1` | `1` / **`0`** |
+>
+> **`p16c-config.b` still puts its two calls after the END marker**, because
+> that is where they belonged when the second one aborted. If the fix holds,
+> move them above it and let the guard cover them.
+>
+> ***THE FOURTH DEFECT, UPSTREAM #17, IS NOT FIXED AND WAS NOT MEANT TO BE.***
+> Nested `commit` losing the outer transaction's writes is silent partial data
+> loss, and the owner has it in front of him. **Do not fix half of it**:
+> decrementing `txn_depth` in `op_txncmt()` would make `system(1008)`
+> trustworthy while the data-loss path stayed, which is worse than both being
+> visibly wrong.
+>
+> ---
 >
 > ***RUN `python sdb_ai/sd64/gplbld/check-stale-leads.py` BEFORE YOU ANSWER ANY
 > "WHAT IS LEFT" QUESTION.*** One second, and it is the difference between the
@@ -395,11 +446,11 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | a **file** lock stops locking, not reading | measured: `readu ... locked` refused on every record, a plain `read` returned normally |
 > | ***`read.socket`'s timeout is ignored unless the socket is blocking, and no socket starts blocking*** | measured: flags 0 with a 5000 ms timeout returned in **0 ms**; flag 1 waited 2025 ms. **The bug passes its own tests** — on loopback the data is already there |
 > | a closed peer is **7013 or 1008**, depending which end closed | a loop guarded only on 7013 ran all 21 of its iterations |
-> | `set.socket.mode` key 6 ignores its argument | `set.socket.mode(s, 6, 0)` returns **1** and keep-alive reads **1**. `op_skt.c` sets `n = TRUE` unconditionally |
+> | `set.socket.mode` key 6 ignores its argument — ***FIXED 26 Aug 2026, uncycled*** | `set.socket.mode(s, 6, 0)` returned **1** and keep-alive read **1**. `op_skt.c` set `n = TRUE` unconditionally; the line is gone. UPSTREAM_FIXES #19 |
 > | `server.addr('localhost')` is **`::1`** while `create.server.socket('127.0.0.1')` is IPv4 | and an unresolvable name **blocks in the OS resolver** — still not back after 45 s, with no way to bound it from BASIC |
-> | ***`config()` names are case sensitive and at most 8 characters*** — upstream | wrong case is `''` + status 1004; **nine characters aborts the caller** with *"Data cannot be converted to a string"*, because `op_config.c:60` exits before `result` is initialised |
+> | ***`config()` names are case sensitive and at most 8 characters*** — the abort ***FIXED 26 Aug 2026, uncycled*** | wrong case is `''` + status 1004, and that stands. **Nine characters aborted the caller** with *"Data cannot be converted to a string"* because the early exit jumped over `result`'s initialisation; it now returns `''` + 1004 as well. UPSTREAM_FIXES #18 |
 > | `env()` is case sensitive | `env('path')` is 0 characters where `env('PATH')` is 926. Windows is case-insensitive everywhere else |
-> | `system(1010)` answers **`Linux`** on Windows | so does `system(1006)` with `0`. **`system(91)` is the one that is right** |
+> | `system(1010)` answered **`Linux`** on Windows — ***FIXED 26 Aug 2026, uncycled*** | `system(1006)` still answers `0` and is an open decision. **`system(91)` was already right** |
 > | ***`kernel()` is internal-only, and page 07's advice was wrong*** | it told the reader to convert a POSIX path with `kernel(K$WINPATH, ...)`. An ordinary program cannot call `kernel()` at all — **corrected in the page this session** |
 > | an unknown function reads as a **matrix** | `v = testlock(5)` gives *"Matrix TESTLOCK is not referenced in a DIM statement"* at the **last line of the program**. With three arguments it is *"Right bracket not found where expected"* instead |
 > | `sdencrypt()` has no usable key from an ordinary account | a passphrase gives status **10204**, a key-length error. The derivation function is `sdext()`, which is internal-only |
@@ -3333,10 +3384,14 @@ Full findings in the HISTORY entry for 13 Aug 2026, "Surveyed every BASIC to C
 linkage". What still needs attention:
 
 - **`SYSTEM(n)`** — 19 keys used; only 27 (§5.5), 91 and 1006 (§5.4) and 1010
-  matter. 1010 returns `PLATFORM_NAME`, `"Linux"` in `sddefs.h`, which `BCOMP`
-  turns into the compiler token `SD.LINUX`. Nothing tests that token, so it is
-  latent, but user code asking `SYSTEM(1010)` is told "Linux". The rest are
-  platform neutral.
+  matter. ***1010 IS FIXED, 26 Aug 2026*** — `PLATFORM_NAME` in `sddefs.h` is
+  `"Windows"`, so `SYSTEM(1010)` answers Windows and `BCOMP`'s `$IFDEF` token
+  moves from `SD.LINUX` to `SD.WINDOWS`. **Nothing in `gplsrc` or `sdsys`
+  tests either token** — checked before the change, not assumed — so no
+  shipped program compiles differently. **1006 is still hard-wired 0**:
+  `is_nt` is declared `init(FALSE)` at `kernel.h:44`, read once, and assigned
+  nowhere. Set it or remove the key; it is a decision, not a fix, and it is
+  open. The rest are platform neutral.
 - **`OSPATH(path, key)`** — 15 keys into `op_dio2.c`, all path semantics.
   `OS$FULLPATH` is documented "Return full DOS file name"; `OS_CHOWN` has no
   Windows meaning. **Enumerated, not reviewed.**
@@ -4188,7 +4243,7 @@ complete audit:
 |---|---|---|
 | `sudo chmod g+s` on a new account directory | `GPL.BP/CREATEA` | inheritable ACEs, set once by the installer (§5.7) |
 | `PASSWD_FILE_NAME "/etc/shadow"` | `gplsrc/sdnet.h` | `$CRED`, or peer identity (§7 step 6) |
-| `PLATFORM_NAME "Linux"`, so `SYSTEM(1010)` says Linux and `BCOMP` emits the `SD.LINUX` token | `gplsrc/sddefs.h` | a Windows name; nothing tests the token yet, so it is latent |
+| ~~`PLATFORM_NAME "Linux"`~~ — ***DONE 26 Aug 2026***, it is `"Windows"` and the token is `SD.WINDOWS` | `gplsrc/sddefs.h` | done |
 | `SYSTEM(91)` hardcoded 0, `is_nt` never assigned | `op_sys.c`, `kernel.h` | §5.4, and restore the BASIC branches first |
 | `setuid`/`setgid` in `login_user()` | `gplsrc/linuxio.c` | nothing; SD accounts are not OS users (§5.6) |
 | `EUID_SET`/`EUID_RESTORE` | `sdext_eguid.c`, `CPROC` line 272 | the service model (§5.7); no direct equivalent |
