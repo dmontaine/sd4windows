@@ -1503,3 +1503,90 @@ with an explicit `TO 2`; the number is absent either way, while `SELECT` and
 `sdb64`'s (`QSELECT:231`); this tree has the same statement at `QSELECT:240`.
 
 `PROPOSED`
+
+## 22. `DELETE.INDEX` will not match an index name typed in lower case, though `LIST.INDEX` will
+
+Index names are held in upper case — `indices()` returns `F1` for an index
+created as `create.index zzak f1`, and `CREATE.INDEX` says so when it makes one:
+*"Added index for F1"*.
+
+`LIST.INDEX` upcases both sides before comparing:
+
+```
+LISTI:138   u.ak.names = upcase(ak.names)
+```
+
+`DELETE.INDEX` compares what the user typed against the stored names with an
+exact `LOCATE`, and does not:
+
+```
+DELETEI:149   locate ak.names<i> in ak.list<1> setting pos else continue
+```
+
+So on the same file, in the same session:
+
+```
+:list.index zzak f1
+Alternate key indices for file zzak
+Number of indices = 1
+Index name...... En Type Nulls S/M Fmt Field/Expression
+F1                Y  D    Yes   S   L  1
+
+:delete.index zzak f1
+Unrecognised index name (f1)
+```
+
+**The two commands disagree about what the index is called**, and the one that
+finds it is not the one that can remove it. `ALL` works either way, which is
+what makes this easy to miss — the failure only shows up when somebody names an
+index individually.
+
+**The fix is the line `LIST.INDEX` already has.** Upcase `ak.list` where it is
+gathered, or compare against `upcase(ak.names<i>)`; either matches the existing
+behaviour of the sibling command.
+
+**Measured on SD Core for Windows W1.0-0.** Line numbers are `sdb64`'s; this
+tree has the same `LOCATE` at `DELETEI:155` and the same `upcase` at
+`LISTI:147`.
+
+`PROPOSED`
+
+## 23. `DELETE.FILE ... NO.QUERY` still prompts when part of the file is in the system account
+
+`DELETE.FILE` accepts `NO.QUERY` and honours it for its own confirmations. It
+does not reach the one prompt a script is most likely to hit unattended:
+
+```
+DELETEF:208   gosub check.sdsys.file
+DELETEF:283   gosub check.sdsys.file
+```
+
+Neither call is guarded, and `check.sdsys.file` prompts unconditionally:
+
+```
+WARNING: The dictionary part of this file is in the system account
+Enter Y to delete this file. This may affect other accounts.
+Enter N to delete VOC reference but leave the file in the system account.
+Delete the file from the system account (Y/N)?
+```
+
+**A file created with `USING DICT` on a system file reaches this every time**,
+so `DELETE.FILE name FORCE NO.QUERY` blocks for ever in any non-interactive
+session — a build script, a test harness, or anything driving SD down a pipe.
+
+***THE QUESTION ITSELF IS WORTH ASKING AND THAT IS NOT WHAT IS BEING
+REPORTED.*** Deleting a file out of the system account can affect other
+accounts and deserves a human. The defect is that **`NO.QUERY` says it has
+already answered the questions and has not**, so the caller has no way to say
+*"do not touch the system account"* other than by not calling the verb.
+
+**Either honour `NO.QUERY` here by taking the safe branch** — delete the VOC
+reference and leave the system file alone, which is the `N` answer and the
+conservative one — **or reject the combination up front** with a message saying
+this file cannot be deleted non-interactively. Both are better than a prompt
+nobody can answer.
+
+**Measured on SD Core for Windows W1.0-0.** Line numbers are `sdb64`'s; this
+tree has the same two unguarded calls at `DELETEF:222` and `DELETEF:297`.
+
+`PROPOSED`

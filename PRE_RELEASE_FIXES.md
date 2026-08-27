@@ -37,6 +37,8 @@ should be fixed, **M** minor.
 | 11 | **B** | ***Nested `commit` silently loses the outer transaction's writes*** — UPSTREAM #17, **unfixed here** | `gplsrc/txn.c` |
 | 12 | **S** | Error 3023 tells the user the disk may be full — UPSTREAM #20, **unfixed here** | `sdsys/messages/1407` |
 | 13 | **M** | `qselect` prints its message without the list number — UPSTREAM #21, **unfixed here** | `gpl.bp/QSELECT:240` |
+| 14 | **S** | `delete.file ... no.query` still prompts, so it cannot run unattended — UPSTREAM #23, **unfixed here** | `gpl.bp/DELETEF:222` |
+| 15 | **M** | `delete.index` will not match a lower-case index name, though `list.index` will — UPSTREAM #22, **unfixed here** | `gpl.bp/DELETEI:155` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -289,6 +291,36 @@ in hand on the line above.
 
 Documented as a known blemish in the select-lists page so a reader does not go
 looking for a list that is there.
+
+## 14. `delete.file ... no.query` still prompts — **S**
+
+**UPSTREAM_FIXES #23. Live in this tree, measured 26 Aug 2026** —
+`gpl.bp/DELETEF:222` and `:297` call `check.sdsys.file` with no `no.query`
+guard, and that subroutine prompts unconditionally.
+
+***IT COST A SESSION THE DAY IT WAS FOUND.*** `delete.file zzak force no.query`
+was issued down a pipe on the strength of `no.query`, hit the system-account
+prompt, ate the following commands as answers and hung; killing it left a
+user-table slot that needed an elevated `sd -cleanup` to clear. **Anything that
+drives SD non-interactively is exposed** — a build script, a test harness, the
+verify suite.
+
+The safe branch already exists: `N` deletes the VOC reference and leaves the
+system file alone. Honouring `no.query` by taking it, or refusing the
+combination up front, both beat a prompt nobody can answer.
+
+## 15. `delete.index` will not match a lower-case index name — **M**
+
+**UPSTREAM_FIXES #22. Live in this tree, measured 26 Aug 2026** —
+`gpl.bp/DELETEI:155` compares with an exact `locate` against names held upper
+case, where `gpl.bp/LISTI:147` upcases both sides first. So `list.index zzak f1`
+finds the index and `delete.index zzak f1` answers *"Unrecognised index name
+(f1)"*.
+
+**Worth a look alongside item 5**, `.d name` in `CPROC` — different files,
+different authors, same shape: two commands that should agree about a name and
+one of them folds case. Whatever policy is settled for one should settle the
+other.
 
 ---
 
