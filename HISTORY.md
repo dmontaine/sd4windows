@@ -38182,3 +38182,47 @@ the prompt, which is not what "unlimited access" means.
 **Three new messages, 10102 to 10104** - granted, already listed, and could not
 be updated. The middle one exists because *"the administrator still cannot use
 the shell"* is otherwise a question with nothing to read.
+
+### And the two halves got keywords
+
+Owner, 27 Aug 2026: `sh-on` and `os-on` on `CREATE.ACCOUNT`; `sh-on`, `sh-off`,
+`os-on` and `os-off` on `MODIFY.ACCOUNT`. **He settled the spelling mid-task** -
+his first message wrote `OS-ON` and `sh.on`, and he chose the hyphen for all
+four so both halves look alike.
+
+**The hyphen parses, and that was checked rather than assumed.** `PARSER`'s
+simple-token arm splits at a space, a comma, a bracket or a quote **and at
+nothing else** - the backslash is deliberately absent because it is a path
+separator here - so `os-on` arrives as one token. It is then looked up in the
+VOC, finds nothing, and reaches `CREATEA` as plain text with `keyword = -1`,
+which is exactly how `ADMINISTRATOR`, `SSH` and `ADOPT` already arrive.
+
+***THEY ARE FOUR SWITCHES OVER TWO FIELDS, NOT FOUR NAMES FOR ONE STATE.***
+`SSH`/`API`/`BOTH`/`NONE` beside them are absolute - each one sets both groups -
+so `os.set` takes a **field number and a want** rather than a pair of wants, and
+`sh-off` says nothing about `OS.EXECUTE`.
+
+***AND `os.set` DOES NOT REFUSE AN ADMINISTRATOR, WHICH IS THE OPPOSITE OF
+`route.set` TWENTY LINES ABOVE IT.*** ssh and the API are a RULE for an
+administrator - 21 Aug 2026, *"the whole purpose of ADMINISTRATOR is that it
+gives unlimited access"* - and 10083 refuses to touch them. Operating-system
+access is a DEFAULT: `CREATE.ACCOUNT` grants it unasked and `os-off` takes it
+back. **That asymmetry is the difference between the third of the three and the
+other two**, and it is written into both programs' headers so the next person
+to read them side by side does not "fix" one of them.
+
+**Smaller things:**
+
+- **`MODIFY.ACCOUNT` is gated on `K$ADMINISTRATOR`, which is elevation**, so
+  `os.set` cannot be reached by an ordinary user at all. You elevate to grant
+  somebody the right not to have to.
+- **`os.set` rewrites BOTH fields** in this program's own spelling, so a record
+  hand-edited to `Yes` or `y` comes out saying what the gates will actually
+  read. `y` has always meant no and would otherwise keep looking as though it
+  meant something.
+- **A missing record reads as `no` in both fields**, exactly as both gates read
+  it, so turning off something that was never on is "nothing changed" and
+  writes nothing. The only way to get a record saying no twice is to have had
+  one say yes - which is worth keeping rather than tidying away.
+- Messages **10102 to 10105**; 10102 is shared by `CREATEA` and `MODIFYA`, which
+  is the same idea as `say.access` sharing four with `CREATE.ACCOUNT`.

@@ -213,6 +213,23 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > included — with **both** fields `yes`. `DELACC` removes it again, but only
 > where SD is deleting the Windows login itself.
 >
+> ***AND IT GAINED KEYWORDS THE SAME DAY:*** `sh-on` and `os-on` on
+> `CREATE.ACCOUNT`, `sh-on` / `sh-off` / `os-on` / `os-off` on
+> `MODIFY.ACCOUNT`. **Four switches over two fields**, not four names for one
+> state as `SSH`/`API`/`BOTH`/`NONE` are, so `sh-off` leaves `OS.EXECUTE`
+> alone. `MODIFYA`'s new `os.set`.
+>
+> **The hyphen is his and it parses** — `PARSER`'s simple-token arm splits at a
+> space, a comma, a bracket or a quote and at nothing else, so `os-on` is one
+> token with `keyword = -1`. *(He settled it mid-task: his first message mixed
+> `OS-ON` with `sh.on`, and he chose the hyphen for all four.)*
+>
+> ***`os.set` DOES NOT REFUSE AN ADMINISTRATOR, WHICH IS THE OPPOSITE OF
+> `route.set` BESIDE IT.*** ssh and the API are a **rule** and `MODIFY.ACCOUNT`
+> refuses to touch them (10083); operating-system access is a **default**, so
+> `os-off` works on one. That asymmetry is the difference between the third of
+> the three and the other two, and it is written into both programs' headers.
+>
 > ***THE 26 Aug RULING HAD A SECOND HALF AND IT WAS DELIBERATELY NOT DONE:***
 > teaching `EDIT`'s `check.permitted` the ADMINISTRATOR tier as well. One list
 > already answers *"may this person reach the operating system"*, and a tier

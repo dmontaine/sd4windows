@@ -457,6 +457,23 @@ Windows login itself: the record is keyed by the person, so removing it for a
 login that survives would take a permission from somebody who still has a reason
 to hold it. Without that, the verify suite would leave one behind every run.
 
+***AND IT GAINED KEYWORDS THE SAME DAY.*** Owner, 27 Aug 2026: `sh-on` and
+`os-on` on `CREATE.ACCOUNT`, and `sh-on`, `sh-off`, `os-on`, `os-off` on
+`MODIFY.ACCOUNT`. **Four switches over two fields**, not four names for one
+state as `SSH`/`API`/`BOTH`/`NONE` are — `sh-off` leaves `OS.EXECUTE` alone.
+`MODIFYA`'s new `os.set`, and `CREATEA`'s `grant.os.access` now reads the two
+flags rather than testing the tier itself.
+
+**The hyphen is his** (`os-on`, not `os.on`) and it parses: `PARSER`'s
+simple-token arm splits at a space, a comma, a bracket or a quote and at
+nothing else, so `os-on` arrives as one token with `keyword = -1`.
+
+***AN ADMINISTRATOR IS NOT REFUSED BY `os.set`, WHICH IS THE OPPOSITE OF
+`route.set` BESIDE IT.*** ssh and the API are a **rule** for an administrator
+and `MODIFY.ACCOUNT` refuses to touch them (10083); operating-system access is a
+**default**, so `os-off` works on one. That asymmetry is the whole difference
+between the third of the three and the other two.
+
 **Not verified** — it is compiled BASIC and wants a cycle. After one, `os.users`
 should hold a `don` record with two `yes` fields.
 
