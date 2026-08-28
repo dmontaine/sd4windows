@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which touched no source at all: **PRE_RELEASE 23's three docs pages and the shipped-scripts gap are both closed**, in `SDCoreWindowsDocs` `c41d999` and `7914e60`, with two new pre-release entries **33** and **34** (34 is the owner's ruling). ***ITEM 5.3 IS CLOSED*** — the owner ran `edit bp ZZMARKS` unelevated on the 19:37:47 install, **no problems**, so both editors are witnessed. **That install is untouched and still current.** ***AND THE THREE `b48` FIXTURES ARE GONE — the 19:37:47 cycle wiped both trees, item 3.*** `sdsys/accounts` holds only `don` and `sdsys`. **So nothing is waiting to be measured on this install and there is no longer a reason to hold off PRE_RELEASE 32.** Items 5.1 and 5.2 want rebuilt fixtures on the install *after* the next cycle. Everything below is the **SIXTY-EIGHTH session**, which ended on credit rather than on a problem — the owner continues from a different account. **`sd4windows` is pushed and clean and the install is green and current.** ***PRE_RELEASE 29 IS DONE — `micro` SAVES.*** Install **27 Aug 19:37:47**, `assert-current` exit 0, and the owner ran `micro bp ZZMARKS` **three times, save and no-save, with no message**. `~/.micro/backups/` now exists, which is the very write that used to fail. **The mark round trip survived a real save** (SD reads 19 fields, 907 chars, VM 6/SM 1/TM 3, no stray CR), closing the last of item 5.3. It took three attempts: `-backup off` fixed nothing; the helper read env vars that are **empty** inside `os.execute`; and `EDIT` split the capture on `char(10)` where it is `@fm`. ***The earlier 18:58:55 install was `assert-current` exit 0 live too***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21, 23 and 29 DONE and measured, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which touched no source at all: **PRE_RELEASE 23's three docs pages and the shipped-scripts gap are both closed**, in `SDCoreWindowsDocs` `c41d999` and `7914e60`, with two new pre-release entries **33** and **34** (34 is the owner's ruling). ***ITEM 5.3 IS CLOSED*** — the owner ran `edit bp ZZMARKS` unelevated on the 19:37:47 install, **no problems**, so both editors are witnessed. ***AND THE THREE `b48` FIXTURES ARE GONE — the 19:37:47 cycle wiped both trees, item 3.*** `sdsys/accounts` holds only `don` and `sdsys`, so nothing was waiting to be measured on that install. ***SO PRE_RELEASE 32 IS WRITTEN, AND THE TREE IS NOW UNCOMPILED SOURCE: `assert-current` WILL FAIL UNTIL A CYCLE RUNS.*** `gpl.bp/DELETE_USER`, `gpl.bp/DELACC` and two message records changed; the generated PowerShell is parse-checked but **the BASIC has never been compiled**. **THE NEXT ACTION IS `cycle.ps1`.** Items 5.1 and 5.2 want their fixtures rebuilt on the install that cycle produces. Everything below is the **SIXTY-EIGHTH session**, which ended on credit rather than on a problem — the owner continues from a different account. **`sd4windows` is pushed and clean and the install is green and current.** ***PRE_RELEASE 29 IS DONE — `micro` SAVES.*** Install **27 Aug 19:37:47**, `assert-current` exit 0, and the owner ran `micro bp ZZMARKS` **three times, save and no-save, with no message**. `~/.micro/backups/` now exists, which is the very write that used to fail. **The mark round trip survived a real save** (SD reads 19 fields, 907 chars, VM 6/SM 1/TM 3, no stray CR), closing the last of item 5.3. It took three attempts: `-backup off` fixed nothing; the helper read env vars that are **empty** inside `os.execute`; and `EDIT` split the capture on `char(10)` where it is `@fm`. ***The earlier 18:58:55 install was `assert-current` exit 0 live too***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21, 23 and 29 DONE and measured, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -112,8 +112,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### SIXTY-NINTH SESSION — TWO DOCUMENTATION ITEMS CLOSED, NO SOURCE TOUCHED
 >
-> **Both repositories pushed and clean.** ***THE INSTALL IS STILL THE 19:37:47
-> ONE AND IS STILL CURRENT***, deliberately: nothing under `sd64` was edited.
+> **Both repositories pushed and clean.** ***THE TREE IS UNCOMPILED SOURCE AS
+> OF THE LAST COMMIT — `assert-current` WILL FAIL AND IS RIGHT TO.*** The
+> documentation work below touched no source; **PRE_RELEASE 32 then did**, on
+> purpose, once it was established that nothing was left to measure on the
+> 19:37:47 install. ***THE NEXT ACTION IS ONE ELEVATED COMMAND:***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> `-SkipInstall` first if you only want to know whether the BASIC compiles.
 >
 > - **PRE_RELEASE 23 is fully closed.** The three docs pages that said
 >   `term default` does not restore 120 x 36 are corrected —
@@ -124,8 +133,19 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >   `SDCoreWindowsDocs` `7914e60`.
 > - **Item 5.3 is closed.** The owner ran `edit bp ZZMARKS` unelevated on the
 >   19:37:47 install — **no problems**. Both editors are now witnessed.
-> - **Two new pre-release entries, 33 and 34**, both in item 4's table below.
->   **34 needs your ruling.**
+> - **Two new pre-release entries, 33 and 34.** ***33 is already fixed*** —
+>   `allow-ssh-groups.ps1`'s usage line now names the `-Installed` it requires;
+>   comment only, and it rides 32's cycle. **34 is in item 4's table and needs
+>   your ruling.**
+> - ***PRE_RELEASE 32 IS WRITTEN AND UNCOMPILED.*** `DELETE_USER`'s
+>   `catch { exit 6 }` — which left **both** halves of the profile behind — is
+>   now `catch { }`, and the `ProfileList` key is removed in its own right
+>   afterwards. Status 6 splits into **6** (directory left, harmless) and **7**
+>   (registry entry left, the one that moves a recreated account's home).
+>   `DELACC` gains a `case stat = 7`, `10075` is reworded and **`10116` is
+>   new**. **Checked as far as it can be without a cycle**: the generated
+>   PowerShell parses (0 errors, 203 tokens), no BOM, and the two new steps ran
+>   read-only against `don`. ***The BASIC has never been compiled.***
 >
 > ***THE FIXTURES WERE ALREADY GONE, AND THIS BOX SAID OTHERWISE FOR HALF A
 > SESSION.*** The sequencing note here read *"5.1 and 5.2 go first, before any
@@ -325,8 +345,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | | |
 > |---|---|
 > | **PRE_RELEASE 31** | **Yours.** `verify-apiadmin`'s control expects an elevated `LOGTO`'d session to lose `OS.EXECUTE`; `os_permitted()` keys the list on the *person* (`don`), whom PRE_RELEASE 2 listed, so the product is per design and the **control** is stale. Say what it should now prove and it can be rewritten — `$neverShipped`, no cycle |
-> | **PRE_RELEASE 32** | `DELACC` should remove the `ProfileList` entry when it removes the Windows user. **53 stale entries here**; run `cleanup-devlitter.ps1` before the next suite run |
-> | **PRE_RELEASE 33** | `allow-ssh-groups.ps1`'s own usage text offers a bare form that writes nothing — the write path needs `-Installed`. One stale comment line in a shipped script, no code change |
+> | **PRE_RELEASE 32** | ***WRITTEN, AND IT IS THE ONE THING HERE THAT DOES NEED A CYCLE.*** `DELETE_USER` now removes the `ProfileList` entry in its own right; the BASIC is **uncompiled**. **53 stale entries are still on this host** — `cleanup-devlitter.ps1` before the next suite run, and before rebuilding any `b48` fixture |
 > | **PRE_RELEASE 34** | **Yours.** `release.ps1` cannot complete on `Technical`: `checklinks.py` rightly refuses a zero-link set and, two pages in, that set still has no honest cross-reference. Either the tool learns to say *this set has no links* or `release.ps1` passes a zero-link set out loud. ***Not to be settled by adding a link*** |
 > | **`b49`** | the next suite number. `b48` is spent twice over |
 >

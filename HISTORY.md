@@ -39365,3 +39365,45 @@ disproved it, which is the argument for running the cheapest one first.
 local user `b48adm` and groups `sdg_b48tier`, `sdg_b48susp`, `sdu_b48adm` are
 still on this host. **Rebuilding under the same name is PRE_RELEASE 32's
 defect**, so `cleanup-devlitter.ps1` runs before any rebuild.
+
+## 27 Aug 2026 - PRE_RELEASE 32: the catch that left both halves of the profile
+
+**Commit:** see the commit that carries this entry. Sixty-ninth session,
+**written and uncompiled** - `cycle.ps1` is what compiles it.
+
+***THE FIX IS ONE WORD.*** `gpl.bp/DELETE_USER` ran `Remove-CimInstance` on the
+`Win32_UserProfile` and its catch read `exit 6`. So a failed profile removal -
+the ordinary state when the account's hive is still loaded - **ended the script
+and left both halves behind**, including the `ProfileList` registry entry,
+which is the half Windows honours the next time an account of that name
+appears. The catch is `catch { }` now and the registry key is removed in its
+own right afterwards. `Remove-CimInstance` is still tried first; its failure no
+longer decides anything.
+
+**Status 6 splits into 6 and 7** because the caller's warning has to differ: 6
+is the directory left behind and costs disk, 7 is the registry entry left
+behind and moves a recreated account's home. `DELACC` gains `case stat = 7`,
+`messages/10075` is reworded to mean the directory only, `messages/10116` is
+new. **Both halves are tested for after the attempt rather than inferred from
+which call threw** - a thrown `Remove-CimInstance` does not say what it removed
+before it threw.
+
+***WHAT WAS MEASURED WITHOUT A CYCLE, AND WHAT WAS NOT.*** The PowerShell that
+the BASIC builds was **reconstructed from the source** by a script that refuses
+to write an empty file, then parse-checked: **0 errors, 203 tokens** - the
+token count is there because 0 errors on a file the parser found nothing in is
+not a pass. No embedded BOM. The two genuinely new steps were then run
+read-only against a real account: `Join-Path` produced the right key, the key
+exists, and `ProfileImagePath` read back `C:\Users\dmont` for `don`.
+***The BASIC itself has never been compiled.***
+
+**`messages.c:335` was read before the message was written.** Only `\n` and
+`\t` are expanded and there is no default branch, so a literal `C:\Users\%1`
+survives intact - and `C:\temp` would not. Worth knowing before the next
+message.
+
+**Not an upstream defect, and that was checked rather than assumed.** `sdb64`
+has no `DELETE_USER`; its `DELACC` runs `OS.EXECUTE "sudo userdel "`. Linux has
+no `ProfileList` and a recreated user gets `/home/<name>` as before, so the
+defect - *a recreated account silently gets a different home* - does not exist
+there. No `UPSTREAM_FIXES.md` entry.

@@ -55,8 +55,8 @@ should be fixed, **M** minor.
 | ~~29~~ | **S** | ~~`micro` reports "Permission denied" on every save~~ — **DONE 27 Aug 2026**, install 19:37:47. `MICRO_CONFIG_HOME` is a per-user `~/.micro` via the new `micro-home.ps1`. Owner: three runs, save and no-save, **no message**. Took three attempts — see the entry | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
 | 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
 | 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
-| 32 | **S** | ***`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory*** — `C:\Users\<name>.<DOMAIN>` — and anything keyed to the old path breaks. **Measured: ssh public-key auth refused.** 53 stale entries on this host | `gpl.bp/DELACC` |
-| 33 | **S** | `allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing** — the write path needs `-Installed` and exits 2 without it. One stale comment line; no code change | `gplbld/allow-ssh-groups.ps1:4` |
+| ~~32~~ | **S** | ~~`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory~~ — **FIXED 27 Aug 2026: the `catch { exit 6 }` that left both halves is now `catch { }`, and the key is removed in its own right; status 6 splits into 6 (directory) and 7 (registry entry).** ***UNCOMPILED — needs a cycle.*** Generated PowerShell parse-checked 0 errors / 203 tokens; the new steps run read-only against a real account | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075`, `messages/10116` |
+| ~~33~~ | **S** | ~~`allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing**~~ — **DONE 27 Aug 2026**, the usage line names `-Installed` and a dated note says which forms need it. Comment only, parses 0 errors / 1247 tokens | `gplbld/allow-ssh-groups.ps1:4` |
 | 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Owner's call, and not to be settled by adding a link** | docs repo `tools/release.ps1`, `tools/checklinks.py` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
@@ -1246,6 +1246,43 @@ verdict stands — both rows are non-decisive and the failure is environmental �
 but the next run needs `b49`, and `cleanup-devlitter.ps1` should clear the 53
 entries first.
 
+***FIXED 27 Aug 2026 — WRITTEN AND CHECKED, NOT YET COMPILED.*** `DELETE_USER`
+now names the `ProfileList` key from the SID it already holds, reads
+`ProfileImagePath` **before** anything is removed (it is the only record of
+where the directory is), and removes the key **in its own right after** the
+`Remove-CimInstance` call rather than instead of it.
+
+***THE FIX IS ONE WORD, AND IT IS THE `exit` THAT IS GONE.*** The old catch
+read `catch { exit 6 }`, so a failed CIM removal ended the script and **left
+both halves**. It is `catch { }` now, and the registry entry is dealt with
+below it either way. `Remove-CimInstance` is still tried first and is still the
+right tool; its failure no longer decides anything.
+
+**Status 6 splits into 6 and 7**, because the caller's warning has to differ:
+
+| | |
+|---|---|
+| **6** | the profile **directory** is left. Costs disk. The registry entry went, so a recreated account still gets its proper home |
+| **7** | the **`ProfileList` entry** is left. This is the one that moves a recreated account's home |
+
+**Both halves are tested for after the attempt, not inferred from which call
+threw** — a thrown `Remove-CimInstance` does not say what it removed first.
+`DELACC` gains a `case stat = 7`; message `10075` is reworded to mean the
+directory only and **`10116` is new** for the registry case, naming the
+consequence and how to clear it.
+
+***WHAT IS MEASURED AND WHAT IS NOT.*** The generated PowerShell was rebuilt
+from the BASIC source and parse-checked: **0 errors, 203 tokens** (not a
+zero-token pass), no embedded BOM, and the two genuinely new steps were run
+read-only against a real account — `Join-Path` produced the right key, the key
+exists, and `ProfileImagePath` read back `C:\Users\dmont` for `don`.
+***THE BASIC IS UNCOMPILED*** and `cycle.ps1` is what compiles it.
+
+***AND `messages.c:335` WAS READ BEFORE THE MESSAGE WAS WRITTEN.*** Only `\n`
+and `\t` are expanded and there is no default branch, so a literal
+`C:\Users\%1` in message text survives intact — but `C:\temp` would not, and
+that is worth knowing before writing the next one.
+
 ## 33. `allow-ssh-groups.ps1`'s own usage text omits the switch it requires — **S**
 
 Found 27 Aug 2026 while writing *Technical - The Installed Scripts*, by reading
@@ -1271,11 +1308,15 @@ administrator asked for this*, and the script is otherwise able to rewrite
 line predates the 21 Aug 2026 change of what `-Installed` asserts, recorded in
 the script's own "WHEN IT REFUSES" note fifteen lines below it.
 
-**The fix is one line** — `powershell -File allow-ssh-groups.ps1 -Installed`
-in the header. Nothing in the code changes.
+***FIXED 27 Aug 2026, SAME DAY.*** The first usage line now reads
+`powershell -File allow-ssh-groups.ps1 -Installed`, with a dated note under the
+exit codes saying which forms need the switch and which return before the test.
+**Nothing in the code changed**, and the file still parses — **0 errors, 1247
+tokens**. It rides PRE_RELEASE 32's cycle; it is a comment, so nothing waits on
+that.
 
-*Technical/02* documents the correct form, so a reader of the documentation is
-not caught by this; a reader of the script still is.
+*Technical/02* already documents the correct form, so a reader of the
+documentation was never caught by this. A reader of the script was.
 
 ## 34. `release.ps1` cannot complete on the `Technical` set — **S** (docs toolchain)
 
