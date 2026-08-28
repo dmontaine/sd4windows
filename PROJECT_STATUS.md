@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which touched no source at all: **PRE_RELEASE 23's three docs pages and the shipped-scripts gap are both closed**, in `SDCoreWindowsDocs` `c41d999` and `7914e60`, with two new pre-release entries **33** and **34** (34 is the owner's ruling). ***ITEM 5.3 IS CLOSED*** — the owner ran `edit bp ZZMARKS` unelevated on the 19:37:47 install, **no problems**, so both editors are witnessed. **That install is untouched and still current. ITEMS 5.1 AND 5.2 SHOULD BE TAKEN BEFORE ANY SOURCE CHANGE**: their fixtures `b48tier`, `b48susp` and `b48adm` exist only on it, and PRE_RELEASE 32's fix ends this cycle. Everything below is the **SIXTY-EIGHTH session**, which ended on credit rather than on a problem — the owner continues from a different account. **`sd4windows` is pushed and clean and the install is green and current.** ***PRE_RELEASE 29 IS DONE — `micro` SAVES.*** Install **27 Aug 19:37:47**, `assert-current` exit 0, and the owner ran `micro bp ZZMARKS` **three times, save and no-save, with no message**. `~/.micro/backups/` now exists, which is the very write that used to fail. **The mark round trip survived a real save** (SD reads 19 fields, 907 chars, VM 6/SM 1/TM 3, no stray CR), closing the last of item 5.3. It took three attempts: `-backup off` fixed nothing; the helper read env vars that are **empty** inside `os.execute`; and `EDIT` split the capture on `char(10)` where it is `@fm`. ***The earlier 18:58:55 install was `assert-current` exit 0 live too***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21, 23 and 29 DONE and measured, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which touched no source at all: **PRE_RELEASE 23's three docs pages and the shipped-scripts gap are both closed**, in `SDCoreWindowsDocs` `c41d999` and `7914e60`, with two new pre-release entries **33** and **34** (34 is the owner's ruling). ***ITEM 5.3 IS CLOSED*** — the owner ran `edit bp ZZMARKS` unelevated on the 19:37:47 install, **no problems**, so both editors are witnessed. **That install is untouched and still current.** ***AND THE THREE `b48` FIXTURES ARE GONE — the 19:37:47 cycle wiped both trees, item 3.*** `sdsys/accounts` holds only `don` and `sdsys`. **So nothing is waiting to be measured on this install and there is no longer a reason to hold off PRE_RELEASE 32.** Items 5.1 and 5.2 want rebuilt fixtures on the install *after* the next cycle. Everything below is the **SIXTY-EIGHTH session**, which ended on credit rather than on a problem — the owner continues from a different account. **`sd4windows` is pushed and clean and the install is green and current.** ***PRE_RELEASE 29 IS DONE — `micro` SAVES.*** Install **27 Aug 19:37:47**, `assert-current` exit 0, and the owner ran `micro bp ZZMARKS` **three times, save and no-save, with no message**. `~/.micro/backups/` now exists, which is the very write that used to fail. **The mark round trip survived a real save** (SD reads 19 fields, 907 chars, VM 6/SM 1/TM 3, no stray CR), closing the last of item 5.3. It took three attempts: `-backup off` fixed nothing; the helper read env vars that are **empty** inside `os.execute`; and `EDIT` split the capture on `char(10)` where it is `@fm`. ***The earlier 18:58:55 install was `assert-current` exit 0 live too***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21, 23 and 29 DONE and measured, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -127,15 +127,22 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > - **Two new pre-release entries, 33 and 34**, both in item 4's table below.
 >   **34 needs your ruling.**
 >
-> ***WHAT THE ORDER OF THE NEXT TWO STEPS COSTS, AND IT IS NOT SYMMETRIC.***
-> Items **5.1** and **5.2** are the only tests whose fixtures — `b48tier`,
-> `b48susp`, `b48adm` — exist on **this install and nowhere else**, and a fresh
-> install removes them the way it removed `b47`'s fifteen. **PRE_RELEASE 32 is a
-> source change**, so it ends this cycle and every measurement after it is void
-> until the next install, which is also the install that destroys the fixtures.
-> ***SO 5.1 AND 5.2 GO FIRST, AND THEY ARE ELEVATED TYPING, NOT A CYCLE.***
-> Doing them afterwards means rebuilding three accounts to ask a question that
-> could have been asked for nothing.
+> ***THE FIXTURES WERE ALREADY GONE, AND THIS BOX SAID OTHERWISE FOR HALF A
+> SESSION.*** The sequencing note here read *"5.1 and 5.2 go first, before any
+> source change, because a fresh install destroys the fixtures"*. **The fresh
+> install had already happened**: `b48tier`, `b48susp` and `b48adm` were made
+> against **18:58:55** and the **19:37:47** cycle wiped both trees. Item 3
+> carries the measurement.
+>
+> ***THE TELL WAS AVAILABLE AND WAS NOT USED.*** The same box records that the
+> 19:37:47 cycle destroyed the `ZZMARKS` fixture and had it rebuilt. A cycle
+> does not destroy one fixture. **When a cycle is known to have eaten something,
+> the question is what else it ate.**
+>
+> ***SO THE ORDER INVERTS: nothing is waiting on this install, and PRE_RELEASE
+> 32 is free to go first.*** Rebuild the three accounts on the install after
+> its cycle, `cleanup-devlitter.ps1` first — the Windows halves outlived the SD
+> halves and a same-name rebuild is exactly PRE_RELEASE 32's defect.
 >
 > ### HANDOFF, SIXTY-EIGHTH SESSION — READ THE FIVE NUMBERED ITEMS FIRST
 >
@@ -265,23 +272,51 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >   held one; if a future one does, `unlock tasklock` *n* elevated is the way
 >   out.
 >
-> ## ***3. THE TIER WORK IS MEASURED AND WORKS. THREE FIXTURES ARE LEFT BEHIND.***
+> ## ***3. THE TIER WORK IS MEASURED AND WORKS. THE THREE FIXTURES ARE GONE.***
+>
+> ***CORRECTED 27 Aug 2026, SIXTY-NINTH SESSION. THIS TABLE SAID THEY WERE
+> STILL THERE AND THEY ARE NOT.*** They were made against the **18:58:55**
+> install and the **19:37:47** cycle wiped both trees — the same cycle whose
+> destruction of the `ZZMARKS` fixture item 1 records and which was rebuilt.
+> Nobody re-checked the accounts.
+>
+> **Measured on the 19:37:47 install rather than argued:** `sdsys/accounts`
+> holds **`don` and `sdsys` and nothing else**, `user_accounts` holds only
+> `don`, and `group_accounts` is **empty**.
+>
+> ***THE REFUSAL THAT FOUND IT LOOKS LIKE THE WRONG ONE, AND THAT IS BY
+> DESIGN.*** `logto b48tier` from an elevated SDSYS session answered *"User not
+> allowed in requested account"*, which reads as a failed group test. It is not:
+> `CPROC:2639` prints **the same message** when the account is absent from the
+> register, deliberately, so the register cannot be probed for which names
+> exist. **A refusal that cannot distinguish the two cases cannot be read as
+> either one** — the register is what settles it.
+>
+> ***THE WINDOWS SIDE OUTLIVED THE SD SIDE***, which a cycle does not touch:
+> local user **`b48adm`** and groups **`sdg_b48tier`**, **`sdg_b48susp`**,
+> **`sdu_b48adm`** are all still on this host. So rebuilding `b48adm` under the
+> same name walks straight into PRE_RELEASE 32. ***Run `cleanup-devlitter.ps1`
+> before rebuilding anything***, which the 53 stale `ProfileList` entries
+> already wanted.
 >
 > Full detail below in "THE TIER CHANGE AND SUSPENDED ARE MEASURED AND WORK".
 > The short form: `modify.account` moves an account between STANDARD,
 > PROGRAMMER, ADMINISTRATOR and SUSPENDED in either direction, the VOC delta
 > reported the predicted **42** and **21** every time, and the Windows side was
-> diffed from outside SD with `don` as an unchanged control.
+> diffed from outside SD with `don` as an unchanged control. **None of that is
+> in doubt; only the fixtures are gone.**
 >
-> | account | state | why it is still there |
+> | account | what it was | what it was for |
 > |---|---|---|
-> | `b48tier` | PROGRAMMER, group | the fixture for the **"left alone"** test, item 5 |
-> | `b48susp` | ***SUSPENDED***, group | **KEEP IT SUSPENDED** — the only unelevated LOGTO-door fixture |
-> | `b48adm` | PROGRAMMER, user | password known to the owner; the fixture for the ssh and API doors |
+> | `b48tier` | PROGRAMMER, group | the **"left alone"** test, item 5.1 |
+> | `b48susp` | ***SUSPENDED***, group | the unelevated LOGTO-door fixture |
+> | `b48adm` | PROGRAMMER, user | the ssh and API doors, item 5.2 |
 >
+> **Rebuilding them is scriptable except for one:** `create.account group` does
+> not prompt (`CREATEA:517`), `create.account user` prompts for a password and
+> `no.query` does not suppress it — so `b48adm` needs a person. And
 > **`delete.account` prompts unconditionally** (`DELACC:242`, no `no.query`), so
-> do not tear them down from a pipe. The next fresh install removes them, which
-> is what happened to `b47`'s fifteen.
+> never tear them down from a pipe.
 >
 > ## ***4. THE THREE FIXES ARE ALL DONE AND MEASURED. WHAT IS LEFT IS A DECISION AND TWO COMMITS ELSEWHERE.***
 >
@@ -303,13 +338,22 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | **PRE_RELEASE 23 / UPSTREAM 24** | `TERM`'s `KW$DEFAULT` arm now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH`, not `MIN.WIDTH` and hard-coded 24; the `sdterm` depth-25 case went too. ***MEASURED 27 Aug: `term` reports 120 x 36.*** **DONE.** Left: three docs pages in `SDCoreWindowsDocs` still describe the old behaviour |
 > | **PRE_RELEASE 29** | ***DONE, install 19:37:47.*** `MICRO_CONFIG_HOME` is a per-user `~/.micro` (`[Environment]::GetFolderPath`, falling back to local application data then TEMP) via the new shipped `gplbld/micro-home.ps1`; `EDIT`'s `micro.home` reads its `MICROHOME=` line before the working copy is written; the dead `-backup off` and `editor.args` are gone; `stage.py` ships the script and its wrong comment is corrected. **Three runs by the owner, save and no-save, no message** |
 >
-> ## ***5. WHAT IS STILL NOT MEASURED, IN THE ORDER THE FIXTURES SUIT.***
+> ## ***5. WHAT IS STILL NOT MEASURED. 1 AND 2 NEED THEIR FIXTURES REBUILT FIRST.***
+>
+> ***5.1 AND 5.2 CANNOT BE RUN AS WRITTEN — the accounts they name were
+> destroyed by the 19:37:47 cycle, item 3.*** They are written below as they
+> stand because the *procedure* is right; only the accounts are missing.
+> **Rebuild after the next install, not on this one**, so a cycle does not throw
+> them away a second time, and run `cleanup-devlitter.ps1` first — the Windows
+> halves of all three survived and a same-name rebuild meets PRE_RELEASE 32.
 >
 > 1. ***THE "LEFT ALONE" COUNT.*** Every run reported `0 left alone`, which is a
 >    rule **never exercised**, not a rule that passed. Elevated: `logto b48tier`
->    (elevation bypasses the group test), edit a VOC record `TIER.OMIT.STANDARD`
->    names — `ed voc basic`, `I` with text, `FI` — then `logto sdsys` and
->    `modify.account b48tier standard`. **Expect `41 removed, 1 left alone`.**
+>    (elevation bypasses the group test — `logto.authorised` at `CPROC:3708`
+>    returns true on `K$ADMINISTRATOR` before it reaches `is_grp_member`), edit
+>    a VOC record `TIER.OMIT.STANDARD` names — `ed voc basic`, `I` with text,
+>    `FI` — then `logto sdsys` and `modify.account b48tier standard`.
+>    **Expect `41 removed, 1 left alone`.**
 > 2. ***THE ssh/CONSOLE DOOR (`LOGIN`) AND THE API DOOR (`APISRVR`).*** Neither
 >    has been reached. Suspend `b48adm`, `ssh b48adm@localhost` must answer
 >    **`Account B48ADM is suspended`**, then `modify.account b48adm programmer

@@ -39340,3 +39340,28 @@ first:** items 5.1 and 5.2 are the last tests whose fixtures - `b48tier`,
 a source change, so it ends the cycle, and the install that would follow is the
 one that destroys the fixtures. **Elevated typing before a source change, or
 three accounts rebuilt to ask the same question.**
+
+**And the fixtures for 5.1 and 5.2 turned out to be gone already.** The owner
+typed `logto b48tier` at an elevated SDSYS prompt and got *"User not allowed in
+requested account"*, which reads as a failed group test and is not one:
+`CPROC:2639` prints **the same message** when the account is absent from the
+register, deliberately, so the register cannot be probed for which names exist.
+**A refusal that cannot tell the two cases apart cannot be read as either.**
+
+**Measured on the 19:37:47 install:** `sdsys/accounts` holds `don` and `sdsys`
+and nothing else; `user_accounts` holds only `don`; `group_accounts` is empty.
+The three accounts were made against **18:58:55** and the **19:37:47** cycle
+wiped both trees.
+
+***THE TELL WAS ALREADY IN START HERE AND WAS NOT USED.*** The same box records
+that 19:37:47 destroyed the `ZZMARKS` fixture, and had it rebuilt. **A cycle
+does not destroy one fixture.** The sequencing advice given earlier the same
+session - *"take 5.1 and 5.2 before any source change, because a fresh install
+will destroy the fixtures"* - was reasoned from a table written two installs
+earlier and never re-checked. It cost nothing because the first command run
+disproved it, which is the argument for running the cheapest one first.
+
+**The Windows halves outlived the SD halves**, which a cycle does not touch:
+local user `b48adm` and groups `sdg_b48tier`, `sdg_b48susp`, `sdu_b48adm` are
+still on this host. **Rebuilding under the same name is PRE_RELEASE 32's
+defect**, so `cleanup-devlitter.ps1` runs before any rebuild.
