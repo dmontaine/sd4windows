@@ -1668,14 +1668,17 @@ report. A user who runs `TERM DEFAULT` to "put things back" makes the display
 worse and has no reason to suspect the verb.
 
 **The fix is two lines**: `width = DEFAULT.WIDTH` and `depth = DEFAULT.DEPTH`.
-The `sdterm` special case for depth 25 may be deliberate and can stay as an
-override if so; the point is that neither branch should be reaching for
-`MIN.WIDTH`.
 
 **Measured on SD Core for Windows W1.0-0** - `term default` then `term`
 reported `Page width: 20`, `Page depth: 24`. Upstream `sd64/sdsys/GPL.BP/TERM`
 carries the identical three lines at 164-166 and the identical constants at
 `INT$KEYS.H:37-42`, so this is not a port artefact.
+
+***FIXED IN THIS PORT, 27 Aug 2026.*** `gpl.bp/TERM`'s `KW$DEFAULT` arm now
+sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH`. The `sdterm` depth-25 special case was
+removed rather than kept: a default that depends on the terminal type is not a
+default, and it paired with the same `MIN.WIDTH` slip. Uncompiled at the time
+of writing; rides the next cycle. PRE_RELEASE_FIXES #23.
 
 `PROPOSED`
 

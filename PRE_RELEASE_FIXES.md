@@ -44,15 +44,15 @@ should be fixed, **M** minor.
 | ~~18~~ | **M** | ~~A text mark reaches the editor as a raw control character~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
 | 19 | **B** | ***The tier change and `SUSPENDED` compile but have never RUN, and there is no verifier*** | `gpl.bp/MODIFYA` |
 | 20 | **S** | A suspended administrator is still a Windows administrator | `gpl.bp/MODIFYA` |
-| 21 | **S** | ***The write-once rule on `ACC$PRIOR.TIER` is unreachable, and four documents say it is what makes field 6 safe*** | `gpl.bp/MODIFYA` |
+| 21 | **S** | ~~The write-once rule on `ACC$PRIOR.TIER` is unreachable, and four documents say it is what makes field 6 safe~~ — **dead test deleted, docs corrected 27 Aug; uncompiled** | `gpl.bp/MODIFYA`, `syscom/KEYS.H` |
 | 22 | **M** | `create.account` says a password was not set and never says why | `gpl.bp/CREATEA:498` |
-| 23 | **S** | ***`term default` sets 20x24, the MINIMUM width, not SD's 120x36 default*** — UPSTREAM #24, **unfixed here** | `gpl.bp/TERM:165` |
+| 23 | **S** | ~~`term default` sets 20x24, the MINIMUM width, not SD's 120x36 default~~ — UPSTREAM #24; **fixed here 27 Aug (`DEFAULT.WIDTH`/`DEFAULT.DEPTH`), uncompiled** | `gpl.bp/TERM:165` |
 | 24 | **S** | ***`sd -cleanup` never releases a dead session's task locks*** — UPSTREAM #25, **unfixed here** | `gplsrc/clopts.c:300` |
 | 25 | **S** | `encrypt.field` is in every administrator's VOC and `$CRYPTO` is not in the distribution — UPSTREAM #26, **unfixed here** | `sdsys/voc_template/encrypt.field` |
 | 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27, **unfixed here** | `gpl.bp/DELETEF:233` |
 | 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
-| 29 | **B** | ***`micro` CANNOT SAVE FOR AN UNELEVATED ACCOUNT*** — its config home is a read-only Program Files directory that it must write to | `gpl.bp/EDIT:219` |
+| 29 | **B** | ***`micro` CANNOT SAVE FOR AN UNELEVATED ACCOUNT*** — its default auto-backup writes to the read-only Program Files config home. **`EDIT` launches micro `-backup off`; source edit made 27 Aug, uncompiled, next cycle** | `gpl.bp/EDIT:227` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -587,10 +587,15 @@ describing the wrong guard, which is the kind of thing that survives until
 somebody deletes the equality guard and believes the other one is holding.
 
 **The fix**: delete the unreachable inner test, and say at the equality guard
-that it is also what protects field 6. **Not done here on purpose** — editing
-`MODIFYA` or `KEYS.H`, even only their comments, moves the mtime and
-`assert-current` then refuses every verifier. The suite has not run. Do this
-with whatever next changes source.
+that it is also what protects field 6.
+
+***DONE IN SOURCE 27 Aug 2026, UNCOMPILED.*** The inner
+`if old.tier # 'SUSPENDED'` at the field-6 write in `tier.set` is deleted;
+`MODIFYA`'s banner, a new comment at the equality guard, and `syscom/KEYS.H`'s
+field-6 note all now say the equality guard (sysmsg 10110) is what keeps
+field 6 write-once. **Behaviour is unchanged** — it was already correct. Rode
+in with PRE_RELEASE 23 and 29 once 29 had taken the tree off `assert-current`;
+the owed `cycle.ps1` compiles it. PROJECT_STATUS.md START HERE item 4.
 
 ---
 
@@ -635,13 +640,18 @@ verb they just used.
 164-166 and the identical constants — so it is filed as UPSTREAM_FIXES #24 as
 well. Being upstream's is not a reason to ship it.
 
-**The fix is two lines** and is written out in the upstream entry. Do not do it
-without a cycle: `TERM` is BASIC, so it costs one.
+**The fix is two lines** and is written out in the upstream entry.
 
-**Documented meanwhile rather than left to surprise somebody**:
+***DONE IN SOURCE 27 Aug 2026, UNCOMPILED.*** `gpl.bp/TERM`'s `KW$DEFAULT` arm
+now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH` (120 x 36). The `sdterm` depth-25
+special case was removed, not kept — see UPSTREAM #24 for why. Rode in with
+PRE_RELEASE 21 and 29; the owed `cycle.ps1` compiles it. **Check:** `term
+default` then `term` should report width 120, depth 36.
+
+**Documented meanwhile** (and still worth keeping until the fix is measured):
 *SD TCL - The Terminal and the Session* and tester page 13 both state the
 120 x 36 default, both say `term default` does not restore it, and both give
-`term 120,36` as what does.
+`term 120,36` as what does. **Those pages will need a pass once the fix ships.**
 
 ## 24. `sd -cleanup` never releases a dead session's task locks — **S**
 
@@ -802,6 +812,19 @@ writes into its config home. An ordinary account therefore cannot save.
 are in it, owned by `don`, both written on 27 Aug. `backups/` has never been
 created at all.
 
+***THE SPECIFIC WRITE THAT BLOCKS THE SAVE IS THE AUTO-BACKUP*** (27 Aug 2026,
+reasoned from micro 2.0.15, **not yet reproduced** — that needs a person at an
+unelevated console). `micro -options` on the installed 2.0.15: `backup`
+defaults to **`true`** and `backupdir` to **`''`**, and an empty `backupdir`
+sends the backup to `<config-home>/backups/`. micro creates that directory
+lazily on the first save; unelevated, the `MkdirAll` under `Users:(RX)` fails
+and micro aborts the save with exactly the message above. That is why
+`backups/` is the one subdirectory micro never created, and why viewing,
+editing and highlighting all worked — the other config-home writes
+(`buffers/history` on exit, `settings.json`/`bindings.json` on `set`/`bind`)
+are best-effort and happen after the save, so they do not block it. **Check:
+`micro -backup off bp ZZMARKS` unelevated should save.**
+
 ***THIS IS WHY 26 Aug's "BOTH EDITORS WORK" DID NOT CATCH IT.*** `don` is a
 member of Windows `Administrators`, so an **elevated** session writes Program
 Files without trouble; an unelevated one gets `Administrators` deny-only in its
@@ -816,12 +839,24 @@ because that is the case that had never been run.**
 > with that user's rights. It would trade a save failure for a privilege
 > escalation.
 
-**The shape of a real fix is a decision, not an edit**, and it is the owner's:
-micro takes one `-config-dir` for both its read-only configuration and its
-writable state, so they cannot simply be split. The options are a per-account
-config directory inside the account (losing the single machine-wide copy of
-`sdbasic.yaml`, or copying it in), or a writable state directory outside
-Program Files with the syntax file copied to it at install time.
+***THE FIX, DECIDED BY THE OWNER 27 Aug 2026: `EDIT` LAUNCHES micro WITH
+`-backup off`.*** micro takes `-backup` on the command line, so the auto-backup
+is suppressed at the launch site with no new file, no ACL change, and no change
+to the config-home escalation surface. The backup safety net is thin here
+anyway: `EDIT` prompts `Save?  <Y>es, <N>o`, keeps the `$hold` working copy
+until every exit, and the mark round-trip is byte-verified before the editor is
+handed anything. The two options weighed against it — a per-account
+`-config-dir`, or a writable machine-wide state directory with `sdbasic.yaml`
+copied in at install — both cost more and neither buys anything the prompt and
+the working copy do not already give.
+
+***THE SOURCE EDIT IS MADE (27 Aug 2026), UNCOMPILED.*** `EDIT` gains
+`editor.args`, set per editor in the `begin case`: `' -backup off'` for micro,
+`''` for Microsoft Edit (which takes no such switch), spliced into the
+`os.execute` command line at `EDIT:832`. **The owner accepted, 27 Aug, that
+this voids START HERE item 1's clean-baseline `b48`:** the next `cycle.ps1`
+compiles it and `b48` then scores that tree, not the current install. Sits with
+PRE_RELEASE 21 and 23 for that cycle.
 
 **`edit` — Microsoft Edit — sets no `MICRO_CONFIG_HOME` and is not affected by
 this**, but it has not been retried unelevated since the cycle, so do not read

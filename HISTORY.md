@@ -38909,3 +38909,37 @@ Program Files lets any SD user run code in every other user's editor session.
 **`ZZMARKS` came back byte-identical** after the failed save, so nothing is
 lost; page 27 says so and points readers at `ed`. **The old item 5.3 command
 could never have worked** — `gpl.bp` does not resolve in a user account.
+
+## 27 Aug 2026 - PRE_RELEASE 29, 23 and 21 fixed in source (uncompiled)
+
+A later session, same day. The owner chose to edit the three queued source
+fixes in now and fold them into one cycle, rather than run `b48` against the
+current install first. **This supersedes the "NOT fixed in source, on purpose"
+lines in the entries above** - the sequencing argument held only while the tree
+was still on `assert-current`, and PRE_RELEASE 29 took it off.
+
+**29 - `micro` cannot save.** The blocking write was traced past "its config
+home" to the specific one: micro 2.0.15 ships `backup` true and `backupdir`
+empty, so the auto-backup goes to `MICRO_CONFIG_HOME/backups`, which micro
+`MkdirAll`s lazily on the first save. Under `C:\Program Files\SD\micro`
+(`Users:(RX)`) that fails and the save aborts - which is why `backups/` was the
+one subdir micro never created. **Fix:** `gpl.bp/EDIT` launches micro with
+`-backup off` (new `editor.args`, set per editor in the `begin case`; Microsoft
+Edit takes no such switch). *Not* a writable config home - that would trade the
+save failure for the Lua-plugin escalation. Not reproduced (needs a console);
+`micro -backup off bp ZZMARKS` unelevated is the check.
+
+**23 - `term default`.** `gpl.bp/TERM`'s `KW$DEFAULT` arm set `MIN.WIDTH` and a
+hard-coded depth 24 - 20 x 24, the narrowest SD accepts. Now `DEFAULT.WIDTH` /
+`DEFAULT.DEPTH`, 120 x 36. The `sdterm` depth-25 special case was removed, not
+kept: a default that varies by terminal type is not a default, and it was the
+same slip. UPSTREAM #24 updated with a FIXED-IN-THIS-PORT line.
+
+**21 - the dead write-once test.** The inner `if old.tier # 'SUSPENDED'` at the
+field-6 write in `tier.set` is deleted; `MODIFYA`'s banner, a new comment at
+the equality guard, and `syscom/KEYS.H`'s field-6 note now say the equality
+guard (sysmsg 10110) is what makes field 6 write-once. Behaviour unchanged.
+
+**State:** `assert-current` FAILS (confirmed). `sd.exe` unmoved
+(`DF77FD6D61DE5184`) - all BASIC - but `KEYS.H` forces a full recompile. Owed:
+one `cycle.ps1`, then `-Run b48`.
