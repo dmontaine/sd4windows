@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***PRE_RELEASE 29 IS DONE — `micro` SAVES.*** Install **27 Aug 19:37:47**, `assert-current` exit 0, and the owner ran `micro bp ZZMARKS` **three times, save and no-save, with no message**. `~/.micro/backups/` now exists, which is the very write that used to fail. **The mark round trip survived a real save** (SD reads 19 fields, 907 chars, VM 6/SM 1/TM 3, no stray CR), closing the last of item 5.3. It took three attempts: `-backup off` fixed nothing; the helper read env vars that are **empty** inside `os.execute`; and `EDIT` split the capture on `char(10)` where it is `@fm`. ***The earlier 18:58:55 install was `assert-current` exit 0 live too***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21, 23 and 29 DONE and measured, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-EIGHTH session**, which ended on credit rather than on a problem — the owner continues from a different account. **`sd4windows` is pushed and clean and the install is green and current.** ***PRE_RELEASE 29 IS DONE — `micro` SAVES.*** Install **27 Aug 19:37:47**, `assert-current` exit 0, and the owner ran `micro bp ZZMARKS` **three times, save and no-save, with no message**. `~/.micro/backups/` now exists, which is the very write that used to fail. **The mark round trip survived a real save** (SD reads 19 fields, 907 chars, VM 6/SM 1/TM 3, no stray CR), closing the last of item 5.3. It took three attempts: `-backup off` fixed nothing; the helper read env vars that are **empty** inside `os.execute`; and `EDIT` split the capture on `char(10)` where it is `@fm`. ***The earlier 18:58:55 install was `assert-current` exit 0 live too***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21, 23 and 29 DONE and measured, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -110,15 +110,29 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
 >
-> ### HANDOFF, SIXTY-SEVENTH SESSION — READ THE FIVE NUMBERED ITEMS FIRST
+> ### HANDOFF, SIXTY-EIGHTH SESSION — READ THE FIVE NUMBERED ITEMS FIRST
 >
-> ***THE SESSION ENDED ON THE OWNER STARTING A NEW ONE, NOT ON A PROBLEM.***
-> Both repositories are **pushed and clean**. Nothing is half-written.
+> ***THE SESSION ENDED ON CREDIT, NOT ON A PROBLEM.*** `sd4windows` is **pushed
+> and clean**, the install is **green and current**, and **nothing is
+> half-written or half-installed**. The docs repository was not touched this
+> session and has one correction owed (item 4).
 >
-> ***PRE_RELEASE 29 IS CLOSED — see item 1.*** The diagnosis is worth one line
-> because the entry is long: the message was **false** (the file always saved),
-> **no micro option suppresses it**, and the config home simply has to be
-> writable. Full measurement in PRE_RELEASE 29.
+> ***WHAT WAS DONE: FOUR PRE_RELEASE ENTRIES CLOSED AND TWO NEW ONES FOUND.***
+> 21, 23 and 29 fixed, installed and **measured**; 30 (a stale verifier) fixed
+> and passing in-suite; `-Run b48` scored **30 of 31**. New and open: **31**
+> (`verify-apiadmin`'s control is stale — needs your ruling) and **32**
+> (`delete.account` leaves the `ProfileList` entry, so a recreated account gets
+> a different home and loses its ssh keys — a real user-facing defect).
+>
+> ***THE ONE THING TO PICK UP IS SMALL:*** `edit bp ZZMARKS` unelevated, thirty
+> seconds, item 5.3. Everything else outstanding is a decision or another
+> repository.
+>
+> ***AND THE LESSON THIS SESSION KEEPS PAYING FOR, WRITTEN ONCE:*** PRE_RELEASE
+> 29 took **three** attempts, and each fix was reported before it was measured
+> **in the place it runs**. A console is not `os.execute`; the installed tree is
+> not the source tree. **Run it where it runs, and print what the instrument
+> actually read.**
 >
 > ## ***1. PRE_RELEASE 29 IS DONE. THE TREE IS GREEN. NOTHING IS HALF-DONE.***
 >
@@ -240,11 +254,18 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > do not tear them down from a pipe. The next fresh install removes them, which
 > is what happened to `b47`'s fifteen.
 >
-> ## ***4. THREE FIXES COMPILED 0-ERROR AND INSTALLED (27 Aug 17:25:59). MEASURE THEM.***
+> ## ***4. THE THREE FIXES ARE ALL DONE AND MEASURED. WHAT IS LEFT IS A DECISION AND TWO COMMITS ELSEWHERE.***
 >
-> 21 and 23 shipped in the owner's `cycle.ps1` and both are **measured working**.
-> **29's first fix shipped, was measured FAILING, and has been replaced in
-> source — that is what the owed cycle carries.**
+> ***OPEN, AND NONE OF IT NEEDS A CYCLE:***
+>
+> | | |
+> |---|---|
+> | **PRE_RELEASE 31** | **Yours.** `verify-apiadmin`'s control expects an elevated `LOGTO`'d session to lose `OS.EXECUTE`; `os_permitted()` keys the list on the *person* (`don`), whom PRE_RELEASE 2 listed, so the product is per design and the **control** is stale. Say what it should now prove and it can be rewritten — `$neverShipped`, no cycle |
+> | **PRE_RELEASE 32** | `DELACC` should remove the `ProfileList` entry when it removes the Windows user. **53 stale entries here**; run `cleanup-devlitter.ps1` before the next suite run |
+> | **docs repo** | *SD TCL - The Terminal and the Session*, tester `13` and `02` all still say `term default` does **not** restore 120 x 36. True when written, false since 17:25:59 |
+> | **`b49`** | the next suite number. `b48` is spent twice over |
+>
+> ***DONE THIS SESSION, KEPT FOR THE RECORD:***
 >
 > | | |
 > |---|---|
