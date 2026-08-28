@@ -40225,6 +40225,53 @@ leaving no SD credential is now stated by the product, not inferred.
 00:53:34 install untouched. **`sddr1` and `sddr2` are both spent; the next
 attempt takes `sddr3`.**
 
+### Both rulings implemented, and the tree is stale for the first time today
+
+***"PROMPT FOR PASSWORD AT CREATION" (PRE_RELEASE 42).*** The fix went into
+**`!set_passwd`, not `CREATEA`**, because that is where the prompt and the
+plaintext already are: after Windows accepts the password it now calls
+`!CRED_SET` with the same value, so one prompt fills both stores. **New status
+6** for the half-set case - Windows took it and `$cred` did not, the one
+failure that leaves an account ssh admits and the API refuses - with message
+**10122**, named by `CREATEA` rather than falling through 10121's *"status
+%1"*. Order is Windows first, then `$cred`: a credential for a login that
+cannot happen is worse than neither. `CREATEA:537` had **already asserted**
+this behaviour in a comment - true of the intent, false of the code.
+
+**Checked before writing it**: `SET_ACC_PASSWORD:158` asks for the current
+password only `if own and has.cred`, so an administrator setting another
+account's still sees exactly two prompts - the door pair's piped input stays
+aligned against the new build.
+
+***"WIRE THE PAIR INTO VerifyInstall" (PRE_RELEASE 38).*** `verify-doors-suite.ps1`
+drives all five phases as one step and is the **last step of `VerifyInstall1`**.
+***IT HAD TO BE THE UNELEVATED RUNNER AND THAT IS FORCED***: the phases
+alternate tokens, and an elevated parent cannot make an ordinary child
+(`VerifyInstall1.ps1:70` - `runas /trustlevel` gives a RESTRICTED token), so
+the ordinary half must be the parent and raise the elevated children. Three
+UAC prompts, each announced. **The child redirects its own output** because
+`-Verb RunAs` and `-RedirectStandardOutput` cannot be combined - without that
+the window closes and the leg leaves an exit code and no evidence. **The
+password is not in the launcher and not in the transcript**: it goes as an
+argument, and `verify-doors-admin` does not print it when supplied.
+
+***THREE BUGS WERE CAUGHT BY THE RULE RATHER THAN BY RUNNING IT.*** All three
+helper functions in the orchestrator were written to `Write-Output` **and**
+return a value, which in PowerShell hands the caller the whole output stream
+with the value on the end - so `if (-not (Add-Leg ...))` would have tested a
+non-empty array, never fired, and looked perfectly normal because the lines
+still print. They set script-scope variables now, as `Note` does. **A parse
+check would have passed all three.**
+
+**Exercised, not assumed**: the orchestrator's refusal path exits 2 with
+nothing created (`-Prefix sddr1` - it named the profile directory), the
+step-list append was measured to fold to exactly one element with its `P`
+still a hashtable, and all three scripts parse 0 errors with no BOM.
+
+**THE TREE IS NOW STALE** - the first `sdsys` change since 00:53:34 - so
+`assert-current` fails by design and a cycle is owed before anything can test
+either ruling.
+
 **`-Phase Remove` closed it, 2/2**, and the machine was swept afterwards:
 **no Windows user, no `sdu_` group and no `ACCOUNTS` record for either name;
 `sdapi`, `sdssh` and `sdusers` carry no orphan SIDs; no stray `sd.exe`.** The

@@ -117,19 +117,55 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩ NOTHING IS OWED. THE DOORS ARE COVERED AND THE FIXTURE IS GONE. ⇩
+> # ⇩ THE TREE IS STALE. A CYCLE IS OWED BEFORE ANYTHING CAN BE TESTED. ⇩
 >
-> ***HANDOFF, SEVENTY-SECOND SESSION, 28 Aug 2026.*** ***PRE_RELEASE 19 IS
-> CLOSED AND SO IS ITS LAST ROW.*** The `verify-doors` pair ran **end to end**
-> on `sddr2`, **all five phases, every leg green**, and `-Phase Remove` took
-> the fixture away. **No command is waiting on the owner.**
+> ***HANDOFF, SEVENTY-SECOND SESSION, 28 Aug 2026.*** ***BOTH OF THE OWNER'S
+> RULINGS ARE IMPLEMENTED AND NEITHER HAS RUN.*** The first `sdsys` change
+> since the 00:53:34 install went in, so **`assert-current` now fails by
+> design** and every verifier that calls it will refuse. **Nothing is
+> half-done; it is finished and unproven.**
 >
-> ***TWO DECISIONS ARE HIS, AND BOTH ARE WRITTEN UP*** — **PRE_RELEASE 42**
-> (`create.account` announces the API as a route while leaving no SD
-> credential) and **what is left of 38** (wire the pair into `VerifyInstall1`,
-> or leave it standalone and named in the docs). **Neither needs another run.**
+> ***TWO COMMANDS, IN THIS ORDER.***
 >
-> ***THE ONLY THING LEFT ON THE MACHINE IS `C:\Users\sddr1a` AND
+> **1. ELEVATED PowerShell — and stay at the wizard, the installer is not
+> silent:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **2. THEN, in an ORDINARY, UNELEVATED PowerShell — his own terminal, not an
+> agent's (§4.0.1):**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b50
+> ```
+>
+> ***`b50` IS THE NEXT FREE TOKEN. THE DOOR STEP DERIVES `sddrb50` FROM IT***,
+> and **without `-Run` the door step is skipped and says so** — its prefix
+> becomes an account name and must be single-use.
+>
+> ***WHAT WENT IN, AND WHAT IS UNRUN.***
+>
+> | ruling | change | state |
+> |---|---|---|
+> | *"prompt for password at creation"* (**PRE_RELEASE 42**) | `!set_passwd` writes `$cred` via `!CRED_SET` from the **same prompt**; new status 6 + message 10122; `CREATEA` names it | ***compiled? not even that — the tree is stale and it has never been through a build*** |
+> | *"wire the pair into VerifyInstall"* (**PRE_RELEASE 38**) | `verify-doors-suite.ps1`, last step of `VerifyInstall1`, conditional on `-Run` | refusal path exercised (exit 2, nothing created); **never run as a suite step** |
+>
+> ***THE SUITE RUN NOW COSTS THREE EXTRA UAC PROMPTS AND ONE PERMANENT PROFILE
+> DIRECTORY*** (`C:\Users\sddrb50a`), because a door prefix is spent once its
+> account has signed in over ssh. **That is the price of wiring it in, and it
+> is worth saying out loud: entry 36 is what makes it stop accumulating.**
+>
+> ***IF `-Run b50` SHOWS A NEW FAILURE, SUSPECT THE THREE UNRUN THINGS FIRST***
+> — the door step itself, the now-live ANSI strip in 23 verifiers
+> (PRE_RELEASE 10), and the runners' transcript close (40).
+>
+> ***PRE_RELEASE 19 IS CLOSED.*** The `verify-doors` pair ran **end to end** on
+> `sddr2` earlier this session, **all five phases green**, and the fixture was
+> removed. That is what closed it, and it is measured, not argued.
+>
+> ***ALREADY ON THE MACHINE: `C:\Users\sddr1a` AND
 > `C:\Users\sddr2a`.*** Swept 28 Aug and everything else is clean: **no Windows
 > user, no `sdu_` group and no `ACCOUNTS` record for either name; `sdapi`,
 > `sdssh` and `sdusers` carry no orphan SIDs; no stray `sd.exe`.** The two
