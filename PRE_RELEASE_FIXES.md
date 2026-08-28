@@ -46,7 +46,7 @@ should be fixed, **M** minor.
 | 20 | **S** | A suspended administrator is still a Windows administrator | `gpl.bp/MODIFYA` |
 | 21 | **S** | ~~The write-once rule on `ACC$PRIOR.TIER` is unreachable, and four documents say it is what makes field 6 safe~~ — **dead test deleted, docs corrected 27 Aug; compiled + installed 17:25:59, `b48` is the regression check** | `gpl.bp/MODIFYA`, `syscom/KEYS.H` |
 | 22 | **M** | `create.account` says a password was not set and never says why | `gpl.bp/CREATEA:498` |
-| ~~23~~ | **S** | ~~`term default` sets 20x24, the MINIMUM width, not SD's 120x36 default~~ — UPSTREAM #24. ***DONE 27 Aug 2026***, installed 17:25:59 and **measured: `term` reports 120 x 36**. Left: three docs pages still describe the old behaviour (docs repo) | `gpl.bp/TERM:165` |
+| ~~23~~ | **S** | ~~`term default` sets 20x24, the MINIMUM width, not SD's 120x36 default~~ — UPSTREAM #24. ***DONE 27 Aug 2026***, installed 17:25:59 and **measured: `term` reports 120 x 36**. **Docs corrected too**, `SDCoreWindowsDocs` `c41d999` | `gpl.bp/TERM:165` |
 | 24 | **S** | ***`sd -cleanup` never releases a dead session's task locks*** — UPSTREAM #25, **unfixed here** | `gplsrc/clopts.c:300` |
 | 25 | **S** | `encrypt.field` is in every administrator's VOC and `$CRYPTO` is not in the distribution — UPSTREAM #26, **unfixed here** | `sdsys/voc_template/encrypt.field` |
 | 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27, **unfixed here** | `gpl.bp/DELETEF:233` |
@@ -656,14 +656,19 @@ and returns, which is what that arm does and is not a defect — and the bare
 `term` after it reported **120 x 36**. Against the recorded `20` / `24` before
 the fix, that is the whole claim, measured on the installed tree.
 
-***THE THREE DOCUMENTS THAT DESCRIBE THE OLD BEHAVIOUR ARE NOW WRONG AND ARE THE
-REMAINING WORK ON THIS ENTRY.*** *SD TCL - The Terminal and the Session*, tester
-page 13 and page 02 all state that `term default` does **not** restore 120 x 36
-and give `term 120,36` as the way to do it. That was true when written and is
-false as of this install. **They live in `SDCoreWindowsDocs`, so the correction
-is a separate commit in that repository** — and it is the exact case the docs
-`README` warns about: a page whose value is a measured defect is the page a fix
-invalidates.
+***THE THREE DOCUMENTS THAT DESCRIBED THE OLD BEHAVIOUR ARE CORRECTED — NOTHING
+IS LEFT ON THIS ENTRY.*** `SDCoreWindowsDocs` `c41d999`, 27 Aug 2026. *SD TCL -
+The Terminal and the Session*, tester page 13 and page 02 all told the reader
+**not** to use the verb and to type `term 120,36` instead; each now states what
+`term default` does, and keeps the one fact that surprises people — **it prints
+nothing**, so a bare `term` after it is how you see the result. Tester 13 also
+keeps one line saying it used to set 20 x 24, because a tester may hold notes
+from an earlier build. Re-rendered with `tools\release.ps1`: Testing 15 pages /
+77 links / 0 broken, User 33 / 185 / 0, and markdown-against-PDF checked
+separately per the docs `README` — 48 pages, 0 stale, 0 missing.
+
+It was the exact case that `README` warns about: **a page whose value is a
+measured defect is the page a fix invalidates.**
 
 ## 24. `sd -cleanup` never releases a dead session's task locks — **S**
 

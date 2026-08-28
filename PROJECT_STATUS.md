@@ -205,12 +205,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***THE THREE PRODUCT FIXES, ALL NOW ON THIS INSTALL.***
 >
 > 1. **PRE_RELEASE 21** — ***DONE.*** `verify-tiers` PASSED in `b48`.
-> 2. **PRE_RELEASE 23** — ***DONE.*** The owner ran `term default` then `term`:
->    **120 x 36**, where it was 20 x 24. `term default` prints nothing, which is
->    what that arm does and is not a defect. **Left: three docs pages still say
->    `term default` does not restore it** — *SD TCL - The Terminal and the
->    Session*, tester `13` and `02` — in `SDCoreWindowsDocs`, so a commit in the
->    other repository.
+> 2. **PRE_RELEASE 23** — ***DONE, AND THE DOCS ARE CORRECTED TOO.*** The owner
+>    ran `term default` then `term`: **120 x 36**, where it was 20 x 24.
+>    `term default` prints nothing, which is what that arm does and is not a
+>    defect. The three pages that said the verb does not restore it —
+>    *SD TCL - The Terminal and the Session*, tester `13` and `02` — are fixed
+>    in `SDCoreWindowsDocs` `c41d999`, 27 Aug 2026 (sixty-ninth session).
 > 3. **PRE_RELEASE 29** — ***DONE.*** Witnessed on the 19:37:47 install: three
 >    runs, save and no-save, no message.
 >
@@ -262,7 +262,6 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > |---|---|
 > | **PRE_RELEASE 31** | **Yours.** `verify-apiadmin`'s control expects an elevated `LOGTO`'d session to lose `OS.EXECUTE`; `os_permitted()` keys the list on the *person* (`don`), whom PRE_RELEASE 2 listed, so the product is per design and the **control** is stale. Say what it should now prove and it can be rewritten — `$neverShipped`, no cycle |
 > | **PRE_RELEASE 32** | `DELACC` should remove the `ProfileList` entry when it removes the Windows user. **53 stale entries here**; run `cleanup-devlitter.ps1` before the next suite run |
-> | **docs repo** | *SD TCL - The Terminal and the Session*, tester `13` and `02` all still say `term default` does **not** restore 120 x 36. True when written, false since 17:25:59 |
 > | **`b49`** | the next suite number. `b48` is spent twice over |
 >
 > ***DONE THIS SESSION, KEPT FOR THE RECORD:***
