@@ -164,6 +164,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **Suite `-Run b49`: 30 of 31 steps, 963 `PASS`, 1 `[FAIL]`, 0 `[SKIP]`**, the
 > one failure being PRE_RELEASE 31's known stale control.
 >
+> ***STALE AS OF 28 Aug: `C:\Users` HOLDS 11 DIRECTORIES AGAIN, 10 OF THEM
+> ORPHANS, AND 22 HIVES ARE LOADED.*** The sweep below did happen; **the `b49`
+> suite refilled it afterwards**, which is the measurement PRE_RELEASE 36 now
+> carries. Three of the ten have no `ProfileList` entry at all. **A reboot's
+> repair lasts one suite run.**
+>
 > ***AND `C:\Users` IS CLEAN FOR THE FIRST TIME IN WEEKS*** — the post-reboot
 > sweep took **53, failed 0**, and the three `b49`/`b50` directories this
 > session made were removed by hand. Only `Default`, `dmont` and `Public`

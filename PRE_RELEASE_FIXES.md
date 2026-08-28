@@ -44,7 +44,7 @@ should be fixed, **M** minor.
 | ~~18~~ | **M** | ~~A text mark reaches the editor as a raw control character~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
 | 19 | **B** | ***The tier change and `SUSPENDED` compile but have never RUN, and there is no verifier*** | `gpl.bp/MODIFYA` |
 | 20 | **S** | A suspended administrator is still a Windows administrator | `gpl.bp/MODIFYA` |
-| 21 | **S** | ~~The write-once rule on `ACC$PRIOR.TIER` is unreachable, and four documents say it is what makes field 6 safe~~ — **dead test deleted, docs corrected 27 Aug; compiled + installed 17:25:59, `b48` is the regression check** | `gpl.bp/MODIFYA`, `syscom/KEYS.H` |
+| ~~21~~ | **S** | ~~The write-once rule on `ACC$PRIOR.TIER` is unreachable, and four documents say it is what makes field 6 safe~~ — **dead test deleted, docs corrected 27 Aug; compiled + installed 17:25:59, `b48` is the regression check** | `gpl.bp/MODIFYA`, `syscom/KEYS.H` |
 | 22 | **M** | `create.account` says a password was not set and never says why | `gpl.bp/CREATEA:498` |
 | ~~23~~ | **S** | ~~`term default` sets 20x24, the MINIMUM width, not SD's 120x36 default~~ — UPSTREAM #24. ***DONE 27 Aug 2026***, installed 17:25:59 and **measured: `term` reports 120 x 36**. **Docs corrected too**, `SDCoreWindowsDocs` `c41d999` | `gpl.bp/TERM:165` |
 | 24 | **S** | ***`sd -cleanup` never releases a dead session's task locks*** — UPSTREAM #25, **unfixed here** | `gplsrc/clopts.c:300` |
@@ -53,7 +53,7 @@ should be fixed, **M** minor.
 | 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
 | ~~29~~ | **S** | ~~`micro` reports "Permission denied" on every save~~ — **DONE 27 Aug 2026**, install 19:37:47. `MICRO_CONFIG_HOME` is a per-user `~/.micro` via the new `micro-home.ps1`. Owner: three runs, save and no-save, **no message**. Took three attempts — see the entry | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
-| 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
+| ~~30~~ | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
 | 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
 | ~~32~~ | **S** | ~~`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory~~ — **FIXED 27 Aug 2026: the `catch { exit 6 }` that left both halves is now `catch { }`, and the key is removed in its own right; status 6 splits into 6 (directory) and 7 (registry entry).** ***UNCOMPILED — needs a cycle.*** Generated PowerShell parse-checked 0 errors / 203 tokens; the new steps run read-only against a real account | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075`, `messages/10116` |
 | ~~33~~ | **S** | ~~`allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing**~~ — **DONE 27 Aug 2026**, the usage line names `-Installed` and a dated note says which forms need it. Comment only, parses 0 errors / 1247 tokens | `gplbld/allow-ssh-groups.ps1:4` |
@@ -61,7 +61,7 @@ should be fixed, **M** minor.
 | 35 | **S** | ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32. `DELETE_USER` now tries to remove it, **and MEASURED: it cannot be deleted OR renamed while the hive is mounted**, so the honest answer is the rewritten `10075`, which names the cause and the restart. **Cure is 36** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
 | 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — the ROOT CAUSE of 32 and 35. **Mechanism confirmed: `Remove-CimInstance` failed on a mounted hive, then cleared `53 removed, 0 failed` after a restart.** Nothing SD does can unmount them. ***RULED 27 Aug 2026 AND NOT BUILT: keep BOTH halves on failure, directory first, and reclaim the pair from a sweep at SD service start — not the machine-wide Windows per-days policy. `create.account` REFUSES on an existing directory. No restart in the delete path*** | Windows lifecycle; `gplbld/clean-test-profiles.ps1`, `gplbld/install-service.ps1` |
 | 37 | **S** | ***`create.account` prints two lines that contradict each other***: with `both` it says *"may sign in over ssh only"* then *"may sign in over ssh and use the API"*. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD route keywords (`:1612`) — worded so nothing tells the reader that. Wording fix, no logic change | `messages/10034`, `10076`, `10078` |
-| 38 | **M** | ***The suite tests SUSPENDED on no door at all*** — neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word. ssh and `logto` are now measured by hand; **the API door has never been reached** and cannot be tested by wording, since `APISRVR:507` refuses with the same `sysmsg(10003)` as every other refusal. **Needs a controlled pair.** `$neverShipped`, no cycle | `gplbld/verify-tiers.ps1`, `verify-tierapi.ps1` |
+| 38 | **M** | ***The suite tests SUSPENDED on no door at all*** — neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word. ssh and `logto` are now measured by hand; **the API door has never been reached** and cannot be tested by wording, since `APISRVR:507` refuses with the same `sysmsg(10003)` as every other refusal. **Needs a controlled pair.** ***28 Aug: `verify-tiers.ps1` section 6 written and UNRUN — the record, the write-once guard 21 left unmeasured, and the VOC. It CANNOT test the `logto` door: the check sits after `CPROC:3729`'s elevated bypass and this verifier must be elevated. Doors still uncovered*** | `gplbld/verify-tiers.ps1`, `verify-tierapi.ps1` |
 | 39 | **B?** | ***Uninstalling strips SD's `AllowGroups` and `ForceCommand` and leaves every account SD created*** — so each becomes an ordinary ssh-reachable account with a PowerShell shell. `sd.iss` removes no account anywhere; the closing disclosure does not mention them. **Reasoned from source, not measured — run an uninstall first.** Owner's call | `gplbld/sd.iss:3367`, the closing disclosure |
 | 40 | **M** | ***A verifier's transcript keeps recording the verifiers that run after it*** — `verify-sshonly-*.log` carried `verify-apiadmin`'s `[FAIL]` rows and the whole suite's summary. `Start-Transcript` with no matching stop, **15 of 33 verifiers**. Count from the runner's per-step captures, not these. `$neverShipped`, no cycle | `gplbld/verify-sshonly.ps1:161` and 14 others |
 
@@ -589,6 +589,14 @@ top of `tier.set`, returning before the field-6 write is reached.
 **It is unreachable rather than merely unexercised.** `old.tier` is upcased and
 trimmed and `want.tier` is one of four upper-case literals, so reaching the
 write with `want.tier = 'SUSPENDED'` already implies `old.tier # 'SUSPENDED'`.
+
+***AND THE GUARD NOW HAS A REGRESSION CHECK, 28 Aug 2026.*** Deleting the inner
+test left the equality guard as the whole write-once mechanism, on an argument
+that nothing measured. `verify-tiers.ps1` section 6 suspends a **PROGRAMMER**
+account, suspends it again, and asserts `ACC$PRIOR.TIER` still reads
+`PROGRAMMER` — if the guard ever stops returning, `SUSPENDED` overwrites it and
+the only record of what the account was is gone for good. **PASSED in the
+00:07:29 run.** See PRE_RELEASE 38.
 
 ***THE BEHAVIOUR IS CORRECT AND ONLY THE EXPLANATION IS WRONG*** — field 6 is
 preserved, and the round trip was measured lossless (SUSPENDED with field 6
@@ -1579,6 +1587,32 @@ had been measured failing by hand an hour earlier.)*
 run is on record, only the accumulation, so it is consistent with the cause
 rather than a watched repair. The `b50home` pair is what carries the claim.
 
+***OBSERVED IN THE WILD 28 Aug 2026, AND THE UNTRACKABLE STATE IS REAL.*** A
+read-back after a `verify-tiers` run, on the 27 Aug 22:52:21 install:
+
+| | |
+|---|---|
+| `C:\Users` | **11 non-standard directories**, not the three the 69th-session handoff claims. That claim was true at the sweep; the `b49` suite refilled it |
+| of those | **10 are orphans** — `Get-LocalUser` says the account is gone. Only `b48adm` is live |
+| loaded hives | **11 SIDs, 22 hives** (`…2750, 2753, 2780, 2781, 2783, 2785, 2787, 2789, 2791, 2793, 2795`). ***The reboot's repair lasted one suite run*** |
+| ***`sdapiab49`, `sdapiidb49`, `sdapinb49`*** | ***directory present, NO `ProfileList` entry.*** `Win32_UserProfile` cannot enumerate them, so `clean-test-profiles.ps1` cannot either |
+
+***THOSE THREE ARE THE UNTRACKABLE STATE THIS ENTRY ARGUED ABOUT, MEASURED
+RATHER THAN REASONED.*** The ruling above chose "keep both halves" on the
+argument that removing the entry destroys the only handle a sweep has. **Three
+folders on this machine are now in exactly that condition** and nothing on the
+box can find them by profile.
+
+*(NOT ASSERTED: that 32's fix produced them. It landed at 21:58:17 and the
+suite ran after, so the timeline fits a `DELETE_USER` whose registry half
+succeeded and directory half failed — but the delete transcripts were not read,
+and consistent-with is not measured.)*
+
+**A note on the instrument:** enumerating `HKEY_USERS` unelevated **fails per
+key**, and the failed enumeration still returns a count — `1` — which is a
+confident wrong answer of the kind this project keeps paying for. The 22 above
+were read from the names in the access-denied errors, not from that count.
+
 ***THE OPERATIONAL RULE IS THEREFORE UNCHANGED AND NOW HAS ITS REASON:*** the
 reboot in the middle of `cleanup-devlitter.ps1` is not about the accounts pass
 at all. **It is what makes the profile pass possible**, and running the sweep
@@ -1657,6 +1691,53 @@ happened anyway, or a success that never tested the gate.
 cycle. It is also what PRE_RELEASE 19 asks for: it lists what
 `verify-tierchange.ps1` must cover, and the behaviour is known now rather than
 guessed at.
+
+***CORRECTED 28 Aug 2026, AND THE SENTENCE ABOVE NAMING `verify-tiers.ps1` FOR
+THE ssh AND `logto` CASES IS WRONG.*** ***`verify-tiers.ps1` CANNOT TEST THE
+`logto` DOOR AT ALL.*** `logto.authorised` puts the suspension test **after**
+two privileged bypasses — `CPROC:3729` (already elevated) and `CPROC:3755`
+(elevation just obtained) — which is a judgement call recorded at `CPROC:3765`,
+not an oversight. `verify-tiers.ps1` **refuses to run unelevated** because
+`CREATE.ACCOUNT` is gated on `K$ADMINISTRATOR`, so every `LOGTO` it issues takes
+that bypass. **A door check written there would enter a suspended account and
+report the design working as a product fault.**
+
+***WHAT THE DOOR TESTS ACTUALLY NEED IS AN UNELEVATED SESSION AS A USER THE
+SUSPENSION DENIES***, which is the group test at `CPROC:3781`:
+
+| door | the shape that works |
+|---|---|
+| `LOGIN` | ssh in as the suspended account itself. `verify-sshonly.ps1` already has the `SSH_ASKPASS` machinery for an automated password login; `verify-tiers.ps1` has none |
+| `logto` | **two** accounts: `grant` user A into account B, suspend B, then ssh as A and `LOGTO B`. A's own session is unelevated, so the bypass does not apply |
+| API | the controlled pair already described above |
+
+***AND SECTION 6 OF `verify-tiers.ps1` IS WRITTEN, 28 Aug 2026 — the half an
+elevated session CAN reach.*** Parse-checked 0 errors / 2857 tokens, 9 functions
+by both the parser and `grep`, no embedded BOM. ***RUN BY THE OWNER 28 Aug
+2026, 00:07:29, on the 27 Aug 22:52:21 install — `assert-current` clean, 33
+PASS, 0 FAIL***, of which section 6 contributed 11. Transcript
+`SD-verify\verify-tiers-20260828-000729.log`. It covers:
+
+- **the record** — `ACC$TIER` becomes `SUSPENDED` and `ACC$PRIOR.TIER` keeps the
+  tier it displaced. The **PROGRAMMER** account is used deliberately: restoring
+  to `PROGRAMMER` proves field 6 was read, where a STANDARD account would be
+  restored to the value a defaulting bug also produces.
+- ***the write-once guard, WHICH PRE_RELEASE 21 LEFT UNMEASURED.*** A second
+  suspend must stop at the equality test (`10110`) and never reach the field-6
+  write — if it did, `SUSPENDED` would overwrite `PROGRAMMER` and the only
+  record of what the account was would be gone permanently. 21 deleted the
+  unreachable inner test on the argument that the equality guard is the whole
+  mechanism; **nothing had ever checked that.**
+- **the VOC across `UPDATE.ACCOUNT`** — section 5's question asked of the harder
+  tier, since `SUSPENDED` is not a VOC tier and `update.voc` must resolve it to
+  field 6 (`LOGIN:283`, `:1212`).
+- **the elevated bypass itself**, asserted rather than worked around, so a
+  change to `CPROC:3765` is caught. It doubles as the null-case refusal: a
+  refused `LOGTO` leaves the session in `SDSYS` and `COUNT VOC` answers with
+  SDSYS's VOC, not 396, so a check that measured nothing fails.
+
+**The section prints the three doors as NOT tested and scores none of them.**
+That is what keeps this entry open.
 
 ## 39. Uninstalling strips SD's ssh confinement and leaves every account it created — **B?** (owner's call)
 
