@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which touched no source at all: **PRE_RELEASE 23's three docs pages and the shipped-scripts gap are both closed**, in `SDCoreWindowsDocs` `c41d999` and `7914e60`, with two new pre-release entries **33** and **34** (34 is the owner's ruling). ***ITEM 5.3 IS CLOSED*** — the owner ran `edit bp ZZMARKS` unelevated on the 19:37:47 install, **no problems**, so both editors are witnessed. ***AND THE THREE `b48` FIXTURES ARE GONE — the 19:37:47 cycle wiped both trees, item 3.*** `sdsys/accounts` holds only `don` and `sdsys`, so nothing was waiting to be measured on that install. ***PRE_RELEASE 32 WAS WRITTEN, CYCLED (install 27 Aug 21:58:17) AND TESTED — AND THE TEST FOUND IT WAS HALF A FIX.*** The `ProfileList` entry is now removed correctly, **measured**; the recreated account still landed at `C:\Users\b49home.GITORLI`, because a **profile DIRECTORY** left behind pushes the next account of that name aside just as the registry entry does. That is **PRE_RELEASE 35** — and the comment calling status 6 harmless was wrong when written and had already reached the code, the message and the changelog. ***THE DIRECTORY HALF THEN PROVED UNFIXABLE AT DELETE TIME***: it cannot be deleted **or renamed** while the profile's registry hive is mounted, measured four ways, and **22 orphaned SIDs / 44 hives** were mounted on this host — **PRE_RELEASE 36**, the root cause of the whole family and the owner's call. ***PROVEN BY A CONTROLLED PAIR***: `C:\Users\b50home` refused both `Remove-Item` and `Rename-Item` before a restart and was removed silently by the identical command afterwards. What ships is the honest version: the registry entry removed, the directory attempted, and `10075` naming the cause and the restart. ***ALL OF IT IS NOW COMPILED — install 22:52:21, `assert-current` exit 0.*** Items 5.1 and 5.2 want their fixtures rebuilt on this install. Everything below is the **SIXTY-EIGHTH session**, which ended on credit rather than on a problem — the owner continues from a different account. **`sd4windows` is pushed and clean and the install is green and current.** ***PRE_RELEASE 29 IS DONE — `micro` SAVES.*** Install **27 Aug 19:37:47**, `assert-current` exit 0, and the owner ran `micro bp ZZMARKS` **three times, save and no-save, with no message**. `~/.micro/backups/` now exists, which is the very write that used to fail. **The mark round trip survived a real save** (SD reads 19 fields, 907 chars, VM 6/SM 1/TM 3, no stray CR), closing the last of item 5.3. It took three attempts: `-backup off` fixed nothing; the helper read env vars that are **empty** inside `os.execute`; and `EDIT` split the capture on `char(10)` where it is `@fm`. ***The earlier 18:58:55 install was `assert-current` exit 0 live too***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21, 23 and 29 DONE and measured, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which ended on credit with **both repositories pushed and clean, the install green and current, and nothing half-done.** ***GREEN: install 27 Aug 22:52:21, `assert-current` exit 0, `-Run b49` 30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`*** — the one failure is PRE_RELEASE 31's known stale control. **`b49` is spent; use `b50`.** ***CLOSED THIS SESSION: PRE_RELEASE 23, 32, 33, the shipped-scripts documentation gap, item 5.1 and item 5.2's ssh door.*** ***OPEN AND ALL YOURS: seven pre-release entries — 31, 34, 36 (three decisions), 37, 38, 39, 40 — plus three measurements that need no ruling: 5.2's API door, 5.4's unrun probe, and 5.5.*** Everything below is the **SIXTY-EIGHTH session** and earlier.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -110,13 +110,58 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
 >
-> ### SIXTY-NINTH SESSION — TWO DOCUMENTATION ITEMS CLOSED, NO SOURCE TOUCHED
+> ### HANDOFF, SIXTY-NINTH SESSION — NOTHING IS BROKEN, NOTHING IS HALF-DONE
 >
-> **Both repositories pushed and clean.** ***GREEN AND CURRENT: INSTALL
-> 27 Aug 22:52:21, `assert-current` EXIT 0.*** `gcat` **125** / `gpl.bp.out`
-> **184**, `sd.exe` `DF77FD6D61DE5184` **unmoved** — everything this session
-> changed is BASIC, messages and one shipped comment. **All of PRE_RELEASE 32,
-> 33 and 35 is compiled and live on this install.**
+> ***THE SESSION ENDED ON CREDIT.*** Both repositories **pushed and clean**, the
+> install **green and current**, `C:\Users` clean, and every fix in the tree is
+> compiled. **What is left is seven decisions and three measurements, all listed
+> below.**
+>
+> ***START BY READING PRE_RELEASE_FIXES.md.*** Seven entries are open and
+> **six of them are yours to rule on, not work to be done**: **31** (rewrite
+> `verify-apiadmin`'s stale control), **34** (`release.ps1` cannot finish on a
+> zero-link set), **36** (three decisions — see below), **37** (`create.account`
+> prints two contradictory lines), **38** (the suite tests SUSPENDED on no
+> door), **39** (uninstall leaves every account without its ssh confinement),
+> **40** (a verifier's transcript records the verifiers after it).
+>
+> ***THE THREE MEASUREMENTS STILL OWED***, none of which needs a decision:
+> item **5.2's API door** (`APISRVR:507`, never reached — and it **cannot be
+> tested by its wording**, which is deliberate, so it needs a controlled pair);
+> item **5.4**, `tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b` in the
+> docs repo, 15 cases, compiled clean and **never run**; item **5.5**,
+> `verify-tierchange.ps1`, which can now be written against known behaviour.
+>
+> ***THE FIXTURES EXIST AND ARE NOT IN THEIR ORIGINAL STATES.*** `b48tier` is
+> **STANDARD** now, not PROGRAMMER — item 5.1 downgraded it — and its
+> `voc/basic` carries a hand-edited fourth line, which is the record the
+> downgrade left alone. `b48susp` is **SUSPENDED**. `b48adm` is **PROGRAMMER,
+> `both`**, password known to the owner, and it **has signed in over ssh**, so
+> deleting it will leave a profile directory (entry 35/36, expected).
+>
+> ***`b49` IS SPENT. THE NEXT SUITE RUN IS `b50`.***
+>
+> ***THREE TRAPS THIS SESSION PAID FOR, WRITTEN ONCE.***
+>
+> 1. ***COUNT A SUITE RUN FROM THE PER-STEP CAPTURES***,
+>    `<time>-NN-verify-*.log`, which are one file per step by construction. A
+>    `verify-<name>-*.log` may contain **later** verifiers' output — 15 of 33
+>    verifiers never stop their transcript (entry 40). A wrong verdict was
+>    issued and withdrawn on exactly this.
+> 2. ***A REBOOT CLEANS NOTHING. IT ONLY UNLOCKS.*** `cleanup-devlitter.ps1`
+>    needs one **because a mounted hive cannot be removed** — that line was in
+>    this file the whole time and four exchanges went on rediscovering it.
+>    **When a symptom appears, grep the record; knowing a warning is not the
+>    same as reaching for it.**
+> 3. ***MEASURE BEFORE WRITING THE COMMENT.*** "Status 6 is harmless" was
+>    reasoned, reached the code, a shipped message and the changelog, and was
+>    false. It cost three rounds.
+>
+> ***GREEN AND CURRENT: INSTALL 27 Aug 22:52:21, `assert-current` EXIT 0.***
+> `gcat` **125** / `gpl.bp.out` **184**, `sd.exe` `DF77FD6D61DE5184` **unmoved**
+> — everything this session changed is BASIC, messages and one shipped comment.
+> **Suite `-Run b49`: 30 of 31 steps, 963 `PASS`, 1 `[FAIL]`, 0 `[SKIP]`**, the
+> one failure being PRE_RELEASE 31's known stale control.
 >
 > ***AND `C:\Users` IS CLEAN FOR THE FIRST TIME IN WEEKS*** — the post-reboot
 > sweep took **53, failed 0**, and the three `b49`/`b50` directories this

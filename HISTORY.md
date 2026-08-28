@@ -39666,3 +39666,21 @@ produces a suffixed home on its own - **but it removes the only handle a later
 sweep had.** Added to PRE_RELEASE 36 as a third decision, with the option that
 follows from it: if the directory cannot go, leave the entry too, so the pair
 stays consistent and visible.
+
+**Handoff, sixty-ninth session.** Ended on credit, not on a problem. Both
+repositories pushed and clean; install **27 Aug 22:52:21**, `assert-current`
+exit 0; `-Run b49` **30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`**,
+the failure being PRE_RELEASE 31's stale control. **`b49` is spent; use `b50`.**
+
+**Closed:** PRE_RELEASE 23 (the three docs pages), 32 (the `ProfileList` entry),
+33 (`allow-ssh-groups.ps1`'s usage line), the shipped-scripts documentation gap
+(`Technical/02`, 26 scripts), item 5.1 (the "left alone" rule, first firing
+ever) and item 5.2's ssh door.
+
+**Open, and six of the seven are rulings rather than work:** 31, 34, 36 (three
+decisions), 37, 38, 39, 40. **Three measurements owed and none needs a
+decision:** 5.2's API door, 5.4's unrun probe, and 5.5's `verify-tierchange.ps1`.
+
+**The fixtures are not in their original states** - `b48tier` is STANDARD with a
+hand-edited `voc/basic`, `b48susp` is SUSPENDED, `b48adm` is PROGRAMMER `both`
+and has signed in over ssh.
