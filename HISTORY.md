@@ -39953,3 +39953,26 @@ which no tier build produces. Its 5045 overwrite prompt is expected and answered
 **Written and UNRUN.** Parse 0 errors, no BOM, 6 identical `Write-Verdict`
 copies, 96 of 96 verdict assertions, both refusal paths exercised. `sdtc1` is
 free, measured.
+
+**`verify-tierchange` 28 PASS / 0 FAIL, first run, `-Prefix sdtc1`.** The only
+one of this session's three verifiers that passed on its first attempt.
+PRE_RELEASE 19's three remaining testable rows are measured and item 5.5 is
+delivered.
+
+***THE ARITHMETIC CONFIRMED ITSELF, WHICH IS WHY IT WAS BUILT THAT WAY.***
+`D = 397` arrived by two independent routes - `A + added - removed` from what
+10113 said, and `P + kept` from what a clean downgrade would have been - and
+they agreed. `added 0, removed 19, kept 1` against 20 administration verbs, so
+the edited record is provably still there and provably the only difference.
+No count is typed anywhere in the file.
+
+**The refusal row is the one worth keeping.** 10111 named the account, the
+success wording was absent, AND tier, Windows group and `os.users` were all
+unchanged afterwards - a refusal that had already done half the work would have
+passed the first two rows on its own.
+
+***ONE ROW OF 19'S TABLE IS LEFT - THE THREE DOORS - AND THERE IS A SEVERITY
+DECISION IN IT.*** Everything remaining in 19, a `B`, lives in 38, an `M`.
+Striking 19 and pointing at 38 would be tidy and would quietly move a release
+blocker onto a minor entry, so **19 is left open and left `B`** for the owner
+to rule on. `sdtc1` is spent; the next prefix is `sdtc2`.

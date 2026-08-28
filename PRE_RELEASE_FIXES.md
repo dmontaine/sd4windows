@@ -568,6 +568,27 @@ required keyword (10111), what leaves with ADMINISTRATOR, and the "left alone"
 count (10113's third number) — **all three testable from an elevated piped
 session**, plus **the three doors, which are not, and are PRE_RELEASE 38.**
 
+***AND THOSE THREE ARE NOW MEASURED.*** `gplbld/verify-tierchange.ps1`,
+**28 PASS / 0 FAIL**, `-Prefix sdtc1`, on the 00:53:34 install:
+
+- **the required keyword** — 10111 named the account, the success wording was
+  **absent**, and tier, Windows group and `os.users` were **all unchanged
+  afterwards**. A refusal that had already done half the work would have passed
+  the first two rows alone.
+- **what leaves with ADMINISTRATOR** — Windows `Administrators` membership and
+  the `os.users` record, both asserted **present** after the promote, so their
+  removal is a transition and not an absence. 10115 said so as well.
+- **the "left alone" count** — `added 0, removed 19, kept 1` against 20
+  administration verbs, and ***`D = 397` by two independent routes***:
+  `A + added − removed` and `P + kept`. The edited record is provably still
+  there and provably the only difference. **No count is typed.**
+
+***ONE ROW IS LEFT — THE THREE DOORS — AND IT IS ENTRY 38's.*** **This entry
+stays OPEN and stays `B`.** Everything remaining in it lives in 38, which is an
+`M`; striking this one and pointing there would be tidy and would **move a
+release blocker onto a minor entry**. ***That is a severity decision and it is
+the owner's, not a tidy-up.***
+
 Built 27 Aug 2026, sixty-sixth session. `MODIFY.ACCOUNT` gained four tier
 keywords, `SUSPENDED` became a fourth `ACC$TIER` value with `ACC$PRIOR.TIER`
 (field 6) beside it, and three doors learnt to refuse a suspended account.
