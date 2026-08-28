@@ -38987,11 +38987,13 @@ restored`. `os.users\don` came back byte- and mtime-identical.
 unelevated 11/12 (only `verify-osusers`), elevated **18/19**. `verify-tiers`
 PASSED - **PRE_RELEASE 21's regression check is clean**. The one elevated
 failure was `verify-apiadmin`, and it is **PRE_RELEASE 31**: its *control*
-failed - an ELEVATED local session, after `LOGTO` into a PROGRAMMER account,
-still ran `OS.EXECUTE` where the control expected it refused ("rights belong to
-SDSYS"). The **headline** finding - a remote API session running `OS.EXECUTE` -
-did NOT fire; that is closed. Either a stale control (PRE_RELEASE 2 said
-administrators keep full access) or `os_permitted()` reading `USR_ADMIN` from
-`IsElevated()` where `CPROC:2713`'s `K$ADMINISTRATOR` drop was meant to bite.
-**Left for the owner - not touched.** A clean full `b48` with the fixed
+failed - an elevated session, after `LOGTO` into a PROGRAMMER account, still ran
+`OS.EXECUTE`. Traced: `CPROC:2713` **does** clear `USR_ADMIN`
+(`op_kernel.c:416`), but `os_permitted()` (`op_sh.c:167`) then keys `os.users`
+on `process.username` = `don`, whom **PRE_RELEASE 2 listed** - so the gate says
+yes on the person, exactly as that feature's changelog says it should. Product
+is per design; the verifier's control was written before `don` had a record and
+is stale (same class as 30). The **headline** finding - a remote API session
+running `OS.EXECUTE` - did NOT fire; that is closed. **Verifier rewrite left for
+the owner to frame - not touched.** A clean full `b48` with the fixed
 `verify-osusers` has not been run.

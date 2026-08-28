@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THREE FIXES ARE INSTALLED AND `assert-current` IS GREEN*** — PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off`), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test) all compiled 0-error and shipped in the owner's `cycle.ps1` of 27 Aug. **Install 27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, `assert-current` **exit 0 live**. ***`b48` RAN: unelevated 11/12, elevated 18/19.*** `verify-tiers` PASSED — PRE_RELEASE 21's regression check is clean. Two verifier issues: **`verify-osusers` FIXED** (PRE_RELEASE 30, re-run standalone, passes) and **`verify-apiadmin` needs the owner** (PRE_RELEASE 31 — an elevated LOGTO'd session keeps `OS.EXECUTE`; stale control or real regression). 29 and 23 still need console spot-checks. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Eight new pre-release entries, 24 to 31; three product fixes installed: 29 (`micro -backup off`), 23 (`term default` 120×36), 21 (dead write-once test). 30 fixed (verifier). 31 open, owner's call.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THREE FIXES ARE INSTALLED AND `assert-current` IS GREEN*** — PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off`), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test) all compiled 0-error and shipped in the owner's `cycle.ps1` of 27 Aug. **Install 27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, `assert-current` **exit 0 live**. ***`b48` RAN: unelevated 11/12, elevated 18/19.*** `verify-tiers` PASSED — PRE_RELEASE 21's regression check is clean. Two verifier issues: **`verify-osusers` FIXED** (PRE_RELEASE 30, re-run standalone, passes) and **`verify-apiadmin` — PRE_RELEASE 31, traced to a stale control** (`os_permitted()` keys `os.users` on the person `don`, whom PRE_RELEASE 2 listed; product is per design, verifier needs a rewrite, owner confirms). 29 and 23 still need console spot-checks. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Eight new pre-release entries, 24 to 31; three product fixes installed: 29 (`micro -backup off`), 23 (`term default` 120×36), 21 (dead write-once test). 30 fixed (verifier). 31 open, owner's call.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -156,12 +156,14 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >   `os.users` (PRE_RELEASE 2); it now parks and restores the record.
 >   `$neverShipped`, no cycle. **A clean `-Run b48` has NOT been done** — do it
 >   (plain, not `-ContinueOnFailure`).
-> - **`verify-apiadmin` — PRE_RELEASE 31, and it needs the owner.** Its *control*
->   failed: an ELEVATED local session keeps `OS.EXECUTE` after `LOGTO` into a
->   PROGRAMMER account, where the control expected it refused. The **headline**
->   finding (remote API session running `OS.EXECUTE`) did **not** fire — that is
->   closed. Either a stale control or a real `os_permitted()`/`USR_ADMIN`
->   regression. **Not touched.** See PRE_RELEASE 31 for both readings.
+> - **`verify-apiadmin` — PRE_RELEASE 31, traced, likely a stale control.** Its
+>   *control* failed: an elevated session `LOGTO`'d into a PROGRAMMER account
+>   still runs `OS.EXECUTE`. Traced: `CPROC:2713` does clear `USR_ADMIN`, but
+>   `os_permitted()` then keys `os.users` on `process.username` (`don`), whom
+>   PRE_RELEASE 2 listed — so the gate says yes on the *person*, per that
+>   feature's own design. **The headline hole (API `OS.EXECUTE`) stays closed.**
+>   The verifier's contrast needs a rewrite; **owner confirms the new premise**.
+>   Not touched.
 >
 > ***NONE OF THE THREE PRODUCT FIXES IS FULLY MEASURED.*** 21's regression is
 > clean (`verify-tiers`); 29 and 23 need a console spot-check:

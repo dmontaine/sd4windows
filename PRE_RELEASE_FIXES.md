@@ -54,7 +54,7 @@ should be fixed, **M** minor.
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
 | 29 | **B** | ***`micro` CANNOT SAVE FOR AN UNELEVATED ACCOUNT*** — its default auto-backup writes to the read-only Program Files config home. **`EDIT` launches micro `-backup off`; compiled + installed 27 Aug 17:25:59; needs the unelevated-console save check** | `gpl.bp/EDIT:227` |
 | 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
-| 31 | **B?** | ***An ELEVATED local session keeps `OS.EXECUTE` after `LOGTO` into another account*** — `verify-apiadmin`'s control expected it refused (rights "belong to SDSYS"). Either a real regression in `os_permitted()`/USR_ADMIN or a stale control after PRE_RELEASE 2. **Owner's call.** | `gplsrc/op_sh.c`, `gplbld/verify-apiadmin.ps1` |
+| 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -949,27 +949,35 @@ record), then from a **local elevated** PowerShell session does `LOGTO
 — `OS.EXECUTE` ran and returned the identity, so `$localRanOsExec` is true where
 the control expects false.
 
-***TWO READINGS, AND IT IS THE OWNER'S TO PICK:***
+***TRACED, AND IT IS A PRE_RELEASE 2 INTERACTION — LIKELY A STALE CONTROL, BUT
+THE OWNER SHOULD CONFIRM.*** `os_permitted()` (`op_sh.c:150`):
 
-1. **Stale control.** PRE_RELEASE 2's ruling was *"administrators have full
-   access, there should be no way to turn it off"*. If an elevated session is
-   meant to keep `OS.EXECUTE` everywhere — through a `LOGTO` into a PROGRAMMER
-   account included — then the control's premise is simply out of date and the
-   fix is to update `verify-apiadmin` (same class as PRE_RELEASE 30).
+```c
+  if (my_uptr->flags & USR_ADMIN) return TRUE;          /* line 161 */
+  ...
+  snprintf(path, ..., "os.users%c%s", DS, process.username);  /* line 167 */
+  ...  return (stricmp(field2, "yes") == 0);
+```
 
-2. **Real regression.** START HERE records that `CPROC:2713` drops
-   `K$ADMINISTRATOR` on any `LOGTO` whose target is not SDSYS (it is why
-   `sdtcl.ps1` cannot drive `MODIFY.ACCOUNT`). If `OS.EXECUTE`'s gate is
-   *supposed* to lose its admit when that flag goes — defence in depth,
-   "rights belong to SDSYS" — then `os_permitted()` is now reading the wrong
-   thing: `USR_ADMIN` seeded from `IsElevated()` (`kernel.c:195`, per the
-   verifier's own note at `:588`), which `CPROC:2713` does not touch. The API
-   session loses it correctly; the LOGTO'd local one does not.
+`CPROC:2713` **does** clear `USR_ADMIN` on `LOGTO` away from SDSYS
+(`kernel(K$ADMINISTRATOR,0)` → `op_kernel.c:416` `my_uptr->flags &= ~USR_ADMIN`),
+and the `elevate('STOP')` beside it releases the OS token — that half works. But
+`os_permitted()` then falls through to the list, keyed on **`process.username`**
+— the Windows login, `don`, which `LOGTO` never changes. **PRE_RELEASE 2 put
+`don` in `os.users`.** So the gate now says yes on the *person*, exactly as its
+own changelog intends: *"the name is the WINDOWS login name ... the permission
+belongs to the person and does not change when they LOGTO somewhere else."* The
+API session is refused only because its `process.username` is the account
+(`sdapiab48`), which is not listed.
 
-**Not investigated further and not touched.** It needs a decision about what
-`OS.EXECUTE` from an elevated-then-LOGTO'd session *should* do before either the
-verifier or the C is changed. The API-side behaviour (refused) is not in
-question.
+So the product is doing what PRE_RELEASE 2 designed. **The control in
+`verify-apiadmin` (written ~21 Aug, before `don` had an `os.users` record)
+is stale** — same class as PRE_RELEASE 30. **Left for the owner** because it is
+the verifier's *only* contrast and rewriting it means deciding what the test now
+proves: probably "a session whose `process.username` is not listed is refused,
+elevated-then-LOGTO'd or not", with a non-`don` Windows identity or an
+unlisted-account probe. The API-side behaviour (refused) is not in question and
+the headline hole stays closed.
 
 **Left behind by that run** (normal — the next `cycle.ps1` clears them): the
 `b48` verifier accounts `sdacctb48`, `sdtiertb48*`, `sdrtb48*`, `sdtapib48*` and
