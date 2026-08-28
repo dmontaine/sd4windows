@@ -56,6 +56,8 @@ should be fixed, **M** minor.
 | 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
 | 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
 | 32 | **S** | ***`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory*** — `C:\Users\<name>.<DOMAIN>` — and anything keyed to the old path breaks. **Measured: ssh public-key auth refused.** 53 stale entries on this host | `gpl.bp/DELACC` |
+| 33 | **S** | `allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing** — the write path needs `-Installed` and exits 2 without it. One stale comment line; no code change | `gplbld/allow-ssh-groups.ps1:4` |
+| 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Owner's call, and not to be settled by adding a link** | docs repo `tools/release.ps1`, `tools/checklinks.py` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1243,3 +1245,73 @@ was a mistake in the instructions given to the owner, not by him.** The suite
 verdict stands — both rows are non-decisive and the failure is environmental —
 but the next run needs `b49`, and `cleanup-devlitter.ps1` should clear the 53
 entries first.
+
+## 33. `allow-ssh-groups.ps1`'s own usage text omits the switch it requires — **S**
+
+Found 27 Aug 2026 while writing *Technical - The Installed Scripts*, by reading
+the `param` block instead of the header comment.
+
+The script ships in `C:\Program Files\SD` and its header offers three forms:
+
+```
+powershell -File allow-ssh-groups.ps1            write the block and restart sshd
+powershell -File allow-ssh-groups.ps1 -Check     print what it would write, touch nothing
+powershell -File allow-ssh-groups.ps1 -Remove    take SD's block back out
+```
+
+***THE FIRST ONE DOES NOT WRITE ANYTHING.*** `allow-ssh-groups.ps1:248` tests
+`-not $Installed` and exits **2** with *"-Installed not given - this rewrites
+sshd_config and restarts sshd, so it has to be asked for"*. `-Check` and
+`-Remove` return before that test, so **only the documented form that matters
+is wrong.**
+
+The switch is right and the guard is right — `-Installed` means *an
+administrator asked for this*, and the script is otherwise able to rewrite
+`sshd_config` merely by being run. **It is the usage text that is stale**: the
+line predates the 21 Aug 2026 change of what `-Installed` asserts, recorded in
+the script's own "WHEN IT REFUSES" note fifteen lines below it.
+
+**The fix is one line** — `powershell -File allow-ssh-groups.ps1 -Installed`
+in the header. Nothing in the code changes.
+
+*Technical/02* documents the correct form, so a reader of the documentation is
+not caught by this; a reader of the script still is.
+
+## 34. `release.ps1` cannot complete on the `Technical` set — **S** (docs toolchain)
+
+Found 27 Aug 2026 by adding the second `Technical` page and running the
+documented release command against it.
+
+`tools\release.ps1 -Set Technical` renders both pages, passes its own staleness
+gate, and then **exits 1**:
+
+```
+checklinks: 2 rendered page(s) read
+checklinks: 0 link(s) checked, 0 broken
+checklinks: no links found at all - that cannot be right
+```
+
+***THE GUARD IS CORRECT AND IS THE INSTRUMENT RULE WORKING.*** A link checker
+that passes because it checked nothing is exactly the failure `checklinks.py`
+refuses. The record already predicted this — *"`checklinks` on `Technical`
+refuses today and is right to; run it there once there is a second page"* — but
+**the prediction assumed a second page would bring cross-references, and it has
+not.** There is no honest link between restricted BASIC commands and the
+Windows installer scripts, and writing one to satisfy a tool would put a false
+sentence in a document to make a check go green.
+
+**So a whole set has no working release command**, and the two hand steps in
+the docs `README` are the only route. That is the thing to decide, and it is
+the owner's: either `checklinks.py` grows a way to say *this set legitimately
+has no links* and `release.ps1` passes it, or `release.ps1` treats a
+zero-link set as a pass in its own right and says so out loud in its output.
+**Do not settle it by adding a link.**
+
+Until then, `Technical` renders with:
+
+```
+python tools\mkdoc.py --in Technical\markdown --out Technical\html --product "SD Core for Windows" --version W1.0-0
+powershell -File tools\mkpdf.ps1 -In Technical\html -Out Technical\pdf
+```
+
+and the `README`'s markdown-against-PDF loop is what proves nothing is stale.

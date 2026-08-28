@@ -39274,3 +39274,57 @@ verdict.
 
 ***WHAT WOULD HAVE CAUGHT ALL OF IT SOONER IS ONE HABIT, NOT THREE FIXES: run
 the thing in the place it runs, and print what the instrument actually read.***
+
+---
+
+## 27 Aug 2026 - Two documentation items closed, and the recorded script count was wrong by one
+
+**Commit:** see the commit that carries this entry. Sixty-ninth session. **No
+source under `sd64` was touched**, deliberately: the 19:37:47 install stays
+current, so item 5.3's last console check can still be taken on it.
+
+### PRE_RELEASE 23's remaining work was three pages in the other repository
+
+The product fix shipped on 27 Aug and was measured. The three pages that told
+readers **not** to use `term default` are corrected - `SDCoreWindowsDocs`
+`c41d999`. The correction is deliberately asymmetric: tester `13` keeps a line
+about the old 20 x 24 because a tester may hold notes from an earlier build,
+and the `User` reference does not, because W1.0-0 does not have the defect.
+
+### The shipped-scripts gap: 26 ship, not 25, and four were documented
+
+`Technical/02` The Installed Scripts, `SDCoreWindowsDocs` `7914e60`. **The count
+in PROJECT_STATUS.md was wrong**, and the way it was wrong is the point: 25 was
+reasoned from `assert-current.ps1`'s `$neverShipped` list, and the answer came
+from listing `C:\Program Files\SD` on the current install. `micro-home.ps1`
+shipped the same day with PRE_RELEASE 29 and nothing updated the number.
+
+**Four of the 26 were named anywhere in the four sets** - `allow-ssh-groups`,
+`api-firewall`, `secure-sysdirs`, `ssh-firewall`. The other 22 appeared nowhere.
+
+**Tester page 01 promised a command it never printed.** It says the installer
+"reports it in as many words, with the command to retry", which is true
+(`sd.iss:1779`), but the page gave the winget lines for the editors and the
+`api-firewall` line for the API and nothing for ssh - the one failure that
+leaves nobody but the installing user able to sign in. It prints it now.
+
+### Two things the source said and the first draft of the page got backwards
+
+1. **`allow-ssh-groups.ps1` needs `-Installed` for the write and its own usage
+   text omits it** (`:248` against the header's line 4). PRE_RELEASE 33.
+2. **`check-install.ps1` must NOT be run elevated.** The first draft said run
+   everything elevated. `sd.iss:463` says why not: an administrator token reads
+   the data tree through the `Administrators` ACE and passes regardless of the
+   answer. The Start Menu entry is unelevated on purpose, and the tick box at
+   the end of the install is **always** the incomplete run - the installing
+   user's token cannot carry `sdusers` until they sign out and back in.
+
+### A prediction in the record did not come true, and it is a decision now
+
+The record said `checklinks` refuses on `Technical` today and to "run it there
+once there is a second page". **The second page exists and it still refuses**,
+because the prediction assumed a second page would bring cross-references.
+There is no honest link between restricted BASIC commands and Windows installer
+scripts. So `release.ps1` cannot complete on a whole set, `Technical` renders
+through the two hand steps, and **it is not to be settled by adding a link**.
+PRE_RELEASE 34, for the owner.
