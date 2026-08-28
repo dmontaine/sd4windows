@@ -52,7 +52,7 @@ should be fixed, **M** minor.
 | 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27, **unfixed here** | `gpl.bp/DELETEF:233` |
 | 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
-| 29 | **B** | ***`micro` CANNOT SAVE FOR AN UNELEVATED ACCOUNT*** — its default auto-backup writes to the read-only Program Files config home. **`EDIT` launches micro `-backup off`; compiled + installed 27 Aug 17:25:59; needs the unelevated-console save check** | `gpl.bp/EDIT:227` |
+| 29 | **S** | ***`micro` reports "Permission denied" on every save — but the file IS saved.*** A false alarm, not data loss (downgraded from **B**, 27 Aug, after measuring). No flag suppresses it; `MICRO_CONFIG_HOME` must be writable. **The shipped `-backup off` does NOT fix it and its comment is wrong.** Owner's shape: a per-user directory under the home directory | `gpl.bp/EDIT:227` |
 | 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
 | 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
 
@@ -785,89 +785,129 @@ written with a restrictive ACL; and whether `sdsys` itself should stop being
 writing *SD TCL - Processes and Phantoms*, which tells the reader to treat a
 dump as the data of the program that produced it.
 
-## 29. `micro` cannot save for an unelevated account — **B**
+## 29. `micro` reports "Permission denied" on every save — **S**
 
-***THE EDITORS' WHOLE PURPOSE IS EDITING AND SAVING, AND SAVING IS WHAT FAILS.***
-Found 27 Aug 2026 by the owner running the one test only a person can run —
-`micro bp ZZMARKS` from an unelevated console. micro drew correctly, the SD
-BASIC syntax highlighting worked, every mark token converted exactly as
-specified, and the save produced:
+***THE FILE IS SAVED. THE MESSAGE IS FALSE, AND THAT IS THE DEFECT.*** Rewritten
+27 Aug 2026 after measuring it four ways; **everything the first version of this
+entry blamed was wrong**, and it is left described below because the wrong
+diagnosis shipped a code change that does not fix anything.
+
+Found by the owner running the one test only a person can run — `micro bp
+ZZMARKS` from an unelevated console. micro drew correctly, the SD BASIC
+highlighting worked, every mark token converted exactly as specified, and
+**Ctrl-S** produced, in red, on the status line:
 
 ```
 Permission denied. Save with sudo not supported on Windows
 ```
 
-**`EDIT:219` sets `MICRO_CONFIG_HOME` to `C:\Program Files\SD\micro`.** That
-directory is `BUILTIN\Users:(I)(RX)` — read and execute, no write — and micro
-writes into its config home. An ordinary account therefore cannot save.
+***AND THEN IT SAVED THE FILE ANYWAY.*** That is the whole shape of it: a user is
+told their work was refused, in the wording of a permission failure, when it was
+written. Nothing is lost. It is not a **B**.
 
-***WHAT WAS ELIMINATED FIRST, BECAUSE THE OBVIOUS SUSPECTS WERE ALL INNOCENT:***
+***THE MEASUREMENT, 27 Aug 2026 — FOUR RUNS, ONE VARIABLE.*** All of them
+unelevated as `don`, all editing the same file in a writable directory, **with
+no SD involved at all** — `C:\Users\dmont\microtest\sample.sdbasic`, launched
+straight from PowerShell. That is what makes the config home the subject rather
+than anything about SD, `$hold`, or the working copy:
 
-| suspect | measurement | verdict |
-|---|---|---|
-| the working copy's ACL | owned by `don`, `sdu_don` Modify; exclusive open for write **succeeded** as `don` unelevated | not it |
-| the `$hold` directory | creating a new file in it as `don` unelevated **succeeded** | not it |
-| SD still holding the file open across `os.execute` | `tools\probes\p26-holdopen.b` writes a record into `$hold` then, **from inside `os.execute`** — the same place the editor runs — opens it exclusively. `EXCLUSIVE-OPEN-OK`, with the after-close attempt as the control | not it |
-| micro's config home | creating a file there as `don` unelevated raises `UnauthorizedAccessException` | ***this*** |
+| | `MICRO_CONFIG_HOME` | flags | result |
+|---|---|---|---|
+| A | `C:\Program Files\SD\micro` (`Users:(I)(RX)`) | none | **error**, file saved |
+| B | a writable directory | none | ***clean*** |
+| C | `C:\Program Files\SD\micro` | `-backup off` | **error**, file saved |
+| D | `C:\Program Files\SD\micro` | `-backup false -savehistory false` | **error**, file saved |
 
-**And micro demonstrably writes there**: `bindings.json` and `buffers/history`
-are in it, owned by `don`, both written on 27 Aug. `backups/` has never been
-created at all.
+**B is the control and it is what makes the rest mean something**: same micro,
+same file, same account, same minute — only the config home differs, and only B
+is clean. **B also created `backups/`, `bindings.json` and `buffers/history`**
+in its writable home, so micro really does write there.
 
-***THE SPECIFIC WRITE THAT BLOCKS THE SAVE IS THE AUTO-BACKUP*** (27 Aug 2026,
-reasoned from micro 2.0.15, **not yet reproduced** — that needs a person at an
-unelevated console). `micro -options` on the installed 2.0.15: `backup`
-defaults to **`true`** and `backupdir` to **`''`**, and an empty `backupdir`
-sends the backup to `<config-home>/backups/`. micro creates that directory
-lazily on the first save; unelevated, the `MkdirAll` under `Users:(RX)` fails
-and micro aborts the save with exactly the message above. That is why
-`backups/` is the one subdirectory micro never created, and why viewing,
-editing and highlighting all worked — the other config-home writes
-(`buffers/history` on exit, `settings.json`/`bindings.json` on `set`/`bind`)
-are best-effort and happen after the save, so they do not block it. **Check
-after the cycle: from an unelevated `sd` session, `micro bp ZZMARKS` should
-save.** (`EDIT` passes `-backup off` to micro itself — the user types only the
-verb.)
+***NO FLAG SUPPRESSES IT, WHICH IS WHAT DECIDES THE FIX.*** `backup` and
+`savehistory` are both eliminated by C and D. `savecursor` and `saveundo` are
+`false` by default (`micro -options`, installed 2.0.15), so `Serialize()` is not
+it either. **The flag values are genuinely being parsed** — the control is
+`micro -backup bogusvalue`, which answers `Invalid value` and stops, where
+`-backup off` and `-backup false` are both accepted silently. So micro writes
+something to its config home on save that no documented option turns off, and
+**`MICRO_CONFIG_HOME` must be a directory the running account can write.**
 
-***THIS IS WHY 26 Aug's "BOTH EDITORS WORK" DID NOT CATCH IT.*** `don` is a
-member of Windows `Administrators`, so an **elevated** session writes Program
-Files without trouble; an unelevated one gets `Administrators` deny-only in its
-token and falls back to `Users:(RX)`. The editors were tested from an elevated
-session. **Item 5.3 of START HERE says "an unelevated console" precisely
-because that is the case that had never been run.**
+> ***THE `-backup off` NOW IN `gpl.bp/EDIT` DOES NOT FIX THIS AND ITS COMMENT
+> BLOCK IS WRONG.*** It was committed on the reasoning in the paragraph the
+> table above replaces — that an empty `backupdir` sends the backup to
+> `<config-home>/backups/` and that its `MkdirAll` is what aborts the save. The
+> mechanism is real (B created `backups/`) but it is **not** what fails the
+> save. `EDIT:227` and its twelve-line justification have to be reverted or
+> rewritten in whatever cycle carries the real fix. **Do not leave the comment
+> standing**: it tells the next reader the defect is closed.
 
-> ***DO NOT FIX THIS BY GRANTING WRITE ON THE PROGRAM FILES DIRECTORY.***
-> micro loads Lua plugins from its config home and executes them. A directory
-> under `C:\Program Files` that every SD user can write is a directory where
-> any user can drop code that runs inside every other user's editor session,
-> with that user's rights. It would trade a save failure for a privilege
-> escalation.
+***WHY 26 Aug's "BOTH EDITORS WORK" DID NOT CATCH IT.*** `don` is a member of
+Windows `Administrators`, so an **elevated** session writes Program Files
+without trouble; an unelevated one gets `Administrators` deny-only in its token
+and falls back to `Users:(RX)`. The editors were tested from an elevated
+session. **START HERE item 5.3 said "an unelevated console" precisely because
+that is the case that had never been run**, and it was right to.
 
-***THE FIX, DECIDED BY THE OWNER 27 Aug 2026: `EDIT` LAUNCHES micro WITH
-`-backup off`.*** micro takes `-backup` on the command line, so the auto-backup
-is suppressed at the launch site with no new file, no ACL change, and no change
-to the config-home escalation surface. The backup safety net is thin here
-anyway: `EDIT` prompts `Save?  <Y>es, <N>o`, keeps the `$hold` working copy
-until every exit, and the mark round-trip is byte-verified before the editor is
-handed anything. The two options weighed against it — a per-account
-`-config-dir`, or a writable machine-wide state directory with `sdbasic.yaml`
-copied in at install — both cost more and neither buys anything the prompt and
-the working copy do not already give.
+***THE FIX IS A WRITABLE CONFIG HOME, AND ITS SHAPE IS THE OWNER'S CALL.***
+micro takes one `-config-dir` for both its read-only configuration and its
+writable state, so they cannot be split. **The constraint that rules out the
+obvious answer**: micro loads and executes Lua plugins from its config home, so
+**one machine-wide writable directory would let any SD user drop code that runs
+inside every other user's editor session, with that user's rights** — a
+privilege escalation traded for a cosmetic message. ***DO NOT SIMPLY GRANT WRITE
+ON `C:\Program Files\SD\micro`.***
 
-***THE SOURCE EDIT IS MADE (27 Aug 2026), UNCOMPILED.*** `EDIT` gains
-`editor.args`, set per editor in the `begin case`: `' -backup off'` for micro,
-`''` for Microsoft Edit (which takes no such switch), spliced into the
-`os.execute` command line at `EDIT:832`. **The owner accepted, 27 Aug, that
-this voids START HERE item 1's clean-baseline `b48`:** the next `cycle.ps1`
-compiles it and `b48` then scores that tree, not the current install. Sits with
-PRE_RELEASE 21 and 23 for that cycle.
+**A PER-USER config home has no such problem** — a directory only its owner can
+write is one where the only code they can run is their own. The Program Files
+copy stays as the **read-only master** of `sdbasic.yaml` and `EDIT` copies it
+into the per-user directory; see the owner's shape below.
 
-**`edit` — Microsoft Edit — sets no `MICRO_CONFIG_HOME` and is not affected by
-this**, but it has not been retried unelevated since the cycle, so do not read
-that as tested.
+***`edit` — Microsoft Edit — SETS NO `MICRO_CONFIG_HOME` AND IS NOT AFFECTED***,
+but it has still not been retried unelevated, so do not read that as tested.
 
-**The working copy left in `$hold` during the failed session is not a second
-defect**: `EDIT` cleans up when `os.execute` returns, and micro was still open.
+***TWO OF ITEM 5.3's OPEN QUESTIONS CLOSED AS A SIDE EFFECT, 27 Aug 2026.***
+Measured on the install after the owner's real `micro bp ZZMARKS` session, not
+reasoned: **`$hold` is empty** — so `EDIT` does clean its working copy up on
+this path, which the history block claimed and nobody had watched — and
+**`ZZMARKS` came back byte-identical**, 908 bytes, sha `1D65F19475F3CA5DCC5D594897F6B9CB`,
+so the mark round trip survives a real editor session. `tools\probes\make-zzmarks.py`
+rebuilds the fixture.
+
+***THE OWNER'S SHAPE, 27 Aug 2026: A DIRECTORY UNDER THE USER'S HOME.*** His
+suggestion when the four runs above were reported, and it is better than the
+`%LOCALAPPDATA%` one it replaces for a reason worth writing down: **it is where
+micro itself looks.** micro reads `$MICRO_CONFIG_HOME`, then
+`$XDG_CONFIG_HOME/micro`, then `~/.config/micro`, so a home-directory config is
+the native arrangement rather than something SD invents, and a user who already
+knows micro finds their settings where they expect them.
+
+***AND IT DISPOSES OF THE REASONING THAT PUT THE DIRECTORY IN PROGRAM FILES IN
+THE FIRST PLACE.*** `EDIT`'s header and `stage.py:1123` both say the per-profile
+routes are useless here because *"accounts SD creates cannot log in to Windows,
+so a syntax file in a profile is one they could never be given"*. **That is only
+true of a file nobody puts there.** `EDIT` copying `sdbasic.yaml` in at launch —
+5,450 bytes from the Program Files master — gives the profile exactly what it
+could not be given, and the master stays read-only and single-sourced. **Both
+comments have to be corrected in the same commit as the fix; they are the reason
+the next reader would undo it.**
+
+**Still to settle, and both are the owner's:**
+
+1. ***`~/.micro` or micro's own `~/.config/micro`?*** `~/.config/micro` needs no
+   `MICRO_CONFIG_HOME` at all — micro finds it unaided — and picks up a user's
+   existing micro customisations, but SD then writes `sdbasic.yaml` into a
+   directory that is the user's own. `~/.micro` is SD's, explicitly named in
+   `MICRO_CONFIG_HOME`, and cannot collide with a personal micro setup in either
+   direction.
+2. ***Does an SD account that only ever arrives over ssh get a profile?***
+   Windows creates one on first interactive or ssh login, so it should, but that
+   is reasoning and this entry has already been wrong once. **Measure it on an
+   `sdu_` account before relying on it**, and decide what `EDIT` does when
+   `%USERPROFILE%` is absent or unwritable — refuse with a message, or fall back
+   to a throwaway directory under `TEMP`.
+
+**Whatever is chosen, `EDIT:227`'s `-backup off` and its comment block go in the
+same edit** — see the blockquote above.
 
 ---
 

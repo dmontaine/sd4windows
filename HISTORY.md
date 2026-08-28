@@ -38997,3 +38997,64 @@ is stale (same class as 30). The **headline** finding - a remote API session
 running `OS.EXECUTE` - did NOT fire; that is closed. **Verifier rewrite left for
 the owner to frame - not touched.** A clean full `b48` with the fixed
 `verify-osusers` has not been run.
+
+## 27 Aug 2026 - PRE_RELEASE 29 measured: the fix was wrong and the defect is milder
+
+The owner ran `micro bp ZZMARKS` unelevated on the 17:25:59 install, with
+`-backup off` compiled in. **Same red message, and this time he noticed the part
+that changes everything: the file saved anyway.**
+
+***FOUR RUNS, ONE VARIABLE, NO SD.*** Isolation harness at
+`C:\Users\dmont\microtest` - one file in a writable directory, micro launched
+straight from an unelevated PowerShell, only `MICRO_CONFIG_HOME` differing:
+
+| | config home | flags | result |
+|---|---|---|---|
+| A | Program Files (`Users:RX`) | none | error, file saved |
+| B | **writable** | none | ***clean*** |
+| C | Program Files | `-backup off` | error, file saved |
+| D | Program Files | `-backup false -savehistory false` | error, file saved |
+
+**B is the control**, and it also created `backups/`, `bindings.json` and
+`buffers/history` - so micro does write to its config home, and a writable one
+is entirely happy. **No flag suppresses the message**: `backup` and
+`savehistory` are eliminated by C and D, `savecursor`/`saveundo` are false by
+default. The values genuinely parse - `-backup bogusvalue` answers `Invalid
+value` and stops, where `off` and `false` are accepted silently.
+
+***WHAT WAS WRONG WITH THE FIRST DIAGNOSIS, AND IT IS THE CLASS THAT MATTERS.***
+It was reasoned from micro's option defaults and from `backups/` being the one
+subdirectory that did not exist, and it was written up with a confident
+mechanism - empty `backupdir` sends the backup to `<config-home>/backups/`, the
+lazy `MkdirAll` fails, the save aborts. **Every clause of that is true except
+the last one, which is the only one that was the defect.** It shipped a code
+change that fixes nothing, into a cycle. CLAUDE.md's instrument rule says a
+verdict with no evidence of what was measured is not a result; this was a
+verdict with no measurement at all, and the entry said so ("reasoned from micro
+2.0.15, not yet reproduced") - which did not stop it being acted on.
+
+***THE DEFECT IS AN S, NOT A B.*** The save always worked. A user is told
+`Permission denied` in the wording of a refusal, and their work is on disk. That
+is worth fixing and it is not data loss.
+
+***THE FIX IS A WRITABLE CONFIG HOME; THE OWNER'S SHAPE IS A DIRECTORY UNDER THE
+USER'S HOME.*** Better than the `%LOCALAPPDATA%` alternative for a reason worth
+keeping: it is where micro itself looks (`~/.config/micro`), so it is the native
+arrangement rather than something SD invents. **It also disposes of the
+reasoning that put the directory in Program Files** - `EDIT`'s header and
+`stage.py:1123` both say a profile "could never be given" the syntax file, which
+is only true of a file nobody puts there; `EDIT` copying `sdbasic.yaml` in at
+launch is 5,450 bytes. Two things left for him: `~/.micro` versus micro's own
+`~/.config/micro`, and whether an ssh-only `sdu_` account gets a profile -
+**measure that, do not reason it.**
+
+***`EDIT:227` IS NOW DEAD CODE WITH A WRONG TWELVE-LINE COMMENT*** claiming it
+closes this. It has to go in the same cycle as the real fix. Nothing was edited
+today: the tree is green and matches the 17:25:59 install.
+
+***TWO OF ITEM 5.3's QUESTIONS CLOSED AS A SIDE EFFECT***, measured on the
+install after the owner's session rather than reasoned: **`$hold` is empty**, so
+`EDIT` does clean its working copy up on this path - the history block claimed
+it and nobody had watched - and **`ZZMARKS` is byte-identical**, 908 bytes, sha
+`1D65F19475F3CA5DCC5D594897F6B9CB`, so the mark round trip survives a real
+editor session.

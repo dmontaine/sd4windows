@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THREE FIXES ARE INSTALLED AND `assert-current` IS GREEN*** — PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off`), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test) all compiled 0-error and shipped in the owner's `cycle.ps1` of 27 Aug. **Install 27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, `assert-current` **exit 0 live**. ***`b48` RAN: unelevated 11/12, elevated 18/19.*** `verify-tiers` PASSED — PRE_RELEASE 21's regression check is clean. Two verifier issues: **`verify-osusers` FIXED** (PRE_RELEASE 30, re-run standalone, passes) and **`verify-apiadmin` — PRE_RELEASE 31, traced to a stale control** (`os_permitted()` keys `os.users` on the person `don`, whom PRE_RELEASE 2 listed; product is per design, verifier needs a rewrite, owner confirms). 29 and 23 still need console spot-checks. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Eight new pre-release entries, 24 to 31; three product fixes installed: 29 (`micro -backup off`), 23 (`term default` 120×36), 21 (dead write-once test). 30 fixed (verifier). 31 open, owner's call.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THREE FIXES ARE INSTALLED AND `assert-current` IS GREEN*** — PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off` — ***measured 27 Aug and it DOES NOT FIX ANYTHING***), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test) all compiled 0-error and shipped in the owner's `cycle.ps1` of 27 Aug. **Install 27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, `assert-current` **exit 0 live**. ***`b48` RAN: unelevated 11/12, elevated 18/19.*** `verify-tiers` PASSED — PRE_RELEASE 21's regression check is clean. Two verifier issues: **`verify-osusers` FIXED** (PRE_RELEASE 30, re-run standalone, passes) and **`verify-apiadmin` — PRE_RELEASE 31, traced to a stale control** (`os_permitted()` keys `os.users` on the person `don`, whom PRE_RELEASE 2 listed; product is per design, verifier needs a rewrite, owner confirms). ***PRE_RELEASE 29 WAS SPOT-CHECKED AND FAILED*** — the fix is wrong, the defect is milder than filed (the file saves; the message is false), and the real fix is a writable `MICRO_CONFIG_HOME`, shape named by the owner. **23 is the one nobody has looked at.** ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Eight new pre-release entries, 24 to 31. Of the three product fixes installed: 21 works, 23 unmeasured, 29 does not work. 30 fixed (verifier). 31 open, owner's call.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -115,27 +115,47 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***THE SESSION ENDED ON THE OWNER STARTING A NEW ONE, NOT ON A PROBLEM.***
 > Both repositories are **pushed and clean**. Nothing is half-written.
 >
-> ***PRE_RELEASE 29 IS DIAGNOSED, FIXED AND INSTALLED — NOT YET MEASURED (27 Aug).***
-> `micro` drew, edited and highlighted but **could not save** for an unelevated
-> account. The blocking write is micro's **default auto-backup**: `backup` true,
-> `backupdir` empty, so the backup goes to `MICRO_CONFIG_HOME/backups` under
-> `C:\Program Files\SD\micro` (`Users:(RX)`), and the lazy `MkdirAll` there
-> fails unelevated and aborts the save. The working copy and `$hold` were both
-> measured writable, so this is the only write left — and it is why `backups/`
-> is the one subdir micro never created. **Fix, owner's ruling 27 Aug:** `EDIT`
-> launches micro with `-backup off` (`editor.args` in the `begin case`), *not* a
-> writable config home — the Lua-plugin escalation the config home would open is
-> not worth it when `EDIT` already prompts per save and keeps the working copy.
-> **The user types nothing extra — `EDIT` puts the flag on micro's command
-> line.** Compiled 0-error and installed in the 17:25:59 cycle. **Not
-> reproduced.** The check is the same verb the owner hit it with: unelevated
-> `sd` session, `micro bp <record>`, confirm it saves.
+> ***PRE_RELEASE 29 IS MEASURED AND THE SHIPPED FIX DOES NOT WORK. IT IS ALSO
+> MILDER THAN FILED (27 Aug).*** ***THE FILE IS SAVED*** — micro prints
+> `Permission denied. Save with sudo not supported on Windows` in red and then
+> writes it anyway. A false alarm, not data loss: **downgraded B → S**.
 >
-> ***WHAT THE SAME TEST PROVED WORKS***, and it had been unwitnessed since
-> 26 Aug: micro drew, the SD BASIC highlighting was live, the POSIX-to-Windows
+> **Four runs, one variable, no SD involved** — same file in a writable
+> directory, unelevated, launched straight from PowerShell:
+>
+> | | `MICRO_CONFIG_HOME` | flags | result |
+> |---|---|---|---|
+> | A | Program Files (`Users:RX`) | none | error, saved |
+> | B | **a writable directory** | none | ***clean*** |
+> | C | Program Files | `-backup off` | error, saved |
+> | D | Program Files | `-backup false -savehistory false` | error, saved |
+>
+> **B is the control.** The config home is the only thing that changes the
+> outcome, and ***no flag suppresses it*** — `backup` and `savehistory` are
+> eliminated by C and D, `savecursor`/`saveundo` default false. The values do
+> parse (`-backup bogusvalue` → `Invalid value`). So micro writes something
+> there on save that no option turns off.
+>
+> ***THE `-backup off` NOW IN `gpl.bp/EDIT:227` IS DEAD CODE WITH A WRONG
+> TWELVE-LINE COMMENT*** claiming it closes this. **Revert or rewrite it in
+> whatever cycle carries the real fix** — as it stands it tells the next reader
+> the defect is closed.
+>
+> ***THE FIX IS A WRITABLE CONFIG HOME. The owner's shape, 27 Aug: a directory
+> under the user's home*** — which is where micro looks anyway
+> (`~/.config/micro`), and it kills the old objection that a profile "could
+> never be given" the syntax file, because `EDIT` copies it in at launch.
+> **NEVER a shared writable dir**: micro executes Lua plugins from its config
+> home. Two things left to settle, both his — `~/.micro` vs micro's own
+> `~/.config/micro`, and whether an ssh-only `sdu_` account gets a profile
+> (measure it; this entry has been wrong once). PRE_RELEASE 29 carries both.
+>
+> ***WHAT THE SAME SESSION PROVED WORKS, AND TWO OF ITEM 5.3's QUESTIONS
+> CLOSED.*** micro drew, the SD BASIC highlighting was live, the POSIX-to-Windows
 > path conversion was right, and **every mark token converted exactly as
-> specified**. `ZZMARKS` came back **byte-identical** after the failed save —
-> `1D65F19475F3CA5DCC5D594897F6B9CB` — so nothing is lost when it fails.
+> specified**. Measured on the install afterwards: **`$hold` is empty** — so
+> `EDIT` does clean up its working copy, which nobody had watched — and
+> **`ZZMARKS` is byte-identical**, 908 bytes, `1D65F19475F3CA5DCC5D594897F6B9CB`.
 >
 > ## ***1. THREE FIXES INSTALLED + GREEN. `b48` RUN — TWO VERIFIER ISSUES, ONE FIXED, ONE FOR THE OWNER.***
 >
@@ -165,15 +185,16 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >   The verifier's contrast needs a rewrite; **owner confirms the new premise**.
 >   Not touched.
 >
-> ***NONE OF THE THREE PRODUCT FIXES IS FULLY MEASURED.*** 21's regression is
-> clean (`verify-tiers`); 29 and 23 need a console spot-check:
+> ***THE THREE PRODUCT FIXES: ONE CLEAN, ONE FAILED, ONE UNMEASURED.***
 >
-> 1. **PRE_RELEASE 29** — unelevated `sd` session, `micro bp ZZMARKS` (the
->    fixture is rebuilt and in `don`'s bp — sha `1D65F19475F3CA5DCC5D594897F6B9CB`).
->    Edit, Ctrl-S. It must save where 27 Aug got *"Permission denied. Save with
->    sudo not supported on Windows"*.
-> 2. **PRE_RELEASE 23** — any `sd` session: `term default` then `term`. Must
->    read **Page width: 120 / Page depth: 36**, not 20 / 24.
+> 1. **PRE_RELEASE 21** — ***clean.*** `verify-tiers` PASSED in `b48`.
+> 2. **PRE_RELEASE 29** — ***MEASURED AND IT DOES NOT WORK.*** See the box
+>    above. The `-backup off` is dead code; the real fix is a writable config
+>    home and the owner has named its shape.
+> 3. **PRE_RELEASE 23** — **still unmeasured.** Any `sd` session:
+>    `term default` then `term`. Must read **Page width: 120 / Page depth: 36**,
+>    not 20 / 24. *(Thirty seconds; it is the only one of the three nobody has
+>    looked at.)*
 >
 > **`-Run b48` IS THE BIGGEST THING OUTSTANDING.** `b46` and `b47` are spent —
 > use `b48`.
@@ -216,13 +237,13 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ## ***4. THREE FIXES COMPILED 0-ERROR AND INSTALLED (27 Aug 17:25:59). MEASURE THEM.***
 >
 > All three shipped in the owner's `cycle.ps1`; `assert-current` exit 0.
-> **Verified compiled, NOT verified working.**
+> **All three compiled. 21 works, 29 does NOT, 23 is unmeasured.**
 >
 > | | |
 > |---|---|
 > | **PRE_RELEASE 21** | the unreachable inner `if old.tier # 'SUSPENDED'` at the field-6 write in `tier.set` is **deleted**; `MODIFYA` banner + equality-guard comment + `SYSCOM/KEYS.H` now say the equality guard is what keeps field 6 write-once. Behaviour unchanged — **`verify-tiers` PASSED in the 27 Aug `b48`, regression check clean** |
 > | **PRE_RELEASE 23 / UPSTREAM 24** | `TERM`'s `KW$DEFAULT` arm now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH` (120 × 36), not `MIN.WIDTH` and hard-coded 24. The `sdterm` depth-25 special case went too. **Check: `term default` then `term` → Page width 120 / Page depth 36** |
-> | **PRE_RELEASE 29** | `EDIT` launches micro with `-backup off` (`editor.args`, `EDIT:227`/`832`), micro branch only — micro's default auto-backup `MkdirAll`s into the read-only Program Files config home. `EDIT` adds the flag itself; the user types plain `micro bp X`. **Check: unelevated `sd`, `micro bp <record>`, edit and save — must not say "Permission denied"** |
+> | **PRE_RELEASE 29** | ***MEASURED 27 Aug — THE `-backup off` AT `EDIT:227` DOES NOT FIX IT AND IS DEAD CODE WITH A WRONG COMMENT.*** No flag suppresses the message; `MICRO_CONFIG_HOME` has to be writable. The save itself always worked, so it is an S, not a B. **Revert `EDIT:227` and its comment block in the cycle that carries the real fix** — the owner's shape is a per-user directory under the home directory |
 >
 > ## ***5. WHAT IS STILL NOT MEASURED, IN THE ORDER THE FIXTURES SUIT.***
 >
