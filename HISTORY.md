@@ -39125,3 +39125,50 @@ statement` - what stripping `$internal` does to the four `kernel()` calls.
 > actually read, not just what it concluded.
 
 Litter cleaned: the scratch `ZZEDIT` and its `INT$KEYS.H` are out of `don`'s BP.
+
+## 27 Aug 2026 - the micro fix installed, and b48: 30 of 31
+
+Owner ran `cycle.ps1` and the suite. **Install 18:58:55, `assert-current` exit 0
+live**, `sd.exe` `DF77FD6D61DE5184` unmoved (all BASIC), `gcat`/`gpl.bp.out`
+125/184. **The micro fix verified by reading the install, not by trusting the
+run**: `micro-home.ps1` in Program Files, `micro.home` in the installed `EDIT`,
+`MICROHOME=` compiled into the object, and the dead `-backup off` **gone** from
+it.
+
+***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** Counted
+per §6's recipe - decode the 19 UTF-16LE elevated logs (505 `PASS` from them, so
+the decode reached something), count the unelevated combined transcript once
+rather than its copies, match bare `PASS` not `[PASS]`, and control the `[FAIL]`
+pattern against `20260823-081128-05-verify-tiers.log`, which still shows its 8.
+
+- **`verify-osusers` PASSES IN-SUITE** - PRE_RELEASE 30's fix works where it
+  stopped the previous run at step 4. Unelevated half 12 of 12.
+- **`verify-apiadmin` exit 1, 21/23** - the stale control, PRE_RELEASE 31. Every
+  headline check passed: the API session cannot open or write `$cred` and cannot
+  run `OS.EXECUTE`.
+- **`verify-sshonly` carries 2 `[FAIL]` and exited 0** - non-decisive rows, and
+  they found something real. See below.
+
+### PRE_RELEASE 32, found because the [FAIL] count disagreed with the exit codes
+
+The two ssh-key rows had passed in **four** previous runs and failed in this one.
+Traced: **`b48` was spent twice** - the 17:36 `-ContinueOnFailure` run and again
+at 19:01 - so the same account names arrived with new SIDs, and Windows made
+duplicate profiles (`C:\Users\sdsshb48` **and** `C:\Users\sdsshb48.GITORLI`).
+sshd looked for `authorized_keys` under the profile it now assigns; the key was
+under the other one.
+
+***THE CAUSE IS A PRODUCT DEFECT, NOT ONLY TEST LITTER.*** `delete.account`
+deletes the Windows user and leaves the **`ProfileList` registry entry** behind
+- it says so: *"Warning: the Windows profile for X was left behind"*. Recreate
+the same name and Windows gives it a different home. **53 stale `sd*`
+`ProfileList` entries on this host**, back to `b44`, for accounts `Get-LocalUser`
+says do not exist. An administrator who deletes and recreates an account - an
+ordinary thing to do - silently loses that account's ssh keys.
+
+**The instruction to re-run with `b48` was mine and was wrong**; the "a `-Run`
+prefix is spent once" rule is in START HERE and I quoted the box while breaking
+it. Next run is `b49`, after `cleanup-devlitter.ps1`.
+
+**Still unwitnessed: micro itself.** The fix is installed and no session has
+typed `micro` since the cycle.

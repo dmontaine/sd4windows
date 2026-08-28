@@ -55,6 +55,7 @@ should be fixed, **M** minor.
 | 29 | **S** | ~~`micro` reports "Permission denied" on every save — the file IS saved, so a false alarm, not data loss~~ (downgraded from **B**). ***FIXED 27 Aug: `MICRO_CONFIG_HOME` is now `~/.micro`, per user and writable, via the new `micro-home.ps1`.*** The dead `-backup off` is gone. **Uncompiled — needs a cycle** | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
 | 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
 | 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
+| 32 | **S** | ***`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory*** — `C:\Users\<name>.<DOMAIN>` — and anything keyed to the old path breaks. **Measured: ssh public-key auth refused.** 53 stale entries on this host | `gpl.bp/DELACC` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1092,3 +1093,55 @@ the headline hole stays closed.
 **Left behind by that run** (normal — the next `cycle.ps1` clears them): the
 `b48` verifier accounts `sdacctb48`, `sdtiertb48*`, `sdrtb48*`, `sdtapib48*` and
 three `os.users` records for the ADMINISTRATOR-tier ones the tier verifiers make.
+
+---
+
+## 32. `delete.account` leaves the ProfileList entry, so a recreated account gets a different home — **S**
+
+Found 27 Aug 2026 by the `b48` suite failing two rows that had passed in every
+run since 26 Aug, and traced rather than guessed.
+
+***THE SYMPTOM WAS ssh KEY AUTHENTICATION.*** `verify-sshonly` reported
+
+```
+[FAIL] control:  ssh with a key: expected admitted, got refused: Permission denied (publickey,...)
+[FAIL] ssh-only: ssh with a key: expected admitted, got refused: Permission denied (publickey,...)
+```
+
+Both rows are **non-decisive**, so the step still exited 0 and the verifier
+still printed *"12 of 12 decisive checks passed"* — which is why this needed the
+`[FAIL]` count to surface at all. **The same two rows passed in the four
+previous runs** (`20260826-145346`, `171706`, `212033`, `20260827-173821`) and
+failed only in `20260827-190248`.
+
+***THE CHAIN, MEASURED.***
+
+| | |
+|---|---|
+| `delete.account` deletes the Windows user | but prints *"Warning: the Windows profile for `<name>` was left behind"* — and leaves the **`ProfileList` registry entry** with it |
+| an account of the same name is created again | it gets a **new SID** |
+| Windows finds the old `ProfileList` entry pointing at `C:\Users\<name>` under a dead SID | so it makes a **second** profile: `C:\Users\<name>.<DOMAIN>` |
+| anything holding the old path is now wrong | here, `authorized_keys` — sshd looks under the profile Windows assigns and the key is under the other one |
+
+**On this host:** `C:\Users\sdsshb48` *and* `C:\Users\sdsshb48.GITORLI`, plus
+`.000` variants for eight more; **53 stale `sd*` `ProfileList` entries** for
+accounts `Get-LocalUser` says do not exist, going back to `b44`.
+
+***IT IS A USER-FACING DEFECT AND NOT ONLY TEST LITTER.*** An administrator who
+deletes an SD account and recreates it under the same name — a completely
+ordinary thing to do — silently gets a different home directory, and that
+account's ssh keys stop working with a message that says nothing about why.
+
+**The fix is `DELACC` removing the `ProfileList` entry when it removes the
+Windows user**, in the same branch that already deletes the profile directory
+and warns when it cannot. The warning text is the place to say so if the
+registry entry cannot be removed either.
+
+***AND IT IS WHY THE `b48` RUN HAD THESE TWO FAILURES AT ALL: THE `-Run` PREFIX
+WAS SPENT TWICE.*** `b48` was used by the `-ContinueOnFailure` run at 17:36 and
+again at 19:01. The rule *"a `-Run` prefix is spent once"* is in START HERE for
+exactly this, and the second run is what created the duplicate profiles. **That
+was a mistake in the instructions given to the owner, not by him.** The suite
+verdict stands — both rows are non-decisive and the failure is environmental —
+but the next run needs `b49`, and `cleanup-devlitter.ps1` should clear the 53
+entries first.

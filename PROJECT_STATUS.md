@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***A CYCLE IS OWED — `assert-current` FAILS on three source files*** (`gpl.bp/EDIT`, the new `gplbld/micro-home.ps1`, `gplbld/stage.py`), all from the **rewritten PRE_RELEASE 29 fix**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. The install underneath is **27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, and it carries **PRE_RELEASE 21 and 23, both measured working**. ***`b48` RAN: unelevated 11/12, elevated 18/19.*** `verify-tiers` PASSED — PRE_RELEASE 21's regression check is clean. Two verifier issues: **`verify-osusers` FIXED** (PRE_RELEASE 30, re-run standalone, passes) and **`verify-apiadmin` — PRE_RELEASE 31, traced to a stale control** (`os_permitted()` keys `os.users` on the person `don`, whom PRE_RELEASE 2 listed; product is per design, verifier needs a rewrite, owner confirms). ***ALL THREE ARE NOW SPOT-CHECKED: 21 and 23 WORK, 29 FAILED.*** 23 measured at the owner's prompt — `term` reports 120 x 36 — and **DONE**, bar three docs pages that still describe the old behaviour. 29's fix is wrong; the defect is milder than filed (the file saves, the message is false) and the real fix is a writable `MICRO_CONFIG_HOME`, shape named by the owner. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Eight new pre-release entries, 24 to 31. Of the three product fixes installed: 21 works, 23 unmeasured, 29 does not work. 30 fixed (verifier). 31 open, owner's call.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***CYCLED, INSTALLED AND GREEN — install 27 Aug 18:58:55, `assert-current` exit 0 live***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. **`micro` itself has NOT been run since the cycle — PRE_RELEASE 29 is installed and still unwitnessed, and that is the one thing to do next.** ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21 and 23 DONE and measured, 29 fixed and awaiting its console check, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -27,7 +27,7 @@ something came to be the way it is.
 
 ***ONE COMMAND IS STILL OWED ON THIS MACHINE, AND NOTHING IS BLOCKED ON IT.*** The package is chosen but not installed for the MSYS2 python here; `mkdoc.py` runs under the **Windows** python (3.13.14, `markdown` 3.10.2) and that is what rendered every page of the tester set. Either re-run `setup-devbox.ps1` elevated, or install the one package inside MSYS2: `pacman -S --needed python-markdown`. ***`mkdoc.py` ITSELF IS NO LONGER IN THIS REPOSITORY*** — see the H.2 entry.
 
-***THE MACHINE — INSTALL 27 Aug 2026 17:25:59, AND STALE AGAIN SINCE.*** The owner's `cycle.ps1` shipped PRE_RELEASE 29, 23 and 21 (`gpl.bp/EDIT`, `gpl.bp/TERM`, `gpl.bp/MODIFYA`, `syscom/KEYS.H`), all 0-error, and `assert-current` was **exit 0 live** on it: `sd.exe` `DF77FD6D61DE5184` unmoved (all BASIC), `bin\` built 26 Aug 20:40, 2969 files across 6 mirrors, `changelog` the one retired name, **`gcat` 125 / `gpl.bp.out` 184**, `$BCOMP` 88,070 bytes, service Running. **It went stale the same evening** when 29's fix was rewritten — three files, listed in START HERE item 1. *(Earlier staleness in this paragraph, kept as the pattern: 26 Aug 20:40 three C files → owner's 21:17:22 cycle; `gpl.bp/EDIT` → his 27 Aug 12:05 cycle; the three-fix batch → this 17:25:59 cycle.)* ***THE REGISTER HOLDS ONLY `don` AND `sdsys`*** — `credential register: 1 account(s) with a password`; the fresh install took `b47`'s accounts, so **`b48` is clean**. **The suite has NOT been run against this install**; the green reading below is the 26 Aug one and is what `b48` re-scores. The host previously carried a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
+***THE MACHINE — INSTALL 27 Aug 2026 18:58:55, GREEN AND CURRENT.*** Two cycles ran that day: 17:25:59 shipped PRE_RELEASE 29, 23 and 21, and **18:58:55 shipped 29's rewrite** after the first version of it was measured and found to fix nothing. `assert-current` **exit 0 live**: `sd.exe` `DF77FD6D61DE5184` unmoved (all BASIC), `bin\` built 26 Aug 20:40, **`gcat` 125 / `gpl.bp.out` 184**. *(Staleness pattern, kept: 26 Aug 20:40 three C files → owner's 21:17:22 cycle; `gpl.bp/EDIT` → his 27 Aug 12:05 cycle; the three-fix batch → 17:25:59; 29's rewrite → 18:58:55.)* ***`-Run b48` HAS NOW RUN AGAINST THIS INSTALL: 30 of 31, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`*** — see START HERE item 1. **`b48` is spent twice over; the next run is `b49`.** The host previously carried a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
 
 ***THE `SD TCL` REFERENCE HAS STARTED AND IT LIVES IN THE `User` SET, NUMBERED FROM 19.*** Owner's ruling, 26 Aug 2026, on both questions: the TCL pages continue `User/` rather than taking a set of their own, and they are named `NN-sd-tcl-<topic>.md`. **The plan is 14 topic pages plus a generated syntax card at `33`, and it is checked rather than asserted** — every one of the **144** verbs is on exactly one page, verified in both directions. ***`19` TO `32` ARE ALL WRITTEN (27 Aug 2026) AND THE ROSTER CLOSES AT 144 OF 144.*** ***THE ROSTER IS 144, NOT 140***, and the difference is the four records that are a keyword AND a verb — `break`, `count`, `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and `count voc with dispatch # ""` answers 144. `tools\sdtcl.ps1` is how the TCL pages are measured.
 
@@ -159,53 +159,57 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `EDIT` does clean up its working copy, which nobody had watched — and
 > **`ZZMARKS` is byte-identical**, 908 bytes, `1D65F19475F3CA5DCC5D594897F6B9CB`.
 >
-> ## ***1. A CYCLE IS OWED — THE micro FIX IS IN SOURCE, UNCOMPILED.***
+> ## ***1. CYCLED, INSTALLED, GREEN, AND `b48` IS 30 OF 31.***
 >
-> ***`assert-current` FAILS: three source files are newer than the install*** —
-> `gpl.bp/EDIT`, the new `gplbld/micro-home.ps1`, and `gplbld/stage.py`, all
-> from the PRE_RELEASE 29 fix above. **Run `cycle.ps1`, elevated, then
-> `-Run b48`.** No more source edits before it.
+> ***Install 27 Aug 18:58:55, `assert-current` exit 0 live.*** `sd.exe`
+> `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` **125 / 184**.
+> **The micro fix is in it, verified by reading the install**: `micro-home.ps1`
+> in Program Files, `micro.home` in the installed `EDIT`, `MICROHOME=` compiled
+> into the object, and **`-backup off` gone from it**.
 >
-> The install underneath is still **27 Aug 17:25:59**, `sd.exe`
-> `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` **125 / 184**,
-> service Running. It carries **PRE_RELEASE 21 and 23, both measured and
-> working**, and the *first*, wrong 29 fix.
+> ***THE SUITE: 30 of 31 steps exited 0 — 12 unelevated (ALL) + 18 of 19
+> elevated. 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`***, counted with the UTF-16
+> decode and both controls (§6): the 19 elevated logs contributed 505 `PASS`,
+> and the known-failing `b43` control still shows its 8 `[FAIL]`, so the zero
+> `[SKIP]` is a measurement.
 >
-> ***`b48` RESULTS (17:32 attempt + 17:36 `-ContinueOnFailure`):*** unelevated
-> **11 of 12** — only `verify-osusers`, elevated **18 of 19** — only
-> `verify-apiadmin`. Everything else PASSED, **including `verify-tiers` — the
-> PRE_RELEASE 21 regression check is clean.**
+> - ***`verify-osusers` PASSES IN-SUITE*** — PRE_RELEASE 30's fix works where it
+>   stopped the previous run dead. The unelevated half is 12 of 12.
+> - **`verify-apiadmin` exit 1, 21/23** — the known stale control, PRE_RELEASE
+>   31. **The headline questions all PASSED**: the API session cannot open or
+>   write `$cred` and cannot run `OS.EXECUTE`.
+> - **`verify-sshonly` carries 2 `[FAIL]` yet exited 0** — non-decisive rows,
+>   and **environmental: PRE_RELEASE 32**. `b48` was spent twice, so Windows
+>   made duplicate profiles and ssh key auth broke. *(The instruction to re-run
+>   with `b48` was mine and was wrong — the prefix rule is in this box.)*
 >
-> - **`verify-osusers` — FIXED and re-run standalone 27 Aug, PASSES all 22
->   checks** (PRE_RELEASE 30). It refused because `don` is auto-listed in
->   `os.users` (PRE_RELEASE 2); it now parks and restores the record.
->   `$neverShipped`, no cycle. **A clean `-Run b48` has NOT been done** — do it
->   (plain, not `-ContinueOnFailure`).
-> - **`verify-apiadmin` — PRE_RELEASE 31, traced, likely a stale control.** Its
->   *control* failed: an elevated session `LOGTO`'d into a PROGRAMMER account
->   still runs `OS.EXECUTE`. Traced: `CPROC:2713` does clear `USR_ADMIN`, but
->   `os_permitted()` then keys `os.users` on `process.username` (`don`), whom
->   PRE_RELEASE 2 listed — so the gate says yes on the *person*, per that
->   feature's own design. **The headline hole (API `OS.EXECUTE`) stays closed.**
->   The verifier's contrast needs a rewrite; **owner confirms the new premise**.
->   Not touched.
+> ***NEXT RUN USES `b49`, AND RUN `cleanup-devlitter.ps1` FIRST*** — 53 stale
+> `sd*` `ProfileList` entries have accumulated since `b44`.
 >
-> ***THE THREE PRODUCT FIXES ON THE INSTALL: TWO CLEAN, ONE REPLACED.***
+> ***WHY `verify-apiadmin` FAILS, TRACED AND NOT GUESSED.*** Its *control*
+> expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose
+> `OS.EXECUTE`. `CPROC:2713` **does** clear `USR_ADMIN` (`op_kernel.c:416`), but
+> `os_permitted()` (`op_sh.c:167`) then keys `os.users` on `process.username` —
+> `don` — whom **PRE_RELEASE 2 listed**. The gate says yes on the *person*,
+> exactly as that feature's changelog says it should. **Product is per design;
+> the control was written before `don` had a record.** The rewrite needs the
+> owner to frame what it now proves. Not touched.
 >
-> 1. **PRE_RELEASE 21** — ***clean.*** `verify-tiers` PASSED in `b48`.
-> 2. **PRE_RELEASE 23** — ***clean.*** The owner ran `term default` then `term`
->    on this install: **120 x 36**, where it was 20 x 24. `term default` prints
->    nothing, which is what that arm does and is not a defect. **Left: three
->    docs pages still say `term default` does not restore it** — *SD TCL - The
->    Terminal and the Session*, tester `13` and `02` — and they live in
->    `SDCoreWindowsDocs`, so that is a commit in the other repository.
-> 3. **PRE_RELEASE 29** — the version on this install is the **wrong** one and
->    was measured failing. **Replaced in source; the owed cycle carries it.**
+> ***THE THREE PRODUCT FIXES, ALL NOW ON THIS INSTALL.***
 >
-> **AFTER THE CYCLE, `-Run b48` IS THE BIGGEST THING OUTSTANDING** — plus one
-> console check for 29: unelevated `sd`, `micro bp ZZMARKS`, edit, Ctrl-S,
-> **no red message**, and `C:\Users\dmont\.micro` should already exist.
-> `b46` and `b47` are spent — use `b48`.
+> 1. **PRE_RELEASE 21** — ***DONE.*** `verify-tiers` PASSED in `b48`.
+> 2. **PRE_RELEASE 23** — ***DONE.*** The owner ran `term default` then `term`:
+>    **120 x 36**, where it was 20 x 24. `term default` prints nothing, which is
+>    what that arm does and is not a defect. **Left: three docs pages still say
+>    `term default` does not restore it** — *SD TCL - The Terminal and the
+>    Session*, tester `13` and `02` — in `SDCoreWindowsDocs`, so a commit in the
+>    other repository.
+> 3. **PRE_RELEASE 29** — installed, ***and the only thing left to witness.***
+>
+> ***THE ONE CONSOLE CHECK OUTSTANDING.*** Unelevated `sd`, `micro bp ZZMARKS`,
+> edit, **Ctrl-S — no red message**. `C:\Users\dmont\.micro` already exists from
+> the pre-cycle testing, so this also exercises the "already current" path.
+> The fixture is in `don`'s BP, sha `1D65F19475F3CA5DCC5D594897F6B9CB`.
 >
 > ## ***2. THE `sd -cleanup` DEBT IS CLEARED — the 17:25:59 cycle wiped both trees.***
 >
@@ -464,7 +468,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `gpl.bp/EDIT` was already uncompiled; **`MODIFYA`, `CREATEA`, `LOGIN`,
 > `CPROC`, `APISRVR` and `SYSCOM/KEYS.H` have all changed since.** `sd.exe`
 > has NOT moved — it is still a cycle and not a rebuild. **Nothing below has
-> been compiled, let alone run.** Use `-Run b48`.
+> been compiled, let alone run.** *(Historic: that was `b48`, which has since run.)*
 >
 > ### 1. AN ADMINISTRATOR'S ACCESS CANNOT BE TURNED OFF — BUILT
 >
@@ -665,9 +669,8 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### WHAT IS STILL NOT MEASURED
 >
-> 1. ***THE SUITE. `-Run b48`, and it is the biggest thing outstanding.***
->    `b47` went with the fresh install. **Run it before any source change**, per
->    the paragraph above.
+> 1. ***THE SUITE — DONE.*** `-Run b48` ran 27 Aug against the 18:58:55 install:
+>    **30 of 31, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.** See START HERE item 1.
 > 2. ***THE "LEFT ALONE" COUNT — every run so far reported `0 left alone`, which
 >    is a rule that has never been exercised, not a rule that passed.*** It needs
 >    a VOC record edited by hand before a downgrade. `b48tier` is PROGRAMMER and
@@ -946,13 +949,13 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > the design — about four UAC prompts:
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b48
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b49
 > ```
 >
 > ***`-Run` ON ITS OWN DOES NOTHING*** — it is *"ignored without
 > `-ThenElevated`"*. Without that switch `VerifyInstall1` runs its 12 unelevated
 > steps, prints **"every step exited 0"** and stops, which reads exactly like a
-> finished suite and is **12 of 31**. ***`b46` AND `b47` ARE SPENT — USE `b48`.***
+> finished suite and is **12 of 31**. ***`b46`, `b47` AND `b48` ARE SPENT — USE `b49`.*** `b48` went twice, which is what PRE_RELEASE 32 cost.
 > A `-Run` prefix is spent once.
 >
 > ***AND THE SAME TRAP RUNS THE OTHER WAY, WHICH IS HOW `b46` GOT WRITTEN DOWN
