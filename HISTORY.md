@@ -39886,3 +39886,26 @@ the session or truncate the password into a different one than the run printed.
 **The fallback path is exercised for real**: run unelevated, secedit gives
 nothing and `net accounts` returns minimum length 0 - which is this host's
 actual setting, so the reader agrees with the machine by two routes.
+
+**ALL EIGHT UNWITNESSED FIXES ARE NOW MEASURED.** `verify-acctmsgs` **31 PASS /
+0 FAIL / 0 SKIP**, `-Prefix sdmsgb`, with the machine's minimum password length
+temporarily at 14. Entry 22's refusal arm printed **10119 naming the account**,
+with the mismatch and unelevated messages absent and the retry still offered -
+so both arms are measured and 22 is struck alongside 5, 13, 14, 15, 26, 27
+and 37.
+
+**The policy is back at 0, read AFTER the run rather than assumed**, and no
+Windows account, register record or profile directory survives for any of the
+eight names across `sdmsga` and `sdmsgb`. `C:\Users` holds only `b48adm`,
+`dmont` and `Public`.
+
+***NEITHER SCRIPT PASSED FIRST TIME, AND NEITHER FIRST FAILURE WAS THE
+PRODUCT.*** One was a verb that prompts for an argument it was not given; the
+other was a password chosen by reasoning rather than by reading the policy.
+Both are the same shape - **a premise written into a test as though it were
+measured** - and both were caught only because the scripts print what they
+actually did. A verifier that had merely reported PASS/FAIL would have called
+the first a broken fix and the second a working one.
+
+`sdmsga` and `sdmsgb` are spent; the next prefix is `sdmsgc`. `zzprf` is
+re-runnable as it stands.

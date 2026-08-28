@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**SEVENTY-FIRST SESSION, 28 Aug 2026 — SEVEN OF THE EIGHT UNWITNESSED FIXES ARE MEASURED AND STRUCK: 5, 13, 14, 15, 26, 27 AND 37.** ***`verify-vocverbs` 36 PASS / 0 FAIL; `verify-acctmsgs` 26 PASS / 0 FAIL / 1 SKIP***, both on the 28 Aug 00:53:34 install. ***ONLY PRE_RELEASE 22 IS LEFT, AND ONLY HALF OF IT***: the **mismatch** arm (10118) is measured, the ***"Windows refused the password" arm (10119) HAS NEVER RUN*** and is recorded **SKIP, not PASS**. ***THE REASON IS A PREMISE OF MINE THAT WAS WRONG***: the arm sends a 150-character password on the stated grounds that 127 is a hard SAM limit for a local account, and **`Set-LocalUser` accepted it** — measured, so the account was created for real and then deleted. This host refuses nothing (minimum length 0, complexity off). **Exercising it needs a machine whose policy refuses something, or a deliberate temporary policy change here — the owner's call, and not one a verifier should make.** ***`sdmsga` IS SPENT — use `sdmsgb`.***
+***SEVENTY-FIRST SESSION, 28 Aug 2026 — ALL EIGHT UNWITNESSED FIXES ARE MEASURED AND STRUCK: 5, 13, 14, 15, 22, 26, 27 AND 37.*** ***`verify-vocverbs` 36 PASS / 0 FAIL; `verify-acctmsgs` 31 PASS / 0 FAIL / 0 SKIP***, both on the 28 Aug 00:53:34 install, **no cycle spent**. ***NEITHER SCRIPT PASSED FIRST TIME AND NEITHER FIRST FAILURE WAS THE PRODUCT.*** `verify-vocverbs` stopped at 21 of 22 because **`LIST.INDEX` prompts when given no index name** and the prompt ate the `OFF`; `verify-acctmsgs` **SKIPped** entry 22's refusal arm because the password it guessed — 150 characters, on my stated grounds that 127 is a hard SAM limit — **was accepted**. Both are fixed and both were re-run. ***ENTRY 22's REFUSAL ARM NEEDED THE MACHINE'S PASSWORD POLICY CHANGED***, which was the owner's ruling and his to make: `net accounts /minpwlen:14`, run, `/minpwlen:0` to put it back — **and it is back, read after the run**. The password is now **chosen from the policy** rather than guessed. ***`sdmsga` AND `sdmsgb` ARE SPENT — use `sdmsgc`; `zzprf` is re-runnable as it stands.*** **Nothing was left behind by any run**, read from disk: `C:\Users` holds only `b48adm`, `dmont` and `Public`.
 
 **SEVENTY-FIRST SESSION, 28 Aug 2026 — PRE_RELEASE 5, 13, 14, 15 AND 26 ARE MEASURED AND DONE.** ***`verify-vocverbs` 36 PASS / 0 FAIL / 0 SKIP*** on the 28 Aug 00:53:34 install, owner's elevated terminal. **Five of the eight unwitnessed fixes are struck; 22, 27 and 37 remain** and `verify-acctmsgs.ps1` has not been run. ***IT TOOK TWO RUNS, AND THE FIRST FAILURE WAS THE VERIFIER, NOT THE PRODUCT***: 21 of 22, failing on the entry 15 FIXTURE, because `LIST.INDEX <file>` with no index name **prompts** (`LISTI:117`), ate the `OFF` after it, and the session sat until the 60-second timeout — `CREATE.INDEX` had already printed *"Added index for F1"*. Fixed to `LIST.INDEX <file> ALL`, with three fixture instruments instead of one. ***THE CLASS IS WIDER THAN ONE VERB — anything driven down a pipe must NAME every optional argument***; `LISTI:117`, `DELETEI:101`, `DELETEF:117` and `DELACC:96` all prompt when theirs is omitted, and the tell is a transcript whose last line is a prompt and whose next command never appears. **No stray `sd.exe`** — checked after the timeout, only the normal `sdwind`.
 
@@ -266,26 +266,22 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > decision, made once, in the open, and **reverted afterwards** — not a side
 > effect of running a test.
 >
-> ***THE THREE COMMANDS, ELEVATED, IN THIS ORDER.*** Read the minimum back
-> before and after; `net accounts` prints it.
+> ***AND IT RAN: 31 PASS / 0 FAIL / 0 SKIP, `-Prefix sdmsgb`.*** The three
+> elevated commands were `net accounts /minpwlen:14`, the verifier, then
+> `net accounts /minpwlen:0`. **10119 printed naming the account**, with the
+> mismatch and unelevated messages absent and the retry still offered, so both
+> arms of entry 22 are now measured and it is struck.
 >
-> ```
-> net accounts /minpwlen:14
-> ```
+> ***THE POLICY IS BACK: minimum length 0, read AFTER the run, not assumed.***
+> Leaving 14 in force would have changed how every later `create.account` on
+> this machine behaves.
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-acctmsgs.ps1 -Prefix sdmsgb
-> ```
+> ***AND NOTHING WAS LEFT BEHIND BY EITHER PREFIX*** — no Windows account,
+> register record or profile directory for any of the eight names across
+> `sdmsga` and `sdmsgb`, and `C:\Users` holds only `b48adm`, `dmont` and
+> `Public`. Read from disk, not from what the deletes reported.
 >
-> ```
-> net accounts /minpwlen:0
-> ```
->
-> **The run prints the policy it read and the length it sent** before it sends
-> anything, so the evidence for 10119 names the rule it broke. **Expect 27 of
-> 27 with no SKIP.** ***PUT IT BACK AFTERWARDS*** — `minpwlen:0` is what this
-> host had, measured 28 Aug 2026, and leaving 14 in force would change how every
-> later `create.account` on this machine behaves.
+> ***`sdmsga` AND `sdmsgb` ARE SPENT. THE NEXT PREFIX IS `sdmsgc`.***
 >
 > ***`sdmsga` IS SPENT. THE NEXT PREFIX IS `sdmsgb`.*** The run left nothing
 > behind — no Windows account, register record or profile directory for any of

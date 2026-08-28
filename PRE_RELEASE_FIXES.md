@@ -45,7 +45,7 @@ should be fixed, **M** minor.
 | 19 | **B** | ***The tier change and `SUSPENDED` compile but have never RUN, and there is no verifier*** | `gpl.bp/MODIFYA` |
 | 20 | **S** | A suspended administrator is still a Windows administrator | `gpl.bp/MODIFYA` |
 | ~~21~~ | **S** | ~~The write-once rule on `ACC$PRIOR.TIER` is unreachable, and four documents say it is what makes field 6 safe~~ — **dead test deleted, docs corrected 27 Aug; compiled + installed 17:25:59, `b48` is the regression check** | `gpl.bp/MODIFYA`, `syscom/KEYS.H` |
-| 22 | **M** | `create.account` says a password was not set and never says why — **FIXED 28 Aug: `!set_passwd` ALREADY set the reason and the caller discarded it. `status()` is read immediately and 10118-10121 name the four cases; the "not elevated" one says a retry cannot help.** ***HALF MEASURED 28 Aug 2026 by `verify-acctmsgs.ps1`, AND NOT STRUCK FOR THAT REASON.*** **The MISMATCH arm is DONE**: 10118 printed, the other three messages absent, and answering `N` unwound the creation. ***THE "WINDOWS REFUSED" ARM (10119) HAS STILL NEVER RUN*** — recorded SKIP, not PASS. **This host will not refuse a password**: minimum length 0, complexity off, and ***a 150-character password was ACCEPTED*** — so the arm needs a policy that refuses something. ***OWNER RULED 28 Aug 2026: change the policy for the test.*** The password is now **chosen from the policy** — `Get-PasswordPolicy` reads it with `secedit`, `Select-RefusedPassword` breaks whichever rule is in force. **Run `net accounts /minpwlen:14`, then the verifier with `-Prefix sdmsgb`, then `net accounts /minpwlen:0` to put it back** — all three elevated; PROJECT_STATUS START HERE has them | `gpl.bp/CREATEA:498` |
+| ~~22~~ | **M** | `create.account` says a password was not set and never says why — **FIXED 28 Aug: `!set_passwd` ALREADY set the reason and the caller discarded it. `status()` is read immediately and 10118-10121 name the four cases; the "not elevated" one says a retry cannot help.** ***DONE 28 Aug 2026, BOTH ARMS MEASURED*** by `verify-acctmsgs.ps1` — **31 PASS / 0 FAIL / 0 SKIP**, `-Prefix sdmsgb`. **Mismatch**: 10118 printed, the other three of the four messages absent, and answering `N` unwound the creation. **Windows refused**: 10119 printed **naming the account**, with the mismatch and unelevated messages absent and the retry still offered. ***THE REFUSAL ARM NEEDED THE MACHINE'S POLICY CHANGED*** — owner's ruling: `net accounts /minpwlen:14`, run, then `/minpwlen:0` to put it back, **and it is back, read after the run**. **The first attempt SKIPped**: it sent a 150-character password on the reasoning that 127 is a hard SAM limit for a local account, and `Set-LocalUser` accepted it. The password is now **chosen from the policy** — `Get-PasswordPolicy` reads it with `secedit`, `Select-RefusedPassword` breaks whichever rule is in force | `gpl.bp/CREATEA:498` |
 | ~~23~~ | **S** | ~~`term default` sets 20x24, the MINIMUM width, not SD's 120x36 default~~ — UPSTREAM #24. ***DONE 27 Aug 2026***, installed 17:25:59 and **measured: `term` reports 120 x 36**. **Docs corrected too**, `SDCoreWindowsDocs` `c41d999` | `gpl.bp/TERM:165` |
 | 24 | **S** | ***`sd -cleanup` never releases a dead session's task locks*** — UPSTREAM #25, **unfixed here** | `gplsrc/clopts.c:300` |
 | ~~25~~ | **S** | ~~`encrypt.field` is in every administrator's VOC and `$CRYPTO` is not in the distribution~~ — UPSTREAM #26. ***DONE 28 Aug 2026, MEASURED on the 00:53:34 install: `verify-tiers` 33 PASS, ADMINISTRATOR 416, STANDARD and PROGRAMMER unmoved.*** **Fixed by taking the entry's recommended option: the `voc_template` record is DELETED and the name removed from `TIER.ADD.ADMINISTRATOR`. ADMINISTRATOR's VOC is 416, re-derived from the directory; STANDARD and PROGRAMMER unmoved. `verify-tiers.ps1` and PROJECT_STATUS §A1 updated with it.** ***UNCOMPILED. Reversible in one commit if you would rather ship a `$CRYPTO`*** | `sdsys/voc_template/encrypt.field`, `newvoc/TIER.ADD.ADMINISTRATOR` |
@@ -67,16 +67,16 @@ should be fixed, **M** minor.
 | 41 | **M** | ***The cleanup sweep reports "every section reached zero" while three orphan directories are still on disk*** — the counter and the cleaner share one `Win32_UserProfile` enumeration, which reads from `ProfileList`, so a directory whose entry is gone is invisible to both. **Measured 28 Aug: `7 -> 0` and "done" with `sdapiab49`, `sdapiidb49`, `sdapinb49` still there.** Fix is a direct `C:\Users` scan reported as UNREACHABLE, not a bigger delete. **36's boot sweep must not inherit it** | `gplbld/clean-test-profiles.ps1:223`, `cleanup-devlitter.ps1` |
 
 ***THE EIGHT "COMPILED AND INSTALLED — UNTESTED" ENTRIES NOW HAVE VERIFIERS,
-AND FIVE OF THE EIGHT ARE STRUCK.*** 28 Aug 2026. Entries **5, 13, 14, 15,
-26** are `gplbld/verify-vocverbs.ps1`; **22, 27, 37** are
-`gplbld/verify-acctmsgs.ps1`. Both need an **elevated** shell. ***ALL FIVE OF
-THE FIRST SCRIPT'S ENTRIES ARE DONE — `verify-vocverbs` 36 PASS / 0 FAIL on
-the 00:53:34 install.*** The first run stopped at 21 of 22 on a defect in the
-verifier, not the product (`LIST.INDEX` prompts when given no index name); the
-second run, after the fix, was clean. ***22, 27 and 37 are still UNTESTED*** —
-`verify-acctmsgs.ps1` has not been run. **Nothing moves to DONE on the strength
-of a script existing** — strike an entry only when a run has printed its rows.
-PROJECT_STATUS.md START HERE carries both commands
+AND ALL EIGHT ARE STRUCK.*** 28 Aug 2026. Entries **5, 13, 14, 15, 26** are
+`gplbld/verify-vocverbs.ps1` — ***36 PASS / 0 FAIL***; **22, 27, 37** are
+`gplbld/verify-acctmsgs.ps1` — ***31 PASS / 0 FAIL / 0 SKIP***. Both need an
+**elevated** shell, and both ran against the 00:53:34 install, so no cycle was
+spent. **Neither passed first time, and neither first failure was the
+product**: `verify-vocverbs` stopped at 21 of 22 because `LIST.INDEX` prompts
+when given no index name, and `verify-acctmsgs` SKIPped entry 22's refusal arm
+because the password it guessed was accepted. **Nothing moves to DONE on the
+strength of a script existing** — strike an entry only when a run has printed
+its rows. PROJECT_STATUS.md START HERE carries both commands
 and the three corrections to the tests those entries' own summaries suggested:
 **26 cannot be tested with `force`** (both prompts are already guarded by
 `not(force)`, so that form passes on the defect), **22's `a` is accepted on a
