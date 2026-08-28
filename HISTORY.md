@@ -39514,3 +39514,15 @@ which is the half of the change that had never been exercised.
 ssh, and may not use the API"* on consecutive lines. They are the **two
 different gates** - Windows logon rights at `CREATEA:808`, SD's route keywords
 at `:1612` - and the wording makes them look like one fact said twice.
+
+**PRE_RELEASE 37 got its sharper example an hour later.** With the `both`
+keyword the two lines do not merely repeat, they contradict:
+*"b48adm may sign in over ssh only"* then *"b48adm may sign in over ssh and use
+the API"*. `10034` says **only** ssh, `10078` says ssh **and** the API; both are
+true of their own gate and cannot both be true of one. **The `ssh` case looks
+redundant, this one looks broken**, and it is the example to fix against.
+
+**Fixtures rebuilt on the 22:52:21 install:** `b48tier` PROGRAMMER (**42 records
+added**, the predicted number), `b48susp` SUSPENDED (0/0/0), `b48adm`
+PROGRAMMER with `both`. The 42 is what makes item 5.1 checkable - one VOC record
+edited by hand should give `41 removed, 1 left alone`.

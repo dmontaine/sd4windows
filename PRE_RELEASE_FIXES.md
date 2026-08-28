@@ -60,7 +60,7 @@ should be fixed, **M** minor.
 | 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Owner's call, and not to be settled by adding a link** | docs repo `tools/release.ps1`, `tools/checklinks.py` |
 | 35 | **S** | ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32. `DELETE_USER` now tries to remove it, **and MEASURED: it cannot be deleted OR renamed while the hive is mounted**, so the honest answer is the rewritten `10075`, which names the cause and the restart. **Cure is 36** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
 | 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — the ROOT CAUSE of 32 and 35. **Mechanism confirmed: `Remove-CimInstance` failed on a mounted hive, then cleared `53 removed, 0 failed` after a restart.** Nothing SD does can unmount them. **Two decisions for the owner, neither built** | Windows lifecycle; `gplbld/clean-test-profiles.ps1` |
-| 37 | **S** | `create.account` prints *"may sign in over ssh only"* and *"may sign in over ssh, and may not use the API"* on consecutive lines. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD's route keywords (`:1612`) — **worded so they read as one fact said twice.** Wording fix, no logic change | `messages/10034`, `10076`, `10078` |
+| 37 | **S** | ***`create.account` prints two lines that contradict each other***: with `both` it says *"may sign in over ssh only"* then *"may sign in over ssh and use the API"*. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD route keywords (`:1612`) — worded so nothing tells the reader that. Wording fix, no logic change | `messages/10034`, `10076`, `10078` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1526,7 +1526,21 @@ b49test may sign in over ssh, and may not use the API
 project has been careful to keep separate, and `PROJECT_STATUS` calls them two
 gates in as many words. **But a reader sees one fact stated twice**, and the
 natural conclusion is that the second line is a stutter rather than a different
-subject. `10078` (`ssh and use the API`) has the same overlap.
+subject.
+
+***AND WITH `both` IT IS NOT A REPETITION, IT IS A FLAT CONTRADICTION.***
+Measured the same evening, `create.account user b48adm programmer both`:
+
+```
+b48adm may sign in over ssh only
+b48adm may sign in over ssh and use the API
+```
+
+`10034` says **only** ssh; `10078` then says ssh **and** the API. Both are true
+of their own gate and they cannot both be true of the same one, so a reader has
+no way to tell that two subjects are in play rather than one bug. **This is the
+example to fix against** — the `ssh`-keyword case merely looks redundant, and
+this one looks broken.
 
 **The fix is wording, not logic.** Name the subject in each: something like
 *"may reach this computer only over ssh"* for the logon right and *"SD routes:
