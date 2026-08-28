@@ -40224,3 +40224,9 @@ leaving no SD credential is now stated by the product, not inferred.
 `gplbld` and docs only. **No cycle**, `assert-current` exit 0, the 28 Aug
 00:53:34 install untouched. **`sddr1` and `sddr2` are both spent; the next
 attempt takes `sddr3`.**
+
+**`-Phase Remove` closed it, 2/2**, and the machine was swept afterwards:
+**no Windows user, no `sdu_` group and no `ACCOUNTS` record for either name;
+`sdapi`, `sdssh` and `sdusers` carry no orphan SIDs; no stray `sd.exe`.** The
+only residue is `C:\Users\sddr1a` and `C:\Users\sddr2a`, both PRE_RELEASE
+35/36, both awaiting a restart.

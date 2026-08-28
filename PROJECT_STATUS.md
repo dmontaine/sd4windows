@@ -117,26 +117,28 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩ THE DOORS ARE COVERED. ONE COMMAND IS OWED, AND IT IS ONLY CLEAN-UP. ⇩
+> # ⇩ NOTHING IS OWED. THE DOORS ARE COVERED AND THE FIXTURE IS GONE. ⇩
 >
 > ***HANDOFF, SEVENTY-SECOND SESSION, 28 Aug 2026.*** ***PRE_RELEASE 19 IS
-> CLOSED AND SO IS ITS LAST ROW.*** The `verify-doors` pair ran end to end on
-> `sddr2` and **every leg passed**. The only thing outstanding is taking the
-> fixture away.
+> CLOSED AND SO IS ITS LAST ROW.*** The `verify-doors` pair ran **end to end**
+> on `sddr2`, **all five phases, every leg green**, and `-Phase Remove` took
+> the fixture away. **No command is waiting on the owner.**
 >
-> ***ELEVATED PowerShell.***
+> ***TWO DECISIONS ARE HIS, AND BOTH ARE WRITTEN UP*** — **PRE_RELEASE 42**
+> (`create.account` announces the API as a route while leaving no SD
+> credential) and **what is left of 38** (wire the pair into `VerifyInstall1`,
+> or leave it standalone and named in the docs). **Neither needs another run.**
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr2 -Phase Remove
-> ```
+> ***THE ONLY THING LEFT ON THE MACHINE IS `C:\Users\sddr1a` AND
+> `C:\Users\sddr2a`.*** Swept 28 Aug and everything else is clean: **no Windows
+> user, no `sdu_` group and no `ACCOUNTS` record for either name; `sdapi`,
+> `sdssh` and `sdusers` carry no orphan SIDs; no stray `sd.exe`.** The two
+> directories are **PRE_RELEASE 35/36** — the Control leg's ssh login created
+> them and their registry hives are still mounted, so **only a restart releases
+> them**; `clean-test-profiles.ps1` will name them after one. **They block
+> nothing** except reuse of those two names.
 >
-> **It will report `C:\Users\sddr2a` left behind. That is EXPECTED, not a
-> failure** — the Control leg's ssh login created the profile and its registry
-> hive is still mounted (PRE_RELEASE 35/36; only a restart releases it). The
-> phase reads the leftovers **from disk** rather than from what
-> `DELETE.ACCOUNT` claimed, which is why it can say so at all.
->
-> ***THE FOUR LEGS, ALL GREEN, 28 Aug 2026 — `sddr2`.***
+> ***THE FIVE LEGS, ALL GREEN, 28 Aug 2026 — `sddr2`.***
 >
 > | leg | shell | result |
 > |---|---|---|
@@ -144,6 +146,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | `Control` | **unelevated, the agent's own** | ***6/6 — ssh, `logto` and the API ALL ADMITTED*** |
 > | `Suspend` | elevated | **5/5**, and *still in `sdssh`* — the suspension moved no Windows group |
 > | `Refused` | **unelevated, the agent's own** | ***4/4 — ALL THREE REFUSED*** |
+> | `Remove` | elevated | **2/2**, fixture gone; profile directory left behind, **expected** |
 >
 > **ssh and `logto` refused in SD's own words** — 10107, *"Account SDDR2A is
 > suspended"* — and **ssh refused AFTER the banner**, so authentication had
