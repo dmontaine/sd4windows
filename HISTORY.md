@@ -38944,3 +38944,11 @@ guard (sysmsg 10110) is what makes field 6 write-once. Behaviour unchanged.
 **State:** `assert-current` FAILS (confirmed). `sd.exe` unmoved
 (`DF77FD6D61DE5184`) - all BASIC - but `KEYS.H` forces a full recompile. Owed:
 one `cycle.ps1`, then `-Run b48`.
+
+**Update, same day 17:25:59:** the owner's `cycle.ps1` installed all three -
+`EDIT`, `TERM`, `MODIFYA` each compiled 0-error (SECOND.COMPILE; `TERM` also in
+bootstrap pass 1), `gcat`/`gpl.bp.out` 125/184, service Running,
+`assert-current` **exit 0 live**. (He first ran `cycle.ps1 -SkipInstall`, which
+compiled clean and left the service stopped - "`sd` not started" - then the
+full cycle.) **Compiled, not yet measured:** `-Run b48` for 21, and console
+spot-checks for `micro` save unelevated (29) and `term default` → 120/36 (23).

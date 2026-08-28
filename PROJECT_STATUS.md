@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THE TREE IS NO LONGER CURRENT*** — three fixes edited into source 27 Aug on the owner's call: PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off`), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test). `assert-current` FAILS (confirmed); install still 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`; nothing compiled or measured. **The next step is one `cycle.ps1`**, elevated, then `-Run b48`. An elevated `sd -cleanup` is owed. The tier change and SUSPENDED are **measured and work**. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Six new pre-release entries, 24 to 29; three now fixed in source (uncompiled): 29 (`micro -backup off`), 23 (`term default` 120×36) and 21 (dead write-once test deleted).** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THREE FIXES ARE INSTALLED AND `assert-current` IS GREEN*** — PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off`), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test) all compiled 0-error and shipped in the owner's `cycle.ps1` of 27 Aug. **Install 27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, `assert-current` **exit 0 live**. ***NONE OF THE THREE IS MEASURED YET*** — `-Run b48` is the next step, plus three spot-checks (below). The tier change and SUSPENDED are **measured and work** (before this cycle). ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Six new pre-release entries, 24 to 29; three fixed and now installed (unmeasured): 29 (`micro -backup off`), 23 (`term default` 120×36) and 21 (dead write-once test deleted).** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -27,7 +27,7 @@ something came to be the way it is.
 
 ***ONE COMMAND IS STILL OWED ON THIS MACHINE, AND NOTHING IS BLOCKED ON IT.*** The package is chosen but not installed for the MSYS2 python here; `mkdoc.py` runs under the **Windows** python (3.13.14, `markdown` 3.10.2) and that is what rendered every page of the tester set. Either re-run `setup-devbox.ps1` elevated, or install the one package inside MSYS2: `pacman -S --needed python-markdown`. ***`mkdoc.py` ITSELF IS NO LONGER IN THIS REPOSITORY*** — see the H.2 entry.
 
-***THE MACHINE — AND THE INSTALL IS STALE AGAIN, 27 Aug 2026.*** `gpl.bp/EDIT`, `gpl.bp/TERM`, `gpl.bp/MODIFYA` and `syscom/KEYS.H` were edited for PRE_RELEASE 29, 23 and 21; the install is still 27 Aug 12:06:20 and a `cycle.ps1` is owed. *(This paragraph has now led with a staleness three times: 26 Aug 20:40, three rebuilt C files, closed by the owner's 21:17:22 cycle; `gpl.bp/EDIT`, closed by his 27 Aug 12:05 cycle with the tier work; and this one. **`sd.exe` has not moved since 26 Aug** — `DF77FD6D61DE5184` — every change since has been BASIC, and `KEYS.H` forces a full recompile so the whole tree rebuilds regardless.)* Before these edits, `assert-current` was **exit 0, run live 27 Aug**: 2969 files across 6 mirrors, nothing newer, 26 leftover names checked. **`gcat` 125 / `gpl.bp.out` 184.** ***THE REGISTER HOLDS ONLY `don` AND `sdsys`*** — the fresh install took `b47`'s fifteen accounts with it, so **`b48` is clean**. **The suite has NOT been run against this install**; the green reading below is the 26 Aug one and is what `b48` re-scores. The host previously carried a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
+***THE MACHINE — INSTALL CURRENT, 27 Aug 2026 17:25:59.*** The owner's `cycle.ps1` shipped PRE_RELEASE 29, 23 and 21 (`gpl.bp/EDIT`, `gpl.bp/TERM`, `gpl.bp/MODIFYA`, `syscom/KEYS.H`), all 0-error. `assert-current` **exit 0 live**: `sd.exe` `DF77FD6D61DE5184` unmoved (all BASIC), `bin\` built 26 Aug 20:40, no source newer, 2969 files across 6 mirrors, `changelog` the one retired name. **`gcat` 125 / `gpl.bp.out` 184**, `$BCOMP` 88,070 bytes. Service Running. *(Earlier staleness in this paragraph, kept as the pattern: 26 Aug 20:40 three C files → owner's 21:17:22 cycle; `gpl.bp/EDIT` → his 27 Aug 12:05 cycle; the three-fix batch → this 17:25:59 cycle.)* ***THE REGISTER HOLDS ONLY `don` AND `sdsys`*** — `credential register: 1 account(s) with a password`; the fresh install took `b47`'s accounts, so **`b48` is clean**. **The suite has NOT been run against this install**; the green reading below is the 26 Aug one and is what `b48` re-scores. The host previously carried a **FULL** install (**26 Aug 2026, 17:14:03**) with the suite green — **31/31 steps, every one exit 0: 12 unelevated + 19 elevated, `-Run b46`. 991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** `sd.exe` `8E6A6CF45AA6F20A`, `gcat`/`gpl.bp.out` 125/184. **`b46` is spent — use `b47`.** `assert-current` was **exit 0 run live at the start of the sixty-third session** and is **now expected to FAIL** until the cycle runs — the binary moved, the install did not. ***THE COUNTS ABOVE ARE NOT THE ONES THE RUN REPORTED, AND THE DIFFERENCE IS AN INSTRUMENT DEFECT — §6, "the PASS count was grepped out of files nothing could read".*** The 61st session recorded this run as *"19 of 19 steps exited 0"*, which is the **elevated half's own line** and reads like a 19-step suite; the unelevated 12 ran and passed too. ***Guest `sdStandalone-C1` remains***, powered off, carrying the stand-alone install that closed H.5; **it shares MAC `080027AECE7C` with `Windows 11 - Template`, so never run both at once.** Delete it by hand when nobody needs that install: `VBoxManage unregistervm sdStandalone-C1 --delete`. `sshRemoteTest-C1` is gone, deleted by the 7.18 cleanup.
 
 ***THE `SD TCL` REFERENCE HAS STARTED AND IT LIVES IN THE `User` SET, NUMBERED FROM 19.*** Owner's ruling, 26 Aug 2026, on both questions: the TCL pages continue `User/` rather than taking a set of their own, and they are named `NN-sd-tcl-<topic>.md`. **The plan is 14 topic pages plus a generated syntax card at `33`, and it is checked rather than asserted** — every one of the **144** verbs is on exactly one page, verified in both directions. ***`19` TO `32` ARE ALL WRITTEN (27 Aug 2026) AND THE ROSTER CLOSES AT 144 OF 144.*** ***THE ROSTER IS 144, NOT 140***, and the difference is the four records that are a keyword AND a verb — `break`, `count`, `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and `count voc with dispatch # ""` answers 144. `tools\sdtcl.ps1` is how the TCL pages are measured.
 
@@ -115,7 +115,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***THE SESSION ENDED ON THE OWNER STARTING A NEW ONE, NOT ON A PROBLEM.***
 > Both repositories are **pushed and clean**. Nothing is half-written.
 >
-> ***PRE_RELEASE 29 IS DIAGNOSED AND FIXED IN SOURCE, UNCOMPILED (27 Aug).***
+> ***PRE_RELEASE 29 IS DIAGNOSED, FIXED AND INSTALLED — NOT YET MEASURED (27 Aug).***
 > `micro` drew, edited and highlighted but **could not save** for an unelevated
 > account. The blocking write is micro's **default auto-backup**: `backup` true,
 > `backupdir` empty, so the backup goes to `MICRO_CONFIG_HOME/backups` under
@@ -127,8 +127,9 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > writable config home — the Lua-plugin escalation the config home would open is
 > not worth it when `EDIT` already prompts per save and keeps the working copy.
 > **The user types nothing extra — `EDIT` puts the flag on micro's command
-> line.** **Not reproduced; not compiled.** The check is the same verb the owner
-> hit it with: unelevated `sd` session, `micro bp ZZMARKS`, confirm it saves.
+> line.** Compiled 0-error and installed in the 17:25:59 cycle. **Not
+> reproduced.** The check is the same verb the owner hit it with: unelevated
+> `sd` session, `micro bp <record>`, confirm it saves.
 >
 > ***WHAT THE SAME TEST PROVED WORKS***, and it had been unwitnessed since
 > 26 Aug: micro drew, the SD BASIC highlighting was live, the POSIX-to-Windows
@@ -136,65 +137,46 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > specified**. `ZZMARKS` came back **byte-identical** after the failed save —
 > `1D65F19475F3CA5DCC5D594897F6B9CB` — so nothing is lost when it fails.
 >
-> ## ***1. THE TREE IS NO LONGER CURRENT — A CYCLE IS OWED BEFORE `b48`.***
+> ## ***1. THE THREE FIXES ARE INSTALLED AND GREEN. `b48` IS THE NEXT STEP.***
 >
-> Three fixes were edited into source 27 Aug (item 4): **PRE_RELEASE 29**
-> (`gpl.bp/EDIT`, `micro -backup off`), **23** (`gpl.bp/TERM`, `term default`
-> → 120 × 36), **21** (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once
-> test). The owner's call, once 29 had already taken the tree off
-> `assert-current`. **`assert-current` now FAILS** (confirmed) — install still
-> **27 Aug 12:06:20**, `sd.exe` `DF77FD6D61DE5184`, `gcat`/`gpl.bp.out`
-> **125 / 184**. **Nothing is compiled or measured.**
+> **PRE_RELEASE 29** (`gpl.bp/EDIT`, `micro -backup off`), **23** (`gpl.bp/TERM`,
+> `term default` → 120 × 36) and **21** (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the
+> dead write-once test) all compiled 0-error in the owner's `cycle.ps1` of
+> 27 Aug and are installed. **Install 27 Aug 17:25:59**, `sd.exe`
+> `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` **125 / 184**,
+> service Running, `assert-current` **exit 0 live**.
 >
-> **THE NEXT STEP IS ONE `cycle.ps1`** (elevated, at the keyboard), which
-> compiles all three and reinstalls. No more source edits first — a source
-> change ends a cycle.
+> ***NONE OF THE THREE IS MEASURED.*** Do not move any to "verified" without
+> watching it. `-Run b48` covers the tier regression (21); the other two need a
+> console spot-check:
 >
-> **`-Run b48` HAS NOT RUN AND IS STILL THE BIGGEST THING OUTSTANDING.** It now
-> scores the post-fix tree. `b47`'s accounts went with the last fresh install,
-> so `b48` is clean.
+> 1. **PRE_RELEASE 29** — unelevated `sd` session, `micro bp <record>` (rebuild
+>    the `ZZMARKS` fixture first: `tools\probes\make-zzmarks.py` in the docs
+>    repo, or use any BP record). Edit, save. It must save where 27 Aug's test
+>    got *"Permission denied. Save with sudo not supported on Windows"*.
+> 2. **PRE_RELEASE 23** — any `sd` session: `term default` then `term`. Must
+>    read **Page width: 120 / Page depth: 36**, not 20 / 24.
 >
-> ## ***2. AN ELEVATED `sd -cleanup` IS OWED.***
+> **`-Run b48` HAS NOT RUN AND IS THE BIGGEST THING OUTSTANDING.** `b47`'s
+> accounts went with this fresh install, so `b48` is clean. **`b46` and `b47`
+> are spent — use `b48`.**
 >
-> Two batches have hung and been killed, in two sessions. `listu` on 27 Aug at
-> 13:54 showed **User 12 (13:14)** and **User 19 (13:53)** stale beside the live
-> one. **`Stop-Process` was NOT used** either time, per the rule.
+> ## ***2. THE `sd -cleanup` DEBT IS CLEARED — the 17:25:59 cycle wiped both trees.***
 >
-> ```
-> & "C:\Program Files\SD\usr\bin\sd.exe" -cleanup
-> ```
+> It was owed on the *previous* install: two piped batches had hung and been
+> killed (Users 12 and 19 stale on 27 Aug), User 19 leaving an `RU` lock on
+> `zzlock31` in `don`'s `voc`. The fresh install removed all of it. **Kept
+> because the cause recurs:**
 >
-> **The install still serves sessions** — every run since has completed,
-> including a probe and six `sdtcl` batches — so this is held slots and
-> exclusive access, not a wedged tree. `BUILD.INDEX` and anything else wanting
-> exclusive access will be refused until it is cleared, **so do this before the
-> suite.**
->
-> ***AND THEN ONE MORE COMMAND, BECAUSE USER 19 LEFT A LOCK BEHIND.*** It died
-> holding an `RU` lock on record `zzlock31` in `don`'s own `voc`, and a work
-> file of that name is still in the account. **`sd -cleanup` releases record
-> locks, so it clears the lock**; then, in `don`:
->
-> ```
-> delete.file zzlock31 force no.query
-> ```
->
-> **`force` is not optional and `no.query` is not enough** — that is
-> PRE_RELEASE 26, found by the run that hung. The next fresh install removes
-> the file anyway.
->
-> ***`sd -cleanup` WILL NOT GIVE BACK A TASK LOCK, WHICH IS PRE_RELEASE 24.***
-> Neither dead session held one, so nothing is owed here today. It matters for
-> the next one: `clopts.c:300` tests the cleaning process's own user number
-> instead of the dead one's, so the loop matches only free slots. The way out
-> would be `unlock tasklock` *n*, elevated.
->
-> ***THE LESSON IS THE CLASS, AND IT IS NOW ON PAGE 29.*** Every program in that
-> batch was scanned for `input` and `keyin` and all were clean. `clearinput`
-> does not PROMPT for input, it DISCARDS it — and in a piped session the input
-> stream **is** the script, so it threw away the commands that had not run yet,
-> including the `off`. **The question is not "does it prompt" but "does it touch
-> the input stream".**
+> - ***`clearinput` in a piped session discards the unread script*** — including
+>   a trailing `off` — so the batch hangs. It is now on SD TCL page 29. Scanning
+>   a program for `input`/`keyin` is not enough; the question is *does it touch
+>   the input stream*. `delete.file` needs `force`, not just `no.query`
+>   (PRE_RELEASE 26), which is what hung one of the two.
+> - ***`sd -cleanup` never gives back a task lock*** (PRE_RELEASE 24,
+>   `clopts.c:300` tests the cleaner's own user number). Neither dead session
+>   held one; if a future one does, `unlock tasklock` *n* elevated is the way
+>   out.
 >
 > ## ***3. THE TIER WORK IS MEASURED AND WORKS. THREE FIXTURES ARE LEFT BEHIND.***
 >
@@ -214,16 +196,16 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > do not tear them down from a pipe. The next fresh install removes them, which
 > is what happened to `b47`'s fifteen.
 >
-> ## ***4. THREE SOURCE FIXES ARE EDITED IN AND UNCOMPILED — THE CYCLE COMPILES THEM.***
+> ## ***4. THREE FIXES COMPILED 0-ERROR AND INSTALLED (27 Aug 17:25:59). MEASURE THEM.***
 >
-> All three went in 27 Aug once the tree was already off `assert-current` for
-> 29. None is compiled or measured; the owed `cycle.ps1` is what does that.
+> All three shipped in the owner's `cycle.ps1`; `assert-current` exit 0.
+> **Verified compiled, NOT verified working.**
 >
 > | | |
 > |---|---|
-> | **PRE_RELEASE 21** | the unreachable inner `if old.tier # 'SUSPENDED'` at the field-6 write in `tier.set` is **deleted**; `MODIFYA` banner + equality-guard comment + `SYSCOM/KEYS.H` now say the equality guard is what keeps field 6 write-once. Behaviour unchanged — it was already correct |
-> | **PRE_RELEASE 23 / UPSTREAM 24** | `TERM`'s `KW$DEFAULT` arm now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH` (120 × 36), not `MIN.WIDTH` and hard-coded 24. The `sdterm` depth-25 special case went too. Check: `term default` then `term` → 120 / 36 |
-> | **PRE_RELEASE 29** | `EDIT` launches micro with `-backup off` (`editor.args`, `EDIT:227`/`832`), micro branch only — micro's default auto-backup `MkdirAll`s into the read-only Program Files config home. `EDIT` adds the flag itself; the user types plain `micro bp X`. Check: unelevated `sd`, `micro bp ZZMARKS`, it saves |
+> | **PRE_RELEASE 21** | the unreachable inner `if old.tier # 'SUSPENDED'` at the field-6 write in `tier.set` is **deleted**; `MODIFYA` banner + equality-guard comment + `SYSCOM/KEYS.H` now say the equality guard is what keeps field 6 write-once. Behaviour unchanged — `-Run b48`'s tier steps are the regression check |
+> | **PRE_RELEASE 23 / UPSTREAM 24** | `TERM`'s `KW$DEFAULT` arm now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH` (120 × 36), not `MIN.WIDTH` and hard-coded 24. The `sdterm` depth-25 special case went too. **Check: `term default` then `term` → Page width 120 / Page depth 36** |
+> | **PRE_RELEASE 29** | `EDIT` launches micro with `-backup off` (`editor.args`, `EDIT:227`/`832`), micro branch only — micro's default auto-backup `MkdirAll`s into the read-only Program Files config home. `EDIT` adds the flag itself; the user types plain `micro bp X`. **Check: unelevated `sd`, `micro bp <record>`, edit and save — must not say "Permission denied"** |
 >
 > ## ***5. WHAT IS STILL NOT MEASURED, IN THE ORDER THE FIXTURES SUIT.***
 >
