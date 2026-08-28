@@ -40340,3 +40340,25 @@ Remove leg never ran. `-Phase Remove` takes it away. `C:\Users\sddr1a`,
 **`verify-doors-suite.ps1` was never on `assert-current`'s `$neverShipped`
 list**, so the b50 run's own `assert-current` had listed it under "newer than
 the install". Added, with `test-doorsargv-units.ps1`.
+
+**BOTH FIXES WITNESSED THE SAME DAY — `-Run b51`, 16:51:50.** Twelve
+unelevated steps exit 0; the door step exit 1. `Create` **8/8** on
+`argv (15)` with the password masked, `Control` ***2 of 7 decisive checks
+FAILED, both of them the `logto` rows***, `Remove` **2/2** on `argv (13)` with
+no `-Password` at all. Fault 1's fix let the two elevated legs launch, and
+***`Remove` ran as a suite step for the first time ever***; fault 2's fix made
+the Control leg report what actually happened. The suite stopped at the right
+place - *"a door refused BEFORE the suspension, so its refusal after one would
+prove nothing"* - **and still ran `Remove`**, so `sddrb51a` left **no Windows
+account, no `sdu_` group and no `ACCOUNTS` record**, read from disk afterwards;
+only `C:\Users\sddrb51a` remains, which is 35/36. `sdusers`, `sdssh` and
+`sdapi` carry **0 orphan SIDs** and there is no stray `sd.exe`.
+
+**THE STRONG PART IS THE COMPARISON INSIDE ONE LEG**: same account, same
+session, same moment - **ssh admitted, the API admitted, `logto` refused with
+5161**. That is 44 measured on a second account, and it rules out the mundane
+causes the suite's own message lists (wrong password, caller not in the group),
+because those would have shut all three doors.
+
+**`sddrb50a` is still live** - the b50 run's Remove leg never elevated, and the
+cleanup command for it had not been run at the time of writing.
