@@ -7343,11 +7343,11 @@ change on disk.**
 to `NEWVOC/TIER.ADD.ADMINISTRATOR` and (for those still in NEWVOC) removing
 the record from NEWVOC.
 
-- **A1, account and grant administration (11) — owner-ruled 17 Aug, in the
-  installed tree today:**
+- **A1, account and grant administration (10) — owner-ruled 17 Aug; `encrypt.field`
+  removed 28 Aug, PRE_RELEASE 25, because `$CRYPTO` does not exist:**
   ```
   create.account  delete.account  modify.account  update.account  clean.account
-  grant  revoke  list.grants  unlock  modify.password  encrypt.field
+  grant  revoke  list.grants  unlock  modify.password
   ```
 - **A2, system-wide state (8):** `logout` refuses to log out another user's
   process unless caller is admin (`CPROC:3110`), so the tier is a policy call,
