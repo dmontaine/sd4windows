@@ -39435,3 +39435,42 @@ as well; `10075` says so; PRE_RELEASE_FIXES.md 35 carries it.
 The registry half was measured correct and the symptom happened anyway. A test
 that had stopped at "is the ProfileList entry gone" would have reported a
 success and shipped half a fix.
+
+**And the directory half turned out not to be fixable at delete time.** The
+`Remove-Item` failed on the next run, and four elevated experiments said why:
+`IOException` on **`UsrClass.dat`**; the directory owned by
+`BUILTIN\Administrators`, so not a permissions problem; `reg unload` of both
+hives **refused, elevated**; and `Rename-Item` refused too. ***The path cannot
+be freed at all while the hive is mounted - not deleted, not even renamed.***
+A `Win32_Process` sweep for processes owned by SIDs with no local account
+returned **nothing**, so it is not a lingering ssh session.
+
+***TWENTY-TWO ORPHANED SIDs, FORTY-FOUR HIVES, WERE MOUNTED ON THIS HOST.***
+That is the root cause of the whole family: a mounted hive is why
+`Remove-CimInstance` failed, which is why both halves of the profile survived,
+which is what PRE_RELEASE 32 described. It is PRE_RELEASE 36 now, with two
+decisions for the owner, and it probably explains the 53 stale `ProfileList`
+entries too - `clean-test-profiles.ps1` sweeps with the same call that fails on
+a mounted hive.
+
+***THE RECORD ALREADY CARRIED THE ANSWER AND I DID NOT READ IT.***
+PROJECT_STATUS's `cleanup-devlitter.ps1` line has said since 26 Aug: *"Needs a
+REBOOT between the accounts and the profiles - a loaded hive cannot be removed,
+and after a suite run every hive is loaded."* **I quoted that line myself
+earlier the same session**, writing step 7 of the owner's runbook, and then
+spent four exchanges rediscovering the condition from first principles. The
+rule in CLAUDE.md exists for exactly this, and knowing a warning is not the same
+as reaching for it when the symptom appears.
+
+**What ships is the honest version**: the registry entry removed (which needs
+nothing unlocked), the directory attempted, and `10075` naming the cause, the
+restart that releases it, and what happens if it is left. For an account that
+never signed in, nothing is mounted and both halves go cleanly.
+
+**Corroboration from the machine itself, same evening.** `C:\Users` carries the
+defect in bulk: `sdacctb48` + `sdacctb48.GITORLI`, `sdsshb48` +
+`sdsshb48.GITORLI`, and `sdapiab48`, `sdapib48`, `sdapiidb48`, `sdapinb48`,
+`sdscramb48`, `sdtapib481/2/3` each with a **`.000`** twin. **Windows takes
+`.<COMPUTERNAME>` first and `.000` when that is taken too**, so the `.000` pairs
+collided twice. Nine pairs from one suite run - this was never theoretical, it
+was just never looked at.

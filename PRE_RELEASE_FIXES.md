@@ -58,7 +58,8 @@ should be fixed, **M** minor.
 | ~~32~~ | **S** | ~~`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory~~ — **FIXED 27 Aug 2026: the `catch { exit 6 }` that left both halves is now `catch { }`, and the key is removed in its own right; status 6 splits into 6 (directory) and 7 (registry entry).** ***UNCOMPILED — needs a cycle.*** Generated PowerShell parse-checked 0 errors / 203 tokens; the new steps run read-only against a real account | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075`, `messages/10116` |
 | ~~33~~ | **S** | ~~`allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing**~~ — **DONE 27 Aug 2026**, the usage line names `-Installed` and a dated note says which forms need it. Comment only, parses 0 errors / 1247 tokens | `gplbld/allow-ssh-groups.ps1:4` |
 | 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Owner's call, and not to be settled by adding a link** | docs repo `tools/release.ps1`, `tools/checklinks.py` |
-| 35 | **S** | ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32, and the symptom happened anyway. **`DELETE_USER` now removes the directory in its own right; message `10075` rewritten.** ***UNCOMPILED, needs the next cycle*** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
+| 35 | **S** | ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32. `DELETE_USER` now tries to remove it, **and MEASURED: it cannot be deleted OR renamed while the hive is mounted**, so the honest answer is the rewritten `10075`, which names the cause and the restart. **Cure is 36** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
+| 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — which is the ROOT CAUSE of 32 and 35, and probably why the 53 stale `ProfileList` entries were never swept. Nothing SD does can unmount them; only a restart. **Two decisions for the owner, neither built** | Windows lifecycle; `gplbld/clean-test-profiles.ps1` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1411,3 +1412,63 @@ depend on it — the hive was not loaded by the time it was checked, so the
 likely cause is that it still was when `delete.account` ran, moments after an
 ssh session. **If the directory removal fails too, status 6 still fires and now
 says something true.**
+
+***MEASURED TO THE END, 27 Aug 2026, AND THE DIRECTORY HALF CANNOT BE FIXED AT
+DELETE TIME.*** The `Remove-Item` added above failed on the very next run, and
+the four experiments that followed say why:
+
+| what was tried, elevated | answer |
+|---|---|
+| `Remove-Item -Recurse -Force` | `IOException` — ***`UsrClass.dat` is being used by another process*** |
+| `Get-Acl` on the directory | owner is `BUILTIN\Administrators`, so it is **not** a permissions problem |
+| `reg unload` of the SID's two hives | **`ERROR: Access is denied`**, elevated |
+| `Rename-Item` to move the path aside | **`Access to the path is denied`** |
+
+***THE PATH CANNOT BE FREED AT ALL WHILE THE HIVE IS MOUNTED*** — not deleted,
+not even renamed. **And no process owns the orphaned SIDs**: a `Win32_Process`
+sweep for processes whose owner has no local account returned **nothing**, so
+this is not a lingering ssh session. The holder is something running as SYSTEM.
+
+***THE RECORD ALREADY SAID THIS AND IT WAS NOT READ.*** PROJECT_STATUS's
+`cleanup-devlitter.ps1` line: *"Needs a REBOOT between the accounts and the
+profiles — a loaded hive cannot be removed, and after a suite run every hive is
+loaded."* Four exchanges went on rediscovering it.
+
+**So the code stays as it is and the shape is right:** the `Remove-Item`
+attempt succeeds for an account that never signed in (no hive was ever
+mounted), fails harmlessly otherwise, and **message `10075` now names the
+cause, says a restart is what releases it, and says what happens if it is left**.
+That is the honest product answer. **The cure is entry 36.**
+
+## 36. Deleted accounts leave their registry hives mounted, and nothing SD does can unmount them — **M** (owner's call)
+
+Found 27 Aug 2026 while measuring 35. ***TWENTY-TWO ORPHANED SIDs — FORTY-FOUR
+HIVES — WERE LOADED ON THIS HOST***, every one for an account `Get-LocalUser`
+says does not exist, going back weeks. `2740` in that list is a `b49home` from
+an hour earlier.
+
+***THIS IS THE ROOT CAUSE OF 32 AND 35, NOT A SIDE ISSUE.*** A mounted hive is
+why `Remove-CimInstance` failed in the first place, which is why **both** halves
+of the profile survived, which is the defect 32 described. Removing the registry
+entry (32) works because that half needs no file unlocked. The directory (35)
+needs the hive down, and only a restart puts it down.
+
+***AND IT PROBABLY EXPLAINS THE 53 STALE `ProfileList` ENTRIES.***
+`clean-test-profiles.ps1` sweeps with `Remove-CimInstance` — the same call that
+fails on a mounted hive. The sweep may have been failing on every locked profile
+rather than never having been run.
+
+**Two things to decide, and neither is mine:**
+
+1. ***Should `create.account` look before it leaps?*** At creation the name is
+   known and `C:\Users\<name>` can be tested for. Today a leftover directory
+   silently produces a suffixed home; **refusing, or saying plainly what will
+   happen, converts a silent wrong answer into an explained one.** It cannot
+   delete the directory either — the hive is still up — but it can stop the
+   user being surprised.
+2. ***Is a restart acceptable in the delete path?*** Almost certainly not, and
+   that is why this is written down rather than built.
+
+**Nothing here is a regression**; it is how Windows has always behaved and how
+this project has always run. It became visible because 32's fix removed the
+half that was masking it.
