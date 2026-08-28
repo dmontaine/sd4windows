@@ -1613,6 +1613,19 @@ key**, and the failed enumeration still returns a count — `1` — which is a
 confident wrong answer of the kind this project keeps paying for. The 22 above
 were read from the names in the access-denied errors, not from that count.
 
+***PREDICTION WRITTEN BEFORE THE 28 Aug REBOOT AND SWEEP, so the run is a test
+rather than an observation.*** `clean-test-profiles.ps1:223` enumerates
+`Get-CimInstance Win32_UserProfile`, which reads from `ProfileList`:
+
+| | expected |
+|---|---|
+| the **7** orphans WITH an entry — `sdacctb49`, `sdapib49`, `sdscramb49`, `sdsshb49`, `sdtapib491/2/3` | **removed** |
+| ***`sdapiab49`, `sdapiidb49`, `sdapinb49`*** | ***SURVIVE.*** No entry, so the sweep never enumerates them. **They must then be deleted by hand, which is the cost of the untrackable state in one sentence** |
+| `b48adm` | **untouched** — its Windows account is live, and the sweep refuses a profile whose SID still has one |
+
+The reported count may exceed 7: `ProfileList` entries outlive their
+directories, and 33 of the 53 cleared on 27 Aug were exactly that.
+
 ***THE OPERATIONAL RULE IS THEREFORE UNCHANGED AND NOW HAS ITS REASON:*** the
 reboot in the middle of `cleanup-devlitter.ps1` is not about the accounts pass
 at all. **It is what makes the profile pass possible**, and running the sweep
