@@ -39584,3 +39584,34 @@ exact false positive CLAUDE.md's success-wording rule describes. **Only a
 controlled pair on one account can prove it.** Filed as PRE_RELEASE 38, along
 with the finding that **the suite tests SUSPENDED on no door at all**: neither
 `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word.
+
+**"Will the released system leave litter behind?" - the owner, 27 Aug 2026.**
+The short answer is very little, and the question turned up something bigger
+than the litter.
+
+**What a user's machine actually keeps.** The suite's litter never reaches one:
+`VerifyInstall1/2` and the verifiers are `$neverShipped`, so nothing that made
+the 53 profiles is installed. What `delete.account` leaves is **one profile
+directory** per deleted account that had signed in, because its hive is mounted
+- the registry entry now goes, the account and group go, and the warning says
+what is left and that a restart releases it. **An account that never signed in
+deletes completely**, measured with `b49test`.
+
+***AND CHECKING THAT FOUND PRE_RELEASE 39, WHICH IS NOT LITTER.*** `sd.iss`
+removes **no Windows account anywhere** - grep, zero hits - while
+`RemoveAllowGroups` (`sd.iss:3367`) strips SD's `sshd_config` block, **both
+`AllowGroups` and `ForceCommand`**. `sdsshonly` denies the console and Remote
+Desktop but not ssh. **So uninstalling converts every SD account into an
+ordinary ssh-reachable account with a PowerShell shell**, and the closing
+disclosure - *"Your database, the ssh server, and the sdusers group"* - does not
+mention the accounts at all.
+
+***THE INSTALLER ALREADY NAMES THE CONSEQUENCE IN ANOTHER CONTEXT***,
+`sd.iss:206`: *"without it an ssh session lands at a PowerShell prompt instead
+of in SD, so an account confined to sdsshonly gets a shell on the server - the
+thing the confinement exists to prevent, arriving by the far door."* It was a
+defect there and it is the documented behaviour here.
+
+**Reasoned from source and NOT measured** - no uninstall was run to watch it -
+and the entry says so at the top, because that is the distinction this session
+kept paying for.

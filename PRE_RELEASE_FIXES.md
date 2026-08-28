@@ -62,6 +62,7 @@ should be fixed, **M** minor.
 | 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — the ROOT CAUSE of 32 and 35. **Mechanism confirmed: `Remove-CimInstance` failed on a mounted hive, then cleared `53 removed, 0 failed` after a restart.** Nothing SD does can unmount them. **Two decisions for the owner, neither built** | Windows lifecycle; `gplbld/clean-test-profiles.ps1` |
 | 37 | **S** | ***`create.account` prints two lines that contradict each other***: with `both` it says *"may sign in over ssh only"* then *"may sign in over ssh and use the API"*. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD route keywords (`:1612`) — worded so nothing tells the reader that. Wording fix, no logic change | `messages/10034`, `10076`, `10078` |
 | 38 | **M** | ***The suite tests SUSPENDED on no door at all*** — neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word. ssh and `logto` are now measured by hand; **the API door has never been reached** and cannot be tested by wording, since `APISRVR:507` refuses with the same `sysmsg(10003)` as every other refusal. **Needs a controlled pair.** `$neverShipped`, no cycle | `gplbld/verify-tiers.ps1`, `verify-tierapi.ps1` |
+| 39 | **B?** | ***Uninstalling strips SD's `AllowGroups` and `ForceCommand` and leaves every account SD created*** — so each becomes an ordinary ssh-reachable account with a PowerShell shell. `sd.iss` removes no account anywhere; the closing disclosure does not mention them. **Reasoned from source, not measured — run an uninstall first.** Owner's call | `gplbld/sd.iss:3367`, the closing disclosure |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1579,3 +1580,55 @@ happened anyway, or a success that never tested the gate.
 cycle. It is also what PRE_RELEASE 19 asks for: it lists what
 `verify-tierchange.ps1` must cover, and the behaviour is known now rather than
 guessed at.
+
+## 39. Uninstalling strips SD's ssh confinement and leaves every account it created — **B?** (owner's call)
+
+Found 27 Aug 2026 from the question *"will the released system leave litter
+behind?"*. ***REASONED FROM SOURCE, NOT MEASURED*** — no uninstall was run to
+watch it happen, and that should be done before this is acted on.
+
+***THE THREE FACTS, EACH CHECKED.***
+
+| | |
+|---|---|
+| **Uninstall removes no Windows account** | `sd.iss` contains no `Remove-LocalUser` and no call to `!delete_user` anywhere — grep, zero hits. `[UninstallRun]` removes the service and stops SD |
+| **Uninstall strips SD's `sshd_config` block** | `RemoveAllowGroups` (`sd.iss:3367`) runs `allow-ssh-groups.ps1 -Remove`, which takes out **`AllowGroups` and `ForceCommand` together** |
+| **`sdsshonly` denies the console and Remote Desktop, not ssh** | that is the whole design: SD accounts reach the machine over ssh and nothing else |
+
+***PUT TOGETHER, UNINSTALLING CONVERTS EVERY SD ACCOUNT INTO AN ORDINARY
+ssh-REACHABLE ACCOUNT WITH A SHELL.*** The accounts stay, with their passwords
+and their group memberships. The ssh server stays — deliberately, and the
+disclosure says so. What goes is the `ForceCommand` that put an ssh session
+into SD instead of a PowerShell prompt, and the `AllowGroups` that said who
+could connect at all.
+
+***THE INSTALLER ALREADY NAMES THIS EXACT CONSEQUENCE, IN ANOTHER CONTEXT.***
+`sd.iss:206`, about the task having been a one-shot: *"THE ForceCommand HALF IS
+THE SHARP ONE: without it an ssh session lands at a PowerShell prompt instead of
+in SD, so an account confined to sdsshonly gets a shell on the server - the
+thing the confinement exists to prevent, arriving by the far door."* **It was a
+defect there and it is the documented behaviour here.**
+
+***AND THE CLOSING DISCLOSURE DOES NOT SAY SO.*** It lists what uninstalling
+keeps as *"Your database, the ssh server, and the sdusers group"* — accurate as
+far as it goes, and it **does not mention the accounts SD created, their
+`sdu_`/`sdg_` groups, or their profiles**. An administrator reading it has no
+reason to think there is anything to clean up.
+
+***WHY THIS IS THE OWNER'S CALL AND NOT AN OBVIOUS FIX.*** Each option costs
+something real:
+
+1. **Say it in the disclosure and leave the behaviour.** Cheapest, honest, and
+   the administrator does the work. **It also matches the database decision** —
+   SD does not destroy the user's data on the way out, and an account is closer
+   to data than to installation.
+2. **Offer to remove the accounts**, the way removing the database is offered.
+   Consistent with 1, and an uninstaller that deletes user accounts by default
+   would be worse than the problem.
+3. **Leave `AllowGroups` and `ForceCommand` in place.** *No* — an uninstaller
+   must not leave configuration behind pointing at an `sd.exe` it has deleted,
+   and 5.9 says SD does not keep hold of an ssh server it did not install.
+
+**Option 1 is the smallest true fix and options 1 and 2 combine.** Nothing here
+is urgent for a stand-alone install, which has no ssh server and no accounts but
+the installing user's.
