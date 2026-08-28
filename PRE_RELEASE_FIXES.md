@@ -28,17 +28,17 @@ should be fixed, **M** minor.
 | ~~2~~ | **B** | ~~The installing user gets no `OS.EXECUTE`~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/CREATEA` |
 | 3 | **S** | The live `SDSYS` VOC does not match `voc_template` | `sdsys/voc_template` |
 | 4 | **S** | Tester page 07 says a standard account has 77 verbs; it has 81 | docs repo |
-| 5 | **S** | `.d name` cannot find a lower-case VOC record typed in upper case | `CPROC:1119` |
+| 5 | **S** | `.d name` cannot find a lower-case VOC record typed in upper case — **FIXED 28 Aug: folds case like `.L`/`.R`, and reports 5043 instead of falling through with a stale `voc.rec`.** ***UNCOMPILED*** | `CPROC:1119` |
 | 6 | **S** | An empty directory called `C:` is created in the data tree by the installer | `gplbld/sd.iss` |
 | 7 | **M** | `sort.item` is withheld from a standard account and `list.item` is not | `newvoc/TIER.OMIT.STANDARD` |
 | 8 | **M** | `help` is an empty stub and F1 reaches it | `CPROC:2498` |
 | 9 | **M** | `umask` is implemented and unreachable | `CPROC:3301` |
 | 10 | **M** | Two verifiers carry a dead ANSI strip | `gplbld` |
 | 11 | **B** | ***Nested `commit` silently loses the outer transaction's writes*** — UPSTREAM #17, **unfixed here** | `gplsrc/txn.c` |
-| 12 | **S** | Error 3023 tells the user the disk may be full — UPSTREAM #20, **unfixed here** | `sdsys/messages/1407` |
-| 13 | **M** | `qselect` prints its message without the list number — UPSTREAM #21, **unfixed here** | `gpl.bp/QSELECT:240` |
-| 14 | **S** | `delete.file ... no.query` still prompts, so it cannot run unattended — UPSTREAM #23, **unfixed here** | `gpl.bp/DELETEF:222` |
-| 15 | **M** | `delete.index` will not match a lower-case index name, though `list.index` will — UPSTREAM #22, **unfixed here** | `gpl.bp/DELETEI:155` |
+| 12 | **S** | Error 3023 tells the user the disk may be full — UPSTREAM #20, **unfixed here**. ***28 Aug: NOT the message-only fix this entry claims — the call site is `gplsrc/op_dio3.c:853`, so it is a C change and a REBUILD, not a data change. Left out of the 28 Aug batch for that reason*** | `sdsys/messages/1407`, `gplsrc/op_dio3.c:853` |
+| 13 | **M** | `qselect` prints its message without the list number — UPSTREAM #21. **FIXED HERE 28 Aug: `tgt.list` passed as the second argument.** ***UNCOMPILED.*** Still live upstream | `gpl.bp/QSELECT:240` |
+| 14 | **S** | `delete.file ... no.query` still prompts, so it cannot run unattended — UPSTREAM #23. **FIXED HERE 28 Aug: `check.sdsys.file` takes the safe `N` branch under `no.query` and says so — new message 10117.** ***UNCOMPILED.*** Still live upstream | `gpl.bp/DELETEF:222` |
+| 15 | **M** | `delete.index` will not match a lower-case index name, though `list.index` will — UPSTREAM #22. **FIXED HERE 28 Aug: supplied names are case-corrected against the real ones, as `LISTI:147` does; an unknown name is still reported as typed.** ***UNCOMPILED.*** Still live upstream | `gpl.bp/DELETEI:155` |
 | 16 | **S** | A killed session blocks exclusive access, says nothing about why, and only an administrator can clear it | `gplsrc/sd.c:333` |
 | ~~17~~ | **B** | ~~`edit` / `micro` refuse a record whose text looks like a mark token~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
 | ~~18~~ | **M** | ~~A text mark reaches the editor as a raw control character~~ — **DONE 27 Aug 2026** | `sdsys/gpl.bp/EDIT` |
@@ -49,8 +49,8 @@ should be fixed, **M** minor.
 | ~~23~~ | **S** | ~~`term default` sets 20x24, the MINIMUM width, not SD's 120x36 default~~ — UPSTREAM #24. ***DONE 27 Aug 2026***, installed 17:25:59 and **measured: `term` reports 120 x 36**. **Docs corrected too**, `SDCoreWindowsDocs` `c41d999` | `gpl.bp/TERM:165` |
 | 24 | **S** | ***`sd -cleanup` never releases a dead session's task locks*** — UPSTREAM #25, **unfixed here** | `gplsrc/clopts.c:300` |
 | 25 | **S** | `encrypt.field` is in every administrator's VOC and `$CRYPTO` is not in the distribution — UPSTREAM #26, **unfixed here** | `sdsys/voc_template/encrypt.field` |
-| 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27, **unfixed here** | `gpl.bp/DELETEF:233` |
-| 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
+| 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27. **FIXED HERE 28 Aug: both the DATA and DICT path comparisons are case-insensitive.** ***UNCOMPILED.*** Still live upstream | `gpl.bp/DELETEF:233` |
+| 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record — **FIXED 28 Aug: a `K$AUDIT` record after each successful edit, naming the verb, on the model of `GRANTA:208`/`:233`.** ***UNCOMPILED*** | `gpl.bp/MODIFYA:344` |
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
 | ~~29~~ | **S** | ~~`micro` reports "Permission denied" on every save~~ — **DONE 27 Aug 2026**, install 19:37:47. `MICRO_CONFIG_HOME` is a per-user `~/.micro` via the new `micro-home.ps1`. Owner: three runs, save and no-save, **no message**. Took three attempts — see the entry | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
 | ~~30~~ | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
@@ -60,7 +60,7 @@ should be fixed, **M** minor.
 | 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Owner's call, and not to be settled by adding a link** | docs repo `tools/release.ps1`, `tools/checklinks.py` |
 | 35 | **S** | ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32. `DELETE_USER` now tries to remove it, **and MEASURED: it cannot be deleted OR renamed while the hive is mounted**, so the honest answer is the rewritten `10075`, which names the cause and the restart. **Cure is 36** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
 | 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — the ROOT CAUSE of 32 and 35. **Mechanism confirmed: `Remove-CimInstance` failed on a mounted hive, then cleared `53 removed, 0 failed` after a restart.** Nothing SD does can unmount them. ***RULED 27 Aug 2026 AND NOT BUILT: keep BOTH halves on failure, directory first, and reclaim the pair from a sweep at SD service start — not the machine-wide Windows per-days policy. `create.account` REFUSES on an existing directory. No restart in the delete path*** | Windows lifecycle; `gplbld/clean-test-profiles.ps1`, `gplbld/install-service.ps1` |
-| 37 | **S** | ***`create.account` prints two lines that contradict each other***: with `both` it says *"may sign in over ssh only"* then *"may sign in over ssh and use the API"*. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD route keywords (`:1612`) — worded so nothing tells the reader that. Wording fix, no logic change | `messages/10034`, `10076`, `10078` |
+| 37 | **S** | ***`create.account` prints two lines that contradict each other***: with `both` it says *"may sign in over ssh only"* then *"may sign in over ssh and use the API"*. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD route keywords (`:1612`) — worded so nothing tells the reader that. **FIXED 28 Aug: 10034 now says "may reach this computer only over ssh"; 10076/10077/10078 are recast as "SD routes for %1: ...". Nothing anchors on the old text — checked.** ***UNCOMPILED (message data, but it needs the cycle to reach the install)*** | `messages/10034`, `10076`, `10077`, `10078` |
 | 38 | **M** | ***The suite tests SUSPENDED on no door at all*** — neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word. ssh and `logto` are now measured by hand; **the API door has never been reached** and cannot be tested by wording, since `APISRVR:507` refuses with the same `sysmsg(10003)` as every other refusal. **Needs a controlled pair.** ***28 Aug: `verify-tiers.ps1` section 6 written and UNRUN — the record, the write-once guard 21 left unmeasured, and the VOC. It CANNOT test the `logto` door: the check sits after `CPROC:3729`'s elevated bypass and this verifier must be elevated. Doors still uncovered*** | `gplbld/verify-tiers.ps1`, `verify-tierapi.ps1` |
 | 39 | **B?** | ***Uninstalling strips SD's `AllowGroups` and `ForceCommand` and leaves every account SD created*** — so each becomes an ordinary ssh-reachable account with a PowerShell shell. `sd.iss` removes no account anywhere; the closing disclosure does not mention them. **Reasoned from source, not measured — run an uninstall first.** Owner's call | `gplbld/sd.iss:3367`, the closing disclosure |
 | 40 | **M** | ***A verifier's transcript keeps recording the verifiers that run after it*** — `verify-sshonly-*.log` carried `verify-apiadmin`'s `[FAIL]` rows and the whole suite's summary. `Start-Transcript` with no matching stop, **15 of 33 verifiers**. Count from the runner's per-step captures, not these. `$neverShipped`, no cycle | `gplbld/verify-sshonly.ps1:161` and 14 others |
@@ -143,6 +143,21 @@ Consistent with the POSIX-versus-Windows path confusion that stopped the editors
 working: something built a path from a drive-letter fragment and created it
 relative to the data tree. **Chase it in `sd.iss` / `finish-install.ps1`, not in
 the interpreter.**
+
+***28 Aug 2026: STILL REPRODUCED, AND THE ADVICE ABOVE IS NOT WHERE IT WAS
+FOUND.*** `C:\ProgramData\SD\sdsys\C:` exists on the 27 Aug 22:52:21 install,
+empty, stamped **22:52:43 — 21 seconds in**, so every install makes one.
+**What was ruled out**: no `CREATE.FILE` is issued by anything under `gplbld`
+at install time (`finish-install.ps1` and `adopt-account.ps1` issue none), and
+`sd.iss` names no such path.
+
+**The shape that matches is `verify-parsertokens.ps1`'s subject** — a TCL token
+truncated at the first backslash, leaving `C:` as a record id. **But that
+parser defect was fixed on 22 Aug and this directory postdates the fix**, so
+either a second site still splits, or something builds the path without going
+through `PARSER` at all. **Not chased further; it needs a session with a cycle
+to bisect.** Left out of the 28 Aug batch because it is an investigation rather
+than an edit.
 
 ## 7. `sort.item` is withheld from a standard account and `list.item` is not — **M**
 
