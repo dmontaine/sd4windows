@@ -39223,3 +39223,54 @@ so `don`'s BP goes with them - `ZZMARKS` included - and `EDIT` will happily open
 a record that does not exist. **The owner's run was editing an empty new record,
 not the mark fixture.** Rebuilt (908 bytes, sha `1D65F19475F3CA5DCC5D594897F6B9CB`);
 rebuild it after every cycle.
+
+## 27 Aug 2026 - PRE_RELEASE 29 CLOSED: micro saves
+
+Third cycle of the day, install **19:37:47**, `assert-current` exit 0. The owner
+ran `micro bp ZZMARKS` **three times, with and without saving, and got no
+message at all.**
+
+***THE MECHANISM IS WITNESSED, NOT INFERRED.*** `~/.micro/backups/` now exists -
+that directory is created by the very write that failed under Program Files, and
+it had never appeared once in the defect's whole life. `bindings.json` and
+`buffers/history` sit beside it.
+
+***AND THE MARK ROUND TRIP SURVIVED A REAL SAVE***, which closes the last of
+START HERE item 5.3. Read back through SD after the save: **19 fields, 907
+characters, VM 6 / SM 1 / TM 3, zero stray CR or LF, no field ending in CR** -
+content-identical to the fixture. `$hold` empty afterwards, so `EDIT` cleans up.
+
+***ONE HARMLESS DIFFERENCE, MEASURED SO NOBODY CHASES IT LATER.*** The record ON
+DISK grows by exactly one byte per line after a micro save - 908 to 927 over 19
+lines - because micro writes `dos` line endings and says so in its status bar.
+SD's reader normalises them, which is what the clean read above proves. The
+representation changed; the data did not.
+
+### Three attempts, and the pattern is the point
+
+Every one of the three was reported as fixed before it was measured in the place
+it runs:
+
+1. **`-backup off`** - reasoned from micro's option defaults and from `backups/`
+   being the one absent directory. Every clause true except the one that
+   mattered. Fixed nothing, and shipped in a cycle.
+2. **The helper read `$env:USERPROFILE` and `$env:TEMP`** - both **empty** in
+   the child SD launches, so it refused every time it was called the way it is
+   actually called. **It had been tested four ways beforehand, and all four were
+   from a console**: four tests, one environment, and the environment was the
+   variable. It asks `[Environment]::GetFolderPath` now.
+3. **`EDIT` split the capture on `char(10)`** where `os.execute ... capturing`
+   returns `@fm`-separated lines with trailing `CR` and **no LF at all**
+   (`FM=7 CR=8 LF=0`, measured with a probe that counted characters).
+
+**Found on the way:** `[System.IO.Path]::GetTempPath()` answers `C:\WINDOWS\`
+when TMP and TEMP are unset - elevated, the fallback would have created
+`C:\WINDOWS\sd-micro`. Any candidate under the Windows directory is refused.
+
+**And a false green caught mid-check**: the first `EDIT` compile was run against
+the INSTALLED copy, which no cycle had touched, and came back clean on the code
+being replaced. The tell was in the evidence beside the verdict, not in the
+verdict.
+
+***WHAT WOULD HAVE CAUGHT ALL OF IT SOONER IS ONE HABIT, NOT THREE FIXES: run
+the thing in the place it runs, and print what the instrument actually read.***

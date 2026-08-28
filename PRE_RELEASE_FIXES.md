@@ -52,7 +52,7 @@ should be fixed, **M** minor.
 | 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27, **unfixed here** | `gpl.bp/DELETEF:233` |
 | 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
-| 29 | **S** | `micro` reports "Permission denied" on every save — **the file IS saved**, so a false alarm, not data loss (downgraded from **B**). Fix is `MICRO_CONFIG_HOME` = a per-user `~/.micro` via the new `micro-home.ps1`. ***THREE ATTEMPTS: `-backup off` fixed nothing; the helper read env vars that are empty inside `os.execute`; `EDIT` split the capture on `char(10)` where it is `@fm`.*** All three now corrected and **measured end to end — uncompiled, needs a cycle** | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
+| ~~29~~ | **S** | ~~`micro` reports "Permission denied" on every save~~ — **DONE 27 Aug 2026**, install 19:37:47. `MICRO_CONFIG_HOME` is a per-user `~/.micro` via the new `micro-home.ps1`. Owner: three runs, save and no-save, **no message**. Took three attempts — see the entry | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
 | 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
 | 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
 | 32 | **S** | ***`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory*** — `C:\Users\<name>.<DOMAIN>` — and anything keyed to the old path breaks. **Measured: ssh public-key auth refused.** 53 stale entries on this host | `gpl.bp/DELACC` |
@@ -795,7 +795,30 @@ written with a restrictive ACL; and whether `sdsys` itself should stop being
 writing *SD TCL - Processes and Phantoms*, which tells the reader to treat a
 dump as the data of the program that produced it.
 
-## 29. `micro` reports "Permission denied" on every save — **S**
+## 29. `micro` reports "Permission denied" on every save — **S** — ***DONE 27 Aug 2026***
+
+> ***CLOSED ON THE INSTALL OF 19:37:47.*** The owner ran `micro bp ZZMARKS`
+> **three times, with and without saving, and got no message at all.** The
+> mechanism is witnessed rather than inferred: **`~/.micro/backups/` now
+> exists** — that directory is created by the very write that failed under
+> `Program Files`, and it had never appeared once in the defect's whole life.
+> `bindings.json` and `buffers/history` were written beside it.
+>
+> ***AND THE MARK ROUND TRIP SURVIVED A REAL SAVE***, which is the last piece of
+> START HERE item 5.3. After a save, SD reads the record back as **19 fields,
+> 907 characters, VM 6 / SM 1 / TM 3, zero stray CR or LF, no field ending in
+> CR** — content-identical to the fixture.
+>
+> ***ONE HARMLESS DIFFERENCE, MEASURED SO NOBODY CHASES IT.*** The record ON
+> DISK grows by exactly one byte per line after a micro save (908 → 927 over 19
+> lines): micro writes `dos` line endings, and its status bar says so. **SD's
+> reader normalises them** — hence the clean read above — so this is the
+> directory-file representation changing, not the data. It is item 7.16
+> ("SD reads and writes CRLF, both halves") doing its job.
+>
+> ***IT TOOK THREE ATTEMPTS AND THE FIRST TWO ARE LEFT BELOW ON PURPOSE.*** Each
+> failed for a different reason and each was reported as fixed before it was
+> measured in the place it runs.
 
 ***THE FILE IS SAVED. THE MESSAGE IS FALSE, AND THAT IS THE DEFECT.*** Rewritten
 27 Aug 2026 after measuring it four ways; **everything the first version of this
@@ -1029,14 +1052,14 @@ PARSED=[C:\Users\dmont\.micro]
 PASS - MICROHOME= parsed from the real capture
 ```
 
-**Still uncompiled in the shipped tree** — `assert-current` names
-`gplbld\micro-home.ps1` and `sdsys\gpl.bp\EDIT`. Another cycle is owed.
+**Cycled and installed 27 Aug 19:37:47**, and that is the install the closure at
+the top of this entry was measured on.
 
-***AND THE FIXTURE DOES NOT SURVIVE A CYCLE.*** `cycle.ps1` deletes both trees,
-so `don`'s BP — `ZZMARKS` included — goes with it, and `EDIT` will happily open
-a record that does not exist. The owner's run was therefore editing an **empty
-new record**, not the mark fixture. **Rebuild it after every cycle** with
-`tools\probes\make-zzmarks.py` in the docs repository; sha
+***AND THE FIXTURE DOES NOT SURVIVE A CYCLE — KEEP THIS, IT WILL RECUR.***
+`cycle.ps1` deletes both trees, so `don`'s BP — `ZZMARKS` included — goes with
+it, and `EDIT` will happily open a record that does not exist. **One test run
+was wasted editing an empty new record before anyone noticed.** Rebuild it after
+every cycle with `tools\probes\make-zzmarks.py` in the docs repository; sha
 `1D65F19475F3CA5DCC5D594897F6B9CB`, 908 bytes.
 
 ***WHAT IS ALREADY THERE, WHICH ARGUES FOR THE OWNER'S `.micro` OVER micro's OWN
