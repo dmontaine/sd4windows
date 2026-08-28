@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which ended on credit with **both repositories pushed and clean, the install green and current, and nothing half-done.** ***GREEN: install 27 Aug 22:52:21, `assert-current` exit 0, `-Run b49` 30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`*** — the one failure is PRE_RELEASE 31's known stale control. **`b49` is spent; use `b50`.** ***CLOSED THIS SESSION: PRE_RELEASE 23, 32, 33, the shipped-scripts documentation gap, item 5.1 and item 5.2's ssh door.*** ***OPEN AND ALL YOURS: seven pre-release entries — 31, 34, 36 (three decisions), 37, 38, 39, 40 — plus three measurements that need no ruling: 5.2's API door, 5.4's unrun probe, and 5.5.*** Everything below is the **SIXTY-EIGHTH session** and earlier.
+**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which ended on credit with **both repositories pushed and clean, the install green and current, and nothing half-done.** ***GREEN: install 27 Aug 22:52:21, `assert-current` exit 0, `-Run b49` 30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`*** — the one failure is PRE_RELEASE 31's known stale control. **`b49` is spent; use `b50`.** ***CLOSED THIS SESSION: PRE_RELEASE 23, 32, 33, the shipped-scripts documentation gap, item 5.1 and item 5.2's ssh door.*** ***OPEN AND ALL YOURS: seven pre-release entries — 31, 34, 36 (**RULED 27 Aug, not built — the entry says what to implement**), 37, 38, 39, 40 — plus three measurements that need no ruling: 5.2's API door, 5.4's unrun probe, and 5.5.*** Everything below is the **SIXTY-EIGHTH session** and earlier.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -120,10 +120,11 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***START BY READING PRE_RELEASE_FIXES.md.*** Seven entries are open and
 > **six of them are yours to rule on, not work to be done**: **31** (rewrite
 > `verify-apiadmin`'s stale control), **34** (`release.ps1` cannot finish on a
-> zero-link set), **36** (three decisions — see below), **37** (`create.account`
-> prints two contradictory lines), **38** (the suite tests SUSPENDED on no
-> door), **39** (uninstall leaves every account without its ssh confinement),
-> **40** (a verifier's transcript records the verifiers after it).
+> zero-link set), **36** (***RULED 27 Aug — no longer a decision. It is now
+> WORK, and the entry's first block says exactly what to implement***), **37**
+> (`create.account` prints two contradictory lines), **38** (the suite tests
+> SUSPENDED on no door), **39** (uninstall leaves every account without its ssh
+> confinement), **40** (a verifier's transcript records the verifiers after it).
 >
 > ***THE THREE MEASUREMENTS STILL OWED***, none of which needs a decision:
 > item **5.2's API door** (`APISRVR:507`, never reached — and it **cannot be

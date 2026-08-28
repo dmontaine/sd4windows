@@ -59,7 +59,7 @@ should be fixed, **M** minor.
 | ~~33~~ | **S** | ~~`allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing**~~ — **DONE 27 Aug 2026**, the usage line names `-Installed` and a dated note says which forms need it. Comment only, parses 0 errors / 1247 tokens | `gplbld/allow-ssh-groups.ps1:4` |
 | 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Owner's call, and not to be settled by adding a link** | docs repo `tools/release.ps1`, `tools/checklinks.py` |
 | 35 | **S** | ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32. `DELETE_USER` now tries to remove it, **and MEASURED: it cannot be deleted OR renamed while the hive is mounted**, so the honest answer is the rewritten `10075`, which names the cause and the restart. **Cure is 36** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
-| 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — the ROOT CAUSE of 32 and 35. **Mechanism confirmed: `Remove-CimInstance` failed on a mounted hive, then cleared `53 removed, 0 failed` after a restart.** Nothing SD does can unmount them. **Two decisions for the owner, neither built** | Windows lifecycle; `gplbld/clean-test-profiles.ps1` |
+| 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — the ROOT CAUSE of 32 and 35. **Mechanism confirmed: `Remove-CimInstance` failed on a mounted hive, then cleared `53 removed, 0 failed` after a restart.** Nothing SD does can unmount them. ***RULED 27 Aug 2026 AND NOT BUILT: keep BOTH halves on failure, directory first, and reclaim the pair from a sweep at SD service start — not the machine-wide Windows per-days policy. `create.account` REFUSES on an existing directory. No restart in the delete path*** | Windows lifecycle; `gplbld/clean-test-profiles.ps1`, `gplbld/install-service.ps1` |
 | 37 | **S** | ***`create.account` prints two lines that contradict each other***: with `both` it says *"may sign in over ssh only"* then *"may sign in over ssh and use the API"*. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD route keywords (`:1612`) — worded so nothing tells the reader that. Wording fix, no logic change | `messages/10034`, `10076`, `10078` |
 | 38 | **M** | ***The suite tests SUSPENDED on no door at all*** — neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word. ssh and `logto` are now measured by hand; **the API door has never been reached** and cannot be tested by wording, since `APISRVR:507` refuses with the same `sysmsg(10003)` as every other refusal. **Needs a controlled pair.** `$neverShipped`, no cycle | `gplbld/verify-tiers.ps1`, `verify-tierapi.ps1` |
 | 39 | **B?** | ***Uninstalling strips SD's `AllowGroups` and `ForceCommand` and leaves every account SD created*** — so each becomes an ordinary ssh-reachable account with a PowerShell shell. `sd.iss` removes no account anywhere; the closing disclosure does not mention them. **Reasoned from source, not measured — run an uninstall first.** Owner's call | `gplbld/sd.iss:3367`, the closing disclosure |
@@ -1445,6 +1445,53 @@ cause, says a restart is what releases it, and says what happens if it is left**
 That is the honest product answer. **The cure is entry 36.**
 
 ## 36. Deleted accounts leave their registry hives mounted, and nothing SD does can unmount them — **M** (owner's call)
+
+***RULED 27 Aug 2026 BY THE OWNER. ALL THREE DECISIONS BELOW ARE ANSWERED AND
+NONE IS BUILT.*** The evidence that follows is unchanged; this block is what to
+implement against.
+
+| decision | ruling |
+|---|---|
+| what `DELETE_USER` leaves on failure | ***Keep BOTH halves, and record the SID as SD's to reclaim.*** Try the DIRECTORY first; remove the `ProfileList` entry only if that succeeded. The pair stays consistent and the profile stays visible to `Win32_UserProfile` |
+| who reclaims it | ***SD's OWN sweep at service start*** — not the Windows per-days policy. `sdsvc.exe` runs as LocalSystem at every boot (`gplbld/install-service.ps1:33`), by which time the previous boot's hives are down. It takes **both** halves together |
+| `create.account` on an existing `C:\Users\<name>` | ***REFUSE.*** Name the directory and say what has to happen. It cannot clear the path itself — the hive is still up |
+| a restart in the delete path | ***No.*** Unchanged; the reclaim rides the next boot that happens anyway |
+
+***WHY NOT THE BUILT-IN "DELETE PROFILES OLDER THAN N DAYS ON RESTART" POLICY***,
+which was the owner's first instinct and was argued down on three counts:
+
+1. **It is machine-wide and not scoped to SD.** It would age off the customer's
+   own admins and service accounts too. SD would be changing a system policy on
+   someone else's server to clean up after itself — the opposite of how
+   `deny-logon.ps1` and `allow-ssh-groups.ps1` were built.
+2. **Its granularity is days, so it does not cure the symptom.** The symptom is
+   that the next same-name account gets a suffixed home, and that recurs on any
+   recreate inside the age window. It cures the accumulation only.
+3. ***AND IT AGES PROFILES OFF THE RECORDED UNLOAD TIME, WHICH IS EXACTLY WHERE
+   OUR CASE IS WEAKEST.*** The profiles wanted swept are the ones whose hives
+   never unloaded cleanly. **Whether they carry a usable timestamp at all is
+   UNMEASURED** and would have to be tested before the policy could be trusted.
+   *(Documented Windows behaviour, not measured here.)*
+
+***AND THE TWO OBVIOUS ANSWERS CANCEL OUT UNLESS THE SWEEP TAKES BOTH HALVES.***
+"Keep both halves" leaves the `ProfileList` entry so a sweep can find the
+profile; a boot-time *file* deletion then removes the directory and leaves that
+entry pointing at nothing — inconsistent in the other direction, and
+`Win32_UserProfile` reports a profile with no folder as *"Account unknown"*.
+**This is why `PendingFileRenameOperations` is not the mechanism**: it deletes
+files and cannot touch the registry.
+
+***THE "SERVERS NEVER REBOOT" OBJECTION IS WEAKER THAN IT LOOKS.*** Owner, 27
+Aug 2026, from managing Windows servers: *"I always restarted Windows servers
+once a week to avoid Windows crud buildup."* On a server run that way the sweep
+reclaims within a week rather than never — which is what makes a boot-time
+reclaim a real cure and not a theoretical one.
+
+***AND THIS RE-OPENS PART OF 32, DELIBERATELY.*** Keeping the `ProfileList`
+entry on failure is the state 32 was filed against. The entry is the only handle
+a sweep has, so it is the right trade — but **message `10075` needs rewriting a
+third time**, the changelog with it, and **32's regression test re-scoped** from
+*"the entry is gone"* to *"the entry is gone when the directory went"*.
 
 Found 27 Aug 2026 while measuring 35. ***TWENTY-TWO ORPHANED SIDs — FORTY-FOUR
 HIVES — WERE LOADED ON THIS HOST***, every one for an account `Get-LocalUser`
