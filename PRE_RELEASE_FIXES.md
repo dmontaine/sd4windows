@@ -1462,7 +1462,36 @@ needs the hive down, and only a restart puts it down.
 fails on a mounted hive. The sweep may have been failing on every locked profile
 rather than never having been run.
 
-**Two things to decide, and neither is mine:**
+***AND A REBOOT CLEANS NOTHING — IT ONLY MAKES THE DIRECTORY DELETABLE.***
+Asked by the owner, 27 Aug 2026: *"for a server in normal use, every time it is
+rebooted does it clean the directories left behind, or do they sit there
+forever?"* **They sit there forever.** Unmounting the hive removes the lock and
+that is all; no SD component and nothing in Windows returns for the directory.
+
+***THIRD DECISION, AND IT POINTS THE OPPOSITE WAY FROM WHAT WAS BUILT.***
+Removing the `ProfileList` entry — entry 32's fix — **is what every cleanup tool
+uses to find the profile**:
+
+| | |
+|---|---|
+| `Win32_UserProfile` | enumerates from `ProfileList`. No entry, no object |
+| `clean-test-profiles.ps1` | sweeps with `Remove-CimInstance`, so it inherits that blindness — the 53 it cleared all still had entries |
+| Windows' *"delete profiles older than N days on restart"* policy | operates on profiles, not on folders |
+
+**So the state `delete.account` now leaves on failure is harder to clean up
+than the state it used to leave** — an anonymous folder under `C:\Users` that
+nothing tracks. It is **not worse for the symptom**, because either half causes
+a suffixed home on its own, but it removes the only handle a later sweep had.
+
+***THE OPTION IS TO KEEP BOTH HALVES WHEN THE DIRECTORY CANNOT GO.*** If the
+removal fails, leave the registry entry too: the pair stays consistent, the
+profile remains visible to `Win32_UserProfile` and to the sweep, and a later
+run — or a reboot-time policy — can clear both. **The cost is that the account
+name stays blocked either way, which it already is.** *(Reasoned, not measured.
+It also argues for removing the directory FIRST and the entry only on success,
+which is the reverse of the current order.)*
+
+**Two more things to decide, and neither is mine:**
 
 1. ***Should `create.account` look before it leaps?*** At creation the name is
    known and `C:\Users\<name>` can be tested for. Today a leftover directory

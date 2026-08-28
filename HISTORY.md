@@ -39649,3 +39649,20 @@ runaway. **PRE_RELEASE 40.**
 grepped out of files nothing could read. This file reads perfectly and
 **belongs to the wrong step**. The safe source is the per-step captures,
 `<time>-NN-verify-*.log`, which are one file per step by construction.
+
+**"Does a reboot clean them, or do they sit there forever?" - the owner,
+27 Aug 2026. They sit there forever.** Unmounting the hive removes the lock and
+that is all; nothing in SD or in Windows returns for the directory.
+
+***AND THE FIX MADE THEM HARDER TO FIND, WHICH WAS NOT THOUGHT THROUGH WHEN IT
+WAS WRITTEN.*** Removing the `ProfileList` entry is what every cleanup route
+uses to see a profile: `Win32_UserProfile` enumerates from it,
+`clean-test-profiles.ps1` sweeps with `Remove-CimInstance` and inherits that
+blindness - **the 53 it cleared all still had entries** - and Windows' own
+"delete profiles older than N days" policy works on profiles, not folders. So
+what `delete.account` now leaves behind on failure is an anonymous folder under
+`C:\Users` that nothing tracks. **Not worse for the symptom** - either half
+produces a suffixed home on its own - **but it removes the only handle a later
+sweep had.** Added to PRE_RELEASE 36 as a third decision, with the option that
+follows from it: if the directory cannot go, leave the entry too, so the pair
+stays consistent and visible.
