@@ -117,11 +117,10 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 > # ⇩ DO THIS FIRST. THE OWNER IS WAITING FOR THESE TWO COMMANDS. ⇩
 >
-> ***HANDOFF, END OF THE SEVENTY-FIRST SESSION, 28 Aug 2026.*** The session ran
-> out of credit mid-task. **Your first action is to print the two commands
-> below, verbatim, and hand them over — do not re-derive them, do not survey the
-> repository first, do not run anything yourself.** The owner runs them in his
-> own terminal and pastes the output back.
+> ***HANDOFF, SEVENTY-SECOND SESSION, 28 Aug 2026.*** **Print the two commands
+> below, verbatim, and hand them over first.** The owner runs them in his own
+> terminal and pastes the output back. **The unelevated legs are NOT his** —
+> see "who runs which leg" below.
 >
 > ***BOTH ARE ELEVATED PowerShell. RUN THEM IN THIS ORDER.***
 >
@@ -133,24 +132,40 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr1 -Phase Create
 > ```
 >
-> **WHY BOTH, AND WHY `Remove` FIRST.** `sddr1a` **exists on the machine now**
-> and its password came from the OLD generator, which produced a `^` that
-> cmd.exe eats in the `SSH_ASKPASS` batch — so ssh would be handed the wrong
-> password and the LOGIN door would fail in the control leg for a reason with
-> nothing to do with suspension. **The account is unusable as it stands.**
-> `Remove` needs no password; `Create` prints a fresh one and the exact
-> unelevated command to run next. **`sddr1` can be reused** — `Remove` clears
-> the register record that would otherwise make `CREATE.ACCOUNT` refuse the name.
+> **WHY THE FIXTURE IS BEING RE-MADE.** The Control leg ran for the first time
+> and **found a real defect in `Create` itself**: `CREATE.ACCOUNT` prompts for
+> the **Windows** password only, and **the API authenticates against a different
+> store** — SCRAM over a PBKDF2 verifier in `sdsys\$cred` that **only
+> `MODIFY.PASSWORD` writes**. So `sddr1a` had no SD password, and no rerun of
+> the measuring half could ever have admitted the API door. **`Create` now sets
+> it** (`verify-doors-admin.ps1`, anchored on `Password set for account`, with
+> the three refusal wordings as disqualifiers). The existing `sddr1a` predates
+> that, so it is removed and re-made. `Remove` needs no password and clears the
+> register record that would otherwise make `CREATE.ACCOUNT` refuse the name.
 >
-> **AFTER `Create`, THE REST OF THE SEQUENCE IS FIVE PHASES AND EACH ONE PRINTS
-> THE NEXT COMMAND**: Create → **Control (UNELEVATED)** → Suspend → **Refused
-> (UNELEVATED)** → Remove. The full reasoning is in the door-pair section below.
-> ***If the Control leg fails, STOP*** — a door that refuses before the
-> suspension makes its later refusal worthless.
+> ***THE MEASUREMENT THAT FOUND IT, 28 Aug 2026 — `-Phase Control`, 5 of 6.***
+> **ssh ADMITTED and `logto` ADMITTED** (both doors' first ever run), API
+> refused with `QMError(): Invalid username or password` while `sddr1a` was in
+> `sdapi`, `sdssh` **and** `sdusers` — **route granted, credential absent.**
+> That is **PRE_RELEASE 42**, and the product half is the owner's call.
+>
+> ***WHO RUNS WHICH LEG — MEASURED, NOT ASSUMED.*** The agent shell is
+> `GITORLI\don` **UNELEVATED**, a child process reads back a batch file written
+> to `TEMP` (so `SSH_ASKPASS` works from here), `ssh.exe` is on PATH and
+> `sd-connect.exe` is present. ***So the agent runs the two UNELEVATED legs
+> itself*** — `verify-doors.ps1 -Phase Control` and `-Phase Refused` — and the
+> owner runs only the three elevated ones. §4.0.1 bars an agent from
+> `VerifyInstall1`, not from a standalone verifier.
+>
+> **THE SEQUENCE IS FIVE PHASES AND EACH ONE PRINTS THE NEXT COMMAND**:
+> Create → **Control (agent, unelevated)** → Suspend → **Refused (agent,
+> unelevated)** → Remove. ***If the Control leg fails, STOP*** — a door that
+> refuses before the suspension makes its later refusal worthless.
 >
 > ***WHAT THIS CLOSES:*** the last row of **PRE_RELEASE 19**, which the owner
 > ruled on 28 Aug 2026 **stays `B` until the doors are covered**. A written
-> verifier is not coverage; only a passing run is.
+> verifier is not coverage; only a passing run is. **Two of the three doors are
+> now measured** — what is left is the API pair.
 >
 > ***THE STATE YOU INHERIT IS GREEN AND PUSHED.*** `main` at **`67cf316`**,
 > tree clean, `assert-current` **exit 0**, `check-stale-leads` **exit 0**,
@@ -403,7 +418,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **unelevated** and **over ssh** — which is why the suite is split into
 > `VerifyInstall1` and `VerifyInstall2` in the first place.
 >
-> ### THE DOOR PAIR IS WRITTEN AND UNRUN — `verify-doors-admin.ps1` + `verify-doors.ps1`
+> ### THE DOOR PAIR HAS MET SD — `verify-doors-admin.ps1` + `verify-doors.ps1`
 >
 > ***A PAIR, LIKE THE SUITE, BECAUSE THE TWO HALVES NEED OPPOSITE TOKENS.***
 > The fixture needs an **elevated** process (`CREATE.ACCOUNT` and
@@ -451,7 +466,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > measure a refusal has changed the thing it is measuring.
 >
 > **Parse 0 errors, no BOM, 8 identical `Write-Verdict` copies, 126 of 126
-> verdict assertions, every refusal path exercised. Neither half has met SD.**
+> verdict assertions, every refusal path exercised.**
+>
+> ***BOTH HALVES HAVE NOW MET SD, 28 Aug 2026.*** `-Phase Remove` 2/2,
+> `-Phase Create` 6/6, `-Phase Control` **5 of 6 — ssh and `logto` ADMITTED,
+> the API refused for a MISSING CREDENTIAL, not a missing route.** `Create` was
+> the thing at fault and now sets the SD password with `MODIFY.PASSWORD`;
+> the product half is **PRE_RELEASE 42**. The written-and-unrun claim above
+> stands as the record of what pre-flight checking did and did not catch:
+> **parse, BOM and refusal paths all passed, and the fixture was still
+> unusable, because no static check knows that the API reads a different
+> credential store than ssh.**
 >
 > ### the original hand-over, kept for the reasoning
 >

@@ -40131,3 +40131,47 @@ tells the next session to print them before doing anything else.
 23 verifiers had a dead ANSI strip that is now LIVE (entry 10), and both runners
 now close transcripts a step leaks (entry 40). If `-Run b50` shows a new
 failure, suspect those before suspecting the product.
+
+## 28 Aug 2026, seventy-second session - the door pair meets SD, and PRE_RELEASE 42
+
+**The two owed elevated commands ran green**: `-Phase Remove` 2/2, `-Phase
+Create` 6/6, `sddr1a` rebuilt with a cmd-safe password.
+
+**`-Phase Control` then ran from the AGENT's own unelevated shell, 5 of 6.**
+Four preconditions were measured first rather than assumed: the shell is
+`GITORLI\don` with `IsInRole(Administrator)` **False**, a child `cmd.exe` reads
+back a batch file written to `TEMP` (so the `SSH_ASKPASS` route works from
+here), `ssh.exe` is on PATH, `sd-connect.exe` exists. §4.0.1 bars an agent from
+`VerifyInstall1`, not from a standalone verifier.
+
+***ssh AND `logto` WERE ADMITTED - both doors' first ever run.*** `LOGIN:477`
+and `CPROC:3776` are now measured on the control side.
+
+***THE API DOOR REFUSED, AND THE CAUSE WAS THE VERIFIER, NOT THE SUSPENSION.***
+`sd-connect` answered `QMError(): Invalid username or password`. The
+distinguishing measurement: `sddr1a` was in `sdapi`, `sdssh` **and** `sdusers`,
+so `APISRVR:1362`'s group door was open - **route granted, credential absent.**
+`CREATE.ACCOUNT` prompts for the **Windows** password, which is what sshd
+checks; the API does SCRAM against a PBKDF2 verifier in `sdsys\$cred` that
+**only `MODIFY.PASSWORD` writes**. `verify-apiidentity.ps1:446` had always done
+it - two passwords, `$winPw` and `$apiPw` - which is why that verifier could
+reach the API and this one could not.
+
+**Fixed in `verify-doors-admin.ps1`'s `Create` phase.** Anchored on
+`Password set for account` (`SET_ACC_PASSWORD:252`) **case-sensitively**,
+because `:153` prints *"has no password set"* on a path that has not set one,
+and `Test-Say` is a case-sensitive regex - a match on `Password set` alone
+would have been this project's recurring false positive. The three refusal
+wordings are disqualifiers, and a failure exits 2 rather than printing a box
+that promises three doors.
+
+***PRE_RELEASE 42 IS THE PRODUCT HALF, AND IT IS THE OWNER'S CALL.*** 10078
+says *"SD routes for %1: ssh and the API."* at creation while the API cannot be
+used until `modify.password` is run. The refusal is the worst kind to debug:
+`APISRVR:507` answers `10003` for *"no such account"* and *"not granted"* too.
+
+**WHAT THE PRE-FLIGHT CHECKING DID NOT CATCH, AND COULD NOT.** The pair was
+handed over with parse 0 errors, no BOM, 126 of 126 verdict assertions and
+every refusal path exercised - and the fixture was still unusable. **No static
+check knows that two doors read different credential stores.** The Control leg
+is what caught it, which is the whole reason it exists.
