@@ -391,13 +391,15 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > them away a second time, and run `cleanup-devlitter.ps1` first — the Windows
 > halves of all three survived and a same-name rebuild meets PRE_RELEASE 32.
 >
-> 1. ***THE "LEFT ALONE" COUNT.*** Every run reported `0 left alone`, which is a
->    rule **never exercised**, not a rule that passed. Elevated: `logto b48tier`
->    (elevation bypasses the group test — `logto.authorised` at `CPROC:3708`
->    returns true on `K$ADMINISTRATOR` before it reaches `is_grp_member`), edit
->    a VOC record `TIER.OMIT.STANDARD` names — `ed voc basic`, `I` with text,
->    `FI` — then `logto sdsys` and `modify.account b48tier standard`.
->    **Expect `41 removed, 1 left alone`.**
+> 1. ***THE "LEFT ALONE" COUNT — DONE, 27 Aug 2026, install 22:52:21. IT FIRED
+>    FOR THE FIRST TIME AND THE GUARD HOLDS.*** `b48tier` PROGRAMMER (42
+>    added), `ed voc basic` with a fourth field, then
+>    `modify.account b48tier standard`: ***`VOC: 0 records added, 41 removed,
+>    1 left alone`.*** **And the count was not taken as the answer** — from
+>    inside the account, `ct voc basic` returns **four lines** with the edit
+>    intact and `ct voc micro` returns **`Record 'micro' not found`**. One kept,
+>    one gone; `basic` alone would have been consistent with a downgrade that
+>    deleted nothing. Comparison is whole-record equality, `MODIFYA:1144`.
 > 2. ***THE ssh/CONSOLE DOOR (`LOGIN`) AND THE API DOOR (`APISRVR`).*** Neither
 >    has been reached. Suspend `b48adm`, `ssh b48adm@localhost` must answer
 >    **`Account B48ADM is suspended`**, then `modify.account b48adm programmer

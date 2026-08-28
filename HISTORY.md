@@ -39526,3 +39526,40 @@ redundant, this one looks broken**, and it is the example to fix against.
 added**, the predicted number), `b48susp` SUSPENDED (0/0/0), `b48adm`
 PROGRAMMER with `both`. The 42 is what makes item 5.1 checkable - one VOC record
 edited by hand should give `41 removed, 1 left alone`.
+
+## 27 Aug 2026 - Item 5.1 fired for the first time, and the guard holds
+
+**Commit:** see the commit that carries this entry. Install 22:52:21.
+
+`b48tier` PROGRAMMER (42 added), one VOC record edited by hand - `ed voc basic`,
+a fourth field - then `modify.account b48tier standard`:
+
+```
+VOC: 0 records added, 41 removed, 1 left alone
+```
+
+**42 added, one touched, 41 removed and 1 kept.** Every previous run reported
+`0 left alone`, which is a rule **never exercised** rather than a rule that
+passed - the two are indistinguishable from the outside, which is why this was
+on the list at all.
+
+***AND THE COUNT WAS NOT TAKEN AS THE ANSWER.*** From inside the account, a pair:
+
+| | |
+|---|---|
+| `ct voc basic` | **four lines**, `* edited for item 5.1` among them - kept, and actually left rather than counted |
+| `ct voc micro` | **`Record 'micro' not found`** - also in `TIER.OMIT.STANDARD`, never edited, one of the 41 |
+
+`basic` surviving alone would have been equally consistent with a downgrade
+that deleted nothing. **The comparison behind it is whole-record equality**,
+`MODIFYA:1144` in `tier.del.one`: the record is rebuilt from `newvoc` exactly as
+`CREATE.ACCOUNT` would have written it, and anything that differs is counted and
+left.
+
+***A FALSE CONTROL WAS CAUGHT ON THE WAY.*** The first attempt to verify read
+`C:\ProgramData\SD\group_accounts\b48tier\voc` from outside SD and reported
+`compile removed, catalog removed, runoff removed`. **The directory listing was
+empty because the path was wrong**, and then - with the path right - because
+`secure-account-dirs.ps1` denies `don` the account's own directory, which is
+7.15 working. An absent file in a directory that cannot be read is not evidence
+of deletion. **The record count printed first is what showed it: 0.**
