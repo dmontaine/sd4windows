@@ -39615,3 +39615,37 @@ defect there and it is the documented behaviour here.
 **Reasoned from source and NOT measured** - no uninstall was run to watch it -
 and the entry says so at the top, because that is the distinction this session
 kept paying for.
+
+## 27 Aug 2026 - The b49 suite, and a transcript that belonged to the wrong step
+
+**Commit:** see the commit that carries this entry. Install 22:52:21.
+
+***`-Run b49`: 30 of 31 steps exited 0 - 12 unelevated + 18 of 19 elevated.
+963 `PASS`, 1 `[FAIL]`, 0 `[SKIP]`***, totalled from the runner's per-step
+captures. The one failing row is `verify-apiadmin`'s *"control: local elevated
+session refused OS.EXECUTE"* - **PRE_RELEASE 31**, unchanged and expected.
+
+***THE PREDICTION HELD WHERE IT MATTERED.*** Written before the run:
+`verify-sshonly`'s two `[FAIL]` rows from `b48` should not recur, because they
+were duplicate profiles from a twice-spent prefix. Against `b48`'s **971 `PASS`
+/ 3 `[FAIL]`** this run is **963 / 1**, and sshonly's own capture is
+**PASS 20, `[FAIL]` 0**. **PRE_RELEASE 32's diagnosis is confirmed.**
+
+***AND A WRONG VERDICT WAS ISSUED AND WITHDRAWN INSIDE TWO MINUTES.***
+`verify-sshonly-20260827-232336.log` showed `PASS 2, [FAIL] 2`, and the obvious
+reading - the rows are back - was reported before the file was opened. **The
+file is not sshonly's.** Its tail is the whole suite's summary at 23:29:59, six
+verifiers later, and the two rows are `verify-apiadmin`'s one failure counted
+twice, a wrapped line and its continuation.
+
+`verify-sshonly.ps1` calls `Start-Transcript` at `:161` and never stops it; its
+only `Stop-Transcript` is in the loop that closes **stale** ones at start-up.
+The verifiers run **in the runner's process** - the transcript header names
+`VerifyInstall2.ps1 -Run b49` - so it kept recording. **15 of 33 verifiers are
+the same**, masked only because the next verifier's stale-closing loop shuts the
+runaway. **PRE_RELEASE 40.**
+
+***THE LESSON IS §6'S, IN A NEW SHAPE.*** That section records a `PASS` count
+grepped out of files nothing could read. This file reads perfectly and
+**belongs to the wrong step**. The safe source is the per-step captures,
+`<time>-NN-verify-*.log`, which are one file per step by construction.

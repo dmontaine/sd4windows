@@ -63,6 +63,7 @@ should be fixed, **M** minor.
 | 37 | **S** | ***`create.account` prints two lines that contradict each other***: with `both` it says *"may sign in over ssh only"* then *"may sign in over ssh and use the API"*. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD route keywords (`:1612`) — worded so nothing tells the reader that. Wording fix, no logic change | `messages/10034`, `10076`, `10078` |
 | 38 | **M** | ***The suite tests SUSPENDED on no door at all*** — neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word. ssh and `logto` are now measured by hand; **the API door has never been reached** and cannot be tested by wording, since `APISRVR:507` refuses with the same `sysmsg(10003)` as every other refusal. **Needs a controlled pair.** `$neverShipped`, no cycle | `gplbld/verify-tiers.ps1`, `verify-tierapi.ps1` |
 | 39 | **B?** | ***Uninstalling strips SD's `AllowGroups` and `ForceCommand` and leaves every account SD created*** — so each becomes an ordinary ssh-reachable account with a PowerShell shell. `sd.iss` removes no account anywhere; the closing disclosure does not mention them. **Reasoned from source, not measured — run an uninstall first.** Owner's call | `gplbld/sd.iss:3367`, the closing disclosure |
+| 40 | **M** | ***A verifier's transcript keeps recording the verifiers that run after it*** — `verify-sshonly-*.log` carried `verify-apiadmin`'s `[FAIL]` rows and the whole suite's summary. `Start-Transcript` with no matching stop, **15 of 33 verifiers**. Count from the runner's per-step captures, not these. `$neverShipped`, no cycle | `gplbld/verify-sshonly.ps1:161` and 14 others |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1632,3 +1633,40 @@ something real:
 **Option 1 is the smallest true fix and options 1 and 2 combine.** Nothing here
 is urgent for a stand-alone install, which has no ssh server and no accounts but
 the installing user's.
+
+## 40. A verifier's transcript swallows the verifiers that run after it — **M** (verifier, not product)
+
+Found 27 Aug 2026 while counting the `b49` run, and it **nearly produced a wrong
+verdict in the same minute it was found**.
+
+`SD-verify\verify-sshonly-20260827-232336.log` contains **two `[FAIL]` rows**.
+They are not sshonly's. They read *"control: local elevated session refused
+OS.EXECUTE"* — **`verify-apiadmin`'s** failing control, PRE_RELEASE 31, counted
+twice because a transcript records a wrapped line and its continuation. The
+file's tail is the **whole suite's** summary at 23:29:59, six verifiers after
+sshonly finished.
+
+***THE CAUSE: `Start-Transcript` WITH NO MATCHING STOP.*** `verify-sshonly.ps1`
+calls `Start-Transcript` at `:161`; its only `Stop-Transcript` (`:156`) is in the
+loop that closes **stale** transcripts at start-up. The verifiers run **in the
+runner's own process** — the transcript header names
+`VerifyInstall2.ps1 -Run b49` as the host application — so the transcript stays
+open on the runner's session and records everything that follows.
+
+***IT IS 15 OF 33 VERIFIERS, NOT ONE.*** Only 18 carry a `Stop-Transcript`
+beyond the stale-closing one. The others are masked by luck: the *next*
+verifier's stale-closing loop shuts the runaway, so the damage is bounded by
+ordering, and the transcripts that look normal are 970 bytes because something
+closed them quickly.
+
+***WHY IT MATTERS MORE THAN A TIDINESS BUG.*** It is §6's *"the PASS count was
+grepped out of files nothing could read"* in a new form: here the file reads
+perfectly and **belongs to the wrong step**. Anyone counting `[FAIL]` per
+verifier from `verify-<name>-*.log` attributes a later verifier's failures to an
+earlier one. **The safe source is the runner's per-step captures**,
+`20260827-<time>-NN-verify-*.log`, which are one file per step by construction —
+totalled that way the run is **963 PASS, 1 `[FAIL]`, 0 `[SKIP]`**, and sshonly's
+own capture is PASS 20, `[FAIL]` 0.
+
+**The fix is a `try`/`finally` around each verifier's body**, or a
+`Stop-Transcript` at every exit path. `$neverShipped`, no cycle.
