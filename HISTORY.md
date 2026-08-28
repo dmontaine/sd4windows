@@ -40085,3 +40085,30 @@ has changed the thing it is measuring.
 copies, 126 of 126 verdict assertions, every refusal path exercised. `sddr1` is
 free. **19 stays `B` until the pair has run and passed** - a written verifier is
 not coverage.
+
+**The Create phase's password generator was wrong, and the answer was already
+in the tree.** 28 Aug 2026, caught between Create and Control rather than by
+the run failing. `GeneratePassword(24, 6)` was copied from `verify-tiers.ps1`
+and `verify-acctmsgs.ps1` - neither of which sends a password through ssh.
+This pair does, and SSH_ASKPASS is a cmd.exe batch doing `echo %SDPROBEPW%`:
+***cmd expands the variable and then PARSES the result***, so a `^` in the
+value is cmd's escape character and is eaten.
+
+**Measured, not reasoned**: the generated `a);uoYHY90^;w%kkm[K}q]co` went in at
+24 characters and came back at 23. ssh would have been handed a password that
+is not the account's, the LOGIN door would have been refused in the CONTROL
+leg, and the run would have stopped having measured nothing - for a reason with
+no connection to suspension at all.
+
+***`verify-createaccount.ps1:403` ALREADY CARRIED THE FIX***, with the comment
+*"nothing cmd.exe treats specially, because it passes through the askpass
+helper"*, and `verify-sshonly.ps1` uses the same alphabet. This is the
+"search the record" rule in its usual shape: the warning was on disk, next to
+the mechanism, and was walked past. The pair now uses that alphabet verbatim,
+so three files depend on the same property and would fail together.
+
+**And it is checked rather than trusted.** Create now round-trips the generated
+password through the same cmd batch and REFUSES before creating anything if it
+does not come back byte for byte - a rule nothing tests is how the first
+version passed review and then ate a character. 200 generated passwords, 0
+mangled.
