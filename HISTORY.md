@@ -40175,3 +40175,18 @@ handed over with parse 0 errors, no BOM, 126 of 126 verdict assertions and
 every refusal path exercised - and the fixture was still unusable. **No static
 check knows that two doors read different credential stores.** The Control leg
 is what caught it, which is the whole reason it exists.
+
+***A PREFIX IS SINGLE-USE ONCE ITS ACCOUNT HAS REACHED THE CONTROL LEG.***
+The second `-Phase Remove` passed 2/2 and reported **`C:\Users\sddr1a` left on
+disk** - read from disk, not from what the delete claimed, which is the
+instrument rule paying off. The profile exists **because the Control leg's ssh
+login created it**, and `DELETE.ACCOUNT` cannot remove it while its registry
+hive is mounted (PRE_RELEASE 35/36; only a restart releases it). Windows will
+not put a new profile where one already sits, so a rebuilt `sddr1a` would get a
+**suffixed home** - an unmeasured variable in a test whose entire point is that
+the suspension is the only thing that changes.
+
+**So the fixture moved to `sddr2`, measured free first**: no Windows user, no
+`sdu_` group, no `ACCOUNTS` record, no profile directory, and no suffixed
+`sddr*` home anywhere. **No `Remove` was needed** - `sddr2a` did not exist.
+`sddr1` is spent.

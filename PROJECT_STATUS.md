@@ -115,33 +115,41 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩ DO THIS FIRST. THE OWNER IS WAITING FOR THESE TWO COMMANDS. ⇩
+> # ⇩ DO THIS FIRST. THE OWNER IS WAITING FOR THIS ONE COMMAND. ⇩
 >
-> ***HANDOFF, SEVENTY-SECOND SESSION, 28 Aug 2026.*** **Print the two commands
-> below, verbatim, and hand them over first.** The owner runs them in his own
-> terminal and pastes the output back. **The unelevated legs are NOT his** —
-> see "who runs which leg" below.
+> ***HANDOFF, SEVENTY-SECOND SESSION, 28 Aug 2026.*** **Print the command below,
+> verbatim, and hand it over first.** The owner runs it in his own terminal and
+> pastes the output back. **The unelevated legs are NOT his** — see "who runs
+> which leg" below.
 >
-> ***BOTH ARE ELEVATED PowerShell. RUN THEM IN THIS ORDER.***
->
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr1 -Phase Remove
-> ```
+> ***ELEVATED PowerShell.***
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr1 -Phase Create
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr2 -Phase Create
 > ```
 >
-> **WHY THE FIXTURE IS BEING RE-MADE.** The Control leg ran for the first time
-> and **found a real defect in `Create` itself**: `CREATE.ACCOUNT` prompts for
-> the **Windows** password only, and **the API authenticates against a different
-> store** — SCRAM over a PBKDF2 verifier in `sdsys\$cred` that **only
-> `MODIFY.PASSWORD` writes**. So `sddr1a` had no SD password, and no rerun of
-> the measuring half could ever have admitted the API door. **`Create` now sets
-> it** (`verify-doors-admin.ps1`, anchored on `Password set for account`, with
-> the three refusal wordings as disqualifiers). The existing `sddr1a` predates
-> that, so it is removed and re-made. `Remove` needs no password and clears the
-> register record that would otherwise make `CREATE.ACCOUNT` refuse the name.
+> ***`sddr1` IS SPENT AND MUST NOT BE REUSED — THE REASON IS NOT TIDINESS.***
+> `-Phase Remove` passed 2/2 and left **`C:\Users\sddr1a`** on disk with its
+> registry hive still mounted (**PRE_RELEASE 35/36**, and the Remove phase
+> reports it from disk rather than from what the delete claimed). The profile
+> exists because **the Control leg's ssh login created it**. Windows will not
+> put a new profile where one already sits, so a recreated `sddr1a` gets a
+> **suffixed home** — an unmeasured variable in a test whose entire point is
+> that **the suspension is the only thing that changes**. Only a restart
+> releases the hive. ***`sddr2` was measured free 28 Aug: no Windows user, no
+> `sdu_` group, no `ACCOUNTS` record, no profile directory, and no suffixed
+> `sddr*` home exists yet.*** **No `Remove` is needed first** — `sddr2a` does
+> not exist.
+>
+> **WHY THE FIXTURE IS BEING RE-MADE AT ALL.** The Control leg ran for the
+> first time and **found a real defect in `Create` itself**: `CREATE.ACCOUNT`
+> prompts for the **Windows** password only, and **the API authenticates
+> against a different store** — SCRAM over a PBKDF2 verifier in `sdsys\$cred`
+> that **only `MODIFY.PASSWORD` writes**. So `sddr1a` had no SD password, and
+> no rerun of the measuring half could ever have admitted the API door.
+> **`Create` now sets it** (`verify-doors-admin.ps1`, anchored on
+> `Password set for account`, with the three refusal wordings as
+> disqualifiers).
 >
 > ***THE MEASUREMENT THAT FOUND IT, 28 Aug 2026 — `-Phase Control`, 5 of 6.***
 > **ssh ADMITTED and `logto` ADMITTED** (both doors' first ever run), API
@@ -428,12 +436,20 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > measuring that door from an elevated session would report the design working
 > as a fault, which is the mistake `verify-tiers` section 6 declines to make.
 >
-> ***FIVE COMMANDS, AND EACH PHASE PRINTS THE NEXT ONE.*** `sddr1` is free —
-> measured. Start ELEVATED:
+> ***FIVE COMMANDS, AND EACH PHASE PRINTS THE NEXT ONE.*** ***`sddr1` IS SPENT
+> — its profile directory survives the delete and a rebuild under that name
+> would get a suffixed home (see the box at the top). `sddr2` is free,
+> measured 28 Aug.*** Start ELEVATED:
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr1 -Phase Create
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr2 -Phase Create
 > ```
+>
+> ***A PREFIX IS SINGLE-USE ONCE ITS ACCOUNT HAS SIGNED IN OVER ssh.*** The
+> Control leg's ssh login creates a Windows profile, and `DELETE.ACCOUNT`
+> cannot remove it while its hive is mounted (PRE_RELEASE 35/36). **Take a
+> fresh prefix for every attempt** rather than reusing one that reached the
+> Control leg.
 >
 > It prints the generated password and the exact unelevated command to run
 > next. The order is **Create → Control (unelevated) → Suspend → Refused
