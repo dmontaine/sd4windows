@@ -38952,3 +38952,29 @@ bootstrap pass 1), `gcat`/`gpl.bp.out` 125/184, service Running,
 compiled clean and left the service stopped - "`sd` not started" - then the
 full cycle.) **Compiled, not yet measured:** `-Run b48` for 21, and console
 spot-checks for `micro` save unelevated (29) and `term default` → 120/36 (23).
+
+## 27 Aug 2026 - b48's first attempt hit a stale verifier (PRE_RELEASE 30)
+
+`-Run b48` ran the four unelevated ACL checks (`credacl`, `pcodeacl`,
+`sysdiracl` PASSED) then stopped at `verify-osusers` with *"don is ALREADY on
+the list"* - it refused at its step-0 precondition, **changing nothing**.
+
+**Not a product bug.** PRE_RELEASE 2 (the previous session) gave `CREATEA` /
+`adopt-account` a step that writes an `os.users` record for every
+ADMINISTRATOR-tier account. The adopted account is always ADMINISTRATOR, so
+`adopt-account.log` reads *"os.users: don has SH yes, OS.EXECUTE yes"* and the
+record is there from install. `verify-osusers` needs `@LOGNAME` **unlisted** at
+the start - it measures the absent→present transition - and predated the
+change. That session closed PRE_RELEASE 2 without touching this verifier.
+
+**Fixed the verifier, same day.** When step 0 finds `@LOGNAME` listed it copies
+the record's bytes to a save file, a new elevated `Unlist` phase removes it for
+the baseline, the transition runs, and `Revoke` writes the saved bytes back -
+tree left exactly as found. One extra UAC prompt (three). A `finally` now wraps
+step 0a onward and `Restore-SavedRecord` covers the early-exit paths (`exit`
+inside `try` still runs `finally` in PS 5.1 - measured). Parse-checked 0
+errors; on `$neverShipped`, so no cycle. **Not yet run** - needs an unelevated
+console and the prompts. Re-run `-Run b48` (plain, not `-ContinueOnFailure`).
+
+**Sibling risk:** other verifiers may assume `os.users` starts empty. Sweep
+`verify-createaccount` and the tier verifiers when `b48` next runs clean.

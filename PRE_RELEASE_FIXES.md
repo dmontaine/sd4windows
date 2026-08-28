@@ -53,6 +53,7 @@ should be fixed, **M** minor.
 | 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
 | 29 | **B** | ***`micro` CANNOT SAVE FOR AN UNELEVATED ACCOUNT*** — its default auto-backup writes to the read-only Program Files config home. **`EDIT` launches micro `-backup off`; compiled + installed 27 Aug 17:25:59; needs the unelevated-console save check** | `gpl.bp/EDIT:227` |
+| 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -866,3 +867,47 @@ that as tested.
 
 **The working copy left in `$hold` during the failed session is not a second
 defect**: `EDIT` cleans up when `os.execute` returns, and micro was still open.
+
+---
+
+## 30. `verify-osusers.ps1` refuses on a fresh install — **S** (verifier, not product)
+
+Found 27 Aug 2026 running `-Run b48` against the 17:25:59 install — the first
+suite run since PRE_RELEASE 2 (previous session) shipped. `verify-osusers`
+stopped at its step-0 precondition:
+
+```
+[FAIL] record present before the test: expected (none), got yes
+verify-osusers: refusing - don is ALREADY on the list.
+```
+
+**The product is behaving correctly.** PRE_RELEASE 2 gave `CREATEA` /
+`adopt-account` a `grant.os.access` step that writes an `os.users` record
+(`yes`,`yes`) for every ADMINISTRATOR-tier account as it is created. The account
+the installer adopts is always ADMINISTRATOR, so `adopt-account.log` shows
+*"os.users: don has SH yes, OS.EXECUTE yes"* and `C:\ProgramData\SD\sdsys\os.users\don`
+is present from first boot. That is the documented, intended design (changelog,
+27 Aug: *"IT APPLIES TO THE ACCOUNT THE INSTALLER MAKES FOR YOU"*).
+
+**The verifier predates it.** `verify-osusers` measures the OS.USERS *admit
+path* — put `@LOGNAME` on the list, watch a shell appear; take it off, watch it
+go — and needs `@LOGNAME` **absent** at the start. Its guard refused a
+pre-existing record because, when it was written, one could only be a person's
+manual grant that the test must not destroy. The previous session closed
+PRE_RELEASE 2 without updating this verifier.
+
+***FIXED 27 Aug 2026 — the verifier now parks and restores.*** When step 0 finds
+`@LOGNAME` already listed it copies the record's bytes to a save file, has a new
+elevated `Unlist` phase remove it for the baseline, runs the whole transition,
+and the `Revoke` phase writes the saved bytes back — so the tree is left exactly
+as found, automatic record included. One extra UAC prompt (three, not two) in
+that case. `Restore-SavedRecord` and the `finally` that wraps step 0a onward
+guarantee the record goes back even on an early `Stop-Here` (`exit` inside
+`try` still runs `finally` in PS 5.1 — measured). Parse-checked: 0 errors,
+16 functions. **Not yet run** — needs an unelevated console and the three
+prompts; it is on `assert-current`'s `$neverShipped`, so no cycle.
+
+**Sibling risk, not chased here:** other verifiers may carry the same "starts
+unlisted / starts empty" assumption about `os.users`. `verify-createaccount`
+and the tier verifiers touch account creation; worth a sweep when `b48` next
+runs clean.

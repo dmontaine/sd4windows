@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THREE FIXES ARE INSTALLED AND `assert-current` IS GREEN*** — PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off`), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test) all compiled 0-error and shipped in the owner's `cycle.ps1` of 27 Aug. **Install 27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, `assert-current` **exit 0 live**. ***NONE OF THE THREE IS MEASURED YET*** — `-Run b48` is the next step, plus three spot-checks (below). The tier change and SUSPENDED are **measured and work** (before this cycle). ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Six new pre-release entries, 24 to 29; three fixed and now installed (unmeasured): 29 (`micro -backup off`), 23 (`term default` 120×36) and 21 (dead write-once test deleted).** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THREE FIXES ARE INSTALLED AND `assert-current` IS GREEN*** — PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off`), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test) all compiled 0-error and shipped in the owner's `cycle.ps1` of 27 Aug. **Install 27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, `assert-current` **exit 0 live**. ***NONE OF THE THREE IS MEASURED YET*** — `-Run b48` is the next step, plus two spot-checks (below). **`b48`'s first attempt stopped at `verify-osusers`, a stale verifier — now fixed (PRE_RELEASE 30), re-run it.** The tier change and SUSPENDED are **measured and work** (before this cycle). ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Seven new pre-release entries, 24 to 30; three product fixes installed (unmeasured): 29 (`micro -backup off`), 23 (`term default` 120×36), 21 (dead write-once test deleted). 30 is a verifier fix, not a product defect.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -31,7 +31,7 @@ something came to be the way it is.
 
 ***THE `SD TCL` REFERENCE HAS STARTED AND IT LIVES IN THE `User` SET, NUMBERED FROM 19.*** Owner's ruling, 26 Aug 2026, on both questions: the TCL pages continue `User/` rather than taking a set of their own, and they are named `NN-sd-tcl-<topic>.md`. **The plan is 14 topic pages plus a generated syntax card at `33`, and it is checked rather than asserted** — every one of the **144** verbs is on exactly one page, verified in both directions. ***`19` TO `32` ARE ALL WRITTEN (27 Aug 2026) AND THE ROSTER CLOSES AT 144 OF 144.*** ***THE ROSTER IS 144, NOT 140***, and the difference is the four records that are a keyword AND a verb — `break`, `count`, `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and `count voc with dispatch # ""` answers 144. `tools\sdtcl.ps1` is how the TCL pages are measured.
 
-***THE DOCUMENTATION PHASE IS FINDING DEFECTS, AND THEY HAVE THEIR OWN LIST: [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md).*** **Twenty-eight entries as of 27 Aug 2026**, five of them (24 to 28) from writing SD TCL `30` to `32`, and two raised by the owner - the malformed `edit`/`micro` refusal and the installing user having no `OS.EXECUTE`. **It is maintained the way UPSTREAM_FIXES.md is**: add an entry in the same commit as the finding, move it to DONE when fixed. Writing a reference checks every claim against what SD does, which is not the same exercise as testing that it works, and it is turning things up that the suite does not.
+***THE DOCUMENTATION PHASE IS FINDING DEFECTS, AND THEY HAVE THEIR OWN LIST: [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md).*** **Thirty entries as of 27 Aug 2026.** 24 to 28 from writing SD TCL `30` to `32`; 29 the owner's `micro`-cannot-save; 30 a stale verifier (`verify-osusers`) that `b48` surfaced. **It is maintained the way UPSTREAM_FIXES.md is**: add an entry in the same commit as the finding, move it to DONE when fixed. Writing a reference checks every claim against what SD does, which is not the same exercise as testing that it works, and it is turning things up that the suite does not.
 
 ***ONE DEFECT IS RAISED AND UNDECIDED, AND THE DOCUMENTATION PHASE WILL MEET IT.*** `sdsys\changelog` ships into the **data tree**, which the installer never overwrites, so a user's changelog is frozen at their install date — in the one file whose entire job is telling them what changed. It probably wants moving to `{app}` beside the documentation. Raised 25 Aug 2026; not decided, and not yet a task.
 
@@ -137,7 +137,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > specified**. `ZZMARKS` came back **byte-identical** after the failed save —
 > `1D65F19475F3CA5DCC5D594897F6B9CB` — so nothing is lost when it fails.
 >
-> ## ***1. THE THREE FIXES ARE INSTALLED AND GREEN. `b48` IS THE NEXT STEP.***
+> ## ***1. THREE FIXES INSTALLED + GREEN. `b48` STARTED, STOPPED AT A STALE VERIFIER — NOW FIXED, RE-RUN IT.***
 >
 > **PRE_RELEASE 29** (`gpl.bp/EDIT`, `micro -backup off`), **23** (`gpl.bp/TERM`,
 > `term default` → 120 × 36) and **21** (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the
@@ -146,20 +146,27 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` **125 / 184**,
 > service Running, `assert-current` **exit 0 live**.
 >
-> ***NONE OF THE THREE IS MEASURED.*** Do not move any to "verified" without
-> watching it. `-Run b48` covers the tier regression (21); the other two need a
-> console spot-check:
+> ***`-Run b48` GOT 4 STEPS IN AND STOPPED AT `verify-osusers`*** — `credacl`,
+> `pcodeacl`, `sysdiracl` PASSED, then `verify-osusers` refused because `don` is
+> already in `os.users` (PRE_RELEASE 2 lists every admin at adopt time; the
+> verifier predated it). **Nothing was changed — it refused at its precondition.**
+> The verifier is **fixed 27 Aug** (PRE_RELEASE 30, `$neverShipped` so no cycle):
+> it now parks `don`'s record, runs the baseline, restores it. **NOT re-run** —
+> re-run `-Run b48` (not `-ContinueOnFailure`; the fix should make it pass).
 >
-> 1. **PRE_RELEASE 29** — unelevated `sd` session, `micro bp <record>` (rebuild
->    the `ZZMARKS` fixture first: `tools\probes\make-zzmarks.py` in the docs
->    repo, or use any BP record). Edit, save. It must save where 27 Aug's test
->    got *"Permission denied. Save with sudo not supported on Windows"*.
+> ***NONE OF THE THREE PRODUCT FIXES IS MEASURED.*** Do not move any to
+> "verified" without watching it. `b48`'s tier steps are the regression check for
+> 21; the other two need a console spot-check:
+>
+> 1. **PRE_RELEASE 29** — unelevated `sd` session, `micro bp ZZMARKS` (the
+>    fixture is rebuilt and in `don`'s bp — sha `1D65F19475F3CA5DCC5D594897F6B9CB`).
+>    Edit, Ctrl-S. It must save where 27 Aug got *"Permission denied. Save with
+>    sudo not supported on Windows"*.
 > 2. **PRE_RELEASE 23** — any `sd` session: `term default` then `term`. Must
 >    read **Page width: 120 / Page depth: 36**, not 20 / 24.
 >
-> **`-Run b48` HAS NOT RUN AND IS THE BIGGEST THING OUTSTANDING.** `b47`'s
-> accounts went with this fresh install, so `b48` is clean. **`b46` and `b47`
-> are spent — use `b48`.**
+> **`-Run b48` IS THE BIGGEST THING OUTSTANDING.** `b46` and `b47` are spent —
+> use `b48`.
 >
 > ## ***2. THE `sd -cleanup` DEBT IS CLEARED — the 17:25:59 cycle wiped both trees.***
 >
