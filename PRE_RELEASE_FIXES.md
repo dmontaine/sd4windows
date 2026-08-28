@@ -54,6 +54,7 @@ should be fixed, **M** minor.
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
 | 29 | **B** | ***`micro` CANNOT SAVE FOR AN UNELEVATED ACCOUNT*** — its default auto-backup writes to the read-only Program Files config home. **`EDIT` launches micro `-backup off`; compiled + installed 27 Aug 17:25:59; needs the unelevated-console save check** | `gpl.bp/EDIT:227` |
 | 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
+| 31 | **B?** | ***An ELEVATED local session keeps `OS.EXECUTE` after `LOGTO` into another account*** — `verify-apiadmin`'s control expected it refused (rights "belong to SDSYS"). Either a real regression in `os_permitted()`/USR_ADMIN or a stale control after PRE_RELEASE 2. **Owner's call.** | `gplsrc/op_sh.c`, `gplbld/verify-apiadmin.ps1` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -911,3 +912,65 @@ prompts; it is on `assert-current`'s `$neverShipped`, so no cycle.
 unlisted / starts empty" assumption about `os.users`. `verify-createaccount`
 and the tier verifiers touch account creation; worth a sweep when `b48` next
 runs clean.
+
+**Update 27 Aug, standalone run:** the fixed verifier **PASSED** — every one of
+22 checks, including `baseline: the automatic record is now gone` and
+`the parked record was restored`. `os.users\don` came back byte- and
+mtime-identical (`yes\nyes\n`, 10 bytes, 17:26). The remaining `b48` question is
+PRE_RELEASE 31, below.
+
+---
+
+## 31. An elevated local session keeps OS.EXECUTE after LOGTO — **B?** (owner's call)
+
+Found 27 Aug 2026 by `-Run b48 -ContinueOnFailure` (the run that skipped past
+the then-unfixed `verify-osusers`). Elevated half: **18 of 19**, the one failure
+`verify-apiadmin`:
+
+```
+[FAIL] control: local elevated session refused OS.EXECUTE: expected False, got True
+```
+
+***THE HEADLINE FINDING DID NOT FIRE — that part is good.*** `verify-apiadmin`
+exists to catch a **remote API session** running `OS.EXECUTE`. This run:
+`API session was refused OS.EXECUTE by name` **PASS**, `API session CANNOT run
+OS.EXECUTE` **PASS**. The API hole is closed.
+
+***WHAT FAILED IS THE CONTROL.*** The verifier creates a PROGRAMMER account
+(`CREATE.ACCOUNT USER ... PROGRAMMER NONE`, so **no** automatic `os.users`
+record), then from a **local elevated** PowerShell session does `LOGTO
+<acct>` and runs an `OS.EXECUTE` probe. Its comment (written ~21 Aug):
+
+> a LOCAL ELEVATED session ... starts in SDSYS with USR_ADMIN set and gives the
+> flag up on the way out (CPROC, "administrator rights belong to SDSYS"), so by
+> the time it reaches the probe `os_permitted()` says no.
+
+**It did not say no.** `PROBE.OSEXEC.TRIED=YES` then `PROBE.WHOAMI=gitorli_don`
+— `OS.EXECUTE` ran and returned the identity, so `$localRanOsExec` is true where
+the control expects false.
+
+***TWO READINGS, AND IT IS THE OWNER'S TO PICK:***
+
+1. **Stale control.** PRE_RELEASE 2's ruling was *"administrators have full
+   access, there should be no way to turn it off"*. If an elevated session is
+   meant to keep `OS.EXECUTE` everywhere — through a `LOGTO` into a PROGRAMMER
+   account included — then the control's premise is simply out of date and the
+   fix is to update `verify-apiadmin` (same class as PRE_RELEASE 30).
+
+2. **Real regression.** START HERE records that `CPROC:2713` drops
+   `K$ADMINISTRATOR` on any `LOGTO` whose target is not SDSYS (it is why
+   `sdtcl.ps1` cannot drive `MODIFY.ACCOUNT`). If `OS.EXECUTE`'s gate is
+   *supposed* to lose its admit when that flag goes — defence in depth,
+   "rights belong to SDSYS" — then `os_permitted()` is now reading the wrong
+   thing: `USR_ADMIN` seeded from `IsElevated()` (`kernel.c:195`, per the
+   verifier's own note at `:588`), which `CPROC:2713` does not touch. The API
+   session loses it correctly; the LOGTO'd local one does not.
+
+**Not investigated further and not touched.** It needs a decision about what
+`OS.EXECUTE` from an elevated-then-LOGTO'd session *should* do before either the
+verifier or the C is changed. The API-side behaviour (refused) is not in
+question.
+
+**Left behind by that run** (normal — the next `cycle.ps1` clears them): the
+`b48` verifier accounts `sdacctb48`, `sdtiertb48*`, `sdrtb48*`, `sdtapib48*` and
+three `os.users` records for the ADMINISTRATOR-tier ones the tier verifiers make.

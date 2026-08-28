@@ -38978,3 +38978,20 @@ console and the prompts. Re-run `-Run b48` (plain, not `-ContinueOnFailure`).
 
 **Sibling risk:** other verifiers may assume `os.users` starts empty. Sweep
 `verify-createaccount` and the tier verifiers when `b48` next runs clean.
+
+**Verifier re-run standalone, 17:55 - PASSED**, all 22 checks including
+`baseline: the automatic record is now gone` and `the parked record was
+restored`. `os.users\don` came back byte- and mtime-identical.
+
+**And `-Run b48 -ContinueOnFailure` at 17:36 got through the rest:**
+unelevated 11/12 (only `verify-osusers`), elevated **18/19**. `verify-tiers`
+PASSED - **PRE_RELEASE 21's regression check is clean**. The one elevated
+failure was `verify-apiadmin`, and it is **PRE_RELEASE 31**: its *control*
+failed - an ELEVATED local session, after `LOGTO` into a PROGRAMMER account,
+still ran `OS.EXECUTE` where the control expected it refused ("rights belong to
+SDSYS"). The **headline** finding - a remote API session running `OS.EXECUTE` -
+did NOT fire; that is closed. Either a stale control (PRE_RELEASE 2 said
+administrators keep full access) or `os_permitted()` reading `USR_ADMIN` from
+`IsElevated()` where `CPROC:2713`'s `K$ADMINISTRATOR` drop was meant to bite.
+**Left for the owner - not touched.** A clean full `b48` with the fixed
+`verify-osusers` has not been run.
