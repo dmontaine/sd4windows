@@ -39172,3 +39172,54 @@ it. Next run is `b49`, after `cleanup-devlitter.ps1`.
 
 **Still unwitnessed: micro itself.** The fix is installed and no session has
 typed `micro` since the cycle.
+
+## 27 Aug 2026 - micro still refused, and the two faults behind it
+
+The owner ran `micro bp ZZMARKS` on the 18:58:55 install. The verb refused -
+**and printed the helper's own SUCCESSFUL output underneath the refusal**, which
+gave both faults away at once:
+
+```
+micro could not be given a configuration directory it can write to ...
+micro-home: configuration home: C:\Users\dmont\.micro[]micro-home: syntax file
+already current[]MICROHOME=C:\Users\dmont\.micro
+```
+
+***1. THE CAPTURE IS @fm-SEPARATED, NOT LF.*** Measured with a probe that
+counted characters rather than assuming: two lines back from
+`os.execute ... capturing` gave `FM=7 VM=0 CR=8 LF=0`, the bytes reading
+`... 13 254 ...` between lines. `micro.home` split on `char(10)`, so the whole
+capture was ONE field and `MICROHOME=` was never seen. It normalises `@fm` and
+`CR` to one separator now. `find.editor` survives the same assumption only
+because its answer is a single line.
+
+***2. THE HELPER READ ENVIRONMENT VARIABLES THAT DO NOT EXIST IN THAT CHILD.***
+Measured from inside `os.execute`, which is the only place it ever runs:
+`$env:USERPROFILE`, `$env:TEMP` and `$HOME` are all **empty**;
+`[Environment]::GetFolderPath('UserProfile')` answers `C:\Users\dmont` and
+`LocalApplicationData` answers the AppData path. So the script refused **every
+time it was called the way it is actually called**.
+
+***AND THAT IS THE LESSON, NOT THE BUG.*** It had been tested four ways -
+creates the home, idempotent, falls back, refuses - and every one of those runs
+was **from a console**, where the variables exist. Four tests, one environment,
+and the environment was the variable that mattered. **Test it where it runs.**
+
+***A THIRD THING FOUND ON THE WAY:*** `[System.IO.Path]::GetTempPath()` answers
+`C:\WINDOWS\` when TMP and TEMP are both unset. Unelevated the fallback would
+fail; **elevated it would have created `C:\WINDOWS\sd-micro`** - a configuration
+home ordinary users cannot write and administrators share, which is both of the
+things the per-user design exists to avoid. The script now refuses any candidate
+under the Windows directory.
+
+***MEASURED END TO END THIS TIME.*** A scratch program in `don`'s own BP ran the
+rewritten helper through `os.execute` and applied `micro.home`'s parse verbatim:
+`RAW.LEN=215 FM=3 CR=4 LF=0`, four lines recovered, `PARSED=[C:\Users\dmont\.micro]`,
+`PASS`. `EDIT` recompiled clean (983 lines, only the `$internal`-strip artefact).
+Scratch probes removed afterwards.
+
+***AND THE FIXTURE DOES NOT SURVIVE A CYCLE.*** `cycle.ps1` deletes both trees,
+so `don`'s BP goes with them - `ZZMARKS` included - and `EDIT` will happily open
+a record that does not exist. **The owner's run was editing an empty new record,
+not the mark fixture.** Rebuilt (908 bytes, sha `1D65F19475F3CA5DCC5D594897F6B9CB`);
+rebuild it after every cycle.

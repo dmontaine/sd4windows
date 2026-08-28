@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***CYCLED, INSTALLED AND GREEN — install 27 Aug 18:58:55, `assert-current` exit 0 live***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. **`micro` itself has NOT been run since the cycle — PRE_RELEASE 29 is installed and still unwitnessed, and that is the one thing to do next.** ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21 and 23 DONE and measured, 29 fixed and awaiting its console check, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***ANOTHER CYCLE IS OWED: `micro` STILL DOES NOT WORK.*** The 18:58:55 install went green and scored the suite, but the owner's `micro bp ZZMARKS` on it refused, and two further faults were measured and fixed — `EDIT` split `os.execute ... capturing` on `char(10)` where it is `@fm`, and `micro-home.ps1` read environment variables that are **empty** in that child. Both now measured end to end from inside `os.execute`; `assert-current` names the two files. ***The 18:58:55 install itself was `assert-current` exit 0 live***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. **`micro` itself has NOT been run since the cycle — PRE_RELEASE 29 is installed and still unwitnessed, and that is the one thing to do next.** ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21 and 23 DONE and measured, 29 fixed and awaiting its console check, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -159,9 +159,33 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `EDIT` does clean up its working copy, which nobody had watched — and
 > **`ZZMARKS` is byte-identical**, 908 bytes, `1D65F19475F3CA5DCC5D594897F6B9CB`.
 >
-> ## ***1. CYCLED, INSTALLED, GREEN, AND `b48` IS 30 OF 31.***
+> ## ***1. ANOTHER CYCLE IS OWED — micro STILL DOES NOT WORK, AND TWO MORE FAULTS WERE FOUND.***
 >
-> ***Install 27 Aug 18:58:55, `assert-current` exit 0 live.*** `sd.exe`
+> ***`assert-current` FAILS on `gplbld\micro-home.ps1` and `sdsys\gpl.bp\EDIT`.***
+> The owner ran `micro bp ZZMARKS` on the 18:58:55 install and the verb refused,
+> **quoting the helper's own successful output underneath the refusal** — which
+> gave away both faults at once. Both are fixed and **measured end to end from
+> inside `os.execute` this time**; see PRE_RELEASE 29.
+>
+> - ***`EDIT` split the capture on `char(10)`.*** `os.execute ... capturing`
+>   returns **@fm-separated** lines ending in **CR**, with **no LF at all** —
+>   measured (`FM=7 CR=8 LF=0`). So `MICROHOME=` was never seen.
+> - ***The helper read `$env:USERPROFILE` and `$env:TEMP`, which are EMPTY in
+>   that child.*** It now asks `[Environment]::GetFolderPath`. **This is why
+>   testing it four ways from a console proved nothing** — the environment was
+>   the one thing those four runs held constant.
+> - **`[System.IO.Path]::GetTempPath()` answers `C:\WINDOWS\` when TEMP is
+>   unset** — elevated, that would have created `C:\WINDOWS\sd-micro`. Refused
+>   explicitly now.
+>
+> ***AND `cycle.ps1` DESTROYS THE `ZZMARKS` FIXTURE*** — it deletes both trees,
+> so `don`'s BP goes too, and `EDIT` happily opens a record that does not exist.
+> The owner's run was editing an **empty new record**. Rebuilt; **rebuild it
+> after every cycle** with `tools\probes\make-zzmarks.py` (docs repo).
+>
+> ### The 18:58:55 install, which the suite below scored
+>
+> ***`assert-current` was exit 0 live on it.*** `sd.exe`
 > `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` **125 / 184**.
 > **The micro fix is in it, verified by reading the install**: `micro-home.ps1`
 > in Program Files, `micro.home` in the installed `EDIT`, `MICROHOME=` compiled

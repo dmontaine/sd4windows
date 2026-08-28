@@ -52,7 +52,7 @@ should be fixed, **M** minor.
 | 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27, **unfixed here** | `gpl.bp/DELETEF:233` |
 | 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
-| 29 | **S** | ~~`micro` reports "Permission denied" on every save — the file IS saved, so a false alarm, not data loss~~ (downgraded from **B**). ***FIXED 27 Aug: `MICRO_CONFIG_HOME` is now `~/.micro`, per user and writable, via the new `micro-home.ps1`.*** The dead `-backup off` is gone. **Uncompiled — needs a cycle** | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
+| 29 | **S** | `micro` reports "Permission denied" on every save — **the file IS saved**, so a false alarm, not data loss (downgraded from **B**). Fix is `MICRO_CONFIG_HOME` = a per-user `~/.micro` via the new `micro-home.ps1`. ***THREE ATTEMPTS: `-backup off` fixed nothing; the helper read env vars that are empty inside `os.execute`; `EDIT` split the capture on `char(10)` where it is `@fm`.*** All three now corrected and **measured end to end — uncompiled, needs a cycle** | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
 | 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
 | 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
 | 32 | **S** | ***`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory*** — `C:\Users\<name>.<DOMAIN>` — and anything keyed to the old path breaks. **Measured: ssh public-key auth refused.** 53 stale entries on this host | `gpl.bp/DELACC` |
@@ -968,6 +968,76 @@ whole thing running.** That needs the cycle.
 > in the evidence and not in the verdict: `micro.home:` did not appear in the
 > file, and line 237 still read `kernel(K$WINPATH, '/micro')`. **Print what the
 > instrument actually read, not just what it concluded.**
+
+### ***AND IT STILL DID NOT WORK. TWO MORE DEFECTS, BOTH MEASURED 27 Aug 2026***
+
+The owner ran `micro bp ZZMARKS` on the 18:58:55 install and the verb refused —
+**quoting the helper's own SUCCESSFUL output underneath the refusal**, which is
+what gave both faults away at once:
+
+```
+micro could not be given a configuration directory it can write to ...
+micro-home: configuration home: C:\Users\dmont\.micro□micro-home: syntax file
+already current□MICROHOME=C:\Users\dmont\.micro
+```
+
+***1. `EDIT` SPLIT THE CAPTURE ON THE WRONG SEPARATOR.*** `os.execute ...
+capturing` returns **@fm-separated** lines each ending in **CR**, and **no LF at
+all** — measured with a probe that counted characters rather than assuming:
+two lines of output came back `FM=7 VM=0 CR=8 LF=0`, the bytes reading
+`... 13 254 ...` between them. `micro.home` split on `char(10)`, so the whole
+capture was one field and `MICROHOME=` was never seen. It now normalises `@fm`
+and `CR` to one separator before scanning. *(`find.editor` gets away with the
+same class of assumption only because its answer is a single line.)*
+
+***2. AND THE HELPER ITSELF WAS READING ENVIRONMENT VARIABLES THAT DO NOT EXIST
+THERE.*** The child SD launches gets no user environment block. Measured from
+inside `os.execute`, which is the only place this script ever runs:
+
+| | |
+|---|---|
+| `$env:USERPROFILE` | **empty** |
+| `$env:TEMP` | **empty** |
+| `$HOME` | **empty** |
+| `[Environment]::GetFolderPath('UserProfile')` | `C:\Users\dmont` |
+| `[Environment]::GetFolderPath('LocalApplicationData')` | `C:\Users\dmont\AppData\Local` |
+
+So the first version refused **every time it was called the way it is actually
+called**, and appeared to work only when run by hand from a console, where
+those variables exist. ***That is exactly how it was tested — four ways, from a
+console — and the environment was the one variable those four runs held
+constant.*** It now asks the shell API and falls back to local application data,
+then TEMP.
+
+> ***`[System.IO.Path]::GetTempPath()` IS NOT A FALLBACK, IT IS A TRAP.*** With
+> TMP and TEMP both unset it answers **`C:\WINDOWS\`** — measured. Unelevated
+> that fails; **elevated it would quietly create `C:\WINDOWS\sd-micro`**, a
+> configuration home ordinary users cannot write and administrators share, which
+> is both of the things this entry exists to avoid. The script refuses any
+> candidate under the Windows directory.
+
+***MEASURED END TO END THIS TIME, IN THE ENVIRONMENT THAT MATTERS.*** A scratch
+program in `don`'s own BP ran the rewritten helper through `os.execute` and
+applied `micro.home`'s parse verbatim:
+
+```
+RAW.LEN=215 FM=3 CR=4 LF=0
+  | micro-home: candidates: C:\Users\dmont\.micro | C:\Users\dmont\AppData\Local\SD\micro
+  | micro-home: configuration home: C:\Users\dmont\.micro
+  | MICROHOME=C:\Users\dmont\.micro
+PARSED=[C:\Users\dmont\.micro]
+PASS - MICROHOME= parsed from the real capture
+```
+
+**Still uncompiled in the shipped tree** — `assert-current` names
+`gplbld\micro-home.ps1` and `sdsys\gpl.bp\EDIT`. Another cycle is owed.
+
+***AND THE FIXTURE DOES NOT SURVIVE A CYCLE.*** `cycle.ps1` deletes both trees,
+so `don`'s BP — `ZZMARKS` included — goes with it, and `EDIT` will happily open
+a record that does not exist. The owner's run was therefore editing an **empty
+new record**, not the mark fixture. **Rebuild it after every cycle** with
+`tools\probes\make-zzmarks.py` in the docs repository; sha
+`1D65F19475F3CA5DCC5D594897F6B9CB`, 908 bytes.
 
 ***WHAT IS ALREADY THERE, WHICH ARGUES FOR THE OWNER'S `.micro` OVER micro's OWN
 PATH.*** `C:\Users\dmont\.config\micro` **already exists** on this host with
