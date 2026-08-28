@@ -1674,11 +1674,14 @@ reported `Page width: 20`, `Page depth: 24`. Upstream `sd64/sdsys/GPL.BP/TERM`
 carries the identical three lines at 164-166 and the identical constants at
 `INT$KEYS.H:37-42`, so this is not a port artefact.
 
-***FIXED IN THIS PORT, 27 Aug 2026.*** `gpl.bp/TERM`'s `KW$DEFAULT` arm now
-sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH`. The `sdterm` depth-25 special case was
-removed rather than kept: a default that depends on the terminal type is not a
-default, and it paired with the same `MIN.WIDTH` slip. Uncompiled at the time
-of writing; rides the next cycle. PRE_RELEASE_FIXES #23.
+***FIXED IN THIS PORT, 27 Aug 2026 — AND MEASURED.*** `gpl.bp/TERM`'s
+`KW$DEFAULT` arm now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH`. The `sdterm`
+depth-25 special case was removed rather than kept: a default that depends on
+the terminal type is not a default, and it paired with the same `MIN.WIDTH`
+slip. **Built and installed the same day; `term default` then `term` now reports
+`Page width: 120`, `Page depth: 36`** where the same pair of commands reported
+`20` / `24` before. Two lines, and the whole of the fix.
+PRE_RELEASE_FIXES #23.
 
 `PROPOSED`
 

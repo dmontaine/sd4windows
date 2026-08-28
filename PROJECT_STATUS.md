@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THREE FIXES ARE INSTALLED AND `assert-current` IS GREEN*** — PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off` — ***measured 27 Aug and it DOES NOT FIX ANYTHING***), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test) all compiled 0-error and shipped in the owner's `cycle.ps1` of 27 Aug. **Install 27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, `assert-current` **exit 0 live**. ***`b48` RAN: unelevated 11/12, elevated 18/19.*** `verify-tiers` PASSED — PRE_RELEASE 21's regression check is clean. Two verifier issues: **`verify-osusers` FIXED** (PRE_RELEASE 30, re-run standalone, passes) and **`verify-apiadmin` — PRE_RELEASE 31, traced to a stale control** (`os_permitted()` keys `os.users` on the person `don`, whom PRE_RELEASE 2 listed; product is per design, verifier needs a rewrite, owner confirms). ***PRE_RELEASE 29 WAS SPOT-CHECKED AND FAILED*** — the fix is wrong, the defect is milder than filed (the file saves; the message is false), and the real fix is a writable `MICRO_CONFIG_HOME`, shape named by the owner. **23 is the one nobody has looked at.** ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Eight new pre-release entries, 24 to 31. Of the three product fixes installed: 21 works, 23 unmeasured, 29 does not work. 30 fixed (verifier). 31 open, owner's call.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-SIXTH session**, which ended on credit rather than on a problem — the owner continues from a different account and **both repositories are pushed and clean**. ***THREE FIXES ARE INSTALLED AND `assert-current` IS GREEN*** — PRE_RELEASE 29 (`gpl.bp/EDIT`, `micro -backup off` — ***measured 27 Aug and it DOES NOT FIX ANYTHING***), 23 (`gpl.bp/TERM`, `term default` → 120×36) and 21 (`gpl.bp/MODIFYA` + `syscom/KEYS.H`, the dead write-once test) all compiled 0-error and shipped in the owner's `cycle.ps1` of 27 Aug. **Install 27 Aug 17:25:59**, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184, service Running, `assert-current` **exit 0 live**. ***`b48` RAN: unelevated 11/12, elevated 18/19.*** `verify-tiers` PASSED — PRE_RELEASE 21's regression check is clean. Two verifier issues: **`verify-osusers` FIXED** (PRE_RELEASE 30, re-run standalone, passes) and **`verify-apiadmin` — PRE_RELEASE 31, traced to a stale control** (`os_permitted()` keys `os.users` on the person `don`, whom PRE_RELEASE 2 listed; product is per design, verifier needs a rewrite, owner confirms). ***ALL THREE ARE NOW SPOT-CHECKED: 21 and 23 WORK, 29 FAILED.*** 23 measured at the owner's prompt — `term` reports 120 x 36 — and **DONE**, bar three docs pages that still describe the old behaviour. 29's fix is wrong; the defect is milder than filed (the file saves, the message is false) and the real fix is a writable `MICRO_CONFIG_HOME`, shape named by the owner. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE NOW COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Eight new pre-release entries, 24 to 31. Of the three product fixes installed: 21 works, 23 unmeasured, 29 does not work. 30 fixed (verifier). 31 open, owner's call.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -191,10 +191,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 2. **PRE_RELEASE 29** — ***MEASURED AND IT DOES NOT WORK.*** See the box
 >    above. The `-backup off` is dead code; the real fix is a writable config
 >    home and the owner has named its shape.
-> 3. **PRE_RELEASE 23** — **still unmeasured.** Any `sd` session:
->    `term default` then `term`. Must read **Page width: 120 / Page depth: 36**,
->    not 20 / 24. *(Thirty seconds; it is the only one of the three nobody has
->    looked at.)*
+> 3. **PRE_RELEASE 23** — ***clean.*** The owner ran `term default` then `term`
+>    on this install: **120 x 36**, where it was 20 x 24. `term default` prints
+>    nothing, which is what that arm does and is not a defect. **Left: three
+>    docs pages still say `term default` does not restore it** — *SD TCL - The
+>    Terminal and the Session*, tester `13` and `02` — and they live in
+>    `SDCoreWindowsDocs`, so that is a commit in the other repository.
 >
 > **`-Run b48` IS THE BIGGEST THING OUTSTANDING.** `b46` and `b47` are spent —
 > use `b48`.
@@ -237,12 +239,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ## ***4. THREE FIXES COMPILED 0-ERROR AND INSTALLED (27 Aug 17:25:59). MEASURE THEM.***
 >
 > All three shipped in the owner's `cycle.ps1`; `assert-current` exit 0.
-> **All three compiled. 21 works, 29 does NOT, 23 is unmeasured.**
+> **All three compiled and all three now measured: 21 and 23 work, 29 does NOT.**
 >
 > | | |
 > |---|---|
 > | **PRE_RELEASE 21** | the unreachable inner `if old.tier # 'SUSPENDED'` at the field-6 write in `tier.set` is **deleted**; `MODIFYA` banner + equality-guard comment + `SYSCOM/KEYS.H` now say the equality guard is what keeps field 6 write-once. Behaviour unchanged — **`verify-tiers` PASSED in the 27 Aug `b48`, regression check clean** |
-> | **PRE_RELEASE 23 / UPSTREAM 24** | `TERM`'s `KW$DEFAULT` arm now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH` (120 × 36), not `MIN.WIDTH` and hard-coded 24. The `sdterm` depth-25 special case went too. **Check: `term default` then `term` → Page width 120 / Page depth 36** |
+> | **PRE_RELEASE 23 / UPSTREAM 24** | `TERM`'s `KW$DEFAULT` arm now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH`, not `MIN.WIDTH` and hard-coded 24; the `sdterm` depth-25 case went too. ***MEASURED 27 Aug: `term` reports 120 x 36.*** **DONE.** Left: three docs pages in `SDCoreWindowsDocs` still describe the old behaviour |
 > | **PRE_RELEASE 29** | ***MEASURED 27 Aug — THE `-backup off` AT `EDIT:227` DOES NOT FIX IT AND IS DEAD CODE WITH A WRONG COMMENT.*** No flag suppresses the message; `MICRO_CONFIG_HOME` has to be writable. The save itself always worked, so it is an S, not a B. **Revert `EDIT:227` and its comment block in the cycle that carries the real fix** — the owner's shape is a per-user directory under the home directory |
 >
 > ## ***5. WHAT IS STILL NOT MEASURED, IN THE ORDER THE FIXTURES SUIT.***

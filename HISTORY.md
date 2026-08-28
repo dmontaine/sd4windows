@@ -39058,3 +39058,18 @@ install after the owner's session rather than reasoned: **`$hold` is empty**, so
 it and nobody had watched - and **`ZZMARKS` is byte-identical**, 908 bytes, sha
 `1D65F19475F3CA5DCC5D594897F6B9CB`, so the mark round trip survives a real
 editor session.
+
+## 27 Aug 2026 - PRE_RELEASE 23 measured and closed
+
+The owner ran it at his own prompt on the 17:25:59 install: `term default`
+prints nothing - it sets and returns, which is what that arm does and is not a
+defect - and the bare `term` after it reported **120 x 36**, where the same pair
+of commands reported `20` / `24` before the fix. **DONE**, and UPSTREAM #24
+carries the measured line for the maintainer.
+
+***THE REMAINING WORK IS IN THE OTHER REPOSITORY, AND IT IS THE CASE THE DOCS
+README WARNS ABOUT.*** *SD TCL - The Terminal and the Session*, tester page 13
+and page 02 all state that `term default` does NOT restore 120 x 36 and give
+`term 120,36` as the way to do it. Every one of those sentences was true when
+written and is false as of this install. A page whose value is a measured defect
+is exactly the page a fix invalidates, and nothing catches it but a person.
