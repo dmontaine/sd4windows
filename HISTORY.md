@@ -39684,3 +39684,32 @@ decision:** 5.2's API door, 5.4's unrun probe, and 5.5's `verify-tierchange.ps1`
 **The fixtures are not in their original states** - `b48tier` is STANDARD with a
 hand-edited `voc/basic`, `b48susp` is SUSPENDED, `b48adm` is PROGRAMMER `both`
 and has signed in over ssh.
+
+## 28 Aug 2026 - Stair-stepped message output: already fixed, audited to be sure
+
+**Commit:** the commit carrying this entry. No code changed.
+
+The owner recalled seeing messages stair-step - each line starting further
+right, which is a line feed with no carriage return. Audited the whole message
+set and every BASIC line that could emit a newline. **Nothing in the tree can
+produce it**, and the fix that closed it is already in place:
+
+- **The two-character `\n` escape becomes LF followed by CR**, in place, at
+  `gplsrc/messages.c:337`. Two bytes for two, which is why it needs no shift,
+  unlike the `\t` case beside it which memmoves. The comment is somebody's
+  record of the same symptom: *"rev 0.9.1 new line requires cr for correct
+  display output"*. **28 message files use the escape and all carry their own
+  CR.**
+- **A literal newline never reaches the terminal as one.** `messages.c:320`
+  converts it to a field mark first. That is the 14 multi-line files - `3526`
+  and the `6603`/`6612`-`6626` menu help texts - which are dynamic arrays by
+  design and printed a field at a time.
+- **No program writes a bare `char(10)` to a terminal.** Six use it: `EDIT`
+  builds with it and splits before printing, documenting the trap in capitals
+  at `EDIT:359` (*"ONE crt PER LINE, NOT ONE crt OF A STRING WITH char(10) IN
+  IT"*); `DEBUG` and `PTERM` also split; `SETPTR`, `OS_GROUP` and
+  `VALID_SHELL_CMD` use it for printer newline modes, stripping CRLF, and
+  rejecting control characters in a shell command.
+
+**Recorded as a negative result so an old transcript does not reopen it.** A
+log written before rev 0.9.1 still shows the staircase and always will.
