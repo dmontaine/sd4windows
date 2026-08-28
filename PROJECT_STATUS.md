@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which touched no source at all: **PRE_RELEASE 23's three docs pages and the shipped-scripts gap are both closed**, in `SDCoreWindowsDocs` `c41d999` and `7914e60`, with two new pre-release entries **33** and **34** (34 is the owner's ruling). **The 19:37:47 install is untouched and still current, so item 5.3's `edit bp ZZMARKS` can still be measured on it.** Everything below is the **SIXTY-EIGHTH session**, which ended on credit rather than on a problem — the owner continues from a different account. **`sd4windows` is pushed and clean and the install is green and current.** ***PRE_RELEASE 29 IS DONE — `micro` SAVES.*** Install **27 Aug 19:37:47**, `assert-current` exit 0, and the owner ran `micro bp ZZMARKS` **three times, save and no-save, with no message**. `~/.micro/backups/` now exists, which is the very write that used to fail. **The mark round trip survived a real save** (SD reads 19 fields, 907 chars, VM 6/SM 1/TM 3, no stray CR), closing the last of item 5.3. It took three attempts: `-backup off` fixed nothing; the helper read env vars that are **empty** inside `os.execute`; and `EDIT` split the capture on `char(10)` where it is `@fm`. ***The earlier 18:58:55 install was `assert-current` exit 0 live too***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21, 23 and 29 DONE and measured, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
+**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which touched no source at all: **PRE_RELEASE 23's three docs pages and the shipped-scripts gap are both closed**, in `SDCoreWindowsDocs` `c41d999` and `7914e60`, with two new pre-release entries **33** and **34** (34 is the owner's ruling). ***ITEM 5.3 IS CLOSED*** — the owner ran `edit bp ZZMARKS` unelevated on the 19:37:47 install, **no problems**, so both editors are witnessed. **That install is untouched and still current. ITEMS 5.1 AND 5.2 SHOULD BE TAKEN BEFORE ANY SOURCE CHANGE**: their fixtures `b48tier`, `b48susp` and `b48adm` exist only on it, and PRE_RELEASE 32's fix ends this cycle. Everything below is the **SIXTY-EIGHTH session**, which ended on credit rather than on a problem — the owner continues from a different account. **`sd4windows` is pushed and clean and the install is green and current.** ***PRE_RELEASE 29 IS DONE — `micro` SAVES.*** Install **27 Aug 19:37:47**, `assert-current` exit 0, and the owner ran `micro bp ZZMARKS` **three times, save and no-save, with no message**. `~/.micro/backups/` now exists, which is the very write that used to fail. **The mark round trip survived a real save** (SD reads 19 fields, 907 chars, VM 6/SM 1/TM 3, no stray CR), closing the last of item 5.3. It took three attempts: `-backup off` fixed nothing; the helper read env vars that are **empty** inside `os.execute`; and `EDIT` split the capture on `char(10)` where it is `@fm`. ***The earlier 18:58:55 install was `assert-current` exit 0 live too***, `sd.exe` `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` 125/184. It carries **PRE_RELEASE 21 and 23 (both measured working)** and the **rewritten 29**: `MICRO_CONFIG_HOME` is now a per-user `~/.micro` via the new `micro-home.ps1`, because the `-backup off` that shipped earlier the same day was measured and fixes nothing. ***`-Run b48`: 30 of 31 steps, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.*** The one failing step is `verify-apiadmin`'s stale control (PRE_RELEASE 31); `verify-osusers` now passes in-suite (PRE_RELEASE 30 fixed it); `verify-tiers` passed, which is 21's regression check. ***THE DOCUMENTATION IS THE WORK AND BOTH REFERENCES ARE COMPLETE***: SD BASIC `01`-`18`, SD TCL `19`-`31`, a new **`Administrator` set** of three, and both generated cards at `94` and `95`. **Nine new pre-release entries, 24 to 32: 21, 23 and 29 DONE and measured, 30 fixed, 31 and 32 open.** Three new upstream entries, 25 to 27. START HERE opens with five numbered items.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -113,9 +113,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ### SIXTY-NINTH SESSION — TWO DOCUMENTATION ITEMS CLOSED, NO SOURCE TOUCHED
 >
 > **Both repositories pushed and clean.** ***THE INSTALL IS STILL THE 19:37:47
-> ONE AND IS STILL CURRENT***, deliberately: nothing under `sd64` was edited, so
-> **item 5.3's last console check — `edit bp ZZMARKS` unelevated — can still be
-> taken on it.** Fixing PRE_RELEASE 32 would end that cycle first.
+> ONE AND IS STILL CURRENT***, deliberately: nothing under `sd64` was edited.
 >
 > - **PRE_RELEASE 23 is fully closed.** The three docs pages that said
 >   `term default` does not restore 120 x 36 are corrected —
@@ -124,8 +122,20 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >   all **26** of them (the recorded 25 was measured wrong), and tester `01` now
 >   prints the `install-ssh.ps1` retry command it only promised —
 >   `SDCoreWindowsDocs` `7914e60`.
+> - **Item 5.3 is closed.** The owner ran `edit bp ZZMARKS` unelevated on the
+>   19:37:47 install — **no problems**. Both editors are now witnessed.
 > - **Two new pre-release entries, 33 and 34**, both in item 4's table below.
 >   **34 needs your ruling.**
+>
+> ***WHAT THE ORDER OF THE NEXT TWO STEPS COSTS, AND IT IS NOT SYMMETRIC.***
+> Items **5.1** and **5.2** are the only tests whose fixtures — `b48tier`,
+> `b48susp`, `b48adm` — exist on **this install and nowhere else**, and a fresh
+> install removes them the way it removed `b47`'s fifteen. **PRE_RELEASE 32 is a
+> source change**, so it ends this cycle and every measurement after it is void
+> until the next install, which is also the install that destroys the fixtures.
+> ***SO 5.1 AND 5.2 GO FIRST, AND THEY ARE ELEVATED TYPING, NOT A CYCLE.***
+> Doing them afterwards means rebuilding three accounts to ask a question that
+> could have been asked for nothing.
 >
 > ### HANDOFF, SIXTY-EIGHTH SESSION — READ THE FIVE NUMBERED ITEMS FIRST
 >
@@ -231,10 +241,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 3. **PRE_RELEASE 29** — ***DONE.*** Witnessed on the 19:37:47 install: three
 >    runs, save and no-save, no message.
 >
-> ***THE ONE CONSOLE CHECK OUTSTANDING.*** Unelevated `sd`, `micro bp ZZMARKS`,
-> edit, **Ctrl-S — no red message**. `C:\Users\dmont\.micro` already exists from
-> the pre-cycle testing, so this also exercises the "already current" path.
-> The fixture is in `don`'s BP, sha `1D65F19475F3CA5DCC5D594897F6B9CB`.
+> ***NO CONSOLE CHECK IS OUTSTANDING ON THE EDITORS.*** The `micro` run closed
+> on 27 Aug; `edit bp ZZMARKS` unelevated was run by the owner in the
+> sixty-ninth session — **no problems**. Both editors are witnessed working on
+> the 19:37:47 install. The fixture is in `don`'s BP; it was written at sha
+> `1D65F19475F3CA5DCC5D594897F6B9CB` and a `micro` save has rewritten it since
+> (`dos` line endings, 908 → 927, benign — SD's reader normalises them).
 >
 > ## ***2. THE `sd -cleanup` DEBT IS CLEARED — the 17:25:59 cycle wiped both trees.***
 >
@@ -303,16 +315,16 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >    **`Account B48ADM is suspended`**, then `modify.account b48adm programmer
 >    ssh` to restore. **Do the unsuspended attempt too** — a refusal that would
 >    have happened anyway proves nothing.
-> 3. ***THE micro TEST IS DONE AND CLOSED — 27 Aug, install 19:37:47.*** Three
->    runs of `micro bp ZZMARKS` unelevated, save and no-save: **it draws, it
->    highlights, it saves with no message, `$hold` is empty afterwards** (so
->    `EDIT` does clean up, which its history block claimed and nobody had
->    watched), and **the mark round trip survives a real save** — 19 fields,
->    907 chars, VM 6 / SM 1 / TM 3, no stray CR. ***ONE THING IS LEFT: `edit` —
->    Microsoft Edit — has still NOT been retried unelevated.*** It sets no
->    `MICRO_CONFIG_HOME` so it should be unaffected, but that is reasoning, not a
->    measurement. **Use `edit bp ZZMARKS`**, and rebuild the fixture first if a
->    cycle has run — `tools\probes\make-zzmarks.py`.
+> 3. ***BOTH EDITORS ARE DONE AND ITEM 5.3 IS CLOSED — 27 Aug, install
+>    19:37:47.*** Three runs of `micro bp ZZMARKS` unelevated, save and no-save:
+>    **it draws, it highlights, it saves with no message, `$hold` is empty
+>    afterwards** (so `EDIT` does clean up, which its history block claimed and
+>    nobody had watched), and **the mark round trip survives a real save** — 19
+>    fields, 907 chars, VM 6 / SM 1 / TM 3, no stray CR. ***AND `edit` —
+>    Microsoft Edit — WAS RETRIED UNELEVATED ON THE SAME INSTALL, sixty-ninth
+>    session: the owner ran `edit bp ZZMARKS` and reported no problems.*** It
+>    sets no `MICRO_CONFIG_HOME`, which is why it was expected to be unaffected
+>    — that is now measured rather than reasoned. **Nothing is left on 5.3.**
 > 4. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`**, docs repo —
 >    15 cases, compiled clean 27 Aug, **never run**.
 > 5. **Then `verify-tierchange.ps1` can be written** — the behaviour is known

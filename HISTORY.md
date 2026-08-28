@@ -39328,3 +39328,15 @@ There is no honest link between restricted BASIC commands and Windows installer
 scripts. So `release.ps1` cannot complete on a whole set, `Technical` renders
 through the two hand steps, and **it is not to be settled by adding a link**.
 PRE_RELEASE 34, for the owner.
+
+**Item 5.3 closed the same day.** The owner ran `edit bp ZZMARKS` unelevated on
+the 19:37:47 install - no problems. Microsoft Edit sets no `MICRO_CONFIG_HOME`,
+so it was expected to be unaffected by the PRE_RELEASE 29 fix; that is now
+measured rather than reasoned, and **both editors are witnessed working**.
+
+**Left with it, a sequencing fact that cost nothing only because it was noticed
+first:** items 5.1 and 5.2 are the last tests whose fixtures - `b48tier`,
+`b48susp`, `b48adm` - exist on that install and nowhere else. PRE_RELEASE 32 is
+a source change, so it ends the cycle, and the install that would follow is the
+one that destroys the fixtures. **Elevated typing before a source change, or
+three accounts rebuilt to ask the same question.**
