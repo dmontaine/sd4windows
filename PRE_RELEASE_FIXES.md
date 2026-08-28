@@ -1716,7 +1716,9 @@ elevated session CAN reach.*** Parse-checked 0 errors / 2857 tokens, 9 functions
 by both the parser and `grep`, no embedded BOM. ***RUN BY THE OWNER 28 Aug
 2026, 00:07:29, on the 27 Aug 22:52:21 install — `assert-current` clean, 33
 PASS, 0 FAIL***, of which section 6 contributed 11. Transcript
-`SD-verify\verify-tiers-20260828-000729.log`. It covers:
+`SD-verify\verify-tiers-20260828-000729.log`. **Repeated at 00:13:03 with
+`-Prefix sdtierb`: 33 PASS, 0 FAIL again**, so the section is reproducible
+against fresh accounts rather than passing off one set's state. It covers:
 
 - **the record** — `ACC$TIER` becomes `SUSPENDED` and `ACC$PRIOR.TIER` keeps the
   tier it displaced. The **PROGRAMMER** account is used deliberately: restoring

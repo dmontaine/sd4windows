@@ -148,6 +148,36 @@ counts — 0 parse errors on a file the parser found none of your functions in i
 not a pass. **The one exemption is the inline one-liner whose failure you see at
 once**; you are already watching it, so there is nothing to pre-check.
 
+## Every command you hand over carries a full path and an elevation verdict
+
+Standing instruction from the repository owner, 28 Aug 2026: *"whenever I am
+given something to run, I need the complete path and whether or not to run it
+elevated."* Said after a session gave `verify-tiers.ps1` correctly the first
+time — absolute path, *"in your own terminal, elevated"* — and then handed over
+the `-Prefix sdtierb` rerun as a bare command with no elevation stated.
+
+**Both parts, every time, in the same block:**
+
+1. ***THE ABSOLUTE PATH, WITH EVERY VARIABLE ALREADY EXPANDED.***
+   `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`, never
+   `cycle.ps1`, never `gplbld\cycle.ps1`, and never `$env:TEMP\…` or `%TEMP%\…`
+   — **his elevated shell opens in `C:\WINDOWS\system32`**, and he moves between
+   cmd and PowerShell without saying which he is in, so shell-specific syntax is
+   a coin flip. A script that finds its own location internally does not change
+   this: that makes it cwd-independent *once found*, which is the part a bare
+   name breaks.
+2. ***ELEVATED OR NOT, SAID OUT LOUD — INCLUDING WHEN IT IS NOT.*** **Silence
+   is not "probably fine".** Say *"elevated PowerShell"* or *"an ordinary
+   unelevated prompt"*. Some of this project's measurements are only valid
+   unelevated — §4.0.1's suite, `edit bp ZZMARKS` in item 5.3, the `logto`
+   suspension door — so the wrong shell does not merely fail, **it can produce
+   a clean-looking wrong answer.**
+
+**The trigger is the hand-over, not the first mention.** A rerun, a retry with
+a different flag, a command repeated from earlier in the same message — each is
+a fresh hand-over and carries both parts again. It is two lines; he is the one
+who pays when either is missing.
+
 ## An instrument shows what it DID, not just what it concluded
 
 Owner's instruction, 23 Aug 2026, after three false verdicts in one session.
