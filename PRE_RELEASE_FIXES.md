@@ -754,6 +754,22 @@ documentation or the tester set refers to the verb.
 `voc_template` and from `TIER.ADD.ADMINISTRATOR`. Either is a data change, so a
 cycle, not a rebuild.
 
+***DONE 28 Aug 2026 — the record is deleted and the name is out of the list.***
+Written before the cycle that will test it, so the run is a check rather than an
+observation:
+
+| `verify-tiers` row | expected |
+|---|---|
+| `add list length` | **20**, not 21 — and it is derived from `$AdminVerbs.Count`, so a mismatch here means the shipped record and the test disagree |
+| `shipped TIER.ADD.ADMINISTRATOR matches this test` | **0 differences** |
+| `sdtierN3 COUNT VOC` | ***416*** |
+| `sdtierN1` / `sdtierN2 COUNT VOC` | **354** / **396**, ***unmoved*** |
+
+***THE TWO THAT DO NOT MOVE ARE THE CHECK.*** The verb was only ever
+ADMINISTRATOR's, so it leaves one of the three sums and not the other two. If
+STANDARD or PROGRAMMER also moves, the removal took something it should not
+have and the count is not the thing to adjust.
+
 ## 26. `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — **S**
 
 **UPSTREAM_FIXES #27, and separate from #14** — that one is
