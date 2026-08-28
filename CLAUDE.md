@@ -113,6 +113,43 @@ and believing `<<'EOF'` is safe is what walked into it again on 23 Aug 2026.
 build the separator with `chr(92)` — but prefer the file. A file is also
 re-runnable, diffable, and can be parse-checked before it is run.
 
+## Never reach for Python to edit a file
+
+Standing instruction from the repository owner, 28 Aug 2026, immediately after
+a session used a Python heredoc to change three table rows in
+PRE_RELEASE_FIXES.md. **Use the Edit and Write tools.**
+
+**The rule is about the FIRST reach, and that is where it keeps going wrong.**
+The edit always looks mechanical enough to script — three rows, one regex — and
+that is exactly the case the editing tools handle with **no encoding,
+line-ending or escape surface at all**. What went wrong on 28 Aug was not the
+code; it was the decision to write code. The snippet emitted
+`SyntaxWarning: invalid escape sequence` and was correct only by luck, and
+proving it had not corrupted the file cost a byte-level check that the Edit tool
+would not have needed.
+
+**THIS FILE ALREADY SAID SO IN THREE OTHER PLACES AND IT WAS STILL DONE.** The
+backslash rule above, the CRLF trap and the `Set-Content` trap are all the same
+lesson from different angles, and each is written as advice about *how* to write
+the snippet. **They were followed and the file was still edited by a program.**
+So it is now a rule about the tool, not about the snippet:
+
+- ***A FILE EDIT GOES THROUGH `Edit` OR `Write`.*** Not `python`, not `sed -i`,
+  not `Set-Content`, not a heredoc.
+- **If a transform is genuinely too large to do by hand** — a bulk rename across
+  hundreds of files — **say so before writing it**, put it in a script file
+  rather than inline, and check the result the way the `Set-Content` rule below
+  requires: BOM, CR count, mojibake, and `git diff --stat`.
+- **`grep`, `find` and read-only inspection are unaffected.** This governs
+  *writing*.
+
+**Three separate corruptions of tracked documents are already in the record** —
+PROJECT_STATUS.md rewritten wholesale by Python text mode on 21 Aug 2026 (10,998
+insertions for a four-line edit), PRE_RELEASE_FIXES.md double-encoded by
+`Set-Content` on 28 Aug 2026 (272 em dashes), and the near miss the same day.
+**Every one was silent**, and `.gitattributes` (`* -text`) means nothing
+normalises the damage.
+
 ## Verify a script loads before you submit it for execution
 
 Owner, 23 Aug 2026: too many broken scripts have been **submitted for

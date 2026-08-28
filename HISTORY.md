@@ -39746,3 +39746,117 @@ than scoring them.
 **Two predictions were written before their runs and both held** - the
 post-reboot sweep (7 removed, the 3 entry-less directories survived) and the
 `encrypt.field` removal (ADMINISTRATOR 416, the other two counts unmoved).
+
+---
+
+## 28 Aug 2026, seventy-first session - two verifiers for the eight unwitnessed fixes
+
+**Written, checked, and NOT RUN.** `gplbld/verify-vocverbs.ps1` covers
+PRE_RELEASE 5, 13, 14, 15 and 26; `gplbld/verify-acctmsgs.ps1` covers 22, 27
+and 37. Both need an elevated shell, so both were handed over. Nothing under
+`gplsrc` or `sdsys` was touched: an edit there would make the 28 Aug 00:53:34
+install stale, and that install is the only thing able to test the eight.
+`assert-current` was run live before and after adding the scripts - exit 0 both
+times, once the three were on `$neverShipped`.
+
+**Three of the seventieth session's suggested tests were wrong, and two would
+have scored a false pass.**
+
+- **26 cannot be tested with `force`.** `DELETEF:250` and `:319` guard both
+  prompts with `if not(force)`, so the `force` form suppresses them whether or
+  not the fix is present. The reproduction the entry itself describes is the
+  `no.query` form, which does not suppress them.
+- **22's password `a` is accepted on this machine.** `net accounts` reports
+  minimum password length 0 and complexity is off by default on a client SKU,
+  so that arm creates a real account instead of printing 10119. The script
+  splits the two arms: the mismatch arm is deterministic (`SET_PASSWD:101`
+  compares the pair before Windows is involved), and the refusal arm uses a
+  150-character password, past the SAM's 127-character limit. If even that is
+  accepted the arm records SKIP, not PASS.
+- **13's `qselect voc saving 3` stops at 3290** without an active select list
+  (`QSELECT:196`). `QSELECT VOC * SAVING 3` is self-contained, and a preceding
+  `SELECT` would print a second line of the wording under test.
+
+**Entry 14 is tested without going near a system file.** The branch fires on
+any VOC `F` record whose path starts `@SDSYS`, so the script COPIES the
+`messages` pointer to a name of its own, and asserts `sdsys\messages` is still
+on disk afterwards.
+
+**`gplbld/test-vocverbs-units.ps1` is new**: it lifts the first script's
+matchers by AST and drives them against synthetic transcripts of a fixed build
+**and of the defect**, requiring every pattern to tell them apart. 40 of 40.
+It exists because the patterns are the part that can be checked for nothing,
+and because matching case-insensitively would have made three of the
+disqualifiers match their own success wording - three of the five fixes ARE
+case behaviour.
+
+**`test-verdict-units.ps1` gained the two new scripts**, so the "kept
+byte-for-byte identical" comment each carries is now enforced rather than
+asserted: 5 copies, 82 of 82 assertions.
+
+**FIRST RUN, same session: PRE_RELEASE 5, 13 and 14 are measured and DONE.**
+`verify-vocverbs.ps1` on the 28 Aug 00:53:34 install, owner's elevated
+terminal: **21 of 22 decisive rows passed**, the one failure being the entry 15
+FIXTURE, so 5, 13 and 14 passed in full and 15 and 26 never ran.
+
+**The failure was the verifier, not the product.** `LIST.INDEX <file>` with no
+index name PROMPTS (`LISTI:117`), ate the `OFF` that followed it, and the
+session sat until the 60-second timeout - while `CREATE.INDEX` had already
+printed *"Added index for F1"*. Fixed to `LIST.INDEX <file> ALL`; the fixture
+now carries three instruments (the COPY's own count, 2617, and 2620 read back)
+instead of the one that could be eaten.
+
+***THE CLASS IS THE PART WORTH KEEPING: anything driven down a pipe must NAME
+every optional argument.*** `LISTI:117`, `DELETEI:101`, `DELETEF:117` and
+`DELACC:96` each prompt when theirs is omitted, and a prompt down a pipe
+answers itself with the next command. The tell is a transcript whose last line
+is a prompt and whose next command never appears. This is the same family as
+section 6's "piping a command into sd hangs the session", reached from the
+other end: not a bare command, but a well-formed script with one argument left
+off.
+
+**No stray `sd.exe` was left** - checked after the timeout, only the normal
+`sdwind`. The aborted run left `ZZPRFSRC` and `zzprfak` behind and the
+pre-clean removes both, so the script is re-runnable unchanged.
+
+**SECOND RUN, clean: `verify-vocverbs` 36 PASS / 0 FAIL / 0 SKIP.** PRE_RELEASE
+**5, 13, 14, 15 and 26** are all measured on the 28 Aug 00:53:34 install and
+struck. Five of the eight unwitnessed fixes are closed; **22, 27 and 37 remain
+and `verify-acctmsgs.ps1` has not been run.**
+
+**Two of the five would have passed on the defect had they been tested the way
+the seventieth session's table proposed**, which is why the run is worth more
+than a tick: 26 was tested with `no.query` rather than `force`, and 13 with the
+`*` form rather than the bare one. The 14 row that carries the weight is the
+ABSENCE of 6146, not the presence of 10117 - answering the prompt reaches the
+same skip.part.
+
+**`verify-acctmsgs` 26 PASS / 0 FAIL / 1 SKIP, `-Prefix sdmsga`.** PRE_RELEASE
+**27 and 37 are measured and struck**, and **22 is half measured and
+deliberately not struck**. Seven of the eight unwitnessed fixes are now closed.
+
+**27's evidence is the audit trail read by length, controls first.** Both
+`MODIFY.ACCOUNT ADD account=... to=...` and the DELETE form appeared in the
+bytes the run added, and 10018/10021 were required in SD's own output first -
+the record is written inside `if stat = 0`, so a failed group edit would
+otherwise be indistinguishable from a missing audit record.
+
+**37's evidence is the disqualifier, not the anchor.** Both lines contain
+"ssh", so a check anchored on that would have passed on the defect; what
+carries it is that both OLD wordings are absent while 10034 and 10078 carry the
+new ones.
+
+***22'S "WINDOWS REFUSED" ARM HAS NEVER RUN, AND THE CAUSE WAS A PREMISE I
+WROTE AS FACT.*** The arm sends a 150-character password on the stated grounds
+that 127 is a hard SAM limit for a local account whatever the policy says.
+**`Set-LocalUser` accepted it** - the account was created for real, the script
+said so, removed it, and recorded SKIP rather than PASS. This host refuses
+nothing: minimum password length 0, complexity off. **Same class as "status 6 is
+harmless" on 27 Aug**: reasoned, written into a comment as though measured, and
+false. The header is corrected in place rather than deleted, because the next
+session will otherwise reason its way to the same password.
+
+**Exercising it needs a machine whose policy refuses something, or a deliberate
+temporary policy change here.** That is a change to the machine rather than to
+the test, so it is left as the owner's decision and the verifier does not make
+it. **`sdmsga` is spent; the next prefix is `sdmsgb`.**

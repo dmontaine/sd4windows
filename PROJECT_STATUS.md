@@ -5,6 +5,12 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
+**SEVENTY-FIRST SESSION, 28 Aug 2026 — SEVEN OF THE EIGHT UNWITNESSED FIXES ARE MEASURED AND STRUCK: 5, 13, 14, 15, 26, 27 AND 37.** ***`verify-vocverbs` 36 PASS / 0 FAIL; `verify-acctmsgs` 26 PASS / 0 FAIL / 1 SKIP***, both on the 28 Aug 00:53:34 install. ***ONLY PRE_RELEASE 22 IS LEFT, AND ONLY HALF OF IT***: the **mismatch** arm (10118) is measured, the ***"Windows refused the password" arm (10119) HAS NEVER RUN*** and is recorded **SKIP, not PASS**. ***THE REASON IS A PREMISE OF MINE THAT WAS WRONG***: the arm sends a 150-character password on the stated grounds that 127 is a hard SAM limit for a local account, and **`Set-LocalUser` accepted it** — measured, so the account was created for real and then deleted. This host refuses nothing (minimum length 0, complexity off). **Exercising it needs a machine whose policy refuses something, or a deliberate temporary policy change here — the owner's call, and not one a verifier should make.** ***`sdmsga` IS SPENT — use `sdmsgb`.***
+
+**SEVENTY-FIRST SESSION, 28 Aug 2026 — PRE_RELEASE 5, 13, 14, 15 AND 26 ARE MEASURED AND DONE.** ***`verify-vocverbs` 36 PASS / 0 FAIL / 0 SKIP*** on the 28 Aug 00:53:34 install, owner's elevated terminal. **Five of the eight unwitnessed fixes are struck; 22, 27 and 37 remain** and `verify-acctmsgs.ps1` has not been run. ***IT TOOK TWO RUNS, AND THE FIRST FAILURE WAS THE VERIFIER, NOT THE PRODUCT***: 21 of 22, failing on the entry 15 FIXTURE, because `LIST.INDEX <file>` with no index name **prompts** (`LISTI:117`), ate the `OFF` after it, and the session sat until the 60-second timeout — `CREATE.INDEX` had already printed *"Added index for F1"*. Fixed to `LIST.INDEX <file> ALL`, with three fixture instruments instead of one. ***THE CLASS IS WIDER THAN ONE VERB — anything driven down a pipe must NAME every optional argument***; `LISTI:117`, `DELETEI:101`, `DELETEF:117` and `DELACC:96` all prompt when theirs is omitted, and the tell is a transcript whose last line is a prompt and whose next command never appears. **No stray `sd.exe`** — checked after the timeout, only the normal `sdwind`.
+
+**SEVENTY-FIRST SESSION, 28 Aug 2026 — THE EIGHT UNWITNESSED FIXES NOW HAVE TWO VERIFIERS.** `gplbld/verify-vocverbs.ps1` (entries **5, 13, 14, 15, 26**, no accounts) and `gplbld/verify-acctmsgs.ps1` (**22, 27, 37**, four throwaway accounts) — **both need an ELEVATED shell, so neither has been run**; the commands are in START HERE with full paths. `gplbld/test-vocverbs-units.ps1` is new, needs no install, and **passed 40 of 40** driving the first script's matchers against synthetic transcripts of a fixed build *and* of the defect. All three are on `assert-current`'s `$neverShipped`, and ***`assert-current` is exit 0 live after adding them*** — the 00:53:34 install is still the one that can test the fixes, and nothing under `gplsrc`/`sdsys` was touched so that it stays that way. ***THREE OF THE SEVENTIETH SESSION'S SUGGESTED TESTS ARE WRONG*** — 26's `force` form cannot fail, 22's `a` is accepted here (minimum password length is 0), 13's bare form stops at 3290. START HERE has all three.
+
 **SEVENTIETH SESSION, 28 Aug 2026 — NINE PRE-RELEASE FIXES SHIPPED INTO AN INSTALL, ONE OF THEM MEASURED.** ***GREEN: install 28 Aug 00:53:34, `assert-current` exit 0, `verify-tiers` 33 PASS / 0 FAIL.*** Entries **5, 13, 14, 15, 22, 25, 26, 27, 37** are written, compiled and installed; ***only 25 is DONE***, because `verify-tiers` measured it (ADMINISTRATOR **416**, STANDARD and PROGRAMMER unmoved) and **nothing has exercised the other eight** — they need a session that runs `.d`, `qselect`, `delete.file`, `delete.index`, `modify.account add`, and a `create.account` with a bad password. **PRE_RELEASE 36 is RULED and not built; 41 is new** (the cleanup sweep reports zero while orphan directories remain). **Still open: 6 and 12**, both because their own entries were wrong about what they needed — 6 is an investigation, 12 is C at `op_dio3.c:853`. **`verify-tiers` gained section 6 (SUSPENDED) and `sdtier`/`sdtierb` are spent — use `sdtierc`.**
 
 **Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which ended on credit with **both repositories pushed and clean, the install green and current, and nothing half-done.** ***GREEN: install 27 Aug 22:52:21, `assert-current` exit 0, `-Run b49` 30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`*** — the one failure is PRE_RELEASE 31's known stale control. **`b49` is spent; use `b50`.** ***CLOSED THIS SESSION: PRE_RELEASE 23, 32, 33, the shipped-scripts documentation gap, item 5.1 and item 5.2's ssh door.*** ***OPEN AND ALL YOURS: seven pre-release entries — 31, 34, 36 (**RULED 27 Aug, not built — the entry says what to implement**), 37, 38, 39, 40 — plus three measurements that need no ruling: 5.2's API door, 5.4's unrun probe, and 5.5.*** Everything below is the **SIXTY-EIGHTH session** and earlier.
@@ -111,6 +117,147 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 1.0-0 GATE IS EMPTY.*** The task table above is the authority on status, not
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
+>
+> ### HANDOFF, SEVENTY-FIRST SESSION — THE WITNESSES ARE WRITTEN AND UNRUN
+>
+> ***NOTHING IS BROKEN AND NOTHING IS HALF-DONE.*** The install of **28 Aug
+> 00:53:34 is still current** — `assert-current` **exit 0 run live this
+> session, after the three new scripts were added** — so the eight fixes can
+> still be witnessed **without spending a cycle**. Nothing in `gplsrc` or
+> `sdsys` was touched, deliberately: any edit there would make the tree stale
+> and cost the install that is the only thing able to test them.
+>
+> ***TWO SCRIPTS DO THE EIGHT. THEY ARE YOURS TO RUN; I CANNOT — BOTH NEED AN
+> ELEVATED SHELL.*** Both parse 0 errors, carry no BOM, and every refusal path
+> in each was exercised unelevated and exits 2.
+>
+> **1. The five that need no account — entries 5, 13, 14, 15, 26.**
+> Leaves nothing behind; creates and removes its own fixtures inside SDSYS.
+> ***In your own terminal, ELEVATED PowerShell:***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-vocverbs.ps1
+> ```
+>
+> **2. The three that need real accounts — entries 22, 27, 37.** Creates four
+> Windows accounts and deletes all four; refuses up front if any name is taken.
+> **`sdmsga` is free — measured this session** (no Windows account, no
+> `ACCOUNTS` record, no profile directory for any of the four derived names).
+> ***In your own terminal, ELEVATED PowerShell:***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-acctmsgs.ps1 -Prefix sdmsga
+> ```
+>
+> **Neither is wired into `VerifyInstall1`, on purpose** — the second creates
+> Windows accounts, and the suite is not the place to decide when that happens.
+> They are standalone until you say otherwise.
+>
+> **`test-vocverbs-units.ps1` needs no install and no elevation** — 40 rows,
+> run and green this session. It drives the first script's matchers against
+> synthetic transcripts of a fixed build **and of the defect**, and requires
+> every pattern to tell them apart.
+>
+> ***THREE OF THE SEVENTIETH SESSION'S SUGGESTED TESTS DO NOT WORK, AND TWO OF
+> THEM WOULD HAVE SCORED A FALSE PASS.*** The table below is left as written
+> because the ENTRIES it names are right; these are corrections to the
+> *commands*, and each is why the scripts above do something different:
+>
+> - ***26 — `delete.file zzwork force` CANNOT FAIL.*** `DELETEF` guards both
+>   prompts with `if not(force)` (`:250` and `:319`), so `force` suppresses
+>   them whether or not the fix is present. The reproduction entry 26 itself
+>   describes is the **`no.query`** form, which does *not* suppress them —
+>   only the path comparison does. **A run of the `force` form would have
+>   measured nothing and reported a pass.**
+> - ***22 — the password `a` is ACCEPTED on this machine.*** `net accounts`
+>   reports **minimum password length 0**, and complexity is off by default on
+>   a client SKU, so that arm creates a real account instead of printing
+>   10119. The script drives the two arms separately: the **mismatch** arm is
+>   deterministic (`SET_PASSWD:101` compares the pair before Windows is
+>   involved), and the **refusal** arm uses a **150-character** password, past
+>   the SAM's 127-character limit for a local account. **If this host accepts
+>   even that, the arm is recorded SKIP and not PASS**, and the account is
+>   removed.
+> - **13 — `qselect voc saving 3` needs an ACTIVE select list** or it stops at
+>   `3290` (`QSELECT:196`). The script uses `QSELECT VOC * SAVING 3`, which is
+>   self-contained; a preceding `SELECT` would print a second *"selected to
+>   select list"* line, which is the wording under test.
+>
+> ***THE FIRST SCRIPT IS RUN AND GREEN — 36 PASS / 0 FAIL, ALL FIVE ENTRIES.***
+> `verify-vocverbs.ps1` on the 00:53:34 install, owner's elevated terminal.
+> **PRE_RELEASE 5, 13, 14, 15 and 26 are struck.** The evidence that is worth
+> keeping, because each is the row a lazy check would have got wrong:
+>
+> - **5** — `.D ZZPRFD` printed `Delete VOC record 'zzprfd'?`, the lower-case
+>   name from an upper-case verb. The defect could not print that line at all.
+>   **Exactly one** delete prompt fired in the session, which is the
+>   fall-through half.
+> - **13** — the message ends in a list number, nothing dangling, and it
+>   selected more than zero.
+> - **14** — 10117 printed, **6146 never asked**, and `sdsys\messages` still on
+>   disk. The absence of the question is the whole check; answering it reaches
+>   the same place.
+> - **15** — `delete.index zzprfak f1` answered *"Deleted index F1"*, and the
+>   control held: an unknown name came back **as typed**, not upcased.
+> - **26** — `delete.file zzprfw no.query` fired **neither** prompt. ***Not
+>   tested with `force`***, which is what the seventieth session's table asked
+>   for and which cannot fail.
+>
+> ***IT TOOK TWO RUNS, AND THE FIRST FAILURE WAS MINE.*** 21 of 22, failing at
+> the entry 15 FIXTURE: `LIST.INDEX <file>` with no index name PROMPTS
+> (`LISTI:117`), so it ate the `OFF` after it and the session sat until the
+> timeout — while `CREATE.INDEX` had already said *"Added index for F1"*. Fixed
+> to `LIST.INDEX <file> ALL`, and the fixture now carries three independent
+> instruments instead of the one that could be eaten.
+>
+> ***THE CLASS, WHICH IS THE PART WORTH KEEPING: anything driven down a pipe
+> must NAME every optional argument.*** `LISTI:117`, `DELETEI:101`,
+> `DELETEF:117` and `DELACC:96` each prompt when theirs is omitted, and a
+> prompt down a pipe answers itself with the next command. **The tell is a
+> transcript whose last line is a prompt and whose next command never appears.**
+> Same family as §6's *"piping a command into sd hangs the session"*, reached
+> from the other end: not a bare command, but a well-formed script with one
+> argument left off.
+>
+> **No stray `sd.exe`** — checked after the timeout; only the normal `sdwind`.
+> The aborted run left `ZZPRFSRC` and `zzprfak` behind and the pre-clean
+> removed both on the second run, so the script is re-runnable as it stands.
+>
+> ***THE SECOND SCRIPT IS RUN TOO — `verify-acctmsgs` 26 PASS / 0 FAIL / 1
+> SKIP, `-Prefix sdmsga`.*** **27 and 37 are struck. 22 is HALF measured and is
+> deliberately NOT struck.**
+>
+> - **27** — both `MODIFY.ACCOUNT ADD account=… to=…` and `… DELETE account=…
+>   from=…` in the bytes the run added to `sdsys/audit`, **with the controls
+>   first**: 10018 and 10021 in SD's own output, because the record is written
+>   inside `if stat = 0` and a failed edit would otherwise read as a missing
+>   audit record.
+> - **37** — 10034 *"may reach this computer only over ssh"*, 10078 *"SD routes
+>   for …: ssh and the API"*, **and both old wordings absent**. The
+>   disqualifier is what carries this one: both lines contain "ssh", so a check
+>   anchored there would have passed on the defect.
+> - **22, mismatch arm** — 10118 printed, the other three of the four messages
+>   absent, and answering `N` unwound the creation with no account and no
+>   register record left.
+>
+> ***22'S "WINDOWS REFUSED" ARM (10119) HAS NEVER RUN, AND THE REASON IS A
+> PREMISE OF MINE THAT WAS WRONG.*** The arm sends a **150-character** password
+> on the stated grounds that 127 is a hard SAM limit for a local account
+> whatever the policy says. ***`Set-LocalUser` ACCEPTED IT*** — so the account
+> was created for real, the script said so, removed it, and recorded **SKIP**.
+> **This is the "measure before writing the comment" trap**: the limit was
+> reasoned, written as fact into the script's header, and is false here. It is
+> **corrected in place rather than deleted**, because the next session will
+> otherwise reason its way to the same password.
+>
+> **What would actually exercise it**: a machine whose policy refuses something
+> — minimum length, complexity or history — or a deliberate, temporary policy
+> change on this one. ***That is a change to the MACHINE, not to the test, so
+> it is yours and the verifier does not make it.***
+>
+> ***`sdmsga` IS SPENT. THE NEXT PREFIX IS `sdmsgb`.*** The run left nothing
+> behind — no Windows account, register record or profile directory for any of
+> the four names, read from disk rather than from what the delete reported.
 >
 > ### HANDOFF, SEVENTIETH SESSION — GREEN, PUSHED, AND EIGHT FIXES AWAIT A WITNESS
 >
