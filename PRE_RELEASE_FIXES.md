@@ -900,11 +900,36 @@ the next reader would undo it.**
    `MICRO_CONFIG_HOME`, and cannot collide with a personal micro setup in either
    direction.
 2. ***Does an SD account that only ever arrives over ssh get a profile?***
-   Windows creates one on first interactive or ssh login, so it should, but that
-   is reasoning and this entry has already been wrong once. **Measure it on an
-   `sdu_` account before relying on it**, and decide what `EDIT` does when
-   `%USERPROFILE%` is absent or unwritable — refuse with a message, or fall back
-   to a throwaway directory under `TEMP`.
+   **STILL OPEN, and the obvious evidence is a false friend.** `C:\Users` holds
+   `sdacctb48`, `sdsshb48`, `sdapiab48` and seven more from the `b48` run, which
+   looks like a yes — but every one of them is an **empty stub**: no
+   `NTUSER.DAT`, no contents. They are what `delete.account` leaves behind
+   (*"the Windows profile for X was left behind"*), not working profiles.
+   **Measure it on a live ssh session as an `sdu_` account** — `$env:USERPROFILE`
+   resolved, and a file actually created under it — before relying on it, and
+   decide what `EDIT` does when it is absent or unwritable: refuse with a
+   message, or fall back to a throwaway directory under `TEMP`.
+
+***AND A TRAP FOR WHOEVER IMPLEMENTS IT: THE PROFILE DIRECTORY IS NOT THE
+ACCOUNT NAME.*** Measured on this host, 27 Aug 2026:
+
+```
+USERNAME    = don
+USERPROFILE = C:\Users\dmont
+```
+
+**`C:\Users\` plus the login name is wrong here and would be wrong silently** —
+it would create a second, unused directory and micro would still have nowhere
+writable. Use `%USERPROFILE%`, which Windows resolves correctly, and never build
+the path from `@logname` or `$env:USERNAME`.
+
+***WHAT IS ALREADY THERE, WHICH ARGUES FOR THE OWNER'S `.micro` OVER micro's OWN
+PATH.*** `C:\Users\dmont\.config\micro` **already exists** on this host with
+`bindings.json` and `buffers/` in it — a personal micro configuration, made
+outside SD. Using micro's native `~/.config/micro` would mean SD writing
+`sdbasic.yaml` into a directory that is the user's own, and the user's personal
+settings silently changing how SD's editor behaves. **`~/.micro` is SD's,
+collides with neither, and that is the case for it.**
 
 **Whatever is chosen, `EDIT:227`'s `-backup off` and its comment block go in the
 same edit** — see the blockquote above.
