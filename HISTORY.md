@@ -39563,3 +39563,24 @@ empty because the path was wrong**, and then - with the path right - because
 `secure-account-dirs.ps1` denies `don` the account's own directory, which is
 7.15 working. An absent file in a directory that cannot be read is not evidence
 of deletion. **The record count printed first is what showed it: 0.**
+
+**Item 5.2's ssh half is done the same evening.** `ssh b48adm@localhost` while
+suspended: password accepted, **SD banner printed**, then
+`Account B48ADM is suspended` and `Connection terminated`. Restored with
+`modify.account b48adm programmer both`, the identical command let him in.
+
+***THE BANNER IS THE CONTROL AND IT IS FREE.*** It proves the session got past
+sshd and into `LOGIN`, so the refusal cannot be a password failure or an ssh
+misconfiguration wearing a suspension's clothes. **And refusing after
+authentication is the right order** - checking the tier first would tell anyone
+who can type a name which accounts exist and which are suspended, the same
+enumeration `CPROC:2639` avoids by giving one refusal for two causes.
+
+***THE API DOOR IS STILL NOT REACHED, AND IT NEEDS A DIFFERENT SHAPE OF TEST.***
+`APISRVR:507` refuses a suspended account with `sysmsg(10003)`, **the same text
+as "no such account" and "not granted"**, deliberately. So a check anchored on
+the message would match a refusal that had nothing to do with suspension - the
+exact false positive CLAUDE.md's success-wording rule describes. **Only a
+controlled pair on one account can prove it.** Filed as PRE_RELEASE 38, along
+with the finding that **the suite tests SUSPENDED on no door at all**: neither
+`verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word.

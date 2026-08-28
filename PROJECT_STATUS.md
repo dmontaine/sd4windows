@@ -400,11 +400,22 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >    intact and `ct voc micro` returns **`Record 'micro' not found`**. One kept,
 >    one gone; `basic` alone would have been consistent with a downgrade that
 >    deleted nothing. Comparison is whole-record equality, `MODIFYA:1144`.
-> 2. ***THE ssh/CONSOLE DOOR (`LOGIN`) AND THE API DOOR (`APISRVR`).*** Neither
->    has been reached. Suspend `b48adm`, `ssh b48adm@localhost` must answer
->    **`Account B48ADM is suspended`**, then `modify.account b48adm programmer
->    ssh` to restore. **Do the unsuspended attempt too** — a refusal that would
->    have happened anyway proves nothing.
+> 2. ***THE ssh DOOR (`LOGIN`) IS DONE — 27 Aug 2026, install 22:52:21.***
+>    `ssh b48adm@localhost` suspended: password accepted, **banner shown**, then
+>    ***`Account B48ADM is suspended`*** and `Connection terminated`. Restored
+>    with `modify.account b48adm programmer both`, the same command **admitted**
+>    him. ***The banner is the control*** — it proves authentication succeeded
+>    and the refusal came from `LOGIN`'s tier check, not from ssh. **Refusing
+>    after authentication is the right order**: checking first would tell anyone
+>    who can type a name which accounts exist and which are suspended.
+>    ***THE API DOOR (`APISRVR:507`) IS STILL NOT REACHED***, and it cannot be
+>    tested the same way: it refuses with `sysmsg(10003)`, **the same text as
+>    "no such account" and "not granted"**, deliberately, so the API does not
+>    enumerate the register. **Only a controlled pair on one account proves it**
+>    — connect unsuspended, suspend, connect again, restore. **The suite does
+>    not cover suspension at all**: neither `verify-tiers.ps1` nor
+>    `verify-tierapi.ps1` mentions it, so `b49` will not test what was done by
+>    hand here.
 > 3. ***BOTH EDITORS ARE DONE AND ITEM 5.3 IS CLOSED — 27 Aug, install
 >    19:37:47.*** Three runs of `micro bp ZZMARKS` unelevated, save and no-save:
 >    **it draws, it highlights, it saves with no message, `$hold` is empty

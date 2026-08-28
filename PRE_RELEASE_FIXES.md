@@ -61,6 +61,7 @@ should be fixed, **M** minor.
 | 35 | **S** | ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32. `DELETE_USER` now tries to remove it, **and MEASURED: it cannot be deleted OR renamed while the hive is mounted**, so the honest answer is the rewritten `10075`, which names the cause and the restart. **Cure is 36** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
 | 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — the ROOT CAUSE of 32 and 35. **Mechanism confirmed: `Remove-CimInstance` failed on a mounted hive, then cleared `53 removed, 0 failed` after a restart.** Nothing SD does can unmount them. **Two decisions for the owner, neither built** | Windows lifecycle; `gplbld/clean-test-profiles.ps1` |
 | 37 | **S** | ***`create.account` prints two lines that contradict each other***: with `both` it says *"may sign in over ssh only"* then *"may sign in over ssh and use the API"*. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD route keywords (`:1612`) — worded so nothing tells the reader that. Wording fix, no logic change | `messages/10034`, `10076`, `10078` |
+| 38 | **M** | ***The suite tests SUSPENDED on no door at all*** — neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word. ssh and `logto` are now measured by hand; **the API door has never been reached** and cannot be tested by wording, since `APISRVR:507` refuses with the same `sysmsg(10003)` as every other refusal. **Needs a controlled pair.** `$neverShipped`, no cycle | `gplbld/verify-tiers.ps1`, `verify-tierapi.ps1` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1547,3 +1548,34 @@ this one looks broken.
 ssh, not the API"* for the keyword. Nothing in `CREATEA` changes.
 
 **Not upstream's** — both messages and both gates are Windows-port work.
+
+## 38. The suite does not test SUSPENDED on any door — **M** (verifier gap, not product)
+
+Found 27 Aug 2026 after items 5.1 and 5.2 were taken by hand on the 22:52:21
+install. **Neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the
+word `suspend`**, so a suite run exercises none of the three doors the
+SUSPENDED tier closes.
+
+***THE PRODUCT IS FINE — ALL THREE DOORS EXIST AND TWO ARE NOW MEASURED.***
+
+| door | where | state |
+|---|---|---|
+| `LOGIN` — ssh and console | `LOGIN` | ***measured 27 Aug***: banner shown, then `Account B48ADM is suspended`, then admitted again after restore |
+| `logto` | `CPROC:3708` `logto.authorised` | measured earlier: `Account B48SUSP is suspended` |
+| API | `APISRVR:507` | ***never reached*** |
+
+***THE API DOOR CANNOT BE TESTED BY ITS WORDING, AND THAT IS BY DESIGN.*** It
+refuses with `sysmsg(10003)` — **the same text as "no such account" and "not
+granted"** — so a caller cannot tell which of the three applied and the API does
+not enumerate the register's state for an attacker. **A check that anchors on
+the message would therefore be a false positive**, matching a refusal that had
+nothing to do with suspension. ***The only valid shape is a controlled pair on
+one account***: connect while unsuspended and succeed, suspend, connect again
+and fail, restore. Either half alone proves nothing — a refusal that would have
+happened anyway, or a success that never tested the gate.
+
+**`verify-tiers.ps1` is where the ssh and `logto` cases belong** and
+`verify-tierapi.ps1` the API one. This is `$neverShipped` work and needs no
+cycle. It is also what PRE_RELEASE 19 asks for: it lists what
+`verify-tierchange.ps1` must cover, and the behaviour is known now rather than
+guessed at.
