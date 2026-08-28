@@ -39713,3 +39713,36 @@ produce it**, and the fix that closed it is already in place:
 
 **Recorded as a negative result so an old transcript does not reopen it.** A
 log written before rev 0.9.1 still shows the staircase and always will.
+
+## 28 Aug 2026 - Seventieth session: nine fixes into an install, one measured
+
+**Commit:** the commit carrying this entry.
+
+**Ended green and pushed at `4735957`.** Install 28 Aug 00:53:34,
+`assert-current` exit 0, `verify-tiers` 33 PASS / 0 FAIL.
+
+**Nine pre-release entries written, compiled and installed** - 5, 13, 14, 15,
+22, 25, 26, 27, 37 - batched deliberately onto one cycle, because a cycle is
+the scarce resource and "a cycle ends at the next source change" makes any
+other order wasteful. ***Only 25 is struck***: `verify-tiers` measured it and
+the other eight have not been run. Compiling is not running.
+
+**PRE_RELEASE 36 ruled by the owner and not built** - keep both halves on
+failure, reclaim from a sweep at SD service start, `create.account` refuses on
+an existing directory. **41 filed**: the cleanup sweep's counter and cleaner
+share one `Win32_UserProfile` enumeration, so it reported *"every section
+reached zero"* with three orphan directories on disk.
+
+**Two entries were wrong about their own fix and are corrected in place.** 12
+is C at `op_dio3.c:853`, not a message edit; 38 named `verify-tiers.ps1` for the
+`logto` door, which that verifier cannot test because the check sits after
+`CPROC:3729`'s elevated bypass and the script must be elevated.
+
+**`verify-tiers` gained section 6**, covering the SUSPENDED record, the VOC
+across `UPDATE.ACCOUNT`, and the write-once guard on `ACC$PRIOR.TIER` that
+PRE_RELEASE 21 left unmeasured. It prints the three doors as NOT tested rather
+than scoring them.
+
+**Two predictions were written before their runs and both held** - the
+post-reboot sweep (7 removed, the 3 entry-less directories survived) and the
+`encrypt.field` removal (ADMINISTRATOR 416, the other two counts unmoved).

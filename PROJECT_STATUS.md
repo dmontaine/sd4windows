@@ -112,6 +112,64 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > this box. **`H.2` — documentation — is the only open row, and section 7 has
 > nothing left in it.**
 >
+> ### HANDOFF, SEVENTIETH SESSION — GREEN, PUSHED, AND EIGHT FIXES AWAIT A WITNESS
+>
+> ***NOTHING IS BROKEN AND NOTHING IS HALF-DONE.*** Repository pushed and clean
+> at `4735957`. **Install 28 Aug 00:53:34, `assert-current` exit 0,
+> `verify-tiers` 33 PASS / 0 FAIL.** `sd.exe` `DF77FD6D61DE5184` unmoved —
+> everything this session changed is BASIC, messages and one deleted VOC record.
+>
+> ***START HERE: EIGHT FIXES ARE INSTALLED AND NOBODY HAS RUN THEM.*** They
+> compiled and they shipped; that is not the same as working, and the install
+> is current **now**. Another cycle only puts them back in this state. Each is
+> one command in an ordinary SD session:
+>
+> | entry | what to type | what proves it |
+> |---|---|---|
+> | **5** | save a paragraph as `daily`, then `.d DAILY` | it deletes. Then `.d nosuchname` must say **not found in VOC**, not act on a stale record |
+> | **13** | `qselect voc saving 3` | the message ends with **a list number**, not a dangling *"select list "* |
+> | **14** | `delete.file <a file whose part is in SDSYS> no.query` | it does **not** prompt, prints **10117**, and leaves the system file |
+> | **15** | `create.index`, then `delete.index zzak f1` in **lower case** | it deletes. A genuinely unknown name must still echo **as typed** |
+> | **22** | `create.account user zztest programmer both`, give a password Windows refuses (`a`) | **10119**, not a bare retry. Mismatched pair gives **10118** |
+> | **26** | `create.file zzwork`, then `delete.file zzwork force` in lower case | **neither** DATA nor DICT prompt fires |
+> | **27** | `modify.account <acc> add <user>`, then read the audit file | a `MODIFY.ACCOUNT ADD account=… to=…` record exists |
+> | **37** | `create.account user zztest2 programmer both` | the two lines name **different subjects** and no longer contradict |
+>
+> **Then strike them in PRE_RELEASE_FIXES.md** — they are marked *COMPILED AND
+> INSTALLED — UNTESTED* on purpose, and only **25** is struck, because
+> `verify-tiers` measured it.
+>
+> ***WHAT IS OPEN: 30 ENTRIES.*** Of the eleven-entry batch, **6 and 12 remain,
+> and both entries were WRONG about what they needed** — 6 is an investigation
+> (the `C:` directory is remade by every install; no install-time `CREATE.FILE`
+> exists and the parser fix predates it), and 12 is a **C** change at
+> `gplsrc/op_dio3.c:853`, not the message-only edit its entry claims.
+> **PRE_RELEASE 36 is RULED and NOT BUILT** — the entry's first block is the
+> spec. **41 is new**: the cleanup sweep reports *"every section reached zero"*
+> while orphan directories remain, because its counter and its cleaner share one
+> blind `Win32_UserProfile` enumeration.
+>
+> ***MACHINE STATE, MEASURED AT HANDOFF.*** `C:\Users` holds only `b48adm`
+> besides the built-ins — **its Windows account is live and its SD account was
+> destroyed by the cycle**, which is the 32/35/36 shape and was predicted before
+> the run. SD register: `don`, `sdsys`, `sdtier1/2/3` — the last three are
+> `verify-tiers` residue left deliberately. ***`sdtier` AND `sdtierb` ARE SPENT;
+> USE `sdtierc`.*** `b48tier`, `b48susp` and `b48adm`'s SD halves are gone.
+>
+> ***THREE TRAPS THIS SESSION PAID FOR.***
+>
+> 1. ***NEVER REWRITE A TRACKED FILE WITH POWERSHELL `Set-Content`.*** Used for
+>    a two-row table swap, it read the UTF-8 file as CP1252 and wrote it back
+>    double-encoded — **all 272 em dashes became `â€"`** — plus a BOM and CRLF
+>    throughout. **The mojibake is silent**; stripping the CRs made the diff
+>    *smaller*, which reads like progress. Recovery is `git checkout` and redo
+>    with the editing tools.
+> 2. ***A CONSTANT TYPED INTO A LABEL DRIFTS FROM THE VALUE BESIDE IT.*** A
+>    `verify-tiers` row printed *"the 21 administration verbs are still
+>    ABSENT … 20 20 PASS"*. Interpolate the count; never type it.
+> 3. **`grep -l '\n'` matches the letter `n`**, so it "found" the escape in
+>    nearly every message file. Use `grep -F`.
+>
 > ### HANDOFF, SIXTY-NINTH SESSION — NOTHING IS BROKEN, NOTHING IS HALF-DONE
 >
 > ***THE SESSION ENDED ON CREDIT.*** Both repositories **pushed and clean**, the
