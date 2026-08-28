@@ -64,6 +64,7 @@ should be fixed, **M** minor.
 | 38 | **M** | ***The suite tests SUSPENDED on no door at all*** — neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word. ssh and `logto` are now measured by hand; **the API door has never been reached** and cannot be tested by wording, since `APISRVR:507` refuses with the same `sysmsg(10003)` as every other refusal. **Needs a controlled pair.** ***28 Aug: `verify-tiers.ps1` section 6 written and UNRUN — the record, the write-once guard 21 left unmeasured, and the VOC. It CANNOT test the `logto` door: the check sits after `CPROC:3729`'s elevated bypass and this verifier must be elevated. Doors still uncovered*** | `gplbld/verify-tiers.ps1`, `verify-tierapi.ps1` |
 | 39 | **B?** | ***Uninstalling strips SD's `AllowGroups` and `ForceCommand` and leaves every account SD created*** — so each becomes an ordinary ssh-reachable account with a PowerShell shell. `sd.iss` removes no account anywhere; the closing disclosure does not mention them. **Reasoned from source, not measured — run an uninstall first.** Owner's call | `gplbld/sd.iss:3367`, the closing disclosure |
 | 40 | **M** | ***A verifier's transcript keeps recording the verifiers that run after it*** — `verify-sshonly-*.log` carried `verify-apiadmin`'s `[FAIL]` rows and the whole suite's summary. `Start-Transcript` with no matching stop, **15 of 33 verifiers**. Count from the runner's per-step captures, not these. `$neverShipped`, no cycle | `gplbld/verify-sshonly.ps1:161` and 14 others |
+| 41 | **M** | ***The cleanup sweep reports "every section reached zero" while three orphan directories are still on disk*** — the counter and the cleaner share one `Win32_UserProfile` enumeration, which reads from `ProfileList`, so a directory whose entry is gone is invisible to both. **Measured 28 Aug: `7 -> 0` and "done" with `sdapiab49`, `sdapiidb49`, `sdapinb49` still there.** Fix is a direct `C:\Users` scan reported as UNREACHABLE, not a bigger delete. **36's boot sweep must not inherit it** | `gplbld/clean-test-profiles.ps1:223`, `cleanup-devlitter.ps1` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1626,6 +1627,19 @@ rather than an observation.*** `clean-test-profiles.ps1:223` enumerates
 The reported count may exceed 7: `ProfileList` entries outlive their
 directories, and 33 of the 53 cleared on 27 Aug were exactly that.
 
+***THE PREDICTION HELD ON EVERY ROW, 28 Aug 2026.*** Reboot, then
+`cleanup-devlitter.ps1` elevated: **`removed 7, failed 0`**, and the seven
+named are the seven predicted. `b48adm` untouched. ***And `sdapiab49`,
+`sdapiidb49` and `sdapinb49` are still on disk***, read back independently
+after the run.
+
+**So the untrackable state is demonstrated end to end**: created by a delete,
+invisible to the tool built to clean it, removable only by hand. That is the
+cost of removing the `ProfileList` entry when the directory cannot go, and it
+is what the ruling above avoids. ***The boot sweep specified in the ruling must
+enumerate the DIRECTORY, not `ProfileList`, or it inherits this exact hole*** —
+see PRE_RELEASE 41.
+
 ***THE OPERATIONAL RULE IS THEREFORE UNCHANGED AND NOW HAS ITS REASON:*** the
 reboot in the middle of `cleanup-devlitter.ps1` is not about the accounts pass
 at all. **It is what makes the profile pass possible**, and running the sweep
@@ -1842,3 +1856,52 @@ own capture is PASS 20, `[FAIL]` 0.
 
 **The fix is a `try`/`finally` around each verifier's body**, or a
 `Stop-Transcript` at every exit path. `$neverShipped`, no cycle.
+
+## 41. The cleanup sweep reports "every section reached zero" on a machine that still has orphan directories — **M** (dev tooling, not product)
+
+Found 28 Aug 2026 by writing a prediction before the run and reading `C:\Users`
+back afterwards, which is the only reason it was found at all: the tool's own
+output said the machine was clean.
+
+***MEASURED, ONE RUN.*** `cleanup-devlitter.ps1` elevated, after a reboot:
+
+```
+  profiles matching    : 7 -> 0
+cleanup-devlitter: done - every section reached zero.
+```
+
+***AND THREE ORPHAN DIRECTORIES WERE STILL THERE*** — `sdapiab49`,
+`sdapiidb49`, `sdapinb49`, read back independently, the Windows account gone
+for all three.
+
+***THE CAUSE IS THAT THE COUNTER AND THE CLEANER SHARE ONE BLIND
+ENUMERATION.*** `clean-test-profiles.ps1:223` builds its work list from
+`Get-CimInstance Win32_UserProfile`, which enumerates from the `ProfileList`
+registry key. A directory whose entry has been removed is not a
+`Win32_UserProfile` object, so it is invisible **twice**: the sweep cannot clean
+it, and the BEFORE/AFTER block cannot count it. **The AFTER figure is not a
+measurement of the machine — it is a measurement of the same list the cleaner
+has just emptied**, and it can only ever read zero.
+
+***THE NAMES WERE NEVER THE PROBLEM.*** `sdapia`, `sdapiid` and `sdapin` are
+all in the script's own pattern, printed at the top of its own run. The filter
+would have matched them. Only the source of the list missed them.
+
+**This is the instrument rule's named failure**: a test that passes because it
+did nothing must fail, not pass. Here it reported zero because it could not
+reach the thing it was reporting on.
+
+***THE FIX IS CHEAP AND IT IS NOT "ALSO DELETE THEM".*** Scan `C:\Users`
+directly with the pattern the script already reads out of
+`clean-test-profiles.ps1`, subtract the paths `Win32_UserProfile` yielded, and
+**report the difference as UNREACHABLE with the reason** — no `ProfileList`
+entry, so nothing that enumerates profiles will ever see it. Whether it then
+deletes them is a separate decision; **what it must not do is report zero.**
+
+***AND PRE_RELEASE 36'S BOOT SWEEP MUST NOT INHERIT THIS.*** The ruling there
+keeps both halves precisely so the profile stays enumerable — but a sweep built
+on `Win32_UserProfile` would still be blind to every directory already in this
+state on a customer's machine. **It has to enumerate the directory.**
+
+`$neverShipped`, no cycle. Neither script is installed — checked against
+`assert-current.ps1:471` and the 26 shipped scripts under `C:\Program Files\SD`.
