@@ -40037,3 +40037,51 @@ with a pointer to 38 would have been tidy while quietly moving a release blocker
 onto a minor entry. So 19 is open, `B`, and not to be struck, folded or
 downgraded on the strength of its other six rows being measured. **What closes
 it is coverage of `LOGIN:477`, `CPROC:3776` and `APISRVR:507` - not argument.**
+
+## 28 Aug 2026, seventy-first session - the SUSPENDED door pair, written and unrun
+
+`gplbld/verify-doors-admin.ps1` (elevated fixture) and `gplbld/verify-doors.ps1`
+(unelevated measurement), for PRE_RELEASE 19's last row and 38.
+
+***A PAIR, LIKE THE SUITE, BECAUSE THE TWO HALVES NEED OPPOSITE TOKENS.*** The
+fixture needs elevation - CREATE.ACCOUNT and MODIFY.ACCOUNT are
+`K$ADMINISTRATOR`, seeded from IsElevated() at process start. The measurement
+must NOT have it: `logto` reaches its suspension test only after CPROC:3729's
+elevated bypass, so an elevated session enters a suspended account correctly.
+**`verify-doors.ps1` refuses to run elevated** and says why. That is the same
+split, and the same reason, as VerifyInstall1 / VerifyInstall2.
+
+**Five phases: Create -> Control -> Suspend -> Refused -> Remove**, each
+printing the next command with its elevation verdict. ***The control leg is not
+a formality***: a door that refuses BEFORE the suspension makes its later
+refusal worthless, and the likeliest causes are mundane - a wrong password, or
+the caller not in the account's group. The script says STOP in those words.
+
+**Three things that a first attempt would have got wrong:**
+
+- ***The ssh refusal is SD's, not sshd's.*** Suspension moves no Windows group,
+  so ssh authenticates in BOTH phases and ForceCommand starts SD in both. The
+  anchor is 10107 IN THE SESSION OUTPUT, not an ssh failure - a run where ssh
+  itself failed would be measuring a different defect and scoring it a pass.
+  The Suspend phase asserts the account is STILL IN sdssh for that reason,
+  which is also MODIFYA:98's claim that suspension "changes nothing else".
+- ***The caller is added to the account's group at Create.*** Without it `logto`
+  is refused as "not allowed in requested account" in BOTH legs, so the refusal
+  proves nothing. Adding them makes the suspension the only variable. Measured
+  first: `$env:USERNAME` here is `don`, who IS in sdusers, and Create refuses if
+  the caller is not - otherwise MODIFY.ACCOUNT ADD answers 10020 and the control
+  leg fails for a reason that is not the one under test.
+- ***The API door cannot identify itself, and the script says so rather than
+  pretending otherwise.*** 10003 is deliberately what "no such account" and
+  "not granted" also answer. Only the controlled pair distinguishes it.
+
+**It does not touch `sd.conf`.** APIPORT=4243 was measured on and listening, so
+the door is reachable as the machine stands; if it were not, that door records
+SKIP. verify-tierapi.ps1 turns the port on and restores it, which is a bigger
+footprint than this needs - and a verifier that restarts SD to measure a refusal
+has changed the thing it is measuring.
+
+**Written and UNRUN**: parse 0 errors, no BOM, 8 identical `Write-Verdict`
+copies, 126 of 126 verdict assertions, every refusal path exercised. `sddr1` is
+free. **19 stays `B` until the pair has run and passed** - a written verifier is
+not coverage.

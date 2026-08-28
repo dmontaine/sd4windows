@@ -324,6 +324,56 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **unelevated** and **over ssh** — which is why the suite is split into
 > `VerifyInstall1` and `VerifyInstall2` in the first place.
 >
+> ### THE DOOR PAIR IS WRITTEN AND UNRUN — `verify-doors-admin.ps1` + `verify-doors.ps1`
+>
+> ***A PAIR, LIKE THE SUITE, BECAUSE THE TWO HALVES NEED OPPOSITE TOKENS.***
+> The fixture needs an **elevated** process (`CREATE.ACCOUNT` and
+> `MODIFY.ACCOUNT` are `K$ADMINISTRATOR`); the measuring must be **unelevated**,
+> because `logto` reaches its suspension test only *after* `CPROC:3729`'s
+> elevated bypass. **`verify-doors.ps1` refuses to run elevated** and says why —
+> measuring that door from an elevated session would report the design working
+> as a fault, which is the mistake `verify-tiers` section 6 declines to make.
+>
+> ***FIVE COMMANDS, AND EACH PHASE PRINTS THE NEXT ONE.*** `sddr1` is free —
+> measured. Start ELEVATED:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr1 -Phase Create
+> ```
+>
+> It prints the generated password and the exact unelevated command to run
+> next. The order is **Create → Control (unelevated) → Suspend → Refused
+> (unelevated) → Remove**.
+>
+> ***THE CONTROL LEG IS NOT A FORMALITY.*** If a door refuses *before* the
+> suspension, its refusal after one proves nothing — and the likeliest causes
+> are mundane, a wrong password or the caller not in the account's group. The
+> script says STOP in those words rather than carrying on.
+>
+> **Three things it gets right that a first attempt would not:**
+>
+> - ***The ssh refusal is SD's, not sshd's.*** Suspension moves no Windows
+>   group, so ssh authenticates in **both** phases and `ForceCommand` starts SD
+>   in both. The anchor is **10107 in the session output**, not an ssh failure —
+>   a run where ssh itself failed would be measuring a different defect and
+>   scoring it as a pass. The Suspend phase asserts the account is **still in
+>   `sdssh`** for that reason.
+> - ***The caller is added to the account's group at Create.*** Without it
+>   `logto` is refused as *"not allowed in requested account"* in **both** legs,
+>   and the refusal proves nothing. Adding them makes the suspension the only
+>   thing that changes.
+> - ***The API door cannot identify itself and the script says so.*** `10003` is
+>   deliberately what *"no such account"* and *"not granted"* also answer. Only
+>   the controlled pair distinguishes it, and the file states that instead of
+>   pretending the refusal is self-identifying.
+>
+> **It does not touch `sd.conf`.** `APIPORT=4243` was measured on and listening;
+> if it were not, that door records **SKIP**. A verifier that restarts SD to
+> measure a refusal has changed the thing it is measuring.
+>
+> **Parse 0 errors, no BOM, 8 identical `Write-Verdict` copies, 126 of 126
+> verdict assertions, every refusal path exercised. Neither half has met SD.**
+>
 > ### the original hand-over, kept for the reasoning
 >
 > **PRE_RELEASE 19 is a `B`, and correcting it was worth more than believing

@@ -597,6 +597,18 @@ API, which answers 10003 and must stay indistinguishable from *"no such
 account"*. Until something exercises all three against a genuinely suspended
 account, this is a blocker.
 
+***THE VERIFIER FOR THEM IS WRITTEN AND UNRUN, 28 Aug 2026*** —
+`gplbld/verify-doors-admin.ps1` (elevated fixture) and `gplbld/verify-doors.ps1`
+(unelevated measurement). **A pair, because the halves need opposite tokens**,
+and the measuring half **refuses to run elevated**: `logto` reaches its
+suspension test only after `CPROC:3729`'s bypass, so an elevated session enters
+a suspended account correctly and a door test written there would report the
+design as a fault. Five phases — **Create → Control → Suspend → Refused →
+Remove** — with the control leg mandatory, because a door that refuses *before*
+the suspension makes its later refusal worthless. **`-Prefix sddr1` is free.**
+***THIS ENTRY STAYS `B` UNTIL THAT PAIR HAS RUN AND PASSED*** — a written
+verifier is not coverage.
+
 Built 27 Aug 2026, sixty-sixth session. `MODIFY.ACCOUNT` gained four tier
 keywords, `SUSPENDED` became a fourth `ACC$TIER` value with `ACC$PRIOR.TIER`
 (field 6) beside it, and three doors learnt to refuse a suspended account.
