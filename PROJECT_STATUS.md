@@ -5,7 +5,9 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-***SEVENTY-SECOND SESSION, 28 Aug 2026 — THE THREE DOORS ARE COVERED AND PRE_RELEASE 19 IS CLOSED.*** The `verify-doors` pair ran end to end on `sddr2` and **every leg passed**: `Create` 8/8, ***`Control` 6/6 — ssh, `logto` and the API ALL ADMITTED*** — `Suspend` 5/5, ***`Refused` 4/4 — ALL THREE REFUSED***. `LOGIN:477` and `CPROC:3776` said it in SD's own words (10107), **ssh after the banner** so authentication had succeeded and the refusal is SD's, with the account **still in `sdssh`** so no Windows group moved. ***THE API DOOR WAS REACHED FOR THE FIRST TIME***, and since it cannot identify its own refusal, **the controlled pair is the proof**: same account, same password, same call, admitted then refused, the suspension the only change. ***THE OWNER'S RULING — "19 stays B until the doors are covered" — IS SATISFIED BY A PASSING RUN RATHER THAN BY ARGUMENT.*** ***THE FIRST CONTROL RUN FAILED, AND THE FAULT WAS THE VERIFIER***: `CREATE.ACCOUNT` prompts for the **Windows** password, which is what sshd checks, while the API does SCRAM against a PBKDF2 verifier in `sdsys\$cred` that **only `MODIFY.PASSWORD` writes** — route granted, credential absent, with the account already in `sdapi`. `Create` now sets it; **SD confirmed the diagnosis in its own words**: *"Account SDDR2A has no password set. Setting the first one."* **The product half is PRE_RELEASE 42, open, the owner's call.** ***BOTH UNELEVATED LEGS WERE RUN BY THE AGENT***, its token measured first (`IsInRole(Administrator)` **False**). **`sddr1` and `sddr2` are spent — a prefix is single-use once its account has reached the Control leg.** `gplbld` and docs only, **no cycle**, `assert-current` **exit 0**.
+***SEVENTY-THIRD SESSION, 28 Aug 2026 — THE CYCLE RAN, THE SUITE RAN, AND THE DOOR STEP FAILED TWICE. ONE FAULT IS FIXED; THE OTHER RE-OPENS PRE_RELEASE 19.*** ***INSTALL 28 Aug 15:29:59, `assert-current` exit 0 live*** — the owner's cycle shipped PRE_RELEASE 42 (`CREATEA`, `SET_PASSWD`, message 10122). ***FAULT 1, FIXED — PRE_RELEASE 43***: `verify-doors-suite.ps1` passed `'-Password', ''` for Suspend and Remove, and **`Start-Process -ArgumentList` carries `[ValidateNotNullOrEmpty()]`, which on a COLLECTION validates every ELEMENT** — one `''` rejects the whole list and **nothing elevates**. Create carried a password and ran 8/8; Suspend and Remove died before their UAC prompt. The pair is built conditionally now, the argv and its count are printed, an empty element is refused by name, and `gplbld/test-doorsargv-units.ps1` guards it — **35/35, and its positive control against a copy carrying the old form fails 27/8.** ***FAULT 2, AND IT IS THE INSTRUMENT — PRE_RELEASE 19 IS RE-OPENED ON ONE ROW OF SEVEN***: `verify-doors.ps1:255` anchored *"logto entered the account"* on the account name **anywhere in the transcript**, and the session echoes what it is fed. **On the b50 Control leg SD printed 5161 *"Unable to change to new directory"* and `WHO` answered `91 DON`, and the row scored PASS** — as it did on `sddr2`, which is what *"logto ADMITTED"* below rests on. **The check now anchors on `WHO`'s answer with 5161 as a disqualifier**, both directions measured against the real transcript. ***THE CAUSE IS PRE_RELEASE 44 AND IT IS WINDOWS, NOT SD***: `don` is in `sdu_sddrb50a` **on the machine** and **not in his token**, which was fixed at logon — measured both ways, with `sdusers` present as the control. **ssh and the API authenticate afresh and are unaffected; the REFUSAL half of all three doors still stands**, because `logto.authorised` runs at `CPROC:2679`, before the chdir at `:2691`. ***ON THE MACHINE NOW: `sddrb50a` IS LIVE, ENABLED AND UNSUSPENDED*** in `sdusers`, `sdssh` and `sdapi` — the Remove leg never ran. **START HERE has the command that takes it away.**
+
+***SEVENTY-SECOND SESSION, 28 Aug 2026 — THE THREE DOORS ARE COVERED AND PRE_RELEASE 19 IS CLOSED.*** *(Corrected 28 Aug 2026 by the seventy-third session: the `logto` door was not covered — see above. The ssh and API doors, and all three refusals, stand.)* The `verify-doors` pair ran end to end on `sddr2` and **every leg passed**: `Create` 8/8, ***`Control` 6/6 — ssh, `logto` and the API ALL ADMITTED*** — `Suspend` 5/5, ***`Refused` 4/4 — ALL THREE REFUSED***. `LOGIN:477` and `CPROC:3776` said it in SD's own words (10107), **ssh after the banner** so authentication had succeeded and the refusal is SD's, with the account **still in `sdssh`** so no Windows group moved. ***THE API DOOR WAS REACHED FOR THE FIRST TIME***, and since it cannot identify its own refusal, **the controlled pair is the proof**: same account, same password, same call, admitted then refused, the suspension the only change. ***THE OWNER'S RULING — "19 stays B until the doors are covered" — IS SATISFIED BY A PASSING RUN RATHER THAN BY ARGUMENT.*** ***THE FIRST CONTROL RUN FAILED, AND THE FAULT WAS THE VERIFIER***: `CREATE.ACCOUNT` prompts for the **Windows** password, which is what sshd checks, while the API does SCRAM against a PBKDF2 verifier in `sdsys\$cred` that **only `MODIFY.PASSWORD` writes** — route granted, credential absent, with the account already in `sdapi`. `Create` now sets it; **SD confirmed the diagnosis in its own words**: *"Account SDDR2A has no password set. Setting the first one."* **The product half is PRE_RELEASE 42, open, the owner's call.** ***BOTH UNELEVATED LEGS WERE RUN BY THE AGENT***, its token measured first (`IsInRole(Administrator)` **False**). **`sddr1` and `sddr2` are spent — a prefix is single-use once its account has reached the Control leg.** `gplbld` and docs only, **no cycle**, `assert-current` **exit 0**.
 
 ***SEVENTY-FIRST SESSION, 28 Aug 2026 — PRE_RELEASE 10, 40 AND 41 ARE DONE. TWELVE ENTRIES CLOSED TODAY.*** All three are `gplbld` only, **no cycle**, and `assert-current` is **exit 0** after all of it. ***10 WAS NOT "TWO VERIFIERS" — IT WAS 23 FILES AND 24 OCCURRENCES, AND IT WAS STILL SPREADING***: three of the 23 were written the same day by copying `probe-catprivate.ps1`'s `Invoke-SD` *"unchanged"*. All converted to `([char]27 + …)`, and **guarded by a test rather than 23 comments** — `test-verdict-units.ps1` scans the whole directory, **tokenising rather than grepping**, because the first version failed on two files whose *comments* correctly quote the dead form. ***40 IS FIXED IN THE TWO RUNNERS, NOT IN FIFTEEN VERIFIERS***: they close what a step left open, **name the step that leaked**, and `VerifyInstall1` restores its own with `-Append` — one place, and it also covers the case a `try`/`finally` does not, a step that dies outright. ***41'S POSITIVE CONTROL FOUND A SAFETY BUG IN 41'S OWN FIX***: under a permissive pattern the new `C:\Users` scan returned **`All Users`, a junction to `C:\ProgramData`**, for which the code prints `Remove-Item -Recurse -Force`. **Reparse points are now excluded in both copies.**
 
@@ -19,7 +21,7 @@ something came to be the way it is.
 
 **SEVENTIETH SESSION, 28 Aug 2026 — NINE PRE-RELEASE FIXES SHIPPED INTO AN INSTALL, ONE OF THEM MEASURED.** ***GREEN: install 28 Aug 00:53:34, `assert-current` exit 0, `verify-tiers` 33 PASS / 0 FAIL.*** Entries **5, 13, 14, 15, 22, 25, 26, 27, 37** are written, compiled and installed; ***only 25 is DONE***, because `verify-tiers` measured it (ADMINISTRATOR **416**, STANDARD and PROGRAMMER unmoved) and **nothing has exercised the other eight** — they need a session that runs `.d`, `qselect`, `delete.file`, `delete.index`, `modify.account add`, and a `create.account` with a bad password. **PRE_RELEASE 36 is RULED and not built; 41 is new** (the cleanup sweep reports zero while orphan directories remain). **Still open: 6 and 12**, both because their own entries were wrong about what they needed — 6 is an investigation, 12 is C at `op_dio3.c:853`. **`verify-tiers` gained section 6 (SUSPENDED) and `sdtier`/`sdtierb` are spent — use `sdtierc`.**
 
-**Last updated:** 28 Aug 2026, **SEVENTY-FIRST session**, which ended **out of credit mid-task, green and pushed at `67cf316`**. ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST AND PRINT THE TWO COMMANDS IT OPENS WITH — the owner is waiting for them.*** Thirteen pre-release entries closed; **no cycle was spent all session**, so the 28 Aug 00:53:34 install is still the one that can test things. Everything below this line is the **SIXTY-NINTH session** and earlier.
+**Last updated:** 28 Aug 2026, **SEVENTY-THIRD session** — install **28 Aug 15:29:59**, `assert-current` **exit 0**, the suite's twelve unelevated steps all exit 0 and **the thirteenth (the door step) failed**; two faults found, one fixed, one re-opening PRE_RELEASE 19. ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST.*** *(Previously: 28 Aug 2026, **SEVENTY-FIRST session**, which ended **out of credit mid-task, green and pushed at `67cf316`**.)* ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST AND PRINT THE TWO COMMANDS IT OPENS WITH — the owner is waiting for them.*** Thirteen pre-release entries closed; **no cycle was spent all session**, so the 28 Aug 00:53:34 install is still the one that can test things. Everything below this line is the **SIXTY-NINTH session** and earlier.
 
 **Previously:** 27 Aug 2026, **SIXTY-NINTH session**, which ended on credit with **both repositories pushed and clean, the install green and current, and nothing half-done.** ***GREEN: install 27 Aug 22:52:21, `assert-current` exit 0, `-Run b49` 30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`*** — the one failure is PRE_RELEASE 31's known stale control. **`b49` is spent; use `b50`.** ***CLOSED THIS SESSION: PRE_RELEASE 23, 32, 33, the shipped-scripts documentation gap, item 5.1 and item 5.2's ssh door.*** ***OPEN AND ALL YOURS: seven pre-release entries — 31, 34, 36 (**RULED 27 Aug, not built — the entry says what to implement**), 37, 38, 39, 40 — plus three measurements that need no ruling: 5.2's API door, 5.4's unrun probe, and 5.5.*** Everything below is the **SIXTY-EIGHTH session** and earlier.
 
@@ -117,69 +119,96 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩ THE TREE IS STALE. A CYCLE IS OWED BEFORE ANYTHING CAN BE TESTED. ⇩
+> # ⇩ A LIVE ACCOUNT IS SITTING ON THE MACHINE. REMOVE IT FIRST. ⇩
 >
-> ***HANDOFF, SEVENTY-SECOND SESSION, 28 Aug 2026.*** ***BOTH OF THE OWNER'S
-> RULINGS ARE IMPLEMENTED AND NEITHER HAS RUN.*** The first `sdsys` change
-> since the 00:53:34 install went in, so **`assert-current` now fails by
-> design** and every verifier that calls it will refuse. **Nothing is
-> half-done; it is finished and unproven.**
+> ***HANDOFF, SEVENTY-THIRD SESSION, 28 Aug 2026.*** The cycle ran, the suite
+> ran, **twelve unelevated steps exited 0 and the thirteenth — the new door
+> step — failed.** Two faults, one in the wrapper and one in the instrument.
+> **The install is current and `assert-current` is exit 0**; nothing is
+> half-done.
 >
-> ***TWO COMMANDS, IN THIS ORDER.***
->
-> **1. ELEVATED PowerShell — and stay at the wizard, the installer is not
-> silent:**
+> ***1. THE FIRST COMMAND IS A CLEAN-UP, NOT A TEST. ELEVATED PowerShell:***
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddrb50 -Phase Remove
 > ```
 >
-> **2. THEN, in an ORDINARY, UNELEVATED PowerShell — his own terminal, not an
-> agent's (§4.0.1):**
+> ***`sddrb50a` IS A LIVE, ENABLED, UNSUSPENDED WINDOWS ACCOUNT IN `sdusers`,
+> `sdssh` AND `sdapi`*** — measured on disk, not assumed. The Suspend and
+> Remove legs never elevated (fault 1), so the account the Create leg made is
+> still there with ssh and API access and a password of the verifier's own
+> generating. **The profile directory `C:\Users\sddrb50a` will stay** — that is
+> PRE_RELEASE 35/36 and only a restart releases it.
+>
+> ***2. THE SUITE RERUN — AND READ THE PARAGRAPH UNDER IT BEFORE SPENDING IT.***
+> In an ORDINARY, UNELEVATED PowerShell, his own terminal, not an agent's
+> (§4.0.1):
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b50
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b51
 > ```
 >
-> ***`b50` IS THE NEXT FREE TOKEN. THE DOOR STEP DERIVES `sddrb50` FROM IT***,
-> and **without `-Run` the door step is skipped and says so** — its prefix
-> becomes an account name and must be single-use.
+> ***`b50` IS SPENT — THE DOOR STEP DERIVES `sddrb50` FROM IT AND THAT NAME HAS
+> REACHED THE CONTROL LEG. `b51` IS THE NEXT FREE TOKEN.***
 >
-> ***WHAT WENT IN, AND WHAT IS UNRUN.***
+> ***THE DOOR STEP WILL STILL FAIL, AND IT SHOULD.*** With the instrument
+> honest, the `logto` door's Control leg now reports what actually happened,
+> and PRE_RELEASE 44 says it cannot pass from the creating session. **A rerun
+> spends a prefix, three UAC prompts and a permanent profile directory to
+> confirm a failure that is already measured.** ***So the run is worth it for
+> the other twelve steps and for PRE_RELEASE 43's fix, and not for the door
+> step*** — or decide 44 first and rerun once.
 >
-> | ruling | change | state |
-> |---|---|---|
-> | *"prompt for password at creation"* (**PRE_RELEASE 42**) | `!set_passwd` writes `$cred` via `!CRED_SET` from the **same prompt**; new status 6 + message 10122; `CREATEA` names it | ***compiled? not even that — the tree is stale and it has never been through a build*** |
-> | *"wire the pair into VerifyInstall"* (**PRE_RELEASE 38**) | `verify-doors-suite.ps1`, last step of `VerifyInstall1`, conditional on `-Run` | refusal path exercised (exit 2, nothing created); **never run as a suite step** |
+> ***FAULT 1 — PRE_RELEASE 43, FIXED.*** `verify-doors-suite.ps1` passed
+> `'-Password', ''` for Suspend and Remove. **`Start-Process -ArgumentList`
+> carries `[ValidateNotNullOrEmpty()]`, and on a COLLECTION that validates
+> every ELEMENT** — one `''` rejects the entire list with *"The argument is
+> null or empty"* and **nothing launches, so no UAC prompt ever appears.** The
+> pair is conditional now (the idiom `sd-elevate.ps1:118` already used), the
+> argv and its element count are printed, and an empty element is refused **by
+> name**. `gplbld/test-doorsargv-units.ps1` guards it — **35/35, no install, no
+> elevation, no account** — and its positive control, `-Suite` pointed at a
+> copy carrying the old form, **fails 27/8**.
 >
-> ***THE SUITE RUN NOW COSTS THREE EXTRA UAC PROMPTS AND ONE PERMANENT PROFILE
-> DIRECTORY*** (`C:\Users\sddrb50a`), because a door prefix is spent once its
-> account has signed in over ssh. **That is the price of wiring it in, and it
-> is worth saying out loud: entry 36 is what makes it stop accumulating.**
+> ***FAULT 2 — PRE_RELEASE 19 IS RE-OPENED ON ONE ROW OF SEVEN.*** The check
+> that said *"logto entered the account"* matched the account name **anywhere
+> in the transcript**, and the session echoes what it is fed. On the b50
+> Control leg **SD printed 5161 *"Unable to change to new directory"* and `WHO`
+> answered `91 DON`** — and the row scored PASS. **It scored the same PASS on
+> `sddr2`**, which is what the seventy-second session's *"logto ADMITTED"*
+> rests on. Anchored on `WHO`'s answer now, with 5161 as a disqualifier.
 >
-> ***IF `-Run b50` SHOWS A NEW FAILURE, SUSPECT THE THREE UNRUN THINGS FIRST***
-> — the door step itself, the now-live ANSI strip in 23 verifiers
-> (PRE_RELEASE 10), and the runners' transcript close (40).
+> ***WHAT IS STILL PROVEN, AND WHAT IS NOT.*** **ssh and the API admitted
+> genuinely** — both authenticate afresh. **All three REFUSALS still stand**:
+> `logto.authorised` is called at `CPROC:2679`, *before* the chdir at `:2691`,
+> so a suspended account is refused with 10107 and never reaches 5161. **What
+> is unproven is the ADMITTED half, for one door of three.**
 >
-> ***PRE_RELEASE 19 IS CLOSED.*** The `verify-doors` pair ran **end to end** on
-> `sddr2` earlier this session, **all five phases green**, and the fixture was
-> removed. That is what closed it, and it is measured, not argued.
+> ***THE CAUSE IS PRE_RELEASE 44 AND IT IS WINDOWS, NOT SD.*** `don` is in
+> `sdu_sddrb50a` **on the machine** and **not in his own token**, because
+> Windows fixes group membership at logon — measured both ways, with `sdusers`
+> present in the same token as the control. So `logto.authorised` passes on the
+> machine's list and the chdir is denied on the token's. ***THE CURE IS
+> ALREADY WRITTEN DOWN***: the `logto` row of PRE_RELEASE_FIXES' own door table
+> says **two** accounts — *"ssh as A and `LOGTO B`"* — a fresh logon, a fresh
+> token. The implementation runs `LOGTO` in the caller's session instead.
+> **Owner's call.**
 >
-> ***ALREADY ON THE MACHINE: `C:\Users\sddr1a` AND
-> `C:\Users\sddr2a`.*** Swept 28 Aug and everything else is clean: **no Windows
-> user, no `sdu_` group and no `ACCOUNTS` record for either name; `sdapi`,
-> `sdssh` and `sdusers` carry no orphan SIDs; no stray `sd.exe`.** The two
-> directories are **PRE_RELEASE 35/36** — the Control leg's ssh login created
-> them and their registry hives are still mounted, so **only a restart releases
-> them**; `clean-test-profiles.ps1` will name them after one. **They block
-> nothing** except reuse of those two names.
+> ***ALREADY ON THE MACHINE: `C:\Users\sddr1a`, `C:\Users\sddr2a` AND
+> `C:\Users\sddrb50a`.*** The first two are swept clean otherwise — no Windows
+> user, no `sdu_` group, no `ACCOUNTS` record, no orphan SIDs in `sdapi`,
+> `sdssh` or `sdusers`. **The third is not**, until command 1 above runs. All
+> three directories are **PRE_RELEASE 35/36** and only a restart releases them;
+> `clean-test-profiles.ps1` will name them after one. **They block nothing**
+> except reuse of those three names.
 >
-> ***THE FIVE LEGS, ALL GREEN, 28 Aug 2026 — `sddr2`.***
+> ***THE FIVE LEGS ON `sddr2`, 28 Aug 2026 — GREEN AS REPORTED, AND THE
+> `Control` ROW IS NOW KNOWN TO BE ONE ROW SHORT OF TRUE.***
 >
 > | leg | shell | result |
 > |---|---|---|
 > | `Create` | elevated | **8/8** |
-> | `Control` | **unelevated, the agent's own** | ***6/6 — ssh, `logto` and the API ALL ADMITTED*** |
+> | `Control` | **unelevated, the agent's own** | **6/6 as scored — but the `logto` row was a false positive** (see fault 2). **ssh and the API admitted; `logto` did not** |
 > | `Suspend` | elevated | **5/5**, and *still in `sdssh`* — the suspension moved no Windows group |
 > | `Refused` | **unelevated, the agent's own** | ***4/4 — ALL THREE REFUSED*** |
 > | `Remove` | elevated | **2/2**, fixture gone; profile directory left behind, **expected** |
@@ -196,9 +225,10 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `DELETE.ACCOUNT` cannot remove, Windows will not put a new profile where one
 > already sits, and a rebuilt account would get a **suffixed home**: an
 > unmeasured variable in a test whose whole point is that only the suspension
-> changes. **`sddr1` and `sddr2` are used; the next attempt takes `sddr3`, and
-> measures it free first** (no Windows user, no `sdu_` group, no `ACCOUNTS`
-> record, no profile directory).
+> changes. **`sddr1`, `sddr2` and `sddrb50` are used; a hand-run attempt takes
+> `sddr3` and a suite run takes `b51`, and each measures its name free first**
+> (no Windows user, no `sdu_` group, no `ACCOUNTS` record, no profile
+> directory) — **which is exactly what stopped the second b50 attempt.**
 >
 > ***WHAT THE FIRST CONTROL RUN FOUND, AND WHY IT MATTERED.*** On `sddr1` the
 > API refused with `QMError(): Invalid username or password` while the account
@@ -225,25 +255,30 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > unelevated)** → Remove. ***If the Control leg fails, STOP*** — a door that
 > refuses before the suspension makes its later refusal worthless.
 >
-> ***WHAT THIS CLOSED:*** the last row of **PRE_RELEASE 19**, which the owner
+> ***WHAT THIS CLOSED — AND IT DID NOT, ON ONE ROW.*** *(Corrected by the
+> seventy-third session: the `logto` door's ADMITTED half was a false positive,
+> so **19 is re-opened on that row**. The owner's ruling that it **stays `B`
+> until the doors are covered** is unchanged and is what re-opens it — a
+> passing run is coverage only when the run measured the thing it names.)*
+> ~~the last row of **PRE_RELEASE 19**, which the owner
 > ruled on 28 Aug 2026 **stays `B` until the doors are covered**. A written
 > verifier is not coverage; only a passing run is — and there is now a passing
-> run, so **19 is struck**. ***WHAT IS LEFT OF PRE_RELEASE 38 IS A DECISION,
+> run, so **19 is struck**.~~ ***WHAT IS LEFT OF PRE_RELEASE 38 IS A DECISION,
 > NOT A MEASUREMENT***: the pair is standalone and **not wired into
 > `VerifyInstall1`**, deliberately, for the same reason `verify-acctmsgs` is
 > not — it creates a real Windows account, and it needs an elevated half and an
 > unelevated half. **Wire it into the two runners, or leave it standalone and
 > named in the docs? Owner's call.**
 >
-> ***THE STATE YOU INHERIT IS GREEN AND PUSHED.*** `main` at **`67cf316`**,
-> tree clean, `assert-current` **exit 0**, `check-stale-leads` **exit 0**,
-> install **28 Aug 00:53:34 still current — NO CYCLE WAS SPENT ALL SESSION**,
-> so it is still the install that can test things. Do not run a cycle to "get
-> to a clean state"; you are in one.
+> ***THE STATE YOU INHERIT.*** Install **28 Aug 15:29:59** — the owner's cycle,
+> which shipped PRE_RELEASE 42 — `assert-current` **exit 0 run live after every
+> change below**, tree clean. **Do not run a cycle to "get to a clean state";
+> you are in one**, and the only changes since are in `gplbld`. *(Earlier text
+> here named `67cf316` and the 00:53:34 install; both are superseded.)*
 >
-> **Spent this session — do not reuse:** `sdmsga`, `sdmsgb` (next `sdmsgc`),
-> `sdtc1` (next `sdtc2`). **`zzprf` is re-runnable as it stands.** `b49` is
-> spent; the next suite run is **`b50`**.
+> **Spent — do not reuse:** `sdmsga`, `sdmsgb` (next `sdmsgc`), `sdtc1` (next
+> `sdtc2`), `sddr1`, `sddr2`, `sddrb50`. **`zzprf` is re-runnable as it
+> stands.** `b49` and **`b50`** are spent; the next suite run is **`b51`**.
 >
 > ***ONE THING IS UNRUN AND WILL FIRST BE EXERCISED BY THAT SUITE RUN:*** 23
 > verifiers had a dead ANSI strip that is now LIVE (PRE_RELEASE 10), and the two
@@ -251,7 +286,9 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > shows a new failure, suspect those two changes before suspecting the product.**
 >
 > ***THIRTEEN PRE_RELEASE ENTRIES CLOSED ON 28 Aug 2026*** — 5, 10, 13, 14, 15,
-> 22, 25, 26, 27, 37, 40, 41, plus six of 19's seven rows. **21 struck, 20 open.**
+> 22, 25, 26, 27, 37, 40, 41, plus six of 19's seven rows. *(**24 struck, 20
+> open** as of the seventy-third session — counted from the table, not carried
+> forward: 42 and 43 struck, 19 re-opened, 44 added.)*
 >
 > ***THE FOUR TRAPS THIS SESSION PAID FOR, EACH ONE COSTING A RUN OR NEARLY ONE.***
 >
@@ -5721,6 +5758,33 @@ session cannot.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- ***ONE EMPTY STRING IN AN `-ArgumentList` ARRAY REJECTS THE WHOLE ARRAY, AND
+  NOTHING LAUNCHES.*** Found 28 Aug 2026 on the `-Run b50` suite run;
+  PRE_RELEASE 43.
+
+  `Start-Process -ArgumentList` carries `[ValidateNotNullOrEmpty()]`, and
+  PowerShell applies that attribute to **every element of a collection**, not
+  just to the collection. So `@('-NoProfile', '-Password', '')` fails binding
+  with **"Cannot validate argument on parameter 'ArgumentList'. The argument is
+  null or empty"** — a message that names **no element**, and reads like the
+  whole parameter was omitted.
+
+  **Measured, with a control:** the same call with no empty element gets past
+  `-ArgumentList` and fails on a later parameter instead.
+
+  ***WHAT MAKES IT EXPENSIVE IS THAT IT IS DATA-DEPENDENT.*** The call site is
+  one line and looks right; whether it works depends on a variable. In
+  `verify-doors-suite.ps1` the **Create** leg carried a password and elevated
+  normally, and **Suspend** and **Remove** carried `''` and died **before their
+  UAC prompt** — so a suite step failed with no window, no child, and no log
+  file for the leg that "ran".
+
+  ***THE FIX IS TO OMIT THE PAIR, NOT TO PASS A PLACEHOLDER***, which is the
+  idiom `sd-elevate.ps1:118` already used for its optional `-LogFile`. **And
+  the class fix is to print the argv and its element count and refuse an empty
+  element by name** — see the `$args` clobber in CLAUDE.md, which is the same
+  lesson from the other side: you cannot debug an argument list you never see.
 
 - ***THE SUITE'S `PASS` COUNT WAS GREPPED OUT OF FILES NOTHING COULD READ, AND
   THE `[FAIL]` HALF OF THE NULL-CASE GUARD WAS THE HALF THAT WENT BLIND.***

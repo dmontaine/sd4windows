@@ -40277,3 +40277,66 @@ either ruling.
 `sdapi`, `sdssh` and `sdusers` carry no orphan SIDs; no stray `sd.exe`.** The
 only residue is `C:\Users\sddr1a` and `C:\Users\sddr2a`, both PRE_RELEASE
 35/36, both awaiting a restart.
+
+## 28 Aug 2026, seventy-third session - the b50 suite run, two faults, and 19 re-opens
+
+The owner ran the cycle and the suite. **Install 28 Aug 15:29:59** (PRE_RELEASE
+42 shipped), `assert-current` **exit 0**. `VerifyInstall1 -ThenElevated -Run
+b50`: **twelve unelevated steps exit 0, the thirteenth - the new door step -
+failed.** Two faults, and neither was the product.
+
+**FAULT 1, PRE_RELEASE 43.** `verify-doors-suite.ps1` passed `'-Password', ''`
+to `Start-Process -ArgumentList` for the Suspend and Remove legs.
+`-ArgumentList` carries `[ValidateNotNullOrEmpty()]`, which on a collection
+validates **every element**, so one `''` rejects the whole list and **nothing
+launches** - no UAC prompt, no child, no log. Create carried a real password
+and ran 8/8; Suspend and Remove died before their prompts, leaving the account
+unsuspended and the Refused leg unrunnable. **Data-dependent, which is why the
+call site read correctly.** Fixed by omitting the pair (`sd-elevate.ps1:118`'s
+existing idiom), printing the argv and its element count, and refusing an empty
+element by name. `gplbld/test-doorsargv-units.ps1` guards it - **35/35** - and
+lifts the function out of the shipped file with the parser rather than copying
+it. **Its positive control ran**: `-Suite` pointed at a copy carrying the old
+form fails **27 passed / 8 failed**.
+
+**A SECOND RUN THEN REFUSED UP FRONT**, because the first had already spent
+`sddrb50a` at the Control leg. The single-use guard working as designed;
+nothing was created.
+
+**FAULT 2, AND PRE_RELEASE 19 IS RE-OPENED ON ONE ROW OF SEVEN.**
+`verify-doors.ps1:255` anchored *"logto entered the account"* on the account
+name **anywhere in the transcript**, and the session echoes what it is fed. On
+the b50 Control leg SD printed **5161 "Unable to change to new directory"** and
+`WHO` answered **`91 DON`** - the session never left `DON` - and the row scored
+**PASS**. The same check scored the same PASS on `sddr2` the day before, which
+is what the seventy-second session's *"logto ADMITTED"* rested on. This is
+CLAUDE.md's *"anchor on the SUCCESS wording"* rule in its usual shape, missed
+by a comment that correctly described `WHO` and a match that did not use it.
+Anchored on `WHO`'s answer now (`^<number> <ACCOUNT>$`) with 5161 as a
+disqualifier; both directions measured against the real transcript.
+
+**THE CAUSE IS PRE_RELEASE 44, AND IT IS WINDOWS.** `don` is in
+`sdu_sddrb50a` **on the machine** (`Get-LocalGroupMember` shows him) and **not
+in his own token** (enumerated live; `sdusers` present in the same token as the
+control, so the enumeration works). Windows fixes group membership at logon.
+So `logto.authorised` passes on the machine's list and `ospath(acc.rec, OS$CD)`
+is denied on the token's, and 5161 is all the user sees. **The record already
+held the mechanism** (section 6, group membership fixed at logon) **and the
+cure**: PRE_RELEASE_FIXES' own door table specifies *"ssh as A and `LOGTO B`"* -
+two accounts, a fresh logon, a fresh token - and the implementation ran `LOGTO`
+in the caller's session instead.
+
+**WHAT STILL STANDS.** ssh and the API admitted genuinely; both authenticate
+afresh. **All three refusals stand** - `logto.authorised` is called at
+`CPROC:2679`, before the chdir at `:2691`, so a suspended account is refused
+with 10107 and never reaches 5161. What is unproven is the **admitted** half,
+for one door of three.
+
+**LEFT ON THE MACHINE.** `sddrb50a` is a live, enabled, **unsuspended** Windows
+account in `sdusers`, `sdssh` and `sdapi`, with its profile directory - the
+Remove leg never ran. `-Phase Remove` takes it away. `C:\Users\sddr1a`,
+`sddr2a` and `sddrb50a` all remain as PRE_RELEASE 35/36.
+
+**`verify-doors-suite.ps1` was never on `assert-current`'s `$neverShipped`
+list**, so the b50 run's own `assert-current` had listed it under "newer than
+the install". Added, with `test-doorsargv-units.ps1`.
