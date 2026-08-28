@@ -250,10 +250,42 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **corrected in place rather than deleted**, because the next session will
 > otherwise reason its way to the same password.
 >
-> **What would actually exercise it**: a machine whose policy refuses something
-> — minimum length, complexity or history — or a deliberate, temporary policy
-> change on this one. ***That is a change to the MACHINE, not to the test, so
-> it is yours and the verifier does not make it.***
+> ***THE OWNER RULED: CHANGE THE POLICY FOR THE TEST (28 Aug 2026).*** So the
+> password is now **chosen from the policy rather than guessed**.
+> `Get-PasswordPolicy` reads `MinimumPasswordLength` and `PasswordComplexity`
+> with `secedit /export` — locale-independent, unlike parsing the prose
+> `net accounts` prints, which is kept only as the fallback — and
+> `Select-RefusedPassword` breaks whichever rule is in force: **one character
+> short of the minimum**, or **a single character class** against complexity.
+> With no rule in force there is nothing to break, and the arm says so and
+> SKIPs. `test-acctmsgs-units.ps1` drives that chooser with policies this host
+> does not have: **35 rows, all passing**.
+>
+> ***THE SCRIPT STILL DOES NOT CHANGE THE POLICY, AND THAT IS DELIBERATE.*** It
+> reads it and adapts. Changing a machine's password policy has to be somebody's
+> decision, made once, in the open, and **reverted afterwards** — not a side
+> effect of running a test.
+>
+> ***THE THREE COMMANDS, ELEVATED, IN THIS ORDER.*** Read the minimum back
+> before and after; `net accounts` prints it.
+>
+> ```
+> net accounts /minpwlen:14
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-acctmsgs.ps1 -Prefix sdmsgb
+> ```
+>
+> ```
+> net accounts /minpwlen:0
+> ```
+>
+> **The run prints the policy it read and the length it sent** before it sends
+> anything, so the evidence for 10119 names the rule it broke. **Expect 27 of
+> 27 with no SKIP.** ***PUT IT BACK AFTERWARDS*** — `minpwlen:0` is what this
+> host had, measured 28 Aug 2026, and leaving 14 in force would change how every
+> later `create.account` on this machine behaves.
 >
 > ***`sdmsga` IS SPENT. THE NEXT PREFIX IS `sdmsgb`.*** The run left nothing
 > behind — no Windows account, register record or profile directory for any of

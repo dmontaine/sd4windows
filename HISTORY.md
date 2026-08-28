@@ -39860,3 +39860,29 @@ session will otherwise reason its way to the same password.
 temporary policy change here.** That is a change to the machine rather than to
 the test, so it is left as the owner's decision and the verifier does not make
 it. **`sdmsga` is spent; the next prefix is `sdmsgb`.**
+
+**Entry 22's refusal arm: the password is now chosen from the policy, not
+guessed.** Owner's decision, 28 Aug 2026, to change the machine's password
+policy for the test. `Get-PasswordPolicy` reads `MinimumPasswordLength` and
+`PasswordComplexity` with `secedit /export` - locale-independent, unlike parsing
+the prose `net accounts` prints, which is kept only as a fallback - and
+`Select-RefusedPassword` breaks whichever rule is in force: one character short
+of the minimum, or a single character class against complexity. With no rule in
+force there is nothing to break and the arm SKIPs, saying so.
+
+**The script reads the policy and does not change it, deliberately.** Changing
+a machine's password policy has to be a decision made once, in the open, and
+reverted afterwards - not a side effect of running a test. The three elevated
+commands are in PROJECT_STATUS START HERE, and the middle one is the verifier.
+
+**`test-acctmsgs-units.ps1` is new**: it lifts the chooser by AST and drives it
+with policies this host does not have - 35 rows. **The "accepted" expectation is
+a row, not a comment**: with no rule in force the chooser must predict
+acceptance, because one that always claimed "refused" would turn every SKIP into
+a silent failure to notice. It also asserts that every chosen password contains
+no newline and fits inside TERM's 200 columns, since either would desynchronise
+the session or truncate the password into a different one than the run printed.
+
+**The fallback path is exercised for real**: run unelevated, secedit gives
+nothing and `net accounts` returns minimum length 0 - which is this host's
+actual setting, so the reader agrees with the machine by two routes.
