@@ -58,6 +58,7 @@ should be fixed, **M** minor.
 | ~~32~~ | **S** | ~~`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory~~ — **FIXED 27 Aug 2026: the `catch { exit 6 }` that left both halves is now `catch { }`, and the key is removed in its own right; status 6 splits into 6 (directory) and 7 (registry entry).** ***UNCOMPILED — needs a cycle.*** Generated PowerShell parse-checked 0 errors / 203 tokens; the new steps run read-only against a real account | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075`, `messages/10116` |
 | ~~33~~ | **S** | ~~`allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing**~~ — **DONE 27 Aug 2026**, the usage line names `-Installed` and a dated note says which forms need it. Comment only, parses 0 errors / 1247 tokens | `gplbld/allow-ssh-groups.ps1:4` |
 | 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Owner's call, and not to be settled by adding a link** | docs repo `tools/release.ps1`, `tools/checklinks.py` |
+| 35 | **S** | ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32, and the symptom happened anyway. **`DELETE_USER` now removes the directory in its own right; message `10075` rewritten.** ***UNCOMPILED, needs the next cycle*** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1258,12 +1259,17 @@ both halves**. It is `catch { }` now, and the registry entry is dealt with
 below it either way. `Remove-CimInstance` is still tried first and is still the
 right tool; its failure no longer decides anything.
 
-**Status 6 splits into 6 and 7**, because the caller's warning has to differ:
+**Status 6 splits into 6 and 7**, saying which half could not be removed:
 
 | | |
 |---|---|
-| **6** | the profile **directory** is left. Costs disk. The registry entry went, so a recreated account still gets its proper home |
-| **7** | the **`ProfileList` entry** is left. This is the one that moves a recreated account's home |
+| **6** | the profile **directory** is left |
+| **7** | the **`ProfileList` entry** is left |
+
+***THIS TABLE FIRST SAID 6 WAS HARMLESS — "costs disk, the registry entry went,
+so a recreated account still gets its proper home". THAT IS MEASURED FALSE; SEE
+ENTRY 35.*** Either half pushes the next account of the same name to a suffixed
+home.
 
 **Both halves are tested for after the attempt, not inferred from which call
 threw** — a thrown `Remove-CimInstance` does not say what it removed first.
@@ -1356,3 +1362,52 @@ powershell -File tools\mkpdf.ps1 -In Technical\html -Out Technical\pdf
 ```
 
 and the `README`'s markdown-against-PDF loop is what proves nothing is stale.
+
+## 35. A profile DIRECTORY left behind moves the next account's home, exactly as the registry entry does — **S**
+
+Found 27 Aug 2026 **by running the regression test for entry 32 on the install
+that fixed it**, which is the only reason it was found at all: the registry
+half was measured working and the symptom happened anyway.
+
+***THE TEST, AND IT IS WORTH KEEPING.*** `create.account user b49home
+programmer ssh`, then `ssh b49home@localhost` **once** — a brand new Windows
+account has no profile until it signs in, so without that step there is nothing
+to leave behind and the test proves nothing — then `delete.account b49home`,
+then create and sign in again.
+
+***WHAT WAS MEASURED AFTERWARDS.***
+
+| | |
+|---|---|
+| old SID `…-2740`, `ProfileList` entry | **gone** — entry 32's fix worked |
+| `C:\Users\b49home` | **still there**, empty to an ordinary reader, ACL still naming the dead SID |
+| new SID `…-2742`, live account `b49home` | profile at **`C:\Users\b49home.GITORLI`** |
+
+**Exactly one `ProfileList` entry mentions the name**, and it is the live one.
+So the suffix was not caused by a stale registry entry this time. ***Windows
+will not put a new profile where a directory already sits either***, and it
+takes the same way out — a suffixed home — with the same consequence: anything
+keyed to the old path, `authorized_keys` included, is not found.
+
+***SO "REMOVE THE ProfileList ENTRY" WAS HALF A FIX, AND THE COMMENT THAT
+CALLED STATUS 6 HARMLESS WAS WRONG WHEN IT WAS WRITTEN.*** It reasoned from
+what the registry entry does rather than from what Windows does with an
+occupied path, and it went into the code, the message text and the changelog
+before anything ran.
+
+**Fixed the same day**: `DELETE_USER` now removes the **directory** in its own
+right as well, after the registry key, in the same shape — try it, then test
+for it, and report which half survived. `Remove-CimInstance` remains the first
+attempt and still does the bookkeeping when it works. **Message `10075` is
+rewritten**: it said the directory "was left behind" and implied that was
+tidiness; it now says a later account of the same name will not get that
+directory back until it is deleted.
+
+***UNCOMPILED — IT NEEDS THE NEXT CYCLE.*** The regenerated PowerShell parses,
+**0 errors and 233 tokens** against 203 before the change.
+
+***WHY `Remove-CimInstance` FAILED IS NOT ESTABLISHED*** and the fix does not
+depend on it — the hive was not loaded by the time it was checked, so the
+likely cause is that it still was when `delete.account` ran, moments after an
+ssh session. **If the directory removal fails too, status 6 still fires and now
+says something true.**

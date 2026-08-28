@@ -39407,3 +39407,31 @@ has no `DELETE_USER`; its `DELACC` runs `OS.EXECUTE "sudo userdel "`. Linux has
 no `ProfileList` and a recreated user gets `/home/<name>` as before, so the
 defect - *a recreated account silently gets a different home* - does not exist
 there. No `UPSTREAM_FIXES.md` entry.
+
+**And the regression test found that the fix was half of one.** Run on the
+install that carried it, 27 Aug 2026: `create.account user b49home programmer
+ssh`, `ssh b49home@localhost` once - a new Windows account has no profile until
+it signs in, so without that step there is nothing to leave behind - then
+`delete.account`, then create and sign in again.
+
+| | |
+|---|---|
+| old SID `...-2740` ProfileList entry | **gone** - the fix worked |
+| `C:\Users\b49home` | **still there** |
+| new account's profile | **`C:\Users\b49home.GITORLI`** |
+
+Exactly one `ProfileList` entry mentioned the name and it was the live one, so
+the suffix was not a stale registry entry this time. ***Windows will not put a
+new profile where a DIRECTORY already sits either***, and it takes the same way
+out. **Both halves cause the same symptom.**
+
+***THE COMMENT CALLING STATUS 6 HARMLESS WAS WRONG WHEN IT WAS WRITTEN***, and
+it had already reached the code, the message text and the changelog. It
+reasoned from what a registry entry does rather than from what Windows does
+with an occupied path. `DELETE_USER` now removes the directory in its own right
+as well; `10075` says so; PRE_RELEASE_FIXES.md 35 carries it.
+
+***WHAT ACTUALLY EARNED THIS: RUNNING THE TEST ON THE INSTALL THAT PASSED.***
+The registry half was measured correct and the symptom happened anyway. A test
+that had stopped at "is the ProfileList entry gone" would have reported a
+success and shipped half a fix.
