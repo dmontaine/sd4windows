@@ -822,8 +822,10 @@ and micro aborts the save with exactly the message above. That is why
 `backups/` is the one subdirectory micro never created, and why viewing,
 editing and highlighting all worked — the other config-home writes
 (`buffers/history` on exit, `settings.json`/`bindings.json` on `set`/`bind`)
-are best-effort and happen after the save, so they do not block it. **Check:
-`micro -backup off bp ZZMARKS` unelevated should save.**
+are best-effort and happen after the save, so they do not block it. **Check
+after the cycle: from an unelevated `sd` session, `micro bp ZZMARKS` should
+save.** (`EDIT` passes `-backup off` to micro itself — the user types only the
+verb.)
 
 ***THIS IS WHY 26 Aug's "BOTH EDITORS WORK" DID NOT CATCH IT.*** `don` is a
 member of Windows `Administrators`, so an **elevated** session writes Program

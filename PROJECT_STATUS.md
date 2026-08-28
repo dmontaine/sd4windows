@@ -126,8 +126,9 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > launches micro with `-backup off` (`editor.args` in the `begin case`), *not* a
 > writable config home — the Lua-plugin escalation the config home would open is
 > not worth it when `EDIT` already prompts per save and keeps the working copy.
-> **Not reproduced; not compiled.** `micro -backup off bp ZZMARKS` unelevated is
-> the check, and the next cycle compiles it.
+> **The user types nothing extra — `EDIT` puts the flag on micro's command
+> line.** **Not reproduced; not compiled.** The check is the same verb the owner
+> hit it with: unelevated `sd` session, `micro bp ZZMARKS`, confirm it saves.
 >
 > ***WHAT THE SAME TEST PROVED WORKS***, and it had been unwitnessed since
 > 26 Aug: micro drew, the SD BASIC highlighting was live, the POSIX-to-Windows
@@ -222,7 +223,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > |---|---|
 > | **PRE_RELEASE 21** | the unreachable inner `if old.tier # 'SUSPENDED'` at the field-6 write in `tier.set` is **deleted**; `MODIFYA` banner + equality-guard comment + `SYSCOM/KEYS.H` now say the equality guard is what keeps field 6 write-once. Behaviour unchanged — it was already correct |
 > | **PRE_RELEASE 23 / UPSTREAM 24** | `TERM`'s `KW$DEFAULT` arm now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH` (120 × 36), not `MIN.WIDTH` and hard-coded 24. The `sdterm` depth-25 special case went too. Check: `term default` then `term` → 120 / 36 |
-> | **PRE_RELEASE 29** | `EDIT` launches micro with `-backup off` (`editor.args`, `EDIT:227`/`832`), micro branch only — micro's default auto-backup `MkdirAll`s into the read-only Program Files config home. Check: `micro -backup off bp ZZMARKS` unelevated saves |
+> | **PRE_RELEASE 29** | `EDIT` launches micro with `-backup off` (`editor.args`, `EDIT:227`/`832`), micro branch only — micro's default auto-backup `MkdirAll`s into the read-only Program Files config home. `EDIT` adds the flag itself; the user types plain `micro bp X`. Check: unelevated `sd`, `micro bp ZZMARKS`, it saves |
 >
 > ## ***5. WHAT IS STILL NOT MEASURED, IN THE ORDER THE FIXTURES SUIT.***
 >

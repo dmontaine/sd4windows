@@ -38926,8 +38926,9 @@ empty, so the auto-backup goes to `MICRO_CONFIG_HOME/backups`, which micro
 one subdir micro never created. **Fix:** `gpl.bp/EDIT` launches micro with
 `-backup off` (new `editor.args`, set per editor in the `begin case`; Microsoft
 Edit takes no such switch). *Not* a writable config home - that would trade the
-save failure for the Lua-plugin escalation. Not reproduced (needs a console);
-`micro -backup off bp ZZMARKS` unelevated is the check.
+save failure for the Lua-plugin escalation. The user types plain `micro bp X`;
+`EDIT` adds the flag. Not reproduced (needs a console); the check is an
+unelevated `sd` session running `micro bp ZZMARKS` and saving.
 
 **23 - `term default`.** `gpl.bp/TERM`'s `KW$DEFAULT` arm set `MIN.WIDTH` and a
 hard-coded depth 24 - 20 x 24, the narrowest SD accepts. Now `DEFAULT.WIDTH` /
