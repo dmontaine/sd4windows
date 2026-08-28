@@ -1484,14 +1484,20 @@ pattern appeared**: not `b49home`, `b50home`, `dmont`, `Default` or `Public`.
 The other **33** were `b44`, `b46`, `b47` and three of `b45`: **registry entries
 whose directories were already gone.** 20 + 33 = 53.
 
-***WHAT THIS PROVES AND WHAT IT DOES NOT.*** It proves the mechanism:
-`Remove-CimInstance` **failed** on a mounted hive an hour earlier — measured on
-`b50home`, along with `reg unload` and `Rename-Item` both refused — and the same
-call then **succeeded 53 times** once a restart had unmounted them. **It is not
-a controlled before-and-after on the same objects**: no failing sweep run is on
-record, only the accumulation. So the honest statement is that the mechanism is
-confirmed and the accumulation is consistent with it, not that a failure was
-watched and then repaired.
+***AND THERE IS A CONTROLLED BEFORE-AND-AFTER, ON ONE OBJECT.***
+`C:\Users\b50home` refused **both** `Remove-Item` (`IOException`,
+`UsrClass.dat` in use) **and** `Rename-Item` (`Access denied`) before the
+restart; **the identical `Remove-Item` removed it silently afterwards.** Same
+path, same command, nothing between them but the reboot. ***That is the
+mechanism proven, not merely consistent.***
+
+*(This paragraph first said no controlled before-and-after existed. That was
+written thinking of the 53-profile sweep, and it overlooked the one object that
+had been measured failing by hand an hour earlier.)*
+
+**The 53-profile sweep is corroboration rather than proof**: no failing sweep
+run is on record, only the accumulation, so it is consistent with the cause
+rather than a watched repair. The `b50home` pair is what carries the claim.
 
 ***THE OPERATIONAL RULE IS THEREFORE UNCHANGED AND NOW HAS ITS REASON:*** the
 reboot in the middle of `cleanup-devlitter.ps1` is not about the accounts pass

@@ -39490,3 +39490,13 @@ run is on record, only the accumulation, so the accumulation is *consistent
 with* the cause rather than a watched repair. **The operational rule keeps its
 reason: the reboot in the middle of `cleanup-devlitter.ps1` is what makes the
 PROFILE pass possible, not the accounts pass.**
+
+***AND THE CONTROLLED PAIR EXISTED AFTER ALL, ON ONE OBJECT.***
+`C:\Users\b50home` refused both `Remove-Item` (`IOException`, `UsrClass.dat` in
+use) and `Rename-Item` (`Access denied`) before the restart; the identical
+`Remove-Item` removed it silently afterwards. Same path, same command, nothing
+between but the reboot. **The hedge written twenty minutes earlier - "not a
+controlled before-and-after on the same objects" - was thinking about the
+53-profile sweep and overlooked the object measured by hand an hour before.**
+Corrected in PRE_RELEASE_FIXES 36: the `b50home` pair carries the claim, the 53
+are corroboration.
