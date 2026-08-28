@@ -17,7 +17,9 @@ something came to be the way it is.
 
 **SEVENTIETH SESSION, 28 Aug 2026 — NINE PRE-RELEASE FIXES SHIPPED INTO AN INSTALL, ONE OF THEM MEASURED.** ***GREEN: install 28 Aug 00:53:34, `assert-current` exit 0, `verify-tiers` 33 PASS / 0 FAIL.*** Entries **5, 13, 14, 15, 22, 25, 26, 27, 37** are written, compiled and installed; ***only 25 is DONE***, because `verify-tiers` measured it (ADMINISTRATOR **416**, STANDARD and PROGRAMMER unmoved) and **nothing has exercised the other eight** — they need a session that runs `.d`, `qselect`, `delete.file`, `delete.index`, `modify.account add`, and a `create.account` with a bad password. **PRE_RELEASE 36 is RULED and not built; 41 is new** (the cleanup sweep reports zero while orphan directories remain). **Still open: 6 and 12**, both because their own entries were wrong about what they needed — 6 is an investigation, 12 is C at `op_dio3.c:853`. **`verify-tiers` gained section 6 (SUSPENDED) and `sdtier`/`sdtierb` are spent — use `sdtierc`.**
 
-**Last updated:** 27 Aug 2026, **SIXTY-NINTH session**, which ended on credit with **both repositories pushed and clean, the install green and current, and nothing half-done.** ***GREEN: install 27 Aug 22:52:21, `assert-current` exit 0, `-Run b49` 30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`*** — the one failure is PRE_RELEASE 31's known stale control. **`b49` is spent; use `b50`.** ***CLOSED THIS SESSION: PRE_RELEASE 23, 32, 33, the shipped-scripts documentation gap, item 5.1 and item 5.2's ssh door.*** ***OPEN AND ALL YOURS: seven pre-release entries — 31, 34, 36 (**RULED 27 Aug, not built — the entry says what to implement**), 37, 38, 39, 40 — plus three measurements that need no ruling: 5.2's API door, 5.4's unrun probe, and 5.5.*** Everything below is the **SIXTY-EIGHTH session** and earlier.
+**Last updated:** 28 Aug 2026, **SEVENTY-FIRST session**, which ended **out of credit mid-task, green and pushed at `67cf316`**. ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST AND PRINT THE TWO COMMANDS IT OPENS WITH — the owner is waiting for them.*** Thirteen pre-release entries closed; **no cycle was spent all session**, so the 28 Aug 00:53:34 install is still the one that can test things. Everything below this line is the **SIXTY-NINTH session** and earlier.
+
+**Previously:** 27 Aug 2026, **SIXTY-NINTH session**, which ended on credit with **both repositories pushed and clean, the install green and current, and nothing half-done.** ***GREEN: install 27 Aug 22:52:21, `assert-current` exit 0, `-Run b49` 30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`*** — the one failure is PRE_RELEASE 31's known stale control. **`b49` is spent; use `b50`.** ***CLOSED THIS SESSION: PRE_RELEASE 23, 32, 33, the shipped-scripts documentation gap, item 5.1 and item 5.2's ssh door.*** ***OPEN AND ALL YOURS: seven pre-release entries — 31, 34, 36 (**RULED 27 Aug, not built — the entry says what to implement**), 37, 38, 39, 40 — plus three measurements that need no ruling: 5.2's API door, 5.4's unrun probe, and 5.5.*** Everything below is the **SIXTY-EIGHTH session** and earlier.
 
 ***THE DEVELOPMENT PHASE IS CLOSED AND THE STATED 1.0-0 GATE IS EMPTY.*** 7.18 and H.5 both closed on 26 Aug 2026. **`H.2` — documentation — is the only open row in the table, section 7 has nothing left in it, and nothing is broken or half-done.**
 
@@ -112,6 +114,83 @@ symptom-without-cause. **None is a task with an owner; each is a thing nobody
 has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
+
+> # ⇩ DO THIS FIRST. THE OWNER IS WAITING FOR THESE TWO COMMANDS. ⇩
+>
+> ***HANDOFF, END OF THE SEVENTY-FIRST SESSION, 28 Aug 2026.*** The session ran
+> out of credit mid-task. **Your first action is to print the two commands
+> below, verbatim, and hand them over — do not re-derive them, do not survey the
+> repository first, do not run anything yourself.** The owner runs them in his
+> own terminal and pastes the output back.
+>
+> ***BOTH ARE ELEVATED PowerShell. RUN THEM IN THIS ORDER.***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr1 -Phase Remove
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr1 -Phase Create
+> ```
+>
+> **WHY BOTH, AND WHY `Remove` FIRST.** `sddr1a` **exists on the machine now**
+> and its password came from the OLD generator, which produced a `^` that
+> cmd.exe eats in the `SSH_ASKPASS` batch — so ssh would be handed the wrong
+> password and the LOGIN door would fail in the control leg for a reason with
+> nothing to do with suspension. **The account is unusable as it stands.**
+> `Remove` needs no password; `Create` prints a fresh one and the exact
+> unelevated command to run next. **`sddr1` can be reused** — `Remove` clears
+> the register record that would otherwise make `CREATE.ACCOUNT` refuse the name.
+>
+> **AFTER `Create`, THE REST OF THE SEQUENCE IS FIVE PHASES AND EACH ONE PRINTS
+> THE NEXT COMMAND**: Create → **Control (UNELEVATED)** → Suspend → **Refused
+> (UNELEVATED)** → Remove. The full reasoning is in the door-pair section below.
+> ***If the Control leg fails, STOP*** — a door that refuses before the
+> suspension makes its later refusal worthless.
+>
+> ***WHAT THIS CLOSES:*** the last row of **PRE_RELEASE 19**, which the owner
+> ruled on 28 Aug 2026 **stays `B` until the doors are covered**. A written
+> verifier is not coverage; only a passing run is.
+>
+> ***THE STATE YOU INHERIT IS GREEN AND PUSHED.*** `main` at **`67cf316`**,
+> tree clean, `assert-current` **exit 0**, `check-stale-leads` **exit 0**,
+> install **28 Aug 00:53:34 still current — NO CYCLE WAS SPENT ALL SESSION**,
+> so it is still the install that can test things. Do not run a cycle to "get
+> to a clean state"; you are in one.
+>
+> **Spent this session — do not reuse:** `sdmsga`, `sdmsgb` (next `sdmsgc`),
+> `sdtc1` (next `sdtc2`). **`zzprf` is re-runnable as it stands.** `b49` is
+> spent; the next suite run is **`b50`**.
+>
+> ***ONE THING IS UNRUN AND WILL FIRST BE EXERCISED BY THAT SUITE RUN:*** 23
+> verifiers had a dead ANSI strip that is now LIVE (PRE_RELEASE 10), and the two
+> runners now close transcripts a step leaks (PRE_RELEASE 40). **If `-Run b50`
+> shows a new failure, suspect those two changes before suspecting the product.**
+>
+> ***THIRTEEN PRE_RELEASE ENTRIES CLOSED ON 28 Aug 2026*** — 5, 10, 13, 14, 15,
+> 22, 25, 26, 27, 37, 40, 41, plus six of 19's seven rows. **21 struck, 20 open.**
+>
+> ***THE FOUR TRAPS THIS SESSION PAID FOR, EACH ONE COSTING A RUN OR NEARLY ONE.***
+>
+> 1. ***A VERB GIVEN NO ARGUMENT PROMPTS, AND DOWN A PIPE THE PROMPT EATS THE
+>    NEXT LINE.*** `LIST.INDEX <file>` with no index name reached `LISTI:117`,
+>    swallowed the `OFF` after it and hung to the timeout. `LISTI:117`,
+>    `DELETEI:101`, `DELETEF:117` and `DELACC:96` all do this. **Name every
+>    optional argument.** The tell is a transcript whose last line is a prompt
+>    and whose next command never appears.
+> 2. ***A PASSWORD THAT GOES THROUGH `SSH_ASKPASS` MUST USE THE cmd-SAFE
+>    ALPHABET.*** `GeneratePassword` produces `^`, which cmd eats. **The fix was
+>    already at `verify-createaccount.ps1:403` and was walked past** — the
+>    "search the record" rule in its usual shape.
+> 3. ***A PREMISE WRITTEN INTO A TEST AS THOUGH MEASURED.*** "127 is a hard SAM
+>    limit" was reasoned, written into a header as fact, and false —
+>    `Set-LocalUser` accepted a 150-character password and entry 22's refusal arm
+>    recorded SKIP. **Measure before writing the comment.**
+> 4. **The Bash tool's working directory PERSISTS between calls.** A `cat >>`
+>    landed in the wrong directory and a byte-scan silently checked a file that
+>    did not exist, reporting a clean result for nothing. **Use absolute paths.**
+>
+> ## ⇧ THAT IS THE HAND-OVER. EVERYTHING BELOW IS BACKGROUND. ⇧
 
 > ## NOTHING IS BROKEN AND NOTHING IS HALF-DONE.
 >

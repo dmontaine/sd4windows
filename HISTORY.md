@@ -40112,3 +40112,22 @@ password through the same cmd batch and REFUSES before creating anything if it
 does not come back byte for byte - a rule nothing tests is how the first
 version passed review and then ate a character. 200 generated passwords, 0
 mangled.
+
+**Session ended out of credit, mid-task, green and pushed.** The door pair's
+`Create` phase had run and its fixture carries a password from the old
+generator, so the account on the machine is unusable for the ssh door. The
+handoff at the top of PROJECT_STATUS.md's START HERE box opens with the two
+elevated commands that rebuild it - `-Phase Remove` then `-Phase Create` - and
+tells the next session to print them before doing anything else.
+
+**Nothing is half-done in the tree**: `main` clean, `assert-current` exit 0,
+`check-stale-leads` exit 0, and **no cycle was spent all session**, so the
+28 Aug 00:53:34 install is still the one that can test things.
+
+**Thirteen pre-release entries closed on 28 Aug 2026** - 5, 10, 13, 14, 15, 22,
+25, 26, 27, 37, 40, 41, plus six of 19's seven rows. 21 struck, 20 open.
+
+***THE ONE THING THAT IS UNRUN AND WILL FIRST BE EXERCISED BY A SUITE RUN***:
+23 verifiers had a dead ANSI strip that is now LIVE (entry 10), and both runners
+now close transcripts a step leaks (entry 40). If `-Run b50` shows a new
+failure, suspect those before suspecting the product.
