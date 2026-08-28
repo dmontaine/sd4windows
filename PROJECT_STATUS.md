@@ -5,6 +5,8 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
+***SEVENTY-SECOND SESSION, 28 Aug 2026 — THE THREE DOORS ARE COVERED AND PRE_RELEASE 19 IS CLOSED.*** The `verify-doors` pair ran end to end on `sddr2` and **every leg passed**: `Create` 8/8, ***`Control` 6/6 — ssh, `logto` and the API ALL ADMITTED*** — `Suspend` 5/5, ***`Refused` 4/4 — ALL THREE REFUSED***. `LOGIN:477` and `CPROC:3776` said it in SD's own words (10107), **ssh after the banner** so authentication had succeeded and the refusal is SD's, with the account **still in `sdssh`** so no Windows group moved. ***THE API DOOR WAS REACHED FOR THE FIRST TIME***, and since it cannot identify its own refusal, **the controlled pair is the proof**: same account, same password, same call, admitted then refused, the suspension the only change. ***THE OWNER'S RULING — "19 stays B until the doors are covered" — IS SATISFIED BY A PASSING RUN RATHER THAN BY ARGUMENT.*** ***THE FIRST CONTROL RUN FAILED, AND THE FAULT WAS THE VERIFIER***: `CREATE.ACCOUNT` prompts for the **Windows** password, which is what sshd checks, while the API does SCRAM against a PBKDF2 verifier in `sdsys\$cred` that **only `MODIFY.PASSWORD` writes** — route granted, credential absent, with the account already in `sdapi`. `Create` now sets it; **SD confirmed the diagnosis in its own words**: *"Account SDDR2A has no password set. Setting the first one."* **The product half is PRE_RELEASE 42, open, the owner's call.** ***BOTH UNELEVATED LEGS WERE RUN BY THE AGENT***, its token measured first (`IsInRole(Administrator)` **False**). **`sddr1` and `sddr2` are spent — a prefix is single-use once its account has reached the Control leg.** `gplbld` and docs only, **no cycle**, `assert-current` **exit 0**.
+
 ***SEVENTY-FIRST SESSION, 28 Aug 2026 — PRE_RELEASE 10, 40 AND 41 ARE DONE. TWELVE ENTRIES CLOSED TODAY.*** All three are `gplbld` only, **no cycle**, and `assert-current` is **exit 0** after all of it. ***10 WAS NOT "TWO VERIFIERS" — IT WAS 23 FILES AND 24 OCCURRENCES, AND IT WAS STILL SPREADING***: three of the 23 were written the same day by copying `probe-catprivate.ps1`'s `Invoke-SD` *"unchanged"*. All converted to `([char]27 + …)`, and **guarded by a test rather than 23 comments** — `test-verdict-units.ps1` scans the whole directory, **tokenising rather than grepping**, because the first version failed on two files whose *comments* correctly quote the dead form. ***40 IS FIXED IN THE TWO RUNNERS, NOT IN FIFTEEN VERIFIERS***: they close what a step left open, **name the step that leaked**, and `VerifyInstall1` restores its own with `-Append` — one place, and it also covers the case a `try`/`finally` does not, a step that dies outright. ***41'S POSITIVE CONTROL FOUND A SAFETY BUG IN 41'S OWN FIX***: under a permissive pattern the new `C:\Users` scan returned **`All Users`, a junction to `C:\ProgramData`**, for which the code prints `Remove-Item -Recurse -Force`. **Reparse points are now excluded in both copies.**
 
 ***SEVENTY-FIRST SESSION, 28 Aug 2026 — PRE_RELEASE 19 IS MEASURED DOWN TO THE THREE DOORS, AND ITEM 5.5 IS DELIVERED.*** ***`verify-tierchange` 28 PASS / 0 FAIL, first run, `-Prefix sdtc1`*** — the required keyword (10111 and **nothing moved**), what leaves with ADMINISTRATOR (Windows `Administrators` **and** the `os.users` record, both asserted present first so their removal is a transition), and the "left alone" count. ***THE ARITHMETIC CONFIRMED ITSELF***: `D = 397` from **both** `A + added − removed` **and** `P + kept`, two independent routes to the same number, with no count typed anywhere. ***ONE ROW OF 19'S TABLE IS LEFT — THE THREE DOORS — AND IT IS PRE_RELEASE 38's, NOT SOMETHING THIS FILE CAN REACH.*** ***RULED BY THE OWNER, 28 Aug 2026: "19 stays B until the doors are covered."*** **Not to be struck, folded into 38, or downgraded** because the other six rows are measured — what closes it is coverage of `LOGIN:477`, `CPROC:3776` and `APISRVR:507`, not argument. **19 is a `B` and it led with three claims that are now false, two of which were false when written.** *"Not one line of `tier.set` has executed"* — `verify-tiers` section 6 ran, 33 PASS. *"The test cannot be piped"* — ***wrong when written***: a password prompt is answered by the next LINE of one string, which is §6's own fix, and `verify-tiers` had been creating accounts that way for weeks; `verify-acctmsgs` did it four times twice over on 28 Aug. *"There is no verifier"* — half true. ***WHAT IS ACTUALLY LEFT OF 19 IS THREE ROWS***, and `gplbld/verify-tierchange.ps1` (new, **item 5.5's owed measurement**) covers them: **the required keyword (10111), what leaves with ADMINISTRATOR (Windows `Administrators` + the `os.users` record), and the "left alone" count**. ***THE THREE DOORS ARE STILL NOT COVERED BY ANYTHING*** — they need an unelevated session, an ssh login and an API pair. That is PRE_RELEASE 38. **`sdtc1` is free.**
@@ -115,47 +117,61 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩ DO THIS FIRST. THE OWNER IS WAITING FOR THIS ONE COMMAND. ⇩
+> # ⇩ THE DOORS ARE COVERED. ONE COMMAND IS OWED, AND IT IS ONLY CLEAN-UP. ⇩
 >
-> ***HANDOFF, SEVENTY-SECOND SESSION, 28 Aug 2026.*** **Print the command below,
-> verbatim, and hand it over first.** The owner runs it in his own terminal and
-> pastes the output back. **The unelevated legs are NOT his** — see "who runs
-> which leg" below.
+> ***HANDOFF, SEVENTY-SECOND SESSION, 28 Aug 2026.*** ***PRE_RELEASE 19 IS
+> CLOSED AND SO IS ITS LAST ROW.*** The `verify-doors` pair ran end to end on
+> `sddr2` and **every leg passed**. The only thing outstanding is taking the
+> fixture away.
 >
 > ***ELEVATED PowerShell.***
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr2 -Phase Create
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr2 -Phase Remove
 > ```
 >
-> ***`sddr1` IS SPENT AND MUST NOT BE REUSED — THE REASON IS NOT TIDINESS.***
-> `-Phase Remove` passed 2/2 and left **`C:\Users\sddr1a`** on disk with its
-> registry hive still mounted (**PRE_RELEASE 35/36**, and the Remove phase
-> reports it from disk rather than from what the delete claimed). The profile
-> exists because **the Control leg's ssh login created it**. Windows will not
-> put a new profile where one already sits, so a recreated `sddr1a` gets a
-> **suffixed home** — an unmeasured variable in a test whose entire point is
-> that **the suspension is the only thing that changes**. Only a restart
-> releases the hive. ***`sddr2` was measured free 28 Aug: no Windows user, no
-> `sdu_` group, no `ACCOUNTS` record, no profile directory, and no suffixed
-> `sddr*` home exists yet.*** **No `Remove` is needed first** — `sddr2a` does
-> not exist.
+> **It will report `C:\Users\sddr2a` left behind. That is EXPECTED, not a
+> failure** — the Control leg's ssh login created the profile and its registry
+> hive is still mounted (PRE_RELEASE 35/36; only a restart releases it). The
+> phase reads the leftovers **from disk** rather than from what
+> `DELETE.ACCOUNT` claimed, which is why it can say so at all.
 >
-> **WHY THE FIXTURE IS BEING RE-MADE AT ALL.** The Control leg ran for the
-> first time and **found a real defect in `Create` itself**: `CREATE.ACCOUNT`
-> prompts for the **Windows** password only, and **the API authenticates
-> against a different store** — SCRAM over a PBKDF2 verifier in `sdsys\$cred`
-> that **only `MODIFY.PASSWORD` writes**. So `sddr1a` had no SD password, and
-> no rerun of the measuring half could ever have admitted the API door.
-> **`Create` now sets it** (`verify-doors-admin.ps1`, anchored on
-> `Password set for account`, with the three refusal wordings as
-> disqualifiers).
+> ***THE FOUR LEGS, ALL GREEN, 28 Aug 2026 — `sddr2`.***
 >
-> ***THE MEASUREMENT THAT FOUND IT, 28 Aug 2026 — `-Phase Control`, 5 of 6.***
-> **ssh ADMITTED and `logto` ADMITTED** (both doors' first ever run), API
-> refused with `QMError(): Invalid username or password` while `sddr1a` was in
-> `sdapi`, `sdssh` **and** `sdusers` — **route granted, credential absent.**
-> That is **PRE_RELEASE 42**, and the product half is the owner's call.
+> | leg | shell | result |
+> |---|---|---|
+> | `Create` | elevated | **8/8** |
+> | `Control` | **unelevated, the agent's own** | ***6/6 — ssh, `logto` and the API ALL ADMITTED*** |
+> | `Suspend` | elevated | **5/5**, and *still in `sdssh`* — the suspension moved no Windows group |
+> | `Refused` | **unelevated, the agent's own** | ***4/4 — ALL THREE REFUSED*** |
+>
+> **ssh and `logto` refused in SD's own words** — 10107, *"Account SDDR2A is
+> suspended"* — and **ssh refused AFTER the banner**, so authentication had
+> succeeded and the refusal is `LOGIN`'s, not sshd's. **The API cannot identify
+> its own refusal by design**, so what proves it is the pair: same account,
+> same password, same call, admitted then refused, **the suspension the only
+> thing changed in between.**
+>
+> ***BOTH PREFIXES ARE SPENT. A PREFIX IS SINGLE-USE ONCE ITS ACCOUNT HAS
+> REACHED THE CONTROL LEG*** — the ssh login leaves a profile directory that
+> `DELETE.ACCOUNT` cannot remove, Windows will not put a new profile where one
+> already sits, and a rebuilt account would get a **suffixed home**: an
+> unmeasured variable in a test whose whole point is that only the suspension
+> changes. **`sddr1` and `sddr2` are used; the next attempt takes `sddr3`, and
+> measures it free first** (no Windows user, no `sdu_` group, no `ACCOUNTS`
+> record, no profile directory).
+>
+> ***WHAT THE FIRST CONTROL RUN FOUND, AND WHY IT MATTERED.*** On `sddr1` the
+> API refused with `QMError(): Invalid username or password` while the account
+> was in `sdapi`, `sdssh` **and** `sdusers` — **route granted, credential
+> absent.** `CREATE.ACCOUNT` prompts for the **Windows** password, which is
+> what sshd checks; the API does SCRAM against a PBKDF2 verifier in
+> `sdsys\$cred` that **only `MODIFY.PASSWORD` writes**. `Create` now sets it,
+> anchored on `Password set for account` **case-sensitively** (`:153` prints
+> *"has no password set"* on a path that has not set one). **SD then confirmed
+> the diagnosis in its own words on `sddr2`:** *"Account SDDR2A has no password
+> set. Setting the first one."* **The product half is PRE_RELEASE 42 and is the
+> owner's call.**
 >
 > ***WHO RUNS WHICH LEG — MEASURED, NOT ASSUMED.*** The agent shell is
 > `GITORLI\don` **UNELEVATED**, a child process reads back a batch file written
@@ -170,10 +186,15 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > unelevated)** → Remove. ***If the Control leg fails, STOP*** — a door that
 > refuses before the suspension makes its later refusal worthless.
 >
-> ***WHAT THIS CLOSES:*** the last row of **PRE_RELEASE 19**, which the owner
+> ***WHAT THIS CLOSED:*** the last row of **PRE_RELEASE 19**, which the owner
 > ruled on 28 Aug 2026 **stays `B` until the doors are covered**. A written
-> verifier is not coverage; only a passing run is. **Two of the three doors are
-> now measured** — what is left is the API pair.
+> verifier is not coverage; only a passing run is — and there is now a passing
+> run, so **19 is struck**. ***WHAT IS LEFT OF PRE_RELEASE 38 IS A DECISION,
+> NOT A MEASUREMENT***: the pair is standalone and **not wired into
+> `VerifyInstall1`**, deliberately, for the same reason `verify-acctmsgs` is
+> not — it creates a real Windows account, and it needs an elevated half and an
+> unelevated half. **Wire it into the two runners, or leave it standalone and
+> named in the docs? Owner's call.**
 >
 > ***THE STATE YOU INHERIT IS GREEN AND PUSHED.*** `main` at **`67cf316`**,
 > tree clean, `assert-current` **exit 0**, `check-stale-leads` **exit 0**,
@@ -403,17 +424,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > administration verbs: **the edited record is provably still there and provably
 > the only difference.** No count is typed anywhere in the file.
 >
-> ***ONE ROW OF 19'S TABLE IS LEFT: THE THREE DOORS.*** Nothing covers them, and
-> nothing here pretends to — the script prints them as NOT tested rather than
-> scoring them. They need an unelevated session, an ssh login and an API pair,
-> which is **PRE_RELEASE 38**.
+> ***THE LAST ROW OF 19'S TABLE — THE THREE DOORS — IS NOW COVERED, 28 Aug
+> 2026.*** `verify-tierchange` never claimed them: it prints them as NOT tested
+> rather than scoring them, which is why the row survived to be closed
+> honestly. The `verify-doors` pair covers them, all four legs green on
+> `sddr2`. **The ruling *"19 stays B until the doors are covered"* is satisfied
+> by that run, so 19 is struck.**
 >
-> ***RULED, 28 Aug 2026: "19 stays B until the doors are covered."*** So it is
-> **open, `B`, and not to be struck, folded into 38, or downgraded** because the
-> other six rows are measured. **What closes it is coverage, not argument.**
+> **The table below is kept as written** — it is the analysis of *why* nothing
+> reached the doors, and it is what the pair was built from.
 >
-> ***THE DOORS ARE THE NEXT PIECE OF WORK, AND EACH NEEDS A SESSION THIS
-> PROJECT'S VERIFIERS DO NOT CURRENTLY TAKE:***
+> ***WHAT EACH DOOR NEEDED, AND WHY NOTHING REACHED IT BEFORE:***
 >
 > | door | where | why nothing reaches it yet |
 > |---|---|---|
@@ -608,12 +629,13 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > SUSPENDED on no door), **39** (uninstall leaves every account without its ssh
 > confinement), **40** (a verifier's transcript records the verifiers after it).
 >
-> ***THE THREE MEASUREMENTS STILL OWED***, none of which needs a decision:
-> item **5.2's API door** (`APISRVR:507`, never reached — and it **cannot be
-> tested by its wording**, which is deliberate, so it needs a controlled pair);
-> item **5.4**, `tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b` in the
-> docs repo, 15 cases, compiled clean and **never run**; item **5.5**,
-> `verify-tierchange.ps1`, which can now be written against known behaviour.
+> ***THE THREE MEASUREMENTS THEN OWED — TWO ARE NOW DONE.*** ~~item **5.2's API
+> door** (`APISRVR:507`, never reached — and it **cannot be tested by its
+> wording**, which is deliberate, so it needs a controlled pair)~~ — **DONE
+> 28 Aug 2026: the controlled pair ran on `sddr2`, ADMITTED then REFUSED.**
+> ~~item **5.5**, `verify-tierchange.ps1`~~ — **DONE 28 Aug, 28 PASS.** **STILL
+> OWED: item 5.4**, `tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b` in
+> the docs repo, 15 cases, compiled clean and **never run**.
 >
 > ***THE FIXTURES EXIST AND ARE NOT IN THEIR ORIGINAL STATES.*** `b48tier` is
 > **STANDARD** now, not PROGRAMMER — item 5.1 downgraded it — and its

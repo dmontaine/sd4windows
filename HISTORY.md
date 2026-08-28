@@ -40190,3 +40190,37 @@ the suspension is the only thing that changes.
 `sdu_` group, no `ACCOUNTS` record, no profile directory, and no suffixed
 `sddr*` home anywhere. **No `Remove` was needed** - `sddr2a` did not exist.
 `sddr1` is spent.
+
+## 28 Aug 2026, seventy-second session - the three doors are covered, 19 closed
+
+***ALL FOUR LEGS GREEN ON `sddr2`***: `Create` 8/8, **`Control` 6/6 with ssh,
+`logto` and the API ALL ADMITTED**, `Suspend` 5/5, **`Refused` 4/4 with ALL
+THREE REFUSED**. The two unelevated legs were run by the agent, its token
+measured first.
+
+**`LOGIN:477` and `CPROC:3776` refused in SD's own words** - 10107, *"Account
+SDDR2A is suspended"*. **ssh refused AFTER the banner**, so authentication had
+succeeded and the refusal is SD's rather than sshd's; `Suspend` had already
+asserted the account was **still in `sdssh`**, so no Windows group moved. The
+`logto` refusal was also checked NOT to be the group-membership one.
+
+***THE API DOOR WAS REACHED FOR THE FIRST TIME.*** It cannot identify its own
+refusal - `APISRVR:507` answers 10003 for *"no such account"* and *"not
+granted"* too - so **the controlled pair is the proof**: same account, same
+password, same call, `ok connected to account SDDR2A` and then refused, with
+the suspension the only thing changed in between.
+
+**PRE_RELEASE 19 is struck.** The owner's ruling was *"19 stays B until the
+doors are covered"*, and the condition is met by a passing run rather than by
+argument. **What is left of 38 is a decision, not a measurement**: the pair is
+standalone and not wired into `VerifyInstall1`, deliberately - it creates a
+real Windows account and needs an elevated half and an unelevated half. Wiring
+it in is the owner's call.
+
+**SD confirmed PRE_RELEASE 42 in its own words** on the `Create` leg: *"Account
+SDDR2A has no password set.  Setting the first one."* - so `create.account`
+leaving no SD credential is now stated by the product, not inferred.
+
+`gplbld` and docs only. **No cycle**, `assert-current` exit 0, the 28 Aug
+00:53:34 install untouched. **`sddr1` and `sddr2` are both spent; the next
+attempt takes `sddr3`.**
