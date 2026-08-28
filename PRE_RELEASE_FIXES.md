@@ -52,7 +52,7 @@ should be fixed, **M** minor.
 | 26 | **S** | `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — UPSTREAM #27, **unfixed here** | `gpl.bp/DELETEF:233` |
 | 27 | **M** | `modify.account` *acc* `add`/`delete` makes the same group change as `grant`/`revoke` and writes no audit record | `gpl.bp/MODIFYA:344` |
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
-| 29 | **S** | ***`micro` reports "Permission denied" on every save — but the file IS saved.*** A false alarm, not data loss (downgraded from **B**, 27 Aug, after measuring). No flag suppresses it; `MICRO_CONFIG_HOME` must be writable. **The shipped `-backup off` does NOT fix it and its comment is wrong.** Owner's shape: a per-user directory under the home directory | `gpl.bp/EDIT:227` |
+| 29 | **S** | ~~`micro` reports "Permission denied" on every save — the file IS saved, so a false alarm, not data loss~~ (downgraded from **B**). ***FIXED 27 Aug: `MICRO_CONFIG_HOME` is now `~/.micro`, per user and writable, via the new `micro-home.ps1`.*** The dead `-backup off` is gone. **Uncompiled — needs a cycle** | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
 | 30 | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
 | 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
 
@@ -900,24 +900,22 @@ could not be given, and the master stays read-only and single-sourced. **Both
 comments have to be corrected in the same commit as the fix; they are the reason
 the next reader would undo it.**
 
-**Still to settle, and both are the owner's:**
+**Both open questions are settled, one by ruling and one by design:**
 
-1. ***`~/.micro` or micro's own `~/.config/micro`?*** `~/.config/micro` needs no
-   `MICRO_CONFIG_HOME` at all — micro finds it unaided — and picks up a user's
-   existing micro customisations, but SD then writes `sdbasic.yaml` into a
-   directory that is the user's own. `~/.micro` is SD's, explicitly named in
-   `MICRO_CONFIG_HOME`, and cannot collide with a personal micro setup in either
-   direction.
-2. ***Does an SD account that only ever arrives over ssh get a profile?***
-   **STILL OPEN, and the obvious evidence is a false friend.** `C:\Users` holds
-   `sdacctb48`, `sdsshb48`, `sdapiab48` and seven more from the `b48` run, which
-   looks like a yes — but every one of them is an **empty stub**: no
-   `NTUSER.DAT`, no contents. They are what `delete.account` leaves behind
-   (*"the Windows profile for X was left behind"*), not working profiles.
-   **Measure it on a live ssh session as an `sdu_` account** — `$env:USERPROFILE`
-   resolved, and a file actually created under it — before relying on it, and
-   decide what `EDIT` does when it is absent or unwritable: refuse with a
-   message, or fall back to a throwaway directory under `TEMP`.
+1. ***`~/.micro`, not micro's own `~/.config/micro`*** — the owner's, and this
+   host is the argument for it: `C:\Users\dmont\.config\micro` **already exists**
+   with a personal `bindings.json` in it, made outside SD. Using micro's native
+   path would mean SD writing `sdbasic.yaml` into a directory that is the user's
+   own, and their personal settings silently changing SD's editor. `~/.micro` is
+   SD's and collides with neither direction.
+2. ***The ssh-profile question is no longer a gate.*** It was going to be:
+   `C:\Users` holds `sdacctb48`, `sdsshb48` and eight more from the `b48` run,
+   which looks like proof that SD accounts get profiles — but every one is an
+   **empty stub** with no `NTUSER.DAT`, left by `delete.account`, so it proves
+   nothing. **`micro-home.ps1` falls back to `%TEMP%\sd-micro` instead**, and
+   both candidates are per-user and private, so the plugin question is answered
+   whichever wins. Worth measuring on a live `sdu_` ssh session out of interest;
+   nothing waits on it.
 
 ***AND A TRAP FOR WHOEVER IMPLEMENTS IT: THE PROFILE DIRECTORY IS NOT THE
 ACCOUNT NAME.*** Measured on this host, 27 Aug 2026:
@@ -930,7 +928,45 @@ USERPROFILE = C:\Users\dmont
 **`C:\Users\` plus the login name is wrong here and would be wrong silently** —
 it would create a second, unused directory and micro would still have nowhere
 writable. Use `%USERPROFILE%`, which Windows resolves correctly, and never build
-the path from `@logname` or `$env:USERNAME`.
+the path from `@logname` or `$env:USERNAME`. `micro-home.ps1` uses
+`%USERPROFILE%`.
+
+---
+
+### ***IMPLEMENTED 27 Aug 2026 — UNCOMPILED IN THE SHIPPED TREE, AWAITING A CYCLE***
+
+| | |
+|---|---|
+| **`gplbld/micro-home.ps1`** | **new, and it ships.** Resolves `%USERPROFILE%\.micro`, falls back to `%TEMP%\sd-micro`, **proves the directory writable by writing a probe file to it** rather than trusting `Test-Path`, copies `sdbasic.yaml` from the Program Files master and refreshes it when the master is newer, and prints one line: `MICROHOME=<path>`. Exit 1 with no such line when there is nowhere to write |
+| **`sdsys/gpl.bp/EDIT`** | `-backup off` and its twelve-line justification **deleted**; `editor.args` gone. New `micro.home` subroutine runs the script and reads the `MICROHOME=` line, called **before the working copy is written**, beside the other two gates. The old `editor.cfg = kernel(K$WINPATH, '/micro')` is gone |
+| **`gplbld/stage.py`** | ships `micro-home.ps1`; the `microcfg` comment rewritten — it is the **read-only master** now, and the claim that a profile "could never be given" the syntax file is corrected in place |
+| **`sdsys/changelog`** | rewritten. The first version described the auto-backup mechanism and said the save failed; both were wrong |
+
+***THE ANCHOR IS THE SUCCESS WORDING, PER THE STANDING RULE.*** `MICROHOME=` is
+printed on one path only — after the directory has been proved writable **by
+writing to it** — and every diagnostic line begins `micro-home:` instead, so
+`EDIT` cannot match its own input or an error message. On failure `EDIT` prints
+the script's own output, which names each candidate it tried.
+
+***WHAT WAS MEASURED BEFORE HANDING IT OVER, AND WHAT WAS NOT.*** `micro-home.ps1`
+was **parse-checked** (0 errors, 2 functions), byte-scanned (no BOM, LF), and
+**run four ways as unelevated `don`**: first run created
+`C:\Users\dmont\.micro\syntax\sdbasic.yaml`, sha-identical to the master; second
+run said `already current`; with `USERPROFILE` pointed at a read-only directory
+it fell through to `...\Temp\sd-micro`; with neither variable set it refused,
+exit 1, no `MICROHOME=` line. **`gpl.bp/EDIT` was compiled** — a scratch copy in
+`don`'s own BP with `$catalog` and `$internal` stripped, 967 lines, and the only
+error is `Matrix KERNEL is not referenced in a DIM statement`, which is what
+stripping `$internal` does to the four `kernel()` calls. **Not measured: the
+whole thing running.** That needs the cycle.
+
+> ***A FALSE GREEN WAS CAUGHT IN THE MIDDLE OF THAT AND IS WORTH THE LINE.*** The
+> first compile was run against `C:\ProgramData\SD\sdsys\gpl.bp\EDIT` — the
+> **installed** copy, which no cycle had touched — and it compiled with only the
+> expected artefact. It was testing the code this entry replaces. The tell was
+> in the evidence and not in the verdict: `micro.home:` did not appear in the
+> file, and line 237 still read `kernel(K$WINPATH, '/micro')`. **Print what the
+> instrument actually read, not just what it concluded.**
 
 ***WHAT IS ALREADY THERE, WHICH ARGUES FOR THE OWNER'S `.micro` OVER micro's OWN
 PATH.*** `C:\Users\dmont\.config\micro` **already exists** on this host with

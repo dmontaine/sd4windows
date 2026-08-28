@@ -39073,3 +39073,55 @@ and page 02 all state that `term default` does NOT restore 120 x 36 and give
 `term 120,36` as the way to do it. Every one of those sentences was true when
 written and is false as of this install. A page whose value is a measured defect
 is exactly the page a fix invalidates, and nothing catches it but a person.
+
+## 27 Aug 2026 - PRE_RELEASE 29 fixed properly: a per-user micro configuration home
+
+The owner's shape, implemented the same evening the wrong fix was measured.
+
+***`gplbld/micro-home.ps1` IS NEW AND IT SHIPS.*** It resolves
+`%USERPROFILE%\.micro`, falls back to `%TEMP%\sd-micro`, **proves the directory
+writable by writing a probe file to it** rather than trusting `Test-Path`, copies
+`sdbasic.yaml` from the read-only Program Files master and refreshes it when the
+master is newer, and prints one line - `MICROHOME=<path>` - or exits 1 without
+it. `gpl.bp/EDIT` gains `micro.home`, which runs it and reads that line **before
+the working copy is written**, beside the other two gates. The `-backup off` and
+`editor.args` are deleted outright. `stage.py` ships the script.
+
+***THE ANCHOR IS THE SUCCESS WORDING, PER THE STANDING RULE.*** `MICROHOME=`
+appears on one path only - after the write probe succeeded - and every
+diagnostic begins `micro-home:` instead, so `EDIT` cannot match its own input or
+an error message. On failure it prints the script's own output, which names each
+candidate tried and why it was refused.
+
+***%USERPROFILE%, NEVER `C:\Users\<login>`.*** Measured: the login here is `don`
+and the profile is `C:\Users\dmont`. Building the path from the account name
+would have been wrong SILENTLY - a directory nobody reads, and micro still with
+nowhere writable, which is the bug being fixed.
+
+***THE ssh-PROFILE QUESTION STOPPED BEING A GATE RATHER THAN BEING ANSWERED.***
+The `C:\Users\sd*` directories from `b48` look like proof that SD accounts get
+profiles and are empty stubs with no `NTUSER.DAT`. The TEMP fallback means the
+fix does not wait on it; both candidates are per-user and private, so micro's
+Lua plugins stay unshareable either way.
+
+***WHAT WAS MEASURED BEFORE HANDING IT OVER.*** The script: parse-checked (0
+errors, 2 functions), no BOM, LF; then RUN four ways as unelevated `don` - first
+run created `.micro\syntax\sdbasic.yaml` sha-identical to the master, second said
+`already current`, a read-only `USERPROFILE` fell through to TEMP, and neither
+variable set refused with exit 1 and no `MICROHOME=` line. `gpl.bp/EDIT`
+compiled: scratch copy in `don`'s own BP with `$catalog` and `$internal`
+stripped, 967 lines, sole error `Matrix KERNEL is not referenced in a DIM
+statement` - what stripping `$internal` does to the four `kernel()` calls.
+**Not measured: the whole thing running.** That needs the cycle.
+
+> ***A FALSE GREEN WAS CAUGHT MID-CHECK AND IS THE LESSON OF THE DAY.*** The
+> first compile ran against `C:\ProgramData\SD\sdsys\gpl.bp\EDIT` - the
+> INSTALLED copy, which no cycle had touched - and came back with only the
+> expected artefact. It was compiling the code being replaced. Nothing in the
+> verdict said so; the tell was in the evidence beside it, `micro.home:` absent
+> from the file and line 237 still reading `kernel(K$WINPATH, '/micro')`. **This
+> is the second instrument failure in one day on the same defect** - the first
+> was a diagnosis reasoned rather than measured. Print what the instrument
+> actually read, not just what it concluded.
+
+Litter cleaned: the scratch `ZZEDIT` and its `INT$KEYS.H` are out of `don`'s BP.
