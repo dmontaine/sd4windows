@@ -39474,3 +39474,19 @@ defect in bulk: `sdacctb48` + `sdacctb48.GITORLI`, `sdsshb48` +
 `.<COMPUTERNAME>` first and `.000` when that is taken too**, so the `.000` pairs
 collided twice. Nine pairs from one suite run - this was never theoretical, it
 was just never looked at.
+
+**And after a restart the sweep cleared every one of them.**
+`cleanup-devlitter.ps1`, 27 Aug 2026: **`removed 53, failed 0`**, profiles
+`53 -> 0`, users and groups already 0, `sdout` untouched. **A prediction written
+before the run held**: the 20 names still on disk as directories were all in the
+list, nothing outside the pattern appeared, and the other 33 - `b44`, `b46`,
+`b47` and three of `b45` - were registry entries whose directories had already
+gone.
+
+***THE MECHANISM IS CONFIRMED; A BEFORE-AND-AFTER IS NOT.***
+`Remove-CimInstance` was measured failing on a mounted hive an hour earlier and
+then succeeded 53 times once a restart had unmounted them - but no failing sweep
+run is on record, only the accumulation, so the accumulation is *consistent
+with* the cause rather than a watched repair. **The operational rule keeps its
+reason: the reboot in the middle of `cleanup-devlitter.ps1` is what makes the
+PROFILE pass possible, not the accounts pass.**

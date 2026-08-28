@@ -59,7 +59,7 @@ should be fixed, **M** minor.
 | ~~33~~ | **S** | ~~`allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing**~~ — **DONE 27 Aug 2026**, the usage line names `-Installed` and a dated note says which forms need it. Comment only, parses 0 errors / 1247 tokens | `gplbld/allow-ssh-groups.ps1:4` |
 | 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Owner's call, and not to be settled by adding a link** | docs repo `tools/release.ps1`, `tools/checklinks.py` |
 | 35 | **S** | ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32. `DELETE_USER` now tries to remove it, **and MEASURED: it cannot be deleted OR renamed while the hive is mounted**, so the honest answer is the rewritten `10075`, which names the cause and the restart. **Cure is 36** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
-| 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — which is the ROOT CAUSE of 32 and 35, and probably why the 53 stale `ProfileList` entries were never swept. Nothing SD does can unmount them; only a restart. **Two decisions for the owner, neither built** | Windows lifecycle; `gplbld/clean-test-profiles.ps1` |
+| 36 | **M** | ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — the ROOT CAUSE of 32 and 35. **Mechanism confirmed: `Remove-CimInstance` failed on a mounted hive, then cleared `53 removed, 0 failed` after a restart.** Nothing SD does can unmount them. **Two decisions for the owner, neither built** | Windows lifecycle; `gplbld/clean-test-profiles.ps1` |
 
 ***UPSTREAM #18 AND #19 ARE FIXED IN THIS TREE*** and are deliberately not
 listed above — `op_config.c` and `op_skt.c`, both 26 Aug 2026, each citing its
@@ -1472,3 +1472,28 @@ rather than never having been run.
 **Nothing here is a regression**; it is how Windows has always behaved and how
 this project has always run. It became visible because 32's fix removed the
 half that was masking it.
+
+***MEASURED AFTER A RESTART, 27 Aug 2026 — THE SWEEP CLEARED ALL 53.***
+`cleanup-devlitter.ps1` on a freshly rebooted machine: **`removed 53, failed 0`,
+profiles matching `53 -> 0`**, users and groups already at 0, `sdout` untouched.
+
+**A prediction was written before the run and it held**: the **20** names still
+on disk as directories were all in the list — `sdacctb48` and its `.GITORLI`,
+the five `.000` pairs, the three `sdtapib48*` pairs — and **nothing outside the
+pattern appeared**: not `b49home`, `b50home`, `dmont`, `Default` or `Public`.
+The other **33** were `b44`, `b46`, `b47` and three of `b45`: **registry entries
+whose directories were already gone.** 20 + 33 = 53.
+
+***WHAT THIS PROVES AND WHAT IT DOES NOT.*** It proves the mechanism:
+`Remove-CimInstance` **failed** on a mounted hive an hour earlier — measured on
+`b50home`, along with `reg unload` and `Rename-Item` both refused — and the same
+call then **succeeded 53 times** once a restart had unmounted them. **It is not
+a controlled before-and-after on the same objects**: no failing sweep run is on
+record, only the accumulation. So the honest statement is that the mechanism is
+confirmed and the accumulation is consistent with it, not that a failure was
+watched and then repaired.
+
+***THE OPERATIONAL RULE IS THEREFORE UNCHANGED AND NOW HAS ITS REASON:*** the
+reboot in the middle of `cleanup-devlitter.ps1` is not about the accounts pass
+at all. **It is what makes the profile pass possible**, and running the sweep
+without it is what leaves work behind.
