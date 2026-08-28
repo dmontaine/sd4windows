@@ -916,14 +916,14 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > the design — about four UAC prompts:
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b47
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b48
 > ```
 >
 > ***`-Run` ON ITS OWN DOES NOTHING*** — it is *"ignored without
 > `-ThenElevated`"*. Without that switch `VerifyInstall1` runs its 12 unelevated
 > steps, prints **"every step exited 0"** and stops, which reads exactly like a
-> finished suite and is **12 of 31**. ***`b46` IS SPENT — USE `b47`.*** A `-Run`
-> prefix is spent once.
+> finished suite and is **12 of 31**. ***`b46` AND `b47` ARE SPENT — USE `b48`.***
+> A `-Run` prefix is spent once.
 >
 > ***AND THE SAME TRAP RUNS THE OTHER WAY, WHICH IS HOW `b46` GOT WRITTEN DOWN
 > WRONG.*** The two halves print **different** summary lines and neither names
