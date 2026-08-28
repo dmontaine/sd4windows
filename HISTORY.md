@@ -39976,3 +39976,57 @@ DECISION IN IT.*** Everything remaining in 19, a `B`, lives in 38, an `M`.
 Striking 19 and pointing at 38 would be tidy and would quietly move a release
 blocker onto a minor entry, so **19 is left open and left `B`** for the owner
 to rule on. `sdtc1` is spent; the next prefix is `sdtc2`.
+
+## 28 Aug 2026, seventy-first session - PRE_RELEASE 10, 40 and 41
+
+All three are `gplbld` only, no cycle, and `assert-current` is exit 0 after all
+of it. 86 scripts parse with 0 errors; `clean-test-profiles -SelfTest` 24 of 24
+must-match and 18 of 18 rejected; `test-verdict-units` 98 of 98.
+
+***10 WAS NOT "TWO VERIFIERS". IT WAS 23 FILES AND 24 OCCURRENCES, AND IT WAS
+STILL SPREADING*** - three of the 23 were written on 28 Aug 2026 by copying
+`probe-catprivate.ps1`'s `Invoke-SD` *"unchanged"*. All are now
+`([char]27 + '\[[0-9]*[A-Za-z]')`.
+
+**Guarded by a test rather than by 23 comments.** A comment warns whoever reads
+that file; the test fails for whoever copies any of them.
+`test-verdict-units.ps1` scans the whole DIRECTORY rather than a list of names,
+because a list is what was wrong last time. ***It tokenises rather than
+greps***: the first version failed on two files that are CORRECT -
+`verify-osusers.ps1` and the test itself, whose comments quote the dead form
+while explaining it. A checker that cannot tell code from a comment about code
+would have forced the explanations out of the tree to make itself pass. There
+is a positive control too - the live `[char]27` form must exist somewhere - so
+that deleting the strip instead of fixing it cannot read as a pass.
+
+***40 IS FIXED IN THE TWO RUNNERS RATHER THAN IN FIFTEEN VERIFIERS.*** The entry
+proposed a `try`/`finally` around each verifier's body; wrapping fifteen scripts
+unrun is a worse trade than the bug. `VerifyInstall1` and `VerifyInstall2` now
+close every transcript a step left open and NAME the step that leaked - a leak
+is a defect in that step and a fix that hides it would leave nobody a way to
+find out which one. One place, it cannot be forgotten by the next verifier
+somebody writes, and it covers the case a `try`/`finally` does not: a step that
+dies outright. `VerifyInstall1` restores its own transcript with `-Append`;
+`VerifyInstall2` has none - checked, not assumed, its only two mentions of
+`Start-Transcript` are in a comment. **Mechanism verified against real nested
+transcripts** - none-open does not throw, three leaked are all closed, and the
+runner shape keeps its pre-leak output and goes on recording after the restore.
+**Not yet exercised by a suite run.**
+
+***41'S POSITIVE CONTROL FOUND A SAFETY BUG IN 41'S OWN FIX.*** Both scripts now
+scan `C:\Users` directly as a second, independent instrument - the point being
+that it reaches what `Win32_UserProfile` cannot, so the two disagreeing is the
+signal. `clean-test-profiles.ps1` names them UNREACHABLE with the reason and
+exits non-zero, and the scan runs BEFORE its "nothing to do" return, which is
+the path the measured run actually took. `cleanup-devlitter.ps1` counts them in
+both BEFORE and AFTER and will no longer say "every section reached zero" over
+them. Reported, not deleted - that decision is 36's.
+
+**And the control:** run with a pattern of `.`, the scan returned `All Users`
+and `Default User`, which are REPARSE POINTS - and `All Users` is a junction to
+`C:\ProgramData`, where SD's whole data tree lives. The code prints a
+`Remove-Item -Recurse -Force` line for whatever the list contains. The stem
+pattern cannot match those names today so nothing was ever at risk, but the
+suggestion is generated from the list and has to be safe whatever the pattern
+later becomes. **Reparse points are excluded in both copies**, and the test
+asserts both that they are absent and that there WERE some to exclude.
