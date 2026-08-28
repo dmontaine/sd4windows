@@ -39500,3 +39500,17 @@ controlled before-and-after on the same objects" - was thinking about the
 53-profile sweep and overlooked the object measured by hand an hour before.**
 Corrected in PRE_RELEASE_FIXES 36: the `b50home` pair carries the claim, the 53
 are corroboration.
+
+**And the clean path was measured too.** `create.account user b49test programmer
+ssh` then `delete.account b49test` **with no sign-in between**: `Group:
+sdu_b49test Deleted`, `OS User: b49test Deleted`, **and nothing after**. No
+`10075`, no `10116`. An account that never signs in has no profile, so `$dir` is
+empty, the CIM call matches nothing, the key does not exist, and the script
+exits 0 - **the warnings appear only when there is something to warn about**,
+which is the half of the change that had never been exercised.
+
+**One thing spotted in that same transcript and filed as PRE_RELEASE 37**:
+`create.account` prints *"may sign in over ssh only"* and *"may sign in over
+ssh, and may not use the API"* on consecutive lines. They are the **two
+different gates** - Windows logon rights at `CREATEA:808`, SD's route keywords
+at `:1612` - and the wording makes them look like one fact said twice.
