@@ -40030,3 +40030,10 @@ pattern cannot match those names today so nothing was ever at risk, but the
 suggestion is generated from the list and has to be safe whatever the pattern
 later becomes. **Reparse points are excluded in both copies**, and the test
 asserts both that they are absent and that there WERE some to exclude.
+
+**Owner's ruling, 28 Aug 2026: "19 stays B until the doors are covered."**
+Asked because everything left in 19, a `B`, lives in 38, an `M`, and striking 19
+with a pointer to 38 would have been tidy while quietly moving a release blocker
+onto a minor entry. So 19 is open, `B`, and not to be struck, folded or
+downgraded on the strength of its other six rows being measured. **What closes
+it is coverage of `LOGIN:477`, `CPROC:3776` and `APISRVR:507` - not argument.**

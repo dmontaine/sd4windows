@@ -583,11 +583,19 @@ session**, plus **the three doors, which are not, and are PRE_RELEASE 38.**
   `A + added − removed` and `P + kept`. The edited record is provably still
   there and provably the only difference. **No count is typed.**
 
-***ONE ROW IS LEFT — THE THREE DOORS — AND IT IS ENTRY 38's.*** **This entry
-stays OPEN and stays `B`.** Everything remaining in it lives in 38, which is an
-`M`; striking this one and pointing there would be tidy and would **move a
-release blocker onto a minor entry**. ***That is a severity decision and it is
-the owner's, not a tidy-up.***
+***ONE ROW IS LEFT — THE THREE DOORS — AND IT IS ENTRY 38's.***
+
+***RULED BY THE OWNER, 28 Aug 2026: "19 stays B until the doors are covered."***
+So this entry is **OPEN**, **`B`**, and **not to be struck, folded into 38, or
+downgraded** on the strength of the other six rows being measured. Everything
+remaining in it lives in 38, which is an `M` — striking this one and pointing
+there would be tidy and would move a release blocker onto a minor entry.
+
+***WHAT CLOSES IT IS COVERAGE, NOT ARGUMENT.*** The three doors are
+`LOGIN:477`, `CPROC:3776` and `APISRVR:507`, each answering **10107** except the
+API, which answers 10003 and must stay indistinguishable from *"no such
+account"*. Until something exercises all three against a genuinely suspended
+account, this is a blocker.
 
 Built 27 Aug 2026, sixty-sixth session. `MODIFY.ACCOUNT` gained four tier
 keywords, `SUSPENDED` became a fourth `ACC$TIER` value with `ACC$PRIOR.TIER`
