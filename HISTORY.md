@@ -39909,3 +39909,47 @@ the first a broken fix and the second a working one.
 
 `sdmsga` and `sdmsgb` are spent; the next prefix is `sdmsgc`. `zzprf` is
 re-runnable as it stands.
+
+## 28 Aug 2026, seventy-first session - PRE_RELEASE 19 corrected, verify-tierchange written
+
+**19 is a `B` and it led with three claims that are now false, two of which were
+false when written.** The entry is corrected in place with a dated block; its
+table is kept, because the table is still the specification.
+
+- *"Not one line of `tier.set` has executed"* - `verify-tiers` section 6 ran on
+  the 00:53:34 install, 33 PASS.
+- ***"And the test cannot be piped" - WRONG WHEN WRITTEN, and this is the one
+  that cost something***: it is why no verifier was attempted. The reasoning was
+  that `CREATE.ACCOUNT USER` prompts for a password and a prompt down a pipe
+  eats the following lines. It does not, when the whole script is sent as ONE
+  string with LF separators - PROJECT_STATUS section 6's own fix for the phantom
+  blank line - and `verify-tiers.ps1` had been creating accounts that way for
+  weeks. `verify-acctmsgs.ps1` did it four times, twice over, on 28 Aug.
+  **The real trap is a verb given no argument, not a password.**
+- *"And there is no verifier"* - half true. Section 6 covers the round trip, the
+  write-once rule, the VOC across a release update and the null case, and says
+  in its own output that it does not cover the three doors.
+
+**So what was actually left was three rows, and `gplbld/verify-tierchange.ps1`
+covers them** - the required keyword (10111), what leaves with ADMINISTRATOR,
+and the "left alone" count. It is also PROJECT_STATUS item 5.5's owed
+measurement. **The three doors remain uncovered by anything**: they need an
+unelevated session, an ssh login and an API pair, which is PRE_RELEASE 38.
+
+***THE ARITHMETIC IS THE INSTRUMENT AND NOT ONE COUNT IS TYPED.*** The account's
+VOC is measured three times - as PROGRAMMER, as ADMINISTRATOR, as PROGRAMMER
+again - and the rows assert relations rather than constants: `A > P` is the null
+case, `D = A + added - removed` says 10113 agrees with the file, and
+***`D = P + kept`*** is the decisive one: a clean downgrade lands back on `P`, so
+the kept record is provably still there and provably the only difference. This
+is the trap that printed *"the 21 administration verbs ... 20 20 PASS"*.
+
+**A VOC record is made to differ without an editor.** `tier.del.one` removes an
+id only if what is in the account's VOC is byte-identical to what a tier build
+would write; `.S <name> 1` saves the previous command as an S-type sentence,
+which no tier build produces. Its 5045 overwrite prompt is expected and answered
+- the argument was given, so it is not the missing-argument trap.
+
+**Written and UNRUN.** Parse 0 errors, no BOM, 6 identical `Write-Verdict`
+copies, 96 of 96 verdict assertions, both refusal paths exercised. `sdtc1` is
+free, measured.

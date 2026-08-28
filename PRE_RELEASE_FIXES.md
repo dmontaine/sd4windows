@@ -541,6 +541,33 @@ system"*.
 
 ## 19. The tier change and `SUSPENDED` compile but have never run — **B**
 
+***28 Aug 2026 — THREE OF THIS ENTRY'S CLAIMS ARE NOW FALSE, AND TWO OF THEM
+WERE FALSE WHEN WRITTEN.*** Read this block before the original below it; the
+original is kept because its table is still the specification.
+
+- ***"NOT ONE LINE OF `tier.set` HAS EXECUTED" — no longer true.***
+  `verify-tiers.ps1` section 6 ran on the 00:53:34 install, **33 PASS / 0
+  FAIL**: suspend, a second suspend, the restore, and the VOC across
+  `UPDATE.ACCOUNT`.
+- ***"AND THE TEST CANNOT BE PIPED" — WRONG WHEN WRITTEN.*** The reasoning was
+  that `CREATE.ACCOUNT USER` prompts for a password and a prompt down a pipe
+  eats the following lines. **It does not, when the whole script is sent as ONE
+  string with LF separators** — that is PROJECT_STATUS §6's fix for the phantom
+  blank line, and `verify-tiers.ps1` had been creating accounts that way for
+  weeks. Confirmed again 28 Aug: `verify-acctmsgs.ps1` piped **four**
+  `CREATE.ACCOUNT USER … PROGRAMMER BOTH` with passwords, twice over.
+  **The trap is real but it is about verbs given no argument, not about
+  passwords** — see START HERE's `LIST.INDEX` finding.
+- **"AND THERE IS NO VERIFIER" — half true.** `verify-tiers.ps1` section 6
+  covers **the round trip, the write-once rule, the VOC across a release
+  update, and the null case**. It deliberately does **not** cover the three
+  doors, and says so in its own output rather than scoring them.
+
+***WHAT IS ACTUALLY LEFT, THEREFORE, IS THREE ROWS OF THE TABLE BELOW*** — the
+required keyword (10111), what leaves with ADMINISTRATOR, and the "left alone"
+count (10113's third number) — **all three testable from an elevated piped
+session**, plus **the three doors, which are not, and are PRE_RELEASE 38.**
+
 Built 27 Aug 2026, sixty-sixth session. `MODIFY.ACCOUNT` gained four tier
 keywords, `SUSPENDED` became a fourth `ACC$TIER` value with `ACC$PRIOR.TIER`
 (field 6) beside it, and three doors learnt to refuse a suspended account.

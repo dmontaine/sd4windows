@@ -5,6 +5,8 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
+***SEVENTY-FIRST SESSION, 28 Aug 2026 — PRE_RELEASE 19 IS CORRECTED AND `verify-tierchange.ps1` IS WRITTEN AND UNRUN.*** **19 is a `B` and it led with three claims that are now false, two of which were false when written.** *"Not one line of `tier.set` has executed"* — `verify-tiers` section 6 ran, 33 PASS. *"The test cannot be piped"* — ***wrong when written***: a password prompt is answered by the next LINE of one string, which is §6's own fix, and `verify-tiers` had been creating accounts that way for weeks; `verify-acctmsgs` did it four times twice over on 28 Aug. *"There is no verifier"* — half true. ***WHAT IS ACTUALLY LEFT OF 19 IS THREE ROWS***, and `gplbld/verify-tierchange.ps1` (new, **item 5.5's owed measurement**) covers them: **the required keyword (10111), what leaves with ADMINISTRATOR (Windows `Administrators` + the `os.users` record), and the "left alone" count**. ***THE THREE DOORS ARE STILL NOT COVERED BY ANYTHING*** — they need an unelevated session, an ssh login and an API pair. That is PRE_RELEASE 38. **`sdtc1` is free.**
+
 ***SEVENTY-FIRST SESSION, 28 Aug 2026 — ALL EIGHT UNWITNESSED FIXES ARE MEASURED AND STRUCK: 5, 13, 14, 15, 22, 26, 27 AND 37.*** ***`verify-vocverbs` 36 PASS / 0 FAIL; `verify-acctmsgs` 31 PASS / 0 FAIL / 0 SKIP***, both on the 28 Aug 00:53:34 install, **no cycle spent**. ***NEITHER SCRIPT PASSED FIRST TIME AND NEITHER FIRST FAILURE WAS THE PRODUCT.*** `verify-vocverbs` stopped at 21 of 22 because **`LIST.INDEX` prompts when given no index name** and the prompt ate the `OFF`; `verify-acctmsgs` **SKIPped** entry 22's refusal arm because the password it guessed — 150 characters, on my stated grounds that 127 is a hard SAM limit — **was accepted**. Both are fixed and both were re-run. ***ENTRY 22's REFUSAL ARM NEEDED THE MACHINE'S PASSWORD POLICY CHANGED***, which was the owner's ruling and his to make: `net accounts /minpwlen:14`, run, `/minpwlen:0` to put it back — **and it is back, read after the run**. The password is now **chosen from the policy** rather than guessed. ***`sdmsga` AND `sdmsgb` ARE SPENT — use `sdmsgc`; `zzprf` is re-runnable as it stands.*** **Nothing was left behind by any run**, read from disk: `C:\Users` holds only `b48adm`, `dmont` and `Public`.
 
 **SEVENTY-FIRST SESSION, 28 Aug 2026 — PRE_RELEASE 5, 13, 14, 15 AND 26 ARE MEASURED AND DONE.** ***`verify-vocverbs` 36 PASS / 0 FAIL / 0 SKIP*** on the 28 Aug 00:53:34 install, owner's elevated terminal. **Five of the eight unwitnessed fixes are struck; 22, 27 and 37 remain** and `verify-acctmsgs.ps1` has not been run. ***IT TOOK TWO RUNS, AND THE FIRST FAILURE WAS THE VERIFIER, NOT THE PRODUCT***: 21 of 22, failing on the entry 15 FIXTURE, because `LIST.INDEX <file>` with no index name **prompts** (`LISTI:117`), ate the `OFF` after it, and the session sat until the 60-second timeout — `CREATE.INDEX` had already printed *"Added index for F1"*. Fixed to `LIST.INDEX <file> ALL`, with three fixture instruments instead of one. ***THE CLASS IS WIDER THAN ONE VERB — anything driven down a pipe must NAME every optional argument***; `LISTI:117`, `DELETEI:101`, `DELETEF:117` and `DELACC:96` all prompt when theirs is omitted, and the tell is a transcript whose last line is a prompt and whose next command never appears. **No stray `sd.exe`** — checked after the timeout, only the normal `sdwind`.
@@ -282,6 +284,42 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `Public`. Read from disk, not from what the deletes reported.
 >
 > ***`sdmsga` AND `sdmsgb` ARE SPENT. THE NEXT PREFIX IS `sdmsgc`.***
+>
+> ### NEXT: `verify-tierchange.ps1`, WRITTEN AND UNRUN
+>
+> **PRE_RELEASE 19 is a `B`, and correcting it was worth more than believing
+> it.** Three of its claims are false — see the dated block at the top of the
+> entry — and the one that mattered was ***"the test cannot be piped"***, which
+> was **wrong when written** and had kept a verifier from being attempted at
+> all. A password prompt is answered perfectly well by the next LINE of one
+> string; `verify-tiers.ps1` had been creating accounts that way for weeks.
+>
+> **What is genuinely left of 19 is three rows, and this covers them:**
+>
+> | row | what proves it |
+> |---|---|
+> | the required keyword | `modify.account X programmer` on an administrator prints **10111** and **nothing moves** — tier, Windows group and `os.users` all still ADMINISTRATOR afterwards |
+> | what leaves with ADMINISTRATOR | Windows `Administrators` membership **and** the `os.users` record, both asserted PRESENT after the promote so their removal is a *transition* and not an absence |
+> | the "left alone" count | one admin verb's VOC record is made to differ with `.S`, then **`D = P + kept`** — a clean downgrade lands back on `P`, so the kept record is provably there and provably the only difference |
+>
+> ***NOT ONE COUNT IS TYPED.*** The account's VOC is measured three times — as
+> PROGRAMMER, as ADMINISTRATOR, as PROGRAMMER again — and the rows assert the
+> relations: `A > P` (the null case), `D = A + added − removed` (10113 agrees
+> with the file), and `D = P + kept`. This is the trap that printed *"the 21
+> administration verbs … 20 20 PASS"*.
+>
+> ***ELEVATED, YOUR OWN TERMINAL. `sdtc1` IS FREE — measured.***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-tierchange.ps1 -Prefix sdtc1
+> ```
+>
+> ***THE ACCOUNT IS A WINDOWS ADMINISTRATOR FOR PART OF THE RUN***, which is the
+> point of the test. The downgrade is asserted before the delete, and the
+> clean-up reads Windows rather than trusting what `DELETE.ACCOUNT` said.
+>
+> **Parse 0 errors, no BOM, 6 identical `Write-Verdict` copies, 96 of 96 verdict
+> assertions, both refusal paths exercised. It has never met SD.**
 >
 > ***`sdmsga` IS SPENT. THE NEXT PREFIX IS `sdmsgb`.*** The run left nothing
 > behind — no Windows account, register record or profile directory for any of
