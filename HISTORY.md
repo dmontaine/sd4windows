@@ -40464,3 +40464,20 @@ name is deliberately not repointed at sdStandalone-C1***, which does exist:
 that guest carries the stand-alone install that closed H.5 and PROJECT_STATUS
 records it as one to delete BY HAND, so pointing `-IncludeVM` at it would turn
 a documented manual decision into a side effect of a sweep.
+
+**THE CLEANUP RAN, TWICE, EITHER SIDE OF A REBOOT, AND THE MACHINE WAS READ
+BACK INDEPENDENTLY OF WHAT IT REPORTED.** The stranded pair is gone - no
+`sddrb50a` user, no `sdu_sddrb50a` group - and the `sddrb50a` profile went on
+the second run once the reboot had unloaded its hive. ***THE ORPHAN-SID WORRY
+DID NOT MATERIALISE***: `sdusers`, `sdssh` and `sdapi` read **0 before and 0
+after**, so `Remove-LocalUser` took the memberships with it and the ordering
+concern above is a check to repeat rather than an open defect. **Nothing was
+over-deleted** - all five real SD groups present, `sdout` still in the home
+directory. **The second run's `exit 1` is the designed INCOMPLETE**: three
+directories with no `ProfileList` entry remain, reported and not deleted, and
+the script refuses to read a sweep of what it could see as a sweep of the
+machine. **The VM line printed *"sshRemoteTest-C1 is NOT registered - nothing
+to delete"***, so that fix is witnessed too.
+
+**WHAT IS LEFT IS THREE DIRECTORIES**: `C:\Users\sddr1a`, `sddr2a` and
+`sddrb51a`. They block nothing except reuse of those three names.

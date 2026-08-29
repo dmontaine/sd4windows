@@ -142,15 +142,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1 -List
 > ```
 >
-> ***`-List` HAS BEEN RUN AND THE LIST IS RIGHT***: **1 user `sddrb50a`, 1
-> group `sdu_SDDRB50A`, 1 matching profile with a LOADED hive, and 3
-> `C:\Users` directories with no `ProfileList` entry.** Those three are
-> `sddr1a`, `sddr2a` and `sddrb51a`, identified against the registry — and
-> **they are REPORTED, NOT DELETED**, by 41's design, so they need a hand
-> delete. **1 + 3 = the four `sddr*` directories on disk, so nothing is
-> unaccounted for.**
->
-> **Then, when the list looks right, the same command without `-List`.**
+> ***DONE — RUN TWICE, EITHER SIDE OF A REBOOT, AND READ BACK INDEPENDENTLY.***
+> The stranded pair is **gone**: no `sddrb50a` user, no `sdu_sddrb50a` group.
+> The `sddrb50a` profile went on the second run once the reboot unloaded its
+> hive. ***THE ORPHAN-SID WORRY DID NOT MATERIALISE — MEASURED, NOT ASSUMED:
+> `sdusers`, `sdssh` and `sdapi` all carry `0`***, so `Remove-LocalUser` took
+> the memberships with it. **Nothing was over-deleted**: all five real SD
+> groups (`sdusers`, `sdssh`, `sdapi`, `sdadmins`, `sdsshonly`) are present and
+> `sdout` survived the home sweep. **The second run's `exit 1` is the designed
+> INCOMPLETE, not a fault** — it refuses to read a sweep of what it could see
+> as a sweep of the machine. ***AND THE STALE VM LINE IS WITNESSED FIXED***: it
+> printed *"`sshRemoteTest-C1` is NOT registered - nothing to delete"*.
 > ***IT COULD NOT HAVE SEEN THESE UNTIL NOW — PRE_RELEASE 45***: `sddr` was
 > never in the stem list, so all four door families were invisible to both
 > sweep scripts and a run would have reported a clean machine. **Added, both
@@ -167,10 +169,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > Remove-Item -LiteralPath "C:\Users\sddrb51a" -Recurse -Force
 > ```
 >
-> ***AND CHECK FOR ORPHAN SIDs AFTERWARDS — `cleanup-devlitter` DOES NOT STRIP
-> MEMBERSHIPS BEFORE `Remove-LocalUser`***, so `sddrb50a`'s SID can be left
-> behind in `sdusers`, `sdssh` and `sdapi`. **All three carried 0 before the
-> removal**, measured, so anything there afterwards came from it:
+> ***THE ORPHAN-SID CHECK IS DONE AND CLEAN.*** `cleanup-devlitter` calls
+> `Remove-LocalUser` **without** stripping the user out of `sdusers`, `sdssh`
+> and `sdapi` first — the ordering is section 1's on purpose, *"accounts first,
+> so the profile sweep sees orphans"* — so an orphan SID was the thing to look
+> for. **All three read 0 before AND after**, so nothing was left. Kept here as
+> the check to repeat, not as an open worry:
 >
 > ```
 > foreach ($g in @('sdusers','sdssh','sdapi')) { "$g : " + @(Get-LocalGroupMember $g | Where-Object { $_.Name -match '^S-1-' }).Count }
