@@ -97,8 +97,8 @@ no elevation.
 | 61 | **B** | ***`newvoc/$MAP` HAS NO TYPE CODE, SO SDSYS'S VOC SHIPS ONE BROKEN FILE RECORD ON EVERY INSTALL.*** Field 1 reads `File for MAP output` — the description — where every other file record has **`F`**: `voc_template/$hold`, `accounts` and `voc` all do, **and so does our own `voc_template/$MAP`**, which is the same record shipped twice with only one copy correct. `LISTF` in SDSYS reports it `Err 30` on the live install, alongside the paths it names, and `$map`/`$map.dic` **both exist on disk** — so this is the record, not a missing file. Found 29 Aug 2026 while confirming entry 60's cleanup: it was the only `Err 30` left once the four dead records went. ***UPSTREAM HAS THE IDENTICAL SPLIT*** — `sdb64/NEWVOC/$MAP` carries the defect and `sdb64/VOC_TEMPLATE/$MAP` has the `F` — so it is filed in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) too. **LEFT TO CHECK BEFORE FIXING:** which of the two feeds SDSYS's VOC (`verify-lcnames.ps1:772` says voc_template does, which the live reading appears to contradict), and whether a user account's `$MAP` is sound — a `map` verb ships, so the file is reachable. **Do not just paste the `F` in until that is answered** | `sdsys/newvoc/$MAP` |
 | ~~60~~ | **S** | ***DONE 29 Aug 2026 — VERIFIED, `after: 0`.*** All four records deleted with `DELETE VOC` (`1 record(s) deleted` each), and an independent `LISTF` afterwards found **no `SD*BP.OUT` records at all**. The original finding, and the verb that was wrong first time: Run elevated, `DELETE.FILE` answered *"Error deleting DATA portion"* + *"DICT part of file does not exist"* on all four and changed nothing; **`clean-deadvoc` reported FAILED**, its verdict being a second `LISTF` rather than SD's wording. ***`DELETE VOC <name>` IS THE VERB***: `DELETEF` removes a FILE and the file these records name is already gone — the very thing being cleaned up. From `gpl.bp/DELETE`: naming ids takes the `num.ids > 0` branch, so **neither prompt is reachable** and `NO.QUERY` is unneeded. **sysmsg 3221 `"%1 record(s) deleted"` prints unconditionally, so it is NOT a usable success anchor** — `0 record(s) deleted` is on the failure path. Both scripts use `DELETE VOC` now, and `verify-catgate`'s is **unconditional**, because the record outliving the directory *is* the defect. ***STILL OPEN: the four records are still there and the rerun is unrun.*** The original finding: ***`verify-catgate` LEAVES A DEAD VOC RECORD IN SDSYS ON EVERY RUN, AND THE CODE DOES THE THING ITS OWN COMMENT FORBIDS.*** `LISTF` in SDSYS now shows `SDCATGB59BP.OUT` **and** `SDCATGB60BP.OUT`, both `Err 30` — SDSYS's VOC naming a file that is not there — one per suite run since b59, and `b61`'s will make three. `Remove-Fixtures` ([verify-catgate.ps1:161](sdb_ai/sd64/gplbld/verify-catgate.ps1:161)) deletes `<ACCT>BP` **through SD** with `DELETE.FILE ... FORCE`, then removes `<ACCT>BP.OUT` with **`Remove-Item`** — while the comment directly above it says to use SD *"because CREATE.FILE also wrote a VOC entry … deleting the directory alone would leave SDSYS's VOC naming a file that is not there"*. The object file made by `BASIC $ctlFile $ctlName` has a VOC entry of its own and nothing deletes it. **Harness, not product** — but it pollutes SDSYS, it accumulates, and `verify-lcnames` reads `LISTF` | `gplbld/verify-catgate.ps1:161` |
 | 58 | **B** | ***THE DOCUMENTATION DOES NOT DESCRIBE THE ACCESS MODEL THE PRODUCT NOW HAS*** — owner's instruction, 29 Aug 2026, raised as 56 and 57 were written. **Every set is affected**: administrators are elevated at login into SDSYS and have **no account of their own**, they **lose ssh**, a grant may go **down or sideways only**, and **SDSYS is never granted**. Two new messages, **10126** and **10127**. ***DO NOT WRITE IT FROM THIS ENTRY*** — 56 and 57 both have pieces still unsettled, and the docs repo is a **separate git repository** with spaces in its path. **Blocked until 56 and 57 land and one cycle has proved them.** Not started | docs repo `User`, `Administrator`, `Testing`, `Technical` |
-| 57 | **B** | ***A GRANT MAY GO DOWN OR SIDEWAYS, NEVER UP — owner's rule, 29 Aug 2026.*** *"Standard accounts can not be given access to programmer accounts, programmer accounts can be given access to standard accounts. Only windows administrators can enter SDSYS, rights to SDSYS can not be granted."* ***THE TIER IS THE ACCOUNT'S AND IT IS BAKED INTO ITS VOC AT CREATION***, so entering a higher-tier account handed over its whole verb set — **+42 verbs** for a standard user entering a programmer account, on the computed roster. **WRITTEN, UNCOMPILED**: new `gpl.bp/TIERGATE` (`!tier_allows`), wired into `CPROC`'s `logto.authorised`, `GRANTA` and `MODIFYA`'s ADD arm; messages 10126 and 10127. ***CPROC's IS THE ONLY GATE THAT HOLDS*** — the grant is a Windows group membership, so `net localgroup` makes one without SD, and a tier can be raised after a legal grant with nothing revisiting the group. Not cycled | `sdsys/gpl.bp/TIERGATE`, `CPROC` logto.authorised, `GRANTA`, `MODIFYA` |
-| 56 | **B** | ***THE ADMINISTRATOR ACCESS MODEL, REWRITTEN — owner's ruling 29 Aug 2026, and it SUPERSEDES THREE RECORDED DECISIONS.*** Administrators are elevated **at login** and land in **SDSYS**, have **no account of their own**, may `logto` anywhere, and **take the rights of whatever account they move to**; `logto sdsys` still works and asks UAC again. ***THREE OF THE SEVEN CLAUSES ARE ALREADY THE CODE***, which is why PRE_RELEASE **31**'s 29 Aug ruling is withdrawn the same day. **Reverses 15 Aug 2026** (*"nobody logs in to an account but their own"*), **re-opens PRE_RELEASE 2** (a closed **B**), and **costs administrators ssh** — UAC has no desktop there, and they no longer have an account to fall back to. ***AND A NON-ADMINISTRATOR CAN REACH SDSYS TODAY***, measured: `elevate('START')` tests nobody's identity, so an administrator's password is enough. Not started | `sdsys/gpl.bp/LOGIN:445`, `gpl.bp/CPROC:2597`, `gplsrc/linuxlb.c:88` |
+| 57 | **B** | ***A GRANT MAY GO DOWN OR SIDEWAYS, NEVER UP — owner's rule, 29 Aug 2026.*** *"Standard accounts can not be given access to programmer accounts, programmer accounts can be given access to standard accounts. Only windows administrators can enter SDSYS, rights to SDSYS can not be granted."* ***THE TIER IS THE ACCOUNT'S AND IT IS BAKED INTO ITS VOC AT CREATION***, so entering a higher-tier account handed over its whole verb set — **+42 verbs** for a standard user entering a programmer account, on the computed roster. **WRITTEN, UNCOMPILED**: new `gpl.bp/TIERGATE` (`!tier_allows`), wired into `CPROC`'s `logto.authorised`, `GRANTA` and `MODIFYA`'s ADD arm; messages 10126 and 10127. ***CPROC's IS THE ONLY GATE THAT HOLDS*** — the grant is a Windows group membership, so `net localgroup` makes one without SD, and a tier can be raised after a legal grant with nothing revisiting the group. ***CYCLED 29 Aug 2026, AND THE LAST PIECE IS IN***: `MODIFYA`'s `promo.snapshot`/`promo.report` name the grants a promotion voided, measured across the register write rather than computed from the ranks; messages 10128 and 10129. **Installed and unrun** | `sdsys/gpl.bp/TIERGATE`, `CPROC` logto.authorised, `GRANTA`, `MODIFYA` |
+| 56 | **B** | ***THE ADMINISTRATOR ACCESS MODEL, REWRITTEN — owner's ruling 29 Aug 2026, and it SUPERSEDES THREE RECORDED DECISIONS.*** ***READ CLAUSE 2's REVERSAL FIRST — THE MODEL BELOW IS NOT THE ONE THAT SHIPPED.*** For one morning administrators had **no account of their own** and were elevated **at login** into **SDSYS**; the owner reversed that the same day, and **the built model is the reversed one**: administrators KEEP a personal account, land in it when unelevated, and reach SDSYS by **two explicit routes** — starting SD already elevated, or `logto sdsys` from that account. They may `logto` anywhere and **take the rights of whatever account they move to**. ***THREE OF THE SEVEN CLAUSES WERE ALREADY THE CODE***, which is why PRE_RELEASE **31**'s 29 Aug ruling is withdrawn the same day. **Re-opens PRE_RELEASE 2** (a closed **B**). **Reverses 15 Aug 2026** (*"nobody logs in to an account but their own"*) **for the ELEVATED case only** — an unelevated administrator now lands in their own account, exactly as 15 Aug said. ***AND ADMINISTRATORS KEEP ssh***: the withdrawn model had taken it, and an ssh session is never elevated, so it lands in the personal account like anybody else's. ***A NON-ADMINISTRATOR CAN STILL REACH SDSYS***, measured and NOT yet fixed: `elevate('START')` tests nobody's identity, so an administrator's password is enough. BUILT AND CYCLED 29 Aug 2026; the suite is unrun | `sdsys/gpl.bp/LOGIN:445`, `gpl.bp/CPROC:2597`, `gplsrc/linuxlb.c:88` |
 
 ***THE EIGHT "COMPILED AND INSTALLED — UNTESTED" ENTRIES NOW HAVE VERIFIERS,
 AND ALL EIGHT ARE STRUCK.*** 28 Aug 2026. Entries **5, 13, 14, 15, 26** are
@@ -3283,6 +3283,22 @@ call, and it is the last piece of this entry.
 does the promotion and then lists the grantees whose access it has just made
 useless.
 
+***BUILT AND CYCLED 29 Aug 2026.*** `MODIFYA`'s `promo.snapshot` runs
+immediately before the register write and `promo.report` after it, so the
+report is a **before-and-after reading of `tier_allows`** rather than rank
+arithmetic copied out of `TIERGATE` — the same call answers differently either
+side of the write, and one place still decides. Messages **10128** and
+**10129**.
+
+**Three properties that fall out rather than being special-cased:** a demotion
+strands nobody, so the comparison is empty and nothing prints, and no code
+tests the direction of the move; a membership that was **already** refused
+before the command ran — made with `net localgroup`, or left by an earlier
+promotion — is not claimed as this command's doing; and an unreadable group
+**says so** (10129) instead of reporting a comfortable zero, because "nobody
+was affected" and "nothing could be checked" are otherwise the same silence.
+***UNRUN — the behaviour is installed and no run has exercised it.***
+
 ***AND THE SCOPE IS NARROWER THAN THE PARAGRAPH ABOVE READS — ASKED AND
 ANSWERED FROM THE SOURCE.*** The owner asked whether this only applies to
 accounts with more than one member. It does. `TIERGATE`'s own description is
@@ -3539,12 +3555,22 @@ session for the same reason, and its guard is the one to copy.
      personal account, so it is NECESSARY. ***DO NOT DO THE 20-FILE
      REMOVAL***, and strike that ruling rather than leaving two live rulings
      that contradict each other.
-  2. **`LOGIN:398`'s administrator exemption goes**, and the `sdusers` gate
-     becomes uniform across all three tiers.
-  3. **`LOGIN:513` must stop sending every `K$OS.ADMINISTRATOR` to SDSYS.** An
-     **unelevated** administrator should land in their **personal account**;
-     SDSYS is reached by an already-elevated session, or by `logto sdsys` from
-     that account. Two explicit routes, not one automatic one.
+  2. ***BUILT AND CYCLED 29 Aug 2026 — `LOGIN`'s administrator exemption is
+     gone*** and the `sdusers` gate is uniform across all three tiers
+     (`LOGIN:414`, `if not(kernel(K$INTERNAL,-1)) then`). `-INTERNAL` stays
+     exempt: it is the bootstrap, and it is the door `adopt-account.ps1` uses,
+     so a failed adopt is a setback and not a lockout.
+  3. ***BUILT AND CYCLED 29 Aug 2026 — the SDSYS case tests ELEVATION, not
+     personhood.*** `LOGIN:568` reads
+     `case kernel(K$ADMINISTRATOR, -1) and kernel(K$OS.ADMINISTRATOR, 0)`, and
+     an unelevated administrator falls through to `case 1` and lands in their
+     own account. Two explicit routes, as ruled. **The first key is the
+     process-start seed and is the mechanism; the second is belt to its
+     braces** — see the measurement below, and do not reduce it to one key,
+     because `K$OS.ADMINISTRATOR` alone is TRUE for the very case that must not
+     come here. ***A SIDE EFFECT WORTH NAMING: ADMINISTRATORS KEEP ssh***,
+     which the morning's model had taken — an ssh session is never elevated, so
+     it lands in the personal account like anybody else.
   4. **The `ADMINISTRATOR` tier stays** (three tiers), and `CREATEA:1571`'s
      adopt default keeps giving the installer that tier.
 

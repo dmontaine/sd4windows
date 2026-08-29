@@ -41760,3 +41760,61 @@ deleted first and stamped at both ends.
 **No cycle spent, no product code touched.** `probe-osadmin.c`, `.ps1` and
 `.exe` are on `assert-current`'s `$neverShipped` list, listed in the commit that
 creates them.
+
+## 29 Aug 2026 — EIGHTY-FIRST session, second part: step 2 built and cycled, and the model is back to the owner's
+
+***THREE CHANGES, ONE CYCLE, AS THE HANDOFF ASKED.*** Full cycle 15:33:45,
+`assert-current` **exit 0 live**, 184 programs at 0 errors and **0 of the fatal
+*"is not assigned a value"* class**.
+
+| | where | what |
+|---|---|---|
+| the `sdusers` gate | `LOGIN:414` | the administrator exemption is gone; `if not(kernel(K$INTERNAL,-1)) then` |
+| the SDSYS case | `LOGIN:568` | `case kernel(K$ADMINISTRATOR, -1) and kernel(K$OS.ADMINISTRATOR, 0)` |
+| 57's promotion report | `MODIFYA` | `promo.snapshot` / `promo.report`, messages 10128 and 10129 |
+
+***THE SEED IS THE MECHANISM AND THE SECOND KEY IS BELT TO ITS BRACES.***
+`K$ADMINISTRATOR` read at `LOGIN`'s `begin case` is still `kernel.c:240`'s
+`IsElevated()` seed, which yesterday's measurement showed is the only thing that
+distinguishes an elevated administrator from an unelevated one.
+`K$OS.ADMINISTRATOR` is tested alongside it to close the case where a token
+carries `BUILTIN\Administrators` for an account that is not a member. **It must
+not be reduced to one key**: `K$OS.ADMINISTRATOR` alone is TRUE for the very
+case that must not reach SDSYS.
+
+***THE PROMOTION REPORT IS MEASURED ACROSS THE REGISTER WRITE, NOT COMPUTED.***
+`tier_allows` reads `ACC$TIER` from the register, so the same call answers
+differently either side of the write — which makes *"what did this command
+void"* a before-and-after reading instead of rank arithmetic duplicated out of
+`TIERGATE`. Three properties fall out rather than being special-cased: a
+demotion strands nobody and prints nothing, with no code testing the direction
+of the move; a membership already refused before the command is not claimed as
+its doing; and an unreadable group says so, because *"nobody was affected"* and
+*"nothing could be checked"* are otherwise the same silence.
+
+***ONE CONSEQUENCE WAS TRACED BEFORE THE CYCLE, NOT AFTER.*** Closing both
+administrator doors raises the question of whether a fresh install can still be
+entered. `AdoptAccount` runs unconditionally in `sd.iss`, and
+`adopt-account.ps1` goes in through `sd -internal`, which stays exempt from the
+gate by design — **so a failed adopt is a setback and not a lockout**. The
+installer's failure branch did claim a specific refusal (*"your account is not
+in the register"*), which is now one of two, so it no longer names one. That
+sentence was made wrong by this change, which is why it is in this commit.
+
+***WHAT WAS DELIBERATELY NOT DONE: DRIVING `sd` BY HAND TO WATCH IT LAND.***
+That is CLAUDE.md's opening trap — `echo WHO | sd` made an unusable session and
+a stray `sd.exe` cost an elevation — and the canonical `Invoke-SD` prefixes
+`LOGTO SDSYS`, which is the one thing that would hide the answer. The suite is
+the instrument and it is the owner's to run.
+
+***AND THERE IS A PREDICTION ON THE RECORD FOR IT.*** PRE_RELEASE 59's five
+unelevated failures were one cause — *"every one assumes an administrator lands
+in an ordinary account, which clause 2 abolishes"*. **Clause 2 is reversed, so
+that assumption holds again**, and `verify-lcnames`, `verify-osusers` and
+`verify-batchjob` are expected to recover. If they do not, that is the finding
+and 59 needs re-reading rather than the verifiers patching.
+
+**Verified by reading the installed tree rather than believing the run:**
+`gpl.bp.out` 186 and `gcat` 127 both unchanged, `LOGIN` and `MODIFYA` objects
+recompiled 15:33:14, messages 10128 and 10129 installed at 424 and 308 bytes,
+and the mirrored file count 2982 → 2984 — exactly the two new messages.
