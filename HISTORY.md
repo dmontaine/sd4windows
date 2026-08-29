@@ -40974,3 +40974,25 @@ measurement (`sddrb50a` outliving the install, still in `sdusers`, `sdssh` and
 compares a section's *title* against its row, not the body, so a stale body
 scores a clean pass. The file's own advice — *read the table, never the section
 headings* — is the working guard, and it is advice rather than a check.
+
+***THEN HE HANDED THE VERIFIER QUESTIONS BACK*** — *"your call on the
+verification utilities i have no opinion"*. Three, all decided, **none started**,
+and two of them filed as entries rather than left in a paragraph. Count 15 → 17,
+`test-fixlist-units.ps1` **182 passed, 0 failed**.
+
+***ALL THREE TURNED OUT TO BE THE SAME FAILURE: A CHECK THAT EXISTS AND NOTHING
+RUNS.*** That was not visible while they sat as three separate questions.
+
+| | decided |
+|---|---|
+| **PRE_RELEASE 54**, new | `verify-profiledir.ps1` scored 14/14 and went into neither runner. **Wire it into `VerifyInstall2`** — it needs elevation, and it costs less than `verify-doors-suite`, already a suite step: it creates one control account, deletes it, and never logs in, so it leaves no profile directory. **Its `-Prefix` must come from the `-Run` token**; it refuses a spent stem, so a fixed one passes once and fails every run after |
+| **PRE_RELEASE 55**, new | `release.ps1` is 180 lines and calls `mkdoc.py`, `mkpdf.ps1` and `checklinks.py` — **and neither `mktclsyntax.py` nor `tclmap.py`**, which is why both sat refusing for a week. **Part one is nearly free: call them and fail the release when either refuses.** Part two is the prose gap the generators cannot see, and it is bounded — four labelled figures, not every number |
+| the 21 silent headings | **Yes**, because it converts a NOTE into a tripwire: rule 4 is one-directional and cannot fire while most sections say nothing, so putting DONE in all 21 makes a **re-opened** entry a hard FAIL. By hand, 21 `Edit` calls, never a script |
+
+***55 WAS SHARPENED BY READING `release.ps1` RATHER THAN ACCEPTING ITS OWN
+FRAMING.*** It had been parked twice as *"nothing cross-checks a typed figure
+against a computed one"* — unbounded, and the reason it stayed unfiled. **The
+comparison already exists**: both generators compute the roster from the VOC and
+both exit 1 when the typed lists disagree, which is exactly what they did over
+`encrypt.field`. **Nothing calls them.** So the expensive-sounding half was
+already built and the cheap half was the wiring — the opposite of how it read.

@@ -29,7 +29,7 @@ gives an answer that is wrong and looks authoritative. That is exactly how 28 Au
 2026 reported 36 open when 18 were, and filed three new entries onto numbers the
 table had been using for a week.
 
-***NEXT FREE ID: 54.*** Take it from here and increment it; **do not derive it by
+***NEXT FREE ID: 56.*** Take it from here and increment it; **do not derive it by
 scanning.** `gplbld/test-fixlist-units.ps1` enforces this line, the uniqueness of
 every id, that a section and its row describe the same defect and agree on
 status, and that every `PRE_RELEASE <n>` cited in PROJECT_STATUS.md, HISTORY.md
@@ -91,6 +91,8 @@ no elevation.
 | ~~51~~ | **M** | ***`Get-SysMsgPattern` could not match any MULTI-LINE message*** — the message files hold literal backslash-n and `[regex]::Escape` turned each into a pattern hunting a literal backslash the rendered output never contains. It cost `verify-profiledir` a FAIL on a correct product, left `verify-delaccount:553` incapable of failing, and left `:568` certain to fail on the first machine whose profile hive is still mounted. **THE THIRD TIME THIS FUNCTION HAS GONE BLIND** (see 45 for the second). **DONE 28 Aug 2026, all five copies**, plus `gplbld/test-sysmsg-units.ps1` — 43/0, control 37/2 on the pre-fix copies. *(Filed as "45" and renumbered.)* | `gplbld/verify-*.ps1` |
 | 44 | **S** | ***RE-VALIDATED 28 Aug 2026 FROM THE INSTALLED MESSAGE, not from this entry's own text***: `C:\ProgramData\SD\sdsys\messages\5161` reads exactly `Unable to change to new directory` — nothing about the group, the token, or signing out. Still open. ***THE VERIFIER HALF IS DONE AND WITNESSED — `-Run b53`, all five legs green. THE PRODUCT HALF IS STILL OPEN AND IS STILL THE OWNER'S.*** 5161 says only *"Unable to change to new directory"*, with nothing about the group not yet being in the caller's token or a sign-out fixing it — and that is the sentence a real administrator hits after `create.account`, not a test. **The run carries its own non-decisive witness**: this session's `LOGTO` reports 5161 in the Control leg while the helper's succeeds, in the same transcript. ***RULED AND BUILT 28 Aug 2026 — "two accounts, as the door table says".*** The owner's choice between covering the door properly, dropping it, or fixing only the message. **The door pair now creates a HELPER account `<prefix>b` alongside the account under test, grants it into the account's `sdu_` group, and issues the `LOGTO` from inside the helper's own ssh session** — a fresh logon, so its token carries the group SID this session cannot. `verify-doors.ps1` runs the local `LOGTO` too and records it as a **NON-DECISIVE witness**, so the transcript carries the evidence for why two accounts are needed rather than a comment claiming it. ***UNRUN — it needs an elevated Create leg, so `-Run b52` is what tests it.*** **Costs a second profile directory per run** (35/36), and both names are now checked free before anything is created. **The PRODUCT half of this entry is untouched and still open**: 5161 still says only *"Unable to change to new directory"*, and that is the sentence a real administrator hits. ***CONFIRMED BY THE SUITE ITSELF, `-Run b51`, 28 Aug 2026 16:54, on a SECOND account — this is not a one-off.*** With the instrument honest the Control leg reported **2 of 7 decisive checks failed**, both of them the `logto` rows (*"entered the account"* expected True got **False**; *"did NOT report 5161"* expected False got **True**), while **ssh and the API both admitted** in the same leg — the three-door comparison inside one run, which is stronger evidence than either door alone. The suite then **stopped at the right place** (*"a door refused BEFORE the suspension, so its refusal after one would prove nothing"*) **and still ran `Remove`**, so nothing live was left behind. ***`LOGTO` authorises on the machine's group list and then fails the chdir on the token's, and says only "Unable to change to new directory"*** — an administrator who has just run `create.account` is in the new `sdu_<acct>` group **on the machine** but **not in their own token**, because Windows fixes group membership at logon. So `logto.authorised` (`CPROC:2679`) passes, the chdir at `:2691` is denied, and 5161 is all the user sees. **Measured 28 Aug 2026 with a control**: `Get-LocalGroupMember sdu_sddrb50a` → `GITORLI\don` **present**; the same live unelevated token → `sdu_sddrb50a` **absent** while `sdusers` (granted before a reboot) **present**, so the enumeration works and the absence is real. **The record already knew the mechanism** — PROJECT_STATUS §6 *"group membership is fixed in the token at logon"* — **but nothing connects it to this message.** 5161 is also `SETACC:67`. ***Owner's call, and there are three shapes***: say so in 5161 when the account was reachable but the directory was not; have `create.account` print the sign-out line it already prints elsewhere; or leave it. **It is also why 19's `logto` door cannot be measured from the creating session** — the door table in this file already specifies the cure, *"ssh as A and `LOGTO B`"* | `sdsys/gpl.bp/CPROC:2691`, `SETACC:67`, `sdsys/messages/5161` |
 | ~~53~~ | **S** | ***THREE MORE DOCUMENT SETS STILL CARRIED `encrypt.field`, AND THEY WERE WRONG IN A DIFFERENT WAY FROM 52*** — found 28 Aug 2026 while closing 52, which corrected the **Testing** set only. These do not merely miscount it; they tell the reader **the verb is in an administrator's VOC and fails to load**, which stopped being true when PRE_RELEASE 25 removed it. ***CONFIRMED GONE TREE-WIDE***: absent from `newvoc`, from `voc_template` (426 entries — only the `encrypt` **keyword**, `211`, which is in the base 392 and is not a verb) and from `TIER.ADD.ADMINISTRATOR`. **Four places**: `Administrator/markdown/01-accounts-and-security.md:323-333`, a whole `## encrypt.field does not work in this release` section quoting the `$CRYPTO` load error; `User/markdown/95-sd-tcl-syntax.md:92`, a table row tiered **`A`**; and the two toolchain inputs that generate them — `tools/tcl-syntax-shapes.txt:81` and `tools/tclmap.py:128`, the latter mapping the verb onto Administrator/01, so the generator still expects that page to document it. ***ONE DECISION IS NEEDED BEFORE ANY EDIT AND IT IS THE OWNER'S***: `Administrator/markdown/01:333` is the **ONLY line in the entire documentation** that records field-level encryption as absent from W1.0-0 — measured by grepping `encrypt` across all four sets — so **deleting the section loses that fact**, while leaving it states a mechanism that no longer exists. Reword it to "not present, and the verb does not ship", or delete it and put the fact on a *not in SD Core* page. **Do not delete the shapes/tclmap rows without the same answer**: `95-sd-tcl-syntax.md` is generated, so an edit to the page alone is overwritten on the next render. *(`sdencrypt()`/`sddecrypt()` are unaffected and DO ship — this is the verb only.)* ***DONE 28 Aug 2026 ON THE OWNER'S RULING, "move to not in SD core".*** The section is deleted from `Administrator/01` and the fact is now `## Field-level encryption` on `Testing/markdown/14-not-in-sd-core.md`, which names `sdencrypt()`/`sddecrypt()` as the supported route and says plainly that nothing replaces the verb. ***AND IT WAS NOT COSMETIC — BOTH DOC GENERATORS HAD BEEN REFUSING TO RUN.*** `mktclsyntax.py` exited 1 on `NOT A VERB encrypt.field has a shape and is not on the roster` and `tclmap.py` on `NOT A VERB encrypt.field claimed by Administrator/01`, so **the TCL syntax card could not be regenerated at all** while the shapes file and the map still named it. **The roster is computed and had already self-corrected to 143**; the two typed lists had not, which is precisely the failure the computed roster exists to expose. Both now exit 0 — `roster 143 (standard 81, programmer 42, administrator 20)`, `tclmap 143 of 143, 0 exempt` — and that is an INDEPENDENT confirmation of 4 and 52's figures, from a tool that computes rather than quotes. `checklinks` 0 broken on all three sets (77/6/185) | docs repo, `Administrator/markdown/01`, `Testing/markdown/14`, `User/markdown/95`, `tools/` |
+| 54 | **M** | ***`verify-profiledir.ps1` is in neither runner, so 36's last leg never fires again*** — the leg that had **never** fired before 28 Aug, which is why it could not be trusted and why the script was written. It scored **14 of 14** and then went nowhere: not in `VerifyInstall1`, not in `VerifyInstall2`. ***DECIDED 29 Aug 2026 — WIRE IT INTO `VerifyInstall2`***, the owner having said the verifier questions are mine. It needs **elevation**, so `VerifyInstall2` is the right runner and `VerifyInstall1` is not. **Its cost is lower than `verify-doors-suite`, which is already a suite step**: it creates one control account and deletes it, and it never logs in, so it leaves **no profile directory** — the thing that makes the doors fixture single-use and expensive. ***THE ONE THING THAT MUST NOT BE GOT WRONG: its `-Prefix` has to come from the `-Run` token***, as `sdacctb48`/`sdtiertb48` already do. It refuses a spent stem by design, so a fixed prefix passes once and fails on every later run on the same machine. Not started — verifier gap, not product | `gplbld/VerifyInstall2.ps1`, `gplbld/verify-profiledir.ps1` |
+| 55 | **S** | ***`release.ps1` never runs the two doc generators that already refuse on a stale figure*** — measured 29 Aug 2026 by reading it: it calls `mkdoc.py` (:109), `mkpdf.ps1` (:126) and `checklinks.py` (:161), and **neither `mktclsyntax.py` nor `tclmap.py`**. Both of those compute the roster from the VOC and both **exit 1** when the typed lists disagree — which is exactly what they did over `encrypt.field`, undetected for a week, until 53 ran them by hand. ***So the guard already exists and nothing calls it.*** **Part one is nearly free: call both from `release.ps1` and fail the release when either refuses.** **Part two is the actual gap** — the generators check the typed *maps*, not the typed *prose*, so `mktclsyntax.py` printed `standard 81` in the generated card for a week while the tester set said `77` and nothing compared them. Have the generator emit its computed figures as data and assert the handful of labelled tier counts against it. **This is the guard called "the cheapest still available" in `a931c36`, now filed rather than left in prose.** Not started — docs toolchain | docs repo `tools/release.ps1:161`, `tools/mktclsyntax.py`, `tools/tclmap.py` |
 
 ***THE EIGHT "COMPILED AND INSTALLED — UNTESTED" ENTRIES NOW HAVE VERIFIERS,
 AND ALL EIGHT ARE STRUCK.*** 28 Aug 2026. Entries **5, 13, 14, 15, 26** are
@@ -2531,3 +2533,94 @@ mattered: a repair that was not repairing anything must leave the counts alone.
 
 No cycle was needed or spent: only `gplbld` verifiers changed, nothing under
 `gplsrc` or `sdsys`, and `assert-current` was exit 0 before and after.
+
+---
+
+## 54. `verify-profiledir.ps1` is in neither runner, so 36's last leg never fires again — **M** (verifier gap, not product)
+
+Carried as an open question to the owner since 28 Aug; **he handed the verifier
+questions back on 29 Aug 2026** — *"your call on the verification utilities i
+have no opinion"* — so this is decided here rather than asked again.
+
+***THE PART THAT MAKES IT WORTH DOING.*** This leg *"had never been
+exercised — no b56 or b57 log mentions either message, because every other
+verifier is careful to use a fresh name, so the one rule that had never fired
+was the one nothing could vouch for."* That was the whole argument for writing
+`verify-profiledir.ps1`. It ran **14 of 14** on 28 Aug at 22:18 and went into
+neither runner, **which puts the leg straight back into the state that made it
+untrustworthy** — fired exactly once, by hand, by somebody who had to remember.
+
+### ***DECIDED: WIRE IT INTO `VerifyInstall2`***
+
+| | |
+|---|---|
+| **`VerifyInstall2`, not `VerifyInstall1`** | it needs **elevation**. `VerifyInstall1` is the unelevated parent, and that is forced rather than preferred — an elevated parent cannot make an ordinary child (`VerifyInstall1.ps1:70`, PRE_RELEASE 38) |
+| **The cost is lower than a suite step already accepted** | `verify-doors-suite` runs in the suite and leaves **one permanent profile directory per run**, because its Control leg does a real ssh login. This one creates a control account and deletes it and **never logs in**, so Windows makes no profile — nothing is left behind |
+| **It needs no cycle of its own** | it makes its own fixture with `New-Item`, needs no deleted account, no reboot and no reclaim store (`PROFILE_DIR:99-100`) |
+
+***THE ONE THING THAT MUST NOT BE GOT WRONG: THE PREFIX COMES FROM THE `-Run`
+TOKEN.*** The script refuses a spent stem on purpose — *"use a stem nobody has
+used"* — so a **fixed** prefix passes on the first machine that runs it and
+fails on every run after. `sdacctb48`, `sdtiertb48*` and `sdrtb48*` show the
+convention: derive it, as `sdpd<run>`. **A hard-coded stem here would turn a
+green suite red on its second run, which is the noisiest possible way to be
+wrong and would probably get the step removed rather than fixed.**
+
+**Also record the spent stems** — `sdpd1`, `sdpd2` are used (PROJECT_STATUS
+§verify-profiledir) — and note that **10125 stays unexercised** either way:
+*"the check could not run"* needs `os.execute` to fail, which nothing here can
+force. Wiring this in does not close that.
+
+---
+
+## 55. `release.ps1` never runs the two doc generators that already refuse on a stale figure — **S** (docs toolchain)
+
+Filed 29 Aug 2026 on the owner's *"your call on the verification utilities"*.
+**This is the guard `a931c36` called *"the cheapest guard still available"* and
+deliberately left unfiled** as a design question. It is a design question no
+longer, so it goes on the list — and it belongs here by this file's own test,
+because a doc set with a stale figure in it is a thing we would ship.
+
+***MEASURED, NOT ASSUMED.*** `tools/release.ps1` is 180 lines and calls exactly
+three things: `mkdoc.py` (`:109`), `mkpdf.ps1` (`:126`) and `checklinks.py`
+(`:161`). **It calls neither `mktclsyntax.py` nor `tclmap.py`.**
+
+***AND THOSE TWO ARE ALREADY THE CHECK.*** Both compute the verb roster from the
+VOC, and both **exit 1** when the typed lists disagree with it — which is
+precisely what they did over `encrypt.field`:
+
+```
+NOT A VERB  encrypt.field has a shape and is not on the roster
+NOT A VERB  encrypt.field claimed by Administrator/01
+```
+
+**They had been refusing for a week and nothing knew**, because nothing runs
+them. PRE_RELEASE 53 found it by running them by hand while fixing something
+else. **A generator that refuses is only a guard if something runs it** — the
+same failure as 54 one entry up, and the same failure the instrument rules in
+CLAUDE.md are about.
+
+### ***DECIDED, IN TWO PARTS, AND THE FIRST IS NEARLY FREE***
+
+1. ***CALL BOTH GENERATORS FROM `release.ps1` AND FAIL THE RELEASE WHEN EITHER
+   REFUSES.*** No new logic — the comparison already exists and already exits
+   non-zero. This alone would have caught 53 a week earlier. Follow the shape
+   `release.ps1` already uses for `checklinks.py` at `:161`, including the
+   `$LASTEXITCODE` check, and echo the command per the instrument rule.
+2. ***THEN CLOSE THE GAP THE GENERATORS DO NOT COVER: TYPED PROSE.*** They check
+   the typed **maps** (`tcl-syntax-shapes.txt`, `tclmap.py`'s map), not the
+   typed **sentences**. `mktclsyntax.py` printed `standard 81` in the generated
+   card for a week while `Testing/markdown/07` said `77`; the two halves of the
+   documentation disagreed and nothing compared them. **Have the generator write
+   its computed figures out as data** — roster total and the three tier counts —
+   **and assert the handful of labelled counts in the prose against that file.**
+
+***DO NOT TRY TO CHECK EVERY NUMBER IN THE PROSE.*** That is why this sat
+unfiled: as *"cross-check typed figures against computed ones"* it is unbounded.
+Bounded, it is four numbers with names, and those four are the ones that have
+actually gone wrong — PRE_RELEASE **4**, **52** and **53**, all three of them.
+
+**Note it interacts with 34.** Both change `release.ps1`, and 34's ruling adds a
+per-set link-free declaration to `checklinks.py`. **Do 34 first or do them
+together**; two separate passes over the same 180-line script for related
+reasons is how one of them ends up reverted.

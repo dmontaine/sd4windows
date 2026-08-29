@@ -150,17 +150,38 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b59 -ContinueOnFailure
 > ```
 >
-> ***TWO THINGS ARE WAITING ON THE OWNER AND EACH IS A ONE-WORD ANSWER:***
-> (1) wire `gplbld/verify-profiledir.ps1` into `VerifyInstall2` — **it is in
-> neither runner, so 36's regression test never runs again unless somebody
-> remembers it by hand**; (2) whether the 21 sections that are struck in the
-> index but silent in their own heading should be made self-describing —
-> `test-fixlist-units.ps1` lists them every run.
+> ***NOTHING IS WAITING ON THE OWNER. THE VERIFIER QUESTIONS CAME BACK TO US,
+> 29 Aug 2026*** — *"your call on the verification utilities i have no
+> opinion"*. All three are decided below and **none is started**.
+>
+> | | decided |
+> |---|---|
+> | wire `verify-profiledir.ps1` into a runner | **yes — `VerifyInstall2`.** Now ***PRE_RELEASE 54*** |
+> | the typed-vs-computed figure guard | **yes, and it is smaller than it looked.** Now ***PRE_RELEASE 55*** |
+> | the 21 struck-but-silent section headings | **yes — and see why below; it buys a check, not tidiness** |
+>
+> ***THE 21 HEADINGS ARE WORTH DOING BECAUSE THEY TURN A NOTE INTO A TRIPWIRE.***
+> `test-fixlist-units.ps1`'s rule 4 is **one-directional by design**: it fails a
+> section that says DONE over an **open** row, and it cannot fail the other way
+> because most sections say nothing at all. **Put DONE in all 21 headings and
+> re-opening an entry becomes a hard FAIL** — the row un-strikes, the heading
+> still says DONE, rule 4 fires. **That guard does not exist today**, and entries
+> do get reversed: 32 was partly reversed by 36, and 4 / 52 / 53 were all
+> re-validated after being written.
+>
+> **The obvious objection is answered**: yes, this duplicates status, and *status
+> living in more than one place* is the root cause the checker was written for.
+> **Duplication is only dangerous when nothing compares the copies** — here the
+> checker compares them every run, which is exactly what was missing on 28 Aug.
+>
+> ***DO IT BY HAND, 21 `Edit` CALLS, NEVER A SCRIPT.*** CLAUDE.md's rule about
+> file edits applies with full force to a 21-site change in a tracked document,
+> and this file has three silent corruptions in its record already.
 >
 > ***THE THREE OWNER'S-CALL ENTRIES ARE RULED, 29 Aug 2026 — 31, 34 AND 39.***
 > Recorded in PRE_RELEASE_FIXES.md, **and no work was started on any of them at
-> the owner's instruction.** The count is still **15**; a ruling closes a
-> question, not an entry.
+> the owner's instruction.** A ruling closes a question, not an entry, so those
+> three did not move the count.
 >
 > | | ruling | what it now costs |
 > |---|---|---|
@@ -231,13 +252,22 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > and it is the owner's call whether a checker should assert prose figures against
 > `mktclsyntax`'s roster line. It is the cheapest guard left on the table.
 >
-> ***THE OPEN COUNT: 15, AND READ IT FROM THE CHECKER, NEVER FROM PROSE.***
-> `6f5e9a8` ended with **17** open (not 16 — 16 was true after 35 and 36 closed
-> but BEFORE 52 was filed, and 52 is one of the two closed here). 17 − 4 − 52 =
-> 15; 53 was opened and closed in the same session. **`gplbld/test-fixlist-units.ps1`
-> prints the authoritative number** — unelevated, no install needed. An
+> ***THE OPEN COUNT: 17, AND READ IT FROM THE CHECKER, NEVER FROM PROSE.***
+> `test-fixlist-units.ps1` — **182 passed, 0 failed** — lists **3, 6, 7, 8, 9,
+> 11, 12, 16, 20, 24, 28, 31, 34, 39, 44, 54, 55**. It is unelevated and needs no
+> install.
+>
+> ***IT WENT 15 → 17 ON 29 Aug, AND NOTHING NEW BROKE.*** **54** and **55** are
+> the two verifier questions that had been sitting in this box as prose;
+> filing them counts them. **That is the point** — the same session that says
+> *read it from the checker, never from prose* should not be keeping two of its
+> tasks in a paragraph. Nothing was closed and nothing regressed.
+>
+> *(How it reached 15: `6f5e9a8` ended with **17** open — not 16, which was true
+> after 35 and 36 closed but BEFORE 52 was filed, and 52 is one of the two closed
+> there. 17 − 4 − 52 = 15; 53 was opened and closed in the same session. An
 > intermediate count quoted as a final one is the same error as the 143/144 in
-> entry 4, one document up.
+> entry 4, one document up.)*
 >
 > ### ⇧ END OF WHAT TO DO FIRST ⇧
 >
