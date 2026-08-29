@@ -29,7 +29,7 @@ gives an answer that is wrong and looks authoritative. That is exactly how 28 Au
 2026 reported 36 open when 18 were, and filed three new entries onto numbers the
 table had been using for a week.
 
-***NEXT FREE ID: 59.*** Take it from here and increment it; **do not derive it by
+***NEXT FREE ID: 60.*** Take it from here and increment it; **do not derive it by
 scanning.** `gplbld/test-fixlist-units.ps1` enforces this line, the uniqueness of
 every id, that a section and its row describe the same defect and agree on
 status, and that every `PRE_RELEASE <n>` cited in PROJECT_STATUS.md, HISTORY.md
@@ -69,7 +69,7 @@ no elevation.
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
 | ~~29~~ | **S** | ~~`micro` reports "Permission denied" on every save~~ — **DONE 27 Aug 2026**, install 19:37:47. `MICRO_CONFIG_HOME` is a per-user `~/.micro` via the new `micro-home.ps1`. Owner: three runs, save and no-save, **no message**. Took three attempts — see the entry | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
 | ~~30~~ | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
-| 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Headline hole (API OS.EXECUTE) stays closed. ***RULED 29 Aug 2026 — BEING AN ADMINISTRATOR IS THE GATE, SO THIS IS A PRODUCT CHANGE AND NOT THE VERIFIER-ONLY FIX THIS ROW USED TO CLAIM.*** Owner: *"any administrator keeps universal rights, ssh, api, os.execute, no matter which account they logto. Permission belongs to the person, even if they logto an account with fewer priviledges."* **Today an administrator who is NOT in `os.users` is REFUSED after a `LOGTO`** — `CPROC:2713` clears `USR_ADMIN` and `os_permitted()` falls through to the list; `don` passes only because PRE_RELEASE 2 listed him. **Sev raised S → B: the defect is the product, not the instrument.** ***AND THAT RULING IS WITHDRAWN THE SAME DAY — SEE 56.*** Told what it cost, the owner reversed it: *"if they logto another account, they have the rights of that account."* **That is what `CPROC:2735` already does**, so the product is right and this is once more the verifier-only fix it was first filed as. **Sev back B → S**, and the work is one assertion in `verify-apiadmin.ps1`, which must not be changed until 56 lands. Not started | `gplbld/verify-apiadmin.ps1` |
+| ~~31~~ | **S** | ***DONE 29 Aug 2026, MEASURED ON `-Run b59`: `verify-apiadmin` 22 PASS / 0 FAIL / 0 SKIP AND THE CONTROL PASSES*** — `[PASS] control: local elevated session refused OS.EXECUTE: expected False, got False`, after failing on five consecutive runs. ***CLOSED BY 56 WITH NO EDIT TO THE VERIFIER AT ALL***: `CREATEA` stopped writing administrators into `os.users`, so `os_permitted()` falls through to a lookup that finds nothing and refuses — the control's original expectation is simply right again. ***AND THE RECORDED "21/23" WAS WRONG IN THE DENOMINATOR***: b58's own log reads 21 PASS / **1** FAIL, so it was always **22** checks. The figure to carry forward is **22/22**. *(Original entry below.)* ~~`verify-apiadmin`'s control is stale~~ — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Headline hole (API OS.EXECUTE) stays closed. ***RULED 29 Aug 2026 — BEING AN ADMINISTRATOR IS THE GATE, SO THIS IS A PRODUCT CHANGE AND NOT THE VERIFIER-ONLY FIX THIS ROW USED TO CLAIM.*** Owner: *"any administrator keeps universal rights, ssh, api, os.execute, no matter which account they logto. Permission belongs to the person, even if they logto an account with fewer priviledges."* **Today an administrator who is NOT in `os.users` is REFUSED after a `LOGTO`** — `CPROC:2713` clears `USR_ADMIN` and `os_permitted()` falls through to the list; `don` passes only because PRE_RELEASE 2 listed him. **Sev raised S → B: the defect is the product, not the instrument.** ***AND THAT RULING IS WITHDRAWN THE SAME DAY — SEE 56.*** Told what it cost, the owner reversed it: *"if they logto another account, they have the rights of that account."* **That is what `CPROC:2735` already does**, so the product is right and this is once more the verifier-only fix it was first filed as. **Sev back B → S**, and the work is one assertion in `verify-apiadmin.ps1`, which must not be changed until 56 lands. Not started | `gplbld/verify-apiadmin.ps1` |
 | ~~32~~ | **S** | ~~`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory~~ — **FIXED 27 Aug 2026: the `catch { exit 6 }` that left both halves is now `catch { }`, and the key is removed in its own right; status 6 splits into 6 (directory) and 7 (registry entry).** ***PARTLY REVERSED 28 Aug BY 36, ON THE OWNER'S RULING, AND DELIBERATELY***: removing the entry over a directory that is still there destroys the only handle a sweep has, so the entry is now removed **only if the directory went**, both halves are kept together otherwise, and something comes back for the pair. **The defect this entry names is still fixed** — an entry is never left behind on its own. **Its regression test is re-scoped** from *"the entry is gone"* to *"the entry is gone when the directory went"*. ***BOTH FIXES REMAIN UNCOMPILED — needs a cycle.*** Generated PowerShell parse-checked 0 errors / 203 tokens on 27 Aug, 1944 chars on 28 Aug; the new steps run read-only against a real account | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075`, `messages/10116`, `gplbld/verify-delaccount.ps1` |
 | ~~33~~ | **S** | ~~`allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing**~~ — **DONE 27 Aug 2026**, the usage line names `-Installed` and a dated note says which forms need it. Comment only, parses 0 errors / 1247 tokens | `gplbld/allow-ssh-groups.ps1:4` |
 | 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Not to be settled by adding a link.** ***RULED 29 Aug 2026 — A SET MAY DECLARE ITSELF LINK-FREE.*** `checklinks.py` gains an explicit per-set way to say *this set legitimately has no links*, and `release.ps1` accepts it; `Technical` opts in. **The zero-link refusal stays the default for `User`, `Administrator` and `Testing`**, so a set that loses its links by accident still fails loudly — the guard is narrowed by declaration, never removed. Not started | docs repo `tools/release.ps1`, `tools/checklinks.py:57` |
@@ -93,6 +93,7 @@ no elevation.
 | ~~53~~ | **S** | ***THREE MORE DOCUMENT SETS STILL CARRIED `encrypt.field`, AND THEY WERE WRONG IN A DIFFERENT WAY FROM 52*** — found 28 Aug 2026 while closing 52, which corrected the **Testing** set only. These do not merely miscount it; they tell the reader **the verb is in an administrator's VOC and fails to load**, which stopped being true when PRE_RELEASE 25 removed it. ***CONFIRMED GONE TREE-WIDE***: absent from `newvoc`, from `voc_template` (426 entries — only the `encrypt` **keyword**, `211`, which is in the base 392 and is not a verb) and from `TIER.ADD.ADMINISTRATOR`. **Four places**: `Administrator/markdown/01-accounts-and-security.md:323-333`, a whole `## encrypt.field does not work in this release` section quoting the `$CRYPTO` load error; `User/markdown/95-sd-tcl-syntax.md:92`, a table row tiered **`A`**; and the two toolchain inputs that generate them — `tools/tcl-syntax-shapes.txt:81` and `tools/tclmap.py:128`, the latter mapping the verb onto Administrator/01, so the generator still expects that page to document it. ***ONE DECISION IS NEEDED BEFORE ANY EDIT AND IT IS THE OWNER'S***: `Administrator/markdown/01:333` is the **ONLY line in the entire documentation** that records field-level encryption as absent from W1.0-0 — measured by grepping `encrypt` across all four sets — so **deleting the section loses that fact**, while leaving it states a mechanism that no longer exists. Reword it to "not present, and the verb does not ship", or delete it and put the fact on a *not in SD Core* page. **Do not delete the shapes/tclmap rows without the same answer**: `95-sd-tcl-syntax.md` is generated, so an edit to the page alone is overwritten on the next render. *(`sdencrypt()`/`sddecrypt()` are unaffected and DO ship — this is the verb only.)* ***DONE 28 Aug 2026 ON THE OWNER'S RULING, "move to not in SD core".*** The section is deleted from `Administrator/01` and the fact is now `## Field-level encryption` on `Testing/markdown/14-not-in-sd-core.md`, which names `sdencrypt()`/`sddecrypt()` as the supported route and says plainly that nothing replaces the verb. ***AND IT WAS NOT COSMETIC — BOTH DOC GENERATORS HAD BEEN REFUSING TO RUN.*** `mktclsyntax.py` exited 1 on `NOT A VERB encrypt.field has a shape and is not on the roster` and `tclmap.py` on `NOT A VERB encrypt.field claimed by Administrator/01`, so **the TCL syntax card could not be regenerated at all** while the shapes file and the map still named it. **The roster is computed and had already self-corrected to 143**; the two typed lists had not, which is precisely the failure the computed roster exists to expose. Both now exit 0 — `roster 143 (standard 81, programmer 42, administrator 20)`, `tclmap 143 of 143, 0 exempt` — and that is an INDEPENDENT confirmation of 4 and 52's figures, from a tool that computes rather than quotes. `checklinks` 0 broken on all three sets (77/6/185) | docs repo, `Administrator/markdown/01`, `Testing/markdown/14`, `User/markdown/95`, `tools/` |
 | 54 | **M** | ***`verify-profiledir.ps1` is in neither runner, so 36's last leg never fires again*** — the leg that had **never** fired before 28 Aug, which is why it could not be trusted and why the script was written. It scored **14 of 14** and then went nowhere: not in `VerifyInstall1`, not in `VerifyInstall2`. ***DECIDED 29 Aug 2026 — WIRE IT INTO `VerifyInstall2`***, the owner having said the verifier questions are mine. It needs **elevation**, so `VerifyInstall2` is the right runner and `VerifyInstall1` is not. **Its cost is lower than `verify-doors-suite`, which is already a suite step**: it creates one control account and deletes it, and it never logs in, so it leaves **no profile directory** — the thing that makes the doors fixture single-use and expensive. ***THE ONE THING THAT MUST NOT BE GOT WRONG: its `-Prefix` has to come from the `-Run` token***, as `sdacctb48`/`sdtiertb48` already do. It refuses a spent stem by design, so a fixed prefix passes once and fails on every later run on the same machine. Not started — verifier gap, not product | `gplbld/VerifyInstall2.ps1`, `gplbld/verify-profiledir.ps1` |
 | 55 | **S** | ***`release.ps1` never runs the two doc generators that already refuse on a stale figure*** — measured 29 Aug 2026 by reading it: it calls `mkdoc.py` (:109), `mkpdf.ps1` (:126) and `checklinks.py` (:161), and **neither `mktclsyntax.py` nor `tclmap.py`**. Both of those compute the roster from the VOC and both **exit 1** when the typed lists disagree — which is exactly what they did over `encrypt.field`, undetected for a week, until 53 ran them by hand. ***So the guard already exists and nothing calls it.*** **Part one is nearly free: call both from `release.ps1` and fail the release when either refuses.** **Part two is the actual gap** — the generators check the typed *maps*, not the typed *prose*, so `mktclsyntax.py` printed `standard 81` in the generated card for a week while the tester set said `77` and nothing compared them. Have the generator emit its computed figures as data and assert the handful of labelled tier counts against it. **This is the guard called "the cheapest still available" in `a931c36`, now filed rather than left in prose.** Not started — docs toolchain | docs repo `tools/release.ps1:161`, `tools/mktclsyntax.py`, `tools/tclmap.py` |
+| 59 | **S** | ***FIVE UNELEVATED VERIFIERS ASSUME AN ADMINISTRATOR LANDS IN AN ORDINARY ACCOUNT, WHICH 56 ABOLISHES*** — measured on `-Run b59`, 29 Aug 2026: unelevated **8 of 13**, and all five failures are one cause. `verify-lcnames` names it — *"the session is in the account, not SDSYS … [FAIL] WHO names the account"*. Also `verify-osusers`, `verify-nocase`, `verify-lineendings`, `verify-batchjob`. ***NOT PRODUCT DEFECTS: every one refused the null case out loud rather than scoring a false pass***, which is the instrument rule working on the first run that broke the assumption. **The fix is a real non-administrator test account for that half**, not a tweak to five scripts. Not started | `gplbld/verify-{lcnames,osusers,nocase,lineendings,batchjob}.ps1` |
 | 58 | **B** | ***THE DOCUMENTATION DOES NOT DESCRIBE THE ACCESS MODEL THE PRODUCT NOW HAS*** — owner's instruction, 29 Aug 2026, raised as 56 and 57 were written. **Every set is affected**: administrators are elevated at login into SDSYS and have **no account of their own**, they **lose ssh**, a grant may go **down or sideways only**, and **SDSYS is never granted**. Two new messages, **10126** and **10127**. ***DO NOT WRITE IT FROM THIS ENTRY*** — 56 and 57 both have pieces still unsettled, and the docs repo is a **separate git repository** with spaces in its path. **Blocked until 56 and 57 land and one cycle has proved them.** Not started | docs repo `User`, `Administrator`, `Testing`, `Technical` |
 | 57 | **B** | ***A GRANT MAY GO DOWN OR SIDEWAYS, NEVER UP — owner's rule, 29 Aug 2026.*** *"Standard accounts can not be given access to programmer accounts, programmer accounts can be given access to standard accounts. Only windows administrators can enter SDSYS, rights to SDSYS can not be granted."* ***THE TIER IS THE ACCOUNT'S AND IT IS BAKED INTO ITS VOC AT CREATION***, so entering a higher-tier account handed over its whole verb set — **+42 verbs** for a standard user entering a programmer account, on the computed roster. **WRITTEN, UNCOMPILED**: new `gpl.bp/TIERGATE` (`!tier_allows`), wired into `CPROC`'s `logto.authorised`, `GRANTA` and `MODIFYA`'s ADD arm; messages 10126 and 10127. ***CPROC's IS THE ONLY GATE THAT HOLDS*** — the grant is a Windows group membership, so `net localgroup` makes one without SD, and a tier can be raised after a legal grant with nothing revisiting the group. Not cycled | `sdsys/gpl.bp/TIERGATE`, `CPROC` logto.authorised, `GRANTA`, `MODIFYA` |
 | 56 | **B** | ***THE ADMINISTRATOR ACCESS MODEL, REWRITTEN — owner's ruling 29 Aug 2026, and it SUPERSEDES THREE RECORDED DECISIONS.*** Administrators are elevated **at login** and land in **SDSYS**, have **no account of their own**, may `logto` anywhere, and **take the rights of whatever account they move to**; `logto sdsys` still works and asks UAC again. ***THREE OF THE SEVEN CLAUSES ARE ALREADY THE CODE***, which is why PRE_RELEASE **31**'s 29 Aug ruling is withdrawn the same day. **Reverses 15 Aug 2026** (*"nobody logs in to an account but their own"*), **re-opens PRE_RELEASE 2** (a closed **B**), and **costs administrators ssh** — UAC has no desktop there, and they no longer have an account to fall back to. ***AND A NON-ADMINISTRATOR CAN REACH SDSYS TODAY***, measured: `elevate('START')` tests nobody's identity, so an administrator's password is enough. Not started | `sdsys/gpl.bp/LOGIN:445`, `gpl.bp/CPROC:2597`, `gplsrc/linuxlb.c:88` |
@@ -1339,7 +1340,31 @@ PRE_RELEASE 31, below.
 
 ---
 
-## 31. An elevated local session keeps OS.EXECUTE after LOGTO — **S** (verifier only; the 29 Aug ruling was withdrawn the same day)
+## 31. An elevated local session keeps OS.EXECUTE after LOGTO — **S** — ***DONE 29 Aug 2026***
+
+> ***CLOSED BY `-Run b59`, 29 Aug 2026, AND THE TRANSCRIPT WAS READ RATHER THAN
+> THE STEP'S EXIT CODE BELIEVED.*** `verify-apiadmin` **22 PASS / 0 FAIL /
+> 0 SKIP**, and the line that matters:
+>
+> ```
+> [PASS] control: local elevated session refused OS.EXECUTE: expected False, got False
+> ```
+>
+> ***IT CLOSED WITH NO EDIT TO `verify-apiadmin.ps1` AT ALL.*** 56 stopped
+> `CREATEA` writing administrators into `os.users`, so `os_permitted()` falls
+> through to a lookup that finds nothing and refuses. The control was never
+> wrong about what it wanted — the product had drifted from it.
+>
+> ***THE RECORDED "21/23" WAS WRONG IN THE DENOMINATOR, AND THAT IS MEASURED
+> RATHER THAN ARGUED.*** b58's own log reads **21 PASS / 1 FAIL** — 22 checks,
+> not 23, the single failing one being this control. Both runs have 22. **Carry
+> 22/22 forward and treat any other number as news**; the old figure is
+> probably PRE_RELEASE 40's wrapped-line double count.
+>
+> ***THE INSTRUMENT ALMOST FOOLED THE READING, TOO.*** These transcripts are
+> **UTF-16**, so an ordinary `grep` for `[PASS]` matches nothing and reports
+> **0 PASS / 0 FAIL** on a full log — which reads exactly like a step that did
+> nothing. Convert first (`iconv -f UTF-16LE`) or read with `Get-Content`.
 
 > ***READ THIS BEFORE THE REST OF THE SECTION. THE 29 Aug RULING BELOW IS
 > WITHDRAWN*** — see entry **56**, taken hours later once the owner was shown
@@ -2744,6 +2769,40 @@ actually gone wrong — PRE_RELEASE **4**, **52** and **53**, all three of them.
 per-set link-free declaration to `checklinks.py`. **Do 34 first or do them
 together**; two separate passes over the same 180-line script for related
 reasons is how one of them ends up reverted.
+
+---
+
+## 59. Five unelevated verifiers assume an administrator has an ordinary account — **S** (harness, not product)
+
+Measured on `-Run b59`, 29 Aug 2026. **Elevated: 19 of 19, 397 PASS, 0 FAIL,
+0 SKIP. Unelevated: 8 of 13**, and all five failures are the same thing.
+
+| | what it said |
+|---|---|
+| `verify-lcnames` | *"=== 1. the session is in the account, not SDSYS"* → `[FAIL] WHO names the account: expected True, got False` |
+| `verify-osusers` | `BASIC BP SDOSUSER` → *"Cannot read source record"*; then *"the probe did not run — no LOGNAME line above"* |
+| `verify-nocase` | *"probing as SD account don"* → *"the probe did not run — no DIRFILE line"* |
+| `verify-lineendings` | works against `C:\ProgramData\SD\user_accounts\don\bp` |
+| `verify-batchjob` | *"the VOC probes could not be planted — nothing below would mean anything"* |
+
+***THIS IS 56 WORKING, NOT 56 BREAKING SOMETHING.*** `don` is an administrator,
+so LOGIN now elevates him into SDSYS; these five write a probe into the account
+they expect to land in, and `BP` in SDSYS is a different file. `verify-lcnames`
+is the clearest case because it **asserts the pre-56 rule as a requirement.**
+
+***AND EVERY ONE OF THEM REFUSED THE NULL CASE OUT LOUD.*** Not one scored a
+false pass on a probe that never ran — the instrument rule holding on the first
+run that broke its premise, which is the whole reason that rule is written down.
+
+**The fix is not five script tweaks.** Those verifiers mean *"run `sd` as an
+ordinary user"*, and that only ever worked because the owner was an
+administrator **with an ordinary account** — the combination clause 2 abolishes.
+**They need a real non-administrator account to run as**, created and torn down
+like the other prefixed test accounts. Until then this half of the suite cannot
+speak for the product.
+
+**No UAC storm, which was the other risk and did not happen.** The helper
+widening in 56 held: every step logged in, and `assert-current` passed in each.
 
 ---
 
