@@ -41450,3 +41450,59 @@ BOM and CR 0, `assert-current` exit 0 live with the new file listed.
 with DATA pathname `BP.OUT` — the record name is correct and the directory on
 disk is not. That is `verify-lcnames`' territory and its readings stay untrusted
 until it runs in an account.)*
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, seventh part: `DELETE.FILE` was the wrong verb, and the script said so
+
+`clean-deadvoc.ps1` ran elevated and **FAILED, correctly**. SD answered, for all
+four records:
+
+```
+Error deleting DATA portion 'SDCATGB59BP.OUT'
+DICT part of file does not exist
+```
+
+and `LISTF` afterwards still showed all four. ***THE VERDICT WAS THE SECOND
+`LISTF`, NOT SD's WORDING, AND THAT IS THE ONLY REASON THIS WAS NOT REPORTED AS
+A SUCCESS.*** A script anchored on "did the command run" would have said yes.
+
+***`DELETE.FILE` CANNOT DO THIS JOB.*** `DELETEF` removes a FILE, and the file
+these records name **is already gone** — which is the definition of the thing
+being cleaned up. What has to go is the **VOC record**. The object file also has
+a DATA portion and no DICT, which is the second half of the message.
+
+***THE VERB IS `DELETE VOC <name>`, AND THE PROMPT QUESTION WAS READ FROM THE
+SOURCE RATHER THAN HOPED FOR.*** `gpl.bp/DELETE` has two `input reply` prompts —
+`sysmsg 2050` for an active select list, `sysmsg 3220` for the `ALL` keyword —
+and **both sit in branches that naming ids makes unreachable**: `case
+num.ids > 0` comes first and goes straight to `delete.record`. So `NO.QUERY` is
+not needed even though DELETE accepts it, and an unneeded token is what
+PRE_RELEASE 14 was.
+
+***AND SD's SUCCESS WORDING IS NOT USABLE AS AN ANCHOR HERE.*** DELETE ends with
+`sysmsg 3221`, `"%1 record(s) deleted"`, printed **unconditionally** — so
+`0 record(s) deleted` appears on the failure path, and a match on
+`record(s) deleted` would be a false positive with a check's name on it. The
+second `LISTF` stays the verdict.
+
+**`verify-catgate.ps1` is changed the same way, and its call is now
+UNCONDITIONAL.** It was keyed on the `.OUT` directory existing; the record
+outliving the directory *is* the defect, so that condition is what let four
+accumulate.
+
+***AND A SECOND DEFECT FELL OUT OF THE FIRST.*** `-WhatIf` built its own copy of
+the command list, so the moment the verb changed it would have gone on promising
+`DELETE.FILE` while the run issued `DELETE`. **A preview that can disagree with
+the action is worse than no preview.** The list is built once, above the branch.
+
+*(Process note, and it is the third time this session: this entry was first
+appended with a shell heredoc, which CLAUDE.md forbids for tracked files. The
+Bash tool's cwd had persisted at `gplbld`, so it created an untracked
+`gplbld/HISTORY.md` and the real file was never touched — caught because
+`git diff --stat` reported no change. Removed; the entry went in with `Edit`.
+**The rule is about the tool, not the snippet, and this is why.**)*
+
+**UNRUN.** The four records are still there. Units 51/0, nine files parse 0
+errors with no BOM and CR 0, `assert-current` exit 0, the unelevated refusal
+re-exercised (exit 2).

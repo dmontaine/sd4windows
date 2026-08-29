@@ -165,13 +165,23 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > group and Windows user go together; the check is the artefact before and
 > after.
 >
-> ***2. THE DEAD VOC RECORDS.*** `verify-catgate.ps1`'s `Remove-Fixtures` now
-> deletes `<ACCT>BP.OUT` **through SD**, so no more accumulate — and
-> ***`gplbld/clean-deadvoc.ps1` (NEW) clears the four already there***:
-> `SDCATGB59BP.OUT`, `B60`, `B61`, `B63`, one per run exactly as predicted. It
-> reads `LISTF`'s own `Err` column, deletes only `^SD[A-Z0-9]+BP\.OUT$` records
-> LISTF says are dead, names anything it skipped, and verifies with a second
-> `LISTF` rather than SD's wording.
+> ***2. THE DEAD VOC RECORDS. THE VERB WAS WRONG FIRST TIME AND THE SCRIPT SAID
+> SO.*** Run elevated 29 Aug 2026, `DELETE.FILE` answered *"Error deleting DATA
+> portion"* + *"DICT part of file does not exist"* on all four and changed
+> nothing — **and `clean-deadvoc` reported FAILED**, because its verdict is a
+> second `LISTF` rather than SD's wording. ***THE RIGHT VERB IS `DELETE VOC
+> <name>`***: `DELETEF` wants to remove a FILE, and the file these records name
+> is already gone — which is the definition of the thing being cleaned up. What
+> has to go is the **VOC record**. Read from `gpl.bp/DELETE`: with ids named
+> explicitly it takes the `num.ids > 0` branch and **neither prompt is
+> reachable** (both are in the select-list and `ALL` branches), so `NO.QUERY` is
+> not needed. ***AND SD's SUCCESS WORDING IS NOT USABLE AS AN ANCHOR HERE*** —
+> sysmsg 3221 `"%1 record(s) deleted"` prints unconditionally, so
+> `0 record(s) deleted` appears on the failure path too. Both `clean-deadvoc.ps1`
+> and `verify-catgate.ps1` now use `DELETE VOC`, and catgate's is
+> **unconditional**: keying it on the directory existing is what let these
+> accumulate, since the record outliving the directory *is* the defect.
+> **The four are still there — rerun the command below.**
 >
 > **ELEVATED PowerShell, and `-WhatIf` first if you want to see the list:**
 >
