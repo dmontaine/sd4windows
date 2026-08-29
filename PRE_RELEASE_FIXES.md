@@ -2794,6 +2794,28 @@ into `release.ps1` at all — and `release.ps1` still cannot complete on the
 
 ## 57. A grant may go down or sideways, never up — **B** (owner's rule, 29 Aug 2026)
 
+> ***IT COMPILES — MEASURED 29 Aug 2026 10:22, NOT REPORTED.*** `cycle.ps1
+> -SkipInstall`, and **the staged tree was read rather than the run's output
+> believed**, as the 26 Aug precedent requires. `gpl.bp.out/TIERGATE` **and**
+> `gcat/!TIER_ALLOWS` both exist; `CPROC`, `LOGIN`, `ELEVATE`, `GRANTA`,
+> `MODIFYA`, `APISRVR` and `CREATEA` all recompiled at 10:22; messages
+> **10126** and **10127** staged.
+>
+> ***AND THE WARNING CLASS IS CLEARED, WHICH IS THE PART A GREEN BUILD DOES NOT
+> NORMALLY PROVE.*** `bootstrap.py`'s `check_compile()` **dies** on any *"is
+> not assigned a value"* warning — the ERRGEN trap, an abort at run time in a
+> program that may not run for weeks — as well as on a missing summary and any
+> non-zero `n error(s)`. Reaching ISCC means all three passed, so `admin.login`,
+> `tg.why`, `ma.why` and TIERGATE's locals are genuinely assigned.
+>
+> ***THE COUNTS ARE 127 / 186, AND THE 125 / 184 IN §"THE MACHINE" IS A STALE
+> BASELINE RATHER THAN A DISAGREEMENT.*** +2, not +1: `PROFILE_DIR` arrived
+> with PRE_RELEASE 36 on 28 Aug, after that line was written, and `TIERGATE` is
+> the second. **Checked rather than assumed** — both are present.
+>
+> **Still unrun.** Compiling is not running; `-SkipInstall` never touches
+> `C:\ProgramData\SD`.
+
 > *"Standard accounts can not be given access to programmer accounts,
 > programmer accounts can be given access to standard accounts. Only windows
 > administrators can enter SDSYS, rights to SDSYS can not be granted to
