@@ -40590,3 +40590,55 @@ stops it first. It changed no verdict, but a `[FAIL]` line in a passing run
 teaches people to skim. The 5161 claim is Control-only now, and the Refused
 phase asserts the ordering instead, so the witness says something true in both
 phases.
+
+## 28 Aug 2026, seventy-third session - the elevate-once rework, built and unrun
+
+Owner's ruling, taken after b52 landed. PRE_RELEASE 48.
+
+**IT REUSES `sd-elevate.ps1` RATHER THAN GROWING A TWIN.** That file ships and
+SD's `ELEVATE` verb drives it, so it is the most exercised elevation path here;
+a gplbld-local copy would be security-sensitive code in two places with nothing
+comparing them - **exactly the defect class 46 had been that morning**. Nothing
+modifies it; it is called as SD calls it.
+
+***FOUR PROMPTS BECOME TWO, NOT ONE, AND THE LIMIT IS MEASURED.***
+`sd-elevate.ps1` hard-codes a 300-second per-request timeout. Each door leg
+finishes well inside it; `VerifyInstall1`'s elevation of `VerifyInstall2` does
+not, because that half runs 19 verifiers. **Taking it to one prompt means
+editing a shipped file, which makes the tree stale and costs a cycle - the
+owner's call, not one to make on his behalf for a test's convenience.**
+
+**`-NoHelper` KEEPS THE ROUTE `b53` WENT GREEN ON**, because a rework of how a
+suite elevates should not be the only way to run it the week it lands.
+`test-doorsargv-units.ps1` drives **both** routes - **51 of 51**.
+
+***THE SECRET MOVED FROM A COMMAND LINE INTO A FILE, AND THE MEASUREMENT SAYS
+THAT IS A STEP UP.*** The helper passes no arguments, so the launcher is
+self-contained and carries the password. The old comment said *"the launcher
+carries no secret - the password arrives as its argument"*, and that had it
+backwards: `Win32_Process.CommandLine` returned a marker argument **verbatim to
+a same-user process**, while a `%TEMP%` file carries **SYSTEM, Administrators
+and the user and nobody else**. Same three principals, except the file is
+deleted in the `finally`. **An assumption written as fact - the class the
+record already tracks.**
+
+**TWO PRE-EXISTING DEFECTS FELL OUT OF TESTING IT, BOTH FIXED (PRE_RELEASE
+47).** `$work` was created ABOVE the residue check and the refusal path exits
+before the `finally` that removes it - **four leaked directories on disk, one
+per refused run, all four measured empty**. And `$stamp` is
+`yyyyMMdd-HHmmss`, so two runs in the same second collided on `New-Item` and
+**died with an unhandled exception: exit 1 from a script whose refusal code is
+2**, which reads as a failed measurement rather than a refusal. Unique name
+now, created only once the run is going ahead. Measured after: **two refused
+runs in the same second, both exit 2, no new directory.**
+
+**AND THE UNIT TEST CAUGHT A BUG IN THE NEW CODE, WHICH IS THE POINT OF IT.**
+`New-SelfContainedLauncher` printed its refusal AND returned a value, so the
+caller got an **array** - the trap this very file's header block warns about,
+thirty lines above the code that ignored it. It surfaced as a `[bool]`
+parameter refusing to bind. The reason goes in a script-scope variable now and
+the caller prints it, which is the convention `Add-Leg` and `Note` already use.
+
+***UNRUN.*** The Create leg is elevated, so `-Run b54` is the first thing that
+exercises the helper; if it cannot start, the suite falls back to a prompt per
+leg rather than failing the run.
