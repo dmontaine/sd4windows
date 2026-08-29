@@ -41251,3 +41251,64 @@ that evidence. Re-read them after the conversion. `lcnames` scored **107 of
 `C:\Users\sddrb60a`/`b` with it, so the names are taken until a restart —
 PRE_RELEASE 35/36, and `CREATE.ACCOUNT` refuses rather than hand back a suffixed
 home. **The next run is `b61`.**
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, fourth part: `verify-nocase` is green, and `verify-lineendings` follows it
+
+**Run 12:21:40, `-Run b61`. Unelevated 9 of 13** (was 8), **elevated 19 of 19**,
+`verify-doors-suite` 5 of 5.
+
+***`verify-nocase` PASSED 3 OF 3.***
+
+```
+verify-nocase: probing as SD account sdtub61 (a throwaway non-administrator)
+  ssh exit 0, 656 characters of output
+directory file (BP) reports FL$NOCASE  1  1  PASS  yes
+dynamic file (VOC) reports FL$NOCASE   0  0  PASS  yes
+SYSTEM(91) answers Windows             1  1  PASS  yes
+```
+
+`DHFILE=0` is the row that matters — the file's own header calls it the point of
+the test, because a directory file answering 1 proves nothing unless a dynamic
+file still answers 0. ***THIS IS THE FIRST MEASUREMENT THIS PROJECT HAS TAKEN AS
+A REAL NON-ADMINISTRATOR***, and PRE_RELEASE 59's whole apparatus — elevated
+create, the ACE for the unelevated parent, ssh as the account, PROGRAMMER tier,
+elevated remove — is witnessed end to end.
+
+***SO THE "ONE FIRST" CAUTION IS PAID OFF AND `verify-lineendings.ps1` IS
+CONVERTED.*** It had `$acct = 'C:\ProgramData\SD\user_accounts\don'` as a
+literal and drove sd.exe down a local `Start-Job` pipe; it now takes
+`-TestUser`/`-TestPassword`, resolves the home through `Get-SdTestUserHome`,
+asserts the directory is writable by THIS process before planting six fixtures,
+and drives the session with `Invoke-SdAsTestUser`. **UNRUN.**
+
+***THE REFUSAL TESTS ARE A TABLE NOW, NOT A COPY PER SCRIPT.*** Four
+near-identical conversions are four chances for one to be subtly wrong, and a
+check written once cannot drift between them. Each row names the wording only
+that script's refusal emits and the reading only a real run prints
+(`DIRFILE`, `REC ZZLECRLF`).
+
+***AND THE TABLE IS COMPARED AGAINST `VerifyInstall1`'s OWN `$needsTestUser`,
+READ OUT OF ITS SOURCE.*** A verifier converted but not listed there would be
+untested; one listed but not wired would be skipped at run time. Both are
+silent, so the two lists are diffed both ways rather than trusted, with a row
+refusing an empty parse. **Units 51 / 0.**
+
+***FILED FROM THE LOG — PRE_RELEASE 60.*** SDSYS's `LISTF` now shows
+`SDCATGB59BP.OUT` **and** `SDCATGB60BP.OUT`, both `Err 30` — SDSYS's VOC naming
+a file that is not there, one per suite run since b59.
+`verify-catgate.ps1:161`'s `Remove-Fixtures` deletes `<ACCT>BP` **through SD**
+with `DELETE.FILE ... FORCE` and then removes `<ACCT>BP.OUT` with
+**`Remove-Item`** — while the comment directly above it says to use SD
+*"because CREATE.FILE also wrote a VOC entry … deleting the directory alone
+would leave SDSYS's VOC naming a file that is not there."* The object file that
+`BASIC $ctlFile $ctlName` makes has a VOC entry of its own and nothing deletes
+it. Harness, not product, but it accumulates and `verify-lcnames` reads `LISTF`.
+
+***STILL NOT TRUSTED, AND STILL NOT FILED: `lcnames`' two `sdsys BP.OUT` rows.***
+They failed again on b61 for the third run running, and `lcnames` still runs in
+SDSYS. Its premise is broken, so the readings are not evidence about the product.
+Re-read them once it is converted.
+
+**`b61` is spent** — `C:\Users\sdtub61` and `sddrb61a`/`b` exist. Next is `b62`.
