@@ -40844,3 +40844,53 @@ control of PRE_RELEASE 31, identical in all four of the day's runs. `b55` was
 burnt against the stale tree and left `sdsshb55` behind: **a refused suite is
 not a suite that did nothing**, because the two `assert-current`-exempt scripts
 run anyway.
+
+## 28 Aug 2026, seventy-sixth session — PRE_RELEASE 4 and 52 applied whole, and the corroborating number was the stale one
+
+The seventy-fifth session left 52's recipe written and **two of its edits
+applied and reverted**, on the ground that a half-corrected table is worse than
+an uncorrected one. All twelve are now applied in one commit —
+`Testing/markdown/05`, `06`, `07`, diff 13 insertions / 14 deletions, the extra
+deletion being the `encrypt.field` line in 06's code block. Docs repo was clean
+at `7914e60` as recorded.
+
+**Every figure was re-derived from the tree before it was written**, not copied
+from the recipe: `newvoc` 395 entries and 119 records whose field 1 starts with
+`V`, plus the four keyword-and-verb records = 123, less `TIER.OMIT.STANDARD`'s
+42 = **81**; `TIER.ADD.ADMINISTRATOR` 21 lines − 1 header = **20**, so
+392 + 20 + 4 = **416**. `encrypt.field` confirmed absent from `newvoc`,
+`voc_template` (426 entries, only the `encrypt` **keyword**) and the tier list.
+
+***THE TWO ENTRIES CONTRADICTED EACH OTHER ON THE VERB TOTAL AND THE OLDER ONE
+WAS WRONG.*** Row 52 said `count voc with dispatch # ""` answers **143**;
+section 4 said **144**, "matching a file scan of the shipped tree exactly
+(`CA` 97, `IN` 45, `OS` 2)". Re-scanned: `voc_template` holds **139** `V`
+records — `CA` **95**, `IN` **42**, `OS` **2** — plus the four keyword-verbs =
+**143**, which is `81 + 42 + 20`. The old figure was **a count of `V` records
+only, from a tree with five verbs since removed**, quoted as the verb total. It
+had disagreed with its own arithmetic by one for as long as it stood.
+Section 4 corrected in place. *A number kept because it corroborates must be
+re-measured when the thing it corroborates moves.*
+
+**PRE_RELEASE 53 filed, not applied.** Three further sets still document
+`encrypt.field` as a verb that is in an administrator's VOC and fails to load —
+`Administrator/markdown/01:323-333`, `User/markdown/95:92`, and the generators
+`tools/tcl-syntax-shapes.txt:81` and `tools/tclmap.py:128`. It stops there
+because `Administrator/01:333` is **the only line in all four sets** recording
+field-level encryption as absent from W1.0-0: deleting the section loses the
+fact, so the wording is the owner's call. 52's own lesson applied to itself.
+
+***A "CANNOT RENDER" VERDICT WAS WRONG AND THE OWNER CORRECTED IT IN ONE
+SENTENCE — "all the pdf files were created on this box".*** PROJECT_STATUS §H.2
+records the interpreter decision as the MSYS2 python, so a probe of
+`/c/msys64/usr/bin/python` found no `markdown` and this session concluded
+rendering was impossible. **`markdown` 3.10.2 is installed for the WINDOWS
+python 3.13.14**, which is what has always run `mkdoc.py` and `mkpdf.ps1` here.
+The MSYS2 gap is real and unfixed, but it is a `setup-devbox.ps1` question. **A
+probe of one candidate does not measure a capability** — the record named the
+other interpreter on the same page that named the gap. All 15 Testing pages
+re-rendered and the three changed PDFs rebuilt; the HTML was then grepped for
+the corrected figures rather than trusted from exit 0.
+
+`gplbld/test-fixlist-units.ps1` **176 passed, 0 failed**, up from 175 — open
+entries 17 → 16.

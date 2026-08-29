@@ -160,11 +160,34 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ***AND THE DOCS REPO IS AT `/c/Users/dmont/Projects/SD Core for Windows 1.0-0 Docs`
 > — WITH SPACES IN THE NAME.*** It is a sibling of this one and it is a separate
-> git repository, clean at `7914e60`. A probe for `SDCoreWindowsDocs` finds
-> nothing, which is why two entries sat as *"cannot validate here"* for a whole
-> session. **PRE_RELEASE 52 carries a line-by-line recipe for 4 and 52 together**;
-> two of its edits were applied and reverted when this session ended, because a
-> half-corrected table is worse than an uncorrected one.
+> git repository. A probe for `SDCoreWindowsDocs` finds nothing, which is why two
+> entries sat as *"cannot validate here"* for a whole session.
+>
+> ***PRE_RELEASE 4 AND 52 ARE DONE, 28 Aug 2026 — all twelve edits of 52's recipe
+> applied in one commit***, `Testing/markdown/05,06,07`, diff 13 insertions / 14
+> deletions. **Every figure was re-derived from the tree before it was written**:
+> `newvoc` 395 entries / 119 field-1-`V` / `TIER.ADD.ADMINISTRATOR` 21 lines /
+> `TIER.OMIT.STANDARD` 43, giving 81 and 416. HTML and PDF re-rendered for the
+> three pages and the HTML checked for the corrected figures — `encrypt.field` is
+> gone from the whole Testing set.
+>
+> ***THE INTERPRETER LINE IN §H.2 IS MISLEADING AND COST A WRONG CONCLUSION THIS
+> SESSION.*** It records the MSYS2 python as the decision, so a probe of
+> `/c/msys64/usr/bin/python` found no `markdown` and this session reported
+> rendering as impossible. **The owner corrected it: every PDF on this box was
+> made here.** `markdown` **3.10.2** is installed for the **Windows** python
+> **3.13.14** (`WindowsApps\PythonSoftwareFoundation.Python.3.13`), which is what
+> `mkdoc.py` and `mkpdf.ps1` run on. The MSYS2 gap is real and still unfixed —
+> **it is a `setup-devbox.ps1` question, not a "cannot render" one.**
+>
+> ***PRE_RELEASE 53 IS NEW AND IT IS THE REST OF 52.*** Three other document sets
+> still carry `encrypt.field` and say **the verb is in an administrator's VOC and
+> fails to load** — `Administrator/markdown/01:323-333`, `User/markdown/95:92`,
+> and the generators `tools/tcl-syntax-shapes.txt:81` and `tools/tclmap.py:128`.
+> **Not applied, and deliberately**: `Administrator/01:333` is the only line in
+> all four sets recording field-level encryption as absent from W1.0-0, so
+> deleting the section loses the fact and rewording it is the owner's call. It is
+> a one-word answer and the entry carries both options.
 >
 > ### ⇧ END OF WHAT TO DO FIRST ⇧
 >
