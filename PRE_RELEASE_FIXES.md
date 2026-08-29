@@ -29,7 +29,7 @@ gives an answer that is wrong and looks authoritative. That is exactly how 28 Au
 2026 reported 36 open when 18 were, and filed three new entries onto numbers the
 table had been using for a week.
 
-***NEXT FREE ID: 58.*** Take it from here and increment it; **do not derive it by
+***NEXT FREE ID: 59.*** Take it from here and increment it; **do not derive it by
 scanning.** `gplbld/test-fixlist-units.ps1` enforces this line, the uniqueness of
 every id, that a section and its row describe the same defect and agree on
 status, and that every `PRE_RELEASE <n>` cited in PROJECT_STATUS.md, HISTORY.md
@@ -93,6 +93,7 @@ no elevation.
 | ~~53~~ | **S** | ***THREE MORE DOCUMENT SETS STILL CARRIED `encrypt.field`, AND THEY WERE WRONG IN A DIFFERENT WAY FROM 52*** — found 28 Aug 2026 while closing 52, which corrected the **Testing** set only. These do not merely miscount it; they tell the reader **the verb is in an administrator's VOC and fails to load**, which stopped being true when PRE_RELEASE 25 removed it. ***CONFIRMED GONE TREE-WIDE***: absent from `newvoc`, from `voc_template` (426 entries — only the `encrypt` **keyword**, `211`, which is in the base 392 and is not a verb) and from `TIER.ADD.ADMINISTRATOR`. **Four places**: `Administrator/markdown/01-accounts-and-security.md:323-333`, a whole `## encrypt.field does not work in this release` section quoting the `$CRYPTO` load error; `User/markdown/95-sd-tcl-syntax.md:92`, a table row tiered **`A`**; and the two toolchain inputs that generate them — `tools/tcl-syntax-shapes.txt:81` and `tools/tclmap.py:128`, the latter mapping the verb onto Administrator/01, so the generator still expects that page to document it. ***ONE DECISION IS NEEDED BEFORE ANY EDIT AND IT IS THE OWNER'S***: `Administrator/markdown/01:333` is the **ONLY line in the entire documentation** that records field-level encryption as absent from W1.0-0 — measured by grepping `encrypt` across all four sets — so **deleting the section loses that fact**, while leaving it states a mechanism that no longer exists. Reword it to "not present, and the verb does not ship", or delete it and put the fact on a *not in SD Core* page. **Do not delete the shapes/tclmap rows without the same answer**: `95-sd-tcl-syntax.md` is generated, so an edit to the page alone is overwritten on the next render. *(`sdencrypt()`/`sddecrypt()` are unaffected and DO ship — this is the verb only.)* ***DONE 28 Aug 2026 ON THE OWNER'S RULING, "move to not in SD core".*** The section is deleted from `Administrator/01` and the fact is now `## Field-level encryption` on `Testing/markdown/14-not-in-sd-core.md`, which names `sdencrypt()`/`sddecrypt()` as the supported route and says plainly that nothing replaces the verb. ***AND IT WAS NOT COSMETIC — BOTH DOC GENERATORS HAD BEEN REFUSING TO RUN.*** `mktclsyntax.py` exited 1 on `NOT A VERB encrypt.field has a shape and is not on the roster` and `tclmap.py` on `NOT A VERB encrypt.field claimed by Administrator/01`, so **the TCL syntax card could not be regenerated at all** while the shapes file and the map still named it. **The roster is computed and had already self-corrected to 143**; the two typed lists had not, which is precisely the failure the computed roster exists to expose. Both now exit 0 — `roster 143 (standard 81, programmer 42, administrator 20)`, `tclmap 143 of 143, 0 exempt` — and that is an INDEPENDENT confirmation of 4 and 52's figures, from a tool that computes rather than quotes. `checklinks` 0 broken on all three sets (77/6/185) | docs repo, `Administrator/markdown/01`, `Testing/markdown/14`, `User/markdown/95`, `tools/` |
 | 54 | **M** | ***`verify-profiledir.ps1` is in neither runner, so 36's last leg never fires again*** — the leg that had **never** fired before 28 Aug, which is why it could not be trusted and why the script was written. It scored **14 of 14** and then went nowhere: not in `VerifyInstall1`, not in `VerifyInstall2`. ***DECIDED 29 Aug 2026 — WIRE IT INTO `VerifyInstall2`***, the owner having said the verifier questions are mine. It needs **elevation**, so `VerifyInstall2` is the right runner and `VerifyInstall1` is not. **Its cost is lower than `verify-doors-suite`, which is already a suite step**: it creates one control account and deletes it, and it never logs in, so it leaves **no profile directory** — the thing that makes the doors fixture single-use and expensive. ***THE ONE THING THAT MUST NOT BE GOT WRONG: its `-Prefix` has to come from the `-Run` token***, as `sdacctb48`/`sdtiertb48` already do. It refuses a spent stem by design, so a fixed prefix passes once and fails on every later run on the same machine. Not started — verifier gap, not product | `gplbld/VerifyInstall2.ps1`, `gplbld/verify-profiledir.ps1` |
 | 55 | **S** | ***`release.ps1` never runs the two doc generators that already refuse on a stale figure*** — measured 29 Aug 2026 by reading it: it calls `mkdoc.py` (:109), `mkpdf.ps1` (:126) and `checklinks.py` (:161), and **neither `mktclsyntax.py` nor `tclmap.py`**. Both of those compute the roster from the VOC and both **exit 1** when the typed lists disagree — which is exactly what they did over `encrypt.field`, undetected for a week, until 53 ran them by hand. ***So the guard already exists and nothing calls it.*** **Part one is nearly free: call both from `release.ps1` and fail the release when either refuses.** **Part two is the actual gap** — the generators check the typed *maps*, not the typed *prose*, so `mktclsyntax.py` printed `standard 81` in the generated card for a week while the tester set said `77` and nothing compared them. Have the generator emit its computed figures as data and assert the handful of labelled tier counts against it. **This is the guard called "the cheapest still available" in `a931c36`, now filed rather than left in prose.** Not started — docs toolchain | docs repo `tools/release.ps1:161`, `tools/mktclsyntax.py`, `tools/tclmap.py` |
+| 58 | **B** | ***THE DOCUMENTATION DOES NOT DESCRIBE THE ACCESS MODEL THE PRODUCT NOW HAS*** — owner's instruction, 29 Aug 2026, raised as 56 and 57 were written. **Every set is affected**: administrators are elevated at login into SDSYS and have **no account of their own**, they **lose ssh**, a grant may go **down or sideways only**, and **SDSYS is never granted**. Two new messages, **10126** and **10127**. ***DO NOT WRITE IT FROM THIS ENTRY*** — 56 and 57 both have pieces still unsettled, and the docs repo is a **separate git repository** with spaces in its path. **Blocked until 56 and 57 land and one cycle has proved them.** Not started | docs repo `User`, `Administrator`, `Testing`, `Technical` |
 | 57 | **B** | ***A GRANT MAY GO DOWN OR SIDEWAYS, NEVER UP — owner's rule, 29 Aug 2026.*** *"Standard accounts can not be given access to programmer accounts, programmer accounts can be given access to standard accounts. Only windows administrators can enter SDSYS, rights to SDSYS can not be granted."* ***THE TIER IS THE ACCOUNT'S AND IT IS BAKED INTO ITS VOC AT CREATION***, so entering a higher-tier account handed over its whole verb set — **+42 verbs** for a standard user entering a programmer account, on the computed roster. **WRITTEN, UNCOMPILED**: new `gpl.bp/TIERGATE` (`!tier_allows`), wired into `CPROC`'s `logto.authorised`, `GRANTA` and `MODIFYA`'s ADD arm; messages 10126 and 10127. ***CPROC's IS THE ONLY GATE THAT HOLDS*** — the grant is a Windows group membership, so `net localgroup` makes one without SD, and a tier can be raised after a legal grant with nothing revisiting the group. Not cycled | `sdsys/gpl.bp/TIERGATE`, `CPROC` logto.authorised, `GRANTA`, `MODIFYA` |
 | 56 | **B** | ***THE ADMINISTRATOR ACCESS MODEL, REWRITTEN — owner's ruling 29 Aug 2026, and it SUPERSEDES THREE RECORDED DECISIONS.*** Administrators are elevated **at login** and land in **SDSYS**, have **no account of their own**, may `logto` anywhere, and **take the rights of whatever account they move to**; `logto sdsys` still works and asks UAC again. ***THREE OF THE SEVEN CLAUSES ARE ALREADY THE CODE***, which is why PRE_RELEASE **31**'s 29 Aug ruling is withdrawn the same day. **Reverses 15 Aug 2026** (*"nobody logs in to an account but their own"*), **re-opens PRE_RELEASE 2** (a closed **B**), and **costs administrators ssh** — UAC has no desktop there, and they no longer have an account to fall back to. ***AND A NON-ADMINISTRATOR CAN REACH SDSYS TODAY***, measured: `elevate('START')` tests nobody's identity, so an administrator's password is enough. Not started | `sdsys/gpl.bp/LOGIN:445`, `gpl.bp/CPROC:2597`, `gplsrc/linuxlb.c:88` |
 
@@ -2743,6 +2744,51 @@ actually gone wrong — PRE_RELEASE **4**, **52** and **53**, all three of them.
 per-set link-free declaration to `checklinks.py`. **Do 34 first or do them
 together**; two separate passes over the same 180-line script for related
 reasons is how one of them ends up reverted.
+
+---
+
+## 58. The documentation does not describe the access model the product now has — **B**
+
+Owner's instruction, 29 Aug 2026, given while 56 and 57 were being written:
+*"remember to enter a task to update documentation with these changes."*
+
+***IT IS FILED NOW AND DELIBERATELY NOT STARTED.*** Both entries it documents
+have pieces still unsettled — 56's `adopt` half and 57's promotion case — and
+writing a reference against a model still in motion is how the tester set came
+to describe `encrypt.field` for a week after it was deleted (PRE_RELEASE 52 and
+53). **Start it when 56 and 57 have landed and one cycle has proved them.**
+
+***THE DOCS ARE A SEPARATE GIT REPOSITORY, AND THE PATH HAS SPACES IN IT***:
+`C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`. A probe for
+`SDCoreWindowsDocs` finds nothing — that cost a whole session once.
+
+### What changed that a reader would notice
+
+| | from |
+|---|---|
+| an administrator is **elevated at login** and lands in **SDSYS** | 56 |
+| an administrator has **no account of their own**; a personal one is created and granted like anyone else's | 56 |
+| ***an administrator can no longer reach SD over ssh*** — UAC has no desktop there | 56 |
+| `logto sdsys` is refused unless the **person** is an administrator | 56 |
+| a grant may go **down or sideways, never up** | 57 |
+| **SDSYS is never granted to anybody** | 57 |
+| `revoke` / `modify.account … delete` unaffected — removing access is always allowed | 57 |
+| new messages **10126**, **10127** | 57 |
+
+### Where it lands
+
+**Derive the page list in the docs repo rather than trusting this one** — H.2
+in PROJECT_STATUS.md has the set inventory. The verbs with pages that certainly
+move are `grant`, `revoke`, `list.grants`, `logto`, `modify.account` and
+`create.account`; beyond those, the tier and restricted-command topic pages,
+`Administrator/01`, and any tester page that tells somebody how to sign in —
+**that instruction is now different for an administrator.**
+
+***AND IT WILL COLLIDE WITH 34 AND 55, WHICH IS AN ARGUMENT FOR DOING THEM
+TOGETHER.*** Regenerating anything runs `mktclsyntax.py` and `tclmap.py`, which
+compute the roster and `exit 1` on disagreement — 55 is that they are not wired
+into `release.ps1` at all — and `release.ps1` still cannot complete on the
+`Technical` set until 34's link-free declaration exists.
 
 ---
 
