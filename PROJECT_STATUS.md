@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-***SEVENTY-FOURTH SESSION, 28 Aug 2026 — PRE_RELEASE 36 IS BUILT, ALL FOUR RULINGS, AND NOT ONE LINE OF IT HAS COMPILED.*** ***THE START HERE BOX CARRIES A FOUR-STEP LIST THE OWNER ASKED TO BE REMINDED OF: cycle, suite `-Run b55`, RESTART, then read `C:\ProgramData\SD\reclaim-profiles.log`.*** **The restart is the step that actually tests 36** — the sweep runs only when `sdsvc.exe` starts the service, and the hives it waits on come down at shutdown. `DELETE_USER` takes the DIRECTORY first and removes the `ProfileList` entry only if that succeeded, which **reverses part of 32 on the owner's ruling**: the entry is the only handle any sweep has, and 28 Aug measured three folders on this host that nothing could find without it. Both halves are kept together otherwise and recorded under `C:\ProgramData\SD\profile-reclaim`; `gplbld/reclaim-profiles.ps1` takes the pair at every boot and **reads the RECORD, not `ProfileList`**. `create.account` refuses a name whose profile directory is still there and names it (`gpl.bp/PROFILE_DIR`, 10124/10125). **New status 8** — left behind AND not recorded — so 6's new promise of a reclaim is never printed about a pair nothing is coming back for. ***THE WINDOWS HALF IS MEASURED AND THE BASIC HALF IS NOT***: `sdsvc.c` compiles 0 warnings under `-Wall -Wformat=2`; `gplbld/test-reclaim-units.ps1` drives the sweep's refusal table **39/39** with no install, elevation or store, and its **positive control fails 34/5** against a copy with the containment check removed; the sweep was watched running three ways unelevated. ***THE STORE GETS AN ACL OF ITS OWN AND THAT IS NOT TIDINESS***: `C:\ProgramData\SD` grants `sdusers:(OI)(CI)M` to everything underneath, so a reclaim store left to inherit would be **a list of directories every SD user can edit and LocalSystem later deletes** — `PS_SCRIPT`'s SDSYS\PSTMP escalation in a new place. `gplbld/secure-reclaim.ps1` at install time, `DELETE_USER` on an older tree, and the sweep re-asserts it every boot **and** skips any record not owned by SYSTEM or Administrators. **32's regression test is re-scoped** from *"the entry is gone"* to *"the entry is gone when the directory went"*.
+***SEVENTY-FOURTH SESSION, 28 Aug 2026 — PRE_RELEASE 36 IS BUILT, ALL FOUR RULINGS, AND THE BASIC HALF HAS STILL NEVER COMPILED.*** *(The C half now has: `make sd` 28 Aug 20:44, `sdsvc.exe` 144,301 → 146,089 bytes. The first cycle at 20:40:17 staged the **26 Aug** `sdsvc.exe` — see STEP 0 in the START HERE box.)* ***THE START HERE BOX CARRIES A FIVE-STEP LIST THE OWNER ASKED TO BE REMINDED OF: `make sd`, cycle, suite `-Run b55`, RESTART, then read `C:\ProgramData\SD\reclaim-profiles.log`.*** **The restart is the step that actually tests 36** — the sweep runs only when `sdsvc.exe` starts the service, and the hives it waits on come down at shutdown. `DELETE_USER` takes the DIRECTORY first and removes the `ProfileList` entry only if that succeeded, which **reverses part of 32 on the owner's ruling**: the entry is the only handle any sweep has, and 28 Aug measured three folders on this host that nothing could find without it. Both halves are kept together otherwise and recorded under `C:\ProgramData\SD\profile-reclaim`; `gplbld/reclaim-profiles.ps1` takes the pair at every boot and **reads the RECORD, not `ProfileList`**. `create.account` refuses a name whose profile directory is still there and names it (`gpl.bp/PROFILE_DIR`, 10124/10125). **New status 8** — left behind AND not recorded — so 6's new promise of a reclaim is never printed about a pair nothing is coming back for. ***THE WINDOWS HALF IS MEASURED AND THE BASIC HALF IS NOT***: `sdsvc.c` compiles 0 warnings under `-Wall -Wformat=2`; `gplbld/test-reclaim-units.ps1` drives the sweep's refusal table **39/39** with no install, elevation or store, and its **positive control fails 34/5** against a copy with the containment check removed; the sweep was watched running three ways unelevated. ***THE STORE GETS AN ACL OF ITS OWN AND THAT IS NOT TIDINESS***: `C:\ProgramData\SD` grants `sdusers:(OI)(CI)M` to everything underneath, so a reclaim store left to inherit would be **a list of directories every SD user can edit and LocalSystem later deletes** — `PS_SCRIPT`'s SDSYS\PSTMP escalation in a new place. `gplbld/secure-reclaim.ps1` at install time, `DELETE_USER` on an older tree, and the sweep re-asserts it every boot. ***THE SWEEP NO LONGER SKIPS A RECORD ON ITS OWNER, AND THE ACL IS NOW THE WHOLE OF THAT CONTAINMENT — PRE_RELEASE 43, owner's ruling 28 Aug 2026.*** The owner check refused **every record `DELETE_USER` will ever write**: an elevated process owns what it creates by its **own** SID, not `BUILTIN\Administrators`. Measured on the 20:48:24 install — five genuine records, five refusals, nothing reclaimable on any machine. **The 39/39 above is exactly how it got shipped**: every accepted row handed in SYSTEM or Administrators and none handed in what the producer actually writes, so the suite drove every way the guard said no and never the one path where it had to say yes. The rows are turned round and the control is `-Sweep` at the pre-43 copy, **37/2**, red on those two alone. **32's regression test is re-scoped** from *"the entry is gone"* to *"the entry is gone when the directory went"*.
 
 ***SEVENTY-THIRD SESSION, 28 Aug 2026 — THE CYCLE RAN, THE SUITE RAN, AND THE DOOR STEP FAILED TWICE. ONE FAULT IS FIXED; THE OTHER RE-OPENS PRE_RELEASE 19.*** ***INSTALL 28 Aug 15:29:59, `assert-current` exit 0 live*** — the owner's cycle shipped PRE_RELEASE 42 (`CREATEA`, `SET_PASSWD`, message 10122). ***FAULT 1, FIXED — PRE_RELEASE 43***: `verify-doors-suite.ps1` passed `'-Password', ''` for Suspend and Remove, and **`Start-Process -ArgumentList` carries `[ValidateNotNullOrEmpty()]`, which on a COLLECTION validates every ELEMENT** — one `''` rejects the whole list and **nothing elevates**. Create carried a password and ran 8/8; Suspend and Remove died before their UAC prompt. The pair is built conditionally now, the argv and its count are printed, an empty element is refused by name, and `gplbld/test-doorsargv-units.ps1` guards it — **35/35, and its positive control against a copy carrying the old form fails 27/8.** ***FAULT 2, AND IT IS THE INSTRUMENT — PRE_RELEASE 19 IS RE-OPENED ON ONE ROW OF SEVEN***: `verify-doors.ps1:255` anchored *"logto entered the account"* on the account name **anywhere in the transcript**, and the session echoes what it is fed. **On the b50 Control leg SD printed 5161 *"Unable to change to new directory"* and `WHO` answered `91 DON`, and the row scored PASS** — as it did on `sddr2`, which is what *"logto ADMITTED"* below rests on. **The check now anchors on `WHO`'s answer with 5161 as a disqualifier**, both directions measured against the real transcript. ***THE CAUSE IS PRE_RELEASE 44 AND IT IS WINDOWS, NOT SD***: `don` is in `sdu_sddrb50a` **on the machine** and **not in his token**, which was fixed at logon — measured both ways, with `sdusers` present as the control. **ssh and the API authenticate afresh and are unaffected; the REFUSAL half of all three doors still stands**, because `logto.authorised` runs at `CPROC:2679`, before the chdir at `:2691`. ***THE ELEVATE-ONCE REWORK IS DONE AND WITNESSED — `-Run b54`, 28 Aug 2026 19:28.*** ***ALL FIVE DOOR LEGS GREEN THROUGH THE HELPER, ONE UAC PROMPT INSTEAD OF THREE***, and the elevated half's only failure is 31's known control again. `Create`, `Suspend` and `Remove` each printed `via helper:` with the password **masked**; the run left **no accounts, 0 orphan SIDs, no stray `sd.exe`**, its work directory gone, the helper stopped and its pipe closed. **The four pre-fix leaked directories were removed by hand after measuring all four empty; `C:\Users\dmont\AppData\Local\Temp` now holds none.** ***ONE FALSE ALARM ON THE WAY, AND IT IS NOW A §6 TRAP***: the check for a surviving helper matched **its own query process**, because a `CommandLine -like '*sd-elevate-helper*'` filter names the thing it is looking for. **The pipe being absent is what actually proved it gone** — evidence that cannot name itself.
 
@@ -129,28 +129,121 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩ PRE_RELEASE 36 IS BUILT AND HAS NEVER COMPILED. FOUR THINGS TO RUN. ⇩
+> # ⇩ PRE_RELEASE 36 IS BUILT, INSTALLED AND RECLAIMED FIVE PROFILES. THE LIST BELOW IS SPENT. ⇩
 >
-> ***HANDOFF, SEVENTY-FOURTH SESSION, 28 Aug 2026. THE OWNER ASKED TO BE
-> REMINDED OF THIS LIST, SO IT IS THE FIRST THING IN THE FILE.*** Everything
-> below was written and none of it has run. **Read the four steps, then the
-> evidence.**
+> ***HANDOFF, SEVENTY-FOURTH SESSION, 28 Aug 2026. THE WHOLE LIST RAN, AND 36
+> WORKS END TO END.*** Two cycles, `b56` and `b57`, a restart, and the sweep at
+> **21:51:50** printed **`5 considered, 5 reclaimed, 0 still pending, 0
+> refused`**. Two defects were found and fixed on the way — **PRE_RELEASE 42 and
+> 43**, both DONE and both measured on the installed tree. **`-List` elevated at
+> 21:57:29 then said `0 records`**, and that reading is now worth something:
+> since 42, an unelevated run refuses rather than printing the same sentence.
 >
-> ### ⇩ WHAT TO RUN, IN ORDER ⇩
+> ***WHAT IS LEFT OF 36, AND IT IS ONE LEG.*** `create.account` refusing a name
+> whose profile directory is still there (10124/10125, `gpl.bp/PROFILE_DIR`)
+> **has never been exercised** — no b56 or b57 log mentions either message. **It
+> is cheap to test now and the fixture is already on the machine**: 56 orphan
+> `sd*` directories remain under `C:\Users`, so `create.account sdapiab56`
+> should be refused and should name the directory. **That is the next thing to
+> run.**
+>
+> ***AND THE 61 → 56 COUNT IS THE PART A RERUN MUST KEEP.*** The tally line
+> cannot see containment: 56 of the 61 directories had no record and had to be
+> left alone, and a sweep that deleted more would still have printed
+> `5 reclaimed, 0 refused`. **Count the directory before and after, every time.**
+>
+> ### ⇩ WHAT RAN, IN ORDER — ALL OF IT DONE ⇩
+>
+> ***STEPS 0 TO 4 ARE DONE. THE INSTALL IS 28 Aug 2026 21:27:34, GREEN, `b57` ON
+> IT.*** The 20:48:24 install carried `b56`; the 43 fix then cost a second
+> cycle. `assert-current` exit 0 live on both, **`gcat` 126 / `GPL.BP.OUT` 185**
+> — up from 125/184, which is `gpl.bp/PROFILE_DIR` arriving and is the evidence
+> that 36's BASIC half compiled rather than the report that it did.
+>
+> ***STEP 0 — `make sd`. DONE 28 Aug 2026 20:44, exit 0, clean.*** **It was
+> missing from this list and the omission cost a cycle**: the 20:40:17 install
+> staged `bin\sdsvc.exe` from **26 Aug 20:40**, so PRE_RELEASE 36's Windows half
+> was installed without ever being compiled. `assert-current` check A2 caught it
+> — the exact shape §6 records under *"`cycle.ps1` DOES NOT BUILD"*, found this
+> time by the guard rather than by a wasted measurement. **The rebuild is real,
+> not a no-op: `sdsvc.exe` 144,301 → 146,089 bytes.** Unelevated, MSYS2 login
+> shell; the agent can run it.
 >
 > **STEP 1 — the cycle. `ELEVATED PowerShell`.** Nothing else can happen first:
-> the BASIC has never compiled.
+> the BASIC has never compiled. ***OWED AGAIN AFTER STEP 0*** — the relink moved
+> `sd.exe` `DF77FD6D61DE5184` → `C5834134AF60BBD9`, so check A refuses the
+> 20:40:17 install and only a cycle clears it.
 >
 > ```
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
 > **STEP 2 — the suite. An ORDINARY, UNELEVATED PowerShell, your own terminal,
-> not an agent's (§4.0.1).** `b54` is spent; **`b55` is next.**
+> not an agent's (§4.0.1).** `b54` is spent, ***`b55` IS SPENT TOO — BURNT
+> AGAINST THE STALE TREE AT 20:41:43*** — and **`b56` is spent: it RAN, 28 Aug
+> 20:52, and it is the best result the suite has had.** 13 of 13 unelevated
+> exit 0 including `verify-doors-suite` (**the first time the door suite has
+> ever passed** — PRE_RELEASE 44), 18 of 19 elevated, the one failure
+> `verify-apiadmin` 21/23, which is the **known stale control of PRE_RELEASE
+> 31** and identical in all three of the day's runs, two of them from before 36
+> was installed. **`b57` is next.**
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b55 -ContinueOnFailure
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b57 -ContinueOnFailure
 > ```
+>
+> ***HOW `b55` WAS BURNT, BECAUSE THE SUITE'S OWN SUMMARY SAYS THE OPPOSITE.***
+> Eleven steps exited 2 on `assert-current`'s STALE refusal and the door suite
+> reported *"Create left nothing behind"* — so the run reads as having created
+> nothing. **It created one thing.** `verify-sshonly.ps1` is deliberately exempt
+> from `assert-current` (CLAUDE.md), so it ran, and the elevated batch was then
+> **killed** — `post-cycle-elevated exited -1073741510`
+> (`STATUS_CONTROL_C_EXIT`), its transcript stopping mid-line after *"Error 5
+> getting semaphores"* with no transcript-end marker — **before its teardown**.
+> Left on the machine, measured 28 Aug: Windows user `sdsshb55` **enabled**,
+> `C:\Users\sdsshb55` created 20:42:44, and a `ProfileList` entry. No `sdu_`
+> group. ***THE LESSON IS THE EXEMPTION, NOT THE KILL***: a refused suite is not
+> a suite that did nothing, because the two exempt scripts run anyway — so
+> **the run number is spent even when every reported step refused.**
+>
+> **Litter, and PRE_RELEASE 39's tool takes it** — ELEVATED, `-List` first, it
+> changes nothing:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1 -List
+> ```
+>
+> ***PRE_RELEASE 43 IS FIXED IN SOURCE AND OWES A CYCLE — SO STEPS 1 AND 2 RUN
+> AGAIN, IN THAT ORDER, BEFORE THE REBOOT IS WORTH SPENDING.*** `-List` elevated,
+> 28 Aug 21:15, found **5 genuine records and refused all five**: every one owned
+> by `GITORLI\don`, the administrator whose session ran `DELETE.ACCOUNT`, against
+> a check accepting only `S-1-5-18` or `S-1-5-32-544`. The owner check is gone
+> and the store's ACL is the containment; units **39/39**, control `-Sweep` at
+> the pre-43 copy **37/2**, red on those two rows alone.
+>
+> ***AND THE CYCLE DELETES THE FIXTURE ALONG WITH THE TREE.*** `C:\ProgramData\SD`
+> goes, and `b56`'s five records go with it — so **`b56`'s five directories
+> become litter with no record** (`sddrb56a`, `sddrb56b`, `sdapiab56`,
+> `sdapinb56`, `sdapiidb56`; `cleanup-devlitter.ps1` takes them). **Fresh records
+> can only come from a fresh suite run, which is why STEP 2 comes before the
+> reboot rather than after the fix.**
+>
+> ***THE PRE-REBOOT STATE, MEASURED 28 Aug 21:50, SO THE SWEEP'S LOG CAN BE
+> JUDGED AGAINST SOMETHING.*** `-List` elevated: **5 considered, 0 reclaimed, 5
+> still pending, 0 refused** — `sddrb57a`, `sddrb57b`, `sdapiab57`, `sdapinb57`,
+> `sdapiidb57`, all five directories present with their `ProfileList` entries.
+> **`C:\Users` holds 61 `sd*` directories and 46 `ProfileList` `sd*` entries; only
+> those five are recorded.**
+>
+> ***A PASS:*** the log ends `5 considered, 5 reclaimed, 0 still pending, 0
+> refused`, the five directories and their entries are gone, and `-List`
+> elevated then says **0 records**.
+>
+> ***AND THE LITTER IS A FREE CONTAINMENT CONTROL — USE IT.*** 56 of the 61
+> directories have **no record** and the sweep must not touch one of them. `sd*`
+> must fall **61 → 56 and by exactly those five**. Any other directory
+> disappearing is a containment failure wearing the costume of a success, and
+> the tally line alone will not say so.
 >
 > **STEP 3 — RESTART WINDOWS. This is the step that actually tests 36 and it is
 > the one nothing else will remind you of.** The sweep only ever does anything

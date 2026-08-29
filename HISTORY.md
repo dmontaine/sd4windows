@@ -40738,3 +40738,71 @@ exactly like a delete that found no profile to remove.
 **Not built, and not in the ruling:** nothing sweeps a directory orphaned before
 this existed. `cleanup-devlitter.ps1` is still that job, and PRE_RELEASE 41 is
 that script's own blindness.
+
+---
+
+## 28 Aug 2026, seventy-fifth session — PRE_RELEASE 36 reclaims five profiles, after two defects that each made a green look real
+
+**36 works end to end.** Sweep after the restart, 21:51:50: `5 considered, 5
+reclaimed, 0 still pending, 0 refused`. `C:\Users` `sd*` **61 → 56**,
+`ProfileList` `sd*` **46 → 41**, by exactly the five recorded. Install 21:27:34,
+`assert-current` exit 0, `gcat` 126 / `gpl.bp.out` 185.
+
+***THE FIRST DEFECT WAS THE HANDOFF'S OWN LIST.*** It began at the cycle, and
+`cycle.ps1` does not build. The 20:40:17 install staged `bin\sdsvc.exe` from
+**26 Aug**, so 36's Windows half was installed without ever being compiled -
+exactly the shape §6 records under *"`cycle.ps1` DOES NOT BUILD"*. **Check A2
+caught it this time** rather than a wasted measurement. `make sd` then moved
+`sdsvc.exe` 144,301 → 146,089 bytes, which is how it was known to be a real
+rebuild. **STEP 0 is now in the list.**
+
+***THE SECOND KILLED THE FEATURE OUTRIGHT: the sweep refused every record
+`DELETE_USER` will ever write.*** PRE_RELEASE 43. `Get-RefusalReason` accepted
+only `S-1-5-18` or `S-1-5-32-544`; a file created by an elevated process is
+owned by **the creator's own SID**, and `DELETE_USER` runs in the administrator's
+session. Elevated `-List` at 21:15 - five genuine records, five refusals.
+**Owner's ruling: drop the per-file owner check and rely on the store's ACL**,
+which the sweep asserts itself at every boot before reading anything.
+
+***AND IT SHIPPED PAST A 39/39 UNIT SUITE WITH A WORKING POSITIVE CONTROL.***
+Every accepted row handed in SYSTEM or Administrators; **no row ever handed in
+what the producer actually writes**, because until 21:15 that day no genuine
+record had existed. The suite drove every way the guard said no and never the
+one path where it had to say yes. The control removed a *different* check. **The
+lesson is not the flag: a test that only exercises the refusals passes when the
+feature does nothing.** The missing row is now in, and its control is `-Sweep`
+at the pre-43 copy - **37/2**, red on those two rows alone.
+
+***A THIRD, FOUND BY FOLLOWING THE DOCUMENTED STEP AS WRITTEN.*** PRE_RELEASE
+42. `-List` unelevated said `0 records in the store - nothing was left behind to
+reclaim` on a store holding five: `Get-ChildItem -ErrorAction SilentlyContinue`
+swallowed the access denial and the empty-store branch announced its own
+interpretation as fact. The store is granted to SYSTEM and Administrators only,
+so **an unelevated `-List` could never say anything else, on any machine.** Now
+refuses and exits 2. §START HERE's *"UNELEVATED is enough for both"* was wrong
+and is corrected. The line above about the sweep skipping records not owned by
+SYSTEM or Administrators **is superseded by 43.**
+
+***THE CONTAINMENT NUMBER IS NOT IN THE TALLY LINE, AND THAT IS GENERAL.*** 56
+of the 61 directories had no record and had to be untouched. A sweep that
+deleted more would still have printed `5 reclaimed, 0 refused`. Only counting
+the directory before and after says otherwise - the litter on this host is a
+free containment control and should be used at every rerun.
+
+**What the pre-reboot sweeps bought:** 21:41 to 21:45, hives still mounted,
+`UsrClass.dat ... used by another process`, `still pending - the record is kept
+for the next start`. That is the keep-and-retry path, which no unit test can
+reach and which exists only because the hive is up. Kept, retried, reclaimed.
+
+**Still unmeasured, and it is one leg of 36:** `create.account` refusing a name
+whose profile directory survives (10124/10125, `gpl.bp/PROFILE_DIR`). No b56 or
+b57 log mentions either message. The fixture is already on the machine - 56
+orphan `sd*` directories.
+
+**Also this session:** `b56` and `b57` both ran 13/13 unelevated and 18/19
+elevated, `verify-doors-suite` **green for the first time** (PRE_RELEASE 44).
+The single elevated failure in both is `verify-apiadmin` 21/23, the known stale
+control of PRE_RELEASE 31, identical in all four of the day's runs. `b55` was
+burnt against the stale tree and left `sdsshb55` behind: **a refused suite is
+not a suite that did nothing**, because the two `assert-current`-exempt scripts
+run anyway.

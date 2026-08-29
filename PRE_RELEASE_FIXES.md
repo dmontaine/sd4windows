@@ -2097,3 +2097,190 @@ state on a customer's machine. **It has to enumerate the directory.**
 
 `$neverShipped`, no cycle. Neither script is installed — checked against
 `assert-current.ps1:471` and the 26 shipped scripts under `C:\Program Files\SD`.
+
+---
+
+## 42. `reclaim-profiles.ps1 -List` reports "0 records" when it is merely not allowed to read the store — **B?** — ***DONE 28 Aug 2026***
+
+***FIXED AND MEASURED ON THE INSTALLED TREE, same command, same machine, ninety
+minutes apart.*** `-ErrorAction SilentlyContinue` replaced by a `try/catch` that
+refuses and exits 2. Unelevated `-List`, 21:48:22:
+
+```
+reclaim-profiles: CANNOT READ the store at C:\ProgramData\SD\profile-reclaim - Access to the path ... is denied.
+reclaim-profiles: this is NOT an empty store - nothing was measured and nothing was changed.
+```
+
+against the same command's earlier *"0 records in the store - nothing was left
+behind to reclaim"* on a store that held five. **Left open by this fix:**
+`reclaim-profiles.ps1:119` still states the intent that `-List` needs no
+privileged token, and the store's ACL still makes that impossible. Granting
+`Users` **read** would honour the comment and keep write to Administrators; it
+would also expose deleted account names. Not filed as its own entry pending the
+owner's view.
+
+*(Sits outside the `## DONE` block above; move it there at the next tidy.)*
+
+Found 28 Aug 2026 running the documented STEP 4 command from §START HERE
+unelevated, as that step says to, immediately after a `-Run b56` suite that had
+left thirteen profile directories on the machine. The tool said the store was
+empty. It is not — `DELETE.ACCOUNT` had printed 10075 for both door accounts
+minutes earlier.
+
+***THE MEASUREMENT THAT SHOWS IT IS NOT AN EMPTY STORE.***
+`verify-doors-admin-remove-20260828-205440.log`:
+
+```
+| Note: the Windows profile for SDDRB56B could not be removed yet, and SD has kept it.
+| Note: the Windows profile for SDDRB56A could not be removed yet, and SD has kept it.
+```
+
+So the keep-both path fired twice and the pairs should be recorded. `-List`
+unelevated:
+
+```
+reclaim-profiles: 0 records in the store - nothing was left behind to reclaim.
+Nothing was measured and nothing was changed.
+```
+
+***THE CAUSE, AND IT IS ONE FLAG.*** `reclaim-profiles.ps1:271`:
+
+```powershell
+$records = @(Get-ChildItem -LiteralPath $Path -File -ErrorAction SilentlyContinue)
+```
+
+`secure-reclaim.ps1` grants the store to SYSTEM and Administrators **only** —
+that is the whole point of it, and it is right. So an unelevated enumeration
+throws `UnauthorizedAccessException`, `SilentlyContinue` swallows it, `$records`
+is empty, and line 276 announces the **empty-store** interpretation as fact:
+*"nothing was left behind to reclaim"*. **An unelevated `-List` cannot ever
+report anything else**, on any machine, however full the store is.
+
+***THE NULL-CASE GUARD IS PRESENT AND STILL DID NOT CATCH IT.*** The comment
+above line 275 says the empty case must not read as *"swept everything"*, and
+it does refuse out loud. **It refuses the case it can see.** Two different
+states — nothing recorded, and not allowed to look — arrive at line 271 as the
+same empty array, and the message picks one of them. This is the instrument
+rule's rule 3 in the shape where the check exists and is aimed at the wrong
+question: not *"did I find nothing?"* but *"could I have found anything?"*
+
+**THE FIX IS THE CLASS, NOT THE FLAG.** Drop `SilentlyContinue`, catch the
+enumeration, and **refuse** — exit non-zero with the reason — rather than
+report a count. The sweep path at line 123 already knows how to say *"NOT
+ELEVATED ... Nothing was attempted"*; `-List` needs the same sentence for the
+same reason. A readability probe before the count would also do it.
+
+**AND THE DOCUMENTATION IS WRONG WHEREVER THIS IS DESCRIBED.** §START HERE's
+STEP 4 says *"UNELEVATED is enough for both"*. It is enough for the log; it is
+never enough for `-List`, and following it as written scores a false pass on
+the one step that was supposed to prove PRE_RELEASE 36 works. Correct that in
+the same commit as the fix.
+
+**Not fixed on the spot, deliberately.** The script ships, so editing it would
+have voided the 20:48:24 install before the reboot that tests the sweep could
+be spent. Measure first, then fix, then cycle.
+
+---
+
+## 43. The reclaim sweep refuses every record `DELETE_USER` will ever write — **B** — ***DONE 28 Aug 2026***
+
+***FIXED ON THE OWNER'S RULING (option 2: drop the per-file owner check, rely on
+the store's ACL) AND MEASURED END TO END.*** `Get-RefusalReason` lost the
+`$ownerSid` parameter; the owner is still read and logged as evidence. The ACL
+is asserted by the sweep itself at every boot — `/inheritance:r`, SYSTEM and
+Administrators only — before a record is read.
+
+| | |
+|---|---|
+| units | **39/39** |
+| control, `-Sweep` at the pre-43 copy | **37/2**, red on the two new rows alone |
+| `-List` elevated, before the reboot | `5 considered, 0 reclaimed, 5 still pending, **0 refused**` (was `5 refused`) |
+| sweeps at 21:41–21:45, hives still up | `still pending - the record is kept for the next start`, `UsrClass.dat ... used by another process` |
+| **sweep after the restart, 21:51:50** | **`5 considered, 5 reclaimed, 0 still pending, 0 refused`** |
+| containment | `C:\Users` `sd*` **61 → 56**, `ProfileList` `sd*` **46 → 41**, and by exactly those five |
+
+**The pre-reboot rows are the part worth keeping**: they drove the *keep and
+retry* path, which no unit test can reach and which only exists because the
+hive is still mounted. Kept, retried, reclaimed — the whole design, observed.
+
+**The containment number is not in the tally line.** 56 of the 61 directories
+had no record and had to be untouched; only counting the directory before and
+after says so. A sweep that deleted more would still have printed
+`5 reclaimed, 0 refused`.
+
+*(Sits outside the `## DONE` block above; move it there at the next tidy.)*
+
+Found 28 Aug 2026 by running `-List` **elevated** after entry 42 showed the
+unelevated form could not see the store. **This is the whole of 36's sweep, not
+an edge case: as built it can never reclaim anything.**
+
+***THE MEASUREMENT.*** `C:\Program Files\SD\reclaim-profiles.ps1 -List`,
+elevated, 21:15:00, on the 20:48:24 install after `-Run b56`:
+
+```
+reclaim-profiles: 5 record(s) to consider
+    sid=...-2989 account=SDDRB56A  directory=C:\Users\sddrb56a  owner=...-1001
+    REFUSED: owned by ...-1001, not SYSTEM or Administrators.
+    [ and identically for SDDRB56B, SDAPIAB56, SDAPINB56, SDAPIIDB56 ]
+reclaim-profiles: 5 considered, 0 reclaimed, 0 still pending, 5 refused
+```
+
+**Five genuine records, written by `DELETE_USER` itself, and five refusals.**
+`...-1001` resolves to **`GITORLI\don`** — a member of `Administrators`, and
+the very administrator whose elevated session issued `DELETE.ACCOUNT`.
+
+***THE CAUSE IS A WINDOWS OWNERSHIP FACT, NOT A BUG IN THE RECORDS.***
+`reclaim-profiles.ps1:176`:
+
+```powershell
+if ($ownerSid -ne 'S-1-5-18' -and $ownerSid -ne 'S-1-5-32-544') {
+```
+
+Its comment reads *"An ordinary user wrote it."* **He is not an ordinary
+user.** A file created by an elevated process is owned by **the creator's own
+SID**, not by `BUILTIN\Administrators` — that has been the default since the
+`System objects: Default owner for objects created by members of the
+Administrators group` policy began defaulting to *Object creator*. And
+`DELETE_USER` runs in whatever session ran `DELETE.ACCOUNT`, which is an
+administrator's session. **So the producer can never satisfy the consumer's
+check**, on any machine, in the ordinary case.
+
+***WHY 39/39 AND A POSITIVE CONTROL DID NOT CATCH IT, WHICH IS THE PART WORTH
+KEEPING.*** `test-reclaim-units.ps1` drives the **refusal table** and proves a
+*planted* record is refused by the owner control. Its positive control removes
+the **containment** check — a different check — and correctly fails 34/5. **No
+test ever asserted that a record `DELETE_USER` actually wrote is ACCEPTED**,
+because until 21:15 today no such record had ever existed. The suite tested
+every way in which the guard says no, and never the one path where it must say
+yes. *A test that only exercises the refusals is a test that passes when the
+feature does nothing.*
+
+***AND THE END-TO-END TEST WOULD HAVE SCORED IT GREEN.*** §START HERE's pass
+wording is *"ends `N considered, N reclaimed, 0 still pending, 0 refused`"*.
+The run above ends `5 considered, 0 reclaimed, 0 still pending, 5 refused` —
+which a skim reads as a clean tally with a number in every column. Only
+`refused` being non-zero distinguishes it, and that is the one column the
+handoff tells the reader to check *"closely"*. **The reboot was not spent**:
+`-List` is the same code path and answered the question for free.
+
+***THE FIX IS THE OWNER'S CALL, BECAUSE IT IS A SECURITY GUARD.*** Three
+shapes, cheapest last:
+
+1. **Accept a SID that is currently a member of `BUILTIN\Administrators`**, as
+   well as SYSTEM and the group itself. Keeps a backstop; costs a group lookup
+   per record; a former administrator's old record stays honoured.
+2. **Drop the per-file owner check and rely on the store's ACL.**
+   `secure-reclaim.ps1` already grants the store to SYSTEM and Administrators
+   **only**, so an ordinary user cannot create a file there at all — which is
+   the containment the owner check was standing in for. The check's own comment
+   admits this: *"The store's ACL is what should have made this impossible."*
+3. **Have `DELETE_USER` set the record's owner to `BUILTIN\Administrators`**
+   explicitly on creation. Leaves the consumer untouched, but every record
+   written by an older build stays refused for ever.
+
+**Whichever is chosen, the unit test needs the missing row**: a record written
+the way `DELETE_USER` writes it, asserted **accepted**. That is the case whose
+absence made 39/39 meaningless here.
+
+**Do not reboot to confirm this.** The sweep at boot runs the same
+`Get-RefusalReason`; it will refuse the same five and change nothing.
