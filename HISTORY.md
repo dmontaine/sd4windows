@@ -40481,3 +40481,67 @@ to delete"***, so that fix is witnessed too.
 
 **WHAT IS LEFT IS THREE DIRECTORIES**: `C:\Users\sddr1a`, `sddr2a` and
 `sddrb51a`. They block nothing except reuse of those three names.
+
+## 28 Aug 2026, seventy-third session - b52: the door opens, and three failures with three causes
+
+***`-Run b52` AT 17:39:40, WITH `-ContinueOnFailure` ON THE OWNER'S RULING.***
+13 unelevated steps and **all 19 elevated ones - the first time the elevated
+half has run on this install.**
+
+***THE `logto` DOOR OPENED.*** `Create` **13/13**: the helper account
+`sddrb52b` was created, granted into `sdu_sddrb52a`, and **Windows agreed**
+(read back from the machine, not inferred from SD's 10018). Door 2's `WHO`
+answered ***`91 SDDRB52A from SDDRB52B`*** and **5161 did not appear**. So
+PRE_RELEASE 44's two-account cure works, and the non-decisive local witness
+failed in the same transcript exactly as designed - both halves of 44 on one
+page. `Remove` **4/4**, both accounts gone.
+
+***WHAT FAILED WAS THE CHECK, AND IT WAS WRONG IN THE OPPOSITE DIRECTION TO
+THE ONE IT REPLACED.*** `WHO` appends `from <ACCOUNT>` **only when the session
+has logto'd**, and the fix anchored on `\s*$` - so it matched only the case
+where the door had NOT opened. The original matched the name anywhere and
+passed on the failure path; its replacement matched only at end of line and
+failed on the success path. ***BOTH WERE WRITTEN FROM A TRANSCRIPT OF THE PATH
+THEY WERE NOT MEANT TO CATCH.*** The lesson is not "anchor tighter" - it is
+**look at what the tool prints when it SUCCEEDS**, which is what CLAUDE.md's
+success-wording rule says and what neither version did. Now anchored on the
+shape - a number, then the account as a whole word - with a **second decisive
+row on the `from <helper>` clause**, which is stronger evidence because it says
+the session ARRIVED rather than started there. **Five paths measured against
+the same two patterns**: real b52 success, real b50 failure, echo-only,
+started-there, and a logto to a different account.
+
+***STEP 14, `verify-apiadmin`: KNOWN.*** Compared against every
+`verify-apiadmin` log on the machine, decoded from UTF-16LE (a plain grep reads
+them as binary and matches nothing - section 6). **23 PASS / 1 FAIL, the same
+check with the same polarity as 27 Aug 17:46, 19:10 and 23:25** - the last of
+which is `b49`, which PROJECT_STATUS H.1 already attributes to PRE_RELEASE 31.
+Not a regression. **The headline hole it guards still passes**: the API session
+was refused `OS.EXECUTE` by name and could not run it. *One caveat recorded
+rather than glossed: the failure's polarity - the LOCAL session was refused -
+does not obviously match 31's written diagnosis, and `os.users` reads
+`don: yes | yes`. Same failure as b49 is measured; 31's explanation still being
+correct is not.*
+
+***STEP 19, `verify-tierapi`: NEW, AND IT IS PRE_RELEASE 46.*** *"ADMINISTRATOR
+VOC count: expected 417, got 416."* PRE_RELEASE 25 deleted `encrypt.field` on
+28 Aug, ADMINISTRATOR lost a verb, **`verify-tiers.ps1` was re-derived and
+`verify-tierapi.ps1` was not** - one fact in two files with nothing comparing
+them, and b52 was the first suite run to reach step 19 against an install
+carrying 25's change. **Re-derived from the directory rather than copied
+across**: 395 names − 3 = 392, `TIER.ADD.ADMINISTRATOR` 21 lines = 20 verbs,
+392 + 20 + 4 = **416**, with PROGRAMMER 396 and STANDARD 354 unmoved as the
+check on the arithmetic.
+
+**`gplbld/test-tiercounts-units.ps1` is the class fix**: it re-derives all
+three counts from `sdsys/newvoc` and checks **both files against the TREE**
+rather than against each other - *two files agreeing on a wrong number is
+exactly as broken as two disagreeing* - and asserts the two tier differences
+equal what the list records add and remove, so a typo in one sum cannot pass
+quietly. It reads the constants with the **PowerShell parser**, not a regex,
+because this file's whole subject is stale numbers and one of them is in a
+comment. **13 of 13.** ***Its positive control ran against the pre-fix pair
+taken from `git show` rather than retyped: 12 passed, 1 failed***, naming the
+file and both numbers.
+
+**`b52` is spent. `b53` is what closes 19.**

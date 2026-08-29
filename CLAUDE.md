@@ -66,18 +66,45 @@ owner's procedure, and it needs his yes first.** A flag that exists, is
 documented, and is off by default is not thereby approved: `-Silent` was all
 three.
 
-**THE TELL IS WHO THE SHORTCUT IS FOR.** If the benefit is *"then nobody has to
-be present"* or *"then I don't have to hand this back"*, stop and ask. That is
-the whole class:
+***THE OLD TELL — "WHO IS THE SHORTCUT FOR" — IS WITHDRAWN. CORRECTED BY THE
+OWNER, 28 Aug 2026: he PREFERS unattended operation wherever it is possible.***
+This section used to forbid the direction outright. It now governs the manner
+only. **Reducing the number of times a person has to be present is a GOAL, not
+a smell** — but every guardrail below survives the change, because none of them
+was ever really about keeping a human in the loop.
 
-- **Unattended operation is not a goal of this project.** A cycle needs a person
-  at the wizard; the verify suite needs a person's own terminal (§4.0.1); SD
-  cannot be installed silently at all (owner, 23 Aug 2026). **An agent
-  optimising toward "no human needed" is optimising against the design.**
-- **The work does not get better, only more autonomous.** `-Silent` did not make
-  that cycle a better test. It made it one nobody watched, and it produced an
-  install with no password on any account — handed over as an unexplained hang
-  in SD's start-up, and it cost two sessions.
+- **PURSUE IT BY REMOVING THE NEED FOR A PROMPT, NOT BY SKIPPING THE STEP.**
+  `gplbld/sd-elevate.ps1` is the shape to copy: **one** UAC consent at
+  `-Start`, then a resident elevated helper serves the whole session over a
+  named pipe, with a `PING` that answers `ELEVATED` so a reply from something
+  unelevated cannot be mistaken for success. That turns four prompts into one
+  **and measures exactly what it measured before**. `-Silent` turned a watched
+  install into an unwatched one and measured **less**. The first is the goal;
+  the second is the thing this section still stops.
+- ***A FLAG YOU ADD IS STILL A CHANGE TO HIS PROCEDURE AND STILL NEEDS HIS
+  YES.*** Unchanged, and it is the part that caught `-Silent`. A flag that
+  exists, is documented, and is off by default is not thereby approved:
+  `-Silent` was all three, and it produced an install with **no password on any
+  account**, handed over as an unexplained hang in SD's start-up. Two sessions.
+- ***NO VERDICT MAY COME FROM A RUN NOBODY COULD HAVE OBSERVED.*** This is the
+  guard that replaces the old blanket ban, and it is the one to reach for when
+  automating. **Removing the need for a person to be PRESENT is allowed;
+  removing the evidence that would have let one disagree is not.** A run whose
+  output nobody can read afterwards is not a result — see the instrument rules
+  below, which are now doing the work this section used to do.
+- **SOME OF IT IS NOT REACHABLE, AND THAT IS MEASUREMENT RATHER THAN
+  PREFERENCE.** UAC renders consent on the secure desktop, so a **nested**
+  elevation has no desktop to render on: it fails with *"The operation was
+  canceled by the user"* while showing nobody anything (§4.0.1). And the verify
+  suite's parent **must stay unelevated** — several measurements are only valid
+  there, and an elevated parent cannot make an ordinary child, because
+  `runas /trustlevel` yields a RESTRICTED token rather than the user's own.
+  **Do not spend a run rediscovering either.**
+- **ONE DEVELOPER, ONE MACHINE, A LAPTOP LATER — AND BOTH HAVE `sudo`.** Owner,
+  28 Aug 2026. So *"it would not work on another machine"* is no longer an
+  objection to using a 24H2-only tool **in `gplbld` tooling**. It remains an
+  objection for anything that **ships**: `sd.iss` neither installs nor enables
+  `sudo`, deliberately, because Windows 10 and Server have none.
 
 **Asking is cheap and he answers in a sentence.** The cost of not asking is
 carried by whoever picks the session up.
