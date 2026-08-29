@@ -2779,13 +2779,44 @@ WITHDRAWN*** — it said the opposite, and clause 5 is the code as written.
 
 ### What actually has to be built
 
-| | where | note |
+| | where | state, 29 Aug 2026 |
 |---|---|---|
-| an administrator is elevated at login and lands in **SDSYS** | `LOGIN`, the `case 1` arm at `:445` | ***reverses 15 Aug 2026***, below |
-| an administrator needs no `ACCOUNTS` record of their own | `LOGIN:449`, today a hard refusal (5018) | |
-| `logto sdsys` is refused unless the **person** is an administrator | `CPROC:2597` | ***new gate***, below |
-| administrators are no longer written into `os.users` | `CREATEA`'s `grant.os.access` | ***re-opens PRE_RELEASE 2***, a closed **B** |
-| the control follows the product | `verify-apiadmin.ps1:610` | PRE_RELEASE 31, and **only after this lands** |
+| `K$OS.ADMINISTRATOR` (63) — *is the signed-in **person** an administrator* | `keys.h`, `INT$KEYS.H`, `op_kernel.c` | ***WRITTEN.*** Carries `kernel.c:240`'s `CN_SOCKET` guard. `make sd` **exit 0, 0 warnings**, `op_kernel.o` mtime moved, `bin/sd.exe` relinked |
+| an administrator is elevated at login and lands in **SDSYS** | `LOGIN`, new case before `case 1` | ***WRITTEN, UNCOMPILED.*** Reverses 15 Aug 2026 |
+| ***the `sdusers` gate exempts an administrator*** | `LOGIN:380` | ***WRITTEN, UNCOMPILED.*** **Not in the ruling — see below. Without it the model is dead at the door** |
+| `logto sdsys` refused unless the **person** is an administrator | `CPROC`, before `elevate('START')` | ***WRITTEN, UNCOMPILED*** |
+| `ELEVATE`'s "only one caller" note | `ELEVATE` header | ***WRITTEN.*** LOGIN is the second caller; the owner's 16 Aug rule is untouched and the note says why |
+| administrators no longer written into `os.users` | `CREATEA`'s `grant.os.access` | ***NOT STARTED — needs the `adopt` ruling below*** |
+| the control follows the product | `verify-apiadmin.ps1:610` | **PRE_RELEASE 31, and probably nothing to do** — see below |
+
+### ***THE `sdusers` GATE WOULD HAVE KILLED THIS ON THE FIRST INSTALL***
+
+Found 29 Aug 2026 by reading, before any cycle was spent. `LOGIN:380` refuses
+anyone not in `sdusers`, and **it runs before the account is chosen** — while
+clause 2 gives an administrator no account, so nothing ever adds them to that
+group. **An administrator would have been refused at the door, before the case
+that sends them to SDSYS.**
+
+**The exemption is the fix and its argument is the one already in the file**:
+internal mode is exempt there because SDSYS *"requires an elevated session …
+a strictly harder test than sdusers membership"*. An exempted administrator can
+reach exactly one place — SDSYS, which asks UAC — and `sd -Aname` is refused
+for any account that is not your own (10051), which an administrator with no
+account cannot name.
+
+***AND IT IS THE RIGHT SHAPE RATHER THAN "ADD ADMINISTRATORS TO `sdusers` AT
+INSTALL"***, which would cover only the administrators who existed when the
+installer ran; one promoted afterwards would be refused for a reason nobody
+would think to look for.
+
+### ***31 PROBABLY CLOSES WITH THIS AND NEEDS NO EDIT OF ITS OWN***
+
+`verify-apiadmin`'s control fails because `os_permitted()` falls through to
+`os.users/don`, and `don` is listed only because `adopt` makes him an
+ADMINISTRATOR-tier account and `grant.os.access` fires. **Stop adopting and the
+record is never written, so the control's original `expected False` becomes
+right again** — 31 closes for free. **Keep adopting and 31 needs its assertion
+inverted after all.** The `adopt` ruling below therefore decides 31 as well.
 
 ### ***REVERSAL 1 — 15 Aug 2026, "NOBODY LOGS IN TO AN ACCOUNT BUT THEIR OWN"***
 
