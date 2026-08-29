@@ -2801,6 +2801,64 @@ administrator **with an ordinary account** — the combination clause 2 abolishe
 like the other prefixed test accounts. Until then this half of the suite cannot
 speak for the product.
 
+### ***THE FOUNDATION IS BUILT AND TESTED, 29 Aug 2026. THE WIRING IS NOT.***
+
+| | |
+|---|---|
+| `gplbld/sdtestuser.ps1` | the module: password generation, `Invoke-SdAsTestUser` over ssh, and the SD line-builders. **Dot-sourced, not run** |
+| `gplbld/sdtestuser-admin.ps1` | the **elevated** half that creates and removes the account, raised by the unelevated parent — the shape `verify-doors-admin.ps1` uses, and for the reason §4.0.1 gives |
+| `gplbld/test-sdtestuser-units.ps1` | ***21 passed / 0 failed***, and it needs **no install, no elevation, no account, no ssh** |
+
+***THE SHORTCUT IS A TRAP AND IS WRITTEN INTO THE MODULE.*** Adding `LOGTO DON`
+to each verifier passes today and breaks the moment `adopt-account` goes —
+which is ruled and pending, 56's last piece. **Five tests must not stand on an
+account that exists only because the installer adopted the installing user.**
+
+***ssh IS THE ROUTE BECAUSE `runas` CANNOT BE.*** Accounts SD creates are in
+`sdsshonly`, which carries `SeDenyInteractiveLogonRight` (§5.6.2) — an
+interactive logon as one is refused **by Windows**, and that refusal is the
+product working correctly.
+
+***ONE ACCOUNT FOR THE WHOLE HALF***, created once by the runner: five
+verifiers each making their own would cost five UAC prompts, and CLAUDE.md's
+rule is to remove the need for a prompt rather than the step.
+
+***THREE REAL DEFECTS WERE CAUGHT BY WRITING THE TEST, NOT BY RUNNING THE
+SUITE.***
+
+1. ***`DELETE.ACCOUNT` HAS NO `NO.QUERY`.*** Checked in `DELACC` rather than
+   assumed. The line first written would have passed an unrecognised token
+   **and still hit the prompt** — PRE_RELEASE 14 exactly, where a piped
+   `no.query` ate the following commands as answers and hung, costing a session
+   and an elevated `sd -cleanup`. The confirmation is `input yn` looping *until
+   Y or N* (`DELACC:249`), so a blank does not escape it — it spins.
+2. ***`STANDARD` IS NOT A KEYWORD***, it is the default (`CREATEA:272`).
+   Naming it passes an unrecognised token.
+3. ***THE NULL-CASE GUARD WAS DEAD CODE AND THE TEST PASSED ON THE PARAMETER
+   BINDER.*** `[Parameter(Mandatory)]` rejects an empty array before the body
+   runs, so the module's own refusal never fired and the assertion was
+   measuring PowerShell. **Found because the test printed the refusal it got.**
+   The parameter is no longer `Mandatory`, and the test now anchors on wording
+   only the guard emits, with a control proving the binder's wording would fail
+   that check.
+
+***AND THE SUCCESS CHECK WAS REWRITTEN AFTER BEING GOT WRONG TWICE.*** It first
+matched SD's output for *"created"* — but message **6011 is "Account NOT
+created"**, so the pattern matched the failure; and the wording guessed at
+(`6055`/`6056`) **is not printed by `CREATEA` at all**, which is worse than no
+anchor. It now checks the **artefact**, as `verify-doors-admin.ps1` does and as
+the instrument rule asks: the ACCOUNTS record and the Windows user, **before
+and after**, both halves required. A `Create` onto an existing name is refused
+outright, because the name is single-use — an ssh sign-in leaves a profile
+Windows will not reuse (PRE_RELEASE 35/36).
+
+***LEFT: THE WIRING.*** `VerifyInstall1` must make the account before its step
+list and remove it after, and the five verifiers must take it and use
+`Invoke-SdAsTestUser`. **Four are close to mechanical; `verify-osusers.ps1` is
+not** — 931 lines with **32** references to `@logname`/`don`, and it is *about*
+the person's identity in `os.users`, with its own elevation dance. **Do it
+separately and do not bundle it.**
+
 **No UAC storm, which was the other risk and did not happen.** The helper
 widening in 56 held: every step logged in, and `assert-current` passed in each.
 
