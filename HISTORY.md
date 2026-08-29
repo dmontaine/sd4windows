@@ -40362,3 +40362,37 @@ because those would have shut all three doors.
 
 **`sddrb50a` is still live** - the b50 run's Remove leg never elevated, and the
 cleanup command for it had not been run at the time of writing.
+
+**TWO RULINGS, TAKEN THE SAME DAY.** Asked because both change what the work
+is: *"two accounts, as the door table says"* for PRE_RELEASE 44, and *"rerun
+with `-ContinueOnFailure`"* for the elevated half, which has never run on this
+install because the door step's failure stops the hand-over twice over.
+
+**44 IS BUILT.** `verify-doors-admin.ps1` creates a **helper account
+`<prefix>b`** beside the account under test, `SSH` rather than `BOTH` so it
+carries no API route and no `$cred` entry, and grants it into the account's
+`sdu_` group - **read back from Windows afterwards rather than inferred from
+SD's 10018**. `verify-doors.ps1` signs the helper in over ssh and issues
+`LOGTO <acct>` down that session's stdin, which is the only session whose token
+can carry a group created minutes earlier. The two ssh doors share one
+`Invoke-SshSession`, so the askpass file and the password environment variable
+are written and removed in one place.
+
+**THE LOCAL `LOGTO` STILL RUNS, RECORDED NON-DECISIVE.** It is expected to
+fail, it decides nothing, and it is there so every transcript carries the
+measurement for why the helper exists - a comment would be a claim. The
+`Refused` leg gained a matching disqualifier: **5161 must not appear there
+either**, because a Refused leg stopped by the token rather than by the
+suspension is the same false pass wearing the other face.
+
+**CHECKED RATHER THAN ASSUMED**: `CREATE.ACCOUNT ... PROGRAMMER SSH` parses
+through the same `begin case` as the witnessed `PROGRAMMER BOTH` - `CREATEA`
+around :1409, four alternatives in one token loop. All three refusal paths
+re-exercised unelevated, **each exit 2 with nothing created** (measured without
+a pipeline, because `$LASTEXITCODE` after `| Select-Object` is the pipeline's,
+not the script's). All four scripts parse 0 errors with no embedded BOM, and
+`test-doorsargv-units` is still 35/35.
+
+**IT IS UNRUN.** The Create leg is elevated, so `-Run b52` is the first thing
+that exercises any of it, and it now costs **four UAC prompts and two profile
+directories** rather than three and one.
