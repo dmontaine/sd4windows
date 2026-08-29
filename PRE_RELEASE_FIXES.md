@@ -93,7 +93,7 @@ no elevation.
 | ~~53~~ | **S** | ***THREE MORE DOCUMENT SETS STILL CARRIED `encrypt.field`, AND THEY WERE WRONG IN A DIFFERENT WAY FROM 52*** — found 28 Aug 2026 while closing 52, which corrected the **Testing** set only. These do not merely miscount it; they tell the reader **the verb is in an administrator's VOC and fails to load**, which stopped being true when PRE_RELEASE 25 removed it. ***CONFIRMED GONE TREE-WIDE***: absent from `newvoc`, from `voc_template` (426 entries — only the `encrypt` **keyword**, `211`, which is in the base 392 and is not a verb) and from `TIER.ADD.ADMINISTRATOR`. **Four places**: `Administrator/markdown/01-accounts-and-security.md:323-333`, a whole `## encrypt.field does not work in this release` section quoting the `$CRYPTO` load error; `User/markdown/95-sd-tcl-syntax.md:92`, a table row tiered **`A`**; and the two toolchain inputs that generate them — `tools/tcl-syntax-shapes.txt:81` and `tools/tclmap.py:128`, the latter mapping the verb onto Administrator/01, so the generator still expects that page to document it. ***ONE DECISION IS NEEDED BEFORE ANY EDIT AND IT IS THE OWNER'S***: `Administrator/markdown/01:333` is the **ONLY line in the entire documentation** that records field-level encryption as absent from W1.0-0 — measured by grepping `encrypt` across all four sets — so **deleting the section loses that fact**, while leaving it states a mechanism that no longer exists. Reword it to "not present, and the verb does not ship", or delete it and put the fact on a *not in SD Core* page. **Do not delete the shapes/tclmap rows without the same answer**: `95-sd-tcl-syntax.md` is generated, so an edit to the page alone is overwritten on the next render. *(`sdencrypt()`/`sddecrypt()` are unaffected and DO ship — this is the verb only.)* ***DONE 28 Aug 2026 ON THE OWNER'S RULING, "move to not in SD core".*** The section is deleted from `Administrator/01` and the fact is now `## Field-level encryption` on `Testing/markdown/14-not-in-sd-core.md`, which names `sdencrypt()`/`sddecrypt()` as the supported route and says plainly that nothing replaces the verb. ***AND IT WAS NOT COSMETIC — BOTH DOC GENERATORS HAD BEEN REFUSING TO RUN.*** `mktclsyntax.py` exited 1 on `NOT A VERB encrypt.field has a shape and is not on the roster` and `tclmap.py` on `NOT A VERB encrypt.field claimed by Administrator/01`, so **the TCL syntax card could not be regenerated at all** while the shapes file and the map still named it. **The roster is computed and had already self-corrected to 143**; the two typed lists had not, which is precisely the failure the computed roster exists to expose. Both now exit 0 — `roster 143 (standard 81, programmer 42, administrator 20)`, `tclmap 143 of 143, 0 exempt` — and that is an INDEPENDENT confirmation of 4 and 52's figures, from a tool that computes rather than quotes. `checklinks` 0 broken on all three sets (77/6/185) | docs repo, `Administrator/markdown/01`, `Testing/markdown/14`, `User/markdown/95`, `tools/` |
 | 54 | **M** | ***`verify-profiledir.ps1` is in neither runner, so 36's last leg never fires again*** — the leg that had **never** fired before 28 Aug, which is why it could not be trusted and why the script was written. It scored **14 of 14** and then went nowhere: not in `VerifyInstall1`, not in `VerifyInstall2`. ***DECIDED 29 Aug 2026 — WIRE IT INTO `VerifyInstall2`***, the owner having said the verifier questions are mine. It needs **elevation**, so `VerifyInstall2` is the right runner and `VerifyInstall1` is not. **Its cost is lower than `verify-doors-suite`, which is already a suite step**: it creates one control account and deletes it, and it never logs in, so it leaves **no profile directory** — the thing that makes the doors fixture single-use and expensive. ***THE ONE THING THAT MUST NOT BE GOT WRONG: its `-Prefix` has to come from the `-Run` token***, as `sdacctb48`/`sdtiertb48` already do. It refuses a spent stem by design, so a fixed prefix passes once and fails on every later run on the same machine. Not started — verifier gap, not product | `gplbld/VerifyInstall2.ps1`, `gplbld/verify-profiledir.ps1` |
 | 55 | **S** | ***`release.ps1` never runs the two doc generators that already refuse on a stale figure*** — measured 29 Aug 2026 by reading it: it calls `mkdoc.py` (:109), `mkpdf.ps1` (:126) and `checklinks.py` (:161), and **neither `mktclsyntax.py` nor `tclmap.py`**. Both of those compute the roster from the VOC and both **exit 1** when the typed lists disagree — which is exactly what they did over `encrypt.field`, undetected for a week, until 53 ran them by hand. ***So the guard already exists and nothing calls it.*** **Part one is nearly free: call both from `release.ps1` and fail the release when either refuses.** **Part two is the actual gap** — the generators check the typed *maps*, not the typed *prose*, so `mktclsyntax.py` printed `standard 81` in the generated card for a week while the tester set said `77` and nothing compared them. Have the generator emit its computed figures as data and assert the handful of labelled tier counts against it. **This is the guard called "the cheapest still available" in `a931c36`, now filed rather than left in prose.** Not started — docs toolchain | docs repo `tools/release.ps1:161`, `tools/mktclsyntax.py`, `tools/tclmap.py` |
-| 59 | **S** | ***FIVE UNELEVATED VERIFIERS ASSUME AN ADMINISTRATOR LANDS IN AN ORDINARY ACCOUNT, WHICH 56 ABOLISHES*** — measured on `-Run b59`, 29 Aug 2026: unelevated **8 of 13**, and all five failures are one cause. `verify-lcnames` names it — *"the session is in the account, not SDSYS … [FAIL] WHO names the account"*. Also `verify-osusers`, `verify-nocase`, `verify-lineendings`, `verify-batchjob`. ***NOT PRODUCT DEFECTS: every one refused the null case out loud rather than scoring a false pass***, which is the instrument rule working on the first run that broke the assumption. **The fix is a real non-administrator test account for that half**, not a tweak to five scripts. Not started | `gplbld/verify-{lcnames,osusers,nocase,lineendings,batchjob}.ps1` |
+| 59 | **S** | ***FIVE UNELEVATED VERIFIERS ASSUME AN ADMINISTRATOR LANDS IN AN ORDINARY ACCOUNT, WHICH 56 ABOLISHES*** — measured on `-Run b59`, 29 Aug 2026: unelevated **8 of 13**, and all five failures are one cause. `verify-lcnames` names it — *"the session is in the account, not SDSYS … [FAIL] WHO names the account"*. Also `verify-osusers`, `verify-nocase`, `verify-lineendings`, `verify-batchjob`. ***NOT PRODUCT DEFECTS: every one refused the null case out loud rather than scoring a false pass***, which is the instrument rule working on the first run that broke the assumption. **The fix is a real non-administrator test account for that half**, not a tweak to five scripts. **Wired 29 Aug 2026 and `verify-nocase` converted; UNRUN, and the other four are left** | `gplbld/verify-{lcnames,osusers,nocase,lineendings,batchjob}.ps1` |
 | 58 | **B** | ***THE DOCUMENTATION DOES NOT DESCRIBE THE ACCESS MODEL THE PRODUCT NOW HAS*** — owner's instruction, 29 Aug 2026, raised as 56 and 57 were written. **Every set is affected**: administrators are elevated at login into SDSYS and have **no account of their own**, they **lose ssh**, a grant may go **down or sideways only**, and **SDSYS is never granted**. Two new messages, **10126** and **10127**. ***DO NOT WRITE IT FROM THIS ENTRY*** — 56 and 57 both have pieces still unsettled, and the docs repo is a **separate git repository** with spaces in its path. **Blocked until 56 and 57 land and one cycle has proved them.** Not started | docs repo `User`, `Administrator`, `Testing`, `Technical` |
 | 57 | **B** | ***A GRANT MAY GO DOWN OR SIDEWAYS, NEVER UP — owner's rule, 29 Aug 2026.*** *"Standard accounts can not be given access to programmer accounts, programmer accounts can be given access to standard accounts. Only windows administrators can enter SDSYS, rights to SDSYS can not be granted."* ***THE TIER IS THE ACCOUNT'S AND IT IS BAKED INTO ITS VOC AT CREATION***, so entering a higher-tier account handed over its whole verb set — **+42 verbs** for a standard user entering a programmer account, on the computed roster. **WRITTEN, UNCOMPILED**: new `gpl.bp/TIERGATE` (`!tier_allows`), wired into `CPROC`'s `logto.authorised`, `GRANTA` and `MODIFYA`'s ADD arm; messages 10126 and 10127. ***CPROC's IS THE ONLY GATE THAT HOLDS*** — the grant is a Windows group membership, so `net localgroup` makes one without SD, and a tier can be raised after a legal grant with nothing revisiting the group. Not cycled | `sdsys/gpl.bp/TIERGATE`, `CPROC` logto.authorised, `GRANTA`, `MODIFYA` |
 | 56 | **B** | ***THE ADMINISTRATOR ACCESS MODEL, REWRITTEN — owner's ruling 29 Aug 2026, and it SUPERSEDES THREE RECORDED DECISIONS.*** Administrators are elevated **at login** and land in **SDSYS**, have **no account of their own**, may `logto` anywhere, and **take the rights of whatever account they move to**; `logto sdsys` still works and asks UAC again. ***THREE OF THE SEVEN CLAUSES ARE ALREADY THE CODE***, which is why PRE_RELEASE **31**'s 29 Aug ruling is withdrawn the same day. **Reverses 15 Aug 2026** (*"nobody logs in to an account but their own"*), **re-opens PRE_RELEASE 2** (a closed **B**), and **costs administrators ssh** — UAC has no desktop there, and they no longer have an account to fall back to. ***AND A NON-ADMINISTRATOR CAN REACH SDSYS TODAY***, measured: `elevate('START')` tests nobody's identity, so an administrator's password is enough. Not started | `sdsys/gpl.bp/LOGIN:445`, `gpl.bp/CPROC:2597`, `gplsrc/linuxlb.c:88` |
@@ -2852,12 +2852,71 @@ and after**, both halves required. A `Create` onto an existing name is refused
 outright, because the name is single-use — an ssh sign-in leaves a profile
 Windows will not reuse (PRE_RELEASE 35/36).
 
-***LEFT: THE WIRING.*** `VerifyInstall1` must make the account before its step
-list and remove it after, and the five verifiers must take it and use
-`Invoke-SdAsTestUser`. **Four are close to mechanical; `verify-osusers.ps1` is
-not** — 931 lines with **32** references to `@logname`/`don`, and it is *about*
-the person's identity in `os.users`, with its own elevation dance. **Do it
-separately and do not bundle it.**
+### ***THE WIRING IS BUILT, 29 Aug 2026. IT HAS NEVER RUN.***
+
+`VerifyInstall1.ps1` creates the account before its step list and removes it
+after; `verify-nocase.ps1` is converted. **`verify-lcnames`, `verify-lineendings`
+and `verify-batchjob` are NOT** — that is the recommendation above, followed:
+prove the pattern on the smallest one first. `verify-osusers.ps1` stays out of
+the group entirely.
+
+| | |
+|---|---|
+| create / remove | `VerifyInstall1.ps1`, conditional on `-Run`, name `sdtu<Run>`. **Removal is in a `finally`** — the loop `break`s on a failing step, so a removal written after it would be skipped by the case it is most needed in. That is `sddrb50a`, live on this machine now |
+| the account | passed to the step as `-TestUser` / `-TestPassword`; without `-Run` the step is **SKIPPED** and said so, never run against the invoking user |
+| `verify-nocase.ps1` | probe planted in the test account's `BP`, session driven by `Invoke-SdAsTestUser` over ssh. Refuses without the account, **before `assert-current`**, so the refusal is testable with no install |
+| `test-sdtestuser-units.ps1` | **34 passed / 0 failed** (was 21). Still no install, no elevation, no account, no ssh |
+
+***TWO DEFECTS WERE FOUND BY WIRING IT, AND BOTH WOULD HAVE COST A RUN.***
+
+1. ***`assert-current` WAS ALREADY EXITING 1, AND HAD BEEN SINCE THE MOMENT THE
+   MODULE WAS WRITTEN.*** The three new scripts were not on `$neverShipped`, so
+   it named all three under *"STALE: 3 source file(s) are newer than the
+   install"* and refused — **and every verifier that calls it refuses too**.
+   The suite could not have run at all. Measured by running it, not predicted;
+   listed now, and **exit 0 live afterwards**. This is the trap that list
+   carries six dated warnings about, sprung by the commit that wrote the fix
+   for something else.
+2. ***`Get-SdTestUserHome` NAMED A DIRECTORY THE UNELEVATED PARENT CANNOT
+   REACH.*** An account directory is protected and grants Modify to SYSTEM,
+   Administrators and **its own `sdu_<account>` group only** — an unelevated
+   token has none of the three, Administrators being deny-only in a filtered
+   one. `ls` and `touch` on `SDACCTB59` both answered *"Permission denied"*.
+   **All four verifiers plant their probes through the file system**
+   (`verify-lcnames` in nine places), so the module's central helper named a
+   path none of them could use. `-Action Create` now adds one inheritable ACE
+   for the invoking user. ***A GROUP WOULD NOT HAVE WORKED***: membership is
+   fixed at logon, which is PRE_RELEASE 44 exactly — *"don is in `sdu_sddrb50a`
+   on the machine and not in his token"* — and is why the door pair needed a
+   helper account. An ACE on the **user's** SID needs no new token.
+
+***AND ONE THE WIRING ITSELF INTRODUCED, CAUGHT BEFORE IT SHIPPED.***
+`sdtestuser.ps1` carried `Set-StrictMode -Version Latest` at file scope, and
+**dot-sourcing runs in the CALLER's scope** — so wiring it into
+`VerifyInstall1.ps1` silently turned strict mode on there. Measured with a lax
+probe: *"undefined variable: allowed"* before the dot-source, *"THREW —
+RuntimeException"* after. **Not theoretical** — `VerifyInstall1`'s missing-
+`sd.exe` fallback reads uninstall keys with `$_.DisplayName`/`$_.InstallLocation`
+and most carry neither, which under strict mode is terminating, in the branch
+whose job is to explain a broken install in one line. Each function now sets it
+for itself; a unit row drives both halves **in a separate lax process**, because
+the test file is itself strict and a check made in it would have passed whatever
+the module did.
+
+***WHAT IS LEFT.***
+
+- **The three remaining mechanical verifiers**, after this one has been seen to
+  work: `verify-lcnames.ps1` (1049), `verify-lineendings.ps1` (330),
+  `verify-batchjob.ps1` (368).
+- **`verify-osusers.ps1` separately** — 931 lines with **32** references to
+  `@logname`/`don`, and it is *about* the person's identity in `os.users`, with
+  its own elevation dance. **Do not bundle it.**
+- **The two UAC prompts.** Create and Remove each raise one through
+  `Start-Process -Verb RunAs`. `verify-doors-suite.ps1` serves its three
+  elevated legs from **one** consent through `sd-elevate.ps1`'s resident helper
+  and would take this to zero extra. Not done here on purpose: it is ~150 lines
+  of machinery in that file, and layering a second unproven mechanism on a
+  first is how the box's own warning gets ignored. **Do it once this has run.**
 
 **No UAC storm, which was the other risk and did not happen.** The helper
 widening in 56 held: every step logged in, and `assert-current` passed in each.

@@ -41057,3 +41057,72 @@ rewritten.**
 **Open count unchanged at 17.** It was never an entry, so closing it moves
 nothing. Nothing under `gplsrc` or `sdsys` was touched, so **the cycle owed since
 session 75 is still owed** and `assert-current` still exits 1.
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session: PRE_RELEASE 59's wiring, and two blockers found by checking rather than by running
+
+`gplbld` only. **No cycle, nothing under `gplsrc` or `sdsys`, `assert-current`
+exit 0 live at the end.**
+
+**BUILT.** `VerifyInstall1.ps1` creates `sdtu<Run>` before its step list and
+removes it in a **`finally`** — the loop `break`s on a failing step, so a
+removal written after it would be skipped by the case it is most needed in,
+which is how `sddrb50a` is live on this machine now. Conditional on `-Run`, for
+the door step's reason: the name is single-use (PRE_RELEASE 35/36). Without
+`-Run` the step is skipped and said so, never run against the invoking user.
+`verify-nocase.ps1` converted — probe planted in the test account's `BP`,
+session driven by `Invoke-SdAsTestUser` over ssh, refusal moved **before**
+`assert-current` so it is testable with no install.
+`test-sdtestuser-units.ps1` **34 passed / 0 failed**, was 21.
+
+**ONLY `verify-nocase`, DELIBERATELY.** The recommendation in START HERE, taken
+as written: prove the pattern on the smallest verifier before replicating it
+three times. `lcnames`, `lineendings`, `batchjob` and `osusers` are untouched.
+
+***BLOCKER 1 — THE SUITE COULD NOT HAVE RUN AT ALL, AND HAD NOT BEEN ABLE TO
+SINCE SESSION 79 WROTE THE MODULE.*** `sdtestuser.ps1`, `sdtestuser-admin.ps1`
+and `test-sdtestuser-units.ps1` were never added to `assert-current.ps1`'s
+`$neverShipped`, so it exited **1** — *"STALE: 3 source file(s) are newer than
+the install"*, naming all three — and every verifier that calls it refuses on
+that. **Measured by running it before trusting the box's "green".** Listed, and
+**exit 0 live** afterwards. That list carries six dated comments about exactly
+this trap; it was sprung the whole time.
+
+***BLOCKER 2 — `Get-SdTestUserHome` NAMED A DIRECTORY THE UNELEVATED PARENT
+CANNOT REACH.*** An account directory is protected and grants Modify to SYSTEM,
+Administrators and **its own `sdu_<account>` group only**; `ls` and `touch` on
+`SDACCTB59` both answered *"Permission denied"*. All four verifiers plant their
+probes through the **file system** (`verify-lcnames` in nine places), so the
+module's central helper pointed at a path none of them could use.
+`sdtestuser-admin.ps1 -Action Create` now adds one inheritable ACE for the
+invoking user, and `Assert-SdTestUserHomeWritable` refuses out loud in the
+parent if it did not land. ***A GROUP MEMBERSHIP WOULD NOT HAVE WORKED*** —
+fixed at logon, PRE_RELEASE 44's *"don is in `sdu_sddrb50a` on the machine and
+not in his token"*, which is why the door pair needed a helper account. An ACE
+on the **user's** SID needs no new token.
+
+***AND ONE INTRODUCED BY THE WIRING, CAUGHT BEFORE IT SHIPPED: `Set-StrictMode`
+LEAKS THROUGH A DOT-SOURCE.*** It applies to the current scope and its
+children, and dot-sourcing runs in the **caller's** — so `sdtestuser.ps1`'s
+file-scope `Set-StrictMode -Version Latest` was silently turning strict mode on
+inside `VerifyInstall1.ps1`. A lax probe went *"undefined variable: allowed"* →
+*"THREW — RuntimeException"* across the dot-source line, and a missing property
+threw `PropertyNotFoundException`. **Not theoretical**: `VerifyInstall1`'s
+missing-`sd.exe` fallback reads uninstall keys with `$_.DisplayName` and
+`$_.InstallLocation`, most of which carry neither. Each function now sets it for
+itself. **The unit row runs in a SEPARATE LAX PROCESS**, because the test file is
+strict and a check made inside it would have passed whatever the module did.
+
+***TWO THINGS DELIBERATELY NOT DONE.*** The elevated half's write probe was
+written and taken out again — **this process is elevated, so it writes through
+`Administrators\FullControl` whether the grant landed or not**, and would have
+passed on the failure path. And the create/remove pair costs **two UAC prompts**
+rather than reusing `sd-elevate.ps1`'s resident helper: ~150 lines of machinery
+in `verify-doors-suite.ps1`, and layering a second unproven mechanism on a first
+is the thing START HERE warns against. Both are in 59's "what is left".
+
+***UNRUN.*** Nothing here has been exercised against a live account: creating one
+needs elevation, and a nested elevation from an agent's shell fails with *"The
+operation was canceled by the user"* (§4.0.1). **The suite is the owner's, from
+his own unelevated terminal. Use `b60`.**
