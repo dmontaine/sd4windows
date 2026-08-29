@@ -2924,8 +2924,45 @@ WITHDRAWN*** — it said the opposite, and clause 5 is the code as written.
 | ***the `sdusers` gate exempts an administrator*** | `LOGIN:380` | ***WRITTEN, UNCOMPILED.*** **Not in the ruling — see below. Without it the model is dead at the door** |
 | `logto sdsys` refused unless the **person** is an administrator | `CPROC`, before `elevate('START')` | ***WRITTEN, UNCOMPILED*** |
 | `ELEVATE`'s "only one caller" note | `ELEVATE` header | ***WRITTEN.*** LOGIN is the second caller; the owner's 16 Aug rule is untouched and the note says why |
-| administrators no longer written into `os.users` | `CREATEA`'s `grant.os.access` | ***NOT STARTED — needs the `adopt` ruling below*** |
-| the control follows the product | `verify-apiadmin.ps1:610` | **PRE_RELEASE 31, and probably nothing to do** — see below |
+| administrators no longer written into `os.users` | `CREATEA`, the `tier = 'ADMINISTRATOR'` block | ***WRITTEN, UNCOMPILED.*** The two `os.sh`/`os.exec` lines are gone; only the explicit `sh-on`/`os-on` keywords now grant it |
+| ***one helper per USER, not per session*** | `ELEVATE`, `sd-elevate.ps1`, `sd-elevate-helper.ps1` | ***WRITTEN.*** Both scripts **parse 0 errors with functions found**, no BOM, CR 0 — see below |
+| the control follows the product | `verify-apiadmin.ps1:610` | **PRE_RELEASE 31 — nothing to do, it should now pass unchanged** |
+
+### ***THE HELPER IS ONE PER USER NOW, BECAUSE 56 TURNED ONE PROMPT INTO ONE PER COMMAND***
+
+***THE COST WAS FOUND BEFORE IT WAS PAID.*** With an administrator elevated at
+**login**, `sd-elevate.ps1 -Start` runs on every `sd.exe`; its `exit 0`
+shortcut needs `IsInRole(Administrator)` on the **process** token, which is
+False for an *unelevated* administrator because UAC hands out a filtered token
+with Administrators deny-only. So it fell through to `Start-Process -Verb
+RunAs` and **prompted every time** — and 13 of the suite's unelevated
+verifiers pipe straight into `sd.exe` with no `LOGTO` at all.
+
+**`sudo` does not help and was measured, not assumed**: its own help says it
+*"will prompt for confirmation with a User Accounts Control dialog"* on every
+invocation — no cache, no ticket, unlike Unix. It also **ships**, and `sd.iss`
+deliberately neither installs nor enables it because Windows 10 and Server have
+none. PROJECT_STATUS.md:4811 reached this on 14 Aug: *"`sudo sd` is the
+convenient spelling, not the mechanism."*
+
+***THE FIX IS THE SHAPE CLAUDE.md ALREADY NAMES*** — *"remove the need for a
+prompt, not the step"*. The pipe was `sd-elev-<logname>-<userno>`; dropping
+`@userno` lets a second session find the first one's helper through `PING` and
+ask for nothing.
+
+| | |
+|---|---|
+| **the lifetime rule is generalised, not deleted** | the helper still dies with its sessions — it just has more than one. `PING <pid>` registers, `STOP <pid>` deregisters, and it exits when the **last** owner goes |
+| ***`-Run` carries the pid too, and that is not tidiness*** | a session reaching SDSYS while a helper already runs never calls `-Start`, because START short-circuits — so `-Run` is the only place it ever announces itself |
+| ***`STOP` had to stop meaning "stop"*** | CPROC calls `elevate('STOP')` every time a session leaves SDSYS; with one helper per user that would take the privilege from everyone else. A **bare** `STOP` still stops it outright, for a cleanup |
+| **a hashtable, not an array** | PowerShell's `+` on an array splits or folds an element depending on which side the literal is; keying by pid cannot do either, and a duplicate `STOP` is silently fine |
+| ***the NAME widened and the ACL did not*** | the pipe DACL still grants exactly one SID, this user's — so no other account can reach it to register a pid or send it a script |
+
+***WHAT THIS DOES NOT FIX, AND IT IS THE LARGER HALF.*** Those 13 verifiers
+mean *"run `sd` as an ordinary user"*, which works today only because the owner
+is an administrator **with an ordinary account** — a combination clause 2
+abolishes. **The suite needs a real non-administrator account for that half**,
+whatever the prompt count. Harness work, separable, not started.
 
 ### ***THE `sdusers` GATE WOULD HAVE KILLED THIS ON THE FIRST INSTALL***
 
@@ -3023,4 +3060,17 @@ session for the same reason, and its guard is the one to copy.
   `CREATEA` still offers the tier and `verify-tiers.ps1` still measures it.
   **Not ruled** — raise it before touching `CREATEA`.
 - **The installer adopts the installing user as an account** (`adopt-account`).
-  Clause 2 says administrators have none. **Not ruled.**
+  ***RULED 29 Aug 2026 — it is unnecessary***: *"the installer has to be a
+  windows administrator to install sd. Since they are an administrator they can
+  login to sd and is logged into the sdsys account."* **Not yet removed**, and
+  it is the 20-file change — `sd.iss`'s post-install step and its
+  `AdoptCode`/`PasswordStepWanted` wizard flow, `CREATEA`, `DELACC`,
+  `stage.py`, and six verifiers. **Deliberately separated from the login
+  change**: an install that breaks must have one candidate cause, not two.
+  **Harmless meanwhile** — the account is simply never entered, because LOGIN
+  now sends its owner to SDSYS.
+- ***`MODIFY.ACCOUNT` still refuses `os-off`/`sh-off` for an ADMINISTRATOR with
+  10106***, on the 27 Aug reasoning that the access cannot be taken away. With
+  the `CREATEA` change there is now normally **nothing there to take away**, so
+  the refusal answers a question nobody asked. **Not changed — it is a
+  confusing message rather than a defect**, and it is one line either way.
