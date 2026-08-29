@@ -40757,7 +40757,7 @@ caught it this time** rather than a wasted measurement. `make sd` then moved
 rebuild. **STEP 0 is now in the list.**
 
 ***THE SECOND KILLED THE FEATURE OUTRIGHT: the sweep refused every record
-`DELETE_USER` will ever write.*** PRE_RELEASE 43. `Get-RefusalReason` accepted
+`DELETE_USER` will ever write.*** PRE_RELEASE 50. `Get-RefusalReason` accepted
 only `S-1-5-18` or `S-1-5-32-544`; a file created by an elevated process is
 owned by **the creator's own SID**, and `DELETE_USER` runs in the administrator's
 session. Elevated `-List` at 21:15 - five genuine records, five refusals.
@@ -40807,7 +40807,7 @@ because `!profile_dir` is a `Test-Path` (`PROFILE_DIR:99`), so the test needs no
 deleted account, no reboot and no reclaim store.
 
 ***ITS FIRST RUN SAID 13 OF 14 AND THE PRODUCT WAS ALREADY CORRECT.***
-PRE_RELEASE 45. `Get-SysMsgPattern` escapes the message file as it stands, and
+PRE_RELEASE 51. `Get-SysMsgPattern` escapes the message file as it stands, and
 the files hold **literal backslash-n** rather than newlines - 16 in 10124 - so
 the pattern hunted a literal backslash the rendered output never contains. **A
 multi-line message could not be matched, ever.** The same helper left

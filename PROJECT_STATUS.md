@@ -5,7 +5,7 @@ sessions, machines and accounts; anything not written here is lost. Read this
 file first. Read [HISTORY.md](HISTORY.md) only if you need the record of how
 something came to be the way it is.
 
-***SEVENTY-FOURTH SESSION, 28 Aug 2026 — PRE_RELEASE 36 IS BUILT, ALL FOUR RULINGS, AND THE BASIC HALF HAS STILL NEVER COMPILED.*** *(The C half now has: `make sd` 28 Aug 20:44, `sdsvc.exe` 144,301 → 146,089 bytes. The first cycle at 20:40:17 staged the **26 Aug** `sdsvc.exe` — see STEP 0 in the START HERE box.)* ***THE START HERE BOX CARRIES A FIVE-STEP LIST THE OWNER ASKED TO BE REMINDED OF: `make sd`, cycle, suite `-Run b55`, RESTART, then read `C:\ProgramData\SD\reclaim-profiles.log`.*** **The restart is the step that actually tests 36** — the sweep runs only when `sdsvc.exe` starts the service, and the hives it waits on come down at shutdown. `DELETE_USER` takes the DIRECTORY first and removes the `ProfileList` entry only if that succeeded, which **reverses part of 32 on the owner's ruling**: the entry is the only handle any sweep has, and 28 Aug measured three folders on this host that nothing could find without it. Both halves are kept together otherwise and recorded under `C:\ProgramData\SD\profile-reclaim`; `gplbld/reclaim-profiles.ps1` takes the pair at every boot and **reads the RECORD, not `ProfileList`**. `create.account` refuses a name whose profile directory is still there and names it (`gpl.bp/PROFILE_DIR`, 10124/10125). **New status 8** — left behind AND not recorded — so 6's new promise of a reclaim is never printed about a pair nothing is coming back for. ***THE WINDOWS HALF IS MEASURED AND THE BASIC HALF IS NOT***: `sdsvc.c` compiles 0 warnings under `-Wall -Wformat=2`; `gplbld/test-reclaim-units.ps1` drives the sweep's refusal table **39/39** with no install, elevation or store, and its **positive control fails 34/5** against a copy with the containment check removed; the sweep was watched running three ways unelevated. ***THE STORE GETS AN ACL OF ITS OWN AND THAT IS NOT TIDINESS***: `C:\ProgramData\SD` grants `sdusers:(OI)(CI)M` to everything underneath, so a reclaim store left to inherit would be **a list of directories every SD user can edit and LocalSystem later deletes** — `PS_SCRIPT`'s SDSYS\PSTMP escalation in a new place. `gplbld/secure-reclaim.ps1` at install time, `DELETE_USER` on an older tree, and the sweep re-asserts it every boot. ***THE SWEEP NO LONGER SKIPS A RECORD ON ITS OWNER, AND THE ACL IS NOW THE WHOLE OF THAT CONTAINMENT — PRE_RELEASE 43, owner's ruling 28 Aug 2026.*** The owner check refused **every record `DELETE_USER` will ever write**: an elevated process owns what it creates by its **own** SID, not `BUILTIN\Administrators`. Measured on the 20:48:24 install — five genuine records, five refusals, nothing reclaimable on any machine. **The 39/39 above is exactly how it got shipped**: every accepted row handed in SYSTEM or Administrators and none handed in what the producer actually writes, so the suite drove every way the guard said no and never the one path where it had to say yes. The rows are turned round and the control is `-Sweep` at the pre-43 copy, **37/2**, red on those two alone. **32's regression test is re-scoped** from *"the entry is gone"* to *"the entry is gone when the directory went"*.
+***SEVENTY-FIFTH SESSION, 28 Aug 2026 — PRE_RELEASE 36 IS DONE: ALL FOUR RULINGS BUILT, COMPILED, INSTALLED AND OBSERVED.*** The sweep reclaimed **5 of 5** after a restart and `C:\Users` fell **61 → 56 by exactly those five**; `create.account` refuses a live profile directory (`verify-profiledir.ps1` **14/14**). *(Getting there: `make sd` 20:44 — `sdsvc.exe` 144,301 → 146,089 bytes — because the first cycle at 20:40:17 staged the **26 Aug** binary and `cycle.ps1` does not build. Three defects were found and fixed on the way, **49**, **50** and **51**, and two of the three were instruments rather than the product.)* ***THE START HERE BOX CARRIES A FIVE-STEP LIST THE OWNER ASKED TO BE REMINDED OF: `make sd`, cycle, suite `-Run b55`, RESTART, then read `C:\ProgramData\SD\reclaim-profiles.log`.*** **The restart is the step that actually tests 36** — the sweep runs only when `sdsvc.exe` starts the service, and the hives it waits on come down at shutdown. `DELETE_USER` takes the DIRECTORY first and removes the `ProfileList` entry only if that succeeded, which **reverses part of 32 on the owner's ruling**: the entry is the only handle any sweep has, and 28 Aug measured three folders on this host that nothing could find without it. Both halves are kept together otherwise and recorded under `C:\ProgramData\SD\profile-reclaim`; `gplbld/reclaim-profiles.ps1` takes the pair at every boot and **reads the RECORD, not `ProfileList`**. `create.account` refuses a name whose profile directory is still there and names it (`gpl.bp/PROFILE_DIR`, 10124/10125). **New status 8** — left behind AND not recorded — so 6's new promise of a reclaim is never printed about a pair nothing is coming back for. ***THE WINDOWS HALF IS MEASURED AND THE BASIC HALF IS NOT***: `sdsvc.c` compiles 0 warnings under `-Wall -Wformat=2`; `gplbld/test-reclaim-units.ps1` drives the sweep's refusal table **39/39** with no install, elevation or store, and its **positive control fails 34/5** against a copy with the containment check removed; the sweep was watched running three ways unelevated. ***THE STORE GETS AN ACL OF ITS OWN AND THAT IS NOT TIDINESS***: `C:\ProgramData\SD` grants `sdusers:(OI)(CI)M` to everything underneath, so a reclaim store left to inherit would be **a list of directories every SD user can edit and LocalSystem later deletes** — `PS_SCRIPT`'s SDSYS\PSTMP escalation in a new place. `gplbld/secure-reclaim.ps1` at install time, `DELETE_USER` on an older tree, and the sweep re-asserts it every boot. ***THE SWEEP NO LONGER SKIPS A RECORD ON ITS OWNER, AND THE ACL IS NOW THE WHOLE OF THAT CONTAINMENT — PRE_RELEASE 43, owner's ruling 28 Aug 2026.*** The owner check refused **every record `DELETE_USER` will ever write**: an elevated process owns what it creates by its **own** SID, not `BUILTIN\Administrators`. Measured on the 20:48:24 install — five genuine records, five refusals, nothing reclaimable on any machine. **The 39/39 above is exactly how it got shipped**: every accepted row handed in SYSTEM or Administrators and none handed in what the producer actually writes, so the suite drove every way the guard said no and never the one path where it had to say yes. The rows are turned round and the control is `-Sweep` at the pre-43 copy, **37/2**, red on those two alone. **32's regression test is re-scoped** from *"the entry is gone"* to *"the entry is gone when the directory went"*.
 
 ***SEVENTY-THIRD SESSION, 28 Aug 2026 — THE CYCLE RAN, THE SUITE RAN, AND THE DOOR STEP FAILED TWICE. ONE FAULT IS FIXED; THE OTHER RE-OPENS PRE_RELEASE 19.*** ***INSTALL 28 Aug 15:29:59, `assert-current` exit 0 live*** — the owner's cycle shipped PRE_RELEASE 42 (`CREATEA`, `SET_PASSWD`, message 10122). ***FAULT 1, FIXED — PRE_RELEASE 43***: `verify-doors-suite.ps1` passed `'-Password', ''` for Suspend and Remove, and **`Start-Process -ArgumentList` carries `[ValidateNotNullOrEmpty()]`, which on a COLLECTION validates every ELEMENT** — one `''` rejects the whole list and **nothing elevates**. Create carried a password and ran 8/8; Suspend and Remove died before their UAC prompt. The pair is built conditionally now, the argv and its count are printed, an empty element is refused by name, and `gplbld/test-doorsargv-units.ps1` guards it — **35/35, and its positive control against a copy carrying the old form fails 27/8.** ***FAULT 2, AND IT IS THE INSTRUMENT — PRE_RELEASE 19 IS RE-OPENED ON ONE ROW OF SEVEN***: `verify-doors.ps1:255` anchored *"logto entered the account"* on the account name **anywhere in the transcript**, and the session echoes what it is fed. **On the b50 Control leg SD printed 5161 *"Unable to change to new directory"* and `WHO` answered `91 DON`, and the row scored PASS** — as it did on `sddr2`, which is what *"logto ADMITTED"* below rests on. **The check now anchors on `WHO`'s answer with 5161 as a disqualifier**, both directions measured against the real transcript. ***THE CAUSE IS PRE_RELEASE 44 AND IT IS WINDOWS, NOT SD***: `don` is in `sdu_sddrb50a` **on the machine** and **not in his token**, which was fixed at logon — measured both ways, with `sdusers` present as the control. **ssh and the API authenticate afresh and are unaffected; the REFUSAL half of all three doors still stands**, because `logto.authorised` runs at `CPROC:2679`, before the chdir at `:2691`. ***THE ELEVATE-ONCE REWORK IS DONE AND WITNESSED — `-Run b54`, 28 Aug 2026 19:28.*** ***ALL FIVE DOOR LEGS GREEN THROUGH THE HELPER, ONE UAC PROMPT INSTEAD OF THREE***, and the elevated half's only failure is 31's known control again. `Create`, `Suspend` and `Remove` each printed `via helper:` with the password **masked**; the run left **no accounts, 0 orphan SIDs, no stray `sd.exe`**, its work directory gone, the helper stopped and its pipe closed. **The four pre-fix leaked directories were removed by hand after measuring all four empty; `C:\Users\dmont\AppData\Local\Temp` now holds none.** ***ONE FALSE ALARM ON THE WAY, AND IT IS NOW A §6 TRAP***: the check for a surviving helper matched **its own query process**, because a `CommandLine -like '*sd-elevate-helper*'` filter names the thing it is looking for. **The pipe being absent is what actually proved it gone** — evidence that cannot name itself.
 
@@ -100,7 +100,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.15** | Data tree private from SD's own users — ACL lock, all four writers | 24 Aug 2026 |
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
-| ✅ | **H.1** | The cycle and suite record — ***FULL install 27 Aug 22:52:21, `-Run b49`: 30 of 31 steps (12 unelevated + 18 of 19 elevated), 963 `PASS`, 1 `[FAIL]`, 0 `[SKIP]`***, `assert-current` exit 0 live. The one failure is `verify-apiadmin`'s stale control (PRE_RELEASE 31); ***`verify-sshonly`'s two `b48` rows did NOT recur***, which is PRE_RELEASE 32's diagnosis confirmed. **`b49` is spent — use `b50`** | 27 Aug 2026 |
+| ✅ | **H.1** | The cycle and suite record — ***FULL install 28 Aug 21:27:34, `-Run b58`: 13 of 13 unelevated + 18 of 19 elevated***, `assert-current` exit 0 live. The one failure is `verify-apiadmin` **21/23**, the stale control of PRE_RELEASE 31, now identical across **five** runs — treat any other number there as news. **`verify-doors-suite` is green**, first time in b56 (PRE_RELEASE 44's verifier half). ***SPENT: b54, b55, b56, b57, b58 — use `b59`***, and `b55` is the cautionary one: it was burnt against a stale tree, refused eleven steps, and still left `sdsshb55` behind, because the two `assert-current`-exempt scripts run anyway. *(Previous entry, kept for the shape: 27 Aug 22:52:21, `-Run b49`, 30 of 31 steps, 963 `PASS`.)* | 28 Aug 2026 |
 | ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS 32 PAGES — 18 SD BASIC plus SD TCL `19` to `32`, ALL FOURTEEN TOPIC PAGES — and the `Technical` set has its first, `01` Restricted Commands. `docmap` 411 of 411, `checklinks` 183 links 0 broken on `User`, HTML and PDF both current (27 Aug 2026). `18` and `Technical/01` are generated and partition the roster, 447 of 447. ALL 144 TCL VERBS HAVE A PAGE. LEFT: the generated TCL syntax card at `33`. OPEN: document `09` is 8 of 8 restricted commands and may belong in `Technical` too — the owner's call.*** ***THE SHIPPED-SCRIPTS GAP IS CLOSED***: `Technical/02` The Installed Scripts covers all **26** that ship, and tester `01` now prints the `install-ssh.ps1` retry command. **`Technical` still has no cross-page link, so `release.ps1` cannot complete on that set — PRE_RELEASE 34, the owner's call** | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
@@ -129,15 +129,53 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩ PRE_RELEASE 36 IS BUILT, INSTALLED AND RECLAIMED FIVE PROFILES. THE LIST BELOW IS SPENT. ⇩
+> # ⇩ 36 IS DONE AND THE LIST BELOW IS SPENT. ONE CYCLE IS OWED. ⇩
 >
-> ***HANDOFF, SEVENTY-FOURTH SESSION, 28 Aug 2026. THE WHOLE LIST RAN, AND 36
+> ### ⇩ WHAT TO DO FIRST ⇩
+>
+> **A CYCLE IS OWED — `assert-current` EXITS 1 UNTIL IT RUNS.** One shipped file
+> is newer than the install: `gplbld/reclaim-profiles.ps1`, whose comments were
+> renumbered when PRE_RELEASE 49/50/51 took their real ids. Nothing else changed
+> under `gplsrc` or `sdsys`. **ELEVATED PowerShell:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **THEN THE SUITE, `b59`** — ordinary UNELEVATED PowerShell, the owner's own
+> terminal, not an agent's (§4.0.1). Expect the settled shape: 13 of 13
+> unelevated, 18 of 19 elevated, the one failure `verify-apiadmin` **21/23**.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b59 -ContinueOnFailure
+> ```
+>
+> ***THREE THINGS ARE WAITING ON THE OWNER AND EACH IS A ONE-WORD ANSWER:***
+> (1) wire `gplbld/verify-profiledir.ps1` into `VerifyInstall2` — **it is in
+> neither runner, so 36's regression test never runs again unless somebody
+> remembers it by hand**; (2) whether the 21 sections that are struck in the
+> index but silent in their own heading should be made self-describing —
+> `test-fixlist-units.ps1` lists them every run; (3) PRE_RELEASE **31** and
+> **39**, both marked *owner's call* and both still open.
+>
+> ***AND THE DOCS REPO IS AT `/c/Users/dmont/Projects/SD Core for Windows 1.0-0 Docs`
+> — WITH SPACES IN THE NAME.*** It is a sibling of this one and it is a separate
+> git repository, clean at `7914e60`. A probe for `SDCoreWindowsDocs` finds
+> nothing, which is why two entries sat as *"cannot validate here"* for a whole
+> session. **PRE_RELEASE 52 carries a line-by-line recipe for 4 and 52 together**;
+> two of its edits were applied and reverted when this session ended, because a
+> half-corrected table is worse than an uncorrected one.
+>
+> ### ⇧ END OF WHAT TO DO FIRST ⇧
+>
+> ***HANDOFF, SEVENTY-FIFTH SESSION, 28 Aug 2026. THE WHOLE LIST RAN, AND 36
 > WORKS END TO END.*** Two cycles, `b56` and `b57`, a restart, and the sweep at
 > **21:51:50** printed **`5 considered, 5 reclaimed, 0 still pending, 0
-> refused`**. Two defects were found and fixed on the way — **PRE_RELEASE 42 and
-> 43**, both DONE and both measured on the installed tree. **`-List` elevated at
+> refused`**. Two defects were found and fixed on the way — **PRE_RELEASE 49 and
+> 50** (filed as 42/43 and renumbered — see 49), both DONE and both measured on
+> the installed tree. **`-List` elevated at
 > 21:57:29 then said `0 records`**, and that reading is now worth something:
-> since 42, an unelevated run refuses rather than printing the same sentence.
+> since 49, an unelevated run refuses rather than printing the same sentence.
 >
 > ***36 IS COMPLETE: ALL FOUR RULINGS OBSERVED, 28 Aug 2026.*** The fourth is
 > below and was the last one standing. `create.account` refusing a name
@@ -154,7 +192,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > cleanly. ***SO ALL FOUR OF 36'S RULINGS ARE NOW OBSERVED.***
 >
 > ***ITS FIRST RUN SCORED 13 OF 14 AND THE PRODUCT WAS ALREADY RIGHT*** — see
-> PRE_RELEASE 45. The refusal was in the transcript, complete and correct, and
+> PRE_RELEASE 51. The refusal was in the transcript, complete and correct, and
 > the matcher could not see it: message files hold **literal backslash-n**, not
 > newlines, and `[regex]::Escape` turned each into a pattern hunting a literal
 > backslash. **The same helper made `verify-delaccount.ps1:553` incapable of
@@ -227,7 +265,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > installed. **Treat a different number there as news; treat 21/23 as the
 > baseline.**
 >
-> **b58 also proved a non-repair left nothing behind** — PRE_RELEASE 45's three
+> **b58 also proved a non-repair left nothing behind** — PRE_RELEASE 51's three
 > insurance fixes — because `verify-accountacl` **21/0**, `verify-routes`
 > **33/0** and `verify-accountrules` **34/0** are identical in b56, b57 and b58.
 > A fix that was not fixing anything visible has to leave the counts alone, and
@@ -254,7 +292,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1 -List
 > ```
 >
-> ***PRE_RELEASE 43 IS FIXED IN SOURCE AND OWES A CYCLE — SO STEPS 1 AND 2 RUN
+> ***PRE_RELEASE 50 IS FIXED IN SOURCE AND OWES A CYCLE — SO STEPS 1 AND 2 RUN
 > AGAIN, IN THAT ORDER, BEFORE THE REBOOT IS WORTH SPENDING.*** `-List` elevated,
 > 28 Aug 21:15, found **5 genuine records and refused all five**: every one owned
 > by `GITORLI\don`, the administrator whose session ran `DELETE.ACCOUNT`, against
