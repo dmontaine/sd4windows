@@ -41374,3 +41374,79 @@ a reading taken on a broken premise is not evidence. Re-read after conversion.
 
 **`b63` is spent.** Next is `b64`, and it should carry a conversion rather than
 repeat a settled reading.
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, sixth part: both owner rulings built — the sweep, and the dead VOC records
+
+Two questions were put to the owner and he answered both in five words:
+***"1. sweep  2. delete dead voc".***
+
+### 1. THE SWEEP
+
+A console Ctrl-C does not run `VerifyInstall1`'s `finally` (measured on `b62`),
+so an interrupted run strands its test account live and enabled in `sdusers` and
+`sdssh` with a password that existed only in the dead process. The previous
+commit reported such orphans and did not act; the ruling is to remove them.
+
+`sdtestuser-admin.ps1 -Sweep` does it **inside the elevated child that Create
+already raises**, so it costs no extra UAC prompt — CLAUDE.md's rule, *"pursue
+it by removing the need for a prompt, not by skipping the step"*.
+
+***THE CANDIDATE LIST IS BUILT IN THE ELEVATED PROCESS AND IS NOT PASSED IN.***
+This is code that DELETES WINDOWS ACCOUNTS. A list arriving as an argument would
+be a list a caller could choose; deriving it from the machine means the parent
+controls *whether* to sweep, never *what*. Three conditions, all required, each
+printed for every candidate:
+
+1. the name matches `^sdtu[a-z0-9]+$` — the runner's own naming, `sdtu` plus a
+   `-Run` token `VerifyInstall1` already validates as `[a-z0-9]+`;
+2. it is **not** the account being created — a reused token must still hit the
+   single-use refusal, because the PROFILE is what makes a name unusable and no
+   sweep can remove that (PRE_RELEASE 35/36);
+3. it is **in `sdusers`** — which ties it to an account SD made, so a human
+   account merely starting with those four letters is not swept.
+
+Anything failing a condition is **named and skipped**, not silently passed over.
+Removal is `DELETE.ACCOUNT`, so the record, the `sdu_` group and the Windows
+account go together rather than one half of a pair, and the check is the
+artefact before and after rather than SD's wording.
+
+`sdtestuser-admin.ps1`'s SD driver was factored into `Invoke-SdAdmin` for this,
+so the piped-stdin reasoning, the `LOGTO SDSYS`, the BOM sink and the timeout
+live in **one** place rather than two — the sweep would otherwise have been a
+second copy of the thing that cost a run on `b60`.
+
+### 2. THE DEAD VOC RECORDS — PRE_RELEASE 60 CLOSED
+
+`verify-catgate.ps1`'s `Remove-Fixtures` now issues
+`DELETE.FILE <ACCT>BP.OUT FORCE` **through SD**, conditional on the directory
+existing, so no more accumulate. `"$ctlFile.OUT"` was **measured** rather than
+assumed: in a double-quoted string PowerShell expands `$ctlFile` and treats
+`.OUT` as literal text, so the line reads `DELETE.FILE SDCATGB63BP.OUT FORCE`.
+
+**The leak was confirmed still growing before it was fixed** — `LISTF` showed
+`SDCATGB59BP.OUT`, `SDCATGB60BP.OUT`, `SDCATGB61BP.OUT` and `SDCATGB63BP.OUT`,
+all `Err 30`, one per suite run exactly as predicted (b62 was interrupted before
+the elevated half and correctly has none).
+
+`gplbld/clean-deadvoc.ps1` is **new** and clears the four. It takes its list
+from `LISTF`'s own `Err` column rather than from a hard-coded set, deletes only
+names matching `^SD[A-Z0-9]+BP\.OUT$` **that LISTF says are dead**, names
+anything that matched the pattern but was not dead, refuses the null case (a
+`LISTF` that did not run must not read as "already clean"), and verifies with a
+**second `LISTF`** rather than SD's wording. `-WhatIf` lists and changes
+nothing. It refuses unelevated, and that path was exercised (exit 2).
+
+Listed on `assert-current`'s `$neverShipped` **in the commit that creates it** —
+the rule the `sdtestuser` trio was added without on 29 Aug and paid for, when
+`assert-current` was found exiting 1 on their mtimes with every verifier
+refusing behind it.
+
+**Both are UNRUN.** Units 51/0, all nine touched files parse 0 errors with no
+BOM and CR 0, `assert-current` exit 0 live with the new file listed.
+
+*(Also noted and deliberately left: `LISTF` shows the SDSYS VOC record `bp.out`
+with DATA pathname `BP.OUT` — the record name is correct and the directory on
+disk is not. That is `verify-lcnames`' territory and its readings stay untrusted
+until it runs in an account.)*
