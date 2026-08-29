@@ -40660,3 +40660,81 @@ that names it. The verdict *"an elevated helper survived"* was wrong in the
 alarming direction. **What actually proved it gone was the PIPE being absent**,
 which is evidence a query cannot manufacture by asking. The project is full of
 the shape this breaks: *"no stray `sd.exe`"* is a standard end-of-run check.
+
+## 28 Aug 2026, seventy-fourth session - PRE_RELEASE 36, all four rulings, built and unrun
+
+The 27 Aug ruling said *"ALL THREE DECISIONS BELOW ARE ANSWERED AND NONE IS
+BUILT"*. All four are built now. **Nothing has compiled** - no cycle has been
+run, so the BASIC half is entirely unmeasured.
+
+***THE ORDER IS REVERSED, AND THAT REVERSES PART OF 32 ON PURPOSE.***
+`DELETE_USER` removes the profile DIRECTORY first and the `ProfileList` entry
+only if that succeeded (`$dirleft` is the whole of the condition). 27 Aug had
+made the two removals independent, which meant a machine that could not release
+the directory still lost the entry - and the entry is the only handle any sweep
+has, because everything that cleans up a profile enumerates `Win32_UserProfile`,
+which reads from `ProfileList`. That state was measured on this host on 28 Aug:
+`sdapiab49`, `sdapiidb49` and `sdapinb49`, directory present and no entry,
+skipped by a sweep exactly as predicted and removed by hand.
+
+***AND SOMETHING COMES BACK FOR THE PAIR NOW.*** One file per SID under
+`C:\ProgramData\SD\profile-reclaim`, naming the SID, the account and the
+DIRECTORY. `gplbld/reclaim-profiles.ps1` reads it when the SD service starts -
+`gplsrc/sdsvc/sdsvc.c`, before `sd -start`, as LocalSystem, which is the only
+moment the hive is reliably down. **It reads the RECORD, not `ProfileList`**, so
+it cannot inherit the blindness above.
+
+**Status 8 is new and is not padding.** 6 now means *"both halves kept, and the
+next restart clears them"* and its message says so; 8 is the same state with the
+record unwritten, which needs a person. One status covering both would have made
+the common message a promise the uncommon case cannot keep.
+
+***THE STORE NEEDED AN ACL BEFORE IT NEEDED ANYTHING ELSE.***
+`C:\ProgramData\SD` grants `sdusers:(OI)(CI)M` to everything underneath, so a
+reclaim store left to inherit is **a list of directories every SD user can edit
+and LocalSystem later deletes** - the SDSYS\PSTMP escalation in `PS_SCRIPT`'s
+header, in a new place. Three layers: `gplbld/secure-reclaim.ps1` creates it at
+install time so nobody can create it first and own it; `DELETE_USER` applies the
+same ACL if it has to create it on an older tree; the sweep re-asserts it every
+boot **and** skips any record file not owned by SYSTEM or Administrators.
+
+***THE REFUSAL TABLE IS A PURE FUNCTION BECAUSE OTHERWISE IT COULD NOT BE
+TESTED.*** `Get-RefusalReason` takes the owner SID, the parsed record, the
+profiles root, the live account name and the `ProfileList` path as ARGUMENTS;
+the sweep makes those lookups and passes them in. So
+`gplbld/test-reclaim-units.ps1` drives the whole table over invented SIDs and
+invented paths with **no install, no elevation, no store and no reboot** -
+39/39 - and it lifts the function out of the shipped file with the PowerShell
+PARSER rather than copying it, so there is nothing to drift.
+**Its positive control fails 34/5** against a copy with the containment check
+deleted, on exactly the five containment rows.
+
+**Watched running, unelevated, three ways:** an absent store says so and exits
+0; a planted store's two records are both refused BY NAME on the owner control,
+exit 1; sweep mode unelevated refuses and exits 2 naming `-List`. `sdsvc.c`
+compiles clean under UCRT64 with `-Wall -Wformat=2`, no warnings.
+
+***CREATE.ACCOUNT REFUSES NOW, AND READS `ProfilesDirectory` RATHER THAN
+ASSUMING `C:\Users`.*** New `gpl.bp/PROFILE_DIR`, unelevated, `os.execute ...
+capturing` the way `OS_GROUP`'s LISTMEM does. **`STATUS()` is read before the
+empty return is believed**: empty means both *"the path is clear"* and
+*"PowerShell would not run"*, and acting on the empty alone would report a clear
+path on a check that never looked. A check that could not run stops the
+creation, because the directory is the thing that cannot be undone afterwards.
+
+***32'S REGRESSION TEST IS RE-SCOPED, WHICH THE 27 Aug ENTRY SAID WOULD BE
+NEEDED.*** `verify-delaccount.ps1` step 3 asserted *"the ProfileList entry is
+gone"*; that now scores the correct keep-both behaviour as a failure. It
+branches on the state actually reached and, on the keep-both branch, reads the
+record back and asserts 10075 present and 10123 absent. **10123 joined
+`$needMsgs`** - it is asserted absent, and an unreadable message would have
+scored that as a pass.
+
+**One measurement worth keeping:** `DELETE_USER`'s generated PowerShell is now
+1944 characters against `MAX_SH_COMMAND_LENGTH` 32000. `op_sh.c:216` answers an
+over-long command by setting `ER_LENGTH` and **doing nothing**, which would look
+exactly like a delete that found no profile to remove.
+
+**Not built, and not in the ruling:** nothing sweeps a directory orphaned before
+this existed. `cleanup-devlitter.ps1` is still that job, and PRE_RELEASE 41 is
+that script's own blindness.
