@@ -3511,7 +3511,53 @@ session for the same reason, and its guard is the one to copy.
   SYSTEM, so a matching-account requirement is **an explicit act and an audit
   trail, not a boundary that holds against them**. That is still worth
   something and may be exactly what is wanted — but it should be chosen knowing
-  it is a speed bump. ***OWNER'S CALL, AND IT IS A CHANGE TO 56.***
+  it is a speed bump.
+
+  ***RULED 29 Aug 2026: RESTORE THE PERSONAL ACCOUNT. THIS REVERSES 56's
+  CLAUSE 2.*** The owner's own words are the design, and they explain the
+  mechanism: *"that is precisely why administrators also had a personal
+  account. They got SDSYS in one of two ways, by starting SD in an elevated
+  session or by logging to SD after logging into their personal account."*
+  He also extends the property to every tier: *"if any are built outside of sd
+  they do not have access to sd until a matching standard or programmer account
+  is created in SD."*
+
+  ***THE PROPERTY ALREADY HOLDS FOR STANDARD AND PROGRAMMER, AND THE CODE SAYS
+  WHY IT DOES NOT FOR ADMINISTRATORS.*** `LOGIN:399`'s
+  `is_grp_member(lgn.id,'sdusers')` refuses a Windows account made outside SD
+  with **5009, *"This user is not registered for SD use"***. The exemption at
+  `:398` was added by 56 itself, and its own comment states the causation:
+  *"the model gives an administrator no account of their own — so nothing ever
+  puts them in sdusers, and they would be refused here"*. **Restoring the
+  account removes the reason for the exemption.**
+
+  ***FOUR CONSEQUENCES, AND THE FIRST CANCELS QUEUED WORK.***
+  1. ***THE `adopt-account` REMOVAL IS CANCELLED.*** It is ruled unnecessary
+     further down this list on the reasoning that an administrator *"can login
+     to sd and is logged into the sdsys account"* — **which is exactly the
+     clause now reversed.** Adopt is how the installing administrator gets the
+     personal account, so it is NECESSARY. ***DO NOT DO THE 20-FILE
+     REMOVAL***, and strike that ruling rather than leaving two live rulings
+     that contradict each other.
+  2. **`LOGIN:398`'s administrator exemption goes**, and the `sdusers` gate
+     becomes uniform across all three tiers.
+  3. **`LOGIN:513` must stop sending every `K$OS.ADMINISTRATOR` to SDSYS.** An
+     **unelevated** administrator should land in their **personal account**;
+     SDSYS is reached by an already-elevated session, or by `logto sdsys` from
+     that account. Two explicit routes, not one automatic one.
+  4. **The `ADMINISTRATOR` tier stays** (three tiers), and `CREATEA:1571`'s
+     adopt default keeps giving the installer that tier.
+
+  ***AND ONE MECHANISM IS NOT YET IDENTIFIED — SETTLE IT BEFORE WRITING
+  `LOGIN`.*** Clause 3 needs *"is THIS SESSION already elevated"*, and neither
+  existing key answers that: `K_ADMINISTRATOR` is a **settable `USR_ADMIN`
+  flag** (`op_kernel.c:395`, it takes an argument and can be set or cleared),
+  and `K_OS_ADMINISTRATOR` is `IsAdmin() && connection_type != CN_SOCKET`
+  (`op_kernel.c:456`) — *"is the PERSON an administrator"*. **What `IsAdmin()`
+  answers for an unelevated administrator is the crux and is not established
+  here**; this file already records it answering TRUE for every API session
+  until the `CN_SOCKET` guard was added, so it is not to be trusted without
+  measuring. **Measure it before designing the branch.**
 
   ***`CREATE.ACCOUNT … ADMINISTRATOR` MAKES THE USER A WINDOWS ADMINISTRATOR.***
   `CREATEA:813` → `make.admin` → `os_group("ADDMEM", "S-1-5-32-544", acc.uname)`,
@@ -3550,10 +3596,16 @@ session for the same reason, and its guard is the one to copy.
 - **`verify-tiers.ps1` measures the tier** and will need the same treatment.
   Not yet touched.
 - **The installer adopts the installing user as an account** (`adopt-account`).
-  ***RULED 29 Aug 2026 — it is unnecessary***: *"the installer has to be a
-  windows administrator to install sd. Since they are an administrator they can
-  login to sd and is logged into the sdsys account."* **Not yet removed**, and
-  it is the 20-file change — `sd.iss`'s post-install step and its
+  ***THAT RULING IS WITHDRAWN — 29 Aug 2026, LATER THE SAME DAY. `adopt` IS
+  NECESSARY AND THE REMOVAL MUST NOT HAPPEN.*** It rested on the clause the
+  owner has since reversed (*"they can login to sd and is logged into the sdsys
+  account"*); with the personal account restored, adopt is **how the installing
+  administrator gets one**. ***NOTHING WAS REMOVED, so there is nothing to put
+  back*** — the entry above records why it was kept separate, and that caution
+  is what saved it. **The struck text below is the withdrawn ruling, kept so
+  nobody re-derives it:** ~~*"the installer has to be a windows administrator
+  to install sd. Since they are an administrator they can login to sd and is
+  logged into the sdsys account."*~~ It was the 20-file change — `sd.iss`'s post-install step and its
   `AdoptCode`/`PasswordStepWanted` wizard flow, `CREATEA`, `DELACC`,
   `stage.py`, and six verifiers. **Deliberately separated from the login
   change**: an install that breaks must have one candidate cause, not two.

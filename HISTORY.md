@@ -41648,5 +41648,58 @@ practice, because `elevate('START')` has no desktop to raise UAC on (10002) —
 administrator can add themselves to any group, read the data tree directly, or
 run as SYSTEM. A matching-account requirement is therefore **an explicit act
 and an audit trail, not a boundary that holds against them.** That may be
-exactly what is wanted; it should be chosen knowing what it is. **Owner's call,
-and it is a change to 56 rather than to the tier.**
+exactly what is wanted; it should be chosen knowing what it is.
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, eleventh part: 56 clause 2 reversed, the personal account comes back, and the adopt removal is cancelled
+
+***RULED: RESTORE THE ADMINISTRATOR'S PERSONAL ACCOUNT.*** Owner: *"that is
+precisely why administrators also had a personal account. They got SDSYS in one
+of two ways, by starting SD in an elevated session or by logging to SD after
+logging into their personal account."* And the property covers every tier: *"if
+any are built outside of sd they do not have access to sd until a matching
+standard or programmer account is created in SD."*
+
+***THE PROPERTY ALREADY HOLDS FOR STANDARD AND PROGRAMMER, AND 56's OWN COMMENT
+EXPLAINS WHY IT DOES NOT FOR ADMINISTRATORS.*** `LOGIN:399`'s
+`is_grp_member(lgn.id,'sdusers')` refuses an account made outside SD with
+**5009, "This user is not registered for SD use"**. The exemption directly
+above it at `:398` was written when 56 was built, and says so itself:
+
+> *"AND AN ADMINISTRATOR IS EXEMPT TOO … WITHOUT THIS THE WHOLE MODEL IS DEAD
+> AT THE DOOR … the model gives an administrator no account of their own — so
+> nothing ever puts them in sdusers, and they would be refused here."*
+
+So the hole was not an oversight; it was **forced by clause 2**, and reversing
+clause 2 removes its reason.
+
+***CONSEQUENCE 1, AND IT CANCELS QUEUED WORK: THE `adopt-account` REMOVAL MUST
+NOT HAPPEN.*** It was ruled unnecessary earlier the same day on the reasoning
+that an administrator *"can login to sd and is logged into the sdsys
+account"* — **precisely the clause now reversed.** Adopt is how the installing
+administrator gets a personal account, so it is necessary. ***NOTHING HAD BEEN
+REMOVED***: that entry was deliberately kept separate from the login change so
+a broken install would have one candidate cause, and **that caution is what
+saved a 20-file change from being made and then unmade.** The withdrawn ruling
+is struck in place rather than deleted.
+
+***CONSEQUENCES 2 AND 3, IN `LOGIN`.*** The `:398` administrator exemption goes
+and the `sdusers` gate becomes uniform across all three tiers; and `:513` must
+stop sending every `K$OS.ADMINISTRATOR` straight to SDSYS, because an
+**unelevated** administrator should land in their **personal account** — SDSYS
+being reached by an already-elevated session or by `logto sdsys` from there.
+
+***AND ONE MECHANISM DOES NOT EXIST YET. MEASURE BEFORE DESIGNING.*** Clause 3
+needs *"is THIS SESSION already elevated"*, and neither key answers it:
+`K_ADMINISTRATOR` is a **settable `USR_ADMIN` flag** (`op_kernel.c:395` — it
+takes an argument and can be set or cleared), and `K_OS_ADMINISTRATOR` is
+`IsAdmin() && connection_type != CN_SOCKET` (`op_kernel.c:456`), which is *"is
+the PERSON an administrator"*. **What `IsAdmin()` answers for an unelevated
+administrator is the crux and was not established** — and this record already
+carries it answering TRUE for every API session until the `CN_SOCKET` guard was
+added, so it is not to be trusted unmeasured.
+
+**Nothing was built. Three rulings arrived in one exchange — three tiers, the
+promotion report, and the personal account — and the only reason none of them
+cost a wasted change is that the previous parts stopped at tracing.**
