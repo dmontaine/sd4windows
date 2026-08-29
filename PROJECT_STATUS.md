@@ -101,7 +101,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
 | ✅ | **H.1** | The cycle and suite record — ***FULL install 28 Aug 21:27:34, `-Run b58`: 13 of 13 unelevated + 18 of 19 elevated***, `assert-current` exit 0 live. The one failure is `verify-apiadmin` **21/23**, the stale control of PRE_RELEASE 31, now identical across **five** runs — treat any other number there as news. **`verify-doors-suite` is green**, first time in b56 (PRE_RELEASE 44's verifier half). ***SPENT: b54, b55, b56, b57, b58 — use `b59`***, and `b55` is the cautionary one: it was burnt against a stale tree, refused eleven steps, and still left `sdsshb55` behind, because the two `assert-current`-exempt scripts run anyway. *(Previous entry, kept for the shape: 27 Aug 22:52:21, `-Run b49`, 30 of 31 steps, 963 `PASS`.)* | 28 Aug 2026 |
-| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS 32 PAGES — 18 SD BASIC plus SD TCL `19` to `32`, ALL FOURTEEN TOPIC PAGES — and the `Technical` set has its first, `01` Restricted Commands. `docmap` 411 of 411, `checklinks` 183 links 0 broken on `User`, HTML and PDF both current (27 Aug 2026). `18` and `Technical/01` are generated and partition the roster, 447 of 447. ALL 144 TCL VERBS HAVE A PAGE. LEFT: the generated TCL syntax card at `33`. OPEN: document `09` is 8 of 8 restricted commands and may belong in `Technical` too — the owner's call.*** ***THE SHIPPED-SCRIPTS GAP IS CLOSED***: `Technical/02` The Installed Scripts covers all **26** that ship, and tester `01` now prints the `install-ssh.ps1` retry command. **`Technical` still has no cross-page link, so `release.ps1` cannot complete on that set — PRE_RELEASE 34, the owner's call** | — |
+| ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS 32 PAGES — 18 SD BASIC plus SD TCL `19` to `32`, ALL FOURTEEN TOPIC PAGES — and the `Technical` set has its first, `01` Restricted Commands. `docmap` 411 of 411, `checklinks` 183 links 0 broken on `User`, HTML and PDF both current (27 Aug 2026). `18` and `Technical/01` are generated and partition the roster, 447 of 447. ALL 143 TCL VERBS HAVE A PAGE — 144 until `encrypt.field` went (PRE_RELEASE 53); `tclmap` 143 of 143, 0 exempt. LEFT: the generated TCL syntax card at `33`. OPEN: document `09` is 8 of 8 restricted commands and may belong in `Technical` too — the owner's call.*** ***THE SHIPPED-SCRIPTS GAP IS CLOSED***: `Technical/02` The Installed Scripts covers all **26** that ship, and tester `01` now prints the `install-ssh.ps1` retry command. **`Technical` still has no cross-page link, so `release.ps1` cannot complete on that set — PRE_RELEASE 34, the owner's call** | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
 | ✅ | **H.4** | ***The ssh scoping BLOCKS a remote machine — proven.*** Rule `Any` → host dial CONNECTED 23ms; rule `127.0.0.1` → dropped 4003ms, with port 5040 on the same guest answering in 23ms as the witness | 25 Aug 2026 |
@@ -180,14 +180,29 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `mkdoc.py` and `mkpdf.ps1` run on. The MSYS2 gap is real and still unfixed —
 > **it is a `setup-devbox.ps1` question, not a "cannot render" one.**
 >
-> ***PRE_RELEASE 53 IS NEW AND IT IS THE REST OF 52.*** Three other document sets
-> still carry `encrypt.field` and say **the verb is in an administrator's VOC and
-> fails to load** — `Administrator/markdown/01:323-333`, `User/markdown/95:92`,
-> and the generators `tools/tcl-syntax-shapes.txt:81` and `tools/tclmap.py:128`.
-> **Not applied, and deliberately**: `Administrator/01:333` is the only line in
-> all four sets recording field-level encryption as absent from W1.0-0, so
-> deleting the section loses the fact and rewording it is the owner's call. It is
-> a one-word answer and the entry carries both options.
+> ***PRE_RELEASE 53 IS DONE TOO — OWNER'S RULING, 28 Aug 2026: "move to not in SD
+> core".*** The `encrypt.field` section is deleted from `Administrator/01` and the
+> fact now lives as `## Field-level encryption` on
+> `Testing/markdown/14-not-in-sd-core.md`, naming `sdencrypt()`/`sddecrypt()` as
+> the supported route (verified in `gplsrc/sd_encrypt_sodium.c`) and saying
+> plainly that nothing replaces the verb.
+>
+> ***AND IT WAS NOT COSMETIC: BOTH DOC GENERATORS HAD BEEN REFUSING TO RUN, AND
+> NOTHING IN THE RECORD KNEW.*** `mktclsyntax.py` exited 1 with `NOT A VERB
+> encrypt.field has a shape and is not on the roster`, `tclmap.py` with the same
+> verb `claimed by Administrator/01` — so **the TCL syntax card could not be
+> regenerated at all.** The roster is computed and had already self-corrected to
+> **143**; `tools/tcl-syntax-shapes.txt` and `tclmap.py`'s map are typed and had
+> not. **That gap is the whole reason a computed roster is worth having**, and it
+> sat undetected because nobody had re-run the generators since PRE_RELEASE 25
+> took the verb.
+>
+> ***BOTH NOW EXIT 0, AND THEY CONFIRM 4 AND 52 INDEPENDENTLY*** — `roster 143
+> verbs (standard 81, programmer 42, administrator 20)` and `tclmap 143 of 143, 0
+> exempt`, from tools that COMPUTE the figures rather than quote them.
+> `checklinks` 0 broken across all three sets (77 / 6 / 185). **`README.md`'s
+> three roster citations moved 144 → 143**; the "127 of 144" line is history and
+> was left. ***THE 144 IN PROJECT_STATUS §H.2 BELOW IS NOW STALE — it is 143.***
 >
 > ### ⇧ END OF WHAT TO DO FIRST ⇧
 >

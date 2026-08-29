@@ -40894,3 +40894,30 @@ the corrected figures rather than trusted from exit 0.
 
 `gplbld/test-fixlist-units.ps1` **176 passed, 0 failed**, up from 175 — open
 entries 17 → 16.
+
+***53 RULED AND DONE THE SAME SESSION — "move to not in SD core" (owner).*** The
+section is deleted from `Administrator/markdown/01` and the fact is now
+`## Field-level encryption` on `Testing/markdown/14-not-in-sd-core.md`, naming
+`sdencrypt()`/`sddecrypt()` as the supported route — verified present in
+`gplsrc/sd_encrypt_sodium.c` before it was written into a shipping page — and
+saying plainly that nothing replaces the verb.
+
+***IT WAS NOT COSMETIC: BOTH DOC GENERATORS HAD BEEN REFUSING TO RUN AND NOTHING
+IN THE RECORD KNEW.*** `mktclsyntax.py` exited 1 on `NOT A VERB encrypt.field has
+a shape and is not on the roster`; `tclmap.py` exited 1 on the same verb `claimed
+by Administrator/01`. **The TCL syntax card could not be regenerated at all.**
+The roster is computed and had already self-corrected to **143**;
+`tools/tcl-syntax-shapes.txt` and `tclmap.py`'s map are typed and had not — which
+is exactly the divergence a computed roster exists to expose, sitting undetected
+because nobody had re-run the generators since PRE_RELEASE 25 removed the verb.
+**A generator that refuses is only a guard if something runs it.**
+
+Both now exit 0, and they confirm 4 and 52 **independently, from tools that
+compute rather than quote**: `roster 143 verbs (standard 81, programmer 42,
+administrator 20)` and `tclmap 143 of 143, 0 exempt`. The regenerated card's own
+tier table had said **standard 81** all along, while the tester set said 77 —
+the two halves of the documentation had disagreed with each other for a week.
+`checklinks` 0 broken on all three sets (77 / 6 / 185); deleting the
+Administrator section broke no inbound link. `README.md`'s three roster
+citations moved 144 → 143, and §H.2's "ALL 144 TCL VERBS HAVE A PAGE" with them;
+the "127 of 144" line is a record of a past miscount and was left alone.
