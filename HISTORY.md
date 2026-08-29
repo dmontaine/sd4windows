@@ -41548,3 +41548,59 @@ reading appears to contradict — and **whether a user account's `$MAP` is sound
 since the account copy comes from the file that is correct. A `map` verb ships,
 so the file is reachable. Pasting the `F` in without answering those would be a
 change whose effect nobody had measured.
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, ninth part: two rulings taken, and the ADMINISTRATOR tier turns out to grant Windows administrator
+
+Asked for the open decisions on the blocking entries. Two came back, and both
+are **traced and recorded, not yet built.**
+
+***56: "Two tiers".*** The ADMINISTRATOR account tier goes. This line in 56's
+"Left to settle" had said *"Not ruled — raise it before touching `CREATEA`"*,
+so it was raised first.
+
+***AND THE TRACE FOUND THE REASON IT MATTERS MORE THAN IT LOOKED.***
+`CREATE.ACCOUNT … ADMINISTRATOR` **makes the user a Windows administrator**:
+`CREATEA:813` sets `make.admin`, which calls
+`os_group("ADDMEM", "S-1-5-32-544", acc.uname)` — the **built-in Administrators
+group**. Under 56 that one command produces a Windows administrator who is
+elevated at login into SDSYS and therefore **never enters the account just
+created for them**, an account nobody will use, and `sdssh`/`sdapi` membership
+(`CREATEA:1588`) that 56 says they cannot use, having lost ssh. **It is not
+dead weight; it contradicts 56, and it is an SD verb that grants Windows
+administrator.**
+
+***THE TIER'S EXTRA VERBS WERE ALREADY UNUSABLE WITHOUT THAT.*** Each gates
+itself on the **person** being a Windows administrator — `CREATEA:251`,
+`DELACC:85`, `MODIFYA:167`, `GRANTA:95`, `UNLOCK:61` — so the tier could only
+ever be exercised by somebody who, under 56, does not use accounts.
+
+***THE FOOTPRINT IS SMALL, AND SEPARATING THE TWO MEANINGS IS WHAT MADE IT
+SO.*** A first grep said 20 files and ~180 occurrences. **52 `K$ADMINISTRATOR`
+and 5 `K$OS.ADMINISTRATOR` uses are the KERNEL KEY — "is this person a Windows
+administrator" — and must not be touched**, since that is precisely what 56
+keeps. The **tier** is 15 literals in four files: `CREATEA` (6), `MODIFYA` (6),
+`LOGIN` (1), `TIERGATE` (1), plus `MODIFYA:1102`'s rank table and
+`newvoc/TIER.ADD.ADMINISTRATOR`.
+
+***AND IT MUST STAY READABLE WHILE IT STOPS BEING OFFERED — CHECKED BEFORE
+REMOVING A PERSISTED CONSTANT.*** `sdsys/accounts/don` carries `ADMINISTRATOR`
+in field 5 on this machine now, put there by `CREATEA:1571`'s adopt default.
+The installed data tree is never upgraded (§6), so removing the value from
+`TIERGATE:132`'s `tg.tiers` would make `tier_allows` answer *"no usable tier"*
+for an existing account and break its `logto`. **Stop OFFERING it; keep
+RECOGNISING it.**
+
+***57: "Proceed, and print what it voided."*** The owner asked first whether it
+only applies to accounts with more than one member. **It does, and the source
+says so**: `TIERGATE`'s description gives its three callers as `CPROC`'s
+`logto.authorised`, `GRANTA` and `MODIFY.ACCOUNT` — ***`LOGIN` is not among
+them*** — and `tier_allows(user, account)` compares the person's own account
+tier with the target's. So the account's own owner is never stranded, only
+grantees added by somebody else can be, and a single-member account cannot
+strand anything.
+
+**Both changes touch `MODIFYA` and share `MODIFYA:1102`'s rank table, so they
+are one cycle, not two.** Nothing is built yet; the trace is recorded so the
+next session starts from it rather than re-deriving it.

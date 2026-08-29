@@ -3279,6 +3279,28 @@ proceed and have `modify.account` *print* the memberships it has just voided.
 **The second is the smaller change and the honest one**; it is the owner's
 call, and it is the last piece of this entry.
 
+***RULED 29 Aug 2026: "Proceed, and print what it voided."*** `MODIFY.ACCOUNT`
+does the promotion and then lists the grantees whose access it has just made
+useless.
+
+***AND THE SCOPE IS NARROWER THAN THE PARAGRAPH ABOVE READS — ASKED AND
+ANSWERED FROM THE SOURCE.*** The owner asked whether this only applies to
+accounts with more than one member. It does. `TIERGATE`'s own description is
+the evidence: `!tier_allows(user, account)` compares **the person's own account
+tier** with the target's, and its three callers are `CPROC`'s
+`logto.authorised`, `GRANTA` and `MODIFY.ACCOUNT` — ***`LOGIN` is not one of
+them***. So:
+
+- **the account's own owner is never stranded** — they arrive by `LOGIN`, which
+  never consults the gate, and their rank equals the account's in any case;
+- **only users granted in by somebody else can be**, and only those whose own
+  account is a lower tier;
+- **a single-member account cannot strand anything**, so on a typical install
+  the printed list is empty.
+
+**Note it now interacts with 56's "two tiers" ruling**: both change `MODIFYA`,
+and `MODIFYA:1102`'s rank table is common to them. **Do them in one cycle.**
+
 ---
 
 ## 56. The administrator access model, rewritten — **B** (owner's ruling, 29 Aug 2026)
@@ -3454,9 +3476,47 @@ session for the same reason, and its guard is the one to copy.
 - **`IsAdmin()` is C and both gates are BASIC**, so it needs exposing — a new
   kernel key beside `K$ADMINISTRATOR` (26), which is `keys.h:137` and
   `INT$KEYS.H:101`.
-- **What an ADMINISTRATOR tier now means**, if administrators have no accounts.
-  `CREATEA` still offers the tier and `verify-tiers.ps1` still measures it.
-  **Not ruled** — raise it before touching `CREATEA`.
+- ***RULED 29 Aug 2026 — "Two tiers". THE ADMINISTRATOR TIER GOES.*** Raised
+  before touching `CREATEA`, as this line asked. **The trace is done and the
+  footprint is far smaller than it looks** — and it turned up something that
+  makes this the security half of 56 rather than a tidy-up.
+
+  ***`CREATE.ACCOUNT … ADMINISTRATOR` MAKES THE USER A WINDOWS ADMINISTRATOR.***
+  `CREATEA:813` → `make.admin` → `os_group("ADDMEM", "S-1-5-32-544", acc.uname)`,
+  which is the **built-in Administrators group**. So under 56 that one command
+  produces: a Windows administrator, who is elevated at login into SDSYS and
+  therefore **never enters the account just created for them**; an account
+  nobody will use; and `sdssh`/`sdapi` membership (`CREATEA:1588`) that 56 says
+  they cannot use, having lost ssh. **It is not dead weight, it is a
+  contradiction — and it is an SD verb that grants Windows administrator.**
+
+  ***AND THE TIER'S EXTRA VERBS ARE ALREADY UNUSABLE WITHOUT THAT.*** Every one
+  gates itself on the **person** being a Windows administrator —
+  `CREATEA:251`, `DELACC:85`, `MODIFYA:167`, `GRANTA:95`, `UNLOCK:61` — so the
+  tier can only ever be exercised by someone who, under 56, does not use
+  accounts at all.
+
+  ***THE FOOTPRINT: 15 TIER LITERALS IN FOUR BASIC FILES.*** `CREATEA` (6),
+  `MODIFYA` (6), `LOGIN` (1), `TIERGATE` (1), plus `MODIFYA:1102`'s rank table
+  and `newvoc/TIER.ADD.ADMINISTRATOR`. **The 52 `K$ADMINISTRATOR` and 5
+  `K$OS.ADMINISTRATOR` uses are a DIFFERENT THING and must not be touched** —
+  they ask whether the *person* is a Windows administrator, which is exactly
+  what 56 keeps.
+
+  ***AND IT MUST STAY READABLE EVEN AS IT STOPS BEING OFFERED — MEASURED.***
+  `C:\ProgramData\SD\sdsys\accounts\don` carries **`ADMINISTRATOR` in field 5**
+  today, because `CREATEA:1571` gives the adopted account that tier. The
+  installed data tree is never upgraded (§6), so removing `ADMINISTRATOR` from
+  `TIERGATE:132`'s `tg.tiers` would make `tier_allows` answer *"no usable
+  tier"* for an existing account and break its `logto`. **So: stop OFFERING it
+  in `CREATEA` and `MODIFYA`; keep RECOGNISING it in `TIERGATE`.**
+
+  **Sequencing:** `CREATEA:1571` is the only remaining producer once the
+  keyword goes, and it dies with the `adopt` removal below. Not bundled, for
+  that entry's own reason — an install that breaks must have one candidate
+  cause.
+- **`verify-tiers.ps1` measures the tier** and will need the same treatment.
+  Not yet touched.
 - **The installer adopts the installing user as an account** (`adopt-account`).
   ***RULED 29 Aug 2026 — it is unnecessary***: *"the installer has to be a
   windows administrator to install sd. Since they are an administrator they can
