@@ -165,8 +165,30 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > agent cannot give it an ordinary one). **ORDINARY, UNELEVATED PowerShell:**
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b64 -ContinueOnFailure
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b65 -ContinueOnFailure
 > ```
+>
+> ***`b64` IS SPENT AND MEASURED NOTHING — THE b62 SHAPE AGAIN.*** 29 Aug
+> 15:45:56: `sdtestuser-admin Create` succeeded in full (record, Windows user,
+> group and the parent's ACE, all `before=False after=True` in
+> `testuser-create-20260829-154556.log`) and **the parent transcript then stops
+> dead** after *"EXPECT A UAC PROMPT NOW"* — no error, no `finally`, 881 bytes.
+> **A Ctrl-C does not run the `finally`**, so `sdtub64` was left live and
+> enabled, and the two reruns at 15:48 and 15:49 correctly refused on it.
+> ***NO PRODUCT CLAIM CAN BE MADE FROM THAT RUN***: it stopped at account
+> creation and never reached a verifier.
+>
+> ***`sdtub64` NEEDS NO SEPARATE CLEANUP — THE `b65` RUN SWEEPS IT.*** Checked
+> against `sdtestuser-admin.ps1:201-213` rather than the summary: all three
+> conditions hold — it matches `^sdtu[a-z0-9]+$`, it is not the name `b65`
+> creates, and it **is** in `sdusers` (read from the group). It goes by
+> `DELETE.ACCOUNT` inside the elevated child `Create` already raises, so there
+> is **no extra UAC prompt**. It has no profile directory, having never signed
+> in over ssh.
+>
+> ***TWO OLDER STRAYS ARE IN `sdusers` AND THE SWEEP WILL NOT TAKE THEM***, by
+> design — `sdsshb55` (the `b55` run named in H.1) and `b48adm` do not match
+> `sdtu*`. Not urgent; noted so the next reader does not rediscover them.
 >
 > ***AND THERE IS A PREDICTION TO CHECK IT AGAINST — READ THIS BEFORE SCORING
 > THE RUN.*** PRE_RELEASE 59's five unelevated failures were all one cause:
