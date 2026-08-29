@@ -40935,3 +40935,42 @@ the generated card for a week while the tester set said **77**. The generators
 read the VOC; the hand-written pages do not; nothing compares them. Left as an
 observation rather than an entry — it is a toolchain design question and the
 owner's call — but it is the cheapest guard still available.
+
+## 29 Aug 2026, seventy-seventh session — the three owner's-call entries ruled, and nothing built
+
+Asked for the decisions only: **no work was started on any of the three.**
+`git pull` said already up to date; `test-fixlist-units.ps1` **176 passed, 0
+failed** before and after, and confirms **15** open — 3, 6, 7, 8, 9, 11, 12, 16,
+20, 24, 28, 31, 34, 39, 44.
+
+| entry | ruling |
+|---|---|
+| **31** | ***Being an administrator is the gate***, not the `os.users` list. *"Any administrator keeps universal rights, ssh, api, os.execute, no matter which account they logto."* **Sev S → B** |
+| **34** | ***A set may declare itself link-free.*** `checklinks.py` grows the declaration, `release.ps1` accepts it, `Technical` opts in; the zero-link refusal stays default elsewhere |
+| **39** | ***A second, separate prompt on uninstall***, defaulting to keep, **excluding the installing person's own account** so at least one account can still sign in to Windows. **Sev B? → B** |
+
+***31 WAS PUT AS A VERIFIER FIX AND CAME BACK A PRODUCT ONE.*** The entry had
+concluded *"the product is doing what PRE_RELEASE 2 designed"* and left only the
+control to rewrite. **The owner's rule is wider than the code**: `os_permitted()`
+returns TRUE on `USR_ADMIN`, but `CPROC:2713` clears `USR_ADMIN` on a `LOGTO`
+away from SDSYS, so an administrator with **no `os.users` record is refused
+today**. `don` is admitted only because PRE_RELEASE 2 listed him — **the passing
+case was an accident of another entry, not the rule.** Reading the ruling against
+`op_sh.c:150` is what found it; taking "product is per design" at its word would
+have shipped a verifier fix over a live defect.
+
+***AND 39 WAS RULED BY ANALOGY TO SOMETHING THAT DOES NOT EXIST.*** The owner
+described an upgrade offering *"the option of retaining accounts and the
+configuration file"*. **There is no upgrade-time prompt at all** — an upgrade
+replaces the shipped half in place and asks nothing. The prompt is on
+**uninstall** (`sd.iss:3482`) and deletes only the SD-side records under
+`C:\ProgramData\SD`; it removes no Windows account, which is the entry. He was
+told before the ruling was recorded, and it stands on the corrected premise.
+
+***SECTION 39 HAD BEEN CONTRADICTING ITS OWN ROW FOR A DAY*** — the section said
+*"REASONED FROM SOURCE, NOT MEASURED"* while the row carried the 28 Aug
+measurement (`sddrb50a` outliving the install, still in `sdusers`, `sdssh` and
+`sdapi`). Corrected. **`test-fixlist-units.ps1` cannot see this class**: it
+compares a section's *title* against its row, not the body, so a stale body
+scores a clean pass. The file's own advice — *read the table, never the section
+headings* — is the working guard, and it is advice rather than a check.

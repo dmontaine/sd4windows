@@ -150,13 +150,30 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b59 -ContinueOnFailure
 > ```
 >
-> ***THREE THINGS ARE WAITING ON THE OWNER AND EACH IS A ONE-WORD ANSWER:***
+> ***TWO THINGS ARE WAITING ON THE OWNER AND EACH IS A ONE-WORD ANSWER:***
 > (1) wire `gplbld/verify-profiledir.ps1` into `VerifyInstall2` — **it is in
 > neither runner, so 36's regression test never runs again unless somebody
 > remembers it by hand**; (2) whether the 21 sections that are struck in the
 > index but silent in their own heading should be made self-describing —
-> `test-fixlist-units.ps1` lists them every run; (3) PRE_RELEASE **31** and
-> **39**, both marked *owner's call* and both still open.
+> `test-fixlist-units.ps1` lists them every run.
+>
+> ***THE THREE OWNER'S-CALL ENTRIES ARE RULED, 29 Aug 2026 — 31, 34 AND 39.***
+> Recorded in PRE_RELEASE_FIXES.md, **and no work was started on any of them at
+> the owner's instruction.** The count is still **15**; a ruling closes a
+> question, not an entry.
+>
+> | | ruling | what it now costs |
+> |---|---|---|
+> | **31** | ***being an ADMINISTRATOR is the gate***, not the `os.users` list — *"permission belongs to the person, even if they logto an account with fewer priviledges"* | **a product change, not the verifier-only fix the row used to claim.** `CPROC:2713` clears `USR_ADMIN` on `LOGTO`, so an administrator with no `os.users` record is refused today; `don` passes only because PRE_RELEASE 2 listed him. **Sev raised S → B** |
+> | **34** | ***a set may declare itself link-free***; `checklinks.py` grows the declaration and `release.ps1` accepts it | the zero-link refusal stays the default for `User`, `Administrator` and `Testing`. **Not to be settled by adding a link** |
+> | **39** | ***a second, separate prompt on uninstall***, and it must **never** take the installing person's own account | `sd.iss:3482` is unchanged; a second question follows it, defaulting to keep. **Sev resolved B? → B.** The exclusion is the hard part — `sd.iss:86` says `{username}` is whoever authenticated UAC, not necessarily who is signed in |
+>
+> ***AND ONE PREMISE WAS CORRECTED WHILE TAKING 39.*** The owner ruled by analogy
+> to an upgrade *"giving the option of retaining accounts and the configuration
+> file"*. **There is no upgrade-time prompt** — an upgrade replaces the shipped
+> half in place and asks nothing. The prompt is on **uninstall** (`sd.iss:3482`)
+> and covers the SD-side records only. He was told, and the ruling stands on the
+> corrected premise.
 >
 > ***AND THE DOCS REPO IS AT `/c/Users/dmont/Projects/SD Core for Windows 1.0-0 Docs`
 > — WITH SPACES IN THE NAME.*** It is a sibling of this one and it is a separate

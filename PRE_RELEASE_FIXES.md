@@ -69,15 +69,15 @@ no elevation.
 | 28 | **M** | A process dump is written into the system directory, where every SD user can read it | `gplsrc/pdump.c:97` |
 | ~~29~~ | **S** | ~~`micro` reports "Permission denied" on every save~~ — **DONE 27 Aug 2026**, install 19:37:47. `MICRO_CONFIG_HOME` is a per-user `~/.micro` via the new `micro-home.ps1`. Owner: three runs, save and no-save, **no message**. Took three attempts — see the entry | `gpl.bp/EDIT`, `gplbld/micro-home.ps1` |
 | ~~30~~ | **S** | ~~`verify-osusers.ps1` refuses on a fresh install: it needs `@LOGNAME` unlisted in `os.users`, but PRE_RELEASE 2 made `adopt-account` list every administrator~~ — **verifier fixed 27 Aug (parks and restores the record); the product is correct** | `gplbld/verify-osusers.ps1` |
-| 31 | **S** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Product is per design; **verifier needs a rewrite, owner to confirm the new premise**. Headline hole (API OS.EXECUTE) stays closed | `gplbld/verify-apiadmin.ps1` |
+| 31 | **B** | ***`verify-apiadmin`'s control is stale*** — it expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose `OS.EXECUTE`, but `os_permitted()` keys the list on `process.username` (`don`), whom PRE_RELEASE 2 listed. Headline hole (API OS.EXECUTE) stays closed. ***RULED 29 Aug 2026 — BEING AN ADMINISTRATOR IS THE GATE, SO THIS IS A PRODUCT CHANGE AND NOT THE VERIFIER-ONLY FIX THIS ROW USED TO CLAIM.*** Owner: *"any administrator keeps universal rights, ssh, api, os.execute, no matter which account they logto. Permission belongs to the person, even if they logto an account with fewer priviledges."* **Today an administrator who is NOT in `os.users` is REFUSED after a `LOGTO`** — `CPROC:2713` clears `USR_ADMIN` and `os_permitted()` falls through to the list; `don` passes only because PRE_RELEASE 2 listed him. **Sev raised S → B: the defect is the product, not the instrument.** Not started | `gplsrc/op_sh.c:150`, `gpl.bp/CPROC:2713`, `gplbld/verify-apiadmin.ps1` |
 | ~~32~~ | **S** | ~~`delete.account` leaves the `ProfileList` registry entry, so an account recreated under the same name gets a DIFFERENT home directory~~ — **FIXED 27 Aug 2026: the `catch { exit 6 }` that left both halves is now `catch { }`, and the key is removed in its own right; status 6 splits into 6 (directory) and 7 (registry entry).** ***PARTLY REVERSED 28 Aug BY 36, ON THE OWNER'S RULING, AND DELIBERATELY***: removing the entry over a directory that is still there destroys the only handle a sweep has, so the entry is now removed **only if the directory went**, both halves are kept together otherwise, and something comes back for the pair. **The defect this entry names is still fixed** — an entry is never left behind on its own. **Its regression test is re-scoped** from *"the entry is gone"* to *"the entry is gone when the directory went"*. ***BOTH FIXES REMAIN UNCOMPILED — needs a cycle.*** Generated PowerShell parse-checked 0 errors / 203 tokens on 27 Aug, 1944 chars on 28 Aug; the new steps run read-only against a real account | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075`, `messages/10116`, `gplbld/verify-delaccount.ps1` |
 | ~~33~~ | **S** | ~~`allow-ssh-groups.ps1`'s own usage text offers a bare form that **writes nothing**~~ — **DONE 27 Aug 2026**, the usage line names `-Installed` and a dated note says which forms need it. Comment only, parses 0 errors / 1247 tokens | `gplbld/allow-ssh-groups.ps1:4` |
-| 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Owner's call, and not to be settled by adding a link** | docs repo `tools/release.ps1`, `tools/checklinks.py` |
+| 34 | **S** | ***`release.ps1` cannot complete on the `Technical` set*** — `checklinks.py` rightly refuses a zero-link set, and two pages in, `Technical` still has no honest cross-reference. A whole set has no working release command. **Not to be settled by adding a link.** ***RULED 29 Aug 2026 — A SET MAY DECLARE ITSELF LINK-FREE.*** `checklinks.py` gains an explicit per-set way to say *this set legitimately has no links*, and `release.ps1` accepts it; `Technical` opts in. **The zero-link refusal stays the default for `User`, `Administrator` and `Testing`**, so a set that loses its links by accident still fails loudly — the guard is narrowed by declaration, never removed. Not started | docs repo `tools/release.ps1`, `tools/checklinks.py:57` |
 | ~~35~~ | **S** | ***DONE 28 Aug 2026, MEASURED*** — `create.account` now refuses the name and prints the directory (10124), witnessed by the new `gplbld/verify-profiledir.ps1` **14/14** on the 21:27:34 install, with a control account created and deleted in the same run. ***A profile DIRECTORY left behind moves the next account's home just as the registry entry does*** — found by running 32's own regression test on the install that fixed 32. `DELETE_USER` now tries to remove it, **and MEASURED: it cannot be deleted OR renamed while the hive is mounted**, so the honest answer is the rewritten `10075`, which names the cause and the restart. **Cure is 36, and 36 IS BUILT AS OF 28 Aug 2026 AND UNRUN**: the boot sweep removes the directory and `create.account` refuses the name until it is gone, so both halves of this symptom are answered — **but nothing has compiled yet, so this stays open until a cycle and a restart have been through it** | `gpl.bp/DELETE_USER`, `gpl.bp/DELACC`, `messages/10075` |
 | ~~36~~ | **M** | ***DONE 28 Aug 2026, ALL FOUR RULINGS OBSERVED.*** The sweep reclaimed **5 of 5** after a restart (`5 considered, 5 reclaimed, 0 still pending, 0 refused`), `C:\Users` fell **61 → 56 by exactly those five** with `ProfileList` 46 → 41, the re-scoped 32 test is green in b56–b58, and `create.account` refuses a live directory (`verify-profiledir.ps1` 14/14). Two defects were found on the way and fixed — **49** and **50**. ***BUILT 28 Aug 2026, ALL FOUR RULINGS.*** Directory first and the `ProfileList` entry only if it went (`DELETE_USER`); the pair recorded under `C:\ProgramData\SD\profile-reclaim`; `gplbld/reclaim-profiles.ps1` sweeps it from `sdsvc.exe` at every service start; `create.account` REFUSES on an existing profile directory and names it (`!profile_dir`, 10124/10125). **New statuses 6/7/8 and messages 10075 rewritten, 10116 rewritten, 10123/10124/10125 new.** ***THE SWEEP READS THE RECORD, NOT `ProfileList`***, so it does not inherit the blindness that left `sdapiab49` and two others unfindable. **Its refusal table is a pure function guarded by `gplbld/test-reclaim-units.ps1` — 39/39, and its positive control against a copy with the containment check removed fails 34/5.** **The store gets an ACL of its own** (`gplbld/secure-reclaim.ps1`): inherited, it would be a list of directories every SD user can edit and LocalSystem later deletes. **32's regression test is re-scoped** in `verify-delaccount.ps1` from *"the entry is gone"* to *"the entry is gone when the directory went"*, with the keep-both branch asserting the record. *(Was: RULED 27 Aug 2026 AND NOT BUILT.)* ***Deleted accounts leave their registry hives mounted — 22 orphan SIDs / 44 hives on this host*** — the ROOT CAUSE of 32 and 35. **Mechanism confirmed: `Remove-CimInstance` failed on a mounted hive, then cleared `53 removed, 0 failed` after a restart.** Nothing SD does can unmount them | `gpl.bp/DELETE_USER`, `CREATEA`, `DELACC`, `PROFILE_DIR`; `gplsrc/sdsvc/sdsvc.c`; `gplbld/reclaim-profiles.ps1`, `secure-reclaim.ps1`, `test-reclaim-units.ps1` |
 | ~~37~~ | **S** | ***`create.account` prints two lines that contradict each other***: with `both` it says *"may sign in over ssh only"* then *"may sign in over ssh and use the API"*. **Two different gates** — Windows logon rights (`CREATEA:808`) and SD route keywords (`:1612`) — worded so nothing tells the reader that. **FIXED 28 Aug: 10034 now says "may reach this computer only over ssh"; 10076/10077/10078 are recast as "SD routes for %1: ...". Nothing anchors on the old text — checked.** ***DONE 28 Aug 2026, MEASURED*** by `verify-acctmsgs.ps1`: on a real `create.account … programmer both`, 10034 read *"may reach this computer only over ssh"* and 10078 *"SD routes for …: ssh and the API"*, **and both old wordings were absent** — the disqualifier is what carries this one, since both lines contain "ssh" and any check anchored there would have passed on the defect | `messages/10034`, `10076`, `10077`, `10078` |
 | ~~38~~ | **M** | ***WIRED IN 28 Aug 2026 ON THE OWNER'S RULING — "wire the pair into VerifyInstall".*** `gplbld/verify-doors-suite.ps1` drives all five phases as **one step** and is the **last step of `VerifyInstall1`**, conditional on `-Run`. ***IT HAD TO GO IN THE UNELEVATED RUNNER, AND THAT IS FORCED, NOT PREFERRED***: the phases need alternating tokens (Create elevated, Control ordinary, Suspend elevated, Refused ordinary, Remove elevated) and **an elevated parent cannot make an ordinary child** — `runas /trustlevel` yields a RESTRICTED token, not the user's own (`VerifyInstall1.ps1:70`) — so the ordinary half must be the parent. It raises the three elevated children itself, **announcing each UAC prompt**, and the child redirects its own output because `-Verb RunAs` cannot be combined with `-RedirectStandardOutput`. **It refuses a prefix with any residue before creating anything** — Windows user, `sdu_` group, `ACCOUNTS` record, **or profile directory** — because a name is single-use once its account has reached the Control leg. ***COSTS: three more UAC prompts, and one permanent profile directory per suite run until 35/36 is built.*** **Unrun as a suite step** — the refusal path was exercised (exit 2, nothing created) and the five phases were run by hand. **The original finding:** ~~The suite tests SUSPENDED on no door at all~~ — neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the word. ssh and `logto` are now measured by hand; **the API door has never been reached** and cannot be tested by wording, since `APISRVR:507` refuses with the same `sysmsg(10003)` as every other refusal. **Needs a controlled pair.** ***28 Aug: `verify-tiers.ps1` section 6 written and UNRUN — the record, the write-once guard 21 left unmeasured, and the VOC. It CANNOT test the `logto` door: the check sits after `CPROC:3729`'s elevated bypass and this verifier must be elevated.*** ***THE CONTROLLED PAIR NOW EXISTS AND HAS PASSED, 28 Aug 2026*** — `verify-doors-admin.ps1` + `verify-doors.ps1` on `sddr2`, all four legs green, **all three doors ADMITTED then all three REFUSED**, and ***the API door was reached for the first time***. **WHAT IS LEFT OF THIS ENTRY IS ONE DECISION, NOT A MEASUREMENT: the pair is standalone and is NOT wired into `VerifyInstall1`.** It is deliberately unwired for the same reason `verify-acctmsgs` is — **it creates a real Windows account**, and it needs an elevated half and an unelevated half, which is the split the suite already has. **Owner's call: wire it into the two runners, or leave it standalone and named in the docs.** Note the fixture is single-use — its Control leg's ssh login leaves a profile directory that entries 35/36 cannot yet remove, so each attempt needs a fresh prefix. ***RUN AS A SUITE STEP FOR THE FIRST TIME ON `-Run b50`, 28 Aug 2026, AND IT FAILED TWICE FOR TWO DIFFERENT REASONS.*** First run: `Create` 8/8 and `Control` 6/6, then **Suspend and Remove died before their UAC prompt** — entry 43. Second run, after the same cycle: **refused up front**, because the first run had already spent `sddrb50a` at the Control leg — **the single-use guard working exactly as designed, and nothing was created.** ***THE PRICE IS NOW MEASURED RATHER THAN ESTIMATED***: a failed run leaves a **live, enabled, UNSUSPENDED** account in `sdusers`, `sdssh` and `sdapi` plus its profile directory, because the leg that removes it is the one that did not run. **43 is fixed and unrun; the next attempt needs a fresh `-Run` token** | `gplbld/verify-tiers.ps1`, `verify-tierapi.ps1`, `verify-doors-admin.ps1`, `verify-doors.ps1`, `verify-doors-suite.ps1` |
-| 39 | **B?** | ***Uninstalling strips SD's `AllowGroups` and `ForceCommand` and leaves every account SD created*** — so each becomes an ordinary ssh-reachable account with a PowerShell shell. `sd.iss` removes no account anywhere; the closing disclosure does not mention them. ***NO LONGER REASONED — MEASURED 28 Aug 2026, AND IT SURVIVES A WHOLE CYCLE.*** `cycle.ps1` uninstalled and deleted **both** trees at 15:29:59, so `sddrb50a`'s `ACCOUNTS` record went with the data tree — the register now holds only `don` and `sdsys`. **The Windows side did not move**: the account is still **enabled**, still has its own `sdu_sddrb50a` group, and is still a member of `sdusers`, `sdssh` **and** `sdapi`, with `sshd_config` still carrying `AllowGroups sdssh`. **So the account outlived the SD installation that made it, keeping every route it was granted.** ***AND IT IS NOW UNREMOVABLE BY SD***: `DELETE.ACCOUNT` cannot reach an account with no `ACCOUNTS` record, so `verify-doors-admin.ps1 -Phase Remove` correctly FAILS on it rather than reporting a tidy pass, and names it STRANDED. **Whether SD would still admit a login is NOT measured** — the password was generated inside an elevated child and never printed, deliberately. **What is measured is that Windows still would.** Owner's call | `gplbld/sd.iss:3367`, the closing disclosure |
+| 39 | **B** | ***Uninstalling strips SD's `AllowGroups` and `ForceCommand` and leaves every account SD created*** — so each becomes an ordinary ssh-reachable account with a PowerShell shell. `sd.iss` removes no account anywhere; the closing disclosure does not mention them. ***NO LONGER REASONED — MEASURED 28 Aug 2026, AND IT SURVIVES A WHOLE CYCLE.*** `cycle.ps1` uninstalled and deleted **both** trees at 15:29:59, so `sddrb50a`'s `ACCOUNTS` record went with the data tree — the register now holds only `don` and `sdsys`. **The Windows side did not move**: the account is still **enabled**, still has its own `sdu_sddrb50a` group, and is still a member of `sdusers`, `sdssh` **and** `sdapi`, with `sshd_config` still carrying `AllowGroups sdssh`. **So the account outlived the SD installation that made it, keeping every route it was granted.** ***AND IT IS NOW UNREMOVABLE BY SD***: `DELETE.ACCOUNT` cannot reach an account with no `ACCOUNTS` record, so `verify-doors-admin.ps1 -Phase Remove` correctly FAILS on it rather than reporting a tidy pass, and names it STRANDED. **Whether SD would still admit a login is NOT measured** — the password was generated inside an elevated child and never printed, deliberately. **What is measured is that Windows still would.** ***RULED 29 Aug 2026 — A SECOND, SEPARATE PROMPT ON UNINSTALL, AND IT MUST NEVER TAKE THE INSTALLING PERSON'S OWN ACCOUNT.*** Owner: *"a second separate prompt, however deleting the windows accounts should not delete the account of the person doing the installation so that there is at least one remaining account that can log into windows."* So `sd.iss:3482`'s *"Remove the SD database as well?"* stays exactly as it is, and a **second** question follows it about the Windows accounts SD created (with their `sdu_`/`sdg_` groups and profiles), defaulting to keep. **The installing user is excluded from that sweep by construction, not by the operator noticing** — leaving at least one account that can still sign in to Windows. **The closing disclosure is wrong either way and is fixed with it**: it names the database, the ssh server and `sdusers`, and never mentions the accounts. Not started | `gplbld/sd.iss:3367`, `sd.iss:3482`, the closing disclosure |
 | ~~40~~ | **M** | ~~A verifier's transcript keeps recording the verifiers that run after it~~ — `verify-sshonly-*.log` carried `verify-apiadmin`'s `[FAIL]` rows and the whole suite's summary. `Start-Transcript` with no matching stop, **15 of 33 verifiers**. **DONE 28 Aug 2026, AND FIXED IN THE TWO RUNNERS RATHER THAN IN FIFTEEN VERIFIERS**: `VerifyInstall1` and `VerifyInstall2` now close every transcript a step left open, **name the step that leaked**, and `VerifyInstall1` restores its own with `-Append`. **One place, it cannot be forgotten by the next verifier somebody writes, and it also covers the case a `try`/`finally` does not — a step that dies outright.** ***Mechanism verified against real nested transcripts*** (none-open, three-leaked, and the runner's close-and-restore shape), **not yet in a suite run** | `gplbld/VerifyInstall1.ps1`, `VerifyInstall2.ps1` |
 | ~~41~~ | **M** | ~~***The cleanup sweep reports "every section reached zero" while three orphan directories are still on disk***~~ — the counter and the cleaner share one `Win32_UserProfile` enumeration, which reads from `ProfileList`, so a directory whose entry is gone is invisible to both. **Measured 28 Aug: `7 -> 0` and "done" with `sdapiab49`, `sdapiidb49`, `sdapinb49` still there.** **DONE 28 Aug 2026** — both scripts now carry a **direct `C:\Users` scan** as a second, independent instrument: `clean-test-profiles.ps1` names them **UNREACHABLE with the reason and exits non-zero** (*before* its "nothing to do" return, which is the path the measured run took), and `cleanup-devlitter.ps1` counts them in **both** BEFORE and AFTER and will no longer say *"every section reached zero"* over them. ***Reported, not deleted*** — the removal decision is 36's. ***AND THE POSITIVE CONTROL FOUND A SAFETY BUG IN THE FIX***: under a permissive pattern the scan returned **`All Users`, a junction to `C:\ProgramData`**, for which the code prints a `Remove-Item -Recurse -Force` line. **Reparse points are now excluded in both copies**, and the guard is exercised by a test. **36's boot sweep must not inherit the blind enumeration** | `gplbld/clean-test-profiles.ps1`, `cleanup-devlitter.ps1` |
 | ~~42~~ | **M** | ***FIXED 28 Aug 2026 ON THE OWNER'S RULING — "prompt for password at creation".*** `!set_passwd` now writes SD's own credential through `!CRED_SET` from the **same prompt** that sets the Windows one, so 10078 is true of a new account. **One prompt, both stores; they remain separate credentials and `modify.password` still changes SD's alone.** New status **6** — the half-set case, Windows took it and `$cred` did not — with message **10122**, and `CREATEA` names it rather than falling through to 10121's *"status %1"*. ***THE FIX IS COMPILED-AND-UNRUN UNTIL A CYCLE***: it is the first `sdsys` change since 28 Aug 00:53:34, so the installed tree is stale and nothing can test it until one runs. **The original finding:** ~~`create.account ... both` announces the API as a route, but the account cannot use the API until `modify.password` is run~~ — 10078 prints *"SD routes for %1: ssh and the API."* while the only password the verb prompts for is the **Windows** one (*"New Windows password for %1"*). **The two doors authenticate against different stores and nothing says so**: sshd checks the Windows password, so ssh is admitted; the API does SCRAM against a PBKDF2 verifier in `sdsys\$cred` that **only `MODIFY.PASSWORD` writes**, so it refuses. ***Measured 28 Aug 2026, the first time the API door was ever reached***: `sddr1a`, created `PROGRAMMER BOTH`, was in `sdapi`, `sdssh` **and** `sdusers` — the route was granted and the credential did not exist — and `sd-connect` answered `QMError(): Invalid username or password`. **The refusal is the worst possible one to debug**: `APISRVR:507` deliberately answers `10003` for *"no such account"* and *"not granted"* too, so nothing in it points at a missing password. `SET_ACC_PASSWORD:195-198` already owns the sentence — *"ssh and the SD API will refuse to connect until a password is set"* — but it is printed by the wrong verb and is **wrong about ssh**, which the Windows password admits. **Owner's call: prompt for the SD password at creation, or have 10078 say the API needs one.** `verify-doors-admin.ps1` also runs `MODIFY.PASSWORD` itself, and that stays — it keeps the door pair working against an install predating this fix. ***ONE SENTENCE IS STILL WRONG AND IS LEFT ALONE DELIBERATELY***: `SET_ACC_PASSWORD:195-198` tells someone declining a first password that *"ssh and the SD API will refuse to connect"*, and **ssh does not** — a Windows password admits it, which is exactly what `sddr1a` did. That path is now reachable mainly for SDSYS at install, since creation unwinds without a password; **worth correcting when someone is next in that file** | `gpl.bp/SET_PASSWD`, `gpl.bp/CREATEA`, `sdsys/messages/10122`, `sdsys/messages/10078` |
@@ -1312,7 +1312,7 @@ PRE_RELEASE 31, below.
 
 ---
 
-## 31. An elevated local session keeps OS.EXECUTE after LOGTO — **B?** (owner's call)
+## 31. An elevated local session keeps OS.EXECUTE after LOGTO — **B** (ruled 29 Aug 2026)
 
 Found 27 Aug 2026 by `-Run b48 -ContinueOnFailure` (the run that skipped past
 the then-unfixed `verify-osusers`). Elevated half: **18 of 19**, the one failure
@@ -1363,12 +1363,51 @@ API session is refused only because its `process.username` is the account
 
 So the product is doing what PRE_RELEASE 2 designed. **The control in
 `verify-apiadmin` (written ~21 Aug, before `don` had an `os.users` record)
-is stale** — same class as PRE_RELEASE 30. **Left for the owner** because it is
-the verifier's *only* contrast and rewriting it means deciding what the test now
-proves: probably "a session whose `process.username` is not listed is refused,
-elevated-then-LOGTO'd or not", with a non-`don` Windows identity or an
-unlisted-account probe. The API-side behaviour (refused) is not in question and
-the headline hole stays closed.
+is stale** — same class as PRE_RELEASE 30. The API-side behaviour (refused) is
+not in question and the headline hole stays closed.
+
+### ***RULED 29 Aug 2026 — BEING AN ADMINISTRATOR IS THE GATE. IT IS A PRODUCT CHANGE.***
+
+Put to the owner as a choice between *the `os.users` list is the gate* (making
+this verifier-only) and *administrator status is the gate*. He took the second:
+
+> *"Any administrator keeps universal rights, ssh, api, os.execute, no matter
+> which account they logto. Permission belongs to the person, even if they logto
+> an account with fewer priviledges."*
+
+***THE CODE IS NARROWER THAN THAT TODAY, AND THAT GAP IS THE DEFECT.***
+`os_permitted()` (`op_sh.c:150`) returns TRUE on `USR_ADMIN`, but `CPROC:2713`
+**clears `USR_ADMIN`** on a `LOGTO` away from SDSYS, so the call falls through to
+the `os.users` lookup keyed on the Windows login. **An administrator with no
+`os.users` record is therefore REFUSED after a `LOGTO`.** `don` is admitted only
+because PRE_RELEASE 2 listed him — the passing case is an accident of that
+entry, not the rule the owner has now stated.
+
+| what the ruling requires | where |
+|---|---|
+| administrator status survives a `LOGTO` for `OS.EXECUTE` | `gplsrc/op_sh.c:150` — check administrator status directly, **or** stop `CPROC:2713` clearing `USR_ADMIN` |
+| the same for the ssh and API routes | the doors PRE_RELEASE 38's pair drives; **not yet traced** — do that before choosing where the fix goes |
+| the control in `verify-apiadmin` follows the product | `gplbld/verify-apiadmin.ps1` — it must assert the new rule, not the old one |
+
+***TWO THINGS TO SETTLE BEFORE WRITING THE FIX, AND NEITHER IS RULED.***
+
+1. ***`USR_ADMIN` GATES MORE THAN `OS.EXECUTE`, SO THE BLAST RADIUS IS NOT
+   `op_sh.c`.*** `CPROC:2713` clears it on the stated principle that
+   *"administrator rights belong to SDSYS"*, and PRE_RELEASE 20 (a suspended
+   administrator) and the door work both stand on that line. **Not clearing it
+   is the smaller diff and the larger change.** Checking administrator status
+   inside `os_permitted()` touches one gate and leaves the principle intact —
+   **prefer that unless the ssh/API halves say otherwise.**
+2. ***`os.users` DOES NOT BECOME DEAD.*** The ruling adds administrators; it
+   removes nothing. A non-administrator listed in `os.users` keeps
+   `OS.EXECUTE`, and the ACL that `gplbld/secure-osusers.ps1` puts on that file
+   is still the whole of the protection (`op_sh.c:145`).
+
+***AND THE API SIDE IS UNAFFECTED — CHECK THIS HOLDS WHEN THE FIX IS WRITTEN.***
+A remote API session is refused because its `process.username` is the *account*
+(`sdapiab48`), and an account is not a person and is not an administrator. **The
+ruling is about administrators, so it must not reopen the hole `verify-apiadmin`
+exists to catch.** That is the regression test for this entry.
 
 **Left behind by that run** (normal — the next `cycle.ps1` clears them): the
 `b48` verifier accounts `sdacctb48`, `sdtiertb48*`, `sdrtb48*`, `sdtapib48*` and
@@ -1527,11 +1566,33 @@ Windows installer scripts, and writing one to satisfy a tool would put a false
 sentence in a document to make a check go green.
 
 **So a whole set has no working release command**, and the two hand steps in
-the docs `README` are the only route. That is the thing to decide, and it is
-the owner's: either `checklinks.py` grows a way to say *this set legitimately
-has no links* and `release.ps1` passes it, or `release.ps1` treats a
-zero-link set as a pass in its own right and says so out loud in its output.
-**Do not settle it by adding a link.**
+the docs `README` are the only route. **Do not settle it by adding a link.**
+
+### ***RULED 29 Aug 2026 — A SET MAY DECLARE ITSELF LINK-FREE***
+
+Put to the owner as three ways out: a per-set declaration, `release.ps1`
+passing every zero-link set, or leaving `Technical` on its two hand steps. He
+took the first.
+
+***THE GUARD IS NARROWED BY DECLARATION, NOT REMOVED.*** `checklinks.py` gains
+an explicit way for one set to say *this set legitimately has no links*, and
+`release.ps1` accepts it. `Technical` opts in. **`User` (33 pages),
+`Administrator` (3) and `Testing` (15) keep the zero-link refusal**, so a set
+that loses its links to a bad edit still fails loudly — which is the whole
+value of `checklinks.py:57` and the reason the second option was not taken.
+
+**Shape notes for whoever builds it**, none of them ruled:
+
+- **The declaration belongs to the SET, not to the invocation.** A
+  `-AllowNoLinks` switch on `release.ps1` would be typed by whoever is running
+  it, which is the person least placed to know — and it would silence the guard
+  on any set they aimed it at. Put it where the set is described.
+- **It must be visible in the output.** `checklinks.py` should say it read the
+  declaration and is passing a zero-link set *because of it*, per the instrument
+  rule — a set that goes quiet is indistinguishable from a set that broke.
+- **Keep it honest against its own reason for existing.** If `Technical` ever
+  gains a real cross-reference, the declaration should not then hide a broken
+  one: a declared set with links found should check them normally.
 
 Until then, `Technical` renders with:
 
@@ -1991,11 +2052,21 @@ against fresh accounts rather than passing off one set's state. It covers:
 **The section prints the three doors as NOT tested and scores none of them.**
 That is what keeps this entry open.
 
-## 39. Uninstalling strips SD's ssh confinement and leaves every account it created — **B?** (owner's call)
+## 39. Uninstalling strips SD's ssh confinement and leaves every account it created — **B** (ruled 29 Aug 2026)
 
 Found 27 Aug 2026 from the question *"will the released system leave litter
-behind?"*. ***REASONED FROM SOURCE, NOT MEASURED*** — no uninstall was run to
-watch it happen, and that should be done before this is acted on.
+behind?"*.
+
+***THIS SECTION SAID "REASONED FROM SOURCE, NOT MEASURED" FOR A DAY AFTER IT WAS
+MEASURED*** — corrected 29 Aug 2026. The row has carried the measurement since
+28 Aug: `cycle.ps1` uninstalled and deleted both trees at 15:29:59, `sddrb50a`'s
+`ACCOUNTS` record went with the data tree, and **the Windows side did not
+move** — still enabled, still in `sdusers`, `sdssh` and `sdapi`, with
+`sshd_config` still carrying `AllowGroups sdssh`. **The account outlived the SD
+installation that made it and is now unremovable by SD**, because
+`DELETE.ACCOUNT` cannot reach an account with no `ACCOUNTS` record. Read the
+row; the analysis below is the original reasoning and the measurement confirmed
+it.
 
 ***THE THREE FACTS, EACH CHECKED.***
 
@@ -2042,6 +2113,49 @@ something real:
 **Option 1 is the smallest true fix and options 1 and 2 combine.** Nothing here
 is urgent for a stand-alone install, which has no ssh server and no accounts but
 the installing user's.
+
+### ***RULED 29 Aug 2026 — OPTIONS 1 AND 2 TOGETHER, AS A SECOND SEPARATE PROMPT***
+
+> *"A second separate prompt, however deleting the windows accounts should not
+> delete the account of the person doing the installation so that there is at
+> least one remaining account that can log into windows."*
+
+***FIRST, A CORRECTION TO THE PREMISE THE RULING WAS ASKED ON.*** The owner
+described the choice as one an **upgrade** already offers — *"deletion happens
+before the re-install phase and the user is given the option of retaining
+accounts and the configuration file or deleting them"*. **There is no such
+upgrade-time prompt.** An upgrade replaces the shipped half of the data tree in
+place and asks nothing (`sd.iss:374`, the generated `upgrade.iss`). The prompt
+he is describing is on **uninstall** — `sd.iss:3482`, *"Remove the SD database
+as well?"*, defaulting to No — and its wording *"EVERY SD account, every
+password ... and your configuration file"* means the SD-side records under
+`C:\ProgramData\SD`. **It deletes no Windows account**, which is exactly this
+entry. The ruling stands on the corrected premise: he wants that same shape of
+choice extended to the Windows accounts.
+
+| | |
+|---|---|
+| **`sd.iss:3482` is unchanged** | *"Remove the SD database as well?"*, still defaulting to No |
+| **A second question follows it** | about the Windows accounts SD created, with their `sdu_`/`sdg_` groups and profiles. Also defaults to keep |
+| ***The installing user is excluded BY CONSTRUCTION*** | not by the operator noticing, and not by a warning. **At least one account must still be able to sign in to Windows** |
+| **The closing disclosure is fixed with it** | it names the database, the ssh server and `sdusers`, and never mentions the accounts — wrong whichever way the prompt is answered |
+
+***THE EXCLUSION IS THE PART TO GET RIGHT, AND IT IS NOT MERELY "SKIP
+`{username}`".*** `sd.iss:86` already records that `{username}` is whoever
+authenticated the UAC prompt, which need not be the person signed in. **Decide
+what "the installing person" resolves to before writing the sweep**, and make
+the uninstaller **say which account it is keeping**, so a wrong answer is
+visible rather than discovered at the next sign-in. The instrument rule applies
+to an uninstaller too: it must print what it removed and what it kept.
+
+***AND IT MUST REFUSE THE NULL CASE.*** If the sweep would remove every account
+that can sign in to Windows, it must stop and say so rather than proceed —
+that is the failure the ruling exists to prevent, and it is the one case where
+the prompt's answer is overridden.
+
+**Sev resolved `B?` → `B`**: the ruling requires a change to the uninstaller, so
+it is work that must land before W1.0-0 rather than a question about whether to
+do any.
 
 ## 40. A verifier's transcript swallows the verifiers that run after it — **M** (verifier, not product)
 
