@@ -2284,3 +2284,60 @@ absence made 39/39 meaningless here.
 
 **Do not reboot to confirm this.** The sweep at boot runs the same
 `Get-RefusalReason`; it will refuse the same five and change nothing.
+
+---
+
+## 45. `Get-SysMsgPattern` cannot match any MULTI-LINE message, so three checks could not do their job — **M** — ***DONE 28 Aug 2026 for the two affected files; three latent copies remain***
+
+***CONFIRMED ON THE INSTALL, 22:18: `verify-profiledir` 14 of 14***, the same
+run that had reported 13 of 14 eight minutes earlier against the same product
+and the same message. Nothing about `CREATE.ACCOUNT` changed between the two
+runs — only the matcher did.
+
+Found 28 Aug 2026 by the first run of `verify-profiledir.ps1`, which reported
+`[FAIL] message 10124 shown` on a transcript containing 10124, printed
+correctly and in full. **The product was right and the instrument was wrong.**
+
+***THE CAUSE.*** The message FILES hold **literal backslash-n**, not newlines -
+`grep -o -F` counts **16** in 10124, **14** in 10075, **16** in 10123 - and SD
+turns each into a line break when it prints. `Get-SysMsgPattern` runs the file
+text through `[regex]::Escape`, which renders `\n` as `\\n`: a pattern looking
+for a literal backslash followed by `n`, which the rendered output never
+contains. **A single-line message matches; a multi-line one cannot, ever.**
+
+***THE THREE CHECKS, AND THEY FAIL IN OPPOSITE DIRECTIONS.***
+
+| where | check | what it actually did |
+|---|---|---|
+| `verify-profiledir.ps1` | `10124 shown` — expects `$true` | **failed on a correct product** |
+| `verify-delaccount.ps1:553` | `10075 NOT shown` — expects `$false` | **passed whatever was printed** — it cannot fail |
+| `verify-delaccount.ps1:568` | `10075 shown` — expects `$true` | **would fail every time it ran** |
+
+Line 568 is in the **keep-both** branch, which has never run on this host — step
+3 has always taken the both-gone branch — so a guaranteed red has been sitting
+in the verifier that guards PRE_RELEASE 36's central case, waiting for the first
+machine whose hive is still up. **Every other `Shown` call across the five
+verifiers that carry this helper is on a single-line message and is unaffected**
+(checked by counting `\n` in each message the calls name).
+
+***FIXED IN THE TWO FILES THAT HAVE AFFECTED CHECKS.*** `Esc-Loose` turns every
+run of whitespace — literal `\n`, real newline, spaces — into `\s+`, so the
+pattern survives rendering and wrapping. It cannot loosen a check into a false
+positive: the words and their order must still be there.
+
+**Driven with controls before either verifier was re-run** (scratch harness
+lifting the two functions out of the shipped file, not a copy): rendered 10124
+matches; a **different directory** does not; a **different account** does not;
+**the echoed command plus both values alone** does not; 10075 and 10123 now
+match; single-line 10084 and 10036 still match. **9 of 9.**
+
+***NOT FIXED, DELIBERATELY: THE THREE LATENT COPIES.*** `verify-accountacl.ps1`
+and `verify-routes.ps1` carry a simpler variant (no `$vals`, parts joined with
+`.*`) and `verify-accountrules.ps1` one differing only in its path base. All
+three have the same escaping defect, but **every message they name is
+single-line, so none of their checks is affected today**, and they are green in
+an elevated suite that cannot be re-run without another run number. Changing
+three passing verifiers blind, late, is how a green suite gets broken.
+**Apply the same `Esc-Loose` to all three in a session that then runs the
+suite** — and the duplication itself is the underlying problem: this helper is
+copy-pasted five ways, so a fix has to be made five times and was made twice.

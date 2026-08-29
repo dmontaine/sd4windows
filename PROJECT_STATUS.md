@@ -139,13 +139,44 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 21:57:29 then said `0 records`**, and that reading is now worth something:
 > since 42, an unelevated run refuses rather than printing the same sentence.
 >
-> ***WHAT IS LEFT OF 36, AND IT IS ONE LEG.*** `create.account` refusing a name
+> ***36 IS COMPLETE: ALL FOUR RULINGS OBSERVED, 28 Aug 2026.*** The fourth is
+> below and was the last one standing. `create.account` refusing a name
 > whose profile directory is still there (10124/10125, `gpl.bp/PROFILE_DIR`)
-> **has never been exercised** — no b56 or b57 log mentions either message. **It
-> is cheap to test now and the fixture is already on the machine**: 56 orphan
-> `sd*` directories remain under `C:\Users`, so `create.account sdapiab56`
-> should be refused and should name the directory. **That is the next thing to
-> run.**
+> **had never been exercised** — no b56 or b57 log mentions either message,
+> because every other verifier is careful to use a fresh name, so **the one rule
+> that had never fired was the one nothing could vouch for.**
+>
+> ***IT IS MEASURED NOW. `gplbld/verify-profiledir.ps1`, ELEVATED, 28 Aug 22:18:
+> 14 of 14*** — `create.account` refused `sdpd2x` over a leftover
+> `C:\Users\sdpd2x`, printed 10124 naming both, created no Windows account, no
+> `sdu_` group, no `ACCOUNTS` record and no suffixed home; and the control
+> `sdpd2y`, identical but for the directory, was created and then deleted
+> cleanly. ***SO ALL FOUR OF 36'S RULINGS ARE NOW OBSERVED.***
+>
+> ***ITS FIRST RUN SCORED 13 OF 14 AND THE PRODUCT WAS ALREADY RIGHT*** — see
+> PRE_RELEASE 45. The refusal was in the transcript, complete and correct, and
+> the matcher could not see it: message files hold **literal backslash-n**, not
+> newlines, and `[regex]::Escape` turned each into a pattern hunting a literal
+> backslash. **The same helper made `verify-delaccount.ps1:553` incapable of
+> failing and `:568` — in the keep-both branch, which has never run here —
+> certain to fail.** Both fixed; three latent copies are named in 45.
+>
+> ***`gplbld/verify-profiledir.ps1`.*** It makes its own fixture — `!profile_dir` is a `Test-Path`
+> on `<ProfilesDirectory>\<name>` (`PROFILE_DIR:99-100`), so a bare directory is
+> enough and the test needs no deleted account, no reboot and no reclaim store.
+> **It carries its own control**: the same `CREATE.ACCOUNT` for a second name
+> with no leftover directory must SUCCEED, so a refusal on its own cannot pass
+> the run. 10124 is matched through `Get-SysMsgPattern` with **both**
+> placeholders filled — the account name alone appears in the echoed command and
+> in every other refusal the verb can print. On `$neverShipped`, and
+> `assert-current` is **exit 0 live** after adding it.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-profiledir.ps1 -Prefix sdpd1
+> ```
+>
+> **10125 stays unexercised** — "the check could not run" needs `os.execute` to
+> fail, which nothing here can force.
 >
 > ***AND THE 61 → 56 COUNT IS THE PART A RERUN MUST KEEP.*** The tally line
 > cannot see containment: 56 of the 61 directories had no record and had to be

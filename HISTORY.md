@@ -40799,6 +40799,26 @@ whose profile directory survives (10124/10125, `gpl.bp/PROFILE_DIR`). No b56 or
 b57 log mentions either message. The fixture is already on the machine - 56
 orphan `sd*` directories.
 
+***AND THE LAST LEG OF 36 IS MEASURED — `verify-profiledir.ps1`, new, 14 of 14
+at 22:18.*** `create.account` refuses a name whose profile directory survives,
+prints 10124 naming both, and creates nothing; the control, identical but for
+the directory, is created and deleted cleanly. The fixture is a bare directory
+because `!profile_dir` is a `Test-Path` (`PROFILE_DIR:99`), so the test needs no
+deleted account, no reboot and no reclaim store.
+
+***ITS FIRST RUN SAID 13 OF 14 AND THE PRODUCT WAS ALREADY CORRECT.***
+PRE_RELEASE 45. `Get-SysMsgPattern` escapes the message file as it stands, and
+the files hold **literal backslash-n** rather than newlines - 16 in 10124 - so
+the pattern hunted a literal backslash the rendered output never contains. **A
+multi-line message could not be matched, ever.** The same helper left
+`verify-delaccount.ps1:553` ("10075 NOT shown", expects false) **incapable of
+failing**, and `:568` ("10075 shown", expects true, in the keep-both branch that
+has never run on this host) **certain to fail on the first machine that reaches
+it**. Fixed in both files with controls proving the pattern still refuses a
+wrong directory, a wrong account and the echoed command; three copies in other
+verifiers carry the same defect latently and are named in 45. **The helper is
+copy-pasted five ways, which is the real defect.**
+
 **Also this session:** `b56` and `b57` both ran 13/13 unelevated and 18/19
 elevated, `verify-doors-suite` **green for the first time** (PRE_RELEASE 44).
 The single elevated failure in both is `verify-apiadmin` 21/23, the known stale
