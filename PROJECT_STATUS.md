@@ -142,13 +142,39 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1 -List
 > ```
 >
+> ***`-List` HAS BEEN RUN AND THE LIST IS RIGHT***: **1 user `sddrb50a`, 1
+> group `sdu_SDDRB50A`, 1 matching profile with a LOADED hive, and 3
+> `C:\Users` directories with no `ProfileList` entry.** Those three are
+> `sddr1a`, `sddr2a` and `sddrb51a`, identified against the registry — and
+> **they are REPORTED, NOT DELETED**, by 41's design, so they need a hand
+> delete. **1 + 3 = the four `sddr*` directories on disk, so nothing is
+> unaccounted for.**
+>
 > **Then, when the list looks right, the same command without `-List`.**
 > ***IT COULD NOT HAVE SEEN THESE UNTIL NOW — PRE_RELEASE 45***: `sddr` was
 > never in the stem list, so all four door families were invisible to both
 > sweep scripts and a run would have reported a clean machine. **Added, both
 > self-tests re-run green.** ***AND A REBOOT IS NEEDED BETWEEN THE ACCOUNTS AND
-> THE PROFILES*** — a loaded hive cannot be removed, and every door account's
-> hive is loaded. The script says so itself before it deletes anything.
+> THE PROFILES*** — a loaded hive cannot be removed, and `sddrb50a`'s is. The
+> script says so itself before it deletes anything.
+>
+> ***THEN THE THREE UNREACHABLE DIRECTORIES, BY HAND, ELEVATED*** — the sweep
+> prints the command for the first one and it is the same for each:
+>
+> ```
+> Remove-Item -LiteralPath "C:\Users\sddr1a" -Recurse -Force
+> Remove-Item -LiteralPath "C:\Users\sddr2a" -Recurse -Force
+> Remove-Item -LiteralPath "C:\Users\sddrb51a" -Recurse -Force
+> ```
+>
+> ***AND CHECK FOR ORPHAN SIDs AFTERWARDS — `cleanup-devlitter` DOES NOT STRIP
+> MEMBERSHIPS BEFORE `Remove-LocalUser`***, so `sddrb50a`'s SID can be left
+> behind in `sdusers`, `sdssh` and `sdapi`. **All three carried 0 before the
+> removal**, measured, so anything there afterwards came from it:
+>
+> ```
+> foreach ($g in @('sdusers','sdssh','sdapi')) { "$g : " + @(Get-LocalGroupMember $g | Where-Object { $_.Name -match '^S-1-' }).Count }
+> ```
 >
 > ***`verify-doors-admin.ps1 -Prefix sddrb50 -Phase Remove` IS SPENT AND IS NOT
 > WORTH RE-RUNNING.*** It now names the case rather than failing bare.

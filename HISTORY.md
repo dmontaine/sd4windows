@@ -40436,3 +40436,31 @@ rather than duplicated.
 **`cleanup-devlitter.ps1 -List` NEEDS ELEVATION TOO**, so even the preview is
 the owner's to run - measured, not assumed: it refuses at once with *"this
 needs an ELEVATED PowerShell"*.
+
+**THE `-List` RUN, AND THE ARITHMETIC CLOSES.** With `sddr` in the pattern it
+found **1 user `sddrb50a`, 1 group `sdu_SDDRB50A`, 1 matching profile with a
+LOADED hive, and 3 `C:\Users` directories with no `ProfileList` entry**.
+Checked against the registry: the three are `sddr1a`, `sddr2a` and `sddrb51a`,
+and `sddrb50a` is the one with the entry. **1 + 3 is the four `sddr*`
+directories on disk**, so nothing is unaccounted for. The three are
+**reported, not deleted** - 41's design, the removal decision being 36's - so
+they need a hand delete after the reboot.
+
+**AND THE MEMBERSHIPS ARE NOT STRIPPED FIRST.** `cleanup-devlitter.ps1` calls
+`Remove-LocalUser` without removing the user from `sdusers`, `sdssh` and
+`sdapi` first, so an orphan SID can be left in each. **All three carried 0
+before the removal**, measured, so anything appearing afterwards came from this
+cleanup and is worth reading back. Not changed here - the ordering is section
+1's on purpose ("accounts first, so the profile sweep sees orphans") - but it
+is now written down instead of being rediscovered.
+
+**A SECOND STALE INSTRUMENT LINE IN THE SAME OUTPUT.** The header read
+*"sshRemoteTest-C1 left alone (-IncludeVM to delete)"* about a VM the 7.18
+cleanup deleted; `VBoxManage list vms` shows Beardog, "Windows 11 - Template"
+and sdStandalone-C1. **"Left alone" about something absent reads as "still
+present".** The line now says whether the VM is registered, measured in both
+polarities - the spent name `known=False`, a real one `known=True`. ***The
+name is deliberately not repointed at sdStandalone-C1***, which does exist:
+that guest carries the stand-alone install that closed H.5 and PROJECT_STATUS
+records it as one to delete BY HAND, so pointing `-IncludeVM` at it would turn
+a documented manual decision into a side effect of a sweep.
