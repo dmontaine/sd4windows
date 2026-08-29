@@ -41703,3 +41703,60 @@ added, so it is not to be trusted unmeasured.
 **Nothing was built. Three rulings arrived in one exchange — three tiers, the
 promotion report, and the personal account — and the only reason none of them
 cost a wasted change is that the previous parts stopped at tracing.**
+
+## 29 Aug 2026 — EIGHTY-FIRST session: step 1 measured, and the discriminator turns out to already exist
+
+***THE MEASUREMENT THE HANDOFF ASKED FOR, AND IT UNBLOCKS 56 CLAUSE 2 WITHOUT A
+NEW KERNEL KEY.*** `gplbld/probe-osadmin.c` and `probe-osadmin.ps1`, an
+instrument rather than a verifier, run twice from the same account:
+
+| | unelevated | elevated |
+|---|---|---|
+| `WindowsPrincipal.IsInRole` (Win32 control) | False | True |
+| `getgrouplist()` holds 544 → `IsAdmin()` | **TRUE** | **TRUE** |
+| `getgroups()` holds 544 → `IsElevated()` | **FALSE** | **TRUE** |
+| `K$OS.ADMINISTRATOR` (`op_kernel.c:456`) | TRUE | TRUE |
+| `K$ADMINISTRATOR` as seeded (`kernel.c:240`) | **FALSE** | **TRUE** |
+
+***THE CAUTION WAS RIGHT — `IsAdmin()` IS TRUE FOR AN UNELEVATED
+ADMINISTRATOR.*** So `K$OS.ADMINISTRATOR` cannot carry clause 2's `:513` branch
+alone. **`IsElevated()` is the discriminator, and SD already exposes it**:
+`K$ADMINISTRATOR` is seeded from it at process start, and reading
+`kernel(K$ADMINISTRATOR,-1)` at `LOGIN`'s `begin case` (`:420`) answers *"is
+this session already elevated"*. Nothing new has to be added to `keys.h`.
+
+***THE SEED SURVIVES TO `:420` BY EXHAUSTIVE GREP.*** Three live writers of the
+flag in the BASIC layer — `LOGIN:615`, `CPROC:2769`, `CPROC:2781` — and both
+`CPROC` sites are in the `LOGTO` path, which cannot run before `LOGIN`.
+`APISRVR:1204`/`:1206` are commented out.
+
+***THE OBVIOUS PROBE WOULD HAVE REPORTED THE OPPOSITE, WHICH IS WHY THIS ONE IS
+C AND NOT BASIC.*** `LOGIN:615` sets the flag for anybody who reached SDSYS —
+today every administrator, elevated or not (`:513`) — so a BASIC program run
+from an SD prompt reads 1 in **both** legs and would have been written up as
+*"no discriminator exists"*, sending the next session to design a key that was
+not needed. Measuring `getgroups()`/`getgrouplist()` through the MSYS2 runtime
+`sd.exe` is built against is measuring what the seed is made of.
+
+***AND THE INSTRUMENT'S OWN CROSS-CHECK WAS THE THING THAT FAILED FIRST.*** Its
+first run refused a perfectly good measurement: the guard anchored on
+`IsElevated() = FALSE`, which the probe prints **twice** on the success path —
+once in section 2 and again in the ANSWER summary — so the "exactly one
+reading" test fired on a clean run. §"anchor on the SUCCESS wording" from the
+other side: a pattern must be unique to the outcome it claims, and appearing
+twice breaks that as surely as appearing on the failure path does. Re-anchored
+on the single `ANSWER: this shell is an …` line, `-cmatch` and `^`-anchored
+because *UNELEVATED* contains *ELEVATED*.
+
+**Two traps paid for on the way, both already in the record and both hit
+anyway.** The scratchpad is under `%LOCALAPPDATA%`, so a wrapper written there
+is invisible to an elevated child; and a probe transcript written to `%TEMP%`
+by the elevated leg would have been **shadowed, on read-back, by the agent's own
+earlier unelevated copy at the same path** — reporting the unelevated result as
+the elevated control, which is the whole measurement inverted. Both legs went
+through `C:\Users\dmont\sdout`, measured as not redirected, with the output file
+deleted first and stamped at both ends.
+
+**No cycle spent, no product code touched.** `probe-osadmin.c`, `.ps1` and
+`.exe` are on `assert-current`'s `$neverShipped` list, listed in the commit that
+creates them.

@@ -3548,16 +3548,35 @@ session for the same reason, and its guard is the one to copy.
   4. **The `ADMINISTRATOR` tier stays** (three tiers), and `CREATEA:1571`'s
      adopt default keeps giving the installer that tier.
 
-  ***AND ONE MECHANISM IS NOT YET IDENTIFIED — SETTLE IT BEFORE WRITING
-  `LOGIN`.*** Clause 3 needs *"is THIS SESSION already elevated"*, and neither
-  existing key answers that: `K_ADMINISTRATOR` is a **settable `USR_ADMIN`
-  flag** (`op_kernel.c:395`, it takes an argument and can be set or cleared),
-  and `K_OS_ADMINISTRATOR` is `IsAdmin() && connection_type != CN_SOCKET`
-  (`op_kernel.c:456`) — *"is the PERSON an administrator"*. **What `IsAdmin()`
-  answers for an unelevated administrator is the crux and is not established
-  here**; this file already records it answering TRUE for every API session
-  until the `CN_SOCKET` guard was added, so it is not to be trusted without
-  measuring. **Measure it before designing the branch.**
+  ***MEASURED 29 Aug 2026 — THE MECHANISM EXISTS AND NO NEW KEY IS NEEDED.***
+  `gplbld/probe-osadmin.ps1`, run twice from the same account:
+
+  | | unelevated | elevated |
+  |---|---|---|
+  | `WindowsPrincipal.IsInRole` (Win32 control) | False | True |
+  | `getgrouplist()` holds 544 → **`IsAdmin()`** | **TRUE** | **TRUE** |
+  | `getgroups()` holds 544 → **`IsElevated()`** | **FALSE** | **TRUE** |
+  | `K$OS.ADMINISTRATOR` (`op_kernel.c:456`) | TRUE | TRUE |
+  | `K$ADMINISTRATOR` **as seeded** (`kernel.c:240`) | **FALSE** | **TRUE** |
+
+  ***THE WARNING WAS RIGHT: `IsAdmin()` IS TRUE UNELEVATED***, so it cannot
+  carry clause 3 on its own. **`IsElevated()` is the discriminator**, and SD
+  already exposes it: `K$ADMINISTRATOR` is seeded from it at process start, so
+  reading `kernel(K$ADMINISTRATOR,-1)` **at `LOGIN`'s `begin case` (`:420`)**
+  answers *"is this session already elevated"*. The two keys differ there and
+  only there — after `LOGIN:615` they are both TRUE.
+
+  ***THE SEED SURVIVES TO `:420`, ESTABLISHED BY GREP RATHER THAN ASSUMED.***
+  The BASIC layer has exactly three live writers of the flag — `LOGIN:615` and
+  `CPROC:2769`/`:2781` — and both `CPROC` sites are in the `LOGTO` path, which
+  cannot run before `LOGIN`. (`APISRVR:1204`/`:1206` are commented out.)
+
+  ***SO A BASIC PROBE IN AN ACCOUNT CANNOT ANSWER THIS AND WOULD SAY THE
+  OPPOSITE.*** `LOGIN:615` sets the flag for anybody who reached SDSYS, which
+  today is every administrator elevated or not (`:513`) — such a probe reads 1
+  in both legs and reports *"no discriminator exists"*. That is why the
+  instrument measures `getgroups()`/`getgrouplist()` directly, through the MSYS2
+  runtime `sd.exe` is built against; `probe-osadmin.c`'s header has the rest.
 
   ***`CREATE.ACCOUNT … ADMINISTRATOR` MAKES THE USER A WINDOWS ADMINISTRATOR.***
   `CREATEA:813` → `make.admin` → `os_group("ADDMEM", "S-1-5-32-544", acc.uname)`,
