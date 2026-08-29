@@ -1845,3 +1845,53 @@ system file name from VOC record name*. Upstream is upper-case-first by
 convention, so the case is rarer there than here, and the code is the same.
 
 `PROPOSED`
+
+---
+
+## `NEWVOC/$MAP` has no file type code, so SDSYS's VOC ships a broken record
+
+`sd64/sdsys/NEWVOC/$MAP` reads:
+
+```
+File for MAP output
+@SDSYS/$MAP
+@SDSYS/$MAP.DIC
+```
+
+Field 1 of a VOC file record is the **type code**, and every other file record
+has `F` there. This one has the description instead, and there is no `F`
+anywhere in the record.
+
+**Your own tree contains the corrected version of the same record.**
+`sd64/sdsys/VOC_TEMPLATE/$MAP` is:
+
+```
+F
+@SDSYS/$MAP
+@SDSYS/$MAP.DIC
+```
+
+— identical but for the missing first field. So the record ships twice and only
+one copy is right.
+
+**What it looks like on a running system.** `LISTF` reports the record as an
+error rather than as a file:
+
+```
+$MAP                 Err 30   File for MAP output   @SDSYS/$map   @SDSYS/$map.dic
+                     01
+```
+
+The description column is showing field 1, which is the symptom: the reader has
+taken `File for MAP output` as the type code, failed to recognise it, and
+reported an error. The `$MAP` and `$MAP.DIC` directories both exist on disk, so
+this is the VOC record and not a missing file.
+
+**Found** while cleaning unrelated dead VOC records out of SDSYS: once those
+were gone, `$MAP` was the only error record left, on an otherwise clean install.
+
+**The fix is to put `F` in field 1 of `NEWVOC/$MAP`**, matching
+`VOC_TEMPLATE/$MAP`. Worth checking at the same time which of the two files
+feeds SDSYS's own VOC, since only one of them is producing this.
+
+`PROPOSED`

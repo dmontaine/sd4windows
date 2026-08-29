@@ -41506,3 +41506,45 @@ Bash tool's cwd had persisted at `gplbld`, so it created an untracked
 **UNRUN.** The four records are still there. Units 51/0, nine files parse 0
 errors with no BOM and CR 0, `assert-current` exit 0, the unelevated refusal
 re-exercised (exit 2).
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, eighth part: PRE_RELEASE 60 closed, and cleaning it up exposed a product defect
+
+***`clean-deadvoc.ps1` PASSED.*** `DELETE VOC` answered `1 record(s) deleted`
+for each of the four, the verifying `LISTF` reported `after: 0`, and an
+independent `LISTF` run afterwards found **no `SD*BP.OUT` records at all**.
+**PRE_RELEASE 60 is closed**, and `verify-catgate.ps1` no longer makes them.
+
+***AND THE CLEANUP IS WHAT FOUND THE NEXT ONE — PRE_RELEASE 61, `B`, a PRODUCT
+defect rather than a harness one.*** With the four dead records gone, **`$MAP`
+was the only `Err 30` left** on an otherwise clean install, which is exactly the
+kind of thing four pieces of noise had been hiding.
+
+`sdsys/newvoc/$MAP` has **no file type code**:
+
+```
+File for MAP output      <- field 1, where every other file record has F
+@SDSYS/$map
+@SDSYS/$map.dic
+```
+
+**Compared rather than assumed:** `voc_template/$hold`, `voc_template/accounts`
+and `voc_template/voc` all carry `F` in field 1 — ***and so does our own
+`voc_template/$MAP`***. The same record ships twice and only one copy is right.
+`$map` and `$map.dic` **both exist on disk**, so this is the record and not a
+missing file; `LISTF`'s description column showing `File for MAP output` is the
+symptom, the reader having taken field 1 as the type code and not recognised it.
+
+***UPSTREAM CARRIES THE IDENTICAL SPLIT*** — `sdb64/NEWVOC/$MAP` has the defect
+and `sdb64/VOC_TEMPLATE/$MAP` has the `F` — so it is filed in **both**
+UPSTREAM_FIXES.md and PRE_RELEASE_FIXES.md, per §0's rule that a defect in both
+trees goes in both files.
+
+***IT IS FILED AND NOT FIXED, DELIBERATELY.*** Two things have to be settled
+first: **which of the two files feeds SDSYS's own VOC** —
+`verify-lcnames.ps1:772` says `voc_template` becomes SDSYS's VOC, which the live
+reading appears to contradict — and **whether a user account's `$MAP` is sound**,
+since the account copy comes from the file that is correct. A `map` verb ships,
+so the file is reachable. Pasting the `F` in without answering those would be a
+change whose effect nobody had measured.
