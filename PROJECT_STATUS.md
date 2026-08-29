@@ -43,7 +43,7 @@ something came to be the way it is.
 
 **SEVENTIETH SESSION, 28 Aug 2026 — NINE PRE-RELEASE FIXES SHIPPED INTO AN INSTALL, ONE OF THEM MEASURED.** ***GREEN: install 28 Aug 00:53:34, `assert-current` exit 0, `verify-tiers` 33 PASS / 0 FAIL.*** Entries **5, 13, 14, 15, 22, 25, 26, 27, 37** are written, compiled and installed; ***only 25 is DONE***, because `verify-tiers` measured it (ADMINISTRATOR **416**, STANDARD and PROGRAMMER unmoved) and **nothing has exercised the other eight** — they need a session that runs `.d`, `qselect`, `delete.file`, `delete.index`, `modify.account add`, and a `create.account` with a bad password. **PRE_RELEASE 36 is RULED and not built; 41 is new** (the cleanup sweep reports zero while orphan directories remain). **Still open: 6 and 12**, both because their own entries were wrong about what they needed — 6 is an investigation, 12 is C at `op_dio3.c:853`. **`verify-tiers` gained section 6 (SUSPENDED) and `sdtier`/`sdtierb` are spent — use `sdtierc`.**
 
-**Last updated:** 29 Aug 2026, **SEVENTY-NINTH session** — **analysis and decisions only; no build, no install, no cycle, and nothing under `gplsrc` or `sdsys` was touched.** PRE_RELEASE **31** was picked up as one of the three open **B** entries; its trace moved the owner to rewrite the administrator access model, now **PRE_RELEASE 56**, which supersedes three recorded decisions. **Open count 17 → 19** from `gplbld/test-fixlist-units.ps1` (187 passed, 0 failed). ***56 IS NOT STARTED*** — read it before touching `LOGIN`, `CPROC` or `CREATEA`. *(Previously: 29 Aug 2026, **SEVENTY-EIGHTH session** — the 21 silent headings done and the checker's NOTE gone; open count 17, 184 passed / 0 failed.)* *(Previously: 29 Aug 2026, **SEVENTY-SEVENTH session** — six decisions recorded and **none started**, at the owner's instruction.)* **Ended out of credits, green, everything committed and pushed.** ***THE CYCLE FROM SESSION 75 IS STILL OWED — `assert-current` exits 1 until it runs, and that is the first thing in the box below.*** *(Previously: 28 Aug 2026, **SEVENTY-THIRD session** — install **28 Aug 15:29:59**, `assert-current` **exit 0**, the suite's twelve unelevated steps all exit 0 and **the thirteenth (the door step) failed**; two faults found, one fixed, one re-opening PRE_RELEASE 19.)* ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST.*** *(Previously: 28 Aug 2026, **SEVENTY-FIRST session**, which ended **out of credit mid-task, green and pushed at `67cf316`**.)* ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST AND PRINT THE TWO COMMANDS IT OPENS WITH — the owner is waiting for them.*** Thirteen pre-release entries closed; **no cycle was spent all session**, so the 28 Aug 00:53:34 install is still the one that can test things. Everything below this line is the **SIXTY-NINTH session** and earlier.
+**Last updated:** 29 Aug 2026, **SEVENTY-NINTH session** — ***BUILT, CYCLED AND MEASURED.*** Started on PRE_RELEASE **31**, one of the three open **B** entries; its trace moved the owner to rewrite the whole administrator access model (**56**), then to add a tier ordering on grants (**57**). Both are built and compiled; **cycle 29 Aug 10:35:46, `-Run b59`: ELEVATED 19 of 19, 397 PASS / 0 FAIL / 0 SKIP — green for the first time — and PRE_RELEASE 31 CLOSED**, with no edit to its verifier. **UNELEVATED 8 of 13**, all five failures one cause, filed as **59**, whose foundation is built and unit-tested (21/21) with the wiring left. **Open count 17 → 21** from `gplbld/test-fixlist-units.ps1` (200 passed, 0 failed) — it rose by **filing**, not by breaking. ***READ THE BOX AT "NEXT SESSION: START HERE" — IT HAS THE ORDER TO PICK THINGS UP IN.*** **Ended short on credits, green, everything committed and pushed.** *(Previously: 29 Aug 2026, **SEVENTY-EIGHTH session** — the 21 silent headings done and the checker's NOTE gone; open count 17, 184 passed / 0 failed.)* *(Previously: 29 Aug 2026, **SEVENTY-SEVENTH session** — six decisions recorded and **none started**, at the owner's instruction.)* **Ended out of credits, green, everything committed and pushed.** ***THE CYCLE FROM SESSION 75 IS STILL OWED — `assert-current` exits 1 until it runs, and that is the first thing in the box below.*** *(Previously: 28 Aug 2026, **SEVENTY-THIRD session** — install **28 Aug 15:29:59**, `assert-current` **exit 0**, the suite's twelve unelevated steps all exit 0 and **the thirteenth (the door step) failed**; two faults found, one fixed, one re-opening PRE_RELEASE 19.)* ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST.*** *(Previously: 28 Aug 2026, **SEVENTY-FIRST session**, which ended **out of credit mid-task, green and pushed at `67cf316`**.)* ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST AND PRINT THE TWO COMMANDS IT OPENS WITH — the owner is waiting for them.*** Thirteen pre-release entries closed; **no cycle was spent all session**, so the 28 Aug 00:53:34 install is still the one that can test things. Everything below this line is the **SIXTY-NINTH session** and earlier.
 
 **Previously:** 27 Aug 2026, **SIXTY-NINTH session**, which ended on credit with **both repositories pushed and clean, the install green and current, and nothing half-done.** ***GREEN: install 27 Aug 22:52:21, `assert-current` exit 0, `-Run b49` 30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`*** — the one failure is PRE_RELEASE 31's known stale control. **`b49` is spent; use `b50`.** ***CLOSED THIS SESSION: PRE_RELEASE 23, 32, 33, the shipped-scripts documentation gap, item 5.1 and item 5.2's ssh door.*** ***OPEN AND ALL YOURS: seven pre-release entries — 31, 34, 36 (**RULED 27 Aug, not built — the entry says what to implement**), 37, 38, 39, 40 — plus three measurements that need no ruling: 5.2's API door, 5.4's unrun probe, and 5.5.*** Everything below is the **SIXTY-EIGHTH session** and earlier.
 
@@ -148,11 +148,49 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > the numbers and PRE_RELEASE 59 for the five unelevated failures, which are
 > the harness and not the product. ***USE `b60`; b54–b59 are spent.***
 >
-> ***THREE THINGS ARE OPEN AND NONE IS BLOCKED:*** **59** (a real
-> non-administrator account for the unelevated half), **56's `adopt` removal**
-> — ruled unnecessary, 20 files, deliberately not bundled with the login change
-> — and **57's promotion case**, where raising a tier silently strands the
-> grants it voids. **58 is the documentation and waits for those.**
+> ### ⇩ WHAT TO PICK UP, IN ORDER ⇩
+>
+> ***1. FINISH PRE_RELEASE 59. THE FOUNDATION IS BUILT AND TESTED; THE WIRING
+> IS NOT.*** `gplbld/sdtestuser.ps1` (module), `sdtestuser-admin.ps1` (the
+> elevated half), `test-sdtestuser-units.ps1` — ***21 passed / 0 failed, and it
+> needs no install, no elevation, no account and no ssh, so run it first and
+> cheaply.*** **Left:** `VerifyInstall1` must create the account before its
+> step list and remove it after, and the five verifiers must use
+> `Invoke-SdAsTestUser`.
+>
+> ***THE RECOMMENDATION, AND THE REASON MATTERS MORE THAN THE ORDER: do the
+> runner wiring together with `verify-nocase.ps1` ONLY — 211 lines, the
+> smallest — and run it before converting the other three.*** A broken verifier
+> that PASSES is the worst outcome this file records, and replicating an
+> unproven pattern four times is how that happens. **`verify-osusers.ps1` is
+> NOT in the mechanical group**: 931 lines, 32 references to `@logname`/`don`,
+> and it is *about* the person's identity in `os.users`, with its own elevation
+> dance. **Do not bundle it.**
+>
+> ***DO NOT TAKE THE SHORTCUT.*** Adding `LOGTO DON` to each verifier passes
+> today and breaks the moment `adopt-account` goes — which is ruled and
+> pending. It is written into the module's header so nobody re-derives it.
+>
+> ***2. 56's `adopt` REMOVAL*** — ruled unnecessary 29 Aug (*"the installer has
+> to be a windows administrator … they can login to sd and is logged into the
+> sdsys account"*), **20 files** including `sd.iss`'s `AdoptCode` /
+> `PasswordStepWanted` wizard flow, `CREATEA`, `DELACC`, `stage.py` and six
+> verifiers. **Deliberately not bundled with the login change** so a broken
+> install has one candidate cause. **Harmless meanwhile** — the account is
+> simply never entered.
+>
+> ***3. 57's PROMOTION CASE*** — `modify.account b programmer` silently strands
+> every lower-tier grant into `sdu_b`. The gate holds; nothing reports it. Two
+> options in 57's "Left to settle", **the owner's call**.
+>
+> **58 is the documentation and waits for all three.**
+>
+> ***AND ONE INSTRUMENT TRAP THAT NEARLY PRODUCED A FALSE READING THIS
+> SESSION:*** the `SD-verify` logs carry **both encodings at once** — the
+> numbered per-step logs are **UTF-16LE**, the verifiers' own transcripts are
+> **UTF-8**. A plain `grep` on the first kind reports **0 PASS / 0 FAIL** on a
+> full 25KB log, which is indistinguishable from a step that did nothing. **Use
+> `Get-Content`, or check the BOM first.**
 >
 > *(The box below is the pre-cycle text, kept for its commands and its
 > reasoning. The cycle it opens with has been run.)*
