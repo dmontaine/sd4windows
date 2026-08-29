@@ -40819,6 +40819,24 @@ wrong directory, a wrong account and the echoed command; three copies in other
 verifiers carry the same defect latently and are named in 45. **The helper is
 copy-pasted five ways, which is the real defect.**
 
+***THE THREE LATENT COPIES WENT IN ON THE OWNER'S INSTRUCTION AND `b58` PROVED
+THE NON-REPAIR HARMLESS.*** `verify-accountacl` 21/0, `verify-routes` 33/0,
+`verify-accountrules` 34/0 — **identical in b56, b57 and b58**. None of their
+checks was affected (every message they name is single-line), so the point was
+that the counts must not move; "still green" would not have shown it. No cycle
+was spent: only `gplbld` verifiers changed.
+
+***AND THE THIRD TIME IT IS A TEST: `gplbld/test-sysmsg-units.ps1`.*** It lifts
+`Get-SysMsgPattern` out of each verifier's AST rather than copying it, and
+drives every message that verifier names against a reconstruction of SD's
+rendering. **43/0** on the tree; control `-Gplbld` at the pre-45 copies **37/2**,
+failing on exactly 10075 and 10123 while all 35 single-line rows pass. Getting
+that control right needed a correction: requiring both functions to be liftable
+made a pre-45 copy fail at the LIFT, reporting *"the fix is missing"* rather
+than running the old matcher and letting it miss. `Esc-Loose` is optional to the
+harness for that reason. **What it still cannot see is DIRECTION** — line 553
+expects the message not to be shown and passes either way.
+
 **Also this session:** `b56` and `b57` both ran 13/13 unelevated and 18/19
 elevated, `verify-doors-suite` **green for the first time** (PRE_RELEASE 44).
 The single elevated failure in both is `verify-apiadmin` 21/23, the known stale

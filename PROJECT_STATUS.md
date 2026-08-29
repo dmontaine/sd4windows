@@ -210,18 +210,28 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ```
 >
 > **STEP 2 — the suite. An ORDINARY, UNELEVATED PowerShell, your own terminal,
-> not an agent's (§4.0.1).** `b54` is spent, ***`b55` IS SPENT TOO — BURNT
-> AGAINST THE STALE TREE AT 20:41:43*** — and **`b56` is spent: it RAN, 28 Aug
-> 20:52, and it is the best result the suite has had.** 13 of 13 unelevated
-> exit 0 including `verify-doors-suite` (**the first time the door suite has
-> ever passed** — PRE_RELEASE 44), 18 of 19 elevated, the one failure
-> `verify-apiadmin` 21/23, which is the **known stale control of PRE_RELEASE
-> 31** and identical in all three of the day's runs, two of them from before 36
-> was installed. **`b57` is next.**
+> not an agent's (§4.0.1).** ***SPENT: b54, b55, b56, b57, b58. `b59` IS
+> NEXT.*** `b55` was **burnt against the stale tree at 20:41:43** — see below,
+> it is the one that teaches something.
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b57 -ContinueOnFailure
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b59 -ContinueOnFailure
 > ```
+>
+> ***THE SUITE'S SETTLED SHAPE, THREE RUNS RUNNING (b56 20:52, b57 21:30, b58
+> 22:26): 13 of 13 unelevated, 18 of 19 elevated.*** That includes
+> `verify-doors-suite` green, **which b56 did for the first time ever**
+> (PRE_RELEASE 44). ***THE ONE FAILURE IS THE SAME ONE EVERY TIME***:
+> `verify-apiadmin` **21/23**, the known stale control of **PRE_RELEASE 31**,
+> now identical across **five** runs including two from before 36 was
+> installed. **Treat a different number there as news; treat 21/23 as the
+> baseline.**
+>
+> **b58 also proved a non-repair left nothing behind** — PRE_RELEASE 45's three
+> insurance fixes — because `verify-accountacl` **21/0**, `verify-routes`
+> **33/0** and `verify-accountrules` **34/0** are identical in b56, b57 and b58.
+> A fix that was not fixing anything visible has to leave the counts alone, and
+> "still green" would not have shown that.
 >
 > ***HOW `b55` WAS BURNT, BECAUSE THE SUITE'S OWN SUMMARY SAYS THE OPPOSITE.***
 > Eleven steps exited 2 on `assert-current`'s STALE refusal and the door suite

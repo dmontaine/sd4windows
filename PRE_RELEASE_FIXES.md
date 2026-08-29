@@ -2287,7 +2287,7 @@ absence made 39/39 meaningless here.
 
 ---
 
-## 45. `Get-SysMsgPattern` cannot match any MULTI-LINE message, so three checks could not do their job — **M** — ***DONE 28 Aug 2026 for the two affected files; three latent copies remain***
+## 45. `Get-SysMsgPattern` cannot match any MULTI-LINE message, so three checks could not do their job — **M** — ***DONE 28 Aug 2026, all five copies***
 
 ***CONFIRMED ON THE INSTALL, 22:18: `verify-profiledir` 14 of 14***, the same
 run that had reported 13 of 14 eight minutes earlier against the same product
@@ -2331,13 +2331,51 @@ matches; a **different directory** does not; a **different account** does not;
 **the echoed command plus both values alone** does not; 10075 and 10123 now
 match; single-line 10084 and 10036 still match. **9 of 9.**
 
-***NOT FIXED, DELIBERATELY: THE THREE LATENT COPIES.*** `verify-accountacl.ps1`
-and `verify-routes.ps1` carry a simpler variant (no `$vals`, parts joined with
-`.*`) and `verify-accountrules.ps1` one differing only in its path base. All
-three have the same escaping defect, but **every message they name is
-single-line, so none of their checks is affected today**, and they are green in
-an elevated suite that cannot be re-run without another run number. Changing
-three passing verifiers blind, late, is how a green suite gets broken.
-**Apply the same `Esc-Loose` to all three in a session that then runs the
-suite** — and the duplication itself is the underlying problem: this helper is
-copy-pasted five ways, so a fix has to be made five times and was made twice.
+***AND THE THREE LATENT COPIES ARE FIXED TOO, ON THE OWNER'S INSTRUCTION, 28 Aug
+2026.*** `verify-accountacl.ps1` and `verify-routes.ps1` carried a simpler
+variant (no `$vals`, parts joined with `.*`); `verify-accountrules.ps1` one
+differing only in its path base. None of their checks was affected — every
+message they name is single-line — so the fix is insurance, and the point of
+applying it was that this function has now gone blind **three times in three
+different ways**, each found by a run rather than a test.
+
+***SO THE THIRD TIME IT IS A TEST: `gplbld/test-sysmsg-units.ps1`, NEW.*** It
+lifts `Get-SysMsgPattern` (and `Esc-Loose` where present) out of each verifier's
+**AST rather than copying them**, and drives every message that verifier names
+against a reconstruction of SD's rendering. No elevation, no run number, no
+accounts — it needs an install only to read the messages from.
+
+| | |
+|---|---|
+| the tree as it stands | **43 passed, 0 failed** — 5 verifiers, 28 messages |
+| control, `-Gplbld` at the pre-45 copies from git | **37 passed, 2 failed** |
+
+**The control is the part that makes the test worth having.** Its two failures
+are 10075 and 10123 — the only multi-line messages in that tree — while all 35
+single-line rows still pass, so it discriminates the defect itself rather than
+the presence of a function. Getting there took a correction: insisting both
+functions be liftable made a pre-45 copy fail at the lift, reporting *"the fix
+is missing"* instead of running the old matcher and letting it miss. `Esc-Loose`
+is optional to the harness for that reason.
+
+**What it still cannot see:** that a verifier asked the right question. Line 553
+expects the message NOT to be shown and would pass on a broken matcher and a
+working one alike. Direction is the reader's job.
+
+**The duplication remains the underlying problem** — one helper, five copies, so
+this fix had to be made five times. The test at least fails all five together
+the next time one drifts.
+
+***THE THREE INSURANCE FIXES ARE MEASURED, NOT ASSUMED — `-Run b58`, 28 Aug
+22:26.*** 13 of 13 unelevated, 18 of 19 elevated, and the three touched
+verifiers are **identical to the two runs before them**, which is the check that
+mattered: a repair that was not repairing anything must leave the counts alone.
+
+| verifier | b56 | b57 | b58 |
+|---|---|---|---|
+| `verify-accountacl` | 21/0 | 21/0 | 21/0 |
+| `verify-routes` | 33/0 | 33/0 | 33/0 |
+| `verify-accountrules` | 34/0 | 34/0 | 34/0 |
+
+No cycle was needed or spent: only `gplbld` verifiers changed, nothing under
+`gplsrc` or `sdsys`, and `assert-current` was exit 0 before and after.
