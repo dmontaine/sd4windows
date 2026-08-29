@@ -201,8 +201,26 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > verbs (standard 81, programmer 42, administrator 20)` and `tclmap 143 of 143, 0
 > exempt`, from tools that COMPUTE the figures rather than quote them.
 > `checklinks` 0 broken across all three sets (77 / 6 / 185). **`README.md`'s
-> three roster citations moved 144 → 143**; the "127 of 144" line is history and
-> was left. ***THE 144 IN PROJECT_STATUS §H.2 BELOW IS NOW STALE — it is 143.***
+> three roster citations moved 144 → 143**, and **§H.2 below was corrected to 143
+> in the same commit** rather than merely flagged; the "127 of 144" line is a
+> record of a past miscount and was left.
+>
+> ***NOTHING CROSS-CHECKS A TYPED FIGURE AGAINST A COMPUTED ONE, AND THAT IS THE
+> GAP BEHIND ALL OF 4, 52 AND 53.*** `mktclsyntax.py` had printed **standard 81**
+> in the generated card for a week while the tester set said **77** — the two
+> halves of the documentation disagreed and nothing compared them, because the
+> generators read the VOC and the hand-written pages do not. **Not filed as an
+> entry**: it is a design question about the toolchain, not a defect in a page,
+> and it is the owner's call whether a checker should assert prose figures against
+> `mktclsyntax`'s roster line. It is the cheapest guard left on the table.
+>
+> ***THE OPEN COUNT: 15, AND READ IT FROM THE CHECKER, NEVER FROM PROSE.***
+> `6f5e9a8` ended with **17** open (not 16 — 16 was true after 35 and 36 closed
+> but BEFORE 52 was filed, and 52 is one of the two closed here). 17 − 4 − 52 =
+> 15; 53 was opened and closed in the same session. **`gplbld/test-fixlist-units.ps1`
+> prints the authoritative number** — unelevated, no install needed. An
+> intermediate count quoted as a final one is the same error as the 143/144 in
+> entry 4, one document up.
 >
 > ### ⇧ END OF WHAT TO DO FIRST ⇧
 >

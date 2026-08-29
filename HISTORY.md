@@ -40921,3 +40921,17 @@ the two halves of the documentation had disagreed with each other for a week.
 Administrator section broke no inbound link. `README.md`'s three roster
 citations moved 144 → 143, and §H.2's "ALL 144 TCL VERBS HAVE A PAGE" with them;
 the "127 of 144" line is a record of a past miscount and was left alone.
+
+**The open count ended at 15, and the arithmetic was queried and re-measured.**
+`6f5e9a8` carried **17** open, not 16: 16 was true after 35 and 36 closed but
+before 52 was filed, and 52 is one of the two closed here, so subtracting two
+from 16 removes it twice. Counted from the commit itself rather than from any
+sentence — **the checker is the authority, prose is not.** Same class as the
+143/144 in entry 4: an intermediate figure quoted as a final one.
+
+***THE GAP BEHIND ALL THREE ENTRIES IS THAT NOTHING CROSS-CHECKS A TYPED FIGURE
+AGAINST A COMPUTED ONE.*** `mktclsyntax.py` had been printing **standard 81** in
+the generated card for a week while the tester set said **77**. The generators
+read the VOC; the hand-written pages do not; nothing compares them. Left as an
+observation rather than an entry — it is a toolchain design question and the
+owner's call — but it is the cheapest guard still available.
