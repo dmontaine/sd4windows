@@ -127,11 +127,31 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **The install is current and `assert-current` is exit 0**; nothing is
 > half-done.
 >
-> ***1. THE FIRST COMMAND IS A CLEAN-UP, NOT A TEST. ELEVATED PowerShell:***
+> ***1. THE CLEAN-UP — AND `-Phase Remove` CANNOT DO IT. RUN, MEASURED, AND IT
+> FAILED FOR A REAL REASON.*** `sddrb50a` is **STRANDED**: the 15:29:59 cycle
+> deleted both trees, so its `ACCOUNTS` record went with the data tree — the
+> register now holds only `don` and `sdsys` — while **the Windows account
+> survived, enabled, with its own `sdu_` group and its memberships of
+> `sdusers`, `sdssh` and `sdapi` intact**, and `sshd_config` still carries
+> `AllowGroups sdssh`. **`DELETE.ACCOUNT` cannot reach an account SD has no
+> record of**, so the removal is a Windows one. ***THAT IS PRE_RELEASE 39,
+> MEASURED RATHER THAN REASONED, AND IN A STRONGER FORM THAN THE ENTRY
+> CLAIMED.*** **ELEVATED PowerShell, `-List` first — it changes nothing:**
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddrb50 -Phase Remove
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1 -List
 > ```
+>
+> **Then, when the list looks right, the same command without `-List`.**
+> ***IT COULD NOT HAVE SEEN THESE UNTIL NOW — PRE_RELEASE 45***: `sddr` was
+> never in the stem list, so all four door families were invisible to both
+> sweep scripts and a run would have reported a clean machine. **Added, both
+> self-tests re-run green.** ***AND A REBOOT IS NEEDED BETWEEN THE ACCOUNTS AND
+> THE PROFILES*** — a loaded hive cannot be removed, and every door account's
+> hive is loaded. The script says so itself before it deletes anything.
+>
+> ***`verify-doors-admin.ps1 -Prefix sddrb50 -Phase Remove` IS SPENT AND IS NOT
+> WORTH RE-RUNNING.*** It now names the case rather than failing bare.
 >
 > ***`sddrb50a` IS STILL A LIVE, ENABLED, UNSUSPENDED WINDOWS ACCOUNT IN
 > `sdusers`, `sdssh` AND `sdapi`*** — re-measured on disk after the `b51` run,

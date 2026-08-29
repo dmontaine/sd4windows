@@ -40396,3 +40396,43 @@ not the script's). All four scripts parse 0 errors with no embedded BOM, and
 **IT IS UNRUN.** The Create leg is elevated, so `-Run b52` is the first thing
 that exercises any of it, and it now costs **four UAC prompts and two profile
 directories** rather than three and one.
+
+**THE CLEAN-UP COMMAND FAILED, AND THAT IS PRE_RELEASE 39 MEASURED.**
+`verify-doors-admin.ps1 -Prefix sddrb50 -Phase Remove`, run elevated, reported
+*"no ACCOUNTS record for SDDRB50A - nothing to remove"* and then FAILED on
+*"the Windows account sddrb50a is gone"*. **The cycle at 15:29:59 is what did
+it**: `cycle.ps1` deletes BOTH trees, so the `ACCOUNTS` record went with the
+data tree - the register now holds only `don` and `sdsys` - **while the Windows
+side did not move at all.** Measured: the account is still **enabled**, still
+has `sdu_sddrb50a`, and is still in `sdusers`, `sdssh` **and** `sdapi`, with
+`sshd_config` still carrying `AllowGroups sdssh`. **So the account outlived the
+SD installation that created it, keeping every route it was granted**, and
+`DELETE.ACCOUNT` can no longer reach it. 39 said *"reasoned from source, not
+measured - run an uninstall first"*; a cycle contains one, and this is that
+measurement. **Whether SD would still admit a login is NOT measured** - the
+password was generated inside an elevated child and deliberately never printed.
+**What is measured is that Windows still would.**
+
+The Remove phase now names this case - **STRANDED**, with the reason and a
+pointer to `cleanup-devlitter.ps1` - rather than failing bare. **It
+deliberately does not delete it**: this script removes accounts SD has a record
+of, and a verifier that starts deleting local users it cannot account for is a
+worse thing than the litter.
+
+**PRE_RELEASE 45: THE SWEEP COULD NOT SEE ANY OF IT.** `sddr` was never added
+to `clean-test-profiles.ps1`'s stem list when the door pair invented the name
+family the same day, and `cleanup-devlitter.ps1` reads its pattern out of that
+script - so **`sddr1a`, `sddr2a`, `sddrb50a`, `sddrb51a` and `sddrb51b` were
+invisible to both**, and a sweep would have reported a clean machine over five
+accounts. ***41's lesson with a different blind spot***: 41 was a counter that
+could not see a directory whose `ProfileList` entry had gone; this was a
+pattern that could not see the name at all. Stem added, the five real names
+added as must-match fixtures, and `sddriver`/`sddrive` added to the must-NOT
+list because a four-letter stem wants a word-shaped control. **Both self-tests
+re-run: 29 of 29 must-match and 20 of 20 correctly rejected; `cleanup-devlitter
+-SelfTest` 0 cases failed.** One edit fixed both, because the pattern is read
+rather than duplicated.
+
+**`cleanup-devlitter.ps1 -List` NEEDS ELEVATION TOO**, so even the preview is
+the owner's to run - measured, not assumed: it refuses at once with *"this
+needs an ELEVATED PowerShell"*.
