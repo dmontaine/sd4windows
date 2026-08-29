@@ -138,9 +138,9 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***SESSIONS 76, 77 AND 78 WERE ALL DOCUMENTATION-ONLY, SO THE CYCLE IS STILL
 > THE FIRST STEP AND THIS BOX IS STILL CURRENT.*** None touched `gplsrc` or
 > `sdsys`. **Nothing is waiting on the owner** — of the six decisions taken on
-> 29 Aug, **only the 21 headings has been done** (session 78); the other five are
-> available to pick up cold. **17 open**, from the checker, and the headings did
-> not move it — it was never an entry.
+> 29 Aug, **only one has been done — the 21 headings** (session 78); the other
+> five are available to pick up cold. **17 open**, from the checker, and the
+> headings did not move it — it was never an entry.
 >
 > ### ⇩ WHAT TO DO FIRST ⇩
 >
@@ -163,7 +163,8 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ***NOTHING IS WAITING ON THE OWNER. THE VERIFIER QUESTIONS CAME BACK TO US,
 > 29 Aug 2026*** — *"your call on the verification utilities i have no
-> opinion"*. All three are decided below and **none is started**.
+> opinion"*. All three are decided below; **the third is DONE and 54 and 55 are
+> not started**.
 >
 > | | decided |
 > |---|---|
@@ -171,12 +172,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | the typed-vs-computed figure guard | **yes, and it is smaller than it looked.** Now ***PRE_RELEASE 55*** |
 > | the 21 struck-but-silent section headings | ***DONE 29 Aug 2026*** — all 21 carry `DONE <date>`; the checker's NOTE is gone and the tripwire is measured, below |
 >
-> ***THE 21 HEADINGS ARE WORTH DOING BECAUSE THEY TURN A NOTE INTO A TRIPWIRE.***
-> `test-fixlist-units.ps1`'s rule 4 is **one-directional by design**: it fails a
-> section that says DONE over an **open** row, and it cannot fail the other way
-> because most sections say nothing at all. **Put DONE in all 21 headings and
-> re-opening an entry becomes a hard FAIL** — the row un-strikes, the heading
-> still says DONE, rule 4 fires. ***THE GUARD EXISTS NOW, AND IT WAS MEASURED IN
+> ***THE 21 HEADINGS WERE WORTH DOING BECAUSE THEY TURNED A NOTE INTO A
+> TRIPWIRE — DO NOT REDO THIS, IT IS DONE.*** `test-fixlist-units.ps1`'s rule 4
+> is **one-directional by design**: it fails a section that says DONE over an
+> **open** row, and it cannot fail the other way because most sections say
+> nothing at all. **With DONE in all 21 headings, re-opening an entry is a hard
+> FAIL** — the row un-strikes, the heading still says DONE, rule 4 fires. ***THE GUARD EXISTS NOW, AND IT WAS MEASURED IN
 > BOTH DIRECTIONS ON THE SAME RE-OPENING*** — row 41 un-struck against the new
 > heading FAILS, *"section 41 does not contradict row 41"*, **183 passed / 1
 > failed, exit 1**; the identical un-strike against the old silent heading scored
