@@ -3476,10 +3476,42 @@ session for the same reason, and its guard is the one to copy.
 - **`IsAdmin()` is C and both gates are BASIC**, so it needs exposing — a new
   kernel key beside `K$ADMINISTRATOR` (26), which is `keys.h:137` and
   `INT$KEYS.H:101`.
-- ***RULED 29 Aug 2026 — "Two tiers". THE ADMINISTRATOR TIER GOES.*** Raised
-  before touching `CREATEA`, as this line asked. **The trace is done and the
-  footprint is far smaller than it looks** — and it turned up something that
-  makes this the security half of 56 rather than a tidy-up.
+- ***RULED AND THEN REVERSED THE SAME HOUR, 29 Aug 2026. THE ANSWER IS THREE
+  TIERS: THE ADMINISTRATOR TIER STAYS.*** *"we need three tiers because we
+  create accounts in SD not in windows except for the installer, and that is
+  correct. If an Administrator account is created outside of SD it does not
+  have access to SD until a matching SD administrator account is created. That
+  is the better approach and one I had forgotten about."*
+
+  ***THE FIRST ANSWER WAS "Two tiers", AND THE FINDING BELOW IS WHAT REVERSED
+  IT.*** `CREATE.ACCOUNT … ADMINISTRATOR` making a Windows administrator was
+  put to him as a contradiction with 56; he read it the other way round, and he
+  is right: ***SD CREATING THE WINDOWS ACCOUNT IS THE DIRECTION THE DESIGN
+  WANTS.*** SD is the authority for who administers SD, and the tier is the
+  mechanism. **Nothing was built, so nothing had to be undone** — the trace
+  below stands as the record of what the tier does and is kept for that.
+
+  ***AND IT LEAVES ONE PROPERTY TO SETTLE, BECAUSE THE CODE DOES NOT DO WHAT
+  THE SECOND SENTENCE SAYS.*** *"an Administrator account created outside of SD
+  does not have access to SD until a matching SD administrator account is
+  created"* — **measured, that is not today's behaviour**:
+  - `LOGIN:513` — `case kernel(K$OS.ADMINISTRATOR, 0)` sets
+    `initial.account = 'SDSYS'` and reads **SDSYS's** register record. It never
+    looks for a record belonging to the person.
+  - `LOGIN:398` — the `sdusers` gate is skipped outright when
+    `K$OS.ADMINISTRATOR` is true.
+
+  So **any** Windows administrator reaching `sd.exe` gets SDSYS on a UAC
+  consent, with no SD-side account anywhere. Over **ssh** they are refused in
+  practice, because `elevate('START')` cannot raise UAC without a desktop
+  (10002) — but **at the console they are in.**
+
+  ***BE HONEST ABOUT WHAT SUCH A CHECK COULD BUY.*** A Windows administrator
+  can add themselves to any group, read the data tree directly, or run as
+  SYSTEM, so a matching-account requirement is **an explicit act and an audit
+  trail, not a boundary that holds against them**. That is still worth
+  something and may be exactly what is wanted — but it should be chosen knowing
+  it is a speed bump. ***OWNER'S CALL, AND IT IS A CHANGE TO 56.***
 
   ***`CREATE.ACCOUNT … ADMINISTRATOR` MAKES THE USER A WINDOWS ADMINISTRATOR.***
   `CREATEA:813` → `make.admin` → `os_group("ADDMEM", "S-1-5-32-544", acc.uname)`,

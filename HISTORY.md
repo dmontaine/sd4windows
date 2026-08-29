@@ -41604,3 +41604,49 @@ strand anything.
 **Both changes touch `MODIFYA` and share `MODIFYA:1102`'s rank table, so they
 are one cycle, not two.** Nothing is built yet; the trace is recorded so the
 next session starts from it rather than re-deriving it.
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, tenth part: "two tiers" reversed to three, and the finding that reversed it
+
+***THE "Two tiers" RULING IS WITHDRAWN THE SAME HOUR IT WAS GIVEN. THREE TIERS
+STAND.*** Owner: *"we need three tiers because we create accounts in SD not in
+windows except for the installer, and that is correct. If an Administrator
+account is created outside of SD it does not have access to SD until a matching
+SD administrator account is created. That is the better approach and one I had
+forgotten about."*
+
+***THE REVERSAL CAME FROM THE TRACE, AND IT WAS READ THE OTHER WAY ROUND.***
+`CREATE.ACCOUNT … ADMINISTRATOR` making the user a Windows administrator
+(`CREATEA:813` → `os_group("ADDMEM", "S-1-5-32-544", …)`) was put to him as a
+**contradiction** with 56. He read it as the design: ***SD creating the Windows
+account is the direction that is wanted***, SD being the authority for who
+administers SD, with the tier as the mechanism.
+
+***NOTHING HAD TO BE UNDONE, AND THAT IS THE POINT WORTH KEEPING.*** The
+previous part ended by recording the trace and explicitly NOT starting the
+multi-site BASIC edit, because both rulings touch `MODIFYA` and a half-done
+product change is worse than none. **An hour later the ruling was withdrawn.**
+Had the edit been made, four BASIC files and a cycle would have been spent on a
+change that is not wanted.
+
+***AND THE SECOND SENTENCE DESCRIBES A PROPERTY THE CODE DOES NOT HAVE.***
+Measured rather than assumed:
+
+- `LOGIN:513` — `case kernel(K$OS.ADMINISTRATOR, 0)` sets
+  `initial.account = 'SDSYS'` and reads **SDSYS's** register record. It never
+  looks for a record belonging to the person.
+- `LOGIN:398` — `if not(kernel(K$INTERNAL,-1)) and not(kernel(K$OS.ADMINISTRATOR,0))`
+  skips the `sdusers` membership gate for administrators outright.
+
+So **any** Windows administrator who can run `sd.exe` reaches SDSYS on a UAC
+consent, with no SD-side account of any kind. Over **ssh** they are refused in
+practice, because `elevate('START')` has no desktop to raise UAC on (10002) —
+**but at the console they are in.**
+
+***THE CEILING IS WORTH STATING BEFORE ANYONE BUILDS THE CHECK.*** A Windows
+administrator can add themselves to any group, read the data tree directly, or
+run as SYSTEM. A matching-account requirement is therefore **an explicit act
+and an audit trail, not a boundary that holds against them.** That may be
+exactly what is wanted; it should be chosen knowing what it is. **Owner's call,
+and it is a change to 56 rather than to the tier.**
