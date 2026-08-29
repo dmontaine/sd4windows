@@ -40996,3 +40996,14 @@ comparison already exists**: both generators compute the roster from the VOC and
 both exit 1 when the typed lists disagree, which is exactly what they did over
 `encrypt.field`. **Nothing calls them.** So the expensive-sounding half was
 already built and the cheap half was the wiring — the opposite of how it read.
+
+**Ended out of credits, green.** Nothing in flight, nothing waiting on the
+owner, and **nothing under `gplsrc` or `sdsys` was touched all session** — so
+the cycle owed since session 75 is still owed and `assert-current` still exits
+1. Six decisions recorded, **none started**, every one pickable cold.
+`test-fixlist-units.ps1` **184 passed, 0 failed**, **17 open**.
+
+***THE ONE TO READ BEFORE TOUCHING ANYTHING: 31.*** It is the only entry whose
+*character* changed under its ruling — filed as a stale verifier, and the
+owner's rule turned out wider than the code. A session that picks up the row
+without the section will write the wrong fix.
