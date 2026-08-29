@@ -41126,3 +41126,58 @@ is the thing START HERE warns against. Both are in 59's "what is left".
 needs elevation, and a nested elevation from an agent's shell fails with *"The
 operation was canceled by the user"* (§4.0.1). **The suite is the owner's, from
 his own unelevated terminal. Use `b60`.**
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, second half: `b60` ran, the Create step failed on a trap that was already written down
+
+**Run 11:45:30, `-Run b60`.** `test-sdtestuser-units` **34 / 0**. The suite
+stopped before its step list: SD printed its banner and then `:Process
+terminated`, and created nothing — `before=False after=False` for both the
+ACCOUNTS record and the Windows user.
+
+***THE INSTRUMENT HELD.*** The artefact check refused on its first real run
+rather than reading SD's banner as success. The entry's own note — *"the success
+check was rewritten after being got wrong twice"* — is what made that so.
+
+***THE MESSAGE IS sysmsg 5020 AT `CPROC:473`, THE `K$LOGOUT` ARM: A FORCED
+LOGOUT, NOT A REFUSAL.*** Nothing echoed `CREATE.ACCOUNT` at all, so reading it
+as "SD said no to the account" would have sent the next session into `CREATEA`.
+
+***THE CAUSE WAS ON DISK, DATED 14 Aug 2026, IN A FILE PRE_RELEASE 59 ALREADY
+NAMES.*** `verify-createaccount.ps1`'s header and PROJECT_STATUS.md §6:
+*"Input must be PIPED. `Start-Process -RedirectStandardInput` hands SD a file
+handle and SD answers 'Process terminated' and exits, the same way the `<`
+redirect does."* **CLAUDE.md's standing rule is to grep the record for the verb,
+script, path or flag about to be typed. `RedirectStandardInput` was not
+grepped**, and a run was spent rediscovering a two-week-old measurement.
+
+**FIXED.** `sdtestuser-admin.ps1` pipes — `$text | & $exe` inside a `Start-Job`,
+the shape `verify-doors-admin.ps1` and `verify-tiers.ps1` both use and both green
+on `b59` — with `LOGTO SDSYS` first and a **120 s timeout**. The timeout matters
+more here than in the file it was copied from: this runs in an elevated window
+the unelevated parent is `-Wait`ing on, so an unanswered prompt would hang both
+with the reason on a console the parent cannot read. The `%TEMP%` work directory
+is gone with the file form, and **the stdin file it held was the one copy of the
+password on disk**.
+
+***`sdtestuser.ps1` STILL USES THE FILE FORM AND IS RIGHT TO***, and that is now
+the test's control rather than a comment. The rule is about handing **sd.exe**
+its own stdin; `Invoke-SdTestNative` drives `ssh.exe`, which takes a file handle
+happily, and SD is at the far end of the connection where it sees the ssh channel
+rather than a file. If that control ever fails, the guard has stopped being able
+to see what it looks for.
+
+**The guard is TOKENISED, not grepped.** The fix wrote a comment block that
+correctly quotes `-RedirectStandardInput` to explain why it is wrong, so a grep
+would fail the fixed file — which is `test-verdict-units.ps1`'s 28 Aug lesson
+arriving in a second place. Only real `CommandParameter` tokens are counted, and
+a row refuses a parse that found no parameters at all.
+
+**Units 41 / 0.** All six touched files parse 0 errors with functions found, no
+BOM, CR 0. `assert-current` exit 0.
+
+***NOTHING WAS LEFT BEHIND, MEASURED RATHER THAN ASSUMED***: no `*b60*` Windows
+user, ACCOUNTS record or account directory, no leftover temp work directory, and
+the only `sdwind` on the machine started 11:09:59, which is the service's own and
+predates the run. ***`b60` IS NOT SPENT — the next run reuses it.***

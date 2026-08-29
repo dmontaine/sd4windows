@@ -2903,8 +2903,51 @@ for itself; a unit row drives both halves **in a separate lax process**, because
 the test file is itself strict and a check made in it would have passed whatever
 the module did.
 
+### ***FIRST RUN, `b60`, 29 Aug 2026 11:45:30 — IT STOPPED AT THE CREATE STEP***
+
+SD printed its banner and then `:Process terminated`, and made nothing.
+`before=False after=False` for both the ACCOUNTS record and the Windows user,
+so **the check refused rather than scoring a pass** — the artefact test earning
+its place on its first real run.
+
+***THE MESSAGE IS sysmsg 5020 AT `CPROC:473`, THE `K$LOGOUT` ARM.*** A **forced
+logout**, not a refusal of the command — which is why nothing echoed
+`CREATE.ACCOUNT` at all, and why reading it as "SD said no to the account" would
+have sent the next session looking in `CREATEA`.
+
+***AND THE CAUSE WAS ON DISK, DATED 14 Aug 2026, IN A FILE THE ENTRY ALREADY
+NAMES.*** `verify-createaccount.ps1`'s header, and PROJECT_STATUS.md §6:
+
+> *"Input must be PIPED. `Start-Process -RedirectStandardInput` hands SD a file
+> handle and SD answers 'Process terminated' and exits, the same way the `<`
+> redirect does."*
+
+A run was spent rediscovering it. **`sdtestuser-admin.ps1` now pipes** —
+`$text | & $exe` inside a `Start-Job`, the shape `verify-doors-admin.ps1` and
+`verify-tiers.ps1` both use — with `LOGTO SDSYS` first as every elevated script
+here carries, and a **120 s timeout**, which matters more here than in the file
+it was copied from: this runs in an elevated window the unelevated parent is
+`-Wait`ing on, so an unanswered prompt would hang both with the reason on a
+console the parent cannot read.
+
+***`sdtestuser.ps1` STILL USES THE FILE FORM AND IS RIGHT TO.*** The rule is
+about handing **sd.exe** its own stdin. `Invoke-SdTestNative` drives `ssh.exe`,
+which takes a file handle happily, and SD is at the **far end** of the
+connection where it sees the ssh channel rather than a file. That distinction is
+now the unit test's **control**: the module must still use it, or the guard has
+stopped being able to see the thing it looks for.
+
+**The guard is tokenised, not grepped**, because the fix wrote a comment block
+that correctly quotes `-RedirectStandardInput` to explain why it is wrong —
+`test-verdict-units.ps1` hit exactly that on 28 Aug. **Units 41 / 0.**
+
+**Nothing was left behind**, measured: no `*b60*` Windows user, ACCOUNTS record
+or account directory, no leftover temp work directory, and the only `sdwind` is
+the service's own. ***`b60` IS NOT SPENT — REUSE IT.***
+
 ***WHAT IS LEFT.***
 
+- **The run itself.** Nothing past the Create step has ever executed.
 - **The three remaining mechanical verifiers**, after this one has been seen to
   work: `verify-lcnames.ps1` (1049), `verify-lineendings.ps1` (330),
   `verify-batchjob.ps1` (368).

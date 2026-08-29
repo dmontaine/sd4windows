@@ -43,7 +43,7 @@ something came to be the way it is.
 
 **SEVENTIETH SESSION, 28 Aug 2026 — NINE PRE-RELEASE FIXES SHIPPED INTO AN INSTALL, ONE OF THEM MEASURED.** ***GREEN: install 28 Aug 00:53:34, `assert-current` exit 0, `verify-tiers` 33 PASS / 0 FAIL.*** Entries **5, 13, 14, 15, 22, 25, 26, 27, 37** are written, compiled and installed; ***only 25 is DONE***, because `verify-tiers` measured it (ADMINISTRATOR **416**, STANDARD and PROGRAMMER unmoved) and **nothing has exercised the other eight** — they need a session that runs `.d`, `qselect`, `delete.file`, `delete.index`, `modify.account add`, and a `create.account` with a bad password. **PRE_RELEASE 36 is RULED and not built; 41 is new** (the cleanup sweep reports zero while orphan directories remain). **Still open: 6 and 12**, both because their own entries were wrong about what they needed — 6 is an investigation, 12 is C at `op_dio3.c:853`. **`verify-tiers` gained section 6 (SUSPENDED) and `sdtier`/`sdtierb` are spent — use `sdtierc`.**
 
-**Last updated:** 29 Aug 2026, **EIGHTIETH session** — ***PRE_RELEASE 59's WIRING IS BUILT AND UNRUN, AND TWO BLOCKERS WERE FOUND ON THE WAY.*** `VerifyInstall1` makes and removes the throwaway non-administrator account, `verify-nocase.ps1` is converted, `test-sdtestuser-units.ps1` **34 / 0**. ***THE FIRST BLOCKER MEANT THE SUITE COULD NOT HAVE RUN AT ALL***: session 79's three new scripts were never listed on `assert-current`'s `$neverShipped`, so it exited **1** naming them and every verifier that calls it refuses — **measured by running it, exit 0 live afterwards.** ***THE SECOND IS THAT AN ACCOUNT DIRECTORY IS NOT REACHABLE BY THE UNELEVATED PARENT*** (SYSTEM, Administrators and its own `sdu_` group only), while all four verifiers plant probes through the file system; `Create` now adds one ACE, and a **group would not have worked** — PRE_RELEASE 44. **A third was introduced and caught: `Set-StrictMode` at file scope leaks through a dot-source into the caller.** **No cycle spent, nothing under `gplsrc` or `sdsys` touched, `assert-current` exit 0.** ***READ THE BOX — ITEM 1 HAS THE TWO COMMANDS AND WHAT TO EXPECT FROM THEM.*** *(Previously: 29 Aug 2026, **SEVENTY-NINTH session** — ***BUILT, CYCLED AND MEASURED.*** Started on PRE_RELEASE **31**, one of the three open **B** entries; its trace moved the owner to rewrite the whole administrator access model (**56**), then to add a tier ordering on grants (**57**). Both are built and compiled; **cycle 29 Aug 10:35:46, `-Run b59`: ELEVATED 19 of 19, 397 PASS / 0 FAIL / 0 SKIP — green for the first time — and PRE_RELEASE 31 CLOSED**, with no edit to its verifier. **UNELEVATED 8 of 13**, all five failures one cause, filed as **59**, whose foundation is built and unit-tested (21/21) with the wiring left. **Open count 17 → 21** from `gplbld/test-fixlist-units.ps1` (200 passed, 0 failed) — it rose by **filing**, not by breaking. **Ended short on credits, green, everything committed and pushed.)* *(Previously: 29 Aug 2026, **SEVENTY-EIGHTH session** — the 21 silent headings done and the checker's NOTE gone; open count 17, 184 passed / 0 failed.)* *(Previously: 29 Aug 2026, **SEVENTY-SEVENTH session** — six decisions recorded and **none started**, at the owner's instruction.)* **Ended out of credits, green, everything committed and pushed.** ***THE CYCLE FROM SESSION 75 IS STILL OWED — `assert-current` exits 1 until it runs, and that is the first thing in the box below.*** *(Previously: 28 Aug 2026, **SEVENTY-THIRD session** — install **28 Aug 15:29:59**, `assert-current` **exit 0**, the suite's twelve unelevated steps all exit 0 and **the thirteenth (the door step) failed**; two faults found, one fixed, one re-opening PRE_RELEASE 19.)* ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST.*** *(Previously: 28 Aug 2026, **SEVENTY-FIRST session**, which ended **out of credit mid-task, green and pushed at `67cf316`**.)* ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST AND PRINT THE TWO COMMANDS IT OPENS WITH — the owner is waiting for them.*** Thirteen pre-release entries closed; **no cycle was spent all session**, so the 28 Aug 00:53:34 install is still the one that can test things. Everything below this line is the **SIXTY-NINTH session** and earlier.
+**Last updated:** 29 Aug 2026, **EIGHTIETH session** — ***PRE_RELEASE 59's WIRING IS BUILT; `b60` RAN AND STOPPED AT THE CREATE STEP, AND THE FAULT IS FIXED.*** SD answered `:Process terminated` — **sysmsg 5020, `CPROC:473`, the `K$LOGOUT` arm: a forced logout, not a refusal** — and `sdtestuser-admin`'s artefact check refused rather than reading the banner as success. ***THE CAUSE WAS ON DISK, DATED 14 Aug 2026***: `Start-Process -RedirectStandardInput` hands sd.exe a file handle and SD exits; it now pipes inside a `Start-Job` with `LOGTO SDSYS` and a timeout. **`RedirectStandardInput` was never grepped for, which is CLAUDE.md's standing rule, and a run paid for it.** **Units 41 / 0**, guard tokenised with the module as its control. ***`b60` IS NOT SPENT — no `*b60*` user, record, directory or stray process. REUSE IT.*** *(Earlier the same session: ***THE WIRING, AND TWO BLOCKERS FOUND ON THE WAY.*** `VerifyInstall1` makes and removes the throwaway non-administrator account, `verify-nocase.ps1` is converted, `test-sdtestuser-units.ps1` **34 / 0**. ***THE FIRST BLOCKER MEANT THE SUITE COULD NOT HAVE RUN AT ALL***: session 79's three new scripts were never listed on `assert-current`'s `$neverShipped`, so it exited **1** naming them and every verifier that calls it refuses — **measured by running it, exit 0 live afterwards.** ***THE SECOND IS THAT AN ACCOUNT DIRECTORY IS NOT REACHABLE BY THE UNELEVATED PARENT*** (SYSTEM, Administrators and its own `sdu_` group only), while all four verifiers plant probes through the file system; `Create` now adds one ACE, and a **group would not have worked** — PRE_RELEASE 44. **A third was introduced and caught: `Set-StrictMode` at file scope leaks through a dot-source into the caller.** **No cycle spent, nothing under `gplsrc` or `sdsys` touched, `assert-current` exit 0.)* ***READ THE BOX — ITEM 0 HAS THE `b60` RESULT AND ITEM 1 THE TWO COMMANDS.*** *(Previously: 29 Aug 2026, **SEVENTY-NINTH session** — ***BUILT, CYCLED AND MEASURED.*** Started on PRE_RELEASE **31**, one of the three open **B** entries; its trace moved the owner to rewrite the whole administrator access model (**56**), then to add a tier ordering on grants (**57**). Both are built and compiled; **cycle 29 Aug 10:35:46, `-Run b59`: ELEVATED 19 of 19, 397 PASS / 0 FAIL / 0 SKIP — green for the first time — and PRE_RELEASE 31 CLOSED**, with no edit to its verifier. **UNELEVATED 8 of 13**, all five failures one cause, filed as **59**, whose foundation is built and unit-tested (21/21) with the wiring left. **Open count 17 → 21** from `gplbld/test-fixlist-units.ps1` (200 passed, 0 failed) — it rose by **filing**, not by breaking. **Ended short on credits, green, everything committed and pushed.)* *(Previously: 29 Aug 2026, **SEVENTY-EIGHTH session** — the 21 silent headings done and the checker's NOTE gone; open count 17, 184 passed / 0 failed.)* *(Previously: 29 Aug 2026, **SEVENTY-SEVENTH session** — six decisions recorded and **none started**, at the owner's instruction.)* **Ended out of credits, green, everything committed and pushed.** ***THE CYCLE FROM SESSION 75 IS STILL OWED — `assert-current` exits 1 until it runs, and that is the first thing in the box below.*** *(Previously: 28 Aug 2026, **SEVENTY-THIRD session** — install **28 Aug 15:29:59**, `assert-current` **exit 0**, the suite's twelve unelevated steps all exit 0 and **the thirteenth (the door step) failed**; two faults found, one fixed, one re-opening PRE_RELEASE 19.)* ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST.*** *(Previously: 28 Aug 2026, **SEVENTY-FIRST session**, which ended **out of credit mid-task, green and pushed at `67cf316`**.)* ***READ THE BOX AT "NEXT SESSION: START HERE" FIRST AND PRINT THE TWO COMMANDS IT OPENS WITH — the owner is waiting for them.*** Thirteen pre-release entries closed; **no cycle was spent all session**, so the 28 Aug 00:53:34 install is still the one that can test things. Everything below this line is the **SIXTY-NINTH session** and earlier.
 
 **Previously:** 27 Aug 2026, **SIXTY-NINTH session**, which ended on credit with **both repositories pushed and clean, the install green and current, and nothing half-done.** ***GREEN: install 27 Aug 22:52:21, `assert-current` exit 0, `-Run b49` 30 of 31 steps, 963 `PASS` / 1 `[FAIL]` / 0 `[SKIP]`*** — the one failure is PRE_RELEASE 31's known stale control. **`b49` is spent; use `b50`.** ***CLOSED THIS SESSION: PRE_RELEASE 23, 32, 33, the shipped-scripts documentation gap, item 5.1 and item 5.2's ssh door.*** ***OPEN AND ALL YOURS: seven pre-release entries — 31, 34, 36 (**RULED 27 Aug, not built — the entry says what to implement**), 37, 38, 39, 40 — plus three measurements that need no ruling: 5.2's API door, 5.4's unrun probe, and 5.5.*** Everything below is the **SIXTY-EIGHTH session** and earlier.
 
@@ -150,7 +150,27 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩ WHAT TO PICK UP, IN ORDER ⇩
 >
-> ***1. PRE_RELEASE 59's WIRING IS BUILT — RUN THE SUITE. IT HAS NEVER RUN.***
+> ***0. `b60` RAN AND STOPPED AT THE CREATE STEP. THE FAULT IS FIXED; `b60` IS
+> NOT SPENT — REUSE IT.*** 29 Aug 2026, 11:45:30. SD printed its banner and
+> then `:Process terminated` and made nothing: **sysmsg 5020 at `CPROC:473`, the
+> `K$LOGOUT` arm — a forced logout, not a refusal**, which is why nothing echoed
+> `CREATE.ACCOUNT`. ***THE CAUSE WAS WRITTEN DOWN ON 14 Aug 2026 AND NOT
+> GREPPED FOR***: `verify-createaccount.ps1`'s header and §6 both say *"Input
+> must be PIPED. `Start-Process -RedirectStandardInput` hands SD a file handle
+> and SD answers 'Process terminated' and exits."* `sdtestuser-admin.ps1` now
+> pipes (`$text | & $exe` inside a `Start-Job`, with a **timeout** — it runs in
+> an elevated window the parent is `-Wait`ing on, so a prompt would hang both),
+> and sends `LOGTO SDSYS` first like every other elevated script here.
+> **`sdtestuser.ps1` still uses the file form and is RIGHT to** — it drives
+> `ssh.exe`, and SD is at the far end of the connection. **Units 41 / 0**, with
+> a tokenised guard for the class and the module as its control.
+>
+> **NOTHING WAS LEFT BEHIND — measured, not assumed:** no `*b60*` Windows user,
+> no ACCOUNTS record, no account directory, no leftover temp work directory, and
+> the one `sdwind` on the machine is the service's own from 11:09:59.
+>
+> ***1. PRE_RELEASE 59's WIRING IS BUILT — RUN THE SUITE. IT HAS NEVER RUN
+> PAST THE CREATE STEP.***
 > Session 80 did the runner wiring and `verify-nocase.ps1` ONLY, which is the
 > recommendation that stood here, followed. `VerifyInstall1` creates `sdtu<Run>`
 > before its step list and removes it in a **`finally`** (the loop `break`s on a
@@ -198,13 +218,26 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b60 -ContinueOnFailure
 > ```
 >
-> ***WHAT TO EXPECT, SO A SURPRISE IS READABLE AS ONE.*** The five that failed
-> on `b59` should now be **9 of 13**: `verify-nocase` green, and `lcnames`,
-> `osusers`, `lineendings`, `batchjob` still failing the same way, because they
-> are not converted yet. **`verify-nocase` passing is the whole result** — it is
-> the first measurement this project has ever taken as a real
-> non-administrator. **If it fails, read its `ssh exit` line first**: a non-zero
-> exit is the session, not the probe, and the script now says which.
+> ***`b60` AGAIN, DELIBERATELY.*** The 11:45:30 run stopped before its step
+> list, so it created nothing and burned no name — checked against
+> `Get-LocalUser`, the ACCOUNTS directory and `user_accounts`, not assumed.
+> **`b54`–`b59` are spent; `b60` is not.**
+>
+> ***WHAT TO EXPECT, SO A SURPRISE IS READABLE AS ONE.*** The Create step should
+> now print SD's own lines and `before=False after=True` for **both** the
+> ACCOUNTS record and the Windows user. Then the five that failed on `b59`
+> should be **9 of 13**: `verify-nocase` green, and `lcnames`, `osusers`,
+> `lineendings`, `batchjob` still failing the same way, because they are not
+> converted yet. **`verify-nocase` passing is the whole result** — it is the
+> first measurement this project has ever taken as a real non-administrator.
+> **If it fails, read its `ssh exit` line first**: a non-zero exit is the
+> session, not the probe, and the script now says which.
+>
+> ***AND IF SD SAYS `Process terminated` AGAIN, THE PIPE IS NOT THE CAUSE THIS
+> TIME*** — it is now the same shape `verify-doors-admin.ps1` and
+> `verify-tiers.ps1` use and both were green on `b59`. Read the `LOGTO SDSYS`
+> line: 56 elevates an administrator into SDSYS at LOGIN, and a refusal there
+> would be 56, not the harness.
 >
 > ***2. 56's `adopt` REMOVAL*** — ruled unnecessary 29 Aug (*"the installer has
 > to be a windows administrator … they can login to sd and is logged into the
