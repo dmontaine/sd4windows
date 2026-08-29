@@ -40545,3 +40545,48 @@ taken from `git show` rather than retyped: 12 passed, 1 failed***, naming the
 file and both numbers.
 
 **`b52` is spent. `b53` is what closes 19.**
+
+## 28 Aug 2026, seventy-third session - b53 closes PRE_RELEASE 19
+
+***`-Run b53` AT 18:02:51. ALL 13 UNELEVATED STEPS EXIT 0, INCLUDING THE DOOR
+STEP, AND 18 OF 19 ELEVATED.*** *"verify-doors-suite: PASSED - all 5 legs
+green, both tokens exercised."*
+
+| leg | shell | result |
+|---|---|---|
+| `Create` | elevated | **13/13** - helper granted, and Windows agreed |
+| `Control` | unelevated | **8/8** - ssh, `logto` and the API ALL ADMITTED |
+| `Suspend` | elevated | **5/5** - still in `sdssh`, no Windows group moved |
+| `Refused` | unelevated | **5/5** - ALL THREE REFUSED |
+| `Remove` | elevated | **4/4** - both accounts gone |
+
+***THE `logto` DOOR IS GENUINELY COVERED FOR THE FIRST TIME.*** `WHO` answered
+`91 SDDRB53A from SDDRB53B`, so the session ARRIVED rather than started there,
+and 5161 did not appear. The owner's condition - *"19 stays B until the doors
+are covered"* - is met by a passing run rather than by argument, which is what
+he said it would take.
+
+***THE REFUSED LEG PROVED THE ORDERING, WHICH IS WHY THE EARLIER REFUSALS WERE
+TRUSTWORTHY EVEN WHILE 44 WAS UNFIXED.*** *"logto: it was NOT 5161 instead of
+the suspension"* passed: `logto.authorised` at `CPROC:2679` stops a suspended
+account BEFORE the token-dependent chdir at `:2691`, so no refusal in this
+suite was ever attributable to 44.
+
+**Step 19 `verify-tierapi` is green**, so PRE_RELEASE 46 is confirmed fixed on
+an install rather than only by its unit test. The elevated half's one failure
+is `verify-apiadmin`, PRE_RELEASE 31's known control - four runs running.
+
+**NOTHING WAS LEFT BEHIND**, read from the machine: no Windows accounts, no
+`sdu_` groups, no `ACCOUNTS` records for either name, **0 orphan SIDs** in
+`sdusers`, `sdssh` and `sdapi`. Only profile directories, which are 35/36.
+***THE b52 AND b53 RUNS TOGETHER LEFT 24 OF THEM IN `C:\Users`***, which is the
+concrete argument for entry 36: a suite run now costs a dozen directories that
+only a reboot and a sweep clear.
+
+**ONE NON-DECISIVE ROW FAILED INSIDE A GREEN LEG, AND IT IS FIXED.** The
+PRE_RELEASE 44 witness asserted that this session's own `LOGTO` reports 5161 -
+true in the Control phase, false in the Refused phase, where the suspension
+stops it first. It changed no verdict, but a `[FAIL]` line in a passing run
+teaches people to skim. The 5161 claim is Control-only now, and the Refused
+phase asserts the ordering instead, so the witness says something true in both
+phases.
