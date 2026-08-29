@@ -2945,9 +2945,66 @@ that correctly quotes `-RedirectStandardInput` to explain why it is wrong —
 or account directory, no leftover temp work directory, and the only `sdwind` is
 the service's own. ***`b60` IS NOT SPENT — REUSE IT.***
 
+### ***SECOND RUN, `b60` AGAIN, 29 Aug 2026 11:53:01 — IT RAN IN FULL, AND THE FOUNDATION IS WITNESSED***
+
+**Elevated 19 of 19. Unelevated 8 of 13.** The account machinery worked end to
+end for the first time:
+
+| | |
+|---|---|
+| Create | `before=False after=True` on **both** the ACCOUNTS record and the Windows user |
+| the ACE | granted to `GITORLI\don`, and the **unelevated parent's own write succeeded** — the only token that could answer the question |
+| Remove | `before=True after=False` on both, no residue |
+| alongside | `verify-doors-suite` **5 of 5 green** in the same run, so two account mechanisms coexisted |
+
+***AND THE TIER WAS WRONG. SD SAID SO IN ITS OWN WORDS.*** ssh **exit 0**, the
+session was in `sdtub60`, and then *"BASIC is not in your VOC"* and *"RUN is not
+in your VOC"*. `sdsys/newvoc/TIER.OMIT.STANDARD` lists **`basic` and `run`**
+among the 42 verbs withheld from a standard account — along with `ed`, `edit`,
+`micro`, `create.file`, `copy`, `delete` and `rename`. ***ALL FOUR VERIFIERS
+COMPILE AND RUN A BASIC PROBE, SO STANDARD CANNOT HOST ANY OF THEM.***
+
+The account is **PROGRAMMER** now. **Still a real non-administrator**, which is
+all 59 ever needed: ADMINISTRATOR is the tier `LOGIN` elevates into SDSYS under
+56, and `verify-doors` creates its accounts PROGRAMMER for exactly this reason.
+
+***THE UNIT TEST ROW WAS ITSELF THE BUG.*** It read *"create: does NOT grant
+ADMINISTRATOR or PROGRAMMER"* — encoding the STANDARD choice as a rule, so the
+test would have **defended the mistake against a correction**. It is split in
+two now (ADMINISTRATOR is the one that must never appear), and the tier is
+checked against `TIER.OMIT.STANDARD` itself, so a future change that gives
+standard accounts `basic` back says the tier can drop again.
+
+***TWO LEAKS, BOTH PRE_RELEASE 47's SHAPE, BOTH FIXED.***
+
+1. **The unit test's denied fixture survived every run.** `icacls /remove:d`
+   did not remove the ACE, and its output had been sent to `*> $null` — so six
+   undeletable directories were in `%TEMP%` before anyone looked, each still
+   carrying `(OI)(CI)(DENY)(WD,AD,WEA,WA)`, with `Remove-Item` answering
+   *"Access to the path is denied"*. `/reset` removes it, the exit code is read
+   rather than silenced, and **the removal is a checked row** — the warning line
+   it replaced is how six accumulated unnoticed.
+2. **`Invoke-SdAsTestUser` never removed its work directory** — `native.in` and
+   609 bytes of `native.out`, once per verifier per run. Removed now, but only
+   when the function made it: a caller that passes `-WorkDir` owns the evidence.
+
+**Units 45 / 0**, and a run leaves `%TEMP%` clean.
+
+***THE RUN POLLUTED SDSYS, AND THAT IS THE COST OF THE UNCONVERTED THREE.***
+`C:\ProgramData\SD\sdsys\BP.OUT` was created **12:07:16** by `verify-lcnames`
+compiling its probe while landed in SDSYS. Harmless, and the next cycle clears
+it. **But two of `lcnames`' 21 failures are about that object directory's
+case** (`sdsys bp.out present` → 0, `sdsys BP.OUT absent` → 1), and ***those
+readings are not to be trusted until it runs in an account*** — its premise was
+broken, which is exactly what the instrument rule says to distrust. `lcnames`
+scored **107 of 128**. Re-read them after the conversion, not before.
+
+***`b60` IS SPENT*** — `C:\Users\sdtub60` exists, so the name is taken until a
+restart. **Use `b61`.**
+
 ***WHAT IS LEFT.***
 
-- **The run itself.** Nothing past the Create step has ever executed.
+- **The run itself.** `verify-nocase` has still never reached its probe.
 - **The three remaining mechanical verifiers**, after this one has been seen to
   work: `verify-lcnames.ps1` (1049), `verify-lineendings.ps1` (330),
   `verify-batchjob.ps1` (368).

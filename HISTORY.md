@@ -41181,3 +41181,73 @@ BOM, CR 0. `assert-current` exit 0.
 user, ACCOUNTS record or account directory, no leftover temp work directory, and
 the only `sdwind` on the machine started 11:09:59, which is the service's own and
 predates the run. ***`b60` IS NOT SPENT — the next run reuses it.***
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, third part: `b60` ran in full, the foundation is witnessed, and the tier was wrong
+
+**Run 11:53:01, `-Run b60`. ELEVATED 19 of 19, all steps exit 0. UNELEVATED
+8 of 13.**
+
+***THE PRE_RELEASE 59 MACHINERY WORKED END TO END, FOR THE FIRST TIME.***
+Create gave `before=False after=True` on **both** the ACCOUNTS record and the
+Windows user; the ACE for `GITORLI\don` landed on the account directory; and the
+**unelevated parent's own write succeeded** — `writable by this unelevated
+process: C:\ProgramData\SD\user_accounts\sdtub60`, which is the only token that
+could answer that question and the reason the check is made there rather than in
+the elevated child. Remove gave `before=True after=False` on both, with no
+residue. `verify-doors-suite` was **5 of 5 green** in the same run, so the new
+account mechanism and the old one coexisted.
+
+***AND THE TIER WAS WRONG — SD SAID SO IN ITS OWN WORDS.*** ssh **exit 0**, the
+session landed in `sdtub60`, and then *"BASIC is not in your VOC"* and *"RUN is
+not in your VOC"*. `sdsys/newvoc/TIER.OMIT.STANDARD` lists **`basic` and `run`**
+among the 42 verbs a standard account does not get — also `ed`, `edit`, `micro`,
+`create.file`, `copy`, `delete`, `rename`. **All four verifiers compile and run a
+BASIC probe, so STANDARD cannot host any of them.** The account is PROGRAMMER
+now, which is still a real non-administrator: ADMINISTRATOR is the tier `LOGIN`
+elevates into SDSYS under 56, and `verify-doors` creates PROGRAMMER accounts for
+this same reason.
+
+***THE UNIT TEST ROW WAS ITSELF THE BUG.*** It read *"create: does NOT grant
+ADMINISTRATOR or PROGRAMMER"*, encoding the STANDARD choice as a rule — so the
+test would have **defended the mistake against a correction**. Split in two, and
+the tier is now checked against `TIER.OMIT.STANDARD` itself rather than against a
+comment, so a future change that returns `basic` to standard accounts says the
+tier can drop again.
+
+***TWO LEAKS, BOTH PRE_RELEASE 47's SHAPE, BOTH FOUND BY LOOKING AT `%TEMP%`
+RATHER THAN BY ANYTHING FAILING.***
+
+1. **The unit test's denied fixture survived every run.** `icacls /remove:d` did
+   not remove the ACE, and its output had been sent to `*> $null` — the
+   instrument rule broken in the cleanup path of the file that enforces it. Six
+   undeletable directories were on disk, each carrying
+   `GITORLI\don:(OI)(CI)(DENY)(WD,AD,WEA,WA)`, with `Remove-Item` answering
+   *"Access to the path is denied"* because `-Force` clears attributes and `WA`
+   was denied. `/reset` removes it; the exit code is read; **the removal is a
+   checked row now**, because the bare `WARNING:` line it replaced is how six
+   accumulated unnoticed.
+2. **`Invoke-SdAsTestUser` never removed its work directory** — `native.in` and
+   609 bytes of `native.out` per verifier per run. Removed now, but **only when
+   the function created it**: a caller passing `-WorkDir` owns those files and
+   may want them for a post-mortem.
+
+**Units 45 / 0**, and a run now leaves `%TEMP%` clean. The seven directories
+already leaked were swept.
+
+***THE RUN POLLUTED SDSYS, AND THAT IS THE COST OF THE THREE UNCONVERTED
+VERIFIERS.*** `C:\ProgramData\SD\sdsys\BP.OUT` was created at **12:07:16** by
+`verify-lcnames` compiling its probe while landed in SDSYS. Harmless, and the
+next cycle deletes both trees. ***BUT TWO OF `lcnames`' 21 FAILURES ARE ABOUT
+THAT OBJECT DIRECTORY'S CASE*** — `sdsys bp.out present, exact case` → 0 and
+`sdsys BP.OUT absent` → 1 — and **those readings are not to be trusted until it
+runs in an account**, because its premise was broken. Not filed as a defect on
+that evidence. Re-read them after the conversion. `lcnames` scored **107 of
+128**; `verify-lineendings` and `verify-batchjob` failed the same way as on
+`b59`, both saying so out loud rather than scoring a pass.
+
+***`b60` IS SPENT.*** `C:\Users\sdtub60` was created 11:53:40 and
+`C:\Users\sddrb60a`/`b` with it, so the names are taken until a restart —
+PRE_RELEASE 35/36, and `CREATE.ACCOUNT` refuses rather than hand back a suffixed
+home. **The next run is `b61`.**
