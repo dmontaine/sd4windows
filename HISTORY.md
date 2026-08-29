@@ -41007,3 +41007,53 @@ the cycle owed since session 75 is still owed and `assert-current` still exits
 *character* changed under its ruling — filed as a stale verifier, and the
 owner's rule turned out wider than the code. A session that picks up the row
 without the section will write the wrong fix.
+
+## 29 Aug 2026, seventy-eighth session — the 21 silent headings, and the NOTE turned into a tripwire
+
+Asked for *"the simplest remaining task"*. Of the six decisions taken on 29 Aug
+this is the only one needing no install, no elevation and no cycle, and the only
+one that is not a numbered entry.
+
+**All 21 struck-but-silent sections in PRE_RELEASE_FIXES.md now carry
+`DONE <date>` in their own heading** — 5, 10, 13, 14, 15, 19, 21, 22, 23, 25,
+26, 27, 30, 32, 33, 35, 36, 37, 38, 40, 41. **Each date came from that entry's
+own index row or section body**, not from the session that noticed it: 21, 30,
+32 and 33 are 27 Aug 2026, the other seventeen 28 Aug 2026. **Five rows never
+say `DONE` at the point they record the fix** — 19 leads with `CLOSED` (its only
+`DONE` is struck-through text), 21 with *"dead test deleted, docs corrected"*, 30
+with *"verifier fixed"*, 32 with `FIXED` and 38 with `WIRED IN` — so those five
+dates were read out of the section body rather than lifted off the row.
+
+***THE GUARD WAS MEASURED IN BOTH DIRECTIONS, ON THE SAME RE-OPENING.***
+`test-fixlist-units.ps1` rule 4 is one-directional and could not fire while most
+sections said nothing. Row 41 un-struck in place:
+
+| heading | result |
+|---|---|
+| new — `— ***DONE 28 Aug 2026***` | **183 passed, 1 failed, exit 1** — *"section 41 does not contradict row 41"* |
+| old — silent, as it stood this morning | **184 passed, 0 failed, exit 0** |
+
+Both were run against the real file and both were restored; the tree is green
+and the diff is the 21 headings only. **So the claim that this buys a check
+rather than tidiness is measured rather than reasoned** — the identical mistake
+is caught now and was invisible before.
+
+***THE HEADING WORDS DILUTE RULE 3, AND THAT WAS CHECKED BEFORE THE FIRST EDIT
+RATHER THAN AFTER THE FAILURE.*** Rule 3 scores shared significant words as a
+fraction of the SECTION heading's, so anything added to a heading and absent
+from the row lowers the ratio. `Words()` drops tokens shorter than four
+characters, so `DONE 28 Aug 2026` contributes exactly one — `2026` — and rows 21
+and 30 are the only two that do not carry it. Baselines were read with `-Detail`
+first: the worst case after the change is 33 at 0.57 and 19 at 0.60, both up
+from 0.50, against a 0.45 threshold. **Nothing was near it, and the two rows
+that could have been were found by looking rather than by a red run.**
+
+**21 `Edit` calls, no script**, as the START HERE box required. Bytes checked
+after: `git diff --stat` 21 insertions / 21 deletions, all 21 added lines `## `
+headings, no BOM, CR count 0 unchanged, em dashes 568 → 589 — **+21, one per new
+separator, which is the number that would have moved had anything else been
+rewritten.**
+
+**Open count unchanged at 17.** It was never an entry, so closing it moves
+nothing. Nothing under `gplsrc` or `sdsys` was touched, so **the cycle owed since
+session 75 is still owed** and `assert-current` still exits 1.

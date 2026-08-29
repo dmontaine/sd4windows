@@ -174,7 +174,7 @@ verbs since removed**, and it was being quoted as the verb total, so it
 disagreed with `81 + 42 + 20` by one and nothing noticed. *A number that
 corroborates must be re-measured when the thing it corroborates moves.*
 
-## 5. `.d name` cannot find a lower-case VOC record typed in upper case — **S**
+## 5. `.d name` cannot find a lower-case VOC record typed in upper case — **S** — ***DONE 28 Aug 2026***
 
 `CPROC:1119` tries the name as typed and then `upcase` only. `.l` (`CPROC:1176`)
 and `.r` (`CPROC:1204`) try as typed, then `downcase`, then `upcase`.
@@ -243,7 +243,7 @@ measured: `umask is not in your VOC`. `umask()` from SD BASIC still works.
 Either ship a VOC record for it or delete the routine; a working verb nobody can
 reach is the kind of thing that reads as a missing feature.
 
-## 10. Two verifiers carry a dead ANSI strip — **M**
+## 10. Two verifiers carry a dead ANSI strip — **M** — ***DONE 28 Aug 2026***
 
 `gplbld/probe-catprivate.ps1:165` and `gplbld/verify-catgate.ps1:133` both hold
 ``$out -replace "`e\[[0-9]*[A-Za-z]"``. **`` `e `` is not an escape in Windows
@@ -297,7 +297,7 @@ disk space. **Ships in the message file, so it costs no rebuild** — the fix is
 a second message id special-cased at the call site, leaving 1407 accurate for
 the disk-full case it was written for.
 
-## 13. `qselect` prints its message without the list number — **M**
+## 13. `qselect` prints its message without the list number — **M** — ***DONE 28 Aug 2026***
 
 **UPSTREAM_FIXES #21. Live in this tree, measured 26 Aug 2026** —
 `gpl.bp/QSELECT:240` passes one argument to a two-parameter message, so every
@@ -308,7 +308,7 @@ in hand on the line above.
 Documented as a known blemish in the select-lists page so a reader does not go
 looking for a list that is there.
 
-## 14. `delete.file ... no.query` still prompts — **S**
+## 14. `delete.file ... no.query` still prompts — **S** — ***DONE 28 Aug 2026***
 
 **UPSTREAM_FIXES #23. Live in this tree, measured 26 Aug 2026** —
 `gpl.bp/DELETEF:222` and `:297` call `check.sdsys.file` with no `no.query`
@@ -325,7 +325,7 @@ The safe branch already exists: `N` deletes the VOC reference and leaves the
 system file alone. Honouring `no.query` by taking it, or refusing the
 combination up front, both beat a prompt nobody can answer.
 
-## 15. `delete.index` will not match a lower-case index name — **M**
+## 15. `delete.index` will not match a lower-case index name — **M** — ***DONE 28 Aug 2026***
 
 **UPSTREAM_FIXES #22. Live in this tree, measured 26 Aug 2026** —
 `gpl.bp/DELETEI:155` compares with an exact `locate` against names held upper
@@ -579,7 +579,7 @@ system"*.
 
 ---
 
-## 19. The tier change and `SUSPENDED` compile but have never run — **B**
+## 19. The tier change and `SUSPENDED` compile but have never run — **B** — ***DONE 28 Aug 2026***
 
 ***28 Aug 2026 — THREE OF THIS ENTRY'S CLAIMS ARE NOW FALSE, AND TWO OF THEM
 WERE FALSE WHEN WRITTEN.*** Read this block before the original below it; the
@@ -717,7 +717,7 @@ page 32 when it is written.
 
 ---
 
-## 21. The write-once rule on `ACC$PRIOR.TIER` is unreachable — **S**
+## 21. The write-once rule on `ACC$PRIOR.TIER` is unreachable — **S** — ***DONE 27 Aug 2026***
 
 Measured 27 Aug 2026 by running it. `SYSCOM/KEYS.H`, `tier.set`'s banner,
 PROJECT_STATUS.md's START HERE and HISTORY.md all state that field 6 is safe
@@ -759,7 +759,7 @@ the owed `cycle.ps1` compiles it. PROJECT_STATUS.md START HERE item 4.
 
 ---
 
-## 22. `create.account` says a password was not set and never says why — **M**
+## 22. `create.account` says a password was not set and never says why — **M** — ***DONE 28 Aug 2026***
 
 Seen 27 Aug 2026 while making a test account. `CREATEA:498` calls
 `set_passwd()`, and on failure prints sysmsg 10008 — *"Warning, user created
@@ -775,7 +775,7 @@ distinctly, is the fix.
 
 ---
 
-## 23. `term default` sets the minimum width, not the default — **S**
+## 23. `term default` sets the minimum width, not the default — **S** — ***DONE 27 Aug 2026***
 
 Found 27 Aug 2026 while writing *SD TCL - The Terminal and the Session*, by
 running the verb rather than by reading it. `term default` then `term`:
@@ -854,7 +854,7 @@ than leaving it to be discovered.
 **The fix is one word**, in C, so it costs a full cycle rather than a
 `-SkipInstall`.
 
-## 25. `encrypt.field` is in every administrator's VOC and `$CRYPTO` does not exist — **S**
+## 25. `encrypt.field` is in every administrator's VOC and `$CRYPTO` does not exist — **S** — ***DONE 28 Aug 2026***
 
 **UPSTREAM_FIXES #26. Live in this tree**, measured 27 Aug 2026 on the
 12:06:20 install:
@@ -906,7 +906,7 @@ the six mirrored directories against **2970** on the previous install — exactl
 the five new messages less the one deleted VOC record. The file census and the
 VOC arithmetic agree without being told about each other.
 
-## 26. `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — **S**
+## 26. `delete.file` *name* `no.query` prompts twice when the name is typed in lower case — **S** — ***DONE 28 Aug 2026***
 
 **UPSTREAM_FIXES #27, and separate from #14** — that one is
 `check.sdsys.file`, on the system-account path. This one is on the ordinary
@@ -942,7 +942,7 @@ Comparing case-insensitively, or honouring `no.query` beside `force`, both fix
 it; the upstream entry argues for the first. BASIC, so `-SkipInstall` will tell
 you it compiles and a full cycle is needed to test it.
 
-## 27. `modify.account` *acc* `add`/`delete` writes no audit record — **M**
+## 27. `modify.account` *acc* `add`/`delete` writes no audit record — **M** — ***DONE 28 Aug 2026***
 
 `GRANTA` writes `kernel(K$AUDIT, 'GRANT account=... to=...')` after every
 successful group edit, and the same for `REVOKE`. **`MODIFYA:344`'s `add` and
@@ -1264,7 +1264,7 @@ same edit** — see the blockquote above.
 
 ---
 
-## 30. `verify-osusers.ps1` refuses on a fresh install — **S** (verifier, not product)
+## 30. `verify-osusers.ps1` refuses on a fresh install — **S** (verifier, not product) — ***DONE 27 Aug 2026***
 
 Found 27 Aug 2026 running `-Run b48` against the 17:25:59 install — the first
 suite run since PRE_RELEASE 2 (previous session) shipped. `verify-osusers`
@@ -1417,7 +1417,7 @@ three `os.users` records for the ADMINISTRATOR-tier ones the tier verifiers make
 
 ---
 
-## 32. `delete.account` leaves the ProfileList entry, so a recreated account gets a different home — **S**
+## 32. `delete.account` leaves the ProfileList entry, so a recreated account gets a different home — **S** — ***DONE 27 Aug 2026***
 
 Found 27 Aug 2026 by the `b48` suite failing two rows that had passed in every
 run since 26 Aug, and traced rather than guessed.
@@ -1509,7 +1509,7 @@ and `\t` are expanded and there is no default branch, so a literal
 `C:\Users\%1` in message text survives intact — but `C:\temp` would not, and
 that is worth knowing before writing the next one.
 
-## 33. `allow-ssh-groups.ps1`'s own usage text omits the switch it requires — **S**
+## 33. `allow-ssh-groups.ps1`'s own usage text omits the switch it requires — **S** — ***DONE 27 Aug 2026***
 
 Found 27 Aug 2026 while writing *Technical - The Installed Scripts*, by reading
 the `param` block instead of the header comment.
@@ -1605,7 +1605,7 @@ powershell -File tools\mkpdf.ps1 -In Technical\html -Out Technical\pdf
 
 and the `README`'s markdown-against-PDF loop is what proves nothing is stale.
 
-## 35. A profile DIRECTORY left behind moves the next account's home, exactly as the registry entry does — **S**
+## 35. A profile DIRECTORY left behind moves the next account's home, exactly as the registry entry does — **S** — ***DONE 28 Aug 2026***
 
 Found 27 Aug 2026 **by running the regression test for entry 32 on the install
 that fixed it**, which is the only reason it was found at all: the registry
@@ -1681,7 +1681,7 @@ mounted), fails harmlessly otherwise, and **message `10075` now names the
 cause, says a restart is what releases it, and says what happens if it is left**.
 That is the honest product answer. **The cure is entry 36.**
 
-## 36. Deleted accounts leave their registry hives mounted, and nothing SD does can unmount them — **M** (owner's call)
+## 36. Deleted accounts leave their registry hives mounted, and nothing SD does can unmount them — **M** (owner's call) — ***DONE 28 Aug 2026***
 
 ***BUILT 28 Aug 2026. ALL FOUR RULINGS, AND NOT ONE OF THEM HAS BEEN RUN —
 NO CYCLE HAS COMPILED THE BASIC AND NO SERVICE HAS STARTED THE SWEEP.*** It is
@@ -1931,7 +1931,7 @@ reboot in the middle of `cleanup-devlitter.ps1` is not about the accounts pass
 at all. **It is what makes the profile pass possible**, and running the sweep
 without it is what leaves work behind.
 
-## 37. `create.account` says "may sign in over ssh" twice, about two different things — **S**
+## 37. `create.account` says "may sign in over ssh" twice, about two different things — **S** — ***DONE 28 Aug 2026***
 
 Seen 27 Aug 2026 in the transcript of a routine `create.account user b49test
 programmer ssh`. Two consecutive lines:
@@ -1974,7 +1974,7 @@ ssh, not the API"* for the keyword. Nothing in `CREATEA` changes.
 
 **Not upstream's** — both messages and both gates are Windows-port work.
 
-## 38. The suite does not test SUSPENDED on any door — **M** (verifier gap, not product)
+## 38. The suite does not test SUSPENDED on any door — **M** (verifier gap, not product) — ***DONE 28 Aug 2026***
 
 Found 27 Aug 2026 after items 5.1 and 5.2 were taken by hand on the 22:52:21
 install. **Neither `verify-tiers.ps1` nor `verify-tierapi.ps1` contains the
@@ -2159,7 +2159,7 @@ the prompt's answer is overridden.
 it is work that must land before W1.0-0 rather than a question about whether to
 do any.
 
-## 40. A verifier's transcript swallows the verifiers that run after it — **M** (verifier, not product)
+## 40. A verifier's transcript swallows the verifiers that run after it — **M** (verifier, not product) — ***DONE 28 Aug 2026***
 
 Found 27 Aug 2026 while counting the `b49` run, and it **nearly produced a wrong
 verdict in the same minute it was found**.
@@ -2196,7 +2196,7 @@ own capture is PASS 20, `[FAIL]` 0.
 **The fix is a `try`/`finally` around each verifier's body**, or a
 `Stop-Transcript` at every exit path. `$neverShipped`, no cycle.
 
-## 41. The cleanup sweep reports "every section reached zero" on a machine that still has orphan directories — **M** (dev tooling, not product)
+## 41. The cleanup sweep reports "every section reached zero" on a machine that still has orphan directories — **M** (dev tooling, not product) — ***DONE 28 Aug 2026***
 
 Found 28 Aug 2026 by writing a prediction before the run and reading `C:\Users`
 back afterwards, which is the only reason it was found at all: the tool's own
