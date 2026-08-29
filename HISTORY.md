@@ -41312,3 +41312,65 @@ SDSYS. Its premise is broken, so the readings are not evidence about the product
 Re-read them once it is converted.
 
 **`b61` is spent** — `C:\Users\sdtub61` and `sddrb61a`/`b` exist. Next is `b62`.
+
+---
+
+## 29 Aug 2026 — EIGHTIETH session, fifth part: `verify-lineendings` green, b62's Ctrl-C, and the classification corrected
+
+**`b63`, 13:03:55. Unelevated 10 of 13, elevated 19 of 19.**
+***`verify-lineendings` PASSED 17 of 17*** on real readings
+(`REC ZZLECRLF FIELDS=3 LEN=18`), run as `sdtub63` over ssh. The two checks the
+file exists for both passed: **the straddle**, `line 1 length expected 2047, got
+2047` — a CRLF landing exactly on the 2048-byte `SEQ_BUFFER_SIZE` boundary,
+which a fix inspecting *"the byte before the LF"* gets wrong about once per 2 KB
+of real data — and **the lone-CR control**, length 11 unchanged and one field,
+so a CR survived as data rather than being stripped. The account removed
+cleanly and the run left no `sdtu*` user, record, group or `%TEMP%` residue.
+
+**`verify-nocase` held at 3 of 3.** The three remaining failures are exactly the
+three unconverted verifiers: `osusers` (2), `lcnames` (1), `batchjob` (2).
+
+***b62 WAS LOST TO A Ctrl-C, AND THE COMMENT THAT SAID IT WOULD NOT BE WAS
+UNMEASURED.*** `VerifyInstall1.ps1` read *"a finally is skipped by nothing:
+break, a thrown error and Ctrl-C all run it"*. Measured twice, and the two
+disagree: a **`Stop-Job` pipeline stop DOES** run the finally, every time; the
+**console Ctrl-C on b62 did not** — six *"The pipeline has been stopped."* lines,
+no *"removing the test account"* line, no *"WAS NOT REMOVED"* line, and no
+`testuser-remove` log written at all. `sdtub62` was left live and enabled with a
+password that existed only in the dead process, and the next two runs were
+refused by the single-use guard — correctly, while telling nobody that a
+different run had left something behind.
+
+**So the durable fix is recovery at the START of the next run**, because nothing
+in-process is guaranteed against Ctrl-C. `VerifyInstall1` now scans for `sdtu*`
+Windows users and `SDTU*` ACCOUNTS records that are not its own and names each
+with the exact elevated remove command. ***IT REPORTS AND DOES NOT ACT*** —
+deleting a Windows account nobody asked about is not that script's call, and an
+orphan is evidence about the run that made it. `sdtestuser-admin`'s ALREADY
+EXISTS refusal carries the command too, and says plainly that removing the
+account does **not** free the name.
+
+***AND 59's CLASSIFICATION WAS WRONG. ONLY TWO OF THE FOUR WERE MECHANICAL.***
+The entry said *"four are close to mechanical"*. `verify-nocase` (211 lines) and
+`verify-lineendings` (330) each plant one probe and drive one session, and both
+converted in a few edits. The other two need a **token split**, not a driver
+swap:
+
+- ***`verify-lcnames.ps1`*** — 53 `Invoke-SD` calls, **four of them
+  `LOGTO SDSYS`** (`:342`, `:774`, `:782`, `:783`). Those four work *today*
+  precisely because the invoking administrator already lands in SDSYS under 56,
+  which is the same fact that breaks the other 49. The conversion is classifying
+  every call site as account-side or SDSYS-side, and a mistake in either
+  direction is a check that passes while measuring the wrong session.
+- ***`verify-batchjob.ps1`*** — re-invokes itself elevated (`:287`) and its child
+  `Push-Location`s into the account directory (`:111`) to get a session *in that
+  account*. Under 56 an elevated administrator lands in SDSYS whatever the cwd,
+  so whether that leg still measures what it claims is a question to settle
+  **before** converting anything.
+
+***AND lcnames' TWO `sdsys BP.OUT` FAILURES ARE STILL NOT FILED*** — four runs
+now. It still runs in SDSYS, its premise is broken, and the instrument rule says
+a reading taken on a broken premise is not evidence. Re-read after conversion.
+
+**`b63` is spent.** Next is `b64`, and it should carry a conversion rather than
+repeat a settled reading.

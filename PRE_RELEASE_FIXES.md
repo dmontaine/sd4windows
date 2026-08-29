@@ -3036,12 +3036,63 @@ written once cannot drift. And ***the table is compared against
 converted but not listed would be untested, one listed but not wired would be
 skipped, and both are silent. **Units 51 / 0.**
 
-***WHAT IS LEFT.***
+### ***FOURTH RUN, `b63`, 29 Aug 2026 13:03:55 — `verify-lineendings` IS GREEN TOO. UNELEVATED 10 OF 13.***
 
-- **The run.** `verify-lineendings` has never run converted.
-- **The three remaining mechanical verifiers**, after this one has been seen to
-  work: `verify-lcnames.ps1` (1049), `verify-lineendings.ps1` (330),
-  `verify-batchjob.ps1` (368).
+**17 checks, all PASS, on real readings** (`REC ZZLECRLF FIELDS=3 LEN=18`), run
+as `sdtub63` over ssh. **The two that matter both passed:**
+
+| | |
+|---|---|
+| the straddle | `line 1 length expected 2047, got 2047` — a CRLF landing exactly on the 2048-byte `SEQ_BUFFER_SIZE` boundary. The file's header calls this the reason it exists rather than a one-liner: a fix that inspects *"the byte before the LF"* is right on every small fixture and wrong once per 2 KB of real data |
+| the lone-CR control | length **11 unchanged**, one field — a CR survived **as data**. A fix that stripped every CR would pass checks 1–4 and silently corrupt text; this is the control on the fix rather than on the defect |
+
+**Elevated 19 of 19. The account removed cleanly** (`before=True after=False`
+on both halves), and the run left **no `sdtu*` user, no `SDTU*` record, no
+`sdu_sdtu*` group and no `%TEMP%` residue.**
+
+### ***AND THE REMAINING TWO ARE NOT MECHANICAL. THE CLASSIFICATION WAS WRONG.***
+
+This entry said *"four are close to mechanical; `verify-osusers.ps1` is not"*.
+**Measured against the source, only two were.** `verify-nocase` (211 lines) and
+`verify-lineendings` (330) each plant a probe and drive one session, and both
+converted in a few edits. The other two do not:
+
+- ***`verify-lcnames.ps1` NEEDS BOTH TOKENS, PER CALL SITE.*** 53 `Invoke-SD`
+  calls, **four of them `LOGTO SDSYS`** (`:342`, `:774`, `:782`, `:783`) for
+  checks only an administrator may make. Under 56 those four work *today*
+  precisely because the invoking administrator already lands in SDSYS — which
+  is the same fact that breaks the other 49. So the conversion is not "swap the
+  driver": it is **classifying 53 call sites into account-side and SDSYS-side**,
+  and a mistake in either direction is a check that passes while measuring the
+  wrong session. That is the failure this entry exists to stop.
+- ***`verify-batchjob.ps1` RE-INVOKES ITSELF ELEVATED*** (`:287`–`:291`,
+  `-Phase setup`) to write SDSYS's `batch.jobs`, and its elevated leg does
+  `Push-Location` into the account directory (`:111`) to get a session *in that
+  account*. **Under 56 an elevated administrator lands in SDSYS whatever the
+  cwd**, so whether that leg still measures what it claims has to be **checked
+  rather than assumed** before anything is converted.
+
+**Neither is a reason to stop; both are a reason not to do them in a hurry.**
+The two that were mechanical are done and green, which is the whole value of
+having split them.
+
+***WHAT IS LEFT.*** **Two of four are done and green. All three remaining need
+a token split rather than a driver swap, so none of them is an afternoon's
+copy-and-paste.**
+
+- ***`verify-lcnames.ps1`*** (1049 lines, 53 `Invoke-SD` calls). **Classify
+  every call site as account-side or SDSYS-side**, then give it two drivers.
+  The four `LOGTO SDSYS` sites are the SDSYS ones and must keep the LOCAL pipe:
+  under 56 the invoking administrator is already in SDSYS, so those are exactly
+  the checks that still work. Its **21 failures include two `sdsys BP.OUT` rows
+  that are NOT to be read as product defects until this is done** — its premise
+  is broken and the instrument rule says so.
+- ***`verify-batchjob.ps1`*** (368). **Check the elevated leg first, before
+  converting anything.** It re-invokes itself elevated (`:287`) and its child
+  does `Push-Location` into the account directory (`:111`) to get a session *in
+  that account* — and under 56 an elevated administrator lands in SDSYS
+  whatever the cwd. Whether that leg still measures "an elevated session passes
+  the gate on its own" is a question, not an assumption.
 - **`verify-osusers.ps1` separately** — 931 lines with **32** references to
   `@logname`/`don`, and it is *about* the person's identity in `os.users`, with
   its own elevation dance. **Do not bundle it.**
