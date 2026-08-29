@@ -40642,3 +40642,21 @@ the caller prints it, which is the convention `Add-Leg` and `Note` already use.
 ***UNRUN.*** The Create leg is elevated, so `-Run b54` is the first thing that
 exercises the helper; if it cannot start, the suite falls back to a prompt per
 leg rather than failing the run.
+
+***RUN, AND IT WORKS — `-Run b54`, 19:28.*** All 13 unelevated steps exit 0 and
+18 of 19 elevated, the one being `verify-apiadmin`, PRE_RELEASE 31's known
+control for the fifth run running. **The door step exited 0 with all five legs
+green**, and `Create`, `Suspend` and `Remove` each printed `via helper:` with
+the password masked - **one UAC prompt for the door step where b53 asked for
+three.** The run cleaned up completely, read from the machine: no `sddrb54a` or
+`sddrb54b`, **0 orphan SIDs** in all three groups, no stray `sd.exe`, its own
+work directory gone, the helper stopped and its pipe closed. **The four
+pre-fix leaked directories were removed by hand after measuring each empty.**
+
+***ONE FALSE ALARM, AND IT IS NOW A §6 TRAP.*** The check for a surviving
+helper reported **1**, and the one was **the PowerShell process running the
+check** - a `CommandLine -like '*sd-elevate-helper*'` filter matches any query
+that names it. The verdict *"an elevated helper survived"* was wrong in the
+alarming direction. **What actually proved it gone was the PIPE being absent**,
+which is evidence a query cannot manufacture by asking. The project is full of
+the shape this breaks: *"no stray `sd.exe`"* is a standard end-of-run check.
