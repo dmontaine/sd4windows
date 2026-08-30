@@ -42363,3 +42363,56 @@ meaningful beside a `PASS` count from the same grep on the same bytes. **Read
 them as a pair, and treat a zero-zero as a broken reader until the PASS half
 proves otherwise** — this is the third instrument this project has caught by
 demanding a control rather than by noticing a wrong answer.
+
+## 29 Aug 2026 — EIGHTY-SECOND session, fifth part: 62's verifier is built, and the obvious anchor would have passed with the gate deleted
+
+`gplbld/verify-sdsysgate.ps1` (NEW), a step in **VerifyInstall2**. **Built and
+wired and never run** — it closes 62 on `b68` and not before.
+
+***THE DESIGN IS THE FINDING, AND THE OBVIOUS VERSION OF THIS SCRIPT WOULD HAVE
+BEEN A FALSE POSITIVE.*** The natural test is "drive a non-administrator at
+`LOGTO SDSYS` and look for sysmsg 10002". **That check passes with the identity
+gate deleted**, for two reasons that compound:
+
+- ***`CPROC` PRINTS 10002 ON BOTH REFUSAL PATHS.*** `:2637` is the identity gate
+  and audits `reason=not an administrator`; `:2651` is the failed elevation and
+  audits `reason=elevation refused or unavailable`. **The message is identical.**
+- ***AND THE ACCOUNT IS REACHED OVER ssh, WHICH HAS NO INTERACTIVE DESKTOP***, so
+  `elevate('START')` would fail there **anyway**. Remove the gate and the ssh
+  session is still refused, still with 10002.
+
+**So the audit REASON is the only thing that separates them**, and that is the
+whole shape of the script. It is CLAUDE.md's *"anchor on the SUCCESS wording,
+not on any string the failure also carries"* met in a case where the two
+outputs are **the same string**.
+
+***WHICH PUT IT IN THE ELEVATED RUNNER.*** Measured rather than assumed: an
+unelevated read of `C:\ProgramData\SD\sdsys\audit` is **"Permission denied"**.
+`VerifyInstall2.ps1:350` already says elevation is required for exactly this
+reason, for `verify-cmdaudit`. It also means the step **makes and removes its
+own account** — VerifyInstall1's belongs to the unelevated half and is gone
+before this runner starts, and VerifyInstall2 is already elevated so
+`CREATE.ACCOUNT` costs no extra UAC prompt.
+
+**Eight decisive checks, and four of them exist to stop a false pass**: the null
+case (*the audit grew*), a reader control (*the tail carries this session's
+`LOGIN` record*, so absence-based checks cannot pass against a tail of something
+else), a Windows-side control (*the account is NOT an administrator*, read from
+the group rather than from SD's wording, because an administrator is **supposed**
+to be admitted), and **two disqualifiers** that must be absent —
+`reason=elevation refused or unavailable` and `ELEVATION GRANTED account=SDSYS`.
+
+***WHAT IT CANNOT DO, IN ITS OWN HEADER.*** It cannot reproduce the original
+hole, which needed a standard user at an interactive desktop typing an
+administrator's password into a RunAs credential prompt; no non-interactive test
+can produce one, the same limit `verify-notyet` records for step 9's password
+prompt. **It proves the property that closed the hole, not the hole.**
+
+**Verified as far as an unelevated session allows, and no further:** parse **0
+errors, 2 functions** (the count asserted, because a BOM'd file once parsed
+clean with a function missing), **BOM 0, CR 0**, both reachable guards **run and
+return exit 2** — measured through `powershell -File` against a control that
+reads 0, because `$LASTEXITCODE` came back **empty** from `&` and an empty
+reading is not a 2. And `assert-current` is **exit 0 live** with the script on
+`$neverShipped`, which is session 79's trap: three unlisted `gplbld` scripts
+made the tree report stale and every verifier refuse.

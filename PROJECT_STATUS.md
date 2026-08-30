@@ -165,7 +165,26 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `assert-current` **exit 0 live**, `check-stale-leads` **exit 0**,
 > `test-fixlist-units` **203 / 0**, **open count 18**.
 >
-> ### ⇩ NOTHING IS OWED. CYCLED, SUITED AND VERIFIED — 63 IS CLOSED. ⇩
+> ### ⇩ ONE THING IS OWED: `b68`, AND IT IS THE RUN THAT CLOSES 62. ⇩
+>
+> ***`gplbld/verify-sdsysgate.ps1` IS BUILT AND WIRED AND HAS NEVER RUN.*** It is
+> a step in **`VerifyInstall2`** (elevated — the audit trail is the measurement
+> and it is locked to SYSTEM and Administrators). **NO CYCLE IS NEEDED**: it is a
+> `gplbld` script, it is on `$neverShipped`, and `assert-current` is **exit 0
+> live** with it present. ORDINARY, UNELEVATED PowerShell — the runner raises
+> its own elevated child:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b68 -ContinueOnFailure
+> ```
+>
+> ***EXPECT 20 OF 20 ELEVATED, NOT 19*** — the new step joined that half. **14 of
+> 14 unelevated, unchanged.** ***AND READ THE ROW, NOT THE EXIT CODE***: the
+> decisive line is `refused BY IDENTITY (reason=not an administrator)`, and the
+> two disqualifiers — `reason=elevation refused or unavailable` and
+> `ELEVATION GRANTED account=SDSYS` — must both be **absent**.
+>
+> ### ⇩ CYCLED, SUITED AND VERIFIED — 63 IS CLOSED. ⇩
 >
 > ***INSTALL 29 Aug 20:31:49, `sd.exe` `4732ECF659E8DB40`, `assert-current`
 > EXIT 0 LIVE*** — *"no source file is newer than the install"*. The twelve
@@ -212,7 +231,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > |---|---|
 > | **2** | ***a re-read before any work, because its stated premise is gone.*** It was re-opened as downstream of 56 and says *"56 abolishes the administrator account this attached to"* — **clause 2's reversal gave that account back.** Left open rather than quietly closed: whether its `os.users` half still matters under the model that actually shipped **has not been measured**. It is a `B`, so it belongs in this table and was missed out of it once |
 > | **39** | ***a real interactive uninstall on task 7.2's guest.*** Nothing has been deleted by it, the last-administrator refusal is unprovokable here, and the prompt cannot be reached from a cycle at all — see the box below. **Do not tick it until it has run** |
-> | **62** | ***a verifier, not a code change — the hole is closed and nothing tests it.*** Both routes now test the person before anything prompts: `LOGIN:568` needs an already-elevated session AND an administrator, and `CPROC:2634` refuses with 10002 **before** `elevate('START')`. **Traced by source only**: `10002`, `not an administrator` and `LOGTO REFUSED` get **zero hits across every `gplbld/verify-*.ps1`**. PRE_RELEASE 59's `sdtestuser` machinery already builds the account it needs |
+> | **62** | ***THE VERIFIER IS BUILT AND WIRED AND HAS NEVER RUN — `gplbld/verify-sdsysgate.ps1`, step in `VerifyInstall2`, and it closes on `b68`.*** ***sysmsg 10002 IS NOT A USABLE ANCHOR AND THAT IS THE WHOLE DESIGN***: `CPROC` prints it on **both** refusal paths (`:2637` identity, `:2651` failed elevation), and the account is reached over ssh, which has no desktop, so `elevate('START')` would fail there anyway — **a 10002 check would pass with the gate deleted.** The audit **reason** is the only discriminator, so the step is **elevated**: the trail is locked to SYSTEM and Administrators (measured — an unelevated read is *"Permission denied"*). Eight decisive checks, a null case, a reader control and two disqualifiers. **Verified only as far as unelevated allows** — parse 0 errors / 2 functions, BOM 0, CR 0, both guards run and return exit 2 against a control reading 0, `assert-current` **exit 0 live** with it on `$neverShipped`. *(Was: a verifier, not a code change — the hole is closed and nothing tests it.* Both routes now test the person before anything prompts: `LOGIN:568` needs an already-elevated session AND an administrator, and `CPROC:2634` refuses with 10002 **before** `elevate('START')`. **Traced by source only**: `10002`, `not an administrator` and `LOGTO REFUSED` get **zero hits across every `gplbld/verify-*.ps1`**. PRE_RELEASE 59's `sdtestuser` machinery already builds the account it needs — now built as above.)* |
 >
 > ***61 CLOSED AS NOT A DEFECT, AND THE PREMISE WAS INVERTED.*** `listf` shows
 > `$MAP` as **`DH`**, not `Err 30`. The three files do three different jobs and
