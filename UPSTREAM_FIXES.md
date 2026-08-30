@@ -1330,7 +1330,30 @@ simply be allowed to run after a commit.
 **Reproduced in this tree, not against upstream**, per this file's standing
 caveat. Probe: `tools/probes/p14c-txn.b` in the `SDCoreWindowsDocs` repository.
 
-`PROPOSED`
+***FIXED IN THIS PORT, 29 Aug 2026, AND THE SHAPE MAY BE USEFUL TO YOU.*** The
+reinstate-and-decrement block at the foot of `rollback()` is lifted into a
+`Private void end_txn_level(void)` and called from `op_txncmt()` as well, so
+both halves of `op_txnbgn()` are undone on the committed path. **One function
+with two callers rather than a second copy** — the defect was precisely that
+this bookkeeping existed in one place with one caller.
+
+**The call is placed BEFORE `op_txncmt()`'s `exit_op_txncmt:` label**, so the
+three `k_error()` paths do not pop a level they did not commit. Note that this
+leaves a separate pre-existing gap in `sdb64` as well: on those error paths
+`process.txn_id` has already been zeroed at the top of `op_txncmt()`, so
+`txn_abort()` and `op_txnrbk()` find nothing to roll back and the level stays
+counted. That one is not addressed here.
+
+**`st.commit` is untouched** — the BASIC compiler still jumps past
+`OP.TXNEND`, which stays correct, because `op_txnend()` calls `rollback()`
+unconditionally and must not run after a commit.
+
+Measured on the fixed build: the outer record's write lands where it was
+previously lost, `SYSTEM(1008)` is balanced across the pair where it climbed by
+2, and `SYSTEM(1007)` names the parent transaction after the inner commit where
+it read 0.
+
+`FIXED HERE — PROPOSED UPSTREAM`
 
 ---
 

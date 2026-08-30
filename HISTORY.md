@@ -41977,3 +41977,60 @@ outright — *"a file edit goes through `Edit` or `Write`"*. The file was checke
 byte for byte afterwards and is undamaged (em dashes **589 on both sides**, CR
 0, no BOM, no mojibake, diff exactly the one intended line), but the check is
 what the rule exists to avoid needing.
+
+## 29 Aug 2026 — EIGHTY-FIRST session, fifth part: PRE_RELEASE 11, the silent transaction data loss, is fixed
+
+***THE WORST THING ON THE LIST.*** A nested `commit` abandoned the outer
+transaction: `op_txncmt()` undid neither half of what `op_txnbgn()` did, and
+`BCOMP`'s `st.commit` jumps past the `OP.TXNEND` that would have called
+`rollback()`. The outer transaction's cache was left orphaned on `txn_stack`,
+so the outer `COMMIT` wrote an **empty** one and its records were lost — no
+error, no warning, nothing in the log, while the inner records landed.
+
+***THE FIX IS ONE FUNCTION WITH TWO CALLERS, AND THAT IS THE POINT.*** The
+reinstate-and-decrement block at the foot of `rollback()` becomes
+`end_txn_level()`, called from `rollback()` and `op_txncmt()` both. **The defect
+was exactly that this bookkeeping had one place and one caller**, so a second
+copy in `op_txncmt()` would have been the same shape waiting to drift again.
+`rollback()`'s now-unused `stk` local went with it, so `-Wall` stays quiet.
+
+***PLACED BEFORE `exit_op_txncmt:`, DELIBERATELY.*** The three `goto`s above it
+are write and delete failures that have already called `k_error()`; the
+transaction is broken there and the level must not be popped as though it had
+committed.
+
+**Measured on the 18:36:04 install, `sd.exe` `4732ECF659E8DB40`** — the hash
+moved from `82DB7341BF662E31`, so the C really is in the installed binary:
+
+| | before | after |
+|---|---|---|
+| the outer record's write | `base` — **lost** | **`outer`** |
+| the inner record's write | `inner` | `inner` |
+| `SYSTEM(1008)` delta over the pair | **+2** | **0** |
+| `SYSTEM(1007)` after the inner commit | **0** | parent reinstated |
+
+***IT GETS A STANDING VERIFIER, NOT A ONE-OFF PROBE.*** `gplbld/verify-txn.ps1`,
+**9 of 9**, wired into `VerifyInstall1` **after** being measured — the rule
+`verify-lineendings` records. A silent data-loss defect is the kind that comes
+back unnoticed. It carries the two balanced non-nested cases as controls,
+because a fix that broke ordinary commit or rollback would still make the
+nested rows pass. The unelevated half is **14 steps** now.
+
+***ONE ROW FAILED ON ITS FIRST RUN AND THE PRODUCT WAS RIGHT.*** `NEST.LEVEL`
+expected 1 and read 2. The baseline `l0` is taken **outside** the outer
+transaction, so inside the inner one the depth is two above it — the label said
+one and the arithmetic said two. **The instrument was corrected, not `txn.c`.**
+Worth keeping because the reflex on a red row is to suspect the code, and here
+that would have led to unpicking a fix that was already right.
+
+***AND ONE THING IS FILED RATHER THAN FIXED.*** On the three commit-failure
+paths `process.txn_id` has already been zeroed at the top of `op_txncmt()`, so
+`txn_abort()` and `op_txnrbk()` both find nothing to roll back and the level
+stays counted with the stack orphaned. **Pre-existing, not widened by this**,
+and it needs a ruling about what to do with the records already written rather
+than a decrement. Recorded in 11's entry and in UPSTREAM 17.
+
+**UPSTREAM_FIXES 17 carries the shape** — the helper, the placement before the
+label, that `st.commit` is untouched (it stays correct, because `op_txnend()`
+calls `rollback()` unconditionally and must not run after a commit), and the
+same error-path caveat, which is in `sdb64` too.

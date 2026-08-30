@@ -49,7 +49,7 @@ no elevation.
 | 8 | **M** | `help` is an empty stub and F1 reaches it | `CPROC:2498` |
 | 9 | **M** | `umask` is implemented and unreachable | `CPROC:3301` |
 | ~~10~~ | **M** | ~~Two verifiers carry a dead ANSI strip~~ — ***IT WAS 23 FILES AND 24 OCCURRENCES, NOT TWO.*** **DONE 28 Aug 2026**: all converted to `([char]27 + '\[[0-9]*[A-Za-z]')`. ***AND IT WAS STILL SPREADING*** — three of the 23 were written the same day, by copying `probe-catprivate.ps1`'s `Invoke-SD` *"unchanged"*. **Guarded by a test, not by 23 comments**: `test-verdict-units.ps1` now scans the whole directory and fails if any script carries the dead form again, **tokenising rather than grepping** so a comment that quotes it (there are two, both correct) is not a false positive | `gplbld` |
-| 11 | **B** | ***Nested `commit` silently loses the outer transaction's writes*** — UPSTREAM #17, **unfixed here** | `gplsrc/txn.c` |
+| ~~11~~ | **B** | ***Nested `commit` silently loses the outer transaction's writes*** — UPSTREAM #17. ***DONE 29 Aug 2026***: the reinstate-and-decrement block is lifted out of `rollback()` into `end_txn_level()` and called from `op_txncmt()` too — **one function, both callers, because having it in one place with one caller is what the defect was.** Placed **before** `exit_op_txncmt:` so the three `k_error` paths do not pop a level they did not commit. **Measured on the 18:36:04 install, `verify-txn.ps1` 9 of 9**: the outer write now reads `outer` where it read `base`, the level delta is `0` where it was `+2`, and the parent transaction is reinstated where the session had been left in none. **Wired into `VerifyInstall1` after being measured, not before** | `gplsrc/txn.c`, `gplbld/verify-txn.ps1` |
 | 12 | **S** | Error 3023 tells the user the disk may be full — UPSTREAM #20, **unfixed here**. ***28 Aug: NOT the message-only fix this entry claims — the call site is `gplsrc/op_dio3.c:853`, so it is a C change and a REBUILD, not a data change. Left out of the 28 Aug batch for that reason*** | `sdsys/messages/1407`, `gplsrc/op_dio3.c:853` |
 | ~~13~~ | **M** | `qselect` prints its message without the list number — UPSTREAM #21. **FIXED HERE 28 Aug: `tgt.list` passed as the second argument.** ***DONE 28 Aug 2026, MEASURED*** by `verify-vocverbs.ps1`: the message ends in a list number, no dangling `select list `, and it selected more than zero. Still live upstream | `gpl.bp/QSELECT:240` |
 | ~~14~~ | **S** | `delete.file ... no.query` still prompts, so it cannot run unattended — UPSTREAM #23. **FIXED HERE 28 Aug: `check.sdsys.file` takes the safe `N` branch under `no.query` and says so — new message 10117.** ***DONE 28 Aug 2026, MEASURED*** by `verify-vocverbs.ps1` on a copy of the `messages` pointer: 10117 printed, **6146 never asked**, the VOC reference gone and `sdsys\messages` still on disk. Still live upstream | `gpl.bp/DELETEF:222` |
@@ -273,7 +273,34 @@ here.** What these entries add is the only thing that file does not say:
 ***whether our own tree still carries it.*** Checked against the source, not
 remembered.
 
-## 11. Nested `commit` silently loses the outer transaction's writes — **B**
+## 11. Nested `commit` silently loses the outer transaction's writes — **B** — **DONE 29 Aug 2026**
+
+***FIXED 29 Aug 2026 ON THE OWNER'S SEQUENCING.*** `end_txn_level()` is lifted
+out of `rollback()` and called from `op_txncmt()` as well, so a commit leaves
+the level it committed and a nested commit reinstates the parent instead of
+abandoning it. **Both halves of the caution below are honoured**: `txn_depth`
+and the `txn_stack` pop move together, so `system(1008)` did not become
+trustworthy while the data-loss path stayed.
+
+**Measured, not assumed** — `gplbld/verify-txn.ps1` on the 18:36:04 install,
+**9 of 9**, `sd.exe` `4732ECF659E8DB40`:
+
+| | before | after |
+|---|---|---|
+| the outer record's write | `base` — **lost** | **`outer`** |
+| the inner record's write | `inner` | `inner` |
+| `SYSTEM(1008)` delta over the pair | **+2** | **0** |
+| `SYSTEM(1007)` after the inner commit | **0** — no transaction | **non-zero** — parent reinstated |
+
+***THE CALL SITE IS BEFORE `exit_op_txncmt:`, DELIBERATELY.*** The three
+`goto`s above it are write and delete failures that have already called
+`k_error()`; the transaction is broken there and the level must not be popped
+as though it had committed. **That leaves a separate, pre-existing gap which
+this does not widen and does not fix**: on those error paths `process.txn_id`
+was already zeroed at the top of the function, so `txn_abort()` and
+`op_txnrbk()` both find nothing to roll back and the level stays counted. A
+commit that failed half way needs a decision about the records already written,
+not a decrement — **filed here rather than guessed at.**
 
 **UPSTREAM_FIXES #17. Live in this tree, verified 26 Aug 2026:** `txn_depth` is
 incremented at `gplsrc/txn.c:96` and decremented at `:592`, and `op_txncmt()`
