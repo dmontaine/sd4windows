@@ -167,7 +167,30 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
 >
-> # ⇩⇩ STOP: THIS INSTALL HAS NO API LISTENER. DO NOT SPEND `b70` ON IT. ⇩⇩
+> # ⇩⇩ 67's TASKS PAGE WAS WRONG AND IS FIXED. REBUILD THE INSTALLER. ⇩⇩
+>
+> ***TWO MISSING `[Tasks]` FLAGS MEANT TWO OF THE THREE STATES COULD NOT BE
+> EXPRESSED.*** Owner at the wizard, 30 Aug 2026: *"I click install the server
+> and both check boxes are filled. I unclick let other computer connect and it
+> also deletes installing the server."* **Read out of `ISetup.chm` rather than
+> assumed a second time**: `dontinheritcheck` stops a child being ticked with its
+> parent, and `checkablealone` is what lets a parent stay ticked when no child
+> is — *"by default … unchecking all of the task's children will cause the task
+> to become unchecked."* **Fixed on `sshserver` and `sshserver\sshremote`.**
+> The dependency half never needed code and is confirmed by the same topic:
+> *"A child task can't be selected if its parent task isn't selected."*
+>
+> ***REBUILD, THEN LOOK — NO INSTALL NEEDED.*** `-SkipInstall` stops after
+> building the installer and leaves the tree alone; running the `.exe` to the
+> tasks page and cancelling writes nothing.
+>
+> ***AND THE ABSENT-SERVER CASE IS ONLY NOW REACHABLE ON THIS HOST***: removing
+> the OpenSSH capability is staged behind a **reboot**, so the first attempt
+> still had `sshd.exe` on disk and the wizard correctly showed the server-present
+> box. **Check `Test-Path 'C:\Windows\System32\OpenSSH\sshd.exe'` is `False`
+> before reading anything into the page.**
+>
+> # ⇩⇩ AND: THIS INSTALL HAS NO API LISTENER. DO NOT SPEND `b70` ON IT. ⇩⇩
 >
 > ***THE 30 Aug CYCLE WAS INSTALLED WITH THE API BOX UNTICKED, AND UNDER 75 THAT
 > NOW MEANS NO LISTENER AT ALL.*** Measured: `# APIPORT=4243` is **commented** in
