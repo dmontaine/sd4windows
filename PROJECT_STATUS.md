@@ -150,6 +150,35 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩ WHAT TO PICK UP, IN ORDER ⇩
 >
+> # ⇩ 39 IS BUILT BUT ITS `-Remove` PATH IS UNRUN — IT WANTS THE VirtualBox RIG. ⇩
+>
+> ***THE UNINSTALLER NOW OFFERS TO TAKE THE WINDOWS ACCOUNTS SD CREATED***, as
+> a second prompt after the database one, both defaulting to keep. New shipped
+> script `gplbld/remove-sdaccounts.ps1`, and the closing disclosure names the
+> accounts at last. **Install 29 Aug 18:5x, `assert-current` exit 0 live.**
+>
+> ***"THE INSTALLING PERSON" RESOLVES TO `{username}` AT UNINSTALL TIME*** — the
+> entry told the next session to settle that first, so: the installer's identity
+> is **not** persisted, deliberately. An uninstall may happen years later under a
+> different administrator, and an exclusion naming a deleted account protects
+> nobody. **The owner's purpose clause is the real requirement** and is
+> implemented as a property that is checked: the sweep **refuses outright** if it
+> would remove the last local administrator, and that **overrides a Yes**.
+>
+> ***READ THIS BEFORE TICKING 39: THE `-Remove` PATH HAS NEVER RUN.*** Only the
+> read-only half is measured — the candidate set, the `-Keep` exclusion, all
+> three refusals, the gate ordering (every refusal precedes every write), and the
+> `cmd /c` log redirection. **Nothing has been deleted.**
+>
+> ***AND THE PROMPT CANNOT BE REACHED FROM A CYCLE AT ALL, FOR TWO REASONS.***
+> `cycle.ps1` uninstalls `/VERYSILENT`, so `UninstallSilent` short-circuits
+> before it; and `cycle.ps1:486` records the harder one — ***"an uninstaller fix
+> cannot be verified in the cycle that ships it"***, because `unins000.exe` is
+> generated at INSTALL time. This change reaches an uninstaller only at the
+> **next** install. **So it wants task 7.2's guest, not this machine** — a real
+> uninstall that deletes accounts should not be exercised where the accounts
+> matter.
+>
 > # ⇩ PRE_RELEASE 11 IS FIXED — THE SILENT TRANSACTION DATA LOSS. CYCLED AND MEASURED. ⇩
 >
 > ***THE WORST THING ON THE LIST IS GONE.*** A nested `commit` used to abandon

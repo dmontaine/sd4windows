@@ -42034,3 +42034,53 @@ than a decrement. Recorded in 11's entry and in UPSTREAM 17.
 label, that `st.commit` is untouched (it stays correct, because `op_txnend()`
 calls `rollback()` unconditionally and must not run after a commit), and the
 same error-path caveat, which is in `sdb64` too.
+
+## 29 Aug 2026 — EIGHTY-FIRST session, sixth part: PRE_RELEASE 39 built, and its dangerous half deliberately left unrun
+
+***THE UNINSTALLER OFFERS TO REMOVE THE WINDOWS ACCOUNTS SD CREATED*** — a
+second prompt after the database one, both defaulting to keep, on the owner's
+ruling of 29 Aug. New shipped script `gplbld/remove-sdaccounts.ps1`, and the
+closing disclosure names the accounts at last.
+
+***"THE INSTALLING PERSON" RESOLVES TO `{username}` AT UNINSTALL TIME.*** The
+entry told whoever picked it up to settle this before writing the sweep. The
+installer's identity is **not** persisted, deliberately: an uninstall may happen
+years later under a different administrator, and an exclusion naming an account
+that no longer exists protects nobody. **The owner's purpose clause is the real
+requirement** — *"so that there is at least one remaining account that can log
+into windows"* — so it is implemented as a property that is **checked**, not an
+identity that is trusted: the sweep refuses outright if it would remove the last
+local administrator, and that refusal **overrides a Yes at the prompt**.
+
+**The candidate set is `sdusers` membership and nothing else.**
+`CREATE.ACCOUNT` adds every account it makes and nothing else does, so the group
+*is* the list — structural rather than a name test that could be got wrong.
+
+***THE GUARDS WERE MOVED SO THEY COULD BE TESTED AT ALL.*** The elevation
+refusal originally fired first, which meant the two argument refusals could only
+be exercised from an elevated shell — the one state in which the script *can*
+delete accounts. **A guard you can only test armed is a guard nobody tests.**
+Everything from the top to the act step now reads and decides; the elevation
+gate sits immediately above the first line that writes.
+
+**Measured — the read-only half only.** Candidates `b48adm`, `sdsshb55`,
+`test1`; `don` kept; administrators remaining `Administrator`, `bkupuser`,
+`don`. All three refusals fired. Gate ordering checked **statically**: every
+refusal precedes every write. The `cmd /c` quoting and log redirection were run
+for real in report mode.
+
+***WHAT WAS NOT RUN, AND THE REASONS ARE STRUCTURAL.*** The `-Remove` path —
+nothing has been deleted. The last-administrator refusal, which cannot be
+provoked on a machine with administrators outside `sdusers`. And the prompt
+itself, twice over: `cycle.ps1` uninstalls `/VERYSILENT` so `UninstallSilent`
+short-circuits before it, and `cycle.ps1:486` records the harder half — ***"an
+uninstaller fix cannot be verified in the cycle that ships it"***, because
+`unins000.exe` is generated at INSTALL time. **It wants task 7.2's guest**, and
+a real uninstall that deletes accounts should not be exercised where the
+accounts matter.
+
+**One trap paid for and caught by the tooling rather than by a run:** `sd.iss`
+grew a line starting with `#13#10`, which ISPP reads as a preprocessor
+directive — the exact thing that file warns about twice, read earlier in the
+same session and walked into anyway. `cycle.ps1`'s own guard stopped the cycle
+in 5 seconds and named the line.

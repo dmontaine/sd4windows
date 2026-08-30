@@ -2333,6 +2333,56 @@ the prompt's answer is overridden.
 it is work that must land before W1.0-0 rather than a question about whether to
 do any.
 
+### ***BUILT 29 Aug 2026 — AND THE `-Remove` PATH IS UNEXERCISED. READ THAT BEFORE TICKING IT.***
+
+**New shipped script `gplbld/remove-sdaccounts.ps1`** (in `stage.py`'s list, so
+**NOT** on `$neverShipped`), a second prompt in `sd.iss`, and the closing
+disclosure fixed with it.
+
+***WHAT "THE INSTALLING PERSON" RESOLVES TO — SETTLED, AS THE ENTRY ASKED.***
+It resolves to **`{username}` at UNINSTALL time**, passed as `-Keep`. The
+installer's identity is **not** persisted and deliberately so: an uninstall may
+happen years later, run by a different administrator, and an account recorded at
+install time may not exist any more — an exclusion naming a deleted account
+protects nobody. **The owner's purpose clause is the real requirement** —
+*"so that there is at least one remaining account that can log into windows"* —
+so that is implemented as a property to check rather than an identity to trust.
+
+| guard | behaviour |
+|---|---|
+| candidate set | **`sdusers` membership only.** `CREATE.ACCOUNT` adds every account it makes and nothing else does, so the group *is* the list SD created — structural, not a name test |
+| `-Keep` missing or unmatched | **refuses, exit 2.** The exclusion is meant to hold by construction, so an unnamed keeper means the construction did not happen |
+| would remove the last local administrator | ***refuses the whole sweep, exit 2 — and this overrides a Yes at the prompt*** |
+| not elevated | refuses at the act step |
+| the prompt | names the account it is keeping **in the question**, so a wrong answer is visible before it acts |
+| the report | logged to a file, named back to the user, listing removed and kept |
+
+***MEASURED — THE READ-ONLY HALF ONLY.*** Report mode on this machine:
+candidates `b48adm`, `sdsshb55`, `test1`; `don` kept by `-Keep`; administrators
+that would remain `Administrator`, `bkupuser`, `don`. All three refusals fired
+(`-Remove` with no `-Keep`; `-Keep nosuchuser`; and the elevation gate). **The
+gate ordering was checked statically** — every refusal precedes every write, the
+first write being 20 lines below the last gate. The `cmd /c` quoting and log
+redirection were exercised for real in report mode.
+
+***WHAT HAS NOT BEEN RUN, AND CANNOT BE HERE:***
+- **the `-Remove` path.** Nothing has actually been deleted.
+- **the last-administrator refusal**, which cannot be provoked on a machine
+  with administrators outside `sdusers`.
+- ***the prompt itself. `cycle.ps1` uninstalls `/VERYSILENT`, so `UninstallSilent`
+  short-circuits before it*** — and `cycle.ps1:486` records the harder half:
+  **"an uninstaller fix cannot be verified in the cycle that ships it"**, because
+  `unins000.exe` is generated at INSTALL time. This change reaches an uninstaller
+  only at the *next* install.
+
+***SO IT WANTS THE VirtualBox RIG (task 7.2), NOT THIS MACHINE.*** A real
+interactive uninstall that deletes accounts should not be exercised where the
+accounts matter. **Do not tick this entry until it has been.**
+
+**One trap paid for**: `sd.iss` grew a line starting with `#13#10`, which ISPP
+reads as a preprocessor directive — the exact thing that file's own comments
+warn about twice. `cycle.ps1`'s guard caught it and named the line.
+
 ## 40. A verifier's transcript swallows the verifiers that run after it — **M** (verifier, not product) — ***DONE 28 Aug 2026***
 
 Found 27 Aug 2026 while counting the `b49` run, and it **nearly produced a wrong
