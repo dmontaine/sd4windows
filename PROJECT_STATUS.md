@@ -175,9 +175,20 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***THE PRODUCT RULE IT WAS PROTECTING IS INTACT.*** `LOGIN:901` still bypasses
 > the batch gate on `K$ADMINISTRATOR`, so *"elevation passes on its own"* (the
 > owner's 22 Aug decision) holds — **in SDSYS**, which is now the only place an
-> elevated session can be. **What needs deciding is whether that row should be
-> re-aimed at SDSYS or dropped**; it is the owner's call, and it is the last of
-> PRE_RELEASE 59's four.
+> elevated session can be.
+>
+> ***RULED 29 Aug 2026 — "re-aim the batchjob row at sdsys". BUILT AND UNRUN; IT
+> NEEDS `b66`.*** The elevated child now asserts that `batch.jobs/SDSYS` is
+> absent (**refusing out loud rather than deleting a record it did not write**),
+> plants the same `COUNT VOC` paragraph in **SDSYS's own VOC** as `zzbatchsyspa`,
+> runs it, and cleans up **unconditionally** with `DELETE VOC` plus the BP source
+> and object. ***THE ACCOUNT PROBES COULD NOT BE REUSED*** — they are in the
+> ACCOUNT's VOC and an elevated session never sees them, which is the whole
+> reason the row had to move. **A broken precondition is recorded NON-DECISIVE,
+> not as a FAIL**, so it cannot make a claim about the product that the run did
+> not make. **This is PRE_RELEASE 59's last of four; no cycle is owed** —
+> `verify-batchjob.ps1` is on `$neverShipped`, `assert-current` is exit 0 live,
+> and the script parses with **0 errors and all 8 functions found**.
 >
 > ***USE `b66`. b54–b65 ARE SPENT.*** `b64` bought nothing — an interrupted
 > parent stranded `sdtub64`, and `b65`'s sweep removed it exactly as read from
@@ -198,13 +209,29 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **10129** installed at 424 and 308 bytes, and the mirrored file count moved
 > 2982 → **2984**, which is exactly the two new messages.
 >
-> ***NOTHING IS IN FLIGHT AND NOTHING IS HALF-BUILT.*** Step 2 is built,
-> cycled, installed and measured. **The only open question is the one row
-> above, and it is a decision rather than a repair.**
+> ***NOTHING IS IN FLIGHT AND NOTHING IS HALF-BUILT. THE ONE THING OWED IS A
+> RUN.*** Step 2 is built, cycled, installed and measured; the `verify-batchjob`
+> row is ruled and re-aimed at SDSYS, and it has never been executed.
 >
-> ***DO NOT RE-RUN THE SUITE FOR ITS OWN SAKE.*** `b65` is the settled reading
-> and repeating it measures the same thing again. Spend `b66` on a run that
-> carries the `verify-batchjob` decision, once it is taken.
+> ***SO `b66` NOW CARRIES SOMETHING AND IS WORTH SPENDING*** — which `b65` would
+> not have been. **ORDINARY, UNELEVATED PowerShell, not elevated:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b66 -ContinueOnFailure
+> ```
+>
+> **Expect unelevated 13 of 13** if the re-aim is right. ***THE ROW TO READ IS
+> `ELEVATED in SDSYS, no entry: still runs`***, and there are two ways for it to
+> be uninformative rather than wrong: `SDSYS-ENTRY-PRESENT` (something listed
+> SDSYS in `batch.jobs` — it will say so and score non-decisive) and
+> `SDSYS-PLANT-FAILED` (the paragraph would not compile in SDSYS's VOC). **Both
+> print the child's own text; neither is a product finding.**
+>
+> ***AND CHECK SDSYS IS CLEAN AFTERWARDS***, since this is the first thing to
+> plant a probe there deliberately: no `zzbatchsyspa` in the VOC, no `ZZBATCHS`
+> in `sdsys\bp` or `sdsys\bp.out`. The cleanup is unconditional and runs on every
+> path, but PRE_RELEASE 60 and 61 are both about records outliving what they
+> name, so it is worth one look rather than one assumption.
 >
 > ***AND DO NOT Ctrl-C IT — `b64` IS WHAT THAT COSTS.*** 29 Aug 15:45:56:
 > `Create` succeeded in full and **the parent transcript then stopped dead**

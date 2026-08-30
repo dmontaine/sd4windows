@@ -41890,3 +41890,43 @@ merely being out of date.
 **Nothing executable referenced the old path.** `assert-current.ps1:553-559` and
 `setup-devbox.ps1:129-143` name `<docs>/tools/mkdoc.py` and the repository by
 name, so both were already correct.
+
+## 29 Aug 2026 — the batchjob row is re-aimed at SDSYS, and the bypass turns out to be provable more strongly there
+
+***OWNER'S RULING: "re-aim the batchjob row at sdsys".*** PRE_RELEASE 59's last
+of four. `verify-batchjob`'s elevated child no longer `Push-Location`s into the
+account — a state the ruled model does not have — and asks the question where an
+elevated session actually is.
+
+***THE RE-AIM IS PROVABLE MORE STRONGLY THAN THE ORIGINAL, WHICH WAS NOT
+OBVIOUS UNTIL `batch.permitted` WAS READ.*** `LOGIN:901` bypasses the **whole**
+of that routine on `K$ADMINISTRATOR` — the no-arguments check at `:1111`, the
+`batch.jobs` listing check at `:1141` **and** the PA/S type check at `:1154`. So
+a command that runs in SDSYS with no `batch.jobs/SDSYS` record cannot have
+passed the listing check, and the bypass is the only remaining explanation.
+
+**Four properties, and three of them are refusals rather than measurements:**
+
+- ***the "no entry" precondition is asserted, not assumed***, and a record found
+  there is **not deleted** — this script did not write it. Without that, the row
+  could pass because SDSYS was listed rather than because elevation bypassed the
+  gate;
+- **the account probes could not be reused** — they are in the ACCOUNT's VOC and
+  an elevated session never sees them, which is the whole reason the row moved.
+  A second paragraph, `zzbatchsyspa`, is planted in SDSYS's own VOC through a
+  piped `sd`, keeping the proven `record(s) counted` anchor;
+- **cleanup is unconditional** — `DELETE VOC` plus the BP source and object, on
+  every path out including both failure paths. PRE_RELEASE 60 and 61 are both
+  about a VOC record outliving what it names, and this is the first thing to
+  plant a probe in SDSYS deliberately;
+- ***"could not be measured" is scored NON-DECISIVE, not FAILED.*** Two markers,
+  `SDSYS-ENTRY-PRESENT` and `SDSYS-PLANT-FAILED`, print the child's own text and
+  cannot turn the script red. A broken precondition reported as a failure is a
+  claim about the product that the run did not make.
+
+**Checked before hand-over, per §"verify a script loads":** parses with **0
+errors and all 8 functions found by name** — the count matters, since 0 errors
+on a file the parser saw nothing in is not a pass — no BOM, CR 0.
+`assert-current` exit 0 (it is on `$neverShipped`, so **no cycle is owed**),
+`test-verdict-units` 126/126, `test-sysmsg-units` 43/0. ***UNRUN: it needs
+`b66`.***

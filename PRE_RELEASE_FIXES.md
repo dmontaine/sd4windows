@@ -3088,11 +3088,38 @@ converted in a few edits. The other two do not:
   SDSYS**, which is now the only place an elevated session can be. **Nothing is
   broken; the check is aimed at a place that no longer exists.**
 
-  ***LEFT TO SETTLE, AND IT IS THE OWNER'S CALL:*** re-aim the row at SDSYS (an
-  elevated session there, no `batch.jobs` entry, does the command run?) or drop
-  it as unmeasurable and say so in the file. **Re-aiming is the smaller change
-  and keeps a control on a rule that still has force.** Everything else in that
-  verifier passes as it stands.
+  ***RULED 29 Aug 2026 — "re-aim the batchjob row at sdsys". BUILT, UNRUN.***
+  The elevated child no longer `Push-Location`s into the account. It now:
+
+  1. **asserts the "no entry" precondition** — refuses out loud with
+     `SDSYS-ENTRY-PRESENT` if `batch.jobs/SDSYS` exists, and **does not delete a
+     record it did not write**. Without this the row could pass because SDSYS
+     was listed rather than because elevation bypassed the gate;
+  2. **plants the same `COUNT VOC` paragraph in SDSYS's own VOC** (`zzbatchsyspa`,
+     through a piped `sd`, since a VOC is a dynamic file), because the account
+     probes live in the ACCOUNT's VOC and an elevated session never sees them —
+     which is the whole reason the row had to move;
+  3. runs it from the command line and keeps the proven `record(s) counted`
+     anchor;
+  4. **cleans up unconditionally** — `DELETE VOC` plus the BP source and object,
+     on every path out including both failures. PRE_RELEASE 60 and 61: a VOC
+     record outliving what it names *is* the defect those entries are about.
+
+  ***IT IS DECISIVE FOR A REASON THAT GOT STRONGER, NOT WEAKER.*** `LOGIN:901`
+  bypasses **the whole of `batch.permitted`** on `K$ADMINISTRATOR` — the
+  no-arguments check, the `batch.jobs` listing check **and** the PA/S type
+  check. So a command that runs with no SDSYS record cannot have passed the
+  listing check, and the bypass is the only thing left that explains it.
+
+  ***AND "COULD NOT BE MEASURED" IS NOT SCORED AS "FAILED".*** Both refusal
+  markers record the row **non-decisive** and print the child's own text, so a
+  broken precondition cannot turn the script red or make a claim about the
+  product that the run did not make.
+
+  **Checked before hand-over**: parses with **0 errors and all 8 functions
+  found**, no BOM, CR 0; `assert-current` exit 0 (it is on `$neverShipped`, so
+  **no cycle is owed**), `test-verdict-units` 126/126, `test-sysmsg-units` 43/0.
+  ***UNRUN — it needs `b66`.***
 
 **Neither is a reason to stop; both are a reason not to do them in a hurry.**
 The two that were mechanical are done and green, which is the whole value of
