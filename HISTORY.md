@@ -42334,3 +42334,32 @@ newer than the 18:55:20 install, so it exits 1 and every verifier refuses.
 **A cycle first, then `b67`, then an elevated `listf` — that order, and the
 third is the only thing that closes 63.** It stays **open and unstruck**:
 compiling is not running, and nothing has observed the new column yet.
+
+## 29 Aug 2026 — EIGHTY-SECOND session, fourth part: 63 verified and closed, b67 green, and a UTF-16 log nearly scored a false clean
+
+**Owner ran all three steps.** Install **20:31:49**, `sd.exe`
+**`4732ECF659E8DB40`**, `assert-current` **exit 0 live** — *"no source file is
+newer than the install"*, which is what makes the rest of this admissible.
+
+***63 IS VERIFIED BY THE ONLY THING THAT COULD VERIFY IT.*** An elevated `listf`
+in SDSYS: all sixteen files carry a description, **zero bare type codes left in
+the column**, and ***`$MAP` still reads `DH`*** — the control, being the row that
+started 61 and was never broken. **Open count 18 → 17.**
+
+***`-Run b67` GREEN IN BOTH HALVES ON THE SAME INSTALL***: `VerifyInstall1`
+every step exit 0, `VerifyInstall2` **19 of 19**, **655 `[PASS]`, zero
+`[FAIL]`** across 21 transcripts. The twelve record changes broke nothing.
+
+***AND THE COUNT NEARLY CAME OUT AS A CONFIDENT ZERO.*** The per-step logs under
+`%LOCALAPPDATA%\SD-verify` are **UTF-16**. A plain `grep -a '\[PASS\]'` over
+them matches **nothing**, so the first aggregate read **`PASS=0 FAIL=0` across
+19 logs** — a line that looks like a clean run and is a dead instrument.
+**What caught it was the rule already written down**: *zero is suspicious, not
+clean — confirm the pattern still matches something at all.* With the NULs
+stripped (`tr -d '\000'`) the same files give 655 and 0.
+
+***THE GENERAL FORM, WHICH IS WORTH MORE THAN THE FIX.*** A `FAIL` count is only
+meaningful beside a `PASS` count from the same grep on the same bytes. **Read
+them as a pair, and treat a zero-zero as a broken reader until the PASS half
+proves otherwise** — this is the third instrument this project has caught by
+demanding a control rather than by noticing a wrong answer.
