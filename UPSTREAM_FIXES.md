@@ -1871,7 +1871,35 @@ convention, so the case is rarer there than here, and the code is the same.
 
 ---
 
-## `NEWVOC/$MAP` has no file type code, so SDSYS's VOC ships a broken record
+## `NEWVOC/$MAP` has no file type code, so SDSYS's VOC ships a broken record — WITHDRAWN, and the premise was measured false
+
+**Status:** **CLOSED 29 Aug 2026. Nothing to send, and this one must NOT go
+upstream as it was written.** Measured against a live install of this port
+rather than reasoned about. Three things below are wrong:
+
+- ***`VOC_TEMPLATE`, NOT `NEWVOC`, IS WHAT BECOMES SDSYS's OWN VOC***, so SDSYS
+  ships `$MAP` **with** its `F`. Read out of the live VOC at byte level, and
+  stated outright in this port's `gplbld/stage.py:119`.
+- ***`NEWVOC` CARRYING THE DESCRIPTION IN FIELD 1 IS A CONVENTION ACROSS THE
+  WHOLE DIRECTORY***, not a defect in one record. `NEWVOC/basic` reads
+  `Verb to compile SDBasic program` where `VOC_TEMPLATE/basic` reads `V`.
+- ***AND THAT FIELD NEVER REACHES A VOC AT ALL — `CREATE.ACCOUNT` DROPS IT.***
+  `GPL.BP/CREATEA` says so in its own comment: *"NOT `delete(rec, 1)` to drop
+  the description field … the loop starts at field 2 instead."* So an account's
+  VOC is built from field 2 onward and gets a proper type code. Confirmed on a
+  live account: its `$MAP` holds `F`, with **zero** occurrences of the
+  description text anywhere in its VOC.
+- ***THE `LISTF` DESCRIPTION COLUMN IS A LOOKUP INTO `NEWVOC`, NOT A FIELD OF
+  THE RECORD.*** `VOC.DIC`'s `Description` item is `IF @ = '' THEN F1 ELSE @`
+  over `NEWVOC`. **The control that proves it**: neither `File for MAP output`
+  nor `File - Vocabulary` appears anywhere in SDSYS's VOC file, while `LISTF`
+  displayed both. So the column showing `File for MAP output` was `NEWVOC`
+  being read exactly as intended — **the reported symptom was the feature.**
+
+Kept because the *method* is the reusable part: ***"the same record shipped
+twice and only one copy is right" is what a directory-wide convention looks
+like when exactly one record is examined.*** The entry as originally written
+follows, unaltered.
 
 `sd64/sdsys/NEWVOC/$MAP` reads:
 
@@ -1917,4 +1945,21 @@ were gone, `$MAP` was the only error record left, on an otherwise clean install.
 `VOC_TEMPLATE/$MAP`. Worth checking at the same time which of the two files
 feeds SDSYS's own VOC, since only one of them is producing this.
 
-`PROPOSED`
+***— END OF THE ORIGINAL ENTRY. THE FIX IT PROPOSES WOULD HAVE BROKEN A WORKING
+FILE.*** The check it asked for in its own last sentence is the one that killed
+it: `VOC_TEMPLATE` feeds SDSYS, `NEWVOC` field 1 is the description, and pasting
+`F` over it would have deleted `$MAP`'s description and left it the single
+inconsistent record in the directory.
+
+**And the `Err 30` does not reproduce.** Re-run on a rebuilt install, `LISTF`
+shows `$MAP` as **`DH`** with both pathnames resolved. `Err 30` came from a
+failed `openpath` on **field 2** — byte-identical in both copies — so field 1
+was never a candidate cause; the original reading took the description column
+for the type code and reasoned from there.
+
+***THE METHOD FAILURE WORTH KEEPING.*** Three files were compared as though
+they did one job. `VOC_TEMPLATE` field 1 is a **type code**, `NEWVOC` field 1 is
+a **description**, and the `LISTF` column is a **lookup into the latter**.
+Reading one record out of one of them, against one record out of another, made
+a deliberate design look like a shipped defect — and every sentence of the
+report above is individually accurate.

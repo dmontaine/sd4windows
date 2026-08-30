@@ -42169,3 +42169,72 @@ actually shipped has not been measured.
 before the `F` goes in; 62 wants the `elevate('START')` re-measurement. No
 cycle spent, nothing under `gplsrc` or `sdsys` touched, and the suite run
 `b67` is still owed.
+
+## 29 Aug 2026 — EIGHTY-SECOND session, second part: 61 closes as not a defect, its premise inverted, and the upstream report is withdrawn one step before sending
+
+***`listf` IN SDSYS SHOWS `$MAP` AS `DH`, NOT `Err 30`.*** The symptom does not
+reproduce on the 18:55:20 install, and the entry was wrong in a more
+interesting way than "it got fixed by something else".
+
+***THREE FILES DO THREE DIFFERENT JOBS AND THE ENTRY COMPARED TWO OF THEM AS IF
+THEY DID ONE.***
+
+- **`voc_template` field 1 is the TYPE CODE**, and that file becomes SDSYS's own
+  VOC — `gplbld/stage.py:119` says so, `verify-lcnames.ps1:771` says so, and the
+  live bytes agree (`sdsys/voc/%0`, offset 11280: `$MAP` `F` `@SDSYS/$map`
+  `@SDSYS/$map.dic`). The entry's *"the live reading appears to contradict"* was
+  the misreading, not the verifier.
+- **`newvoc` field 1 is the DESCRIPTION**, and ***`CREATEA` DROPS IT***.
+  `CREATEA:1181`, in its own words: *"NOT `delete(rec, 1)` to drop the
+  description field … the loop starts at field 2 instead."* So it never reaches
+  an account's VOC at all. `don`'s live VOC carries `F`, with zero occurrences
+  of the description text.
+- **`listf`'s Description column is a LOOKUP into `newvoc`**, not a field of the
+  record: `voc.dic`'s `Description` item is `IF @ = '' THEN F1 ELSE @`.
+
+***THE CONTROL IS THE ONLY REASON THIS WAS SETTLED RATHER THAN ARGUED.***
+Neither `File for MAP output` nor `File - Vocabulary` appears anywhere in
+SDSYS's VOC file, while `listf` displayed both. That one grep killed every
+explanation that had the column reading the record — ***including one of this
+session's own***: "it works because SD dispatches on `voc.entry.type[1,1]`" was
+offered as the mechanism, is not it, and was withdrawn. The `[1,1]` reading was
+borrowed from the `VOC_TEMPLATE/COPYP` precedent, where field 1 genuinely is the
+type code — a real precedent applied to the wrong file.
+
+***AND A 392-OF-392 MEASUREMENT WAS TRUE AND MEASURED THE WRONG PROPERTY.***
+Every `newvoc` description's first character does equal `voc_template`'s type
+code, so the check passed — but field 1 is discarded before it could matter, so
+agreement was a consequence of describing a File as "File…" rather than a
+property anything depends on. **A green check is not evidence the question was
+the right one.**
+
+***THE UPSTREAM REPORT WAS `PROPOSED` — WRITTEN UP AND NOT YET SENT.*** It
+carried the same false claim and its proposed fix, pasting `F` over field 1,
+would have deleted `$MAP`'s description and made it the one inconsistent record
+in the directory. Withdrawn in UPSTREAM_FIXES.md on entry 2's convention, the
+original kept intact, because ***"the same record shipped twice and only one
+copy is right" is what a directory-wide convention looks like when exactly one
+record is examined*** — and every individual sentence of that report was
+accurate.
+
+**Filed from it: 63, `M`.** Ten of SDSYS's sixteen files print a bare `F` where
+a description belongs — the `voc.dic` fallback meeting files that have no
+`newvoc` record, which nine of the ten correctly do not, being SDSYS-only.
+Cosmetic, but it is in the first output a new administrator sees.
+
+***62 IS TRACED AND STAYS OPEN, WHICH IS THE POINT.*** Both routes into SDSYS
+now test the person before anything prompts: `LOGIN:568` requires an
+already-elevated session **and** an administrator, so a standard user cannot
+reach `elevate('START')` at all; `CPROC:2634` refuses with 10002 and audits
+`LOGTO REFUSED account=SDSYS reason=not an administrator` **before** the elevate
+call, deliberately — *"a refusal that arrives after UAC has drawn its dialog has
+already asked a person for a password it was never going to accept"*.
+`elevate('START')` has exactly two callers and those are both of them, and
+`keys.h:201`'s `K_OS_ADMINISTRATOR` is the person, unforgeable in SD and unmoved
+by a `LOGTO`. ***BUT `10002`, `not an administrator` AND `LOGTO REFUSED` GET
+ZERO HITS ACROSS EVERY `gplbld/verify-*.ps1`***, so the refusal is asserted by
+reading and by nothing else. **Compiling is not running, so it does not close.**
+
+**Open count unchanged at 18** — 61 closed, 63 filed. **Blockers 4 → 3: 2, 39
+and 62**, and **2 had been left out of the blockers table** despite being a `B`;
+it is in it now. No cycle spent, nothing under `gplsrc` or `sdsys` touched.
