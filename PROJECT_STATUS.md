@@ -167,25 +167,41 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
 >
-> ***DO THESE TWO THINGS FIRST, IN THIS ORDER, BEFORE READING ANYTHING ELSE.***
-> A fix for the LAST blocker is committed and **UNCOMPILED**, and
-> `assert-current` is **RED** because source has moved past the install.
+> # ⇩ GREEN. 68 IS CLOSED ON A MEASURED RUN. NOTHING IS IN FLIGHT. ⇩
 >
-> **1. ELEVATED PowerShell:**
-> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+> ***`-Prefix sdswa5`: 7 PASS / 0 FAIL / 0 SKIP.*** Install **30 Aug 12:02:00**,
+> `assert-current` **exit 0 live**, and the installed `gpl.bp/CRED_SET` is
+> **byte-identical to source** (`sha256 2657b46b…`) carrying the fix's marker —
+> **so the green run measured the fix and not a stale tree, checked rather than
+> assumed.** The anchor is the SUCCESS wording, `Password set for account
+> SDSWA5`, where the two previous runs printed *"Unable to set password …
+> status 3035/3037"*. **All three controls green, tally equals the row count.**
 >
-> **2. ORDINARY UNELEVATED PowerShell** (it refuses if elevated, deliberately):
-> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-sdsyswrite.ps1 -Prefix sdswa5`
+> ***NOTHING NEEDS RUNNING TO PICK THIS UP.*** `assert-current` is exit 0, the
+> tree is current, and the next session can start on the work below rather than
+> on a cycle. **Spent: `sdswa1`–`sdswa5`, `b54`–`b69`, `sdapiaz1`.** The suite
+> itself has not been run since `b66`; **use `b70`** when it is.
 >
-> **One UAC prompt, one throwaway account created and deleted. `sdswa1`–`sdswa4`
-> are spent, and so are `b54`–`b69` and `sdapiaz1`.**
+> ***WHAT IS LEFT, IN ORDER.*** **(1) 72's proof — the recipe is in the "72 IS
+> FIXED AND NOT YET PROVEN" paragraph below**, and the provocation has to be two
+> passwords that do not match, because 68 being fixed removed the failure it used
+> to rely on. **(2) The four unbuilt rulings,
+> 66, 67, 75 and 76 — they interact, so rule on them together.** **(3) H.2, the
+> documentation**, still blocked behind 56/57 settling. **(4) 73 stays open on
+> ONE leg** — its own design called for an audit/log append as the control that
+> should still SUCCEED, and `verify-sdsyswrite` has no such row, so a change that
+> broke append everywhere would read green there.
 >
-> ***THAT SECOND COMMAND IS THE WHOLE TEST.*** Expect **7 PASS / 0 FAIL**.
-> `sdswa4` was **6 PASS / 1 FAIL** and the failure had MOVED — status **3035 →
-> 3037** — which is the two-stage status earning its keep: the elevated write
-> now succeeds and only the read-back failed. **Read the three controls before
-> the verdict**; a green run with a broken control is not a pass, and the tally
-> refuses itself if pass+fail+skip does not equal the row count.
+> ***THE CHANGELOG IS ALREADY WRITTEN AND NEEDS NOTHING*** — the 30 Aug entry
+> *"SETTING A PASSWORD WORKS FROM SDSYS WHICHEVER WAY YOU REACHED IT"* is at the
+> TOP of `sdsys/changelog` (newest first) and its closing sentence is still
+> exactly true. **A session that greps its tail will conclude it is missing.**
+>
+> ### ⇩ HOW 68 WAS FINISHED, KEPT BECAUSE IT IS THE SAME MISTAKE TWICE ⇩
+>
+> ***`sdswa4` WAS 6 PASS / 1 FAIL AND THE FAILURE HAD MOVED — 3035 → 3037.***
+> That is the two-stage status earning its keep on the run after it was added:
+> the elevated write succeeded and only the read-back failed.
 >
 > ***WHY 3037 HAPPENED, BECAUSE IT IS THE SAME MISTAKE TWICE IN ONE WEEK.***
 > The read-back was copied from `MODIFYA`, where it is valid, into the one file
@@ -211,13 +227,10 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > every value is base64, so `-ne` ACCEPTS a record differing in case alone and
 > reports it verified.
 >
-> **Pre-flighted this session, so the cycle is not spent on a script that never
-> loads**: the emitted PowerShell parses (0 errors), round-trips byte-identical,
-> and SD sees **6 fields**; `CRED_SET` is BOM-free, LF-only, ASCII, and its
-> `then`/`end` balance is unchanged from HEAD. ***STILL OWED WHEN IT GOES
-> GREEN***: a `changelog` line — the fix is user-visible (an administrator who
-> reaches SDSYS by `logto` can set a password at last) and nothing has been
-> written there for 68 yet.
+> **Pre-flighted before the cycle, so it was not spent on a script that never
+> loads**: the emitted PowerShell parsed (0 errors), round-tripped
+> byte-identical, and SD saw **6 fields**; `CRED_SET` BOM-free, LF-only, ASCII,
+> `then`/`end` balance unchanged from HEAD. **All of it held on the real run.**
 >
 > ***READ THE THREE CONTROLS BEFORE THE VERDICT.*** Setup must create the
 > account, the unelevated session must have REACHED SDSYS and read it, and the
@@ -225,7 +238,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > is not a pass** — that is the exact failure the file was written to avoid, and
 > its own tally refuses itself if pass+fail+skip does not equal the row count.
 >
-> ***WHAT THE FIX IS, IN CASE THE RUN GOES BADLY.*** 68 is two writes SD makes
+> ***WHAT THE FIX IS, AS BUILT.*** 68 is two writes SD makes
 > to stores an unelevated process cannot touch: `$cred` (`secure-cred.ps1` grants
 > `sdusers` nothing) and `os.users` (`secure-osusers.ps1` grants read-only).
 > Both now fall back to `ps_script`, which hands the work to the elevated helper

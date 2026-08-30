@@ -42923,4 +42923,31 @@ PowerShell's default compare is case-insensitive and every value is base64, so
 **Pre-flighted rather than cycled:** the emitted PowerShell parses clean and
 round-trips byte-identical with SD seeing 6 fields; `CRED_SET` stays BOM-free,
 LF-only, ASCII, `then`/`end` balance unchanged from HEAD. **Built, uncompiled —
-one cycle then `-Prefix sdswa5`.** A `changelog` line is still owed once green.
+one cycle then `-Prefix sdswa5`.**
+
+## 30 Aug 2026 — 68 closed: `-Prefix sdswa5` is 7 PASS / 0 FAIL / 0 SKIP
+
+Install **12:02:00**, `assert-current` **exit 0 live**. **The tree under test
+was dated before the result was believed**, which is the whole of the rule:
+installed `gpl.bp/CRED_SET` is byte-identical to source (`sha256 2657b46b…`)
+and carries the fix's marker, and the install postdates the source edit
+(11:54:48). So the green run measured the fix.
+
+**The anchor is the success wording** — `Password set for account SDSWA5` —
+where the two previous runs printed *"Unable to set password … status
+3035/3037"* in the same place. All three controls green, and the tally equals
+the row count, so the run refuses to be a false green on its own terms.
+
+**73 stays open on one leg, and it is worth naming rather than ticking.** Its
+own design called for an audit/log append as the control that should still
+SUCCEED — `secure-audit.ps1` grants `sdusers:(AD`, `secure-log.ps1` grants
+`sdusers:A` — and `verify-sdsyswrite.ps1` has no such row. Without it the suite
+shows the two protected stores are reachable and never shows that a store which
+was always writable still is, so a change that broke append everywhere reads
+green there.
+
+**A correction worth keeping, because it is a trap in this file's own shape:**
+mid-session I recorded that a `changelog` line was owed. It was not — the entry
+was written the previous session and sits at the TOP of `sdsys/changelog`,
+which is newest-first. **A `tail` of that file reads the oldest entries and
+concludes the newest is missing.**
