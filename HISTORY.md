@@ -42238,3 +42238,99 @@ reading and by nothing else. **Compiling is not running, so it does not close.**
 **Open count unchanged at 18** — 61 closed, 63 filed. **Blockers 4 → 3: 2, 39
 and 62**, and **2 had been left out of the blockers table** despite being a `B`;
 it is in it now. No cycle spent, nothing under `gplsrc` or `sdsys` touched.
+
+## 29 Aug 2026 — EIGHTY-SECOND session, correction: the entry above cited the wrong line twice, and the over-correction was the worse of the two
+
+***THE ENTRY IMMEDIATELY ABOVE IS WRONG ON ONE POINT AND THIS CORRECTS IT.***
+It is left standing rather than rewritten, because the shape of the mistake is
+the reusable part. Prompted by the owner asking whether the bare `F` had a
+solution, which sent the session back into `CREATEA` to answer properly.
+
+***WHAT IS ACTUALLY THERE.*** `CREATEA:1233`, repeated at `:1292` for the
+administrator verbs:
+
+```
+rec<1> = if upcase(rec[1,1]) = 'P' then rec<1>[1,2] else rec[1,1]
+```
+
+**Field 1 is REPLACED BY ITS OWN FIRST CHARACTER** — two characters for a `P`
+type — as the account's VOC record is written. So `newvoc`'s description does
+not survive into an account's VOC, but ***its first letter is the type code
+that account will use***, and it is load-bearing.
+
+***THE TWO ERRORS, IN THE ORDER THEY WERE MADE.***
+
+1. **`voc.entry.type[1,1]` named the wrong CALLER.** The first-character
+   property is real; `CPROC`'s dispatch is not what makes it matter here,
+   `CREATEA`'s derivation is. The reading was borrowed from the
+   `VOC_TEMPLATE/COPYP` precedent, where field 1 genuinely is the type code —
+   a real precedent applied to the wrong file.
+2. ***AND THE CORRECTION OF IT WAS WORSE THAN THE ERROR.*** "`CREATEA:1181`
+   drops the field, so the 392-of-392 check measured the wrong property" was
+   wrong twice over. `CREATEA:1181`'s comment — *"the loop starts at field 2
+   instead"* — is about **the tier list records**, whose field 1 reads
+   `This record is not a VOC entry - it lists verbs a standard account does not
+   get`. It has nothing to do with VOC descriptions. **And the 392-of-392 check
+   was measuring exactly the right invariant.**
+
+***THE LESSON IS ABOUT THE SECOND ONE.*** The first error was a misattribution
+inside a correct conclusion. The second **withdrew a true finding** on the
+strength of a comment read three lines from its subject, and did it while
+writing the correction up — the most confident moment in the whole sequence.
+**A correction is a claim, and it is owed the same anchor as the thing it
+corrects**; this one cited a comment rather than the code, and the code was
+forty lines further down.
+
+***WHAT THE RIGHT ANSWER GIVES.*** The invariant is now stated properly and
+`newvoc` proves it in production: a description in field 1 whose first
+character is the type code works everywhere, because **every reader in the tree
+takes the type from the first character** — `CREATEA:1233`/`:1292`,
+`BASIC:201`, `FORMAT:79`, `PARSER:178`, `SPVIEW:103` (all
+`voc.type = upcase(voc.rec[1,1])`, so the six whole-string `voc.type = 'F'`
+comparisons are comparing one character), and `CPROC`'s five
+`voc.entry.type[1,1]`. **That is what makes 63 fixable at all**, and it was
+established by grepping for the dangerous shape — a whole-field comparison —
+rather than by assuming the safe one.
+
+## 29 Aug 2026 — EIGHTY-SECOND session, third part: 63 built, edit and micro tidied, and the install is deliberately stale
+
+**Owner's instruction, having been shown the cost: *"do them all."*** Twelve
+`sdsys/voc_template` records, source only.
+
+***THE TEN FILE RECORDS NOW CARRY A DESCRIPTION*** — `$hold`, `accounts`, `bp`,
+`bp.out`, `gpl.bp`, `gpl.bp.out`, `messages`, `newvoc`, `os.users`, `qfile`,
+each `File - …` and each still beginning `F`. ***AND `edit` AND `micro` ARE
+REDUCED TO A BARE `V`***, the last two of the five §8 called malformed.
+
+***THE TWO HALVES LOOK OPPOSITE AND THE DISTINCTION IS THE POINT.*** A comment
+on a **verb** record is invisible — `listf` lists files, not verbs — so it
+bought nothing and caused three misreadings; tidying it away is right. A comment
+on a **file** record is exactly what `listf`'s Description column falls back to,
+so there it is the fix. **Same file, same field, opposite treatment, because the
+two are read by different things.**
+
+***AND IT IS A LEGITIMATE FORM, WHICH THE RECORD ALREADY SAID AND THIS SESSION
+NEARLY MISSED FOR THE FOURTH TIME.*** `CPROC:1410` states the type code **may be
+followed by comment text with no intervening space** — the PI / PI-open /
+UniVerse rule. HISTORY's *"the five malformed VOC_TEMPLATE entries were never
+broken"* established it on 18 Aug, **after an UPSTREAM entry about those five
+had been written and withdrawn.** This session withdrew a second one, over
+`$MAP`, before finding that correction. ***THREE MISREADINGS, TWO WITHDRAWN
+UPSTREAM REPORTS, ONE CAUSE***: field 1 looking malformed to somebody comparing
+it against a file that uses the other convention. **The grep that would have
+saved all of it is `CPROC:1410`, four lines from the test it describes.**
+
+**Measured, not assumed.** `gplbld`-external check over all twelve: every one of
+the ten still yields `[1,1] = F`, both editors yield a bare `V`, CR 0 and BOM 0
+across the whole directory, and the **392-of-392 `newvoc` agreement is
+unchanged** — the regression control, since ten of the records it compares just
+moved. `changelog` carries a user-facing entry, and says the display changes on
+a **new** installation only, because installing never overwrites an existing
+database.
+
+***THE INSTALL IS NOW DELIBERATELY STALE AND THE NEXT SESSION MUST NOT
+INVESTIGATE IT.*** `assert-current` check B walks `sdsys` and these twelve are
+newer than the 18:55:20 install, so it exits 1 and every verifier refuses.
+**A cycle first, then `b67`, then an elevated `listf` — that order, and the
+third is the only thing that closes 63.** It stays **open and unstruck**:
+compiling is not running, and nothing has observed the new column yet.

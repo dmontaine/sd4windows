@@ -1883,12 +1883,16 @@ rather than reasoned about. Three things below are wrong:
 - ***`NEWVOC` CARRYING THE DESCRIPTION IN FIELD 1 IS A CONVENTION ACROSS THE
   WHOLE DIRECTORY***, not a defect in one record. `NEWVOC/basic` reads
   `Verb to compile SDBasic program` where `VOC_TEMPLATE/basic` reads `V`.
-- ***AND THAT FIELD NEVER REACHES A VOC AT ALL — `CREATE.ACCOUNT` DROPS IT.***
-  `GPL.BP/CREATEA` says so in its own comment: *"NOT `delete(rec, 1)` to drop
-  the description field … the loop starts at field 2 instead."* So an account's
-  VOC is built from field 2 onward and gets a proper type code. Confirmed on a
-  live account: its `$MAP` holds `F`, with **zero** occurrences of the
-  description text anywhere in its VOC.
+- ***AND THE DESCRIPTION'S FIRST CHARACTER IS THE TYPE CODE — THAT IS THE WHOLE
+  CONVENTION.*** `GPL.BP/CREATEA` replaces field 1 with its own first character
+  as it writes the account's VOC record — `rec<1> = if upcase(rec[1,1]) = 'P'
+  then rec<1>[1,2] else rec[1,1]`, two characters for a `P` type. So
+  `File for MAP output` becomes `F` and `Verb to compile SDBasic program`
+  becomes `V`. Confirmed on a live account: its `$MAP` holds `F`, with **zero**
+  occurrences of the description text anywhere in its VOC. **Measured across the
+  directory: 392 of 392 `NEWVOC` first characters equal `VOC_TEMPLATE`'s type
+  code, 0 mismatches** — the invariant holds, and it is the reason the file can
+  carry a description in a type-code field at all.
 - ***THE `LISTF` DESCRIPTION COLUMN IS A LOOKUP INTO `NEWVOC`, NOT A FIELD OF
   THE RECORD.*** `VOC.DIC`'s `Description` item is `IF @ = '' THEN F1 ELSE @`
   over `NEWVOC`. **The control that proves it**: neither `File for MAP output`
