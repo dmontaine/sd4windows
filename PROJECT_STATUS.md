@@ -165,7 +165,37 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `assert-current` **exit 0 live**, `check-stale-leads` **exit 0**,
 > `test-fixlist-units` **203 / 0**, **open count 18**.
 >
-> ### ⇩ 30 Aug 2026 — THE 39 RIG IS SET UP AND WAITING. NEW ENTRIES 66 AND 67. OPEN COUNT 18. ⇩
+> ### ⇩ 30 Aug 2026 — 39 IS CLOSED ON A REAL UNINSTALL, AND THE RUN FOUND A WORSE ONE (72). OPEN COUNT 22. ⇩
+>
+> ***THE INTERACTIVE UNINSTALL RAN IN `Windows 11 - Test` AND THE SWEEP DID WHAT
+> IT PROMISED***: `mode : REMOVE`, `keep : don`, `token: elevated`,
+> **`removed 2 of 2 account(s); kept 1`**, each with `group sdu_<name> removed`
+> and `user removed`. **Before/after agree** — local users 9 → 7,
+> `sdusers`/`sdssh`/`sdapi` down to `don`, `sdsshonly` **empty**, `Administrators`
+> untouched, and ***`sshd_config`'s SD block gone***. **`tim`, a Windows account
+> SD never made, was untouched — the control this run got for free.**
+> ***TWO LEGS ARE UNEXERCISED AND SAID SO RATHER THAN TICKED***: the
+> last-administrator refusal never had to fire (this guest has an administrator
+> outside `sdusers`), and the keep-the-database branch went untested because the
+> tree came out absent.
+>
+> ***AND THE RUN'S REAL RESULT IS 72, WHICH IS WORSE THAN WHAT IT WAS TESTING.***
+> `john` — half-created by 68's failure — is **in no group at all**: not
+> `sdusers`, not `sdsshonly`, no `sdu_JOHN`. **So he was never confined** (that
+> group is what denies console and RDP) **and the sweep cannot see him**, its
+> candidate set being `sdusers` *"because CREATE.ACCOUNT adds every account it
+> makes and nothing else does"* — **a premise 68 falsifies.** He survived the
+> uninstall as an enabled Windows account with a password.
+>
+> ***AN INSTRUMENT FAULT OF MY OWN, RECORDED BECAUSE THE RECORD ALREADY WARNED
+> OF IT.*** `capture-state.ps1` used a bare `Tee-Object`, which in PS 5.1 writes
+> **UTF-16**, so the captures came back NUL-separated and `grep` matched nothing
+> — the identical trap §"reading the transcripts" documents for the SD-verify
+> logs, walked into one day later. **Fixed to `Out-File -Encoding utf8`.**
+> **The script lives in `C:\Users\dmont\sdxfer` and is NOT in the repository**,
+> so it will not survive; if the rig is wanted again it should move to `gplbld`.
+>
+> ### ⇩ 30 Aug 2026 — THE 39 RIG IS SET UP. NEW ENTRIES 66 AND 67. ⇩
 >
 > ***67 IS THE ONE TO READ, BECAUSE IT TOUCHES THE INSTALL MODEL AND IT CAME OUT
 > OF THE 39 RIG BEING SLOW.*** Owner asked why declining ssh still installs the
@@ -343,7 +373,8 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | | |
 > |---|---|
 > | **1** | ***65 — read `DELACC` first, and start at the ADMINISTRATOR-TIER verifiers.*** `verify-apiadmin` on `sdapiaz1` left NO `os.users` record, so it is `sdrt`/`sdtapi`/`sdtiert` that leak, not every verifier. Entry 2's original text says `DELETE.ACCOUNT` removes the record *"where SD is deleting the Windows login itself"*, which is exactly what these verifiers do, so either that path is not firing or its condition is narrower than the text claims. **`gplbld` and BASIC only — no cycle needed to find out, one to fix it.** |
-> | **2** | **39**, unchanged: it wants a real interactive uninstall on task 7.2's guest and cannot be reached from a cycle. |
+> | **2** | ***72 — a half-created account is in no group, so nothing confines it and no sweep can find it.*** Measured 30 Aug; it is what 39's run turned up and it is a **B**. `CREATEA` makes the Windows user, sets the password, THEN joins the groups, so 68's failure leaves an account SD has disowned. |
+> | **3** | **39 is CLOSED** — the interactive uninstall ran on `Windows 11 - Test`, `removed 2 of 2, kept 1`, `sshd_config`'s SD block gone. **Two legs stayed unexercised and are named in the row, not ticked**: the last-administrator refusal and the keep-the-database branch. |
 >
 > ***THAT DECISION WAS TAKEN 29 Aug 2026 — SEE THE 64 SECTION ABOVE. NOTHING IS
 > NOW WAITING ON THE OWNER.***
