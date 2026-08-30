@@ -192,8 +192,15 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **UTF-16**, so the captures came back NUL-separated and `grep` matched nothing
 > — the identical trap §"reading the transcripts" documents for the SD-verify
 > logs, walked into one day later. **Fixed to `Out-File -Encoding utf8`.**
-> **The script lives in `C:\Users\dmont\sdxfer` and is NOT in the repository**,
-> so it will not survive; if the rig is wanted again it should move to `gplbld`.
+> ***MOVED INTO THE REPOSITORY 30 Aug 2026 ON THE OWNER'S INSTRUCTION***, and it
+> is now `gplbld/capture-state.ps1` — **the canonical copy; anything under
+> `C:\Users\dmont\sdxfer` is a copy for the guest to reach and may be stale.**
+> **It is on `assert-current.ps1`'s `$neverShipped` list** (`:560`), which is not
+> optional: a `gplbld` script that is not named there is newer than the install
+> the moment it is written, and `assert-current` then refuses the tree *because
+> of the new file* — the trap that cost a run on 25 Aug. **Measured after adding
+> it: `assert-current` exit 0, *"no source file is newer than the install"*.**
+> It takes `-OutDir` now, so it is not tied to `Y:`.
 >
 > ### ⇩ 30 Aug 2026 — THE 39 RIG IS SET UP. NEW ENTRIES 66 AND 67. ⇩
 >
@@ -260,9 +267,10 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > after `sd.iss` (18:52), `remove-sdaccounts.ps1` (18:48) and `stage.py` (18:51),
 > and nothing shipped has changed since. `remove-sdaccounts.ps1` parse-checks
 > clean, no BOM; its interface is `-Remove -Keep <user>`, report-only by default.
-> **`Y:\capture-state.ps1` is staged** — run it `-Label before` and `-Label after`
-> in an ELEVATED guest PowerShell; it distinguishes "not present" from "could not
-> read" in every section, so an empty list is never reported as nothing there.
+> **`gplbld/capture-state.ps1` is the instrument** — run it `-Label before` and
+> `-Label after` in an ELEVATED **guest** PowerShell, reached over a share; it
+> distinguishes "not present" from "could not read" in every section, so an empty
+> list is never reported as nothing there.
 > ***TWO COUPLINGS TO KNOW BEFORE THE RUN***: both uninstall prompts sit behind
 > `if not DirExists(DataPath) then Exit` (`sd.iss:3521`), so the accounts question
 > only fires while `C:\ProgramData\SD` still exists; and `UninstallSilent` skips
