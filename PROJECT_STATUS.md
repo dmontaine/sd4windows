@@ -167,7 +167,27 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
 >
-> # ⇩⇩ 67's TASKS PAGE WAS WRONG AND IS FIXED. REBUILD THE INSTALLER. ⇩⇩
+> # ⇩⇩ NEW BLOCKER 77: THE UPGRADE DIALOG SAYS THE OPPOSITE OF WHAT RAN. ⇩⇩
+>
+> ***IT FIRES ON `not DataTreeAbsent`; `DataTreeUpgrade` IS `not
+> DataTreeWasAbsent` — THE SAME PREDICATE — AND IT GATES THE UPGRADE BRANCH.***
+> So *"the newly built system files were NOT installed over it"* is printed
+> exactly when they are, and *"upgrading in place is not yet supported"* has been
+> false since 25 Aug. **Measured on the owner's 30 Aug reinstall**: `voc.dic`,
+> `dict.dic`, `accounts.dic`, `$map.dic` and three `os.users.dic` records all
+> carry **16:40:08**. **This is entry 71's stale claim shipped to users.**
+>
+> ***AND 78 IS FILED: `remote.api`, `remote.ssh`, `ssh.server` — the owner's
+> three administrator commands.*** They close the one objection 75 left open,
+> and the scripts they wrap are already installed and re-runnable.
+>
+> # ⇩⇩ 67's TASKS PAGE WAS WRONG AND IS FIXED — AND THE FIX IS PROVEN. ⇩⇩
+>
+> ***30 Aug 2026, MEASURED ON A REAL INSTALL: the server IS installed and remote
+> access IS blocked.*** `sshd.exe` present, `sshd` Running/Automatic,
+> `RemoteAddress=127.0.0.1`. **That also settles the dash empirically** — a
+> parent in Inno's grayed state with `checkablealone` IS selected, so
+> "install the server, no remote access" works.
 >
 > ***TWO MISSING `[Tasks]` FLAGS MEANT TWO OF THE THREE STATES COULD NOT BE
 > EXPRESSED.*** Owner at the wizard, 30 Aug 2026: *"I click install the server
