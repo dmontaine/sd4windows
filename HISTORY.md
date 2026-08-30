@@ -42450,3 +42450,56 @@ project insists be read from the tool and never from prose.
 ***THE VERIFIER STAYS A STANDING SUITE STEP***, which is the part that outlives
 the entry: the property is now defended on every run, and a regression in
 `CPROC:2634` or `LOGIN:568` fails a named row rather than going quiet.
+
+## 29 Aug 2026 — EIGHTY-SECOND session, seventh part: entry 2 is live again, and the suite had already measured it while scoring it green
+
+***AN UNELEVATED ADMINISTRATOR HAS NO `sh`, NO `!` AND NO `OS.EXECUTE`, AND THE
+PROOF WAS SITTING IN `b68`'s OWN TRANSCRIPT.***
+
+    [PASS] unlisted: refused with message 10053: expected yes, got yes
+    [PASS] the refusal names the same @logname the probe reported: expected don, got don
+    [PASS] unlisted: OS.EXECUTE from a program is refused: expected refused, got refused
+
+**`verify-osusers` scores those green because it tests the GATE, not the
+POLICY.** The gate is working exactly as designed; what changed underneath it is
+who is supposed to be on the list. `C:\ProgramData\SD\sdsys\os.users` holds **0
+records**, read off disk on the 20:31:49 install.
+
+***THE CAUSE IS A CHANGE MADE FOR A MODEL THAT WAS WITHDRAWN FOUR HOURS LATER
+AND NEVER REVERTED.*** `7aee48d` at **10:16:02** deleted `os.sh = @true` /
+`os.exec = @true` from `CREATEA`'s ADMINISTRATOR arm; both now default `@false`
+(`:287`) and are set only by an explicit `SH-ON`/`OS-ON` keyword (`:1492`). Its
+own comment gives the justification: *"It is not a withdrawal of access: 56
+elevates an administrator at login into SDSYS, where USR_ADMIN answers
+os_permitted() before the file is read."* ***THAT IS CLAUSE 2, AND `af5490e`
+REVERSED IT AT 14:58:26 THE SAME DAY.***
+
+***THE SHAPE IS WORTH MORE THAN THE BUG.*** The change was correct when it was
+made, correctly reasoned, and its comment stated the premise it depended on -
+which is the only reason this was findable at all. **What nothing did was ask
+which earlier changes rested on clause 2 when clause 2 was withdrawn.** A
+reversal is not just an edit to the thing being reversed; it invalidates
+everything that cited it, and the citations were in comments rather than in any
+list a checker could walk. **Three sessions ran green over it.**
+
+***AND THE ROW'S OWN REASON FOR BEING OPEN WAS WRONG.*** It said 2 was open
+because *"56 abolishes the administrator account this attached to"* - which the
+reversal undid. **It was open for a reason nobody had checked, and it happened
+to also be genuinely broken for a different one.** Being right by accident is
+how the previous session's re-open survived scrutiny.
+
+***THE FIX IS NOT THE OBVIOUS ONE AND THE ENTRY NOW SAYS SO.*** Putting the two
+lines back re-creates the leak that justified deleting them: `os.users` is keyed
+on the **person** and a `LOGTO` never changes it (`op_sh.c:167`), so a listed
+administrator keeps `OS.EXECUTE` in every account they move to. **The session
+flag does not have that problem** - `CPROC:2781` clears `K$ADMINISTRATOR` on any
+`LOGTO` away from SDSYS, its 13 Aug comment saying the rights had *"followed you
+into whatever account you moved to next, which made the rights a property of the
+session rather than of the account you are standing in"*. **Flag-carried access
+is account-scoped for free; list-carried access is not.**
+
+***BUT THE NAIVE FLAG FIX IS A TRAP AND IT IS WRITTEN DOWN BEFORE ANYONE TRIES
+IT.*** `LOGIN:568` is `case kernel(K$ADMINISTRATOR, -1) and kernel(K$OS.ADMINISTRATOR, 0)`,
+so setting the flag for an unelevated administrator **at login** sends them
+straight back to SDSYS and undoes the reversal. Any fix must land **after** that
+branch has decided. **Filed for the owner's ruling; nothing built.**
