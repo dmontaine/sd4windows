@@ -42503,3 +42503,45 @@ IT.*** `LOGIN:568` is `case kernel(K$ADMINISTRATOR, -1) and kernel(K$OS.ADMINIST
 so setting the flag for an unelevated administrator **at login** sends them
 straight back to SDSYS and undoes the reversal. Any fix must land **after** that
 branch has decided. **Filed for the owner's ruling; nothing built.**
+
+## 29 Aug 2026 — EIGHTY-SECOND session, eighth part: entry 2 ruled and built — the two lines are restored and the LOGTO leak is accepted
+
+***OWNER'S RULING, GIVEN AFTER BEING SHOWN THE LEAK AND THE ALTERNATIVE:
+"Restore the two lines in CREATEA."*** `os.sh = @true` / `os.exec = @true` are
+back in the ADMINISTRATOR arm at `CREATEA:1613`, where `7aee48d` removed them
+this morning.
+
+***THE PART THAT MATTERS FOR THE NEXT READER IS THAT THE OBJECTION IS STILL
+THERE, IN FULL, DIRECTLY UNDERNEATH THE RESTORED LINES.*** The paragraph
+explaining why writing them leaks `OS.EXECUTE` past a `LOGTO` — `os.users` keyed
+on the **person**, `op_sh.c:167` — is kept word for word, because **every word of
+it is still true.** What changed is that it is no longer decisive. **A cost the
+owner accepted with his eyes open reads exactly like a cost nobody noticed,
+unless the record says which it was**, so the code comment and the
+`START-HISTORY` line both say it: ***do not "fix" this back without a ruling.***
+
+**And the alternative is written down rather than lost**, with the trap that
+makes its obvious form wrong: the session flag would be account-scoped for free
+(`CPROC:2781` clears it on any `LOGTO` away from SDSYS), but `LOGIN:568` gates
+the SDSYS branch on that same flag, so setting it **at login** sends an
+unelevated administrator back into SDSYS and undoes the reversal. Any such fix
+must land **after** that branch decides. **Whoever revisits this starts from
+there instead of from scratch.**
+
+**ssh and the API are unaffected either way** — both are connection-time group
+tests, so neither can follow a `LOGTO`. `os.users` was the only one of the three
+that ever leaked, which is why the ruling is narrower than it looks.
+
+***BUILT, UNCOMPILED, UNVERIFIED.*** It is BASIC, so `assert-current` is red
+until a full cycle runs, and that is deliberate rather than a fault to chase.
+**An existing install does not gain the record**: `grant.os.access` fires at
+`CREATE.ACCOUNT` time and the installer never overwrites a data tree, so this
+reaches a machine on a **new** install where `AdoptAccount` re-creates the
+installing user's account. The `changelog` says so in the user's terms, and also
+says the `LOGTO` behaviour out loud rather than leaving it to be discovered.
+
+***WHAT WILL CLOSE IT ON `b69`***: `verify-osusers`' baseline branch should take
+the *"already listed"* path instead of *"nothing was there"* — that is the record
+arriving — while its `unlisted:` rows **still pass**, because they park the
+record deliberately and so measure the gate either way. **A change that made
+those rows fail would mean the gate had moved, not the policy.**

@@ -165,7 +165,39 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `assert-current` **exit 0 live**, `check-stale-leads` **exit 0**,
 > `test-fixlist-units` **203 / 0**, **open count 18**.
 >
-> ### ⇩ NOTHING IS OWED. `b68` IS GREEN AND 62 IS CLOSED. ⇩
+> ### ⇩ A CYCLE IS OWED, THEN `b69`. ENTRY 2 IS BUILT AND UNCOMPILED. ⇩
+>
+> ***`assert-current` IS RED BY DESIGN — DO NOT INVESTIGATE IT, RUN THE CYCLE.***
+> `CREATEA` changed, which is BASIC, so nothing can be measured until it
+> compiles and installs.
+>
+> ***ENTRY 2, ON THE OWNER'S RULING: `os.sh` / `os.exec` ARE RESTORED TO THE
+> ADMINISTRATOR ARM*** (`CREATEA:1613`), where `7aee48d` removed them for a
+> model reversed four hours later. ***THE `LOGTO` LEAK IS AN ACCEPTED COST, NOT
+> AN OVERSIGHT*** — he was shown it and the session-flag alternative and chose
+> this. **The paragraph explaining why the lines were dangerous still sits
+> directly beneath them and every word of it is still true; it is simply no
+> longer decisive. Do not "fix" it back without a ruling.**
+>
+> **Step 1 — ELEVATED PowerShell:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **Step 2 — ORDINARY, UNELEVATED PowerShell (*not* elevated, §4.0.1):**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b69 -ContinueOnFailure
+> ```
+>
+> ***WHAT TO READ IN IT***: `verify-osusers`' baseline should now take the
+> ***"already listed"*** path rather than *"nothing was there"* — that is the
+> record arriving. Its `unlisted:` rows must **still pass**; they park the
+> record deliberately, so they measure the gate either way. **14 of 14
+> unelevated, 20 of 20 elevated.**
+>
+> ### ⇩ `b68` WAS GREEN AND 62 IS CLOSED. ⇩
 >
 > ***`-Run b68`: `VerifyInstall1` every step exit 0, `VerifyInstall2` 20 OF 20***
 > — the new step joined that half — **655 `[PASS]`, zero `[FAIL]` across 22
