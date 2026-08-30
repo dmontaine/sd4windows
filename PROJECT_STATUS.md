@@ -165,29 +165,59 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `assert-current` **exit 0 live**, `check-stale-leads` **exit 0**,
 > `test-fixlist-units` **203 / 0**, **open count 18**.
 >
-> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 83rd SESSION. START HERE. ⇩⇩
+> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
 >
 > ***DO THESE TWO THINGS FIRST, IN THIS ORDER, BEFORE READING ANYTHING ELSE.***
-> A fix for both remaining blockers is committed and **UNCOMPILED**, and
+> A fix for the LAST blocker is committed and **UNCOMPILED**, and
 > `assert-current` is **RED** because source has moved past the install.
 >
 > **1. ELEVATED PowerShell:**
 > `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
 >
 > **2. ORDINARY UNELEVATED PowerShell** (it refuses if elevated, deliberately):
-> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-sdsyswrite.ps1 -Prefix sdswa4`
+> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-sdsyswrite.ps1 -Prefix sdswa5`
 >
-> **One UAC prompt, one throwaway account created and deleted. `sdswa1`–`sdswa3`
+> **One UAC prompt, one throwaway account created and deleted. `sdswa1`–`sdswa4`
 > are spent, and so are `b54`–`b69` and `sdapiaz1`.**
 >
-> ***THAT SECOND COMMAND IS THE WHOLE TEST AND IT DECIDES BOTH BLOCKERS.***
-> Expect **7 PASS / 0 FAIL**. On `sdswa3` it was **6 PASS / 1 FAIL**: `os.users`
-> PASSED — which is the useful half, because `MODIFYA` proves the helper route,
-> the CRLF, the ASCII and the read-back all work — and only `$cred` failed.
-> ***IF `$cred` STILL FAILS, THE STATUS NOW NAMES THE STAGE***, which it did not
-> on `sdswa3`: **3035** means the elevated write was refused, **3037** means it
-> wrote and the record did not read back as what was stored. Two different
-> problems; do not guess between them.
+> ***THAT SECOND COMMAND IS THE WHOLE TEST.*** Expect **7 PASS / 0 FAIL**.
+> `sdswa4` was **6 PASS / 1 FAIL** and the failure had MOVED — status **3035 →
+> 3037** — which is the two-stage status earning its keep: the elevated write
+> now succeeds and only the read-back failed. **Read the three controls before
+> the verdict**; a green run with a broken control is not a pass, and the tally
+> refuses itself if pass+fail+skip does not equal the row count.
+>
+> ***WHY 3037 HAPPENED, BECAUSE IT IS THE SAME MISTAKE TWICE IN ONE WEEK.***
+> The read-back was copied from `MODIFYA`, where it is valid, into the one file
+> where it cannot be. **`secure-osusers.ps1` grants `sdusers` `(OI)(CI)(RX)`,
+> read-only**, so MODIFYA's unelevated read-back genuinely works and `os.users`
+> PASSED on the identical route in the same run. ***`secure-cred.ps1` grants
+> `sdusers` NOTHING — not write, and NOT READ EITHER*** — so the process that
+> NEEDS the fallback cannot read `$cred` back. **Measured, not reasoned: an
+> unelevated shell gets `Permission denied` listing `$cred`, while
+> `os.users/don` reads `y e s \r \n y e s \r \n`.** ***AND `read ... else` HID
+> IT***: a permission denial and a missing record take the SAME else branch, so
+> *"wrote it and could not look"* was scored as *"wrote it and it did not read
+> back"*. **First the close-before-write rule applied in one file and not the
+> other; now a read-back rule lifted from the file where it holds into the one
+> where it does not.**
+>
+> ***THE FIX: THE HELPER VERIFIES ITS OWN WRITE***, being the only party that
+> can read the file. It returns **2** for wrote-but-mismatched → `ER$WRITE.ERROR`,
+> while any other non-zero — including `ps_script`'s `-1` for *could not run* —
+> stays `ER$PERM`. **The SD-side read-back now runs only on the direct-write
+> path**, where the process demonstrably has access. ***`-cne` and not `-ne`,
+> bench-measured***: PowerShell's default comparison is case-INSENSITIVE and
+> every value is base64, so `-ne` ACCEPTS a record differing in case alone and
+> reports it verified.
+>
+> **Pre-flighted this session, so the cycle is not spent on a script that never
+> loads**: the emitted PowerShell parses (0 errors), round-trips byte-identical,
+> and SD sees **6 fields**; `CRED_SET` is BOM-free, LF-only, ASCII, and its
+> `then`/`end` balance is unchanged from HEAD. ***STILL OWED WHEN IT GOES
+> GREEN***: a `changelog` line — the fix is user-visible (an administrator who
+> reaches SDSYS by `logto` can set a password at last) and nothing has been
+> written there for 68 yet.
 >
 > ***READ THE THREE CONTROLS BEFORE THE VERDICT.*** Setup must create the
 > account, the unelevated session must have REACHED SDSYS and read it, and the

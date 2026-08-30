@@ -42889,3 +42889,38 @@ names one of the four groups it leaves. **75** remove the stand-alone mode.
 **Closing state:** `test-fixlist-units` **213 / 0**, **open count 26**,
 `assert-current` **RED** — source has moved past the install, deliberately.
 **Blockers 68 and 72, both fixed, both one cycle short of proven.**
+
+## 30 Aug 2026 — 68's read-back was measuring a store it cannot read
+
+`-Prefix sdswa4` on the 11:46 install: **6 PASS / 1 FAIL**, all three controls
+green, `os.users` green. **The failure had moved — status 3035 → 3037** — so
+the two-stage status added the previous session did its job: the elevated write
+now succeeds and only the read-back failed.
+
+**The cause is the previous session's own lesson, applied in the other
+direction.** Last time a rule was written in `MODIFYA` and not in `CRED_SET`
+(close before the elevated write). This time a pattern was copied FROM
+`MODIFYA`, where it is valid, INTO `CRED_SET`, where it cannot be:
+`secure-osusers.ps1` grants `sdusers` `(OI)(CI)(RX)` so MODIFYA's unelevated
+read-back genuinely works, while `secure-cred.ps1` grants `sdusers` **nothing —
+not write, and not read either.** The process that needs the fallback cannot
+read `$cred` back. Measured rather than reasoned: an unelevated shell gets
+`Permission denied` listing `$cred`, `os.users/don` reads `yes\r\nyes\r\n`.
+
+***AND `read ... else` IS WHAT MADE IT LOOK LIKE CORRUPTION.*** A permission
+denial and a missing record take the same else branch, so *"wrote it and could
+not look"* was reported as *"wrote it and it did not read back"*. **A null case
+scored as a value — the instrument rule's third clause, in the fix for a bug
+the instrument rule found.**
+
+**Fixed:** the helper verifies its own write, being the only party that can read
+the file, and returns 2 for wrote-but-mismatched (`ER$WRITE.ERROR`); anything
+else non-zero, including `ps_script`'s `-1`, stays `ER$PERM`. The SD-side
+read-back runs only on the direct-write path. **`-cne` not `-ne`, bench-checked:
+PowerShell's default compare is case-insensitive and every value is base64, so
+`-ne` accepts a case-flipped record and calls it verified.**
+
+**Pre-flighted rather than cycled:** the emitted PowerShell parses clean and
+round-trips byte-identical with SD seeing 6 fields; `CRED_SET` stays BOM-free,
+LF-only, ASCII, `then`/`end` balance unchanged from HEAD. **Built, uncompiled —
+one cycle then `-Prefix sdswa5`.** A `changelog` line is still owed once green.
