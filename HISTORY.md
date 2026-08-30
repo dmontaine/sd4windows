@@ -42951,3 +42951,52 @@ mid-session I recorded that a `changelog` line was owed. It was not — the entr
 was written the previous session and sits at the TOP of `sdsys/changelog`,
 which is newest-first. **A `tail` of that file reads the oldest entries and
 concludes the newest is missing.**
+
+## 30 Aug 2026 — ssh becomes two dependent choices, and stand-alone is removed
+
+Owner: *"if an ssh server is installed, the user should have a separate choice
+to allow remote access. If a server is not installed the user should have two
+choices, install the server, and allow remote access. Allowing remote access
+should not be an option if they choose not to install the ssh server."*
+**PRE_RELEASE 67, 75 and 76, built together on his instruction because every
+relevant `Check:` in `sd.iss` carried `not StandaloneChosen`.**
+
+***THE DEPENDENCY IS INNO'S, NOT A VALIDATION MESSAGE.*** `sshserver\sshremote`
+is a child task, and Inno greys and unchecks a child whenever its parent is
+unchecked — so "should not be an option" is a state the reader sees rather
+than a complaint after the fact. **Four `[Tasks]` entries carry what reads as at
+most two boxes**: a child cannot exist under a parent whose `Check` is False, so
+the server-present case needs flat entries, and `SshRemoteWanted` ORs them
+rather than re-deriving the partition.
+
+***76's HARD PART DISSOLVED RATHER THAN BEING SOLVED, AND THAT IS THE REUSABLE
+PART.*** The entry hunted for a discriminator between SD's own ssh server and a
+foreign one, and found none that survived uninstall-then-reinstall. The ruling
+removes the need for one: **default the box to the truth.** `GetSshRuleIsOpen`
+reads the live `RemoteAddress` in `InitializeSetup`, so an installer who touches
+nothing changes nothing on any server. **§5.9 is narrowed, not abandoned** —
+`sshd_config` is still never written for a server SD did not install; only the
+firewall scope moves, and only on a deliberate click.
+
+**Three pieces of user-facing text had become false and were rewritten rather
+than left**: the disclosure page's *"that option is not offered"*, the tasks-page
+box's *"SD WILL NOT CHANGE ITS FIREWALL RULE"*, and `SshReport`'s *"left both its
+configuration and its firewall rule exactly as they were"*. **That message box's
+own comment predicted it** — *"each time the text went on asserting the old
+shape until somebody noticed"* — for the fifth time.
+
+***ONE COST IS FLAGGED AND UNRULED.*** 75 collapses the API box from three
+states to two, so **a program on the same machine using the API now needs the
+box ticked, and ticking it opens port 4243 to the network.** Built as ruled;
+restoring a local-only state is the owner's call.
+
+**Deleted**: message 10100, `verify-standalone.ps1` and its `assert-current`
+`$neverShipped` entry, the mode page and everything that fed it. **Not deleted**:
+`$standalone` on trees that already have it — nothing reads it, no ship list
+names it, and `verify-upgrade.ps1` still uses it to test that an upgrade leaves
+unnamed files alone.
+
+**Pre-flighted**: `stage.py` compiles, three PowerShell scripts parse with 0
+errors, every Pascal helper is defined before its call site, no BOM/CR/non-ASCII
+introduced. **Only ISCC can judge `sd.iss`, and only against a staged tree —
+which is the cycle.** Built, uncompiled.

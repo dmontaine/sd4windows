@@ -167,7 +167,60 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
 >
-> # ⇩ GREEN. 68 IS CLOSED ON A MEASURED RUN. NOTHING IS IN FLIGHT. ⇩
+> # ⇩ ONE COMMAND FIRST: 67, 75 AND 76 ARE BUILT AND UNCOMPILED. ⇩
+>
+> ***RUN THIS, IN AN ELEVATED PowerShell. `assert-current` IS RED.***
+> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+>
+> ***AND WATCH THE WIZARD, BECAUSE THE WIZARD IS THE CHANGE.*** `cycle.ps1`
+> installs **attended** — there is no `-Silent` and `sd.iss` refuses one — so
+> this cycle is also the test. **What to look for on the tasks page:**
+>
+> | this machine | expect |
+> |---|---|
+> | ssh server ABSENT | **"Install the OpenSSH server"**, and **indented under it** "Let other computers … connect over ssh". Untick the parent → the child greys out and clears. **That is the ruling, and it is Inno enforcing it, not a message** |
+> | ssh server PRESENT | the remote box **alone**, no install box — and it starts **matching this machine's current firewall scope** |
+>
+> **The rig `Windows 11 - Test` has SD installed with both boxes unchecked, so
+> it is the "already has ssh" case; this host is too.** To see the absent case
+> you need a clone with no OpenSSH capability.
+>
+> ***THE OWNER'S RULING, 30 Aug 2026, WHICH IS WHAT 67 AND 76 NOW BUILD:***
+> *"if an ssh server is installed, the user should have a separate choice to
+> allow remote access. If a server is not installed the user should have two
+> choices, install the server, and allow remote access. Allowing remote access
+> should not be an option if they choose not to install the ssh server."*
+>
+> ***75 WENT IN THE SAME PASS ON HIS INSTRUCTION, BECAUSE EVERY `Check:` IN THE
+> FILE CARRIED `not StandaloneChosen`.*** The mode page, both radio buttons,
+> `StandaloneChosen`, `StandaloneWasMarked`, `WriteStandaloneMarker`,
+> `ShouldSkipPage`, `ModeChoiceText`, `DisclosureText`'s parameter and its three
+> branches, `CREATEA`'s marker read, **message 10100 and `verify-standalone.ps1`
+> both deleted**. `SummaryPage` is back on `wpWelcome`. **The API box is a
+> service switch now** — unticked installs the no-listener `sd.conf`.
+>
+> ***ONE COST OF 75 IS FLAGGED AND UNRULED — READ IT BEFORE THE CYCLE.*** There
+> were three API states; there are now two. **A program on the SAME machine
+> using the API now needs the box ticked, and ticking it also opens port 4243 to
+> the network.** Built as ruled because the ruling is explicit; **putting the
+> local-only state back is the owner's call.**
+>
+> ***HOW 76's HARD PART WAS AVOIDED, BECAUSE IT IS THE REUSABLE BIT.*** The
+> entry hunted for a way to tell SD's own ssh server from a foreign one, and
+> could not find one that survived uninstall-then-reinstall. **The ruling
+> dissolves it: default the box to the truth.** `GetSshRuleIsOpen` reads the live
+> `RemoteAddress` in `InitializeSetup`, so an installer who touches nothing
+> changes nothing, on any server, without SD ever needing to recognise whose it
+> is. **§5.9 is narrowed, not abandoned** — `sshd_config` is still never written
+> for a server SD did not install.
+>
+> **Pre-flighted, not guessed**: `stage.py` compiles, `ssh-firewall.ps1`,
+> `assert-current.ps1` and `verify-upgrade.ps1` parse with 0 errors, every Pascal
+> helper is defined before its call site, and no file gained a BOM, a CR or a
+> non-ASCII byte. ***ONLY ISCC CAN JUDGE `sd.iss`, AND ONLY AGAINST A STAGED
+> TREE — WHICH IS THE CYCLE.*** A `[Code]` error surfaces at its build step.
+>
+> ### ⇩ AND BEFORE THAT, THE RUN THAT CLOSED 68 ⇩
 >
 > ***`-Prefix sdswa5`: 7 PASS / 0 FAIL / 0 SKIP.*** Install **30 Aug 12:02:00**,
 > `assert-current` **exit 0 live**, and the installed `gpl.bp/CRED_SET` is
@@ -177,10 +230,10 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > SDSWA5`, where the two previous runs printed *"Unable to set password …
 > status 3035/3037"*. **All three controls green, tally equals the row count.**
 >
-> ***NOTHING NEEDS RUNNING TO PICK THIS UP.*** `assert-current` is exit 0, the
-> tree is current, and the next session can start on the work below rather than
-> on a cycle. **Spent: `sdswa1`–`sdswa5`, `b54`–`b69`, `sdapiaz1`.** The suite
-> itself has not been run since `b66`; **use `b70`** when it is.
+> **Spent: `sdswa1`–`sdswa5`, `b54`–`b69`, `sdapiaz1`.** The suite itself has not
+> been run since `b66`; **use `b70`** when it is. *(`assert-current` was exit 0
+> after that run and is RED again now, deliberately — the installer work above
+> landed after it.)*
 >
 > ***WHAT IS LEFT, IN ORDER.*** **(1) 72's proof — the recipe is in the "72 IS
 > FIXED AND NOT YET PROVEN" paragraph below**, and the provocation has to be two
