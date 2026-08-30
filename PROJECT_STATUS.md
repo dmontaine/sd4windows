@@ -8879,6 +8879,26 @@ Each of these cost real time. Read before debugging anything similar.
   transcript rendered `CREATE.ACCOUNT USER sdacct1` as `CREATE.ACCOUSER
   sdacct1` on a line that executed correctly.
 
+- ***CORRECTED 30 Aug 2026 — THE SENTENCE BELOW IS OUT OF DATE AND WAS FALSE
+  FOR FIVE DAYS BEFORE ANYBODY NOTICED. READ THIS FIRST.*** ***THERE IS AN
+  UPGRADE PATH***, built 25 Aug 2026 on the owner's ruling *"preserve the
+  user's own files, replace all the shipped ones"*. `stage.py`'s
+  `write_upgrade_iss()` emits `upgrade.iss`, and `sd.iss:1044` states the
+  invariant: *"upgrade.iss is gated on this; the whole-tree entry in [Files] is
+  gated on DataTreeAbsent. **One or the other fires on every install, never
+  both and never neither.**"* **On an upgrade `gpl.bp`, `gpl.bp.out`,
+  `messages`, `newvoc` and `voc_template` ARE replaced**, while `$cred`,
+  `accounts`, `cat`, `os.users`, `batch.jobs`, `prt`, `$hold`, `bp` and
+  `bp.out` are preserved — **so a BASIC or message fix DOES reach an existing
+  install.** ***WHAT STILL DOES NOT IS ANY LIVE VOC***, SDSYS's own included:
+  they are built from those templates and are in neither list, and nothing
+  re-runs `UPDATE.ACCOUNT` — **PRE_RELEASE 70.** ***THE CYCLE RULE BELOW STILL
+  STANDS AND IS NOT WEAKENED BY THIS*** — a test cycle still begins from a
+  deleted tree — **but it now rests on "date what you are testing", not on
+  "the tree can never move".** *(Reading the old text as current nearly cost a
+  wrongly-filed blocker on 30 Aug: PRE_RELEASE 71.)* **The superseded text
+  follows, kept because it is what a returning reader remembers:**
+
 - **THE INSTALLED DATA TREE IS NEVER UPGRADED, SO "TEST IT ON THE INSTALLED
   SYSTEM" QUIETLY MEANS "TEST AN OLD BUILD".** `sd.iss` skips the entire
   `sdsys` set when `C:\ProgramData\SD\sdsys` already exists, and the tree is
