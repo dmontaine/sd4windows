@@ -42999,4 +42999,33 @@ unnamed files alone.
 **Pre-flighted**: `stage.py` compiles, three PowerShell scripts parse with 0
 errors, every Pascal helper is defined before its call site, no BOM/CR/non-ASCII
 introduced. **Only ISCC can judge `sd.iss`, and only against a staged tree —
-which is the cycle.** Built, uncompiled.
+which is the cycle.**
+
+## 30 Aug 2026 — cycled: 76 proven, and 75's flagged cost arrived at once
+
+`assert-current` **exit 0 live**, so ISCC accepted the rewritten `[Code]` and
+`[Tasks]`.
+
+***76 IS PROVEN, AND THE PROOF IS THAT THE OWNER COULD DO IT AT ALL.*** This
+machine already had ssh; he unticked "allow remote access" and the rule now
+reads `RemoteAddress=127.0.0.1`. **Before this change that box was not shown on
+such a machine and `ApplySshFirewall` exited at `if not SshWasAbsent` before
+touching anything** — so having a box to untick IS the measurement. `-ScopeFile`
+measured separately: against the live rule it writes `restricted`, exit 0.
+
+***THE "OPEN" BRANCH OF THE DEFAULT IS NOT PROVEN AND IS NOT CLAIMED.*** Nobody
+recorded the scope before the cycle, so "the box arrived matching an already-open
+rule" is untested. It needs the owner's recollection or a clone whose rule is
+`Any`. **Written down rather than assumed, because the end state is identical
+whichever way the default went** — which is exactly the shape of check this
+project keeps getting caught by.
+
+**75 measured on the installed tree**: 10100 gone with 10101 as the control, no
+`$standalone` written, mirrored count 2985 → 2984.
+
+***AND THE COST FLAGGED IN THE COMMIT ARRIVED ON THE FIRST CYCLE.*** He installed
+with the API box unticked, so `# APIPORT=4243` is commented and nothing listens
+on 4243. That is the ruling working — and it leaves **nine suite verifiers**
+unable to pass, none of them for a real defect. **A theoretical cost became a
+concrete one within an hour of being written down, which is the argument for
+writing it down.**

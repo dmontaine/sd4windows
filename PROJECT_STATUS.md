@@ -167,9 +167,62 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
 >
-> # ⇩ ONE COMMAND FIRST: 67, 75 AND 76 ARE BUILT AND UNCOMPILED. ⇩
+> # ⇩⇩ STOP: THIS INSTALL HAS NO API LISTENER. DO NOT SPEND `b70` ON IT. ⇩⇩
 >
-> ***RUN THIS, IN AN ELEVATED PowerShell. `assert-current` IS RED.***
+> ***THE 30 Aug CYCLE WAS INSTALLED WITH THE API BOX UNTICKED, AND UNDER 75 THAT
+> NOW MEANS NO LISTENER AT ALL.*** Measured: `# APIPORT=4243` is **commented** in
+> `C:\ProgramData\SD\sd.conf`, and **nothing is listening on 4243** while the SD
+> service is Running. **That is 75 working exactly as ruled — it is not a
+> defect.**
+>
+> ***BUT NINE SUITE VERIFIERS NEED THE API, AND EVERY ONE OF THEM WILL FAIL.***
+> `verify-apiadmin`, `verify-apiidentity`, `verify-apiname`, `verify-apiport`,
+> `verify-accountacl`, `verify-peerlog`, `verify-scramlogin`, `verify-tierapi`
+> (all `VerifyInstall2`) and `verify-doors-suite` (`VerifyInstall1`). **A run of
+> `b70` on this install reads as a catastrophic regression and is nothing of the
+> kind.** Re-install with the API box **ticked** first, or do not run the suite.
+>
+> ***AND IT IS THE COST FLAGGED IN 75, ARRIVING ONE CYCLE LATER.*** The old
+> behaviour of an unticked API box was *"listener up, reachable from this machine
+> only"*. There is no such state now: ticked means listening AND open to the
+> network, unticked means no API at all. **If the intent was "keep the API but
+> shut the port", that third state has to go back — the owner's call, and this
+> install is the case for it.**
+>
+> ### ⇩ 67, 75 AND 76 ARE CYCLED. WHAT IS PROVEN AND WHAT IS NOT. ⇩
+>
+> ***CYCLE RAN 30 Aug 2026 AND `assert-current` IS EXIT 0 LIVE.*** The installer
+> compiled, so ISCC accepted the rewritten `[Code]` and `[Tasks]`.
+>
+> ***76 IS PROVEN, AND THE PROOF IS THAT THE OWNER COULD DO IT AT ALL.*** This
+> machine already had ssh; he unticked "allow remote access" and the rule is now
+> **`RemoteAddress=127.0.0.1`**, read live. **Before this change that box was not
+> shown on a machine with an ssh server and `ApplySshFirewall` exited before
+> touching anything**, so the ability to turn it off is itself the measurement.
+>
+> ***THE `-ScopeFile` READER IS MEASURED TOO***: against the live rule at
+> `127.0.0.1` it writes `restricted`, exit 0.
+>
+> ***WHAT IS NOT PROVEN, SAID PLAINLY: THE "OPEN" BRANCH OF THE DEFAULT.*** I
+> cannot show the box ARRIVED matching the prior scope, because nobody recorded
+> what the scope was before the cycle. **Closing it needs one of two things** —
+> the owner saying whether the box was ticked when he reached it, or a machine
+> whose rule is `Any` at install time (a clone, per 76's own warning about
+> priming the Template). **Do not claim that leg until one of those happens.**
+>
+> ***75 IS MEASURED ON THE INSTALLED TREE***: message **10100 is gone** (with
+> `10101` present as the control), **no `$standalone` marker was written**, and
+> `assert-current` counts **2984** mirrored files where it counted **2985**
+> before — one file, the deleted message.
+>
+> ***67's ABSENT-SERVER CASE IS UNEXERCISED.*** Both this host and
+> `Windows 11 - Test` already have ssh, so the install box and its indented child
+> have not been seen. **That needs a clone with no OpenSSH capability**, and it
+> is the one leg of the ruling nobody has watched.
+>
+> ### ⇩ THE COMMAND THAT BUILT THE ABOVE, KEPT FOR THE SHAPE ⇩
+>
+> ***RUN THIS, IN AN ELEVATED PowerShell, WHENEVER `assert-current` IS RED.***
 > `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
 >
 > ***AND WATCH THE WIZARD, BECAUSE THE WIZARD IS THE CHANGE.*** `cycle.ps1`
