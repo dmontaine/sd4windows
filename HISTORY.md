@@ -41930,3 +41930,50 @@ on a file the parser saw nothing in is not a pass — no BOM, CR 0.
 `assert-current` exit 0 (it is on `$neverShipped`, so **no cycle is owed**),
 `test-verdict-units` 126/126, `test-sysmsg-units` 43/0. ***UNRUN: it needs
 `b66`.***
+
+## 29 Aug 2026 — EIGHTY-FIRST session, fourth part: `b66` is green in both halves and PRE_RELEASE 59 closes
+
+***UNELEVATED 13 OF 13, ELEVATED 19 OF 19, 1,106 `[PASS]`, ZERO `[FAIL]`, ZERO
+TABLE ROWS SCORING FAIL.*** 17:54–18:12 on the 15:33:45 install. **The first run
+to come back green in both halves.**
+
+***THE RE-AIMED ROW MEASURED — IT DID NOT MERELY PASS, AND THE DIFFERENCE IS
+CHECKABLE.*** `verify-batchjob` exit 0 with `ELEVATED in SDSYS, no entry: still
+runs` reading **True / True / PASS / decisive yes**, and **neither
+`SDSYS-ENTRY-PRESENT` nor `SDSYS-PLANT-FAILED` appears in the transcript**. Both
+of those paths were built to return exit 0 while scoring the row non-decisive,
+so **exit 0 alone could not have distinguished a measurement from a refusal**;
+the row and the markers are what settle it. That the run picked up the new code
+at all was checked the same way — the script's mtime is 17:41:05 and the run
+started 17:54:17.
+
+***SDSYS IS CLEAN AFTERWARDS, AND THE FIRST ATTEMPT TO CHECK THAT WAS
+WORTHLESS.*** A plain `grep` of the VOC dynamic file's `%0`/`%1` buckets
+reported the probe absent — **and the control absent too**, which is what
+exposed it: the search could not read those files at all, so "not found" meant
+nothing. `grep -a -F` reads them, and then `zzbatch` is **0 hits** against
+`listf` 6, `count` 18, `who` 15. With `ZZBATCHS` gone from `sdsys\bp` and
+`bp.out` and `batch.jobs` empty, the unconditional cleanup is witnessed rather
+than assumed. **This is §"an instrument shows what it DID" catching its own
+instrument, one step before a clean-looking wrong answer.**
+
+***PRE_RELEASE 59 IS CLOSED, AND THE SHAPE OF THE CLOSURE IS WORTH KEEPING.***
+Five verifiers, three different remedies:
+
+| | remedy |
+|---|---|
+| `verify-nocase`, `verify-lineendings` | converted to a real non-administrator account |
+| `verify-lcnames`, `verify-osusers` | ***nothing at all*** — both recovered the moment 56 clause 2 was reversed. `lcnames` is back to **142 of 142** from 107 of 128 |
+| `verify-batchjob` | re-aimed at SDSYS on the owner's ruling |
+
+**Two of the five needed no code change**, which is the part a next session would
+otherwise spend effort on: the entry was filed as five broken verifiers and two
+of them were only ever reporting a product decision that has since been
+reversed. **Open count 22 → 21.**
+
+***AND ONE RULE OF THIS PROJECT WAS BROKEN ON THE WAY.*** The `~~59~~`
+strike-through in the index was applied with `sed -i`, which CLAUDE.md forbids
+outright — *"a file edit goes through `Edit` or `Write`"*. The file was checked
+byte for byte afterwards and is undamaged (em dashes **589 on both sides**, CR
+0, no BOM, no mojibake, diff exactly the one intended line), but the check is
+what the rule exists to avoid needing.
