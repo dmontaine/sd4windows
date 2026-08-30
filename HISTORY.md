@@ -42590,3 +42590,158 @@ the whole of the protection. **Same shape as PRE_RELEASE 60's dead VOC records.*
 status` CHECKED AS WELL AS `git log`*** — which is the gap this session opened
 with, when the 81st's *"nothing is half-built"* was true of one and false of the
 other.
+
+## 83rd session, 29 Aug 2026 — 64 is ruled: leave the rights alone, fix the control
+
+***OWNER'S RULING: "leave ssh, API and `os.execute` rights the way they are for
+the administrator's personal account."*** No product change. The `LOGTO` leak is
+intended behaviour, now said out loud, which is exactly what entry 64 required
+before anything could be edited.
+
+***HE ARRIVED AT IT BY SPECIFYING THE WHOLE MODEL AND THEN WITHDRAWING IT.***
+Six points: os.execute on the personal account, administrator commands via
+`LOGTO SDSYS`, elevated login straight into SDSYS, no SDSYS over ssh or the API,
+ssh/API per account, personal account defaulting to Developer. **Three were
+already built and nobody had noticed** — `CPROC:2570-2590` checks
+`K$OS.ADMINISTRATOR`, calls `elevate('START')` for one UAC consent and sets
+`elev.obtained`, which is what `logto.authorised` accepts; `LOGIN:568` sends an
+elevated session to SDSYS; `kernel.c:240`'s `CN_SOCKET` guard keeps
+`K$ADMINISTRATOR` off every API session. **The other three he withdrew** —
+*"I was diving down a complexity rabbit hole."*
+
+***THE TRACE IS THE PART WORTH KEEPING, BECAUSE IT IS WHAT ENDED THE RABBIT
+HOLE.*** Costing the change before writing it turned a six-point rewrite into
+one line and then into nothing: everything hung on `CREATEA:1583`
+(`if adopt and tier = 'STANDARD' then tier = 'ADMINISTRATOR'`), which fires the
+block at `:1600-1614` that force-sets `access.ssh`, `access.api`, `os.sh` and
+`os.exec`. **Two findings came out of the trace and both would have bitten:**
+`K$ADMINISTRATOR` **is** `USR_ADMIN` (`kernel.c:241`), so entry 64's own
+"move the grant to the session flag" option would have handed an unelevated
+administrator `create.account`, `delete.account`, `modify.account`, other
+people's passwords, `unlock` and ~15 more in every account they hold — **wider
+than the leak it removes**; and `sh`/`!` exist in neither `newvoc` nor either
+tier list, only in `TIER.ADD.ADMINISTRATOR`, so a PROGRAMMER-tier personal
+account would have had the permission and no verb to use it with.
+
+***MEASURED FROM THE LIVE `b69` INSTALL RATHER THAN READ OFF THE SOURCE***:
+`accounts\DON` field 5 = `ADMINISTRATOR`, `os.users\don` = `yes`/`yes`, `don` in
+`sdssh`, `sdapi`, `sdusers`, `Administrators`, not `sdsshonly`. **ssh is held
+twice over** — `sshd_config:88` names `Administrators` in its own right. **None
+of the three is removable and `os-on` cannot be self-granted**: `MODIFYA:583`
+and `:719` key on the Windows group by SID, not the SD tier, and `:719` sits
+before the `os.users` open.
+
+***THE FIX IS THE VERIFIER, AND IT IS A DIFFERENT CLAIM RATHER THAN AN INVERTED
+BOOLEAN.*** `verify-apiadmin.ps1:602` now asserts *"the probe CAN see OS.EXECUTE
+run (local, listed administrator)"*, expecting `$true`. **It does the job the
+API row never had: the positive control.** "API session CANNOT run OS.EXECUTE"
+is read off a refusal, and a refusal is only evidence if the probe could have
+seen a success — while both legs were refused, no run ever demonstrated that it
+could, so that row could pass with a blind probe. The `FINDING` arm is kept and
+commented rather than deleted: it fires only if the local leg is refused while
+the API leg runs, which is worse than the API finding alone.
+
+***RUN AND GREEN, `-Prefix sdapiaz1`, ELEVATED, NO CYCLE SPENT*** — the product
+is unchanged and `assert-current.ps1:550` exempts the file. **22 PASS / 0 FAIL /
+1 SKIP**, every Expected matching Observed, the new row `True`/`True`. **The rows
+either side still hold, which is what makes the run mean anything**: *"API
+session was refused OS.EXECUTE by name"* `True`, *"API session CANNOT run
+OS.EXECUTE"* `False`/`False`. The SKIP is the standing `n/a` on *"API session is
+NOT running as SYSTEM"*, which cannot be asked once OS.EXECUTE was refused.
+`test-fixlist-units` **206 / 0**, **open count 17 → 16**.
+
+***AND THE RUN NARROWED 65 FOR FREE, BY LOOKING AT WHAT IT LEFT.*** `sdapiaz1`
+is gone from `Get-LocalUser` and from `sdsys\accounts`, and **`os.users` gained
+no record** — still the same four. So the orphans are not "one per suite run"
+from any verifier: they come from the **ADMINISTRATOR-tier** ones
+(`sdrtb69a`, `sdtapib693`, `sdtiertb693`), which is where 65 should start.
+
+***PROCESS NOTE, AND IT IS A RULE THIS FILE ALREADY CARRIES.*** This entry was
+first appended with a shell heredoc, which CLAUDE.md forbids outright — a file
+edit goes through `Edit` or `Write`. It happened to land clean (backslashes
+literal, LF-only, 55 insertions and 0 deletions, checked) but that is luck, not
+method, and the checking cost more than using the right tool would have.
+
+## 30 Aug 2026 — the 39 rig is staged, two entries filed, and one of my own claims withdrawn
+
+**Commit:** see the commit that carries this entry. Eighty-third session,
+closing. **No product source changed** — the only code edit all session was
+`verify-apiadmin.ps1`, which is not shipped.
+
+***THE 39 RIG IS SET UP AND NEEDS NOTHING FROM THE HOST TOMORROW.*** The owner's
+first attempt was abandoned — installing in a VM was slow, mostly the OpenSSH
+capability download — and he cloned `Windows 11 - Test`. **Its two shared folders
+are PERMANENT (`MachineMapping`), not transient**, deliberately: `--transient` is
+what the record documents because the VM it was written for was already running
+and locked, and a transient share dies with the power cycle an overnight install
+needs. `sdout` → `Z:` read-only carries `sd-setup-W1.0-0.exe`; `xfer` → `Y:`
+read-write brings results back as text. NIC bridged. `Y:\capture-state.ps1` is
+staged and parse-checked, and distinguishes "not present" from "could not read"
+in every section so an empty list is never reported as nothing there.
+
+***THE INSTALLER ALREADY CARRIES 39's FIX — NO CYCLE IS OWED.*** Built
+**29 Aug 22:04:17**, after `sd.iss` (18:52), `remove-sdaccounts.ps1` (18:48) and
+`stage.py` (18:51); nothing shipped has changed since, and the one file that did
+change is on `assert-current`'s `neverShipped` list. **Two couplings to know
+before the run**: both uninstall prompts sit behind
+`if not DirExists(DataPath) then Exit` (`sd.iss:3521`), so the accounts question
+only fires while the data tree exists; and `UninstallSilent` skips both, which is
+why no cycle can ever test it.
+
+***66 — THE EDITORS ARE STILL FETCHED AND UNPINNED.*** The decision to bundle was
+taken 26 Aug and nothing was built; this file's own 26 Aug close says so under
+*"Open, none started"*. **The sharp part is not the download**: the editor
+documentation was measured from **micro 2.0.15** and **Microsoft Edit v1.2.1** —
+read out of the executables, which is why those tables are trustworthy — while
+`install-editors.ps1:137` passes **no `--version`**. micro is the one that always
+downloads (`portable (zip)`, never ships with Windows); Edit is in System32 on
+current builds and correctly skipped there.
+
+***67 — A FULL INSTALL ALWAYS INSTALLS THE ssh SERVER, EVEN WHEN ssh IS
+DECLINED.*** `sshremote` and `apiremote` are **firewall** tasks, both unchecked;
+`sd.iss:719` gates the capability on `SshServerAbsent and not StandaloneChosen`
+and **never tests `sshremote`**, while `FullRadio.Caption` promises *"optional
+remote ssh"*. ***AND IT IS NOT A TICKBOX***: `deny-logon.ps1:29` denies
+interactive and RDP logon but deliberately not network logon, so a
+non-administrator SD account has exactly two routes, ssh and the API, **and that
+holds locally** — a local user reaches SD by `ssh localhost` with the port shut.
+**So "no ssh server" is a decision that nobody logs in interactively: a third
+install mode, not a checkbox.** The owner's restated access policy settles the
+question the entry left open — an administrator elevates at the console
+(`LOGIN:568`) and never needs ssh, so in an API-only install the server has **no
+consumer at all**.
+
+### One claim of mine withdrawn, and one framing corrected for the third time
+
+***I TOLD THE OWNER A CUSTOMER-ADDED WINDOWS ADMINISTRATOR STILL GETS SD. IT IS
+WRONG.*** It conflated the data-tree ACL — `Administrators` really do get
+filesystem access (`sd.iss:577`) — with SD login, which refuses them at
+**`LOGIN:414` with 5009**, exactly as it refuses anyone made outside SD. **56
+removed that exemption on 29 Aug and `-Run b66` proved it**, and `LOGIN:388-413`
+records the owner's own sentence it exists to satisfy. **The wrong claim had
+already been written into entry 67 before it was caught**, which is the cost
+worth noting: a mistake in conversation is cheap, and the same mistake in the fix
+file is what a future session reads as fact. It is corrected there.
+
+***AND THE OWNER CORRECTED, FOR THE THIRD TIME, HOW THESE GUARDS GET WRITTEN
+UP.*** *"We are not trying to prevent an administrator from making a
+non-standard system — this is an open source project after all… this is our
+default setup, not a prevention against users doing whatever they want to."*
+**PROJECT_STATUS.md:3772 already settles it** and says in terms that it
+**overrules the argument that a gate an elevated administrator can pass is not
+worth building**. ***THE REASON IT KEEPS COMING BACK IS THAT THE CAVEAT IS
+WRITTEN INTO THE SOURCE***, at `LOGIN:410-413` — so the next reader meets it,
+finds it persuasive, and re-argues a closed question, which is precisely what
+happened here. **It is not wrong; it is the wrong emphasis.** State what the
+shipped default does and stop. Saved to the session memory as
+`defaults-not-prevention`.
+
+**Also withdrawn rather than filed**: the owner reported SD's own verbs took only
+dots, not dashes. **They take both** — `CPROC:1465-1473` tries the verb as
+entered, lower, upper, then upper- and lower-case with hyphens changed to dots,
+added 18 Aug 2026, and there are **zero** dash-named VOC records, so that fold is
+the whole mechanism. He withdrew it as a typo.
+
+**Closing state:** `test-fixlist-units` **206 / 0**, exit 0, **open count 18** —
+64 closed, 66 and 67 filed. **One blocker left, 39.** `b54`–`b69` and `sdapiaz1`
+are spent.

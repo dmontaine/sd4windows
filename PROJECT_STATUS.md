@@ -165,6 +165,141 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `assert-current` **exit 0 live**, `check-stale-leads` **exit 0**,
 > `test-fixlist-units` **203 / 0**, **open count 18**.
 >
+> ### ⇩ 30 Aug 2026 — THE 39 RIG IS SET UP AND WAITING. NEW ENTRIES 66 AND 67. OPEN COUNT 18. ⇩
+>
+> ***67 IS THE ONE TO READ, BECAUSE IT TOUCHES THE INSTALL MODEL AND IT CAME OUT
+> OF THE 39 RIG BEING SLOW.*** Owner asked why declining ssh still installs the
+> ssh server. **It does**: `sshremote` and `apiremote` are FIREWALL tasks, and
+> `sd.iss:719` gates the capability install on `SshServerAbsent and not
+> StandaloneChosen` **without testing `sshremote`**, while `FullRadio.Caption`
+> says *"optional remote ssh"*. ***AND IT IS NOT A TICKBOX***: `deny-logon.ps1:29`
+> denies interactive and RDP logon but NOT network logon, so an SD account's only
+> two routes are ssh and the API **even locally** — a local user reaches SD by
+> `ssh localhost` with the port shut. **"No ssh server" is therefore a decision
+> that nobody logs in interactively, which is a third install mode, not a
+> checkbox.**
+>
+> ***THE ACCESS POLICY WAS RESTATED AND IT IS ALL ALREADY RECORDED — NOTHING NEW
+> WAS FILED FROM IT.*** Only administrators log in directly, at the keyboard or
+> through RDP/AnyDesk; OS users the customer adds get no SD; multi-user RDP is
+> not supported, only a single remote session. **§5.6.2 (`:5808`) and the
+> `RDPACCOUNT` deletion (HISTORY.md:11345) already carry it.** ***AND IT SETTLES
+> 67's OPEN QUESTION — "does anything else need ssh?" NO***: an administrator
+> reaches SDSYS by elevating at the console (`LOGIN:568`), which never touches
+> ssh, so in an API-only install the ssh server has no consumer at all. **The one
+> thing such an install gives up is an interactive SD session for a
+> NON-administrator, and the mode page has to say so in those words.**
+>
+> ***A CLAIM I MADE AND HAD TO WITHDRAW, WRITTEN DOWN SO IT IS NOT REPEATED.***
+> I told the owner a customer-added Windows ADMINISTRATOR still gets SD. **Wrong**
+> — it conflated the data-tree ACL (`Administrators` do get filesystem access,
+> `sd.iss:577`) with SD login, which refuses them at **`LOGIN:414` with 5009**
+> like anyone made outside SD. 56 removed that exemption on 29 Aug and `-Run b66`
+> proved it. **The wrong claim reached entry 67 before it was caught; it is
+> corrected there.**
+>
+> ***AND A STANDING CORRECTION ON HOW TO WRITE THIS UP — THIRD TIME THE OWNER HAS
+> GIVEN IT.*** *"We are not trying to prevent an administrator from making a
+> non-standard system… this is our default setup, not a prevention against users
+> doing whatever they want to."* **`:3772` already overrules the argument that a
+> gate an elevated administrator can pass is not worth building.** The caveat is
+> written into `LOGIN:410-413`, which is why it keeps being re-argued — **it is
+> not wrong, it is the wrong emphasis.** State what the shipped default does and
+> stop. Saved to the session memory file as `defaults-not-prevention`.
+>
+> ***`Windows 11 - Test` IS READY TO BOOT AND NEEDS NOTHING FROM THE HOST.*** The
+> owner's first attempt at 39 was abandoned — installing in a VM was slow,
+> mostly the OpenSSH capability download — and he cloned a fresh guest.
+> **Both shared folders are PERMANENT on that VM (`MachineMapping`), not
+> transient, so they survive the power cycles an overnight install needs**;
+> the `--transient` form the record documents is for a VM that is already
+> running and locked. NIC is **bridged**, which §5.9's remote-block control
+> needs. `Windows 11 - Removal Test` still carries transient shares and is spent
+> as far as this goes.
+>
+> | share | host | guest | mode |
+> |---|---|---|---|
+> | `sdout` | `C:\Users\dmont\sdout` | `Z:` | read-only — holds `sd-setup-W1.0-0.exe`, **29 Aug 22:04:17** |
+> | `xfer` | `C:\Users\dmont\sdxfer` | `Y:` | read-write — results come back to the host as text |
+>
+> ***THE INSTALLER ALREADY CARRIES 39's FIX AND NEEDS NO CYCLE*** — built 22:04:17,
+> after `sd.iss` (18:52), `remove-sdaccounts.ps1` (18:48) and `stage.py` (18:51),
+> and nothing shipped has changed since. `remove-sdaccounts.ps1` parse-checks
+> clean, no BOM; its interface is `-Remove -Keep <user>`, report-only by default.
+> **`Y:\capture-state.ps1` is staged** — run it `-Label before` and `-Label after`
+> in an ELEVATED guest PowerShell; it distinguishes "not present" from "could not
+> read" in every section, so an empty list is never reported as nothing there.
+> ***TWO COUPLINGS TO KNOW BEFORE THE RUN***: both uninstall prompts sit behind
+> `if not DirExists(DataPath) then Exit` (`sd.iss:3521`), so the accounts question
+> only fires while `C:\ProgramData\SD` still exists; and `UninstallSilent` skips
+> both, which is why a cycle can never test this.
+>
+> ***NEW: 66, THE EDITORS ARE STILL DOWNLOADED AND UNPINNED.*** Owner, 30 Aug.
+> The decision to bundle was taken 26 Aug and nothing was built. **The sharp part
+> is that the editor documentation was measured against micro 2.0.15 and
+> Microsoft Edit v1.2.1 while `install-editors.ps1:137` passes no `--version`.**
+>
+> ***AND ONE THING WITHDRAWN RATHER THAN FILED.*** The owner reported that SD's
+> own verbs took only dots, not dashes. **They take both** — `CPROC:1465-1473`
+> tries the verb as entered, lower, upper, then upper- and lower-case with
+> hyphens changed to dots, added 18 Aug 2026. There are **zero** dash-named VOC
+> records, so the fold is the whole mechanism and it is not verb-specific. He
+> withdrew it as a typo; **no entry filed, and this note exists so nobody files
+> one later.**
+>
+> ### ⇩ 64 IS RULED, FIXED, RUN AND CLOSED — NO PRODUCT CHANGE. ⇩
+>
+> ***OWNER, 29 Aug 2026: "LEAVE ssh, API AND `os.execute` RIGHTS THE WAY THEY ARE
+> FOR THE ADMINISTRATOR'S PERSONAL ACCOUNT."*** So the `LOGTO` leak is intended
+> behaviour, said out loud, and entry 64's first branch is taken: **nothing in
+> `CREATEA`, `MODIFYA`, `LOGIN` or `CPROC` is touched.**
+>
+> ***HE GOT THERE BY SPECIFYING THE WHOLE MODEL AND THEN WITHDRAWING THE PARTS
+> THAT NEEDED CODE.*** Worth reading before re-opening any of it: os.execute on
+> the personal account, administrator commands by `LOGTO SDSYS`, elevated login
+> straight into SDSYS, no SDSYS over ssh or the API, ssh/API per account, and
+> the personal account defaulting to Developer. ***THREE OF THE SIX WERE ALREADY
+> BUILT*** — `CPROC:2570-2590` checks `K$OS.ADMINISTRATOR`, calls
+> `elevate('START')` for one UAC consent and sets `elev.obtained`, which is what
+> `logto.authorised` accepts; `LOGIN:568` sends an elevated session to SDSYS;
+> `kernel.c:240`'s `CN_SOCKET` guard keeps `K$ADMINISTRATOR` off every API
+> session. **The other three were withdrawn.** *(And "Developer" is `PROGRAMMER`
+> here — the tiers are STANDARD / PROGRAMMER / ADMINISTRATOR, with `SUSPENDED` a
+> fourth value in `ACC$TIER` that is a state, not a tier.)*
+>
+> ***MEASURED FROM THE LIVE `b69` INSTALL WHILE RULING, NOT INFERRED***:
+> `accounts\DON` field 5 = `ADMINISTRATOR` (`CREATEA:1583` forces it on adopt),
+> `os.users\don` = `yes`/`yes`, and `don` is in `sdssh`, `sdapi`, `sdusers`,
+> `Administrators`, NOT `sdsshonly`. **ssh is held twice over** —
+> `sshd_config:88` names `Administrators` separately, so `sdssh` cannot remove
+> it (`MODIFYA:557`). **None of the three is removable, and `os-on` cannot be
+> self-granted either**: `MODIFYA:583`/`:719` key on the Windows group by SID,
+> not the SD tier, and `:719` sits before the `os.users` open.
+>
+> ***THE FIX IS `verify-apiadmin.ps1:602`, AND IT IS RUN AND GREEN.*** A
+> different claim with a different name, not an inverted boolean, which entry 64
+> forbids: **the POSITIVE CONTROL** — *"the probe CAN see OS.EXECUTE run (local,
+> listed administrator)"*, expecting `$true`. It does the job the API row was
+> missing, since a refusal is only evidence if the probe could have seen a
+> success, and while both legs were refused no run ever demonstrated that it
+> could.
+>
+> ***MEASURED ON `-Prefix sdapiaz1`, ELEVATED, NO CYCLE SPENT*** — the product is
+> unchanged and `assert-current.ps1:550` exempts the file. **22 PASS / 0 FAIL /
+> 1 SKIP**, every Expected matching Observed, the new row `True`/`True`. **The
+> rows either side still hold, which is what makes it mean anything**: *"API
+> session was refused OS.EXECUTE by name"* `True`, *"API session CANNOT run
+> OS.EXECUTE"* `False`/`False`. The SKIP is the standing `n/a` on *"API session
+> is NOT running as SYSTEM"*, unanswerable once OS.EXECUTE was refused.
+> `test-fixlist-units` **206 / 0**, **open count 17 → 16**.
+>
+> ***THE RUN LEFT NOTHING BEHIND, CHECKED***: `sdapiaz1` gone from
+> `Get-LocalUser` and from `sdsys\accounts`, and **`os.users` gained no record**.
+> **That narrows 65** — the orphans come from the ADMINISTRATOR-tier verifiers
+> (`sdrtb69a`, `sdtapib693`, `sdtiertb693`), not from every verifier, so start
+> there. `sdapiaz1` is spent; it deliberately avoided `sdapiab70`, which a later
+> `VerifyInstall2 -Run b70` will take.
+>
 > ### ⇩ HANDOFF, 29 Aug 2026. CYCLED AND RUN. ONE REAL FAILURE, AND IT IS THE PRODUCT. ⇩
 >
 > ***INSTALL 29 Aug 22:04:34, `assert-current` EXIT 0 LIVE, `test-fixlist-units`
@@ -203,12 +338,11 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > | | |
 > |---|---|
-> | **1** | ***64 — the owner's ruling.*** Either the control asserts the ruled behaviour (an administrator keeps the operating system wherever they `logto`), **or** the grant moves to the session flag: `CPROC:2781` already clears it on a `LOGTO`, and `LOGIN:568`'s trap is written into entry 2. **No code until he says which.** |
-> | **2** | ***65 — read `DELACC` first.*** Entry 2's original text says `DELETE.ACCOUNT` removes the record *"where SD is deleting the Windows login itself"*, which is exactly what these verifiers do, so either that path is not firing or its condition is narrower than the text claims. **`gplbld` and BASIC only — no cycle needed to find out, one to fix it.** |
-> | **3** | **39**, unchanged: it wants a real interactive uninstall on task 7.2's guest and cannot be reached from a cycle. |
+> | **1** | ***65 — read `DELACC` first, and start at the ADMINISTRATOR-TIER verifiers.*** `verify-apiadmin` on `sdapiaz1` left NO `os.users` record, so it is `sdrt`/`sdtapi`/`sdtiert` that leak, not every verifier. Entry 2's original text says `DELETE.ACCOUNT` removes the record *"where SD is deleting the Windows login itself"*, which is exactly what these verifiers do, so either that path is not firing or its condition is narrower than the text claims. **`gplbld` and BASIC only — no cycle needed to find out, one to fix it.** |
+> | **2** | **39**, unchanged: it wants a real interactive uninstall on task 7.2's guest and cannot be reached from a cycle. |
 >
-> ***NOTHING NEEDS A DECISION FROM THE OWNER EXCEPT 64, AND 64 NEEDS ONE BEFORE
-> ANY CODE.***
+> ***THAT DECISION WAS TAKEN 29 Aug 2026 — SEE THE 64 SECTION ABOVE. NOTHING IS
+> NOW WAITING ON THE OWNER.***
 >
 > ***READING THE TRANSCRIPTS HAS A TRAP THAT COST A FALSE CLEAN THIS SESSION.***
 > The per-step logs under `%LOCALAPPDATA%\SD-verify` are **UTF-16**, so a plain
