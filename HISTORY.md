@@ -41865,3 +41865,28 @@ parent stranded `sdtub64` — and `b65`'s sweep removed it exactly as read out o
 afterwards. `sdtub65` went in the `finally`. **b54–b65 are spent; use `b66`, and
 spend it on a run that carries the batchjob decision rather than on repeating
 this one.**
+
+## 29 Aug 2026 — the docs directory is renamed to match its repository, and two warnings about it inverted
+
+***OWNER, 29 Aug 2026.*** `C:\Users\dmont\Projects\SD Core for Windows 1.0-0
+Docs` is now **`C:\Users\dmont\Projects\SDCoreWindowsDocs`**, matching
+`github.com/dmontaine/SDCoreWindowsDocs`. Confirmed by reading it: same
+`origin`, branch `main`, `tools/` present, old path gone.
+
+***EIGHT LIVE REFERENCES UPDATED; HISTORY's FIVE LEFT ALONE.*** This file is
+append-only and its mentions record where the tree was at the time — two of them
+name an even earlier home under `sdhelp`. Rewriting them would falsify the
+archive, so the rename is recorded here instead.
+
+***TWO OF THE EIGHT WERE WARNINGS THAT HAD INVERTED, AND THAT IS THE PART WORTH
+KEEPING.*** PROJECT_STATUS.md and PRE_RELEASE_FIXES.md each carried *"the path
+has spaces in it … a probe for `SDCoreWindowsDocs` finds nothing — that cost a
+whole session once."* **Both halves are now false, and the second is actively
+misleading**: the directory name IS the repository name, so probing for it is
+exactly what works. They were rewritten rather than path-swapped, because a
+warning that has flipped sends the reader away from the answer instead of
+merely being out of date.
+
+**Nothing executable referenced the old path.** `assert-current.ps1:553-559` and
+`setup-devbox.ps1:129-143` name `<docs>/tools/mkdoc.py` and the repository by
+name, so both were already correct.

@@ -3155,9 +3155,16 @@ writing a reference against a model still in motion is how the tester set came
 to describe `encrypt.field` for a week after it was deleted (PRE_RELEASE 52 and
 53). **Start it when 56 and 57 have landed and one cycle has proved them.**
 
-***THE DOCS ARE A SEPARATE GIT REPOSITORY, AND THE PATH HAS SPACES IN IT***:
-`C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`. A probe for
-`SDCoreWindowsDocs` finds nothing — that cost a whole session once.
+***THE DOCS ARE A SEPARATE GIT REPOSITORY***, at
+`C:\Users\dmont\Projects\SDCoreWindowsDocs`.
+
+***RENAMED BY THE OWNER, 29 Aug 2026, TO MATCH THE GitHub REPOSITORY.*** This
+paragraph used to warn that the path *"has spaces in it"* and that *"a probe for
+`SDCoreWindowsDocs` finds nothing — that cost a whole session once."* **Both
+halves are now false and the second is actively misleading**: the directory name
+IS the repository name, and probing for it is what works. Rewritten rather than
+patched, because a warning that has inverted sends the reader away from the
+answer.
 
 ### What changed that a reader would notice
 
