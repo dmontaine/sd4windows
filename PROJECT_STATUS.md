@@ -214,8 +214,12 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > transient, so they survive the power cycles an overnight install needs**;
 > the `--transient` form the record documents is for a VM that is already
 > running and locked. NIC is **bridged**, which §5.9's remote-block control
-> needs. `Windows 11 - Removal Test` still carries transient shares and is spent
-> as far as this goes.
+> needs. ***`Windows 11 - Test` IS THE ONLY RIG — THERE IS NO SECOND GUEST.***
+> An earlier `Windows 11 - Removal Test` was **deleted** when this clone was
+> made, so anything in the record naming it is stale; `VBoxManage list vms`
+> registers only `Beardog`, `Windows 11 - Template` and `Windows 11 - Test`.
+> **The Template is the clone source, and cloning is the documented way to get
+> another attempt** (24 Aug: `clonevm`, ~25 s, `--options keephwuuids,keepallmacs`).
 >
 > | share | host | guest | mode |
 > |---|---|---|---|
