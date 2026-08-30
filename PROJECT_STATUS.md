@@ -112,7 +112,7 @@ their numbers since 13 Aug 2026 and the rest of the file cites them.**
 | ✅ | **7.15** | Data tree private from SD's own users — ACL lock, all four writers | 24 Aug 2026 |
 | ✅ | **7.16** | SD reads and writes CRLF, both halves | 24 Aug 2026 |
 | ✅ | **7.17** | `setup-devbox.ps1` ran end to end | 24 Aug 2026 |
-| ✅ | **H.1** | The cycle and suite record — ***FULL install 29 Aug 10:35:46, `-Run b59`: ELEVATED 19 of 19, 397 PASS / 0 FAIL / 0 SKIP — GREEN FOR THE FIRST TIME, and `verify-apiadmin` 22/22 CLOSES PRE_RELEASE 31.*** **UNELEVATED 8 of 13**, and all five failures are **PRE_RELEASE 59**, one cause: `lcnames`, `osusers`, `nocase`, `lineendings`, `batchjob` all assume an administrator lands in an ordinary account, which 56 abolishes. **Not product defects — every one refused the null case out loud.** ***CARRY 22/22 FOR `verify-apiadmin`, NOT 21/23***: b58's own log reads 21 PASS / 1 FAIL, so it was always 22 checks. ***SPENT: b54–b59 — use `b60`.*** ***READ THESE TRANSCRIPTS WITH `Get-Content` OR `iconv -f UTF-16LE`: THEY ARE UTF-16, and a plain `grep` reports 0 PASS / 0 FAIL on a full log*** — which reads exactly like a step that did nothing. *(Previous: FULL install 28 Aug 21:27:34, `-Run b58`: 13 of 13 unelevated + 18 of 19 elevated)*, `assert-current` exit 0 live. The one failure is `verify-apiadmin` **21/23**, the stale control of PRE_RELEASE 31, now identical across **five** runs — treat any other number there as news. **`verify-doors-suite` is green**, first time in b56 (PRE_RELEASE 44's verifier half). ***SPENT: b54, b55, b56, b57, b58 — use `b59`***, and `b55` is the cautionary one: it was burnt against a stale tree, refused eleven steps, and still left `sdsshb55` behind, because the two `assert-current`-exempt scripts run anyway. *(Previous entry, kept for the shape: 27 Aug 22:52:21, `-Run b49`, 30 of 31 steps, 963 `PASS`.)* | 28 Aug 2026 |
+| ✅ | **H.1** | The cycle and suite record — ***FULL install 29 Aug 15:33:45, `-Run b65`: UNELEVATED 12 of 13, ELEVATED 19 of 19, 1,106 `[PASS]` and ZERO `[FAIL]` across every log in the run.*** **The one failure is `verify-batchjob` exit 1**, 9 of its 10 rows passing, and it is **the verifier and not the product** — see PRE_RELEASE 59. ***`verify-lcnames` IS BACK TO 142 OF 142*** (it was 107 of 128 on `b60`) and `verify-osusers` 44 / 0, which is 56 clause 2's reversal landing exactly where it was predicted to. ***SPENT: b54–b65 — USE `b66`.*** **The `b64` token bought nothing**: an interrupted parent stranded `sdtub64`, and `b65`'s sweep removed it (`DELETE.ACCOUNT`, both halves gone, checked afterwards). ***COUNT `[FAIL]` WITH THE BRACKETS***: a bare `FAIL` also matches `verify-fold`'s negative-control row *"expected FAIL, observed FAIL, result PASS"*, which is a check working correctly. *(Previous: FULL install 29 Aug 10:35:46, `-Run b59`: ELEVATED 19 of 19, 397 PASS / 0 FAIL / 0 SKIP — GREEN FOR THE FIRST TIME, and `verify-apiadmin` 22/22 CLOSES PRE_RELEASE 31.)* **UNELEVATED 8 of 13**, and all five failures are **PRE_RELEASE 59**, one cause: `lcnames`, `osusers`, `nocase`, `lineendings`, `batchjob` all assume an administrator lands in an ordinary account, which 56 abolishes. **Not product defects — every one refused the null case out loud.** ***CARRY 22/22 FOR `verify-apiadmin`, NOT 21/23***: b58's own log reads 21 PASS / 1 FAIL, so it was always 22 checks. ***SPENT: b54–b59 — use `b60`.*** ***READ THESE TRANSCRIPTS WITH `Get-Content` OR `iconv -f UTF-16LE`: THEY ARE UTF-16, and a plain `grep` reports 0 PASS / 0 FAIL on a full log*** — which reads exactly like a step that did nothing. *(Previous: FULL install 28 Aug 21:27:34, `-Run b58`: 13 of 13 unelevated + 18 of 19 elevated)*, `assert-current` exit 0 live. The one failure is `verify-apiadmin` **21/23**, the stale control of PRE_RELEASE 31, now identical across **five** runs — treat any other number there as news. **`verify-doors-suite` is green**, first time in b56 (PRE_RELEASE 44's verifier half). ***SPENT: b54, b55, b56, b57, b58 — use `b59`***, and `b55` is the cautionary one: it was burnt against a stale tree, refused eleven steps, and still left `sdsshb55` behind, because the two `assert-current`-exempt scripts run anyway. *(Previous entry, kept for the shape: 27 Aug 22:52:21, `-Run b49`, 30 of 31 steps, 963 `PASS`.)* | 28 Aug 2026 |
 | ⬜ | **H.2** | Documentation — ***THE TESTER SET IS 15 PAGES, REVIEWED, AND 16 OF THE 18 QUESTIONS ARE ANSWERED AND APPLIED*** (26 Aug 2026). Lives in `SDCoreWindowsDocs` at `C:\Users\dmont\Projects\SD Core for Windows 1.0-0 Docs`, branch `main`, with its own toolchain in `tools\`. **Open: q7 the `limitssh` default, q14 the unmeasured ssh-elevation caveat** — both at the top of `QUESTIONS-2026-08-26.md`. ***THE `User` SET IS 32 PAGES — 18 SD BASIC plus SD TCL `19` to `32`, ALL FOURTEEN TOPIC PAGES — and the `Technical` set has its first, `01` Restricted Commands. `docmap` 411 of 411, `checklinks` 183 links 0 broken on `User`, HTML and PDF both current (27 Aug 2026). `18` and `Technical/01` are generated and partition the roster, 447 of 447. ALL 143 TCL VERBS HAVE A PAGE — 144 until `encrypt.field` went (PRE_RELEASE 53); `tclmap` 143 of 143, 0 exempt. LEFT: the generated TCL syntax card at `33`. OPEN: document `09` is 8 of 8 restricted commands and may belong in `Technical` too — the owner's call.*** ***THE SHIPPED-SCRIPTS GAP IS CLOSED***: `Technical/02` The Installed Scripts covers all **26** that ship, and tester `01` now prints the `install-ssh.ps1` retry command. **`Technical` still has no cross-page link, so `release.ps1` cannot complete on that set — PRE_RELEASE 34, the owner's call**. ***AND NOW PRE_RELEASE 58: THE WHOLE ACCESS MODEL THE DOCUMENTATION DESCRIBES HAS CHANGED*** — administrators elevated at login into SDSYS with no account of their own and **no ssh**, grants downward only, SDSYS never granted. **Filed and deliberately not started**: 56 and 57 both still have unsettled pieces, and writing a reference against a model in motion is how the tester set described `encrypt.field` for a week after it was deleted. **It collides with 34 and 55 — do them together** | — |
 | ✅ | **H.3** | Data-tree upgrade path — `-Compare` 55 PASS / 0 FAIL / 1 SKIP, and `RefreshDictionaries` 76 of 76 | 26 Aug 2026 |
 | ✅ | **H.3a** | VFS stripped from the C, cycled and checked on the installed tree | 25 Aug 2026 |
@@ -150,7 +150,45 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩ WHAT TO PICK UP, IN ORDER ⇩
 >
-> # ⇩ STEP 2 IS BUILT, CYCLED AND INSTALLED. THE SUITE IS THE NEXT THING AND IT IS YOURS. ⇩
+> # ⇩ STEP 2 IS BUILT, CYCLED AND MEASURED. ONE FAILURE, AND IT IS A VERIFIER. ⇩
+>
+> ***`-Run b65`, 29 Aug 2026 16:35–16:54 — UNELEVATED 12 OF 13, ELEVATED 19 OF
+> 19, 1,106 `[PASS]` AND ZERO `[FAIL]` IN EVERY LOG.*** The prediction below was
+> two-thirds right and the miss is the informative part.
+>
+> | predicted to recover | result |
+> |---|---|
+> | `verify-lcnames` | ***142 of 142*** (was 107 of 128 on `b60`) |
+> | `verify-osusers` | **44 / 0** |
+> | `verify-batchjob` | ***STILL FAILS — exit 1, 9 of 10 rows*** |
+>
+> ***THE ONE FAILING ROW IS `ELEVATED with no entry: still runs`, expected True
+> and observed False — AND ITS SUBJECT NO LONGER EXISTS.*** That is more than
+> the *"check that leg"* warning already on file. `verify-batchjob.ps1:111`
+> `Push-Location`s into the account directory and runs `sd` **elevated**,
+> expecting to stand in the account with the batch gate bypassed. Under the
+> ruled model **an elevated session cannot stand in an ordinary account at
+> all**: an elevated login goes to SDSYS (`LOGIN:568`), and a `logto` out of
+> SDSYS gives up the flag (`CPROC:2781`). So the state that row measures is
+> unreachable, not merely mis-measured.
+>
+> ***THE PRODUCT RULE IT WAS PROTECTING IS INTACT.*** `LOGIN:901` still bypasses
+> the batch gate on `K$ADMINISTRATOR`, so *"elevation passes on its own"* (the
+> owner's 22 Aug decision) holds — **in SDSYS**, which is now the only place an
+> elevated session can be. **What needs deciding is whether that row should be
+> re-aimed at SDSYS or dropped**; it is the owner's call, and it is the last of
+> PRE_RELEASE 59's four.
+>
+> ***USE `b66`. b54–b65 ARE SPENT.*** `b64` bought nothing — an interrupted
+> parent stranded `sdtub64`, and `b65`'s sweep removed it exactly as read from
+> `sdtestuser-admin.ps1:201-213` (`DELETE.ACCOUNT`, both halves gone, checked
+> after). `sdtub65` went in the `finally`.
+>
+> ***COUNT `[FAIL]` WITH THE BRACKETS.*** A bare `FAIL` also matches
+> `verify-fold`'s negative control — *"expected FAIL, observed FAIL, result
+> PASS"* — which is a check working correctly, and scoring it as a failure is
+> §"anchor on the SUCCESS wording" from the other side. It cost one wrong count
+> here before the self-report line was read.
 >
 > ***FULL CYCLE 29 Aug 2026 15:33:45, `assert-current` EXIT 0 LIVE.*** 184
 > programs compiled, **0 errors and 0 of the fatal "is not assigned a value"
@@ -160,31 +198,20 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **10129** installed at 424 and 308 bytes, and the mirrored file count moved
 > 2982 → **2984**, which is exactly the two new messages.
 >
-> ***NOTHING IS HALF-BUILT. THE ONE THING LEFT IS THE SUITE, AND IT CANNOT BE
-> RUN FROM HERE*** (§4.0.1 — `VerifyInstall1` refuses an elevated parent and an
-> agent cannot give it an ordinary one). **ORDINARY, UNELEVATED PowerShell:**
+> ***NOTHING IS IN FLIGHT AND NOTHING IS HALF-BUILT.*** Step 2 is built,
+> cycled, installed and measured. **The only open question is the one row
+> above, and it is a decision rather than a repair.**
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b65 -ContinueOnFailure
-> ```
+> ***DO NOT RE-RUN THE SUITE FOR ITS OWN SAKE.*** `b65` is the settled reading
+> and repeating it measures the same thing again. Spend `b66` on a run that
+> carries the `verify-batchjob` decision, once it is taken.
 >
-> ***`b64` IS SPENT AND MEASURED NOTHING — THE b62 SHAPE AGAIN.*** 29 Aug
-> 15:45:56: `sdtestuser-admin Create` succeeded in full (record, Windows user,
-> group and the parent's ACE, all `before=False after=True` in
-> `testuser-create-20260829-154556.log`) and **the parent transcript then stops
-> dead** after *"EXPECT A UAC PROMPT NOW"* — no error, no `finally`, 881 bytes.
-> **A Ctrl-C does not run the `finally`**, so `sdtub64` was left live and
-> enabled, and the two reruns at 15:48 and 15:49 correctly refused on it.
-> ***NO PRODUCT CLAIM CAN BE MADE FROM THAT RUN***: it stopped at account
-> creation and never reached a verifier.
->
-> ***`sdtub64` NEEDS NO SEPARATE CLEANUP — THE `b65` RUN SWEEPS IT.*** Checked
-> against `sdtestuser-admin.ps1:201-213` rather than the summary: all three
-> conditions hold — it matches `^sdtu[a-z0-9]+$`, it is not the name `b65`
-> creates, and it **is** in `sdusers` (read from the group). It goes by
-> `DELETE.ACCOUNT` inside the elevated child `Create` already raises, so there
-> is **no extra UAC prompt**. It has no profile directory, having never signed
-> in over ssh.
+> ***AND DO NOT Ctrl-C IT — `b64` IS WHAT THAT COSTS.*** 29 Aug 15:45:56:
+> `Create` succeeded in full and **the parent transcript then stopped dead**
+> after *"EXPECT A UAC PROMPT NOW"* — no error, no `finally`, 881 bytes. The
+> interrupt does not reach the removal, so `sdtub64` was left live and enabled
+> and the two reruns correctly refused on it. **If a UAC prompt is missed, let
+> the step fail**; the removal still runs on that path.
 >
 > ***TWO OLDER STRAYS ARE IN `sdusers` AND THE SWEEP WILL NOT TAKE THEM***, by
 > design — `sdsshb55` (the `b55` run named in H.1) and `b48adm` do not match

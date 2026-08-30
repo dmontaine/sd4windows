@@ -3073,6 +3073,27 @@ converted in a few edits. The other two do not:
   cwd**, so whether that leg still measures what it claims has to be **checked
   rather than assumed** before anything is converted.
 
+  ***CHECKED ON `b65`, 29 Aug 2026, AND IT IS WORSE THAN THE WARNING SAID: THE
+  ROW'S SUBJECT IS UNREACHABLE, NOT MERELY MIS-MEASURED.*** `verify-batchjob`
+  exits **1** with **9 of its 10 rows passing**; the failure is
+  `ELEVATED with no entry: still runs`, expected True and observed **False**.
+  **An elevated session cannot stand in an ordinary account at all** under the
+  ruled model: an elevated login goes to SDSYS (`LOGIN:568`), and a `logto` out
+  of SDSYS gives up the flag (`CPROC:2781`). So there is no state in which the
+  thing that row measures can be observed.
+
+  ***THE PRODUCT RULE IT PROTECTS IS INTACT AND WAS CHECKED SEPARATELY.***
+  `LOGIN:901` still bypasses the batch gate on `K$ADMINISTRATOR`, so the
+  owner's 22 Aug decision — *"elevation passes on its own"* — holds **in
+  SDSYS**, which is now the only place an elevated session can be. **Nothing is
+  broken; the check is aimed at a place that no longer exists.**
+
+  ***LEFT TO SETTLE, AND IT IS THE OWNER'S CALL:*** re-aim the row at SDSYS (an
+  elevated session there, no `batch.jobs` entry, does the command run?) or drop
+  it as unmeasurable and say so in the file. **Re-aiming is the smaller change
+  and keeps a control on a rule that still has force.** Everything else in that
+  verifier passes as it stands.
+
 **Neither is a reason to stop; both are a reason not to do them in a hurry.**
 The two that were mechanical are done and green, which is the whole value of
 having split them.

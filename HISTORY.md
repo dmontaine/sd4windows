@@ -41818,3 +41818,50 @@ and 59 needs re-reading rather than the verifiers patching.
 `gpl.bp.out` 186 and `gcat` 127 both unchanged, `LOGIN` and `MODIFYA` objects
 recompiled 15:33:14, messages 10128 and 10129 installed at 424 and 308 bytes,
 and the mirrored file count 2982 → 2984 — exactly the two new messages.
+
+## 29 Aug 2026 — EIGHTY-FIRST session, third part: `b65` measures step 2, and the one failure is a verifier aimed at a place that no longer exists
+
+***UNELEVATED 12 OF 13, ELEVATED 19 OF 19, 1,106 `[PASS]` AND ZERO `[FAIL]` IN
+EVERY LOG OF THE RUN.*** 16:35–16:54 on the 15:33:45 install.
+
+***THE PREDICTION WAS TWO-THIRDS RIGHT AND THE MISS IS THE USEFUL PART.***
+PRE_RELEASE 59's failures were attributed to one cause — the verifiers assume an
+administrator lands in an ordinary account, which clause 2 had abolished and
+this session restored.
+
+| predicted to recover | result |
+|---|---|
+| `verify-lcnames` | ***142 of 142***, its full historical count (107 of 128 on `b60`) |
+| `verify-osusers` | **44 / 0** |
+| `verify-batchjob` | ***still exits 1***, 9 of its 10 rows passing |
+
+***AND THE SURVIVING FAILURE IS NOT THE SAME CAUSE, WHICH IS WHY IT SURVIVED.***
+The row is `ELEVATED with no entry: still runs`, expected True and observed
+False. `verify-batchjob.ps1:111` `Push-Location`s into the account directory and
+runs `sd` **elevated**, expecting to stand in the account with the batch gate
+bypassed. **Under the ruled model no such state exists**: an elevated login goes
+to SDSYS (`LOGIN:568`) and a `logto` out of SDSYS gives up the flag
+(`CPROC:2781`). The file already warned *"check that leg before converting it"*;
+the check found something stronger than the warning — **the subject is
+unreachable, not mis-measured.**
+
+***THE PRODUCT RULE IS INTACT AND WAS CONFIRMED SEPARATELY.*** `LOGIN:901` still
+bypasses the batch gate on `K$ADMINISTRATOR`, so *"elevation passes on its own"*
+holds — in SDSYS, which is now the only place an elevated session can be. The
+owner's call is whether to re-aim the row there or drop it as unmeasurable.
+
+***A COUNTING TRAP PAID FOR IN THIS SESSION, AND IT IS §8 FROM THE OTHER SIDE.***
+A first pass counted `verify-fold` as 20 PASS / **1 FAIL** on a verifier that
+exited 0. The line was `OPEN a name in no case at all   FAIL   FAIL   PASS` —
+a **negative control**, expected FAIL, observed FAIL, result PASS. A bare `FAIL`
+matches the expected and observed columns of a check that is working; only
+`[FAIL]` with its brackets is the marker. **Count with the brackets, and read
+the verifier's own "N of N checks passed" line as the control.**
+
+***THE `b64` TOKEN AND ITS ORPHAN.*** `b64` bought nothing — an interrupted
+parent stranded `sdtub64` — and `b65`'s sweep removed it exactly as read out of
+`sdtestuser-admin.ps1:201-213` beforehand: `sdtub64: removing (DELETE.ACCOUNT
+...)`, with both the Windows user and the register record gone when checked
+afterwards. `sdtub65` went in the `finally`. **b54–b65 are spent; use `b66`, and
+spend it on a run that carries the batchjob decision rather than on repeating
+this one.**
