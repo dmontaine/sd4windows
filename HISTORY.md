@@ -42416,3 +42416,37 @@ reads 0, because `$LASTEXITCODE` came back **empty** from `&` and an empty
 reading is not a 2. And `assert-current` is **exit 0 live** with the script on
 `$neverShipped`, which is session 79's trap: three unlisted `gplbld` scripts
 made the tree report stale and every verifier refuse.
+
+## 29 Aug 2026 — EIGHTY-SECOND session, sixth part: 62 measured and closed on b68, and the B? resolves to "not a B"
+
+***THE HOLE DID NOT SURVIVE THE REVERSAL, AND NOW THAT IS MEASURED RATHER THAN
+TRACED.*** `-Run b68` on the 20:31:49 install: `verify-sdsysgate` **10 decisive
+checks, 0 failed**.
+
+A real non-administrator — `sdgateb68`, confirmed **not** in the Administrators
+group by reading the group rather than SD's wording — landed in **its own
+account** over ssh, and its `LOGTO SDSYS` was ***refused BY IDENTITY***, the
+audit recording `reason=not an administrator`. **Both disqualifiers absent**: no
+`reason=elevation refused or unavailable`, so execution never reached
+`elevate('START')`; no `ELEVATION GRANTED account=SDSYS`. The null case and the
+reader control both passed — the audit grew, and the tail carried this session's
+own `LOGIN` record — so the two absence-based checks were reading a real tail
+rather than an empty one. **That pair is what makes an absence mean anything.**
+
+**`b68` overall**: `VerifyInstall1` every step exit 0, `VerifyInstall2` **20 of
+20**, **655 `[PASS]`, zero `[FAIL]`** across 22 transcripts, and the throwaway
+account removed clean. **Open count 17 → 16. Blockers 3 → 2: 2 and 39.**
+
+***THE ENTRY'S OWN TERMS ARE MET.*** 62 said *"if it survives it is a `B`, and if
+it does not this entry closes with the measurement written down"* — it did not
+survive, and this is the measurement. The `B?` was the right sev to file it
+under: a security finding whose code had moved, held open until somebody looked.
+
+**One correction to the entry above.** It says *"eight decisive checks"*; the run
+counted **ten**. Written from the design rather than from the script, and the
+script is the thing that answers — the same shape as every other count this
+project insists be read from the tool and never from prose.
+
+***THE VERIFIER STAYS A STANDING SUITE STEP***, which is the part that outlives
+the entry: the property is now defended on every run, and a regression in
+`CPROC:2634` or `LOGIN:568` fails a named row rather than going quiet.
