@@ -42745,3 +42745,70 @@ the whole mechanism. He withdrew it as a typo.
 **Closing state:** `test-fixlist-units` **206 / 0**, exit 0, **open count 18** —
 64 closed, 66 and 67 filed. **One blocker left, 39.** `b54`–`b69` and `sdapiaz1`
 are spent.
+
+## 30 Aug 2026 — 39 closed on a real uninstall, and the run found a worse one
+
+**Commit:** see the commit that carries this entry. **Still the eighty-third
+session** — the entry above says *"closing"* and it did not close; the owner
+slept and came back to the same session, so the two entries are one session
+either side of a night. **Its title says the 39 rig is "staged"; it is now run.**
+
+***THE INTERACTIVE UNINSTALL RAN IN `Windows 11 - Test`, WHICH IS THE ONE THING
+39 NEEDED AND THE ONE THING A CYCLE CAN NEVER DO*** — `unins000.exe` is
+generated at INSTALL time and `cycle.ps1` uninstalls `/VERYSILENT`, which
+short-circuits before both prompts.
+
+**The sweep did what it promised, read off the guest rather than reported from
+the screen:** `mode : REMOVE`, `keep : don`, `token: elevated`,
+**`removed 2 of 2 account(s); kept 1`**, each with `group sdu_<name> removed`
+and `user removed`. Before and after agree — local users **9 → 7**,
+`sdusers`/`sdssh`/`sdapi` down to `don` alone, `sdsshonly` **empty**,
+`Administrators` untouched, ***`sshd_config`'s SD block gone***. The prompt
+named the account it was keeping **inside the question** (`sd.iss:3576`).
+
+***`tim` IS THE CONTROL AND IT WAS NOT PLANNED.*** A Windows account SD never
+created, left untouched — which is what turns "it deleted two accounts" into
+"it discriminates", and no run had ever shown that.
+
+**Two legs are NOT ticked, and the row says so rather than glossing them:** the
+**last-administrator refusal** evaluated and never had to fire, because this
+guest has an administrator outside `sdusers`; and the **keep-the-database**
+branch went untested, the tree coming out `absent` in the after capture.
+
+### 72: the run's real result, and it is worse than what was being tested
+
+***`john` IS IN NO GROUP AT ALL*** — not `sdusers`, not `sdsshonly`, no
+`sdu_JOHN`; he appears exactly once in each capture, in the local-users list,
+`enabled=True`. **`CREATEA` creates the Windows user, sets its password, and
+only then joins the groups**, so 68's failure between the second and third steps
+leaves an account SD has made and disowned.
+
+**Two consequences, both worse than the failed command.** It was **never
+confined** — `sdsshonly` is what carries the two deny-logon rights — so it could
+sign in to Windows at the console or over RDP for as long as SD was installed,
+against the standing policy that only administrators log in directly. And it is
+**invisible to 39's sweep**, whose candidate set is `sdusers` membership, chosen
+*"because CREATE.ACCOUNT adds every account it makes and nothing else does, so
+the group IS the list SD created"* — ***68 falsifies that premise.*** Neither
+10008 nor 10122 says a Windows account now exists and is unconfined; answering
+`N` reads as *"nothing was made"*.
+
+***THE TWO BLOCKERS SHARE A ROOT AND SHOULD BE FIXED TOGETHER.*** 72's cleanest
+fix — roll the Windows user back when a later step fails — also closes the
+window 68 opens, and fixing either alone leaves the other's symptom reachable.
+
+### An instrument fault of my own, and the record had already warned of it
+
+`capture-state.ps1` used a bare `Tee-Object`, which in PowerShell 5.1 writes
+**UTF-16**, so both captures came back NUL-separated and `grep` matched nothing.
+**That is the identical trap PROJECT_STATUS records for the SD-verify
+transcripts** — *"a plain `grep -a '[PASS]'` matches nothing and reports
+`PASS=0 FAIL=0`, which reads as a green run and is a dead instrument"* — walked
+into one day after reading it. Fixed to `Out-File -Encoding utf8`, with the
+reason in the file. ***THE SCRIPT IS IN `C:\Users\dmont\sdxfer` AND IS NOT
+TRACKED***, so it will not survive; the handoff now references it by path, which
+is a dangling reference until somebody moves it to `gplbld`.
+
+**Closing state:** `test-fixlist-units` **208 / 0** exit 0, `check-stale-leads`
+exit 0, **open count 22**. **39 is closed; the blockers are now 68 and 72.**
+`john` is still on that guest, unconfined, as the live specimen of 72.
