@@ -42084,3 +42084,42 @@ grew a line starting with `#13#10`, which ISPP reads as a preprocessor
 directive — the exact thing that file warns about twice, read earlier in the
 same session and walked into anyway. `cycle.ps1`'s own guard stopped the cycle
 in 5 seconds and named the line.
+
+## 29 Aug 2026 — EIGHTY-FIRST session, handoff: out of credits, green, nothing half-built
+
+Install **18:55:20**, `sd.exe` **`4732ECF659E8DB40`**, `assert-current` **exit 0
+live**, `check-stale-leads` **exit 0**, `test-fixlist-units` **203 / 0**, open
+count **20**. Three cycles spent (15:33:45, 18:36:04, 18:55:20).
+
+***THE ONE THING OWED IS A SUITE RUN — `b67`.*** Two cycles followed `b66`, so
+the suite has not run against this install. **Expect 14 of 14 unelevated, not
+13**: `verify-txn.ps1` joined that list.
+
+**What the session did, in order:** step 1's measurement — the elevation
+discriminator turned out to exist already, so **no new kernel key was needed**;
+step 2, 56 clause 2 and 57's promotion report, built and cycled; `b65` at 12 of
+13, with `verify-batchjob` diagnosed as the verifier rather than the product;
+the owner's re-aim of that row at SDSYS; **`b66` green in both halves, closing
+PRE_RELEASE 59**; the `SDCoreWindowsDocs` rename propagated; **PRE_RELEASE 11,
+the silent transaction data loss, fixed with a standing verifier**; and
+**PRE_RELEASE 39 built with its `-Remove` path deliberately unrun**.
+
+***THE THREE THINGS MOST WORTH KNOWING NEXT TIME, ALL OF THEM ABOUT
+INSTRUMENTS RATHER THAN CODE:***
+
+- **Two of the five verifiers in 59 needed no change at all.** They were only
+  ever reporting a product decision that had since been reversed. The entry
+  read as five broken verifiers and was not.
+- ***A red row is not always the product.*** `verify-txn`'s `NEST.LEVEL` and
+  `verify-batchjob`'s elevated row both failed against correct code — one
+  because the baseline was taken outside the pair, the other because the state
+  it measured had stopped existing. The reflex is to suspect the code.
+- ***An empty reading is not a clean one.*** A `grep` of the VOC buckets found
+  the probe absent **and its control absent**; a `CR=0 BOM=0` line was printed
+  for four files that did not exist; a bad splat made a `-Remove` run look like
+  a report run. Each was caught by a control, and none would have been
+  otherwise.
+
+**Five blockers stand**: 39 wants task 7.2's guest; 61 wants one measurement
+before the `F` goes in; 56's remainder is the `elevate('START')` identity hole;
+57's promotion report is unexercised; 2 and 58 are downstream of 56.
