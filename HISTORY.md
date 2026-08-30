@@ -42123,3 +42123,49 @@ INSTRUMENTS RATHER THAN CODE:***
 **Five blockers stand**: 39 wants task 7.2's guest; 61 wants one measurement
 before the `F` goes in; 56's remainder is the `elevate('START')` identity hole;
 57's promotion report is unexercised; 2 and 58 are downstream of 56.
+
+## 29 Aug 2026 — EIGHTY-SECOND session: the 81st's last edit was half-applied, and "committed and pushed" was only half a claim
+
+The owner reported that entries he knew were closed were being listed open, and
+asked whether the tree and GitHub had diverged. **They had not.** `main` and
+`origin/main` were both `c6165b6` — `git rev-list --left-right --count` gave
+`0 0`. ***THE INCONSISTENCY WAS UNCOMMITTED, NOT UNPUSHED.***
+
+`PRE_RELEASE_FIXES.md` sat modified in the working tree, carrying the 81st
+session's closures of **56**, **57** and **58** and its new entry **62**, and it
+had been cut off mid-edit in exactly two places:
+
+- ***row 56 was never struck*** while `## 56`'s own heading said `DONE 29 Aug
+  2026` — rule 4's case, a row and its section disagreeing on status;
+- ***`NEXT FREE ID` still read 62***, the id entry 62 had just taken — rule 5's
+  case, and the one the file says would have prevented 28 August.
+
+`test-fixlist-units.ps1` named both without being asked to look: **201 passed,
+2 failed, exit 1**. Fixed with three `Edit` calls; **203 / 0, exit 0**, and the
+**open count fell 20 → 18** (three closed, one filed). `check-stale-leads.py`
+was exit 0 throughout — it reads PROJECT_STATUS.md and could not have seen
+this. Bytes checked after: **BOM 0, CR 0 unchanged, no mojibake**, em dashes
+821 → 840.
+
+***WHAT IS WORTH CARRYING FORWARD IS THE SHAPE OF THE HANDOFF LINE, NOT THE
+TWO ROWS.*** The 81st session signed off *"everything committed and pushed,
+nothing is in flight and nothing is half-built"*, and every word was true of
+`git log` and false of `git status`. The work that falsified it happened
+**after** the handoff was written — the owner asked a question, the session
+began answering it, and credits ran out mid-edit. **A handoff line asserting a
+clean tree is a claim about two commands, and only one of them had been run.**
+The 82nd session's first two commands were `git status` and
+`git rev-list --left-right --count main...origin/main`; between them they had
+the answer before anything was read.
+
+**One thing filed rather than fixed**: entry **2** is open on a premise that
+died the same day — it was re-opened as downstream of 56 and reads *"56
+abolishes the administrator account this attached to"*, which clause 2's
+reversal undid. It is **left open and flagged for re-reading**, not quietly
+closed, because whether its `os.users` half still matters under the model that
+actually shipped has not been measured.
+
+**Three blockers stand**: 39 wants task 7.2's guest; 61 wants one measurement
+before the `F` goes in; 62 wants the `elevate('START')` re-measurement. No
+cycle spent, nothing under `gplsrc` or `sdsys` touched, and the suite run
+`b67` is still owed.
