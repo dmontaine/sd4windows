@@ -42545,3 +42545,48 @@ the *"already listed"* path instead of *"nothing was there"* — that is the rec
 arriving — while its `unlisted:` rows **still pass**, because they park the
 record deliberately and so measure the gate either way. **A change that made
 those rows fail would mean the gate had moved, not the policy.**
+
+## 29 Aug 2026 — EIGHTY-SECOND session, handoff: 2 verified, and the accepted leak broke a security control on the first run
+
+**Install 22:04:34, `assert-current` exit 0 live, `test-fixlist-units` 205 / 0,
+`check-stale-leads` exit 0, open count 17.** `b54`–`b69` spent; use `b70`.
+
+***ENTRY 2 IS VERIFIED AND CLOSED.*** `os.users\don` reads **`yes|yes`**, and
+`verify-osusers` took the ***"already listed"*** branch — *"don is already
+listed … That is what CREATEA/adopt-account do for an ADMINISTRATOR account"* —
+where on `b68` there had been nothing to park. **All twenty of its rows pass**,
+`unlisted:` rows included, exactly as predicted: they park the record
+deliberately, so they measure the gate either way.
+
+***AND `b69` IS NOT GREEN. `VerifyInstall2`: 1 of 20 steps did not exit 0.***
+`verify-apiadmin` fell **22/23 → 21/23** on *"control: local elevated session
+refused OS.EXECUTE"* — **expected refused, observed it RAN**. Across 22
+transcripts: **654 `[PASS]`, 2 `[FAIL]`**, the same row counted twice.
+
+***THAT ROW IS THE ACCEPTED LEAK, MEASURED, AND IT IS THE PRODUCT RATHER THAN
+THE TEST.*** The control's own comment had already written the mechanism down
+before anybody needed it: a local session *"starts in SDSYS with USR_ADMIN set
+and gives the flag up on the way out"*, then falls through to the `os.users`
+lookup, **which is keyed on the person**. With `don` listed, that lookup
+succeeds. **The inversion the control existed to name — *"the remote client is
+the one that gets the operating system"* — has gone; now both do.** Filed as
+**64**, with the instruction ***not*** to flip the expected value, because doing
+so would encode the leak as intended without anybody having said it was.
+
+***THE SHAPE WORTH KEEPING: AN ACCEPTED COST IS NOT A CLOSED ONE.*** The owner
+ruled on the leak in the abstract and the ruling was right on what it was shown.
+**What it was not shown was that an existing control measured its absence.** One
+run turned an accepted trade-off into a failing row and a `B`. **A ruling that
+costs something should be followed by asking what already asserts the opposite**
+— a grep for the property, not just for the code.
+
+**65 is the second consequence**, and it was found by looking rather than by
+failing: `os.users` now holds `SDRTB69A`, `SDTAPIB693` and `SDTIERTB693` beside
+`don`, and **all three Windows accounts are gone** — `Get-LocalUser`, checked
+rather than assumed. One or more orphans per suite run, in the file whose ACL is
+the whole of the protection. **Same shape as PRE_RELEASE 60's dead VOC records.**
+
+***NOTHING IS HALF-BUILT AND EVERYTHING IS COMMITTED AND PUSHED, WITH `git
+status` CHECKED AS WELL AS `git log`*** — which is the gap this session opened
+with, when the 81st's *"nothing is half-built"* was true of one and false of the
+other.
