@@ -42812,3 +42812,80 @@ is a dangling reference until somebody moves it to `gplbld`.
 **Closing state:** `test-fixlist-units` **208 / 0** exit 0, `check-stale-leads`
 exit 0, **open count 22**. **39 is closed; the blockers are now 68 and 72.**
 `john` is still on that guest, unconfined, as the live specimen of 72.
+
+## 30 Aug 2026 — both blockers fixed and one cycle short of proven; 66-76 filed
+
+**Commit:** see the commit that carries this entry. **Eighty-third session,
+closing for credits.** The owner does the next cycle in a new account, and
+PROJECT_STATUS.md's top box is written to be the first thing read.
+
+***THE SESSION'S SHAPE: A VERIFIER WAS BUILT FIRST AND IT PAID FOR ITSELF
+IMMEDIATELY.*** `gplbld/verify-sdsyswrite.ps1` (PRE_RELEASE 73) asks the
+question nothing had ever asked — can a session that reached SDSYS by `LOGTO`
+from an UNELEVATED start WRITE the protected stores? About twenty verifiers
+issue `LOGTO SDSYS`, **all but one gate on elevation**, and the one that does
+not only reads the VOC. **`verify-setpw.ps1`, the only verifier covering
+`modify.password`, never completes one** — its control feeds
+`definitely-not-the-password` on purpose, so `CRED_SET` is never called. It
+proves the parser and never exercises the write.
+
+***THE VERIFIER TURNED 68 FROM A HAND MEASUREMENT INTO AN ASSERTED PROPERTY,
+AND THEN FOUND THE FIX'S OWN BUG.*** `sdswa2`: 5 PASS / 2 FAIL, `status 3035` =
+`ER_PERM`, with the elevated control green — so the difference is the token and
+not the probe. After the fix, `sdswa3`: **6 PASS / 1 FAIL — `os.users` passed
+and `$cred` did not**, which is what named the cause. `MODIFYA` does the
+elevated write AFTER `close` and its comment says why; `CRED_SET` kept the file
+open across an outside write and read back through the same handle. **A rule
+written into one file and not the other, on the same day.**
+
+### Three faults in my own instruments, and the third is the one that matters
+
+**CRLF.** The elevated leg joined the SD body with CRLF while the in-process one
+used LF; SD takes the `\r` as a line of its own, so every command got a blank
+line after it and every ANSWER went one out of step. It presented as *"The two
+passwords did not match"*. **Now guarded by asserting the body is CR-free before
+it is written** — the class, not the instance.
+
+**UTF-16.** `capture-state.ps1` used a bare `Tee-Object`, which in PS 5.1 writes
+UTF-16, so both captures came back NUL-separated and `grep` matched nothing —
+**the identical trap PROJECT_STATUS records for the SD-verify transcripts,
+walked into one day after reading it.**
+
+***AND A FALSE GREEN ON THE ONE LINE A HUMAN READS.*** The verifier's tally
+tested `Expected -ne 'n/a'` with `Expected` a **Boolean**; `[bool]'n/a'` is
+`$true`, so every *"expected True"* row read as a skip and the first real run
+printed **`2 PASS / 0 FAIL / 5 SKIP` on a run with five passes and two genuine
+failures.** The exit code was right throughout, **which is what makes it the
+dangerous kind of wrong** — a script written to catch false greens printed one.
+Each row now records its own verdict and **the tally refuses itself** if the
+three counts do not add up to the number of rows.
+
+### A claim withdrawn under measurement
+
+The VM capture showed `OpenSSH SSH Server (sshd) enabled=True dir=Inbound` and I
+said it made 67 a **B**. ***IT PROVES NOTHING OF THE KIND***: `ssh-firewall.ps1`
+restricts with `-RemoteAddress '127.0.0.1' **-Enabled True**`, so a correctly
+restricted rule is indistinguishable from an open one on those three fields.
+**The scope was the whole question and was the one field not read.** Re-measured
+after fixing the instrument: `RemoteAddress=127.0.0.1`. **67 stays S.**
+
+### What is filed and what is ruled
+
+**66** editors still fetched unpinned — the documentation was measured against
+micro 2.0.15 and Edit v1.2.1 while `install-editors.ps1` passes no `--version`.
+**67** the ssh server is installed even when declined; **ruled** — refuse `SSH`
+and `BOTH` when no server is installed, the condition being the MACHINE rather
+than the install, **which dissolves the upgrade problem rather than solving it**.
+**69** message 10034 asserts ssh for an account that has none — 37's fix was
+checked against `both` and never against `api` or `none`, and `sdsshonly` is
+misnamed. **70** an upgrade replaces the VOC templates and re-runs nothing, so
+no existing account gains a verb. **71** PROJECT_STATUS §6 and CLAUDE.md said
+there is no upgrade path and it has been false since 25 Aug — **reading it as
+current nearly cost a wrongly-filed blocker.** **74** the uninstall disclosure
+names one of the four groups it leaves. **75** remove the stand-alone mode.
+**76** a machine that already has ssh is never asked and its firewall never set
+— **and that one invalidates my own advice to prime the Template with OpenSSH.**
+
+**Closing state:** `test-fixlist-units` **213 / 0**, **open count 26**,
+`assert-current` **RED** — source has moved past the install, deliberately.
+**Blockers 68 and 72, both fixed, both one cycle short of proven.**

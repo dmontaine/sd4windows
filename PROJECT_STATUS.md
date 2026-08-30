@@ -165,6 +165,85 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `assert-current` **exit 0 live**, `check-stale-leads` **exit 0**,
 > `test-fixlist-units` **203 / 0**, **open count 18**.
 >
+> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 83rd SESSION. START HERE. ⇩⇩
+>
+> ***DO THESE TWO THINGS FIRST, IN THIS ORDER, BEFORE READING ANYTHING ELSE.***
+> A fix for both remaining blockers is committed and **UNCOMPILED**, and
+> `assert-current` is **RED** because source has moved past the install.
+>
+> **1. ELEVATED PowerShell:**
+> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+>
+> **2. ORDINARY UNELEVATED PowerShell** (it refuses if elevated, deliberately):
+> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-sdsyswrite.ps1 -Prefix sdswa4`
+>
+> **One UAC prompt, one throwaway account created and deleted. `sdswa1`–`sdswa3`
+> are spent, and so are `b54`–`b69` and `sdapiaz1`.**
+>
+> ***THAT SECOND COMMAND IS THE WHOLE TEST AND IT DECIDES BOTH BLOCKERS.***
+> Expect **7 PASS / 0 FAIL**. On `sdswa3` it was **6 PASS / 1 FAIL**: `os.users`
+> PASSED — which is the useful half, because `MODIFYA` proves the helper route,
+> the CRLF, the ASCII and the read-back all work — and only `$cred` failed.
+> ***IF `$cred` STILL FAILS, THE STATUS NOW NAMES THE STAGE***, which it did not
+> on `sdswa3`: **3035** means the elevated write was refused, **3037** means it
+> wrote and the record did not read back as what was stored. Two different
+> problems; do not guess between them.
+>
+> ***READ THE THREE CONTROLS BEFORE THE VERDICT.*** Setup must create the
+> account, the unelevated session must have REACHED SDSYS and read it, and the
+> ELEVATED control must still write `$cred`. **A green run with a broken control
+> is not a pass** — that is the exact failure the file was written to avoid, and
+> its own tally refuses itself if pass+fail+skip does not equal the row count.
+>
+> ***WHAT THE FIX IS, IN CASE THE RUN GOES BADLY.*** 68 is two writes SD makes
+> to stores an unelevated process cannot touch: `$cred` (`secure-cred.ps1` grants
+> `sdusers` nothing) and `os.users` (`secure-osusers.ps1` grants read-only).
+> Both now fall back to `ps_script`, which hands the work to the elevated helper
+> when `K$ADMINISTRATOR` is set (`PS_SCRIPT:166`), and both read the record back
+> before reporting success. **Three things were measured before a line was
+> written and each would have corrupted a store silently**: the field mark on
+> disk is **CRLF** (`od -c` on `os.users/don`), every value is **base64** so
+> ASCII is safe (`sd_scram.c:26`), and `pstmp` is already hardened for
+> credential material (`secure-psdir.ps1`, CREATOR OWNER, added 16 Aug for
+> exactly this). ***AND THE ONE THING THAT WENT WRONG WAS A RULE APPLIED IN ONE
+> FILE AND NOT THE OTHER***: `MODIFYA` does the elevated write AFTER `close` and
+> says why; `CRED_SET` did not, and that is what `226ef0e` fixes.
+>
+> ***72 IS FIXED AND NOT YET PROVEN ON THE PATH THAT MATTERS.*** `DELETE_USER`
+> now uses `ps_script` rather than `os.execute`, and `CREATEA` reads the
+> rollback's result instead of `void`ing it (new message **10130**). The 11:25
+> install carried it, but `verify-sdsyswrite`'s cleanup rows run through the
+> ELEVATED helper, so they do not exercise it. **To prove it, reproduce `john`:
+> from your OWN account, `logto sdsys`, `create.account user testrb none`, give
+> a password, answer N.** Before the fix the account survived and the message
+> said *"Nothing was created"* anyway. **Once 68 is fixed the password will not
+> fail, so provoking this needs a different failure — the two passwords not
+> matching will do it.**
+>
+> ***FOUR RULINGS ARE TAKEN AND UNBUILT, AND THEY ALL TOUCH THE INSTALLER.***
+> **66** bundle the editors (decided 26 Aug, never built). **67** refuse `SSH`
+> and `BOTH` when no ssh server is installed — *the condition is the MACHINE, not
+> the install*, which dissolves the upgrade problem; **the open question is how
+> BASIC asks, and `ospath` with a Windows path should be MEASURED before anything
+> is designed around it.** **75** remove the stand-alone mode and make the two
+> remote boxes service switches rather than firewall switches — mostly a
+> deletion, since `sd_conf_standalone()` already is "no listener". **76** a
+> machine that already has ssh is never asked and its firewall never set.
+> **They interact; rule on them together rather than one at a time.**
+>
+> ***THE RIG IS `Windows 11 - Test` AND IT IS THE ONLY GUEST.*** Three PERMANENT
+> shares — `sdout` (read-only, the installer), `xfer` (results back to
+> `C:\Users\dmont\sdxfer`), `gplbld` (read-only, the tracked
+> `capture-state.ps1`). Reach them by name, `\\vboxsvr\<share>`, **not by drive
+> letter — adding the third share moved the letters.** SD is installed there
+> with both remote boxes unchecked, which is 67 and 75's measured baseline.
+>
+> ***AND ONE WARNING ABOUT MY OWN ADVICE, RECORDED AS PRE_RELEASE 76.*** Priming
+> the Template with the OpenSSH capability saves ~45 minutes per clone **and
+> would leave every clone with no ssh question and NO FIREWALL RESTRICTION**,
+> at Windows' default of `RemoteAddress=Any`. Do not do it without fixing 76
+> first.
+>
 > ### ⇩ 30 Aug 2026 — 39 IS CLOSED ON A REAL UNINSTALL, AND THE RUN FOUND A WORSE ONE (72). OPEN COUNT 22. ⇩
 >
 > ***THE INTERACTIVE UNINSTALL RAN IN `Windows 11 - Test` AND THE SWEEP DID WHAT
