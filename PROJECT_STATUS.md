@@ -146,7 +146,35 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***THE OWNER IS RESUMING THIS SAME SESSION, NOT STARTING A NEW ONE*** — but
 > this block is written as if he were not, because that is what it is for.
 >
-> # ⇩⇩⇩ THE `!ps_script` REFACTOR TOUCHES 14 PROGRAMS. TEST IT AS A MILESTONE, NOT A CHANGE. ⇩⇩⇩
+> # ⇩⇩⇩ 31 Aug 2026 — SUITE GREEN ON `-Run b81`. THE FOUR REPORTS ARE ALL THAT IS LEFT. ⇩⇩⇩
+>
+> ***UNELEVATED 17 OF 17 EXIT 0. ELEVATED 20 OF 21, AND THE ONE WAS THE
+> VERIFIER, NOT THE PRODUCT*** — `verify-tiers` carried a THIRD stale copy of
+> the admin list (`$AdminVerbs`); fixed, and **re-run on `-Run b82`: exit 0,
+> 33 of 33.** Install 09:54:22, `assert-current` **exit 0 live** in the rerun.
+>
+> ***SO THE `!ps_script` REFACTOR SURVIVED 10 OF ITS 14 CALLERS***, which is the
+> regression half of the test plan below, done: the credential path
+> (`createaccount`, `delaccount`, `accountrules`, `setpw`, `profiledir` — i.e.
+> `CREATE_USER`, `SET_PASSWD`, `OS_GROUP`, `PROFILE_DIR`, `CRED_SET`),
+> `APISRVR` across six API steps, and `ELEVATE` in **every** step that does
+> `logto sdsys`. **None of them behaves differently, which is exactly what was
+> wanted — they were only ever meant to keep their silence.**
+>
+> ***AND TWO ROWS PROVE `append.sd.path` ON A LIVE ACCOUNT RATHER THAN IN THE
+> STAGE***: `sdtiertb823 COUNT VOC 420`, and `sdtiertb821 administration verbs
+> MISSING 24` — a standard account is missing all twenty-four, the new verb
+> included, so the `voc_template`-only placement holds where it matters.
+>
+> ***WHAT IS LEFT IS THE PART NO SUITE STEP CAN REACH: THE FOUR REPORTS.***
+> Same blind spot as the tasks page. In SDSYS: `append.sd.path`, `remote.api`,
+> `remote.ssh`, `ssh.server` — each must print its report **on separate
+> lines**. One line studded with boxes is the field-mark bug; nothing at all is
+> the original defect. **The actions must be unchanged: one line, no report.**
+>
+> **`b54`–`b82` SPENT. USE `b83`.**
+>
+> # ⇩⇩ THE `!ps_script` REFACTOR TOUCHES 14 PROGRAMS. THE PLAN, KEPT. ⇩⇩
 >
 > ***PRE_RELEASE 90 MOVED `!ps_script`'s BODY.*** Four verbs gained NEW
 > behaviour (they print a report); the other ten must behave **identically**,
