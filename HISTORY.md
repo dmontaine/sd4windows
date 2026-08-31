@@ -43260,3 +43260,53 @@ the edit — both files are exempt. Pre-flighted: 0 parse errors, **16 functions
 unchanged** (the count is what catches a BOM the parser waves through), steps
 renumber cleanly 1–7, no BOM, 0 CR, no non-ASCII introduced. `VerifyInstall2`
 still parses with its 1 function and gained only comments. **Unrun: `b74`.**
+
+## 30 Aug 2026 — `-Run b74`: the pin bit, 65 closes, and the rig found two more defects
+
+**19 of 21 elevated steps exited 0.** The two that did not are the finding.
+
+***65 IS CLOSED, ON THE ARM IT TOOK THREE ATTEMPTS TO REACH.*** *"the pin
+blocked the profile removal (this leg is decisive): expected True, got True"*,
+then *"65: status 6/7/8 - the os.users check below is DECISIVE"*, then
+*"os.users record is gone (the DECISIVE one)"* — with 10075 shown, the directory
+kept, the reclaim record written and naming it, and 10123 absent.
+`verify-delaccount` **53 PASS / 1 FAIL of 54**. **Step 3's subject still took
+status 0 and still said so**, so one run covers both arms, which is what the
+third subject was bought for.
+
+***36's RECLAIM PROMISE WAS KEPT END-TO-END AND NOBODY HAD EVER SEEN IT.*** A
+later step restarted the service and the sweep logged, at 21:18:26:
+`before: directory present, ProfileList entry gone` / `after: directory gone,
+ProfileList entry gone` / `reclaimed - both halves gone, record cleared`, with
+the summary **`12 considered, 1 reclaimed, 11 still pending, 0 refused`**.
+**One of twelve, and it was the right one** — the other eleven were still pinned
+by live hives. A sweep that reclaimed everything would have proved much less.
+
+***AND THAT LOG IS THE SECOND WITNESS FOR A NEW DEFECT, 83.***
+`before: directory present, ProfileList entry gone` **is the split 36 exists to
+prevent**, read by a different program four minutes after `verify-delaccount`
+measured the same thing. `DELETE_USER:270`'s `Remove-CimInstance` removes both
+halves in Windows' own order, so the entry can go while the directory stays; the
+guard at `:281` governs only SD's own second removal and never fires. **The code
+measures honestly and the MESSAGE over-promises** — 10075's *"SD has kept the
+profile's registry entry with the directory"* was false on the only run that has
+ever printed it. Recovery is not at risk: the sweep reads the record.
+
+***84: SIX CHECKS THAT ANSWERED ON THE CONSOLE'S WIDTH.*** `verify-notyet`
+failed *"says the sign-in has not got it yet"* against a build printing exactly
+the right sentence — check-install had wrapped it as `...does not have it` /
+`yet.`. **It passed on b73 at a different width: correct by luck.** The five
+that stayed green were no better off — four assert a phrase ABSENT, and a
+wrapped line is absent to a literal pattern too, so they would have passed on
+output that did contain what they rule out. **All six moved to a `Wrapped()`
+helper**, the same cure 51 applied to `Esc-Loose`.
+
+***THE FIX WAS PROVEN AGAINST b74's OWN BYTES, NOT A FIXTURE***: replayed on the
+transcript, the old pattern answers `False` — reproducing the failure — and the
+new one answers `True`. **Getting there took two wrong attempts and both are
+worth recording**: the first test matched against the whole transcript, which
+contains the verifier's own check labels, so `[PROBLEM]` "matched" text that was
+never check-install's; the second reconstructed the captured text by keeping
+only lines prefixed `|`, which **dropped the word "it"** — the transcript wraps
+its own display lines too, and the continuation carries no prefix. **A rig that
+loses a word reports the fix as broken**, which is what it did.

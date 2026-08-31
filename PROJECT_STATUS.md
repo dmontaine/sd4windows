@@ -186,25 +186,61 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > was added rather than substituted. **676 → 693 is exactly its 13 plus 65's
 > four**, which is how the totals were reconciled rather than eyeballed.
 >
-> # ⇩⇩ DO THIS FIRST: `-Run b74`. NO CYCLE — `assert-current` IS exit 0. ⇩⇩
+> # ⇩⇩ DO THIS FIRST: `-Run b75`. NO CYCLE — `assert-current` IS exit 0. ⇩⇩
 >
 > ***ORDINARY UNELEVATED PowerShell:***
-> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b74 -ThenElevated`
+> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b75 -ThenElevated`
 >
-> ***WHAT IT DECIDES: 65's DECISIVE BRANCH, AND 36's KEEP-BOTH ARM WITH IT.***
-> `verify-delaccount` gains **step 6** and a **third subject**, `<prefix>h`.
-> Expect **16 of 16 unelevated** and **21 of 21 elevated** still, with
-> `verify-delaccount` going **42 → about 52**.
+> ***SPENT: `b54`–`b74`.*** **What `b75` decides is 84's fix** — nothing else is
+> unrun. Expect `verify-notyet` back to **13 of 13 plus its new control**, and
+> `verify-delaccount` **54 of 54** once **83** is settled. **`verify-delaccount`
+> will keep failing its one check until 83 is ruled on**, and that failure is
+> real: do not silence it.
 >
-> ***READ ITS TRANSCRIPT FOR ONE LINE:*** `65: status 6/7/8 - the os.users check
-> below is DECISIVE`. **If instead it says `THE PIN DID NOT BITE`, the rig failed
-> and the leg proved nothing** — that is reported as a failure of the rig, by
-> name, precisely so it cannot be read as a product fault.
+> # ⇩⇩ `-Run b74`: THE RIG BIT. 65 IS CLOSED, AND IT FOUND TWO MORE THINGS. ⇩⇩
 >
-> ***IT LEAVES `C:\Users\<prefix>h` AND A ProfileList ENTRY BEHIND ON PURPOSE.***
-> That IS status 6, and the next SD service start reclaims the pair — which is
-> also the first chance anyone has had to watch 36's reclaim promise be kept
-> end-to-end. **Do not sweep it before looking.**
+> **19 of 21 elevated steps exited 0; the two that did not are `verify-notyet`
+> (84, now fixed) and `verify-delaccount` (83, open and real).**
+>
+> ***65 IS CLOSED, ON THE DECISIVE BRANCH, WHICH TOOK THREE ATTEMPTS TO REACH.***
+> `the pin blocked the profile removal (this leg is decisive): expected True, got
+> True`, then ***`65: status 6/7/8 - the os.users check below is DECISIVE`***, and
+> on that branch ***`os.users record is gone (the DECISIVE one)`***. **10075
+> shown, the directory KEPT, the reclaim record written and naming it, 10123
+> absent.** `verify-delaccount` **53 PASS / 1 FAIL of 54**. **Step 3's subject
+> still took status 0 and still said so**, so one run now covers both arms —
+> which is exactly what the third subject was bought for.
+>
+> # ⇩⇩ 36's RECLAIM PROMISE WAS KEPT END-TO-END, AND NOBODY HAD EVER SEEN IT ⇩⇩
+>
+> From `C:\ProgramData\SD\reclaim-profiles.log`, **21:18:26**, after a later step
+> restarted the service:
+>
+> ```
+> --- S-1-5-21-...-3863
+>     sid=...-3863 account=SDDELB74H directory=C:\Users\sddelb74h
+>     before: directory present, ProfileList entry gone
+>     after:  directory gone, ProfileList entry gone
+>     reclaimed - both halves gone, record cleared
+> reclaim-profiles: 12 considered, 1 reclaimed, 11 still pending, 0 refused
+> ```
+>
+> ***1 OF 12, AND IT WAS THE RIGHT ONE.*** The other eleven were still pinned by
+> live hives and stayed pending. **A sweep that reclaimed everything would have
+> proved much less than one that reclaimed exactly the pair whose lock had gone.**
+>
+> # ⇩⇩ 83 — AND THE SWEEP'S LOG IS THE SECOND WITNESS FOR IT ⇩⇩
+>
+> ***`before: directory present, ProfileList entry gone` IS THE SPLIT 36 EXISTS TO
+> PREVENT***, read by a different program four minutes after `verify-delaccount`
+> reported the same thing. `DELETE_USER:270`'s `Remove-CimInstance` removes both
+> halves in Windows' own order, so the entry can go while the directory stays;
+> the guard at `:281` governs only **SD's own second removal** and never fires.
+> **The code measures honestly — the MESSAGE over-promises**: 10075 says *"SD has
+> kept the profile's registry entry with the directory"*, and that clause was
+> false on the only run that has ever printed it. **Three shapes in the entry;
+> the choice is yours.** ***THE RECOVERY IS NOT AT RISK*** — the sweep reads the
+> record, not `ProfileList`, which is why it still worked.
 >
 > # ⇩⇩ WHY THAT RIG HAD TO BE BUILT — 65 AFTER `b73` ⇩⇩
 >
