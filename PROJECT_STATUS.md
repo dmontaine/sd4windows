@@ -165,35 +165,55 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `assert-current` **exit 0 live**, `check-stale-leads` **exit 0**,
 > `test-fixlist-units` **203 / 0**, **open count 18**.
 >
-> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
+> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 85th SESSION. START HERE. ⇩⇩
 >
-> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
+> ***A CYCLE IS NEEDED NOW AND IT WAS NOT AN HOUR AGO.*** PRE_RELEASE **65** is
+> built and it is **BASIC**, so `assert-current` is **RED** and says so by name:
+> *"STALE: 1 source file(s) are newer than the install — `sdsys\gpl.bp\DELACC`"*.
+> **Nothing else in the tree moved it**: the four `gplbld` scripts edited with it
+> are exempt, which is measured rather than assumed — they are absent from that
+> list.
 >
-> ***NOTHING IS IN FLIGHT AND NOTHING IS HALF-BUILT. `assert-current` IS GREEN.***
-> Install **18:03:57**, `assert-current` **exit 0**, working tree clean and
-> pushed. **The session ended on low credits, not mid-task.**
+> ***TWO COMMANDS, IN THIS ORDER. THE FIRST IS ELEVATED, THE SECOND IS NOT.***
 >
-> ***DO THIS FIRST — ONE COMMAND, ORDINARY UNELEVATED PowerShell:***
-> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b73 -ThenElevated`
+> 1. **ELEVATED PowerShell:**
+>    `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+> 2. **ORDINARY UNELEVATED PowerShell:**
+>    `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b73 -ThenElevated`
 >
-> **It refuses an elevated parent deliberately** and hands over to
+> **Step 2 refuses an elevated parent deliberately** and hands over to
 > `VerifyInstall2` as its last act, so one command runs both halves.
-> ***SPENT: `b54`–`b72`, `sdswa1`–`sdswa5`, `sdtierv`, `sdtierw`, `sdapiaz1`.***
+> ***SPENT: `b54`–`b72`, `sdswa1`–`sdswa5`, `sdtierv`, `sdtierw`, `sdapiaz1`.
+> `b73` IS STILL UNSPENT*** — the 84th session ended before running it.
 >
-> ***WHAT `b73` DECIDES: 82's WIRING, WHICH IS THE ONLY THING BUILT AND UNRUN.***
-> `test-tiercounts-units.ps1` is now **step 1 of 16** in `VerifyInstall1`, ahead
-> of `verify-credacl`. Expect **16 of 16 unelevated** (was 15) and **21 of 21
-> elevated**. **If it does not appear as step 1, that is the finding.**
+> ***WHAT `b73` NOW DECIDES, AND IT IS TWO THINGS RATHER THAN ONE:***
 >
-> ***NO CYCLE IS NEEDED FOR IT.*** Both `VerifyInstall1.ps1` and
-> `test-tiercounts-units.ps1` are on `assert-current`'s `$neverShipped`, so the
-> change does not make the tree stale — checked, not assumed.
+> - **82's wiring.** `test-tiercounts-units.ps1` is **step 1 of 16** in
+>   `VerifyInstall1`, ahead of `verify-credacl`. Expect **16 of 16 unelevated**
+>   (was 15) and **21 of 21 elevated**. **If it does not appear as step 1, that
+>   is the finding.**
+> - **65's fix, in `verify-delaccount.ps1`** — step 12 of the elevated half.
+>   ***READ THE THREE `65:` LINES IN ITS TRANSCRIPT BEFORE BELIEVING THE GREEN.***
+>   The new `os.users record is gone` check is **decisive only on the keep-both
+>   branch** (`DELETE_USER` status 6/7/8, a still-loaded hive) and the run prints
+>   *"CONFIRMATORY, not decisive"* when it took status 0 instead. **A green run
+>   that took status 0 has not tested the fix**, and 65 stays open until one
+>   does.
 >
-> ***THE HABIT THIS SESSION PAID FOR TWICE: RUN THE FREE UNITS TESTS FIRST.***
-> All four are green right now — `tiercounts` 13/13, `sdtestuser` 51/0,
-> `verdict` 126/126, `fixlist` 217/0 — and **a whole suite run (`b70`) was spent
-> discovering what `test-tiercounts-units` names in under a second.** They need
-> no install, no elevation and no token.
+> ***AND `verify-delaccount`'s SUBJECT IS AN ADMINISTRATOR NOW.*** `<prefix>s` is
+> created `ADMINISTRATOR BOTH`, because only that tier is given an `os.users`
+> record and a STANDARD subject would have scored *"the record is gone"* by never
+> having had one. It is a member of Windows Administrators for the seconds it
+> exists. **The control account `<prefix>b` is deliberately not.**
+>
+> ***THE HABIT THAT PAID FOR ITSELF TWICE: RUN THE FREE UNITS TESTS FIRST.***
+> All four are green as of 30 Aug 20:15 — `tiercounts` 13/13, `sdtestuser`
+> 51/0, `verdict` 126/126, `fixlist` **218/0** — plus `check-stale-leads`
+> **exit 0**, and **a whole suite run (`b70`) was spent discovering what
+> `test-tiercounts-units` names in under a second.** They need no install, no
+> elevation and no token.
+>
+> ### ⇩ EVERYTHING BELOW IS THE 84th SESSION'S HANDOFF, STILL CURRENT ⇩
 >
 > ***TWO THINGS BUILT AND NOT YET SEEN, NEITHER PROVABLE BY A CYCLE:***
 > **74**'s uninstall disclosure now names all four groups, and it shows only at

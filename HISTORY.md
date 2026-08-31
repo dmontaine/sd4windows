@@ -43105,3 +43105,50 @@ on 4243. That is the ruling working — and it leaves **nine suite verifiers**
 unable to pass, none of them for a real defect. **A theoretical cost became a
 concrete one within an hour of being written down, which is the argument for
 writing it down.**
+
+## 30 Aug 2026 — 65: the leak that was measured is not the defect that ships
+
+**Two separate faults wearing one entry.** 65 asked whether `DELACC`'s
+`os.users` removal was *"not firing or narrower than the text claims"*. Both,
+and they are unrelated.
+
+***THE MEASURED LEAK IS THE HARNESS AND THE VERB NEVER RAN.***
+`verify-tierapi.ps1:309` and `verify-routes.ps1:478` remove the Windows account
+with `Remove-LocalUser` and say *"remove with `DELETE.ACCOUNT`"*. Still
+accumulating on the 18:03:57 install: `os.users` holds `don` plus **seven**
+orphans from `b70`–`b72`, and all seven logins are **ABSENT** to
+`Get-LocalUser`.
+
+***THE PRODUCT DEFECT WAS BEHIND IT.*** The removal sat inside
+`case stat = 0`, and `!delete_user` (`DELETE_USER:328`) returns TRUE for **0, 6,
+7 and 8** — the login gone in all four, the three others differing in the
+**profile alone**. **A loaded hive is what makes a profile unremovable**, so
+6/7/8 is the ordinary outcome for an account somebody has just used and the
+covered arm was the rarer one. `void delete_user(...)` again, exactly as at
+`CREATEA:643` (entry 72): the function answers *"is the login gone"* and the
+answer was thrown away, so the caller re-derived it from a status and got it
+wrong.
+
+**Fixed by reading the return into `login.gone` and lifting the removal into
+`drop.os.access:`, reached from two callers** — the `sd.made.it` arm after its
+case block, and **`lookup.stat # 0`, the half-removed account**, which is the
+arm every *"remove with DELETE.ACCOUNT"* note lands in and which cleared
+nothing. One place, two callers, on entry 11's shape.
+
+***THE CHECK IS IN `verify-delaccount.ps1` AND ITS SUBJECT HAD TO CHANGE TIER.***
+Only an ADMINISTRATOR-tier account is given a record, so a STANDARD subject
+would have scored *"the record is gone"* by never having had one — the vacuous
+pass that file's own header was rewritten to refuse. **Three states: ABSENT at
+preflight, PRESENT after `create.account`, ABSENT after `delete.account`.** And
+the run **prints which branch it took**: the check is decisive only on the
+keep-both path and says *"CONFIRMATORY, not decisive"* on status 0, so a green
+run that took status 0 cannot be read as proof.
+
+**The harness leak is disclosed, not swept.** Both verifiers and
+`cleanup-devlitter.ps1` now name `os.users` beside the register. Sweeping it
+there would hide the next regression, and `DELETE.ACCOUNT` is a true recovery
+for it as of this fix — it was not before.
+
+**Not upstream**: `sdb64`'s `DELACC` has no `os.users` at all, only
+`OS.EXECUTE "sudo userdel"`. **Unrun**: BASIC, so `assert-current` is red on
+`sdsys\gpl.bp\DELACC` alone and it needs a cycle before `b73`.
