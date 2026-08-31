@@ -176,10 +176,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > test could have caught either, because neither route exists off a live
 > session.**
 >
-> ***ONE THING NOT RE-MEASURED SINCE THE CAPTURE WENT IN***: `append.sd.path
-> on` / `off` were proved one-line BEFORE their action path was changed to
-> capture. It prints only when `rc` is non-zero, so it should be unchanged —
-> **but that is reasoning, not a measurement.**
+> ***AND THE ACTION PATH IS MEASURED TOO — `append.sd.path` IS DONE.*** `on`,
+> `off`, `on` in SDSYS: **one line each, no report above**, so the capture
+> stays silent on success as designed. ***THE MACHINE WAS THEN READ RATHER
+> THAN THE MESSAGES BELIEVED***: the system PATH is **11 entries, 11
+> non-empty**, same order as before, SD back at `[10]`. **Value kind still
+> `ExpandString`** — the `SetEnvironmentVariable` corruption did not happen —
+> and **zero empty entries**, so 16 Aug's accumulated-separator bug did not
+> recur across a real remove-then-add.
+>
+> ***SO 89's DEFECT B IS CLOSED. WHAT IS LEFT OF 89 IS DEFECT A, AND ITS ANSWER
+> IS 88 — RULED, NOT BUILT.***
 >
 > **`b54`–`b82` SPENT. USE `b83`.**
 >
