@@ -167,6 +167,40 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
 > be missed the same way.
 >
+> # ⇩⇩ BATCH 3 IS BUILT AND WAITING ON YOUR EYES. ONE LOOK CLOSES 85 AND 67. ⇩⇩
+>
+> ***THE INSTALLER IS ALREADY BUILT — NO CYCLE NEEDED TO LOOK.***
+> `cycle.ps1 -SkipInstall` at 31 Aug 01:14:09: ISCC exit 0,
+> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, 4,925,443 bytes. **Run it to the
+> tasks page, look, and CANCEL — cancelling writes nothing.**
+>
+> ```
+> C:\Users\dmont\sdout\sd-setup-W1.0-0.exe
+> ```
+>
+> **Double-click it, or an ordinary prompt; it asks for elevation itself.**
+>
+> ***WHAT TO LOOK FOR — 85.*** Tick *"Provide the SD API (port 4243)"*. The
+> child *"Let other computers on your network reach it"* must stay **UNTICKED**.
+> Then tick the child and untick it again: the parent must stay **TICKED**.
+> Before this the two moved together, which put port 4243 on the network by
+> default. ***WHAT TO LOOK FOR — 67***: the ssh pair does the same thing, and
+> `Test-Path 'C:\Windows\System32\OpenSSH\sshd.exe'` must be **False** before
+> the server-absent box means anything.
+>
+> ***ISCC's EXIT CODE IS NOT EVIDENCE HERE. IT COMPILED THE BROKEN VERSION
+> TOO.*** No cycle and no suite run ever sees this page.
+>
+> ***74 IS NOT ON THIS HOST.*** It needs an **interactive uninstall** to show
+> the closing disclosure, and a cycle's uninstall is `/VERYSILENT`
+> (`cycle.ps1:497`), so it never appears. An interactive uninstall here would
+> take the install with it — **it wants the VM, the rig that closed 39.**
+>
+> ***AND THE SD SERVICE WAS PUT BACK.*** `cycle.ps1` step 1 stops it and
+> nothing restarts it (`:218`); it was restarted by hand and reads **Running**.
+> **The installed tree is STALE** — `sd.iss` moved — which is correct and
+> costs nothing until the next real cycle.
+>
 > # ⇩⇩ BATCH 2 IS DONE AND MEASURED. 12, 24 AND 87 ALL CLOSED. OPEN COUNT 13. ⇩⇩
 >
 > ***INSTALL 31 Aug 01:05:10, `sd.exe` `87701F86382AEA63`, `assert-current`
