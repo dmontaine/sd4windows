@@ -146,7 +146,47 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***THE OWNER IS RESUMING THIS SAME SESSION, NOT STARTING A NEW ONE*** — but
 > this block is written as if he were not, because that is what it is for.
 >
-> # ⇩⇩⇩ 31 Aug 2026 — SUITE GREEN ON `-Run b81`. THE FOUR REPORTS ARE ALL THAT IS LEFT. ⇩⇩⇩
+> # ⇩⇩⇩ 88 IS BUILT. TESTING IT NEEDS A SECOND INSTALL, BECAUSE A CYCLE CANNOT REACH IT. ⇩⇩⇩
+>
+> ***AN UPGRADE NOW SKIPS THE TASKS PAGE AND FIRES NONE OF ITS ACTIONS.***
+> ISCC exit 0, **not yet cycled.** `SdWasInstalled` sampled once in
+> `InitializeSetup`, `TrueUpgrade = DataTreeUpgrade and SdWasInstalled`,
+> `ShouldSkipPage` back for `wpSelectTasks` alone, and **five action gates** —
+> `install-ssh.ps1`, `addtopath`, and the two `ApplyXxxFirewall` call sites.
+>
+> ***THE ORDER OF TESTING MATTERS AND IS NOT OBVIOUS.*** `cycle.ps1`
+> uninstalls and deletes both trees, so **its install is a FIRST install** and
+> takes the page-shown path. It proves nothing about the upgrade.
+>
+> 1. ```
+>    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+>    ```
+>    **Elevated.** First-install path: the tasks page MUST still appear and
+>    behave exactly as before. `gpl.bp.out` 190 → 191.
+>
+> 2. Then run the installer it built **a second time, over the finished
+>    install**:
+>    ```
+>    C:\Users\dmont\sdout\sd-setup-W1.0-0.exe
+>    ```
+>    **It asks for elevation itself.** ***THIS is the upgrade path.*** The tasks
+>    page must **NOT** appear, and the closing box must carry the new paragraph
+>    naming `remote.ssh`, `remote.api`, `ssh.server` and `append.sd.path`.
+>
+> 3. Afterwards, confirm nothing moved: `remote.ssh` and `remote.api` must
+>    report the same state as before the second install, and
+>    `append.sd.path` must still show SD on the PATH.
+>
+> ***TWO SILENT TRAPS WERE PAID FOR BUILDING IT, BOTH CAUGHT BY A THROWAWAY
+> PROBE.*** `{#SetupSetting}` written in a *comment* aborts the compile — ISPP
+> expands a brace-hash inside comments too. And ***`RegKeyExists(HKLM, …)`
+> FINDS NOTHING FROM `[Code]`***: Setup is a 32-bit process, so plain `HKLM` is
+> redirected to `WOW6432Node`. Measured with SD installed as the control —
+> `HKLM` not found, `HKLM32` not found, **`HKLM64` FOUND**. **That one compiles
+> clean and would have left `TrueUpgrade` permanently False, the whole entry
+> doing nothing while every test reported success.**
+>
+> # ⇩⇩ 31 Aug 2026 — SUITE GREEN ON `-Run b81`. ⇩⇩
 >
 > ***UNELEVATED 17 OF 17 EXIT 0. ELEVATED 20 OF 21, AND THE ONE WAS THE
 > VERIFIER, NOT THE PRODUCT*** — `verify-tiers` carried a THIRD stale copy of
