@@ -167,6 +167,36 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
 >
+> # ⇩⇩ `-Run b72`: GREEN IN BOTH HALVES. 36 STEPS, 676 PASS, 0 FAIL. ⇩⇩
+>
+> ***UNELEVATED 15 OF 15 (265 `[PASS]`), ELEVATED 21 OF 21 (411 `[PASS]`), ZERO
+> `[FAIL]` ANYWHERE.*** Install **18:03:57**, `assert-current` **exit 0 live**.
+> ***COUNT `[FAIL]` WITH THE BRACKETS*** — a bare `FAIL` also matches
+> `verify-fold`'s negative-control row, which is a check working correctly.
+> **And the runner's own log reads 0 PASS / 0 FAIL, which is EXPECTED under
+> `-Quiet`** — the per-check markers live in the 21 step logs, so a non-zero
+> PASS total across those is the control that the logs were actually read.
+>
+> ***SPENT: `b54`–`b72`, `sdswa1`–`sdswa5`, `sdtierv`, `sdtierw`, `sdapiaz1`.
+> USE `b73`.*** **`b71` bought nothing**: it stalled after step 9 wrote `OK`,
+> with both processes at exactly 0 CPU, no children but a console, and nothing
+> executing. **Step 9 itself had completed cleanly** (*"10 decisive check(s),
+> 0 failed"*, `sdgateb71` removed). **The block was on the next console write**,
+> which points at a wedged console rather than a defect — unproven, and worth
+> filing only if it recurs at a DIFFERENT step. `b71` left `sdacctb71`,
+> `sdaclb71`, `sdcatgb71` in the register and `SDACCTB71` on disk.
+>
+> ***54 CLOSES ON THIS RUN.*** `verify-profiledir` is step 13 and has now run
+> twice, `b70` and `b72`, exit 0 both times, with its prefix derived from the
+> `-Run` token each time — a fixed one would have passed on `b70` and failed on
+> `b72`, so the second run is what proves the wiring. **36's last leg had never
+> fired since the day it was written.**
+>
+> ***AND 82 IS WHAT THIS RUN LEFT BEHIND.*** `test-tiercounts-units.ps1` is in
+> neither runner. It caught the stale 416 in under a second when finally run, and
+> a whole suite run had already been spent finding the same thing. **Run it
+> before any suite run that follows a change to either tier list.**
+>
 > # ⇩⇩ THE TASK TABLE IS FULLY CLOSED. EVERYTHING LEFT IS IN PRE_RELEASE_FIXES. ⇩⇩
 >
 > ***H.2 WAS THE LAST OPEN ROW AND IT IS NOW ➖, COMBINED INTO PRE_RELEASE 80.***
