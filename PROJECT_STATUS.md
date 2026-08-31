@@ -157,8 +157,39 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **472 bytes stamped 13:32** — the install, not the 13:14 staged build —
 > against `!TIER_ALLOWS` **827** as the control.
 >
-> ***NOTHING HAS RUN A `logto` YET. `-Run b83` IS THE NEXT THING AND IT DECIDES
-> 91.*** Expect **18 of 18** unelevated, not 17.
+> ***`-Run b83` RAN AND THE 91 ROW PASSED. THE PRODUCT IS FIXED.***
+> Unelevated **17 of 18 exit 0**, and the one failure was
+> `verify-logtoaccess` — ***THE INSTRUMENT, NOT THE PRODUCT***, with every
+> product row in it green:
+>
+> ```
+> [PASS] arrivals into SDTUB83 (0 = refused first, 1 = the flag was cleared): expected 2, got 2
+> [PASS] SD did NOT say 10003 ...        [PASS] SD did NOT say 5161 ...
+> [PASS] control: sdtub83 was refused with 10003
+> [PASS] control: sdtub83 did NOT arrive in DON
+> ```
+>
+> The transcript shows it plainly: `LOGTO SDTUB83` → `78 SDTUB83 from DON`,
+> `LOGTO DON` → `78 DON`, `LOGTO SDTUB83` → `78 SDTUB83 from DON`. **The second
+> entry into an ungranted account is what 91 refused and it now succeeds.**
+>
+> ***THE FAILING ROW TAUGHT SOMETHING WORTH KEEPING: `from X` NAMES THE
+> SESSION'S HOME ACCOUNT, NOT THE PREVIOUS HOP.*** The row expected an arrival
+> back into `DON` and got 0, because going home prints a bare `78 DON`. **The
+> three hops settle it**: hop 2's previous account was SDTUB83 and it printed no
+> clause at all, which a "previous hop" reading cannot explain. `verify-doors`
+> says the same in its own words and this file was written having read it —
+> the lesson is its own header's: *look at the output the tool prints on the
+> path you are measuring, not the one next to it.* Fixed with `Count-AtHome`
+> and **re-tested against the real b83 lines, with negative controls both ways**
+> (neither counter matches the other's shape). A second fix went in with it:
+> `Invoke-SdAsTestUser` returns an OBJECT, and the control rows had been passing
+> through **accidental stringification** of `@{ExitCode=…; Out=…; Err=}`.
+>
+> ***`b83` IS SPENT — USE `b84`. AND THE WHOLE ELEVATED HALF NEVER RAN***: the
+> runner correctly refused to hand over on a failing step. The test account was
+> removed cleanly (`sdu_SDTUB83` and the OS user both Deleted; one profile
+> directory Windows would not release yet).
 >
 > *(The compile that preceded it: `cycle.ps1 -SkipInstall` 13:13:42, ISCC exit
 > 0, installer **4,940,170**
