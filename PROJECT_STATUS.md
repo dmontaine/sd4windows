@@ -141,6 +141,84 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF, 31 Aug 2026 — OUT OF CREDITS. NEW SESSION, DIFFERENT ACCOUNT. ⇩⇩⇩
+>
+> ***THE WORK IS RULED, TRACED AND NOT STARTED. THREE CHANGES, IN THIS ORDER.***
+> Read **PRE_RELEASE 91** and **§5.22** first; both were written today for this
+> hand-over and between them carry the whole model.
+>
+> **1. PRE_RELEASE 91 — THE LIVE DEFECT. DO THIS ONE FIRST.**
+> One `logto` out of SDSYS locks an administrator out of **every** account,
+> SDSYS included, for the rest of the session. `logto.authorised` tests
+> `K$ADMINISTRATOR`, and `CPROC:2823` clears that flag on every successful
+> `logto` by the 16 Aug ruling *"LOGTO ends the elevated session"*.
+> ***THE FIX IS TO TEST THE PERSON, NOT THE SESSION***, reusing `LOGIN:573`'s
+> pair — `kernel(K$ADMINISTRATOR,-1) and kernel(K$OS.ADMINISTRATOR,0)`.
+> ***DO NOT JUST STOP CLEARING THE FLAG***: that restores access by restoring
+> privilege, which is exactly what the 16 Aug ruling prevents.
+>
+> **2. EMPTY `TIER.ADD.ADMINISTRATOR`.** The 24 restricted commands stay in
+> `voc_template` (so SDSYS keeps them) and no created account gets them —
+> §5.22's table. ADMINISTRATOR-tier VOC **420 → 396**, identical to PROGRAMMER.
+> **Both count constants and `verify-tiers`' assertions invert with it**
+> (`administration verbs MISSING` becomes 24 for all three tiers).
+> ***RUN `test-tiercounts-units.ps1` AFTER EVERY EDIT*** — it now checks all
+> three copies, including `$AdminVerbs`, and it is free.
+>
+> **3. ⚠️ REPOINT `tclmap`'s ROSTER AT `voc_template` — DO NOT SKIP THIS.**
+> `SDCoreWindowsDocs/tools/tclmap.py:24` computes the roster as *123 in
+> `newvoc` **plus** `TIER.ADD.ADMINISTRATOR`*. Emptying that list would drop 24
+> **shipping** verbs out of documentation coverage and the checker would go
+> **green** with 24 undocumented verbs. Same class as the red-tree finding below.
+>
+> # ⇩⇩ THE MACHINE, AS LEFT ⇩⇩
+>
+> - ***`b54`–`b82` SPENT. USE `b83`.***
+> - **Open count 14**: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, 88, 89 —
+>   **plus 91**, filed today. 85 and 90 closed today.
+> - **The installed tree is STALE and correct** — `sd.iss` moved after the
+>   09:54:22 install. `assert-current` names it.
+> - ***88 IS BUILT AND NOT CYCLED***, and a cycle alone cannot test it: see the
+>   three-step sequence further down. ISCC exit 0.
+> - **The doc tree is RED and has been since 30 Aug** — `tclmap` exits 1,
+>   roster 146, three `NO PAGE`. `append.sd.path` makes it four. PRE_RELEASE 80.
+> - **Nothing is uncommitted.**
+>
+> # ⇩⇩ WHAT TODAY COST, SO IT IS NOT PAID TWICE ⇩⇩
+>
+> ***FIVE SILENT TRAPS, EVERY ONE FOUND BY MEASUREMENT AND NONE BY READING.***
+>
+> | trap | it looked like |
+> |---|---|
+> | `RegKeyExists(HKLM,…)` from `[Code]` reads **WOW6432Node** — Setup is 32-bit. `HKLM64` FOUND, `HKLM` and `HKLM32` not | compiles clean, `TrueUpgrade` permanently False, 88 silently does nothing |
+> | `{#SetupSetting}` written in a **comment** aborts ISCC | "Insufficient parameters" against a line of English |
+> | `[Code]` Pascal strings get **no** constant expansion, so `{{` there is two braces | wrong key, silent False |
+> | the helper's two capture routes disagreed — field marks vs raw CRLF | one line of boxes |
+> | `verify-tiers`' `$AdminVerbs` was a **third** copy of the admin list | 20 minutes into a suite run |
+>
+> ***AND EVERY DEFECT CLOSED TODAY WAS FOUND BY THE OWNER AT A TERMINAL, NOT BY
+> A TEST.*** The tasks page, the silent reports, the field marks, the Ready
+> page, and 91. Two instruments were built to move some of that onto the
+> machine — `probe-taskflags.ps1` and `test-tiercounts-units`' `$AdminVerbs`
+> check — **but the pattern is the thing to remember when choosing what to
+> check by hand.**
+>
+> # ⇩⇩ OPEN QUESTIONS RAISED TODAY AND NOT ANSWERED ⇩⇩
+>
+> - ***CAN A GROUP ACCOUNT BE GIVEN A TIER?*** `CREATE.ACCOUNT GROUP <name>`
+>   documents no tier keyword and defaults to `STANDARD` (`CREATEA:295`), but
+>   the keyword parser's `ADMINISTRATOR`/`PROGRAMMER` arms carry **no
+>   account-type test** and I could not establish whether that loop is reached
+>   on the GROUP path. **If group accounts really are STANDARD-only, nobody can
+>   run `basic` or `ed` in a shared work area** — `CREATEA`'s own header calls
+>   GROUP *"how work is shared"*. Two commands settle it:
+>   `create.account group zzgrp`, then `logto zzgrp` and `count voc` (355 =
+>   STANDARD); then whether `create.account group zzgrp2 programmer` is
+>   refused. `delete.account` both afterwards.
+> - **PRE_RELEASE 70's other half** — nothing RUNS `update.account` on an
+>   upgrade. The Ready page now TELLS the administrator to; making the
+>   installer do it is still open, with `upgrade-dicts.ps1` as the precedent.
+
 > # ⇩⇩⇩ 31 Aug 2026, 03:00 — PAUSED FOR SLEEP MID-TASK. THE NEXT STEP IS ONE VERB. ⇩⇩⇩
 >
 > ***THE OWNER IS RESUMING THIS SAME SESSION, NOT STARTING A NEW ONE*** — but
@@ -8485,6 +8563,44 @@ decided, and all but the service registration are done:**
 elevated, which is exactly what the OS account commands need (§5.6) — so
 creating the initial accounts is something the installer can do and a normal
 session cannot.
+
+### 5.22 What an administrator has as themselves, and what needs SDSYS (owner, 31 Aug 2026)
+
+*"Administrators logged in as themselves need to have full access to everything
+EXCEPT the ability to issue the restricted administrator commands. They have to
+log to sdsys to do that."*
+
+| | as themselves | in SDSYS |
+|---|---|---|
+| enter any account, **no grant needed** | yes | yes |
+| the 41 capabilities (`TIER.OMIT.STANDARD`) | yes | yes |
+| the 24 restricted commands (`TIER.ADD.ADMINISTRATOR`) | **no** | yes |
+
+***"ADMINISTRATOR" MEANS BOTH, AND THAT WAS DECIDED EARLIER.*** Owner, 31 Aug
+2026: *"an administrator has to be both a windows administrator and an sd
+administrator… accounts created outside of sd do not have access to sd unless
+they are granted access from within sd."* **This is already built and already
+recorded** — do not re-derive it:
+
+- **`LOGIN:573` is the predicate**, and any new test should reuse it rather
+  than invent one: `kernel(K$ADMINISTRATOR, -1) and kernel(K$OS.ADMINISTRATOR, 0)`.
+- **`LOGIN:417`** refuses a non-`sdusers` Windows user with 5009,
+  `reason = 'not a member of sdusers'`.
+- **`LOGIN:388-413`** carries the owner's sentence: *"if any are built outside
+  of sd they do not have access to sd until a matching standard or programmer
+  account is created in SD."*
+- **Entry 56** removed the administrator exemption — *"the `sdusers` gate is
+  uniform across all three tiers"* — proved by `-Run b66`.
+- **It is an explicit act and an audit trail, not a boundary against a Windows
+  administrator**, who can add themselves to `sdusers`. `LOGIN`'s own comment
+  says the owner was shown that before ruling. **Do not re-argue it** — §5.6.1
+  and the 30 Aug *"this is our default setup, not a prevention"* ruling cover
+  the same ground.
+
+***ACCESS AND PRIVILEGE ARE DIFFERENT QUESTIONS, AND CONFLATING THEM IS
+PRE_RELEASE 91.*** Which accounts a person may ENTER must not be answered with
+the flag that says what the session may DO — `CPROC:2823` clears that flag on
+every `logto` out of SDSYS, by the 16 Aug ruling, and access must survive it.
 
 ### 5.21 No control may be inert (owner, 31 Aug 2026)
 
