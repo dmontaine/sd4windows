@@ -141,6 +141,64 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ 31 Aug 2026, 03:00 — PAUSED FOR SLEEP MID-TASK. THE NEXT STEP IS ONE VERB. ⇩⇩⇩
+>
+> ***THE OWNER IS RESUMING THIS SAME SESSION, NOT STARTING A NEW ONE*** — but
+> this block is written as if he were not, because that is what it is for.
+>
+> ***BUILD `append.sd.path on | off`. THE NAME IS RULED; DO NOT RE-DEBATE IT.***
+> Owner, 31 Aug 2026. `set.path` was rejected with evidence — inside SD "path"
+> means the ACCOUNT's path (`pathname` is a VOC keyword, `where` prints
+> *"account pathname"*, `@PATH`), and `os.path` collides with
+> `gpl.bp/VALID_OS_PATH`. Three-segment verbs are normal here
+> (`set.exit.status`, `who.am.i`).
+>
+> **Model it on `gpl.bp/REMOTEAPI`**, which is the same shape: a verb that
+> drives a shipped PowerShell script. **The script is already built and
+> tested** — `gplbld/sd-path.ps1`, `-Show` / `-Add` / `-Remove`,
+> `test-sdpath-units.ps1` **24 of 24**. The verb is the only missing piece.
+>
+> | it must touch | why |
+> |---|---|
+> | `sdsys/gpl.bp/` new program | modelled on `REMOTEAPI` |
+> | `sdsys/voc_template/append.sd.path` | ***voc_template ONLY, NEVER newvoc*** — `verify-tiers.ps1:41`: *"putting it in newvoc hands it to every account SD creates"* |
+> | `sdsys/newvoc/TIER.ADD.ADMINISTRATOR` | → 24 verbs. Administrator-only, owner's instruction |
+> | `gplbld/verify-tiers.ps1` | ADMINISTRATOR → **420** = 392 + 24 + 4, ***re-derived from the directory, not adjusted by one*** — that block says so |
+> | elevation | HKLM needs the elevated helper; `ps_script` is warranted here, not the overkill 67 warned of |
+> | a doc page | or `tclmap` goes to 147 with **four** `NO PAGE` rows |
+>
+> # ⇩⇩ AND THE DOCUMENTATION TREE IS RED RIGHT NOW. IT HAS BEEN SINCE 30 Aug. ⇩⇩
+>
+> ***`tclmap.py` EXITS 1: roster `146`, assigned `143`, `NO PAGE` for
+> `remote.api`, `remote.ssh`, `ssh.server`.*** Measured 31 Aug 2026. **The
+> checker is not at fault** — it COMPUTES the roster from `newvoc` plus
+> `TIER.ADD.ADMINISTRATOR`, so it noticed the moment entry 78 added those verbs.
+> **Nobody ran it.** ***H.2's "tclmap 143 of 143, 0 exempt" WAS STALE AND IS
+> CORRECTED.*** The real finding is in PRE_RELEASE 80: **`tclmap.py` lives in
+> the OTHER repository and no tier-1 check here runs it**, so adding an
+> administrator verb in this repo silently breaks a checker in that one.
+>
+> ```
+> cd C:\Users\dmont\Projects\SDCoreWindowsDocs
+> python tools\tclmap.py C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\sdsys\newvoc
+> ```
+>
+> **An ordinary unelevated prompt.**
+>
+> # ⇩⇩ THE OTHER RULING OF 31 Aug, AND IT IS NOT BUILT ⇩⇩
+>
+> ***AN UPGRADE SKIPS THE TASKS PAGE ENTIRELY.*** Owner: *"if the admin wants to
+> make additional choices, we have given them the command line tools."*
+> **PRE_RELEASE 88 carries it, and the trap with it**: skipping the page does
+> NOT deselect the tasks, so the page-skip alone would turn *visible but inert*
+> into ***invisible but active***. It needs `ShouldSkipPage(wpSelectTasks)` on
+> `DataTreeUpgrade` **and** the four gates returning no-change. **Not built.**
+>
+> ***OPEN COUNT 14***: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, 88, 89.
+> ***SPENT: `b54`–`b80`. USE `b81`.*** **The installed tree is STALE and that is
+> correct** — `sd.iss`, `stage.py` and `sd-path.ps1` have all moved since the
+> 01:05:10 install; `assert-current` names them. A cycle clears it.
+>
 > # ⇩⇩ 30 Aug 2026, 23:35 — A LITTER CLEAR IS HALF DONE AND WANTS A REBOOT. ⇩⇩
 >
 > ***`C:\Users` IS 268 → 89 sd* DIRECTORIES. THE REMAINING 89 ARE HIVE-LOCKED
