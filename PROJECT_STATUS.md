@@ -141,6 +141,37 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩ 30 Aug 2026, 23:35 — A LITTER CLEAR IS HALF DONE AND WANTS A REBOOT. ⇩⇩
+>
+> ***`C:\Users` IS 268 → 89 sd* DIRECTORIES. THE REMAINING 89 ARE HIVE-LOCKED
+> AND NEED A REBOOT, THEN ONE MORE RUN — NOTHING ELSE IS OUTSTANDING FROM IT.***
+> `cleanup-devlitter.ps1` elevated: users **1 → 0**, `sdu_` groups 0, home `sd*`
+> items **1 → 0** (`sdxfer`), profiles **252 → 163 removed, 0 failed**, `sdout`
+> still present. It **exits 1 by design** — `clean-test-profiles.ps1` refuses to
+> let a sweep of what it could see read as a sweep of the machine. The 16 with no
+> `ProfileList` entry were then removed by hand (**16 removed, 0 failed**), which
+> is what the record already said that class costs. **To finish:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1
+> ```
+>
+> **Elevated, after a restart.** `b48adm` is deliberately untouched — a live
+> local account, outside every stem.
+>
+> ***AND IT FOUND PRE_RELEASE 86 ON THE WAY: THE SWEEP HAD WALKED PAST 25 OF THE
+> 268 AND REPORTED SUCCESS.*** `sdgate` and `sdtu` were never added to
+> `clean-test-profiles.ps1`'s `$stems`, so 25 directories were invisible to the
+> only thing that sweeps them. **Fixed and self-tested; 268 of 268 now inside the
+> rule.** The entry leaves one recommendation unbuilt — nothing compares `$stems`
+> against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
+> be missed the same way.
+>
+> ***`b78` IS SPENT — USE `b79`.*** The owner ran
+> `VerifyInstall2.ps1 -Run b78 -Only verify-tiers`: **33 of 33 PASS, exit 0**,
+> `assert-current` clean against the 22:42:46 install. **That closes `b77`'s four
+> failures** — `omit list length 41/41` and `shipped TIER.OMIT.STANDARD 0/0`.
+>
 > # ⇩ THE CYCLE IS PAID. 56, 57 AND 31 ARE IN AND MEASURED. ⇩
 >
 > ***CYCLE 29 Aug 10:35:46, `-Run b59`. ELEVATED 19 OF 19 — 397 PASS, 0 FAIL,
