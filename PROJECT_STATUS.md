@@ -167,7 +167,58 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
 > be missed the same way.
 >
-> # ⇩⇩⇩ HANDOFF, 31 Aug 2026, 01:20. START HERE. 85's FIX DID NOT WORK. ⇩⇩⇩
+> # ⇩⇩⇩ 31 Aug 2026, 02:00 — RESOLVED. 85's FLAGS WERE RIGHT; THE WIZARD WAS SHOWING THE OLD INSTALL'S ANSWERS. ⇩⇩⇩
+>
+> ***NOTHING BELOW THIS BLOCK NEEDS DOING. IT IS KEPT BECAUSE ITS "RULED OUT"
+> TABLE IS SOUND MEASUREMENT AND BECAUSE THE CONCLUSION IT REACHED WAS
+> WRONG*** — the previous session ended on *"the three flags did not work"*,
+> and they do.
+>
+> ***MEASURED BY `gplbld/probe-taskflags.ps1`, WRITTEN THIS SESSION.*** It
+> drives the tasks page through Inno's **own** click path
+> (`TNewCheckListBox.CheckItem`, the method a mouse click calls) and reads the
+> states back. **Unelevated, ~3 seconds, no cycle, no install, no run token.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-taskflags.ps1
+> ```
+>
+> **An ordinary unelevated prompt.** It compiles a probe installer with no
+> `[Files]`, no `[Run]` and no app dir, which aborts at the tasks page: it
+> installs nothing.
+>
+> | leg | what it shows |
+> |---|---|
+> | 1, `UsePreviousTasks=no` | **all three flags behave.** Tick parent → child stays unchecked; untick child → parent stays ticked; re-tick parent → child stays unchecked. **The ssh pair is identical on all five transitions, so 67 stands too** |
+> | 2, `UsePreviousTasks=yes` + a restored selection | **both API boxes arrive CHECKED** — the owner's report, from the same binary and the same flags |
+>
+> ***THE CAUSE IS `UsePreviousTasks`, WHICH `sd.iss` NEVER SETS, SO IT IS
+> `yes`.*** Inno reads `Inno Setup: Selected Tasks` from the uninstall key at
+> startup and uses it as the page defaults, **overriding every `unchecked`
+> flag**. This machine's value reads
+> `addtopath,sshremoteopen,apiremote,apiremote\apinetwork` — **written by the
+> pre-fix build and restored faithfully by the fixed one.** ***FILED AS
+> PRE_RELEASE 88, AND IT IS A DECISION, NOT A FIX*** — `yes` is Inno's default
+> and matches this project's own "an upgrade does not re-ask" policy, but it
+> means a tightened default never reaches an existing site.
+>
+> ***HIS SENTENCE COVERED TWO THINGS AND ONLY ONE WAS EVER A DEFECT.*** *"If
+> one is checked they both are checked"* is the restored **arrival** state;
+> *"and vice versa"* is untick-parent-unticks-child, which is **correct Inno
+> behaviour and cannot be disabled**. Once either box is touched the flags take
+> over and behave.
+>
+> ***INNO IS 6.7.3***, from the same registry key — the open version question.
+>
+> ***AND THE PROBE ITSELF MISLED HIM TWICE BEFORE IT WAS RENAMED.*** Its window
+> is a real Inno wizard, it forces `SshServerAbsent := True` so the dependent
+> ssh pair exists to test, and he read it as `sd-setup` showing an "install the
+> server" box on a machine that has one. **It now says so in the title bar and
+> across the page.** `sd.iss` derives that flag from the machine at `:1105`, so
+> the real wizard hides that box here: **four boxes = the probe, three = the
+> installer.**
+>
+> # ⇩⇩ THE SUPERSEDED HANDOFF FOLLOWS. ITS TABLE IS STILL TRUE. ⇩⇩
 >
 > ***THE OWNER RAN THE NEW INSTALLER AND THE API BOXES STILL MOVE TOGETHER:***
 > *"the api checks move together if one is checked they both are checked and
@@ -190,7 +241,13 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > that the API parent also carries `unchecked` (75's ruling: the API defaults
 > OFF) and the ssh pair carries `Check: SshServerAbsent`.
 >
-> # ⇩⇩ THE NEXT STEP IS ONE QUESTION TO THE OWNER, NOT MORE CODE ⇩⇩
+> # ⇩⇩ ANSWERED WITHOUT ASKING — BOTH BRANCHES AT ONCE. SEE THE TOP. ⇩⇩
+>
+> ***THE QUESTION BELOW WAS THE RIGHT ONE AND DID NOT NEED A PERSON.*** The ssh
+> pair is the control, and `probe-taskflags` runs it alongside the API pair on
+> every invocation: **ssh correct, API correct, and both wrong only when a
+> previous selection is restored.** That is a third answer the two branches
+> below did not have, and it is the true one.
 >
 > ***ASK WHETHER THE ssh PAIR ON THE SAME PAGE BEHAVES CORRECTLY.*** It carries
 > the same two flags, so it is the control:
@@ -221,13 +278,24 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > - **The SD service is Running.** `cycle.ps1 -SkipInstall` stopped it (`:218`
 >   — step 1 stops it and nothing restarts it) and it was restarted by hand.
 > - ***SPENT: `b54`–`b80`. USE `b81`.***
-> - **Open count 13**: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, 85.
+> - **Open count 13**: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, **88**.
+>   *(85 CLOSED 31 Aug 2026, 88 opened in its place — the count is unchanged by
+>   coincidence, not by nothing having happened.)*
 >
 > ***THE THREE PROBES ARE NOW IN `gplbld` AND WIRED INTO NOTHING.***
 > `probe-nolockmsg.ps1` (12 and 87), `probe-tasklock.ps1` (24) and
 > `check-msglen.py`. **All three are on `$neverShipped`**, listed in the commit
 > that added them. **Promoting them to suite steps is the owner's call** — it
 > costs two more steps against a full run he has asked to keep short.
+>
+> # ⇩⇩ SUPERSEDED — 85 AND 67 CLOSED WITHOUT THE LOOK. 74 STILL WANTS THE VM. ⇩⇩
+>
+> ***DO NOT RUN THE INSTALLER TO LOOK AT THE TASKS PAGE ON THIS HOST.***
+> `probe-taskflags.ps1` answers it in 3 seconds, and — more to the point — this
+> machine's recorded task selection means the real wizard here shows the OLD
+> install's answers (PRE_RELEASE 88), so looking measures the wrong thing.
+> **74 is unaffected: it needs an interactive UNINSTALL, and that still wants
+> the VM.** The block below is kept for its cancelling-writes-nothing note.
 >
 > # ⇩⇩ BATCH 3 IS BUILT AND WAITING ON YOUR EYES. ONE LOOK CLOSES 85 AND 67. ⇩⇩
 >

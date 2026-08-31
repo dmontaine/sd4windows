@@ -43493,3 +43493,76 @@ somebody's memory.
 
 **Closed this session, by observation:** 44, 65, 82, 83, 84, plus 7's product
 half, 9 and 71 by decision. **Open 23 → 16.** `b54`–`b77` spent.
+
+---
+
+## 31 Aug 2026 - The task flags were never broken; the wizard was restoring the previous install's answers
+
+**Commit:** see the commit that carries this entry. Eighty-first session.
+
+Picked up on "pull and continue" with the handoff at PROJECT_STATUS §START HERE
+saying 85's three `[Tasks]` flags did not work and the next step was one
+question to the owner. **The flags work. The question did not need asking.**
+
+### What was actually measured
+
+`gplbld/probe-taskflags.ps1` and `probe-taskflags.iss`, written this session,
+drive the tasks page through Inno's own click path -
+`TNewCheckListBox.CheckItem`, the method a mouse click calls, inheritance rules
+and all - and read the states back. Unelevated, ~3 seconds, no cycle, no
+install, no run token. Both files are on `assert-current.ps1`'s `$neverShipped`.
+
+- **Leg 1, `UsePreviousTasks=no`:** all three flags behave. Tick parent -> child
+  stays unchecked (`dontinheritcheck`); untick child -> parent stays ticked
+  (`checkablealone`); re-tick parent -> child stays unchecked. The ssh pair is
+  identical on all five transitions, so 67 stands too.
+- **Leg 2, `UsePreviousTasks=yes` with a selection restored:** both API boxes
+  arrive CHECKED. Same binary, same flags. The owner's report reproduced.
+
+### The cause, and it is a new entry
+
+`sd.iss` `[Setup]` never sets `UsePreviousTasks`, so it is Inno's default `yes`.
+Setup reads `Inno Setup: Selected Tasks` from the uninstall key at startup and
+uses it as the page defaults, **overriding every `unchecked` flag**. This
+machine's value reads `addtopath,sshremoteopen,apiremote,apiremote\apinetwork` -
+written by the pre-fix build and restored faithfully by the fixed one. Filed as
+**PRE_RELEASE 88**, and it is a decision rather than a fix: `yes` matches this
+project's own "an upgrade does not re-ask" policy (`sd.iss:1140`, `:408-411`),
+but it means a tightened default never reaches an existing site.
+
+Inno is **6.7.3**, from the same key - the version question the handoff left
+open. 85 CLOSED, 88 opened, open count unchanged at 13 by coincidence.
+
+### The owner's sentence covered two things and one was never a defect
+
+*"If one is checked they both are checked"* is the restored arrival state.
+*"And vice versa"* is untick-parent-unticks-child, which is correct Inno
+behaviour and cannot be disabled. Once either box is touched the flags behave.
+The previous session had already flagged that the direction mattered; nobody
+could settle it because nothing could measure the page.
+
+### Two faults in my own instrument, both found by the owner reading it
+
+**It named itself "SD task-flag probe", and he read its window as the SD
+installer** - twice - reporting the forced ssh box as a defect. It forces
+`SshServerAbsent := True` so the dependent pair exists to test, while `sd.iss`
+derives that from the machine at `:1105`. Now titled "ZZ PROBE - NOT the SD
+installer" with the reason across the page. **Four boxes = the probe, three =
+the installer with a server present.**
+
+**And it could hang forever.** `WizardForm.Close` does not reliably close a
+wizard that lacks focus, and the driver's `Start-Process -Wait` then blocked -
+one run sat for eight minutes until it was killed by hand. Fixed by waiting on
+the LOG rather than the window: the transcript is written before the close, so
+the close is only tidiness. 3 seconds, and it cannot hang.
+
+### What this retires
+
+67 and 85 were both written round *"only a person can judge this"*, and between
+them they cost four builds and three hand-offs - the last of which reached a
+wrong conclusion and ended a session mid-diagnosis. That sentence was true and
+is now false for the STATE question. It still holds for LAYOUT: wording, order,
+indentation, and whether a caption is truthful all still want eyes.
+
+**Answering "does the ssh pair behave?" by building the instrument answered
+both branches at once**, and produced a third answer neither branch had.
