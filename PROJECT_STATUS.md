@@ -146,21 +146,28 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***THE OWNER IS RESUMING THIS SAME SESSION, NOT STARTING A NEW ONE*** — but
 > this block is written as if he were not, because that is what it is for.
 >
-> # ⇩⇩ BUILT 31 Aug 2026. THE ONE THING OWED IS A CYCLE — IT HAS NOT COMPILED. ⇩⇩
+> # ⇩⇩ `append.sd.path` COMPILES. IT HAS NOT RUN. THAT IS THE NEXT STEP. ⇩⇩
 >
-> ***`append.sd.path on | off` IS WRITTEN AND WIRED. NOTHING HAS COMPILED IT.***
-> `sdsys/gpl.bp/APNDPATH`, `sdsys/voc_template/append.sd.path`,
-> `TIER.ADD.ADMINISTRATOR` → 24, messages **10152–10156**,
-> `verify-tiers.ps1` and `verify-tierapi.ps1` both at **420**.
+> ***`cycle.ps1 -SkipInstall`, 31 Aug 2026 09:06:15: ISCC exit 0,
+> `sd-setup-W1.0-0.exe` 4,931,937 bytes.*** **The staged tree was READ rather
+> than the run's output believed** (26 Aug precedent): `gpl.bp.out/APNDPATH`
+> 783 bytes, `gcat/$APNDPATH` present, `voc_template/append.sd.path` staged,
+> messages **10152–10156** all five there, `TIER.ADD.ADMINISTRATOR` 24 verbs.
+> ***`gpl.bp.out` 189 → 190***, `gcat` 131. **And the admin-only placement
+> proved itself**: `newvoc` still 395 names, `newvoc/append.sd.path` absent.
+>
+> ***COMPILING IS NOT RUNNING, AND NOTHING HAS RUN IT.*** It wants a FULL
+> cycle, then the verb exercised:
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
-> ***ELEVATED PowerShell.*** `-SkipInstall` is the documented cheap leg — it
-> stages, bootstraps, compiles the BASIC and builds the installer without
-> spending an install. **Expect the program count to go 189 → 190 and `0
-> errors`.** *A full `cycle.ps1` is what actually proves the verb runs.*
+> ***ELEVATED PowerShell.*** ~20 minutes, and it ends with `assert-current`.
+> Then, in SD as an administrator: **`append.sd.path`** bare must report and
+> change nothing; **`on`** then **`off`**; and a **non-administrator must be
+> refused with 2001**. The `-Show` leg is the cheap one and needs no elevation
+> of its own.
 >
 > **Then it still needs a doc page**, or `tclmap` goes to 147 with **four**
 > `NO PAGE` rows instead of three.
