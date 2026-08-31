@@ -471,7 +471,11 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `check-stale-leads.py`. **Run these on every change.** A whole suite run has
    already been spent twice discovering what one of them names in a second.
 2. **`-Only <step[,step]>`** — the step that decides your change. Both runners
-   take it; names may omit `.ps1` and are case-insensitive.
+   take it; names may omit `.ps1` and are case-insensitive. **Two names work
+   either way — `-Only a,b` and `-Only 'a,b'` are equivalent since 31 Aug
+   2026**, when both runners went `[string[]]`. *Before that the unquoted form
+   died on parameter binding without running anything, and every example here
+   was single-name, so nothing said so.*
 3. **The full suite** — **before a release, and before a handoff.** That is
    where regressions in things you did not touch get caught: `b75`'s second
    failure was `verify-notyet`, unrelated to anything changed that day.

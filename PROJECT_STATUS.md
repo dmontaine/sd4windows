@@ -194,10 +194,15 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `verify-sdsyswrite` exited **2** — refused, nothing measured — while the step
 > that made the tree stale had itself passed in the same run.
 >
-> ***AND `-Only` WITH TWO NAMES MUST BE QUOTED.*** `-Only a,b` binds as an ARRAY
-> and fails parameter transformation before anything runs; `-Only 'a,b'` is
-> correct. `suite-only.ps1` splits on `[,;]`, so the form is real — but every
-> example in CLAUDE.md is single-name and the quoting is documented nowhere.
+> ***AND `-Only` WITH TWO NAMES USED TO NEED QUOTING — FIXED, BOTH FORMS NOW
+> BIND.*** `-Only a,b` failed parameter transformation before anything ran,
+> because PowerShell parses `a,b` in argument position as an ARRAY and `$Only`
+> was `[string]`; only `-Only 'a,b'` worked, and every CLAUDE.md example is
+> single-name so nothing said so. **Both runners are `[string[]]` as of 31 Aug
+> 2026** and join at the call site, so `suite-only.ps1` and its **48** unit tests
+> are untouched — one copy of the filter still decides what runs. **Measured on
+> all four forms**: no `-Only` and `-Only ''` stay falsy and pass through, `a,b`
+> and `'a,b'` both join to `a,b`.
 >
 > ***BATCH 1 WAS: 73's MISSING LEG AND 86's CHECKER.*** Both are
 > `gplbld` only — no cycle, no source under `gplsrc` or `sdsys`, nothing
