@@ -167,7 +167,44 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
 >
-> # ⇩⇩ NEW BLOCKER 77: THE UPGRADE DIALOG SAYS THE OPPOSITE OF WHAT RAN. ⇩⇩
+> # ⇩⇩ 77 IS FIXED AND 78 IS BUILT. BOTH NEED ONE CYCLE. ⇩⇩
+>
+> ***RUN `cycle.ps1` ELEVATED — `assert-current` IS RED AND THIS IS BASIC.***
+> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+>
+> ***THEN READ `verify-tiers` FIRST***: ADMINISTRATOR moves **416 → 419** and
+> **PROGRAMMER 396 and STANDARD 354 must NOT move.** That asymmetry is the check
+> on the arithmetic — if either of the other two moved, one of the three new
+> verbs reached `newvoc`, which hands it to every account SD creates.
+>
+> ***78, ALL THREE VERBS, BUILT AND UNCOMPILED.*** `remote.api on|local|off`,
+> `remote.ssh on|off`, `ssh.server install|remove`. Three new scripts
+> (`api-listener.ps1`, `restart-sd.ps1`, `remove-ssh.ps1`), three `gpl.bp`
+> programs, three `voc_template` records, three `TIER.ADD.ADMINISTRATOR` lines,
+> **messages 10131–10148**, and the changelog.
+>
+> ***TWO DEFECTS WERE CAUGHT BEFORE THE CYCLE, WHICH IS THE POINT OF LOOKING.***
+> The includes were wrong — `K$ADMINISTRATOR` and `K$WINPATH` are in
+> `INT$KEYS.H`, not `KEYS.H` — so the first draft would have failed BCOMP on
+> unknown symbols and cost a whole cycle to find out. And `restart-sd.ps1` is
+> deliberately not `Restart-Service`, because `cycle.ps1:299` already measured
+> that stopping the service does not always take `sdwind` with it.
+>
+> ***A CLAIM IN `cycle.ps1` IS WRONG AND IS CORRECTED IN THE NEW CODE.*** It says
+> *"sd -stop refuses while users are logged in"*. **It does not** —
+> `stop_sd()` (`gplsrc/sysseg.c:766`) SIGTERMs every user-table entry with a uid
+> and a pid > 0, with no such check. **So `remote.api`'s restart ends the
+> administrator's own session**, which is why its Y/N warning comes before the
+> restart and nothing printed after it matters. `cycle.ps1`'s comment still
+> needs fixing — it is not wrong about what to DO, only about why.
+>
+> ***OWNER'S RULE, 30 Aug 2026 — Y/N PROMPTS MUST SHOW THEIR DEFAULT***, written
+> `<y>/n` or `y/<n>`. Both new prompts use `y/<n>` and Enter genuinely takes it.
+> ***THE EXISTING PROMPTS DO NOT AND ARE NOT RETROFITTED HERE*** — `10084`,
+> `10085` and the `CREATEA`/`DELETEF` questions all loop on an empty answer
+> instead. **That is a sweep of its own and nobody has filed it yet.**
+>
+> # ⇩⇩ 77: THE UPGRADE DIALOG SAID THE OPPOSITE OF WHAT RAN — FIXED. ⇩⇩
 >
 > ***IT FIRES ON `not DataTreeAbsent`; `DataTreeUpgrade` IS `not
 > DataTreeWasAbsent` — THE SAME PREDICATE — AND IT GATES THE UPGRADE BRANCH.***
