@@ -167,6 +167,19 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
 > be missed the same way.
 >
+> ***BATCH 1 IS BUILT AND UNRUN: 73's MISSING LEG AND 86's CHECKER.*** Both are
+> `gplbld` only — no cycle, no source under `gplsrc` or `sdsys`, nothing
+> installed. **73** gains step 6 of `verify-sdsyswrite.ps1`, the positive control
+> on the SESSION: the audit trail is the one protected store `sdusers` may
+> append to, so a green step 6 means any failure on the two write rows is about
+> `$cred` and `os.users`, and a red one means the session itself is the problem
+> and those rows say nothing. **It has not run** — it needs an unelevated parent
+> and one consent. **86**'s checker is `test-stemcoverage-units.ps1`, and it
+> found `sdprof` and `sdsw` on its first run, which is **four** families missed
+> across three occasions. ***IT IS NOW A STEP IN `VerifyInstall1`, SO THE
+> UNELEVATED HALF IS 17 STEPS, NOT 16*** — a `16 of 16` on the next run means it
+> was substituted rather than added, which is the arithmetic 82 was checked by.
+>
 > ***`b78` IS SPENT — USE `b79`.*** The owner ran
 > `VerifyInstall2.ps1 -Run b78 -Only verify-tiers`: **33 of 33 PASS, exit 0**,
 > `assert-current` clean against the 22:42:46 install. **That closes `b77`'s four
@@ -283,9 +296,11 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > # ⇩⇩ 4. START WITH THE FREE TESTS, THEN `-Only`, THEN A FULL RUN ⇩⇩
 >
-> Eight free tests, seconds, no install or elevation: `suiteonly` 48/48,
-> `tiercounts` 13/13, `fixlist` 221/0, `verdict` 126/126, `sdtestuser` 51/0,
-> `sysmsg` 43/0, `deletioncheck`, `check-stale-leads`. **Then the cheap targeted
+> **NINE** free tests, seconds, no install or elevation — all run 30 Aug 2026,
+> all exit 0: `suiteonly` 48/48, `tiercounts` 13/13, `fixlist` **223**/0,
+> `verdict` 126/126, `sdtestuser` 51/0, `sysmsg` 43/0, `deletioncheck`,
+> `check-stale-leads`, and ***`stemcoverage` 19 of 19 — NEW, PRE_RELEASE 86***.
+> **Then the cheap targeted
 > run for 85's fix, ELEVATED:**
 > `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b78 -Only verify-tiers`
 > — but ***85 needs a CYCLE first***, because `sd.iss` only takes effect through
