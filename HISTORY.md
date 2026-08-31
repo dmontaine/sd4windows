@@ -43179,3 +43179,44 @@ compiled but callerless"*, as `$MICRO` and `$NLS` are.
 **The reusable part**: both entries were written from the code and neither
 author read the commit that created the state they were describing. `git log`
 on the file answered both in under a minute.
+
+## 30 Aug 2026 — cycled, `-Run b73`: 82 closes, and 65's check reports that it could not do its job
+
+**Green in both halves: 37 steps, 693 `[PASS]`, 0 `[FAIL]`** — unelevated 16 of
+16 (278), elevated 21 of 21 (415). Install **20:24:50**, `assert-current`
+**exit 0 live**. Two steps carry no `[PASS]` marker and were read separately:
+`verify-sdsysgate` (*"10 decisive check(s), 0 failed"*) and `verify-apiidentity`
+(a four-row table). **The step logs are UTF-16** and `grep` finds nothing in
+them until the nulls are stripped — which reads exactly like a clean file, and
+is worth knowing before believing a zero.
+
+***82 IS CLOSED.*** `test-tiercounts-units.ps1` is the first banner in the
+`VerifyInstall1` log, ahead of `verify-credacl`, and the unelevated half ran
+**16 of 16** where it ran 15 before. **676 → 693 is exactly its 13 plus 65's
+four new checks**, so the totals reconcile rather than merely look bigger.
+
+***65's CHECK PASSED AND SAID IT PROVED NOTHING, WHICH IS THE ONLY REASON THE
+ENTRY IS NOT BEING CLOSED.*** `verify-delaccount` went 42/0/0 and measured all
+three states — `os.users\SDDELB73S` absent, then `yes | yes`, then gone — but
+printed *"65: status 0 - the os.users check above is CONFIRMATORY, not
+decisive"*. **It exercised the arm that already worked before the fix.**
+
+***AND THE CAUSE IS STRUCTURAL, WHICH IS THE FINDING WORTH KEEPING.*** Step 2
+makes the profile with `CreateProfile`, which never loads a hive, so
+`Remove-Item` on the directory always succeeds and `DELETE_USER:282` always
+reaches `exit 0`. **As built, this verifier can never reach 6/7/8**; re-running
+it would produce the same line. The status is decided by `$dirleft`/`$keyleft`
+at `DELETE_USER:277-283`, so the decisive branch needs the directory to be
+undeletable while the verb runs — an open handle without `FILE_SHARE_DELETE`,
+or `LoadUserProfile` with no matching unload.
+
+**The same gap has kept 36's keep-both arm unmeasured since it was written**,
+and the file's own header said so: *"It has not run on this host yet."* One rig
+settles both.
+
+***A CASE-ONLY DIFFERENCE WOULD HAVE FAKED A PASS AND DID NOT, BECAUSE IT WAS
+ANTICIPATED.*** The account is `sddelb73s` and the record is **`SDDELB73S`** —
+`grant.os.access` keys on `acc.uname`. A `-ceq` in `Get-OsUsersRecord` would
+have scored step 1 FAIL and step 3's *"gone"* **a pass for the wrong reason**.
+This tree's standing rule is `-cne` for hashes; the opposite is right for a
+record key, and the comment there records which is which.

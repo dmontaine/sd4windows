@@ -167,44 +167,59 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 85th SESSION. START HERE. ⇩⇩
 >
-> ***A CYCLE IS NEEDED NOW AND IT WAS NOT AN HOUR AGO.*** PRE_RELEASE **65** is
-> built and it is **BASIC**, so `assert-current` is **RED** and says so by name:
-> *"STALE: 1 source file(s) are newer than the install — `sdsys\gpl.bp\DELACC`"*.
-> **Nothing else in the tree moved it**: the four `gplbld` scripts edited with it
-> are exempt, which is measured rather than assumed — they are absent from that
-> list.
+> # ⇩⇩ CYCLED AND RUN. `-Run b73` GREEN IN BOTH HALVES: 37 STEPS, 693 PASS, 0 FAIL. ⇩⇩
 >
-> ***TWO COMMANDS, IN THIS ORDER. THE FIRST IS ELEVATED, THE SECOND IS NOT.***
+> Install **20:24:50**, `assert-current` **exit 0 live** in the step transcripts.
+> **UNELEVATED 16 OF 16 (278 `[PASS]`), ELEVATED 21 OF 21 (415 `[PASS]`), ZERO
+> `[FAIL]` ANYWHERE.** ***COUNT `[FAIL]` WITH THE BRACKETS*** — a bare `FAIL`
+> also matches `verify-fold`'s negative-control row. **Two steps use no `[PASS]`
+> marker at all and were read separately**: `verify-sdsysgate` (*"10 decisive
+> check(s), 0 failed"*) and `verify-apiidentity` (a four-row table). **The step
+> logs are UTF-16** — `grep` finds nothing in them until the nulls are stripped,
+> which reads exactly like a clean file.
+> ***SPENT: `b54`–`b73`, `sdswa1`–`sdswa5`, `sdtierv`, `sdtierw`, `sdapiaz1`.
+> USE `b74`.***
 >
-> 1. **ELEVATED PowerShell:**
->    `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
-> 2. **ORDINARY UNELEVATED PowerShell:**
->    `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b73 -ThenElevated`
+> ***82 IS CLOSED.*** `test-tiercounts-units.ps1` is the **first** banner in the
+> `VerifyInstall1` log, **ahead of `verify-credacl`**, and the unelevated half
+> ran **16 of 16** — up from 15, which is the arithmetic that says the new step
+> was added rather than substituted. **676 → 693 is exactly its 13 plus 65's
+> four**, which is how the totals were reconciled rather than eyeballed.
 >
-> **Step 2 refuses an elevated parent deliberately** and hands over to
-> `VerifyInstall2` as its last act, so one command runs both halves.
-> ***SPENT: `b54`–`b72`, `sdswa1`–`sdswa5`, `sdtierv`, `sdtierw`, `sdapiaz1`.
-> `b73` IS STILL UNSPENT*** — the 84th session ended before running it.
+> # ⇩⇩ 65 IS FIXED, MEASURED, AND STILL NOT PROVEN. READ THIS BEFORE RE-RUNNING. ⇩⇩
 >
-> ***WHAT `b73` NOW DECIDES, AND IT IS TWO THINGS RATHER THAN ONE:***
+> `verify-delaccount` went **42 PASS / 0 FAIL / 0 N/A** (38 → 42) and all three
+> states were measured — `os.users\SDDELB73S` **absent at preflight**,
+> **`yes | yes` after `create.account`**, **gone after `delete.account`**.
+> ***BUT ITS OWN LINE 89 READS "65: status 0 - the os.users check above is
+> CONFIRMATORY, not decisive", SO IT EXERCISED THE ARM THAT ALREADY WORKED.***
 >
-> - **82's wiring.** `test-tiercounts-units.ps1` is **step 1 of 16** in
->   `VerifyInstall1`, ahead of `verify-credacl`. Expect **16 of 16 unelevated**
->   (was 15) and **21 of 21 elevated**. **If it does not appear as step 1, that
->   is the finding.**
-> - **65's fix, in `verify-delaccount.ps1`** — step 12 of the elevated half.
->   ***READ THE THREE `65:` LINES IN ITS TRANSCRIPT BEFORE BELIEVING THE GREEN.***
->   The new `os.users record is gone` check is **decisive only on the keep-both
->   branch** (`DELETE_USER` status 6/7/8, a still-loaded hive) and the run prints
->   *"CONFIRMATORY, not decisive"* when it took status 0 instead. **A green run
->   that took status 0 has not tested the fix**, and 65 stays open until one
->   does.
+> ***AND THAT IS STRUCTURAL, NOT LUCK — RE-RUNNING `b74` WOULD DO THE SAME
+> THING.*** Step 2 makes the profile with **`CreateProfile`**, which never loads
+> a hive, so `Remove-Item` on `C:\Users\<name>` always succeeds and
+> `DELETE_USER:282` always reaches `exit 0`. **As built the verifier CANNOT reach
+> 6/7/8.** The status is decided by `$dirleft`/`$keyleft` at
+> `DELETE_USER:277-283`, so the decisive branch needs the profile directory to be
+> **undeletable while the verb runs** — an open handle without
+> `FILE_SHARE_DELETE` under it is enough, or `LoadUserProfile` with no matching
+> unload.
 >
-> ***AND `verify-delaccount`'s SUBJECT IS AN ADMINISTRATOR NOW.*** `<prefix>s` is
-> created `ADMINISTRATOR BOTH`, because only that tier is given an `os.users`
-> record and a STANDARD subject would have scored *"the record is gone"* by never
-> having had one. It is a member of Windows Administrators for the seconds it
-> exists. **The control account `<prefix>b` is deliberately not.**
+> ***ONE RIG WOULD SETTLE TWO ENTRIES.*** `verify-delaccount.ps1`'s own header
+> already says its keep-both arm *"has not run on this host yet"* — so **36's
+> keep-both assertions (the reclaim record, 10075's rendering) have never fired
+> either.** The same held handle proves both.
+>
+> ***A CASE-ONLY DIFFERENCE WOULD HAVE FAKED A PASS AND DID NOT.*** The account
+> is `sddelb73s`; the record is **`SDDELB73S`**, because `grant.os.access` keys on
+> `acc.uname`. **A `-ceq` in `Get-OsUsersRecord` would have scored step 1 FAIL and
+> step 3's *"gone"* a pass for the wrong reason.** It is case-insensitive on
+> purpose and the comment there says so — do not tighten it.
+>
+> ***`verify-delaccount`'s SD-MADE SUBJECT IS AN ADMINISTRATOR NOW.***
+> `<prefix>s` is created `ADMINISTRATOR BOTH`, because only that tier is given an
+> `os.users` record and a STANDARD subject would have scored *"the record is
+> gone"* by never having had one. It is in Windows Administrators for the seconds
+> it exists. **The control `<prefix>b` is deliberately not.**
 >
 > ***TWO ONE-LINE RULINGS ARE WAITING AND BOTH ARE NOW CHEAP TO GIVE.*** 7 and 9
 > were *"decide"* entries; the deciding information was already in the record and
