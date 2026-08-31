@@ -147,15 +147,79 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > Read **PRE_RELEASE 91** and **§5.22** first; both were written today for this
 > hand-over and between them carry the whole model.
 >
-> **1. PRE_RELEASE 91 — THE LIVE DEFECT. DO THIS ONE FIRST.**
-> One `logto` out of SDSYS locks an administrator out of **every** account,
-> SDSYS included, for the rest of the session. `logto.authorised` tests
-> `K$ADMINISTRATOR`, and `CPROC:2823` clears that flag on every successful
-> `logto` by the 16 Aug ruling *"LOGTO ends the elevated session"*.
-> ***THE FIX IS TO TEST THE PERSON, NOT THE SESSION***, reusing `LOGIN:573`'s
-> pair — `kernel(K$ADMINISTRATOR,-1) and kernel(K$OS.ADMINISTRATOR,0)`.
-> ***DO NOT JUST STOP CLEARING THE FLAG***: that restores access by restoring
-> privilege, which is exactly what the 16 Aug ruling prevents.
+> **1. PRE_RELEASE 91 — ⚠️ BUILT AND COMPILED 31 Aug 2026, NOT YET RUN.**
+> ***`cycle.ps1 -SkipInstall` 13:13:42, ISCC exit 0***, installer **4,940,170**
+> bytes. **`SDADMIN` 0 errors**, `!SD_ADMIN_TIER` **added to global catalogue**;
+> `CPROC` and `LOGIN` **0 errors each**. ***READ RATHER THAN BELIEVED*** (the
+> 26 Aug precedent): `gcat/!SD_ADMIN_TIER` and `gpl.bp.out/SDADMIN` both exist
+> at **472 bytes** against `!TIER_ALLOWS` **827** as the control, both stamped
+> 13:14. ***AND NO NEW ERRGEN WARNING*** — `CPROC`'s `PRIVILEGED_COMMANDS` one
+> is pre-existing at `:245` and is **not** in this diff (checked). `SDADMIN`'s
+> *"Final END statement is missing"* is the house pattern: **`TIERGATE` emits
+> the identical warning.** ***THE INSTALLED TREE IS UNTOUCHED AND STALE***, and
+> the SD service was left **stopped** by the run.
+>
+> ***COUNTS: `gcat` 133, `gpl.bp.out` 192 — AND 192 IS NOT THE 191 PREDICTED.***
+> The prediction was wrong because the baseline it came from was stale, not
+> because this added two: **`PS_SCRIPTO` landed on 31 Aug after the "190" in
+> this box was written.** The delta is confirmed directly instead — `gpl.bp`
+> sources **204 → 205**, the one addition being `SDADMIN`.
+> `logto.authorised` has a **fourth bypass** that asks the PERSON:
+> `kernel(K$OS.ADMINISTRATOR, 0)` **and** the `ADMINISTRATOR` tier on that
+> person's own register entry. The three existing bypasses are untouched.
+> ***THE NEXT STEP IS THE COMPILE CHECK — `cycle.ps1 -SkipInstall`, ELEVATED.***
+> Nothing has compiled it, so `assert-current` is red until a full cycle runs.
+>
+> ***THE OWNER RULED "CLOSE BOTH NOW" ON 31 Aug 2026, AND IT TURNED OUT TO BE
+> THREE GATES.*** His correction is what started it — *"a windows administrator
+> does not have access unless they are granted access and to grant access they
+> have to have a personal account first"* — and it is right: `CREATEA:821` puts
+> you in `sdusers` only by creating your account, and `:1441`/`:847` join
+> Administrators only on the ADMINISTRATOR keyword, so **for anybody SD created
+> the two halves always agree**. Only a person made a Windows administrator
+> **outside** SD diverged, and they reached SDSYS because no gate tested the
+> tier.
+>
+> **All three now read `kernel(K$OS.ADMINISTRATOR, 0) and sd_admin_tier(@logname)`:**
+> `LOGIN:573`, `CPROC`'s `logto sdsys` door at `:2662`, and `logto.authorised`.
+> ***THE THIRD WAS NOT IN THE RULING AND IS WHY IT WOULD HAVE FAILED WITHOUT
+> IT***: `logto sdsys` sets `elev.obtained`, which is a bypass in its own right,
+> so closing the other two alone would still have admitted exactly the person
+> the ruling excludes. **The bare `K$ADMINISTRATOR` bypass is DELETED.**
+>
+> **New shared function `gpl.bp/SDADMIN` (`!sd_admin_tier`)** — three gates, two
+> programs, one copy. **Adding a program needs no build-list change**, checked
+> against the commit that added `TIERGATE`.
+>
+> ***TWO TRAPS PAID FOR ON THE WAY, BOTH ALREADY ON DISK.*** `AND` DOES NOT
+> SHORT-CIRCUIT (`CREATEA:382` — a defect that hid from 10 June to 21 Aug 2026),
+> so the register read runs on every login and every logto; a first draft of the
+> LOGIN comment claimed the opposite and is corrected. And a second handle on
+> `accounts` is mandatory, not tidiness — `LOGIN`'s `get.acc.tier` records that
+> reusing one with a live select list on channel 12 ends the walk *"with no
+> error and no sign of it"*, which is why `SDADMIN` opens its own.
+>
+> ***TWO THINGS THIS ENTRY SAID WERE WRONG, AND BOTH ARE CORRECTED IN 91.***
+> **(a) The fix it named would have fixed nothing.** `LOGIN:573`'s pair ANDs on
+> `K$ADMINISTRATOR` — the flag `:2825` clears and LOGIN never sets for an
+> unelevated administrator — so it is FALSE in both failing cases. LOGIN asks
+> *"did this session START elevated"*; this asks *"may this person ENTER this
+> account"*. **(b) SDSYS was never part of the lockout**: `logto sdsys` is gated
+> at `CPROC:2662` on `K$OS.ADMINISTRATOR`, which a `logto` cannot move, and
+> `elevate('START')` then sets `elev.obtained` — a fresh UAC consent is the way
+> back, not a reconnection.
+>
+> ***AND THE SCOPE IS WIDER THAN "AFTER ONE LOGTO".*** LOGIN arms
+> `K$ADMINISTRATOR` only on its SDSYS case (`:591`, `:674`), so an administrator
+> signing in **as themselves** — the only thing ssh can do — was refused with
+> 10003 on their **FIRST** `logto`. §5.22 row 1 was implemented nowhere.
+>
+> ***STILL OWED: A VERIFIER.*** Entry 62 already recorded that `10002`,
+> `not an administrator` and `LOGTO REFUSED` get **zero** hits across every
+> `verify-*.ps1`, so this property is asserted by reading and by nothing else.
+> The rows it needs: an administrator entering an **ungranted** account
+> unelevated, a **second** logto straight after it, and a non-administrator
+> refused with 10003 as the control that the group test still holds.
 >
 > **2. EMPTY `TIER.ADD.ADMINISTRATOR`.** The 24 restricted commands stay in
 > `voc_template` (so SDSYS keeps them) and no created account gets them —
