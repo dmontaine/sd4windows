@@ -167,6 +167,68 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
 > be missed the same way.
 >
+> # ⇩⇩⇩ HANDOFF, 31 Aug 2026, 01:20. START HERE. 85's FIX DID NOT WORK. ⇩⇩⇩
+>
+> ***THE OWNER RAN THE NEW INSTALLER AND THE API BOXES STILL MOVE TOGETHER:***
+> *"the api checks move together if one is checked they both are checked and
+> vice versa."* **The three flags are in `sd.iss` and they did not change the
+> behaviour.** Session ended here, out of credits, mid-diagnosis.
+>
+> ***WHAT IS ALREADY RULED OUT — MEASURED, NOT ASSUMED. DO NOT REDO THIS.***
+>
+> | ruled out | how |
+> |---|---|
+> | he ran a stale installer | only ONE `sd-setup*.exe` exists on the machine, `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, built **01:14:09**; `sd.iss` mtime is **01:10:33**, so the change was in it |
+> | ISCC compiled a different file | `cycle.ps1:468` passes `$Iss`, and `$Iss = Join-Path $Gplbld 'sd.iss'` (`:171`) — the file that was edited |
+> | a duplicate task definition | `grep apiremote` finds **one** `Name:` for each of parent and child, at `sd.iss:425` and `:427` |
+> | `[Code]` overriding the checkboxes | **nothing** matches `TasksList`, `WizardSelectTasks`, `CheckItem`, `Checked[` anywhere in `sd.iss` |
+> | a compile warning about the flags | ISCC exit 0, and its only warning is the pre-existing `FileCopy` hint at line 3797 |
+>
+> ***THE FLAGS THEMSELVES ARE STRUCTURALLY IDENTICAL TO THE ssh PAIR***, which
+> is the pattern 67 used: parent `checkablealone`, child `unchecked
+> dontinheritcheck`, no `GroupDescription` on the child. The only difference is
+> that the API parent also carries `unchecked` (75's ruling: the API defaults
+> OFF) and the ssh pair carries `Check: SshServerAbsent`.
+>
+> # ⇩⇩ THE NEXT STEP IS ONE QUESTION TO THE OWNER, NOT MORE CODE ⇩⇩
+>
+> ***ASK WHETHER THE ssh PAIR ON THE SAME PAGE BEHAVES CORRECTLY.*** It carries
+> the same two flags, so it is the control:
+>
+> - **ssh correct, API wrong** → something specific to the API pair. The
+>   `unchecked` on the parent and the absent `Check:` are the only candidates.
+> - **BOTH wrong** → the flags are not doing this on his Inno, and ***67's
+>   "FIX IS PROVEN" CLAIM IS WEAKER THAN IT READS***. Read it again before
+>   trusting it: what was measured on 30 Aug was the OUTCOME — *"the server IS
+>   installed and remote access IS blocked"*, `RemoteAddress=127.0.0.1` — **not
+>   the checkbox behaviour on the page.** If both pairs move together, 67 needs
+>   re-opening too.
+>
+> **Also worth pinning down: WHICH direction he saw.** Checking the CHILD and
+> having the parent become checked is **correct** Inno behaviour, not a bug —
+> a child cannot be selected without its parent. Only *parent ticks child* is
+> the defect. His sentence covers both directions and only one of them is wrong.
+>
+> ***THE INNO VERSION WAS BEING READ WHEN THE SESSION ENDED*** and is not yet
+> known beyond "Inno Setup 6" (`C:\Program Files (x86)\Inno Setup 6\ISCC.exe`;
+> its `VersionInfo` reads `0.0.0.0`, so use `iscc /?` or the IDE's About box).
+>
+> # ⇩⇩ MACHINE STATE, AS LEFT ⇩⇩
+>
+> - **The installed tree is STALE and that is correct** — `sd.iss` moved after
+>   the 01:05:10 install. `assert-current` exits 1 naming **one** file. A cycle
+>   clears it; nothing is broken.
+> - **The SD service is Running.** `cycle.ps1 -SkipInstall` stopped it (`:218`
+>   — step 1 stops it and nothing restarts it) and it was restarted by hand.
+> - ***SPENT: `b54`–`b80`. USE `b81`.***
+> - **Open count 13**: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, 85.
+>
+> ***THE THREE PROBES ARE NOW IN `gplbld` AND WIRED INTO NOTHING.***
+> `probe-nolockmsg.ps1` (12 and 87), `probe-tasklock.ps1` (24) and
+> `check-msglen.py`. **All three are on `$neverShipped`**, listed in the commit
+> that added them. **Promoting them to suite steps is the owner's call** — it
+> costs two more steps against a full run he has asked to keep short.
+>
 > # ⇩⇩ BATCH 3 IS BUILT AND WAITING ON YOUR EYES. ONE LOOK CLOSES 85 AND 67. ⇩⇩
 >
 > ***THE INSTALLER IS ALREADY BUILT — NO CYCLE NEEDED TO LOOK.***
