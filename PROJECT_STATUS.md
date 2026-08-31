@@ -147,8 +147,21 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > Read **PRE_RELEASE 91** and **§5.22** first; both were written today for this
 > hand-over and between them carry the whole model.
 >
-> **1. PRE_RELEASE 91 — ⚠️ BUILT AND COMPILED 31 Aug 2026, NOT YET RUN.**
-> ***`cycle.ps1 -SkipInstall` 13:13:42, ISCC exit 0***, installer **4,940,170**
+> **1. PRE_RELEASE 91 — ⚠️ CYCLED AND INSTALLED 31 Aug 2026. THE SUITE IS OWED.**
+> ***FULL CYCLE, INSTALL 31 Aug 13:33:28, `assert-current` EXIT 0 LIVE***
+> (3,020 files across the six mirrored directories, `sd.exe`
+> **`87701F86382AEA63`**, `bin\` 00:59:39 with no source newer — unchanged, and
+> correctly so, because this change is BASIC only). ***THE NEW PROGRAM IS IN
+> THE INSTALLED TREE, READ OFF DISK RATHER THAN INFERRED***:
+> `C:\ProgramData\SD\sdsys\gcat\!SD_ADMIN_TIER` and `gpl.bp.out\SDADMIN` both
+> **472 bytes stamped 13:32** — the install, not the 13:14 staged build —
+> against `!TIER_ALLOWS` **827** as the control.
+>
+> ***NOTHING HAS RUN A `logto` YET. `-Run b83` IS THE NEXT THING AND IT DECIDES
+> 91.*** Expect **18 of 18** unelevated, not 17.
+>
+> *(The compile that preceded it: `cycle.ps1 -SkipInstall` 13:13:42, ISCC exit
+> 0, installer **4,940,170**
 > bytes. **`SDADMIN` 0 errors**, `!SD_ADMIN_TIER` **added to global catalogue**;
 > `CPROC` and `LOGIN` **0 errors each**. ***READ RATHER THAN BELIEVED*** (the
 > 26 Aug precedent): `gcat/!SD_ADMIN_TIER` and `gpl.bp.out/SDADMIN` both exist
@@ -156,19 +169,20 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 13:14. ***AND NO NEW ERRGEN WARNING*** — `CPROC`'s `PRIVILEGED_COMMANDS` one
 > is pre-existing at `:245` and is **not** in this diff (checked). `SDADMIN`'s
 > *"Final END statement is missing"* is the house pattern: **`TIERGATE` emits
-> the identical warning.** ***THE INSTALLED TREE IS UNTOUCHED AND STALE***, and
-> the SD service was left **stopped** by the run.
+> the identical warning.** At that point the installed tree was still untouched
+> and stale, and the SD service was left stopped — **both since overtaken by
+> the full cycle above.**
 >
 > ***COUNTS: `gcat` 133, `gpl.bp.out` 192 — AND 192 IS NOT THE 191 PREDICTED.***
 > The prediction was wrong because the baseline it came from was stale, not
 > because this added two: **`PS_SCRIPTO` landed on 31 Aug after the "190" in
 > this box was written.** The delta is confirmed directly instead — `gpl.bp`
-> sources **204 → 205**, the one addition being `SDADMIN`.
-> `logto.authorised` has a **fourth bypass** that asks the PERSON:
-> `kernel(K$OS.ADMINISTRATOR, 0)` **and** the `ADMINISTRATOR` tier on that
-> person's own register entry. The three existing bypasses are untouched.
-> ***THE NEXT STEP IS THE COMPILE CHECK — `cycle.ps1 -SkipInstall`, ELEVATED.***
-> Nothing has compiled it, so `assert-current` is red until a full cycle runs.
+> sources **204 → 205**, the one addition being `SDADMIN`.)*
+>
+> **WHAT IS IN THE TREE:** `logto.authorised` has a **fourth bypass** that asks
+> the PERSON — `kernel(K$OS.ADMINISTRATOR, 0)` **and** the `ADMINISTRATOR` tier
+> on that person's own register entry — and `LOGIN:573` and `CPROC:2662` ask the
+> same pair. The bare `K$ADMINISTRATOR` bypass is gone.
 >
 > ***THE OWNER RULED "CLOSE BOTH NOW" ON 31 Aug 2026, AND IT TURNED OUT TO BE
 > THREE GATES.*** His correction is what started it — *"a windows administrator
