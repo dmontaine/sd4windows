@@ -186,7 +186,27 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > was added rather than substituted. **676 → 693 is exactly its 13 plus 65's
 > four**, which is how the totals were reconciled rather than eyeballed.
 >
-> # ⇩⇩ 65 IS FIXED, MEASURED, AND STILL NOT PROVEN. READ THIS BEFORE RE-RUNNING. ⇩⇩
+> # ⇩⇩ DO THIS FIRST: `-Run b74`. NO CYCLE — `assert-current` IS exit 0. ⇩⇩
+>
+> ***ORDINARY UNELEVATED PowerShell:***
+> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b74 -ThenElevated`
+>
+> ***WHAT IT DECIDES: 65's DECISIVE BRANCH, AND 36's KEEP-BOTH ARM WITH IT.***
+> `verify-delaccount` gains **step 6** and a **third subject**, `<prefix>h`.
+> Expect **16 of 16 unelevated** and **21 of 21 elevated** still, with
+> `verify-delaccount` going **42 → about 52**.
+>
+> ***READ ITS TRANSCRIPT FOR ONE LINE:*** `65: status 6/7/8 - the os.users check
+> below is DECISIVE`. **If instead it says `THE PIN DID NOT BITE`, the rig failed
+> and the leg proved nothing** — that is reported as a failure of the rig, by
+> name, precisely so it cannot be read as a product fault.
+>
+> ***IT LEAVES `C:\Users\<prefix>h` AND A ProfileList ENTRY BEHIND ON PURPOSE.***
+> That IS status 6, and the next SD service start reclaims the pair — which is
+> also the first chance anyone has had to watch 36's reclaim promise be kept
+> end-to-end. **Do not sweep it before looking.**
+>
+> # ⇩⇩ WHY THAT RIG HAD TO BE BUILT — 65 AFTER `b73` ⇩⇩
 >
 > `verify-delaccount` went **42 PASS / 0 FAIL / 0 N/A** (38 → 42) and all three
 > states were measured — `os.users\SDDELB73S` **absent at preflight**,
@@ -204,10 +224,16 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `FILE_SHARE_DELETE` under it is enough, or `LoadUserProfile` with no matching
 > unload.
 >
-> ***ONE RIG WOULD SETTLE TWO ENTRIES.*** `verify-delaccount.ps1`'s own header
-> already says its keep-both arm *"has not run on this host yet"* — so **36's
+> ***ONE RIG SETTLES TWO ENTRIES, AND IT IS NOW BUILT.*** `verify-delaccount.ps1`'s
+> own header said its keep-both arm *"has not run on this host yet"* — so **36's
 > keep-both assertions (the reclaim record, 10075's rendering) have never fired
-> either.** The same held handle proves both.
+> either.** Step 6 pins one file inside `<prefix>h`'s profile open with
+> `FileShare.Read`; deleting a file needs `FILE_SHARE_DELETE` from every other
+> handle on it, so the pin blocks `Remove-Item` on the file, which blocks
+> `-Recurse` on the directory — **no interop, no logon, no password.**
+> ***A THIRD SUBJECT RATHER THAN PINNING THE FIRST WAS THE OWNER'S CALL***:
+> pinning `<prefix>s` cost nothing extra per run but would have traded status 0's
+> coverage away for 6/7/8's. **Step 3 and its checks are untouched.**
 >
 > ***A CASE-ONLY DIFFERENCE WOULD HAVE FAKED A PASS AND DID NOT.*** The account
 > is `sddelb73s`; the record is **`SDDELB73S`**, because `grant.os.access` keys on

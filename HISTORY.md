@@ -43220,3 +43220,43 @@ ANTICIPATED.*** The account is `sddelb73s` and the record is **`SDDELB73S`** —
 have scored step 1 FAIL and step 3's *"gone"* **a pass for the wrong reason**.
 This tree's standing rule is `-cne` for hashes; the opposite is right for a
 record key, and the comment there records which is which.
+
+## 30 Aug 2026 — the rig for 65's decisive branch, and it costs an account
+
+**Owner's call, put to him with the trade priced: a THIRD subject rather than
+pinning the first.** Pinning `<prefix>s` would have cost nothing extra per run
+and traded status 0's coverage away for 6/7/8's; the third account pays for
+itself and loses neither. **Step 3 and its 15 checks are untouched.**
+
+***THE PIN IS THE FILE SYSTEM, NOT A HIVE, AND THAT IS WHY IT IS CHEAP.***
+Deleting a file needs `FILE_SHARE_DELETE` from every other open handle on it.
+A `FileShare.Read` stream on one file inside `C:\Users\<prefix>h` therefore
+blocks `Remove-Item` on that file, which blocks `-Recurse` on the directory
+above it — `$dirleft` at `DELETE_USER:277`, exactly the state a loaded hive
+produces. **No interop, no `LogonUser`, no password, and it releases when the
+stream closes.**
+
+***THE RIG IS CHECKED BEFORE THE PRODUCT IS.*** If the pin does not bite, the
+run is back on status 0 and every check after it would be about the arm step 3
+already covers. That outcome is reported as a failure **of the rig** — *"THE PIN
+DID NOT BITE"* — rather than as a green branch or a product fault. **The
+decisive `os.users` check is asserted on both branches**, because it has to hold
+either way; only what it proves differs.
+
+**Two small instrument decisions worth keeping.** `$holdStream` is declared
+before the `try`, not where it is opened, so a run that throws earlier does not
+then die in its own cleanup on an unassigned variable. And *"the profile is
+pinned open"* is a `Write-Host` rather than a `Note`: the `Fail` above it
+handles the other outcome, so as a check it could only ever pass, and a check
+that cannot fail inflates the count while teaching nothing.
+
+**`C:\Users\<prefix>h` and its ProfileList entry are left behind on purpose** —
+that is what status 6 means, and the next service start reclaims the pair. The
+pin is released in `finally`, **outside the `-Keep` test**, so nothing is held
+hostage from that sweep.
+
+***NO CYCLE, MEASURED RATHER THAN ASSUMED***: `assert-current` **exit 0** after
+the edit — both files are exempt. Pre-flighted: 0 parse errors, **16 functions
+unchanged** (the count is what catches a BOM the parser waves through), steps
+renumber cleanly 1–7, no BOM, 0 CR, no non-ASCII introduced. `VerifyInstall2`
+still parses with its 1 function and gained only comments. **Unrun: `b74`.**
