@@ -186,38 +186,79 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > was added rather than substituted. **676 → 693 is exactly its 13 plus 65's
 > four**, which is how the totals were reconciled rather than eyeballed.
 >
-> # ⇩⇩ DO THIS FIRST: ONE CYCLE, ELEVATED. EIGHT RULINGS ARE BUILT AND UNRUN. ⇩⇩
+> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 85th SESSION. START HERE. ⇩⇩
 >
-> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+> ***CYCLED AND RUN. `-Run b77`: 37 STEPS, 702 `[PASS]`, 4 `[FAIL]` — AND ALL
+> FOUR ARE ONE INSTRUMENT, NOT THE PRODUCT.*** Install **22:44**, unelevated
+> **16 of 16** (278 PASS, 0 FAIL), elevated **20 of 21** (424 PASS, 4 FAIL).
+> ***SPENT: `b54`–`b77`. USE `b78`.***
 >
-> ***THEN, ORDINARY UNELEVATED PowerShell — THIS ONE EARNS A FULL SUITE:***
-> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b77 -ThenElevated`
+> # ⇩⇩ 1. THE ONE THING THAT MUST BE FIXED, AND IT IS THE OWNER'S FINDING ⇩⇩
 >
-> **The milestone rule below says full-suite before a release or a handoff. This
-> is both**: eight entries in one batch, touching BASIC, messages, `newvoc` and
-> the installer. ***SPENT: `b54`–`b76`. USE `b77`.***
+> ***THE TWO API TASKS ARE A LINKED PAIR — TICK OR UNTICK ONE AND THE OTHER
+> MOVES.*** Owner, watching the wizard during this batch's install: *"the two API
+> entries are linked together like the ssh entries were before they were fixed.
+> If you select or delete one, you select or delete both."* **PRE_RELEASE 85,
+> re-opened.**
 >
-> ***WHAT TO READ FIRST, IN THIS ORDER:***
+> **The cause is a missing flag.** `apiremote\apinetwork` has no
+> **`dontinheritcheck`**, so Inno checks the child whenever the parent is
+> checked. ***THAT REVERSES THE WHOLE POINT OF 85***: ticking *"provide the SD
+> API"* re-ticks *"let other computers reach it"*, so the default opens **port
+> 4243 to the network** again.
 >
-> - ***`verify-tiers` — STANDARD MUST READ 355***, with PROGRAMMER 396 and
->   ADMINISTRATOR 419 **unmoved**. That asymmetry is the check on 7's arithmetic;
->   if either of the others moved, `sort.item` reached `newvoc` instead of
->   leaving the omit list. `test-tiercounts-units` is step 1 and already agrees.
-> - ***`verify-delaccount` step 6 — IT SHOULD NOW BE 54 of 54.*** 83's reorder is
->   what makes `the ProfileList entry was KEPT with it` pass. **If it still fails,
->   83 is not fixed** and the reorder did not do what the reconstruction said.
-> - **The installer wizard** — the API box is now a parent with a child,
->   `apiremote\apinetwork`. **Ticking the parent alone must leave the rule
->   RESTRICTED**; that is 85, and only a real install shows it.
+> ***THE PATTERN TO COPY IS THREE LINES AWAY, AT `sd.iss:187-193`:***
+> `Flags: checkablealone` on `sshserver`, `Flags: unchecked dontinheritcheck` on
+> `sshserver\sshremote`. **Mine has neither**, and additionally puts a
+> `GroupDescription` on the CHILD that the ssh child does not have. **Three
+> flags, and it needs its own cycle.**
 >
-> ***NOTHING HERE HAS BEEN OBSERVED. IT IS ALL PRE-FLIGHTED AND ALL UNRUN.***
-> What was checked without a cycle: the PowerShell `DELETE_USER` builds parses
-> with **0 errors and 27/27 braces**, and asserts its own new ordering; seven
-> free unit tests are green (`suiteonly` 48/48, `tiercounts` 13/13, `fixlist`
-> 221/0, `verdict` 126/126, `sdtestuser` 51/0, `deletioncheck`, `sysmsg` 43/0);
-> no BOM, CR or non-ASCII was introduced into any shipped file — **measured
-> against `HEAD`, not assumed**. ***ONLY ISCC CAN JUDGE `sd.iss`, and only
-> against a staged tree, which is the cycle.***
+> ***AND THE LESSON IS ABOUT THE CAVEAT I WROTE.*** *"Only ISCC can judge
+> `sd.iss`"* — ISCC judged it fine. **ISCC CHECKS THAT TASKS COMPILE, NOT THAT
+> THEY BEHAVE.** No cycle and no suite can catch this: the wizard is interactive.
+> **It took the owner's eyes on a real install.**
+>
+> # ⇩⇩ 2. THE FOUR FAILURES, ALREADY FIXED, NEEDING ONLY A RUN ⇩⇩
+>
+> All four are `verify-tiers` and all four are **42-against-41**:
+> `shipped TIER.OMIT.STANDARD matches this test: expected 0, got 1`,
+> `omit list length: expected 42, got 41`, and two more.
+> ***THE PRODUCT WAS RIGHT THROUGHOUT***: `sdtiertb771 COUNT VOC: expected 355,
+> got 355` **PASS**, installed list 42 lines with `sort.item` gone.
+>
+> **`verify-tiers` carries its OWN copy of the withheld NAMES** and only the
+> count constant had been updated. Caught by **that file's own cross-check**.
+> ***`test-tiercounts-units` DID NOT AND CANNOT*** — it reconciles the COUNTS
+> each verifier claims, and both counts were already right. **Same shape as 82,
+> one level down.** Fixed; 41 names both sides, `Compare-Object` difference **0**.
+> **`gplbld` only, no cycle — the four rows should go green on `b78`.**
+>
+> # ⇩⇩ 3. WHAT `b77` PROVED ⇩⇩
+>
+> - ***83, on the decisive branch***: `verify-delaccount` **54 of 54, zero FAIL**
+>   (was 53/1), and the row that flipped is this one —
+>   `the ProfileList entry was KEPT with it: expected True, got True`, with the
+>   pin biting, 10075 shown and the pair recorded. **The message stopped lying
+>   without being reworded**, which is why that shape was chosen.
+> - ***44, in the real scenario rather than a fixture***: `verify-doors` printed
+>   `:LOGTO SDDRB77A` / `Unable to change to new directory` / `The grant is in
+>   place, but this sign-in cannot use it yet.` — all three together.
+> - **7's product half**, above. **65 reproduced again**, both arms.
+>
+> ***TWO ARE DONE, INSTALLED AND NOT WITNESSED, AND SAY SO:*** **8** — nothing in
+> the suite presses F1, so no run can show 10149; one keystroke witnesses it.
+> **79** — the wording is confirmed on the install, but **every verifier types an
+> explicit `Y`**, so no run exercises a default.
+>
+> # ⇩⇩ 4. START WITH THE FREE TESTS, THEN `-Only`, THEN A FULL RUN ⇩⇩
+>
+> Eight free tests, seconds, no install or elevation: `suiteonly` 48/48,
+> `tiercounts` 13/13, `fixlist` 221/0, `verdict` 126/126, `sdtestuser` 51/0,
+> `sysmsg` 43/0, `deletioncheck`, `check-stale-leads`. **Then the cheap targeted
+> run for 85's fix, ELEVATED:**
+> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b78 -Only verify-tiers`
+> — but ***85 needs a CYCLE first***, because `sd.iss` only takes effect through
+> one, and the wizard has to be looked at by a person.
 >
 > # ⇩⇩ THE FULL SUITE IS NO LONGER THE DEFAULT. OWNER'S RULING, 30 Aug 2026. ⇩⇩
 >

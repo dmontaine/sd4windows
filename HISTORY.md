@@ -43447,3 +43447,49 @@ count moved, by one, matching its own em-dash style.
 ***AND `$neverShipped` BIT FOR THE SECOND TIME IN ONE SESSION.***
 `reword-yn-prompts.ps1` was added to it in the commit that created it, without
 waiting for `assert-current` to demand a pointless cycle first.
+
+## 30 Aug 2026 — `-Run b77`: the eight land, and the one nobody's instrument could see
+
+**37 steps, 702 `[PASS]`, 4 `[FAIL]`** — unelevated 16 of 16, elevated 20 of 21.
+**All four failures are one instrument and none is the product.**
+
+***83 IS PROVEN ON THE DECISIVE BRANCH.*** `verify-delaccount` **54 of 54, zero
+FAIL**, up from 53/1, and the row that flipped is the entry's own:
+`the ProfileList entry was KEPT with it: expected True, got True`, with the pin
+biting, 10075 shown and the pair recorded for reclaim. **The message stopped
+lying without being reworded** — which is exactly why the reorder was chosen over
+rewording it.
+
+***44 WAS WITNESSED IN THE REAL SCENARIO RATHER THAN A FIXTURE.*** `verify-doors`
+printed all three lines together: `:LOGTO SDDRB77A`, `Unable to change to new
+directory`, `The grant is in place, but this sign-in cannot use it yet.`
+
+***AND THE RUN CAUGHT A MISS OF MINE ON 7, THROUGH THE VERIFIER'S OWN
+CROSS-CHECK.*** `verify-tiers` carries a second copy of the withheld NAMES and
+only the count constant had been updated — four failures, every one 42-against-41.
+**The product was right throughout**: `COUNT VOC 355` PASS, installed list 42
+lines. ***`test-tiercounts-units` DID NOT AND CANNOT***: it reconciles the COUNTS
+each verifier claims against the tree, and both counts were already right. **A
+duplicated LIST is a different exposure from a duplicated COUNT**, and only the
+count had a guard. Same shape as 82, one level down.
+
+# The one that mattered most was found by a person, not a test
+
+***85 WAS STRUCK AND IS RE-OPENED, ON THE OWNER'S EYES.*** *"The two API entries
+are linked together like the ssh entries were before they were fixed. If you
+select or delete one, you select or delete both."* The child task lacks
+**`dontinheritcheck`**, so Inno checks it whenever the parent is checked —
+**reversing the entire point of the entry**, since ticking "provide the API"
+re-ticks "let the network in" and 4243 opens by default again. The pattern was
+three lines away at `sd.iss:187-193` and was not copied closely enough.
+
+***THE CAVEAT I WROTE WAS THE WEAK LINK, AND IT IS WORTH KEEPING.*** *"Only ISCC
+can judge `sd.iss`"* — and ISCC judged it fine. **ISCC CHECKS THAT TASKS COMPILE,
+NOT THAT THEY BEHAVE.** The entry was struck on the strength of the weaker claim.
+**No cycle and no suite can reach this**: the wizard is interactive, and
+`UninstallSilent`-style automation never renders it. A change to `[Tasks]` needs a
+human to look at the page, and that belongs in the entry rather than in
+somebody's memory.
+
+**Closed this session, by observation:** 44, 65, 82, 83, 84, plus 7's product
+half, 9 and 71 by decision. **Open 23 → 16.** `b54`–`b77` spent.
