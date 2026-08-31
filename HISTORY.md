@@ -43566,3 +43566,30 @@ indentation, and whether a caption is truthful all still want eyes.
 
 **Answering "does the ssh pair behave?" by building the instrument answered
 both branches at once**, and produced a third answer neither branch had.
+
+### Then the probe's own artefact produced a standing ruling
+
+Shown the forced "install the OpenSSH server" box on a machine that has one,
+the owner ruled: *"no option should be available that the user can click
+thinking that an action is going to take place, but nothing happens."*
+**PROJECT_STATUS §5.21.** The box he saw was the probe's, but the rule is
+general, and the audit of all seven `[Tasks]` entries found two real ones -
+**PRE_RELEASE 89**.
+
+- **`apiremote` is inert on every upgrade, and half-acts.** The `sd.conf` pair
+  is `onlyifdoesntexist` and `sd.iss:517` already says *"an upgrade rewrites
+  nothing either way"*, so ticking "Provide the SD API" cannot make SD open a
+  socket. `ApplyApiFirewall` still runs, so the firewall moves and the service
+  does not.
+- **Unticking `addtopath` never removes SD from `PATH`.** `RemoveFromPath` is
+  called only from `CurUninstallStepChanged` (`:3810`).
+
+Five are clean, and two of them are the patterns worth copying: `sshserver`
+hides itself with `Check: SshServerAbsent`, and the `sshremoteshut` /
+`sshremoteopen` pair is pre-set from the live firewall scope with
+`ApplySshFirewall` acting in both directions - entry 76's ruling, which is this
+one solved a week early for ssh and not for the API.
+
+**Neither defect is fixed.** The ruling is recorded so the next control is not
+built the same way, and the off direction is the one to check: the on direction
+is the one anybody thinks to test.

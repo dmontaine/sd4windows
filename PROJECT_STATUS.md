@@ -278,9 +278,19 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > - **The SD service is Running.** `cycle.ps1 -SkipInstall` stopped it (`:218`
 >   — step 1 stops it and nothing restarts it) and it was restarted by hand.
 > - ***SPENT: `b54`–`b80`. USE `b81`.***
-> - **Open count 13**: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, **88**.
->   *(85 CLOSED 31 Aug 2026, 88 opened in its place — the count is unchanged by
->   coincidence, not by nothing having happened.)*
+> - **Open count 14**: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, **88**,
+>   **89**. *(85 CLOSED 31 Aug 2026; 88 and 89 opened after it.)*
+>
+> ***AND A NEW STANDING RULING CAME OUT OF IT — §5.21, NO CONTROL MAY BE
+> INERT.*** Owner, 31 Aug 2026, after the probe showed him an "install the
+> server" box on a machine that has one: *"no option should be available that
+> the user can click thinking that an action is going to take place, but
+> nothing happens."* **That box was the probe's own artifact, but the rule is
+> general and the audit it prompted found two real ones** — `apiremote` cannot
+> change the listener on an upgrade (`sd.conf` is `onlyifdoesntexist`) and
+> unticking `addtopath` never removes SD from `PATH`. **PRE_RELEASE 89 has the
+> audit of all seven boxes; neither defect is fixed, and which way each goes is
+> the owner's call.**
 >
 > ***THE THREE PROBES ARE NOW IN `gplbld` AND WIRED INTO NOTHING.***
 > `probe-nolockmsg.ps1` (12 and 87), `probe-tasklock.ps1` (24) and
@@ -8235,6 +8245,43 @@ decided, and all but the service registration are done:**
 elevated, which is exactly what the OS account commands need (§5.6) — so
 creating the initial accounts is something the installer can do and a normal
 session cannot.
+
+### 5.21 No control may be inert (owner, 31 Aug 2026)
+
+*"No option should be available that the user can click thinking that an action
+is going to take place, but nothing happens (for example an option that says
+install a server when it is already installed and clearing the selection does
+nothing)."*
+
+**A tickbox is a promise about what the installer is about to do.** One that
+cannot act is a false statement, and the cost is not the wasted click — it is
+that the reader believes they have made a choice. This generalises the owner's
+earlier rule about the `limitssh` box, already quoted at `sd.iss:338`: *"seeing
+a tick box a user just assumes it is an option."*
+
+**Two ways to satisfy it, and the file already contains both.**
+
+- **Do not offer it.** `sshserver` carries `Check: SshServerAbsent`
+  (`sd.iss:186`), so the box is absent on a machine that already has a server.
+- **Make it act in both directions, and pre-set it from the truth.**
+  `sshremoteshut` / `sshremoteopen` are defaulted from the live firewall scope
+  (`GetSshRuleIsOpen`), and `ApplySshFirewall` runs `-Open` or `-Restrict` on
+  every install — so a deliberate click always moves something and touching
+  nothing changes nothing. That is §PRE_RELEASE 76's ruling, and it is the
+  better of the two whenever the state is real rather than absent.
+
+***IT APPLIES HARDEST ON AN UPGRADE, WHICH IS WHERE IT IS CURRENTLY BROKEN.***
+An upgrade preserves configuration and re-runs little, so a control that acts
+on a first install can be inert on the second. **PRE_RELEASE 89 carries the
+audit of all seven `[Tasks]` entries**: five clean, and two not — `apiremote`,
+because `sd.conf` is `onlyifdoesntexist` and *"an upgrade rewrites nothing
+either way"* (`sd.iss:517`), and `addtopath`, because nothing removes SD from
+`PATH` outside the uninstaller (`:3810`). **Neither is fixed; the ruling is
+recorded so the next control is not built the same way.**
+
+**Check a new control against this before writing it**, and check both
+directions: the off direction is the one that fails, because the on direction
+is the one anybody thinks to test.
 
 ## 6. Traps
 
