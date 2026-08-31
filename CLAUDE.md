@@ -439,6 +439,47 @@ so it also compares source mtimes against the install. The scripts that test
 Windows-side behaviour rather than SD (`verify-sshonly.ps1`,
 `verify-allowgroups.ps1`) are deliberately exempt.
 
+## The full verify suite runs at milestones, not after every change
+
+Standing instruction from the repository owner, 30 Aug 2026, after `b73`, `b74`
+and `b75` each cost about twenty minutes: *"add `-Only`, and drop the full run
+to milestones."* A full run is **~20 minutes** — 4.6 unelevated, 15 elevated —
+and the single step that decides a change is usually **30 to 90 seconds** of it.
+
+**Three tiers. Use the cheapest one that can answer the question.**
+
+1. **The free unit tests and `assert-current`** — seconds, no install, no
+   elevation, no run token: `test-tiercounts-units`, `test-fixlist-units`,
+   `test-verdict-units`, `test-sdtestuser-units`, `test-suiteonly-units`,
+   `check-stale-leads.py`. **Run these on every change.** A whole suite run has
+   already been spent twice discovering what one of them names in a second.
+2. **`-Only <step[,step]>`** — the step that decides your change. Both runners
+   take it; names may omit `.ps1` and are case-insensitive.
+3. **The full suite** — **before a release, and before a handoff.** That is
+   where regressions in things you did not touch get caught: `b75`'s second
+   failure was `verify-notyet`, unrelated to anything changed that day.
+
+**`-Only` and `-ThenElevated` do not combine**, so a targeted elevated step is
+run against `VerifyInstall2` directly:
+
+```powershell
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Only verify-lcnames
+C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b76 -Only verify-delaccount
+```
+
+The first is an **ordinary unelevated** prompt, the second an **elevated** one.
+***`-Run` is still required for a targeted elevated step and still derives every
+prefix*** — that is the reason to go through the runner rather than call the
+verifier by hand, because a fixed prefix passes once and fails every later run
+(PRE_RELEASE 54).
+
+***A PARTIAL RUN IS NEVER REPORTABLE AS A PASSING SUITE.*** The banner, the
+summary heading and the closing line all carry `PARTIAL`, and the closing line
+never reads *"every step exited 0"*. **A mistyped step name is refused by name
+and exits 2** rather than selecting nothing and reporting success — the null
+case the instrument rules above forbid. `gplbld/suite-only.ps1` holds the
+filter, one copy for both runners, and `test-suiteonly-units.ps1` drives it.
+
 ## Conventions
 
 - Match the surrounding code. It is a 2007 Ladybridge codebase with its own

@@ -43310,3 +43310,66 @@ never check-install's; the second reconstructed the captured text by keeping
 only lines prefixed `|`, which **dropped the word "it"** — the transcript wraps
 its own display lines too, and the continuation carries no prefix. **A rig that
 loses a word reports the fix as broken**, which is what it did.
+
+## 30 Aug 2026 — `-Run b75`, and the full suite stops being the default
+
+**37 steps, 705 `[PASS]`, 1 `[FAIL]`** — unelevated 16 of 16 (278), elevated 21
+of 21 (427). ***84 closed***: `verify-notyet` **14 of 14**, up from 12/13, with
+the repaired check and its new matcher control both green. **The one failure is
+83**, identical to `b74`: `verify-delaccount` 53 PASS + 0 N/A of 54, failing
+only `the ProfileList entry was KEPT with it`. **65 reproduced**, so the pin is
+deterministic rather than a fluke.
+
+***THE OWNER'S RULING, PUT TO HIM WITH THE NUMBERS: "add `-Only`, and drop the
+full run to milestones."*** A full run is ~20 minutes (4.6 unelevated, 15
+elevated) and the step that decides a change is usually 30–90 seconds of it.
+CLAUDE.md now carries three tiers: free unit tests on every change, `-Only` for
+the deciding step, full suite before a release and before a handoff.
+
+***THE ARGUMENT AGAINST WAS ALSO MEASURED, AND IS WHY TIER 3 SURVIVES.*** `b74`'s
+second failure was `verify-notyet` — step 3, unrelated to anything changed that
+day, passing by luck since before the session began. **No targeted run would
+have gone near it.**
+
+**One filter, two runners.** `gplbld/suite-only.ps1` holds `Select-SuiteSteps`;
+pasting it into both was the obvious move and is the shape this tree has paid
+for three times in a week (`CRED_SET`/`MODIFYA`, the read-back after it, and
+`api-firewall`/`ssh-firewall`). It **returns a verdict rather than calling
+`exit`**, which is what makes it testable at all.
+
+***`test-suiteonly-units.ps1`: 48 of 48, AND ITS NEGATIVE CONTROL FAILS 44/4***
+against a copy with the unknown-name refusal disabled. **That control taught
+something the positive run could not**: `an unknown name is an error` still
+passed on the broken copy, because the count assertion caught what the disabled
+guard would have. The belt-and-braces check is load-bearing, not decoration.
+
+**It also carries a StrictMode-leak control.** A dot-sourced file's file-scope
+`Set-StrictMode` binds the caller, so the setting lives inside the function and
+the test — run from a deliberately lax process — asserts that referencing an
+undefined variable still does not throw after the dot-source.
+
+***PROVEN END-TO-END WITHOUT SPENDING A SUITE***, which is the point:
+`VerifyInstall1.ps1 -Yes -Only test-tiercounts-units` gave
+`PARTIAL RUN - 1 of 12`, 13/13, `PARTIAL - 1 of 12 step(s) run, all exited 0`,
+exit 0 **in seconds**; `-Only verify-nope` exited 2 naming the step and listing
+the valid ones; `-Only` with `-ThenElevated` exited 2 before anything was spent.
+**A partial run never reads as a passing suite** — banner, summary heading and
+closing line all carry `PARTIAL`.
+
+***THE FILTER IS APPLIED LAST AND THE REFUSAL PROVED WHY.*** Its list of valid
+names omitted `verify-nocase` and `verify-lineendings`, because no `-Run` meant
+those were already skipped. Filtering earlier would have let `-Only` name a step
+the run was never going to reach and call that a match.
+
+**Unrun: `VerifyInstall2`'s wiring**, which needs elevation. Same six lines and
+the same unit-tested filter; `-Only verify-fold` is a ten-second proof.
+
+***AND THE GUARD CAUGHT THE AUTHOR OF THE GUARD.*** `assert-current` went **red**
+the moment the two new files existed — *"STALE: 2 source file(s) are newer than
+the install: `gplbld\test-suiteonly-units.ps1`, `gplbld\suite-only.ps1`"* —
+because neither was on `$neverShipped`. Both were correct and neither ships, so
+it was demanding **a twenty-minute cycle that would have changed nothing**, and
+it would have demanded it of every session from now on. Listed in the same
+commit that created them, which is section 7 step 7's rule and exactly what that
+rule is for. `test-deletioncheck-units` still passes, which is the check that
+lifts functions out of `assert-current` by AST and would notice the edit.

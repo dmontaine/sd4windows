@@ -186,16 +186,50 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > was added rather than substituted. **676 → 693 is exactly its 13 plus 65's
 > four**, which is how the totals were reconciled rather than eyeballed.
 >
-> # ⇩⇩ DO THIS FIRST: `-Run b75`. NO CYCLE — `assert-current` IS exit 0. ⇩⇩
+> # ⇩⇩ THE FULL SUITE IS NO LONGER THE DEFAULT. OWNER'S RULING, 30 Aug 2026. ⇩⇩
 >
-> ***ORDINARY UNELEVATED PowerShell:***
-> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b75 -ThenElevated`
+> *"Add `-Only`, and drop the full run to milestones."* **A full run is ~20
+> minutes** — 4.6 unelevated, 15 elevated — and the step that decides a change
+> is usually **30 to 90 seconds** of it. **CLAUDE.md carries the rule**; the
+> short form is: free unit tests on every change, `-Only` for the step that
+> decides it, **full suite before a release and before a handoff.**
 >
-> ***SPENT: `b54`–`b74`.*** **What `b75` decides is 84's fix** — nothing else is
-> unrun. Expect `verify-notyet` back to **13 of 13 plus its new control**, and
-> `verify-delaccount` **54 of 54** once **83** is settled. **`verify-delaccount`
-> will keep failing its one check until 83 is ruled on**, and that failure is
-> real: do not silence it.
+> ***THE ONE THING THAT IS UNRUN: `VerifyInstall2`'s `-Only` WIRING.***
+> `VerifyInstall1`'s is proven both ways (below). The elevated half shares the
+> same unit-tested filter and the same six lines, but needs elevation to run.
+> **Cheapest possible proof, ~10 seconds, ELEVATED PowerShell:**
+> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b76 -Only verify-fold`
+> Expect a `***** PARTIAL RUN - 1 of 21 step(s) *****` banner and a closing
+> `VerifyInstall2: PARTIAL - 1 of 21 step(s) run, all exited 0.`
+> ***SPENT: `b54`–`b75`. USE `b76`.***
+>
+> ***PROVEN UNELEVATED, BOTH DIRECTIONS, NO SUITE SPENT:***
+> `VerifyInstall1.ps1 -Yes -Only test-tiercounts-units` → `PARTIAL RUN - 1 of 12`,
+> 13/13, `PARTIAL - 1 of 12 step(s) run, all exited 0`, **exit 0 in seconds**.
+> `-Only verify-nope` → **exit 2**, naming `verify-nope.ps1`, listing the valid
+> names, *"Nothing was run"*. `-Only` with `-ThenElevated` → **exit 2** before
+> anything is spent, printing both commands.
+>
+> ***AND THE REFUSAL LISTED ONLY THE STEPS THAT RUN WOULD HAVE MADE*** —
+> `verify-nocase` and `verify-lineendings` were absent because no `-Run` meant
+> they were skipped. **That is why the filter is applied LAST**, after the door
+> and write steps are appended and after the test-account skips.
+>
+> # ⇩⇩ `-Run b75`: 37 STEPS, 705 PASS, 1 FAIL — AND THE 1 IS 83. ⇩⇩
+>
+> **Unelevated 16 of 16 (278 `[PASS]`), elevated 21 of 21 (427 `[PASS]`).**
+> ***84 IS CLOSED***: `verify-notyet` **14 of 14**, up from 12/13, with both the
+> repaired check and its new matcher control green.
+>
+> ***THE SINGLE FAILURE IS 83 AND IT IS IDENTICAL TO `b74`*** —
+> `verify-delaccount` **53 PASS + 0 N/A of 54**, failing only
+> `the ProfileList entry was KEPT with it`. **It will keep failing until 83 is
+> ruled on. That failure is real: do not silence it.**
+>
+> ***AND 65 REPRODUCED ON A SECOND RUN, SO THE PIN IS DETERMINISTIC*** —
+> `the pin blocked the profile removal (this leg is decisive)` and
+> `os.users record is gone (the DECISIVE one)` both green again, with step 3's
+> subject still taking status 0 and still saying `CONFIRMATORY, not decisive`.
 >
 > # ⇩⇩ `-Run b74`: THE RIG BIT. 65 IS CLOSED, AND IT FOUND TWO MORE THINGS. ⇩⇩
 >
