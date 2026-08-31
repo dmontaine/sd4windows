@@ -214,12 +214,31 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > signing in **as themselves** — the only thing ssh can do — was refused with
 > 10003 on their **FIRST** `logto`. §5.22 row 1 was implemented nowhere.
 >
-> ***STILL OWED: A VERIFIER.*** Entry 62 already recorded that `10002`,
-> `not an administrator` and `LOGTO REFUSED` get **zero** hits across every
-> `verify-*.ps1`, so this property is asserted by reading and by nothing else.
-> The rows it needs: an administrator entering an **ungranted** account
-> unelevated, a **second** logto straight after it, and a non-administrator
-> refused with 10003 as the control that the group test still holds.
+> ***THE VERIFIER IS WRITTEN AND HAS NEVER RUN: `gplbld/verify-logtoaccess.ps1`.***
+> In `VerifyInstall1` because an **elevated** runner could not measure it at
+> all — an elevated session lands in SDSYS. ***UNELEVATED IS 18 STEPS NOW, NOT
+> 17***, so expect 18 on `b83` and do not read the extra one as drift.
+>
+> ***ITS DECIDING ROW IS A COUNT: ARRIVALS INTO THE TARGET = 2.*** Three logtos
+> in one session. **0 is the unelevated defect** (refused on the first), **1 is
+> the elevated one** (the first worked and cleared the flag), 2 is the fix — a
+> single successful logto would not have told them apart. The throwaway account
+> is both the ungranted target and the **non-administrator control** refused
+> with 10003, without which the run cannot tell *"the administrator path works"*
+> from *"the gate is open to everybody"*. Four preconditions **refuse out loud**,
+> the load-bearing one being *the caller must NOT already be granted the target*.
+>
+> ***THE `$refusers` GUARD FOUND A REAL DEFECT IN IT BEFORE IT RAN*** — the
+> parameters were `Mandatory`, so the **binder** would have refused ahead of the
+> body and an unattended suite would have got a prompt rather than a message.
+> Registered in **four** places in the same commit: `assert-current`'s
+> `$neverShipped`, `test-verdict-units`' `$targets`, `VerifyInstall1`'s steps
+> and `$needsTestUser`, and `test-sdtestuser-units`' `$refusers`.
+>
+> ***A WRITTEN VERIFIER IS NOT COVERAGE — 91 STAYS OPEN UNTIL A LEG PASSES.***
+> It does not cover the **elevated-start** half (UAC has no desktop in a nested
+> elevation, §4.0.1) or the **tier half's negative case** (needs a second
+> Windows administrator); its header names both.
 >
 > **2. EMPTY `TIER.ADD.ADMINISTRATOR`.** The 24 restricted commands stay in
 > `voc_template` (so SDSYS keeps them) and no created account gets them —
