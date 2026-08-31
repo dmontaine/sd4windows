@@ -42952,6 +42952,42 @@ was written the previous session and sits at the TOP of `sdsys/changelog`,
 which is newest-first. **A `tail` of that file reads the oldest entries and
 concludes the newest is missing.**
 
+## 30 Aug 2026 — the documentation becomes one task, and the task table closes
+
+Owner: *"lets wrap all the outstanding documentation pre-release tasks into a
+single documentation audit task that validates and updates the whole
+documentation tree against the final install image. This task will be done just
+before the final release 1.0 wrap up. In this task you take control of the gap
+analysis, you validate, correct and build all the documentation both yours and
+the other AI's."*
+
+**Filed as PRE_RELEASE 80, B, absorbing task-table H.2 and entries 34 and 55.**
+Both absorbed entries are struck and their sections say `DONE AS AN ENTRY …
+(the work is not done; it is 80's)`, which is the distinction that matters: the
+analysis in each is untouched and is what 80 acts on; what has gone is the
+separate number, so nobody plans it twice.
+
+***THE ARGUMENT FOR COMBINING IS IN H.2's OWN ROW, WHICH PREDICTED IT.***
+*"Writing a reference against a model in motion is how the tester set described
+`encrypt.field` for a week after it was deleted."* The model has moved seven
+times since — 56, 67, 75, 76, 77, 78, 79 — so validating now would mean
+validating twice. **And wiring `release.ps1` early would have been worse than
+leaving it**: both generators `exit 1` on a roster disagreement, and 78 alone
+takes the TCL verb count 143 → 146, so every run would refuse until the pages
+caught up. That turns 55 from a thing left undone into a thing correctly
+deferred.
+
+**71 is deliberately NOT absorbed.** It is the same kind of defect — a false
+sentence — but in PROJECT_STATUS.md and CLAUDE.md, which every session reads.
+Deferring it to just before 1.0 would leave a known-false claim in the handoff
+for weeks, and it has already nearly cost a wrongly-filed blocker once.
+
+***THE TASK TABLE IS NOW FULLY CLOSED*** — every row ✅ or ➖, H.2 having been
+the last open one. **That is not "nearly done" and the box says so**: it means
+only that nothing remains that the TABLE tracks. 27 fixlist entries are open,
+three of them blockers (72, 77, 80). The table is the authority on tasks;
+PRE_RELEASE_FIXES is now the authority on what ships.
+
 ## 30 Aug 2026 — ssh becomes two dependent choices, and stand-alone is removed
 
 Owner: *"if an ssh server is installed, the user should have a separate choice
