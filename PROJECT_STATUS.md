@@ -167,6 +167,43 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
 > be missed the same way.
 >
+> # ⇩⇩ BATCH 2 IS BUILT AND NEEDS A CYCLE. `sd.exe` HAS MOVED. ⇩⇩
+>
+> ***`bin/sd.exe` IS NOW `8E1264DB…`, WAS `4732ECF6…`. THE INSTALLED TREE IS
+> BEHIND THE SOURCE UNTIL A CYCLE RUNS*** — `assert-current` will refuse, and
+> that is correct, not a fault to work around:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **Elevated PowerShell.** `make sd` **exit 0, no warnings**; exactly
+> `clopts.o` and `op_dio3.o` rebuilt, which is the tell that the build did the
+> two changes and nothing else.
+>
+> ***TWO FIXED AND COMPILED, BOTH STILL OPEN BECAUSE COMPILING IS NOT
+> RUNNING.*** **24** — `sd -cleanup` never released a dead session's task
+> locks; the loop tested `process.user_no` where the three below it test
+> `user_no`. It released **nothing** rather than the wrong thing, because
+> `cleanup()` never becomes a user so that value is 0 and a free slot is 0 too.
+> **12** — a `WRITE` refused for want of a lock said *"(Possible full disk?)"*;
+> new message **10151** names the missing lock. **To close each: a cycle, then
+> the measurement named in its row.**
+>
+> ***TWO EXAMINED AND DELIBERATELY NOT BUILT, BECAUSE BOTH ARE DECISIONS.***
+> **28** — its only C-shaped option is a restrictive ACL written by `pdump.c`,
+> and `win32audit.h` already argues against exactly that shape for this tree
+> (*"rather than rebuilt from anything that could drift out of step with the
+> installer"*). **The recommendation is the installer option**: `DUMPDIR` to an
+> administrator-only directory with a `secure-dumps.ps1`. **16** — names *"two
+> independent things to decide"*, diagnosis and recovery, and its third piece
+> is §6's open question about `check_lost_users()`, which 24 does **not**
+> answer: 24 changes what cleanup releases, not whether the sweep calls it.
+>
+> ***BUT 24 DID MOVE 16's GROUND***: 16's chain says *"`sd -cleanup` clears it"*
+> and for task locks that was false. The administrator's route was broken as
+> well as awkward; one of those two is now fixed.
+>
 > # ⇩⇩ BATCH 1 IS RUN AND GREEN. 73 IS CLOSED. OPEN COUNT 16 → 15. ⇩⇩
 >
 > ***`-Run b80`, UNELEVATED, `PARTIAL - 2 of 17 step(s), all exited 0`.***

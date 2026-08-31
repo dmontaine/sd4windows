@@ -1502,7 +1502,27 @@ makes this failure appear late, in production, in code that has been tested.
 **Reproduced in this tree, not against upstream.** Probe:
 `tools/probes/p14c-txn.b`, section 6.
 
-`PROPOSED`
+**Fixed here on 31 Aug 2026, by the route this entry recommends** — the call
+site special-cases the status rather than rewording 1407, which stays accurate
+for the disk-full case it was written for. `op_dio3.c`'s `exit_op_write` now
+reads:
+
+```c
+    if (process.status == -ER_NOLOCK)
+      k_error(sysmsg(10151), -process.status);
+    else
+      k_error(sysmsg(1407), -process.status, process.os_error);
+```
+
+New message **10151** names the missing lock, says nothing was written, and
+points at `READU` / `READVU`. Re-confirmed live on upstream `main` at `ae0cc5f`
+— same call site, same message text — immediately before the change here.
+
+**One caveat for whoever takes this upstream**: only `ER_NOLOCK` is split out.
+`ER_RDONLY`, `ER_IID` and `ER_TRIGGER` still render through 1407 and are still
+wrong about the disk; each wants its own text rather than a shared one.
+
+`FIXED HERE — PROPOSED UPSTREAM`
 
 ## 21. `QSELECT` prints its completion message with the list number missing
 
@@ -1763,7 +1783,12 @@ was copied from.
 at the head of this file — but the reasoning needs nothing outside the twelve
 lines quoted.
 
-`PROPOSED`
+**Fixed here on 31 Aug 2026**, exactly as described above — `process.user_no`
+becomes `user_no`, one word, in the task-lock loop of `remove_user()`. Nothing
+else in the function changed. Re-confirmed live on upstream `main` at commit
+`ae0cc5f` immediately before the change was made here.
+
+`FIXED HERE — PROPOSED UPSTREAM`
 
 ## 26. `ENCRYPT.FIELD` is in every administrator's VOC and the program behind it does not exist
 
