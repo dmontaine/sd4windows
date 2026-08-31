@@ -2831,7 +2831,9 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 1. ***NEVER REWRITE A TRACKED FILE WITH POWERSHELL `Set-Content`.*** Used for
 >    a two-row table swap, it read the UTF-8 file as CP1252 and wrote it back
 >    double-encoded — **all 272 em dashes became `â€"`** — plus a BOM and CRLF
->    throughout. **The mojibake is silent**; stripping the CRs made the diff
+>    throughout. ***THAT QUOTED SEQUENCE IS THE ONLY ONE IN THIS FILE, IT IS
+>    EVIDENCE RATHER THAN DAMAGE, AND §0 STATES THE EXPECTED COUNT SO NOBODY HAS
+>    TO INVESTIGATE IT AGAIN.*** **The mojibake is silent**; stripping the CRs made the diff
 >    *smaller*, which reads like progress. Recovery is `git checkout` and redo
 >    with the editing tools.
 > 2. ***A CONSTANT TYPED INTO A LABEL DRIFTS FROM THE VALUE BESIDE IT.*** A
@@ -4773,6 +4775,27 @@ replace a longer set that caused it.
 for a cold agent that will act on this: terse, factual, `file:line` over
 description. No emphasis for effect, no narrative, no argument. The `changelog`
 is the exception and stays plain English for users.
+
+> ***THE MOJIBAKE SCAN OF THIS FILE HAS AN EXPECTED VALUE, AND IT IS ONE.***
+> Owner, 30 Aug 2026: *"every review of PROJECT_STATUS wonders about the
+> mojibake"* — so the answer lives here instead of being re-derived. **A
+> double-encoding scan** — `grep -a -o` for the CP1252-through-UTF-8 lead bytes
+> `\xC3\xA2\xE2\x82\xAC`, which is what an em dash becomes — **must report
+> exactly 1 occurrence, on the `Set-Content` trap in the 21 Aug 2026 entry, and
+> that one is a deliberate QUOTATION of the corruption it describes.**
+>
+> ***SO THE READING IS: 1 IS CORRECT, 0 MEANS SOMEBODY "FIXED" THE EVIDENCE, AND
+> 2 OR MORE IS REAL DAMAGE.*** A bare *"this is fine"* note would have settled
+> the first reading and left the other two unanswerable, which is why it is
+> written as a count. **Do not paste the sequence into any new prose here** —
+> naming the bytes keeps the expected value at 1, and a second literal copy would
+> break the check this paragraph exists to make cheap.
+>
+> **The same is NOT true of `PRE_RELEASE_FIXES.md`, `HISTORY.md` or any script:
+> there the expected count is 0.** Measured 30 Aug 2026 across all three. The
+> underlying rule is `CLAUDE.md`'s — a tracked file is edited with `Edit`/`Write`
+> and never by a program — and this paragraph only stops its verification from
+> costing an investigation each time.
 
 > ***READING THESE FILES IS NOT THE SAME AS SEARCHING THEM, AND THE PROJECT RULE
 > IS TO SEARCH.*** Owner's instruction, 23 Aug 2026: **grep PROJECT_STATUS.md
