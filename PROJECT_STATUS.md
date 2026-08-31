@@ -166,11 +166,20 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > MISSING 24` — a standard account is missing all twenty-four, the new verb
 > included, so the `voc_template`-only placement holds where it matters.
 >
-> ***WHAT IS LEFT IS THE PART NO SUITE STEP CAN REACH: THE FOUR REPORTS.***
-> Same blind spot as the tasks page. In SDSYS: `append.sd.path`, `remote.api`,
-> `remote.ssh`, `ssh.server` — each must print its report **on separate
-> lines**. One line studded with boxes is the field-mark bug; nothing at all is
-> the original defect. **The actions must be unchanged: one line, no report.**
+> ***AND THE FOUR REPORTS PRINT — PRE_RELEASE 90 IS CLOSED, 31 Aug 2026.***
+> Measured in SDSYS on the installed tree: `append.sd.path` gives the whole
+> `sd-path` report with all eleven PATH entries numbered on their own lines;
+> `remote.api` four lines, `remote.ssh` two, `ssh.server` four. **No boxes, no
+> single-line run, no empty last line**, so `tidy.out`'s CR-strip,
+> LF-to-field-mark and trailing-field trim all hold. **Found and closed by a
+> real terminal twice over — the silence, then the field marks — and no unit
+> test could have caught either, because neither route exists off a live
+> session.**
+>
+> ***ONE THING NOT RE-MEASURED SINCE THE CAPTURE WENT IN***: `append.sd.path
+> on` / `off` were proved one-line BEFORE their action path was changed to
+> capture. It prints only when `rc` is non-zero, so it should be unchanged —
+> **but that is reasoning, not a measurement.**
 >
 > **`b54`–`b82` SPENT. USE `b83`.**
 >
