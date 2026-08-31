@@ -206,6 +206,22 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > having had one. It is a member of Windows Administrators for the seconds it
 > exists. **The control account `<prefix>b` is deliberately not.**
 >
+> ***TWO ONE-LINE RULINGS ARE WAITING AND BOTH ARE NOW CHEAP TO GIVE.*** 7 and 9
+> were *"decide"* entries; the deciding information was already in the record and
+> is now in each entry.
+>
+> - **7 — `sort.item`: confirmed an oversight, not a decision.** `d913eac`'s
+>   read-only-inspector ruling **names `list.item` and not `sort.item`**, which
+>   are `$QPROC` 10 and 11 — one program. **Fixing it is 82's shape**: omit
+>   43→42 lines, **STANDARD 354 → 355**, PROGRAMMER and ADMINISTRATOR unmoved,
+>   and `verify-tiers.ps1`, `verify-tierapi.ps1` and `test-tiercounts-units.ps1`
+>   all carry 354. **Not built — tier membership has always been his.**
+> - **9 — `umask`: half of it was ruled on 24 Aug and the entry did not know.**
+>   `d913eac` deleted `voc_template/umask` outright, so *"ship a VOC record"* is
+>   already refused. ***AND `op_umask` IS LIVE — `CPROC:325` calls `umask(002)`
+>   at every start-up***, so *"delete the routine"* taken literally breaks
+>   start-up. **The dead part is `int.umask` alone** (`CPROC:3371`, verb 35).
+>
 > ***THE HABIT THAT PAID FOR ITSELF TWICE: RUN THE FREE UNITS TESTS FIRST.***
 > All four are green as of 30 Aug 20:15 — `tiercounts` 13/13, `sdtestuser`
 > 51/0, `verdict` 126/126, `fixlist` **218/0** — plus `check-stale-leads`

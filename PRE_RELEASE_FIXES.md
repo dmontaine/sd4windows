@@ -45,9 +45,9 @@ no elevation.
 | ~~4~~ | **S** | Tester page 07 says a standard account has 77 verbs; it has 81 — ***81 CONFIRMED 28 Aug 2026 from the tree***: `newvoc` holds **119** records whose field 1 starts with `V`, plus the four keyword-and-verb records (`break`, `count`, `display`, `off`) = **123**, less `TIER.OMIT.STANDARD`'s **42** names (43 lines, first is a header comment) = **81**. **Fix it together with 52** — the same table carries `417` and `+21`, both stale, and correcting one number while leaving the others is how this page got wrong in the first place. *(The entry below says page 06 repeats the figure; it is page **05**.)* ***DONE 28 Aug 2026 with 52***, in the one commit both entries always needed | docs repo |
 | ~~5~~ | **S** | `.d name` cannot find a lower-case VOC record typed in upper case — **FIXED 28 Aug: folds case like `.L`/`.R`, and reports 5043 instead of falling through with a stale `voc.rec`.** ***DONE 28 Aug 2026, MEASURED*** on the 00:53:34 install by `verify-vocverbs.ps1`: `.D ZZPRFD` printed `Delete VOC record 'zzprfd'?` — the lower-case name from an upper-case verb — the record was gone afterwards, and an unknown name reported 5043 with no second prompt | `CPROC:1119` |
 | 6 | **S** | An empty directory called `C:` is created in the data tree by the installer ***— REPRODUCED AND CHARACTERISED 30 Aug 2026 ON THE 18:03:57 INSTALL, AND IT IS NOT `sd.iss`.*** **It is `C:\ProgramData\SD\sdsys\C:`, empty, and its real NTFS name is `U+0043 U+F03A`** — `C` followed by the **Cygwin/MSYS private-use mapping of a colon**, which is how the POSIX runtime writes a name NTFS forbids. **So it is written by something running on the MSYS2 runtime — SD itself — and not by Inno**, whose `[Dirs]` has three clean `{#DataDir}` entries. ***PINNED TO THE ADOPT STEP BY TIMING***: `adopt-account.log`, `user_accounts\don` and `sdsys\C:` share a creation time of **18:04:39**, so `sd -internal CREATE.ACCOUNT USER don ADOPT` makes the correct account directory AND this one, the latter relative to its cwd of SDSYS. ***TWO INSTRUMENTS LIED ON THE WAY AND BOTH ARE WORTH KNOWING.*** `find . -name 'C:'` under Git Bash reports **nothing** — MSYS mangles the `C:` argument before `find` sees it — and `Test-Path 'C:\ProgramData\SD\sdsys\C:'` answers **False**, because a colon in a Windows path names an alternate data stream rather than a file. **It was found by searching for `*:*` and confirmed by enumerating code points.** A search for this by name will keep coming back clean. ***WHAT IS NOT YET KNOWN IS THE LINE.*** `CREATEA` already guards a bare drive letter at `:769` (`parent.dir matches "1A':"`), the account directory itself is built correctly from `CONFIG('USRDIR')`, and the private catalogue uses `pathname:@ds:'cat'` — none of those is it. **Harmless in itself; it is litter of the same class as 65 and 60, in the one directory whose ACL is the whole of the protection** | `gpl.bp/CREATEA`, `sdsys` (not `gplbld/sd.iss`), and entries 65, 60 |
-| 7 | **M** | `sort.item` is withheld from a standard account and `list.item` is not | `newvoc/TIER.OMIT.STANDARD` |
+| 7 | **M** | `sort.item` is withheld from a standard account and `list.item` is not — ***CONFIRMED AN OVERSIGHT FROM THE RECORD, 30 Aug 2026, WHICH IS WHAT THE ENTRY ASKED FOR.*** The owner's session-50 ruling (`d913eac`, 24 Aug 2026) moved *"read-only inspectors"* to STANDARD and **names them**: `search list.diff list.item list.common list.vars report.src report.style format`. ***`sort.item` IS NOT IN A LIST THAT NAMES ITS SIBLING***, so it was never ruled on — it simply survived the first-pass omit list. **They are one program**: `newvoc/list.item` is `$QPROC` verb **10** and `newvoc/sort.item` is `$QPROC` verb **11**, both `Verb - Query processor`, differing in sort order alone. ***THE FIX IS ONE LINE AND FOUR FILES MOVE WITH IT, WHICH IS 82 EXACTLY***: dropping the name takes `TIER.OMIT.STANDARD` **43 lines → 42** (42 names → 41) and **STANDARD 354 → 355**, with **PROGRAMMER 396 and ADMINISTRATOR 419 UNMOVED** — that asymmetry is the arithmetic check. `verify-tiers.ps1:42`, `verify-tierapi.ps1` and `test-tiercounts-units.ps1` all carry 354 and must move together; **run `test-tiercounts-units.ps1` first, it costs a second.** ***LEFT FOR THE OWNER, NOT BUILT***: tier membership is a policy ruling and every one of them so far has been his | `newvoc/TIER.OMIT.STANDARD`, `verify-tiers.ps1`, `verify-tierapi.ps1`, `test-tiercounts-units.ps1` |
 | 8 | **M** | `help` is an empty stub and F1 reaches it | `CPROC:2498` |
-| 9 | **M** | `umask` is implemented and unreachable | `CPROC:3301` |
+| 9 | **M** | `umask` is implemented and unreachable — ***THIS ENTRY'S TWO OPTIONS ARE BOTH WRONG, MEASURED 30 Aug 2026, AND HALF OF IT WAS ALREADY RULED.*** *"Either ship a VOC record for it"* — **the owner refused that on 24 Aug 2026**, session 50, `d913eac`: *"UMASK removed entirely — POSIX file-mode-bits call, essentially inert on Windows where security is ACL-based"*, and `sdsys/voc_template/umask` was **deleted** in that commit. Confirmed from the tree: `umask` is absent from **both** `newvoc` and `voc_template`. So the verb is not an oversight, it is a decision this entry did not know about. ***AND "DELETE THE ROUTINE" WOULD BREAK START-UP IF READ AS WRITTEN***: there are **two** things called umask and only one is dead. `op_umask` (`gplsrc/op_misc.c:1503`, opcode `0xCF0B`) is the SD BASIC `UMASK()` function and **`CPROC:325` CALLS IT ON EVERY START-UP** — `if umask(002) then null`, with a comment explaining why. **The dead half is `int.umask` alone** (`CPROC:3371-3381`, internal verb 35, dispatched from `:1637`), which nothing can reach because no VOC record points at verb 35. ***SO WHAT IS LEFT IS ONE SMALL CALL***: delete `int.umask` and its dispatch entry, or leave it as the tree leaves `$MICRO` and `$NLS` — `d913eac` names that precedent itself, *"stay compiled but callerless"*. **Owner's, and it is now a one-line question rather than a design one** | `CPROC:3371` (dead), `CPROC:325` and `gplsrc/op_misc.c:1503` (LIVE, do not touch) |
 | ~~10~~ | **M** | ~~Two verifiers carry a dead ANSI strip~~ — ***IT WAS 23 FILES AND 24 OCCURRENCES, NOT TWO.*** **DONE 28 Aug 2026**: all converted to `([char]27 + '\[[0-9]*[A-Za-z]')`. ***AND IT WAS STILL SPREADING*** — three of the 23 were written the same day, by copying `probe-catprivate.ps1`'s `Invoke-SD` *"unchanged"*. **Guarded by a test, not by 23 comments**: `test-verdict-units.ps1` now scans the whole directory and fails if any script carries the dead form again, **tokenising rather than grepping** so a comment that quotes it (there are two, both correct) is not a false positive | `gplbld` |
 | ~~11~~ | **B** | ***Nested `commit` silently loses the outer transaction's writes*** — UPSTREAM #17. ***DONE 29 Aug 2026***: the reinstate-and-decrement block is lifted out of `rollback()` into `end_txn_level()` and called from `op_txncmt()` too — **one function, both callers, because having it in one place with one caller is what the defect was.** Placed **before** `exit_op_txncmt:` so the three `k_error` paths do not pop a level they did not commit. **Measured on the 18:36:04 install, `verify-txn.ps1` 9 of 9**: the outer write now reads `outer` where it read `base`, the level delta is `0` where it was `+2`, and the parent transaction is reinstated where the session had been left in none. **Wired into `VerifyInstall1` after being measured, not before** | `gplsrc/txn.c`, `gplbld/verify-txn.ps1` |
 | 12 | **S** | Error 3023 tells the user the disk may be full — UPSTREAM #20, **unfixed here**. ***28 Aug: NOT the message-only fix this entry claims — the call site is `gplsrc/op_dio3.c:853`, so it is a C change and a REBUILD, not a data change. Left out of the 28 Aug batch for that reason*** | `sdsys/messages/1407`, `gplsrc/op_dio3.c:853` |
@@ -250,6 +250,27 @@ whole records field by field, so withholding one and not the other achieves
 nothing. **Looks like an oversight in the list rather than a decision** — worth
 confirming, because if it was deliberate the reason should be written down.
 
+***CONFIRMED AN OVERSIGHT, 30 Aug 2026, FROM THE RULING THAT CREATED THE
+LIST.*** `d913eac` (24 Aug 2026, session 50) records the owner's four rulings on
+the first-pass split, and the read-only-inspector one **names its members**:
+*"read-only inspectors (search list.diff list.item list.common list.vars
+report.src report.style format) -> STANDARD"*. **`sort.item` is absent from a
+list that names `list.item`**, so it was never put to him — it survived the
+first pass unexamined. They are one program with two verb numbers: `list.item`
+is `$QPROC` **10**, `sort.item` is `$QPROC` **11**.
+
+***THE COST OF FIXING IT IS THE 82 SHAPE AND IS WORTH STATING BEFORE ANYONE
+STARTS.*** Dropping the name takes the record **43 lines → 42** (42 names → 41)
+and **STANDARD 354 → 355**, leaving **PROGRAMMER 396 and ADMINISTRATOR 419
+unmoved** — that asymmetry is the check on the arithmetic. Three instruments
+carry 354 and must move in the same commit: `verify-tiers.ps1:42`,
+`verify-tierapi.ps1` and `test-tiercounts-units.ps1`. **Run the last of those
+first**; it needs no install and answers in a second, and a whole suite run has
+already been spent on exactly this mismatch.
+
+**Not built.** Tier membership is a policy ruling and every one so far has been
+the owner's.
+
 ## 8. `help` is an empty stub and F1 reaches it — **M**
 
 Internal verb 14. `CPROC:2498`'s body is entirely commented out and it returns
@@ -269,6 +290,32 @@ measured: `umask is not in your VOC`. `umask()` from SD BASIC still works.
 
 Either ship a VOC record for it or delete the routine; a working verb nobody can
 reach is the kind of thing that reads as a missing feature.
+
+***BOTH OF THOSE OPTIONS ARE WRONG AS WRITTEN. MEASURED 30 Aug 2026.***
+
+***THE FIRST WAS ALREADY REFUSED, AND BY THE OWNER.*** `d913eac`, 24 Aug 2026,
+session 50: *"UMASK removed entirely — POSIX file-mode-bits call, essentially
+inert on Windows where security is ACL-based"*, and `sdsys/voc_template/umask`
+was **deleted in that commit**. Read back from the tree: `umask` is absent from
+**both** `newvoc` and `voc_template`. So "no VOC record points at it" is the
+ruling working, not a gap — this entry was written without knowing that.
+
+***AND THE SECOND WOULD BREAK START-UP IF TAKEN LITERALLY, BECAUSE THERE ARE TWO
+THINGS CALLED UMASK AND ONLY ONE IS DEAD.***
+
+- **LIVE, DO NOT TOUCH.** `op_umask` (`gplsrc/op_misc.c:1503`, opcode `0xCF0B`)
+  is the SD BASIC `UMASK()` function, and **`CPROC:325` calls it on every
+  start-up** — `if umask(002) then null`, with the comment above it explaining
+  why. This entry's own last line already said `umask()` still works; what it
+  did not say is that SD itself is the caller.
+- **DEAD.** `int.umask` alone — `CPROC:3371-3381`, internal verb 35, dispatched
+  from the table at `CPROC:1637`. Nothing can reach it because no VOC record
+  names verb 35.
+
+**So the remaining call is small**: delete `int.umask` and its dispatch entry,
+or leave it as the tree already leaves `$MICRO` and `$NLS` — `d913eac` names
+that precedent itself, *"stay compiled but callerless"*. Owner's, and it is a
+one-line question now rather than a design one.
 
 ## 10. Two verifiers carry a dead ANSI strip — **M** — ***DONE 28 Aug 2026***
 

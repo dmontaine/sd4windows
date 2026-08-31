@@ -43152,3 +43152,30 @@ for it as of this fix — it was not before.
 **Not upstream**: `sdb64`'s `DELACC` has no `os.users` at all, only
 `OS.EXECUTE "sudo userdel"`. **Unrun**: BASIC, so `assert-current` is red on
 `sdsys\gpl.bp\DELACC` alone and it needs a cycle before `b73`.
+
+## 30 Aug 2026 — 7 and 9 answered from the record, not from the code
+
+**Both were *"decide"* entries and the deciding information was already
+committed.** `d913eac`, 24 Aug 2026, session 50, carries the owner's four
+rulings on the first-pass tier split — and it settles both.
+
+***7 IS AN OVERSIGHT AND THE PROOF IS THE RULING'S OWN WORDING.*** It moved
+*"read-only inspectors"* to STANDARD and **named them**: `search list.diff
+list.item list.common list.vars report.src report.style format`. **`sort.item`
+is missing from a list that names `list.item`**, so it was never put to him.
+They are one program — `$QPROC` verb **10** and verb **11**. Fixing it is 82's
+shape and the arithmetic is in the entry: **STANDARD 354 → 355**, the other two
+unmoved, three instruments carrying 354. **Not built; tier membership is his.**
+
+***9's TWO OPTIONS ARE BOTH WRONG AND ONE WOULD BREAK START-UP.*** *"Ship a VOC
+record"* was **refused on 24 Aug** — `sdsys/voc_template/umask` was deleted in
+that commit, and `umask` is absent from `newvoc` and `voc_template` today. And
+*"delete the routine"* conflates two things: **`op_umask` is LIVE**, called by
+`CPROC:325` (`if umask(002) then null`) at every start-up. **Only `int.umask`
+is dead** — `CPROC:3371`, internal verb 35, unreachable because no VOC record
+names verb 35. `d913eac` even names the precedent for leaving it: *"stay
+compiled but callerless"*, as `$MICRO` and `$NLS` are.
+
+**The reusable part**: both entries were written from the code and neither
+author read the commit that created the state they were describing. `git log`
+on the file answered both in under a minute.
