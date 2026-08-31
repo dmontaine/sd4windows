@@ -42952,6 +42952,46 @@ was written the previous session and sits at the TOP of `sdsys/changelog`,
 which is newest-first. **A `tail` of that file reads the oldest entries and
 concludes the newest is missing.**
 
+## 30 Aug 2026 — end of the 84th session: six closed, and the free checks were the lesson
+
+**Closed and proven by observation, none by inference:** 68 (`$cred` written
+through the helper), 72 (the half-created account, reproduced from the owner's
+own unelevated `logto sdsys`), 77 (the upgrade dialog, read on screen), 81
+(`api-firewall` could not restrict and said it had), 69 (message 10034 no longer
+asserts ssh), 54 (`verify-profiledir` wired and green on two runs). Plus 71's §6
+half and 74's text half. **Open 28 → 24.**
+
+***`-Run b72` IS GREEN IN BOTH HALVES*** — unelevated 15 of 15 (265 `[PASS]`),
+elevated 21 of 21 (411 `[PASS]`), **676 PASS / 0 FAIL** across 36 steps.
+
+***THE LESSON OF THE SESSION IS THE FREE CHECKS, AND IT COST A RUN TO LEARN.***
+78 took ADMINISTRATOR from 416 to 419. I updated `verify-tiers.ps1` and not
+`verify-tierapi.ps1`, and `-Run b70` was spent discovering it at step 21.
+`test-tiercounts-units.ps1` — written 28 Aug **for that exact failure**, needing
+no install, no elevation and no token — named it in under a second when finally
+run. **It was wired into nothing.** So the guard written for the failure sat
+unrun while the failure happened again. It is now step 1 of 16 in
+`VerifyInstall1`, which is 82.
+
+***FOUR OF MY OWN INSTRUMENTS LIED THIS SESSION AND ALL FOUR ARE IN THE
+RECORD.*** `find -name 'C:'` under MSYS reports nothing because the argument is
+mangled; `Test-Path` on that path answers False because a colon names an
+alternate data stream; a `-match '::1'` on a fixed file answers True because the
+literal survives in the comment explaining why it is not used; and a
+quote-matching regex broke on an apostrophe inside a PowerShell comment. **Each
+was caught by a control, not by re-reading the code.**
+
+***AND ONE ENTRY'S OWN PREMISE WAS WRONG.*** 73 says `secure-log.ps1` grants
+`sdusers:A`; that file's header says *"sdusers needs nothing at all here - not
+append"*. Only the audit trail is append-for-`sdusers`, and `AD` is AppendData
+and not ReadData — so the control it asks for cannot read back what it writes
+and needs three steps, not one. Not built, deliberately: a row that appended
+nothing would score PASS for doing nothing.
+
+**Entry 6 is no longer a one-liner**: reproduced, and it is not `sd.iss` —
+`sdsys\C:` with the real name `U+0043 U+F03A`, the Cygwin mapping of a colon,
+written by SD during the adopt step. The creating line is still unknown.
+
 ## 30 Aug 2026 — the documentation becomes one task, and the task table closes
 
 Owner: *"lets wrap all the outstanding documentation pre-release tasks into a

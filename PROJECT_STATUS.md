@@ -167,6 +167,55 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
 >
+> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 84th SESSION. START HERE. ⇩⇩
+>
+> ***NOTHING IS IN FLIGHT AND NOTHING IS HALF-BUILT. `assert-current` IS GREEN.***
+> Install **18:03:57**, `assert-current` **exit 0**, working tree clean and
+> pushed. **The session ended on low credits, not mid-task.**
+>
+> ***DO THIS FIRST — ONE COMMAND, ORDINARY UNELEVATED PowerShell:***
+> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b73 -ThenElevated`
+>
+> **It refuses an elevated parent deliberately** and hands over to
+> `VerifyInstall2` as its last act, so one command runs both halves.
+> ***SPENT: `b54`–`b72`, `sdswa1`–`sdswa5`, `sdtierv`, `sdtierw`, `sdapiaz1`.***
+>
+> ***WHAT `b73` DECIDES: 82's WIRING, WHICH IS THE ONLY THING BUILT AND UNRUN.***
+> `test-tiercounts-units.ps1` is now **step 1 of 16** in `VerifyInstall1`, ahead
+> of `verify-credacl`. Expect **16 of 16 unelevated** (was 15) and **21 of 21
+> elevated**. **If it does not appear as step 1, that is the finding.**
+>
+> ***NO CYCLE IS NEEDED FOR IT.*** Both `VerifyInstall1.ps1` and
+> `test-tiercounts-units.ps1` are on `assert-current`'s `$neverShipped`, so the
+> change does not make the tree stale — checked, not assumed.
+>
+> ***THE HABIT THIS SESSION PAID FOR TWICE: RUN THE FREE UNITS TESTS FIRST.***
+> All four are green right now — `tiercounts` 13/13, `sdtestuser` 51/0,
+> `verdict` 126/126, `fixlist` 217/0 — and **a whole suite run (`b70`) was spent
+> discovering what `test-tiercounts-units` names in under a second.** They need
+> no install, no elevation and no token.
+>
+> ***TWO THINGS BUILT AND NOT YET SEEN, NEITHER PROVABLE BY A CYCLE:***
+> **74**'s uninstall disclosure now names all four groups, and it shows only at
+> an **interactive** uninstall — `UninstallSilent` skips it, so it wants the
+> path 39 used. **77**'s dialog lost a sentence that went stale within hours
+> (it told the reader to edit `sd.conf` by hand, and **78** shipped `remote.api`
+> in the same install); that needs a **second install over an existing tree**,
+> since a cycle deletes it.
+>
+> ***THE BEST REMAINING RETURN ON ONE SITTING IS A VM CLONE WITH NO OpenSSH.***
+> **67**'s absent-server wizard case, **76**'s open branch of the scope default,
+> and **78**'s `ssh.server install|remove` all want that same rig. One guest,
+> three legs closed. `Windows 11 - Template` is the clone source and has no
+> OpenSSH capability — **do not prime it with one, that is 76's own warning.**
+>
+> ***AND `b71` IS RECORDED RATHER THAN TIDIED AWAY.*** It stalled after step 9
+> wrote `OK`, both processes at exactly **0 CPU**, no children but a console,
+> nothing executing; step 9 itself had completed cleanly. **The block was on the
+> next console write**, which reads as a wedged console rather than a defect.
+> **Unproven — file it only if it recurs at a DIFFERENT step.** It left
+> `sdacctb71`, `sdaclb71`, `sdcatgb71` in the register and `SDACCTB71` on disk.
+>
 > # ⇩⇩ `-Run b72`: GREEN IN BOTH HALVES. 36 STEPS, 676 PASS, 0 FAIL. ⇩⇩
 >
 > ***UNELEVATED 15 OF 15 (265 `[PASS]`), ELEVATED 21 OF 21 (411 `[PASS]`), ZERO
