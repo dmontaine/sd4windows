@@ -9281,11 +9281,39 @@ Each of these cost real time. Read before debugging anything similar.
   wrongly-filed blocker on 30 Aug: PRE_RELEASE 71.)* **The superseded text
   follows, kept because it is what a returning reader remembers:**
 
-- **THE INSTALLED DATA TREE IS NEVER UPGRADED, SO "TEST IT ON THE INSTALLED
-  SYSTEM" QUIETLY MEANS "TEST AN OLD BUILD".** `sd.iss` skips the entire
-  `sdsys` set when `C:\ProgramData\SD\sdsys` already exists, and the tree is
-  `uninsneveruninstall` — both deliberate, so that an upgrade cannot overwrite
-  a live database (§5.9). The consequence nobody had joined up: on
+- **INSTALLING OVER A LIVE TREE DOES NOT REFRESH EVERYTHING, SO "TEST IT ON THE
+  INSTALLED SYSTEM" CAN QUIETLY MEAN "TEST AN OLD BUILD".**
+
+  ***CORRECTED 30 Aug 2026 — PRE_RELEASE_FIXES 71. THE RULE BELOW IS UNCHANGED
+  AND THE REASON IT USED TO GIVE WAS FALSE.*** This bullet said *"THE INSTALLED
+  DATA TREE IS NEVER UPGRADED"* and *"`sd.iss` skips the entire `sdsys` set when
+  `C:\ProgramData\SD\sdsys` already exists"*, and both stopped being true on
+  **25 Aug 2026**, when the owner ruled *"preserve the user's own files, replace
+  all the shipped ones"* and `upgrade.iss` was built to do it. **`sd.iss:1044`
+  states the invariant that replaced them**: *"upgrade.iss is gated on this; the
+  whole-tree entry in `[Files]` is gated on `DataTreeAbsent`. One or the other
+  fires on every install, never both and never neither."*
+
+  ***WHAT AN UPGRADE ACTUALLY DOES*** is replace the shipped set — `gpl.bp`,
+  `syscom`, `newvoc`, `voc_template`, `messages`, `sd.voclib`, the objects and
+  the catalogue — and preserve `stage.py`'s `SDSYS_PRESERVE` list: `$cred`,
+  `accounts`, `cat`, `os.users`, `batch.jobs`, `prt`, `$hold`, and SDSYS's own
+  `bp`/`bp.out`. **`sd.conf` is `onlyifdoesntexist` and is never rewritten.**
+
+  ***SO WHY THE RULE STILL STANDS, AND IT MUST NOT BE WEAKENED ON THE STRENGTH
+  OF THIS CORRECTION.*** A cycle still begins from a deleted tree. What an
+  upgrade does NOT do is re-run anything — **PRE_RELEASE 70**: no existing
+  account, SDSYS included, gains a verb an upgrade adds to `newvoc` or
+  `voc_template`. So an upgraded tree is a *different* state from a fresh one,
+  and testing on it answers a question you did not ask. **A rule defended by a
+  false reason is one the next session argues with**, which is the whole cost
+  this correction is paying off: reading the old text as current, a session was
+  one step from filing a blocker claiming W1.0-0 could never be patched.
+
+  **CLAUDE.md's Testing section carries the same stale justification and is
+  deliberately NOT edited here** — it is the owner's standing-instruction file.
+
+  The consequence nobody had joined up: on
   14 Aug 2026 this machine ran an 08:32 data tree and an 08:32 `sd.exe` for the
   rest of the day while the repository moved on, and **every test run against
   "the installed system" after that was testing 08:32's code.** It cost a full
@@ -9302,10 +9330,16 @@ Each of these cost real time. Read before debugging anything similar.
   ```
 
   A `find <tree> -newer <stage>/MANIFEST.txt` over `sdsys/GPL.BP` and
-  `sdsys/MESSAGES` names the delta exactly. **Refreshing means uninstall, delete
-  `C:\ProgramData\SD`, reinstall** — the procedure at the top of this file.
-  There is no upgrade path (§7 step 3), and it will cost more once a tree holds
-  real data.
+  `sdsys/MESSAGES` names the delta exactly. ***AND `assert-current.ps1` IS THE
+  REAL ANSWER TO ALL OF THIS***, written after this bullet was: it compares
+  source mtimes against the install across six mirrored directories and refuses
+  a stale tree, which is a better instrument than any hand-check above.
+
+  **Refreshing for a TEST means uninstall, delete `C:\ProgramData\SD`,
+  reinstall** — the procedure at the top of this file, and `cycle.ps1` does it.
+  ***THAT IS ABOUT TESTING, NOT ABOUT WHETHER SHIPPING AN UPGRADE IS POSSIBLE***
+  — it is, since 25 Aug 2026, and the sentence that used to stand here saying
+  *"there is no upgrade path"* is corrected above.
 
 - **`sd -stop` LEAVES `sdwind` RUNNING WHEN THE STOPPING SESSION IS LESS
   ELEVATED THAN THE STARTING ONE. IT NOW SAYS SO; IT STILL CANNOT STOP IT.**
