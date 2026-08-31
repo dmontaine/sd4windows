@@ -43383,3 +43383,67 @@ it would have demanded it of every session from now on. Listed in the same
 commit that created them, which is section 7 step 7's rule and exactly what that
 rule is for. `test-deletioncheck-units` still passes, which is the check that
 lifts functions out of `assert-current` by AST and would notice the edit.
+
+## 30 Aug 2026 — the eight rulings, taken and built
+
+Owner: *"do the eight waiting on me."* All eight are decided and built; **none is
+observed**, and one cycle covers the lot. Open **23 → 15**.
+
+***THREE OF THEM CHANGED SHAPE ONCE THE CODE WAS READ, WHICH IS THE PART WORTH
+KEEPING.***
+
+**9 — the answer reversed.** "Delete the dead `int.umask`" looked obvious until
+`CPROC:1603` turned out to dispatch positionally — `on voc.rec<3> gosub …` — so
+removing slot 35 renumbers **PDUMP, PAUSE, CLEAR.ABORT, SET.EXIT.STATUS,
+REPORT.STYLE and LOGMSG**, each named by NUMBER in a shipped VOC record. Ten dead
+lines would have cost six live edits. **Ruled: keep it**, on the tree's own
+`$MICRO`/`$NLS` precedent, and document why the slot cannot go.
+
+**83 — the fix was already written down.** 36 says *"`DELETE_USER` takes the
+DIRECTORY first"*; the code ran `Remove-CimInstance` first, which removes both
+halves. Moving it inside the `-not $dirleft` guard implements the sentence that
+was already there — **and makes 10075 true again without rewording it**, which
+is why that shape beat "reword the message".
+
+**79's multi-way prompts dissolved.** They were deferred because Q and A are not
+simply "not yes" — but the default is a two-way question, *does Enter act*, and
+N is the answer that acts on nothing at all three. **`7143` turned out to default
+to Y already**: `SPVIEW:297` pre-sets `yn = 'Y'` before a one-character input, so
+Enter has always accepted it and only the prompt was silent. Wording only.
+
+***AND ONE DEFERRAL WAS DISCHARGED BY DOING THE WORK IT ASKED FOR.*** `ED`'s
+`yes.no` was left alone because a default there changes five prompts nobody had
+looked at. Looked at: all six callers are `gosub yes.no / if no then return`
+around a destructive action, so N is right at every one.
+
+**44 took the shape that protects the other call site.** 5161 is shared with
+`SETACC:67` for a different cause, so it is left untouched and a new 10150 is
+printed only where the cause is known — `logto.authorised` has just passed, so
+the grant exists and only the chdir failed.
+
+**8 could not point at documentation, because none ships.** `C:\Program Files\SD`
+is scripts, the changelog and two editors. 10149 names only what exists: `list
+voc`, and the Start Menu check whose wording is copied from `check-install.ps1`'s
+own output.
+
+**85 pays off 75's flagged cost** on the parent/child shape already ruled for ssh
+— and the old line was worse than it read: `Wanted := ApiWanted` could only ever
+be true there, so **the `-Restrict` arm was dead code and every install that
+provided the API opened 4243 to the network.**
+
+***THE TEN MESSAGES WENT BY THE BYTE-LEVEL ROUTE 79 PREDICTED WOULD RECUR*** —
+the editing tools strip the trailing space that separates prompt from answer.
+`reword-yn-prompts.ps1` asserts, per file, that the old text appears **exactly
+once**, that the file grows by **exactly** the length difference, and that the
+tail is unchanged byte for byte; it **refuses a second run**, 0 of 10.
+
+**Pre-flighted, since none of it can be observed yet**: the PowerShell
+`DELETE_USER` builds was reconstructed from its `ps :=` lines and parsed — 0
+errors, 27/27 braces — and the reconstruction asserts the new ordering it exists
+for. Seven free unit tests green. No BOM, CR or non-ASCII introduced into any
+shipped file, **measured against `HEAD` rather than assumed** — only CLAUDE.md's
+count moved, by one, matching its own em-dash style.
+
+***AND `$neverShipped` BIT FOR THE SECOND TIME IN ONE SESSION.***
+`reword-yn-prompts.ps1` was added to it in the commit that created it, without
+waiting for `assert-current` to demand a pointless cycle first.

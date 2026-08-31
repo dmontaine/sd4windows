@@ -186,6 +186,39 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > was added rather than substituted. **676 → 693 is exactly its 13 plus 65's
 > four**, which is how the totals were reconciled rather than eyeballed.
 >
+> # ⇩⇩ DO THIS FIRST: ONE CYCLE, ELEVATED. EIGHT RULINGS ARE BUILT AND UNRUN. ⇩⇩
+>
+> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+>
+> ***THEN, ORDINARY UNELEVATED PowerShell — THIS ONE EARNS A FULL SUITE:***
+> `powershell -ExecutionPolicy Bypass -File C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b77 -ThenElevated`
+>
+> **The milestone rule below says full-suite before a release or a handoff. This
+> is both**: eight entries in one batch, touching BASIC, messages, `newvoc` and
+> the installer. ***SPENT: `b54`–`b76`. USE `b77`.***
+>
+> ***WHAT TO READ FIRST, IN THIS ORDER:***
+>
+> - ***`verify-tiers` — STANDARD MUST READ 355***, with PROGRAMMER 396 and
+>   ADMINISTRATOR 419 **unmoved**. That asymmetry is the check on 7's arithmetic;
+>   if either of the others moved, `sort.item` reached `newvoc` instead of
+>   leaving the omit list. `test-tiercounts-units` is step 1 and already agrees.
+> - ***`verify-delaccount` step 6 — IT SHOULD NOW BE 54 of 54.*** 83's reorder is
+>   what makes `the ProfileList entry was KEPT with it` pass. **If it still fails,
+>   83 is not fixed** and the reorder did not do what the reconstruction said.
+> - **The installer wizard** — the API box is now a parent with a child,
+>   `apiremote\apinetwork`. **Ticking the parent alone must leave the rule
+>   RESTRICTED**; that is 85, and only a real install shows it.
+>
+> ***NOTHING HERE HAS BEEN OBSERVED. IT IS ALL PRE-FLIGHTED AND ALL UNRUN.***
+> What was checked without a cycle: the PowerShell `DELETE_USER` builds parses
+> with **0 errors and 27/27 braces**, and asserts its own new ordering; seven
+> free unit tests are green (`suiteonly` 48/48, `tiercounts` 13/13, `fixlist`
+> 221/0, `verdict` 126/126, `sdtestuser` 51/0, `deletioncheck`, `sysmsg` 43/0);
+> no BOM, CR or non-ASCII was introduced into any shipped file — **measured
+> against `HEAD`, not assumed**. ***ONLY ISCC CAN JUDGE `sd.iss`, and only
+> against a staged tree, which is the cycle.***
+>
 > # ⇩⇩ THE FULL SUITE IS NO LONGER THE DEFAULT. OWNER'S RULING, 30 Aug 2026. ⇩⇩
 >
 > *"Add `-Only`, and drop the full run to milestones."* **A full run is ~20

@@ -406,12 +406,29 @@ prompted it — a still-running SD service, and `ISCC` run from a directory wher
 `gplbld\sd.iss` does not resolve — are now structurally impossible rather than
 merely written down. PROJECT_STATUS.md §"START HERE" has both.
 
-Why it is a rule and not a preference: **the installer deliberately never
-overwrites an existing `C:\ProgramData\SD\sdsys`**, so "I tested it on the
-installed system" silently means "I tested the build that first created that
-tree". This has cost whole investigations of bugs already fixed —
-PROJECT_STATUS.md §6, "the installed data tree is never upgraded", and the
-four-fault run in HISTORY.md.
+Why it is a rule and not a preference, ***CORRECTED 30 Aug 2026 —
+PRE_RELEASE_FIXES 71. THE RULE IS UNCHANGED AND THE REASON IT USED TO GIVE WAS
+FALSE.*** This paragraph said **the installer deliberately never overwrites an
+existing `C:\ProgramData\SD\sdsys`**, and that stopped being true on **25 Aug
+2026**, when the owner ruled *"preserve the user's own files, replace all the
+shipped ones"* and `upgrade.iss` was built to do it. `sd.iss:1044` states the
+invariant that replaced it: *"upgrade.iss is gated on this; the whole-tree entry
+in `[Files]` is gated on `DataTreeAbsent`. One or the other fires on every
+install, never both and never neither."*
+
+**The real reason is worse, not weaker: AN UPGRADE REPLACES FILES AND RE-RUNS
+NOTHING** (PRE_RELEASE_FIXES 70). `gpl.bp`, `syscom`, `newvoc`, `voc_template`,
+`messages` and `sd.voclib` are replaced, while `$cred`, `accounts`, `cat`,
+`os.users`, `batch.jobs`, `prt`, `$hold`, `bp` and `bp.out` are preserved — so a
+BASIC or message fix *does* reach an existing tree, but **no existing account,
+including SDSYS's own, ever gains a new verb.** "I tested it on the installed
+system" therefore still means "I tested a tree whose per-account state is
+whatever the first install left". This has cost whole investigations of bugs
+already fixed — PROJECT_STATUS.md §6 and the four-fault run in HISTORY.md.
+
+**A rule defended by a false reason is one the next session argues with**, and
+this one was a step away from being argued into a wrongly-filed blocker.
+`gplbld/assert-current.ps1` is the instrument that replaced the hand-checks.
 
 **Do not reason your way out of it.** Hashing a few files that look current is
 not evidence the tree is: the files you would think to check are the ones you
