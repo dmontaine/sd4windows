@@ -167,14 +167,46 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
 > be missed the same way.
 >
-> ***BATCH 1 IS BUILT AND UNRUN: 73's MISSING LEG AND 86's CHECKER.*** Both are
+> # ⇩⇩ BATCH 1 IS RUN AND GREEN. 73 IS CLOSED. OPEN COUNT 16 → 15. ⇩⇩
+>
+> ***`-Run b80`, UNELEVATED, `PARTIAL - 2 of 17 step(s), all exited 0`.***
+> `test-stemcoverage-units` **19 of 19**; `verify-sdsyswrite` **12 of 12, zero
+> FAIL**. **17 and not 16** is the arithmetic that says the new step was added
+> rather than substituted. ***SPENT: `b79` AND `b80` — USE `b81`.*** `b79` bought
+> nothing: it refused on `assert-current` before `verify-sdsyswrite` ran, but the
+> runner had already made and removed `sdtub79`.
+>
+> ***68's FIX IS NOW POSITIVELY CONFIRMED, NOT INFERRED.*** `unelevated SDSYS can
+> write $cred` and `… os.users` are both **True** from the session shape that
+> used to fail, on a file written to be red until 68 was fixed. **Step 6's
+> evidence**: probe `ZZAUD2B5E158F1D01`, before `len=53441 token=False`, SD
+> answered *"User not allowed in requested account"*, after `len=53754
+> token=True`. ***THE GROWTH WAS 313 BYTES, NOT ONE RECORD*** — `LOGTO SDSYS`
+> audits its own elevation — **which is why the check is the NAME and not the
+> size**. The unelevated process could not read the file at all (`icacls …
+> Access is denied`), so the three-step shape was forced by the ACL.
+>
+> ***THE ONE THING THAT COST A RUN, AND IT IS WRITTEN UP IN `assert-current.ps1`
+> FOR THE FOURTH TIME***: a new `gplbld` script must be listed on
+> `$neverShipped` **in the commit that creates it**, or the tree reports STALE
+> merely because the file exists and every verifier calling `assert-current`
+> refuses. `test-stemcoverage-units.ps1` was not listed, so `b79`'s
+> `verify-sdsyswrite` exited **2** — refused, nothing measured — while the step
+> that made the tree stale had itself passed in the same run.
+>
+> ***AND `-Only` WITH TWO NAMES MUST BE QUOTED.*** `-Only a,b` binds as an ARRAY
+> and fails parameter transformation before anything runs; `-Only 'a,b'` is
+> correct. `suite-only.ps1` splits on `[,;]`, so the form is real — but every
+> example in CLAUDE.md is single-name and the quoting is documented nowhere.
+>
+> ***BATCH 1 WAS: 73's MISSING LEG AND 86's CHECKER.*** Both are
 > `gplbld` only — no cycle, no source under `gplsrc` or `sdsys`, nothing
 > installed. **73** gains step 6 of `verify-sdsyswrite.ps1`, the positive control
 > on the SESSION: the audit trail is the one protected store `sdusers` may
 > append to, so a green step 6 means any failure on the two write rows is about
 > `$cred` and `os.users`, and a red one means the session itself is the problem
-> and those rows say nothing. **It has not run** — it needs an unelevated parent
-> and one consent. **86**'s checker is `test-stemcoverage-units.ps1`, and it
+> and those rows say nothing. ***IT HAS NOW RUN AND IS GREEN — see the b80 block
+> above; this paragraph described it while it was still unrun.*** **86**'s checker is `test-stemcoverage-units.ps1`, and it
 > found `sdprof` and `sdsw` on its first run, which is **four** families missed
 > across three occasions. ***IT IS NOW A STEP IN `VerifyInstall1`, SO THE
 > UNELEVATED HALF IS 17 STEPS, NOT 16*** — a `16 of 16` on the next run means it
