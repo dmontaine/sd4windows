@@ -43361,8 +43361,18 @@ names omitted `verify-nocase` and `verify-lineendings`, because no `-Run` meant
 those were already skipped. Filtering earlier would have let `-Only` name a step
 the run was never going to reach and call that a match.
 
-**Unrun: `VerifyInstall2`'s wiring**, which needs elevation. Same six lines and
-the same unit-tested filter; `-Only verify-fold` is a ten-second proof.
+***AND THEN THE ELEVATED HALF WAS PROVEN TOO, THE SAME EVENING.***
+`VerifyInstall2.ps1 -Run b76 -Only verify-fold`: the `PARTIAL RUN - 1 of 21`
+banner, the step named, *"This run says NOTHING about the steps it did not
+run"*, `verify-fold` **10 of 10**, `post-cycle summary - PARTIAL, 1 of 21`, and
+`VerifyInstall2: PARTIAL - 1 of 21 step(s) run, all exited 0.` **Seconds instead
+of fifteen minutes.** `assert-current` ran inside the step and read exit 0, so
+the `$neverShipped` addition holds on the elevated path as well. **Nothing about
+`-Only` is unrun.**
+
+**Take a fresh `-Run` token even for a one-step run.** `b76` created no account,
+so it is arguably still usable — and working that out per step is the judgement
+that costs a run when it is wrong. Tokens are free.
 
 ***AND THE GUARD CAUGHT THE AUTHOR OF THE GUARD.*** `assert-current` went **red**
 the moment the two new files existed — *"STALE: 2 source file(s) are newer than

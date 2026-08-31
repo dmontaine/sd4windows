@@ -194,14 +194,20 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > short form is: free unit tests on every change, `-Only` for the step that
 > decides it, **full suite before a release and before a handoff.**
 >
-> ***THE ONE THING THAT IS UNRUN: `VerifyInstall2`'s `-Only` WIRING.***
-> `VerifyInstall1`'s is proven both ways (below). The elevated half shares the
-> same unit-tested filter and the same six lines, but needs elevation to run.
-> **Cheapest possible proof, ~10 seconds, ELEVATED PowerShell:**
-> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b76 -Only verify-fold`
-> Expect a `***** PARTIAL RUN - 1 of 21 step(s) *****` banner and a closing
-> `VerifyInstall2: PARTIAL - 1 of 21 step(s) run, all exited 0.`
-> ***SPENT: `b54`–`b75`. USE `b76`.***
+> ***BOTH HALVES ARE PROVEN. NOTHING ABOUT `-Only` IS UNRUN.***
+> `VerifyInstall2.ps1 -Run b76 -Only verify-fold`, elevated, 30 Aug 2026:
+> `***** PARTIAL RUN - 1 of 21 step(s), because -Only was given *****`, the step
+> named, *"This run says NOTHING about the steps it did not run"*, `verify-fold`
+> **10 of 10**, `===== post-cycle summary - PARTIAL, 1 of 21 step(s) =====`, and
+> `VerifyInstall2: PARTIAL - 1 of 21 step(s) run, all exited 0.` **Seconds
+> instead of fifteen minutes**, and `assert-current` ran inside the step and read
+> **exit 0**, so the `$neverShipped` addition holds on the elevated path too.
+> ***SPENT: `b54`–`b76`. USE `b77`.***
+>
+> ***ALWAYS TAKE A FRESH TOKEN, EVEN FOR A ONE-STEP RUN.*** `b76` created no
+> account — `verify-fold` makes SD files and cleans them up — so it is arguably
+> still usable. **Working that out per step is exactly the judgement that costs a
+> run when it is wrong**, and tokens are free. Burn one.
 >
 > ***PROVEN UNELEVATED, BOTH DIRECTIONS, NO SUITE SPENT:***
 > `VerifyInstall1.ps1 -Yes -Only test-tiercounts-units` → `PARTIAL RUN - 1 of 12`,
