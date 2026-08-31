@@ -1992,3 +1992,54 @@ a **description**, and the `LISTF` column is a **lookup into the latter**.
 Reading one record out of one of them, against one record out of another, made
 a deliberate design look like a shipped defect — and every sentence of the
 report above is individually accurate.
+
+---
+
+## 28. `k_error()` truncates every message to about 84 characters, on a buffer sized for 241
+
+`gplsrc/k_error.c` builds the error text in a buffer sized from the **product**
+of the two constants, and then bounds the write with their **sum**:
+
+```c
+  char s[(MAX_ERROR_LINES * MAX_EMSG_LEN) + 1];   /* 3 * 80 + 1 = 241 */
+  ...
+  vsnprintf(&(s[n]), (MAX_ERROR_LINES + MAX_EMSG_LEN) + 1,  message, arg_ptr);
+                   /* 3 + 80 + 1 = 84 */
+```
+
+`MAX_ERROR_LINES` is 3 and `MAX_EMSG_LEN` is 80 (`gplsrc/sddefs.h`), and the
+comment beside the declaration says *"Max 3 lines"*. So the buffer is deliberately
+sized for three 80-column lines, and the writer is told it has room for one.
+
+**Every message that goes through `k_error()` is cut at roughly 84 characters.**
+Nothing in the shipped message set is long enough for it to be obvious, which is
+presumably why it has survived: it looks like the messages are simply short.
+
+It came to light here while adding a longer one. The rendered result was:
+
+```
+000000E5: Error 3023 writing record: no lock is held on it.
+A WRITE must already hold an u
+```
+
+cut mid-word, losing the sentence that told the reader what to do about it.
+
+**The fix is not to correct the typo.** Changing the `+` to a `*` would pass 241
+— but `n` already holds the length of a `"%08X: "` offset prefix written into
+`s` a few lines earlier, so `vsnprintf` would then be free to write to `n + 241`
+in a 241-byte buffer. That converts a truncation into a buffer overflow.
+
+**Use the buffer's own size instead**, which stays correct if either constant
+ever changes:
+
+```c
+  vsnprintf(&(s[n]), sizeof(s) - n,  message, arg_ptr);
+```
+
+Note `n` is 0 on the branch that writes no prefix, so the expression is right on
+both paths.
+
+**Fixed here on 31 Aug 2026** exactly as above. Confirmed identical on upstream
+`main` at commit `ae0cc5f`, `sd64/gplsrc/k_error.c:207`.
+
+`FIXED HERE — PROPOSED UPSTREAM`

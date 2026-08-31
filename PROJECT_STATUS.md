@@ -167,7 +167,40 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
 > be missed the same way.
 >
-> # ⇩⇩ BATCH 2 IS BUILT AND NEEDS A CYCLE. `sd.exe` HAS MOVED. ⇩⇩
+> # ⇩⇩ BATCH 2 MEASURED: 24 IS CLOSED, 12 WORKS AND FOUND 87. ONE MORE CYCLE. ⇩⇩
+>
+> ***MEASURED ON THE 00:48:04 INSTALL, THEN THE TREE MOVED AGAIN — `sd.exe` IS
+> NOW `87701F86…`, WAS `8E1264DB…`.*** A second cycle is owed:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **Elevated PowerShell.** After it, re-run the two probes in the scratchpad —
+> `probe-tasklock.ps1` and `probe-nolockmsg.ps1`, both **unelevated**, the first
+> raising one consent of its own for `sd -cleanup`.
+>
+> ***24 IS CLOSED, AND THE CONTROL IS WHY IT COUNTS.*** A background session
+> took `LOCK 5`, was killed with `taskkill /F`, and ***the lock SURVIVED the
+> kill*** — without that row, `sd -cleanup` freeing it afterwards would have
+> scored a pass for something the kill had already done. Then `sd -cleanup`
+> elevated, exit 0, and `LIST.LOCKS` answered **"No task locks reserved by any
+> user"**.
+>
+> ***12's BRANCH WORKS AND THE MEASUREMENT FOUND A SECOND DEFECT.*** The refusal
+> printed *"no lock is held on it"* and **not** *"Possible full disk"* — the
+> success anchor appears only in 10151, the disqualifier only in 1407. **But it
+> arrived cut mid-word at "A WRITE must already hold an u".**
+>
+> ***THAT IS 87, AND IT IS BIGGER THAN 12.*** `k_error()` sizes its buffer from
+> `MAX_ERROR_LINES * MAX_EMSG_LEN` (241) and bounds the write with
+> `MAX_ERROR_LINES + MAX_EMSG_LEN` (84) — **`+` where the allocation used `*`**
+> — so **every** error message in the product has been truncated at ~84
+> characters. ***DO NOT "FIX THE TYPO"***: passing the corrected 241 would let
+> `vsnprintf` write to `n + 241` in a 241-byte buffer, because `n` is already 10
+> bytes of `"%08X: "` prefix. It is `sizeof(s) - n`.
+>
+> # ⇩⇩ BATCH 2 WAS BUILT HERE. `sd.exe` HAS MOVED TWICE. ⇩⇩
 >
 > ***`bin/sd.exe` IS NOW `8E1264DB…`, WAS `4732ECF6…`. THE INSTALLED TREE IS
 > BEHIND THE SOURCE UNTIL A CYCLE RUNS*** — `assert-current` will refuse, and
