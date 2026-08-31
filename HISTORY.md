@@ -43593,3 +43593,55 @@ one solved a week early for ssh and not for the API.
 **Neither defect is fixed.** The ruling is recorded so the next control is not
 built the same way, and the off direction is the one to check: the on direction
 is the one anybody thinks to test.
+
+### The upgrade ruling, and the gap the owner found in his own ruling
+
+Owner, 31 Aug 2026: *"on an upgrade, just skip this page entirely. If the admin
+wants to make additional choices, we have given them the command line tools."*
+
+**Put to him first: skipping the page does not DESELECT the tasks.** Inno still
+initialises them from their defaults plus the `UsePreviousTasks` restoration and
+`WizardIsTaskSelected` keeps answering, so hiding the page alone would turn
+"visible but inert" into **invisible but active** - `ApplyApiFirewall` and
+`ApplySshFirewall` firing from state nobody saw, and `install-ssh.ps1` able to
+install a server silently. He then found the other half himself: *"we do not
+have a user command to change the path."* Confirmed - **no shipped script
+touched `PATH`**; the only code that ever removed the entry was
+`RemoveFromPath` at `usUninstall`.
+
+`gplbld/sd-path.ps1`, `-Show` / `-Add` / `-Remove`, is that command.
+**Deliberately the same logic as `sd.iss`'s `RemoveFromPath`, not a second
+opinion**, because that procedure has already paid for the `;`-padded match and
+for the trailing-empties loop - the bug that put *23 empty entries in 30* on the
+owner's PATH on 16 Aug 2026.
+
+**Two traps, one of them found by the test rather than by a machine:**
+
+- ***`[Environment]::SetEnvironmentVariable(..., 'Machine')` CORRUPTS `PATH`***
+  - it writes REG_SZ and expands on the way through, so `%SystemRoot%\system32`
+  comes back as a literal and stops tracking. Reads raw with
+  `DoNotExpandEnvironmentNames`, writes `ExpandString`.
+- ***THE PASCAL DOES NOT TRANSLATE.*** `Copy(Path, P + Length(Dir) + 1, MaxInt)`
+  returns `''` past the end; .NET's `Substring` **throws**. Our entry is LAST on
+  every machine Inno installed - it always appends - so that is the common case,
+  and it surfaced on the third unit test rather than on somebody's PATH.
+
+`test-sdpath-units.ps1` lifts the three pure functions by AST and drives them
+against synthetic values: **24 of 24**, including the 23-empties case and a
+round-trip that proves `%SystemRoot%` survives.
+
+### And the documentation checker was already refusing
+
+The owner asked that documentation for the new commands be part of PRE_RELEASE
+80. Checking it turned up that **the doc tree has been red since 30 Aug**:
+`tclmap.py` exits **1** with roster **146**, assigned **143**, and three
+`NO PAGE` rows for `remote.api`, `remote.ssh` and `ssh.server`.
+
+**The checker is not at fault, which is the useful part** - it computes the
+roster from `newvoc` plus `TIER.ADD.ADMINISTRATOR`, so it noticed the moment
+entry 78 added those verbs. **Nobody ran it.** Task-table H.2's *"tclmap 143 of
+143, 0 exempt"* is stale and would have told the next session the docs were
+green. ***What would have caught it: nothing here could*** - `tclmap.py` lives
+in the other repository and no tier-1 check in this one runs it, so adding an
+administrator verb here silently breaks a checker there. **That cross-repo gap
+is the thing to fix, not the three pages.**
