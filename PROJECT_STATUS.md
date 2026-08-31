@@ -199,10 +199,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > needs fixing — it is not wrong about what to DO, only about why.
 >
 > ***OWNER'S RULE, 30 Aug 2026 — Y/N PROMPTS MUST SHOW THEIR DEFAULT***, written
-> `<y>/n` or `y/<n>`. Both new prompts use `y/<n>` and Enter genuinely takes it.
-> ***THE EXISTING PROMPTS DO NOT AND ARE NOT RETROFITTED HERE*** — `10084`,
-> `10085` and the `CREATEA`/`DELETEF` questions all loop on an empty answer
-> instead. **That is a sweep of its own and nobody has filed it yet.**
+> `<y>/n` or `y/<n>`. **The sweep is FILED AND MOSTLY DONE as 79**: 11 messages
+> reworded, 9 code sites changed. ***THE PROMPTS WERE NOT ALL ONE SHAPE, WHICH
+> IS THE THING TO KNOW*** — three of them (`3044`, `10008`, `6588`) **already
+> defaulted to N and simply never said so**, so they needed wording only.
+> **`6521` is used twice in `ED`** and a `head -1` grep found one.
+> ***AND THE MESSAGES CANNOT BE EDITED BY HAND***: each ends in a trailing space
+> that `Edit` and `Write` both strip, so a scripted byte substitution was used
+> under CLAUDE.md's own exemption, verified at +2 bytes per file with the tail
+> intact. **Left open in 79 on purpose**: the three multi-way prompts (Y/N/Q,
+> Y/N/A, Y/N/Q/?) whose default is a ruling; `ED`'s `yes.no`, which has **six**
+> callers of which only one is inventoried; and four dead messages.
 >
 > # ⇩⇩ 77: THE UPGRADE DIALOG SAID THE OPPOSITE OF WHAT RAN — FIXED. ⇩⇩
 >
