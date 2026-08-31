@@ -170,8 +170,15 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >    C:\Users\dmont\sdout\sd-setup-W1.0-0.exe
 >    ```
 >    **It asks for elevation itself.** ***THIS is the upgrade path.*** The tasks
->    page must **NOT** appear, and the closing box must carry the new paragraph
->    naming `remote.ssh`, `remote.api`, `ssh.server` and `append.sd.path`.
+>    page must **NOT** appear; ***"Ready to Install" must NOT list any
+>    additional tasks*** but describe the upgrade and name the four commands;
+>    and the closing box must carry the matching paragraph.
+>
+>    ***THE READY PAGE IS THE HALF THAT WAS MISSED FIRST TIME.*** Skipping the
+>    tasks page leaves the tasks SELECTED, and Inno's memo lists selected
+>    tasks — so the upgrade promised four things the gates guarantee it will
+>    not do. Owner saw it immediately. `UpdateReadyMemo` now rewrites that page
+>    on an upgrade only.
 >
 > 3. Afterwards, confirm nothing moved: `remote.ssh` and `remote.api` must
 >    report the same state as before the second install, and
