@@ -167,7 +167,28 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
 > be missed the same way.
 >
-> # ⇩⇩ BATCH 2 MEASURED: 24 IS CLOSED, 12 WORKS AND FOUND 87. ONE MORE CYCLE. ⇩⇩
+> # ⇩⇩ BATCH 2 IS DONE AND MEASURED. 12, 24 AND 87 ALL CLOSED. OPEN COUNT 13. ⇩⇩
+>
+> ***INSTALL 31 Aug 01:05:10, `sd.exe` `87701F86382AEA63`, `assert-current`
+> exit 0 live.*** Both probes green on it, and **12/87's is a before-and-after
+> on the same instrument** rather than a fresh green: one install earlier the
+> same probe printed *"…must already hold an u"*, and now all three lines of
+> message 10151 arrive.
+>
+> ***THE TWO PROBES LIVE ONLY IN A SCRATCHPAD AND WILL NOT SURVIVE THE
+> SESSION.*** `probe-nolockmsg.ps1` (seconds, unelevated, no run token) and
+> `probe-tasklock.ps1` (~15s, one consent of its own). **Neither is in
+> `gplbld` and neither is wired into a runner**, so nothing re-checks 12, 24 or
+> 87 ever again. **Promoting them is the owner's call**, and the cost is two
+> more suite steps against a full run he has already asked to keep short —
+> `nolockmsg` is the cheap one and covers the defect that hid for years.
+>
+> ***AND 87 IS THE ARGUMENT FOR MEASURING RATHER THAN REVIEWING.*** The bound
+> is compiled in, so no unit test could have caught it, and it survived every
+> source reading this project has done. It was found by looking at what a
+> message actually printed.
+>
+> # ⇩⇩ HOW BATCH 2 GOT THERE ⇩⇩
 >
 > ***MEASURED ON THE 00:48:04 INSTALL, THEN THE TREE MOVED AGAIN — `sd.exe` IS
 > NOW `87701F86…`, WAS `8E1264DB…`.*** A second cycle is owed:
