@@ -146,6 +146,66 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***THE OWNER IS RESUMING THIS SAME SESSION, NOT STARTING A NEW ONE*** — but
 > this block is written as if he were not, because that is what it is for.
 >
+> # ⇩⇩⇩ THE `!ps_script` REFACTOR TOUCHES 14 PROGRAMS. TEST IT AS A MILESTONE, NOT A CHANGE. ⇩⇩⇩
+>
+> ***PRE_RELEASE 90 MOVED `!ps_script`'s BODY.*** Four verbs gained NEW
+> behaviour (they print a report); the other ten must behave **identically**,
+> so most of this is regression testing, not feature testing. **The owner asked
+> the right question — "shouldn't I test all the possible affected commands?"
+> — after being handed a two-command list. He should have had this.**
+>
+> **The 14, and what reaches each:**
+>
+> | program | reached by |
+> |---|---|
+> | `ELEVATE` | ***`logto sdsys` ITSELF.*** If this broke you cannot enter SDSYS at all, so every other test below implicitly proves it |
+> | `CREATE_USER`, `SET_PASSWD`, `OS_GROUP`, `PROFILE_DIR`, `CRED_SET` | `create.account` — **and the INSTALLER's own account step**, so a clean install is already evidence |
+> | `CREATEA` | `create.account` |
+> | `MODIFYA` | `modify.account` |
+> | `DELETE_USER` | `delete.account` (`$DELACC`) |
+> | `APISRVR` | any API login |
+> | `APNDPATH`, `REMOTEAPI`, `REMOTESSH`, `SSHSRVR` | the four report verbs — **the only ones whose behaviour is meant to change** |
+>
+> ***SO: FULL CYCLE, THEN THE FULL SUITE.*** The suite already covers
+> create/delete/modify account, the API and the tiers — which is most of the
+> ten. `-Only` is the wrong tool here; this is the milestone case §"The full
+> verify suite runs at milestones" was written for.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b81
+> ```
+>
+> **Both ELEVATED PowerShell.** ***SPENT: `b54`–`b80`; `b81` IS FREE.***
+>
+> ***THEN THE FOUR REPORTS BY HAND, BECAUSE NO SUITE STEP RENDERS ONE*** — the
+> same blind spot the tasks page had:
+>
+> ```
+> append.sd.path
+> remote.api
+> remote.ssh
+> ssh.server
+> ```
+>
+> Each must print its script's report **laid out on separate lines**. A single
+> line studded with boxes is the field-mark bug again; nothing at all is the
+> original defect.
+>
+> ***AND THE ACTIONS, WHICH MUST BE UNCHANGED — ONE LINE EACH, NO REPORT:***
+> `append.sd.path on` / `off`, `remote.ssh on` / `off`, `remote.api on` /
+> `local` / `off`.
+>
+> ***DO NOT TEST `ssh.server remove`.*** It strands every SD account — they sign
+> in over ssh and nothing else — and completes on a reboot. `ssh.server` bare
+> and `install` are safe; `remove` is not a test, it is a rebuild.
+>
+> **`remote.api off` is reversible but real**: it rewrites `sd.conf` and wants a
+> service restart, so put it back with `remote.api on` when done.
+>
 > # ⇩⇩ `append.sd.path` COMPILES. IT HAS NOT RUN. THAT IS THE NEXT STEP. ⇩⇩
 >
 > ***`cycle.ps1 -SkipInstall`, 31 Aug 2026 09:06:15: ISCC exit 0,
