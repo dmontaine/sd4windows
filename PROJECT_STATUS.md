@@ -147,7 +147,28 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > Read **PRE_RELEASE 91** and **§5.22** first; both were written today for this
 > hand-over and between them carry the whole model.
 >
-> **1. PRE_RELEASE 91 — ⚠️ CYCLED AND INSTALLED 31 Aug 2026. THE SUITE IS OWED.**
+> **1. ✅ PRE_RELEASE 91 IS CLOSED — `-Run b85`, GREEN IN BOTH HALVES.**
+> ***UNELEVATED 18 OF 18, ELEVATED 21 OF 21, 290 `[PASS]`.***
+> `verify-logtoaccess: PASSED - 6 of 6 decisive checks passed` —
+> `arrivals into SDTUB85` **2**, `back at home in DON` **1**, no 10003, no 5161,
+> both controls green. **The ruling on 19 is met by a passing leg, not by
+> argument.**
+>
+> ***THE ONE `[FAIL]` IN 290 IS FILED AS 92 AND IS NOT A VERDICT.***
+> `verify-doors`' **non-decisive local witness** (`5 of 5 decisive, 7 rows`).
+> **91 is what changed it**: an administrator as themselves now passes
+> `logto.authorised` above the SUSPENDED block, as an elevated session always
+> did, so `WHO` said `107 DON` and the leg saw 5161 rather than 10107. **That is
+> 5.22 working**; the row's `expected True` is what is now wrong. ***NOT
+> FLIPPED*** — entry 64 carries that instruction for this exact reflex.
+> **Measured across 23 transcripts**: PASSED on every run to 09:57, FAILED on
+> both after 91 landed.
+>
+> ***AND 65's OPEN QUESTION IS ANSWERED BY THE SAME RUN: THREE LEAKERS, NOT
+> TWO.*** `verify-tiers` leaks the same way and 65 never named it.
+>
+> *(The state this box described before that run:)*
+> **PRE_RELEASE 91 — CYCLED AND INSTALLED 31 Aug 2026.**
 > ***FULL CYCLE, INSTALL 31 Aug 13:33:28, `assert-current` EXIT 0 LIVE***
 > (3,020 files across the six mirrored directories, `sd.exe`
 > **`87701F86382AEA63`**, `bin\` 00:59:39 with no source newer — unchanged, and
@@ -303,7 +324,9 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > - ***`b54`–`b82` SPENT. USE `b83`.***
 > - ***OPEN COUNT 16, READ FROM `test-fixlist-units.ps1` AND NEVER FROM PROSE***:
->   3, 6, 16, 20, 28, **65**, 66, 67, 70, 74, 76, 78, 80, 88, 89, **91**.
+>   3, 6, 16, 20, 28, **65**, 66, 67, 70, 74, 76, 78, 80, 88, 89, **92**.
+>   **91 CLOSED on `-Run b85`; 92 filed from the same run.** *(`b54`–`b85`
+>   spent — use `b86`.)*
 >   *(Was 14 + 91 when this box was written. **65 was RE-OPENED 31 Aug 2026** —
 >   its product half is fixed and proven on `b74`, its HARNESS half is not, and
 >   `-Run b84` reproduced the symptom: `os.users` holding `SDRTB84A` and
