@@ -43934,3 +43934,46 @@ family over, in the call that actually does the work.
 Tier-1 green: fixlist **230/0** (open 25 → 26), tiercounts 15/15, verdict
 140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0. **Sweeps 5–6
 still owed**; full suite still owed by the owner, `b85` still the last one.
+
+## 31 Aug 2026 — sweep 5 of six done: the upstream `sysmsg` ranges are clean; 104 found in passing
+
+**23 success-assertions identified from the message texts in the named ranges,
+22 with call sites, and every one correctly gated.** Documentation only.
+
+***THE UPSTREAM RANGES ARE IN BETTER SHAPE THAN THE PORT-ERA `10xxx` ONE, WHICH
+IS THE OPPOSITE OF WHAT THE BOX EXPECTED.*** `10xxx` produced **94**;
+Ladybridge's produced nothing. `6136`/`6137`/`6141` are gated on
+`ospath(…, OS$DELETE)` with 6138/6142 on the else; `6153`/`6155` on `osrename`
+with 6154/6156; and `6158`, `6194`, `3029`–`3031`, `3038`–`3042`, `3221`,
+`3251`, `6189`/`6190` all sit behind either an `on error … stop` or a **bare**
+`write`/`delete`. **Sweep 4's verification that a bare statement really does
+abort is what made this sweep cheap** — the two belong in that order.
+
+**Two things read as defects and are not.** ***`AUTOLOGOUT:52` prints 2500
+"Autologout period set to %1" and the `void kernel(K$AUTOLOGOUT, period)` is at
+`:58`*** — it looks exactly like 98's assert-before-do, and it is not: `:52` is
+the **query** branch reporting `kernel(K$AUTOLOGOUT, -1)`, and the set branch
+prints nothing. ***`DELETE:178` has its `delete` and its `on error` on separate
+lines***, which reads like a bare delete with a dangling clause; it is a real
+continuation, the idiom appears 8 times across `APISRVR`, `ED` and `_WRITEV`,
+and `_WRITEV:38` is one 97 already cleared. `delete.record` is in fact
+deliberately careful — `record.count += 1` before the delete and `-= 1` in the
+handler — so 3221 counts only successes.
+
+**Found in passing, and filed as 104:** `DELETEF:275` and `:350` are
+`dummy = ospath(akpath, OS$DELETE)` — the relocated alternate-key index delete,
+discarded. **Explicitly not an accuracy defect**, and 104's row says so: 6136
+and 6141 name the DATA and DICT portions and both are true; the index is simply
+orphaned. `dummy = <fn>()` is the `void` sweep's idiom in a second spelling —
+**8 sites in `gpl.bp`, and these two are the only ones discarding a delete.**
+Identical upstream at `DELETEF:245`/`:317`; **`UPSTREAM_FIXES` 34.**
+
+**Five messages have no caller, and one is already explained.** `6055`–`6058`
+are dead in **both** trees (noted in UPSTREAM 34). **`3312` is dead here and
+live upstream** — that is `DELSRVR`/`SETSRVR`, removed on purpose, §"SDNet is
+gone", 21 Aug 2026, with `verify-nonet` guarding it. ***Checked against the
+record before write-up, which is the only reason it is not filed as a gap.***
+
+Tier-1 green: fixlist **230/0** (open 26 → 27), tiercounts 15/15, verdict
+140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0. **Sweep 6 still
+owed**; full suite still owed by the owner, `b85` still the last one.

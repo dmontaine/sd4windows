@@ -371,7 +371,41 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > which is exactly why `_WRITEV` is not a defect. **The defect is only where the
 > status reaches nobody and an assertion follows.**
 >
-> **5. `sysmsg` SUCCESS-ASSERTIONS, THE UPSTREAM RANGES** — `3029`–`3042`
+> **5. ✅ DONE 31 Aug 2026 — ALL 22 SUCCESS-ASSERTIONS IN THE NAMED RANGES ARE
+> CORRECTLY GATED. NOTHING FILED FROM THE SWEEP'S OWN TARGET; 104 WAS FOUND IN
+> PASSING.** ***THE UPSTREAM RANGES ARE IN BETTER SHAPE THAN THE `10xxx` ONE,
+> WHICH IS THE OPPOSITE OF WHAT THE BOX EXPECTED*** — the port-era range gave
+> **94**, and Ladybridge's gave nothing. **23 assertions identified from the
+> message texts, 22 with call sites**, all gated: `6136`/`6137`/`6141` on
+> `ospath(…, OS$DELETE)` with 6138/6142 on the else; `6153`/`6155` on
+> `osrename` with 6154/6156; `6158`, `6194`, `3029`–`3031`, `3038`–`3042`,
+> `3221`, `3251`, `6189`/`6190` all behind either an `on error … stop` or a
+> **bare** `write`/`delete` — **which sweep 4 verified really does abort.** *That
+> verification is what made this sweep cheap, and it is why the two sweeps
+> belong in this order.*
+>
+> **5b. TWO THINGS READ AS DEFECTS AND ARE NOT. DO NOT RE-FIND THEM.**
+> * ***`AUTOLOGOUT:52` PRINTS 2500 "Autologout period set to %1" AND THE
+>   `void kernel(K$AUTOLOGOUT, period)` IS AT `:58`, SIX LINES BELOW.*** It
+>   looks exactly like **98**'s assert-before-do and it is not: `:52` is in the
+>   **query** branch (`token.type = PARSER$END`), reporting
+>   `kernel(K$AUTOLOGOUT, -1)`, and **the set branch prints nothing at all.**
+> * ***`DELETE:178` HAS ITS `delete` AND ITS `on error` ON SEPARATE LINES***,
+>   which reads like a bare delete followed by a dangling clause. **It is a real
+>   continuation** — the same idiom appears 8 times across `APISRVR`, `ED` and
+>   `_WRITEV`, and `_WRITEV:38` is one 97 already cleared. `delete.record` is in
+>   fact **deliberately careful**: `record.count += 1` **before** the delete and
+>   `-= 1` inside the handler, so 3221 counts only successes.
+>
+> **5c. FIVE MESSAGES HAVE NO CALLER, AND ONE OF THEM IS ALREADY EXPLAINED.**
+> `6055`, `6056`, `6057`, `6058` are dead in **both** trees — Ladybridge's own
+> litter, noted in UPSTREAM 34. **`3312` "Server configuration updated" is dead
+> HERE and live upstream (2 callers), and that is `DELSRVR`/`SETSRVR`, which the
+> port removed on purpose** — §"SDNet is gone", 21 Aug 2026, with `verify-nonet`
+> guarding it. ***Checked against the record before being written up, which is
+> the only reason it is not filed as a gap.***
+>
+> *(The original note follows.)* **`sysmsg` success-assertions — `3029`–`3042`
 > (catalogue), `6055`–`6058` (user create/delete), `6136`–`6194` (delete, rename,
 > copy), plus `2500`, `3221`, `3251`, `3312`. Lower prior than the `10xxx` range
 > because they are Ladybridge's rather than port artefacts — **but they are where
@@ -9016,6 +9050,7 @@ THE REST ARE A READING AND WANT THE OWNER'S EYE BEFORE ANY SEVERITY MOVES.***
 | | **101** | `DELETE` on a directory file inside a transaction cannot fail — the record survives, the commit reports success, and the next query returns it. **Filed B: the only open entry besides 93 and 94 whose trigger is an ordinary state, not an induced fault** |
 | | **102** | a commit that fails half way is partly applied, cannot be rolled back, and never releases its locks. **11's leftover, recorded only inside a struck entry until now** |
 | | **103** | `WEOFSEQ` and `OPENSEQ … OVERWRITE` report success on a truncate that did not happen, so the file keeps its old tail — and `SetFileSize` is a `bool` that always answers TRUE |
+| | **104** | `DELETE.FILE` orphans a relocated alternate-key index and discards the delete. **Not in the class and the row says so** — 6136 and 6141 are true, the index is simply left behind |
 | **candidates, my reading** | **67** | the mode page's caption calls ssh optional; a full install always installs the server |
 | | **89**, **88** | a control the user clicks expecting an action, and none follows |
 | | **20** | the register says `SUSPENDED` while the person keeps Windows administrator rights |

@@ -2465,3 +2465,52 @@ the two `op_seqio.c` calls at `:724` and `:1392`. The two further discards in
 `dh_ak.c` are covered by entry 30 above.
 
 `PROPOSED`
+
+## 34. `DELETE.FILE` orphans a relocated alternate-key index, and discards the delete that would have removed it
+
+`DELETEF` removes the DATA and DICT portions of a file, and tests each one:
+
+```c
+            if ospath(data.path, OS$DELETE) then
+               if akpath # '' then dummy = ospath(akpath, OS$DELETE)
+
+               display sysmsg(6136, data.path) ;* DATA portion 'xx' deleted
+               ...
+            end else
+               display sysmsg(6138, data.path) ;* Error deleting DATA portion 'xx'
+               @system.return.code = -status()
+            end
+```
+
+The same shape appears again for the dictionary at `DELETEF:350`, with 6141 and
+6142.
+
+Both portion deletes are tested and reported. The index delete on the line
+between them is not: its result goes into `dummy` and nothing looks at it.
+`akpath` comes from `fileinfo(data.f, FL$AKPATH)` a few lines earlier, so this
+only applies to a file whose indices were relocated — but when it does apply,
+the whole index directory is left on disk with nothing said about it.
+
+The messages are not wrong. 6136 and 6141 name the DATA and DICT portions, and
+those really were deleted. Nothing claims anything about the index, so this is
+an orphan on disk rather than a false report.
+
+It is worth fixing because this is the verb whose whole job is to remove a file,
+and it is the only step in it that neither tests nor reports. The rest is
+careful: it refuses when either portion is open (6198, 6199), tests both
+deletes, and sets `@system.return.code` from `status()` on failure.
+
+Taking the result and reporting a failure the way the two portions beside it
+already do would be enough.
+
+`sdsys/gpl.bp/DELETEF:275`, `:350`, and the tested neighbours at `:277` and
+`:353`. Confirmed identical on upstream `main` at commit `ae0cc5f`, at
+`DELETEF:245` and `:317`.
+
+Separately, and much smaller: messages **6055** *"User %1 created with no
+password"*, **6056** *"User %1 created"*, **6057** *"User is not in register"*
+and **6058** *"User %1 deleted"* have no caller anywhere in `gpl.bp` or
+`gplsrc` in either tree, so they appear to be left over from a verb that no
+longer exists.
+
+`PROPOSED`
