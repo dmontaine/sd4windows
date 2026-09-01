@@ -141,6 +141,153 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 2, 31 Aug 2026 — OUT OF CREDITS AGAIN. NEW ACCOUNT. THE AUDIT IS THE WORK. ⇩⇩⇩
+>
+> ***READ §5.23 FIRST. IT IS THE OWNER'S RULING AND IT IS WHAT EVERY OPEN ENTRY
+> BELOW IS MEASURED AGAINST:*** a query must never answer wrongly, and *"this is
+> a database application — no failure is more severe than misreported data, not
+> just to the administrator but for every user."*
+>
+> ***NOTHING IS IN FLIGHT. NO SOURCE CHANGE IS UNCOMMITTED OR UNBUILT.*** The
+> last commit touching anything outside the four documentation files is
+> **`a02fbf4`** (`verify-tiers.ps1`). Everything after it — 93, 94, 95, 96, 97
+> and §5.23 — is documentation. `git status` shows only an untracked
+> `generate_gap_analysis_pdf.py`, which is **the owner's, not this work's**;
+> leave it alone.
+>
+> ### ***THE VERIFICATION DEBT, WHICH IS THE POINT OF THIS BOX***
+>
+> **1. THREE FILED ENTRIES ARE `NOT EXECUTED` AND SAY SO IN THEIR OWN ROWS.**
+> They are read from control flow against their callers, which is honest
+> analysis and is *not* a measurement. Each row names what would force it:
+> * **95** — `dh_flush_header` clears `FILE_UPDATED` before it can fail. Needs an
+>   **induced write failure**. `dh_close.c:45` is the case that does not
+>   self-heal.
+> * **96** — `IsAdmin`/`IsElevated`/`os_permitted` answer "no" and "could not
+>   tell" with the same `FALSE`. Needs an **induced name-service failure**; on
+>   Cygwin an unreachable domain controller is the realistic route.
+> * **97** — `MODIFYA:1442`/`:1445` assert a removal from a discarded `delete`.
+>   Needs an **induced delete failure** (lock or permission).
+>
+> **94 IS THE EXCEPTION AND IS CONFIRMED BY EXECUTION** — probe run 31 Aug, in
+> `don`'s own `bp`, unelevated, removed afterwards. Do not re-prove it.
+>
+> **2. `verify-tiers.ps1` HAS NOT RUN SINCE IT CHANGED.** `a02fbf4` added the
+> missing `os.users` disclosure to `Remove-Made`. ***PARSE-CHECKED CLEAN 31 Aug
+> — 0 errors, 9 functions found, no BOM past offset 0*** — so it loads, per the
+> "verify a script loads" rule. **It has not been executed.** Run it.
+>
+> **3. ***THE FULL SUITE IS OWED AND ONLY THE OWNER CAN RUN IT.*** The last full
+> run is **`b85`**; `b86` was `-Only verify-doors-suite`. CLAUDE.md requires a
+> full run **before a handoff**, and §4.0.1 forbids the agent running
+> `VerifyInstall1`. **This hand-over is going out without it. Say so rather than
+> treating b85 as current.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b87
+> ```
+> ***An ordinary unelevated prompt*** — it elevates the second half itself.
+>
+> ### ***RULINGS OWED BY THE OWNER — DO NOT DECIDE THESE ALONE***
+>
+> * **97 → recommend B.** Filed **M** on its trigger only. *"A privilege removal
+>   reported as complete when it did not happen"* is the class the 93 ruling
+>   named; the row says so and leaves the lever with him.
+> * **65 → B was an inference**, flagged in its own row. Confirm it.
+> * **67, 89, 88, 20** are listed as *candidates, my reading* in §5.23's triage
+>   table and have never had his eye on them.
+>
+> ### ***DO NOT RE-FIND THESE. ALL FOUR LOOKED LIKE DEFECTS AND ARE NOT.***
+>
+> * **`_WRITEV:50`/`:51`** — the same `write … on error null` as 97's sites and
+>   **correct**. `op_dio3.c:921` hands `process.status` to the caller and `:923`
+>   raises 1408 when it is negative and the caller had no `ON ERROR`;
+>   `write_record` sets it (`:357`). It suppresses the *inner* abort so the
+>   *outer* opcode can decide. **This read as a defect with a blast radius of
+>   every `WRITEV` statement** (`pcode_bld.py:83` confirms `_WRITEV` is what
+>   `op_writev` recurses into) before the status path was traced.
+> * **`DELACC:499`** — third `delete … on error null`, and **asserts nothing**.
+>   Its banner: a missing record is the ordinary case, no message either way.
+>   The message is the entire difference between it and `MODIFYA:1442`.
+> * **`win32s4u.c` / `ImpersonatingUser()`** — already fixed by an earlier
+>   session; it asks Windows, and `K_IMPERSONATING` returns **both** fields so
+>   the two can visibly disagree. `RevertUserIdentity` has no caller **by
+>   design** (`op_kernel.c:286`).
+> * **`CREATEA:1882`, `MODIFYA:440`, `:472`** — all take `os_group`'s return and
+>   branch on it. `:1882` is **in the same file as 94's five defects**, which is
+>   why 94 is an outlier rather than a convention.
+>
+> ### ***THE SWEEPS — WHAT IS DONE AND WHAT IS NOT, WITH SIZES***
+>
+> **The method, once, because every sweep below uses it:** find the sites
+> mechanically, **exclude comment lines**, then read what gates each one.
+> ***EXCLUDING COMMENTS IS NOT OPTIONAL*** — 94's first pass scored `CREATEA:823`
+> OK by matching an `os.execute` inside a `* was:` comment, i.e. it cleared the
+> very site whose comment recorded the change. And per the instrument rules, a
+> sweep that could have matched nothing must **say so**: print the site count and
+> refuse a zero.
+>
+> ***DONE — do not repeat these:***
+> * `OS.ERROR()` across `gpl.bp` — 14 sites, 5 defective (**94**), 9 correct.
+> * `gplsrc` identity/privilege — `IsAdmin`, `IsElevated`, `os_permitted`,
+>   `win32s4u.c`, `op_kernel.c` (**96**, plus the clean results above).
+> * `gplsrc` persistence write/close returns — one discarded call in the whole
+>   file layer (**95**); 14 sites check their writes.
+> * `on error null` across `gpl.bp` — **all 11 sites classified** (**97**; three
+>   are reads, `_WRITEV`×2 and `DELACC:499` cleared above).
+> * `sysmsg` success-assertions, **`10xxx` range only** — ours and port-era.
+>
+> ***NOT DONE, IN THE ORDER I WOULD RUN THEM:***
+>
+> **1. THE `void <fn>(…)` SWEEP ACROSS `gpl.bp` — 77 NON-COMMENT SITES. HIGHEST
+> PRIOR AND IT IS NOT CLOSE.** ***THREE SEPARATE ENTRIES — 65, 72 AND 94 — ALL
+> BLAME THIS ONE MECHANISM***: a function that already answers the question is
+> called with `void`, the answer is discarded, and the caller re-derives it from
+> something that does not know. **Only the `OS.ERROR()` subset has been swept.**
+> The other ~63 sites have never been looked at as a class. For each: does the
+> discarded function return a status, and does the caller then assert an outcome?
+>
+> **2. `dh_ak.c` — THE INDEX LAYER, 3,925 LINES, COMPLETELY UNTOUCHED.**
+> ***THIS IS THE ONE THAT MOST DIRECTLY OWNS §5.23'S RULING.*** An alternate key
+> index that silently fails to update does not corrupt a record — **it makes
+> `SELECT`, `LIST` and every query built on that key return the wrong rows**,
+> which is *"an administrator receiving an answer that is wrong"* in its purest
+> form, and for every user rather than only an administrator. **95 was found in
+> `dh_file.c`, its neighbour, by exactly the question to ask here:** is a status
+> discarded, and is state updated as though the work succeeded?
+>
+> **3. `txn.c` — THE TRANSACTION LAYER.** Entry **11** (nested `commit` silently
+> losing the outer transaction's writes, **DONE**) came out of here and is proof
+> the class lives in this file. Nothing else in it has been swept. **Silent loss
+> on commit or rollback is the corollary's worst case.**
+>
+> **4. `status()`-NEVER-CHECKED ACROSS `gpl.bp` — 129 bare `write`/`delete`
+> statements against 275 `status()` references.** The inverse of sweep 1: not a
+> discarded return, but an operation whose status **nobody reads**. ***MIND THE
+> TWO LEGITIMATE PATTERNS BEFORE FILING ANYTHING***: a **bare** `write`/`delete`
+> with no `on error` and no `then`/`else` **aborts loudly** via
+> `k_error(sysmsg(1406)/(1405))` (`op_dio3.c:650`, `:435`) and is *safe*; and
+> `on error null` is correct where an **outer** opcode reads `process.status`,
+> which is exactly why `_WRITEV` is not a defect. **The defect is only where the
+> status reaches nobody and an assertion follows.**
+>
+> **5. `sysmsg` SUCCESS-ASSERTIONS, THE UPSTREAM RANGES** — `3029`–`3042`
+> (catalogue), `6055`–`6058` (user create/delete), `6136`–`6194` (delete, rename,
+> copy), plus `2500`, `3221`, `3251`, `3312`. Lower prior than the `10xxx` range
+> because they are Ladybridge's rather than port artefacts — **but they are where
+> `UPSTREAM_FIXES.md` entries would come from**, and the owner's standing
+> instruction is to file upstream what upstream also has. **A defect in both trees
+> goes in BOTH files.**
+>
+> **6. THE VERIFIERS THEMSELVES.** The meta-sweep, and the reason to bother is on
+> the record: `verify-apiidentity` reported a refused step as *"confirmed"*, and
+> three false verdicts in one day came from instruments that never reached the
+> condition they claimed to measure. **Anchor on the SUCCESS wording, refuse the
+> null case.** `test-verdict-units` covers `Write-Verdict` across 9 files; **the
+> step logic inside each verifier is not covered by anything.**
+>
+> *(The 91/92 hand-over box below is now history. Both are closed.)*
+
 > # ⇩⇩⇩ HANDOFF, 31 Aug 2026 — OUT OF CREDITS. NEW SESSION, DIFFERENT ACCOUNT. ⇩⇩⇩
 >
 > ***THE WORK IS RULED, TRACED AND NOT STARTED. THREE CHANGES, IN THIS ORDER.***

@@ -43645,3 +43645,68 @@ green. ***What would have caught it: nothing here could*** - `tclmap.py` lives
 in the other repository and no tier-1 check in this one runs it, so adding an
 administrator verb here silently breaks a checker there. **That cross-repo gap
 is the thing to fix, not the three pages.**
+
+## 31 Aug 2026 — the §5.23 audit: five entries, two rulings, and four things that looked like defects and were not
+
+The owner ruled that `LIST ACCOUNTS` must be absolutely accurate and that
+misreported data is the worst failure this application can have (§5.23), then
+asked for a comprehensive audit in an auditor's frame: *"AI's are by nature
+optimistic… Success is defined as identifying valid errors and omissions."*
+
+**Filed: 93, 94, 95, 96, 97.** 94 is the only one confirmed by execution; 95,
+96 and 97 are read from control flow and each row says `NOT EXECUTED` and names
+what would force it.
+
+**The one mechanism behind most of it.** A function that already answers the
+question is called, its answer is discarded, and the caller re-derives the
+outcome from something that never saw the operation. 65, 72 and 94 are all this,
+and 97 is its sibling — the failure is discarded by `on error null` and the
+success is then asserted anyway.
+
+***THE PORT IS WHERE THIS CLASS LIVES, AND 96 IS THE CLEANEST STATEMENT OF WHY.***
+Upstream's `IsAdmin` is `return (getuid() == 0)` — three lines, total, with no
+failure path that could be mistaken for an answer. Ours is 37 lines with four
+`FALSE` exits, three of which mean *the check did not complete*. **The port
+replaced a total function with a partial one and left every caller treating the
+answer as total.** 94 is the same shape: the operation was swapped for one that
+runs no `os.execute`, and `OS.ERROR()` was left behind as the witness.
+
+***WHAT THE AUDIT ALSO PRODUCED, AND IT MATTERS AS MUCH AS THE FINDINGS: FOUR
+NEGATIVE RESULTS, WRITTEN DOWN SO THEY ARE NOT RE-FOUND.***
+
+- **`_WRITEV:50`/`:51`** uses the identical `write … on error null` as 97's
+  sites and is **correct** — `op_dio3.c:921` hands `process.status` up and `:923`
+  raises 1408 when the caller had no `ON ERROR`. It read as a defect with a
+  blast radius of *every `WRITEV` statement in every BASIC program* until the
+  status path was traced. **One step from a serious false finding**, and the
+  distinction it forced — status reaches an outer reader, versus status reaches
+  nobody — is what makes 97 defensible rather than a guess about an idiom.
+- **`DELACC:499`** is the third `delete … on error null` and **asserts nothing**.
+  The message is the entire difference between it and `MODIFYA:1442`.
+- **`win32s4u.c`** was already fixed by an earlier session: `ImpersonatingUser()`
+  asks Windows rather than returning `s4u_token != NULL`, and `K_IMPERSONATING`
+  returns both fields so the two can visibly disagree. A model of §5.23.
+- **`CREATEA:1882`** takes `os_group`'s return and branches on it — **in the same
+  file as 94's five defects**, which is what makes 94 an outlier rather than a
+  convention.
+
+**95 is upstream's** (empty diff against `../sdb64`, same line numbers at
+`ae0cc5f`) and is `UPSTREAM_FIXES.md` 29. **96 and 94 are ours** and were
+controlled rather than assumed — for 96, `linuxlb.c` and `op_sh.c` are both
+present upstream, so the greps reached the files.
+
+***THE HAND-OVER GOES OUT WITHOUT A FULL SUITE RUN, WHICH CLAUDE.md REQUIRES
+BEFORE A HANDOFF.*** The last full run is `b85`; `b86` was `-Only`. §4.0.1
+forbids the agent running `VerifyInstall1`, so it is owed by the owner and the
+START HERE box says so rather than letting `b85` read as current.
+`verify-tiers.ps1` changed in `a02fbf4` and has not been executed since; it was
+parse-checked clean (0 errors, 9 functions, no embedded BOM) so that it is not
+handed over unrun in the sense the rule means.
+
+**Sweeps still owed, sized:** 77 `void <fn>(…)` sites in `gpl.bp` (the mechanism
+three entries already blame, and only the `OS.ERROR()` subset is swept);
+`dh_ak.c` at 3,925 lines, untouched, and the layer that most directly owns the
+ruling because a stale index makes every query on that key answer wrongly;
+`txn.c`, where entry 11 came from; 129 bare `write`/`delete` statements against
+275 `status()` references; and the upstream `sysmsg` ranges, which are where
+`UPSTREAM_FIXES` entries would come from.
