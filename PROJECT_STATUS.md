@@ -302,8 +302,13 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > # ⇩⇩ THE MACHINE, AS LEFT ⇩⇩
 >
 > - ***`b54`–`b82` SPENT. USE `b83`.***
-> - **Open count 14**: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, 88, 89 —
->   **plus 91**, filed today. 85 and 90 closed today.
+> - ***OPEN COUNT 16, READ FROM `test-fixlist-units.ps1` AND NEVER FROM PROSE***:
+>   3, 6, 16, 20, 28, **65**, 66, 67, 70, 74, 76, 78, 80, 88, 89, **91**.
+>   *(Was 14 + 91 when this box was written. **65 was RE-OPENED 31 Aug 2026** —
+>   its product half is fixed and proven on `b74`, its HARNESS half is not, and
+>   `-Run b84` reproduced the symptom: `os.users` holding `SDRTB84A` and
+>   `SDTIERTB843` as `yes|yes` with both Windows accounts ABSENT. 85 and 90
+>   closed earlier the same day.)*
 > - **The installed tree is STALE and correct** — `sd.iss` moved after the
 >   09:54:22 install. `assert-current` names it.
 > - ***88 IS BUILT AND NOT CYCLED***, and a cycle alone cannot test it: see the
