@@ -44672,3 +44672,86 @@ indistinguishable from `ospath` refusing until you watch which files it fires on
 Tier-1 green: fixlist **237/0** then **238/0** (open 18: 100 struck, 112 and 113
 filed), stale-leads exit 0, `assert-current` exit 0, `check-datatree-litter`
 CLEAN.
+
+## 1 Sep 2026 — 102's lock half built; the fault fires for the first time, and the lock is still not observable
+
+**The half that needed no ruling.** `txn_abort()` (`txn.c:389`) now releases
+`commit_txn_id`'s record locks, `op_txncmt()` clears `commit_txn_id` on the
+success path, and the declaration is explicitly initialised because the guard
+depends on it starting at 0. `make sd` exit 0, no warnings, `txn.o` 28883 →
+29001, all 8 binaries relinked. **Built, not yet installed.**
+
+**Why the fix is in `txn_abort()` and not at the five `k_error` sites.**
+`k_error` longjmps, so the five `goto exit_op_txncmt` in the commit loop are
+**dead code** — nothing after them, at a label or anywhere else, can run. The
+fix has to be on the far side of the longjmp, and `txn_abort()` is what the
+K_ABORT case calls (`kernel.c:399`). It is also the class fix rather than five
+instances: **101 added two of those five in a single day**, and a sixth would
+have leaked again silently. K_TERMINATE and K_LOGOUT get it for free.
+
+**Three things checked before relying on them, not assumed.** `commit_txn_id`'s
+comment said *"Also needed by dh_jnl.c"* and **that file does not exist in this
+tree** — grep says `txn.c` is its only user, so its lifetime is ours to manage;
+the comment is corrected in the same edit. `unlock_txn()` is **idempotent** — it
+scans for cells matching owner and txn id — so a second call is a no-op and
+there is no double-release hazard. And the stale comment at `:337`, which said
+the whole gap was *"filed rather than fixed here"*, is corrected, because half
+of it no longer is.
+
+***THE FAULT FIRES ON DEMAND NOW, WHICH NOTHING IN THIS FAMILY HAD MANAGED.***
+`gplbld/probe-txnlock.ps1`, **13 of 13**: it holds the victim record's file open
+with `FileShare.Read`, proves with its own control that Windows then refuses the
+delete, and the commit prints **`Delete error in transaction commit`** — 1423's
+real text. The post-`COMMIT` marker is absent and the session survives the
+abort, both asserted. 101 predicted this was inducible on Windows and it is.
+
+***AND THE LOCK STATE IS STILL NOT MEASURED. AN EARLIER READING IS WITHDRAWN.***
+The first run looked like "the lock was released even on the pre-fix binary",
+which would have been an argument against the entry. **A positive control
+killed that reading**: three programs in DON — `READU` then fall off the end,
+`READU` then `STOP`, `READU` then `RELEASE` — all three ran and **all three**
+reported *"There are no active file, read or update locks held by any user"*,
+**including the one that released nothing**. `LIST.READU` cannot see a held lock
+from the same session after the program ends, so "no lock" was the null case.
+The probe now prints the direction and **refuses to score it**. Observing the
+leak needs a second concurrent session watching the first while it lives.
+
+**That is twice in one day that a probe passed while measuring nothing, and
+both times the control caught it** — the AK probe's unbuilt index this morning,
+this one now. *Ask what the right answer would look like if the code had never
+run*, and build the control that can tell those apart before believing either.
+
+**114 filed: a typo hangs the BASIC compiler.** `BEGIN TRANSACTION` with no
+final `END` never returns — killed at 41s — while **the same source with `END`
+added** reports `Expected TRANSACTION after END` in **0.5 seconds**. One line
+apart. Found by walking into it three times; the correct block is `COMMIT`
+inside, closed by `END TRANSACTION`, then `END`. **Each hang had to be killed
+from outside and left a session slot behind** (`32/1164`, `38/1178`,
+`46/1194`), which `sdwind` did not reap — and `sd -stop` refuses while users are
+logged in, so a hung compile can fail the next cycle at step 1 on something with
+no visible connection to it. That is the part worth more than the syntax lesson.
+
+`probe-txnlock.ps1` is rostered in `assert-current.ps1` beside
+`probe-akwrite.ps1` and is in neither runner. Tier-1 green: fixlist **240/0**
+(open 19), stale-leads exit 0.
+
+**Closed on the 12:50:27 install.** Installed `sd.exe` **517019EE20D2BD0C**, the
+hash of the 11:24:10 build; `assert-current` **exit 0**; `check-datatree-litter`
+**CLEAN**; the three orphaned sessions went with the deleted tree.
+`VerifyInstall1 -Only verify-txn` **PASSED, 9 of 9 decisive** — *"commit ends its
+own level, and a nested commit keeps the parent"* — which is the check this edit
+needed, since clearing `commit_txn_id` on the success path sits in `op_txncmt`'s
+commit route. `probe-txnlock` **13 of 13** re-run on the fixed binary: the
+induced failure still raises `Delete error in transaction commit` and the
+session still survives, **with the new `unlock_txn` now running inside
+`txn_abort()`** — worth asserting because that function runs on every abort.
+**102 stays open: the lock half is done, the half-applied records are still the
+ruling.**
+
+**One cycle attempt died at step 1 and the size was the tell.**
+`cycle-20260901-124650.log` is **692 bytes**, stopping at `== [1] Stopping SD`
+with no transcript end; the real one, `-124906`, is 640 KB and its step 1 reads
+`SD is stopped`. A cycle log in the hundreds of bytes is a cycle that never
+started — check the size before reading the contents, the same way the UTF-16
+transcripts are checked for a byte count before their PASS/FAIL counts are
+believed.

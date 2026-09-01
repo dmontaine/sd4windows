@@ -141,6 +141,70 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 7, 1 Sep 2026 — ***102's LOCK HALF DONE AND MEASURED. 114 FILED: THE COMPILER HANGS ON A TYPO.*** ⇩⇩⇩
+>
+> ***THE MACHINE IS GREEN AND CURRENT. NOTHING IS IN FLIGHT AND NOTHING IS
+> HALF-BUILT.*** Cycle **12:49:06 → 12:51:23**, install **12:50:27**, installed
+> `sd.exe` **517019EE20D2BD0C** = the 11:24:10 build, `assert-current` **exit
+> 0**, `check-datatree-litter` **CLEAN**, and the user table is clean — the three
+> orphaned sessions went with the tree.
+>
+> `VerifyInstall1 -Only verify-txn`: ***PASSED, 9 of 9 decisive, exit 0*** —
+> *"commit ends its own level, and a nested commit keeps the parent"*, banner'd
+> `PARTIAL, 1 of 14`. **That is the check this edit needed**: clearing
+> `commit_txn_id` on the success path sits directly in `op_txncmt`'s commit
+> route. `probe-txnlock` **13 of 13** re-run on the fixed binary, which also
+> proves the abort path still works **with the new `unlock_txn` inside
+> `txn_abort()`** — a function that runs on every abort, not just this one.
+>
+> ***A FULL SUITE IS OWED*** and has not run since `b91`. **Next free run token
+> is `b100`.** ***NEXT FREE PRE_RELEASE ID: 115.***
+>
+> ***ONE CYCLE ATTEMPT DIED AT STEP 1 AND THE SECOND WORKED, AND THE SIZE IS THE
+> TELL.*** `cycle-20260901-124650.log` is **692 bytes** and stops dead at
+> `== [1] Stopping SD` with no transcript end; `cycle-20260901-124906.log` is the
+> real one, 640 KB, its step 1 reading `SD is stopped`. **A cycle log in the
+> hundreds of bytes is a cycle that never started** — read the size before the
+> contents.
+>
+> ### ***102 — WHAT WAS BUILT, AND WHAT IS HONESTLY NOT PROVEN***
+>
+> `txn_abort()` (`txn.c:389`) now releases `commit_txn_id`'s record locks.
+> `k_error` **longjmps**, so the five `goto exit_op_txncmt` in the commit loop
+> are **dead code** and `unlock_txn(commit_txn_id)` after the loop was never
+> reached; `txn_abort()` tested only `process.txn_id`, which `op_txncmt` zeroes
+> at the top. **The fix is on the far side of the longjmp because there is
+> nowhere else it can go**, and it is one release rather than five guards so a
+> sixth error path is covered without anybody remembering — 101 added two of the
+> five in a single day.
+>
+> ***STILL OPEN AND UNCHANGED***: the level stays counted, the cache stays
+> orphaned, the written records stay written. **That is the ruling half.**
+>
+> ***THE FAULT NOW FIRES ON DEMAND — A FIRST FOR THIS FAMILY.***
+> `gplbld/probe-txnlock.ps1` **13 of 13** holds the victim record's file open
+> with `FileShare.Read`, so `remove()` is genuinely refused and SD prints
+> **`Delete error in transaction commit`**. The session survives the abort and
+> the post-`COMMIT` marker is absent, both asserted.
+>
+> ***BUT THE LOCK STATE IS NOT MEASURED, AND AN EARLIER READING OF IT IS
+> WITHDRAWN.*** A positive control settled it: three programs — `READU` then end,
+> `READU` then `STOP`, `READU` then `RELEASE` — **all three** reported *"There
+> are no active file, read or update locks held by any user"*, **including the
+> one that released nothing**. So `LIST.READU` cannot see a held lock from the
+> same session after the program ends, and *"no lock after the failed commit"* is
+> the **null case**, not evidence. It needs a **second concurrent session**
+> watching the first while it lives; that is all that is still owed on the lock
+> half. **The fix itself rests on control flow that is not in doubt.**
+>
+> ### ***114 — A TYPO HANGS THE BASIC COMPILER, AND HUNG COMPILES COST SESSIONS***
+>
+> `BEGIN TRANSACTION` with **no final `END`** → the compiler **never returns**
+> (killed at 41s). **The same source with `END` added** → `Expected TRANSACTION
+> after END`, **0.5s**. One line apart. Each hang was killed from outside and
+> **left a session slot behind**; three accumulated. The correct block is
+> `COMMIT` **inside**, closed by `END TRANSACTION`, then `END`.
+>
 > # ⇩⇩⇩ HANDOFF 6, 1 Sep 2026 — ***100 CLOSED AND MEASURED. 112 FILED: A VERIFIER NOTHING RUNS. 96 IS A RULING.*** ⇩⇩⇩
 >
 > ***OPEN COUNT: 18 — 100 STRUCK, 112 AND 113 FILED.*** Open: 3, 16, 28, 65, 66,
