@@ -141,53 +141,58 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 3, 31 Aug 2026 — EVERY STEP HAS PASSED, BUT NOT IN ONE RUN. THE FULL SUITE IS OWED ON `b91`. ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 3, 31 Aug 2026 — ***`b91` IS GREEN END TO END: 19 OF 19 AND 22 OF 22, NO `PARTIAL`.*** ⇩⇩⇩
 >
-> ***THREE RUNS ON 31 Aug. BOTH FAILURES WERE INSTRUMENTS, NOT THE PRODUCT, AND
-> BOTH ARE FIXED AND PROVEN.*** Nothing found in any of them is a defect in SD.
+> ***FOUR RUNS ON 31 Aug. BOTH FAILURES WERE INSTRUMENTS, NOT THE PRODUCT, BOTH
+> ARE FIXED, AND THE FOURTH RUN IS CLEAN.*** Nothing found in any of them is a
+> defect in SD.
 >
 > | run | result | what failed | now |
 > |---|---|---|---|
-> | `b88` 22:03 | stopped at **step 2 of 17**, never handed over | `test-stemcoverage-units` exit 1, naming `sdtc` as a family the litter sweep could not see | **PRE_RELEASE 108, fixed** |
-> | `b89` 22:11 | **17 of 17** unelevated, **21 of 22** elevated | `verify-tierchange` step 7 — its 10115 check could never match, whatever the product did | **PRE_RELEASE 109, fixed** |
-> | `b90` 22:45 | `-Only verify-tierchange`, **28 of 28**, exit 0, `PARTIAL` | nothing | ***109 CONFIRMED ON A REAL RUN*** |
+> | `b88` 22:03 | stopped at **step 2 of 19**, never handed over | `test-stemcoverage-units` exit 1, naming `sdtc` as a family the litter sweep could not see | **PRE_RELEASE 108, fixed** |
+> | `b89` 22:11 | **19 of 19** unelevated, **21 of 22** elevated | `verify-tierchange` step 7 — its 10115 check could never match, whatever the product did | **PRE_RELEASE 109, fixed** |
+> | `b90` 22:45 | `-Only verify-tierchange`, **28 of 28**, exit 0, `PARTIAL` | nothing | 109 confirmed on a real run |
+> | ***`b91` 22:55*** | ***19 OF 19 UNELEVATED + 22 OF 22 ELEVATED, EVERY STEP EXIT 0*** | ***nothing*** | ***THE GREEN FULL RUN*** |
 >
-> ***BOTH FAILED SAFE, WHICH IS THE PART TO KEEP***: `b88`'s runner refused to
-> hand over rather than reporting over the gap, and `b89`'s `verify-tierchange`
-> printed the raw SD output beside the verdict, which is the only reason the
-> false `FAIL` was readable as one.
+> ***BOTH FAILURES FAILED SAFE, WHICH IS THE PART TO KEEP***: `b88`'s runner
+> refused to hand over rather than reporting over the gap, and `b89`'s
+> `verify-tierchange` printed the raw SD output beside the verdict, which is the
+> only reason the false `FAIL` was readable as one.
 >
-> ### ***WHAT IS ACTUALLY OWED: ONE FULL RUN, BECAUSE THREE PARTIAL ONES ARE NOT ONE***
+> ### ***READ THE COUNT BEFORE YOU QUOTE IT — `17` AND `19` ARE BOTH RIGHT***
 >
-> **Every step in both halves has now passed at least once** — 17 unelevated on
-> `b89`, 21 elevated on `b89`, and `verify-tierchange` on `b90`. ***THAT IS NOT A
-> GREEN SUITE AND MUST NOT BE RECORDED AS ONE.*** `b90`'s own closing line says
-> so: *"PARTIAL - 1 of 22 step(s) run, all exited 0. The other steps were NOT run
-> and this says nothing about them."* **No single run has been green end to end**,
-> and the three results sit either side of two source changes.
+> ***THE UNELEVATED HALF IS `19` STEPS, NOT `17`, AND THIS BOX SAID `17` FOR TWO
+> SESSIONS.*** Both numbers are true of different things and the wrong one was
+> repeated into PROJECT_STATUS and HISTORY on `0c2cdc0` before anyone measured
+> it:
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b91
-> ```
-> ***AN ORDINARY UNELEVATED PROMPT*** — it elevates the second half itself.
-> **Expect 17 and 22, every step exit 0, and no `PARTIAL` anywhere in the
-> output.**
+> - **`19` is what the RUNNER reports** — every step, and the number to quote.
+> - **`17` is `verify-*.ps1` steps only**, which is what PRE_RELEASE 107's
+>   arithmetic counts (`17 + 22 = 39` against 44 in the directory). **107 is
+>   correct; it just is not counting the same thing.**
+> - The difference is the **two `test-*-units` steps**, `test-tiercounts-units`
+>   and `test-stemcoverage-units`.
 >
-> ***TOKENS, MEASURED NOT ASSUMED***: `b88` **56**, `b89` **496**, `b90` **6**
-> occurrences across the logs — all spent. **`b91` is free**: its 51 grep hits
-> reduce to **4 distinct contexts, every one inside a hex hash**
-> (`F8B91512CD1A332E`, `986E279447C72B910…`, `BBD1AA39E283F01A2EB915385…`).
-> `b87` was never spent but skip it; the neighbouring tokens are confusing now.
-> **No product source has been touched in any of this** — only `gplbld` tooling
-> and documentation — so `assert-current` is **exit 0**, the install is still the
-> 13:33:28 one, and nothing here needs a cycle.
+> **Measured three ways that agree**: `VerifyInstall1.ps1` names 19,
+> `post-cycle-unelevated` lists 19, and `b89` and `b91` each ran 19.
+> ***AND THE SUMMARY FILE CARRIES A UTF-8 BOM***, so a `grep '^test-'` over it
+> silently misses the first row and answers `1` where the truth is `2` — which
+> is exactly how a count like this goes wrong.
 >
-> ### ***THE TWO NEW STEPS — BOTH HAVE NOW RUN. ONE PASSED, ONE FOUND ITSELF***
+> ### ***THE TWO STEPS THAT WERE NEW ON `b89` — BOTH GREEN ON `b91`***
 >
-> | new step | runner | `b89` result |
+> | new step | runner | state |
 > |---|---|---|
-> | `verify-basicfuncs.ps1` | **VerifyInstall1**, beside `verify-txn` | ***PASSED*** in the unelevated 17 of 17. PRE_RELEASE 106, §5.24 |
-> | `verify-tierchange.ps1` | **VerifyInstall2**, after `verify-tiers` | ***27 of 28***, and the one failure was its own (PRE_RELEASE 109). Fixed, **not yet re-run** |
+> | `verify-basicfuncs.ps1` | **VerifyInstall1**, beside `verify-txn` | ***PASSED on `b89` and `b91`.*** PRE_RELEASE 106, §5.24 |
+> | `verify-tierchange.ps1` | **VerifyInstall2**, after `verify-tiers` | 27 of 28 on `b89` (its own bug), **28 of 28 on `b90`**, ***and green inside the full `b91`*** |
+>
+> ***TOKENS, MEASURED NOT ASSUMED***: `b88`, `b89`, `b90` and `b91` are all
+> spent. **The next full run is `b92`** — check it the way these were, by
+> grepping the logs and reading the CONTEXT of every hit, because `b88`, `b90`
+> and `b91` all showed hits that turned out to be hex inside SHA hashes.
+> **No product source was touched in any of this** — only `gplbld` tooling and
+> documentation — so `assert-current` is **exit 0** and the install is still the
+> 13:33:28 one.
 >
 > ***THE "THREE VERIFIERS" CLAIM IN 107 WAS WRONG AND IS CORRECTED HERE.***
 > `verify-tierchange.ps1` does **not** raise `verify-acctmsgs` or

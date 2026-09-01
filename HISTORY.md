@@ -44186,7 +44186,9 @@ argument for making the checker a step, repaid on the first run that could
 exercise it. Counting could not have found this one: **0 `sdtc*` directories on
 disk.** PRE_RELEASE 108.
 
-`-Run b89` 22:11 then ran **17 of 17** unelevated and **21 of 22** elevated. The
+`-Run b89` 22:11 then ran **19 of 19** unelevated and **21 of 22** elevated.
+*(This paragraph said "17 of 17" when first written; see the correction at the
+end of this entry.)* The
 one failure was `verify-tierchange`'s own: its 10115 check built the pattern from
 `$acct` raw while `Test-Say` is deliberately case-sensitive, `-Prefix` is
 required lower case (`:243`), and MODIFYA prints the account upcased — so it
@@ -44220,9 +44222,35 @@ decisive checks passed`, exit 0**, against the live install on a fresh
 proof.
 
 **Every step in both halves has now passed at least once — and that is still not
-a green suite.** 17 unelevated and 21 elevated on `b89`, `verify-tierchange` on
+a green suite.** 19 unelevated and 21 elevated on `b89`, `verify-tierchange` on
 `b90`, with two source changes in between; `b90`'s own closing line says *"the
 other steps were NOT run and this says nothing about them"*. **A full
 `-ThenElevated` run on `b91` is owed before the next handoff.** `b88`, `b89` and
 `b90` are spent (56, 496 and 6 occurrences); `b91` is free — its 51 hits reduce
 to four distinct contexts, all inside hex hashes.
+
+## 31 Aug 2026 — `b91` is green end to end, and the step count above was wrong
+
+`-Run b91` 22:55: **19 of 19 unelevated and 22 of 22 elevated, every step exit
+0, no `PARTIAL` anywhere.** `VerifyInstall1`'s own closing line reads *"every
+step exited 0"* and `VerifyInstall2`'s *"all 22 steps exited 0"*. That is the
+first end-to-end green run since the two fixes, and it closes what the entry
+above says is owed.
+
+**The unelevated half is 19 steps, not 17, and the two entries above were
+corrected in place rather than left to mislead** — the numbers were repeated out
+of the handoff box on `0c2cdc0` without being measured. **Both numbers are true
+of different things**: `19` is what the runner reports and the one to quote;
+`17` counts `verify-*.ps1` steps only, which is what PRE_RELEASE 107's
+`17 + 22 = 39` arithmetic is counting, so 107 is correct and simply not counting
+the same thing. The difference is the two `test-*-units` steps.
+
+Measured three ways that agree: `VerifyInstall1.ps1` names 19,
+`post-cycle-unelevated` lists 19, and `b89` and `b91` each ran 19. **The summary
+file carries a UTF-8 BOM**, so `grep '^test-'` over it misses the first row and
+answers 1 where the truth is 2 — worth knowing, because that is exactly the
+shape of mistake that produced the wrong count in the first place.
+
+`b88` through `b91` are all spent; the next full run is `b92`. Read the CONTEXT
+of every grep hit when checking a token — `b88`, `b90` and `b91` each showed
+hits that were hex inside SHA hashes rather than run tokens.
