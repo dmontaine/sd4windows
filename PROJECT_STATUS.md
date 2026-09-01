@@ -9060,6 +9060,51 @@ elevated, which is exactly what the OS account commands need (§5.6) — so
 creating the initial accounts is something the installer can do and a normal
 session cannot.
 
+### 5.24 The BASIC functions and operators, verified (31 Aug 2026)
+
+***THE SURFACE IS SOUND. 169 VALUE CASES, 0 FAILURES, ON THE 13:33:28 INSTALL***
+— `gplbld/verify-basicfuncs.ps1` with `gplbld/basicfuncs.sb`, run unelevated in
+`don`'s own bp on PRE_RELEASE 94's probe model and removed again. **This is the
+question under §5.23**: the sweeps asked whether a status was discarded; this
+asks whether the language returns the right answer at all, which every query in
+the system is built out of.
+
+**STRUCTURAL, FIRST, BECAUSE A VALUE TEST CANNOT SEE ANY OF IT.** Four links,
+each measured with a control:
+
+| link | result |
+|---|---|
+| BCOMP's parallel tables `intrinsics` / `intrinsic.opcodes` | **176 = 176**, zero lines assigning one half only |
+| compiler include vs runtime header | `gen_includes.py --check` — **all four in sync, byte-for-byte** |
+| every intrinsic's `OP.xxx` is defined | **172 used, 172 resolve**, 0 missing; a bogus name IS reported missing |
+| opcode number == `dispatch[]` position | **512 entries, 0 mismatches**, both banks; an injected break reports exactly 1 |
+
+***THE DESIGN IS WHY THEY ALL PASS AND IT IS WORTH KNOWING.*** `gplsrc/opcodes.h`
+is an X-macro table — `_opc_(0x2A, OP_ABS, "ABS", op_abs, …)` — and
+`kernel.c:75` builds `dispatch[]` by `#include`ing it. **One file carries the
+number, the C name, the BASIC name and the handler**, `gpl.bp/OPCODES.H` is
+generated from it, and a missing handler is a link error. Drift is structurally
+impossible rather than merely absent. **Do not re-audit this by hand.**
+
+***BEHAVIOURAL: EVERY ONE OF THE FIRST RUN'S 20 "FAILURES" WAS THE TEST'S
+EXPECTATION, NOT THE PRODUCT.*** That is the result, and the traps are worth
+more than the tally because each is one a programmer will hit. **They are
+recorded at the case in `basicfuncs.sb`, not repeated here** — `MD` inserts a
+point rather than rounding; `SHIFT`'s positive count goes **right**;
+`CONVERT(from, to, source)`; `SUBSTITUTE` splits its source by **marks** and the
+delimiter splits the old/new *lists* (`gpl.bp/_SUBST`); `LOCATE arr<1>` searches
+**fields**; `VSLICE` takes value N of each field; `RAISE` promotes @vm to @fm;
+`ASCII()` takes EBCDIC in; `DTX` returns **lower case** (`%x`, byte-identical
+upstream); `MTH`'s am/pm case is `OptAMPMUpcase`, defaulting lower.
+**The documentation was right wherever it says anything** — `CONVERT` and
+`SUBSTITUTE`'s signatures both match what was measured.
+
+**WHAT IS NOT COVERED, STATED SO THE CLAIM IS HONEST**: the probe's header lists
+every excluded intrinsic and why — terminal-blocking, sockets, file or select
+list, session state, printer state, and the ones that change the process.
+**169 cases is not 176 functions**: some functions carry several cases and the
+excluded ones carry none.
+
 ### 5.23 A query must never answer wrongly (owner, 31 Aug 2026)
 
 *"`LIST ACCOUNTS` must be absolutely accurate. Administrators must never receive

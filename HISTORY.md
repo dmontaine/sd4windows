@@ -44029,3 +44029,55 @@ Tier-1 green: fixlist **230/0** (open 27 → 28), tiercounts 15/15, verdict
 cheapest confirmation owed**: it is the only one whose trigger needs no induced
 fault. The full suite is still the owner's to run and `b85` is still the last
 one.
+
+## 31 Aug 2026 — the BASIC functions and operators verified: 169 cases, 0 failures
+
+**Asked for after the audit closed, and it is the question underneath it**: the
+sweeps asked whether a status was discarded; this asks whether the language
+returns the right answer at all. §5.24 carries the result. **New:
+`gplbld/verify-basicfuncs.ps1` and `gplbld/basicfuncs.sb`**, both listed in
+`assert-current.ps1`'s gplbld exclusion the same day — the driver calls
+assert-current first and would otherwise refuse the tree because of itself,
+**which it cost one run to rediscover** even though the list says so.
+
+***STRUCTURAL FIRST, BECAUSE A VALUE TEST CANNOT SEE ANY OF IT.*** BCOMP's
+parallel `intrinsics`/`intrinsic.opcodes` tables are **176 = 176** with no line
+assigning one half only; `gen_includes.py --check` reads all four generated
+includes in sync byte-for-byte; **172 of 172** intrinsic `OP.xxx` names resolve;
+and opcode number equals `dispatch[]` position for **all 512** entries across
+both banks. **Each had a control** — a bogus name is reported missing, and an
+injected break in the opcode table reports exactly one mismatch.
+
+**The design is why they all pass**: `gplsrc/opcodes.h` is an X-macro table and
+`kernel.c:75` builds `dispatch[]` by `#include`ing it, so number, C name, BASIC
+name and handler come from one line, `gpl.bp/OPCODES.H` is generated from it,
+and a missing handler is a link error. **Drift is structurally impossible.**
+
+***EVERY ONE OF THE FIRST RUN'S 20 "FAILURES" WAS THE TEST, NOT THE PRODUCT.***
+Triaged one at a time against the source rather than filed: `MD` inserts a point
+instead of rounding, `SHIFT`'s positive count goes right, `CONVERT` is
+(from, to, source), `SUBSTITUTE` splits its source by marks while the delimiter
+splits the old/new lists (`gpl.bp/_SUBST` settles it), `LOCATE arr<1>` searches
+fields, `VSLICE` takes value N of each field, `RAISE` promotes @vm to @fm,
+`ASCII()` takes EBCDIC in, `DTX` is `%x` and lower case, `MTH`'s am/pm case is
+`OptAMPMUpcase`. **Each is pinned at its case in the probe with the measurement
+that settled it**, so the next reader gets the trap and not just the answer.
+**DTX and the am/pm case are byte-identical upstream**, and **the documentation
+was right wherever it says anything** — `CONVERT` and `SUBSTITUTE`'s signatures
+both match. *Filing any of those 20 would have been the overclaiming this
+project punishes; the instrument printing got-vs-want is what made the triage
+possible at all.*
+
+**Three instrument bugs of my own were caught by controls rather than by luck**
+— an escaped-regex loop that called all 172 opcodes undefined while its positive
+control said otherwise, and two substring/bank errors in the opcode walk whose
+echoed values (`0xx01`) gave them away. **Rule 1 of the instrument section —
+print what it actually used — earned its keep three times in one sitting.**
+
+**106 filed**: the verifier is in neither runner, PRE_RELEASE 54's shape exactly.
+**Deliberately not wired in** — a step added to `VerifyInstall1` changes the
+owner's standing command and is his to approve. It needs no elevation and no
+account, and costs about 20 seconds.
+
+Tier-1 green: fixlist **232/0** (open 28 → 29), tiercounts 15/15, verdict
+140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0.
