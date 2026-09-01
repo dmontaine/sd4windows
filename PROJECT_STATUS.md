@@ -199,6 +199,34 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > hundreds of bytes is a cycle that never started** — read the size before the
 > contents.
 >
+> ### ***80 NOW CARRIES AN OWNERSHIP TRANSFER, AND THE GAP ANALYSIS HAS A FILE***
+>
+> Owner, 1 Sep 2026, on `generate_gap_analysis_pdf.py` at the repository root:
+> *"That is a file from the other AI's gap analysis which it used to add
+> additional documentation. During step 80 you can adopt it and use it as an aid
+> in auditing the whole documentation tree, both what you produced and what the
+> other AI produced. **You will be allowed to make whatever edits are needed to
+> make the documentation speak with one voice and at that point you will own the
+> whole documentation tree.**"*
+>
+> ***THE DIVIDED AUTHORSHIP IS THE DEFECT BEING FIXED***, which is why 80 is one
+> task and not a list of corrections. **Entry 80 carries the detail**: what the
+> file is (846 lines, a `reportlab` generator whose content is embedded in the
+> source, so it is auditable as text), what it renders, and that it **re-runs
+> today**.
+>
+> ***IT IS AN AID, NOT A WORK LIST, AND IT IS ALREADY STALE — CHECKED.*** It
+> proposes documenting **`ENCRYPT.FIELD`**, a verb this tree **deleted** (25, 52,
+> 53), and treats `LIST.LOCKS` as absent while `list.locks` is a live
+> ADMINISTRATOR verb here. Dated **29 Aug**, it predates 56's access model, 78's
+> three verbs and everything since. **Validate it against the final image before
+> applying any of it.**
+>
+> ***IT IS UNTRACKED AND 80 RUNS LAST.*** Nothing in the repository preserves it;
+> a clean checkout loses the only copy. **Committing it unchanged and unused is
+> the cheap insurance** — 38 KB of Python, and the no-binaries rule is about
+> build output. **Not done: it is the owner's file and his call.**
+>
 > ### ***THE VM RIG IS FIVE GUESTS NOW, AND EVERY EARLIER SENTENCE SAYING OTHERWISE IS STALE***
 >
 > ***`Windows 11 - Test` IS GONE AS "THE ONLY RIG". THE OWNER BUILT `Windows 11
