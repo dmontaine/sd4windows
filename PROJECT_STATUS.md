@@ -143,10 +143,26 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 > # ⇩⇩⇩ HANDOFF 10, 1 Sep 2026 — ***THE VM RUN IS FINISHED. 78, 76 AND 88 CLOSED; 116-120 FILED. ONE BUILD IS OWED AND NOTHING ELSE IS IN FLIGHT.*** ⇩⇩⇩
 >
-> ***THE ONE THING TO DO NEXT: BUILD, BECAUSE THREE ENTRIES ARE FIXED IN SOURCE AND UNWITNESSED.*** 116, 117 and 119 are all edits to text nobody has yet seen rendered, and **119 is 122 dialog strings** — the class of change that gets marked done and never looked at. Building was deliberately deferred while the guest run was live, because `cycle.ps1` rebuilds
-> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, **the exact file the guests install from**. The run is over, so that reason is gone.
+> ***THE CYCLE RAN AT 16:24 AND 117 AND 119 ARE NOW WITNESSED ON A SCREEN.*** Owner
+> ran `cycle.ps1`: 640 KB log, all 8 steps, installer 16:24:44, host installed
+> **16:25:06**, `sd.exe` `517019EE20D2BD0C`, and **`assert-current: the installed
+> tree matches source`**. The rebuilt installer was then run on the guest and
+> photographed: caption **`Setup - SD Core W1.0-0`**, heading *"What SD Core
+> changes on this computer"*, closing box **"SD Core is installed"**, and the ssh
+> box reading **"limited to members of `sdssh`"**. ***116 IS STILL UNWITNESSED AND
+> IS THE EXPENSIVE ONE***: its paragraph only prints after a real
+> `ssh.server remove`, which costs a reboot and a ~19-minute reinstall.
 >
-> ***NEXT PRE_RELEASE ID: 121. NEXT RUN TOKEN: `b101`*** (no suite ran this session; the host install is still 12:50:27 with `b100` green in both halves).
+> ***WATCHING THE INSTALL FOUND WHAT RE-READING THE DIFF WOULD NOT.*** The
+> progress line still said *"Creating and starting the SD service…"* — **section
+> parameters are DOUBLE-quoted and the transform only walked single-quoted
+> Pascal strings**, so eight user-visible strings were missed. Six fixed; two
+> left with reasons (see 119). **The host is now one build behind source again.**
+>
+> ***NEXT PRE_RELEASE ID: 121. NEXT RUN TOKEN: `b101`*** (no suite ran this
+> session; the install is 16:25:06 and `assert-current` was green at that
+> moment, but **six strings changed after it**, so it will now fail until the
+> next cycle).
 >
 > ### ***WHAT THE VM RUN CLOSED, AND THE ONE CORRECTION IT FORCED***
 >
