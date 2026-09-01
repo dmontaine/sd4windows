@@ -334,7 +334,34 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > the class lives in this file. Nothing else in it has been swept. **Silent loss
 > on commit or rollback is the corollary's worst case.**
 >
-> **4. `status()`-NEVER-CHECKED ACROSS `gpl.bp` — 129 bare `write`/`delete`
+> **4. ✅ DONE 31 Aug 2026 — AND THE SWEEP AS SPECIFIED CAME BACK CLEAN. THE ONE
+> DEFECT, 103, IS ONE KEYWORD FAMILY OVER.** ***READ THIS BEFORE SIZING SWEEP 5
+> OR 6 — IT IS THE REUSABLE LESSON.*** **150 `write`/`delete`-family sites, not
+> 129, and not one is a new defect.** 123 bare, 18 with a real `on error`, 5
+> `on error null` (**97's**), and the 4 that looked like `then`/`else` are bare
+> `delete`s inside an `if … then`. ***THE "BARE ABORTS LOUDLY" CLAIM WAS
+> VERIFIED, NOT INHERITED, BECAUSE THE WHOLE NEGATIVE RESULT RESTS ON IT***:
+> `op_dio3.c:650` raises 1406 and `:436` raises 1405 when `P_ON_ERROR` is unset,
+> and `k_error.c:31` makes both fatal. **The 18 handlers are exemplary** — 13
+> print `status()` and `stop`, and 5 set a flag read on the very next line.
+> ***THAT FLAG IDIOM IS THE HOUSE-CORRECT ANSWER TO `on error`***
+> (`CREATEA:1172`→`:1175`, `MODIFYA:763`→`:780`, `:1049`→`:1051`,
+> `:1419`→`:1422`, `CRED_SET:167`→`:181`) and is what a fix elsewhere should
+> copy.
+>
+> **4b. WHAT THE DEFECT ACTUALLY WAS, AND WHY THE FRAMING MISSED IT.** The box
+> sized this sweep by `write`/`delete`, and `gpl.bp` handles those correctly
+> everywhere. **The truncate family is where it goes wrong**: `chsize64` has 7
+> call sites, **6 discard the return and 1 checks it** (`sdfix.c:2493`, the
+> control). `dh_file.c:831` is the archetype — `bool SetFileSize(…) {
+> chsize64(…); return TRUE; }`, **a status-typed function that cannot fail
+> because it does not look**, so `dh_clear` could not check it even if it tried.
+> `op_seqio.c:1542` and `:803` are the ones that answer wrongly: **`WEOFSEQ` and
+> `OPENSEQ … OVERWRITE` leave the old tail and report success**, and
+> `QPROC:673` is `weofseq csv.f`, so a CSV export can carry rows from a previous
+> longer run. ***SIZE THE NEXT SWEEP BY THE OPERATION, NOT BY THE KEYWORD.***
+>
+> *(The original note follows.)* **`status()`-never-checked — 129 bare `write`/`delete`
 > statements against 275 `status()` references.** The inverse of sweep 1: not a
 > discarded return, but an operation whose status **nobody reads**. ***MIND THE
 > TWO LEGITIMATE PATTERNS BEFORE FILING ANYTHING***: a **bare** `write`/`delete`
@@ -8988,6 +9015,7 @@ THE REST ARE A READING AND WANT THE OWNER'S EYE BEFORE ANY SEVERITY MOVES.***
 | | **100** | an AK node allocator answers "could not" with 0, nobody tests it, and node 0 is the index header — a transient write error becomes permanent corruption of what every query on that key is answered from. **The one entry with no self-heal** |
 | | **101** | `DELETE` on a directory file inside a transaction cannot fail — the record survives, the commit reports success, and the next query returns it. **Filed B: the only open entry besides 93 and 94 whose trigger is an ordinary state, not an induced fault** |
 | | **102** | a commit that fails half way is partly applied, cannot be rolled back, and never releases its locks. **11's leftover, recorded only inside a struck entry until now** |
+| | **103** | `WEOFSEQ` and `OPENSEQ … OVERWRITE` report success on a truncate that did not happen, so the file keeps its old tail — and `SetFileSize` is a `bool` that always answers TRUE |
 | **candidates, my reading** | **67** | the mode page's caption calls ssh optional; a full install always installs the server |
 | | **89**, **88** | a control the user clicks expecting an action, and none follows |
 | | **20** | the register says `SUSPENDED` while the person keeps Windows administrator rights |

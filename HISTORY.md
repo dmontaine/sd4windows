@@ -43880,3 +43880,57 @@ already `UPSTREAM_FIXES` 17 and is covered by 11.
 Tier-1 green: fixlist **230/0** (open 23 → 25), tiercounts 15/15, verdict
 140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0. **Sweeps 4–6
 still owed**; full suite still owed by the owner, `b85` still the last one.
+
+## 31 Aug 2026 — sweep 4 of six done: the sweep came back clean, entry 103 is one keyword family over
+
+***THE `write`/`delete` SWEEP THE BOX SPECIFIED FOUND NOTHING, AND ESTABLISHING
+THAT WAS MOST OF THE WORK.*** **150 sites in `gpl.bp`, not the 129 estimated**,
+and every one is correct or already filed: 123 bare, 18 with a real `on error`,
+5 `on error null` (**97's**), and 4 that looked like `then`/`else` and are bare
+`delete`s inside an `if … then`. Documentation only.
+
+**The "bare aborts loudly" claim was verified rather than inherited**, because
+the whole negative result rests on it: `op_dio3.c:650` raises 1406 and `:436`
+raises 1405 when `P_ON_ERROR` is unset, and `k_error.c:31` makes both fatal
+(established in sweep 3). **The 18 handlers are exemplary** — 13 print
+`status()` and `stop`; 5 set a flag that is read on the very next line
+(`CREATEA:1172`→`:1175`, `MODIFYA:763`→`:780`, `:1049`→`:1051`,
+`:1419`→`:1422`, `CRED_SET:167`→`:181`). **That flag idiom is the
+house-correct answer to `on error`** and is what a fix elsewhere should copy.
+
+***THE DEFECT IS IN THE TRUNCATE FAMILY, WHICH THE BOX'S FRAMING DID NOT
+COVER.*** `chsize64` has **7 call sites: 6 discard the return, 1 checks it** —
+`sdfix.c:2493`, the control that proves the return is usable.
+
+- **`dh_file.c:831` is the archetype**, and it is the whole function:
+  `bool SetFileSize(OSFILE fu, int64 bytes) { chsize64(fu, bytes); return TRUE; }`
+  — **a status-typed function that cannot fail because it does not look.** Its
+  callers in `dh_clear.c` could not check it even if they wanted to.
+- **`op_seqio.c:1542` (`op_weofseq`) and `:803` (`openseq` overwrite) are the
+  ones that answer wrongly.** `WEOFSEQ` is nothing but that truncate;
+  `process.status` is never set from it, so `:1549` pushes 0 and the
+  `k_error(sysmsg(1420))` at `:1551` **cannot fire**. The opcode aborts loudly
+  on every failure it detects, and this is the one it does not detect.
+  **`QPROC:673` is `weofseq csv.f`**, so a CSV export can carry trailing rows
+  from a previous, longer run — the file is the answer the user takes away.
+
+**The `dh_clear` pair is a leak, not wrong data**, and 103's row says so
+explicitly: the primary is rewritten with empty groups first and that `Write`
+**is** checked (`:97`), as are the `Seek` (`:89`) and `ak_clear` (`:121`). **That
+contrast is the argument** — three steps tested, and the two truncates the only
+ones that cannot be.
+
+**Not duplicated:** `dh_ak.c:2702` and `:3707` are the same class and are
+already 100's; `k_error.c:617` is error-log rotation and is not filed.
+
+**Identical upstream** at `ae0cc5f` — `SetFileSize` the same four lines,
+`op_seqio.c` at `:724` and `:1392`. **`UPSTREAM_FIXES` 33.** Filed **M** on the
+trigger, which is why it sits below 101.
+
+***THE LESSON FOR SWEEPS 5 AND 6: SIZE BY THE OPERATION, NOT BY THE KEYWORD.***
+`gpl.bp` handles `write` and `delete` correctly everywhere; the failure was one
+family over, in the call that actually does the work.
+
+Tier-1 green: fixlist **230/0** (open 25 → 26), tiercounts 15/15, verdict
+140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0. **Sweeps 5–6
+still owed**; full suite still owed by the owner, `b85` still the last one.

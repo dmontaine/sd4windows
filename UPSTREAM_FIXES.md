@@ -2357,3 +2357,111 @@ has the same `process.txn_id = 0`, the same three `k_error()` and `goto` pairs,
 and `unlock_txn()` after the loop.
 
 `PROPOSED`
+
+## 33. `SetFileSize()` cannot fail, and two sequential-file opcodes report success on a truncate that did not happen
+
+`chsize64()` is called seven times in `gplsrc`. Six discard the return. The
+seventh, `sdfix.c:2493`, tests it:
+
+```c
+    if (chsize64(fu[PRIMARY_SUBFILE], n)) {
+```
+
+so the return is meaningful and is used elsewhere in the same tree.
+
+The clearest of the six is `dh_file.c:831`, which is the whole function:
+
+```c
+bool SetFileSize(OSFILE fu, int64 bytes) {
+  chsize64(fu, bytes);
+  return TRUE;
+}
+```
+
+It is declared to return a status and always returns success. A caller cannot
+check it even if it wants to, because there is nothing to check.
+
+Its two callers are in `dh_clear.c`, which is `CLEAR.FILE`:
+
+```c
+  if (Seek(dh_file->sf[PRIMARY_SUBFILE].fu, ...) < 0) {   /* :89  checked  */
+    dh_err = DHE_SEEK_ERROR;
+    goto exit_dh_clear;
+  }
+
+  for (group = 1; group <= new_modulus; group++) {
+    if (Write(dh_file->sf[PRIMARY_SUBFILE].fu, ...) < 0) { /* :97  checked */
+      dh_err = DHE_INIT_DATA_ERROR;
+      goto exit_dh_clear;
+    }
+  }
+
+  SetFileSize(dh_file->sf[PRIMARY_SUBFILE].fu, ...);       /* :107 cannot be */
+
+  FDS_open(dh_file, OVERFLOW_SUBFILE);                     /* :113 discarded */
+  SetFileSize(dh_file->sf[OVERFLOW_SUBFILE].fu, ...);      /* :114 cannot be */
+
+  for (akno = 0; akno < MAX_INDICES; akno++) {
+    if ((ak_map >> akno) & 1) {
+      if (!ak_clear(dh_file, AK_BASE_SUBFILE + akno))      /* :121 checked  */
+        goto exit_dh_clear;
+    }
+  }
+```
+
+The seek, the write and the index clear are all tested; the two truncates are
+the only steps that are not, and they are the only ones that could not be. In
+this function the consequence is mild — the primary is rewritten with empty
+groups first, and that write is checked, so a failed truncate only fails to
+reclaim excess space. `FDS_open()`'s discarded return is worth taking at the
+same time, since an invalid handle otherwise reaches the second call.
+
+The two sequential-file sites matter more, because there the truncate is the
+entire meaning of the statement.
+
+`op_seqio.c:1542`, the body of `op_weofseq()`:
+
+```c
+  Seek(fu, sq_file->posn, SEEK_SET);
+  chsize64(fu, sq_file->posn);
+  sq_file->base = -1;
+
+exit_op_weofseq:
+  InitDescr(e_stack, INTEGER);
+  (e_stack++)->data.value = process.status;
+
+  if ((process.status < 0) && !(op_flags & P_ON_ERROR)) {
+    k_error(sysmsg(1420), -process.status);
+  }
+```
+
+`WEOFSEQ` is nothing but that truncate. `process.status` is never set from it,
+so the status pushed on the stack is 0 and the `k_error()` two lines later
+cannot fire. The opcode aborts loudly on every failure it detects, and this is
+the one it does not detect: the file keeps everything past the intended end and
+the program is told the truncate succeeded.
+
+`op_seqio.c:803`, in `openseq()` under the overwrite flag, has the same shape,
+so `OPENSEQ ... OVERWRITE` can leave the previous contents in place. Later
+writes then overwrite only the front of the file and the old tail survives past
+the new end.
+
+A minimal fix is to return the result from `SetFileSize()`:
+
+```c
+bool SetFileSize(OSFILE fu, int64 bytes) {
+  return chsize64(fu, bytes) == 0;
+}
+```
+
+and, in the two sequential opcodes, to set `process.status` when the truncate
+fails so that the `k_error()` each already carries does its job.
+
+`gplsrc/dh_file.c:831`, `:832`; `gplsrc/op_seqio.c:803`, `:1542`;
+`gplsrc/dh_clear.c:89`, `:97`, `:107`, `:113`, `:114`, `:121`; the checked
+control at `gplsrc/sdfix.c:2493`. Confirmed identical on upstream `main` at
+commit `ae0cc5f` — `SetFileSize()` the same four lines at `dh_file.c:831`, and
+the two `op_seqio.c` calls at `:724` and `:1392`. The two further discards in
+`dh_ak.c` are covered by entry 30 above.
+
+`PROPOSED`
