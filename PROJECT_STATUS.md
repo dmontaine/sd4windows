@@ -9105,6 +9105,20 @@ list, session state, printer state, and the ones that change the process.
 **169 cases is not 176 functions**: some functions carry several cases and the
 excluded ones carry none.
 
+***WIRED INTO `VerifyInstall1` ON THE OWNER'S RULING, 31 Aug 2026*** — beside
+`verify-txn.ps1`, which is the same shape. **17 steps now, up from 16.**
+***PROVED WITHOUT A RUN TOKEN, BECAUSE §4.0.1 FORBIDS THE AGENT RUNNING THE
+RUNNER***: the step list was lifted from the file and driven through
+`suite-only.ps1`'s `Select-SuiteSteps` — `-Only verify-basicfuncs` selects
+exactly 1 with `Partial` true, two names come back in **runner order**, and a
+typo'd name is refused by name. **That is how to check a wiring here; do not
+spend a `-Run` on it.**
+
+**Re-deriving the header counts turned up PRE_RELEASE 107**: `verify-tierchange.ps1`
+is in neither runner and is the parent of `verify-acctmsgs` and `verify-vocverbs`,
+so three never run. **It wants the ELEVATED runner and is filed, not wired** —
+that is the owner's command to change.
+
 ### 5.23 A query must never answer wrongly (owner, 31 Aug 2026)
 
 *"`LIST ACCOUNTS` must be absolutely accurate. Administrators must never receive

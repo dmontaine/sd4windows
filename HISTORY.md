@@ -44081,3 +44081,45 @@ account, and costs about 20 seconds.
 
 Tier-1 green: fixlist **232/0** (open 28 → 29), tiercounts 15/15, verdict
 140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0.
+
+## 31 Aug 2026 — 106 closed: verify-basicfuncs wired into the unelevated half, and 107 found by the arithmetic
+
+**Owner's ruling, 31 Aug 2026, on 106.** `verify-basicfuncs.ps1` is now a step in
+`VerifyInstall1`, placed beside `verify-txn.ps1` — the same shape and the
+precedent its own comment cites: no elevation, no prefix, no account of its own,
+no UAC prompt, about 20 seconds. **17 steps, up from 16.**
+
+***PROVED WITHOUT SPENDING A RUN TOKEN, WHICH §4.0.1 REQUIRES*** — the agent may
+not run `VerifyInstall1` at all. The real step list was lifted from the runner by
+regex rather than retyped, then driven through `suite-only.ps1`'s own
+`Select-SuiteSteps`: **`-Only verify-basicfuncs` selects exactly 1 step with
+`Partial` true and no error; `-Only verify-txn,verify-basicfuncs` returns both in
+RUNNER order; and the negative control — a typo'd `verify-basicfunc` — is refused
+by name.** That is the way to check a wiring in this tree.
+
+***THE HEADER COUNTS WERE RE-DERIVED FROM THE DIRECTORY RATHER THAN ADJUSTED BY
+ONE, AND THAT IS WHAT FOUND 107.*** `VerifyInstall1`'s header demands it, after
+the same invariant broke on 24 Aug 2026 and hid `verify-lineendings.ps1`. The
+arithmetic no longer closed: **44 in the directory, 17 + 21 = 38 named**, six in
+neither table.
+
+**Four of the six are fine and were checked one at a time rather than counted**:
+`verify-doors` and `verify-doors-admin` are children of `verify-doors-suite`,
+which is a step; `verify-acctmsgs` and `verify-vocverbs` are children of those
+and of `verify-tierchange`; and **`verify-upgrade` cannot be a step at all** —
+it is a two-phase hand-run (`-Snapshot`, install over the top, `-Compare`) that
+brackets an installer run.
+
+***`verify-tierchange.ps1` IS GENUINELY ORPHANED AND IS THE PARENT OF TWO MORE,
+SO THREE NEVER RUN.*** It covers the three rows of PRE_RELEASE 19 that
+`verify-tiers.ps1` §6 says it does not. Measured: neither runner, `cycle.ps1`
+nor `post-cycle*.ps1` names it in any form. **Filed as 107 and NOT wired in** —
+it wants the elevated runner, and adding a step there changes the owner's
+standing command, exactly as 106 did. **Third time this shape has been filed
+(54, 106, 107), which is the argument for a tier-1 guard rather than a fourth
+entry**: nothing checks that every `verify-*.ps1` is either in a runner or a
+named child, and the header comment meant to catch it is prose.
+
+Tier-1 green: fixlist **234/0** (open 29 → 29, 106 closed as 107 opened),
+tiercounts 15/15, verdict 140/140, sdtestuser 54/0, suiteonly 48/48,
+stale-leads exit 0.
