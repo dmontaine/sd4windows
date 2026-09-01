@@ -44300,3 +44300,60 @@ refined tonight — `sdsys/C:` precedes the account directory by **seven seconds
 rather than arriving with it, so four of the five eliminated candidates were
 looked for at the wrong moment, and nothing in the tree is touched in the
 eighteen seconds before it appears.
+
+## 1 Sep 2026 — entry 6: `make_path()` mkdir'd the drive letter; the seven-second pin was two different timestamp fields
+
+**Cause.** `fullpath()` emits `C:/ProgramData/SD/user_accounts/don` for a
+drive-lettered input — `op_dio2.c:1192` has recorded that measurement since
+21 Aug. `make_path()` splits its target on `DS` (`/`, `sddefs.h:86`) and mkdirs
+every cumulative prefix, so the first is the bare `C:`, which the MSYS2 runtime
+resolves as a relative filename rather than a drive. It lands in the process's
+cwd, and `CREATE.ACCOUNT`'s cwd is SDSYS. Route: `CREATEA:786` → `:797` →
+`CREATET1` → `op_dio1.c:328`. Fixed at `op_dio2.c:1537` and the second copy at
+`sdidx.c:601`; `make sd` exit 0, `assert-current` confirms the new `sd.exe`
+hash. **Not upstream** — `sdb64` has the same lines and no caller on Linux can
+hand them a drive letter.
+
+**The seven-second pin was an instrument fault, and it is what eliminated the
+true cause.** The 1 Sep refinement compared `sdsys\C:`'s **CreationTime**
+(00:03:24.957) with `user_accounts\don`'s **LastWriteTime** (00:03:31.189).
+Both CreationTimes are `00:03:24.9574652` — the same tick. `don`'s write time
+advanced because VOC, `$hold`, `$savedlists`, `bp` and `cat` were created inside
+it. **The conclusion drawn from it — "not made by whatever builds the account
+directory" — was exactly backwards**, and it ruled out the one candidate that
+was correct, on the grounds that the path was *already* `OS$FULLPATH` — which is
+what causes it.
+
+*"Likely adopt-specific"* was the same shape: the mtime never moved after twenty
+later account creations because once `C:` exists `stat()` succeeds and the loop
+skips it. **Compare one field with itself** is the portable lesson; it cost six
+days and three sessions.
+
+**Measured, not read.** A standalone probe built with the MSYS2 gcc — the
+runtime asserted by `uname`, because a MINGW64 build has none of this behaviour
+and the first attempt got one. Old function litters and still builds its target;
+new function litters not and still builds its target; 4 of 4. The name the probe
+produces is byte-identical to the litter, and the two namespaces show it
+differently — `U+0043 U+F03A` from Windows, `U+0043 U+003A` through the POSIX
+runtime, one directory seen twice. That is the **third** instrument in this
+entry's history to disagree with another about the same file.
+
+**`gplbld/check-datatree-litter.ps1`** is new: unelevated, read-only, scans the
+data tree for any name carrying a `U+F000-U+F0FF` character — the whole class,
+not the one instance. Proved against the litter before being trusted to report
+its absence (3619 entries scanned, exactly one found), refuses a scan under 100
+entries as a permission wall rather than a clean tree, and is on
+`assert-current`'s `$neverShipped` list in the same commit, per the session-79
+trap. **Not wired into either runner** — that is the owner's call.
+
+**Closed the same day, on the 09:11:07 install.** `check-datatree-litter` CLEAN,
+exit 0, 3611 entries scanned, where the identical measurement found exactly one
+on the 00:02:57 install. Two controls: `user_accounts\don` was created
+`09:11:32.047` on this install, so `make_path()` did run over a drive-lettered
+path — a clean scan of a tree with no account created would prove nothing — and
+`assert-current` exit 0 with installed `sd.exe` `82F6FD720D581A42`, the hash of
+the fixed build, against `EED6F0D0E11C2239` before it. On the old install `don`
+and `C:` shared a creation tick; now `don` arrives alone.
+
+**The entry ran six days on a wrong inference and closed in one session once the
+two timestamps were the same field.** Nothing else about it changed.

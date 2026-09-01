@@ -141,45 +141,73 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 4, 1 Sep 2026 — ***FINISH ENTRY 6 FIRST. THE OWNER ASKED FOR IT BY NAME.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 5, 1 Sep 2026 — ***ENTRY 6 IS CLOSED AND MEASURED. THE OWNER ASKED FOR IT BY NAME AND IT IS DONE.*** ⇩⇩⇩
 >
-> ***HIS LAST WORDS BEFORE THE CREDITS RAN OUT, ABOUT THE `C:` DIRECTORY:***
-> *"that has been hanging around forever, can we just finish the research and
-> fix it?"* **So entry 6 is the first task, not a candidate to weigh against
-> others.** It is an S, and it is being done because he asked, which is reason
-> enough.
+> *"That has been hanging around forever, can we just finish the research and
+> fix it?"* — **finished, fixed, and confirmed on the 09:11:07 install.**
 >
-> ### ***ENTRY 6 — WHAT CHANGED TONIGHT AND WHAT TO DO NEXT***
+> ### ***THE CLOSING MEASUREMENT***
 >
-> **The pin was refined and it moves the search.** Sub-second `stat` on the
-> 00:02:57 install separated what one-second granularity had merged on both
-> earlier installs:
+> `check-datatree-litter` **CLEAN, exit 0, 3611 entries**, against the identical
+> measurement finding exactly one on the 00:02:57 install. **Two controls make
+> that a result rather than an absence of work:**
 >
 > | | |
 > |---|---|
-> | install finished (`gcat`) | 00:02:57.744 |
-> | **`sdsys/C:`** | **00:03:24.957** |
-> | `user_accounts/don` | 00:03:31.189 |
-> | `adopt-account.log` | 00:03:33.318 |
+> | **the operation ran** | `user_accounts\don` created **09:11:32.047**, on this install — so `make_path()` did execute over `C:/ProgramData/SD/user_accounts/don`. A clean scan of a tree where no account was created proves nothing |
+> | **it was the fixed binary** | `assert-current` **exit 0**, installed `sd.exe` `82F6FD720D581A42` — the hash of the 08:59:15 build, against `EED6F0D0E11C2239` before it |
 >
-> ***`C:` PRECEDES THE ACCOUNT DIRECTORY BY SEVEN SECONDS***, so it is **not**
-> made by whatever builds that directory — it is made earlier in the same
-> `CREATE.ACCOUNT … ADOPT` run. **Four of the five candidates already eliminated
-> were being looked for at the wrong moment.** And the window is empty: nothing
-> in the whole data tree is touched between **00:03:06 and 00:03:24**.
+> **On the old install `don` and `C:` shared a creation tick. Now `don` arrives
+> alone.** `gplbld/check-datatree-litter.ps1` stays as the standing check —
+> unelevated, read-only, and **it was proved against the litter before it was
+> trusted to report its absence.** Not wired into either runner; that is the
+> owner's call.
 >
-> ***THE NEXT STEP IS THE DISCRIMINATOR THE ENTRY HAS NAMED ALL ALONG, AND IT
-> NEEDS THE OWNER*** — it deletes a directory in `C:\ProgramData\SD` and creates
-> an account. **Remove `sdsys\C:`, then run an ORDINARY `create.account` — not an
-> adopt — and see whether it returns.** That separates *adopt-specific* from
-> *every account creation*, which the mtime cannot, because a `mkdir` over an
-> existing directory can fail without touching it.
+> ### ***THE CAUSE — `make_path()` MKDIR'd THE DRIVE LETTER***
+>
+> `fullpath()` emits `C:/ProgramData/SD/user_accounts/don` for a drive-lettered
+> path — `op_dio2.c:1192` has carried that measurement since 21 Aug.
+> `make_path()` splits on `DS`, which is `/`, and mkdirs every cumulative
+> prefix. **The first prefix is the bare `C:`, and the MSYS2 runtime reads that
+> as a relative FILENAME, not a drive** — so it is created in the process's
+> current directory, which for `CREATE.ACCOUNT` is SDSYS. Fixed at both copies,
+> `gplsrc/op_dio2.c:1537` and `gplsrc/sdidx.c:601`; `make sd` exit 0.
+>
+> Measured with a standalone MSYS2 probe rather than read: old function litters
+> and still builds its target, new function litters not and still builds its
+> target, **4 of 4**, and the name the probe makes is byte-identical to the one
+> in `sdsys`.
+>
+> ### ***THE SEVEN SECONDS WAS AN INSTRUMENT FAULT, AND IT IS THE LESSON***
+>
+> Handoff 4 concluded from the table below that `C:` *"precedes the account
+> directory by seven seconds, so it is not made by whatever builds that
+> directory"* — **and that is what eliminated the true cause.** The two figures
+> were different fields:
+>
+> | | CreationTime | LastWriteTime |
+> |---|---|---|
+> | `sdsys\C:` | **00:03:24.957** | 00:03:24.957 |
+> | `user_accounts\don` | **00:03:24.957** | 00:03:31.189 |
+>
+> **Same creation tick to seven decimal places.** `don`'s LastWriteTime advanced
+> because VOC, `$hold`, `$savedlists`, `bp` and `cat` were created inside it over
+> the next six seconds. One `make_path()` call, microseconds apart.
+>
+> **It was never adopt-specific either.** Every `make_path()` over a
+> drive-lettered path does it; it stops after the first because `stat("C:")`
+> then succeeds and the loop skips it — which is also why the mtime never moved,
+> the observation that produced "likely adopt-specific".
 >
 > ***HOW TO EVEN SEE IT: `find . -name 'C:'` AND `Test-Path` BOTH REPORT
 > NOTHING***, for two different reasons — MSYS mangles the argument, and a colon
-> in a Windows path names an alternate data stream. **List and filter for an odd
-> name**: `ls -1b` showed it at position 7. Its real NTFS name is
-> `U+0043 U+F03A`.
+> in a Windows path names an alternate data stream. Its real NTFS name is
+> `U+0043 U+F03A`; through the POSIX runtime the same directory reads
+> `U+0043 U+003A`. **That is why the checker above exists** — a search by name
+> keeps coming back clean, and three sessions believed one.
+>
+> **The existing litter is not removed by the fix, only never made again.** The
+> cycle deletes both trees anyway, so it goes with them.
 >
 > ### ***THE SIX CLOSED TODAY, AND WHAT PROVED EACH***
 >
