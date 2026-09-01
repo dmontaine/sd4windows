@@ -44254,3 +44254,49 @@ shape of mistake that produced the wrong count in the first place.
 `b88` through `b91` are all spent; the next full run is `b92`. Read the CONTEXT
 of every grep hit when checking a token — `b88`, `b90` and `b91` each showed
 hits that were hex inside SHA hashes rather than run tokens.
+
+## 1 Sep 2026 — six entries closed, three of them blockers; five rulings
+
+Open 28 → 23. Closed: **105** (`verify-apiadmin` anchored on its own arguments,
+so the whole check rested on a disqualifier), **104** (`DELETE.FILE` orphaned a
+relocated index and discarded the delete), **103** (the truncate's return
+discarded at six of seven sites), then the BASIC batch — **94**, **97**, **98**,
+all three blockers and all three **the same defect: a function's answer
+discarded.**
+
+94 needed no logic changes at all: `os_group` returns 0 on success, exactly what
+the code beneath already meant by `stat`, so all five sites were one-line
+substitutions and `CREATEA:1890` already did it that way. 97 needed one new
+message (10157) and deliberately avoided a second — 10104 was already the
+sibling branch in the same routine. 98 moved `ELEVATION GRANTED` to the grant
+and took `kernel(K$ADMINISTRATOR, 1)`'s return, which `CPROC:2868` and
+`LOGIN:955` already stated as the rule.
+
+Two cycles (23:41:36 and 00:01:56), 197 of 197 compile units at `0 error(s)` in
+each, and the deciding `-Only` steps found by grepping the verifiers for what
+changed rather than guessed. **None of the three product fixes has been seen to
+FIRE** — all need an induced failure, and `weofseq` has no verifier at all.
+That limit is recorded in each entry rather than glossed.
+
+**The cost model was corrected by the owner and it is the most portable thing
+here**: the cycle is fast, the full suite is the expensive part, so batching
+source changes to save cycles is the wrong trade. It also surfaced that `-Run`
+is needed for unelevated `$needsTestUser` steps, or `-Only` refuses the name.
+
+**Rulings**: 93's shape — *"there should be NO invalid records in it"*, a
+requirement on the file rather than any reader, with the directory going with
+the record; 20 struck as **not a defect**, suspend correctly touching nothing on
+Windows; 110 and 111 filed for the two messages those rulings leave.
+
+**Two corrections to this session's own work.** 20 was briefly recorded as a
+confirmed defect on a misreading of a shorter answer. 78 was excluded from the
+BASIC batch as "a feature" after reading only the opening of a 9,500-character
+row — its last line said it was VM-blocked all along, and a marker now says so
+first. Both are the same failure: acting on the top of a long row.
+
+**Entry 6 is the next session's first task, by name**: *"that has been hanging
+around forever, can we just finish the research and fix it?"* Its timing pin was
+refined tonight — `sdsys/C:` precedes the account directory by **seven seconds**
+rather than arriving with it, so four of the five eliminated candidates were
+looked for at the wrong moment, and nothing in the tree is touched in the
+eighteen seconds before it appears.

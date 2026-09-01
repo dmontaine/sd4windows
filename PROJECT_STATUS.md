@@ -141,9 +141,47 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 3, 1 Sep 2026 — ***SIX ENTRIES CLOSED, THREE OF THEM BLOCKERS. OPEN 28 → 22.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 4, 1 Sep 2026 — ***FINISH ENTRY 6 FIRST. THE OWNER ASKED FOR IT BY NAME.*** ⇩⇩⇩
 >
-> ### ***THE SIX, AND WHAT PROVED EACH***
+> ***HIS LAST WORDS BEFORE THE CREDITS RAN OUT, ABOUT THE `C:` DIRECTORY:***
+> *"that has been hanging around forever, can we just finish the research and
+> fix it?"* **So entry 6 is the first task, not a candidate to weigh against
+> others.** It is an S, and it is being done because he asked, which is reason
+> enough.
+>
+> ### ***ENTRY 6 — WHAT CHANGED TONIGHT AND WHAT TO DO NEXT***
+>
+> **The pin was refined and it moves the search.** Sub-second `stat` on the
+> 00:02:57 install separated what one-second granularity had merged on both
+> earlier installs:
+>
+> | | |
+> |---|---|
+> | install finished (`gcat`) | 00:02:57.744 |
+> | **`sdsys/C:`** | **00:03:24.957** |
+> | `user_accounts/don` | 00:03:31.189 |
+> | `adopt-account.log` | 00:03:33.318 |
+>
+> ***`C:` PRECEDES THE ACCOUNT DIRECTORY BY SEVEN SECONDS***, so it is **not**
+> made by whatever builds that directory — it is made earlier in the same
+> `CREATE.ACCOUNT … ADOPT` run. **Four of the five candidates already eliminated
+> were being looked for at the wrong moment.** And the window is empty: nothing
+> in the whole data tree is touched between **00:03:06 and 00:03:24**.
+>
+> ***THE NEXT STEP IS THE DISCRIMINATOR THE ENTRY HAS NAMED ALL ALONG, AND IT
+> NEEDS THE OWNER*** — it deletes a directory in `C:\ProgramData\SD` and creates
+> an account. **Remove `sdsys\C:`, then run an ORDINARY `create.account` — not an
+> adopt — and see whether it returns.** That separates *adopt-specific* from
+> *every account creation*, which the mtime cannot, because a `mkdir` over an
+> existing directory can fail without touching it.
+>
+> ***HOW TO EVEN SEE IT: `find . -name 'C:'` AND `Test-Path` BOTH REPORT
+> NOTHING***, for two different reasons — MSYS mangles the argument, and a colon
+> in a Windows path names an alternate data stream. **List and filter for an odd
+> name**: `ls -1b` showed it at position 7. Its real NTFS name is
+> `U+0043 U+F03A`.
+>
+> ### ***THE SIX CLOSED TODAY, AND WHAT PROVED EACH***
 >
 > | entry | sev | what it was | proved by |
 > |---|---|---|---|
@@ -156,9 +194,49 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ***94, 97 AND 98 ARE THE SAME DEFECT THREE TIMES — A FUNCTION'S ANSWER
 > DISCARDED*** — which is why they were done as one batch: one cycle, one set of
-> `-Only` steps. **`20` and `78` were deliberately left out of it**: `20` is a
-> design decision (`MODIFYA` says the behaviour is deliberate) and `78` is a
-> feature, three new administrator commands.
+> `-Only` steps.
+>
+> ### ***FIVE RULINGS AND TWO CORRECTIONS, ALL FROM 1 Sep 2026***
+>
+> | | |
+> |---|---|
+> | **20** | ***RULED NOT A DEFECT — STRUCK.*** Suspend withdraws SD access only and touches Windows not at all, and that is correct; delete is the destructive verb. `MODIFYA:127`, `:856`, `:905-909` are right as written and **are not to be rewritten** |
+> | **93** | ***THE SHAPE IS RULED AND IT IS NONE OF THE THREE THE ENTRY OFFERED***: *"there should be NO invalid records in it"* — the requirement is on the FILE, not on any reader. **And the directory goes with the record.** Not started |
+> | **110** | **NEW** — `DELETE.ACCOUNT`'s confirmation must say the DATA goes and suggest suspend |
+> | **111** | **NEW** — suspending must say what it did *not* do: SD access gone, Windows untouched |
+> | **78** | ***NOT UNBUILT — IT IS VM-BLOCKED.*** The code is built and mostly proven; `ssh.server install`/`remove` have never run and want a guest VM. **A marker now says so in its first sentence instead of its last** |
+>
+> ***TWO OF THOSE ARE CORRECTIONS TO THIS SESSION'S OWN WORK AND ARE WORTH
+> READING AS SUCH.*** **20** was briefly recorded as a *confirmed defect* on a
+> misreading of a shorter answer, then struck when the owner gave the fuller
+> statement — the analysis written for the unwanted fix is kept, labelled, and
+> the section heading was struck too (`test-fixlist-units` caught that drift).
+> **78** was excluded from the BASIC batch as *"a feature, three new
+> administrator commands"* after reading only the opening of a 9,500-character
+> row; its own last line said it was VM-blocked all along.
+>
+> ***AND A QUESTION THE OWNER ASKED THAT IS WORTH KEEPING***: can a suspended
+> administrator log in **elevated**? **No** — `LOGIN:625` gates the SDSYS
+> landing case on `sd_admin_tier(@logname)`, `SDADMIN:121` returns false unless
+> `ACC$TIER` is exactly `ADMINISTRATOR`, so the case never fires and the login
+> falls through to an ordinary one where `:687` refuses it. **That gate is
+> PRE_RELEASE 91's, closed 31 Aug** — before it, the landing case tested only
+> the two Windows keys.
+>
+> ***OPEN COUNT: 23*** — from `test-fixlist-units`, not by counting headings.
+> 28 at the start of the day, six closed, `20` struck, `110` and `111` filed.
+> **Next run token is `b94` — measured free, 0 occurrences across every log.**
+>
+> ***THE COST MODEL WAS CORRECTED BY THE OWNER AND IT CHANGES HOW WORK IS
+> SEQUENCED***: *"running cycle is fast, expensive is having to run the full
+> verification-suite which should be avoided in favor of running `-Only` when
+> possible."* **So do not batch source changes to save cycles** — batch them
+> when they are logically related, and hand over the deciding `-Only` step,
+> found by grepping the verifiers for what changed. ***`-Run` IS ALSO NEEDED
+> UNELEVATED*** for any step in `$needsTestUser` (`verify-nocase`,
+> `verify-lineendings`, `verify-logtoaccess`): the account is `sdtu$Run` and
+> `VerifyInstall1:634` gates it, so without one the step is dropped **before**
+> `-Only` filters and `-Only` then refuses the name and exits 2.
 >
 > ***THE STATE, MEASURED***: cycle **00:01:56**, install **00:02:57**,
 > `assert-current` **exit 0**, `sd.exe` **EED6F0D0E11C2239** (unmoved — 94/97/98
