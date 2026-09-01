@@ -44961,3 +44961,77 @@ behind it as `y : The term 'y' is not recognized`, and the owner typed it.
 `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, which is the file the guests install
 from. 119's one-line edit was therefore made and deliberately **not** built, so
 it is unwitnessed and stays open.
+
+## 1 Sep 2026 — legs 4 and 4b: 76 and 88 close, 74's own entry is found to be wrong, and 120 comes out of the path nobody had run
+
+**The interactive uninstall and the reinstall after it.** Answers given, so the
+numbers can be read: database **kept** (the default), accounts **swept**.
+Sweeping was the deliberate choice — 74 claims four groups survive an uninstall,
+and that is only a measurement in the case where you would most expect them to
+be cleaned up.
+
+***74 SURVIVED THE TEST AND ITS OWN ENTRY DID NOT.*** All four groups were still
+there — `sdusers`, `sdssh`, `sdapi` holding `don`, and **`sdsshonly` empty**,
+which is precisely the deny-logon group left behind by software that has removed
+itself. The sweep log read `removed 1 of 1 account(s); kept 1`, local users 6 →
+5, and the teardown did everything it promises: SD's block gone from
+`sshd_config`, the PATH entry gone, `SD-API-In-TCP` gone, `C:\Program Files\SD`
+gone. ***BUT THE ENTRY SAID THE DISCLOSURE "SHOWS AT UNINSTALL", AND IT DOES
+NOT.*** The uninstall was driven to the end looking for it and no such dialog
+exists. The paragraph is on the **BEFORE-YOU-INSTALL** page, under `WHAT
+UNINSTALLING DOES NOT REMOVE` — `sd.iss:1787`, inside the same `M := M + ...`
+accumulation whose neighbouring lines had been read on screen hours earlier.
+**A claim about WHERE a message appears, derived from reading, sent a session to
+the most expensive place available to look for it.** The naming half is now seen,
+by pressing PgDn on that page, and every sentence of it was checked against the
+uninstall rather than admired: four groups, both removals offered separately and
+both defaulting to keep, confinement removed with the rest, own account never
+touched. All true.
+
+***76 AND 88 BOTH CLOSED ON THE ONE REINSTALL.*** The uninstall took the key
+away, so `TrueUpgrade` went false and **the tasks page was shown** — 88's second
+branch — with the Ready memo present, which `UpdateReadyMemo` drops only on a
+true upgrade. **The ssh box arrived TICKED**, matching the `RemoteAddress=Any`
+recorded at 15:14:25 before any of it: that is 76's "open" branch, the leg its
+row had said needed *"a machine whose rule is `Any` at install time"*. The page
+was photographed before anything was touched, which is the only way that
+reading means anything. **And 88's predicted bonus was measured too** — with the
+key gone `UsePreviousTasks` had nothing to restore, so both API boxes came up
+**unticked at their declared defaults** despite the previous install's recorded
+value carrying `apiremote,apiremote\apinetwork`.
+
+***120, AND IT IS THE FIND OF THE DAY.*** The reinstall's closing box reported
+two failures seen on no other path: *"The batch command list was NOT locked
+(code 2)"* and *"An SD system directory was NOT locked (code 2):
+`…\sdsys\bp`"*. `secure-sysdirs.ps1` exits 2 for two reasons only, and it is the
+second — **the paths are not there**. `sdsys\bp` and `sdsys\batch.jobs` are both
+absent after uninstall-then-reinstall with the database kept: the uninstall takes
+them, and the reinstall sees a data tree, so `upgrade.iss` replaces only shipped
+files while those two are on the preserved list. **`batch.jobs.dic` is the
+control** — present, inheritance protected, `sdusers` at `ReadAndExecute` and no
+broad write entry — so the machinery works and this is an absence. ***THE WORST
+PART IS THE ADVICE***: the box hands over two `secure-*.ps1 -Path …` commands
+naming those same missing paths, so the remedy exits 2 as well. An instrument
+that reports a fault honestly and then prescribes something that cannot work is
+worse than one that stays quiet.
+
+**One worry raised and retired**: the closing report says SD *"did not install,
+restart or reconfigure"* the ssh server, and the uninstall had stripped the SD
+block — so the confinement might have been absent. Measured: `AllowGroups sdssh
+…` and `ForceCommand` are both back. It was re-applied.
+
+***THE RENAME WENT WRONG THE FIRST TIME AND THE FAILURE IS THE REUSABLE PART.***
+The owner widened 119 to *"where sd is mentioned in the dialogs it always needs
+to be SD Core"*. Matching single-quoted strings is correct for Pascal — **but an
+apostrophe inside a comment opens one**: *"about somebody else's software. THIS
+RULE IS SD'S OWN"* parsed as a string, and an `SD` in a **comment** was renamed,
+along with a comment describing the literal `-match 'SD'`, turning a true
+sentence false. Caught by reading the diff, reverted with `git checkout`, redone
+with all four Inno comment forms masked out. **122 sites, and the check that
+matters is mechanical rather than visual**: 110 insertions / 110 deletions with
+every changed line differing *only* by `SD`→`SD Core` and **quote counts equal on
+all 110** — the one failure mode that stops ISCC. Paths, `SDSYS`, the lower-case
+group names, `sd.exe` and the `-like 'SD *'` pattern all verified untouched.
+
+**Nothing was built.** 116, 117 and 119 are all fixed in source and unwitnessed,
+which is why all three are still open.

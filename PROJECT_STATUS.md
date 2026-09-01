@@ -141,6 +141,62 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 10, 1 Sep 2026 — ***THE VM RUN IS FINISHED. 78, 76 AND 88 CLOSED; 116-120 FILED. ONE BUILD IS OWED AND NOTHING ELSE IS IN FLIGHT.*** ⇩⇩⇩
+>
+> ***THE ONE THING TO DO NEXT: BUILD, BECAUSE THREE ENTRIES ARE FIXED IN SOURCE AND UNWITNESSED.*** 116, 117 and 119 are all edits to text nobody has yet seen rendered, and **119 is 122 dialog strings** — the class of change that gets marked done and never looked at. Building was deliberately deferred while the guest run was live, because `cycle.ps1` rebuilds
+> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, **the exact file the guests install from**. The run is over, so that reason is gone.
+>
+> ***NEXT PRE_RELEASE ID: 121. NEXT RUN TOKEN: `b101`*** (no suite ran this session; the host install is still 12:50:27 with `b100` green in both halves).
+>
+> ### ***WHAT THE VM RUN CLOSED, AND THE ONE CORRECTION IT FORCED***
+>
+> **78** — both `ssh.server` verbs have now run. **76** — the tickbox arrived
+> **ticked** on a machine whose rule was already `Any`, which was its last
+> untested leg. **88** — both branches witnessed: page **skipped** on a true
+> upgrade, **shown** after an uninstall, with the API boxes at their declared
+> defaults because the key was gone.
+>
+> ***AND 74'S "SHOWS AT UNINSTALL" WAS FALSE.*** The four-group paragraph is on
+> the **BEFORE-YOU-INSTALL** page, under `WHAT UNINSTALLING DOES NOT REMOVE`
+> (`sd.iss:1787`). An interactive uninstall was run looking for it and **no such
+> dialog exists**. The naming half is now seen — by scrolling that page — and
+> every sentence of it was checked against the uninstall measured minutes
+> earlier. **Only "remove the three" is left, and that is the owner's.**
+>
+> ### ***THE GUEST IS INSTALLED, WORKING AND IDLE — AND CARRIES 120***
+>
+> `Windows 11 - Test 1` has SD installed (16:04 reinstall), ssh Running,
+> confinement re-applied, rule `Any`. **Do not delete it while 120 is open**:
+> it is the only machine in the uninstall-then-reinstall state, and rebuilding
+> that costs an install plus the ssh remove/reboot/install cycle.
+>
+> ***120 IS THE FIND OF THE DAY AND IT IS A `B`.*** After uninstall-then-
+> reinstall with the database kept, **`sdsys\bp` and `sdsys\batch.jobs` are
+> simply not there**, so the hardening reports `code 2` and does nothing — and
+> **the two commands the box tells the administrator to run name those same
+> missing paths**, so the remedy fails too. `batch.jobs.dic` is the control: it
+> exists and IS locked correctly, so the machinery works and this is an absence.
+>
+> ### ***DRIVING A GUEST — THE THREE THINGS THAT COST TIME***
+>
+> **`keyboardputscancode` + `screenshotpng` needs no guest credentials**, so
+> `guestcontrol` stays forbidden and unnecessary. ***`keyboardputstring` DROPS
+> CHARACTERS — IT DROPPED ONE ON A 12-CHARACTER CHUNK***, turning `\\vboxsvr`
+> into `\vboxsvr`. **Send each `\` as its own call and screenshot before Enter.**
+> ***A CONSOLE THE INSTALLER OPENS FOR ITSELF TAKES NO INJECTED KEYSTROKES AT
+> ALL***: three `y`s aimed at `check-install`'s prompt landed in the PowerShell
+> window behind it as `y : The term 'y' is not recognized`, and the owner had to
+> type it. **Inno's own GUI pages take them fine** — Alt+N, Alt+I, Alt+Y, Alt+F
+> and PgDn all worked. **PgDn is how you read a disclosure memo**, and 74 was
+> closed by scrolling one.
+>
+> ### ***THE FILES, ALL READABLE FROM THE HOST***
+>
+> `C:\Users\dmont\sdxfer` holds captures `01`-`08` and the `leg3*`/`leg4*` logs,
+> plus the driver scripts. **They are untracked and a clean checkout loses
+> them**; the captures are the evidence behind 74, 76, 88 and 120.
+
+
 > # ⇩⇩⇩ HANDOFF 9, 1 Sep 2026 — ***LEG 3 IS DONE AND 78 IS CLOSED. THE GUEST IS UPGRADED AND IDLE; LEG 4 IS THE INTERACTIVE UNINSTALL.*** ⇩⇩⇩
 >
 > ***DO NOT RUN `cycle.ps1` WHILE A GUEST RUN IS IN FLIGHT.*** It rebuilds
