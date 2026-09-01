@@ -141,7 +141,41 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 3, 31 Aug 2026 — ***`b91` IS GREEN END TO END: 19 OF 19 AND 22 OF 22, NO `PARTIAL`.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 3, 1 Sep 2026 — ***SIX ENTRIES CLOSED, THREE OF THEM BLOCKERS. OPEN 28 → 22.*** ⇩⇩⇩
+>
+> ### ***THE SIX, AND WHAT PROVED EACH***
+>
+> | entry | sev | what it was | proved by |
+> |---|---|---|---|
+> | **94** | **B** | `CREATEA`'s five group adds read `OS.ERROR()`, which had no causal connection to `os_group` | `verify-createaccount` **18/18**, `verify-routes`, `verify-sshonly` |
+> | **97** | **B** | two `delete … on error null` sites asserted the delete had happened | `verify-tierchange` — the only verifier matching both 10113 and 10115 |
+> | **98** | **B** | `ELEVATION GRANTED` written 85 lines before anything was granted | `verify-sdsysgate` — the only verifier matching `ELEVATION GRANTED` |
+> | **103** | M | the truncate's return discarded at six of seven sites | `verify-lineendings` **17/17**, the only verifier driving `openseq` |
+> | **104** | M | `DELETE.FILE` orphaned a relocated index and discarded the delete | the cycle's compile; no verifier reaches the path |
+> | **105** | M | `verify-apiadmin`'s compile check rested on its disqualifier | red/green against the real `b91` transcript, then `verify-apiadmin` exit 0 |
+>
+> ***94, 97 AND 98 ARE THE SAME DEFECT THREE TIMES — A FUNCTION'S ANSWER
+> DISCARDED*** — which is why they were done as one batch: one cycle, one set of
+> `-Only` steps. **`20` and `78` were deliberately left out of it**: `20` is a
+> design decision (`MODIFYA` says the behaviour is deliberate) and `78` is a
+> feature, three new administrator commands.
+>
+> ***THE STATE, MEASURED***: cycle **00:01:56**, install **00:02:57**,
+> `assert-current` **exit 0**, `sd.exe` **EED6F0D0E11C2239** (unmoved — 94/97/98
+> are BASIC and messages only). **197 of 197 compile units at `0 error(s)`** with
+> `CREATEA`, `LOGIN` and `MODIFYA` all in it. `-Run b93` ran **6 of 22 elevated
+> steps, all exit 0**, each printing `assert-current` first so none measured a
+> stale tree. **New message 10157; next free is 10158.**
+>
+> ***WHAT IS STILL OWED ON THESE SIX, SAID PLAINLY: NONE OF THE THREE PRODUCT
+> FIXES HAS BEEN SEEN TO FIRE.*** 103, 104 and 97 all need an induced failure — a
+> read-only file, a mandatory lock, a full disk — and `weofseq` has no verifier
+> at all. ***98 IS THE EXCEPTION AND IS THE CHEAPEST THING OWED ANYWHERE***: set
+> SDSYS's `ACC$TIER` to `SUSPENDED`, log in as an administrator and read the
+> trail. **No induced fault, and it is the one measurement that tells the old
+> ordering from the new.**
+>
+> ### ***THE 31 Aug SUITE HISTORY, KEPT***
 >
 > ***FOUR RUNS ON 31 Aug. BOTH FAILURES WERE INSTRUMENTS, NOT THE PRODUCT, BOTH
 > ARE FIXED, AND THE FOURTH RUN IS CLEAN.*** Nothing found in any of them is a
