@@ -190,9 +190,66 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > spent. **The next full run is `b92`** — check it the way these were, by
 > grepping the logs and reading the CONTEXT of every hit, because `b88`, `b90`
 > and `b91` all showed hits that turned out to be hex inside SHA hashes.
-> **No product source was touched in any of this** — only `gplbld` tooling and
-> documentation — so `assert-current` is **exit 0** and the install is still the
-> 13:33:28 one.
+>
+> ### ***THREE ENTRIES FIXED AFTER `b91`, CYCLED AND INSTALLED — 23:42:48***
+>
+> ***`b91`'S GREEN IS HISTORICAL: IT VALIDATED THE TREE AS AT 22:55 AND SAYS
+> NOTHING ABOUT THE CODE BELOW.*** The cycle of 23:41:36 shipped all three and
+> `assert-current` is **exit 0** again — `sd.exe` **EED6F0D0E11C2239**, `bin\`
+> 23:37:44, install **23:42:48**, `gcat` **133** / `gpl.bp.out` **192**.
+> *(§"THE MACHINE"'s 125/184 is a 27 Aug figure and superseded; nothing here
+> added a program.)*
+>
+> | entry | what changed | proven how far |
+> |---|---|---|
+> | **105** | `gplbld/verify-apiadmin.ps1:306` — a positive `0 error(s)` anchor per probe, count derived from `$probes` | Red/green against the real `b91` transcript; **two false-pass paths closed**. `gplbld` only, no cycle |
+> | **104** | `gpl.bp/DELETEF:275`, `:350` — both `dummy = ospath(akpath, …)` now tested, reported with **sysmsg 2636**, upstream's own message that `MKINDX:355` already uses for the same call | ***COMPILES***: the cycle log line 376 `Compiling gpl.bp DELETEF`, `:380` `$DELETEF added to global catalogue`, **and 197 of 197 compile units reported `0 error(s)`** |
+> | **103** | `gplsrc/dh_file.c` `SetFileSize` returns the real status; `op_seqio.c` `op_weofseq` and `OPENSEQ … OVERWRITE` set `-ER_IOE` so their existing `k_error` can fire | `make sd` exit 0, **0 warnings, 0 errors**, only `dh_file.o` and `op_seqio.o` rebuilt. **Installed** |
+>
+> ### ***WHAT IS OWED IS TWO TARGETED STEPS, NOT A SUITE RUN***
+>
+> ***OWNER, 31 Aug 2026: "running cycle is fast, expensive is having to run the
+> full verification-suite which should be avoided in favor of running `-Only`
+> when possible."*** **The cycle is the cheap half.** CLAUDE.md already says to
+> keep full runs to milestones; this is the cost model behind it, and it means
+> **do not batch source changes merely to save cycles.**
+>
+> **The deciding steps were found by grepping the verifiers for what changed**,
+> not guessed: `openseq` appears only in `verify-lineendings`, `DELETE.FILE` in
+> `verify-txn` among others, and `105` changed `verify-apiadmin` itself.
+>
+> ***✅ RUN 23:48:03 AND BOTH PASSED — `PARTIAL, 2 of 19, all exited 0`.***
+> `verify-lineendings` **17 of 17** and `verify-txn` **9 of 9**, and each printed
+> `assert-current` against **`sd.exe EED6F0D0E11C2239`** first, so they measured
+> the NEW binary rather than a stale one. **`verify-lineendings` is the only
+> verifier that drives `openseq`** — READSEQ, the 2047/2048 straddle, READCSV and
+> all three CRLF writers came back clean, so **103's changed path carries no
+> regression.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b92 -Only verify-lineendings,verify-txn
+> ```
+> ***AN ORDINARY UNELEVATED PROMPT.*** ***`-Run` IS REQUIRED HERE EVEN THOUGH
+> NEITHER STEP TAKES A PREFIX***: `verify-lineendings` is in `$needsTestUser`,
+> the account is `sdtu$Run`, and `VerifyInstall1:634` gates it on `-Run` — with
+> none, the step is dropped from the list **before** `-Only` filters, so `-Only`
+> then refuses the name and exits 2. **Confirmed on the run above.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b92 -Only verify-apiadmin
+> ```
+> ***AN ELEVATED PROMPT — THIS IS THE ONE STILL OWED.*** **`b92` is free for it**
+> (its 30 grep hits were two contexts, a GUID fragment and a hex hash) and **is
+> deliberately reused across both**:
+> the prefix families are disjoint — `sdtu` for the unelevated test account,
+> `sdapia` for the elevated step — so neither name is built twice, which is the
+> actual rule behind not reusing a token.
+>
+> ***NEITHER FIX CAN BE PROVEN TO FIRE, AND THAT IS RECORDED RATHER THAN
+> GLOSSED***: both need an induced failure — a read-only file, a mandatory lock,
+> a full disk — and neither has a verifier. **`weofseq` appears in no verifier at
+> all.** The steps above prove the paths still work, not that the new reporting
+> triggers.
 >
 > ***THE "THREE VERIFIERS" CLAIM IN 107 WAS WRONG AND IS CORRECTED HERE.***
 > `verify-tierchange.ps1` does **not** raise `verify-acctmsgs` or
