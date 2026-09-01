@@ -44357,3 +44357,65 @@ and `C:` shared a creation tick; now `don` arrives alone.
 
 **The entry ran six days on a wrong inference and closed in one session once the
 two timestamps were the same field.** Nothing else about it changed.
+
+## 1 Sep 2026 — 110 and 111 built: the two messages an administrator needs before deleting and after suspending
+
+**110.** New message **10158**, printed by `DELACC` immediately before the
+confirmation and **outside the `loop`**, so a mistyped answer re-asks without
+repeating it. 10084 and 10085 named the objects that go; nothing said the data
+went with them, and nothing offered the alternative. It now says both, and the
+`y/<n>` default of `n` is untouched. A separate message rather than a rewording,
+so each prompt keeps its meaning.
+
+**111.** New message **10159**, printed by `MODIFYA` beside 10109/10113 and on
+the suspend path only. Three halves: what is lost (local login and ssh via
+`LOGIN:687`, the API via `APISRVR:518`, `logto` via `CPROC:4039`), what is
+untouched (the Windows account, its password, its groups, administrator rights
+included), and what lifts it.
+
+**Both are asserted, not just written**, which is what lets the entries close on
+a run rather than on a reading. `verify-delaccount` checks 10158 on **both**
+delete legs and lists it in `$needMsgs`; `verify-tiers` — which already issues a
+real `MODIFY.ACCOUNT … SUSPENDED` at `:605` — checks the two halves of 10159
+**separately**, because a message carrying only "all SD access is gone" would
+read as confirming the very assumption entry 20 stood on for months. Both anchor
+on wording only 10159 carries and both pass `$tierBad`, so neither can match a
+refused suspend.
+
+**Compiled but never displayed.** `cycle.ps1 -SkipInstall` 09:24:29: both
+programs `0 error(s)`, both catalogued, and **the staged tree was read rather
+than the run believed** — `gpl.bp.out` copies at 09:24, both messages staged
+byte-identical to source by `cmp`.
+
+**Both closed the same day on `-Run b94`, install 09:34:24.** `verify-tiers
+-Prefix sdtiertb94` exit 0, **35 PASS / 0 FAIL — 33 before these checks**, so
+the count itself shows they ran rather than were skipped; both halves of 10159
+pass separately, and the restore leg and the write-once `ACC$PRIOR.TIER` guard
+still pass, so the new message disturbed neither. `verify-delaccount -Prefix
+sddelb94` exit 0, **56 PASS / 0 FAIL**, 10158 asserted on both legs and rendered
+on all three. `test-sysmsg-units` **44/0** with `msg 10158 matches as rendered
+(multi-line, 8 escapes)` — it read **43/1** before the install, so that check is
+known to be capable of failing rather than merely green. `assert-current` exit 0
+with **3023** mirrored files against 3021, which is the two new messages.
+
+**The rendered text was read, not just the PASS count** — `%1` substituted at
+all three sites in 10158 and all five in 10159.
+
+***A PARTIAL RUN AND NOT REPORTED AS ANYTHING ELSE.*** `-Only` was deliberate;
+the full suite is still owed at the next milestone.
+
+***THE ONE THING NOT MEASURED, AND IT IS WORTH KNOWING WHY***: the blank lines
+between paragraphs as a person sees them. `Show-Raw` skips empty lines by
+construction, and the raw capture double-spaces every break — **the two log
+views disagree with each other and neither is a terminal.** Content and
+substitution are measured; spacing is not, and no log can settle it.
+
+**Two traps paid for on the way, both already written down and both worth
+re-reading.** A wrapper script named its argument list `$args`, the PowerShell
+automatic variable that CLAUDE.md's instrument section already records eating a
+`Start-Process` argument list — caught before it ran, by echoing the arguments
+and asserting the count, which is the fix that section asks for. And
+`cycle.ps1:96` **stops any transcript its window already has open**, by design,
+so the wrapper's own transcript came back empty with a meaningless exit 0
+(`$LASTEXITCODE` is never set either). The run was fine; the instrument was not.
+`%LOCALAPPDATA%\SD-verify\cycle-<stamp>.log` is the log with the run in it.

@@ -141,7 +141,54 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 5, 1 Sep 2026 — ***ENTRY 6 IS CLOSED AND MEASURED. THE OWNER ASKED FOR IT BY NAME AND IT IS DONE.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 5, 1 Sep 2026 — ***6, 110 AND 111 ALL CLOSED AND MEASURED. NOTHING IS OWED.*** ⇩⇩⇩
+>
+> ***OPEN COUNT: 20***, from `test-fixlist-units`, not by counting headings.
+> **Next free run token is `b95`.** The three `S` entries closed today all
+> started from something the owner asked for by name.
+>
+> ### ***110 AND 111 — CLOSED ON `-Run b94`, INSTALL 09:34:24***
+>
+> | | |
+> |---|---|
+> | **110** | `verify-delaccount -Prefix sddelb94` **exit 0, 56 PASS / 0 FAIL**; `[PASS] the data warning preceded it (10158)` on both asserted legs, and 10158 renders on all three delete legs. 10084/10085 unchanged |
+> | **111** | `verify-tiers -Prefix sdtiertb94` **exit 0, 35 PASS / 0 FAIL** — **33 before**, so the count itself shows the two new checks ran. Both halves of 10159 asserted separately; the restore leg and the write-once `ACC$PRIOR.TIER` guard still pass |
+>
+> **`test-sysmsg-units` 44/0**, `msg 10158 matches as rendered (multi-line, 8
+> escapes)` — it read **43/1** before the install, so that check is known to be
+> capable of failing. `assert-current` exit 0 with **3023** mirrored files
+> against 3021, which is the two new messages.
+>
+> ***THAT WAS A PARTIAL RUN AND IS NOT A PASSING SUITE.*** `-Only` was used
+> deliberately; the full suite is still owed at the next milestone, which is
+> where regressions in things nobody touched get caught.
+>
+> ***THE ONE THING NOT MEASURED***: the blank lines between paragraphs as a
+> person sees them at a terminal. `Show-Raw` skips empty lines by construction
+> and the raw capture double-spaces every break, so **both log views disagree
+> with each other and neither is the terminal.** The text and the `%1`
+> substitution are measured; the spacing is not.
+>
+> ### ***110 AND 111 — WHAT THEY ARE***
+>
+> | | |
+> |---|---|
+> | **110** | new message **10158**, `DELACC` prints it immediately before the confirmation and **outside the `loop`**, so a mistyped answer does not repeat it. Says the data goes and offers `modify.account x suspended`. The `y/<n>` default of **n** is untouched |
+> | **111** | new message **10159**, `MODIFYA` prints it beside 10109/10113 **on the suspend path only**. What is lost (local login, ssh, API, `logto`), what is untouched (the Windows account, its password, its groups, administrator rights included), and what lifts it |
+>
+> **10159 is not covered by `test-sysmsg-units`**: `verify-tiers` matches with
+> `Get-Said` and hand-written regexes rather than `Get-SysMsgPattern`. A wording
+> drift there shows up as a visible FAIL on the step, which is the safe
+> direction, but nothing checks the pattern against the message file.
+>
+> ***A TRAP WORTH KEEPING: `cycle.ps1` STOPS ANY TRANSCRIPT ITS WINDOW ALREADY
+> HAS OPEN*** (`cycle.ps1:96`, deliberate, and correct). So a wrapper that starts
+> its own transcript and then calls it gets **an empty log and a meaningless
+> exit 0** — `$LASTEXITCODE` is never set either. **Read
+> `%LOCALAPPDATA%\SD-verify\cycle-<stamp>.log`, which is the one that has the
+> run in it.**
+>
+> ### ***ENTRY 6 — CLOSED AND MEASURED***
 >
 > *"That has been hanging around forever, can we just finish the research and
 > fix it?"* — **finished, fixed, and confirmed on the 09:11:07 install.**
