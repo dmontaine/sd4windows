@@ -273,7 +273,30 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **Discarding the value while reading the status is not the defect; discarding
 > both is.**
 >
-> **2. `dh_ak.c` — THE INDEX LAYER, 3,925 LINES, COMPLETELY UNTOUCHED.**
+> **2. ✅ `dh_ak.c` — DONE 31 Aug 2026. ONE DEFECT, 100, AND IT IS THE WORST FOUND
+> BY ANY OF THE SWEEPS SO FAR.** ***THE FILE IS WELL CHECKED INTERNALLY AND THAT
+> IS WHY THE ONE GAP MATTERS***: `update_internal_node`, `free_ak_node`,
+> `free_ak_big_rec`, `ak_clear` and `delete_ak` are all called as
+> `if (!fn(…))` at every site — **53 call sites swept, and the house habit is to
+> test.** `get_ak_node` is the exception: it returns **0 for failure**, says so
+> explicitly at `:2716`, and **not one of its seven callers asks**. `dh_file.c:331`
+> maps node 0 to `offset = 0`, which is the AK header, so the failure path writes
+> a data node over the index header — **the only entry in this audit with no
+> self-heal**, which is the argument for raising it above 95's **M**.
+> ***CLEARED, SO NOBODY RE-FINDS THEM***: `ak_delete` returning `void` is
+> **correct** — it reports through the global `dh_err`, which `:192` copies to
+> `process.status`, and upstream is identical; and the three lesser discards
+> (`:2702`, `:3707`, `:3913`) **leak space rather than answer wrongly**, which is
+> stated in 100's row so they are not re-filed as accuracy. ***ALL OF IT IS
+> UPSTREAM'S***, byte-identical at `ae0cc5f` — **`UPSTREAM_FIXES.md` 30**, filed
+> the same day, because a defect in both trees goes in both files.
+>
+> **2b. THE PREDICTION IN THIS BOX WAS RIGHT ABOUT THE FILE AND WRONG ABOUT THE
+> MECHANISM.** It expected a silent index update failure. **The update paths are
+> not silent** — `dh_err` reaches `process.status` on every one of them. What is
+> wrong is the *order*: the error is reported **after** the header is overwritten,
+> so the caller is correctly told about a failure that has already been made
+> permanent. **Ask "when is it reported", not only "is it reported".**
 > ***THIS IS THE ONE THAT MOST DIRECTLY OWNS §5.23'S RULING.*** An alternate key
 > index that silently fails to update does not corrupt a record — **it makes
 > `SELECT`, `LIST` and every query built on that key return the wrong rows**,
@@ -8938,6 +8961,7 @@ THE REST ARE A READING AND WANT THE OWNER'S EYE BEFORE ANY SEVERITY MOVES.***
 | | **97** | `MODIFY.ACCOUNT` says the `os.users` record is removed, and the VOC removal count, from a `delete` whose failure was discarded — 65's symptom by a second route |
 | | **98** | the trail says `ELEVATION GRANTED` for a session refused before the rights were given — an event that did not occur, where 96 is a reason never established. The one open entry whose trigger needs no induced fault |
 | | **99** | the API session's identity, which stamps every audit line, is set by a call whose refusal is discarded; a checked neighbour thirty lines later is the only thing that catches it |
+| | **100** | an AK node allocator answers "could not" with 0, nobody tests it, and node 0 is the index header — a transient write error becomes permanent corruption of what every query on that key is answered from. **The one entry with no self-heal** |
 | **candidates, my reading** | **67** | the mode page's caption calls ssh optional; a full install always installs the server |
 | | **89**, **88** | a control the user clicks expecting an action, and none follows |
 | | **20** | the register says `SUSPENDED` while the person keeps Windows administrator rights |

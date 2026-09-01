@@ -43769,3 +43769,57 @@ Tier-1 green: `test-fixlist-units` **230/0** (open 20 → 22),
 `test-sdtestuser-units` 54/0, `test-suiteonly-units` 48/48,
 `check-stale-leads.py` exit 0. **Sweeps 2–6 are still owed**, and the full suite
 is still owed by the owner — `b85` remains the last full run.
+
+## 31 Aug 2026 — sweep 2 of six done: `dh_ak.c`, entry 100 and UPSTREAM 30
+
+**53 call sites swept across the AK layer. One defect, and it is the worst any
+sweep has produced.** Documentation only; no source change.
+
+***THE FILE IS WELL CHECKED, WHICH IS WHAT MAKES THE GAP LEGIBLE.***
+`update_internal_node`, `free_ak_node`, `free_ak_big_rec`, `ak_clear` and
+`delete_ak` are tested as `if (!fn(…))` at every site. **`get_ak_node` is the
+exception**: it returns **0 for failure** — explicitly, `:2716` assigns it before
+the `goto` — and **none of its seven callers tests it** (`:2216`, `:2237`,
+`:2365`, `:3407`, `:3460`, `:3831`, `:3865`).
+
+**Node 0 is the AK header.** `dh_file.c:331` maps it deliberately —
+`if (group) { … } else offset = 0;` — and byte 0 of an AK subfile is the block
+holding `free_chain` and `itype_ptr`, the same one `get_ak_node` reads at the
+top of itself. So on the failure path the caller writes a terminal, internal or
+big-record node **over the index header**.
+
+***THE ARGUMENT IS INSIDE ONE FUNCTION.*** `write_ak_big_rec` catches `k_alloc`
+returning NULL and catches `dh_write_group` failing, and does not catch this —
+**the one allocation that is not memory is the one not checked.**
+
+***AND THE PREDICTION IN THE START HERE BOX WAS WRONG IN A USEFUL WAY.*** It
+expected a *silent* index update failure. The update paths are **not** silent:
+`dh_read_group`/`dh_write_group` set `dh_err` and `op_akwrite`/`op_akdelete`
+copy it to `process.status`. **What is wrong is the order** — the error is
+reported correctly, after the header has already been overwritten. *Ask when a
+failure is reported, not only whether it is.*
+
+**Why it should outrank 95, its sibling found by the same question:** 95 was
+held at **M** because it self-heals — the next write re-flushes the header.
+**Nothing re-heals an overwritten AK header.** Filed **M** on the trigger (a
+real I/O error, not an ordinary path), recommend **B**; the severity is the
+owner's.
+
+**All of it is upstream's**, byte-identical at `ae0cc5f`: `get_ak_node` at
+`:2750`, `ak_clear`'s `chsize64` at `:3748`, `write_ak_big_rec`'s unchecked call
+at `:3872`, `dh_file.c:331`. **`UPSTREAM_FIXES.md` 30 filed the same day** —
+a defect in both trees goes in both files.
+
+**Cleared rather than left open:** `ak_delete` returning `void` is **correct**,
+reporting through the global `dh_err` which `:192` copies to `process.status`,
+and upstream does the same. The three lesser discards — `:2702` (`chsize64`,
+with `linuxlb.c:46`'s `filelength64` discarding `fstat` behind it), `:3707`
+(`ak_clear`'s truncate) and `:3913` (`free_ak_node` in `free_ak_big_rec`) —
+**leak space rather than answer wrongly**, and 100's row says so explicitly so
+they are not re-filed as accuracy later. In particular `ak_clear` still resets
+the root node and allocation continues past the stale region, so the index keeps
+answering correctly and only the file fails to shrink.
+
+Tier-1 green again: fixlist **230/0** (open 22 → 23), tiercounts 15/15, verdict
+140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0. **Sweeps 3–6
+still owed**; full suite still owed by the owner, `b85` still the last one.

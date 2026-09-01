@@ -2107,3 +2107,116 @@ the way the first one already does.
 upstream `main` at commit `ae0cc5f`, where the function occupies the same lines.
 
 `PROPOSED`
+
+## 30. `get_ak_node()` returns 0 to mean "I could not get a node", and none of its seven callers test it — node 0 is the AK header
+
+`get_ak_node()` in `gplsrc/dh_ak.c` allocates a node in an alternate key
+subfile. It returns the node number, and **0 is its way of saying it failed** —
+that is not an inference, it is written explicitly on one path:
+
+```c
+Private int32_t get_ak_node(DH_FILE *dh_file, int16_t subfile) {
+  int32_t new_node_num = 0;
+  ...
+  if (!dh_read_group(dh_file, subfile, 0, (char *)ak_header, DH_AK_HEADER_SIZE)) {
+    goto exit_get_ak_node;                  /* returns the 0 initialiser */
+  }
+
+  if (ak_header->free_chain == 0) {
+    file_bytes = filelength64(dh_file->sf[subfile].fu);
+    new_node_num = (int32_t)((file_bytes - dh_file->ak_header_bytes) / DH_AK_NODE_SIZE + 1);
+    chsize64(dh_file->sf[subfile].fu, file_bytes + DH_AK_NODE_SIZE);   /* discarded */
+  } else {
+    ...
+    if (!dh_write_group(dh_file, subfile, 0, (char *)ak_header, DH_AK_HEADER_SIZE)) {
+      new_node_num = 0;                     /* explicitly: 0 means failure */
+      goto exit_get_ak_node;
+    }
+  }
+  ...
+  return new_node_num;
+}
+```
+
+**All seven call sites use the result immediately, without testing it**:
+`dh_ak.c:2216`, `:2237` and `:2365` in `ak_write()`'s node-split paths,
+`:3407` and `:3460` in `update_internal_node()`, and `:3831` and `:3865` in
+`write_ak_big_rec()`.
+
+What makes that costly rather than merely untidy is where node 0 lives.
+`dh_write_group()` maps it to the start of the subfile:
+
+```c
+  if (group) {
+    if (subfile < AK_BASE_SUBFILE) {
+      offset = GroupOffset(dh_file, group);
+    } else {
+      offset = ((int64)group - 1) * DH_AK_NODE_SIZE + dh_file->ak_header_bytes;
+    }
+  } else
+    offset = 0;
+```
+
+Byte 0 of an AK subfile is the AK header — the same block `get_ak_node()` reads
+at the top of itself, holding `free_chain` and `itype_ptr`. So on the failure
+path the caller writes a terminal, internal or big-record node **over the index
+header**. `write_ak_big_rec()` shows the shape most clearly, because it handles
+its other two failures and not this one:
+
+```c
+  buff = (DH_BIG_NODE *)k_alloc(48, DH_AK_NODE_SIZE);
+  if (buff == NULL) { dh_err = DHE_NO_MEM; head = 0; goto exit_write_ak_big_rec; }
+
+  head = get_ak_node(dh_file, subfile);     /* not checked */
+  node_num = head;                          /* 0 */
+  ...
+  if (!dh_write_group(dh_file, subfile, node_num, (char *)buff, DH_AK_NODE_SIZE)) {
+    head = 0; goto exit_write_ak_big_rec;   /* this failure IS handled */
+  }
+```
+
+The `k_alloc` failure and the `dh_write_group` failure are both caught. The one
+allocation that is not memory is the one that is not checked. At `:3865` the
+same unchecked value is also stored as a forward link,
+`buff->next = SetAKFwdLink(dh_file, next_node_num)`, so a chain can be left
+pointing at node 0 as well.
+
+The error does reach the caller eventually — `dh_read_group` and
+`dh_write_group` set `dh_err`, and `op_akwrite`/`op_akdelete` copy it into
+`process.status` — but only after the header has been overwritten. The report
+arrives, and the index is already gone.
+
+Two smaller discards sit alongside it and are worth fixing in the same pass,
+though both leak space rather than give wrong answers:
+
+- `dh_ak.c:2702`, above — `chsize64()`'s return is dropped, and it is the call
+  that actually extends the subfile for the node number just computed. On
+  failure a non-zero node number is returned for space that was never made.
+  `filelength64()` (`gplsrc/linuxlb.c`) also discards `fstat()`'s return and
+  will hand back an uninitialised `st_size` if it fails, which feeds straight
+  into that arithmetic.
+- `dh_ak.c:3707` in `ak_clear()` — every other step in that function aborts to
+  `exit_ak_clear` on failure, but the `chsize64()` that discards the old index
+  content is unchecked, and the function still returns `TRUE`. `dh_clear.c:121`
+  tests that result and is told the index was cleared.
+- `dh_ak.c:3913` in `free_ak_big_rec()` — `free_ak_node()` returns `bool` and
+  is discarded in the loop, so the function reports `TRUE` having failed to
+  free any of the chain.
+
+The trigger throughout is a real I/O error on the AK subfile, so none of this is
+reachable on a healthy disk. It is filed because the first one converts a
+transient write error into permanent corruption of the structure every query on
+that key depends on, which is a worse outcome than the failure that caused it.
+
+A minimal fix is to test `get_ak_node()`'s return at all seven sites and abort
+the operation on 0, exactly as the neighbouring `k_alloc` and `dh_write_group`
+failures already do; and to take the return of the two `chsize64()` calls.
+
+`gplsrc/dh_ak.c:2686`, `:2702`, `:2716`, `:2216`, `:2237`, `:2365`, `:3407`,
+`:3460`, `:3707`, `:3831`, `:3865`, `:3913`; `gplsrc/dh_file.c:331`;
+`gplsrc/linuxlb.c:46`. Confirmed identical on upstream `main` at commit
+`ae0cc5f` — `get_ak_node()` at `:2750`, its `chsize64` at `:2766`, the explicit
+`new_node_num = 0` at `:2775`, `ak_clear`'s `chsize64` at `:3748`,
+`write_ak_big_rec`'s unchecked call at `:3872`, and `dh_file.c:331` at `:331`.
+
+`PROPOSED`
