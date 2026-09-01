@@ -44419,3 +44419,78 @@ and asserting the count, which is the fix that section asks for. And
 so the wrapper's own transcript came back empty with a meaningless exit 0
 (`$LASTEXITCODE` is never set either). The run was fine; the instrument was not.
 `%LOCALAPPDATA%\SD-verify\cycle-<stamp>.log` is the log with the run in it.
+
+## 1 Sep 2026 — 101, 99, 95 built: three "take the answer" fixes from the txn.c sweep, compiled and staged
+
+All three discard a function's answer, which is the §5.23 shape, and all three
+name their own fix.
+
+**101 (B), `txn.c:197`.** A bare `remove(path)` with its return discarded was
+the whole of the directory-file delete at commit — the only one of the four
+commit arms that checked nothing, while the `dh_delete` arm twenty lines up
+raises 1423 and the non-transactional twin (`op_dio3.c:380`) does three things.
+Replaced by the twin: the `stat`+`S_IFREG` device-name guard, and
+`remove() < 0` setting `-ER_PERM` on anything but `ENOENT`,
+`log_permissions_error`, raise 1423. A failed transactional delete used to be
+reported done with the record still on disk. It needs no induced fault on
+Windows — a read-only file or one held open by a scanner is enough — which is
+why it is the batch's only B. The `op_txncmt` error-path comment counted "three
+`goto`" and now counts five.
+
+**99 (M), `APISRVR:1524`.** `void kernel(K$SET.USERNAME, scram.user)` threw away
+the return, which is the designed and only channel for the identity `@logname`,
+`K$USERNAME` and the audit trail read. Now `set.name = kernel(…)` and refuse on
+`set.name # scram.user`, new message 10160. The comparison is exact because
+`op_kernel.c:257` copies the name verbatim. What had been saving it was
+`K$ASSUME.USER`'s identical guard thirty lines below — a real net, but a
+neighbour's, one that could move or drift; the site that sets identity is now
+answerable for its own outcome.
+
+**95 (M), `dh_file.c:501`.** The clear of `FILE_UPDATED` moved from the top of
+`dh_flush_header` (before the work that can fail) to the success path at the
+end, so a failed flush stays dirty and retries and a successful one is not
+re-flushed — they were exactly inverted. The two silent failure paths now log
+like the third already did. The entry said "fourteen sites set it"; a grep
+found twelve, and the comment records the real number.
+
+**Compiled, not run.** `make sd` exit 0 (`txn.o`, `dh_file.o`); `cycle.ps1
+-SkipInstall` 09:57:24, APISRVR 0 errors, 10160 staged byte-identical, staged
+`sd.exe` `cmp`-identical to the built one. **None of the three faults is
+inducible by the suite** — each needs a real I/O or permission failure, or a
+33-char account — so they will close the way 103/104 did: fix read and
+compiled, normal path confirmed unregressed by `verify-txn` (101, and it drives
+`dh_flush_header` on every write) and `verify-apiidentity` (99). NOT struck
+until the cycle installs them.
+
+**A count fixed by measuring rather than copied.** Entry 95's "fourteen" was
+wrong; there are twelve sets and one clear. Two of the three fixes carry no
+changelog line on purpose — 95 and 99 change internal robustness with no
+visible normal-path behaviour, while 101 changes what an administrator sees on
+a failed transactional delete and does. UPSTREAM_FIXES 29 and 31 already stood
+from 31 Aug and are unchanged: fixing them here does not stop `sdb64` carrying
+them.
+
+**Closed on the 10:18:45 install.** `verify-txn` PASSED (exit 0) — `op_txncmt`'s
+write-and-commit and nested-commit level paths run correctly after the 101 edit,
+and its "the write landed" assertion is a success-path header flush for 95.
+`verify-apiidentity` PASSED 4/0 on `-Run b98`, the decisive line
+`[PASS] the API session writes as the authenticated user` — 99's identity is set
+correctly. `test-sysmsg-units` 44/0 (it does not cover 10160 — no verifier names
+it; 10160 is confirmed installed byte-identical). None of the three fault paths
+is inducible by the suite, so they close on the 103/104 shape: normal path
+unregressed, fault fixed by inspection. `verify-txn` does not itself delete a
+directory-file record in a transaction, so 101's own arm is confirmed by reading
+and by the edit being additive on the failure path only — the correction to the
+earlier claim that verify-txn drives that delete.
+
+**The trap this batch paid for: START-HISTORY comments added after the build.**
+The dated `START-HISTORY` lines went into `txn.c`/`dh_file.c`/`APISRVR` *after*
+`make sd`, making those two C files newer than every binary in `bin\`.
+`assert-current` compares source against the **oldest** binary, `sdclilib.dll`,
+so it refused and the first verify aborted on it. `make sd` alone does not fix
+it — it relinks only `sd.exe`, leaving the other seven binaries older than the
+edits and still the oldest. Recovery: `rm -f bin/*.exe bin/*.dll && make sd`
+(relink all with fresh mtimes) then one more cycle, because rebuilding changed
+`sd.exe`'s hash and the install had to match. The general lesson, now in the
+build-shell memory: **add the `START-HISTORY` line as part of the edit, before
+the build.** A comment written after the build costs a rebuild and a cycle.

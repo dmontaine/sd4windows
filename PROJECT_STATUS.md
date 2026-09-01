@@ -141,11 +141,46 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 5, 1 Sep 2026 — ***6, 110 AND 111 ALL CLOSED AND MEASURED. NOTHING IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 5, 1 Sep 2026 — ***6/110/111 AND 101/99/95 ALL CLOSED AND MEASURED. NOTHING IS OWED.*** ⇩⇩⇩
 >
-> ***OPEN COUNT: 20***, from `test-fixlist-units`, not by counting headings.
-> **Next free run token is `b95`.** The three `S` entries closed today all
-> started from something the owner asked for by name.
+> ***OPEN COUNT: 17*** (6, 110, 111, 101, 99, 95 struck this session). **Next
+> free run token is `b99`** (`b98` spent below; `b95`/`b96`/`b97` appear in logs).
+>
+> ***ALSO THIS SESSION, NOT A PRE_RELEASE ENTRY***: `sd.iss:4008` `FileCopy` →
+> `CopyFile` (Inno renamed the support function; it warned on every build).
+> Verified by `cycle.ps1 -SkipInstall` 10:32 — installer builds clean, warning
+> gone, no new Hint/Warning. Build tooling, invisible to users, so no changelog.
+>
+> ### ***101, 99, 95 — CLOSED ON THE 10:18:45 INSTALL***
+>
+> The `txn.c` sweep's three cheapest "take the answer" fixes.
+>
+> | | proved by |
+> |---|---|
+> | **101** (B) `txn.c:197` bare `remove()` → the twin's `S_IFREG` guard + `-ER_PERM` + `log_permissions_error` + raise 1423 | `verify-txn` PASSED — `op_txncmt`'s commit/nested-commit machinery unregressed. The edit is additive on the FAILURE path only, so the success delete is byte-for-byte unchanged; fault proven by reading + the twin (**103/104** shape) |
+> | **99** (M) `APISRVR:1524` takes `K$SET.USERNAME`'s answer, refuses on mismatch (new msg **10160**) | `verify-apiidentity` PASSED 4/0 — `[PASS] the API session writes as the authenticated user`. 10160 installed byte-identical |
+> | **95** (M) `dh_file.c` clears `FILE_UPDATED` on success, not before; the two silent failure paths now log | `verify-txn` writes records in a transaction and asserts they landed (a success-path header flush); the bootstrap flushes headers for ~180 programs; `assert-current` exit 0 |
+>
+> **All three faults need an induced failure the suite cannot make** — a
+> `remove()` that fails, an I/O error, a 33-char account — so the verifiers
+> confirm the **normal paths unregressed** and the fault fixes stay proven by
+> reading, exactly as filed. Two entry claims corrected by measuring: 95's
+> "fourteen sites" is **twelve**, and 101's error-path comment "three `goto`" is
+> now **five**. `test-sysmsg-units` is **44/0** — it does NOT cover 10160 (no
+> verifier names it); 10160 is confirmed by the install.
+>
+> ### ***THE TRAP THIS BATCH PAID FOR — START-HISTORY COMMENTS AFTER THE BUILD***
+>
+> I added the required `START-HISTORY` lines to `txn.c`/`dh_file.c`/`APISRVR`
+> **after** `make sd`, so those two C files became newer than every binary in
+> `bin\`. `assert-current` compares source against the **oldest** binary
+> (`sdclilib.dll`), so it refused, and the first `-Run b95` verify aborted on it.
+> **`make sd` alone does not fix it** — it only relinks `sd.exe` (whose source
+> changed), leaving the other seven binaries older than the edits and still the
+> oldest. The recovery was `rm -f bin/*.exe bin/*.dll && make sd` (relink all,
+> fresh mtimes) then one more cycle to reinstall, because rebuilding changed
+> `sd.exe`'s hash. **Lesson: add the `START-HISTORY` line as part of the edit,
+> before the build — the build is the last thing before the cycle.**
 >
 > ### ***110 AND 111 — CLOSED ON `-Run b94`, INSTALL 09:34:24***
 >
