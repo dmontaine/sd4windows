@@ -8724,6 +8724,44 @@ elevated, which is exactly what the OS account commands need (§5.6) — so
 creating the initial accounts is something the installer can do and a normal
 session cannot.
 
+### 5.23 A query must never answer wrongly (owner, 31 Aug 2026)
+
+*"`LIST ACCOUNTS` must be absolutely accurate. Administrators must never receive
+an answer to a query that is wrong — this is a blocking defect."*
+
+***IT IS A PRINCIPLE, NOT A RULING ABOUT ONE VERB, AND IT PROMOTES ANYTHING IT
+REACHES TO `B`.*** Said of PRE_RELEASE 93 and quoted here because its scope is
+wider than that entry: an administrator acts on what a query tells them, so a
+listing that is merely *usually* right is worse than one that refuses — they
+cannot tell which rows to trust.
+
+***TWO FILES ANSWER WRONGLY TODAY, MEASURED ON THE 13:33:28 INSTALL***, and
+both are queryable because `voc_template` gives each an F-pointer and a
+dictionary:
+
+| query | records | wrong |
+|---|---|---|
+| `LIST ACCOUNTS` (and `LIST SD.ACCOUNTS`) | 28 | **26** dead — PRE_RELEASE 93 |
+| `LIST OS.USERS` | 6 | **5** dead, each `yes\|yes` — PRE_RELEASE 65 |
+
+**Both hold a row whose subject is an OS object that has gone**, and nothing in
+SD reconciles either. `batch.jobs` is the third queryable file of this shape and
+is empty, so it is untested rather than clean.
+
+***IT SETTLES 65's OPEN QUESTION AND THE ANSWER IS "NOT ENOUGH".*** 65 asked
+whether documenting the recovery — *"remove with `DELETE.ACCOUNT`"* printed at
+teardown — was acceptable in place of removing the record. **It is not, and the
+reason is this section**: a note in a transcript nobody reads does not make
+`LIST OS.USERS` true. ***AND IT DECIDES BETWEEN THE TWO FIXES THAT WERE ON THE
+TABLE***: a start-of-run sweep leaves the query wrong *between* runs, so the
+removal has to happen when the account goes.
+
+**THE DISTINCTION THAT MAKES THAT SAFE IS ALREADY IN THE FILES** — `os.users`
+is *"the one leftover that is a PERMISSION rather than a register entry"*, so
+removing it hides nothing about a half-failed `CREATE.ACCOUNT`, which is what
+the 30 Aug decision was protecting. The `ACCOUNTS` record is the evidence and
+stays.
+
 ### 5.22 What an administrator has as themselves, and what needs SDSYS (owner, 31 Aug 2026)
 
 *"Administrators logged in as themselves need to have full access to everything
