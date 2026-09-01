@@ -157,8 +157,40 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > proves the abort path still works **with the new `unlock_txn` inside
 > `txn_abort()`** — a function that runs on every abort, not just this one.
 >
-> ***A FULL SUITE IS OWED*** and has not run since `b91`. **Next free run token
-> is `b100`.** ***NEXT FREE PRE_RELEASE ID: 115.***
+> ### ***`b100` IS GREEN IN BOTH HALVES — THE FULL SUITE OWED SINCE `b91` IS PAID***
+>
+> ***UNELEVATED 19 OF 19 + ELEVATED 22 OF 22, EVERY STEP EXIT 0.***
+> `VerifyInstall1: every step exited 0.` and `VerifyInstall2: all 22 steps
+> exited 0.` — **`PARTIAL` appears 0 times in either half**, which is what
+> separates a full run from a targeted one. Ran 12:59:34 → 13:21:02 against the
+> 12:50:27 install.
+>
+> ***753 `[PASS]`, 0 `[FAIL]`, COUNTED WITH THE BRACKETS***, across **505,993
+> bytes** of logs from 25 files. **The null-case guard holds**: both counters
+> zero on half a megabyte would be a suite that did nothing, and PASS is 753.
+> *(Count with the brackets — a bare `FAIL` also matches `verify-fold`'s
+> negative-control row, which is a check working correctly.)*
+>
+> **Read the mixed encodings with `Get-Content`**: the runner's numbered step
+> logs and `post-cycle-elevated-*` are **UTF-16LE**, the verifiers' own
+> transcripts are **UTF-8 with BOM**. A plain `grep` reports 0/0 on a full log.
+>
+> ***SPENT: `b100`. USE `b101`.*** ***NEXT FREE PRE_RELEASE ID: 115.***
+>
+> ### ***THE GREEN RUN LEFT THE ACCOUNT REGISTER 14/15 INVALID — THAT IS 93, MEASURED***
+>
+> The register held **15 records for `b100`'s accounts and one surviving
+> directory**. The Windows accounts were correctly gone; the register was not.
+> **Controlled** — `SDSYS` and `don` both still resolve. ***AND NO STEP WENT
+> RED***, because nothing asserts the register is internally consistent: the same
+> class as 112, and *"the register contains only valid records"* is assertable
+> today whichever way 93 is eventually fixed. Entry 93 carries the numbers.
+>
+> **The 14 profile directories left in `C:\Users` are NOT the same thing and are
+> not a defect**: each still has its `ProfileList` entry, **14 of 14**, so that is
+> entry 36's pending-reclaim state waiting on a restart, not 83's orphaned
+> directory. **They look identical in a directory listing**, which is why it was
+> checked before being reported.
 >
 > ***ONE CYCLE ATTEMPT DIED AT STEP 1 AND THE SECOND WORKED, AND THE SIZE IS THE
 > TELL.*** `cycle-20260901-124650.log` is **692 bytes** and stops dead at
@@ -166,6 +198,79 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > real one, 640 KB, its step 1 reading `SD is stopped`. **A cycle log in the
 > hundreds of bytes is a cycle that never started** — read the size before the
 > contents.
+>
+> ### ***THE VM RIG IS FIVE GUESTS NOW, AND EVERY EARLIER SENTENCE SAYING OTHERWISE IS STALE***
+>
+> ***`Windows 11 - Test` IS GONE AS "THE ONLY RIG". THE OWNER BUILT `Windows 11
+> - Test 1` … `Test 5`, 1 Sep 2026***, all clones of `Windows 11 - Template`.
+> **Snapshots are not used** — owner: *"it is quicker to clone the template than
+> to do a snapshot"*, which extends 24 Aug's *"CLONE, DO NOT SNAPSHOT"*.
+>
+> ***ALL FIVE NOW CARRY THREE PERMANENT SHARES*** (`MachineMapping`, so they
+> survive the reboots leg 2 of the runbook needs), set up on the host 1 Sep and
+> **read back from the VM config rather than trusted from the exit codes**, with
+> the untouched `Template` as the control:
+>
+> | share | host | mode |
+> |---|---|---|
+> | `sdout` | `C:\Users\dmont\sdout` | read-only — the installer |
+> | `xfer` | `C:\Users\dmont\sdxfer` | read-write — **results come back as text** |
+> | `gplbld` | `…\sd64\gplbld` | read-only — `capture-state.ps1` |
+>
+> `C:\Users\dmont\sdxfer` **did not exist and was created.** The guests were all
+> `poweroff`, which is required: **a running VM is locked and a PERMANENT
+> `sharedfolder add` fails on it.**
+>
+> ***REACH THEM BY NAME — `\\vboxsvr\sdout`, `\\vboxsvr\xfer`,
+> `\\vboxsvr\gplbld` — NOT BY DRIVE LETTER.*** Adding a third share moved the
+> letters last time; two shares came up `Y:`+`Z:`, one came up `Z:` alone, and
+> there are three now. ***IT BITES `capture-state.ps1` SPECIFICALLY***: its
+> `-OutDir` defaults to **`Y:\`** and must be overridden with
+> `-OutDir \\vboxsvr\xfer` every time. **`guestcontrol` stays forbidden** — it
+> needs guest credentials.
+>
+> **The three commands, written out so this does not depend on a scratch file**
+> — run per guest, with the guest **powered off**, then read the result back
+> with `VBoxManage showvminfo <vm> --machinereadable | findstr SharedFolder`:
+>
+> ```
+> VBoxManage sharedfolder add "<vm>" --name sdout  --hostpath C:/Users/dmont/sdout --automount --readonly
+> VBoxManage sharedfolder add "<vm>" --name xfer   --hostpath C:/Users/dmont/sdxfer --automount
+> VBoxManage sharedfolder add "<vm>" --name gplbld --hostpath C:/Users/dmont/Projects/sd4windows/sdb_ai/sd64/gplbld --automount --readonly
+> ```
+> **No `--transient`** — that form is for a VM already running and locked, and
+> these must outlive a reboot.
+>
+> ### ***THE FOUR-LEG VM RUN, IN ORDER, AND THE ORDER IS THE POINT***
+>
+> **One guest closes 78 and 76's open leg, answers 88, and witnesses 74.** Each
+> leg's end state is the next leg's precondition, which is why it is a sequence
+> and not a list:
+>
+> 1. **Install #1**, ticking ssh **and** "allow remote access" — leaves the rule
+>    **open**, which is what leg 3 needs.
+> 2. **78** — `create.account` first so `remove` has an account to warn about,
+>    then `ssh.server remove` (expect **10144** stranding warning, **10148**
+>    reboot-staged) → **reboot** → `ssh.server install` (expect **10142**) →
+>    **reboot** → `ssh.server` (expect **10147**). ***`remove` BEFORE `install`
+>    IS NOT ARBITRARY***: entry 67 says an SD install always puts the OpenSSH
+>    server on, so `install` would be a no-op straight after leg 1.
+> 3. **76 + 88 together** — force `remoteip=any`, then install a SECOND time and
+>    read the tasks page **before touching it**. Box **ticked** → 76's open leg
+>    passes; **unticked** → 88 confirmed and 76's live-rule default is being
+>    overridden by `UsePreviousTasks`. **They predict opposite things and one
+>    install settles both.**
+> 4. **74** — interactive uninstall, screenshot the closing page: all four groups
+>    named (`sdusers`, `sdssh`, `sdapi`, `sdsshonly`) with `sdsshonly` called out
+>    as the one to remove by hand. A cycle's uninstall is silent, which is why
+>    this never gets seen.
+>
+> **`capture-state.ps1 -Label <n> -OutDir \\vboxsvr\xfer` at every boundary**, in
+> an elevated guest shell — it reads `RemoteAddress`, the field a session once
+> failed to read and drew a withdrawn conclusion from.
+>
+> ***67 IS NOT IN THIS BUNDLE.*** Its measurement is already on the record from
+> 30 Aug; what is open is the third API-only mode, a ruling and a build.
 >
 > ### ***102 — WHAT WAS BUILT, AND WHAT IS HONESTLY NOT PROVEN***
 >

@@ -44755,3 +44755,76 @@ with no transcript end; the real one, `-124906`, is 640 KB and its step 1 reads
 started — check the size before reading the contents, the same way the UTF-16
 transcripts are checked for a byte count before their PASS/FAIL counts are
 believed.
+
+## 1 Sep 2026 — `b100` green in both halves, and the green run left the account register 14/15 invalid
+
+**The full suite owed since `b91` is paid.** `VerifyInstall1 -ThenElevated -Run
+b100`, 12:59:34 → 13:21:02 against the 12:50:27 install: **unelevated 19 of 19,
+elevated 22 of 22, every step exit 0**. `VerifyInstall1: every step exited 0.`
+and `VerifyInstall2: all 22 steps exited 0.`, with **`PARTIAL` appearing 0 times
+in either half** — which is what separates a full run from a targeted one, and
+is the line these logs get misread on.
+
+**753 `[PASS]`, 0 `[FAIL]`, counted with the brackets, across 505,993 bytes of
+logs in 25 files.** The null-case guard holds: both counters zero on half a
+megabyte would be a suite that did nothing. The encodings are mixed as the
+record says — numbered step logs and `post-cycle-elevated-*` are UTF-16LE, the
+verifiers' own transcripts UTF-8 with BOM — so they were read with
+`Get-Content`, which handles both; a plain `grep` reports 0/0 on a full log.
+
+***AND THEN THE INTERESTING PART, WHICH IS NOT A REGRESSION AND IS NOT MINE.***
+Immediately after the green run the `ACCOUNTS` register held **15 records for
+that run's accounts and exactly ONE surviving directory**: `sdacctb100` present,
+the other fourteen naming directories that are gone. Controlled — `SDSYS` and
+`don` both still resolve, so the check distinguishes rather than reporting
+everything missing. **One ordinary suite run leaves the register 93% invalid**,
+and the Windows accounts themselves were correctly removed, so this is the
+register alone. That is **entry 93**, whose shape the owner ruled the same day,
+now with a number against it.
+
+***NOTHING IN A 41-STEP GREEN SUITE NOTICED***, because no verifier asserts the
+register is internally consistent — the same class as 112. *"The register
+contains only valid records"* is assertable today, whichever way 93 is
+eventually fixed, and would have caught this on any run since the register
+existed.
+
+**The 14 profile directories left in `C:\Users` are a different thing and are
+not a defect.** Each still has its `ProfileList` entry, **14 of 14**, so that is
+entry 36's pending-reclaim state waiting on a restart, not entry 83's orphaned
+directory. **They are indistinguishable in a directory listing**, which is why
+it was checked before being reported — reporting it as litter would have been a
+false alarm against a closed entry.
+
+## 1 Sep 2026 — the VM rig is five guests, and every earlier sentence saying otherwise is stale
+
+The owner built `Windows 11 - Test 1` … `Test 5`, clones of `Windows 11 -
+Template`, and **snapshots are not used**: *"it is quicker to clone the template
+than to do a snapshot"*, extending 24 Aug's *"CLONE, DO NOT SNAPSHOT"*. The
+record's *"`Windows 11 - Test` IS THE ONLY RIG — THERE IS NO SECOND GUEST"* is
+superseded.
+
+**All five now carry three permanent shared folders** — `sdout` (read-only, the
+installer), `xfer` (read-write, results back as text), `gplbld` (read-only,
+`capture-state.ps1`) — added with the guests powered off, because **a running VM
+is locked and a permanent `sharedfolder add` fails on it**. `C:\Users\dmont\sdxfer`
+did not exist and was created. **Read back from each VM's config rather than
+trusted from the exit codes**, with the untouched Template as the control.
+
+**Reach them by name — `\\vboxsvr\sdout` and so on — not by drive letter.**
+Adding a third share moved the letters last time; two shares came up `Y:`+`Z:`,
+one came up `Z:` alone. It bites `capture-state.ps1` specifically, whose
+`-OutDir` defaults to `Y:\`. `guestcontrol` stays forbidden: it needs guest
+credentials.
+
+`gplbld/vm-shares.ps1` is the tool, rostered in `assert-current.ps1`. **A
+variable in it was named `$args` and renamed before the first run** — that is a
+PowerShell automatic variable and the record already carries a false verdict
+caused by exactly that, a probe whose `Start-Process` silently received no
+switches.
+
+**The four-leg VM run is planned and staged, not run**: install → **78**
+(`ssh.server remove` before `install`, because entry 67 means an install always
+puts ssh back) → **76 + 88** from one second install, which predict opposite
+things → **74**'s interactive uninstall disclosure. **67 is deliberately not in
+the bundle** — its measurement is already on the record from 30 Aug; what is
+open there is the third API-only mode, a ruling and a build.
