@@ -44172,3 +44172,57 @@ Tier-1 green at the handoff: fixlist **234/0**, **open 28** (107 closed),
 tiercounts 15/15, verdict 140/140, sdtestuser 54/0, suiteonly 48/48,
 stale-leads exit 0, and **`assert-current` passes** — the install is still the
 13:33:28 one and the tree matches source.
+
+## 31 Aug 2026 — the owner ran the suite twice; both failures were instruments
+
+`-Run b88` 22:03 stopped at **step 2 of 17** and never handed over:
+`test-stemcoverage-units` exit 1, naming `sdtc`. PRE_RELEASE 107 had wired
+`verify-tierchange` into `VerifyInstall2` that morning (`VerifyInstall2.ps1:229`
+composes `sdtc$Run`, `verify-tierchange.ps1:281` appends `a`) and had not added
+the stem to `clean-test-profiles.ps1`. **Fifth family, fourth occasion** — after
+`sddr` (45), `sdgate`/`sdtu` (86) and `sdprof`/`sdsw` — and the **first caught by
+a machine rather than by someone counting `C:\Users` by hand**, which is 86's
+argument for making the checker a step, repaid on the first run that could
+exercise it. Counting could not have found this one: **0 `sdtc*` directories on
+disk.** PRE_RELEASE 108.
+
+`-Run b89` 22:11 then ran **17 of 17** unelevated and **21 of 22** elevated. The
+one failure was `verify-tierchange`'s own: its 10115 check built the pattern from
+`$acct` raw while `Test-Say` is deliberately case-sensitive, `-Prefix` is
+required lower case (`:243`), and MODIFYA prints the account upcased — so it
+**could never match, whatever the product did**. The transcript carried
+`os.users: the record for SDTCB89A is removed` in full, and the neighbouring
+state check passed, so the deed was done and announced. `:381`, `:387` and
+`:404` already upcased; `:412` alone did not. **The `CLAUDE.md` failure-wording
+trap run backwards** — a pattern the *success* path cannot match, a false FAIL
+rather than a false PASS, and only the false-PASS direction had been written
+down. Fixed with `.ToUpper()` and proven red/green against the real logged line
+rather than a retyped one. PRE_RELEASE 109.
+
+**Two recorded claims fell with it.** The 28 Aug *"verify-tierchange — RUN AND
+GREEN, 28 PASS / 0 FAIL"* cannot have been true: `git log -S` puts the check,
+`Test-Say`, `tier.os.remove` and message 10115 all unchanged since before that
+run, and no transcript survives because a hand-run writes no numbered log — the
+verdict line's *"28 decisive checks"* was most likely recorded as *"28 PASS"*.
+And 107's *"it raises `verify-acctmsgs` and `verify-vocverbs`, so three verifiers
+ran for the first time"* is wrong: `verify-tierchange` only names them in
+comments; `verify-doors-admin` raises `verify-acctmsgs`, which raises
+`verify-vocverbs`, off `verify-doors-suite` — already a step. **One verifier was
+new on `b89`, not three.**
+
+Nothing found in either run was a defect in SD. **No product source was touched**
+— only `gplbld` tooling and the three documents — so `assert-current` stayed
+exit 0 on the 13:33:28 install throughout.
+
+`-Run b90 -Only verify-tierchange` 22:45 then closed it: **`PASSED - 28 of 28
+decisive checks passed`, exit 0**, against the live install on a fresh
+`sdtcb90` prefix. 109 is confirmed by a run rather than by a pattern-level
+proof.
+
+**Every step in both halves has now passed at least once — and that is still not
+a green suite.** 17 unelevated and 21 elevated on `b89`, `verify-tierchange` on
+`b90`, with two source changes in between; `b90`'s own closing line says *"the
+other steps were NOT run and this says nothing about them"*. **A full
+`-ThenElevated` run on `b91` is owed before the next handoff.** `b88`, `b89` and
+`b90` are spent (56, 496 and 6 occurrences); `b91` is free — its 51 hits reduce
+to four distinct contexts, all inside hex hashes.

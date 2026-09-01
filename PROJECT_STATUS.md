@@ -141,36 +141,65 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 3, 31 Aug 2026 — THE OWNER IS RUNNING THE SUITE. TWO NEW STEPS HAVE NEVER RUN. ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 3, 31 Aug 2026 — EVERY STEP HAS PASSED, BUT NOT IN ONE RUN. THE FULL SUITE IS OWED ON `b91`. ⇩⇩⇩
 >
-> ***HE SAID IT HIMSELF: "I'll run the verify suite in the next session."*** So
-> the first thing that happens is his run, not yours. **Read this box, then wait
-> for its output.**
+> ***THREE RUNS ON 31 Aug. BOTH FAILURES WERE INSTRUMENTS, NOT THE PRODUCT, AND
+> BOTH ARE FIXED AND PROVEN.*** Nothing found in any of them is a defect in SD.
+>
+> | run | result | what failed | now |
+> |---|---|---|---|
+> | `b88` 22:03 | stopped at **step 2 of 17**, never handed over | `test-stemcoverage-units` exit 1, naming `sdtc` as a family the litter sweep could not see | **PRE_RELEASE 108, fixed** |
+> | `b89` 22:11 | **17 of 17** unelevated, **21 of 22** elevated | `verify-tierchange` step 7 — its 10115 check could never match, whatever the product did | **PRE_RELEASE 109, fixed** |
+> | `b90` 22:45 | `-Only verify-tierchange`, **28 of 28**, exit 0, `PARTIAL` | nothing | ***109 CONFIRMED ON A REAL RUN*** |
+>
+> ***BOTH FAILED SAFE, WHICH IS THE PART TO KEEP***: `b88`'s runner refused to
+> hand over rather than reporting over the gap, and `b89`'s `verify-tierchange`
+> printed the raw SD output beside the verdict, which is the only reason the
+> false `FAIL` was readable as one.
+>
+> ### ***WHAT IS ACTUALLY OWED: ONE FULL RUN, BECAUSE THREE PARTIAL ONES ARE NOT ONE***
+>
+> **Every step in both halves has now passed at least once** — 17 unelevated on
+> `b89`, 21 elevated on `b89`, and `verify-tierchange` on `b90`. ***THAT IS NOT A
+> GREEN SUITE AND MUST NOT BE RECORDED AS ONE.*** `b90`'s own closing line says
+> so: *"PARTIAL - 1 of 22 step(s) run, all exited 0. The other steps were NOT run
+> and this says nothing about them."* **No single run has been green end to end**,
+> and the three results sit either side of two source changes.
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b88
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b91
 > ```
 > ***AN ORDINARY UNELEVATED PROMPT*** — it elevates the second half itself.
-> `b87` was never spent; use **`b88`** anyway if `b87` shows anywhere in a log.
+> **Expect 17 and 22, every step exit 0, and no `PARTIAL` anywhere in the
+> output.**
 >
-> ### ***WHAT IS NEW IN THIS RUN, AND WHY A FAILURE MAY NOT BE A REGRESSION***
+> ***TOKENS, MEASURED NOT ASSUMED***: `b88` **56**, `b89` **496**, `b90` **6**
+> occurrences across the logs — all spent. **`b91` is free**: its 51 grep hits
+> reduce to **4 distinct contexts, every one inside a hex hash**
+> (`F8B91512CD1A332E`, `986E279447C72B910…`, `BBD1AA39E283F01A2EB915385…`).
+> `b87` was never spent but skip it; the neighbouring tokens are confusing now.
+> **No product source has been touched in any of this** — only `gplbld` tooling
+> and documentation — so `assert-current` is **exit 0**, the install is still the
+> 13:33:28 one, and nothing here needs a cycle.
 >
-> **Two steps were wired in on 31 Aug and NEITHER HAS EVER RUN INSIDE A RUNNER.**
-> Both wirings were proved through `suite-only.ps1`'s `Select-SuiteSteps` rather
-> than by running the suite, because §4.0.1 forbids the agent running either
-> runner. **The wiring is proved; the steps are not.**
+> ### ***THE TWO NEW STEPS — BOTH HAVE NOW RUN. ONE PASSED, ONE FOUND ITSELF***
 >
-> | new step | runner | never run because |
+> | new step | runner | `b89` result |
 > |---|---|---|
-> | `verify-basicfuncs.ps1` | **VerifyInstall1**, beside `verify-txn` | written today (PRE_RELEASE 106, §5.24). **Measured standalone: 169 of 169, 0 failures** on the 13:33:28 install |
-> | `verify-tierchange.ps1` | **VerifyInstall2**, after `verify-tiers` | it was ORPHANED (PRE_RELEASE 107) — in neither runner since the day it was written, and **it raises `verify-acctmsgs` and `verify-vocverbs`, so three verifiers ran for the first time** |
+> | `verify-basicfuncs.ps1` | **VerifyInstall1**, beside `verify-txn` | ***PASSED*** in the unelevated 17 of 17. PRE_RELEASE 106, §5.24 |
+> | `verify-tierchange.ps1` | **VerifyInstall2**, after `verify-tiers` | ***27 of 28***, and the one failure was its own (PRE_RELEASE 109). Fixed, **not yet re-run** |
 >
-> ***SO THE STEP COUNTS AND THE `PASS` TOTAL WILL NOT MATCH `b85`. THAT IS
-> EXPECTED, NOT A REGRESSION.*** `VerifyInstall1` names **17** steps and
-> `VerifyInstall2` **22**; `b85` ran 16 and 21. **If `verify-tierchange` or its
-> two children fail, suspect them before suspecting the tree** — they have
-> never been run by a runner and carry prefixes derived from `-Run` for the
-> first time (`sdtc<run>`).
+> ***THE "THREE VERIFIERS" CLAIM IN 107 WAS WRONG AND IS CORRECTED HERE.***
+> `verify-tierchange.ps1` does **not** raise `verify-acctmsgs` or
+> `verify-vocverbs` — it only names them in comments (`:94`, `:120`) as the
+> shape it copied. **`verify-doors-admin.ps1` raises `verify-acctmsgs`, which
+> raises `verify-vocverbs`, and that chain hangs off `verify-doors-suite.ps1`,
+> already a step** (`VerifyInstall1.ps1:550`) — as `VerifyInstall1`'s own header
+> says at `:67-68`. **So those two were never orphaned, and ONE verifier was new
+> on `b89`, not three.**
+>
+> **The step counts are settled**: `VerifyInstall1` **17**, `VerifyInstall2`
+> **22**, both observed on `b89`. `b85` ran 16 and 21.
 >
 > ### ***WHAT IS OWED AFTER THE RUN***
 >
@@ -3835,7 +3864,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ***`sdmsga` AND `sdmsgb` ARE SPENT. THE NEXT PREFIX IS `sdmsgc`.***
 >
-> ### `verify-tierchange.ps1` — RUN AND GREEN, 28 PASS / 0 FAIL, `-Prefix sdtc1`
+> ### `verify-tierchange.ps1` — ***THIS HEADING WAS WRONG. CORRECTED 31 Aug 2026, PRE_RELEASE 109***
+>
+> ***IT DID NOT PASS 28 OF 28. IT CANNOT HAVE.*** `-Run b89` ran the same file
+> against the same product on 31 Aug and got **27 of 28**, failing the 10115
+> check — and `git log -S` puts **the check, `Test-Say`, `tier.os.remove` and
+> message 10115 all unchanged since before the 28 Aug run** (`5251a3d` 28 Aug,
+> `62217b6` 27 Aug). **No transcript survives to say otherwise**: this was a
+> hand-run, and only a runner step writes a numbered log. **The likeliest
+> reading is that the verdict line's *"28 decisive checks"* was recorded here as
+> *"28 PASS"*** — the instrument-misreading class CLAUDE.md already catalogues.
+> **The defect was the verifier's, not the product's** — see PRE_RELEASE 109.
 >
 > ***FIRST RUN, NO FIXES NEEDED*** — the only one of the three verifiers this
 > session that passed on the first attempt. **`sdtc1` is spent; use `sdtc2`.**
