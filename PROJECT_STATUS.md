@@ -8759,6 +8759,8 @@ THE REST ARE A READING AND WANT THE OWNER'S EYE BEFORE ANY SEVERITY MOVES.***
 |---|---|---|
 | **in the class, measured** | **93** | `LIST ACCOUNTS` names accounts that do not exist |
 | | **65** | `LIST OS.USERS` names grants for accounts that do not exist |
+| | **94** | `CREATE.ACCOUNT` says "%1 is now an SD administrator" on a grant that did not happen |
+| | **95** | a failed header flush marks the file clean, so `record_count` on disk can disagree with the data — needs an I/O error, and `dh_close` is where it does not self-heal |
 | **candidates, my reading** | **67** | the mode page's caption calls ssh optional; a full install always installs the server |
 | | **89**, **88** | a control the user clicks expecting an action, and none follows |
 | | **20** | the register says `SUSPENDED` while the person keeps Windows administrator rights |

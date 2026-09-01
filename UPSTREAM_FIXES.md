@@ -2043,3 +2043,67 @@ both paths.
 `main` at commit `ae0cc5f`, `sd64/gplsrc/k_error.c:207`.
 
 `FIXED HERE — PROPOSED UPSTREAM`
+
+## 29. A failed header flush marks the file clean, so the retry never happens
+
+`dh_flush_header()` in `gplsrc/dh_file.c` clears the "this file has unsaved
+changes" flag **before** doing the work that can fail, and every failure path
+returns before the flag is restored.
+
+```c
+bool dh_flush_header(DH_FILE* dh_file) {
+  ...
+  if (((dh_file->flags & FILE_UPDATED) || fptr->stats.reset) && ...) {
+    dh_file->flags &= ~FILE_UPDATED;          /* :501  cleared up front */
+
+    ...
+        return FALSE;                          /* :507  FDS open failed  */
+    ...
+    if (!read_at(...))  return FALSE;          /* :517                   */
+    ...
+    if (!write_at(...)) return FALSE;          /* :538                   */
+  }
+
+  dh_file->flags |= FILE_UPDATED;              /* :547  success only     */
+  return TRUE;
+}
+```
+
+The two outcomes end up the wrong way round. A flush that **succeeds** leaves
+the file marked dirty, so the next flush repeats work that is already done —
+harmless. A flush that **fails** leaves it marked clean, so the guard at the top
+of the function will not fire next time and the header is simply never written.
+
+Three things that would each have caught this are missing on the same path:
+
+1. **The caller is not told.** The function returns `bool`, and six of its seven
+   callers discard it — `dh_clear.c:81`, `dh_file.c:453`, `dh_file.c:738`,
+   `dh_split.c:240`, `dh_split.c:459` and `dh_write.c:622`. Only
+   `dh_close.c:45` casts it to `(void)`, which at least reads as deliberate.
+2. **The failure is not logged.** The FDS-open path calls `log_printf` before
+   returning, but the `read_at` and `write_at` paths return silently.
+3. **The retry is foreclosed**, by the cleared flag described above.
+
+What the header carries is the reason this matters: `record_count` and
+`free_chain` are written at `:531`-`:532`. A stale header means the file's
+recorded count disagrees with the data it describes, and the free-space chain
+on disk points somewhere other than where the in-memory copy believes.
+
+In most cases it recovers by accident. Every write path sets `FILE_UPDATED`
+again (`dh_write.c:121`, `:444`, `:700`, `dh_del.c:94`, `:308`), so the next
+update to the same file re-flushes the header. The case that does not recover
+is `dh_close.c:45`, where there is no next write: the file closes with a stale
+header and nothing anywhere records that it happened.
+
+The trigger is a real I/O error, so this is not reachable on a healthy disk.
+It is filed because the failure is silent in all three respects at once rather
+than because it is likely.
+
+A minimal fix is to restore the flag on the failure paths — or better, to clear
+it only after the `write_at` has succeeded — and to log the two silent returns
+the way the first one already does.
+
+`gplsrc/dh_file.c:501`, `:507`, `:517`, `:538`, `:547`. Confirmed identical on
+upstream `main` at commit `ae0cc5f`, where the function occupies the same lines.
+
+`PROPOSED`
