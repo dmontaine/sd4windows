@@ -8762,6 +8762,7 @@ THE REST ARE A READING AND WANT THE OWNER'S EYE BEFORE ANY SEVERITY MOVES.***
 | | **94** | `CREATE.ACCOUNT` says "%1 is now an SD administrator" on a grant that did not happen |
 | | **95** | a failed header flush marks the file clean, so `record_count` on disk can disagree with the data — needs an I/O error, and `dh_close` is where it does not self-heal |
 | | **96** | a privilege check that could not complete is reported as "not an administrator" — the audit line states a reason nobody established, and `sd.c:838` tells an elevated administrator to elevate |
+| | **97** | `MODIFY.ACCOUNT` says the `os.users` record is removed, and the VOC removal count, from a `delete` whose failure was discarded — 65's symptom by a second route |
 | **candidates, my reading** | **67** | the mode page's caption calls ssh optional; a full install always installs the server |
 | | **89**, **88** | a control the user clicks expecting an action, and none follows |
 | | **20** | the register says `SUSPENDED` while the person keeps Windows administrator rights |
