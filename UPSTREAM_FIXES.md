@@ -2220,3 +2220,140 @@ failures already do; and to take the return of the two `chsize64()` calls.
 `write_ak_big_rec`'s unchecked call at `:3872`, and `dh_file.c:331` at `:331`.
 
 `PROPOSED`
+
+## 31. Deleting a directory-file record inside a transaction cannot fail; the same statement outside a transaction reports a permission error
+
+`op_delete()` in `gplsrc/op_dio3.c` has two paths for a directory file. Inside a
+transaction it defers to the cache, and the work is done later by `op_txncmt()`
+in `gplsrc/txn.c`. Outside one it does the delete itself.
+
+The two do not behave the same way, and the transactional one is the weaker.
+
+Outside a transaction (`op_dio3.c:401`-`:414`):
+
+```c
+        /* 0408 Check that this really is a file, not CON, COMn, LPTn */
+
+        if (!stat(subfilename, &statbuf) && !(statbuf.st_mode & S_IFREG)) {
+          process.status = -ER_IID;
+          goto exit_op_delete;
+        }
+
+        if (remove(subfilename) < 0) /* 0427 */
+        {
+          process.os_error = errno;
+          if (process.os_error != ENOENT) {
+            process.status = -ER_PERM;
+            log_permissions_error(fvar);
+            goto exit_op_delete;
+          }
+        }
+```
+
+Inside one, the whole of the delete at commit is `txn.c:197`:
+
+```c
+            } else
+              remove(path);
+```
+
+The return is discarded. So a delete that fails — a read-only file, an ACL
+denial, or a file another process is holding open — is committed as though it
+had happened. `clear_parent()` runs on the next line, the cache entry is freed,
+`unlock_txn()` releases the locks, the transaction level is left, and the record
+is still on disk. The next `READ`, `SELECT` or `LIST` returns a record the
+program was told it had deleted. There is no error, no log entry and no
+`process.status`.
+
+The `stat`/`S_IFREG` guard is missing too, so the device-name check that the
+`0408` comment describes does not apply inside a transaction.
+
+Within `op_txncmt()` itself the inconsistency is one `switch` wide. Three of the
+four arms test their operation:
+
+- `TXN_WRITE` / `DYNAMIC_FILE` — `if (!dh_write(...))`, raises 1422 (`:150`)
+- `TXN_WRITE` / `DIRECTORY_FILE` — `if (!dir_write(...))`, raises 1422 (`:158`)
+- `TXN_DELETE` / `DYNAMIC_FILE` — `if (!dh_delete(...))`, raises 1423 (`:175`)
+- `TXN_DELETE` / `DIRECTORY_FILE` — bare `remove()` (`:197`)
+
+Unlike most of the failure paths in this area, this one does not need a disk
+error to reach. A read-only record file is enough, and on Windows a file held
+open by another process is routine.
+
+A minimal fix is to give the fourth arm what the other three have: test
+`remove()`, treat any `errno` other than `ENOENT` as a failure, log it, and
+raise 1423 the way the `dh_delete` arm directly above it does. Copying the
+`stat`/`S_IFREG` guard from `op_dio3.c` at the same time would close the
+device-name gap.
+
+`gplsrc/txn.c:197`, `:150`, `:158`, `:175`, `:201`; `gplsrc/op_dio3.c:380`,
+`:401`, `:407`. Confirmed identical on upstream `main` at commit `ae0cc5f` —
+the bare `remove(path)` at `txn.c:187`, and the checked non-transactional path
+at `op_dio3.c:386`.
+
+`PROPOSED`
+
+## 32. A commit that fails half way cannot be rolled back and never releases its locks
+
+`op_txncmt()` in `gplsrc/txn.c` clears the transaction id before it starts
+committing, so that closing a file during the commit does not recurse:
+
+```c
+  commit_txn_id = process.txn_id;
+  process.txn_id = 0;
+```
+
+It then walks the cache, writing and deleting. A failure raises an error and
+jumps to the end of the function:
+
+```c
+            if (!dh_write(dh_file, txn->id, txn->id_len, txn->str)) {
+              k_error(sysmsg(1422));
+              goto exit_op_txncmt;
+            }
+```
+
+`k_error()` does not return here. `gplsrc/k_error.c:31` sets
+`fatal = (*message != '!')`, and messages 1422 and 1423 do not begin with `!`,
+so `:289` reaches `longjmp(k_exit, K_ABORT)`. The `goto` below each `k_error()`
+is unreachable.
+
+Everything after the commit loop is therefore skipped, not just the exit:
+
+```c
+  txn_head = NULL;                    /* :215 - cache never cleared      */
+  txn_tail = NULL;
+  ...
+  unlock_txn(commit_txn_id);          /* :233 - locks never released     */
+```
+
+Three things outlive the abort:
+
+1. **The commit is partly applied.** Records handled before the failure are
+   written; the rest are not. Nothing records which is which.
+2. **Every record lock taken during the transaction is still held.** The only
+   two calls to `unlock_txn()` are the one above and the one in `rollback()`,
+   and neither is reached. The locks stay until the process ends.
+3. **The cache is orphaned** and the transaction level stays counted.
+
+Nothing can undo any of it, because the recovery paths test the id that was
+zeroed at the top. `txn_abort()` (`:288`) and `op_txnrbk()` (`:275`) both guard
+on `process.txn_id`, so the abort, logout and terminate handlers at
+`gplsrc/kernel.c:399`, `:410` and `:423` roll nothing back and report nothing.
+
+The trigger is a genuine write failure at commit time, so this is not reachable
+on a healthy disk — with the exception of the directory-file delete described in
+entry 31 above, which fails silently and so does not reach this path at all.
+
+The lock release is the separable half and does not need a design decision: the
+`unlock_txn()` call could be moved above the failure paths, or repeated on them.
+What to do about the records already written is a larger question, since a
+partially applied commit cannot simply be forgotten.
+
+`gplsrc/txn.c:136`, `:151`, `:159`, `:177`, `:215`, `:233`, `:275`, `:288`,
+`:607`; `gplsrc/k_error.c:31`, `:289`; `gplsrc/kernel.c:399`, `:410`, `:423`.
+Confirmed present on upstream `main` at commit `ae0cc5f`, where `op_txncmt()`
+has the same `process.txn_id = 0`, the same three `k_error()` and `goto` pairs,
+and `unlock_txn()` after the loop.
+
+`PROPOSED`

@@ -43823,3 +43823,60 @@ answering correctly and only the file fails to shrink.
 Tier-1 green again: fixlist **230/0** (open 22 → 23), tiercounts 15/15, verdict
 140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0. **Sweeps 3–6
 still owed**; full suite still owed by the owner, `b85` still the last one.
+
+## 31 Aug 2026 — sweep 3 of six done: `txn.c`, entries 101 and 102, UPSTREAM 31 and 32
+
+**750 lines, and the file is almost entirely clean.** `dh_write`, `dir_write`,
+`dh_delete` and all three `alloc_txn` sites are tested; `dh_fsync`, `dio_close`,
+`unlock_txn` and `suspend_updates` are all `void`, so there is nothing to
+discard; `rollback()` is clean **by design**, because nothing is written before
+commit and it therefore has no operation that can fail. Documentation only.
+
+***THE ONE DISCARDED STATUS IN THE WHOLE FILE IS `remove(path)` AT `:197`, AND
+IT IS ENOUGH FOR A `B`.*** `op_delete` (`op_dio3.c:380`) branches on whether a
+transaction is open. Outside one it tests `remove()` and sets `-ER_PERM` for any
+`errno` but `ENOENT`, calls `log_permissions_error`, and guards with
+`stat`/`S_IFREG` against `CON`/`COMn`/`LPTn`. **Inside one, the whole delete is
+a bare `remove(path)`.** So the record survives, `clear_parent` runs anyway, the
+commit reports success, and the next `READ`/`SELECT`/`LIST` returns a record the
+program was told it deleted — no error, no log, no `process.status`.
+
+**The contrast is one `switch` wide**: `TXN_WRITE`/`DYNAMIC` raises 1422,
+`TXN_WRITE`/`DIRECTORY` raises 1422, `TXN_DELETE`/`DYNAMIC` raises 1423, and
+`TXN_DELETE`/`DIRECTORY` checks nothing.
+
+***101 IS FILED `B` AND THE DISTINCTION IS THE TRIGGER, NOT THE CONSEQUENCE.***
+95, 96, 97 and 100 are all **M** because each needs an induced fault. This needs
+none — a read-only file, an ACL denial, or a file another process holds open,
+which on Windows is routine. That is the property that makes 93 and 94 **B**:
+they misreport with nothing broken at all. **SEV is a recommendation; the ruling
+is the owner's.**
+
+***102 IS ENTRY 11's LEFTOVER, AND FINDING IT AGAIN WAS A FILING FAILURE RATHER
+THAN AN ANALYSIS ONE.*** 11's detail says *"filed here rather than guessed at"*
+and `txn.c:249` says *"it is filed rather than fixed here"* — **but 11 is
+`~~11~~`, struck, DONE.** Nothing open tracked it and `test-fixlist-units`
+counted it closed. PRE_RELEASE_FIXES.md's own header already warns about this:
+*"read the table, never the section headings."* **A live defect living in a
+closed entry's prose is invisible to the process that decides what ships.**
+
+**What 102 adds that 11 did not have:** `k_error` **does not return** —
+`k_error.c:31` sets `fatal = (*message != '!')` and 1422/1423 do not begin `!`,
+so `:289` `longjmp`s. The `goto exit_op_txncmt` after each `k_error` is dead
+code, and everything after the loop is skipped — including
+**`unlock_txn(commit_txn_id)` at `:233`, so every record lock taken during the
+transaction is held for the life of the process.** The lock leak is separable
+from the design question and should not wait for it.
+
+**Both are upstream's**, diffed at `ae0cc5f`: the bare `remove(path)` at
+`txn.c:187` with its checked twin at `op_dio3.c:386`, and `op_txncmt`'s zeroed
+`txn_id`, three `k_error`+`goto` pairs and post-loop `unlock_txn`.
+**`UPSTREAM_FIXES` 31 and 32 filed the same day.** `end_txn_level` has **0**
+occurrences upstream, confirming it is ours — 11's fix.
+
+**Not re-found:** `system(1008)`/`txn_depth` never decrementing on a commit is
+already `UPSTREAM_FIXES` 17 and is covered by 11.
+
+Tier-1 green: fixlist **230/0** (open 23 → 25), tiercounts 15/15, verdict
+140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0. **Sweeps 4–6
+still owed**; full suite still owed by the owner, `b85` still the last one.

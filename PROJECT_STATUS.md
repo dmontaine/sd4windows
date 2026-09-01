@@ -305,7 +305,31 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `dh_file.c`, its neighbour, by exactly the question to ask here:** is a status
 > discarded, and is state updated as though the work succeeded?
 >
-> **3. `txn.c` — THE TRANSACTION LAYER.** Entry **11** (nested `commit` silently
+> **3. ✅ `txn.c` — DONE 31 Aug 2026. TWO DEFECTS, 101 AND 102, AND 101 IS THE
+> FIRST `B` ANY SWEEP HAS PRODUCED.** ***THE FILE IS OTHERWISE CLEAN AND THAT WAS
+> CHECKED, NOT ASSUMED***: `dh_write`, `dir_write`, `dh_delete` and all three
+> `alloc_txn` sites are tested, and `dh_fsync`, `dio_close`, `unlock_txn` and
+> `suspend_updates` are all **`void`** — there is nothing to discard. **`rollback()`
+> is clean by design**: nothing is written before commit, so it has no operation
+> that can fail. ***THE ONE DISCARDED STATUS IN THE WHOLE FILE IS `remove(path)`
+> AT `:197`*** — and the contrast is one `switch` wide, because the other three
+> arms of the same `switch` all test their operation and raise 1422 or 1423.
+> **101 is filed `B` on the trigger**: unlike 95, 96, 97 and 100 it needs no
+> induced fault, only a read-only or open file, which puts it with 93 and 94.
+> ***102 IS ENTRY 11's LEFTOVER AND THE REASON IT NEEDED FINDING AGAIN IS A
+> FILING ONE.*** 11 says *"filed here rather than guessed at"* and `txn.c:249`
+> says *"it is filed rather than fixed here"* — **but 11 is `~~11~~`, struck, so
+> nothing open tracked it and `test-fixlist-units` counted it closed.** The
+> header of PRE_RELEASE_FIXES.md already warns about exactly this: *"read the
+> table, never the section headings."* **A live defect in a closed entry's prose
+> is invisible to the thing that decides what ships.** *(New in 102 and not in
+> 11: `k_error` `longjmp`s rather than returning, so `unlock_txn` is skipped and
+> **every record lock is held for the life of the process**.)*
+>
+> **3b. `system(1008)`/`txn_depth` IS ALREADY FILED UPSTREAM AND WAS NOT
+> RE-FOUND** — `UPSTREAM_FIXES` 17, and §5.23's table entry for 11 covers it.
+>
+> *(The original note follows.)* Entry **11** (nested `commit` silently
 > losing the outer transaction's writes, **DONE**) came out of here and is proof
 > the class lives in this file. Nothing else in it has been swept. **Silent loss
 > on commit or rollback is the corollary's worst case.**
@@ -8962,6 +8986,8 @@ THE REST ARE A READING AND WANT THE OWNER'S EYE BEFORE ANY SEVERITY MOVES.***
 | | **98** | the trail says `ELEVATION GRANTED` for a session refused before the rights were given — an event that did not occur, where 96 is a reason never established. The one open entry whose trigger needs no induced fault |
 | | **99** | the API session's identity, which stamps every audit line, is set by a call whose refusal is discarded; a checked neighbour thirty lines later is the only thing that catches it |
 | | **100** | an AK node allocator answers "could not" with 0, nobody tests it, and node 0 is the index header — a transient write error becomes permanent corruption of what every query on that key is answered from. **The one entry with no self-heal** |
+| | **101** | `DELETE` on a directory file inside a transaction cannot fail — the record survives, the commit reports success, and the next query returns it. **Filed B: the only open entry besides 93 and 94 whose trigger is an ordinary state, not an induced fault** |
+| | **102** | a commit that fails half way is partly applied, cannot be rolled back, and never releases its locks. **11's leftover, recorded only inside a struck entry until now** |
 | **candidates, my reading** | **67** | the mode page's caption calls ssh optional; a full install always installs the server |
 | | **89**, **88** | a control the user clicks expecting an action, and none follows |
 | | **20** | the register says `SUSPENDED` while the person keeps Windows administrator rights |
