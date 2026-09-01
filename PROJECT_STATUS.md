@@ -8735,6 +8735,38 @@ wider than that entry: an administrator acts on what a query tells them, so a
 listing that is merely *usually* right is worse than one that refuses — they
 cannot tell which rows to trust.
 
+***THE COROLLARY, AND IT IS THE WIDER RULE — OWNER, 31 Aug 2026:*** *"This is a
+database application. No failure is more severe than misreported data, not just
+to the administrator but for every user."*
+
+***SO THIS IS THE SEVERITY ORDERING FOR THE WHOLE PROJECT, NOT A RULE ABOUT
+LISTINGS.*** Storing data and giving it back is what SD is for; returning the
+wrong answer is the worst thing it can do, and it outranks a crash — a crash is
+visible and a wrong answer is not. **Anything in this class is `B`.**
+
+***THE CORE DATA PATH HAS ONE RECORDED INSTANCE AND IT IS THE ARCHETYPE***:
+PRE_RELEASE **11**, the silent transaction data loss — a nested `COMMIT`
+abandoned the outer transaction and its writes vanished with **no error, no
+warning and nothing in the log**. **Fixed, and it earned a standing verifier**
+(`verify-txn`, 9 of 9) precisely because a silent wrong answer is the kind that
+comes back unnoticed. **No open entry is on the core data path today** — the two
+live ones are metadata.
+
+***CLASSIFIED AGAINST THE COROLLARY, 31 Aug 2026. THE FIRST TWO ARE MEASURED;
+THE REST ARE A READING AND WANT THE OWNER'S EYE BEFORE ANY SEVERITY MOVES.***
+
+| | entry | what it tells someone untrue |
+|---|---|---|
+| **in the class, measured** | **93** | `LIST ACCOUNTS` names accounts that do not exist |
+| | **65** | `LIST OS.USERS` names grants for accounts that do not exist |
+| **candidates, my reading** | **67** | the mode page's caption calls ssh optional; a full install always installs the server |
+| | **89**, **88** | a control the user clicks expecting an action, and none follows |
+| | **20** | the register says `SUSPENDED` while the person keeps Windows administrator rights |
+| **not in the class** | 6, 16, 28, 66, 70, 74, 76 | litter, a missing message, confidentiality, or missing function — none states a falsehood |
+
+**80 is already `B` on its own account** and belongs here too: documentation that
+describes a model the product no longer has is the same failure in prose.
+
 ***TWO FILES ANSWER WRONGLY TODAY, MEASURED ON THE 13:33:28 INSTALL***, and
 both are queryable because `voc_template` gives each an F-pointer and a
 dictionary:
