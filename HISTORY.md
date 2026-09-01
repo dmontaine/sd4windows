@@ -43977,3 +43977,55 @@ record before write-up, which is the only reason it is not filed as a gap.***
 Tier-1 green: fixlist **230/0** (open 26 → 27), tiercounts 15/15, verdict
 140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0. **Sweep 6 still
 owed**; full suite still owed by the owner, `b85` still the last one.
+
+## 31 Aug 2026 — sweep 6 of six done: the instruments are sound; entry 105. THE AUDIT IS COMPLETE
+
+**313 assertions across 43 verifiers swept. One hardening filed.** Documentation
+only. ***This closes the six sweeps §5.23 called for — 98 to 105, plus
+UPSTREAM 30 to 34.***
+
+***THE ARCHETYPE IS ALREADY FIXED.*** `verify-apiidentity.ps1` — the file this
+sweep item was written about, after it reported a refused Step 3 as
+*"confirmed"* — now carries an explicit `$disqualifiers` list (`:591`), named
+success anchors (*"anchor: sysmsg 6129, the LAST message on the happy path"*
+`:585`, and 6189 at `:686`) and **VOID rather than a pass** when its control
+fixture fails.
+
+**Both mechanical defect signatures came back empty**: **0** case-insensitive
+hash/base64 comparisons anywhere, and `-ceq`/`-cne` correctly used in the 5
+files where case decides. **`verify-osusers.ps1` is the model** — a three-state
+verdict (**2 = could not run**, distinct from failed), `Assert-ProbeRan` and a
+`LOGNAME=` probe-ran guard, which is **stronger than `Write-Verdict`'s two
+states**.
+
+**105, the one finding:** `verify-apiadmin.ps1:306` is
+`($out -match 'APIADMINPROBE') -and ($out -match 'APIOSEXECPROBE') -and ($out -notmatch '[1-9][0-9]* error')`.
+**Both positive terms are the arguments passed in.** They match `BASIC:330`'s
+2812 *"Compiling ff rr"*, printed **before** `$bcomp` is called, and the same
+names appear again in `BCOMP:12079`'s 2612 *"Compilation error in %1"* — so
+they are carried on the failure path too, and **only the disqualifier does any
+work**. Filed **M, verifier not product**, and the row says plainly it is sound
+in the ordinary case: `BCOMP:1540` prints the count on both paths of every
+ordinary run. **The fix is one term** — require `-match '\b0 error'`, the
+positive half of the same message, so a run that never reached 1540 fails
+instead of passing.
+
+**Structural counts, recorded as a lead and not as a charge:** `Write-Verdict`
+in **9 of 43**, a disqualifier control in **11 of 43**, a named success anchor
+in **4 of 43**. **A file without the word still anchored correctly everywhere it
+was read**, so filing those as defects would be overclaiming.
+
+***THE RECORD STOPPED A SECOND FALSE ENTRY.*** `6686 "Compilation complete"` has
+**0 callers here and 1 upstream**, which read as a port gap; its only caller is
+`SED:6096`, and **`SED` was removed 23 Aug 2026 (§5.19, session 42)**. `BASIC`
+never printed it in either tree. That is the same shape as sweep 5's `3312`,
+and both were caught by grepping the record before writing rather than after.
+
+Tier-1 green: fixlist **230/0** (open 27 → 28), tiercounts 15/15, verdict
+140/140, sdtestuser 54/0, suiteonly 48/48, stale-leads exit 0.
+
+***WHAT IS STILL OWED IS VERIFICATION, NOT ANALYSIS.*** Every one of 98–105 is
+`NOT EXECUTED` — read from control flow, as each row says. **98 remains the
+cheapest confirmation owed**: it is the only one whose trigger needs no induced
+fault. The full suite is still the owner's to run and `b85` is still the last
+one.

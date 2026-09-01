@@ -242,6 +242,36 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >   the sweep printed it and refused a zero, and 0 false positives survived a
 >   check for `void` inside a trailing `;*` comment or a string literal.
 >
+> # ✅ ALL SIX SWEEPS ARE DONE — 31 Aug 2026. EIGHT ENTRIES, 98 TO 105, AND FIVE UPSTREAM.
+>
+> ***THE AUDIT §5.23 CALLED FOR IS COMPLETE. NOTHING BELOW IS OWED ANY MORE***;
+> the six items are kept with their numbers and their original text because
+> every entry cites *"sweep N of the six"*. **What is still owed is
+> VERIFICATION, not analysis** — see the debt box above, which the audit did not
+> reduce: **every one of 98–105 is `NOT EXECUTED`**, read from control flow, and
+> the full suite is still the owner's to run with `b85` still the last one.
+>
+> | sweep | product |
+> |---|---|
+> | 1 `void <fn>()` | **98**, **99** — 84 sites, not 77 |
+> | 2 `dh_ak.c` | **100** + UPSTREAM 30 — the worst found; no self-heal |
+> | 3 `txn.c` | **101** (the only **B**), **102** + UPSTREAM 31, 32 |
+> | 4 `status()` | **103** + UPSTREAM 33 — *the specified sweep was clean* |
+> | 5 `sysmsg` upstream | **104** + UPSTREAM 34 — *the specified sweep was clean* |
+> | 6 the verifiers | **105** — the archetype was already fixed |
+>
+> ***THREE LESSONS WORTH MORE THAN ANY SINGLE ENTRY.*** **(a) SIZE BY THE
+> OPERATION, NOT THE KEYWORD** — sweeps 4 and 5 found nothing where they were
+> pointed and everything one family over. **(b) VERIFY THE CLAIM THE NEGATIVE
+> RESULT RESTS ON** — "a bare `write` aborts loudly" was inherited from this box
+> and had to be proved (`op_dio3.c:650`, `:436`) before 123 sites could be
+> called safe; proving it once made sweep 5 cheap. **(c) GREP THE RECORD BEFORE
+> FILING, NOT ONLY BEFORE RUNNING** — `3312` and `6686` both read as port gaps
+> and are both deliberate removals already recorded (§"SDNet is gone", §5.19).
+> **Two false entries avoided by a grep that cost seconds.**
+>
+> *(Original heading and items follow, unchanged.)*
+>
 > ***NOT DONE, IN THE ORDER I WOULD RUN THEM. THE NUMBERS ARE STABLE — 1 IS DONE
 > AND KEEPS ITS NUMBER, BECAUSE 98 AND 99 BOTH CITE "SWEEP 1 OF THE SIX".***
 >
@@ -413,7 +443,32 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > instruction is to file upstream what upstream also has. **A defect in both trees
 > goes in BOTH files.**
 >
-> **6. THE VERIFIERS THEMSELVES.** The meta-sweep, and the reason to bother is on
+> **6. ✅ DONE 31 Aug 2026 — ONE HARDENING, 105. THE INSTRUMENTS ARE IN GOOD
+> SHAPE AND THE ARCHETYPE IS ALREADY FIXED.** ***`verify-apiidentity.ps1`, THE
+> FILE THIS ITEM WAS WRITTEN ABOUT, NOW CARRIES EVERYTHING THE RULE ASKS FOR***
+> — an explicit `$disqualifiers` list (`:591`), named success anchors (*"anchor:
+> sysmsg 6129, the LAST message on the happy path"*, `:585`; 6189 at `:686`) and
+> **VOID rather than a pass** when its control fixture fails. **Do not re-audit
+> it.** ***313 assertions across 43 verifiers swept; both mechanical defect
+> signatures came back EMPTY*** — **0** case-insensitive hash/base64
+> comparisons, and `-ceq`/`-cne` correctly used in the 5 files where case
+> decides. ***`verify-osusers.ps1` IS THE MODEL TO COPY***: a three-state
+> verdict (**2 = could not run**, distinct from failed), `Assert-ProbeRan`, and
+> a `LOGNAME=` probe-ran guard — **stronger than `Write-Verdict`, which has only
+> two states.** **105 is the one finding**: `verify-apiadmin.ps1:306` anchors on
+> the two probe NAMES, which `BASIC:330` prints *before* compiling (2812) and
+> `BCOMP:12079` prints again on failure (2612), so the check rests entirely on
+> its disqualifier. **The anchor it should use already exists** — `BCOMP:1540`
+> prints *"0 error(s)"* on the happy path.
+>
+> **6b. THE STRUCTURAL NUMBERS ARE A LEAD, NOT A CHARGE.** `Write-Verdict` is in
+> **9 of 43**, a disqualifier control in **11 of 43**, a named success anchor in
+> **4 of 43**. ***A FILE WITHOUT THE WORD STILL ANCHORED CORRECTLY EVERYWHERE IT
+> WAS READ***, so these are idiom counts and filing them as defects would be the
+> overclaiming this project punishes — but they are where a next pass should
+> look first.
+>
+> *(The original note follows.)* **The verifiers themselves** — the meta-sweep, and the reason to bother is on
 > the record: `verify-apiidentity` reported a refused step as *"confirmed"*, and
 > three false verdicts in one day came from instruments that never reached the
 > condition they claimed to measure. **Anchor on the SUCCESS wording, refuse the
@@ -9051,6 +9106,7 @@ THE REST ARE A READING AND WANT THE OWNER'S EYE BEFORE ANY SEVERITY MOVES.***
 | | **102** | a commit that fails half way is partly applied, cannot be rolled back, and never releases its locks. **11's leftover, recorded only inside a struck entry until now** |
 | | **103** | `WEOFSEQ` and `OPENSEQ … OVERWRITE` report success on a truncate that did not happen, so the file keeps its old tail — and `SetFileSize` is a `bool` that always answers TRUE |
 | | **104** | `DELETE.FILE` orphans a relocated alternate-key index and discards the delete. **Not in the class and the row says so** — 6136 and 6141 are true, the index is simply left behind |
+| | **105** | a verifier's compile check anchors on the argument it passed in, so only its disqualifier does any work. **Instrument, not product** — the class §5.23 exists to stop being measured badly |
 | **candidates, my reading** | **67** | the mode page's caption calls ssh optional; a full install always installs the server |
 | | **89**, **88** | a control the user clicks expecting an action, and none follows |
 | | **20** | the register says `SUSPENDED` while the person keeps Windows administrator rights |
