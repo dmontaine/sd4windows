@@ -44494,3 +44494,181 @@ edits and still the oldest. Recovery: `rm -f bin/*.exe bin/*.dll && make sd`
 `sd.exe`'s hash and the install had to match. The general lesson, now in the
 build-shell memory: **add the `START-HISTORY` line as part of the edit, before
 the build.** A comment written after the build costs a rebuild and a cycle.
+
+## 1 Sep 2026 — 100 built: the seven unchecked `get_ak_node` callers, and a third failure path the entry did not have
+
+**The next-cheapest §5.23 "take the answer" fix after 101/99/95, and the last
+open one from the six sweeps that needed no ruling.** Owner had already granted
+the fix when he raised it to **B** on 31 Aug: *"test the return at all seven
+sites and abort on 0, as the neighbouring failures already do."* Built, not yet
+installed.
+
+**What it was.** `get_ak_node` (`dh_ak.c:2686`) allocates an AK index node and
+uses **0** for failure. All seven callers used the value untested — `:2216`,
+`:2237`, `:2365` in `ak_write`'s split paths, `:3407`, `:3460` in
+`update_internal_node`, `:3831`, `:3865` in `write_ak_big_rec`. **Node 0 is the
+index header**, mapped there deliberately by `dh_file.c:331`, so a transient
+read or write error had the caller write a terminal, internal or big-record node
+**over the header every query on that key is answered from**. The error was
+reported correctly — `dh_err` reaches `process.status` — but after the damage,
+and nothing re-heals it. That last point is why it outranks 95, its sibling:
+95 self-heals on the next write.
+
+**The fix, in each function's own idiom.** `goto exit_ak_write` at the three
+`ak_write` sites, `goto exit_update_internal_node` at the two in
+`update_internal_node`, and `head = 0; goto exit_write_ak_big_rec` at the two in
+`write_ak_big_rec` — where `head == 0` is already how that function reports
+failure and `ak_write:1990` already tests it, so those two propagate through
+machinery that existed. Every abort lands on an exit that already frees what was
+allocated and releases the locks; nothing new was added to any exit path.
+
+***THE ENTRY'S GRANTED FIX WAS INSUFFICIENT AS WRITTEN, AND FINDING THAT OUT IS
+THE VALUABLE PART.*** The entry — and UPSTREAM 30 — enumerated **two** of
+`get_ak_node`'s three failure exits: the `:2687` initialiser and the explicit
+`new_node_num = 0` at `:2716`. **The middle branch returns a NON-ZERO number on
+failure.** It sets `new_node_num` from `GetAKFwdLink` *before* reading the free
+node, so a failed `dh_read_group` there falls to the exit and hands back the
+head of the free chain — with `ak_header->free_chain` never advanced, so the
+file still believes that node is free and will hand it out again. **A
+caller-side test for 0 cannot see it**, so seven perfect guards would still have
+had a hole. Fixed in the function (`new_node_num = 0` before the `goto`) rather
+than at the sites: the convention is made total instead of policed. Added to
+UPSTREAM_FIXES 30, whose own excerpt elides that branch behind a `...`.
+
+**`:3460` needed a temporary.** It assigned straight into
+`node_ptr->node_num`, so testing after the store would have been reading a value
+already committed to the node structure. `old_root_node_num` takes it, is
+tested, and only then stored — and the abort lands at the same point as the
+existing `root_node == NULL` guard three lines below, before anything is
+written, so the on-disk state is untouched.
+
+**Measured, not assumed.** `make sd` **exit 0, no warnings**; `dh_ak.o` 90273 →
+90533 bytes, 09:34:55 → 10:45:28; **all 8 binaries relinked** 10:45:28–10:45:33,
+and `find gplsrc -newer bin/sdclilib.dll` returned **empty** — so last session's
+`assert-current` trap is not armed, because the `START-HISTORY` line went in
+**before** the build this time. The guard count was counted rather than
+believed: **7 call sites, 7 guards**, from a `grep -A4` over every
+`= get_ak_node(` line, with the count printed so a zero would have shown.
+
+***NOT EXECUTED, AND THE FIX DOES NOT CHANGE THAT.*** Forcing it needs an
+induced write failure on an AK subfile, which the suite cannot make. It closes
+on the 101/103/104 shape: normal path confirmed unregressed by a cycle, fault
+fixed by reading. **Not struck until the cycle installs it.**
+
+## 1 Sep 2026 — 96 not started: its recommended fix would crash at start-up, and the shape is now the owner's
+
+**Sized as the second cheap one and it is not cheap — it is a ruling.** The
+entry recommends *"`log_printf` on the paths that could not determine an
+answer"*. Traced before writing any code, and `log_printf` is the wrong
+instrument twice:
+
+1. ***IT IS NOT QUIET.*** `k_error.c:873` calls `tio_display_string` whenever
+   `my_uptr != NULL`, so each line would also print **on the user's terminal**,
+   mid-session, on a privilege path. PRE_RELEASE 84 is the precedent for what
+   new console output does to verifiers matching literal phrases.
+2. ***IT DEREFERENCES A NULL POINTER AT THE CALL SITE THE ENTRY CALLS "THE
+   PLAINEST".*** `log_printf` → `log_message` → `k_error.c:582`
+   `if (sysseg->errlog)`, unguarded. `sysseg` is `init(NULL)`
+   (`sysseg.h:138`). And **`comlin()` runs at `sd.c:175`, `bind_sysseg()` at
+   `sd.c:180`** — so `comlin` → `check_admin` → `IsElevated` executes **before
+   shared memory is bound**. The recommended diagnostic is a start-up crash on
+   exactly the `sd.c:838` path the entry leads with.
+
+**So a `sysseg != NULL` guard makes it safe and silent precisely where it was
+wanted**, which is a diagnostic that omits its own headline case. That is a
+choice about what the product does, not about how much effort to spend, so it
+goes to the owner: (a) guarded, accepting `sd.c:838` logs nothing; (b) plus
+`check_admin` telling the truth on its own `stderr`, which needs the predicate
+to distinguish; (c) the tri-state, four callers.
+
+**Two corrections to the entry, both by measuring.** Its path list is **short by
+two** — the *second* `getgrouplist` (`linuxlb.c:112`) and the *second*
+`getgroups` (`:172`) can fail after their sizing call succeeded, skip the loop
+and return the initialised `FALSE`, undetermined and uncommented. Nine, not
+seven. And **one listed path is not undetermined at all**: `op_sh.c:173`'s
+`open` failing with `ENOENT` is the *designed* NO — that file's banner says
+*"MISSING FILE OR MISSING RECORD MEANS NO… the safe direction"* — so only a
+non-`ENOENT` `errno` belongs in a log, the same discrimination 101 made in
+`txn.c`. Logging it unconditionally would write a line on every ordinary
+refusal.
+
+**Nothing was built for 96.** The row carries the measurement so the next
+session does not re-derive it, and the analysis it already had is unchanged.
+
+## 1 Sep 2026 — 100 closed on the 10:53:32 install, and the probe that closed it caught itself measuring nothing
+
+**Cycle 10:52:42 → 10:54:25.** Installed `sd.exe` **3DFDB5CEB208E67C**, the hash
+of the 10:45:33 build; `assert-current` **exit 0**; `check-datatree-litter`
+**CLEAN, 3618 entries**. `-Run b99 -Only verify-tierchange` **28 of 28, exit 0**,
+banner'd `PARTIAL, 1 of 22`.
+
+**That step was the wrong instrument and it was handed over as the right one.**
+It was chosen because `VerifyInstall2.ps1:451` says `verify-tierchange` *"raises
+verify-acctmsgs.ps1 and verify-vocverbs.ps1"*. It does not — its only external
+calls are `Start-Job` and `assert-current.ps1` — and the owner's transcript
+contains no `CREATE.INDEX` at all. **A comment was read instead of the script,
+and the comment was wrong.** Entry **112** files it.
+
+**So `gplbld/probe-akwrite.ps1` was written**, unelevated, in DON's own account.
+`BUILD.INDEX` over **1900 records — 1200 distinct keys plus 700 sharing one
+key**, sized from `dh_fmt.h`: past `DH_AK_NODE_SIZE` 4096 to force terminal
+splits and internal nodes, past `AK_BIG_REC_SIZE` 3300 to force the big-record
+chain. **18 of 18.** `1900 records processed`; the `En` column **N → Y**; the AK
+subfile **8192 → 49152 bytes**, so the build allocated **40960 bytes = 10 nodes,
+every one through `get_ak_node()`**; then `SAMEKEY` → **700**, `K000001` → **1**,
+`K001200` → **1**. No fixture and no stray session left behind.
+
+***THE PROBE'S FIRST RUN SCORED 15 OF 15 WHILE MEASURING ALMOST NOTHING, AND
+THAT IS WORTH MORE THAN THE RESULT.*** `CREATE.INDEX` **defines an index without
+building it** — `gpl.bp/CREATEI:33`, *"the two commands are identical except that
+MAKE.INDEX automatically goes on to build the index."* So `En` stayed `N`, the
+subfile stayed at header-plus-one-node, and the three SELECTs answered
+**correctly, off a sequential scan**. Correct answers from an index that had
+never been populated, and a node-count guard that passed because 8192 looked
+like "more than one 4096-byte node" when it was really header-plus-root. **The
+fix was not a better assertion but a control**: the unbuilt state is now captured
+in the same run (`En = N`), the build is a separate step, and the floor is sized
+from the key data rather than from a round number. *Ask what the right answer
+would look like if the code had never run.*
+
+**Two of my own instrument faults on the way, both already in the record as
+classes.** `Show-SD` used `Write-Output` and `return`, so its return value
+carried the display lines and `$o -match` answered `System.Object[]` instead of a
+boolean — five checks scored FAIL on a product that was fine. It now hands back
+`$script:lastSD`, which is `verify-vocverbs.ps1`'s pattern and exists for exactly
+this reason. And chained `SELECT`s ran against the **active select list**, so
+`WITH F1 = "K000001"` answered 0 because the previous SELECT had left 700 SAMEKEY
+records selected; `clear.select` before each one fixed it. **Both were the
+question being wrong, not the answer.**
+
+**A gplbld script with no roster line takes `assert-current` to exit 1.**
+`assert-current.ps1:818` said so; it is now confirmed rather than quoted —
+copied in, tree red, roster line added, **exit 0** again. The probe is
+**deliberately in neither runner**: wiring it in is the owner's ruling, as 54,
+82, 106 and 107 all were.
+
+**Still not seen to fire**, and the entry always said so: the guards need an
+induced write failure on an AK subfile. 100 closes on the **101/103/104 shape** —
+normal path proven unregressed *by execution*, fault fixed by reading.
+
+**And the probe found a second defect in its own cleanup output — 113.**
+`DELETE.FILE` printed `Failed to delete index directory` for `AKPDIR` and
+`AKPDCT`, two DIRECTORY files that never had an index, while `AKPF` — the one
+that *did* have a built index — deleted silently and cleanly. Exactly backwards.
+`DELETEF:271` reads a non-empty `FL$AKPATH` for an ordinary file and `:287`
+reports the resulting `ospath` failure, so **"nothing there to delete" is
+reported as "could not delete"**, and `@system.return.code` is set to an error on
+a delete that fully succeeded. That is **PRE_RELEASE 104's own fix overshooting**:
+it took the answer, which was right, and did not distinguish absent from refused,
+which is the other half. **101 made exactly that distinction the same day** by
+tolerating `ENOENT`. Filed rather than fixed — it wants the same `ENOENT`-shaped
+discrimination at both `DELETEF` sites and probably at `MKINDX:355`.
+
+**Worth noting how it was found**: by *running* something, in output nobody had
+asked a question about. The six sweeps read 53 call sites in this area and did
+not see it, because it is not visible in the control flow — `ospath` failing is
+indistinguishable from `ospath` refusing until you watch which files it fires on.
+
+Tier-1 green: fixlist **237/0** then **238/0** (open 18: 100 struck, 112 and 113
+filed), stale-leads exit 0, `assert-current` exit 0, `check-datatree-litter`
+CLEAN.

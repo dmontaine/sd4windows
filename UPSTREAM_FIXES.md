@@ -2208,9 +2208,37 @@ reachable on a healthy disk. It is filed because the first one converts a
 transient write error into permanent corruption of the structure every query on
 that key depends on, which is a worse outcome than the failure that caused it.
 
-A minimal fix is to test `get_ak_node()`'s return at all seven sites and abort
-the operation on 0, exactly as the neighbouring `k_alloc` and `dh_write_group`
+**And testing for 0 at the call sites is not sufficient on its own, because one
+of the three failure paths does not return 0.** Found 1 Sep 2026 while making
+that fix; the excerpt above elides it behind the `...`, and it is the middle
+branch:
+
+```c
+  } else {
+    new_node_num = GetAKFwdLink(dh_file, ak_header->free_chain);
+    if (!dh_read_group(dh_file, subfile, new_node_num,
+                       (char *)&ak_node, DH_FREE_NODE_SIZE)) {
+      goto exit_get_ak_node;          /* returns new_node_num, which is NOT 0 */
+    }
+```
+
+`new_node_num` is already set from the forward link when that read is
+attempted, so the failure exit returns the head of the free chain as though it
+were a freshly allocated node — and `ak_header->free_chain` has not been
+advanced, so the file still believes that node is free. The caller writes a
+node the allocator will hand out again. It is a different fault from the header
+overwrite and is invisible to a caller-side test for 0, so the fix has to make
+the failure convention total in the function rather than guard it at the seven
+sites.
+
+A minimal fix is to set `new_node_num = 0` on that path so 0 means failure on
+all three, then test `get_ak_node()`'s return at all seven sites and abort the
+operation on 0, exactly as the neighbouring `k_alloc` and `dh_write_group`
 failures already do; and to take the return of the two `chsize64()` calls.
+
+Note that `update_internal_node()` at `:3460` assigns the result straight into
+`node_ptr->node_num`, so it needs a temporary — testing after the store would
+mean testing a value already committed to the node structure.
 
 `gplsrc/dh_ak.c:2686`, `:2702`, `:2716`, `:2216`, `:2237`, `:2365`, `:3407`,
 `:3460`, `:3707`, `:3831`, `:3865`, `:3913`; `gplsrc/dh_file.c:331`;

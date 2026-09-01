@@ -141,6 +141,149 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 6, 1 Sep 2026 — ***100 CLOSED AND MEASURED. 112 FILED: A VERIFIER NOTHING RUNS. 96 IS A RULING.*** ⇩⇩⇩
+>
+> ***OPEN COUNT: 18 — 100 STRUCK, 112 AND 113 FILED.*** Open: 3, 16, 28, 65, 66,
+> 67, 70, 74, 76, 78, 80, 88, 89, 93, 96, 102, **112**, **113**.
+> `check-stale-leads` **exit 0**. **`b99` is spent. Next free run token is
+> `b100`.** ***NEXT FREE PRE_RELEASE ID: 114.***
+>
+> ### ***113 — FOUND BY RUNNING, AND IT IS 104's FIX OVERSHOOTING***
+>
+> `DELETE.FILE` prints **`Failed to delete index directory`** for every file that
+> **never had** one, and sets `@system.return.code` to an error on a delete that
+> fully succeeded. **The ordering in the probe's own cleanup is the giveaway**:
+> `AKPF`, which *had* a built index, deleted silently and cleanly; `AKPDIR` and
+> `AKPDCT`, two DIRECTORY files with no index ever, **both reported failure**.
+> `DELETEF:271` reads a non-empty `FL$AKPATH` for an ordinary file and `:287`
+> treats "nothing there to delete" as "could not delete". **101 got this exact
+> distinction right the same day** by tolerating `ENOENT`. Not cosmetic: a script
+> checking the return code of a successful `DELETE.FILE` now sees an error.
+>
+> ### ***THE STATE, MEASURED***
+>
+> Cycle **10:52:42 → 10:54:25**, install **10:53:32**, `assert-current` **exit
+> 0**, installed `sd.exe` **3DFDB5CEB208E67C** — the hash of the 10:45:33 build,
+> so the fix is the binary that is running. `check-datatree-litter` **CLEAN, exit
+> 0, 3618 entries**. **Nothing is in flight and nothing is half-built.**
+>
+> `-Run b99 -Only verify-tierchange`: **28 of 28 decisive checks, exit 0**,
+> correctly banner'd `PARTIAL, 1 of 22`. ***A FULL SUITE IS STILL OWED*** and has
+> not run since `b91`.
+>
+> ### ***100 — CLOSED, AND THE PROBE IS WHY***
+>
+> All seven `get_ak_node` callers test the answer and abort on 0. **Node 0 is the
+> AK index header**, so the untested value had the caller write a data node over
+> the header every query on that key reads from — reported by `dh_err`, but
+> *after* the damage, and nothing re-heals it.
+>
+> ***THE ENTRY'S GRANTED FIX WAS INSUFFICIENT AS WRITTEN.*** It and UPSTREAM 30
+> enumerated **two** of `get_ak_node`'s three failure exits. **The middle branch
+> returned a NON-ZERO number on failure** — the head of the free chain, with
+> `free_chain` never advanced, i.e. a node the file also believes is free. Seven
+> perfect caller-side guards would still have had a hole, so the convention was
+> made total inside the function. Filed into UPSTREAM 30.
+>
+> ***THE MEASUREMENT, BY `gplbld/probe-akwrite.ps1` — 18 OF 18, UNELEVATED.***
+> `BUILD.INDEX` over **1900 records (1200 distinct keys + 700 on one key)**:
+> `1900 records processed`, the `En` column **N → Y**, and the AK subfile
+> **8192 → 49152 bytes**, so the build allocated **40960 bytes = 10 nodes, every
+> one through `get_ak_node()`**. The index then answered `SAMEKEY` → **700**
+> (past `AK_BIG_REC_SIZE` 3300 — the big-record chain), `K000001` → **1**,
+> `K001200` → **1** (past `DH_AK_NODE_SIZE` 4096 — splits and internal nodes).
+>
+> ***THE PROBE'S FIRST RUN SCORED 15/15 WHILE MEASURING ALMOST NOTHING, AND THAT
+> IS THE MOST PORTABLE THING HERE.*** `CREATE.INDEX` **defines an index without
+> building it** — `gpl.bp/CREATEI:33`, *"the two commands are identical except
+> that MAKE.INDEX automatically goes on to build the index."* So `En` stayed `N`,
+> the subfile stayed at header-plus-one-node, and three SELECTs answered
+> **correctly off a sequential scan**. **Correct answers from an index that was
+> never populated.** The `En` control and a node-count floor sized from the key
+> data are what refuse it now. ***ASK WHAT THE RIGHT ANSWER WOULD LOOK LIKE IF
+> THE CODE HAD NEVER RUN.***
+>
+> **Still not seen to fire, as filed**: the guards need an induced write failure
+> on an AK subfile. 100 closes on the **101/103/104 shape** — normal path proven
+> unregressed *by execution*, fault fixed by reading.
+>
+> ### ***112 — `verify-vocverbs.ps1` IS RUN BY NOTHING, AND A COMMENT SAID IT WAS***
+>
+> **It is a step in neither runner, and `verify-tierchange` does not raise it**
+> — its only external calls are `Start-Job` and `assert-current.ps1`.
+> **`VerifyInstall2.ps1:451` and `:146` say otherwise and are false.** That
+> comment is why `-Only verify-tierchange` was handed over as 100's deciding
+> step; it ran green and drove **no index at all**.
+>
+> ***AND WIRING IT IN WOULD STILL MEASURE NOTHING***, for two independent
+> reasons: its fixture indexes a file whose **DATA part is empty**, and it uses
+> **`CREATE.INDEX`, which never builds**. So the AK write path had **never been
+> exercised by anything in the tree**. Fourth instance of the class — 54, 82,
+> 107. **`probe-akwrite.ps1` is rostered in `assert-current.ps1` and is in
+> neither runner on purpose: wiring it in is the owner's ruling**, as 54, 82,
+> 106 and 107 all were.
+>
+> ***A GPLBLD SCRIPT WITH NO ROSTER LINE TAKES `assert-current` TO EXIT 1*** —
+> `assert-current.ps1:818` said so and it is now confirmed rather than quoted:
+> the probe was copied in, the tree went red, the roster line was added, and it
+> is **exit 0** again.
+>
+> ### ***100 — WHAT WAS BUILT***
+>
+> All seven `get_ak_node` callers now test the answer and abort on 0, in each
+> function's own idiom. **Node 0 is the AK index header** (`dh_file.c:331` maps
+> it there deliberately), so the untested value had the caller write a data node
+> over the header every query on that key is read from — reported correctly by
+> `dh_err`, but *after* the damage, and nothing re-heals it.
+>
+> ***THE ENTRY'S GRANTED FIX WAS INSUFFICIENT AS WRITTEN, AND THIS IS THE PART
+> WORTH READING.*** The entry and UPSTREAM 30 both enumerated **two** of
+> `get_ak_node`'s three failure exits. **The middle branch returns a NON-ZERO
+> number on failure** — `new_node_num` is set from `GetAKFwdLink` before the free
+> node is read, so a failed read hands back the head of the free chain with
+> `free_chain` never advanced, i.e. a node the file also believes is free.
+> **Seven perfect caller-side guards would still have had a hole**, so the
+> convention was made total inside the function instead. Filed into UPSTREAM 30.
+>
+> **`:3460` needed a temporary** (`old_root_node_num`) — it assigned straight
+> into `node_ptr->node_num`, so a test after the store reads a value already
+> committed.
+>
+> ***STILL NOT EXECUTED, AND THE FIX DOES NOT CHANGE THAT.*** Forcing it needs an
+> induced write failure on an AK subfile, which the suite cannot make. It closes
+> on the **101/103/104 shape**: normal path confirmed unregressed by the cycle,
+> fault fixed by reading. **Do not wait for it to fire.**
+>
+> ### ***96 — DO NOT BUILD THE FIX ITS ROW RECOMMENDS. IT CRASHES.***
+>
+> Sized as the second cheap one; traced before writing code, and it is not
+> cheap. `log_printf` → `log_message` → `k_error.c:582` `if (sysseg->errlog)`,
+> **unguarded**, and `sysseg` is `init(NULL)` (`sysseg.h:138`). **`comlin()` runs
+> at `sd.c:175` and `bind_sysseg()` at `sd.c:180`**, so `comlin` → `check_admin`
+> → `IsElevated` runs **before shared memory is bound**: the recommended
+> diagnostic is a **null-pointer crash at start-up**, on the very `sd.c:838` path
+> the row calls "the plainest". `log_printf` also **displays on the user's
+> terminal** (`k_error.c:873`) whenever a session is logged in.
+>
+> ***SO THE SHAPE IS A RULING AND IT IS OWED BY THE OWNER***, three options in
+> the row: **(a)** guarded `log_message`, accepting that `sd.c:838` logs nothing;
+> **(b)** plus `check_admin` telling the truth on its own `stderr`; **(c)** the
+> tri-state, four callers. **Nothing was built.** Two corrections to the row are
+> already in it: **nine** undetermined paths not seven, and `op_sh.c:173`'s
+> `ENOENT` is the *designed* NO rather than an undetermined one.
+>
+> ### ***WHAT IS NEXT AFTER THIS, BY COST***
+>
+> ***THE §5.23 SWEEP FAMILY IS NOW EXHAUSTED EXCEPT FOR RULINGS — 100 WAS THE
+> LAST OF IT THAT NEEDED NONE.*** What is left in that family is **102** (its
+> **lock release is separable and needs no ruling**; the half-applied-commit
+> question does) and **96** above. **93** is a **B**, its shape ruled 1 Sep, and
+> **not started** — the largest thing with a clear mandate. **112** is cheap but
+> is a wiring decision, so it is his.
+>
+> So, in order: **102's lock release** (no ruling needed), then **93**, with
+> **96**, **112** and **102's ruling** waiting on him.
+>
 > # ⇩⇩⇩ HANDOFF 5, 1 Sep 2026 — ***6/110/111 AND 101/99/95 ALL CLOSED AND MEASURED. NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***OPEN COUNT: 17*** (6, 110, 111, 101, 99, 95 struck this session). **Next
