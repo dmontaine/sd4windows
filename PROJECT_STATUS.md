@@ -141,6 +141,151 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 9, 1 Sep 2026 — ***LEG 3 IS DONE AND 78 IS CLOSED. THE GUEST IS UPGRADED AND IDLE; LEG 4 IS THE INTERACTIVE UNINSTALL.*** ⇩⇩⇩
+>
+> ***DO NOT RUN `cycle.ps1` WHILE A GUEST RUN IS IN FLIGHT.*** It rebuilds
+> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, and that is the exact file the
+> guests install from over the `sdout` share — a cycle silently swaps the
+> installer under test. **The source edit below was therefore made and NOT
+> built.**
+>
+> ***THE HOST HAS ONE UNBUILT SOURCE CHANGE AND NOTHING ELSE MOVED.***
+> `sd.iss:33` `#define AppName` is now `"SD Core"` (entry **119**, the owner's
+> catch: the wizard caption read *"Setup - SD W1.0-0"*). **No cycle, no ISCC, so
+> it is unwitnessed** — that is why 119 is still OPEN. The last install here is
+> still 12:50:27 with `b100` green in both halves; **next run token `b101`.**
+> ***NEXT PRE_RELEASE ID: 120.***
+>
+> ### ***THE GUEST: `Windows 11 - Test 1`, POWERED ON AND IDLE AT AN ELEVATED PROMPT***
+>
+> Legs 1, 2 and 3 are done. **SD is upgraded** (second install 15:16→15:22),
+> **the ssh server is back, Running/Automatic**, and `check-install` reported
+> **every row `[ok]`**. Captures `01`–`05` and five `leg3*` logs are in
+> `C:\Users\dmont\sdxfer`, readable directly from the host.
+>
+> ***LEG 4 IS THE INTERACTIVE UNINSTALL, AND IT IS THE ONLY WAY TO SEE 74.***
+> The closing disclosure shows only on the interactive path — a cycle's
+> `UninstallSilent` skips it — and it must name **all four** groups: `sdusers`,
+> `sdssh`, `sdapi`, `sdsshonly`. **74 is BUILT, UNSEEN.**
+>
+> ***THEN LEG 4b, WHICH IS THE ONLY REMAINING WAY TO CLOSE 76.*** After the
+> uninstall the key is gone, so `TrueUpgrade` is false and **the tasks page is
+> shown** — with the ssh rule sitting at **`RemoteAddress=Any`**, which is the
+> machine 76's open branch has been waiting for. **Reinstall and look at whether
+> "allow remote access" arrives pre-ticked.**
+>
+> ### ***WHAT LEG 3 BOUGHT — FOUR MEASUREMENTS AND FOUR NEW ENTRIES***
+>
+> **78 CLOSED.** `ssh.server install` ran **14:52:57 → ~15:12, nineteen minutes**
+> and reported **10147**; **10142 never fired**, so remove needs a reboot and
+> install does not. The reboot's completion of the staged removal was measured
+> too — `sshd.exe` absent, service NOT REGISTERED, capability `NotPresent` —
+> which is what makes 10148 true on both sides. **SD's `sshd_config` block
+> survived the whole round trip.**
+>
+> **88 WITNESSED on a true upgrade**: tasks page **skipped**, Ready memo with
+> **no task section**, and the firewall gates held — both rules `Any` before
+> *and* after. **76's missing "before" reading is now on the record.**
+>
+> ***THE PREFLIGHT REFUSAL IS RUN RATHER THAN CODE-READ, WITH ITS CONTROL***:
+> `CANNOT DETERMINE`/exit 2 in the broken state, `CLEAR`/exit 0 once the
+> capability was back. **Take that reading BEFORE `ssh.server install` or it is
+> gone** — the entry is 116.
+>
+> **FILED: 116** (the remove warning names `setup.exe`'s refusal, not
+> `ssh.server install` — and 78 and HANDOFF 8 both misread it), **117**
+> (`sd.iss:2005` says ssh is limited to `sdusers`; the file says `sdssh`),
+> **118** (an upgrade rewrites `sshd_config` and restarts `sshd` one dialog
+> after promising it changed nothing about ssh), **119** (above). **115 gained
+> the install path**, which moves its cause: `ps_script` discards only the
+> captured copy, so the helper's console output reaches the user on every path.
+>
+> ### ***DRIVING THE GUEST — WHAT WORKS AND THE TWO TRAPS***
+>
+> **`keyboardputscancode` + `screenshotpng` needs no guest credentials**, so
+> `guestcontrol` stays forbidden and unnecessary. Deterministic steps go in a
+> script on the read-write `xfer` share and the typed command stays short.
+> ***`keyboardputstring` DROPS CHARACTERS — IT DROPPED ONE ON A 12-CHARACTER
+> CHUNK***, turning `\\vboxsvr` into `\vboxsvr`. **Send each `\` as its own
+> call and screenshot before Enter, every time.** ***AND A NEW CONSOLE THE
+> INSTALLER OPENS DOES NOT TAKE THEM AT ALL***: three `y` keystrokes aimed at
+> `check-install`'s prompt all landed in the PowerShell window behind it as
+> `y : The term 'y' is not recognized`. Harmless, but the owner had to type it.
+
+
+> # ⇩⇩⇩ HANDOFF 8, 1 Sep 2026 — ***A VM RUN IS PAUSED MID-FLIGHT. `Windows 11 - Test 1` HAS A REBOOT PENDING AND THE SEQUENCE RESUMES THERE.*** ⇩⇩⇩
+>
+> ***THE HOST IS GREEN AND IDLE. NOTHING IS OWED ON IT.*** Install **12:50:27**,
+> `sd.exe` **517019EE20D2BD0C**, `assert-current` **exit 0**, and the full suite
+> **`b100` passed both halves** (19 + 22 steps, 753 `[PASS]`, 0 `[FAIL]`, no
+> `PARTIAL`). **Next run token `b101`. Next PRE_RELEASE id 116.**
+>
+> ### ***THE VM: WHERE IT IS AND WHAT TO TYPE NEXT***
+>
+> Guest **`Windows 11 - Test 1`**, four-leg runbook (78 / 76 / 88 / 74). **Legs 1
+> and 2b are done. The guest is powered on with a REBOOT PENDING.**
+>
+> **State:** full install with **every box ticked** (so `RemoteAddress=Any` on
+> both rules, and `addtopath` was selected); SD account `vmtest1` created;
+> `ssh.server remove` accepted and **staged behind the reboot** — `sshd.exe` is
+> still present and the service still `Running`, which is correct and expected.
+> Captures `01-clean` and `02-after-install1` are in `C:\Users\dmont\sdxfer`.
+>
+> **Resume by rebooting the guest, then, in an ELEVATED guest PowerShell:**
+>
+> ```
+> & \\vboxsvr\gplbld\capture-state.ps1 -Label 04-removed-postreboot -OutDir \\vboxsvr\xfer
+> ```
+> *(`03-removed-prereboot` was skipped — the helper printed its own before/after
+> state in the run itself, which is the same reading.)*
+>
+> Then `& "C:\Program Files\SD\usr\bin\sd.exe"` → `ssh.server install`.
+>
+> ***DO NOT DELETE `C:\ProgramData\ssh` BEFORE TRYING THAT INSTALL.*** The
+> removal left it in place and warned that **SD will refuse to install here
+> again while `sshd_config` is present** without Windows' own copy beside it.
+> **Whether that refusal actually fires is worth measuring** — if it does the
+> guard works, if it does not the message is overclaiming. Clear the directory
+> only after seeing which.
+>
+> ***`sd` IS NOT ON THE PATH IN A SHELL OPENED BEFORE THE INSTALL.*** Use the
+> full path with `&`. A shell opened *after* it should have it, since
+> `addtopath` is a task and it was ticked — **that is an untested 89 data point
+> worth one command**: `[Environment]::GetEnvironmentVariable('Path','Machine')`.
+>
+> ### ***WHAT THE VM RUN HAS ALREADY BOUGHT***
+>
+> **78 is half closed** — `ssh.server remove` ran and did all three things the
+> entry demanded: warned (10144) because `vmtest1` existed, asked `(y/<n>)` with
+> default no, and said the removal is staged behind a restart (10148), **with
+> `before`/`after` state printed in the same run as the evidence**. Only
+> `install` is left.
+>
+> **115 filed** — the three verbs print their helper script's raw diagnostics at
+> the user, prefixed `remove-ssh:`, and on the report path that is *all* the user
+> gets, so *"is ssh installed?"* is answered by something calling itself
+> **remove**. On the `remove` path the same facts are then repeated by 10148 in
+> better prose — the duplication `SSHSRVR:77` predicted and thought it had
+> avoided.
+>
+> ***AND A CORRECTION TO MY OWN RUNBOOK, WHICH COST NOTHING BUT WOULD HAVE***:
+> the bare `ssh.server` report does **not** print 10147 — that is the INSTALL
+> success message. I derived the expectation from the message text instead of the
+> code path. **Both entries now say so.**
+>
+> **80 gained an undocumented behaviour**: `CPROC:1499` folds `-` to `.` when
+> resolving a verb, so `create-account` works. Controlled (`clear-select` works,
+> `zzz-nosuch` does not, `CT VOC create-account` is not found). The audit must
+> decide whether to document it.
+>
+> ### ***THE RIG, SO NOBODY REBUILDS IT***
+>
+> **Five guests, `Test 1`–`Test 5`, all with three permanent shares** — see the
+> next handoff box for the commands and the drive-letter trap. `sdxfer` on the
+> host is where captures land and **they are readable directly**; the guest needs
+> to send back only the two screenshots (legs 3 and 4) and raw SD output.
+
+
 > # ⇩⇩⇩ HANDOFF 7, 1 Sep 2026 — ***102's LOCK HALF DONE AND MEASURED. 114 FILED: THE COMPILER HANGS ON A TYPO.*** ⇩⇩⇩
 >
 > ***THE MACHINE IS GREEN AND CURRENT. NOTHING IS IN FLIGHT AND NOTHING IS

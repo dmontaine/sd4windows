@@ -44822,9 +44822,142 @@ PowerShell automatic variable and the record already carries a false verdict
 caused by exactly that, a probe whose `Start-Process` silently received no
 switches.
 
-**The four-leg VM run is planned and staged, not run**: install → **78**
-(`ssh.server remove` before `install`, because entry 67 means an install always
-puts ssh back) → **76 + 88** from one second install, which predict opposite
-things → **74**'s interactive uninstall disclosure. **67 is deliberately not in
-the bundle** — its measurement is already on the record from 30 Aug; what is
-open there is the third API-only mode, a ruling and a build.
+**The four-leg VM run, as planned**: install → **78** (`ssh.server remove`
+before `install`, because entry 67 means an install always puts ssh back) →
+**76 + 88** from one second install, which predict opposite things → **74**'s
+interactive uninstall disclosure. **67 is deliberately not in the bundle** — its
+measurement is already on the record from 30 Aug; what is open there is the
+third API-only mode, a ruling and a build.
+
+## 1 Sep 2026 — the VM run starts: `ssh.server remove` runs for the first time, and 115 comes out of watching it
+
+**Guest `Windows 11 - Test 1`, legs 1 and 2b done, paused at a pending reboot
+because the session ran out of credits.** Baseline `01-clean` confirmed a clone
+with **no OpenSSH at all** — `sshd.exe` absent, no `sshd_config`, 0 firewall
+rules, no SD product — which is the precondition the whole bundle rests on, and
+the capture instrument says so honestly (*"none - this is a real answer, the
+enumeration succeeded"*, *"the registry was readable"*).
+
+**Leg 1**: full install, every box ticked. `02-after-install1` shows `sshd.exe`
+present and `Running`, `sshd_config` carrying `ForceCommand`, **two firewall
+rules both `RemoteAddress=Any`**, `APIPORT=4243` active, and all four groups
+created. The share plumbing was proved end to end by the first capture landing
+on the host and being readable — that was the risk worth retiring early.
+
+***`ssh.server remove` HAS NOW RUN, AND IT DID ALL THREE THINGS 78 ASKED.***
+10144 warned that SD accounts sign in over ssh and nothing else — it fired
+because `vmtest1` had been created first, which was the point of creating it.
+The prompt read `(y/<n>)` with default **no**, entry 79's rule holding. 10148
+said the removal is staged behind a restart. **And the staging was measured, not
+asserted**: the helper printed `before sshd.exe=True service=Running` and
+`after sshd.exe=True service=Running` in the same run. **Only `ssh.server
+install` is now unrun.**
+
+**A third paragraph the entry did not predict, and it is a trap for the install
+leg**: the removal leaves `C:\ProgramData\ssh` — host keys and `sshd_config` —
+and warns that **SD will refuse to install here again while that file is present
+without Windows' own copy beside it**. So the next leg may be *refused* rather
+than slow, and **that refusal is worth measuring before the directory is
+cleared**: if it fires the guard works, if it does not the message overclaims.
+
+**115 filed, from reading output rather than code.** The three verbs print their
+helper script's raw diagnostics at the user, prefixed with the script's own
+name. On the report path that is *all* the user gets — `SSHSRVR:103-110` prints
+the script and stops with no `sysmsg` — so *"is the ssh server installed?"*, a
+read-only question, is answered by lines beginning `remove-ssh:`. On the acting
+path the same facts are then repeated by 10148 in better prose: **the
+duplication `SSHSRVR:77` reasoned it was avoiding is happening.** The state
+reported is correct and the `before`/`after` lines are a real instrument; only
+the boundary is wrong.
+
+***AND A CORRECTION TO MY OWN RUNBOOK.*** It said to expect **10147** from the
+bare `ssh.server` report. That is the **INSTALL** success message
+(`SSHSRVR:167`); the no-keyword path prints no message at all. I took the
+expectation from the message's text rather than from the code path, and the
+owner ran it against a wrong anchor. Corrected in 78 and 115. **A success anchor
+read from a message file instead of the branch that prints it is the same
+mistake as matching a string the failure also carries.**
+
+**80 gained an undocumented behaviour**, found by a typo: `create-account` ran.
+`CPROC:1499` falls back to `change(upcase(verb), '-', '.')` and then the
+lower-case form, so every dotted verb also answers to a hyphen. Controlled —
+`clear-select` works, `zzz-nosuch` does not, and a literal `CT VOC
+create-account` reports not found, so it is resolution and not a second record.
+**Nowhere in the documentation.**
+
+**Paused here, out of credits, with the guest powered on and a reboot pending.**
+The resume point is in PROJECT_STATUS's HANDOFF 8: reboot, capture
+`04-removed-postreboot`, then `ssh.server install` — **without clearing
+`C:\ProgramData\ssh` first**, because whether the refusal fires is the next
+measurement.
+
+## 1 Sep 2026 — leg 3: 78 closes, 88 is witnessed, and four entries come out of running things
+
+**The owner rebooted the guest and the run resumed.** Legs 3 and 3b are done;
+leg 4, the interactive uninstall for 74, is not started.
+
+**78 IS CLOSED.** The reboot completed the staged removal and that was measured
+rather than assumed — `sshd.exe` absent, `service sshd` NOT REGISTERED,
+capability `NotPresent`, the ssh firewall rule gone with it — which is what
+makes 10148's *"Windows stages the removal"* true on **both** sides of the
+restart. `ssh.server install` then ran **14:52:57 → ~15:12, nineteen minutes,
+not "several"**, and it was shown to be alive rather than assumed to be: the
+progress bar advanced and the guest's `NetAdapter/0/BytesReceived` moved between
+two samples. It reported **10147**; **10142's restart branch never fired**, so
+`remove` needs a reboot and `install` does not. **SD's own `sshd_config` block,
+`ForceCommand` and `AllowGroups` all survived the round trip.**
+
+***THE PREFLIGHT REFUSAL WAS RUN INSTEAD OF READ, AND THE ORDERING WAS THE WHOLE
+TRICK.*** `remove-ssh.ps1:28` carried it as *"measured by reading that script's
+three branches"*. The guest was sitting in exactly the state it describes, and
+`ssh.server install` destroys that state permanently — so it was measured first,
+read-only, with the precondition proved before the verdict: **`ssh-preflight:
+CANNOT DETERMINE - treated as a refusal`, exit 2**, verdict line and exit code
+agreeing. **The control ran afterwards and came back `CLEAR`, exit 0**, so the
+refusal was discrimination and not a script that refuses in every state. A
+measurement available only before an irreversible step is one to take before it.
+
+**88 IS WITNESSED ON A REAL UPGRADE.** Inputs recorded first so the prediction
+could fail: uninstall key present, `Inno Setup: Selected Tasks` read, data tree
+present. The wizard then went **disclosure → Ready to Install with no tasks
+page**, the Ready memo carried **no "Additional tasks" section**, and both
+firewall rules read `Any` before *and* after — the gates held.
+
+**Four entries came out of it, and three are things only running finds.**
+**116**: `remove-ssh.ps1`'s *"SD will REFUSE to install here again"* is about
+`setup.exe`'s preflight, not about `ssh.server install`, which was measured and
+**not refused** — and 78 and HANDOFF 8 had both already misread it with the
+source open, which is the evidence it is genuinely ambiguous. **117**:
+`sd.iss:2005` tells the administrator ssh is limited to `sdusers`;
+`allow-ssh-groups.ps1:130` writes `sdssh`, under a comment at `:118` saying
+**"sdssh, NOT sdusers"** — read back case-sensitively out of the live file. It
+is a straggler from the 21 Aug ruling that split *"may read SD's files"* from
+*"may ssh in"*, and it re-welds them. **118**: the upgrade rewrote `sshd_config`
+(mtime 15:18:45) and restarted `sshd` (`sshd.pid` 15:18:46) one dialog after
+promising *"YOUR ssh AND API SETTINGS WERE LEFT EXACTLY AS THEY WERE"* —
+`allow-ssh-groups.ps1` is not among the things gated on `TrueUpgrade`, and SD
+accounts sign in over ssh and nothing else. **119**: the owner read the caption
+and found the installer calling the product "SD" when it is "SD Core".
+
+**One risk was checked and retired rather than left as a worry**:
+`sshd_config.before-sd` was **not** clobbered by the second write — still 2297
+bytes, still stamped 31 Mar 2024, still carrying no SD block.
+
+***AND 115'S CAUSE MOVED.*** `SSHSRVR:75-77` says the INSTALL and REMOVE paths
+discard their helper's output *"because showing the script underneath would say
+it twice"*. INSTALL does go through the discarding call, and the user saw three
+`install-ssh:` lines and a progress bar, then 10147 saying it again. **The
+discard only ever discarded the captured copy** — the helper is a child on the
+inherited console. A fix confined to `print.report` will not touch it.
+
+**Two traps for whoever drives a guest next.** `keyboardputstring` dropped a
+character from a **12**-character chunk, turning `\\vboxsvr` into `\vboxsvr`;
+screenshotting before Enter is what caught it, and each `\` now goes as its own
+call. And a console the installer opens for itself does not take injected
+keystrokes at all — three `y`s aimed at `check-install` landed in the shell
+behind it as `y : The term 'y' is not recognized`, and the owner typed it.
+
+**`cycle.ps1` must not run while a guest run is in flight**: it rebuilds
+`C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, which is the file the guests install
+from. 119's one-line edit was therefore made and deliberately **not** built, so
+it is unwitnessed and stays open.
