@@ -324,9 +324,13 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > - ***`b54`–`b82` SPENT. USE `b83`.***
 > - ***OPEN COUNT 16, READ FROM `test-fixlist-units.ps1` AND NEVER FROM PROSE***:
->   3, 6, 16, 20, 28, **65**, 66, 67, 70, 74, 76, 78, 80, 88, 89, **92**.
->   **91 CLOSED on `-Run b85`; 92 filed from the same run.** *(`b54`–`b85`
->   spent — use `b86`.)*
+>   3, 6, 16, 20, 28, **65**, 66, 67, 70, 74, 76, 78, 80, 88, 89 — **15**.
+>   **91 CLOSED on `-Run b85`; 92 filed from that run and CLOSED on
+>   `-Only verify-doors-suite -Run b86`** (all 5 legs green, 68 `[PASS]`, zero
+>   `[FAIL]`; both new rows pass in BOTH phases, and the ordering claim still
+>   holds on the helper — `WHO` said `41 SDDRB86B`). *(`b54`–`b86` spent — use
+>   `b87`. Profile dirs `C:\Users\sddrb86a` and `sddrb86b` remain: PRE_RELEASE
+>   35/36, expected, and the names are taken until a restart.)*
 >   *(Was 14 + 91 when this box was written. **65 was RE-OPENED 31 Aug 2026** —
 >   its product half is fixed and proven on `b74`, its HARNESS half is not, and
 >   `-Run b84` reproduced the symptom: `os.users` holding `SDRTB84A` and
