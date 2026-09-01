@@ -236,16 +236,42 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > * `on error null` across `gpl.bp` — **all 11 sites classified** (**97**; three
 >   are reads, `_WRITEV`×2 and `DELACC:499` cleared above).
 > * `sysmsg` success-assertions, **`10xxx` range only** — ours and port-era.
+> * ***the `void <fn>(…)` sweep across `gpl.bp` — 84 non-comment sites, not the
+>   77 this box estimated. 2 defective (**98**, **99**), 5 already filed (**94**),
+>   77 correct.*** Done 31 Aug 2026. **The count was measured, not carried over**;
+>   the sweep printed it and refused a zero, and 0 false positives survived a
+>   check for `void` inside a trailing `;*` comment or a string literal.
 >
-> ***NOT DONE, IN THE ORDER I WOULD RUN THEM:***
+> ***NOT DONE, IN THE ORDER I WOULD RUN THEM. THE NUMBERS ARE STABLE — 1 IS DONE
+> AND KEEPS ITS NUMBER, BECAUSE 98 AND 99 BOTH CITE "SWEEP 1 OF THE SIX".***
 >
-> **1. THE `void <fn>(…)` SWEEP ACROSS `gpl.bp` — 77 NON-COMMENT SITES. HIGHEST
-> PRIOR AND IT IS NOT CLOSE.** ***THREE SEPARATE ENTRIES — 65, 72 AND 94 — ALL
-> BLAME THIS ONE MECHANISM***: a function that already answers the question is
-> called with `void`, the answer is discarded, and the caller re-derives it from
-> something that does not know. **Only the `OS.ERROR()` subset has been swept.**
-> The other ~63 sites have never been looked at as a class. For each: does the
-> discarded function return a status, and does the caller then assert an outcome?
+> **1. ✅ THE `void <fn>(…)` SWEEP ACROSS `gpl.bp` — DONE 31 Aug 2026. 84 SITES,
+> NOT 77. TWO DEFECTS: 98 AND 99.** ***BOTH ARE THE SAME MECHANISM AND IT IS NOT
+> THE ONE THIS BOX PREDICTED.*** The prediction was 65/72/94's shape — a status
+> discarded and the caller re-deriving it from something that does not know.
+> **What the other 79 sites actually hold is a kernel call whose return is an
+> informational echo**, and discarding those is correct. ***THE DEFECT IS THE
+> NARROWER CASE WHERE THE RETURN IS THE DESIGNED AND ONLY REPORT OF A REFUSAL***
+> — `K_ADMINISTRATOR` (`op_kernel.c:395`) and `K_SET_USERNAME` (`:257`) each set
+> a flag or a name **only** behind `HDR_INTERNAL`, then answer with the state as
+> it actually stands, under a comment saying a refusal is deliberately not an
+> error. **Four sites take that answer and throw it away**: `LOGIN:718`,
+> `CPROC:2848`, `CPROC:2860` (98) and `APISRVR:1524` (99).
+> ***THE CLASSIFICATION, SO NOBODY RE-READS 84 LINES:*** 41 `kernel` — 18
+> `K$AUDIT` (returns 0 always and says so, `op_kernel.c:652`), 11
+> `K$SUPPRESS.COMO`, 5 `K$SET.OPTIONS` (no result assigned, so 0), 4 echoes
+> (`K$TERM.TYPE`, `K$CPROC.LEVEL`, `K$AUTOLOGOUT`, and `K$SET.USERNAME` = 99),
+> 3 `K$ADMINISTRATOR` = 98; 12 `qdisp` and 6 `bindkey` and 3 `@(0,0)` — display
+> layer, and `QD$INIT` **is** checked at `QPROC:696`; 6 `ospath` — 4 cache
+> flushes and 2 deletes, both litter-only (`CREATEA:1593` is the one-shot ADOPT
+> marker and is deliberately removed twice, banner at `:1570`); 5 `os_group` =
+> **94, already filed**; 4 `SDCLIENT`; 2 `fcontrol`; 2 `elevate`; 1 `iconv`;
+> 1 `selectinfo` (a documented side-effect call, `QPROC:684`); 1 `pterm`.
+> ***THE HOUSE-CORRECT IDIOM IS IN THE TREE TWICE AND IS WORTH COPYING***:
+> `SDCLIENT:955` `void write.socket(…)` then `return (status() = 0)`, and
+> `INLINE:411` `void iconv(s, conv.code)` then `if status() = 0 then exit`.
+> **Discarding the value while reading the status is not the defect; discarding
+> both is.**
 >
 > **2. `dh_ak.c` — THE INDEX LAYER, 3,925 LINES, COMPLETELY UNTOUCHED.**
 > ***THIS IS THE ONE THAT MOST DIRECTLY OWNS §5.23'S RULING.*** An alternate key
@@ -8910,6 +8936,8 @@ THE REST ARE A READING AND WANT THE OWNER'S EYE BEFORE ANY SEVERITY MOVES.***
 | | **95** | a failed header flush marks the file clean, so `record_count` on disk can disagree with the data — needs an I/O error, and `dh_close` is where it does not self-heal |
 | | **96** | a privilege check that could not complete is reported as "not an administrator" — the audit line states a reason nobody established, and `sd.c:838` tells an elevated administrator to elevate |
 | | **97** | `MODIFY.ACCOUNT` says the `os.users` record is removed, and the VOC removal count, from a `delete` whose failure was discarded — 65's symptom by a second route |
+| | **98** | the trail says `ELEVATION GRANTED` for a session refused before the rights were given — an event that did not occur, where 96 is a reason never established. The one open entry whose trigger needs no induced fault |
+| | **99** | the API session's identity, which stamps every audit line, is set by a call whose refusal is discarded; a checked neighbour thirty lines later is the only thing that catches it |
 | **candidates, my reading** | **67** | the mode page's caption calls ssh optional; a full install always installs the server |
 | | **89**, **88** | a control the user clicks expecting an action, and none follows |
 | | **20** | the register says `SUSPENDED` while the person keeps Windows administrator rights |

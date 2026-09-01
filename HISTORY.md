@@ -43710,3 +43710,62 @@ ruling because a stale index makes every query on that key answer wrongly;
 `txn.c`, where entry 11 came from; 129 bare `write`/`delete` statements against
 275 `status()` references; and the upstream `sysmsg` ranges, which are where
 `UPSTREAM_FIXES` entries would come from.
+
+## 31 Aug 2026 — sweep 1 of six done: the `void` sweep, 84 sites, entries 98 and 99
+
+**The size above was wrong: 84 non-comment sites, not 77.** Measured, with the
+count printed and a zero refused, and 0 false positives after checking for
+`void` inside a trailing `;*` comment or a string literal. Documentation only —
+no source change, so nothing is in flight and no cycle was started.
+
+***THE PREDICTED MECHANISM WAS NOT THE ONE FOUND, AND THAT IS THE USEFUL PART.***
+The box expected 65/72/94's shape — a status discarded and the caller
+re-deriving it from something that does not know. **79 of the 84 sites are a
+kernel call whose return is an informational echo, and discarding those is
+correct.** `K_AUDIT` is the clearest: `op_kernel.c:652` returns 0 always and its
+banner says why — *"there is no failure a caller could sensibly act on, and the
+login path must not be stopped by an unwritable audit file."* 18 sites, all fine.
+
+**The real class is narrower: a return that is the DESIGNED AND ONLY report of a
+refusal.** `K_ADMINISTRATOR` (`op_kernel.c:395`) and `K_SET_USERNAME` (`:257`)
+both act only behind `HDR_INTERNAL` and then answer with the state as it stands,
+each under a comment saying a refusal is deliberately not an error. **Four sites
+throw that answer away** — `LOGIN:718`, `CPROC:2848`, `:2860` (**98**) and
+`APISRVR:1524` (**99**).
+
+- **98** is the one worth the sweep. `LOGIN:633` writes `ELEVATION GRANTED` and
+  `:718` grants the rights, with **two reachable aborts between them** — `:668`
+  SUSPENDED and `:676` a failed `OS$CD`. The trail then carries `ELEVATION
+  GRANTED` and `LOGIN REFUSED` for the same session. **`LOGIN:955` and
+  `CPROC:2868` both state the rule it breaks**, and `CPROC` obeys it, so this is
+  an outlier rather than a convention — 94's argument exactly. ***It is the only
+  open entry whose trigger needs no induced fault***, which is why it is worth
+  confirming before 95, 96 or 97. Filed **M**, recommend **B**.
+- **99** is filed for structure, not for a live wrong answer. `APISRVR:1524`
+  discards `K$SET.USERNAME`, and what catches an over-32-byte name
+  (`k_funcs.c:361` returns -1, `sddefs.h:285`) is `K$ASSUME.USER` at `:1554`
+  carrying the identical guard and being checked. **Two adjacent identity calls,
+  same guard, one fatal and one discarded.** **M.**
+
+**Both are ours, controlled rather than assumed**: `K_SET_USERNAME` and
+`ELEVATION GRANTED` return 0 hits in `../sdb64`. **Nothing to add to
+UPSTREAM_FIXES.md.** Neither is executed; both are read from the guard against
+the caller.
+
+**The house-correct idiom exists in the tree twice** and is what a fix should
+copy: `SDCLIENT:955` `void write.socket(…)` then `return (status() = 0)`, and
+`INLINE:411` `void iconv(…)` then `if status() = 0 then exit`. Discarding the
+value while reading the status is fine; discarding both is the defect.
+
+**Cleared, so nobody re-reads them:** `CREATEA:1593`, the one-shot ADOPT marker,
+is deliberately removed twice and its banner says so; `QDISP:991` and the four
+`OS$FLUSH.CACHE` calls are litter at worst; `QPROC:688` `selectinfo` is a
+documented side-effect call; `QD$INIT` **is** checked at `QPROC:696`. The
+elevated helper is **not** leaked by LOGIN's refusal paths — `sd-elevate.ps1:105`
+has it exit with its owning session.
+
+Tier-1 green: `test-fixlist-units` **230/0** (open 20 → 22),
+`test-tiercounts-units` 15/15, `test-verdict-units` 140/140,
+`test-sdtestuser-units` 54/0, `test-suiteonly-units` 48/48,
+`check-stale-leads.py` exit 0. **Sweeps 2–6 are still owed**, and the full suite
+is still owed by the owner — `b85` remains the last full run.
