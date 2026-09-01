@@ -45035,3 +45035,54 @@ group names, `sd.exe` and the `-like 'SD *'` pattern all verified untouched.
 
 **Nothing was built.** 116, 117 and 119 are all fixed in source and unwitnessed,
 which is why all three are still open.
+
+## 1 Sep 2026 — the owner cycled, 117 and 119 were witnessed, and then two cheap ones came off the list
+
+**The cycle was green** — 640 KB log, all 8 steps, installer 16:24:44, host
+installed 16:25:06, `assert-current: the installed tree matches source`. The
+rebuilt installer was then driven on the guest and photographed: caption
+**`Setup - SD Core W1.0-0`**, heading *"What SD Core changes on this
+computer"*, closing box **"SD Core is installed"**, and the ssh box reading
+**`sdssh`** rather than `sdusers`. **117 and 119 close on evidence.** The
+guards were visible in the same shots: the two paths, `sdusers`, `sdsshonly`,
+`SDSYS` and `"sd"` all unchanged.
+
+***WATCHING IT INSTALL FOUND WHAT RE-READING THE DIFF WOULD NOT.*** The progress
+line still said *"Creating and starting the SD service…"*. **Section parameters
+are DOUBLE-quoted and the transform only walked single-quoted Pascal strings**,
+so eight user-visible strings were missed. Six fixed. Two left with reasons:
+`StatusMsg` names the Windows service, which is literally `$SvcName = 'SD'`, so
+"SD Core service" would name it something it is not; and `{group}\SD` is the
+shortcut that runs `sd`, already inside a folder called "SD Core". **A diff that
+verifies clean can still be the wrong diff, and the install is what says so.**
+
+**120 got worse on the same run.** The second install was a **plain upgrade**,
+not an uninstall-then-reinstall, and it reported **both** lock failures again.
+So that path *enters* the unhardened state and no later install *leaves* it.
+
+### The two cheap ones
+
+**113.** `DELETEF` asked `FL$AKPATH` where a relocated index directory would
+live, got a non-empty answer for **every** file, and reported the resulting
+"there is nothing there" as *"Failed to delete index directory"* — with
+`@system.return.code` set on a delete that had fully succeeded. Both sites now
+test `OS$EXISTS` first. ***AND THE ENTRY'S QUESTION ABOUT `MKINDX:355` HAS AN
+ANSWER: IT DOES NOT CARRY THIS***, because it is wrapped in
+`if ak.path.created` — **the guard `DELETEF` was missing is the one `MKINDX`
+already had.** Changelog entry written; fixed in source and **not compiled**.
+
+**112, the comment half.** The two `VerifyInstall2` comments claiming
+`verify-tierchange` *"raises verify-acctmsgs.ps1 and verify-vocverbs.ps1"* are
+corrected. ***RE-MEASURED RATHER THAN COPIED FROM THE ROW, AND IT IS WORSE THAN
+THE ROW SAID***: those two are named only in comments (`:94`, `:120`), the one
+external script invoked is `assert-current.ps1` (`:261`), and **neither is a
+step in either runner — so `verify-acctmsgs` is also run by nothing**, which the
+entry had not flagged. The old wording had already cost a run: `-Only
+verify-tierchange` was handed over as 100's deciding step *because of it*, came
+back 28 of 28, and drove no index at all. **Wiring either verifier in is the
+owner's ruling and stays open.**
+
+**Ended short of credits with four source changes made after the last build**,
+so `assert-current` is expected to fail until the next cycle. That is the state
+the session left, and START HERE says so rather than leaving it to be
+rediscovered.

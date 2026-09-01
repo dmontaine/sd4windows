@@ -141,7 +141,32 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 10, 1 Sep 2026 — ***THE VM RUN IS FINISHED. 78, 76 AND 88 CLOSED; 116-120 FILED. ONE BUILD IS OWED AND NOTHING ELSE IS IN FLIGHT.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 10, 1 Sep 2026 — ***THE VM RUN IS FINISHED. 78, 76, 88, 117 AND 119 CLOSED; 116-120 FILED. ONE CYCLE IS OWED AND IT IS THE FIRST THING TO DO.*** ⇩⇩⇩
+>
+> # ***START HERE: RUN THE CYCLE. NOTHING BELOW IS IN FLIGHT AND NOTHING IS HALF-BUILT.***
+>
+> Ended short of credits with **four source changes made after the last build**,
+> so `assert-current` **is expected to FAIL right now** — that is the state the
+> session left, not a fault. In an **elevated PowerShell**:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ***WHAT THAT CYCLE IS CARRYING, AND WHY EACH ONE STAYS OPEN UNTIL IT RUNS:***
+>
+> | | what is unbuilt | what witnessing it needs |
+> |---|---|---|
+> | **113** | `DELETEF` now tests `OS$EXISTS` before reporting 2636 | **a compile** — nesting was checked at both sites, three `if`s and three `end`s, but *a BASIC change is not verified until it builds* |
+> | **119** | six **double**-quoted strings the rename missed | the cycle, then any interactive install |
+> | **116** | `remove-ssh.ps1`'s reworded paragraph | ***the expensive one*** — it only prints after a real `ssh.server remove`, so a reboot and a ~19-minute reinstall |
+> | **112** | two corrected comments in `VerifyInstall2` | nothing; comments only, step count unchanged at **22** |
+>
+> **The free tier-1 checks were all green at the end**: `test-fixlist-units`
+> 241/241, `test-verdict-units` 140/140, `test-suiteonly-units` 48/48,
+> `check-stale-leads` exit 0. **Run those first after the cycle** — they cost
+> seconds and one of them has already named in a second what a whole suite run
+> was spent discovering.
 >
 > ***THE CYCLE RAN AT 16:24 AND 117 AND 119 ARE NOW WITNESSED ON A SCREEN.*** Owner
 > ran `cycle.ps1`: 640 KB log, all 8 steps, installer 16:24:44, host installed
