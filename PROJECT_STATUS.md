@@ -141,6 +141,73 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 3, 31 Aug 2026 — THE OWNER IS RUNNING THE SUITE. TWO NEW STEPS HAVE NEVER RUN. ⇩⇩⇩
+>
+> ***HE SAID IT HIMSELF: "I'll run the verify suite in the next session."*** So
+> the first thing that happens is his run, not yours. **Read this box, then wait
+> for its output.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b88
+> ```
+> ***AN ORDINARY UNELEVATED PROMPT*** — it elevates the second half itself.
+> `b87` was never spent; use **`b88`** anyway if `b87` shows anywhere in a log.
+>
+> ### ***WHAT IS NEW IN THIS RUN, AND WHY A FAILURE MAY NOT BE A REGRESSION***
+>
+> **Two steps were wired in on 31 Aug and NEITHER HAS EVER RUN INSIDE A RUNNER.**
+> Both wirings were proved through `suite-only.ps1`'s `Select-SuiteSteps` rather
+> than by running the suite, because §4.0.1 forbids the agent running either
+> runner. **The wiring is proved; the steps are not.**
+>
+> | new step | runner | never run because |
+> |---|---|---|
+> | `verify-basicfuncs.ps1` | **VerifyInstall1**, beside `verify-txn` | written today (PRE_RELEASE 106, §5.24). **Measured standalone: 169 of 169, 0 failures** on the 13:33:28 install |
+> | `verify-tierchange.ps1` | **VerifyInstall2**, after `verify-tiers` | it was ORPHANED (PRE_RELEASE 107) — in neither runner since the day it was written, and **it raises `verify-acctmsgs` and `verify-vocverbs`, so three verifiers ran for the first time** |
+>
+> ***SO THE STEP COUNTS AND THE `PASS` TOTAL WILL NOT MATCH `b85`. THAT IS
+> EXPECTED, NOT A REGRESSION.*** `VerifyInstall1` names **17** steps and
+> `VerifyInstall2` **22**; `b85` ran 16 and 21. **If `verify-tierchange` or its
+> two children fail, suspect them before suspecting the tree** — they have
+> never been run by a runner and carry prefixes derived from `-Run` for the
+> first time (`sdtc<run>`).
+>
+> ### ***WHAT IS OWED AFTER THE RUN***
+>
+> **1. THE AUDIT IS ANALYSIS, NOT MEASUREMENT. `98`–`105` ARE ALL `NOT
+> EXECUTED`** — read from control flow, and each row says so. The suite does not
+> confirm any of them; they need induced faults. ***`98` IS THE EXCEPTION AND THE
+> CHEAPEST THING OWED***: set SDSYS's `ACC$TIER` to `SUSPENDED`, log in as an
+> administrator, read the trail. It is the only open entry whose trigger needs
+> no induced fault at all.
+>
+> **2. THREE SEVERITY RULINGS ARE HIS AND ONLY HIS.** `98` and `100` are filed
+> **M** with a recommend-**B** stated in their own rows. ***`101` WAS FILED `B`
+> BY THE AGENT ON ITS OWN JUDGEMENT*** — because its trigger is an ordinary
+> state (a read-only file, an ACL denial, a file another process holds open)
+> rather than an induced fault, which is the property that makes `93` and `94`
+> **B**. **The reasoning is in the row; overrule it there if he disagrees.**
+>
+> **3. A GUARD IS OWED AND WAS DELIBERATELY NOT BUILT.** `54`, `106` and `107`
+> are the same defect three times: **a verifier in neither runner, found only by
+> a person re-deriving counts by hand.** Nothing checks that every
+> `verify-*.ps1` is either a runner step or a named child. **A tier-1 unit test
+> would catch it, needs no install and no elevation, and would have caught all
+> three.** It is recorded in `107` rather than written, because it is a new
+> instrument and the session ended.
+>
+> ### ***STATE***
+>
+> ***NOTHING IS IN FLIGHT. NO PRODUCT SOURCE CHANGED THIS SESSION.*** Everything
+> is documentation, two new `gplbld` files, and step rows in the two runners —
+> **no `gplsrc`, no `gpl.bp`, no `sd.iss`.** `assert-current` passed at the end
+> and the install is the 13:33:28 one. `git status` shows only the owner's
+> untracked `generate_gap_analysis_pdf.py`; **leave it alone.**
+>
+> **The six §5.23 sweeps are DONE** — the box below is kept for its numbering
+> and its three lessons, which are worth more than any single entry. **Open
+> entries: 28**, from `test-fixlist-units` rather than by counting headings.
+
 > # ⇩⇩⇩ HANDOFF 2, 31 Aug 2026 — OUT OF CREDITS AGAIN. NEW ACCOUNT. THE AUDIT IS THE WORK. ⇩⇩⇩
 >
 > ***READ §5.23 FIRST. IT IS THE OWNER'S RULING AND IT IS WHAT EVERY OPEN ENTRY

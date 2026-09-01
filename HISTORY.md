@@ -44123,3 +44123,52 @@ named child, and the header comment meant to catch it is prose.
 Tier-1 green: fixlist **234/0** (open 29 → 29, 106 closed as 107 opened),
 tiercounts 15/15, verdict 140/140, sdtestuser 54/0, suiteonly 48/48,
 stale-leads exit 0.
+
+## 31 Aug 2026 — 107 closed, and HANDOFF: the owner runs the suite next
+
+**Owner's ruling on 107.** `verify-tierchange.ps1` is now a step in
+`VerifyInstall2`, directly after `verify-tiers.ps1` because it is the rest of
+the same question — PRE_RELEASE 19 lists seven things the tier change needs
+proved, `verify-tiers` §6 covers four and says in its own output that it does
+not cover the rest. **One step put THREE verifiers back**, since it raises
+`verify-acctmsgs` and `verify-vocverbs`.
+
+**Built on `verify-profiledir`'s shape (54, the same situation in the same
+runner)**: a `$TcPrefix` parameter derived from `-Run` as `sdtc$Run`, so a fixed
+prefix cannot pass once and collide on every later run, and added to the
+validation list so an empty prefix is refused by name rather than reaching
+`CREATE.ACCOUNT` as a bare `sd`. **22 steps, up from 21.**
+
+***PROVED WITHOUT A RUN TOKEN, AS 106 WAS***: the real step list driven through
+`suite-only.ps1`'s `Select-SuiteSteps` — `-Only verify-tierchange` selects
+exactly 1 with `Partial` true and no error, and a typo'd name is refused by
+name. **§4.0.1 forbids the agent running either runner, so the WIRING is proved
+and the STEP is not.**
+
+***THE COUNTS RE-DERIVE AND NOW CLOSE***: 44 in the directory, 17 + 22 = 39,
+and all five remaining are correctly out — `verify-doors` and
+`verify-doors-admin` are children of `verify-doors-suite`, `verify-acctmsgs` and
+`verify-vocverbs` are children of those and of `verify-tierchange`, and
+`verify-upgrade` cannot be a step at all. `VerifyInstall1`'s header carries the
+working, rewritten rather than adjusted.
+
+***HANDOFF 3 IS AT THE TOP OF START HERE.*** The owner runs
+`VerifyInstall1.ps1 -ThenElevated -Run b88` next session. **Two steps have never
+run inside a runner**, so the step counts and the `PASS` total will not match
+`b85` — 17 and 22 against 16 and 21 — and that is expected rather than a
+regression. If `verify-tierchange` or its two children fail, suspect them first.
+
+**Still owed and named in the box**: 98–105 are all `NOT EXECUTED` and the suite
+does not confirm any of them; 98 is the cheapest, needing no induced fault;
+three severity rulings are the owner's, including 101 which the agent filed **B**
+on its own judgement with the reasoning in the row; and **a tier-1 guard is owed
+and was deliberately not built** — 54, 106 and 107 are the same defect three
+times and nothing checks that every `verify-*.ps1` is a step or a named child.
+
+**No product source changed this session** — documentation, two new `gplbld`
+files, and step rows in the two runners. No `gplsrc`, no `gpl.bp`, no `sd.iss`.
+
+Tier-1 green at the handoff: fixlist **234/0**, **open 28** (107 closed),
+tiercounts 15/15, verdict 140/140, sdtestuser 54/0, suiteonly 48/48,
+stale-leads exit 0, and **`assert-current` passes** — the install is still the
+13:33:28 one and the tree matches source.
