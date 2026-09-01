@@ -210,12 +210,22 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > administrator, read the trail. It is the only open entry whose trigger needs
 > no induced fault at all.
 >
-> **2. THREE SEVERITY RULINGS ARE HIS AND ONLY HIS.** `98` and `100` are filed
-> **M** with a recommend-**B** stated in their own rows. ***`101` WAS FILED `B`
-> BY THE AGENT ON ITS OWN JUDGEMENT*** — because its trigger is an ordinary
-> state (a read-only file, an ACL denial, a file another process holds open)
-> rather than an induced fault, which is the property that makes `93` and `94`
-> **B**. **The reasoning is in the row; overrule it there if he disagrees.**
+> **2. ~~THREE SEVERITY RULINGS ARE HIS AND ONLY HIS.~~ ***RULED 31 Aug 2026:
+> THE OWNER RAISED THEM. `97`, `98` AND `100` ARE NOW `B`.*** ** Every
+> recommend-**B** in the file has been granted; **each row records the ruling and
+> its date in the SEV cell.** ***AND THE LIST IN THIS ITEM WAS SHORT BY ONE***:
+> it named `98` and `100`, but **`97` carried a recommend-**B** too** — found by
+> grepping the file for the recommendation rather than trusting this box, which
+> is the same lesson as the `sdtc` stem two items down. ***THE OPEN `B` SET IS NOW
+> EIGHT, GREPPED RATHER THAN COUNTED BY HAND: `65`, `80`, `93`, `94`, `97`, `98`,
+> `100`, `101`.*** (`19` is **B** but struck — done, not open.)
+>
+> ***`101` WAS FILED `B` BY THE AGENT ON ITS OWN JUDGEMENT*** — because its
+> trigger is an ordinary state (a read-only file, an ACL denial, a file another
+> process holds open) rather than an induced fault, which is the property that
+> makes `93` and `94` **B**. **The reasoning is in the row; overrule it there if
+> he disagrees.** **Unchanged by the 31 Aug ruling, which raised the other
+> three rather than touching this one.**
 >
 > **3. A GUARD IS OWED AND WAS DELIBERATELY NOT BUILT.** `54`, `106` and `107`
 > are the same defect three times: **a verifier in neither runner, found only by
