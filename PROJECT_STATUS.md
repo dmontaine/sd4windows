@@ -224,10 +224,31 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | `Test 7` | **used** — both boxes unticked; 130's item 1 | yes |
 > | `Test 8` | **clean spare**, created 2 Sep, MAC `080027E3DC77` | **yes, added the same day** |
 >
-> ***A FRESH CLONE IS NOT READY UNTIL ITS SHARES ARE ADDED*** — `Test 8` came up
-> with **0** mappings, exactly as `Test 6` and `Test 7` did, and that is what the
-> Network Error on `Test 6` was. **Add them before the guest is needed, not
-> while an install is waiting**, and remember the guest must be powered off.
+> ### ***`Template` NOW CARRIES THE THREE SHARES, SO NEW CLONES INHERIT THEM — 2 Sep 2026, OWNER'S CALL***
+>
+> Until today every fresh clone came up with **0** mappings — `Test 6`, `Test 7`
+> and `Test 8` all did — and that is what the *"Windows cannot access
+> `\\vboxsvr\sdout`"* Network Error was on `Test 6`, discovered with an installer
+> already open. `Template` was given `sdout`, `xfer` and `gplbld` on 2 Sep 2026,
+> so **a clone made from here on should arrive ready.** ***CHECK IT ANYWAY ON THE
+> FIRST CLONE AFTER THIS*** — that inheritance is expected, not yet observed:
+>
+> ```
+> VBoxManage showvminfo "<guest>" --machinereadable | findstr SharedFolderName
+> ```
+>
+> **Three lines means ready. Nothing means run `vm-shares.ps1 -Vm "<guest>"`,
+> with the guest powered off.**
+>
+> ***THIS IS NOT A CRACK IN 76's WARNING, AND THE DIFFERENCE IS THE WHOLE POINT.***
+> 76 says do not prime `Template` with the **OpenSSH capability**, because every
+> clone would then have **no ssh question and no firewall restriction** at
+> Windows' `RemoteAddress=Any` — the priming would change what the installer
+> asks and what the guest ends up exposing. **A shared folder adds no capability
+> to the guest, changes no `[Tasks]` answer, and alters nothing the installer
+> inspects**; it only makes `\\vboxsvr\...` resolve. ***SO: CAPABILITIES NO,
+> PLUMBING YES*** — and do not let "we primed `Template` once" become an argument
+> for the other kind.
 >
 > ***DO NOT RUN THE CYCLE WHILE THAT GUEST RUN IS IN FLIGHT*** — it rebuilds the
 > `sdout` installer the guest installs from. Cycle first, then the guest.
