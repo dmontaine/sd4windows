@@ -246,6 +246,31 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > CLASS***: it matches retired phrases, and this is label logic. **NEXT FREE
 > PRE_RELEASE ID: 128.**
 >
+> ***113 IS WITNESSED AND STRUCK, 2 Sep 2026, BY RE-RUNNING THE INSTRUMENT THAT
+> FOUND IT.*** `gplbld/probe-akwrite.ps1` — **unelevated, `don`'s own account,
+> self-cleaning, 18 of 18, exit 0** — issues in its step-5 cleanup the identical
+> three deletes that produced the original observation. `DELETE.FILE AKPDIR` and
+> `DELETE.FILE AKPDCT`, the two DIRECTORY files that never had an index, printed
+> **no `Failed to delete index directory`**, where both printed 2636 before;
+> `DELETE.FILE AKPF`, the indexed one, stayed clean as the control. ***USING THE
+> ORIGINAL PROBE RATHER THAN A NEW TEST IS THE POINT*** — a test written after a
+> fix tends to agree with it.
+>
+> ***AND THE RETURN-CODE HALF NEEDED NO EXTRA MACHINERY, WHICH IS WORTH KNOWING
+> BEFORE SOMEBODY BUILDS SOME.*** 113's sharper half is `@system.return.code`
+> being set on a success, and there is no TCL way to print it. At **both** sites
+> — `DELETEF:308-313`, `:394-398` — that assignment sits **inside the same
+> guard as `display sysmsg(2636)`**, so the two fire together or not at all and
+> **the message's absence IS the evidence for the return code.** Reading the
+> source decided what the screen had to show; without it this looked like it
+> needed a BASIC program written and catalogued to print one variable.
+>
+> ***`probe-akwrite` IS THE PATTERN FOR A CHEAP WITNESS*** — unelevated, makes and
+> removes its own fixture in `don`, asserts `no stray sd.exe session is left
+> behind`, needs no cycle, no run token and no elevation. Rostered in
+> `assert-current.ps1`, deliberately in neither runner (that wiring is **112**,
+> the owner's call). **Open count 22.**
+>
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,
