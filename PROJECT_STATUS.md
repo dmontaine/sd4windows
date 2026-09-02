@@ -467,6 +467,15 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > because running an installer off the share had already cost a Network Error
 > once (§427). **Keep it.**
 >
+> ***AND THEN A THIRD BUILD AT 16:40:42 — `cycle.ps1 -SkipInstall`, SUCCESSFUL
+> COMPILE, 4,955,186 bytes. THAT IS THE ONE CARRYING THE SEVEN NEW `[Dirs]`
+> ENTRIES.*** ***SO THE COPY ON THE GUEST IS NOW STALE AND USING IT WOULD SCORE
+> A FALSE FAILURE.*** `C:\Users\Public\sd-setup-W1.0-0.exe` on `Test 10` is the
+> **14:18:50** binary — the one witnessed today, and the one WITHOUT the fix.
+> **Re-copy from `\\vboxsvr\sdout\` before witnessing 120 and 132**, or the run
+> will find `cat`, `prt` and `$hold` still missing and it will look like the fix
+> does not work. **Check the length: 4955186.**
+>
 > ***THE 402-BYTE DELTA IS BUILD NONDETERMINISM RATHER THAN A CONTENT CHANGE,
 > AND THAT IS REASONED, NOT MEASURED.*** No shipped file changed between the two
 > builds — the working tree was clean and the only commit in between,
