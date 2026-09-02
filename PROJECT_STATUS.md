@@ -141,6 +141,35 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ A CYCLE IS OWED, 2 Sep 2026 — ***130 IS FIXED IN SOURCE. THEN ONE `Test 6` INSTALL CLOSES 130 AND 125 TOGETHER.*** ⇩⇩⇩
+>
+> ***`assert-current` IS EXPECTED RED*** — `LOGIN`, `SET_ACC_PASSWORD`, three
+> messages, `sd.iss` and the wording lint all changed after the last install.
+> **No `make sd`**: nothing under `gplsrc` was touched. **Elevated PowerShell:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ***THEN ONE GUEST RUN TAKES BOTH REMAINING WITNESSES, AND THE ORDER MATTERS***:
+> install on **`Test 6`** with **both** the ssh and API boxes **unticked**.
+> **125** needs exactly that machine — 10162 fires only when `config('APIPORT')`
+> is 0, so it could not be taken on `Test 4` — and the same run gives **10161**
+> again and the `not ApiWanted` closing-box branch. **130** is then witnessed at
+> the end of the very same install, because a fresh account ends on the password
+> prompt: it must now say *a password is required* and must **not** offer
+> *"no password for now"*.
+>
+> ***DO NOT RUN THE CYCLE WHILE THAT GUEST RUN IS IN FLIGHT*** — it rebuilds the
+> `sdout` installer the guest installs from. Cycle first, then the guest.
+>
+> ***AND THE MAC WARNING DOES NOT APPLY TO THE TEST CLONES — MEASURED 2 Sep
+> 2026.*** `Template` is `080027AECE7C` and collides with `sdStandalone-C1`;
+> `Test 3` `080027C61086`, `Test 4` `0800271DABE7`, `Test 5` `08002734F731`,
+> `Test 6` `080027C3E817` are **all distinct**, so the Test guests can run
+> concurrently. They share the computer name `VIRTUAL`, which costs nothing here
+> because the shares are host-side.
+>
 > # ⇩⇩⇩ HANDOFF 13, 2 Sep 2026 — ***THE `Test 4` RUN HAPPENED. 123 AND 124 ARE CLOSED. 67 IS ONE COMMAND SHORT, AND 129 CAME OUT OF THE SAME SCREENS.*** ⇩⇩⇩
 >
 > ***THE FIRST THING TO DO IS ONE COMMAND ON THE GUEST, AND IT CLOSES 67.***
