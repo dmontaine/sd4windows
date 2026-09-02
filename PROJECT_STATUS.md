@@ -151,14 +151,29 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
-> ***THEN ONE GUEST RUN TAKES BOTH REMAINING WITNESSES, AND THE ORDER MATTERS***:
-> install on **`Test 6`** with **both** the ssh and API boxes **unticked**.
-> **125** needs exactly that machine — 10162 fires only when `config('APIPORT')`
-> is 0, so it could not be taken on `Test 4` — and the same run gives **10161**
-> again and the `not ApiWanted` closing-box branch. **130** is then witnessed at
-> the end of the very same install, because a fresh account ends on the password
-> prompt: it must now say *a password is required* and must **not** offer
-> *"no password for now"*.
+> ### ***THEN ONE `Test 6` INSTALL, BOTH BOXES UNTICKED — IT CARRIES FIVE WITNESSES***
+>
+> **Install `\\vboxsvr\sdout\sd-setup-W1.0-0.exe` on `Test 6`** — ordinary
+> prompt, it elevates itself — and on the tasks page leave **BOTH** the ssh
+> boxes **AND** the API boxes **unticked**. That single choice is what makes the
+> run worth five things:
+>
+> | | must read |
+> |---|---|
+> | **130** — the installer's closing box | ***"A PASSWORD IS REQUIRED. Until this account has one it cannot be used at all - not here at the keyboard, not over ssh, and not through the SD Core API."*** No *"IF YOU SET NO PASSWORD… can be used ONLY at this computer"* |
+> | **130** — the post-install password window (`SET_ACC_PASSWORD`) | *"A password is required. Pressing Enter on an empty line does not give you an account without one…"* No *"set no password for now"* |
+> | **130** — first `sd`, message 10089 | *"A password is required. Pressing Enter on an empty line does not give you an account without one - it ends this session…"* |
+> | **123/124** — the closing box's OTHER branch | the ***`not ApiWanted`*** text, which `Test 4` could not show because the API was ticked there: *"With no ssh server and no API, the accounts you create have no way to sign in yet. Administrators still use SD Core by typing "sd"…"* |
+> | **125** — both halves at last | `CREATE.ACCOUNT USER zz125 SSH` → **10161**, and `CREATE.ACCOUNT USER zz125b API` → **10162**. ***10162 is the whole reason this must be `Test 6`***: it fires only when `config('APIPORT')` is 0, which is why `Test 4` could not give it |
+>
+> ***EXPECT TWO PASSWORD PROMPTS AND HAVE THEM READY*** — SDSYS at the first
+> `sd`, then one per account created. **A driving session cannot answer those**;
+> they are the one thing that needs a person at the keyboard.
+>
+> ***AND `Test 7` EXISTS AS THE SPARE, 2 Sep 2026***, MAC `080027FA4150` —
+> **distinct, which is this session's own confirmation that a default clone
+> regenerates the MAC** rather than an inference from the others. Seven VMs
+> registered, every MAC unique, nothing collides.
 >
 > ***DO NOT RUN THE CYCLE WHILE THAT GUEST RUN IS IN FLIGHT*** — it rebuilds the
 > `sdout` installer the guest installs from. Cycle first, then the guest.
