@@ -2546,9 +2546,14 @@ longer exists.
 ## 35. A directory-file record whose filename ends in `%` makes `readnext` walk past the end of a stack buffer
 
 `dir_select()` decodes a directory file's escaped filenames back into record
-ids. Its loop is at `sd64/gplsrc/op_dio4.c:1178-1187` on upstream `main`, and
-at `:1140-1147` in the Windows port, where the two copies are byte for byte the
-same:
+ids. Its loop is at `sd64/gplsrc/op_dio4.c:1178-1187` on upstream `main` at
+commit `ae0cc5f`, and at `:1140-1147` in the Windows port, where the two copies
+are byte for byte the same. The buffer it decodes into is `name`, declared at
+`op_dio4.c:1118`, and the two substitution tables are at `sd64/gplsrc/sd.h:113-114`
+— `df_restricted_chars` `*,=><%/+:;?\"` against `df_substitute_chars`
+`ACEGLPSVXYZBQ`, position for position. ***`%` IS ITSELF ON THE RESTRICTED
+LIST***, encoding to `%P`, which is what makes the trailing case below
+reachable at all:
 
 ```c
 while ((c = *(p++)) != '\0') {
@@ -2579,8 +2584,8 @@ guard passes. `r - df_substitute_chars` is then 13, and `df_restricted_chars[13]
 is that array's own NUL, so the byte written is harmless. The pointer is not:
 `p` now points past the end of `name`, and the `while` keeps consuming adjacent
 stack memory while `q` writes it back into `name` until a zero byte happens to
-turn up. `name` is `char name[MAX_PATHNAME_LEN + 1]`, a fixed stack buffer, so
-this can overflow it rather than merely over-read.
+turn up. `name` is `char name[MAX_PATHNAME_LEN + 1]` (`op_dio4.c:1118`), a
+fixed stack buffer, so this can overflow it rather than merely over-read.
 
 A file called `draft%` in any directory file reproduces it; `%` is a legal
 filename character on both Linux and Windows, and no privilege is needed
