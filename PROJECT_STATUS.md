@@ -141,6 +141,39 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 12, 1 Sep 2026 — ***123/124/125/115 DONE AND PUSHED AS SOURCE; ONE CYCLE IS OWED TO BCOMP-COMPILE THE BASIC AND WITNESS IT.*** ⇩⇩⇩
+>
+> ***FIRST THING: RUN THE CYCLE. IT VERIFIES BASIC THAT WAS PUSHED UNCOMPILED.***
+> This run pushed four source changes on top of the wizard: **124** (disclosures
+> reworded so they stop saying "ssh and nothing else"; lint-guarded), **115(a)+(b)**
+> (`PS_SCRIPTO` always captures so acting verbs stop printing helper output twice;
+> the report paths strip the script's `name:` prefix), and **125** (`CREATEA`/`MODIFYA`
+> warn non-prohibitively when a granted transport has no server/listener yet, new
+> messages 10161/10162). **115 and 125 are BASIC and have NOT been BCOMP-compiled**,
+> so `assert-current` is stale and the cycle is the first real check. In an
+> **elevated PowerShell**:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **If BCOMP errors on `SSHSRVR`/`REMOTESSH`/`REMOTEAPI`/`PS_SCRIPTO`/`CREATEA`/`MODIFYA`,
+> that is this batch — fix and re-cycle before believing anything.**
+>
+> ***THEN WITNESS, OFF A SCREEN***: **124** — the "Before you install" page, the
+> `ssh.server remove` prompt (10144), and `SshReport` no longer say "ssh and
+> nothing else". **115(b)** — `ssh.server` with no keyword no longer leads with
+> `remove-ssh:`. **115(a)** — an acting verb in an elevated `sd.exe` (`remote.ssh
+> off` then `on`) shows only its sysmsg, no raw `ssh-firewall:` lines. **125** —
+> `create.account USER x SSH` on a machine with no ssh server prints 10161; with
+> the API off, `... API` prints 10162.
+>
+> ***STILL OPEN FROM THIS THREAD: 126*** — `ssh.server install` starts an
+> unbounded FoD download with no warning or abort; RECOMMEND a `y/<n>` time-cost
+> prompt like REMOVE's. **Filed, not implemented.** ***NEXT PRE_RELEASE ID: 127.***
+> The tier-1 wording lint (`test-retired-wording-units`) now guards the retired
+> ssh phrasings (117/121/124).
+>
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,
