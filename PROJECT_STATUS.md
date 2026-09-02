@@ -141,6 +141,73 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 14, 2 Sep 2026 — ***NOTHING IS OWED AND NOTHING IS HALF-BUILT. THE FIRST THING TO DO IS A FULL SUITE, `-Run b101`.*** ⇩⇩⇩
+>
+> ***OPEN 15*** — 16, 65, 66, 70, 74, 80, 89, 93, 96, 102, 112, 114, 118, 120,
+> 131. **Thirteen closed today**: 3, 28, 67, 113, 115, 123, 124, 125, 126, 127,
+> 128, 129, 130. **Five filed**: 127-131. ***NEXT FREE PRE_RELEASE ID: 132.
+> NEXT RUN TOKEN: `b101`*** — no suite has run since `b100`.
+>
+> ***THE HOST IS GREEN AND A CYCLE IS NOT OWED.*** `assert-current` **exit 0**,
+> install 10:28, `main` in sync with origin. Tier-1 all green: fixlist 241/0,
+> retired-wording 25/25, verdict 140/140, suiteonly 48/48, check-stale-leads 0.
+>
+> ### ***START WITH THE FULL SUITE — TWO NEW STEPS HAVE NEVER RUN IN ONE***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b101 -ThenElevated
+> ```
+>
+> **ORDINARY, UNELEVATED prompt** — the runner raises the elevated half itself,
+> and several of its measurements are only valid from an unelevated parent.
+> ***112 WIRED `verify-vocverbs` INTO `VerifyInstall2` AND `probe-akwrite` INTO
+> `VerifyInstall1`, AND NEITHER HAS RUN INSIDE A SUITE.*** Wiring a step in is
+> not watching it pass; **this run is where a step wired in wrong shows up**, and
+> it is also the milestone the day's other changes are owed.
+>
+> ### ***WHAT IS OUTSTANDING, AND WHAT IT COSTS***
+>
+> | | needs |
+> |---|---|
+> | **112** | the suite run above. Nothing else |
+> | **74** | an INTERACTIVE uninstall on a guest — its wording half is witnessed, the behaviour half is not, and **the cycle cannot supply it**: `cycle.ps1:497` uninstalls `/VERYSILENT`, which now takes the skip path. Afterwards `Get-LocalGroup sdssh, sdapi, sdsshonly` gone, `sdusers` still there |
+> | **131** | fix the wording lint's two blind spots — mine to build, no ruling needed |
+> | **96, 102** | **C on paths that fail silently.** Both shapes are chosen and written into their rows. Each wants a session that BEGINS with it, not one that ends on it. **102 is the larger**: the owner reversed the recorded decision — *"they are deleted, transactions are all or nothing"* — so a half-applied commit must now undo its writes |
+> | **65, 66, 70, 89, 114, 118** | build work, no ruling outstanding |
+> | **16, 80, 93, 120** | the big ones. **120's finding is attested by the owner and needs no re-measuring**; only a fix and its witness are left |
+>
+> ### ***FOUR THINGS TODAY PAID FOR — READ THESE BEFORE REPEATING THEM***
+>
+> ***A LINT PROVES THE PHRASES IN IT ARE GONE, NEVER THAT THE CLAIM IS.*** 130's
+> false claim had **ten** copies. Three sweeps each ended in *"that is all of
+> them"* and each was wrong; sweeps one and two searched for the **wording** of
+> the copies already found, and only the third searched for the **idea**
+> (`don't need`, `need not`, `without a password`). The outlier sat in the
+> `/SILENT` refusal, which nobody looks at. **I twice told the owner the sweep
+> was complete when it was not.**
+>
+> ***A WITNESS OFTEN COSTS A BOOT RATHER THAN A GUEST.*** The "Before you
+> install" page says *"Nothing has happened yet - Cancel stops without changing
+> anything"*, and it means it. **129 and 74's wording half were both read by
+> launching the installer, paging down and cancelling** — no install, no
+> password, and the guest stayed a clean spare. Reach for that before spending a
+> rig.
+>
+> ***MEASURE WHAT AN ACL DOES, NOT WHAT IT SAYS.*** 28's witness was blocked
+> because reading the DACL needs `READ_CONTROL`, which is deliberately not
+> granted. **Testing the behaviour was both possible and stronger**: as
+> `GITORLI\don`, unelevated, in `sdusers` — listing refused, creating allowed,
+> `Test-Path` on a real dump refused. Identity asserted, both directions
+> measured.
+>
+> ***A REMEMBERED IMPRESSION IS NOT A MEASUREMENT OF WHICH TOOL WAS USED.*** The
+> `guestcontrol` ban was struck in four places on the strength of *"several
+> sessions used guest control"*, and restored an hour later: **every mention in
+> the record is the ban, never a use**, and HISTORY.md:7929 is a session
+> documenting that it took the other route BECAUSE of the rule. The observation
+> was true; the attribution was mine and wrong.
+>
+
 > # ⇩⇩⇩ A CYCLE IS OWED, 2 Sep 2026 — ***130 IS FIXED IN SOURCE. THEN ONE `Test 6` INSTALL CLOSES 130 AND 125 TOGETHER.*** ⇩⇩⇩
 >
 > ***`assert-current` IS EXPECTED RED*** — `LOGIN`, `SET_ACC_PASSWORD`, three
