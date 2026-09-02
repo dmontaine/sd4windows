@@ -331,12 +331,27 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `SELECT` says 2 and never names it) is a behaviour choice, not a defect, and
 > it is the owner's.** One line either way.
 >
-> ***127's WITNESS IS HOST-DOABLE AND NEEDS ELEVATION*** — in an elevated
-> `sd.exe`: `remote.api` must now say **`lines  :`** where it said `before :`,
-> and `ssh.server` must no longer print **`state` twice**. ***AND 124's 10144
-> PROMPT RIDES THE SAME SESSION***: `ssh.server remove` then answer **`n`**
-> (10145 aborts, nothing changes). **A stray `y` costs a reboot and a
-> ~19-minute reinstall**, which is why the answer is written here beside it.
+> ***127 IS WITNESSED AND STRUCK, AND 124's 10144 HALF WENT WITH IT — ONE
+> ELEVATED SESSION, 2 Sep 2026.*** `remote.api` reads `lines  : active=1
+> commented=0` where it read `before :`, with `state` still appearing exactly
+> once — which is why the label was NOT copied from the sibling fix.
+> `ssh.server` reads `machine sshd.exe=True service=Running …` where it read
+> `state   …`, so **`state` appears once where it appeared twice**. *(`sshd.exe`
+> still appears on two lines, now scoped by `machine`; improved rather than
+> eliminated, and said so in the row.)*
+>
+> ***124's 10144 PROMPT PRINTED THE CORRECTED WORDING*** — *"sign in over ssh,
+> **or over the API** … for an account that has **only ssh** … that is its only
+> way in"* — matching `sdsys/messages/10144` byte for byte, and `n` gave 10145
+> *"Nothing was changed."* **Host confirmed untouched afterwards**: `sshd`
+> Running/Automatic, `sshd.exe` present, firewall `Enabled=True
+> RemoteAddress=Any`, identical to the pre-115 reading. ***124 STAYS OPEN ON THE
+> WIZARD HALF ALONE*** — the "Before you install" page and `SshReport`, which
+> ride 123/67's interactive install.
+>
+> ***SO THE HOST-DOABLE WITNESSES ARE EXHAUSTED.*** What is left needs either an
+> **interactive wizard** (123, 67, and 124's remainder — one run closes three)
+> or a **no-ssh guest** (126, 125's 10161). **Open count 21.**
 >
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
