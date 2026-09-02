@@ -45239,5 +45239,21 @@ deliberately leaves what it makes. **102 of the 105 directories under
 as STUCK HIVE** — the whole `b100` and `b102` families, whose accounts are gone
 but whose registry hives were never unloaded. It **exits non-zero on purpose**
 so a partial sweep cannot be read as a finished one, and prints each stuck SID
-with the two ways out (reboot, or `reg unload`). **A second pass is owed after
-the next restart.**
+with the two ways out (reboot, or `reg unload`).
+
+***DONE THE SAME DAY, AND THE TWO MECHANISMS PARTITIONED THE 28 EXACTLY.***
+After the restart: **`reclaim-profiles` took 7** — *7 considered, 7 reclaimed, 0
+still pending, 0 refused*, every one a `b102` account `DELETE_USER` had recorded
+— and **`clean-test-profiles` took the remaining 21, failed 0**, exit 0 with no
+INCOMPLETE block. Disjoint sets, complete cover, nothing left over.
+
+***THE END STATE IS MEASURED ON BOTH HALVES, NOT JUST THE DIRECTORY.***
+`C:\Users` holds **3 directories** — `b48adm`, `dmont`, `Public` — with **0**
+matching the sweep pattern, and **0 stale `ProfileList` entries** for test SIDs.
+The registry half is the one worth reading: a directory removed without its
+entry is what produced the historical `.GITORLI` profiles, so zero on both
+sides is what proves the pairs went together.
+
+**This is also the first time PRE_RELEASE 36's reclaim sweep has been watched
+working on real litter rather than a fixture**, and it logged `before:` and
+`after:` per SID rather than a bare conclusion.
