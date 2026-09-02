@@ -141,26 +141,25 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 12, 1 Sep 2026 — ***123/124/125/115 DONE AND PUSHED AS SOURCE; ONE CYCLE IS OWED TO BCOMP-COMPILE THE BASIC AND WITNESS IT.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 12, 1 Sep 2026 — ***124/115/125 BUILT AND GREEN; 126 ADDED AND NEEDS A CYCLE. RUNTIME WITNESS OWED FOR ALL FOUR.*** ⇩⇩⇩
 >
-> ***FIRST THING: RUN THE CYCLE. IT VERIFIES BASIC THAT WAS PUSHED UNCOMPILED.***
-> This run pushed four source changes on top of the wizard: **124** (disclosures
-> reworded so they stop saying "ssh and nothing else"; lint-guarded), **115(a)+(b)**
-> (`PS_SCRIPTO` always captures so acting verbs stop printing helper output twice;
-> the report paths strip the script's `name:` prefix), and **125** (`CREATEA`/`MODIFYA`
-> warn non-prohibitively when a granted transport has no server/listener yet, new
-> messages 10161/10162). **115 and 125 are BASIC and have NOT been BCOMP-compiled**,
-> so `assert-current` is stale and the cycle is the first real check. In an
-> **elevated PowerShell**:
+> ***124/115/125 ARE BUILT.*** They were pushed as source, then cycled — the BASIC
+> (`PS_SCRIPTO`/`SSHSRVR`/`REMOTESSH`/`REMOTEAPI`/`CREATEA`/`MODIFYA`) BCOMP-compiled
+> clean and `assert-current` is green, tier-1 all green. What is left for them is
+> the RUNTIME WITNESS (below).
+>
+> ***126 IS NEW AND NEEDS A CYCLE.*** `ssh.server install` now confirms first with
+> message 10163 (the download time cost plus `y/<n>`, default N), aborting via
+> 10145 like REMOVE (`SSHSRVR` INSTALL path). It is BASIC pushed uncompiled, so
+> `assert-current` is stale again. **FIRST THING, elevated PowerShell:**
 >
 > ```
 > C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
-> **If BCOMP errors on `SSHSRVR`/`REMOTESSH`/`REMOTEAPI`/`PS_SCRIPTO`/`CREATEA`/`MODIFYA`,
-> that is this batch — fix and re-cycle before believing anything.**
->
-> ***THEN WITNESS, OFF A SCREEN***: **124** — the "Before you install" page, the
+> ***THEN WITNESS, OFF A SCREEN*** (124/115/125 built, 126 after the cycle):
+> **126** — `ssh.server install` on a no-ssh machine now asks before downloading;
+> answering n aborts. **124** — the "Before you install" page, the
 > `ssh.server remove` prompt (10144), and `SshReport` no longer say "ssh and
 > nothing else". **115(b)** — `ssh.server` with no keyword no longer leads with
 > `remove-ssh:`. **115(a)** — an acting verb in an elevated `sd.exe` (`remote.ssh
