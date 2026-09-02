@@ -143,9 +143,10 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 > # ⇩⇩⇩ HANDOFF 14, 2 Sep 2026 — ***THE FULL SUITE IS GREEN ON `-Run b102` AND 112 IS CLOSED. NOTHING IS OWED AND NOTHING IS HALF-BUILT.*** ⇩⇩⇩
 >
-> ***OPEN 14*** — 16, 65, 66, 70, 74, 80, 89, 93, 96, 102, 114, 118, 120, 131.
-> **Fourteen closed today**: 3, 28, 67, 112, 113, 115, 123, 124, 125, 126, 127,
-> 128, 129, 130. **Five filed**: 127-131. ***NEXT FREE PRE_RELEASE ID: 132.
+> ***OPEN 13*** — 16, 65, 66, 70, 74, 80, 89, 93, 96, 102, 114, 118, 120.
+> ***FOUR OF THEM ARE B AND THEY ARE WHAT GATES W1.0-0: 65, 80, 93, 120.***
+> **Fifteen closed today**: 3, 28, 67, 112, 113, 115, 123, 124, 125, 126, 127,
+> 128, 129, 130, 131. **Five filed**: 127-131. ***NEXT FREE PRE_RELEASE ID: 132.
 > NEXT RUN TOKEN: `b103`*** — ***`b101` AND `b102` ARE BOTH SPENT.***
 >
 > ***THE HOST IS GREEN AND A CYCLE IS NOT OWED.*** `assert-current` **exit 0**,
@@ -200,7 +201,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | | needs |
 > |---|---|
 > | **74** | an INTERACTIVE uninstall on a guest — its wording half is witnessed, the behaviour half is not, and **the cycle cannot supply it**: `cycle.ps1:497` uninstalls `/VERYSILENT`, which now takes the skip path. Afterwards `Get-LocalGroup sdssh, sdapi, sdsshonly` gone, `sdusers` still there |
-> | **131** | fix the wording lint's two blind spots — mine to build, no ruling needed |
+> | **the next bundle** | **118 + 89 + 66 share one installer build and ONE guest session, and 74 rides along free** — its interactive uninstall is the same session, and the cycle cannot supply it (`cycle.ps1:497` uninstalls `/VERYSILENT`) |
 > | **96, 102** | **C on paths that fail silently.** Both shapes are chosen and written into their rows. Each wants a session that BEGINS with it, not one that ends on it. **102 is the larger**: the owner reversed the recorded decision — *"they are deleted, transactions are all or nothing"* — so a half-applied commit must now undo its writes |
 > | **65, 66, 70, 89, 114, 118** | build work, no ruling outstanding |
 > | **16, 80, 93, 120** | the big ones. **120's finding is attested by the owner and needs no re-measuring**; only a fix and its witness are left |

@@ -45257,3 +45257,45 @@ sides is what proves the pairs went together.
 **This is also the first time PRE_RELEASE 36's reclaim sweep has been watched
 working on real litter rather than a fixture**, and it logged `before:` and
 `after:` per SID rather than a bare conclusion.
+
+## 2 Sep 2026 — 131 done: the wording lint could not see half of what `sd.iss` ships
+
+Both blind spots closed, each with a control that was **red before the fix**.
+
+***(a) PASCAL `{ }` COMMENTS, AND "HAS A BRACE" IS NOT THE TEST.*** Inno's own
+constants are braced — `{app}`, `{tmp}`, `{#AppName}`, a GUID — so a naive strip
+would delete **shipped text** and turn this lint into a silent liar, which is
+the exact failure it exists to prevent. **Measured rather than assumed: inside
+`[Code]`, every brace span containing WHITESPACE is prose and every constant has
+none.** So whitespace is the test, and it errs toward *not* stripping — a
+space-less comment stays in the corpus and can at worst raise a loud false
+positive, never hide shipped wording. Multi-line blocks ride a state flag.
+`sd.iss:876` discusses `{` and `}` inside a `;` comment **above** `[Code]` and
+is already stripped by the `;` rule, so scoping to `[Code]` sidesteps it rather
+than parsing around it.
+
+***(b) THE HALF THAT MATTERED: A PHRASE SPLIT ACROSS `+` WAS INVISIBLE.***
+`sd.iss` builds dialogue as `'... offers to install ' + 'one. It is ...'`, so a
+phrase straddling the break is **on screen and on no single line** — and
+*"retired phrase absent"* was therefore capable of being a lie about wording
+that ships. `.iss` is now also scanned concatenation-flattened, adjacent
+literals joined into one entry keyed to the run's first line, `#13#10` becoming
+a newline so no phrase is invented across a paragraph break the reader sees as
+two. Runs of one line are skipped, so the corpus does not double.
+
+***THREE CONTROLS, THE THIRD GUARDING THE FIX ITSELF.*** A phrase straddling a
+`+` break is found (**0 → 1**); Pascal-comment text is absent (**1 → 0**); and
+`{app}` is still found (**72 hits**) — over-stripping would be worse than the
+bug. The red halves were proved with `grep`, which reproduces the pre-fix
+line-by-line behaviour exactly, so no file had to be mutated to show it. **The
+null case is refused out loud as the entry demanded**: `$flatCount` is asserted
+≥ 1, because a flattening that silently flattened nothing looks identical to one
+that worked.
+
+**25 → 29 checks, 0 failed. Corpus 12000 → 10696 script lines** as 1304 lines of
+comment prose leave it, and `'the'` falls 2533 → 1660 with them. Whole tier-1
+set exit 0, fixlist **243 passed / 0 failed**, **open 13**.
+
+***WHY THIS WENT FIRST, AND IT IS NOT TIDINESS***: 118, 89 and 66 all edit
+`sd.iss` wording next, and until now the guard meant to verify those changes was
+blind in that very file.
