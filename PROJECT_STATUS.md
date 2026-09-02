@@ -141,23 +141,17 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 12, 1 Sep 2026 — ***124/115/125 BUILT AND GREEN; 126 ADDED AND NEEDS A CYCLE. RUNTIME WITNESS OWED FOR ALL FOUR.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 12, 1 Sep 2026 — ***THE ssh/API THREAD (116-126) IS BUILT, GREEN AND PUSHED. NO CYCLE OWED; ONLY THE RUNTIME WITNESSES REMAIN TO CLOSE THE ENTRIES.*** ⇩⇩⇩
 >
-> ***124/115/125 ARE BUILT.*** They were pushed as source, then cycled — the BASIC
-> (`PS_SCRIPTO`/`SSHSRVR`/`REMOTESSH`/`REMOTEAPI`/`CREATEA`/`MODIFYA`) BCOMP-compiled
-> clean and `assert-current` is green, tier-1 all green. What is left for them is
-> the RUNTIME WITNESS (below).
+> ***EVERYTHING IS BUILT AND SHIPPED.*** 124/115/125/126 were pushed as source and
+> cycled clean: the BASIC (`PS_SCRIPTO`/`SSHSRVR`/`REMOTESSH`/`REMOTEAPI`/`CREATEA`/
+> `MODIFYA`) BCOMP-compiled, `assert-current` is green, tier-1 all green (fixlist
+> 241/0, retired-wording 11/11, check-stale-leads 0). `main` is in sync with
+> origin. **No cycle is owed.**
 >
-> ***126 IS NEW AND NEEDS A CYCLE.*** `ssh.server install` now confirms first with
-> message 10163 (the download time cost plus `y/<n>`, default N), aborting via
-> 10145 like REMOVE (`SSHSRVR` INSTALL path). It is BASIC pushed uncompiled, so
-> `assert-current` is stale again. **FIRST THING, elevated PowerShell:**
->
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
->
-> ***THEN WITNESS, OFF A SCREEN*** (124/115/125 built, 126 after the cycle):
+> ***WHAT IS LEFT IS THE RUNTIME WITNESS*** — reading each reworded/added path off
+> a screen is what moves these from built to CLOSED (compiling is not running).
+> Nothing breaks if it waits; the code is shipped. All are installed now:
 > **126** — `ssh.server install` on a no-ssh machine now asks before downloading;
 > answering n aborts. **124** — the "Before you install" page, the
 > `ssh.server remove` prompt (10144), and `SshReport` no longer say "ssh and
@@ -167,11 +161,18 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `create.account USER x SSH` on a machine with no ssh server prints 10161; with
 > the API off, `... API` prints 10162.
 >
-> ***STILL OPEN FROM THIS THREAD: 126*** — `ssh.server install` starts an
-> unbounded FoD download with no warning or abort; RECOMMEND a `y/<n>` time-cost
-> prompt like REMOVE's. **Filed, not implemented.** ***NEXT PRE_RELEASE ID: 127.***
-> The tier-1 wording lint (`test-retired-wording-units`) now guards the retired
-> ssh phrasings (117/121/124).
+> ***NOTHING OPEN FROM THIS THREAD*** — 126 (the `ssh.server install` time-cost
+> prompt, message 10163) is built with the rest; only the runtime witnesses above
+> remain, and those CLOSE entries rather than fix anything. ***NEXT PRE_RELEASE
+> ID: 127.*** The tier-1 wording lint (`test-retired-wording-units`) now guards
+> the retired ssh phrasings (117/121/124) — register a phrase in its `$RETIRED`
+> table whenever you retire wording.
+>
+> ***THE BROADER OPEN LIST, UNCHANGED BY THIS SESSION*** — fixlist open set: 3, 16,
+> 28, 65, 66, 67, 70, 74, 80, 89, 93, 96, 102, 112, 113, 114, 115, 118, 120, 123,
+> 124, 125, 126. The last five are built-this-session and witness-owed; **118** is
+> the untouched one worth a look — an upgrade rewrites `sshd_config` and restarts
+> `sshd` having just told the reader it changed nothing about ssh.
 >
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
