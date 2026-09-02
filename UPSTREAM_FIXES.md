@@ -2607,4 +2607,13 @@ Found by reading, not by running: the Windows port reached this code while
 investigating a suspected VOC mismatch that turned out to be the encoding
 working correctly.
 
+The suggested fix above is not only proposed — it is the one the Windows port
+took, and it has been built, installed and driven since this entry was written.
+Four fixtures in a user's `BP`: an ordinary name; `%E`, which is the legitimate
+encoding of the id `=` and must still decode; `draft%1`; and `draft%`. `SELECT`
+reports all four, `%E` still decodes to `=`, and `draft%1` comes back whole
+instead of as `draft`. Nothing there exercises sdb64 itself, so for that side
+this remains a reading of identical code — but the patch is known to compile
+and to behave as described.
+
 `PROPOSED`
