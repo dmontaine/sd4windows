@@ -353,6 +353,40 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **interactive wizard** (123, 67, and 124's remainder — one run closes three)
 > or a **no-ssh guest** (126, 125's 10161). **Open count 21.**
 >
+> # ***A CYCLE IS OWED AGAIN — 128's WORDING HALF IS BASIC AND UNBUILT.***
+>
+> ***128's RULING WAS GIVEN, WITHDRAWN AND REPLACED WITHIN ONE EXCHANGE, AND NO
+> CODE WAS WRITTEN FOR THE WITHDRAWN SHAPE.*** Owner first ruled *"automatic
+> conversion of the file name, replace `%` with `_`"*; shown that it makes
+> `SELECT` **rename files on disk**, and that the same pass must not touch
+> **`%E`/`%G`/`%L` — the legitimate encodings of `=`/`>`/`<`, whose renaming
+> would destroy live VOC records** — he withdrew it: ***"drop the rename, do A
+> with the 'invalid name' response".*** **Tracing before building is what kept
+> that off the disk**; the cost of finding it after a cycle would have been the
+> cycle plus a corrupted SDSYS VOC.
+>
+> ***BUILT IN SOURCE***: `QPROC` separates *"the record is not there"* from
+> *"the file IS there under a name this encoding cannot produce"* and reports
+> the second with new message **10164** (`'%1' invalid name`). The test is
+> **exact, not a guess about `%`** — `ospath(fileinfo(data.f, FL$PATH) : @ds :
+> id, OS$EXISTS)` on the failure path only, gated on `is.dir` (`QPROC:512`).
+>
+> ***AND THE "not found" IT REPLACES WAS NEVER A MESSAGE***: `QPROC:2217` builds
+> it as a hard-coded literal, which is why **7304 (`'%1' not found`) has no
+> caller anywhere in the tree**. No shared id to break, so 10164 is new and 7304
+> is left orphaned as it was.
+>
+> **BASIC is unbuilt. `-SkipInstall` is the documented cheap compile check, in an
+> ELEVATED PowerShell:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> then the full `cycle.ps1` to install it, and the witness is `SELECT BP` over a
+> file called `draft%` reading **invalid name**. `test-sysmsg-units` is 44/0 and
+> **does not cover 10164** — no verifier names it, same as 10160.
+>
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,
