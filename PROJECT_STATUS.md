@@ -224,9 +224,36 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > halves in one run. **It also shows the `not ApiWanted` closing-box branch**,
 > which `Test 4` did not exercise because the API box was ticked there.
 >
+> ***67 IS CLOSED, AND 126 AND 125 ARE BLOCKED BEHIND 130 — 2 Sep 2026.*** The
+> guest was driven from the host with `keyboardputscancode` and `screenshotpng`,
+> no guest credentials, and **the technique works**: chunk the typed line with
+> **every backslash sent on its own**, screenshot **before** Enter, put the
+> deterministic work in a script on the `xfer` share and have it **write its
+> answer back to the share**, so the result is read as text rather than off a
+> screenshot. `\\vboxsvr\xfer\a.ps1` arrived intact that way.
+>
+> ***67 CLOSED ON THE MACHINE'S OWN ANSWER***: `capability :
+> OpenSSH.Server~~~~0.0.1.0  STATE=NotPresent`, `sshd service : ABSENT`,
+> `sshd.exe : False`, with `elevated: True` and `sd.exe : True` asserted beside
+> them so the reading cannot be a failed query or a bare machine.
+>
+> ***THEN `sd` ON THE GUEST HIT 130 AND THE RUN STOPPED THERE.*** SDSYS has no
+> password, 10089 offers *"press Enter on an empty line"* for none, and taking
+> that offer **ends the session** (10095, `Connection terminated`). **A password
+> has to be set on `Test 4` before 126 and 125 can be taken**, and setting one is
+> the owner's to do — not something to be typed from here.
+>
+> ***`Test 1` AND `Test 2` ARE GONE, CONFIRMED BY THE OWNER 2 Sep 2026.***
+> `VBoxManage list vms` shows only `Template`, `Test 3`, `Test 4`, `Test 5`,
+> `Test 6`. ***THAT COSTS 120 ITS RIG***: this file recorded `Test 1` as *"the
+> only machine in the uninstall-then-reinstall state"* with *"do not delete it
+> while 120 is open"*, so **120 now needs that state rebuilt — an install plus
+> an uninstall-then-reinstall — before it can be measured again.** The entry is
+> unaffected; only the evidence is.
+>
 > ***`Test 5` IS STILL SEALED*** — `Test 4` is spent as a first-install rig now
-> that SD is on it, and `Test 6` exists as of 2 Sep 2026. **Open count 19. Next
-> free PRE_RELEASE id: 130.**
+> that SD is on it, and `Test 6` exists as of 2 Sep 2026. **Open count 18. Next
+> free PRE_RELEASE id: 131.**
 >
 > # ⇩⇩⇩ RUNBOOK, 2 Sep 2026 — ***(THIS RUN IS DONE; KEPT FOR THE NEXT GUEST.)*** ⇩⇩⇩
 >
