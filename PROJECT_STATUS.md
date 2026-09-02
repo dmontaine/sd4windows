@@ -141,6 +141,76 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ RUNBOOK, 2 Sep 2026 — ***123, 67 AND 124 CLOSE ON ONE INTERACTIVE INSTALL, ON A GUEST WITH NO ssh SERVER. USE `Test 4`.*** ⇩⇩⇩
+>
+> ***WHY IT CANNOT BE THE HOST, MEASURED NOT ASSUMED.*** All three witnesses need
+> a machine where `SshWasAbsent` is true. The host has `sshd` **Running** and the
+> capability **Installed**, so: the `sshserver` task carries
+> `Check: SshServerAbsent` (`sd.iss:228`) and is **hidden entirely**, and
+> `SshReport` branches on `SshServerPresentAfterwards` =
+> `(not SshWasAbsent) or SshServerWanted`, so **the no-ssh paragraph never
+> fires**. Making the host qualify means `ssh.server remove`, which is a reboot
+> plus a ~19-minute reinstall and is forbidden as a test.
+>
+> ***AND NOT `Test 1` OR `Test 2` EITHER.*** `Test 1` has ssh Running **and is
+> 120's only evidence — do not delete or reinstall it.** `Test 2` had the
+> capability re-downloaded during 122's work, so it reads `Installed`.
+> ***`Test 3` HAS BEEN USED; `Test 4` AND `Test 5` HAVE NOT.*** Use **`Test 4`**
+> and ***keep `Test 5` UNTOUCHED AS THE RETRY***: the moment SD is installed on
+> `Test 4` it stops being a first-install-with-no-ssh machine, and 123's witness
+> **is** the first-install wizard. A missed screen costs the spare, not a rebuild.
+> `Windows 11 - Template` has no OpenSSH capability and is the clone source —
+> **do not prime it with one, that is 76's warning**: every clone would then have
+> no ssh question and no firewall restriction at Windows' `RemoteAddress=Any`.
+>
+> ***BEFORE STARTING — DO NOT RUN `cycle.ps1` WHILE THIS IS IN FLIGHT.*** It
+> rebuilds `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, which is the exact file
+> the guest installs from over the `sdout` share, so a cycle **silently swaps the
+> installer under test**. The current one is **01:10, 2 Sep**, built by the cycle
+> `assert-current` then passed, so it also carries 128 and message 10164.
+>
+> **On the guest, in an ordinary prompt — the installer asks for elevation
+> itself. Reach shares BY NAME, never by drive letter (the letters move):**
+>
+> ```
+> \\vboxsvr\sdout\sd-setup-W1.0-0.exe
+> ```
+>
+> ***FIRST, THE PRECONDITION — A RUN ON A GUEST THAT ALREADY HAS ssh MEASURES
+> NOTHING AND LOOKS FINE.*** Elevated PowerShell on the guest, before installing:
+>
+> ```
+> Get-WindowsCapability -Online -Name 'OpenSSH.Server*' | Select-Object Name, State
+> ```
+>
+> **It must read `NotPresent`.** If it does not, that guest is spent — switch to
+> `Test 5` and say so.
+>
+> ### ***WHAT EACH SCREEN MUST SAY, AND THE WORDING THAT WOULD MEAN FAILURE***
+>
+> | | must read | fails if |
+> |---|---|---|
+> | **123** the tasks page | the ssh box is **UNTICKED**, and its label carries the time cost (*"downloads from Windows Update … up to about an hour"*) **and** the API alternative (*"can also be reached through the API instead"*) | the box is ticked, or absent (then the precondition was wrong) |
+> | **124** "Before you install" | ssh **or over the API** | ***any*** occurrence of *"and nothing else"* |
+> | **67** the install itself | **leave the ssh box alone** and let it run | an OpenSSH server appears anyway |
+> | **123/124** the closing box | *"NO ssh SERVER WAS INSTALLED, because you did not ask for one … Use SD Core by typing sd as an administrator"* | it claims ssh was limited, or repeats the retired premise |
+>
+> ***THEN THE ONE CHECK THAT DECIDES 67***, elevated on the guest after the
+> install — this is the whole entry, and it is the reason to leave the box alone
+> rather than untick and re-tick it:
+>
+> ```
+> Get-WindowsCapability -Online -Name 'OpenSSH.Server*' | Select-Object Name, State
+> ```
+>
+> **Still `NotPresent` closes 67.** `Installed` means a full install still forces
+> the server, which is 67 unfixed and is the finding.
+>
+> **Captures**: the guest writes to `\\vboxsvr\xfer` and they are readable
+> directly from `sdxfer` on the host. ***`capture-state.ps1` defaults `-OutDir`
+> to `Y:\` and must be given `-OutDir \\vboxsvr\xfer` every time.***
+> **`guestcontrol` stays forbidden** — it needs guest credentials.
+>
 > # ⇩⇩⇩ HANDOFF 12, 1 Sep 2026 — ***THE ssh/API THREAD (116-126) IS BUILT, GREEN AND PUSHED. NO CYCLE OWED; ONLY THE RUNTIME WITNESSES REMAIN TO CLOSE THE ENTRIES.*** ⇩⇩⇩
 >
 > ***EVERYTHING IS BUILT AND SHIPPED.*** 124/115/125/126 were pushed as source and
