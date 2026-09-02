@@ -353,7 +353,30 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **interactive wizard** (123, 67, and 124's remainder — one run closes three)
 > or a **no-ssh guest** (126, 125's 10161). **Open count 21.**
 >
-> # ***A CYCLE IS OWED AGAIN — 128's WORDING HALF IS BASIC AND UNBUILT.***
+> # ***128 IS CLOSED — BOTH HALVES CYCLED, INSTALLED AND WITNESSED, 2 Sep 2026. OPEN COUNT 20.***
+>
+> `assert-current` **exit 0**, installed `messages/10164` reads `'%1' invalid
+> name`, and the witness is **12 of 12** unelevated in `don`'s own BP.
+>
+> ***THE COMPILE WAS PROVED BY NAME, SEPARATELY AND FIRST.*** `cycle.ps1
+> -SkipInstall` logged `Compiling gpl.bp QPROC` then `$QPROC added to global
+> catalogue`, with `gpl.bp.out/QPROC` and `gcat/$QPROC` staged — **not inferred
+> from a bare `0 error(s)`**. That run is also what would have caught 114's
+> hung-compiler case before an install was spent, which is the argument for
+> doing the cheap one first on any BASIC change.
+>
+> ***BOTH ANSWERS CAME OUT OF ONE `LIST`, AND THE CONTROL IS THE POINT***:
+> `'ZZ128GONE' not found` beside `'ZZ128TAIL%' invalid name` and
+> `'ZZ128UNK%1' invalid name`. **`ZZ128GONE` got into that list because a saved
+> list is a snapshot of IDS, not of records** — five were `SELECT`ed and
+> `SAVE.LIST`ed, then that one file was deleted from disk, so `GET.LIST`
+> restored an id whose record was genuinely gone. That is the ordinary
+> stale-saved-list case, not a contrivance, and it is the only clean way to get
+> a truly absent id into the same output as the present-but-unusable ones.
+> ***HAD `QPROC` BEEN CHANGED TO SAY "invalid name" ABOUT EVERYTHING, THAT ROW
+> WOULD HAVE GONE RED*** — asserted in both directions.
+>
+> # ***(HISTORICAL — THE CYCLE THIS DESCRIBED HAS RUN.) 128's WORDING HALF WAS BASIC AND UNBUILT.***
 >
 > ***128's RULING WAS GIVEN, WITHDRAWN AND REPLACED WITHIN ONE EXCHANGE, AND NO
 > CODE WAS WRITTEN FOR THE WITHDRAWN SHAPE.*** Owner first ruled *"automatic
