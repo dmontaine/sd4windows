@@ -468,7 +468,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
 1. **The free unit tests and `assert-current`** — seconds, no install, no
    elevation, no run token: `test-tiercounts-units`, `test-fixlist-units`,
    `test-verdict-units`, `test-sdtestuser-units`, `test-suiteonly-units`,
-   `test-retired-wording-units`, `check-stale-leads.py`. **Run these on every
+   `test-retired-wording-units`, `test-stemcoverage-units`,
+   `test-dirscoverage-units`, `check-stale-leads.py`. **Run these on every
    change.** A whole suite run has already been spent twice discovering what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
@@ -476,6 +477,16 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    (PRE_RELEASE 121, a ~19-minute find on a screen) fails here in a second
    instead. When you retire wording, register the old phrase and its
    replacement in that script's `$RETIRED` table, in the same commit.
+
+   ***THE LAST TWO WERE MISSING FROM THIS LIST UNTIL 2 Sep 2026, WHICH IS THE
+   DEFECT THEY BOTH EXIST TO CATCH.*** `test-stemcoverage-units` shipped 31 Aug
+   and `test-dirscoverage-units` on 2 Sep; neither was named here, so "run the
+   free tests" meant a list that did not include them. **Both are guards over
+   two files that describe one fact and are kept in step by hand** — the litter
+   sweep's stems against the runners, and `sd.iss`'s `[Dirs]` block against
+   `stage.py`'s directory lists — and *this list is a third instance of exactly
+   that shape.* **A new free guard goes in this sentence in the commit that
+   creates it**, the same rule as `assert-current`'s `$neverShipped`.
 2. **`-Only <step[,step]>`** — the step that decides your change. Both runners
    take it; names may omit `.ps1` and are case-insensitive. **Two names work
    either way — `-Only a,b` and `-Only 'a,b'` are equivalent since 31 Aug

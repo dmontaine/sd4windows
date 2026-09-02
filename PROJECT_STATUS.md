@@ -198,14 +198,41 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > was run after and names only `gplbld\sd.iss` — which is the expected red, a
 > cycle being owed again.
 >
-> ***TWO THINGS ARE THE OWNER'S AND WERE NOT TAKEN UNASKED.*** **(1) Four
-> directories — `$cred`, `os.users`, `os.users.dic`, `batch.jobs.dic` — are
-> protected only by the install writing records into them** (measured 1, 1, 5
-> and 3 entries), which is not a guarantee; a `[Dirs]` entry each would end it
-> for four lines, and the guard reports them loudly every run until then.
-> **(2) CLAUDE.md's tier-1 list names seven checks and omits BOTH
-> `test-stemcoverage-units` and `test-dirscoverage-units`** — the same drift, in
-> the file that tells the next session what to run.
+> ***BOTH OUTSTANDING QUESTIONS WERE THEN RULED THE SAME DAY — "your choice on
+> both ... as long as the directories are not needed and reinstalled when the
+> install after removal happens" — AND THE CONDITION DECIDED THE FIRST ONE.***
+>
+> **(1) THE FOUR CONTENT-PROTECTED DIRECTORIES NOW HAVE `[Dirs]` ENTRIES TOO**
+> — `$cred`, `os.users`, `os.users.dic`, `batch.jobs.dic`. ***HAVING CONTENT
+> DOES NOT MEET THE RULING***: it means the uninstaller does not TAKE the
+> directory, not that anything REINSTALLS it, so a site whose `$cred` happened
+> to be empty would lose it exactly as `cat` did and no later install would put
+> it back. **`[Dirs]` is the only one of the two mechanisms that heals.** The
+> guard's `content` exemption kind is deleted rather than emptied, with the
+> distinction kept as a comment, and an exemption whose `kind` it cannot verify
+> is now a **failure** rather than a typo. **10 of 11 at risk hold an entry, 1
+> exempt (`dumps`), 0 unprotected.**
+>
+> ***THE RULING'S OTHER HALF WAS CHECKED RATHER THAN ASSUMED***: `sd.iss:4465`
+> removes the database with `DelTree(DataPath, True, True, True)` from `[Code]`,
+> which never consults the uninstall log — so `uninsneveruninstall` cannot keep
+> anything the user asked to destroy. **Nothing needs them absent either**: a
+> `[Dirs]` entry only ever creates, and `secure-cred.ps1` and
+> `secure-osusers.ps1` both exit 2 on a missing path, so guaranteeing existence
+> can only move them from failure to success.
+>
+> **(2) CLAUDE.md's tier-1 list now names `test-stemcoverage-units` and
+> `test-dirscoverage-units` too.** Both had shipped without being added, so
+> *"run the free tests"* meant a list that excluded them — **the same
+> two-lists-kept-by-hand shape both guards exist to catch, in the file that
+> tells the next session what to run.** The rule that a new free guard is
+> registered there in the commit that creates it is written into that sentence.
+>
+> ***FOUR NEGATIVE CONTROLS, ALL RED WITH THE RIGHT MESSAGE***: entries removed
+> (names `$hold, cat, prt`), entries present without `uninsneveruninstall`, an
+> exemption relabelled to an unverifiable kind, and `secure-dumps.ps1` doctored
+> so it no longer creates — the last proving the machine-checked reason really
+> is checked. Every branch of the guard has now been exercised.
 >
 >
 > ***THAT IS THE THIRD TIME IN ONE SESSION A PROBE OF MINE REPORTED A DENIAL AS
