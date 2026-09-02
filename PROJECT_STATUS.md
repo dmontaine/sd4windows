@@ -141,7 +141,41 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 15, 2 Sep 2026 — ***A WITNESS RUN IS IN FLIGHT ON `Windows 11 - Test 10`. STEP 1 IS DONE; RESUME AT SNAPSHOT A.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 15, 2 Sep 2026 — ***THE WITNESS RUN IS COMPLETE. ALL FOUR STEPS RAN ON `Windows 11 - Test 10`. 74 AND 118 CLOSED; 120 STAYS OPEN WITH ITS FIX PROVED INCOMPLETE; 132 AND 133 FILED.*** ⇩⇩⇩
+>
+> ***THE FOUR RESULTS IN ONE PLACE.*** **74 — WITNESSED, CLOSED**: the
+> interactive uninstall left `sdusers,sdu_don` and took `sdssh`, `sdapi`,
+> `sdsshonly`, which is the row's own criterion, and the cycle could never have
+> supplied it (`cycle.ps1:497` is `/VERYSILENT`). **118 — WITNESSED, CLOSED, BOTH
+> HALVES MEASURED**: over-the-top install, `sshd_config` mtime `15:44:32`
+> unmoved and `sshd` process `4964` created `15:44:34`, predating it — file not
+> rewritten, service not bounced. **120 — ITS THREE DIRECTORIES PASS AND THREE
+> MORE OF THE SAME CLASS ARE STILL DESTROYED**: `cat`, `prt`, `$hold` all
+> `exists=False`, and only `cat` is hardened so only `cat` said so. **89A — the
+> API box was not offered and `SD-API-In-TCP` stayed `(no rule)` against a
+> control of 483 visible rules.**
+>
+> ***TWO NEW ENTRIES CAME OUT OF IT, AND NEITHER IS A REPEAT OF 120.*** **132,
+> `B`** — `SDSYS_PRESERVE` names ten directories and `[Dirs]` protects three,
+> hand-enumerated; the *"YOUR DATA IS UNTOUCHED"* box at `sd.iss:3954` is
+> generated from the ten-entry list, so three of its six named promises —
+> *anything you catalogued*, *the print queue*, *held output* — are false on
+> this path. **The fix is a tier-1 guard comparing the two lists, not more
+> names.** **133, `S`** — the closing box told the reader ssh was untouched on
+> step 3 while `sshd_config` had just been rewritten and `sshd` bounced; the
+> message is gated on `not SshWasAbsent` and the action on `not TrueUpgrade`,
+> which are independent. **118's defect on a path 118's fix does not reach.**
+>
+> ***ONE MEASURED THING IS UNEXPLAINED AND 132 IS BLOCKED ON IT***: `dumps` and
+> `$cred` are also preserved, also `entries=0`, and both SURVIVED. Until that is
+> understood, *"an empty preserved directory is taken by the uninstaller"* is
+> not the mechanism and a guard written against it would encode a guess.
+>
+> ***THE GUEST IS NOW: SD INSTALLED (over-the-top, `SD` service Running,
+> Automatic), ssh Running, API off, `cat`/`prt`/`$hold` MISSING.*** It is the
+> state 132 and 133 were found in, so **keep it until they are built** — and the
+> baseline clone `Windows 11 - SD ssh baseline` is untouched and is the re-run
+> rig.
 >
 > ***THE GUEST IS MID-SEQUENCE AND MUST NOT BE REBUILT.*** `Test 10` has the
 > **new** installer on it (`C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`,
@@ -152,18 +186,48 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ***RESUME IN THIS ORDER. DO NOT SKIP THE CLONE — IT BANKS A ~20-MINUTE
 > DOWNLOAD.***
 >
-> 1. **Snapshot A** (read-only, command below) — check it before banking a
->    baseline that might be broken.
-> 2. **Shut `Test 10` down and CLONE it.** That clone is "SD + ssh server,
+> ***ITEMS 1 AND 2 ARE DONE — 2 Sep 2026. RESUME AT ITEM 3, THE INTERACTIVE
+> UNINSTALL.*** Snapshot A clean (its reading is recorded below); the baseline
+> clone exists as ***`Windows 11 - SD ssh baseline`***, MAC `080027276562`,
+> hardware UUID `59d00c9d-…` shared with the Template as the licence needs, all
+> **three** shares inherited. **Checked across every registered guest: 7 VMs, 7
+> distinct MACs, no collision** — so it may run alongside the others.
+>
+> 1. ~~**Snapshot A** (read-only, command below)~~ — **DONE, clean.**
+> 2. ~~**Shut `Test 10` down and CLONE it.**~~ — **DONE.** That clone is "SD + ssh server,
 >    nothing else" and is the owner's re-run rig. `clonevm` refuses a running VM.
-> 3. Boot it back and do **step 2**: an **INTERACTIVE uninstall, KEEPING the
->    database** = **74**. Then `sdssh`, `sdapi`, `sdsshonly` gone, `sdusers`
->    still there.
+>    ***CLONE WITH `--options=keephwuuids` OR THE CLONE IS UNLICENSED*** — and
+>    **not** `keepallmacs`; the two are decided separately, see the rig section's
+>    "THE TWO CLONE OPTIONS ARE NOT A PAIR".
+> 3. ~~Boot it back and do **step 2**: an **INTERACTIVE uninstall, KEEPING the
+>    database** = **74**.~~ — ***DONE, AND 74 HOLDS.*** `sdssh`, `sdapi`,
+>    `sdsshonly` gone; `sdusers` and `sdu_don` still there. The accounts-removal
+>    offer was declined (**No**, its default) — it is a different branch and not
+>    part of 74.
 > 4. **Step 3**: reinstall, **database KEPT** = **120 + 89A**. Expect **no
 >    hardening warning**, `sdsys\bp`, `bp.out`, `batch.jobs` all present, the
 >    **API box NOT offered**, and `SD-API-In-TCP` unchanged.
+>    ***THE TASKS PAGE IS SHOWN ON THIS PATH AND THAT IS CORRECT*** —
+>    `SdWasInstalled` is false once the uninstall key is gone, so `TrueUpgrade`
+>    is false; `sd.iss:1443`'s comment covers exactly this case.
+>    ***AND THIS STEP IS EXPECTED TO MOVE `sshd_config`'s mtime.*** Record the
+>    new value: it, not snapshot A's, is what step 4 compares against.
 > 5. **Step 4**: install again over the top = **118**. `sshd_config` mtime must
->    **NOT** move from the value snapshot A records.
+>    **NOT** move ~~from the value snapshot A records~~ ***from the value STEP 3
+>    leaves. CORRECTED 2 Sep 2026 — SNAPSHOT A'S VALUE IS ALREADY DEAD AND
+>    COMPARING AGAINST IT WOULD FILE A FALSE FAILURE AGAINST 118.***
+>
+> ***WHY THE ANCHOR MOVED, BECAUSE THE ORIGINAL INSTRUCTION LOOKS RIGHT.***
+> `TrueUpgrade = DataTreeUpgrade and SdWasInstalled` (`sd.iss:1461`), and 118
+> gates `ApplyAllowGroups` on `not TrueUpgrade` (`sd.iss:3585`). **Step 2's
+> uninstall runs `RemoveAllowGroups`** — `sd.iss:1443` says so in as many words
+> — **so snapshot A's `14:59:00` was destroyed by design, not by a defect**, and
+> the witness measured it: mtime `14:59:00` → **`15:30:04`**, `AllowGroups line`
+> now **empty**. **Step 3 is a fresh install** (`SdWasInstalled` false) so
+> `ApplyAllowGroups` runs again and the mtime moves again, correctly. **Only
+> step 4 is a `TrueUpgrade`**, and only there must it hold still. A session that
+> took the instruction literally would score step 4 against `14:59:00`, see a
+> move it was told to treat as failure, and file against a fix that worked.
 >
 > ```
 > $o = '\\vboxsvr\xfer\witness-test10-1-after-install.txt'
@@ -182,6 +246,98 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > **ELEVATED on the guest.** Results come back through `\\vboxsvr\xfer` →
 > `C:\Users\dmont\sdxfer` on the host, so they are READ, not pasted.
+>
+> ***SNAPSHOT A IS TAKEN AND IT IS CLEAN — 2 Sep 2026 15:14:26, 598 bytes, 12
+> lines, `witness-test10-1-after-install.txt`. THE BASELINE IS SAFE TO CLONE.***
+> ***THE VALUE STEP 4 COMPARES AGAINST IS `sshd_config` mtime
+> `2026-09-02T14:59:00`.*** `sshd_config.before-sd` present, `sshd` **Running**,
+> `sdsys\bp`, `bp.out`, `batch.jobs`, `accounts` all True.
+> **API UNTICKED CONFIRMED AT REST** — `# APIPORT=4243` commented out in
+> `sd.conf`, `SD-API-In-TCP` **(no rule)**; that pair is the "unchanged" step 3
+> compares against, so step 3 expects **no rule**, not a rule with old scope.
+> ***ALL FIVE GROUPS ARE EXPECTED ON A FIRST INSTALL AND `sdapi` IS NOT A
+> LEAK*** — `sdapi,sdssh,sdsshonly,sdusers,sdu_don`: `sdusers` and `sdsshonly`
+> are unconditional `[Run]` steps (`sd.iss:702`, `:726`), `sdssh` and `sdapi`
+> come from `SyncRouteGroups`, **deliberately ungated** (`sd.iss:3564`, its own
+> rationale at `:3579`), and `sdu_don` is adopt's per-user group
+> (`CREATEA:545`). **The tick governs the route, not the group's existence.**
+>
+> ### ***THE STEP 2 WITNESS BLOCK — ELEVATED on the guest, AFTER the interactive uninstall***
+>
+> **Deliberately the same probes as snapshot A so the two files diff against
+> each other**, plus three the uninstall is the only step that can answer.
+> Parse-checked before hand-over: 96 tokens, 0 errors, no BOM, no CR.
+>
+> ```
+> $o = '\\vboxsvr\xfer\witness-test10-2-after-uninstall.txt'
+> "=== STEP 2 AFTER INTERACTIVE UNINSTALL, DATABASE KEPT  Test 10  $(Get-Date -Format s) ===" | Set-Content $o -Encoding utf8
+> "sd groups : $((Get-LocalGroup | Where-Object Name -like 'sd*' | ForEach-Object Name) -join ',')" | Add-Content $o
+> foreach ($d in 'bp','bp.out','batch.jobs','accounts') { "sdsys\$d : $(Test-Path "C:\ProgramData\SD\sdsys\$d")" | Add-Content $o }
+> "ProgramData\SD kept : $(Test-Path 'C:\ProgramData\SD')" | Add-Content $o
+> "Program Files\SD gone : $(-not (Test-Path 'C:\Program Files\SD'))" | Add-Content $o
+> "sdwind service : $(if (Get-Service sdwind -ErrorAction SilentlyContinue) { (Get-Service sdwind).Status } else { '(no service)' })" | Add-Content $o
+> $c = Get-Item 'C:\ProgramData\ssh\sshd_config' -ErrorAction SilentlyContinue
+> "sshd_config mtime : $(if($c){$c.LastWriteTime.ToString('s')}else{'(no file)'})" | Add-Content $o
+> "sshd_config.before-sd : $(Test-Path 'C:\ProgramData\ssh\sshd_config.before-sd')" | Add-Content $o
+> "AllowGroups line : $((Select-String -Path 'C:\ProgramData\ssh\sshd_config' -Pattern '^AllowGroups' -ErrorAction SilentlyContinue).Line)" | Add-Content $o
+> "APIPORT in sd.conf : $((Select-String -Path 'C:\ProgramData\SD\sd.conf' -Pattern 'APIPORT' -ErrorAction SilentlyContinue | ForEach-Object { $_.Line.Trim() }) -join ' | ')" | Add-Content $o
+> $f = Get-NetFirewallRule -DisplayName 'SD-API-In-TCP' -ErrorAction SilentlyContinue
+> "SD-API-In-TCP : $(if($f){($f | Get-NetFirewallAddressFilter).RemoteAddress}else{'(no rule)'})" | Add-Content $o
+> "sshd service : $((Get-Service sshd -ErrorAction SilentlyContinue).Status)" | Add-Content $o
+> ```
+>
+> ***SCORE IT AGAINST 74***: `sdssh`, `sdapi`, `sdsshonly` **gone** and
+> `sdusers` **still there**; `sdu_don` is not part of 74's claim either way.
+> `ProgramData\SD kept` **True** and `Program Files\SD gone` **True** are what
+> *"keeping the database"* means, and `sdwind service` should read
+> **`(no service)`**. **`sshd service` must still be `Running`** — the uninstall
+> is not entitled to take ssh away from the machine.
+>
+> ***IT RAN, 2 Sep 2026 15:32:59, AND EVERY ONE OF THOSE HELD — 74 IS
+> WITNESSED.*** `witness-test10-2-after-uninstall.txt`, 625 bytes, 15 lines.
+> `sd groups : sdusers,sdu_don` (the three route groups gone), all four
+> `sdsys\…` **True**, `ProgramData\SD kept` **True**, `Program Files\SD gone`
+> **True**, `sdwind service` **`(no service)`**, `sshd service` **Running**,
+> `SD-API-In-TCP` **(no rule)** and `APIPORT` still commented — the last two
+> unmoved from snapshot A, as an uninstall that never had the API on should
+> leave them.
+>
+> ***AND THE `sdusers` DOUBT RAISED AGAINST `sd.iss:1965` IS WITHDRAWN — THE
+> SHIPPED TEXT IS RIGHT AND THE GREP WAS READING HALF A SENTENCE.*** `:1966`
+> says it outright: *"sdusers stays because deleting it would orphan the
+> permissions on your database. The other three groups SD Core made — sdssh,
+> sdapi and sdsshonly — ARE removed, without asking"* — which is exactly what
+> the witness shows. **`:1965` is the KEPT list, not the removed list.** Filing
+> that from the grep alone would have been an invented defect against correct
+> shipped wording.
+>
+> ***THE STEP 1 AND STEP 2 WITNESSES WERE RUN UNELEVATED, MEASURED AFTER THE
+> FACT — `elevated : False`, `VIRTUAL\don`. BOTH VERDICTS STILL STAND, AND ONE
+> LINE IN THEM DOES NOT.*** Everything 74 rests on is a **positive** reading,
+> and a denial can only turn a `True` into a `False`: three route groups absent
+> from a list that still showed `sdusers,sdu_don`, four `sdsys\…` `True`,
+> `sshd_config`'s mtime read successfully (which also proves `ProgramData\ssh`
+> is readable unelevated), `sshd` `Running`.
+>
+> ***THE EXCEPTION IS `SD-API-In-TCP : (no rule)`, WHICH IS A NULL CASE THE
+> BLOCK FAILED TO REFUSE.*** `Get-NetFirewallRule -ErrorAction SilentlyContinue`
+> with an `else` branch prints `(no rule)` for **"no such rule"** and for
+> **"could not look"** alike. It cost nothing on steps 1 and 2 — the API was
+> never on — but **steps 3 and 4 both assert that rule is UNCHANGED**, and an
+> unchanged-looking answer produced by a failed lookup is exactly the false
+> green §0 is about. **The step 3 block therefore enumerates once, prints
+> `firewall CONTROL : <n> rules visible`, and filters in memory**; `n = 0` means
+> the verdict line beneath it is void. It also records its own
+> `ran as … elevated=` line, so no later reader has to ask this question again.
+> ***AND SNAPSHOT A CARRIES A LEAD ON THE RESTART, WHICH IS WHY IT IS WORTH
+> READING RATHER THAN FILING.*** `AllowGroups sdssh VIRTUAL\sdssh Administrators
+> VIRTUAL\Administrators` — `allow-ssh-groups.ps1:134` composes that prefix from
+> `$env:COMPUTERNAME` **at write time**, and the write is `ApplyAllowGroups`
+> inside the 14:59 install, i.e. **after** the restart. So the machine was still
+> named `VIRTUAL` afterwards, and a `Rename-Computer -Restart` would have left a
+> different name. ***THAT WEAKENS THE RENAME CANDIDATE BELOW WITHOUT KILLING
+> IT*** — it does not exclude a rename issued and not applied. `VIRTUAL` itself
+> is the shared clone hostname (§427, §1300), not a finding.
 >
 > ***THE GUEST RESTARTED ITSELF DURING STEP 1, BEFORE THE PASSWORD WINDOW, AND
 > THE CAUSE IS NOT CONFIRMED.*** **The installer is RULED OUT, measured**:
@@ -3881,10 +4037,60 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **The Template is the clone source, and cloning is the documented way to get
 > another attempt** (24 Aug: `clonevm`, ~25 s, `--options keephwuuids,keepallmacs`).
 >
+> ***THE TWO CLONE OPTIONS ARE NOT A PAIR AND MUST BE DECIDED SEPARATELY —
+> OWNER, 2 Sep 2026, CORRECTING A SESSION THAT DROPPED BOTH.*** The string above
+> reads as one recipe and is why they got treated as one.
+>
+> - ***`keephwuuids` IS REQUIRED: WITHOUT IT THE CLONE IS UNLICENSED.*** Windows
+>   ties its digital licence to the hardware UUID, so a fresh one is new
+>   hardware and the guest deactivates. **This is the owner's correction and it
+>   is not negotiable against tidiness.**
+> - **`keepallmacs` is NOT wanted here.** A duplicate MAC is why
+>   `sdStandalone-C1` carried *"never run both at once"* (§70), and §427 values
+>   the Test guests being able to run concurrently. Let VirtualBox generate one.
+>
+> ***MEASURED 2 Sep 2026 ACROSS EVERY REGISTERED GUEST, WHICH IS WHAT SETTLED
+> IT*** — `Template`, `Test 10`, `Test A`, `Test B`, `Test C` **all share
+> hardware UUID `59d00c9d-e374-4cbd-aa87-c4cf197890aa`** and **all five MACs are
+> distinct**. So `keephwuuids` without `keepallmacs` is already the practice on
+> this machine; nothing here changes it, it was simply never written down with
+> its reason. **VBoxManage is 7.2.14 and its own usage prints `--options=`**, so
+> use the `=` form:
+>
+> ```
+> "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" clonevm "<source>" --name "<new>" --options=keephwuuids --register
+> ```
+>
 > | share | host | guest | mode |
 > |---|---|---|---|
-> | `sdout` | `C:\Users\dmont\sdout` | `Z:` | read-only — holds `sd-setup-W1.0-0.exe`, **29 Aug 22:04:17** |
+> | `sdout` | `C:\Users\dmont\sdout` | `Z:` | read-only — holds `sd-setup-W1.0-0.exe`, **2 Sep 14:18:50, 4,954,811 bytes** (measured 2 Sep; the cell read *29 Aug 22:04:17* until then) |
 > | `xfer` | `C:\Users\dmont\sdxfer` | `Y:` | read-write — results come back to the host as text |
+>
+> ***THE LETTERS IN THIS TABLE ARE STALE AND `Z:` IS NOT `sdout` — USE THE UNC
+> PATH. 2 Sep 2026.*** `Z:\sd-setup-W1.0-0.exe` fails with
+> `CommandNotFoundException`, which reads like a missing file and is not one.
+> **Measured on `Test 10`: the session was `elevated : False`, `VIRTUAL\don`,
+> and its filesystem drives are `C,D,P,X,Y,Z` — so `Z:` EXISTS and simply is
+> not the share holding the installer.** The likely cause is that the table
+> above dates from the **two**-share era and `Template` now maps **three**
+> (`sdout`, `xfer`, `gplbld`), so the auto-mounted letters shifted; **the
+> mapping is not re-derived here because `Get-PSDrive`'s `DisplayRoot` answers
+> it in one line on the guest and a written-down letter is what went stale in
+> the first place.**
+>
+> ***AN EARLIER VERSION OF THIS NOTE BLAMED UAC'S LINKED TOKEN AND THAT WAS
+> WRONG*** — a guess written as a mechanism, disproved by the probe in the same
+> exchange. Kept visible because the wrong explanation is more plausible than
+> the right one and the next session will reach for it too. **`\\vboxsvr\sdout\…`
+> and `\\vboxsvr\xfer\…` work regardless**, which is why every witness block
+> here is written that way and why none of them ever hit this.
+>
+> **And for an INSTALLER, copy it to the guest's local disk first rather than
+> running it off the share** — §427 records a *"Windows cannot access
+> `\\vboxsvr\sdout`"* Network Error on `Test 6` **found with an installer
+> already open**. `Copy-Item` then check `.Length` against the known size before
+> running it; a short copy is otherwise indistinguishable from the real thing
+> until it fails somewhere expensive.
 >
 > ***THE INSTALLER ALREADY CARRIES 39's FIX AND NEEDS NO CYCLE*** — built 22:04:17,
 > after `sd.iss` (18:52), `remove-sdaccounts.ps1` (18:48) and `stage.py` (18:51),
