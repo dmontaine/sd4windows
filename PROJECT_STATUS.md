@@ -213,11 +213,21 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > and **`Beardog`** is nothing to do with this work. **Count the guests, not the
 > list** — every MAC is unique either way and nothing collides.
 >
-> ***WHAT EACH OF THE FIVE IS FOR, SO NONE IS SPENT BY ACCIDENT***: `Test 4` is
-> **used** — SD installed, ssh declined, `zz125` created (67, 126, 125's ssh half
-> came off it). `Test 3` is **used**, from earlier work. `Test 6` is the **next
-> run**, and must be installed with both boxes unticked. `Test 5` and `Test 7`
-> are **clean spares** — a missed screen should cost a spare, not a rebuild.
+> ***WHAT EACH GUEST IS FOR, SO NONE IS SPENT BY ACCIDENT — 2 Sep 2026, END OF DAY.***
+>
+> | guest | state | shares |
+> |---|---|---|
+> | `Test 3` | **used**, from earlier work | — |
+> | `Test 4` | **used** — SD installed, ssh declined, `zz125` created. 67, 126 and 125's ssh half came off it | yes |
+> | `Test 5` | **clean spare**, never installed | yes |
+> | `Test 6` | **used** — both boxes unticked; 125's 10162, and 130's three primary sites | yes |
+> | `Test 7` | **used** — both boxes unticked; 130's item 1 | yes |
+> | `Test 8` | **clean spare**, created 2 Sep, MAC `080027E3DC77` | **yes, added the same day** |
+>
+> ***A FRESH CLONE IS NOT READY UNTIL ITS SHARES ARE ADDED*** — `Test 8` came up
+> with **0** mappings, exactly as `Test 6` and `Test 7` did, and that is what the
+> Network Error on `Test 6` was. **Add them before the guest is needed, not
+> while an install is waiting**, and remember the guest must be powered off.
 >
 > ***DO NOT RUN THE CYCLE WHILE THAT GUEST RUN IS IN FLIGHT*** — it rebuilds the
 > `sdout` installer the guest installs from. Cycle first, then the guest.
