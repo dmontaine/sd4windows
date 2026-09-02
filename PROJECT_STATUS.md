@@ -183,6 +183,31 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > BETTER EXPLANATION: 1 ENTRY, NON-EMPTY, LEFT ON CONTENT.*** Every directory
 > in the sweep now has a measured reason and none is unexplained.
 >
+> ***AND THEN 132 WAS BUILT ON THE OWNER'S INSTRUCTION — "build 132 with dirs
+> entries for cat, prt and $hold". BOTH HALVES ARE IN; NEITHER IS WITNESSED.***
+> Three `[Dirs]` entries in `sd.iss` with `uninsneveruninstall`, and
+> **`gplbld/test-dirscoverage-units.ps1`**, which reads `SDSYS_EMPTY` and
+> `SDSYS_PRESERVE` out of `stage.py` and the `[Dirs]` block out of `sd.iss` and
+> fails anything in both python lists with neither an entry nor a declared
+> exemption. **Proved red both ways before green** — three lines removed gives
+> exit 1 naming exactly `$hold, cat, prt`; three lines present *without*
+> `uninsneveruninstall` also gives exit 1, because that flag is tested rather
+> than assumed. **Four null cases exit 2, plus a `bp` canary.** Live: **11 at
+> risk, 6 with entries, 5 declared exempt, 0 unprotected.** It is on
+> `assert-current`'s `$neverShipped` in the same commit, and `assert-current`
+> was run after and names only `gplbld\sd.iss` — which is the expected red, a
+> cycle being owed again.
+>
+> ***TWO THINGS ARE THE OWNER'S AND WERE NOT TAKEN UNASKED.*** **(1) Four
+> directories — `$cred`, `os.users`, `os.users.dic`, `batch.jobs.dic` — are
+> protected only by the install writing records into them** (measured 1, 1, 5
+> and 3 entries), which is not a guarantee; a `[Dirs]` entry each would end it
+> for four lines, and the guard reports them loudly every run until then.
+> **(2) CLAUDE.md's tier-1 list names seven checks and omits BOTH
+> `test-stemcoverage-units` and `test-dirscoverage-units`** — the same drift, in
+> the file that tells the next session what to run.
+>
+>
 > ***THAT IS THE THIRD TIME IN ONE SESSION A PROBE OF MINE REPORTED A DENIAL AS
 > A VALUE***, after `SD-API-In-TCP : (no rule)` and `sshd process started :`
 > (empty). **The shape is always the same — `-ErrorAction SilentlyContinue`
