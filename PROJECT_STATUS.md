@@ -163,8 +163,19 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 8 and does not, so it was wired in during the `b99` era and broke on the next
 > run rather than the one that wired it. **The cap protected nothing**
 > (`MAX_ID_LEN` 255, `gplsrc/sddefs.h:281`) and is now `{1,14}`; the CASE half
-> of that refusal is the real one and is kept. **Full detail and the one thing
-> left for the owner are in PRE_RELEASE_FIXES 112.**
+> of that refusal is the real one and is kept.
+>
+> ***AND THE SCOPE CALL WENT THE OTHER WAY: `sdvv` IS NOT IN `$stems`.*** A stem
+> is a claim the sweep will meet the name, and this family only names SD files
+> inside the SDSYS account directory. It is declared in a new **`$notProfiles`**
+> in the same file — **in the SWEEP, not beside the composition in the runner**,
+> because the discipline that has failed five times is *"open
+> `clean-test-profiles.ps1` when you invent a family"*, and a runner-side
+> declaration would let the next author skip that file and still go green.
+> `test-stemcoverage-units` reads it, **prints every exemption**, and refuses a
+> name in both lists, an unparsable list, or a declared family the rule can
+> already reach. **Proved red and green both ways. Full detail in
+> PRE_RELEASE_FIXES 112.**
 >
 > ### ***`b102` IS GREEN IN BOTH HALVES, AND THE TWO NEW STEPS BOTH MEASURED***
 >

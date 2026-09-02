@@ -45194,3 +45194,50 @@ ever failed on it.
 
 **Open 14**, read from `test-fixlist-units` (242 passed / 0 failed), never from
 prose. **`b101` and `b102` are both spent; next run token `b103`.**
+
+## 2 Sep 2026 — the scope call: a stem is a CLAIM, so `sdvv` is declared rather than listed
+
+Owner delegated the decision. `sdvv` comes **out** of `clean-test-profiles.ps1`'s
+`$stems` and into a new **`$notProfiles`**. The reflex fix — add the stem — had
+been made that morning and is withdrawn.
+
+***WHAT DECIDED IT WAS TWO CONCRETE COSTS, NOT TIDINESS.*** Adding the stem put
+two invented names into the `-SelfTest` **must-match** list, whose own header
+promises every entry is a name really produced **as a profile**; and it widened
+a regex the sweep's 26 Aug note warns is one step from being reused for a user
+or group sweep. `verify-vocverbs` creates SD files inside the SDSYS account
+directory (`VerifyInstall2:143`, *"files, no account"*) and deletes them in its
+own section 9, so no `sdvv*` name can ever reach `C:\Users`.
+
+***THE EXEMPTION LIVES IN THE SWEEP, NOT BESIDE THE COMPOSITION IN THE RUNNER,
+AND THAT IS THE DESIGN RATHER THAN A PLACEMENT.*** The discipline that has
+failed five times over is *"open `clean-test-profiles.ps1` when you invent a
+family"* — `sddr`, `sdgate`, `sdtu`, `sdprof`, `sdsw` and `sdtc` were every one
+of them a session that never opened it. A runner-side declaration would let the
+next author skip that file again **and still go green**; declaring it in the
+sweep keeps the visit and only changes what they write once they arrive.
+
+`test-stemcoverage-units` reads `$notProfiles`, **prints every exemption so none
+is silent**, and refuses three ways: an unparsable list (exit 2), a name in
+**both** lists (exit 2), and a declared family the rule can **already reach**
+(exit 2 — that one catches a shorter stem swallowing a longer name, which the
+both-lists test cannot see). ***PROVED RED AND GREEN RATHER THAN ARGUED***: put
+`sdvv` back in `$stems` and the checker refuses exit 2 **and** the sweep's own
+fixtures go red 2 of 35, so the two lists enforce each other; empty
+`$notProfiles` and the checker fails exit 1 naming `sdvv`. Green: **20 of 21
+covered, 1 declared no-profile, 0 not**, `-SelfTest` **39/39 and 35/35**, whole
+tier-1 set exit 0.
+
+## 2 Sep 2026 — 102 orphan test profiles found, 74 removed, 28 held by loaded hives
+
+Nothing had swept since roughly `b81`, because `verify-createaccount`
+deliberately leaves what it makes. **102 of the 105 directories under
+`C:\Users` matched the sweep pattern**, every one an orphan; only `dmont`,
+`Public` and `b48adm` were outside it, which is the narrow-stem design holding.
+
+`clean-test-profiles.ps1` elevated: **removed 74, failed 0**, and **skipped 28
+as STUCK HIVE** — the whole `b100` and `b102` families, whose accounts are gone
+but whose registry hives were never unloaded. It **exits non-zero on purpose**
+so a partial sweep cannot be read as a finished one, and prints each stuck SID
+with the two ways out (reboot, or `reg unload`). **A second pass is owed after
+the next restart.**
