@@ -141,7 +141,60 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 14, 2 Sep 2026 — ***118 AND 120 ARE BUILT AND UNWITNESSED. A CYCLE IS OWED, THEN ONE GUEST SESSION WITNESSES FOUR ENTRIES.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 15, 2 Sep 2026 — ***A WITNESS RUN IS IN FLIGHT ON `Windows 11 - Test 10`. STEP 1 IS DONE; RESUME AT SNAPSHOT A.*** ⇩⇩⇩
+>
+> ***THE GUEST IS MID-SEQUENCE AND MUST NOT BE REBUILT.*** `Test 10` has the
+> **new** installer on it (`C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`,
+> 4,954,811 bytes, built 2 Sep **14:18:50** — it carries 118, 120 and 89A).
+> Step 1 was installed with **ssh server TICKED, ssh-remote UNTICKED, API
+> UNTICKED**. Nothing else has been done to it.
+>
+> ***RESUME IN THIS ORDER. DO NOT SKIP THE CLONE — IT BANKS A ~20-MINUTE
+> DOWNLOAD.***
+>
+> 1. **Snapshot A** (read-only, command below) — check it before banking a
+>    baseline that might be broken.
+> 2. **Shut `Test 10` down and CLONE it.** That clone is "SD + ssh server,
+>    nothing else" and is the owner's re-run rig. `clonevm` refuses a running VM.
+> 3. Boot it back and do **step 2**: an **INTERACTIVE uninstall, KEEPING the
+>    database** = **74**. Then `sdssh`, `sdapi`, `sdsshonly` gone, `sdusers`
+>    still there.
+> 4. **Step 3**: reinstall, **database KEPT** = **120 + 89A**. Expect **no
+>    hardening warning**, `sdsys\bp`, `bp.out`, `batch.jobs` all present, the
+>    **API box NOT offered**, and `SD-API-In-TCP` unchanged.
+> 5. **Step 4**: install again over the top = **118**. `sshd_config` mtime must
+>    **NOT** move from the value snapshot A records.
+>
+> ```
+> $o = '\\vboxsvr\xfer\witness-test10-1-after-install.txt'
+> "=== STEP 1 AFTER INSTALL  Test 10  $(Get-Date -Format s) ===" | Set-Content $o -Encoding utf8
+> "sd groups : $((Get-LocalGroup | Where-Object Name -like 'sd*' | ForEach-Object Name) -join ',')" | Add-Content $o
+> foreach ($d in 'bp','bp.out','batch.jobs','accounts') { "sdsys\$d : $(Test-Path "C:\ProgramData\SD\sdsys\$d")" | Add-Content $o }
+> $c = Get-Item 'C:\ProgramData\ssh\sshd_config' -ErrorAction SilentlyContinue
+> "sshd_config mtime : $(if($c){$c.LastWriteTime.ToString('s')}else{'(no file)'})" | Add-Content $o
+> "sshd_config.before-sd : $(Test-Path 'C:\ProgramData\ssh\sshd_config.before-sd')" | Add-Content $o
+> "AllowGroups line : $((Select-String -Path 'C:\ProgramData\ssh\sshd_config' -Pattern '^AllowGroups' -ErrorAction SilentlyContinue).Line)" | Add-Content $o
+> "APIPORT in sd.conf : $((Select-String -Path 'C:\ProgramData\SD\sd.conf' -Pattern 'APIPORT' -ErrorAction SilentlyContinue | ForEach-Object { $_.Line.Trim() }) -join ' | ')" | Add-Content $o
+> $f = Get-NetFirewallRule -DisplayName 'SD-API-In-TCP' -ErrorAction SilentlyContinue
+> "SD-API-In-TCP : $(if($f){($f | Get-NetFirewallAddressFilter).RemoteAddress}else{'(no rule)'})" | Add-Content $o
+> "sshd service : $((Get-Service sshd -ErrorAction SilentlyContinue).Status)" | Add-Content $o
+> ```
+>
+> **ELEVATED on the guest.** Results come back through `\\vboxsvr\xfer` →
+> `C:\Users\dmont\sdxfer` on the host, so they are READ, not pasted.
+>
+> ***THE GUEST RESTARTED ITSELF DURING STEP 1, BEFORE THE PASSWORD WINDOW, AND
+> THE CAUSE IS NOT CONFIRMED.*** **The installer is RULED OUT, measured**:
+> `sd.iss:2033` sets `NeedsRestart := False`, there is no `AlwaysRestart` /
+> `RestartIfNeededByRun` / `restartreplace` anywhere, and `install-ssh.ps1:77`
+> *prints* "RESTART REQUIRED" and `exit 2` rather than acting. **Most likely
+> Windows Update** (OpenSSH Server is a Feature-on-Demand pulled from WU). **The
+> other candidate is a `Rename-Computer -Restart` handed over for the NEW clones
+> and possibly run on this one** — establish which before filing anything.
+> ***WHAT IT COST***: the closing box appeared, so the installer's post-install
+> code including `ApplyAllowGroups` completed; what was interrupted is the
+> window that opens AFTER the installer — the password step — so `don` probably
+> has no SD password. **Recoverable, and none of the four witnesses need it.**
 >
 > ***OPEN 13*** — 16, 65, 66, 70, 74, 80, 89, 93, 96, 102, 114, 118, 120.
 > ***FOUR OF THEM ARE B AND THEY ARE WHAT GATES W1.0-0: 65, 80, 93, 120.***
