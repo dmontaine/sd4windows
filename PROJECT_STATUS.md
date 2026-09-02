@@ -301,6 +301,43 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `:1178-1187`, so it is also **UPSTREAM_FIXES 35**. **Open count 22; next free
 > PRE_RELEASE id 129.**
 >
+> # ***THE CYCLE RAN. 127 AND 128 ARE INSTALLED; 128 IS WITNESSED AND OWES ONE RULING; 127's WITNESS IS THE NEXT ELEVATED SESSION.***
+>
+> ***THE CYCLE IS CONFIRMED RATHER THAN TAKEN ON TRUST***: `assert-current`
+> **exit 0**, *"the installed tree matches source"*, log
+> `cycle-20260902-003922.log` (626 KB), installed `sd.exe` **`1d908330609d69cd`**
+> byte-identical to the built one, and both edited scripts present in
+> `C:\Program Files\SD` carrying their new labels.
+>
+> ***128 WITNESSED, 10 OF 10, UNELEVATED IN `don`'s OWN BP*** — `SELECT BP`
+> answered **4 record(s) selected** over four planted fixtures and `LIST BP`
+> printed `=` (from `%E`) and `ZZ128PLAIN`. **The discriminator is
+> `ZZ128UNK%1` coming back whole**: the old loop would have returned
+> `ZZ128UNK`, so this is positive evidence the new branch ran, not merely the
+> absence of a crash.
+>
+> ***AND THE INSTRUMENT'S FIRST RUN WAS VOID, WHICH IS THE CONTROL WORKING.***
+> `LIST.ITEM` printed nothing and **the control row failed beside the
+> subjects** — that is what said the readout was broken rather than the
+> product. Had the control passed while the subjects failed, the honest
+> reading would have been a regression. `LIST BP` replaced it.
+>
+> ***ONE RULING IS OWED ON 128 AND IT IS WHY THE ROW IS NOT STRUCK.*** The same
+> transcript ends `'ZZ128TAIL%' not found` / `'ZZ128UNK%1' not found`, because
+> `map_t1_id()` re-encodes `%` as `%P`. **The ids are now reported truthfully
+> and still do not re-open.** That is strictly better than before on every axis
+> — no memory unsafety, no collision, a plain *not found* instead of a silent
+> wrong answer — **but whether such a file should instead be SKIPPED (so
+> `SELECT` says 2 and never names it) is a behaviour choice, not a defect, and
+> it is the owner's.** One line either way.
+>
+> ***127's WITNESS IS HOST-DOABLE AND NEEDS ELEVATION*** — in an elevated
+> `sd.exe`: `remote.api` must now say **`lines  :`** where it said `before :`,
+> and `ssh.server` must no longer print **`state` twice**. ***AND 124's 10144
+> PROMPT RIDES THE SAME SESSION***: `ssh.server remove` then answer **`n`**
+> (10145 aborts, nothing changes). **A stray `y` costs a reboot and a
+> ~19-minute reinstall**, which is why the answer is written here beside it.
+>
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,
