@@ -468,8 +468,14 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
 1. **The free unit tests and `assert-current`** — seconds, no install, no
    elevation, no run token: `test-tiercounts-units`, `test-fixlist-units`,
    `test-verdict-units`, `test-sdtestuser-units`, `test-suiteonly-units`,
-   `check-stale-leads.py`. **Run these on every change.** A whole suite run has
-   already been spent twice discovering what one of them names in a second.
+   `test-retired-wording-units`, `check-stale-leads.py`. **Run these on every
+   change.** A whole suite run has already been spent twice discovering what one
+   of them names in a second. **`test-retired-wording-units` is the wording
+   lint**: it scans every message file and shipped script for phrases that were
+   deliberately reworded, so a fix that lands in one copy and misses another
+   (PRE_RELEASE 121, a ~19-minute find on a screen) fails here in a second
+   instead. When you retire wording, register the old phrase and its
+   replacement in that script's `$RETIRED` table, in the same commit.
 2. **`-Only <step[,step]>`** — the step that decides your change. Both runners
    take it; names may omit `.ps1` and are case-insensitive. **Two names work
    either way — `-Only a,b` and `-Only 'a,b'` are equivalent since 31 Aug

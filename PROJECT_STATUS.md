@@ -141,6 +141,50 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***THE OWED CYCLE RAN GREEN; 116 WITNESSED ON THE HOST; 121 AND 122 FILED, 121 FIXED IN SOURCE. A CYCLE IS OWED AGAIN.*** ⇩⇩⇩
+>
+> ***THE INSTALL IS STALE ON PURPOSE: `messages/10148` CHANGED AFTER THE CYCLE.*** The
+> owed cycle ran green this session — **install 16:55:19, `sd.exe`
+> `517019EE20D2BD0C`, `assert-current: the installed tree matches source`** — which
+> witnessed the build for **113/112** and closed the compile question. Then 121's
+> fix edited `sdsys/messages/10148`, so `assert-current` **is expected to FAIL now**.
+> First thing next session, in an **elevated PowerShell**:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ***WHAT THE NEW CYCLE MUST WITNESS***: **121** — `ssh.server remove` should now
+> print, in message 10148, the reworded paragraph (*"running the SD INSTALLER on
+> this machine again … stops rather than guess … ssh.server install is NOT
+> affected"*) with **no "refuse to install here again"**. Read it off a screen,
+> then close 121. On the HOST, `ssh.server remove` only STAGES the removal
+> (`sshd.exe` stays Running until reboot), so restore with `ssh.server install`
+> and do not reboot between — but note **122**: that install re-downloads the whole
+> capability (~19 min) even though nothing was removed.
+>
+> ***116 IS WITNESSED — CLOSE IT.*** This session ran `ssh.server remove` on the
+> **development host** and read `remove-ssh.ps1`'s corrected paragraph off the
+> screen. 116 was about that script's copy; it is done. (121 is the *message*
+> copy the same reword missed.)
+>
+> ***NEW TIER-1 CHECK: `test-retired-wording-units.ps1`, 9/9, WIRED INTO CLAUDE.md's
+> tier-1 list.*** It scans every message file and shipped script for phrases that
+> were deliberately reworded and fails if one reappears in any copy — it named
+> `10148` in a second before the reword. **When you retire wording, add the old
+> phrase + replacement to its `$RETIRED` table in the same commit.** It caught the
+> exact class that cost this session a ~19-min ssh reinstall to find on a screen.
+>
+> ***122'S OPEN QUESTION IS ANSWERED***: after `ssh.server install` re-downloaded,
+> `Get-WindowsCapability … State` read **`Installed`** and `sshd` Running/Automatic,
+> so the staged removal was cancelled and the host's ssh survives a reboot. 122 is
+> a pure inefficiency, not an illusory restore.
+>
+> **Tier-1 all green this session**: fixlist **241/0**, verdict 140/140,
+> suiteonly 48/48, tiercounts 15/15, sdtestuser 54/0, retired-wording **9/9**,
+> check-stale-leads exit 0. ***NEXT PRE_RELEASE ID: 123. NEXT RUN TOKEN: `b101`***
+> (no suite ran this session).
+>
 > # ⇩⇩⇩ HANDOFF 10, 1 Sep 2026 — ***THE VM RUN IS FINISHED. 78, 76, 88, 117 AND 119 CLOSED; 116-120 FILED. ONE CYCLE IS OWED AND IT IS THE FIRST THING TO DO.*** ⇩⇩⇩
 >
 > # ***START HERE: RUN THE CYCLE. NOTHING BELOW IS IN FLIGHT AND NOTHING IS HALF-BUILT.***

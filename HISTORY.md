@@ -27,6 +27,40 @@ corrected.
 
 ---
 
+## 1 Sep 2026 — the owed cycle, 116 witnessed on the host, and a wording lint born from 121
+
+Covers the commit that adds `gplbld/test-retired-wording-units.ps1`.
+
+The owed cycle from Handoff 10 ran green (install 16:55:19, `sd.exe`
+`517019EE20D2BD0C`, `assert-current` exit 0), witnessing the build for 113/112.
+Then `ssh.server remove` was run on the **development host** to witness 116's
+reworded `remove-ssh.ps1` paragraph on a screen — 116 **closed**.
+
+**That run surfaced two new defects.** The unprefixed block after the script's
+output was message **10148**, which still said *"SD will refuse to install here
+again"* — the exact wording 116 had retired in `remove-ssh.ps1` but not in the
+message copy (116's pointer list omitted 10148; 115's owns it). Filed as **121**
+and fixed in source by rewording 10148 to mirror `remove-ssh.ps1:142-150`.
+Separately, restoring the staged removal with `ssh.server install` re-downloaded
+the whole OpenSSH capability (~19 min) although `sshd.exe` was still present and
+Running — filed as **122**; `install-ssh.ps1:46` guards on capability State, not
+on whether the server works. 122's open question was then answered: after the
+re-download `Get-WindowsCapability … State` read `Installed`, so the staged
+removal was cancelled — a pure inefficiency, not an illusory restore.
+
+**The lint is the durable part.** 121 was a "fixed one copy, missed the other"
+miss that cost a ~19-minute reinstall to find on a screen; it was catchable off
+disk. `test-retired-wording-units.ps1` (tier-1, 9/9) scans every message file
+and shipped script for retired phrases and fails if one reappears — it named
+`10148` in a second. Comments are stripped first because this tree quotes the
+old wording beside the fix (`remove-ssh.ps1:123`). Register the old phrase +
+replacement in its `$RETIRED` table when reworking wording. Wired into
+CLAUDE.md's tier-1 list.
+
+Still open: 121 wants the next cycle to ship 10148 and one more `ssh.server
+remove` to read the new message on a screen; 122 is not started. The 10148 edit
+leaves `assert-current` red until that cycle.
+
 ## 26 Aug 2026 — Sixty-first session, part 3: the documentation gets its own repository, and one caution here was wrong
 
 **OWNER'S DECISION, 26 Aug 2026**, and it reverses the 25 Aug ruling *"WHERE THE
