@@ -141,22 +141,14 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. ONE CYCLE IS OWED TO SHIP THE 122 FIX.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
-> ***ONE CYCLE IS OWED, AND IT ONLY SHIPS — IT RE-VERIFIES NOTHING.*** The 122 fix
-> edited `gplbld\install-ssh.ps1` after the last cycle, so `assert-current` is
-> **STALE on `install-ssh.ps1`** and expected to FAIL until a cycle runs. 122's
-> behaviour is already witnessed (below) by running the source script directly, so
-> the cycle just puts it into the installed tree. In an **elevated PowerShell**:
->
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
->
-> Earlier the same session two cycles ran — 16:55:19 witnessed the 113/112 build,
-> then a second at **installer 19:18** shipped 121's `messages/10148` reword. 121
-> was then witnessed on guest **`Windows 11 - Test 2`** (installed
-> from the 19:18 share installer): `ssh.server remove` printed message 10148 with
+> ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,
+> **install 20:29:20**, shipped the 122 fix (`gplbld\install-ssh.ps1`) and
+> `assert-current` reads *"the installed tree matches source"*. Earlier: 16:55:19
+> witnessed the 113/112 build, then **installer 19:18** shipped 121's
+> `messages/10148` reword. 121 was then witnessed on guest **`Windows 11 - Test 2`**
+> (installed from the 19:18 share installer): `ssh.server remove` printed message 10148 with
 > *"running the SD INSTALLER on this machine again … stops rather than guess …
 > ssh.server install is NOT affected"* and **no "refuse to install here again"**.
 > **116, 121 CLOSED this session; 116 was witnessed on the host, 121 on Test 2.**
