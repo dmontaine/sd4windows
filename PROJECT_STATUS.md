@@ -141,7 +141,50 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ RUNBOOK, 2 Sep 2026 — ***123, 67 AND 124 CLOSE ON ONE INTERACTIVE INSTALL, ON A GUEST WITH NO ssh SERVER. USE `Test 4`.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 13, 2 Sep 2026 — ***THE `Test 4` RUN HAPPENED. 123 AND 124 ARE CLOSED. 67 IS ONE COMMAND SHORT, AND 129 CAME OUT OF THE SAME SCREENS.*** ⇩⇩⇩
+>
+> ***THE FIRST THING TO DO IS ONE COMMAND ON THE GUEST, AND IT CLOSES 67.***
+> `Test 4` is installed, SD is on it, and the ssh boxes were left blank through a
+> full install. **Elevated PowerShell on `Test 4`:**
+>
+> ```
+> Get-WindowsCapability -Online -Name 'OpenSSH.Server*' | Select-Object Name, State
+> ```
+>
+> **`NotPresent` closes 67. `Installed` is the finding.** ***DO NOT ACCEPT THE
+> CLOSING BOX AS THE ANSWER***: it said *"NO ssh server was installed"*, but
+> `SshReport` branches on `SshServerPresentAfterwards` and `install-ssh.ps1` is
+> gated on `SshServerWanted` — **the same flag** — so the report and the action
+> agree by construction and would agree even if the script had run. The machine
+> has to be asked.
+>
+> ***123 AND 124 ARE WITNESSED AND STRUCK.*** The ssh box rendered **unticked**
+> with the cost and the API alternative on its label; the Ready page listed only
+> PATH and API with **no ssh line**; the closing box gave *"NO ssh server was
+> installed, because you did not ask for one"* and, on the `ApiWanted` branch,
+> *"Accounts you gave API access can still sign in over the SD Core API."*
+> **The API box was ticked on purpose to reach that branch** — the other one is
+> also corrected text but never has to name the API as a route.
+>
+> ***129 FILED, AND IT IS THE INSTALLER CONTRADICTING ITSELF IN ONE RUN.***
+> "Before you install" says ***"scp and sftp STOP WORKING FOR EVERYONE on this
+> computer"***; the closing box on the same install says ***"scp and sftp are
+> unaffected on this computer."*** The second is true. `DisclosureText`
+> (`sd.iss:1663`) is one static string with no parameters, and
+> `ApplyAllowGroups:2016` returns having done nothing when there is no server.
+> **123 made "no ssh" the common case and this text did not move with it.**
+> Also `"the ssh-only model"` at `:1774` is 124's retired premise in compressed
+> form, which the lint cannot see because only the long phrase is registered.
+>
+> ***66 WAS SEEN HAPPENING RATHER THAN READ.*** Owner: *"It is still downloading
+> the full screen editors."* It held up the end of the install, and with 123
+> making the OpenSSH capability opt-in **it is now the only unbounded download
+> left in a default install.**
+>
+> ***`Test 5` IS STILL SEALED*** — `Test 4` is spent as a first-install rig now
+> that SD is on it. **Open count 21. Next free PRE_RELEASE id: 130.**
+>
+> # ⇩⇩⇩ RUNBOOK, 2 Sep 2026 — ***(THIS RUN IS DONE; KEPT FOR THE NEXT GUEST.)*** ⇩⇩⇩
 >
 > ***WHY IT CANNOT BE THE HOST, MEASURED NOT ASSUMED.*** All three witnesses need
 > a machine where `SshWasAbsent` is true. The host has `sshd` **Running** and the
