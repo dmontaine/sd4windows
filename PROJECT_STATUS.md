@@ -358,10 +358,34 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 128, 129, 130, 131. **Five filed**: 127-131. ***NEXT FREE PRE_RELEASE ID: 132.
 > NEXT RUN TOKEN: `b103`*** — ***`b101` AND `b102` ARE BOTH SPENT.***
 >
-> ***A CYCLE IS OWED — `assert-current` EXITS 1 NAMING `gplbld\sd.iss`***, which
-> is correct rather than a fault: 118 and 120 changed it after the 10:28
-> install. Tier-1 all green: fixlist 243/0, retired-wording **30/30**, verdict
-> 140/140, suiteonly 48/48, stemcoverage 20+1/21, check-stale-leads 0.
+> ~~***A CYCLE IS OWED — `assert-current` EXITS 1 NAMING `gplbld\sd.iss`***~~
+> ***THE CYCLE RAN, 2 Sep 2026. INSTALL `02 Sep 16:13:21`, `assert-current`
+> EXIT 0 LIVE*** — `sd.exe` **`1D908330609D69CD`**, `bin\` built 02 Sep
+> 00:36:48 with no source newer, **3028 files across the 6 mirrored
+> directories**, no renames, no deletions, no leftovers in `C:\Program Files\SD`
+> (35 checked). Tier-1 all green after the day's work: fixlist **243/0**,
+> retired-wording **30/30**, verdict **140/140**, suiteonly **48/48**,
+> sdtestuser **54/0**, tiercounts **15/15**, check-stale-leads **0**.
+>
+> ***AND THE CYCLE DESTROYED THE ARTEFACT THE DAY'S FOUR WITNESSES WERE TAKEN
+> AGAINST, WHICH IS A PROPERTY OF THE RIG AND NOT A FAULT IN THE RUN.***
+> `cycle.ps1` writes the installer straight into `C:\Users\dmont\sdout\`, **the
+> share the guests install from**, so it is overwritten in place:
+> **4,954,811 bytes at 14:18:50 → 4,955,213 bytes at 16:13:00.** The witnessed
+> binary is gone from the share. ***THE ONE SURVIVING COPY IS ON THE GUEST***,
+> `C:\Users\Public\sd-setup-W1.0-0.exe` on `Test 10`, copied there at ~15:52
+> because running an installer off the share had already cost a Network Error
+> once (§427). **Keep it.**
+>
+> ***THE 402-BYTE DELTA IS BUILD NONDETERMINISM RATHER THAN A CONTENT CHANGE,
+> AND THAT IS REASONED, NOT MEASURED.*** No shipped file changed between the two
+> builds — the working tree was clean and the only commit in between,
+> `cbe6ac2`, touches `PROJECT_STATUS.md` and `PRE_RELEASE_FIXES.md` alone — so
+> Inno's own timestamps and compression are the remaining explanation.
+> **If a witness result is ever challenged on "was it the same installer",
+> that is the gap**: nothing hashed the two, and by then one of them was gone.
+> **The cheap fix is to copy the installer aside with its build time in the name
+> before a witness run, not after.**
 >
 > ### ***STEP 1 — BUILD THE INSTALLER (ELEVATED)***
 >
