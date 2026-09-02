@@ -271,6 +271,36 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `assert-current.ps1`, deliberately in neither runner (that wiring is **112**,
 > the owner's call). **Open count 22.**
 >
+> ***ENTRY 3 IS STRUCK AS NOT A DEFECT, AND IT HAD BEEN WRONG SINCE 26 Aug.***
+> `voc_template` is a **DIRECTORY file**, so its ids are stored as filenames with
+> restricted characters escaped (`op_dio3.c:1346` encodes, `op_dio4.c:1121-1150`
+> decodes, tables at `sd.h:114-115`). ***`%E` IS THE FILE FOR RECORD `=`, `%G`
+> FOR `>`, `%L` FOR `<`*** — position for position in `*,=><%/+:;?\"` against
+> `ACEGLPSVXYZBQ`. There is no record named `%L`, so *"Record not found"* is the
+> right answer. **The entry contained its own disproof**: it reported `ct voc =`
+> returning `K`/`25` as a separate oddity, and that IS `%E` decoded and present.
+>
+> ***THE METHOD FAILURE IS THE LESSON AND IT BEAT CONTROLS THREE TIMES*** — 26
+> Aug, 28 Aug *"re-validated against the LIVE VOC"*, 31 Aug on a fresh install
+> with `listf`/`count`/`who` as controls, **and I repeated it once more today
+> before reading the encoder.** The controls were sound and irrelevant: they
+> proved the grep could find a record that was there. ***A CONTROL TESTS THE
+> INSTRUMENT, NOT THE QUESTION*** — nothing in `listf` passing could reveal that
+> `%L` was the wrong string to ask for. When a subject is absent and the controls
+> are present, the next move is to check that the subject's NAME is what you
+> think it is, not to trust the shape of the result.
+>
+> ***128 FILED, `B`, AND IT IS WHAT THE DIAGNOSIS WAS ACTUALLY WORTH.***
+> `dir_select()`'s decode loop (`op_dio4.c:1140-1147`) discards two characters on
+> an unknown `%` escape, and on a **trailing** `%` consumes the string's own NUL
+> — `strchr(df_substitute_chars, '\0')` returns that table's terminator, so the
+> `!= NULL` guard passes — then walks `p` past the end of `name`
+> (`char[MAX_PATHNAME_LEN + 1]`, stack) with `q` writing back into it. **A file
+> called `draft%` in any directory file reproduces it, and a user's own `bp` is a
+> directory file.** Read, not run. **`sdb64` is byte-identical** at its
+> `:1178-1187`, so it is also **UPSTREAM_FIXES 35**. **Open count 22; next free
+> PRE_RELEASE id 129.**
+>
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,

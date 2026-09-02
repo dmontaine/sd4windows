@@ -2542,3 +2542,69 @@ and **6058** *"User %1 deleted"* have no caller anywhere in `gpl.bp` or
 longer exists.
 
 `PROPOSED`
+
+## 35. A directory-file record whose filename ends in `%` makes `readnext` walk past the end of a stack buffer
+
+`dir_select()` decodes a directory file's escaped filenames back into record
+ids. Its loop is at `sd64/gplsrc/op_dio4.c:1178-1187` on upstream `main`, and
+at `:1140-1147` in the Windows port, where the two copies are byte for byte the
+same:
+
+```c
+while ((c = *(p++)) != '\0') {
+  if (c == '%') {
+    r = strchr(df_substitute_chars, *(p++));
+    if (r != NULL) {
+      *(q++) = df_restricted_chars[r - df_substitute_chars];
+    }
+  } else {
+    *(q++) = c;
+  }
+}
+```
+
+There are two problems, and the second is a memory-safety one.
+
+**An unknown escape silently discards two characters.** When the letter after
+`%` is not in `df_substitute_chars`, `r` is NULL and nothing is written — but
+`p` has already stepped over that letter. So a file named `draft%1` decodes to
+the id `draft`. Two different files can therefore produce the same id, and the
+id `readnext` hands back does not open. `map_t1_id()` never emits such a name
+itself, but a directory file is exactly where files created outside SD arrive.
+
+**A trailing `%` runs off the end of the buffer.** `*(p++)` consumes the
+string's own terminator, and `strchr(df_substitute_chars, '\0')` returns a
+pointer to that table's terminating NUL rather than NULL — so the `r != NULL`
+guard passes. `r - df_substitute_chars` is then 13, and `df_restricted_chars[13]`
+is that array's own NUL, so the byte written is harmless. The pointer is not:
+`p` now points past the end of `name`, and the `while` keeps consuming adjacent
+stack memory while `q` writes it back into `name` until a zero byte happens to
+turn up. `name` is `char name[MAX_PATHNAME_LEN + 1]`, a fixed stack buffer, so
+this can overflow it rather than merely over-read.
+
+A file called `draft%` in any directory file reproduces it; `%` is a legal
+filename character on both Linux and Windows, and no privilege is needed
+because a user's own `bp` is a directory file.
+
+Testing the character before consuming it fixes both, and makes the decode
+total rather than partial:
+
+```c
+if (c == '%') {
+  if (p[0] && (r = strchr(df_substitute_chars, p[0])) != NULL) {
+    *(q++) = df_restricted_chars[r - df_substitute_chars];
+    p++;
+  } else {
+    *(q++) = c;          /* unknown escape: keep it literal */
+  }
+}
+```
+
+The `if (strlen(name) > 0)` guard just below the loop contains the empty-name
+case only; neither fault above produces an empty name in general.
+
+Found by reading, not by running: the Windows port reached this code while
+investigating a suspected VOC mismatch that turned out to be the encoding
+working correctly.
+
+`PROPOSED`
