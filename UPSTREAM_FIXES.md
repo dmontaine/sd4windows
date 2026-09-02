@@ -67,9 +67,19 @@ badly. **Windows-specific changes never belong here.**
 
 ## Status key
 
+***DO NOT MAINTAIN PER-ENTRY STATUS. THE WHOLE FILE GOES AT THE END.*** Owner,
+2 Sep 2026: *"don't worry about the status of each report. I just will send him
+the whole file when we are done."* **This file IS the deliverable** — it is
+emailed to the upstream developer, who is a former colleague of the owner's on
+upstream SD, as one document when the work is done. So the markers below are
+history rather than a workflow: **leave them where they are, do not add them to
+new entries, and do not spend a session reconciling them.** What an entry needs
+is to be true and self-contained; what it does not need is a status line.
+
+*(The original key, kept because sixteen entries still carry its markers:
 `PROPOSED` — written up, not sent. `SENT` — reported upstream, with where.
 `ACCEPTED` / `DECLINED` — upstream has ruled. Keep declined entries, with the
-reason.
+reason.)*
 
 ---
 
@@ -2621,8 +2631,4 @@ instead of as `draft`. Nothing there exercises sdb64 itself, so for that side
 this remains a reading of identical code — but the patch is known to compile
 and to behave as described.
 
-`SENT` — by email to the upstream developer, 2 Sep 2026. ***The first entry in
-this file ever sent***: the other 15 are still `PROPOSED`, so there is no
-precedent here for what comes back or how long it takes. If it is answered,
-move this to `ACCEPTED` or `DECLINED` and keep the reason — a declined entry
-with its reasoning is worth more to the next session than a deleted one.
+`SENT` — by email to the upstream developer, 2 Sep 2026.
