@@ -166,10 +166,27 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > message is gated on `not SshWasAbsent` and the action on `not TrueUpgrade`,
 > which are independent. **118's defect on a path 118's fix does not reach.**
 >
-> ***ONE MEASURED THING IS UNEXPLAINED AND 132 IS BLOCKED ON IT***: `dumps` and
-> `$cred` are also preserved, also `entries=0`, and both SURVIVED. Until that is
-> understood, *"an empty preserved directory is taken by the uninstaller"* is
-> not the mechanism and a guard written against it would encode a guess.
+> ~~***ONE MEASURED THING IS UNEXPLAINED AND 132 IS BLOCKED ON IT***~~
+> ***RESOLVED THE SAME DAY. 132 IS UNBLOCKED, THE MECHANISM HAS NO EXCEPTION,
+> AND THE `entries=0` THAT RAISED THE QUESTION WAS NOT A MEASUREMENT.***
+> **`dumps` is not a survivor**: `secure-dumps.ps1:64` creates it when absent
+> and its `[Run]` entry (`sd.iss:828`) has no `Check:` and no `Tasks:`, so it
+> runs on every install. **`$cred` was never observed empty**: both it and
+> `dumps` are `/inheritance:r` with grants to SYSTEM and Administrators only, so
+> an unelevated `don` gets *"Access is denied"* — `Test-Path` said `True` from
+> the parent listing while `Get-ChildItem -ErrorAction SilentlyContinue`
+> returned nothing and `.Count` gave **0**. **So the rule is the plain one**: an
+> empty preserved directory the installer recorded is removed at uninstall
+> unless something puts it back, and exactly two things do — a `[Dirs]` entry,
+> or a create-if-missing hardening script. `cat`, `prt`, `$hold` have neither.
+>
+> ***THAT IS THE THIRD TIME IN ONE SESSION A PROBE OF MINE REPORTED A DENIAL AS
+> A VALUE***, after `SD-API-In-TCP : (no rule)` and `sshd process started :`
+> (empty). **The shape is always the same — `-ErrorAction SilentlyContinue`
+> feeding a count, a property or an `else` branch, so "could not look" and
+> "nothing there" print identically.** Every probe that reads something an
+> unelevated session may not reach needs its own control, the way the firewall
+> line now prints `483 rules visible` beside its answer.
 >
 > ***THE GUEST IS NOW: SD INSTALLED (over-the-top, `SD` service Running,
 > Automatic), ssh Running, API off, `cat`/`prt`/`$hold` MISSING.*** It is the
