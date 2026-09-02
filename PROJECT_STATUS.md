@@ -230,8 +230,11 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > and `Test 8` all did — and that is what the *"Windows cannot access
 > `\\vboxsvr\sdout`"* Network Error was on `Test 6`, discovered with an installer
 > already open. `Template` was given `sdout`, `xfer` and `gplbld` on 2 Sep 2026,
-> so **a clone made from here on should arrive ready.** ***CHECK IT ANYWAY ON THE
-> FIRST CLONE AFTER THIS*** — that inheritance is expected, not yet observed:
+> so **a clone made from here on arrives ready.** ***CONFIRMED, NOT ASSUMED***:
+> `Test 9` and `Test 10`, the first clones made after the change, both came up
+> with **3 shares** and distinct MACs (`08002742FD05`, `08002767A08B`) — so the
+> inheritance works and the per-clone `vm-shares.ps1` step is retired. **Check a
+> new clone anyway if anything looks wrong**, since it costs one line:
 >
 > ```
 > VBoxManage showvminfo "<guest>" --machinereadable | findstr SharedFolderName
