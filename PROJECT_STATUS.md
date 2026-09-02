@@ -181,8 +181,52 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > making the OpenSSH capability opt-in **it is now the only unbounded download
 > left in a default install.**
 >
+> ### ***`Test 4` IS A STANDING RIG FOR THREE ENTRIES RIGHT NOW — NO ssh SERVER, API ON, SD INSTALLED. DO NOT REUSE IT UNTIL THESE ARE TAKEN.***
+>
+> **One elevated session on `Test 4` closes 67, 126 and 125's ssh half.** Run
+> them in this order — 67's check must come first, before anything could put an
+> ssh server on the machine. **Elevated PowerShell on the guest:**
+>
+> ```
+> Get-WindowsCapability -Online -Name 'OpenSSH.Server*' | Select-Object Name, State
+> ```
+>
+> **`NotPresent` closes 67.** Then, still elevated, start SD — an administrator
+> lands in SDSYS:
+>
+> ```
+> sd
+> ```
+>
+> and at the `:` prompt:
+>
+> ```
+> ssh.server install
+> ```
+>
+> ***ANSWER `n`.*** **126** is the prompt itself — new message **10163**, naming
+> the time cost before committing to the download — and `n` aborts via 10145
+> changing nothing. ***DO NOT ANSWER `y`***: that starts the Windows Update
+> download this entry exists to warn about, and spends the rig.
+>
+> ```
+> create.account USER zz125 SSH
+> ```
+>
+> **125's ssh half** is message **10161** — it must say the account is set up for
+> ssh but this machine has no ssh server, and name what activates it. The grant
+> is not refused; that is 125's whole ruling, *warn, do not prohibit*.
+>
+> ***125's API HALF CANNOT BE TAKEN ON `Test 4`***, because the API is ON there —
+> 10162 only fires when `config('APIPORT')` is 0. **That is what `Test 6` is
+> for**: install on it with **both** the ssh and API boxes unticked, and then
+> `create.account USER zz125b API` gives 10162 while `... SSH` gives 10161, both
+> halves in one run. **It also shows the `not ApiWanted` closing-box branch**,
+> which `Test 4` did not exercise because the API box was ticked there.
+>
 > ***`Test 5` IS STILL SEALED*** — `Test 4` is spent as a first-install rig now
-> that SD is on it. **Open count 21. Next free PRE_RELEASE id: 130.**
+> that SD is on it, and `Test 6` exists as of 2 Sep 2026. **Open count 19. Next
+> free PRE_RELEASE id: 130.**
 >
 > # ⇩⇩⇩ RUNBOOK, 2 Sep 2026 — ***(THIS RUN IS DONE; KEPT FOR THE NEXT GUEST.)*** ⇩⇩⇩
 >
