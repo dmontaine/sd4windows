@@ -245,11 +245,24 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ***`Test 1` AND `Test 2` ARE GONE, CONFIRMED BY THE OWNER 2 Sep 2026.***
 > `VBoxManage list vms` shows only `Template`, `Test 3`, `Test 4`, `Test 5`,
-> `Test 6`. ***THAT COSTS 120 ITS RIG***: this file recorded `Test 1` as *"the
-> only machine in the uninstall-then-reinstall state"* with *"do not delete it
-> while 120 is open"*, so **120 now needs that state rebuilt — an install plus
-> an uninstall-then-reinstall — before it can be measured again.** The entry is
-> unaffected; only the evidence is.
+> `Test 6`. This file recorded `Test 1` as *"the only machine in the
+> uninstall-then-reinstall state"* with *"do not delete it while 120 is open"*.
+>
+> ***BUT 120's FINDING DOES NOT NEED RE-MEASURING, AND THAT IS THE OWNER'S WORD,
+> 2 Sep 2026***: *"I viewed the changes during 120 testing; since the rig does
+> not exist, take my word that the test completed successfully."* **He watched
+> it on `Test 1` before that guest was deleted.** So the entry's measurements
+> stand as written and **nobody should rebuild a rig merely to confirm the
+> defect is real** — that would be spending an install plus an
+> uninstall-then-reinstall to re-learn what is already attested.
+>
+> ***WHAT HIS ATTESTATION DOES NOT COVER, AND THE DISTINCTION WILL MATTER
+> LATER***: it stands behind the **finding**, not behind any **fix**. When 120
+> is built, witnessing the fix still needs a machine that has been through an
+> uninstall-then-reinstall with the database kept — because that is the only
+> path that produces the state, and `sdsys\bp` and `batch.jobs` are on the
+> preserved list either way. **Do not let "120 was attested" become "120's fix
+> was witnessed".**
 >
 > ***`Test 5` IS STILL SEALED*** — `Test 4` is spent as a first-install rig now
 > that SD is on it, and `Test 6` exists as of 2 Sep 2026. **Open count 18. Next
