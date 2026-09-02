@@ -196,6 +196,35 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > not, which is the original defect.** ***THAT IS 120's PATH***, so 89 and 120 want
 > looking at together rather than separately.
 >
+> ***THEN ALL 23 OPEN ENTRIES WERE AUDITED AGAINST SOURCE, 2 Sep 2026, AND ALL 23
+> ARE GENUINELY OPEN — NONE IS CLOSABLE.*** Do not re-run this; read it. **Nothing
+> built** (grep-confirmed the defect is still there): 16 (msg 2602 still names no
+> holder), 28 (no `secure-dumps.ps1`, no `DUMPDIR`), 66 (`install-editors.ps1:137`
+> still has no `--version`), 70, 74 (no `Remove-LocalGroup` in `sd.iss`), 96 (no
+> `log_message` in `linuxlb.c`/`op_sh.c`), 102's ruling half, 112, 114, 118, 120,
+> 80. ***118's PROOF IS WORTH KEEPING***: `sd.iss:3387` gates `ApplyApiFirewall` on
+> `not TrueUpgrade` while **`SyncRouteGroups:3394` and `ApplyAllowGroups:3396` are
+> NOT gated** — that is the whole defect, in three lines. **Built, witness owed**
+> (`assert-current` exit 0, so the install matches source): 67, 113, 115, 123, 124,
+> 125, 126.
+>
+> ***3 WAS REPRODUCED LIVE AND THE CONTROLS ARE WHY IT COUNTS.*** In the installed
+> SDSYS voc buckets: `listf` **7**, `count` **20**, `who` **17** — so the method
+> finds what is there — and `%L`/`%G`/`%E` **0 each**, while all three are in
+> `voc_template` and `newvoc`. `voc_template` is **430**. ***THE FIRST ATTEMPT
+> SCORED A FALSE 0 ON EVERYTHING***, controls included, because the live `voc` is a
+> **directory of bucket files** (`%0`, `%1`) and grep was pointed at the directory.
+> The controls caught it; without them it would have read as a much bigger finding.
+>
+> ***65 AND 93 SHOW CLEAN RIGHT NOW AND THAT IS NOT A PASS.*** `os.users` holds only
+> `don`, the register only `don` and `sdsys` — because the tree is freshly
+> installed and **the litter needs a suite run to exist.** Their evidence stands
+> from `b84`/`b100`, not from today. The mechanism was confirmed instead:
+> `remove-sdaccounts.ps1` removes the Windows accounts and touches **neither**
+> `os.users` **nor** `ACCOUNTS`, which is 65's harness half and 93's cause in one
+> script. **`DELACC:492` deletes the register record unconditionally**, so the
+> product path is not what rots the register — the harness teardown is.
+>
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,
