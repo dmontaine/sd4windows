@@ -225,6 +225,27 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > script. **`DELACC:492` deletes the register record unconditionally**, so the
 > product path is not what rots the register — the harness teardown is.
 >
+> ***115 IS WITNESSED AND STRUCK, 2 Sep 2026, AND DRIVING ITS THIRD VERB IS WHAT
+> FOUND 127.*** Owner ran an elevated `sd.exe` on the host: `remote.ssh`,
+> `ssh.server` and `remote.api` all reported **without the helper script's name
+> in front**, `remote.ssh off`/`on` printed **one line each** with no
+> `ssh-firewall:` prose, and a closing `remote.ssh` came back byte-identical to
+> the opening one. ***THE THIRD VERB WAS NOT PEDANTRY***: `REMOTEAPI:229-231`
+> carries its **own** copy of the strip — identical text, not shared code — so
+> the other two passing proved nothing about it. **Two of three is the shape that
+> has bitten this project repeatedly**; drive all the copies.
+>
+> ***127 FILED, AND IT IS THE SECOND "FIX LANDED IN ONE COPY" IN TWO DAYS.***
+> `remote.api` printed `action : Show` followed by `before : active=1
+> commented=0` — the exact lie `remove-ssh.ps1:85-89` diagnosed and fixed on
+> 30 Aug (*"a label that promises a second half has to deliver one"*), in the
+> sibling script the fix never reached: **`api-listener.ps1:104` is
+> unconditional**. It also records the smaller collision the 30 Aug fix created
+> where it DID land — `ssh.server` now prints `state` twice and `sshd.exe`
+> twice in a four-line report. ***`test-retired-wording-units` CANNOT CATCH THIS
+> CLASS***: it matches retired phrases, and this is label logic. **NEXT FREE
+> PRE_RELEASE ID: 128.**
+>
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,
@@ -1959,9 +1980,15 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > `append.sd.path on` / `off`, `remote.ssh on` / `off`, `remote.api on` /
 > `local` / `off`.
 >
-> ***DO NOT TEST `ssh.server remove`.*** It strands every SD account — they sign
-> in over ssh and nothing else — and completes on a reboot. `ssh.server` bare
-> and `install` are safe; `remove` is not a test, it is a rebuild.
+> ***DO NOT TEST `ssh.server remove`.*** It strands every SD account whose only
+> route is ssh — the API is an independent way in (PRE_RELEASE 124), so it is
+> "their only way in" only for an account that was never granted API access —
+> and it completes on a reboot. `ssh.server` bare and `install` are safe;
+> `remove` is not a test, it is a rebuild. ***(Wording corrected 2 Sep 2026: this
+> line carried "they sign in over ssh and nothing else", the premise 124 retired
+> as FALSE. `test-retired-wording-units` scans shipped messages and scripts only,
+> so the internal documents are where that premise can survive — grep them when
+> you retire wording, the lint will not.)***
 >
 > **`remote.api off` is reversible but real**: it rewrites `sd.conf` and wants a
 > service restart, so put it back with `remote.api on` when done.
@@ -8811,6 +8838,15 @@ happen. RDP is the only part of this section nobody has watched. Everything
 else here is reasoning that stands on its own; read it before changing any of
 it.
 
+***SUPERSEDED IN ITS ssh CLAUSES — READ PRE_RELEASE 124 BEFORE USING THIS. 2 Sep
+2026.*** The decision below stands on who may use the console; **its two ssh
+claims are both false now.** The API is an **independent port-4243 listener**,
+not a tunnel — `sd.iss:349` records *"the ssh tunnel is no longer part of the
+design"* — so accounts do **not** reach the machine over ssh and nothing else,
+and the API is **not** piped through ssh. *(The original text is kept below
+unaltered; it is the record of what was decided on 14 Aug, not a description of
+today's design.)*
+
 **Decision from the repository owner, 14 Aug 2026.** Accounts SD creates reach
 the machine **over ssh and nothing else**. Local terminal access — the physical
 console, and Remote Desktop — is for administrators, who have ordinary Windows
@@ -9109,6 +9145,14 @@ does is §5.9.1.
 **REVERSED 16 Aug 2026: OpenSSH Server is ALWAYS INSTALLED, and what is opt-in
 is the network exposure.** Owner's decision. The `installssh` task is gone;
 `sd.iss` runs `install-ssh.ps1` under `Check: SshServerAbsent`.
+
+***BOTH HALVES OF THIS "Why" ARE NOW FALSE AND SO IS ITS CONCLUSION — 2 Sep
+2026, PRE_RELEASE 123 AND 124.*** The API is an independent port-4243 listener
+rather than an ssh tunnel (124), so an install without ssh is **usable** — an
+API-granted account signs in with no ssh server present — and `install-ssh.ps1`
+is no longer unconditional either: the `sshserver` task is **opt-in, default
+off** since 1 Sep (123), carrying `Flags: checkablealone unchecked`. *(Original
+kept below as the record of the reasoning that was overturned.)*
 
 Why: SD accounts sign in over ssh and nothing else (§5.6.2), and the API is
 carried over ssh (§8, posture B — which already said this "makes the ssh
