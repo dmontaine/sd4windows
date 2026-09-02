@@ -175,6 +175,37 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > regenerates the MAC** rather than an inference from the older clones: it was
 > created today and came up unique.
 >
+> ### ***A NEW CLONE HAS NO SHARED FOLDERS, AND THAT IS THE FIRST THING THAT WILL STOP YOU***
+>
+> ***MEASURED 2 Sep 2026, AFTER IT COST A DETOUR.*** Launching the installer on a
+> fresh `Test 6` gave ***"Windows cannot access `\\vboxsvr\sdout\sd-setup-W1.0-0.exe`"***
+> — not a network fault: `showvminfo --machinereadable | grep SharedFolder`
+> returned **nothing** for `Test 6`, `Test 7` **and `Template`**, against three
+> mappings on `Test 4`. **The shares were added per-VM to `Test 1`-`Test 5` and
+> `Template` never had them, so a clone inherits none.** This file's *"five
+> guests, all with three permanent shares"* was true of the guests that then
+> existed and is not a property of a new one.
+>
+> ***THE FIX IS ONE COMMAND, AND THE GUEST MUST BE POWERED OFF*** — a running VM
+> is locked and a permanent add fails:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\vm-shares.ps1 -Vm "Windows 11 - Test 6"
+> ```
+>
+> **Ordinary prompt, no elevation.** Done for `Test 6` and `Test 7` on 2 Sep
+> 2026, three mappings each. ***AND `-Vm` IS NOW MANDATORY***: it used to default
+> to `'Windows 11 - Test 1'`, a guest deleted that morning — but a script that
+> **changes VM configuration** should not carry a default at all, because the
+> default configures whichever guest it names rather than the one meant.
+>
+> ***WORTH RULING ON: SHOULD `Template` CARRY THE THREE SHARES?*** It would save
+> this step on every clone, and **76's warning does not apply** — that one is
+> about priming `Template` with the **OpenSSH capability**, which would leave
+> every clone with no ssh question and no firewall restriction. Shared folders
+> have no such second effect: they add no capability to the guest and change
+> nothing the installer asks. **The owner's call; not done.**
+>
 > ***THE RIG COUNT IS FIVE, AND ONLY FIVE ARE TEST GUESTS.*** `Test 3`, `Test 4`,
 > `Test 5`, `Test 6`, `Test 7` — `Test 1` and `Test 2` were deleted 2 Sep 2026.
 > `VBoxManage list vms` returns **seven** entries, and the other two are not
