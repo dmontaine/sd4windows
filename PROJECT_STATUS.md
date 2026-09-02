@@ -1236,6 +1236,29 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **Snapshots are not used** — owner: *"it is quicker to clone the template than
 > to do a snapshot"*, which extends 24 Aug's *"CLONE, DO NOT SNAPSHOT"*.
 >
+> ***CORRECTED 2 Sep 2026 — "FIVE GUESTS, Test 1–Test 5" IS STALE. READ THE LIST
+> FROM `VBoxManage list vms`, NEVER FROM THIS FILE.*** Measured that day: `Test
+> 1` and `Test 2` are **gone** (120's row already said so) and `Test 6`–`Test
+> 10` have been added, so the live set is **`Test 3`–`Test 10` plus `Template`**
+> — eight, not five. All eight checked carry the same three `MachineMapping`
+> shares. A rig list in a document is out of date the next time somebody clones
+> a guest; the hypervisor is the only thing that knows.
+>
+> ***AND EVERY CLONE REPORTS ITS HOSTNAME AS `VIRTUAL`, WHICH COST TIME ON 2 Sep
+> 2026.*** They are clones of one template, so `$env:COMPUTERNAME` is `VIRTUAL`
+> on all of them and **a result file cannot say which guest produced it**. Put
+> the guest name in the FILENAME and in the text you write, by hand — the
+> machine will not do it for you, and a witness that cannot name its own subject
+> is worth very little.
+>
+> ***DO NOT ASSUME A GUEST IS CLEAN — 2 Sep 2026 SPENT TWO ON IT.*** `Test 6`
+> looked untouched and held a full SD install, uninstall key and leftover
+> `sdu_ZZ125` groups; `Test 5` was picked next and had problems of its own;
+> `Test 10` was the clean one. **Check `C:\ProgramData\SD`, `C:\Program
+> Files\SD`, the `SD *` uninstall key and `sd*` local groups before starting
+> anything**, because a first-install test that begins on a dirty guest is not
+> the test it says it is.
+>
 > ***ALL FIVE NOW CARRY THREE PERMANENT SHARES*** (`MachineMapping`, so they
 > survive the reboots leg 2 of the runbook needs), set up on the host 1 Sep and
 > **read back from the VM config rather than trusted from the exit codes**, with
