@@ -57,9 +57,11 @@ old wording beside the fix (`remove-ssh.ps1:123`). Register the old phrase +
 replacement in its `$RETIRED` table when reworking wording. Wired into
 CLAUDE.md's tier-1 list.
 
-Still open: 121 wants the next cycle to ship 10148 and one more `ssh.server
-remove` to read the new message on a screen; 122 is not started. The 10148 edit
-leaves `assert-current` red until that cycle.
+Both closed the same session: a second cycle (installer 19:18) shipped 10148,
+and 121 was witnessed on guest `Windows 11 - Test 2`, whose `ssh.server remove`
+printed the corrected message with no "refuse to install here again". The host
+is current and `assert-current` green. Still open from this thread: 122 (not
+started) and 115 (the script-prose vs message duplication 121 grew out of).
 
 ## 26 Aug 2026 — Sixty-first session, part 3: the documentation gets its own repository, and one caution here was wrong
 

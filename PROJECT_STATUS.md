@@ -141,32 +141,24 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***THE OWED CYCLE RAN GREEN; 116 WITNESSED ON THE HOST; 121 AND 122 FILED, 121 FIXED IN SOURCE. A CYCLE IS OWED AGAIN.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 CLOSED AND 122 FILED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
-> ***THE INSTALL IS STALE ON PURPOSE: `messages/10148` CHANGED AFTER THE CYCLE.*** The
-> owed cycle ran green this session — **install 16:55:19, `sd.exe`
-> `517019EE20D2BD0C`, `assert-current: the installed tree matches source`** — which
-> witnessed the build for **113/112** and closed the compile question. Then 121's
-> fix edited `sdsys/messages/10148`, so `assert-current` **is expected to FAIL now**.
-> First thing next session, in an **elevated PowerShell**:
+> ***NO CYCLE OWED, NOTHING IN FLIGHT.*** Two cycles ran this session — 16:55:19
+> witnessed the 113/112 build, then a second at **installer 19:18** shipped 121's
+> `messages/10148` reword, so the **host is current and `assert-current` is
+> green**. 121 was then witnessed on guest **`Windows 11 - Test 2`** (installed
+> from the 19:18 share installer): `ssh.server remove` printed message 10148 with
+> *"running the SD INSTALLER on this machine again … stops rather than guess …
+> ssh.server install is NOT affected"* and **no "refuse to install here again"**.
+> **116, 121 CLOSED this session; 116 was witnessed on the host, 121 on Test 2.**
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
->
-> ***WHAT THE NEW CYCLE MUST WITNESS***: **121** — `ssh.server remove` should now
-> print, in message 10148, the reworded paragraph (*"running the SD INSTALLER on
-> this machine again … stops rather than guess … ssh.server install is NOT
-> affected"*) with **no "refuse to install here again"**. Read it off a screen,
-> then close 121. On the HOST, `ssh.server remove` only STAGES the removal
-> (`sshd.exe` stays Running until reboot), so restore with `ssh.server install`
-> and do not reboot between — but note **122**: that install re-downloads the whole
-> capability (~19 min) even though nothing was removed.
->
-> ***116 IS WITNESSED — CLOSE IT.*** This session ran `ssh.server remove` on the
-> **development host** and read `remove-ssh.ps1`'s corrected paragraph off the
-> screen. 116 was about that script's copy; it is done. (121 is the *message*
-> copy the same reword missed.)
+> ***122 IS THE ONE STILL OPEN FROM THIS THREAD*** — `ssh.server install`
+> re-downloads the whole OpenSSH capability (~19 min) when the removal was only
+> staged and `sshd` is still Running (`install-ssh.ps1:46` guards on capability
+> State, not on whether the server works). Its open question is settled: the
+> re-add DOES clear the pending removal (`State: Installed`), so it is a pure
+> inefficiency, not an illusory restore. **NOT STARTED.** 115 (script-prose vs
+> message duplication, which 121 grew out of) is also still open.
 >
 > ***NEW TIER-1 CHECK: `test-retired-wording-units.ps1`, 9/9, WIRED INTO CLAUDE.md's
 > tier-1 list.*** It scans every message file and shipped script for phrases that
