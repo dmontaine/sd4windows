@@ -60,8 +60,12 @@ CLAUDE.md's tier-1 list.
 Both closed the same session: a second cycle (installer 19:18) shipped 10148,
 and 121 was witnessed on guest `Windows 11 - Test 2`, whose `ssh.server remove`
 printed the corrected message with no "refuse to install here again". The host
-is current and `assert-current` green. Still open from this thread: 122 (not
-started) and 115 (the script-prose vs message duplication 121 grew out of).
+is current and `assert-current` green. **122 was then fixed too**: `install-ssh.ps1`
+now detects the `UninstallPending` state and names why the re-download happens,
+witnessed on Test 2 by running the source script over the gplbld share. The
+re-download is inherent to FoD reversal (no supported cheap cancel), so it is
+explained, not avoided. Still open from this thread: only 115 (the script-prose
+vs message duplication 121 grew out of).
 
 ## 26 Aug 2026 — Sixty-first session, part 3: the documentation gets its own repository, and one caution here was wrong
 

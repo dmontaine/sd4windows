@@ -141,24 +141,35 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 CLOSED AND 122 FILED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. ONE CYCLE IS OWED TO SHIP THE 122 FIX.*** ⇩⇩⇩
 >
-> ***NO CYCLE OWED, NOTHING IN FLIGHT.*** Two cycles ran this session — 16:55:19
-> witnessed the 113/112 build, then a second at **installer 19:18** shipped 121's
-> `messages/10148` reword, so the **host is current and `assert-current` is
-> green**. 121 was then witnessed on guest **`Windows 11 - Test 2`** (installed
+> ***ONE CYCLE IS OWED, AND IT ONLY SHIPS — IT RE-VERIFIES NOTHING.*** The 122 fix
+> edited `gplbld\install-ssh.ps1` after the last cycle, so `assert-current` is
+> **STALE on `install-ssh.ps1`** and expected to FAIL until a cycle runs. 122's
+> behaviour is already witnessed (below) by running the source script directly, so
+> the cycle just puts it into the installed tree. In an **elevated PowerShell**:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> Earlier the same session two cycles ran — 16:55:19 witnessed the 113/112 build,
+> then a second at **installer 19:18** shipped 121's `messages/10148` reword. 121
+> was then witnessed on guest **`Windows 11 - Test 2`** (installed
 > from the 19:18 share installer): `ssh.server remove` printed message 10148 with
 > *"running the SD INSTALLER on this machine again … stops rather than guess …
 > ssh.server install is NOT affected"* and **no "refuse to install here again"**.
 > **116, 121 CLOSED this session; 116 was witnessed on the host, 121 on Test 2.**
 >
-> ***122 IS THE ONE STILL OPEN FROM THIS THREAD*** — `ssh.server install`
-> re-downloads the whole OpenSSH capability (~19 min) when the removal was only
-> staged and `sshd` is still Running (`install-ssh.ps1:46` guards on capability
-> State, not on whether the server works). Its open question is settled: the
-> re-add DOES clear the pending removal (`State: Installed`), so it is a pure
-> inefficiency, not an illusory restore. **NOT STARTED.** 115 (script-prose vs
-> message duplication, which 121 grew out of) is also still open.
+> ***122 CLOSED*** — `install-ssh.ps1:46` now detects the `UninstallPending`
+> state (an earlier `ssh.server remove` staged behind a reboot) and names why the
+> re-download is happening, instead of letting a ~19-min FoD re-download look like
+> a fresh install of a still-running server. Witnessed on guest `Windows 11 -
+> Test 2` (in `UninstallPending`) by running the source script over the `gplbld`
+> share; the three explanatory lines printed. The re-download is **inherent** —
+> re-adding is the only supported way to cancel a staged removal and a FoD keeps
+> no local payload — so it is named, not avoided. **115** (script-prose vs message
+> duplication, which 121 grew out of) is the one still open from this thread.
 >
 > ***NEW TIER-1 CHECK: `test-retired-wording-units.ps1`, 9/9, WIRED INTO CLAUDE.md's
 > tier-1 list.*** It scans every message file and shipped script for phrases that
