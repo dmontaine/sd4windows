@@ -141,35 +141,53 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 14, 2 Sep 2026 — ***NOTHING IS OWED AND NOTHING IS HALF-BUILT. THE FIRST THING TO DO IS A FULL SUITE, `-Run b101`.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 14, 2 Sep 2026 — ***THE FULL SUITE IS GREEN ON `-Run b102` AND 112 IS CLOSED. NOTHING IS OWED AND NOTHING IS HALF-BUILT.*** ⇩⇩⇩
 >
-> ***OPEN 15*** — 16, 65, 66, 70, 74, 80, 89, 93, 96, 102, 112, 114, 118, 120,
-> 131. **Thirteen closed today**: 3, 28, 67, 113, 115, 123, 124, 125, 126, 127,
+> ***OPEN 14*** — 16, 65, 66, 70, 74, 80, 89, 93, 96, 102, 114, 118, 120, 131.
+> **Fourteen closed today**: 3, 28, 67, 112, 113, 115, 123, 124, 125, 126, 127,
 > 128, 129, 130. **Five filed**: 127-131. ***NEXT FREE PRE_RELEASE ID: 132.
-> NEXT RUN TOKEN: `b101`*** — no suite has run since `b100`.
+> NEXT RUN TOKEN: `b103`*** — ***`b101` AND `b102` ARE BOTH SPENT.***
 >
 > ***THE HOST IS GREEN AND A CYCLE IS NOT OWED.*** `assert-current` **exit 0**,
-> install 10:28, `main` in sync with origin. Tier-1 all green: fixlist 241/0,
+> install 10:28, `main` in sync with origin. Tier-1 all green: fixlist 242/0,
 > retired-wording 25/25, verdict 140/140, suiteonly 48/48, check-stale-leads 0.
 >
-> ### ***START WITH THE FULL SUITE — TWO NEW STEPS HAVE NEVER RUN IN ONE***
+> ### ***`b101` SPENT AT STEP 2 — 112's WIRING WAS WRONG TWICE, BOTH NOW FIXED***
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b101 -ThenElevated
-> ```
+> **`test-stemcoverage-units` stopped the run and named `sdvv`**, the family
+> `VerifyInstall2:240` composes for `verify-vocverbs`; it was never added to
+> `clean-test-profiles.ps1`'s `$stems`. ***AND A SECOND FAULT WAS FOUND BY
+> READING, WHICH WOULD HAVE COST THE ELEVATED HALF OF ANOTHER RUN***:
+> `verify-vocverbs.ps1:209` capped `-Prefix` at **7** characters and `exit 2`s
+> otherwise, and **`sdvvb101` is 8** — `sdvvb99` is 7 and passes, `sdvvb100` is
+> 8 and does not, so it was wired in during the `b99` era and broke on the next
+> run rather than the one that wired it. **The cap protected nothing**
+> (`MAX_ID_LEN` 255, `gplsrc/sddefs.h:281`) and is now `{1,14}`; the CASE half
+> of that refusal is the real one and is kept. **Full detail and the one thing
+> left for the owner are in PRE_RELEASE_FIXES 112.**
 >
-> **ORDINARY, UNELEVATED prompt** — the runner raises the elevated half itself,
-> and several of its measurements are only valid from an unelevated parent.
-> ***112 WIRED `verify-vocverbs` INTO `VerifyInstall2` AND `probe-akwrite` INTO
-> `VerifyInstall1`, AND NEITHER HAS RUN INSIDE A SUITE.*** Wiring a step in is
-> not watching it pass; **this run is where a step wired in wrong shows up**, and
-> it is also the milestone the day's other changes are owed.
+> ### ***`b102` IS GREEN IN BOTH HALVES, AND THE TWO NEW STEPS BOTH MEASURED***
+>
+> `VerifyInstall1` **every step exit 0, 311 PASS / 0 FAIL / 0 SKIP**;
+> `VerifyInstall2` **all 23 steps exit 0**. The two steps 112 wired in have now
+> run inside a suite: **`probe-akwrite` 18 of 18** and **`verify-vocverbs` 36 of
+> 36** at `[22/23]`, `prefix sdvvb102` echoed, clean-up control green. **The 36
+> is the same count the 28 Aug hand-run got, so the wiring cost it nothing.**
+>
+> ***TWO READING TRAPS THIS RUN PAID FOR, BOTH ABOUT COUNTING RATHER THAN THE
+> PRODUCT.*** **(1) A `[PASS]` scan UNDERCOUNTS and can call a real step empty**
+> — `verify-sdsysgate` reports in a **Result column** (`PASS   yes`), so a token
+> scan reads **0 rows** on a step that ran **10 decisive checks**. Read a
+> verifier's own summary line, not your own tally. **(2) `verify-apiadmin` reads
+> `22/23` and that is the STEADY STATE** — 22 PASS / 0 FAIL on 31 Aug, 1 Sep and
+> 2 Sep alike. ***THE `22/22` RECORDED FOR `b59` IS STALE***: the verifier now
+> emits 23 rows, one is unreported, and no run has ever failed on it. **Do not
+> spend a session rediscovering either.**
 >
 > ### ***WHAT IS OUTSTANDING, AND WHAT IT COSTS***
 >
 > | | needs |
 > |---|---|
-> | **112** | the suite run above. Nothing else |
 > | **74** | an INTERACTIVE uninstall on a guest — its wording half is witnessed, the behaviour half is not, and **the cycle cannot supply it**: `cycle.ps1:497` uninstalls `/VERYSILENT`, which now takes the skip path. Afterwards `Get-LocalGroup sdssh, sdapi, sdsshonly` gone, `sdusers` still there |
 > | **131** | fix the wording lint's two blind spots — mine to build, no ruling needed |
 > | **96, 102** | **C on paths that fail silently.** Both shapes are chosen and written into their rows. Each wants a session that BEGINS with it, not one that ends on it. **102 is the larger**: the owner reversed the recorded decision — *"they are deleted, transactions are all or nothing"* — so a half-applied commit must now undo its writes |

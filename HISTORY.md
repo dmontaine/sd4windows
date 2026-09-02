@@ -45126,3 +45126,71 @@ owner's ruling and stays open.**
 so `assert-current` is expected to fail until the next cycle. That is the state
 the session left, and START HERE says so rather than leaving it to be
 rediscovered.
+
+## 2 Sep 2026 — `b101` stopped at step 2, and both faults were 112's wiring rather than the product
+
+`test-stemcoverage-units` halted `VerifyInstall1 -Run b101` and named `sdvv`,
+the family `VerifyInstall2:240` composes for `verify-vocverbs`. **Its second
+catch inside a runner**, after `sdtc` at `b88` — the same shape both times, a
+session that invents a family and does not add its stem.
+
+***THE SECOND FAULT WAS FOUND BY READING AND WOULD HAVE COST THE ELEVATED HALF
+OF THE NEXT RUN.*** `verify-vocverbs.ps1:209` capped `-Prefix` at 7 characters
+and `exit 2`s otherwise; `sdvvb101` is 8, so that step could not have run.
+***THE RUN TOKEN'S WIDTH IS WHY NOBODY SAW IT***: `sdvvb99` is 7 and passes,
+`sdvvb100` is 8 and does not — wired in during the `b99` era, broke on the next
+run rather than the one that wired it. **A clean parse and a wired step were
+never going to catch this**; only composing the real argument does, which is the
+instrument rule's "echo what you actually passed" in a new place.
+
+**The cap protected nothing.** `MAX_ID_LEN` is 255 (`gplsrc/sddefs.h:281`), the
+longest derived name is `$Prefix + 'nosuch'`, and the refusal's own stated
+reason is CASE — kept, and controlled both ways (`SDVVB101` and `sdVVb101` still
+refused, 9/9). Widened to `{1,14}`.
+
+**Class-checked rather than patched**: `verify-tierchange:243`,
+`verify-doors-admin:183` and `verify-acctmsgs:318` all cap at `{1,8}`; both
+reachable from a runner accept `b102` at 8 characters, and `verify-acctmsgs` is
+run by nothing, so its cap is hand-reachable only.
+
+***`sdvv` IS REGISTERED FOR ITS NAME SHAPE, NOT BECAUSE IT LITTERS `C:\Users`***
+— it makes SD files inside the SDSYS account directory (`VerifyInstall2:143`,
+*"files, no account"*), so the sweep can never match it. Listed anyway because
+over-covering costs one alternation branch and under-covering is invisible, with
+that limitation written beside `$stems` rather than left for the list to imply.
+**The alternative — an out-of-scope rule in `test-stemcoverage-units` — is the
+owner's to pick and is recorded in 112's row.**
+
+**Eight test profiles sit on this machine unswept**: `sdtub81, 83, 84, 85, 89,
+91, 92, 100`. `sdtu` is in the stem list, so the sweep can see them; it has
+simply not been run.
+
+Sweep self-test 41/41 must-match and 33/33 rejected; stem coverage 21/21; whole
+tier-1 set green (fixlist 242/0, verdict 140/140, suiteonly 48/48, lint 25/25,
+vocverbs-units all rows, check-stale-leads exit 0). **`b101` is spent; `b102`
+was handed over and is running. Nothing here is a verdict on that suite.**
+
+## 2 Sep 2026 — `b102` green in both halves, and 112 closes
+
+`VerifyInstall1` every step exit 0, **311 PASS / 0 FAIL / 0 SKIP**;
+`VerifyInstall2` all **23** steps exit 0. **`probe-akwrite` 18 of 18** and
+**`verify-vocverbs` 36 of 36** (step `[22/23]`, `prefix sdvvb102` echoed,
+clean-up control *"sdsys\messages survived the whole run"* green). Both steps
+112 wired in have now run inside a suite, which was its last open item, and
+**the 36 matches the 28 Aug hand-run — the wiring cost the verifier nothing.**
+
+***TWO COUNTING TRAPS PAID FOR HERE, NEITHER OF THEM THE PRODUCT.***
+**A `[PASS]` token scan UNDERCOUNTS and can call a real step empty**:
+`verify-sdsysgate` reports its verdicts in a **Result column** (`PASS   yes`),
+so a token scan reads **0 rows** on a step that ran **10 decisive checks** with
+the audit trail growing 187 bytes and `LOGTO REFUSED ... reason=not an
+administrator` recorded. That is the *reverse* of the usual false green — an
+instrument that undersells a real measurement — and the fix is to read each
+verifier's own summary line rather than keep a tally of one output format.
+**`verify-apiadmin` reads `22/23` and that is the STEADY STATE**: 22 PASS / 0
+FAIL on 31 Aug, 1 Sep and 2 Sep alike. ***THE `22/22` RECORDED FOR `b59` IS
+STALE*** — the verifier now emits 23 rows, one is unreported, and no run has
+ever failed on it.
+
+**Open 14**, read from `test-fixlist-units` (242 passed / 0 failed), never from
+prose. **`b101` and `b102` are both spent; next run token `b103`.**
