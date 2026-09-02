@@ -228,6 +228,24 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > tells the next session what to run.** The rule that a new free guard is
 > registered there in the commit that creates it is written into that sentence.
 >
+> ***AND THE OWNER'S OBSERVATION AFTER ALL THAT IS WIDER THAN ANY OF IT, AND IS
+> NOW 134***: *"all the system files and directories that existed when sd was
+> first installed need to exist after it is reinstalled."* **120 and 132 are its
+> directory-shaped subset** — preserved directories that ship empty — and
+> `test-dirscoverage-units` guards only that. **The invariant covers every file
+> and directory in both trees and nothing checked it.**
+> ***`capture-state.ps1 -Manifest` IS BUILT FOR IT***, off by default: sorted,
+> root-relative `D `/`F ` lines so two captures diff cleanly, and **a directory
+> this process may not read is NAMED, with the tree marked `NOT COMPARABLE`.**
+> That guard is the point — a subtree readable before and denied after would
+> diff as hundreds of deleted files and read as data loss. **Proved by running
+> it unelevated on purpose**: 136 entries in `Program Files\SD`, 3618 in
+> `ProgramData\SD`, and `NOT COMPARABLE: 3` naming `profile-reclaim`,
+> `sdsys\$cred`, `sdsys\dumps`. ***THE WITNESS IS FREE IF IT RIDES THE RUN 120
+> AND 132 ALREADY NEED*** — `-Label first -Manifest`, uninstall keeping the
+> database, reinstall, `-Label after -Manifest`, diff. **ELEVATED, or the
+> capture says NOT COMPARABLE and means it.**
+>
 > ***FOUR NEGATIVE CONTROLS, ALL RED WITH THE RIGHT MESSAGE***: entries removed
 > (names `$hold, cat, prt`), entries present without `uninsneveruninstall`, an
 > exemption relabelled to an unverifiable kind, and `secure-dumps.ps1` doctored
