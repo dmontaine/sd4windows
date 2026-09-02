@@ -45363,3 +45363,39 @@ remnant), so `cycle.ps1 -SkipInstall` is the first thing that will read the
 Pascal. What was checked instead: both new comment blocks are brace-balanced and
 the `(* *)` block still closes, which is the trap this file records hitting
 twice.
+
+## 2 Sep 2026 — 89's Defect A built on the owner's "(a) hide the box", and hiding it alone would have been worse
+
+Owner ruled **(a)**. `apiremote` now carries `Check: ApiConfAbsent`, the shape
+`sshserver` already uses. ***THE TEST IS `sd.conf`'s EXISTENCE, NOT THE PATH
+THAT LED HERE***, because the `[Files]` pair that writes it is
+`onlyifdoesntexist` on **both** arms — the box can move the listener only when
+there is no `sd.conf` to preserve, and asking that directly stays true however
+the tree came to be here.
+
+***TWO CONSEQUENCES CAME WITH IT AND EITHER ONE ALONE WOULD HAVE LEFT THINGS
+WORSE THAN THE DEFECT.***
+
+**(1) The firewall call is gated `and ApiConfAbsent` in the same edit.** A
+hidden task reads as NOT selected, so `ApiNetworkWanted` goes false and the call
+would have **closed port 4243 on every uninstall-then-reinstall** — *"visible
+but inert"* becoming *"invisible but active"*, which is exactly the trap
+`ShouldSkipPage`'s own comment records, arriving by a second route. The box and
+its firewall action now stand or fall together, which also ends the half-acting
+shape 89 was filed for.
+
+**(2) Three reporting sites read `ApiWanted` as "is there an API".** With the
+box hidden the closing report would have lied **in the dangerous direction**:
+the account summary states *"Nothing can reach this account from another
+machine"*, and on a preserved tree still running the API that is a false claim
+of isolation — a worse bargain than the inert tickbox the ruling set out to
+remove. New `ApiListenerAfterwards` **reads the preserved file** rather than
+guessing: `stage.py:1294` ships *"full (APIPORT=4243) and stand-alone (APIPORT
+unset)"*, so an **active** `APIPORT` line is the honest test, a commented or
+valueless one is not a listener, and where there is no `sd.conf` to read the box
+is the only answer there is.
+
+**Built, NOT witnessed — it stays open** and rides the same guest step as 120,
+whose path it shares. **`sd.iss` still has not been through ISCC**; the new
+Pascal was read for nesting instead — six balanced `begin`/`end` pairs, `(* *)`
+30/30 across the file — which is a check and not a compile.
