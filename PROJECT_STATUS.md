@@ -179,6 +179,9 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > empty preserved directory the installer recorded is removed at uninstall
 > unless something puts it back, and exactly two things do — a `[Dirs]` entry,
 > or a create-if-missing hardening script. `cat`, `prt`, `$hold` have neither.
+> ***AND `$cred` WAS THEN READ ELEVATED ON THE GUEST RATHER THAN LEFT AS THE
+> BETTER EXPLANATION: 1 ENTRY, NON-EMPTY, LEFT ON CONTENT.*** Every directory
+> in the sweep now has a measured reason and none is unexplained.
 >
 > ***THAT IS THE THIRD TIME IN ONE SESSION A PROBE OF MINE REPORTED A DENIAL AS
 > A VALUE***, after `SD-API-In-TCP : (no rule)` and `sshd process started :`
