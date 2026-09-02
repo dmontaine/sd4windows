@@ -139,6 +139,40 @@ sessions, real application data, interactive SD over ssh at a real terminal,
 symptom-without-cause. **None is a task with an owner; each is a thing nobody
 has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
+## THE DESTINATION: SD MUST BE MOVEABLE TO A NEW COMPUTER
+
+Owner, 2 Sep 2026, giving the reason behind PRE_RELEASE 135: *"eventually we
+will need a utility that allows sd to be moved to a new computer — when that
+happens, everything needs to come back the way it was — so uninstall,
+reinstall is kind of a shadow of that."*
+
+***THIS IS A DIRECTION, NOT A TASK, AND IT CHANGES HOW THE UNINSTALL/REINSTALL
+ENTRIES SHOULD BE FIXED.*** 120, 132, 134 and 135 all look like installer
+defects on their own. They are the same question asked four times: **what does
+SD need in order to put a machine back the way it was?** A fix that restores
+the property by accident of the local machine — a surviving group, a directory
+the uninstaller happened not to take — closes the entry and **does nothing for
+the move**, because on a new computer none of those local things exist.
+
+**THE TEST TO APPLY TO EACH FIX: would it still work if the only thing carried
+to the new machine were the data tree?** The register survives a move;
+`sdu_<name>` groups, ACLs, LSA rights and the uninstall log do not.
+
+- **134's manifest is the right shape** — it compares a tree against itself and
+  will compare a moved tree just as well.
+- **135 is where the choice bites**, and it is recorded in that entry: the
+  `sdu_*` groups are the cheap enumeration and survive a reinstall, while the
+  `accounts` register is the one that survives a move.
+
+***AND THE ONE STRUCTURAL OBSTACLE IS ALREADY KNOWN, SO DO NOT REDISCOVER IT***
+— CLAUDE.md: `gpl.bp`, `syscom`, `newvoc`, `voc_template` and `messages` are
+replaced on an upgrade, **but no existing account, including SDSYS's own, ever
+gains a new verb**, because `voc` is neither replaced nor preserved. **A
+register-driven restore that needs a NEW verb would not resolve on precisely
+the upgrade and reinstall paths it exists to serve.** The established
+install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
+<existing verb>`, `-stop` — and it calls a verb that already exists.
+
 ## NEXT SESSION: START HERE, IT IS SHORT
 
 > # ⇩⇩⇩ HANDOFF 15, 2 Sep 2026 — ***THE WITNESS RUN IS COMPLETE. ALL FOUR STEPS RAN ON `Windows 11 - Test 10`. 74 AND 118 CLOSED; 120 STAYS OPEN WITH ITS FIX PROVED INCOMPLETE; 132 AND 133 FILED.*** ⇩⇩⇩
