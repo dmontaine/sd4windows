@@ -296,19 +296,29 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > **Captures**: the guest writes to `\\vboxsvr\xfer` and they are readable
 > directly from `sdxfer` on the host. ***`capture-state.ps1` defaults `-OutDir`
 > to `Y:\` and must be given `-OutDir \\vboxsvr\xfer` every time.***
-> ***`guestcontrol` IS NOT FORBIDDEN. THE RULE THAT SAID SO IS WITHDRAWN BY THE
-> OWNER, 2 Sep 2026***: *"I have had several sessions where guest control was
-> used and screenshots were taken automatically."* The old line claimed it
-> "needs guest credentials" as though that settled it; **having credentials for
-> a throwaway guest is not an obstacle, and the sessions that used it are the
-> evidence.** ***AND THE REASON TO PREFER IT IS ALREADY WRITTEN IN THIS FILE***:
-> the credential-free route is the one that **drops characters** —
-> `keyboardputstring` lost one from a 12-character chunk and turned
-> `\\vboxsvr` into `\vboxsvr`. A route that types reliably beats one that needs
-> a screenshot before every Enter. ***WHAT IS NOT RECORDED IS HOW IT WAS SET
-> UP***: no script under `gplbld` mentions `guestcontrol`, so **ask rather than
-> assume in either direction** — do not re-derive the mechanism, and do not
-> reinstate the ban.
+> ***`guestcontrol` STAYS FORBIDDEN — it needs guest credentials. A WITHDRAWAL
+> OF THIS RULE WAS WRITTEN AND REVERSED THE SAME HOUR ON 2 Sep 2026, AND THE
+> REVERSAL IS THE PART WORTH READING.*** The owner said *"I have had several
+> sessions where guest control was used and screenshots were taken
+> automatically"*, and I struck the rule in four places on that. **He then
+> corrected it himself**: *"it may have not been guestcontrol — I just saw them
+> typing and they mentioned getting screenshots so that they could click
+> controls."*
+>
+> ***TYPING PLUS SCREENSHOTS IS THE CREDENTIAL-FREE ROUTE, NOT `guestcontrol`***
+> — `keyboardputscancode` to type and `screenshotpng` to see what to click is
+> exactly that description, and it is what this file already recommends. **The
+> record agrees and is one-sided**: every mention of `guestcontrol` in
+> PROJECT_STATUS.md and HISTORY.md is the ban, never a use, and HISTORY.md:7929
+> is a session writing down *"HOW THE GUEST WAS DRIVEN, since §7 step 2 forbids
+> `guestcontrol`"* — a session documenting that it used the other route
+> **because** of this rule.
+>
+> ***THE LESSON IS ABOUT THE EVIDENCE, NOT THE RULE.*** "Sessions drove the VM
+> directly" is true and is the useful fact; *"therefore they used
+> `guestcontrol`"* is an inference, and it was mine rather than his. A
+> remembered impression of what a past session did is not a measurement of
+> which tool it called — the transcripts are, and they say the opposite.
 >
 > # ⇩⇩⇩ HANDOFF 12, 1 Sep 2026 — ***THE ssh/API THREAD (116-126) IS BUILT, GREEN AND PUSHED. NO CYCLE OWED; ONLY THE RUNTIME WITNESSES REMAIN TO CLOSE THE ENTRIES.*** ⇩⇩⇩
 >
@@ -698,7 +708,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ### ***DRIVING A GUEST — THE THREE THINGS THAT COST TIME***
 >
 > **`keyboardputscancode` + `screenshotpng` needs no guest credentials**, so
-> `guestcontrol` is therefore not *required*. ***IT IS NOT FORBIDDEN EITHER — THAT RULE IS WITHDRAWN, SEE THE CORRECTION IN THE RIG SECTION.*** ***`keyboardputstring` DROPS
+> `guestcontrol` stays forbidden and unnecessary. ***`keyboardputstring` DROPS
 > CHARACTERS — IT DROPPED ONE ON A 12-CHARACTER CHUNK***, turning `\\vboxsvr`
 > into `\vboxsvr`. **Send each `\` as its own call and screenshot before Enter.**
 > ***A CONSOLE THE INSTALLER OPENS FOR ITSELF TAKES NO INJECTED KEYSTROKES AT
@@ -777,7 +787,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > ### ***DRIVING THE GUEST — WHAT WORKS AND THE TWO TRAPS***
 >
 > **`keyboardputscancode` + `screenshotpng` needs no guest credentials**, so
-> `guestcontrol` is therefore not *required*. ***IT IS NOT FORBIDDEN EITHER — THAT RULE IS WITHDRAWN, SEE THE CORRECTION IN THE RIG SECTION.*** Deterministic steps go in a
+> `guestcontrol` stays forbidden and unnecessary. Deterministic steps go in a
 > script on the read-write `xfer` share and the typed command stays short.
 > ***`keyboardputstring` DROPS CHARACTERS — IT DROPPED ONE ON A 12-CHARACTER
 > CHUNK***, turning `\\vboxsvr` into `\vboxsvr`. **Send each `\` as its own
@@ -973,8 +983,10 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > letters last time; two shares came up `Y:`+`Z:`, one came up `Z:` alone, and
 > there are three now. ***IT BITES `capture-state.ps1` SPECIFICALLY***: its
 > `-OutDir` defaults to **`Y:\`** and must be overridden with
-> `-OutDir \\vboxsvr\xfer` every time. ***`guestcontrol` IS NOT FORBIDDEN*** —
-> that rule was withdrawn by the owner on 2 Sep 2026; see the rig section above.
+> `-OutDir \\vboxsvr\xfer` every time. **`guestcontrol` stays forbidden** — it
+> needs guest credentials. *(A withdrawal of that rule was written and reversed
+> on 2 Sep 2026; the rig section has why, and it is worth reading before
+> anyone withdraws it again.)*
 >
 > **The three commands, written out so this does not depend on a scratch file**
 > — run per guest, with the guest **powered off**, then read the result back
