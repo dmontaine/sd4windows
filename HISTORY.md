@@ -45299,3 +45299,67 @@ set exit 0, fixlist **243 passed / 0 failed**, **open 13**.
 ***WHY THIS WENT FIRST, AND IT IS NOT TIDINESS***: 118, 89 and 66 all edit
 `sd.iss` wording next, and until now the guard meant to verify those changes was
 blind in that very file.
+
+***AND IT PAID WITHIN THE HOUR.*** The 118 and 120 comments below quote retired
+wording verbatim beside their fixes — the case the strip exists to allow — and
+the lint passed **30/30** over them.
+
+***THE SECOND COMMENT FORM WENT IN THE SAME DAY, BECAUSE `{ }` WAS THE INSTANCE
+AND NOT THE CLASS.*** Inno Pascal has two, and `sd.iss` uses `(* *)` for nearly
+every function header — **28 balanced blocks, all still in the corpus after the
+brace fix**. `Remove-ParenStarComment` runs as its own pass first and needs **no
+heuristic**, `(*` and `*)` being unambiguous where `{` is not. **30 checks**,
+corpus **10707 → 10302**, `'the'` 1665 → 1392, and `{app}` 72 → 67 with the
+constant control still holding — which is the reading that says prose left and
+shipped text did not.
+
+## 2 Sep 2026 — 118 and 120 built: an upgrade that lied about ssh, and three directories that vanished for being empty
+
+**Both are BUILT AND UNWITNESSED and both stay open.** 120's own row warns *"Do
+not let '120 was attested' become '120's fix was witnessed'"*, and that applies
+twice over to a fix.
+
+***118 IS ONE GATE.*** `ApplyAllowGroups` now carries `not TrueUpgrade` at its
+call site — the same shape, and the line above it, as the `ApplyApiFirewall`
+gate 88 had already added. `SyncRouteGroups` beside it is **deliberately left
+ungated, checked rather than assumed**: `sync-route-groups.ps1` seeds only the
+group it created, so on a tree that already has `sdssh` it declines to seed and
+changes nobody's access; gating it would risk leaving the groups missing on a
+tree that lost them. **The comment enumerating the gates was updated in the same
+edit** — it read *"the two ApplyXxxFirewall call sites"*, accurate about the
+gates that existed and wrong about the ones needed, and 112 is what a stale
+claim like that costs.
+
+***120's MECHANISM WAS MEASURED, AND IT IS SIMPLER AND WORSE THAN THE ENTRY
+GUESSED.*** `uninsneveruninstall` on the whole-tree `[Files]` entry protects
+**files, not an empty directory**. On this host `sdsys\bp`, `bp.out` and
+`batch.jobs` hold **0 entries** and `sdsys\accounts` holds **17** — so on a
+normal site the three are empty when the uninstaller runs and it takes the
+directories, while `accounts` survives on content alone. That is exactly the
+asymmetry seen on guest Test 1, where `batch.jobs.dic` was present and correctly
+locked while the store beside it was gone.
+
+**The fix is three `[Dirs]` entries**, which closes both halves at once: a
+`[Dirs]` entry carries no `Check:`, so it runs on every install and **heals a
+tree that already lost them**, and `uninsneveruninstall` stops the uninstaller
+taking them again. **The unusable remedy goes with it rather than being
+reworded** — `[Dirs]` are created before the post-install hardening, so
+`secure-sysdirs.ps1` finds its paths and the box that printed advice naming
+non-existent paths is never reached. ***`bp.out` IS INCLUDED THOUGH 120 DID NOT
+NAME IT***: same class, but **nothing hardens it, so its loss is announced by
+nobody** — a silent sibling is the more dangerous of the two.
+
+**66 was NOT built, and deliberately.** Its recorded decision (26 Aug) is to
+*bundle* the editors at installer-build time; a `--version` pin is a different
+and lesser approach, would not touch the install-time cost that raised it, and
+adds a failure mode the day that version leaves the winget source. **Changing a
+recorded decision is the owner's, so it was left.** **89's Defect A is the other
+open half** and its two shapes are a fork for him.
+
+`assert-current` now **exits 1 naming `gplbld\sd.iss`**, which is correct: a
+cycle is owed. **`sd.iss` has NOT been through ISCC** — no staged tree exists on
+this host to compile against standalone (the one at the repo root is a 16 Aug
+remnant), so `cycle.ps1 -SkipInstall` is the first thing that will read the
+Pascal. What was checked instead: both new comment blocks are brace-balanced and
+the `(* *)` block still closes, which is the trap this file records hitting
+twice.

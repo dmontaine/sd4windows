@@ -141,7 +141,7 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 14, 2 Sep 2026 — ***THE FULL SUITE IS GREEN ON `-Run b102` AND 112 IS CLOSED. NOTHING IS OWED AND NOTHING IS HALF-BUILT.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 14, 2 Sep 2026 — ***118 AND 120 ARE BUILT AND UNWITNESSED. A CYCLE IS OWED, THEN ONE GUEST SESSION WITNESSES FOUR ENTRIES.*** ⇩⇩⇩
 >
 > ***OPEN 13*** — 16, 65, 66, 70, 74, 80, 89, 93, 96, 102, 114, 118, 120.
 > ***FOUR OF THEM ARE B AND THEY ARE WHAT GATES W1.0-0: 65, 80, 93, 120.***
@@ -149,9 +149,21 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > 128, 129, 130, 131. **Five filed**: 127-131. ***NEXT FREE PRE_RELEASE ID: 132.
 > NEXT RUN TOKEN: `b103`*** — ***`b101` AND `b102` ARE BOTH SPENT.***
 >
-> ***THE HOST IS GREEN AND A CYCLE IS NOT OWED.*** `assert-current` **exit 0**,
-> install 10:28, `main` in sync with origin. Tier-1 all green: fixlist 242/0,
-> retired-wording 25/25, verdict 140/140, suiteonly 48/48, check-stale-leads 0.
+> ***A CYCLE IS OWED — `assert-current` EXITS 1 NAMING `gplbld\sd.iss`***, which
+> is correct rather than a fault: 118 and 120 changed it after the 10:28
+> install. Tier-1 all green: fixlist 243/0, retired-wording **30/30**, verdict
+> 140/140, suiteonly 48/48, stemcoverage 20+1/21, check-stale-leads 0.
+>
+> ### ***STEP 1 — BUILD THE INSTALLER (ELEVATED)***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> **ELEVATED PowerShell.** `sd.iss` has not been through ISCC — there is no
+> staged tree on this host to compile it against standalone, so this is the
+> first thing that will read the Pascal. **Nothing below is worth starting
+> until it reports a successful compile.**
 >
 > ### ***`b101` SPENT AT STEP 2 — 112's WIRING WAS WRONG TWICE, BOTH NOW FIXED***
 >
@@ -201,7 +213,8 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > | | needs |
 > |---|---|
 > | **74** | an INTERACTIVE uninstall on a guest — its wording half is witnessed, the behaviour half is not, and **the cycle cannot supply it**: `cycle.ps1:497` uninstalls `/VERYSILENT`, which now takes the skip path. Afterwards `Get-LocalGroup sdssh, sdapi, sdsshonly` gone, `sdusers` still there |
-> | **the next bundle** | **118 + 89 + 66 share one installer build and ONE guest session, and 74 rides along free** — its interactive uninstall is the same session, and the cycle cannot supply it (`cycle.ps1:497` uninstalls `/VERYSILENT`) |
+> | **118, 120** | ***BUILT, NOT WITNESSED.*** Both need the guest session below. **Do not let "built" become "witnessed"** — 120's own row says so about its finding and it applies twice over to its fix |
+> | **THE GUEST SESSION** | ***ONE SITTING WITNESSES FOUR, AND THE ORDER IS THE POINT.*** **(1)** install, **(2)** *interactive* uninstall keeping the database — that is **74**, and the cycle cannot supply it (`cycle.ps1:497` uses `/VERYSILENT`); afterwards `sdssh`, `sdapi`, `sdsshonly` gone and `sdusers` still there. **(3)** reinstall with the database KEPT — that is **120**: expect **no hardening warning** and `sdsys\bp`, `bp.out`, `batch.jobs` all present. **(4)** a second, over-the-top install — that is **118**: `sshd_config` and `sshd.pid` mtimes must **NOT** move. **89's Defect A rides on step 3's path too** |
 > | **96, 102** | **C on paths that fail silently.** Both shapes are chosen and written into their rows. Each wants a session that BEGINS with it, not one that ends on it. **102 is the larger**: the owner reversed the recorded decision — *"they are deleted, transactions are all or nothing"* — so a half-applied commit must now undo its writes |
 > | **65, 66, 70, 89, 114, 118** | build work, no ruling outstanding |
 > | **16, 80, 93, 120** | the big ones. **120's finding is attested by the owner and needs no re-measuring**; only a fix and its witness are left |
