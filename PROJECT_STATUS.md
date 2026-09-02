@@ -174,6 +174,28 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 > the untouched one worth a look — an upgrade rewrites `sshd_config` and restarts
 > `sshd` having just told the reader it changed nothing about ssh.
 >
+> ***AND SIX ROWS WERE STALE AGAINST THIS VERY HANDOFF — CORRECTED 2 Sep 2026, NOT
+> REBUILT. NOTHING WAS RUN AND NO CODE WAS TOUCHED; THIS IS THE INDEX CATCHING UP.***
+> **115, 123, 124, 125 and 126 still read *"not built; wants a cycle"*** while the
+> paragraphs above say they were cycled and installed. The rows are the index the
+> next session reads, so each now says **built-and-installed, witness owed**, and
+> names **where the witness can be taken**: 115 both halves and 124's 10144 prompt
+> and 125's 10162 are **host-doable and need no cycle and no guest**; 126, 125's
+> 10161 want a **no-ssh guest**; 123 (and 67 with it) wants an **interactive
+> wizard**, which a cycle's silent install cannot supply.
+>
+> ***THE SIXTH IS 89, AND CORRECTING IT MOVED THE DEFECT RATHER THAN CLOSING IT.***
+> Its row said Defect A's answer *"is 88's ruling, which is ruled and NOT BUILT"* —
+> but **88 was built, witnessed and struck on 1 Sep**. Read from `sd.iss` rather
+> than assumed: `ShouldSkipPage:1412` skips the tasks page on `TrueUpgrade`, which
+> is `DataTreeUpgrade and SdWasInstalled` (`:1397`), ***so 88 answers Defect A on a
+> TRUE UPGRADE AND ONLY THERE.*** After an **uninstall** the key is gone,
+> `SdWasInstalled` is false, the page **is shown**, `sd.conf` stays
+> `onlyifdoesntexist` over the kept tree (`:573-576`), and `ApplyApiFirewall` still
+> runs because `TrueUpgrade` is false — **the firewall moves and the listener does
+> not, which is the original defect.** ***THAT IS 120's PATH***, so 89 and 120 want
+> looking at together rather than separately.
+>
 > # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,
