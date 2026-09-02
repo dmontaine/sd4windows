@@ -172,8 +172,21 @@ has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
 >
 > ***AND `Test 7` EXISTS AS THE SPARE, 2 Sep 2026***, MAC `080027FA4150` —
 > **distinct, which is this session's own confirmation that a default clone
-> regenerates the MAC** rather than an inference from the others. Seven VMs
-> registered, every MAC unique, nothing collides.
+> regenerates the MAC** rather than an inference from the older clones: it was
+> created today and came up unique.
+>
+> ***THE RIG COUNT IS FIVE, AND ONLY FIVE ARE TEST GUESTS.*** `Test 3`, `Test 4`,
+> `Test 5`, `Test 6`, `Test 7` — `Test 1` and `Test 2` were deleted 2 Sep 2026.
+> `VBoxManage list vms` returns **seven** entries, and the other two are not
+> rigs: **`Windows 11 - Template`** is the clone source (never install on it),
+> and **`Beardog`** is nothing to do with this work. **Count the guests, not the
+> list** — every MAC is unique either way and nothing collides.
+>
+> ***WHAT EACH OF THE FIVE IS FOR, SO NONE IS SPENT BY ACCIDENT***: `Test 4` is
+> **used** — SD installed, ssh declined, `zz125` created (67, 126, 125's ssh half
+> came off it). `Test 3` is **used**, from earlier work. `Test 6` is the **next
+> run**, and must be installed with both boxes unticked. `Test 5` and `Test 7`
+> are **clean spares** — a missed screen should cost a spare, not a rebuild.
 >
 > ***DO NOT RUN THE CYCLE WHILE THAT GUEST RUN IS IN FLIGHT*** — it rebuilds the
 > `sdout` installer the guest installs from. Cycle first, then the guest.
