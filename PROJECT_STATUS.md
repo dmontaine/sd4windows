@@ -175,6 +175,85 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 18, 2 Sep 2026 — ***THE GUEST RUN LOST ITS DATABASE HALF-WAY AND PRODUCED THREE ENTRIES INSTEAD OF CLOSING SIX. A CYCLE IS OWED. `sd.iss` HAS CHANGED AND `assert-current` IS RED BY DESIGN.*** ⇩⇩⇩
+>
+> ***WHAT HAPPENED, IN ONE LINE: THE UNINSTALLER'S TWO QUESTIONS WERE BOTH
+> ANSWERED BACKWARDS, THE DATA TREE WENT, AND FOUR ENTRIES THAT NEEDED IT COULD
+> NOT BE WITNESSED.*** That is **PRE_RELEASE 139**, and it is a finding rather
+> than an accident — see below.
+>
+> ### ***THE STATE OF GUEST `Windows 11 - Test 10` RIGHT NOW***
+>
+> **No SD at all** — `C:\ProgramData\SD` and `C:\Program Files\SD` both absent,
+> `sdssh`/`sdapi`/`sdsshonly` gone. **`sdusers` and `sdu_ZZ135` survive, and
+> `zz135` is still an ENABLED Windows account with its password.** So the guest
+> is *not* clean and `create.account zz135` will be refused — **use a new name.**
+>
+> ***ONE FREE MEASUREMENT IS SET UP AND WAITING, TAKE IT ON THE NEXT INSTALL.***
+> `sync-route-groups.ps1` seeds `sdssh` **from `sdusers`**, which still holds
+> `zz135`; the register will be empty, so `restore-sshonly.ps1` adds nobody to
+> `sdsshonly`. **Predicted: `zz135` comes back able to ssh in, not confined, with
+> no SD account.** Read the four groups *before* creating anything.
+>
+> ### ***WHAT IS BUILT AND UNWITNESSED***
+>
+> **139's ASKING half.** Both uninstaller questions now go through one
+> `KeepOrDelete()` in `sd.iss` with **command links labelled Keep and Delete**
+> (owner's ruling). ***THE MAPPING IS INVERTED FROM THE OLD CODE AND THAT IS
+> FORCED, NOT CHOSEN***: focus follows `Labels[0]`, so the safe answer must be
+> first — **Keep = IDYES, Delete = IDNO**, where both call sites used to test
+> `= IDYES` for delete. **The inversion lives in one function on purpose.**
+> Every property was measured with `gplbld/probe-taskdialog.iss`, which is kept
+> and is on `$neverShipped`; **three of its six findings are invisible to a
+> compiler** — `MB_DEFBUTTON2` compiles and dies at run time with *"Invalid
+> Buttons"*, and the uninstaller context had to be proved separately.
+> **`MinVersion=10.0`** went in beside it (owner: *"I would allow 10 & 11 nothing
+> earlier … just because 10 is still in extended support"*) — **it was absent, so
+> Inno's Windows 7 SP1 default had been applying.**
+>
+> ***139's RECORDING half is NOT built and is the open part***: the database
+> question confirms nothing afterwards and writes no log, while the accounts
+> question does both — so nothing on disk can say which was chosen. That is why
+> this entry cannot state whether the click was wrong or the code was.
+>
+> ### ***NEXT STEPS, IN ORDER***
+>
+> 1. **A CYCLE.** `sd.iss` ships and has changed, so `assert-current` is red and
+>    the 17:45:23 installer is now behind source. `gplbld/check-iss.ps1`-style
+>    compile-checking is already done — **`sd.iss` compiles, 4,750 lines, ISCC
+>    exit 0** — but nothing has been installed.
+> 2. **Re-run the guest sequence properly**: install → read the four groups →
+>    create the witness account under a NEW name → `capture-state -Label first
+>    -Manifest` → interactive uninstall, **Keep on both questions** → reinstall →
+>    `capture-state -Label after` → diff. That closes **120, 132, 134, 135**, and
+>    now also witnesses **139's new dialog**.
+> 3. **136 and 70 never needed the database** and are still witnessable on any
+>    fresh install: `listf` in a created account showing descriptions, and
+>    `[locked]` after the type code in a VOC record surviving `update.account`
+>    with message 10165 naming it.
+>
+> ***OPEN 19***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134,
+> 135, 136, **137, 138, 139**. ***NEXT FREE PRE_RELEASE ID: 140. NEXT RUN TOKEN:
+> `b103`.*** **All nine free checks green.**
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***138 IS NOT A BUG IN THE CREDENTIAL CODE.*** An administrator has TWO
+>    accounts — unelevated lands in their own, elevated lands in SDSYS — and the
+>    install sets a password for the first while the second has none. **Nothing
+>    is broken; one of two needed credentials is set and nothing says there are
+>    two.** `LOGIN:955` needs a **tty**, and `kernel.c:251` takes it from
+>    `ttyname(fileno(stdin))`, so **every piped route skips the prompt** — which
+>    is why no cycle has ever met it and why **no verifier can**.
+> 2. ***DO NOT RE-DERIVE `TaskDialogMsgBox` FROM THE HELP.*** It is a compressed
+>    `.chm` and cannot be searched from the build tree. Everything known about it
+>    is in `probe-taskdialog.iss`, measured; re-run that instead.
+> 3. ***A `#` AT THE START OF A LINE IN AN `.iss` IS A PREPROCESSOR DIRECTIVE***
+>    — it cost two aborted compiles today, in the same file, on the same line
+>    number. `cycle.ps1:301` holds the whitelist that tells a real directive from
+>    a wrapped `#13#10`; **a bare `^\s*#` test is wrong and flags `sd.iss`'s own
+>    `#define` block.**
+>
 > # ⇩⇩⇩ HANDOFF 17, 2 Sep 2026 — ***HANDOFF 16'S STEP 1 IS DONE. IT ALL COMPILES. THE ONLY THING LEFT IS THE GUEST RUN, AND IT NEEDS A PERSON.*** ⇩⇩⇩
 >
 > ***STEP 1 PASSED — `cycle.ps1 -SkipInstall`, 2 Sep 17:44:46, elevated, and
