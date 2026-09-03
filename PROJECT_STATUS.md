@@ -207,8 +207,45 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    `Test A/B/C` (the OLD ones) and `Windows 11 - Template` are all
 >    unregistered. **Re-run the audit anyway before picking a guest** — the rule
 >    is to count guests from `VBoxManage`, and it has now been right twice.
-> 1. ***145 IS ONE UNINSTALL AND IT IS THE ONLY THING THE SITTING LEFT
->    HALF-ANSWERED.*** `uninsneveruninstall` did **not** protect `cat`, `prt`,
+> 1. ***145 IS HALF-RUN AND THE GUEST IS STILL POWERED ON AT THE EXACT POINT IT
+>    STOPPED — 3 Sep 2026 09:46, STOPPED ON THE OWNER'S WORD, NOT BY A
+>    FAULT.*** `Windows 11 - SSH no SD - Test A` is **running**, SD Core is
+>    **installed**, and the closing box *"SD Core is installed"* is **on screen,
+>    screenshotted before anything dismissed it**. ***THE PRECONDITION IS PROVED
+>    AND CANNOT BE PROVED AGAIN LATER***: `p145-preflight` ran first and recorded
+>    **no `C:\Program Files\SD`, no `C:\ProgramData\SD`, no SD local groups,
+>    elevated `VIRTUAL\don`** — which is the whole point of 145, since the
+>    hypothesis is that `[Dirs]` protects only what the installer itself created.
+>    Installer verified on the guest at **4,963,912 bytes**. **Tasks chosen: PATH
+>    ticked, ssh-inbound ticked, API UNTICKED** — the API was deliberately left
+>    off so 145 stays a clean measurement rather than being mixed with 89's
+>    API-ON case. ***WHAT IS LEFT IS THE MEASUREMENT ITSELF***, all of it on that
+>    running guest: `capture-state.ps1 -Label first -Manifest -OutDir
+>    \\vboxsvr\xfer` **elevated**, then the **interactive** uninstall answering
+>    **Keep**, then `-Label after`, then read the twelve. **`-OutDir` must be
+>    passed** — its default `Y:\` is the stale drive letter the rig section
+>    warns about; the UNC path works.
+>
+>    ***THREE THINGS THE RUN LEARNED THAT ARE REUSABLE, ALL CHEAP AND ALL PAID
+>    FOR ONCE:*** **(a)** the guest autologons to the desktop, and `WIN+r` →
+>    `powershell` → `CTRL+SHIFT+ENTER` gives an **elevated** shell with **no UAC
+>    prompt at all** on these clones. **(b)** ***`Start-Process` PUTS THE
+>    INSTALLER BEHIND THE SHELL AND `ALT+TAB` DID NOT RAISE IT — `WIN+4` DID***
+>    (its taskbar position), which is worth knowing before somebody concludes the
+>    installer failed to start; the taskbar button was the only thing on screen
+>    saying it had. **(c)** ***PUT THE WORK IN A SCRIPT ON THE `xfer` SHARE AND
+>    TYPE ONE SHORT LINE***, rather than typing the work itself: results come back
+>    to the host as text and are read directly, so almost none of this needed a
+>    screenshot. `C:\Users\dmont\sdxfer\p145-preflight.ps1` is the shape.
+>
+>    ***AND ONE INSTRUMENT DEFECT FOUND IN PASSING, IN THE SHAPE THE RULES
+>    NAME***: `Get-Service -Name 'SD*'` matches Windows' **own** `SDRSVC`, so a
+>    preflight written that way reports an SD service on a machine with no SD.
+>    It printed `SDRSVC=Stopped` beside *"CLEAN MACHINE"* and the two disagree.
+>    **Match the exact service name.**
+>
+>    *(The original entry follows.)* ***145 IS ONE UNINSTALL AND IT IS THE ONLY
+>    THING THE SITTING LEFT HALF-ANSWERED.*** `uninsneveruninstall` did **not** protect `cat`, `prt`,
 >    `$hold` while `bp`, `bp.out`, `batch.jobs` survived the same uninstall with
 >    the same flags. The reinstall healed all of them so nothing is lost, but
 >    `sd.iss:676` claims something that did not happen. **The test is in 145's
