@@ -175,6 +175,103 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 22, 3 Sep 2026 — ***FIVE CLOSED (145, 137, 146, 89, 136), ONE FILED AND OPEN (147). OPEN 15 → 12. THE INSTALL IS CURRENT AND `assert-current` IS EXIT 0. ONE FULL SUITE IS OWED AND WAS NOT RUN.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 11:04:52**, the owner's own
+> cycle, carrying 146's fix; `assert-current` **exit 0**; **fourteen free checks
+> green**. ***OPEN 12: 16, 65, 66, 70, 80, 93, 96, 102, 114, 135, 138, 147.
+> NEXT FREE ID 148. NEXT RUN TOKEN `b103`, still unspent.***
+>
+> ***THE ONE THING OWED: THE FULL SUITE.*** CLAUDE.md says a full run goes
+> before a release **and before a handoff**, and this handoff does not have one
+> — nothing in the session needed a suite, and it was not run. **~20 minutes,
+> two halves.** Unelevated first, then elevated:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b103
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b103
+> ```
+>
+> **The first is an ordinary unelevated prompt, the second an elevated one.**
+> `PARTIAL` must appear **0 times** in either half or it was not a full run.
+>
+> ### ***WHAT TO DO NEXT, IN COST ORDER***
+>
+> 1. ***135 AND 147 ARE THE SAME SHAPE AND ONE CYCLE CARRIES BOTH.*** Each is a
+>    silent loss that needs **saying out loud**, not a mechanism to fix. **135**:
+>    the reinstall restores `sdsshonly` and does **not** restore `sdapi`, which
+>    is correct and deliberate, and nothing anywhere names the dropped grant.
+>    **147**: after uninstall-then-reinstall keeping the database, the API
+>    **listens on `0.0.0.0:4243` with no firewall rule**, the box is hidden so
+>    nobody can ask for one, and the closing box says nothing. ***DO NOT FIX 147
+>    BY UNGATING `ApplyApiFirewall`*** — that is the change 89 rejected, and it
+>    would let a hidden box narrow a scope the site chose. Both want a sentence
+>    where the reader already is, naming `remote.api on` (`sd.iss:2535` already
+>    prints it in another branch).
+> 2. ***`Test C` IS ALREADY IN 147's STATE — DO NOT RECLONE IT UNTIL 147 IS
+>    WITNESSED.*** It carries the install-uninstall(Keep)-reinstall sequence,
+>    so it has the API listening with no rule right now.
+> 3. **Two things are the owner's**: **96**'s (b) vs (c) — build neither until he
+>    says — and whether the **ten unlisted free guards** join "run these on every
+>    change".
+> 4. Then the builds: **114** (BASIC), **93**, **70**, **66**, **65**; the C work
+>    **102**, **16**, **96**; **80** as its own project.
+>
+> ### ***THE RIG, MEASURED 3 Sep 2026 — SEVEN GUESTS, ALL `nic1=nat`***
+>
+> One hardware UUID and one MAC across all of them, which is the licence fix and
+> is why they may look wrong to a reader expecting distinct MACs. ***NAT, NOT
+> BRIDGED***, so they may run concurrently — **and nothing on this rig can
+> measure LAN reachability** until a guest is put back on bridged. That is one
+> setting per guest, costs no reactivation, and re-imposes "one at a time" on
+> whatever gets it.
+>
+> | guest | state |
+> |---|---|
+> | `Windows 11 - SSH no SD - Template` | clone source, leave alone |
+> | `Windows 11 - No SD or SSH - Template` | clone source, leave alone |
+> | `Windows 11 - SSH no SD - Test A [used]` | spent — 145 |
+> | `Windows 11 - SSH no SD - Test B [used]` | spent — 146's finding |
+> | ***`Windows 11 - SSH no SD - Test C`*** | ***147's state, keep it*** |
+> | `Windows 11 - No SD or SSH - Test 1` / `Test 2` | fresh, no ssh |
+>
+> ***THE OWNER RENAMES A SPENT GUEST `[used]`***, which is worth copying.
+> **Count the guests from `VBoxManage`, never from this table.**
+>
+> ### ***SIX DRIVING TRAPS, ALL PAID FOR THIS SESSION***
+>
+> 1. ***`powershell -File script.ps1 -Array a,b,c` PASSES ONE STRING.*** The
+>    array parameter binds a single bogus element and the feature silently does
+>    nothing — `diff-capture -Expected` reported `expected-gone : 0` rather than
+>    an error. **Call the script in-process, or pass one value per call.**
+> 2. ***AFTER A WINDOW OPENS, `ALT+TAB` BEFORE TYPING.*** Batching the open and
+>    the command sent a whole command line into a window that did not exist yet,
+>    twice, and the tell is an **empty prompt**, not an error.
+> 3. ***`WIN+<n>` RAISES A WINDOW `ALT+TAB` WILL NOT, AND STRANDS THE WINDOWS
+>    KEY.*** The next keypress then opens the Start menu instead of answering a
+>    dialog. `vm-type -Release` clears it.
+> 4. ***`ALT+TAB` ONTO A Yes/No BOX LANDS ON `No`.*** Crop the button row and
+>    read which has focus before every destructive answer.
+> 5. ***PUT THE WORK IN A SCRIPT ON THE `xfer` SHARE AND TYPE ONE SHORT LINE.***
+>    Results come back to the host as text; almost nothing needs a screenshot.
+> 6. ***THE SCRATCHPAD CANNOT HAND A FILE TO AN ELEVATED CHILD*** — writes there
+>    are redirected. Put such a script in `C:\Users\dmont\sdout\`, which is where
+>    `witness-listf.ps1` and `p136-programmer.ps1` live.
+>
+> ### ***THREE INSTRUMENT FAULTS, ALL MINE, ALL THE SAME FAMILY***
+>
+> Each was a **match on a guessed string**, and the record already names the
+> class. An accumulator `$L` clobbered by a loop variable `$l` (PowerShell names
+> are case-insensitive). A firewall filter of `SD|OpenSSH|4243` matching **49**
+> Windows rules, because "SD" is inside SSDP and WSD. And a summary line matching
+> only `DisplayName` against `SD-API` while the display name is `SD API
+> (SDClient)` — ***printing `False` three lines under a listing that showed the
+> rule***, which is the dangerous direction: it scores a working fix as a
+> failure. **Anchor on what the tool prints, and read the source for the name.**
+>
 > # ⇩⇩⇩ HANDOFF 21, 3 Sep 2026 — ***THE GUEST SITTING RAN AND CLOSED SIX (120, 132, 133, 134, 139, 140). TWO ADVANCED AND STAY OPEN (89, 135), ONE WAS FILED (145). OPEN 20 → 15. NO CYCLE IS OWED. THE VM RIG WAS BEING REBUILT OVERNIGHT — CHECK IT BEFORE PICKING A GUEST.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Nothing under `gplsrc` or `sdsys` changed, so
