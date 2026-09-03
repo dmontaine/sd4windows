@@ -307,12 +307,17 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | **65** | looks closed in HISTORY (30 Aug) | ***CORRECTLY OPEN.*** Closed on the product half, then **re-opened 31 Aug** because the harness half regressed, and raised S → B. The row documents this itself |
 > | **16, 80, 93, 114, 133, 137, 139, 120, 132, 134, 135, 66, 89** | — | **checked, no drift.** 93's shape was ruled 1 Sep and its row says so; 66's decision was taken 26 Aug and its row says so |
 >
-> ***THE RULE THAT WOULD HAVE CAUGHT ALL FOUR, AND IT ALREADY EXISTS***: the task
-> table is *"THE AUTHORITY ON STATUS. The entries below carry the reasoning; this
-> carries the state."* **A PRE_RELEASE headline is reasoning, not state.** When
-> they disagree the table wins — and `check-stale-leads.py` only enforces that
-> for the **26** §7 steps, **not** for the 143 entry rows. *That gap is what all
-> four of these lived in.*
+> ***THE GAP ALL FOUR LIVED IN IS NOW ENTRY 144.*** The task table is *"THE
+> AUTHORITY ON STATUS. The entries below carry the reasoning; this carries the
+> state."* **A PRE_RELEASE headline is reasoning, not state** — and
+> `check-stale-leads.py` enforces that only for the **26** §7 steps, never for
+> the entry rows. ***THE MACHINERY IS ALREADY WRITTEN AND AIMED AT ONE FILE***:
+> its **phase 1** is *"an entry whose OPENING status is contradicted later in
+> itself"* — **96 exactly** — and its **phase 2** is the table-against-entries
+> check that would have caught **102**. Neither has ever read
+> `PRE_RELEASE_FIXES.md`. **70 and 136 are out of reach of any scan** and 144
+> says so: they went stale because *work happened*, and the file's own limit is
+> that *"no checker over a document can know what a machine is doing"*.
 >
 > ### ***TWO RULINGS TAKEN 2 Sep 2026, BOTH NOW IN THEIR ROWS, NEITHER BUILT***
 >
@@ -325,7 +330,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   can ever exercise it** — `LOGIN:955` guards on a tty and every automated
 >   route pipes stdin.
 >
-> ### ***OPEN 20***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140. ***NEXT FREE ID: 144. NEXT RUN TOKEN: `b103`.*** **TEN free checks now** — `test-stripcomments-units` joined the list in CLAUDE.md in the commit that created it — all green, `test-fixlist-units` 251/0, `assert-current` exit 0.
+> ### ***OPEN 21***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144. ***NEXT FREE ID: 145. NEXT RUN TOKEN: `b103`.*** **TEN free checks now** — `test-stripcomments-units` joined the list in CLAUDE.md in the commit that created it — all green, `test-fixlist-units` 251/0, `assert-current` exit 0.
 >
 > ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
 >

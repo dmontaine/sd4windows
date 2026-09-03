@@ -45693,6 +45693,26 @@ in both directions — **but only for the 26 §7 steps, never for the 143
 PRE_RELEASE entry rows.** So an entry headline can age indefinitely against a
 table that already knows better, and nothing goes red. Four did.
 
+**Filed as entry 144 the same day, on the owner's instruction, and the machinery
+turned out to be written already.** `check-stale-leads.py`'s **phase 1** is *"an
+entry whose OPENING status is contradicted later in itself"* — which is **96**
+exactly, catchable with no external source at all — and its **phase 2** is the
+table-against-entries check that would have caught **102**. Both scan
+`PROJECT_STATUS.md` and **neither has ever read `PRE_RELEASE_FIXES.md`**. So the
+fix is to aim two existing phases at a second file, keeping phase 2 as the only
+one that exits non-zero.
+
+***THE ENTRY DELIBERATELY DOES NOT PROMISE ALL FOUR.*** **70** and **136** went
+stale because *work happened*, not because two sentences disagree, and the
+checker's own header says why nothing can reach them: *"every phase compares this
+file against ITSELF … no checker over a document can know what a machine is
+doing."* Those want a convention instead — a headline claiming UNCOMPILED or
+UNWITNESSED is a claim about a machine, and the session that compiles or
+witnesses owns updating it. **And 65 is the warning against over-reaching**: it
+reads as closed in HISTORY and is correctly open, so a guard that trusted HISTORY
+over the row would have turned a right row into a wrong one. Only the table
+outranks a row.
+
 **Two rulings taken the same day and written into their rows, neither built:**
 **140** gates `sdusers`'s survival on whether a data tree survives the uninstall
 rather than on which button was pressed — covering all three `Exit` paths, and
