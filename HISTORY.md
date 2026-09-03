@@ -46213,3 +46213,75 @@ After `ALT+TAB` onto a Yes/No box the focus lands on NO, so the button under
 focus was cropped and read before every destructive answer.  And the cheapest
 thing of all: put the work in a script on the xfer share and type one short line,
 so results come back as text and almost nothing needs a screenshot.
+
+## 3 Sep 2026 - 135 and 147 built: the loss is said out loud in the box that made the promise
+
+Both entries had the same open half - a silent loss of access after an uninstall
+that kept the database - and both were closed the same way, in the same box.  The
+kept-database dialog is the one that says "YOUR DATA IS UNTOUCHED", and 135's
+whole finding is that a reader takes that as a promise about ACCESS.  So the
+correction goes one paragraph under the promise rather than into a release note.
+
+135's paragraph is gated on `not TrueUpgrade`.  Inside the `not DataTreeAbsent`
+branch that reads "the data tree was here and SD was not installed", which is the
+only path that loses a membership: the uninstaller deletes sdssh, sdapi and
+sdsshonly outright and a Windows local group takes its membership with it.  An
+in-place upgrade keeps them and the paragraph does not appear.  It lists all
+three - ssh-only restored from the register (that line only when RestoreSshOnly
+reported nothing, so it cannot contradict the summary box), sdssh re-seeded from
+sdusers so a withdrawn ssh comes back, and sdapi not restored and never restored
+by any install.  Every claim is an invariant of the installer rather than a
+reading of this machine's groups, so none of it can go stale between the
+measurement and the reading.
+
+147's paragraph is gated on a MEASUREMENT.  api-firewall.ps1 gained -ScopeFile,
+a read-only mode writing one word - open, restricted or none - copied from
+ssh-firewall.ps1's, with Test-RuleOpen factored out so one place decides
+open-or-shut.  sd.iss's GetApiRuleScope runs it at ssPostInstall AFTER
+ApplyApiFirewall, which is the opposite of 146's rule for the same reason: 146
+asks about the state before the write, this asks about the state after it.  An
+unreadable answer prints no paragraph at all, because a sentence asserting "no
+other computer can reach the API" from a measurement that did not happen is the
+null case the instrument rules forbid.  The gate 89 rejected is untouched.
+
+THE TRAP THAT NEARLY SHIPPED A WRONG SENTENCE.  The obvious instruction for 135
+was "grant it again with modify.account <name> api".  MODIFYA:300: api alone
+means the API AND NOTHING ELSE, so that line would have silently withdrawn ssh
+from every account somebody used it on - a message causing the loss it is
+explaining.  The box names all four keywords and says what the keyword does.
+
+Chasing the same question filed 148.  The command an administrator reaches for
+after reading the new paragraph is remote.api, and with no keyword it reports the
+listener only (REMOTEAPI:121 -> api-listener.ps1 -Show).  On 147's machine it
+answers ON while nobody can connect.  remote.ssh reports its firewall
+(REMOTESSH:94 -> ssh-firewall.ps1 -Show), so the verb whose two axes actually
+differ is the one reporting a single axis.
+
+What it was checked with.  ISCC compiled the extracted [Code] alone, exit 0 and
+55 routines, against two controls that failed on exactly the injected line - a
+bad identifier inside GetApiRuleScope, and #13#10 wrapped onto the start of a
+line in the new text.  -ScopeFile was then run for real against both the source
+copy and the installed one: both answered "open" and both agreed with -Show,
+which is the independent instrument.  The none branch was driven from the parsed
+source, the host having a rule.  test-apigate-units went 13 checks to 27 and now
+guards the sampling ORDER, the three-word list, and that api-firewall.ps1 still
+takes the switch - two files describing one fact, kept in step by hand.
+
+A cycle ran at 12:40, 2.4 minutes, exit 0: ISCC "Successful compile",
+sd-setup-W1.0-0.exe 4,965,787 bytes against the previous 4,959,678 - it GREW,
+which is the cheap check that the new text went in - and assert-current exit 0
+afterwards.  The agent ran it itself with one direct Start-Process -Verb RunAs
+-Wait, which 4.0.1 already permits and two sessions have handed back instead.
+
+NEITHER PARAGRAPH HAS BEEN SEEN.  Both entries stay open as BUILT, NOT
+WITNESSED.  The witness is guest Windows 11 - SSH no SD - Test C, which is
+already in 147's state: install over it keeping the database and read the box.
+One run witnesses both.
+
+Two things found on the way.  C:\Users\dmont\sdout\check-iss.ps1 already existed
+and compiles the WHOLE sd.iss without a cycle; a second harness was built before
+it was found, which is this repository's own "search the record first" rule going
+unpaid, and the duplicate was deleted.  And cycle-20260903-124039.log is
+TRUNCATED AT FRONT - 1,879 Compressing lines against 3,672, no ISCC front markers
+- which is 137's instrument working, and the second cycle in two days to lose the
+front.  The build is unaffected; what is lost is reading the log afterwards.

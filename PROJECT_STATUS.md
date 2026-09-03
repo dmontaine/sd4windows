@@ -175,6 +175,87 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 ARE BUILT AND UNWITNESSED; 148 IS FILED FROM WHAT BUILDING THEM SHOWED. OPEN 12 → 13. THE INSTALL IS 12:41:43 AND `assert-current` IS EXIT 0. THE FULL SUITE IS STILL OWED.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 12:41:43** from `cycle.ps1` run
+> by this session; ISCC *"Successful compile"*, `sd-setup-W1.0-0.exe`
+> **4,965,787 bytes** — it GREW, which is the cheap check that the new text went
+> in; `assert-current` **exit 0**; **fourteen free checks green**, with
+> `test-apigate-units` at **27, up from 13**. ***OPEN 13: 16, 65, 66, 70, 80,
+> 93, 96, 102, 114, 135, 138, 147, 148. NEXT FREE ID 149. NEXT RUN TOKEN `b103`,
+> STILL UNSPENT.***
+>
+> ***135 AND 147 WERE THE SAME FIX AND THEY WENT IN THE SAME BOX*** — the
+> kept-database one, the one that says *"YOUR DATA IS UNTOUCHED"*, because 135's
+> whole finding is that the promise is read as a promise about access. 135's
+> paragraph sits **directly under it**, gated on `not TrueUpgrade` (inside that
+> branch: the tree was here and SD was not installed — an in-place upgrade loses
+> no membership and says nothing). 147's sits at the **end**, gated on
+> `(not ApiConfAbsent) and ApiListenerAfterwards and (ApiScope = 'none')`.
+> `api-firewall.ps1` gained a read-only **`-ScopeFile`** writing one of `open`,
+> `restricted`, `none`; `sd.iss` gained `GetApiRuleScope`, which runs it
+> ***after*** `ApplyApiFirewall` — **the opposite of 146's rule, and the reason
+> is the same**: 146 asks about the state before the write, this asks about the
+> state after it. ***THE GATE 89 REJECTED IS UNTOUCHED.***
+>
+> ### ***WHAT IS OWED — TWO THINGS, AND NEITHER IS OPTIONAL***
+>
+> 1. ***THE WITNESS. NEITHER PARAGRAPH HAS BEEN SEEN BY ANYBODY.*** Both need
+>    guest `Windows 11 - SSH no SD - Test C`, which is **already in 147's
+>    state** — the API listening, no rule. Install over it keeping the database
+>    and read the box. That one run witnesses both entries.
+> 2. ***THE FULL SUITE***, still owed from Handoff 22 and now with a current
+>    install to run against. Unelevated first, then elevated:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b103
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b103
+> ```
+>
+> **The first is an ordinary unelevated prompt, the second an elevated one.**
+> `PARTIAL` must appear **0 times** in either half or it was not a full run.
+>
+> ### ***THE TRAP THAT NEARLY SHIPPED A WRONG SENTENCE***
+>
+> The obvious wording for 135 was *"grant it again with
+> `modify.account <name> api`"*. ***`api` ALONE MEANS THE API AND NOTHING
+> ELSE*** (`MODIFYA:300`, and its own comment says so), so that line would have
+> **silently withdrawn ssh** from every account somebody used it on — a message
+> that causes the loss it is explaining. The box names all four keywords and
+> says what the keyword does.
+>
+> ***AND CHASING THAT IS WHAT FILED 148.*** The command an administrator reaches
+> for after reading the new paragraph is `remote.api`, and **with no keyword it
+> reports the LISTENER only** (`REMOTEAPI:121` → `api-listener.ps1 -Show`). On
+> 147's machine it answers ON while nobody can connect. **`remote.ssh` reports
+> its firewall** (`REMOTESSH:94` → `ssh-firewall.ps1 -Show`); the verb whose two
+> axes actually differ is the one reporting a single axis.
+>
+> ### ***THREE THINGS MEASURED THAT THE NEXT SESSION SHOULD NOT RE-DERIVE***
+>
+> 1. ***`C:\Users\dmont\sdout\check-iss.ps1` ALREADY EXISTS AND COMPILES THE
+>    WHOLE `sd.iss` WITHOUT A CYCLE*** — 5,205 lines, 0 bad `#` lines, ISCC
+>    exit 0. **A second one was built before it was found**, which is this
+>    repository's own "search the record first" rule going unpaid: the duplicate
+>    was deleted. Run `check-iss.ps1` before every cycle that carries an
+>    `sd.iss` edit. *(What the duplicate added and this does not: two CONTROLS
+>    that must fail — a bad identifier, and `#13#10` wrapped onto the start of a
+>    line. Both failed on exactly the injected line, so ISCC is genuinely
+>    reading the new code.)*
+> 2. ***THIS CYCLE'S LOG IS TRUNCATED AT THE FRONT AND SAID SO ITSELF.***
+>    `cycle-20260903-124039.log`: 1,879 `Compressing` lines against 3,672, no
+>    ISCC front markers. That is PRE_RELEASE 137's instrument working, and the
+>    second cycle in two days to lose the front. **The build is unaffected** —
+>    ISCC's exit code decided it — and what is lost is the ability to read the
+>    log afterwards to find out why, had it failed.
+> 3. ***AN AGENT MAY RUN `cycle.ps1` ITSELF: `Start-Process -Verb RunAs -Wait`,
+>    ONE HOP, ONE CONSENT.*** Done here, **2.4 minutes**, exit 0. §4.0.1 already
+>    said so; it is repeated because two sessions have handed the cycle back
+>    instead. **`VerifyInstall1` is still a person's job.**
+>
 > # ⇩⇩⇩ HANDOFF 22, 3 Sep 2026 — ***FIVE CLOSED (145, 137, 146, 89, 136), ONE FILED AND OPEN (147). OPEN 15 → 12. THE INSTALL IS CURRENT AND `assert-current` IS EXIT 0. ONE FULL SUITE IS OWED AND WAS NOT RUN.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 11:04:52**, the owner's own
