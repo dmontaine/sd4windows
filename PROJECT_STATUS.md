@@ -175,34 +175,37 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***HANDOFF 19's STEP 1 PASSED. EVERYTHING IN THE TREE COMPILES. 141 AND 142 ARE CLOSED, 140 IS PRICED AND NEEDS A RULING, AND THE NEXT THING IS AN INSTALL — NOTHING BELOW HAS BEEN SEEN ON A RUNNING SYSTEM.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***A FULL CYCLE RAN AND `assert-current` IS GREEN. 141, 142 AND 143 ARE FILED, 142's CONTRADICTION IS RESOLVED, 140 IS PRICED AND NEEDS A RULING. THE INSTALL IS CURRENT — MEASURE BEFORE CHANGING ANYTHING.*** ⇩⇩⇩
 >
-> ***THE ONE SENTENCE: THE BACKLOG IS NOW ALL WITNESS WORK, NOT BUILD WORK.***
-> Nine free checks green, two `cycle.ps1 -SkipInstall` runs green, ISCC green.
-> **The service is STOPPED and the installed tree is STALE** — `cycle.ps1
-> -SkipInstall` leaves both that way, and it is not a fault.
+> ***THE ONE SENTENCE: THE TREE IS BUILT, INSTALLED AND CURRENT, AND WHAT IS
+> LEFT IS WITNESS WORK PLUS ONE RULING.*** Full cycle 21:28:26, **exit 0**, 190
+> compiles at 0 errors, installer **4,963,414 bytes**, installed **21:29:26**,
+> `assert-current`: *"the installed tree matches source"*. Nine free checks
+> green. ***A CYCLE ENDS AT THE NEXT SOURCE CHANGE — this one is still open, so
+> anything measured before the next edit counts.***
 >
-> ### ***STEP 1 — A FULL CYCLE, THEN LOOK AT FOUR THINGS***
+> ### ***STEP 1 — WITNESS WHAT THIS INSTALL EXISTS TO SHOW***
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
+> **Three of the four are still owed, and none needs a rebuild.**
 >
-> **ELEVATED PowerShell, FRESH WINDOW.** No `-SkipInstall` this time: the point
-> is the install. Then, in order of what is cheapest to see:
->
-> 1. ***`listf` IN SDSYS, AND READ THE SIX.*** This settles the contradiction
->    142 could not. The shipped data says **6 of SDSYS's 16 file records are
->    bare** — `$ACC`, `$MAP`, `SD.VOCLIB`, `dict.dict`, `syscom`, `voc` — because
->    SDSYS's VOC is a straight copy of `voc_template` and `voc_template` is bare
->    for **391 of the 392** records it shares with `newvoc`. **The 2 Sep guest
->    observation says all 16 were described.** If the guest is right, something
->    composes SDSYS's VOC after the copy and nothing in the tree says what.
-> 2. **`create.account`, then `listf` in it** — 142's own fix, and 136's last
->    record. Expect **10 of 10 described** now, `newvoc` included.
-> 3. **The closing box and the options page** — 141. Both now name the PATH
->    symptom beside the token one.
-> 4. **`check-install.ps1` from an ordinary window** — its new PATH section.
+> 1. ***DONE — 142's CONTRADICTION IS SETTLED AND `sd` WAS NEVER NEEDED.*** The
+>    installed `sdsys\voc` was grepped as raw bytes: `File - Vocabulary`,
+>    `File - System include records` and `File - Dictionary for dictionaries`
+>    return **0**; `File - VOC given to a new account`, `File - Account register`
+>    and `File - Spooler hold files` return **1** each. SDSYS stores **10 of 16
+>    described, 6 bare**, exactly as `voc_template` has them. **The guest's own
+>    bare `F` for `newvoc` is the control**: `DESC` prints field 1 verbatim, so a
+>    bare field 1 cannot render as a sentence. **Nothing composes SDSYS's VOC
+>    after the copy.**
+> 2. **`create.account`, then `listf` in it** — 142's own fix and 136's last
+>    record. Expect **10 of 10 described**, `newvoc` included. **Not done: it
+>    creates a Windows account, which was not asked for.** Handoff 19's trap
+>    about reused names still applies.
+> 3. **The closing box and the options page** — 141. The wizard was clicked
+>    through during the cycle, so **the pages were on screen but nobody was
+>    reading them for this**; it still wants a deliberate look.
+> 4. ***DONE, BUT ON THE PREVIOUS TREE*** — `check-install.ps1`'s PATH section,
+>    both branches with a control. Worth one re-run now the install is current.
 >
 > ### ***WHAT WAS BUILT AND COMPILED THIS SESSION***
 >
@@ -233,7 +236,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > Windows accounts stay, enabled, with their passwords; they lose the seed list
 > that hands them ssh back.
 >
-> ### ***OPEN 20***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140. ***NEXT FREE ID: 143. NEXT RUN TOKEN: `b103`.*** All nine free checks green; `test-fixlist-units` 249/0.
+> ### ***143, FILED FROM THE CYCLE'S OWN OUTPUT***
+>
+> The run printed *"note: probe-taskdialog.iss now appears in stage.py or sd.iss,
+> so it is watched again"*. ***THE COMMENT THAT DOCUMENTS THE TRAP RE-TRIPS
+> IT***: `$shipsAs` (`assert-current.ps1:1015`) matches a quote or a slash before
+> the name, and `sd.iss:4577` quotes `"gplbld/probe-taskdialog.iss"` — the
+> rejected spelling — while explaining why that spelling is wrong. **Measured:
+> one match in `sd.iss`, zero in `stage.py`, and the probe is not in
+> `C:\Program Files\SD`.** It is a false STALE, so nothing failed; the cost lands
+> on whoever next edits the probe. **`test-retired-wording-units.ps1` already
+> strips comments before scanning, for this exact reason — reuse it rather than
+> rewording line 4577.**
+>
+> ### ***OPEN 21***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140, 143. ***NEXT FREE ID: 144. NEXT RUN TOKEN: `b103`.*** All nine free checks green; `test-fixlist-units` 249/0.
 >
 > ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
 >

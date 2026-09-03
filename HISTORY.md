@@ -45492,3 +45492,47 @@ Second `cycle.ps1 -SkipInstall` at 21:19:48 for the `CREATEA` comment, exit 0,
 on a comment-only change** — 7,864 → 7,891 for +27 source lines — which is the
 line-number table; the diff was checked line by line and touches nothing that is
 not a `*` comment.
+
+## 2 Sep 2026 — the full cycle: green end to end, 142's contradiction resolved without running `sd`, and 143 filed out of the run's own output
+
+Pushed `830ec41..3b95f18`, then `cycle.ps1` (no `-SkipInstall`) at 21:28:26,
+**exit 0 in 128 s**. All eight steps; 190 compiles at 0 errors; installer
+**4,963,414 bytes**; both trees deleted and reinstalled; step 8 read gcat 133
+against staged 133 and GPL.BP.OUT 192 against staged 192; the credential
+register held **1 account with a password**; `assert-current` closed with *"the
+installed tree matches source"*, installed 21:29:26.
+
+**142's open contradiction is settled, and the cheap route was not to run `sd`
+at all.** The question was whether SDSYS really lists 16 file records all
+described, as the guest run recorded, against shipped data saying six are bare.
+`C:\ProgramData\SD\sdsys\voc` is a dynamic file, so it was grepped as raw bytes:
+`File - Vocabulary`, `File - System include records` and `File - Dictionary for
+dictionaries` return **0**, while `File - VOC given to a new account`, `File -
+Account register` and `File - Spooler hold files` return **1** each. **SDSYS
+stores 10 described and 6 bare, exactly as `voc_template` has them.**
+
+***THE CONTROL IS THE GUEST'S OWN OBSERVATION, WHICH IS WHY THIS DECIDES RATHER
+THAN MERELY DISAGREES.*** `zz135b` rendered `newvoc` as a bare `F` — field 1
+verbatim — so `listf`'s `DESC` column prints field 1 as stored, and a bare field
+1 cannot come out as a sentence. Nothing composes SDSYS's VOC after the copy;
+there was never a mechanism to find. The `CREATEA` comment correction committed
+earlier stands as written.
+
+**143 came out of a note the run printed rather than out of anything failing.**
+*"probe-taskdialog.iss now appears in stage.py or sd.iss, so it is watched
+again"*. `$shipsAs` (`assert-current.ps1:1015`) matches a quote or a slash before
+the name; run over `sd.iss` it returns **exactly one match, at `:4577`**, where
+the comment quotes `"gplbld/probe-taskdialog.iss"` — the rejected spelling —
+while explaining that spelling it that way is the trap. `stage.py` returns 0 and
+the probe is not in `C:\Program Files\SD`. **So the fix and its own documentation
+cancel each other.** It is a false STALE, the cheap direction, and it cost
+nothing tonight; it costs an unnecessary install to whoever next edits the probe,
+since `verify-createaccount.ps1` refuses to run without `assert-current`.
+`test-retired-wording-units.ps1` already strips comments before scanning for
+exactly this reason, and that stripper is the fix rather than rewording line
+4577.
+
+**`test-fixlist-units` refused the entry before it was right**, which is the
+guard working: filing 143 made the table max 143 while `PRE_RELEASE_FIXES.md:32`
+still declared NEXT FREE ID 143, and it failed with *"declared 143, table max is
+143"* rather than letting the next session collide on the number.
