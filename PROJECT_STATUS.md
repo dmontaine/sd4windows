@@ -185,6 +185,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > RUN TOKEN `b103`*** (still unspent — none of this needed a suite). **The
 > install is the owner's 3 Sep 11:04:52 cycle and `assert-current` is exit 0.**
 >
+> ***136 CLOSED 3 Sep 2026 — 10 OF 10 FILE RECORDS DESCRIBED ON A PROGRAMMER
+> ACCOUNT***, `sdw136a`, on the host's own install, with SD echoing
+> `:CREATE.ACCOUNT USER sdw136a PROGRAMMER SSH` so the tier is proved to have
+> reached the command. Identical to the STANDARD witness, 10 of 10 both times.
+> **`verify-createaccount.ps1` gained an optional `-Tier`** (empty default =
+> the old command line exactly), and `C:\Users\dmont\sdout\p136-programmer.ps1`
+> does create-witness-parse in one elevation. ***OPEN 13 → 12: 16, 65, 66, 70,
+> 80, 93, 96, 102, 114, 135, 138, 147.*** **Litter named: SD account `SDW136A`
+> and its register record are left**, as `sdw142a` is — `DELETE.ACCOUNT`'s job.
+>
 > ***146, 89 AND 137 ALL CLOSED 3 Sep 2026 ON THE OWNER'S 11:04 BUILD AND GUEST
 > `Test C`. ONE NEW ENTRY, 147.*** **146**: `api-firewall.ps1 -Show` now prints
 > `rule: SD-API-In-TCP … RemoteAddress Any` where it said `rule: not present`,

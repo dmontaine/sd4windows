@@ -46166,6 +46166,44 @@ an elevated shell, ALT+TAB before typing.  Batching the open and the command wit
 -NoShot sent a whole command line into a window that did not exist yet, twice,
 and the tell was an empty prompt rather than an error.
 
+## 3 Sep 2026 - 136 closed: the PROGRAMMER witness, on the host, in one elevation
+
+The row had been witnessed on STANDARD and asked for PROGRAMMER, and the reason
+it stayed open is worth keeping: the tier decides WHICH VERBS are copied into a
+new account's VOC, not whether field 1 survives, so the mechanism was proved and
+the row's own case was not.
+
+It did not need a guest or a person at the keyboard, which the record had implied
+it would.  The "a driving session cannot answer those" warning is about the
+installer's post-install window and an interactive sd session; CREATE.ACCOUNT's
+password prompt is answered perfectly well by the next LINE down a pipe, which is
+what verify-createaccount has done for weeks.  So it ran on the host's own
+install, elevated, in one UAC prompt.
+
+verify-createaccount.ps1 gained an optional -Tier, validated, defaulting to empty
+so that every existing caller builds the identical command line and gets the
+identical STANDARD account.  The command is now built once and ECHOED rather than
+described, because a -Tier that failed to reach the command line is exactly the
+$args-clobber shape this project has already paid for - and SD's own echo,
+`:CREATE.ACCOUNT USER sdw136a PROGRAMMER SSH`, is what proves it arrived.
+
+10 of 10 file records described: $ACC, $MAP, $hold, $savedlists, SD.VOCLIB, bp,
+dict.dict, newvoc, syscom, voc - with newvoc reading "File - VOC given to a new
+account", the record that was bare before the fix.  The same 10 of 10 as the
+STANDARD run, so both tiers are now measured rather than one measured and one
+argued.  verify-createaccount also passed "NOT an administrator" on the way past,
+which confirms PROGRAMMER is a non-administrator tier.
+
+The parser is checked against SD's own tally - 10 record(s) listed against 10
+rows parsed - and a disagreement is NO VERDICT rather than a pass, as are a
+missing header, zero rows, and an unelevated run.  Column offsets are read out of
+the header row rather than hardcoded, because a widened column would otherwise
+report every row as undescribed, which is the failure that looks like a finding.
+
+SD account SDW136A and its ACCOUNTS register record are left behind, the same
+decision verify-tiers and verify-createaccount both record: removing them is
+DELETE.ACCOUNT's job, and it is the litter sdw142a already is.
+
 Driving notes, each paid for once.  The clones autologon, and `WIN+r` then
 `CTRL+SHIFT+ENTER` gives an elevated shell with no UAC prompt.  `Start-Process`
 leaves a launched installer BEHIND the shell and `ALT+TAB` did not raise it -
