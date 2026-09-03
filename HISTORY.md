@@ -45761,3 +45761,70 @@ where the question never appears.
 a continuation line with `#13#10#13#10`, which ISPP reads as a directive.
 `check-iss.ps1` named the line and refused, unelevated, before any cycle was
 spent - which is what that script is for.
+
+## 3 Sep 2026 - the guest sitting ran: six closed, two advanced, one filed
+
+Guest `Windows 11 - SD ssh baseline - Clone A`, driven from the host with
+`keyboardputscancode` and `screenshotpng`. Three installs, three uninstalls,
+no suite run, run token `b103` still unspent. Closed **120, 132, 133, 134,
+139, 140**; **89** and **135** advanced and stay open on a named remaining
+half; **145** filed. Open 20 -> 15.
+
+The sequence, on one machine, deliberately: upgrade to the current build over
+the old install (which also replaces the uninstaller, so 139 and 140 are under
+test), create `sdw135a` with `CREATE.ACCOUNT USER sdw135a BOTH`, capture,
+uninstall keeping database and accounts, reinstall, capture, diff; then
+uninstall answering Delete; then install, hand-delete the tree, uninstall.
+
+***THE UPGRADE RUN TURNED OUT TO BE THE CONTROL FOR 133 AND THAT WAS NOT
+PLANNED.*** On the upgrade `TrueUpgrade` is true, `ApplyAllowGroups` does not
+run, the box says "YOUR ssh AND API SETTINGS WERE LEFT EXACTLY AS THEY WERE"
+and `sshd_config`'s mtime does not move. On the post-uninstall reinstall the
+gate opens, the mtime moves 14:59:00 -> 23:42:14, `sshd` is created 23:42:15,
+and the box names the write, the restart and the dropped sessions. Same
+machine, an hour apart: the wording tracks what happened rather than always
+claiming a write, which is what 133 asked for and what only two runs can show.
+
+***WHAT WAS NOT PREDICTED: `uninsneveruninstall` DID NOT PROTECT THREE OF THE
+SIX.*** After the Keep uninstall, `bp`, `bp.out` and `batch.jobs` survived
+while `cat`, `prt` and `$hold` were gone - identical `[Dirs]` flags, opposite
+outcomes. The reinstall healed them, so 120 and 132 are genuinely done on
+their own terms and 134's diff is 0 of 3,772. But `sd.iss:676` claims the flag
+stops the uninstaller, and here it did not. Filed as **145** with the
+hypothesis marked unproven and a one-uninstall test written out, rather than
+adopted as fact: the entries were added after this tree was first installed,
+and Inno logs a `[Dirs]` entry when it CREATES the directory.
+
+***THE INSTRUMENTS WERE THE PRECONDITION, NOT A SIDE-ERRAND.*** Four of the
+eight named evidence `capture-state.ps1` did not collect - `sshd_config`'s
+mtime, the `sshd` process, the `SDSYS_PRESERVE` directories one at a time, and
+`sd-remove-database.log`. Added there rather than as a ninth ad-hoc probe, and
+the directory list is READ FROM `stage.py` rather than retyped, because 132's
+whole finding was a hand-kept list drifting from stage.py's.
+
+***AND THE INSTRUMENT WAS WRONG ON ITS FIRST RUN, IN THE SHAPE THE RULES
+NAME.*** Unelevated, `Get-Process sshd` returns the object but `StartTime` is
+$null rather than throwing, so `.ToString()` died - and because the try
+wrapped the whole loop, the section printed one generic COULD NOT ENUMERATE
+line and no process at all. A reading that was merely unavailable was reported
+as a failure to enumerate. Per-process try, and the missing time says which it
+is. The same run confirmed `$cred` and `dumps` read `UNREADABLE` unelevated,
+never `0 entries` - the false reading the 2 Sep witness recorded.
+
+`gplbld/vm-type.ps1` and `gplbld/diff-capture.ps1` are new, with
+`test-diffcapture-units.ps1` (10 of 10). vm-type refuses a character it has no
+scancode for and types nothing, because a path silently missing one character
+is the exact defect that makes `keyboardputstring` unusable.
+
+***THREE THINGS ABOUT DRIVING A GUEST, EACH PAID FOR.*** `ALT+F4` on the
+desktop opens "Shut Down Windows" - `ESC` cancels it. Focus is lost whenever a
+window opens or closes, so `ALT+TAB` before typing. ***And keys sent at the
+post-install password prompt go into the password field*** - `CTRL+C`,
+`ALT+TAB` and `ALT+F4` all landed as characters, six of them, before this was
+noticed. That window is not dismissible by keyboard from here.
+
+***THE RIG HAD CHANGED AND THE RECORD HAD NOT.*** `Test 10` and `Test 3/4/5/6`
+no longer exist; the file's `zz135`/`zz135b`/"the guest is not clean" facts
+described a deleted machine. `Test A`, `B`, `C` have neither SD nor ssh
+(owner), and installing the ssh server there is a ~20-minute download, so they
+are the wrong rigs for this work. `Clone B` is untouched and is the next one.

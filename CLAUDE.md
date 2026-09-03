@@ -470,8 +470,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-verdict-units`, `test-sdtestuser-units`, `test-suiteonly-units`,
    `test-retired-wording-units`, `test-stemcoverage-units`,
    `test-dirscoverage-units`, `test-stripcomments-units`,
-   `check-stale-leads.py`, `test-staleleads-units.py`. **Run these on every
-   change.** A whole suite run has already been spent twice discovering what one
+   `test-diffcapture-units`, `check-stale-leads.py`,
+   `test-staleleads-units.py`. **Run these on every change.** A whole suite run has already been spent twice discovering what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
    deliberately reworded, so a fix that lands in one copy and misses another
@@ -488,6 +488,14 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `stage.py`'s directory lists — and *this list is a third instance of exactly
    that shape.* **A new free guard goes in this sentence in the commit that
    creates it**, the same rule as `assert-current`'s `$neverShipped`.
+
+   ***`test-diffcapture-units` JOINED IT 3 Sep 2026, ONE COMMIT LATE, WHICH IS
+   WORTH THE SENTENCE.*** It guards `gplbld/diff-capture.ps1`, the manifest
+   comparison PRE_RELEASE 134 needs. It was written and committed with the
+   script, and this list was updated in the NEXT commit rather than that one —
+   so for one commit the guard existed and "run these on every change" did not
+   name it. **That is the exact gap the paragraph above describes**, arrived at
+   by an author who had just read it.
 
    ***`test-stripcomments-units` WAS ADDED HERE IN ITS OWN COMMIT, 2 Sep 2026,
    WHICH IS THE RULE ABOVE WORKING RATHER THAN A TENTH ENTRY WORTH NOTING.***

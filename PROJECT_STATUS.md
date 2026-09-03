@@ -175,6 +175,98 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 21, 3 Sep 2026 — ***THE GUEST SITTING RAN AND CLOSED SIX (120, 132, 133, 134, 139, 140). TWO ADVANCED AND STAY OPEN (89, 135), ONE WAS FILED (145). OPEN 20 → 15. NO CYCLE IS OWED.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Nothing under `gplsrc` or `sdsys` changed, so
+> the 2 Sep 22:46:52 install still stands and `assert-current` is **exit 0**.
+> **Twelve free checks green**, `test-fixlist-units` **252/0**. ***OPEN 15: 16,
+> 65, 66, 70, 80, 89, 93, 96, 102, 114, 135, 136, 137, 138, 145. NEXT FREE ID
+> 146. NEXT RUN TOKEN `b103`*** (still unspent — the sitting needed no suite).
+>
+> ### ***WHAT TO DO NEXT, IN COST ORDER***
+>
+> 1. ***145 IS ONE UNINSTALL AND IT IS THE ONLY THING THE SITTING LEFT
+>    HALF-ANSWERED.*** `uninsneveruninstall` did **not** protect `cat`, `prt`,
+>    `$hold` while `bp`, `bp.out`, `batch.jobs` survived the same uninstall with
+>    the same flags. The reinstall healed all of them so nothing is lost, but
+>    `sd.iss:676` claims something that did not happen. **The test is in 145's
+>    row: fresh install onto a machine with no tree, then uninstall answering
+>    Keep, then read the twelve.** `Clone B` is untouched and is the rig.
+> 2. ***TWO THINGS ARE THE OWNER'S***: **96**'s (b) vs (c) — build neither until
+>    he says — and whether the **ten unlisted free guards** join "run these on
+>    every change".
+> 3. **89 and 135 both stay open on a NAMED remaining half**, not on vagueness.
+>    89 needs a tree with the API **ON** (its dangerous case cannot be produced
+>    on a machine where it was off throughout). 135 needs the `sdapi` loss said
+>    out loud; the confinement half is done and witnessed.
+> 4. **136** is one `create.account` on a **PROGRAMMER** tier from closing.
+> 5. Then the builds: **137**, **114**, **93**, **70**, **66**, **65**; the C
+>    work **102**, **16**, **96**; **80** as its own project.
+>
+> ### ***THE RIG CHANGED UNDER THE RECORD AND THE OLD NAMES ARE GONE***
+>
+> ***`Test 10` NO LONGER EXISTS AND NEITHER DO `Test 3/4/5/6`.*** Everything in
+> this file about `Test 10`'s state — `zz135`, `zz135b`, `sdu_ZZ135`, "the guest
+> is not clean" — is **stale**, and the machine those facts described is gone.
+> `VBoxManage list vms` on 3 Sep 2026: `Beardog`, `Windows 11 - Template`,
+> `Test A`, `Test B`, `Test C`, `SD ssh baseline`, `SD ssh baseline - Clone A`,
+> `SD ssh baseline - Clone B`. **Count the guests from `VBoxManage`, never from
+> here** — this file's own rule, and it earned itself again.
+>
+> ***OWNER, 2 Sep 2026: `Test A`, `B` AND `C` HAVE NO SD AND NO ssh; `Clone A`
+> AND `Clone B` HAVE BOTH.*** ***AVOID `Test A/B/C` FOR ANYTHING NEEDING ssh —
+> INSTALLING THE SERVER IS A ~20-MINUTE DOWNLOAD.*** `Clone A` is spent (SD
+> uninstalled, tree deleted, `don` and `sdw135a` survive as Windows accounts,
+> all four SD groups gone). ***`Clone B` IS THE UNTOUCHED RIG. USE IT NEXT.***
+>
+> ### ***THE GUEST CAN NOW BE DRIVEN FROM HERE, AND THAT IS THE REUSABLE PART***
+>
+> ***`gplbld/vm-type.ps1` (NEW) TYPES INTO A GUEST OVER `keyboardputscancode`***
+> — the one route the record allows (`guestcontrol` needs credentials;
+> `keyboardputstring` drops characters). With `screenshotpng` it drove three
+> installs, three uninstalls and every dialog in this sitting. **A character it
+> has no code for is refused by name and NOTHING is typed.**
+>
+> ***THREE THINGS IT COSTS TO LEARN THE HARD WAY, ALL PAID FOR ALREADY:***
+>
+> - ***`ALT+F4` ON THE DESKTOP OPENS "Shut Down Windows".*** It nearly ended a
+>   run. `ESC` cancels it. Only send it when a window you can SEE has focus.
+> - ***FOCUS IS LOST WHENEVER A WINDOW OPENS OR CLOSES, AND KEYS THEN GO
+>   SOMEWHERE ELSE.*** A `y` typed at the post-install prompt landed in a
+>   different shell and looked like the prompt ignoring it. **`ALT+TAB` first,
+>   then screenshot, then type.**
+> - ***AND THE ONE THAT MATTERS: KEYS SENT AT THE POST-INSTALL PASSWORD PROMPT
+>   GO INTO THE PASSWORD FIELD.*** `CTRL+C`, `ALT+TAB` and `ALT+F4` all landed
+>   as characters — the field showed six of them. **Do not try to dismiss that
+>   window by keyboard.** The owner types the password, or the guest is
+>   restarted.
+>
+> ### ***WHAT THE SITTING MEASURED, ONE LINE EACH***
+>
+> | | verdict |
+> |---|---|
+> | **120** | all six present after uninstall-then-reinstall, database kept; no `NOT locked` text anywhere in the closing box |
+> | **132** | `cat`, `prt`, `$hold` back — **but absent in between**, which is 145 |
+> | **133** | box now names the `AllowGroups` write, the restart and the dropped sessions; mtime **14:59:00 → 23:42:14**, `sshd` created **23:42:15**; the upgrade run is the control, where it moved nothing and said so |
+> | **134** | **3,772 entries before, 3,772 after, 0 disappeared** — and `diff-capture.ps1` now does the comparison |
+> | **135** | `sdsshonly` **restored** (first live `Add-LocalGroupMember`), `sdapi` **still silently empty** — open on that |
+> | **139** | Keep/Delete command links on both questions; confirmation **and** a stamped log line on **both** branches |
+> | **89** | API box **hidden** with `sd.conf` present, **offered** without it, same machine; `sd.conf` and firewall unmoved — open on the API-ON case |
+> | **140** | Keep → `sdusers` stays; Delete → goes; hand-deleted tree → question never asked and it **still** goes |
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***DO NOT READ "132 IS DONE" AS "`uninsneveruninstall` WORKS".*** It is
+>    done because the directories are there afterwards. **Which half of the fix
+>    put them there is 145 and is not settled.**
+> 2. ***`capture-state` MUST BE RUN ELEVATED OR `$cred` AND `dumps` LIE.***
+>    Unelevated they now report `UNREADABLE`; the 2 Sep witness read the old
+>    `0 entries` as "empty and survived" and was wrong. `diff-capture` refuses a
+>    capture marked `NOT COMPARABLE` for the same reason.
+> 3. ***AN INSTALLER'S CLOSING BOX IS EVIDENCE AND IT IS GONE ONCE DISMISSED.***
+>    133 and 120 were both decided by reading one box. **Screenshot it before
+>    anyone clicks OK.**
+>
 > # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***FOUR ENTRIES CLOSED (141, 142, 143, 144), TWO BUILT AND AWAITING A GUEST (133, 140). THE TREE IS CURRENT AND `assert-current` IS GREEN. NOTHING NEEDS COMPILING. START WITH THE GUEST SITTING — IT NOW CLOSES EIGHT.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** `cycle.ps1` **22:46:01, exit 0**, 190 compiles at
