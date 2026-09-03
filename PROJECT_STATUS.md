@@ -175,7 +175,36 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***141, 142 AND 143 ARE CLOSED AND ALL FOUR WITNESS ITEMS ARE DONE. 140 NEEDS A RULING. ONE `CREATEA` COMMENT IS UNCOMPILED — START WITH `cycle.ps1 -SkipInstall`.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***FOUR ENTRIES CLOSED (141, 142, 143, 144), TWO BUILT AND AWAITING A GUEST (133, 140). THE TREE IS CURRENT AND `assert-current` IS GREEN. NOTHING NEEDS COMPILING. START WITH THE GUEST SITTING — IT NOW CLOSES EIGHT.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** `cycle.ps1` **22:46:01, exit 0**, 190 compiles at
+> 0 errors, installer **4,963,912** bytes, installed **22:46:52**,
+> `assert-current` *"the installed tree matches source"*, **eleven free checks
+> green**. ***OPEN 20, NEXT FREE ID 145, NEXT RUN TOKEN `b103`.*** The working
+> tree is clean apart from `generate_gap_analysis_pdf.py`, which is untracked and
+> belongs to entry **80**.
+>
+> ### ***WHAT TO DO NEXT, IN COST ORDER***
+>
+> 1. ***THE GUEST SITTING — IT NOW CLOSES EIGHT ENTRIES IN ONE RUN***: 120, 132,
+>    133, 134, 135, 139, 89, and **140, which needs TWO runs there**. The order
+>    is the point and is written under "THE GUEST SESSION" further down. **134 is
+>    free if it rides it** — `capture-state.ps1 -Label first -Manifest` before,
+>    `-Label after -Manifest` after, then diff. **140's second run** is a
+>    hand-deleted tree then an uninstall, where the question never appears and
+>    `sdusers` must still go.
+> 2. ***TWO THINGS ARE THE OWNER'S AND BLOCK NOTHING ELSE***: **96**'s (b) vs (c)
+>    — two shapes are on record and they disagree, **build neither until he
+>    says** — and whether the **ten unlisted free guards** join "run these on
+>    every change".
+> 3. **136** is one `create.account` on a **PROGRAMMER** tier away from closing;
+>    it was witnessed on STANDARD, 10 of 10 described.
+> 4. Then the builds: **137** (free), **114** (BASIC), **93**, **70**, **66**,
+>    **65**; the C work **102**, **16**, **96**; and **80** as its own project.
+>
+> ***THE OWNER'S COST MODEL, STATED 2 Sep 2026***: *"i don't mind uac clicks or
+> cycles — only complete validation sweeps take a lot of time."* **So build,
+> compile and cycle freely. The ~20-minute full suite is the expensive thing.**
 >
 > ***READ THIS FIRST IF YOU READ NOTHING ELSE: A GREP OF `sdsys\voc` IS NOT AN
 > INSTRUMENT.*** It is a dynamic file. This session grepped it, got 0 hits for
@@ -190,12 +219,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > green. ***A CYCLE ENDS AT THE NEXT SOURCE CHANGE — this one is still open, so
 > anything measured before the next edit counts.***
 >
-> ### ***STEP 1 — WITNESS WHAT THIS INSTALL EXISTS TO SHOW***
->
-> **Three of the four are still owed, and none needs a rebuild.**
->
-> ***ALL FOUR ARE DONE, AND ONE OF THEM OVERTURNED AN ANSWER THIS FILE HAD
-> ALREADY COMMITTED.*** Witnessed on the 21:29:26 install.
+> ### ***THE WITNESS RUN OF 21:29:26 — ALL FOUR DONE, AND ONE OVERTURNED AN ANSWER THIS FILE HAD ALREADY COMMITTED***
 >
 > 1. ***`listf` IN SDSYS: 16 FILE RECORDS, ALL 16 DESCRIBED. THE GUEST WAS
 >    RIGHT.*** An earlier entry in this handoff said the opposite — 10 described
