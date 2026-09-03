@@ -45586,3 +45586,57 @@ the commit that created it, under the rule that section already states — plus
 behaviourally unchanged: 38 of 38, flattening still 96, the Pascal canaries still
 0/0/68, with the corpus moving 69 to 70 script files and 10,619 to 10,728 lines
 because `strip-comments.ps1` is itself a `.ps1` in `gplbld`.
+
+## 2 Sep 2026 — the witness run: 142's fix confirmed, and the answer this session had already committed to 142's contradiction was wrong
+
+***CORRECTION. Earlier today this file recorded 142's contradiction as settled
+in favour of the shipped data, "without running `sd`". That was wrong, it was
+committed, and `listf` overturned it.***
+
+**What the tool says, on the 21:29:26 install.** `listf` in SDSYS lists **16
+file records and all 16 are described**, `syscom`, `voc` and `dict.dict`
+included. `listf` in an account SD had just created lists **10, all 10
+described, `newvoc` among them** — so **142's fix is witnessed**. The guest
+reading recorded on 2 Sep was right all along.
+
+***WHY THE EARLIER ANSWER WAS WRONG, WHICH IS THE PART WORTH KEEPING.***
+`sdsys/voc` is a DYNAMIC file. Grepping `%0` and `%1` for a description returns
+0 for text `listf` plainly displays: the store holds **838** printable runs of
+12 or more characters and only **11** of them contain `File`, against 16 records
+that all carry a description. **A grep hit there proves presence; a grep miss
+proves nothing.** Reading 0 hits as *"SDSYS stores it bare"* is a null result
+dressed as a negative one — the exact shape CLAUDE.md's instrument rules
+forbid — and it was believed over the tool because it was cheap and the numbers
+looked tidy. A second control was available the whole time and was not taken:
+run the verb.
+
+**So `CREATEA`'s comment is wrong in only one clause, not the one the first
+correction picked.** *"Keeps field 1 whole"* is TRUE of what SDSYS runs on.
+*"Straight from voc_template"* is false: on the six records both templates
+carry, SDSYS shows **newvoc's** wording — `$ACC`, `$MAP`, `SD.VOCLIB`, `syscom`,
+`voc`, `dict.dict`, every one a bare `F` in `voc_template` — while its own
+extras (`accounts`, `messages`, `bp`, `$hold`) show `voc_template`'s. **SDSYS's
+live VOC is a copy of neither template alone, which is what entry 142 said when
+it was filed**, and where the bootstrap composes it is still not established.
+
+**And 142's open question now has its cause.** `CREATEA:1449`, `:1458` and
+`:1467` compose a THIRD wording — "File for deferred prints", "File for saved
+select lists", "File for BASIC programs" — present in neither template. That is
+why `$hold` and `bp` read differently in SDSYS and in a created account: the
+routine writes its own descriptions for the files it makes, so it is composition
+rather than drift.
+
+**The rest of the witness run.** `verify-createaccount -Account sdw142a -Keep`
+passed **18 of 18** decisive checks, including the three ssh-only measurements
+on an account SD created; `-Cleanup` removed the Windows half afterwards and the
+local user list is back to what it was, with the SD half left in place as that
+script deliberately does. `check-install.ps1` reported *"Everything checks
+out"*, exit 0, every row green including the new PATH line. Both 141 pages were
+rendered from source with the new `strip-comments.ps1` and read correctly: each
+names the PATH symptom beside the token one, with the right cure against each.
+
+**One trap for whoever reads the account tree directly**: `C:\ProgramData\SD\
+user_accounts\<ACCT>` is ACL'd, so an ordinary administrator's `ls` answers
+"Permission denied" — and a naive count of an unreadable directory returns 0 and
+looks exactly like an empty VOC. That is the same false-negative as the grep,
+one directory along.

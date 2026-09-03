@@ -175,7 +175,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***A FULL CYCLE RAN, `assert-current` IS GREEN, AND 141, 142 AND 143 ARE ALL CLOSED. 140 IS PRICED AND NEEDS A RULING. THE INSTALL IS STILL CURRENT — MEASURE BEFORE CHANGING ANYTHING.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***141, 142 AND 143 ARE CLOSED AND ALL FOUR WITNESS ITEMS ARE DONE. 140 NEEDS A RULING. ONE `CREATEA` COMMENT IS UNCOMPILED — START WITH `cycle.ps1 -SkipInstall`.*** ⇩⇩⇩
+>
+> ***READ THIS FIRST IF YOU READ NOTHING ELSE: A GREP OF `sdsys\voc` IS NOT AN
+> INSTRUMENT.*** It is a dynamic file. This session grepped it, got 0 hits for
+> descriptions `listf` plainly displays, concluded SDSYS runs on a mostly-bare
+> VOC, **committed that, and was wrong.** `listf` on the install says 16 of 16
+> described. A hit proves presence; **a miss proves nothing.**
 >
 > ***THE ONE SENTENCE: THE TREE IS BUILT, INSTALLED AND CURRENT, AND WHAT IS
 > LEFT IS WITNESS WORK PLUS ONE RULING.*** Full cycle 21:28:26, **exit 0**, 190
@@ -188,24 +194,32 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > **Three of the four are still owed, and none needs a rebuild.**
 >
-> 1. ***DONE — 142's CONTRADICTION IS SETTLED AND `sd` WAS NEVER NEEDED.*** The
->    installed `sdsys\voc` was grepped as raw bytes: `File - Vocabulary`,
->    `File - System include records` and `File - Dictionary for dictionaries`
->    return **0**; `File - VOC given to a new account`, `File - Account register`
->    and `File - Spooler hold files` return **1** each. SDSYS stores **10 of 16
->    described, 6 bare**, exactly as `voc_template` has them. **The guest's own
->    bare `F` for `newvoc` is the control**: `DESC` prints field 1 verbatim, so a
->    bare field 1 cannot render as a sentence. **Nothing composes SDSYS's VOC
->    after the copy.**
-> 2. **`create.account`, then `listf` in it** — 142's own fix and 136's last
->    record. Expect **10 of 10 described**, `newvoc` included. **Not done: it
->    creates a Windows account, which was not asked for.** Handoff 19's trap
->    about reused names still applies.
-> 3. **The closing box and the options page** — 141. The wizard was clicked
->    through during the cycle, so **the pages were on screen but nobody was
->    reading them for this**; it still wants a deliberate look.
-> 4. ***DONE, BUT ON THE PREVIOUS TREE*** — `check-install.ps1`'s PATH section,
->    both branches with a control. Worth one re-run now the install is current.
+> ***ALL FOUR ARE DONE, AND ONE OF THEM OVERTURNED AN ANSWER THIS FILE HAD
+> ALREADY COMMITTED.*** Witnessed on the 21:29:26 install.
+>
+> 1. ***`listf` IN SDSYS: 16 FILE RECORDS, ALL 16 DESCRIBED. THE GUEST WAS
+>    RIGHT.*** An earlier entry in this handoff said the opposite — 10 described
+>    and 6 bare — on a **grep of the raw dynamic VOC**, and that was a bad
+>    instrument, not a bad guest. **`sdsys\voc` is a dynamic file: a grep hit
+>    proves presence, a grep MISS proves nothing** (838 printable runs of 12+
+>    characters, only 11 containing `File`, against 16 described records).
+>    ***So `CREATEA`'s "keeps field 1 whole" is TRUE and only "straight from
+>    voc_template" is false***: on the six records both templates carry, SDSYS
+>    shows **newvoc's** wording — all six bare in `voc_template` — while its own
+>    extras show `voc_template`'s. **SDSYS's VOC is a copy of NEITHER template
+>    alone, which is what 142 said when it was filed.**
+> 2. ***`create.account` THEN `listf`: 10 RECORDS, ALL 10 DESCRIBED, `newvoc`
+>    INCLUDED — 142's FIX IS WITNESSED.*** `verify-createaccount -Account
+>    sdw142a -Keep`, **18 of 18** decisive checks, then `-Cleanup`. **And it
+>    found the cause of 142's open question**: `CREATEA:1449`, `:1458`, `:1467`
+>    compose a **third** wording — *"File for deferred prints"*, *"File for saved
+>    select lists"*, *"File for BASIC programs"* — in neither template, which is
+>    why `$hold` and `bp` read differently in the two accounts.
+> 3. ***THE TWO PAGES READ CORRECTLY*** — 141. Both rendered from source with
+>    the new `strip-comments.ps1`, and both name the PATH symptom beside the
+>    token one with the right cure against each.
+> 4. ***`check-install.ps1`: "Everything checks out", exit 0*** — every row green
+>    including the new PATH line, with the service running and the API listening.
 >
 > ### ***WHAT WAS BUILT AND COMPILED THIS SESSION***
 >
