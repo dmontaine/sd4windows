@@ -330,6 +330,35 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   can ever exercise it** — `LOGIN:955` guards on a tty and every automated
 >   route pipes stdin.
 >
+> ### ***133 AND 140 ARE BUILT AND COMPILED, 2 Sep 2026 — BOTH UNWITNESSED***
+>
+> **The tree is CURRENT again**: `cycle.ps1` 22:46:01, exit 0, 190 compiles at 0
+> errors, installer **4,963,912** bytes, installed **22:46:52**,
+> `assert-current` *"the installed tree matches source"*. It carries 133, 140
+> and the `CREATEA` comment correction.
+>
+> - ***133*** — the wording now comes from **what `ApplyAllowGroups` did**, via a
+>   new `AllowGroupsWrote` set only in the `Code = 0` branch. ***`SshReport` HAD
+>   TO MOVE***: it ran **before** `ApplyAllowGroups`, so it could not know
+>   whether the write happened — which is how it came to answer from
+>   `SshWasAbsent`. `SshMsg` has one other reader, so moving it changes nothing
+>   else.
+> - ***140*** — `RemoveSdUsersGroup` at the two points where no tree survives:
+>   the `not DirExists` exit (the hole gating on the button would have left) and
+>   the Delete branch. `UninstallSilent` keeps the tree and keeps the group.
+>   **All four groups were present after the cycle, which is the correct
+>   non-regression** — the cycle uninstalls `/VERYSILENT` with the tree still
+>   there.
+>
+> ***THE WITNESSES BOTH NEED THE GUEST SITTING***, and 140's is two: an
+> interactive uninstall answering **Delete**, then `sdusers` gone; and a
+> hand-deleted tree then uninstall, where the question never appears and the
+> group must still go.
+>
+> ***A TRAP PAID FOR IN 5 SECONDS RATHER THAN A CYCLE***: a continuation line
+> starting `#13#10#13#10` is read by ISPP as a directive. `check-iss.ps1` named
+> the line and refused. **Run it before every cycle that touches `sd.iss`.**
+>
 > ### ***144 IS BUILT AND CLOSED — PHASE 4, AND A RED GUARD NOBODY WAS RUNNING***
 >
 > `check-stale-leads.py` gained **phase 4** over `PRE_RELEASE_FIXES.md`'s index:

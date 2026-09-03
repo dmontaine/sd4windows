@@ -45720,3 +45720,44 @@ narrowing rather than closing, which was put to him before he chose. **138**
 takes shape **(b)**, set both credentials, at the cost of two prompts; no
 verifier can ever exercise it, because `LOGIN:955` guards on a tty and every
 automated route pipes stdin.
+
+## 2 Sep 2026 — 133 and 140 built, and the sd.iss work was done BEFORE the cycle so one cycle carried all three
+
+The owner asked for the cycle first and then the two entries. **Reordered, and
+said so**: a cycle ends at the next source change, so cycling first would have
+voided its own result the moment `sd.iss` was touched. Building first meant one
+cycle instead of two, and the tree ends current with all three changes in it —
+`cycle.ps1` 22:46:01, exit 0, 190 compiles at 0 errors, installer **4,963,912**
+bytes, installed 22:46:52, `assert-current` clean.
+
+**133 - the wording is now selected from what happened.** `ApplyAllowGroups`
+sets a new `AllowGroupsWrote`, cleared on every entry and set only in the
+`Code = 0` branch, which is the one outcome where `allow-ssh-groups.ps1` edits
+`sshd_config` and restarts `sshd`. ***AND `SshReport` HAD TO MOVE, WHICH IS THE
+PART THAT WAS NOT OBVIOUS FROM THE ENTRY***: it was called before
+`ApplyAllowGroups`, so it could not know whether the write had happened - which
+is exactly how it came to answer from `SshWasAbsent` instead. `SshMsg` has one
+other reader, the closing box, so moving the call changes nothing else; that was
+checked rather than assumed, three occurrences in the file.
+
+**140 - `RemoveSdUsersGroup` at the two points where no tree survives**: the
+`not DirExists(DataPath)` exit, which is the hole that gating on the button
+would have left open, and the Delete branch after `DelTree`. It runs on the
+partial-failure path too, deliberately: `RecordDatabaseChoice` tells the reader
+to treat the database as gone, so keeping the group would preserve a seed list
+for a database they have been told is not coming back. `UninstallSilent` keeps
+the tree and keeps the group, which the ruling gets right for free. The old
+comment is rewritten rather than deleted - it named the condition it did not
+test, and that was the finding.
+
+**The non-regression is that nothing changed.** All four groups were present
+after the cycle, which is correct: `cycle.ps1:497` uninstalls `/VERYSILENT` with
+the tree still present, so 140's new call must not fire there. **Neither entry is
+witnessed** - 133 needs the guest reinstall path, and 140 needs two runs: an
+interactive uninstall answering Delete, and a hand-deleted tree then uninstall
+where the question never appears.
+
+***A TRAP PAID FOR IN FIVE SECONDS.*** The first draft of 133's message started
+a continuation line with `#13#10#13#10`, which ISPP reads as a directive.
+`check-iss.ps1` named the line and refused, unelevated, before any cycle was
+spent - which is what that script is for.
