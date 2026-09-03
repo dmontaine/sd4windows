@@ -180,9 +180,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***THE STATE, IN ONE LINE.*** Nothing under `gplsrc` or `sdsys` changed, so
 > the 2 Sep 22:46:52 install still stands and `assert-current` is **exit 0**.
 > ***THIRTEEN free checks green*** — `test-transcriptwhole-units` joined the
-> list 3 Sep with 137. ***OPEN 13: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114,
-> 135, 136, 138. NEXT FREE ID 146. NEXT RUN TOKEN `b103`*** (still unspent —
-> none of this needed a suite).
+> list 3 Sep with 137. ***OPEN 14: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114,
+> 135, 136, 138, 146. NEXT FREE ID 147. NEXT RUN TOKEN `b103`*** (still unspent
+> — none of this needed a suite).
+>
+> ***146 IS NEW AND IT IS THE ONE TO READ FIRST: `ApplyApiFirewall` IS
+> UNREACHABLE ON EVERY INSTALL PATH.*** `ApiConfAbsent` is evaluated twice and
+> the installer writes the file it tests for in between — TRUE at the tasks page
+> (so the box is correctly offered), then `[Files]` writes `sd.conf`
+> (`onlyifdoesntexist` on both arms), then FALSE at `ssPostInstall`, where
+> `sd.iss:3761` gates the firewall call on it. **So "Let other computers on your
+> network reach it" does nothing on any fresh install.** Measured on `Test B`
+> with both boxes ticked: `APIPORT=4243` active, **a listener on `0.0.0.0:4243`**,
+> and **no rule** — `api-firewall.ps1 -Show` says `rule: not present`.
+> ***IT WAS INTRODUCED BY 89's OWN FIX AND IT BLOCKS 89's REMAINING HALF***,
+> which needs a rule to lose and can no longer get one.
 >
 > ***145 IS CLOSED AND THE ANSWER IS THE ONE ITS HYPOTHESIS PREDICTED.***
 > `uninsneveruninstall` **does** protect — it only protects a directory the

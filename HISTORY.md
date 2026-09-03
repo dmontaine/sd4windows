@@ -46008,6 +46008,57 @@ was changed... OpenSSH has not started yet and has no configuration file", namin
 `allow-ssh-groups.ps1 -Installed` as the remedy.  133 was closed on the write
 case and the upgrade case; this is the no-config case.
 
+## 3 Sep 2026 - 146 filed: ApplyApiFirewall is unreachable, so the API network box is inert
+
+Found while trying to produce 89's remaining half on guest
+`Windows 11 - SSH no SD - Test B`, a fresh clone.  89 needs a tree with an
+`SD-API-In-TCP` rule TO LOSE, so the run installed with both API boxes ticked.
+
+Baseline first: no `sd.conf`, no SD tree, 0 of 483 firewall rules mentioning
+4243.  After the install, with the summary page listing both tasks: `sd.conf`
+present with one ACTIVE `APIPORT=4243` line, a listener on `0.0.0.0:4243`, group
+`sdapi` created - and no firewall rule at all.  Asked four ways: by rule name,
+by display name, by scanning all 483 rules for the port, and finally by SD's own
+`api-firewall.ps1 -Show`, which printed `rule: not present` at exit 0.  The
+fourth is the one that settles it, being the tool's own wording on its own
+positive path rather than a name typed from memory.
+
+The cause is three lines of `sd.iss`.  `ApiConfAbsent` is
+`not FileExists(sd.conf)` evaluated at call time, and it is asked twice with the
+installer writing that very file in between.  At the tasks page it is TRUE, so
+the box is correctly offered.  `[Files]` then writes `sd.conf` -
+`onlyifdoesntexist` on both arms, so afterwards it always exists.  At
+`ssPostInstall` the firewall call asks `(not TrueUpgrade) and ApiConfAbsent`,
+which is now FALSE.  Both arms are unsatisfiable together: an upgrade fails the
+first, a fresh install fails the second, and a tree whose `sd.conf` was
+hand-deleted takes the fresh path and is written too.  So the call never runs and
+`-Open`/`-Restrict` are dead in the shipped product.
+
+It was introduced by 89's own fix, one step later in the same file, and it
+reintroduces exactly the shape 89 was filed to remove - an inert control, which
+S5.21 rules out.  The user ticks "let other computers reach it", is told nothing
+to the contrary, and does not get it; the listener is on 0.0.0.0 so only the
+firewall holds it, which is the safe direction but not the asked-for one.
+
+It also explains why 89's remaining half could not be produced, which is how it
+was found: there is no longer any way for the installer to create the rule the
+dangerous case needs to lose, so "no rule before, no rule after" will keep
+reading as a pass.  Removing the gate is not the fix - it exists because a hidden
+box reads as unselected and an ungated call would CLOSE 4243 on a preserved tree.
+What `ssPostInstall` needs is "was the box offered this run", captured before
+`[Files]` changes the answer.
+
+Two instrument faults were paid for on the way, both in shapes this file already
+names.  The probe's accumulator was `$L` and a loop variable was `$l`; PowerShell
+variable names are case-insensitive, so `foreach ($l in $lis)` overwrote the
+ArrayList with a NetTCPConnection and the report written at the end was that one
+object's ToString().  The console output looked perfect throughout, because the
+helper also wrote to the host - only the artefact was lost.  Same class as the
+`$args` clobber in CLAUDE.md's instrument section.  And the first firewall filter
+was `SD|OpenSSH|4243`, which matched 49 Windows rules because "SD" is inside SSDP
+and WSD: 48 lines of Network Discovery is not evidence, it is somewhere for the
+one line that matters to hide.
+
 Driving notes, each paid for once.  The clones autologon, and `WIN+r` then
 `CTRL+SHIFT+ENTER` gives an elevated shell with no UAC prompt.  `Start-Process`
 leaves a launched installer BEHIND the shell and `ALT+TAB` did not raise it -
