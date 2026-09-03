@@ -182,22 +182,47 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `verify-register` **7 of 7** on the live tree. ***OPEN 9: 16, 66, 70, 80, 96,
 > 102, 114, 138, 150. NEXT FREE ID 151. NEXT RUN TOKEN `b104`, STILL UNSPENT.***
 >
-> ***THE ONE THING OWED: THE FULL SUITE.*** CLAUDE.md wants one before a
-> handoff and this does not have one. It also carries a **new unelevated step**,
-> `verify-register`, whose first run inside the runner has therefore not
-> happened — the step itself was run directly (7/7) and the runner's own table
-> was checked to reference a file that exists, but that is wiring, not a run.
+> ***THE UNELEVATED HALF RAN ON `b104` AND GOT 20 OF 21 — AND `verify-register`
+> PASSED ITS FIRST RUN INSIDE THE RUNNER.*** Owner, 15:39:03, against this
+> install. **The one non-zero is `verify-sdsyswrite.ps1` exit 2**, and that is a
+> *could not run* rather than a failure: a keystroke cancelled the UAC prompt for
+> its elevation helper — `TerminatingError(Start-Process): "The operation was
+> canceled by the user."` at Step 0 — and the runner correctly stopped rather
+> than letting the five steps that need it fail one at a time. **The summary is
+> `post-cycle-unelevated-20260903-153903.txt`.**
+>
+> ***SO THE ELEVATED HALF HAS STILL NEVER RUN, AND THE UNELEVATED HALF IS ONE
+> STEP SHORT.*** That is what is owed.
+>
+> ***`b104` IS SPENT. USE `b105`.*** The same-token retry at 15:43:53 was
+> refused by name — *"sdtub104 ALREADY EXISTS … Use a fresh -Run token"*, exit 2,
+> nothing measured — which is PRE_RELEASE 54's guard working.
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b104
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b105
 > ```
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b104
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b105
 > ```
 >
 > **The first is an ordinary unelevated prompt, the second an elevated one.**
 > `PARTIAL` must appear **0 times** in either half or it was not a full run.
+> ***DO NOT DISMISS A UAC PROMPT WITH A KEYSTROKE*** — that is what cost `b104`,
+> and `VerifyInstall1` raises about six.
+>
+> ***WHAT `b104` LEFT, MEASURED RATHER THAN ASSUMED.*** `sdtub104` — Windows
+> account, `sdu_SDTUB104`, a register record, and in `sdusers`/`sdssh`/
+> `sdsshonly` — **the next run's own sweep takes it**, because it only skipped it
+> at 15:43 for being *"the name this run is creating"*. Its scripted removal was
+> also cancelled, which is why it is still there. **`sdswb104` is the one nothing
+> sweeps**: `verify-sdsyswrite`'s throwaway, created at 15:43:31 before the
+> cancel, in `sdusers` **but not in `sdssh` or `sdsshonly`**, with no `sdu_`
+> group and no register record. ***IT IS NOT ENTRY 72's INVISIBLE ACCOUNT — 72
+> IS FIXED AND THIS PROVES IT***: it joined `sdusers`, so
+> `remove-sdaccounts.ps1`'s candidate set finds it. **Nothing removes an
+> `sdsw*` leftover automatically though, so it accumulates one per interrupted
+> run.**
 >
 > ***AND THAT SUITE IS ALSO 93's LAST WITNESS, WHICH IS WHY IT IS WORTH RUNNING
 > SOON.*** A complete suite is the cheapest dirty register there is — it left
