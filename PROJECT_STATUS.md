@@ -208,10 +208,14 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | unelevated | `VerifyInstall1-20260903-124937.log` — closing line **`VerifyInstall1: every step exited 0.`**, and `PARTIAL` appears **0 times** | **20**, all exit 0 |
 > | elevated | `post-cycle-20260903-125447.txt` — the runner has no transcript of its own by design, so this summary IS the record | **23 of the 23 defined**, all exit 0 |
 >
-> ***THE STEP COUNT IS THE PARTIAL TEST FOR THE ELEVATED HALF.*** It writes no
-> banner into its summary file, so "was this a full run" is answered by the file
-> listing every step `VerifyInstall2.ps1` defines — 23 — rather than by looking
-> for a word that would only be in the console output.
+> ***THE STEP COUNT IS THE PARTIAL TEST FOR THE ELEVATED HALF, AND THAT IS NOW
+> PRE_RELEASE 149.*** `VerifyInstall2.ps1:824` writes the step rows to the
+> summary file and **not** the `PARTIAL` heading `:818` printed to the console,
+> so the artifact cannot answer the question CLAUDE.md's instruction asks of it.
+> ***THE DANGEROUS READING IS THE ABSENCE*** — grep that file for `PARTIAL`,
+> find none, and report a full run, because a partial run leaves the word out
+> too. **Count the rows against the 23 steps the runner defines**, which is what
+> was done here.
 >
 > ### ***WHAT IS OWED — ONE THING***
 >
