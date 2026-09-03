@@ -46308,3 +46308,45 @@ b103 is spent; the next token is b104.  The suite proves nothing regressed on an
 install carrying the new paragraphs; it cannot witness them, because the cycle
 deletes both trees and both paragraphs only appear on an install over a kept
 database.  That is still guest Test C's job.
+
+## 3 Sep 2026 - 135 and 147 witnessed on Test C, with the control that proves they are gates
+
+The precondition was measured before anything was touched, which is what makes
+the rest evidence rather than a story: sd.conf APIPORT=4243, SD-API-In-TCP NO
+RULE, listening on 4243 at 0.0.0.0, sdapi 0 members.  Uninstall answering Keep
+left sdssh, sdapi and sdsshonly all absent with sdusers intact - the deletion
+135 describes, reproduced - and sd.conf preserved.  Then the install.
+
+Both paragraphs appeared, in full, in the kept-database box: 135's directly
+under "YOUR DATA IS UNTOUCHED", listing the three outcomes and naming
+modify.account <name> ssh | api | both | none; 147's at the end, naming
+remote.api on.  After it, sdapi was present with 0 members and there was still
+no rule - so both sentences were true of the machine that showed them.
+
+THE CONTROL IS THE HALF WORTH RECORDING.  A second install over the top, where
+TrueUpgrade is true - the tasks page was skipped and the upgrade text shown,
+both on screen - and 135's paragraph was NOT there, while 147's still was,
+because the rule is still absent.  Two paragraphs, two gates, each firing on its
+own question.  A run where the text always appears would have proved nothing.
+
+The shipped api-firewall.ps1 -ScopeFile was run on the guest and answered none,
+which is the branch the host could not exercise (the host has an open rule) and
+is the value the gate keys on.  So the paragraph appeared because of a
+measurement, not in spite of one.
+
+Two things the run turned up.  check-install printed "[ok] The network API is
+listening on port 4243" and closed with "Nothing is wrong." on that machine -
+the same defect as 148 and the louder instrument, so 148 gained it as a second
+site.  And the box is now about 820 px tall against a 1024x768 screen's ~720 of
+work area; it fit at the guest's 1270x960, and what would fall off a smaller
+screen is 147's own paragraph and the OK button.  Filed as 150.
+
+Driving notes.  ALT+TAB BEFORE TYPING is not advice, it is the rule: two "n"
+answers went into the wrong shell and appeared as red errors in a window nobody
+was looking at, and the prompt they were meant for sat unchanged - the tell is
+an unchanged prompt, not an error.  The uninstall's Keep/Delete question was
+answered by cropping the button row and reading the focus rectangle first, both
+times, because ALT+TAB onto a Yes/No box lands on No.  A VirtualBox snapshot was
+taken before the sitting and kept: pre-147-witness restores Test C to 147's
+state, which is cheaper than rebuilding it from a clone.  acpipowerbutton did
+not shut the guest down; "shutdown /s /t 5" typed inside it did.

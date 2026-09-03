@@ -175,14 +175,14 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 ARE BUILT AND UNWITNESSED; 148 IS FILED FROM WHAT BUILDING THEM SHOWED. OPEN 12 → 13. THE INSTALL IS 12:41:43, `assert-current` IS EXIT 0, AND THE FULL SUITE RAN — BOTH HALVES, 43 STEPS, EVERY ONE EXIT 0. THE ONLY THING OWED IS THE WITNESS.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 ARE CLOSED, WITNESSED ON `Test C` WITH A CONTROL. THE FULL SUITE RAN, BOTH HALVES, 43 STEPS, ALL EXIT 0. THREE FILED FROM WHAT THE WORK SHOWED (148, 149, 150). OPEN 12 → 13. NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 12:41:43** from `cycle.ps1` run
 > by this session; ISCC *"Successful compile"*, `sd-setup-W1.0-0.exe`
 > **4,965,787 bytes** — it GREW, which is the cheap check that the new text went
 > in; `assert-current` **exit 0**; **fourteen free checks green**, with
 > `test-apigate-units` at **27, up from 13**. ***OPEN 13: 16, 65, 66, 70, 80,
-> 93, 96, 102, 114, 135, 138, 147, 148. NEXT FREE ID 149. `b103` IS SPENT ON THE
+> 93, 96, 102, 114, 138, 148, 149, 150. NEXT FREE ID 151. `b103` IS SPENT ON THE
 > FULL SUITE; NEXT RUN TOKEN `b104`.***
 >
 > ***135 AND 147 WERE THE SAME FIX AND THEY WENT IN THE SAME BOX*** — the
@@ -217,15 +217,37 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > too. **Count the rows against the 23 steps the runner defines**, which is what
 > was done here.
 >
-> ### ***WHAT IS OWED — ONE THING***
+> ### ***THE WITNESS RAN ON `Test C`, AND SO DID THE CONTROL***
 >
-> ***THE WITNESS. NEITHER NEW PARAGRAPH HAS BEEN SEEN BY ANYBODY***, and the
-> suite could not have shown them: it runs against an install whose tree the
-> cycle deleted, and both paragraphs only appear on an install over a **kept**
-> database. Both need guest `Windows 11 - SSH no SD - Test C`, which is
-> **already in 147's state** — the API listening, no rule. Install over it
-> keeping the database and read the box. **That one run witnesses both
-> entries**, and it is the only thing standing between 135, 147 and DONE.
+> ***THE PRECONDITION WAS MEASURED BEFORE ANYTHING WAS TOUCHED***, which is what
+> makes the rest evidence: `sd.conf` `APIPORT=4243`, **`SD-API-In-TCP : NO
+> RULE`**, **`listening on 4243 : 0.0.0.0`**, `sdapi` **0 members**. Then
+> uninstall answering **Keep**, which left `sdssh`, `sdapi` and `sdsshonly` all
+> `(absent)` and `sdusers` intact — then install.
+>
+> | run | 135's paragraph | 147's paragraph |
+> |---|---|---|
+> | **the witness** — uninstall(Keep) then install, `not TrueUpgrade` | **present**, under *"YOUR DATA IS UNTOUCHED"*, naming `modify.account <name> ssh \| api \| both \| none` | **present**, naming `remote.api on` |
+> | **the control** — install again over the top, `TrueUpgrade` | ***absent*** | **present** — the rule is still gone |
+>
+> ***THE CONTROL IS THE HALF THAT PROVES THESE ARE GATES AND NOT CONSTANTS.***
+> On the second run the tasks page was skipped and the upgrade text shown, both
+> on screen, so `TrueUpgrade` was true — and 135's paragraph vanished while
+> 147's, on a different gate, stayed. ***AND THE SHIPPED PROBE ANSWERED `none`
+> ON THE GUEST***, the branch the host could not reach: the paragraph appeared
+> because of a measurement rather than in spite of one.
+>
+> **Screenshots and states are in `C:\Users\dmont\sdxfer`** —
+> `p147-witness-keptbox.png`, `p147-control-upgrade-keptbox.png`,
+> `p147-witness-checkinstall.png`, `p147-before/mid/after.txt`, `p147-scope.txt`.
+>
+> ***TWO THINGS THE RUN TURNED UP, BOTH FILED.*** **148** gained a second site:
+> `check-install` printed **`[ok] The network API is listening on port 4243`**
+> and **`Nothing is wrong.`** on that machine — the louder of the two
+> instruments that report the listener instead of the reachability. And **150**:
+> the box is now about **820 px tall** and a 1024x768 screen has about 720 to
+> put it in; it fit at 1270x960, and what would fall off a smaller one is
+> 147's own paragraph.
 >
 > ### ***THE TRAP THAT NEARLY SHIPPED A WRONG SENTENCE***
 >
@@ -325,7 +347,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | `Windows 11 - No SD or SSH - Template` | clone source, leave alone |
 > | `Windows 11 - SSH no SD - Test A [used]` | spent — 145 |
 > | `Windows 11 - SSH no SD - Test B [used]` | spent — 146's finding |
-> | ***`Windows 11 - SSH no SD - Test C`*** | ***147's state, keep it*** |
+> | `Windows 11 - SSH no SD - Test C` | ***spent — 135 and 147 witnessed 3 Sep. IT CARRIES A SNAPSHOT, `pre-147-witness`, WHICH RESTORES 147's STATE*** — so it is reusable for anything needing "API up, no rule", which is cheaper than rebuilding that state from a fresh clone |
 > | `Windows 11 - No SD or SSH - Test 1` / `Test 2` | fresh, no ssh |
 >
 > ***THE OWNER RENAMES A SPENT GUEST `[used]`***, which is worth copying.
