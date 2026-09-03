@@ -175,15 +175,17 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 ARE CLOSED, WITNESSED ON `Test C` WITH A CONTROL. THE FULL SUITE RAN, BOTH HALVES, 43 STEPS, ALL EXIT 0. THREE FILED FROM WHAT THE WORK SHOWED (148, 149, 150). OPEN 12 → 13. NOTHING IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 CLOSED, WITNESSED ON `Test C` WITH A CONTROL. THE FULL SUITE RAN, BOTH HALVES, 43 STEPS, ALL EXIT 0. THREE FILED FROM THE WORK (148, 149, 150); 149 ALSO CLOSED THE SAME SESSION. OPEN 12. NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 12:41:43** from `cycle.ps1` run
 > by this session; ISCC *"Successful compile"*, `sd-setup-W1.0-0.exe`
 > **4,965,787 bytes** — it GREW, which is the cheap check that the new text went
 > in; `assert-current` **exit 0**; **fourteen free checks green**, with
-> `test-apigate-units` at **27, up from 13**. ***OPEN 13: 16, 65, 66, 70, 80,
-> 93, 96, 102, 114, 138, 148, 149, 150. NEXT FREE ID 151. `b103` IS SPENT ON THE
-> FULL SUITE; NEXT RUN TOKEN `b104`.***
+> `test-apigate-units` at **27, up from 13**. ***OPEN 12: 16, 65, 66, 70, 80,
+> 93, 96, 102, 114, 138, 148, 150. NEXT FREE ID 151. `b103` IS SPENT ON THE
+> FULL SUITE; NEXT RUN TOKEN `b104`.*** **149 closed the same session it was
+> filed** — the `VerifyInstall2` summary now carries its `PARTIAL` heading into
+> the file, one structural line, `assert-current` still exit 0.
 >
 > ***135 AND 147 WERE THE SAME FIX AND THEY WENT IN THE SAME BOX*** — the
 > kept-database one, the one that says *"YOUR DATA IS UNTOUCHED"*, because 135's

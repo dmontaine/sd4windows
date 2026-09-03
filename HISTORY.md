@@ -46350,3 +46350,21 @@ times, because ALT+TAB onto a Yes/No box lands on No.  A VirtualBox snapshot was
 taken before the sitting and kept: pre-147-witness restores Test C to 147's
 state, which is cheaper than rebuilding it from a clone.  acpipowerbutton did
 not shut the guest down; "shutdown /s /t 5" typed inside it did.
+
+## 3 Sep 2026 - 149 closed the session it was filed: the PARTIAL heading goes into the file
+
+VerifyInstall2 built the summary banner into a $heading variable, printed it as
+before, and prepended it to the file with (@($heading) + @($lines)) | Set-Content.
+So post-cycle-<stamp>.txt now opens with its heading and a reader grepping it for
+PARTIAL gets a true answer where before the word lived only in the console.
+
+The @() on both sides of the + is deliberate: a bare "$heading + $lines" folds
+the string into the array's first element when $lines is a scalar (the one-step
+case), which is this tree's array-literal trap.  Proven in isolation for the
+full, partial and single-row cases - heading always element 0, rows preserved.
+assert-current stayed exit 0 because VerifyInstall2 ships nowhere.
+
+No separate unit test, and the entry says so: the fix is one structural line in
+the runner, test-suiteonly-units guards suite-only.ps1's filter rather than the
+runner, and a new free check plus its CLAUDE.md list entry is more ceremony than
+an M one-liner earns when the regression is a visible revert of a commented line.
