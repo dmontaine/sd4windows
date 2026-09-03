@@ -45903,3 +45903,61 @@ recorded - so no cycle and no host-side re-copy is owed before that test.
 
 Baseline confirmed before any of this: twelve free checks green and
 `assert-current` exit 0, thirteen for thirteen.
+
+
+## 3 Sep 2026 - 137 built: the cycle log now says whether it received ISCC's output
+
+`gplbld/transcript-whole.ps1`, dot-sourced by `cycle.ps1` and by its own units
+test.  It counts the `Compressing:` lines a transcript actually received against
+the payload files `stage.py` actually wrote, and prints both.
+
+The expected number turned out to be exact rather than approximate, which is
+what makes a single dropped line visible.  ISCC prints one `Compressing:` line
+per `[Files]` entry, and the stage tree holds exactly two files that are not
+payload - `MANIFEST.txt`, which `stage.py:27` puts outside both install roots so
+that packaging never picks it up, and `upgrade.iss`, which `sd.iss:643`
+`#include`s at compile time.  Diffed file by file against the 19:40 log: 3,673
+staged, 2 excluded, 3,671 expected, 3,671 in the log.  The only other
+differences were a message and a rename belonging to a later build.
+
+The two are excluded BY NAME rather than by subtracting 2.  A rename then
+reports SHORT, which is somebody looking; a hardcoded 2 would have gone on being
+silently right and then silently wrong.  That is a negative control, not a
+preference - doctoring it to `- 2` makes the units go red.
+
+The anchor is ISCC's own banner, with the major version wildcarded so an Inno 7
+upgrade cannot make every whole log read as truncated.  The ISCC PATH that
+`cycle.ps1` prints contains the string `Inno Setup 6`, so a looser anchor would
+have reported every truncated log as whole; that is tested explicitly, and
+weakening the anchor is the second negative control.
+
+Five verdicts: WHOLE, SHORT, TRUNCATED AT FRONT, NO NATIVE OUTPUT, and MORE THAN
+ONE RUN - the last for the 24 Aug 2026 log that held two cycles, which is in the
+record rather than imagined.  Four null cases refuse as NO VERDICT out loud, and
+the printer says "This is not a pass.  Nothing was compared."  Deleting the
+empty-stage refusal is the third negative control.  It warns and never fails,
+the same decision `$TranscriptDegraded` was given: the build was decided by
+ISCC's exit code long before this runs.
+
+Printed at two call sites - the `-SkipInstall` exit, which is the path somebody
+reads for a compile error, and beside the final verdict.  Beside the old flag
+rather than instead of it, because on 2 Sep the two disagreed in both
+directions.
+
+`test-transcriptwhole-units.ps1`: 30 checks, 30 passed, on CLAUDE.md's free list
+in the same commit.  Two are live, driving the real 19:40 and 17:44 logs off
+disk, and they report `[SKIP]` rather than passing on a machine without them.
+One tests that dot-sourcing does not leak strict mode into the caller.
+
+Not witnessed: no live cycle has run since it was wired in, and an agent shell
+cannot run one that would witness it - PowerShell 5.1 transcribes native output
+by scraping a console screen buffer, and a tool-invoked shell has none, which a
+probe confirmed by capturing zero native lines into its own transcript.  The
+scope shape was proved instead with a harness that starts its own transcript and
+calls the wrapper exactly as `cycle.ps1` does; it read the live log it was
+writing.  The next cycle witnesses the rest at no extra cost.
+
+It already has something to say.  `cycle-20260902-224601.log`, the log behind
+the install everything is currently measured against, carries no banner and
+1,879 `Compressing:` lines against 3,672 expected.  That install's build detail
+is unreadable and nobody knew.

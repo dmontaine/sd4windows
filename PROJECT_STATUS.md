@@ -179,9 +179,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***THE STATE, IN ONE LINE.*** Nothing under `gplsrc` or `sdsys` changed, so
 > the 2 Sep 22:46:52 install still stands and `assert-current` is **exit 0**.
-> **Twelve free checks green**, `test-fixlist-units` **252/0**. ***OPEN 15: 16,
-> 65, 66, 70, 80, 89, 93, 96, 102, 114, 135, 136, 137, 138, 145. NEXT FREE ID
-> 146. NEXT RUN TOKEN `b103`*** (still unspent — the sitting needed no suite).
+> ***THIRTEEN free checks green*** — `test-transcriptwhole-units` joined the
+> list 3 Sep with 137. ***OPEN 14: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114,
+> 135, 136, 138, 145. NEXT FREE ID 146. NEXT RUN TOKEN `b103`*** (still unspent
+> — neither the sitting nor 137 needed a suite).
+>
+> ***137 IS BUILT AND IT FOUND SOMETHING ON ITS WAY IN: THE LOG BEHIND THE
+> CURRENT INSTALL IS ITSELF TRUNCATED.*** `cycle-20260902-224601.log` carries
+> **no ISCC banner and 1,879 `Compressing:` lines against 3,672 expected**, so
+> the build detail of the install everything is being measured against **cannot
+> be read**. The install is not in doubt — `assert-current` is exit 0 and ISCC's
+> exit code decided the build — but *"check the cycle log"* is not available for
+> that one. `gplbld/transcript-whole.ps1` is what says so now; before today it
+> took noticing that a message id was missing.
 >
 > ### ***WHAT TO DO NEXT, IN COST ORDER***
 >
@@ -220,8 +230,14 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    on a machine where it was off throughout). 135 needs the `sdapi` loss said
 >    out loud; the confinement half is done and witnessed.
 > 4. **136** is one `create.account` on a **PROGRAMMER** tier from closing.
-> 5. Then the builds: **137**, **114**, **93**, **70**, **66**, **65**; the C
->    work **102**, **16**, **96**; **80** as its own project.
+> 5. Then the builds: ~~137~~ **(done 3 Sep)**, **114**, **93**, **70**, **66**,
+>    **65**; the C work **102**, **16**, **96**; **80** as its own project.
+>    ***137's ONE LOOSE END IS FREE: THE NEXT CYCLE WITNESSES IT.*** It is wired
+>    into `cycle.ps1` at the `-SkipInstall` exit and beside the final verdict,
+>    and no cycle has run since. **An agent shell cannot witness it at all** —
+>    PowerShell 5.1 only transcribes native output when there is a real console
+>    to scrape — so it needs the owner's own elevated window, and it needs no
+>    extra run of its own.
 >
 > ### ***THE RIG CHANGED UNDER THE RECORD AND THE OLD NAMES ARE GONE***
 >

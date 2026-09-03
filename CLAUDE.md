@@ -470,8 +470,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-verdict-units`, `test-sdtestuser-units`, `test-suiteonly-units`,
    `test-retired-wording-units`, `test-stemcoverage-units`,
    `test-dirscoverage-units`, `test-stripcomments-units`,
-   `test-diffcapture-units`, `check-stale-leads.py`,
-   `test-staleleads-units.py`. **Run these on every change.** A whole suite run has already been spent twice discovering what one
+   `test-diffcapture-units`, `test-transcriptwhole-units`,
+   `check-stale-leads.py`, `test-staleleads-units.py`. **Run these on every
+   change.** A whole suite run has already been spent twice discovering what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
    deliberately reworded, so a fix that lands in one copy and misses another
@@ -496,6 +497,11 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    so for one commit the guard existed and "run these on every change" did not
    name it. **That is the exact gap the paragraph above describes**, arrived at
    by an author who had just read it.
+
+   ***`test-transcriptwhole-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT
+   CREATED IT***, which is the rule above working and needs no paragraph of its
+   own. It guards `gplbld/transcript-whole.ps1`, PRE_RELEASE 137's check that a
+   cycle log actually received ISCC's output.
 
    ***`test-stripcomments-units` WAS ADDED HERE IN ITS OWN COMMIT, 2 Sep 2026,
    WHICH IS THE RULE ABOVE WORKING RATHER THAN A TENTH ENTRY WORTH NOTING.***
