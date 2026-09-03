@@ -46108,6 +46108,64 @@ cycle is owed, and the witness afterwards is one install with both API boxes
 ticked where `api-firewall.ps1 -Show` must stop saying `rule: not present`.  That
 same install unblocks 89, whose dangerous case needs the rule this restores.
 
+## 3 Sep 2026 - 146, 89 and 137 closed on one guest; 147 filed from what the run exposed
+
+The owner ran both cycles, so the 11:04 build carries 146's fix, and `Test C` is
+a fresh clone.
+
+137 first, free: both cycle logs print `TRANSCRIPT COMPLETENESS: WHOLE - banner
+present and 3672 Compressing lines for 3672 payload files`, one from the
+`-SkipInstall` exit and one from the final verdict, so both call sites are
+exercised.  3,674 staged minus 2 non-payload is 3,672 and the transcript holds
+3,672 - the exact identity the entry claimed, confirmed on a real console
+instead of on fixtures, and both logs are in the 641 KB complete size class.
+
+146 next.  Baseline on the fresh clone: 483 rules, none mentioning 4243, no
+sd.conf.  Installed with both API boxes ticked.  Afterwards the same four
+questions that reported the defect all answer the other way - found by name,
+found by display name, 484 rules with exactly one mentioning 4243, and
+`api-firewall.ps1 -Show` printing the rule with `RemoteAddress Any` where it had
+printed `rule: not present`.  Any is the `-Open` scope, so the scope followed the
+CHILD box rather than the parent, which is 75's fix still holding.  The closing
+box also gained a line naming the API on port 4243 that `Test B` never showed
+with the same tasks ticked.
+
+Then 89's dangerous case, which 146 had made producible.  Uninstall answering
+Keep to both questions: sd.conf preserved with APIPORT still active, and the rule
+gone - 483 again, which is RemoveApiFirewall doing its documented job.  Reinstall:
+the API section is ABSENT from the tasks page, and afterwards there are still 483
+rules, no SD-API rule, sd.conf byte-identical, and the listener up.  So with the
+box hidden, ApplyApiFirewall is not called at all and the reinstall neither opens
+nor narrows anything.  Ungated and pre-fix it would have run `-Restrict` and
+created a loopback-scoped rule, silently replacing a scope the site chose.  The
+reinstall's closing box also makes no false claim of isolation; it names ssh and
+omits the API.
+
+147 is what that sequence exposed, and it is not a regression of either fix.
+Every step is right on its own: the uninstaller must remove SD's own rule, Keep
+must keep sd.conf, and the hidden box must not act.  The end state is that the
+API listens on 0.0.0.0:4243 with a firewall that admits nobody, the wizard offers
+no way to ask for it back, and nothing says so.  A site that had network API
+access does not have it after an uninstall-then-reinstall.  The entry records
+that it must NOT be fixed by ungating the firewall call - that is the change 89
+rejected - and that the shape of the fix is 135's: say the loss out loud where
+the reader already is, naming `remote.api on`, which sd.iss already prints in
+another branch.
+
+Three instrument faults were paid for across the day and all three were mine
+rather than the product's.  The probe's accumulator `$L` was clobbered by a loop
+variable `$l`.  A firewall filter of `SD|OpenSSH|4243` matched 49 Windows rules
+because "SD" is inside SSDP and WSD.  And the probe's one-line summary matched
+only DisplayName against `SD-API`, while api-firewall.ps1 sets DisplayName to
+`SD API (SDClient)` with a space - so the summary printed False three lines below
+a listing that showed the rule.  That last one is the dangerous shape: a reader
+who trusts the verdict over the evidence scores a working fix as a failure.
+
+One driving lesson was re-learned rather than read: after CTRL+SHIFT+ENTER opens
+an elevated shell, ALT+TAB before typing.  Batching the open and the command with
+-NoShot sent a whole command line into a window that did not exist yet, twice,
+and the tell was an empty prompt rather than an error.
+
 Driving notes, each paid for once.  The clones autologon, and `WIN+r` then
 `CTRL+SHIFT+ENTER` gives an elevated shell with no UAC prompt.  `Start-Process`
 leaves a launched installer BEHIND the shell and `ALT+TAB` did not raise it -

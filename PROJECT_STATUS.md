@@ -179,19 +179,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***THE STATE, IN ONE LINE.*** Nothing under `gplsrc` or `sdsys` changed, so
 > the 2 Sep 22:46:52 install still stands and `assert-current` is **exit 0**.
-> ***THIRTEEN free checks green*** — `test-transcriptwhole-units` joined the
-> list 3 Sep with 137. ***OPEN 14: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114,
-> 135, 136, 138, 146. NEXT FREE ID 147. NEXT RUN TOKEN `b103`*** (still unspent
-> — none of this needed a suite).
+> ***FOURTEEN free checks green*** — `test-transcriptwhole-units` and
+> `test-apigate-units` joined the list 3 Sep with 137 and 146. ***OPEN 13: 16,
+> 65, 66, 70, 80, 93, 96, 102, 114, 135, 136, 138, 147. NEXT FREE ID 148. NEXT
+> RUN TOKEN `b103`*** (still unspent — none of this needed a suite). **The
+> install is the owner's 3 Sep 11:04:52 cycle and `assert-current` is exit 0.**
 >
-> ***146 IS BUILT AND A CYCLE IS OWED — `assert-current` IS EXIT 1 NAMING ONLY
-> `gplbld\sd.iss`.*** The sample is taken once in `InitializeSetup`
-> (`ApiConfWasAbsent`, beside `SshWasAbsent` and `SdWasInstalled`) and
-> `ApiConfAbsent` reads it instead of the file system; the gate itself is
-> unchanged, because it exists for a real reason. **`test-apigate-units` is the
-> guard, 13 checks, red four ways, on the free list.** ***THE WITNESS IS ONE
-> INSTALL WITH BOTH API BOXES TICKED***, where `api-firewall.ps1 -Show` must stop
-> saying `rule: not present` — and that same install unblocks **89**.
+> ***146, 89 AND 137 ALL CLOSED 3 Sep 2026 ON THE OWNER'S 11:04 BUILD AND GUEST
+> `Test C`. ONE NEW ENTRY, 147.*** **146**: `api-firewall.ps1 -Show` now prints
+> `rule: SD-API-In-TCP … RemoteAddress Any` where it said `rule: not present`,
+> 484 rules against a 483 baseline, and the closing box gained a line naming the
+> API that `Test B` never showed. **89**: the dangerous case was produced at
+> last — install with the API on, uninstall answering Keep, reinstall with the
+> box hidden — and `ApplyApiFirewall` **did not run**, so the reinstall neither
+> opened nor narrowed anything; `sd.conf` byte-identical, 483 rules unchanged.
+> **137**: both cycle logs print `TRANSCRIPT COMPLETENESS: WHOLE — 3672
+> Compressing lines for 3672 payload files`, the exact identity, on a real
+> console.
+>
+> ***147 IS WHAT THE RUN EXPOSED AND IT IS NOT A REGRESSION***: after
+> uninstall-then-reinstall keeping the database, the API **listens on
+> `0.0.0.0:4243` with no firewall rule**, the box is hidden so nobody can ask for
+> one, and nothing says so. **Do not fix it by ungating the firewall call** —
+> that is the change 89 rejected. It is a reporting gap, the same shape as 135's
+> open half.
 >
 > ***THE ORIGINAL FINDING, KEPT: `ApplyApiFirewall` WAS UNREACHABLE ON EVERY
 > INSTALL PATH.*** `ApiConfAbsent` is evaluated twice and
