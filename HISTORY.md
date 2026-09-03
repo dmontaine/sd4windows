@@ -46405,3 +46405,19 @@ remote.api, and the LOGTO elevation is on the secure desktop a driving session
 cannot reach.  Built and compiled into the 14:20:13 install; the entry stays
 open on that one interactive check.  A cycle at 14:20 carried it, REMOTEAPI
 compiled and added to the global catalogue, assert-current exit 0.
+
+## 3 Sep 2026 - 148 closed on the owner's sign-off, "148 is ok"
+
+The owner approved the one judgment that was flagged - check-install stating a
+no-rule listening API as Info under an [ok] rather than a [PROBLEM], so the
+verdict stays "Everything checks out" - and signed off the entry.
+
+The record keeps witnessed and accepted-on-sign-off distinct rather than
+blurring them.  The check-install half, which is the site 148 was filed against,
+was witnessed by the session both ways on the host.  The remote.api half was
+compiled into the install and its interactive output was not separately observed,
+because the LOGTO elevation is unreachable from a driving session; it is accepted
+on the sign-off, resting on the shared report.state, the witnessed REMOTESSH
+shape it copies line for line, and the live api-firewall -Show sentence.  If
+anything re-opens 148 it is the remote.api output itself - the one unobserved
+thing - and the fault would then be in report.state, not the design.

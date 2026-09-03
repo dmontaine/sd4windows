@@ -175,35 +175,35 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 CLOSED, WITNESSED ON `Test C` WITH A CONTROL. FULL SUITE RAN, 43 STEPS, ALL EXIT 0. 149 CLOSED. 148 MOSTLY BUILT — ONE INTERACTIVE `remote.api` WITNESS OWED. OPEN 12.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135, 147, 149 AND 148 CLOSED. FULL SUITE RAN, 43 STEPS, ALL EXIT 0. OPEN 11. NOTHING OWED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 14:20:13** from `cycle.ps1` run
 > by this session (was 12:41:43; re-cycled to carry 148); `assert-current`
 > **exit 0**; **fourteen free checks green**, `test-apigate-units` **27**.
-> ***OPEN 12: 16, 65, 66, 70, 80, 93, 96, 102, 114, 138, 148, 150. NEXT FREE ID
+> ***OPEN 11: 16, 65, 66, 70, 80, 93, 96, 102, 114, 138, 150. NEXT FREE ID
 > 151. `b103` SPENT ON THE FULL SUITE; NEXT RUN TOKEN `b104`.***
 >
-> ***THE ONE THING OWED: A 20-SECOND INTERACTIVE CHECK OF `remote.api`.*** 148's
-> `check-install` half is witnessed both ways on the host (rule present and
-> removed-then-restored); its `remote.api` half is built and compiled but not
-> witnessed, because `sd` → `logto sdsys` → `remote.api` needs the UAC secure
-> desktop a driving session cannot reach. In an SDSYS session, an administrator:
+> ***148 CLOSED ON THE OWNER'S SIGN-OFF ("148 is ok"), 3 Sep 2026.*** Two
+> instruments now report API *reachability*, not just the listener. The
+> `check-install` half — the site 148 was filed against — is **witnessed both
+> ways on the host** by this session (rule present → *"Other computers … may
+> reach it"*; rule removed then restored → *"No firewall rule admits other
+> computers … remote.api on"*, `sdout\p148-none-witness.txt`). The `remote.api`
+> half is **built and compiled** into this install and its interactive output
+> was **not separately observed** — `sd` → `logto sdsys` → `remote.api` needs
+> the secure desktop a driving session cannot reach — and is accepted on the
+> sign-off, resting on the shared `report.state`, the witnessed `REMOTESSH`
+> shape it copies, and the live `api-firewall -Show` sentence. **The `Info`
+> severity is the owner's settled call**: a listening API with no rule is
+> *stated*, not flagged, so the verdict stays *"Everything checks out"*. **149
+> also closed**: the `VerifyInstall2` summary carries its `PARTIAL` heading into
+> the file now, one structural line.
 >
-> ```
-> remote.api
-> ```
->
-> should now print the listener line AND a firewall line — `state is ON` /
-> `LOCAL` / `OFF at the firewall` — where before it printed only the listener.
-> **149 also closed**: the `VerifyInstall2` summary carries its `PARTIAL`
-> heading into the file now, one structural line.
->
-> ***ONE JUDGMENT WAITING ON THE OWNER (148)***: `check-install` on a listening
-> API with no firewall rule now SAYS so, but as an `Info` line under an `[ok]`,
-> so the verdict still reads *"Everything checks out"*. `Info` is deliberate —
-> local-only is a legitimate state and a `[not yet]` would wrongly say *"sign
-> out and back in"*. If §5.23 wants a silently-lost network reach louder, that
-> is a level change, not a rebuild. Witness: `sdout\p148-none-witness.txt`.
+> ***IF ANYTHING RE-OPENS 148 IT IS THE `remote.api` OUTPUT ITSELF*** — the one
+> thing unobserved. In an SDSYS session `remote.api` (no keyword) should print
+> the listener line AND a firewall line (`state is ON` / `LOCAL` / `OFF at the
+> firewall`); if it does not, the fault is in `REMOTEAPI`'s `report.state`, not
+> the design.
 >
 > ***135 AND 147 WERE THE SAME FIX AND THEY WENT IN THE SAME BOX*** — the
 > kept-database one, the one that says *"YOUR DATA IS UNTOUCHED"*, because 135's
