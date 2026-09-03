@@ -45828,3 +45828,43 @@ no longer exist; the file's `zz135`/`zz135b`/"the guest is not clean" facts
 described a deleted machine. `Test A`, `B`, `C` have neither SD nor ssh
 (owner), and installing the ssh server there is a ~20-minute download, so they
 are the wrong rigs for this work. `Clone B` is untouched and is the next one.
+
+## 3 Sep 2026 - keepallmacs is a licence requirement, and the old bullet was weighed against the wrong cost
+
+Owner, rebuilding the clones: "the problem is that ms licensing notices the
+macs are different and wants reauthorization." Windows hashes the MAC into its
+hardware id as well as the UUID, so `keephwuuids` alone still reads as new
+hardware. `--options=keephwuuids,keepallmacs`, both, from now on.
+
+***THE BULLET THIS REVERSES WAS NOT WRONG, WHICH IS THE PART WORTH KEEPING.***
+It said keepallmacs was not wanted because sdStandalone-C1 carried "never run
+both at once" and §427 valued the Test guests running concurrently. Both true.
+It traded concurrency for tidiness; the trade is for ACTIVATION now, and an
+unactivated guest is not a rig. The old reasoning is left in place beside the
+reversal rather than deleted, because a rule whose reason has been cut is one
+the next session re-argues.
+
+Measured across every guest the same day, which is what shows the shape: the
+clones made under the old bullet - `SD ssh baseline`, `Clone A`, `Clone B`,
+`Test A/B/C` - carry six distinct MACs and are exactly the guests demanding
+reactivation, while `Template`, `Template Clone` and `Template with ssh` share
+`080027AECE7C`. The hardware UUID has been identical on all of them all along,
+so only the MAC half was ever missing.
+
+`gplbld/vm-clone.ps1` is new. It clones with both options and then reads both
+values back off the new VM, because clonevm can exit 0 having quietly given a
+new MAC and the guest then boots, works, and is wrong in the one way nobody
+looks at. ***`-Audit` is the half that matters while the clones are being made
+in the GUI***: the dialog can do both - MAC Address Policy "Include all network
+adapter MAC addresses", Additional Options "Keep Hardware UUIDs" - but they are
+two controls on one page and both defaults are wrong here, and a clone with
+either missed looks normal until Windows asks for reactivation days later.
+
+The concurrency cost is printed only where it applies. Every Windows guest is
+nic1=bridged on the Realtek adapter, so sharers are on the real LAN and must be
+run one at a time; under NAT a duplicate MAC is harmless because each VM gets
+its own stack, and saying so there would train the reader to skip the warning
+where it is real. The NAT escape is recorded with its price - a NAT guest is
+not reachable from the LAN by address, so anything measuring "another computer
+on your network can connect over ssh" changes meaning. \\vboxsvr does not go
+over the NIC.

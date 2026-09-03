@@ -954,7 +954,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    nothing else" and is the owner's re-run rig. `clonevm` refuses a running VM.
 >    ***CLONE WITH `--options=keephwuuids` OR THE CLONE IS UNLICENSED*** — and
 >    **not** `keepallmacs`; the two are decided separately, see the rig section's
->    "THE TWO CLONE OPTIONS ARE NOT A PAIR".
+>    "THE TWO CLONE OPTIONS ARE NOT A PAIR". ***SUPERSEDED 3 Sep 2026 — IT IS
+>    `--options=keephwuuids,keepallmacs` NOW, BOTH, AND THE MAC HALF IS ALSO A
+>    LICENCE REQUIREMENT.*** Left as written because this step is struck and is
+>    the record of what was run that day; the live rule is in the rig section.
 > 3. ~~Boot it back and do **step 2**: an **INTERACTIVE uninstall, KEEPING the
 >    database** = **74**.~~ — ***DONE, AND 74 HOLDS.*** `sdssh`, `sdapi`,
 >    `sdsshonly` gone; `sdusers` and `sdu_don` still there. The accounts-removal
@@ -4834,20 +4837,56 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   ties its digital licence to the hardware UUID, so a fresh one is new
 >   hardware and the guest deactivates. **This is the owner's correction and it
 >   is not negotiable against tidiness.**
-> - **`keepallmacs` is NOT wanted here.** A duplicate MAC is why
->   `sdStandalone-C1` carried *"never run both at once"* (§70), and §427 values
->   the Test guests being able to run concurrently. Let VirtualBox generate one.
+> - ***`keepallmacs` IS ALSO REQUIRED. REVERSED BY THE OWNER, 3 Sep 2026:*** *"the
+>   problem is that ms licensing notices the macs are different and wants
+>   reauthorization."* **Windows hashes the MAC into its hardware id too**, so
+>   keeping the UUID and letting VirtualBox generate a MAC still reads as new
+>   hardware and still deactivates. ***THE BULLET THIS REPLACES WAS NOT WRONG,
+>   IT WAS WEIGHED AGAINST THE WRONG COST*** — it said *"`keepallmacs` is NOT
+>   wanted here"* because `sdStandalone-C1` carried *"never run both at once"*
+>   (§70) and §427 valued the Test guests running concurrently. **Concurrency
+>   was being traded for tidiness; it is traded for ACTIVATION now, and
+>   activation wins, because an unactivated guest is not a rig.**
 >
-> ***MEASURED 2 Sep 2026 ACROSS EVERY REGISTERED GUEST, WHICH IS WHAT SETTLED
-> IT*** — `Template`, `Test 10`, `Test A`, `Test B`, `Test C` **all share
-> hardware UUID `59d00c9d-e374-4cbd-aa87-c4cf197890aa`** and **all five MACs are
-> distinct**. So `keephwuuids` without `keepallmacs` is already the practice on
-> this machine; nothing here changes it, it was simply never written down with
-> its reason. **VBoxManage is 7.2.14 and its own usage prints `--options=`**, so
-> use the `=` form:
+> ***SO THE CONCURRENCY COST IS A THING TO MANAGE, NOT AN ARGUMENT.*** Every
+> Windows guest is `nic1=bridged` on the Realtek adapter (measured 3 Sep 2026),
+> so guests sharing a MAC are on the real LAN and collide over ARP and DHCP:
+> ***RUN ONE SHARER AT A TIME.*** ***THE ESCAPE, IF RUNNING SEVERAL EVER MATTERS
+> MORE***: move a clone to `nic1=nat` — a duplicate MAC is harmless there
+> because each VM gets its own stack, and activation is unaffected because it
+> hashes the MAC whatever the adapter is attached to. The price is that a NAT
+> guest is not reachable from the LAN by address, so anything measuring *"another
+> computer on your network can connect to this one over ssh"* changes meaning.
+> **The three shared folders are unaffected — `\\vboxsvr` does not go over the
+> NIC.**
+>
+> ***MEASURED 3 Sep 2026, AND IT IS WHY THE OLD BULLET LOOKED SETTLED***: the
+> clones made under it — `SD ssh baseline`, `Clone A`, `Clone B`, `Test A`,
+> `Test B`, `Test C` — carry **six distinct MACs**, and those are exactly the
+> guests that keep demanding reactivation. The ones cloned since — `Template`,
+> `Template Clone`, `Template with ssh` — share `080027AECE7C` **and** the UUID.
+> **The hardware UUID has been identical on every guest all along**, so only the
+> MAC half was ever missing.
+>
+> ***THE GUI CAN DO BOTH AND BOTH ITS DEFAULTS ARE WRONG FOR THIS RIG.*** In the
+> Clone dialog: **MAC Address Policy → *"Include all network adapter MAC
+> addresses"*** (it defaults to NAT-only) and **Additional Options → tick *"Keep
+> Hardware UUIDs"*** (it defaults off). Full clone, not linked. ***A clone with
+> either one missed looks completely normal until Windows asks for reactivation,
+> which may be days later*** — so check it rather than remember it:
 >
 > ```
-> "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" clonevm "<source>" --name "<new>" --options=keephwuuids --register
+> powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\vm-clone.ps1" -Audit
+> ```
+>
+> **Ordinary unelevated prompt; it reads and changes nothing.** It lists every
+> guest's UUID and MAC, groups them, and names the sharers. The same script
+> clones with both options and **reads both values back off the new VM**, because
+> `clonevm` can exit 0 having quietly given a new MAC. **VBoxManage is 7.2.14 and
+> its own usage prints `--options=`**, so use the `=` form:
+>
+> ```
+> "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" clonevm "<source>" --name "<new>" --options=keephwuuids,keepallmacs --register
 > ```
 >
 > | share | host | guest | mode |
