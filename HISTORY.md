@@ -46521,11 +46521,19 @@ have refused the whole check on any install with no ADMINISTRATOR-tier account.
 Both return a hashtable now, and the units test drives real empty, absent,
 one-record and two-record directories.
 
-Three cycles were spent, and two of them were one trap.  cycle.ps1 does not
-build the binaries, so a C change needs "make sd" first - and the existing note
-under "110 AND 111" already records that make sd alone does not clear
-assert-current, because it relinks only what changed while the guard compares
-source against the oldest binary.  Two corrections to that recorded recovery.
+Three cycles were spent, and two of them were one trap.  This entry first said
+"cycle.ps1 does not build the binaries", which the owner corrected the same day
+and which was wrong in a way worth recording.  cycle.ps1 DOES build: step 2 is
+stage.py --bootstrap, and the bootstrap compiles gpl.bp.out, gcat and
+pcode.out, which is most changes on this project - the pages of "0 error(s)" in
+a cycle log are that build happening.  What it does not run is make, so only a
+C change needs a step of its own.  And stage.py checks the binaries are PRESENT
+rather than CURRENT (stage.py:991), so a stale bin/ stages and installs without
+complaint and assert-current is what catches it afterwards, which is exactly
+what happened here.  The existing note under "110 AND 111" already records the
+rest: make sd alone does not clear assert-current, because it relinks only what
+changed while the guard compares source against the oldest binary.  Two
+corrections to that recorded recovery.
 Its "rm -f bin/*.exe bin/*.dll" also matches sd.exe.installed-backup-20260819,
 which is not build output; the nine build products should be deleted by name.
 And "bash -lc make sd" runs in /home/<user> and reports "No rule to make target

@@ -269,9 +269,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***THREE CYCLES WENT ON THIS AND TWO OF THEM WERE THE SAME TRAP***
 >
-> ***`cycle.ps1` DOES NOT BUILD THE BINARIES.*** A C change means `make sd`
-> **first**, and §"110 AND 111" already records that ***`make sd` alone does not
-> clear `assert-current`***: it relinks only what changed, and the guard
+> ***`cycle.ps1` BUILDS — IT DOES NOT RUN `make`, AND THOSE ARE DIFFERENT
+> THINGS.*** Corrected by the owner, 3 Sep 2026, after this handoff first said
+> *"cycle.ps1 does not build the binaries"*. **Step 2 is `stage.py --bootstrap`,
+> and the bootstrap IS a build**: `gpl.bp.out` from SECOND.COMPILE, `gcat`, and
+> `pcode.out` from `pcode_bld.py` — which is *most* changes on this project, and
+> is why CLAUDE.md calls `-SkipInstall` the cheap way to find out whether a
+> BASIC change compiles. The `0 error(s)` lines filling a cycle log are that
+> build happening.
+>
+> ***WHAT IT DOES NOT DO IS RUN `make`, SO ONLY THE C HALF NEEDS A STEP OF ITS
+> OWN*** — and **`stage.py` checks the binaries are PRESENT, not CURRENT**
+> (`stage.py:991`, *"bin/ is missing %s - run make sd first"*). A **stale**
+> `bin/` therefore stages and installs without complaint, and `assert-current`
+> is what catches it afterwards. That is what happened here.
+>
+> ***AND §"110 AND 111" ALREADY RECORDS THE SECOND HALF: `make sd` ALONE DOES
+> NOT CLEAR `assert-current`*** — it relinks only what changed, and the guard
 > compares source against the **oldest** binary, `sdclilib.dll`. The recorded
 > recovery is `rm -f bin/*.exe bin/*.dll && make sd`, then one more cycle.
 >
@@ -13219,11 +13233,23 @@ Each of these cost real time. Read before debugging anything similar.
   exempt since 21 Aug 2026 (header item 1), so it no longer voids anything.
   Every other shipped file under `sdsys` still does.
 
-- **`cycle.ps1` DOES NOT BUILD. A C CHANGE CAN BE CYCLED, INSTALLED, TESTED AND
-  PASSED WITHOUT EVER BEING COMPILED.** 18 Aug 2026, and it cost a whole cycle.
-  `cycle.ps1` stages whatever is already in `bin\`; the build is a separate
-  `make sd` in an MSYS2 login shell. `to_file.c` was edited at 19:15 and cycled
-  at 19:38 against `bin/sd.exe` from **17:17**.
+- **`cycle.ps1` DOES NOT RUN `make`. A C CHANGE CAN BE CYCLED, INSTALLED, TESTED
+  AND PASSED WITHOUT EVER BEING COMPILED.** 18 Aug 2026, and it cost a whole
+  cycle. `cycle.ps1` stages whatever is already in `bin\`; the build is a
+  separate `make sd` in an MSYS2 login shell. `to_file.c` was edited at 19:15
+  and cycled at 19:38 against `bin/sd.exe` from **17:17**.
+
+  ***THIS HEADING USED TO READ "`cycle.ps1` DOES NOT BUILD" AND THAT IS FALSE
+  AS WRITTEN — CORRECTED BY THE OWNER, 3 Sep 2026.*** **It does build**: step 2
+  is `stage.py --bootstrap`, and the bootstrap compiles `gpl.bp.out` from
+  SECOND.COMPILE, `gcat` and `pcode.out` — which is *most* changes on this
+  project, and is why CLAUDE.md calls `-SkipInstall` the cheap way to find out
+  whether a BASIC change compiles. **The pages of `0 error(s)` in a cycle log
+  are that build.** The bullet below was always right about what it measured;
+  only its first four words over-claimed, and they had been copied into a
+  handoff by 3 Sep. **The C half is the whole of the gap, and `stage.py` checks
+  the binaries are PRESENT, not CURRENT** (`stage.py:991`), so a stale `bin\`
+  stages and installs without a word.
 
   **BOTH `assert-current` CHECKS PASSED, and neither was wrong to.** Check A
   compares installed `sd.exe` against `bin/sd.exe` — equal, *because both were
