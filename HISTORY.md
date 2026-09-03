@@ -45536,3 +45536,53 @@ exactly this reason, and that stripper is the fix rather than rewording line
 guard working: filing 143 made the table max 143 while `PRE_RELEASE_FIXES.md:32`
 still declared NEXT FREE ID 143, and it failed with *"declared 143, table max is
 143"* rather than letting the next session collide on the number.
+
+## 2 Sep 2026 — 143 fixed by sharing the stripper rather than rewording the sentence, and no cycle was spent
+
+`gplbld/strip-comments.ps1` is new and holds `Remove-PascalComment`,
+`Remove-ParenStarComment`, `Get-StrippedLines` and `Get-StrippedText`.
+`assert-current.ps1` builds `$shipEvidence` from it; `test-retired-wording-units.ps1`
+reads its two functions from there instead of carrying them. **The
+`suite-only.ps1` shape and its reasoning**: two copies of a scanner that drift
+would answer different questions about the same file.
+
+**Proved red before green on the real `sd.iss`**, which is what
+`gplbld/test-stripcomments-units.ps1` (new, 26 checks) exists for: the
+**unstripped** file matches the ship pattern **1×** and the **stripped** file
+**0×**. `assert-current` then ran clean — the note gone, exit 0 — where the
+21:28:26 cycle had printed it. **No cycle was needed for any of it**: everything
+touched is gplbld-only and on `$neverShipped`.
+
+***THE TWO CALLERS ERR IN OPPOSITE DIRECTIONS, WHICH IS WHY THE SHARED FILE
+DECIDES NOTHING.*** For the wording lint an over-strip hides a retired phrase, a
+false negative its own header calls the safe way to fail. For `assert-current` an
+over-strip hides a `Source` line, the file stays excluded, and a stale tree
+reports CURRENT — the expensive direction. So the stripper strips conservatively
+and `assert-current` carries its own control: `adopt-account.ps1` (an `sd.iss`
+`[Files]` entry) and `deny-logon.ps1` (a `stage.py` tuple) must still match after
+stripping, and it **exits 2** rather than guessing if either goes.
+
+**Two things the build got wrong, both caught by the new tests rather than by
+reading.** A unary comma on the return — `return , @($result.ToArray())` — hands
+the caller a one-element array *containing* the array, so the lint's `foreach`
+iterated once with `$e.Line` an array of every line number; `Get-StrippedText`
+survived only because the pipeline unrolled one level for it, which is the kind
+of accident that hides in a helper until a second caller arrives. And the "did
+the strip eat the file" floor was **guessed at 40% and failed at 28%**, which
+looked like over-stripping and was not: counted, `sd.iss` is **~73% comment
+characters** — 61,004 in leading-`;` lines, ~105,652 in braced prose, ~30,683 in
+`(* *)` blocks, against 269,947 raw.
+
+**And it turned up `$neverShipped`'s one real gap.** Editing the wording lint
+turned the tree STALE, because `test-retired-wording-units.ps1` had never been
+listed since it was written that morning for 121 — a file that ships nowhere,
+with a whole cycle offered as the cure. **The directory was swept rather than the
+one name added**: every other gplbld script absent from that list genuinely is
+named in `stage.py` or `sd.iss`, so it was one omission and not a rotted list.
+
+Ten free checks green — `test-stripcomments-units` went into CLAUDE.md's list in
+the commit that created it, under the rule that section already states — plus
+`assert-current` exit 0 and `test-fixlist-units` 251/0. The wording lint is
+behaviourally unchanged: 38 of 38, flattening still 96, the Pascal canaries still
+0/0/68, with the corpus moving 69 to 70 script files and 10,619 to 10,728 lines
+because `strip-comments.ps1` is itself a `.ps1` in `gplbld`.

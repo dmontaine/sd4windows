@@ -469,8 +469,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    elevation, no run token: `test-tiercounts-units`, `test-fixlist-units`,
    `test-verdict-units`, `test-sdtestuser-units`, `test-suiteonly-units`,
    `test-retired-wording-units`, `test-stemcoverage-units`,
-   `test-dirscoverage-units`, `check-stale-leads.py`. **Run these on every
-   change.** A whole suite run has already been spent twice discovering what one
+   `test-dirscoverage-units`, `test-stripcomments-units`,
+   `check-stale-leads.py`. **Run these on every change.** A whole suite run has already been spent twice discovering what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
    deliberately reworded, so a fix that lands in one copy and misses another
@@ -487,6 +487,18 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `stage.py`'s directory lists — and *this list is a third instance of exactly
    that shape.* **A new free guard goes in this sentence in the commit that
    creates it**, the same rule as `assert-current`'s `$neverShipped`.
+
+   ***`test-stripcomments-units` WAS ADDED HERE IN ITS OWN COMMIT, 2 Sep 2026,
+   WHICH IS THE RULE ABOVE WORKING RATHER THAN A TENTH ENTRY WORTH NOTING.***
+   It guards `gplbld/strip-comments.ps1`, the comment stripper that
+   `assert-current` and `test-retired-wording-units` now share
+   (PRE_RELEASE_FIXES 143). **And the same commit found `$neverShipped`'s one
+   real gap**: `test-retired-wording-units.ps1` had never been listed, so
+   editing the wording lint turned the tree STALE for a file that ships nowhere
+   and offered a whole cycle as the cure. **The directory was swept rather than
+   the one name added** — every other gplbld script missing from that list
+   genuinely is named in `stage.py` or `sd.iss`, so it was one omission and not
+   a rotted list.
 2. **`-Only <step[,step]>`** — the step that decides your change. Both runners
    take it; names may omit `.ps1` and are case-insensitive. **Two names work
    either way — `-Only a,b` and `-Only 'a,b'` are equivalent since 31 Aug

@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***A FULL CYCLE RAN AND `assert-current` IS GREEN. 141, 142 AND 143 ARE FILED, 142's CONTRADICTION IS RESOLVED, 140 IS PRICED AND NEEDS A RULING. THE INSTALL IS CURRENT — MEASURE BEFORE CHANGING ANYTHING.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***A FULL CYCLE RAN, `assert-current` IS GREEN, AND 141, 142 AND 143 ARE ALL CLOSED. 140 IS PRICED AND NEEDS A RULING. THE INSTALL IS STILL CURRENT — MEASURE BEFORE CHANGING ANYTHING.*** ⇩⇩⇩
 >
 > ***THE ONE SENTENCE: THE TREE IS BUILT, INSTALLED AND CURRENT, AND WHAT IS
 > LEFT IS WITNESS WORK PLUS ONE RULING.*** Full cycle 21:28:26, **exit 0**, 190
@@ -236,20 +236,47 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > Windows accounts stay, enabled, with their passwords; they lose the seed list
 > that hands them ssh back.
 >
-> ### ***143, FILED FROM THE CYCLE'S OWN OUTPUT***
+> ### ***143, FILED FROM THE CYCLE'S OWN OUTPUT AND THEN CLOSED — NO CYCLE SPENT***
 >
 > The run printed *"note: probe-taskdialog.iss now appears in stage.py or sd.iss,
-> so it is watched again"*. ***THE COMMENT THAT DOCUMENTS THE TRAP RE-TRIPS
-> IT***: `$shipsAs` (`assert-current.ps1:1015`) matches a quote or a slash before
-> the name, and `sd.iss:4577` quotes `"gplbld/probe-taskdialog.iss"` — the
-> rejected spelling — while explaining why that spelling is wrong. **Measured:
-> one match in `sd.iss`, zero in `stage.py`, and the probe is not in
-> `C:\Program Files\SD`.** It is a false STALE, so nothing failed; the cost lands
-> on whoever next edits the probe. **`test-retired-wording-units.ps1` already
-> strips comments before scanning, for this exact reason — reuse it rather than
-> rewording line 4577.**
+> so it is watched again"*. ***THE COMMENT THAT DOCUMENTS THE TRAP RE-TRIPPED
+> IT***: `$shipsAs` matches a quote or a slash before the name, and `sd.iss:4577`
+> quotes `"gplbld/probe-taskdialog.iss"` — the rejected spelling — while
+> explaining why that spelling is wrong.
 >
-> ### ***OPEN 21***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140, 143. ***NEXT FREE ID: 144. NEXT RUN TOKEN: `b103`.*** All nine free checks green; `test-fixlist-units` 249/0.
+> ***FIXED BY SHARING THE STRIPPER, NOT BY REWORDING THE SENTENCE.***
+> `gplbld/strip-comments.ps1` is new and holds the two Pascal strippers plus
+> `Get-StrippedLines`/`Get-StrippedText`; `assert-current` and
+> `test-retired-wording-units` both read it, the `suite-only.ps1` shape.
+> `gplbld/test-stripcomments-units.ps1` is new, **26 checks**, and proves it
+> **red before green on the real `sd.iss`** — unstripped matches 1×, stripped 0×.
+> `assert-current` now exits **0** with the note gone.
+>
+> ***THE THREE THINGS WORTH CARRYING FORWARD FROM BUILDING IT:***
+>
+> 1. ***A UNARY COMMA ON A RETURN COST THE FIRST RUN.***
+>    `return , @($result.ToArray())` hands the caller a one-element array
+>    *containing* the array. The lint's `foreach` then iterated **once**, with
+>    `$e.Line` an array of every line number — and `Get-StrippedText` hid it by
+>    unrolling one level in the pipeline. **Return plainly; let callers wrap in
+>    `@()`.**
+> 2. ***THE "DID IT EAT THE FILE" FLOOR WAS GUESSED AND WAS WRONG.*** Written at
+>    40%, it failed at 28% and looked like over-stripping. **Counted instead:
+>    `sd.iss` is ~73% comment characters** — 61,004 in leading-`;` lines, ~105,652
+>    braced, ~30,683 in `(* *)`, against 269,947 raw. 28% surviving is correct.
+> 3. ***THE TWO CALLERS ERR IN OPPOSITE DIRECTIONS.*** An over-strip hides a
+>    retired phrase for the lint (safe) and a `Source` line for `assert-current`
+>    (a stale tree reporting CURRENT). So `assert-current` asserts
+>    `adopt-account.ps1` and `deny-logon.ps1` still match after stripping and
+>    **exits 2** if either goes.
+>
+> ***AND `$neverShipped` HAD ONE REAL GAP***: `test-retired-wording-units.ps1`
+> was never listed, so editing the wording lint turned the tree STALE for a file
+> that ships nowhere. **The directory was swept rather than the one name added** —
+> every other gplbld script absent from that list genuinely is named in
+> `stage.py` or `sd.iss`.
+>
+> ### ***OPEN 20***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140. ***NEXT FREE ID: 144. NEXT RUN TOKEN: `b103`.*** **TEN free checks now** — `test-stripcomments-units` joined the list in CLAUDE.md in the commit that created it — all green, `test-fixlist-units` 251/0, `assert-current` exit 0.
 >
 > ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
 >
