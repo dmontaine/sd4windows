@@ -45640,3 +45640,63 @@ user_accounts\<ACCT>` is ACL'd, so an ordinary administrator's `ls` answers
 "Permission denied" — and a naive count of an unreadable directory returns 0 and
 looks exactly like an empty VOC. That is the same false-negative as the grep,
 one directory along.
+
+## 2 Sep 2026 — all twenty open entries validated against the record: four had drifted, and a stale headline put a ruling back to the owner that he had already given
+
+Owner's instruction, after exactly that happened: *"since one error has already
+been found, validate all the remaining open tasks — check history for each one
+— update the pre-release task table as appropriate — needed because of several
+incidences of task drift."*
+
+**What went wrong first.** A cost-ordered list of the remaining work put five
+entries in a "free — needs only a ruling" tier. Two of them did not need one.
+**102's headline said the half-applied records "STILL NEED THE RULING"**, and
+the owner answered by pointing at the record: `PROJECT_STATUS.md`'s "WHAT IS
+OUTSTANDING" table already read *"96, 102 … Both shapes are chosen and written
+into their rows. 102 is the larger: the owner reversed the recorded decision —
+'they are deleted, transactions are all or nothing' — so a half-applied commit
+must now undo its writes."*
+
+***THE SECOND ONE IS WORSE, BECAUSE THE ROW CONTRADICTED ITSELF.*** **96's
+headline read "NOT STARTED — THE OWNER'S CALL"** while its own body, two
+paragraphs down, recorded *"THE CHOICE, DELEGATED BY THE OWNER ON 2 Sep 2026
+('your choice'), IS (b)"*, with **(c) rejected as disproportionate for now, not
+as wrong**. So he was asked to choose something he had already delegated, and
+chose **(c)** without being shown that **(b)** stood or why (c) had been set
+aside. **Both shapes are now on record in the row and neither is built until he
+says which stands** — his answer outranks a delegated choice, but not silently,
+and not on a question that misdescribed the state.
+
+**Two more rows were simply stale rather than contradictory.** **70** said
+"BUILT 2 Sep 2026, UNCOMPILED" — it compiled at 21:05:17–21:05:22 the same
+evening and its lock flag is witnessed; only the upgrade path remains. **136**
+said "UNCOMPILED AND UNWITNESSED" and both halves were false: compiled 21:05,
+witnessed 21:54 with `listf` in a created account showing **10 of 10
+described**. 136 is short only of the **PROGRAMMER** tier its own row names —
+`sdw142a` was STANDARD — which is stated rather than glossed.
+
+**One row looked wrong and was right, which is worth as much as the four.**
+HISTORY records *"65 IS CLOSED"* on 30 Aug and lists it among the entries closed
+that session. It is correctly open: the product half closed on `-Run b74`, then
+it was **re-opened 31 Aug** because the harness half had not been fixed and the
+symptom returned, and raised **S → B**. The row says all of that itself. A grep
+of HISTORY alone would have "corrected" a row that was right.
+
+The remaining thirteen — 16, 80, 89, 93, 114, 120, 132, 133, 134, 135, 137, 139
+and 66 — were checked and carry no drift. 93's shape was ruled 1 Sep and its row
+says so; 66's decision was taken 26 Aug and its row says so.
+
+***THE GAP ALL FOUR LIVED IN, AND IT IS STRUCTURAL RATHER THAN CARELESS.***
+The task table declares itself *"THE AUTHORITY ON STATUS. The entries below carry
+the reasoning; this carries the state"*, and `check-stale-leads.py` enforces that
+in both directions — **but only for the 26 §7 steps, never for the 143
+PRE_RELEASE entry rows.** So an entry headline can age indefinitely against a
+table that already knows better, and nothing goes red. Four did.
+
+**Two rulings taken the same day and written into their rows, neither built:**
+**140** gates `sdusers`'s survival on whether a data tree survives the uninstall
+rather than on which button was pressed — covering all three `Exit` paths, and
+narrowing rather than closing, which was put to him before he chose. **138**
+takes shape **(b)**, set both credentials, at the cost of two prompts; no
+verifier can ever exercise it, because `LOGIN:955` guards on a tty and every
+automated route pipes stdin.

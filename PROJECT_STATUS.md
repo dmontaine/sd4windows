@@ -290,6 +290,41 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > every other gplbld script absent from that list genuinely is named in
 > `stage.py` or `sd.iss`.
 >
+> ### ***ALL TWENTY OPEN ENTRIES VALIDATED AGAINST THE RECORD, 2 Sep 2026 — FOUR HAD DRIFTED, AND ONE OF THEM COST A RULING BEING ASKED TWICE***
+>
+> Owner's instruction, after a stale row sent a question back to him that the
+> record had already answered: *"validate all the remaining open tasks — check
+> history for each one."* **Four rows were wrong, two rows were right and looked
+> wrong, and the pattern is the same every time: the HEADLINE aged while the
+> body and the task table moved on.**
+>
+> | | was | is |
+> |---|---|---|
+> | **102** | *"the half-applied records STILL NEED THE RULING"* | ***RULED, AND IT WAS RULED BEFORE THE ROW WAS WRITTEN.*** The owner reversed the recorded decision — *"they are deleted, transactions are all or nothing"* — so a half-applied commit must undo its writes. `PROJECT_STATUS`'s own outstanding table carried it while the row denied it |
+> | **96** | *"NOT STARTED — THE OWNER'S CALL"* | ***THE CALL WAS DELEGATED AND MADE — (b) — two paragraphs further down the same row.*** The stale headline is what sent the question back to him, and he answered **(c)** without being shown that **(b)** stood. **Two shapes now on record; one word settles it. Build neither until then** |
+> | **70** | *"BUILT 2 Sep 2026, UNCOMPILED"* | **compiled 21:05:17-21:05:22 tonight**, and the lock flag is witnessed. What remains is the upgrade path only |
+> | **136** | *"UNCOMPILED AND UNWITNESSED"* | **both stale.** Compiled 21:05; witnessed 21:54 — `listf` in a created account, **10 of 10 described**. Short only of the row's own **PROGRAMMER** tier; `sdw142a` was STANDARD |
+> | **65** | looks closed in HISTORY (30 Aug) | ***CORRECTLY OPEN.*** Closed on the product half, then **re-opened 31 Aug** because the harness half regressed, and raised S → B. The row documents this itself |
+> | **16, 80, 93, 114, 133, 137, 139, 120, 132, 134, 135, 66, 89** | — | **checked, no drift.** 93's shape was ruled 1 Sep and its row says so; 66's decision was taken 26 Aug and its row says so |
+>
+> ***THE RULE THAT WOULD HAVE CAUGHT ALL FOUR, AND IT ALREADY EXISTS***: the task
+> table is *"THE AUTHORITY ON STATUS. The entries below carry the reasoning; this
+> carries the state."* **A PRE_RELEASE headline is reasoning, not state.** When
+> they disagree the table wins — and `check-stale-leads.py` only enforces that
+> for the **26** §7 steps, **not** for the 143 entry rows. *That gap is what all
+> four of these lived in.*
+>
+> ### ***TWO RULINGS TAKEN 2 Sep 2026, BOTH NOW IN THEIR ROWS, NEITHER BUILT***
+>
+> - ***140 — gate `sdusers` on whether a data tree survives the uninstall***, not
+>   on which button was pressed. Covers all three `Exit` paths and gets
+>   `UninstallSilent` right for free. **It narrows rather than closes and he was
+>   told so before choosing**: the Windows accounts survive with their passwords.
+> - ***138 — shape (b), set both credentials.*** Two prompts, honest about there
+>   being two accounts, and the only option consistent with 130. **No verifier
+>   can ever exercise it** — `LOGIN:955` guards on a tty and every automated
+>   route pipes stdin.
+>
 > ### ***OPEN 20***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140. ***NEXT FREE ID: 144. NEXT RUN TOKEN: `b103`.*** **TEN free checks now** — `test-stripcomments-units` joined the list in CLAUDE.md in the commit that created it — all green, `test-fixlist-units` 251/0, `assert-current` exit 0.
 >
 > ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
