@@ -184,8 +184,17 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 135, 136, 138, 146. NEXT FREE ID 147. NEXT RUN TOKEN `b103`*** (still unspent
 > — none of this needed a suite).
 >
-> ***146 IS NEW AND IT IS THE ONE TO READ FIRST: `ApplyApiFirewall` IS
-> UNREACHABLE ON EVERY INSTALL PATH.*** `ApiConfAbsent` is evaluated twice and
+> ***146 IS BUILT AND A CYCLE IS OWED — `assert-current` IS EXIT 1 NAMING ONLY
+> `gplbld\sd.iss`.*** The sample is taken once in `InitializeSetup`
+> (`ApiConfWasAbsent`, beside `SshWasAbsent` and `SdWasInstalled`) and
+> `ApiConfAbsent` reads it instead of the file system; the gate itself is
+> unchanged, because it exists for a real reason. **`test-apigate-units` is the
+> guard, 13 checks, red four ways, on the free list.** ***THE WITNESS IS ONE
+> INSTALL WITH BOTH API BOXES TICKED***, where `api-firewall.ps1 -Show` must stop
+> saying `rule: not present` — and that same install unblocks **89**.
+>
+> ***THE ORIGINAL FINDING, KEPT: `ApplyApiFirewall` WAS UNREACHABLE ON EVERY
+> INSTALL PATH.*** `ApiConfAbsent` is evaluated twice and
 > the installer writes the file it tests for in between — TRUE at the tasks page
 > (so the box is correctly offered), then `[Files]` writes `sd.conf`
 > (`onlyifdoesntexist` on both arms), then FALSE at `ssPostInstall`, where

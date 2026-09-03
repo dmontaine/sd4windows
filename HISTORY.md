@@ -46059,6 +46059,55 @@ was `SD|OpenSSH|4243`, which matched 49 Windows rules because "SD" is inside SSD
 and WSD: 48 lines of Network Discovery is not evidence, it is somewhere for the
 one line that matters to hide.
 
+## 3 Sep 2026 - 146 fixed: the sample is taken before the installer changes the answer
+
+Owner: "fix 146".  New `ApiConfWasAbsent: Boolean`, declared beside
+`SshWasAbsent`, `SshRuleWasOpen` and `SdWasInstalled`, assigned in
+`InitializeSetup` immediately after them, and `ApiConfAbsent` is now
+`Result := ApiConfWasAbsent` instead of a live `FileExists`.
+
+The part worth reading is that the pattern and its reason were already in the
+file.  `SdWasInstalled`'s own comment says the installer writes the key it tests
+for, so a live query later in the same run would start answering TRUE and the
+wizard would contradict itself - read it in InitializeSetup, before anything is
+written.  That is 146 word for word, written three entries earlier about a
+different key, and `ApiConfAbsent` was still built the other way.  Prose in the
+file did not stop it.
+
+All three readers were checked rather than assumed to want the same answer.  The
+tasks page asks whether the box is offerable; the firewall gate asks whether the
+box was offered, so whether the tick means anything; and `ApiListenerAfterwards`
+asks whether there is a preserved sd.conf to read or whether the box is the only
+answer there is.  On a fresh install the cached TRUE makes that last one follow
+the box, which is what wrote sd.conf a moment earlier, so the closing report says
+the same thing either way.
+
+The gate is not removed and that is deliberate: it exists because a hidden box
+reads as NOT selected, so an ungated call would CLOSE 4243 on a preserved tree.
+Only the timing of the question changed.
+
+`gplbld/test-apigate-units.ps1` is the guard, 13 checks, on CLAUDE.md's free list
+in the same commit.  It reuses the shared strip-comments.ps1 rather than copying
+a scanner, because this tree quotes the defect beside the fix and an unstripped
+scan would trip on 146's own comments - which is how 131 and 143 were paid for.
+It asserts the class rather than the line: no FileExists and no sd.conf inside
+ApiConfAbsent; ApiConfWasAbsent declared once and assigned once; that assignment
+between InitializeSetup's header and the next routine, which is what "before
+anything is written" means and is how the fix would come undone; the gate still
+testing both arms; one call site; the task still carrying its Check; and both
+sd.conf [Files] arms still onlyifdoesntexist, because that is WHY the live test
+could not work and the reasoning dies with it.  A canary refuses the null case -
+if the stripper ever eats real code the run exits 2 rather than passing by
+finding nothing.
+
+Proved red four ways against doctored copies: 146 itself put back, the sample
+moved out of InitializeSetup, the gate deleted, the tasks-page Check removed.
+
+Not witnessed.  `assert-current` is exit 1 naming only `gplbld\sd.iss`, so a
+cycle is owed, and the witness afterwards is one install with both API boxes
+ticked where `api-firewall.ps1 -Show` must stop saying `rule: not present`.  That
+same install unblocks 89, whose dangerous case needs the rule this restores.
+
 Driving notes, each paid for once.  The clones autologon, and `WIN+r` then
 `CTRL+SHIFT+ENTER` gives an elevated shell with no UAC prompt.  `Start-Process`
 leaves a launched installer BEHIND the shell and `ALT+TAB` did not raise it -

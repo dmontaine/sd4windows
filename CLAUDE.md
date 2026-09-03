@@ -471,8 +471,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-retired-wording-units`, `test-stemcoverage-units`,
    `test-dirscoverage-units`, `test-stripcomments-units`,
    `test-diffcapture-units`, `test-transcriptwhole-units`,
-   `check-stale-leads.py`, `test-staleleads-units.py`. **Run these on every
-   change.** A whole suite run has already been spent twice discovering what one
+   `test-apigate-units`, `check-stale-leads.py`,
+   `test-staleleads-units.py`. **Run these on every change.** A whole suite run has already been spent twice discovering what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
    deliberately reworded, so a fix that lands in one copy and misses another
