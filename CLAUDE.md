@@ -476,7 +476,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-upgradeiss-units.py`, `test-acctmsgs-units`,
    `test-apiidentity-units`, `test-deletioncheck-units`,
    `test-doorsargv-units`, `test-reclaim-units`, `test-sdpath-units`,
-   `test-sysmsg-units`, `test-vocverbs-units`. ***ALL TWENTY-FOUR. Run these on
+   `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`.
+   ***ALL TWENTY-FIVE. Run these on
    every change*** — **29 s for the whole set**, measured 3 Sep 2026, each in
    its own process. A whole suite run has already been spent twice discovering
    what one
@@ -539,6 +540,12 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    red for days unread.** *(The superseded wording listed `test-staleleads`
    among the ten. It was already on the list and there is no separate script of
    that name — the count of ten was right, one of the names was not.)*
+
+   ***`test-reconcile-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
+   IT***, which is the rule above working and needs no paragraph of its own. It
+   guards `gplbld/reconcile-accounts.ps1`'s decision table, PRE_RELEASE 93 and
+   65's sweep — the one that deletes account directories as LocalSystem at
+   every service start.
 2. **`-Only <step[,step]>`** — the step that decides your change. Both runners
    take it; names may omit `.ps1` and are case-insensitive. **Two names work
    either way — `-Only a,b` and `-Only 'a,b'` are equivalent since 31 Aug

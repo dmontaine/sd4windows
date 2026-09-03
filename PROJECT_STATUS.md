@@ -175,6 +175,126 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 25, 3 Sep 2026 — ***93 AND 65 ARE DONE: THE REGISTER IS RECONCILED AGAINST WINDOWS AT EVERY SERVICE START, AND THE SERVICE HAS BEEN SEEN DOING IT. OPEN 11 → 9. ONE FULL SUITE IS OWED.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 15:31:08**, this session's third
+> cycle; `assert-current` **exit 0**; **25 of 25 free checks** exit 0 in 32.3 s;
+> `verify-register` **7 of 7** on the live tree. ***OPEN 9: 16, 66, 70, 80, 96,
+> 102, 114, 138, 150. NEXT FREE ID 151. NEXT RUN TOKEN `b104`, STILL UNSPENT.***
+>
+> ***THE ONE THING OWED: THE FULL SUITE.*** CLAUDE.md wants one before a
+> handoff and this does not have one. It also carries a **new unelevated step**,
+> `verify-register`, whose first run inside the runner has therefore not
+> happened — the step itself was run directly (7/7) and the runner's own table
+> was checked to reference a file that exists, but that is wiring, not a run.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b104
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b104
+> ```
+>
+> **The first is an ordinary unelevated prompt, the second an elevated one.**
+> `PARTIAL` must appear **0 times** in either half or it was not a full run.
+>
+> ***AND THAT SUITE IS ALSO 93's LAST WITNESS, WHICH IS WHY IT IS WORTH RUNNING
+> SOON.*** A complete suite is the cheapest dirty register there is — it left
+> the register **14 of 15 invalid** after `b100`, and three `os.users` records
+> per run is 65's measured rate. **So: run the suite, restart the SD service,
+> then read `C:\ProgramData\SD\reconcile-accounts.log` and run
+> `verify-register`.** That is the real-tree removal witness this session could
+> only produce synthetically.
+>
+> ### ***WHAT WAS BUILT***
+>
+> `gplbld/reconcile-accounts.ps1` — reconciles **`@SDSYS/ACCOUNTS` and
+> `@SDSYS/OS.USERS`** against Windows at every SD service start, as LocalSystem,
+> **after the profile reclaim and before `sd -start`**. Record and account
+> directory go together, directory first. `sdsvc.c`'s `run_sweep()` and
+> `sweep_script_path()` now take a script name and a label; nothing else about
+> either changed. It **ships** (`stage.py`); `verify-register.ps1` and
+> `test-reconcile-units.ps1` do not and are on `$neverShipped`.
+>
+> ***BOTH REGISTERS ARE PLAIN DIRECTORY FILES — ONE FILE PER RECORD — SO THE
+> SWEEP NEEDS NO SD VERB.*** That matters beyond convenience: §"THE
+> DESTINATION" warns that a fix needing a NEW verb would not resolve on exactly
+> the upgrade and reinstall paths it exists to serve. This one sidesteps that
+> entirely.
+>
+> ### ***THREE THINGS MEASURED THAT THE ENTRIES DID NOT HAVE***
+>
+> 1. ***`sdsys` IS NOT THE ONLY ACCOUNT WITH NO WINDOWS USER.***
+>    `CREATE.ACCOUNT` has three types and only **USER** has a login
+>    (`CREATEA:1042`; `grant.os.access` at `:1171` returns early for the rest).
+>    A name-based check deletes every **GROUP** and **OTHER** account. **The
+>    type is read out of `ACC$GROUP`** — `sdu_<login>` for USER, the group's own
+>    name otherwise — so it identifies the type *and* carries the login, and the
+>    `sdsys` exemption falls out of the rule instead of being special-cased.
+> 2. ***A TRUNCATED RECORD READS EXACTLY LIKE AN `OTHER` ACCOUNT***, because
+>    both have an empty `ACC$GROUP`. An empty `ACC$PATH` is refused before the
+>    type rows, or a corrupt record scores healthy for ever.
+> 3. ***THE LOOKUP HAS THREE ANSWERS. THIS IS ENTRY 96 IN ITS EXPENSIVE FORM***
+>    — collapsing *absent* and *could not tell* would delete the whole register
+>    the first time a domain controller was unreachable at boot. `$lookupOk` is
+>    refused first, and a control (local enumeration must succeed and be
+>    non-empty) runs before any verdict is believed.
+>
+> ### ***THE DEFECT THE SERVICE FOUND THAT NO TEST DID — WORTH THE PARAGRAPH***
+>
+> ***A PowerShell FUNCTION RETURNING `@()` HANDS THE CALLER `$null`, AND ONE
+> RETURNING A SINGLE-ELEMENT ARRAY HANDS IT A BARE `FileInfo`.*** So *"an empty
+> register"* and *"a register I could not read"* arrived as the same value. The
+> sweep runs **before `sd -start`**, so on a fresh install `os.users` is still
+> empty — and the very first run the service ever made logged **`register
+> reconcile: exited with 1`** on a perfectly healthy machine **with not one line
+> saying why**. That is PRE_RELEASE 49's shape reached through return semantics
+> rather than through `-ErrorAction`. `Get-Records` returns a hashtable now
+> (`ok` / `absent` / `items`), **`verify-register` had the identical bug** and
+> would have exited 2 on any install with no ADMINISTRATOR-tier account, and
+> `test-reconcile-units` drives real empty, absent, one- and two-record
+> directories. **A mutant restoring the array return fails 4 rows.**
+>
+> ### ***WHAT IS WITNESSED AND WHAT IS NOT — READ THIS BEFORE CLAIMING EITHER***
+>
+> | | |
+> |---|---|
+> | the service runs it | **YES** — `sdsvc.log` 15:31:08, `register reconcile … exited with 0`, and `reconcile-accounts.log` carries its own record |
+> | `sdsys` survives | **YES**, on the real tree, by name and by rule |
+> | a stale record is removed | **synthetically only** — `C:\Users\dmont\sdout\p93-fixture.ps1`, elevated, **20 of 20**, with four controls that must survive and did, idempotent on a second pass |
+> | `verify-register` passes | **YES**, 7 of 7 live |
+> | `verify-register` can FAIL | **YES** — 4 of 7 with two FAILs on a deliberately dirty tree, inside the same fixture |
+> | inside the suite | **NO. Owed.** |
+>
+> ### ***THREE CYCLES WENT ON THIS AND TWO OF THEM WERE THE SAME TRAP***
+>
+> ***`cycle.ps1` DOES NOT BUILD THE BINARIES.*** A C change means `make sd`
+> **first**, and §"110 AND 111" already records that ***`make sd` alone does not
+> clear `assert-current`***: it relinks only what changed, and the guard
+> compares source against the **oldest** binary, `sdclilib.dll`. The recorded
+> recovery is `rm -f bin/*.exe bin/*.dll && make sd`, then one more cycle.
+>
+> ***BUT DO NOT RUN THAT GLOB AS WRITTEN.*** `bin/` also holds
+> `sd.exe.installed-backup-20260819`, which `bin/*.exe` matches and which is not
+> build output. **Delete the nine build products by name.** The nine are
+> `sd.exe`, `sdconv.exe`, `sdfix.exe`, `sdidx.exe`, `sdsvc.exe`, `sdtic.exe`,
+> `sdwind.exe`, `sdclilib.dll`, `libsdclilib.dll.a`.
+>
+> ***AND `make` NEEDS ITS DIRECTORY, WHICH A LOGIN SHELL TAKES AWAY.***
+> `MSYSTEM=MSYS /c/msys64/usr/bin/bash -lc "make sd"` runs in `/home/<user>` and
+> says **`No rule to make target 'sd'`**, which reads like a broken Makefile.
+> `C:\Users\dmont\sdout\build-sd.sh` does the `cd` and is the thing to run.
+>
+> ### ***WHAT TO DO NEXT***
+>
+> 1. **The full suite on `b104`**, which is also 93 and 65's real-tree witness.
+> 2. **96** — the tri-state, ruled (c) in handoff 24 and still the only open
+>    that was waiting on a word rather than a cycle, a guest or a screen.
+> 3. **70**, then **114**, **138**, **102**, **16**.
+> 4. **150** — cheap on `Test C`'s `pre-147-witness` snapshot.
+> 5. **80 LAST.**
+>
 > # ⇩⇩⇩ HANDOFF 24, 3 Sep 2026 — ***THE THREE OWNER DECISIONS ARE TAKEN. 96 IS (c). THE FREE-CHECK LIST IS 24. THE GAP-ANALYSIS SCRIPT STAYS UNTRACKED. NOTHING BUILT, NOTHING CYCLED, OPEN STILL 11.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 14:21:19**, unchanged — no

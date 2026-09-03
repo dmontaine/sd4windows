@@ -46462,3 +46462,79 @@ endorsing that.  Put to the owner with the risk stated, he refused: "it only
 exists for documentation during task 80 - it does not need to be tracked."  The
 recommendation is struck in handoff 23 and the ruling written into entry 80, so
 the next session does not rediscover the same cheap-looking action.
+
+## 3 Sep 2026 - 93 and 65 done: the register is reconciled at every service start
+
+One sweep covers both defects, because they were one defect in two files.
+gplbld/reconcile-accounts.ps1 reads @SDSYS/ACCOUNTS and @SDSYS/OS.USERS,
+removes the records whose Windows account has gone, and takes the account
+directory with the record.  sdsvc.exe runs it as LocalSystem after the profile
+reclaim and before "sd -start"; run_sweep() and sweep_script_path() take a
+script name and a label now, and nothing else about either changed.
+
+Both registers turned out to be plain directory files, one file per record, so
+the sweep needs no SD verb at all.  That is worth more than convenience: the
+DESTINATION section warns that a fix needing a NEW verb would not resolve on
+exactly the upgrade and reinstall paths it exists to serve, and this sidesteps
+that entirely.
+
+Three things the entries did not have, all found by reading CREATEA rather than
+by running anything.  First, sdsys is not the only account with no Windows
+user: CREATE.ACCOUNT has three types and only USER has a login, so a name-based
+check would delete every GROUP and OTHER account too.  The type is read out of
+ACC$GROUP - "sdu_<login>" for a USER account and the group's own name otherwise
+- which identifies the type and carries the login at once, and makes the sdsys
+exemption fall out of the rule instead of being a special case.  Second, a
+truncated record reads exactly like an OTHER account, because both have an
+empty ACC$GROUP, so an empty ACC$PATH is refused before the type rows.  Third,
+the lookup has three answers and not two; collapsing "absent" into "could not
+tell" is entry 96's defect in a form that would delete the whole register the
+first time a domain controller was unreachable at boot.
+
+The instruments were built with controls rather than only with tests.
+test-reconcile-units.ps1 lifts the decision table out of the shipped file by
+AST, 60 rows, and three separate mutants were run against it: dropping the
+could-not-tell guard fails 4 rows, dropping the account-type exemption fails 2,
+restoring the array return fails 4.  verify-register.ps1 was watched failing as
+well as passing - 7 of 7 on the live tree, 4 of 7 with two FAILs on a
+deliberately dirty one.  The removal path itself was driven on a synthetic tree
+by an elevated fixture, 20 of 20, with four controls that had to survive and
+did: a live account, sdsys, a GROUP account with no Windows user, and a record
+pointing outside the account root.
+
+TWO DEFECTS IN MY OWN INSTRUMENTS, AND THE SECOND ONE IS THE ONE WORTH KEEPING.
+The first was visible in the first -List run against the live install: a
+healthy register reported "2 refused" and exited 1, because a live account was
+being counted as a refusal rather than as the ordinary state of a correct
+record.  Four verdict categories now, and only one of them is a fault.
+
+The second was found by the service and by nothing else.  A PowerShell function
+returning @() hands its caller $null, and one returning a single-element array
+hands it a bare FileInfo.  The sweep runs before "sd -start", so on a fresh
+install os.users is still empty - and the very first run sdsvc.exe ever made
+logged "register reconcile: exited with 1" on a perfectly healthy machine with
+not one line saying why, because an empty register and an unreadable one
+arrived at the caller as the same value.  That is PRE_RELEASE 49's shape
+reached through PowerShell's return semantics instead of through
+-ErrorAction, and verify-register.ps1 had the identical bug, where it would
+have refused the whole check on any install with no ADMINISTRATOR-tier account.
+Both return a hashtable now, and the units test drives real empty, absent,
+one-record and two-record directories.
+
+Three cycles were spent, and two of them were one trap.  cycle.ps1 does not
+build the binaries, so a C change needs "make sd" first - and the existing note
+under "110 AND 111" already records that make sd alone does not clear
+assert-current, because it relinks only what changed while the guard compares
+source against the oldest binary.  Two corrections to that recorded recovery.
+Its "rm -f bin/*.exe bin/*.dll" also matches sd.exe.installed-backup-20260819,
+which is not build output; the nine build products should be deleted by name.
+And "bash -lc make sd" runs in /home/<user> and reports "No rule to make target
+'sd'", which reads like a broken Makefile rather than a wrong directory;
+C:\Users\dmont\sdout\build-sd.sh does the cd.
+
+What is witnessed: the service runs the sweep, sdsys survives on the real tree,
+verify-register passes live and can be made to fail.  What is not: a stale
+record being removed from a REAL register, and the new verify-register step
+running inside VerifyInstall1.  Both come free with the next full suite, which
+is the cheapest dirty register there is - it left the register 14 of 15 invalid
+after b100.
