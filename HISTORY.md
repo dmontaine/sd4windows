@@ -46546,3 +46546,70 @@ record being removed from a REAL register, and the new verify-register step
 running inside VerifyInstall1.  Both come free with the next full suite, which
 is the cheapest dirty register there is - it left the register 14 of 15 invalid
 after b100.
+
+## 3 Sep 2026 - cycle.ps1 step 0, and a suite run I broke by editing source
+
+The owner asked for one script that compiles the C if necessary, compiles the
+BASIC if necessary and runs the installer if necessary.  Two of the three were
+already in cycle.ps1 - step 2's stage.py --bootstrap IS the BASIC compile, and
+steps 4 to 7 build and run the installer - so only the C was missing, and it
+went in as step 0.  The install stays unconditional on his other ruling the same
+day: a cycle begins with a fresh install, and cycling deliberately to clear
+per-account state a suite dirtied is a real use that a "skip if current" would
+take away.
+
+The interesting part is that "if necessary" is not what make means by it.  make
+relinks only what changed while assert-current compares source against the
+OLDEST binary in bin\, so "make sd" after a one-file C edit leaves the tree
+stale with an installer already built - which is how two of this session's three
+earlier cycles were spent.  Step 0 therefore deletes the binaries and relinks
+all of them, and then re-asks the guard rather than trusting make's exit code.
+
+It asks with the guard's own code.  assert-current's check A2 moved into
+gplbld/stale-binaries.ps1 unchanged, so a cycle that thought the C was current
+while assert-current thought otherwise is not expressible.  A copy would have
+been the two-lists-by-hand defect again, and these exclusions are worth more
+than most: localtest\, __pycache__, sdclilib\tests\, build products by extension
+and documentation were each added after a false STALE that no reinstall clears.
+test-stalebin-units.ps1 drives them, 36 rows, and a mutant with the
+documentation exclusion removed fails 3 of them end to end.
+
+The branch that deletes binaries was witnessed rather than shipped unrun:
+gplsrc/sdsvc/sdsvc.c was touched - same content, newer mtime, which is exactly
+what the guard is designed to notice - so the relink ran.  It named
+bin\sdclilib.dll as the oldest, which is the trap from "110 AND 111" that the
+step exists for.  Building elevated was measured rather than assumed:
+nodefaultadminowner is unset, default 1, "object creator", so an elevated build
+leaves bin\ and gplobj\ owned by the invoking user.
+
+TWO THINGS THIS SESSION GOT WRONG, BOTH WORTH KEEPING.
+
+I wrote gplbld/stale-binaries.ps1 at 16:11:32 while the owner's VerifyInstall2
+-Run b106 was in flight.  assert-current's check B compares source mtimes
+against the install, so every step that started after that refused: 16 of 23
+green, 7 refusing, and the block of API steps read as though the API were
+broken.  Not one of the seven measured anything.  The boundary is exact -
+verify-peerlog started 16:11:05 and finished 16:12:01 exit 0, and everything
+from 16:12:01 refused.  CLAUDE.md states the rule outright, "a cycle ends at the
+next source change", and it applies to a run somebody else started as much as to
+one of my own.
+
+That misreading is itself a defect and is now entry 151: six of the seven
+returned exit 1 for a refusal that measured nothing, which in a summary is
+indistinguishable from a failed check.  Their own headers say 1 is a decisive
+failure and 2 is could-not-run, and verify-vocverbs returned 2 for the identical
+cause in the same run.  The cause is that Fail() is exit 1 and is used for
+preconditions as well as failures.
+
+AND THE CYCLE IS NOT UNATTENDED, which corrects handoff 23.  That handoff says
+an agent may run cycle.ps1 itself, one hop and one consent.  An agent can START
+one.  The installer ends on a MsgBox - "SD Core is installed", one OK button -
+and /VERYSILENT suppresses the wizard but not that box, so the cycle blocks
+until a person clicks it.  The earlier cycles today finished in almost exactly
+2.0 minutes because the owner was at the keyboard; the 16:20 one sat from
+16:21:44 looking exactly like a hang.  The tell is a log that stops after
+"== [7] Installing" while both trees are fully populated and sdsvc.log already
+says SD is running.  C:\Users\dmont\sdout\read-dialog.ps1 prints the text of
+whatever window a process is sitting on, which is how it was identified - and it
+needs CharSet.Unicode on the W entry points or every string comes back one
+character long.

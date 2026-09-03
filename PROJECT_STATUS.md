@@ -175,6 +175,94 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 26, 3 Sep 2026 — ***`cycle.ps1` NOW COMPILES THE C TOO. THE ELEVATED SUITE HALF GOT 16 OF 23 AND THE 7 FAILURES WERE MINE, NOT THE PRODUCT'S. OPEN 10. USE `b107`.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 16:22:02**; `assert-current`
+> **exit 0**; **26 of 26 free checks** exit 0 in 30 s. ***OPEN 10: 16, 66, 70,
+> 80, 96, 102, 114, 138, 150, 151. NEXT FREE ID 152. NEXT RUN TOKEN `b107`.***
+>
+> ### ***READ THIS BEFORE BELIEVING THE `b106` SUMMARY: 7 OF ITS 23 ROWS ARE MINE***
+>
+> `VerifyInstall2 -Run b106` shows **16 exit 0 and 7 non-zero**, and ***NOT ONE
+> OF THE SEVEN MEASURED ANYTHING.*** I wrote `gplbld/stale-binaries.ps1` at
+> **16:11:32, while the run was in flight**; `assert-current`'s check B compares
+> source mtimes against the install, so every step that *started* after that
+> refused. **The boundary is exact**: `verify-peerlog` started 16:11:05 and
+> finished 16:12:01 exit 0; everything from 16:12:01 refused. Five say so in
+> their logs; `verify-apiidentity` and `verify-vocverbs` wrote **no log at all**,
+> because they refuse before `Start-Transcript`.
+>
+> ***SO 16 STEPS ARE VALID AND GREEN*** — `fold`, `nonet`, `notyet`, `cmdaudit`,
+> `createaccount`, `tiers`, `tierchange`, `catgate`, `accountacl`, `sdsysgate`,
+> `routes`, `accountrules`, `delaccount`, `profiledir`, `sshonly`, `peerlog`.
+> **There is no API defect here.** ***THE RULE I BROKE IS THE ONE CLAUDE.md
+> STATES OUTRIGHT***: *"A CYCLE ENDS AT THE NEXT SOURCE CHANGE… finish every
+> source change first, then run one cycle, then measure."* **Do not edit source
+> while a run is in flight, including a run somebody else started.**
+>
+> ***AND IT FILED 151***: six of the seven returned **exit 1** for a refusal that
+> measured nothing, which in a summary is indistinguishable from a failed check
+> — that is why the block read as *"the API is broken"*. `verify-vocverbs`
+> returned **2** for the identical cause and is the right shape.
+>
+> ### ***WHAT WAS BUILT: `cycle.ps1` STEP 0***
+>
+> Owner, 3 Sep 2026: *"seems like there should be one script that can do all
+> three, compile c if necessary, compile basic if necessary and run the
+> installer if necessary."* **Two of the three were already there** — step 2's
+> `stage.py --bootstrap` IS the BASIC compile, steps 4–7 are the installer — so
+> only the C was missing. **The install stays unconditional**, his ruling the
+> same day: a cycle begins with a *fresh* install.
+>
+> ***"IF NECESSARY" IS NOT WHAT `make` MEANS BY IT, AND THAT IS THE WHOLE
+> POINT.*** `make` relinks only what changed while `assert-current` compares
+> against the **oldest** binary, so `make sd` after a one-file C edit leaves the
+> tree STALE with an installer already built — two of this session's cycles went
+> that way. **Step 0 deletes the binaries and relinks all of them, then re-asks
+> the guard instead of trusting `make`'s exit code.**
+>
+> **It asks with the guard's own code**: A2 now lives in
+> `gplbld/stale-binaries.ps1`, one copy for both callers, so the two cannot
+> disagree. `test-stalebin-units.ps1` (36 rows) drives it and is in CLAUDE.md's
+> free list; both new files are on `$neverShipped`.
+>
+> ***WITNESSED, NOT SHIPPED UNRUN***: `gplsrc/sdsvc/sdsvc.c` was **touched** —
+> same content, newer mtime, which is exactly what the guard is built to notice
+> — so the delete-and-relink branch ran. The log reads *1 source file newer than
+> `bin\sdclilib.dll`*, *removed 8 of 8*, then *"built: bin\ now 16:20:50, no
+> source newer"*. **It named `sdclilib.dll`**, which is the §"110 AND 111" trap
+> this exists for.
+>
+> **Building elevated is safe, measured**: `nodefaultadminowner` is unset
+> (default 1, *object creator*), so an elevated build leaves `bin\` and
+> `gplobj\` owned by the invoking user, as an unelevated one does.
+>
+> ### ***A CORRECTION TO HANDOFF 23: THE CYCLE IS NOT UNATTENDED***
+>
+> Handoff 23 says *"AN AGENT MAY RUN `cycle.ps1` ITSELF … ONE HOP, ONE
+> CONSENT"*. ***THAT IS HALF TRUE AND THE MISSING HALF COSTS TEN MINUTES OF
+> LOOKING LIKE A HANG.*** The installer ends on a `MsgBox` — **`SD Core is
+> installed`, one OK button** — and **`/VERYSILENT` suppresses the wizard but
+> not that box**, so the cycle blocks until a person clicks it. This session's
+> earlier cycles finished in almost exactly 2.0 minutes each because the owner
+> was at the keyboard; the one at 16:20 sat from 16:21:44 until somebody did.
+> **An agent can START a cycle. It cannot finish one.**
+>
+> ***THE TELL, IF IT LOOKS HUNG***: the log stops after `== [7] Installing`
+> while both trees are fully populated and `sdsvc.log` already says SD is
+> running. `C:\Users\dmont\sdout\read-dialog.ps1` prints the text of whatever
+> window a process is sitting on — that is how this one was identified, and it
+> needs the `CharSet.Unicode` on the `W` entry points or every string comes back
+> one character long.
+>
+> ### ***WHAT TO DO NEXT***
+>
+> 1. **The full suite on `b107`** — both halves, and `b106` is spent. It is
+>    still 93 and 65's real-tree witness.
+> 2. **96** — ruled (c), still the only open waiting on nothing but work.
+> 3. **151** is cheap and makes every future summary readable.
+> 4. **70**, then **114**, **138**, **102**, **16**; **150**; **80** last.
+>
 > # ⇩⇩⇩ HANDOFF 25, 3 Sep 2026 — ***93 AND 65 ARE DONE: THE REGISTER IS RECONCILED AGAINST WINDOWS AT EVERY SERVICE START, AND THE SERVICE HAS BEEN SEEN DOING IT. OPEN 11 → 9. ONE FULL SUITE IS OWED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 15:31:08**, this session's third
