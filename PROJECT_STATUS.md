@@ -175,15 +175,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 ARE BUILT AND UNWITNESSED; 148 IS FILED FROM WHAT BUILDING THEM SHOWED. OPEN 12 → 13. THE INSTALL IS 12:41:43 AND `assert-current` IS EXIT 0. THE FULL SUITE IS STILL OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 ARE BUILT AND UNWITNESSED; 148 IS FILED FROM WHAT BUILDING THEM SHOWED. OPEN 12 → 13. THE INSTALL IS 12:41:43, `assert-current` IS EXIT 0, AND THE FULL SUITE RAN — BOTH HALVES, 43 STEPS, EVERY ONE EXIT 0. THE ONLY THING OWED IS THE WITNESS.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 12:41:43** from `cycle.ps1` run
 > by this session; ISCC *"Successful compile"*, `sd-setup-W1.0-0.exe`
 > **4,965,787 bytes** — it GREW, which is the cheap check that the new text went
 > in; `assert-current` **exit 0**; **fourteen free checks green**, with
 > `test-apigate-units` at **27, up from 13**. ***OPEN 13: 16, 65, 66, 70, 80,
-> 93, 96, 102, 114, 135, 138, 147, 148. NEXT FREE ID 149. NEXT RUN TOKEN `b103`,
-> STILL UNSPENT.***
+> 93, 96, 102, 114, 135, 138, 147, 148. NEXT FREE ID 149. `b103` IS SPENT ON THE
+> FULL SUITE; NEXT RUN TOKEN `b104`.***
 >
 > ***135 AND 147 WERE THE SAME FIX AND THEY WENT IN THE SAME BOX*** — the
 > kept-database one, the one that says *"YOUR DATA IS UNTOUCHED"*, because 135's
@@ -198,25 +198,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > is the same**: 146 asks about the state before the write, this asks about the
 > state after it. ***THE GATE 89 REJECTED IS UNTOUCHED.***
 >
-> ### ***WHAT IS OWED — TWO THINGS, AND NEITHER IS OPTIONAL***
+> ### ***THE FULL SUITE RAN AND HANDOFF 22's DEBT IS DISCHARGED***
 >
-> 1. ***THE WITNESS. NEITHER PARAGRAPH HAS BEEN SEEN BY ANYBODY.*** Both need
->    guest `Windows 11 - SSH no SD - Test C`, which is **already in 147's
->    state** — the API listening, no rule. Install over it keeping the database
->    and read the box. That one run witnesses both entries.
-> 2. ***THE FULL SUITE***, still owed from Handoff 22 and now with a current
->    install to run against. Unelevated first, then elevated:
+> The owner ran both halves on `b103`, against **this** install. Read from the
+> transcripts rather than taken on the word *"both exited 0"*:
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b103
-> ```
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260903-124937.log` — closing line **`VerifyInstall1: every step exited 0.`**, and `PARTIAL` appears **0 times** | **20**, all exit 0 |
+> | elevated | `post-cycle-20260903-125447.txt` — the runner has no transcript of its own by design, so this summary IS the record | **23 of the 23 defined**, all exit 0 |
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b103
-> ```
+> ***THE STEP COUNT IS THE PARTIAL TEST FOR THE ELEVATED HALF.*** It writes no
+> banner into its summary file, so "was this a full run" is answered by the file
+> listing every step `VerifyInstall2.ps1` defines — 23 — rather than by looking
+> for a word that would only be in the console output.
 >
-> **The first is an ordinary unelevated prompt, the second an elevated one.**
-> `PARTIAL` must appear **0 times** in either half or it was not a full run.
+> ### ***WHAT IS OWED — ONE THING***
+>
+> ***THE WITNESS. NEITHER NEW PARAGRAPH HAS BEEN SEEN BY ANYBODY***, and the
+> suite could not have shown them: it runs against an install whose tree the
+> cycle deleted, and both paragraphs only appear on an install over a **kept**
+> database. Both need guest `Windows 11 - SSH no SD - Test C`, which is
+> **already in 147's state** — the API listening, no rule. Install over it
+> keeping the database and read the box. **That one run witnesses both
+> entries**, and it is the only thing standing between 135, 147 and DONE.
 >
 > ### ***THE TRAP THAT NEARLY SHIPPED A WRONG SENTENCE***
 >

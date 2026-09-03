@@ -46285,3 +46285,26 @@ unpaid, and the duplicate was deleted.  And cycle-20260903-124039.log is
 TRUNCATED AT FRONT - 1,879 Compressing lines against 3,672, no ISCC front markers
 - which is 137's instrument working, and the second cycle in two days to lose the
 front.  The build is unaffected; what is lost is reading the log afterwards.
+
+## 3 Sep 2026 - the full suite ran on b103, both halves, 43 steps, every one exit 0
+
+Handoff 22's outstanding debt, discharged against the 12:41:43 install - so it
+covers the 135/147 change rather than the tree that preceded it.  Read from the
+transcripts rather than from the report that both halves exited 0, because the
+runner's exit code and "every step passed" are different claims:
+
+  unelevated  VerifyInstall1-20260903-124937.log   20 steps, all exit 0,
+              closing line "VerifyInstall1: every step exited 0.", and PARTIAL
+              appears 0 times in the whole log
+  elevated    post-cycle-20260903-125447.txt       23 steps, all exit 0
+
+THE ELEVATED HALF IS CHECKED BY COUNT, NOT BY THE WORD.  VerifyInstall2 has no
+transcript of its own - deliberately, its header says why - and writes only this
+summary, into which no PARTIAL banner goes.  So "was it a full run" is answered
+by the file listing all 23 steps the runner defines, and looking for the word
+there would have found nothing either way.
+
+b103 is spent; the next token is b104.  The suite proves nothing regressed on an
+install carrying the new paragraphs; it cannot witness them, because the cycle
+deletes both trees and both paragraphs only appear on an install over a kept
+database.  That is still guest Test C's job.
