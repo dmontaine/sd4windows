@@ -175,6 +175,86 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 24, 3 Sep 2026 — ***THE THREE OWNER DECISIONS ARE TAKEN. 96 IS (c). THE FREE-CHECK LIST IS 24. THE GAP-ANALYSIS SCRIPT STAYS UNTRACKED. NOTHING BUILT, NOTHING CYCLED, OPEN STILL 11.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 14:21:19**, unchanged — no
+> source under `gplsrc`, `gpl.bp` or `sdsys` was touched, so handoff 23's cycle
+> still holds; `assert-current` **exit 0** re-run live; **24 of 24 free checks
+> exit 0 in 28.5 s**. ***OPEN 11, UNCHANGED: 16, 65, 66, 70, 80, 93, 96, 102,
+> 114, 138, 150. NEXT FREE ID 151. NEXT RUN TOKEN `b104`, still unspent.***
+>
+> ***THIS SESSION SPENT NO CYCLE AND NO RUN TOKEN.*** It answered the three
+> things handoff 23 listed as the owner's, and wrote each answer into the place
+> that would otherwise have re-asked it.
+>
+> ### ***1. PRE_RELEASE 96 — (c) STANDS. BUILD THE TRI-STATE.***
+>
+> The tri-state across `IsAdmin`, `IsElevated` and `os_permitted`, and the four
+> callers. ***HE WAS ASKED WITH BOTH SHAPES IN FRONT OF HIM THIS TIME***, (b)
+> named as his own earlier delegated choice and the proportionality argument for
+> setting (c) aside quoted back — which is the one thing the second asking did
+> not do, and the reason 96's row records the asking as itself a defect. Same
+> answer as the second asking, now on a complete brief.
+>
+> ***WHAT THE ROW ALREADY SETTLES, SO NOBODY RE-DERIVES IT.*** The scope is
+> **nine** undetermined paths, not seven — `linuxlb.c:112` and `:172` are the two
+> it was short by. **`op_sh.c:173`'s `ENOENT` is the designed NO and must stay a
+> plain FALSE**; only a non-`ENOENT` `errno` is undetermined. And **`log_printf`
+> is the wrong instrument**: it prints on the user's terminal via
+> `k_error.c:873`, and it dereferences `sysseg`, which is NULL at `sd.c:838`
+> because `comlin()` (`sd.c:175`) runs before `bind_sysseg()` (`:180`).
+>
+> ***IT STILL DESERVES ITS OWN SESSION.*** C on a privilege path, the faults need
+> an induced name-service failure to reach, and the wrong shape here fails
+> silent. **What is left is building (c), not choosing it.**
+>
+> ### ***2. THE FREE-CHECK LIST IS 24, AND THE CALL WAS DELEGATED***
+>
+> Owner, asked whether the ten unlisted guards should join "run these on every
+> change": *"what tests are needed in the verification cycle are totally your
+> call."* ***THEY JOINED IT***, and CLAUDE.md now names all twenty-four.
+>
+> ***THE DECISION RESTED ON A MEASUREMENT TAKEN BEFORE ASKING***, which is why it
+> could be delegated cheaply: the ten cost **7.1 s** against the fourteen's
+> **21.8 s**, all green, none needing an install, elevation or a run token. **The
+> sentence now asks 29 s of a session instead of 22.** Against that, the recorded
+> cost of *not* listing a guard is `test-staleleads-units.py` sitting red at 12
+> of 13 for days with nobody running it.
+>
+> ***`C:\Users\dmont\sdout\run-free-tests.ps1` RUNS ALL 24 AND REFUSES THE NULL
+> CASE*** — each in its own process, missing scripts and a short run both throw.
+> **It is dev scratch outside the repository and is NOT the authority; CLAUDE.md
+> is.** *(It was itself found stale at 12 names — `test-transcriptwhole-units`
+> and `test-apigate-units` had joined the list that morning and this copy never
+> followed. Same two-lists-by-hand defect that three of the guards on it exist to
+> catch.)*
+>
+> ### ***3. `generate_gap_analysis_pdf.py` STAYS UNTRACKED — REFUSED***
+>
+> Owner, asked directly, with the `git clean` risk stated: *"it only exists for
+> documentation during task 80 — it does not need to be tracked."* ***HANDOFF
+> 23's ITEM 6 RECOMMENDED THE OPPOSITE AND IS STRUCK IN PLACE***, and entry 80's
+> row carries the ruling. **Do not propose it again.** The 1 Sep instruction it
+> sits under is unchanged: 80 adopts the file where it lies, and `git add -A` in
+> this repository stays forbidden permanently.
+>
+> ### ***WHAT TO DO NEXT — THE ORDER IS HANDOFF 23's, MINUS THE DECISIONS***
+>
+> 1. ***93 + 65 TOGETHER — HIGHEST VALUE, ONE FIX COVERS BOTH.*** Unchanged from
+>    handoff 23: both **B** query-correctness blockers, detect-and-remove at
+>    service start in `sdsvc.c` copying `reclaim-profiles.ps1`'s shape, `SDSYS`
+>    exempt, plus a consistency verifier. Heavy C; needs a guest.
+> 2. **96** is now buildable and is the only one of the eleven that was waiting
+>    on a word rather than on a cycle, a guest or a screen.
+> 3. **70**, then **114**, **138**, **102**, **16**.
+> 4. **150** — cheap to confirm on `Test C`'s `pre-147-witness` snapshot with
+>    `VBoxManage … setvideomodehint 1024 768 32`.
+> 5. **80 LAST**, and it no longer has a free first action.
+>
+> ***THE RIG IS UNTOUCHED THIS SESSION*** — handoff 23's table still describes
+> it, `Test C` still carries `pre-147-witness`. **Count guests from
+> `VBoxManage`, never a table.**
+>
 > # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135, 147, 149 AND 148 CLOSED. FULL SUITE RAN, 43 STEPS, ALL EXIT 0. OPEN 11. NOTHING OWED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 14:20:13** from `cycle.ps1` run
@@ -229,9 +309,11 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    `VBoxManage … setvideomodehint 1024 768 32`, cheap), then split the box or
 >    move the access paragraphs to the Finished page. Shape is owner-flavored.
 > 6. **80 LAST** — the documentation audit and ownership transfer, against the
->    final image. ***CHEAP FIRST ACTION, ANY TIME***: commit the untracked
->    `generate_gap_analysis_pdf.py` unchanged as insurance — a `git clean` loses
->    the only copy, and 80 runs last (its row endorses exactly this).
+>    final image. ~~*CHEAP FIRST ACTION, ANY TIME*: commit the untracked
+>    `generate_gap_analysis_pdf.py` unchanged as insurance.~~ ***REFUSED BY THE
+>    OWNER, 3 Sep 2026: "it only exists for documentation during task 80 — it
+>    does not need to be tracked."*** **Do not propose it again**, and do not
+>    treat the `git clean` risk as a reason to: it is his file and his call.
 > 7. ***THE RIG: `Test C` IS SPENT*** but carries snapshot `pre-147-witness`
 >    (restores 147's API-up-no-rule state). **Count guests from `VBoxManage`,
 >    never a table.** All `nic1=nat`, so nothing measures LAN reachability until

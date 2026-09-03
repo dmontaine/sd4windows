@@ -46421,3 +46421,44 @@ on the sign-off, resting on the shared report.state, the witnessed REMOTESSH
 shape it copies line for line, and the live api-firewall -Show sentence.  If
 anything re-opens 148 it is the remote.api output itself - the one unobserved
 thing - and the fault would then be in report.state, not the design.
+
+## 3 Sep 2026 - the three owner decisions handoff 23 listed, all three taken
+
+Nothing was built and no cycle or run token was spent.  Install 3 Sep 14:21:19
+unchanged, assert-current exit 0 re-run live, open still 11.
+
+96 is (c): the tri-state across IsAdmin, IsElevated and os_permitted, and the
+four callers.  The asking is the part worth recording.  96's row already
+documents that the second asking was itself a defect - he was given a fresh
+choice without being shown that (b) was his own delegated choice or why (c) had
+been set aside as disproportionate.  This time both shapes were put with that
+history attached, and the answer was the same.  So (c) is now settled on a
+complete brief rather than on a partial one, and the two paragraphs telling a
+reader to build nothing are struck in place rather than deleted, because they
+are the argument he was shown.
+
+The free-check list went from 14 to 24, the owner delegating it: "what tests are
+needed in the verification cycle are totally your call."  The measurement was
+taken before he was asked, which is why the delegation cost nothing - the ten
+unlisted guards run in 7.1 s against the fourteen's 21.8 s, all green, none
+needing an install, elevation or a run token.  29 s instead of 22 for what "run
+these on every change" asks of a session, against the recorded cost of not
+listing one: test-staleleads-units.py sat red at 12 of 13 for days because
+nothing ran it.
+
+Two smaller things fell out of that.  CLAUDE.md's list of ten named
+test-staleleads, which was already on the list and is not a separate script - the
+count of ten was right, one of the names was not.  And the convenience runner at
+C:\Users\dmont\sdout\run-free-tests.ps1 was found stale at 12 names, because
+test-transcriptwhole-units and test-apigate-units had joined CLAUDE.md's list
+that morning and this second copy never followed.  That is the two-lists-kept-in-
+step-by-hand defect that three of the guards on the list exist to catch, found in
+the list itself for the second time in two days.  It now carries all 24, refuses
+the null case, and says in its own header that CLAUDE.md is the authority.
+
+generate_gap_analysis_pdf.py stays untracked.  Handoff 23 recommended committing
+it unchanged as insurance against a git clean, and entry 80's row was read as
+endorsing that.  Put to the owner with the risk stated, he refused: "it only
+exists for documentation during task 80 - it does not need to be tracked."  The
+recommendation is struck in handoff 23 and the ruling written into entry 80, so
+the next session does not rediscover the same cheap-looking action.

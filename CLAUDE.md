@@ -472,7 +472,14 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-dirscoverage-units`, `test-stripcomments-units`,
    `test-diffcapture-units`, `test-transcriptwhole-units`,
    `test-apigate-units`, `check-stale-leads.py`,
-   `test-staleleads-units.py`. **Run these on every change.** A whole suite run has already been spent twice discovering what one
+   `test-staleleads-units.py`, `test-edittokens-units.py`,
+   `test-upgradeiss-units.py`, `test-acctmsgs-units`,
+   `test-apiidentity-units`, `test-deletioncheck-units`,
+   `test-doorsargv-units`, `test-reclaim-units`, `test-sdpath-units`,
+   `test-sysmsg-units`, `test-vocverbs-units`. ***ALL TWENTY-FOUR. Run these on
+   every change*** — **29 s for the whole set**, measured 3 Sep 2026, each in
+   its own process. A whole suite run has already been spent twice discovering
+   what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
    deliberately reworded, so a fix that lands in one copy and misses another
@@ -520,13 +527,18 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    ran it. **`check-stale-leads.py` itself exited 0 throughout**, because the
    failing case guards phase 1, which ranks and deliberately does not decide —
    so the listed check passed while its own units test failed.
-   ***AND TEN MORE FREE GUARDS ARE STILL NOT ON THIS LIST***, all measured green
-   the same day: `test-staleleads`, `test-edittokens`, `test-upgradeiss`,
+   ***THE TEN THAT WERE STILL MISSING JOINED THE LIST ABOVE ON 3 Sep 2026***,
+   the owner delegating the call — *"what tests are needed in the verification
+   cycle are totally your call"*: `test-edittokens`, `test-upgradeiss`,
    `test-acctmsgs`, `test-apiidentity`, `test-deletioncheck`, `test-doorsargv`,
-   `test-reclaim`, `test-sdpath`, `test-sysmsg` and `test-vocverbs`. **Whether
-   "run these on every change" should name all of them is the owner's call**,
-   because it changes what the sentence asks of every session — it is not
-   assumed here.
+   `test-reclaim`, `test-sdpath`, `test-sysmsg`, `test-vocverbs`. ***IT WAS
+   DECIDED ON A MEASUREMENT RATHER THAN A PREFERENCE***: the ten cost **7.1 s**
+   against the fourteen's **21.8 s**, all twenty-four green, none needing an
+   install, elevation or a run token. **So the sentence now asks 29 s of a
+   session instead of 22, and that is not a price worth a second guard going
+   red for days unread.** *(The superseded wording listed `test-staleleads`
+   among the ten. It was already on the list and there is no separate script of
+   that name — the count of ten was right, one of the names was not.)*
 2. **`-Only <step[,step]>`** — the step that decides your change. Both runners
    take it; names may omit `.ps1` and are case-insensitive. **Two names work
    either way — `-Only a,b` and `-Only 'a,b'` are equivalent since 31 Aug
