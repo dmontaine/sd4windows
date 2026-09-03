@@ -175,6 +175,65 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 19, 2 Sep 2026 — ***SIX ENTRIES FILED, THREE BUILT, NOTHING COMPILED SINCE 19:52. START WITH `cycle.ps1 -SkipInstall`; IT CARRIES A VERB RENAME AND A BASIC CHANGE.*** ⇩⇩⇩
+>
+> ***THE ONE SENTENCE: THE GUEST RUN NEVER FINISHED, BECAUSE EVERY LEG OF IT
+> TURNED UP SOMETHING WORTH STOPPING FOR.*** 120, 132, 134, 135 and 139's new
+> dialog are all still unwitnessed. **Do not report any of tonight's build as
+> working.**
+>
+> ### ***STEP 1 — PROVE IT COMPILES***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> **ELEVATED PowerShell, FRESH WINDOW** (137). It carries **`LOGIN` (new code
+> plus a rename), `CPROC`, `CREATEA`, `CONFIG`, `KEYS.H`, a new message 10166, a
+> renamed VOC record and a `TIER.ADD.ADMINISTRATOR` edit.** ***`sd.iss` IS
+> ALREADY PROVED*** — `C:\Users\dmont\sdout\check-iss.ps1` compiles it against
+> the staged tree without a cycle, 4,833 lines, ISCC exit 0, output to a scratch
+> directory so it cannot overwrite the installer a guest is using. **Use it
+> before every cycle that touches `sd.iss`; it costs 5 seconds.**
+>
+> ### ***WHAT WAS BUILT, ALL UNCOMPILED***
+>
+> - ***THE VERB IS `update.accounts`.*** Owner's ruling. 44 occurrences, 14
+>   files, plus the VOC record itself. **Nothing dispatches on the name** —
+>   CPROC reaches it as internal verb 15. **Both closing pages also stop telling
+>   the reader to visit every account by hand**, which was never necessary and
+>   was impossible for the tiers lacking the verb.
+> - ***A VERB NEVER HONOURS `[locked]`.*** Owner's ruling: *"users should not be
+>   modifying them"*. `new.type = 'V'` falls through to the replace and is
+>   tallied separately; **new message 10166** names the overruled ids. The
+>   escape hatch is that `UPDATE.VOC` only walks NEWVOC, so a site's **own**
+>   verb is never visited and needs no marker.
+> - ***139's BOTH HALVES.*** Keep/Delete command links via `KeepOrDelete()`, and
+>   `RecordDatabaseChoice()` confirming the outcome **both ways** and writing a
+>   stamped line to `%TEMP%\sd-remove-database.log`. **`MinVersion=10.0`** with
+>   them.
+>
+> ### ***WHAT WAS WITNESSED AND PASSES***
+>
+> **70's lock flag** — `[locked]` on SDSYS's `who`, then the verb: *"1 VOC
+> record(s) were left alone because they are marked [locked]: who"*, count **and**
+> id. **136** — a created account now shows descriptions, 9 of 10.
+>
+> ### ***OPEN 24***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142. ***NEXT FREE ID: 143. NEXT RUN TOKEN: `b103`.*** All nine free checks green.
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***THE GUEST IS NOT CLEAN AND `zz135`/`zz135b` BOTH EXIST AS WINDOWS
+>    ACCOUNTS.*** `create.account` refuses a name whose Windows account exists —
+>    **use a third name.** And `sdusers` still holds them, which is what makes
+>    **140** reproducible.
+> 2. ***138 IS NOT A CREDENTIAL BUG.*** Two accounts, one password. The prompt
+>    names **SDSYS**. Reproduced on a clean install tonight, third sighting.
+> 3. ***DO NOT REGISTER `update.account` AS RETIRED WORDING.*** Matching is
+>    substring and it is inside `update.accounts`; the lint would fail against
+>    its own replacement for ever. The retired **instruction** is registered
+>    instead.
+>
 > # ⇩⇩⇩ HANDOFF 18, 2 Sep 2026 — ***THE GUEST RUN LOST ITS DATABASE HALF-WAY AND PRODUCED THREE ENTRIES INSTEAD OF CLOSING SIX. A CYCLE IS OWED. `sd.iss` HAS CHANGED AND `assert-current` IS RED BY DESIGN.*** ⇩⇩⇩
 >
 > ***WHAT HAPPENED, IN ONE LINE: THE UNINSTALLER'S TWO QUESTIONS WERE BOTH
