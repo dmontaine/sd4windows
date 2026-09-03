@@ -180,9 +180,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***THE STATE, IN ONE LINE.*** Nothing under `gplsrc` or `sdsys` changed, so
 > the 2 Sep 22:46:52 install still stands and `assert-current` is **exit 0**.
 > ***THIRTEEN free checks green*** — `test-transcriptwhole-units` joined the
-> list 3 Sep with 137. ***OPEN 14: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114,
-> 135, 136, 138, 145. NEXT FREE ID 146. NEXT RUN TOKEN `b103`*** (still unspent
-> — neither the sitting nor 137 needed a suite).
+> list 3 Sep with 137. ***OPEN 13: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114,
+> 135, 136, 138. NEXT FREE ID 146. NEXT RUN TOKEN `b103`*** (still unspent —
+> none of this needed a suite).
+>
+> ***145 IS CLOSED AND THE ANSWER IS THE ONE ITS HYPOTHESIS PREDICTED.***
+> `uninsneveruninstall` **does** protect — it only protects a directory the
+> installer **itself created**. On a fresh clone with the precondition recorded
+> first, `cat`, `prt` and `$hold` **all survived** the Keep uninstall, and the
+> manifest diff is **3,621 → 3,619 with DISAPPEARED 0** once `dumps` (the
+> declared exemption) and the runtime shm segment are declared. So `sd.iss:676`
+> is **true from a fresh install onward and false for an upgraded tree**, which
+> is why `Clone A` lost three: its tree predated those `[Dirs]` entries, so Inno
+> never wrote a protective record for them. **Both halves of the claim are real;
+> they apply to different trees.**
 >
 > ***137 IS BUILT AND IT FOUND SOMETHING ON ITS WAY IN: THE LOG BEHIND THE
 > CURRENT INSTALL IS ITSELF TRUNCATED.*** `cycle-20260902-224601.log` carries
@@ -207,24 +218,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    `Test A/B/C` (the OLD ones) and `Windows 11 - Template` are all
 >    unregistered. **Re-run the audit anyway before picking a guest** — the rule
 >    is to count guests from `VBoxManage`, and it has now been right twice.
-> 1. ***145 IS HALF-RUN AND THE GUEST IS STILL POWERED ON AT THE EXACT POINT IT
->    STOPPED — 3 Sep 2026 09:46, STOPPED ON THE OWNER'S WORD, NOT BY A
->    FAULT.*** `Windows 11 - SSH no SD - Test A` is **running**, SD Core is
->    **installed**, and the closing box *"SD Core is installed"* is **on screen,
->    screenshotted before anything dismissed it**. ***THE PRECONDITION IS PROVED
->    AND CANNOT BE PROVED AGAIN LATER***: `p145-preflight` ran first and recorded
->    **no `C:\Program Files\SD`, no `C:\ProgramData\SD`, no SD local groups,
->    elevated `VIRTUAL\don`** — which is the whole point of 145, since the
->    hypothesis is that `[Dirs]` protects only what the installer itself created.
->    Installer verified on the guest at **4,963,912 bytes**. **Tasks chosen: PATH
->    ticked, ssh-inbound ticked, API UNTICKED** — the API was deliberately left
->    off so 145 stays a clean measurement rather than being mixed with 89's
->    API-ON case. ***WHAT IS LEFT IS THE MEASUREMENT ITSELF***, all of it on that
->    running guest: `capture-state.ps1 -Label first -Manifest -OutDir
->    \\vboxsvr\xfer` **elevated**, then the **interactive** uninstall answering
->    **Keep**, then `-Label after`, then read the twelve. **`-OutDir` must be
->    passed** — its default `Y:\` is the stale drive letter the rig section
->    warns about; the UNC path works.
+> 1. ***145 RAN AND CLOSED, 3 Sep 2026 10:04. THE GUEST IS STILL POWERED ON AND
+>    IS NOW AN UNINSTALLED TREE WITH THE DATABASE KEPT*** — `Windows 11 - SSH no
+>    SD - Test A`, useful as-is for anything wanting *"a machine SD was removed
+>    from, answering Keep"*, and reclonable from `Windows 11 - SSH no SD -
+>    Template` otherwise. **Do not treat it as clean: `don` still has an SD
+>    password and `C:\ProgramData\SD` is still there.** The verdict is in 145's
+>    row and in the state line above. **Captures kept**:
+>    `C:\Users\dmont\sdxfer\state-first-20260903-095549.txt` and
+>    `state-after-20260903-100405.txt`, with the preflight beside them.
+>    **`-OutDir` must be passed to `capture-state`** — its default `Y:\` is the
+>    stale drive letter the rig section warns about; the UNC path works.
+>
+>    ***ONE FREE WITNESS FELL OUT OF IT FOR 133, AND IT IS A THIRD CASE NOBODY
+>    HAD.*** On this guest OpenSSH is **installed but has never started, so it
+>    has no `sshd_config` at all** — and the installer said exactly that rather
+>    than claiming a write: *"ssh was NOT limited, and nothing was changed…
+>    OpenSSH has not started yet and has no configuration file - restart, then
+>    run this from an elevated prompt"*, naming `allow-ssh-groups.ps1
+>    -Installed`. **133 was closed on the write case and the upgrade case; this
+>    is the no-config case**, and the wording tracks it too.
 >
 >    ***THREE THINGS THE RUN LEARNED THAT ARE REUSABLE, ALL CHEAP AND ALL PAID
 >    FOR ONCE:*** **(a)** the guest autologons to the desktop, and `WIN+r` →

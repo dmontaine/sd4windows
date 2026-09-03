@@ -45961,3 +45961,59 @@ It already has something to say.  `cycle-20260902-224601.log`, the log behind
 the install everything is currently measured against, carries no banner and
 1,879 `Compressing:` lines against 3,672 expected.  That install's build detail
 is unreadable and nobody knew.
+
+
+## 3 Sep 2026 - 145 closed: uninsneveruninstall works, and only on what the installer created
+
+Guest `Windows 11 - SSH no SD - Test A`, a fresh clone of the ssh template.  The
+precondition was recorded BEFORE the install and that ordering is the point - no
+`C:\Program Files\SD`, no `C:\ProgramData\SD`, no SD local groups, elevated -
+because 145 is void on a machine that already had a tree, and afterwards there
+is no way to prove it did not.  Then install, capture, interactive uninstall
+answering Keep to both questions, capture, diff.
+
+The three that vanished on `Clone A` all survived: `cat`, `prt` and `$hold`, all
+three present with 0 entries.  They were empty on both machines, so emptiness was
+never the variable.  Eleven of the twelve present afterwards; the only one gone
+is `dumps`, which has no `[Dirs]` entry and is recreated by `secure-dumps.ps1` -
+the exemption `test-dirscoverage-units` already declares, so the result agrees
+with the guard rather than contradicting it.
+
+The manifest diff is the stronger statement.  `C:\ProgramData\SD` held 3,621
+entries before and 3,619 after, and DISAPPEARED is 0 once `dumps` and the runtime
+shm segment are declared with `-Expected`.  Not 0 because nothing was compared -
+0 out of the 3,619 that were.  The 38 real disappearances are all in
+`C:\Program Files\SD`, which an uninstall is supposed to remove.
+
+So `sd.iss:676` is true from a fresh install onward and false for an upgraded
+tree, and that distinction is the whole entry.  Inno records a `[Dirs]` entry in
+the uninstall log when it CREATES the directory; `Clone A`'s tree predated the
+`cat`/`prt`/`$hold` entries, so no protective record was ever written and the
+uninstaller took them.  The protection never reaches a tree upgraded across the
+entry's introduction - there the heal-on-install does all the work, which is what
+132 measured and could not explain.  Both halves of the claim are real; they
+apply to different trees.
+
+A silent tooling trap was paid for on the way.
+`powershell -File diff-capture.ps1 -Expected a,b,c` passes ONE string, so the
+array parameter binds a single bogus element, nothing matches, and the run
+reports `expected-gone : 0` rather than an error - a suppression list that
+silently suppresses nothing.  Call the script in-process or pass a real array.
+Same class as the `-Only a,b` binding note the suite runners already carry.
+
+A free third witness for 133 fell out of it.  OpenSSH on this template is
+installed but has never started, so it has no `sshd_config` at all, and the
+installer said so rather than claiming a write: "ssh was NOT limited, and nothing
+was changed... OpenSSH has not started yet and has no configuration file", naming
+`allow-ssh-groups.ps1 -Installed` as the remedy.  133 was closed on the write
+case and the upgrade case; this is the no-config case.
+
+Driving notes, each paid for once.  The clones autologon, and `WIN+r` then
+`CTRL+SHIFT+ENTER` gives an elevated shell with no UAC prompt.  `Start-Process`
+leaves a launched installer BEHIND the shell and `ALT+TAB` did not raise it -
+`WIN+4` did, but the chord strands the Windows key, and the next keypress opened
+the Start menu instead of answering a dialog; `vm-type -Release` clears it.
+After `ALT+TAB` onto a Yes/No box the focus lands on NO, so the button under
+focus was cropped and read before every destructive answer.  And the cheapest
+thing of all: put the work in a script on the xfer share and type one short line,
+so results come back as text and almost nothing needs a screenshot.
