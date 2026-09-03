@@ -330,7 +330,44 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   can ever exercise it** — `LOGIN:955` guards on a tty and every automated
 >   route pipes stdin.
 >
-> ### ***OPEN 21***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140, 144. ***NEXT FREE ID: 145. NEXT RUN TOKEN: `b103`.*** **TEN free checks now** — `test-stripcomments-units` joined the list in CLAUDE.md in the commit that created it — all green, `test-fixlist-units` 251/0, `assert-current` exit 0.
+> ### ***144 IS BUILT AND CLOSED — PHASE 4, AND A RED GUARD NOBODY WAS RUNNING***
+>
+> `check-stale-leads.py` gained **phase 4** over `PRE_RELEASE_FIXES.md`'s index:
+> **does an open row say a ruling is outstanding while the same row records
+> one?** It **ranks and does not decide**; phase 2 stays the only decider.
+> `test-staleleads-units.py` **18 of 18**, five new cases, red proved before
+> green against a fixture of 96's unquoted wording.
+>
+> ***THREE THINGS WORTH CARRYING FORWARD FROM BUILDING IT:***
+>
+> 1. ***"REUSE PHASE 1's PATTERNS" WAS WRONG AND MEASURING SAID SO FIRST.***
+>    They do not fire on 96 — `OPEN_PAT` has no *"NOT STARTED"*, `CLOSE_PAT` no
+>    *"delegated"*. Reusing them would have shipped a scan that found nothing
+>    and looked clean.
+> 2. ***THE FIRST DRAFT WAS WRONG THREE TIMES IN FOUR.*** The full status
+>    vocabulary flagged 120 and 132, where *"unwitnessed … witnessed"* and
+>    *"not yet witnessed … ruled"* are both honest. **Narrowed to the ruling
+>    axis it flags neither**, and the real file reports 0 of 21.
+> 3. ***QUOTED TEXT IS STRIPPED*** — the `test-retired-wording-units` reason.
+>    Entries 96 and 144 quote both halves of the contradiction they document,
+>    and would otherwise be flagged for ever for recording it.
+>
+> ***AND A RED GUARD WAS FOUND: `test-staleleads-units.py`, 12 of 13, NOT IN THE
+> FREE-CHECK LIST SO NOTHING RAN IT*** — while `check-stale-leads.py` itself
+> exited 0, because the failing case guards phase 1, which does not decide.
+> **The cause was not code**: it asserted a literal *"0 entr(ies)"*, true only
+> while the document ranked no leads, and it ranks one now — a heuristic
+> near-miss on the word *"struck"*, about the OpenQM documents rather than about
+> H.2. **Re-anchored on the baseline; the document was not rewritten**, because
+> editing a true heading to silence a ranking heuristic is gaming the instrument.
+>
+> ***THE RIDER NEEDS YOUR CALL***: ten more free guards are green and unlisted —
+> `test-edittokens`, `test-upgradeiss`, `test-acctmsgs`, `test-apiidentity`,
+> `test-deletioncheck`, `test-doorsargv`, `test-reclaim`, `test-sdpath`,
+> `test-sysmsg`, `test-vocverbs`. **Naming them in "run these on every change"
+> changes what that sentence asks of every session, so it was not assumed.**
+>
+> ### ***OPEN 20***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140. ***NEXT FREE ID: 145. NEXT RUN TOKEN: `b103`.*** **TEN free checks now** — `test-stripcomments-units` joined the list in CLAUDE.md in the commit that created it — all green, `test-fixlist-units` 251/0, `assert-current` exit 0.
 >
 > ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
 >

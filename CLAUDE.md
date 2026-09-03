@@ -470,7 +470,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-verdict-units`, `test-sdtestuser-units`, `test-suiteonly-units`,
    `test-retired-wording-units`, `test-stemcoverage-units`,
    `test-dirscoverage-units`, `test-stripcomments-units`,
-   `check-stale-leads.py`. **Run these on every change.** A whole suite run has already been spent twice discovering what one
+   `check-stale-leads.py`, `test-staleleads-units.py`. **Run these on every
+   change.** A whole suite run has already been spent twice discovering what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
    deliberately reworded, so a fix that lands in one copy and misses another
@@ -499,6 +500,19 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    the one name added** — every other gplbld script missing from that list
    genuinely is named in `stage.py` or `sd.iss`, so it was one omission and not
    a rotted list.
+
+   ***`test-staleleads-units.py` JOINED THE LIST 2 Sep 2026 AND IT HAD BEEN RED
+   FOR DAYS, WHICH IS WHAT NOT BEING ON THE LIST COSTS.*** 12 of 13, and nobody
+   ran it. **`check-stale-leads.py` itself exited 0 throughout**, because the
+   failing case guards phase 1, which ranks and deliberately does not decide —
+   so the listed check passed while its own units test failed.
+   ***AND TEN MORE FREE GUARDS ARE STILL NOT ON THIS LIST***, all measured green
+   the same day: `test-staleleads`, `test-edittokens`, `test-upgradeiss`,
+   `test-acctmsgs`, `test-apiidentity`, `test-deletioncheck`, `test-doorsargv`,
+   `test-reclaim`, `test-sdpath`, `test-sysmsg` and `test-vocverbs`. **Whether
+   "run these on every change" should name all of them is the owner's call**,
+   because it changes what the sentence asks of every session — it is not
+   assumed here.
 2. **`-Only <step[,step]>`** — the step that decides your change. Both runners
    take it; names may omit `.ps1` and are case-insensitive. **Two names work
    either way — `-Only a,b` and `-Only 'a,b'` are equivalent since 31 Aug
