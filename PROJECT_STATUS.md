@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 21, 3 Sep 2026 — ***THE GUEST SITTING RAN AND CLOSED SIX (120, 132, 133, 134, 139, 140). TWO ADVANCED AND STAY OPEN (89, 135), ONE WAS FILED (145). OPEN 20 → 15. NO CYCLE IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 21, 3 Sep 2026 — ***THE GUEST SITTING RAN AND CLOSED SIX (120, 132, 133, 134, 139, 140). TWO ADVANCED AND STAY OPEN (89, 135), ONE WAS FILED (145). OPEN 20 → 15. NO CYCLE IS OWED. THE VM RIG WAS BEING REBUILT OVERNIGHT — CHECK IT BEFORE PICKING A GUEST.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Nothing under `gplsrc` or `sdsys` changed, so
 > the 2 Sep 22:46:52 install still stands and `assert-current` is **exit 0**.
@@ -185,13 +185,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***WHAT TO DO NEXT, IN COST ORDER***
 >
+> 0. ***FIRST, READ THE RIG — IT WAS REBUILT OVERNIGHT AND EVERY GUEST NAME IN
+>    THIS FILE MAY BE STALE.*** `vm-clone.ps1 -Audit`, unelevated, command below
+>    under "THE RIG CHANGED". **Guests sharing a MAC are bridged: run one at a
+>    time.** If a rebuilt clone shows a MAC that differs from its template, a GUI
+>    checkbox was missed and that guest will demand reactivation — reclone it
+>    rather than work on it.
 > 1. ***145 IS ONE UNINSTALL AND IT IS THE ONLY THING THE SITTING LEFT
 >    HALF-ANSWERED.*** `uninsneveruninstall` did **not** protect `cat`, `prt`,
 >    `$hold` while `bp`, `bp.out`, `batch.jobs` survived the same uninstall with
 >    the same flags. The reinstall healed all of them so nothing is lost, but
 >    `sd.iss:676` claims something that did not happen. **The test is in 145's
 >    row: fresh install onto a machine with no tree, then uninstall answering
->    Keep, then read the twelve.** `Clone B` is untouched and is the rig.
+>    Keep, then read the twelve.** ***THE RIG IS "A FRESH CLONE OF THE ssh
+>    TEMPLATE", NOT A NAMED GUEST*** — `Clone B` was that rig when 145 was
+>    filed and is being rebuilt, so take whichever clone of `Windows 11 -
+>    Template with ssh` the audit shows, with no SD on it.
 > 2. ***TWO THINGS ARE THE OWNER'S***: **96**'s (b) vs (c) — build neither until
 >    he says — and whether the **ten unlisted free guards** join "run these on
 >    every change".
@@ -213,11 +222,32 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `SD ssh baseline - Clone B`. **Count the guests from `VBoxManage`, never from
 > here** — this file's own rule, and it earned itself again.
 >
-> ***OWNER, 2 Sep 2026: `Test A`, `B` AND `C` HAVE NO SD AND NO ssh; `Clone A`
-> AND `Clone B` HAVE BOTH.*** ***AVOID `Test A/B/C` FOR ANYTHING NEEDING ssh —
-> INSTALLING THE SERVER IS A ~20-MINUTE DOWNLOAD.*** `Clone A` is spent (SD
-> uninstalled, tree deleted, `don` and `sdw135a` survive as Windows accounts,
-> all four SD groups gone). ***`Clone B` IS THE UNTOUCHED RIG. USE IT NEXT.***
+> ***OWNER, 2 Sep 2026: `Test A`, `B` AND `C` HAVE NO SD AND NO ssh.***
+> ***AVOID THEM FOR ANYTHING NEEDING ssh — INSTALLING THE SERVER IS A
+> ~20-MINUTE DOWNLOAD.*** `Clone A` is spent (SD uninstalled, tree deleted,
+> `don` and `sdw135a` survive as Windows accounts, all four SD groups gone).
+>
+> ***AND THE WHOLE RIG WAS BEING REBUILT OVERNIGHT, 3 Sep 2026 — READ THIS
+> BEFORE PICKING A GUEST, BECAUSE THE NAMES ABOVE MAY NOT EXIST.*** The owner is
+> re-cloning in the GUI from **two templates, one raw and one with the ssh
+> server installed** (`Windows 11 - Template`, `Windows 11 - Template with
+> ssh`), so that every guest shares the template's MAC as well as its hardware
+> UUID. ***THAT IS A LICENCE FIX, NOT TIDINESS***: Windows hashes the MAC into
+> its hardware id, and the six guests cloned under the old rule — `SD ssh
+> baseline`, `Clone A`, `Clone B`, `Test A/B/C`, six distinct MACs — are exactly
+> the ones that kept demanding reactivation. See the rig section's clone-options
+> bullets, reversed the same day.
+>
+> ***SO START BY READING THE RIG, NOT THIS PARAGRAPH*** — an ordinary
+> unelevated prompt, changes nothing:
+>
+> ```
+> powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\vm-clone.ps1" -Audit
+> ```
+>
+> ***AND THE GUESTS SHARING A MAC ARE BRIDGED, SO RUN ONE OF THEM AT A TIME.***
+> Two on the same segment collide over ARP and DHCP. The NAT escape and its
+> price are in the rig section.
 >
 > ### ***THE GUEST CAN NOW BE DRIVEN FROM HERE, AND THAT IS THE REUSABLE PART***
 >
