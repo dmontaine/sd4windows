@@ -175,6 +175,80 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***HANDOFF 19's STEP 1 PASSED. EVERYTHING IN THE TREE COMPILES. 141 AND 142 ARE CLOSED, 140 IS PRICED AND NEEDS A RULING, AND THE NEXT THING IS AN INSTALL — NOTHING BELOW HAS BEEN SEEN ON A RUNNING SYSTEM.*** ⇩⇩⇩
+>
+> ***THE ONE SENTENCE: THE BACKLOG IS NOW ALL WITNESS WORK, NOT BUILD WORK.***
+> Nine free checks green, two `cycle.ps1 -SkipInstall` runs green, ISCC green.
+> **The service is STOPPED and the installed tree is STALE** — `cycle.ps1
+> -SkipInstall` leaves both that way, and it is not a fault.
+>
+> ### ***STEP 1 — A FULL CYCLE, THEN LOOK AT FOUR THINGS***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **ELEVATED PowerShell, FRESH WINDOW.** No `-SkipInstall` this time: the point
+> is the install. Then, in order of what is cheapest to see:
+>
+> 1. ***`listf` IN SDSYS, AND READ THE SIX.*** This settles the contradiction
+>    142 could not. The shipped data says **6 of SDSYS's 16 file records are
+>    bare** — `$ACC`, `$MAP`, `SD.VOCLIB`, `dict.dict`, `syscom`, `voc` — because
+>    SDSYS's VOC is a straight copy of `voc_template` and `voc_template` is bare
+>    for **391 of the 392** records it shares with `newvoc`. **The 2 Sep guest
+>    observation says all 16 were described.** If the guest is right, something
+>    composes SDSYS's VOC after the copy and nothing in the tree says what.
+> 2. **`create.account`, then `listf` in it** — 142's own fix, and 136's last
+>    record. Expect **10 of 10 described** now, `newvoc` included.
+> 3. **The closing box and the options page** — 141. Both now name the PATH
+>    symptom beside the token one.
+> 4. **`check-install.ps1` from an ordinary window** — its new PATH section.
+>
+> ### ***WHAT WAS BUILT AND COMPILED THIS SESSION***
+>
+> - ***141, DONE — AND IT HAD A SECOND COPY THE ENTRY DID NOT NAME.*** The
+>   closing box (`sd.iss:3975`) *and* the options page (`:1940`) both said only
+>   *"cannot open its files"*. `check-install.ps1:339-373` gained the PATH check,
+>   in the same machine-vs-token two-question shape as `sdusers`; **both its
+>   branches are witnessed with a control** (bin dir on process PATH before=1,
+>   after=0). Retired wording registered as **`Until then it`**, not *"cannot
+>   open its files"* — that phrase is still true and still shipped.
+> - ***142, DONE — AND ITS OWN REASONING WAS BACKWARDS.*** `newvoc/newvoc` now
+>   carries the description. **`CREATEA`'s comment was false in the opposite
+>   clause from the one the entry named**: SDSYS's VOC *is* a straight copy of
+>   `voc_template` (measured on the staged tree — voc_template's descriptions are
+>   in it, newvoc's are not), and what is false is *"keeps field 1 whole"*. The
+>   conclusion is re-hung on `CPROC:1194`/`:1282`, read rather than cited.
+>
+> ### ***THE ONE THING THAT NEEDS THE OWNER: 140***
+>
+> **Gating `sdusers`'s survival on the database answer is NOT sufficient, and
+> that is new.** `RemoveSdGroups` and the `sdusers` comment are at
+> `sd.iss:4709`-`:4711`; **three `Exit`s stand between them and the question** —
+> `not DirExists(DataPath)` (`:4728`), `UninstallSilent` (`:4734`), `KeepOrDelete`
+> (`:4744`). A machine whose tree is already gone never reaches the question and
+> keeps the group anyway. ***THE GATE WANTS TO BE "IS THERE A DATA TREE WHEN THIS
+> UNINSTALL FINISHES", NOT "WHICH BUTTON WAS PRESSED"*** — which also gets
+> `UninstallSilent` right for free. **And it narrows rather than closes**: the
+> Windows accounts stay, enabled, with their passwords; they lose the seed list
+> that hands them ssh back.
+>
+> ### ***OPEN 20***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140. ***NEXT FREE ID: 143. NEXT RUN TOKEN: `b103`.*** All nine free checks green; `test-fixlist-units` 249/0.
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***HANDOFF 19's THREE TRAPS ALL STILL STAND*** — a third account name
+>    (`zz135`/`zz135b` exist as Windows accounts), **138 is not a credential
+>    bug**, and **do not register `update.account` as retired wording**. Read
+>    them below before starting.
+> 2. ***AN INSTALLER SIZE IS THE EVIDENCE A TRANSCRIPT IS NOT*** (137). The two
+>    builds tonight went 4,961,735 → 4,963,234 bytes, both from complete-looking
+>    logs; **the size is what proves the change went in.**
+> 3. ***`CREATEA`'s OBJECT GREW 27 BYTES ON A COMMENT-ONLY CHANGE*** (7,864 →
+>    7,891, +27 source lines). That is the line-number table, not a stray edit —
+>    checked, the diff touches no line that is not a `*` comment. **Do not spend
+>    a session on it next time it happens.**
+>
 > # ⇩⇩⇩ HANDOFF 19, 2 Sep 2026 — ***SIX ENTRIES FILED, THREE BUILT, NOTHING COMPILED SINCE 19:52. START WITH `cycle.ps1 -SkipInstall`; IT CARRIES A VERB RENAME AND A BASIC CHANGE.*** ⇩⇩⇩
 >
 > ***THE ONE SENTENCE: THE GUEST RUN NEVER FINISHED, BECAUSE EVERY LEG OF IT

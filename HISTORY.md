@@ -45432,3 +45432,63 @@ changes, neither shipped: the comment now carries the measurement, and step 4
 refuses an installer written before its own ISCC start — the old code took the
 newest `sd-setup-*.exe` in `$Out`, which on an ISCC that exits 0 without writing
 is the previous cycle's binary, and nothing downstream would have known.
+
+## 2 Sep 2026 — handoff 19's step 1 passed, 141 and 142 closed, and both entries were wrong about which half of a comment was false
+
+`cycle.ps1 -SkipInstall` at 21:04:52, exit 0, **190 compiles at 0 errors**;
+`LOGIN`, `CPROC`, `CREATEA` and `CONFIG` all recompiled, `gcat` matching
+`gpl.bp.out` byte for byte, messages 10165 and 10166 staged, `update.accounts`
+present and `update.account` gone. Installer 4,961,735 bytes. **The staged tree
+was read rather than the run's output believed**, per the 26 Aug precedent.
+
+**141 had a second copy the entry did not name.** The closing box (`sd.iss:3975`)
+and the options page (`:1940`) both explained why `sd` will not run with the
+`sdusers` token symptom only; the PATH symptom — *"sd is not recognized"* — has a
+different cause and the same cure, which is why neither copy had ever been
+questioned. Both now name both, and `check-install.ps1:339-373` gained a PATH
+check in the same machine-vs-process shape `sdusers` already used. **Both its
+branches were witnessed with a control**: bin dir on the process PATH before=1,
+after=0, `[ok]` then `[not yet]`, and the "could not be made" tally moved 1 → 2.
+Registered as retired wording on **`Until then it`**, the only fragment the two
+copies shared — the tails differed (*"reports that"* / *"will report that"*) and
+*"cannot open its files"* is still true and still shipped.
+
+**142's fix was one line and its reasoning was inverted.** `newvoc/newvoc` field
+1 was literally `F`; `voc_template/newvoc` already carried *"File - VOC given to
+a new account"*, and it is now in both. Counting the 392 records the templates
+share: **374** bare in `voc_template` and described in `newvoc`, **17** bare in
+both, **0** described in both, and **exactly one** the other way — `newvoc`
+itself. It was the only record in the shipped data where a created account could
+come out barer than SDSYS.
+
+**The entry said `CREATEA`'s comment had a true conclusion and a false
+mechanism. It is the other way round.** The comment read *"its VOC is built by
+the bootstrap straight from voc_template, keeps field 1 whole"*. Grepping the
+staged `sdsys/voc` — a dynamic file, so read as raw bytes — found
+voc_template's descriptions (`File - Account register`, `File - Spooler hold
+files`, `File - Session IPC area`) and **none** of newvoc's, so it **is** a
+straight copy and the mechanism holds. What is false is *"keeps field 1 whole"*:
+`voc_template` is bare for **391 of 392**, six of them type F. **SDSYS therefore
+runs on a mostly-bare VOC, which proves the bare form works and settles nothing
+about the descriptive one** — the opposite of what the sentence was cited for.
+The conclusion is re-hung on `CPROC:1194` and `:1282`, read rather than quoted.
+
+**One contradiction is left open rather than resolved.** The 2 Sep guest run
+recorded SDSYS listing 16 file records, all described; the shipped data says six
+are bare. Both cannot be true, and it needs a `listf` in SDSYS on a real
+install. It is step 1 of the next session for that reason.
+
+**140 was priced, not built, and pricing it moved the fix.** Gating `sdusers`'s
+survival on the database answer is not sufficient: `RemoveSdGroups` and the
+`sdusers` comment are at `sd.iss:4709`-`:4711` and three `Exit`s stand between
+them and the question — `not DirExists(DataPath)`, `UninstallSilent`,
+`KeepOrDelete`. A machine whose tree is already gone never reaches the question
+and keeps the group with no button pressed. The gate wants to be *"is there a
+data tree when this uninstall finishes"*. And it narrows rather than closes: the
+Windows accounts stay, enabled, with their passwords.
+
+Second `cycle.ps1 -SkipInstall` at 21:19:48 for the `CREATEA` comment, exit 0,
+190 compiles at 0 errors, installer 4,963,234. **`CREATEA`'s object grew 27 bytes
+on a comment-only change** — 7,864 → 7,891 for +27 source lines — which is the
+line-number table; the diff was checked line by line and touches nothing that is
+not a `*` comment.
