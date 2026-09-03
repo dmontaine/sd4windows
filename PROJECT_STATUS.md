@@ -194,16 +194,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***SO THE ELEVATED HALF HAS STILL NEVER RUN, AND THE UNELEVATED HALF IS ONE
 > STEP SHORT.*** That is what is owed.
 >
-> ***`b104` IS SPENT. USE `b105`.*** The same-token retry at 15:43:53 was
-> refused by name — *"sdtub104 ALREADY EXISTS … Use a fresh -Run token"*, exit 2,
-> nothing measured — which is PRE_RELEASE 54's guard working.
+> ***`b104` AND `b105` ARE BOTH SPENT. USE `b106`.*** Each same-token retry was
+> refused by name — *"sdtub10n ALREADY EXISTS … Use a fresh -Run token"*, exit 2,
+> nothing measured — which is PRE_RELEASE 54's guard working. **`b105` was spent
+> the ordinary way**: an unelevated run at 15:49:57 created `sdtub105` and then
+> went no further.
+>
+> ***AND ONE `b105` ATTEMPT WAS STARTED IN AN ELEVATED SHELL BY MISTAKE, WHICH
+> COST NOTHING AND IS WORTH KNOWING WHY.*** `VerifyInstall1.ps1:197` refuses an
+> elevated parent outright, and it sits **before** `Start-Transcript` at `:349`
+> — so an elevated start leaves **no log at all**, which is what a reader
+> should expect to see rather than a truncated one. ***CONTROLLED 3 Sep 2026,
+> not inferred***: run elevated with no arguments it exits **2** with
+> *"this is an ELEVATED PowerShell, and these checks need an ordinary one"*,
+> having touched nothing. **`sdout\elevated-gate-control.txt`.** The reason in
+> its own words is `verify-credacl`: Administrators are granted Full by
+> `secure-cred.ps1`, so an elevated run would pass every check and prove the
+> opposite of what it claims.
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b105
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b106
 > ```
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b105
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b106
 > ```
 >
 > **The first is an ordinary unelevated prompt, the second an elevated one.**
@@ -211,18 +225,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***DO NOT DISMISS A UAC PROMPT WITH A KEYSTROKE*** — that is what cost `b104`,
 > and `VerifyInstall1` raises about six.
 >
-> ***WHAT `b104` LEFT, MEASURED RATHER THAN ASSUMED.*** `sdtub104` — Windows
-> account, `sdu_SDTUB104`, a register record, and in `sdusers`/`sdssh`/
-> `sdsshonly` — **the next run's own sweep takes it**, because it only skipped it
-> at 15:43 for being *"the name this run is creating"*. Its scripted removal was
-> also cancelled, which is why it is still there. **`sdswb104` is the one nothing
-> sweeps**: `verify-sdsyswrite`'s throwaway, created at 15:43:31 before the
-> cancel, in `sdusers` **but not in `sdssh` or `sdsshonly`**, with no `sdu_`
-> group and no register record. ***IT IS NOT ENTRY 72's INVISIBLE ACCOUNT — 72
-> IS FIXED AND THIS PROVES IT***: it joined `sdusers`, so
-> `remove-sdaccounts.ps1`'s candidate set finds it. **Nothing removes an
-> `sdsw*` leftover automatically though, so it accumulates one per interrupted
-> run.**
+> ***THE `sdtu*` SWEEP WAS THEN WATCHED WORKING, WHICH SETTLES WHAT AN
+> INTERRUPTED RUN COSTS.*** `b105`'s elevated child swept `sdtub104` on its way
+> to creating its own account — `DELETE.ACCOUNT`, *"sdtub104 is gone - record
+> and Windows user both"*, `sdu_SDTUB104` with it, **1 of 1 candidate**. So a
+> stranded test account from an interrupted run needs **no** hand-cleaning: the
+> next run with a fresh token takes it. `sdtub105` is now the one in hand and
+> `b106` will take it the same way.
+>
+> ***`sdswb104` IS THE ONE NOTHING SWEEPS***: `verify-sdsyswrite`'s throwaway,
+> created 15:43:31 just before `b104`'s cancel, in `sdusers` **but not in
+> `sdssh` or `sdsshonly`**, with no `sdu_` group and no register record.
+> ***IT IS NOT ENTRY 72's INVISIBLE ACCOUNT — 72 IS FIXED AND THIS IS EVIDENCE
+> OF IT***: it joined `sdusers`, so `remove-sdaccounts.ps1`'s candidate set
+> finds it. **But nothing removes an `sdsw*` leftover on its own, so one
+> accumulates per interrupted run** — and `remove-sdaccounts.ps1` is the
+> uninstaller's whole-machine sweep (`-Remove -Keep don` would also take
+> `test1`), so there is no targeted tool for it today.
 >
 > ***AND THAT SUITE IS ALSO 93's LAST WITNESS, WHICH IS WHY IT IS WORTH RUNNING
 > SOON.*** A complete suite is the cheapest dirty register there is — it left
