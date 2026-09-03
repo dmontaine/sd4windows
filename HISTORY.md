@@ -45868,3 +45868,38 @@ where it is real. The NAT escape is recorded with its price - a NAT guest is
 not reachable from the LAN by address, so anything measuring "another computer
 on your network can connect over ssh" changes meaning. \\vboxsvr does not go
 over the NIC.
+
+## 3 Sep 2026 - the rebuilt rig read: six guests, one identity, and NAT instead of bridged
+
+`vm-clone.ps1 -Audit`, unelevated, 09:20.  Six registered VMs and every one of
+them new: `Windows 11 - No SD or SSH -` `Template`, `Test 1`, `Test 2`, and
+`Windows 11 - SSH no SD -` `Template`, `Test A`, `Test B`.  All six share
+hardware UUID `59d00c9d-e374-4cbd-aa87-c4cf197890aa` and MAC `080027AECE7C`, so
+no clone missed a GUI checkbox and none should demand reactivation - which is
+what the rebuild was for.  All powered off, 0 snapshots each, and all six carry
+the three MachineMapping shares `sdout`, `xfer` and `gplbld`.
+
+Every earlier guest is unregistered, `Beardog` included.  Handoff 21 predicted
+the names might be stale and every one of them was, which is the second time in
+two days that counting the guests from `VBoxManage` rather than from the record
+was the thing that worked.
+
+The claim that proved wrong is the NIC.  The record said "every Windows guest is
+nic1=bridged on the Realtek adapter", measured the previous day; the rebuilt rig
+is `nic1="nat"` on all six with no `bridgeadapter1` line at all.  So the NAT
+escape the record described as an option is the rig's actual state.  Both halves
+of it are now live rather than hypothetical: guests may run concurrently despite
+the shared MAC, and nothing on this rig can measure LAN reachability - S5.9's
+remote-block control and the ssh half of anything else - until a guest is put
+back on bridged.  That is one setting per guest, costs no reactivation because
+it does not touch MAC or UUID, and re-imposes "one sharer at a time" on whatever
+gets it, so it is decided per measurement rather than once for the rig.
+
+Entry 145 needs none of the lost half, so it is unblocked: its rig is named as
+`Windows 11 - SSH no SD - Test A`, with `Test B` as the second attempt.  The
+installer on the share is already the current build - 4,963,912 bytes, 2 Sep
+22:46:34 at `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, the one handoff 20
+recorded - so no cycle and no host-side re-copy is owed before that test.
+
+Baseline confirmed before any of this: twelve free checks green and
+`assert-current` exit 0, thirteen for thirteen.

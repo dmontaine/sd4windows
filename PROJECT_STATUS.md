@@ -185,22 +185,33 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***WHAT TO DO NEXT, IN COST ORDER***
 >
-> 0. ***FIRST, READ THE RIG — IT WAS REBUILT OVERNIGHT AND EVERY GUEST NAME IN
->    THIS FILE MAY BE STALE.*** `vm-clone.ps1 -Audit`, unelevated, command below
->    under "THE RIG CHANGED". **Guests sharing a MAC are bridged: run one at a
->    time.** If a rebuilt clone shows a MAC that differs from its template, a GUI
->    checkbox was missed and that guest will demand reactivation — reclone it
->    rather than work on it.
+> 0. ***DONE 3 Sep 2026 09:20 — THE REBUILD IS CLEAN AND THE RIG IS SIX GUESTS,
+>    ALL NEW NAMES.*** `vm-clone.ps1 -Audit`: **one hardware UUID
+>    `59d00c9d-e374-4cbd-aa87-c4cf197890aa` and one MAC `080027AECE7C` across all
+>    six**, so no clone missed a checkbox and none should demand reactivation.
+>    ***`Windows 11 - No SD or SSH -` `Template`, `Test 1`, `Test 2`; `Windows 11
+>    - SSH no SD -` `Template`, `Test A`, `Test B`.*** All six powered off, all
+>    six carry the three `MachineMapping` shares (`sdout`, `xfer`, `gplbld`), 0
+>    snapshots each. ***`Beardog` IS GONE TOO*** — the rebuild took every earlier
+>    guest, so `Test 3`–`Test 10`, `SD ssh baseline`, `Clone A`, `Clone B`,
+>    `Test A/B/C` (the OLD ones) and `Windows 11 - Template` are all
+>    unregistered. **Re-run the audit anyway before picking a guest** — the rule
+>    is to count guests from `VBoxManage`, and it has now been right twice.
 > 1. ***145 IS ONE UNINSTALL AND IT IS THE ONLY THING THE SITTING LEFT
 >    HALF-ANSWERED.*** `uninsneveruninstall` did **not** protect `cat`, `prt`,
 >    `$hold` while `bp`, `bp.out`, `batch.jobs` survived the same uninstall with
 >    the same flags. The reinstall healed all of them so nothing is lost, but
 >    `sd.iss:676` claims something that did not happen. **The test is in 145's
 >    row: fresh install onto a machine with no tree, then uninstall answering
->    Keep, then read the twelve.** ***THE RIG IS "A FRESH CLONE OF THE ssh
->    TEMPLATE", NOT A NAMED GUEST*** — `Clone B` was that rig when 145 was
->    filed and is being rebuilt, so take whichever clone of `Windows 11 -
->    Template with ssh` the audit shows, with no SD on it.
+>    Keep, then read the twelve.** ***THE RIG IS NOW NAMED: `Windows 11 - SSH no
+>    SD - Test A`*** (measured 3 Sep 2026, no SD, ssh present, shares present),
+>    with `Test B` as the second attempt if the first is spent. **Leave both
+>    `Template` guests alone — they are the clone sources.** ***AND THE
+>    INSTALLER ON THE SHARE IS ALREADY THE CURRENT ONE*** —
+>    `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, **4,963,912 bytes, 2 Sep
+>    22:46:34**, which is the build handoff 20 recorded, so **no cycle and no
+>    re-copy on the host side is owed before this test.** Check the length on the
+>    guest after copying it, per the standing warning.
 > 2. ***TWO THINGS ARE THE OWNER'S***: **96**'s (b) vs (c) — build neither until
 >    he says — and whether the **ten unlisted free guards** join "run these on
 >    every change".
@@ -245,9 +256,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\vm-clone.ps1" -Audit
 > ```
 >
-> ***AND THE GUESTS SHARING A MAC ARE BRIDGED, SO RUN ONE OF THEM AT A TIME.***
-> Two on the same segment collide over ARP and DHCP. The NAT escape and its
-> price are in the rig section.
+> ***WITHDRAWN BY MEASUREMENT, 3 Sep 2026 — THE REBUILT RIG IS `nic1=nat`, NOT
+> BRIDGED, ON ALL SIX GUESTS, SO THE "ONE AT A TIME" RULE DOES NOT APPLY TO
+> IT.*** `bridgeadapter1` is absent from every `showvminfo --machinereadable`.
+> A duplicate MAC is harmless on NAT because each guest gets its own stack, so
+> **guests may run concurrently again** — that is the rig section's "NAT escape",
+> and the rebuild took it. ***THE PRICE CAME WITH IT AND IT IS NOT OPTIONAL
+> NOW***: a NAT guest is **not reachable from the LAN by address**, so anything
+> measuring *"another computer on your network can connect to this one over
+> ssh"* — §5.9's remote-block control, and the ssh half of anything below —
+> cannot be measured on this rig as it stands. **The three shared folders are
+> unaffected** (`\\vboxsvr` does not go over the NIC), so install, uninstall and
+> capture work normally. Entry **145** needs none of the lost half.
 >
 > ### ***THE GUEST CAN NOW BE DRIVEN FROM HERE, AND THAT IS THE REUSABLE PART***
 >
@@ -4889,6 +4909,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > computer on your network can connect to this one over ssh"* changes meaning.
 > **The three shared folders are unaffected — `\\vboxsvr` does not go over the
 > NIC.**
+>
+> ***THE ESCAPE WAS TAKEN. MEASURED 3 Sep 2026 ON THE REBUILT RIG: ALL SIX
+> GUESTS ARE `nic1="nat"` WITH NO `bridgeadapter1` AT ALL.*** So the paragraph
+> above is now describing the rig's actual state rather than an option, and both
+> halves are live: **guests may run concurrently**, and ***nothing on this rig
+> can measure LAN reachability until a guest is put back on bridged.*** That is
+> one setting per guest and it does not touch the MAC or the UUID, so it costs no
+> reactivation — but it re-imposes "one sharer at a time" on whichever guests get
+> it. **Decide it per measurement, not once for the rig.**
 >
 > ***MEASURED 3 Sep 2026, AND IT IS WHY THE OLD BULLET LOOKED SETTLED***: the
 > clones made under it — `SD ssh baseline`, `Clone A`, `Clone B`, `Test A`,
