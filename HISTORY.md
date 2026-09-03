@@ -46368,3 +46368,40 @@ No separate unit test, and the entry says so: the fix is one structural line in
 the runner, test-suiteonly-units guards suite-only.ps1's filter rather than the
 runner, and a new free check plus its CLAUDE.md list entry is more ceremony than
 an M one-liner earns when the regression is a visible revert of a commented line.
+
+## 3 Sep 2026 - 148 mostly built: listening is not reachable, and the tools now say so
+
+The two instruments that report the API - "remote.api" with no keyword, and
+check-install - both reported the LISTENER and said nothing about the firewall,
+so a machine that kept its database through a reinstall (147) answered "on" or
+"listening" while nothing off-box could connect.  148 was filed from the witness
+that caught check-install saying "Nothing is wrong." on exactly that machine.
+
+api-firewall.ps1 -Show now ends on a plain sentence - state is ON / LOCAL / OFF
+at the firewall - the shape ssh-firewall.ps1 already had, driven by the same
+Test-RuleOpen the write-back verdict and -ScopeFile use, so the three readings
+cannot disagree.  REMOTEAPI's report.state reads the firewall as well as the
+listener: the strip-and-print loop was factored into a shared print.report and a
+second read added, so the no-keyword report now answers both axes the way
+REMOTESSH already does.  check-install's Remote-access section prints who may
+reach a listening API underneath the [ok] line.
+
+Witnessed on the host both ways.  With the rule open: "Other computers on your
+network may reach it."  With it removed - api-firewall -Remove, then restored to
+-Open, both scopes printed so the restore is provable - "No firewall rule admits
+other computers, so only this one can reach the API ... run remote.api on".
+sdout\p148-none-witness.txt holds it.
+
+One judgment is left for the owner and is flagged rather than decided: the
+no-rule case is Info, not [PROBLEM], because a local-only API is a legitimate
+choice and [not yet] would make the summary say "sign out and back in", which
+does nothing for a firewall rule - the exact misdirection check-install's own
+comments warn against.  So the verdict still reads "Everything checks out" with
+the caveat in the body.  If 5.23 wants a silently-lost network reach louder that
+is a level change, not a rebuild.
+
+remote.api with no keyword is NOT yet witnessed: it needs sd -> logto sdsys ->
+remote.api, and the LOGTO elevation is on the secure desktop a driving session
+cannot reach.  Built and compiled into the 14:20:13 install; the entry stays
+open on that one interactive check.  A cycle at 14:20 carried it, REMOTEAPI
+compiled and added to the global catalogue, assert-current exit 0.

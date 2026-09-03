@@ -175,17 +175,35 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 CLOSED, WITNESSED ON `Test C` WITH A CONTROL. THE FULL SUITE RAN, BOTH HALVES, 43 STEPS, ALL EXIT 0. THREE FILED FROM THE WORK (148, 149, 150); 149 ALSO CLOSED THE SAME SESSION. OPEN 12. NOTHING IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135 AND 147 CLOSED, WITNESSED ON `Test C` WITH A CONTROL. FULL SUITE RAN, 43 STEPS, ALL EXIT 0. 149 CLOSED. 148 MOSTLY BUILT — ONE INTERACTIVE `remote.api` WITNESS OWED. OPEN 12.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** Install **3 Sep 12:41:43** from `cycle.ps1` run
-> by this session; ISCC *"Successful compile"*, `sd-setup-W1.0-0.exe`
-> **4,965,787 bytes** — it GREW, which is the cheap check that the new text went
-> in; `assert-current` **exit 0**; **fourteen free checks green**, with
-> `test-apigate-units` at **27, up from 13**. ***OPEN 12: 16, 65, 66, 70, 80,
-> 93, 96, 102, 114, 138, 148, 150. NEXT FREE ID 151. `b103` IS SPENT ON THE
-> FULL SUITE; NEXT RUN TOKEN `b104`.*** **149 closed the same session it was
-> filed** — the `VerifyInstall2` summary now carries its `PARTIAL` heading into
-> the file, one structural line, `assert-current` still exit 0.
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 14:20:13** from `cycle.ps1` run
+> by this session (was 12:41:43; re-cycled to carry 148); `assert-current`
+> **exit 0**; **fourteen free checks green**, `test-apigate-units` **27**.
+> ***OPEN 12: 16, 65, 66, 70, 80, 93, 96, 102, 114, 138, 148, 150. NEXT FREE ID
+> 151. `b103` SPENT ON THE FULL SUITE; NEXT RUN TOKEN `b104`.***
+>
+> ***THE ONE THING OWED: A 20-SECOND INTERACTIVE CHECK OF `remote.api`.*** 148's
+> `check-install` half is witnessed both ways on the host (rule present and
+> removed-then-restored); its `remote.api` half is built and compiled but not
+> witnessed, because `sd` → `logto sdsys` → `remote.api` needs the UAC secure
+> desktop a driving session cannot reach. In an SDSYS session, an administrator:
+>
+> ```
+> remote.api
+> ```
+>
+> should now print the listener line AND a firewall line — `state is ON` /
+> `LOCAL` / `OFF at the firewall` — where before it printed only the listener.
+> **149 also closed**: the `VerifyInstall2` summary carries its `PARTIAL`
+> heading into the file now, one structural line.
+>
+> ***ONE JUDGMENT WAITING ON THE OWNER (148)***: `check-install` on a listening
+> API with no firewall rule now SAYS so, but as an `Info` line under an `[ok]`,
+> so the verdict still reads *"Everything checks out"*. `Info` is deliberate —
+> local-only is a legitimate state and a `[not yet]` would wrongly say *"sign
+> out and back in"*. If §5.23 wants a silently-lost network reach louder, that
+> is a level change, not a rebuild. Witness: `sdout\p148-none-witness.txt`.
 >
 > ***135 AND 147 WERE THE SAME FIX AND THEY WENT IN THE SAME BOX*** — the
 > kept-database one, the one that says *"YOUR DATA IS UNTOUCHED"*, because 135's
