@@ -175,6 +175,62 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 17, 2 Sep 2026 — ***HANDOFF 16'S STEP 1 IS DONE. IT ALL COMPILES. THE ONLY THING LEFT IS THE GUEST RUN, AND IT NEEDS A PERSON.*** ⇩⇩⇩
+>
+> ***STEP 1 PASSED — `cycle.ps1 -SkipInstall`, 2 Sep 17:44:46, elevated, and
+> the STAGED TREE WAS READ RATHER THAN THE RUN'S OUTPUT BELIEVED*** (the 26 and
+> 29 Aug precedent). `CREATEA` and `LOGIN` both **0 error(s)**, both added to
+> the global catalogue, both present in staged `gcat` and `gpl.bp.out` at
+> **17:45**; staged `messages/10165` **byte-identical to source**; staged tree
+> whole — **gcat 133, gpl.bp.out 192, `$CPROC` 26,128, `$BCOMP` 88,070**.
+>
+> ***THE INSTALLER TO WITNESS WITH IS `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`,
+> 4,959,678 BYTES, BUILT 17:45:23.*** **The host install is deliberately STALE**
+> — `-SkipInstall` stops before installing — and **SD is STOPPED** (step 1 stops
+> it and this path never restarts it): `sc.exe start SD` from an elevated prompt
+> if you want the host back, or just cycle.
+>
+> ### ***HANDOFF 16'S FACTS WERE ONE CYCLE STALE, AND THREE OF THEM WOULD HAVE MISDIRECTED THE GUEST RUN***
+>
+> **A FULL cycle ran at 17:03:23** — install **17:04:18**, `assert-current`
+> **green** — *after* the 17:01:52 ISPP failure that box calls the last run of
+> the day, and *before* the box was written at 17:30. So:
+>
+> - the `sd.iss` `[Dirs]`/`[Code]`, the new shipped `restore-sshonly.ps1` and
+>   the `stage.py` list change were **already compiled and installed**, not
+>   pending;
+> - the installer on the share was **4,957,848 at 17:03:57**, not 4,955,186 at
+>   16:40:42;
+> - the only uncompiled work was commit `5510aa6` — **`CREATEA`, `LOGIN`,
+>   message `10165`** — which is what 17:44:46 has now built.
+>
+> ### ***STEP 2 IS UNCHANGED AND IS NOW THE ONLY THING BLOCKING SIX ENTRIES***
+>
+> Handoff 16's Step 2 table stands **verbatim** — 120+132, 134, 135, 136, 70,
+> and the one non-administrator account that 135, 70 and 136 all ride on.
+> ***THE ONE CORRECTION: THE GUEST'S COPY IS NOW THREE BUILDS STALE***, not two.
+> `C:\Users\Public\sd-setup-W1.0-0.exe` there is still the **14:18:50** binary;
+> take the **4,959,678-byte, 17:45:23** one from `\\vboxsvr\sdout\` and check its
+> length before installing.
+>
+> ### ***FILED TODAY: PRE_RELEASE 137. NEXT FREE ID: 138.***
+>
+> ***A CYCLE'S TRANSCRIPT LOST 1,789 LINES OF ISCC OUTPUT FROM A FRESH WINDOW***,
+> and `cycle.ps1`'s "this window has already run a cycle" flag was wrong **both
+> ways** the same day — the flagged log is complete, the unflagged one is not.
+> It read as *"message 10165 never went into the installer"*, and the evidence
+> that settled it was **the installer size, which GREW**. The verdict was never
+> at risk (`cycle.ps1:469` gates on `$LASTEXITCODE`), but **a compile error
+> lands in exactly the dropped region — the front.** Two `cycle.ps1` changes went
+> in with it, neither shipped: the flag's comment now carries the measurement,
+> and **step 4 refuses an installer older than its own ISCC start** — the
+> previous code took the newest `sd-setup-*.exe` in `$Out`, which on an ISCC that
+> exited 0 without writing is the *previous* cycle's binary.
+>
+> **All nine free checks green after the edits** — tiercounts 15/15, fixlist,
+> verdict 140/140, sdtestuser, suiteonly 48/48, retired-wording 30/30,
+> stemcoverage, dirscoverage, stale-leads 0.
+>
 > # ⇩⇩⇩ HANDOFF 16, 2 Sep 2026 — ***EVERYTHING IS COMMITTED AND PUSHED AT `8087936`. NOTHING BUILT AFTER THE 16:13 INSTALL HAS BEEN COMPILED OR WITNESSED. START WITH `-SkipInstall`.*** ⇩⇩⇩
 >
 > ***THE ONE SENTENCE THAT MATTERS: SIX ENTRIES WERE BUILT TODAY AND NOT ONE OF

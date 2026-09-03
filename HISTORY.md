@@ -45399,3 +45399,36 @@ is the only answer there is.
 whose path it shares. **`sd.iss` still has not been through ISCC**; the new
 Pascal was read for nesting instead — six balanced `begin`/`end` pairs, `(* *)`
 30/30 across the file — which is a check and not a compile.
+
+## 2 Sep 2026 — handoff 16's step 1 passed, and handoff 16's own facts were a cycle stale
+
+`cycle.ps1 -SkipInstall` at **17:44:46**, elevated from an agent shell via
+`Start-Process -Verb RunAs -PassThru` (`.ExitCode` 0; `$LASTEXITCODE` is not set
+on that path). `CREATEA` and `LOGIN` compiled **0 error(s)** each and were added
+to the global catalogue; staged `gcat` and `gpl.bp.out` both carry them at
+17:45; staged `messages/10165` is byte-identical to source; staged tree whole at
+gcat 133 / gpl.bp.out 192 / `$CPROC` 26,128 / `$BCOMP` 88,070. Installer
+**4,959,678 bytes, 17:45:23**.
+
+**THE HANDOFF WAS WRITTEN AFTER THE CYCLE IT SAYS DID NOT HAPPEN.** A full cycle
+ran at **17:03:23** — install 17:04:18, `assert-current` green — between the
+17:01:52 ISPP failure the box calls the last run of the day and the box's own
+commit at 17:30. So the `sd.iss` `[Dirs]`/`[Code]`, `restore-sshonly.ps1` and
+`stage.py` work it lists as pending was already installed, its installer figure
+(4,955,186 at 16:40:42) was two builds behind the 4,957,848 on disk, and the
+real uncompiled work was one commit, `5510aa6`. **The tell was on disk and free
+to read**: `C:\Users\dmont\sdout` and `%LOCALAPPDATA%\SD-verify` disagreed with
+the prose, and `git log --date=iso-local` put the commits either side of the
+run.
+
+**PRE_RELEASE 137 came out of reading that run's log.** The transcript from a
+**fresh** elevated window held 1,881 `Compressing:` lines starting mid-way
+through `messages`, against 3,670 from the 17:03 window that had already run a
+cycle and printed the degradation warning — so the flag `cycle.ps1` uses to
+predict the loss was wrong in both directions on the same day. 866 message paths
+against 1,974 staged files read as *"message 10165 never shipped"*; the
+installer having **grown** by 1,830 bytes is what disproved it. Two `cycle.ps1`
+changes, neither shipped: the comment now carries the measurement, and step 4
+refuses an installer written before its own ISCC start — the old code took the
+newest `sd-setup-*.exe` in `$Out`, which on an ISCC that exits 0 without writing
+is the previous cycle's binary, and nothing downstream would have known.
