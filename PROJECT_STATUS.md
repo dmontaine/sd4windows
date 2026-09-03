@@ -205,6 +205,38 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > firewall`); if it does not, the fault is in `REMOTEAPI`'s `report.state`, not
 > the design.
 >
+> ### ***WHAT TO DO NEXT, IN COST ORDER — THE FREE WINS ARE GONE***
+>
+> Every remaining open needs a cycle AND either a guest witness, interactive SD,
+> or an owner ruling. There is no more 149-shaped free close.
+>
+> 1. ***TWO OWNER DECISIONS, FREE, AND THEY UNBLOCK THE REST***: **96**'s (b) vs
+>    (c) — two shapes on record, build neither until he says — and whether the
+>    ten unlisted free guards join "run these on every change" (CLAUDE.md's list).
+> 2. ***93 + 65 TOGETHER — HIGHEST VALUE, ONE FIX COVERS BOTH.*** Both are **B**
+>    query-correctness blockers: the `ACCOUNTS` register (93) and `os.users` (65)
+>    keep dead rows, so `LIST ACCOUNTS` / `LIST OS.USERS` answer wrongly. Ruled —
+>    the register carries only valid records, so SD must DETECT AND REMOVE at
+>    service start, copying `reclaim-profiles.ps1`'s shape (`sdsvc.c`), removing
+>    directory AND record, **`SDSYS` exempt** (it has no Windows user by design).
+>    Plus a consistency verifier. Heavy C; needs a guest.
+> 3. **70** — the upgrade path: the installer runs `update.accounts` (the
+>    existing all-accounts route, `LOGIN:303`) rather than telling the admin to.
+> 4. Then **114** (BASIC compiler hangs on an unterminated `BEGIN TRANSACTION`),
+>    **138** (credential for the admin AND `SDSYS`, shape b, not built),
+>    **102**, **16**.
+> 5. **150** — confirm on 1024x768 (Test C's `pre-147-witness` snapshot + a
+>    `VBoxManage … setvideomodehint 1024 768 32`, cheap), then split the box or
+>    move the access paragraphs to the Finished page. Shape is owner-flavored.
+> 6. **80 LAST** — the documentation audit and ownership transfer, against the
+>    final image. ***CHEAP FIRST ACTION, ANY TIME***: commit the untracked
+>    `generate_gap_analysis_pdf.py` unchanged as insurance — a `git clean` loses
+>    the only copy, and 80 runs last (its row endorses exactly this).
+> 7. ***THE RIG: `Test C` IS SPENT*** but carries snapshot `pre-147-witness`
+>    (restores 147's API-up-no-rule state). **Count guests from `VBoxManage`,
+>    never a table.** All `nic1=nat`, so nothing measures LAN reachability until
+>    a guest goes bridged.
+>
 > ***135 AND 147 WERE THE SAME FIX AND THEY WENT IN THE SAME BOX*** — the
 > kept-database one, the one that says *"YOUR DATA IS UNTOUCHED"*, because 135's
 > whole finding is that the promise is read as a promise about access. 135's
