@@ -175,6 +175,91 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 16, 2 Sep 2026 — ***EVERYTHING IS COMMITTED AND PUSHED AT `8087936`. NOTHING BUILT AFTER THE 16:13 INSTALL HAS BEEN COMPILED OR WITNESSED. START WITH `-SkipInstall`.*** ⇩⇩⇩
+>
+> ***THE ONE SENTENCE THAT MATTERS: SIX ENTRIES WERE BUILT TODAY AND NOT ONE OF
+> THEM HAS BEEN THROUGH A COMPILER.*** The session ended on credits, green on
+> every free check and red on `assert-current` by design. **Do not report any of
+> it as working.**
+>
+> ### ***STEP 1 — PROVE IT COMPILES, AND EXPECT THIS TO FIND SOMETHING***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> **ELEVATED PowerShell.** It carries **three BASIC changes** (`CREATEA` ×2,
+> `LOGIN` ×3 including new code), a **new message** (`10165`), **seven new
+> `[Dirs]` entries**, a **new `[Code]` function** in `sd.iss`, a **new shipped
+> script**, and a **`stage.py`** list change. ***THE LAST `cycle.ps1` OF THE DAY
+> STOPPED ON A FAULT OF MINE*** — `#13#10` at the start of a line, which ISPP
+> reads as a directive — **and its guard caught it before ISCC ran, which is the
+> precedent for expecting this step to earn its keep.** Nothing below is worth
+> starting until it reports a successful compile.
+>
+> ### ***STEP 2 — ONE GUEST RUN CLOSES SIX ENTRIES***
+>
+> **`Windows 11 - Test 10` is still in the state the four witnesses left it**,
+> and it is the rig. ***RE-COPY THE INSTALLER FIRST — THE COPY ON THE GUEST IS
+> TWO BUILDS STALE AND USING IT WOULD SCORE A FALSE FAILURE ON EVERY ENTRY
+> BELOW.*** `C:\Users\Public\sd-setup-W1.0-0.exe` there is the **14:18:50**
+> binary. After the cycle, copy the new one from `\\vboxsvr\sdout\` and check
+> its length.
+>
+> **The sequence, ELEVATED throughout, is the one 134 asks for and it witnesses
+> everything at once**: install → `capture-state.ps1 -Label first -Manifest` →
+> **interactive** uninstall KEEPING the database → reinstall →
+> `capture-state.ps1 -Label after -Manifest` → diff.
+>
+> | entry | what passes |
+> |---|---|
+> | **120 + 132** | all six of `bp`, `bp.out`, `batch.jobs`, `cat`, `prt`, `$hold` present, and **no `NOT locked` text of any kind** in the closing box |
+> | **134** | nothing in the first manifest missing from the second |
+> | **135** | needs a **non-administrator SD account created first** — nothing has exercised the live `Add-LocalGroupMember` |
+> | **136** | `listf` in a created account shows descriptions, not bare `F` |
+> | **70** | put `[locked]` after the type code in one VOC record, run `update.account`, see it skipped and **named** by message 10165 |
+>
+> ***135 AND 70 BOTH NEED AN ACCOUNT THAT DOES NOT EXIST YET.*** `create.account`
+> a PROGRAMMER with `ssh`, grant it `api`, record its membership of `sdssh`,
+> `sdapi`, `sdsshonly` **before** the uninstall. That one account is the witness
+> for both, and 136's `listf` check rides on it too.
+>
+> ### ***WHAT IS TRUE RIGHT NOW***
+>
+> - **Host install 16:13:21**, `assert-current` **exit 1** naming `sd.iss`,
+>   `stage.py`, `restore-sshonly.ps1` and the BASIC — **correct, not a fault.**
+> - **All eight free checks green**: fixlist **247/0**, dirscoverage, stemcoverage,
+>   retired-wording 30/30, verdict 140/140, sdtestuser 54/0, suiteonly 48/48,
+>   tiercounts 15/15, check-stale-leads 0.
+> - **Installer on the share: 4,955,186, built 16:40:42** — and **it predates
+>   the BASIC and `sd.iss` work**, so it is not the one to witness with either.
+> - **`Windows 11 - SD ssh baseline`** is the untouched re-run rig, licensed
+>   (shared hardware UUID) with its own MAC.
+> - ***OPEN 16***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134,
+>   135, 136. **Closed today: 74, 118.** **Filed today: 132, 133, 134, 135, 136.**
+>   ***NEXT FREE PRE_RELEASE ID: 137. NEXT RUN TOKEN: `b103`.***
+> - **B blockers: 65, 70, 80, 93, 120, 132, 136** — 70 and 136 raised today, 80
+>   gained a second item.
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***70 IS HALF BUILT.*** The `[locked]` flag is in; **new verbs reaching
+>    existing accounts is not**, and its stated mechanism has a hole —
+>    `update.account` is in `TIER.ADD.ADMINISTRATOR`, so **only ADMINISTRATOR
+>    accounts have the verb**, while the closing box tells the reader to run it
+>    in each account. Settle that before building the first half.
+> 2. ***133 IS A WORDING FIX AND MUST NOT BE FIXED BY GATING THE ACTION.*** The
+>    step 3 box claims ssh was untouched while `sshd_config` was rewritten; the
+>    rewrite is CORRECT there and required (`sd.iss:1443`). Only the message is
+>    wrong.
+> 3. ***THREE PROBES I WROTE TODAY REPORTED A DENIAL AS A VALUE*** — a firewall
+>    rule, a process start time, and a directory entry count. **Every probe that
+>    reads something an unelevated session may not reach needs its own control**,
+>    the way the firewall line now prints `483 rules visible` beside its answer.
+>
+> ***THE DESTINATION SECTION ABOVE THIS BOX IS NEW AND IS THE REASON 135 WAS
+> BUILT THE WAY IT WAS.*** Read it before fixing 120, 132, 134 or 135 further.
+>
 > # ⇩⇩⇩ HANDOFF 15, 2 Sep 2026 — ***THE WITNESS RUN IS COMPLETE. ALL FOUR STEPS RAN ON `Windows 11 - Test 10`. 74 AND 118 CLOSED; 120 STAYS OPEN WITH ITS FIX PROVED INCOMPLETE; 132 AND 133 FILED.*** ⇩⇩⇩
 >
 > ***THE FOUR RESULTS IN ONE PLACE.*** **74 — WITNESSED, CLOSED**: the
