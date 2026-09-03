@@ -382,6 +382,25 @@ cd sdb_ai/sd64 && make sd
 `make sdclilib` builds only the client library. After switching toolchains,
 clear stale objects with `rm -f gplobj/*.o`.
 
+***YOU NORMALLY DO NOT HAVE TO RUN THIS AT ALL — `cycle.ps1` STEP 0 DOES IT.***
+Owner's instruction, 3 Sep 2026: *"seems like there should be one script that
+can do all three, compile c if necessary, compile basic if necessary and run
+the installer if necessary."* The cycle now rebuilds the C when source has
+moved past `bin\`, compiles the BASIC as it always did (`stage.py --bootstrap`,
+step 2), and installs. **The install stays unconditional** — a test cycle
+begins with a *fresh* one.
+
+**Run `make sd` by hand only to compile without cycling** — the equivalent of
+`cycle.ps1 -SkipInstall` for the C half.
+
+***AND "IF NECESSARY" IS NOT WHAT `make` MEANS BY IT, WHICH IS WHY STEP 0 IS
+MORE THAN A CALL TO `make`.*** `make` relinks only what changed, while
+`assert-current` compares source against the **oldest** binary in `bin\` — so
+editing one C file and running `make sd` leaves the tree STALE and every verify
+script refusing. Step 0 therefore **deletes the binaries and relinks all of
+them**, then asks the guard again rather than trusting `make`'s exit code.
+`gplbld/stale-binaries.ps1` holds the rule, one copy for both callers.
+
 ## Testing: every cycle runs against a newly installed system
 
 Standing instruction from the repository owner, 15 Aug 2026, after stale
@@ -389,9 +408,12 @@ installs caused the same failure repeatedly. **A test cycle begins with a fresh
 install. Not a reinstall over the top of the old one.**
 
 **One command, elevated PowerShell** — `gplbld/cycle.ps1` does the whole cycle:
+***rebuilds the C if source has moved past `bin\` (step 0, added 3 Sep 2026)***,
 stops the service, stages and bootstraps, checks the staged tree is whole,
 builds the installer, uninstalls, deletes both trees, installs, then runs
-`assert-current`.
+`assert-current`. **So a C change no longer needs `make sd` first** — see
+"Building" above for why that step deletes the binaries rather than just
+calling `make`.
 
 ```powershell
 C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
@@ -476,10 +498,10 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-upgradeiss-units.py`, `test-acctmsgs-units`,
    `test-apiidentity-units`, `test-deletioncheck-units`,
    `test-doorsargv-units`, `test-reclaim-units`, `test-sdpath-units`,
-   `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`.
-   ***ALL TWENTY-FIVE. Run these on
-   every change*** — **29 s for the whole set**, measured 3 Sep 2026, each in
-   its own process. A whole suite run has already been spent twice discovering
+   `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
+   `test-stalebin-units`. ***ALL TWENTY-SIX. Run these on
+   every change*** — **about 30 s for the whole set**, measured 3 Sep 2026, each
+   in its own process. A whole suite run has already been spent twice discovering
    what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
@@ -546,6 +568,13 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    guards `gplbld/reconcile-accounts.ps1`'s decision table, PRE_RELEASE 93 and
    65's sweep — the one that deletes account directories as LocalSystem at
    every service start.
+
+   ***`test-stalebin-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
+   IT.*** It guards `gplbld/stale-binaries.ps1` — this script's own check A2,
+   lifted into a file so that **`cycle.ps1`'s step 0 and `assert-current` decide
+   "does the C need rebuilding" with the same code**. Its exclusions each cost a
+   session when they were missing, and none of them can be exercised by running
+   the thing on a healthy tree.
 2. **`-Only <step[,step]>`** — the step that decides your change. Both runners
    take it; names may omit `.ps1` and are case-insensitive. **Two names work
    either way — `-Only a,b` and `-Only 'a,b'` are equivalent since 31 Aug
