@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***FOUR CLOSED AND ALL FOUR WITNESSED: 66, 153, 138 AND 16. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. SUITE GREEN, 45 OF 45 ON `b109`. OPEN 8 → 4, AND ONLY TWO BLOCKERS LEFT, BOTH RIG- OR PHASE-BOUND. NOTHING OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***FOUR CLOSED AND ALL FOUR WITNESSED: 66, 153, 138 AND 16. OPEN 8 → 4, AND THE TWO BLOCKERS LEFT ARE BOTH RIG- OR PHASE-BOUND. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. ***ONE THING OWED: A FULL SUITE ON `b110` — `b109` NO LONGER CARRIES, BECAUSE 16 MOVED THE TIER COUNTS AND THE TWO VERIFIERS THAT TEST THEM HAVE NOT RUN SINCE.****** ⇩⇩⇩
 >
 > ***16 — BOTH RULINGS BUILT AND CYCLED 4 Sep 2026, INSTALL 01:33:13. THE
 > WITNESS IS OWED AND IT COSTS SOMETHING — READ THIS BEFORE SPENDING IT.***
@@ -270,11 +270,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > compiler. **It is the 28th free check** — the set is now **~36 s**.
 > `verify-editors` is **30 PASS / 0 FAIL** (was 26).
 >
-> ***THE STATE, IN ONE LINE.*** Install **4 Sep 00:57:55**, `sd.exe`
-> `79FBF0A6E46652BB`; `assert-current` **exit 0**; **28 of 28 free checks**
-> exit 0 in 35.4 s. ***OPEN 4: 70, 80, 96, 102. NEXT FREE ID 154.
-> `b109` SPENT ON THE FULL SUITE, GREEN IN BOTH HALVES; NEXT RUN TOKEN
-> `b110`.*** By severity, read from the table rather than carried forward:
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 01:33:13** — the entry-16
+> cycle, and `sd.exe` is **rebuilt** (that change is C as well as BASIC);
+> `assert-current` **exit 0**; **28 of 28 free checks** exit 0 in 35.5 s;
+> `test-fixlist-units` **259/0**; `check-datatree-litter` **CLEAN, 3,629
+> entries**. ***OPEN 4: 70, 80, 96, 102. NEXT FREE ID 154. `b109` IS SPENT AND
+> NO LONGER CARRIES — RUN `b110`, SEE BELOW.*** By severity, read from the table rather than carried forward:
 > ***TWO B — 70 and 80***; **one S — 102**; **one M — 96, parked.**
 > **Both remaining blockers are rig- or phase-bound**: 70 wants an install over
 > an existing tree on a guest, and 80 is the documentation audit the owner
@@ -358,29 +359,45 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***`b109` IS SPENT. NEXT RUN TOKEN `b110`.*** That run predates
 > `verify-editors`.
 >
-> ### ***`b109` RAN AGAINST THE 23:32:33 INSTALL AND THE ONE IN FORCE IS 00:42:07. IT STILL STANDS, AND HERE IS WHY — DO NOT RE-RUN IT***
+> ### ***THE ONE THING OWED: A FULL SUITE, `b110`. `b109` NO LONGER CARRIES***
 >
-> **The dates disagree, so read this before spending twenty minutes.** Two
-> cycles happened in between, and ***between them exactly two source files
-> changed*** — not argued, **measured**: `assert-current` refused before each
-> cycle naming **one** file each time.
+> ***THIS SECTION USED TO ARGUE THE OPPOSITE AND THE ARGUMENT EXPIRED — READ
+> WHY, BECAUSE THE SHAPE OF IT IS REUSABLE.*** After 153 and 138 the carry
+> forward was legitimate and was written out here: the only deltas since `b109`
+> were `install-editors.ps1`, covered by `verify-editors` at 30/0, and
+> `finish-install.ps1`, which **no** suite step can cover (`LOGIN:955` needs a
+> tty; every automated route pipes stdin) — both established by `grep` **with a
+> control**, 50 files scanned and `assert-current` found in 43 of them.
 >
-> | delta | which suite step touches it | how that was covered |
-> |---|---|---|
-> | `gplbld\install-editors.ps1` (153) | **`verify-editors.ps1`**, and only that | run against the 00:42:07 install: **30 PASS / 0 FAIL** |
-> | `gplbld\finish-install.ps1` (138) | ***NONE — zero of 50 files scanned*** | it cannot have one: `LOGIN:955` needs a tty and every automated route pipes stdin. A **person** at a keyboard is the check, and it is what 138 stays open on |
+> ***THEN ENTRY 16 LANDED AND VOIDED IT.*** That change is C
+> (`clopts.c`, `op_kernel.c`, `op_dio2.c`, `keys.h`, `sd.h`), **six** BASIC
+> programs including `CPROC`, three messages, `newvoc/logout`, **both tier list
+> records**, and two verifiers. ***THE TIER MOVE IS THE DECISIVE ONE***:
+> `verify-tiers` and `verify-tierapi` assert the VOC counts **against the
+> installed tree**, the numbers moved (PROGRAMMER 396 → 397), and **neither has
+> run since**. `test-tiercounts-units` is not a substitute — it reconciles the
+> verifiers against *source*, which is a different claim.
 >
-> ***BOTH GREPS CARRY A CONTROL***, because a `grep` that scanned the wrong
-> directory answers zero and looks authoritative: 50 files scanned,
-> `assert-current` found in **43** of them.
+> **~20 minutes, two halves, and both are a person's job** (§4.0.1 — an agent
+> may run `cycle.ps1` and may not run `VerifyInstall1`):
 >
-> **So `b109` plus that targeted run covers the tree in force.** A full pass at
-> `b110` would buy one tidier artefact and no coverage. ***THE RECORD ALREADY
-> SETTLES THIS CASE THE SAME WAY*** — handoff 27 declined a run when the only
-> delta was 114's single `until` clause in `BCOMP`. **What DOES void a suite is
-> a source change nothing has re-measured; name the delta and the step that
-> covers it — or say plainly that no step can, which is a different answer and
-> an honest one.**
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b110
+> ```
+> **an ordinary, UNELEVATED PowerShell prompt**, then
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b110
+> ```
+> **an ELEVATED PowerShell prompt.**
+>
+> ***EXPECT 22 UNELEVATED ROWS, NOT 21*** — `verify-editors` joined the table.
+> **Watch `verify-tiers` and `verify-tierapi` in particular**: they are the two
+> that carry the moved counts, and a stale one there is the third-time-running
+> failure that `test-tiercounts-units` already caught once today.
+>
+> **What voids a suite is a source change nothing has re-measured. Name the
+> delta and the step that covers it — or say plainly that no step can. Both
+> answers are honest; assuming the last run still applies is not.**
 >
 > ***AND THE NEW STEP HAS NOW RUN INSIDE THE RUNNER, WHICH IS THE PART A
 > STANDALONE RUN DOES NOT PROVE.*** `VerifyInstall1.ps1 -Only verify-editors`,
