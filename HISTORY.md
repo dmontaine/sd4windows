@@ -47386,3 +47386,44 @@ verify-vocverbs.ps1 has become a step of its own in VerifyInstall2 - adjusting b
 one would have hidden that.  Checked also that no file is named in both tables: a
 verifier named twice would run twice, spend two prefixes from one token, and the
 second run would fail on residue the first left, which reads as a product defect.
+
+## 4 Sep 2026 - 154: the transaction cache holds the raw id, and the disk wanted the mapped one
+
+Started on 102 and did not reach it.  Reading op_txncmt()'s two DIRECTORY_FILE
+arms - the two 102 has to modify - found both passing txn->id to code that takes
+a MAPPED id.  op_dio3.c:821 computes the mapping, :829 caches the raw id anyway,
+and :832 three lines below passes the mapping; op_delete splits the same way at
+:374/:380.  So a WRITE inside a transaction created the file ',' where the same
+statement outside one creates '%C', and a DELETE inside one removed a path that
+had never existed, tolerated the ENOENT and reported success.  Both commits
+succeeded; nothing was logged; no fault had to be induced.  Identical upstream
+at ae0cc5f - UPSTREAM_FIXES 36.
+
+THE MEASUREMENT CAME BEFORE THE EDIT AND THAT IS THE REUSABLE PART.  A source
+change would have voided the pre-fix tree, and a green run on its own cannot
+tell a fix from an instrument that stopped looking.  probe-txnid.ps1 was written
+and run against E81EA1E19713BDE7 with assert-current exit 0: 16/0, exit 1, disk
+'%E %Y ,'.  After the cycle, on 8C38CAB62278A1C7: 16/0, exit 0, disk '%E %C'.
+Two instruments that share no code - the directory listing and SD's own reads -
+and a live control, a non-transactional write of '=' landing as '%E', without
+which a build with map_dir_ids off would have passed for the wrong reason.
+
+The standing check went into verify-txn.ps1 as section 4 (9 rows to 17) rather
+than into a new gplbld probe.  probe-txnlock earns a separate file by inducing a
+fault the suite cannot; this induces none, so a second file would be two copies
+of one fact kept in step by hand.
+
+A NESTED ELEVATION WAS WALKED INTO AGAIN, and the two rules that pull against
+each other are worth naming.  The backslash rule pushes every path-bearing
+command into a script file; §4.0.1 says a script the agent launched cannot
+elevate a child - it fails instantly with "The operation was canceled by the
+user" and shows nobody anything.  Both are satisfiable: run Start-Process
+-Verb RunAs inline from the shell with the path written in FORWARD SLASHES,
+which -File accepts and which carries no backslash.  One consent, child exit 0.
+
+155 was filed the same day from the owner's own screen: the installer's password
+page prints "A password is required..." once per account and has three left
+margins and three wrap widths.  The repetition is structural - Invoke-PasswordStep
+starts a separate sd.exe per account - so nothing per-session can suppress it,
+and the paragraph cannot simply be cut because modify.password run by hand is the
+other caller and nothing else there says what Enter does.

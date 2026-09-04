@@ -175,6 +175,94 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***STARTED ON 102 AND THE TRACE FOUND A `B` IN THE TWO LINES 102 HAS TO MODIFY: 154, FIXED AND WITNESSED RED AND GREEN THE SAME HOUR. 155 FILED FROM THE OWNER'S SCREEN. 102 ITSELF IS STILL NOT STARTED. ***THE SUITE OWED IS NOW BIGGER, NOT SMALLER — `b110` CARRIES A C CHANGE AND A CHANGED VERIFIER ON TOP OF ENTRY 16's TIER MOVE.****** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 07:42:50**, `sd.exe`
+> **8C38CAB62278A1C7**; `assert-current` **exit 0**; **28 of 28 free checks**
+> exit 0 in 49.2 s; `test-fixlist-units` **260/0**; `check-stale-leads` exit 0;
+> `check-datatree-litter` **CLEAN, 3,629 entries**. ***OPEN 5: 70, 80, 96, 102,
+> 155. NEXT FREE ID 156. RUN `b110`.***
+>
+> ### ***154 — FOUND BY READING 102's CODE, MEASURED BEFORE ANYTHING WAS TOUCHED***
+>
+> **A directory-file record written inside a transaction was written under the
+> RAW id where every other path uses the MAPPED one** — the id `,` became the
+> file `,` instead of `%C`, and the matching `READ` then looked for `%C` and
+> reported the record missing. **A delete inside a transaction removed a path
+> that had never existed**, tolerated the `ENOENT` as it is designed to, and
+> **reported success with the record still on disk and still readable.**
+>
+> ***IT NEEDED NO INDUCED FAULT, WHICH IS WHY IT IS A `B` AND 102 IS AN `S`.***
+> Both commits succeeded. `op_dio3.c:821` computes the mapping and `:829`
+> caches the raw id anyway, while `:832` — three lines below — passes the
+> mapping; the delete opcode splits the same way at `:374`/`:380`. **The cache
+> is right to hold the raw id** (`txn_read`, `txn_write`, `txn_delete` and
+> `clear_parent` all key on it); the mapping belongs at the point of contact
+> with the disk, which is where the fix put it.
+>
+> ***THE ORDER IS THE PART WORTH COPYING.*** The red was banked on the
+> **01:33:13** install with `assert-current` exit 0, *before* a line of source
+> moved — a source change would have voided it, and a green run alone cannot
+> tell a fix from a probe that stopped looking. `C:\Users\dmont\sdout\probe-txnid.ps1`
+> holds it: **16/0, exit 1** on `E81EA1E19713BDE7`, disk `%E %Y ,`; **16/0, exit
+> 0** on `8C38CAB62278A1C7`, disk `%E %C`.
+>
+> **The standing check is `verify-txn.ps1` section 4, not a new probe** — that
+> file is now **17 of 17 decisive** (was 9). A separate gplbld probe was
+> deliberately NOT added: `probe-txnlock` earns its place by **inducing** a
+> fault the suite cannot, and this induces nothing, so a second copy would be
+> two files describing one fact and kept in step by hand.
+>
+> ### ***THE SUITE OWED — STILL `b110`, AND THE DELTA HAS GROWN***
+>
+> Handoff 30 owed it for entry 16's tier move (`verify-tiers`,
+> `verify-tierapi`, PROGRAMMER 396 → 397, neither has run since). **This
+> session adds `gplsrc/txn.c` and `gplbld/verify-txn.ps1` to that list.**
+> `verify-txn` has been run standalone and is green; **it has not run inside
+> the runner**, which is the part a standalone run does not prove.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b110
+> ```
+> **an ordinary, UNELEVATED PowerShell prompt**, then
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b110
+> ```
+> **an ELEVATED PowerShell prompt.** Expect **22 unelevated rows**.
+>
+> ### ***A REMINDER THAT COST A CONSENT DIALOG THIS SESSION***
+>
+> ***THE CYCLE MUST BE ELEVATED DIRECTLY FROM THE AGENT'S SHELL, NOT FROM A
+> SCRIPT THE AGENT LAUNCHED.*** A launcher script calling
+> `Start-Process -Verb RunAs` is a **nested** elevation and died instantly with
+> *"The operation was canceled by the user"* and **no dialog shown** — §4.0.1's
+> exact signature, walked into anyway because the backslash rule pushes
+> everything into a file. **Both rules are satisfiable at once**: issue it
+> inline from the shell and write the path with **forward slashes**, which
+> `-File` accepts and which contains no backslash to lose. That worked first
+> time, one consent, child exit 0.
+>
+> ### ***102 — STILL NOT STARTED, AND THE TRACE IS WORTH READING FIRST***
+>
+> Its entry carries the design and the cost. **The one thing this session adds
+> to it**: the directory-file half of any restore must write through
+> `map_t1_id()`, because the apply path now does — had 154 gone unnoticed, a
+> restore built against the raw id would have left **two** files where it meant
+> to leave one. **The `dir_read`-shaped API the entry calls for is still the
+> large part**, and `read_record()` (`op_dio3.c:931`) is still an e-stack
+> opcode rather than a callable function.
+>
+> ### ***155 — FILED FROM THE OWNER'S OWN SCREEN, NOT STARTED***
+>
+> The installer's password page repeats *"A password is required…"* once per
+> account and carries three left margins and three wrap widths. **The
+> repetition is structural** — a separate `sd.exe` per account, so nothing
+> per-session can suppress it — and the paragraph **must not simply be
+> deleted**, because `modify.password` run by hand is the other caller and
+> nothing else there explains what Enter does. Read the row.
+
+<!-- HANDOFF 31 ENDS -->
+
 > # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***FOUR CLOSED AND ALL FOUR WITNESSED: 66, 153, 138 AND 16. OPEN 8 → 4, AND THE TWO BLOCKERS LEFT ARE BOTH RIG- OR PHASE-BOUND. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. ***ONE THING OWED: A FULL SUITE ON `b110` — `b109` NO LONGER CARRIES, BECAUSE 16 MOVED THE TIER COUNTS AND THE TWO VERIFIERS THAT TEST THEM HAVE NOT RUN SINCE.****** ⇩⇩⇩
 >
 > ***16 — BOTH RULINGS BUILT AND CYCLED 4 Sep 2026, INSTALL 01:33:13. THE

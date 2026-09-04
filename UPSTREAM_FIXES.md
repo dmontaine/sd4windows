@@ -2632,3 +2632,91 @@ this remains a reading of identical code — but the patch is known to compile
 and to behave as described.
 
 `SENT` — by email to the upstream developer, 2 Sep 2026.
+
+## 36. A directory-file record written inside a transaction goes to the unmapped filename, and one deleted inside a transaction is not deleted
+
+Directory files store each record as a file whose name is the record id put
+through `map_t1_id()` (`sd64/gplsrc/op_dio3.c:1296` upstream, `:1346` in the
+Windows port). The substitution tables are at `sd64/gplsrc/sd.h:113-114` —
+`df_restricted_chars` `*,=><%/+:;?\"` against `df_substitute_chars`
+`ACEGLPSVXYZBQ`, position for position — plus a leading `.` to `%D` and a
+leading `~` to `%T`. So the id `=` is the file `%E` and the id `,` is the file
+`%C`. `map_dir_ids` defaults to `TRUE` (`sd64/gplsrc/kernel.h:80`), and the
+encoding is in ordinary use: a stock `SDSYS` VOC contains `%E`, `%G` and `%L`.
+
+`dir_write()` takes that mapped id and uses it verbatim as the filename — the
+parameter is even spelled `mapped_id` (`op_dio3.c:1340` upstream). The
+non-transactional write passes it correctly:
+
+```c
+      if (!map_t1_id(id, id_len, mapped_id)) {     /* op_dio3.c:824 */
+        ...
+      }
+
+      if (txn_id != 0) {
+        if (!txn_write(fvar, id, id_len, str))     /* :832  - the RAW id */
+          goto exit_op_write;
+      } else {
+        if (!dir_write(fvar, mapped_id, str))      /* :835  - the mapped one */
+          goto exit_op_write;
+      }
+```
+
+The mapping is computed and then discarded whenever a transaction is open:
+`txn_write()` is handed `id`, not `mapped_id`. `op_delete()` has the identical
+split at `:353` and `:359`. The transaction cache is right to hold the raw id —
+`txn_read()`, `txn_write()`, `txn_delete()` and `clear_parent()` all match it
+against the id the BASIC statement used — but nothing maps it later, and
+`op_txncmt()` then applies the cache straight to the disk:
+
+```c
+          case DIRECTORY_FILE:                     /* txn.c:148 */
+            if (!dir_write(fvar, txn->id, txn->str)) {
+```
+
+and, for the delete arm:
+
+```c
+            if (snprintf(path, MAX_PATHNAME_LEN + 1, "%s%c%s", fptr->pathname,
+                         DS, txn->id) >= (MAX_PATHNAME_LEN + 1)) {   /* :183 */
+```
+
+Both consequences are silent, and neither needs anything to go wrong: the
+commits succeed.
+
+**A write inside a transaction lands where the matching read cannot find it.**
+`WRITE rec ON f, ','` inside a transaction creates the file `,`. A later
+`READ ... FROM f, ','` maps the id as it always has, looks for `%C`, and
+returns not-found. The record is on disk under a name nothing will ask for.
+
+**A delete inside a transaction removes nothing and reports success.** The path
+is built from the raw id, so it names a file that never existed. `remove()`
+fails with `ENOENT`, which this code deliberately tolerates — the record being
+already gone is what was asked for — so the commit completes normally while the
+real record is still there and still readable.
+
+Measured in the Windows port on 4 Sep 2026, on a build with no other change, by
+one BASIC program whose commits all succeeded: `=` written outside a
+transaction landed as `%E` and read back; `,` written inside one landed as `,`
+and read back as not-found; `;` written outside and then deleted inside one
+left `%Y` on disk with its contents intact. The directory listing and the
+program's own reads were taken as two independent instruments and agreed.
+The control matters — without the `%E` row, a build with `map_dir_ids` off
+would make the raw and mapped names the same string and the comparison would
+pass for the wrong reason.
+
+The fix is to map at the point of contact with the disk, which is where the
+non-transactional path already does it: call `map_t1_id(txn->id, txn->id_len,
+mapped_id)` at the top of each of `op_txncmt()`'s two `DIRECTORY_FILE` arms and
+use its output for `dir_write()` and for the `snprintf()`. Leave the cache
+holding the raw id. The failure return cannot fire there — both entry points
+validate before anything is cached — but it should still raise the arm's own
+error (1422 for write, 1423 for delete) rather than skip silently. In the
+delete arm the mapping is worth doing before the statistics counters, which are
+incremented first today: an id that could not be mapped would otherwise count a
+delete that never happened.
+
+Reported here from reading upstream's source at `ae0cc5f`, where all five
+sites are present and match the Windows port's pre-fix state line for line.
+The fix above is the one the port took; it compiles, and the behaviour
+described was reproduced in that tree, not in `sdb64`.
