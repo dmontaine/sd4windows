@@ -47142,6 +47142,53 @@ only way to exercise them without breaking the install.  26 PASS, 0 FAIL, exit 0
 run standalone before it was wired in - the record's rule about not handing over
 a script nobody has watched load.
 
+## 4 Sep 2026 - 138 built: the install asks for two passwords, and says why
+
+The owner's shape (b) from 2 Sep, built and cycled.  Install 00:57:55, CYCLE
+COMPLETE, assert-current exit 0.  finish-install.ps1 gained Invoke-PasswordStep
+and runs it twice - the person's own account, then SDSYS - one function rather
+than two copies of the block, which is gpl.bp/EDIT's argument for not being two
+programs.
+
+The machine-readable half is measured rather than assumed: cycle.ps1 step 9
+printed "credential register: 2 account(s) with a password", against 1 on every
+cycle before it.  That is the evidence the second prompt fired and wrote a
+record, rather than being silently skipped - which is exactly how the 24 Aug
+regression failed, and why that check was kept.  Naming the two records was not
+possible from here: an unelevated read of $cred is refused with
+UnauthorizedAccessException, which is verify-credacl's property working rather
+than a gap in this measurement.
+
+The screen names both accounts BEFORE it asks twice, and that is what makes (b)
+honest rather than merely correct.  A step that asks twice without saying why
+replaces "the answer I gave was ignored" with "why is it asking again", which is
+the same fault in a different coat - and the first is the defect this entry was
+filed for.
+
+One guard was added that the ruling did not ask for, and it is the
+keep-the-database case.  PasswordStepWanted is (AdoptCode = 0), so the step runs
+whenever the installer MADE the person's account - which can happen over a data
+tree that was kept, and a kept tree keeps $cred.  SET_ACC_PASSWORD:159 skips the
+current-password prompt only when there is no credential to check against, so
+asking there would demand the OLD SDSYS password from somebody who came to set a
+new one.  SDSYS is therefore skipped, with a line saying so, when it already has
+one.  The person's own step was deliberately left alone: its behaviour is not
+this entry's, and changing it would have been an unrequested second change riding
+in on this one.
+
+What is owed is the defect itself, and no verifier can ever supply it.  The fault
+was an elevated "sd" asking for a password after the install; proving it gone
+needs an elevated session at a keyboard.  LOGIN:955 guards the credential block
+on kernel(K$TTY,0) # '' and every automated route in this project pipes stdin, so
+the prompt requires the one condition the whole suite is built not to have.  138
+stays open on that.
+
+A grep with a control settled whether b109 still stands after this change: zero
+of 50 verifiers, runners and check-install reference finish-install.ps1, with
+assert-current found in 43 of the same 50 as the control that the grep scans real
+files.  So no suite step exercises it, and the honest form of the carry-forward
+is "no step can cover this one" rather than "a step covered it".
+
 ## 4 Sep 2026 - 153 fixed: the version probe, and the timeout that had to be fired
 
 The installer's own hidden run now records "micro: already present -

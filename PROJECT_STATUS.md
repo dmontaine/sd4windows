@@ -175,7 +175,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***66 AND 153 BOTH DONE AND WITNESSED. THE WITNESS IS NOW A SUITE STEP, `verify-editors`, AND THERE IS A 28th FREE CHECK. THE FULL SUITE RAN GREEN, 45 OF 45 ON `b109`. OPEN 6. NOTHING OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***66 AND 153 DONE AND WITNESSED; 138 BUILT AND CYCLED, OPEN ON ONE KEYBOARD CHECK. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. SUITE GREEN, 45 OF 45 ON `b109`. OPEN 6.*** ⇩⇩⇩
+>
+> ***138 — BUILT AND CYCLED 4 Sep 2026. INSTALL 00:57:55, `assert-current`
+> EXIT 0. ONE CHECK OWED AND ONLY A PERSON CAN DO IT.*** `finish-install.ps1`
+> gained `Invoke-PasswordStep`, run **twice** — the person's account, then
+> `SDSYS` — and the screen **names both accounts before it asks twice**, which
+> is what makes the owner's shape (b) honest rather than merely correct.
+> ***THE MACHINE-READABLE HALF IS MEASURED***: `cycle.ps1` step 9 printed
+> **`credential register: 2 account(s) with a password`**, against **1** on
+> every cycle before it — so the second prompt fired and wrote a record rather
+> than being silently skipped, which is exactly how the 24 Aug regression
+> failed.
+>
+> ***WHAT IS OWED IS THE DEFECT ITSELF***: an **elevated** session at a
+> keyboard, `C:\Program Files\SD\usr\bin\sd.exe`, which should land in SDSYS
+> with **no** password prompt. **No verifier can ever do this** — `LOGIN:955`
+> guards the credential block on `kernel(K$TTY,0) # ''` and every automated
+> route in this project pipes stdin. **138 stays OPEN until it is seen.**
 >
 > ***153 — DONE 4 Sep 2026, WITNESSED ON THE 00:42:07 INSTALL.*** The
 > installer's **own hidden run** now records
@@ -198,9 +215,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > compiler. **It is the 28th free check** — the set is now **~36 s**.
 > `verify-editors` is **30 PASS / 0 FAIL** (was 26).
 >
-> ***THE STATE, IN ONE LINE.*** Install **4 Sep 00:42:07**, `sd.exe`
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 00:57:55**, `sd.exe`
 > `79FBF0A6E46652BB`; `assert-current` **exit 0**; **28 of 28 free checks**
-> exit 0 in 35.5 s. ***OPEN 6: 16, 70, 80, 96, 102, 138. NEXT FREE ID 154.
+> exit 0 in 35.4 s. ***OPEN 6: 16, 70, 80, 96, 102, 138. NEXT FREE ID 154.
 > `b109` SPENT ON THE FULL SUITE, GREEN IN BOTH HALVES; NEXT RUN TOKEN
 > `b110`.*** By severity, read from the table rather than carried forward:
 > **three B — 70, 80, 138**; **two S — 16, 102**; **one M — 96, parked.**
@@ -285,23 +302,27 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***`b109` RAN AGAINST THE 23:32:33 INSTALL AND THE ONE IN FORCE IS 00:42:07. IT STILL STANDS, AND HERE IS WHY — DO NOT RE-RUN IT***
 >
-> **The dates disagree, so read this before spending twenty minutes.** One
-> cycle happened in between, and ***the only source file that changed was
-> `gplbld\install-editors.ps1`*** — not argued, **measured**:
-> `assert-current` refused before that cycle naming **exactly one** file.
+> **The dates disagree, so read this before spending twenty minutes.** Two
+> cycles happened in between, and ***between them exactly two source files
+> changed*** — not argued, **measured**: `assert-current` refused before each
+> cycle naming **one** file each time.
 >
-> ***AND EXACTLY ONE SUITE STEP TOUCHES IT.*** `grep -l install-editors` over
-> every `verify-*.ps1` and both runners returns **`verify-editors.ps1`** and
-> `VerifyInstall1.ps1` (which only names the step) — **with `assert-current` as
-> the control at 43 hits, so the grep does find things.** That step was run
-> against the 00:42:07 install: **30 PASS / 0 FAIL.**
+> | delta | which suite step touches it | how that was covered |
+> |---|---|---|
+> | `gplbld\install-editors.ps1` (153) | **`verify-editors.ps1`**, and only that | run against the 00:42:07 install: **30 PASS / 0 FAIL** |
+> | `gplbld\finish-install.ps1` (138) | ***NONE — zero of 50 files scanned*** | it cannot have one: `LOGIN:955` needs a tty and every automated route pipes stdin. A **person** at a keyboard is the check, and it is what 138 stays open on |
+>
+> ***BOTH GREPS CARRY A CONTROL***, because a `grep` that scanned the wrong
+> directory answers zero and looks authoritative: 50 files scanned,
+> `assert-current` found in **43** of them.
 >
 > **So `b109` plus that targeted run covers the tree in force.** A full pass at
 > `b110` would buy one tidier artefact and no coverage. ***THE RECORD ALREADY
 > SETTLES THIS CASE THE SAME WAY*** — handoff 27 declined a run when the only
 > delta was 114's single `until` clause in `BCOMP`. **What DOES void a suite is
 > a source change nothing has re-measured; name the delta and the step that
-> covers it, and the carry-forward is legitimate.**
+> covers it — or say plainly that no step can, which is a different answer and
+> an honest one.**
 >
 > ***AND THE NEW STEP HAS NOW RUN INSIDE THE RUNNER, WHICH IS THE PART A
 > STANDALONE RUN DOES NOT PROVE.*** `VerifyInstall1.ps1 -Only verify-editors`,
