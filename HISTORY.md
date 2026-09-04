@@ -47654,3 +47654,115 @@ mutant was applied with a Python heredoc, which "Never reach for Python to edit
 a file" forbids outright, and it emitted the exact SyntaxWarning the rule
 predicts.  Restored with Edit and proved byte-identical, SHA-256
 523d125e... before and after, 0 CRs.  A mutant is still a file edit.
+
+## 4 Sep 2026 - 96: the park lifted, and the witness built against a premise that was already measured
+
+THE OWNER LIFTED HIS OWN PARK - "write the verifier for 96" - so route (2) is
+built.  gplbld/verify-privundetermined.ps1, 840 lines, in VerifyInstall2 after
+verify-apiadmin, prefix sdpw<Run>.  IT HAS NOT RUN.  Parse-checked (0 errors,
+all 19 functions found by the parser), byte-scanned (no BOM, 0 CR, 0 non-ASCII)
+and handed over unrun, which is as far as "verify a script loads" goes.
+
+THE PREMISE COST NOTHING BECAUSE b108 HAD ALREADY MEASURED IT.  os_permitted()
+returns TRUE on USR_ADMIN before the record is opened, and kernel.c:253 sets
+that flag for every elevated non-socket session, so an API session is the only
+route on this machine that reaches the file lookup at all.  Whether it reaches
+it was the open question, and b108 answered it in passing: 0 UNDETERMINED lines
+in errlog on a run where verify-apiadmin's API session was refused OS.EXECUTE
+BY NAME.  A refusal with no line means open() gave ENOENT, not EACCES - the
+directory is traversable and the record was simply absent.  secure-osusers.ps1
+says the same from the other side: os.users is read-only to sdusers on purpose.
+
+FIVE LEGS, NOT THE FOUR THE ROW SKETCHED, AND THE FIFTH WAS IN THE ROW'S OWN
+TEXT.  PRIV_OPEN_FAILED needs a non-ENOENT errno, which a deny ACE on the
+record produces; the deny names SIDs rather than "NT AUTHORITY\SYSTEM", which
+is localised, and denies BOTH the account and LocalSystem because the file
+layer runs impersonated (verify-apiidentity) while the process token does not
+(verify-apiadmin).  The granting leg is the null-case control and carries the
+file: every other leg is a refusal, so a probe that could never succeed would
+score them all, and it is the only leg that proves the logging is not noisy.
+
+AND THE ROW'S COST ESTIMATE WAS WRONG IN BOTH DIRECTIONS.  "~300 lines that
+would still leave four paths dark" - it is 840, and it leaves SIX dark, not
+four: the four name-service ones plus PRIV_NO_USERNAME and PRIV_PATH_TOO_LONG,
+which no login and no fixed sysdir can produce.  All six are printed by name
+every run, so a green cannot be read as "96 is covered".
+
+test-privundetermined-units.ps1 SHIPPED WITH IT, 38 of 38 in 0.5 s, on
+CLAUDE.md's list in the same commit.  It exists because the verifier's leg
+table is a second copy of facts that live in gplsrc, and a reworded string in
+priv_why_text() would otherwise surface as a red suite step an hour into an
+elevated run, read as a product regression.  Its partition row is the one
+nothing else covers: covered + unreachable + PRIV_ANSWERED must be exactly the
+enum.  Mutant control both ways - a reworded reason and a deleted unreachable
+entry each turned it red naming the site, restored to the same SHA-256.
+
+TWO DEFECTS IN THE FIRST DRAFT, BOTH IN CLASSES THE RECORD ALREADY NAMES.
+icacls was called bare under $ErrorActionPreference='Stop', where a native
+command on stderr terminates the script - in a finally block, silently; and
+$sids was declared inside the try while the finally read it.  Both found by
+reading the file back against this project's own memory notes rather than by
+running it.  A third was found by running: Lift() dot-sourced the AST-extracted
+functions inside its own scope, so they were gone the moment it returned.
+
+sdpw WENT INTO clean-test-profiles.ps1 IN THE COMMIT THAT INVENTED THE FAMILY,
+which is what five notes in that file have asked for and the first time it has
+happened without test-stemcoverage-units having to say so.  22 families, 21
+covered, 1 declared no-profile.
+
+MEASURED AFTERWARDS: 31 free checks, all exit 0, 41.2 s.  test-fixlist-units
+261/0, still OPEN 2 (80, 96).  assert-current exit 0 - nothing shipped moved,
+so the verifier can run against the 4 Sep 13:31:34 install with no cycle.
+
+AND A RULE BROKEN AGAIN, THE SAME ONE AS THE ENTRY DIRECTLY ABOVE THIS ONE.
+This entry was appended with a "cat >> HISTORY.md" heredoc, which "Never reach
+for Python to edit a file" forbids in as many words - it names heredocs, and
+the memory note for it names "cat >>" appends specifically.  THE PREVIOUS
+SESSION RECORDED THE IDENTICAL BREAK ONE ENTRY EARLIER, so the record was not
+merely on disk unread, it was the last thing written.  Checked rather than
+assumed, as that rule requires: 0 CRs, 0 non-ASCII bytes in the appended block,
+no mojibake, and git diff --numstat 59/0 - an append, not a rewrite.  No damage
+this time, which is the point: the rule is about the tool, not about whether
+the escaping happened to hold.
+
+## 4 Sep 2026 - 96 witnessed on b112, and the summary line under it was a lie
+
+25 OF 25, EXIT 0, FIRST RUN, NO FIXTURE OR WIRING FAULT.  The three inducible
+undetermined paths each wrote exactly one line naming themselves - malformed ->
+PRIV_MALFORMED, empty -> PRIV_READ_FAILED, denied -> PRIV_OPEN_FAILED - and
+each was ALSO refused by name in the same run, so the line and the refusal are
+tied to one decision rather than counted apart.
+
+THE TWO SILENT LEGS ARE THE HALF THAT MAKES THE OTHER THREE MEAN ANYTHING.
+granted RAN os.execute and wrote 0 lines: the probe can see a success, and a
+check that COMPLETED stays quiet.  absent was refused and wrote 0: ENOENT is
+the designed no, and a logging change that fired on every ordinary refusal
+would have failed that row.  Six paths remain unreachable and are printed by
+name every run.
+
+AND THEN THE CLOSING LINE SAID "12 check(s) reported N/A - they were not
+measured" ON A RUN WHERE NOTHING WAS SKIPPED.  PowerShell's -eq coerces the
+RIGHT operand to the LEFT's type, so with Expected holding a boolean,
+"$true -eq 'n/a'" is TRUE.  Exactly twelve rows expected $true.  Filed as 156
+and fixed the same day.
+
+THE FIX WAS ALREADY IN THE TREE, IN TWO FILES, WITH A COMMENT EXPLAINING IT.
+verify-delaccount.ps1:1074 caught it BEFORE ITS FIRST RUN and says so in as
+many words; verify-profiledir.ps1:289 carries the note forward.  [string] on
+the left is the established idiom and this is the third copy.  So this was not
+a new defect - it was a failure to grep a directory whose sibling files hold
+the answer, which is the exact thing CLAUDE.md's first standing instruction is
+for.  It was found only because the owner pasted the output.
+
+FIXED AS A LIFTED FUNCTION RATHER THAN A CORRECTED LINE.  Get-ResultTally is
+now driven by test-privundetermined-units.ps1 (47 of 47, up from 38) with a
+fixture in the shape that broke it, so the fix is proved for free rather than
+costing a second elevated run to re-read one line.  Mutant control: the
+[string] cast removed gave 3 phantom N/A out of 3 boolean rows - the same ratio
+as 12 of 12 on b112 - and the genuine-skip row over-counted at 2; restored to
+the same SHA-256.  The closing line now also exits 2 if every row was N/A.
+
+b112 WAS NOT RE-RUN, DELIBERATELY.  The defect is in the tally and not in any
+measurement, so the 25 decisive rows stand; re-running would have spent a fresh
+prefix and an elevated run to look at one line.  OPEN 2 -> 1.  test-fixlist
+262/0.  The only entry left is 80.

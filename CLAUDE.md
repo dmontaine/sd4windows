@@ -500,9 +500,10 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-doorsargv-units`, `test-reclaim-units`, `test-sdpath-units`,
    `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
    `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`,
-   `test-wraptext-units`, `test-upgradevoc-units`.
-   ***ALL THIRTY. Run these on
-   every change*** — **about 38 s for the whole set**, measured 4 Sep 2026, each
+   `test-wraptext-units`, `test-upgradevoc-units`,
+   `test-privundetermined-units`.
+   ***ALL THIRTY-ONE. Run these on
+   every change*** — **about 41 s for the whole set**, measured 4 Sep 2026, each
    in its own process. A whole suite run has already been spent twice discovering
    what one
    of them names in a second. **`test-retired-wording-units` is the wording
@@ -611,6 +612,22 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    matches a letter, a newline and a letter — **every correctly wrapped pair of
    lines** — so it went red against a working wrapper. Same class as anchoring
    on a string the failure also carries.
+
+   ***`test-privundetermined-units` JOINED IT 4 Sep 2026 IN THE COMMIT THAT
+   CREATED IT, AND IT COSTS 0.5 s.*** It guards `gplbld/verify-privundetermined.ps1`,
+   PRE_RELEASE 96's witness, and it exists because **that verifier costs an
+   install, an elevation, a run token and two SD restarts, while its leg table
+   is a second copy of facts that live in `gplsrc`** — the `PRIV_WHY` enum, the
+   exact strings `priv_why_text()` returns, and the sentence
+   `priv_log_undetermined()` writes. Reword one of those in the C and the
+   verifier still finds its line, still counts 1, and fails only on the row that
+   names the reason — a red suite step an hour into an elevated run, reported as
+   a product regression, for a change that was neither. ***AND IT ASSERTS THE
+   PARTITION, WHICH NOTHING ELSE DOES***: covered + declared-unreachable +
+   `PRIV_ANSWERED` must be **exactly** the enum, so a tenth member cannot appear
+   without somebody classifying it. **Mutant control, both directions**: a
+   reworded reason and a deleted unreachable entry each turned it red naming the
+   site, and the file was restored to the same SHA-256.
 
    ***`test-reconcile-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT***, which is the rule above working and needs no paragraph of its own. It

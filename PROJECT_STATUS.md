@@ -184,6 +184,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > FROM THIS BOX. NEXT FREE PRE_RELEASE ID 156. NEXT FREE MESSAGE ID 10174. RUN
 > `b112`.***
 >
+> ***AMENDED 4 Sep 2026 — 96 IS DONE AND WITNESSED ON `b112`, 25 OF 25. OPEN
+> 2 → 1, AND THE ONE LEFT IS 80.*** The park was lifted by the owner, the
+> verifier written, and it ran first time: the three inducible undetermined
+> paths each wrote exactly one line naming themselves, and **both silent legs
+> stayed silent** — which is the half that makes the other three mean anything.
+> ***ONE DEFECT CAME OUT OF THE RUN, FILED AND FIXED AS 156***: the summary line
+> claimed 12 N/A rows on a run where nothing was skipped, a `-eq` coercion this
+> tree had already written down twice. **The 25 decisive rows were never
+> affected, so `b112` was not re-run.** The free set is now **31 scripts / 47 of
+> 47** on that guard, and `VerifyInstall2` has one more step.
+> `assert-current` is still **exit 0**: no shipped file was touched.
+>
 > ***THE 30th FREE CHECK IS `test-upgradevoc-units`***, and it is listed in
 > CLAUDE.md in the commit that created it.
 >
@@ -199,7 +211,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    inside a real upgrade, which is what `Test D` was for.
 > 2. **`80`** — the documentation audit, and **the owner scheduled it for just
 >    before the 1.0 wrap-up**, against the final install image.
-> 3. **`96` is parked by the owner.** Do not re-derive its trace.
+> 3. ***`96` IS CLOSED — WRITTEN, RUN AND WITNESSED 4 Sep 2026, 25 of 25.***
+>    `gplbld/verify-privundetermined.ps1` is a `VerifyInstall2` step (prefix
+>    `sdpw<Run>`) and needs no cycle of its own; `b112` is spent, so a re-run
+>    takes a fresh `-Run`. **Nothing is owed on it.** The six undetermined paths
+>    it cannot reach are printed by name on every run, so a green is not a claim
+>    about all nine — do not re-derive that trace, it was settled on 3 Sep.
 >
 > ### ***WHAT WAS BUILT — 70's SECOND HALF***
 >
