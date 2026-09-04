@@ -46703,3 +46703,47 @@ refused by assert-current, because the new verifier was newer than the install
 and not yet on $neverShipped.  Same shape as the mistake that broke b106 four
 hours earlier, caught this time by the guard before it cost anything, and the
 fixture cleaned up the record it had planted on its way out.
+
+## 3 Sep 2026 - 151 done: a precondition refusal now leaves at exit 2
+
+The six API verifiers - verify-apiadmin, verify-apiname, verify-apiport,
+verify-scramlogin, verify-apiidentity, verify-tierapi - each gained a Refuse()
+beside Fail(), and the convention line in the header.  b106 had shown all six
+"exit 1" in a block, which reads as "the API is broken"; not one of them had
+measured anything, because all six had refused on assert-current.
+
+The guard inside Refuse() is the part that was not obvious.  Several stop-sites
+sit immediately after a Note() that has already recorded a [FAIL] -
+verify-scramlogin's "Without a server-first there is nothing further to check"
+is one - so converting them blindly would have filed a real failure under
+"could not run", which is the more dangerous of the two directions.  Refuse()
+therefore downgrades itself to Fail() when a decisive check has already failed,
+and asks the run's own state rather than trusting the call site.  The in-step
+assertions in verify-apiidentity were left on Fail() for the same reason: a
+CREATE.FILE that reports success on a file which is not on disk reads as a
+product finding as readily as a fixture fault, and the SCRAM-login site says so
+in its own text.
+
+The control cost no install and no run token.  The previous revision of each
+script was staged beside it as zztmp151-*; those copies are not on
+$neverShipped, so their presence is what turned the tree stale - the fixture
+made its own condition.  Old and new were then run unelevated against it and
+all six moved exit 1 to exit 2.  The fixtures were deleted and assert-current
+returned to exit 0.  verify-apiidentity is the only one of the six that reaches
+the assert-current gate without an elevated window, because it asks about the
+tree before it asks about elevation; the other five refuse on the elevation
+gate, which is the same helper by a different door.
+
+Two claims in entry 151 were false and are corrected in place.  The six did not
+document the convention they broke - they documented nothing, and the sentence
+lives in twelve other verifiers - so the fix had to add the line rather than
+merely honour it.  And the runners do not treat 2 as "could not run":
+VerifyInstall2.ps1:815 counts any non-zero as failed.  What actually helps is
+that the runner prints the code, which is how verify-vocverbs was told apart in
+b106.  That gap is now entry 152, with the note that the obvious version of it
+is wrong - a refusal must not be counted as a pass.
+
+One assumption corrected on the way in: editing a gplbld verifier does not turn
+the tree stale.  All six are on assert-current's $neverShipped, the files were
+newer than the install, and the guard still returned 0.  The list is much
+longer than its first screen and most verify-*.ps1 are on it.

@@ -175,6 +175,88 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 27, 3 Sep 2026 — ***151 IS DONE AND CONTROLLED. NO CYCLE OWED, NO RUN TOKEN SPENT. OPEN 10 (152 REPLACES 151).*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 16:22:02**, unchanged and still
+> current — `assert-current` **exit 0**; **26 of 26 free checks** exit 0 in
+> 33 s. ***OPEN 10: 16, 66, 70, 80, 96, 102, 114, 138, 150, 152. NEXT FREE ID
+> 153. `b108` STILL UNSPENT*** — nothing this session needed a run token or an
+> install.
+>
+> ### ***WHAT WAS BUILT: `Refuse()` IN THE SIX API VERIFIERS***
+>
+> A precondition refusal now leaves at **exit 2**, not 1, so a step that
+> measured nothing stops reading like a step that failed. Each of
+> `verify-apiadmin`, `verify-apiname`, `verify-apiport`, `verify-scramlogin`,
+> `verify-apiidentity` and `verify-tierapi` gained the convention line in its
+> header and a `Refuse($msg)` beside `Fail($msg)`.
+>
+> ***THE GUARD IS THE PART THAT WAS NOT OBVIOUS, AND IT IS WHY THIS IS NOT A
+> FIND-AND-REPLACE.*** Several stop-sites sit immediately after a `Note()` that
+> has **already recorded a `[FAIL]`** — `verify-scramlogin`'s *"Without a
+> server-first"* is one. Converting those blindly would file a real failure
+> under *"could not run"*, which is the more dangerous direction. **`Refuse()`
+> therefore downgrades itself to `Fail()` when a decisive check has already
+> failed**, so it cannot be misused by a call site.
+>
+> ***AND THE IN-STEP ASSERTIONS IN `verify-apiidentity` WERE LEFT ON `Fail()`
+> ON PURPOSE.*** CREATE.FILE reporting success on a file that is not on disk, a
+> record carrying a CR, a fixture granting the user nothing — each reads as a
+> product finding as readily as a fixture fault, and the SCRAM-login site says
+> so in its own text. That is a decision, not an oversight; it is written into
+> the file above `Refuse()`.
+>
+> ### ***THE CONTROL RAN, UNELEVATED, WITH NO INSTALL***
+>
+> The previous revision of each script was staged beside it as `zztmp151-*`.
+> **Those copies are not on `$neverShipped`, so their presence is itself what
+> turned the tree stale** — the fixture makes its own condition. Old and new
+> were then run against it: ***all six moved `exit 1` → `exit 2`***, the
+> fixtures were deleted, and `assert-current` went back to **exit 0**.
+>
+> `verify-apiidentity` is the one that exercises the exact `b106` path without
+> an elevated window, because it asks `assert-current` **before** it asks about
+> elevation. It now prints *"verify-apiidentity: COULD NOT RUN - assert-current
+> refuses"*. The other five refuse on the elevation gate — same helper, a
+> different door.
+>
+> ### ***TWO THINGS 151 ASSERTED WERE FALSE. BOTH ARE CORRECTED IN THE ENTRY.***
+>
+> 1. ***"THEIR OWN HEADERS DOCUMENT THE CONVENTION THEY BREAK" — THEY DO NOT.***
+>    Not one of the six documented any exit-code convention. The sentence is
+>    real and is the house convention, but it lives in **twelve other
+>    verifiers** (`verify-vocverbs.ps1:9` among them). They were not
+>    contradicting themselves, they were **silent** — so the fix had to *add*
+>    the line, not merely honour it.
+> 2. ***"THE TWO RUNNERS ALREADY TREAT 2 AS could not run" — THEY DO NOT.***
+>    `VerifyInstall2.ps1:815` counts any non-zero as failed. What helps is that
+>    the runner **prints** the code, which is how `verify-vocverbs` was told
+>    apart in `b106`. **That gap is now PRE_RELEASE 152**, and the obvious
+>    version of it is wrong: a refusal must not be counted as a pass.
+>
+> ### ***A CORRECTION TO WHAT "EDITING A gplbld SCRIPT" COSTS***
+>
+> ***THE SIX ARE ALL ON `assert-current`'s `$neverShipped`, SO EDITING THEM DOES
+> NOT TURN THE TREE STALE.*** Assumed otherwise at the start of this session and
+> measured to be wrong: the files were newer than the install and
+> `assert-current` still returned 0. **The list is far longer than its first
+> screen** — most `verify-*.ps1` are on it — so check the whole list before
+> concluding a verifier edit owes a cycle.
+>
+> ### ***WHAT TO DO NEXT***
+>
+> ***NOTHING IS OWED.*** Unchanged from handoff 26 except that 151 is gone:
+>
+> 1. ***96 — RULED (c), AND STILL THE ONLY OPEN WAITING ON NOTHING BUT WORK.***
+>    The tri-state across the three privilege predicates and their four callers.
+>    **It deserves its own session**: C on a privilege path where the wrong
+>    shape fails silent.
+> 2. **70**, then **114**, **138**, **102**, **16**; **150**; **152**; **80**
+>    last.
+> 3. ***WHEN A SUITE NEXT RUNS***, it is `b108`, both halves, **24 elevated
+>    steps**, and it gives `verify-registersweep` its first run inside the
+>    runner. No cycle is needed first — the install is current.
+>
 > # ⇩⇩⇩ HANDOFF 26, 3 Sep 2026 — ***FULL SUITE GREEN ON `b107`, 44 STEPS. 93 AND 65 WITNESSED ON A REAL REGISTER AT LAST. `cycle.ps1` NOW COMPILES THE C TOO. OPEN 10, NOTHING OWED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 16:22:02**; `assert-current`
