@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***STARTED ON 102 AND THE TRACE FOUND A `B` IN THE TWO LINES 102 HAS TO MODIFY: 154, FIXED AND WITNESSED RED AND GREEN THE SAME HOUR. 155 FILED FROM THE OWNER'S SCREEN. 102 ITSELF IS STILL NOT STARTED. ***THE SUITE OWED IS NOW BIGGER, NOT SMALLER — `b110` CARRIES A C CHANGE AND A CHANGED VERIFIER ON TOP OF ENTRY 16's TIER MOVE.****** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***STARTED ON 102 AND THE TRACE FOUND A `B` IN THE TWO LINES 102 HAS TO MODIFY: 154, FIXED AND WITNESSED RED AND GREEN THE SAME HOUR. 155 FILED FROM THE OWNER'S SCREEN. ***`b110` IS GREEN IN BOTH HALVES, 46 OF 46, SO NOTHING IS OWED AND 102's OWN PRECONDITION IS CLEAR.*** 102 ITSELF IS STILL NOT STARTED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **4 Sep 07:56:19**, `sd.exe`
 > **DD8CC4EABE3CE1BB**; `assert-current` **exit 0**; **28 of 28 free checks**
@@ -231,22 +231,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > fault the suite cannot, and this induces nothing, so a second copy would be
 > two files describing one fact and kept in step by hand.
 >
-> ### ***THE SUITE OWED — STILL `b110`, AND THE DELTA HAS GROWN***
+> ### ***THE SUITE IS DISCHARGED — `b110` GREEN IN BOTH HALVES, 46 OF 46***
 >
-> Handoff 30 owed it for entry 16's tier move (`verify-tiers`,
-> `verify-tierapi`, PROGRAMMER 396 → 397, neither has run since). **This
-> session adds `gplsrc/txn.c` and `gplbld/verify-txn.ps1` to that list.**
-> `verify-txn` has been run standalone and is green; **it has not run inside
-> the runner**, which is the part a standalone run does not prove.
+> Run by the owner, 4 Sep 2026. ***COUNTED FROM THE TRANSCRIPTS, NOT CARRIED
+> FROM THE REPORT***, and the counters are non-zero in every column that
+> matters, so no step scored a null pass:
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b110
-> ```
-> **an ordinary, UNELEVATED PowerShell prompt**, then
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b110
-> ```
-> **an ELEVATED PowerShell prompt.** Expect **22 unelevated rows**.
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260904-080520.log`, **4,271 lines, 348 `[PASS]` / 0 `[FAIL]`, 0 `PARTIAL`**, closing line ***`VerifyInstall1: every step exited 0.`***; summary `post-cycle-unelevated-20260904-080520.txt` | **22**, all exit 0 |
+> | elevated | `post-cycle-20260904-081231.txt`, every row carrying a `b110` prefix | **24**, all exit 0 |
+>
+> ***THE THREE THAT WERE THE REASON FOR OWING IT ALL MEASURED***: `verify-tiers`
+> **35 PASS / 0 FAIL** and `verify-tierapi` **16 / 0** — entry 16's moved counts,
+> and `verify-tierapi` is the file that had been left behind three times — and
+> `verify-txn` ran **inside the runner** with all eight of section 4's rows
+> present, which is what a standalone run does not prove. `verify-lcnames`
+> **142 / 0** and `verify-apiadmin` **22 / 0**, both the numbers the record says
+> to carry.
+>
+> ***`b110` IS SPENT. NEXT RUN TOKEN `b111`.***
+>
+> ***AND THAT CLEARS 102's OWN PRECONDITION***: its row asks for *"a tree with
+> nothing else unverified in it"*, and there is now nothing owed.
 >
 > ### ***A REMINDER THAT COST A CONSENT DIALOG THIS SESSION***
 >
