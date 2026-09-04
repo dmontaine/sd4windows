@@ -46928,3 +46928,40 @@ One smaller thing worth keeping: the marker was first deleted with a relative
 path from a shell whose working directory was already gplbld, so rm -f removed
 nothing and reported success.  Only git status showed the file still there.  A
 delete is worth confirming by absence rather than by exit code.
+
+## 3 Sep 2026 - 114 fixed in source: one missing until clause
+
+BCOMP's BEGIN TRANSACTION body ran
+
+    loop
+    until u.look.ahead.token.string = "END"
+       gosub proc.line
+       if look.ahead.token = TKN.END then gosub get.token
+    repeat
+
+with no end.source test anywhere in it, so at EOF inside an open block it called
+proc.line for ever.  The outer loop tests end.source twice.  BEGIN CASE's
+structurally identical inner loop, about seventy lines above in the same file,
+carries "until end.source" as a third clause.  Adding that one line to the
+transaction loop makes the two the same, and that is the whole fix.
+
+The error it should have produced was already written and simply unreachable:
+"if end.source then err.msg = sysmsg(2878)" sits immediately after the loop, and
+sdsys/messages/2878 ships the text "Unterminated transaction construct".
+Nothing new had to be said - the code only had to be able to reach it.
+
+The audit the entry asked for is done and found nothing else.  All eleven
+source-consuming loops in BCOMP were read.  Three EOF patterns are in use: an
+extra "until end.source" clause (BEGIN CASE), an "if end.source then ... goto
+exit" inside the loop (LOCK THEN and ELSE at 8947 and 8991, messages 2922 and
+2923; ON ERROR at 11500, message 2946), and - at the transaction loop only -
+none at all.  Three of those looked unguarded to a nine-line context window
+because the guard sits above a label-check comment block; they were read rather
+than counted, which is the difference between an audit and a grep.
+
+Not compiled and not witnessed.  The witness is the entry's own three-way
+measurement: unterminated should now report 2878 in about half a second where it
+previously hung, plain END should give 2879, and the correct form 0 errors.  The
+unterminated case must not be run against an install without this fix, because
+that is the hang, and each one leaves a slot in the user table that sd -stop
+then refuses to step over.

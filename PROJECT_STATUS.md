@@ -238,6 +238,33 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > Next is the suite on `b108`, both halves, 24 elevated steps.
 >
+> ### ***114 IS FIXED IN SOURCE — ONE `until` CLAUSE. A CYCLE IS OWED.***
+>
+> ***THE COMPILER HUNG BECAUSE ONE INNER LOOP HAD NO EOF TEST, AND ITS OWN
+> SIBLING SEVENTY LINES ABOVE HAS THE CLAUSE.*** `BCOMP`'s `BEGIN TRANSACTION`
+> body ran `loop / until … = "END" / gosub proc.line / repeat` with **no
+> `end.source` test at all**, so at EOF inside an open block it called
+> `proc.line` for ever. The **outer** loop tests `end.source` twice; `BEGIN
+> CASE`'s identical inner loop carries `until end.source` as a third clause.
+> **One line makes the two the same.**
+>
+> ***AND THE ERROR WAS ALREADY WRITTEN AND SIMPLY UNREACHABLE*** —
+> `if end.source then err.msg = sysmsg(2878)` sits immediately after the loop
+> and `sdsys/messages/2878` ships *"Unterminated transaction construct"*.
+> Nothing new had to be said.
+>
+> ***THE AUDIT THE ROW ASKED FOR IS DONE AND FOUND NOTHING ELSE.*** All eleven
+> source-consuming loops in `BCOMP` were read. **Three EOF patterns are in
+> use** — an extra `until end.source` clause, an `if end.source then … goto
+> exit` inside the loop (`LOCK THEN`/`ELSE`, `ON ERROR`; messages 2922, 2923,
+> 2946), and, at the transaction loop alone, none. *(Three sites looked
+> unguarded to a nine-line context window because the guard sits above a
+> label-check comment; they were read, not counted.)*
+>
+> ***DO NOT COMPILE AN UNTERMINATED `BEGIN TRANSACTION` AGAINST AN INSTALL
+> WITHOUT THIS FIX*** — that is the hang, and each one leaves a slot in the user
+> table that `sd -stop` then refuses to step over.
+>
 > ### ***96: THE PRIVILEGE TRI-STATE IS BUILT. IT HAS NOT RUN.***
 >
 > ***IT IS AN OUT-PARAMETER, NOT AN ENUM RETURN, AND THAT IS THE SAFETY
@@ -359,8 +386,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***WHAT TO DO NEXT***
 >
-> ***NOTHING IS OWED.*** The cycle and the suite are both done and green, so
-> this list is work rather than debt.
+> ***ONE CYCLE IS OWED AGAIN — 114 CHANGED `BCOMP`, SO THE TREE IS STALE.***
+> The BASIC has not been compiled, so 114 is source-only:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> **Elevated PowerShell.** `-SkipInstall` is CLAUDE.md's documented cheap check
+> that a BASIC change compiles without spending an install; a full `cycle.ps1`
+> is what is needed before measuring anything. ***THEN WITNESS 114 WITH THE
+> ROW'S OWN THREE-WAY MEASUREMENT***: unterminated → **2878 in about half a
+> second**, plain `END` → 2879, correct form → 0 errors.
 >
 > 1. ***96 IS PARKED BY THE OWNER, 3 Sep 2026 — DO NOT RE-DERIVE THE WITNESS,
 >    THE TRACE IS IN THE ENTRY.*** Shown the cost, he parked it. **Four of the
