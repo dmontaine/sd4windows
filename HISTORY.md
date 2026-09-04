@@ -47189,6 +47189,24 @@ assert-current found in 43 of the same 50 as the control that the grep scans rea
 files.  So no suite step exercises it, and the honest form of the carry-forward
 is "no step can cover this one" rather than "a step covered it".
 
+It closed the same day.  The owner ran an elevated sd on the 00:57:55 install:
+"no password prompt, went straight into sdsys".  That is the defect, gone - and
+it is the one check nothing on this side could have made, because LOGIN:955 needs
+a tty and every automated route pipes stdin.  Holding the entry open for a person
+was the right call rather than a formality: the credential count going 1 to 2
+proves a record was written, and only the elevated session proves it was the
+record that stops the prompt.
+
+Open goes 6 to 5 - 16, 70, 80, 96, 102 - and the blockers go three to two.  Both
+that remain are rig- or phase-bound rather than unstarted work: 70 wants an
+install over an existing tree on a guest, and 80 is the documentation audit the
+owner scheduled for just before the 1.0 wrap-up.
+
+The wording half of 138 was not commented on either way - the two-account
+explanation and the "1 of 2" / "2 of 2" labels.  The behaviour is witnessed and
+how it reads is not, which is worth a line so that nobody later reads this entry
+as having settled both.
+
 ## 4 Sep 2026 - 153 fixed: the version probe, and the timeout that had to be fired
 
 The installer's own hidden run now records "micro: already present -

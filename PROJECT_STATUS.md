@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***66 AND 153 DONE AND WITNESSED; 138 BUILT AND CYCLED, OPEN ON ONE KEYBOARD CHECK. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. SUITE GREEN, 45 OF 45 ON `b109`. OPEN 6.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***THREE CLOSED AND ALL THREE WITNESSED: 66, 153 AND 138. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. SUITE GREEN, 45 OF 45 ON `b109`. OPEN 6 → 5, AND ONLY TWO BLOCKERS LEFT. NOTHING OWED.*** ⇩⇩⇩
 >
 > ***138 — BUILT AND CYCLED 4 Sep 2026. INSTALL 00:57:55, `assert-current`
 > EXIT 0. ONE CHECK OWED AND ONLY A PERSON CAN DO IT.*** `finish-install.ps1`
@@ -188,11 +188,14 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > than being silently skipped, which is exactly how the 24 Aug regression
 > failed.
 >
-> ***WHAT IS OWED IS THE DEFECT ITSELF***: an **elevated** session at a
-> keyboard, `C:\Program Files\SD\usr\bin\sd.exe`, which should land in SDSYS
-> with **no** password prompt. **No verifier can ever do this** — `LOGIN:955`
-> guards the credential block on `kernel(K$TTY,0) # ''` and every automated
-> route in this project pipes stdin. **138 stays OPEN until it is seen.**
+> ***AND IT IS CLOSED — THE OWNER RAN IT: "no password prompt, went straight
+> into sdsys".*** That is the defect, gone. **No verifier could ever have made
+> this check** — `LOGIN:955` guards the credential block on
+> `kernel(K$TTY,0) # ''` and every automated route pipes stdin, so the prompt
+> needs the one condition the whole suite is built not to have. **A person at
+> an elevated keyboard was the instrument.** *(The wording half — the
+> two-account explanation and the `1 of 2` / `2 of 2` labels — was not
+> commented on either way. The behaviour is witnessed; how it reads is not.)*
 >
 > ***153 — DONE 4 Sep 2026, WITNESSED ON THE 00:42:07 INSTALL.*** The
 > installer's **own hidden run** now records
@@ -217,10 +220,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***THE STATE, IN ONE LINE.*** Install **4 Sep 00:57:55**, `sd.exe`
 > `79FBF0A6E46652BB`; `assert-current` **exit 0**; **28 of 28 free checks**
-> exit 0 in 35.4 s. ***OPEN 6: 16, 70, 80, 96, 102, 138. NEXT FREE ID 154.
+> exit 0 in 35.4 s. ***OPEN 5: 16, 70, 80, 96, 102. NEXT FREE ID 154.
 > `b109` SPENT ON THE FULL SUITE, GREEN IN BOTH HALVES; NEXT RUN TOKEN
 > `b110`.*** By severity, read from the table rather than carried forward:
-> **three B — 70, 80, 138**; **two S — 16, 102**; **one M — 96, parked.**
+> ***TWO B — 70 and 80***; **two S — 16, 102**; **one M — 96, parked.**
+> **Both remaining blockers are rig- or phase-bound**: 70 wants an install over
+> an existing tree on a guest, and 80 is the documentation audit the owner
+> scheduled for just before the 1.0 wrap-up.
 > *(Handoff 27's "96 is the only M" was true when written, stopped being true
 > when 153 was filed, and is true again now 153 is closed — which is the
 > argument for reading the table rather than quoting a handoff.)*
