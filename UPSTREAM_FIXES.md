@@ -2388,6 +2388,52 @@ The lock release is the separable half and does not need a design decision: the
 What to do about the records already written is a larger question, since a
 partially applied commit cannot simply be forgotten.
 
+Both halves have since been fixed in the Windows port, and the shapes may be
+useful even though the code will not transplant directly.
+
+The lock release went into `txn_abort()` rather than to the `k_error()` call
+sites. `k_error()` longjmps, so every `goto exit_op_txncmt` after one is dead
+code and no label below them can run — the fix has to be on the far side of the
+jump, and `txn_abort()` is where the jump lands. Putting it there also covers
+any error path added to that loop later, and covers logout and terminate, which
+reach the same function. `op_txncmt()` saves `process.txn_id` into a file-scope
+`commit_txn_id` before zeroing it, and clears that on the success path so a
+later unrelated abort cannot unlock an id the allocator has since reissued.
+
+The records already written are now restored to what they held before. The
+before image is captured at commit time, immediately before each action is
+applied — not when the write is cached, because only at that moment is the
+image certainly the one about to be overwritten, and `TXN_CACHE` holds only the
+new data. The images go on a stack, so walking it is already reverse order, and
+it is replayed from `txn_abort()` before the locks are released: the records
+being rewritten are exactly the ones the transaction still holds locks on, and
+they are ours to write only until `unlock_txn()` gives them up. An entry is
+either the prior record, or a marker that there was none — in which case the
+undo deletes what the commit was creating — or a marker that the image could
+not be read, which is logged by file and id rather than passed over. The undo
+never raises: the disk is already misbehaving by then, and a `k_error()` there
+would longjmp out of the abort handler itself.
+
+Two things about that were not obvious until it was built. The capture reads a
+record, so it sets `process.status`, `process.os_error` and `dh_err` on its way
+past, and the caller is about to report its own failure through exactly those —
+all three have to be saved and restored or the commit's error ends up described
+by the capture's last read. And the record the commit *failed* on has to be
+captured and restored like any other, because a write that fails part way
+leaves it in a state nothing can describe; "the action failed" is not the same
+claim as "the record is untouched".
+
+One piece of groundwork was needed first, and upstream would need it too: the
+directory-file code has a write API and no read API. `dir_write()` has always
+been callable, but the only reader is `read_record()`, which takes its file
+variable, id and target off the VM's e-stack and can only be reached by
+executing a READ opcode — and a commit cannot execute one. The port added
+`dir_read()`, shaped like `dir_write()`, and lifted the CRLF-and-LF to
+field-mark conversion into one function shared by both readers rather than
+copying it. That sharing is not tidiness: a capture that reversed the mark
+mapping even slightly differently from an ordinary read would restore a record
+that is not the one it captured, silently, on the failure path.
+
 `gplsrc/txn.c:136`, `:151`, `:159`, `:177`, `:215`, `:233`, `:275`, `:288`,
 `:607`; `gplsrc/k_error.c:31`, `:289`; `gplsrc/kernel.c:399`, `:410`, `:423`.
 Confirmed present on upstream `main` at commit `ae0cc5f`, where `op_txncmt()`

@@ -47427,3 +47427,68 @@ margins and three wrap widths.  The repetition is structural - Invoke-PasswordSt
 starts a separate sd.exe per account - so nothing per-session can suppress it,
 and the paragraph cannot simply be cut because modify.password run by hand is the
 other caller and nothing else there says what Enter does.
+
+## 4 Sep 2026 - 102: a commit that fails half way puts back what it applied
+
+The owner's ruling, as disambiguated on 3 Sep, was to restore each already
+applied record to what it held before - not to delete it, which taken literally
+would destroy the prior version of an UPDATED record.  Built and witnessed.
+
+THE GROUNDWORK WAS THE LARGE PART, AND THE ENTRY HAD SAID SO.  The directory
+code had a write API and no read API: dir_write() has always been callable, but
+the only reader was read_record(), which takes its file variable, id and target
+off the VM's e-stack and can only be reached by executing a READ opcode - and a
+commit cannot execute one.  op_dio3.c gained dir_read(), shaped like
+dir_write() and taking a mapped id.  The CRLF-and-LF to field-mark conversion
+was lifted into t1_unmap_chunk() and SHARED by both readers rather than copied,
+which is the entry's own warning obeyed: a capture that reversed the mapping
+even slightly differently would restore a record that is not the one it
+captured, silently, on the failure path.
+
+txn.c gained TXN_UNDO, capture_undo(), replay_undo() and free_undo().  The
+image is taken at commit time immediately before each action is applied,
+because only then is it certainly the one about to be overwritten.  The list is
+a stack, so walking it is already reverse order.  The replay runs from
+txn_abort() - the far side of the longjmp, the same placement the lock half
+uses - and BEFORE unlock_txn(), because the records it rewrites are the ones the
+transaction still holds locks on and they are ours to write only until the
+release.  It never raises.  One capture call site covers both modes, the same
+class-fix reasoning that put the lock half in txn_abort() rather than at five
+k_error sites.
+
+TWO THINGS THAT WERE NOT OBVIOUS UNTIL IT WAS BUILT.  The capture READS, so it
+sets process.status, process.os_error and dh_err on its way past - and the
+caller is about to report its own failure through exactly those, so all three
+are saved and restored or the commit's error is described by the capture's last
+read.  And an EMPTY dynamic record comes back as NULL with dh_err 0, which is a
+record that exists holding nothing: the existence test is dh_err, never the
+pointer.
+
+THE WITNESS PUT FOUR UNDO CASES BEHIND ONE INDUCED FAULT.  probe-txnundo.ps1
+runs one transaction of five actions - write a dynamic record that exists,
+write one that does not, write a directory record that exists, write one that
+does not, then delete a directory record whose file is held open with
+FileShare.Read so remove() is genuinely refused, the trick 101 established.
+Red on the pre-102 binary: all four applied actions stayed applied.  Green:
+R1=base1, R2=none, D1=d1a|d1b with both fields, D2=none.  D1 carries two fields
+on purpose - a single-field record would round-trip even if the mark mapping
+were wrong.  Two controls held on both sides.
+
+THE ERRLOG LINE THAT LOOKS LIKE A BUG AND IS NOT, kept here because the next
+reader will meet it before they meet the entry.  The summary can read "1 could
+not be undone" naming the record the commit FAILED on, over a record that was
+never damaged - as it did in the witness, where the held-open file refused the
+restore for the same reason it refused the delete.  The capture runs before
+every action including the one that then fails, because a write that fails part
+way leaves a record in a state nothing can describe, and "the action failed" is
+not the same claim as "the record is untouched".  Over-reporting is the safe
+direction.
+
+154 was found on the way in, by reading the two lines 102 had to modify, and is
+its own entry above.  Doing it first was not a detour: had it gone unnoticed, a
+restore built against the raw id would have left two files where it meant to
+leave one.
+
+A FULL SUITE IS OWED ON b111 AND WAS NOT RUN.  read_record() changed, and
+verify-lineendings - the straddle case and the lone-CR control - is the step
+that decides whether the shared conversion is right for both callers.

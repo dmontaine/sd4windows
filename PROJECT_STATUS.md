@@ -175,14 +175,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***STARTED ON 102 AND THE TRACE FOUND A `B` IN THE TWO LINES 102 HAS TO MODIFY: 154, FIXED AND WITNESSED RED AND GREEN THE SAME HOUR. 155 FILED FROM THE OWNER'S SCREEN. ***`b110` IS GREEN IN BOTH HALVES, 46 OF 46, SO NOTHING IS OWED AND 102's OWN PRECONDITION IS CLEAR.*** 102 ITSELF IS STILL NOT STARTED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***ONE THING OWED: A FULL SUITE ON `b111`, BECAUSE `read_record()` — THE READ OPCODE — CHANGED.*** OPEN 4 → 3.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** Install **4 Sep 07:56:19**, `sd.exe`
-> **DD8CC4EABE3CE1BB**; `assert-current` **exit 0**; **28 of 28 free checks**
-> exit 0 in 35.9 s; `test-fixlist-units` **260/0**; `check-stale-leads` exit 0;
-> `check-datatree-litter` **CLEAN, 3,629 entries**; `verify-txn` **17/17
-> decisive, exit 0** on this install. ***OPEN 5: 70, 80, 96, 102, 155. NEXT FREE
-> ID 156. RUN `b110`.***
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 08:56:02**, `sd.exe`
+> **E31CE514E8999D24**; `assert-current` **exit 0**; **28 of 28 free checks**
+> exit 0 in 38.7 s; `test-fixlist-units` **260/0**; `check-stale-leads` exit 0;
+> `check-datatree-litter` **CLEAN**; `verify-txn` **17/17 decisive, exit 0** on
+> this install. ***OPEN 3: 70, 80, 96. NEXT FREE ID 156. RUN `b111`.***
+>
+> ***THE FREE-CHECK HELPER WAS RUNNING 26 OF 28 AND EVERY ONE WAS GREEN, WHICH
+> IS WHY NOTHING SAID SO.*** `C:\Users\dmont\sdout\run-free-tests.ps1` had never
+> been given `test-privwhy-units` or `test-editorver-units` — the two most
+> recently added — and its own header warns about exactly that drift. **Found by
+> reading the total against CLAUDE.md's list, not by anything going red.** Fixed,
+> and its count assertion now says 28. **A red guard is loud; a missing one is
+> silent, and only the count can tell you.**
 >
 > ### ***A GRATUITOUS `make sd` AFTER AN INSTALL COSTS A WHOLE CYCLE***
 >
@@ -267,15 +274,45 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `-File` accepts and which contains no backslash to lose. That worked first
 > time, one consent, child exit 0.
 >
-> ### ***102 — STILL NOT STARTED, AND THE TRACE IS WORTH READING FIRST***
+> ### ***102 — DONE AND WITNESSED. READ THE ROW; THIS IS WHAT TO DO NEXT***
 >
-> Its entry carries the design and the cost. **The one thing this session adds
-> to it**: the directory-file half of any restore must write through
-> `map_t1_id()`, because the apply path now does — had 154 gone unnoticed, a
-> restore built against the raw id would have left **two** files where it meant
-> to leave one. **The `dir_read`-shaped API the entry calls for is still the
-> large part**, and `read_record()` (`op_dio3.c:931`) is still an e-stack
-> opcode rather than a callable function.
+> **A commit that fails part way now restores each already-applied record to
+> what it held before.** Witnessed red and green by
+> `C:\Users\dmont\sdout\probe-txnundo.ps1`, **17/0 on each side**: one
+> transaction, five actions, the last one impossible (a directory record held
+> open with `FileShare.Read`, the trick 101 established). **Red** — all four
+> applied actions stayed applied. **Green** — `R1=base1`, `R2=none`,
+> ***`D1=d1a|d1b`, both fields***, `D2=none`.
+>
+> ***THE GROUNDWORK WAS THE LARGE PART AND IT TOUCHED THE READ OPCODE.***
+> `op_dio3.c` gained **`dir_read()`**, the read half the directory code never
+> had, and the CRLF/LF to field-mark conversion was lifted into
+> **`t1_unmap_chunk()` and SHARED** by both readers rather than copied — the
+> entry's own warning obeyed, because a capture that reversed the mapping
+> differently would restore a record that is not the one it captured, silently,
+> on the failure path.
+>
+> ***SO A FULL SUITE IS OWED, AND `verify-lineendings` IS THE STEP THAT
+> DECIDES IT*** — the straddle case (CRLF on the 2048-byte buffer boundary) and
+> the lone-CR control are exactly what `t1_unmap_chunk()` now carries for both
+> callers, and they need the runner. `verify-nocase` and `verify-lcnames` are
+> the other readers of that path.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b111
+> ```
+> **an ordinary, UNELEVATED PowerShell prompt**, then
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b111
+> ```
+> **an ELEVATED PowerShell prompt.**
+>
+> ***ONE THING IN THE ERRLOG THAT LOOKS LIKE A BUG AND IS NOT.*** The summary
+> line can read *"N could not be undone"* naming the record the commit **failed
+> on**, over a record that was never damaged — because the capture runs before
+> **every** action, including the one that then fails, since a write that fails
+> part way leaves a record in a state nothing can describe. Over-reporting is
+> the safe direction. The row and the comment at `replay_undo()` both say so.
 >
 > ### ***155 — FILED FROM THE OWNER'S OWN SCREEN, NOT STARTED***
 >
