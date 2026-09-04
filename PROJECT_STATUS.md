@@ -416,18 +416,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***WHAT TO DO NEXT***
 >
-> ***ONE CYCLE IS OWED AGAIN — 114 CHANGED `BCOMP`, SO THE TREE IS STALE.***
-> The BASIC has not been compiled, so 114 is source-only:
+> ***114 COMPILES — `-SkipInstall` AT 20:06, `compile: BCOMP` → `0 error(s)`,
+> 197 programs at 0 errors, zero of the fatal `is not assigned a value` class.***
+> **It is not installed**, so the tree is stale and nothing is witnessed. Two
+> commands close it, in this order:
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
-> **Elevated PowerShell.** `-SkipInstall` is CLAUDE.md's documented cheap check
-> that a BASIC change compiles without spending an install; a full `cycle.ps1`
-> is what is needed before measuring anything. ***THEN WITNESS 114 WITH THE
-> ROW'S OWN THREE-WAY MEASUREMENT***: unterminated → **2878 in about half a
-> second**, plain `END` → 2879, correct form → 0 errors.
+> **Elevated PowerShell**, and it ends on a `MsgBox` an agent cannot click.
+> Then, in an **ordinary unelevated** one:
+>
+> ```powershell
+> C:\Users\dmont\sdout\p114-txnhang.ps1
+> ```
+>
+> ***THAT FIXTURE IS THE WITNESS AND IT CANNOT HANG***: every compile runs in a
+> job under a 25s timeout, because if the fix were not in, case (a) IS the hang
+> and a bare pipe would take the script with it. It drives all three cases —
+> unterminated → **2878**, plain `END` → **2879**, correct → **0 errors** —
+> where b and c are the controls that stop (a) being merely *"it printed
+> something"*. **A `HUNG` result means an orphaned session: check the user table
+> before the next cycle, because `sd -stop` refuses while one is counted in.**
 >
 > 1. ***96 IS PARKED BY THE OWNER, 3 Sep 2026 — DO NOT RE-DERIVE THE WITNESS,
 >    THE TRACE IS IN THE ENTRY.*** Shown the cost, he parked it. **Four of the
