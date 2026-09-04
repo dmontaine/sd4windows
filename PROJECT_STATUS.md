@@ -175,6 +175,49 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 28, 3 Sep 2026 — ***150 DONE AND WITNESSED: WIDENED VIA ShowSummaryBox (NOT TRIMMED), FULL 135/147 WORDING RESTORED, OWNER CONFIRMED "all windows display correctly". ISCC EXIT 0, 27 FREE CHECKS GREEN, FIXLIST 259/0. OPEN 8 → 7.*** ⇩⇩⇩
+>
+> ***THE ONE CHANGE — PRE_RELEASE 150, AND THE FIRST SHAPE WAS WRONG.*** The
+> kept-database `MsgBox` at `sd.iss` `ssPostInstall` clipped below 1024x768
+> (~818px, measured off `sdxfer\p147-witness-keptbox.png`; a MsgBox has no
+> settable width and does not scroll, so the tail — `remote.api on` and OK — fell
+> off). A first pass **trimmed the wording** on the owner's "trim to fit one box"
+> ruling and it was **witnessed fitting** (his screenshot, the
+> AccessMsg-present/ApiRuleMsg-absent case). ***HE THEN ASKED WHY IT IS NOT
+> WIDER*** — and the file already answers it: `ShowSummaryBox` (`sd.iss:3618`),
+> the custom form built 23 Aug for exactly "wider and shorter?", which the
+> healthy-install box already uses. It sets a width, spaces paragraphs 7px apart
+> instead of by blank lines, and **falls back to a scrolling memo when the stack
+> will not fit — so a clip cannot recur on any screen.**
+>
+> ***SO THE BOX IS NOW `ShowSummaryBox('SD Core database kept', ...)` AND THE
+> FULL 135/147 WORDING IS RESTORED*** — the six trim edits reverted, `MsgBox(...,
+> mbInformation, MB_OK)` → `ShowSummaryBox(caption, ...)`. The trim only existed
+> to squeeze a fixed-width MsgBox; that constraint is gone. **This should have
+> been offered as a fourth shape when the trim was chosen — the miss is on the
+> author, recorded in 150.**
+>
+> ***VALIDATED AS FAR AS AN AGENT CAN, WHICH IS NOT A WITNESS.*** `ISCC
+> /DStage=C:\Users\dmont\stagetest /OC:\Users\dmont\sdout sd.iss` → **Successful
+> compile, exit 0** (the `[Code]` Pascal parses, run with the tool the cycle
+> uses); `test-retired-wording-units` **38/38** and **all 27 free checks green**.
+> A fresh installer carrying this box is at
+> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`.
+>
+> ***WITNESSED AND CLOSED.*** The owner uninstalled keeping the database and
+> reinstalled that installer over it at 1024x768: **"all windows display
+> correctly"** — wider, titled "SD Core database kept", full wording, OK
+> reachable. `test-fixlist-units` now reads **7 OPEN (16, 66, 70, 80, 96, 102,
+> 138)**, 259/0. ***`assert-current` READS EXIT 1, FLAGGING ONLY
+> `gplbld\sd.iss` — AND THAT IS A PROXY, NOT A REAL STALE.*** `sd.iss` is the
+> installer script, never copied into the `sdsys` tree, so assert-current can
+> only use its mtime as a "the installer changed" flag; the kept-DB reinstall
+> did not bump the payload mtimes past it. The fix IS installed — the owner ran
+> the installer built from this exact `sd.iss` and saw the correct render — so
+> the red is the proxy, not a missing fix. A full cycle would clear it by
+> re-stamping the payload, but is not needed to prove 150. Everything below is
+> HANDOFF 27 and still current bar this.
+>
 > # ⇩⇩⇩ HANDOFF 27, 3 Sep 2026 — ***151, 152 AND 114 DONE AND WITNESSED; 96 BUILT AND PARKED; 102 RULED AND DESIGNED. SUITE GREEN ON `b108`. NOTHING OWED. OPEN 8.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 20:50:22**, `sd.exe`
