@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***THREE CLOSED AND ALL THREE WITNESSED: 66, 153 AND 138. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. SUITE GREEN, 45 OF 45 ON `b109`. OPEN 6 → 5, AND ONLY TWO BLOCKERS LEFT. NOTHING OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***FOUR CLOSED AND ALL FOUR WITNESSED: 66, 153, 138 AND 16. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. SUITE GREEN, 45 OF 45 ON `b109`. OPEN 8 → 4, AND ONLY TWO BLOCKERS LEFT, BOTH RIG- OR PHASE-BOUND. NOTHING OWED.*** ⇩⇩⇩
 >
 > ***16 — BOTH RULINGS BUILT AND CYCLED 4 Sep 2026, INSTALL 01:33:13. THE
 > WITNESS IS OWED AND IT COSTS SOMETHING — READ THIS BEFORE SPENDING IT.***
@@ -204,11 +204,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   `test-tiercounts-units` caught `verify-tierapi.ps1` still on 396 in 0.4 s —
 >   **the third time that file has been the one left behind.**
 >
-> ***THE WITNESS NEEDS A DELIBERATELY KILLED SESSION, AND §6 SAYS NEVER TO
-> `Stop-Process` AN `sd` SESSION ON A TREE YOU STILL WANT TO MEASURE — "it
-> costs the install, not just the session".*** That warning is the very thing
-> this entry fixes, so the witness and the risk are the same act. `sd -cleanup`
-> elevated is the fallback. **Ask before spending an install on it.**
+> ***AND IT IS WITNESSED — 15 PASS / 0 FAIL, THE WHOLE CHAIN.***
+> `C:\Users\dmont\sdout\p16-witness.ps1` (run `p16-setup.ps1` first,
+> `p16-cleanup.ps1` after), output beside it. A session opened a file and was
+> **killed**; the slot survived; the refusal read
+> **`Holding it: 30 (don)`**; `logout 30` answered **10167**; the slot left
+> `listu`; and the same command **then succeeded**. **The holder is named while
+> alive too.**
+>
+> ***THE INSTALL SURVIVED BEING KILLED TWICE*** — `assert-current` exit 0,
+> `check-datatree-litter` **CLEAN over 3,629 entries**, every fixture removed
+> and the removal read back. ***SO §6's "never `Stop-Process` an `sd` session on
+> a tree you still want to measure — it costs the install" NO LONGER HOLDS FOR
+> THIS CAUSE.*** That is the entry's real product, and §6 should be read with
+> this beside it.
+>
+> ***THE FIRST WITNESS SCORED THREE FALSE PASSES AND IS THE PART WORTH
+> READING.*** `cname ZZ16FILE ZZ16GONE` is the rename-RECORDS form; it died at
+> *"Exected comma or TO"* and never reached the check — yet *"the refusal names
+> the FILE"* passed, anchored on `ZZ16FILE`, **which the echoed command carries
+> on every path.** The rewrite anchors on `Holding it:`. **And then the
+> disqualifier was wrong the other way**: it listed *"is not in your VOC"*,
+> which the blank BOM-absorbing first line produces every run, so it failed a
+> working product three times. **A disqualifier that is always true is as
+> useless as an anchor that is always true.**
 >
 > ***138 — BUILT AND CYCLED 4 Sep 2026. INSTALL 00:57:55, `assert-current`
 > EXIT 0. ONE CHECK OWED AND ONLY A PERSON CAN DO IT.*** `finish-install.ps1`
@@ -253,10 +272,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***THE STATE, IN ONE LINE.*** Install **4 Sep 00:57:55**, `sd.exe`
 > `79FBF0A6E46652BB`; `assert-current` **exit 0**; **28 of 28 free checks**
-> exit 0 in 35.4 s. ***OPEN 5: 16, 70, 80, 96, 102. NEXT FREE ID 154.
+> exit 0 in 35.4 s. ***OPEN 4: 70, 80, 96, 102. NEXT FREE ID 154.
 > `b109` SPENT ON THE FULL SUITE, GREEN IN BOTH HALVES; NEXT RUN TOKEN
 > `b110`.*** By severity, read from the table rather than carried forward:
-> ***TWO B — 70 and 80***; **two S — 16, 102**; **one M — 96, parked.**
+> ***TWO B — 70 and 80***; **one S — 102**; **one M — 96, parked.**
 > **Both remaining blockers are rig- or phase-bound**: 70 wants an install over
 > an existing tree on a guest, and 80 is the documentation audit the owner
 > scheduled for just before the 1.0 wrap-up.

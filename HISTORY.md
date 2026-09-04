@@ -47204,10 +47204,37 @@ against a 231-byte bound, which sounds alarming until the control is run: 1955 o
 these are display/stop paths.  op_stop() takes no argument at all - it only sets
 an exit cause - so "stop sysmsg(...)" never reaches that buffer.
 
-What is owed is a witness, and it is not free.  It needs a session that has been
-KILLED, and PROJECT_STATUS §6 says never to Stop-Process an sd session on a tree
-you still want to measure because it costs the install.  That warning is the very
-thing this entry fixes, so the witness and the risk are the same act.
+The witness then ran, on the owner's authority, and it is 15 PASS / 0 FAIL.  A
+session opened ZZ16FILE and was killed; its slot survived; "cname ZZ16FILE TO
+ZZ16GONE" was refused with "Cannot gain exclusive access to ZZ16FILE - it is open
+in another session." and "Holding it: 30 (don)"; logout 30 answered 10167 and
+wrote "LOGOUT reaped user 30 (pid 5012, don) - process was gone." to the log; the
+slot left listu; and the same command then succeeded, listf finding the file
+under its new name.  The holder is named while ALIVE too, which the entry said
+was worth having in its own right.  The scripts are kept at
+C:\Users\dmont\sdout\p16-witness.ps1 with p16-setup and p16-cleanup beside them.
+
+THE INSTALL SURVIVED BEING KILLED TWICE.  assert-current exit 0, the litter check
+CLEAN over 3629 entries, listu healthy, every fixture removed and the removal
+read back rather than assumed.  So §6's "never Stop-Process an sd session on a
+tree you still want to measure - it costs the install" no longer holds for this
+cause, and that is the entry's real product rather than the message wording.
+
+The first witness scored three FALSE PASSES and is worth more than the second.
+"cname ZZ16FILE ZZ16GONE" is the rename-RECORDS form: it died at "Exected comma
+or TO" and never reached the exclusive-access check at all - yet "the refusal
+names the FILE" passed, because it was anchored on ZZ16FILE, a string the ECHOED
+COMMAND carries on every path.  Two more passed the same way, including one
+claiming the operation had completed.  That is this file's own rule arriving from
+the inside, and it arrived while writing a witness for an entry about diagnosis.
+
+And then the disqualifier was wrong in the opposite direction.  The rewrite
+listed "is not in your VOC" as proof the command had not reached the check - but
+the deliberately blank first line, fed to absorb PowerShell 5.1's UTF-8 BOM,
+produces exactly that wording on every run.  So it scored three FAILs against a
+product that was working.  A disqualifier that is always true is as useless as an
+anchor that is always true; both were caught only by reading the raw output
+beside the verdict.
 
 ## 4 Sep 2026 - 138 built: the install asks for two passwords, and says why
 
