@@ -47142,6 +47142,73 @@ only way to exercise them without breaking the install.  26 PASS, 0 FAIL, exit 0
 run standalone before it was wired in - the record's rule about not handing over
 a script nobody has watched load.
 
+## 4 Sep 2026 - 16 built: name the holder, and let logout reap the dead
+
+Two rulings from the owner - "display both session and file" and "logout n
+should reap" - plus a third call the same day once the trace turned something
+up.  Cycled and installed 01:33:13, assert-current exit 0, mirrored files 3030
+to 3034, exactly the four records added.
+
+The diagnosis half turned out cheap for a reason worth recording: the per-user
+file map already exists.  dh_open.c increments it on every open, dh_close.c
+decrements it, and remove_user() already walks it to give a dead session's files
+back.  So a new read-only FILEINFO key, FL$HOLDERS (1021), asks the same table
+the same question and needs no new bookkeeping at all.  It excludes the caller,
+who always holds the file - reporting "you" would be true and useless - and
+returns empty when nothing else holds it, which is a real answer rather than a
+failure: it means the obstacle is this session's own cached reference, a
+different problem with a different remedy, and message 10169 says so.
+
+All six sites that raised 2602 now print 10168 or 10169.  2602 named neither the
+file nor the session, and it is now orphaned - referenced only in comments.  It
+was kept rather than deleted: it ships, upstream has it, and retiring a message
+id is a bigger change than leaving one unused.
+
+The recovery half puts reap_lost_user() BEFORE raise_event() in op_logout(), and
+the order is the whole point: raising an event at a process that cannot receive
+it is what sets USR_LOGOUT, so asking in the other order would leave "(logout
+pending)" standing on the way past.  It is cleanup()'s per-user half and shares
+its code - process_exists() and remove_user() - so a slot reaped by LOGOUT and
+one reaped by "sd -cleanup" are reclaimed identically.  Writing a second release
+path was the alternative and it is exactly how PRE_RELEASE 24 happened, one of
+two copies fixed.  It takes cleanup's four semaphores in cleanup's order, because
+two routines taking all four in different orders is how live sessions deadlock;
+it does NOT attach or unbind shared memory, the caller being a live session that
+already holds the segment; and it refuses to reap the caller.  logout() answers 2
+for "reaped", which is truthy, so every existing "if not(logout(...))" is
+unaffected.
+
+The trace then found something the entry had right for the wrong reason.  Entry
+16 says logout is administrator-only and so not a programmer's route - true, but
+CPROC:3256 has always carried a per-username guard refusing a non-administrator
+any session but their own.  That branch was DEAD CODE: the tier assignment meant
+a programmer never had the verb to reach it.  Put to the owner, he moved logout
+to PROGRAMMER, so the guard now does the work it was written for and no new
+permission logic was added.
+
+The counts were re-derived from the directory rather than adjusted by one: base
+392 to 393, TIER.ADD.ADMINISTRATOR 24 verbs to 23, TIER.OMIT.STANDARD 41 to 42,
+giving PROGRAMMER 396 to 397 while ADMINISTRATOR 420 and STANDARD 355 do not
+move.  The two that stay put are the check on the arithmetic, and in opposite
+ways: the verb left one side of ADMINISTRATOR's sum and joined the other, and
+joined both sides of STANDARD's at once.  test-tiercounts-units caught
+verify-tierapi.ps1 still carrying 396 in 0.4 seconds - the third time that file
+has been the one left behind, exactly as its own comment predicts.
+
+Two measurement notes.  A "strings bin/sd.exe" check for the new log line
+answered 0 and meant nothing: strings is not installed in this shell.  The
+control - a string certainly present - answered 0 as well, which is what caught
+it; grep -a then found both.  And check-msglen.py fails all three new messages
+against a 231-byte bound, which sounds alarming until the control is run: 1955 of
+1978 shipped messages exceed it, because that bound is k_error()'s buffer and
+these are display/stop paths.  op_stop() takes no argument at all - it only sets
+an exit cause - so "stop sysmsg(...)" never reaches that buffer.
+
+What is owed is a witness, and it is not free.  It needs a session that has been
+KILLED, and PROJECT_STATUS §6 says never to Stop-Process an sd session on a tree
+you still want to measure because it costs the install.  That warning is the very
+thing this entry fixes, so the witness and the risk are the same act.
+
 ## 4 Sep 2026 - 138 built: the install asks for two passwords, and says why
 
 The owner's shape (b) from 2 Sep, built and cycled.  Install 00:57:55, CYCLE

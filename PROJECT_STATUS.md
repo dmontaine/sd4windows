@@ -177,6 +177,39 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***THREE CLOSED AND ALL THREE WITNESSED: 66, 153 AND 138. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. SUITE GREEN, 45 OF 45 ON `b109`. OPEN 6 → 5, AND ONLY TWO BLOCKERS LEFT. NOTHING OWED.*** ⇩⇩⇩
 >
+> ***16 — BOTH RULINGS BUILT AND CYCLED 4 Sep 2026, INSTALL 01:33:13. THE
+> WITNESS IS OWED AND IT COSTS SOMETHING — READ THIS BEFORE SPENDING IT.***
+> Owner's two rulings: **"display both session and file"** and **"logout n
+> should reap"**, plus a third call the same day — **`logout` moves to
+> PROGRAMMER**. `assert-current` **exit 0**; mirrored files **3030 → 3034**,
+> exactly the four records added.
+>
+> - **Diagnosis**: new read-only FILEINFO key **`FL$HOLDERS` (1021)**, which
+>   needs **no new bookkeeping** — the per-user file map is already kept on
+>   every open and close and `remove_user()` already walks it. All **six**
+>   sites that raised 2602 now print **10168** or **10169**. **2602 is
+>   orphaned and deliberately kept.**
+> - **Recovery**: `op_logout()` tries **`reap_lost_user()` BEFORE**
+>   `raise_event()` — the other order sets `USR_LOGOUT` on the way past and
+>   leaves "(logout pending)" anyway. It is `cleanup()`'s per-user half and
+>   **shares its code**, takes the same four semaphores **in the same order**,
+>   does not attach/unbind the segment, and refuses to reap the caller.
+>   `logout()` answers **2** for reaped — truthy, so existing callers are
+>   unaffected.
+> - **Tier**: `logout` moved to `newvoc` + `TIER.OMIT.STANDARD`, the shape
+>   `micro` has. ***NO NEW PERMISSION LOGIC*** — `CPROC:3256`'s per-username
+>   guard was already there and was **dead code**, unreachable because the tier
+>   withheld the verb. **PROGRAMMER 396 → 397; ADMINISTRATOR 420 and STANDARD
+>   355 unmoved**, which is the check on the arithmetic.
+>   `test-tiercounts-units` caught `verify-tierapi.ps1` still on 396 in 0.4 s —
+>   **the third time that file has been the one left behind.**
+>
+> ***THE WITNESS NEEDS A DELIBERATELY KILLED SESSION, AND §6 SAYS NEVER TO
+> `Stop-Process` AN `sd` SESSION ON A TREE YOU STILL WANT TO MEASURE — "it
+> costs the install, not just the session".*** That warning is the very thing
+> this entry fixes, so the witness and the risk are the same act. `sd -cleanup`
+> elevated is the fallback. **Ask before spending an install on it.**
+>
 > ***138 — BUILT AND CYCLED 4 Sep 2026. INSTALL 00:57:55, `assert-current`
 > EXIT 0. ONE CHECK OWED AND ONLY A PERSON CAN DO IT.*** `finish-install.ps1`
 > gained `Invoke-PasswordStep`, run **twice** — the person's account, then
