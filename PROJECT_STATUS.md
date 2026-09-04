@@ -175,16 +175,38 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***66 IS DONE AND CLOSED: THE OWNER OPENED BOTH EDITORS. THE WITNESS IS NOW A SUITE STEP, `verify-editors`. THE FULL SUITE RAN GREEN, 45 OF 45 ON `b109`. 153 FILED OUT OF THE WITNESS. OPEN 7. NOTHING OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***66 AND 153 BOTH DONE AND WITNESSED. THE WITNESS IS NOW A SUITE STEP, `verify-editors`, AND THERE IS A 28th FREE CHECK. THE FULL SUITE RAN GREEN, 45 OF 45 ON `b109`. OPEN 6. NOTHING OWED.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** Install **3 Sep 23:32:33**, `sd.exe`
-> `79FBF0A6E46652BB`; `assert-current` **exit 0**; **27 of 27 free checks**
-> exit 0 in 31.7 s; `test-fixlist-units` **260/0**. ***OPEN 7: 16, 70, 80, 96,
-> 102, 138, 153. NEXT FREE ID 154. `b109` SPENT ON THE FULL SUITE, GREEN IN
-> BOTH HALVES; NEXT RUN TOKEN `b110`.*** By severity, read from the table
-> rather than carried forward: **three B — 70, 80, 138**; **two S — 16, 102**;
-> **two M — 96 (parked) and 153**. *(Handoff 27's "96 is the only M" was true
-> when written and stopped being true when 153 was filed.)*
+> ***153 — DONE 4 Sep 2026, WITNESSED ON THE 00:42:07 INSTALL.*** The
+> installer's **own hidden run** now records
+> `micro: already present - ...\usr\bin\micro.exe  version 2.0.15`, beside
+> Edit's `1.2.1` — read from `install-editors.log`, which holds one run because
+> the cycle deletes both trees. **A three-step ladder that cannot end in a
+> blank**: version resource, else ask the executable, else byte count and
+> SHA-256 — the value `BUNDLED_EDITORS` pins, so the log matches the build.
+>
+> ***THE RISK WAS THE PROBE, NOT THE PARSING, AND IT IS FENCED FOUR WAYS.***
+> `install-editors.ps1` runs **hidden** during the install, so an editor opened
+> by a wrong flag hangs the install with nothing on screen. Only editors with a
+> **known** flag are asked (`VersionArg`, empty for Edit); it is reached only
+> when the resource is empty; hidden window, stdout/stderr to files, **stdin
+> from an empty file**; five-second timeout, `Kill`, all in `try/catch`.
+> ***AND A TIMEOUT NOBODY HAS FIRED IS NOT A TIMEOUT*** —
+> `test-editorver-units` makes it hang on purpose and requires it back in
+> **5.1 s**, having answered and having *said* it timed out. **11 rows, 0
+> failed**, `Get-EditorVersion` lifted by AST, `.cmd` fixtures so it needs no
+> compiler. **It is the 28th free check** — the set is now **~36 s**.
+> `verify-editors` is **30 PASS / 0 FAIL** (was 26).
+>
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 00:42:07**, `sd.exe`
+> `79FBF0A6E46652BB`; `assert-current` **exit 0**; **28 of 28 free checks**
+> exit 0 in 35.5 s. ***OPEN 6: 16, 70, 80, 96, 102, 138. NEXT FREE ID 154.
+> `b109` SPENT ON THE FULL SUITE, GREEN IN BOTH HALVES; NEXT RUN TOKEN
+> `b110`.*** By severity, read from the table rather than carried forward:
+> **three B — 70, 80, 138**; **two S — 16, 102**; **one M — 96, parked.**
+> *(Handoff 27's "96 is the only M" was true when written, stopped being true
+> when 153 was filed, and is true again now 153 is closed — which is the
+> argument for reading the table rather than quoting a handoff.)*
 >
 > ***THE CYCLE WAS RUN BY THE AGENT — `Start-Process -Verb RunAs -Wait`, ONE
 > HOP, ONE CONSENT*** (§4.0.1, and handoff 25 says the same). 23:31:29 →

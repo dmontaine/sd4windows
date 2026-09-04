@@ -47142,6 +47142,52 @@ only way to exercise them without breaking the install.  26 PASS, 0 FAIL, exit 0
 run standalone before it was wired in - the record's rule about not handing over
 a script nobody has watched load.
 
+## 4 Sep 2026 - 153 fixed: the version probe, and the timeout that had to be fired
+
+The installer's own hidden run now records "micro: already present -
+C:\Program Files\SD\usr\bin\micro.exe  version 2.0.15", witnessed on the
+00:42:07 install and read from install-editors.log, which holds one run because
+the cycle deletes both trees.  Cycle 00:41:14, CYCLE COMPLETE, assert-current
+exit 0, 2.2 minutes - the same as the cycle before the probe existed, which is
+the evidence that asking the executable costs the install nothing.
+
+The fix is a three-step ladder that cannot end in a blank: the Win32 version
+resource, else ask the executable with a per-editor flag, else the byte count
+and SHA-256.  The last is not a consolation prize - it is the value stage.py's
+BUNDLED_EDITORS pins, so a reader can match the log line against the build.  A
+blank field reads as "no version" rather than "not asked", which is the null case
+the instrument rules refuse.
+
+Asking an executable was the risky part, and it is fenced four ways because
+install-editors.ps1 runs HIDDEN during the install: an editor opened by a wrong
+flag would hang the install with nothing on screen to say why.  Only editors with
+a known flag are asked - VersionArg is per row and empty for Microsoft Edit, so
+guessing "--version" at a full-screen editor cannot happen.  It is reached only
+when the version resource is empty, so Edit never gets there.  Hidden window,
+stdout and stderr to files, stdin from an EMPTY file so a TUI gets EOF at once if
+it tries to read.  Five-second timeout, a Kill, and the whole thing in try/catch.
+
+A timeout nobody has fired is not a timeout, so test-editorver-units.ps1 makes
+the probe hang on purpose - a .cmd with goto loop - and requires it back in about
+five seconds having answered anyway and having SAID it timed out.  It came back
+in 5.1s.  11 rows, 0 failed.  Get-EditorVersion is lifted out by AST so the test
+cannot drift from what ships, Say() is stubbed and captured so the timeout report
+is checked rather than assumed, and the fixtures are .cmd files, which is what
+makes it runnable with no compiler.
+
+It is the 28th free check, listed in CLAUDE.md in the commit that created it, and
+the set is now about 36 seconds rather than 30.  It is on assert-current's
+$neverShipped; install-editors.ps1 deliberately is NOT, because it ships to
+{app}, and the tree went stale on exactly that one file - which is the two lists
+doing their separate jobs correctly.
+
+verify-editors gained Test-VersionNamed and is 30 PASS / 0 FAIL, up from 26.  The
+new check is applied to the LIVE -CheckOnly output rather than the historical log:
+a cycle wipes that log with the data tree, but an upgrade that keeps the database
+does not, so a tree upgraded from a pre-153 install would carry blank lines that
+say nothing about the script running today.  The pre-153 blank line itself is the
+red control.
+
 66 closed the same day.  The owner ran both verbs - "micro opened fine, so did
 edit" - which was the one thing nothing on this side could supply, because a
 full-screen editor needs a terminal an agent cannot drive.  It was held open for

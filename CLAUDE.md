@@ -499,8 +499,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-apiidentity-units`, `test-deletioncheck-units`,
    `test-doorsargv-units`, `test-reclaim-units`, `test-sdpath-units`,
    `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
-   `test-stalebin-units`, `test-privwhy-units`. ***ALL TWENTY-SEVEN. Run these on
-   every change*** — **about 30 s for the whole set**, measured 3 Sep 2026, each
+   `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`.
+   ***ALL TWENTY-EIGHT. Run these on
+   every change*** — **about 36 s for the whole set**, measured 4 Sep 2026, each
    in its own process. A whole suite run has already been spent twice discovering
    what one
    of them names in a second. **`test-retired-wording-units` is the wording
@@ -572,6 +573,16 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    that need an induced name-service failure to reach. **It has a mutant
    control**: the `*why` assignment was removed from `IsElevated`, the guard
    went red naming the site, and the file was restored to the same SHA-256.
+
+   ***`test-editorver-units` JOINED IT 4 Sep 2026 IN THE COMMIT THAT CREATED
+   IT.*** It guards PRE_RELEASE 153's version probe in `install-editors.ps1`,
+   and it exists for the one row nothing else can reach: **that script runs
+   HIDDEN during the install**, so an editor opened by a wrong flag would hang
+   the install with nothing on screen to say why. **A timeout nobody has fired
+   is not a timeout** — the test makes the probe hang on purpose and requires it
+   back in about five seconds, having answered anyway and having SAID it timed
+   out. It lifts `Get-EditorVersion` out by AST so it cannot drift, and its
+   fixtures are `.cmd` files, so it needs no compiler.
 
    ***`test-reconcile-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT***, which is the rule above working and needs no paragraph of its own. It
