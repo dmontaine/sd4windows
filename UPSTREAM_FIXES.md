@@ -2766,3 +2766,37 @@ Reported here from reading upstream's source at `ae0cc5f`, where all five
 sites are present and match the Windows port's pre-fix state line for line.
 The fix above is the one the port took; it compiles, and the behaviour
 described was reproduced in that tree, not in `sdb64`.
+
+## 37. `INT.UPDATE.ACCOUNT`'s banner comment names internal verb 30, and the dispatch table two hundred lines above says 15
+
+This is a comment, not code, so nothing misbehaves. It is here because the
+comment is the only place a reader can look up what an internal verb number
+means, and this one sends them to the wrong routine.
+
+In `sd64/sdsys/GPL.BP/CPROC` the dispatch table reads
+
+```
+                     int.update.account,         ;* 15  UPDATE.ACCOUNT
+```
+
+and the routine's own banner, some 1,440 lines further down, reads
+
+```
+* INT.UPDATE.ACCOUNT    -  UPDATE.ACCOUNT (Internal verb 30)
+```
+
+**30 belongs to `INT.STOP`, which is the next banner in the file and where the
+number is correct.** So the two banners agree with each other and only one of
+them agrees with the table, which is the shape that makes a copied heading hard
+to notice.
+
+It matters because field 3 of a `V`/`IN` VOC record *is* that number — `OFF` is
+`V / IN / 1`, `WHO` is `V / IN / 16` — so somebody holding a VOC record and
+asking "which routine runs this?" reads the banners, not the table. Anyone
+tracing `UPDATE.ACCOUNT` that way lands on `INT.STOP`.
+
+The fix is one character: make the banner say 15.
+
+Found while adding an optional keyword to that routine in the Windows port on
+4 Sep 2026, where the same wrong number is present and has now been corrected.
+Read from upstream's source; there is no behaviour to reproduce.

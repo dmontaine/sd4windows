@@ -47557,3 +47557,100 @@ AND A COUNT IN THE HANDOFF BOX WAS WRONG FOR A WHILE.  It read "OPEN 3: 70, 80,
 test-fixlist-units counts the table and would have said 4; it does not read
 PROJECT_STATUS prose, so nothing caught it but a reread.  Take the count from
 the checker, not from the handoff being written.
+
+## 4 Sep 2026 - 70: the installer runs the all-accounts VOC walk, and the red was banked before a line of source moved
+
+An upgrade replaces newvoc and voc_template and rebuilds no account's live VOC,
+so a release that added a verb shipped it and no existing account - SDSYS
+included - could type it.  The only cure was a sentence in the closing box
+asking the administrator to run update.accounts by hand.
+
+BUILT AS THE EXISTING WALK, WHICH IS THE ENTRY'S OWN RULING.  LOGIN gains mode
+4 - mode 2's walk with the question answered by the caller - CPROC's
+int.update.accounts takes an optional ALL keyword and refuses any other
+trailing token by name, and gplbld/upgrade-voc.ps1 runs "sd -internal
+UPDATE.ACCOUNTS ALL" at ssPostInstall on an upgrade only, beside
+upgrade-dicts.ps1 and modelled on it.  New messages 10170-10173.  One
+implementation of "refresh every account", reached both by a person answering Y
+and by the installer.
+
+THE KEYWORD IS EXPLICIT RATHER THAN INFERRED.  kernel(K$INTERNAL,-1) would have
+needed no new spelling and LOGIN already uses it twice for "there is nobody to
+ask", but it decides a rewrite of every account's VOC from a property of how SD
+was started, which nobody typing the verb can see.
+
+THE RED, ON GUEST Windows 11 - SSH no SD - Test D, installer SHA-256
+730495AD...  Baseline SDSYS 430 VOC records and don 420, who present in both;
+"delete voc who" in each, 1 record(s) deleted each, who then answering "WHO is
+not in your VOC", 429 / 419.  A full upgrade with that same installer left it
+429 / 419 with who still absent, and its closing box - screenshot before anyone
+clicked OK - still read "FIRST, GIVE EACH ACCOUNT THE NEW COMMANDS".
+
+AND THE CONTROL IS THE USEFUL HALF.  UPDATE.ACCOUNTS answered Y by hand put it
+back to 430 / 420, visiting don and sdsys.  So the walk worked and only the
+wiring was missing, which is what makes "call the existing path" the right
+shape rather than merely a cheap one.
+
+THE GREEN, ON THE SAME GUEST, WITH THE FIXED INSTALLER (D10618F3..., the
+13:31:10 build, staged beside the red leg's binary with both hashes compared on
+the guest first).  Broken again to 429 / 419, then upgraded: 430 / 420 with who
+present in both.  The step's own log is decisive on its own terms - "2
+account(s) reported updated, 2 'Updating' line(s), 2 registered", COMPLETE,
+exit 0 - and both wizard texts were read on screen and captured before
+dismissal, the closing box carrying VocDoneMsg with VocMsg absent.  70 closed;
+open 3 -> 2.
+
+A DEFECT IN THE BUILD TOOLING, WALKED INTO AND FIXED.  strip-comments.ps1
+tested for an Inno section header with an unanchored ^\s*\[[A-Za-z]+\], so a
+wrapped comment line beginning "[locked] on everything but a verb" left [Code]
+and switched Pascal comment stripping off for the remaining 2,400 lines of
+sd.iss.  It surfaced 1,300 lines away as test-retired-wording-units' own canary
+going red over an unrelated comment - a true report of a fault whose cause was
+nowhere near it.  Anchored at both ends; measured, not assumed: every one of
+sd.iss's eleven real section lines is a bare [Word], and the only line matching
+the old pattern with trailing text was that prose.
+
+AND THE STRIPPER WAS THE SMALLER HALF: ISCC REFUSES THAT LINE OUTRIGHT, AND IT
+COST TWO CYCLES.  "Error on line 2908 ... Invalid section tag", exit 2, aborted
+at step 4 - after the service was stopped and the tree staged.  Inno's section
+scan runs before Pascal comments are considered at all, so hardening
+strip-comments.ps1 does not make such a line safe to write.  The first fix
+reworded the sentence and rewrapped it so the marker began the same line number
+again; the error message is identical, 2908 included, so it reads as "the edit
+did not apply" rather than as a second instance.  Check the line, not the line
+number.  cycle.ps1's pre-flight lint gained a "[" check beside its existing "#"
+one, whitelisting the real section names - driven both ways, 0 on the fixed
+file and 1 naming line 2908 with the bad line reinstated in memory - and
+sdout\check-iss.ps1 compiles sd.iss alone in about seven seconds.  Run it
+before handing over a cycle that carries a [Code] change.
+
+THE MUTANT CONTROL CAUGHT THE FIRST VERSION OF ITS OWN GUARD MEASURING NOTHING.
+The two new rows in test-stripcomments-units were written with the fixture as
+"{ [locked] ... }" - brace before bracket - which cannot match ^\s*\[ at all,
+so both passed against the unfixed stripper.  The real case is a WRAPPED
+comment whose CONTINUATION line begins with the word.
+
+THREE INSTRUMENT FAULTS, ALL IN CLASSES THE RECORD ALREADY NAMES.  "DELETE VOC
+WHO" deletes nothing and answers "Record 'WHO' not found" while WHO the command
+still runs, because CPROC folds case when it resolves a verb and DELETE does
+not - the VOC ids are lower case.  A count regex of (\d+)\s+record took its
+number from "0 record(s) deleted" rather than "430 record(s) counted" in the
+same transcript, turning a real reading into a zero that looked like an empty
+VOC.  And message 10170 opened with the word "Updating", so upgrade-voc.ps1's
+per-account counter counted it too - 2 against 3 on a two-account machine, and
+a good upgrade refused.  The third was caught by test-upgradevoc-units on its
+first run, off disk, before any guest saw it.
+
+START-PROCESS -VERB RUNAS FROM THE AGENT'S SHELL DID NOTHING AND EXITED 0.  No
+consent.exe ever existed, no elevated powershell.exe appeared in Win32_Process,
+and no cycle-*.log was created.  Handoff 31 records the opposite for what reads
+like the same gesture, so one of the two shells is not the one that sentence
+means; this session could not tell which and did not spend a second attempt on
+it.  The cycle was handed to the owner with its absolute path and "elevated",
+which is what the standing rule asks for anyway.
+
+AND A RULE BROKEN, RECORDED BECAUSE IT IS ALREADY IN CLAUDE.md.  The stripper
+mutant was applied with a Python heredoc, which "Never reach for Python to edit
+a file" forbids outright, and it emitted the exact SyntaxWarning the rule
+predicts.  Restored with Edit and proved byte-identical, SHA-256
+523d125e... before and after, 0 CRs.  A mutant is still a file edit.

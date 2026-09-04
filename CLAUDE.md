@@ -500,8 +500,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-doorsargv-units`, `test-reclaim-units`, `test-sdpath-units`,
    `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
    `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`,
-   `test-wraptext-units`.
-   ***ALL TWENTY-NINE. Run these on
+   `test-wraptext-units`, `test-upgradevoc-units`.
+   ***ALL THIRTY. Run these on
    every change*** — **about 38 s for the whole set**, measured 4 Sep 2026, each
    in its own process. A whole suite run has already been spent twice discovering
    what one
@@ -584,6 +584,18 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    back in about five seconds, having answered anyway and having SAID it timed
    out. It lifts `Get-EditorVersion` out by AST so it cannot drift, and its
    fixtures are `.cmd` files, so it needs no compiler.
+
+   ***`test-upgradevoc-units` JOINED IT 4 Sep 2026 IN THE COMMIT THAT CREATED
+   IT, AND IT WENT RED ON ITS FIRST RUN AGAINST THE FIX IT GUARDS.*** It drives
+   `Get-VocVerdict`, the decision inside `gplbld/upgrade-voc.ps1` — PRE_RELEASE
+   70's installer step — and it exists for the one thing nothing else can
+   reach: **that step runs HIDDEN inside the installer**, and its whole job is
+   to tell *"the walk refreshed every account"* from *"the walk ran and did
+   nothing"*, which print a similar block of text and both exit 0. **The
+   regression it caught was in the fix's own new message**: 10170 opened with
+   the word *"Updating"*, so the per-account counter counted it too — 2 against
+   3 on a two-account machine, and a good upgrade refused. Reaching that on a
+   guest costs an install and an upgrade; it cost a second here.
 
    ***`test-wraptext-units` JOINED IT 4 Sep 2026 IN THE COMMIT THAT CREATED
    IT.*** It guards PRE_RELEASE 155's `Write-Wrapped` in `install`'s

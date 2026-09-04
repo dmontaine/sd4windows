@@ -175,6 +175,196 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 32, 4 Sep 2026 — ***70 IS DONE AND WITNESSED RED AND GREEN ON GUEST `Test D`: THE INSTALLER NOW RUNS THE ALL-ACCOUNTS VOC WALK ITSELF, AND AN UPGRADE PUTS BACK A VERB THE SAME UPGRADE USED TO LEAVE MISSING. OPEN 3 → 2, AND BOTH OF THE REST ARE THE OWNER'S OR PHASE-BOUND. ONE THING OWED: A FULL SUITE ON `b112`.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 13:31:34**, `sd.exe`
+> **E31CE514E8999D24** (unchanged — no C moved); `assert-current` **exit 0**;
+> **30 of 30 free checks** exit 0; `test-fixlist-units` **261/0**;
+> `check-stale-leads` exit 0. ***OPEN 2: 80, 96 — TAKEN FROM THE CHECKER, NOT
+> FROM THIS BOX. NEXT FREE PRE_RELEASE ID 156. NEXT FREE MESSAGE ID 10174. RUN
+> `b112`.***
+>
+> ***THE 30th FREE CHECK IS `test-upgradevoc-units`***, and it is listed in
+> CLAUDE.md in the commit that created it.
+>
+> ### ***WHAT TO DO NEXT — THE LIST IS TWO AND NEITHER IS ORDINARY WORK***
+>
+> 1. ***A FULL SUITE ON `b112`.*** CLAUDE.md asks for one before a handoff and
+>    none has run since `b111`. **Name the delta and the step that covers it**:
+>    `LOGIN` mode 4 and `CPROC`'s `ALL` keyword are covered by
+>    `verify-tiers` section 5, which runs `UPDATE.ACCOUNTS` and checks a
+>    standard account does not get its withheld verbs back — **the walk this
+>    change reaches, from the interactive side**. `upgrade-voc.ps1` and the
+>    installer texts are covered by **no step and none can**: they exist only
+>    inside a real upgrade, which is what `Test D` was for.
+> 2. **`80`** — the documentation audit, and **the owner scheduled it for just
+>    before the 1.0 wrap-up**, against the final install image.
+> 3. **`96` is parked by the owner.** Do not re-derive its trace.
+>
+> ### ***WHAT WAS BUILT — 70's SECOND HALF***
+>
+> **An upgrade replaces `newvoc` and `voc_template` and rebuilds no account's
+> live VOC**, so a release that added a verb shipped it and no existing account,
+> SDSYS included, could type it. The cure was a sentence in the closing box
+> asking the administrator to run `update.accounts` by hand.
+>
+> | | what |
+> |---|---|
+> | `gplbld/upgrade-voc.ps1` | NEW. `sd -internal UPDATE.ACCOUNTS ALL` at `ssPostInstall`, upgrade only. Modelled on `upgrade-dicts.ps1` line for line, including the three faults `adopt-account.ps1`'s header records |
+> | `gplbld/sd.iss` | `RefreshAccountVocs`, called beside `RefreshDictionaries`; `VocMsg` for the failure paths and `VocDoneMsg` for the positive one |
+> | `sdsys/gpl.bp/CPROC` | `int.update.accounts` takes an optional `ALL`; any other trailing token is refused by name (10173) |
+> | `sdsys/gpl.bp/LOGIN` | **mode 4** — mode 2's walk with the question answered by the caller, counted (10171) and refusing out loud when it is not SDSYS or not an administrator (10172) |
+>
+> ***IT IS THE EXISTING WALK AND THAT IS THE ROW'S OWN RULING***, not a cheap
+> choice: one implementation of *"refresh every account"*, reached both by a
+> person answering `Y` and by the installer.
+>
+> ***AND THE KEYWORD IS EXPLICIT RATHER THAN INFERRED.*** `kernel(K$INTERNAL,-1)`
+> would have needed no new spelling and is already used twice in `LOGIN` for
+> *"there is nobody to ask"* — but it decides a rewrite of every account's VOC
+> from a property of **how SD was started**, which nobody typing the verb can
+> see. The owner's standing preference is the keyword.
+>
+> ### ***THE RED IS BANKED, AND SO IS THE CONTROL***
+>
+> Guest `Windows 11 - SSH no SD - Test D`, base install from
+> `C:\Users\Public\sd-setup-A.exe`, **SHA-256 `730495AD5DFDA83786AF724AA45D21216790C57826B2E71C27155893AC79692D`**,
+> the 4 Sep **09:39:45** build. All four readings from
+> `C:\Users\dmont\sdxfer\t70-voc.ps1`, whose transcripts are in `sdxfer`:
+>
+> | | SDSYS | `don` |
+> |---|---|---|
+> | baseline | `who` present, **430** | present, **420** |
+> | after `delete voc who` | absent, **429** | absent, **419** |
+> | ***after a full upgrade with the SAME installer*** | ***absent, 429*** | ***absent, 419*** |
+> | after `UPDATE.ACCOUNTS` + `Y` by hand | present, **430** | present, **420** |
+>
+> **The last row is the control and it is the useful one**: the walk itself
+> restores both, visiting `don` and `sdsys`. So only the wiring was missing.
+> **The upgrade's closing box was screenshot before it was dismissed** and still
+> read *"FIRST, GIVE EACH ACCOUNT THE NEW COMMANDS … run this once and answer
+> Y"* — `C:\Users\dmont\sdxfer\t70-l2-5.png`.
+>
+> ### ***AND THE GREEN, ON THE SAME GUEST, WITH THE FIXED INSTALLER***
+>
+> `C:\Users\Public\sd-setup-B.exe`, SHA-256 **`D10618F3…`**, the 13:31:10 build —
+> **staged beside the red leg's binary and the two hashes compared on the guest
+> before anything ran**, because the one way this test can lie and look fine is
+> re-measuring the same build.
+>
+> | | SDSYS | `don` |
+> |---|---|---|
+> | broken again | `who` absent, **429** | absent, **419** |
+> | ***after the upgrade*** | ***present, 430*** | ***present, 420*** |
+>
+> ***AND THE STEP'S OWN LOG IS DECISIVE ON ITS OWN TERMS***, which is what it
+> was written for — `C:\ProgramData\SD\upgrade-voc.log`, copied back as
+> `sdxfer\t70-upgrade-voc.log-*.txt`: *"2 account(s) reported updated, 2
+> 'Updating' line(s), 2 registered"*, **`COMPLETE`, exit 0**, with SD's raw
+> output showing `Copying records from NEWVOC to VOC…`, message 10170, and the
+> walk visiting `don` then `sdsys`.
+>
+> ***BOTH TEXTS WERE READ ON SCREEN AND CAPTURED BEFORE DISMISSAL.*** The
+> Ready-to-Install memo now opens *"EVERY ACCOUNT GETS THIS RELEASE'S
+> COMMANDS"* (`t70-g2-readymemo.png`) and the closing box *"EVERY ACCOUNT
+> ALREADY HAS THIS RELEASE'S COMMANDS … there is nothing to run first"*
+> (`t70-g5.png`) — ***with the failure paragraph `VocMsg` ABSENT***, which is
+> the half that matters: the two are mutually exclusive by construction, so a
+> box carrying the positive one is a box where the step returned nothing to
+> report.
+>
+> ***THE GUEST IS SPENT AND WORTH KEEPING AS IT IS.*** `Test D` now holds an
+> upgraded tree with both installers on it (`sd-setup-A.exe` unfixed,
+> `sd-setup-B.exe` fixed) and `t70-voc.ps1` on the `xfer` share, so *"install
+> over an existing data tree"* is reproducible there without a fresh clone.
+>
+> ### ***A TRAP THAT COST THIS SESSION THE CYCLE, AND IT CONTRADICTS HANDOFF 31***
+>
+> ***`Start-Process -Verb RunAs` FROM THE AGENT'S SHELL DID NOTHING AT ALL, AND
+> EXITED 0.*** Measured, not inferred: no `consent.exe` ever existed, no elevated
+> `powershell.exe` appeared in `Win32_Process`, and no `cycle-*.log` was created
+> under `%LOCALAPPDATA%\SD-verify`. **The launcher's own exit code was 0**, which
+> is the whole difficulty — nothing anywhere said it had failed.
+>
+> **Handoff 31 records the opposite** (*"issue it inline from the shell … that
+> worked first time, one consent, child exit 0"*), so **one of the two shells is
+> not the one that sentence means**, and this session could not tell which. ***DO
+> NOT SPEND A SECOND ATTEMPT ON IT: HAND THE CYCLE TO THE OWNER WITH ITS
+> ABSOLUTE PATH AND "ELEVATED", WHICH IS WHAT §"Every command you hand over"
+> ASKS FOR ANYWAY.*** The cheap check before believing an elevated child ran is
+> the transcript: `%LOCALAPPDATA%\SD-verify\cycle-*.log` appears within seconds
+> of a real start.
+>
+> ### ***ONE DEFECT IN THE BUILD TOOLING, WALKED INTO AND FIXED***
+>
+> ***`strip-comments.ps1` TOOK ANY LINE STARTING WITH A BRACKETED WORD FOR AN
+> INNO SECTION HEADER.*** The test was `^\s*\[[A-Za-z]+\]`, unanchored, so a
+> wrapped comment line beginning *"[locked] on everything but a verb"* left
+> `[Code]` and **switched Pascal comment stripping off for the remaining 2,400
+> lines of `sd.iss`**. It surfaced 1,300 lines away, as
+> `test-retired-wording-units`' own canary going red over an unrelated comment —
+> **a true report of a fault whose cause was nowhere near it.**
+>
+> Anchored at both ends. ***MEASURED RATHER THAN ASSUMED***: every one of
+> `sd.iss`'s eleven real section lines is a bare `[Word]`, and the only line in
+> the file matching the old pattern with trailing text was that prose. Two rows
+> in `test-stripcomments-units` (**31/31**), and ***THE MUTANT CONTROL CAUGHT THE
+> FIRST VERSION OF THOSE ROWS MEASURING NOTHING*** — the fixture had written
+> `{ [locked] … }`, brace before bracket, which cannot match `^\s*\[` at all, so
+> both rows passed against the unfixed stripper.
+>
+> ***AND THE STRIPPER WAS THE SMALLER HALF OF IT: ISCC REFUSES THAT LINE
+> OUTRIGHT, AND IT COST A CYCLE.*** `Error on line 2908 … Invalid section tag`,
+> exit 2, compile aborted at **step 4 — after the service was stopped and the
+> tree staged**. **Inno's own parser has the same rule and it is the binding
+> one**: the section scan runs before Pascal comments are considered at all, so
+> hardening `strip-comments.ps1` does NOT make such a line safe to write.
+>
+> ***IT HAPPENED TWICE IN ONE HOUR AND THE SECOND TIME IS THE PART TO CARRY.***
+> The first fix reworded the sentence — and rewrapped it so the marker began
+> **the same line number** again. ***THE ERROR IS IDENTICAL, 2908 INCLUDED, SO
+> IT READS AS "MY EDIT DID NOT APPLY" RATHER THAN AS A SECOND INSTANCE.*** Check
+> the LINE, not the line number. **Two cycles died on it**: the owner's second
+> run reached step 4 and stopped there, leaving SD stopped on the host with both
+> trees untouched.
+>
+> ***TWO GUARDS NOW STAND WHERE THERE WERE NONE.*** `cycle.ps1`'s pre-flight
+> lint gained a `[` check beside its existing `#` one — **same place, same
+> reasoning, before the service goes** — whitelisting the real section names
+> rather than testing for a shape, because a *misspelled* section is refused by
+> ISCC with this very message too. Driven both ways before it was trusted: **0
+> on the fixed file, and 1 naming line 2908** with the offending line reinstated
+> in memory. And `C:\Users\dmont\sdout\check-iss.ps1` compiles `sd.iss` alone in
+> **about seven seconds** — ***RUN IT BEFORE HANDING OVER ANY CYCLE THAT CARRIES
+> A `[Code]` CHANGE.*** This session handed one over without it, twice.
+>
+> ### ***THREE INSTRUMENT FAULTS, ALL MINE, ALL IN THE RECORD'S OWN CLASSES***
+>
+> - ***`DELETE VOC WHO` DELETES NOTHING AND `WHO` STILL RUNS.*** SD answers
+>   *"Record 'WHO' not found"*, because **CPROC folds case when it resolves a
+>   verb and `DELETE` does not** — the VOC ids are lower case. `delete voc who`
+>   works. The probe reported `who=present` and was right; a probe that had
+>   trusted the delete would have called a working upgrade a failure.
+> - ***A COUNT REGEX OF `(\d+)\s+record` TOOK ITS NUMBER FROM `0 record(s)
+>   deleted`*** rather than `430 record(s) counted`, in the same transcript —
+>   turning a real reading into a zero that looked like an empty VOC. Anchored
+>   on `record\(s\) counted`.
+> - ***MESSAGE 10170 OPENED WITH THE WORD "Updating", SO `upgrade-voc.ps1`
+>   COUNTED IT AS AN ACCOUNT.*** 2 against 3 on a two-account machine, and a
+>   good upgrade refused. **Caught by `test-upgradevoc-units` on its first run,
+>   off disk, before any guest saw it.** Both ends closed: 10170 reworded, and
+>   the per-account pattern anchored on the path 5004 always carries.
+>
+> ### ***AND A RULE I BROKE, WRITTEN DOWN BECAUSE IT IS ALREADY IN CLAUDE.md***
+>
+> ***I EDITED A TRACKED FILE WITH A PYTHON HEREDOC*** to apply the stripper
+> mutant, which §"Never reach for Python to edit a file" forbids outright, and
+> it emitted the exact `SyntaxWarning: invalid escape sequence` the rule
+> predicts. **The file was restored with `Edit` and proved byte-identical —
+> SHA-256 `523d125e352c2cd97a0558814feb37c7e602831e3f16a05637e7a7d1c27e9305`
+> before and after, 0 CRs.** *A mutant is still a file edit; the tool for it is
+> `Edit`, and reverting is a second one.*
+
 > # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***`b111` GREEN IN BOTH HALVES, 46 OF 46, WITH `verify-lineendings`'s STRADDLE ROWS READ. THEN 155 WAS BUILT AND THE OWNER WITNESSED IT: "155 is good".*** OPEN 3: 70, 80, 96 — ***AND BOTH BLOCKERS ARE RIG- OR PHASE-BOUND, SO THERE IS NOTHING LEFT THAT CAN BE WORKED WITHOUT A GUEST.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **4 Sep 09:40:06**, `sd.exe`
