@@ -47098,3 +47098,56 @@ The changelog entry 66 owed was missing from 203f6d8 and is written now.  A user
 notices three things: the install is quicker and no longer stalls at the end, it
 works offline or where winget is blocked or absent, and the versions are fixed at
 micro 2.0.15 and Edit 1.2.1 - the ones the editor pages were written from.
+
+## 4 Sep 2026 - b109 green, and 66's witness becomes a standing step
+
+The owner ran the full suite on b109 and it is green in both halves, counted by
+rows rather than read off the absence of PARTIAL, which is also 0: 21 unelevated
+in VerifyInstall1-20260903-234352.log, closing on "VerifyInstall1: every step
+exited 0.", and 24 elevated in post-cycle-20260903-234921.txt.  45 of 45.  b109
+is spent; the next token is b110.
+
+The one-off witness is now gplbld/verify-editors.ps1, step 7 of VerifyInstall1 -
+the unelevated half, because every check in it is a read.  The table goes 19 rows
+to 20, so a -Run pass is 22 steps and not 21.  It is on assert-current's
+$neverShipped in the same commit, under the rule a session has already paid for
+three times: a gplbld script not on that list makes the tree report STALE merely
+by existing, and then every verifier refuses.
+
+It is worth a step for the reason the stem-coverage step is.  If the bundling
+regressed - a staging list edited, a path literal changed - find.editor's PATH
+fallback would find the winget copy and every verb would go on working, against
+an editor of unknown version.  That is the whole defect 66 was filed for, back
+with no symptom at all.  Nothing would go red.
+
+Two things were done differently from the one-off witness, and both were forced
+by making it re-runnable.  The pins and the destination are READ rather than
+retyped - BUNDLED_EDITORS out of stage.py, the bundled path out of gpl.bp/EDIT's
+own literal - so the step cannot drift from what it tests, which is
+test-stemcoverage-units' argument applied to a third pair of files.  And the two
+log checks had to be made append-proof: the step's own install-editors -CheckOnly
+run appends to the log it reads, so a check anchored on "the last run" would
+describe the verifier rather than the installer the second time it was used.  The
+one-off witness scoped the log to its last run and was correct exactly once.  The
+step asks instead that NO run in the log ever downloaded, and that EVERY "already
+present" line names usr\bin - both true whoever wrote the line.
+
+Every section carries a control, because three of these checks could have passed
+by accident.  The probe control points the same probe at a directory that holds
+nothing and requires the fallback to fire; it answered C:\WINDOWS\system32\edit.exe
+and C:\Program Files\WinGet\Links\micro.exe, so the bundled answer above it is not
+an artefact of a probe that returns its own first literal whatever happens.  The
+log predicates are run over a synthetic FAILING log and must go red, which is the
+only way to exercise them without breaking the install.  26 PASS, 0 FAIL, exit 0,
+run standalone before it was wired in - the record's rule about not handing over
+a script nobody has watched load.
+
+The header's verifier arithmetic was re-derived from the directory rather than
+adjusted by one, as its own note demands: 47 verify-*.ps1, 19 named in
+VerifyInstall1, 24 in VerifyInstall2, 43 accounted for, four correctly out.  The
+31 Aug figures read 44 / 17 / 22 and were stale in every column.  The count of
+correctly-out files went five to four while the directory grew, because
+verify-vocverbs.ps1 has become a step of its own in VerifyInstall2 - adjusting by
+one would have hidden that.  Checked also that no file is named in both tables: a
+verifier named twice would run twice, spend two prefixes from one token, and the
+second run would fail on residue the first left, which reads as a product defect.

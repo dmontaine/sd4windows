@@ -175,13 +175,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 30, 3 Sep 2026 — ***66 WITNESSED ON A CYCLE + INSTALL, EXCEPT THE ONE STEP AN AGENT CANNOT TAKE: NOBODY HAS TYPED `micro bp <record>`. 153 FILED OUT OF THE WITNESS. OPEN 7 → 8. THE FULL SUITE HAS NOT RUN.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***66 WITNESSED ON A CYCLE + INSTALL AND THE WITNESS IS NOW A SUITE STEP, `verify-editors`. THE FULL SUITE RAN GREEN, 45 OF 45 ON `b109`. 153 FILED OUT OF THE WITNESS. OPEN 7 → 8. ONE THING STILL OWED: NOBODY HAS TYPED `micro bp <record>`.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 23:32:33**, `sd.exe`
 > `79FBF0A6E46652BB`; `assert-current` **exit 0**; **27 of 27 free checks**
 > exit 0 in 31.7 s; `test-fixlist-units` **259/0**. ***OPEN 8: 16, 66, 70, 80,
-> 96, 102, 138, 153. NEXT FREE ID 154. NEXT RUN TOKEN `b109`, STILL
-> UNSPENT.***
+> 96, 102, 138, 153. NEXT FREE ID 154. `b109` SPENT ON THE FULL SUITE, GREEN
+> IN BOTH HALVES; NEXT RUN TOKEN `b110`.***
 >
 > ***THE CYCLE WAS RUN BY THE AGENT — `Start-Process -Verb RunAs -Wait`, ONE
 > HOP, ONE CONSENT*** (§4.0.1, and handoff 25 says the same). 23:31:29 →
@@ -213,28 +213,50 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > In an SD session: `micro bp EDIT`, then Esc-q to leave without saving. If it
 > opens, 66 closes. **Compiling is not running, and neither is resolving.**
 >
-> ***THE WITNESS IS KEPT AND IS RE-RUNNABLE, UNELEVATED*** —
-> `C:\Users\dmont\sdout\p66-witness-editors.ps1`, output beside it as `.txt`,
-> `-Before` for the pre-cycle shape. **It is not a suite step yet**, and
-> making it one is the obvious next move: everything it does is a read, so it
-> belongs in `VerifyInstall1`, and it needs an `assert-current` `$neverShipped`
-> entry in the same commit or it turns the tree STALE for a file that ships
-> nowhere.
+> ### ***THE WITNESS IS NOW A STANDING STEP — `gplbld/verify-editors.ps1`***
 >
-> ### ***THE FULL SUITE HAS NOT RUN SINCE THE 23:32:33 INSTALL***
+> **Step 7 of `VerifyInstall1`, the unelevated half**; the table goes 19 rows
+> to 20, so a `-Run` pass is **22 steps**, not 21. No account, no prefix, no
+> run token. `-Only verify-editors` runs it alone. It is on `assert-current`'s
+> `$neverShipped` in the same commit — a gplbld script not on that list makes
+> the tree report STALE merely by existing, and then every verifier refuses.
 >
-> CLAUDE.md wants one before a handoff and this handoff does not have one.
-> **~20 minutes, two halves, and both are a person's job** (§4.0.1 — an agent
-> may run `cycle.ps1` and may not run `VerifyInstall1`):
+> ***WHY IT IS WORTH A STEP: THE REGRESSION IS SILENT.*** If the bundling
+> broke, `find.editor`'s PATH fallback would find the winget copy and every
+> verb would go on working — against an editor of unknown version, which is
+> the whole of 66. Nothing would go red. **Same shape as the stem-coverage
+> step, and the same argument.**
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b109
-> ```
-> **an ordinary, UNELEVATED PowerShell prompt**, then
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b109
-> ```
-> **an ELEVATED PowerShell prompt.**
+> ***IT READS ITS LISTS RATHER THAN RETYPING THEM***: the SHA-256 pins come
+> out of `stage.py`'s `BUNDLED_EDITORS` and the destination out of
+> `gpl.bp/EDIT`'s own literal, so it cannot drift from what it tests. **26
+> PASS / 0 FAIL, exit 0**, run standalone 4 Sep.
+>
+> ***AND EVERY SECTION CARRIES A CONTROL, WHICH IS WHAT MAKES THE GREEN WORTH
+> READING.*** The probe control points the same probe at a directory that
+> holds nothing and requires the fallback to fire — it answered
+> `C:\WINDOWS\system32\edit.exe` and `C:\Program Files\WinGet\Links\micro.exe`,
+> so the pass above it is not an artefact of a probe that always returns its
+> own literal. The log predicates are run over a **synthetic failing log** and
+> must go red. **The two log checks are append-proof on purpose** — the step's
+> own `-CheckOnly` run appends to that log, so anything anchored on "the last
+> run" would describe this script the second time it is used. They ask instead
+> that **no** run ever downloaded and that **every** `already present` line
+> names `usr\bin`.
+>
+> ### ***THE FULL SUITE RAN GREEN — 45 OF 45 ON `b109`***
+>
+> **Counted by rows, not read off the absence of `PARTIAL`** (which is also 0):
+>
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260903-234352.log`, closing line **`VerifyInstall1: every step exited 0.`**; summary `post-cycle-unelevated-20260903-234352.txt` | **21**, all exit 0 |
+> | elevated | `post-cycle-20260903-234921.txt` | **24**, all exit 0 |
+>
+> ***`b109` IS SPENT. NEXT RUN TOKEN `b110`.*** The run predates
+> `verify-editors`, so that step has never run inside the runner — it was run
+> standalone instead, which is what the record asks for before a script is
+> handed over.
 >
 > ***153 CAME OUT OF THE WITNESS AND IS THE KIND OF THING ONLY RUNNING FINDS.***
 > `install-editors.ps1` logs `micro: ... version ` with **nothing after it** —
