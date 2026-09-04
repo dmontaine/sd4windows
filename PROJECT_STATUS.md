@@ -283,6 +283,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***`b109` IS SPENT. NEXT RUN TOKEN `b110`.*** That run predates
 > `verify-editors`.
 >
+> ### ***`b109` RAN AGAINST THE 23:32:33 INSTALL AND THE ONE IN FORCE IS 00:42:07. IT STILL STANDS, AND HERE IS WHY — DO NOT RE-RUN IT***
+>
+> **The dates disagree, so read this before spending twenty minutes.** One
+> cycle happened in between, and ***the only source file that changed was
+> `gplbld\install-editors.ps1`*** — not argued, **measured**:
+> `assert-current` refused before that cycle naming **exactly one** file.
+>
+> ***AND EXACTLY ONE SUITE STEP TOUCHES IT.*** `grep -l install-editors` over
+> every `verify-*.ps1` and both runners returns **`verify-editors.ps1`** and
+> `VerifyInstall1.ps1` (which only names the step) — **with `assert-current` as
+> the control at 43 hits, so the grep does find things.** That step was run
+> against the 00:42:07 install: **30 PASS / 0 FAIL.**
+>
+> **So `b109` plus that targeted run covers the tree in force.** A full pass at
+> `b110` would buy one tidier artefact and no coverage. ***THE RECORD ALREADY
+> SETTLES THIS CASE THE SAME WAY*** — handoff 27 declined a run when the only
+> delta was 114's single `until` clause in `BCOMP`. **What DOES void a suite is
+> a source change nothing has re-measured; name the delta and the step that
+> covers it, and the carry-forward is legitimate.**
+>
 > ***AND THE NEW STEP HAS NOW RUN INSIDE THE RUNNER, WHICH IS THE PART A
 > STANDALONE RUN DOES NOT PROVE.*** `VerifyInstall1.ps1 -Only verify-editors`,
 > 4 Sep 00:26:50, **26 PASS / 0 FAIL, exit 0**, no token spent, nothing
