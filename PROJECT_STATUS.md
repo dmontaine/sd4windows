@@ -194,7 +194,33 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > tree had already written down twice. **The 25 decisive rows were never
 > affected, so `b112` was not re-run.** The free set is now **31 scripts / 47 of
 > 47** on that guard, and `VerifyInstall2` has one more step.
-> `assert-current` is still **exit 0**: no shipped file was touched.
+>
+> ***AMENDED A THIRD TIME, 4 Sep 2026 — 157 IS MEASURED AND CONFIRMED ON
+> `b113`, AND THE CYCLE IS DONE.*** The composition RAN: an ADMINISTRATOR-tier
+> account given no keyword and no record by the script connected over the API
+> and ran `os.execute`, reporting **`nt_authority_system`**. `os.users\sdpwb113a`
+> read `yes | yes`, and it was in `sdapi` with nothing granted. **157 stays OPEN
+> because what is owed is a RULING, not a fix** — it follows from three of the
+> owner's own rulings. ***TWO ROWS SCORED FAIL AND NEITHER WAS THE PRODUCT***:
+> both were defects in step 8 itself, filed and fixed as **158** — a check that
+> could never pass (`PROBE.ACCOUNT` is a marker the probe it ran never emits)
+> and an inverted expectation that also corrupted the cleanup flag.
+> `assert-current` is **exit 0** again and the step's fixes are on
+> `$neverShipped`, so **a re-run needs no cycle — only a fresh `-Run`.**
+> *(The previous amendment follows.)*
+>
+> ***AMENDED AGAIN, 4 Sep 2026 — OPEN IS 2 AGAIN: 80 AND 157, AND A CYCLE IS
+> OWED.*** Four notes that had been raised and never filed were settled (the
+> `logto` hop and the prose-vs-roster checker folded into **80**;
+> `reclaim-profiles`'s `-List` comment corrected; the `sysmsg` sweep deferred
+> past 1.0) — and the fifth became **157**, which is **not** bookkeeping:
+> `CREATEA:1718-1721` and `:1731-1732` give **every** ADMINISTRATOR-tier account
+> `sdapi` membership and `os.exec = yes` with no keyword and no way to remove
+> either, and `kernel.c:253` makes a socket session read exactly that record.
+> **The measurement is written (`verify-privundetermined` step 8) and has not
+> run.** ***`assert-current` IS NOW EXIT 1***: `reclaim-profiles.ps1` **ships**,
+> so a comment-only edit to it turned the tree stale. **Cycle first, then the
+> step** — both commands are in item 3 below.
 >
 > ***THE 30th FREE CHECK IS `test-upgradevoc-units`***, and it is listed in
 > CLAUDE.md in the commit that created it.
@@ -211,12 +237,39 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    inside a real upgrade, which is what `Test D` was for.
 > 2. **`80`** — the documentation audit, and **the owner scheduled it for just
 >    before the 1.0 wrap-up**, against the final install image.
-> 3. ***`96` IS CLOSED — WRITTEN, RUN AND WITNESSED 4 Sep 2026, 25 of 25.***
->    `gplbld/verify-privundetermined.ps1` is a `VerifyInstall2` step (prefix
->    `sdpw<Run>`) and needs no cycle of its own; `b112` is spent, so a re-run
->    takes a fresh `-Run`. **Nothing is owed on it.** The six undetermined paths
->    it cannot reach are printed by name on every run, so a green is not a claim
->    about all nine — do not re-derive that trace, it was settled on 3 Sep.
+> 3. ***`96` IS CLOSED — WRITTEN, RUN AND WITNESSED 4 Sep 2026, 25 of 25.*** The
+>    six undetermined paths it cannot reach are printed by name on every run, so
+>    a green is not a claim about all nine — do not re-derive that trace, it was
+>    settled on 3 Sep.
+>
+>    ***ITS STEP 8 HAS NOW RUN — `b113`, AND IT CONFIRMED 157.*** See item 4.
+>    `b112` and `b113` are both spent.
+>
+> 4. ***`157` IS RULED AND CLOSED — THE OWNER ACCEPTED IT, 4 Sep 2026.*** Shown
+>    the `b113` measurement he said *"157 Accept it"*, so an SD administrator
+>    reaching the operating system over the API **stands as intended behaviour**
+>    and no code changes. ***WHAT IT LEAVES IS 80's***: the API page must say in
+>    plain words that an SD administrator can run operating-system commands on
+>    the server as LocalSystem from any machine that can reach the API port —
+>    struck here on the same basis as **34**, the work is not done, it is 80's.
+>    ***AND STEP 8's OUTCOME ROW IS NOW SCORED***, because a ruling is a policy
+>    and a policy may be asserted. It is a differently-named row, not a flipped
+>    Expected (entry 64). **The direction it guards is the counter-intuitive
+>    one**: the obvious "fix" — withholding `os.execute` from a CN_SOCKET session
+>    the way `kernel.c:253` withholds `USR_ADMIN` — would make the shipped
+>    documentation false, and that row is what notices.
+>
+>    ***THE SCORED ROW HAS NOT RUN.*** `b113` (exit 1, the two 158 defects) and
+>    `b114` (**exit 0, 34 of 34**, both fixed) both predate it, so the next run
+>    is the first to exercise it and needs a fresh token:
+>
+>    ```powershell
+>    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b115 -Only verify-privundetermined
+>    ```
+>
+>    **Elevated PowerShell.** It creates a second throwaway account that is a
+>    member of `BUILTIN\Administrators` and deletes it at the end of the step; if
+>    the restore prints a red line naming that group, remove it by hand at once.
 >
 > ### ***WHAT WAS BUILT — 70's SECOND HALF***
 >
@@ -5114,6 +5167,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `UPSTREAM_FIXES.md` entries would come from**, and the owner's standing
 > instruction is to file upstream what upstream also has. **A defect in both trees
 > goes in BOTH files.**
+>
+> ***DEFERRED PAST W1.0-0, RULED 4 Sep 2026 — WRITTEN DOWN SO THE NEXT SESSION
+> DOES NOT RE-DERIVE IT AS FRESH WORK.*** `UPSTREAM_FIXES.md` is written for the
+> upstream maintainer and **does not gate this release**, and a sweep of four
+> `sysmsg` ranges has an unbounded number of findings. With **one** pre-release
+> entry left, opening it now works against closing. **The half that WOULD gate a
+> release is already covered by the standing rule**: a defect found in that range
+> which we also ship goes in PRE_RELEASE too, and being upstream's bug has never
+> been a reason to ship it. So this defers the SWEEP, not any defect it might
+> name. **Do it after 1.0.**
 >
 > **6. ✅ DONE 31 Aug 2026 — ONE HARDENING, 105. THE INSTRUMENTS ARE IN GOOD
 > SHAPE AND THE ARCHETYPE IS ALREADY FIXED.** ***`verify-apiidentity.ps1`, THE

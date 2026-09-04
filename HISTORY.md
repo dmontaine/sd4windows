@@ -47766,3 +47766,158 @@ b112 WAS NOT RE-RUN, DELIBERATELY.  The defect is in the tally and not in any
 measurement, so the 25 decisive rows stand; re-running would have spent a fresh
 prefix and an elevated run to look at one line.  OPEN 2 -> 1.  test-fixlist
 262/0.  The only entry left is 80.
+
+## 4 Sep 2026 - four unfiled notes settled, and one of them turned out to be a blocker-shaped question
+
+THE OWNER ASKED FOR A RECOMMENDATION ON FIVE THINGS THAT HAD BEEN MENTIONED AND
+NEVER FILED.  Checking two of them before recommending changed both answers,
+which is the whole argument for checking.
+
+THE LOGTO ONE WAS NOT A DEFECT AND I HAD LISTED IT AS ONE.  CPROC:2869-2870
+clears K$ADMINISTRATOR and stops the elevated helper on any LOGTO out of SDSYS,
+carrying the owner's 16 Aug instruction in its own comment - "LOGTO ends the
+elevated session".  The onward hop being refused IS that instruction working,
+and the second UAC prompt is its price.  Folded into 80 as documentation.  The
+note's two line numbers were stale - CPROC:3752 is now run.exe - so it is named
+by routine instead.
+
+THE reclaim-profiles ONE WAS SMALLER THAN THE NOTE SUGGESTED.  The half that
+could mislead - an unelevated -List reporting "0 records" on a store of five -
+was already fixed under PRE_RELEASE 49 with -ErrorAction Stop.  What was left
+was a stale paragraph claiming -List needs no privileged token.  Ruled: the
+sentence changes, the ACL does not.  Granting Users read would expose deleted
+account names to everyone to make a comment true.
+
+AND THE API ONE GREW TEETH WHEN IT WAS TRACED.  Filed as 157.  It was raised as
+"an API session with an os.users record gets the OS", which sounded like a site
+misconfiguration.  It is not: CREATEA:1718-1721 puts EVERY administrator-tier
+account in sdapi with no keyword and refuses to remove it (10083, owner 21 Aug),
+CREATEA:1731-1732 writes it os.exec = yes unconditionally (owner 27 Aug), and
+kernel.c:253 withholds USR_ADMIN from every socket session so os_permitted falls
+through to exactly that record.  Automatic and unremovable, from three separate
+rulings, none of which is wrong on its own.
+
+EVERY LINK IS GREEN AND THE COMPOSITION HAS NEVER BEEN RUN.  verify-tierapi has
+an administrator-tier account logging in over the API; the granted leg on b112
+had an API session with a yes record RUN os.execute; verify-apiadmin measured
+that it reports itself nt_authority_system when it does.  So step 8 of
+verify-privundetermined now composes them, with NO access keyword and NO fixture
+record, so a finding is the product's own configuration.  The outcome is
+REPORTED AND NOT SCORED - entry 64 forbids flipping an Expected to match what
+was observed, and no policy has been stated.
+
+ITS FIXTURE IS THE HEAVIEST IN THE SUITE AND IS TREATED AS SUCH.  An
+administrator-tier account is made one by putting the Windows user in
+BUILTIN\Administrators (CREATEA:858), so the step deletes it at the END OF THE
+STEP rather than only in the finally, and Remove-ThrowawayAccount names a
+survivor in red naming the group.  verify-tierapi already accepts the same
+fixture, so this is a new instance of an accepted risk rather than a new one.
+
+A COMMENT-ONLY EDIT COST A CYCLE, AND THAT IS CORRECT BEHAVIOUR.
+reclaim-profiles.ps1 SHIPS, so assert-current went to exit 1 naming it - the
+mtime check cannot know an edit was comment-only and should not guess.  The
+shared comment stripper is for a different job entirely (keeping a path quoted
+in a comment from reading as evidence that a file ships), and was checked rather
+than assumed before the cycle was handed over.
+
+31 free checks green, test-fixlist 262/0.  OPEN 2: 80 and 157.
+
+## 4 Sep 2026 - 157 measured on b113: an administrator IS a remote shell, and two of the rows watching it were wrong
+
+THE COMPOSITION RAN AND IT IS NOT AN INFERENCE ANY MORE.  An ADMINISTRATOR-tier
+account, given NO access keyword and NO os.users record by the verifier,
+connected over the API and ran os.execute, reporting nt_authority_system.  Every
+premise was read off disk rather than from source: os.users\sdpwb113a came back
+"yes | yes", the account was in sdapi with nothing granted, and the API admitted
+it.  Transcript verify-privundetermined-20260904-164149.log.
+
+157 STAYS OPEN BECAUSE WHAT IS OWED IS A RULING.  The behaviour follows from
+three of the owner's own rulings and none of them is wrong on its own; the
+choice is to accept it and document it in 80, or to withhold os.execute from a
+CN_SOCKET session the way USR_ADMIN already is.  The outcome row is deliberately
+unscored for exactly that reason - entry 64 forbids flipping an Expected to
+match what was observed.
+
+AND TWO ROWS SCORED FAIL ON A RUN WHERE THE PRODUCT DID EVERYTHING RIGHT.  Both
+were defects in the step written that day, filed as 158.  The first read
+PROBE.ACCOUNT out of a run of APIOSEXECPROBE - a marker printed only by
+apiadminprobe.sb:31 - so it was empty on every possible run and the row COULD
+NEVER PASS.  Deleted rather than repaired: adding the marker would touch a probe
+shared with the green verify-apiadmin, the abort would discard it on the refusal
+path anyway, and verify-tierapi already owns the claim.
+
+THE SECOND WAS A POLARITY ERROR THAT ALSO CORRUPTED THE CLEANUP FLAG, which is
+the half that mattered.  $madeAdmin - read everywhere else as "there is an
+account to clean up" - was assigned a value meaning "it is GONE" and then
+compared against $false, so a successful removal scored FAIL and the finally
+block would have re-run the removal on an account that no longer existed.  That
+backstop exists for a member of BUILTIN\Administrators.
+
+WHAT WOULD HAVE CAUGHT THEM.  Nothing free: the marker mismatch needed the
+probe's source read against the marker being asked for, and it WAS read the same
+day; the polarity error is internal to one step and no guard can see it.  The
+honest answer is that step 8 had never run before it was handed over, and unlike
+the five record legs there was no cheap way to run it.  That is the second time
+in two days that this file's own instrument produced the falsity rather than the
+thing it measures - 156 was the first.
+
+A COMMENT-ONLY EDIT COST A CYCLE AND THE CYCLE PAID IT BACK: assert-current is
+exit 0 again, and every later fix here is on $neverShipped, so a re-run of the
+step needs a fresh -Run and nothing else.  test-fixlist 263/0.  OPEN 2: 80, 157.
+
+## 4 Sep 2026 - 157 accepted, and the verifier changed side from reporter to guard
+
+THE OWNER RULED "157 Accept it" ON THE b113 MEASUREMENT.  So an SD administrator
+reaching the operating system over the API stands as intended behaviour, nothing
+in gplsrc or sdsys changes, and the entry closes as a decision - the shape 9 and
+20 already have.  What it leaves behind is documentation and it is 80's: the API
+page must say in plain words that an SD administrator can run operating-system
+commands on the server as LocalSystem from any machine that can reach the API
+port.  Struck on the same basis as 34 - the work is not done, it is 80's.
+
+AND STEP 8's OUTCOME ROW IS NOW SCORED, WHICH IS THE PART WORTH RECORDING.
+While the question was open the row deliberately only reported; a ruling is a
+policy and a policy is something a verifier may assert.  It is a DIFFERENTLY
+NAMED row rather than the old one turned round, which is how entry 64 is
+satisfied rather than sidestepped - 64 forbids flipping an Expected to match
+what was OBSERVED, and this asserts what was RULED.  verify-apiadmin.ps1's own
+os.execute row was given exactly this treatment on 29 Aug for the same reason.
+
+THE DIRECTION IT GUARDS IS THE COUNTER-INTUITIVE ONE.  The obvious fix here is
+to withhold os.execute from a CN_SOCKET session the way kernel.c:253 withholds
+USR_ADMIN - and that fix would silently make the SHIPPED DOCUMENTATION FALSE.  A
+future close without a ruling now turns the step red and names it.
+
+b114 RAN CLEAN BEFORE THE RULING LANDED: exit 0, 34 PASS of 34, confirming both
+158 fixes - the deleted row is gone and the removal row reads True/True.  The
+scored ruled-behaviour row postdates it and has not yet run.
+
+TWO THINGS IN b114's SCREEN OUTPUT THAT THE TRANSCRIPT FILE DID NOT MAKE
+OBVIOUS, BOTH MINE, AND ONLY ONE OF THEM A DEFECT.
+
+A BARE "True" PRINTED TWICE WITH NOTHING TO SAY WHAT IT CLAIMED.
+Remove-ThrowawayAccount returns a bool for callers that ask, and none of its
+three callers asked - so the value fell into the output stream and printed on
+its own line after "sdpwb114a removed".  This project's own trap, written down
+in the memory file as "a function's return value joins its output", and an
+unlabelled boolean in a transcript is the opposite of what the instrument
+section asks for.  Fixed with $null = at all three sites.  NOT FILED AS AN
+ENTRY: it is cosmetic, it never affected a verdict, and it was fixed in the
+session that made it - a judgment call, and the owner can overrule it.
+
+AND "Y is not in your VOC", WHICH IS NOT A DEFECT AND IS NOW COMMENTED SO THAT
+NOBODY FIXES IT.  Invoke-SDSys sends DELETE.ACCOUNT then two Ys; the first
+answers the confirmation and the second reaches the ":" prompt and is refused as
+a verb.  The pair is insurance against the one failure this script must not have
+- an unanswered SD prompt HANGS a piped session, which PROJECT_STATUS section 6
+records costing an elevation to clear a stray sd.exe.  The refusal line is also
+POSITIVE EVIDENCE that only one prompt appeared: if DELETE.ACCOUNT ever grows a
+second question, the line stops appearing and the second Y is silently doing
+real work.  verify-apiadmin.ps1 passes the same pair.
+
+FIVE PROFILE DIRECTORIES ARE PENDING A RESTART - sdpwb112, b113, b113a, b114,
+b114a - each with its ProfileList entry kept beside it, which is the designed
+behaviour SD explained on screen and which reconcile-accounts.ps1 clears at the
+next service start.  It also confirms the call to put sdpw in
+clean-test-profiles.ps1's $stems rather than $notProfiles: the sweep really can
+meet these names.
