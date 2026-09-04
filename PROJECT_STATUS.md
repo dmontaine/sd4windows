@@ -175,13 +175,17 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***ONE THING OWED: A FULL SUITE ON `b111`, BECAUSE `read_record()` — THE READ OPCODE — CHANGED.*** OPEN 4 → 3.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***ONE THING OWED: A FULL SUITE ON `b111`, BECAUSE `read_record()` — THE READ OPCODE — CHANGED.*** OPEN 4: 70, 80, 96, 155.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **4 Sep 08:56:02**, `sd.exe`
 > **E31CE514E8999D24**; `assert-current` **exit 0**; **28 of 28 free checks**
 > exit 0 in 38.7 s; `test-fixlist-units` **260/0**; `check-stale-leads` exit 0;
 > `check-datatree-litter` **CLEAN**; `verify-txn` **17/17 decisive, exit 0** on
-> this install. ***OPEN 3: 70, 80, 96. NEXT FREE ID 156. RUN `b111`.***
+> this install. ***OPEN 4: 70, 80, 96, 155. NEXT FREE ID 156. RUN `b111`.***
+> *(Written as "OPEN 3: 70, 80, 96" first, which dropped 155 — an entry filed
+> earlier the same session. `test-fixlist-units` counts the table and says 4;
+> it does not read this prose, so nothing would have caught it. **Take the
+> count from the checker, not from the handoff you are writing.**)*
 >
 > ***THE FREE-CHECK HELPER WAS RUNNING 26 OF 28 AND EVERY ONE WAS GREEN, WHICH
 > IS WHY NOTHING SAID SO.*** `C:\Users\dmont\sdout\run-free-tests.ps1` had never
