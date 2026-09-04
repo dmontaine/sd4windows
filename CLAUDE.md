@@ -499,7 +499,7 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-apiidentity-units`, `test-deletioncheck-units`,
    `test-doorsargv-units`, `test-reclaim-units`, `test-sdpath-units`,
    `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
-   `test-stalebin-units`. ***ALL TWENTY-SIX. Run these on
+   `test-stalebin-units`, `test-privwhy-units`. ***ALL TWENTY-SEVEN. Run these on
    every change*** — **about 30 s for the whole set**, measured 3 Sep 2026, each
    in its own process. A whole suite run has already been spent twice discovering
    what one
@@ -562,6 +562,16 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    red for days unread.** *(The superseded wording listed `test-staleleads`
    among the ten. It was already on the list and there is no separate script of
    that name — the count of ten was right, one of the names was not.)*
+
+   ***`test-privwhy-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
+   IT.*** It guards PRE_RELEASE 96's privilege tri-state, and it exists for the
+   one thing the compiler cannot do: `-Wall` catches an enum member with no
+   `case` and catches a caller using the old signature, but **a new failure
+   exit that returns FALSE without setting `*why` compiles clean and warns
+   about nothing** — silently restoring the defect 96 was filed for, on paths
+   that need an induced name-service failure to reach. **It has a mutant
+   control**: the `*why` assignment was removed from `IsElevated`, the guard
+   went red naming the site, and the file was restored to the same SHA-256.
 
    ***`test-reconcile-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT***, which is the rule above working and needs no paragraph of its own. It

@@ -46747,3 +46747,124 @@ One assumption corrected on the way in: editing a gplbld verifier does not turn
 the tree stale.  All six are on assert-current's $neverShipped, the files were
 newer than the install, and the guard still returned 0.  The list is much
 longer than its first screen and most verify-*.ps1 are on it.
+
+## 3 Sep 2026 - 96 built: the privilege predicates say why, and have not run
+
+Shape (c), the tri-state across IsAdmin(), IsElevated() and os_permitted() and
+their four callers.  It is an out-parameter rather than an enum return, and
+that is the safety choice rather than a stylistic one: an enum return would
+leave "if (IsElevated())" compiling and answering TRUE for the undetermined
+case, which is a false GRANT and the one direction this must never take.  The
+bool stays, still fail-closed; PRIV_WHY carries what it cannot.  No grant
+changed anywhere - what changed is the explanation the refusal gives.
+
+All nine undetermined paths are covered, including the two the entry said its
+own list was short by: the second getgrouplist and the second getgroups, where
+the sizing call succeeds, the fetch fails, the loop never runs and the
+initialised FALSE leaves as though it were an answer.  op_sh.c's ENOENT stays a
+plain FALSE because a missing os.users record is the designed no; only another
+errno is undetermined, the same discrimination entry 101 made in txn.c.
+
+Two things were learned by doing it.  The first is that priv_log_undetermined()
+cannot live beside the predicates: linuxlb.o is linked into sdfix, sdtic,
+sdconv and sdidx, none of which carry the kernel error log, so the first build
+died with "linuxlb.o: undefined reference to log_message".  It lives in
+k_error.c now.  The second is that kernel.c:60's reason for declaring
+IsElevated() privately - "because linuxlb.c has none of its own" - was never
+true; linuxlb.h has existed all along, and all three ad-hoc prototypes are gone
+in favour of one declaration there.
+
+The evidence is a build and a guard, and neither is a run.  85 objects, 0
+warnings under -Wall -Wformat=2, six binaries linked.  test-privwhy-units.ps1
+is new and is on the free list: it asserts that every "return FALSE" inside the
+three predicates sets *why, which is the one thing the compiler cannot check -
+-Wall catches an enum member with no case and catches a caller using the old
+signature, but a new failure exit that forgets the assignment compiles clean
+and silently restores the defect.  It has a mutant control: the assignment was
+deleted from IsElevated, the guard went red naming the site, and the file was
+restored to the same SHA-256.
+
+What is not done is running it.  The tree is stale, a cycle is owed, and the
+suite on b108 will only prove the normal paths - every privilege decision goes
+through the changed predicates, so green says the refactor broke nothing.  The
+undetermined branches need an induced name-service failure and remain code
+nobody has executed.
+
+## 3 Sep 2026 - 152 built: a summary says which kind of red
+
+Filed and built the same day, out of the correction to 151.  Both runners keep
+a $refused count beside $failed, and the closing line now reads "of those, N
+FAILED a check and M COULD NOT RUN (exit 2)" with two lines saying that a step
+which could not run measured nothing.  VerifyInstall2 prints COULD NOT RUN in
+yellow per step rather than FAILED in red, and both annotate the row written to
+the summary file, so the distinction survives the console being closed.
+
+The part worth recording is what was deliberately NOT done.  $failed keeps its
+exact meaning - every step that did not exit 0, refusals included - so both
+exit paths are untouched and a refusal still never counts as a pass.  The entry
+named that trap before the code was written and it was not walked into.  The
+runners' own exit codes were left at 1 for any non-zero step: a half that only
+refused is arguably a 2, but cycle.ps1 reads that code and moving it needs the
+owner's word.
+
+It has not been witnessed.  The control is one command against the tree as it
+stands - VerifyInstall1.ps1 -Only verify-fold, which refuses on the stale tree
+and costs no install - but the agent host cannot answer the runner's consent
+prompt, and -Yes suppresses a consent gate, which is the -Silent shape CLAUDE.md
+records as having cost two sessions.  It was left unrun and asked about rather
+than taken.
+
+## 3 Sep 2026 - the cycle for 96, and a wrong prediction about step 0
+
+Cycle at 18:19:35, all nine steps, CYCLE COMPLETE, install 18:20:33, sd.exe
+79FBF0A6E46652BB, assert-current exit 0.  The C from entry 96 is now installed.
+
+The handoff written an hour earlier predicted that step 0 would take its SKIP
+branch - the one handoff 26 records as never having run inside a cycle - on the
+strength of Get-BinaryStaleness answering "Stale: False".  It took the BUILD
+branch instead, and said exactly why: one source file newer than
+bin\sdclilib.dll, gplsrc\linuxlb.c at 18:09:37.
+
+That file is the mutant control's doing.  Proving test-privwhy-units.ps1 could
+go red meant deleting a line from IsElevated, running the guard, and putting the
+line back; the restore was verified by SHA-256 and the content is identical, but
+the mtime moved.  Both staleness guards are mtime-based deliberately - "touching
+a file without changing it fails this check, and that is the right way round" -
+so a byte-identical file that has been written counts as changed.  The guard was
+right and the prediction was made before the control was run and never revisited.
+
+So the skip branch still has never run in a cycle.  Giving it one needs a cycle
+where nothing has touched a source file since the last build, and a mutant
+control counts as touching.
+
+## 3 Sep 2026 - b108 green in both halves, 45 steps, and what it does not prove
+
+Unelevated 21 of 21, closing line "VerifyInstall1: every step exited 0.",
+PARTIAL 0.  Elevated 24 of 24, PARTIAL 0.  Read from the artefacts rather than
+taken on the word.  verify-registersweep got its first run inside the runner -
+row 24, exit 0 - which handoff 26 listed as owed, and verify-sdsyswrite ran
+again after b104's cancelled elevation.
+
+Counting the unelevated half needs a pattern that catches test-* as well as
+verify-*: two of its 21 rows are test-tiercounts-units and
+test-stemcoverage-units, and a "^verify-|^probe-" grep answers 19 and looks
+authoritative.  That was caught here by reading the file rather than trusting
+the count.
+
+For 151 the run is the half the stale-tree control could not give: all six
+changed verifiers exited 0 in the runner, so Refuse() broke none of their happy
+paths.  For 96 it proves the normal path - every privilege decision in the tree
+goes through the changed predicates and 45 steps came back green.
+
+The errlog is the other half of 96's evidence and it refuses the null case.
+C:\ProgramData\SD\sdsys\errlog holds zero "PRIVILEGE CHECK UNDETERMINED" lines
+while carrying 9,534 bytes of this run's own API-connection entries, so the zero
+is a real zero and not a log nobody wrote to: every predicate completed and
+answered, and the new logging produced no noise on a healthy machine.
+
+What none of it proves is the undetermined branches.  Those need an induced
+name-service failure, so PRIV_NO_PASSWD, PRIV_NO_GROUP_COUNT, PRIV_NO_MEMORY and
+PRIV_NO_GROUP_LIST are still code nobody has executed, and 96 stays open for
+that and nothing else.  152 got no witness either: nothing refused, no step
+exited 2, and "COULD NOT RUN" appears zero times in both summaries - which was
+predicted before the run rather than explained after it.

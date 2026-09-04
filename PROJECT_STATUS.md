@@ -175,13 +175,98 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 27, 3 Sep 2026 — ***151 IS DONE AND CONTROLLED. NO CYCLE OWED, NO RUN TOKEN SPENT. OPEN 10 (152 REPLACES 151).*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 27, 3 Sep 2026 — ***151, 96 AND 152 ALL BUILT AND CYCLED. FULL SUITE GREEN ON `b108`, 45 STEPS. NOTHING OWED. OPEN 10.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** Install **3 Sep 16:22:02**, unchanged and still
-> current — `assert-current` **exit 0**; **26 of 26 free checks** exit 0 in
-> 33 s. ***OPEN 10: 16, 66, 70, 80, 96, 102, 114, 138, 150, 152. NEXT FREE ID
-> 153. `b108` STILL UNSPENT*** — nothing this session needed a run token or an
-> install.
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 18:20:33**, `sd.exe`
+> `79FBF0A6E46652BB`; `assert-current` **exit 0**; **27 of 27 free checks**
+> exit 0 in 32 s (the set grew by one, below). ***OPEN 10: 16, 66, 70, 80, 96,
+> 102, 114, 138, 150, 152. NEXT FREE ID 153. `b108` SPENT ON THE FULL SUITE;
+> NEXT RUN TOKEN `b109`.***
+>
+> ### ***THE SUITE RAN GREEN IN BOTH HALVES — 45 OF 45***
+>
+> **Read from the artefacts, not from the word "all green":**
+>
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260903-182643.log` — closing line **`VerifyInstall1: every step exited 0.`**, `PARTIAL` **0 times** | **21**, all exit 0 |
+> | elevated | `post-cycle-20260903-183149.txt` — **24 rows counted**, `PARTIAL` **0** | **24**, all exit 0 |
+>
+> ***COUNT THE ROWS; DO NOT READ THE ABSENCE OF `PARTIAL`*** — a partial run
+> leaves the word out too. **Count the unelevated half with a pattern that
+> catches `test-*` as well as `verify-*`**: two of its 21 rows are
+> `test-tiercounts-units` and `test-stemcoverage-units`, and a `^verify-|^probe-`
+> grep answers 19 and looks authoritative.
+>
+> ***WHAT THE RUN SETTLES.*** All six of 151's changed verifiers exited 0
+> (rows 17-21, 23), so `Refuse()` broke none of their happy paths.
+> **`verify-registersweep` got its first run inside the runner** — row 24,
+> exit 0 — which is what handoff 26 listed as owed. And ***96's NORMAL PATH IS
+> PROVEN***: every privilege decision in the tree goes through the changed
+> predicates, and 45 steps came back green.
+>
+> ***THE errlog IS THE OTHER HALF OF THAT, AND IT REFUSES THE NULL CASE.***
+> `C:\ProgramData\SD\sdsys\errlog` holds **0** `PRIVILEGE CHECK UNDETERMINED`
+> lines — and it is **9,534 bytes carrying this run's own API-connection
+> entries**, so the zero is a real zero rather than a log nobody wrote to. Every
+> predicate completed and answered, and the new logging produced no noise.
+>
+> ### ***THE ONE COMMAND OWED, AND IT NEEDS YOU AT THE KEYBOARD***
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ***DONE, 3 Sep 18:19:35–18:21:32.*** All nine steps, `CYCLE COMPLETE`,
+> `assert-current` **exit 0**, install **18:20:33**, `sd.exe` now
+> `79FBF0A6E46652BB`. **Elevated PowerShell**, and ***NOT `make sd` FIRST —
+> step 0 does the C*** (owner, 3 Sep 2026). The installer ends on a `MsgBox` an
+> agent cannot click, so an agent can start a cycle and cannot finish one.
+>
+> ***AND A PREDICTION IN THIS HANDOFF WAS WRONG, WHICH IS WORTH THE LINES.***
+> It said step 0 would take its **skip** branch — handoff 26's never-run one —
+> because `Get-BinaryStaleness` answered `Stale: False`. **It took the BUILD
+> branch**, and named why: *1 source file(s) newer than `bin\sdclilib.dll`,
+> `gplsrc\linuxlb.c` 18:09:37*. ***THAT FILE IS THE MUTANT CONTROL'S DOING.***
+> The control restored `linuxlb.c`'s CONTENT byte-for-byte — same SHA-256 — but
+> **not its mtime**, and both guards are mtime-based on purpose: *"touching a
+> file without changing it fails this check, and that is the right way round"*.
+> **So the skip branch STILL has never run in a cycle**, and the way to give it
+> one is a cycle with no source touched since the last build — a mutant control
+> counts as touching.
+>
+> Next is the suite on `b108`, both halves, 24 elevated steps.
+>
+> ### ***96: THE PRIVILEGE TRI-STATE IS BUILT. IT HAS NOT RUN.***
+>
+> ***IT IS AN OUT-PARAMETER, NOT AN ENUM RETURN, AND THAT IS THE SAFETY
+> CHOICE.*** An enum return would leave `if (IsElevated())` compiling and
+> answering TRUE for the undetermined case — **a false GRANT**, the one
+> direction this must never take. The `bool` stays and stays fail-closed; a new
+> `PRIV_WHY *why` carries what it cannot. `NULL` means *"not going to look"*.
+>
+> **All nine undetermined paths are covered, including the two the row was short
+> by** (the second `getgrouplist`, the second `getgroups` — sized, then failed
+> to fetch, so the loop never ran and the initialised FALSE left as an answer).
+> **`op_sh.c`'s `ENOENT` stays a plain FALSE**, as the entry required: a missing
+> `os.users` record is the designed no.
+>
+> ***THE FOUR CALLERS EACH SAY SOMETHING DIFFERENT NOW.*** `sd.c:838` prints
+> *"Cannot tell whether this session is elevated: <reason>"* rather than telling
+> an already-elevated administrator to elevate; the other three log through a
+> new `priv_log_undetermined()`. ***THAT HELPER LIVES IN `k_error.c` AND THE
+> LINKER PUT IT THERE***: `linuxlb.o` is linked into `sdfix`, `sdtic`, `sdconv`
+> and `sdidx`, none of which carry `log_message`, and the first build said so.
+> `sd.c` deliberately does **not** call it — `sysseg` is unbound at `comlin()`,
+> so the helper's own guard would silently omit the case 96 was filed for.
+>
+> ***EVIDENCE, AND ITS LIMIT.*** Full clean rebuild: **85 objects, 0 warnings**
+> under `-Wall -Wformat=2`, all six binaries linked. New free guard
+> `test-privwhy-units.ps1`, **21 of 21**, with a **mutant control** — the `*why`
+> assignment was deleted from `IsElevated`, the guard went red naming the site,
+> and the file was restored to the same SHA-256. ***NONE OF THAT IS A RUN.***
+> The tree is stale, and the fault paths need an induced name-service failure to
+> reach, so the undetermined-path proof is still owed even after the suite.
 >
 > ### ***WHAT WAS BUILT: `Refuse()` IN THE SIX API VERIFIERS***
 >
@@ -234,6 +319,37 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    apart in `b106`. **That gap is now PRE_RELEASE 152**, and the obvious
 >    version of it is wrong: a refusal must not be counted as a pass.
 >
+> ### ***152 IS BUILT TOO, AND ITS WITNESS IS THE ONE THING OWED ON IT***
+>
+> Both runners now count `$refused` beside `$failed` and say *"of those, N
+> FAILED a check and M COULD NOT RUN (exit 2)"*. ***`$failed` KEEPS ITS EXACT
+> MEANING*** — every step that did not exit 0, refusals included — so both exit
+> paths are untouched and **a refusal still never reads as a pass**. That was
+> the trap the entry named in advance. `VerifyInstall2` prints `COULD NOT RUN
+> exit 2` in yellow instead of `FAILED` in red, and both annotate the summary
+> **file** row so the distinction outlives the console. **The runner's own exit
+> code was deliberately not moved** — that needs the owner's word.
+>
+> ***THE CONTROL WAS NOT RUN, AND THE CYCLE HAS CLOSED THE CHEAP WINDOW ON
+> IT.*** `VerifyInstall1.ps1 -Only verify-fold` exercised the whole new branch
+> for free **only while the tree was stale** — that is what made `verify-fold`
+> exit 2. **The tree is current now, so that step runs and passes, and the new
+> wording never appears.** Do not spend a run on it expecting otherwise.
+>
+> ***TAKE IT IN THE NEXT STALE WINDOW INSTEAD, WHICH COSTS NOTHING AND COMES
+> ROUND ON ITS OWN.*** Any source edit before the next cycle makes the tree
+> stale; that is the moment to run one `-Only` step and read the closing line.
+> **What proves it**, and the first line alone does not — a run that ignored the
+> change still prints it:
+>
+> ```
+> VerifyInstall1: 1 step(s) did not exit 0 - 0 FAILED a check, 1 COULD NOT RUN.
+>   A step that could not run measured nothing: it is not a product finding.
+> ```
+>
+> `b108` will show the wording too, but only if something refuses — on a healthy
+> run nothing should, so **a green suite is not a witness for 152.**
+>
 > ### ***A CORRECTION TO WHAT "EDITING A gplbld SCRIPT" COSTS***
 >
 > ***THE SIX ARE ALL ON `assert-current`'s `$neverShipped`, SO EDITING THEM DOES
@@ -245,17 +361,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***WHAT TO DO NEXT***
 >
-> ***NOTHING IS OWED.*** Unchanged from handoff 26 except that 151 is gone:
+> ***NOTHING IS OWED.*** The cycle and the suite are both done and green, so
+> this list is work rather than debt.
 >
-> 1. ***96 — RULED (c), AND STILL THE ONLY OPEN WAITING ON NOTHING BUT WORK.***
->    The tri-state across the three privilege predicates and their four callers.
->    **It deserves its own session**: C on a privilege path where the wrong
->    shape fails silent.
-> 2. **70**, then **114**, **138**, **102**, **16**; **150**; **152**; **80**
->    last.
-> 3. ***WHEN A SUITE NEXT RUNS***, it is `b108`, both halves, **24 elevated
->    steps**, and it gives `verify-registersweep` its first run inside the
->    runner. No cycle is needed first — the install is current.
+> 1. ***96's REMAINING HALF — WITNESS AN UNDETERMINED ANSWER.*** The normal path
+>    is proven and the fault branches are still **code nobody has executed**;
+>    they need an induced name-service failure. The cheapest honest shape is a
+>    fixture that makes `getgrouplist` fail rather than a real domain outage.
+>    **The entry stays open for that reason alone.**
+> 2. ***152's WITNESS, WHICH IS FREE BUT ONLY IN A STALE WINDOW*** — see its
+>    section above. **`b108` was not one**: nothing refused, so no step exited 2
+>    and the new wording never printed. Confirmed, not assumed — `COULD NOT RUN`
+>    appears 0 times in both summaries and there is no `exit 2` row.
+> 3. **70**, then **114**, **138**, **102**, **16**; **150**; **80** last.
+> 4. ***AND STEP 0's SKIP BRANCH IS STILL UNRUN*** — see the cycle note above
+>    for why this session did not give it one.
 >
 > # ⇩⇩⇩ HANDOFF 26, 3 Sep 2026 — ***FULL SUITE GREEN ON `b107`, 44 STEPS. 93 AND 65 WITNESSED ON A REAL REGISTER AT LAST. `cycle.ps1` NOW COMPILES THE C TOO. OPEN 10, NOTHING OWED.*** ⇩⇩⇩
 >
