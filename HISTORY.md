@@ -46868,3 +46868,35 @@ PRIV_NO_GROUP_LIST are still code nobody has executed, and 96 stays open for
 that and nothing else.  152 got no witness either: nothing refused, no step
 exited 2, and "COULD NOT RUN" appears zero times in both summaries - which was
 predicted before the run rather than explained after it.
+
+## 3 Sep 2026 - 96's witness traced, costed, and parked by the owner
+
+Asked whether to build the instrument that would exercise an undetermined
+answer, and shown what it would cost, the owner parked it.  The trace is kept
+here and in the entry so nobody spends a session re-deriving it.
+
+Four of the nine paths cannot be induced on this machine at all.  PRIV_NO_PASSWD,
+PRIV_NO_GROUP_COUNT, PRIV_NO_MEMORY and PRIV_NO_GROUP_LIST are reached only when
+getpwuid, getgrouplist or getgroups fails, which on Cygwin means a real
+name-service or domain-controller outage.  They are unwitnessed by nature rather
+than by neglect.
+
+The five in os_permitted are file-based and reachable, and two are trivial: an
+os.users record with no newline gives PRIV_MALFORMED, an empty one gives
+PRIV_READ_FAILED.  But reaching any of them needs a NON-ADMINISTRATOR session
+running OS.EXECUTE, because my_uptr->flags & USR_ADMIN returns TRUE before the
+file is opened, and kernel.c:240 sets that flag for any elevated non-socket
+session.  That is the constraint that makes the instrument expensive.
+
+Two routes were costed.  Against don directly it needs piping into sd - which
+PROJECT_STATUS section 6 records as hanging on an unanswerable prompt and
+leaving a stray sd.exe that cost an elevation to clear - plus rewriting the
+owner's own live os.users record.  The safe route is a new elevated verifier
+modelled on verify-apiadmin.ps1: a throwaway PROGRAMMER account, the
+apiosexecprobe.sb probe, and four legs varying the record (valid yes, absent,
+malformed, empty) reading errlog deltas, with the valid-yes leg as the null-case
+control.  About 300 lines for an M entry that would still leave four paths dark.
+
+What stands as evidence instead is b108 for the normal path and the errlog for
+the absence of noise, the latter refusing the null case because the file
+carried that run's own entries while holding no UNDETERMINED lines.

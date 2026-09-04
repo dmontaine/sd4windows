@@ -364,11 +364,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***NOTHING IS OWED.*** The cycle and the suite are both done and green, so
 > this list is work rather than debt.
 >
-> 1. ***96's REMAINING HALF — WITNESS AN UNDETERMINED ANSWER.*** The normal path
->    is proven and the fault branches are still **code nobody has executed**;
->    they need an induced name-service failure. The cheapest honest shape is a
->    fixture that makes `getgrouplist` fail rather than a real domain outage.
->    **The entry stays open for that reason alone.**
+> 1. ***96 IS PARKED BY THE OWNER, 3 Sep 2026 — DO NOT RE-DERIVE THE WITNESS,
+>    THE TRACE IS IN THE ENTRY.*** Shown the cost, he parked it. **Four of the
+>    nine paths cannot be induced on this machine at all** — they need a real
+>    name-service outage. The five in `os_permitted` are reachable, two of them
+>    trivially (a record with no newline, an empty record), **but only from a
+>    NON-ADMINISTRATOR session running OS.EXECUTE**, because `USR_ADMIN`
+>    short-circuits the file read. The two routes — piping into `sd` against
+>    `don`, or a ~300-line elevated verifier on a throwaway account — are both
+>    costed in the entry. **It stays open, and it is not waiting on anybody.**
 > 2. ***152's WITNESS, WHICH IS FREE BUT ONLY IN A STALE WINDOW*** — see its
 >    section above. **`b108` was not one**: nothing refused, so no step exited 2
 >    and the new wording never printed. Confirmed, not assumed — `COULD NOT RUN`
