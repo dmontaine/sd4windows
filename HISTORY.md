@@ -46965,3 +46965,46 @@ previously hung, plain END should give 2879, and the correct form 0 errors.  The
 unterminated case must not be run against an install without this fix, because
 that is the hang, and each one leaves a slot in the user table that sd -stop
 then refuses to step over.
+
+## 3 Sep 2026 - 102's ruling disambiguated: restore, not delete
+
+The ruling on record was "they are deleted, transactions are all or nothing".
+Read literally that means a failed commit REMOVES the records it had already
+written - which is cheap, because the ids are already cached and no before image
+is needed.  It is also a data-loss regression: a transaction that UPDATES an
+existing record would destroy it, where today the old version survives.  That
+defeats all-or-nothing instead of delivering it, so the question went back to the
+owner one more time and he chose restore-the-prior-content.  The literal reading
+is closed.
+
+Two facts from the code set the shape.  TXN_CACHE holds no before image - only
+mode, fvar, the NEW data, and the id.  And rollback() touches no file data at
+all: it frees the cached strings, drops the entries and unlocks.  In a normal
+rollback nothing has been applied yet, which is why no before image has ever been
+needed.  This is new machinery rather than a repair, and that is worth saying
+plainly because the entry's phrasing - "the fix is a decision, not a decrement" -
+could be read as though the code were nearly there.
+
+The design: capture the before image at commit time, inside the loop,
+immediately before each action is applied, because only then is the image
+certainly what is about to be overwritten.  Hold it on a file-scope list and
+replay it in reverse from txn_abort(), which is the same far-side-of-the-longjmp
+placement the lock half already uses and which avoids touching the five k_error
+sites the row warns against.  Free the list where commit_txn_id is cleared.
+
+What grew on the trace, and it is the reason this is not a short job: dynamic
+files have every API needed - dh_read, dh_exists, dh_write, dh_delete.
+Directory files have no read API.  dir_write writes the record as a file at
+<pathname>/<mapped_id> with mark conversion, and the only reader is a Private
+read_record() that works on the VM's e-stack rather than as a callable function.
+So the fix also needs a dir_read-shaped API that reverses the same mark mapping,
+and getting that wrong would silently corrupt the record it was restoring.
+
+One rule is still unmade: what to do when the undo itself fails.  The disk is
+already misbehaving by then, so it must not k_error again mid-undo.  The
+recommendation recorded is to log each failed restore by file and id, finish
+undoing the rest, and leave the transaction reported as failed.
+
+Unlike 96, a witness is reachable: probe-txnlock.ps1 already induces a real
+commit failure on demand, 13 of 13.  Not started - it wants its own session,
+from a tree with nothing else unverified in it.

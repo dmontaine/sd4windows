@@ -238,6 +238,36 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > Next is the suite on `b108`, both halves, 24 elevated steps.
 >
+> ### ***102's RULING IS DISAMBIGUATED AND ITS COST IS NOW KNOWN. NOT STARTED.***
+>
+> ***THE RULING'S WORDS WOULD HAVE LOST DATA IF TAKEN LITERALLY.*** *"They are
+> deleted"* read literally means a failed commit REMOVES the records it had
+> already written — but a transaction that **updates** an existing record would
+> then destroy it, where today the old version survives. Put back to the owner,
+> he chose ***restore each already-applied record to what it held before***.
+> **The literal reading is closed.**
+>
+> ***TWO FACTS SET THE SHAPE***: `TXN_CACHE` holds no before image
+> (`txn.c:63` — only the NEW data), and `rollback()` touches no file data at all
+> (`txn.c:709`), because in a normal rollback nothing has been applied yet.
+> **This is new machinery, not a repair.**
+>
+> ***THE DESIGN***: capture the before image at commit time immediately before
+> each action is applied, hold it on a file-scope list, and replay it in reverse
+> from `txn_abort()` — the same far-side-of-the-longjmp placement the lock half
+> already uses, which avoids touching the five `k_error` sites.
+>
+> ***WHAT GREW, AND IT IS WHY THIS IS NOT SHORT***: dynamic files have every API
+> needed. **Directory files have no read API at all** — `dir_write` exists but
+> the only reader is `Private read_record()`, which works on the VM's e-stack.
+> The fix needs a `dir_read`-shaped function that reverses the same mark mapping
+> `dir_write` applies; get that wrong and the undo corrupts what it restores.
+> **And one rule is still unmade**: what happens when the undo itself fails.
+>
+> ***A WITNESS IS REACHABLE, UNLIKE 96's***: `probe-txnlock.ps1` already induces
+> a real commit failure on demand, 13 of 13. **It deserves its own session, from
+> a tree with nothing else unverified in it.**
+>
 > ### ***114 IS FIXED IN SOURCE — ONE `until` CLAUSE. A CYCLE IS OWED.***
 >
 > ***THE COMPILER HUNG BECAUSE ONE INNER LOOP HAD NO EOF TEST, AND ITS OWN
