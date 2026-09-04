@@ -175,13 +175,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***66 WITNESSED ON A CYCLE + INSTALL AND THE WITNESS IS NOW A SUITE STEP, `verify-editors`. THE FULL SUITE RAN GREEN, 45 OF 45 ON `b109`. 153 FILED OUT OF THE WITNESS. OPEN 7 → 8. ONE THING STILL OWED: NOBODY HAS TYPED `micro bp <record>`.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***66 IS DONE AND CLOSED: THE OWNER OPENED BOTH EDITORS. THE WITNESS IS NOW A SUITE STEP, `verify-editors`. THE FULL SUITE RAN GREEN, 45 OF 45 ON `b109`. 153 FILED OUT OF THE WITNESS. OPEN 7. NOTHING OWED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 23:32:33**, `sd.exe`
 > `79FBF0A6E46652BB`; `assert-current` **exit 0**; **27 of 27 free checks**
-> exit 0 in 31.7 s; `test-fixlist-units` **259/0**. ***OPEN 8: 16, 66, 70, 80,
-> 96, 102, 138, 153. NEXT FREE ID 154. `b109` SPENT ON THE FULL SUITE, GREEN
-> IN BOTH HALVES; NEXT RUN TOKEN `b110`.***
+> exit 0 in 31.7 s; `test-fixlist-units` **260/0**. ***OPEN 7: 16, 70, 80, 96,
+> 102, 138, 153. NEXT FREE ID 154. `b109` SPENT ON THE FULL SUITE, GREEN IN
+> BOTH HALVES; NEXT RUN TOKEN `b110`.*** By severity, read from the table
+> rather than carried forward: **three B — 70, 80, 138**; **two S — 16, 102**;
+> **two M — 96 (parked) and 153**. *(Handoff 27's "96 is the only M" was true
+> when written and stopped being true when 153 was filed.)*
 >
 > ***THE CYCLE WAS RUN BY THE AGENT — `Start-Process -Verb RunAs -Wait`, ONE
 > HOP, ONE CONSENT*** (§4.0.1, and handoff 25 says the same). 23:31:29 →
@@ -208,10 +211,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **23 PASS / 0 FAIL after** — beforehand `micro.exe` resolved to
 > `C:\Program Files\WinGet\Links\micro.exe`, ***a 0-byte shim.***
 >
-> ***WHAT IS OWED IS ONE INTERACTIVE COMMAND.*** A full-screen editor needs a
-> terminal an agent cannot drive, so **the launch itself has never happened**.
-> In an SD session: `micro bp EDIT`, then Esc-q to leave without saving. If it
-> opens, 66 closes. **Compiling is not running, and neither is resolving.**
+> ***AND THE LAUNCH IS NOW WITNESSED TOO, 4 Sep 2026, BY THE OWNER: "micro
+> opened fine, so did edit". 66 IS CLOSED.*** That was the one thing nothing
+> here could supply — a full-screen editor needs a terminal an agent cannot
+> drive — so it was held open for a day rather than argued away. **Compiling is
+> not running, and neither is resolving**; the verb is now proved end to end by
+> a person.
 >
 > ### ***THE WITNESS IS NOW A STANDING STEP — `gplbld/verify-editors.ps1`***
 >

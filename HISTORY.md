@@ -47142,6 +47142,19 @@ only way to exercise them without breaking the install.  26 PASS, 0 FAIL, exit 0
 run standalone before it was wired in - the record's rule about not handing over
 a script nobody has watched load.
 
+66 closed the same day.  The owner ran both verbs - "micro opened fine, so did
+edit" - which was the one thing nothing on this side could supply, because a
+full-screen editor needs a terminal an agent cannot drive.  It was held open for
+a day rather than argued away on the strength of everything around it being
+measured, and that was the right call to have made: resolving is not running, the
+same way compiling is not.  Open goes 8 to 7 - 16, 70, 80, 96, 102, 138, 153 -
+and the fixlist reads 260/0.
+
+A claim was nearly carried forward untrue while closing it.  Handoff 27's "96 is
+the only M and it is parked" was true when written and stopped being true the
+moment 153 was filed; the severities are now read out of the table rather than
+copied - three B (70, 80, 138), two S (16, 102), two M (96 parked, 153).
+
 It was then run INSIDE the runner, which a standalone run does not prove:
 VerifyInstall1.ps1 -Only verify-editors at 00:26:50, 26 PASS / 0 FAIL, exit 0,
 no token spent and nothing elevated.  That is the verify-apiidentity trap closed
