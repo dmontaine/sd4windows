@@ -47501,3 +47501,59 @@ unchanged length.  verify-nocase and verify-lcnames, the other readers of that
 path, exit 0.  348 [PASS] is the same total as b110, which is the useful part:
 the shared conversion changed how two readers get their bytes and changed the
 score of nothing.
+
+## 4 Sep 2026 - 155: the password page, and a keyword deliberately not added
+
+Owner, off the install's own screen: the formatting is inconsistent, and the
+"A password is required" section does not need to be repeated twice.  Built and
+witnessed the same day - "155 is good" on the 09:40:06 install.  Nothing else
+could have given that verdict: the page exists only at the end of a real
+install, in front of a person, and 138 established why no verifier reaches it
+(LOGIN:955 needs a tty; every automated route pipes stdin).  The machine
+readable half sits beside it - cycle.ps1 printed "credential register: 2
+account(s) with a password", so both prompts fired and both wrote a record.
+
+THE OBVIOUS FIX WAS A KEYWORD AND IT WAS THE WRONG ONE.  MODIFY.PASSWORD <acct>
+BRIEF would have meant teaching SET_ACC_PASSWORD's parser to accept a trailing
+token, and that parser REFUSES one on purpose (5276): a second word is far more
+likely to be a password typed on a command line than a keyword, which is much of
+why SCRAM exists.  The caller already passes something meaning exactly "say
+less" - -QUIET - and LOGIN:279 and :364 already gate their own messages on it.
+So the explanation is now inside
+if not(bitand(kernel(K$COMMAND.OPTIONS, 0), CMD.QUIET)), and finish-install.ps1
+prints it once, above Password 1 of 2, where it is read before anything is
+asked.  verify-setpw is green afterwards, which is the row proving the refusal
+still refuses and still ONLY refuses.
+
+The trade, said out loud: a hand-typed "sd -QUIET modify.password don" loses
+that paragraph.  That is the right way round - -QUIET is documented as suppress
+all displays on entry - and the behaviour is unchanged either way.
+
+THE FORMATTING HALF IS A RULE RATHER THAN A TIDY-UP.  Write-Wrapped gives
+everything the installer says one width, 74, chosen against an 80-column console
+rather than against the screen that built it; entry 150 is the neighbouring
+lesson.  Each step's header now sits at column 0 with the sd.exe output it
+introduces, while the banner keeps its two-space indent because that is the
+installer narrating.  Two margins, but by rule instead of by accident: SD's own
+output cannot be indented from PowerShell.
+
+THE 29th FREE CHECK EXISTS BECAUSE IT CAUGHT A REGRESSION THE FIX ITSELF
+INTRODUCED.  The first Write-Wrapped split on -split '\s+', which silently
+collapsed every double space in the file - the two after a full stop, and the
+two setting off "modify.password sdsys" from its sentence.  A formatting
+regression riding in on the fix for a formatting complaint, invisible to a
+compiler, and nothing else in the tree reads that page.  test-wraptext-units
+lifts the function out by AST so it cannot drift from a pasted copy.
+
+ONE OF ITS OWN ROWS WAS DELETED ON THE FIRST RUN.  A "no word is broken across
+lines" check written as -match '\w-?\r?\n\w' matches a letter, a newline and a
+letter - every correctly wrapped pair of lines - so it went red against a
+working wrapper.  Same class as anchoring a check on a string the failure also
+carries: a pattern that cannot tell the two outcomes apart is not a check.  The
+property it reached for is what the round-trip row already proves.
+
+AND A COUNT IN THE HANDOFF BOX WAS WRONG FOR A WHILE.  It read "OPEN 3: 70, 80,
+96" while 155 was still open, an entry filed earlier the same session.
+test-fixlist-units counts the table and would have said 4; it does not read
+PROJECT_STATUS prose, so nothing caught it but a reread.  Take the count from
+the checker, not from the handoff being written.

@@ -175,17 +175,31 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***`b111` GREEN IN BOTH HALVES, 46 OF 46, WITH `verify-lineendings`'s STRADDLE ROWS READ — SO THE SHARED CONVERSION IS WITNESSED THROUGH THE READ OPCODE AND NOTHING IS OWED.*** OPEN 4: 70, 80, 96, 155.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***`b111` GREEN IN BOTH HALVES, 46 OF 46, WITH `verify-lineendings`'s STRADDLE ROWS READ. THEN 155 WAS BUILT AND THE OWNER WITNESSED IT: "155 is good".*** OPEN 3: 70, 80, 96 — ***AND BOTH BLOCKERS ARE RIG- OR PHASE-BOUND, SO THERE IS NOTHING LEFT THAT CAN BE WORKED WITHOUT A GUEST.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **4 Sep 08:56:02**, `sd.exe`
 > **E31CE514E8999D24**; `assert-current` **exit 0**; **28 of 28 free checks**
 > exit 0 in 38.7 s; `test-fixlist-units` **260/0**; `check-stale-leads` exit 0;
 > `check-datatree-litter` **CLEAN**; `verify-txn` **17/17 decisive, exit 0** on
-> this install. ***OPEN 4: 70, 80, 96, 155. NEXT FREE ID 156. RUN `b111`.***
-> *(Written as "OPEN 3: 70, 80, 96" first, which dropped 155 — an entry filed
-> earlier the same session. `test-fixlist-units` counts the table and says 4;
-> it does not read this prose, so nothing would have caught it. **Take the
-> count from the checker, not from the handoff you are writing.**)*
+> this install. ***OPEN 3: 70, 80, 96 — CHECKED, NOT COUNTED BY HAND
+> (`test-fixlist-units` 261/0, `check-stale-leads` "3 open row(s), 152
+> struck"). NEXT FREE ID 156. RUN `b112`.***
+>
+> ***THE 29th FREE CHECK IS `test-wraptext-units`***, and the set is **~36 s**.
+>
+> ***A COUNT IN THIS BOX WAS WRONG ONCE TODAY AND IT IS WORTH THE SENTENCE.***
+> It read *"OPEN 3: 70, 80, 96"* while 155 was still open — an entry filed
+> earlier the same session. **`test-fixlist-units` counts the table and would
+> have said 4; it does not read this prose, so nothing caught it but a reread.**
+> **Take the count from the checker, not from the handoff you are writing.**
+>
+> ***THE ONE THING OUTSTANDING IS A FULL SUITE, AND IT IS HYGIENE RATHER THAN
+> DOUBT.*** `b111` was green, and the deltas since are `SET_ACC_PASSWORD`,
+> `finish-install.ps1`, `assert-current.ps1`'s `$neverShipped` and one new free
+> check. **Name the delta and the step that covers it**: `verify-setpw`
+> covers `MODIFY.PASSWORD`'s parser and is green on this install; **no step
+> covers the installer page and none can**. So nothing is unmeasured — but
+> CLAUDE.md wants a full run before a handoff, and `b112` is the token.
 >
 > ***THE FREE-CHECK HELPER WAS RUNNING 26 OF 28 AND EVERY ONE WAS GREEN, WHICH
 > IS WHY NOTHING SAID SO.*** `C:\Users\dmont\sdout\run-free-tests.ps1` had never
@@ -326,14 +340,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > part way leaves a record in a state nothing can describe. Over-reporting is
 > the safe direction. The row and the comment at `replay_undo()` both say so.
 >
-> ### ***155 — FILED FROM THE OWNER'S OWN SCREEN, NOT STARTED***
+> ### ***155 — DONE AND WITNESSED THE SAME DAY IT WAS FILED***
 >
-> The installer's password page repeats *"A password is required…"* once per
-> account and carries three left margins and three wrap widths. **The
-> repetition is structural** — a separate `sd.exe` per account, so nothing
-> per-session can suppress it — and the paragraph **must not simply be
-> deleted**, because `modify.password` run by hand is the other caller and
-> nothing else there explains what Enter does. Read the row.
+> Owner, on the 09:40:06 install: ***"155 is good"***. **Nothing else could
+> have given that verdict** — the page exists only at the end of a real
+> install, in front of a person, and 138 already established why no verifier
+> can reach it (`LOGIN:955` needs a tty; every automated route pipes stdin).
+>
+> ***THE REPETITION WAS FIXED WITHOUT A NEW KEYWORD, AND THAT IS THE PART
+> WORTH CARRYING.*** `MODIFY.PASSWORD <acct> BRIEF` was the obvious shape and
+> the wrong one: `SET_ACC_PASSWORD`'s parser **refuses any trailing token**
+> (5276) precisely because a second word is likelier to be a password than a
+> keyword. **The caller already passes something meaning "say less" —
+> `-QUIET`** — and `LOGIN:279`/`:364` already gate on it. **`verify-setpw` is
+> green, which is the row that proves the refusal still refuses and still only
+> refuses.**
+>
+> ***AND THE 29th FREE CHECK EXISTS BECAUSE IT CAUGHT A REGRESSION THE FIX
+> ITSELF INTRODUCED.*** `test-wraptext-units` (12/0): the first `Write-Wrapped`
+> split on `-split '\s+'` and **silently collapsed every double space in the
+> file** — the two after a full stop, and the two setting off
+> `modify.password sdsys` from its sentence. **A formatting regression riding
+> in on the fix for a formatting complaint**, invisible to a compiler, and
+> nothing else in the tree reads that page.
 
 <!-- HANDOFF 31 ENDS -->
 

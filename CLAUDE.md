@@ -499,9 +499,10 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-apiidentity-units`, `test-deletioncheck-units`,
    `test-doorsargv-units`, `test-reclaim-units`, `test-sdpath-units`,
    `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
-   `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`.
-   ***ALL TWENTY-EIGHT. Run these on
-   every change*** — **about 36 s for the whole set**, measured 4 Sep 2026, each
+   `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`,
+   `test-wraptext-units`.
+   ***ALL TWENTY-NINE. Run these on
+   every change*** — **about 38 s for the whole set**, measured 4 Sep 2026, each
    in its own process. A whole suite run has already been spent twice discovering
    what one
    of them names in a second. **`test-retired-wording-units` is the wording
@@ -583,6 +584,21 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    back in about five seconds, having answered anyway and having SAID it timed
    out. It lifts `Get-EditorVersion` out by AST so it cannot drift, and its
    fixtures are `.cmd` files, so it needs no compiler.
+
+   ***`test-wraptext-units` JOINED IT 4 Sep 2026 IN THE COMMIT THAT CREATED
+   IT.*** It guards PRE_RELEASE 155's `Write-Wrapped` in `install`'s
+   `finish-install.ps1`, and it exists because **it already caught a regression
+   the fix itself introduced**: the first wrapper split on `-split '\s+'`, which
+   silently collapsed every DOUBLE space in the file — the two after a full
+   stop, and the two setting off `modify.password sdsys` from its sentence. **A
+   formatting regression riding in on the fix for a formatting complaint**, and
+   nothing else in the tree reads that page. It lifts the function out by AST so
+   it cannot drift, and needs no SD, no elevation and no token. ***ONE OF ITS
+   ROWS WAS DELETED ON ITS FIRST RUN AND THAT IS RECORDED IN THE FILE***: a
+   *"no word is broken across lines"* check written as `-match '\w-?\r?\n\w'`
+   matches a letter, a newline and a letter — **every correctly wrapped pair of
+   lines** — so it went red against a working wrapper. Same class as anchoring
+   on a string the failure also carries.
 
    ***`test-reconcile-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT***, which is the rule above working and needs no paragraph of its own. It
