@@ -46900,3 +46900,31 @@ control.  About 300 lines for an M entry that would still leave four paths dark.
 What stands as evidence instead is b108 for the normal path and the errlog for
 the absence of noise, the latter refusing the null case because the file
 carried that run's own entries while holding no UNDETERMINED lines.
+
+## 3 Sep 2026 - 152 witnessed, and the runner caught the wrong step name first
+
+VerifyInstall1.ps1 -Only verify-parsertokens at 19:19:01, against a tree made
+stale by a single planted marker file which was deleted afterwards -
+assert-current back to exit 0, no cycle spent.  All four parts of the change
+fired: the PARTIAL banner, the console row, the closing breakdown "1 step(s)
+did not exit 0 - 0 FAILED a check, 1 COULD NOT RUN." with its two explanatory
+lines, and - the part that mattered most - the summary FILE row
+"verify-parsertokens.ps1      exit 2  COULD NOT RUN", so the distinction
+outlives the console.  The runner still exited 1, unchanged and deliberate.
+
+It doubles as a second witness for 151: the step left at exit 2 for a
+precondition refusal rather than the 1 it would have used before.
+
+The first two attempts named verify-fold, which is in VerifyInstall2 and not in
+VerifyInstall1 at all.  It was picked on the strength of being row 1 of the
+ELEVATED summary and handed over twice before anything ran.  VerifyInstall1
+refused it by name and printed the sixteen steps it does have - "a name that
+matches nothing is refused rather than silently selecting no steps, which would
+report a pass for doing nothing" - which is PRE_RELEASE 54's guard catching the
+mistake of the person who had just written 152.  The replacement was found by
+grepping the unelevated steps for one that calls assert-current and exits 2.
+
+One smaller thing worth keeping: the marker was first deleted with a relative
+path from a shell whose working directory was already gplbld, so rm -f removed
+nothing and reported success.  Only git status showed the file still there.  A
+delete is worth confirming by absence rather than by exit code.

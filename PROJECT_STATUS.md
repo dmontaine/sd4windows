@@ -175,13 +175,14 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 27, 3 Sep 2026 — ***151, 96 AND 152 ALL BUILT AND CYCLED. FULL SUITE GREEN ON `b108`, 45 STEPS. NOTHING OWED. OPEN 10.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 27, 3 Sep 2026 — ***151 AND 152 DONE AND WITNESSED, 96 BUILT AND PARKED. FULL SUITE GREEN ON `b108`, 45 STEPS. NOTHING OWED. OPEN 9.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 18:20:33**, `sd.exe`
 > `79FBF0A6E46652BB`; `assert-current` **exit 0**; **27 of 27 free checks**
-> exit 0 in 32 s (the set grew by one, below). ***OPEN 10: 16, 66, 70, 80, 96,
-> 102, 114, 138, 150, 152. NEXT FREE ID 153. `b108` SPENT ON THE FULL SUITE;
-> NEXT RUN TOKEN `b109`.***
+> exit 0 in 32 s (the set grew by one, below). ***OPEN 9: 16, 66, 70, 80, 96,
+> 102, 114, 138, 150. NEXT FREE ID 153. `b108` SPENT ON THE FULL SUITE; NEXT RUN
+> TOKEN `b109`.*** **96 is the only M and it is parked**, so every other open
+> entry is a **B** or an **S**.
 >
 > ### ***THE SUITE RAN GREEN IN BOTH HALVES — 45 OF 45***
 >
@@ -330,25 +331,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **file** row so the distinction outlives the console. **The runner's own exit
 > code was deliberately not moved** — that needs the owner's word.
 >
-> ***THE CONTROL WAS NOT RUN, AND THE CYCLE HAS CLOSED THE CHEAP WINDOW ON
-> IT.*** `VerifyInstall1.ps1 -Only verify-fold` exercised the whole new branch
-> for free **only while the tree was stale** — that is what made `verify-fold`
-> exit 2. **The tree is current now, so that step runs and passes, and the new
-> wording never appears.** Do not spend a run on it expecting otherwise.
+> ***WITNESSED 19:19:01, ON A DELIBERATELY STALE TREE.***
+> `VerifyInstall1.ps1 -Only verify-parsertokens` against a tree made stale by a
+> single planted marker file, then deleted — `assert-current` back to exit 0,
+> no cycle. **All four parts fired**, and the one that mattered most is that
+> ***THE SUMMARY FILE CARRIES IT, NOT JUST THE CONSOLE***:
+> `post-cycle-unelevated-20260903-191901.txt` reads
+> `verify-parsertokens.ps1      exit 2  COULD NOT RUN`. The closing lines read
+> *"1 step(s) did not exit 0 - 0 FAILED a check, 1 COULD NOT RUN."* **The runner
+> still exited 1**, unchanged and deliberate. ***IT IS ALSO A SECOND WITNESS FOR
+> 151***, since the step left at exit 2 for a precondition refusal.
 >
-> ***TAKE IT IN THE NEXT STALE WINDOW INSTEAD, WHICH COSTS NOTHING AND COMES
-> ROUND ON ITS OWN.*** Any source edit before the next cycle makes the tree
-> stale; that is the moment to run one `-Only` step and read the closing line.
-> **What proves it**, and the first line alone does not — a run that ignored the
-> change still prints it:
->
-> ```
-> VerifyInstall1: 1 step(s) did not exit 0 - 0 FAILED a check, 1 COULD NOT RUN.
->   A step that could not run measured nothing: it is not a product finding.
-> ```
->
-> `b108` will show the wording too, but only if something refuses — on a healthy
-> run nothing should, so **a green suite is not a witness for 152.**
+> ***AND A CORRECTION: `verify-fold` IS IN `VerifyInstall2`, THE ELEVATED
+> HALF.*** It was handed over twice as the witness step on the strength of being
+> row 1 of the *elevated* summary. **`VerifyInstall1` refused it by name and
+> listed the sixteen it does have** — PRE_RELEASE 54's guard catching the
+> author's own mistake, and worth more than the minute it cost.
 >
 > ### ***A CORRECTION TO WHAT "EDITING A gplbld SCRIPT" COSTS***
 >
@@ -373,11 +371,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    short-circuits the file read. The two routes — piping into `sd` against
 >    `don`, or a ~300-line elevated verifier on a throwaway account — are both
 >    costed in the entry. **It stays open, and it is not waiting on anybody.**
-> 2. ***152's WITNESS, WHICH IS FREE BUT ONLY IN A STALE WINDOW*** — see its
->    section above. **`b108` was not one**: nothing refused, so no step exited 2
->    and the new wording never printed. Confirmed, not assumed — `COULD NOT RUN`
->    appears 0 times in both summaries and there is no `exit 2` row.
+> 2. ***152 IS DONE AND WITNESSED*** — see its section above. **`b108` was not
+>    the witness**: nothing refused there, so no step exited 2 and the wording
+>    never printed; a planted marker made the stale window instead.
 > 3. **70**, then **114**, **138**, **102**, **16**; **150**; **80** last.
+>    ***THE M CATEGORY IS NOW EMPTY OF WORK*** — 152 closed, 96 parked — so
+>    everything left is **B** or **S**.
 > 4. ***AND STEP 0's SKIP BRANCH IS STILL UNRUN*** — see the cycle note above
 >    for why this session did not give it one.
 >
