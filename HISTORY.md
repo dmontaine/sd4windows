@@ -47008,3 +47008,38 @@ undoing the rest, and leave the transaction reported as failed.
 Unlike 96, a witness is reachable: probe-txnlock.ps1 already induces a real
 commit failure on demand, 13 of 13.  Not started - it wants its own session,
 from a tree with nothing else unverified in it.
+
+## 3 Sep 2026 - 114 witnessed in 0.8 seconds, and step 0's skip branch ran
+
+Two cycles: 18:19:35 for 96's C and 20:37:29 for 114's BASIC, install now
+20:50:22, assert-current exit 0 after each.  The -SkipInstall check at 20:06
+established the BASIC compiles before an install was spent on it, and the result
+was read rather than inferred from ISCC reaching the end: "compile: BCOMP" gives
+0 error(s) in its own right, 197 programs are at 0 errors, and the fatal "is not
+assigned a value" class appears zero times.
+
+The witness is C:\Users\dmont\sdout\p114-txnhang.ps1, 3 of 3, unelevated.  The
+unterminated program returns in 0.8 seconds with 1 error(s) and the text
+"Unterminated transaction construct" - the same source that was killed at 41s
+when the entry was filed.  Both controls held: a plain END gives "Expected
+TRANSACTION after END" in 0.5s, the correct form 0 error(s) in 0.5s.  One line
+of source still separates three outcomes; what changed is that none of them now
+fails to return.  It left no litter in bp or bp.out.
+
+The fixture runs every compile in a job under a 25s timeout, and that is why it
+was safe to run at all: had the fix not worked, case (a) IS the hang, and a bare
+pipe would have taken the script down with it and left an orphaned session with
+no report.  Instead it would have printed HUNG and said to check the user table.
+It also refuses a stale tree, an empty reply from SD, and an empty result set -
+the last because a run that measured nothing must not score as a pass.  It was
+pre-flighted against the stale tree before the cycle: exit 2 at the
+assert-current gate with SD untouched, so the guard was known good before it
+mattered.
+
+Step 0's skip branch ran for the first time in the 20:37 cycle, printing "bin\
+built 03 Sep 18:19:36, no source newer - nothing to compile".  Handoff 26 had
+recorded that branch as never having run, and this session predicted wrongly
+that the 18:19 cycle would take it - that one took the BUILD branch because the
+mutant control had moved linuxlb.c's mtime without changing its content.  114
+changed only BASIC, so nothing under gplsrc had moved and the guard correctly
+did nothing.  Both branches are now witnessed, for opposite reasons.

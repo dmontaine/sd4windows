@@ -175,14 +175,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 27, 3 Sep 2026 — ***151 AND 152 DONE AND WITNESSED, 96 BUILT AND PARKED. FULL SUITE GREEN ON `b108`, 45 STEPS. NOTHING OWED. OPEN 9.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 27, 3 Sep 2026 — ***151, 152 AND 114 DONE AND WITNESSED; 96 BUILT AND PARKED; 102 RULED AND DESIGNED. SUITE GREEN ON `b108`. NOTHING OWED. OPEN 8.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** Install **3 Sep 18:20:33**, `sd.exe`
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 20:50:22**, `sd.exe`
 > `79FBF0A6E46652BB`; `assert-current` **exit 0**; **27 of 27 free checks**
-> exit 0 in 32 s (the set grew by one, below). ***OPEN 9: 16, 66, 70, 80, 96,
-> 102, 114, 138, 150. NEXT FREE ID 153. `b108` SPENT ON THE FULL SUITE; NEXT RUN
+> exit 0 in 32 s (the set grew by one, below). ***OPEN 8: 16, 66, 70, 80, 96,
+> 102, 138, 150. NEXT FREE ID 153. `b108` SPENT ON THE FULL SUITE; NEXT RUN
 > TOKEN `b109`.*** **96 is the only M and it is parked**, so every other open
 > entry is a **B** or an **S**.
+>
+> ***THE SUITE HAS NOT RUN SINCE THE 20:50 INSTALL.*** `b108` was green against
+> the 18:20 one, and the only change between them is 114's single `until`
+> clause in `BCOMP`, witnessed directly. **A `b109` run would be the
+> confirmation; nothing points at needing it.**
 >
 > ### ***THE SUITE RAN GREEN IN BOTH HALVES — 45 OF 45***
 >
@@ -212,31 +217,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > entries**, so the zero is a real zero rather than a log nobody wrote to. Every
 > predicate completed and answered, and the new logging produced no noise.
 >
-> ### ***THE ONE COMMAND OWED, AND IT NEEDS YOU AT THE KEYBOARD***
+> ### ***TWO CYCLES RAN AND NOTHING IS OWED***
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
+> **18:19:35** (96's C) and **20:37:29** (114's BASIC), both `CYCLE COMPLETE`,
+> both `assert-current` exit 0; the install in force is **20:50:22**.
+> **Elevated PowerShell**, and ***NOT `make sd` FIRST — step 0 does the C***
+> (owner, 3 Sep 2026). ***THE INSTALLER ENDS ON A `MsgBox` AN AGENT CANNOT
+> CLICK***, so an agent can start a cycle and cannot finish one.
 >
-> ***DONE, 3 Sep 18:19:35–18:21:32.*** All nine steps, `CYCLE COMPLETE`,
-> `assert-current` **exit 0**, install **18:20:33**, `sd.exe` now
-> `79FBF0A6E46652BB`. **Elevated PowerShell**, and ***NOT `make sd` FIRST —
-> step 0 does the C*** (owner, 3 Sep 2026). The installer ends on a `MsgBox` an
-> agent cannot click, so an agent can start a cycle and cannot finish one.
->
-> ***AND A PREDICTION IN THIS HANDOFF WAS WRONG, WHICH IS WORTH THE LINES.***
-> It said step 0 would take its **skip** branch — handoff 26's never-run one —
-> because `Get-BinaryStaleness` answered `Stale: False`. **It took the BUILD
-> branch**, and named why: *1 source file(s) newer than `bin\sdclilib.dll`,
-> `gplsrc\linuxlb.c` 18:09:37*. ***THAT FILE IS THE MUTANT CONTROL'S DOING.***
-> The control restored `linuxlb.c`'s CONTENT byte-for-byte — same SHA-256 — but
-> **not its mtime**, and both guards are mtime-based on purpose: *"touching a
-> file without changing it fails this check, and that is the right way round"*.
-> **So the skip branch STILL has never run in a cycle**, and the way to give it
-> one is a cycle with no source touched since the last build — a mutant control
-> counts as touching.
->
-> Next is the suite on `b108`, both halves, 24 elevated steps.
+> ***A PREDICTION IN THIS HANDOFF WAS WRONG AND THEN CAME TRUE, WHICH IS WORTH
+> THE LINES BECAUSE THE REASON DIFFERS.*** It said the 18:19 cycle would take
+> step 0's **skip** branch — handoff 26's never-run one — on the strength of
+> `Get-BinaryStaleness` answering `Stale: False`. **It took the BUILD branch**
+> and named why: *`gplsrc\linuxlb.c` 18:09:37, newer than `bin\sdclilib.dll`*.
+> ***THAT WAS THE MUTANT CONTROL'S DOING***: it restored the file's CONTENT
+> byte-for-byte — same SHA-256 — but **not its mtime**, and both guards are
+> mtime-based on purpose (*"touching a file without changing it fails this
+> check, and that is the right way round"*). **The 20:37 cycle then took the
+> skip branch for real**, printing *`bin\ built 03 Sep 18:19:36, no source newer
+> - nothing to compile`*, because 114 changed only BASIC. **Both branches of
+> step 0 are now witnessed.**
 >
 > ### ***102's RULING IS DISAMBIGUATED AND ITS COST IS NOW KNOWN. NOT STARTED.***
 >
@@ -416,29 +416,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***WHAT TO DO NEXT***
 >
-> ***114 COMPILES — `-SkipInstall` AT 20:06, `compile: BCOMP` → `0 error(s)`,
-> 197 programs at 0 errors, zero of the fatal `is not assigned a value` class.***
-> **It is not installed**, so the tree is stale and nothing is witnessed. Two
-> commands close it, in this order:
+> ***114 IS DONE AND WITNESSED — 3 OF 3 ON THE 20:50:22 INSTALL, AND THE NUMBER
+> THAT MATTERS IS 0.8 SECONDS.*** `C:\Users\dmont\sdout\p114-txnhang.ps1`,
+> unelevated. **The unterminated program returns in 0.8s** with `1 error(s)` and
+> `Unterminated transaction construct` — the same source that was **killed at
+> 41s** when the entry was filed. Both controls held: plain `END` → 2879 in
+> 0.5s, correct form → `0 error(s)` in 0.5s. **It left no litter and
+> `assert-current` is still exit 0.**
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
+> ***THE FIXTURE CANNOT HANG, WHICH IS WHY IT WAS SAFE TO RUN.*** Every compile
+> goes through a job under a 25s timeout, so a fix that had not worked would
+> have been reported as `HUNG`, with a warning to check for the orphaned
+> session, rather than taking the script down with it. **Keep it for any future
+> compiler-hang suspicion**; it is in `sdout`, not `gplbld`, so it cannot make
+> the tree stale.
 >
-> **Elevated PowerShell**, and it ends on a `MsgBox` an agent cannot click.
-> Then, in an **ordinary unelevated** one:
+> ### ***AND STEP 0's SKIP BRANCH HAS NOW RUN, FIRST TIME***
 >
-> ```powershell
-> C:\Users\dmont\sdout\p114-txnhang.ps1
-> ```
->
-> ***THAT FIXTURE IS THE WITNESS AND IT CANNOT HANG***: every compile runs in a
-> job under a 25s timeout, because if the fix were not in, case (a) IS the hang
-> and a bare pipe would take the script with it. It drives all three cases —
-> unterminated → **2878**, plain `END` → **2879**, correct → **0 errors** —
-> where b and c are the controls that stop (a) being merely *"it printed
-> something"*. **A `HUNG` result means an orphaned session: check the user table
-> before the next cycle, because `sd -stop` refuses while one is counted in.**
+> The 20:37 cycle printed ***`bin\ built 03 Sep 18:19:36, no source newer -
+> nothing to compile`***. That is the branch handoff 26 recorded as never having
+> run inside a cycle, and which this handoff's earlier text predicted wrongly
+> for the 18:19 cycle — 114 changed only BASIC, so nothing under `gplsrc` had
+> moved and the guard correctly did nothing. **Both branches of step 0 are now
+> witnessed.**
 >
 > 1. ***96 IS PARKED BY THE OWNER, 3 Sep 2026 — DO NOT RE-DERIVE THE WITNESS,
 >    THE TRACE IS IN THE ENTRY.*** Shown the cost, he parked it. **Four of the
@@ -452,9 +452,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 2. ***152 IS DONE AND WITNESSED*** — see its section above. **`b108` was not
 >    the witness**: nothing refused there, so no step exited 2 and the wording
 >    never printed; a planted marker made the stale window instead.
-> 3. **70**, then **114**, **138**, **102**, **16**; **150**; **80** last.
->    ***THE M CATEGORY IS NOW EMPTY OF WORK*** — 152 closed, 96 parked — so
->    everything left is **B** or **S**.
+> 3. **70**, then **138**, **16**; **150**; **66**; **80** last. ***114 IS
+>    CLOSED AND 102 IS DESIGNED BUT WANTS ITS OWN SESSION*** (see above — it
+>    needs a `dir_read` that does not exist). **The M category has no work left
+>    in it**, so everything open is a **B** or an **S**.
 > 4. ***AND STEP 0's SKIP BRANCH IS STILL UNRUN*** — see the cycle note above
 >    for why this session did not give it one.
 >
