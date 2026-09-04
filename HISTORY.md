@@ -47142,6 +47142,23 @@ only way to exercise them without breaking the install.  26 PASS, 0 FAIL, exit 0
 run standalone before it was wired in - the record's rule about not handing over
 a script nobody has watched load.
 
+It was then run INSIDE the runner, which a standalone run does not prove:
+VerifyInstall1.ps1 -Only verify-editors at 00:26:50, 26 PASS / 0 FAIL, exit 0,
+no token spent and nothing elevated.  That is the verify-apiidentity trap closed
+rather than repeated - handed over unrun, it carried an embedded BOM, died on
+load as step 17 of b18, and the empty step scored a false green.  The runner
+reported "PARTIAL - 1 of 17 step(s)" correctly; 17 rather than 20 because with no
+-Run the three $needsTestUser steps are skipped.  §4.0.1 says an agent may not
+run VerifyInstall1, and the override is recorded here: its measured basis is a
+nested elevation refused with no dialog, and this selection elevates nothing,
+creates no account and excludes verify-osusers, which is the step that prompts.
+
+The append-proof log checks then proved themselves live.  The log holds four runs
+- the installer's, plus three -CheckOnly appends this step has now made - and
+predicates A and B still measure the installer's behaviour rather than the
+verifier's.  An anchor on "the last run" would already have been describing the
+wrong thing by the second invocation.
+
 The header's verifier arithmetic was re-derived from the directory rather than
 adjusted by one, as its own note demands: 47 verify-*.ps1, 19 named in
 VerifyInstall1, 24 in VerifyInstall2, 43 accounted for, four correctly out.  The

@@ -253,10 +253,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | unelevated | `VerifyInstall1-20260903-234352.log`, closing line **`VerifyInstall1: every step exited 0.`**; summary `post-cycle-unelevated-20260903-234352.txt` | **21**, all exit 0 |
 > | elevated | `post-cycle-20260903-234921.txt` | **24**, all exit 0 |
 >
-> ***`b109` IS SPENT. NEXT RUN TOKEN `b110`.*** The run predates
-> `verify-editors`, so that step has never run inside the runner — it was run
-> standalone instead, which is what the record asks for before a script is
-> handed over.
+> ***`b109` IS SPENT. NEXT RUN TOKEN `b110`.*** That run predates
+> `verify-editors`.
+>
+> ***AND THE NEW STEP HAS NOW RUN INSIDE THE RUNNER, WHICH IS THE PART A
+> STANDALONE RUN DOES NOT PROVE.*** `VerifyInstall1.ps1 -Only verify-editors`,
+> 4 Sep 00:26:50, **26 PASS / 0 FAIL, exit 0**, no token spent, nothing
+> elevated. **That is the `verify-apiidentity` trap closed** — handed over
+> unrun, it died on load as step 17 of `b18` and the empty step scored a false
+> green. The runner reported `PARTIAL - 1 of 17 step(s)` correctly (17, not
+> 20: with no `-Run` the three `$needsTestUser` steps are skipped).
+>
+> ***THE APPEND-PROOF LOG CHECKS PROVED THEMSELVES LIVE***: the log now holds
+> **4** runs — the installer's plus three `-CheckOnly` appends this step made —
+> and predicates A and B still measure the installer's behaviour rather than
+> the verifier's. A "last run" anchor would already have been describing the
+> wrong thing.
 >
 > ***153 CAME OUT OF THE WITNESS AND IS THE KIND OF THING ONLY RUNNING FINDS.***
 > `install-editors.ps1` logs `micro: ... version ` with **nothing after it** —
