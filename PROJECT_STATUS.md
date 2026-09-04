@@ -177,11 +177,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***`b111` GREEN IN BOTH HALVES, 46 OF 46, WITH `verify-lineendings`'s STRADDLE ROWS READ. THEN 155 WAS BUILT AND THE OWNER WITNESSED IT: "155 is good".*** OPEN 3: 70, 80, 96 — ***AND BOTH BLOCKERS ARE RIG- OR PHASE-BOUND, SO THERE IS NOTHING LEFT THAT CAN BE WORKED WITHOUT A GUEST.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** Install **4 Sep 08:56:02**, `sd.exe`
-> **E31CE514E8999D24**; `assert-current` **exit 0**; **28 of 28 free checks**
-> exit 0 in 38.7 s; `test-fixlist-units` **260/0**; `check-stale-leads` exit 0;
-> `check-datatree-litter` **CLEAN**; `verify-txn` **17/17 decisive, exit 0** on
-> this install. ***OPEN 3: 70, 80, 96 — CHECKED, NOT COUNTED BY HAND
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 09:40:06**, `sd.exe`
+> **E31CE514E8999D24** (unchanged by that cycle — 155 touched no C);
+> `assert-current` **exit 0**; **29 of 29 free checks** exit 0 in 36.1 s;
+> `test-fixlist-units` **261/0**; `check-stale-leads` exit 0;
+> `check-datatree-litter` **CLEAN**; `verify-txn` **17/17 decisive** and
+> `verify-setpw` **PASSED** on this install. ***OPEN 3: 70, 80, 96 — CHECKED,
+> NOT COUNTED BY HAND
 > (`test-fixlist-units` 261/0, `check-stale-leads` "3 open row(s), 152
 > struck"). NEXT FREE ID 156. RUN `b112`.***
 >
@@ -331,7 +333,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > shared conversion changed how two readers get their bytes and changed the
 > score of nothing.
 >
-> ***`b111` IS SPENT. NEXT RUN TOKEN `b112`. NOTHING IS OWED.***
+> ***`b111` IS SPENT. NEXT RUN TOKEN `b112`.*** **Nothing was owed at this
+> point in the session; 155 landed after it** — see the state line at the top
+> for what that leaves.
 >
 > ***ONE THING IN THE ERRLOG THAT LOOKS LIKE A BUG AND IS NOT.*** The summary
 > line can read *"N could not be undone"* naming the record the commit **failed
@@ -363,6 +367,37 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `modify.password sdsys` from its sentence. **A formatting regression riding
 > in on the fix for a formatting complaint**, invisible to a compiler, and
 > nothing else in the tree reads that page.
+
+> ### ***WHAT TO DO NEXT — AND THE HONEST ANSWER IS "NOT MUCH IS REACHABLE"***
+>
+> ***THE LIST IS DOWN TO THREE AND EVERY ONE OF THEM IS GATED ON SOMETHING
+> OTHER THAN EFFORT.*** That is a real change in the shape of the work and the
+> next session should not spend an hour looking for a fourth.
+>
+> 1. ***A FULL SUITE ON `b112`, IF YOU WANT THE HANDOFF CLEAN.*** CLAUDE.md
+>    asks for one before a handoff. **It is hygiene, not doubt**: `b111` was
+>    green, and the only deltas after it are `SET_ACC_PASSWORD`,
+>    `finish-install.ps1`, `assert-current.ps1`'s `$neverShipped` and one new
+>    free check — `verify-setpw` covers the first and is green on this install,
+>    **no step covers the installer page and none can**, and the owner has read
+>    it. ***Name the delta and the step that covers it, or say plainly that no
+>    step can. Both are honest; assuming the last run still applies is not.***
+> 2. **`70`** — wants **a guest with an existing data tree** to install over.
+>    The `[locked]` half is built and witnessed; what is missing is that
+>    nothing runs `update.account` on an upgrade and nothing tells the
+>    administrator to.
+> 3. **`80`** — the documentation audit, and **the owner scheduled it for just
+>    before the 1.0 wrap-up**, against the final install image. Starting it
+>    early is what the row itself argues against.
+> 4. **`96` is parked by the owner.** Do not re-derive its trace; the answer is
+>    in the row.
+>
+> ***TWO TRAPS THIS SESSION PAID FOR, BOTH CHEAP TO AVOID.*** A gratuitous
+> `make sd` after an install costs a whole cycle, because `sd.exe` is not
+> byte-reproducible. And a launcher script cannot elevate a child — issue
+> `Start-Process -Verb RunAs` **inline from the shell**, with the path written
+> in **forward slashes** so it carries no backslash. Both have their own
+> sections above.
 
 <!-- HANDOFF 31 ENDS -->
 
