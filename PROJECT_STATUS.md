@@ -177,11 +177,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***STARTED ON 102 AND THE TRACE FOUND A `B` IN THE TWO LINES 102 HAS TO MODIFY: 154, FIXED AND WITNESSED RED AND GREEN THE SAME HOUR. 155 FILED FROM THE OWNER'S SCREEN. 102 ITSELF IS STILL NOT STARTED. ***THE SUITE OWED IS NOW BIGGER, NOT SMALLER — `b110` CARRIES A C CHANGE AND A CHANGED VERIFIER ON TOP OF ENTRY 16's TIER MOVE.****** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** Install **4 Sep 07:42:50**, `sd.exe`
-> **8C38CAB62278A1C7**; `assert-current` **exit 0**; **28 of 28 free checks**
-> exit 0 in 49.2 s; `test-fixlist-units` **260/0**; `check-stale-leads` exit 0;
-> `check-datatree-litter` **CLEAN, 3,629 entries**. ***OPEN 5: 70, 80, 96, 102,
-> 155. NEXT FREE ID 156. RUN `b110`.***
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 07:56:19**, `sd.exe`
+> **DD8CC4EABE3CE1BB**; `assert-current` **exit 0**; **28 of 28 free checks**
+> exit 0 in 35.9 s; `test-fixlist-units` **260/0**; `check-stale-leads` exit 0;
+> `check-datatree-litter` **CLEAN, 3,629 entries**; `verify-txn` **17/17
+> decisive, exit 0** on this install. ***OPEN 5: 70, 80, 96, 102, 155. NEXT FREE
+> ID 156. RUN `b110`.***
+>
+> ### ***A GRATUITOUS `make sd` AFTER AN INSTALL COSTS A WHOLE CYCLE***
+>
+> ***THE BINARY IS NOT BYTE-REPRODUCIBLE, SO RELINKING WITH NO SOURCE CHANGE AT
+> ALL STILL TURNS THE TREE STALE.*** Paid this session, for nothing: the build
+> was re-run only to watch a shell script's new guard fire, `sd.exe` came back
+> **DD8CC4EABE3CE1BB** where the installed copy was **8C38CAB62278A1C7**, and
+> `assert-current` correctly refused — *"any measurement taken now describes a
+> tree that no longer exists"*. **A second cycle was the only honest recovery**,
+> and it cost the owner a second consent and a second OK box.
+>
+> **The existing memory note covers the neighbouring case** — editing a file
+> *after* `make sd`, so source is newer than `bin\`. **This is the other
+> direction and was not written down**: nothing was edited, and the tree went
+> stale anyway. ***SO: AFTER A CYCLE, DO NOT RUN `make sd` UNLESS SOURCE HAS
+> ACTUALLY MOVED.*** To check a build script works, run it *before* the cycle,
+> or accept that you have just bought another one.
 >
 > ### ***154 — FOUND BY READING 102's CODE, MEASURED BEFORE ANYTHING WAS TOUCHED***
 >
