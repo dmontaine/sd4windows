@@ -175,6 +175,44 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 29, 3 Sep 2026 — ***66 BUILT: THE EDITORS ARE BUNDLED FROM A NEW OUT-OF-GIT `SD-Untracked` TREE, NOT DOWNLOADED. `setup-devbox.ps1` MOVED OUT OF THE REPO. A CYCLE + INSTALL IS OWED TO WITNESS. OPEN STILL 7. UNCOMMITTED.*** ⇩⇩⇩
+>
+> ***THE NEW SHAPE — `C:\Users\dmont\Projects\SD-Untracked`, A SIBLING OF THE
+> REPO, OUTSIDE GIT.*** Owner's ruling: binaries and dev-only tooling do not go
+> in the repo (CLAUDE.md forbids tracked binaries) but are backed up WITH the
+> Projects tree to the cloud, so a build restores them without GitHub; the
+> eventual SourceForge zip carries them for users. It has `editors/`
+> (`micro.exe` 2.0.15, `edit.exe` 1.2.1, micro's licences) and `devtools/`
+> (`setup-devbox.ps1`), and its own `README.md`.
+>
+> ***66 — THE FULL-SCREEN EDITORS ARE BUNDLED, COPIED NOT FETCHED.*** The owner's
+> steer: the versions we want are already installed on this machine and verified,
+> so **copy them** rather than download+SHA-fetch. `stage.py`'s new
+> `BUNDLED_EDITORS` copies both from `SD-Untracked/editors` into `{app}\usr\bin`
+> beside `sd.exe`, **SHA-256-pinned** (fails the build loudly on a wrong
+> version). `gpl.bp/EDIT`'s `find.editor` and `install-editors.ps1` now resolve
+> that **fixed** path first (forward-slash literal; `sd.exe` is always at
+> `C:\Program Files\SD\usr\bin`, only its PATH membership is optional), then fall
+> back to the old Get-Command lookup. `sd.iss` needed nothing — the editors ride
+> the existing `ProgramFiles\* -> {app}` copy. ***WITNESS OWED***: a cycle +
+> install to confirm the editors land, the `MICRO`/`EDIT` verbs find them with no
+> winget download, and `install-editors` reports them present. **66 stays OPEN.**
+>
+> ***`setup-devbox.ps1` IS OUT OF THE REPO*** — `git rm`'d and copied to
+> `SD-Untracked/devtools`; its `assert-current` `$neverShipped` entry removed.
+> It is dev-environment tooling, not part of the shipped project (owner's call);
+> HISTORY.md still mentions it (append-only, left).
+>
+> ***NEW BUILD DEPENDENCY, SAY IT LOUD:*** `stage.py` now needs
+> `SD-Untracked/editors` present, or it dies with the reason. A fresh clone
+> without the SD-Untracked tree cannot build the installer until it is restored.
+>
+> ***VALIDATED AS FAR AS AN AGENT CAN.*** `stage.py` py_compiles; `assert-current`
+> and `install-editors` parse 0 errors; all **27 free checks green**. The
+> `gpl.bp/EDIT` change is BASIC, so the tree is stale (`assert-current` red) and
+> **a cycle is owed**. **Nothing is committed** — 150 (HANDOFF 28) is on `main`
+> at `7cbbbee`; this batch is not.
+>
 > # ⇩⇩⇩ HANDOFF 28, 3 Sep 2026 — ***150 DONE AND WITNESSED: WIDENED VIA ShowSummaryBox (NOT TRIMMED), FULL 135/147 WORDING RESTORED, OWNER CONFIRMED "all windows display correctly". ISCC EXIT 0, 27 FREE CHECKS GREEN, FIXLIST 259/0. OPEN 8 → 7.*** ⇩⇩⇩
 >
 > ***THE ONE CHANGE — PRE_RELEASE 150, AND THE FIRST SHAPE WAS WRONG.*** The
