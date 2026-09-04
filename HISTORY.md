@@ -46651,3 +46651,55 @@ catches what a PREVIOUS run left and the sweep has not yet cleared, which is
 exactly the b100 state of 14 dead records in 15.  But catching a suite's own
 residue would need the step at the end of VerifyInstall2 as well.  Left as the
 owner's call rather than assumed.
+
+## 3 Sep 2026 - verify-registersweep, the last step of the elevated half
+
+The owner ruled it in: put the check at the end of VerifyInstall2 too.  What
+went in is not verify-register run twice, and it could not have been.
+verify-tierapi is the step immediately before and leaves its register records on
+purpose, so a plain verify-register there would find them and go red on every
+run - and this repository's own record says a permanently red guard teaches
+people to ignore guards.  Put to him with that measurement, he chose
+sweep-then-verify.
+
+So gplbld/verify-registersweep.ps1 measures the residue this run left, restarts
+the SD service so reconcile-accounts.ps1 sweeps it, reads sdsvc.log and the
+sweep's own log for what it did, and then checks that the dead records went, the
+valid ones stayed, and verify-register exits 0 on the result.  A restart rather
+than calling the sweep directly, because the sweep is written to run before
+"sd -start" - both registers are directory files and removing records under a
+running SD would pull them out from under an open cursor - so calling it by hand
+would test the script in the one state its own header says to avoid, and would
+not test the thing that actually matters, that a service start runs it.
+
+verify-register stays in VerifyInstall1.  Running first it can only see what a
+PREVIOUS run left uncleaned, which is real value - it is the b100 state, 14 dead
+records in 15 - and it is a different question from the one the new step asks.
+The elevated half is 24 steps from now on rather than 23.
+
+THE FIXTURE FOUND TWO BUGS IN THE NEW STEP BEFORE THE SUITE EVER SAW IT, which
+is the whole reason for having one.  C:\Users\dmont\sdout\p93-sweepstep.ps1
+plants a single dead record - a name with no Windows account and no directory,
+the simplest case the sweep handles - and drives the step.  The first run failed
+twice over.  The account root was being passed to the shared rule as an empty
+string, so it answered "the account root could not be resolved" for every
+accounts record; that is a refusal, so nothing was ever classified dead and the
+whole check was inert while looking healthy.  And 'refused' was being counted
+alongside valid and exempt, so when the sweep correctly removed the planted
+record the row "every valid or exempt record survived" failed.  A refused record
+is a dead record the sweep declined to act on; it is not alive.  Three buckets
+now - dead, refused, valid - and the second run is 6 of 6, exit 0: one dead
+before, "1 cleared" in the sweep's own log, none dead after, all three valid
+records surviving.
+
+The null case is skipped by name rather than passed.  On a register that is
+already clean the removal rows cannot fire, and a PASS there would mean "the
+sweep works" on the strength of a run in which it did nothing - so the step says
+so in the banner and the rows read [SKIP].  In VerifyInstall2 that state is
+itself unexpected, because verify-tierapi runs immediately before it.
+
+One smaller thing worth keeping: the first attempt to run the fixture was
+refused by assert-current, because the new verifier was newer than the install
+and not yet on $neverShipped.  Same shape as the mistake that broke b106 four
+hours earlier, caught this time by the guard before it cost anything, and the
+fixture cleaned up the record it had planted on its way out.

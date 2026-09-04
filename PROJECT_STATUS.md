@@ -190,7 +190,11 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | half | evidence | steps |
 > |---|---|---|
 > | unelevated | `VerifyInstall1-20260903-164239.log` — closing line **`VerifyInstall1: every step exited 0.`**, `PARTIAL` **0 times** | **21**, all exit 0 |
-> | elevated | `post-cycle-20260903-164824.txt` — **23 step rows counted against the 23 the runner defines**, `PARTIAL` 0 | **23**, all exit 0 |
+> | elevated | `post-cycle-20260903-164824.txt` — **23 step rows counted against the 23 the runner defined then**, `PARTIAL` 0 | **23**, all exit 0 |
+>
+> ***THE ELEVATED HALF IS 24 STEPS FROM NOW ON***, because
+> `verify-registersweep` was added at the end afterwards. **Count against 24 on
+> the next run, not 23.**
 >
 > ***COUNT THE ROWS; DO NOT READ THE ABSENCE OF `PARTIAL`.*** A partial run
 > leaves the word out too (PRE_RELEASE 149's residue). **`verify-sdsyswrite` ran
@@ -217,14 +221,36 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***SO BOTH ENTRIES ARE NOW WITNESSED END TO END ON A REAL REGISTER***, which
 > is the one thing handoffs 25 and 26 both listed as outstanding.
 >
-> ***ONE THING THE WITNESS TAUGHT, AND IT IS ABOUT WHERE THE GUARD SITS.***
-> `verify-register` is in **`VerifyInstall1`, which runs FIRST**, so it can
-> never see what `VerifyInstall2` leaves — it passed at 16:42 and the residue
-> arrived at 17:03. **That is not useless: it catches what a PREVIOUS run left
-> and the sweep has not yet cleared, which is exactly the `b100` state (14 of
-> 15).** But if the intent is to catch a suite's *own* residue, the step wants
-> to be at the end of `VerifyInstall2` as well. **The owner's call; not
-> assumed.**
+> ***AND THE WITNESS PUT A STEP AT THE END OF `VerifyInstall2` — SO IT IS 24
+> STEPS NOW, NOT 23.*** `verify-register` is in `VerifyInstall1`, which runs
+> **first**, so it can never see what `VerifyInstall2` leaves: it passed at
+> 16:42 and the residue arrived at 17:03. That placement still earns its keep —
+> it catches what a PREVIOUS run left uncleaned, which is the `b100` state (14
+> dead records in 15) — so it stays, and `gplbld/verify-registersweep.ps1` was
+> added as the last step of the elevated half on the owner's instruction.
+>
+> ***IT IS NOT `verify-register` RUN TWICE, AND IT CANNOT BE.*** `verify-tierapi`
+> is the step immediately before and it leaves its register records **on
+> purpose**, so a plain `verify-register` there would go red on **every** run —
+> and a permanently red guard is what this record says teaches people to ignore
+> guards. **The owner ruled sweep-then-verify**: measure the residue, restart
+> the SD service so the sweep runs, then check the right records went and the
+> valid ones stayed. **A restart rather than calling the sweep directly**,
+> because the sweep is written to run before `sd -start` and calling it under a
+> running SD is the one state its own header says to avoid.
+>
+> ***WITNESSED, AND THE FIXTURE FOUND TWO BUGS IN IT FIRST***, which is the
+> reason it exists: `C:\Users\dmont\sdout\p93-sweepstep.ps1` plants one dead
+> record and drives the step. First run — **the account root was passed empty**,
+> so the shared rule answered *"the account root could not be resolved"* for
+> every record, nothing was ever classified dead, and the check was **inert**;
+> and **`refused` was being counted as alive**, so the sweep correctly removing
+> the planted record scored a FAIL. Both fixed, three buckets now (dead /
+> refused / valid), and the second run is **6 of 6, exit 0**: 1 dead before,
+> `1 cleared` in the sweep's own log, 0 dead after, all three valid records
+> surviving. ***THE `[SKIP]` PATH IS REAL AND DELIBERATE*** — on a clean
+> register the removal rows are skipped **by name** rather than passed, because
+> a pass there would mean *"the sweep works"* on a run where it did nothing.
 >
 > ### ***READ THIS BEFORE BELIEVING THE `b106` SUMMARY: 7 OF ITS 23 ROWS ARE MINE***
 >
