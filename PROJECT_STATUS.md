@@ -175,6 +175,80 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 30, 3 Sep 2026 — ***66 WITNESSED ON A CYCLE + INSTALL, EXCEPT THE ONE STEP AN AGENT CANNOT TAKE: NOBODY HAS TYPED `micro bp <record>`. 153 FILED OUT OF THE WITNESS. OPEN 7 → 8. THE FULL SUITE HAS NOT RUN.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 23:32:33**, `sd.exe`
+> `79FBF0A6E46652BB`; `assert-current` **exit 0**; **27 of 27 free checks**
+> exit 0 in 31.7 s; `test-fixlist-units` **259/0**. ***OPEN 8: 16, 66, 70, 80,
+> 96, 102, 138, 153. NEXT FREE ID 154. NEXT RUN TOKEN `b109`, STILL
+> UNSPENT.***
+>
+> ***THE CYCLE WAS RUN BY THE AGENT — `Start-Process -Verb RunAs -Wait`, ONE
+> HOP, ONE CONSENT*** (§4.0.1, and handoff 25 says the same). 23:31:29 →
+> 23:34:12, **2.8 minutes**, child exit 0, `CYCLE COMPLETE`, log
+> `%LOCALAPPDATA%\SD-verify\cycle-20260903-233129.log`. **It still costs the
+> owner the installer's OK box**, which `/VERYSILENT` does not suppress.
+> ***THE TRANSCRIPT WAS TRUNCATED AT FRONT AGAIN*** — 0 of 2 ISCC front
+> markers against 1,874 `Compressing` lines — which is PRE_RELEASE 137's
+> instrument working, not a new fault; the build was decided by ISCC's exit
+> code. Third cycle in three days to lose the front.
+>
+> ### ***66 — WHAT IS MEASURED, AND THE ONE THING THAT IS NOT***
+>
+> **Read the entry's row for the detail; this is what to do next.** Both
+> editors land in `C:\Program Files\SD\usr\bin` beside `sd.exe`, SHA-256-equal
+> to `stage.py`'s `BUNDLED_EDITORS`; the installer's **own** run of
+> `install-editors.ps1` (one run only — the cycle deletes both trees) reports
+> both `already present` at that path with **no `running winget` line**; and
+> the probe `find.editor` builds, run through the same
+> `powershell.exe -NoProfile -NonInteractive -Command` `op_sh.c:346,357` uses,
+> resolves to the bundled copy. **The compiled `gpl.bp.out/EDIT` carries that
+> string**, so the verb builds what was measured. ***THE CONTROL IS REAL***:
+> the identical script scored **13 PASS / 10 FAIL before the cycle** and
+> **23 PASS / 0 FAIL after** — beforehand `micro.exe` resolved to
+> `C:\Program Files\WinGet\Links\micro.exe`, ***a 0-byte shim.***
+>
+> ***WHAT IS OWED IS ONE INTERACTIVE COMMAND.*** A full-screen editor needs a
+> terminal an agent cannot drive, so **the launch itself has never happened**.
+> In an SD session: `micro bp EDIT`, then Esc-q to leave without saving. If it
+> opens, 66 closes. **Compiling is not running, and neither is resolving.**
+>
+> ***THE WITNESS IS KEPT AND IS RE-RUNNABLE, UNELEVATED*** —
+> `C:\Users\dmont\sdout\p66-witness-editors.ps1`, output beside it as `.txt`,
+> `-Before` for the pre-cycle shape. **It is not a suite step yet**, and
+> making it one is the obvious next move: everything it does is a read, so it
+> belongs in `VerifyInstall1`, and it needs an `assert-current` `$neverShipped`
+> entry in the same commit or it turns the tree STALE for a file that ships
+> nowhere.
+>
+> ### ***THE FULL SUITE HAS NOT RUN SINCE THE 23:32:33 INSTALL***
+>
+> CLAUDE.md wants one before a handoff and this handoff does not have one.
+> **~20 minutes, two halves, and both are a person's job** (§4.0.1 — an agent
+> may run `cycle.ps1` and may not run `VerifyInstall1`):
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b109
+> ```
+> **an ordinary, UNELEVATED PowerShell prompt**, then
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b109
+> ```
+> **an ELEVATED PowerShell prompt.**
+>
+> ***153 CAME OUT OF THE WITNESS AND IS THE KIND OF THING ONLY RUNNING FINDS.***
+> `install-editors.ps1` logs `micro: ... version ` with **nothing after it** —
+> micro is a Go binary with no Win32 version resource, so
+> `VersionInfo.ProductVersion` is empty, and the one place the machine records
+> which micro is installed answers nothing. That is 66's whole stated purpose.
+> `micro -version` knows: **2.0.15, commit 6a62575b**. Edit answers 1.2.1 from
+> the same call, which is why it was never noticed.
+>
+> ***THE CHANGELOG ENTRY 66 OWED WAS MISSING AND IS NOW WRITTEN*** —
+> `sdsys/changelog`, 3 Sep: the editors ship with SD, the install no longer
+> downloads, and the verbs run SD's copy whether or not Add-to-PATH was ticked.
+> It should have been in `203f6d8`.
+>
 > # ⇩⇩⇩ HANDOFF 29, 3 Sep 2026 — ***66 BUILT: THE EDITORS ARE BUNDLED FROM A NEW OUT-OF-GIT `SD-Untracked` TREE, NOT DOWNLOADED. `setup-devbox.ps1` MOVED OUT OF THE REPO. A CYCLE + INSTALL IS OWED TO WITNESS. OPEN STILL 7. UNCOMMITTED.*** ⇩⇩⇩
 >
 > ***THE NEW SHAPE — `C:\Users\dmont\Projects\SD-Untracked`, A SIBLING OF THE

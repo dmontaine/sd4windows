@@ -47043,3 +47043,58 @@ that the 18:19 cycle would take it - that one took the BUILD branch because the
 mutant control had moved linuxlb.c's mtime without changing its content.  114
 changed only BASIC, so nothing under gplsrc had moved and the guard correctly
 did nothing.  Both branches are now witnessed, for opposite reasons.
+
+## 3 Sep 2026 - 66's witness: the editors are bundled, and one step is not an agent's
+
+The cycle ran 23:31:29 to 23:34:12, agent-launched with Start-Process -Verb
+RunAs -Wait (one consent, plus the owner's click on the installer's OK box),
+child exit 0, CYCLE COMPLETE, install 23:32:33, assert-current exit 0.  Log
+%LOCALAPPDATA%\SD-verify\cycle-20260903-233129.log.  It was truncated at the
+front again - 0 of 2 ISCC front markers against 1,874 Compressing lines - the
+third in three days, and PRE_RELEASE 137's instrument reporting it rather than a
+new fault.
+
+The witness script was written and run BEFORE the cycle as well as after, on the
+same file, and that is what makes it a measurement rather than an assertion: 13
+PASS / 10 FAIL beforehand, 23 PASS / 0 FAIL afterwards.  Beforehand micro.exe
+resolved to C:\Program Files\WinGet\Links\micro.exe, which is a 0-byte shim, and
+edit.exe to system32; afterwards both resolve to C:\Program Files\SD\usr\bin.
+
+Three things were measured rather than inferred.  stage.py printed "editor:
+micro.exe staged from SD-Untracked (sha ok)" for both, and the installed files
+are SHA-256-equal to BUNDLED_EDITORS.  The no-download claim was read from the
+installer's OWN run of install-editors.ps1 - C:\ProgramData\SD\install-editors.log
+holds exactly one run, 23:32:43, because the cycle deletes both trees - and it
+carries "every editor is present" with no "running winget" line.  The witness
+scopes that log to its LAST run deliberately: a kept-database uninstall leaves
+earlier runs behind, four of them were in the file before this cycle, and
+matching the whole file would let a stale success line score a pass for a run
+that never happened.
+
+find.editor's probe was not paraphrased.  The string the BASIC concatenates at
+EDIT:694-699 was rebuilt and handed to the same invocation op_sh.c makes -
+powershell.exe -NoProfile -NonInteractive -Command, with the whole command as
+ONE argv element (op_sh.c:346, :357) - and it answered the bundled path for both
+editors.  The compiled pcode was then checked for the literals: gpl.bp.out/EDIT,
+stamped 23:31:58 by this cycle's bootstrap, holds "C:/Program Files/SD/usr/bin/",
+"$b = '" and "if (Test-Path -LiteralPath $b)" at bytes 3203 to 3341, so the verb
+builds the string that was measured.
+
+What is not witnessed is the launch.  Nobody has typed micro bp <record> in an SD
+session, because a full-screen editor needs a terminal an agent cannot drive.
+Everything the launch depends on is measured and the launch is not, so 66 stays
+open on one interactive command.  Resolving is not running, the same way
+compiling is not.
+
+Running it found 153, which is the argument for running things.
+install-editors.ps1 logs "micro: ... version " with nothing after it: micro is a
+Go binary with no Win32 version resource, so VersionInfo.ProductVersion is empty
+on both the shipped copy and the source copy.  The one place the machine records
+which micro is installed answers nothing, which is 66's entire stated purpose.
+micro -version knows - 2.0.15, commit 6a62575b - and Microsoft Edit answers 1.2.1
+from the same call, which is why it was never noticed.
+
+The changelog entry 66 owed was missing from 203f6d8 and is written now.  A user
+notices three things: the install is quicker and no longer stalls at the end, it
+works offline or where winget is blocked or absent, and the versions are fixed at
+micro 2.0.15 and Edit 1.2.1 - the ones the editor pages were written from.
