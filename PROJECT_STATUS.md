@@ -182,6 +182,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 80, 96, 102, 114, 138, 150, 151. NEXT FREE ID 152. `b107` SPENT ON THE FULL
 > SUITE; NEXT RUN TOKEN `b108`.***
 >
+> ### ***THE TWO THINGS TO KNOW BEFORE YOU RUN ANYTHING***
+>
+> 1. ***`cycle.ps1` COMPILES THE C NOW (step 0), SO A C CHANGE NO LONGER NEEDS
+>    `make sd` FIRST.*** It deletes the binaries and relinks all of them —
+>    `make` alone is not enough, and the reason is under "THREE CYCLES" below.
+> 2. ***THE ELEVATED SUITE HALF IS 24 STEPS, NOT 23***, since
+>    `verify-registersweep` went on the end. **Count rows against 24.**
+>
+> ### ***WHAT IS DONE AND WHAT IS NOT, ON THE WORK OF THIS SESSION***
+>
+> | | |
+> |---|---|
+> | 93 and 65 | **closed.** Sweep ships, service runs it, witnessed on a real register end to end |
+> | `cycle.ps1` step 0 | **built and witnessed on its BUILD branch.** ***ITS SKIP BRANCH HAS NEVER RUN IN A CYCLE*** — every cycle since it landed had a stale tree because one was made stale on purpose. `Get-BinaryStaleness` itself has 36 unit rows and a mutant control, so this is the four printed lines and not the decision. **The next ordinary cycle on a current tree takes it; nothing needs doing.** |
+> | `verify-registersweep` | **built, and witnessed by fixture — 6 of 6.** ***IT HAS NEVER RUN INSIDE THE RUNNER***; `b108` is its first. |
+> | 151 | **filed, not started** |
+>
 > ### ***THE FULL SUITE RAN AND IT IS GREEN IN BOTH HALVES — 44 OF 44***
 >
 > The owner ran both on `b107` against this install. **Read from the artefacts
@@ -328,11 +345,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***WHAT TO DO NEXT***
 >
-> 1. **The full suite on `b107`** — both halves, and `b106` is spent. It is
->    still 93 and 65's real-tree witness.
-> 2. **96** — ruled (c), still the only open waiting on nothing but work.
-> 3. **151** is cheap and makes every future summary readable.
-> 4. **70**, then **114**, **138**, **102**, **16**; **150**; **80** last.
+> ***NOTHING IS OWED.*** The suite ran green on `b107` and the install is
+> current, so this list is work rather than debt.
+>
+> 1. ***96 — RULED (c), AND THE ONLY OPEN WAITING ON NOTHING BUT WORK.*** The
+>    tri-state across the three privilege predicates and their four callers.
+>    Nine undetermined paths (`linuxlb.c:112` and `:172` are the two the row was
+>    short by), `op_sh.c:173`'s `ENOENT` stays a plain FALSE, and `log_printf`
+>    is the wrong instrument twice over. **It deserves its own session**: C on a
+>    privilege path where the wrong shape fails silent.
+> 2. **151** — cheap, and it makes every future suite summary readable. A
+>    `Refuse()` helper at exit 2 and the precondition sites moved to it.
+> 3. **70**, then **114**, **138**, **102**, **16**; **150**; **80** last.
+> 4. ***WHEN A SUITE NEXT RUNS***, it is `b108`, both halves, **24 elevated
+>    steps**, and it gives `verify-registersweep` its first run inside the
+>    runner. No cycle is needed first — the install is current.
 >
 > # ⇩⇩⇩ HANDOFF 25, 3 Sep 2026 — ***93 AND 65 ARE DONE: THE REGISTER IS RECONCILED AGAINST WINDOWS AT EVERY SERVICE START, AND THE SERVICE HAS BEEN SEEN DOING IT. OPEN 11 → 9. ONE FULL SUITE IS OWED.*** ⇩⇩⇩
 >
