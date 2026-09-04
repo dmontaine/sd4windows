@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***ONE THING OWED: A FULL SUITE ON `b111`, BECAUSE `read_record()` — THE READ OPCODE — CHANGED.*** OPEN 4: 70, 80, 96, 155.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***`b111` GREEN IN BOTH HALVES, 46 OF 46, WITH `verify-lineendings`'s STRADDLE ROWS READ — SO THE SHARED CONVERSION IS WITNESSED THROUGH THE READ OPCODE AND NOTHING IS OWED.*** OPEN 4: 70, 80, 96, 155.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **4 Sep 08:56:02**, `sd.exe`
 > **E31CE514E8999D24**; `assert-current` **exit 0**; **28 of 28 free checks**
@@ -296,20 +296,28 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > differently would restore a record that is not the one it captured, silently,
 > on the failure path.
 >
-> ***SO A FULL SUITE IS OWED, AND `verify-lineendings` IS THE STEP THAT
-> DECIDES IT*** — the straddle case (CRLF on the 2048-byte buffer boundary) and
-> the lone-CR control are exactly what `t1_unmap_chunk()` now carries for both
-> callers, and they need the runner. `verify-nocase` and `verify-lcnames` are
-> the other readers of that path.
+> ***AND THE SUITE THAT OWED IS RUN — `b111` GREEN IN BOTH HALVES, 46 OF 46,
+> AND THE DECIDING ROWS ARE READ RATHER THAN ASSUMED.***
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b111
-> ```
-> **an ordinary, UNELEVATED PowerShell prompt**, then
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b111
-> ```
-> **an ELEVATED PowerShell prompt.**
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260904-090224.log`, **4,271 lines, 348 `[PASS]` / 0 `[FAIL]`, 0 `PARTIAL`**, closing ***`VerifyInstall1: every step exited 0.`***; summary `post-cycle-unelevated-20260904-090224.txt` | **22**, all exit 0 |
+> | elevated | `post-cycle-20260904-090944.txt` | **24**, all exit 0 |
+>
+> ***`verify-lineendings` IS THE ONE THAT MATTERED AND ITS STRADDLE ROWS ARE
+> THE PROOF.*** `ZZLESTRD` puts a CR at offset **2047** and its LF at **2048**,
+> exactly on the buffer boundary, so it is the `cr_pending` **cross-chunk** path
+> in the newly shared `t1_unmap_chunk()`, reached through the ordinary READ
+> opcode: *line 1 length 2047* (the CR was folded, not kept), *last char is not
+> a CR*, and the **lone-CR control** holds — one field, length unchanged, a CR
+> preserved as data. `verify-nocase` and `verify-lcnames`, the other readers of
+> that path, both exit 0.
+>
+> **348 `[PASS]` is the same total as `b110`**, which is worth one line: the
+> shared conversion changed how two readers get their bytes and changed the
+> score of nothing.
+>
+> ***`b111` IS SPENT. NEXT RUN TOKEN `b112`. NOTHING IS OWED.***
 >
 > ***ONE THING IN THE ERRLOG THAT LOOKS LIKE A BUG AND IS NOT.*** The summary
 > line can read *"N could not be undone"* naming the record the commit **failed

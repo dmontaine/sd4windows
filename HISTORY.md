@@ -47489,6 +47489,15 @@ its own entry above.  Doing it first was not a detour: had it gone unnoticed, a
 restore built against the raw id would have left two files where it meant to
 leave one.
 
-A FULL SUITE IS OWED ON b111 AND WAS NOT RUN.  read_record() changed, and
-verify-lineendings - the straddle case and the lone-CR control - is the step
-that decides whether the shared conversion is right for both callers.
+THE SUITE RAN: b111 GREEN IN BOTH HALVES, 46 of 46, 348 [PASS] / 0 [FAIL], 0
+PARTIAL, "every step exited 0".  read_record() had changed, so the question was
+whether lifting the conversion into a shared function broke the READ opcode,
+and verify-lineendings is what answers it - by its rows, not its exit code.
+ZZLESTRD puts a CR at offset 2047 and its LF at 2048, exactly on the buffer
+boundary, which is the cr_pending CROSS-CHUNK path in t1_unmap_chunk() reached
+through an ordinary READ: line 1 length 2047 (the CR was folded, not kept) and
+its last character not a CR, with the lone-CR control holding at one field and
+unchanged length.  verify-nocase and verify-lcnames, the other readers of that
+path, exit 0.  348 [PASS] is the same total as b110, which is the useful part:
+the shared conversion changed how two readers get their bytes and changed the
+score of nothing.
