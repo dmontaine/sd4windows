@@ -175,11 +175,56 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 26, 3 Sep 2026 — ***`cycle.ps1` NOW COMPILES THE C TOO. THE ELEVATED SUITE HALF GOT 16 OF 23 AND THE 7 FAILURES WERE MINE, NOT THE PRODUCT'S. OPEN 10. USE `b107`.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 26, 3 Sep 2026 — ***FULL SUITE GREEN ON `b107`, 44 STEPS. 93 AND 65 WITNESSED ON A REAL REGISTER AT LAST. `cycle.ps1` NOW COMPILES THE C TOO. OPEN 10, NOTHING OWED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **3 Sep 16:22:02**; `assert-current`
 > **exit 0**; **26 of 26 free checks** exit 0 in 30 s. ***OPEN 10: 16, 66, 70,
-> 80, 96, 102, 114, 138, 150, 151. NEXT FREE ID 152. NEXT RUN TOKEN `b107`.***
+> 80, 96, 102, 114, 138, 150, 151. NEXT FREE ID 152. `b107` SPENT ON THE FULL
+> SUITE; NEXT RUN TOKEN `b108`.***
+>
+> ### ***THE FULL SUITE RAN AND IT IS GREEN IN BOTH HALVES — 44 OF 44***
+>
+> The owner ran both on `b107` against this install. **Read from the artefacts
+> rather than taken on the word "all green":**
+>
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260903-164239.log` — closing line **`VerifyInstall1: every step exited 0.`**, `PARTIAL` **0 times** | **21**, all exit 0 |
+> | elevated | `post-cycle-20260903-164824.txt` — **23 step rows counted against the 23 the runner defines**, `PARTIAL` 0 | **23**, all exit 0 |
+>
+> ***COUNT THE ROWS; DO NOT READ THE ABSENCE OF `PARTIAL`.*** A partial run
+> leaves the word out too (PRE_RELEASE 149's residue). **`verify-sdsyswrite` ran
+> for the first time since `b104`'s cancelled elevation, exit 0**, and the new
+> `verify-register` step exited 0 with 7 passed / 0 failed.
+>
+> ### ***AND THE SUITE WAS 93 AND 65's WITNESS, EXACTLY AS PREDICTED***
+>
+> ***THE RUN LEFT THE REGISTER DIRTY AND THE SWEEP CLEANED IT, BOTH MEASURED ON
+> THE REAL TREE.*** Straight after the green suite, `verify-register` scored
+> **4 passed / 3 failed**: `accounts` held `sdtapib1071`, `sdtapib1072` and
+> `sdtapib1073` naming Windows accounts that no longer exist, and `os.users`
+> held `SDTAPIB1073`. **That is `verify-tierapi`'s residue and it is entry 65's
+> measured rate — three per complete run — confirmed to the record.** Both of
+> the verifier's independent readings agreed on 3.
+>
+> **Then the SD service was restarted and the sweep ran**: `sdsvc.log` 17:06:33
+> `register reconcile … exited with 0`, and its own log reads ***7 considered,
+> 2 valid, 1 exempt, 4 CLEARED, 0 still there, 0 refused*** — the three account
+> records and the `os.users` record gone, **`don` and `sdsys` untouched**.
+> `verify-register` afterwards: **7 passed, 0 failed, exit 0**, register 5
+> records down to 2.
+>
+> ***SO BOTH ENTRIES ARE NOW WITNESSED END TO END ON A REAL REGISTER***, which
+> is the one thing handoffs 25 and 26 both listed as outstanding.
+>
+> ***ONE THING THE WITNESS TAUGHT, AND IT IS ABOUT WHERE THE GUARD SITS.***
+> `verify-register` is in **`VerifyInstall1`, which runs FIRST**, so it can
+> never see what `VerifyInstall2` leaves — it passed at 16:42 and the residue
+> arrived at 17:03. **That is not useless: it catches what a PREVIOUS run left
+> and the sweep has not yet cleared, which is exactly the `b100` state (14 of
+> 15).** But if the intent is to catch a suite's *own* residue, the step wants
+> to be at the end of `VerifyInstall2` as well. **The owner's call; not
+> assumed.**
 >
 > ### ***READ THIS BEFORE BELIEVING THE `b106` SUMMARY: 7 OF ITS 23 ROWS ARE MINE***
 >

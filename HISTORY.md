@@ -46613,3 +46613,41 @@ says SD is running.  C:\Users\dmont\sdout\read-dialog.ps1 prints the text of
 whatever window a process is sitting on, which is how it was identified - and it
 needs CharSet.Unicode on the W entry points or every string comes back one
 character long.
+
+## 3 Sep 2026 - b107 green in both halves, and 93 and 65 witnessed for real
+
+The owner ran both halves on b107 and reported them green.  Read from the
+artefacts rather than taken on the word: the unelevated transcript closes with
+"VerifyInstall1: every step exited 0" and contains PARTIAL zero times, 21 steps;
+the elevated summary carries 23 step rows against the 23 the runner defines, all
+exit 0, PARTIAL zero.  The rows were COUNTED rather than the absence of PARTIAL
+being read, because a partial run leaves the word out too.  44 of 44.
+verify-sdsyswrite ran for the first time since b104's cancelled elevation, and
+the new verify-register step exited 0 at 7 passed, 0 failed.
+
+Then the suite did what entry 65 said it would.  Immediately afterwards
+verify-register scored 4 passed, 3 failed: accounts held sdtapib1071,
+sdtapib1072 and sdtapib1073 naming Windows accounts that no longer exist, and
+os.users held SDTAPIB1073.  That is verify-tierapi's residue and it is entry
+65's measured accumulation rate - three per complete run - reproduced exactly.
+Both of the verifier's independent readings agreed on 3, which is check 3 doing
+its job on a genuinely dirty tree rather than on a fixture.
+
+One SD service restart later the sweep cleaned it: 7 considered, 2 valid, 1
+exempt, 4 cleared, 0 still there, 0 refused, with don and sdsys untouched, and
+the log's own closing sentence "the register is consistent".  verify-register
+afterwards: 7 passed, 0 failed, exit 0, the register down from 5 records to 2.
+
+So both entries are witnessed end to end on a real register, which is the thing
+handoffs 25 and 26 each listed as outstanding.  The synthetic fixture is kept
+anyway, because it covers the refusal paths a real tree will not produce on
+demand - a directory outside the account root, a GROUP account, a truncated
+record.
+
+ONE THING THE WITNESS TAUGHT, ABOUT WHERE THE GUARD SITS.  verify-register is in
+VerifyInstall1, which runs FIRST, so it cannot see what VerifyInstall2 leaves -
+it passed at 16:42 and the residue arrived at 17:03.  That is not useless: it
+catches what a PREVIOUS run left and the sweep has not yet cleared, which is
+exactly the b100 state of 14 dead records in 15.  But catching a suite's own
+residue would need the step at the end of VerifyInstall2 as well.  Left as the
+owner's call rather than assumed.
