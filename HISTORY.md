@@ -48735,3 +48735,10944 @@ CLAUDE.md three times and was broken twice in twenty minutes before it existed.
 AND CLAUDE.md GAINED ONE RULE, THE OWNER'S: the emphatic voice is for what was
 OBSERVED; a plan is written in the conditional and must carry the objection to
 itself.  It is the instrument rule applied to prose.
+
+---
+
+## ARCHIVE 5 Sep 2026 — START HERE's superseded handoff stack, handoff 39 back to 31 Aug 2026, in full
+
+Moved out of PROJECT_STATUS.md §"NEXT SESSION: START HERE" on the owner's
+instruction that the file's length was cleanup work. **10,911 lines,
+byte-identical, nothing deleted** — head + block + tail were proved to rebuild
+the original file to the same SHA-256 before a byte was written.
+
+**What stayed behind:** handoff 40, which is current, and the task table at the
+top of that file, which carries these blocks' conclusions.
+
+**Read this the way HISTORY.md is meant to be read** — to find out how
+something came to be the way it is, or whether an approach has already been
+tried. ***DO NOT ACT ON A PLAN FOUND IN HERE.*** Every block below is
+superseded by handoff 40, and several were already superseded when they were
+written; the whole point of the stack was that each one replaced the one under
+it. The precedent is the *"ARCHIVE 26 Aug 2026 — START HERE's closed record,
+sessions 49 to 60, in full"* entry, which did the same thing to the same
+section.
+
+***WHAT THE STACK'S LENGTH HAD ALREADY COST, since that is the argument for
+doing this again next time.*** Handoff 40 reported *"ONE LEFTOVER WINDOWS
+ACCOUNT: `sdswb104` … a straggler rather than a pattern"*. Measured on 5 Sep
+2026 there were **three** — `sdswb104`, `sdw136a` and `b48adm`, all enabled,
+plus the directory `sdw142a` — and all three of the others were already written
+down, inside blocks buried in this stack. **A fact 10,000 lines deep in a
+superseded blockquote is not a fact the next session has.**
+
+>
+> # ⇩⇩⇩ HANDOFF 39, 5 Sep 2026 — ***REMOTE ADMINISTRATION IS NOW SHUT ON BOTH TRANSPORTS AND BOTH ARE WITNESSED. 170's API GATE IS `b126`, 15/0. 168 IS GONE. WHAT IS LEFT OF 167 IS THE DOCUMENTATION, AND IT IS THE LARGER HALF.*** ⇩⇩⇩
+>
+> ***EVERYTHING BELOW THIS LINE IS HANDOFF 39 AND IS SUPERSEDED BY 40 ABOVE.***
+> Its one open item — 167's documentation half — was closed the same day, and
+> its "no full suite since `b123`" was answered by `b127`. Kept because a
+> handoff records what a session handed over, not what is true now.
+>
+> ***THE STATE, IN ONE LINE.*** ***BOTH HALVES OF THE 5 Sep RULING ARE BUILT AND
+> WITNESSED: ssh on `b122` (14/0) AND THE API ON `b126` (15/0).*** **168's dead
+> `EUID` chain is deleted and witnessed on the 12:39 cycle; 171 moved the client
+> import libraries out of `usr\bin` and put BOTH architectures beside `sd.exe`,
+> witnessed on the 13:28:27 install.** ***THE PRE-RELEASE LIST IS EMPTY — 0 OPEN
+> OF 172, read from `test-fixlist-units.ps1` (272 passed / 0 failed), never from
+> prose.*** 167's documentation half closed the same day: eight pages rewritten,
+> both sets re-rendered, `checklinks` 0 broken. ***32 of 32*** free guards green.
+> ***NEXT FREE PRE_RELEASE ID 173. `b115`–`b126` ARE SPENT — RUN `b127`.***
+>
+> ***WHAT THIS DOES NOT MEAN.*** No FULL suite has run since `b123`, and this
+> session changed `CPROC`, `LOGIN`, `APISRVR`, `CREATEA`, four C files and the
+> staging lists. **A full run is what catches regressions in what nobody
+> touched** — `b75`'s second failure was `verify-notyet`, unrelated to anything
+> changed that day. ***RUN THE FULL SUITE BEFORE CALLING W1.0-0 READY.***
+>
+> ***170's WITNESS IS THE ONE TO READ, BECAUSE ITS CONTROL IS WHAT MAKES IT MEAN
+> ANYTHING.*** `verify-apiremote` drives three legs on one machine with the
+> address as the only variable: a PROGRAMMER admitted via `10.0.0.3`, the
+> ADMINISTRATOR admitted via `127.0.0.1`, and **the same administrator refused
+> via `10.0.0.3`**. Without the first leg a refusal proves nothing — `10.0.0.3`
+> is this host's own LAN address, so the network could have refused everything.
+> The owner had already seen the same behaviour from his own 32-bit application
+> against a guest, which is the real-world half.
+>
+> ***172 IS RULED NOT A DEFECT AND STRUCK — "172 leave it", owner, 5 Sep 2026.***
+> The `sd.iss` `PATH` append stays, deliberately; the entry records why, so the
+> next session that finds it does not re-open it. The paragraph below is what
+> was measured on the way, and the first version of it OVERSTATED the case. What was measured is real: two retired client-installer directories sat
+> ahead of `usr\bin` on this machine's `PATH` holding **20 Aug** builds with
+> different hashes, so 171's fix reached a 32-bit utility not at all — found by
+> checking whether 171 had actually worked. **The owner removed them and this
+> machine is clean, measured.** ***WHAT WAS WRONG WAS GENERALISING IT***: the
+> entry claimed the `sd.iss` `PATH` append meant the same on every machine, and
+> the owner's correction is that ***those client-library installers never existed
+> anywhere but here — not on GitHub, never installed elsewhere.*** So no user is
+> in that position. The residue is append-vs-prepend as a preference, and
+> **"leave it" is a legitimate answer**; prepending would put SD ahead of
+> `System32`, which is a bigger change than the problem.
+>
+> # ⇩⇩⇩ HANDOFF 38, 5 Sep 2026 — ***REMOTE ADMINISTRATION IS SHUT OVER ssh AND WITNESSED. 165, 166, 169 AND 167's PRODUCT HALF ALL CLOSED ON `b122`/`b123`. THE API HALF OF THE SAME RULING IS NOT BUILT — THAT IS 170, AND IT NEEDS ONE ANSWER FROM THE OWNER.*** ⇩⇩⇩
+>
+> ***EVERYTHING BELOW THIS LINE IS HANDOFF 38 AND IS SUPERSEDED BY 39 ABOVE.***
+> Its open items — 168, 170, and 167's documentation half — are all closed now,
+> and its "170 needs a ruling before it can be built" and "WHAT IS OWED" are
+> answered. It is kept because a handoff is a record of what a session handed
+> over, not a description of today.
+>
+> ***THE STATE, IN ONE LINE.*** ***`b123` RAN THE FULL SUITE: 23 OF 23
+> UNELEVATED, 25 OF 26 ELEVATED, AND THE ONE RED WAS A VERIFIER ASSERTING A
+> MESSAGE THIS SESSION RETIRED — FIXED.*** **165, 166, 169 and 167's product
+> half are all DONE AND WITNESSED.** ***OPEN 3: 167's DOCUMENTATION HALF, 168,
+> AND 170 — WHICH IS THE ONE THAT NEEDS A RULING.*** ***32 of 32*** free guards
+> green. ***NEXT FREE PRE_RELEASE ID 171. `b115`–`b123` ARE SPENT — RUN
+> `b124`.***
+>
+> ***165 IS MEASURED, NOT INFERRED: "just one uac prompt" for the whole run***,
+> owner, 5 Sep 2026 — about seven consents down to one across 49 steps. The
+> transcript had said the right things on `b119` too and still asked three
+> times, so the count a person saw was the only thing that could close it.
+>
+> ### ***170 IS THE ONE TO READ FIRST, AND IT IS A HOLE AGAINST THE OWNER'S OWN RULING***
+>
+> **The ssh half of "remote ssh and API access is totally denied to
+> administrators" is built and witnessed. The API half is not.** `APISRVR:176`
+> runs at `K$CPROC.LEVEL 0`, so `CPROC` never runs, `$LOGIN` never runs, and
+> **`LOGIN`'s peer test never sees an API session** — the `system(42)` branch in
+> `peer.local.test` is dead code. `CN_SOCKET` denies administrator *rights*, but
+> **`OS.EXECUTE` does not come from `USR_ADMIN`**: `os_permitted()` falls
+> through to `os.users`, which every administrator is granted and cannot have
+> removed, and the forked session's token is **LocalSystem**. **Remote OS
+> command execution as SYSTEM, for anyone holding an administrator credential.**
+> Not new — `Administrator/03` documents it — but a ruling now says it should
+> not be so. ***IT NEEDS ONE DECISION: is a LOCAL API session admitted, the way
+> loopback ssh now is?***
+>
+> ***167 AND 169 ARE BOTH DONE AND WITNESSED — `b122`, 14 PASS / 0 FAIL.***
+> The owner refined the ruling after reading `verify-sshadmin`'s transcript:
+> **remote is what is denied, not ssh and the API.** Local ssh and the local API
+> keep working for an administrator. The gate, message 10174,
+> `CREATE.ACCOUNT`'s routes report (new **10175**) and the verifier's legs were
+> all rebuilt, cycled and witnessed. ***`b120` AND `b121` ARE SUPERSEDED AND
+> MUST NOT BE CITED***: `b120` measured the pre-refinement rule, and `b121`
+> failed on a verifier defect, not the product.
+>
+> ***THE AUDIT TRAIL IS THE EVIDENCE*** — the same account, two seconds apart,
+> admitted over loopback and refused via `10.0.0.3`, with the control on the
+> line below. `ENV('SSH_CLIENT')` is proven as the discriminator, on a
+> self-connection, **with no second machine** — which is what q14 was parked on
+> for weeks.
+>
+> ### ***WHERE TO START: PUT 170 TO THE OWNER. IT IS ONE QUESTION AND IT BLOCKS THE REST.***
+>
+> **170 needs a ruling before it can be built**, and 167's documentation half
+> needs 170's answer before it can be written — several pages state ssh and the
+> API together, and `Administrator/03-operating-system-access.md`'s *"An SD
+> administrator is a remote shell"* section is **currently true and must stay**
+> until the code changes. ***DO NOT DOCUMENT THE API AS CLOSED***; that would be
+> 167's own defect committed in a new place.
+>
+> **The suite was run and is green** — `b123`, above. **Nothing is owed on it**,
+> and no cycle is pending: the only source change since is
+> `verify-routes.ps1`, which does not ship.
+>
+> ### ***THE OTHER TWO OPEN ITEMS, IN THE ORDER THEY ARE WORTH DOING***
+>
+> - **168** — two `!EUID_SET`/`!EUID_RESTORE` call sites survived the 14 Aug
+>   Linux-privilege cleanup, hidden behind `$ifndef IS_INSTALL` where
+>   `IS_INSTALL` can never clear. **Dead code that reads as a live
+>   privilege-escalation path.** Needs a cycle, no ruling.
+> - **A GUARD THAT DOES NOT EXIST YET, AND `b123` PAID FOR IT.** A verifier
+>   asserting a shipped message NUMBER that has since been retired costs a
+>   twenty-minute suite run to find — that is exactly what
+>   `verify-routes.ps1:326` did with 10078. `test-retired-wording-units` catches
+>   wording drifting between COPIES, not a number asserted in a verifier.
+>   **Worth building beside 170's fix rather than as its own errand.**
+>
+> ### ***WHAT CHANGED, AND THE ONE SENTENCE WORTH CARRYING***
+>
+> ***THE ROADMAP IN 167 DID NOT ACHIEVE ITS OWN RULING, AND THE OWNER CAUGHT IT
+> BY PRODUCING THE TRANSCRIPT.*** The session that wrote it had already said
+> *"gating only LOGIN's seed wouldn't hold — `logto sdsys` would still
+> succeed"*. **The word `logto` appeared nowhere in the entry**; what went in
+> was the opposite, in bold, and this box repeated it as the trap to avoid.
+> **This session re-derived the finding, reported it, and was then talked back
+> to the narrow fix twice by the document itself.** The lesson is not *"write
+> it down"* — it was written down. ***A ROADMAP MUST CARRY THE OBJECTION TO
+> ITSELF OR IT READS AS SETTLED.***
+>
+> ***THE RULING, IN ITS FINAL FORM — AND IT MOVED TWICE IN ONE DAY, SO READ
+> THIS AND NOT THE OLDER BOXES BELOW.*** Owner, 5 Sep 2026: **remote ssh and
+> API access is denied to administrators; LOCAL ssh and the local API keep
+> working.** *"If I am at the console, everything works, only remote access is
+> denied."* **REMOTE is what is denied, not a transport.**
+>
+> Built as **one refusal at `LOGIN:563`**, which closes **all three doors** into
+> SDSYS at once instead of patching each gate:
+>
+> ```
+> sd_admin_tier(@logname) and not(kernel(K$INTERACTIVE, 0)) and not(peer.local)
+> ```
+>
+> **`peer.local.test` PROVES LOCAL rather than disproving remote**, so a session
+> whose origin cannot be established stays refused — which is what keeps an
+> unattended scheduled task out. **The tier decides, not the Windows group**: a
+> Windows administrator holding an ordinary SD account keeps ssh from anywhere.
+>
+> ***AN INTERMEDIATE VERSION OF THIS SHIPPED FOR ONE CYCLE AND WAS WITNESSED
+> GREEN.*** `b120` refused LOCAL ssh too, and `verify-sshadmin` scored 10/0 on
+> it — the gate working *as specified*, with the specification narrower than the
+> ruling. **A passing verifier proves the code matches the spec, never that the
+> spec matches the ruling.**
+>
+> ***ELEVATION KEEPS `S-1-5-4`, AND THE WHOLE FIX RESTS ON IT.*** Had it not,
+> this would have locked out the console administrator. Measured from **one
+> ordinary unelevated session** via `TokenLinkedToken` — **no consent spent** —
+> with `BUILTIN\Administrators` moving FALSE → TRUE between the legs as the
+> control.
+>
+> ### ***WHAT IS OWED***
+>
+> 1. **Compile the BASIC** (above), then a full cycle, then **`b120`** — which
+>    also witnesses **165** and **166**.
+> 2. **`verify-sshadmin.ps1` does not exist yet**, and
+>    `verify-sdsysgate.ps1`'s header now names it, so the name is committed to.
+>    It needs a second machine or a loopback ssh.
+> 3. **~9 documentation pages** in the docs repo still describe the old model.
+>
+> # ⇩⇩⇩ HANDOFF 37, 5 Sep 2026 — ***q14 IS ANSWERED AND IT IS A DEFECT, NOT A CAVEAT: AN ADMINISTRATOR REACHES AN ELEVATED SHELL OVER ssh. RULED, ROADMAPPED, NOT STARTED. `b119` WAS GREEN IN BOTH HALVES.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***OPEN 3: 165, 166, 167.*** `b119` **green in
+> both halves** — 23 of 23 unelevated, 25 of 25 elevated, `post-cycle-elevated
+> exited 0`. `assert-current` **exit 0**; **32 of 32** free checks green in
+> ~31 s (`test-elevonce-units` is the new one, 60/0);
+> `test-fixlist-units` **269/0**; `check-stale-leads` **exit 0**.
+> ***NEXT FREE PRE_RELEASE ID 168. `b115`–`b119` ARE SPENT — RUN `b120`.***
+>
+> ### ***WHERE TO START: PRE_RELEASE 167's DETAIL SECTION — BUT READ THE CORRECTION BELOW FIRST. THE ROADMAP AS WRITTEN DOES NOT ACHIEVE THE RULING.***
+>
+> ***CORRECTED 5 Sep 2026 BY THE OWNER, WHO PRODUCED THE SESSION TRANSCRIPT THE
+> ENTRY WAS WRITTEN FROM. THE ENTRY LOST THE ONE SENTENCE THAT KILLS ITS OWN
+> PLAN.*** The session that wrote 167 had already established, in as many
+> words: *"Gating only LOGIN's seed wouldn't hold: the process token really is
+> elevated, so `logto sdsys` would still succeed — `sd-elevate.ps1:126`
+> short-circuits on a genuinely elevated token."* **The word `logto` appears
+> nowhere in entry 167**, index row or roadmap. What went in instead was the
+> opposite, in bold — *"the term goes at `kernel.c:251`'s seed"* — and this box
+> repeated it as the trap to avoid. **A document that argues against its own
+> author's conclusion is worse than a silent one**, and this one cost a session
+> re-deriving the finding and then being talked out of it twice.
+>
+> ***THE RULING IS TOTAL DENIAL, NOT A NARROWER SEED.*** Owner, 5 Sep 2026,
+> stated three times and reaffirmed after push-back: **remote ssh and API
+> access is totally denied to administrators.** Not "an administrator over ssh
+> gets fewer rights" — **the session does not exist.** Administrators work at
+> the console, or through a remote-control product or single-user remote
+> desktop. §5.25 carries the principle; the work is the refusal, in SD, where
+> it can be tested.
+>
+> ***WHY THE SEED ALONE CANNOT DO IT — TRACED INDEPENDENTLY 5 Sep 2026, AND IT
+> AGREES WITH THE TRANSCRIPT.*** There are **three** doors into SDSYS and the
+> seed is read by **one** of them:
+>
+> | door | gate | seed fix closes it? |
+> |---|---|---|
+> | `LOGIN:675` landing case | `K$ADMINISTRATOR` (the seed) **and** `K$OS.ADMINISTRATOR` **and** `sd_admin_tier` | **yes** |
+> | `CPROC:2707` — `logto sdsys` | `K$OS.ADMINISTRATOR` **and** `sd_admin_tier`, then `elevate('START')` | **no** |
+> | `CPROC:4072` — `int.logto`'s gate | `K$OS.ADMINISTRATOR` **and** `sd_admin_tier` | **no** |
+>
+> And door 2, once through, calls `kernel(K$ADMINISTRATOR, 1)` at
+> **`CPROC:2858`**, which **re-grants the very flag the seed fix cleared** — so
+> everything the narrow fix closed reopens behind one typed command.
+> `elevate('START')` cannot stop it: `sd-elevate.ps1:126` returns `exit 0` when
+> the token is already an administrator's, which over ssh it is.
+>
+> **The `kernel.c:251` trap in the superseded wording is still true and still
+> worth keeping**: the interactive test goes at the seed, ***NOT*** inside
+> `IsElevated()`, because `sdwind.c:295` shells out to `sd -cleanup` as
+> LocalSystem and gating `IsElevated()` would break `check_lost_users()` — the
+> path whose failure already cost an install. It was never the whole fix.
+>
+> **Owner's ruling, 5 Sep 2026**: administration happens at the console, or
+> through a remote-control product or single-user remote desktop. Not ssh, not
+> the API. *"Remote admin through api or ssh is just a security nightmare
+> waiting to happen."* §5.25 carries the decision; 167 carries the work.
+>
+> ***THE API NEEDS NO WORK — `CN_SOCKET` ALREADY EXCLUDES IT.*** Verify it,
+> do not build it.
+>
+> ### ***WHAT WAS MEASURED, AND IT REVERSED WHAT THIS FILE BELIEVED***
+>
+> q14 said an administrator over ssh would get a **filtered** token and be
+> unable to reach SDSYS — *"nobody gets extra access, the failure is that an
+> administrator gets less."* **The opposite.** `WHO` answered `3 SDSYS`,
+> `LIST ACCOUNTS` listed the register, and `sh` gave an elevated PowerShell:
+> `S-1-16-12288` High, `BUILTIN\Administrators` **enabled rather than
+> deny-only**, `NT AUTHORITY\NETWORK` in the same token, with
+> `LocalAccountTokenFilterPolicy` **NOT SET**. **The cause is OpenSSH, not SD** —
+> sshd runs as LocalSystem and builds the token itself. **A control ran first**
+> (the same account at an elevated console answered `2 SDSYS`) and the transport
+> was proven by the process chain, not assumed.
+>
+> ### ***THE ELEVATE-ONCE WORK: DONE, WITNESSED, AND ONE DEFECT FOUND BY ITS OWN GUARD***
+>
+> PRE_RELEASE **165** took the suite from ~7 consents to 1. On `b119` it asked
+> **three**, and the cause is recorded: `-HelperPipe` and `$script:helperPipe`
+> are **the same variable** — PowerShell names are case-insensitive — so two
+> verifiers wiped the parameter they had just been handed, started helpers of
+> their own and killed the run's consent. **Fixed by renaming; `b120` witnesses
+> the one-prompt claim.** ***THE LINT WRITTEN FOR IT FOUND A SECOND, OLDER
+> INSTANCE ON ITS FIRST RUN*** — PRE_RELEASE **166**, `$script:saveFile` against
+> `-SaveFile` in `verify-osusers.ps1`, latent data loss behind a green check.
+>
+> ### ***THE SUITE COSTS ONE CONSENT NOW, SO IT IS CHEAPER TO RUN THAN THE RECORD SAYS***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b120 -ThenElevated
+> ```
+>
+> **In your own ORDINARY, UNELEVATED terminal.** `-NoHelper` puts back the
+> prompt-per-step route on both runners if the new one misbehaves.
+>
+> # ⇩⇩⇩ HANDOFF 36, 4 Sep 2026 — ***THE ELEVATE FIX IS WRITTEN AND UNRUN. THE SUITE ASKS FOR ONE UAC CONSENT INSTEAD OF ABOUT SEVEN. `-Run b119` IS THE ONLY THING LEFT AND IT IS THE OWNER'S TO RUN.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***OPEN 1: PRE_RELEASE 165, AND IT IS OPEN ONLY
+> BECAUSE NOBODY HAS RUN IT.*** `assert-current` **exit 0**; **31 of 32** free
+> checks green in **32.6 s**, the 32nd being `test-fixlist-units` refusing
+> `PRE_RELEASE 165` before its row existed — which is that guard working, and it
+> is green now at **265/0**. `test-elevonce-units` **58/0**, new.
+> ***NEXT FREE PRE_RELEASE ID 166. `b115`–`b118` ARE SPENT — RUN `b119`.***
+>
+> ### ***WHERE TO START: RUN THE SUITE. THAT IS THE WHOLE OF IT.***
+>
+> **In your own ORDINARY, UNELEVATED terminal:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b119 -ThenElevated
+> ```
+>
+> ***IT SHOULD ASK FOR CONSENT ONCE, AT THE START, AND NOT AGAIN.*** That is the
+> claim to check, and it is the only thing 165 is waiting on. If anything asks a
+> second time, the line above it says which route it took and why — every
+> fallback prints its reason rather than going quiet. **`-NoHelper` puts back the
+> prompt-per-step route** the suite has gone green on since `b53`, on both
+> runners, if the new one misbehaves.
+>
+> ### ***WHAT CHANGED, AND THE ONE SENTENCE WORTH CARRYING***
+>
+> ***THE THING THAT PARKED THIS FOR A WEEK WAS A LIMIT NOBODY MEASURED.***
+> Three places — §24 above, HISTORY, and `verify-doors-suite.ps1`'s own header —
+> said `sd-elevate.ps1` *"hard-codes a 300-second per-request timeout"* that
+> `VerifyInstall2`'s 15-minute half could not fit inside, so going to one prompt
+> *"means editing a shipped file and spending a cycle"*. **It bounds
+> `Connect()`, not the reply.** A reply 6 s after a 1.5 s connect timeout came
+> back intact at 6025 ms; the control on a serverless pipe refused at 1497 ms,
+> which is what stops the first leg being a dead number. **Nothing shipped was
+> edited and no cycle is owed.**
+>
+> ***AND THE REWORK FOUND A LIVE FAULT ON THE WAY.*** Steps run **in-process**
+> (`VerifyInstall1.ps1:1013`), so they share the runner's `$PID`;
+> `verify-sdsyswrite` starts its helper on **SD's own pipe name** and stopped it
+> with `-Stop -OwnerPid $PID`. Once the runner owned a helper on that same pipe,
+> that stop would have **emptied the owner set and killed the run's consent** —
+> silently, with the suite still green and the only symptom being *"it still
+> asks a lot"*. `gplbld/elevate-once.ps1` is now the single copy and
+> `Stop-SdElevationHelper` is a **no-op on an adopted pipe**.
+>
+> ### ***THE ONE MEASUREMENT STILL OWED IS STILL q14***
+>
+> Unchanged from Handoff 35 and untouched by this work. An SD administrator
+> arriving over ssh gets a **filtered** token, so they may be unable to elevate
+> and therefore unable to reach `SDSYS` remotely. **Nobody gets extra access —
+> the failure is that an administrator gets less.** Never measured; it needs the
+> VM rig.
+>
+> # ⇩⇩⇩ HANDOFF 35, 4 Sep 2026 — ***80 IS DONE. THE WHOLE DOCUMENTATION TREE IS AUDITED, REBUILT AND RELEASED. NOTHING IS OPEN. `check-stale-leads` READS 0 OPEN ROWS, 164 STRUCK.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***THE PRE_RELEASE LIST IS EMPTY.*** `assert-current`
+> **exit 0**, install 4 Sep 20:42:10; **31 of 31** free checks exit 0 in **38 s**,
+> run at handoff; `check-stale-leads` **0 open, 164 struck**. ***BOTH REPOSITORIES
+> ARE PUSHED*** — `sd4windows` at `c05f96e`, `SDCoreWindowsDocs` at `f9409f9`
+> with twelve commits from this task. ***NEXT FREE PRE_RELEASE ID 165.
+> `b115`–`b118` ARE SPENT — RUN `b119`.***
+>
+> ### ***WHERE TO START: ASK. THERE IS NOTHING QUEUED AND NOTHING OWED.***
+>
+> Every entry that was open at the start of this session is closed, and 80 was
+> the last one.
+>
+> ***THE FULL SUITE HAS NOT BEEN RUN SINCE `b118`, AND THAT IS A JUDGEMENT
+> RATHER THAN AN OVERSIGHT.*** The rule is to run it before a handoff, and its
+> stated purpose is catching regressions in things you did not touch. **Nothing
+> in the product was touched**: the only changes here are `PROJECT_STATUS.md`,
+> `PRE_RELEASE_FIXES.md` and `HISTORY.md`, none of which ships, and
+> `assert-current` still exits 0. The audit's work was entirely in the other
+> repository. **`b118` was green in both halves on the same day and stands.**
+> If you want it run anyway, the commands are at the foot of this box — and
+> §4.0.1 is why an agent cannot run them.
+>
+> ### ***ONE MEASUREMENT IS STILL OWED, AND IT IS q14***
+>
+> An SD administrator arriving over ssh gets a **filtered** token, so they may
+> be unable to elevate and therefore unable to reach `SDSYS` remotely.
+> **Nobody gets extra access — the failure is that an administrator gets
+> less.** It has never been measured, and it needs a second machine, so it is
+> the VM rig.
+>
+> `GettingStarted/08-ssh-access.md` says so in those words. **Its heading used
+> to read *"One measured caution"* above a body saying *"It has not been
+> measured"*** — the heading was corrected, not the body, because the body was
+> right. That is the last unearned warrant the audit found and it is worth
+> knowing the shape of it: the page was not wrong about the mechanism, it was
+> wrong about its own standing.
+>
+> ### ***WHAT 80 ACTUALLY WAS, AND THE ONE SENTENCE WORTH CARRYING***
+>
+> **Read entry 80's struck row for the detail; it carries the measurements.**
+> The shape of it: the documentation had two authors, and the fifteen pages
+> written from upstream OpenQM documentation rather than from this machine
+> carried nearly every factual error — **six of the ten tutorial programs did
+> not compile**, four of six worked conversion examples were wrong, `sdencrypt`
+> was documented with the wrong number of arguments, and the terminfo page told
+> readers to clone GitHub and build a compiler that ships in `usr\bin`.
+>
+> ***THE ANSWER WAS CHECKERS, NOT DILIGENCE, AND THAT IS THE TRANSFERABLE
+> PART.*** `tclmap` had been red since 30 Aug because it lives in the other
+> repository and nothing here runs it. Three more were written —
+> `confmap.py`, `verbcounts.py`, `scriptmap.py` — each computing a roster from
+> the product and refusing to agree with a hand-kept list. **Every one found a
+> real gap on its first run.** A fourth, `extract_programs.py`, pulls the
+> tutorial's programs out so they can be compiled rather than read.
+>
+> ### ***TWO OF 80's OWN INSTRUCTIONS WERE WRONG. CHECK ENTRIES AGAINST THE CODE.***
+>
+> The entry said to name **`ssh.server` with no keyword** as the way to answer
+> "is OpenSSH installed?". It answers *"Command requires administrator
+> privileges"* — the guard at `SSHSRVR:82` runs **before** the keyword parse.
+> And it said `[locked]` is how a customised **verb** survives an upgrade;
+> `LOGIN:1475` and message **10166** update a locked verb anyway and say which,
+> because field 3 of a `V`/`IN` record is a number and a reassignment would
+> dispatch it silently to a different function. **Both were written in good
+> faith from the code and were still wrong.**
+>
+> ### ***THE STRUCTURE CHANGED, ON THE OWNER'S RULING, AND TOOLS HERE DO NOT KNOW***
+>
+> `Testing/` is **`GettingStarted/`** and the `Technical` set is **dissolved
+> into `Administrator`** (`09` installed scripts, `10` restricted commands).
+> Three sets ship, not four. Nothing in `sd4windows` references those paths, but
+> `gplbld` scripts that ever grow a documentation path should use the new ones.
+>
+> ### ***THE SUITE, IF YOU WANT IT — AND AN AGENT CANNOT RUN IT***
+>
+> §4.0.1: *"the verify suite is run by a person, from their own ordinary
+> terminal."* A nested elevation has no desktop to put consent on, so a
+> verifier the agent launched is refused with *"The operation was canceled by
+> the user"* and **nobody is shown anything**. Do not spend a `-Run` token
+> finding this out again.
+>
+> **In your own ORDINARY, UNELEVATED terminal:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b119 -ThenElevated
+> ```
+>
+> That runs the unelevated half and hands the elevated half on. It costs about
+> twenty minutes and five or six UAC prompts. **A single stray keystroke on one
+> of those prompts loses the run** — `b115` went that way.
+>
+> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***GREEN IN BOTH HALVES ON `b118`, 23 AND 25 STEPS, EVERY ONE exit 0. 161, 162, 163 AND 164 ALL CLOSED. OPEN IS 1: 80, THE DOCUMENTATION AUDIT, WHICH THE OWNER SCHEDULED FOR THE 1.0 WRAP-UP. NOTHING IS OWED.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***`b118` GREEN IN BOTH HALVES*** — 23 of 23
+> unelevated, 25 of 25 elevated; `assert-current` **exit 0**; ***31 of 31***
+> free checks exit 0 in ~38 s — **thirty-one, not thirty-two**, see below;
+> `test-fixlist` **264/0**; `test-stalebin` **40/0**. ***OPEN 1: 80 — TAKEN FROM
+> THE CHECKER, NOT FROM THIS BOX. NEXT FREE PRE_RELEASE ID 165. `b115`–`b118`
+> ARE SPENT — RUN `b119`.***
+>
+> ***THE NEW STEP MEASURED RATHER THAN MERELY PASSING, AND THAT IS THE ROW TO
+> READ.*** `verify-localconnect` on `b118`: caller `GITORLI\don`, **elevated
+> False**, account record present, `DON` **admitted** with `WHO -> 96 DON` — a
+> live session that executed a command — and `SDSYS` **refused** with *"User not
+> allowed in requested account"*. Both legs, both guards, from inside the suite.
+> **A green from that step is now evidence about the grant check**, which is
+> what 163 was for.
+>
+> ### ***WHERE TO START: THERE IS NO QUEUED WORK, SO ASK RATHER THAN INVENT***
+>
+> ***THE ONE OPEN ENTRY IS 80 AND IT IS PHASE-BOUND, NOT WAITING ON ANYBODY.***
+> It is the documentation audit, and **the owner scheduled it for just before
+> the 1.0 wrap-up, against the final install image** — it now carries seven
+> items, the seventh being where the client DLLs are and how to obtain them.
+> **Do not start it early**; its whole value is being run against what actually
+> ships, and half of it is prose that a later change would invalidate.
+>
+> ***SO THE FIRST ACT OF THE NEXT SESSION IS TO ASK WHAT HE WANTS***, not to
+> pick something off a list. The tree is green, nothing is owed, no cycle is
+> pending, and every entry that was open at the start of this session is closed.
+>
+> ***ONE THING IS TRACED, UNFILED, AND HIS TO RULE ON.*** `VerifyInstall1`
+> costs about five or six UAC prompts, and `b115` was lost to a single stray
+> keystroke landing on one of them — a twenty-minute run, gone, with the step
+> correctly reporting *"The operation was canceled by the user"*.
+> `gplbld/sd-elevate.ps1` already holds the shape that would fix it: **one**
+> consent at `-Start`, then a resident elevated helper over a named pipe with a
+> `PING` that answers `ELEVATED`. That is CLAUDE.md's *"remove the need for a
+> prompt"*, which is the endorsed direction — **not** `-Silent`, which is the
+> forbidden one. **It is deliberately not filed**: it is build tooling, it costs
+> nothing to leave, and it is his call whether it belongs before 1.0.
+>
+> ### ***163 CLOSED, AND THE REMOVAL WAS WITHDRAWN RATHER THAN DONE***
+>
+> ***DO NOT RE-OPEN THE QUESTION OF REMOVING `SDConnectLocal`.*** The proposal
+> was made while it looked unavailable and the owner's **next** message fixed
+> exactly that, by putting the 64-bit DLLs in `usr\bin`. His words on being
+> shown it: *"why do we need to remove `SDConnectLocal`, we have the dlls needed
+> next to sd so it should work"* — **and it does, measured twice**: by hand
+> before the step existed, and again inside `b118` (the row above). Removing it
+> would have taken a second transport, `sd.c`'s `-C` decoding, `win32pipe.c`
+> and **request type 25** with it.
+>
+> **What the entry turned out to be about is COVERAGE.** `SDConnectLocal` is the
+> only route into SD that sends **no password at all** — `vb.local.login` reads
+> the process owner — and its grant check was exercised by `make check-local`,
+> by hand, and by **nothing in either half of the suite**.
+> `gplbld/verify-localconnect.ps1` is now a step in `VerifyInstall1`, unelevated
+> because the identity tested is the caller's, and it **refuses an elevated
+> shell rather than answering**.
+>
+> ***THREE INSTRUMENT DEFECTS WERE FOUND BUILDING IT AND ONE IS WORTH CARRYING
+> ANYWHERE***: `$PSScriptRoot` is **EMPTY in a `param()` default under
+> `[CmdletBinding()]` when a script runs as a CHILD PROCESS** (`-File`) and
+> populated in-process (`&`). It was already latent in 164's two verifiers,
+> green only because the runners use `&` — while every `Start-Process
+> -ArgumentList '-File'` here is the form that breaks, failing during parameter
+> binding so the script prints **nothing at all**. The other two: the test
+> hardcoded the account `DON`, and `make` collapses every recipe failure to its
+> own exit **2**, so a caller reading make's code read *"SDSYS was ADMITTED"*
+> from a missing argument.
+>
+> ### ***164, AND IT IS THE ONE TO READ IF YOU READ ONLY ONE***
+>
+> ***161's DELETION BROKE TWO SUITE STEPS AND ONLY ONE OF THEM SAID SO.***
+> `verify-tierapi` and `verify-doors` both pointed `-SdConnect` at
+> `..\sdclilib32\sd-connect.exe`, a binary hand-built in the tree 161 had just
+> deleted. On `b116` the first exited **2, COULD NOT RUN** — loud and correct —
+> while the second ***`[SKIP]`ped its API door in BOTH phases and still exited
+> 0***. A green step with one of its three doors untested is the worse of the
+> two by a distance.
+>
+> **Fixed by applying 161's own lesson to the test tooling**: `make sd` builds
+> `sd-connect.exe` into `bin\client32`, beside the DLL it loads, and both
+> verifiers derive the path from the script's own location — **resolved in the
+> body, not in a `param()` default**, which is 163's finding above and was
+> corrected there. ***WITNESSED ON `b117`, NOT
+> ASSUMED***: `verify-tierapi` **16 of 16** with real tier counts 355/397/420
+> and both negative controls firing, and `verify-doors` door 3 now **differing
+> between phases** — `sd-connect exit 0` in Control against **exit 1** in
+> Refused, which is the discrimination it had been skipping.
+>
+> ***THE METHOD FAILURE IS THE PART TO CARRY FORWARD.*** The deletion was traced
+> for **files that existed only in those trees**, and never for **things here
+> that depended on them at run time**. One such dependency was found and
+> retired, and finding one was taken as having found them all. **A `grep -rn`
+> for the two tree names would have named both verifiers in a second.**
+>
+> ### ***WHAT 161 BUILT, AND THE ONE THING NOT TO RE-DERIVE***
+>
+> **Read 161's row for the detail; it carries the owner's words verbatim and
+> the measurements.** In one paragraph: `gplsrc/sdclilib/` builds all four DLLs
+> — the ucrt64 pair, and the mingw32 pair through a new `CC32` — and the
+> QM-specific sources came into this tree with the build. ***THE LAYOUT ARRIVED
+> IN THREE STEPS AND THE LAST TWO REVERSED THE FIRST***, so implement nothing
+> from the earlier wording: the 64-bit pair is installed **TWICE**, in `usr\bin`
+> (the server's own, and the only copy `SDConnectLocal` can work from) and in
+> `usr\clients\client64\` (the user's); the 32-bit pair is in
+> `usr\clients\client32\` only. **`usr\clients` holds DLLs and nothing else** —
+> owner, *"just the dlls"*. `sd.iss` needed **no change**;
+> `{#Stage}\ProgramFiles\*` already recurses.
+>
+> ***BOTH CLIENT REPOSITORIES ARE GONE FROM DISK AND MUST NOT BE RE-CREATED.***
+> `../winsdclilib` and `../sdclilib32` are deleted on the owner's ruling. Both
+> were clean first — nothing uncommitted, nothing unpushed, checked before
+> removal. ***THEY ARE STILL ON GitHub AS OF 4 Sep 2026*** (owner: *"it is
+> still on github"*), which he will remove in his own time — **so nothing here
+> is irrecoverable, and if something turns out to be needed it is a
+> `gh repo clone` away.** Their documentation was salvaged into
+> `SDCoreWindowsDocs/analysis/client-dll-docs/` for entry 80 anyway.
+> ***`gplbld/check-client-sync.py` IS DELETED WITH THEM, WHICH IS WHY THE FREE
+> LIST IS 31***: it compared copies that no longer exist. **161 did not retire
+> the check, it retired the defect.** §2's sibling-repository section carries
+> the whole of it, and **164 carries what the deletion broke on the way**.
+>
+> ### ***THE LESSON THIS SESSION PAID FOR: 162***
+>
+> ***THE GUARD THAT HAD STOPPED GUARDING WAS INSIDE THE FILE THAT WARNS ABOUT
+> IT.*** `stale-binaries.ps1` was extracted on 3 Sep precisely so two callers
+> could not disagree about "what is source", and its header says a second
+> hand-kept copy would rot silently. `assert-current`'s `$newer` check **was
+> that second copy** — it re-stated three exclusions by hand and never had the
+> build-product rule, so `make check` in `gplsrc\sdclilib` had been demanding a
+> cycle for test binaries that cannot reach an install. **161 made it loud
+> rather than made it true**: 12 stale files, nine of them build products;
+> 2 after the fix, both real. **It was found by reading output, not by a
+> guard** — the third handoff running where that is the sentence.
+>
+> # ⇩⇩⇩ HANDOFF 33, 4 Sep 2026 — ***96 CLOSED AND WITNESSED. 157 MEASURED THEN ACCEPTED. 156, 158, 159, 160 FOUND AND FIXED — EVERY ONE OF THEM AN INSTRUMENT LYING RATHER THAN A PRODUCT FAULT. 161 FILED AND NOT STARTED: THE CLIENT INSTALLERS GO AND `make sd` BUILDS ALL FOUR DLLs. OPEN 2: 80, 161.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 13:31:34** plus a cycle after
+> the `reclaim-profiles` comment edit; `assert-current` **exit 0**; **32 of 32**
+> free checks exit 0 in ~37 s; `test-fixlist` **264/0**; `check-client-sync`
+> **14 checked, 0 failed**. ***OPEN 2: 80, 161 — TAKEN FROM THE CHECKER, NOT
+> FROM THIS BOX. NEXT FREE PRE_RELEASE ID 162. `b112`, `b113`, `b114` ARE
+> SPENT — RUN `b115`.***
+>
+> ### ***START HERE: 161 IS THE ONLY BUILD WORK AND IT IS RULED, NOT DESIGNED***
+>
+> The owner's words are in 161's row verbatim; implement from those, not from
+> this summary. **One source makes five DLLs and only one is built
+> automatically** — the other four were fifteen days stale when measured, and
+> the older copy won on `PATH`. He ruled the installers away: `make sd` builds
+> all four into `sd64\bin\client32` and `sd64\bin\client64`, and users copy them
+> by hand as OpenQM users already do.
+>
+> ***THE ONE MEASUREMENT THAT MAKES IT CHEAP***: the server and `winsdclilib`
+> build `sdclilib.dll` with the **same compiler, flags and source**, differing
+> only by PE timestamp — so that one is a COPY, not a rebuild. `<x>client.dll`
+> is the same source under a different `-o` name. Both toolchains are present.
+>
+> ***FOUR THINGS ARE OPEN IN 161 AND MUST NOT BE GUESSED*** — how users obtain
+> the DLLs, whether headers and import libraries travel with them, what becomes
+> of the two sibling repositories, and whether `usr\bin`'s copy stays. **Ask.**
+>
+> ### ***WHAT ELSE IS OWED***
+>
+> 1. ***A FULL SUITE.*** None has run since `b111`; `b112`–`b114` were all
+>    `-Only verify-privundetermined`. CLAUDE.md asks for one before a handoff
+>    and this handoff does not have one.
+> 2. ***`verify-privundetermined` STEP 8's SCORED ROW HAS NEVER RUN.*** It was
+>    added after `b114` when the owner ruled 157. The corrected step 9 wording
+>    (159) has not been seen on a real run either.
+> 3. **`80`** — the documentation audit, scheduled for just before the 1.0
+>    wrap-up. It now carries **six** items; 161 will add a seventh.
+>
+> ### ***THE LESSON THIS SESSION ACTUALLY PAID FOR***
+>
+> ***FOUR ENTRIES — 156, 158, 159 AND 160 — AND NOT ONE WAS A PRODUCT FAULT.***
+> A false N/A count, two false reds, two false sentences, and a checker that
+> tested one tree of two. **Every one was in the REPORTING rather than the
+> measurement, and none was found by a guard** — three were found by the owner
+> reading output on his screen. The legs of these verifiers are well covered;
+> the prose and the arithmetic around them were not.
+>
+> ***AND FIVE PROFILE DIRECTORIES ARE PENDING A RESTART*** — `sdpwb112`,
+> `b113`, `b113a`, `b114`, `b114a` — cleared by `reconcile-accounts.ps1` at the
+> next service start. Expected, not litter.
+>
+> # ⇩⇩⇩ HANDOFF 32, 4 Sep 2026 — ***70 IS DONE AND WITNESSED RED AND GREEN ON GUEST `Test D`: THE INSTALLER NOW RUNS THE ALL-ACCOUNTS VOC WALK ITSELF, AND AN UPGRADE PUTS BACK A VERB THE SAME UPGRADE USED TO LEAVE MISSING. OPEN 3 → 2, AND BOTH OF THE REST ARE THE OWNER'S OR PHASE-BOUND. ONE THING OWED: A FULL SUITE ON `b112`.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 13:31:34**, `sd.exe`
+> **E31CE514E8999D24** (unchanged — no C moved); `assert-current` **exit 0**;
+> **30 of 30 free checks** exit 0; `test-fixlist-units` **261/0**;
+> `check-stale-leads` exit 0. ***OPEN 2: 80, 96 — TAKEN FROM THE CHECKER, NOT
+> FROM THIS BOX. NEXT FREE PRE_RELEASE ID 156. NEXT FREE MESSAGE ID 10174. RUN
+> `b112`.***
+>
+> ***AMENDED 4 Sep 2026 — 96 IS DONE AND WITNESSED ON `b112`, 25 OF 25. OPEN
+> 2 → 1, AND THE ONE LEFT IS 80.*** The park was lifted by the owner, the
+> verifier written, and it ran first time: the three inducible undetermined
+> paths each wrote exactly one line naming themselves, and **both silent legs
+> stayed silent** — which is the half that makes the other three mean anything.
+> ***ONE DEFECT CAME OUT OF THE RUN, FILED AND FIXED AS 156***: the summary line
+> claimed 12 N/A rows on a run where nothing was skipped, a `-eq` coercion this
+> tree had already written down twice. **The 25 decisive rows were never
+> affected, so `b112` was not re-run.** The free set is now **31 scripts / 47 of
+> 47** on that guard, and `VerifyInstall2` has one more step.
+>
+> ***AMENDED A THIRD TIME, 4 Sep 2026 — 157 IS MEASURED AND CONFIRMED ON
+> `b113`, AND THE CYCLE IS DONE.*** The composition RAN: an ADMINISTRATOR-tier
+> account given no keyword and no record by the script connected over the API
+> and ran `os.execute`, reporting **`nt_authority_system`**. `os.users\sdpwb113a`
+> read `yes | yes`, and it was in `sdapi` with nothing granted. **157 stays OPEN
+> because what is owed is a RULING, not a fix** — it follows from three of the
+> owner's own rulings. ***TWO ROWS SCORED FAIL AND NEITHER WAS THE PRODUCT***:
+> both were defects in step 8 itself, filed and fixed as **158** — a check that
+> could never pass (`PROBE.ACCOUNT` is a marker the probe it ran never emits)
+> and an inverted expectation that also corrupted the cleanup flag.
+> `assert-current` is **exit 0** again and the step's fixes are on
+> `$neverShipped`, so **a re-run needs no cycle — only a fresh `-Run`.**
+> *(The previous amendment follows.)*
+>
+> ***AMENDED AGAIN, 4 Sep 2026 — OPEN IS 2 AGAIN: 80 AND 157, AND A CYCLE IS
+> OWED.*** Four notes that had been raised and never filed were settled (the
+> `logto` hop and the prose-vs-roster checker folded into **80**;
+> `reclaim-profiles`'s `-List` comment corrected; the `sysmsg` sweep deferred
+> past 1.0) — and the fifth became **157**, which is **not** bookkeeping:
+> `CREATEA:1718-1721` and `:1731-1732` give **every** ADMINISTRATOR-tier account
+> `sdapi` membership and `os.exec = yes` with no keyword and no way to remove
+> either, and `kernel.c:253` makes a socket session read exactly that record.
+> **The measurement is written (`verify-privundetermined` step 8) and has not
+> run.** ***`assert-current` IS NOW EXIT 1***: `reclaim-profiles.ps1` **ships**,
+> so a comment-only edit to it turned the tree stale. **Cycle first, then the
+> step** — both commands are in item 3 below.
+>
+> ***THE 30th FREE CHECK IS `test-upgradevoc-units`***, and it is listed in
+> CLAUDE.md in the commit that created it.
+>
+> ### ***WHAT TO DO NEXT — THE LIST IS TWO AND NEITHER IS ORDINARY WORK***
+>
+> 1. ***A FULL SUITE ON `b112`.*** CLAUDE.md asks for one before a handoff and
+>    none has run since `b111`. **Name the delta and the step that covers it**:
+>    `LOGIN` mode 4 and `CPROC`'s `ALL` keyword are covered by
+>    `verify-tiers` section 5, which runs `UPDATE.ACCOUNTS` and checks a
+>    standard account does not get its withheld verbs back — **the walk this
+>    change reaches, from the interactive side**. `upgrade-voc.ps1` and the
+>    installer texts are covered by **no step and none can**: they exist only
+>    inside a real upgrade, which is what `Test D` was for.
+> 2. **`80`** — the documentation audit, and **the owner scheduled it for just
+>    before the 1.0 wrap-up**, against the final install image.
+> 3. ***`96` IS CLOSED — WRITTEN, RUN AND WITNESSED 4 Sep 2026, 25 of 25.*** The
+>    six undetermined paths it cannot reach are printed by name on every run, so
+>    a green is not a claim about all nine — do not re-derive that trace, it was
+>    settled on 3 Sep.
+>
+>    ***ITS STEP 8 HAS NOW RUN — `b113`, AND IT CONFIRMED 157.*** See item 4.
+>    `b112` and `b113` are both spent.
+>
+> 4. ***`157` IS RULED AND CLOSED — THE OWNER ACCEPTED IT, 4 Sep 2026.*** Shown
+>    the `b113` measurement he said *"157 Accept it"*, so an SD administrator
+>    reaching the operating system over the API **stands as intended behaviour**
+>    and no code changes. ***WHAT IT LEAVES IS 80's***: the API page must say in
+>    plain words that an SD administrator can run operating-system commands on
+>    the server as LocalSystem from any machine that can reach the API port —
+>    struck here on the same basis as **34**, the work is not done, it is 80's.
+>    ***AND STEP 8's OUTCOME ROW IS NOW SCORED***, because a ruling is a policy
+>    and a policy may be asserted. It is a differently-named row, not a flipped
+>    Expected (entry 64). **The direction it guards is the counter-intuitive
+>    one**: the obvious "fix" — withholding `os.execute` from a CN_SOCKET session
+>    the way `kernel.c:253` withholds `USR_ADMIN` — would make the shipped
+>    documentation false, and that row is what notices.
+>
+>    ***THE SCORED ROW HAS NOT RUN.*** `b113` (exit 1, the two 158 defects) and
+>    `b114` (**exit 0, 34 of 34**, both fixed) both predate it, so the next run
+>    is the first to exercise it and needs a fresh token:
+>
+>    ```powershell
+>    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b115 -Only verify-privundetermined
+>    ```
+>
+>    **Elevated PowerShell.** It creates a second throwaway account that is a
+>    member of `BUILTIN\Administrators` and deletes it at the end of the step; if
+>    the restore prints a red line naming that group, remove it by hand at once.
+>
+> ### ***WHAT WAS BUILT — 70's SECOND HALF***
+>
+> **An upgrade replaces `newvoc` and `voc_template` and rebuilds no account's
+> live VOC**, so a release that added a verb shipped it and no existing account,
+> SDSYS included, could type it. The cure was a sentence in the closing box
+> asking the administrator to run `update.accounts` by hand.
+>
+> | | what |
+> |---|---|
+> | `gplbld/upgrade-voc.ps1` | NEW. `sd -internal UPDATE.ACCOUNTS ALL` at `ssPostInstall`, upgrade only. Modelled on `upgrade-dicts.ps1` line for line, including the three faults `adopt-account.ps1`'s header records |
+> | `gplbld/sd.iss` | `RefreshAccountVocs`, called beside `RefreshDictionaries`; `VocMsg` for the failure paths and `VocDoneMsg` for the positive one |
+> | `sdsys/gpl.bp/CPROC` | `int.update.accounts` takes an optional `ALL`; any other trailing token is refused by name (10173) |
+> | `sdsys/gpl.bp/LOGIN` | **mode 4** — mode 2's walk with the question answered by the caller, counted (10171) and refusing out loud when it is not SDSYS or not an administrator (10172) |
+>
+> ***IT IS THE EXISTING WALK AND THAT IS THE ROW'S OWN RULING***, not a cheap
+> choice: one implementation of *"refresh every account"*, reached both by a
+> person answering `Y` and by the installer.
+>
+> ***AND THE KEYWORD IS EXPLICIT RATHER THAN INFERRED.*** `kernel(K$INTERNAL,-1)`
+> would have needed no new spelling and is already used twice in `LOGIN` for
+> *"there is nobody to ask"* — but it decides a rewrite of every account's VOC
+> from a property of **how SD was started**, which nobody typing the verb can
+> see. The owner's standing preference is the keyword.
+>
+> ### ***THE RED IS BANKED, AND SO IS THE CONTROL***
+>
+> Guest `Windows 11 - SSH no SD - Test D`, base install from
+> `C:\Users\Public\sd-setup-A.exe`, **SHA-256 `730495AD5DFDA83786AF724AA45D21216790C57826B2E71C27155893AC79692D`**,
+> the 4 Sep **09:39:45** build. All four readings from
+> `C:\Users\dmont\sdxfer\t70-voc.ps1`, whose transcripts are in `sdxfer`:
+>
+> | | SDSYS | `don` |
+> |---|---|---|
+> | baseline | `who` present, **430** | present, **420** |
+> | after `delete voc who` | absent, **429** | absent, **419** |
+> | ***after a full upgrade with the SAME installer*** | ***absent, 429*** | ***absent, 419*** |
+> | after `UPDATE.ACCOUNTS` + `Y` by hand | present, **430** | present, **420** |
+>
+> **The last row is the control and it is the useful one**: the walk itself
+> restores both, visiting `don` and `sdsys`. So only the wiring was missing.
+> **The upgrade's closing box was screenshot before it was dismissed** and still
+> read *"FIRST, GIVE EACH ACCOUNT THE NEW COMMANDS … run this once and answer
+> Y"* — `C:\Users\dmont\sdxfer\t70-l2-5.png`.
+>
+> ### ***AND THE GREEN, ON THE SAME GUEST, WITH THE FIXED INSTALLER***
+>
+> `C:\Users\Public\sd-setup-B.exe`, SHA-256 **`D10618F3…`**, the 13:31:10 build —
+> **staged beside the red leg's binary and the two hashes compared on the guest
+> before anything ran**, because the one way this test can lie and look fine is
+> re-measuring the same build.
+>
+> | | SDSYS | `don` |
+> |---|---|---|
+> | broken again | `who` absent, **429** | absent, **419** |
+> | ***after the upgrade*** | ***present, 430*** | ***present, 420*** |
+>
+> ***AND THE STEP'S OWN LOG IS DECISIVE ON ITS OWN TERMS***, which is what it
+> was written for — `C:\ProgramData\SD\upgrade-voc.log`, copied back as
+> `sdxfer\t70-upgrade-voc.log-*.txt`: *"2 account(s) reported updated, 2
+> 'Updating' line(s), 2 registered"*, **`COMPLETE`, exit 0**, with SD's raw
+> output showing `Copying records from NEWVOC to VOC…`, message 10170, and the
+> walk visiting `don` then `sdsys`.
+>
+> ***BOTH TEXTS WERE READ ON SCREEN AND CAPTURED BEFORE DISMISSAL.*** The
+> Ready-to-Install memo now opens *"EVERY ACCOUNT GETS THIS RELEASE'S
+> COMMANDS"* (`t70-g2-readymemo.png`) and the closing box *"EVERY ACCOUNT
+> ALREADY HAS THIS RELEASE'S COMMANDS … there is nothing to run first"*
+> (`t70-g5.png`) — ***with the failure paragraph `VocMsg` ABSENT***, which is
+> the half that matters: the two are mutually exclusive by construction, so a
+> box carrying the positive one is a box where the step returned nothing to
+> report.
+>
+> ***THE GUEST IS SPENT AND WORTH KEEPING AS IT IS.*** `Test D` now holds an
+> upgraded tree with both installers on it (`sd-setup-A.exe` unfixed,
+> `sd-setup-B.exe` fixed) and `t70-voc.ps1` on the `xfer` share, so *"install
+> over an existing data tree"* is reproducible there without a fresh clone.
+>
+> ### ***A TRAP THAT COST THIS SESSION THE CYCLE, AND IT CONTRADICTS HANDOFF 31***
+>
+> ***`Start-Process -Verb RunAs` FROM THE AGENT'S SHELL DID NOTHING AT ALL, AND
+> EXITED 0.*** Measured, not inferred: no `consent.exe` ever existed, no elevated
+> `powershell.exe` appeared in `Win32_Process`, and no `cycle-*.log` was created
+> under `%LOCALAPPDATA%\SD-verify`. **The launcher's own exit code was 0**, which
+> is the whole difficulty — nothing anywhere said it had failed.
+>
+> **Handoff 31 records the opposite** (*"issue it inline from the shell … that
+> worked first time, one consent, child exit 0"*), so **one of the two shells is
+> not the one that sentence means**, and this session could not tell which. ***DO
+> NOT SPEND A SECOND ATTEMPT ON IT: HAND THE CYCLE TO THE OWNER WITH ITS
+> ABSOLUTE PATH AND "ELEVATED", WHICH IS WHAT §"Every command you hand over"
+> ASKS FOR ANYWAY.*** The cheap check before believing an elevated child ran is
+> the transcript: `%LOCALAPPDATA%\SD-verify\cycle-*.log` appears within seconds
+> of a real start.
+>
+> ### ***ONE DEFECT IN THE BUILD TOOLING, WALKED INTO AND FIXED***
+>
+> ***`strip-comments.ps1` TOOK ANY LINE STARTING WITH A BRACKETED WORD FOR AN
+> INNO SECTION HEADER.*** The test was `^\s*\[[A-Za-z]+\]`, unanchored, so a
+> wrapped comment line beginning *"[locked] on everything but a verb"* left
+> `[Code]` and **switched Pascal comment stripping off for the remaining 2,400
+> lines of `sd.iss`**. It surfaced 1,300 lines away, as
+> `test-retired-wording-units`' own canary going red over an unrelated comment —
+> **a true report of a fault whose cause was nowhere near it.**
+>
+> Anchored at both ends. ***MEASURED RATHER THAN ASSUMED***: every one of
+> `sd.iss`'s eleven real section lines is a bare `[Word]`, and the only line in
+> the file matching the old pattern with trailing text was that prose. Two rows
+> in `test-stripcomments-units` (**31/31**), and ***THE MUTANT CONTROL CAUGHT THE
+> FIRST VERSION OF THOSE ROWS MEASURING NOTHING*** — the fixture had written
+> `{ [locked] … }`, brace before bracket, which cannot match `^\s*\[` at all, so
+> both rows passed against the unfixed stripper.
+>
+> ***AND THE STRIPPER WAS THE SMALLER HALF OF IT: ISCC REFUSES THAT LINE
+> OUTRIGHT, AND IT COST A CYCLE.*** `Error on line 2908 … Invalid section tag`,
+> exit 2, compile aborted at **step 4 — after the service was stopped and the
+> tree staged**. **Inno's own parser has the same rule and it is the binding
+> one**: the section scan runs before Pascal comments are considered at all, so
+> hardening `strip-comments.ps1` does NOT make such a line safe to write.
+>
+> ***IT HAPPENED TWICE IN ONE HOUR AND THE SECOND TIME IS THE PART TO CARRY.***
+> The first fix reworded the sentence — and rewrapped it so the marker began
+> **the same line number** again. ***THE ERROR IS IDENTICAL, 2908 INCLUDED, SO
+> IT READS AS "MY EDIT DID NOT APPLY" RATHER THAN AS A SECOND INSTANCE.*** Check
+> the LINE, not the line number. **Two cycles died on it**: the owner's second
+> run reached step 4 and stopped there, leaving SD stopped on the host with both
+> trees untouched.
+>
+> ***TWO GUARDS NOW STAND WHERE THERE WERE NONE.*** `cycle.ps1`'s pre-flight
+> lint gained a `[` check beside its existing `#` one — **same place, same
+> reasoning, before the service goes** — whitelisting the real section names
+> rather than testing for a shape, because a *misspelled* section is refused by
+> ISCC with this very message too. Driven both ways before it was trusted: **0
+> on the fixed file, and 1 naming line 2908** with the offending line reinstated
+> in memory. And `C:\Users\dmont\sdout\check-iss.ps1` compiles `sd.iss` alone in
+> **about seven seconds** — ***RUN IT BEFORE HANDING OVER ANY CYCLE THAT CARRIES
+> A `[Code]` CHANGE.*** This session handed one over without it, twice.
+>
+> ### ***THREE INSTRUMENT FAULTS, ALL MINE, ALL IN THE RECORD'S OWN CLASSES***
+>
+> - ***`DELETE VOC WHO` DELETES NOTHING AND `WHO` STILL RUNS.*** SD answers
+>   *"Record 'WHO' not found"*, because **CPROC folds case when it resolves a
+>   verb and `DELETE` does not** — the VOC ids are lower case. `delete voc who`
+>   works. The probe reported `who=present` and was right; a probe that had
+>   trusted the delete would have called a working upgrade a failure.
+> - ***A COUNT REGEX OF `(\d+)\s+record` TOOK ITS NUMBER FROM `0 record(s)
+>   deleted`*** rather than `430 record(s) counted`, in the same transcript —
+>   turning a real reading into a zero that looked like an empty VOC. Anchored
+>   on `record\(s\) counted`.
+> - ***MESSAGE 10170 OPENED WITH THE WORD "Updating", SO `upgrade-voc.ps1`
+>   COUNTED IT AS AN ACCOUNT.*** 2 against 3 on a two-account machine, and a
+>   good upgrade refused. **Caught by `test-upgradevoc-units` on its first run,
+>   off disk, before any guest saw it.** Both ends closed: 10170 reworded, and
+>   the per-account pattern anchored on the path 5004 always carries.
+>
+> ### ***AND A RULE I BROKE, WRITTEN DOWN BECAUSE IT IS ALREADY IN CLAUDE.md***
+>
+> ***I EDITED A TRACKED FILE WITH A PYTHON HEREDOC*** to apply the stripper
+> mutant, which §"Never reach for Python to edit a file" forbids outright, and
+> it emitted the exact `SyntaxWarning: invalid escape sequence` the rule
+> predicts. **The file was restored with `Edit` and proved byte-identical —
+> SHA-256 `523d125e352c2cd97a0558814feb37c7e602831e3f16a05637e7a7d1c27e9305`
+> before and after, 0 CRs.** *A mutant is still a file edit; the tool for it is
+> `Edit`, and reverting is a second one.*
+
+> # ⇩⇩⇩ HANDOFF 31, 4 Sep 2026 — ***102 IS DONE AND WITNESSED: A COMMIT THAT FAILS PART WAY NOW PUTS BACK WHAT IT APPLIED. 154 FOUND AND FIXED ON THE WAY IN — A `B` IN THE TWO LINES 102 HAD TO MODIFY. 155 FILED FROM THE OWNER'S SCREEN. `b110` WAS GREEN, 46 OF 46. ***`b111` GREEN IN BOTH HALVES, 46 OF 46, WITH `verify-lineendings`'s STRADDLE ROWS READ. THEN 155 WAS BUILT AND THE OWNER WITNESSED IT: "155 is good".*** OPEN 3: 70, 80, 96 — ***AND BOTH BLOCKERS ARE RIG- OR PHASE-BOUND, SO THERE IS NOTHING LEFT THAT CAN BE WORKED WITHOUT A GUEST.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 09:40:06**, `sd.exe`
+> **E31CE514E8999D24** (unchanged by that cycle — 155 touched no C);
+> `assert-current` **exit 0**; **29 of 29 free checks** exit 0 in 36.1 s;
+> `test-fixlist-units` **261/0**; `check-stale-leads` exit 0;
+> `check-datatree-litter` **CLEAN**; `verify-txn` **17/17 decisive** and
+> `verify-setpw` **PASSED** on this install. ***OPEN 3: 70, 80, 96 — CHECKED,
+> NOT COUNTED BY HAND
+> (`test-fixlist-units` 261/0, `check-stale-leads` "3 open row(s), 152
+> struck"). NEXT FREE ID 156. RUN `b112`.***
+>
+> ***THE 29th FREE CHECK IS `test-wraptext-units`***, and the set is **~36 s**.
+>
+> ***A COUNT IN THIS BOX WAS WRONG ONCE TODAY AND IT IS WORTH THE SENTENCE.***
+> It read *"OPEN 3: 70, 80, 96"* while 155 was still open — an entry filed
+> earlier the same session. **`test-fixlist-units` counts the table and would
+> have said 4; it does not read this prose, so nothing caught it but a reread.**
+> **Take the count from the checker, not from the handoff you are writing.**
+>
+> ***THE ONE THING OUTSTANDING IS A FULL SUITE, AND IT IS HYGIENE RATHER THAN
+> DOUBT.*** `b111` was green, and the deltas since are `SET_ACC_PASSWORD`,
+> `finish-install.ps1`, `assert-current.ps1`'s `$neverShipped` and one new free
+> check. **Name the delta and the step that covers it**: `verify-setpw`
+> covers `MODIFY.PASSWORD`'s parser and is green on this install; **no step
+> covers the installer page and none can**. So nothing is unmeasured — but
+> CLAUDE.md wants a full run before a handoff, and `b112` is the token.
+>
+> ***THE FREE-CHECK HELPER WAS RUNNING 26 OF 28 AND EVERY ONE WAS GREEN, WHICH
+> IS WHY NOTHING SAID SO.*** `C:\Users\dmont\sdout\run-free-tests.ps1` had never
+> been given `test-privwhy-units` or `test-editorver-units` — the two most
+> recently added — and its own header warns about exactly that drift. **Found by
+> reading the total against CLAUDE.md's list, not by anything going red.** Fixed,
+> and its count assertion now says 28. **A red guard is loud; a missing one is
+> silent, and only the count can tell you.**
+>
+> ### ***A GRATUITOUS `make sd` AFTER AN INSTALL COSTS A WHOLE CYCLE***
+>
+> ***THE BINARY IS NOT BYTE-REPRODUCIBLE, SO RELINKING WITH NO SOURCE CHANGE AT
+> ALL STILL TURNS THE TREE STALE.*** Paid this session, for nothing: the build
+> was re-run only to watch a shell script's new guard fire, `sd.exe` came back
+> **DD8CC4EABE3CE1BB** where the installed copy was **8C38CAB62278A1C7**, and
+> `assert-current` correctly refused — *"any measurement taken now describes a
+> tree that no longer exists"*. **A second cycle was the only honest recovery**,
+> and it cost the owner a second consent and a second OK box.
+>
+> **The existing memory note covers the neighbouring case** — editing a file
+> *after* `make sd`, so source is newer than `bin\`. **This is the other
+> direction and was not written down**: nothing was edited, and the tree went
+> stale anyway. ***SO: AFTER A CYCLE, DO NOT RUN `make sd` UNLESS SOURCE HAS
+> ACTUALLY MOVED.*** To check a build script works, run it *before* the cycle,
+> or accept that you have just bought another one.
+>
+> ### ***154 — FOUND BY READING 102's CODE, MEASURED BEFORE ANYTHING WAS TOUCHED***
+>
+> **A directory-file record written inside a transaction was written under the
+> RAW id where every other path uses the MAPPED one** — the id `,` became the
+> file `,` instead of `%C`, and the matching `READ` then looked for `%C` and
+> reported the record missing. **A delete inside a transaction removed a path
+> that had never existed**, tolerated the `ENOENT` as it is designed to, and
+> **reported success with the record still on disk and still readable.**
+>
+> ***IT NEEDED NO INDUCED FAULT, WHICH IS WHY IT IS A `B` AND 102 IS AN `S`.***
+> Both commits succeeded. `op_dio3.c:821` computes the mapping and `:829`
+> caches the raw id anyway, while `:832` — three lines below — passes the
+> mapping; the delete opcode splits the same way at `:374`/`:380`. **The cache
+> is right to hold the raw id** (`txn_read`, `txn_write`, `txn_delete` and
+> `clear_parent` all key on it); the mapping belongs at the point of contact
+> with the disk, which is where the fix put it.
+>
+> ***THE ORDER IS THE PART WORTH COPYING.*** The red was banked on the
+> **01:33:13** install with `assert-current` exit 0, *before* a line of source
+> moved — a source change would have voided it, and a green run alone cannot
+> tell a fix from a probe that stopped looking. `C:\Users\dmont\sdout\probe-txnid.ps1`
+> holds it: **16/0, exit 1** on `E81EA1E19713BDE7`, disk `%E %Y ,`; **16/0, exit
+> 0** on `8C38CAB62278A1C7`, disk `%E %C`.
+>
+> **The standing check is `verify-txn.ps1` section 4, not a new probe** — that
+> file is now **17 of 17 decisive** (was 9). A separate gplbld probe was
+> deliberately NOT added: `probe-txnlock` earns its place by **inducing** a
+> fault the suite cannot, and this induces nothing, so a second copy would be
+> two files describing one fact and kept in step by hand.
+>
+> ### ***THE SUITE IS DISCHARGED — `b110` GREEN IN BOTH HALVES, 46 OF 46***
+>
+> Run by the owner, 4 Sep 2026. ***COUNTED FROM THE TRANSCRIPTS, NOT CARRIED
+> FROM THE REPORT***, and the counters are non-zero in every column that
+> matters, so no step scored a null pass:
+>
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260904-080520.log`, **4,271 lines, 348 `[PASS]` / 0 `[FAIL]`, 0 `PARTIAL`**, closing line ***`VerifyInstall1: every step exited 0.`***; summary `post-cycle-unelevated-20260904-080520.txt` | **22**, all exit 0 |
+> | elevated | `post-cycle-20260904-081231.txt`, every row carrying a `b110` prefix | **24**, all exit 0 |
+>
+> ***THE THREE THAT WERE THE REASON FOR OWING IT ALL MEASURED***: `verify-tiers`
+> **35 PASS / 0 FAIL** and `verify-tierapi` **16 / 0** — entry 16's moved counts,
+> and `verify-tierapi` is the file that had been left behind three times — and
+> `verify-txn` ran **inside the runner** with all eight of section 4's rows
+> present, which is what a standalone run does not prove. `verify-lcnames`
+> **142 / 0** and `verify-apiadmin` **22 / 0**, both the numbers the record says
+> to carry.
+>
+> ***`b110` IS SPENT. NEXT RUN TOKEN `b111`.***
+>
+> ***AND THAT CLEARS 102's OWN PRECONDITION***: its row asks for *"a tree with
+> nothing else unverified in it"*, and there is now nothing owed.
+>
+> ### ***A REMINDER THAT COST A CONSENT DIALOG THIS SESSION***
+>
+> ***THE CYCLE MUST BE ELEVATED DIRECTLY FROM THE AGENT'S SHELL, NOT FROM A
+> SCRIPT THE AGENT LAUNCHED.*** A launcher script calling
+> `Start-Process -Verb RunAs` is a **nested** elevation and died instantly with
+> *"The operation was canceled by the user"* and **no dialog shown** — §4.0.1's
+> exact signature, walked into anyway because the backslash rule pushes
+> everything into a file. **Both rules are satisfiable at once**: issue it
+> inline from the shell and write the path with **forward slashes**, which
+> `-File` accepts and which contains no backslash to lose. That worked first
+> time, one consent, child exit 0.
+>
+> ### ***102 — DONE AND WITNESSED. READ THE ROW; THIS IS WHAT TO DO NEXT***
+>
+> **A commit that fails part way now restores each already-applied record to
+> what it held before.** Witnessed red and green by
+> `C:\Users\dmont\sdout\probe-txnundo.ps1`, **17/0 on each side**: one
+> transaction, five actions, the last one impossible (a directory record held
+> open with `FileShare.Read`, the trick 101 established). **Red** — all four
+> applied actions stayed applied. **Green** — `R1=base1`, `R2=none`,
+> ***`D1=d1a|d1b`, both fields***, `D2=none`.
+>
+> ***THE GROUNDWORK WAS THE LARGE PART AND IT TOUCHED THE READ OPCODE.***
+> `op_dio3.c` gained **`dir_read()`**, the read half the directory code never
+> had, and the CRLF/LF to field-mark conversion was lifted into
+> **`t1_unmap_chunk()` and SHARED** by both readers rather than copied — the
+> entry's own warning obeyed, because a capture that reversed the mapping
+> differently would restore a record that is not the one it captured, silently,
+> on the failure path.
+>
+> ***AND THE SUITE THAT OWED IS RUN — `b111` GREEN IN BOTH HALVES, 46 OF 46,
+> AND THE DECIDING ROWS ARE READ RATHER THAN ASSUMED.***
+>
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260904-090224.log`, **4,271 lines, 348 `[PASS]` / 0 `[FAIL]`, 0 `PARTIAL`**, closing ***`VerifyInstall1: every step exited 0.`***; summary `post-cycle-unelevated-20260904-090224.txt` | **22**, all exit 0 |
+> | elevated | `post-cycle-20260904-090944.txt` | **24**, all exit 0 |
+>
+> ***`verify-lineendings` IS THE ONE THAT MATTERED AND ITS STRADDLE ROWS ARE
+> THE PROOF.*** `ZZLESTRD` puts a CR at offset **2047** and its LF at **2048**,
+> exactly on the buffer boundary, so it is the `cr_pending` **cross-chunk** path
+> in the newly shared `t1_unmap_chunk()`, reached through the ordinary READ
+> opcode: *line 1 length 2047* (the CR was folded, not kept), *last char is not
+> a CR*, and the **lone-CR control** holds — one field, length unchanged, a CR
+> preserved as data. `verify-nocase` and `verify-lcnames`, the other readers of
+> that path, both exit 0.
+>
+> **348 `[PASS]` is the same total as `b110`**, which is worth one line: the
+> shared conversion changed how two readers get their bytes and changed the
+> score of nothing.
+>
+> ***`b111` IS SPENT. NEXT RUN TOKEN `b112`.*** **Nothing was owed at this
+> point in the session; 155 landed after it** — see the state line at the top
+> for what that leaves.
+>
+> ***ONE THING IN THE ERRLOG THAT LOOKS LIKE A BUG AND IS NOT.*** The summary
+> line can read *"N could not be undone"* naming the record the commit **failed
+> on**, over a record that was never damaged — because the capture runs before
+> **every** action, including the one that then fails, since a write that fails
+> part way leaves a record in a state nothing can describe. Over-reporting is
+> the safe direction. The row and the comment at `replay_undo()` both say so.
+>
+> ### ***155 — DONE AND WITNESSED THE SAME DAY IT WAS FILED***
+>
+> Owner, on the 09:40:06 install: ***"155 is good"***. **Nothing else could
+> have given that verdict** — the page exists only at the end of a real
+> install, in front of a person, and 138 already established why no verifier
+> can reach it (`LOGIN:955` needs a tty; every automated route pipes stdin).
+>
+> ***THE REPETITION WAS FIXED WITHOUT A NEW KEYWORD, AND THAT IS THE PART
+> WORTH CARRYING.*** `MODIFY.PASSWORD <acct> BRIEF` was the obvious shape and
+> the wrong one: `SET_ACC_PASSWORD`'s parser **refuses any trailing token**
+> (5276) precisely because a second word is likelier to be a password than a
+> keyword. **The caller already passes something meaning "say less" —
+> `-QUIET`** — and `LOGIN:279`/`:364` already gate on it. **`verify-setpw` is
+> green, which is the row that proves the refusal still refuses and still only
+> refuses.**
+>
+> ***AND THE 29th FREE CHECK EXISTS BECAUSE IT CAUGHT A REGRESSION THE FIX
+> ITSELF INTRODUCED.*** `test-wraptext-units` (12/0): the first `Write-Wrapped`
+> split on `-split '\s+'` and **silently collapsed every double space in the
+> file** — the two after a full stop, and the two setting off
+> `modify.password sdsys` from its sentence. **A formatting regression riding
+> in on the fix for a formatting complaint**, invisible to a compiler, and
+> nothing else in the tree reads that page.
+
+> ### ***WHAT TO DO NEXT — AND THE HONEST ANSWER IS "NOT MUCH IS REACHABLE"***
+>
+> ***THE LIST IS DOWN TO THREE AND EVERY ONE OF THEM IS GATED ON SOMETHING
+> OTHER THAN EFFORT.*** That is a real change in the shape of the work and the
+> next session should not spend an hour looking for a fourth.
+>
+> 1. ***A FULL SUITE ON `b112`, IF YOU WANT THE HANDOFF CLEAN.*** CLAUDE.md
+>    asks for one before a handoff. **It is hygiene, not doubt**: `b111` was
+>    green, and the only deltas after it are `SET_ACC_PASSWORD`,
+>    `finish-install.ps1`, `assert-current.ps1`'s `$neverShipped` and one new
+>    free check — `verify-setpw` covers the first and is green on this install,
+>    **no step covers the installer page and none can**, and the owner has read
+>    it. ***Name the delta and the step that covers it, or say plainly that no
+>    step can. Both are honest; assuming the last run still applies is not.***
+> 2. **`70`** — wants **a guest with an existing data tree** to install over.
+>    The `[locked]` half is built and witnessed; what is missing is that
+>    nothing runs `update.account` on an upgrade and nothing tells the
+>    administrator to.
+> 3. **`80`** — the documentation audit, and **the owner scheduled it for just
+>    before the 1.0 wrap-up**, against the final install image. Starting it
+>    early is what the row itself argues against.
+> 4. **`96` is parked by the owner.** Do not re-derive its trace; the answer is
+>    in the row.
+>
+> ***TWO TRAPS THIS SESSION PAID FOR, BOTH CHEAP TO AVOID.*** A gratuitous
+> `make sd` after an install costs a whole cycle, because `sd.exe` is not
+> byte-reproducible. And a launcher script cannot elevate a child — issue
+> `Start-Process -Verb RunAs` **inline from the shell**, with the path written
+> in **forward slashes** so it carries no backslash. Both have their own
+> sections above.
+
+<!-- HANDOFF 31 ENDS -->
+
+> # ⇩⇩⇩ HANDOFF 30, 3-4 Sep 2026 — ***FOUR CLOSED AND ALL FOUR WITNESSED: 66, 153, 138 AND 16. OPEN 8 → 4, AND THE TWO BLOCKERS LEFT ARE BOTH RIG- OR PHASE-BOUND. `verify-editors` IS A SUITE STEP AND THERE IS A 28th FREE CHECK. ***ONE THING OWED: A FULL SUITE ON `b110` — `b109` NO LONGER CARRIES, BECAUSE 16 MOVED THE TIER COUNTS AND THE TWO VERIFIERS THAT TEST THEM HAVE NOT RUN SINCE.****** ⇩⇩⇩
+>
+> ***16 — BOTH RULINGS BUILT AND CYCLED 4 Sep 2026, INSTALL 01:33:13. THE
+> WITNESS IS OWED AND IT COSTS SOMETHING — READ THIS BEFORE SPENDING IT.***
+> Owner's two rulings: **"display both session and file"** and **"logout n
+> should reap"**, plus a third call the same day — **`logout` moves to
+> PROGRAMMER**. `assert-current` **exit 0**; mirrored files **3030 → 3034**,
+> exactly the four records added.
+>
+> - **Diagnosis**: new read-only FILEINFO key **`FL$HOLDERS` (1021)**, which
+>   needs **no new bookkeeping** — the per-user file map is already kept on
+>   every open and close and `remove_user()` already walks it. All **six**
+>   sites that raised 2602 now print **10168** or **10169**. **2602 is
+>   orphaned and deliberately kept.**
+> - **Recovery**: `op_logout()` tries **`reap_lost_user()` BEFORE**
+>   `raise_event()` — the other order sets `USR_LOGOUT` on the way past and
+>   leaves "(logout pending)" anyway. It is `cleanup()`'s per-user half and
+>   **shares its code**, takes the same four semaphores **in the same order**,
+>   does not attach/unbind the segment, and refuses to reap the caller.
+>   `logout()` answers **2** for reaped — truthy, so existing callers are
+>   unaffected.
+> - **Tier**: `logout` moved to `newvoc` + `TIER.OMIT.STANDARD`, the shape
+>   `micro` has. ***NO NEW PERMISSION LOGIC*** — `CPROC:3256`'s per-username
+>   guard was already there and was **dead code**, unreachable because the tier
+>   withheld the verb. **PROGRAMMER 396 → 397; ADMINISTRATOR 420 and STANDARD
+>   355 unmoved**, which is the check on the arithmetic.
+>   `test-tiercounts-units` caught `verify-tierapi.ps1` still on 396 in 0.4 s —
+>   **the third time that file has been the one left behind.**
+>
+> ***AND IT IS WITNESSED — 15 PASS / 0 FAIL, THE WHOLE CHAIN.***
+> `C:\Users\dmont\sdout\p16-witness.ps1` (run `p16-setup.ps1` first,
+> `p16-cleanup.ps1` after), output beside it. A session opened a file and was
+> **killed**; the slot survived; the refusal read
+> **`Holding it: 30 (don)`**; `logout 30` answered **10167**; the slot left
+> `listu`; and the same command **then succeeded**. **The holder is named while
+> alive too.**
+>
+> ***THE INSTALL SURVIVED BEING KILLED TWICE*** — `assert-current` exit 0,
+> `check-datatree-litter` **CLEAN over 3,629 entries**, every fixture removed
+> and the removal read back. ***SO §6's "never `Stop-Process` an `sd` session on
+> a tree you still want to measure — it costs the install" NO LONGER HOLDS FOR
+> THIS CAUSE.*** That is the entry's real product, and §6 should be read with
+> this beside it.
+>
+> ***THE FIRST WITNESS SCORED THREE FALSE PASSES AND IS THE PART WORTH
+> READING.*** `cname ZZ16FILE ZZ16GONE` is the rename-RECORDS form; it died at
+> *"Exected comma or TO"* and never reached the check — yet *"the refusal names
+> the FILE"* passed, anchored on `ZZ16FILE`, **which the echoed command carries
+> on every path.** The rewrite anchors on `Holding it:`. **And then the
+> disqualifier was wrong the other way**: it listed *"is not in your VOC"*,
+> which the blank BOM-absorbing first line produces every run, so it failed a
+> working product three times. **A disqualifier that is always true is as
+> useless as an anchor that is always true.**
+>
+> ***138 — BUILT AND CYCLED 4 Sep 2026. INSTALL 00:57:55, `assert-current`
+> EXIT 0. ONE CHECK OWED AND ONLY A PERSON CAN DO IT.*** `finish-install.ps1`
+> gained `Invoke-PasswordStep`, run **twice** — the person's account, then
+> `SDSYS` — and the screen **names both accounts before it asks twice**, which
+> is what makes the owner's shape (b) honest rather than merely correct.
+> ***THE MACHINE-READABLE HALF IS MEASURED***: `cycle.ps1` step 9 printed
+> **`credential register: 2 account(s) with a password`**, against **1** on
+> every cycle before it — so the second prompt fired and wrote a record rather
+> than being silently skipped, which is exactly how the 24 Aug regression
+> failed.
+>
+> ***AND IT IS CLOSED — THE OWNER RAN IT: "no password prompt, went straight
+> into sdsys".*** That is the defect, gone. **No verifier could ever have made
+> this check** — `LOGIN:955` guards the credential block on
+> `kernel(K$TTY,0) # ''` and every automated route pipes stdin, so the prompt
+> needs the one condition the whole suite is built not to have. **A person at
+> an elevated keyboard was the instrument.** *(The wording half — the
+> two-account explanation and the `1 of 2` / `2 of 2` labels — was not
+> commented on either way. The behaviour is witnessed; how it reads is not.)*
+>
+> ***153 — DONE 4 Sep 2026, WITNESSED ON THE 00:42:07 INSTALL.*** The
+> installer's **own hidden run** now records
+> `micro: already present - ...\usr\bin\micro.exe  version 2.0.15`, beside
+> Edit's `1.2.1` — read from `install-editors.log`, which holds one run because
+> the cycle deletes both trees. **A three-step ladder that cannot end in a
+> blank**: version resource, else ask the executable, else byte count and
+> SHA-256 — the value `BUNDLED_EDITORS` pins, so the log matches the build.
+>
+> ***THE RISK WAS THE PROBE, NOT THE PARSING, AND IT IS FENCED FOUR WAYS.***
+> `install-editors.ps1` runs **hidden** during the install, so an editor opened
+> by a wrong flag hangs the install with nothing on screen. Only editors with a
+> **known** flag are asked (`VersionArg`, empty for Edit); it is reached only
+> when the resource is empty; hidden window, stdout/stderr to files, **stdin
+> from an empty file**; five-second timeout, `Kill`, all in `try/catch`.
+> ***AND A TIMEOUT NOBODY HAS FIRED IS NOT A TIMEOUT*** —
+> `test-editorver-units` makes it hang on purpose and requires it back in
+> **5.1 s**, having answered and having *said* it timed out. **11 rows, 0
+> failed**, `Get-EditorVersion` lifted by AST, `.cmd` fixtures so it needs no
+> compiler. **It is the 28th free check** — the set is now **~36 s**.
+> `verify-editors` is **30 PASS / 0 FAIL** (was 26).
+>
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 01:33:13** — the entry-16
+> cycle, and `sd.exe` is **rebuilt** (that change is C as well as BASIC);
+> `assert-current` **exit 0**; **28 of 28 free checks** exit 0 in 35.5 s;
+> `test-fixlist-units` **259/0**; `check-datatree-litter` **CLEAN, 3,629
+> entries**. ***OPEN 4: 70, 80, 96, 102. NEXT FREE ID 154. `b109` IS SPENT AND
+> NO LONGER CARRIES — RUN `b110`, SEE BELOW.*** By severity, read from the table rather than carried forward:
+> ***TWO B — 70 and 80***; **one S — 102**; **one M — 96, parked.**
+> **Both remaining blockers are rig- or phase-bound**: 70 wants an install over
+> an existing tree on a guest, and 80 is the documentation audit the owner
+> scheduled for just before the 1.0 wrap-up.
+> *(Handoff 27's "96 is the only M" was true when written, stopped being true
+> when 153 was filed, and is true again now 153 is closed — which is the
+> argument for reading the table rather than quoting a handoff.)*
+>
+> ***THE CYCLE WAS RUN BY THE AGENT — `Start-Process -Verb RunAs -Wait`, ONE
+> HOP, ONE CONSENT*** (§4.0.1, and handoff 25 says the same). 23:31:29 →
+> 23:34:12, **2.8 minutes**, child exit 0, `CYCLE COMPLETE`, log
+> `%LOCALAPPDATA%\SD-verify\cycle-20260903-233129.log`. **It still costs the
+> owner the installer's OK box**, which `/VERYSILENT` does not suppress.
+> ***THE TRANSCRIPT WAS TRUNCATED AT FRONT AGAIN*** — 0 of 2 ISCC front
+> markers against 1,874 `Compressing` lines — which is PRE_RELEASE 137's
+> instrument working, not a new fault; the build was decided by ISCC's exit
+> code. Third cycle in three days to lose the front.
+>
+> ### ***66 — WHAT IS MEASURED, AND THE ONE THING THAT IS NOT***
+>
+> **Read the entry's row for the detail; this is what to do next.** Both
+> editors land in `C:\Program Files\SD\usr\bin` beside `sd.exe`, SHA-256-equal
+> to `stage.py`'s `BUNDLED_EDITORS`; the installer's **own** run of
+> `install-editors.ps1` (one run only — the cycle deletes both trees) reports
+> both `already present` at that path with **no `running winget` line**; and
+> the probe `find.editor` builds, run through the same
+> `powershell.exe -NoProfile -NonInteractive -Command` `op_sh.c:346,357` uses,
+> resolves to the bundled copy. **The compiled `gpl.bp.out/EDIT` carries that
+> string**, so the verb builds what was measured. ***THE CONTROL IS REAL***:
+> the identical script scored **13 PASS / 10 FAIL before the cycle** and
+> **23 PASS / 0 FAIL after** — beforehand `micro.exe` resolved to
+> `C:\Program Files\WinGet\Links\micro.exe`, ***a 0-byte shim.***
+>
+> ***AND THE LAUNCH IS NOW WITNESSED TOO, 4 Sep 2026, BY THE OWNER: "micro
+> opened fine, so did edit". 66 IS CLOSED.*** That was the one thing nothing
+> here could supply — a full-screen editor needs a terminal an agent cannot
+> drive — so it was held open for a day rather than argued away. **Compiling is
+> not running, and neither is resolving**; the verb is now proved end to end by
+> a person.
+>
+> ### ***THE WITNESS IS NOW A STANDING STEP — `gplbld/verify-editors.ps1`***
+>
+> **Step 7 of `VerifyInstall1`, the unelevated half**; the table goes 19 rows
+> to 20, so a `-Run` pass is **22 steps**, not 21. No account, no prefix, no
+> run token. `-Only verify-editors` runs it alone. It is on `assert-current`'s
+> `$neverShipped` in the same commit — a gplbld script not on that list makes
+> the tree report STALE merely by existing, and then every verifier refuses.
+>
+> ***WHY IT IS WORTH A STEP: THE REGRESSION IS SILENT.*** If the bundling
+> broke, `find.editor`'s PATH fallback would find the winget copy and every
+> verb would go on working — against an editor of unknown version, which is
+> the whole of 66. Nothing would go red. **Same shape as the stem-coverage
+> step, and the same argument.**
+>
+> ***IT READS ITS LISTS RATHER THAN RETYPING THEM***: the SHA-256 pins come
+> out of `stage.py`'s `BUNDLED_EDITORS` and the destination out of
+> `gpl.bp/EDIT`'s own literal, so it cannot drift from what it tests. **26
+> PASS / 0 FAIL, exit 0**, run standalone 4 Sep.
+>
+> ***AND EVERY SECTION CARRIES A CONTROL, WHICH IS WHAT MAKES THE GREEN WORTH
+> READING.*** The probe control points the same probe at a directory that
+> holds nothing and requires the fallback to fire — it answered
+> `C:\WINDOWS\system32\edit.exe` and `C:\Program Files\WinGet\Links\micro.exe`,
+> so the pass above it is not an artefact of a probe that always returns its
+> own literal. The log predicates are run over a **synthetic failing log** and
+> must go red. **The two log checks are append-proof on purpose** — the step's
+> own `-CheckOnly` run appends to that log, so anything anchored on "the last
+> run" would describe this script the second time it is used. They ask instead
+> that **no** run ever downloaded and that **every** `already present` line
+> names `usr\bin`.
+>
+> ### ***THE FULL SUITE RAN GREEN — 45 OF 45 ON `b109`***
+>
+> **Counted by rows, not read off the absence of `PARTIAL`** (which is also 0):
+>
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260903-234352.log`, closing line **`VerifyInstall1: every step exited 0.`**; summary `post-cycle-unelevated-20260903-234352.txt` | **21**, all exit 0 |
+> | elevated | `post-cycle-20260903-234921.txt` | **24**, all exit 0 |
+>
+> ***`b109` IS SPENT. NEXT RUN TOKEN `b110`.*** That run predates
+> `verify-editors`.
+>
+> ### ***THE ONE THING OWED: A FULL SUITE, `b110`. `b109` NO LONGER CARRIES***
+>
+> ***THIS SECTION USED TO ARGUE THE OPPOSITE AND THE ARGUMENT EXPIRED — READ
+> WHY, BECAUSE THE SHAPE OF IT IS REUSABLE.*** After 153 and 138 the carry
+> forward was legitimate and was written out here: the only deltas since `b109`
+> were `install-editors.ps1`, covered by `verify-editors` at 30/0, and
+> `finish-install.ps1`, which **no** suite step can cover (`LOGIN:955` needs a
+> tty; every automated route pipes stdin) — both established by `grep` **with a
+> control**, 50 files scanned and `assert-current` found in 43 of them.
+>
+> ***THEN ENTRY 16 LANDED AND VOIDED IT.*** That change is C
+> (`clopts.c`, `op_kernel.c`, `op_dio2.c`, `keys.h`, `sd.h`), **six** BASIC
+> programs including `CPROC`, three messages, `newvoc/logout`, **both tier list
+> records**, and two verifiers. ***THE TIER MOVE IS THE DECISIVE ONE***:
+> `verify-tiers` and `verify-tierapi` assert the VOC counts **against the
+> installed tree**, the numbers moved (PROGRAMMER 396 → 397), and **neither has
+> run since**. `test-tiercounts-units` is not a substitute — it reconciles the
+> verifiers against *source*, which is a different claim.
+>
+> **~20 minutes, two halves, and both are a person's job** (§4.0.1 — an agent
+> may run `cycle.ps1` and may not run `VerifyInstall1`):
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b110
+> ```
+> **an ordinary, UNELEVATED PowerShell prompt**, then
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b110
+> ```
+> **an ELEVATED PowerShell prompt.**
+>
+> ***EXPECT 22 UNELEVATED ROWS, NOT 21*** — `verify-editors` joined the table.
+> **Watch `verify-tiers` and `verify-tierapi` in particular**: they are the two
+> that carry the moved counts, and a stale one there is the third-time-running
+> failure that `test-tiercounts-units` already caught once today.
+>
+> **What voids a suite is a source change nothing has re-measured. Name the
+> delta and the step that covers it — or say plainly that no step can. Both
+> answers are honest; assuming the last run still applies is not.**
+>
+> ***AND THE NEW STEP HAS NOW RUN INSIDE THE RUNNER, WHICH IS THE PART A
+> STANDALONE RUN DOES NOT PROVE.*** `VerifyInstall1.ps1 -Only verify-editors`,
+> 4 Sep 00:26:50, **26 PASS / 0 FAIL, exit 0**, no token spent, nothing
+> elevated. **That is the `verify-apiidentity` trap closed** — handed over
+> unrun, it died on load as step 17 of `b18` and the empty step scored a false
+> green. The runner reported `PARTIAL - 1 of 17 step(s)` correctly (17, not
+> 20: with no `-Run` the three `$needsTestUser` steps are skipped).
+>
+> ***THE APPEND-PROOF LOG CHECKS PROVED THEMSELVES LIVE***: the log now holds
+> **4** runs — the installer's plus three `-CheckOnly` appends this step made —
+> and predicates A and B still measure the installer's behaviour rather than
+> the verifier's. A "last run" anchor would already have been describing the
+> wrong thing.
+>
+> ***153 CAME OUT OF THE WITNESS AND IS THE KIND OF THING ONLY RUNNING FINDS.***
+> `install-editors.ps1` logs `micro: ... version ` with **nothing after it** —
+> micro is a Go binary with no Win32 version resource, so
+> `VersionInfo.ProductVersion` is empty, and the one place the machine records
+> which micro is installed answers nothing. That is 66's whole stated purpose.
+> `micro -version` knows: **2.0.15, commit 6a62575b**. Edit answers 1.2.1 from
+> the same call, which is why it was never noticed.
+>
+> ***THE CHANGELOG ENTRY 66 OWED WAS MISSING AND IS NOW WRITTEN*** —
+> `sdsys/changelog`, 3 Sep: the editors ship with SD, the install no longer
+> downloads, and the verbs run SD's copy whether or not Add-to-PATH was ticked.
+> It should have been in `203f6d8`.
+>
+> # ⇩⇩⇩ HANDOFF 29, 3 Sep 2026 — ***66 BUILT: THE EDITORS ARE BUNDLED FROM A NEW OUT-OF-GIT `SD-Untracked` TREE, NOT DOWNLOADED. `setup-devbox.ps1` MOVED OUT OF THE REPO. A CYCLE + INSTALL IS OWED TO WITNESS. OPEN STILL 7. UNCOMMITTED.*** ⇩⇩⇩
+>
+> ***THE NEW SHAPE — `C:\Users\dmont\Projects\SD-Untracked`, A SIBLING OF THE
+> REPO, OUTSIDE GIT.*** Owner's ruling: binaries and dev-only tooling do not go
+> in the repo (CLAUDE.md forbids tracked binaries) but are backed up WITH the
+> Projects tree to the cloud, so a build restores them without GitHub; the
+> eventual SourceForge zip carries them for users. It has `editors/`
+> (`micro.exe` 2.0.15, `edit.exe` 1.2.1, micro's licences) and `devtools/`
+> (`setup-devbox.ps1`), and its own `README.md`.
+>
+> ***66 — THE FULL-SCREEN EDITORS ARE BUNDLED, COPIED NOT FETCHED.*** The owner's
+> steer: the versions we want are already installed on this machine and verified,
+> so **copy them** rather than download+SHA-fetch. `stage.py`'s new
+> `BUNDLED_EDITORS` copies both from `SD-Untracked/editors` into `{app}\usr\bin`
+> beside `sd.exe`, **SHA-256-pinned** (fails the build loudly on a wrong
+> version). `gpl.bp/EDIT`'s `find.editor` and `install-editors.ps1` now resolve
+> that **fixed** path first (forward-slash literal; `sd.exe` is always at
+> `C:\Program Files\SD\usr\bin`, only its PATH membership is optional), then fall
+> back to the old Get-Command lookup. `sd.iss` needed nothing — the editors ride
+> the existing `ProgramFiles\* -> {app}` copy. ***WITNESS OWED***: a cycle +
+> install to confirm the editors land, the `MICRO`/`EDIT` verbs find them with no
+> winget download, and `install-editors` reports them present. **66 stays OPEN.**
+>
+> ***`setup-devbox.ps1` IS OUT OF THE REPO*** — `git rm`'d and copied to
+> `SD-Untracked/devtools`; its `assert-current` `$neverShipped` entry removed.
+> It is dev-environment tooling, not part of the shipped project (owner's call);
+> HISTORY.md still mentions it (append-only, left).
+>
+> ***NEW BUILD DEPENDENCY, SAY IT LOUD:*** `stage.py` now needs
+> `SD-Untracked/editors` present, or it dies with the reason. A fresh clone
+> without the SD-Untracked tree cannot build the installer until it is restored.
+>
+> ***VALIDATED AS FAR AS AN AGENT CAN.*** `stage.py` py_compiles; `assert-current`
+> and `install-editors` parse 0 errors; all **27 free checks green**. The
+> `gpl.bp/EDIT` change is BASIC, so the tree is stale (`assert-current` red) and
+> **a cycle is owed**. **Nothing is committed** — 150 (HANDOFF 28) is on `main`
+> at `7cbbbee`; this batch is not.
+>
+> # ⇩⇩⇩ HANDOFF 28, 3 Sep 2026 — ***150 DONE AND WITNESSED: WIDENED VIA ShowSummaryBox (NOT TRIMMED), FULL 135/147 WORDING RESTORED, OWNER CONFIRMED "all windows display correctly". ISCC EXIT 0, 27 FREE CHECKS GREEN, FIXLIST 259/0. OPEN 8 → 7.*** ⇩⇩⇩
+>
+> ***THE ONE CHANGE — PRE_RELEASE 150, AND THE FIRST SHAPE WAS WRONG.*** The
+> kept-database `MsgBox` at `sd.iss` `ssPostInstall` clipped below 1024x768
+> (~818px, measured off `sdxfer\p147-witness-keptbox.png`; a MsgBox has no
+> settable width and does not scroll, so the tail — `remote.api on` and OK — fell
+> off). A first pass **trimmed the wording** on the owner's "trim to fit one box"
+> ruling and it was **witnessed fitting** (his screenshot, the
+> AccessMsg-present/ApiRuleMsg-absent case). ***HE THEN ASKED WHY IT IS NOT
+> WIDER*** — and the file already answers it: `ShowSummaryBox` (`sd.iss:3618`),
+> the custom form built 23 Aug for exactly "wider and shorter?", which the
+> healthy-install box already uses. It sets a width, spaces paragraphs 7px apart
+> instead of by blank lines, and **falls back to a scrolling memo when the stack
+> will not fit — so a clip cannot recur on any screen.**
+>
+> ***SO THE BOX IS NOW `ShowSummaryBox('SD Core database kept', ...)` AND THE
+> FULL 135/147 WORDING IS RESTORED*** — the six trim edits reverted, `MsgBox(...,
+> mbInformation, MB_OK)` → `ShowSummaryBox(caption, ...)`. The trim only existed
+> to squeeze a fixed-width MsgBox; that constraint is gone. **This should have
+> been offered as a fourth shape when the trim was chosen — the miss is on the
+> author, recorded in 150.**
+>
+> ***VALIDATED AS FAR AS AN AGENT CAN, WHICH IS NOT A WITNESS.*** `ISCC
+> /DStage=C:\Users\dmont\stagetest /OC:\Users\dmont\sdout sd.iss` → **Successful
+> compile, exit 0** (the `[Code]` Pascal parses, run with the tool the cycle
+> uses); `test-retired-wording-units` **38/38** and **all 27 free checks green**.
+> A fresh installer carrying this box is at
+> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`.
+>
+> ***WITNESSED AND CLOSED.*** The owner uninstalled keeping the database and
+> reinstalled that installer over it at 1024x768: **"all windows display
+> correctly"** — wider, titled "SD Core database kept", full wording, OK
+> reachable. `test-fixlist-units` now reads **7 OPEN (16, 66, 70, 80, 96, 102,
+> 138)**, 259/0. ***`assert-current` READS EXIT 1, FLAGGING ONLY
+> `gplbld\sd.iss` — AND THAT IS A PROXY, NOT A REAL STALE.*** `sd.iss` is the
+> installer script, never copied into the `sdsys` tree, so assert-current can
+> only use its mtime as a "the installer changed" flag; the kept-DB reinstall
+> did not bump the payload mtimes past it. The fix IS installed — the owner ran
+> the installer built from this exact `sd.iss` and saw the correct render — so
+> the red is the proxy, not a missing fix. A full cycle would clear it by
+> re-stamping the payload, but is not needed to prove 150. Everything below is
+> HANDOFF 27 and still current bar this.
+>
+> # ⇩⇩⇩ HANDOFF 27, 3 Sep 2026 — ***151, 152 AND 114 DONE AND WITNESSED; 96 BUILT AND PARKED; 102 RULED AND DESIGNED. SUITE GREEN ON `b108`. NOTHING OWED. OPEN 8.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 20:50:22**, `sd.exe`
+> `79FBF0A6E46652BB`; `assert-current` **exit 0**; **27 of 27 free checks**
+> exit 0 in 32 s (the set grew by one, below). ***OPEN 8: 16, 66, 70, 80, 96,
+> 102, 138, 150. NEXT FREE ID 153. `b108` SPENT ON THE FULL SUITE; NEXT RUN
+> TOKEN `b109`.*** **96 is the only M and it is parked**, so every other open
+> entry is a **B** or an **S**.
+>
+> ***THE SUITE HAS NOT RUN SINCE THE 20:50 INSTALL.*** `b108` was green against
+> the 18:20 one, and the only change between them is 114's single `until`
+> clause in `BCOMP`, witnessed directly. **A `b109` run would be the
+> confirmation; nothing points at needing it.**
+>
+> ### ***THE SUITE RAN GREEN IN BOTH HALVES — 45 OF 45***
+>
+> **Read from the artefacts, not from the word "all green":**
+>
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260903-182643.log` — closing line **`VerifyInstall1: every step exited 0.`**, `PARTIAL` **0 times** | **21**, all exit 0 |
+> | elevated | `post-cycle-20260903-183149.txt` — **24 rows counted**, `PARTIAL` **0** | **24**, all exit 0 |
+>
+> ***COUNT THE ROWS; DO NOT READ THE ABSENCE OF `PARTIAL`*** — a partial run
+> leaves the word out too. **Count the unelevated half with a pattern that
+> catches `test-*` as well as `verify-*`**: two of its 21 rows are
+> `test-tiercounts-units` and `test-stemcoverage-units`, and a `^verify-|^probe-`
+> grep answers 19 and looks authoritative.
+>
+> ***WHAT THE RUN SETTLES.*** All six of 151's changed verifiers exited 0
+> (rows 17-21, 23), so `Refuse()` broke none of their happy paths.
+> **`verify-registersweep` got its first run inside the runner** — row 24,
+> exit 0 — which is what handoff 26 listed as owed. And ***96's NORMAL PATH IS
+> PROVEN***: every privilege decision in the tree goes through the changed
+> predicates, and 45 steps came back green.
+>
+> ***THE errlog IS THE OTHER HALF OF THAT, AND IT REFUSES THE NULL CASE.***
+> `C:\ProgramData\SD\sdsys\errlog` holds **0** `PRIVILEGE CHECK UNDETERMINED`
+> lines — and it is **9,534 bytes carrying this run's own API-connection
+> entries**, so the zero is a real zero rather than a log nobody wrote to. Every
+> predicate completed and answered, and the new logging produced no noise.
+>
+> ### ***TWO CYCLES RAN AND NOTHING IS OWED***
+>
+> **18:19:35** (96's C) and **20:37:29** (114's BASIC), both `CYCLE COMPLETE`,
+> both `assert-current` exit 0; the install in force is **20:50:22**.
+> **Elevated PowerShell**, and ***NOT `make sd` FIRST — step 0 does the C***
+> (owner, 3 Sep 2026). ***THE INSTALLER ENDS ON A `MsgBox` AN AGENT CANNOT
+> CLICK***, so an agent can start a cycle and cannot finish one.
+>
+> ***A PREDICTION IN THIS HANDOFF WAS WRONG AND THEN CAME TRUE, WHICH IS WORTH
+> THE LINES BECAUSE THE REASON DIFFERS.*** It said the 18:19 cycle would take
+> step 0's **skip** branch — handoff 26's never-run one — on the strength of
+> `Get-BinaryStaleness` answering `Stale: False`. **It took the BUILD branch**
+> and named why: *`gplsrc\linuxlb.c` 18:09:37, newer than `bin\sdclilib.dll`*.
+> ***THAT WAS THE MUTANT CONTROL'S DOING***: it restored the file's CONTENT
+> byte-for-byte — same SHA-256 — but **not its mtime**, and both guards are
+> mtime-based on purpose (*"touching a file without changing it fails this
+> check, and that is the right way round"*). **The 20:37 cycle then took the
+> skip branch for real**, printing *`bin\ built 03 Sep 18:19:36, no source newer
+> - nothing to compile`*, because 114 changed only BASIC. **Both branches of
+> step 0 are now witnessed.**
+>
+> ### ***102's RULING IS DISAMBIGUATED AND ITS COST IS NOW KNOWN. NOT STARTED.***
+>
+> ***THE RULING'S WORDS WOULD HAVE LOST DATA IF TAKEN LITERALLY.*** *"They are
+> deleted"* read literally means a failed commit REMOVES the records it had
+> already written — but a transaction that **updates** an existing record would
+> then destroy it, where today the old version survives. Put back to the owner,
+> he chose ***restore each already-applied record to what it held before***.
+> **The literal reading is closed.**
+>
+> ***TWO FACTS SET THE SHAPE***: `TXN_CACHE` holds no before image
+> (`txn.c:63` — only the NEW data), and `rollback()` touches no file data at all
+> (`txn.c:709`), because in a normal rollback nothing has been applied yet.
+> **This is new machinery, not a repair.**
+>
+> ***THE DESIGN***: capture the before image at commit time immediately before
+> each action is applied, hold it on a file-scope list, and replay it in reverse
+> from `txn_abort()` — the same far-side-of-the-longjmp placement the lock half
+> already uses, which avoids touching the five `k_error` sites.
+>
+> ***WHAT GREW, AND IT IS WHY THIS IS NOT SHORT***: dynamic files have every API
+> needed. **Directory files have no read API at all** — `dir_write` exists but
+> the only reader is `Private read_record()`, which works on the VM's e-stack.
+> The fix needs a `dir_read`-shaped function that reverses the same mark mapping
+> `dir_write` applies; get that wrong and the undo corrupts what it restores.
+> **And one rule is still unmade**: what happens when the undo itself fails.
+>
+> ***A WITNESS IS REACHABLE, UNLIKE 96's***: `probe-txnlock.ps1` already induces
+> a real commit failure on demand, 13 of 13. **It deserves its own session, from
+> a tree with nothing else unverified in it.**
+>
+> ### ***114 IS FIXED IN SOURCE — ONE `until` CLAUSE. A CYCLE IS OWED.***
+>
+> ***THE COMPILER HUNG BECAUSE ONE INNER LOOP HAD NO EOF TEST, AND ITS OWN
+> SIBLING SEVENTY LINES ABOVE HAS THE CLAUSE.*** `BCOMP`'s `BEGIN TRANSACTION`
+> body ran `loop / until … = "END" / gosub proc.line / repeat` with **no
+> `end.source` test at all**, so at EOF inside an open block it called
+> `proc.line` for ever. The **outer** loop tests `end.source` twice; `BEGIN
+> CASE`'s identical inner loop carries `until end.source` as a third clause.
+> **One line makes the two the same.**
+>
+> ***AND THE ERROR WAS ALREADY WRITTEN AND SIMPLY UNREACHABLE*** —
+> `if end.source then err.msg = sysmsg(2878)` sits immediately after the loop
+> and `sdsys/messages/2878` ships *"Unterminated transaction construct"*.
+> Nothing new had to be said.
+>
+> ***THE AUDIT THE ROW ASKED FOR IS DONE AND FOUND NOTHING ELSE.*** All eleven
+> source-consuming loops in `BCOMP` were read. **Three EOF patterns are in
+> use** — an extra `until end.source` clause, an `if end.source then … goto
+> exit` inside the loop (`LOCK THEN`/`ELSE`, `ON ERROR`; messages 2922, 2923,
+> 2946), and, at the transaction loop alone, none. *(Three sites looked
+> unguarded to a nine-line context window because the guard sits above a
+> label-check comment; they were read, not counted.)*
+>
+> ***DO NOT COMPILE AN UNTERMINATED `BEGIN TRANSACTION` AGAINST AN INSTALL
+> WITHOUT THIS FIX*** — that is the hang, and each one leaves a slot in the user
+> table that `sd -stop` then refuses to step over.
+>
+> ### ***96: THE PRIVILEGE TRI-STATE IS BUILT. IT HAS NOT RUN.***
+>
+> ***IT IS AN OUT-PARAMETER, NOT AN ENUM RETURN, AND THAT IS THE SAFETY
+> CHOICE.*** An enum return would leave `if (IsElevated())` compiling and
+> answering TRUE for the undetermined case — **a false GRANT**, the one
+> direction this must never take. The `bool` stays and stays fail-closed; a new
+> `PRIV_WHY *why` carries what it cannot. `NULL` means *"not going to look"*.
+>
+> **All nine undetermined paths are covered, including the two the row was short
+> by** (the second `getgrouplist`, the second `getgroups` — sized, then failed
+> to fetch, so the loop never ran and the initialised FALSE left as an answer).
+> **`op_sh.c`'s `ENOENT` stays a plain FALSE**, as the entry required: a missing
+> `os.users` record is the designed no.
+>
+> ***THE FOUR CALLERS EACH SAY SOMETHING DIFFERENT NOW.*** `sd.c:838` prints
+> *"Cannot tell whether this session is elevated: <reason>"* rather than telling
+> an already-elevated administrator to elevate; the other three log through a
+> new `priv_log_undetermined()`. ***THAT HELPER LIVES IN `k_error.c` AND THE
+> LINKER PUT IT THERE***: `linuxlb.o` is linked into `sdfix`, `sdtic`, `sdconv`
+> and `sdidx`, none of which carry `log_message`, and the first build said so.
+> `sd.c` deliberately does **not** call it — `sysseg` is unbound at `comlin()`,
+> so the helper's own guard would silently omit the case 96 was filed for.
+>
+> ***EVIDENCE, AND ITS LIMIT.*** Full clean rebuild: **85 objects, 0 warnings**
+> under `-Wall -Wformat=2`, all six binaries linked. New free guard
+> `test-privwhy-units.ps1`, **21 of 21**, with a **mutant control** — the `*why`
+> assignment was deleted from `IsElevated`, the guard went red naming the site,
+> and the file was restored to the same SHA-256. ***NONE OF THAT IS A RUN.***
+> The tree is stale, and the fault paths need an induced name-service failure to
+> reach, so the undetermined-path proof is still owed even after the suite.
+>
+> ### ***WHAT WAS BUILT: `Refuse()` IN THE SIX API VERIFIERS***
+>
+> A precondition refusal now leaves at **exit 2**, not 1, so a step that
+> measured nothing stops reading like a step that failed. Each of
+> `verify-apiadmin`, `verify-apiname`, `verify-apiport`, `verify-scramlogin`,
+> `verify-apiidentity` and `verify-tierapi` gained the convention line in its
+> header and a `Refuse($msg)` beside `Fail($msg)`.
+>
+> ***THE GUARD IS THE PART THAT WAS NOT OBVIOUS, AND IT IS WHY THIS IS NOT A
+> FIND-AND-REPLACE.*** Several stop-sites sit immediately after a `Note()` that
+> has **already recorded a `[FAIL]`** — `verify-scramlogin`'s *"Without a
+> server-first"* is one. Converting those blindly would file a real failure
+> under *"could not run"*, which is the more dangerous direction. **`Refuse()`
+> therefore downgrades itself to `Fail()` when a decisive check has already
+> failed**, so it cannot be misused by a call site.
+>
+> ***AND THE IN-STEP ASSERTIONS IN `verify-apiidentity` WERE LEFT ON `Fail()`
+> ON PURPOSE.*** CREATE.FILE reporting success on a file that is not on disk, a
+> record carrying a CR, a fixture granting the user nothing — each reads as a
+> product finding as readily as a fixture fault, and the SCRAM-login site says
+> so in its own text. That is a decision, not an oversight; it is written into
+> the file above `Refuse()`.
+>
+> ### ***THE CONTROL RAN, UNELEVATED, WITH NO INSTALL***
+>
+> The previous revision of each script was staged beside it as `zztmp151-*`.
+> **Those copies are not on `$neverShipped`, so their presence is itself what
+> turned the tree stale** — the fixture makes its own condition. Old and new
+> were then run against it: ***all six moved `exit 1` → `exit 2`***, the
+> fixtures were deleted, and `assert-current` went back to **exit 0**.
+>
+> `verify-apiidentity` is the one that exercises the exact `b106` path without
+> an elevated window, because it asks `assert-current` **before** it asks about
+> elevation. It now prints *"verify-apiidentity: COULD NOT RUN - assert-current
+> refuses"*. The other five refuse on the elevation gate — same helper, a
+> different door.
+>
+> ### ***TWO THINGS 151 ASSERTED WERE FALSE. BOTH ARE CORRECTED IN THE ENTRY.***
+>
+> 1. ***"THEIR OWN HEADERS DOCUMENT THE CONVENTION THEY BREAK" — THEY DO NOT.***
+>    Not one of the six documented any exit-code convention. The sentence is
+>    real and is the house convention, but it lives in **twelve other
+>    verifiers** (`verify-vocverbs.ps1:9` among them). They were not
+>    contradicting themselves, they were **silent** — so the fix had to *add*
+>    the line, not merely honour it.
+> 2. ***"THE TWO RUNNERS ALREADY TREAT 2 AS could not run" — THEY DO NOT.***
+>    `VerifyInstall2.ps1:815` counts any non-zero as failed. What helps is that
+>    the runner **prints** the code, which is how `verify-vocverbs` was told
+>    apart in `b106`. **That gap is now PRE_RELEASE 152**, and the obvious
+>    version of it is wrong: a refusal must not be counted as a pass.
+>
+> ### ***152 IS BUILT TOO, AND ITS WITNESS IS THE ONE THING OWED ON IT***
+>
+> Both runners now count `$refused` beside `$failed` and say *"of those, N
+> FAILED a check and M COULD NOT RUN (exit 2)"*. ***`$failed` KEEPS ITS EXACT
+> MEANING*** — every step that did not exit 0, refusals included — so both exit
+> paths are untouched and **a refusal still never reads as a pass**. That was
+> the trap the entry named in advance. `VerifyInstall2` prints `COULD NOT RUN
+> exit 2` in yellow instead of `FAILED` in red, and both annotate the summary
+> **file** row so the distinction outlives the console. **The runner's own exit
+> code was deliberately not moved** — that needs the owner's word.
+>
+> ***WITNESSED 19:19:01, ON A DELIBERATELY STALE TREE.***
+> `VerifyInstall1.ps1 -Only verify-parsertokens` against a tree made stale by a
+> single planted marker file, then deleted — `assert-current` back to exit 0,
+> no cycle. **All four parts fired**, and the one that mattered most is that
+> ***THE SUMMARY FILE CARRIES IT, NOT JUST THE CONSOLE***:
+> `post-cycle-unelevated-20260903-191901.txt` reads
+> `verify-parsertokens.ps1      exit 2  COULD NOT RUN`. The closing lines read
+> *"1 step(s) did not exit 0 - 0 FAILED a check, 1 COULD NOT RUN."* **The runner
+> still exited 1**, unchanged and deliberate. ***IT IS ALSO A SECOND WITNESS FOR
+> 151***, since the step left at exit 2 for a precondition refusal.
+>
+> ***AND A CORRECTION: `verify-fold` IS IN `VerifyInstall2`, THE ELEVATED
+> HALF.*** It was handed over twice as the witness step on the strength of being
+> row 1 of the *elevated* summary. **`VerifyInstall1` refused it by name and
+> listed the sixteen it does have** — PRE_RELEASE 54's guard catching the
+> author's own mistake, and worth more than the minute it cost.
+>
+> ### ***A CORRECTION TO WHAT "EDITING A gplbld SCRIPT" COSTS***
+>
+> ***THE SIX ARE ALL ON `assert-current`'s `$neverShipped`, SO EDITING THEM DOES
+> NOT TURN THE TREE STALE.*** Assumed otherwise at the start of this session and
+> measured to be wrong: the files were newer than the install and
+> `assert-current` still returned 0. **The list is far longer than its first
+> screen** — most `verify-*.ps1` are on it — so check the whole list before
+> concluding a verifier edit owes a cycle.
+>
+> ### ***WHAT TO DO NEXT***
+>
+> ***114 IS DONE AND WITNESSED — 3 OF 3 ON THE 20:50:22 INSTALL, AND THE NUMBER
+> THAT MATTERS IS 0.8 SECONDS.*** `C:\Users\dmont\sdout\p114-txnhang.ps1`,
+> unelevated. **The unterminated program returns in 0.8s** with `1 error(s)` and
+> `Unterminated transaction construct` — the same source that was **killed at
+> 41s** when the entry was filed. Both controls held: plain `END` → 2879 in
+> 0.5s, correct form → `0 error(s)` in 0.5s. **It left no litter and
+> `assert-current` is still exit 0.**
+>
+> ***THE FIXTURE CANNOT HANG, WHICH IS WHY IT WAS SAFE TO RUN.*** Every compile
+> goes through a job under a 25s timeout, so a fix that had not worked would
+> have been reported as `HUNG`, with a warning to check for the orphaned
+> session, rather than taking the script down with it. **Keep it for any future
+> compiler-hang suspicion**; it is in `sdout`, not `gplbld`, so it cannot make
+> the tree stale.
+>
+> ### ***AND STEP 0's SKIP BRANCH HAS NOW RUN, FIRST TIME***
+>
+> The 20:37 cycle printed ***`bin\ built 03 Sep 18:19:36, no source newer -
+> nothing to compile`***. That is the branch handoff 26 recorded as never having
+> run inside a cycle, and which this handoff's earlier text predicted wrongly
+> for the 18:19 cycle — 114 changed only BASIC, so nothing under `gplsrc` had
+> moved and the guard correctly did nothing. **Both branches of step 0 are now
+> witnessed.**
+>
+> 1. ***96 IS PARKED BY THE OWNER, 3 Sep 2026 — DO NOT RE-DERIVE THE WITNESS,
+>    THE TRACE IS IN THE ENTRY.*** Shown the cost, he parked it. **Four of the
+>    nine paths cannot be induced on this machine at all** — they need a real
+>    name-service outage. The five in `os_permitted` are reachable, two of them
+>    trivially (a record with no newline, an empty record), **but only from a
+>    NON-ADMINISTRATOR session running OS.EXECUTE**, because `USR_ADMIN`
+>    short-circuits the file read. The two routes — piping into `sd` against
+>    `don`, or a ~300-line elevated verifier on a throwaway account — are both
+>    costed in the entry. **It stays open, and it is not waiting on anybody.**
+> 2. ***152 IS DONE AND WITNESSED*** — see its section above. **`b108` was not
+>    the witness**: nothing refused there, so no step exited 2 and the wording
+>    never printed; a planted marker made the stale window instead.
+> 3. **70**, then **138**, **16**; **150**; **66**; **80** last. ***114 IS
+>    CLOSED AND 102 IS DESIGNED BUT WANTS ITS OWN SESSION*** (see above — it
+>    needs a `dir_read` that does not exist). **The M category has no work left
+>    in it**, so everything open is a **B** or an **S**.
+> 4. ***AND STEP 0's SKIP BRANCH IS STILL UNRUN*** — see the cycle note above
+>    for why this session did not give it one.
+>
+> # ⇩⇩⇩ HANDOFF 26, 3 Sep 2026 — ***FULL SUITE GREEN ON `b107`, 44 STEPS. 93 AND 65 WITNESSED ON A REAL REGISTER AT LAST. `cycle.ps1` NOW COMPILES THE C TOO. OPEN 10, NOTHING OWED.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 16:22:02**; `assert-current`
+> **exit 0**; **26 of 26 free checks** exit 0 in 30 s. ***OPEN 10: 16, 66, 70,
+> 80, 96, 102, 114, 138, 150, 151. NEXT FREE ID 152. `b107` SPENT ON THE FULL
+> SUITE; NEXT RUN TOKEN `b108`.***
+>
+> ### ***THE TWO THINGS TO KNOW BEFORE YOU RUN ANYTHING***
+>
+> 1. ***`cycle.ps1` COMPILES THE C NOW (step 0), SO A C CHANGE NO LONGER NEEDS
+>    `make sd` FIRST.*** It deletes the binaries and relinks all of them —
+>    `make` alone is not enough, and the reason is under "THREE CYCLES" below.
+> 2. ***THE ELEVATED SUITE HALF IS 24 STEPS, NOT 23***, since
+>    `verify-registersweep` went on the end. **Count rows against 24.**
+>
+> ### ***WHAT IS DONE AND WHAT IS NOT, ON THE WORK OF THIS SESSION***
+>
+> | | |
+> |---|---|
+> | 93 and 65 | **closed.** Sweep ships, service runs it, witnessed on a real register end to end |
+> | `cycle.ps1` step 0 | **built and witnessed on its BUILD branch.** ***ITS SKIP BRANCH HAS NEVER RUN IN A CYCLE*** — every cycle since it landed had a stale tree because one was made stale on purpose. `Get-BinaryStaleness` itself has 36 unit rows and a mutant control, so this is the four printed lines and not the decision. **The next ordinary cycle on a current tree takes it; nothing needs doing.** |
+> | `verify-registersweep` | **built, and witnessed by fixture — 6 of 6.** ***IT HAS NEVER RUN INSIDE THE RUNNER***; `b108` is its first. |
+> | 151 | **filed, not started** |
+>
+> ### ***THE FULL SUITE RAN AND IT IS GREEN IN BOTH HALVES — 44 OF 44***
+>
+> The owner ran both on `b107` against this install. **Read from the artefacts
+> rather than taken on the word "all green":**
+>
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260903-164239.log` — closing line **`VerifyInstall1: every step exited 0.`**, `PARTIAL` **0 times** | **21**, all exit 0 |
+> | elevated | `post-cycle-20260903-164824.txt` — **23 step rows counted against the 23 the runner defined then**, `PARTIAL` 0 | **23**, all exit 0 |
+>
+> ***THE ELEVATED HALF IS 24 STEPS FROM NOW ON***, because
+> `verify-registersweep` was added at the end afterwards. **Count against 24 on
+> the next run, not 23.**
+>
+> ***COUNT THE ROWS; DO NOT READ THE ABSENCE OF `PARTIAL`.*** A partial run
+> leaves the word out too (PRE_RELEASE 149's residue). **`verify-sdsyswrite` ran
+> for the first time since `b104`'s cancelled elevation, exit 0**, and the new
+> `verify-register` step exited 0 with 7 passed / 0 failed.
+>
+> ### ***AND THE SUITE WAS 93 AND 65's WITNESS, EXACTLY AS PREDICTED***
+>
+> ***THE RUN LEFT THE REGISTER DIRTY AND THE SWEEP CLEANED IT, BOTH MEASURED ON
+> THE REAL TREE.*** Straight after the green suite, `verify-register` scored
+> **4 passed / 3 failed**: `accounts` held `sdtapib1071`, `sdtapib1072` and
+> `sdtapib1073` naming Windows accounts that no longer exist, and `os.users`
+> held `SDTAPIB1073`. **That is `verify-tierapi`'s residue and it is entry 65's
+> measured rate — three per complete run — confirmed to the record.** Both of
+> the verifier's independent readings agreed on 3.
+>
+> **Then the SD service was restarted and the sweep ran**: `sdsvc.log` 17:06:33
+> `register reconcile … exited with 0`, and its own log reads ***7 considered,
+> 2 valid, 1 exempt, 4 CLEARED, 0 still there, 0 refused*** — the three account
+> records and the `os.users` record gone, **`don` and `sdsys` untouched**.
+> `verify-register` afterwards: **7 passed, 0 failed, exit 0**, register 5
+> records down to 2.
+>
+> ***SO BOTH ENTRIES ARE NOW WITNESSED END TO END ON A REAL REGISTER***, which
+> is the one thing handoffs 25 and 26 both listed as outstanding.
+>
+> ***AND THE WITNESS PUT A STEP AT THE END OF `VerifyInstall2` — SO IT IS 24
+> STEPS NOW, NOT 23.*** `verify-register` is in `VerifyInstall1`, which runs
+> **first**, so it can never see what `VerifyInstall2` leaves: it passed at
+> 16:42 and the residue arrived at 17:03. That placement still earns its keep —
+> it catches what a PREVIOUS run left uncleaned, which is the `b100` state (14
+> dead records in 15) — so it stays, and `gplbld/verify-registersweep.ps1` was
+> added as the last step of the elevated half on the owner's instruction.
+>
+> ***IT IS NOT `verify-register` RUN TWICE, AND IT CANNOT BE.*** `verify-tierapi`
+> is the step immediately before and it leaves its register records **on
+> purpose**, so a plain `verify-register` there would go red on **every** run —
+> and a permanently red guard is what this record says teaches people to ignore
+> guards. **The owner ruled sweep-then-verify**: measure the residue, restart
+> the SD service so the sweep runs, then check the right records went and the
+> valid ones stayed. **A restart rather than calling the sweep directly**,
+> because the sweep is written to run before `sd -start` and calling it under a
+> running SD is the one state its own header says to avoid.
+>
+> ***WITNESSED, AND THE FIXTURE FOUND TWO BUGS IN IT FIRST***, which is the
+> reason it exists: `C:\Users\dmont\sdout\p93-sweepstep.ps1` plants one dead
+> record and drives the step. First run — **the account root was passed empty**,
+> so the shared rule answered *"the account root could not be resolved"* for
+> every record, nothing was ever classified dead, and the check was **inert**;
+> and **`refused` was being counted as alive**, so the sweep correctly removing
+> the planted record scored a FAIL. Both fixed, three buckets now (dead /
+> refused / valid), and the second run is **6 of 6, exit 0**: 1 dead before,
+> `1 cleared` in the sweep's own log, 0 dead after, all three valid records
+> surviving. ***THE `[SKIP]` PATH IS REAL AND DELIBERATE*** — on a clean
+> register the removal rows are skipped **by name** rather than passed, because
+> a pass there would mean *"the sweep works"* on a run where it did nothing.
+>
+> ### ***READ THIS BEFORE BELIEVING THE `b106` SUMMARY: 7 OF ITS 23 ROWS ARE MINE***
+>
+> `VerifyInstall2 -Run b106` shows **16 exit 0 and 7 non-zero**, and ***NOT ONE
+> OF THE SEVEN MEASURED ANYTHING.*** I wrote `gplbld/stale-binaries.ps1` at
+> **16:11:32, while the run was in flight**; `assert-current`'s check B compares
+> source mtimes against the install, so every step that *started* after that
+> refused. **The boundary is exact**: `verify-peerlog` started 16:11:05 and
+> finished 16:12:01 exit 0; everything from 16:12:01 refused. Five say so in
+> their logs; `verify-apiidentity` and `verify-vocverbs` wrote **no log at all**,
+> because they refuse before `Start-Transcript`.
+>
+> ***SO 16 STEPS ARE VALID AND GREEN*** — `fold`, `nonet`, `notyet`, `cmdaudit`,
+> `createaccount`, `tiers`, `tierchange`, `catgate`, `accountacl`, `sdsysgate`,
+> `routes`, `accountrules`, `delaccount`, `profiledir`, `sshonly`, `peerlog`.
+> **There is no API defect here.** ***THE RULE I BROKE IS THE ONE CLAUDE.md
+> STATES OUTRIGHT***: *"A CYCLE ENDS AT THE NEXT SOURCE CHANGE… finish every
+> source change first, then run one cycle, then measure."* **Do not edit source
+> while a run is in flight, including a run somebody else started.**
+>
+> ***AND IT FILED 151***: six of the seven returned **exit 1** for a refusal that
+> measured nothing, which in a summary is indistinguishable from a failed check
+> — that is why the block read as *"the API is broken"*. `verify-vocverbs`
+> returned **2** for the identical cause and is the right shape.
+>
+> ### ***WHAT WAS BUILT: `cycle.ps1` STEP 0***
+>
+> Owner, 3 Sep 2026: *"seems like there should be one script that can do all
+> three, compile c if necessary, compile basic if necessary and run the
+> installer if necessary."* **Two of the three were already there** — step 2's
+> `stage.py --bootstrap` IS the BASIC compile, steps 4–7 are the installer — so
+> only the C was missing. **The install stays unconditional**, his ruling the
+> same day: a cycle begins with a *fresh* install.
+>
+> ***"IF NECESSARY" IS NOT WHAT `make` MEANS BY IT, AND THAT IS THE WHOLE
+> POINT.*** `make` relinks only what changed while `assert-current` compares
+> against the **oldest** binary, so `make sd` after a one-file C edit leaves the
+> tree STALE with an installer already built — two of this session's cycles went
+> that way. **Step 0 deletes the binaries and relinks all of them, then re-asks
+> the guard instead of trusting `make`'s exit code.**
+>
+> **It asks with the guard's own code**: A2 now lives in
+> `gplbld/stale-binaries.ps1`, one copy for both callers, so the two cannot
+> disagree. `test-stalebin-units.ps1` (36 rows) drives it and is in CLAUDE.md's
+> free list; both new files are on `$neverShipped`.
+>
+> ***WITNESSED, NOT SHIPPED UNRUN***: `gplsrc/sdsvc/sdsvc.c` was **touched** —
+> same content, newer mtime, which is exactly what the guard is built to notice
+> — so the delete-and-relink branch ran. The log reads *1 source file newer than
+> `bin\sdclilib.dll`*, *removed 8 of 8*, then *"built: bin\ now 16:20:50, no
+> source newer"*. **It named `sdclilib.dll`**, which is the §"110 AND 111" trap
+> this exists for.
+>
+> **Building elevated is safe, measured**: `nodefaultadminowner` is unset
+> (default 1, *object creator*), so an elevated build leaves `bin\` and
+> `gplobj\` owned by the invoking user, as an unelevated one does.
+>
+> ### ***A CORRECTION TO HANDOFF 23: THE CYCLE IS NOT UNATTENDED***
+>
+> Handoff 23 says *"AN AGENT MAY RUN `cycle.ps1` ITSELF … ONE HOP, ONE
+> CONSENT"*. ***THAT IS HALF TRUE AND THE MISSING HALF COSTS TEN MINUTES OF
+> LOOKING LIKE A HANG.*** The installer ends on a `MsgBox` — **`SD Core is
+> installed`, one OK button** — and **`/VERYSILENT` suppresses the wizard but
+> not that box**, so the cycle blocks until a person clicks it. This session's
+> earlier cycles finished in almost exactly 2.0 minutes each because the owner
+> was at the keyboard; the one at 16:20 sat from 16:21:44 until somebody did.
+> **An agent can START a cycle. It cannot finish one.**
+>
+> ***THE TELL, IF IT LOOKS HUNG***: the log stops after `== [7] Installing`
+> while both trees are fully populated and `sdsvc.log` already says SD is
+> running. `C:\Users\dmont\sdout\read-dialog.ps1` prints the text of whatever
+> window a process is sitting on — that is how this one was identified, and it
+> needs the `CharSet.Unicode` on the `W` entry points or every string comes back
+> one character long.
+>
+> ### ***WHAT TO DO NEXT***
+>
+> ***NOTHING IS OWED.*** The suite ran green on `b107` and the install is
+> current, so this list is work rather than debt.
+>
+> 1. ***96 — RULED (c), AND THE ONLY OPEN WAITING ON NOTHING BUT WORK.*** The
+>    tri-state across the three privilege predicates and their four callers.
+>    Nine undetermined paths (`linuxlb.c:112` and `:172` are the two the row was
+>    short by), `op_sh.c:173`'s `ENOENT` stays a plain FALSE, and `log_printf`
+>    is the wrong instrument twice over. **It deserves its own session**: C on a
+>    privilege path where the wrong shape fails silent.
+> 2. **151** — cheap, and it makes every future suite summary readable. A
+>    `Refuse()` helper at exit 2 and the precondition sites moved to it.
+> 3. **70**, then **114**, **138**, **102**, **16**; **150**; **80** last.
+> 4. ***WHEN A SUITE NEXT RUNS***, it is `b108`, both halves, **24 elevated
+>    steps**, and it gives `verify-registersweep` its first run inside the
+>    runner. No cycle is needed first — the install is current.
+>
+> # ⇩⇩⇩ HANDOFF 25, 3 Sep 2026 — ***93 AND 65 ARE DONE: THE REGISTER IS RECONCILED AGAINST WINDOWS AT EVERY SERVICE START, AND THE SERVICE HAS BEEN SEEN DOING IT. OPEN 11 → 9. ONE FULL SUITE IS OWED.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 15:31:08**, this session's third
+> cycle; `assert-current` **exit 0**; **25 of 25 free checks** exit 0 in 32.3 s;
+> `verify-register` **7 of 7** on the live tree. ***OPEN 9: 16, 66, 70, 80, 96,
+> 102, 114, 138, 150. NEXT FREE ID 151. NEXT RUN TOKEN `b104`, STILL UNSPENT.***
+>
+> ***THE UNELEVATED HALF RAN ON `b104` AND GOT 20 OF 21 — AND `verify-register`
+> PASSED ITS FIRST RUN INSIDE THE RUNNER.*** Owner, 15:39:03, against this
+> install. **The one non-zero is `verify-sdsyswrite.ps1` exit 2**, and that is a
+> *could not run* rather than a failure: a keystroke cancelled the UAC prompt for
+> its elevation helper — `TerminatingError(Start-Process): "The operation was
+> canceled by the user."` at Step 0 — and the runner correctly stopped rather
+> than letting the five steps that need it fail one at a time. **The summary is
+> `post-cycle-unelevated-20260903-153903.txt`.**
+>
+> ***SO THE ELEVATED HALF HAS STILL NEVER RUN, AND THE UNELEVATED HALF IS ONE
+> STEP SHORT.*** That is what is owed.
+>
+> ***`b104` AND `b105` ARE BOTH SPENT. USE `b106`.*** Each same-token retry was
+> refused by name — *"sdtub10n ALREADY EXISTS … Use a fresh -Run token"*, exit 2,
+> nothing measured — which is PRE_RELEASE 54's guard working. **`b105` was spent
+> the ordinary way**: an unelevated run at 15:49:57 created `sdtub105` and then
+> went no further.
+>
+> ***AND ONE `b105` ATTEMPT WAS STARTED IN AN ELEVATED SHELL BY MISTAKE, WHICH
+> COST NOTHING AND IS WORTH KNOWING WHY.*** `VerifyInstall1.ps1:197` refuses an
+> elevated parent outright, and it sits **before** `Start-Transcript` at `:349`
+> — so an elevated start leaves **no log at all**, which is what a reader
+> should expect to see rather than a truncated one. ***CONTROLLED 3 Sep 2026,
+> not inferred***: run elevated with no arguments it exits **2** with
+> *"this is an ELEVATED PowerShell, and these checks need an ordinary one"*,
+> having touched nothing. **`sdout\elevated-gate-control.txt`.** The reason in
+> its own words is `verify-credacl`: Administrators are granted Full by
+> `secure-cred.ps1`, so an elevated run would pass every check and prove the
+> opposite of what it claims.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b106
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b106
+> ```
+>
+> **The first is an ordinary unelevated prompt, the second an elevated one.**
+> `PARTIAL` must appear **0 times** in either half or it was not a full run.
+> ***DO NOT DISMISS A UAC PROMPT WITH A KEYSTROKE*** — that is what cost `b104`,
+> and `VerifyInstall1` raises about six.
+>
+> ***THE `sdtu*` SWEEP WAS THEN WATCHED WORKING, WHICH SETTLES WHAT AN
+> INTERRUPTED RUN COSTS.*** `b105`'s elevated child swept `sdtub104` on its way
+> to creating its own account — `DELETE.ACCOUNT`, *"sdtub104 is gone - record
+> and Windows user both"*, `sdu_SDTUB104` with it, **1 of 1 candidate**. So a
+> stranded test account from an interrupted run needs **no** hand-cleaning: the
+> next run with a fresh token takes it. `sdtub105` is now the one in hand and
+> `b106` will take it the same way.
+>
+> ***`sdswb104` IS THE ONE NOTHING SWEEPS***: `verify-sdsyswrite`'s throwaway,
+> created 15:43:31 just before `b104`'s cancel, in `sdusers` **but not in
+> `sdssh` or `sdsshonly`**, with no `sdu_` group and no register record.
+> ***IT IS NOT ENTRY 72's INVISIBLE ACCOUNT — 72 IS FIXED AND THIS IS EVIDENCE
+> OF IT***: it joined `sdusers`, so `remove-sdaccounts.ps1`'s candidate set
+> finds it. **But nothing removes an `sdsw*` leftover on its own, so one
+> accumulates per interrupted run** — and `remove-sdaccounts.ps1` is the
+> uninstaller's whole-machine sweep (`-Remove -Keep don` would also take
+> `test1`), so there is no targeted tool for it today.
+>
+> ***AND THAT SUITE IS ALSO 93's LAST WITNESS, WHICH IS WHY IT IS WORTH RUNNING
+> SOON.*** A complete suite is the cheapest dirty register there is — it left
+> the register **14 of 15 invalid** after `b100`, and three `os.users` records
+> per run is 65's measured rate. **So: run the suite, restart the SD service,
+> then read `C:\ProgramData\SD\reconcile-accounts.log` and run
+> `verify-register`.** That is the real-tree removal witness this session could
+> only produce synthetically.
+>
+> ### ***WHAT WAS BUILT***
+>
+> `gplbld/reconcile-accounts.ps1` — reconciles **`@SDSYS/ACCOUNTS` and
+> `@SDSYS/OS.USERS`** against Windows at every SD service start, as LocalSystem,
+> **after the profile reclaim and before `sd -start`**. Record and account
+> directory go together, directory first. `sdsvc.c`'s `run_sweep()` and
+> `sweep_script_path()` now take a script name and a label; nothing else about
+> either changed. It **ships** (`stage.py`); `verify-register.ps1` and
+> `test-reconcile-units.ps1` do not and are on `$neverShipped`.
+>
+> ***BOTH REGISTERS ARE PLAIN DIRECTORY FILES — ONE FILE PER RECORD — SO THE
+> SWEEP NEEDS NO SD VERB.*** That matters beyond convenience: §"THE
+> DESTINATION" warns that a fix needing a NEW verb would not resolve on exactly
+> the upgrade and reinstall paths it exists to serve. This one sidesteps that
+> entirely.
+>
+> ### ***THREE THINGS MEASURED THAT THE ENTRIES DID NOT HAVE***
+>
+> 1. ***`sdsys` IS NOT THE ONLY ACCOUNT WITH NO WINDOWS USER.***
+>    `CREATE.ACCOUNT` has three types and only **USER** has a login
+>    (`CREATEA:1042`; `grant.os.access` at `:1171` returns early for the rest).
+>    A name-based check deletes every **GROUP** and **OTHER** account. **The
+>    type is read out of `ACC$GROUP`** — `sdu_<login>` for USER, the group's own
+>    name otherwise — so it identifies the type *and* carries the login, and the
+>    `sdsys` exemption falls out of the rule instead of being special-cased.
+> 2. ***A TRUNCATED RECORD READS EXACTLY LIKE AN `OTHER` ACCOUNT***, because
+>    both have an empty `ACC$GROUP`. An empty `ACC$PATH` is refused before the
+>    type rows, or a corrupt record scores healthy for ever.
+> 3. ***THE LOOKUP HAS THREE ANSWERS. THIS IS ENTRY 96 IN ITS EXPENSIVE FORM***
+>    — collapsing *absent* and *could not tell* would delete the whole register
+>    the first time a domain controller was unreachable at boot. `$lookupOk` is
+>    refused first, and a control (local enumeration must succeed and be
+>    non-empty) runs before any verdict is believed.
+>
+> ### ***THE DEFECT THE SERVICE FOUND THAT NO TEST DID — WORTH THE PARAGRAPH***
+>
+> ***A PowerShell FUNCTION RETURNING `@()` HANDS THE CALLER `$null`, AND ONE
+> RETURNING A SINGLE-ELEMENT ARRAY HANDS IT A BARE `FileInfo`.*** So *"an empty
+> register"* and *"a register I could not read"* arrived as the same value. The
+> sweep runs **before `sd -start`**, so on a fresh install `os.users` is still
+> empty — and the very first run the service ever made logged **`register
+> reconcile: exited with 1`** on a perfectly healthy machine **with not one line
+> saying why**. That is PRE_RELEASE 49's shape reached through return semantics
+> rather than through `-ErrorAction`. `Get-Records` returns a hashtable now
+> (`ok` / `absent` / `items`), **`verify-register` had the identical bug** and
+> would have exited 2 on any install with no ADMINISTRATOR-tier account, and
+> `test-reconcile-units` drives real empty, absent, one- and two-record
+> directories. **A mutant restoring the array return fails 4 rows.**
+>
+> ### ***WHAT IS WITNESSED AND WHAT IS NOT — READ THIS BEFORE CLAIMING EITHER***
+>
+> | | |
+> |---|---|
+> | the service runs it | **YES** — `sdsvc.log` 15:31:08, `register reconcile … exited with 0`, and `reconcile-accounts.log` carries its own record |
+> | `sdsys` survives | **YES**, on the real tree, by name and by rule |
+> | a stale record is removed | **synthetically only** — `C:\Users\dmont\sdout\p93-fixture.ps1`, elevated, **20 of 20**, with four controls that must survive and did, idempotent on a second pass |
+> | `verify-register` passes | **YES**, 7 of 7 live |
+> | `verify-register` can FAIL | **YES** — 4 of 7 with two FAILs on a deliberately dirty tree, inside the same fixture |
+> | inside the suite | **NO. Owed.** |
+>
+> ### ***THREE CYCLES WENT ON THIS AND TWO OF THEM WERE THE SAME TRAP***
+>
+> ***`cycle.ps1` BUILDS — IT DOES NOT RUN `make`, AND THOSE ARE DIFFERENT
+> THINGS.*** Corrected by the owner, 3 Sep 2026, after this handoff first said
+> *"cycle.ps1 does not build the binaries"*. **Step 2 is `stage.py --bootstrap`,
+> and the bootstrap IS a build**: `gpl.bp.out` from SECOND.COMPILE, `gcat`, and
+> `pcode.out` from `pcode_bld.py` — which is *most* changes on this project, and
+> is why CLAUDE.md calls `-SkipInstall` the cheap way to find out whether a
+> BASIC change compiles. The `0 error(s)` lines filling a cycle log are that
+> build happening.
+>
+> ***WHAT IT DOES NOT DO IS RUN `make`, SO ONLY THE C HALF NEEDS A STEP OF ITS
+> OWN*** — and **`stage.py` checks the binaries are PRESENT, not CURRENT**
+> (`stage.py:991`, *"bin/ is missing %s - run make sd first"*). A **stale**
+> `bin/` therefore stages and installs without complaint, and `assert-current`
+> is what catches it afterwards. That is what happened here.
+>
+> ***AND §"110 AND 111" ALREADY RECORDS THE SECOND HALF: `make sd` ALONE DOES
+> NOT CLEAR `assert-current`*** — it relinks only what changed, and the guard
+> compares source against the **oldest** binary, `sdclilib.dll`. The recorded
+> recovery is `rm -f bin/*.exe bin/*.dll && make sd`, then one more cycle.
+>
+> ***BUT DO NOT RUN THAT GLOB AS WRITTEN.*** `bin/` also holds
+> `sd.exe.installed-backup-20260819`, which `bin/*.exe` matches and which is not
+> build output. **Delete the nine build products by name.** The nine are
+> `sd.exe`, `sdconv.exe`, `sdfix.exe`, `sdidx.exe`, `sdsvc.exe`, `sdtic.exe`,
+> `sdwind.exe`, `sdclilib.dll`, `libsdclilib.dll.a`.
+>
+> ***AND `make` NEEDS ITS DIRECTORY, WHICH A LOGIN SHELL TAKES AWAY.***
+> `MSYSTEM=MSYS /c/msys64/usr/bin/bash -lc "make sd"` runs in `/home/<user>` and
+> says **`No rule to make target 'sd'`**, which reads like a broken Makefile.
+> `C:\Users\dmont\sdout\build-sd.sh` does the `cd` and is the thing to run.
+>
+> ### ***WHAT TO DO NEXT***
+>
+> 1. **The full suite on `b104`**, which is also 93 and 65's real-tree witness.
+> 2. **96** — the tri-state, ruled (c) in handoff 24 and still the only open
+>    that was waiting on a word rather than a cycle, a guest or a screen.
+> 3. **70**, then **114**, **138**, **102**, **16**.
+> 4. **150** — cheap on `Test C`'s `pre-147-witness` snapshot.
+> 5. **80 LAST.**
+>
+> # ⇩⇩⇩ HANDOFF 24, 3 Sep 2026 — ***THE THREE OWNER DECISIONS ARE TAKEN. 96 IS (c). THE FREE-CHECK LIST IS 24. THE GAP-ANALYSIS SCRIPT STAYS UNTRACKED. NOTHING BUILT, NOTHING CYCLED, OPEN STILL 11.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 14:21:19**, unchanged — no
+> source under `gplsrc`, `gpl.bp` or `sdsys` was touched, so handoff 23's cycle
+> still holds; `assert-current` **exit 0** re-run live; **24 of 24 free checks
+> exit 0 in 28.5 s**. ***OPEN 11, UNCHANGED: 16, 65, 66, 70, 80, 93, 96, 102,
+> 114, 138, 150. NEXT FREE ID 151. NEXT RUN TOKEN `b104`, still unspent.***
+>
+> ***THIS SESSION SPENT NO CYCLE AND NO RUN TOKEN.*** It answered the three
+> things handoff 23 listed as the owner's, and wrote each answer into the place
+> that would otherwise have re-asked it.
+>
+> ### ***1. PRE_RELEASE 96 — (c) STANDS. BUILD THE TRI-STATE.***
+>
+> The tri-state across `IsAdmin`, `IsElevated` and `os_permitted`, and the four
+> callers. ***HE WAS ASKED WITH BOTH SHAPES IN FRONT OF HIM THIS TIME***, (b)
+> named as his own earlier delegated choice and the proportionality argument for
+> setting (c) aside quoted back — which is the one thing the second asking did
+> not do, and the reason 96's row records the asking as itself a defect. Same
+> answer as the second asking, now on a complete brief.
+>
+> ***WHAT THE ROW ALREADY SETTLES, SO NOBODY RE-DERIVES IT.*** The scope is
+> **nine** undetermined paths, not seven — `linuxlb.c:112` and `:172` are the two
+> it was short by. **`op_sh.c:173`'s `ENOENT` is the designed NO and must stay a
+> plain FALSE**; only a non-`ENOENT` `errno` is undetermined. And **`log_printf`
+> is the wrong instrument**: it prints on the user's terminal via
+> `k_error.c:873`, and it dereferences `sysseg`, which is NULL at `sd.c:838`
+> because `comlin()` (`sd.c:175`) runs before `bind_sysseg()` (`:180`).
+>
+> ***IT STILL DESERVES ITS OWN SESSION.*** C on a privilege path, the faults need
+> an induced name-service failure to reach, and the wrong shape here fails
+> silent. **What is left is building (c), not choosing it.**
+>
+> ### ***2. THE FREE-CHECK LIST IS 24, AND THE CALL WAS DELEGATED***
+>
+> Owner, asked whether the ten unlisted guards should join "run these on every
+> change": *"what tests are needed in the verification cycle are totally your
+> call."* ***THEY JOINED IT***, and CLAUDE.md now names all twenty-four.
+>
+> ***THE DECISION RESTED ON A MEASUREMENT TAKEN BEFORE ASKING***, which is why it
+> could be delegated cheaply: the ten cost **7.1 s** against the fourteen's
+> **21.8 s**, all green, none needing an install, elevation or a run token. **The
+> sentence now asks 29 s of a session instead of 22.** Against that, the recorded
+> cost of *not* listing a guard is `test-staleleads-units.py` sitting red at 12
+> of 13 for days with nobody running it.
+>
+> ***`C:\Users\dmont\sdout\run-free-tests.ps1` RUNS ALL 24 AND REFUSES THE NULL
+> CASE*** — each in its own process, missing scripts and a short run both throw.
+> **It is dev scratch outside the repository and is NOT the authority; CLAUDE.md
+> is.** *(It was itself found stale at 12 names — `test-transcriptwhole-units`
+> and `test-apigate-units` had joined the list that morning and this copy never
+> followed. Same two-lists-by-hand defect that three of the guards on it exist to
+> catch.)*
+>
+> ### ***3. `generate_gap_analysis_pdf.py` STAYS UNTRACKED — REFUSED***
+>
+> Owner, asked directly, with the `git clean` risk stated: *"it only exists for
+> documentation during task 80 — it does not need to be tracked."* ***HANDOFF
+> 23's ITEM 6 RECOMMENDED THE OPPOSITE AND IS STRUCK IN PLACE***, and entry 80's
+> row carries the ruling. **Do not propose it again.** The 1 Sep instruction it
+> sits under is unchanged: 80 adopts the file where it lies, and `git add -A` in
+> this repository stays forbidden permanently.
+>
+> ### ***WHAT TO DO NEXT — THE ORDER IS HANDOFF 23's, MINUS THE DECISIONS***
+>
+> 1. ***93 + 65 TOGETHER — HIGHEST VALUE, ONE FIX COVERS BOTH.*** Unchanged from
+>    handoff 23: both **B** query-correctness blockers, detect-and-remove at
+>    service start in `sdsvc.c` copying `reclaim-profiles.ps1`'s shape, `SDSYS`
+>    exempt, plus a consistency verifier. Heavy C; needs a guest.
+> 2. **96** is now buildable and is the only one of the eleven that was waiting
+>    on a word rather than on a cycle, a guest or a screen.
+> 3. **70**, then **114**, **138**, **102**, **16**.
+> 4. **150** — cheap to confirm on `Test C`'s `pre-147-witness` snapshot with
+>    `VBoxManage … setvideomodehint 1024 768 32`.
+> 5. **80 LAST**, and it no longer has a free first action.
+>
+> ***THE RIG IS UNTOUCHED THIS SESSION*** — handoff 23's table still describes
+> it, `Test C` still carries `pre-147-witness`. **Count guests from
+> `VBoxManage`, never a table.**
+>
+> # ⇩⇩⇩ HANDOFF 23, 3 Sep 2026 — ***135, 147, 149 AND 148 CLOSED. FULL SUITE RAN, 43 STEPS, ALL EXIT 0. OPEN 11. NOTHING OWED.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 14:20:13** from `cycle.ps1` run
+> by this session (was 12:41:43; re-cycled to carry 148); `assert-current`
+> **exit 0**; **fourteen free checks green**, `test-apigate-units` **27**.
+> ***OPEN 11: 16, 65, 66, 70, 80, 93, 96, 102, 114, 138, 150. NEXT FREE ID
+> 151. `b103` SPENT ON THE FULL SUITE; NEXT RUN TOKEN `b104`.***
+>
+> ***148 CLOSED ON THE OWNER'S SIGN-OFF ("148 is ok"), 3 Sep 2026.*** Two
+> instruments now report API *reachability*, not just the listener. The
+> `check-install` half — the site 148 was filed against — is **witnessed both
+> ways on the host** by this session (rule present → *"Other computers … may
+> reach it"*; rule removed then restored → *"No firewall rule admits other
+> computers … remote.api on"*, `sdout\p148-none-witness.txt`). The `remote.api`
+> half is **built and compiled** into this install and its interactive output
+> was **not separately observed** — `sd` → `logto sdsys` → `remote.api` needs
+> the secure desktop a driving session cannot reach — and is accepted on the
+> sign-off, resting on the shared `report.state`, the witnessed `REMOTESSH`
+> shape it copies, and the live `api-firewall -Show` sentence. **The `Info`
+> severity is the owner's settled call**: a listening API with no rule is
+> *stated*, not flagged, so the verdict stays *"Everything checks out"*. **149
+> also closed**: the `VerifyInstall2` summary carries its `PARTIAL` heading into
+> the file now, one structural line.
+>
+> ***IF ANYTHING RE-OPENS 148 IT IS THE `remote.api` OUTPUT ITSELF*** — the one
+> thing unobserved. In an SDSYS session `remote.api` (no keyword) should print
+> the listener line AND a firewall line (`state is ON` / `LOCAL` / `OFF at the
+> firewall`); if it does not, the fault is in `REMOTEAPI`'s `report.state`, not
+> the design.
+>
+> ### ***WHAT TO DO NEXT, IN COST ORDER — THE FREE WINS ARE GONE***
+>
+> Every remaining open needs a cycle AND either a guest witness, interactive SD,
+> or an owner ruling. There is no more 149-shaped free close.
+>
+> 1. ***TWO OWNER DECISIONS, FREE, AND THEY UNBLOCK THE REST***: **96**'s (b) vs
+>    (c) — two shapes on record, build neither until he says — and whether the
+>    ten unlisted free guards join "run these on every change" (CLAUDE.md's list).
+> 2. ***93 + 65 TOGETHER — HIGHEST VALUE, ONE FIX COVERS BOTH.*** Both are **B**
+>    query-correctness blockers: the `ACCOUNTS` register (93) and `os.users` (65)
+>    keep dead rows, so `LIST ACCOUNTS` / `LIST OS.USERS` answer wrongly. Ruled —
+>    the register carries only valid records, so SD must DETECT AND REMOVE at
+>    service start, copying `reclaim-profiles.ps1`'s shape (`sdsvc.c`), removing
+>    directory AND record, **`SDSYS` exempt** (it has no Windows user by design).
+>    Plus a consistency verifier. Heavy C; needs a guest.
+> 3. **70** — the upgrade path: the installer runs `update.accounts` (the
+>    existing all-accounts route, `LOGIN:303`) rather than telling the admin to.
+> 4. Then **114** (BASIC compiler hangs on an unterminated `BEGIN TRANSACTION`),
+>    **138** (credential for the admin AND `SDSYS`, shape b, not built),
+>    **102**, **16**.
+> 5. **150** — confirm on 1024x768 (Test C's `pre-147-witness` snapshot + a
+>    `VBoxManage … setvideomodehint 1024 768 32`, cheap), then split the box or
+>    move the access paragraphs to the Finished page. Shape is owner-flavored.
+> 6. **80 LAST** — the documentation audit and ownership transfer, against the
+>    final image. ~~*CHEAP FIRST ACTION, ANY TIME*: commit the untracked
+>    `generate_gap_analysis_pdf.py` unchanged as insurance.~~ ***REFUSED BY THE
+>    OWNER, 3 Sep 2026: "it only exists for documentation during task 80 — it
+>    does not need to be tracked."*** **Do not propose it again**, and do not
+>    treat the `git clean` risk as a reason to: it is his file and his call.
+> 7. ***THE RIG: `Test C` IS SPENT*** but carries snapshot `pre-147-witness`
+>    (restores 147's API-up-no-rule state). **Count guests from `VBoxManage`,
+>    never a table.** All `nic1=nat`, so nothing measures LAN reachability until
+>    a guest goes bridged.
+>
+> ***135 AND 147 WERE THE SAME FIX AND THEY WENT IN THE SAME BOX*** — the
+> kept-database one, the one that says *"YOUR DATA IS UNTOUCHED"*, because 135's
+> whole finding is that the promise is read as a promise about access. 135's
+> paragraph sits **directly under it**, gated on `not TrueUpgrade` (inside that
+> branch: the tree was here and SD was not installed — an in-place upgrade loses
+> no membership and says nothing). 147's sits at the **end**, gated on
+> `(not ApiConfAbsent) and ApiListenerAfterwards and (ApiScope = 'none')`.
+> `api-firewall.ps1` gained a read-only **`-ScopeFile`** writing one of `open`,
+> `restricted`, `none`; `sd.iss` gained `GetApiRuleScope`, which runs it
+> ***after*** `ApplyApiFirewall` — **the opposite of 146's rule, and the reason
+> is the same**: 146 asks about the state before the write, this asks about the
+> state after it. ***THE GATE 89 REJECTED IS UNTOUCHED.***
+>
+> ### ***THE FULL SUITE RAN AND HANDOFF 22's DEBT IS DISCHARGED***
+>
+> The owner ran both halves on `b103`, against **this** install. Read from the
+> transcripts rather than taken on the word *"both exited 0"*:
+>
+> | half | evidence | steps |
+> |---|---|---|
+> | unelevated | `VerifyInstall1-20260903-124937.log` — closing line **`VerifyInstall1: every step exited 0.`**, and `PARTIAL` appears **0 times** | **20**, all exit 0 |
+> | elevated | `post-cycle-20260903-125447.txt` — the runner has no transcript of its own by design, so this summary IS the record | **23 of the 23 defined**, all exit 0 |
+>
+> ***THE STEP COUNT IS THE PARTIAL TEST FOR THE ELEVATED HALF, AND THAT IS NOW
+> PRE_RELEASE 149.*** `VerifyInstall2.ps1:824` writes the step rows to the
+> summary file and **not** the `PARTIAL` heading `:818` printed to the console,
+> so the artifact cannot answer the question CLAUDE.md's instruction asks of it.
+> ***THE DANGEROUS READING IS THE ABSENCE*** — grep that file for `PARTIAL`,
+> find none, and report a full run, because a partial run leaves the word out
+> too. **Count the rows against the 23 steps the runner defines**, which is what
+> was done here.
+>
+> ### ***THE WITNESS RAN ON `Test C`, AND SO DID THE CONTROL***
+>
+> ***THE PRECONDITION WAS MEASURED BEFORE ANYTHING WAS TOUCHED***, which is what
+> makes the rest evidence: `sd.conf` `APIPORT=4243`, **`SD-API-In-TCP : NO
+> RULE`**, **`listening on 4243 : 0.0.0.0`**, `sdapi` **0 members**. Then
+> uninstall answering **Keep**, which left `sdssh`, `sdapi` and `sdsshonly` all
+> `(absent)` and `sdusers` intact — then install.
+>
+> | run | 135's paragraph | 147's paragraph |
+> |---|---|---|
+> | **the witness** — uninstall(Keep) then install, `not TrueUpgrade` | **present**, under *"YOUR DATA IS UNTOUCHED"*, naming `modify.account <name> ssh \| api \| both \| none` | **present**, naming `remote.api on` |
+> | **the control** — install again over the top, `TrueUpgrade` | ***absent*** | **present** — the rule is still gone |
+>
+> ***THE CONTROL IS THE HALF THAT PROVES THESE ARE GATES AND NOT CONSTANTS.***
+> On the second run the tasks page was skipped and the upgrade text shown, both
+> on screen, so `TrueUpgrade` was true — and 135's paragraph vanished while
+> 147's, on a different gate, stayed. ***AND THE SHIPPED PROBE ANSWERED `none`
+> ON THE GUEST***, the branch the host could not reach: the paragraph appeared
+> because of a measurement rather than in spite of one.
+>
+> **Screenshots and states are in `C:\Users\dmont\sdxfer`** —
+> `p147-witness-keptbox.png`, `p147-control-upgrade-keptbox.png`,
+> `p147-witness-checkinstall.png`, `p147-before/mid/after.txt`, `p147-scope.txt`.
+>
+> ***TWO THINGS THE RUN TURNED UP, BOTH FILED.*** **148** gained a second site:
+> `check-install` printed **`[ok] The network API is listening on port 4243`**
+> and **`Nothing is wrong.`** on that machine — the louder of the two
+> instruments that report the listener instead of the reachability. And **150**:
+> the box is now about **820 px tall** and a 1024x768 screen has about 720 to
+> put it in; it fit at 1270x960, and what would fall off a smaller one is
+> 147's own paragraph.
+>
+> ### ***THE TRAP THAT NEARLY SHIPPED A WRONG SENTENCE***
+>
+> The obvious wording for 135 was *"grant it again with
+> `modify.account <name> api`"*. ***`api` ALONE MEANS THE API AND NOTHING
+> ELSE*** (`MODIFYA:300`, and its own comment says so), so that line would have
+> **silently withdrawn ssh** from every account somebody used it on — a message
+> that causes the loss it is explaining. The box names all four keywords and
+> says what the keyword does.
+>
+> ***AND CHASING THAT IS WHAT FILED 148.*** The command an administrator reaches
+> for after reading the new paragraph is `remote.api`, and **with no keyword it
+> reports the LISTENER only** (`REMOTEAPI:121` → `api-listener.ps1 -Show`). On
+> 147's machine it answers ON while nobody can connect. **`remote.ssh` reports
+> its firewall** (`REMOTESSH:94` → `ssh-firewall.ps1 -Show`); the verb whose two
+> axes actually differ is the one reporting a single axis.
+>
+> ### ***THREE THINGS MEASURED THAT THE NEXT SESSION SHOULD NOT RE-DERIVE***
+>
+> 1. ***`C:\Users\dmont\sdout\check-iss.ps1` ALREADY EXISTS AND COMPILES THE
+>    WHOLE `sd.iss` WITHOUT A CYCLE*** — 5,205 lines, 0 bad `#` lines, ISCC
+>    exit 0. **A second one was built before it was found**, which is this
+>    repository's own "search the record first" rule going unpaid: the duplicate
+>    was deleted. Run `check-iss.ps1` before every cycle that carries an
+>    `sd.iss` edit. *(What the duplicate added and this does not: two CONTROLS
+>    that must fail — a bad identifier, and `#13#10` wrapped onto the start of a
+>    line. Both failed on exactly the injected line, so ISCC is genuinely
+>    reading the new code.)*
+> 2. ***THIS CYCLE'S LOG IS TRUNCATED AT THE FRONT AND SAID SO ITSELF.***
+>    `cycle-20260903-124039.log`: 1,879 `Compressing` lines against 3,672, no
+>    ISCC front markers. That is PRE_RELEASE 137's instrument working, and the
+>    second cycle in two days to lose the front. **The build is unaffected** —
+>    ISCC's exit code decided it — and what is lost is the ability to read the
+>    log afterwards to find out why, had it failed.
+> 3. ***AN AGENT MAY RUN `cycle.ps1` ITSELF: `Start-Process -Verb RunAs -Wait`,
+>    ONE HOP, ONE CONSENT.*** Done here, **2.4 minutes**, exit 0. §4.0.1 already
+>    said so; it is repeated because two sessions have handed the cycle back
+>    instead. **`VerifyInstall1` is still a person's job.**
+>
+> # ⇩⇩⇩ HANDOFF 22, 3 Sep 2026 — ***FIVE CLOSED (145, 137, 146, 89, 136), ONE FILED AND OPEN (147). OPEN 15 → 12. THE INSTALL IS CURRENT AND `assert-current` IS EXIT 0. ONE FULL SUITE IS OWED AND WAS NOT RUN.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **3 Sep 11:04:52**, the owner's own
+> cycle, carrying 146's fix; `assert-current` **exit 0**; **fourteen free checks
+> green**. ***OPEN 12: 16, 65, 66, 70, 80, 93, 96, 102, 114, 135, 138, 147.
+> NEXT FREE ID 148. NEXT RUN TOKEN `b103`, still unspent.***
+>
+> ***THE ONE THING OWED: THE FULL SUITE.*** CLAUDE.md says a full run goes
+> before a release **and before a handoff**, and this handoff does not have one
+> — nothing in the session needed a suite, and it was not run. **~20 minutes,
+> two halves.** Unelevated first, then elevated:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b103
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b103
+> ```
+>
+> **The first is an ordinary unelevated prompt, the second an elevated one.**
+> `PARTIAL` must appear **0 times** in either half or it was not a full run.
+>
+> ### ***WHAT TO DO NEXT, IN COST ORDER***
+>
+> 1. ***135 AND 147 ARE THE SAME SHAPE AND ONE CYCLE CARRIES BOTH.*** Each is a
+>    silent loss that needs **saying out loud**, not a mechanism to fix. **135**:
+>    the reinstall restores `sdsshonly` and does **not** restore `sdapi`, which
+>    is correct and deliberate, and nothing anywhere names the dropped grant.
+>    **147**: after uninstall-then-reinstall keeping the database, the API
+>    **listens on `0.0.0.0:4243` with no firewall rule**, the box is hidden so
+>    nobody can ask for one, and the closing box says nothing. ***DO NOT FIX 147
+>    BY UNGATING `ApplyApiFirewall`*** — that is the change 89 rejected, and it
+>    would let a hidden box narrow a scope the site chose. Both want a sentence
+>    where the reader already is, naming `remote.api on` (`sd.iss:2535` already
+>    prints it in another branch).
+> 2. ***`Test C` IS ALREADY IN 147's STATE — DO NOT RECLONE IT UNTIL 147 IS
+>    WITNESSED.*** It carries the install-uninstall(Keep)-reinstall sequence,
+>    so it has the API listening with no rule right now.
+> 3. **Two things are the owner's**: **96**'s (b) vs (c) — build neither until he
+>    says — and whether the **ten unlisted free guards** join "run these on every
+>    change".
+> 4. Then the builds: **114** (BASIC), **93**, **70**, **66**, **65**; the C work
+>    **102**, **16**, **96**; **80** as its own project.
+>
+> ### ***THE RIG, MEASURED 3 Sep 2026 — SEVEN GUESTS, ALL `nic1=nat`***
+>
+> One hardware UUID and one MAC across all of them, which is the licence fix and
+> is why they may look wrong to a reader expecting distinct MACs. ***NAT, NOT
+> BRIDGED***, so they may run concurrently — **and nothing on this rig can
+> measure LAN reachability** until a guest is put back on bridged. That is one
+> setting per guest, costs no reactivation, and re-imposes "one at a time" on
+> whatever gets it.
+>
+> | guest | state |
+> |---|---|
+> | `Windows 11 - SSH no SD - Template` | clone source, leave alone |
+> | `Windows 11 - No SD or SSH - Template` | clone source, leave alone |
+> | `Windows 11 - SSH no SD - Test A [used]` | spent — 145 |
+> | `Windows 11 - SSH no SD - Test B [used]` | spent — 146's finding |
+> | `Windows 11 - SSH no SD - Test C` | ***spent — 135 and 147 witnessed 3 Sep. IT CARRIES A SNAPSHOT, `pre-147-witness`, WHICH RESTORES 147's STATE*** — so it is reusable for anything needing "API up, no rule", which is cheaper than rebuilding that state from a fresh clone |
+> | `Windows 11 - No SD or SSH - Test 1` / `Test 2` | fresh, no ssh |
+>
+> ***THE OWNER RENAMES A SPENT GUEST `[used]`***, which is worth copying.
+> **Count the guests from `VBoxManage`, never from this table.**
+>
+> ### ***SIX DRIVING TRAPS, ALL PAID FOR THIS SESSION***
+>
+> 1. ***`powershell -File script.ps1 -Array a,b,c` PASSES ONE STRING.*** The
+>    array parameter binds a single bogus element and the feature silently does
+>    nothing — `diff-capture -Expected` reported `expected-gone : 0` rather than
+>    an error. **Call the script in-process, or pass one value per call.**
+> 2. ***AFTER A WINDOW OPENS, `ALT+TAB` BEFORE TYPING.*** Batching the open and
+>    the command sent a whole command line into a window that did not exist yet,
+>    twice, and the tell is an **empty prompt**, not an error.
+> 3. ***`WIN+<n>` RAISES A WINDOW `ALT+TAB` WILL NOT, AND STRANDS THE WINDOWS
+>    KEY.*** The next keypress then opens the Start menu instead of answering a
+>    dialog. `vm-type -Release` clears it.
+> 4. ***`ALT+TAB` ONTO A Yes/No BOX LANDS ON `No`.*** Crop the button row and
+>    read which has focus before every destructive answer.
+> 5. ***PUT THE WORK IN A SCRIPT ON THE `xfer` SHARE AND TYPE ONE SHORT LINE.***
+>    Results come back to the host as text; almost nothing needs a screenshot.
+> 6. ***THE SCRATCHPAD CANNOT HAND A FILE TO AN ELEVATED CHILD*** — writes there
+>    are redirected. Put such a script in `C:\Users\dmont\sdout\`, which is where
+>    `witness-listf.ps1` and `p136-programmer.ps1` live.
+>
+> ### ***THREE INSTRUMENT FAULTS, ALL MINE, ALL THE SAME FAMILY***
+>
+> Each was a **match on a guessed string**, and the record already names the
+> class. An accumulator `$L` clobbered by a loop variable `$l` (PowerShell names
+> are case-insensitive). A firewall filter of `SD|OpenSSH|4243` matching **49**
+> Windows rules, because "SD" is inside SSDP and WSD. And a summary line matching
+> only `DisplayName` against `SD-API` while the display name is `SD API
+> (SDClient)` — ***printing `False` three lines under a listing that showed the
+> rule***, which is the dangerous direction: it scores a working fix as a
+> failure. **Anchor on what the tool prints, and read the source for the name.**
+>
+> # ⇩⇩⇩ HANDOFF 21, 3 Sep 2026 — ***THE GUEST SITTING RAN AND CLOSED SIX (120, 132, 133, 134, 139, 140). TWO ADVANCED AND STAY OPEN (89, 135), ONE WAS FILED (145). OPEN 20 → 15. NO CYCLE IS OWED. THE VM RIG WAS BEING REBUILT OVERNIGHT — CHECK IT BEFORE PICKING A GUEST.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Nothing under `gplsrc` or `sdsys` changed, so
+> the 2 Sep 22:46:52 install still stands and `assert-current` is **exit 0**.
+> ***FOURTEEN free checks green*** — `test-transcriptwhole-units` and
+> `test-apigate-units` joined the list 3 Sep with 137 and 146. ***OPEN 13: 16,
+> 65, 66, 70, 80, 93, 96, 102, 114, 135, 136, 138, 147. NEXT FREE ID 148. NEXT
+> RUN TOKEN `b103`*** (still unspent — none of this needed a suite). **The
+> install is the owner's 3 Sep 11:04:52 cycle and `assert-current` is exit 0.**
+>
+> ***136 CLOSED 3 Sep 2026 — 10 OF 10 FILE RECORDS DESCRIBED ON A PROGRAMMER
+> ACCOUNT***, `sdw136a`, on the host's own install, with SD echoing
+> `:CREATE.ACCOUNT USER sdw136a PROGRAMMER SSH` so the tier is proved to have
+> reached the command. Identical to the STANDARD witness, 10 of 10 both times.
+> **`verify-createaccount.ps1` gained an optional `-Tier`** (empty default =
+> the old command line exactly), and `C:\Users\dmont\sdout\p136-programmer.ps1`
+> does create-witness-parse in one elevation. ***OPEN 13 → 12: 16, 65, 66, 70,
+> 80, 93, 96, 102, 114, 135, 138, 147.*** **Litter named: SD account `SDW136A`
+> and its register record are left**, as `sdw142a` is — `DELETE.ACCOUNT`'s job.
+>
+> ***146, 89 AND 137 ALL CLOSED 3 Sep 2026 ON THE OWNER'S 11:04 BUILD AND GUEST
+> `Test C`. ONE NEW ENTRY, 147.*** **146**: `api-firewall.ps1 -Show` now prints
+> `rule: SD-API-In-TCP … RemoteAddress Any` where it said `rule: not present`,
+> 484 rules against a 483 baseline, and the closing box gained a line naming the
+> API that `Test B` never showed. **89**: the dangerous case was produced at
+> last — install with the API on, uninstall answering Keep, reinstall with the
+> box hidden — and `ApplyApiFirewall` **did not run**, so the reinstall neither
+> opened nor narrowed anything; `sd.conf` byte-identical, 483 rules unchanged.
+> **137**: both cycle logs print `TRANSCRIPT COMPLETENESS: WHOLE — 3672
+> Compressing lines for 3672 payload files`, the exact identity, on a real
+> console.
+>
+> ***147 IS WHAT THE RUN EXPOSED AND IT IS NOT A REGRESSION***: after
+> uninstall-then-reinstall keeping the database, the API **listens on
+> `0.0.0.0:4243` with no firewall rule**, the box is hidden so nobody can ask for
+> one, and nothing says so. **Do not fix it by ungating the firewall call** —
+> that is the change 89 rejected. It is a reporting gap, the same shape as 135's
+> open half.
+>
+> ***THE ORIGINAL FINDING, KEPT: `ApplyApiFirewall` WAS UNREACHABLE ON EVERY
+> INSTALL PATH.*** `ApiConfAbsent` is evaluated twice and
+> the installer writes the file it tests for in between — TRUE at the tasks page
+> (so the box is correctly offered), then `[Files]` writes `sd.conf`
+> (`onlyifdoesntexist` on both arms), then FALSE at `ssPostInstall`, where
+> `sd.iss:3761` gates the firewall call on it. **So "Let other computers on your
+> network reach it" does nothing on any fresh install.** Measured on `Test B`
+> with both boxes ticked: `APIPORT=4243` active, **a listener on `0.0.0.0:4243`**,
+> and **no rule** — `api-firewall.ps1 -Show` says `rule: not present`.
+> ***IT WAS INTRODUCED BY 89's OWN FIX AND IT BLOCKS 89's REMAINING HALF***,
+> which needs a rule to lose and can no longer get one.
+>
+> ***145 IS CLOSED AND THE ANSWER IS THE ONE ITS HYPOTHESIS PREDICTED.***
+> `uninsneveruninstall` **does** protect — it only protects a directory the
+> installer **itself created**. On a fresh clone with the precondition recorded
+> first, `cat`, `prt` and `$hold` **all survived** the Keep uninstall, and the
+> manifest diff is **3,621 → 3,619 with DISAPPEARED 0** once `dumps` (the
+> declared exemption) and the runtime shm segment are declared. So `sd.iss:676`
+> is **true from a fresh install onward and false for an upgraded tree**, which
+> is why `Clone A` lost three: its tree predated those `[Dirs]` entries, so Inno
+> never wrote a protective record for them. **Both halves of the claim are real;
+> they apply to different trees.**
+>
+> ***137 IS BUILT AND IT FOUND SOMETHING ON ITS WAY IN: THE LOG BEHIND THE
+> CURRENT INSTALL IS ITSELF TRUNCATED.*** `cycle-20260902-224601.log` carries
+> **no ISCC banner and 1,879 `Compressing:` lines against 3,672 expected**, so
+> the build detail of the install everything is being measured against **cannot
+> be read**. The install is not in doubt — `assert-current` is exit 0 and ISCC's
+> exit code decided the build — but *"check the cycle log"* is not available for
+> that one. `gplbld/transcript-whole.ps1` is what says so now; before today it
+> took noticing that a message id was missing.
+>
+> ### ***WHAT TO DO NEXT, IN COST ORDER***
+>
+> 0. ***DONE 3 Sep 2026 09:20 — THE REBUILD IS CLEAN AND THE RIG IS SIX GUESTS,
+>    ALL NEW NAMES.*** `vm-clone.ps1 -Audit`: **one hardware UUID
+>    `59d00c9d-e374-4cbd-aa87-c4cf197890aa` and one MAC `080027AECE7C` across all
+>    six**, so no clone missed a checkbox and none should demand reactivation.
+>    ***`Windows 11 - No SD or SSH -` `Template`, `Test 1`, `Test 2`; `Windows 11
+>    - SSH no SD -` `Template`, `Test A`, `Test B`.*** All six powered off, all
+>    six carry the three `MachineMapping` shares (`sdout`, `xfer`, `gplbld`), 0
+>    snapshots each. ***`Beardog` IS GONE TOO*** — the rebuild took every earlier
+>    guest, so `Test 3`–`Test 10`, `SD ssh baseline`, `Clone A`, `Clone B`,
+>    `Test A/B/C` (the OLD ones) and `Windows 11 - Template` are all
+>    unregistered. **Re-run the audit anyway before picking a guest** — the rule
+>    is to count guests from `VBoxManage`, and it has now been right twice.
+> 1. ***145 RAN AND CLOSED, 3 Sep 2026 10:04. THE GUEST IS STILL POWERED ON AND
+>    IS NOW AN UNINSTALLED TREE WITH THE DATABASE KEPT*** — `Windows 11 - SSH no
+>    SD - Test A`, useful as-is for anything wanting *"a machine SD was removed
+>    from, answering Keep"*, and reclonable from `Windows 11 - SSH no SD -
+>    Template` otherwise. **Do not treat it as clean: `don` still has an SD
+>    password and `C:\ProgramData\SD` is still there.** The verdict is in 145's
+>    row and in the state line above. **Captures kept**:
+>    `C:\Users\dmont\sdxfer\state-first-20260903-095549.txt` and
+>    `state-after-20260903-100405.txt`, with the preflight beside them.
+>    **`-OutDir` must be passed to `capture-state`** — its default `Y:\` is the
+>    stale drive letter the rig section warns about; the UNC path works.
+>
+>    ***ONE FREE WITNESS FELL OUT OF IT FOR 133, AND IT IS A THIRD CASE NOBODY
+>    HAD.*** On this guest OpenSSH is **installed but has never started, so it
+>    has no `sshd_config` at all** — and the installer said exactly that rather
+>    than claiming a write: *"ssh was NOT limited, and nothing was changed…
+>    OpenSSH has not started yet and has no configuration file - restart, then
+>    run this from an elevated prompt"*, naming `allow-ssh-groups.ps1
+>    -Installed`. **133 was closed on the write case and the upgrade case; this
+>    is the no-config case**, and the wording tracks it too.
+>
+>    ***THREE THINGS THE RUN LEARNED THAT ARE REUSABLE, ALL CHEAP AND ALL PAID
+>    FOR ONCE:*** **(a)** the guest autologons to the desktop, and `WIN+r` →
+>    `powershell` → `CTRL+SHIFT+ENTER` gives an **elevated** shell with **no UAC
+>    prompt at all** on these clones. **(b)** ***`Start-Process` PUTS THE
+>    INSTALLER BEHIND THE SHELL AND `ALT+TAB` DID NOT RAISE IT — `WIN+4` DID***
+>    (its taskbar position), which is worth knowing before somebody concludes the
+>    installer failed to start; the taskbar button was the only thing on screen
+>    saying it had. **(c)** ***PUT THE WORK IN A SCRIPT ON THE `xfer` SHARE AND
+>    TYPE ONE SHORT LINE***, rather than typing the work itself: results come back
+>    to the host as text and are read directly, so almost none of this needed a
+>    screenshot. `C:\Users\dmont\sdxfer\p145-preflight.ps1` is the shape.
+>
+>    ***AND ONE INSTRUMENT DEFECT FOUND IN PASSING, IN THE SHAPE THE RULES
+>    NAME***: `Get-Service -Name 'SD*'` matches Windows' **own** `SDRSVC`, so a
+>    preflight written that way reports an SD service on a machine with no SD.
+>    It printed `SDRSVC=Stopped` beside *"CLEAN MACHINE"* and the two disagree.
+>    **Match the exact service name.**
+>
+>    *(The original entry follows.)* ***145 IS ONE UNINSTALL AND IT IS THE ONLY
+>    THING THE SITTING LEFT HALF-ANSWERED.*** `uninsneveruninstall` did **not** protect `cat`, `prt`,
+>    `$hold` while `bp`, `bp.out`, `batch.jobs` survived the same uninstall with
+>    the same flags. The reinstall healed all of them so nothing is lost, but
+>    `sd.iss:676` claims something that did not happen. **The test is in 145's
+>    row: fresh install onto a machine with no tree, then uninstall answering
+>    Keep, then read the twelve.** ***THE RIG IS NOW NAMED: `Windows 11 - SSH no
+>    SD - Test A`*** (measured 3 Sep 2026, no SD, ssh present, shares present),
+>    with `Test B` as the second attempt if the first is spent. **Leave both
+>    `Template` guests alone — they are the clone sources.** ***AND THE
+>    INSTALLER ON THE SHARE IS ALREADY THE CURRENT ONE*** —
+>    `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, **4,963,912 bytes, 2 Sep
+>    22:46:34**, which is the build handoff 20 recorded, so **no cycle and no
+>    re-copy on the host side is owed before this test.** Check the length on the
+>    guest after copying it, per the standing warning.
+> 2. ***TWO THINGS ARE THE OWNER'S***: **96**'s (b) vs (c) — build neither until
+>    he says — and whether the **ten unlisted free guards** join "run these on
+>    every change".
+> 3. **89 and 135 both stay open on a NAMED remaining half**, not on vagueness.
+>    89 needs a tree with the API **ON** (its dangerous case cannot be produced
+>    on a machine where it was off throughout). 135 needs the `sdapi` loss said
+>    out loud; the confinement half is done and witnessed.
+> 4. **136** is one `create.account` on a **PROGRAMMER** tier from closing.
+> 5. Then the builds: ~~137~~ **(done 3 Sep)**, **114**, **93**, **70**, **66**,
+>    **65**; the C work **102**, **16**, **96**; **80** as its own project.
+>    ***137's ONE LOOSE END IS FREE: THE NEXT CYCLE WITNESSES IT.*** It is wired
+>    into `cycle.ps1` at the `-SkipInstall` exit and beside the final verdict,
+>    and no cycle has run since. **An agent shell cannot witness it at all** —
+>    PowerShell 5.1 only transcribes native output when there is a real console
+>    to scrape — so it needs the owner's own elevated window, and it needs no
+>    extra run of its own.
+>
+> ### ***THE RIG CHANGED UNDER THE RECORD AND THE OLD NAMES ARE GONE***
+>
+> ***`Test 10` NO LONGER EXISTS AND NEITHER DO `Test 3/4/5/6`.*** Everything in
+> this file about `Test 10`'s state — `zz135`, `zz135b`, `sdu_ZZ135`, "the guest
+> is not clean" — is **stale**, and the machine those facts described is gone.
+> `VBoxManage list vms` on 3 Sep 2026: `Beardog`, `Windows 11 - Template`,
+> `Test A`, `Test B`, `Test C`, `SD ssh baseline`, `SD ssh baseline - Clone A`,
+> `SD ssh baseline - Clone B`. **Count the guests from `VBoxManage`, never from
+> here** — this file's own rule, and it earned itself again.
+>
+> ***OWNER, 2 Sep 2026: `Test A`, `B` AND `C` HAVE NO SD AND NO ssh.***
+> ***AVOID THEM FOR ANYTHING NEEDING ssh — INSTALLING THE SERVER IS A
+> ~20-MINUTE DOWNLOAD.*** `Clone A` is spent (SD uninstalled, tree deleted,
+> `don` and `sdw135a` survive as Windows accounts, all four SD groups gone).
+>
+> ***AND THE WHOLE RIG WAS BEING REBUILT OVERNIGHT, 3 Sep 2026 — READ THIS
+> BEFORE PICKING A GUEST, BECAUSE THE NAMES ABOVE MAY NOT EXIST.*** The owner is
+> re-cloning in the GUI from **two templates, one raw and one with the ssh
+> server installed** (`Windows 11 - Template`, `Windows 11 - Template with
+> ssh`), so that every guest shares the template's MAC as well as its hardware
+> UUID. ***THAT IS A LICENCE FIX, NOT TIDINESS***: Windows hashes the MAC into
+> its hardware id, and the six guests cloned under the old rule — `SD ssh
+> baseline`, `Clone A`, `Clone B`, `Test A/B/C`, six distinct MACs — are exactly
+> the ones that kept demanding reactivation. See the rig section's clone-options
+> bullets, reversed the same day.
+>
+> ***SO START BY READING THE RIG, NOT THIS PARAGRAPH*** — an ordinary
+> unelevated prompt, changes nothing:
+>
+> ```
+> powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\vm-clone.ps1" -Audit
+> ```
+>
+> ***WITHDRAWN BY MEASUREMENT, 3 Sep 2026 — THE REBUILT RIG IS `nic1=nat`, NOT
+> BRIDGED, ON ALL SIX GUESTS, SO THE "ONE AT A TIME" RULE DOES NOT APPLY TO
+> IT.*** `bridgeadapter1` is absent from every `showvminfo --machinereadable`.
+> A duplicate MAC is harmless on NAT because each guest gets its own stack, so
+> **guests may run concurrently again** — that is the rig section's "NAT escape",
+> and the rebuild took it. ***THE PRICE CAME WITH IT AND IT IS NOT OPTIONAL
+> NOW***: a NAT guest is **not reachable from the LAN by address**, so anything
+> measuring *"another computer on your network can connect to this one over
+> ssh"* — §5.9's remote-block control, and the ssh half of anything below —
+> cannot be measured on this rig as it stands. **The three shared folders are
+> unaffected** (`\\vboxsvr` does not go over the NIC), so install, uninstall and
+> capture work normally. Entry **145** needs none of the lost half.
+>
+> ### ***THE GUEST CAN NOW BE DRIVEN FROM HERE, AND THAT IS THE REUSABLE PART***
+>
+> ***`gplbld/vm-type.ps1` (NEW) TYPES INTO A GUEST OVER `keyboardputscancode`***
+> — the one route the record allows (`guestcontrol` needs credentials;
+> `keyboardputstring` drops characters). With `screenshotpng` it drove three
+> installs, three uninstalls and every dialog in this sitting. **A character it
+> has no code for is refused by name and NOTHING is typed.**
+>
+> ***THREE THINGS IT COSTS TO LEARN THE HARD WAY, ALL PAID FOR ALREADY:***
+>
+> - ***`ALT+F4` ON THE DESKTOP OPENS "Shut Down Windows".*** It nearly ended a
+>   run. `ESC` cancels it. Only send it when a window you can SEE has focus.
+> - ***FOCUS IS LOST WHENEVER A WINDOW OPENS OR CLOSES, AND KEYS THEN GO
+>   SOMEWHERE ELSE.*** A `y` typed at the post-install prompt landed in a
+>   different shell and looked like the prompt ignoring it. **`ALT+TAB` first,
+>   then screenshot, then type.**
+> - ***AND THE ONE THAT MATTERS: KEYS SENT AT THE POST-INSTALL PASSWORD PROMPT
+>   GO INTO THE PASSWORD FIELD.*** `CTRL+C`, `ALT+TAB` and `ALT+F4` all landed
+>   as characters — the field showed six of them. **Do not try to dismiss that
+>   window by keyboard.** The owner types the password, or the guest is
+>   restarted.
+>
+> ### ***WHAT THE SITTING MEASURED, ONE LINE EACH***
+>
+> | | verdict |
+> |---|---|
+> | **120** | all six present after uninstall-then-reinstall, database kept; no `NOT locked` text anywhere in the closing box |
+> | **132** | `cat`, `prt`, `$hold` back — **but absent in between**, which is 145 |
+> | **133** | box now names the `AllowGroups` write, the restart and the dropped sessions; mtime **14:59:00 → 23:42:14**, `sshd` created **23:42:15**; the upgrade run is the control, where it moved nothing and said so |
+> | **134** | **3,772 entries before, 3,772 after, 0 disappeared** — and `diff-capture.ps1` now does the comparison |
+> | **135** | `sdsshonly` **restored** (first live `Add-LocalGroupMember`), `sdapi` **still silently empty** — open on that |
+> | **139** | Keep/Delete command links on both questions; confirmation **and** a stamped log line on **both** branches |
+> | **89** | API box **hidden** with `sd.conf` present, **offered** without it, same machine; `sd.conf` and firewall unmoved — open on the API-ON case |
+> | **140** | Keep → `sdusers` stays; Delete → goes; hand-deleted tree → question never asked and it **still** goes |
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***DO NOT READ "132 IS DONE" AS "`uninsneveruninstall` WORKS".*** It is
+>    done because the directories are there afterwards. **Which half of the fix
+>    put them there is 145 and is not settled.**
+> 2. ***`capture-state` MUST BE RUN ELEVATED OR `$cred` AND `dumps` LIE.***
+>    Unelevated they now report `UNREADABLE`; the 2 Sep witness read the old
+>    `0 entries` as "empty and survived" and was wrong. `diff-capture` refuses a
+>    capture marked `NOT COMPARABLE` for the same reason.
+> 3. ***AN INSTALLER'S CLOSING BOX IS EVIDENCE AND IT IS GONE ONCE DISMISSED.***
+>    133 and 120 were both decided by reading one box. **Screenshot it before
+>    anyone clicks OK.**
+>
+> # ⇩⇩⇩ HANDOFF 20, 2 Sep 2026 — ***FOUR ENTRIES CLOSED (141, 142, 143, 144), TWO BUILT AND AWAITING A GUEST (133, 140). THE TREE IS CURRENT AND `assert-current` IS GREEN. NOTHING NEEDS COMPILING. START WITH THE GUEST SITTING — IT NOW CLOSES EIGHT.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** `cycle.ps1` **22:46:01, exit 0**, 190 compiles at
+> 0 errors, installer **4,963,912** bytes, installed **22:46:52**,
+> `assert-current` *"the installed tree matches source"*, **eleven free checks
+> green**. ***OPEN 20, NEXT FREE ID 145, NEXT RUN TOKEN `b103`.*** The working
+> tree is clean apart from `generate_gap_analysis_pdf.py`, which is untracked and
+> belongs to entry **80**.
+>
+> ### ***WHAT TO DO NEXT, IN COST ORDER***
+>
+> 1. ***THE GUEST SITTING — IT NOW CLOSES EIGHT ENTRIES IN ONE RUN***: 120, 132,
+>    133, 134, 135, 139, 89, and **140, which needs TWO runs there**. The order
+>    is the point and is written under "THE GUEST SESSION" further down. **134 is
+>    free if it rides it** — `capture-state.ps1 -Label first -Manifest` before,
+>    `-Label after -Manifest` after, then diff. **140's second run** is a
+>    hand-deleted tree then an uninstall, where the question never appears and
+>    `sdusers` must still go.
+> 2. ***TWO THINGS ARE THE OWNER'S AND BLOCK NOTHING ELSE***: **96**'s (b) vs (c)
+>    — two shapes are on record and they disagree, **build neither until he
+>    says** — and whether the **ten unlisted free guards** join "run these on
+>    every change".
+> 3. **136** is one `create.account` on a **PROGRAMMER** tier away from closing;
+>    it was witnessed on STANDARD, 10 of 10 described.
+> 4. Then the builds: **137** (free), **114** (BASIC), **93**, **70**, **66**,
+>    **65**; the C work **102**, **16**, **96**; and **80** as its own project.
+>
+> ***THE OWNER'S COST MODEL, STATED 2 Sep 2026***: *"i don't mind uac clicks or
+> cycles — only complete validation sweeps take a lot of time."* **So build,
+> compile and cycle freely. The ~20-minute full suite is the expensive thing.**
+>
+> ***READ THIS FIRST IF YOU READ NOTHING ELSE: A GREP OF `sdsys\voc` IS NOT AN
+> INSTRUMENT.*** It is a dynamic file. This session grepped it, got 0 hits for
+> descriptions `listf` plainly displays, concluded SDSYS runs on a mostly-bare
+> VOC, **committed that, and was wrong.** `listf` on the install says 16 of 16
+> described. A hit proves presence; **a miss proves nothing.**
+>
+> ***THE ONE SENTENCE: THE TREE IS BUILT, INSTALLED AND CURRENT, AND WHAT IS
+> LEFT IS WITNESS WORK PLUS ONE RULING.*** Full cycle 21:28:26, **exit 0**, 190
+> compiles at 0 errors, installer **4,963,414 bytes**, installed **21:29:26**,
+> `assert-current`: *"the installed tree matches source"*. Nine free checks
+> green. ***A CYCLE ENDS AT THE NEXT SOURCE CHANGE — this one is still open, so
+> anything measured before the next edit counts.***
+>
+> ### ***THE WITNESS RUN OF 21:29:26 — ALL FOUR DONE, AND ONE OVERTURNED AN ANSWER THIS FILE HAD ALREADY COMMITTED***
+>
+> 1. ***`listf` IN SDSYS: 16 FILE RECORDS, ALL 16 DESCRIBED. THE GUEST WAS
+>    RIGHT.*** An earlier entry in this handoff said the opposite — 10 described
+>    and 6 bare — on a **grep of the raw dynamic VOC**, and that was a bad
+>    instrument, not a bad guest. **`sdsys\voc` is a dynamic file: a grep hit
+>    proves presence, a grep MISS proves nothing** (838 printable runs of 12+
+>    characters, only 11 containing `File`, against 16 described records).
+>    ***So `CREATEA`'s "keeps field 1 whole" is TRUE and only "straight from
+>    voc_template" is false***: on the six records both templates carry, SDSYS
+>    shows **newvoc's** wording — all six bare in `voc_template` — while its own
+>    extras show `voc_template`'s. **SDSYS's VOC is a copy of NEITHER template
+>    alone, which is what 142 said when it was filed.**
+> 2. ***`create.account` THEN `listf`: 10 RECORDS, ALL 10 DESCRIBED, `newvoc`
+>    INCLUDED — 142's FIX IS WITNESSED.*** `verify-createaccount -Account
+>    sdw142a -Keep`, **18 of 18** decisive checks, then `-Cleanup`. **And it
+>    found the cause of 142's open question**: `CREATEA:1449`, `:1458`, `:1467`
+>    compose a **third** wording — *"File for deferred prints"*, *"File for saved
+>    select lists"*, *"File for BASIC programs"* — in neither template, which is
+>    why `$hold` and `bp` read differently in the two accounts.
+> 3. ***THE TWO PAGES READ CORRECTLY*** — 141. Both rendered from source with
+>    the new `strip-comments.ps1`, and both name the PATH symptom beside the
+>    token one with the right cure against each.
+> 4. ***`check-install.ps1`: "Everything checks out", exit 0*** — every row green
+>    including the new PATH line, with the service running and the API listening.
+>
+> ### ***WHAT WAS BUILT AND COMPILED THIS SESSION***
+>
+> - ***141, DONE — AND IT HAD A SECOND COPY THE ENTRY DID NOT NAME.*** The
+>   closing box (`sd.iss:3975`) *and* the options page (`:1940`) both said only
+>   *"cannot open its files"*. `check-install.ps1:339-373` gained the PATH check,
+>   in the same machine-vs-token two-question shape as `sdusers`; **both its
+>   branches are witnessed with a control** (bin dir on process PATH before=1,
+>   after=0). Retired wording registered as **`Until then it`**, not *"cannot
+>   open its files"* — that phrase is still true and still shipped.
+> - ***142, DONE — AND ITS OWN REASONING WAS BACKWARDS.*** `newvoc/newvoc` now
+>   carries the description. **`CREATEA`'s comment was false in the opposite
+>   clause from the one the entry named**: SDSYS's VOC *is* a straight copy of
+>   `voc_template` (measured on the staged tree — voc_template's descriptions are
+>   in it, newvoc's are not), and what is false is *"keeps field 1 whole"*. The
+>   conclusion is re-hung on `CPROC:1194`/`:1282`, read rather than cited.
+>
+> ### ***THE ONE THING THAT NEEDS THE OWNER: 140***
+>
+> **Gating `sdusers`'s survival on the database answer is NOT sufficient, and
+> that is new.** `RemoveSdGroups` and the `sdusers` comment are at
+> `sd.iss:4709`-`:4711`; **three `Exit`s stand between them and the question** —
+> `not DirExists(DataPath)` (`:4728`), `UninstallSilent` (`:4734`), `KeepOrDelete`
+> (`:4744`). A machine whose tree is already gone never reaches the question and
+> keeps the group anyway. ***THE GATE WANTS TO BE "IS THERE A DATA TREE WHEN THIS
+> UNINSTALL FINISHES", NOT "WHICH BUTTON WAS PRESSED"*** — which also gets
+> `UninstallSilent` right for free. **And it narrows rather than closes**: the
+> Windows accounts stay, enabled, with their passwords; they lose the seed list
+> that hands them ssh back.
+>
+> ### ***143, FILED FROM THE CYCLE'S OWN OUTPUT AND THEN CLOSED — NO CYCLE SPENT***
+>
+> The run printed *"note: probe-taskdialog.iss now appears in stage.py or sd.iss,
+> so it is watched again"*. ***THE COMMENT THAT DOCUMENTS THE TRAP RE-TRIPPED
+> IT***: `$shipsAs` matches a quote or a slash before the name, and `sd.iss:4577`
+> quotes `"gplbld/probe-taskdialog.iss"` — the rejected spelling — while
+> explaining why that spelling is wrong.
+>
+> ***FIXED BY SHARING THE STRIPPER, NOT BY REWORDING THE SENTENCE.***
+> `gplbld/strip-comments.ps1` is new and holds the two Pascal strippers plus
+> `Get-StrippedLines`/`Get-StrippedText`; `assert-current` and
+> `test-retired-wording-units` both read it, the `suite-only.ps1` shape.
+> `gplbld/test-stripcomments-units.ps1` is new, **26 checks**, and proves it
+> **red before green on the real `sd.iss`** — unstripped matches 1×, stripped 0×.
+> `assert-current` now exits **0** with the note gone.
+>
+> ***THE THREE THINGS WORTH CARRYING FORWARD FROM BUILDING IT:***
+>
+> 1. ***A UNARY COMMA ON A RETURN COST THE FIRST RUN.***
+>    `return , @($result.ToArray())` hands the caller a one-element array
+>    *containing* the array. The lint's `foreach` then iterated **once**, with
+>    `$e.Line` an array of every line number — and `Get-StrippedText` hid it by
+>    unrolling one level in the pipeline. **Return plainly; let callers wrap in
+>    `@()`.**
+> 2. ***THE "DID IT EAT THE FILE" FLOOR WAS GUESSED AND WAS WRONG.*** Written at
+>    40%, it failed at 28% and looked like over-stripping. **Counted instead:
+>    `sd.iss` is ~73% comment characters** — 61,004 in leading-`;` lines, ~105,652
+>    braced, ~30,683 in `(* *)`, against 269,947 raw. 28% surviving is correct.
+> 3. ***THE TWO CALLERS ERR IN OPPOSITE DIRECTIONS.*** An over-strip hides a
+>    retired phrase for the lint (safe) and a `Source` line for `assert-current`
+>    (a stale tree reporting CURRENT). So `assert-current` asserts
+>    `adopt-account.ps1` and `deny-logon.ps1` still match after stripping and
+>    **exits 2** if either goes.
+>
+> ***AND `$neverShipped` HAD ONE REAL GAP***: `test-retired-wording-units.ps1`
+> was never listed, so editing the wording lint turned the tree STALE for a file
+> that ships nowhere. **The directory was swept rather than the one name added** —
+> every other gplbld script absent from that list genuinely is named in
+> `stage.py` or `sd.iss`.
+>
+> ### ***ALL TWENTY OPEN ENTRIES VALIDATED AGAINST THE RECORD, 2 Sep 2026 — FOUR HAD DRIFTED, AND ONE OF THEM COST A RULING BEING ASKED TWICE***
+>
+> Owner's instruction, after a stale row sent a question back to him that the
+> record had already answered: *"validate all the remaining open tasks — check
+> history for each one."* **Four rows were wrong, two rows were right and looked
+> wrong, and the pattern is the same every time: the HEADLINE aged while the
+> body and the task table moved on.**
+>
+> | | was | is |
+> |---|---|---|
+> | **102** | *"the half-applied records STILL NEED THE RULING"* | ***RULED, AND IT WAS RULED BEFORE THE ROW WAS WRITTEN.*** The owner reversed the recorded decision — *"they are deleted, transactions are all or nothing"* — so a half-applied commit must undo its writes. `PROJECT_STATUS`'s own outstanding table carried it while the row denied it |
+> | **96** | *"NOT STARTED — THE OWNER'S CALL"* | ***THE CALL WAS DELEGATED AND MADE — (b) — two paragraphs further down the same row.*** The stale headline is what sent the question back to him, and he answered **(c)** without being shown that **(b)** stood. **Two shapes now on record; one word settles it. Build neither until then** |
+> | **70** | *"BUILT 2 Sep 2026, UNCOMPILED"* | **compiled 21:05:17-21:05:22 tonight**, and the lock flag is witnessed. What remains is the upgrade path only |
+> | **136** | *"UNCOMPILED AND UNWITNESSED"* | **both stale.** Compiled 21:05; witnessed 21:54 — `listf` in a created account, **10 of 10 described**. Short only of the row's own **PROGRAMMER** tier; `sdw142a` was STANDARD |
+> | **65** | looks closed in HISTORY (30 Aug) | ***CORRECTLY OPEN.*** Closed on the product half, then **re-opened 31 Aug** because the harness half regressed, and raised S → B. The row documents this itself |
+> | **16, 80, 93, 114, 133, 137, 139, 120, 132, 134, 135, 66, 89** | — | **checked, no drift.** 93's shape was ruled 1 Sep and its row says so; 66's decision was taken 26 Aug and its row says so |
+>
+> ***THE GAP ALL FOUR LIVED IN IS NOW ENTRY 144.*** The task table is *"THE
+> AUTHORITY ON STATUS. The entries below carry the reasoning; this carries the
+> state."* **A PRE_RELEASE headline is reasoning, not state** — and
+> `check-stale-leads.py` enforces that only for the **26** §7 steps, never for
+> the entry rows. ***THE MACHINERY IS ALREADY WRITTEN AND AIMED AT ONE FILE***:
+> its **phase 1** is *"an entry whose OPENING status is contradicted later in
+> itself"* — **96 exactly** — and its **phase 2** is the table-against-entries
+> check that would have caught **102**. Neither has ever read
+> `PRE_RELEASE_FIXES.md`. **70 and 136 are out of reach of any scan** and 144
+> says so: they went stale because *work happened*, and the file's own limit is
+> that *"no checker over a document can know what a machine is doing"*.
+>
+> ### ***TWO RULINGS TAKEN 2 Sep 2026, BOTH NOW IN THEIR ROWS, NEITHER BUILT***
+>
+> - ***140 — gate `sdusers` on whether a data tree survives the uninstall***, not
+>   on which button was pressed. Covers all three `Exit` paths and gets
+>   `UninstallSilent` right for free. **It narrows rather than closes and he was
+>   told so before choosing**: the Windows accounts survive with their passwords.
+> - ***138 — shape (b), set both credentials.*** Two prompts, honest about there
+>   being two accounts, and the only option consistent with 130. **No verifier
+>   can ever exercise it** — `LOGIN:955` guards on a tty and every automated
+>   route pipes stdin.
+>
+> ### ***133 AND 140 ARE BUILT AND COMPILED, 2 Sep 2026 — BOTH UNWITNESSED***
+>
+> **The tree is CURRENT again**: `cycle.ps1` 22:46:01, exit 0, 190 compiles at 0
+> errors, installer **4,963,912** bytes, installed **22:46:52**,
+> `assert-current` *"the installed tree matches source"*. It carries 133, 140
+> and the `CREATEA` comment correction.
+>
+> - ***133*** — the wording now comes from **what `ApplyAllowGroups` did**, via a
+>   new `AllowGroupsWrote` set only in the `Code = 0` branch. ***`SshReport` HAD
+>   TO MOVE***: it ran **before** `ApplyAllowGroups`, so it could not know
+>   whether the write happened — which is how it came to answer from
+>   `SshWasAbsent`. `SshMsg` has one other reader, so moving it changes nothing
+>   else.
+> - ***140*** — `RemoveSdUsersGroup` at the two points where no tree survives:
+>   the `not DirExists` exit (the hole gating on the button would have left) and
+>   the Delete branch. `UninstallSilent` keeps the tree and keeps the group.
+>   **All four groups were present after the cycle, which is the correct
+>   non-regression** — the cycle uninstalls `/VERYSILENT` with the tree still
+>   there.
+>
+> ***THE WITNESSES BOTH NEED THE GUEST SITTING***, and 140's is two: an
+> interactive uninstall answering **Delete**, then `sdusers` gone; and a
+> hand-deleted tree then uninstall, where the question never appears and the
+> group must still go.
+>
+> ***A TRAP PAID FOR IN 5 SECONDS RATHER THAN A CYCLE***: a continuation line
+> starting `#13#10#13#10` is read by ISPP as a directive. `check-iss.ps1` named
+> the line and refused. **Run it before every cycle that touches `sd.iss`.**
+>
+> ### ***144 IS BUILT AND CLOSED — PHASE 4, AND A RED GUARD NOBODY WAS RUNNING***
+>
+> `check-stale-leads.py` gained **phase 4** over `PRE_RELEASE_FIXES.md`'s index:
+> **does an open row say a ruling is outstanding while the same row records
+> one?** It **ranks and does not decide**; phase 2 stays the only decider.
+> `test-staleleads-units.py` **18 of 18**, five new cases, red proved before
+> green against a fixture of 96's unquoted wording.
+>
+> ***THREE THINGS WORTH CARRYING FORWARD FROM BUILDING IT:***
+>
+> 1. ***"REUSE PHASE 1's PATTERNS" WAS WRONG AND MEASURING SAID SO FIRST.***
+>    They do not fire on 96 — `OPEN_PAT` has no *"NOT STARTED"*, `CLOSE_PAT` no
+>    *"delegated"*. Reusing them would have shipped a scan that found nothing
+>    and looked clean.
+> 2. ***THE FIRST DRAFT WAS WRONG THREE TIMES IN FOUR.*** The full status
+>    vocabulary flagged 120 and 132, where *"unwitnessed … witnessed"* and
+>    *"not yet witnessed … ruled"* are both honest. **Narrowed to the ruling
+>    axis it flags neither**, and the real file reports 0 of 21.
+> 3. ***QUOTED TEXT IS STRIPPED*** — the `test-retired-wording-units` reason.
+>    Entries 96 and 144 quote both halves of the contradiction they document,
+>    and would otherwise be flagged for ever for recording it.
+>
+> ***AND A RED GUARD WAS FOUND: `test-staleleads-units.py`, 12 of 13, NOT IN THE
+> FREE-CHECK LIST SO NOTHING RAN IT*** — while `check-stale-leads.py` itself
+> exited 0, because the failing case guards phase 1, which does not decide.
+> **The cause was not code**: it asserted a literal *"0 entr(ies)"*, true only
+> while the document ranked no leads, and it ranks one now — a heuristic
+> near-miss on the word *"struck"*, about the OpenQM documents rather than about
+> H.2. **Re-anchored on the baseline; the document was not rewritten**, because
+> editing a true heading to silence a ranking heuristic is gaming the instrument.
+>
+> ***THE RIDER NEEDS YOUR CALL***: ten more free guards are green and unlisted —
+> `test-edittokens`, `test-upgradeiss`, `test-acctmsgs`, `test-apiidentity`,
+> `test-deletioncheck`, `test-doorsargv`, `test-reclaim`, `test-sdpath`,
+> `test-sysmsg`, `test-vocverbs`. **Naming them in "run these on every change"
+> changes what that sentence asks of every session, so it was not assumed.**
+>
+> ### ***OPEN 20***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140. ***NEXT FREE ID: 145. NEXT RUN TOKEN: `b103`.*** **TEN free checks now** — `test-stripcomments-units` joined the list in CLAUDE.md in the commit that created it — all green, `test-fixlist-units` 251/0, `assert-current` exit 0.
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***HANDOFF 19's THREE TRAPS ALL STILL STAND*** — a third account name
+>    (`zz135`/`zz135b` exist as Windows accounts), **138 is not a credential
+>    bug**, and **do not register `update.account` as retired wording**. Read
+>    them below before starting.
+> 2. ***AN INSTALLER SIZE IS THE EVIDENCE A TRANSCRIPT IS NOT*** (137). The two
+>    builds tonight went 4,961,735 → 4,963,234 bytes, both from complete-looking
+>    logs; **the size is what proves the change went in.**
+> 3. ***`CREATEA`'s OBJECT GREW 27 BYTES ON A COMMENT-ONLY CHANGE*** (7,864 →
+>    7,891, +27 source lines). That is the line-number table, not a stray edit —
+>    checked, the diff touches no line that is not a `*` comment. **Do not spend
+>    a session on it next time it happens.**
+>
+> # ⇩⇩⇩ HANDOFF 19, 2 Sep 2026 — ***SIX ENTRIES FILED, THREE BUILT, NOTHING COMPILED SINCE 19:52. START WITH `cycle.ps1 -SkipInstall`; IT CARRIES A VERB RENAME AND A BASIC CHANGE.*** ⇩⇩⇩
+>
+> ***THE ONE SENTENCE: THE GUEST RUN NEVER FINISHED, BECAUSE EVERY LEG OF IT
+> TURNED UP SOMETHING WORTH STOPPING FOR.*** 120, 132, 134, 135 and 139's new
+> dialog are all still unwitnessed. **Do not report any of tonight's build as
+> working.**
+>
+> ### ***STEP 1 — PROVE IT COMPILES***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> **ELEVATED PowerShell, FRESH WINDOW** (137). It carries **`LOGIN` (new code
+> plus a rename), `CPROC`, `CREATEA`, `CONFIG`, `KEYS.H`, a new message 10166, a
+> renamed VOC record and a `TIER.ADD.ADMINISTRATOR` edit.** ***`sd.iss` IS
+> ALREADY PROVED*** — `C:\Users\dmont\sdout\check-iss.ps1` compiles it against
+> the staged tree without a cycle, 4,833 lines, ISCC exit 0, output to a scratch
+> directory so it cannot overwrite the installer a guest is using. **Use it
+> before every cycle that touches `sd.iss`; it costs 5 seconds.**
+>
+> ### ***WHAT WAS BUILT, ALL UNCOMPILED***
+>
+> - ***THE VERB IS `update.accounts`.*** Owner's ruling. 44 occurrences, 14
+>   files, plus the VOC record itself. **Nothing dispatches on the name** —
+>   CPROC reaches it as internal verb 15. **Both closing pages also stop telling
+>   the reader to visit every account by hand**, which was never necessary and
+>   was impossible for the tiers lacking the verb.
+> - ***A VERB NEVER HONOURS `[locked]`.*** Owner's ruling: *"users should not be
+>   modifying them"*. `new.type = 'V'` falls through to the replace and is
+>   tallied separately; **new message 10166** names the overruled ids. The
+>   escape hatch is that `UPDATE.VOC` only walks NEWVOC, so a site's **own**
+>   verb is never visited and needs no marker.
+> - ***139's BOTH HALVES.*** Keep/Delete command links via `KeepOrDelete()`, and
+>   `RecordDatabaseChoice()` confirming the outcome **both ways** and writing a
+>   stamped line to `%TEMP%\sd-remove-database.log`. **`MinVersion=10.0`** with
+>   them.
+>
+> ### ***WHAT WAS WITNESSED AND PASSES***
+>
+> **70's lock flag** — `[locked]` on SDSYS's `who`, then the verb: *"1 VOC
+> record(s) were left alone because they are marked [locked]: who"*, count **and**
+> id. **136** — a created account now shows descriptions, 9 of 10.
+>
+> ### ***OPEN 24***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142. ***NEXT FREE ID: 143. NEXT RUN TOKEN: `b103`.*** All nine free checks green.
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***THE GUEST IS NOT CLEAN AND `zz135`/`zz135b` BOTH EXIST AS WINDOWS
+>    ACCOUNTS.*** `create.account` refuses a name whose Windows account exists —
+>    **use a third name.** And `sdusers` still holds them, which is what makes
+>    **140** reproducible.
+> 2. ***138 IS NOT A CREDENTIAL BUG.*** Two accounts, one password. The prompt
+>    names **SDSYS**. Reproduced on a clean install tonight, third sighting.
+> 3. ***DO NOT REGISTER `update.account` AS RETIRED WORDING.*** Matching is
+>    substring and it is inside `update.accounts`; the lint would fail against
+>    its own replacement for ever. The retired **instruction** is registered
+>    instead.
+>
+> # ⇩⇩⇩ HANDOFF 18, 2 Sep 2026 — ***THE GUEST RUN LOST ITS DATABASE HALF-WAY AND PRODUCED THREE ENTRIES INSTEAD OF CLOSING SIX. A CYCLE IS OWED. `sd.iss` HAS CHANGED AND `assert-current` IS RED BY DESIGN.*** ⇩⇩⇩
+>
+> ***WHAT HAPPENED, IN ONE LINE: THE UNINSTALLER'S TWO QUESTIONS WERE BOTH
+> ANSWERED BACKWARDS, THE DATA TREE WENT, AND FOUR ENTRIES THAT NEEDED IT COULD
+> NOT BE WITNESSED.*** That is **PRE_RELEASE 139**, and it is a finding rather
+> than an accident — see below.
+>
+> ### ***THE STATE OF GUEST `Windows 11 - Test 10` RIGHT NOW***
+>
+> **No SD at all** — `C:\ProgramData\SD` and `C:\Program Files\SD` both absent,
+> `sdssh`/`sdapi`/`sdsshonly` gone. **`sdusers` and `sdu_ZZ135` survive, and
+> `zz135` is still an ENABLED Windows account with its password.** So the guest
+> is *not* clean and `create.account zz135` will be refused — **use a new name.**
+>
+> ***ONE FREE MEASUREMENT IS SET UP AND WAITING, TAKE IT ON THE NEXT INSTALL.***
+> `sync-route-groups.ps1` seeds `sdssh` **from `sdusers`**, which still holds
+> `zz135`; the register will be empty, so `restore-sshonly.ps1` adds nobody to
+> `sdsshonly`. **Predicted: `zz135` comes back able to ssh in, not confined, with
+> no SD account.** Read the four groups *before* creating anything.
+>
+> ### ***WHAT IS BUILT AND UNWITNESSED***
+>
+> **139's ASKING half.** Both uninstaller questions now go through one
+> `KeepOrDelete()` in `sd.iss` with **command links labelled Keep and Delete**
+> (owner's ruling). ***THE MAPPING IS INVERTED FROM THE OLD CODE AND THAT IS
+> FORCED, NOT CHOSEN***: focus follows `Labels[0]`, so the safe answer must be
+> first — **Keep = IDYES, Delete = IDNO**, where both call sites used to test
+> `= IDYES` for delete. **The inversion lives in one function on purpose.**
+> Every property was measured with `gplbld/probe-taskdialog.iss`, which is kept
+> and is on `$neverShipped`; **three of its six findings are invisible to a
+> compiler** — `MB_DEFBUTTON2` compiles and dies at run time with *"Invalid
+> Buttons"*, and the uninstaller context had to be proved separately.
+> **`MinVersion=10.0`** went in beside it (owner: *"I would allow 10 & 11 nothing
+> earlier … just because 10 is still in extended support"*) — **it was absent, so
+> Inno's Windows 7 SP1 default had been applying.**
+>
+> ***139's RECORDING half is NOT built and is the open part***: the database
+> question confirms nothing afterwards and writes no log, while the accounts
+> question does both — so nothing on disk can say which was chosen. That is why
+> this entry cannot state whether the click was wrong or the code was.
+>
+> ### ***NEXT STEPS, IN ORDER***
+>
+> 1. **A CYCLE.** `sd.iss` ships and has changed, so `assert-current` is red and
+>    the 17:45:23 installer is now behind source. `gplbld/check-iss.ps1`-style
+>    compile-checking is already done — **`sd.iss` compiles, 4,750 lines, ISCC
+>    exit 0** — but nothing has been installed.
+> 2. **Re-run the guest sequence properly**: install → read the four groups →
+>    create the witness account under a NEW name → `capture-state -Label first
+>    -Manifest` → interactive uninstall, **Keep on both questions** → reinstall →
+>    `capture-state -Label after` → diff. That closes **120, 132, 134, 135**, and
+>    now also witnesses **139's new dialog**.
+> 3. **136 and 70 never needed the database** and are still witnessable on any
+>    fresh install: `listf` in a created account showing descriptions, and
+>    `[locked]` after the type code in a VOC record surviving `update.account`
+>    with message 10165 naming it.
+>
+> ***OPEN 19***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134,
+> 135, 136, **137, 138, 139**. ***NEXT FREE PRE_RELEASE ID: 140. NEXT RUN TOKEN:
+> `b103`.*** **All nine free checks green.**
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***138 IS NOT A BUG IN THE CREDENTIAL CODE.*** An administrator has TWO
+>    accounts — unelevated lands in their own, elevated lands in SDSYS — and the
+>    install sets a password for the first while the second has none. **Nothing
+>    is broken; one of two needed credentials is set and nothing says there are
+>    two.** `LOGIN:955` needs a **tty**, and `kernel.c:251` takes it from
+>    `ttyname(fileno(stdin))`, so **every piped route skips the prompt** — which
+>    is why no cycle has ever met it and why **no verifier can**.
+> 2. ***DO NOT RE-DERIVE `TaskDialogMsgBox` FROM THE HELP.*** It is a compressed
+>    `.chm` and cannot be searched from the build tree. Everything known about it
+>    is in `probe-taskdialog.iss`, measured; re-run that instead.
+> 3. ***A `#` AT THE START OF A LINE IN AN `.iss` IS A PREPROCESSOR DIRECTIVE***
+>    — it cost two aborted compiles today, in the same file, on the same line
+>    number. `cycle.ps1:301` holds the whitelist that tells a real directive from
+>    a wrapped `#13#10`; **a bare `^\s*#` test is wrong and flags `sd.iss`'s own
+>    `#define` block.**
+>
+> # ⇩⇩⇩ HANDOFF 17, 2 Sep 2026 — ***HANDOFF 16'S STEP 1 IS DONE. IT ALL COMPILES. THE ONLY THING LEFT IS THE GUEST RUN, AND IT NEEDS A PERSON.*** ⇩⇩⇩
+>
+> ***STEP 1 PASSED — `cycle.ps1 -SkipInstall`, 2 Sep 17:44:46, elevated, and
+> the STAGED TREE WAS READ RATHER THAN THE RUN'S OUTPUT BELIEVED*** (the 26 and
+> 29 Aug precedent). `CREATEA` and `LOGIN` both **0 error(s)**, both added to
+> the global catalogue, both present in staged `gcat` and `gpl.bp.out` at
+> **17:45**; staged `messages/10165` **byte-identical to source**; staged tree
+> whole — **gcat 133, gpl.bp.out 192, `$CPROC` 26,128, `$BCOMP` 88,070**.
+>
+> ***THE INSTALLER TO WITNESS WITH IS `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`,
+> 4,959,678 BYTES, BUILT 17:45:23.*** **The host install is deliberately STALE**
+> — `-SkipInstall` stops before installing — and **SD is STOPPED** (step 1 stops
+> it and this path never restarts it): `sc.exe start SD` from an elevated prompt
+> if you want the host back, or just cycle.
+>
+> ### ***HANDOFF 16'S FACTS WERE ONE CYCLE STALE, AND THREE OF THEM WOULD HAVE MISDIRECTED THE GUEST RUN***
+>
+> **A FULL cycle ran at 17:03:23** — install **17:04:18**, `assert-current`
+> **green** — *after* the 17:01:52 ISPP failure that box calls the last run of
+> the day, and *before* the box was written at 17:30. So:
+>
+> - the `sd.iss` `[Dirs]`/`[Code]`, the new shipped `restore-sshonly.ps1` and
+>   the `stage.py` list change were **already compiled and installed**, not
+>   pending;
+> - the installer on the share was **4,957,848 at 17:03:57**, not 4,955,186 at
+>   16:40:42;
+> - the only uncompiled work was commit `5510aa6` — **`CREATEA`, `LOGIN`,
+>   message `10165`** — which is what 17:44:46 has now built.
+>
+> ### ***STEP 2 IS UNCHANGED AND IS NOW THE ONLY THING BLOCKING SIX ENTRIES***
+>
+> Handoff 16's Step 2 table stands **verbatim** — 120+132, 134, 135, 136, 70,
+> and the one non-administrator account that 135, 70 and 136 all ride on.
+> ***THE ONE CORRECTION: THE GUEST'S COPY IS NOW THREE BUILDS STALE***, not two.
+> `C:\Users\Public\sd-setup-W1.0-0.exe` there is still the **14:18:50** binary;
+> take the **4,959,678-byte, 17:45:23** one from `\\vboxsvr\sdout\` and check its
+> length before installing.
+>
+> ### ***FILED TODAY: PRE_RELEASE 137. NEXT FREE ID: 138.***
+>
+> ***A CYCLE'S TRANSCRIPT LOST 1,789 LINES OF ISCC OUTPUT FROM A FRESH WINDOW***,
+> and `cycle.ps1`'s "this window has already run a cycle" flag was wrong **both
+> ways** the same day — the flagged log is complete, the unflagged one is not.
+> It read as *"message 10165 never went into the installer"*, and the evidence
+> that settled it was **the installer size, which GREW**. The verdict was never
+> at risk (`cycle.ps1:469` gates on `$LASTEXITCODE`), but **a compile error
+> lands in exactly the dropped region — the front.** Two `cycle.ps1` changes went
+> in with it, neither shipped: the flag's comment now carries the measurement,
+> and **step 4 refuses an installer older than its own ISCC start** — the
+> previous code took the newest `sd-setup-*.exe` in `$Out`, which on an ISCC that
+> exited 0 without writing is the *previous* cycle's binary.
+>
+> **All nine free checks green after the edits** — tiercounts 15/15, fixlist,
+> verdict 140/140, sdtestuser, suiteonly 48/48, retired-wording 30/30,
+> stemcoverage, dirscoverage, stale-leads 0.
+>
+> # ⇩⇩⇩ HANDOFF 16, 2 Sep 2026 — ***EVERYTHING IS COMMITTED AND PUSHED AT `8087936`. NOTHING BUILT AFTER THE 16:13 INSTALL HAS BEEN COMPILED OR WITNESSED. START WITH `-SkipInstall`.*** ⇩⇩⇩
+>
+> ***THE ONE SENTENCE THAT MATTERS: SIX ENTRIES WERE BUILT TODAY AND NOT ONE OF
+> THEM HAS BEEN THROUGH A COMPILER.*** The session ended on credits, green on
+> every free check and red on `assert-current` by design. **Do not report any of
+> it as working.**
+>
+> ### ***STEP 1 — PROVE IT COMPILES, AND EXPECT THIS TO FIND SOMETHING***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> **ELEVATED PowerShell.** It carries **three BASIC changes** (`CREATEA` ×2,
+> `LOGIN` ×3 including new code), a **new message** (`10165`), **seven new
+> `[Dirs]` entries**, a **new `[Code]` function** in `sd.iss`, a **new shipped
+> script**, and a **`stage.py`** list change. ***THE LAST `cycle.ps1` OF THE DAY
+> STOPPED ON A FAULT OF MINE*** — `#13#10` at the start of a line, which ISPP
+> reads as a directive — **and its guard caught it before ISCC ran, which is the
+> precedent for expecting this step to earn its keep.** Nothing below is worth
+> starting until it reports a successful compile.
+>
+> ### ***STEP 2 — ONE GUEST RUN CLOSES SIX ENTRIES***
+>
+> **`Windows 11 - Test 10` is still in the state the four witnesses left it**,
+> and it is the rig. ***RE-COPY THE INSTALLER FIRST — THE COPY ON THE GUEST IS
+> TWO BUILDS STALE AND USING IT WOULD SCORE A FALSE FAILURE ON EVERY ENTRY
+> BELOW.*** `C:\Users\Public\sd-setup-W1.0-0.exe` there is the **14:18:50**
+> binary. After the cycle, copy the new one from `\\vboxsvr\sdout\` and check
+> its length.
+>
+> **The sequence, ELEVATED throughout, is the one 134 asks for and it witnesses
+> everything at once**: install → `capture-state.ps1 -Label first -Manifest` →
+> **interactive** uninstall KEEPING the database → reinstall →
+> `capture-state.ps1 -Label after -Manifest` → diff.
+>
+> | entry | what passes |
+> |---|---|
+> | **120 + 132** | all six of `bp`, `bp.out`, `batch.jobs`, `cat`, `prt`, `$hold` present, and **no `NOT locked` text of any kind** in the closing box |
+> | **134** | nothing in the first manifest missing from the second |
+> | **135** | needs a **non-administrator SD account created first** — nothing has exercised the live `Add-LocalGroupMember` |
+> | **136** | `listf` in a created account shows descriptions, not bare `F` |
+> | **70** | put `[locked]` after the type code in one VOC record, run `update.account`, see it skipped and **named** by message 10165 |
+>
+> ***135 AND 70 BOTH NEED AN ACCOUNT THAT DOES NOT EXIST YET.*** `create.account`
+> a PROGRAMMER with `ssh`, grant it `api`, record its membership of `sdssh`,
+> `sdapi`, `sdsshonly` **before** the uninstall. That one account is the witness
+> for both, and 136's `listf` check rides on it too.
+>
+> ### ***WHAT IS TRUE RIGHT NOW***
+>
+> - **Host install 16:13:21**, `assert-current` **exit 1** naming `sd.iss`,
+>   `stage.py`, `restore-sshonly.ps1` and the BASIC — **correct, not a fault.**
+> - **All eight free checks green**: fixlist **247/0**, dirscoverage, stemcoverage,
+>   retired-wording 30/30, verdict 140/140, sdtestuser 54/0, suiteonly 48/48,
+>   tiercounts 15/15, check-stale-leads 0.
+> - **Installer on the share: 4,955,186, built 16:40:42** — and **it predates
+>   the BASIC and `sd.iss` work**, so it is not the one to witness with either.
+> - **`Windows 11 - SD ssh baseline`** is the untouched re-run rig, licensed
+>   (shared hardware UUID) with its own MAC.
+> - ***OPEN 16***: 16, 65, 66, 70, 80, 89, 93, 96, 102, 114, 120, 132, 133, 134,
+>   135, 136. **Closed today: 74, 118.** **Filed today: 132, 133, 134, 135, 136.**
+>   ***NEXT FREE PRE_RELEASE ID: 137. NEXT RUN TOKEN: `b103`.***
+> - **B blockers: 65, 70, 80, 93, 120, 132, 136** — 70 and 136 raised today, 80
+>   gained a second item.
+>
+> ### ***THE THREE THINGS MOST LIKELY TO BE GOT WRONG NEXT***
+>
+> 1. ***70 IS HALF BUILT.*** The `[locked]` flag is in; **new verbs reaching
+>    existing accounts is not**, and its stated mechanism has a hole —
+>    `update.account` is in `TIER.ADD.ADMINISTRATOR`, so **only ADMINISTRATOR
+>    accounts have the verb**, while the closing box tells the reader to run it
+>    in each account. Settle that before building the first half.
+> 2. ***133 IS A WORDING FIX AND MUST NOT BE FIXED BY GATING THE ACTION.*** The
+>    step 3 box claims ssh was untouched while `sshd_config` was rewritten; the
+>    rewrite is CORRECT there and required (`sd.iss:1443`). Only the message is
+>    wrong.
+> 3. ***THREE PROBES I WROTE TODAY REPORTED A DENIAL AS A VALUE*** — a firewall
+>    rule, a process start time, and a directory entry count. **Every probe that
+>    reads something an unelevated session may not reach needs its own control**,
+>    the way the firewall line now prints `483 rules visible` beside its answer.
+>
+> ***THE DESTINATION SECTION ABOVE THIS BOX IS NEW AND IS THE REASON 135 WAS
+> BUILT THE WAY IT WAS.*** Read it before fixing 120, 132, 134 or 135 further.
+>
+> # ⇩⇩⇩ HANDOFF 15, 2 Sep 2026 — ***THE WITNESS RUN IS COMPLETE. ALL FOUR STEPS RAN ON `Windows 11 - Test 10`. 74 AND 118 CLOSED; 120 STAYS OPEN WITH ITS FIX PROVED INCOMPLETE; 132 AND 133 FILED.*** ⇩⇩⇩
+>
+> ***THE FOUR RESULTS IN ONE PLACE.*** **74 — WITNESSED, CLOSED**: the
+> interactive uninstall left `sdusers,sdu_don` and took `sdssh`, `sdapi`,
+> `sdsshonly`, which is the row's own criterion, and the cycle could never have
+> supplied it (`cycle.ps1:497` is `/VERYSILENT`). **118 — WITNESSED, CLOSED, BOTH
+> HALVES MEASURED**: over-the-top install, `sshd_config` mtime `15:44:32`
+> unmoved and `sshd` process `4964` created `15:44:34`, predating it — file not
+> rewritten, service not bounced. **120 — ITS THREE DIRECTORIES PASS AND THREE
+> MORE OF THE SAME CLASS ARE STILL DESTROYED**: `cat`, `prt`, `$hold` all
+> `exists=False`, and only `cat` is hardened so only `cat` said so. **89A — the
+> API box was not offered and `SD-API-In-TCP` stayed `(no rule)` against a
+> control of 483 visible rules.**
+>
+> ***TWO NEW ENTRIES CAME OUT OF IT, AND NEITHER IS A REPEAT OF 120.*** **132,
+> `B`** — `SDSYS_PRESERVE` names ten directories and `[Dirs]` protects three,
+> hand-enumerated; the *"YOUR DATA IS UNTOUCHED"* box at `sd.iss:3954` is
+> generated from the ten-entry list, so three of its six named promises —
+> *anything you catalogued*, *the print queue*, *held output* — are false on
+> this path. **The fix is a tier-1 guard comparing the two lists, not more
+> names.** **133, `S`** — the closing box told the reader ssh was untouched on
+> step 3 while `sshd_config` had just been rewritten and `sshd` bounced; the
+> message is gated on `not SshWasAbsent` and the action on `not TrueUpgrade`,
+> which are independent. **118's defect on a path 118's fix does not reach.**
+>
+> ~~***ONE MEASURED THING IS UNEXPLAINED AND 132 IS BLOCKED ON IT***~~
+> ***RESOLVED THE SAME DAY. 132 IS UNBLOCKED, THE MECHANISM HAS NO EXCEPTION,
+> AND THE `entries=0` THAT RAISED THE QUESTION WAS NOT A MEASUREMENT.***
+> **`dumps` is not a survivor**: `secure-dumps.ps1:64` creates it when absent
+> and its `[Run]` entry (`sd.iss:828`) has no `Check:` and no `Tasks:`, so it
+> runs on every install. **`$cred` was never observed empty**: both it and
+> `dumps` are `/inheritance:r` with grants to SYSTEM and Administrators only, so
+> an unelevated `don` gets *"Access is denied"* — `Test-Path` said `True` from
+> the parent listing while `Get-ChildItem -ErrorAction SilentlyContinue`
+> returned nothing and `.Count` gave **0**. **So the rule is the plain one**: an
+> empty preserved directory the installer recorded is removed at uninstall
+> unless something puts it back, and exactly two things do — a `[Dirs]` entry,
+> or a create-if-missing hardening script. `cat`, `prt`, `$hold` have neither.
+> ***AND `$cred` WAS THEN READ ELEVATED ON THE GUEST RATHER THAN LEFT AS THE
+> BETTER EXPLANATION: 1 ENTRY, NON-EMPTY, LEFT ON CONTENT.*** Every directory
+> in the sweep now has a measured reason and none is unexplained.
+>
+> ***AND THEN 132 WAS BUILT ON THE OWNER'S INSTRUCTION — "build 132 with dirs
+> entries for cat, prt and $hold". BOTH HALVES ARE IN; NEITHER IS WITNESSED.***
+> Three `[Dirs]` entries in `sd.iss` with `uninsneveruninstall`, and
+> **`gplbld/test-dirscoverage-units.ps1`**, which reads `SDSYS_EMPTY` and
+> `SDSYS_PRESERVE` out of `stage.py` and the `[Dirs]` block out of `sd.iss` and
+> fails anything in both python lists with neither an entry nor a declared
+> exemption. **Proved red both ways before green** — three lines removed gives
+> exit 1 naming exactly `$hold, cat, prt`; three lines present *without*
+> `uninsneveruninstall` also gives exit 1, because that flag is tested rather
+> than assumed. **Four null cases exit 2, plus a `bp` canary.** Live: **11 at
+> risk, 6 with entries, 5 declared exempt, 0 unprotected.** It is on
+> `assert-current`'s `$neverShipped` in the same commit, and `assert-current`
+> was run after and names only `gplbld\sd.iss` — which is the expected red, a
+> cycle being owed again.
+>
+> ***BOTH OUTSTANDING QUESTIONS WERE THEN RULED THE SAME DAY — "your choice on
+> both ... as long as the directories are not needed and reinstalled when the
+> install after removal happens" — AND THE CONDITION DECIDED THE FIRST ONE.***
+>
+> **(1) THE FOUR CONTENT-PROTECTED DIRECTORIES NOW HAVE `[Dirs]` ENTRIES TOO**
+> — `$cred`, `os.users`, `os.users.dic`, `batch.jobs.dic`. ***HAVING CONTENT
+> DOES NOT MEET THE RULING***: it means the uninstaller does not TAKE the
+> directory, not that anything REINSTALLS it, so a site whose `$cred` happened
+> to be empty would lose it exactly as `cat` did and no later install would put
+> it back. **`[Dirs]` is the only one of the two mechanisms that heals.** The
+> guard's `content` exemption kind is deleted rather than emptied, with the
+> distinction kept as a comment, and an exemption whose `kind` it cannot verify
+> is now a **failure** rather than a typo. **10 of 11 at risk hold an entry, 1
+> exempt (`dumps`), 0 unprotected.**
+>
+> ***THE RULING'S OTHER HALF WAS CHECKED RATHER THAN ASSUMED***: `sd.iss:4465`
+> removes the database with `DelTree(DataPath, True, True, True)` from `[Code]`,
+> which never consults the uninstall log — so `uninsneveruninstall` cannot keep
+> anything the user asked to destroy. **Nothing needs them absent either**: a
+> `[Dirs]` entry only ever creates, and `secure-cred.ps1` and
+> `secure-osusers.ps1` both exit 2 on a missing path, so guaranteeing existence
+> can only move them from failure to success.
+>
+> **(2) CLAUDE.md's tier-1 list now names `test-stemcoverage-units` and
+> `test-dirscoverage-units` too.** Both had shipped without being added, so
+> *"run the free tests"* meant a list that excluded them — **the same
+> two-lists-kept-by-hand shape both guards exist to catch, in the file that
+> tells the next session what to run.** The rule that a new free guard is
+> registered there in the commit that creates it is written into that sentence.
+>
+> ***AND THE OWNER'S OBSERVATION AFTER ALL THAT IS WIDER THAN ANY OF IT, AND IS
+> NOW 134***: *"all the system files and directories that existed when sd was
+> first installed need to exist after it is reinstalled."* **120 and 132 are its
+> directory-shaped subset** — preserved directories that ship empty — and
+> `test-dirscoverage-units` guards only that. **The invariant covers every file
+> and directory in both trees and nothing checked it.**
+> ***`capture-state.ps1 -Manifest` IS BUILT FOR IT***, off by default: sorted,
+> root-relative `D `/`F ` lines so two captures diff cleanly, and **a directory
+> this process may not read is NAMED, with the tree marked `NOT COMPARABLE`.**
+> That guard is the point — a subtree readable before and denied after would
+> diff as hundreds of deleted files and read as data loss. **Proved by running
+> it unelevated on purpose**: 136 entries in `Program Files\SD`, 3618 in
+> `ProgramData\SD`, and `NOT COMPARABLE: 3` naming `profile-reclaim`,
+> `sdsys\$cred`, `sdsys\dumps`. ***THE WITNESS IS FREE IF IT RIDES THE RUN 120
+> AND 132 ALREADY NEED*** — `-Label first -Manifest`, uninstall keeping the
+> database, reinstall, `-Label after -Manifest`, diff. **ELEVATED, or the
+> capture says NOT COMPARABLE and means it.**
+>
+> ***FOUR NEGATIVE CONTROLS, ALL RED WITH THE RIGHT MESSAGE***: entries removed
+> (names `$hold, cat, prt`), entries present without `uninsneveruninstall`, an
+> exemption relabelled to an unverifiable kind, and `secure-dumps.ps1` doctored
+> so it no longer creates — the last proving the machine-checked reason really
+> is checked. Every branch of the guard has now been exercised.
+>
+>
+> ***THAT IS THE THIRD TIME IN ONE SESSION A PROBE OF MINE REPORTED A DENIAL AS
+> A VALUE***, after `SD-API-In-TCP : (no rule)` and `sshd process started :`
+> (empty). **The shape is always the same — `-ErrorAction SilentlyContinue`
+> feeding a count, a property or an `else` branch, so "could not look" and
+> "nothing there" print identically.** Every probe that reads something an
+> unelevated session may not reach needs its own control, the way the firewall
+> line now prints `483 rules visible` beside its answer.
+>
+> ***THE GUEST IS NOW: SD INSTALLED (over-the-top, `SD` service Running,
+> Automatic), ssh Running, API off, `cat`/`prt`/`$hold` MISSING.*** It is the
+> state 132 and 133 were found in, so **keep it until they are built** — and the
+> baseline clone `Windows 11 - SD ssh baseline` is untouched and is the re-run
+> rig.
+>
+> ***THE GUEST IS MID-SEQUENCE AND MUST NOT BE REBUILT.*** `Test 10` has the
+> **new** installer on it (`C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`,
+> 4,954,811 bytes, built 2 Sep **14:18:50** — it carries 118, 120 and 89A).
+> Step 1 was installed with **ssh server TICKED, ssh-remote UNTICKED, API
+> UNTICKED**. Nothing else has been done to it.
+>
+> ***RESUME IN THIS ORDER. DO NOT SKIP THE CLONE — IT BANKS A ~20-MINUTE
+> DOWNLOAD.***
+>
+> ***ITEMS 1 AND 2 ARE DONE — 2 Sep 2026. RESUME AT ITEM 3, THE INTERACTIVE
+> UNINSTALL.*** Snapshot A clean (its reading is recorded below); the baseline
+> clone exists as ***`Windows 11 - SD ssh baseline`***, MAC `080027276562`,
+> hardware UUID `59d00c9d-…` shared with the Template as the licence needs, all
+> **three** shares inherited. **Checked across every registered guest: 7 VMs, 7
+> distinct MACs, no collision** — so it may run alongside the others.
+>
+> 1. ~~**Snapshot A** (read-only, command below)~~ — **DONE, clean.**
+> 2. ~~**Shut `Test 10` down and CLONE it.**~~ — **DONE.** That clone is "SD + ssh server,
+>    nothing else" and is the owner's re-run rig. `clonevm` refuses a running VM.
+>    ***CLONE WITH `--options=keephwuuids` OR THE CLONE IS UNLICENSED*** — and
+>    **not** `keepallmacs`; the two are decided separately, see the rig section's
+>    "THE TWO CLONE OPTIONS ARE NOT A PAIR". ***SUPERSEDED 3 Sep 2026 — IT IS
+>    `--options=keephwuuids,keepallmacs` NOW, BOTH, AND THE MAC HALF IS ALSO A
+>    LICENCE REQUIREMENT.*** Left as written because this step is struck and is
+>    the record of what was run that day; the live rule is in the rig section.
+> 3. ~~Boot it back and do **step 2**: an **INTERACTIVE uninstall, KEEPING the
+>    database** = **74**.~~ — ***DONE, AND 74 HOLDS.*** `sdssh`, `sdapi`,
+>    `sdsshonly` gone; `sdusers` and `sdu_don` still there. The accounts-removal
+>    offer was declined (**No**, its default) — it is a different branch and not
+>    part of 74.
+> 4. **Step 3**: reinstall, **database KEPT** = **120 + 89A**. Expect **no
+>    hardening warning**, `sdsys\bp`, `bp.out`, `batch.jobs` all present, the
+>    **API box NOT offered**, and `SD-API-In-TCP` unchanged.
+>    ***THE TASKS PAGE IS SHOWN ON THIS PATH AND THAT IS CORRECT*** —
+>    `SdWasInstalled` is false once the uninstall key is gone, so `TrueUpgrade`
+>    is false; `sd.iss:1443`'s comment covers exactly this case.
+>    ***AND THIS STEP IS EXPECTED TO MOVE `sshd_config`'s mtime.*** Record the
+>    new value: it, not snapshot A's, is what step 4 compares against.
+> 5. **Step 4**: install again over the top = **118**. `sshd_config` mtime must
+>    **NOT** move ~~from the value snapshot A records~~ ***from the value STEP 3
+>    leaves. CORRECTED 2 Sep 2026 — SNAPSHOT A'S VALUE IS ALREADY DEAD AND
+>    COMPARING AGAINST IT WOULD FILE A FALSE FAILURE AGAINST 118.***
+>
+> ***WHY THE ANCHOR MOVED, BECAUSE THE ORIGINAL INSTRUCTION LOOKS RIGHT.***
+> `TrueUpgrade = DataTreeUpgrade and SdWasInstalled` (`sd.iss:1461`), and 118
+> gates `ApplyAllowGroups` on `not TrueUpgrade` (`sd.iss:3585`). **Step 2's
+> uninstall runs `RemoveAllowGroups`** — `sd.iss:1443` says so in as many words
+> — **so snapshot A's `14:59:00` was destroyed by design, not by a defect**, and
+> the witness measured it: mtime `14:59:00` → **`15:30:04`**, `AllowGroups line`
+> now **empty**. **Step 3 is a fresh install** (`SdWasInstalled` false) so
+> `ApplyAllowGroups` runs again and the mtime moves again, correctly. **Only
+> step 4 is a `TrueUpgrade`**, and only there must it hold still. A session that
+> took the instruction literally would score step 4 against `14:59:00`, see a
+> move it was told to treat as failure, and file against a fix that worked.
+>
+> ```
+> $o = '\\vboxsvr\xfer\witness-test10-1-after-install.txt'
+> "=== STEP 1 AFTER INSTALL  Test 10  $(Get-Date -Format s) ===" | Set-Content $o -Encoding utf8
+> "sd groups : $((Get-LocalGroup | Where-Object Name -like 'sd*' | ForEach-Object Name) -join ',')" | Add-Content $o
+> foreach ($d in 'bp','bp.out','batch.jobs','accounts') { "sdsys\$d : $(Test-Path "C:\ProgramData\SD\sdsys\$d")" | Add-Content $o }
+> $c = Get-Item 'C:\ProgramData\ssh\sshd_config' -ErrorAction SilentlyContinue
+> "sshd_config mtime : $(if($c){$c.LastWriteTime.ToString('s')}else{'(no file)'})" | Add-Content $o
+> "sshd_config.before-sd : $(Test-Path 'C:\ProgramData\ssh\sshd_config.before-sd')" | Add-Content $o
+> "AllowGroups line : $((Select-String -Path 'C:\ProgramData\ssh\sshd_config' -Pattern '^AllowGroups' -ErrorAction SilentlyContinue).Line)" | Add-Content $o
+> "APIPORT in sd.conf : $((Select-String -Path 'C:\ProgramData\SD\sd.conf' -Pattern 'APIPORT' -ErrorAction SilentlyContinue | ForEach-Object { $_.Line.Trim() }) -join ' | ')" | Add-Content $o
+> $f = Get-NetFirewallRule -DisplayName 'SD-API-In-TCP' -ErrorAction SilentlyContinue
+> "SD-API-In-TCP : $(if($f){($f | Get-NetFirewallAddressFilter).RemoteAddress}else{'(no rule)'})" | Add-Content $o
+> "sshd service : $((Get-Service sshd -ErrorAction SilentlyContinue).Status)" | Add-Content $o
+> ```
+>
+> **ELEVATED on the guest.** Results come back through `\\vboxsvr\xfer` →
+> `C:\Users\dmont\sdxfer` on the host, so they are READ, not pasted.
+>
+> ***SNAPSHOT A IS TAKEN AND IT IS CLEAN — 2 Sep 2026 15:14:26, 598 bytes, 12
+> lines, `witness-test10-1-after-install.txt`. THE BASELINE IS SAFE TO CLONE.***
+> ***THE VALUE STEP 4 COMPARES AGAINST IS `sshd_config` mtime
+> `2026-09-02T14:59:00`.*** `sshd_config.before-sd` present, `sshd` **Running**,
+> `sdsys\bp`, `bp.out`, `batch.jobs`, `accounts` all True.
+> **API UNTICKED CONFIRMED AT REST** — `# APIPORT=4243` commented out in
+> `sd.conf`, `SD-API-In-TCP` **(no rule)**; that pair is the "unchanged" step 3
+> compares against, so step 3 expects **no rule**, not a rule with old scope.
+> ***ALL FIVE GROUPS ARE EXPECTED ON A FIRST INSTALL AND `sdapi` IS NOT A
+> LEAK*** — `sdapi,sdssh,sdsshonly,sdusers,sdu_don`: `sdusers` and `sdsshonly`
+> are unconditional `[Run]` steps (`sd.iss:702`, `:726`), `sdssh` and `sdapi`
+> come from `SyncRouteGroups`, **deliberately ungated** (`sd.iss:3564`, its own
+> rationale at `:3579`), and `sdu_don` is adopt's per-user group
+> (`CREATEA:545`). **The tick governs the route, not the group's existence.**
+>
+> ### ***THE STEP 2 WITNESS BLOCK — ELEVATED on the guest, AFTER the interactive uninstall***
+>
+> **Deliberately the same probes as snapshot A so the two files diff against
+> each other**, plus three the uninstall is the only step that can answer.
+> Parse-checked before hand-over: 96 tokens, 0 errors, no BOM, no CR.
+>
+> ```
+> $o = '\\vboxsvr\xfer\witness-test10-2-after-uninstall.txt'
+> "=== STEP 2 AFTER INTERACTIVE UNINSTALL, DATABASE KEPT  Test 10  $(Get-Date -Format s) ===" | Set-Content $o -Encoding utf8
+> "sd groups : $((Get-LocalGroup | Where-Object Name -like 'sd*' | ForEach-Object Name) -join ',')" | Add-Content $o
+> foreach ($d in 'bp','bp.out','batch.jobs','accounts') { "sdsys\$d : $(Test-Path "C:\ProgramData\SD\sdsys\$d")" | Add-Content $o }
+> "ProgramData\SD kept : $(Test-Path 'C:\ProgramData\SD')" | Add-Content $o
+> "Program Files\SD gone : $(-not (Test-Path 'C:\Program Files\SD'))" | Add-Content $o
+> "sdwind service : $(if (Get-Service sdwind -ErrorAction SilentlyContinue) { (Get-Service sdwind).Status } else { '(no service)' })" | Add-Content $o
+> $c = Get-Item 'C:\ProgramData\ssh\sshd_config' -ErrorAction SilentlyContinue
+> "sshd_config mtime : $(if($c){$c.LastWriteTime.ToString('s')}else{'(no file)'})" | Add-Content $o
+> "sshd_config.before-sd : $(Test-Path 'C:\ProgramData\ssh\sshd_config.before-sd')" | Add-Content $o
+> "AllowGroups line : $((Select-String -Path 'C:\ProgramData\ssh\sshd_config' -Pattern '^AllowGroups' -ErrorAction SilentlyContinue).Line)" | Add-Content $o
+> "APIPORT in sd.conf : $((Select-String -Path 'C:\ProgramData\SD\sd.conf' -Pattern 'APIPORT' -ErrorAction SilentlyContinue | ForEach-Object { $_.Line.Trim() }) -join ' | ')" | Add-Content $o
+> $f = Get-NetFirewallRule -DisplayName 'SD-API-In-TCP' -ErrorAction SilentlyContinue
+> "SD-API-In-TCP : $(if($f){($f | Get-NetFirewallAddressFilter).RemoteAddress}else{'(no rule)'})" | Add-Content $o
+> "sshd service : $((Get-Service sshd -ErrorAction SilentlyContinue).Status)" | Add-Content $o
+> ```
+>
+> ***SCORE IT AGAINST 74***: `sdssh`, `sdapi`, `sdsshonly` **gone** and
+> `sdusers` **still there**; `sdu_don` is not part of 74's claim either way.
+> `ProgramData\SD kept` **True** and `Program Files\SD gone` **True** are what
+> *"keeping the database"* means, and `sdwind service` should read
+> **`(no service)`**. **`sshd service` must still be `Running`** — the uninstall
+> is not entitled to take ssh away from the machine.
+>
+> ***IT RAN, 2 Sep 2026 15:32:59, AND EVERY ONE OF THOSE HELD — 74 IS
+> WITNESSED.*** `witness-test10-2-after-uninstall.txt`, 625 bytes, 15 lines.
+> `sd groups : sdusers,sdu_don` (the three route groups gone), all four
+> `sdsys\…` **True**, `ProgramData\SD kept` **True**, `Program Files\SD gone`
+> **True**, `sdwind service` **`(no service)`**, `sshd service` **Running**,
+> `SD-API-In-TCP` **(no rule)** and `APIPORT` still commented — the last two
+> unmoved from snapshot A, as an uninstall that never had the API on should
+> leave them.
+>
+> ***AND THE `sdusers` DOUBT RAISED AGAINST `sd.iss:1965` IS WITHDRAWN — THE
+> SHIPPED TEXT IS RIGHT AND THE GREP WAS READING HALF A SENTENCE.*** `:1966`
+> says it outright: *"sdusers stays because deleting it would orphan the
+> permissions on your database. The other three groups SD Core made — sdssh,
+> sdapi and sdsshonly — ARE removed, without asking"* — which is exactly what
+> the witness shows. **`:1965` is the KEPT list, not the removed list.** Filing
+> that from the grep alone would have been an invented defect against correct
+> shipped wording.
+>
+> ***THE STEP 1 AND STEP 2 WITNESSES WERE RUN UNELEVATED, MEASURED AFTER THE
+> FACT — `elevated : False`, `VIRTUAL\don`. BOTH VERDICTS STILL STAND, AND ONE
+> LINE IN THEM DOES NOT.*** Everything 74 rests on is a **positive** reading,
+> and a denial can only turn a `True` into a `False`: three route groups absent
+> from a list that still showed `sdusers,sdu_don`, four `sdsys\…` `True`,
+> `sshd_config`'s mtime read successfully (which also proves `ProgramData\ssh`
+> is readable unelevated), `sshd` `Running`.
+>
+> ***THE EXCEPTION IS `SD-API-In-TCP : (no rule)`, WHICH IS A NULL CASE THE
+> BLOCK FAILED TO REFUSE.*** `Get-NetFirewallRule -ErrorAction SilentlyContinue`
+> with an `else` branch prints `(no rule)` for **"no such rule"** and for
+> **"could not look"** alike. It cost nothing on steps 1 and 2 — the API was
+> never on — but **steps 3 and 4 both assert that rule is UNCHANGED**, and an
+> unchanged-looking answer produced by a failed lookup is exactly the false
+> green §0 is about. **The step 3 block therefore enumerates once, prints
+> `firewall CONTROL : <n> rules visible`, and filters in memory**; `n = 0` means
+> the verdict line beneath it is void. It also records its own
+> `ran as … elevated=` line, so no later reader has to ask this question again.
+> ***AND SNAPSHOT A CARRIES A LEAD ON THE RESTART, WHICH IS WHY IT IS WORTH
+> READING RATHER THAN FILING.*** `AllowGroups sdssh VIRTUAL\sdssh Administrators
+> VIRTUAL\Administrators` — `allow-ssh-groups.ps1:134` composes that prefix from
+> `$env:COMPUTERNAME` **at write time**, and the write is `ApplyAllowGroups`
+> inside the 14:59 install, i.e. **after** the restart. So the machine was still
+> named `VIRTUAL` afterwards, and a `Rename-Computer -Restart` would have left a
+> different name. ***THAT WEAKENS THE RENAME CANDIDATE BELOW WITHOUT KILLING
+> IT*** — it does not exclude a rename issued and not applied. `VIRTUAL` itself
+> is the shared clone hostname (§427, §1300), not a finding.
+>
+> ***THE GUEST RESTARTED ITSELF DURING STEP 1, BEFORE THE PASSWORD WINDOW, AND
+> THE CAUSE IS NOT CONFIRMED.*** **The installer is RULED OUT, measured**:
+> `sd.iss:2033` sets `NeedsRestart := False`, there is no `AlwaysRestart` /
+> `RestartIfNeededByRun` / `restartreplace` anywhere, and `install-ssh.ps1:77`
+> *prints* "RESTART REQUIRED" and `exit 2` rather than acting. **Most likely
+> Windows Update** (OpenSSH Server is a Feature-on-Demand pulled from WU). **The
+> other candidate is a `Rename-Computer -Restart` handed over for the NEW clones
+> and possibly run on this one** — establish which before filing anything.
+> ***WHAT IT COST***: the closing box appeared, so the installer's post-install
+> code including `ApplyAllowGroups` completed; what was interrupted is the
+> window that opens AFTER the installer — the password step — so `don` probably
+> has no SD password. **Recoverable, and none of the four witnesses need it.**
+>
+> ***OPEN 13*** — 16, 65, 66, 70, 74, 80, 89, 93, 96, 102, 114, 118, 120.
+> ***FOUR OF THEM ARE B AND THEY ARE WHAT GATES W1.0-0: 65, 80, 93, 120.***
+> **Fifteen closed today**: 3, 28, 67, 112, 113, 115, 123, 124, 125, 126, 127,
+> 128, 129, 130, 131. **Five filed**: 127-131. ***NEXT FREE PRE_RELEASE ID: 132.
+> NEXT RUN TOKEN: `b103`*** — ***`b101` AND `b102` ARE BOTH SPENT.***
+>
+> ~~***A CYCLE IS OWED — `assert-current` EXITS 1 NAMING `gplbld\sd.iss`***~~
+> ***THE CYCLE RAN, 2 Sep 2026. INSTALL `02 Sep 16:13:21`, `assert-current`
+> EXIT 0 LIVE*** — `sd.exe` **`1D908330609D69CD`**, `bin\` built 02 Sep
+> 00:36:48 with no source newer, **3028 files across the 6 mirrored
+> directories**, no renames, no deletions, no leftovers in `C:\Program Files\SD`
+> (35 checked). Tier-1 all green after the day's work: fixlist **243/0**,
+> retired-wording **30/30**, verdict **140/140**, suiteonly **48/48**,
+> sdtestuser **54/0**, tiercounts **15/15**, check-stale-leads **0**.
+>
+> ***AND THE CYCLE DESTROYED THE ARTEFACT THE DAY'S FOUR WITNESSES WERE TAKEN
+> AGAINST, WHICH IS A PROPERTY OF THE RIG AND NOT A FAULT IN THE RUN.***
+> `cycle.ps1` writes the installer straight into `C:\Users\dmont\sdout\`, **the
+> share the guests install from**, so it is overwritten in place:
+> **4,954,811 bytes at 14:18:50 → 4,955,213 bytes at 16:13:00.** The witnessed
+> binary is gone from the share. ***THE ONE SURVIVING COPY IS ON THE GUEST***,
+> `C:\Users\Public\sd-setup-W1.0-0.exe` on `Test 10`, copied there at ~15:52
+> because running an installer off the share had already cost a Network Error
+> once (§427). **Keep it.**
+>
+> ***AND THEN A THIRD BUILD AT 16:40:42 — `cycle.ps1 -SkipInstall`, SUCCESSFUL
+> COMPILE, 4,955,186 bytes. THAT IS THE ONE CARRYING THE SEVEN NEW `[Dirs]`
+> ENTRIES.*** ***SO THE COPY ON THE GUEST IS NOW STALE AND USING IT WOULD SCORE
+> A FALSE FAILURE.*** `C:\Users\Public\sd-setup-W1.0-0.exe` on `Test 10` is the
+> **14:18:50** binary — the one witnessed today, and the one WITHOUT the fix.
+> **Re-copy from `\\vboxsvr\sdout\` before witnessing 120 and 132**, or the run
+> will find `cat`, `prt` and `$hold` still missing and it will look like the fix
+> does not work. **Check the length: 4955186.**
+>
+> ***THE 402-BYTE DELTA IS BUILD NONDETERMINISM RATHER THAN A CONTENT CHANGE,
+> AND THAT IS REASONED, NOT MEASURED.*** No shipped file changed between the two
+> builds — the working tree was clean and the only commit in between,
+> `cbe6ac2`, touches `PROJECT_STATUS.md` and `PRE_RELEASE_FIXES.md` alone — so
+> Inno's own timestamps and compression are the remaining explanation.
+> **If a witness result is ever challenged on "was it the same installer",
+> that is the gap**: nothing hashed the two, and by then one of them was gone.
+> **The cheap fix is to copy the installer aside with its build time in the name
+> before a witness run, not after.**
+>
+> ### ***STEP 1 — BUILD THE INSTALLER (ELEVATED)***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> **ELEVATED PowerShell.** `sd.iss` has not been through ISCC — there is no
+> staged tree on this host to compile it against standalone, so this is the
+> first thing that will read the Pascal. **Nothing below is worth starting
+> until it reports a successful compile.**
+>
+> ### ***`b101` SPENT AT STEP 2 — 112's WIRING WAS WRONG TWICE, BOTH NOW FIXED***
+>
+> **`test-stemcoverage-units` stopped the run and named `sdvv`**, the family
+> `VerifyInstall2:240` composes for `verify-vocverbs`; it was never added to
+> `clean-test-profiles.ps1`'s `$stems`. ***AND A SECOND FAULT WAS FOUND BY
+> READING, WHICH WOULD HAVE COST THE ELEVATED HALF OF ANOTHER RUN***:
+> `verify-vocverbs.ps1:209` capped `-Prefix` at **7** characters and `exit 2`s
+> otherwise, and **`sdvvb101` is 8** — `sdvvb99` is 7 and passes, `sdvvb100` is
+> 8 and does not, so it was wired in during the `b99` era and broke on the next
+> run rather than the one that wired it. **The cap protected nothing**
+> (`MAX_ID_LEN` 255, `gplsrc/sddefs.h:281`) and is now `{1,14}`; the CASE half
+> of that refusal is the real one and is kept.
+>
+> ***AND THE SCOPE CALL WENT THE OTHER WAY: `sdvv` IS NOT IN `$stems`.*** A stem
+> is a claim the sweep will meet the name, and this family only names SD files
+> inside the SDSYS account directory. It is declared in a new **`$notProfiles`**
+> in the same file — **in the SWEEP, not beside the composition in the runner**,
+> because the discipline that has failed five times is *"open
+> `clean-test-profiles.ps1` when you invent a family"*, and a runner-side
+> declaration would let the next author skip that file and still go green.
+> `test-stemcoverage-units` reads it, **prints every exemption**, and refuses a
+> name in both lists, an unparsable list, or a declared family the rule can
+> already reach. **Proved red and green both ways. Full detail in
+> PRE_RELEASE_FIXES 112.**
+>
+> ### ***`b102` IS GREEN IN BOTH HALVES, AND THE TWO NEW STEPS BOTH MEASURED***
+>
+> `VerifyInstall1` **every step exit 0, 311 PASS / 0 FAIL / 0 SKIP**;
+> `VerifyInstall2` **all 23 steps exit 0**. The two steps 112 wired in have now
+> run inside a suite: **`probe-akwrite` 18 of 18** and **`verify-vocverbs` 36 of
+> 36** at `[22/23]`, `prefix sdvvb102` echoed, clean-up control green. **The 36
+> is the same count the 28 Aug hand-run got, so the wiring cost it nothing.**
+>
+> ***TWO READING TRAPS THIS RUN PAID FOR, BOTH ABOUT COUNTING RATHER THAN THE
+> PRODUCT.*** **(1) A `[PASS]` scan UNDERCOUNTS and can call a real step empty**
+> — `verify-sdsysgate` reports in a **Result column** (`PASS   yes`), so a token
+> scan reads **0 rows** on a step that ran **10 decisive checks**. Read a
+> verifier's own summary line, not your own tally. **(2) `verify-apiadmin` reads
+> `22/23` and that is the STEADY STATE** — 22 PASS / 0 FAIL on 31 Aug, 1 Sep and
+> 2 Sep alike. ***THE `22/22` RECORDED FOR `b59` IS STALE***: the verifier now
+> emits 23 rows, one is unreported, and no run has ever failed on it. **Do not
+> spend a session rediscovering either.**
+>
+> ### ***WHAT IS OUTSTANDING, AND WHAT IT COSTS***
+>
+> | | needs |
+> |---|---|
+> | **74** | an INTERACTIVE uninstall on a guest — its wording half is witnessed, the behaviour half is not, and **the cycle cannot supply it**: `cycle.ps1:497` uninstalls `/VERYSILENT`, which now takes the skip path. Afterwards `Get-LocalGroup sdssh, sdapi, sdsshonly` gone, `sdusers` still there |
+> | **118, 120, 89A** | ***BUILT, NOT WITNESSED.*** All three need the guest session below. **Do not let "built" become "witnessed"** — 120's own row says so about its finding and it applies twice over to its fix |
+> | **89A's two riders** | ***THE RULING WAS "HIDE THE BOX" AND HIDING IT ALONE WOULD HAVE BEEN WORSE.*** `ApplyApiFirewall` is gated in the same edit, or a hidden task reads as unselected and **closes port 4243 on every reinstall**; and `ApiListenerAfterwards` now reads the preserved `sd.conf`, or the account summary claims *"Nothing can reach this account from another machine"* on a machine still running the API |
+> | **THE GUEST SESSION** | ***ONE SITTING WITNESSES FOUR, AND THE ORDER IS THE POINT.*** **(1)** install, **(2)** *interactive* uninstall keeping the database — that is **74**, and the cycle cannot supply it (`cycle.ps1:497` uses `/VERYSILENT`); afterwards `sdssh`, `sdapi`, `sdsshonly` gone and `sdusers` still there. **(3)** reinstall with the database KEPT — that is **120**: expect **no hardening warning** and `sdsys\bp`, `bp.out`, `batch.jobs` all present. **(4)** a second, over-the-top install — that is **118**: `sshd_config` and `sshd.pid` mtimes must **NOT** move. **89's Defect A rides on step 3's path too** |
+> | **96, 102** | **C on paths that fail silently.** Both shapes are chosen and written into their rows. Each wants a session that BEGINS with it, not one that ends on it. **102 is the larger**: the owner reversed the recorded decision — *"they are deleted, transactions are all or nothing"* — so a half-applied commit must now undo its writes |
+> | **65, 66, 70, 89, 114, 118** | build work, no ruling outstanding |
+> | **16, 80, 93, 120** | the big ones. **120's finding is attested by the owner and needs no re-measuring**; only a fix and its witness are left |
+>
+> ### ***FOUR THINGS TODAY PAID FOR — READ THESE BEFORE REPEATING THEM***
+>
+> ***A LINT PROVES THE PHRASES IN IT ARE GONE, NEVER THAT THE CLAIM IS.*** 130's
+> false claim had **ten** copies. Three sweeps each ended in *"that is all of
+> them"* and each was wrong; sweeps one and two searched for the **wording** of
+> the copies already found, and only the third searched for the **idea**
+> (`don't need`, `need not`, `without a password`). The outlier sat in the
+> `/SILENT` refusal, which nobody looks at. **I twice told the owner the sweep
+> was complete when it was not.**
+>
+> ***A WITNESS OFTEN COSTS A BOOT RATHER THAN A GUEST.*** The "Before you
+> install" page says *"Nothing has happened yet - Cancel stops without changing
+> anything"*, and it means it. **129 and 74's wording half were both read by
+> launching the installer, paging down and cancelling** — no install, no
+> password, and the guest stayed a clean spare. Reach for that before spending a
+> rig.
+>
+> ***MEASURE WHAT AN ACL DOES, NOT WHAT IT SAYS.*** 28's witness was blocked
+> because reading the DACL needs `READ_CONTROL`, which is deliberately not
+> granted. **Testing the behaviour was both possible and stronger**: as
+> `GITORLI\don`, unelevated, in `sdusers` — listing refused, creating allowed,
+> `Test-Path` on a real dump refused. Identity asserted, both directions
+> measured.
+>
+> ***A REMEMBERED IMPRESSION IS NOT A MEASUREMENT OF WHICH TOOL WAS USED.*** The
+> `guestcontrol` ban was struck in four places on the strength of *"several
+> sessions used guest control"*, and restored an hour later: **every mention in
+> the record is the ban, never a use**, and HISTORY.md:7929 is a session
+> documenting that it took the other route BECAUSE of the rule. The observation
+> was true; the attribution was mine and wrong.
+>
+
+> # ⇩⇩⇩ A CYCLE IS OWED, 2 Sep 2026 — ***130 IS FIXED IN SOURCE. THEN ONE `Test 6` INSTALL CLOSES 130 AND 125 TOGETHER.*** ⇩⇩⇩
+>
+> ***`assert-current` IS EXPECTED RED*** — `LOGIN`, `SET_ACC_PASSWORD`, three
+> messages, `sd.iss` and the wording lint all changed after the last install.
+> **No `make sd`**: nothing under `gplsrc` was touched. **Elevated PowerShell:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ### ***THEN ONE `Test 6` INSTALL, BOTH BOXES UNTICKED — IT CARRIES FIVE WITNESSES***
+>
+> **Install `\\vboxsvr\sdout\sd-setup-W1.0-0.exe` on `Test 6`** — ordinary
+> prompt, it elevates itself — and on the tasks page leave **BOTH** the ssh
+> boxes **AND** the API boxes **unticked**. That single choice is what makes the
+> run worth five things:
+>
+> | | must read |
+> |---|---|
+> | **130** — the installer's closing box | ***"A PASSWORD IS REQUIRED. Until this account has one it cannot be used at all - not here at the keyboard, not over ssh, and not through the SD Core API."*** No *"IF YOU SET NO PASSWORD… can be used ONLY at this computer"* |
+> | **130** — the post-install password window (`SET_ACC_PASSWORD`) | *"A password is required. Pressing Enter on an empty line does not give you an account without one…"* No *"set no password for now"* |
+> | **130** — first `sd`, message 10089 | *"A password is required. Pressing Enter on an empty line does not give you an account without one - it ends this session…"* |
+> | **123/124** — the closing box's OTHER branch | the ***`not ApiWanted`*** text, which `Test 4` could not show because the API was ticked there: *"With no ssh server and no API, the accounts you create have no way to sign in yet. Administrators still use SD Core by typing "sd"…"* |
+> | **125** — both halves at last | `CREATE.ACCOUNT USER zz125 SSH` → **10161**, and `CREATE.ACCOUNT USER zz125b API` → **10162**. ***10162 is the whole reason this must be `Test 6`***: it fires only when `config('APIPORT')` is 0, which is why `Test 4` could not give it |
+>
+> ***EXPECT TWO PASSWORD PROMPTS AND HAVE THEM READY*** — SDSYS at the first
+> `sd`, then one per account created. **A driving session cannot answer those**;
+> they are the one thing that needs a person at the keyboard.
+>
+> ***AND `Test 7` EXISTS AS THE SPARE, 2 Sep 2026***, MAC `080027FA4150` —
+> **distinct, which is this session's own confirmation that a default clone
+> regenerates the MAC** rather than an inference from the older clones: it was
+> created today and came up unique.
+>
+> ### ***A NEW CLONE HAS NO SHARED FOLDERS, AND THAT IS THE FIRST THING THAT WILL STOP YOU***
+>
+> ***MEASURED 2 Sep 2026, AFTER IT COST A DETOUR.*** Launching the installer on a
+> fresh `Test 6` gave ***"Windows cannot access `\\vboxsvr\sdout\sd-setup-W1.0-0.exe`"***
+> — not a network fault: `showvminfo --machinereadable | grep SharedFolder`
+> returned **nothing** for `Test 6`, `Test 7` **and `Template`**, against three
+> mappings on `Test 4`. **The shares were added per-VM to `Test 1`-`Test 5` and
+> `Template` never had them, so a clone inherits none.** This file's *"five
+> guests, all with three permanent shares"* was true of the guests that then
+> existed and is not a property of a new one.
+>
+> ***THE FIX IS ONE COMMAND, AND THE GUEST MUST BE POWERED OFF*** — a running VM
+> is locked and a permanent add fails:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\vm-shares.ps1 -Vm "Windows 11 - Test 6"
+> ```
+>
+> **Ordinary prompt, no elevation.** Done for `Test 6` and `Test 7` on 2 Sep
+> 2026, three mappings each. ***AND `-Vm` IS NOW MANDATORY***: it used to default
+> to `'Windows 11 - Test 1'`, a guest deleted that morning — but a script that
+> **changes VM configuration** should not carry a default at all, because the
+> default configures whichever guest it names rather than the one meant.
+>
+> ***WORTH RULING ON: SHOULD `Template` CARRY THE THREE SHARES?*** It would save
+> this step on every clone, and **76's warning does not apply** — that one is
+> about priming `Template` with the **OpenSSH capability**, which would leave
+> every clone with no ssh question and no firewall restriction. Shared folders
+> have no such second effect: they add no capability to the guest and change
+> nothing the installer asks. **The owner's call; not done.**
+>
+> ***THE RIG COUNT IS FIVE, AND ONLY FIVE ARE TEST GUESTS.*** `Test 3`, `Test 4`,
+> `Test 5`, `Test 6`, `Test 7` — `Test 1` and `Test 2` were deleted 2 Sep 2026.
+> `VBoxManage list vms` returns **seven** entries, and the other two are not
+> rigs: **`Windows 11 - Template`** is the clone source (never install on it),
+> and **`Beardog`** is nothing to do with this work. **Count the guests, not the
+> list** — every MAC is unique either way and nothing collides.
+>
+> ***WHAT EACH GUEST IS FOR, SO NONE IS SPENT BY ACCIDENT — 2 Sep 2026, END OF DAY.***
+>
+> | guest | state | shares |
+> |---|---|---|
+> | `Test 3` | **used**, from earlier work | — |
+> | `Test 4` | **used** — SD installed, ssh declined, `zz125` created. 67, 126 and 125's ssh half came off it | yes |
+> | `Test 5` | **clean spare**, never installed | yes |
+> | `Test 6` | **used** — both boxes unticked; 125's 10162, and 130's three primary sites | yes |
+> | `Test 7` | **used** — both boxes unticked; 130's item 1 | yes |
+> | `Test 8` | **clean spare**, created 2 Sep, MAC `080027E3DC77` | **yes, added the same day** |
+>
+> ### ***`Template` NOW CARRIES THE THREE SHARES, SO NEW CLONES INHERIT THEM — 2 Sep 2026, OWNER'S CALL***
+>
+> Until today every fresh clone came up with **0** mappings — `Test 6`, `Test 7`
+> and `Test 8` all did — and that is what the *"Windows cannot access
+> `\\vboxsvr\sdout`"* Network Error was on `Test 6`, discovered with an installer
+> already open. `Template` was given `sdout`, `xfer` and `gplbld` on 2 Sep 2026,
+> so **a clone made from here on arrives ready.** ***CONFIRMED, NOT ASSUMED***:
+> `Test 9` and `Test 10`, the first clones made after the change, both came up
+> with **3 shares** and distinct MACs (`08002742FD05`, `08002767A08B`) — so the
+> inheritance works and the per-clone `vm-shares.ps1` step is retired. **Check a
+> new clone anyway if anything looks wrong**, since it costs one line:
+>
+> ```
+> VBoxManage showvminfo "<guest>" --machinereadable | findstr SharedFolderName
+> ```
+>
+> **Three lines means ready. Nothing means run `vm-shares.ps1 -Vm "<guest>"`,
+> with the guest powered off.**
+>
+> ***THIS IS NOT A CRACK IN 76's WARNING, AND THE DIFFERENCE IS THE WHOLE POINT.***
+> 76 says do not prime `Template` with the **OpenSSH capability**, because every
+> clone would then have **no ssh question and no firewall restriction** at
+> Windows' `RemoteAddress=Any` — the priming would change what the installer
+> asks and what the guest ends up exposing. **A shared folder adds no capability
+> to the guest, changes no `[Tasks]` answer, and alters nothing the installer
+> inspects**; it only makes `\\vboxsvr\...` resolve. ***SO: CAPABILITIES NO,
+> PLUMBING YES*** — and do not let "we primed `Template` once" become an argument
+> for the other kind.
+>
+> ***DO NOT RUN THE CYCLE WHILE THAT GUEST RUN IS IN FLIGHT*** — it rebuilds the
+> `sdout` installer the guest installs from. Cycle first, then the guest.
+>
+> ***AND THE MAC WARNING DOES NOT APPLY TO THE TEST CLONES — MEASURED 2 Sep
+> 2026.*** `Template` is `080027AECE7C` and collides with `sdStandalone-C1`;
+> `Test 3` `080027C61086`, `Test 4` `0800271DABE7`, `Test 5` `08002734F731`,
+> `Test 6` `080027C3E817` are **all distinct**, so the Test guests can run
+> concurrently. They share the computer name `VIRTUAL`, which costs nothing here
+> because the shares are host-side.
+>
+> # ⇩⇩⇩ HANDOFF 13, 2 Sep 2026 — ***THE `Test 4` RUN HAPPENED. 123 AND 124 ARE CLOSED. 67 IS ONE COMMAND SHORT, AND 129 CAME OUT OF THE SAME SCREENS.*** ⇩⇩⇩
+>
+> ***THE FIRST THING TO DO IS ONE COMMAND ON THE GUEST, AND IT CLOSES 67.***
+> `Test 4` is installed, SD is on it, and the ssh boxes were left blank through a
+> full install. **Elevated PowerShell on `Test 4`:**
+>
+> ```
+> Get-WindowsCapability -Online -Name 'OpenSSH.Server*' | Select-Object Name, State
+> ```
+>
+> **`NotPresent` closes 67. `Installed` is the finding.** ***DO NOT ACCEPT THE
+> CLOSING BOX AS THE ANSWER***: it said *"NO ssh server was installed"*, but
+> `SshReport` branches on `SshServerPresentAfterwards` and `install-ssh.ps1` is
+> gated on `SshServerWanted` — **the same flag** — so the report and the action
+> agree by construction and would agree even if the script had run. The machine
+> has to be asked.
+>
+> ***123 AND 124 ARE WITNESSED AND STRUCK.*** The ssh box rendered **unticked**
+> with the cost and the API alternative on its label; the Ready page listed only
+> PATH and API with **no ssh line**; the closing box gave *"NO ssh server was
+> installed, because you did not ask for one"* and, on the `ApiWanted` branch,
+> *"Accounts you gave API access can still sign in over the SD Core API."*
+> **The API box was ticked on purpose to reach that branch** — the other one is
+> also corrected text but never has to name the API as a route.
+>
+> ***129 FILED, AND IT IS THE INSTALLER CONTRADICTING ITSELF IN ONE RUN.***
+> "Before you install" says ***"scp and sftp STOP WORKING FOR EVERYONE on this
+> computer"***; the closing box on the same install says ***"scp and sftp are
+> unaffected on this computer."*** The second is true. `DisclosureText`
+> (`sd.iss:1663`) is one static string with no parameters, and
+> `ApplyAllowGroups:2016` returns having done nothing when there is no server.
+> **123 made "no ssh" the common case and this text did not move with it.**
+> Also `"the ssh-only model"` at `:1774` is 124's retired premise in compressed
+> form, which the lint cannot see because only the long phrase is registered.
+>
+> ***66 WAS SEEN HAPPENING RATHER THAN READ.*** Owner: *"It is still downloading
+> the full screen editors."* It held up the end of the install, and with 123
+> making the OpenSSH capability opt-in **it is now the only unbounded download
+> left in a default install.**
+>
+> ### ***`Test 4` IS A STANDING RIG FOR THREE ENTRIES RIGHT NOW — NO ssh SERVER, API ON, SD INSTALLED. DO NOT REUSE IT UNTIL THESE ARE TAKEN.***
+>
+> **One elevated session on `Test 4` closes 67, 126 and 125's ssh half.** Run
+> them in this order — 67's check must come first, before anything could put an
+> ssh server on the machine. **Elevated PowerShell on the guest:**
+>
+> ```
+> Get-WindowsCapability -Online -Name 'OpenSSH.Server*' | Select-Object Name, State
+> ```
+>
+> **`NotPresent` closes 67.** Then, still elevated, start SD — an administrator
+> lands in SDSYS:
+>
+> ```
+> sd
+> ```
+>
+> and at the `:` prompt:
+>
+> ```
+> ssh.server install
+> ```
+>
+> ***ANSWER `n`.*** **126** is the prompt itself — new message **10163**, naming
+> the time cost before committing to the download — and `n` aborts via 10145
+> changing nothing. ***DO NOT ANSWER `y`***: that starts the Windows Update
+> download this entry exists to warn about, and spends the rig.
+>
+> ```
+> create.account USER zz125 SSH
+> ```
+>
+> **125's ssh half** is message **10161** — it must say the account is set up for
+> ssh but this machine has no ssh server, and name what activates it. The grant
+> is not refused; that is 125's whole ruling, *warn, do not prohibit*.
+>
+> ***125's API HALF CANNOT BE TAKEN ON `Test 4`***, because the API is ON there —
+> 10162 only fires when `config('APIPORT')` is 0. **That is what `Test 6` is
+> for**: install on it with **both** the ssh and API boxes unticked, and then
+> `create.account USER zz125b API` gives 10162 while `... SSH` gives 10161, both
+> halves in one run. **It also shows the `not ApiWanted` closing-box branch**,
+> which `Test 4` did not exercise because the API box was ticked there.
+>
+> ***67 IS CLOSED, AND 126 AND 125 ARE BLOCKED BEHIND 130 — 2 Sep 2026.*** The
+> guest was driven from the host with `keyboardputscancode` and `screenshotpng`,
+> no guest credentials, and **the technique works**: chunk the typed line with
+> **every backslash sent on its own**, screenshot **before** Enter, put the
+> deterministic work in a script on the `xfer` share and have it **write its
+> answer back to the share**, so the result is read as text rather than off a
+> screenshot. `\\vboxsvr\xfer\a.ps1` arrived intact that way.
+>
+> ***67 CLOSED ON THE MACHINE'S OWN ANSWER***: `capability :
+> OpenSSH.Server~~~~0.0.1.0  STATE=NotPresent`, `sshd service : ABSENT`,
+> `sshd.exe : False`, with `elevated: True` and `sd.exe : True` asserted beside
+> them so the reading cannot be a failed query or a bare machine.
+>
+> ***THEN `sd` ON THE GUEST HIT 130 AND THE RUN STOPPED THERE.*** SDSYS has no
+> password, 10089 offers *"press Enter on an empty line"* for none, and taking
+> that offer **ends the session** (10095, `Connection terminated`). **A password
+> has to be set on `Test 4` before 126 and 125 can be taken**, and setting one is
+> the owner's to do — not something to be typed from here.
+>
+> ***`Test 1` AND `Test 2` ARE GONE, CONFIRMED BY THE OWNER 2 Sep 2026.***
+> `VBoxManage list vms` shows only `Template`, `Test 3`, `Test 4`, `Test 5`,
+> `Test 6`. This file recorded `Test 1` as *"the only machine in the
+> uninstall-then-reinstall state"* with *"do not delete it while 120 is open"*.
+>
+> ***BUT 120's FINDING DOES NOT NEED RE-MEASURING, AND THAT IS THE OWNER'S WORD,
+> 2 Sep 2026***: *"I viewed the changes during 120 testing; since the rig does
+> not exist, take my word that the test completed successfully."* **He watched
+> it on `Test 1` before that guest was deleted.** So the entry's measurements
+> stand as written and **nobody should rebuild a rig merely to confirm the
+> defect is real** — that would be spending an install plus an
+> uninstall-then-reinstall to re-learn what is already attested.
+>
+> ***WHAT HIS ATTESTATION DOES NOT COVER, AND THE DISTINCTION WILL MATTER
+> LATER***: it stands behind the **finding**, not behind any **fix**. When 120
+> is built, witnessing the fix still needs a machine that has been through an
+> uninstall-then-reinstall with the database kept — because that is the only
+> path that produces the state, and `sdsys\bp` and `batch.jobs` are on the
+> preserved list either way. **Do not let "120 was attested" become "120's fix
+> was witnessed".**
+>
+> ***`Test 5` IS STILL SEALED*** — `Test 4` is spent as a first-install rig now
+> that SD is on it, and `Test 6` exists as of 2 Sep 2026. **Open count 18. Next
+> free PRE_RELEASE id: 131.**
+>
+> # ⇩⇩⇩ RUNBOOK, 2 Sep 2026 — ***(THIS RUN IS DONE; KEPT FOR THE NEXT GUEST.)*** ⇩⇩⇩
+>
+> ***WHY IT CANNOT BE THE HOST, MEASURED NOT ASSUMED.*** All three witnesses need
+> a machine where `SshWasAbsent` is true. The host has `sshd` **Running** and the
+> capability **Installed**, so: the `sshserver` task carries
+> `Check: SshServerAbsent` (`sd.iss:228`) and is **hidden entirely**, and
+> `SshReport` branches on `SshServerPresentAfterwards` =
+> `(not SshWasAbsent) or SshServerWanted`, so **the no-ssh paragraph never
+> fires**. Making the host qualify means `ssh.server remove`, which is a reboot
+> plus a ~19-minute reinstall and is forbidden as a test.
+>
+> ***AND NOT `Test 1` OR `Test 2` EITHER.*** `Test 1` has ssh Running **and is
+> 120's only evidence — do not delete or reinstall it.** `Test 2` had the
+> capability re-downloaded during 122's work, so it reads `Installed`.
+> ***`Test 3` HAS BEEN USED; `Test 4` AND `Test 5` HAVE NOT.*** Use **`Test 4`**
+> and ***keep `Test 5` UNTOUCHED AS THE RETRY***: the moment SD is installed on
+> `Test 4` it stops being a first-install-with-no-ssh machine, and 123's witness
+> **is** the first-install wizard. A missed screen costs the spare, not a rebuild.
+> `Windows 11 - Template` has no OpenSSH capability and is the clone source —
+> **do not prime it with one, that is 76's warning**: every clone would then have
+> no ssh question and no firewall restriction at Windows' `RemoteAddress=Any`.
+>
+> ***BEFORE STARTING — DO NOT RUN `cycle.ps1` WHILE THIS IS IN FLIGHT.*** It
+> rebuilds `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, which is the exact file
+> the guest installs from over the `sdout` share, so a cycle **silently swaps the
+> installer under test**. The current one is **01:10, 2 Sep**, built by the cycle
+> `assert-current` then passed, so it also carries 128 and message 10164.
+>
+> **On the guest, in an ordinary prompt — the installer asks for elevation
+> itself. Reach shares BY NAME, never by drive letter (the letters move):**
+>
+> ```
+> \\vboxsvr\sdout\sd-setup-W1.0-0.exe
+> ```
+>
+> ***FIRST, THE PRECONDITION — A RUN ON A GUEST THAT ALREADY HAS ssh MEASURES
+> NOTHING AND LOOKS FINE.*** Elevated PowerShell on the guest, before installing:
+>
+> ```
+> Get-WindowsCapability -Online -Name 'OpenSSH.Server*' | Select-Object Name, State
+> ```
+>
+> **It must read `NotPresent`.** If it does not, that guest is spent — switch to
+> `Test 5` and say so.
+>
+> ### ***WHAT EACH SCREEN MUST SAY, AND THE WORDING THAT WOULD MEAN FAILURE***
+>
+> | | must read | fails if |
+> |---|---|---|
+> | **123** the tasks page | the ssh box is **UNTICKED**, and its label carries the time cost (*"downloads from Windows Update … up to about an hour"*) **and** the API alternative (*"can also be reached through the API instead"*) | the box is ticked, or absent (then the precondition was wrong) |
+> | **124** "Before you install" | ssh **or over the API** | ***any*** occurrence of *"and nothing else"* |
+> | **67** the install itself | **leave the ssh box alone** and let it run | an OpenSSH server appears anyway |
+> | **123/124** the closing box | *"NO ssh SERVER WAS INSTALLED, because you did not ask for one … Use SD Core by typing sd as an administrator"* | it claims ssh was limited, or repeats the retired premise |
+>
+> ***THEN THE ONE CHECK THAT DECIDES 67***, elevated on the guest after the
+> install — this is the whole entry, and it is the reason to leave the box alone
+> rather than untick and re-tick it:
+>
+> ```
+> Get-WindowsCapability -Online -Name 'OpenSSH.Server*' | Select-Object Name, State
+> ```
+>
+> **Still `NotPresent` closes 67.** `Installed` means a full install still forces
+> the server, which is 67 unfixed and is the finding.
+>
+> **Captures**: the guest writes to `\\vboxsvr\xfer` and they are readable
+> directly from `sdxfer` on the host. ***`capture-state.ps1` defaults `-OutDir`
+> to `Y:\` and must be given `-OutDir \\vboxsvr\xfer` every time.***
+> ***`guestcontrol` STAYS FORBIDDEN — it needs guest credentials. A WITHDRAWAL
+> OF THIS RULE WAS WRITTEN AND REVERSED THE SAME HOUR ON 2 Sep 2026, AND THE
+> REVERSAL IS THE PART WORTH READING.*** The owner said *"I have had several
+> sessions where guest control was used and screenshots were taken
+> automatically"*, and I struck the rule in four places on that. **He then
+> corrected it himself**: *"it may have not been guestcontrol — I just saw them
+> typing and they mentioned getting screenshots so that they could click
+> controls."*
+>
+> ***TYPING PLUS SCREENSHOTS IS THE CREDENTIAL-FREE ROUTE, NOT `guestcontrol`***
+> — `keyboardputscancode` to type and `screenshotpng` to see what to click is
+> exactly that description, and it is what this file already recommends. **The
+> record agrees and is one-sided**: every mention of `guestcontrol` in
+> PROJECT_STATUS.md and HISTORY.md is the ban, never a use, and HISTORY.md:7929
+> is a session writing down *"HOW THE GUEST WAS DRIVEN, since §7 step 2 forbids
+> `guestcontrol`"* — a session documenting that it used the other route
+> **because** of this rule.
+>
+> ***THE LESSON IS ABOUT THE EVIDENCE, NOT THE RULE.*** "Sessions drove the VM
+> directly" is true and is the useful fact; *"therefore they used
+> `guestcontrol`"* is an inference, and it was mine rather than his. A
+> remembered impression of what a past session did is not a measurement of
+> which tool it called — the transcripts are, and they say the opposite.
+>
+> # ⇩⇩⇩ HANDOFF 12, 1 Sep 2026 — ***THE ssh/API THREAD (116-126) IS BUILT, GREEN AND PUSHED. NO CYCLE OWED; ONLY THE RUNTIME WITNESSES REMAIN TO CLOSE THE ENTRIES.*** ⇩⇩⇩
+>
+> ***EVERYTHING IS BUILT AND SHIPPED.*** 124/115/125/126 were pushed as source and
+> cycled clean: the BASIC (`PS_SCRIPTO`/`SSHSRVR`/`REMOTESSH`/`REMOTEAPI`/`CREATEA`/
+> `MODIFYA`) BCOMP-compiled, `assert-current` is green, tier-1 all green (fixlist
+> 241/0, retired-wording 11/11, check-stale-leads 0). `main` is in sync with
+> origin. **No cycle is owed.**
+>
+> ***WHAT IS LEFT IS THE RUNTIME WITNESS*** — reading each reworded/added path off
+> a screen is what moves these from built to CLOSED (compiling is not running).
+> Nothing breaks if it waits; the code is shipped. All are installed now:
+> **126** — `ssh.server install` on a no-ssh machine now asks before downloading;
+> answering n aborts. **124** — the "Before you install" page, the
+> `ssh.server remove` prompt (10144), and `SshReport` no longer say "ssh and
+> nothing else". **115(b)** — `ssh.server` with no keyword no longer leads with
+> `remove-ssh:`. **115(a)** — an acting verb in an elevated `sd.exe` (`remote.ssh
+> off` then `on`) shows only its sysmsg, no raw `ssh-firewall:` lines. **125** —
+> `create.account USER x SSH` on a machine with no ssh server prints 10161; with
+> the API off, `... API` prints 10162.
+>
+> ***NOTHING OPEN FROM THIS THREAD*** — 126 (the `ssh.server install` time-cost
+> prompt, message 10163) is built with the rest; only the runtime witnesses above
+> remain, and those CLOSE entries rather than fix anything. ***NEXT PRE_RELEASE
+> ID: 127.*** The tier-1 wording lint (`test-retired-wording-units`) now guards
+> the retired ssh phrasings (117/121/124) — register a phrase in its `$RETIRED`
+> table whenever you retire wording.
+>
+> ***THE BROADER OPEN LIST, UNCHANGED BY THIS SESSION*** — fixlist open set: 3, 16,
+> 28, 65, 66, 67, 70, 74, 80, 89, 93, 96, 102, 112, 113, 114, 115, 118, 120, 123,
+> 124, 125, 126. The last five are built-this-session and witness-owed; **118** is
+> the untouched one worth a look — an upgrade rewrites `sshd_config` and restarts
+> `sshd` having just told the reader it changed nothing about ssh.
+>
+> ***AND SIX ROWS WERE STALE AGAINST THIS VERY HANDOFF — CORRECTED 2 Sep 2026, NOT
+> REBUILT. NOTHING WAS RUN AND NO CODE WAS TOUCHED; THIS IS THE INDEX CATCHING UP.***
+> **115, 123, 124, 125 and 126 still read *"not built; wants a cycle"*** while the
+> paragraphs above say they were cycled and installed. The rows are the index the
+> next session reads, so each now says **built-and-installed, witness owed**, and
+> names **where the witness can be taken**: 115 both halves and 124's 10144 prompt
+> and 125's 10162 are **host-doable and need no cycle and no guest**; 126, 125's
+> 10161 want a **no-ssh guest**; 123 (and 67 with it) wants an **interactive
+> wizard**, which a cycle's silent install cannot supply.
+>
+> ***THE SIXTH IS 89, AND CORRECTING IT MOVED THE DEFECT RATHER THAN CLOSING IT.***
+> Its row said Defect A's answer *"is 88's ruling, which is ruled and NOT BUILT"* —
+> but **88 was built, witnessed and struck on 1 Sep**. Read from `sd.iss` rather
+> than assumed: `ShouldSkipPage:1412` skips the tasks page on `TrueUpgrade`, which
+> is `DataTreeUpgrade and SdWasInstalled` (`:1397`), ***so 88 answers Defect A on a
+> TRUE UPGRADE AND ONLY THERE.*** After an **uninstall** the key is gone,
+> `SdWasInstalled` is false, the page **is shown**, `sd.conf` stays
+> `onlyifdoesntexist` over the kept tree (`:573-576`), and `ApplyApiFirewall` still
+> runs because `TrueUpgrade` is false — **the firewall moves and the listener does
+> not, which is the original defect.** ***THAT IS 120's PATH***, so 89 and 120 want
+> looking at together rather than separately.
+>
+> ***THEN ALL 23 OPEN ENTRIES WERE AUDITED AGAINST SOURCE, 2 Sep 2026, AND ALL 23
+> ARE GENUINELY OPEN — NONE IS CLOSABLE.*** Do not re-run this; read it. **Nothing
+> built** (grep-confirmed the defect is still there): 16 (msg 2602 still names no
+> holder), 28 (no `secure-dumps.ps1`, no `DUMPDIR`), 66 (`install-editors.ps1:137`
+> still has no `--version`), 70, 74 (no `Remove-LocalGroup` in `sd.iss`), 96 (no
+> `log_message` in `linuxlb.c`/`op_sh.c`), 102's ruling half, 112, 114, 118, 120,
+> 80. ***118's PROOF IS WORTH KEEPING***: `sd.iss:3387` gates `ApplyApiFirewall` on
+> `not TrueUpgrade` while **`SyncRouteGroups:3394` and `ApplyAllowGroups:3396` are
+> NOT gated** — that is the whole defect, in three lines. **Built, witness owed**
+> (`assert-current` exit 0, so the install matches source): 67, 113, 115, 123, 124,
+> 125, 126.
+>
+> ***3 WAS REPRODUCED LIVE AND THE CONTROLS ARE WHY IT COUNTS.*** In the installed
+> SDSYS voc buckets: `listf` **7**, `count` **20**, `who` **17** — so the method
+> finds what is there — and `%L`/`%G`/`%E` **0 each**, while all three are in
+> `voc_template` and `newvoc`. `voc_template` is **430**. ***THE FIRST ATTEMPT
+> SCORED A FALSE 0 ON EVERYTHING***, controls included, because the live `voc` is a
+> **directory of bucket files** (`%0`, `%1`) and grep was pointed at the directory.
+> The controls caught it; without them it would have read as a much bigger finding.
+>
+> ***65 AND 93 SHOW CLEAN RIGHT NOW AND THAT IS NOT A PASS.*** `os.users` holds only
+> `don`, the register only `don` and `sdsys` — because the tree is freshly
+> installed and **the litter needs a suite run to exist.** Their evidence stands
+> from `b84`/`b100`, not from today. The mechanism was confirmed instead:
+> `remove-sdaccounts.ps1` removes the Windows accounts and touches **neither**
+> `os.users` **nor** `ACCOUNTS`, which is 65's harness half and 93's cause in one
+> script. **`DELACC:492` deletes the register record unconditionally**, so the
+> product path is not what rots the register — the harness teardown is.
+>
+> ***115 IS WITNESSED AND STRUCK, 2 Sep 2026, AND DRIVING ITS THIRD VERB IS WHAT
+> FOUND 127.*** Owner ran an elevated `sd.exe` on the host: `remote.ssh`,
+> `ssh.server` and `remote.api` all reported **without the helper script's name
+> in front**, `remote.ssh off`/`on` printed **one line each** with no
+> `ssh-firewall:` prose, and a closing `remote.ssh` came back byte-identical to
+> the opening one. ***THE THIRD VERB WAS NOT PEDANTRY***: `REMOTEAPI:229-231`
+> carries its **own** copy of the strip — identical text, not shared code — so
+> the other two passing proved nothing about it. **Two of three is the shape that
+> has bitten this project repeatedly**; drive all the copies.
+>
+> ***127 FILED, AND IT IS THE SECOND "FIX LANDED IN ONE COPY" IN TWO DAYS.***
+> `remote.api` printed `action : Show` followed by `before : active=1
+> commented=0` — the exact lie `remove-ssh.ps1:85-89` diagnosed and fixed on
+> 30 Aug (*"a label that promises a second half has to deliver one"*), in the
+> sibling script the fix never reached: **`api-listener.ps1:104` is
+> unconditional**. It also records the smaller collision the 30 Aug fix created
+> where it DID land — `ssh.server` now prints `state` twice and `sshd.exe`
+> twice in a four-line report. ***`test-retired-wording-units` CANNOT CATCH THIS
+> CLASS***: it matches retired phrases, and this is label logic. **NEXT FREE
+> PRE_RELEASE ID: 128.**
+>
+> ***113 IS WITNESSED AND STRUCK, 2 Sep 2026, BY RE-RUNNING THE INSTRUMENT THAT
+> FOUND IT.*** `gplbld/probe-akwrite.ps1` — **unelevated, `don`'s own account,
+> self-cleaning, 18 of 18, exit 0** — issues in its step-5 cleanup the identical
+> three deletes that produced the original observation. `DELETE.FILE AKPDIR` and
+> `DELETE.FILE AKPDCT`, the two DIRECTORY files that never had an index, printed
+> **no `Failed to delete index directory`**, where both printed 2636 before;
+> `DELETE.FILE AKPF`, the indexed one, stayed clean as the control. ***USING THE
+> ORIGINAL PROBE RATHER THAN A NEW TEST IS THE POINT*** — a test written after a
+> fix tends to agree with it.
+>
+> ***AND THE RETURN-CODE HALF NEEDED NO EXTRA MACHINERY, WHICH IS WORTH KNOWING
+> BEFORE SOMEBODY BUILDS SOME.*** 113's sharper half is `@system.return.code`
+> being set on a success, and there is no TCL way to print it. At **both** sites
+> — `DELETEF:308-313`, `:394-398` — that assignment sits **inside the same
+> guard as `display sysmsg(2636)`**, so the two fire together or not at all and
+> **the message's absence IS the evidence for the return code.** Reading the
+> source decided what the screen had to show; without it this looked like it
+> needed a BASIC program written and catalogued to print one variable.
+>
+> ***`probe-akwrite` IS THE PATTERN FOR A CHEAP WITNESS*** — unelevated, makes and
+> removes its own fixture in `don`, asserts `no stray sd.exe session is left
+> behind`, needs no cycle, no run token and no elevation. Rostered in
+> `assert-current.ps1`, deliberately in neither runner (that wiring is **112**,
+> the owner's call). **Open count 22.**
+>
+> ***ENTRY 3 IS STRUCK AS NOT A DEFECT, AND IT HAD BEEN WRONG SINCE 26 Aug.***
+> `voc_template` is a **DIRECTORY file**, so its ids are stored as filenames with
+> restricted characters escaped (`op_dio3.c:1346` encodes, `op_dio4.c:1121-1150`
+> decodes, tables at `sd.h:114-115`). ***`%E` IS THE FILE FOR RECORD `=`, `%G`
+> FOR `>`, `%L` FOR `<`*** — position for position in `*,=><%/+:;?\"` against
+> `ACEGLPSVXYZBQ`. There is no record named `%L`, so *"Record not found"* is the
+> right answer. **The entry contained its own disproof**: it reported `ct voc =`
+> returning `K`/`25` as a separate oddity, and that IS `%E` decoded and present.
+>
+> ***THE METHOD FAILURE IS THE LESSON AND IT BEAT CONTROLS THREE TIMES*** — 26
+> Aug, 28 Aug *"re-validated against the LIVE VOC"*, 31 Aug on a fresh install
+> with `listf`/`count`/`who` as controls, **and I repeated it once more today
+> before reading the encoder.** The controls were sound and irrelevant: they
+> proved the grep could find a record that was there. ***A CONTROL TESTS THE
+> INSTRUMENT, NOT THE QUESTION*** — nothing in `listf` passing could reveal that
+> `%L` was the wrong string to ask for. When a subject is absent and the controls
+> are present, the next move is to check that the subject's NAME is what you
+> think it is, not to trust the shape of the result.
+>
+> ***128 FILED, `B`, AND IT IS WHAT THE DIAGNOSIS WAS ACTUALLY WORTH.***
+> `dir_select()`'s decode loop (`op_dio4.c:1140-1147`) discards two characters on
+> an unknown `%` escape, and on a **trailing** `%` consumes the string's own NUL
+> — `strchr(df_substitute_chars, '\0')` returns that table's terminator, so the
+> `!= NULL` guard passes — then walks `p` past the end of `name`
+> (`char[MAX_PATHNAME_LEN + 1]`, stack) with `q` writing back into it. **A file
+> called `draft%` in any directory file reproduces it, and a user's own `bp` is a
+> directory file.** Read, not run. **`sdb64` is byte-identical** at its
+> `:1178-1187`, so it is also **UPSTREAM_FIXES 35**. **Open count 22; next free
+> PRE_RELEASE id 129.**
+>
+> # ***THE CYCLE RAN. 127 AND 128 ARE INSTALLED; 128 IS WITNESSED AND OWES ONE RULING; 127's WITNESS IS THE NEXT ELEVATED SESSION.***
+>
+> ***THE CYCLE IS CONFIRMED RATHER THAN TAKEN ON TRUST***: `assert-current`
+> **exit 0**, *"the installed tree matches source"*, log
+> `cycle-20260902-003922.log` (626 KB), installed `sd.exe` **`1d908330609d69cd`**
+> byte-identical to the built one, and both edited scripts present in
+> `C:\Program Files\SD` carrying their new labels.
+>
+> ***128 WITNESSED, 10 OF 10, UNELEVATED IN `don`'s OWN BP*** — `SELECT BP`
+> answered **4 record(s) selected** over four planted fixtures and `LIST BP`
+> printed `=` (from `%E`) and `ZZ128PLAIN`. **The discriminator is
+> `ZZ128UNK%1` coming back whole**: the old loop would have returned
+> `ZZ128UNK`, so this is positive evidence the new branch ran, not merely the
+> absence of a crash.
+>
+> ***AND THE INSTRUMENT'S FIRST RUN WAS VOID, WHICH IS THE CONTROL WORKING.***
+> `LIST.ITEM` printed nothing and **the control row failed beside the
+> subjects** — that is what said the readout was broken rather than the
+> product. Had the control passed while the subjects failed, the honest
+> reading would have been a regression. `LIST BP` replaced it.
+>
+> ***ONE RULING IS OWED ON 128 AND IT IS WHY THE ROW IS NOT STRUCK.*** The same
+> transcript ends `'ZZ128TAIL%' not found` / `'ZZ128UNK%1' not found`, because
+> `map_t1_id()` re-encodes `%` as `%P`. **The ids are now reported truthfully
+> and still do not re-open.** That is strictly better than before on every axis
+> — no memory unsafety, no collision, a plain *not found* instead of a silent
+> wrong answer — **but whether such a file should instead be SKIPPED (so
+> `SELECT` says 2 and never names it) is a behaviour choice, not a defect, and
+> it is the owner's.** One line either way.
+>
+> ***127 IS WITNESSED AND STRUCK, AND 124's 10144 HALF WENT WITH IT — ONE
+> ELEVATED SESSION, 2 Sep 2026.*** `remote.api` reads `lines  : active=1
+> commented=0` where it read `before :`, with `state` still appearing exactly
+> once — which is why the label was NOT copied from the sibling fix.
+> `ssh.server` reads `machine sshd.exe=True service=Running …` where it read
+> `state   …`, so **`state` appears once where it appeared twice**. *(`sshd.exe`
+> still appears on two lines, now scoped by `machine`; improved rather than
+> eliminated, and said so in the row.)*
+>
+> ***124's 10144 PROMPT PRINTED THE CORRECTED WORDING*** — *"sign in over ssh,
+> **or over the API** … for an account that has **only ssh** … that is its only
+> way in"* — matching `sdsys/messages/10144` byte for byte, and `n` gave 10145
+> *"Nothing was changed."* **Host confirmed untouched afterwards**: `sshd`
+> Running/Automatic, `sshd.exe` present, firewall `Enabled=True
+> RemoteAddress=Any`, identical to the pre-115 reading. ***124 STAYS OPEN ON THE
+> WIZARD HALF ALONE*** — the "Before you install" page and `SshReport`, which
+> ride 123/67's interactive install.
+>
+> ***SO THE HOST-DOABLE WITNESSES ARE EXHAUSTED.*** What is left needs either an
+> **interactive wizard** (123, 67, and 124's remainder — one run closes three)
+> or a **no-ssh guest** (126, 125's 10161). **Open count 21.**
+>
+> # ***128 IS CLOSED — BOTH HALVES CYCLED, INSTALLED AND WITNESSED, 2 Sep 2026. OPEN COUNT 20.***
+>
+> `assert-current` **exit 0**, installed `messages/10164` reads `'%1' invalid
+> name`, and the witness is **12 of 12** unelevated in `don`'s own BP.
+>
+> ***THE COMPILE WAS PROVED BY NAME, SEPARATELY AND FIRST.*** `cycle.ps1
+> -SkipInstall` logged `Compiling gpl.bp QPROC` then `$QPROC added to global
+> catalogue`, with `gpl.bp.out/QPROC` and `gcat/$QPROC` staged — **not inferred
+> from a bare `0 error(s)`**. That run is also what would have caught 114's
+> hung-compiler case before an install was spent, which is the argument for
+> doing the cheap one first on any BASIC change.
+>
+> ***BOTH ANSWERS CAME OUT OF ONE `LIST`, AND THE CONTROL IS THE POINT***:
+> `'ZZ128GONE' not found` beside `'ZZ128TAIL%' invalid name` and
+> `'ZZ128UNK%1' invalid name`. **`ZZ128GONE` got into that list because a saved
+> list is a snapshot of IDS, not of records** — five were `SELECT`ed and
+> `SAVE.LIST`ed, then that one file was deleted from disk, so `GET.LIST`
+> restored an id whose record was genuinely gone. That is the ordinary
+> stale-saved-list case, not a contrivance, and it is the only clean way to get
+> a truly absent id into the same output as the present-but-unusable ones.
+> ***HAD `QPROC` BEEN CHANGED TO SAY "invalid name" ABOUT EVERYTHING, THAT ROW
+> WOULD HAVE GONE RED*** — asserted in both directions.
+>
+> # ***(HISTORICAL — THE CYCLE THIS DESCRIBED HAS RUN.) 128's WORDING HALF WAS BASIC AND UNBUILT.***
+>
+> ***128's RULING WAS GIVEN, WITHDRAWN AND REPLACED WITHIN ONE EXCHANGE, AND NO
+> CODE WAS WRITTEN FOR THE WITHDRAWN SHAPE.*** Owner first ruled *"automatic
+> conversion of the file name, replace `%` with `_`"*; shown that it makes
+> `SELECT` **rename files on disk**, and that the same pass must not touch
+> **`%E`/`%G`/`%L` — the legitimate encodings of `=`/`>`/`<`, whose renaming
+> would destroy live VOC records** — he withdrew it: ***"drop the rename, do A
+> with the 'invalid name' response".*** **Tracing before building is what kept
+> that off the disk**; the cost of finding it after a cycle would have been the
+> cycle plus a corrupted SDSYS VOC.
+>
+> ***BUILT IN SOURCE***: `QPROC` separates *"the record is not there"* from
+> *"the file IS there under a name this encoding cannot produce"* and reports
+> the second with new message **10164** (`'%1' invalid name`). The test is
+> **exact, not a guess about `%`** — `ospath(fileinfo(data.f, FL$PATH) : @ds :
+> id, OS$EXISTS)` on the failure path only, gated on `is.dir` (`QPROC:512`).
+>
+> ***AND THE "not found" IT REPLACES WAS NEVER A MESSAGE***: `QPROC:2217` builds
+> it as a hard-coded literal, which is why **7304 (`'%1' not found`) has no
+> caller anywhere in the tree**. No shared id to break, so 10164 is new and 7304
+> is left orphaned as it was.
+>
+> **BASIC is unbuilt. `-SkipInstall` is the documented cheap compile check, in an
+> ELEVATED PowerShell:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> then the full `cycle.ps1` to install it, and the witness is `SELECT BP` over a
+> file called `draft%` reading **invalid name**. `test-sysmsg-units` is 44/0 and
+> **does not cover 10164** — no verifier names it, same as 10160.
+>
+> # ⇩⇩⇩ HANDOFF 11, 1 Sep 2026 — ***116, 121 AND 122 CLOSED; A TIER-1 WORDING LINT ADDED. THE HOST IS GREEN AND NOTHING IS OWED.*** ⇩⇩⇩
+>
+> ***NOTHING OWED — THE HOST IS GREEN.*** Three cycles ran this session; the last,
+> **install 20:29:20**, shipped the 122 fix (`gplbld\install-ssh.ps1`) and
+> `assert-current` reads *"the installed tree matches source"*. Earlier: 16:55:19
+> witnessed the 113/112 build, then **installer 19:18** shipped 121's
+> `messages/10148` reword. 121 was then witnessed on guest **`Windows 11 - Test 2`**
+> (installed from the 19:18 share installer): `ssh.server remove` printed message 10148 with
+> *"running the SD INSTALLER on this machine again … stops rather than guess …
+> ssh.server install is NOT affected"* and **no "refuse to install here again"**.
+> **116, 121 CLOSED this session; 116 was witnessed on the host, 121 on Test 2.**
+>
+> ***122 CLOSED*** — `install-ssh.ps1:46` now detects the `UninstallPending`
+> state (an earlier `ssh.server remove` staged behind a reboot) and names why the
+> re-download is happening, instead of letting a ~19-min FoD re-download look like
+> a fresh install of a still-running server. Witnessed on guest `Windows 11 -
+> Test 2` (in `UninstallPending`) by running the source script over the `gplbld`
+> share; the three explanatory lines printed. The re-download is **inherent** —
+> re-adding is the only supported way to cancel a staged removal and a FoD keeps
+> no local payload — so it is named, not avoided. **115** (script-prose vs message
+> duplication, which 121 grew out of) is the one still open from this thread.
+>
+> ***NEW TIER-1 CHECK: `test-retired-wording-units.ps1`, 9/9, WIRED INTO CLAUDE.md's
+> tier-1 list.*** It scans every message file and shipped script for phrases that
+> were deliberately reworded and fails if one reappears in any copy — it named
+> `10148` in a second before the reword. **When you retire wording, add the old
+> phrase + replacement to its `$RETIRED` table in the same commit.** It caught the
+> exact class that cost this session a ~19-min ssh reinstall to find on a screen.
+>
+> ***122'S OPEN QUESTION IS ANSWERED***: after `ssh.server install` re-downloaded,
+> `Get-WindowsCapability … State` read **`Installed`** and `sshd` Running/Automatic,
+> so the staged removal was cancelled and the host's ssh survives a reboot. 122 is
+> a pure inefficiency, not an illusory restore.
+>
+> **Tier-1 all green this session**: fixlist **241/0**, verdict 140/140,
+> suiteonly 48/48, tiercounts 15/15, sdtestuser 54/0, retired-wording **9/9**,
+> check-stale-leads exit 0. ***NEXT PRE_RELEASE ID: 123. NEXT RUN TOKEN: `b101`***
+> (no suite ran this session).
+>
+> # ⇩⇩⇩ HANDOFF 10, 1 Sep 2026 — ***THE VM RUN IS FINISHED. 78, 76, 88, 117 AND 119 CLOSED; 116-120 FILED. ONE CYCLE IS OWED AND IT IS THE FIRST THING TO DO.*** ⇩⇩⇩
+>
+> # ***START HERE: RUN THE CYCLE. NOTHING BELOW IS IN FLIGHT AND NOTHING IS HALF-BUILT.***
+>
+> Ended short of credits with **four source changes made after the last build**,
+> so `assert-current` **is expected to FAIL right now** — that is the state the
+> session left, not a fault. In an **elevated PowerShell**:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ***WHAT THAT CYCLE IS CARRYING, AND WHY EACH ONE STAYS OPEN UNTIL IT RUNS:***
+>
+> | | what is unbuilt | what witnessing it needs |
+> |---|---|---|
+> | **113** | `DELETEF` now tests `OS$EXISTS` before reporting 2636 | **a compile** — nesting was checked at both sites, three `if`s and three `end`s, but *a BASIC change is not verified until it builds* |
+> | **119** | six **double**-quoted strings the rename missed | the cycle, then any interactive install |
+> | **116** | `remove-ssh.ps1`'s reworded paragraph | ***the expensive one*** — it only prints after a real `ssh.server remove`, so a reboot and a ~19-minute reinstall |
+> | **112** | two corrected comments in `VerifyInstall2` | nothing; comments only, step count unchanged at **22** |
+>
+> **The free tier-1 checks were all green at the end**: `test-fixlist-units`
+> 241/241, `test-verdict-units` 140/140, `test-suiteonly-units` 48/48,
+> `check-stale-leads` exit 0. **Run those first after the cycle** — they cost
+> seconds and one of them has already named in a second what a whole suite run
+> was spent discovering.
+>
+> ***THE CYCLE RAN AT 16:24 AND 117 AND 119 ARE NOW WITNESSED ON A SCREEN.*** Owner
+> ran `cycle.ps1`: 640 KB log, all 8 steps, installer 16:24:44, host installed
+> **16:25:06**, `sd.exe` `517019EE20D2BD0C`, and **`assert-current: the installed
+> tree matches source`**. The rebuilt installer was then run on the guest and
+> photographed: caption **`Setup - SD Core W1.0-0`**, heading *"What SD Core
+> changes on this computer"*, closing box **"SD Core is installed"**, and the ssh
+> box reading **"limited to members of `sdssh`"**. ***116 IS STILL UNWITNESSED AND
+> IS THE EXPENSIVE ONE***: its paragraph only prints after a real
+> `ssh.server remove`, which costs a reboot and a ~19-minute reinstall.
+>
+> ***WATCHING THE INSTALL FOUND WHAT RE-READING THE DIFF WOULD NOT.*** The
+> progress line still said *"Creating and starting the SD service…"* — **section
+> parameters are DOUBLE-quoted and the transform only walked single-quoted
+> Pascal strings**, so eight user-visible strings were missed. Six fixed; two
+> left with reasons (see 119). **The host is now one build behind source again.**
+>
+> ***NEXT PRE_RELEASE ID: 121. NEXT RUN TOKEN: `b101`*** (no suite ran this
+> session; the install is 16:25:06 and `assert-current` was green at that
+> moment, but **six strings changed after it**, so it will now fail until the
+> next cycle).
+>
+> ### ***WHAT THE VM RUN CLOSED, AND THE ONE CORRECTION IT FORCED***
+>
+> **78** — both `ssh.server` verbs have now run. **76** — the tickbox arrived
+> **ticked** on a machine whose rule was already `Any`, which was its last
+> untested leg. **88** — both branches witnessed: page **skipped** on a true
+> upgrade, **shown** after an uninstall, with the API boxes at their declared
+> defaults because the key was gone.
+>
+> ***AND 74'S "SHOWS AT UNINSTALL" WAS FALSE.*** The four-group paragraph is on
+> the **BEFORE-YOU-INSTALL** page, under `WHAT UNINSTALLING DOES NOT REMOVE`
+> (`sd.iss:1787`). An interactive uninstall was run looking for it and **no such
+> dialog exists**. The naming half is now seen — by scrolling that page — and
+> every sentence of it was checked against the uninstall measured minutes
+> earlier. **Only "remove the three" is left, and that is the owner's.**
+>
+> ### ***THE GUEST IS INSTALLED, WORKING AND IDLE — AND CARRIES 120***
+>
+> `Windows 11 - Test 1` has SD installed (16:04 reinstall), ssh Running,
+> confinement re-applied, rule `Any`. **Do not delete it while 120 is open**:
+> it is the only machine in the uninstall-then-reinstall state, and rebuilding
+> that costs an install plus the ssh remove/reboot/install cycle.
+>
+> ***120 IS THE FIND OF THE DAY AND IT IS A `B`.*** After uninstall-then-
+> reinstall with the database kept, **`sdsys\bp` and `sdsys\batch.jobs` are
+> simply not there**, so the hardening reports `code 2` and does nothing — and
+> **the two commands the box tells the administrator to run name those same
+> missing paths**, so the remedy fails too. `batch.jobs.dic` is the control: it
+> exists and IS locked correctly, so the machinery works and this is an absence.
+>
+> ### ***DRIVING A GUEST — THE THREE THINGS THAT COST TIME***
+>
+> **`keyboardputscancode` + `screenshotpng` needs no guest credentials**, so
+> `guestcontrol` stays forbidden and unnecessary. ***`keyboardputstring` DROPS
+> CHARACTERS — IT DROPPED ONE ON A 12-CHARACTER CHUNK***, turning `\\vboxsvr`
+> into `\vboxsvr`. **Send each `\` as its own call and screenshot before Enter.**
+> ***A CONSOLE THE INSTALLER OPENS FOR ITSELF TAKES NO INJECTED KEYSTROKES AT
+> ALL***: three `y`s aimed at `check-install`'s prompt landed in the PowerShell
+> window behind it as `y : The term 'y' is not recognized`, and the owner had to
+> type it. **Inno's own GUI pages take them fine** — Alt+N, Alt+I, Alt+Y, Alt+F
+> and PgDn all worked. **PgDn is how you read a disclosure memo**, and 74 was
+> closed by scrolling one.
+>
+> ### ***THE FILES, ALL READABLE FROM THE HOST***
+>
+> `C:\Users\dmont\sdxfer` holds captures `01`-`08` and the `leg3*`/`leg4*` logs,
+> plus the driver scripts. **They are untracked and a clean checkout loses
+> them**; the captures are the evidence behind 74, 76, 88 and 120.
+
+
+> # ⇩⇩⇩ HANDOFF 9, 1 Sep 2026 — ***LEG 3 IS DONE AND 78 IS CLOSED. THE GUEST IS UPGRADED AND IDLE; LEG 4 IS THE INTERACTIVE UNINSTALL.*** ⇩⇩⇩
+>
+> ***DO NOT RUN `cycle.ps1` WHILE A GUEST RUN IS IN FLIGHT.*** It rebuilds
+> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, and that is the exact file the
+> guests install from over the `sdout` share — a cycle silently swaps the
+> installer under test. **The source edit below was therefore made and NOT
+> built.**
+>
+> ***THE HOST HAS ONE UNBUILT SOURCE CHANGE AND NOTHING ELSE MOVED.***
+> `sd.iss:33` `#define AppName` is now `"SD Core"` (entry **119**, the owner's
+> catch: the wizard caption read *"Setup - SD W1.0-0"*). **No cycle, no ISCC, so
+> it is unwitnessed** — that is why 119 is still OPEN. The last install here is
+> still 12:50:27 with `b100` green in both halves; **next run token `b101`.**
+> ***NEXT PRE_RELEASE ID: 120.***
+>
+> ### ***THE GUEST: `Windows 11 - Test 1`, POWERED ON AND IDLE AT AN ELEVATED PROMPT***
+>
+> Legs 1, 2 and 3 are done. **SD is upgraded** (second install 15:16→15:22),
+> **the ssh server is back, Running/Automatic**, and `check-install` reported
+> **every row `[ok]`**. Captures `01`–`05` and five `leg3*` logs are in
+> `C:\Users\dmont\sdxfer`, readable directly from the host.
+>
+> ***LEG 4 IS THE INTERACTIVE UNINSTALL, AND IT IS THE ONLY WAY TO SEE 74.***
+> The closing disclosure shows only on the interactive path — a cycle's
+> `UninstallSilent` skips it — and it must name **all four** groups: `sdusers`,
+> `sdssh`, `sdapi`, `sdsshonly`. **74 is BUILT, UNSEEN.**
+>
+> ***THEN LEG 4b, WHICH IS THE ONLY REMAINING WAY TO CLOSE 76.*** After the
+> uninstall the key is gone, so `TrueUpgrade` is false and **the tasks page is
+> shown** — with the ssh rule sitting at **`RemoteAddress=Any`**, which is the
+> machine 76's open branch has been waiting for. **Reinstall and look at whether
+> "allow remote access" arrives pre-ticked.**
+>
+> ### ***WHAT LEG 3 BOUGHT — FOUR MEASUREMENTS AND FOUR NEW ENTRIES***
+>
+> **78 CLOSED.** `ssh.server install` ran **14:52:57 → ~15:12, nineteen minutes**
+> and reported **10147**; **10142 never fired**, so remove needs a reboot and
+> install does not. The reboot's completion of the staged removal was measured
+> too — `sshd.exe` absent, service NOT REGISTERED, capability `NotPresent` —
+> which is what makes 10148 true on both sides. **SD's `sshd_config` block
+> survived the whole round trip.**
+>
+> **88 WITNESSED on a true upgrade**: tasks page **skipped**, Ready memo with
+> **no task section**, and the firewall gates held — both rules `Any` before
+> *and* after. **76's missing "before" reading is now on the record.**
+>
+> ***THE PREFLIGHT REFUSAL IS RUN RATHER THAN CODE-READ, WITH ITS CONTROL***:
+> `CANNOT DETERMINE`/exit 2 in the broken state, `CLEAR`/exit 0 once the
+> capability was back. **Take that reading BEFORE `ssh.server install` or it is
+> gone** — the entry is 116.
+>
+> **FILED: 116** (the remove warning names `setup.exe`'s refusal, not
+> `ssh.server install` — and 78 and HANDOFF 8 both misread it), **117**
+> (`sd.iss:2005` says ssh is limited to `sdusers`; the file says `sdssh`),
+> **118** (an upgrade rewrites `sshd_config` and restarts `sshd` one dialog
+> after promising it changed nothing about ssh), **119** (above). **115 gained
+> the install path**, which moves its cause: `ps_script` discards only the
+> captured copy, so the helper's console output reaches the user on every path.
+>
+> ### ***DRIVING THE GUEST — WHAT WORKS AND THE TWO TRAPS***
+>
+> **`keyboardputscancode` + `screenshotpng` needs no guest credentials**, so
+> `guestcontrol` stays forbidden and unnecessary. Deterministic steps go in a
+> script on the read-write `xfer` share and the typed command stays short.
+> ***`keyboardputstring` DROPS CHARACTERS — IT DROPPED ONE ON A 12-CHARACTER
+> CHUNK***, turning `\\vboxsvr` into `\vboxsvr`. **Send each `\` as its own
+> call and screenshot before Enter, every time.** ***AND A NEW CONSOLE THE
+> INSTALLER OPENS DOES NOT TAKE THEM AT ALL***: three `y` keystrokes aimed at
+> `check-install`'s prompt all landed in the PowerShell window behind it as
+> `y : The term 'y' is not recognized`. Harmless, but the owner had to type it.
+
+
+> # ⇩⇩⇩ HANDOFF 8, 1 Sep 2026 — ***A VM RUN IS PAUSED MID-FLIGHT. `Windows 11 - Test 1` HAS A REBOOT PENDING AND THE SEQUENCE RESUMES THERE.*** ⇩⇩⇩
+>
+> ***THE HOST IS GREEN AND IDLE. NOTHING IS OWED ON IT.*** Install **12:50:27**,
+> `sd.exe` **517019EE20D2BD0C**, `assert-current` **exit 0**, and the full suite
+> **`b100` passed both halves** (19 + 22 steps, 753 `[PASS]`, 0 `[FAIL]`, no
+> `PARTIAL`). **Next run token `b101`. Next PRE_RELEASE id 116.**
+>
+> ### ***THE VM: WHERE IT IS AND WHAT TO TYPE NEXT***
+>
+> Guest **`Windows 11 - Test 1`**, four-leg runbook (78 / 76 / 88 / 74). **Legs 1
+> and 2b are done. The guest is powered on with a REBOOT PENDING.**
+>
+> **State:** full install with **every box ticked** (so `RemoteAddress=Any` on
+> both rules, and `addtopath` was selected); SD account `vmtest1` created;
+> `ssh.server remove` accepted and **staged behind the reboot** — `sshd.exe` is
+> still present and the service still `Running`, which is correct and expected.
+> Captures `01-clean` and `02-after-install1` are in `C:\Users\dmont\sdxfer`.
+>
+> **Resume by rebooting the guest, then, in an ELEVATED guest PowerShell:**
+>
+> ```
+> & \\vboxsvr\gplbld\capture-state.ps1 -Label 04-removed-postreboot -OutDir \\vboxsvr\xfer
+> ```
+> *(`03-removed-prereboot` was skipped — the helper printed its own before/after
+> state in the run itself, which is the same reading.)*
+>
+> Then `& "C:\Program Files\SD\usr\bin\sd.exe"` → `ssh.server install`.
+>
+> ***DO NOT DELETE `C:\ProgramData\ssh` BEFORE TRYING THAT INSTALL.*** The
+> removal left it in place and warned that **SD will refuse to install here
+> again while `sshd_config` is present** without Windows' own copy beside it.
+> **Whether that refusal actually fires is worth measuring** — if it does the
+> guard works, if it does not the message is overclaiming. Clear the directory
+> only after seeing which.
+>
+> ***`sd` IS NOT ON THE PATH IN A SHELL OPENED BEFORE THE INSTALL.*** Use the
+> full path with `&`. A shell opened *after* it should have it, since
+> `addtopath` is a task and it was ticked — **that is an untested 89 data point
+> worth one command**: `[Environment]::GetEnvironmentVariable('Path','Machine')`.
+>
+> ### ***WHAT THE VM RUN HAS ALREADY BOUGHT***
+>
+> **78 is half closed** — `ssh.server remove` ran and did all three things the
+> entry demanded: warned (10144) because `vmtest1` existed, asked `(y/<n>)` with
+> default no, and said the removal is staged behind a restart (10148), **with
+> `before`/`after` state printed in the same run as the evidence**. Only
+> `install` is left.
+>
+> **115 filed** — the three verbs print their helper script's raw diagnostics at
+> the user, prefixed `remove-ssh:`, and on the report path that is *all* the user
+> gets, so *"is ssh installed?"* is answered by something calling itself
+> **remove**. On the `remove` path the same facts are then repeated by 10148 in
+> better prose — the duplication `SSHSRVR:77` predicted and thought it had
+> avoided.
+>
+> ***AND A CORRECTION TO MY OWN RUNBOOK, WHICH COST NOTHING BUT WOULD HAVE***:
+> the bare `ssh.server` report does **not** print 10147 — that is the INSTALL
+> success message. I derived the expectation from the message text instead of the
+> code path. **Both entries now say so.**
+>
+> **80 gained an undocumented behaviour**: `CPROC:1499` folds `-` to `.` when
+> resolving a verb, so `create-account` works. Controlled (`clear-select` works,
+> `zzz-nosuch` does not, `CT VOC create-account` is not found). The audit must
+> decide whether to document it.
+>
+> ### ***THE RIG, SO NOBODY REBUILDS IT***
+>
+> **Five guests, `Test 1`–`Test 5`, all with three permanent shares** — see the
+> next handoff box for the commands and the drive-letter trap. `sdxfer` on the
+> host is where captures land and **they are readable directly**; the guest needs
+> to send back only the two screenshots (legs 3 and 4) and raw SD output.
+
+
+> # ⇩⇩⇩ HANDOFF 7, 1 Sep 2026 — ***102's LOCK HALF DONE AND MEASURED. 114 FILED: THE COMPILER HANGS ON A TYPO.*** ⇩⇩⇩
+>
+> ***THE MACHINE IS GREEN AND CURRENT. NOTHING IS IN FLIGHT AND NOTHING IS
+> HALF-BUILT.*** Cycle **12:49:06 → 12:51:23**, install **12:50:27**, installed
+> `sd.exe` **517019EE20D2BD0C** = the 11:24:10 build, `assert-current` **exit
+> 0**, `check-datatree-litter` **CLEAN**, and the user table is clean — the three
+> orphaned sessions went with the tree.
+>
+> `VerifyInstall1 -Only verify-txn`: ***PASSED, 9 of 9 decisive, exit 0*** —
+> *"commit ends its own level, and a nested commit keeps the parent"*, banner'd
+> `PARTIAL, 1 of 14`. **That is the check this edit needed**: clearing
+> `commit_txn_id` on the success path sits directly in `op_txncmt`'s commit
+> route. `probe-txnlock` **13 of 13** re-run on the fixed binary, which also
+> proves the abort path still works **with the new `unlock_txn` inside
+> `txn_abort()`** — a function that runs on every abort, not just this one.
+>
+> ### ***`b100` IS GREEN IN BOTH HALVES — THE FULL SUITE OWED SINCE `b91` IS PAID***
+>
+> ***UNELEVATED 19 OF 19 + ELEVATED 22 OF 22, EVERY STEP EXIT 0.***
+> `VerifyInstall1: every step exited 0.` and `VerifyInstall2: all 22 steps
+> exited 0.` — **`PARTIAL` appears 0 times in either half**, which is what
+> separates a full run from a targeted one. Ran 12:59:34 → 13:21:02 against the
+> 12:50:27 install.
+>
+> ***753 `[PASS]`, 0 `[FAIL]`, COUNTED WITH THE BRACKETS***, across **505,993
+> bytes** of logs from 25 files. **The null-case guard holds**: both counters
+> zero on half a megabyte would be a suite that did nothing, and PASS is 753.
+> *(Count with the brackets — a bare `FAIL` also matches `verify-fold`'s
+> negative-control row, which is a check working correctly.)*
+>
+> **Read the mixed encodings with `Get-Content`**: the runner's numbered step
+> logs and `post-cycle-elevated-*` are **UTF-16LE**, the verifiers' own
+> transcripts are **UTF-8 with BOM**. A plain `grep` reports 0/0 on a full log.
+>
+> ***SPENT: `b100`. USE `b101`.*** ***NEXT FREE PRE_RELEASE ID: 115.***
+>
+> ### ***THE GREEN RUN LEFT THE ACCOUNT REGISTER 14/15 INVALID — THAT IS 93, MEASURED***
+>
+> The register held **15 records for `b100`'s accounts and one surviving
+> directory**. The Windows accounts were correctly gone; the register was not.
+> **Controlled** — `SDSYS` and `don` both still resolve. ***AND NO STEP WENT
+> RED***, because nothing asserts the register is internally consistent: the same
+> class as 112, and *"the register contains only valid records"* is assertable
+> today whichever way 93 is eventually fixed. Entry 93 carries the numbers.
+>
+> **The 14 profile directories left in `C:\Users` are NOT the same thing and are
+> not a defect**: each still has its `ProfileList` entry, **14 of 14**, so that is
+> entry 36's pending-reclaim state waiting on a restart, not 83's orphaned
+> directory. **They look identical in a directory listing**, which is why it was
+> checked before being reported.
+>
+> ***ONE CYCLE ATTEMPT DIED AT STEP 1 AND THE SECOND WORKED, AND THE SIZE IS THE
+> TELL.*** `cycle-20260901-124650.log` is **692 bytes** and stops dead at
+> `== [1] Stopping SD` with no transcript end; `cycle-20260901-124906.log` is the
+> real one, 640 KB, its step 1 reading `SD is stopped`. **A cycle log in the
+> hundreds of bytes is a cycle that never started** — read the size before the
+> contents.
+>
+> ### ***80 NOW CARRIES AN OWNERSHIP TRANSFER, AND THE GAP ANALYSIS HAS A FILE***
+>
+> Owner, 1 Sep 2026, on `generate_gap_analysis_pdf.py` at the repository root:
+> *"That is a file from the other AI's gap analysis which it used to add
+> additional documentation. During step 80 you can adopt it and use it as an aid
+> in auditing the whole documentation tree, both what you produced and what the
+> other AI produced. **You will be allowed to make whatever edits are needed to
+> make the documentation speak with one voice and at that point you will own the
+> whole documentation tree.**"*
+>
+> ***THE DIVIDED AUTHORSHIP IS THE DEFECT BEING FIXED***, which is why 80 is one
+> task and not a list of corrections. **Entry 80 carries the detail**: what the
+> file is (846 lines, a `reportlab` generator whose content is embedded in the
+> source, so it is auditable as text), what it renders, and that it **re-runs
+> today**.
+>
+> ***IT IS AN AID, NOT A WORK LIST, AND IT IS ALREADY STALE — CHECKED.*** It
+> proposes documenting **`ENCRYPT.FIELD`**, a verb this tree **deleted** (25, 52,
+> 53), and treats `LIST.LOCKS` as absent while `list.locks` is a live
+> ADMINISTRATOR verb here. Dated **29 Aug**, it predates 56's access model, 78's
+> three verbs and everything since. **Validate it against the final image before
+> applying any of it.**
+>
+> ***IT IS UNTRACKED AND 80 RUNS LAST.*** Nothing in the repository preserves it;
+> a clean checkout loses the only copy. **Committing it unchanged and unused is
+> the cheap insurance** — 38 KB of Python, and the no-binaries rule is about
+> build output. **Not done: it is the owner's file and his call.**
+>
+> ### ***THE VM RIG IS FIVE GUESTS NOW, AND EVERY EARLIER SENTENCE SAYING OTHERWISE IS STALE***
+>
+> ***`Windows 11 - Test` IS GONE AS "THE ONLY RIG". THE OWNER BUILT `Windows 11
+> - Test 1` … `Test 5`, 1 Sep 2026***, all clones of `Windows 11 - Template`.
+> **Snapshots are not used** — owner: *"it is quicker to clone the template than
+> to do a snapshot"*, which extends 24 Aug's *"CLONE, DO NOT SNAPSHOT"*.
+>
+> ***CORRECTED 2 Sep 2026 — "FIVE GUESTS, Test 1–Test 5" IS STALE. READ THE LIST
+> FROM `VBoxManage list vms`, NEVER FROM THIS FILE.*** Measured that day: `Test
+> 1` and `Test 2` are **gone** (120's row already said so) and `Test 6`–`Test
+> 10` have been added, so the live set is **`Test 3`–`Test 10` plus `Template`**
+> — eight, not five. All eight checked carry the same three `MachineMapping`
+> shares. A rig list in a document is out of date the next time somebody clones
+> a guest; the hypervisor is the only thing that knows.
+>
+> ***AND EVERY CLONE REPORTS ITS HOSTNAME AS `VIRTUAL`, WHICH COST TIME ON 2 Sep
+> 2026.*** They are clones of one template, so `$env:COMPUTERNAME` is `VIRTUAL`
+> on all of them and **a result file cannot say which guest produced it**. Put
+> the guest name in the FILENAME and in the text you write, by hand — the
+> machine will not do it for you, and a witness that cannot name its own subject
+> is worth very little.
+>
+> ***DO NOT ASSUME A GUEST IS CLEAN — 2 Sep 2026 SPENT TWO ON IT.*** `Test 6`
+> looked untouched and held a full SD install, uninstall key and leftover
+> `sdu_ZZ125` groups; `Test 5` was picked next and had problems of its own;
+> `Test 10` was the clean one. **Check `C:\ProgramData\SD`, `C:\Program
+> Files\SD`, the `SD *` uninstall key and `sd*` local groups before starting
+> anything**, because a first-install test that begins on a dirty guest is not
+> the test it says it is.
+>
+> ***ALL FIVE NOW CARRY THREE PERMANENT SHARES*** (`MachineMapping`, so they
+> survive the reboots leg 2 of the runbook needs), set up on the host 1 Sep and
+> **read back from the VM config rather than trusted from the exit codes**, with
+> the untouched `Template` as the control:
+>
+> | share | host | mode |
+> |---|---|---|
+> | `sdout` | `C:\Users\dmont\sdout` | read-only — the installer |
+> | `xfer` | `C:\Users\dmont\sdxfer` | read-write — **results come back as text** |
+> | `gplbld` | `…\sd64\gplbld` | read-only — `capture-state.ps1` |
+>
+> `C:\Users\dmont\sdxfer` **did not exist and was created.** The guests were all
+> `poweroff`, which is required: **a running VM is locked and a PERMANENT
+> `sharedfolder add` fails on it.**
+>
+> ***REACH THEM BY NAME — `\\vboxsvr\sdout`, `\\vboxsvr\xfer`,
+> `\\vboxsvr\gplbld` — NOT BY DRIVE LETTER.*** Adding a third share moved the
+> letters last time; two shares came up `Y:`+`Z:`, one came up `Z:` alone, and
+> there are three now. ***IT BITES `capture-state.ps1` SPECIFICALLY***: its
+> `-OutDir` defaults to **`Y:\`** and must be overridden with
+> `-OutDir \\vboxsvr\xfer` every time. **`guestcontrol` stays forbidden** — it
+> needs guest credentials. *(A withdrawal of that rule was written and reversed
+> on 2 Sep 2026; the rig section has why, and it is worth reading before
+> anyone withdraws it again.)*
+>
+> **The three commands, written out so this does not depend on a scratch file**
+> — run per guest, with the guest **powered off**, then read the result back
+> with `VBoxManage showvminfo <vm> --machinereadable | findstr SharedFolder`:
+>
+> ```
+> VBoxManage sharedfolder add "<vm>" --name sdout  --hostpath C:/Users/dmont/sdout --automount --readonly
+> VBoxManage sharedfolder add "<vm>" --name xfer   --hostpath C:/Users/dmont/sdxfer --automount
+> VBoxManage sharedfolder add "<vm>" --name gplbld --hostpath C:/Users/dmont/Projects/sd4windows/sdb_ai/sd64/gplbld --automount --readonly
+> ```
+> **No `--transient`** — that form is for a VM already running and locked, and
+> these must outlive a reboot.
+>
+> ### ***THE FOUR-LEG VM RUN, IN ORDER, AND THE ORDER IS THE POINT***
+>
+> **One guest closes 78 and 76's open leg, answers 88, and witnesses 74.** Each
+> leg's end state is the next leg's precondition, which is why it is a sequence
+> and not a list:
+>
+> 1. **Install #1**, ticking ssh **and** "allow remote access" — leaves the rule
+>    **open**, which is what leg 3 needs.
+> 2. **78** — `create.account` first so `remove` has an account to warn about,
+>    then `ssh.server remove` (expect **10144** stranding warning, **10148**
+>    reboot-staged) → **reboot** → `ssh.server install` (expect **10142**) →
+>    **reboot** → `ssh.server` (expect **10147**). ***`remove` BEFORE `install`
+>    IS NOT ARBITRARY***: entry 67 says an SD install always puts the OpenSSH
+>    server on, so `install` would be a no-op straight after leg 1.
+> 3. **76 + 88 together** — force `remoteip=any`, then install a SECOND time and
+>    read the tasks page **before touching it**. Box **ticked** → 76's open leg
+>    passes; **unticked** → 88 confirmed and 76's live-rule default is being
+>    overridden by `UsePreviousTasks`. **They predict opposite things and one
+>    install settles both.**
+> 4. **74** — interactive uninstall, screenshot the closing page: all four groups
+>    named (`sdusers`, `sdssh`, `sdapi`, `sdsshonly`) with `sdsshonly` called out
+>    as the one to remove by hand. A cycle's uninstall is silent, which is why
+>    this never gets seen.
+>
+> **`capture-state.ps1 -Label <n> -OutDir \\vboxsvr\xfer` at every boundary**, in
+> an elevated guest shell — it reads `RemoteAddress`, the field a session once
+> failed to read and drew a withdrawn conclusion from.
+>
+> ***67 IS NOT IN THIS BUNDLE.*** Its measurement is already on the record from
+> 30 Aug; what is open is the third API-only mode, a ruling and a build.
+>
+> ### ***102 — WHAT WAS BUILT, AND WHAT IS HONESTLY NOT PROVEN***
+>
+> `txn_abort()` (`txn.c:389`) now releases `commit_txn_id`'s record locks.
+> `k_error` **longjmps**, so the five `goto exit_op_txncmt` in the commit loop
+> are **dead code** and `unlock_txn(commit_txn_id)` after the loop was never
+> reached; `txn_abort()` tested only `process.txn_id`, which `op_txncmt` zeroes
+> at the top. **The fix is on the far side of the longjmp because there is
+> nowhere else it can go**, and it is one release rather than five guards so a
+> sixth error path is covered without anybody remembering — 101 added two of the
+> five in a single day.
+>
+> ***STILL OPEN AND UNCHANGED***: the level stays counted, the cache stays
+> orphaned, the written records stay written. **That is the ruling half.**
+>
+> ***THE FAULT NOW FIRES ON DEMAND — A FIRST FOR THIS FAMILY.***
+> `gplbld/probe-txnlock.ps1` **13 of 13** holds the victim record's file open
+> with `FileShare.Read`, so `remove()` is genuinely refused and SD prints
+> **`Delete error in transaction commit`**. The session survives the abort and
+> the post-`COMMIT` marker is absent, both asserted.
+>
+> ***BUT THE LOCK STATE IS NOT MEASURED, AND AN EARLIER READING OF IT IS
+> WITHDRAWN.*** A positive control settled it: three programs — `READU` then end,
+> `READU` then `STOP`, `READU` then `RELEASE` — **all three** reported *"There
+> are no active file, read or update locks held by any user"*, **including the
+> one that released nothing**. So `LIST.READU` cannot see a held lock from the
+> same session after the program ends, and *"no lock after the failed commit"* is
+> the **null case**, not evidence. It needs a **second concurrent session**
+> watching the first while it lives; that is all that is still owed on the lock
+> half. **The fix itself rests on control flow that is not in doubt.**
+>
+> ### ***114 — A TYPO HANGS THE BASIC COMPILER, AND HUNG COMPILES COST SESSIONS***
+>
+> `BEGIN TRANSACTION` with **no final `END`** → the compiler **never returns**
+> (killed at 41s). **The same source with `END` added** → `Expected TRANSACTION
+> after END`, **0.5s**. One line apart. Each hang was killed from outside and
+> **left a session slot behind**; three accumulated. The correct block is
+> `COMMIT` **inside**, closed by `END TRANSACTION`, then `END`.
+>
+> # ⇩⇩⇩ HANDOFF 6, 1 Sep 2026 — ***100 CLOSED AND MEASURED. 112 FILED: A VERIFIER NOTHING RUNS. 96 IS A RULING.*** ⇩⇩⇩
+>
+> ***OPEN COUNT: 18 — 100 STRUCK, 112 AND 113 FILED.*** Open: 3, 16, 28, 65, 66,
+> 67, 70, 74, 76, 78, 80, 88, 89, 93, 96, 102, **112**, **113**.
+> `check-stale-leads` **exit 0**. **`b99` is spent. Next free run token is
+> `b100`.** ***NEXT FREE PRE_RELEASE ID: 114.***
+>
+> ### ***113 — FOUND BY RUNNING, AND IT IS 104's FIX OVERSHOOTING***
+>
+> `DELETE.FILE` prints **`Failed to delete index directory`** for every file that
+> **never had** one, and sets `@system.return.code` to an error on a delete that
+> fully succeeded. **The ordering in the probe's own cleanup is the giveaway**:
+> `AKPF`, which *had* a built index, deleted silently and cleanly; `AKPDIR` and
+> `AKPDCT`, two DIRECTORY files with no index ever, **both reported failure**.
+> `DELETEF:271` reads a non-empty `FL$AKPATH` for an ordinary file and `:287`
+> treats "nothing there to delete" as "could not delete". **101 got this exact
+> distinction right the same day** by tolerating `ENOENT`. Not cosmetic: a script
+> checking the return code of a successful `DELETE.FILE` now sees an error.
+>
+> ### ***THE STATE, MEASURED***
+>
+> Cycle **10:52:42 → 10:54:25**, install **10:53:32**, `assert-current` **exit
+> 0**, installed `sd.exe` **3DFDB5CEB208E67C** — the hash of the 10:45:33 build,
+> so the fix is the binary that is running. `check-datatree-litter` **CLEAN, exit
+> 0, 3618 entries**. **Nothing is in flight and nothing is half-built.**
+>
+> `-Run b99 -Only verify-tierchange`: **28 of 28 decisive checks, exit 0**,
+> correctly banner'd `PARTIAL, 1 of 22`. ***A FULL SUITE IS STILL OWED*** and has
+> not run since `b91`.
+>
+> ### ***100 — CLOSED, AND THE PROBE IS WHY***
+>
+> All seven `get_ak_node` callers test the answer and abort on 0. **Node 0 is the
+> AK index header**, so the untested value had the caller write a data node over
+> the header every query on that key reads from — reported by `dh_err`, but
+> *after* the damage, and nothing re-heals it.
+>
+> ***THE ENTRY'S GRANTED FIX WAS INSUFFICIENT AS WRITTEN.*** It and UPSTREAM 30
+> enumerated **two** of `get_ak_node`'s three failure exits. **The middle branch
+> returned a NON-ZERO number on failure** — the head of the free chain, with
+> `free_chain` never advanced, i.e. a node the file also believes is free. Seven
+> perfect caller-side guards would still have had a hole, so the convention was
+> made total inside the function. Filed into UPSTREAM 30.
+>
+> ***THE MEASUREMENT, BY `gplbld/probe-akwrite.ps1` — 18 OF 18, UNELEVATED.***
+> `BUILD.INDEX` over **1900 records (1200 distinct keys + 700 on one key)**:
+> `1900 records processed`, the `En` column **N → Y**, and the AK subfile
+> **8192 → 49152 bytes**, so the build allocated **40960 bytes = 10 nodes, every
+> one through `get_ak_node()`**. The index then answered `SAMEKEY` → **700**
+> (past `AK_BIG_REC_SIZE` 3300 — the big-record chain), `K000001` → **1**,
+> `K001200` → **1** (past `DH_AK_NODE_SIZE` 4096 — splits and internal nodes).
+>
+> ***THE PROBE'S FIRST RUN SCORED 15/15 WHILE MEASURING ALMOST NOTHING, AND THAT
+> IS THE MOST PORTABLE THING HERE.*** `CREATE.INDEX` **defines an index without
+> building it** — `gpl.bp/CREATEI:33`, *"the two commands are identical except
+> that MAKE.INDEX automatically goes on to build the index."* So `En` stayed `N`,
+> the subfile stayed at header-plus-one-node, and three SELECTs answered
+> **correctly off a sequential scan**. **Correct answers from an index that was
+> never populated.** The `En` control and a node-count floor sized from the key
+> data are what refuse it now. ***ASK WHAT THE RIGHT ANSWER WOULD LOOK LIKE IF
+> THE CODE HAD NEVER RUN.***
+>
+> **Still not seen to fire, as filed**: the guards need an induced write failure
+> on an AK subfile. 100 closes on the **101/103/104 shape** — normal path proven
+> unregressed *by execution*, fault fixed by reading.
+>
+> ### ***112 — `verify-vocverbs.ps1` IS RUN BY NOTHING, AND A COMMENT SAID IT WAS***
+>
+> **It is a step in neither runner, and `verify-tierchange` does not raise it**
+> — its only external calls are `Start-Job` and `assert-current.ps1`.
+> **`VerifyInstall2.ps1:451` and `:146` say otherwise and are false.** That
+> comment is why `-Only verify-tierchange` was handed over as 100's deciding
+> step; it ran green and drove **no index at all**.
+>
+> ***AND WIRING IT IN WOULD STILL MEASURE NOTHING***, for two independent
+> reasons: its fixture indexes a file whose **DATA part is empty**, and it uses
+> **`CREATE.INDEX`, which never builds**. So the AK write path had **never been
+> exercised by anything in the tree**. Fourth instance of the class — 54, 82,
+> 107. **`probe-akwrite.ps1` is rostered in `assert-current.ps1` and is in
+> neither runner on purpose: wiring it in is the owner's ruling**, as 54, 82,
+> 106 and 107 all were.
+>
+> ***A GPLBLD SCRIPT WITH NO ROSTER LINE TAKES `assert-current` TO EXIT 1*** —
+> `assert-current.ps1:818` said so and it is now confirmed rather than quoted:
+> the probe was copied in, the tree went red, the roster line was added, and it
+> is **exit 0** again.
+>
+> ### ***100 — WHAT WAS BUILT***
+>
+> All seven `get_ak_node` callers now test the answer and abort on 0, in each
+> function's own idiom. **Node 0 is the AK index header** (`dh_file.c:331` maps
+> it there deliberately), so the untested value had the caller write a data node
+> over the header every query on that key is read from — reported correctly by
+> `dh_err`, but *after* the damage, and nothing re-heals it.
+>
+> ***THE ENTRY'S GRANTED FIX WAS INSUFFICIENT AS WRITTEN, AND THIS IS THE PART
+> WORTH READING.*** The entry and UPSTREAM 30 both enumerated **two** of
+> `get_ak_node`'s three failure exits. **The middle branch returns a NON-ZERO
+> number on failure** — `new_node_num` is set from `GetAKFwdLink` before the free
+> node is read, so a failed read hands back the head of the free chain with
+> `free_chain` never advanced, i.e. a node the file also believes is free.
+> **Seven perfect caller-side guards would still have had a hole**, so the
+> convention was made total inside the function instead. Filed into UPSTREAM 30.
+>
+> **`:3460` needed a temporary** (`old_root_node_num`) — it assigned straight
+> into `node_ptr->node_num`, so a test after the store reads a value already
+> committed.
+>
+> ***STILL NOT EXECUTED, AND THE FIX DOES NOT CHANGE THAT.*** Forcing it needs an
+> induced write failure on an AK subfile, which the suite cannot make. It closes
+> on the **101/103/104 shape**: normal path confirmed unregressed by the cycle,
+> fault fixed by reading. **Do not wait for it to fire.**
+>
+> ### ***96 — DO NOT BUILD THE FIX ITS ROW RECOMMENDS. IT CRASHES.***
+>
+> Sized as the second cheap one; traced before writing code, and it is not
+> cheap. `log_printf` → `log_message` → `k_error.c:582` `if (sysseg->errlog)`,
+> **unguarded**, and `sysseg` is `init(NULL)` (`sysseg.h:138`). **`comlin()` runs
+> at `sd.c:175` and `bind_sysseg()` at `sd.c:180`**, so `comlin` → `check_admin`
+> → `IsElevated` runs **before shared memory is bound**: the recommended
+> diagnostic is a **null-pointer crash at start-up**, on the very `sd.c:838` path
+> the row calls "the plainest". `log_printf` also **displays on the user's
+> terminal** (`k_error.c:873`) whenever a session is logged in.
+>
+> ***SO THE SHAPE IS A RULING AND IT IS OWED BY THE OWNER***, three options in
+> the row: **(a)** guarded `log_message`, accepting that `sd.c:838` logs nothing;
+> **(b)** plus `check_admin` telling the truth on its own `stderr`; **(c)** the
+> tri-state, four callers. **Nothing was built.** Two corrections to the row are
+> already in it: **nine** undetermined paths not seven, and `op_sh.c:173`'s
+> `ENOENT` is the *designed* NO rather than an undetermined one.
+>
+> ### ***WHAT IS NEXT AFTER THIS, BY COST***
+>
+> ***THE §5.23 SWEEP FAMILY IS NOW EXHAUSTED EXCEPT FOR RULINGS — 100 WAS THE
+> LAST OF IT THAT NEEDED NONE.*** What is left in that family is **102** (its
+> **lock release is separable and needs no ruling**; the half-applied-commit
+> question does) and **96** above. **93** is a **B**, its shape ruled 1 Sep, and
+> **not started** — the largest thing with a clear mandate. **112** is cheap but
+> is a wiring decision, so it is his.
+>
+> So, in order: **102's lock release** (no ruling needed), then **93**, with
+> **96**, **112** and **102's ruling** waiting on him.
+>
+> # ⇩⇩⇩ HANDOFF 5, 1 Sep 2026 — ***6/110/111 AND 101/99/95 ALL CLOSED AND MEASURED. NOTHING IS OWED.*** ⇩⇩⇩
+>
+> ***OPEN COUNT: 17*** (6, 110, 111, 101, 99, 95 struck this session). **Next
+> free run token is `b99`** (`b98` spent below; `b95`/`b96`/`b97` appear in logs).
+>
+> ***ALSO THIS SESSION, NOT A PRE_RELEASE ENTRY***: `sd.iss:4008` `FileCopy` →
+> `CopyFile` (Inno renamed the support function; it warned on every build).
+> Verified by `cycle.ps1 -SkipInstall` 10:32 — installer builds clean, warning
+> gone, no new Hint/Warning. Build tooling, invisible to users, so no changelog.
+>
+> ### ***101, 99, 95 — CLOSED ON THE 10:18:45 INSTALL***
+>
+> The `txn.c` sweep's three cheapest "take the answer" fixes.
+>
+> | | proved by |
+> |---|---|
+> | **101** (B) `txn.c:197` bare `remove()` → the twin's `S_IFREG` guard + `-ER_PERM` + `log_permissions_error` + raise 1423 | `verify-txn` PASSED — `op_txncmt`'s commit/nested-commit machinery unregressed. The edit is additive on the FAILURE path only, so the success delete is byte-for-byte unchanged; fault proven by reading + the twin (**103/104** shape) |
+> | **99** (M) `APISRVR:1524` takes `K$SET.USERNAME`'s answer, refuses on mismatch (new msg **10160**) | `verify-apiidentity` PASSED 4/0 — `[PASS] the API session writes as the authenticated user`. 10160 installed byte-identical |
+> | **95** (M) `dh_file.c` clears `FILE_UPDATED` on success, not before; the two silent failure paths now log | `verify-txn` writes records in a transaction and asserts they landed (a success-path header flush); the bootstrap flushes headers for ~180 programs; `assert-current` exit 0 |
+>
+> **All three faults need an induced failure the suite cannot make** — a
+> `remove()` that fails, an I/O error, a 33-char account — so the verifiers
+> confirm the **normal paths unregressed** and the fault fixes stay proven by
+> reading, exactly as filed. Two entry claims corrected by measuring: 95's
+> "fourteen sites" is **twelve**, and 101's error-path comment "three `goto`" is
+> now **five**. `test-sysmsg-units` is **44/0** — it does NOT cover 10160 (no
+> verifier names it); 10160 is confirmed by the install.
+>
+> ### ***THE TRAP THIS BATCH PAID FOR — START-HISTORY COMMENTS AFTER THE BUILD***
+>
+> I added the required `START-HISTORY` lines to `txn.c`/`dh_file.c`/`APISRVR`
+> **after** `make sd`, so those two C files became newer than every binary in
+> `bin\`. `assert-current` compares source against the **oldest** binary
+> (`sdclilib.dll`), so it refused, and the first `-Run b95` verify aborted on it.
+> **`make sd` alone does not fix it** — it only relinks `sd.exe` (whose source
+> changed), leaving the other seven binaries older than the edits and still the
+> oldest. The recovery was `rm -f bin/*.exe bin/*.dll && make sd` (relink all,
+> fresh mtimes) then one more cycle to reinstall, because rebuilding changed
+> `sd.exe`'s hash. **Lesson: add the `START-HISTORY` line as part of the edit,
+> before the build — the build is the last thing before the cycle.**
+>
+> ### ***110 AND 111 — CLOSED ON `-Run b94`, INSTALL 09:34:24***
+>
+> | | |
+> |---|---|
+> | **110** | `verify-delaccount -Prefix sddelb94` **exit 0, 56 PASS / 0 FAIL**; `[PASS] the data warning preceded it (10158)` on both asserted legs, and 10158 renders on all three delete legs. 10084/10085 unchanged |
+> | **111** | `verify-tiers -Prefix sdtiertb94` **exit 0, 35 PASS / 0 FAIL** — **33 before**, so the count itself shows the two new checks ran. Both halves of 10159 asserted separately; the restore leg and the write-once `ACC$PRIOR.TIER` guard still pass |
+>
+> **`test-sysmsg-units` 44/0**, `msg 10158 matches as rendered (multi-line, 8
+> escapes)` — it read **43/1** before the install, so that check is known to be
+> capable of failing. `assert-current` exit 0 with **3023** mirrored files
+> against 3021, which is the two new messages.
+>
+> ***THAT WAS A PARTIAL RUN AND IS NOT A PASSING SUITE.*** `-Only` was used
+> deliberately; the full suite is still owed at the next milestone, which is
+> where regressions in things nobody touched get caught.
+>
+> ***THE ONE THING NOT MEASURED***: the blank lines between paragraphs as a
+> person sees them at a terminal. `Show-Raw` skips empty lines by construction
+> and the raw capture double-spaces every break, so **both log views disagree
+> with each other and neither is the terminal.** The text and the `%1`
+> substitution are measured; the spacing is not.
+>
+> ### ***110 AND 111 — WHAT THEY ARE***
+>
+> | | |
+> |---|---|
+> | **110** | new message **10158**, `DELACC` prints it immediately before the confirmation and **outside the `loop`**, so a mistyped answer does not repeat it. Says the data goes and offers `modify.account x suspended`. The `y/<n>` default of **n** is untouched |
+> | **111** | new message **10159**, `MODIFYA` prints it beside 10109/10113 **on the suspend path only**. What is lost (local login, ssh, API, `logto`), what is untouched (the Windows account, its password, its groups, administrator rights included), and what lifts it |
+>
+> **10159 is not covered by `test-sysmsg-units`**: `verify-tiers` matches with
+> `Get-Said` and hand-written regexes rather than `Get-SysMsgPattern`. A wording
+> drift there shows up as a visible FAIL on the step, which is the safe
+> direction, but nothing checks the pattern against the message file.
+>
+> ***A TRAP WORTH KEEPING: `cycle.ps1` STOPS ANY TRANSCRIPT ITS WINDOW ALREADY
+> HAS OPEN*** (`cycle.ps1:96`, deliberate, and correct). So a wrapper that starts
+> its own transcript and then calls it gets **an empty log and a meaningless
+> exit 0** — `$LASTEXITCODE` is never set either. **Read
+> `%LOCALAPPDATA%\SD-verify\cycle-<stamp>.log`, which is the one that has the
+> run in it.**
+>
+> ### ***ENTRY 6 — CLOSED AND MEASURED***
+>
+> *"That has been hanging around forever, can we just finish the research and
+> fix it?"* — **finished, fixed, and confirmed on the 09:11:07 install.**
+>
+> ### ***THE CLOSING MEASUREMENT***
+>
+> `check-datatree-litter` **CLEAN, exit 0, 3611 entries**, against the identical
+> measurement finding exactly one on the 00:02:57 install. **Two controls make
+> that a result rather than an absence of work:**
+>
+> | | |
+> |---|---|
+> | **the operation ran** | `user_accounts\don` created **09:11:32.047**, on this install — so `make_path()` did execute over `C:/ProgramData/SD/user_accounts/don`. A clean scan of a tree where no account was created proves nothing |
+> | **it was the fixed binary** | `assert-current` **exit 0**, installed `sd.exe` `82F6FD720D581A42` — the hash of the 08:59:15 build, against `EED6F0D0E11C2239` before it |
+>
+> **On the old install `don` and `C:` shared a creation tick. Now `don` arrives
+> alone.** `gplbld/check-datatree-litter.ps1` stays as the standing check —
+> unelevated, read-only, and **it was proved against the litter before it was
+> trusted to report its absence.** Not wired into either runner; that is the
+> owner's call.
+>
+> ### ***THE CAUSE — `make_path()` MKDIR'd THE DRIVE LETTER***
+>
+> `fullpath()` emits `C:/ProgramData/SD/user_accounts/don` for a drive-lettered
+> path — `op_dio2.c:1192` has carried that measurement since 21 Aug.
+> `make_path()` splits on `DS`, which is `/`, and mkdirs every cumulative
+> prefix. **The first prefix is the bare `C:`, and the MSYS2 runtime reads that
+> as a relative FILENAME, not a drive** — so it is created in the process's
+> current directory, which for `CREATE.ACCOUNT` is SDSYS. Fixed at both copies,
+> `gplsrc/op_dio2.c:1537` and `gplsrc/sdidx.c:601`; `make sd` exit 0.
+>
+> Measured with a standalone MSYS2 probe rather than read: old function litters
+> and still builds its target, new function litters not and still builds its
+> target, **4 of 4**, and the name the probe makes is byte-identical to the one
+> in `sdsys`.
+>
+> ### ***THE SEVEN SECONDS WAS AN INSTRUMENT FAULT, AND IT IS THE LESSON***
+>
+> Handoff 4 concluded from the table below that `C:` *"precedes the account
+> directory by seven seconds, so it is not made by whatever builds that
+> directory"* — **and that is what eliminated the true cause.** The two figures
+> were different fields:
+>
+> | | CreationTime | LastWriteTime |
+> |---|---|---|
+> | `sdsys\C:` | **00:03:24.957** | 00:03:24.957 |
+> | `user_accounts\don` | **00:03:24.957** | 00:03:31.189 |
+>
+> **Same creation tick to seven decimal places.** `don`'s LastWriteTime advanced
+> because VOC, `$hold`, `$savedlists`, `bp` and `cat` were created inside it over
+> the next six seconds. One `make_path()` call, microseconds apart.
+>
+> **It was never adopt-specific either.** Every `make_path()` over a
+> drive-lettered path does it; it stops after the first because `stat("C:")`
+> then succeeds and the loop skips it — which is also why the mtime never moved,
+> the observation that produced "likely adopt-specific".
+>
+> ***HOW TO EVEN SEE IT: `find . -name 'C:'` AND `Test-Path` BOTH REPORT
+> NOTHING***, for two different reasons — MSYS mangles the argument, and a colon
+> in a Windows path names an alternate data stream. Its real NTFS name is
+> `U+0043 U+F03A`; through the POSIX runtime the same directory reads
+> `U+0043 U+003A`. **That is why the checker above exists** — a search by name
+> keeps coming back clean, and three sessions believed one.
+>
+> **The existing litter is not removed by the fix, only never made again.** The
+> cycle deletes both trees anyway, so it goes with them.
+>
+> ### ***THE SIX CLOSED TODAY, AND WHAT PROVED EACH***
+>
+> | entry | sev | what it was | proved by |
+> |---|---|---|---|
+> | **94** | **B** | `CREATEA`'s five group adds read `OS.ERROR()`, which had no causal connection to `os_group` | `verify-createaccount` **18/18**, `verify-routes`, `verify-sshonly` |
+> | **97** | **B** | two `delete … on error null` sites asserted the delete had happened | `verify-tierchange` — the only verifier matching both 10113 and 10115 |
+> | **98** | **B** | `ELEVATION GRANTED` written 85 lines before anything was granted | `verify-sdsysgate` — the only verifier matching `ELEVATION GRANTED` |
+> | **103** | M | the truncate's return discarded at six of seven sites | `verify-lineendings` **17/17**, the only verifier driving `openseq` |
+> | **104** | M | `DELETE.FILE` orphaned a relocated index and discarded the delete | the cycle's compile; no verifier reaches the path |
+> | **105** | M | `verify-apiadmin`'s compile check rested on its disqualifier | red/green against the real `b91` transcript, then `verify-apiadmin` exit 0 |
+>
+> ***94, 97 AND 98 ARE THE SAME DEFECT THREE TIMES — A FUNCTION'S ANSWER
+> DISCARDED*** — which is why they were done as one batch: one cycle, one set of
+> `-Only` steps.
+>
+> ### ***FIVE RULINGS AND TWO CORRECTIONS, ALL FROM 1 Sep 2026***
+>
+> | | |
+> |---|---|
+> | **20** | ***RULED NOT A DEFECT — STRUCK.*** Suspend withdraws SD access only and touches Windows not at all, and that is correct; delete is the destructive verb. `MODIFYA:127`, `:856`, `:905-909` are right as written and **are not to be rewritten** |
+> | **93** | ***THE SHAPE IS RULED AND IT IS NONE OF THE THREE THE ENTRY OFFERED***: *"there should be NO invalid records in it"* — the requirement is on the FILE, not on any reader. **And the directory goes with the record.** Not started |
+> | **110** | **NEW** — `DELETE.ACCOUNT`'s confirmation must say the DATA goes and suggest suspend |
+> | **111** | **NEW** — suspending must say what it did *not* do: SD access gone, Windows untouched |
+> | **78** | ***NOT UNBUILT — IT IS VM-BLOCKED.*** The code is built and mostly proven; `ssh.server install`/`remove` have never run and want a guest VM. **A marker now says so in its first sentence instead of its last** |
+>
+> ***TWO OF THOSE ARE CORRECTIONS TO THIS SESSION'S OWN WORK AND ARE WORTH
+> READING AS SUCH.*** **20** was briefly recorded as a *confirmed defect* on a
+> misreading of a shorter answer, then struck when the owner gave the fuller
+> statement — the analysis written for the unwanted fix is kept, labelled, and
+> the section heading was struck too (`test-fixlist-units` caught that drift).
+> **78** was excluded from the BASIC batch as *"a feature, three new
+> administrator commands"* after reading only the opening of a 9,500-character
+> row; its own last line said it was VM-blocked all along.
+>
+> ***AND A QUESTION THE OWNER ASKED THAT IS WORTH KEEPING***: can a suspended
+> administrator log in **elevated**? **No** — `LOGIN:625` gates the SDSYS
+> landing case on `sd_admin_tier(@logname)`, `SDADMIN:121` returns false unless
+> `ACC$TIER` is exactly `ADMINISTRATOR`, so the case never fires and the login
+> falls through to an ordinary one where `:687` refuses it. **That gate is
+> PRE_RELEASE 91's, closed 31 Aug** — before it, the landing case tested only
+> the two Windows keys.
+>
+> ***OPEN COUNT: 23*** — from `test-fixlist-units`, not by counting headings.
+> 28 at the start of the day, six closed, `20` struck, `110` and `111` filed.
+> **Next run token is `b94` — measured free, 0 occurrences across every log.**
+>
+> ***THE COST MODEL WAS CORRECTED BY THE OWNER AND IT CHANGES HOW WORK IS
+> SEQUENCED***: *"running cycle is fast, expensive is having to run the full
+> verification-suite which should be avoided in favor of running `-Only` when
+> possible."* **So do not batch source changes to save cycles** — batch them
+> when they are logically related, and hand over the deciding `-Only` step,
+> found by grepping the verifiers for what changed. ***`-Run` IS ALSO NEEDED
+> UNELEVATED*** for any step in `$needsTestUser` (`verify-nocase`,
+> `verify-lineendings`, `verify-logtoaccess`): the account is `sdtu$Run` and
+> `VerifyInstall1:634` gates it, so without one the step is dropped **before**
+> `-Only` filters and `-Only` then refuses the name and exits 2.
+>
+> ***THE STATE, MEASURED***: cycle **00:01:56**, install **00:02:57**,
+> `assert-current` **exit 0**, `sd.exe` **EED6F0D0E11C2239** (unmoved — 94/97/98
+> are BASIC and messages only). **197 of 197 compile units at `0 error(s)`** with
+> `CREATEA`, `LOGIN` and `MODIFYA` all in it. `-Run b93` ran **6 of 22 elevated
+> steps, all exit 0**, each printing `assert-current` first so none measured a
+> stale tree. **New message 10157; next free is 10158.**
+>
+> ***WHAT IS STILL OWED ON THESE SIX, SAID PLAINLY: NONE OF THE THREE PRODUCT
+> FIXES HAS BEEN SEEN TO FIRE.*** 103, 104 and 97 all need an induced failure — a
+> read-only file, a mandatory lock, a full disk — and `weofseq` has no verifier
+> at all. ***98 IS THE EXCEPTION AND IS THE CHEAPEST THING OWED ANYWHERE***: set
+> SDSYS's `ACC$TIER` to `SUSPENDED`, log in as an administrator and read the
+> trail. **No induced fault, and it is the one measurement that tells the old
+> ordering from the new.**
+>
+> ### ***THE 31 Aug SUITE HISTORY, KEPT***
+>
+> ***FOUR RUNS ON 31 Aug. BOTH FAILURES WERE INSTRUMENTS, NOT THE PRODUCT, BOTH
+> ARE FIXED, AND THE FOURTH RUN IS CLEAN.*** Nothing found in any of them is a
+> defect in SD.
+>
+> | run | result | what failed | now |
+> |---|---|---|---|
+> | `b88` 22:03 | stopped at **step 2 of 19**, never handed over | `test-stemcoverage-units` exit 1, naming `sdtc` as a family the litter sweep could not see | **PRE_RELEASE 108, fixed** |
+> | `b89` 22:11 | **19 of 19** unelevated, **21 of 22** elevated | `verify-tierchange` step 7 — its 10115 check could never match, whatever the product did | **PRE_RELEASE 109, fixed** |
+> | `b90` 22:45 | `-Only verify-tierchange`, **28 of 28**, exit 0, `PARTIAL` | nothing | 109 confirmed on a real run |
+> | ***`b91` 22:55*** | ***19 OF 19 UNELEVATED + 22 OF 22 ELEVATED, EVERY STEP EXIT 0*** | ***nothing*** | ***THE GREEN FULL RUN*** |
+>
+> ***BOTH FAILURES FAILED SAFE, WHICH IS THE PART TO KEEP***: `b88`'s runner
+> refused to hand over rather than reporting over the gap, and `b89`'s
+> `verify-tierchange` printed the raw SD output beside the verdict, which is the
+> only reason the false `FAIL` was readable as one.
+>
+> ### ***READ THE COUNT BEFORE YOU QUOTE IT — `17` AND `19` ARE BOTH RIGHT***
+>
+> ***THE UNELEVATED HALF IS `19` STEPS, NOT `17`, AND THIS BOX SAID `17` FOR TWO
+> SESSIONS.*** Both numbers are true of different things and the wrong one was
+> repeated into PROJECT_STATUS and HISTORY on `0c2cdc0` before anyone measured
+> it:
+>
+> - **`19` is what the RUNNER reports** — every step, and the number to quote.
+> - **`17` is `verify-*.ps1` steps only**, which is what PRE_RELEASE 107's
+>   arithmetic counts (`17 + 22 = 39` against 44 in the directory). **107 is
+>   correct; it just is not counting the same thing.**
+> - The difference is the **two `test-*-units` steps**, `test-tiercounts-units`
+>   and `test-stemcoverage-units`.
+>
+> **Measured three ways that agree**: `VerifyInstall1.ps1` names 19,
+> `post-cycle-unelevated` lists 19, and `b89` and `b91` each ran 19.
+> ***AND THE SUMMARY FILE CARRIES A UTF-8 BOM***, so a `grep '^test-'` over it
+> silently misses the first row and answers `1` where the truth is `2` — which
+> is exactly how a count like this goes wrong.
+>
+> ### ***THE TWO STEPS THAT WERE NEW ON `b89` — BOTH GREEN ON `b91`***
+>
+> | new step | runner | state |
+> |---|---|---|
+> | `verify-basicfuncs.ps1` | **VerifyInstall1**, beside `verify-txn` | ***PASSED on `b89` and `b91`.*** PRE_RELEASE 106, §5.24 |
+> | `verify-tierchange.ps1` | **VerifyInstall2**, after `verify-tiers` | 27 of 28 on `b89` (its own bug), **28 of 28 on `b90`**, ***and green inside the full `b91`*** |
+>
+> ***TOKENS, MEASURED NOT ASSUMED***: `b88`, `b89`, `b90` and `b91` are all
+> spent. **The next full run is `b92`** — check it the way these were, by
+> grepping the logs and reading the CONTEXT of every hit, because `b88`, `b90`
+> and `b91` all showed hits that turned out to be hex inside SHA hashes.
+>
+> ### ***THREE ENTRIES FIXED AFTER `b91`, CYCLED AND INSTALLED — 23:42:48***
+>
+> ***`b91`'S GREEN IS HISTORICAL: IT VALIDATED THE TREE AS AT 22:55 AND SAYS
+> NOTHING ABOUT THE CODE BELOW.*** The cycle of 23:41:36 shipped all three and
+> `assert-current` is **exit 0** again — `sd.exe` **EED6F0D0E11C2239**, `bin\`
+> 23:37:44, install **23:42:48**, `gcat` **133** / `gpl.bp.out` **192**.
+> *(§"THE MACHINE"'s 125/184 is a 27 Aug figure and superseded; nothing here
+> added a program.)*
+>
+> | entry | what changed | proven how far |
+> |---|---|---|
+> | **105** | `gplbld/verify-apiadmin.ps1:306` — a positive `0 error(s)` anchor per probe, count derived from `$probes` | Red/green against the real `b91` transcript; **two false-pass paths closed**. `gplbld` only, no cycle |
+> | **104** | `gpl.bp/DELETEF:275`, `:350` — both `dummy = ospath(akpath, …)` now tested, reported with **sysmsg 2636**, upstream's own message that `MKINDX:355` already uses for the same call | ***COMPILES***: the cycle log line 376 `Compiling gpl.bp DELETEF`, `:380` `$DELETEF added to global catalogue`, **and 197 of 197 compile units reported `0 error(s)`** |
+> | **103** | `gplsrc/dh_file.c` `SetFileSize` returns the real status; `op_seqio.c` `op_weofseq` and `OPENSEQ … OVERWRITE` set `-ER_IOE` so their existing `k_error` can fire | `make sd` exit 0, **0 warnings, 0 errors**, only `dh_file.o` and `op_seqio.o` rebuilt. **Installed** |
+>
+> ### ***WHAT IS OWED IS TWO TARGETED STEPS, NOT A SUITE RUN***
+>
+> ***OWNER, 31 Aug 2026: "running cycle is fast, expensive is having to run the
+> full verification-suite which should be avoided in favor of running `-Only`
+> when possible."*** **The cycle is the cheap half.** CLAUDE.md already says to
+> keep full runs to milestones; this is the cost model behind it, and it means
+> **do not batch source changes merely to save cycles.**
+>
+> **The deciding steps were found by grepping the verifiers for what changed**,
+> not guessed: `openseq` appears only in `verify-lineendings`, `DELETE.FILE` in
+> `verify-txn` among others, and `105` changed `verify-apiadmin` itself.
+>
+> ***✅ RUN 23:48:03 AND BOTH PASSED — `PARTIAL, 2 of 19, all exited 0`.***
+> `verify-lineendings` **17 of 17** and `verify-txn` **9 of 9**, and each printed
+> `assert-current` against **`sd.exe EED6F0D0E11C2239`** first, so they measured
+> the NEW binary rather than a stale one. **`verify-lineendings` is the only
+> verifier that drives `openseq`** — READSEQ, the 2047/2048 straddle, READCSV and
+> all three CRLF writers came back clean, so **103's changed path carries no
+> regression.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b92 -Only verify-lineendings,verify-txn
+> ```
+> ***AN ORDINARY UNELEVATED PROMPT.*** ***`-Run` IS REQUIRED HERE EVEN THOUGH
+> NEITHER STEP TAKES A PREFIX***: `verify-lineendings` is in `$needsTestUser`,
+> the account is `sdtu$Run`, and `VerifyInstall1:634` gates it on `-Run` — with
+> none, the step is dropped from the list **before** `-Only` filters, so `-Only`
+> then refuses the name and exits 2. **Confirmed on the run above.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b92 -Only verify-apiadmin
+> ```
+> ***AN ELEVATED PROMPT — THIS IS THE ONE STILL OWED.*** **`b92` is free for it**
+> (its 30 grep hits were two contexts, a GUID fragment and a hex hash) and **is
+> deliberately reused across both**:
+> the prefix families are disjoint — `sdtu` for the unelevated test account,
+> `sdapia` for the elevated step — so neither name is built twice, which is the
+> actual rule behind not reusing a token.
+>
+> ***NEITHER FIX CAN BE PROVEN TO FIRE, AND THAT IS RECORDED RATHER THAN
+> GLOSSED***: both need an induced failure — a read-only file, a mandatory lock,
+> a full disk — and neither has a verifier. **`weofseq` appears in no verifier at
+> all.** The steps above prove the paths still work, not that the new reporting
+> triggers.
+>
+> ***THE "THREE VERIFIERS" CLAIM IN 107 WAS WRONG AND IS CORRECTED HERE.***
+> `verify-tierchange.ps1` does **not** raise `verify-acctmsgs` or
+> `verify-vocverbs` — it only names them in comments (`:94`, `:120`) as the
+> shape it copied. **`verify-doors-admin.ps1` raises `verify-acctmsgs`, which
+> raises `verify-vocverbs`, and that chain hangs off `verify-doors-suite.ps1`,
+> already a step** (`VerifyInstall1.ps1:550`) — as `VerifyInstall1`'s own header
+> says at `:67-68`. **So those two were never orphaned, and ONE verifier was new
+> on `b89`, not three.**
+>
+> **The step counts are settled**: `VerifyInstall1` **17**, `VerifyInstall2`
+> **22**, both observed on `b89`. `b85` ran 16 and 21.
+>
+> ### ***WHAT IS OWED AFTER THE RUN***
+>
+> **1. THE AUDIT IS ANALYSIS, NOT MEASUREMENT. `98`–`105` ARE ALL `NOT
+> EXECUTED`** — read from control flow, and each row says so. The suite does not
+> confirm any of them; they need induced faults. ***`98` IS THE EXCEPTION AND THE
+> CHEAPEST THING OWED***: set SDSYS's `ACC$TIER` to `SUSPENDED`, log in as an
+> administrator, read the trail. It is the only open entry whose trigger needs
+> no induced fault at all.
+>
+> **2. ~~THREE SEVERITY RULINGS ARE HIS AND ONLY HIS.~~ ***RULED 31 Aug 2026:
+> THE OWNER RAISED THEM. `97`, `98` AND `100` ARE NOW `B`.*** ** Every
+> recommend-**B** in the file has been granted; **each row records the ruling and
+> its date in the SEV cell.** ***AND THE LIST IN THIS ITEM WAS SHORT BY ONE***:
+> it named `98` and `100`, but **`97` carried a recommend-**B** too** — found by
+> grepping the file for the recommendation rather than trusting this box, which
+> is the same lesson as the `sdtc` stem two items down. ***THE OPEN `B` SET IS NOW
+> EIGHT, GREPPED RATHER THAN COUNTED BY HAND: `65`, `80`, `93`, `94`, `97`, `98`,
+> `100`, `101`.*** (`19` is **B** but struck — done, not open.)
+>
+> ***`101` WAS FILED `B` BY THE AGENT ON ITS OWN JUDGEMENT*** — because its
+> trigger is an ordinary state (a read-only file, an ACL denial, a file another
+> process holds open) rather than an induced fault, which is the property that
+> makes `93` and `94` **B**. **The reasoning is in the row; overrule it there if
+> he disagrees.** **Unchanged by the 31 Aug ruling, which raised the other
+> three rather than touching this one.**
+>
+> **3. A GUARD IS OWED AND WAS DELIBERATELY NOT BUILT.** `54`, `106` and `107`
+> are the same defect three times: **a verifier in neither runner, found only by
+> a person re-deriving counts by hand.** Nothing checks that every
+> `verify-*.ps1` is either a runner step or a named child. **A tier-1 unit test
+> would catch it, needs no install and no elevation, and would have caught all
+> three.** It is recorded in `107` rather than written, because it is a new
+> instrument and the session ended.
+>
+> ### ***STATE***
+>
+> ***NOTHING IS IN FLIGHT. NO PRODUCT SOURCE CHANGED THIS SESSION.*** Everything
+> is documentation, two new `gplbld` files, and step rows in the two runners —
+> **no `gplsrc`, no `gpl.bp`, no `sd.iss`.** `assert-current` passed at the end
+> and the install is the 13:33:28 one. `git status` shows only the owner's
+> untracked `generate_gap_analysis_pdf.py`; **leave it alone.**
+>
+> **The six §5.23 sweeps are DONE** — the box below is kept for its numbering
+> and its three lessons, which are worth more than any single entry. **Open
+> entries: 28**, from `test-fixlist-units` rather than by counting headings.
+
+> # ⇩⇩⇩ HANDOFF 2, 31 Aug 2026 — OUT OF CREDITS AGAIN. NEW ACCOUNT. THE AUDIT IS THE WORK. ⇩⇩⇩
+>
+> ***READ §5.23 FIRST. IT IS THE OWNER'S RULING AND IT IS WHAT EVERY OPEN ENTRY
+> BELOW IS MEASURED AGAINST:*** a query must never answer wrongly, and *"this is
+> a database application — no failure is more severe than misreported data, not
+> just to the administrator but for every user."*
+>
+> ***NOTHING IS IN FLIGHT. NO SOURCE CHANGE IS UNCOMMITTED OR UNBUILT.*** The
+> last commit touching anything outside the four documentation files is
+> **`a02fbf4`** (`verify-tiers.ps1`). Everything after it — 93, 94, 95, 96, 97
+> and §5.23 — is documentation. `git status` shows only an untracked
+> `generate_gap_analysis_pdf.py`, which is **the owner's, not this work's**;
+> leave it alone.
+>
+> ### ***THE VERIFICATION DEBT, WHICH IS THE POINT OF THIS BOX***
+>
+> **1. THREE FILED ENTRIES ARE `NOT EXECUTED` AND SAY SO IN THEIR OWN ROWS.**
+> They are read from control flow against their callers, which is honest
+> analysis and is *not* a measurement. Each row names what would force it:
+> * **95** — `dh_flush_header` clears `FILE_UPDATED` before it can fail. Needs an
+>   **induced write failure**. `dh_close.c:45` is the case that does not
+>   self-heal.
+> * **96** — `IsAdmin`/`IsElevated`/`os_permitted` answer "no" and "could not
+>   tell" with the same `FALSE`. Needs an **induced name-service failure**; on
+>   Cygwin an unreachable domain controller is the realistic route.
+> * **97** — `MODIFYA:1442`/`:1445` assert a removal from a discarded `delete`.
+>   Needs an **induced delete failure** (lock or permission).
+>
+> **94 IS THE EXCEPTION AND IS CONFIRMED BY EXECUTION** — probe run 31 Aug, in
+> `don`'s own `bp`, unelevated, removed afterwards. Do not re-prove it.
+>
+> **2. `verify-tiers.ps1` HAS NOT RUN SINCE IT CHANGED.** `a02fbf4` added the
+> missing `os.users` disclosure to `Remove-Made`. ***PARSE-CHECKED CLEAN 31 Aug
+> — 0 errors, 9 functions found, no BOM past offset 0*** — so it loads, per the
+> "verify a script loads" rule. **It has not been executed.** Run it.
+>
+> **3. ***THE FULL SUITE IS OWED AND ONLY THE OWNER CAN RUN IT.*** The last full
+> run is **`b85`**; `b86` was `-Only verify-doors-suite`. CLAUDE.md requires a
+> full run **before a handoff**, and §4.0.1 forbids the agent running
+> `VerifyInstall1`. **This hand-over is going out without it. Say so rather than
+> treating b85 as current.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b87
+> ```
+> ***An ordinary unelevated prompt*** — it elevates the second half itself.
+>
+> ### ***RULINGS OWED BY THE OWNER — DO NOT DECIDE THESE ALONE***
+>
+> * **97 → recommend B.** Filed **M** on its trigger only. *"A privilege removal
+>   reported as complete when it did not happen"* is the class the 93 ruling
+>   named; the row says so and leaves the lever with him.
+> * **65 → B was an inference**, flagged in its own row. Confirm it.
+> * **67, 89, 88, 20** are listed as *candidates, my reading* in §5.23's triage
+>   table and have never had his eye on them.
+>
+> ### ***DO NOT RE-FIND THESE. ALL FOUR LOOKED LIKE DEFECTS AND ARE NOT.***
+>
+> * **`_WRITEV:50`/`:51`** — the same `write … on error null` as 97's sites and
+>   **correct**. `op_dio3.c:921` hands `process.status` to the caller and `:923`
+>   raises 1408 when it is negative and the caller had no `ON ERROR`;
+>   `write_record` sets it (`:357`). It suppresses the *inner* abort so the
+>   *outer* opcode can decide. **This read as a defect with a blast radius of
+>   every `WRITEV` statement** (`pcode_bld.py:83` confirms `_WRITEV` is what
+>   `op_writev` recurses into) before the status path was traced.
+> * **`DELACC:499`** — third `delete … on error null`, and **asserts nothing**.
+>   Its banner: a missing record is the ordinary case, no message either way.
+>   The message is the entire difference between it and `MODIFYA:1442`.
+> * **`win32s4u.c` / `ImpersonatingUser()`** — already fixed by an earlier
+>   session; it asks Windows, and `K_IMPERSONATING` returns **both** fields so
+>   the two can visibly disagree. `RevertUserIdentity` has no caller **by
+>   design** (`op_kernel.c:286`).
+> * **`CREATEA:1882`, `MODIFYA:440`, `:472`** — all take `os_group`'s return and
+>   branch on it. `:1882` is **in the same file as 94's five defects**, which is
+>   why 94 is an outlier rather than a convention.
+>
+> ### ***THE SWEEPS — WHAT IS DONE AND WHAT IS NOT, WITH SIZES***
+>
+> **The method, once, because every sweep below uses it:** find the sites
+> mechanically, **exclude comment lines**, then read what gates each one.
+> ***EXCLUDING COMMENTS IS NOT OPTIONAL*** — 94's first pass scored `CREATEA:823`
+> OK by matching an `os.execute` inside a `* was:` comment, i.e. it cleared the
+> very site whose comment recorded the change. And per the instrument rules, a
+> sweep that could have matched nothing must **say so**: print the site count and
+> refuse a zero.
+>
+> ***DONE — do not repeat these:***
+> * `OS.ERROR()` across `gpl.bp` — 14 sites, 5 defective (**94**), 9 correct.
+> * `gplsrc` identity/privilege — `IsAdmin`, `IsElevated`, `os_permitted`,
+>   `win32s4u.c`, `op_kernel.c` (**96**, plus the clean results above).
+> * `gplsrc` persistence write/close returns — one discarded call in the whole
+>   file layer (**95**); 14 sites check their writes.
+> * `on error null` across `gpl.bp` — **all 11 sites classified** (**97**; three
+>   are reads, `_WRITEV`×2 and `DELACC:499` cleared above).
+> * `sysmsg` success-assertions, **`10xxx` range only** — ours and port-era.
+> * ***the `void <fn>(…)` sweep across `gpl.bp` — 84 non-comment sites, not the
+>   77 this box estimated. 2 defective (**98**, **99**), 5 already filed (**94**),
+>   77 correct.*** Done 31 Aug 2026. **The count was measured, not carried over**;
+>   the sweep printed it and refused a zero, and 0 false positives survived a
+>   check for `void` inside a trailing `;*` comment or a string literal.
+>
+> # ✅ ALL SIX SWEEPS ARE DONE — 31 Aug 2026. EIGHT ENTRIES, 98 TO 105, AND FIVE UPSTREAM.
+>
+> ***THE AUDIT §5.23 CALLED FOR IS COMPLETE. NOTHING BELOW IS OWED ANY MORE***;
+> the six items are kept with their numbers and their original text because
+> every entry cites *"sweep N of the six"*. **What is still owed is
+> VERIFICATION, not analysis** — see the debt box above, which the audit did not
+> reduce: **every one of 98–105 is `NOT EXECUTED`**, read from control flow, and
+> the full suite is still the owner's to run with `b85` still the last one.
+>
+> | sweep | product |
+> |---|---|
+> | 1 `void <fn>()` | **98**, **99** — 84 sites, not 77 |
+> | 2 `dh_ak.c` | **100** + UPSTREAM 30 — the worst found; no self-heal |
+> | 3 `txn.c` | **101** (the only **B**), **102** + UPSTREAM 31, 32 |
+> | 4 `status()` | **103** + UPSTREAM 33 — *the specified sweep was clean* |
+> | 5 `sysmsg` upstream | **104** + UPSTREAM 34 — *the specified sweep was clean* |
+> | 6 the verifiers | **105** — the archetype was already fixed |
+>
+> ***THREE LESSONS WORTH MORE THAN ANY SINGLE ENTRY.*** **(a) SIZE BY THE
+> OPERATION, NOT THE KEYWORD** — sweeps 4 and 5 found nothing where they were
+> pointed and everything one family over. **(b) VERIFY THE CLAIM THE NEGATIVE
+> RESULT RESTS ON** — "a bare `write` aborts loudly" was inherited from this box
+> and had to be proved (`op_dio3.c:650`, `:436`) before 123 sites could be
+> called safe; proving it once made sweep 5 cheap. **(c) GREP THE RECORD BEFORE
+> FILING, NOT ONLY BEFORE RUNNING** — `3312` and `6686` both read as port gaps
+> and are both deliberate removals already recorded (§"SDNet is gone", §5.19).
+> **Two false entries avoided by a grep that cost seconds.**
+>
+> *(Original heading and items follow, unchanged.)*
+>
+> ***NOT DONE, IN THE ORDER I WOULD RUN THEM. THE NUMBERS ARE STABLE — 1 IS DONE
+> AND KEEPS ITS NUMBER, BECAUSE 98 AND 99 BOTH CITE "SWEEP 1 OF THE SIX".***
+>
+> **1. ✅ THE `void <fn>(…)` SWEEP ACROSS `gpl.bp` — DONE 31 Aug 2026. 84 SITES,
+> NOT 77. TWO DEFECTS: 98 AND 99.** ***BOTH ARE THE SAME MECHANISM AND IT IS NOT
+> THE ONE THIS BOX PREDICTED.*** The prediction was 65/72/94's shape — a status
+> discarded and the caller re-deriving it from something that does not know.
+> **What the other 79 sites actually hold is a kernel call whose return is an
+> informational echo**, and discarding those is correct. ***THE DEFECT IS THE
+> NARROWER CASE WHERE THE RETURN IS THE DESIGNED AND ONLY REPORT OF A REFUSAL***
+> — `K_ADMINISTRATOR` (`op_kernel.c:395`) and `K_SET_USERNAME` (`:257`) each set
+> a flag or a name **only** behind `HDR_INTERNAL`, then answer with the state as
+> it actually stands, under a comment saying a refusal is deliberately not an
+> error. **Four sites take that answer and throw it away**: `LOGIN:718`,
+> `CPROC:2848`, `CPROC:2860` (98) and `APISRVR:1524` (99).
+> ***THE CLASSIFICATION, SO NOBODY RE-READS 84 LINES:*** 41 `kernel` — 18
+> `K$AUDIT` (returns 0 always and says so, `op_kernel.c:652`), 11
+> `K$SUPPRESS.COMO`, 5 `K$SET.OPTIONS` (no result assigned, so 0), 4 echoes
+> (`K$TERM.TYPE`, `K$CPROC.LEVEL`, `K$AUTOLOGOUT`, and `K$SET.USERNAME` = 99),
+> 3 `K$ADMINISTRATOR` = 98; 12 `qdisp` and 6 `bindkey` and 3 `@(0,0)` — display
+> layer, and `QD$INIT` **is** checked at `QPROC:696`; 6 `ospath` — 4 cache
+> flushes and 2 deletes, both litter-only (`CREATEA:1593` is the one-shot ADOPT
+> marker and is deliberately removed twice, banner at `:1570`); 5 `os_group` =
+> **94, already filed**; 4 `SDCLIENT`; 2 `fcontrol`; 2 `elevate`; 1 `iconv`;
+> 1 `selectinfo` (a documented side-effect call, `QPROC:684`); 1 `pterm`.
+> ***THE HOUSE-CORRECT IDIOM IS IN THE TREE TWICE AND IS WORTH COPYING***:
+> `SDCLIENT:955` `void write.socket(…)` then `return (status() = 0)`, and
+> `INLINE:411` `void iconv(s, conv.code)` then `if status() = 0 then exit`.
+> **Discarding the value while reading the status is not the defect; discarding
+> both is.**
+>
+> **2. ✅ `dh_ak.c` — DONE 31 Aug 2026. ONE DEFECT, 100, AND IT IS THE WORST FOUND
+> BY ANY OF THE SWEEPS SO FAR.** ***THE FILE IS WELL CHECKED INTERNALLY AND THAT
+> IS WHY THE ONE GAP MATTERS***: `update_internal_node`, `free_ak_node`,
+> `free_ak_big_rec`, `ak_clear` and `delete_ak` are all called as
+> `if (!fn(…))` at every site — **53 call sites swept, and the house habit is to
+> test.** `get_ak_node` is the exception: it returns **0 for failure**, says so
+> explicitly at `:2716`, and **not one of its seven callers asks**. `dh_file.c:331`
+> maps node 0 to `offset = 0`, which is the AK header, so the failure path writes
+> a data node over the index header — **the only entry in this audit with no
+> self-heal**, which is the argument for raising it above 95's **M**.
+> ***CLEARED, SO NOBODY RE-FINDS THEM***: `ak_delete` returning `void` is
+> **correct** — it reports through the global `dh_err`, which `:192` copies to
+> `process.status`, and upstream is identical; and the three lesser discards
+> (`:2702`, `:3707`, `:3913`) **leak space rather than answer wrongly**, which is
+> stated in 100's row so they are not re-filed as accuracy. ***ALL OF IT IS
+> UPSTREAM'S***, byte-identical at `ae0cc5f` — **`UPSTREAM_FIXES.md` 30**, filed
+> the same day, because a defect in both trees goes in both files.
+>
+> **2b. THE PREDICTION IN THIS BOX WAS RIGHT ABOUT THE FILE AND WRONG ABOUT THE
+> MECHANISM.** It expected a silent index update failure. **The update paths are
+> not silent** — `dh_err` reaches `process.status` on every one of them. What is
+> wrong is the *order*: the error is reported **after** the header is overwritten,
+> so the caller is correctly told about a failure that has already been made
+> permanent. **Ask "when is it reported", not only "is it reported".**
+> ***THIS IS THE ONE THAT MOST DIRECTLY OWNS §5.23'S RULING.*** An alternate key
+> index that silently fails to update does not corrupt a record — **it makes
+> `SELECT`, `LIST` and every query built on that key return the wrong rows**,
+> which is *"an administrator receiving an answer that is wrong"* in its purest
+> form, and for every user rather than only an administrator. **95 was found in
+> `dh_file.c`, its neighbour, by exactly the question to ask here:** is a status
+> discarded, and is state updated as though the work succeeded?
+>
+> **3. ✅ `txn.c` — DONE 31 Aug 2026. TWO DEFECTS, 101 AND 102, AND 101 IS THE
+> FIRST `B` ANY SWEEP HAS PRODUCED.** ***THE FILE IS OTHERWISE CLEAN AND THAT WAS
+> CHECKED, NOT ASSUMED***: `dh_write`, `dir_write`, `dh_delete` and all three
+> `alloc_txn` sites are tested, and `dh_fsync`, `dio_close`, `unlock_txn` and
+> `suspend_updates` are all **`void`** — there is nothing to discard. **`rollback()`
+> is clean by design**: nothing is written before commit, so it has no operation
+> that can fail. ***THE ONE DISCARDED STATUS IN THE WHOLE FILE IS `remove(path)`
+> AT `:197`*** — and the contrast is one `switch` wide, because the other three
+> arms of the same `switch` all test their operation and raise 1422 or 1423.
+> **101 is filed `B` on the trigger**: unlike 95, 96, 97 and 100 it needs no
+> induced fault, only a read-only or open file, which puts it with 93 and 94.
+> ***102 IS ENTRY 11's LEFTOVER AND THE REASON IT NEEDED FINDING AGAIN IS A
+> FILING ONE.*** 11 says *"filed here rather than guessed at"* and `txn.c:249`
+> says *"it is filed rather than fixed here"* — **but 11 is `~~11~~`, struck, so
+> nothing open tracked it and `test-fixlist-units` counted it closed.** The
+> header of PRE_RELEASE_FIXES.md already warns about exactly this: *"read the
+> table, never the section headings."* **A live defect in a closed entry's prose
+> is invisible to the thing that decides what ships.** *(New in 102 and not in
+> 11: `k_error` `longjmp`s rather than returning, so `unlock_txn` is skipped and
+> **every record lock is held for the life of the process**.)*
+>
+> **3b. `system(1008)`/`txn_depth` IS ALREADY FILED UPSTREAM AND WAS NOT
+> RE-FOUND** — `UPSTREAM_FIXES` 17, and §5.23's table entry for 11 covers it.
+>
+> *(The original note follows.)* Entry **11** (nested `commit` silently
+> losing the outer transaction's writes, **DONE**) came out of here and is proof
+> the class lives in this file. Nothing else in it has been swept. **Silent loss
+> on commit or rollback is the corollary's worst case.**
+>
+> **4. ✅ DONE 31 Aug 2026 — AND THE SWEEP AS SPECIFIED CAME BACK CLEAN. THE ONE
+> DEFECT, 103, IS ONE KEYWORD FAMILY OVER.** ***READ THIS BEFORE SIZING SWEEP 5
+> OR 6 — IT IS THE REUSABLE LESSON.*** **150 `write`/`delete`-family sites, not
+> 129, and not one is a new defect.** 123 bare, 18 with a real `on error`, 5
+> `on error null` (**97's**), and the 4 that looked like `then`/`else` are bare
+> `delete`s inside an `if … then`. ***THE "BARE ABORTS LOUDLY" CLAIM WAS
+> VERIFIED, NOT INHERITED, BECAUSE THE WHOLE NEGATIVE RESULT RESTS ON IT***:
+> `op_dio3.c:650` raises 1406 and `:436` raises 1405 when `P_ON_ERROR` is unset,
+> and `k_error.c:31` makes both fatal. **The 18 handlers are exemplary** — 13
+> print `status()` and `stop`, and 5 set a flag read on the very next line.
+> ***THAT FLAG IDIOM IS THE HOUSE-CORRECT ANSWER TO `on error`***
+> (`CREATEA:1172`→`:1175`, `MODIFYA:763`→`:780`, `:1049`→`:1051`,
+> `:1419`→`:1422`, `CRED_SET:167`→`:181`) and is what a fix elsewhere should
+> copy.
+>
+> **4b. WHAT THE DEFECT ACTUALLY WAS, AND WHY THE FRAMING MISSED IT.** The box
+> sized this sweep by `write`/`delete`, and `gpl.bp` handles those correctly
+> everywhere. **The truncate family is where it goes wrong**: `chsize64` has 7
+> call sites, **6 discard the return and 1 checks it** (`sdfix.c:2493`, the
+> control). `dh_file.c:831` is the archetype — `bool SetFileSize(…) {
+> chsize64(…); return TRUE; }`, **a status-typed function that cannot fail
+> because it does not look**, so `dh_clear` could not check it even if it tried.
+> `op_seqio.c:1542` and `:803` are the ones that answer wrongly: **`WEOFSEQ` and
+> `OPENSEQ … OVERWRITE` leave the old tail and report success**, and
+> `QPROC:673` is `weofseq csv.f`, so a CSV export can carry rows from a previous
+> longer run. ***SIZE THE NEXT SWEEP BY THE OPERATION, NOT BY THE KEYWORD.***
+>
+> *(The original note follows.)* **`status()`-never-checked — 129 bare `write`/`delete`
+> statements against 275 `status()` references.** The inverse of sweep 1: not a
+> discarded return, but an operation whose status **nobody reads**. ***MIND THE
+> TWO LEGITIMATE PATTERNS BEFORE FILING ANYTHING***: a **bare** `write`/`delete`
+> with no `on error` and no `then`/`else` **aborts loudly** via
+> `k_error(sysmsg(1406)/(1405))` (`op_dio3.c:650`, `:435`) and is *safe*; and
+> `on error null` is correct where an **outer** opcode reads `process.status`,
+> which is exactly why `_WRITEV` is not a defect. **The defect is only where the
+> status reaches nobody and an assertion follows.**
+>
+> **5. ✅ DONE 31 Aug 2026 — ALL 22 SUCCESS-ASSERTIONS IN THE NAMED RANGES ARE
+> CORRECTLY GATED. NOTHING FILED FROM THE SWEEP'S OWN TARGET; 104 WAS FOUND IN
+> PASSING.** ***THE UPSTREAM RANGES ARE IN BETTER SHAPE THAN THE `10xxx` ONE,
+> WHICH IS THE OPPOSITE OF WHAT THE BOX EXPECTED*** — the port-era range gave
+> **94**, and Ladybridge's gave nothing. **23 assertions identified from the
+> message texts, 22 with call sites**, all gated: `6136`/`6137`/`6141` on
+> `ospath(…, OS$DELETE)` with 6138/6142 on the else; `6153`/`6155` on
+> `osrename` with 6154/6156; `6158`, `6194`, `3029`–`3031`, `3038`–`3042`,
+> `3221`, `3251`, `6189`/`6190` all behind either an `on error … stop` or a
+> **bare** `write`/`delete` — **which sweep 4 verified really does abort.** *That
+> verification is what made this sweep cheap, and it is why the two sweeps
+> belong in this order.*
+>
+> **5b. TWO THINGS READ AS DEFECTS AND ARE NOT. DO NOT RE-FIND THEM.**
+> * ***`AUTOLOGOUT:52` PRINTS 2500 "Autologout period set to %1" AND THE
+>   `void kernel(K$AUTOLOGOUT, period)` IS AT `:58`, SIX LINES BELOW.*** It
+>   looks exactly like **98**'s assert-before-do and it is not: `:52` is in the
+>   **query** branch (`token.type = PARSER$END`), reporting
+>   `kernel(K$AUTOLOGOUT, -1)`, and **the set branch prints nothing at all.**
+> * ***`DELETE:178` HAS ITS `delete` AND ITS `on error` ON SEPARATE LINES***,
+>   which reads like a bare delete followed by a dangling clause. **It is a real
+>   continuation** — the same idiom appears 8 times across `APISRVR`, `ED` and
+>   `_WRITEV`, and `_WRITEV:38` is one 97 already cleared. `delete.record` is in
+>   fact **deliberately careful**: `record.count += 1` **before** the delete and
+>   `-= 1` inside the handler, so 3221 counts only successes.
+>
+> **5c. FIVE MESSAGES HAVE NO CALLER, AND ONE OF THEM IS ALREADY EXPLAINED.**
+> `6055`, `6056`, `6057`, `6058` are dead in **both** trees — Ladybridge's own
+> litter, noted in UPSTREAM 34. **`3312` "Server configuration updated" is dead
+> HERE and live upstream (2 callers), and that is `DELSRVR`/`SETSRVR`, which the
+> port removed on purpose** — §"SDNet is gone", 21 Aug 2026, with `verify-nonet`
+> guarding it. ***Checked against the record before being written up, which is
+> the only reason it is not filed as a gap.***
+>
+> *(The original note follows.)* **`sysmsg` success-assertions — `3029`–`3042`
+> (catalogue), `6055`–`6058` (user create/delete), `6136`–`6194` (delete, rename,
+> copy), plus `2500`, `3221`, `3251`, `3312`. Lower prior than the `10xxx` range
+> because they are Ladybridge's rather than port artefacts — **but they are where
+> `UPSTREAM_FIXES.md` entries would come from**, and the owner's standing
+> instruction is to file upstream what upstream also has. **A defect in both trees
+> goes in BOTH files.**
+>
+> ***DEFERRED PAST W1.0-0, RULED 4 Sep 2026 — WRITTEN DOWN SO THE NEXT SESSION
+> DOES NOT RE-DERIVE IT AS FRESH WORK.*** `UPSTREAM_FIXES.md` is written for the
+> upstream maintainer and **does not gate this release**, and a sweep of four
+> `sysmsg` ranges has an unbounded number of findings. With **one** pre-release
+> entry left, opening it now works against closing. **The half that WOULD gate a
+> release is already covered by the standing rule**: a defect found in that range
+> which we also ship goes in PRE_RELEASE too, and being upstream's bug has never
+> been a reason to ship it. So this defers the SWEEP, not any defect it might
+> name. **Do it after 1.0.**
+>
+> **6. ✅ DONE 31 Aug 2026 — ONE HARDENING, 105. THE INSTRUMENTS ARE IN GOOD
+> SHAPE AND THE ARCHETYPE IS ALREADY FIXED.** ***`verify-apiidentity.ps1`, THE
+> FILE THIS ITEM WAS WRITTEN ABOUT, NOW CARRIES EVERYTHING THE RULE ASKS FOR***
+> — an explicit `$disqualifiers` list (`:591`), named success anchors (*"anchor:
+> sysmsg 6129, the LAST message on the happy path"*, `:585`; 6189 at `:686`) and
+> **VOID rather than a pass** when its control fixture fails. **Do not re-audit
+> it.** ***313 assertions across 43 verifiers swept; both mechanical defect
+> signatures came back EMPTY*** — **0** case-insensitive hash/base64
+> comparisons, and `-ceq`/`-cne` correctly used in the 5 files where case
+> decides. ***`verify-osusers.ps1` IS THE MODEL TO COPY***: a three-state
+> verdict (**2 = could not run**, distinct from failed), `Assert-ProbeRan`, and
+> a `LOGNAME=` probe-ran guard — **stronger than `Write-Verdict`, which has only
+> two states.** **105 is the one finding**: `verify-apiadmin.ps1:306` anchors on
+> the two probe NAMES, which `BASIC:330` prints *before* compiling (2812) and
+> `BCOMP:12079` prints again on failure (2612), so the check rests entirely on
+> its disqualifier. **The anchor it should use already exists** — `BCOMP:1540`
+> prints *"0 error(s)"* on the happy path.
+>
+> **6b. THE STRUCTURAL NUMBERS ARE A LEAD, NOT A CHARGE.** `Write-Verdict` is in
+> **9 of 43**, a disqualifier control in **11 of 43**, a named success anchor in
+> **4 of 43**. ***A FILE WITHOUT THE WORD STILL ANCHORED CORRECTLY EVERYWHERE IT
+> WAS READ***, so these are idiom counts and filing them as defects would be the
+> overclaiming this project punishes — but they are where a next pass should
+> look first.
+>
+> *(The original note follows.)* **The verifiers themselves** — the meta-sweep, and the reason to bother is on
+> the record: `verify-apiidentity` reported a refused step as *"confirmed"*, and
+> three false verdicts in one day came from instruments that never reached the
+> condition they claimed to measure. **Anchor on the SUCCESS wording, refuse the
+> null case.** `test-verdict-units` covers `Write-Verdict` across 9 files; **the
+> step logic inside each verifier is not covered by anything.**
+>
+> *(The 91/92 hand-over box below is now history. Both are closed.)*
+
+> # ⇩⇩⇩ HANDOFF, 31 Aug 2026 — OUT OF CREDITS. NEW SESSION, DIFFERENT ACCOUNT. ⇩⇩⇩
+>
+> ***THE WORK IS RULED, TRACED AND NOT STARTED. THREE CHANGES, IN THIS ORDER.***
+> Read **PRE_RELEASE 91** and **§5.22** first; both were written today for this
+> hand-over and between them carry the whole model.
+>
+> **1. ✅ PRE_RELEASE 91 IS CLOSED — `-Run b85`, GREEN IN BOTH HALVES.**
+> ***UNELEVATED 18 OF 18, ELEVATED 21 OF 21, 290 `[PASS]`.***
+> `verify-logtoaccess: PASSED - 6 of 6 decisive checks passed` —
+> `arrivals into SDTUB85` **2**, `back at home in DON` **1**, no 10003, no 5161,
+> both controls green. **The ruling on 19 is met by a passing leg, not by
+> argument.**
+>
+> ***THE ONE `[FAIL]` IN 290 IS FILED AS 92 AND IS NOT A VERDICT.***
+> `verify-doors`' **non-decisive local witness** (`5 of 5 decisive, 7 rows`).
+> **91 is what changed it**: an administrator as themselves now passes
+> `logto.authorised` above the SUSPENDED block, as an elevated session always
+> did, so `WHO` said `107 DON` and the leg saw 5161 rather than 10107. **That is
+> 5.22 working**; the row's `expected True` is what is now wrong. ***NOT
+> FLIPPED*** — entry 64 carries that instruction for this exact reflex.
+> **Measured across 23 transcripts**: PASSED on every run to 09:57, FAILED on
+> both after 91 landed.
+>
+> ***AND 65's OPEN QUESTION IS ANSWERED BY THE SAME RUN: THREE LEAKERS, NOT
+> TWO.*** `verify-tiers` leaks the same way and 65 never named it.
+>
+> *(The state this box described before that run:)*
+> **PRE_RELEASE 91 — CYCLED AND INSTALLED 31 Aug 2026.**
+> ***FULL CYCLE, INSTALL 31 Aug 13:33:28, `assert-current` EXIT 0 LIVE***
+> (3,020 files across the six mirrored directories, `sd.exe`
+> **`87701F86382AEA63`**, `bin\` 00:59:39 with no source newer — unchanged, and
+> correctly so, because this change is BASIC only). ***THE NEW PROGRAM IS IN
+> THE INSTALLED TREE, READ OFF DISK RATHER THAN INFERRED***:
+> `C:\ProgramData\SD\sdsys\gcat\!SD_ADMIN_TIER` and `gpl.bp.out\SDADMIN` both
+> **472 bytes stamped 13:32** — the install, not the 13:14 staged build —
+> against `!TIER_ALLOWS` **827** as the control.
+>
+> ***`-Run b83` RAN AND THE 91 ROW PASSED. THE PRODUCT IS FIXED.***
+> Unelevated **17 of 18 exit 0**, and the one failure was
+> `verify-logtoaccess` — ***THE INSTRUMENT, NOT THE PRODUCT***, with every
+> product row in it green:
+>
+> ```
+> [PASS] arrivals into SDTUB83 (0 = refused first, 1 = the flag was cleared): expected 2, got 2
+> [PASS] SD did NOT say 10003 ...        [PASS] SD did NOT say 5161 ...
+> [PASS] control: sdtub83 was refused with 10003
+> [PASS] control: sdtub83 did NOT arrive in DON
+> ```
+>
+> The transcript shows it plainly: `LOGTO SDTUB83` → `78 SDTUB83 from DON`,
+> `LOGTO DON` → `78 DON`, `LOGTO SDTUB83` → `78 SDTUB83 from DON`. **The second
+> entry into an ungranted account is what 91 refused and it now succeeds.**
+>
+> ***THE FAILING ROW TAUGHT SOMETHING WORTH KEEPING: `from X` NAMES THE
+> SESSION'S HOME ACCOUNT, NOT THE PREVIOUS HOP.*** The row expected an arrival
+> back into `DON` and got 0, because going home prints a bare `78 DON`. **The
+> three hops settle it**: hop 2's previous account was SDTUB83 and it printed no
+> clause at all, which a "previous hop" reading cannot explain. `verify-doors`
+> says the same in its own words and this file was written having read it —
+> the lesson is its own header's: *look at the output the tool prints on the
+> path you are measuring, not the one next to it.* Fixed with `Count-AtHome`
+> and **re-tested against the real b83 lines, with negative controls both ways**
+> (neither counter matches the other's shape). A second fix went in with it:
+> `Invoke-SdAsTestUser` returns an OBJECT, and the control rows had been passing
+> through **accidental stringification** of `@{ExitCode=…; Out=…; Err=}`.
+>
+> ***`b83` IS SPENT — USE `b84`. AND THE WHOLE ELEVATED HALF NEVER RAN***: the
+> runner correctly refused to hand over on a failing step. The test account was
+> removed cleanly (`sdu_SDTUB83` and the OS user both Deleted; one profile
+> directory Windows would not release yet).
+>
+> *(The compile that preceded it: `cycle.ps1 -SkipInstall` 13:13:42, ISCC exit
+> 0, installer **4,940,170**
+> bytes. **`SDADMIN` 0 errors**, `!SD_ADMIN_TIER` **added to global catalogue**;
+> `CPROC` and `LOGIN` **0 errors each**. ***READ RATHER THAN BELIEVED*** (the
+> 26 Aug precedent): `gcat/!SD_ADMIN_TIER` and `gpl.bp.out/SDADMIN` both exist
+> at **472 bytes** against `!TIER_ALLOWS` **827** as the control, both stamped
+> 13:14. ***AND NO NEW ERRGEN WARNING*** — `CPROC`'s `PRIVILEGED_COMMANDS` one
+> is pre-existing at `:245` and is **not** in this diff (checked). `SDADMIN`'s
+> *"Final END statement is missing"* is the house pattern: **`TIERGATE` emits
+> the identical warning.** At that point the installed tree was still untouched
+> and stale, and the SD service was left stopped — **both since overtaken by
+> the full cycle above.**
+>
+> ***COUNTS: `gcat` 133, `gpl.bp.out` 192 — AND 192 IS NOT THE 191 PREDICTED.***
+> The prediction was wrong because the baseline it came from was stale, not
+> because this added two: **`PS_SCRIPTO` landed on 31 Aug after the "190" in
+> this box was written.** The delta is confirmed directly instead — `gpl.bp`
+> sources **204 → 205**, the one addition being `SDADMIN`.)*
+>
+> **WHAT IS IN THE TREE:** `logto.authorised` has a **fourth bypass** that asks
+> the PERSON — `kernel(K$OS.ADMINISTRATOR, 0)` **and** the `ADMINISTRATOR` tier
+> on that person's own register entry — and `LOGIN:573` and `CPROC:2662` ask the
+> same pair. The bare `K$ADMINISTRATOR` bypass is gone.
+>
+> ***THE OWNER RULED "CLOSE BOTH NOW" ON 31 Aug 2026, AND IT TURNED OUT TO BE
+> THREE GATES.*** His correction is what started it — *"a windows administrator
+> does not have access unless they are granted access and to grant access they
+> have to have a personal account first"* — and it is right: `CREATEA:821` puts
+> you in `sdusers` only by creating your account, and `:1441`/`:847` join
+> Administrators only on the ADMINISTRATOR keyword, so **for anybody SD created
+> the two halves always agree**. Only a person made a Windows administrator
+> **outside** SD diverged, and they reached SDSYS because no gate tested the
+> tier.
+>
+> **All three now read `kernel(K$OS.ADMINISTRATOR, 0) and sd_admin_tier(@logname)`:**
+> `LOGIN:573`, `CPROC`'s `logto sdsys` door at `:2662`, and `logto.authorised`.
+> ***THE THIRD WAS NOT IN THE RULING AND IS WHY IT WOULD HAVE FAILED WITHOUT
+> IT***: `logto sdsys` sets `elev.obtained`, which is a bypass in its own right,
+> so closing the other two alone would still have admitted exactly the person
+> the ruling excludes. **The bare `K$ADMINISTRATOR` bypass is DELETED.**
+>
+> **New shared function `gpl.bp/SDADMIN` (`!sd_admin_tier`)** — three gates, two
+> programs, one copy. **Adding a program needs no build-list change**, checked
+> against the commit that added `TIERGATE`.
+>
+> ***TWO TRAPS PAID FOR ON THE WAY, BOTH ALREADY ON DISK.*** `AND` DOES NOT
+> SHORT-CIRCUIT (`CREATEA:382` — a defect that hid from 10 June to 21 Aug 2026),
+> so the register read runs on every login and every logto; a first draft of the
+> LOGIN comment claimed the opposite and is corrected. And a second handle on
+> `accounts` is mandatory, not tidiness — `LOGIN`'s `get.acc.tier` records that
+> reusing one with a live select list on channel 12 ends the walk *"with no
+> error and no sign of it"*, which is why `SDADMIN` opens its own.
+>
+> ***TWO THINGS THIS ENTRY SAID WERE WRONG, AND BOTH ARE CORRECTED IN 91.***
+> **(a) The fix it named would have fixed nothing.** `LOGIN:573`'s pair ANDs on
+> `K$ADMINISTRATOR` — the flag `:2825` clears and LOGIN never sets for an
+> unelevated administrator — so it is FALSE in both failing cases. LOGIN asks
+> *"did this session START elevated"*; this asks *"may this person ENTER this
+> account"*. **(b) SDSYS was never part of the lockout**: `logto sdsys` is gated
+> at `CPROC:2662` on `K$OS.ADMINISTRATOR`, which a `logto` cannot move, and
+> `elevate('START')` then sets `elev.obtained` — a fresh UAC consent is the way
+> back, not a reconnection.
+>
+> ***AND THE SCOPE IS WIDER THAN "AFTER ONE LOGTO".*** LOGIN arms
+> `K$ADMINISTRATOR` only on its SDSYS case (`:591`, `:674`), so an administrator
+> signing in **as themselves** — the only thing ssh can do — was refused with
+> 10003 on their **FIRST** `logto`. §5.22 row 1 was implemented nowhere.
+>
+> ***THE VERIFIER IS WRITTEN AND HAS NEVER RUN: `gplbld/verify-logtoaccess.ps1`.***
+> In `VerifyInstall1` because an **elevated** runner could not measure it at
+> all — an elevated session lands in SDSYS. ***UNELEVATED IS 18 STEPS NOW, NOT
+> 17***, so expect 18 on `b83` and do not read the extra one as drift.
+>
+> ***ITS DECIDING ROW IS A COUNT: ARRIVALS INTO THE TARGET = 2.*** Three logtos
+> in one session. **0 is the unelevated defect** (refused on the first), **1 is
+> the elevated one** (the first worked and cleared the flag), 2 is the fix — a
+> single successful logto would not have told them apart. The throwaway account
+> is both the ungranted target and the **non-administrator control** refused
+> with 10003, without which the run cannot tell *"the administrator path works"*
+> from *"the gate is open to everybody"*. Four preconditions **refuse out loud**,
+> the load-bearing one being *the caller must NOT already be granted the target*.
+>
+> ***THE `$refusers` GUARD FOUND A REAL DEFECT IN IT BEFORE IT RAN*** — the
+> parameters were `Mandatory`, so the **binder** would have refused ahead of the
+> body and an unattended suite would have got a prompt rather than a message.
+> Registered in **four** places in the same commit: `assert-current`'s
+> `$neverShipped`, `test-verdict-units`' `$targets`, `VerifyInstall1`'s steps
+> and `$needsTestUser`, and `test-sdtestuser-units`' `$refusers`.
+>
+> ***A WRITTEN VERIFIER IS NOT COVERAGE — 91 STAYS OPEN UNTIL A LEG PASSES.***
+> It does not cover the **elevated-start** half (UAC has no desktop in a nested
+> elevation, §4.0.1) or the **tier half's negative case** (needs a second
+> Windows administrator); its header names both.
+>
+> **2. EMPTY `TIER.ADD.ADMINISTRATOR`.** The 24 restricted commands stay in
+> `voc_template` (so SDSYS keeps them) and no created account gets them —
+> §5.22's table. ADMINISTRATOR-tier VOC **420 → 396**, identical to PROGRAMMER.
+> **Both count constants and `verify-tiers`' assertions invert with it**
+> (`administration verbs MISSING` becomes 24 for all three tiers).
+> ***RUN `test-tiercounts-units.ps1` AFTER EVERY EDIT*** — it now checks all
+> three copies, including `$AdminVerbs`, and it is free.
+>
+> **3. ⚠️ REPOINT `tclmap`'s ROSTER AT `voc_template` — DO NOT SKIP THIS.**
+> `SDCoreWindowsDocs/tools/tclmap.py:24` computes the roster as *123 in
+> `newvoc` **plus** `TIER.ADD.ADMINISTRATOR`*. Emptying that list would drop 24
+> **shipping** verbs out of documentation coverage and the checker would go
+> **green** with 24 undocumented verbs. Same class as the red-tree finding below.
+>
+> # ⇩⇩ THE MACHINE, AS LEFT ⇩⇩
+>
+> - ***`b54`–`b82` SPENT. USE `b83`.***
+> - ***OPEN COUNT 16, READ FROM `test-fixlist-units.ps1` AND NEVER FROM PROSE***:
+>   3, 6, 16, 20, 28, **65**, 66, 67, 70, 74, 76, 78, 80, 88, 89 — **15**.
+>   **91 CLOSED on `-Run b85`; 92 filed from that run and CLOSED on
+>   `-Only verify-doors-suite -Run b86`** (all 5 legs green, 68 `[PASS]`, zero
+>   `[FAIL]`; both new rows pass in BOTH phases, and the ordering claim still
+>   holds on the helper — `WHO` said `41 SDDRB86B`). *(`b54`–`b86` spent — use
+>   `b87`. Profile dirs `C:\Users\sddrb86a` and `sddrb86b` remain: PRE_RELEASE
+>   35/36, expected, and the names are taken until a restart.)*
+>   *(Was 14 + 91 when this box was written. **65 was RE-OPENED 31 Aug 2026** —
+>   its product half is fixed and proven on `b74`, its HARNESS half is not, and
+>   `-Run b84` reproduced the symptom: `os.users` holding `SDRTB84A` and
+>   `SDTIERTB843` as `yes|yes` with both Windows accounts ABSENT. 85 and 90
+>   closed earlier the same day.)*
+> - **The installed tree is STALE and correct** — `sd.iss` moved after the
+>   09:54:22 install. `assert-current` names it.
+> - ***88 IS BUILT AND NOT CYCLED***, and a cycle alone cannot test it: see the
+>   three-step sequence further down. ISCC exit 0.
+> - **The doc tree is RED and has been since 30 Aug** — `tclmap` exits 1,
+>   roster 146, three `NO PAGE`. `append.sd.path` makes it four. PRE_RELEASE 80.
+> - **Nothing is uncommitted.**
+>
+> # ⇩⇩ WHAT TODAY COST, SO IT IS NOT PAID TWICE ⇩⇩
+>
+> ***FIVE SILENT TRAPS, EVERY ONE FOUND BY MEASUREMENT AND NONE BY READING.***
+>
+> | trap | it looked like |
+> |---|---|
+> | `RegKeyExists(HKLM,…)` from `[Code]` reads **WOW6432Node** — Setup is 32-bit. `HKLM64` FOUND, `HKLM` and `HKLM32` not | compiles clean, `TrueUpgrade` permanently False, 88 silently does nothing |
+> | `{#SetupSetting}` written in a **comment** aborts ISCC | "Insufficient parameters" against a line of English |
+> | `[Code]` Pascal strings get **no** constant expansion, so `{{` there is two braces | wrong key, silent False |
+> | the helper's two capture routes disagreed — field marks vs raw CRLF | one line of boxes |
+> | `verify-tiers`' `$AdminVerbs` was a **third** copy of the admin list | 20 minutes into a suite run |
+>
+> ***AND EVERY DEFECT CLOSED TODAY WAS FOUND BY THE OWNER AT A TERMINAL, NOT BY
+> A TEST.*** The tasks page, the silent reports, the field marks, the Ready
+> page, and 91. Two instruments were built to move some of that onto the
+> machine — `probe-taskflags.ps1` and `test-tiercounts-units`' `$AdminVerbs`
+> check — **but the pattern is the thing to remember when choosing what to
+> check by hand.**
+>
+> # ⇩⇩ OPEN QUESTIONS RAISED TODAY AND NOT ANSWERED ⇩⇩
+>
+> - ***CAN A GROUP ACCOUNT BE GIVEN A TIER?*** `CREATE.ACCOUNT GROUP <name>`
+>   documents no tier keyword and defaults to `STANDARD` (`CREATEA:295`), but
+>   the keyword parser's `ADMINISTRATOR`/`PROGRAMMER` arms carry **no
+>   account-type test** and I could not establish whether that loop is reached
+>   on the GROUP path. **If group accounts really are STANDARD-only, nobody can
+>   run `basic` or `ed` in a shared work area** — `CREATEA`'s own header calls
+>   GROUP *"how work is shared"*. Two commands settle it:
+>   `create.account group zzgrp`, then `logto zzgrp` and `count voc` (355 =
+>   STANDARD); then whether `create.account group zzgrp2 programmer` is
+>   refused. `delete.account` both afterwards.
+> - **PRE_RELEASE 70's other half** — nothing RUNS `update.account` on an
+>   upgrade. The Ready page now TELLS the administrator to; making the
+>   installer do it is still open, with `upgrade-dicts.ps1` as the precedent.
+
+> # ⇩⇩⇩ 31 Aug 2026, 03:00 — PAUSED FOR SLEEP MID-TASK. THE NEXT STEP IS ONE VERB. ⇩⇩⇩
+>
+> ***THE OWNER IS RESUMING THIS SAME SESSION, NOT STARTING A NEW ONE*** — but
+> this block is written as if he were not, because that is what it is for.
+>
+> # ⇩⇩⇩ 88 IS BUILT. TESTING IT NEEDS A SECOND INSTALL, BECAUSE A CYCLE CANNOT REACH IT. ⇩⇩⇩
+>
+> ***AN UPGRADE NOW SKIPS THE TASKS PAGE AND FIRES NONE OF ITS ACTIONS.***
+> ISCC exit 0, **not yet cycled.** `SdWasInstalled` sampled once in
+> `InitializeSetup`, `TrueUpgrade = DataTreeUpgrade and SdWasInstalled`,
+> `ShouldSkipPage` back for `wpSelectTasks` alone, and **five action gates** —
+> `install-ssh.ps1`, `addtopath`, and the two `ApplyXxxFirewall` call sites.
+>
+> ***THE ORDER OF TESTING MATTERS AND IS NOT OBVIOUS.*** `cycle.ps1`
+> uninstalls and deletes both trees, so **its install is a FIRST install** and
+> takes the page-shown path. It proves nothing about the upgrade.
+>
+> 1. ```
+>    C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+>    ```
+>    **Elevated.** First-install path: the tasks page MUST still appear and
+>    behave exactly as before. `gpl.bp.out` 190 → 191.
+>
+> 2. Then run the installer it built **a second time, over the finished
+>    install**:
+>    ```
+>    C:\Users\dmont\sdout\sd-setup-W1.0-0.exe
+>    ```
+>    **It asks for elevation itself.** ***THIS is the upgrade path.*** The tasks
+>    page must **NOT** appear; ***"Ready to Install" must NOT list any
+>    additional tasks*** but describe the upgrade and name the four commands;
+>    and the closing box must carry the matching paragraph.
+>
+>    ***THE READY PAGE IS THE HALF THAT WAS MISSED FIRST TIME.*** Skipping the
+>    tasks page leaves the tasks SELECTED, and Inno's memo lists selected
+>    tasks — so the upgrade promised four things the gates guarantee it will
+>    not do. Owner saw it immediately. `UpdateReadyMemo` now rewrites that page
+>    on an upgrade only.
+>
+> 3. Afterwards, confirm nothing moved: `remote.ssh` and `remote.api` must
+>    report the same state as before the second install, and
+>    `append.sd.path` must still show SD on the PATH.
+>
+> ***TWO SILENT TRAPS WERE PAID FOR BUILDING IT, BOTH CAUGHT BY A THROWAWAY
+> PROBE.*** `{#SetupSetting}` written in a *comment* aborts the compile — ISPP
+> expands a brace-hash inside comments too. And ***`RegKeyExists(HKLM, …)`
+> FINDS NOTHING FROM `[Code]`***: Setup is a 32-bit process, so plain `HKLM` is
+> redirected to `WOW6432Node`. Measured with SD installed as the control —
+> `HKLM` not found, `HKLM32` not found, **`HKLM64` FOUND**. **That one compiles
+> clean and would have left `TrueUpgrade` permanently False, the whole entry
+> doing nothing while every test reported success.**
+>
+> # ⇩⇩ 31 Aug 2026 — SUITE GREEN ON `-Run b81`. ⇩⇩
+>
+> ***UNELEVATED 17 OF 17 EXIT 0. ELEVATED 20 OF 21, AND THE ONE WAS THE
+> VERIFIER, NOT THE PRODUCT*** — `verify-tiers` carried a THIRD stale copy of
+> the admin list (`$AdminVerbs`); fixed, and **re-run on `-Run b82`: exit 0,
+> 33 of 33.** Install 09:54:22, `assert-current` **exit 0 live** in the rerun.
+>
+> ***SO THE `!ps_script` REFACTOR SURVIVED 10 OF ITS 14 CALLERS***, which is the
+> regression half of the test plan below, done: the credential path
+> (`createaccount`, `delaccount`, `accountrules`, `setpw`, `profiledir` — i.e.
+> `CREATE_USER`, `SET_PASSWD`, `OS_GROUP`, `PROFILE_DIR`, `CRED_SET`),
+> `APISRVR` across six API steps, and `ELEVATE` in **every** step that does
+> `logto sdsys`. **None of them behaves differently, which is exactly what was
+> wanted — they were only ever meant to keep their silence.**
+>
+> ***AND TWO ROWS PROVE `append.sd.path` ON A LIVE ACCOUNT RATHER THAN IN THE
+> STAGE***: `sdtiertb823 COUNT VOC 420`, and `sdtiertb821 administration verbs
+> MISSING 24` — a standard account is missing all twenty-four, the new verb
+> included, so the `voc_template`-only placement holds where it matters.
+>
+> ***AND THE FOUR REPORTS PRINT — PRE_RELEASE 90 IS CLOSED, 31 Aug 2026.***
+> Measured in SDSYS on the installed tree: `append.sd.path` gives the whole
+> `sd-path` report with all eleven PATH entries numbered on their own lines;
+> `remote.api` four lines, `remote.ssh` two, `ssh.server` four. **No boxes, no
+> single-line run, no empty last line**, so `tidy.out`'s CR-strip,
+> LF-to-field-mark and trailing-field trim all hold. **Found and closed by a
+> real terminal twice over — the silence, then the field marks — and no unit
+> test could have caught either, because neither route exists off a live
+> session.**
+>
+> ***AND THE ACTION PATH IS MEASURED TOO — `append.sd.path` IS DONE.*** `on`,
+> `off`, `on` in SDSYS: **one line each, no report above**, so the capture
+> stays silent on success as designed. ***THE MACHINE WAS THEN READ RATHER
+> THAN THE MESSAGES BELIEVED***: the system PATH is **11 entries, 11
+> non-empty**, same order as before, SD back at `[10]`. **Value kind still
+> `ExpandString`** — the `SetEnvironmentVariable` corruption did not happen —
+> and **zero empty entries**, so 16 Aug's accumulated-separator bug did not
+> recur across a real remove-then-add.
+>
+> ***SO 89's DEFECT B IS CLOSED. WHAT IS LEFT OF 89 IS DEFECT A, AND ITS ANSWER
+> IS 88 — RULED, NOT BUILT.***
+>
+> **`b54`–`b82` SPENT. USE `b83`.**
+>
+> # ⇩⇩ THE `!ps_script` REFACTOR TOUCHES 14 PROGRAMS. THE PLAN, KEPT. ⇩⇩
+>
+> ***PRE_RELEASE 90 MOVED `!ps_script`'s BODY.*** Four verbs gained NEW
+> behaviour (they print a report); the other ten must behave **identically**,
+> so most of this is regression testing, not feature testing. **The owner asked
+> the right question — "shouldn't I test all the possible affected commands?"
+> — after being handed a two-command list. He should have had this.**
+>
+> **The 14, and what reaches each:**
+>
+> | program | reached by |
+> |---|---|
+> | `ELEVATE` | ***`logto sdsys` ITSELF.*** If this broke you cannot enter SDSYS at all, so every other test below implicitly proves it |
+> | `CREATE_USER`, `SET_PASSWD`, `OS_GROUP`, `PROFILE_DIR`, `CRED_SET` | `create.account` — **and the INSTALLER's own account step**, so a clean install is already evidence |
+> | `CREATEA` | `create.account` |
+> | `MODIFYA` | `modify.account` |
+> | `DELETE_USER` | `delete.account` (`$DELACC`) |
+> | `APISRVR` | any API login |
+> | `APNDPATH`, `REMOTEAPI`, `REMOTESSH`, `SSHSRVR` | the four report verbs — **the only ones whose behaviour is meant to change** |
+>
+> ***SO: FULL CYCLE, THEN THE FULL SUITE.*** The suite already covers
+> create/delete/modify account, the API and the tiers — which is most of the
+> ten. `-Only` is the wrong tool here; this is the milestone case §"The full
+> verify suite runs at milestones" was written for.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b81
+> ```
+>
+> **Both ELEVATED PowerShell.** ***SPENT: `b54`–`b80`; `b81` IS FREE.***
+>
+> ***THEN THE FOUR REPORTS BY HAND, BECAUSE NO SUITE STEP RENDERS ONE*** — the
+> same blind spot the tasks page had:
+>
+> ```
+> append.sd.path
+> remote.api
+> remote.ssh
+> ssh.server
+> ```
+>
+> Each must print its script's report **laid out on separate lines**. A single
+> line studded with boxes is the field-mark bug again; nothing at all is the
+> original defect.
+>
+> ***AND THE ACTIONS, WHICH MUST BE UNCHANGED — ONE LINE EACH, NO REPORT:***
+> `append.sd.path on` / `off`, `remote.ssh on` / `off`, `remote.api on` /
+> `local` / `off`.
+>
+> ***DO NOT TEST `ssh.server remove`.*** It strands every SD account whose only
+> route is ssh — the API is an independent way in (PRE_RELEASE 124), so it is
+> "their only way in" only for an account that was never granted API access —
+> and it completes on a reboot. `ssh.server` bare and `install` are safe;
+> `remove` is not a test, it is a rebuild. ***(Wording corrected 2 Sep 2026: this
+> line carried "they sign in over ssh and nothing else", the premise 124 retired
+> as FALSE. `test-retired-wording-units` scans shipped messages and scripts only,
+> so the internal documents are where that premise can survive — grep them when
+> you retire wording, the lint will not.)***
+>
+> **`remote.api off` is reversible but real**: it rewrites `sd.conf` and wants a
+> service restart, so put it back with `remote.api on` when done.
+>
+> # ⇩⇩ `append.sd.path` COMPILES. IT HAS NOT RUN. THAT IS THE NEXT STEP. ⇩⇩
+>
+> ***`cycle.ps1 -SkipInstall`, 31 Aug 2026 09:06:15: ISCC exit 0,
+> `sd-setup-W1.0-0.exe` 4,931,937 bytes.*** **The staged tree was READ rather
+> than the run's output believed** (26 Aug precedent): `gpl.bp.out/APNDPATH`
+> 783 bytes, `gcat/$APNDPATH` present, `voc_template/append.sd.path` staged,
+> messages **10152–10156** all five there, `TIER.ADD.ADMINISTRATOR` 24 verbs.
+> ***`gpl.bp.out` 189 → 190***, `gcat` 131. **And the admin-only placement
+> proved itself**: `newvoc` still 395 names, `newvoc/append.sd.path` absent.
+>
+> ***COMPILING IS NOT RUNNING, AND NOTHING HAS RUN IT.*** It wants a FULL
+> cycle, then the verb exercised:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ***ELEVATED PowerShell.*** ~20 minutes, and it ends with `assert-current`.
+> Then, in SD as an administrator: **`append.sd.path`** bare must report and
+> change nothing; **`on`** then **`off`**; and a **non-administrator must be
+> refused with 2001**. The `-Show` leg is the cheap one and needs no elevation
+> of its own.
+>
+> **Then it still needs a doc page**, or `tclmap` goes to 147 with **four**
+> `NO PAGE` rows instead of three.
+>
+> ***AND `cycle.ps1` STEP 1 STOPS THE SD SERVICE AND NOTHING RESTARTS IT***
+> (`:218`). Put it back by hand afterwards, as the 30 Aug run had to.
+>
+> # ⇩⇩ THE ORIGINAL INSTRUCTION, KEPT FOR ITS REASONING ⇩⇩
+>
+> ***BUILD `append.sd.path on | off`. THE NAME IS RULED; DO NOT RE-DEBATE IT.***
+> Owner, 31 Aug 2026. `set.path` was rejected with evidence — inside SD "path"
+> means the ACCOUNT's path (`pathname` is a VOC keyword, `where` prints
+> *"account pathname"*, `@PATH`), and `os.path` collides with
+> `gpl.bp/VALID_OS_PATH`. Three-segment verbs are normal here
+> (`set.exit.status`, `who.am.i`).
+>
+> **Model it on `gpl.bp/REMOTEAPI`**, which is the same shape: a verb that
+> drives a shipped PowerShell script. **The script is already built and
+> tested** — `gplbld/sd-path.ps1`, `-Show` / `-Add` / `-Remove`,
+> `test-sdpath-units.ps1` **24 of 24**. The verb is the only missing piece.
+>
+> | it must touch | why |
+> |---|---|
+> | `sdsys/gpl.bp/` new program | modelled on `REMOTEAPI` |
+> | `sdsys/voc_template/append.sd.path` | ***voc_template ONLY, NEVER newvoc*** — `verify-tiers.ps1:41`: *"putting it in newvoc hands it to every account SD creates"* |
+> | `sdsys/newvoc/TIER.ADD.ADMINISTRATOR` | → 24 verbs. Administrator-only, owner's instruction |
+> | `gplbld/verify-tiers.ps1` | ADMINISTRATOR → **420** = 392 + 24 + 4, ***re-derived from the directory, not adjusted by one*** — that block says so |
+> | elevation | HKLM needs the elevated helper; `ps_script` is warranted here, not the overkill 67 warned of |
+> | a doc page | or `tclmap` goes to 147 with **four** `NO PAGE` rows |
+>
+> # ⇩⇩ AND THE DOCUMENTATION TREE IS RED RIGHT NOW. IT HAS BEEN SINCE 30 Aug. ⇩⇩
+>
+> ***`tclmap.py` EXITS 1: roster `146`, assigned `143`, `NO PAGE` for
+> `remote.api`, `remote.ssh`, `ssh.server`.*** Measured 31 Aug 2026. **The
+> checker is not at fault** — it COMPUTES the roster from `newvoc` plus
+> `TIER.ADD.ADMINISTRATOR`, so it noticed the moment entry 78 added those verbs.
+> **Nobody ran it.** ***H.2's "tclmap 143 of 143, 0 exempt" WAS STALE AND IS
+> CORRECTED.*** The real finding is in PRE_RELEASE 80: **`tclmap.py` lives in
+> the OTHER repository and no tier-1 check here runs it**, so adding an
+> administrator verb in this repo silently breaks a checker in that one.
+>
+> ```
+> cd C:\Users\dmont\Projects\SDCoreWindowsDocs
+> python tools\tclmap.py C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\sdsys\newvoc
+> ```
+>
+> **An ordinary unelevated prompt.**
+>
+> # ⇩⇩ THE OTHER RULING OF 31 Aug, AND IT IS NOT BUILT ⇩⇩
+>
+> ***AN UPGRADE SKIPS THE TASKS PAGE ENTIRELY.*** Owner: *"if the admin wants to
+> make additional choices, we have given them the command line tools."*
+> **PRE_RELEASE 88 carries it, and the trap with it**: skipping the page does
+> NOT deselect the tasks, so the page-skip alone would turn *visible but inert*
+> into ***invisible but active***. It needs `ShouldSkipPage(wpSelectTasks)` on
+> `DataTreeUpgrade` **and** the four gates returning no-change. **Not built.**
+>
+> ***OPEN COUNT 14***: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, 88, 89.
+> ***SPENT: `b54`–`b80`. USE `b81`.*** **The installed tree is STALE and that is
+> correct** — `sd.iss`, `stage.py` and `sd-path.ps1` have all moved since the
+> 01:05:10 install; `assert-current` names them. A cycle clears it.
+>
+> # ⇩⇩ 30 Aug 2026, 23:35 — A LITTER CLEAR IS HALF DONE AND WANTS A REBOOT. ⇩⇩
+>
+> ***`C:\Users` IS 268 → 89 sd* DIRECTORIES. THE REMAINING 89 ARE HIVE-LOCKED
+> AND NEED A REBOOT, THEN ONE MORE RUN — NOTHING ELSE IS OUTSTANDING FROM IT.***
+> `cleanup-devlitter.ps1` elevated: users **1 → 0**, `sdu_` groups 0, home `sd*`
+> items **1 → 0** (`sdxfer`), profiles **252 → 163 removed, 0 failed**, `sdout`
+> still present. It **exits 1 by design** — `clean-test-profiles.ps1` refuses to
+> let a sweep of what it could see read as a sweep of the machine. The 16 with no
+> `ProfileList` entry were then removed by hand (**16 removed, 0 failed**), which
+> is what the record already said that class costs. **To finish:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1
+> ```
+>
+> **Elevated, after a restart.** `b48adm` is deliberately untouched — a live
+> local account, outside every stem.
+>
+> ***AND IT FOUND PRE_RELEASE 86 ON THE WAY: THE SWEEP HAD WALKED PAST 25 OF THE
+> 268 AND REPORTED SUCCESS.*** `sdgate` and `sdtu` were never added to
+> `clean-test-profiles.ps1`'s `$stems`, so 25 directories were invisible to the
+> only thing that sweeps them. **Fixed and self-tested; 268 of 268 now inside the
+> rule.** The entry leaves one recommendation unbuilt — nothing compares `$stems`
+> against the names `VerifyInstall2.ps1` actually builds, so a fourth family will
+> be missed the same way.
+>
+> # ⇩⇩⇩ 31 Aug 2026, 02:00 — RESOLVED. 85's FLAGS WERE RIGHT; THE WIZARD WAS SHOWING THE OLD INSTALL'S ANSWERS. ⇩⇩⇩
+>
+> ***NOTHING BELOW THIS BLOCK NEEDS DOING. IT IS KEPT BECAUSE ITS "RULED OUT"
+> TABLE IS SOUND MEASUREMENT AND BECAUSE THE CONCLUSION IT REACHED WAS
+> WRONG*** — the previous session ended on *"the three flags did not work"*,
+> and they do.
+>
+> ***MEASURED BY `gplbld/probe-taskflags.ps1`, WRITTEN THIS SESSION.*** It
+> drives the tasks page through Inno's **own** click path
+> (`TNewCheckListBox.CheckItem`, the method a mouse click calls) and reads the
+> states back. **Unelevated, ~3 seconds, no cycle, no install, no run token.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-taskflags.ps1
+> ```
+>
+> **An ordinary unelevated prompt.** It compiles a probe installer with no
+> `[Files]`, no `[Run]` and no app dir, which aborts at the tasks page: it
+> installs nothing.
+>
+> | leg | what it shows |
+> |---|---|
+> | 1, `UsePreviousTasks=no` | **all three flags behave.** Tick parent → child stays unchecked; untick child → parent stays ticked; re-tick parent → child stays unchecked. **The ssh pair is identical on all five transitions, so 67 stands too** |
+> | 2, `UsePreviousTasks=yes` + a restored selection | **both API boxes arrive CHECKED** — the owner's report, from the same binary and the same flags |
+>
+> ***THE CAUSE IS `UsePreviousTasks`, WHICH `sd.iss` NEVER SETS, SO IT IS
+> `yes`.*** Inno reads `Inno Setup: Selected Tasks` from the uninstall key at
+> startup and uses it as the page defaults, **overriding every `unchecked`
+> flag**. This machine's value reads
+> `addtopath,sshremoteopen,apiremote,apiremote\apinetwork` — **written by the
+> pre-fix build and restored faithfully by the fixed one.** ***FILED AS
+> PRE_RELEASE 88, AND IT IS A DECISION, NOT A FIX*** — `yes` is Inno's default
+> and matches this project's own "an upgrade does not re-ask" policy, but it
+> means a tightened default never reaches an existing site.
+>
+> ***HIS SENTENCE COVERED TWO THINGS AND ONLY ONE WAS EVER A DEFECT.*** *"If
+> one is checked they both are checked"* is the restored **arrival** state;
+> *"and vice versa"* is untick-parent-unticks-child, which is **correct Inno
+> behaviour and cannot be disabled**. Once either box is touched the flags take
+> over and behave.
+>
+> ***INNO IS 6.7.3***, from the same registry key — the open version question.
+>
+> ***AND THE PROBE ITSELF MISLED HIM TWICE BEFORE IT WAS RENAMED.*** Its window
+> is a real Inno wizard, it forces `SshServerAbsent := True` so the dependent
+> ssh pair exists to test, and he read it as `sd-setup` showing an "install the
+> server" box on a machine that has one. **It now says so in the title bar and
+> across the page.** `sd.iss` derives that flag from the machine at `:1105`, so
+> the real wizard hides that box here: **four boxes = the probe, three = the
+> installer.**
+>
+> # ⇩⇩ THE SUPERSEDED HANDOFF FOLLOWS. ITS TABLE IS STILL TRUE. ⇩⇩
+>
+> ***THE OWNER RAN THE NEW INSTALLER AND THE API BOXES STILL MOVE TOGETHER:***
+> *"the api checks move together if one is checked they both are checked and
+> vice versa."* **The three flags are in `sd.iss` and they did not change the
+> behaviour.** Session ended here, out of credits, mid-diagnosis.
+>
+> ***WHAT IS ALREADY RULED OUT — MEASURED, NOT ASSUMED. DO NOT REDO THIS.***
+>
+> | ruled out | how |
+> |---|---|
+> | he ran a stale installer | only ONE `sd-setup*.exe` exists on the machine, `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, built **01:14:09**; `sd.iss` mtime is **01:10:33**, so the change was in it |
+> | ISCC compiled a different file | `cycle.ps1:468` passes `$Iss`, and `$Iss = Join-Path $Gplbld 'sd.iss'` (`:171`) — the file that was edited |
+> | a duplicate task definition | `grep apiremote` finds **one** `Name:` for each of parent and child, at `sd.iss:425` and `:427` |
+> | `[Code]` overriding the checkboxes | **nothing** matches `TasksList`, `WizardSelectTasks`, `CheckItem`, `Checked[` anywhere in `sd.iss` |
+> | a compile warning about the flags | ISCC exit 0, and its only warning is the pre-existing `FileCopy` hint at line 3797 |
+>
+> ***THE FLAGS THEMSELVES ARE STRUCTURALLY IDENTICAL TO THE ssh PAIR***, which
+> is the pattern 67 used: parent `checkablealone`, child `unchecked
+> dontinheritcheck`, no `GroupDescription` on the child. The only difference is
+> that the API parent also carries `unchecked` (75's ruling: the API defaults
+> OFF) and the ssh pair carries `Check: SshServerAbsent`.
+>
+> # ⇩⇩ ANSWERED WITHOUT ASKING — BOTH BRANCHES AT ONCE. SEE THE TOP. ⇩⇩
+>
+> ***THE QUESTION BELOW WAS THE RIGHT ONE AND DID NOT NEED A PERSON.*** The ssh
+> pair is the control, and `probe-taskflags` runs it alongside the API pair on
+> every invocation: **ssh correct, API correct, and both wrong only when a
+> previous selection is restored.** That is a third answer the two branches
+> below did not have, and it is the true one.
+>
+> ***ASK WHETHER THE ssh PAIR ON THE SAME PAGE BEHAVES CORRECTLY.*** It carries
+> the same two flags, so it is the control:
+>
+> - **ssh correct, API wrong** → something specific to the API pair. The
+>   `unchecked` on the parent and the absent `Check:` are the only candidates.
+> - **BOTH wrong** → the flags are not doing this on his Inno, and ***67's
+>   "FIX IS PROVEN" CLAIM IS WEAKER THAN IT READS***. Read it again before
+>   trusting it: what was measured on 30 Aug was the OUTCOME — *"the server IS
+>   installed and remote access IS blocked"*, `RemoteAddress=127.0.0.1` — **not
+>   the checkbox behaviour on the page.** If both pairs move together, 67 needs
+>   re-opening too.
+>
+> **Also worth pinning down: WHICH direction he saw.** Checking the CHILD and
+> having the parent become checked is **correct** Inno behaviour, not a bug —
+> a child cannot be selected without its parent. Only *parent ticks child* is
+> the defect. His sentence covers both directions and only one of them is wrong.
+>
+> ***THE INNO VERSION WAS BEING READ WHEN THE SESSION ENDED*** and is not yet
+> known beyond "Inno Setup 6" (`C:\Program Files (x86)\Inno Setup 6\ISCC.exe`;
+> its `VersionInfo` reads `0.0.0.0`, so use `iscc /?` or the IDE's About box).
+>
+> # ⇩⇩ MACHINE STATE, AS LEFT ⇩⇩
+>
+> - **The installed tree is STALE and that is correct** — `sd.iss` moved after
+>   the 01:05:10 install. `assert-current` exits 1 naming **one** file. A cycle
+>   clears it; nothing is broken.
+> - **The SD service is Running.** `cycle.ps1 -SkipInstall` stopped it (`:218`
+>   — step 1 stops it and nothing restarts it) and it was restarted by hand.
+> - ***SPENT: `b54`–`b80`. USE `b81`.***
+> - **Open count 14**: 3, 6, 16, 20, 28, 66, 67, 70, 74, 76, 78, 80, **88**,
+>   **89**. *(85 CLOSED 31 Aug 2026; 88 and 89 opened after it.)*
+>
+> ***AND A NEW STANDING RULING CAME OUT OF IT — §5.21, NO CONTROL MAY BE
+> INERT.*** Owner, 31 Aug 2026, after the probe showed him an "install the
+> server" box on a machine that has one: *"no option should be available that
+> the user can click thinking that an action is going to take place, but
+> nothing happens."* **That box was the probe's own artifact, but the rule is
+> general and the audit it prompted found two real ones** — `apiremote` cannot
+> change the listener on an upgrade (`sd.conf` is `onlyifdoesntexist`) and
+> unticking `addtopath` never removes SD from `PATH`. **PRE_RELEASE 89 has the
+> audit of all seven boxes; neither defect is fixed, and which way each goes is
+> the owner's call.**
+>
+> ***THE THREE PROBES ARE NOW IN `gplbld` AND WIRED INTO NOTHING.***
+> `probe-nolockmsg.ps1` (12 and 87), `probe-tasklock.ps1` (24) and
+> `check-msglen.py`. **All three are on `$neverShipped`**, listed in the commit
+> that added them. **Promoting them to suite steps is the owner's call** — it
+> costs two more steps against a full run he has asked to keep short.
+>
+> # ⇩⇩ SUPERSEDED — 85 AND 67 CLOSED WITHOUT THE LOOK. 74 STILL WANTS THE VM. ⇩⇩
+>
+> ***DO NOT RUN THE INSTALLER TO LOOK AT THE TASKS PAGE ON THIS HOST.***
+> `probe-taskflags.ps1` answers it in 3 seconds, and — more to the point — this
+> machine's recorded task selection means the real wizard here shows the OLD
+> install's answers (PRE_RELEASE 88), so looking measures the wrong thing.
+> **74 is unaffected: it needs an interactive UNINSTALL, and that still wants
+> the VM.** The block below is kept for its cancelling-writes-nothing note.
+>
+> # ⇩⇩ BATCH 3 IS BUILT AND WAITING ON YOUR EYES. ONE LOOK CLOSES 85 AND 67. ⇩⇩
+>
+> ***THE INSTALLER IS ALREADY BUILT — NO CYCLE NEEDED TO LOOK.***
+> `cycle.ps1 -SkipInstall` at 31 Aug 01:14:09: ISCC exit 0,
+> `C:\Users\dmont\sdout\sd-setup-W1.0-0.exe`, 4,925,443 bytes. **Run it to the
+> tasks page, look, and CANCEL — cancelling writes nothing.**
+>
+> ```
+> C:\Users\dmont\sdout\sd-setup-W1.0-0.exe
+> ```
+>
+> **Double-click it, or an ordinary prompt; it asks for elevation itself.**
+>
+> ***WHAT TO LOOK FOR — 85.*** Tick *"Provide the SD API (port 4243)"*. The
+> child *"Let other computers on your network reach it"* must stay **UNTICKED**.
+> Then tick the child and untick it again: the parent must stay **TICKED**.
+> Before this the two moved together, which put port 4243 on the network by
+> default. ***WHAT TO LOOK FOR — 67***: the ssh pair does the same thing, and
+> `Test-Path 'C:\Windows\System32\OpenSSH\sshd.exe'` must be **False** before
+> the server-absent box means anything.
+>
+> ***ISCC's EXIT CODE IS NOT EVIDENCE HERE. IT COMPILED THE BROKEN VERSION
+> TOO.*** No cycle and no suite run ever sees this page.
+>
+> ***74 IS NOT ON THIS HOST.*** It needs an **interactive uninstall** to show
+> the closing disclosure, and a cycle's uninstall is `/VERYSILENT`
+> (`cycle.ps1:497`), so it never appears. An interactive uninstall here would
+> take the install with it — **it wants the VM, the rig that closed 39.**
+>
+> ***AND THE SD SERVICE WAS PUT BACK.*** `cycle.ps1` step 1 stops it and
+> nothing restarts it (`:218`); it was restarted by hand and reads **Running**.
+> **The installed tree is STALE** — `sd.iss` moved — which is correct and
+> costs nothing until the next real cycle.
+>
+> # ⇩⇩ BATCH 2 IS DONE AND MEASURED. 12, 24 AND 87 ALL CLOSED. OPEN COUNT 13. ⇩⇩
+>
+> ***INSTALL 31 Aug 01:05:10, `sd.exe` `87701F86382AEA63`, `assert-current`
+> exit 0 live.*** Both probes green on it, and **12/87's is a before-and-after
+> on the same instrument** rather than a fresh green: one install earlier the
+> same probe printed *"…must already hold an u"*, and now all three lines of
+> message 10151 arrive.
+>
+> ***THE TWO PROBES LIVE ONLY IN A SCRATCHPAD AND WILL NOT SURVIVE THE
+> SESSION.*** `probe-nolockmsg.ps1` (seconds, unelevated, no run token) and
+> `probe-tasklock.ps1` (~15s, one consent of its own). **Neither is in
+> `gplbld` and neither is wired into a runner**, so nothing re-checks 12, 24 or
+> 87 ever again. **Promoting them is the owner's call**, and the cost is two
+> more suite steps against a full run he has already asked to keep short —
+> `nolockmsg` is the cheap one and covers the defect that hid for years.
+>
+> ***AND 87 IS THE ARGUMENT FOR MEASURING RATHER THAN REVIEWING.*** The bound
+> is compiled in, so no unit test could have caught it, and it survived every
+> source reading this project has done. It was found by looking at what a
+> message actually printed.
+>
+> # ⇩⇩ HOW BATCH 2 GOT THERE ⇩⇩
+>
+> ***MEASURED ON THE 00:48:04 INSTALL, THEN THE TREE MOVED AGAIN — `sd.exe` IS
+> NOW `87701F86…`, WAS `8E1264DB…`.*** A second cycle is owed:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **Elevated PowerShell.** After it, re-run the two probes in the scratchpad —
+> `probe-tasklock.ps1` and `probe-nolockmsg.ps1`, both **unelevated**, the first
+> raising one consent of its own for `sd -cleanup`.
+>
+> ***24 IS CLOSED, AND THE CONTROL IS WHY IT COUNTS.*** A background session
+> took `LOCK 5`, was killed with `taskkill /F`, and ***the lock SURVIVED the
+> kill*** — without that row, `sd -cleanup` freeing it afterwards would have
+> scored a pass for something the kill had already done. Then `sd -cleanup`
+> elevated, exit 0, and `LIST.LOCKS` answered **"No task locks reserved by any
+> user"**.
+>
+> ***12's BRANCH WORKS AND THE MEASUREMENT FOUND A SECOND DEFECT.*** The refusal
+> printed *"no lock is held on it"* and **not** *"Possible full disk"* — the
+> success anchor appears only in 10151, the disqualifier only in 1407. **But it
+> arrived cut mid-word at "A WRITE must already hold an u".**
+>
+> ***THAT IS 87, AND IT IS BIGGER THAN 12.*** `k_error()` sizes its buffer from
+> `MAX_ERROR_LINES * MAX_EMSG_LEN` (241) and bounds the write with
+> `MAX_ERROR_LINES + MAX_EMSG_LEN` (84) — **`+` where the allocation used `*`**
+> — so **every** error message in the product has been truncated at ~84
+> characters. ***DO NOT "FIX THE TYPO"***: passing the corrected 241 would let
+> `vsnprintf` write to `n + 241` in a 241-byte buffer, because `n` is already 10
+> bytes of `"%08X: "` prefix. It is `sizeof(s) - n`.
+>
+> # ⇩⇩ BATCH 2 WAS BUILT HERE. `sd.exe` HAS MOVED TWICE. ⇩⇩
+>
+> ***`bin/sd.exe` IS NOW `8E1264DB…`, WAS `4732ECF6…`. THE INSTALLED TREE IS
+> BEHIND THE SOURCE UNTIL A CYCLE RUNS*** — `assert-current` will refuse, and
+> that is correct, not a fault to work around:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **Elevated PowerShell.** `make sd` **exit 0, no warnings**; exactly
+> `clopts.o` and `op_dio3.o` rebuilt, which is the tell that the build did the
+> two changes and nothing else.
+>
+> ***TWO FIXED AND COMPILED, BOTH STILL OPEN BECAUSE COMPILING IS NOT
+> RUNNING.*** **24** — `sd -cleanup` never released a dead session's task
+> locks; the loop tested `process.user_no` where the three below it test
+> `user_no`. It released **nothing** rather than the wrong thing, because
+> `cleanup()` never becomes a user so that value is 0 and a free slot is 0 too.
+> **12** — a `WRITE` refused for want of a lock said *"(Possible full disk?)"*;
+> new message **10151** names the missing lock. **To close each: a cycle, then
+> the measurement named in its row.**
+>
+> ***TWO EXAMINED AND DELIBERATELY NOT BUILT, BECAUSE BOTH ARE DECISIONS.***
+> **28** — its only C-shaped option is a restrictive ACL written by `pdump.c`,
+> and `win32audit.h` already argues against exactly that shape for this tree
+> (*"rather than rebuilt from anything that could drift out of step with the
+> installer"*). **The recommendation is the installer option**: `DUMPDIR` to an
+> administrator-only directory with a `secure-dumps.ps1`. **16** — names *"two
+> independent things to decide"*, diagnosis and recovery, and its third piece
+> is §6's open question about `check_lost_users()`, which 24 does **not**
+> answer: 24 changes what cleanup releases, not whether the sweep calls it.
+>
+> ***BUT 24 DID MOVE 16's GROUND***: 16's chain says *"`sd -cleanup` clears it"*
+> and for task locks that was false. The administrator's route was broken as
+> well as awkward; one of those two is now fixed.
+>
+> # ⇩⇩ BATCH 1 IS RUN AND GREEN. 73 IS CLOSED. OPEN COUNT 16 → 15. ⇩⇩
+>
+> ***`-Run b80`, UNELEVATED, `PARTIAL - 2 of 17 step(s), all exited 0`.***
+> `test-stemcoverage-units` **19 of 19**; `verify-sdsyswrite` **12 of 12, zero
+> FAIL**. **17 and not 16** is the arithmetic that says the new step was added
+> rather than substituted. ***SPENT: `b79` AND `b80` — USE `b81`.*** `b79` bought
+> nothing: it refused on `assert-current` before `verify-sdsyswrite` ran, but the
+> runner had already made and removed `sdtub79`.
+>
+> ***68's FIX IS NOW POSITIVELY CONFIRMED, NOT INFERRED.*** `unelevated SDSYS can
+> write $cred` and `… os.users` are both **True** from the session shape that
+> used to fail, on a file written to be red until 68 was fixed. **Step 6's
+> evidence**: probe `ZZAUD2B5E158F1D01`, before `len=53441 token=False`, SD
+> answered *"User not allowed in requested account"*, after `len=53754
+> token=True`. ***THE GROWTH WAS 313 BYTES, NOT ONE RECORD*** — `LOGTO SDSYS`
+> audits its own elevation — **which is why the check is the NAME and not the
+> size**. The unelevated process could not read the file at all (`icacls …
+> Access is denied`), so the three-step shape was forced by the ACL.
+>
+> ***THE ONE THING THAT COST A RUN, AND IT IS WRITTEN UP IN `assert-current.ps1`
+> FOR THE FOURTH TIME***: a new `gplbld` script must be listed on
+> `$neverShipped` **in the commit that creates it**, or the tree reports STALE
+> merely because the file exists and every verifier calling `assert-current`
+> refuses. `test-stemcoverage-units.ps1` was not listed, so `b79`'s
+> `verify-sdsyswrite` exited **2** — refused, nothing measured — while the step
+> that made the tree stale had itself passed in the same run.
+>
+> ***AND `-Only` WITH TWO NAMES USED TO NEED QUOTING — FIXED, BOTH FORMS NOW
+> BIND.*** `-Only a,b` failed parameter transformation before anything ran,
+> because PowerShell parses `a,b` in argument position as an ARRAY and `$Only`
+> was `[string]`; only `-Only 'a,b'` worked, and every CLAUDE.md example is
+> single-name so nothing said so. **Both runners are `[string[]]` as of 31 Aug
+> 2026** and join at the call site, so `suite-only.ps1` and its **48** unit tests
+> are untouched — one copy of the filter still decides what runs. **Measured on
+> all four forms**: no `-Only` and `-Only ''` stay falsy and pass through, `a,b`
+> and `'a,b'` both join to `a,b`.
+>
+> ***BATCH 1 WAS: 73's MISSING LEG AND 86's CHECKER.*** Both are
+> `gplbld` only — no cycle, no source under `gplsrc` or `sdsys`, nothing
+> installed. **73** gains step 6 of `verify-sdsyswrite.ps1`, the positive control
+> on the SESSION: the audit trail is the one protected store `sdusers` may
+> append to, so a green step 6 means any failure on the two write rows is about
+> `$cred` and `os.users`, and a red one means the session itself is the problem
+> and those rows say nothing. ***IT HAS NOW RUN AND IS GREEN — see the b80 block
+> above; this paragraph described it while it was still unrun.*** **86**'s checker is `test-stemcoverage-units.ps1`, and it
+> found `sdprof` and `sdsw` on its first run, which is **four** families missed
+> across three occasions. ***IT IS NOW A STEP IN `VerifyInstall1`, SO THE
+> UNELEVATED HALF IS 17 STEPS, NOT 16*** — a `16 of 16` on the next run means it
+> was substituted rather than added, which is the arithmetic 82 was checked by.
+>
+> ***`b78` IS SPENT — USE `b79`.*** The owner ran
+> `VerifyInstall2.ps1 -Run b78 -Only verify-tiers`: **33 of 33 PASS, exit 0**,
+> `assert-current` clean against the 22:42:46 install. **That closes `b77`'s four
+> failures** — `omit list length 41/41` and `shipped TIER.OMIT.STANDARD 0/0`.
+>
+> # ⇩ THE CYCLE IS PAID. 56, 57 AND 31 ARE IN AND MEASURED. ⇩
+>
+> ***CYCLE 29 Aug 10:35:46, `-Run b59`. ELEVATED 19 OF 19 — 397 PASS, 0 FAIL,
+> 0 SKIP, GREEN FOR THE FIRST TIME. PRE_RELEASE 31 IS CLOSED.*** Read H.1 for
+> the numbers and PRE_RELEASE 59 for the five unelevated failures, which are
+> the harness and not the product. ***USE `b60`; b54–b59 are spent.***
+>
+> ### ⇩ WHAT TO PICK UP, IN ORDER ⇩
+>
+> # ⇩ HANDOFF, 29 Aug 2026. GREEN. NOTHING IS IN FLIGHT AND NOTHING IS HALF-BUILT. ⇩
+>
+> ***OUT OF CREDITS AT 19:10 — AND THEN A TABLE FIX WAS STARTED AND LEFT
+> HALF-APPLIED. THE 82nd SESSION FINISHED IT.*** **"Nothing is half-built" was
+> true of the commit and false of the working tree**: `PRE_RELEASE_FIXES.md` sat
+> **uncommitted** with the closures of 56, 57 and 58 and the new entry 62, and
+> two pieces missing — **row 56 unstruck against a section saying DONE**, and
+> **NEXT FREE ID still reading 62**. `test-fixlist-units` caught both.
+> ***NOTHING HAD DIVERGED FROM GitHub***: `main` and `origin/main` were both
+> `c6165b6`. **The lesson for a handoff line: "committed and pushed" is a claim
+> about `git log`, and `git status` is the other half of it.**
+> Install **29 Aug 18:55:20**, `sd.exe` **`4732ECF659E8DB40`**,
+> `assert-current` **exit 0 live**, `check-stale-leads` **exit 0**,
+> `test-fixlist-units` **203 / 0**, **open count 18**.
+>
+> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 85th SESSION. START HERE. ⇩⇩
+>
+> # ⇩⇩ CYCLED AND RUN. `-Run b73` GREEN IN BOTH HALVES: 37 STEPS, 693 PASS, 0 FAIL. ⇩⇩
+>
+> Install **20:24:50**, `assert-current` **exit 0 live** in the step transcripts.
+> **UNELEVATED 16 OF 16 (278 `[PASS]`), ELEVATED 21 OF 21 (415 `[PASS]`), ZERO
+> `[FAIL]` ANYWHERE.** ***COUNT `[FAIL]` WITH THE BRACKETS*** — a bare `FAIL`
+> also matches `verify-fold`'s negative-control row. **Two steps use no `[PASS]`
+> marker at all and were read separately**: `verify-sdsysgate` (*"10 decisive
+> check(s), 0 failed"*) and `verify-apiidentity` (a four-row table). **The step
+> logs are UTF-16** — `grep` finds nothing in them until the nulls are stripped,
+> which reads exactly like a clean file.
+> ***SPENT: `b54`–`b73`, `sdswa1`–`sdswa5`, `sdtierv`, `sdtierw`, `sdapiaz1`.
+> USE `b74`.***
+>
+> ***82 IS CLOSED.*** `test-tiercounts-units.ps1` is the **first** banner in the
+> `VerifyInstall1` log, **ahead of `verify-credacl`**, and the unelevated half
+> ran **16 of 16** — up from 15, which is the arithmetic that says the new step
+> was added rather than substituted. **676 → 693 is exactly its 13 plus 65's
+> four**, which is how the totals were reconciled rather than eyeballed.
+>
+> ### ⇩⇩ HANDOFF, 30 Aug 2026, END OF THE 85th SESSION. START HERE. ⇩⇩
+>
+> ***CYCLED AND RUN. `-Run b77`: 37 STEPS, 702 `[PASS]`, 4 `[FAIL]` — AND ALL
+> FOUR ARE ONE INSTRUMENT, NOT THE PRODUCT.*** Install **22:44**, unelevated
+> **16 of 16** (278 PASS, 0 FAIL), elevated **20 of 21** (424 PASS, 4 FAIL).
+> ***SPENT: `b54`–`b77`. USE `b78`.***
+>
+> # ⇩⇩ 1. THE ONE THING THAT MUST BE FIXED, AND IT IS THE OWNER'S FINDING ⇩⇩
+>
+> ***THE TWO API TASKS ARE A LINKED PAIR — TICK OR UNTICK ONE AND THE OTHER
+> MOVES.*** Owner, watching the wizard during this batch's install: *"the two API
+> entries are linked together like the ssh entries were before they were fixed.
+> If you select or delete one, you select or delete both."* **PRE_RELEASE 85,
+> re-opened.**
+>
+> **The cause is a missing flag.** `apiremote\apinetwork` has no
+> **`dontinheritcheck`**, so Inno checks the child whenever the parent is
+> checked. ***THAT REVERSES THE WHOLE POINT OF 85***: ticking *"provide the SD
+> API"* re-ticks *"let other computers reach it"*, so the default opens **port
+> 4243 to the network** again.
+>
+> ***THE PATTERN TO COPY IS THREE LINES AWAY, AT `sd.iss:187-193`:***
+> `Flags: checkablealone` on `sshserver`, `Flags: unchecked dontinheritcheck` on
+> `sshserver\sshremote`. **Mine has neither**, and additionally puts a
+> `GroupDescription` on the CHILD that the ssh child does not have. **Three
+> flags, and it needs its own cycle.**
+>
+> ***AND THE LESSON IS ABOUT THE CAVEAT I WROTE.*** *"Only ISCC can judge
+> `sd.iss`"* — ISCC judged it fine. **ISCC CHECKS THAT TASKS COMPILE, NOT THAT
+> THEY BEHAVE.** No cycle and no suite can catch this: the wizard is interactive.
+> **It took the owner's eyes on a real install.**
+>
+> # ⇩⇩ 2. THE FOUR FAILURES, ALREADY FIXED, NEEDING ONLY A RUN ⇩⇩
+>
+> All four are `verify-tiers` and all four are **42-against-41**:
+> `shipped TIER.OMIT.STANDARD matches this test: expected 0, got 1`,
+> `omit list length: expected 42, got 41`, and two more.
+> ***THE PRODUCT WAS RIGHT THROUGHOUT***: `sdtiertb771 COUNT VOC: expected 355,
+> got 355` **PASS**, installed list 42 lines with `sort.item` gone.
+>
+> **`verify-tiers` carries its OWN copy of the withheld NAMES** and only the
+> count constant had been updated. Caught by **that file's own cross-check**.
+> ***`test-tiercounts-units` DID NOT AND CANNOT*** — it reconciles the COUNTS
+> each verifier claims, and both counts were already right. **Same shape as 82,
+> one level down.** Fixed; 41 names both sides, `Compare-Object` difference **0**.
+> **`gplbld` only, no cycle — the four rows should go green on `b78`.**
+>
+> # ⇩⇩ 3. WHAT `b77` PROVED ⇩⇩
+>
+> - ***83, on the decisive branch***: `verify-delaccount` **54 of 54, zero FAIL**
+>   (was 53/1), and the row that flipped is this one —
+>   `the ProfileList entry was KEPT with it: expected True, got True`, with the
+>   pin biting, 10075 shown and the pair recorded. **The message stopped lying
+>   without being reworded**, which is why that shape was chosen.
+> - ***44, in the real scenario rather than a fixture***: `verify-doors` printed
+>   `:LOGTO SDDRB77A` / `Unable to change to new directory` / `The grant is in
+>   place, but this sign-in cannot use it yet.` — all three together.
+> - **7's product half**, above. **65 reproduced again**, both arms.
+>
+> ***TWO ARE DONE, INSTALLED AND NOT WITNESSED, AND SAY SO:*** **8** — nothing in
+> the suite presses F1, so no run can show 10149; one keystroke witnesses it.
+> **79** — the wording is confirmed on the install, but **every verifier types an
+> explicit `Y`**, so no run exercises a default.
+>
+> # ⇩⇩ 4. START WITH THE FREE TESTS, THEN `-Only`, THEN A FULL RUN ⇩⇩
+>
+> **NINE** free tests, seconds, no install or elevation — all run 30 Aug 2026,
+> all exit 0: `suiteonly` 48/48, `tiercounts` 13/13, `fixlist` **223**/0,
+> `verdict` 126/126, `sdtestuser` 51/0, `sysmsg` 43/0, `deletioncheck`,
+> `check-stale-leads`, and ***`stemcoverage` 19 of 19 — NEW, PRE_RELEASE 86***.
+> **Then the cheap targeted
+> run for 85's fix, ELEVATED:**
+> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b78 -Only verify-tiers`
+> — but ***85 needs a CYCLE first***, because `sd.iss` only takes effect through
+> one, and the wizard has to be looked at by a person.
+>
+> # ⇩⇩ THE FULL SUITE IS NO LONGER THE DEFAULT. OWNER'S RULING, 30 Aug 2026. ⇩⇩
+>
+> *"Add `-Only`, and drop the full run to milestones."* **A full run is ~20
+> minutes** — 4.6 unelevated, 15 elevated — and the step that decides a change
+> is usually **30 to 90 seconds** of it. **CLAUDE.md carries the rule**; the
+> short form is: free unit tests on every change, `-Only` for the step that
+> decides it, **full suite before a release and before a handoff.**
+>
+> ***BOTH HALVES ARE PROVEN. NOTHING ABOUT `-Only` IS UNRUN.***
+> `VerifyInstall2.ps1 -Run b76 -Only verify-fold`, elevated, 30 Aug 2026:
+> `***** PARTIAL RUN - 1 of 21 step(s), because -Only was given *****`, the step
+> named, *"This run says NOTHING about the steps it did not run"*, `verify-fold`
+> **10 of 10**, `===== post-cycle summary - PARTIAL, 1 of 21 step(s) =====`, and
+> `VerifyInstall2: PARTIAL - 1 of 21 step(s) run, all exited 0.` **Seconds
+> instead of fifteen minutes**, and `assert-current` ran inside the step and read
+> **exit 0**, so the `$neverShipped` addition holds on the elevated path too.
+> ***SPENT: `b54`–`b76`. USE `b77`.***
+>
+> ***ALWAYS TAKE A FRESH TOKEN, EVEN FOR A ONE-STEP RUN.*** `b76` created no
+> account — `verify-fold` makes SD files and cleans them up — so it is arguably
+> still usable. **Working that out per step is exactly the judgement that costs a
+> run when it is wrong**, and tokens are free. Burn one.
+>
+> ***PROVEN UNELEVATED, BOTH DIRECTIONS, NO SUITE SPENT:***
+> `VerifyInstall1.ps1 -Yes -Only test-tiercounts-units` → `PARTIAL RUN - 1 of 12`,
+> 13/13, `PARTIAL - 1 of 12 step(s) run, all exited 0`, **exit 0 in seconds**.
+> `-Only verify-nope` → **exit 2**, naming `verify-nope.ps1`, listing the valid
+> names, *"Nothing was run"*. `-Only` with `-ThenElevated` → **exit 2** before
+> anything is spent, printing both commands.
+>
+> ***AND THE REFUSAL LISTED ONLY THE STEPS THAT RUN WOULD HAVE MADE*** —
+> `verify-nocase` and `verify-lineendings` were absent because no `-Run` meant
+> they were skipped. **That is why the filter is applied LAST**, after the door
+> and write steps are appended and after the test-account skips.
+>
+> # ⇩⇩ `-Run b75`: 37 STEPS, 705 PASS, 1 FAIL — AND THE 1 IS 83. ⇩⇩
+>
+> **Unelevated 16 of 16 (278 `[PASS]`), elevated 21 of 21 (427 `[PASS]`).**
+> ***84 IS CLOSED***: `verify-notyet` **14 of 14**, up from 12/13, with both the
+> repaired check and its new matcher control green.
+>
+> ***THE SINGLE FAILURE IS 83 AND IT IS IDENTICAL TO `b74`*** —
+> `verify-delaccount` **53 PASS + 0 N/A of 54**, failing only
+> `the ProfileList entry was KEPT with it`. **It will keep failing until 83 is
+> ruled on. That failure is real: do not silence it.**
+>
+> ***AND 65 REPRODUCED ON A SECOND RUN, SO THE PIN IS DETERMINISTIC*** —
+> `the pin blocked the profile removal (this leg is decisive)` and
+> `os.users record is gone (the DECISIVE one)` both green again, with step 3's
+> subject still taking status 0 and still saying `CONFIRMATORY, not decisive`.
+>
+> # ⇩⇩ `-Run b74`: THE RIG BIT. 65 IS CLOSED, AND IT FOUND TWO MORE THINGS. ⇩⇩
+>
+> **19 of 21 elevated steps exited 0; the two that did not are `verify-notyet`
+> (84, now fixed) and `verify-delaccount` (83, open and real).**
+>
+> ***65 IS CLOSED, ON THE DECISIVE BRANCH, WHICH TOOK THREE ATTEMPTS TO REACH.***
+> `the pin blocked the profile removal (this leg is decisive): expected True, got
+> True`, then ***`65: status 6/7/8 - the os.users check below is DECISIVE`***, and
+> on that branch ***`os.users record is gone (the DECISIVE one)`***. **10075
+> shown, the directory KEPT, the reclaim record written and naming it, 10123
+> absent.** `verify-delaccount` **53 PASS / 1 FAIL of 54**. **Step 3's subject
+> still took status 0 and still said so**, so one run now covers both arms —
+> which is exactly what the third subject was bought for.
+>
+> # ⇩⇩ 36's RECLAIM PROMISE WAS KEPT END-TO-END, AND NOBODY HAD EVER SEEN IT ⇩⇩
+>
+> From `C:\ProgramData\SD\reclaim-profiles.log`, **21:18:26**, after a later step
+> restarted the service:
+>
+> ```
+> --- S-1-5-21-...-3863
+>     sid=...-3863 account=SDDELB74H directory=C:\Users\sddelb74h
+>     before: directory present, ProfileList entry gone
+>     after:  directory gone, ProfileList entry gone
+>     reclaimed - both halves gone, record cleared
+> reclaim-profiles: 12 considered, 1 reclaimed, 11 still pending, 0 refused
+> ```
+>
+> ***1 OF 12, AND IT WAS THE RIGHT ONE.*** The other eleven were still pinned by
+> live hives and stayed pending. **A sweep that reclaimed everything would have
+> proved much less than one that reclaimed exactly the pair whose lock had gone.**
+>
+> # ⇩⇩ 83 — AND THE SWEEP'S LOG IS THE SECOND WITNESS FOR IT ⇩⇩
+>
+> ***`before: directory present, ProfileList entry gone` IS THE SPLIT 36 EXISTS TO
+> PREVENT***, read by a different program four minutes after `verify-delaccount`
+> reported the same thing. `DELETE_USER:270`'s `Remove-CimInstance` removes both
+> halves in Windows' own order, so the entry can go while the directory stays;
+> the guard at `:281` governs only **SD's own second removal** and never fires.
+> **The code measures honestly — the MESSAGE over-promises**: 10075 says *"SD has
+> kept the profile's registry entry with the directory"*, and that clause was
+> false on the only run that has ever printed it. **Three shapes in the entry;
+> the choice is yours.** ***THE RECOVERY IS NOT AT RISK*** — the sweep reads the
+> record, not `ProfileList`, which is why it still worked.
+>
+> # ⇩⇩ WHY THAT RIG HAD TO BE BUILT — 65 AFTER `b73` ⇩⇩
+>
+> `verify-delaccount` went **42 PASS / 0 FAIL / 0 N/A** (38 → 42) and all three
+> states were measured — `os.users\SDDELB73S` **absent at preflight**,
+> **`yes | yes` after `create.account`**, **gone after `delete.account`**.
+> ***BUT ITS OWN LINE 89 READS "65: status 0 - the os.users check above is
+> CONFIRMATORY, not decisive", SO IT EXERCISED THE ARM THAT ALREADY WORKED.***
+>
+> ***AND THAT IS STRUCTURAL, NOT LUCK — RE-RUNNING `b74` WOULD DO THE SAME
+> THING.*** Step 2 makes the profile with **`CreateProfile`**, which never loads
+> a hive, so `Remove-Item` on `C:\Users\<name>` always succeeds and
+> `DELETE_USER:282` always reaches `exit 0`. **As built the verifier CANNOT reach
+> 6/7/8.** The status is decided by `$dirleft`/`$keyleft` at
+> `DELETE_USER:277-283`, so the decisive branch needs the profile directory to be
+> **undeletable while the verb runs** — an open handle without
+> `FILE_SHARE_DELETE` under it is enough, or `LoadUserProfile` with no matching
+> unload.
+>
+> ***ONE RIG SETTLES TWO ENTRIES, AND IT IS NOW BUILT.*** `verify-delaccount.ps1`'s
+> own header said its keep-both arm *"has not run on this host yet"* — so **36's
+> keep-both assertions (the reclaim record, 10075's rendering) have never fired
+> either.** Step 6 pins one file inside `<prefix>h`'s profile open with
+> `FileShare.Read`; deleting a file needs `FILE_SHARE_DELETE` from every other
+> handle on it, so the pin blocks `Remove-Item` on the file, which blocks
+> `-Recurse` on the directory — **no interop, no logon, no password.**
+> ***A THIRD SUBJECT RATHER THAN PINNING THE FIRST WAS THE OWNER'S CALL***:
+> pinning `<prefix>s` cost nothing extra per run but would have traded status 0's
+> coverage away for 6/7/8's. **Step 3 and its checks are untouched.**
+>
+> ***A CASE-ONLY DIFFERENCE WOULD HAVE FAKED A PASS AND DID NOT.*** The account
+> is `sddelb73s`; the record is **`SDDELB73S`**, because `grant.os.access` keys on
+> `acc.uname`. **A `-ceq` in `Get-OsUsersRecord` would have scored step 1 FAIL and
+> step 3's *"gone"* a pass for the wrong reason.** It is case-insensitive on
+> purpose and the comment there says so — do not tighten it.
+>
+> ***`verify-delaccount`'s SD-MADE SUBJECT IS AN ADMINISTRATOR NOW.***
+> `<prefix>s` is created `ADMINISTRATOR BOTH`, because only that tier is given an
+> `os.users` record and a STANDARD subject would have scored *"the record is
+> gone"* by never having had one. It is in Windows Administrators for the seconds
+> it exists. **The control `<prefix>b` is deliberately not.**
+>
+> ***TWO ONE-LINE RULINGS ARE WAITING AND BOTH ARE NOW CHEAP TO GIVE.*** 7 and 9
+> were *"decide"* entries; the deciding information was already in the record and
+> is now in each entry.
+>
+> - **7 — `sort.item`: confirmed an oversight, not a decision.** `d913eac`'s
+>   read-only-inspector ruling **names `list.item` and not `sort.item`**, which
+>   are `$QPROC` 10 and 11 — one program. **Fixing it is 82's shape**: omit
+>   43→42 lines, **STANDARD 354 → 355**, PROGRAMMER and ADMINISTRATOR unmoved,
+>   and `verify-tiers.ps1`, `verify-tierapi.ps1` and `test-tiercounts-units.ps1`
+>   all carry 354. **Not built — tier membership has always been his.**
+> - **9 — `umask`: half of it was ruled on 24 Aug and the entry did not know.**
+>   `d913eac` deleted `voc_template/umask` outright, so *"ship a VOC record"* is
+>   already refused. ***AND `op_umask` IS LIVE — `CPROC:325` calls `umask(002)`
+>   at every start-up***, so *"delete the routine"* taken literally breaks
+>   start-up. **The dead part is `int.umask` alone** (`CPROC:3371`, verb 35).
+>
+> ***THE HABIT THAT PAID FOR ITSELF TWICE: RUN THE FREE UNITS TESTS FIRST.***
+> All four are green as of 30 Aug 20:15 — `tiercounts` 13/13, `sdtestuser`
+> 51/0, `verdict` 126/126, `fixlist` **218/0** — plus `check-stale-leads`
+> **exit 0**, and **a whole suite run (`b70`) was spent discovering what
+> `test-tiercounts-units` names in under a second.** They need no install, no
+> elevation and no token.
+>
+> ### ⇩ EVERYTHING BELOW IS THE 84th SESSION'S HANDOFF, STILL CURRENT ⇩
+>
+> ***TWO THINGS BUILT AND NOT YET SEEN, NEITHER PROVABLE BY A CYCLE:***
+> **74**'s uninstall disclosure now names all four groups, and it shows only at
+> an **interactive** uninstall — `UninstallSilent` skips it, so it wants the
+> path 39 used. **77**'s dialog lost a sentence that went stale within hours
+> (it told the reader to edit `sd.conf` by hand, and **78** shipped `remote.api`
+> in the same install); that needs a **second install over an existing tree**,
+> since a cycle deletes it.
+>
+> ***THE BEST REMAINING RETURN ON ONE SITTING IS A VM CLONE WITH NO OpenSSH.***
+> **67**'s absent-server wizard case, **76**'s open branch of the scope default,
+> and **78**'s `ssh.server install|remove` all want that same rig. One guest,
+> three legs closed. `Windows 11 - Template` is the clone source and has no
+> OpenSSH capability — **do not prime it with one, that is 76's own warning.**
+>
+> ***AND `b71` IS RECORDED RATHER THAN TIDIED AWAY.*** It stalled after step 9
+> wrote `OK`, both processes at exactly **0 CPU**, no children but a console,
+> nothing executing; step 9 itself had completed cleanly. **The block was on the
+> next console write**, which reads as a wedged console rather than a defect.
+> **Unproven — file it only if it recurs at a DIFFERENT step.** It left
+> `sdacctb71`, `sdaclb71`, `sdcatgb71` in the register and `SDACCTB71` on disk.
+>
+> # ⇩⇩ `-Run b72`: GREEN IN BOTH HALVES. 36 STEPS, 676 PASS, 0 FAIL. ⇩⇩
+>
+> ***UNELEVATED 15 OF 15 (265 `[PASS]`), ELEVATED 21 OF 21 (411 `[PASS]`), ZERO
+> `[FAIL]` ANYWHERE.*** Install **18:03:57**, `assert-current` **exit 0 live**.
+> ***COUNT `[FAIL]` WITH THE BRACKETS*** — a bare `FAIL` also matches
+> `verify-fold`'s negative-control row, which is a check working correctly.
+> **And the runner's own log reads 0 PASS / 0 FAIL, which is EXPECTED under
+> `-Quiet`** — the per-check markers live in the 21 step logs, so a non-zero
+> PASS total across those is the control that the logs were actually read.
+>
+> ***SPENT: `b54`–`b72`, `sdswa1`–`sdswa5`, `sdtierv`, `sdtierw`, `sdapiaz1`.
+> USE `b73`.*** **`b71` bought nothing**: it stalled after step 9 wrote `OK`,
+> with both processes at exactly 0 CPU, no children but a console, and nothing
+> executing. **Step 9 itself had completed cleanly** (*"10 decisive check(s),
+> 0 failed"*, `sdgateb71` removed). **The block was on the next console write**,
+> which points at a wedged console rather than a defect — unproven, and worth
+> filing only if it recurs at a DIFFERENT step. `b71` left `sdacctb71`,
+> `sdaclb71`, `sdcatgb71` in the register and `SDACCTB71` on disk.
+>
+> ***54 CLOSES ON THIS RUN.*** `verify-profiledir` is step 13 and has now run
+> twice, `b70` and `b72`, exit 0 both times, with its prefix derived from the
+> `-Run` token each time — a fixed one would have passed on `b70` and failed on
+> `b72`, so the second run is what proves the wiring. **36's last leg had never
+> fired since the day it was written.**
+>
+> ***AND 82 IS WHAT THIS RUN LEFT BEHIND.*** `test-tiercounts-units.ps1` is in
+> neither runner. It caught the stale 416 in under a second when finally run, and
+> a whole suite run had already been spent finding the same thing. **Run it
+> before any suite run that follows a change to either tier list.**
+>
+> # ⇩⇩ THE TASK TABLE IS FULLY CLOSED. EVERYTHING LEFT IS IN PRE_RELEASE_FIXES. ⇩⇩
+>
+> ***H.2 WAS THE LAST OPEN ROW AND IT IS NOW ➖, COMBINED INTO PRE_RELEASE 80.***
+> Owner's ruling, 30 Aug 2026: *"wrap all the outstanding documentation
+> pre-release tasks into a single documentation audit task that validates and
+> updates the whole documentation tree against the final install image … you
+> take control of the gap analysis, you validate, correct and build all the
+> documentation both yours and the other AI's."* **H.2, 34 and 55 are one task
+> now**, and 80 runs **LAST, just before the 1.0 wrap-up**.
+>
+> ***DO NOT READ "TASK TABLE CLOSED" AS "NEARLY DONE".*** Every row is ✅ or ➖,
+> which means only that nothing is left that the TABLE tracks. **27 fixlist
+> entries are open, three of them blockers — 72, 77 and 80.** The table is the
+> authority on tasks; PRE_RELEASE_FIXES is now the authority on what ships.
+>
+> ***WHY THE DOCUMENTATION WAITS, AND IT IS NOT PROCRASTINATION.*** The model
+> has moved seven times in a week — 56, 67, 75, 76, 77, 78, 79 — and H.2's own
+> row predicted the cost of not waiting: *"writing a reference against a model
+> in motion is how the tester set described `encrypt.field` for a week after it
+> was deleted."* **Wiring `release.ps1` early would have been worse than not
+> wiring it**: both generators `exit 1` on a roster disagreement, and 78 alone
+> takes the TCL verb count 143 → 146, so every run would refuse until the pages
+> caught up.
+>
+> # ⇩⇩ 77 IS FIXED AND 78 IS BUILT. BOTH NEED ONE CYCLE. ⇩⇩
+>
+> ***RUN `cycle.ps1` ELEVATED — `assert-current` IS RED AND THIS IS BASIC.***
+> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+>
+> ***THEN READ `verify-tiers` FIRST***: ADMINISTRATOR moves **416 → 419** and
+> **PROGRAMMER 396 and STANDARD 354 must NOT move.** That asymmetry is the check
+> on the arithmetic — if either of the other two moved, one of the three new
+> verbs reached `newvoc`, which hands it to every account SD creates.
+>
+> ***78, ALL THREE VERBS, BUILT AND UNCOMPILED.*** `remote.api on|local|off`,
+> `remote.ssh on|off`, `ssh.server install|remove`. Three new scripts
+> (`api-listener.ps1`, `restart-sd.ps1`, `remove-ssh.ps1`), three `gpl.bp`
+> programs, three `voc_template` records, three `TIER.ADD.ADMINISTRATOR` lines,
+> **messages 10131–10148**, and the changelog.
+>
+> ***TWO DEFECTS WERE CAUGHT BEFORE THE CYCLE, WHICH IS THE POINT OF LOOKING.***
+> The includes were wrong — `K$ADMINISTRATOR` and `K$WINPATH` are in
+> `INT$KEYS.H`, not `KEYS.H` — so the first draft would have failed BCOMP on
+> unknown symbols and cost a whole cycle to find out. And `restart-sd.ps1` is
+> deliberately not `Restart-Service`, because `cycle.ps1:299` already measured
+> that stopping the service does not always take `sdwind` with it.
+>
+> ***A CLAIM IN `cycle.ps1` IS WRONG AND IS CORRECTED IN THE NEW CODE.*** It says
+> *"sd -stop refuses while users are logged in"*. **It does not** —
+> `stop_sd()` (`gplsrc/sysseg.c:766`) SIGTERMs every user-table entry with a uid
+> and a pid > 0, with no such check. **So `remote.api`'s restart ends the
+> administrator's own session**, which is why its Y/N warning comes before the
+> restart and nothing printed after it matters. `cycle.ps1`'s comment still
+> needs fixing — it is not wrong about what to DO, only about why.
+>
+> ***OWNER'S RULE, 30 Aug 2026 — Y/N PROMPTS MUST SHOW THEIR DEFAULT***, written
+> `<y>/n` or `y/<n>`. **The sweep is FILED AND MOSTLY DONE as 79**: 11 messages
+> reworded, 9 code sites changed. ***THE PROMPTS WERE NOT ALL ONE SHAPE, WHICH
+> IS THE THING TO KNOW*** — three of them (`3044`, `10008`, `6588`) **already
+> defaulted to N and simply never said so**, so they needed wording only.
+> **`6521` is used twice in `ED`** and a `head -1` grep found one.
+> ***AND THE MESSAGES CANNOT BE EDITED BY HAND***: each ends in a trailing space
+> that `Edit` and `Write` both strip, so a scripted byte substitution was used
+> under CLAUDE.md's own exemption, verified at +2 bytes per file with the tail
+> intact. **Left open in 79 on purpose**: the three multi-way prompts (Y/N/Q,
+> Y/N/A, Y/N/Q/?) whose default is a ruling; `ED`'s `yes.no`, which has **six**
+> callers of which only one is inventoried; and four dead messages.
+>
+> # ⇩⇩ 77: THE UPGRADE DIALOG SAID THE OPPOSITE OF WHAT RAN — FIXED. ⇩⇩
+>
+> ***IT FIRES ON `not DataTreeAbsent`; `DataTreeUpgrade` IS `not
+> DataTreeWasAbsent` — THE SAME PREDICATE — AND IT GATES THE UPGRADE BRANCH.***
+> So *"the newly built system files were NOT installed over it"* is printed
+> exactly when they are, and *"upgrading in place is not yet supported"* has been
+> false since 25 Aug. **Measured on the owner's 30 Aug reinstall**: `voc.dic`,
+> `dict.dic`, `accounts.dic`, `$map.dic` and three `os.users.dic` records all
+> carry **16:40:08**. **This is entry 71's stale claim shipped to users.**
+>
+> ***AND 78 IS FILED: `remote.api`, `remote.ssh`, `ssh.server` — the owner's
+> three administrator commands.*** They close the one objection 75 left open,
+> and the scripts they wrap are already installed and re-runnable.
+>
+> # ⇩⇩ 67's TASKS PAGE WAS WRONG AND IS FIXED — AND THE FIX IS PROVEN. ⇩⇩
+>
+> ***30 Aug 2026, MEASURED ON A REAL INSTALL: the server IS installed and remote
+> access IS blocked.*** `sshd.exe` present, `sshd` Running/Automatic,
+> `RemoteAddress=127.0.0.1`. **That also settles the dash empirically** — a
+> parent in Inno's grayed state with `checkablealone` IS selected, so
+> "install the server, no remote access" works.
+>
+> ***TWO MISSING `[Tasks]` FLAGS MEANT TWO OF THE THREE STATES COULD NOT BE
+> EXPRESSED.*** Owner at the wizard, 30 Aug 2026: *"I click install the server
+> and both check boxes are filled. I unclick let other computer connect and it
+> also deletes installing the server."* **Read out of `ISetup.chm` rather than
+> assumed a second time**: `dontinheritcheck` stops a child being ticked with its
+> parent, and `checkablealone` is what lets a parent stay ticked when no child
+> is — *"by default … unchecking all of the task's children will cause the task
+> to become unchecked."* **Fixed on `sshserver` and `sshserver\sshremote`.**
+> The dependency half never needed code and is confirmed by the same topic:
+> *"A child task can't be selected if its parent task isn't selected."*
+>
+> ***REBUILD, THEN LOOK — NO INSTALL NEEDED.*** `-SkipInstall` stops after
+> building the installer and leaves the tree alone; running the `.exe` to the
+> tasks page and cancelling writes nothing.
+>
+> ***AND THE ABSENT-SERVER CASE IS ONLY NOW REACHABLE ON THIS HOST***: removing
+> the OpenSSH capability is staged behind a **reboot**, so the first attempt
+> still had `sshd.exe` on disk and the wizard correctly showed the server-present
+> box. **Check `Test-Path 'C:\Windows\System32\OpenSSH\sshd.exe'` is `False`
+> before reading anything into the page.**
+>
+> # ⇩⇩ AND: THIS INSTALL HAS NO API LISTENER. DO NOT SPEND `b70` ON IT. ⇩⇩
+>
+> ***THE 30 Aug CYCLE WAS INSTALLED WITH THE API BOX UNTICKED, AND UNDER 75 THAT
+> NOW MEANS NO LISTENER AT ALL.*** Measured: `# APIPORT=4243` is **commented** in
+> `C:\ProgramData\SD\sd.conf`, and **nothing is listening on 4243** while the SD
+> service is Running. **That is 75 working exactly as ruled — it is not a
+> defect.**
+>
+> ***BUT NINE SUITE VERIFIERS NEED THE API, AND EVERY ONE OF THEM WILL FAIL.***
+> `verify-apiadmin`, `verify-apiidentity`, `verify-apiname`, `verify-apiport`,
+> `verify-accountacl`, `verify-peerlog`, `verify-scramlogin`, `verify-tierapi`
+> (all `VerifyInstall2`) and `verify-doors-suite` (`VerifyInstall1`). **A run of
+> `b70` on this install reads as a catastrophic regression and is nothing of the
+> kind.** Re-install with the API box **ticked** first, or do not run the suite.
+>
+> ***AND IT IS THE COST FLAGGED IN 75, ARRIVING ONE CYCLE LATER.*** The old
+> behaviour of an unticked API box was *"listener up, reachable from this machine
+> only"*. There is no such state now: ticked means listening AND open to the
+> network, unticked means no API at all. **If the intent was "keep the API but
+> shut the port", that third state has to go back — the owner's call, and this
+> install is the case for it.**
+>
+> ### ⇩ 67, 75 AND 76 ARE CYCLED. WHAT IS PROVEN AND WHAT IS NOT. ⇩
+>
+> ***CYCLE RAN 30 Aug 2026 AND `assert-current` IS EXIT 0 LIVE.*** The installer
+> compiled, so ISCC accepted the rewritten `[Code]` and `[Tasks]`.
+>
+> ***76 IS PROVEN, AND THE PROOF IS THAT THE OWNER COULD DO IT AT ALL.*** This
+> machine already had ssh; he unticked "allow remote access" and the rule is now
+> **`RemoteAddress=127.0.0.1`**, read live. **Before this change that box was not
+> shown on a machine with an ssh server and `ApplySshFirewall` exited before
+> touching anything**, so the ability to turn it off is itself the measurement.
+>
+> ***THE `-ScopeFile` READER IS MEASURED TOO***: against the live rule at
+> `127.0.0.1` it writes `restricted`, exit 0.
+>
+> ***WHAT IS NOT PROVEN, SAID PLAINLY: THE "OPEN" BRANCH OF THE DEFAULT.*** I
+> cannot show the box ARRIVED matching the prior scope, because nobody recorded
+> what the scope was before the cycle. **Closing it needs one of two things** —
+> the owner saying whether the box was ticked when he reached it, or a machine
+> whose rule is `Any` at install time (a clone, per 76's own warning about
+> priming the Template). **Do not claim that leg until one of those happens.**
+>
+> ***75 IS MEASURED ON THE INSTALLED TREE***: message **10100 is gone** (with
+> `10101` present as the control), **no `$standalone` marker was written**, and
+> `assert-current` counts **2984** mirrored files where it counted **2985**
+> before — one file, the deleted message.
+>
+> ***67's ABSENT-SERVER CASE IS UNEXERCISED.*** Both this host and
+> `Windows 11 - Test` already have ssh, so the install box and its indented child
+> have not been seen. **That needs a clone with no OpenSSH capability**, and it
+> is the one leg of the ruling nobody has watched.
+>
+> ### ⇩ THE COMMAND THAT BUILT THE ABOVE, KEPT FOR THE SHAPE ⇩
+>
+> ***RUN THIS, IN AN ELEVATED PowerShell, WHENEVER `assert-current` IS RED.***
+> `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+>
+> ***AND WATCH THE WIZARD, BECAUSE THE WIZARD IS THE CHANGE.*** `cycle.ps1`
+> installs **attended** — there is no `-Silent` and `sd.iss` refuses one — so
+> this cycle is also the test. **What to look for on the tasks page:**
+>
+> | this machine | expect |
+> |---|---|
+> | ssh server ABSENT | **"Install the OpenSSH server"**, and **indented under it** "Let other computers … connect over ssh". Untick the parent → the child greys out and clears. **That is the ruling, and it is Inno enforcing it, not a message** |
+> | ssh server PRESENT | the remote box **alone**, no install box — and it starts **matching this machine's current firewall scope** |
+>
+> **The rig `Windows 11 - Test` has SD installed with both boxes unchecked, so
+> it is the "already has ssh" case; this host is too.** To see the absent case
+> you need a clone with no OpenSSH capability.
+>
+> ***THE OWNER'S RULING, 30 Aug 2026, WHICH IS WHAT 67 AND 76 NOW BUILD:***
+> *"if an ssh server is installed, the user should have a separate choice to
+> allow remote access. If a server is not installed the user should have two
+> choices, install the server, and allow remote access. Allowing remote access
+> should not be an option if they choose not to install the ssh server."*
+>
+> ***75 WENT IN THE SAME PASS ON HIS INSTRUCTION, BECAUSE EVERY `Check:` IN THE
+> FILE CARRIED `not StandaloneChosen`.*** The mode page, both radio buttons,
+> `StandaloneChosen`, `StandaloneWasMarked`, `WriteStandaloneMarker`,
+> `ShouldSkipPage`, `ModeChoiceText`, `DisclosureText`'s parameter and its three
+> branches, `CREATEA`'s marker read, **message 10100 and `verify-standalone.ps1`
+> both deleted**. `SummaryPage` is back on `wpWelcome`. **The API box is a
+> service switch now** — unticked installs the no-listener `sd.conf`.
+>
+> ***ONE COST OF 75 IS FLAGGED AND UNRULED — READ IT BEFORE THE CYCLE.*** There
+> were three API states; there are now two. **A program on the SAME machine
+> using the API now needs the box ticked, and ticking it also opens port 4243 to
+> the network.** Built as ruled because the ruling is explicit; **putting the
+> local-only state back is the owner's call.**
+>
+> ***HOW 76's HARD PART WAS AVOIDED, BECAUSE IT IS THE REUSABLE BIT.*** The
+> entry hunted for a way to tell SD's own ssh server from a foreign one, and
+> could not find one that survived uninstall-then-reinstall. **The ruling
+> dissolves it: default the box to the truth.** `GetSshRuleIsOpen` reads the live
+> `RemoteAddress` in `InitializeSetup`, so an installer who touches nothing
+> changes nothing, on any server, without SD ever needing to recognise whose it
+> is. **§5.9 is narrowed, not abandoned** — `sshd_config` is still never written
+> for a server SD did not install.
+>
+> **Pre-flighted, not guessed**: `stage.py` compiles, `ssh-firewall.ps1`,
+> `assert-current.ps1` and `verify-upgrade.ps1` parse with 0 errors, every Pascal
+> helper is defined before its call site, and no file gained a BOM, a CR or a
+> non-ASCII byte. ***ONLY ISCC CAN JUDGE `sd.iss`, AND ONLY AGAINST A STAGED
+> TREE — WHICH IS THE CYCLE.*** A `[Code]` error surfaces at its build step.
+>
+> ### ⇩ AND BEFORE THAT, THE RUN THAT CLOSED 68 ⇩
+>
+> ***`-Prefix sdswa5`: 7 PASS / 0 FAIL / 0 SKIP.*** Install **30 Aug 12:02:00**,
+> `assert-current` **exit 0 live**, and the installed `gpl.bp/CRED_SET` is
+> **byte-identical to source** (`sha256 2657b46b…`) carrying the fix's marker —
+> **so the green run measured the fix and not a stale tree, checked rather than
+> assumed.** The anchor is the SUCCESS wording, `Password set for account
+> SDSWA5`, where the two previous runs printed *"Unable to set password …
+> status 3035/3037"*. **All three controls green, tally equals the row count.**
+>
+> **Spent: `sdswa1`–`sdswa5`, `b54`–`b69`, `sdapiaz1`.** The suite itself has not
+> been run since `b66`; **use `b70`** when it is. *(`assert-current` was exit 0
+> after that run and is RED again now, deliberately — the installer work above
+> landed after it.)*
+>
+> ***WHAT IS LEFT, IN ORDER.*** **(1) 72's proof — the recipe is in the "72 IS
+> FIXED AND NOT YET PROVEN" paragraph below**, and the provocation has to be two
+> passwords that do not match, because 68 being fixed removed the failure it used
+> to rely on. **(2) The four unbuilt rulings,
+> 66, 67, 75 and 76 — they interact, so rule on them together.** **(3) H.2, the
+> documentation**, still blocked behind 56/57 settling. **(4) 73 stays open on
+> ONE leg** — its own design called for an audit/log append as the control that
+> should still SUCCEED, and `verify-sdsyswrite` has no such row, so a change that
+> broke append everywhere would read green there.
+>
+> ***THE CHANGELOG IS ALREADY WRITTEN AND NEEDS NOTHING*** — the 30 Aug entry
+> *"SETTING A PASSWORD WORKS FROM SDSYS WHICHEVER WAY YOU REACHED IT"* is at the
+> TOP of `sdsys/changelog` (newest first) and its closing sentence is still
+> exactly true. **A session that greps its tail will conclude it is missing.**
+>
+> ### ⇩ HOW 68 WAS FINISHED, KEPT BECAUSE IT IS THE SAME MISTAKE TWICE ⇩
+>
+> ***`sdswa4` WAS 6 PASS / 1 FAIL AND THE FAILURE HAD MOVED — 3035 → 3037.***
+> That is the two-stage status earning its keep on the run after it was added:
+> the elevated write succeeded and only the read-back failed.
+>
+> ***WHY 3037 HAPPENED, BECAUSE IT IS THE SAME MISTAKE TWICE IN ONE WEEK.***
+> The read-back was copied from `MODIFYA`, where it is valid, into the one file
+> where it cannot be. **`secure-osusers.ps1` grants `sdusers` `(OI)(CI)(RX)`,
+> read-only**, so MODIFYA's unelevated read-back genuinely works and `os.users`
+> PASSED on the identical route in the same run. ***`secure-cred.ps1` grants
+> `sdusers` NOTHING — not write, and NOT READ EITHER*** — so the process that
+> NEEDS the fallback cannot read `$cred` back. **Measured, not reasoned: an
+> unelevated shell gets `Permission denied` listing `$cred`, while
+> `os.users/don` reads `y e s \r \n y e s \r \n`.** ***AND `read ... else` HID
+> IT***: a permission denial and a missing record take the SAME else branch, so
+> *"wrote it and could not look"* was scored as *"wrote it and it did not read
+> back"*. **First the close-before-write rule applied in one file and not the
+> other; now a read-back rule lifted from the file where it holds into the one
+> where it does not.**
+>
+> ***THE FIX: THE HELPER VERIFIES ITS OWN WRITE***, being the only party that
+> can read the file. It returns **2** for wrote-but-mismatched → `ER$WRITE.ERROR`,
+> while any other non-zero — including `ps_script`'s `-1` for *could not run* —
+> stays `ER$PERM`. **The SD-side read-back now runs only on the direct-write
+> path**, where the process demonstrably has access. ***`-cne` and not `-ne`,
+> bench-measured***: PowerShell's default comparison is case-INSENSITIVE and
+> every value is base64, so `-ne` ACCEPTS a record differing in case alone and
+> reports it verified.
+>
+> **Pre-flighted before the cycle, so it was not spent on a script that never
+> loads**: the emitted PowerShell parsed (0 errors), round-tripped
+> byte-identical, and SD saw **6 fields**; `CRED_SET` BOM-free, LF-only, ASCII,
+> `then`/`end` balance unchanged from HEAD. **All of it held on the real run.**
+>
+> ***READ THE THREE CONTROLS BEFORE THE VERDICT.*** Setup must create the
+> account, the unelevated session must have REACHED SDSYS and read it, and the
+> ELEVATED control must still write `$cred`. **A green run with a broken control
+> is not a pass** — that is the exact failure the file was written to avoid, and
+> its own tally refuses itself if pass+fail+skip does not equal the row count.
+>
+> ***WHAT THE FIX IS, AS BUILT.*** 68 is two writes SD makes
+> to stores an unelevated process cannot touch: `$cred` (`secure-cred.ps1` grants
+> `sdusers` nothing) and `os.users` (`secure-osusers.ps1` grants read-only).
+> Both now fall back to `ps_script`, which hands the work to the elevated helper
+> when `K$ADMINISTRATOR` is set (`PS_SCRIPT:166`), and both read the record back
+> before reporting success. **Three things were measured before a line was
+> written and each would have corrupted a store silently**: the field mark on
+> disk is **CRLF** (`od -c` on `os.users/don`), every value is **base64** so
+> ASCII is safe (`sd_scram.c:26`), and `pstmp` is already hardened for
+> credential material (`secure-psdir.ps1`, CREATOR OWNER, added 16 Aug for
+> exactly this). ***AND THE ONE THING THAT WENT WRONG WAS A RULE APPLIED IN ONE
+> FILE AND NOT THE OTHER***: `MODIFYA` does the elevated write AFTER `close` and
+> says why; `CRED_SET` did not, and that is what `226ef0e` fixes.
+>
+> ***72 IS FIXED AND NOT YET PROVEN ON THE PATH THAT MATTERS.*** `DELETE_USER`
+> now uses `ps_script` rather than `os.execute`, and `CREATEA` reads the
+> rollback's result instead of `void`ing it (new message **10130**). The 11:25
+> install carried it, but `verify-sdsyswrite`'s cleanup rows run through the
+> ELEVATED helper, so they do not exercise it. **To prove it, reproduce `john`:
+> from your OWN account, `logto sdsys`, `create.account user testrb none`, give
+> a password, answer N.** Before the fix the account survived and the message
+> said *"Nothing was created"* anyway. **Once 68 is fixed the password will not
+> fail, so provoking this needs a different failure — the two passwords not
+> matching will do it.**
+>
+> ***FOUR RULINGS ARE TAKEN AND UNBUILT, AND THEY ALL TOUCH THE INSTALLER.***
+> **66** bundle the editors (decided 26 Aug, never built). **67** refuse `SSH`
+> and `BOTH` when no ssh server is installed — *the condition is the MACHINE, not
+> the install*, which dissolves the upgrade problem; **the open question is how
+> BASIC asks, and `ospath` with a Windows path should be MEASURED before anything
+> is designed around it.** **75** remove the stand-alone mode and make the two
+> remote boxes service switches rather than firewall switches — mostly a
+> deletion, since `sd_conf_standalone()` already is "no listener". **76** a
+> machine that already has ssh is never asked and its firewall never set.
+> **They interact; rule on them together rather than one at a time.**
+>
+> ***THE RIG IS `Windows 11 - Test` AND IT IS THE ONLY GUEST.*** Three PERMANENT
+> shares — `sdout` (read-only, the installer), `xfer` (results back to
+> `C:\Users\dmont\sdxfer`), `gplbld` (read-only, the tracked
+> `capture-state.ps1`). Reach them by name, `\\vboxsvr\<share>`, **not by drive
+> letter — adding the third share moved the letters.** SD is installed there
+> with both remote boxes unchecked, which is 67 and 75's measured baseline.
+>
+> ***AND ONE WARNING ABOUT MY OWN ADVICE, RECORDED AS PRE_RELEASE 76.*** Priming
+> the Template with the OpenSSH capability saves ~45 minutes per clone **and
+> would leave every clone with no ssh question and NO FIREWALL RESTRICTION**,
+> at Windows' default of `RemoteAddress=Any`. Do not do it without fixing 76
+> first.
+>
+> ### ⇩ 30 Aug 2026 — 39 IS CLOSED ON A REAL UNINSTALL, AND THE RUN FOUND A WORSE ONE (72). OPEN COUNT 22. ⇩
+>
+> ***THE INTERACTIVE UNINSTALL RAN IN `Windows 11 - Test` AND THE SWEEP DID WHAT
+> IT PROMISED***: `mode : REMOVE`, `keep : don`, `token: elevated`,
+> **`removed 2 of 2 account(s); kept 1`**, each with `group sdu_<name> removed`
+> and `user removed`. **Before/after agree** — local users 9 → 7,
+> `sdusers`/`sdssh`/`sdapi` down to `don`, `sdsshonly` **empty**, `Administrators`
+> untouched, and ***`sshd_config`'s SD block gone***. **`tim`, a Windows account
+> SD never made, was untouched — the control this run got for free.**
+> ***TWO LEGS ARE UNEXERCISED AND SAID SO RATHER THAN TICKED***: the
+> last-administrator refusal never had to fire (this guest has an administrator
+> outside `sdusers`), and the keep-the-database branch went untested because the
+> tree came out absent.
+>
+> ***AND THE RUN'S REAL RESULT IS 72, WHICH IS WORSE THAN WHAT IT WAS TESTING.***
+> `john` — half-created by 68's failure — is **in no group at all**: not
+> `sdusers`, not `sdsshonly`, no `sdu_JOHN`. **So he was never confined** (that
+> group is what denies console and RDP) **and the sweep cannot see him**, its
+> candidate set being `sdusers` *"because CREATE.ACCOUNT adds every account it
+> makes and nothing else does"* — **a premise 68 falsifies.** He survived the
+> uninstall as an enabled Windows account with a password.
+>
+> ***AN INSTRUMENT FAULT OF MY OWN, RECORDED BECAUSE THE RECORD ALREADY WARNED
+> OF IT.*** `capture-state.ps1` used a bare `Tee-Object`, which in PS 5.1 writes
+> **UTF-16**, so the captures came back NUL-separated and `grep` matched nothing
+> — the identical trap §"reading the transcripts" documents for the SD-verify
+> logs, walked into one day later. **Fixed to `Out-File -Encoding utf8`.**
+> ***MOVED INTO THE REPOSITORY 30 Aug 2026 ON THE OWNER'S INSTRUCTION***, and it
+> is now `gplbld/capture-state.ps1` — **the canonical copy; anything under
+> `C:\Users\dmont\sdxfer` is a copy for the guest to reach and may be stale.**
+> **It is on `assert-current.ps1`'s `$neverShipped` list** (`:560`), which is not
+> optional: a `gplbld` script that is not named there is newer than the install
+> the moment it is written, and `assert-current` then refuses the tree *because
+> of the new file* — the trap that cost a run on 25 Aug. **Measured after adding
+> it: `assert-current` exit 0, *"no source file is newer than the install"*.**
+> It takes `-OutDir` now, so it is not tied to `Y:`.
+>
+> ### ⇩ 30 Aug 2026 — THE 39 RIG IS SET UP. NEW ENTRIES 66 AND 67. ⇩
+>
+> ***67 IS THE ONE TO READ, BECAUSE IT TOUCHES THE INSTALL MODEL AND IT CAME OUT
+> OF THE 39 RIG BEING SLOW.*** Owner asked why declining ssh still installs the
+> ssh server. **It does**: `sshremote` and `apiremote` are FIREWALL tasks, and
+> `sd.iss:719` gates the capability install on `SshServerAbsent and not
+> StandaloneChosen` **without testing `sshremote`**, while `FullRadio.Caption`
+> says *"optional remote ssh"*. ***AND IT IS NOT A TICKBOX***: `deny-logon.ps1:29`
+> denies interactive and RDP logon but NOT network logon, so an SD account's only
+> two routes are ssh and the API **even locally** — a local user reaches SD by
+> `ssh localhost` with the port shut. **"No ssh server" is therefore a decision
+> that nobody logs in interactively, which is a third install mode, not a
+> checkbox.**
+>
+> ***THE ACCESS POLICY WAS RESTATED AND IT IS ALL ALREADY RECORDED — NOTHING NEW
+> WAS FILED FROM IT.*** Only administrators log in directly, at the keyboard or
+> through RDP/AnyDesk; OS users the customer adds get no SD; multi-user RDP is
+> not supported, only a single remote session. **§5.6.2 (`:5808`) and the
+> `RDPACCOUNT` deletion (HISTORY.md:11345) already carry it.** ***AND IT SETTLES
+> 67's OPEN QUESTION — "does anything else need ssh?" NO***: an administrator
+> reaches SDSYS by elevating at the console (`LOGIN:568`), which never touches
+> ssh, so in an API-only install the ssh server has no consumer at all. **The one
+> thing such an install gives up is an interactive SD session for a
+> NON-administrator, and the mode page has to say so in those words.**
+>
+> ***A CLAIM I MADE AND HAD TO WITHDRAW, WRITTEN DOWN SO IT IS NOT REPEATED.***
+> I told the owner a customer-added Windows ADMINISTRATOR still gets SD. **Wrong**
+> — it conflated the data-tree ACL (`Administrators` do get filesystem access,
+> `sd.iss:577`) with SD login, which refuses them at **`LOGIN:414` with 5009**
+> like anyone made outside SD. 56 removed that exemption on 29 Aug and `-Run b66`
+> proved it. **The wrong claim reached entry 67 before it was caught; it is
+> corrected there.**
+>
+> ***AND A STANDING CORRECTION ON HOW TO WRITE THIS UP — THIRD TIME THE OWNER HAS
+> GIVEN IT.*** *"We are not trying to prevent an administrator from making a
+> non-standard system… this is our default setup, not a prevention against users
+> doing whatever they want to."* **`:3772` already overrules the argument that a
+> gate an elevated administrator can pass is not worth building.** The caveat is
+> written into `LOGIN:410-413`, which is why it keeps being re-argued — **it is
+> not wrong, it is the wrong emphasis.** State what the shipped default does and
+> stop. Saved to the session memory file as `defaults-not-prevention`.
+>
+> ***`Windows 11 - Test` IS READY TO BOOT AND NEEDS NOTHING FROM THE HOST.*** The
+> owner's first attempt at 39 was abandoned — installing in a VM was slow,
+> mostly the OpenSSH capability download — and he cloned a fresh guest.
+> **Both shared folders are PERMANENT on that VM (`MachineMapping`), not
+> transient, so they survive the power cycles an overnight install needs**;
+> the `--transient` form the record documents is for a VM that is already
+> running and locked. NIC is **bridged**, which §5.9's remote-block control
+> needs. ***`Windows 11 - Test` IS THE ONLY RIG — THERE IS NO SECOND GUEST.***
+> An earlier `Windows 11 - Removal Test` was **deleted** when this clone was
+> made, so anything in the record naming it is stale; `VBoxManage list vms`
+> registers only `Beardog`, `Windows 11 - Template` and `Windows 11 - Test`.
+> **The Template is the clone source, and cloning is the documented way to get
+> another attempt** (24 Aug: `clonevm`, ~25 s, `--options keephwuuids,keepallmacs`).
+>
+> ***THE TWO CLONE OPTIONS ARE NOT A PAIR AND MUST BE DECIDED SEPARATELY —
+> OWNER, 2 Sep 2026, CORRECTING A SESSION THAT DROPPED BOTH.*** The string above
+> reads as one recipe and is why they got treated as one.
+>
+> - ***`keephwuuids` IS REQUIRED: WITHOUT IT THE CLONE IS UNLICENSED.*** Windows
+>   ties its digital licence to the hardware UUID, so a fresh one is new
+>   hardware and the guest deactivates. **This is the owner's correction and it
+>   is not negotiable against tidiness.**
+> - ***`keepallmacs` IS ALSO REQUIRED. REVERSED BY THE OWNER, 3 Sep 2026:*** *"the
+>   problem is that ms licensing notices the macs are different and wants
+>   reauthorization."* **Windows hashes the MAC into its hardware id too**, so
+>   keeping the UUID and letting VirtualBox generate a MAC still reads as new
+>   hardware and still deactivates. ***THE BULLET THIS REPLACES WAS NOT WRONG,
+>   IT WAS WEIGHED AGAINST THE WRONG COST*** — it said *"`keepallmacs` is NOT
+>   wanted here"* because `sdStandalone-C1` carried *"never run both at once"*
+>   (§70) and §427 valued the Test guests running concurrently. **Concurrency
+>   was being traded for tidiness; it is traded for ACTIVATION now, and
+>   activation wins, because an unactivated guest is not a rig.**
+>
+> ***SO THE CONCURRENCY COST IS A THING TO MANAGE, NOT AN ARGUMENT.*** Every
+> Windows guest is `nic1=bridged` on the Realtek adapter (measured 3 Sep 2026),
+> so guests sharing a MAC are on the real LAN and collide over ARP and DHCP:
+> ***RUN ONE SHARER AT A TIME.*** ***THE ESCAPE, IF RUNNING SEVERAL EVER MATTERS
+> MORE***: move a clone to `nic1=nat` — a duplicate MAC is harmless there
+> because each VM gets its own stack, and activation is unaffected because it
+> hashes the MAC whatever the adapter is attached to. The price is that a NAT
+> guest is not reachable from the LAN by address, so anything measuring *"another
+> computer on your network can connect to this one over ssh"* changes meaning.
+> **The three shared folders are unaffected — `\\vboxsvr` does not go over the
+> NIC.**
+>
+> ***THE ESCAPE WAS TAKEN. MEASURED 3 Sep 2026 ON THE REBUILT RIG: ALL SIX
+> GUESTS ARE `nic1="nat"` WITH NO `bridgeadapter1` AT ALL.*** So the paragraph
+> above is now describing the rig's actual state rather than an option, and both
+> halves are live: **guests may run concurrently**, and ***nothing on this rig
+> can measure LAN reachability until a guest is put back on bridged.*** That is
+> one setting per guest and it does not touch the MAC or the UUID, so it costs no
+> reactivation — but it re-imposes "one sharer at a time" on whichever guests get
+> it. **Decide it per measurement, not once for the rig.**
+>
+> ***MEASURED 3 Sep 2026, AND IT IS WHY THE OLD BULLET LOOKED SETTLED***: the
+> clones made under it — `SD ssh baseline`, `Clone A`, `Clone B`, `Test A`,
+> `Test B`, `Test C` — carry **six distinct MACs**, and those are exactly the
+> guests that keep demanding reactivation. The ones cloned since — `Template`,
+> `Template Clone`, `Template with ssh` — share `080027AECE7C` **and** the UUID.
+> **The hardware UUID has been identical on every guest all along**, so only the
+> MAC half was ever missing.
+>
+> ***THE GUI CAN DO BOTH AND BOTH ITS DEFAULTS ARE WRONG FOR THIS RIG.*** In the
+> Clone dialog: **MAC Address Policy → *"Include all network adapter MAC
+> addresses"*** (it defaults to NAT-only) and **Additional Options → tick *"Keep
+> Hardware UUIDs"*** (it defaults off). Full clone, not linked. ***A clone with
+> either one missed looks completely normal until Windows asks for reactivation,
+> which may be days later*** — so check it rather than remember it:
+>
+> ```
+> powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\vm-clone.ps1" -Audit
+> ```
+>
+> **Ordinary unelevated prompt; it reads and changes nothing.** It lists every
+> guest's UUID and MAC, groups them, and names the sharers. The same script
+> clones with both options and **reads both values back off the new VM**, because
+> `clonevm` can exit 0 having quietly given a new MAC. **VBoxManage is 7.2.14 and
+> its own usage prints `--options=`**, so use the `=` form:
+>
+> ```
+> "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" clonevm "<source>" --name "<new>" --options=keephwuuids,keepallmacs --register
+> ```
+>
+> | share | host | guest | mode |
+> |---|---|---|---|
+> | `sdout` | `C:\Users\dmont\sdout` | `Z:` | read-only — holds `sd-setup-W1.0-0.exe`, **2 Sep 14:18:50, 4,954,811 bytes** (measured 2 Sep; the cell read *29 Aug 22:04:17* until then) |
+> | `xfer` | `C:\Users\dmont\sdxfer` | `Y:` | read-write — results come back to the host as text |
+>
+> ***THE LETTERS IN THIS TABLE ARE STALE AND `Z:` IS NOT `sdout` — USE THE UNC
+> PATH. 2 Sep 2026.*** `Z:\sd-setup-W1.0-0.exe` fails with
+> `CommandNotFoundException`, which reads like a missing file and is not one.
+> **Measured on `Test 10`: the session was `elevated : False`, `VIRTUAL\don`,
+> and its filesystem drives are `C,D,P,X,Y,Z` — so `Z:` EXISTS and simply is
+> not the share holding the installer.** The likely cause is that the table
+> above dates from the **two**-share era and `Template` now maps **three**
+> (`sdout`, `xfer`, `gplbld`), so the auto-mounted letters shifted; **the
+> mapping is not re-derived here because `Get-PSDrive`'s `DisplayRoot` answers
+> it in one line on the guest and a written-down letter is what went stale in
+> the first place.**
+>
+> ***AN EARLIER VERSION OF THIS NOTE BLAMED UAC'S LINKED TOKEN AND THAT WAS
+> WRONG*** — a guess written as a mechanism, disproved by the probe in the same
+> exchange. Kept visible because the wrong explanation is more plausible than
+> the right one and the next session will reach for it too. **`\\vboxsvr\sdout\…`
+> and `\\vboxsvr\xfer\…` work regardless**, which is why every witness block
+> here is written that way and why none of them ever hit this.
+>
+> **And for an INSTALLER, copy it to the guest's local disk first rather than
+> running it off the share** — §427 records a *"Windows cannot access
+> `\\vboxsvr\sdout`"* Network Error on `Test 6` **found with an installer
+> already open**. `Copy-Item` then check `.Length` against the known size before
+> running it; a short copy is otherwise indistinguishable from the real thing
+> until it fails somewhere expensive.
+>
+> ***THE INSTALLER ALREADY CARRIES 39's FIX AND NEEDS NO CYCLE*** — built 22:04:17,
+> after `sd.iss` (18:52), `remove-sdaccounts.ps1` (18:48) and `stage.py` (18:51),
+> and nothing shipped has changed since. `remove-sdaccounts.ps1` parse-checks
+> clean, no BOM; its interface is `-Remove -Keep <user>`, report-only by default.
+> **`gplbld/capture-state.ps1` is the instrument** — run it `-Label before` and
+> `-Label after` in an ELEVATED **guest** PowerShell, reached over a share; it
+> distinguishes "not present" from "could not read" in every section, so an empty
+> list is never reported as nothing there.
+> ***TWO COUPLINGS TO KNOW BEFORE THE RUN***: both uninstall prompts sit behind
+> `if not DirExists(DataPath) then Exit` (`sd.iss:3521`), so the accounts question
+> only fires while `C:\ProgramData\SD` still exists; and `UninstallSilent` skips
+> both, which is why a cycle can never test this.
+>
+> ***NEW: 66, THE EDITORS ARE STILL DOWNLOADED AND UNPINNED.*** Owner, 30 Aug.
+> The decision to bundle was taken 26 Aug and nothing was built. **The sharp part
+> is that the editor documentation was measured against micro 2.0.15 and
+> Microsoft Edit v1.2.1 while `install-editors.ps1:137` passes no `--version`.**
+>
+> ***AND ONE THING WITHDRAWN RATHER THAN FILED.*** The owner reported that SD's
+> own verbs took only dots, not dashes. **They take both** — `CPROC:1465-1473`
+> tries the verb as entered, lower, upper, then upper- and lower-case with
+> hyphens changed to dots, added 18 Aug 2026. There are **zero** dash-named VOC
+> records, so the fold is the whole mechanism and it is not verb-specific. He
+> withdrew it as a typo; **no entry filed, and this note exists so nobody files
+> one later.**
+>
+> ### ⇩ 64 IS RULED, FIXED, RUN AND CLOSED — NO PRODUCT CHANGE. ⇩
+>
+> ***OWNER, 29 Aug 2026: "LEAVE ssh, API AND `os.execute` RIGHTS THE WAY THEY ARE
+> FOR THE ADMINISTRATOR'S PERSONAL ACCOUNT."*** So the `LOGTO` leak is intended
+> behaviour, said out loud, and entry 64's first branch is taken: **nothing in
+> `CREATEA`, `MODIFYA`, `LOGIN` or `CPROC` is touched.**
+>
+> ***HE GOT THERE BY SPECIFYING THE WHOLE MODEL AND THEN WITHDRAWING THE PARTS
+> THAT NEEDED CODE.*** Worth reading before re-opening any of it: os.execute on
+> the personal account, administrator commands by `LOGTO SDSYS`, elevated login
+> straight into SDSYS, no SDSYS over ssh or the API, ssh/API per account, and
+> the personal account defaulting to Developer. ***THREE OF THE SIX WERE ALREADY
+> BUILT*** — `CPROC:2570-2590` checks `K$OS.ADMINISTRATOR`, calls
+> `elevate('START')` for one UAC consent and sets `elev.obtained`, which is what
+> `logto.authorised` accepts; `LOGIN:568` sends an elevated session to SDSYS;
+> `kernel.c:240`'s `CN_SOCKET` guard keeps `K$ADMINISTRATOR` off every API
+> session. **The other three were withdrawn.** *(And "Developer" is `PROGRAMMER`
+> here — the tiers are STANDARD / PROGRAMMER / ADMINISTRATOR, with `SUSPENDED` a
+> fourth value in `ACC$TIER` that is a state, not a tier.)*
+>
+> ***MEASURED FROM THE LIVE `b69` INSTALL WHILE RULING, NOT INFERRED***:
+> `accounts\DON` field 5 = `ADMINISTRATOR` (`CREATEA:1583` forces it on adopt),
+> `os.users\don` = `yes`/`yes`, and `don` is in `sdssh`, `sdapi`, `sdusers`,
+> `Administrators`, NOT `sdsshonly`. **ssh is held twice over** —
+> `sshd_config:88` names `Administrators` separately, so `sdssh` cannot remove
+> it (`MODIFYA:557`). **None of the three is removable, and `os-on` cannot be
+> self-granted either**: `MODIFYA:583`/`:719` key on the Windows group by SID,
+> not the SD tier, and `:719` sits before the `os.users` open.
+>
+> ***THE FIX IS `verify-apiadmin.ps1:602`, AND IT IS RUN AND GREEN.*** A
+> different claim with a different name, not an inverted boolean, which entry 64
+> forbids: **the POSITIVE CONTROL** — *"the probe CAN see OS.EXECUTE run (local,
+> listed administrator)"*, expecting `$true`. It does the job the API row was
+> missing, since a refusal is only evidence if the probe could have seen a
+> success, and while both legs were refused no run ever demonstrated that it
+> could.
+>
+> ***MEASURED ON `-Prefix sdapiaz1`, ELEVATED, NO CYCLE SPENT*** — the product is
+> unchanged and `assert-current.ps1:550` exempts the file. **22 PASS / 0 FAIL /
+> 1 SKIP**, every Expected matching Observed, the new row `True`/`True`. **The
+> rows either side still hold, which is what makes it mean anything**: *"API
+> session was refused OS.EXECUTE by name"* `True`, *"API session CANNOT run
+> OS.EXECUTE"* `False`/`False`. The SKIP is the standing `n/a` on *"API session
+> is NOT running as SYSTEM"*, unanswerable once OS.EXECUTE was refused.
+> `test-fixlist-units` **206 / 0**, **open count 17 → 16**.
+>
+> ***THE RUN LEFT NOTHING BEHIND, CHECKED***: `sdapiaz1` gone from
+> `Get-LocalUser` and from `sdsys\accounts`, and **`os.users` gained no record**.
+> **That narrows 65** — the orphans come from the ADMINISTRATOR-tier verifiers
+> (`sdrtb69a`, `sdtapib693`, `sdtiertb693`), not from every verifier, so start
+> there. `sdapiaz1` is spent; it deliberately avoided `sdapiab70`, which a later
+> `VerifyInstall2 -Run b70` will take.
+>
+> ### ⇩ HANDOFF, 29 Aug 2026. CYCLED AND RUN. ONE REAL FAILURE, AND IT IS THE PRODUCT. ⇩
+>
+> ***INSTALL 29 Aug 22:04:34, `assert-current` EXIT 0 LIVE, `test-fixlist-units`
+> 205 / 0, `check-stale-leads` EXIT 0, OPEN COUNT 17. EVERYTHING IS COMMITTED AND
+> PUSHED, AND `git status` WAS CHECKED AS WELL AS `git log`*** — that pair is the
+> gap this session opened with.
+>
+> ***`-Run b69` IS NOT GREEN, AND THAT IS THE FINDING RATHER THAN A FAULT TO
+> CHASE.*** `VerifyInstall1` every step exit 0; **`VerifyInstall2`: 1 of 20 steps
+> did not exit 0** — `verify-apiadmin` at **21/23**. Across 22 transcripts, **654
+> `[PASS]` and 2 `[FAIL]`** (the same row, twice: its own log and the runner's).
+>
+> ***THE FAILING ROW IS THE `LOGTO` LEAK THE OWNER ACCEPTED, NOW MEASURED —
+> FILED AS 64, WHICH IS THE FIRST THING TO READ.*** *"control: local elevated
+> session refused OS.EXECUTE"*, **expected refused, observed it RAN**; it read
+> `False`/`False` on `b67` and `b68`. **It is the product doing what it was ruled
+> to do, and an existing security control saying so.** ***DO NOT JUST FLIP THE
+> EXPECTED VALUE*** — that encodes the leak as intended without anybody saying it
+> was.
+>
+> ***AND 65: `os.users` NOW ACCUMULATES ORPHANS.*** After `b69` it holds
+> `SDRTB69A`, `SDTAPIB693` and `SDTIERTB693` beside `don`, and **all three
+> Windows accounts are gone** — checked, not assumed. One or more per suite run.
+>
+> **`b54`–`b69` are spent; use `b70`.**
+>
+> ***ENTRY 2, ON THE OWNER'S RULING: `os.sh` / `os.exec` ARE RESTORED TO THE
+> ADMINISTRATOR ARM*** (`CREATEA:1613`), where `7aee48d` removed them for a
+> model reversed four hours later. ***THE `LOGTO` LEAK IS AN ACCEPTED COST, NOT
+> AN OVERSIGHT*** — he was shown it and the session-flag alternative and chose
+> this. **The paragraph explaining why the lines were dangerous still sits
+> directly beneath them and every word of it is still true; it is simply no
+> longer decisive. Do not "fix" it back without a ruling.**
+>
+> ### ⇩ WHAT TO PICK UP, IN ORDER ⇩
+>
+> | | |
+> |---|---|
+> | **1** | ***65 — read `DELACC` first, and start at the ADMINISTRATOR-TIER verifiers.*** `verify-apiadmin` on `sdapiaz1` left NO `os.users` record, so it is `sdrt`/`sdtapi`/`sdtiert` that leak, not every verifier. Entry 2's original text says `DELETE.ACCOUNT` removes the record *"where SD is deleting the Windows login itself"*, which is exactly what these verifiers do, so either that path is not firing or its condition is narrower than the text claims. **`gplbld` and BASIC only — no cycle needed to find out, one to fix it.** |
+> | **2** | ***72 — a half-created account is in no group, so nothing confines it and no sweep can find it.*** Measured 30 Aug; it is what 39's run turned up and it is a **B**. `CREATEA` makes the Windows user, sets the password, THEN joins the groups, so 68's failure leaves an account SD has disowned. |
+> | **3** | **39 is CLOSED** — the interactive uninstall ran on `Windows 11 - Test`, `removed 2 of 2, kept 1`, `sshd_config`'s SD block gone. **Two legs stayed unexercised and are named in the row, not ticked**: the last-administrator refusal and the keep-the-database branch. |
+>
+> ***THAT DECISION WAS TAKEN 29 Aug 2026 — SEE THE 64 SECTION ABOVE. NOTHING IS
+> NOW WAITING ON THE OWNER.***
+>
+> ***READING THE TRANSCRIPTS HAS A TRAP THAT COST A FALSE CLEAN THIS SESSION.***
+> The per-step logs under `%LOCALAPPDATA%\SD-verify` are **UTF-16**, so a plain
+> `grep -a '\[PASS\]'` matches **nothing** and reports `PASS=0 FAIL=0` — which
+> reads as a green run and is a dead instrument. **Strip the NULs first**
+> (`tr -d '\000' < log | grep …`) **and check the PASS count is non-zero before
+> believing the FAIL count.** On `b69` that is the difference between "654 and 2"
+> and "clean".
+>
+> ### ⇩ `b68` WAS GREEN AND 62 IS CLOSED. ⇩
+>
+> ***`-Run b68`: `VerifyInstall1` every step exit 0, `VerifyInstall2` 20 OF 20***
+> — the new step joined that half — **655 `[PASS]`, zero `[FAIL]` across 22
+> transcripts. `b54`–`b68` are spent; use `b69`.**
+>
+> ***62 IS MEASURED AND THE `B?` RESOLVES TO "NOT A B".*** `verify-sdsysgate`
+> **10 decisive checks, 0 failed**: a real non-administrator landed in its own
+> account over ssh and its `LOGTO SDSYS` was ***refused BY IDENTITY —
+> `reason=not an administrator`*** in the audit, with **both disqualifiers
+> absent** (no `reason=elevation refused or unavailable`, so `elevate('START')`
+> was never reached; no `ELEVATION GRANTED account=SDSYS`). **The verifier stays
+> a standing suite step, so the property cannot silently regress.**
+>
+> ### ⇩ CYCLED, SUITED AND VERIFIED — 63 IS CLOSED TOO. ⇩
+>
+> ***INSTALL 29 Aug 20:31:49, `sd.exe` `4732ECF659E8DB40`, `assert-current`
+> EXIT 0 LIVE*** — *"no source file is newer than the install"*. The twelve
+> `voc_template` records of PRE_RELEASE 63 are in it.
+>
+> ***`-Run b67` IS GREEN IN BOTH HALVES***: `VerifyInstall1` every step exit 0,
+> `VerifyInstall2` **19 of 19**, **655 `[PASS]` and zero `[FAIL]`** across 21
+> transcripts. **`b54`–`b67` are spent; use `b68`.**
+>
+> ***AND 63 IS VERIFIED BY THE ONLY THING THAT COULD*** — an elevated `listf` in
+> SDSYS. All sixteen files now carry a description, **zero bare type codes left
+> in the column**, and ***`$MAP` still reads `DH`***, which is the control: it is
+> the row that started 61 and it was never broken.
+>
+> ***READING THOSE TRANSCRIPTS HAS A TRAP AND IT COST A FALSE ZERO HERE.***
+> The per-step logs under `%LOCALAPPDATA%\SD-verify` are **UTF-16**, so a plain
+> `grep -a '\[PASS\]'` matches **nothing** and reports `PASS=0 FAIL=0` — which
+> reads as a clean run and is a broken instrument. **Strip the NULs first**
+> (`tr -d '\000' < log | grep …`) **and check the PASS count is non-zero as a
+> control before believing the FAIL count.**
+>
+> ### ⇩ WHAT THIS SESSION DID, IN ORDER ⇩
+>
+> | | |
+> |---|---|
+> | **step 1** | measured the elevation discriminator — `IsAdmin()` is TRUE unelevated, `IsElevated()` is not, and `K$ADMINISTRATOR`'s process-start seed already answers it. **No new kernel key was needed** |
+> | **step 2** | 56 clause 2 (`LOGIN:414` gate, `LOGIN:568` branch) and 57's promotion report, built and cycled |
+> | **`b65`** | 12 of 13 — `verify-batchjob`'s elevated row failing, diagnosed as the verifier, not the product |
+> | **the ruling** | `verify-batchjob` re-aimed at SDSYS |
+> | **`b66`** | ***13 of 13 and 19 of 19, green in both halves. PRE_RELEASE 59 CLOSED*** |
+> | **rename** | the docs directory is `SDCoreWindowsDocs`; eight live references updated, two of them warnings that had **inverted** |
+> | **PRE_RELEASE 11** | ***the silent transaction data loss is FIXED and has a standing verifier*** |
+> | **PRE_RELEASE 39** | the uninstaller's account prompt, **built; its `-Remove` path is UNRUN** |
+>
+> ### ⇩ THE TWO BLOCKERS LEFT — 39 AND 64 — AND WHAT EACH IS WAITING ON ⇩
+>
+> ***2 CLOSED ON `-Run b69` AND IS OFF THIS LIST; 64 TOOK ITS PLACE.*** The row
+> below is kept for the trace, which is the reusable part. **64 is new and is
+> the one that wants a ruling.**
+>
+> ***62 CLOSED ON `-Run b68` AND IS OFF THIS LIST*** — measured, not reasoned:
+> `verify-sdsysgate` 10 of 10, refused by identity, both disqualifiers absent.
+> **Its row below is kept for the design note, which is the reusable part.**
+>
+> ***56, 57, 58 AND 61 ALL CLOSED ON 29 Aug 2026 AND ARE OFF THIS LIST.*** 56's
+> model is built, cycled and proved by `-Run b66`; 57 likewise, its "installed
+> and unrun" having been a testing gap rather than outstanding work; 58's
+> `Administrator` set is written; **61 was not a defect at all** — see below.
+> **56's one remainder was re-filed as 62 rather than dropped.**
+>
+> | | waiting on |
+> |---|---|
+> | **2** | ***MEASURED AND LIVE: AN UNELEVATED ADMINISTRATOR HAS NO `sh`, NO `!` AND NO `OS.EXECUTE`. IT WANTS THE OWNER'S RULING, NOT A GUESS.*** The evidence is in **`b68`'s own transcript** — `[PASS] unlisted: refused with message 10053`, `expected don, got don`, `[PASS] unlisted: OS.EXECUTE from a program is refused`. **`verify-osusers` scores those green because it tests the GATE, not the POLICY.** `os.users` holds **0 records**. ***THE CAUSE IS A CHANGE MADE FOR A MODEL WITHDRAWN FOUR HOURS LATER***: `7aee48d` (10:16) removed the ADMINISTRATOR default *"because 56 elevates an administrator at login into SDSYS"*, and `af5490e` (14:58) reversed exactly that. **The 26/27 Aug instruction — *"os.execute, ssh and api by default without escalating"* — is unmet, and "without escalating" is the case that broke.** ***DO NOT JUST PUT THE TWO LINES BACK***: `os.users` is keyed on the person and survives a `LOGTO` (`op_sh.c:167`), which 56 forbids — whereas `CPROC:2781` already clears the session flag on any `LOGTO` away from SDSYS, so flag-carried access is account-scoped for free. ***AND THE NAIVE FLAG FIX IS A TRAP***: `LOGIN:568` gates the SDSYS branch on that same flag, so setting it at login would send an unelevated administrator back to SDSYS and undo the reversal. **A fix must land after that branch decides.** *(Was: a re-read before any work, because its stated premise is gone.* It was re-opened as downstream of 56 and says *"56 abolishes the administrator account this attached to"* — **clause 2's reversal gave that account back.** Left open rather than quietly closed: whether its `os.users` half still matters under the model that actually shipped **has not been measured**. It is a `B`, so it belongs in this table and was missed out of it once — **now measured, and the answer is above.**)* |
+> | **39** | ***a real interactive uninstall on task 7.2's guest.*** Nothing has been deleted by it, the last-administrator refusal is unprovokable here, and the prompt cannot be reached from a cycle at all — see the box below. **Do not tick it until it has run** |
+> | **62** | ***THE VERIFIER IS BUILT AND WIRED AND HAS NEVER RUN — `gplbld/verify-sdsysgate.ps1`, step in `VerifyInstall2`, and it closes on `b68`.*** ***sysmsg 10002 IS NOT A USABLE ANCHOR AND THAT IS THE WHOLE DESIGN***: `CPROC` prints it on **both** refusal paths (`:2637` identity, `:2651` failed elevation), and the account is reached over ssh, which has no desktop, so `elevate('START')` would fail there anyway — **a 10002 check would pass with the gate deleted.** The audit **reason** is the only discriminator, so the step is **elevated**: the trail is locked to SYSTEM and Administrators (measured — an unelevated read is *"Permission denied"*). Ten decisive checks, a null case, a reader control and two disqualifiers. **Verified only as far as unelevated allows** — parse 0 errors / 2 functions, BOM 0, CR 0, both guards run and return exit 2 against a control reading 0, `assert-current` **exit 0 live** with it on `$neverShipped`. *(Was: a verifier, not a code change — the hole is closed and nothing tests it.* Both routes now test the person before anything prompts: `LOGIN:568` needs an already-elevated session AND an administrator, and `CPROC:2634` refuses with 10002 **before** `elevate('START')`. **Traced by source only**: `10002`, `not an administrator` and `LOGTO REFUSED` get **zero hits across every `gplbld/verify-*.ps1`**. PRE_RELEASE 59's `sdtestuser` machinery already builds the account it needs — now built as above.)* |
+>
+> ***61 CLOSED AS NOT A DEFECT, AND THE PREMISE WAS INVERTED.*** `listf` shows
+> `$MAP` as **`DH`**, not `Err 30`. The three files do three different jobs and
+> the entry compared two of them as if they did one: **`voc_template` field 1 is
+> a type code** and becomes SDSYS's VOC, **`newvoc` field 1 is a description
+> whose FIRST CHARACTER is the type code** — `CREATEA:1233` replaces the field
+> with `rec[1,1]` (two characters for a `P` type), so the description does not
+> reach an account's VOC but **its first letter is load-bearing** — and
+> **`listf`'s Description column is a lookup into `newvoc`** (`voc.dic`:
+> `IF @ = '' THEN F1 ELSE @`). The control that settled it: neither description
+> string appears anywhere in SDSYS's VOC file, while `listf` displayed both.
+> ***THE UPSTREAM REPORT CARRIED THE SAME FALSE CLAIM AND WAS ONE STEP FROM
+> BEING SENT*** — withdrawn in UPSTREAM_FIXES.md. **The one real wart it exposed
+> is filed as 63, `M`**: ten of SDSYS's sixteen files print a bare `F` where a
+> description belongs, because they have no `newvoc` record to look up.
+> **58 no longer blocks 34 and 55, but they still collide — do them together.**
+>
+> ***NOTHING NEEDS A DECISION FROM THE OWNER TO PROCEED.*** 61's was the one
+> exception and it is closed; **39's is not a decision but a rig**, and 2 and 62
+> both want a measurement that nobody has to rule on first.
+>
+> # ⇩ 39 IS BUILT BUT ITS `-Remove` PATH IS UNRUN — IT WANTS THE VirtualBox RIG. ⇩
+>
+> ***THE UNINSTALLER NOW OFFERS TO TAKE THE WINDOWS ACCOUNTS SD CREATED***, as
+> a second prompt after the database one, both defaulting to keep. New shipped
+> script `gplbld/remove-sdaccounts.ps1`, and the closing disclosure names the
+> accounts at last. **Install 29 Aug 18:5x, `assert-current` exit 0 live.**
+>
+> ***"THE INSTALLING PERSON" RESOLVES TO `{username}` AT UNINSTALL TIME*** — the
+> entry told the next session to settle that first, so: the installer's identity
+> is **not** persisted, deliberately. An uninstall may happen years later under a
+> different administrator, and an exclusion naming a deleted account protects
+> nobody. **The owner's purpose clause is the real requirement** and is
+> implemented as a property that is checked: the sweep **refuses outright** if it
+> would remove the last local administrator, and that **overrides a Yes**.
+>
+> ***READ THIS BEFORE TICKING 39: THE `-Remove` PATH HAS NEVER RUN.*** Only the
+> read-only half is measured — the candidate set, the `-Keep` exclusion, all
+> three refusals, the gate ordering (every refusal precedes every write), and the
+> `cmd /c` log redirection. **Nothing has been deleted.**
+>
+> ***AND THE PROMPT CANNOT BE REACHED FROM A CYCLE AT ALL, FOR TWO REASONS.***
+> `cycle.ps1` uninstalls `/VERYSILENT`, so `UninstallSilent` short-circuits
+> before it; and `cycle.ps1:486` records the harder one — ***"an uninstaller fix
+> cannot be verified in the cycle that ships it"***, because `unins000.exe` is
+> generated at INSTALL time. This change reaches an uninstaller only at the
+> **next** install. **So it wants task 7.2's guest, not this machine** — a real
+> uninstall that deletes accounts should not be exercised where the accounts
+> matter.
+>
+> # ⇩ PRE_RELEASE 11 IS FIXED — THE SILENT TRANSACTION DATA LOSS. CYCLED AND MEASURED. ⇩
+>
+> ***THE WORST THING ON THE LIST IS GONE.*** A nested `commit` used to abandon
+> the outer transaction: its writes were lost with **no error, no warning and
+> nothing in the log**, while the inner ones landed. `op_txncmt()` undid neither
+> half of what `op_txnbgn()` did, and `BCOMP`'s `st.commit` jumps past the
+> `OP.TXNEND` that would have called `rollback()`.
+>
+> ***THE FIX IS ONE FUNCTION WITH TWO CALLERS.*** `end_txn_level()` is lifted out
+> of `rollback()` and called from `op_txncmt()` too — **the defect was that this
+> bookkeeping lived in one place with one caller**, so a second copy would have
+> been the same thing waiting to happen again. It is called **before**
+> `exit_op_txncmt:`, so the three `k_error()` paths do not pop a level they did
+> not commit.
+>
+> ***MEASURED ON THE 18:36:04 INSTALL, `sd.exe` `4732ECF659E8DB40`.***
+> `gplbld/verify-txn.ps1` — **NEW** — reports **9 of 9**:
+>
+> | | before | after |
+> |---|---|---|
+> | the outer record's write | `base` — **lost** | **`outer`** |
+> | `SYSTEM(1008)` delta over the pair | **+2** | **0** |
+> | `SYSTEM(1007)` after the inner commit | **0** — no transaction | parent reinstated |
+>
+> ***IT IS WIRED INTO `VerifyInstall1` AND WAS MEASURED BEFORE BEING WIRED IN***,
+> which is the rule `verify-lineendings` records. **The unelevated half is 14
+> steps now, not 13** — expect **14 of 14**. It needs no elevation, no `-Run`
+> token and raises no UAC prompt, and it **refuses an elevated shell**, because
+> an elevated session lands in SDSYS where its probe is not.
+>
+> ***ONE ROW FAILED ON ITS FIRST RUN AND THE PRODUCT WAS RIGHT.*** `NEST.LEVEL`
+> expected 1 and read 2: the baseline `l0` is taken **outside** the outer
+> transaction, so inside the inner one the depth is two above it. **The
+> instrument was wrong, not `txn.c`** — corrected in the row rather than by
+> moving the baseline, since `NEST.DELTA` needs the same outside-the-pair
+> baseline and one of them is one thing to get wrong instead of two.
+>
+> ***AND ONE THING IS FILED RATHER THAN FIXED — see 11's entry.*** On the three
+> `k_error()` commit-failure paths, `process.txn_id` has already been zeroed, so
+> `txn_abort()` and `op_txnrbk()` find nothing to roll back and the level stays
+> counted. **Pre-existing, not widened by this**, and it needs a decision about
+> the records already written rather than a decrement.
+>
+> ***A CYCLE WAS SPENT: install 29 Aug 18:36:04, `assert-current` exit 0 live.***
+> `make sd` ran first (`cycle.ps1` does not build): `txn.o` recompiled, exit 0,
+> no warnings. **The next suite run is `b67`.**
+>
+> # ⇩ GREEN IN BOTH HALVES. PRE_RELEASE 59 IS CLOSED. NOTHING IS OWED. ⇩
+>
+> ***`-Run b66`, 29 Aug 2026 17:54–18:12 — UNELEVATED 13 OF 13, ELEVATED 19 OF
+> 19, 1,106 `[PASS]`, ZERO `[FAIL]`, ZERO TABLE ROWS SCORING FAIL.*** The first
+> run to come back green in both halves.
+>
+> ***THE RE-AIMED ROW MEASURED, IT DID NOT MERELY PASS.*** `verify-batchjob`
+> exit 0 with `ELEVATED in SDSYS, no entry: still runs` **True / True / PASS /
+> decisive yes**, and **neither `SDSYS-ENTRY-PRESENT` nor `SDSYS-PLANT-FAILED`
+> appears anywhere in the transcript** — which matters, because both of those
+> also produce exit 0 while measuring nothing. **Check the row and the markers,
+> not the exit code.**
+>
+> ***SDSYS IS CLEAN AFTERWARDS, CHECKED WITH A CONTROL.*** No `ZZBATCHS` in
+> `sdsys\bp` or `bp.out`, `batch.jobs` empty, and `zzbatch` **0 hits** in the VOC
+> buckets — against a control finding `listf` 6, `count` 18, `who` 15 in the same
+> search. ***THE FIRST ATTEMPT AT THAT CHECK WAS WORTHLESS AND SAID SO***: a
+> plain `grep` of the dynamic file's `%0`/`%1` buckets found the probe absent
+> **and the control absent too**, so it was measuring nothing. `grep -a -F` is
+> what reads them.
+>
+> ***PRE_RELEASE 59 IS CLOSED*** — all five verifiers pass. Two were converted to
+> a real non-administrator account, **two needed no change at all** (`lcnames`
+> back to 142 of 142, `osusers` 44/0 — both recovered the moment clause 2 was
+> reversed), and `batchjob` was re-aimed. **Open count 22 → 21.**
+>
+> ***USE `b67`; b54–b66 ARE SPENT.*** There is nothing owed and nothing to
+> re-run: spend it on a run that carries something new.
+>
+> *(The box below is the pre-`b66` text, kept for the reasoning that produced
+> the re-aim.)*
+>
+> # ⇩ STEP 2 IS BUILT, CYCLED AND MEASURED. ONE FAILURE, AND IT IS A VERIFIER. ⇩
+>
+> ***`-Run b65`, 29 Aug 2026 16:35–16:54 — UNELEVATED 12 OF 13, ELEVATED 19 OF
+> 19, 1,106 `[PASS]` AND ZERO `[FAIL]` IN EVERY LOG.*** The prediction below was
+> two-thirds right and the miss is the informative part.
+>
+> | predicted to recover | result |
+> |---|---|
+> | `verify-lcnames` | ***142 of 142*** (was 107 of 128 on `b60`) |
+> | `verify-osusers` | **44 / 0** |
+> | `verify-batchjob` | ***STILL FAILS — exit 1, 9 of 10 rows*** |
+>
+> ***THE ONE FAILING ROW IS `ELEVATED with no entry: still runs`, expected True
+> and observed False — AND ITS SUBJECT NO LONGER EXISTS.*** That is more than
+> the *"check that leg"* warning already on file. `verify-batchjob.ps1:111`
+> `Push-Location`s into the account directory and runs `sd` **elevated**,
+> expecting to stand in the account with the batch gate bypassed. Under the
+> ruled model **an elevated session cannot stand in an ordinary account at
+> all**: an elevated login goes to SDSYS (`LOGIN:568`), and a `logto` out of
+> SDSYS gives up the flag (`CPROC:2781`). So the state that row measures is
+> unreachable, not merely mis-measured.
+>
+> ***THE PRODUCT RULE IT WAS PROTECTING IS INTACT.*** `LOGIN:901` still bypasses
+> the batch gate on `K$ADMINISTRATOR`, so *"elevation passes on its own"* (the
+> owner's 22 Aug decision) holds — **in SDSYS**, which is now the only place an
+> elevated session can be.
+>
+> ***RULED 29 Aug 2026 — "re-aim the batchjob row at sdsys". BUILT AND UNRUN; IT
+> NEEDS `b66`.*** The elevated child now asserts that `batch.jobs/SDSYS` is
+> absent (**refusing out loud rather than deleting a record it did not write**),
+> plants the same `COUNT VOC` paragraph in **SDSYS's own VOC** as `zzbatchsyspa`,
+> runs it, and cleans up **unconditionally** with `DELETE VOC` plus the BP source
+> and object. ***THE ACCOUNT PROBES COULD NOT BE REUSED*** — they are in the
+> ACCOUNT's VOC and an elevated session never sees them, which is the whole
+> reason the row had to move. **A broken precondition is recorded NON-DECISIVE,
+> not as a FAIL**, so it cannot make a claim about the product that the run did
+> not make. **This is PRE_RELEASE 59's last of four; no cycle is owed** —
+> `verify-batchjob.ps1` is on `$neverShipped`, `assert-current` is exit 0 live,
+> and the script parses with **0 errors and all 8 functions found**.
+>
+> ***USE `b66`. b54–b65 ARE SPENT.*** `b64` bought nothing — an interrupted
+> parent stranded `sdtub64`, and `b65`'s sweep removed it exactly as read from
+> `sdtestuser-admin.ps1:201-213` (`DELETE.ACCOUNT`, both halves gone, checked
+> after). `sdtub65` went in the `finally`.
+>
+> ***COUNT `[FAIL]` WITH THE BRACKETS.*** A bare `FAIL` also matches
+> `verify-fold`'s negative control — *"expected FAIL, observed FAIL, result
+> PASS"* — which is a check working correctly, and scoring it as a failure is
+> §"anchor on the SUCCESS wording" from the other side. It cost one wrong count
+> here before the self-report line was read.
+>
+> ***FULL CYCLE 29 Aug 2026 15:33:45, `assert-current` EXIT 0 LIVE.*** 184
+> programs compiled, **0 errors and 0 of the fatal "is not assigned a value"
+> class**; `gpl.bp.out` 186 and `gcat` 127, both unchanged, so nothing was
+> added or lost. Verified by reading the installed tree, not the run's output:
+> `LOGIN` and `MODIFYA` objects recompiled 15:33:14, messages **10128** and
+> **10129** installed at 424 and 308 bytes, and the mirrored file count moved
+> 2982 → **2984**, which is exactly the two new messages.
+>
+> ***NOTHING IS IN FLIGHT AND NOTHING IS HALF-BUILT. THE ONE THING OWED IS A
+> RUN.*** Step 2 is built, cycled, installed and measured; the `verify-batchjob`
+> row is ruled and re-aimed at SDSYS, and it has never been executed.
+>
+> ***RUN AND GREEN ON `b66` — see the box at the top.*** The prediction held:
+> unelevated 13 of 13, and the re-aimed row passed **decisive**, with neither
+> `SDSYS-ENTRY-PRESENT` nor `SDSYS-PLANT-FAILED` firing. **The command form is
+> kept here because it is the one to reuse, with a fresh token:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b67 -ContinueOnFailure
+> ```
+>
+> **ORDINARY, UNELEVATED PowerShell — not elevated** (§4.0.1).
+>
+> ***AND DO NOT Ctrl-C IT — `b64` IS WHAT THAT COSTS.*** 29 Aug 15:45:56:
+> `Create` succeeded in full and **the parent transcript then stopped dead**
+> after *"EXPECT A UAC PROMPT NOW"* — no error, no `finally`, 881 bytes. The
+> interrupt does not reach the removal, so `sdtub64` was left live and enabled
+> and the two reruns correctly refused on it. **If a UAC prompt is missed, let
+> the step fail**; the removal still runs on that path.
+>
+> ***TWO OLDER STRAYS ARE IN `sdusers` AND THE SWEEP WILL NOT TAKE THEM***, by
+> design — `sdsshb55` (the `b55` run named in H.1) and `b48adm` do not match
+> `sdtu*`. Not urgent; noted so the next reader does not rediscover them.
+>
+> ***AND THERE IS A PREDICTION TO CHECK IT AGAINST — READ THIS BEFORE SCORING
+> THE RUN.*** PRE_RELEASE 59's five unelevated failures were all one cause:
+> *"every one assumes an administrator lands in an ordinary account, which
+> clause 2 abolishes."* **Clause 2 is now reversed, so that assumption is true
+> again**, and `verify-lcnames`, `verify-osusers` and `verify-batchjob` — the
+> three still unconverted — are expected to come back. `verify-nocase` and
+> `verify-lineendings` were converted to a real non-administrator account and
+> are unaffected either way, which is the better shape and stays. ***IF THE
+> THREE DO NOT RECOVER, THAT IS THE FINDING***, and 59 needs re-reading rather
+> than the verifiers patching.
+>
+> ***THE OTHER THING THE RUN DECIDES IS WHETHER `don` CAN STILL GET IN AT
+> ALL.*** The `sdusers` gate lost its administrator exemption, so an
+> administrator with no SD account is now refused with 5009 — deliberately, it
+> is the owner's *"if any are built outside of sd they do not have access"*.
+> `don` was in `sdusers` and had an account before the cycle, and `adopt` runs
+> unconditionally in `sd.iss`, so this should be invisible. **It was not driven
+> by hand from here on purpose**: an unelevated `sd` piped by an agent is
+> CLAUDE.md's opening trap, and a hung `sd.exe` strands the user-table slot and
+> makes the next `cycle.ps1` refuse.
+>
+> ***THE RECOVERY DOOR WAS CHECKED AND IS OPEN.*** `adopt-account.ps1` goes in
+> through `sd -internal`, which is still exempt from the gate by design, so a
+> failed adopt is a setback and not a lockout. `sd.iss`'s failure branch no
+> longer names a specific refusal, because which one you get now depends on how
+> far adopt got.
+>
+> ***STEP 1 — MEASURED 29 Aug 2026, AND THE ANSWER IS "NO NEW KERNEL KEY".***
+> `gplbld/probe-osadmin.ps1`, run twice from the same account, one leg
+> unelevated and one elevated:
+>
+> | | unelevated | elevated |
+> |---|---|---|
+> | `WindowsPrincipal.IsInRole` (Win32 control) | False | True |
+> | `getgrouplist()` holds 544 → **`IsAdmin()`** | **TRUE** | **TRUE** |
+> | `getgroups()` holds 544 → **`IsElevated()`** | **FALSE** | **TRUE** |
+> | `K$OS.ADMINISTRATOR` (`op_kernel.c:456`) | TRUE | TRUE |
+> | `K$ADMINISTRATOR` **as seeded** (`kernel.c:240`) | **FALSE** | **TRUE** |
+>
+> ***THE CAUTION WAS RIGHT — `IsAdmin()` IS TRUE UNELEVATED***, so
+> `K$OS.ADMINISTRATOR` cannot carry 56 clause 2's `:513` branch on its own.
+> **`IsElevated()` is the discriminator and SD already exposes it**: read
+> `kernel(K$ADMINISTRATOR,-1)` **at `LOGIN`'s `begin case` (`:420`)** and it
+> still holds the `kernel.c:240` seed, which is exactly *"is this session
+> already elevated"*. Both instruments agreed in both legs.
+>
+> ***THE SEED SURVIVES TO `:420` — BY EXHAUSTIVE GREP, NOT BY ASSUMPTION.***
+> Three live writers of the flag exist in the BASIC layer: `LOGIN:615` and
+> `CPROC:2769`/`:2781`, and both `CPROC` sites are in the `LOGTO` path, which
+> cannot run before `LOGIN`. `APISRVR:1204`/`:1206` are commented out.
+>
+> ***DO NOT WRITE THE OBVIOUS BASIC PROBE — IT REPORTS THE OPPOSITE.***
+> `LOGIN:615` sets the flag for anybody who reached SDSYS, which today is every
+> administrator elevated or not (`:513`), so a program run from an SD prompt
+> reads 1 in **both** legs and would be written up as *"no discriminator
+> exists"*. That is why the instrument asks `getgroups()`/`getgrouplist()`
+> directly, through the MSYS2 runtime `sd.exe` is built against.
+>
+> **To re-run it — the two legs are the measurement, one alone says nothing:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\probe-osadmin.ps1
+> ```
+>
+> **once in an ORDINARY, UNELEVATED PowerShell and once in an ELEVATED one.**
+> It needs no install, no SD, no account and no `-Run` token, and it refuses out
+> loud if the account it runs as is not an administrator — that null case prints
+> `IsAdmin() = FALSE`, which is word for word the answer step 1 hoped to see.
+>
+> ***STEP 2 — BUILT AND CYCLED 29 Aug 2026. THREE CHANGES, ONE CYCLE.***
+>
+> 1. **`LOGIN:414`, the `sdusers` gate** — the administrator exemption is gone
+>    and the gate is uniform across all three tiers. It reads
+>    `if not(kernel(K$INTERNAL,-1)) then`; `-INTERNAL` stays exempt, which is
+>    the bootstrap and the `adopt` recovery.
+> 2. **`LOGIN:568`, the SDSYS case** — now
+>    `case kernel(K$ADMINISTRATOR, -1) and kernel(K$OS.ADMINISTRATOR, 0)`.
+>    ***THE FIRST IS THE PROCESS-START SEED AND IS THE WHOLE MECHANISM***; the
+>    second is belt to its braces, closing the case where a token carries
+>    Administrators for an account that is not a member. **Do not "simplify" it
+>    back to one key** — `K$OS.ADMINISTRATOR` alone is TRUE for an unelevated
+>    administrator, which is the case that must not come here. An unelevated
+>    administrator falls through to `case 1` and lands in their own account.
+> 3. **`MODIFYA`, 57's promotion report** — `promo.snapshot` before the register
+>    write and `promo.report` after it, so *"what did this command void"* is a
+>    genuine before-and-after reading of `tier_allows` rather than rank
+>    arithmetic copied out of `TIERGATE`. A demotion strands nobody and prints
+>    nothing; an unreadable group says so rather than reporting a comfortable
+>    zero. Messages **10128** and **10129**.
+>
+> ***DO NOT DO: the 20-file `adopt-account` removal.*** It is CANCELLED — see
+> below. And **do not build "two tiers"**; that ruling was withdrawn.
+>
+> ***THE SUITE IS AT `b64`*** (`b54`–`b63` spent). Two of PRE_RELEASE 59's four
+> verifiers are converted and green; `verify-lcnames` and `verify-batchjob`
+> are **not mechanical** — read 59 before starting either.
+>
+> # ⇩ 56 CLAUSE 2 IS REVERSED: THE ADMINISTRATOR'S PERSONAL ACCOUNT COMES BACK ⇩
+>
+> ***OWNER'S RULING, 29 Aug 2026 — AND IT CANCELS QUEUED WORK. READ THIS
+> BEFORE TOUCHING `LOGIN` OR `sd.iss`.*** *"that is precisely why
+> administrators also had a personal account. They got SDSYS in one of two
+> ways, by starting SD in an elevated session or by logging to SD after logging
+> into their personal account."* And the property applies to every tier: *"if
+> any are built outside of sd they do not have access to sd until a matching
+> standard or programmer account is created in SD."*
+>
+> ***IT ALREADY HOLDS FOR STANDARD AND PROGRAMMER, AND THE CODE SAYS WHY IT
+> DOES NOT FOR ADMINISTRATORS.*** `LOGIN:399`'s `is_grp_member(lgn.id,
+> 'sdusers')` refuses an outside-SD account with **5009**. The exemption at
+> `:398` was added by 56 itself and its comment states the causation: *"the
+> model gives an administrator no account of their own — so nothing ever puts
+> them in sdusers"*. **Restore the account and the exemption's reason is gone.**
+>
+> ***1. THE `adopt-account` REMOVAL IS CANCELLED — DO NOT DO THE 20 FILES.***
+> It was ruled unnecessary on the very clause now reversed. Adopt is how the
+> installing administrator gets their personal account. ***NOTHING HAD BEEN
+> REMOVED***, because that entry was deliberately kept separate — that caution
+> is what saved it. The withdrawn ruling is struck in 56 rather than deleted.
+>
+> ***2. `LOGIN:398`'s ADMINISTRATOR EXEMPTION GOES***, and the `sdusers` gate
+> becomes uniform across all three tiers.
+>
+> ***3. `LOGIN:513` MUST STOP SENDING EVERY `K$OS.ADMINISTRATOR` TO SDSYS.*** An
+> **unelevated** administrator lands in their **personal account**; SDSYS is
+> reached by an already-elevated session, or by `logto sdsys` from that
+> account. Two explicit routes, not one automatic one.
+>
+> ***4. AND THE MECHANISM FOR "IS THIS SESSION ALREADY ELEVATED" DOES NOT
+> EXIST YET — MEASURE BEFORE DESIGNING.*** `K_ADMINISTRATOR` is a **settable
+> `USR_ADMIN` flag** (`op_kernel.c:395` — it takes an argument and can be set
+> or cleared), and `K_OS_ADMINISTRATOR` is `IsAdmin() && connection_type !=
+> CN_SOCKET` (`op_kernel.c:456`), i.e. *"is the PERSON an administrator"*.
+> **What `IsAdmin()` answers for an UNELEVATED administrator is the crux and is
+> not established** — this file already records it answering TRUE for every API
+> session until the `CN_SOCKET` guard was added, so do not trust it unmeasured.
+>
+> **The `ADMINISTRATOR` tier stays — three tiers, as below.**
+>
+> # ⇩ THREE TIERS. THE "TWO TIERS" RULING WAS REVERSED THE SAME HOUR. ⇩
+>
+> ***DO NOT BUILD "TWO TIERS". IT IS WITHDRAWN.*** Owner, 29 Aug 2026, after
+> being shown that `CREATE.ACCOUNT … ADMINISTRATOR` makes a Windows
+> administrator: *"we need three tiers because we create accounts in SD not in
+> windows except for the installer, and that is correct … That is the better
+> approach and one I had forgotten about."* ***SD CREATING THE WINDOWS ACCOUNT
+> IS THE DIRECTION THE DESIGN WANTS*** — SD is the authority for who
+> administers SD, and the tier is the mechanism. **Nothing was built, so
+> nothing had to be undone.**
+>
+> ***THE TRACE IS KEPT BECAUSE IT IS THE RECORD OF WHAT THE TIER DOES:***
+> `CREATEA:813` → `make.admin` → `os_group("ADDMEM", "S-1-5-32-544", …)`, the
+> built-in Administrators group; the tier's extra verbs each gate themselves on
+> the **person** (`CREATEA:251`, `DELACC:85`, `MODIFYA:167`, `GRANTA:95`,
+> `UNLOCK:61`); the tier is **15 literals in 4 files** while the 52
+> `K$ADMINISTRATOR` / 5 `K$OS.ADMINISTRATOR` uses are the **kernel key** and a
+> different thing; and `accounts\don` carries `ADMINISTRATOR` in field 5 today.
+>
+> ***ONE PROPERTY IS LEFT TO SETTLE AND THE CODE DOES NOT DO IT — OWNER'S
+> CALL.*** He said *"an Administrator account created outside of SD does not
+> have access to SD until a matching SD administrator account is created."*
+> **Measured, that is not today's behaviour:** `LOGIN:513` sends any
+> `K$OS.ADMINISTRATOR` straight to `initial.account = 'SDSYS'` and reads
+> **SDSYS's** register record, never one belonging to the person; `LOGIN:398`
+> skips the `sdusers` gate for them outright. So any Windows administrator at
+> **the console** is in on a UAC consent, with no SD-side account. Over ssh
+> they are refused in practice — `elevate('START')` has no desktop (10002).
+> ***AND BE HONEST ABOUT THE CEILING***: a Windows administrator can add
+> themselves to any group, read the data tree, or run as SYSTEM, so such a
+> check is **an explicit act and an audit trail, not a boundary that holds
+> against them.** Worth having, perhaps — but chosen knowing that.
+>
+> ***57 STANDS AND IS NARROWER THAN IT READS***: *"Proceed, and print what it
+> voided."* `LOGIN` is not a `tier_allows` caller, so the account's own owner
+> is never stranded and a single-member account cannot strand anything.
+>
+> # ⇩ BOTH OWNER RULINGS OF 29 Aug ARE BUILT AND UNRUN. ⇩
+>
+> ***HE WAS ASKED TWO QUESTIONS AND ANSWERED BOTH: "1. sweep  2. delete dead
+> voc".*** Both are implemented.
+>
+> ***1. THE SWEEP.*** `sdtestuser-admin.ps1 -Sweep` removes stray `sdtu*`
+> accounts from interrupted runs, **inside the elevated child Create already
+> raises — no extra UAC prompt.** ***THE CANDIDATE LIST IS BUILT IN THE ELEVATED
+> PROCESS AND IS NOT PASSED IN***: this is code that deletes Windows accounts,
+> so the parent controls *whether* to sweep, never *what*. Three conditions, all
+> required and each printed — name matches `^sdtu[a-z0-9]+$`, is **not** the
+> account being created, and **is in `sdusers`**. `DELETE.ACCOUNT`, so record,
+> group and Windows user go together; the check is the artefact before and
+> after.
+>
+> ***2. THE DEAD VOC RECORDS — DONE AND VERIFIED. `after: 0`.*** All four
+> deleted with `DELETE VOC` (`1 record(s) deleted` each), and an independent
+> `LISTF` afterwards found **no `SD*BP.OUT` records at all**. **PRE_RELEASE 60
+> is closed.**
+>
+> ***AND CLEANING THEM UP EXPOSED A PRODUCT DEFECT — NEW, PRE_RELEASE 61, `B`.***
+> Once the four dead records went, **`$MAP` was the only `Err 30` left**, on an
+> otherwise clean install. `sdsys/newvoc/$MAP` has **no type code**: field 1
+> reads `File for MAP output` where every other file record has **`F`** —
+> including ***our own `voc_template/$MAP`***, which is the same record shipped
+> twice with one copy right. `$map` and `$map.dic` both exist on disk, so it is
+> the record and not the file. ***UPSTREAM HAS THE IDENTICAL SPLIT*** —
+> `sdb64/NEWVOC/$MAP` broken, `sdb64/VOC_TEMPLATE/$MAP` correct — so it is filed
+> in UPSTREAM_FIXES.md as well. ***DO NOT JUST PASTE THE `F` IN***: settle first
+> which of the two feeds SDSYS's VOC (`verify-lcnames.ps1:772` says
+> `voc_template` does, which the live reading appears to contradict) and whether
+> a user account's `$MAP` is sound. **A `map` verb ships, so the file is
+> reachable.**
+>
+> *(The verb was wrong first time and the script said so:)* Run elevated 29 Aug 2026, `DELETE.FILE` answered *"Error deleting DATA
+> portion"* + *"DICT part of file does not exist"* on all four and changed
+> nothing — **and `clean-deadvoc` reported FAILED**, because its verdict is a
+> second `LISTF` rather than SD's wording. ***THE RIGHT VERB IS `DELETE VOC
+> <name>`***: `DELETEF` wants to remove a FILE, and the file these records name
+> is already gone — which is the definition of the thing being cleaned up. What
+> has to go is the **VOC record**. Read from `gpl.bp/DELETE`: with ids named
+> explicitly it takes the `num.ids > 0` branch and **neither prompt is
+> reachable** (both are in the select-list and `ALL` branches), so `NO.QUERY` is
+> not needed. ***AND SD's SUCCESS WORDING IS NOT USABLE AS AN ANCHOR HERE*** —
+> sysmsg 3221 `"%1 record(s) deleted"` prints unconditionally, so
+> `0 record(s) deleted` appears on the failure path too. Both `clean-deadvoc.ps1`
+> and `verify-catgate.ps1` now use `DELETE VOC`, and catgate's is
+> **unconditional**: keying it on the directory existing is what let these
+> accumulate, since the record outliving the directory *is* the defect.
+> **The four are still there — rerun the command below.**
+>
+> **ELEVATED PowerShell, and `-WhatIf` first if you want to see the list:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\clean-deadvoc.ps1 -WhatIf
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\clean-deadvoc.ps1
+> ```
+>
+> It is on `$neverShipped` and `assert-current` is **exit 0 live** with it
+> listed. Its unelevated refusal was exercised (exit 2).
+>
+> # ⇩ TWO OF FOUR CONVERTED AND GREEN. UNELEVATED 10 OF 13. ⇩
+>
+> ***`b63`, 29 Aug 2026 13:03:55 — `verify-lineendings` PASSED 17 OF 17, AND
+> `verify-nocase` HELD.*** Elevated **19 of 19**. The two readings that matter
+> in lineendings both passed as `sdtub63` over ssh: **the straddle**
+> (`line 1 length 2047` — a CRLF exactly on the 2048-byte buffer boundary, the
+> case its header says the file exists for) and **the lone-CR control**
+> (length 11, one field — a CR survived as data). The account removed cleanly
+> and the run left **no `sdtu*` user, record, group or `%TEMP%` residue**.
+>
+> ***`b63` IS SPENT. USE `b64`.***
+>
+> ***AND THE CLASSIFICATION IN 59 WAS WRONG — READ THIS BEFORE PICKING UP THE
+> REST.*** It said *"four are close to mechanical"*. **Only two were.** The
+> remaining three each need a TOKEN SPLIT, not a driver swap:
+> **`verify-lcnames`** has 53 `Invoke-SD` calls of which **four are `LOGTO
+> SDSYS`**, and those four work today *because* the administrator lands in
+> SDSYS — the same fact that breaks the other 49; every call site has to be
+> classified, and a mistake either way is a check that passes while measuring
+> the wrong session. **`verify-batchjob`** re-invokes itself elevated and its
+> child `Push-Location`s into the account to get a session there, which under 56
+> it does not get — **check that leg before converting it.**
+>
+> ***AND ONE INTERRUPTED RUN COST A TOKEN — b62.*** A console **Ctrl-C does NOT
+> run the `finally`**, measured: no removal was attempted and `sdtub62` was left
+> live. (A `Stop-Job` pipeline stop *does*, which is why the comment claiming it
+> was believed.) `VerifyInstall1` now **names any orphan and its remove command
+> before it creates anything**; it reports and does not act.
+>
+> # ⇩ `verify-nocase` IS GREEN. THE PATTERN IS PROVEN. ⇩
+>
+> ***`b61`, 29 Aug 2026 12:21:40 — `verify-nocase` PASSED 3 OF 3, INCLUDING THE
+> `DHFILE=0` CONTROL ITS OWN HEADER CALLS THE POINT OF THE TEST.*** ssh exit 0,
+> `DIRFILE=1`, `DHFILE=0`, `ISWIN=1`. ***THE FIRST MEASUREMENT THIS PROJECT HAS
+> TAKEN AS A REAL NON-ADMINISTRATOR.*** **Unelevated 9 of 13** (was 8),
+> **elevated 19 of 19**, doors 5 of 5.
+>
+> ***SO `verify-lineendings.ps1` IS CONVERTED TOO AND IS UNRUN.*** The caution
+> that said "one first" has been paid off. The refusal tests are a **table**
+> now, cross-checked against `VerifyInstall1`'s own `$needsTestUser` read out of
+> its source — a verifier converted but unlisted is untested, one listed but
+> unwired is skipped, and both are silent. **Units 51 / 0.**
+>
+> ***`b61` IS SPENT. USE `b62`.***
+>
+> ***AND ONE THING FILED FROM THE LOG — PRE_RELEASE 60.*** SDSYS's `LISTF` now
+> shows `SDCATGB59BP.OUT` **and** `SDCATGB60BP.OUT`, both `Err 30`: one dead VOC
+> record per suite run since b59. `verify-catgate.ps1:161` deletes `<ACCT>BP`
+> through SD and then removes `<ACCT>BP.OUT` with `Remove-Item` — **the exact
+> thing the comment directly above it forbids.**
+>
+> ***0. `b60` RAN IN FULL. ELEVATED 19 OF 19. THE ACCOUNT MACHINERY WORKS END
+> TO END. THE TIER WAS WRONG AND IS FIXED.*** 29 Aug 2026, 11:53:01.
+>
+> ***THE FOUNDATION IS WITNESSED FOR THE FIRST TIME.*** Create: `before=False
+> after=True` on **both** the ACCOUNTS record and the Windows user; the ACE for
+> `GITORLI\don` landed; and the **unelevated parent's own write succeeded** —
+> `writable by this unelevated process: C:\ProgramData\SD\user_accounts\sdtub60`,
+> which is the only token that could answer. Remove: `before=True after=False`
+> on both. **`verify-doors-suite` 5 of 5 green in the same run**, so two account
+> mechanisms coexisted.
+>
+> ***WHAT STOPPED `verify-nocase` WAS THE TIER, AND IT SAID SO IN SD's OWN
+> WORDS.*** ssh **exit 0**, the session was in `sdtub60`, and then:
+> *"BASIC is not in your VOC"*, *"RUN is not in your VOC"*.
+> **`sdsys/newvoc/TIER.OMIT.STANDARD` lists `basic` and `run`** among the 42
+> verbs a standard account does not get — read from the record, not inferred.
+> ***ALL FOUR VERIFIERS COMPILE A PROBE, SO STANDARD CANNOT HOST ANY OF THEM.***
+> The account is **PROGRAMMER** now, which is still a real non-administrator —
+> ADMINISTRATOR is the tier that lands in SDSYS, and `verify-doors` uses
+> PROGRAMMER for this same reason. **The unit test row that said *"does NOT
+> grant ADMINISTRATOR or PROGRAMMER"* was itself the bug** — it encoded the
+> wrong choice as a rule and would have defended it against correction. Split in
+> two, and the tier is now checked against `TIER.OMIT.STANDARD` itself.
+>
+> ***TWO LEAKS FOUND AND FIXED, BOTH PRE_RELEASE 47's SHAPE.*** The unit test's
+> denied fixture survived — `icacls /remove:d` did **not** remove the ACE and
+> its output had been sent to `*> $null`, so six undeletable directories were in
+> `%TEMP%` before anyone looked. `/reset` does remove it, the exit code is read,
+> and the removal is a **checked row** rather than a warning nobody reads.
+> `Invoke-SdAsTestUser` never removed its work directory either — `native.in`
+> and 609 bytes of `native.out` per verifier per run. **Units 45 / 0**, and a
+> run now leaves `%TEMP%` clean.
+>
+> ***AND THE RUN POLLUTED SDSYS, WHICH IS THE COST OF THE THREE UNCONVERTED
+> VERIFIERS.*** `C:\ProgramData\SD\sdsys\BP.OUT` was created **12:07:16**, by
+> `verify-lcnames` compiling its probe while landed in SDSYS. Harmless and the
+> next cycle clears it — but **two of `lcnames`' 21 failures are about that
+> object directory's case**, and those readings are not to be trusted until it
+> runs in an account: its premise was broken. `lcnames` scored **107 of 128**.
+>
+> ***1. FINISH THE CONVERSION — `verify-nocase` HAS STILL NEVER COMPLETED.***
+> Session 80 did the runner wiring and `verify-nocase.ps1` ONLY, which is the
+> recommendation that stood here, followed. `VerifyInstall1` creates `sdtu<Run>`
+> before its step list and removes it in a **`finally`** (the loop `break`s on a
+> failing step, which is how `sddrb50a` came to be live on this machine now).
+> **`test-sdtestuser-units.ps1` is 34 / 0** and still needs no install, no
+> elevation, no account and no ssh — run it first, it costs nothing.
+>
+> ***NO CYCLE IS NEEDED AND `assert-current` IS EXIT 0 LIVE.*** Everything
+> touched is `gplbld` and already on `$neverShipped`. **USE `b60`.**
+>
+> ***TWO DEFECTS FELL OUT OF THE WIRING AND BOTH WOULD HAVE COST A RUN.***
+> (a) ***`assert-current` WAS ALREADY EXITING 1***, naming the three files
+> session 79 wrote and never listed on `$neverShipped` — so **the suite could
+> not have run at all**, and every verifier that calls it would have refused.
+> Listed now; **exit 0 live afterwards.** (b) ***AN ACCOUNT DIRECTORY IS NOT
+> REACHABLE BY THE UNELEVATED PARENT***: it grants Modify to SYSTEM,
+> Administrators and its own `sdu_` group only, and `ls`/`touch` on `SDACCTB59`
+> both answered *"Permission denied"* — while all four verifiers plant probes
+> through the **file system**. `-Action Create` now adds one inheritable ACE for
+> the invoking user. **A group would not have worked** — membership is fixed at
+> logon, PRE_RELEASE 44 exactly.
+>
+> **Left after the run:** `verify-lcnames`, `verify-lineendings`,
+> `verify-batchjob`, then `verify-osusers.ps1` **separately** — 931 lines, 32
+> references to `@logname`/`don`, its own elevation dance. **Do not bundle it.**
+>
+> ***DO NOT TAKE THE SHORTCUT.*** Adding `LOGTO DON` to each verifier passes
+> today and breaks the moment `adopt-account` goes — which is ruled and
+> pending. It is written into the module's header so nobody re-derives it.
+>
+> ***AND EXPECT TWO MORE UAC PROMPTS*** — one for Create, one for Remove.
+> `verify-doors-suite.ps1` serves three legs from one consent through
+> `sd-elevate.ps1`'s helper and would remove both; deliberately not done in the
+> same commit as an unproven mechanism.
+>
+> **THE TWO COMMANDS, IN ORDER. Both in an ORDINARY, UNELEVATED PowerShell —
+> §4.0.1: `verify-credacl` and `verify-osusers` are only valid from an ordinary
+> token, and `VerifyInstall1` refuses an elevated one outright.**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\test-sdtestuser-units.ps1
+> ```
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b64 -ContinueOnFailure
+> ```
+>
+> ***`b64`. `b54`–`b63` ARE ALL SPENT*** — every profile directory under
+> `C:\Users` from those runs is still there until a restart (PRE_RELEASE 35/36;
+> `CREATE.ACCOUNT` refuses rather than hand back a suffixed home).
+>
+> ***THERE IS NOTHING TO RE-RUN FOR ITS OWN SAKE.*** `b63` is the settled
+> reading: **unelevated 10 of 13, elevated 19 of 19**, and the three failures
+> are the three unconverted verifiers. Spend the next token on a run that
+> carries a conversion, not on repeating this one.
+>
+> ***DO NOT Ctrl-C IT.*** Measured on `b62`: the interrupt does not reach the
+> account removal, so it strands a live enabled account and burns the token. If
+> a UAC prompt is missed, **let the step fail** — the removal still runs on that
+> path. If one is stranded anyway, the next run names it and gives the command.
+>
+> ***2. 56's `adopt` REMOVAL*** — ruled unnecessary 29 Aug (*"the installer has
+> to be a windows administrator … they can login to sd and is logged into the
+> sdsys account"*), **20 files** including `sd.iss`'s `AdoptCode` /
+> `PasswordStepWanted` wizard flow, `CREATEA`, `DELACC`, `stage.py` and six
+> verifiers. **Deliberately not bundled with the login change** so a broken
+> install has one candidate cause. **Harmless meanwhile** — the account is
+> simply never entered.
+>
+> ***3. 57's PROMOTION CASE*** — `modify.account b programmer` silently strands
+> every lower-tier grant into `sdu_b`. The gate holds; nothing reports it. Two
+> options in 57's "Left to settle", **the owner's call**.
+>
+> **58 is the documentation and waits for all three.**
+>
+> ***AND ONE INSTRUMENT TRAP THAT NEARLY PRODUCED A FALSE READING THIS
+> SESSION:*** the `SD-verify` logs carry **both encodings at once** — the
+> numbered per-step logs are **UTF-16LE**, the verifiers' own transcripts are
+> **UTF-8**. A plain `grep` on the first kind reports **0 PASS / 0 FAIL** on a
+> full 25KB log, which is indistinguishable from a step that did nothing. **Use
+> `Get-Content`, or check the BOM first.**
+>
+> *(The box below is the pre-cycle text, kept for its commands and its
+> reasoning. The cycle it opens with has been run.)*
+>
+> ***SESSIONS 76 TO 79 TOUCHED NEITHER `gplsrc` NOR `sdsys`, SO THE CYCLE IS
+> STILL THE FIRST STEP AND THIS BOX IS STILL CURRENT.*** **19 open**, from the
+> checker.
+>
+> ***BUT THE BIGGEST THING IN THE FILE IS NOW PRE_RELEASE 56, AND IT IS NOT
+> STARTED.*** The owner rewrote the administrator access model on 29 Aug 2026
+> — elevated **at login** into **SDSYS**, **no account of their own**, and
+> **the rights of whatever account they logto**. **It supersedes 15 Aug's
+> *"nobody logs in to an account but their own"*, withdraws the 29 Aug ruling
+> on 31, and re-opens PRE_RELEASE 2** — a closed **B**. ***READ 56 BEFORE
+> TOUCHING `LOGIN`, `CPROC` OR `CREATEA`***, and note it costs administrators
+> ssh. Three of its seven clauses are already the code.
+>
+> **Of the six decisions taken on 29 Aug, two are done** — the 21 headings
+> (session 78) and 31's trace (session 79, which produced 56). **54 and 55 are
+> still available to pick up cold**, and neither is affected by 56.
+>
+> ### ⇩ WHAT TO DO FIRST ⇩
+>
+> **A CYCLE IS OWED — `assert-current` EXITS 1 UNTIL IT RUNS.** ***AND WHAT IT
+> NOW CARRIES IS PRE_RELEASE 56, NOT THE OLD COMMENT RENUMBER.*** Session 79
+> changed `gplsrc/keys.h`, `gplsrc/op_kernel.c`, `gpl.bp/LOGIN`, `gpl.bp/CPROC`,
+> `gpl.bp/ELEVATE` and `gpl.bp/INT$KEYS.H`. **The C is already built** — `make
+> sd` ran at 09:36, exit 0, 0 warnings, and `cycle.ps1` does NOT build, so do
+> not skip that step if anything else moves. **The BASIC has never been
+> compiled.**
+>
+> ***ONE PIECE OF 56 IS DELIBERATELY UNWRITTEN — `CREATEA`'s `grant.os.access`,
+> which needs the `adopt` ruling in 56's "Left to settle".*** If that ruling
+> lands first, make the change and spend ONE cycle on the lot; a cycle run now
+> is void the moment it is made (§"A CYCLE ENDS AT THE NEXT SOURCE CHANGE").
+>
+> **ELEVATED PowerShell:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **THEN THE SUITE, `b59`** — ordinary UNELEVATED PowerShell, the owner's own
+> terminal, not an agent's (§4.0.1). Expect the settled shape: 13 of 13
+> unelevated, 18 of 19 elevated, the one failure `verify-apiadmin` **21/23**.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b59 -ContinueOnFailure
+> ```
+>
+> ***NOTHING IS WAITING ON THE OWNER. THE VERIFIER QUESTIONS CAME BACK TO US,
+> 29 Aug 2026*** — *"your call on the verification utilities i have no
+> opinion"*. All three are decided below; **the third is DONE and 54 and 55 are
+> not started**.
+>
+> | | decided |
+> |---|---|
+> | wire `verify-profiledir.ps1` into a runner | **yes — `VerifyInstall2`.** Now ***PRE_RELEASE 54*** |
+> | the typed-vs-computed figure guard | **yes, and it is smaller than it looked.** Now ***PRE_RELEASE 55*** |
+> | the 21 struck-but-silent section headings | ***DONE 29 Aug 2026*** — all 21 carry `DONE <date>`; the checker's NOTE is gone and the tripwire is measured, below |
+>
+> ***THE 21 HEADINGS WERE WORTH DOING BECAUSE THEY TURNED A NOTE INTO A
+> TRIPWIRE — DO NOT REDO THIS, IT IS DONE.*** `test-fixlist-units.ps1`'s rule 4
+> is **one-directional by design**: it fails a section that says DONE over an
+> **open** row, and it cannot fail the other way because most sections say
+> nothing at all. **With DONE in all 21 headings, re-opening an entry is a hard
+> FAIL** — the row un-strikes, the heading still says DONE, rule 4 fires. ***THE GUARD EXISTS NOW, AND IT WAS MEASURED IN
+> BOTH DIRECTIONS ON THE SAME RE-OPENING*** — row 41 un-struck against the new
+> heading FAILS, *"section 41 does not contradict row 41"*, **183 passed / 1
+> failed, exit 1**; the identical un-strike against the old silent heading scored
+> **184 passed / 0 failed, exit 0**. Both were run and both were restored.
+> Entries do get reversed: 32 was partly reversed by 36, and 4 / 52 / 53 were all
+> re-validated after being written.
+>
+> **The obvious objection is answered**: yes, this duplicates status, and *status
+> living in more than one place* is the root cause the checker was written for.
+> **Duplication is only dangerous when nothing compares the copies** — here the
+> checker compares them every run, which is exactly what was missing on 28 Aug.
+>
+> ***DONE BY HAND, 21 `Edit` CALLS, NO SCRIPT.*** CLAUDE.md's rule about file
+> edits applies with full force to a 21-site change in a tracked document, and
+> this file has three silent corruptions in its record already. **The bytes were
+> checked afterwards rather than assumed**: `git diff --stat` 21 insertions / 21
+> deletions, every added line a `## ` heading, no BOM, CR count 0 unchanged, em
+> dashes 568 → 589 — **+21, one per new separator, which is the count that would
+> move if anything else had been rewritten.**
+>
+> ***THE THREE OWNER'S-CALL ENTRIES ARE RULED, 29 Aug 2026 — 31, 34 AND 39.***
+> Recorded in PRE_RELEASE_FIXES.md, **and no work was started on any of them at
+> the owner's instruction.** A ruling closes a question, not an entry, so those
+> three did not move the count.
+>
+> | | ruling | what it now costs |
+> |---|---|---|
+> | **31** | ***WITHDRAWN THE SAME DAY AND REPLACED BY PRE_RELEASE 56.*** It read *"being an ADMINISTRATOR is the gate"*; shown what that cost, the owner reversed it — *"if they logto another account, they have the rights of that account"* | **back to the verifier-only fix the row first claimed.** Clause 5 is what `CPROC:2735` already does, so the product is right. **Sev back B → S**, and **the assertion at `verify-apiadmin.ps1:610` must not move until 56 lands** |
+> | **34** | ***a set may declare itself link-free***; `checklinks.py` grows the declaration and `release.ps1` accepts it | the zero-link refusal stays the default for `User`, `Administrator` and `Testing`. **Not to be settled by adding a link** |
+> | **39** | ***a second, separate prompt on uninstall***, and it must **never** take the installing person's own account | `sd.iss:3482` is unchanged; a second question follows it, defaulting to keep. **Sev resolved B? → B.** The exclusion is the hard part — `sd.iss:86` says `{username}` is whoever authenticated UAC, not necessarily who is signed in |
+>
+> ***AND ONE PREMISE WAS CORRECTED WHILE TAKING 39.*** The owner ruled by analogy
+> to an upgrade *"giving the option of retaining accounts and the configuration
+> file"*. **There is no upgrade-time prompt** — an upgrade replaces the shipped
+> half in place and asks nothing. The prompt is on **uninstall** (`sd.iss:3482`)
+> and covers the SD-side records only. He was told, and the ruling stands on the
+> corrected premise.
+>
+> ***AND THE DOCS REPO IS AT `/c/Users/dmont/Projects/SDCoreWindowsDocs`.*** It
+> is a sibling of this one and it is a separate git repository.
+>
+> ***RENAMED BY THE OWNER, 29 Aug 2026, TO MATCH ITS GitHub REPOSITORY — AND
+> THIS ENTRY'S WARNING HAS INVERTED, WHICH IS WHY IT IS REWRITTEN RATHER THAN
+> PATCHED.*** It used to read *"with spaces in the name … a probe for
+> `SDCoreWindowsDocs` finds nothing, which is why two entries sat as 'cannot
+> validate here' for a whole session."* **That is now exactly backwards**: the
+> directory IS `SDCoreWindowsDocs`, there are no spaces, and a probe for the
+> repository name is the thing that works. A stale warning that has flipped is
+> worse than no warning, because it sends the reader away from the answer.
+>
+> ***PRE_RELEASE 4 AND 52 ARE DONE, 28 Aug 2026 — all twelve edits of 52's recipe
+> applied in one commit***, `Testing/markdown/05,06,07`, diff 13 insertions / 14
+> deletions. **Every figure was re-derived from the tree before it was written**:
+> `newvoc` 395 entries / 119 field-1-`V` / `TIER.ADD.ADMINISTRATOR` 21 lines /
+> `TIER.OMIT.STANDARD` 43, giving 81 and 416. HTML and PDF re-rendered for the
+> three pages and the HTML checked for the corrected figures — `encrypt.field` is
+> gone from the whole Testing set.
+>
+> ***THE INTERPRETER LINE IN §H.2 IS MISLEADING AND COST A WRONG CONCLUSION THIS
+> SESSION.*** It records the MSYS2 python as the decision, so a probe of
+> `/c/msys64/usr/bin/python` found no `markdown` and this session reported
+> rendering as impossible. **The owner corrected it: every PDF on this box was
+> made here.** `markdown` **3.10.2** is installed for the **Windows** python
+> **3.13.14** (`WindowsApps\PythonSoftwareFoundation.Python.3.13`), which is what
+> `mkdoc.py` and `mkpdf.ps1` run on. The MSYS2 gap is real and still unfixed —
+> **it is a `setup-devbox.ps1` question, not a "cannot render" one.**
+>
+> ***PRE_RELEASE 53 IS DONE TOO — OWNER'S RULING, 28 Aug 2026: "move to not in SD
+> core".*** The `encrypt.field` section is deleted from `Administrator/01` and the
+> fact now lives as `## Field-level encryption` on
+> `Testing/markdown/14-not-in-sd-core.md`, naming `sdencrypt()`/`sddecrypt()` as
+> the supported route (verified in `gplsrc/sd_encrypt_sodium.c`) and saying
+> plainly that nothing replaces the verb.
+>
+> ***AND IT WAS NOT COSMETIC: BOTH DOC GENERATORS HAD BEEN REFUSING TO RUN, AND
+> NOTHING IN THE RECORD KNEW.*** `mktclsyntax.py` exited 1 with `NOT A VERB
+> encrypt.field has a shape and is not on the roster`, `tclmap.py` with the same
+> verb `claimed by Administrator/01` — so **the TCL syntax card could not be
+> regenerated at all.** The roster is computed and had already self-corrected to
+> **143**; `tools/tcl-syntax-shapes.txt` and `tclmap.py`'s map are typed and had
+> not. **That gap is the whole reason a computed roster is worth having**, and it
+> sat undetected because nobody had re-run the generators since PRE_RELEASE 25
+> took the verb.
+>
+> ***BOTH NOW EXIT 0, AND THEY CONFIRM 4 AND 52 INDEPENDENTLY*** — `roster 143
+> verbs (standard 81, programmer 42, administrator 20)` and `tclmap 143 of 143, 0
+> exempt`, from tools that COMPUTE the figures rather than quote them.
+> `checklinks` 0 broken across all three sets (77 / 6 / 185). **`README.md`'s
+> three roster citations moved 144 → 143**, and **§H.2 below was corrected to 143
+> in the same commit** rather than merely flagged; the "127 of 144" line is a
+> record of a past miscount and was left.
+>
+> ***NOTHING CROSS-CHECKS A TYPED FIGURE AGAINST A COMPUTED ONE, AND THAT IS THE
+> GAP BEHIND ALL OF 4, 52 AND 53.*** `mktclsyntax.py` had printed **standard 81**
+> in the generated card for a week while the tester set said **77** — the two
+> halves of the documentation disagreed and nothing compared them, because the
+> generators read the VOC and the hand-written pages do not. **Not filed as an
+> entry**: it is a design question about the toolchain, not a defect in a page,
+> and it is the owner's call whether a checker should assert prose figures against
+> `mktclsyntax`'s roster line. It is the cheapest guard left on the table.
+>
+> ***THE OPEN COUNT: 17, AND READ IT FROM THE CHECKER, NEVER FROM PROSE.***
+> `test-fixlist-units.ps1` — **182 passed, 0 failed** — lists **3, 6, 7, 8, 9,
+> 11, 12, 16, 20, 24, 28, 31, 34, 39, 44, 54, 55**. It is unelevated and needs no
+> install.
+>
+> ***IT WENT 15 → 17 ON 29 Aug, AND NOTHING NEW BROKE.*** **54** and **55** are
+> the two verifier questions that had been sitting in this box as prose;
+> filing them counts them. **That is the point** — the same session that says
+> *read it from the checker, never from prose* should not be keeping two of its
+> tasks in a paragraph. Nothing was closed and nothing regressed.
+>
+> *(How it reached 15: `6f5e9a8` ended with **17** open — not 16, which was true
+> after 35 and 36 closed but BEFORE 52 was filed, and 52 is one of the two closed
+> there. 17 − 4 − 52 = 15; 53 was opened and closed in the same session. An
+> intermediate count quoted as a final one is the same error as the 143/144 in
+> entry 4, one document up.)*
+>
+> ### ⇧ END OF WHAT TO DO FIRST ⇧
+>
+> ***HANDOFF, SEVENTY-FIFTH SESSION, 28 Aug 2026. THE WHOLE LIST RAN, AND 36
+> WORKS END TO END.*** Two cycles, `b56` and `b57`, a restart, and the sweep at
+> **21:51:50** printed **`5 considered, 5 reclaimed, 0 still pending, 0
+> refused`**. Two defects were found and fixed on the way — **PRE_RELEASE 49 and
+> 50** (filed as 42/43 and renumbered — see 49), both DONE and both measured on
+> the installed tree. **`-List` elevated at
+> 21:57:29 then said `0 records`**, and that reading is now worth something:
+> since 49, an unelevated run refuses rather than printing the same sentence.
+>
+> ***36 IS COMPLETE: ALL FOUR RULINGS OBSERVED, 28 Aug 2026.*** The fourth is
+> below and was the last one standing. `create.account` refusing a name
+> whose profile directory is still there (10124/10125, `gpl.bp/PROFILE_DIR`)
+> **had never been exercised** — no b56 or b57 log mentions either message,
+> because every other verifier is careful to use a fresh name, so **the one rule
+> that had never fired was the one nothing could vouch for.**
+>
+> ***IT IS MEASURED NOW. `gplbld/verify-profiledir.ps1`, ELEVATED, 28 Aug 22:18:
+> 14 of 14*** — `create.account` refused `sdpd2x` over a leftover
+> `C:\Users\sdpd2x`, printed 10124 naming both, created no Windows account, no
+> `sdu_` group, no `ACCOUNTS` record and no suffixed home; and the control
+> `sdpd2y`, identical but for the directory, was created and then deleted
+> cleanly. ***SO ALL FOUR OF 36'S RULINGS ARE NOW OBSERVED.***
+>
+> ***ITS FIRST RUN SCORED 13 OF 14 AND THE PRODUCT WAS ALREADY RIGHT*** — see
+> PRE_RELEASE 51. The refusal was in the transcript, complete and correct, and
+> the matcher could not see it: message files hold **literal backslash-n**, not
+> newlines, and `[regex]::Escape` turned each into a pattern hunting a literal
+> backslash. **The same helper made `verify-delaccount.ps1:553` incapable of
+> failing and `:568` — in the keep-both branch, which has never run here —
+> certain to fail.** Both fixed; three latent copies are named in 45.
+>
+> ***`gplbld/verify-profiledir.ps1`.*** It makes its own fixture — `!profile_dir` is a `Test-Path`
+> on `<ProfilesDirectory>\<name>` (`PROFILE_DIR:99-100`), so a bare directory is
+> enough and the test needs no deleted account, no reboot and no reclaim store.
+> **It carries its own control**: the same `CREATE.ACCOUNT` for a second name
+> with no leftover directory must SUCCEED, so a refusal on its own cannot pass
+> the run. 10124 is matched through `Get-SysMsgPattern` with **both**
+> placeholders filled — the account name alone appears in the echoed command and
+> in every other refusal the verb can print. On `$neverShipped`, and
+> `assert-current` is **exit 0 live** after adding it.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-profiledir.ps1 -Prefix sdpd1
+> ```
+>
+> **10125 stays unexercised** — "the check could not run" needs `os.execute` to
+> fail, which nothing here can force.
+>
+> ***AND THE 61 → 56 COUNT IS THE PART A RERUN MUST KEEP.*** The tally line
+> cannot see containment: 56 of the 61 directories had no record and had to be
+> left alone, and a sweep that deleted more would still have printed
+> `5 reclaimed, 0 refused`. **Count the directory before and after, every time.**
+>
+> ### ⇩ WHAT RAN, IN ORDER — ALL OF IT DONE ⇩
+>
+> ***STEPS 0 TO 4 ARE DONE. THE INSTALL IS 28 Aug 2026 21:27:34, GREEN, `b57` ON
+> IT.*** The 20:48:24 install carried `b56`; the 43 fix then cost a second
+> cycle. `assert-current` exit 0 live on both, **`gcat` 126 / `GPL.BP.OUT` 185**
+> — up from 125/184, which is `gpl.bp/PROFILE_DIR` arriving and is the evidence
+> that 36's BASIC half compiled rather than the report that it did.
+>
+> ***STEP 0 — `make sd`. DONE 28 Aug 2026 20:44, exit 0, clean.*** **It was
+> missing from this list and the omission cost a cycle**: the 20:40:17 install
+> staged `bin\sdsvc.exe` from **26 Aug 20:40**, so PRE_RELEASE 36's Windows half
+> was installed without ever being compiled. `assert-current` check A2 caught it
+> — the exact shape §6 records under *"`cycle.ps1` DOES NOT BUILD"*, found this
+> time by the guard rather than by a wasted measurement. **The rebuild is real,
+> not a no-op: `sdsvc.exe` 144,301 → 146,089 bytes.** Unelevated, MSYS2 login
+> shell; the agent can run it.
+>
+> **STEP 1 — the cycle. `ELEVATED PowerShell`.** Nothing else can happen first:
+> the BASIC has never compiled. ***OWED AGAIN AFTER STEP 0*** — the relink moved
+> `sd.exe` `DF77FD6D61DE5184` → `C5834134AF60BBD9`, so check A refuses the
+> 20:40:17 install and only a cycle clears it.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **STEP 2 — the suite. An ORDINARY, UNELEVATED PowerShell, your own terminal,
+> not an agent's (§4.0.1).** ***SPENT: b54, b55, b56, b57, b58. `b59` IS
+> NEXT.*** `b55` was **burnt against the stale tree at 20:41:43** — see below,
+> it is the one that teaches something.
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b59 -ContinueOnFailure
+> ```
+>
+> ***THE SUITE'S SETTLED SHAPE, THREE RUNS RUNNING (b56 20:52, b57 21:30, b58
+> 22:26): 13 of 13 unelevated, 18 of 19 elevated.*** That includes
+> `verify-doors-suite` green, **which b56 did for the first time ever**
+> (PRE_RELEASE 44). ***THE ONE FAILURE IS THE SAME ONE EVERY TIME***:
+> `verify-apiadmin` **21/23**, the known stale control of **PRE_RELEASE 31**,
+> now identical across **five** runs including two from before 36 was
+> installed. **Treat a different number there as news; treat 21/23 as the
+> baseline.**
+>
+> **b58 also proved a non-repair left nothing behind** — PRE_RELEASE 51's three
+> insurance fixes — because `verify-accountacl` **21/0**, `verify-routes`
+> **33/0** and `verify-accountrules` **34/0** are identical in b56, b57 and b58.
+> A fix that was not fixing anything visible has to leave the counts alone, and
+> "still green" would not have shown that.
+>
+> ***HOW `b55` WAS BURNT, BECAUSE THE SUITE'S OWN SUMMARY SAYS THE OPPOSITE.***
+> Eleven steps exited 2 on `assert-current`'s STALE refusal and the door suite
+> reported *"Create left nothing behind"* — so the run reads as having created
+> nothing. **It created one thing.** `verify-sshonly.ps1` is deliberately exempt
+> from `assert-current` (CLAUDE.md), so it ran, and the elevated batch was then
+> **killed** — `post-cycle-elevated exited -1073741510`
+> (`STATUS_CONTROL_C_EXIT`), its transcript stopping mid-line after *"Error 5
+> getting semaphores"* with no transcript-end marker — **before its teardown**.
+> Left on the machine, measured 28 Aug: Windows user `sdsshb55` **enabled**,
+> `C:\Users\sdsshb55` created 20:42:44, and a `ProfileList` entry. No `sdu_`
+> group. ***THE LESSON IS THE EXEMPTION, NOT THE KILL***: a refused suite is not
+> a suite that did nothing, because the two exempt scripts run anyway — so
+> **the run number is spent even when every reported step refused.**
+>
+> **Litter, and PRE_RELEASE 39's tool takes it** — ELEVATED, `-List` first, it
+> changes nothing:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1 -List
+> ```
+>
+> ***PRE_RELEASE 50 IS FIXED IN SOURCE AND OWES A CYCLE — SO STEPS 1 AND 2 RUN
+> AGAIN, IN THAT ORDER, BEFORE THE REBOOT IS WORTH SPENDING.*** `-List` elevated,
+> 28 Aug 21:15, found **5 genuine records and refused all five**: every one owned
+> by `GITORLI\don`, the administrator whose session ran `DELETE.ACCOUNT`, against
+> a check accepting only `S-1-5-18` or `S-1-5-32-544`. The owner check is gone
+> and the store's ACL is the containment; units **39/39**, control `-Sweep` at
+> the pre-43 copy **37/2**, red on those two rows alone.
+>
+> ***AND THE CYCLE DELETES THE FIXTURE ALONG WITH THE TREE.*** `C:\ProgramData\SD`
+> goes, and `b56`'s five records go with it — so **`b56`'s five directories
+> become litter with no record** (`sddrb56a`, `sddrb56b`, `sdapiab56`,
+> `sdapinb56`, `sdapiidb56`; `cleanup-devlitter.ps1` takes them). **Fresh records
+> can only come from a fresh suite run, which is why STEP 2 comes before the
+> reboot rather than after the fix.**
+>
+> ***THE PRE-REBOOT STATE, MEASURED 28 Aug 21:50, SO THE SWEEP'S LOG CAN BE
+> JUDGED AGAINST SOMETHING.*** `-List` elevated: **5 considered, 0 reclaimed, 5
+> still pending, 0 refused** — `sddrb57a`, `sddrb57b`, `sdapiab57`, `sdapinb57`,
+> `sdapiidb57`, all five directories present with their `ProfileList` entries.
+> **`C:\Users` holds 61 `sd*` directories and 46 `ProfileList` `sd*` entries; only
+> those five are recorded.**
+>
+> ***A PASS:*** the log ends `5 considered, 5 reclaimed, 0 still pending, 0
+> refused`, the five directories and their entries are gone, and `-List`
+> elevated then says **0 records**.
+>
+> ***AND THE LITTER IS A FREE CONTAINMENT CONTROL — USE IT.*** 56 of the 61
+> directories have **no record** and the sweep must not touch one of them. `sd*`
+> must fall **61 → 56 and by exactly those five**. Any other directory
+> disappearing is a containment failure wearing the costume of a success, and
+> the tally line alone will not say so.
+>
+> **STEP 3 — RESTART WINDOWS. This is the step that actually tests 36 and it is
+> the one nothing else will remind you of.** The sweep only ever does anything
+> on a boot: it is `sdsvc.exe` starting the SD service that runs it, and the
+> profile hives it is waiting on come down at shutdown. Step 2 will have left
+> profile directories under `C:\Users` — that is what makes the test real.
+>
+> **STEP 4 — read what the sweep did. UNELEVATED is enough for both.**
+>
+> ```
+> notepad C:\ProgramData\SD\reclaim-profiles.log
+> ```
+>
+> ```
+> powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Program Files\SD\reclaim-profiles.ps1" -List
+> ```
+>
+> **What a pass looks like:** the log names each record, prints `before:` and
+> `after:` for the directory and the `ProfileList` entry, and ends `N
+> considered, N reclaimed, 0 still pending, 0 refused`. The `b55` profile
+> directories are gone from `C:\Users`. `-List` then says **0 records**.
+> **`refused` on any row is the thing to read closely** — the reason is printed
+> in full and each one is a deliberate guard, not a fault in itself.
+>
+> ### ⇧ END OF THE LIST ⇧
+>
+> ***WHAT WAS BUILT.*** All four of 36's rulings — `DELETE_USER` takes the
+> directory first and keeps both halves otherwise, the pair is recorded under
+> `C:\ProgramData\SD\profile-reclaim`, `gplbld/reclaim-profiles.ps1` sweeps it
+> from `sdsvc.exe` at every service start, and `create.account` refuses a name
+> whose profile directory is still there. **New `gpl.bp/PROFILE_DIR`, new
+> statuses 6/7/8, messages 10075 and 10116 rewritten, 10123/10124/10125 new.**
+>
+> **What HAS been measured, and it is only the Windows half.** `sdsvc.c`
+> compiles clean under the UCRT64 toolchain with `-Wall -Wformat=2`, 0
+> warnings. `gplbld/test-reclaim-units.ps1` — **39/39, no install, no
+> elevation, no store** — drives the sweep's refusal table, and its positive
+> control against a copy with the containment check removed **fails 34/5 on
+> exactly the five containment rows**. The sweep itself was watched running in
+> `-List` mode: absent store says so and exits 0; a planted store's two records
+> are both refused by name on the owner control, exit 1; an unelevated sweep
+> refuses and exits 2. The five edited/added `.ps1` files parse 0 errors and
+> carry no BOM and no CR. `DELETE_USER`'s generated PowerShell is **1944 chars**
+> against `MAX_SH_COMMAND_LENGTH` 32000 — worth keeping an eye on, because
+> `op_sh.c:216` answers an over-long command by doing **nothing** and setting
+> `ER_LENGTH`, which would look exactly like a delete that left no profile.
+>
+> ***THE FIRST THING THE CYCLE'S OWN `verify-delaccount` WILL EXERCISE IS THE
+> RE-SCOPED 32 TEST.*** ***That verifier's own step 3*** — not the RESTART step
+> in the list above — now branches: both halves gone, or both halves
+> kept **and recorded**. On this machine the hive is normally still up at that
+> point, so the keep-both branch is the one that will run — and it reads the
+> record back and asserts `10075` present, `10123` absent.
+>
+> ***TWO SCRIPTS NOW SHIP THAT DID NOT, SO THE DOCS ARE OUT BY TWO.***
+> `secure-reclaim.ps1` and `reclaim-profiles.ps1` are in `stage.py`'s
+> `ProgramFiles` list and are watched by `assert-current` like the rest;
+> `test-reclaim-units.ps1` is on `$neverShipped`. **`Technical/02` in
+> `SDCoreWindowsDocs` says *"all 26 that ship"* and it is 28** — nothing in this
+> repository asserts that count, so nothing here will catch it. That is H.2's.
+>
+> ***THE OLD HANDOFF FOLLOWS, AND ITS ITEM 1 IS DONE.***
+>
+> ***HANDOFF, SEVENTY-THIRD SESSION, 28 Aug 2026.*** The cycle ran, the suite
+> ran, **twelve unelevated steps exited 0 and the thirteenth — the new door
+> step — failed.** Two faults, one in the wrapper and one in the instrument.
+> **The install is current and `assert-current` is exit 0**; nothing is
+> half-done.
+>
+> ***1. THE CLEAN-UP — AND `-Phase Remove` CANNOT DO IT. RUN, MEASURED, AND IT
+> FAILED FOR A REAL REASON.*** `sddrb50a` is **STRANDED**: the 15:29:59 cycle
+> deleted both trees, so its `ACCOUNTS` record went with the data tree — the
+> register now holds only `don` and `sdsys` — while **the Windows account
+> survived, enabled, with its own `sdu_` group and its memberships of
+> `sdusers`, `sdssh` and `sdapi` intact**, and `sshd_config` still carries
+> `AllowGroups sdssh`. **`DELETE.ACCOUNT` cannot reach an account SD has no
+> record of**, so the removal is a Windows one. ***THAT IS PRE_RELEASE 39,
+> MEASURED RATHER THAN REASONED, AND IN A STRONGER FORM THAN THE ENTRY
+> CLAIMED.*** **ELEVATED PowerShell, `-List` first — it changes nothing:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cleanup-devlitter.ps1 -List
+> ```
+>
+> ***DONE — RUN TWICE, EITHER SIDE OF A REBOOT, AND READ BACK INDEPENDENTLY.***
+> The stranded pair is **gone**: no `sddrb50a` user, no `sdu_sddrb50a` group.
+> The `sddrb50a` profile went on the second run once the reboot unloaded its
+> hive. ***THE ORPHAN-SID WORRY DID NOT MATERIALISE — MEASURED, NOT ASSUMED:
+> `sdusers`, `sdssh` and `sdapi` all carry `0`***, so `Remove-LocalUser` took
+> the memberships with it. **Nothing was over-deleted**: all five real SD
+> groups (`sdusers`, `sdssh`, `sdapi`, `sdadmins`, `sdsshonly`) are present and
+> `sdout` survived the home sweep. **The second run's `exit 1` is the designed
+> INCOMPLETE, not a fault** — it refuses to read a sweep of what it could see
+> as a sweep of the machine. ***AND THE STALE VM LINE IS WITNESSED FIXED***: it
+> printed *"`sshRemoteTest-C1` is NOT registered - nothing to delete"*.
+> ***IT COULD NOT HAVE SEEN THESE UNTIL NOW — PRE_RELEASE 45***: `sddr` was
+> never in the stem list, so all four door families were invisible to both
+> sweep scripts and a run would have reported a clean machine. **Added, both
+> self-tests re-run green.** ***AND A REBOOT IS NEEDED BETWEEN THE ACCOUNTS AND
+> THE PROFILES*** — a loaded hive cannot be removed, and `sddrb50a`'s is. The
+> script says so itself before it deletes anything.
+>
+> ***THEN THE THREE UNREACHABLE DIRECTORIES, BY HAND, ELEVATED*** — the sweep
+> prints the command for the first one and it is the same for each:
+>
+> ```
+> Remove-Item -LiteralPath "C:\Users\sddr1a" -Recurse -Force
+> Remove-Item -LiteralPath "C:\Users\sddr2a" -Recurse -Force
+> Remove-Item -LiteralPath "C:\Users\sddrb51a" -Recurse -Force
+> ```
+>
+> ***THE ORPHAN-SID CHECK IS DONE AND CLEAN.*** `cleanup-devlitter` calls
+> `Remove-LocalUser` **without** stripping the user out of `sdusers`, `sdssh`
+> and `sdapi` first — the ordering is section 1's on purpose, *"accounts first,
+> so the profile sweep sees orphans"* — so an orphan SID was the thing to look
+> for. **All three read 0 before AND after**, so nothing was left. Kept here as
+> the check to repeat, not as an open worry:
+>
+> ```
+> foreach ($g in @('sdusers','sdssh','sdapi')) { "$g : " + @(Get-LocalGroupMember $g | Where-Object { $_.Name -match '^S-1-' }).Count }
+> ```
+>
+> ***`verify-doors-admin.ps1 -Prefix sddrb50 -Phase Remove` IS SPENT AND IS NOT
+> WORTH RE-RUNNING.*** It now names the case rather than failing bare.
+>
+> ***`sddrb50a` IS STILL A LIVE, ENABLED, UNSUSPENDED WINDOWS ACCOUNT IN
+> `sdusers`, `sdssh` AND `sdapi`*** — re-measured on disk after the `b51` run,
+> not assumed. The Suspend and Remove legs never elevated on that run (fault
+> 1), so the account the Create leg made is still there with ssh and API access
+> and a password of the verifier's own generating. ***`sddrb51a` DOES NOT NEED
+> THIS*** — the fixed suite removed it itself. **The profile directory
+> `C:\Users\sddrb50a` will stay** — that is PRE_RELEASE 35/36 and only a
+> restart releases it.
+>
+> ***2. THE SUITE RERUN — `-Run b52`, AND IT NOW TESTS SOMETHING NEW.*** In an
+> ORDINARY, UNELEVATED PowerShell, his own terminal, not an agent's (§4.0.1):
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b53 -ContinueOnFailure
+> ```
+>
+> ***`-ContinueOnFailure` IS ON HIS OWN RULING, 28 Aug 2026***, because the door
+> step's failure has twice stopped the hand-over to `VerifyInstall2` and **the
+> nineteen elevated steps have never run on this install.** It hands over
+> whatever the door step does.
+>
+> # ⇧ PRE_RELEASE 19 IS CLOSED. `-Run b53`, ALL FIVE DOOR LEGS GREEN. ⇧
+>
+> ***THE CONDITION WAS THE OWNER'S — "19 stays B until the doors are covered" —
+> AND IT IS MET BY A PASSING RUN.*** `Create` 13/13, `Control` 8/8, `Suspend`
+> 5/5, `Refused` 5/5, `Remove` 4/4. **All three doors admitted, then all three
+> refused, with the suspension the only thing changed in between.** The
+> elevated half's only failure is `verify-apiadmin` — PRE_RELEASE 31's known
+> control, four runs running — and **step 19 is now green, so 46 is confirmed
+> fixed.** **`b53` is spent; `b54` is next.**
+>
+> ***WHAT IS LEFT ON THE MACHINE IS PROFILE DIRECTORIES AND NOTHING ELSE***: no
+> Windows accounts, no `sdu_` groups, no `ACCOUNTS` records, **0 orphan SIDs**
+> in `sdusers`, `sdssh` and `sdapi`. **The b52 and b53 suite runs left 24
+> directories in `C:\Users`** — that is PRE_RELEASE 35/36 and the reason 36
+> matters: two suite runs now cost two dozen of them.
+> `cleanup-devlitter.ps1`, elevated, sweeps them after a reboot.
+>
+> ***`b52` RAN. THE DOOR OPENED; THE CHECK DID NOT.*** `Create` **13/13** —
+> helper created, granted, and **Windows agreed** — and door 2's `WHO` answered
+> ***`91 SDDRB52A from SDDRB52B`*** with **no 5161**. So 44's cure works and
+> the local non-decisive witness failed in the same transcript, exactly as
+> designed. **`Remove` 4/4, both accounts gone.** The one failing row was the
+> anchor: `WHO` appends `from <ACCOUNT>` only on the success path, and the
+> check required the account to be the whole of the second field. **Fixed and
+> measured across five paths; `b53` is what closes 19.**
+>
+> ***THE ELEVATED HALF RAN FOR THE FIRST TIME ON THIS INSTALL — ALL 19 STEPS***,
+> on the `-ContinueOnFailure` ruling. **Two failures, both diagnosed:** step 14
+> `verify-apiadmin` is **byte-identical to b49's and the three runs before it**
+> (PRE_RELEASE 31, open, and its headline hole still passes); step 19
+> `verify-tierapi` is **PRE_RELEASE 46, new and now fixed** — it claimed
+> ADMINISTRATOR 417 against a tree that says 416.
+>
+> | leg | result |
+> |---|---|
+> | `Create` (elevated) | **8/8** — `argv (15)`, password masked |
+> | `Control` (ordinary) | ***2 of 7 FAILED, both `logto`*** — ssh and the API admitted in the same leg |
+> | `Remove` (elevated) | **2/2** — `argv (13)`, no `-Password`. ***Ran as a suite step for the first time ever*** |
+>
+> ***THAT RUN IS THE WITNESS FOR BOTH FAULTS AT ONCE.*** Fault 1's fix let the
+> two elevated legs launch; fault 2's fix made the Control leg tell the truth;
+> and because the suite still ran `Remove` after stopping, **`sddrb51a` left no
+> Windows account, no `sdu_` group and no `ACCOUNTS` record** — read from disk
+> afterwards, only the 35/36 profile directory remains. **The three-door
+> comparison inside one leg is the strong part**: same account, same session,
+> ssh and the API in and `logto` out.
+>
+> ***FAULT 1 — PRE_RELEASE 43, FIXED.*** `verify-doors-suite.ps1` passed
+> `'-Password', ''` for Suspend and Remove. **`Start-Process -ArgumentList`
+> carries `[ValidateNotNullOrEmpty()]`, and on a COLLECTION that validates
+> every ELEMENT** — one `''` rejects the entire list with *"The argument is
+> null or empty"* and **nothing launches, so no UAC prompt ever appears.** The
+> pair is conditional now (the idiom `sd-elevate.ps1:118` already used), the
+> argv and its element count are printed, and an empty element is refused **by
+> name**. `gplbld/test-doorsargv-units.ps1` guards it — **35/35, no install, no
+> elevation, no account** — and its positive control, `-Suite` pointed at a
+> copy carrying the old form, **fails 27/8**.
+>
+> ***FAULT 2 — PRE_RELEASE 19 IS RE-OPENED ON ONE ROW OF SEVEN.*** The check
+> that said *"logto entered the account"* matched the account name **anywhere
+> in the transcript**, and the session echoes what it is fed. On the b50
+> Control leg **SD printed 5161 *"Unable to change to new directory"* and `WHO`
+> answered `91 DON`** — and the row scored PASS. **It scored the same PASS on
+> `sddr2`**, which is what the seventy-second session's *"logto ADMITTED"*
+> rests on. Anchored on `WHO`'s answer now, with 5161 as a disqualifier.
+>
+> ***WHAT IS STILL PROVEN, AND WHAT IS NOT.*** **ssh and the API admitted
+> genuinely** — both authenticate afresh. **All three REFUSALS still stand**:
+> `logto.authorised` is called at `CPROC:2679`, *before* the chdir at `:2691`,
+> so a suspended account is refused with 10107 and never reaches 5161. **What
+> is unproven is the ADMITTED half, for one door of three.**
+>
+> ***THE CAUSE IS PRE_RELEASE 44 AND IT IS WINDOWS, NOT SD.*** `don` is in
+> `sdu_sddrb50a` **on the machine** and **not in his own token**, because
+> Windows fixes group membership at logon — measured both ways, with `sdusers`
+> present in the same token as the control. So `logto.authorised` passes on the
+> machine's list and the chdir is denied on the token's. ***RULED 28 Aug 2026
+> AND BUILT: two accounts, as the door table says*** — *"grant user A into
+> account B, suspend B, then ssh as A and `LOGTO B`"*, which
+> PRE_RELEASE_FIXES' own door table specified before any of this was written.
+> **The local `LOGTO` still runs and is recorded NON-DECISIVE**, so every
+> transcript carries the evidence for why the helper exists.
+>
+> ***THE PRODUCT HALF OF 44 IS STILL OPEN AND IS STILL HIS.*** 5161 says only
+> *"Unable to change to new directory"* — no mention that the group is not yet
+> in the caller's token and a sign-out would fix it. **A verifier working
+> around it is not the same as an administrator being told.**
+>
+> ***ALREADY ON THE MACHINE: `C:\Users\sddr1a`, `C:\Users\sddr2a` AND
+> `C:\Users\sddrb50a`.*** The first two are swept clean otherwise — no Windows
+> user, no `sdu_` group, no `ACCOUNTS` record, no orphan SIDs in `sdapi`,
+> `sdssh` or `sdusers`. **The third is not**, until command 1 above runs. All
+> three directories are **PRE_RELEASE 35/36** and only a restart releases them;
+> `clean-test-profiles.ps1` will name them after one. **They block nothing**
+> except reuse of those three names.
+>
+> ***THE FIVE LEGS ON `sddr2`, 28 Aug 2026 — GREEN AS REPORTED, AND THE
+> `Control` ROW IS NOW KNOWN TO BE ONE ROW SHORT OF TRUE.***
+>
+> | leg | shell | result |
+> |---|---|---|
+> | `Create` | elevated | **8/8** |
+> | `Control` | **unelevated, the agent's own** | **6/6 as scored — but the `logto` row was a false positive** (see fault 2). **ssh and the API admitted; `logto` did not** |
+> | `Suspend` | elevated | **5/5**, and *still in `sdssh`* — the suspension moved no Windows group |
+> | `Refused` | **unelevated, the agent's own** | ***4/4 — ALL THREE REFUSED*** |
+> | `Remove` | elevated | **2/2**, fixture gone; profile directory left behind, **expected** |
+>
+> **ssh and `logto` refused in SD's own words** — 10107, *"Account SDDR2A is
+> suspended"* — and **ssh refused AFTER the banner**, so authentication had
+> succeeded and the refusal is `LOGIN`'s, not sshd's. **The API cannot identify
+> its own refusal by design**, so what proves it is the pair: same account,
+> same password, same call, admitted then refused, **the suspension the only
+> thing changed in between.**
+>
+> ***BOTH PREFIXES ARE SPENT. A PREFIX IS SINGLE-USE ONCE ITS ACCOUNT HAS
+> REACHED THE CONTROL LEG*** — the ssh login leaves a profile directory that
+> `DELETE.ACCOUNT` cannot remove, Windows will not put a new profile where one
+> already sits, and a rebuilt account would get a **suffixed home**: an
+> unmeasured variable in a test whose whole point is that only the suspension
+> changes. **`sddr1`, `sddr2` and `sddrb50` are used; a hand-run attempt takes
+> `sddr3` and a suite run takes `b51`, and each measures its name free first**
+> (no Windows user, no `sdu_` group, no `ACCOUNTS` record, no profile
+> directory) — **which is exactly what stopped the second b50 attempt.**
+>
+> ***WHAT THE FIRST CONTROL RUN FOUND, AND WHY IT MATTERED.*** On `sddr1` the
+> API refused with `QMError(): Invalid username or password` while the account
+> was in `sdapi`, `sdssh` **and** `sdusers` — **route granted, credential
+> absent.** `CREATE.ACCOUNT` prompts for the **Windows** password, which is
+> what sshd checks; the API does SCRAM against a PBKDF2 verifier in
+> `sdsys\$cred` that **only `MODIFY.PASSWORD` writes**. `Create` now sets it,
+> anchored on `Password set for account` **case-sensitively** (`:153` prints
+> *"has no password set"* on a path that has not set one). **SD then confirmed
+> the diagnosis in its own words on `sddr2`:** *"Account SDDR2A has no password
+> set. Setting the first one."* **The product half is PRE_RELEASE 42 and is the
+> owner's call.**
+>
+> ***WHO RUNS WHICH LEG — MEASURED, NOT ASSUMED.*** The agent shell is
+> `GITORLI\don` **UNELEVATED**, a child process reads back a batch file written
+> to `TEMP` (so `SSH_ASKPASS` works from here), `ssh.exe` is on PATH and
+> `sd-connect.exe` is present. ***So the agent runs the two UNELEVATED legs
+> itself*** — `verify-doors.ps1 -Phase Control` and `-Phase Refused` — and the
+> owner runs only the three elevated ones. §4.0.1 bars an agent from
+> `VerifyInstall1`, not from a standalone verifier.
+>
+> **THE SEQUENCE IS FIVE PHASES AND EACH ONE PRINTS THE NEXT COMMAND**:
+> Create → **Control (agent, unelevated)** → Suspend → **Refused (agent,
+> unelevated)** → Remove. ***If the Control leg fails, STOP*** — a door that
+> refuses before the suspension makes its later refusal worthless.
+>
+> ***WHAT THIS CLOSED — AND IT DID NOT, ON ONE ROW.*** *(Corrected by the
+> seventy-third session: the `logto` door's ADMITTED half was a false positive,
+> so **19 is re-opened on that row**. The owner's ruling that it **stays `B`
+> until the doors are covered** is unchanged and is what re-opens it — a
+> passing run is coverage only when the run measured the thing it names.)*
+> ~~the last row of **PRE_RELEASE 19**, which the owner
+> ruled on 28 Aug 2026 **stays `B` until the doors are covered**. A written
+> verifier is not coverage; only a passing run is — and there is now a passing
+> run, so **19 is struck**.~~ ***WHAT IS LEFT OF PRE_RELEASE 38 IS A DECISION,
+> NOT A MEASUREMENT***: the pair is standalone and **not wired into
+> `VerifyInstall1`**, deliberately, for the same reason `verify-acctmsgs` is
+> not — it creates a real Windows account, and it needs an elevated half and an
+> unelevated half. **Wire it into the two runners, or leave it standalone and
+> named in the docs? Owner's call.**
+>
+> ***THE STATE YOU INHERIT.*** Install **28 Aug 15:29:59** — the owner's cycle,
+> which shipped PRE_RELEASE 42 — `assert-current` **exit 0 run live after every
+> change below**, tree clean. **Do not run a cycle to "get to a clean state";
+> you are in one**, and the only changes since are in `gplbld`. *(Earlier text
+> here named `67cf316` and the 00:53:34 install; both are superseded.)*
+>
+> **Spent — do not reuse:** `sdmsga`, `sdmsgb` (next `sdmsgc`), `sdtc1` (next
+> `sdtc2`), `sddr1`, `sddr2`, `sddrb50`, `sddrb51`. **`zzprf` is re-runnable as
+> it stands.** `b49`, **`b50`** and **`b51`** are spent; the next suite run is
+> **`b52`**.
+>
+> ***ONE THING IS UNRUN AND WILL FIRST BE EXERCISED BY THAT SUITE RUN:*** 23
+> verifiers had a dead ANSI strip that is now LIVE (PRE_RELEASE 10), and the two
+> runners now close transcripts a step leaks (PRE_RELEASE 40). **If `-Run b50`
+> shows a new failure, suspect those two changes before suspecting the product.**
+>
+> ***THIRTEEN PRE_RELEASE ENTRIES CLOSED ON 28 Aug 2026*** — 5, 10, 13, 14, 15,
+> 22, 25, 26, 27, 37, 40, 41, plus six of 19's seven rows. *(**24 struck, 20
+> open** as of the seventy-third session — counted from the table, not carried
+> forward: 42 and 43 struck, 19 re-opened, 44 added.)*
+>
+> ***THE FOUR TRAPS THIS SESSION PAID FOR, EACH ONE COSTING A RUN OR NEARLY ONE.***
+>
+> 1. ***A VERB GIVEN NO ARGUMENT PROMPTS, AND DOWN A PIPE THE PROMPT EATS THE
+>    NEXT LINE.*** `LIST.INDEX <file>` with no index name reached `LISTI:117`,
+>    swallowed the `OFF` after it and hung to the timeout. `LISTI:117`,
+>    `DELETEI:101`, `DELETEF:117` and `DELACC:96` all do this. **Name every
+>    optional argument.** The tell is a transcript whose last line is a prompt
+>    and whose next command never appears.
+> 2. ***A PASSWORD THAT GOES THROUGH `SSH_ASKPASS` MUST USE THE cmd-SAFE
+>    ALPHABET.*** `GeneratePassword` produces `^`, which cmd eats. **The fix was
+>    already at `verify-createaccount.ps1:403` and was walked past** — the
+>    "search the record" rule in its usual shape.
+> 3. ***A PREMISE WRITTEN INTO A TEST AS THOUGH MEASURED.*** "127 is a hard SAM
+>    limit" was reasoned, written into a header as fact, and false —
+>    `Set-LocalUser` accepted a 150-character password and entry 22's refusal arm
+>    recorded SKIP. **Measure before writing the comment.**
+> 4. **The Bash tool's working directory PERSISTS between calls.** A `cat >>`
+>    landed in the wrong directory and a byte-scan silently checked a file that
+>    did not exist, reporting a clean result for nothing. **Use absolute paths.**
+>
+> ## ⇧ THAT IS THE HAND-OVER. EVERYTHING BELOW IS BACKGROUND. ⇧
+
+> ## NOTHING IS BROKEN AND NOTHING IS HALF-DONE.
+>
+> ## THE DEVELOPMENT PHASE IS CLOSED. THE DOCUMENTATION PHASE IS THE WORK.
+>
+> ***7.18 AND H.5 BOTH CLOSED 26 Aug 2026, THE SIXTIETH SESSION, AND THE STATED
+> 1.0-0 GATE IS EMPTY.*** The task table above is the authority on status, not
+> this box. **`H.2` — documentation — is the only open row, and section 7 has
+> nothing left in it.**
+>
+> ### HANDOFF, SEVENTY-FIRST SESSION — THE WITNESSES ARE WRITTEN AND UNRUN
+>
+> ***NOTHING IS BROKEN AND NOTHING IS HALF-DONE.*** The install of **28 Aug
+> 00:53:34 is still current** — `assert-current` **exit 0 run live this
+> session, after the three new scripts were added** — so the eight fixes can
+> still be witnessed **without spending a cycle**. Nothing in `gplsrc` or
+> `sdsys` was touched, deliberately: any edit there would make the tree stale
+> and cost the install that is the only thing able to test them.
+>
+> ***TWO SCRIPTS DO THE EIGHT. THEY ARE YOURS TO RUN; I CANNOT — BOTH NEED AN
+> ELEVATED SHELL.*** Both parse 0 errors, carry no BOM, and every refusal path
+> in each was exercised unelevated and exits 2.
+>
+> **1. The five that need no account — entries 5, 13, 14, 15, 26.**
+> Leaves nothing behind; creates and removes its own fixtures inside SDSYS.
+> ***In your own terminal, ELEVATED PowerShell:***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-vocverbs.ps1
+> ```
+>
+> **2. The three that need real accounts — entries 22, 27, 37.** Creates four
+> Windows accounts and deletes all four; refuses up front if any name is taken.
+> **`sdmsga` is free — measured this session** (no Windows account, no
+> `ACCOUNTS` record, no profile directory for any of the four derived names).
+> ***In your own terminal, ELEVATED PowerShell:***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-acctmsgs.ps1 -Prefix sdmsga
+> ```
+>
+> **Neither is wired into `VerifyInstall1`, on purpose** — the second creates
+> Windows accounts, and the suite is not the place to decide when that happens.
+> They are standalone until you say otherwise.
+>
+> **`test-vocverbs-units.ps1` needs no install and no elevation** — 40 rows,
+> run and green this session. It drives the first script's matchers against
+> synthetic transcripts of a fixed build **and of the defect**, and requires
+> every pattern to tell them apart.
+>
+> ***THREE OF THE SEVENTIETH SESSION'S SUGGESTED TESTS DO NOT WORK, AND TWO OF
+> THEM WOULD HAVE SCORED A FALSE PASS.*** The table below is left as written
+> because the ENTRIES it names are right; these are corrections to the
+> *commands*, and each is why the scripts above do something different:
+>
+> - ***26 — `delete.file zzwork force` CANNOT FAIL.*** `DELETEF` guards both
+>   prompts with `if not(force)` (`:250` and `:319`), so `force` suppresses
+>   them whether or not the fix is present. The reproduction entry 26 itself
+>   describes is the **`no.query`** form, which does *not* suppress them —
+>   only the path comparison does. **A run of the `force` form would have
+>   measured nothing and reported a pass.**
+> - ***22 — the password `a` is ACCEPTED on this machine.*** `net accounts`
+>   reports **minimum password length 0**, and complexity is off by default on
+>   a client SKU, so that arm creates a real account instead of printing
+>   10119. The script drives the two arms separately: the **mismatch** arm is
+>   deterministic (`SET_PASSWD:101` compares the pair before Windows is
+>   involved), and the **refusal** arm uses a **150-character** password, past
+>   the SAM's 127-character limit for a local account. **If this host accepts
+>   even that, the arm is recorded SKIP and not PASS**, and the account is
+>   removed.
+> - **13 — `qselect voc saving 3` needs an ACTIVE select list** or it stops at
+>   `3290` (`QSELECT:196`). The script uses `QSELECT VOC * SAVING 3`, which is
+>   self-contained; a preceding `SELECT` would print a second *"selected to
+>   select list"* line, which is the wording under test.
+>
+> ***THE FIRST SCRIPT IS RUN AND GREEN — 36 PASS / 0 FAIL, ALL FIVE ENTRIES.***
+> `verify-vocverbs.ps1` on the 00:53:34 install, owner's elevated terminal.
+> **PRE_RELEASE 5, 13, 14, 15 and 26 are struck.** The evidence that is worth
+> keeping, because each is the row a lazy check would have got wrong:
+>
+> - **5** — `.D ZZPRFD` printed `Delete VOC record 'zzprfd'?`, the lower-case
+>   name from an upper-case verb. The defect could not print that line at all.
+>   **Exactly one** delete prompt fired in the session, which is the
+>   fall-through half.
+> - **13** — the message ends in a list number, nothing dangling, and it
+>   selected more than zero.
+> - **14** — 10117 printed, **6146 never asked**, and `sdsys\messages` still on
+>   disk. The absence of the question is the whole check; answering it reaches
+>   the same place.
+> - **15** — `delete.index zzprfak f1` answered *"Deleted index F1"*, and the
+>   control held: an unknown name came back **as typed**, not upcased.
+> - **26** — `delete.file zzprfw no.query` fired **neither** prompt. ***Not
+>   tested with `force`***, which is what the seventieth session's table asked
+>   for and which cannot fail.
+>
+> ***IT TOOK TWO RUNS, AND THE FIRST FAILURE WAS MINE.*** 21 of 22, failing at
+> the entry 15 FIXTURE: `LIST.INDEX <file>` with no index name PROMPTS
+> (`LISTI:117`), so it ate the `OFF` after it and the session sat until the
+> timeout — while `CREATE.INDEX` had already said *"Added index for F1"*. Fixed
+> to `LIST.INDEX <file> ALL`, and the fixture now carries three independent
+> instruments instead of the one that could be eaten.
+>
+> ***THE CLASS, WHICH IS THE PART WORTH KEEPING: anything driven down a pipe
+> must NAME every optional argument.*** `LISTI:117`, `DELETEI:101`,
+> `DELETEF:117` and `DELACC:96` each prompt when theirs is omitted, and a
+> prompt down a pipe answers itself with the next command. **The tell is a
+> transcript whose last line is a prompt and whose next command never appears.**
+> Same family as §6's *"piping a command into sd hangs the session"*, reached
+> from the other end: not a bare command, but a well-formed script with one
+> argument left off.
+>
+> **No stray `sd.exe`** — checked after the timeout; only the normal `sdwind`.
+> The aborted run left `ZZPRFSRC` and `zzprfak` behind and the pre-clean
+> removed both on the second run, so the script is re-runnable as it stands.
+>
+> ***THE SECOND SCRIPT IS RUN TOO — `verify-acctmsgs` 26 PASS / 0 FAIL / 1
+> SKIP, `-Prefix sdmsga`.*** **27 and 37 are struck. 22 is HALF measured and is
+> deliberately NOT struck.**
+>
+> - **27** — both `MODIFY.ACCOUNT ADD account=… to=…` and `… DELETE account=…
+>   from=…` in the bytes the run added to `sdsys/audit`, **with the controls
+>   first**: 10018 and 10021 in SD's own output, because the record is written
+>   inside `if stat = 0` and a failed edit would otherwise read as a missing
+>   audit record.
+> - **37** — 10034 *"may reach this computer only over ssh"*, 10078 *"SD routes
+>   for …: ssh and the API"*, **and both old wordings absent**. The
+>   disqualifier is what carries this one: both lines contain "ssh", so a check
+>   anchored there would have passed on the defect.
+> - **22, mismatch arm** — 10118 printed, the other three of the four messages
+>   absent, and answering `N` unwound the creation with no account and no
+>   register record left.
+>
+> ***22'S "WINDOWS REFUSED" ARM (10119) HAS NEVER RUN, AND THE REASON IS A
+> PREMISE OF MINE THAT WAS WRONG.*** The arm sends a **150-character** password
+> on the stated grounds that 127 is a hard SAM limit for a local account
+> whatever the policy says. ***`Set-LocalUser` ACCEPTED IT*** — so the account
+> was created for real, the script said so, removed it, and recorded **SKIP**.
+> **This is the "measure before writing the comment" trap**: the limit was
+> reasoned, written as fact into the script's header, and is false here. It is
+> **corrected in place rather than deleted**, because the next session will
+> otherwise reason its way to the same password.
+>
+> ***THE OWNER RULED: CHANGE THE POLICY FOR THE TEST (28 Aug 2026).*** So the
+> password is now **chosen from the policy rather than guessed**.
+> `Get-PasswordPolicy` reads `MinimumPasswordLength` and `PasswordComplexity`
+> with `secedit /export` — locale-independent, unlike parsing the prose
+> `net accounts` prints, which is kept only as the fallback — and
+> `Select-RefusedPassword` breaks whichever rule is in force: **one character
+> short of the minimum**, or **a single character class** against complexity.
+> With no rule in force there is nothing to break, and the arm says so and
+> SKIPs. `test-acctmsgs-units.ps1` drives that chooser with policies this host
+> does not have: **35 rows, all passing**.
+>
+> ***THE SCRIPT STILL DOES NOT CHANGE THE POLICY, AND THAT IS DELIBERATE.*** It
+> reads it and adapts. Changing a machine's password policy has to be somebody's
+> decision, made once, in the open, and **reverted afterwards** — not a side
+> effect of running a test.
+>
+> ***AND IT RAN: 31 PASS / 0 FAIL / 0 SKIP, `-Prefix sdmsgb`.*** The three
+> elevated commands were `net accounts /minpwlen:14`, the verifier, then
+> `net accounts /minpwlen:0`. **10119 printed naming the account**, with the
+> mismatch and unelevated messages absent and the retry still offered, so both
+> arms of entry 22 are now measured and it is struck.
+>
+> ***THE POLICY IS BACK: minimum length 0, read AFTER the run, not assumed.***
+> Leaving 14 in force would have changed how every later `create.account` on
+> this machine behaves.
+>
+> ***AND NOTHING WAS LEFT BEHIND BY EITHER PREFIX*** — no Windows account,
+> register record or profile directory for any of the eight names across
+> `sdmsga` and `sdmsgb`, and `C:\Users` holds only `b48adm`, `dmont` and
+> `Public`. Read from disk, not from what the deletes reported.
+>
+> ***`sdmsga` AND `sdmsgb` ARE SPENT. THE NEXT PREFIX IS `sdmsgc`.***
+>
+> ### `verify-tierchange.ps1` — ***THIS HEADING WAS WRONG. CORRECTED 31 Aug 2026, PRE_RELEASE 109***
+>
+> ***IT DID NOT PASS 28 OF 28. IT CANNOT HAVE.*** `-Run b89` ran the same file
+> against the same product on 31 Aug and got **27 of 28**, failing the 10115
+> check — and `git log -S` puts **the check, `Test-Say`, `tier.os.remove` and
+> message 10115 all unchanged since before the 28 Aug run** (`5251a3d` 28 Aug,
+> `62217b6` 27 Aug). **No transcript survives to say otherwise**: this was a
+> hand-run, and only a runner step writes a numbered log. **The likeliest
+> reading is that the verdict line's *"28 decisive checks"* was recorded here as
+> *"28 PASS"*** — the instrument-misreading class CLAUDE.md already catalogues.
+> **The defect was the verifier's, not the product's** — see PRE_RELEASE 109.
+>
+> ***FIRST RUN, NO FIXES NEEDED*** — the only one of the three verifiers this
+> session that passed on the first attempt. **`sdtc1` is spent; use `sdtc2`.**
+> Nothing left behind, read from Windows rather than from what
+> `DELETE.ACCOUNT` said.
+>
+> ***THE ARITHMETIC CONFIRMED ITSELF, WHICH IS THE POINT OF BUILDING IT THAT
+> WAY.*** `D = 397` arrived by **two independent routes** — `A + added −
+> removed` from what 10113 said, and `P + kept` from what a clean downgrade
+> would have been — and they agreed. `added 0, removed 19, kept 1` against 20
+> administration verbs: **the edited record is provably still there and provably
+> the only difference.** No count is typed anywhere in the file.
+>
+> ***THE LAST ROW OF 19'S TABLE — THE THREE DOORS — IS NOW COVERED, 28 Aug
+> 2026.*** `verify-tierchange` never claimed them: it prints them as NOT tested
+> rather than scoring them, which is why the row survived to be closed
+> honestly. The `verify-doors` pair covers them, all four legs green on
+> `sddr2`. **The ruling *"19 stays B until the doors are covered"* is satisfied
+> by that run, so 19 is struck.**
+>
+> **The table below is kept as written** — it is the analysis of *why* nothing
+> reached the doors, and it is what the pair was built from.
+>
+> ***WHAT EACH DOOR NEEDED, AND WHY NOTHING REACHED IT BEFORE:***
+>
+> | door | where | why nothing reaches it yet |
+> |---|---|---|
+> | `LOGIN` (ssh/console) | `LOGIN:477` → **10107** | needs a **real ssh login** as the suspended account. `verify-sshonly.ps1` already has the `SSH_ASKPASS` machinery to borrow |
+> | `logto` | `CPROC:3776` → **10107** | needs an **UNELEVATED** session. `verify-tiers` must be elevated to create accounts at all, so its `LOGTO` takes `CPROC:3729`'s bypass — it asserts the bypass rather than working around it |
+> | the API | `APISRVR:507` → **10003** | 10003 is **deliberately** what *"no such account"* and *"not granted"* also answer, so wording proves nothing. It needs a **controlled pair on one account**: the same account reachable, then suspended, then reachable again |
+>
+> **The shape is PRE_RELEASE 38.** The awkward part is not the checks, it is
+> that one script must create accounts **elevated** and then measure them
+> **unelevated** and **over ssh** — which is why the suite is split into
+> `VerifyInstall1` and `VerifyInstall2` in the first place.
+>
+> ### THE DOOR PAIR HAS MET SD — `verify-doors-admin.ps1` + `verify-doors.ps1`
+>
+> ***A PAIR, LIKE THE SUITE, BECAUSE THE TWO HALVES NEED OPPOSITE TOKENS.***
+> The fixture needs an **elevated** process (`CREATE.ACCOUNT` and
+> `MODIFY.ACCOUNT` are `K$ADMINISTRATOR`); the measuring must be **unelevated**,
+> because `logto` reaches its suspension test only *after* `CPROC:3729`'s
+> elevated bypass. **`verify-doors.ps1` refuses to run elevated** and says why —
+> measuring that door from an elevated session would report the design working
+> as a fault, which is the mistake `verify-tiers` section 6 declines to make.
+>
+> ***FIVE COMMANDS, AND EACH PHASE PRINTS THE NEXT ONE.*** ***`sddr1` IS SPENT
+> — its profile directory survives the delete and a rebuild under that name
+> would get a suffixed home (see the box at the top). `sddr2` is free,
+> measured 28 Aug.*** Start ELEVATED:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-doors-admin.ps1 -Prefix sddr2 -Phase Create
+> ```
+>
+> ***A PREFIX IS SINGLE-USE ONCE ITS ACCOUNT HAS SIGNED IN OVER ssh.*** The
+> Control leg's ssh login creates a Windows profile, and `DELETE.ACCOUNT`
+> cannot remove it while its hive is mounted (PRE_RELEASE 35/36). **Take a
+> fresh prefix for every attempt** rather than reusing one that reached the
+> Control leg.
+>
+> It prints the generated password and the exact unelevated command to run
+> next. The order is **Create → Control (unelevated) → Suspend → Refused
+> (unelevated) → Remove**.
+>
+> ***THE CONTROL LEG IS NOT A FORMALITY.*** If a door refuses *before* the
+> suspension, its refusal after one proves nothing — and the likeliest causes
+> are mundane, a wrong password or the caller not in the account's group. The
+> script says STOP in those words rather than carrying on.
+>
+> **Three things it gets right that a first attempt would not:**
+>
+> - ***The ssh refusal is SD's, not sshd's.*** Suspension moves no Windows
+>   group, so ssh authenticates in **both** phases and `ForceCommand` starts SD
+>   in both. The anchor is **10107 in the session output**, not an ssh failure —
+>   a run where ssh itself failed would be measuring a different defect and
+>   scoring it as a pass. The Suspend phase asserts the account is **still in
+>   `sdssh`** for that reason.
+> - ***The caller is added to the account's group at Create.*** Without it
+>   `logto` is refused as *"not allowed in requested account"* in **both** legs,
+>   and the refusal proves nothing. Adding them makes the suspension the only
+>   thing that changes.
+> - ***The API door cannot identify itself and the script says so.*** `10003` is
+>   deliberately what *"no such account"* and *"not granted"* also answer. Only
+>   the controlled pair distinguishes it, and the file states that instead of
+>   pretending the refusal is self-identifying.
+>
+> **It does not touch `sd.conf`.** `APIPORT=4243` was measured on and listening;
+> if it were not, that door records **SKIP**. A verifier that restarts SD to
+> measure a refusal has changed the thing it is measuring.
+>
+> **Parse 0 errors, no BOM, 8 identical `Write-Verdict` copies, 126 of 126
+> verdict assertions, every refusal path exercised.**
+>
+> ***BOTH HALVES HAVE NOW MET SD, 28 Aug 2026.*** `-Phase Remove` 2/2,
+> `-Phase Create` 6/6, `-Phase Control` **5 of 6 — ssh and `logto` ADMITTED,
+> the API refused for a MISSING CREDENTIAL, not a missing route.** `Create` was
+> the thing at fault and now sets the SD password with `MODIFY.PASSWORD`;
+> the product half is **PRE_RELEASE 42**. The written-and-unrun claim above
+> stands as the record of what pre-flight checking did and did not catch:
+> **parse, BOM and refusal paths all passed, and the fixture was still
+> unusable, because no static check knows that the API reads a different
+> credential store than ssh.**
+>
+> ### the original hand-over, kept for the reasoning
+>
+> **PRE_RELEASE 19 is a `B`, and correcting it was worth more than believing
+> it.** Three of its claims are false — see the dated block at the top of the
+> entry — and the one that mattered was ***"the test cannot be piped"***, which
+> was **wrong when written** and had kept a verifier from being attempted at
+> all. A password prompt is answered perfectly well by the next LINE of one
+> string; `verify-tiers.ps1` had been creating accounts that way for weeks.
+>
+> **What is genuinely left of 19 is three rows, and this covers them:**
+>
+> | row | what proves it |
+> |---|---|
+> | the required keyword | `modify.account X programmer` on an administrator prints **10111** and **nothing moves** — tier, Windows group and `os.users` all still ADMINISTRATOR afterwards |
+> | what leaves with ADMINISTRATOR | Windows `Administrators` membership **and** the `os.users` record, both asserted PRESENT after the promote so their removal is a *transition* and not an absence |
+> | the "left alone" count | one admin verb's VOC record is made to differ with `.S`, then **`D = P + kept`** — a clean downgrade lands back on `P`, so the kept record is provably there and provably the only difference |
+>
+> ***NOT ONE COUNT IS TYPED.*** The account's VOC is measured three times — as
+> PROGRAMMER, as ADMINISTRATOR, as PROGRAMMER again — and the rows assert the
+> relations: `A > P` (the null case), `D = A + added − removed` (10113 agrees
+> with the file), and `D = P + kept`. This is the trap that printed *"the 21
+> administration verbs … 20 20 PASS"*.
+>
+> ***ELEVATED, YOUR OWN TERMINAL. `sdtc1` IS FREE — measured.***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-tierchange.ps1 -Prefix sdtc1
+> ```
+>
+> ***THE ACCOUNT IS A WINDOWS ADMINISTRATOR FOR PART OF THE RUN***, which is the
+> point of the test. The downgrade is asserted before the delete, and the
+> clean-up reads Windows rather than trusting what `DELETE.ACCOUNT` said.
+>
+> **Parse 0 errors, no BOM, 6 identical `Write-Verdict` copies, 96 of 96 verdict
+> assertions, both refusal paths exercised. It has never met SD.**
+>
+> ***`sdmsga` IS SPENT. THE NEXT PREFIX IS `sdmsgb`.*** The run left nothing
+> behind — no Windows account, register record or profile directory for any of
+> the four names, read from disk rather than from what the delete reported.
+>
+> ### HANDOFF, SEVENTIETH SESSION — GREEN, PUSHED, AND EIGHT FIXES AWAIT A WITNESS
+>
+> ***NOTHING IS BROKEN AND NOTHING IS HALF-DONE.*** Repository pushed and clean
+> at `4735957`. **Install 28 Aug 00:53:34, `assert-current` exit 0,
+> `verify-tiers` 33 PASS / 0 FAIL.** `sd.exe` `DF77FD6D61DE5184` unmoved —
+> everything this session changed is BASIC, messages and one deleted VOC record.
+>
+> ***START HERE: EIGHT FIXES ARE INSTALLED AND NOBODY HAS RUN THEM.*** They
+> compiled and they shipped; that is not the same as working, and the install
+> is current **now**. Another cycle only puts them back in this state. Each is
+> one command in an ordinary SD session:
+>
+> | entry | what to type | what proves it |
+> |---|---|---|
+> | **5** | save a paragraph as `daily`, then `.d DAILY` | it deletes. Then `.d nosuchname` must say **not found in VOC**, not act on a stale record |
+> | **13** | `qselect voc saving 3` | the message ends with **a list number**, not a dangling *"select list "* |
+> | **14** | `delete.file <a file whose part is in SDSYS> no.query` | it does **not** prompt, prints **10117**, and leaves the system file |
+> | **15** | `create.index`, then `delete.index zzak f1` in **lower case** | it deletes. A genuinely unknown name must still echo **as typed** |
+> | **22** | `create.account user zztest programmer both`, give a password Windows refuses (`a`) | **10119**, not a bare retry. Mismatched pair gives **10118** |
+> | **26** | `create.file zzwork`, then `delete.file zzwork force` in lower case | **neither** DATA nor DICT prompt fires |
+> | **27** | `modify.account <acc> add <user>`, then read the audit file | a `MODIFY.ACCOUNT ADD account=… to=…` record exists |
+> | **37** | `create.account user zztest2 programmer both` | the two lines name **different subjects** and no longer contradict |
+>
+> **Then strike them in PRE_RELEASE_FIXES.md** — they are marked *COMPILED AND
+> INSTALLED — UNTESTED* on purpose, and only **25** is struck, because
+> `verify-tiers` measured it.
+>
+> ***WHAT IS OPEN: 30 ENTRIES.*** Of the eleven-entry batch, **6 and 12 remain,
+> and both entries were WRONG about what they needed** — 6 is an investigation
+> (the `C:` directory is remade by every install; no install-time `CREATE.FILE`
+> exists and the parser fix predates it), and 12 is a **C** change at
+> `gplsrc/op_dio3.c:853`, not the message-only edit its entry claims.
+> **PRE_RELEASE 36 is RULED and NOT BUILT** — the entry's first block is the
+> spec. **41 is new**: the cleanup sweep reports *"every section reached zero"*
+> while orphan directories remain, because its counter and its cleaner share one
+> blind `Win32_UserProfile` enumeration.
+>
+> ***MACHINE STATE, MEASURED AT HANDOFF.*** `C:\Users` holds only `b48adm`
+> besides the built-ins — **its Windows account is live and its SD account was
+> destroyed by the cycle**, which is the 32/35/36 shape and was predicted before
+> the run. SD register: `don`, `sdsys`, `sdtier1/2/3` — the last three are
+> `verify-tiers` residue left deliberately. ***`sdtier` AND `sdtierb` ARE SPENT;
+> USE `sdtierc`.*** `b48tier`, `b48susp` and `b48adm`'s SD halves are gone.
+>
+> ***THREE TRAPS THIS SESSION PAID FOR.***
+>
+> 1. ***NEVER REWRITE A TRACKED FILE WITH POWERSHELL `Set-Content`.*** Used for
+>    a two-row table swap, it read the UTF-8 file as CP1252 and wrote it back
+>    double-encoded — **all 272 em dashes became `â€"`** — plus a BOM and CRLF
+>    throughout. ***THAT QUOTED SEQUENCE IS THE ONLY ONE IN THIS FILE, IT IS
+>    EVIDENCE RATHER THAN DAMAGE, AND §0 STATES THE EXPECTED COUNT SO NOBODY HAS
+>    TO INVESTIGATE IT AGAIN.*** **The mojibake is silent**; stripping the CRs made the diff
+>    *smaller*, which reads like progress. Recovery is `git checkout` and redo
+>    with the editing tools.
+> 2. ***A CONSTANT TYPED INTO A LABEL DRIFTS FROM THE VALUE BESIDE IT.*** A
+>    `verify-tiers` row printed *"the 21 administration verbs are still
+>    ABSENT … 20 20 PASS"*. Interpolate the count; never type it.
+> 3. **`grep -l '\n'` matches the letter `n`**, so it "found" the escape in
+>    nearly every message file. Use `grep -F`.
+>
+> ### HANDOFF, SIXTY-NINTH SESSION — NOTHING IS BROKEN, NOTHING IS HALF-DONE
+>
+> ***THE SESSION ENDED ON CREDIT.*** Both repositories **pushed and clean**, the
+> install **green and current**, `C:\Users` clean, and every fix in the tree is
+> compiled. **What is left is seven decisions and three measurements, all listed
+> below.**
+>
+> ***START BY READING PRE_RELEASE_FIXES.md.*** Seven entries are open and
+> **six of them are yours to rule on, not work to be done**: **31** (rewrite
+> `verify-apiadmin`'s stale control), **34** (`release.ps1` cannot finish on a
+> zero-link set), **36** (***RULED 27 Aug — no longer a decision. It is now
+> WORK, and the entry's first block says exactly what to implement***), **37**
+> (`create.account` prints two contradictory lines), **38** (the suite tests
+> SUSPENDED on no door), **39** (uninstall leaves every account without its ssh
+> confinement), **40** (a verifier's transcript records the verifiers after it).
+>
+> ***THE THREE MEASUREMENTS THEN OWED — TWO ARE NOW DONE.*** ~~item **5.2's API
+> door** (`APISRVR:507`, never reached — and it **cannot be tested by its
+> wording**, which is deliberate, so it needs a controlled pair)~~ — **DONE
+> 28 Aug 2026: the controlled pair ran on `sddr2`, ADMITTED then REFUSED.**
+> ~~item **5.5**, `verify-tierchange.ps1`~~ — **DONE 28 Aug, 28 PASS.** **STILL
+> OWED: item 5.4**, `tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b` in
+> the docs repo, 15 cases, compiled clean and **never run**.
+>
+> ***THE FIXTURES EXIST AND ARE NOT IN THEIR ORIGINAL STATES.*** `b48tier` is
+> **STANDARD** now, not PROGRAMMER — item 5.1 downgraded it — and its
+> `voc/basic` carries a hand-edited fourth line, which is the record the
+> downgrade left alone. `b48susp` is **SUSPENDED**. `b48adm` is **PROGRAMMER,
+> `both`**, password known to the owner, and it **has signed in over ssh**, so
+> deleting it will leave a profile directory (entry 35/36, expected).
+>
+> ***`b49` IS SPENT. THE NEXT SUITE RUN IS `b50`.***
+>
+> ***THREE TRAPS THIS SESSION PAID FOR, WRITTEN ONCE.***
+>
+> 1. ***COUNT A SUITE RUN FROM THE PER-STEP CAPTURES***,
+>    `<time>-NN-verify-*.log`, which are one file per step by construction. A
+>    `verify-<name>-*.log` may contain **later** verifiers' output — 15 of 33
+>    verifiers never stop their transcript (entry 40). A wrong verdict was
+>    issued and withdrawn on exactly this.
+> 2. ***A REBOOT CLEANS NOTHING. IT ONLY UNLOCKS.*** `cleanup-devlitter.ps1`
+>    needs one **because a mounted hive cannot be removed** — that line was in
+>    this file the whole time and four exchanges went on rediscovering it.
+>    **When a symptom appears, grep the record; knowing a warning is not the
+>    same as reaching for it.**
+> 3. ***MEASURE BEFORE WRITING THE COMMENT.*** "Status 6 is harmless" was
+>    reasoned, reached the code, a shipped message and the changelog, and was
+>    false. It cost three rounds.
+>
+> ***GREEN AND CURRENT: INSTALL 27 Aug 22:52:21, `assert-current` EXIT 0.***
+> `gcat` **125** / `gpl.bp.out` **184**, `sd.exe` `DF77FD6D61DE5184` **unmoved**
+> — everything this session changed is BASIC, messages and one shipped comment.
+> **Suite `-Run b49`: 30 of 31 steps, 963 `PASS`, 1 `[FAIL]`, 0 `[SKIP]`**, the
+> one failure being PRE_RELEASE 31's known stale control.
+>
+> ***STALE AS OF 28 Aug: `C:\Users` HOLDS 11 DIRECTORIES AGAIN, 10 OF THEM
+> ORPHANS, AND 22 HIVES ARE LOADED.*** The sweep below did happen; **the `b49`
+> suite refilled it afterwards**, which is the measurement PRE_RELEASE 36 now
+> carries. Three of the ten have no `ProfileList` entry at all. **A reboot's
+> repair lasts one suite run.**
+>
+> ***AND `C:\Users` IS CLEAN FOR THE FIRST TIME IN WEEKS*** — the post-reboot
+> sweep took **53, failed 0**, and the three `b49`/`b50` directories this
+> session made were removed by hand. Only `Default`, `dmont` and `Public`
+> remain.
+>
+> - **PRE_RELEASE 23 is fully closed.** The three docs pages that said
+>   `term default` does not restore 120 x 36 are corrected —
+>   `SDCoreWindowsDocs` `c41d999`.
+> - **The shipped-scripts gap is closed.** `Technical/02` The Installed Scripts,
+>   all **26** of them (the recorded 25 was measured wrong), and tester `01` now
+>   prints the `install-ssh.ps1` retry command it only promised —
+>   `SDCoreWindowsDocs` `7914e60`.
+> - **Item 5.3 is closed.** The owner ran `edit bp ZZMARKS` unelevated on the
+>   19:37:47 install — **no problems**. Both editors are now witnessed.
+> - **Two new pre-release entries, 33 and 34.** ***33 is already fixed*** —
+>   `allow-ssh-groups.ps1`'s usage line now names the `-Installed` it requires;
+>   comment only, and it rides 32's cycle. **34 is in item 4's table and needs
+>   your ruling.**
+> - ***PRE_RELEASE 32 IS FIXED AND MEASURED — AND THE MEASUREMENT FOUND 35.***
+>   `DELETE_USER`'s `catch { exit 6 }`, which left **both** halves of the
+>   profile behind, is `catch { }`, and the `ProfileList` key is removed in its
+>   own right. Cycled at **21:58:17** and tested end to end. **The registry
+>   half works**: the deleted account's entry was gone. ***AND THE SYMPTOM
+>   HAPPENED ANYWAY*** — the recreated account landed at
+>   `C:\Users\b49home.GITORLI` because the **directory** survived, and Windows
+>   will not put a new profile where a directory already sits either.
+> - ***PRE_RELEASE 35: BOTH HALVES CAUSE THE SAME SYMPTOM, AND I HAD WRITTEN
+>   THAT STATUS 6 WAS HARMLESS.*** That claim was reasoned, not measured, and
+>   it had already reached the code comments, message `10075` and the
+>   changelog. All three are corrected. ***AND THE DIRECTORY HALF CANNOT BE
+>   FIXED AT DELETE TIME — MEASURED FOUR WAYS.*** `Remove-Item` fails with
+>   `IOException` on **`UsrClass.dat`**; the directory is owned by
+>   `BUILTIN\Administrators`, so it is not permissions; `reg unload` of both
+>   hives is **refused elevated**; and even `Rename-Item` is refused. **The
+>   path cannot be freed while the hive is mounted.** `DELETE_USER` still tries
+>   — it succeeds for an account that never signed in — and `10075` now names
+>   the cause and the restart. ***UNCOMPILED — IT NEEDS ANOTHER CYCLE.***
+> - ***PRE_RELEASE 36 IS THE ROOT CAUSE OF ALL OF IT, AND IT IS YOURS.***
+>   **22 orphaned SIDs — 44 hives — were mounted on this host**, every one for
+>   an account that no longer exists. That is why `Remove-CimInstance` failed
+>   in the first place, and it is probably why the 53 stale `ProfileList`
+>   entries were never swept: `clean-test-profiles.ps1` uses the same call.
+>   **Nothing SD does can unmount them; only a restart.** Two decisions in the
+>   entry, neither built.
+> - ***AND THE RECORD ALREADY SAID SO.*** The `cleanup-devlitter.ps1` line —
+>   *"a loaded hive cannot be removed"* — has been in this file since 26 Aug. I
+>   quoted it myself in the runbook earlier in the session, then spent four
+>   exchanges rediscovering it. **Knowing a warning is not the same as reaching
+>   for it when the symptom turns up.**
+> - ***THE TEST THAT FOUND IT IS WORTH KEEPING, AND ITS ONE TRAP IS THE ssh
+>   LOGIN.*** A brand new Windows account has **no profile until it signs in
+>   once**, so a create/delete/create test without a login leaves nothing
+>   behind and passes while proving nothing. Full form in PRE_RELEASE 35.
+>
+> ***THE FIXTURES WERE ALREADY GONE, AND THIS BOX SAID OTHERWISE FOR HALF A
+> SESSION.*** The sequencing note here read *"5.1 and 5.2 go first, before any
+> source change, because a fresh install destroys the fixtures"*. **The fresh
+> install had already happened**: `b48tier`, `b48susp` and `b48adm` were made
+> against **18:58:55** and the **19:37:47** cycle wiped both trees. Item 3
+> carries the measurement.
+>
+> ***THE TELL WAS AVAILABLE AND WAS NOT USED.*** The same box records that the
+> 19:37:47 cycle destroyed the `ZZMARKS` fixture and had it rebuilt. A cycle
+> does not destroy one fixture. **When a cycle is known to have eaten something,
+> the question is what else it ate.**
+>
+> ***SO THE ORDER INVERTS: nothing is waiting on this install, and PRE_RELEASE
+> 32 is free to go first.*** Rebuild the three accounts on the install after
+> its cycle, `cleanup-devlitter.ps1` first — the Windows halves outlived the SD
+> halves and a same-name rebuild is exactly PRE_RELEASE 32's defect.
+>
+> ### HANDOFF, SIXTY-EIGHTH SESSION — READ THE FIVE NUMBERED ITEMS FIRST
+>
+> ***THE SESSION ENDED ON CREDIT, NOT ON A PROBLEM.*** `sd4windows` is **pushed
+> and clean**, the install is **green and current**, and **nothing is
+> half-written or half-installed**. The docs repository was not touched this
+> session and has one correction owed (item 4).
+>
+> ***WHAT WAS DONE: FOUR PRE_RELEASE ENTRIES CLOSED AND TWO NEW ONES FOUND.***
+> 21, 23 and 29 fixed, installed and **measured**; 30 (a stale verifier) fixed
+> and passing in-suite; `-Run b48` scored **30 of 31**. New and open: **31**
+> (`verify-apiadmin`'s control is stale — needs your ruling) and **32**
+> (`delete.account` leaves the `ProfileList` entry, so a recreated account gets
+> a different home and loses its ssh keys — a real user-facing defect).
+>
+> ***THE ONE THING TO PICK UP IS SMALL:*** `edit bp ZZMARKS` unelevated, thirty
+> seconds, item 5.3. Everything else outstanding is a decision or another
+> repository.
+>
+> ***AND THE LESSON THIS SESSION KEEPS PAYING FOR, WRITTEN ONCE:*** PRE_RELEASE
+> 29 took **three** attempts, and each fix was reported before it was measured
+> **in the place it runs**. A console is not `os.execute`; the installed tree is
+> not the source tree. **Run it where it runs, and print what the instrument
+> actually read.**
+>
+> ## ***1. PRE_RELEASE 29 IS DONE. THE TREE IS GREEN. NOTHING IS HALF-DONE.***
+>
+> ***Install 27 Aug 19:37:47, `assert-current` exit 0.*** The owner ran
+> `micro bp ZZMARKS` **three times, save and no-save, no message.**
+> **`~/.micro/backups/` now exists** — the very write that used to fail, and it
+> had never appeared once before. **The mark round trip survived a real save**:
+> SD reads the record back as 19 fields, 907 chars, VM 6 / SM 1 / TM 3, no stray
+> CR or LF. ***That closes the last of item 5.3.***
+>
+> ***IT TOOK THREE ATTEMPTS AND THE PATTERN IS THE POINT.*** Each fix was
+> reported before it was measured where it runs:
+>
+> - **`-backup off`** — reasoned from micro's option defaults, fixed nothing.
+> - **The helper read `$env:USERPROFILE` and `$env:TEMP`, EMPTY inside
+>   `os.execute`.** Tested four ways beforehand — **all four from a console**,
+>   the one environment those runs held constant.
+> - **`EDIT` split the capture on `char(10)`** where it is `@fm` with trailing
+>   `CR` and **no LF at all** (`FM=7 CR=8 LF=0`, measured).
+>
+> **Also found:** `[System.IO.Path]::GetTempPath()` answers `C:\WINDOWS\` when
+> TEMP is unset — elevated, the fallback would have created
+> `C:\WINDOWS\sd-micro`. Any candidate under the Windows directory is refused.
+>
+> ***AND `cycle.ps1` DESTROYS THE `ZZMARKS` FIXTURE*** — it deletes both trees,
+> so `don`'s BP goes too, and `EDIT` happily opens a record that does not exist.
+> One run was wasted editing an **empty new record** before anyone noticed.
+> **Rebuild it after every cycle**: `tools\probes\make-zzmarks.py` (docs repo),
+> sha `1D65F19475F3CA5DCC5D594897F6B9CB`. It is rebuilt and canonical now.
+>
+> **A micro save rewrites the record on disk with `dos` line endings** — 908 →
+> 927 over 19 lines. **Benign**: SD's reader normalises them, measured above.
+>
+> ### The 18:58:55 install, which the suite below scored
+>
+> ***`assert-current` was exit 0 live on it.*** `sd.exe`
+> `DF77FD6D61DE5184` (unmoved — all BASIC), `gcat`/`gpl.bp.out` **125 / 184**.
+> **The micro fix is in it, verified by reading the install**: `micro-home.ps1`
+> in Program Files, `micro.home` in the installed `EDIT`, `MICROHOME=` compiled
+> into the object, and **`-backup off` gone from it**.
+>
+> ***THE SUITE: 30 of 31 steps exited 0 — 12 unelevated (ALL) + 18 of 19
+> elevated. 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`***, counted with the UTF-16
+> decode and both controls (§6): the 19 elevated logs contributed 505 `PASS`,
+> and the known-failing `b43` control still shows its 8 `[FAIL]`, so the zero
+> `[SKIP]` is a measurement.
+>
+> - ***`verify-osusers` PASSES IN-SUITE*** — PRE_RELEASE 30's fix works where it
+>   stopped the previous run dead. The unelevated half is 12 of 12.
+> - **`verify-apiadmin` exit 1, 21/23** — the known stale control, PRE_RELEASE
+>   31. **The headline questions all PASSED**: the API session cannot open or
+>   write `$cred` and cannot run `OS.EXECUTE`.
+> - **`verify-sshonly` carries 2 `[FAIL]` yet exited 0** — non-decisive rows,
+>   and **environmental: PRE_RELEASE 32**. `b48` was spent twice, so Windows
+>   made duplicate profiles and ssh key auth broke. *(The instruction to re-run
+>   with `b48` was mine and was wrong — the prefix rule is in this box.)*
+>
+> ***NEXT RUN USES `b49`, AND RUN `cleanup-devlitter.ps1` FIRST*** — 53 stale
+> `sd*` `ProfileList` entries have accumulated since `b44`.
+>
+> ***WHY `verify-apiadmin` FAILS, TRACED AND NOT GUESSED.*** Its *control*
+> expects an elevated session `LOGTO`'d into a PROGRAMMER account to lose
+> `OS.EXECUTE`. `CPROC:2713` **does** clear `USR_ADMIN` (`op_kernel.c:416`), but
+> `os_permitted()` (`op_sh.c:167`) then keys `os.users` on `process.username` —
+> `don` — whom **PRE_RELEASE 2 listed**. The gate says yes on the *person*,
+> exactly as that feature's changelog says it should. **Product is per design;
+> the control was written before `don` had a record.** The rewrite needs the
+> owner to frame what it now proves. Not touched.
+>
+> ***THE THREE PRODUCT FIXES, ALL NOW ON THIS INSTALL.***
+>
+> 1. **PRE_RELEASE 21** — ***DONE.*** `verify-tiers` PASSED in `b48`.
+> 2. **PRE_RELEASE 23** — ***DONE, AND THE DOCS ARE CORRECTED TOO.*** The owner
+>    ran `term default` then `term`: **120 x 36**, where it was 20 x 24.
+>    `term default` prints nothing, which is what that arm does and is not a
+>    defect. The three pages that said the verb does not restore it —
+>    *SD TCL - The Terminal and the Session*, tester `13` and `02` — are fixed
+>    in `SDCoreWindowsDocs` `c41d999`, 27 Aug 2026 (sixty-ninth session).
+> 3. **PRE_RELEASE 29** — ***DONE.*** Witnessed on the 19:37:47 install: three
+>    runs, save and no-save, no message.
+>
+> ***NO CONSOLE CHECK IS OUTSTANDING ON THE EDITORS.*** The `micro` run closed
+> on 27 Aug; `edit bp ZZMARKS` unelevated was run by the owner in the
+> sixty-ninth session — **no problems**. Both editors are witnessed working on
+> the 19:37:47 install. The fixture is in `don`'s BP; it was written at sha
+> `1D65F19475F3CA5DCC5D594897F6B9CB` and a `micro` save has rewritten it since
+> (`dos` line endings, 908 → 927, benign — SD's reader normalises them).
+>
+> ## ***2. THE `sd -cleanup` DEBT IS CLEARED — the 17:25:59 cycle wiped both trees.***
+>
+> It was owed on the *previous* install: two piped batches had hung and been
+> killed (Users 12 and 19 stale on 27 Aug), User 19 leaving an `RU` lock on
+> `zzlock31` in `don`'s `voc`. The fresh install removed all of it. **Kept
+> because the cause recurs:**
+>
+> - ***`clearinput` in a piped session discards the unread script*** — including
+>   a trailing `off` — so the batch hangs. It is now on SD TCL page 29. Scanning
+>   a program for `input`/`keyin` is not enough; the question is *does it touch
+>   the input stream*. `delete.file` needs `force`, not just `no.query`
+>   (PRE_RELEASE 26), which is what hung one of the two.
+> - ***`sd -cleanup` never gives back a task lock*** (PRE_RELEASE 24,
+>   `clopts.c:300` tests the cleaner's own user number). Neither dead session
+>   held one; if a future one does, `unlock tasklock` *n* elevated is the way
+>   out.
+>
+> ## ***3. THE TIER WORK IS MEASURED AND WORKS. THE THREE FIXTURES ARE GONE.***
+>
+> ***CORRECTED 27 Aug 2026, SIXTY-NINTH SESSION. THIS TABLE SAID THEY WERE
+> STILL THERE AND THEY ARE NOT.*** They were made against the **18:58:55**
+> install and the **19:37:47** cycle wiped both trees — the same cycle whose
+> destruction of the `ZZMARKS` fixture item 1 records and which was rebuilt.
+> Nobody re-checked the accounts.
+>
+> **Measured on the 19:37:47 install rather than argued:** `sdsys/accounts`
+> holds **`don` and `sdsys` and nothing else**, `user_accounts` holds only
+> `don`, and `group_accounts` is **empty**.
+>
+> ***THE REFUSAL THAT FOUND IT LOOKS LIKE THE WRONG ONE, AND THAT IS BY
+> DESIGN.*** `logto b48tier` from an elevated SDSYS session answered *"User not
+> allowed in requested account"*, which reads as a failed group test. It is not:
+> `CPROC:2639` prints **the same message** when the account is absent from the
+> register, deliberately, so the register cannot be probed for which names
+> exist. **A refusal that cannot distinguish the two cases cannot be read as
+> either one** — the register is what settles it.
+>
+> ***THE WINDOWS SIDE OUTLIVED THE SD SIDE***, which a cycle does not touch:
+> local user **`b48adm`** and groups **`sdg_b48tier`**, **`sdg_b48susp`**,
+> **`sdu_b48adm`** are all still on this host. So rebuilding `b48adm` under the
+> same name walks straight into PRE_RELEASE 32. ***Run `cleanup-devlitter.ps1`
+> before rebuilding anything***, which the 53 stale `ProfileList` entries
+> already wanted.
+>
+> Full detail below in "THE TIER CHANGE AND SUSPENDED ARE MEASURED AND WORK".
+> The short form: `modify.account` moves an account between STANDARD,
+> PROGRAMMER, ADMINISTRATOR and SUSPENDED in either direction, the VOC delta
+> reported the predicted **42** and **21** every time, and the Windows side was
+> diffed from outside SD with `don` as an unchanged control. **None of that is
+> in doubt; only the fixtures are gone.**
+>
+> | account | what it was | what it was for |
+> |---|---|---|
+> | `b48tier` | PROGRAMMER, group | the **"left alone"** test, item 5.1 |
+> | `b48susp` | ***SUSPENDED***, group | the unelevated LOGTO-door fixture |
+> | `b48adm` | PROGRAMMER, user | the ssh and API doors, item 5.2 |
+>
+> **Rebuilding them is scriptable except for one:** `create.account group` does
+> not prompt (`CREATEA:517`), `create.account user` prompts for a password and
+> `no.query` does not suppress it — so `b48adm` needs a person. And
+> **`delete.account` prompts unconditionally** (`DELACC:242`, no `no.query`), so
+> never tear them down from a pipe.
+>
+> ## ***4. THE THREE FIXES ARE ALL DONE AND MEASURED. WHAT IS LEFT IS A DECISION AND TWO COMMITS ELSEWHERE.***
+>
+> ***OPEN, AND NONE OF IT NEEDS A CYCLE:***
+>
+> | | |
+> |---|---|
+> | **PRE_RELEASE 31** | **Yours.** `verify-apiadmin`'s control expects an elevated `LOGTO`'d session to lose `OS.EXECUTE`; `os_permitted()` keys the list on the *person* (`don`), whom PRE_RELEASE 2 listed, so the product is per design and the **control** is stale. Say what it should now prove and it can be rewritten — `$neverShipped`, no cycle |
+> | **PRE_RELEASE 32** | ***WRITTEN, AND IT IS THE ONE THING HERE THAT DOES NEED A CYCLE.*** `DELETE_USER` now removes the `ProfileList` entry in its own right; the BASIC is **uncompiled**. **53 stale entries are still on this host** — `cleanup-devlitter.ps1` before the next suite run, and before rebuilding any `b48` fixture |
+> | **PRE_RELEASE 34** | **Yours.** `release.ps1` cannot complete on `Technical`: `checklinks.py` rightly refuses a zero-link set and, two pages in, that set still has no honest cross-reference. Either the tool learns to say *this set has no links* or `release.ps1` passes a zero-link set out loud. ***Not to be settled by adding a link*** |
+> | **`b49`** | the next suite number. `b48` is spent twice over |
+>
+> ***DONE THIS SESSION, KEPT FOR THE RECORD:***
+>
+> | | |
+> |---|---|
+> | **PRE_RELEASE 21** | the unreachable inner `if old.tier # 'SUSPENDED'` at the field-6 write in `tier.set` is **deleted**; `MODIFYA` banner + equality-guard comment + `SYSCOM/KEYS.H` now say the equality guard is what keeps field 6 write-once. Behaviour unchanged — **`verify-tiers` PASSED in the 27 Aug `b48`, regression check clean.** DONE |
+> | **PRE_RELEASE 23 / UPSTREAM 24** | `TERM`'s `KW$DEFAULT` arm now sets `DEFAULT.WIDTH` / `DEFAULT.DEPTH`, not `MIN.WIDTH` and hard-coded 24; the `sdterm` depth-25 case went too. ***MEASURED 27 Aug: `term` reports 120 x 36.*** **DONE.** Left: three docs pages in `SDCoreWindowsDocs` still describe the old behaviour |
+> | **PRE_RELEASE 29** | ***DONE, install 19:37:47.*** `MICRO_CONFIG_HOME` is a per-user `~/.micro` (`[Environment]::GetFolderPath`, falling back to local application data then TEMP) via the new shipped `gplbld/micro-home.ps1`; `EDIT`'s `micro.home` reads its `MICROHOME=` line before the working copy is written; the dead `-backup off` and `editor.args` are gone; `stage.py` ships the script and its wrong comment is corrected. **Three runs by the owner, save and no-save, no message** |
+>
+> ## ***5. WHAT IS STILL NOT MEASURED. 1 AND 2 NEED THEIR FIXTURES REBUILT FIRST.***
+>
+> ***5.1 AND 5.2 CANNOT BE RUN AS WRITTEN — the accounts they name were
+> destroyed by the 19:37:47 cycle, item 3.*** They are written below as they
+> stand because the *procedure* is right; only the accounts are missing.
+> **Rebuild after the next install, not on this one**, so a cycle does not throw
+> them away a second time, and run `cleanup-devlitter.ps1` first — the Windows
+> halves of all three survived and a same-name rebuild meets PRE_RELEASE 32.
+>
+> 1. ***THE "LEFT ALONE" COUNT — DONE, 27 Aug 2026, install 22:52:21. IT FIRED
+>    FOR THE FIRST TIME AND THE GUARD HOLDS.*** `b48tier` PROGRAMMER (42
+>    added), `ed voc basic` with a fourth field, then
+>    `modify.account b48tier standard`: ***`VOC: 0 records added, 41 removed,
+>    1 left alone`.*** **And the count was not taken as the answer** — from
+>    inside the account, `ct voc basic` returns **four lines** with the edit
+>    intact and `ct voc micro` returns **`Record 'micro' not found`**. One kept,
+>    one gone; `basic` alone would have been consistent with a downgrade that
+>    deleted nothing. Comparison is whole-record equality, `MODIFYA:1144`.
+> 2. ***THE ssh DOOR (`LOGIN`) IS DONE — 27 Aug 2026, install 22:52:21.***
+>    `ssh b48adm@localhost` suspended: password accepted, **banner shown**, then
+>    ***`Account B48ADM is suspended`*** and `Connection terminated`. Restored
+>    with `modify.account b48adm programmer both`, the same command **admitted**
+>    him. ***The banner is the control*** — it proves authentication succeeded
+>    and the refusal came from `LOGIN`'s tier check, not from ssh. **Refusing
+>    after authentication is the right order**: checking first would tell anyone
+>    who can type a name which accounts exist and which are suspended.
+>    ***THE API DOOR (`APISRVR:507`) IS STILL NOT REACHED***, and it cannot be
+>    tested the same way: it refuses with `sysmsg(10003)`, **the same text as
+>    "no such account" and "not granted"**, deliberately, so the API does not
+>    enumerate the register. **Only a controlled pair on one account proves it**
+>    — connect unsuspended, suspend, connect again, restore. **The suite does
+>    not cover suspension at all**: neither `verify-tiers.ps1` nor
+>    `verify-tierapi.ps1` mentions it, so `b49` will not test what was done by
+>    hand here.
+> 3. ***BOTH EDITORS ARE DONE AND ITEM 5.3 IS CLOSED — 27 Aug, install
+>    19:37:47.*** Three runs of `micro bp ZZMARKS` unelevated, save and no-save:
+>    **it draws, it highlights, it saves with no message, `$hold` is empty
+>    afterwards** (so `EDIT` does clean up, which its history block claimed and
+>    nobody had watched), and **the mark round trip survives a real save** — 19
+>    fields, 907 chars, VM 6 / SM 1 / TM 3, no stray CR. ***AND `edit` —
+>    Microsoft Edit — WAS RETRIED UNELEVATED ON THE SAME INSTALL, sixty-ninth
+>    session: the owner ran `edit bp ZZMARKS` and reported no problems.*** It
+>    sets no `MICRO_CONFIG_HOME`, which is why it was expected to be unaffected
+>    — that is now measured rather than reasoned. **Nothing is left on 5.3.**
+> 4. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`**, docs repo —
+>    15 cases, compiled clean 27 Aug, **never run**.
+> 5. **Then `verify-tierchange.ps1` can be written** — the behaviour is known
+>    now, so it can be built against a live install instead of guessed at.
+>    PRE_RELEASE 19 lists what it must cover.
+>
+> ### THE DOCUMENTATION STATE
+>
+> ***BOTH REFERENCES ARE COMPLETE. FOUR SETS NOW, NOT THREE.***
+>
+> | | |
+> |---|---|
+> | `Testing/` | 15 pages, unchanged |
+> | `User/` | 33. SD BASIC `01`-`18`, SD TCL `19`-`31`, cards at `94` and `95` |
+> | `Administrator/` | **new** — `01` accounts and security, `02` sessions and locks, `03` operating system access |
+> | `Technical/` | `01` restricted commands, `02` the installed scripts |
+>
+> `docmap` **411 of 411**, `tclmap` **144 of 144**, `checklinks` 185/0 on `User`
+> and 6/0 on `Administrator`, HTML and PDF current for both.
+>
+> ***THE ADMINISTRATOR SET IS A SEPARATE DELIVERABLE SO IT CAN BE WITHHELD***
+> — owner's ruling. **Sets never link to each other**, and `checklinks`
+> enforces that for free because it resolves each set's links against that
+> set's own `html` directory. Verified zero cross-links each way. Name a page
+> in another set in words, never as a link.
+>
+> ***THE SYNTAX CARDS LIVE AT `94` ONWARDS*** — owner's ruling, so that adding
+> another card never renumbers a subject page. `94` SD BASIC, `95` SD TCL.
+>
+> ***THE "17 LEFT" IN THE LAST HANDOFF WAS SHORT BY SEVEN, AND THE FIX IS A
+> TOOL, NOT A CORRECTION.*** Seven verbs were counted as covered and were on no
+> page — `listu` inside a warning, `lock` inside the word "unlock",
+> `create.account` inside a keyword table on the editor page — because the
+> count was answering *does this string occur* and the question is *is this
+> verb explained here*. **`tools\tclmap.py` now asks the second one**: it
+> requires evidence on the page, the verb backticked or opening a line inside a
+> fenced syntax block, and prose does not count. It found seven problems on its
+> first run and `mktclsyntax.py`'s completeness gate found more.
+>
+> **The tester set carries the tier change** (six pages) **and the 120 × 36
+> default** (pages 02 and 13). `06` also gained the four `os.users` keywords,
+> which had never been in the tester set at all.
+>
+> ***THREE TOOL FACTS LEARNT THE HARD WAY THIS SESSION:***
+>
+> - **`sdtcl.ps1` CANNOT DRIVE `MODIFY.ACCOUNT`.** It opens with `LOGTO don`,
+>   and `CPROC:2713` drops `K$ADMINISTRATOR` on any `logto` whose target is not
+>   SDSYS. Type those at an elevated `sd` prompt, or `logto sdsys` and stay.
+> - **The PDF step is separate and gets forgotten.** Pages 19–27 shipped with no
+>   PDF at all until the owner noticed. **Check markdown against PDF, never HTML
+>   against PDF** — re-rendering touches every HTML mtime and reports the whole
+>   set as stale. The one-liner is in the docs `README.md`.
+> - **`CREATE.ACCOUNT USER` prompts for a password** and `NO.QUERY` does not
+>   suppress it. A group account does not (`CREATEA:517`), which is what made
+>   the tier round trip scriptable.
+>
+> ### WHAT CHANGED AND WHY — SIXTY-FIFTH SESSION, AND IT IS NOW INSTALLED
+>
+> *(Kept because the cycle of 27 Aug 12:06 is what installed it, and neither
+> screen editor has been run since. Nothing below is outstanding work.)*
+>
+> ***`micro` REFUSED A SOURCE RECORD, AND `gpl.bp/EDIT` WAS THE ONLY SOURCE
+> RECORD IN THE SHIPPED TREE ITS OWN GUARD COULD REFUSE.*** His ruling with it:
+> *"the whole purpose of these editors is primarily to edit source code without
+> having to use ED... the conversion of field, value and subvalue marks needs to
+> be handled seamlessly, just like CRLF or LF."*
+>
+> **The round-trip guard was doing what it was written to do** — convert `@vm`
+> and `@sm` to tokens, convert back, refuse anything that came back different.
+> Three kinds of text tripped it: a literal `~~`, a literal `` ~` ``, or a `~`
+> immediately before a mark. **`EDIT` carries the token strings as constants.**
+> Measured across `sdsys` and `user_accounts`: the only other hits are `gcat`
+> and `gpl.bp.out` object records, which nobody edits.
+>
+> ***THE FIX IS AN ESCAPE CHARACTER, AND IT IS CONDITIONAL ON PURPOSE.*** `~`
+> now escapes; a tilde is written `~-` **only where the next character would
+> make the pair look like a token** — another `~`, a backtick, a `-`, `@vm` or
+> `@sm`. Everywhere else it is left alone, so `a~b` is still `a~b` and ordinary
+> source reads normally. **Escaping every tilde would have been simpler and
+> would not have been seamless.** `escape.tildes` in `EDIT`; the decode is three
+> `change()` calls whose **order is load-bearing in both directions** and the
+> code says why.
+>
+> ***PROVED BEFORE THE CYCLE, NOT AFTER.***
+> `gplbld/test-edittokens-units.py` runs the same algorithm over **every string
+> up to six characters** built from `~`, `` ` ``, `-`, `@vm`, `@sm` and one
+> ordinary letter — **55,987, none lossy** — and over **all 197 shipped
+> `gpl.bp` records, 17 of them containing a tilde, none lossy**. It asserts the
+> corpus contains tildes: a lossless answer over records with no tilde in them
+> would be true and would prove nothing.
+>
+> ***PRE_RELEASE ITEM 1 WENT IN THE SAME EDIT*** — the malformed refusal he saw
+> again in the same paste. Fixed at `end.program`, the **one** print site, by
+> splitting `error.text` on `char(10)` and writing one `crt` per line, rather
+> than at the eight places that build the text. **Neither fix is verified: both
+> are compiled BASIC and want the cycle above.**
+>
+> ***AND HE ADDED THE TEXT MARK HIMSELF THE SAME DAY, WITH A RULE FOR RUNS.***
+> `~!` is a text mark, and **consecutive marks are separated by a comma** —
+> *"text mark, text mark, value mark would be `~!,~!,~~`"*. That closed
+> pre-release item 18, which was open for about an hour: the old guard never
+> detected `@tm` either, so **the changelog's claim that text marks were
+> "covered by that same refusal" was never true** and is corrected.
+>
+> ***HIS FIRST PROPOSAL WAS `` `~ `` AND HE WITHDREW IT HIMSELF, WHICH IS THE
+> DESIGN DECISION WORTH KEEPING.*** He asked whether a token led by a backtick
+> was a problem *"as it changes the pattern where every mark conversion starts
+> with a ~"*. It is, and not cosmetically: it makes the **backtick** a second
+> escape-introducing character needing its own escape, and `` ~` `` and
+> `` `~ `` are anagrams, so a run of marks comes out as ``~``~`` and only a
+> strict left-to-right scanner can read it. With `~!` a backtick is an ordinary
+> character again.
+>
+> **A LITERAL COMMA BETWEEN TWO MARKS IS `~,`, AND THAT ONE IS FORCED** —
+> `~~,~~` already means two value marks, so a real comma there has to be
+> escaped. It is the only token not in his specification.
+>
+> ***AND THE DECODE STOPPED BEING `change()` CALLS.*** A run separator is a
+> token that exists only by virtue of **where it sits**, and `change()` rewrites
+> the whole string with no notion of where it is. `marks.out` and `marks.back`
+> are left-to-right scans now. **Proved exhaustively to length 6 in the routine
+> test and once to length 7 — 5,380,840 strings, none lost.**
+>
+> ### AND AN ADMINISTRATOR NO LONGER ELEVATES TO REACH THE OPERATING SYSTEM
+>
+> Owner, 27 Aug 2026: administrators are to *"have access to os.execute, ssh
+> and api by default without escalating"*. **Pre-release item 2, closed.**
+>
+> ***TWO OF THE THREE ALREADY HELD, AND IT WAS RE-MEASURED RATHER THAN
+> QUOTED.*** `Get-LocalGroupMember` on this install, 27 Aug: `don` is in
+> **both `sdssh` and `sdapi`**. `CREATEA` has given an ADMINISTRATOR both
+> routes since 21 Aug and no keyword can take either away.
+>
+> **`OS.EXECUTE` was the one that did not**, and `os.users` held **0 records**
+> on a fresh install. Both gates that read that list — `CPROC`'s `sh` gate on
+> field 1 and `op_sh.c`'s `os_permitted()` on field 2, which is also what
+> `EDIT` reads — fall back to *elevation*, and an unelevated administrator is
+> an ordinary user by design. That is the whole of why he met *"edit is not
+> available to don"*.
+>
+> **One place: `CREATEA`'s new `grant.os.access`.** An ADMINISTRATOR-tier
+> **USER** account is written into `os.users` as it is created — ADOPT
+> included — with **both** fields `yes`. `DELACC` removes it again, but only
+> where SD is deleting the Windows login itself.
+>
+> ***AND IT GAINED KEYWORDS THE SAME DAY:*** `sh-on` and `os-on` on
+> `CREATE.ACCOUNT`, `sh-on` / `sh-off` / `os-on` / `os-off` on
+> `MODIFY.ACCOUNT`. **Four switches over two fields**, not four names for one
+> state as `SSH`/`API`/`BOTH`/`NONE` are, so `sh-off` leaves `OS.EXECUTE`
+> alone. `MODIFYA`'s new `os.set`.
+>
+> **The hyphen is his and it parses** — `PARSER`'s simple-token arm splits at a
+> space, a comma, a bracket or a quote and at nothing else, so `os-on` is one
+> token with `keyword = -1`. *(He settled it mid-task: his first message mixed
+> `OS-ON` with `sh.on`, and he chose the hyphen for all four.)*
+>
+> ***`os.set` DOES NOT REFUSE AN ADMINISTRATOR — AND THE OWNER HAS SINCE RULED
+> THAT IT MUST.*** The reasoning committed with it was that ssh and the API are
+> a **rule** while operating-system access is a **default**. **He overturned
+> that the same afternoon**: *"administrators have full access, there should be
+> no way to turn it off."* See the two rulings at the top of this box; **the
+> code, both programs' headers and page 26 all still argue the old way.**
+>
+> ***THE 26 Aug RULING HAD A SECOND HALF AND IT WAS DELIBERATELY NOT DONE:***
+> teaching `EDIT`'s `check.permitted` the ADMINISTRATOR tier as well. One list
+> already answers *"may this person reach the operating system"*, and a tier
+> test beside it makes the answer depend on two things that can disagree —
+> `os.users` is keyed by **person**, a tier belongs to an **account**. **The
+> cost is stated rather than hidden**: an administrator whose record is deleted
+> or set to `no` IS refused, instead of the tier overriding. That is a
+> narrowing of his earlier ruling and he has been told so.
+>
+> **Both fields, not only field 2** — field 1 is `sh` and `!`, field 2 is
+> `OS.EXECUTE` and the editors, and granting one without the other leaves an
+> administrator able to run `os.execute` from BASIC and refused at the prompt.
+> **That half is a judgement call**: he named `os.execute`, not `sh`.
+>
+> ## ***BOTH RULINGS ARE BUILT, AND SO IS A FOURTH TIER HE ADDED THE NEXT DAY. NONE OF IT HAS COMPILED.***
+>
+> Sixty-sixth session.  He opened it by naming the outstanding
+> `create.account`/`modify.account` work and adding **SUSPENDED**, *"a fourth
+> trust level ... so that an account can be temporarily denied access"*.
+>
+> ***THE TREE OWED A CYCLE BEFORE ANY OF THIS AND NOW OWES A BIGGER ONE.***
+> `gpl.bp/EDIT` was already uncompiled; **`MODIFYA`, `CREATEA`, `LOGIN`,
+> `CPROC`, `APISRVR` and `SYSCOM/KEYS.H` have all changed since.** `sd.exe`
+> has NOT moved — it is still a cycle and not a rebuild. **Nothing below has
+> been compiled, let alone run.** *(Historic: that was `b48`, which has since run.)*
+>
+> ### 1. AN ADMINISTRATOR'S ACCESS CANNOT BE TURNED OFF — BUILT
+>
+> `MODIFYA`'s `os.set` carries `route.set`'s `S-1-5-32-544` guard, by SID, with
+> its own message **10106** (10083 says *"always has both ssh and the API"*,
+> which is the wrong text for `os-off`). **Both directions**, as `route.set`
+> does. The three places that argued the old way are rewritten: both program
+> headers, the changelog entry, and page 26.
+>
+> **The cost is stated at `os.set` rather than hidden**: an administrator
+> ADOPTed over a Windows user whose `os.users` record already said `no` keeps
+> it — `grant.os.access` leaves an existing record alone (10103) — and no verb
+> can now change it. `ed os.users <name>` from SDSYS is the way out.
+>
+> ### 2. THE TIER IS SETTABLE, AND SUSPENDED IS THE FOURTH — BUILT
+>
+> `MODIFY.ACCOUNT <account> STANDARD | PROGRAMMER | ADMINISTRATOR | SUSPENDED`,
+> any direction, no intermediate step. **`tier.set` in `MODIFYA`** plus
+> `voc.delta` and seven small routines under it.
+>
+> ***HIS ANSWERS TO THE FIVE QUESTIONS, WHICH ARE RULINGS AND NOT DEDUCTIONS:***
+>
+> | question | his answer |
+> |---|---|
+> | where SUSPENDED lives | **field 5**, a fourth value of `ACC$TIER`; the tier it displaced goes to **field 6, `ACC$PRIOR.TIER`** |
+> | what a suspension stops | **SD refuses at every door**; nothing is withdrawn on Windows |
+> | when the VOC changes | **at once**, not at the next login |
+> | what leaves with ADMINISTRATOR | Windows `Administrators` **and** the `os.users` record, automatically |
+> | ssh and the API on a downgrade | **the caller names them** — `modify.account don programmer both` — refused with 10111 otherwise |
+> | a `resume` keyword | **no** — coming back names the destination tier |
+>
+> ***HIS OWN QUESTION IS WHAT DECIDED THE SHAPE***: *"does it have to be
+> resumed prior to each change or can they just happen naturally"*. No
+> intermediate resume, ever. **Field 6 is written ONLY on the transition INTO
+> SUSPENDED** — the equality guard at the top of `tier.set` is what enforces
+> that (a second suspend returns there), so suspending twice cannot store
+> `SUSPENDED` as the prior tier — and it is cleared by any move to a named
+> tier. *(The write-once explanation was corrected 27 Aug — see "A CLAIM OF THE
+> BUILD SESSION'S IS WRONG" below; PRE_RELEASE 21.)*
+>
+> **THREE DOORS, AND THEY WERE FOUND BY READING RATHER THAN ASSUMED**:
+> `LOGIN` (after the case statement, so both arms), `CPROC`'s
+> `logto.authorised`, `APISRVR`'s `vb.account`. The API one **reuses 10003**
+> like every other refusal there, so the API does not tell a caller which of
+> the three reasons applied.
+>
+> ***AND `update.voc` HAD TO LEARN SUSPENDED OR A RELEASE UPDATE WOULD STRIP
+> IT.*** `LOGIN:268`'s walk visits **every** account, suspended ones included,
+> and `update.voc` reads anything not blank/PROGRAMMER/ADMINISTRATOR as *apply
+> the standard omit list*. A suspended administrator would have come back
+> holding a standard VOC. Fixed at both sites that set `update.voc.tier` from
+> a record — the walk and `get.acc.tier`.
+>
+> **THE VOC IS A DELTA AND NOT A REBUILD, and that is forced.** `CREATEA`
+> builds into an empty directory and *then* writes the account's file pointers;
+> re-running it on a live account would copy NEWVOC over every `F` pointer.
+> The three tiers nest, so the difference between any two is one or both of
+> `TIER.OMIT.STANDARD` and `TIER.ADD.ADMINISTRATOR` — **read from NEWVOC, not
+> reproduced**, so `voc.delta` holds the arithmetic and no tier data.
+>
+> ***A DOWNGRADE DELETES ONLY WHAT IT WOULD HAVE WRITTEN.*** Each id is rebuilt
+> from the source file with `CREATEA`'s own transformation and compared with
+> what the account's VOC holds; anything different is **counted and left**, and
+> the count is printed (10113). Deleting by id alone would destroy a user's own
+> work under a verb's name.
+>
+> ### TWO JUDGEMENT CALLS, MARKED AT THEIR SITES AND NOT HIS
+>
+> 1. **An elevated or internal session can still `LOGTO` a suspended account.**
+>    The test sits *after* `logto.authorised`'s two privileged bypasses. He has
+>    ruled twice that an administrator's access cannot be turned off, looking at
+>    a suspended account is the ordinary reason to have one, and anyone elevated
+>    can lift it anyway. **If that is wrong the fix is to move the block above
+>    the internal test** — not to add a second one.
+> 2. **Nobody may suspend `@logname`'s account or the one they are standing in**
+>    (10112). The way back would be `sd -internal`, which is undocumented.
+>
+> ### WHAT THIS TOUCHED BESIDES THE VERBS
+>
+> - **`SYSCOM/KEYS.H`** — `ACC$PRIOR.TIER` 6, and `ACC$TIER`'s fourth value.
+>   Field 6 is a clean first use; field 4 is the poisoned one.
+> - **Messages 10106–10115**, ten of them. 10105 was the previous highest.
+> - **`gplbld/FILES_DICTS/accounts.dic^TIER` and `^PRIOR.TIER`**, new, plus a
+>   rewritten `^@`. ***`LIST ACCOUNTS` HAS NEVER SHOWN THE TIER*** — the
+>   dictionary held `@ID`, `PATH`, `DESCR`, `GROUP` and nothing else, so field 5
+>   has been invisible since 17 Aug. **The default listing is
+>   `PATH DESCR TIER BY @ID` now**: `GROUP` came out because it is always
+>   `sdu_`/`sdg_` plus the account name, and `PATH DESCR GROUP TIER` is 123
+>   columns against a 120 default. `WRITE_INSTALL_DICTS` `SSELECT`s the
+>   directory, so new files need no manifest entry.
+> - **`MODIFYA` has a BCOMP init block at the top**, the same one and the same
+>   reason `LOGIN` carries: `rank.out` is read in `voc.delta` and assigned in
+>   `tier.rank` forty lines below it, and *"is not assigned a value"* fails the
+>   whole bootstrap (`bootstrap.py:229`). `tier.close.template` exists only so
+>   that every mention of `tvoctmpl.f` stands below its `openpath`.
+>
+> ### THE CYCLE RAN. WHAT IT PROVED, AND WHAT IT CANNOT
+>
+> **Cycle 27 Aug 2026, install `12:06:20`, `sd.exe` `DF77FD6D61DE5184`** —
+> unmoved, as it should be for a BASIC-only change. `assert-current` **exit 0,
+> run live**, 2969 files across 6 mirrored directories. **`b47`'s accounts went
+> with the fresh install: the register holds `don` and `sdsys` and nothing
+> else, so `b48` is clean.**
+>
+> ***IT COMPILES, AND THE CONTROL IS THE PREVIOUS CYCLE'S LOG.*** `MODIFYA`
+> **0 error(s)**, `$MODIFYA added to global catalogue`; **189 compile units,
+> every one 0 errors**; **zero `is not assigned a value` warnings**. The four
+> benign `assigned but never used` warnings appear in *identical counts* in the
+> 11:11 log, which predates the commit — so **this work added no warning**.
+> `gcat` 125 and `gpl.bp.out` 184, unmoved: no program was added.
+>
+> **VERIFIED BY READING THE INSTALL, NOT THE RUN'S OUTPUT:**
+>
+> | | |
+> |---|---|
+> | messages `10106`–`10115` | all ten present in `C:\ProgramData\SD\sdsys\messages` |
+> | `accounts.dic` | `TIER` (field 5, *Tier*, 13L) and `PRIOR.TIER` (field 6, *Was*, 13L) both present; `@` reads `PATH DESCR TIER BY @ID` |
+> | ***both dictionary items RESOLVE*** | `list sd.accounts` prints a **`Tier`** column reading `ADMINISTRATOR` for `don`; `list sd.accounts tier prior.tier` prints **`Tier` and `Was`**. That heading has no other source, so it cannot appear on a failure path |
+> | `ct sd.accounts don` | field 5 `ADMINISTRATOR`, **field 6 absent** — correct for an unsuspended account |
+> | the compiled object | `gcat/$MODIFYA` carries `SUSPENDED` ×7 (HEAD~1 source: **0**), `S-1-5-32-544` ×3 — exactly `route.set`, `os.set`, `tier.set` — and both TIER list names |
+> | ***START HERE item 1*** | `os.users/don` holds two `yes` lines. **Closed** |
+> | ***START HERE item 3*** | **`sh dir` unelevated returns a real listing.** The recorded refusal wording — *"not permitted to use the operating system shell"* (10053) — is absent. **Closed** |
+>
+> ***NOTHING BEHAVIOURAL ABOUT THE TIER VERBS IS TESTED, AND THAT IS A HARD
+> LIMIT AND NOT AN OMISSION.*** `MODIFY.ACCOUNT` is
+> `kernel(K$ADMINISTRATOR,-1)`, seeded from `IsElevated()` at process start, so
+> **an unelevated session cannot reach one line of `tier.set`** — it stops at
+> 2001 before the parser. Still completely unexercised: **`voc.delta`**, the
+> three suspension doors, the write-once rule on field 6, ruling 1's refusal.
+>
+> ***AND THE ROUND TRIP MUST NOT GO DOWN A PIPE.*** `CREATE.ACCOUNT USER`
+> **prompts for a password** — mandatory since 21 Aug, and `NO.QUERY` does not
+> suppress it, it covers the confirmation at `CREATEA:501`. A prompt in a piped
+> session eats the following lines and waits for ever, and `sdtcl.ps1`'s own
+> banner is explicit that the timeout path **costs the install**: the dead
+> session keeps its user-table slot and recovery is `sd -cleanup` plus a
+> service restart. **Type it at an interactive elevated SD session.**
+>
+> ### ***THE TIER CHANGE AND SUSPENDED ARE MEASURED AND WORK. 27 Aug 2026.***
+>
+> The owner ran the elevated half at his own terminal; the unelevated half was
+> run by the agent. **Install 27 Aug 12:06:20, `sd.exe` `DF77FD6D61DE5184`,
+> `assert-current` exit 0.** Accounts left behind: `b48tier` (PROGRAMMER, group),
+> `b48susp` (**SUSPENDED**, group, *keep it — it is the unelevated door
+> fixture*), `b48adm` (PROGRAMMER, user, password known to the owner).
+>
+> ***THE TWO NUMBERS ARE THE EVIDENCE, AND BOTH WERE PREDICTED FROM SOURCE
+> BEFORE THE RUN, NOT READ OFF THE OUTPUT.*** `TIER.OMIT.STANDARD` holds **42**
+> ids and `TIER.ADD.ADMINISTRATOR` **21**. Every `voc.delta` move reported
+> exactly one of those or zero.
+>
+> | measured | result |
+> |---|---|
+> | ruling 1 | `modify.account don os-off` → **`don is an administrator and always reaches the operating system`** |
+> | STANDARD → PROGRAMMER | **42 added** |
+> | PROGRAMMER → SUSPENDED | field 5 `SUSPENDED`, **field 6 `PROGRAMMER`**, VOC 0/0/0 |
+> | SUSPENDED → STANDARD | **42 removed**, field 6 cleared |
+> | ***SUSPENDED → PROGRAMMER with field 6 = `STANDARD`*** | ***42 added.*** **THE ONE THE DESIGN RESTS ON**: a blank field 6 also ranks 2, so it would have given **0 added**. This is what separates "field 6 was read" from "field 6 defaulted" |
+> | the downgrade refusal | bare `modify.account b48adm programmer` → **`Say what remote access B48ADM is to have`** |
+> | ADMINISTRATOR → PROGRAMMER `ssh` | **21 removed**, `os.users` record removed, `may sign in over ssh, and may not use the API` |
+>
+> ***AND THE WINDOWS SIDE WAS DIFFED FROM OUTSIDE SD, BEFORE AND AFTER, WITH A
+> CONTROL.*** SD's own message is a claim; this is the check of it.
+> `os.users/b48adm` `yes`/`yes` → **gone**; Windows `Administrators` **MEMBER →
+> removed**; `sdapi` **MEMBER → removed**; `sdssh` **MEMBER → MEMBER** (kept,
+> which is what `ssh` asked for and is the half that would look identical if
+> `route.apply` had done nothing); `sdusers` untouched. **Control: `don`'s
+> `os.users` record and his `Administrators` and `sdapi` memberships are
+> unchanged**, so the removals tracked the account acted on.
+>
+> ***THE LOGTO DOOR, MEASURED UNELEVATED AND IN A PAIR.*** `logto b48susp`
+> (SUSPENDED) → **`Account B48SUSP is suspended`**; `logto b48tier` (STANDARD)
+> → `User not allowed in requested account`; `who` reads `8 DON` after both, so
+> neither move happened. **Two accounts differing only in tier, two different
+> refusals** — either alone is consistent with a check that never ran.
+>
+> ### ***A CLAIM OF THE BUILD SESSION'S WAS WRONG — CORRECTED 27 Aug***
+>
+> ***THE WRITE-ONCE RULE NEVER FIRES.*** Four documents — `SYSCOM/KEYS.H`,
+> `tier.set`'s banner, this box and HISTORY — said field 6 is safe because
+> `MODIFYA` writes it *"only on the transition INTO SUSPENDED"*. The second
+> `modify.account b48tier suspended` answered **`B48TIER is already SUSPENDED;
+> nothing changed`**, which is the **equality guard** at the top of `tier.set`
+> returning early. It never reached the field-6 write.
+>
+> **It is unreachable, not merely unexercised.** `old.tier` is upcased and
+> trimmed and `want.tier` is one of four upper-case literals, so
+> `want.tier = 'SUSPENDED'` at that point already implies
+> `old.tier # 'SUSPENDED'`. **The behaviour is correct — field 6 IS preserved —
+> but by a different guard than the one documented.**
+>
+> ***FIXED IN SOURCE 27 Aug (uncompiled), FOLDED INTO THE MICRO CYCLE.*** The
+> unreachable inner `if old.tier # 'SUSPENDED'` at the field-6 write in
+> `tier.set` is deleted; `MODIFYA`'s banner, the equality-guard comment and
+> `SYSCOM/KEYS.H`'s note now say the equality guard is what makes field 6
+> write-once. Went in with PRE_RELEASE 23 and 29 because the tree was already
+> off `assert-current` for 29. `b48` now scores this.
+>
+> ### WHAT IS STILL NOT MEASURED
+>
+> 1. ***THE SUITE — DONE.*** `-Run b48` ran 27 Aug against the 18:58:55 install:
+>    **30 of 31, 971 `PASS`, 3 `[FAIL]`, 0 `[SKIP]`.** See START HERE item 1.
+> 2. ***THE "LEFT ALONE" COUNT — every run so far reported `0 left alone`, which
+>    is a rule that has never been exercised, not a rule that passed.*** It needs
+>    a VOC record edited by hand before a downgrade. `b48tier` is PROGRAMMER and
+>    is the fixture: from an elevated session `logto b48tier` (elevation
+>    bypasses the group test), change a record `TIER.OMIT.STANDARD` names — `ed
+>    voc basic`, `I` with text, `FI` — then `logto sdsys` and
+>    `modify.account b48tier standard`. **Expect `41 removed, 1 left alone`.**
+> 3. ***THE ssh/CONSOLE DOOR (`LOGIN`) AND THE API DOOR (`APISRVR`).*** Neither
+>    has been reached. `b48adm` is the fixture and the owner has its password:
+>    suspend it, `ssh b48adm@localhost` must answer **`Account B48ADM is
+>    suspended`**, then `modify.account b48adm programmer ssh` to restore. **Do
+>    the unsuspended attempt too** — a refusal that would have happened anyway
+>    proves nothing.
+> 4. **`micro gpl.bp EDIT`** from an unelevated console; a console, not a pipe.
+> 5. **`tools\sdprobe.ps1 -Source tools\probes\p25-holdtrip.b`**, docs repo, 15
+>    cases, compiled clean 27 Aug, never run.
+>
+> **Then `verify-tierchange.ps1` can be written** — the behaviour is known now,
+> so it can be built against a live install instead of guessed at.
+> PRE_RELEASE_FIXES 19 carries what it must cover.
+>
+> ### THE TESTER SET IS UPDATED; THE `User` SET IS NOT
+>
+> **Six pages, docs commit `db1a3d7`, 15 rendered, `checklinks` 76 links 0
+> broken.** `05` carries the fourth tier and the rewritten "Changing an account
+> afterwards"; `08`, `09` and `12` say what a suspension is **not** — an SD
+> control and not a Windows one. `00`'s index line changed with `05`'s subtitle.
+>
+> ***`06` GAINED THE FOUR `os.users` KEYWORDS, WHICH WERE NEVER IN THE TESTER
+> SET AT ALL*** — a gap left by the 27 Aug work rather than by this one. That
+> section documented only hand-editing with `ed` and never said an
+> ADMINISTRATOR account gets both fields unasked. **The hand-edit route stays**,
+> because it is the only way out of the case the keywords refuse.
+>
+> **The `User` set still has nothing on any of it.** Page `32`, *accounts and
+> security*, is where it belongs and is unwritten; page `26` has the `os-off`
+> refusal and that is all. The changelog covers it meanwhile.
+>
+> ### TWO SAFETY NOTES THAT STILL STAND
+>
+> 1. **Never `Stop-Process` an sd session on a tree you still want to measure.**
+>    Recovery is `sd -cleanup` plus a service restart.
+> 2. **`delete.account` prompts unconditionally** (`DELACC:242`, no `no.query`),
+>    so do not tear the three fixtures down from a pipe — and do not tear
+>    `b48susp` down at all until item 3 is done. The next fresh install removes
+>    them, which is what happened to `b47`'s fifteen.
+>
+> ***AND `LOGTO` OUT OF SDSYS DROPS `K$ADMINISTRATOR` (`CPROC:2713`).*** Found
+> the hard way is the alternative: `sdtcl.ps1` opens with `LOGTO don`, so **it
+> cannot drive `MODIFY.ACCOUNT` at all**, elevated or not. Type those at an
+> elevated `sd` prompt, or `logto sdsys` and stay there.
+>
+> ***THE `SD TCL` REFERENCE IS DONE BAR `33`: `19` TO `32` ARE ALL WRITTEN AND
+> COVERAGE IS 144 OF 144.*** `30` processes and phantoms, `31` locks and `32`
+> accounts and security were written 27 Aug 2026. It lives in the `User` set on
+> the owner's ruling — numbering continues from 19, names are
+> `NN-sd-tcl-<topic>.md`. `checklinks` **183 links, 0 broken** across 32 pages,
+> HTML and PDF both rendered by `tools\release.ps1 -Set User -NoZip`.
+>
+> ***`phantom` AND `pdebug` ARE DESCRIBED FROM SOURCE AND WERE DELIBERATELY NOT
+> RUN.*** A phantom child inherits the pipe a scripted session is fed down, so
+> the job never completes even after the parent exits — HISTORY.md, 24 Aug
+> 2026, two `sd.exe` left behind. `pdebug` polls `keyready()`/`keyin()`, so down
+> a pipe it eats the commands that have not run yet. **Neither may be added to a
+> probe or an `sdtcl` batch.** Page 30 says so on the page.
+>
+> ***PAGES 26 AND 27 DESCRIBE BEHAVIOUR THAT IS NOW INSTALLED (cycle
+> 27 Aug 12:06:20) AND STILL UNWITNESSED — neither screen editor has been run
+> since.*** Page 25's `ed` listings are all measured and stand; the two
+> screen verbs are described from source, because they cannot be driven down a
+> pipe at all. **Re-read 26 and 27 once the cycle lands.**
+>
+> **Their key tables ARE measured, from the editors themselves**: micro's from
+> the default bindings and help text inside the executable SD installs (micro
+> **2.0.15**), Microsoft Edit's from `draw_menubar.rs` at tag **v1.2.1**, which
+> is the version on this machine. Neither was typed from memory.
+>
+> ***AND `ed` CAN BE DRIVEN DOWN A PIPE, WHICH IS HOW `25` WAS MEASURED.*** Six
+> `sdtcl` runs, no hang. **The rule that made it safe: read every `input` site
+> in `ED` before sending anything** — `FD`, `DELETE`, `SAVE`/`FI` to a
+> *different* name, `LOAD`, `UNLOAD`, `ed` with no file or record name, and an
+> unrecognised command all prompt. `I` **with text**, `FI` with no name, and `Q`
+> on an unchanged record do not.
+>
+> **`sdtcl`'s echo guard warns on an editor session and is right to be ignored
+> there** — the lines after `ed` are eaten by `ED`, not echoed by TCL, so the
+> count is legitimately short. The transcript reaching `:OFF` is what says the
+> run finished.
+>
+> | | |
+> |---|---|
+> | ✅ `19` | the command processor |
+> | ✅ `20` | files and records |
+> | ✅ `21` | the query processor |
+> | ✅ `22` | select lists |
+> | ✅ `23` | alternate key indexes |
+> | ✅ `24` | programs and the catalogue |
+> | ✅ `25` | `ed`, the line editor |
+> | ✅ `26` | `edit`, the plain screen editor |
+> | ✅ `27` | `micro`, the capable one |
+> | ✅ `28` | printing and spooling |
+> | ✅ `29` | the terminal and the session |
+> | ✅ `30` | processes and phantoms |
+> | ✅ `31` | locks |
+> | ✅ `32` | accounts and security |
+> | `33` | **syntax — generated, all 144 verbs** |
+>
+> ***THE EDITORS TOOK THREE PAGES AND EVERYTHING AFTER THEM MOVED UP BY TWO.***
+> Owner, 27 Aug 2026: *"since editor documentation is long, perhaps three
+> documents might be better, one each for ed, edit and micro"*. **The generated
+> syntax card is `33` now, not `31`.** `26` carries the mechanics both screen
+> editors share — the working copy, the marks, the two gates — and `27` links
+> to it rather than repeating it.
+>
+> ***AND TWO THINGS THE FIRST VERSION SAID WERE WRONG, BOTH HIS CORRECTIONS.***
+> It offered `ed` as *"the one that always works"* and said `edit` *"needs the
+> editor installed"*. **SD's installer installs both editors**, machine-wide, so
+> availability is not the difference between them. What is: `ed` runs INSIDE SD
+> and needs neither a terminal nor `OS.EXECUTE`, which is why it is the one for
+> a phantom, an API session or a script.
+>
+> ***THE PLAN IS CHECKED, NOT ASSERTED: every one of the 144 verbs is on exactly
+> one page, verified in both directions.*** The roster is 144 and not 140
+> because four records are a keyword **and** a verb — `break`, `count`,
+> `display`, `off` — which `CPROC:1718` re-parses from field 3. **SD's own VOC
+> dictionary agrees**: its I-type `DISPATCH` encodes the same rule, and
+> `count voc with dispatch # ""` answers 144. `CA` 97, `IN` 45, `OS` 2.
+>
+> ***FOR `33`, THE SYNTAX COMES FROM EACH VERB'S OWN `START-DESCRIPTION`
+> BLOCK*** — 166 of the 178 catalogued verb records have one. The 81 internal
+> and OS verbs have no program to read, so they need a hand-kept shapes file the
+> way `syntax-shapes.txt` serves the BASIC card.
+>
+> ***`18` AND `Technical/01` ARE GENERATED, NOT EDITED, AND THEY PARTITION THE
+> ROSTER.*** `tools\mksyntax.py` writes both from `BCOMP`'s own tables and
+> **refuses unless every name is on exactly one of them** — 372 + 75 = **447**.
+> It lifts the argument count for 173 functions straight out of the compiler's
+> dispatch table, which is positional against the name list and carries each
+> name in a comment it checks against. **Edit `tools\syntax-shapes.txt` and
+> regenerate; do not edit either page.**
+>
+> | | |
+> |---|---|
+> | `User\markdown\18-sd-basic-syntax.md` | 372 names an application may use, one alphabetical run, syntax only |
+> | `Technical\markdown\01-sd-basic-restricted-commands.md` | 75 it may not — 36 restricted statements, 38 internal-only functions, and `errmsg` |
+>
+> ***ONE QUESTION IS OPEN AND IT IS THE OWNER'S: DOCUMENT 09.*** `09 Alternate
+> Key Indexes` is **8 of 8 restricted commands** — `akclear`, `akdelete`,
+> `akenable`, `akread`, `akrelease`, `akwrite`, `create.ak`, `delete.ak`, and
+> nothing else. The ruling was about the syntax card, so **the page was left
+> where it is** rather than moved unasked. If restricted commands belong in
+> `Technical`, that whole page belongs there too. `13` and `16` carry a few
+> each and are mixed; **`17` is fine** — the one name on it that is not
+> restricted, `debug`, is what the page is about.
+>
+> **`docmap.py` was deliberately not changed** and now says why: it answers
+> *"is every name explained somewhere in the `User` set"*, and it still is,
+> because the pages that explain them have not moved. Move the names in
+> `docmap` only if the pages move.
+>
+> **`checklinks` on `Technical` refuses today and is right to** — one page, no
+> cross-references, so it finds no links at all. Run it there once there is a
+> second page.
+>
+> ***`H.2` IS STILL OPEN AND WHAT IS LEFT IS NAMED.*** The `Technical` set has
+> two pages of a set that wants more; questions **7** and **14** in
+> `QUESTIONS-2026-08-26.md` are unanswered. *(The shipped-scripts gap was the
+> third item here and closed on 27 Aug 2026 — `Technical/02`. The count was 26,
+> not the 25 written here.)*
+>
+> ***DEFECTS FOUND WHILE DOCUMENTING NOW HAVE THEIR OWN LIST:
+> [PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md), 28 ENTRIES.*** Read it before
+> planning release work; this box does not repeat it.
+>
+> ***A DEFECT IN BOTH TREES GOES IN BOTH FILES.*** Owner's correction, 26 Aug
+> 2026, replacing a "one defect, one file" rule that had stood for one session
+> and hid three things. `UPSTREAM_FIXES.md` says *the `sdb64` maintainer should
+> know*; `PRE_RELEASE_FIXES.md` says *we would ship this*. **Being fixed
+> upstream is not being fixed here** — of the four found last session, #18 and
+> #19 are now fixed in this tree and **#17 and #20 are not**, and nothing had
+> recorded which was which.
+>
+> **#17 is still the one that matters** — silent partial data loss inside a
+> construct whose entire purpose is that there is no such thing. It is
+> pre-release item 11, verified live here: `txn_depth` is `++` at `txn.c:96`,
+> `--` at `:592`, and `op_txncmt()` touches neither. ***Do not fix half of it.***
+>
+> **Three more went upstream this session** — #21 `QSELECT` loses the list
+> number from its own message, #22 `DELETE.INDEX` will not match a lower-case
+> index name where `LIST.INDEX` will, #23 `DELETE.FILE ... NO.QUERY` still
+> prompts when part of the file is in the system account. All three are live
+> here too, as pre-release items 13, 15 and 14.
+>
+> ***THE TOOLING MOVED OUT OF THE SESSION SCRATCHPAD ON PURPOSE, BECAUSE A
+> SCRATCHPAD DOES NOT SURVIVE AN ACCOUNT CHANGE.*** Eight instruments are now
+> in the docs repository's `tools\`, and every one has been run from there.
+> **The probe sources are kept too, in `tools\probes\`, with a README saying
+> which runner takes which** — a number with no way to reproduce it is a number
+> the next session has to take on trust:
+>
+> | | |
+> |---|---|
+> | `tools\sdtcl.ps1` | ***the TCL half of the same idea***, and how the SD TCL pages are measured: run the command, quote what SD said. **Refuses a transcript with fewer command echoes than commands sent.** Defaults to a USER account - `LOGTO SDSYS` asks UAC when the session is not already elevated, so measuring in SDSYS puts a consent prompt in front of whoever is at the machine, once per run |
+> | `tools\sdprobe.ps1` | ***how most measured values in the set were produced.*** Writes a BASIC probe into an account's BP, runs it down §6's `Invoke-SD` pipe, and **REFUSES a run that did not print its own START and END markers**. It has refused six real drafts |
+> | `tools\sdprobe2.ps1` | ***TWO SESSIONS AT ONCE***, which is the only way any lock can be measured — every `RECORDLOCKED()` code above zero is the self-answer. **It refuses unless the two report different user numbers AND the contender names the holder**; a pair that ran one after the other prints exactly the numbers a reader expects from a working test |
+> | `tools\sdcompile.ps1` | compile only. **Half of what a reference has to say is a refusal** — `errmsg`, the internal-only intrinsics, the restricted statements — and `sdprobe`'s guard requires `0 error(s)`, so it can only ever refuse those. `-ExpectErrors` refuses a probe that was meant to fail and compiled |
+> | `tools\sddebug.ps1` | compiles with `DEBUGGING` and **drives the debugger from a script**. It works because `TERMINFO('sreg')` is empty on the `windows` terminal type, so `$DEBUG` takes its line-oriented path and a pipe can answer it. Refuses a run with no `>` prompt |
+> | `tools\docmap.py` | assigns every name `BCOMP` accepts to exactly one document; exits non-zero on a gap. **411 of 411** today, across all seventeen |
+> | `tools\linkup.py` | turns `*SD Basic - X*` into a link **only for pages that exist**, so `checklinks` stays meaningful |
+> | `tools\probes\` | the sixteen probe sources, with a README mapping each to its runner |
+>
+> ***THE METHOD IS THE POINT, NOT THE PAGE COUNT.*** The roster comes from
+> `BCOMP`'s own tables, never from `..\sdhelp`, and every example is compiled
+> and run before it is written down. That has caught **eight** statements
+> drafted as though they worked, three behaviours recorded nowhere else
+> (`matbuild ... using`, `errmsg`, `on n goto` clamping), and — this session —
+> **three upstream defects and one advice in an already-written page that was
+> simply wrong** (page 07 told the reader to convert a POSIX path with
+> `kernel(K$WINPATH, ...)`; an ordinary program cannot call `kernel()` at all).
+> **Do not relax it to go faster; it is the only reason the set is worth
+> anything.**
+>
+> ***AND TWO PATTERNS ARE WORTH REUSING RATHER THAN REDISCOVERING.***
+> **Anything that can block goes AFTER the probe's END marker**, so the
+> measurement is banked before the risk is taken — that is how
+> `server.addr()`'s resolver hang and `config()`'s abort were both measured
+> without losing the rest of the run. And **two contending sessions rendezvous
+> through a file, never a timer**: a slow compile turns a staggered pair into a
+> measurement of nothing that still prints numbers. When one session holds a
+> **file** lock the rendezvous needs a *second* file, or each waits for a write
+> the other cannot make.
+>
+> **Render with** `python tools\mkdoc.py --in User\markdown --out User\html`,
+> then `powershell -File tools\mkpdf.ps1 -In User\html -Out User\pdf`, then
+> `python tools\checklinks.py User\markdown User\html` — **110 links, 0
+> broken** at handoff.
+>
+> ***THE THREE C FIXES ARE INSTALLED AND EACH WAS RE-MEASURED, 26 Aug 2026.***
+> The cycle ran at 21:17:22 and `assert-current` is **exit 0**. Verified with
+> the three probes this box used to name, each run through
+> `tools\sdprobe.ps1`:
+>
+> | probe | reads | was |
+> |---|---|---|
+> | `p16-system.b` | `system(1010)=[Windows]` | `Linux` |
+> | `p16c-config.b` | `config(NOSUCHKEY)=[] status=1004`, **`neither aborted`** | aborted the caller |
+> | `p15-sockets.b` | `set.keepalive(0)=1`, **`keepalive.now=0`** | `1` / `1` |
+>
+> ***AND FIXING THEM MADE THREE PUBLISHED PAGES WRONG, WHICH IS THE COST THE
+> SEPARATE DOCUMENTATION REPOSITORY WAS ACCEPTED WITH.*** Nothing fails when a
+> page goes stale; a person has to notice. Corrected the same session:
+> `16` said `system(1010)` answers `Linux` and warned readers off it, and said
+> a nine-character `config()` name aborts the caller; `15` said keep-alive
+> could not be turned off. **All three were true when written and were false
+> the moment the fixes installed.**
+>
+> **So: after any C fix lands, grep the `User` set for what it claimed.** The
+> pages most at risk are the ones whose value is a measured defect, because
+> those are exactly the ones a fix invalidates.
+>
+> ---
+>
+> ***RUN `python sdb_ai/sd64/gplbld/check-stale-leads.py` BEFORE YOU ANSWER ANY
+> "WHAT IS LEFT" QUESTION.*** One second, and it is the difference between the
+> table and a guess.
+>
+> ***THIS BOX WAS PRUNED 26 Aug 2026 AND IT IS MEANT TO STAY THIS SIZE.*** It
+> is headed *"IT IS SHORT"* and had reached a quarter of the file, because
+> twelve sessions each added a handoff to the top and none removed the one
+> below. **Add yours by replacing what it supersedes, not by stacking on it.**
+>
+> ---
+>
+> ### THE SUITE IS ONE COMMAND, AND `-Run` ALONE IS A TRAP
+>
+> From an **ordinary** terminal — two processes with the correct token each is
+> the design — about four UAC prompts:
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b49
+> ```
+>
+> ***`-Run` ON ITS OWN DOES NOTHING*** — it is *"ignored without
+> `-ThenElevated`"*. Without that switch `VerifyInstall1` runs its 12 unelevated
+> steps, prints **"every step exited 0"** and stops, which reads exactly like a
+> finished suite and is **12 of 31**. ***`b46`, `b47` AND `b48` ARE SPENT — USE `b49`.*** `b48` went twice, which is what PRE_RELEASE 32 cost.
+> A `-Run` prefix is spent once.
+>
+> ***AND THE SAME TRAP RUNS THE OTHER WAY, WHICH IS HOW `b46` GOT WRITTEN DOWN
+> WRONG.*** The two halves print **different** summary lines and neither names
+> the suite: `VerifyInstall1` prints *"every step exited 0"* with **no number**
+> (12), and `VerifyInstall2` prints *"all 19 steps exited 0"* (19). Quoting the
+> second on its own — which the 61st session did — records a green 31-step run
+> as **"19 of 19"**, and the next reader cannot tell it from a run where the
+> unelevated half never happened. **Write down both numbers, or write `31/31`.**
+>
+> **AND `Start-Process -Verb RunAs -Wait` DOES NOT SET `$LASTEXITCODE`** — use
+> `-PassThru` and `.ExitCode`, or a failed `cycle.ps1` reads as success. One run
+> exited **1** where `$LASTEXITCODE` read 0.
+>
+> ### ONE THING IS LEFT ON THE MACHINES AND IT IS NOT A TASK
+>
+> ***GONE, AND WITH IT THE ONLY MAC COLLISION — MEASURED 2 Sep 2026.***
+> `sdStandalone-C1` is **no longer registered**, so the warning below has no
+> partner left: `VBoxManage list vms` shows only `Beardog`, `Template` and
+> `Test 3`-`Test 6`, and every one has a distinct MAC — `Template`
+> `080027AECE7C`, `Beardog` `0800273AF379`, `Test 3` `080027C61086`, `Test 4`
+> `0800271DABE7`, `Test 5` `08002734F731`, `Test 6` `080027C3E817`. ***SO ANY OF
+> THEM MAY RUN AT THE SAME TIME, TEMPLATE INCLUDED.*** The clash was never a
+> property of `Template`: `080027AECE7C` is `Template`'s **own** address, and
+> `sdStandalone-C1` was cloned **keeping** it. A default VirtualBox clone
+> regenerates the MAC, which is why `Test 3`-`Test 6` all differ — so a new
+> clone does not reintroduce this unless somebody deliberately preserves MACs.
+> *(Original note follows.)*
+>
+> Guest `sdStandalone-C1` is still registered, powered off, carrying the
+> stand-alone install that closed H.5. ***It shares MAC `080027AECE7C` with
+> `Windows 11 - Template` — never run both at once.*** `cleanup-devlitter.ps1`
+> does not touch it (its `$VMName` is the older clone), so it goes by hand when
+> nobody wants to look at that install again:
+>
+> ```
+> VBoxManage unregistervm sdStandalone-C1 --delete
+> ```
+>
+> ### FIVE STANDING INSTRUMENTS, ALL ON `$neverShipped`, ALL WITH CONTROLS
+>
+> Do not re-derive them.
+>
+> | | |
+> |---|---|
+> | `cleanup-devlitter.ps1` | users, `sdu_` groups, the profile sweep, the home directory, the VM. `-SelfTest` / `-List` / act. ***Needs a REBOOT between the accounts and the profiles*** — a loaded hive cannot be removed, and after a suite run every hive is loaded |
+> | `check-stale-leads.py` | **three** phases: an entry whose opening status is contradicted later; the task table against the entries, both directions; and an entry that records a person SEEING something and later denying anyone has. `test-staleleads-units.py` is its control, **13 of 13** |
+> | `check-client-sync.py` | the API client across the three trees. 12 checks, 0 failed. `--self-test` 6 of 6 |
+> | `probe-sshremote.ps1` | the HOST half of the ssh remote-block test. `-SelfTest` 4 of 4 |
+> | `verify-standalone.ps1` | runs **on a guest**, via `-Installer` + `-InstallerSha256` in place of `assert-current`. All four refusal paths exercised |
+>
+> `verify-upgrade.ps1` is the sixth and it is spent for now: ***do not re-run
+> `-Snapshot`***, it would overwrite the pre-upgrade state with the post-upgrade
+> one and destroy a measurement that took three sessions to score. The snapshot
+> is at `C:\ProgramData\SD-verify\upgrade-snapshot.json`.
+>
+> ---
+>
+> ## THE HANDOFF ROWS — H.1 TO H.5
+>
+> Their conclusions are in the task table. These entries carry what is still
+> worth following; the record of how each was reached is in HISTORY.md, entry
+> ***"ARCHIVE 26 Aug 2026 — START HERE's closed record, sessions 49 to 60, in
+> full"***.
+>
+> ### 1. DONE — THE MACHINE IS A FULL INSTALL AND THE WHOLE SUITE IS GREEN
+>
+> | | |
+> |---|---|
+> | install | **26 Aug 2026, 17:14:03**, a **FULL** install — `cycle-20260826-171313.log`, the cycle that built `$EDIT` |
+> | the suite | **31/31 steps, every one exit 0** — **12** unelevated (`VerifyInstall1-20260826-171534.log`) + **19** elevated (`post-cycle-20260826-171706.txt`), run as `-ThenElevated -Run b46`. **991 `PASS`, 0 `[FAIL]`, 0 `[SKIP]`.** Both counters read, because two counters that cannot both be zero is the cheap null-case guard |
+> | `sd.exe` | `8E6A6CF45AA6F20A` |
+> | `gcat` / `gpl.bp.out` | **125 / 184** |
+> | `assert-current` | **exit 0**, run live at the start of the sixty-second session — so every verifier will run |
+>
+> ***THE `-Run` TOKEN IS PROVEN TO HAVE REACHED THE ELEVATED HALF*** — the
+> evidence is the account names its steps created, `sdacctb46`, `sdtiertb46`,
+> `sdcatgb46`, `sdaclb46`, `sdrtb46` and the rest, in
+> `post-cycle-20260826-171706.txt`. Not the switch having been typed.
+>
+> **Nothing since has changed anything that ships**, and that is measured
+> rather than assumed: `assert-current` exits 0 on this tree today.
+>
+> ***WHAT THAT RUN DOES NOT COVER, AND EACH GAP WAS CLOSED SEPARATELY.*** The
+> **upgrade path** is gated on `DataTreeUpgrade` and that was a first install,
+> so none of it ran — see H.3. The suite has **no step that chooses the
+> stand-alone install** (H.5) and **no step for VFS** (H.3a); both were checked
+> directly on the installed tree instead.
+>
+> ***AND FAILURE-SHAPED LINES IN A GREEN RUN ARE THE MEASUREMENT, NOT A
+> FAILURE.*** `verify-credacl` raises `TerminatingError(Get-Acl): "Attempted to
+> perform an unauthorized operation."` — that IS its test, and the next line
+> says *"Access is denied - which is the expected answer"*. `verify-osusers`
+> prints *"Error 2 executing operating system command"* while scoring
+> `elev_piped=refused`. `icacls` reports *"Failed processing 0 files"*, and
+> `secure-account-dirs` *"0 failed"*. **Read them before reporting them.**
+>
+> ### 2. DOCUMENTATION — H.2 IS STILL OPEN. THE TESTER SET IS REVIEWED; THE OTHER TWO SETS ARE NOT WRITTEN
+>
+> **H.2 stays open**: the `User` set is two pages into seventeen, `Technical`
+> is empty, and two review questions are unanswered. What follows is what is
+> settled.
+>
+> ***THE `User` SET IS AN SD BASIC REFERENCE, AND THE MAP IS RULED.*** Owner,
+> 26 Aug 2026: seventeen documents, **grouped by function**, each titled
+> `SD Basic - <category>`. ***ALL SEVENTEEN ARE WRITTEN: `01` Program
+> Structure, `02` Program Control, `03` Math Functions, `04` String Functions,
+> `05` Dynamic Arrays, `06` Data Conversion, `07` File Handling, `08` Select
+> Lists, `09` Alternate Key Indexes, `10` Sequential Files, `11` CSV Files,
+> `12` Terminal Input and Output, `13` Printing, `14` Locks and Transactions,
+> `15` Sockets, `16` System and Environment, `17` Debugging*** — all rendered
+> to HTML **and PDF**, `docmap` **411 of 411**, `checklinks` **110 links, 0
+> broken**. Numbers
+> are one flat run for the whole `User` set, **no letter suffixes** — §6's
+> hyphen-collation trap.
+>
+> ***`14` AND `15` NEEDED INSTRUMENTS THAT DID NOT EXIST, AND THE REASON IS
+> WORTH KEEPING.*** A lock you hold yourself answers a different question from
+> one somebody else holds — every `RECORDLOCKED()` code above zero is the
+> self-answer — so `sdprobe2.ps1` runs **two sessions at once** and refuses a
+> run in which they did not demonstrably contend. Sockets went the other way:
+> `create.server.socket` calls `listen()`, so **one** session can be both ends
+> on loopback, and the client waits in the backlog until the same session
+> accepts it. `17` needed a third, `sddebug.ps1`, because the debugger is
+> line-oriented on this port and can therefore be driven down a pipe.
+>
+> ***EVERY DOCUMENT NOW OPENS ON A GENERATED TITLE PAGE — OWNER, 26 Aug
+> 2026.*** Name, subject, `Copyright © 2026 Donald Montaine`, the release it
+> shipped with, and **CC BY-SA 4.0** with a three-paragraph summary and
+> `https://creativecommons.org/licenses/by-sa/4.0/`. **It is built by
+> `mkdoc.py`, not pasted into each file** — the Markdown supplies only `Title:`
+> and `Subtitle:`. `mkdoc.py` **refuses to write a page** that renders without
+> the title page, the copyright or the licence URL. ***THIS ALSO CHANGES THE
+> `Testing` SET AT ITS NEXT RENDER***, which has not been re-rendered.
+>
+> ***THE PAGE BREAK WAS VERIFIED WITH A CONTROL, AND THE FIRST INSTRUMENT WAS
+> WRONG.*** Comparing page counts on a real document gave 6 with the break and
+> 6 without — the content rounded the same either way, so it proved nothing.
+> The decisive test is a **one-paragraph document**: 2 pages with the break,
+> **1 without**. Both halves were run.
+>
+> ***COVERAGE IS CHECKED, NOT ASSUMED***: `scratchpad\docmap.py` assigns every
+> name `BCOMP` accepts to exactly one document and exits non-zero on a gap —
+> **411 of 411 assigned**. Rebuild it in `gplbld` if the set is ever picked up
+> on another machine.
+>
+> ***THE ROSTER COMES FROM `BCOMP`'s OWN TABLES, NOT FROM `..\sdhelp`.*** The
+> same extraction `gplbld/mkbasicsyntax.py` uses gives **218 statements, 37
+> reserved words, 176 intrinsics** — what this port's compiler actually
+> accepts. Diffed against the historic by-type roster: **8 things the old docs
+> describe are gone** (`rsd`, `stope`, `stopm`, `encrypt()`, `decrypt()`,
+> `ttyget()`, `ttyset`, `connect.port()`) and **59 exist that the old roster
+> never listed** — `sdencrypt()`, `sddecrypt()`, `checksum()`, `randomize`,
+> `sysmsg()`, `vartype()`, the `ak*` family, the debug family, `printcsv`,
+> `sendmail` among them. **Do not take a function list from the help tree.**
+>
+> ***WHAT MEASURING FOUND THAT NO DOCUMENT RECORDS, AND SOME OF IT IS
+> DEFECTS.*** Each was reproduced on the 17:14:03 install.
+>
+> | | |
+> |---|---|
+> | ***`matbuild ... using` DOES NOT WORK*** | the keyword compiles as a **variable** and the program aborts with *"Unassigned variable USING"*. Tried in both cases. **`st.matbuild` is byte-identical to `../sdb64`'s, so it is upstream's defect, not ours.** The delimiter is always `@fm` |
+> | ***`errmsg` IS IN `BCOMP`'s STATEMENT TABLE AND DOES NOT COMPILE*** | *"Unrecognised statement"*. Its opcode was removed 28 Jul 24 and the name was left behind. **Being in the table is not evidence a statement exists** — the roster needs compiling, not just reading |
+> | ***`on n goto` CLAMPS, IT DOES NOT FALL THROUGH*** | with two labels, `on 0` and `on -1` both go to **label 1** and `on 3` goes to **label 2**. So there is no "none of the above", and a zero — what an empty variable evaluates to — silently runs the first branch |
+> | ***`locate`'s SUBSCRIPT DEPTH CHOOSES THE LEVEL*** | `arr<f>` searches FIELDS, `arr<f,v>` searches VALUES. One subscript on a value list finds nothing and returns an insertion point, which reads like a working search. The statement form **requires** the brackets |
+> | `div()` is not `/` | `div(7,2)` is **3**: the intrinsic compiles to `OP.QUOTIENT` (`BCOMP:476`), not to the `/` opcode of the same name |
+> | `idiv()` changes rounding | truncates on two integers, **floors** if either is floating point: `idiv(-7,2)` is `-3`, `idiv(-7.0,2)` is `-4` |
+> | `num('')` is **true** | the empty string passes the test people use as a validator |
+> | `selectv` is not a dynamic array | `vartype()` **11**; `dcount()` on it fails *"Data cannot be converted to a string"*. Read it with `readnext ... from` |
+> | the format qualifier has no keyword | `t '10R2'` works, `t fmt '10R2'` compiles `fmt` as a variable |
+> | `getlist`/`savelist` need `then`/`else` | without one the error is *"Expected THEN or ELSE"* reported against the **next** statement |
+> | `fileinfo` has no record count | key 6 is minimum modulus. Use `selectinfo(list, 3)` |
+> | a trailing `@fm` becomes an id | `formlist` on three ids built with `id : @fm` produced **four** entries, the last empty |
+> | ***AN INDEX TAKES THREE STEPS AND EACH REPORTS SUCCESS ALONE*** | `create.index` makes an **empty** index; an **already-open file variable never sees it** (`indices()` empty, `fileinfo(f,13)` 0) until close and reopen; `build.index` needs **exclusive access and your own session counts** — *"Cannot gain exclusive access to file"*, rc **3021**. Only after close, build, reopen did `selectindex` return ids |
+> | `selectindex` returns two different things | with a value, the record **ids**; **without one, the distinct index VALUES**. Nothing says which |
+> | `selectleft`/`selectright`/`setleft`/`setright` take no `then`/`else` | writing one is *"Unrecognised statement"*. They take `setting` and `to` |
+> | `openseq`'s `then`/`else` is not success/failure | `then` = the file existed, `else` = it was **created** (or the open failed) |
+> | `csvdq()` is a **de**-quoter | it splits one CSV line into field-mark separated fields. There is no matching function that quotes one |
+> | `printer file` takes the unit after `on` | `printer file on 1 'F','R'`; the positional form is a compile error. `printer.setting` takes **three** arguments |
+> | sequential writes are **CRLF** | measured byte for byte: `65 66 13 10 67 68 13 10` |
+>
+> ***AND WHAT DOCUMENTS 14 TO 17 ADDED, 26 Aug 2026.*** Same install. The three
+> marked ***upstream*** are in `sdb64` unchanged and **none is fixed**.
+>
+> | | |
+> |---|---|
+> | ***inside a transaction, `write` and `delete` need the lock ALREADY HELD*** | `ER_NOLOCK` **3023**, and `messages/1407` renders it *"Error 3023 (o/s 0) writing record (Possible full disk?)"* — a lock error wearing a disk error's message. `op_dio3.c:770` and `:325`, `if (pcfg.must_lock \|\| txn_id)`. The same `write` succeeds outside a transaction |
+> | ***reaching `end transaction` with no `commit` discards everything, silently*** | measured: the record still read its pre-transaction value. There is no implicit commit |
+> | ***`system(1008)` never decrements on a commit*** — upstream | `txn_depth--` is only in `rollback()` (`txn.c:592`), and BCOMP compiles `commit` as a jump **past** `end transaction`. So the level is permanently wrong after the first committed transaction. **Test `system(1007)`**, which is 0 outside one |
+> | ***a `commit` inside a NESTED transaction abandons the outer one*** — upstream | measured: the inner write landed, **the outer write was lost**, `system(1007)` read 0 after the inner commit. `op_txncmt` does not pop `txn_stack` |
+> | `recordlocked()` sets `status()` to the **owner's user number** | measured across two sessions on all five refusal paths. It is the only way to find out who holds a record |
+> | a plain `readu` waits **250 ms per retry** and does not time out | measured 252 ms, released by the other session. `op_lock.c:515`, `Sleep(250)` |
+> | a `lock` with no `else` **retries for ever** | BCOMP generates `sleep 1` + jump back as the default `else` |
+> | a **file** lock stops locking, not reading | measured: `readu ... locked` refused on every record, a plain `read` returned normally |
+> | ***`read.socket`'s timeout is ignored unless the socket is blocking, and no socket starts blocking*** | measured: flags 0 with a 5000 ms timeout returned in **0 ms**; flag 1 waited 2025 ms. **The bug passes its own tests** — on loopback the data is already there |
+> | a closed peer is **7013 or 1008**, depending which end closed | a loop guarded only on 7013 ran all 21 of its iterations |
+> | `set.socket.mode` key 6 ignores its argument — ***FIXED 26 Aug 2026, uncycled*** | `set.socket.mode(s, 6, 0)` returned **1** and keep-alive read **1**. `op_skt.c` set `n = TRUE` unconditionally; the line is gone. UPSTREAM_FIXES #19 |
+> | `server.addr('localhost')` is **`::1`** while `create.server.socket('127.0.0.1')` is IPv4 | and an unresolvable name **blocks in the OS resolver** — still not back after 45 s, with no way to bound it from BASIC |
+> | ***`config()` names are case sensitive and at most 8 characters*** — the abort ***FIXED 26 Aug 2026, uncycled*** | wrong case is `''` + status 1004, and that stands. **Nine characters aborted the caller** with *"Data cannot be converted to a string"* because the early exit jumped over `result`'s initialisation; it now returns `''` + 1004 as well. UPSTREAM_FIXES #18 |
+> | `env()` is case sensitive | `env('path')` is 0 characters where `env('PATH')` is 926. Windows is case-insensitive everywhere else |
+> | `system(1010)` answered **`Linux`** on Windows — ***FIXED 26 Aug 2026, uncycled*** | `system(1006)` still answers `0` and is an open decision. **`system(91)` was already right** |
+> | ***`kernel()` is internal-only, and page 07's advice was wrong*** | it told the reader to convert a POSIX path with `kernel(K$WINPATH, ...)`. An ordinary program cannot call `kernel()` at all — **corrected in the page this session** |
+> | an unknown function reads as a **matrix** | `v = testlock(5)` gives *"Matrix TESTLOCK is not referenced in a DIM statement"* at the **last line of the program**. With three arguments it is *"Right bracket not found where expected"* instead |
+> | `sdencrypt()` has no usable key from an ordinary account | a passphrase gives status **10204**, a key-length error. The derivation function is `sdext()`, which is internal-only |
+> | `os.execute` **aborts** when the account lacks the right | *"don is not permitted to use OS.EXECUTE"*. No `else`, no `on error`, no status to test |
+> | the debugger is **line-mode on this port, always** | `full.screen` is `terminfo('sreg') # ''` (`DEBUG:522`), and `sreg` is an SD-client capability the `windows` definition does not carry. Nothing is lost, and it means the debugger **can be driven from a pipe** |
+> | `debug` and `pdebug` are on `TIER.OMIT.STANDARD` | a standard account has neither verb; the `debug` **statement** is its only way in |
+>
+> ***AND EVERY EXAMPLE IS MEASURED, WHICH IS NOT DECORATION — IT CAUGHT FOUR
+> WRONG ANSWERS THE REFERENCE WOULD HAVE PRODUCED.*** `div(7,2)` is **3**, not
+> `3.5`, because the intrinsic `DIV()` compiles to `OP.QUOTIENT` and not to the
+> `/` opcode that shares its name (`BCOMP:476`); `idiv()` truncates on two
+> integers and **floors** if either is floating point, so `idiv(-7,2)` is `-3`
+> and `idiv(-7.0,2)` is `-4`; `num('')` is **true**; `shift()` right-shifts
+> **unsigned**, so `shift(-1,1)` is `2147483647`. The probe route is a program
+> written into `C:\ProgramData\SD\user_accounts\don\bp` — **writable without
+> elevation, where `sdsys\bp` is not** — then `BASIC`/`RUN` down §6's
+> `Invoke-SD` pipe. Runner kept at
+> `scratchpad\run-zzmath.ps1`; it refuses a run that did not print its own
+> START and END markers.
+>
+> ***NOTHING ABOUT THE DOCUMENTATION IS IN THIS REPOSITORY ANY MORE.***
+> Repository
+> [SDCoreWindowsDocs](https://github.com/dmontaine/SDCoreWindowsDocs), working
+> tree `C:\Users\dmont\Projects\SDCoreWindowsDocs` — **the owner
+> moved it out of `sdhelp` on 26 Aug 2026** — branch `main`,
+> **pushed**. The P-drive copy is stale. Three sets, each `markdown` +
+> `html` + `pdf`: `Testing` holds the 15-page tester set, `User` holds the
+> SD BASIC reference in progress, `Technical` is empty.
+>
+> ***HE ALSO REVIEWED PAGE 00 AND THE LINEAGE IN IT WAS WRONG.*** SD Core is a
+> version of SD carrying elements of the main SD version and of ScarletDME;
+> **ScarletDME forked the original GPL release of OpenQM 2.6.6**, which did not
+> carry every feature of the commercial 2.6.6 and **for which no documentation
+> was ever released**. So *"anything true of stock OpenQM is out of scope"* is
+> struck: the OpenQM documents are a **reference, not an authority**. Head
+> `076fdd7`.
+>
+> ***THE OWNER ANSWERED THE 18-QUESTION REVIEW LIST ON 26 Aug 2026. SIXTEEN ARE
+> APPLIED; TWO ARE OPEN*** and are at the top of `QUESTIONS-2026-08-26.md` —
+> **q7** the `limitssh` default, re-asked with four options because *"not sure
+> what you are proposing"*, and **q14**, which he did not answer. The rest of
+> the answers and what each changed are in that file; **do not re-derive them
+> here.**
+>
+> ***THE PAGES ARE NUMBERED `00`–`14`, FLAT, AND THAT IS LOAD-BEARING.*** They
+> were briefly `01a`/`01b`/`06a` and it put them in a different order in
+> Explorer than in the renderer — §6's hyphen-collation trap. **Do not
+> reintroduce a letter suffix to avoid a rename.**
+>
+> ***THE TOOLCHAIN WENT WITH IT (q15) AND `$neverShipped` LOST BOTH NAMES.***
+> `mkdoc.py` and `mkpdf.ps1` are `tools\` in the docs repository, along with
+> **`release.ps1`**, which renders only what changed, **refuses to zip when any
+> generated page is older than its Markdown**, and prints a SHA256.
+> `assert-current.ps1` carries a comment where the two entries were saying not
+> to re-add them. `setup-devbox.ps1` still installs python-markdown, because the
+> pages are rendered on this box.
+>
+> ```
+> tools\release.ps1                 (in the docs repository, not here)
+> ```
+>
+> ***THE CHANGELOG FIX OF 26 Aug DOES NOT MAKE THE TREE STALE.*** Two wrong
+> statements in the 21 Aug API entry were silently corrected (`sd.conf`'s path,
+> and the `sdapi` wording). Measured after: `assert-current` **exit 0** — it
+> prints `EXEMPT: sdsys\changelog is newer than the install`. **So the
+> correction reaches an installed system only at the next install**, and no
+> verifier is blocked meanwhile.
+>
+> ***q18 LEAVES A PIECE OF WORK BEHIND AND IT IS NOT A TASK YET.*** The ruling
+> is that a **client** installer carries the DLLs, the documentation and the
+> related utilities, **no source of any kind**, and creates a `docs`
+> subdirectory holding the GitHub references. That is a change to
+> `sdclient.iss` / `qmclient.iss` in the client repositories — **not to
+> `sd.iss`** — and it has not been made. Page 10 of the tester set says plainly
+> that W1.0-0 does not ship it.
+>
+> **Identity is set per repository, not globally, on this machine** — a new
+> clone needs `user.name`/`user.email` set, or commits fail with *"unable to
+> auto-detect email address"*. The docs repository's `README.md` carries that
+> and the build commands.
+>
+> ***THE ONE ERROR HE CAUGHT, AND IT IS WORTH NOT REPEATING.*** A first draft
+> said accounts SD creates *"sign in over ssh and nothing else"*. **Wrong**: they
+> cannot log in to **Windows**, and they reach SD over ssh **or through an API
+> client**. A standard-tier account with `api` and no `ssh` is an ordinary thing
+> — someone running a custom GUI client — and is probably the commonest shape a
+> deployed system has. The API is not a developers-and-administrators feature.
+>
+> ***WHAT WAS SETTLED BEFORE IT STARTED:*** the format, the audience, where it
+> ships, and the topic list, which is his verbatim. All of it is in
+> §"DOCUMENTATION DECISIONS" and §"THESE FOUR ARE THE BRIEF" below, and those
+> two sections were deliberately left untouched by the 26 Aug prune.
+>
+> ***THE SAMPLE WAS JUDGED AND PASSED:*** *"I like the format"*, and the
+> aggregate-by-function shape was singled out. Sample at
+> `docs\sample\file-commands.html`, source
+> [docs/sample/file-commands.md](docs/sample/file-commands.md). ***THE RENDERER
+> IS NO LONGER IN THIS REPOSITORY*** (q15, 26 Aug 2026) — rebuilding the sample
+> now reaches across to the docs repository:
+>
+> ```
+> python "C:\Users\dmont\Projects\SDCoreWindowsDocs\tools\mkdoc.py" --in docs/sample --out docs/sample
+> ```
+>
+> ***THE INTERPRETER DECISION IS ANSWERED — OWNER, 26 Aug 2026: THE MSYS2
+> PYTHON.*** `mkdoc.py` is the only thing in the whole build with a third-party
+> dependency — `markdown`; every other import across the ten `gplbld/*.py`
+> files is stdlib or local. **The gap was bigger than the package**:
+> python-markdown 3.10.2 was installed for the **Windows** python (3.13.14),
+> not the **MSYS2** python `setup-devbox.ps1` installs (3.12.13), so on a fresh
+> box `python mkdoc.py` failed at the *interpreter*, not at the import.
+>
+> ***`python-markdown` IS NOW IN `setup-devbox.ps1`'s PACKAGE LIST, AND IT IS A
+> PACKAGE RATHER THAN A `pip install` FOR A MEASURED REASON.*** The MSYS2
+> python has **no pip at all** — *"No module named pip"*, measured 26 Aug 2026
+> — so the pip route needs `python-pip` first and then an unpinned download
+> outside pacman. **`msys/python-markdown` is 3.10.2-1, the same version the
+> sample was rendered with**, so it needs neither. It is in the **msys** repo,
+> not only the mingw ones; a `pacman -Ss python-markdown` that looks mingw-only
+> has been truncated.
+>
+> ***MEASURED, NOT ASSUMED:*** `setup-devbox.ps1 -CheckOnly` on this host,
+> 26 Aug 2026, reports **`missing: python-markdown`** and hands over
+> `pacman -S --needed python-markdown`. **It is the only missing package** —
+> every other one was already present — so that line is the change firing and
+> nothing else.
+>
+> ***AND IT IS NOT YET INSTALLED HERE.*** Until it is, `mkdoc.py` runs only
+> under the Windows python, which is what has rendered every page so far. It
+> exits 2 naming `pip install markdown` if the import is missing, so it fails
+> loudly either way.
+>
+> ***THE `$neverShipped` HALF OF THIS IS SPENT.*** `mkdoc.py` and `mkpdf.ps1`
+> left `gplbld` on 26 Aug 2026 (q15) and both entries were removed in the same
+> commit; a comment stands where they were. **What still holds is the reason:**
+> naming a `.md` in `stage.py` or `sd.iss` puts it under `assert-current`'s
+> `$shipsAs` valve, **after which every documentation edit costs a full cycle**.
+> Documentation does not ship from this repository, so nothing has to be wired
+> up here at all.
+>
+> ***ONE DEFECT THE PHASE WILL HAVE TO RULE ON.*** `sdsys\changelog` ships into
+> the **data tree**, which the installer never overwrites, so a user's changelog
+> is frozen at their install date — in the one file whose entire job is telling
+> them what changed. It probably wants moving to `{app}` beside the
+> documentation. Raised 25 Aug 2026; not decided, and not yet a task.
+> ***IT HAS NOW BITTEN ONCE***: the two silent corrections of 26 Aug (q1, q8)
+> reach an installed system only at its next install, and `assert-current`
+> exempts the file by name rather than reporting the tree stale.
+>
+> ### 3. THE DATA-TREE UPGRADE PATH — CLOSED 26 Aug 2026, RUN AND MEASURED
+>
+> `verify-upgrade.ps1 -Compare`, elevated, 21:48:14: **55 PASS, 0 FAIL, 1 SKIP
+> of 56 rows, exit 0**, on the install that ran over the top at 21:21 on
+> 25 Aug. `RefreshDictionaries` fired on the same install for the first time
+> ever — **76 of 76 dictionary records, `COMPLETE`** — which closed the other
+> half.
+>
+> ***THE LESSON IS NOT THE UPGRADE, IT IS THAT NOBODY RE-READ THE TREE.*** The
+> install had already happened and been recorded as *"not yet done"*, because
+> the scoring failed and the failure was diagnosed without anyone looking at
+> the tree it was scoring. ***Do not re-run `-Snapshot`.***
+>
+> ### 3a. VFS STRIPPED FROM THE C — CLOSED 25 Aug 2026, CYCLED AND VERIFIED
+>
+> Checked directly on the installed tree, because **the suite has no VFS step**,
+> and every check paired with a control: `$define FL$TYPE.VFS` 0 against
+> `FL$TYPE.SEQ` 1, `$define ER$VFS.*` 0 against `ER$ENCRYPTED` 1, `$define
+> FVAR.NET` 0 against `FVAR.SEQ` 1, `_EXTENDLIST` absent from all three of
+> `gpl.bp`, `gpl.bp.out` and `pcode.out` against `_DELLIST` present in all
+> three. `UPSTREAM_FIXES.md` entry 15 is written.
+>
+> ***THE FIRST VERSION OF THAT CHECK WAS WRONG AND IS WORTH THE WARNING.*** It
+> grepped for the bare names and reported 1 and 2 hits — **the history comments
+> that deliberately name what was removed.** A pattern that matches the removal
+> notice as readily as the definition is not a check. Anchoring on `^ *$define`
+> and pairing each with a control is what made it decisive.
+>
+> ### 4. THE REMOTE-BLOCK CONTROL — CLOSED 25 Aug 2026. THE SCOPING BLOCKS A REMOTE MACHINE
+>
+> The §5.9 claim had been outstanding since 13 Aug and is now measured, with
+> the disagreement that makes it decisive: rule `Any` → host dial **CONNECTED
+> 23ms**; rule `127.0.0.1` → **dropped 4003ms**, with port 5040 on the same
+> guest answering in **23ms** as the witness that the guest was up and the host
+> could reach it.
+>
+> ### 4a. THE ssh REMOTE-BLOCK RUNBOOK — RUN AND PASSED, AND KEPT FOR THE NEXT GUEST
+>
+> Seven steps, a person at the wizard. ***The `Open` leg must run FIRST***, and
+> the precondition is a **Private** network profile on the guest. Kept because
+> anything else that needs a machine that never had OpenSSH wants the same rig.
+>
+> ### 5. THE STAND-ALONE INSTALL — CLOSED 26 Aug 2026. 21 PASS, 0 FAIL, ***0 SKIP***
+>
+> On guest `sdStandalone-C1` at 01:46:11. The row that had never once been
+> measurable, `no ssh server on this machine at all`, fired its **strong form**.
+> The owner cycled choosing stand-alone and looked at both pages.
+>
+> ***WHAT THE PAGES SHOWED IS WRITTEN DOWN, WHICH IS THE STEP THAT WAS MISSED
+> LAST TIME RATHER THAN THE LOOKING.*** The mode page and the tasks page are
+> correct, with **no `sshremote`/`apiremote` boxes** on a stand-alone run —
+> which was unrecorded either way after the 25 Aug run, and is the fault
+> `check-stale-leads.py` phase 3 was built for.
+>
+> ***THE PREFLIGHT QUESTION IS ANSWERED AND NEEDS NO CODE CHANGE.*** Owner,
+> 26 Aug 2026: the ssh preflight **still refuses** on a stand-alone install. A
+> stand-alone install neither installs nor configures an ssh server, so the
+> reason for the refusal does not apply — but relaxing a check verified on three
+> guests the same week was his call, and he kept it. ***Do not reopen it as a
+> tidiness item***, and note it was never a one-line change either way: the
+> preflight runs in `InitializeSetup`
+> ([sd.iss:829](sdb_ai/sd64/gplbld/sd.iss:829)), **before the wizard is drawn,
+> so before the mode can have been chosen**, which is why "skip it when
+> stand-alone" cannot be a `Check:`.
+>
+> ***FOUR FACTS ESTABLISHED WHILE SCOPING IT, so nobody re-derives them:***
+>
+> - ***`APIPORT` UNSET MEANS SD OPENS NO PORT AT ALL*** —
+>   [sdwind.c:351](sdb_ai/sd64/gplsrc/sdwind.c:351) and `sdwind.c:310`. So "no
+>   API" is a real state, not just a firewall rule. A stand-alone `sd.conf`
+>   omits `APIPORT`.
+> - ***`APILOGIN` IS NOT AN OFF SWITCH.*** It decides whether the API demands a
+>   password (`op_kernel.c:848`); `APILOGIN=0` is the WEAKER setting, not the
+>   safer one. Do not reach for it here.
+> - **The installing user's own account needs no ssh.** `CREATEA` puts only
+>   non-administrators in `sdsshonly`, and `LOGIN` admits the console when
+>   elevated.
+> - **`sd.conf` is `onlyifdoesntexist`**, so a stand-alone variant is written on
+>   a first install only — an upgrade will not rewrite it.
+>
+> ***AND SWITCHING BETWEEN THE TWO ACCOUNTS IS NOT A PROBLEM.*** A stand-alone
+> system still has the user's own account and `SDSYS`. `LOGTO SDSYS` asks for no
+> password — `LOGTO.STEP.UP` was deleted 14 Aug 2026, `CPROC:2568` calls
+> `elevate('START','')` and the gate is elevation — and an already-elevated
+> session switches with no prompt at
+> [sd-elevate.ps1:105](sdb_ai/sd64/gplbld/sd-elevate.ps1:105). **`CPROC:2566`
+> and `sd-elevate.ps1:23` both say `!elevate` *"cannot work over ssh"*, and that
+> is true only when a PROMPT is needed** — whether an ssh token is elevated
+> depends on `LocalAccountTokenFilterPolicy`, which §5.6.2 records as never
+> measured. ***Do not restate either comment as absolute until somebody
+> measures it.***
+>
+> ---
+>
+> ## DOCUMENTATION DECISIONS, AGREED 25 Aug 2026
+>
+> ### WHERE THE WORK LIVES: ~~THIS REPOSITORY~~ ***REVERSED 26 Aug 2026 — ITS OWN GitHub REPOSITORY***
+>
+> ***OWNER'S DECISION, 26 Aug 2026, AND IT OVERRIDES THE 25 Aug RULING BELOW:***
+> *"there will be a separate repository on github for all the documentation we
+> create. It will not have the no binary bits rule."*
+>
+> **So the documentation is a project of its own**, and ***the no-binaries rule
+> in CLAUDE.md is a `sd4windows` rule only*** — it does not travel to the
+> documentation repository, which may therefore track the rendered PDFs
+> alongside their Markdown. **Nothing about `sd4windows` changes: no binary
+> becomes trackable here.**
+>
+> ***THE REPOSITORY IS
+> [github.com/dmontaine/SDCoreWindowsDocs](https://github.com/dmontaine/SDCoreWindowsDocs)***,
+> created 26 Aug 2026 and **created empty**, which is what the first push
+> needed. Working tree
+> `C:\Users\dmont\Projects\SDCoreWindowsDocs` — the owner moved it
+> out of `sdhelp` the same day — `origin` set, **pushed**.
+>
+> ***THE MARKDOWN IS TRACKED AND THE GENERATED `.html`/`.pdf`/`.zip` ARE NOT.***
+> Ruled 26 Aug 2026, question 16: the pages are rendered after a change, only
+> the ones that changed, and the two eventual deliverables — a PDF download and
+> the pages on a web site — are both built from the Markdown at release time.
+> `tools\release.ps1` there does it and refuses on a stale page.
+>
+> ***WHAT THE OLD RULING WAS FOR, BECAUSE THE RISK IT NAMED IS REAL AND IS NOW
+> UNMANAGED.*** It read: *"documentation has to ship with the code, be versioned
+> with it and be checkable against source. A separate repository recreates the
+> drift this codebase keeps paying for — on 25 Aug alone, four statements in the
+> installer dialogs had quietly stopped being true, and a writer working from a
+> detached copy would have faithfully documented all four."*
+>
+> **That was not answered, it was outweighed.** A documentation repository
+> cannot be checked against source by anything that runs, so ***drift is now
+> caught by a person or not at all***. Two consequences to carry: write from
+> source and from this file rather than from a rendered page, and **re-read the
+> installer dialogs and the changelog whenever a release moves**, because
+> nothing will fail if a page goes stale.
+>
+> ***THE SIZE PROBLEM IS `PROJECT_STATUS` ONLY.*** It is read every session;
+> `HISTORY` is read on demand, so its length costs nothing. Compress the closed
+> steps — 0-2 and 4-17 — into `HISTORY`, which this file already does in places
+> (*"Detail compressed 21 Aug 2026 under §0.5"*). ***DO NOT REWRITE `HISTORY`***:
+> rule 1 is append-only and it has earned its keep repeatedly.
+>
+> ### WHERE THE DOCUMENTATION SHIPS: `{app}\doc\`, NOT THE USER'S DOCUMENTS FOLDER
+>
+> Everything under `{app}` is *"replaced on upgrade and removed on uninstall"*,
+> which is exactly the lifecycle documentation wants. A Start Menu shortcut goes
+> beside the two that exist (`{group}\SD`, `{group}\Check the SD installation`).
+> The user's Documents folder is wrong three ways: it is their space, it would
+> never be updated, and uninstall would leave it behind.
+>
+> ***AND THIS EXPOSED A REAL DEFECT, RECORDED HERE BECAUSE IT IS THE SAME FAMILY
+> AS THE UPGRADE PATH: `sdsys\changelog` SHIPS INTO THE DATA TREE***, which the
+> installer never overwrites. **A user's changelog is therefore frozen at their
+> install date and can never be updated** — in the one file whose entire job is
+> telling them what changed. It probably wants moving to `{app}` too. Not yet
+> decided; not yet raised as a task.
+>
+> ### THE FORMAT: MARKDOWN IN THE REPOSITORY, SINGLE-FILE HTML AT STAGE TIME
+>
+> Every Windows machine has a browser, so there is nothing to install and no
+> format to explain. **Single file with embedded CSS** — no asset folder to
+> break. Works offline, which matters on the machines SD installs on. The user
+> can print to PDF from the browser, so **no PDF needs shipping, which the
+> no-binaries rule forbids anyway** (it is why `sdhelp` is hand-carried).
+>
+> ***WHAT ACTUALLY MAKES THEM LOOK GOOD*** — about 100 lines of CSS, written
+> once and shared:
+>
+> | | |
+> |---|---|
+> | line length capped ~70-75 characters | the single biggest win; full-width text is what makes docs look amateur |
+> | a system font stack | no web fonts, so no network dependency and no licence question |
+> | real table and code-block styling | technical documentation lives or dies on these |
+> | a table of contents with anchors | long reference pages are unusable without one |
+> | a print stylesheet | so browser-to-PDF comes out clean |
+>
+> ***THE CONVERTER: a small pure-Python Markdown library*** (`markdown` or
+> `mistune`) called from a `gplbld/` script. It fits the existing Python build,
+> and `setup-devbox.ps1` can install it beside the rest of the tooling. Writing
+> the documentation in HTML directly avoids the dependency and is much worse to
+> write and review; **pandoc is the better converter and is rejected** — a
+> binary dependency cuts against building from source.
+>
+> ***CHM IS REJECTED, AND NOT ONLY FOR THE OBVIOUS REASON.*** It is the classic
+> Windows help format with real advantages — F1 integration, built-in search —
+> but it is a binary, its toolchain is long abandoned, and **Windows blocks CHM
+> files opened from a network path**. That produces a "help does not work"
+> support problem which never reproduces on the developer's own machine.
+>
+> ### RULED 25 Aug 2026 ON SEEING THE SAMPLE. THESE FOUR ARE THE BRIEF
+>
+> ***1. `..\sdhelp` IS A RESOURCE, NOT A SOURCE TO COPY.*** Owner: *"use the
+> documents in `..\sdhelp` as resources but do not copy them verbatim. Always
+> make sure to wrap in the changes we have made for our version."* **The sample
+> page is closer to a transcription than the brief allows** — it is a format
+> demonstration and should not be taken as the model for how much of a help
+> page to carry over. Every page is rewritten for this port, with our
+> behaviour folded in. §2's sdhelp entry is why that is not pedantry: three
+> defects in three pages, in one afternoon.
+>
+> ***2. AGGREGATE BY FUNCTION.*** Owner singled this out: *"I like the way you
+> have aggregated by function 'File commands' rather than the more typical
+> 'one command at a time' format."* So a topic page holds the verbs that belong
+> together. `..\sdhelp`'s one-file-per-verb shape is not the model.
+>
+> ***3. THE FIRST DOCUMENT SET IS FOR TESTERS, AND ITS AUDIENCE DECIDES ITS
+> CONTENT.*** They *"will already be familiar with Pick-like systems,
+> especially openQM, and will only need documentation to tell them how SD Core
+> for Windows is different."* **So it documents the DELTA, not the product.**
+> Anything true of stock OpenQM is out of scope for this set; comprehensive
+> documentation comes later. His topic list, verbatim — *"Things that are
+> unique to SD Core"*:
+>
+> | | |
+> |---|---|
+> | Installation | |
+> | Account types | Standard, Programmer, Administrator, Group |
+> | Admin Only Commands | and how to use them |
+> | Programmer / Admin Commands | and how to use them |
+> | SSH Access | |
+> | API Access | |
+> | Lower case and case conversion | |
+> | Security Improvements | |
+> | Other Hardening | |
+> | Historical features not available in SD Core | |
+>
+> ***AND ONE THE OWNER NAMED EXPLICITLY, 25 Aug 2026, BECAUSE A TESTER WILL
+> ASSUME OTHERWISE:*** *"note that this version does not support multi-user on
+> windows server using rdp"*. **It belongs in the notes, stated plainly.** It is
+> not an oversight and not a gap to be filled later — it follows from the access
+> model and is already settled:
+>
+> - `sdsshonly` carries **both** `SeDenyInteractiveLogonRight` **and**
+>   `SeDenyRemoteInteractiveLogonRight`
+>   ([deny-logon.ps1:29](sdb_ai/sd64/gplbld/deny-logon.ps1:29)), and `CREATEA`
+>   joins every non-administrator account to it — so an SD account is denied the
+>   physical console and Remote Desktop together.
+> - **`RDPACCOUNT` was built to lift exactly this and was deleted after a day**
+>   (§"`RDPACCOUNT` was built and then deleted"): one Windows setting covers RDP
+>   and the keyboard, so lifting the RDP denial lifted the console denial with
+>   it. `CREATEA:683` also records that multi-user RDP means Windows CALs, *"so
+>   a site that wants it is buying a commercial product, and it is outside this
+>   port's focus."*
+> - **The rule that holds without exception:** nobody SD creates can log in to
+>   Windows at this machine unless they are already a Windows administrator.
+>   Concurrent users reach SD **over ssh**, which is what the ssh path is for.
+>
+> **Nearly every row already has its answer written down in this file**, which
+> is the payoff for keeping it: account types §5.6, admin/programmer verbs and
+> the tiers §5.11, ssh §5.9, the API §5.13, case §5.12, the ACL and hardening
+> work §7 steps 14-15, and the removed features §"SDNet is gone" and §5.19.
+> **Write from source and from here, not from `..\sdhelp`.**
+>
+> ***4. THE THREE STYLE SUB-CHOICES IN THE SAMPLE WERE NOT CALLED OUT
+> INDIVIDUALLY*** — lower-case commands, dark mode following the machine, and
+> the sidebar table of contents. *"I like the format"* covers the page as
+> rendered, so **they stand as shipped**; none has been separately ruled on and
+> any of them is a one-line change.
+>
+> ---
+>
+> ### THE CLOSED RECORD THAT USED TO SIT HERE
+>
+> Items 3, 3a, 4, 4a and 5, the refuse-to-install work, the ssh firewall
+> defect, the rig notes and the session-by-session records back to the
+> forty-ninth were moved to HISTORY.md on 26 Aug 2026 — entry ***"ARCHIVE
+> 26 Aug 2026 — START HERE's closed record, sessions 49 to 60, in full"***.
+> The task table at the top of this file carries their conclusions. **Nothing
+> was deleted.**
