@@ -175,7 +175,66 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 40, 5 Sep 2026 — ***`b127` IS GREEN IN BOTH HALVES: 50 STEPS, EVERY ONE exit 0, 923 PASS / 0 FAIL / 0 SKIP. THE PRE-RELEASE LIST IS EMPTY. NEXT SESSION IS CLEANUP, AND THE MEASUREMENTS FOR IT ARE ALREADY TAKEN.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***THE FULL SUITE RAN ON THE 14:25:31 INSTALL —
+> 23 of 23 UNELEVATED and 27 of 27 ELEVATED, "every step exited 0" on one half
+> and no non-zero exit on the other.*** ***0 OPEN of 172*** in
+> PRE_RELEASE_FIXES, read from `test-fixlist-units.ps1`, never from prose.
+> ***32 of 32*** free guards green. ***NEXT FREE PRE_RELEASE ID 173.
+> `b115`–`b127` ARE SPENT — RUN `b128`.*** `verify-apiremote` ran as step 12 of
+> the elevated half and scored 15/0, so 170's gate is now covered by the suite
+> and not only by the session that built it.
+>
+> ### ***THE PASS COUNT IS 923 AND A BYTE GREP SAYS 348 — §6's DEFECT, LIVE***
+>
+> **27 of the 28 step logs are UTF-16**, so `grep -c '\[PASS\]'` across them
+> scores zero on all but one and undercounts by **575**. §6 already records
+> this as *"the PASS count was grepped out of files nothing could read"*, and it
+> was walked into again today. ***READ EACH LOG WITH THE ENCODING IT ACTUALLY
+> HAS*** — decode `utf-8-sig`, then `utf-16`, and reject a decode that leaves
+> NULs in the text — and count per file so an unreadable one is visible rather
+> than averaged away. **A single total from a byte grep is not a suite result.**
+>
+> ### ***WHAT THE NEXT SESSION IS FOR, WITH THE NUMBERS ALREADY MEASURED***
+>
+> Cleanup of leftover cruft and loose ends, the owner's call. Three things are
+> already counted so nobody starts by counting them again:
+>
+> - ***191 PROFILE DIRECTORIES IN `C:\Users`***, from `b103` through `b127`,
+>   every suite family — `sdacct`, `sdapia`, `sdapi`, `sdapiid`, `sdapin`,
+>   `sdapir`, `sddr`, `sdgate`, `sdpw`, `sdsadm`, `sdscram`, `sdssh`, `sdtapi`,
+>   `sdtu` — plus `sdw136a` and `sdw142a`.
+> - ***ONE LEFTOVER WINDOWS ACCOUNT: `sdswb104`***, from 3 Sep. Every other
+>   run's accounts were removed, so the verifiers' `finally` blocks are working
+>   and this one is a straggler rather than a pattern.
+> - ***THE RECLAIM SWEEP RUNS AND RECLAIMS NOTHING, AND THAT IS THE PART TO
+>   READ FIRST.*** `C:\ProgramData\SD\reclaim-profiles.log` at 14:52:39:
+>   **"13 considered, 0 reclaimed, 13 still pending, 0 refused"**, each one
+>   refused with *"the directory would not go - The process cannot access the
+>   file 'UsrClass.dat' because it is being used by another process"*. The
+>   machine **did** boot today at 09:02, so "only a restart releases it" is not
+>   the whole story. **It also only considers what it has a RECORD for** (§36,
+>   *"reads the RECORD, not `ProfileList`"*), so the ~178 directories older than
+>   the store are invisible to it. ***DO NOT ASSUME THE STORE IS EMPTY***: an
+>   unelevated count of `C:\ProgramData\SD\profile-reclaim` returns 0 because
+>   the store is ACL'd (§43), which is the "empty listing means unreadable"
+>   trap, not a measurement.
+>
+> **PROJECT_STATUS.md is also on the list** — the owner named its length. The
+> handoff stack is the obvious candidate: 40 blocks, most of them superseded by
+> the one above them.
+>
+> ### ***WHAT IS OWED: NOTHING.*** No cycle, no run, no ruling. The tree is
+> current against the 14:25:31 install, both repositories are pushed, and the
+> next session starts with a choice rather than a queue.
+>
 > # ⇩⇩⇩ HANDOFF 39, 5 Sep 2026 — ***REMOTE ADMINISTRATION IS NOW SHUT ON BOTH TRANSPORTS AND BOTH ARE WITNESSED. 170's API GATE IS `b126`, 15/0. 168 IS GONE. WHAT IS LEFT OF 167 IS THE DOCUMENTATION, AND IT IS THE LARGER HALF.*** ⇩⇩⇩
+>
+> ***EVERYTHING BELOW THIS LINE IS HANDOFF 39 AND IS SUPERSEDED BY 40 ABOVE.***
+> Its one open item — 167's documentation half — was closed the same day, and
+> its "no full suite since `b123`" was answered by `b127`. Kept because a
+> handoff records what a session handed over, not what is true now.
 >
 > ***THE STATE, IN ONE LINE.*** ***BOTH HALVES OF THE 5 Sep RULING ARE BUILT AND
 > WITNESSED: ssh on `b122` (14/0) AND THE API ON `b126` (15/0).*** **168's dead
