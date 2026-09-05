@@ -205,31 +205,48 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > DEVELOPMENT BOX HAS ALREADY CHANGED IS INVISIBLE TO EVERY TEST RUN ON IT***
 > — that is the general lesson, and adding one more check does not answer it.
 >
-> ***IT IS NOT FIXED AND THAT WAS DELIBERATE.*** It is a C change, so it needs
-> a full `cycle.ps1` and the tree goes STALE the moment it is made; the machine
-> was mid-litter-sweep and about to be rebooted. **Entry 173 carries the
-> recommendation** — `SH1` only, `op_sh.c:357`, since `SH` opens a prompt for a
-> person and runs no shipped script — ***but the owner had not ruled on `SH`
-> vs both when this was written.*** Length is not a constraint: 93 characters
-> today, `MAX_SH_CMD_LEN` is 255.
+> ***RULED AND BUILT THE SAME DAY — "sh1 only", OWNER — AND THE TREE IS NOW
+> STALE ON PURPOSE.*** `SH1` carries the switch; `SH` deliberately does not.
+> **`make sd` recompiled and relinked, and `bin/sd.exe` was byte-checked with
+> a control in both directions**: the new format string present, ***the old
+> SH1 string absent***, and `SH`'s own untouched.
+>
+> ***THAT PROVES THE BINARY, NOT THE FIX. IT HAS NOT RUN.*** No cycle, no
+> install, no `logto sdsys` against a `Restricted` machine.
+> ***`assert-current` EXITS 1 — THE FIRST THING THE NEXT SESSION WILL SEE, AND
+> IT IS EXPECTED.*** The machine was mid-litter-sweep and about to be rebooted,
+> so a cycle would have been building against a tree in motion.
+> ***RUN `cycle.ps1` FIRST, THEN THE FULL SUITE ON `b128`.***
+>
+> ***AND THIS HOST CANNOT WITNESS 173 EVEN AFTER A CYCLE.*** Its `LocalMachine`
+> policy is `RemoteSigned`, so the fix and the defect look identical here.
+> **The guest rig — task table 7.2 — is what closes it**, and until then 173
+> stays open however green the suite is.
+>
+> ***174 CAME OUT OF CHECKING 173 WAS SAFE, AND IS FIXED IN THE SAME COMMIT.***
+> `op_sh.c:461` passed `clparse` a bound of 9 and then wrote `argv[i]` and
+> `argv[i+1]` into a **ten**-pointer array, so a configured `SH1` of nine or
+> more tokens wrote one past the end. **Bound is now 8**; the interactive
+> branch keeps 10 and is correct, because it appends nothing. **Not reachable
+> from the default** — four tokens before 173, six after — **but `SH1` is a
+> config parameter.**
 >
 > ### ***THE CLEANUP, WHICH IS WHAT THE SESSION WAS FOR***
 >
-> ***WHAT IS OWED: A FULL SUITE, AND IT IS DELIBERATELY NOT RUN.*** `b128` is
-> the next token. **Nothing that ships changed** — the diff is three documents
-> plus `gplbld/check-stale-leads.py` and `gplbld/test-staleleads-units.py`,
-> neither of which ships or is read by the install — and `assert-current` was
-> **exit 0** after every commit, so the installed tree still matches source.
-> **The machine was mid-litter-sweep when this was written**, so a suite run
-> would have been measuring a tree under change. ***RUN THE FULL SUITE AFTER
-> THE SWEEP AND THE REBOOT, NOT BEFORE.***
+> ***WHAT IS OWED: A CYCLE, THEN A FULL SUITE.*** `b128` is the next token.
+> **The cleanup commits changed nothing that ships** — three documents plus
+> `gplbld/check-stale-leads.py` and `gplbld/test-staleleads-units.py`, and
+> `assert-current` was **exit 0** after every one of them. ***THE C CHANGE FOR
+> 173 AND 174 IS WHAT MADE THE TREE STALE***, and it was made last, on purpose,
+> so the cleanup work is all witnessed on a current tree and only the fix is
+> owed a cycle. ***CYCLE FIRST, THEN THE SUITE — NOT THE OTHER WAY ROUND.***
 >
 > ***MEASURED THIS SESSION, ALL OF IT CHEAP AND REPEATABLE.*** **32 of 32 free
 > guards green** (28 `.ps1` + 4 `.py`; the directory and CLAUDE.md's list agree
-> exactly). ***1 OPEN of 173 — and it is 173, a B***, from
-> `test-fixlist-units.ps1`, 274 passed / 0 failed. **The list had been empty
-> for one day.** `assert-current` **exit 0**. ***NEXT FREE PRE_RELEASE ID:
-> 174.***
+> exactly). ***2 OPEN of 174 — 173 (B) and 174 (S), both BUILT AND UNCYCLED***,
+> from `test-fixlist-units.ps1`. **The list had been empty for one day.**
+> ***`assert-current` EXITS 1: THE TREE IS STALE AND THAT IS THIS SESSION'S
+> DOING.*** ***NEXT FREE PRE_RELEASE ID: 175.***
 >
 > ### ***WHAT CHANGED, AND THE ONE THING TO READ FIRST***
 >
