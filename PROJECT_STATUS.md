@@ -175,6 +175,59 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***161's BUILD HALF IS DONE AND MEASURED: `make sd` NOW MAKES ALL FOUR CLIENT DLLs AND THE INSTALLER SHIPS THEM IN `usr\clients`. 162 FOUND AND FIXED — A GUARD THAT HAD QUIETLY STOPPED GUARDING. 163 FILED AND NEEDS A RULING. OPEN 3: 80, 161, 163. A CYCLE IS OWED AND NOTHING IS INSTALLED YET.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** **32 of 32** free checks exit 0 in ~37 s;
+> `test-fixlist` **264/0**; `test-stalebin` **39/0**; `make check` in
+> `gplsrc/sdclilib` **5 tests, 0 warnings**. ***`assert-current` IS EXIT 1 AND
+> THAT IS CORRECT — `gplbld\stage.py` AND `gplsrc\sdclilib\Makefile` ARE NEWER
+> THAN THE INSTALL. NOTHING BUILT THIS SESSION HAS BEEN INSTALLED OR RUN.***
+> ***OPEN 3: 80, 161, 163. NEXT FREE PRE_RELEASE ID 164. RUN `b115`.***
+>
+> ### ***FIRST THING: THE CYCLE, THEN THE SUITE***
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **Elevated PowerShell.** Step 0 rebuilds the C — source has moved. **Then a
+> FULL suite**, which is owed twice over: none has run since `b111`, and
+> CLAUDE.md asks for one before a handoff.
+>
+> ### ***WHAT 161 BUILT, AND WHAT IS STILL OPEN***
+>
+> **Read 161's row for the detail; it carries the owner's words verbatim and
+> the measurements.** In one paragraph: `gplsrc/sdclilib/` now builds all four
+> DLLs — the ucrt64 pair and, with `CC32`, the mingw32 pair — and the QM-specific
+> sources came into this tree with the build. ***THE LAYOUT ARRIVED IN THREE
+> STEPS AND THE LAST TWO REVERSED THE FIRST***, so implement nothing from the
+> earlier wording: the 64-bit pair is installed **TWICE**, in `usr\bin` (the
+> server's own, and the only copy `SDConnectLocal` can work from) and in
+> `usr\clients\client64\` (the user's); the 32-bit pair is in
+> `usr\clients\client32\` only. `sd.iss` needed **no change** —
+> `{#Stage}\ProgramFiles\*` already recurses.
+>
+> ***TWO THINGS ARE STILL OPEN IN 161 AND BOTH ARE THE OWNER'S.*** **(b)**
+> whether import libraries and headers travel with the DLLs —
+> `usr\clients\` holds DLLs and nothing else today, and adding them is one line
+> in `stage.py`'s `CLIENT_DIRS`. **(c)** what becomes of `../winsdclilib` and
+> `../sdclilib32` — **this session touched neither**, so both still hold their
+> `.iss` files and stale `Output\` installers, and `check-client-sync.py`'s
+> checks 2 and 3 still describe a model nothing uses.
+>
+> ### ***THE LESSON THIS SESSION PAID FOR: 162***
+>
+> ***THE GUARD THAT HAD STOPPED GUARDING WAS INSIDE THE FILE THAT WARNS ABOUT
+> IT.*** `stale-binaries.ps1` was extracted on 3 Sep precisely so two callers
+> could not disagree about "what is source", and its header says a second
+> hand-kept copy would rot silently. `assert-current`'s `$newer` check **was
+> that second copy** — it re-stated three exclusions by hand and never had the
+> build-product rule, so `make check` in `gplsrc\sdclilib` had been demanding a
+> cycle for test binaries that cannot reach an install. **161 made it loud
+> rather than made it true**: 12 stale files, nine of them build products;
+> 2 after the fix, both real. **It was found by reading output, not by a
+> guard** — the third handoff running where that is the sentence.
+>
 > # ⇩⇩⇩ HANDOFF 33, 4 Sep 2026 — ***96 CLOSED AND WITNESSED. 157 MEASURED THEN ACCEPTED. 156, 158, 159, 160 FOUND AND FIXED — EVERY ONE OF THEM AN INSTRUMENT LYING RATHER THAN A PRODUCT FAULT. 161 FILED AND NOT STARTED: THE CLIENT INSTALLERS GO AND `make sd` BUILDS ALL FOUR DLLs. OPEN 2: 80, 161.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **4 Sep 13:31:34** plus a cycle after

@@ -48053,3 +48053,108 @@ behaviour SD explained on screen and which reconcile-accounts.ps1 clears at the
 next service start.  It also confirms the call to put sdpw in
 clean-test-profiles.ps1's $stems rather than $notProfiles: the sweep really can
 meet these names.
+
+## 4 Sep 2026 - 161 built: one source, four DLLs, and the two copies of the 64-bit pair are not the same thing
+
+THE BUILD HALF OF 161 IS DONE AND MEASURED.  gplsrc/sdclilib/Makefile now makes
+all four client DLLs instead of one: sdclilib.dll and sdclient.dll with the
+ucrt64 compiler, qmclilib.dll and qmclient.dll with mingw32 through a new CC32.
+Makefile's sdclilib target places them; stage.py stages them; sd.iss needed NO
+change, because {#Stage}\ProgramFiles\* already carries recursesubdirs.
+
+THE QM-SPECIFIC SOURCE CAME INTO THIS TREE, because make sd cannot build the
+32-bit pair without it and reaching into a sibling checkout would make the
+server build depend on one: qmcompat.c, qmclilib.def, qmclilib.h and
+tests/qm_alias_test.c, copied byte-exact.  qmclient.def stays GENERATED and
+untracked, which is what the 20 Aug import of sdclilib32 recorded and the
+reason still holds - a second hand-kept copy of a 99-name export list would
+diverge by one name, in the direction that fails only at run time.
+
+THE 32-BIT PATH GETS ITS OWN PATH, LITERALLY.  PATH already carries ucrt64/bin
+on the front, and cc1.exe resolves its DLLs through PATH in order, so the i686
+compile is run with mingw32/bin prepended.  The architecture check is at RECIPE
+time rather than parse time - sdclilib32 can afford $(error) because 32-bit is
+all it builds, and a parse-time error here would stop the SERVER building on a
+machine with no i686 toolchain.  It prints the -dumpmachine it got and refuses
+the empty answer separately from the wrong one.
+
+THE LAYOUT ARRIVED IN THREE STEPS AND THE LAST TWO REVERSED THE FIRST.  Ruled:
+client32 and client64 under bin; then "the 64 bit dlls should be in the usr\bin
+directory and only the 32 bit dlls should be in client32"; then a new
+usr\clients holding both, "that way users are not trying to copy anything out
+of the usr\bin directory".  So the 64-bit pair is installed TWICE.  THE TWO
+COPIES ARE NOT THE SAME THING: sdclilib.dll takes its own module path and
+appends \sd.exe, so only a copy sitting beside sd.exe can connect locally.
+usr\bin's is the server's; usr\clients\client64's is the user's.
+
+MEASURED, NOT REPORTED.  The four are 161,577 / 161,577 / 506,850 / 506,850
+bytes - byte-for-byte what the two sibling trees produced, which is the
+evidence that the compile is equivalent and not merely similar.  file(1) says
+PE32+/PE32+/PE32/PE32.  objdump -p on all four names only KERNEL32, WS2_32,
+bcrypt, msvcrt and the UCRT api-ms-win-crt set: no msys-2.0.dll, and no
+libgcc_s_dw2-1.dll, so -static-libgcc is doing its job and each DLL really can
+be copied next to an application.  make check is five tests and zero warnings,
+and the two alias tests are the ones that matter - they resolve the QM export
+names AND load each DLL by its own name, the only thing that catches an implib
+pointing at the first DLL.  The staging check carries five CONTROLS asserting
+what must be ABSENT, and hashes both copies of the 64-bit pair to prove they
+are identical rather than merely both present.
+
+WHAT WAS DELIBERATELY NOT DONE: neither sibling repository was touched, so the
+two .iss files and their stale Output\ installers are still there.  That is
+(c), still open, and deleting files in another repository on an inference is
+not the same as implementing a ruling.
+
+## 4 Sep 2026 - 162: the guard that had stopped guarding was inside the file that warns about it
+
+FOUND BY READING 161's OWN RED OUTPUT, not by anything that runs.
+assert-current's $newer check - "source file(s) are newer than the install" -
+re-stated three of Test-IsSdSource's exclusions BY HAND and was missing the
+build-product rule that stale-binaries.ps1 has carried since 19 Aug 2026.
+
+stale-binaries.ps1 WAS EXTRACTED ON 3 SEPTEMBER FOR EXACTLY THIS, and its
+header says so: two hand-kept copies of one rule would rot silently, and "the
+tell would be a guard that had quietly stopped guarding".  One of the two
+copies was in the file that dot-sources it.
+
+THE COST WAS ALREADY BEING PAID AND HAD NOT BEEN NOTICED.  Running make check
+in gplsrc\sdclilib left smoke-test.exe and internal-state-test.exe reported as
+source newer than the install, demanding a cycle for two files that cannot
+reach an install - nothing under gplsrc is installed at all.  161 made it loud
+rather than made it true: that directory now produces four DLLs, four import
+libraries and five test executables, so the run that found it listed 12 stale
+files, NINE OF THEM BUILD PRODUCTS.  After the fix the same run lists 2, and
+both are real.
+
+THE FIX IS THE SHARED RULE RATHER THAN A LONGER LIST.  $newer now asks
+Test-IsSdSource, keeping the .md/.txt-if-shipped nuance that is deliberately
+different from it.  qmclient.def is excluded BY NAME as generated - and the
+control that makes that safe is a unit test row asserting qmclilib.def IS
+source.  It is the 99-name export list, the one file whose edit changes what
+the 32-bit DLLs export while no .c file moves, so a blunt \.def$ would have
+hidden precisely what nothing else catches.  test-stalebin-units 39 / 0.
+
+## 4 Sep 2026 - 163 filed: SDConnectLocal is unavailable to a copied DLL, and removing it is a whole transport
+
+RAISED BY THE OWNER while 161 was being built: "it should be noted in the
+documentation that SDConnectLocal is not available - in fact it should probably
+be removed from the API entirely."
+
+THE DOCUMENTATION HALF IS TRUE EITHER WAY AND IS MEASURED.  sdclilib.c:1409-1421
+takes the DLL's own module path and appends \sd.exe, so SDConnectLocal works
+only from a directory that also holds sd.exe.  After 161 that is usr\bin and
+nowhere else.  The 32-bit pair never had it: QMConnectLocal is a stub that
+always fails.  It costs nothing in practice - "windows applications written for
+sd are always going to use the API to connect, so will be logging in to
+localhost or 127.0.0.1".
+
+THE REMOVAL HALF IS A RULING BECAUSE IT IS NOT ONE ENTRY POINT.  It is a second
+transport: is_local, hPipeRd/hPipeWr, two CreatePipe calls and a CreateProcessA
+with an inherit-handle attribute list, with read and write branching on
+is_local; sd.c:435-451 decodes -C<txfd>!<rxfd> for this caller; and
+gplsrc/win32pipe.c exists only to serve it.  tests/local_connect_test.c and the
+check-local target go with it, and with them the only test that exercises the
+grant check as an ordinary unelevated user.  NOTHING IN THE PRODUCT CALLS IT -
+the sd.c and win32pipe.c mentions are the server side answering it - so removal
+is possible; whether the transport is worth keeping for anything else is the
+owner's call.
