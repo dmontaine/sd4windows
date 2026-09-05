@@ -177,16 +177,33 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 38, 5 Sep 2026 — ***167 IS BUILT AND UNRUN: AN ADMINISTRATOR NOW GETS NO ssh AND NO API SESSION AT ALL. THE BASIC IS UNCOMPILED — `cycle.ps1 -SkipInstall` IS THE NEXT COMMAND AND IT IS YOURS.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** ***167 AND 169's PRODUCT HALVES ARE DONE AND
-> WITNESSED ON `b122`, 14 PASS / 0 FAIL. OPEN 3: 165, 166 — NEITHER EVER RUN —
-> AND 167's DOCUMENTATION HALF.*** The install is current (`assert-current`
-> exit 0, 11:08) and the BASIC compiles — **197 units, every one `0 error(s)`**.
-> ***32 of 32*** free guards green. ***NEXT FREE PRE_RELEASE ID 170.
-> `b115`–`b122` ARE SPENT — RUN `b123`.***
+> ***THE STATE, IN ONE LINE.*** ***`b123` RAN THE FULL SUITE: 23 OF 23
+> UNELEVATED, 25 OF 26 ELEVATED, AND THE ONE RED WAS A VERIFIER ASSERTING A
+> MESSAGE THIS SESSION RETIRED — FIXED.*** **165, 166, 169 and 167's product
+> half are all DONE AND WITNESSED.** ***OPEN 3: 167's DOCUMENTATION HALF, 168,
+> AND 170 — WHICH IS THE ONE THAT NEEDS A RULING.*** ***32 of 32*** free guards
+> green. ***NEXT FREE PRE_RELEASE ID 171. `b115`–`b123` ARE SPENT — RUN
+> `b124`.***
 >
-> ***NOTHING IN THE PRODUCT HAS BEEN WITNESSED SINCE `b119` EXCEPT ONE STEP.***
-> That is the case for the full run below, and it is the rule's own stated
-> purpose: `b75`'s second failure was a step nobody had touched.
+> ***165 IS MEASURED, NOT INFERRED: "just one uac prompt" for the whole run***,
+> owner, 5 Sep 2026 — about seven consents down to one across 49 steps. The
+> transcript had said the right things on `b119` too and still asked three
+> times, so the count a person saw was the only thing that could close it.
+>
+> ### ***170 IS THE ONE TO READ FIRST, AND IT IS A HOLE AGAINST THE OWNER'S OWN RULING***
+>
+> **The ssh half of "remote ssh and API access is totally denied to
+> administrators" is built and witnessed. The API half is not.** `APISRVR:176`
+> runs at `K$CPROC.LEVEL 0`, so `CPROC` never runs, `$LOGIN` never runs, and
+> **`LOGIN`'s peer test never sees an API session** — the `system(42)` branch in
+> `peer.local.test` is dead code. `CN_SOCKET` denies administrator *rights*, but
+> **`OS.EXECUTE` does not come from `USR_ADMIN`**: `os_permitted()` falls
+> through to `os.users`, which every administrator is granted and cannot have
+> removed, and the forked session's token is **LocalSystem**. **Remote OS
+> command execution as SYSTEM, for anyone holding an administrator credential.**
+> Not new — `Administrator/03` documents it — but a ruling now says it should
+> not be so. ***IT NEEDS ONE DECISION: is a LOCAL API session admitted, the way
+> loopback ssh now is?***
 >
 > ***167 AND 169 ARE BOTH DONE AND WITNESSED — `b122`, 14 PASS / 0 FAIL.***
 > The owner refined the ruling after reading `verify-sshadmin`'s transcript:
@@ -203,19 +220,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > self-connection, **with no second machine** — which is what q14 was parked on
 > for weeks.
 >
-> ### ***WHERE TO START: THE FULL SUITE ON `b123`. 165 AND 166 HAVE NEVER RUN.***
+> ### ***WHERE TO START: PUT 170 TO THE OWNER. IT IS ONE QUESTION AND IT BLOCKS THE REST.***
 >
-> **In your own ORDINARY, UNELEVATED terminal:**
+> **170 needs a ruling before it can be built**, and 167's documentation half
+> needs 170's answer before it can be written — several pages state ssh and the
+> API together, and `Administrator/03-operating-system-access.md`'s *"An SD
+> administrator is a remote shell"* section is **currently true and must stay**
+> until the code changes. ***DO NOT DOCUMENT THE API AS CLOSED***; that would be
+> 167's own defect committed in a new place.
 >
-> ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b121 -ThenElevated
-> ```
->
-> ***THAT RUN IS OWED THREE THINGS, NOT ONE.*** **165**'s one-consent claim —
-> it asked **three** on `b119` and the cause was fixed but never re-run; **166**'s
-> `verify-osusers` rename; and the **regression** half, which is the whole reason
-> the rule says run it before a handoff — nothing in the product has been
-> witnessed since `b119` except the one step above.
+> **The suite was run and is green** — `b123`, above. Nothing is owed on it.
 >
 > ***`b120` IS PARTLY SPENT AND MUST NOT BE REUSED.*** It made and removed
 > `sdsadmb120a` and `sdsadmb120p`; every other `b120` prefix is untouched, but
