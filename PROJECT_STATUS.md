@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 38, 5 Sep 2026 — ***167 IS BUILT AND UNRUN: AN ADMINISTRATOR NOW GETS NO ssh AND NO API SESSION AT ALL. THE BASIC IS UNCOMPILED — `cycle.ps1 -SkipInstall` IS THE NEXT COMMAND AND IT IS YOURS.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 38, 5 Sep 2026 — ***REMOTE ADMINISTRATION IS SHUT OVER ssh AND WITNESSED. 165, 166, 169 AND 167's PRODUCT HALF ALL CLOSED ON `b122`/`b123`. THE API HALF OF THE SAME RULING IS NOT BUILT — THAT IS 170, AND IT NEEDS ONE ANSWER FROM THE OWNER.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** ***`b123` RAN THE FULL SUITE: 23 OF 23
 > UNELEVATED, 25 OF 26 ELEVATED, AND THE ONE RED WAS A VERIFIER ASSERTING A
@@ -229,12 +229,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > until the code changes. ***DO NOT DOCUMENT THE API AS CLOSED***; that would be
 > 167's own defect committed in a new place.
 >
-> **The suite was run and is green** — `b123`, above. Nothing is owed on it.
+> **The suite was run and is green** — `b123`, above. **Nothing is owed on it**,
+> and no cycle is pending: the only source change since is
+> `verify-routes.ps1`, which does not ship.
 >
-> ***`b120` IS PARTLY SPENT AND MUST NOT BE REUSED.*** It made and removed
-> `sdsadmb120a` and `sdsadmb120p`; every other `b120` prefix is untouched, but
-> the convention is one token one run and `verify-profiledir` refuses a spent
-> one outright.
+> ### ***THE OTHER TWO OPEN ITEMS, IN THE ORDER THEY ARE WORTH DOING***
+>
+> - **168** — two `!EUID_SET`/`!EUID_RESTORE` call sites survived the 14 Aug
+>   Linux-privilege cleanup, hidden behind `$ifndef IS_INSTALL` where
+>   `IS_INSTALL` can never clear. **Dead code that reads as a live
+>   privilege-escalation path.** Needs a cycle, no ruling.
+> - **A GUARD THAT DOES NOT EXIST YET, AND `b123` PAID FOR IT.** A verifier
+>   asserting a shipped message NUMBER that has since been retired costs a
+>   twenty-minute suite run to find — that is exactly what
+>   `verify-routes.ps1:326` did with 10078. `test-retired-wording-units` catches
+>   wording drifting between COPIES, not a number asserted in a verifier.
+>   **Worth building beside 170's fix rather than as its own errand.**
 >
 > ### ***WHAT CHANGED, AND THE ONE SENTENCE WORTH CARRYING***
 >
@@ -248,13 +258,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > it down"* — it was written down. ***A ROADMAP MUST CARRY THE OBJECTION TO
 > ITSELF OR IT READS AS SETTLED.***
 >
-> ***THE RULING IS TOTAL DENIAL.*** Owner, three times, reaffirmed after
-> push-back: **remote ssh and API access is denied to administrators outright.**
-> The session does not exist; it is not narrowed. Built as **one refusal at
-> `LOGIN:560`** — `sd_admin_tier(@logname) and not(kernel(K$INTERACTIVE, 0))` —
-> which closes **all three doors** into SDSYS at once instead of patching each
-> gate. **The tier decides, not the Windows group**: a Windows administrator
-> holding an ordinary SD account keeps ssh.
+> ***THE RULING, IN ITS FINAL FORM — AND IT MOVED TWICE IN ONE DAY, SO READ
+> THIS AND NOT THE OLDER BOXES BELOW.*** Owner, 5 Sep 2026: **remote ssh and
+> API access is denied to administrators; LOCAL ssh and the local API keep
+> working.** *"If I am at the console, everything works, only remote access is
+> denied."* **REMOTE is what is denied, not a transport.**
+>
+> Built as **one refusal at `LOGIN:563`**, which closes **all three doors** into
+> SDSYS at once instead of patching each gate:
+>
+> ```
+> sd_admin_tier(@logname) and not(kernel(K$INTERACTIVE, 0)) and not(peer.local)
+> ```
+>
+> **`peer.local.test` PROVES LOCAL rather than disproving remote**, so a session
+> whose origin cannot be established stays refused — which is what keeps an
+> unattended scheduled task out. **The tier decides, not the Windows group**: a
+> Windows administrator holding an ordinary SD account keeps ssh from anywhere.
+>
+> ***AN INTERMEDIATE VERSION OF THIS SHIPPED FOR ONE CYCLE AND WAS WITNESSED
+> GREEN.*** `b120` refused LOCAL ssh too, and `verify-sshadmin` scored 10/0 on
+> it — the gate working *as specified*, with the specification narrower than the
+> ruling. **A passing verifier proves the code matches the spec, never that the
+> spec matches the ruling.**
 >
 > ***ELEVATION KEEPS `S-1-5-4`, AND THE WHOLE FIX RESTS ON IT.*** Had it not,
 > this would have locked out the console administrator. Measured from **one

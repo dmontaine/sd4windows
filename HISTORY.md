@@ -48660,3 +48660,78 @@ written-down traps walked into in one sequence, by a session that had read all
 three - which is the same shape as the roadmap failure above, and the better
 argument for the rule than any of the corruptions in the record: the rule is
 cheap, and knowing why it exists demonstrably does not substitute for it.
+
+================================================================================
+5 Sep 2026, SAME SESSION, AFTERNOON - THE RULING MOVED TWICE, THE GATE WAS BUILT
+THREE TIMES, AND 165, 166, 169 AND 167's PRODUCT HALF ALL CLOSED ON b122/b123.
+170 WAS FOUND BY CHECKING A DOCUMENTATION PAGE AGAINST THE CODE.
+================================================================================
+
+THE RULING IN ITS FINAL FORM: remote ssh and API access is denied to
+administrators; LOCAL ssh and the local API keep working.  Owner: "if I am at
+the console, everything works, only remote access is denied."  REMOTE is what is
+denied, not a transport.
+
+IT TOOK THREE BUILDS AND EACH WRONG ONE WAS WITNESSED GREEN, WHICH IS THE ENTRY
+WORTH READING.  (1) The seed-only fix - refused by the trace: three doors reach
+SDSYS and the seed is read by one.  (2) Total denial of ssh and the API - built,
+cycled, and verify-sshadmin scored 10/0 on b120 refusing LOCAL ssh.  That was
+the gate working AS SPECIFIED, with the specification narrower than the ruling.
+(3) The peer test.  ***A PASSING VERIFIER PROVES THE CODE MATCHES THE SPEC AND
+NEVER THAT THE SPEC MATCHES THE RULING*** - b120 is the cleanest example of that
+distinction in this record.
+
+peer.local.test PROVES LOCAL rather than disproving remote, so an origin that
+cannot be established stays refused - which keeps unattended scheduled tasks out
+rather than reopening the hole under a new name.  It needed no C change:
+ENV('SSH_CLIENT') is already a BASIC intrinsic and system(42) already carries
+the API peer.  SSH_CLIENT is trustworthy because sshd_config has no AcceptEnv
+and leaves PermitUserEnvironment at "no" - measured, and recorded in
+allow-ssh-groups.ps1 because that file is where it would silently stop being
+true.
+
+THE b122 AUDIT TRAIL IS THE BEST INSTRUMENT THIS THREAD PRODUCED: the SAME
+account, two seconds apart, admitted over loopback and refused via 10.0.0.3,
+with the control on the line below.  One identity treated differently by route,
+in one file, with the reason named.  No second machine - ssh to the host's own
+LAN address leaves and returns over the interface, which is what q14 was parked
+on for weeks.
+
+VERIFIER DEFECTS COST TWO RUNS AND BOTH ARE WORTH KNOWING.  b121: ssh answered
+255 - it never connected - and TWO ROWS PASSED on that, because "did NOT reach a
+session" and "the routes were treated DIFFERENTLY" are both true of a connection
+that never happened.  Only the rows anchored on POSITIVE evidence failed.
+verify-sdsysgate's header states that rule in as many words and had been read
+the same day.  The remote leg now requires SD's banner.  Also: an address is not
+a route - the picker took 10.0.0.13 on an adapter whose status was Disconnected.
+
+b123 RAN THE FULL SUITE: 23 of 23 unelevated, 25 of 26 elevated.  The one red
+was verify-routes asserting message 10078 for an administrator - the sentence
+169(a) had just retired - while the ordinary "both" row stayed green, which is
+exactly what "report the tier before the three general cases" should do.  165
+closed on the owner's own count: "just one uac prompt" for the whole run, about
+seven down to one.  The transcript had said the right things on b119 too and
+still asked three times, so only a person could close it.
+
+170 WAS FOUND BY CHECKING A PAGE'S CLAIM AGAINST THE CODE INSTEAD OF AGAINST THE
+DESIGN, AND IT IS A HOLE AGAINST THE OWNER'S OWN RULING.  APISRVR:176 runs at
+K$CPROC.LEVEL 0, so CPROC never runs, $LOGIN never runs, and LOGIN's peer test
+NEVER SEES AN API SESSION - the system(42) branch is dead code, written on my
+assumption that it did.  CN_SOCKET denies administrator RIGHTS, but OS.EXECUTE
+does not come from USR_ADMIN: os_permitted() falls through to os.users, which
+every administrator holds and cannot have removed, in a session whose token is
+LocalSystem.  Remote OS command execution as SYSTEM for anyone holding an
+administrator credential.  Not new - Administrator/03 documents it - but a
+ruling now says it should not be so, and the ssh half was built while this
+stood.  DOCUMENTATION IS PARKED ON PURPOSE: that page is currently TRUE and must
+stay so until the code changes.
+
+A PreToolUse HOOK NOW REFUSES A FILE EDIT MADE BY A PROGRAM.  It found two of
+its own defects on its first two live calls - a bare open( matched a READ, and
+it scanned heredoc BODIES so it refused its own installing commit - and it
+caught three genuine attempts afterwards.  The rule it enforces was already in
+CLAUDE.md three times and was broken twice in twenty minutes before it existed.
+
+AND CLAUDE.md GAINED ONE RULE, THE OWNER'S: the emphatic voice is for what was
+OBSERVED; a plan is written in the conditional and must carry the objection to
+itself.  It is the instrument rule applied to prose.
