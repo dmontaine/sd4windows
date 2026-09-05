@@ -315,6 +315,58 @@ looked wrong** is not enough here. Print Step 3's raw output every time. A
 subtle refusal that only becomes obvious in retrospect is one no *conditional*
 print will catch, because the condition is the thing that was wrong.
 
+## The emphatic voice is for what was OBSERVED. A plan is written in the conditional
+
+Owner's rule, 5 Sep 2026, after the first handoff in this project's record that
+failed to transfer the state. **It is the instrument rule applied to prose**,
+and it sits here because it is the same defect in a different medium: a
+confident conclusion drawn from something that never measured what it claims.
+
+***AN ENTRY MAY USE THE EMPHATIC VOICE ONLY FOR WHAT WAS OBSERVED.*** ALL-CAPS
+and bold mean *"this was paid for"* everywhere else in these documents, so
+spending them on a hypothesis transfers authority the hypothesis has not
+earned. **A plan for work not yet begun is written in the conditional, and
+names what would falsify it.**
+
+***AND WHERE A SESSION RAISED AN OBJECTION TO ITS OWN PLAN AND RESOLVED IT IN
+CONVERSATION, THE OBJECTION GOES IN THE ENTRY ANYWAY.*** The resolution is the
+least-tested claim in the document. **This is the clause that would have caught
+it**, and it is the one that will feel most like clutter to write.
+
+**WHAT IT COST ON 5 Sep 2026, and the shape is worth knowing because nothing in
+these files caught any of it.** PRE_RELEASE 167 was handed over `RULED,
+ROADMAPPED, NOT STARTED` — ***the only handoff in the record whose whole subject
+was work that had not been begun.*** Every other one leads with *"DONE AND
+WITNESSED"* or *"GREEN IN BOTH HALVES"*, and **every rule in this file is built
+for recording what happened**, so a plan arrived with no instrument pointed at
+it.
+
+- **The entry was written before the session's best thinking.** Its own
+  transcript carries *"gating only LOGIN's seed wouldn't hold — the process
+  token really is elevated, so `logto sdsys` would still succeed"*, said
+  **after** the entry was written. It was never amended. ***THE WORD `logto`
+  APPEARED NOWHERE IN THE ENTRY*** — index row or roadmap.
+- **The measured half and the unmeasured half got identical typography.** The
+  token measurement was real and was paid for; the plan beside it was a guess;
+  both were ALL-CAPS-BOLD, so the guess read as a finding.
+- ***THE ENTRY ALREADY HAD A SECTION FOR OPEN QUESTIONS AND THE KILLER ONE WAS
+  NOT IN IT.*** "Still open, and they are decisions rather than discoveries"
+  listed two real but harmless items. **So "add a section for what is unsure"
+  is NOT the fix** — the section existed, and a session fills it with what it
+  knows it does not know.
+- **`Do not re-derive it` was aimed at the one thing that needed
+  re-deriving**, and *"the trap is the one thing that would otherwise cost a
+  session"* pre-armed an explanation for why disagreeing was the reader's
+  error. **The next session traced it correctly, reported it, and was then
+  argued back to the wrong plan twice by the document.**
+
+***THE READER'S HALF OF THE RULE: A MEASUREMENT YOU TOOK BEATS A CLAIM YOU
+READ.*** When your own trace disagrees with these documents, the documents are
+the thing to doubt — they were written by a session that could not run the
+command you just ran. **Say which claim, show the measurement, and carry on**;
+that is the same permission §"Search the record" already gives for overriding a
+stale warning, and it applies with more force to a roadmap than to a warning.
+
 ## You must maintain these files, cheaply
 
 Standing instruction from the repository owner, 14 Aug 2026: **the ratio of
