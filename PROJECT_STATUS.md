@@ -211,12 +211,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > a control in both directions**: the new format string present, ***the old
 > SH1 string absent***, and `SH`'s own untouched.
 >
-> ***THAT PROVES THE BINARY, NOT THE FIX. IT HAS NOT RUN.*** No cycle, no
-> install, no `logto sdsys` against a `Restricted` machine.
-> ***`assert-current` EXITS 1 — THE FIRST THING THE NEXT SESSION WILL SEE, AND
-> IT IS EXPECTED.*** The machine was mid-litter-sweep and about to be rebooted,
-> so a cycle would have been building against a tree in motion.
-> ***RUN `cycle.ps1` FIRST, THEN THE FULL SUITE ON `b128`.***
+> ***THE CYCLE IS DONE AND THE FIX IS IN THE INSTALLED BINARY.*** Owner ran it
+> 5 Sep 2026: `gcat` **132**, `gpl.bp.out` **191**, 3,692 payload files staged,
+> transcript **WHOLE**, install **16:26:40**, **`assert-current` exit 0**.
+> `C:\Program Files\SD\usr\bin\sd.exe` was then byte-checked with the control
+> in both directions: **the new SH1 format string present, the old one absent
+> (0), and `SH`'s own untouched.**
+>
+> ***THAT STILL IS NOT 173's WITNESS, AND THE ROW STAYS OPEN.*** The fix is
+> installed; nobody has yet typed `logto sdsys` on a machine whose policy is
+> `Restricted`. **This host is `RemoteSigned`, so the fix and the defect look
+> identical here** — a green suite on this machine says nothing about 173.
+> ***THE GUEST RIG IS WHAT CLOSES IT.***
+>
+> ***WHAT IS OWED NOW: THE FULL SUITE ON `b128`.*** The tree is current, so it
+> can be run.
 >
 > ***AND THIS HOST CANNOT WITNESS 173 EVEN AFTER A CYCLE.*** Its `LocalMachine`
 > policy is `RemoteSigned`, so the fix and the defect look identical here.
@@ -246,20 +255,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***THE CLEANUP, WHICH IS WHAT THE SESSION WAS FOR***
 >
-> ***WHAT IS OWED: A CYCLE, THEN A FULL SUITE.*** `b128` is the next token.
-> **The cleanup commits changed nothing that ships** — three documents plus
+> ***WHAT IS OWED: THE FULL SUITE ON `b128`. THE CYCLE IS DONE.*** **The
+> cleanup commits changed nothing that ships** — three documents plus
 > `gplbld/check-stale-leads.py` and `gplbld/test-staleleads-units.py`, and
-> `assert-current` was **exit 0** after every one of them. ***THE C CHANGE FOR
-> 173 AND 174 IS WHAT MADE THE TREE STALE***, and it was made last, on purpose,
-> so the cleanup work is all witnessed on a current tree and only the fix is
-> owed a cycle. ***CYCLE FIRST, THEN THE SUITE — NOT THE OTHER WAY ROUND.***
+> `assert-current` was **exit 0** after every one of them. The C change for 173
+> and 174 was made last, on purpose, so the cleanup work is all witnessed on a
+> current tree; the owner then cycled it and `assert-current` is **exit 0**
+> again.
 >
 > ***MEASURED THIS SESSION, ALL OF IT CHEAP AND REPEATABLE.*** **32 of 32 free
 > guards green** (28 `.ps1` + 4 `.py`; the directory and CLAUDE.md's list agree
-> exactly). ***2 OPEN of 174 — 173 (B) and 174 (S), both BUILT AND UNCYCLED***,
-> from `test-fixlist-units.ps1`. **The list had been empty for one day.**
-> ***`assert-current` EXITS 1: THE TREE IS STALE AND THAT IS THIS SESSION'S
-> DOING.*** ***NEXT FREE PRE_RELEASE ID: 175.***
+> exactly). ***2 OPEN of 175 — 173 (B) and 174 (S), BOTH NOW BUILT, CYCLED AND
+> INSTALLED***, from `test-fixlist-units.ps1`. **The list had been empty for one
+> day.** ***THE OWNER RAN THE CYCLE: install 5 Sep 16:26:40, `sd.exe`
+> `5A779A7448BFAA61`, `assert-current` EXIT 0 — "the installed tree matches
+> source".*** ***NEXT FREE PRE_RELEASE ID: 176.***
 >
 > ### ***WHAT CHANGED, AND THE ONE THING TO READ FIRST***
 >

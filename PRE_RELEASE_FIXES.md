@@ -311,14 +311,18 @@ control in both directions:
 | `%s -NoProfile -NonInteractive -Command` (the old SH1) | ***absent, 0*** |
 | `%s -NoProfile -NoLogo` (SH, must be untouched) | **present, unchanged** |
 
-***AND THAT IS ALL IT PROVES. THE FIX HAS NOT RUN.*** No cycle, no install, no
-`logto sdsys` on a `Restricted` machine. **`assert-current` exits 1 and the
-tree is STALE** — deliberately, because the machine was mid-litter-sweep and
-about to be rebooted when this was built. ***THIS ROW STAYS OPEN UNTIL A
-`cycle.ps1` AND A RUN ON A MACHINE WITH THE SHIPPED DEFAULT POLICY.*** The
-development host cannot witness it: its `LocalMachine` policy is
-`RemoteSigned`, so the fix and the defect look identical there. **The guest rig
-is what closes this.**
+***CYCLED AND INSTALLED THE SAME DAY.*** Owner ran `cycle.ps1`: install
+**16:26:40**, `sd.exe` `5A779A7448BFAA61`, `assert-current` **exit 0**. The
+**installed** binary at `C:\Program Files\SD\usr\bin\sd.exe` was then
+byte-checked with the same two-direction control — new SH1 string present, old
+one **absent (0)**, `SH`'s own untouched.
+
+***AND THAT IS STILL NOT THE WITNESS. THIS ROW STAYS OPEN.*** Nobody has typed
+`logto sdsys` on a machine whose execution policy is `Restricted`. **The
+development host is `RemoteSigned`, so the fix and the defect look identical
+there** — a green full suite on this machine is not evidence for this entry,
+and must not be cited as any. ***THE GUEST RIG IS WHAT CLOSES THIS***, with one
+`logto sdsys` before and after.
 
 **The buffer grew with the string** — `dflt_sh1` from `MAX_PATHNAME_LEN + 64`
 to `+ 96`. The suffix went from 36 characters to 60, which left three bytes of
