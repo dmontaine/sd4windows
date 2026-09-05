@@ -47915,6 +47915,102 @@ POSITIVE EVIDENCE that only one prompt appeared: if DELETE.ACCOUNT ever grows a
 second question, the line stops appearing and the second Y is silently doing
 real work.  verify-apiadmin.ps1 passes the same pair.
 
+## 4 Sep 2026 - 161 ruled: the client installers go, and sd builds all four DLLs
+
+THE OWNER'S RULING, AFTER FOUR QUESTIONS THAT NARROWED IT.  He asked where the
+DLLs live, whether an exe can find them, whether the clients install with SD
+Core, and where their installers are.  The answers together made the shape
+obvious: ONE SOURCE MAKES FIVE DLLs AND ONLY ONE IS BUILT AUTOMATICALLY.  The
+four hand-built ones were fifteen days stale when measured - 20 Aug against
+4 Sep - and the OLDER copy won on PATH, at position 7 against 10.
+
+SO HE REMOVED THE DIVERGENCE RATHER THAN CHECKING FOR IT: no client installers,
+make sd builds all four into sd64\bin\client32 and sd64\bin\client64, and users
+copy the DLL beside their app or into windows\system32 as OpenQM users already
+do.  A build that cannot diverge beats a check that reports divergence.
+
+THE MEASUREMENT THAT MAKES IT CHEAP.  The server and winsdclilib compile
+sdclilib.dll with the SAME compiler, flags and source - ucrt64 gcc, -O2 -std=c11
+-Wall -Wextra -Wpedantic -Wno-unknown-pragmas -DBUILDING_SDCLILIB, same libs,
+same --out-implib - differing only by PE build timestamp, which is why the two
+copies are the same size with different hashes.  So that one is a COPY, not a
+rebuild.  <x>client.dll is the same source under a different -o name, so only
+the name-bearing builds need their own compile.  Both toolchains are present.
+
+FOUR THINGS ARE DELIBERATELY LEFT OPEN in 161 rather than guessed: how a user
+obtains the DLLs, whether headers and import libraries travel with them, what
+becomes of the two sibling repositories once nothing builds or packages there,
+and whether the server's own copy in usr\bin stays.  NOT STARTED.
+
+## 4 Sep 2026 - 160: the client-sync check looked at one tree's DLLs, and nothing ran it anyway
+
+THE OWNER ASKED A PLAIN QUESTION - "verify that the dll's in sdclilib32 and
+winsdclilib match those in sd4windows" - and the honest answer was that
+sdclilib32's were checked and winsdclilib's were not looked at at all.
+
+THEY DO MATCH, AND IT TOOK MORE THAN check-client-sync TO SAY SO.  Source is
+byte-identical across the three trees (12 checks, 0 failed).  For the binaries:
+all four DLLs are newer than the newest source, PBKDF2 appears 3 times in both
+the 64-bit and 32-bit builds, and the set of source message strings present in
+each DLL hashes IDENTICALLY across all four - 2439cd2274ec0d31, 46 of 61.  That
+set hash is the load-bearing result, because 32-bit and 64-bit can never be
+byte-identical and a matching COUNT could have been different strings.
+
+THE 15 ABSENTEES WERE CHASED RATHER THAN WAVED THROUGH.  Most end mid-sentence
+- C line continuation, so they are in the DLL joined.  One is a commented-out
+line (sdclilib.c:3357).  "Authentication message too long" is live code and
+absent from BOTH builds while its immediate neighbours are present in both,
+which is dead-branch elimination behaving the same way on two toolchains rather
+than a missing feature.
+
+THE GAP IS THE SCRIPT'S OWN HEADER INCIDENT WEARING A CLEAN SHIRT.  Check 1
+compares the mirror's SOURCE, so stale mirror source is caught - but
+../winsdclilib SHIPS sdclilib.dll and sdclient.dll of its own, and a mirror
+whose source was current while its shipped DLL had never been rebuilt PASSED.
+That is exactly the 15 Aug case: a 32-bit client shipping passwords in clear,
+built from a winsdclilib that had not moved, "with nothing in either project
+able to report it".
+
+FIXED: check 3 walks both siblings, refuses the null case per tree, and .dll
+matching excludes the .dll.a import libraries by construction.  12 checks -> 14.
+Two self-test cases added and BOTH ARE LOAD-BEARING, measured: with the mirror
+dropped from the loop both return rc=0 - they pass against the old script - and
+the file was restored to the same SHA-256.  The fixture had to grow a mirror DLL
+too, because one that cannot exhibit the fault cannot witness the fix.  8 of 8.
+
+AND THE SECOND HALF: NOTHING RAN IT.  It was in no runner and not in CLAUDE.md's
+free list, so it fired only when somebody thought of it - entry 82's shape.
+Added to that list in the same commit; under a second, no install, no elevation,
+no token.  A machine without the sibling clones gets exit 2, a refusal not a
+failure.
+
+## 4 Sep 2026 - the access model ruled: three sentences, all already true, so no code change
+
+157 RULED THE ADMINISTRATOR TIER.  THE GENERAL CASE WAS PUT SEPARATELY AND
+CLOSED THE SAME DAY.  os.set (MODIFYA) refuses only administrators (10106), so
+"modify.account <acct> os-on" on a PROGRAMMER or STANDARD account writes
+os.users - and with api also granted, that account reaches the operating system
+over the API.  Measured rather than argued: the granted leg on b114 IS that
+shape - PROGRAMMER, record "no" LF "yes", PROBE.WHOAMI=nt_authority_system.  So
+one grant runs as the user locally and as LocalSystem over the API.
+
+THE OWNER WAS GIVEN THREE OPTIONS - gate os.execute on CN_SOCKET the way
+USR_ADMIN already is, keep the grant but run it as the account instead of
+SYSTEM, or change nothing - and took the third: "administrators have api access
+and os.execute access automatically, programmers and standard users do not
+unless it is given specifically.  API access does not give os.execute access."
+
+ALL THREE SENTENCES ARE ALREADY TRUE OF THE CODE, which is why it is
+documentation and not a change: CREATEA:1718-1721 and :1731-1732 for the first,
+the compulsory access keyword and grant.os.access's early return for the second,
+and the os.users lookup for the third.  Filed under 80 as its sixth item, to be
+written as he said it.  The third sentence is the one a reader will otherwise
+get wrong, because the two grants look like one.
+
+NO ENTRY FILED, AND THE NOTE IN 157 EXISTS SO NOBODY FILES ONE LATER.  The
+LocalSystem process token is separately tracked in PROJECT_STATUS's opening
+section, awaiting the CreateProcessAsUser work; it is not this question.
+
 ## 4 Sep 2026 - 159: the block that exists to stop a green being over-read was itself wrong, twice
 
 THE OWNER READ STEP 9's "what this run did NOT reach" BLOCK AND BOTH OF ITS LAST

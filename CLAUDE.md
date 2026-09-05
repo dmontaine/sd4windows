@@ -501,8 +501,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
    `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`,
    `test-wraptext-units`, `test-upgradevoc-units`,
-   `test-privundetermined-units`.
-   ***ALL THIRTY-ONE. Run these on
+   `test-privundetermined-units`, `check-client-sync.py`.
+   ***ALL THIRTY-TWO. Run these on
    every change*** — **about 41 s for the whole set**, measured 4 Sep 2026, each
    in its own process. A whole suite run has already been spent twice discovering
    what one
@@ -612,6 +612,17 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    matches a letter, a newline and a letter — **every correctly wrapped pair of
    lines** — so it went red against a working wrapper. Same class as anchoring
    on a string the failure also carries.
+
+   ***`check-client-sync.py` JOINED IT 4 Sep 2026 AND IT IS THE OLDEST GUARD ON
+   THE LIST — IT HAD SIMPLY NEVER BEEN ON ONE.*** PRE_RELEASE 160. It compares
+   the API client across the three trees, and it fired only when somebody
+   thought of it, which is entry 82's shape exactly. **What it protects is worth
+   the second it costs**: its own header records the 32-bit client *shipping
+   passwords in clear*, built from a `winsdclilib` that had not moved for five
+   days, *"with nothing in either project able to report it"*. ***A MACHINE
+   WITHOUT THE TWO SIBLING CLONES GETS exit 2***, which is a refusal rather than
+   a failure — the client trees are part of the project and a full checkout has
+   all three.
 
    ***`test-privundetermined-units` JOINED IT 4 Sep 2026 IN THE COMMIT THAT
    CREATED IT, AND IT COSTS 0.5 s.*** It guards `gplbld/verify-privundetermined.ps1`,

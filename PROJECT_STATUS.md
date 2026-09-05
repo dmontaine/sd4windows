@@ -175,6 +175,57 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 33, 4 Sep 2026 — ***96 CLOSED AND WITNESSED. 157 MEASURED THEN ACCEPTED. 156, 158, 159, 160 FOUND AND FIXED — EVERY ONE OF THEM AN INSTRUMENT LYING RATHER THAN A PRODUCT FAULT. 161 FILED AND NOT STARTED: THE CLIENT INSTALLERS GO AND `make sd` BUILDS ALL FOUR DLLs. OPEN 2: 80, 161.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 13:31:34** plus a cycle after
+> the `reclaim-profiles` comment edit; `assert-current` **exit 0**; **32 of 32**
+> free checks exit 0 in ~37 s; `test-fixlist` **264/0**; `check-client-sync`
+> **14 checked, 0 failed**. ***OPEN 2: 80, 161 — TAKEN FROM THE CHECKER, NOT
+> FROM THIS BOX. NEXT FREE PRE_RELEASE ID 162. `b112`, `b113`, `b114` ARE
+> SPENT — RUN `b115`.***
+>
+> ### ***START HERE: 161 IS THE ONLY BUILD WORK AND IT IS RULED, NOT DESIGNED***
+>
+> The owner's words are in 161's row verbatim; implement from those, not from
+> this summary. **One source makes five DLLs and only one is built
+> automatically** — the other four were fifteen days stale when measured, and
+> the older copy won on `PATH`. He ruled the installers away: `make sd` builds
+> all four into `sd64\bin\client32` and `sd64\bin\client64`, and users copy them
+> by hand as OpenQM users already do.
+>
+> ***THE ONE MEASUREMENT THAT MAKES IT CHEAP***: the server and `winsdclilib`
+> build `sdclilib.dll` with the **same compiler, flags and source**, differing
+> only by PE timestamp — so that one is a COPY, not a rebuild. `<x>client.dll`
+> is the same source under a different `-o` name. Both toolchains are present.
+>
+> ***FOUR THINGS ARE OPEN IN 161 AND MUST NOT BE GUESSED*** — how users obtain
+> the DLLs, whether headers and import libraries travel with them, what becomes
+> of the two sibling repositories, and whether `usr\bin`'s copy stays. **Ask.**
+>
+> ### ***WHAT ELSE IS OWED***
+>
+> 1. ***A FULL SUITE.*** None has run since `b111`; `b112`–`b114` were all
+>    `-Only verify-privundetermined`. CLAUDE.md asks for one before a handoff
+>    and this handoff does not have one.
+> 2. ***`verify-privundetermined` STEP 8's SCORED ROW HAS NEVER RUN.*** It was
+>    added after `b114` when the owner ruled 157. The corrected step 9 wording
+>    (159) has not been seen on a real run either.
+> 3. **`80`** — the documentation audit, scheduled for just before the 1.0
+>    wrap-up. It now carries **six** items; 161 will add a seventh.
+>
+> ### ***THE LESSON THIS SESSION ACTUALLY PAID FOR***
+>
+> ***FOUR ENTRIES — 156, 158, 159 AND 160 — AND NOT ONE WAS A PRODUCT FAULT.***
+> A false N/A count, two false reds, two false sentences, and a checker that
+> tested one tree of two. **Every one was in the REPORTING rather than the
+> measurement, and none was found by a guard** — three were found by the owner
+> reading output on his screen. The legs of these verifiers are well covered;
+> the prose and the arithmetic around them were not.
+>
+> ***AND FIVE PROFILE DIRECTORIES ARE PENDING A RESTART*** — `sdpwb112`,
+> `b113`, `b113a`, `b114`, `b114a` — cleared by `reconcile-accounts.ps1` at the
+> next service start. Expected, not litter.
+>
 > # ⇩⇩⇩ HANDOFF 32, 4 Sep 2026 — ***70 IS DONE AND WITNESSED RED AND GREEN ON GUEST `Test D`: THE INSTALLER NOW RUNS THE ALL-ACCOUNTS VOC WALK ITSELF, AND AN UPGRADE PUTS BACK A VERB THE SAME UPGRADE USED TO LEAVE MISSING. OPEN 3 → 2, AND BOTH OF THE REST ARE THE OWNER'S OR PHASE-BOUND. ONE THING OWED: A FULL SUITE ON `b112`.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** Install **4 Sep 13:31:34**, `sd.exe`
