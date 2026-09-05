@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/no-program-edits.py",
+            "timeout": 15,
+            "statusMessage": "Checking for program-driven file edits"
+          }
+        ]
+      }
+    ]
+  }
+}
