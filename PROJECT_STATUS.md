@@ -21,7 +21,7 @@ something came to be the way it is.
 
 ***SEVENTY-THIRD SESSION, 28 Aug 2026 — THE CYCLE RAN, THE SUITE RAN, AND THE DOOR STEP FAILED TWICE. ONE FAULT IS FIXED; THE OTHER RE-OPENS PRE_RELEASE 19.*** ***INSTALL 28 Aug 15:29:59, `assert-current` exit 0 live*** — the owner's cycle shipped PRE_RELEASE 42 (`CREATEA`, `SET_PASSWD`, message 10122). ***FAULT 1, FIXED — PRE_RELEASE 43***: `verify-doors-suite.ps1` passed `'-Password', ''` for Suspend and Remove, and **`Start-Process -ArgumentList` carries `[ValidateNotNullOrEmpty()]`, which on a COLLECTION validates every ELEMENT** — one `''` rejects the whole list and **nothing elevates**. Create carried a password and ran 8/8; Suspend and Remove died before their UAC prompt. The pair is built conditionally now, the argv and its count are printed, an empty element is refused by name, and `gplbld/test-doorsargv-units.ps1` guards it — **35/35, and its positive control against a copy carrying the old form fails 27/8.** ***FAULT 2, AND IT IS THE INSTRUMENT — PRE_RELEASE 19 IS RE-OPENED ON ONE ROW OF SEVEN***: `verify-doors.ps1:255` anchored *"logto entered the account"* on the account name **anywhere in the transcript**, and the session echoes what it is fed. **On the b50 Control leg SD printed 5161 *"Unable to change to new directory"* and `WHO` answered `91 DON`, and the row scored PASS** — as it did on `sddr2`, which is what *"logto ADMITTED"* below rests on. **The check now anchors on `WHO`'s answer with 5161 as a disqualifier**, both directions measured against the real transcript. ***THE CAUSE IS PRE_RELEASE 44 AND IT IS WINDOWS, NOT SD***: `don` is in `sdu_sddrb50a` **on the machine** and **not in his token**, which was fixed at logon — measured both ways, with `sdusers` present as the control. **ssh and the API authenticate afresh and are unaffected; the REFUSAL half of all three doors still stands**, because `logto.authorised` runs at `CPROC:2679`, before the chdir at `:2691`. ***THE ELEVATE-ONCE REWORK IS DONE AND WITNESSED — `-Run b54`, 28 Aug 2026 19:28.*** ***ALL FIVE DOOR LEGS GREEN THROUGH THE HELPER, ONE UAC PROMPT INSTEAD OF THREE***, and the elevated half's only failure is 31's known control again. `Create`, `Suspend` and `Remove` each printed `via helper:` with the password **masked**; the run left **no accounts, 0 orphan SIDs, no stray `sd.exe`**, its work directory gone, the helper stopped and its pipe closed. **The four pre-fix leaked directories were removed by hand after measuring all four empty; `C:\Users\dmont\AppData\Local\Temp` now holds none.** ***ONE FALSE ALARM ON THE WAY, AND IT IS NOW A §6 TRAP***: the check for a surviving helper matched **its own query process**, because a `CommandLine -like '*sd-elevate-helper*'` filter names the thing it is looking for. **The pipe being absent is what actually proved it gone** — evidence that cannot name itself.
 
-***THE ELEVATE-ONCE REWORK AS BUILT — PRE_RELEASE 48, on the owner's ruling.*** The door suite's three elevated legs now go through **one resident helper**, reusing the shipped `sd-elevate.ps1` rather than growing a second copy of elevation code. ***A SUITE RUN GOES FROM FOUR PROMPTS TO TWO, NOT ONE***: `sd-elevate.ps1` hard-codes a 300 s per-request timeout, which each door leg fits inside and `VerifyInstall2`'s 19 verifiers do not — **taking it to one means editing a shipped file and spending a cycle, which is his call.** **`-NoHelper` keeps the route `b53` went green on**, and `test-doorsargv-units.ps1` drives both — **51 of 51**. ***THE PASSWORD MOVED FROM A COMMAND LINE INTO A FILE, AND THAT IS A STEP UP — MEASURED***: `Win32_Process.CommandLine` hands a same-user process the argument **verbatim**, while a `%TEMP%` file carries SYSTEM, Administrators and the user only, and is deleted in the `finally`. **The old comment had it backwards.** ***TWO DEFECTS FELL OUT OF TESTING IT, BOTH FIXED — PRE_RELEASE 47***: `$work` was created above the residue check so **every refused run leaked a temp directory (four were on disk, all measured empty)**, and two runs in the same second collided on the `HHmmss` name and **died exit 1 from a script whose refusal code is 2**. ***UNRUN — `-Run b54` is what exercises the helper***, and if it cannot start, the suite falls back to a prompt per leg rather than failing.
+***THE ELEVATE-ONCE REWORK AS BUILT — PRE_RELEASE 48, on the owner's ruling.*** The door suite's three elevated legs now go through **one resident helper**, reusing the shipped `sd-elevate.ps1` rather than growing a second copy of elevation code. ***THIS PARAGRAPH SAID "FOUR PROMPTS TO TWO, NOT ONE" AND ITS REASON WAS FALSE — CORRECTED 4 Sep 2026, PRE_RELEASE 165.*** It read: *"`sd-elevate.ps1` hard-codes a 300 s per-request timeout, which each door leg fits inside and `VerifyInstall2`'s 19 verifiers do not — taking it to one means editing a shipped file and spending a cycle, which is his call."* **`sd-elevate.ps1:162` passes 300000 to `Send-Request`, which passes it to `$c.Connect()` and to nothing else** — the reply read is a `StreamReader` with no `ReadTimeout`, unbounded. **Measured**: a reply 6 s after a 1.5 s connect timeout arrived intact at 6025 ms, against a control on a serverless pipe refused at 1497 ms. **No shipped file needed editing and no cycle was owed**; the suite is at ONE consent as of 165, written and unrun. **`-NoHelper` keeps the route `b53` went green on**, and `test-doorsargv-units.ps1` drives both — **51 of 51**. ***THE PASSWORD MOVED FROM A COMMAND LINE INTO A FILE, AND THAT IS A STEP UP — MEASURED***: `Win32_Process.CommandLine` hands a same-user process the argument **verbatim**, while a `%TEMP%` file carries SYSTEM, Administrators and the user only, and is deleted in the `finally`. **The old comment had it backwards.** ***TWO DEFECTS FELL OUT OF TESTING IT, BOTH FIXED — PRE_RELEASE 47***: `$work` was created above the residue check so **every refused run leaked a temp directory (four were on disk, all measured empty)**, and two runs in the same second collided on the `HHmmss` name and **died exit 1 from a script whose refusal code is 2**. ***UNRUN — `-Run b54` is what exercises the helper***, and if it cannot start, the suite falls back to a prompt per leg rather than failing.
 
 ***PRE_RELEASE 19 IS CLOSED — `-Run b53`, 28 Aug 2026 18:02. ALL FIVE DOOR LEGS GREEN, BOTH TOKENS EXERCISED.*** `Create` **13/13**, `Control` **8/8**, `Suspend` **5/5**, `Refused` **5/5**, `Remove` **4/4**; *"verify-doors-suite: PASSED - all 5 legs green, both tokens exercised."* ***ALL THREE DOORS ADMITTED THEN ALL THREE REFUSED, THE SUSPENSION THE ONLY CHANGE*** — ssh and `logto` in SD's own words (10107), the API by the controlled pair. **The `logto` door is genuinely covered**: `WHO` answered `91 SDDRB53A from SDDRB53B`, so the session *arrived*, and 5161 did not appear. ***AND THE REFUSED LEG PROVED THE ORDERING***: *"logto: it was NOT 5161 instead of the suspension"* passed, so `logto.authorised` (`CPROC:2679`) stops it before the token-dependent chdir (`:2691`) — which is why every refusal measured while 44 was unfixed was still trustworthy. **Step 19 `verify-tierapi` is green, so PRE_RELEASE 46 is confirmed fixed**; the elevated half's only failure is `verify-apiadmin`, PRE_RELEASE 31's known control. **Nothing left behind**: no accounts, no `sdu_` groups, no `ACCOUNTS` records, **0 orphan SIDs**, only profile directories (35/36). **One non-decisive row FAILED in the Refused leg and is fixed**: it asserted 5161 always appears, but the suspension stops the local `LOGTO` before the chdir — the claim is Control-only now, and the Refused phase asserts the ordering instead. **`b53` is spent; `b54` is next.**
 
@@ -175,6 +175,59 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 36, 4 Sep 2026 — ***THE ELEVATE FIX IS WRITTEN AND UNRUN. THE SUITE ASKS FOR ONE UAC CONSENT INSTEAD OF ABOUT SEVEN. `-Run b119` IS THE ONLY THING LEFT AND IT IS THE OWNER'S TO RUN.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***OPEN 1: PRE_RELEASE 165, AND IT IS OPEN ONLY
+> BECAUSE NOBODY HAS RUN IT.*** `assert-current` **exit 0**; **31 of 32** free
+> checks green in **32.6 s**, the 32nd being `test-fixlist-units` refusing
+> `PRE_RELEASE 165` before its row existed — which is that guard working, and it
+> is green now at **265/0**. `test-elevonce-units` **58/0**, new.
+> ***NEXT FREE PRE_RELEASE ID 166. `b115`–`b118` ARE SPENT — RUN `b119`.***
+>
+> ### ***WHERE TO START: RUN THE SUITE. THAT IS THE WHOLE OF IT.***
+>
+> **In your own ORDINARY, UNELEVATED terminal:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b119 -ThenElevated
+> ```
+>
+> ***IT SHOULD ASK FOR CONSENT ONCE, AT THE START, AND NOT AGAIN.*** That is the
+> claim to check, and it is the only thing 165 is waiting on. If anything asks a
+> second time, the line above it says which route it took and why — every
+> fallback prints its reason rather than going quiet. **`-NoHelper` puts back the
+> prompt-per-step route** the suite has gone green on since `b53`, on both
+> runners, if the new one misbehaves.
+>
+> ### ***WHAT CHANGED, AND THE ONE SENTENCE WORTH CARRYING***
+>
+> ***THE THING THAT PARKED THIS FOR A WEEK WAS A LIMIT NOBODY MEASURED.***
+> Three places — §24 above, HISTORY, and `verify-doors-suite.ps1`'s own header —
+> said `sd-elevate.ps1` *"hard-codes a 300-second per-request timeout"* that
+> `VerifyInstall2`'s 15-minute half could not fit inside, so going to one prompt
+> *"means editing a shipped file and spending a cycle"*. **It bounds
+> `Connect()`, not the reply.** A reply 6 s after a 1.5 s connect timeout came
+> back intact at 6025 ms; the control on a serverless pipe refused at 1497 ms,
+> which is what stops the first leg being a dead number. **Nothing shipped was
+> edited and no cycle is owed.**
+>
+> ***AND THE REWORK FOUND A LIVE FAULT ON THE WAY.*** Steps run **in-process**
+> (`VerifyInstall1.ps1:1013`), so they share the runner's `$PID`;
+> `verify-sdsyswrite` starts its helper on **SD's own pipe name** and stopped it
+> with `-Stop -OwnerPid $PID`. Once the runner owned a helper on that same pipe,
+> that stop would have **emptied the owner set and killed the run's consent** —
+> silently, with the suite still green and the only symptom being *"it still
+> asks a lot"*. `gplbld/elevate-once.ps1` is now the single copy and
+> `Stop-SdElevationHelper` is a **no-op on an adopted pipe**.
+>
+> ### ***THE ONE MEASUREMENT STILL OWED IS STILL q14***
+>
+> Unchanged from Handoff 35 and untouched by this work. An SD administrator
+> arriving over ssh gets a **filtered** token, so they may be unable to elevate
+> and therefore unable to reach `SDSYS` remotely. **Nobody gets extra access —
+> the failure is that an administrator gets less.** Never measured; it needs the
+> VM rig.
+>
 > # ⇩⇩⇩ HANDOFF 35, 4 Sep 2026 — ***80 IS DONE. THE WHOLE DOCUMENTATION TREE IS AUDITED, REBUILT AND RELEASED. NOTHING IS OPEN. `check-stale-leads` READS 0 OPEN ROWS, 164 STRUCK.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** ***THE PRE_RELEASE LIST IS EMPTY.*** `assert-current`

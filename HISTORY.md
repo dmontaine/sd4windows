@@ -48419,3 +48419,69 @@ hyphen-for-dot spelling is documented rather than left as folklore, measured
 with both controls.
 
 NOTHING IS OPEN.  check-stale-leads reads 0 open rows, 164 struck.
+
+## 4 Sep 2026 - the elevate-once rework, built and unrun.  PRE_RELEASE 165
+
+Owner's ruling, asked and answered: "do the elevate fix before 1.0".  The suite
+asked for about seven UAC consents and b115 was lost to a single stray keystroke
+landing on one of them.  It now asks for one.
+
+THE PREMISE WAS FALSE AND THE MEASUREMENT IS THE ENTRY.  PROJECT_STATUS 24,
+this file, and verify-doors-suite.ps1's own header all said sd-elevate.ps1
+"hard-codes a 300-second per-request timeout" which VerifyInstall2's 15-minute
+half could not fit inside, so the door legs went through the helper, the
+handover could not, and taking the suite to one prompt "means editing a shipped
+file and spending a cycle - the owner's call".  sd-elevate.ps1:162 passes 300000
+to Send-Request, and Send-Request passes its timeout to $c.Connect() and to
+NOTHING ELSE; the reply read is a StreamReader with no ReadTimeout, unbounded.
+A server replying 6 s after a 1.5 s connect timeout was read intact at 6025 ms,
+against a control on a pipe with no server that refused at 1497 ms - the control
+is what stops the first leg being a dead number.  No shipped file was edited, no
+cycle is owed, assert-current exit 0 throughout.
+
+A LIMIT NOBODY MEASURED IS NOT A LIMIT, and this one had been quoted in three
+places for a week and repeated verbatim into a fourth.
+
+ONE COPY, NOT THREE.  verify-doors-suite and verify-sdsyswrite had each grown
+Start-ElevationHelper / Stop-ElevationHelper, and the two had drifted apart in
+both of the places that decide whether the mechanism works: a random pipe name
+(sddoors-<guid>) against SD's own (sd-elev-<logname>, which LOGTO SDSYS shares),
+and a bare STOP against a deregistering one.  gplbld/elevate-once.ps1 is the
+single copy now; the four verifiers and VerifyInstall1 dot-source it.
+
+AND THE DRIFT WAS ABOUT TO BITE, SILENTLY.  Steps run in-process
+(VerifyInstall1.ps1:1013, "& $path @splat"), so every step shares the runner's
+$PID, and the helper's owner set is keyed by pid.  verify-sdsyswrite's
+"-Stop -OwnerPid $PID" on the runner's own pipe would have emptied that set and
+killed the consent for everything after it - with the suite still green and the
+only symptom being that it went on asking.  Stop-SdElevationHelper is a no-op on
+an adopted pipe and that rule now lives in one place instead of five.
+
+THE HANDOVER KEEPS ITS VISIBLE WINDOW, which was the owner's call between one
+prompt and two.  The helper is already elevated, so its child inherits the token
+with no consent transition; -Visible sends a wrapper carrying no -Verb.  $inner
+is byte-for-byte what it was - the Tee-Object and "; exit $LASTEXITCODE" clauses
+were each paid for by a lost run and are not re-derived - and -Interactive is
+explicit, because VerifyInstall2 ran without -NonInteractive before this and a
+Read-Host under it throws rather than waiting.
+
+THE GUARD CAUGHT TWO REAL DEFECTS BEFORE IT WENT GREEN, WHICH IS THE POINT OF
+IT.  test-elevonce-units.ps1, 58 checks, about a second: the module's own
+Write-Output-in-a-function trap - the caller got a five-element array instead of
+the hashtable, thirty lines below the header warning about exactly that - and a
+@()-collapses-to-$null StrictMode fault in the test itself.  Mutant control both
+ways: the adopted-stop guard was disabled, two rows went red naming the call
+that should never have been made, and the file was restored to the same SHA-256
+113860C7...6EC1.  It drives the real decisions without elevating anything, by
+copying the module into a sandbox beside a fake sd-elevate.ps1 that records its
+argv - which works because $PSScriptRoot in a dot-sourced file is that file's
+own directory, measured rather than assumed.  It pins the pipe prefix to
+gpl.bp/ELEVATE:121 and checks $helperAware against the four scripts' param
+blocks in BOTH directions, the test-stemcoverage / test-dirscoverage shape a
+third time.
+
+UNRUN.  Entry 48 is the precedent - struck only once b54 had witnessed the
+helper - so 165 stays open until a real run.  31 of 32 free checks green in
+32.6 s; the 32nd was test-fixlist-units refusing PRE_RELEASE 165 before its row
+existed, which is that guard working, and it is 265/0 now.  -Run b119 is what
+witnesses it, and -NoHelper keeps the prompt-per-step route on both runners.

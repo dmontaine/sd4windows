@@ -501,10 +501,10 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
    `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`,
    `test-wraptext-units`, `test-upgradevoc-units`,
-   `test-privundetermined-units`.
-   ***ALL THIRTY-ONE. Run these on
-   every change*** — **about 37 s for the whole set**, measured 4 Sep 2026, each
-   in its own process. A whole suite run has already been spent twice discovering
+   `test-privundetermined-units`, `test-elevonce-units`.
+   ***ALL THIRTY-TWO. Run these on
+   every change*** — **32.6 s for the whole set**, measured 4 Sep 2026 with the
+   thirty-second in it, each in its own process. A whole suite run has already been spent twice discovering
    what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
@@ -630,6 +630,24 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    build that cannot diverge beats a check that reports divergence** — which is
    the shape to reach for when a guard here starts looking permanent. The
    deleted script's own history is in HISTORY.md and in entries 160 and 161.
+
+   ***`test-elevonce-units` JOINED IT 4 Sep 2026 IN THE COMMIT THAT CREATED IT,
+   AND IT HAD ALREADY CAUGHT TWO REAL DEFECTS BEFORE IT WENT GREEN.*** It
+   guards `gplbld/elevate-once.ps1`, PRE_RELEASE 165's shared elevation module,
+   and it exists because **every route in that file is reached only inside a
+   ~20-minute run that costs a `-Run` token — and the one that matters most
+   fails SILENTLY.** An adopting step that stops the helper empties its owner
+   set, the consent dies, the next step prompts again, and **the suite still
+   goes green**; nobody reads that as a defect, they read it as *"the helper
+   thing does not seem to save many prompts"*. **It drives the real decisions
+   without elevating anything** — the module is copied into a sandbox beside a
+   fake `sd-elevate.ps1` that records its argv, which works because
+   `$PSScriptRoot` in a dot-sourced file is that file's own directory
+   (measured, not assumed). ***AND IT ASSERTS THE PARTITION***: every `Route`
+   the module can return is either driven live or declared consent-bound, so a
+   new one cannot appear without somebody classifying it. **Mutant control**:
+   the adopted-stop guard was disabled, two rows went red naming the call that
+   should never have been made, and the file was restored to the same SHA-256.
 
    ***`test-privundetermined-units` JOINED IT 4 Sep 2026 IN THE COMMIT THAT
    CREATED IT, AND IT COSTS 0.5 s.*** It guards `gplbld/verify-privundetermined.ps1`,
