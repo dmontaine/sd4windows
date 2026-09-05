@@ -175,6 +175,132 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 41, 5 Sep 2026 — ***THE RELEASE HAS A BLOCKER AGAIN: PRE_RELEASE 173. EVERY SHIPPED `.ps1` SD RUNS AT RUNTIME IS REFUSED ON A STOCK WINDOWS CLIENT. FOUND BY THE OWNER ON A SECOND MACHINE, REPRODUCED HERE, NOT FIXED.*** ⇩⇩⇩
+>
+> ### ***READ 173 FIRST. IT IS THE ONLY THING HERE THAT MATTERS.***
+>
+> The owner installed on another computer, logged in to SD as himself, typed
+> `logto sdsys`, and got *"running scripts was disabled on that computer"*.
+> ***`gplsrc/op_sh.c:357` BUILDS `SH1` WITH NO `-ExecutionPolicy`***, so
+> `ELEVATE:129`'s `& '<app>\sd-elevate.ps1' …`, run through `os.execute`, is
+> refused by the Windows **client** default of `Restricted`.
+>
+> ***REPRODUCED HERE, BOTH LEGS, WITH NO MACHINE SETTING TOUCHED*** — the
+> policy was supplied per child process with the `-ExecutionPolicy` switch:
+> `Restricted` gave **exit 1** and the owner's message verbatim
+> (`PSSecurityException` / `UnauthorizedAccess`), `Bypass` gave **exit 0** and
+> the probe ran. **The second leg is the control**; without it a refusal would
+> only prove the probe was broken.
+>
+> ***THE TREE ALREADY ARGUES FOR THE FIX, WHICH IS WHY THIS IS AN OVERSIGHT
+> AND NOT A DESIGN QUESTION.*** `gplsrc/sdsvc/sdsvc.c:508` passes the switch
+> and says why in its comment; `gplbld/sd.iss` passes it at **30+** sites.
+> **Only the interactive runtime path was missed**, and it is the first one an
+> ordinary user reaches.
+>
+> ***AND THE REASON NO GREEN RUN EVER CAUGHT IT IS WORTH MORE THAN THE FIX.***
+> Measured on this machine, 5 Sep 2026: `LocalMachine` is **`RemoteSigned`**,
+> not the shipped Windows default `Restricted`. **The whole verify suite runs
+> on this one host**, where the defect cannot appear. ***A DEFAULT THE
+> DEVELOPMENT BOX HAS ALREADY CHANGED IS INVISIBLE TO EVERY TEST RUN ON IT***
+> — that is the general lesson, and adding one more check does not answer it.
+>
+> ***IT IS NOT FIXED AND THAT WAS DELIBERATE.*** It is a C change, so it needs
+> a full `cycle.ps1` and the tree goes STALE the moment it is made; the machine
+> was mid-litter-sweep and about to be rebooted. **Entry 173 carries the
+> recommendation** — `SH1` only, `op_sh.c:357`, since `SH` opens a prompt for a
+> person and runs no shipped script — ***but the owner had not ruled on `SH`
+> vs both when this was written.*** Length is not a constraint: 93 characters
+> today, `MAX_SH_CMD_LEN` is 255.
+>
+> ### ***THE CLEANUP, WHICH IS WHAT THE SESSION WAS FOR***
+>
+> ***WHAT IS OWED: A FULL SUITE, AND IT IS DELIBERATELY NOT RUN.*** `b128` is
+> the next token. **Nothing that ships changed** — the diff is three documents
+> plus `gplbld/check-stale-leads.py` and `gplbld/test-staleleads-units.py`,
+> neither of which ships or is read by the install — and `assert-current` was
+> **exit 0** after every commit, so the installed tree still matches source.
+> **The machine was mid-litter-sweep when this was written**, so a suite run
+> would have been measuring a tree under change. ***RUN THE FULL SUITE AFTER
+> THE SWEEP AND THE REBOOT, NOT BEFORE.***
+>
+> ***MEASURED THIS SESSION, ALL OF IT CHEAP AND REPEATABLE.*** **32 of 32 free
+> guards green** (28 `.ps1` + 4 `.py`; the directory and CLAUDE.md's list agree
+> exactly). ***1 OPEN of 173 — and it is 173, a B***, from
+> `test-fixlist-units.ps1`, 274 passed / 0 failed. **The list had been empty
+> for one day.** `assert-current` **exit 0**. ***NEXT FREE PRE_RELEASE ID:
+> 174.***
+>
+> ### ***WHAT CHANGED, AND THE ONE THING TO READ FIRST***
+>
+> 1. **START HERE's handoff stack is in HISTORY.md** — `ARCHIVE 5 Sep 2026`,
+>    **10,911 lines byte-identical**, proved lossless before writing by
+>    rebuilding the original from its three slices to the same SHA-256. This
+>    file went **17,680 → 6,796 lines**, the stack **10,911 → 75**.
+> 2. ***`check-stale-leads.py` FIRED ON THE ARCHIVE AND WAS RIGHT TO*** —
+>    H.1–H.5's entries were inside the moved block, so seven ticked rows
+>    pointed at nothing. **The exemption added is not "accept a missing
+>    entry"**: a row must now carry the phrase `entry archived in HISTORY.md`,
+>    the checker prints which rows used it, and it **refuses with exit 2 if
+>    every row claims it**. Mutant control run and the file restored to the
+>    same SHA-256.
+> 3. **`test-staleleads-units.py` no longer anchors on prose.** Its phase-3
+>    fixture named a sentence in item 5; that is the **second** time this
+>    document moved under it (26 Aug, then today). It now injects two synthetic
+>    START HERE items and two table rows into a copy used by that phase only,
+>    and asserts the injected copy passes clean first. **21 of 21.**
+> 4. **The external-tree record is true again** — `../sdb64`'s clone is gone
+>    (owner: *"historical reference, not part of this project"*), `../SDCore1.0-0`
+>    is his hand-assembled release zip and **not part of this project**, and
+>    `C:\Users\dmont\Projects` is the base for the next release.
+> 5. **§0's mojibake expected-value moved with the entry that produces it** —
+>    **PROJECT_STATUS 1 → 0, HISTORY 0 → 1**, measured both sides.
+>
+> ### ***THE LITTER, AND ONE CORRECTION TO HANDOFF 40 BELOW***
+>
+> ***HANDOFF 40 SAYS "ONE LEFTOVER WINDOWS ACCOUNT". THERE WERE THREE.***
+> Measured 5 Sep 2026: `sdswb104`, `sdw136a` and `b48adm` all existed and were
+> **enabled**, plus the directory `sdw142a` with no account. **All three of the
+> ones 40 missed were already written down** — inside blocks buried in the
+> stack that has now been archived, which is the argument for having archived
+> it.
+>
+> ***AND THEY ARE INVISIBLE TO THE SWEEP BY DESIGN.***
+> `clean-test-profiles.ps1:214` builds its pattern from 23 `sd*` stems;
+> `sdw136a` misses (`sdw` is not a stem, `sdsw` is) and `b48adm` carries no
+> `sd` prefix at all. **`test-stemcoverage-units` is green and correctly so** —
+> it checks the stems against the **runners**, and nothing in `gplbld` composes
+> any of these three names. `verify-routes.ps1:245` is `$admAcc = $Prefix + 'a'`,
+> so they are **hand runs** with ad-hoc prefixes. **The owner ran
+> `cleanup-devlitter.ps1`, rebooted and ran it again** while this was written;
+> ***its result is NOT recorded here and must be read before anything is
+> claimed about the machine.***
+>
+> ***IF THAT CLASS IS WORTH FIXING IT WOULD BE PRE_RELEASE 173, AND IT IS NOT
+> RULED.*** Widening the stem list would be a treadmill, since the next hand
+> run picks a new prefix. **A candidate that would not be**: the sweep already
+> finds `C:\Users` directories with no `ProfileList` entry, and could REPORT
+> every one regardless of name while still only DELETING what matches a stem —
+> report broadly, delete narrowly. **That is a sketch, not a design**, and it
+> would be falsified by finding a legitimate non-`sd` profile directory on a
+> developer machine that would then be reported every run.
+>
+> ### ***NOT STARTED, AND BOTH NEED THE OWNER'S `-List` OUTPUT FIRST***
+>
+> - **The reclaim sweep reclaims nothing.** Handoff 40 has the numbers;
+>   `C:\ProgramData\SD\reclaim-profiles.log` at 14:52:39 read *"13 considered,
+>   0 reclaimed, 13 still pending"*, every one refused on `UsrClass.dat` in
+>   use. **The loaded-hive rule explains a refusal**; what it does not explain
+>   is 40's own observation that the machine had booted that morning. **Do not
+>   count the store unelevated** — it is ACL'd, so an empty listing is
+>   unreadable rather than empty.
+> - **CLAUDE.md's free-guard list is maintained by hand**, and its own text
+>   records it going stale twice. **Measured today: the list and the directory
+>   agree exactly at 32** (28 `test-*-units.ps1` + 4 `.py`), so there is
+>   nothing to fix right now. ***A runner that DERIVED the set from the
+>   directory would remove the class rather than check it***, which is the
+>   shape entry 161 preferred; it is unbuilt and unruled.
+>
 > # ⇩⇩⇩ HANDOFF 40, 5 Sep 2026 — ***`b127` IS GREEN IN BOTH HALVES: 50 STEPS, EVERY ONE exit 0, 923 PASS / 0 FAIL / 0 SKIP. THE PRE-RELEASE LIST IS EMPTY. NEXT SESSION IS CLEANUP, AND THE MEASUREMENTS FOR IT ARE ALREADY TAKEN.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** ***THE FULL SUITE RAN ON THE 14:25:31 INSTALL —
