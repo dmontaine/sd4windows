@@ -175,39 +175,39 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***161 IS DONE, CYCLED AND VERIFIED ON THE INSTALL: `make sd` MAKES ALL FOUR CLIENT DLLs, THE INSTALLER SHIPS THEM IN `usr\clients`, AND BOTH CLIENT REPOSITORIES ARE DELETED. 162 FOUND AND FIXED — A GUARD THAT HAD QUIETLY STOPPED GUARDING. 163 FILED AND NEEDS A RULING. OPEN 2: 80, 163. A FULL SUITE IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***GREEN IN BOTH HALVES ON `b117`, 22 AND 25 STEPS, EVERY ONE exit 0. 161 DONE: `make sd` MAKES ALL FOUR CLIENT DLLs, THE INSTALLER SHIPS THEM IN `usr\clients`, AND BOTH CLIENT REPOSITORIES ARE DELETED. 162 AND 164 FOUND AND FIXED — BOTH INSTRUMENTS, NEITHER THE PRODUCT. 163 FILED AND NEEDS A RULING. OPEN 2: 80, 163. NOTHING IS OWED.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** Install **4 Sep 18:49:35**, `sd.exe`
-> **E13C8C26FB2681F7**; `assert-current` **exit 0**; ***31 of 31*** free checks
-> exit 0 in ~38 s — **thirty-one, not thirty-two**, see below; `test-fixlist`
-> **264/0**; `test-stalebin` **39/0**; `make check` in `gplsrc/sdclilib`
-> **5 tests, 0 warnings**. ***OPEN 2: 80, 163 — TAKEN FROM THE CHECKER, NOT
-> FROM THIS BOX. NEXT FREE PRE_RELEASE ID 164. `b115` IS SPENT — RUN `b116`.***
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 19:49**, `assert-current`
+> **exit 0**; ***`b117` GREEN IN BOTH HALVES*** — 22 of 22 unelevated, 25 of 25
+> elevated; ***31 of 31*** free checks exit 0 in ~38 s — **thirty-one, not
+> thirty-two**, see below; `test-fixlist` **264/0**; `test-stalebin` **40/0**;
+> `make check` in `gplsrc/sdclilib` **5 tests, 0 warnings**. ***OPEN 2: 80, 163
+> — TAKEN FROM THE CHECKER, NOT FROM THIS BOX. NEXT FREE PRE_RELEASE ID 165.
+> `b115`, `b116`, `b117` ARE SPENT — RUN `b118`.***
 >
-> ### ***WHAT IS OWED: A FULL SUITE, AND IT IS THE ONLY THING***
+> ### ***164, AND IT IS THE ONE TO READ IF YOU READ ONLY ONE***
 >
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b116
-> ```
+> ***161's DELETION BROKE TWO SUITE STEPS AND ONLY ONE OF THEM SAID SO.***
+> `verify-tierapi` and `verify-doors` both pointed `-SdConnect` at
+> `..\sdclilib32\sd-connect.exe`, a binary hand-built in the tree 161 had just
+> deleted. On `b116` the first exited **2, COULD NOT RUN** — loud and correct —
+> while the second ***`[SKIP]`ped its API door in BOTH phases and still exited
+> 0***. A green step with one of its three doors untested is the worse of the
+> two by a distance.
 >
-> **An ordinary UNELEVATED prompt** — the runner raises its own elevation for
-> the second half, and several of its measurements are only valid from an
-> unelevated parent. **None has run since `b111`**, and CLAUDE.md asks for one
-> before a handoff. The cycle is already done, so nothing needs rebuilding.
+> **Fixed by applying 161's own lesson to the test tooling**: `make sd` builds
+> `sd-connect.exe` into `bin\client32`, beside the DLL it loads, and both
+> verifiers derive the path from `$PSScriptRoot`. ***WITNESSED ON `b117`, NOT
+> ASSUMED***: `verify-tierapi` **16 of 16** with real tier counts 355/397/420
+> and both negative controls firing, and `verify-doors` door 3 now **differing
+> between phases** — `sd-connect exit 0` in Control against **exit 1** in
+> Refused, which is the discrimination it had been skipping.
 >
-> ***`b115` DIED AT STEP 6 AND LEFT `sdtub115` BEHIND — THE NEXT RUN SWEEPS IT,
-> DO NOTHING BY HAND.*** A keystroke landed on `verify-osusers` step 0a's UAC
-> dialog and cancelled it (*"The operation was canceled by the user"*), so the
-> step exited **2, COULD NOT RUN** — the instrument refusing rather than scoring
-> a false pass, which is the behaviour to expect. **`don`'s `os.users` record
-> was NOT disturbed**: the cancel came before the unlist, and it still reads 10
-> bytes at the install's own timestamp, checked. The stranded account is the
-> `b62` shape, and `VerifyInstall1:757-780` is the recovery that was built for
-> it — the pre-run sweep names any `sdtu*` orphan and **the elevated child
-> removes it in the same prompt it uses to create the new account**. ***THE
-> RUNNER COSTS ABOUT FIVE UAC PROMPTS, SO THIS CAN HAPPEN AGAIN***; consolidating
-> them behind `gplbld/sd-elevate.ps1`'s resident-helper pattern is unfiled and
-> would be CLAUDE.md's *"remove the need for a prompt"* rather than skip a step.
+> ***THE METHOD FAILURE IS THE PART TO CARRY FORWARD.*** The deletion was traced
+> for **files that existed only in those trees**, and never for **things here
+> that depended on them at run time**. One such dependency was found and
+> retired, and finding one was taken as having found them all. **A `grep -rn`
+> for the two tree names would have named both verifiers in a second.**
 >
 > ### ***WHAT 161 BUILT, AND THE ONE THING NOT TO RE-DERIVE***
 >
@@ -223,15 +223,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > owner, *"just the dlls"*. `sd.iss` needed **no change**;
 > `{#Stage}\ProgramFiles\*` already recurses.
 >
-> ***BOTH CLIENT REPOSITORIES ARE GONE AND MUST NOT BE RE-CREATED.***
-> `../winsdclilib` and `../sdclilib32` are deleted on the owner's ruling, and he
-> is deleting the GitHub repositories. Both were clean first — nothing
-> uncommitted, nothing unpushed, checked before removal. **Their documentation
-> was salvaged** into `SDCoreWindowsDocs/analysis/client-dll-docs/` for entry 80,
-> three files of it existing nowhere else. ***`gplbld/check-client-sync.py` IS
-> DELETED WITH THEM, WHICH IS WHY THE FREE LIST IS 31***: it compared copies
-> that no longer exist. **161 did not retire the check, it retired the defect.**
-> §2's sibling-repository section carries the whole of it.
+> ***BOTH CLIENT REPOSITORIES ARE GONE FROM DISK AND MUST NOT BE RE-CREATED.***
+> `../winsdclilib` and `../sdclilib32` are deleted on the owner's ruling. Both
+> were clean first — nothing uncommitted, nothing unpushed, checked before
+> removal. ***THEY ARE STILL ON GitHub AS OF 4 Sep 2026*** (owner: *"it is
+> still on github"*), which he will remove in his own time — **so nothing here
+> is irrecoverable, and if something turns out to be needed it is a
+> `gh repo clone` away.** Their documentation was salvaged into
+> `SDCoreWindowsDocs/analysis/client-dll-docs/` for entry 80 anyway.
+> ***`gplbld/check-client-sync.py` IS DELETED WITH THEM, WHICH IS WHY THE FREE
+> LIST IS 31***: it compared copies that no longer exist. **161 did not retire
+> the check, it retired the defect.** §2's sibling-repository section carries
+> the whole of it, and **164 carries what the deletion broke on the way**.
 >
 > ### ***THE LESSON THIS SESSION PAID FOR: 162***
 >

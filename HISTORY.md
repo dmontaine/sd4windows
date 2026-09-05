@@ -48206,3 +48206,58 @@ when a guard starts to look permanent.
 
 31 of 31 free checks green in 38.2 s.  assert-current exit 0 after the deletion,
 so nothing on $neverShipped was left dangling.
+
+## 4 Sep 2026 - 164: the deletion broke two suite steps, and only one of them said so
+
+FOUND BY THE b116 SUITE, not by a guard, and it is a consequence of 161's own
+(c) that the tracing missed.  verify-tierapi.ps1 and verify-doors.ps1 both
+defaulted -SdConnect to C:\Users\dmont\Projects\sdclilib32\sd-connect.exe, a
+binary hand-built in the tree deleted an hour earlier.
+
+THE TWO FAILED IN DIFFERENT VOICES AND THE QUIET ONE IS THE FINDING.
+verify-tierapi exited 2, COULD NOT RUN - loud, correct, and exactly what a
+refusal should look like.  verify-doors [SKIP]ped its API door in BOTH phases
+and STILL EXITED 0, so the suite reported a green step with one of its three
+doors untested.
+
+AND VerifyInstall2.ps1 CARRIED A COMMENT ASSERTING THIS COULD NOT HAPPEN.
+verify-tierapi was placed last because it was "the only step that needs a
+binary from OUTSIDE this repository ... If that tree is absent this step is the
+one that fails, and nothing before it is lost."  It was not the only step, and
+that was untrue on the day it was written - verify-doors had the identical
+default.  A mitigation resting on a false uniqueness claim is not a mitigation.
+
+THE FIX IS 161's OWN LESSON APPLIED TO THE TEST TOOLING.  make sd now builds
+sd-connect.exe from gplsrc/sdclilib/tools/sd_connect.c into bin\client32,
+BESIDE the qmclilib.dll it loads - Windows searches an executable's own
+directory first and nothing is on PATH any more - and both verifiers derive the
+path from $PSScriptRoot instead of naming a hardcoded tree.  sdclilib\tools\
+joins tests\ on Test-IsSdSource's exclusions for the identical reason: it links
+AGAINST the DLL and ships nowhere.  It is not shipped - stage.py's CLIENT_DIRS
+names the two DLLs explicitly, so an extra file in that directory reaches no
+install.
+
+MEASURED BEFORE THE SUITE, WITH A CONTROL.  32-bit, 466,958 bytes - the same
+size the deleted tree produced - and it RUNS: exit 2 on a bad call means the
+DLL resolved and main() ran, because imports resolve at process start.  The
+control is running it from a directory holding neither it nor the DLL, which is
+what proves it finds qmclilib.dll beside itself rather than through the working
+directory.
+
+WITNESSED GREEN ON b117.  verify-tierapi 16 of 16, driving the real 32-bit
+client: three tiers connected over SCRAM, VOC counts 355 / 397 / 420, and both
+negative controls firing - a wrong password refused and one account refused
+entry to another.  verify-doors 5 of 5 decisive, with door 3 now DIFFERING
+between phases, sd-connect exit 0 in Control against exit 1 in Refused.  That
+difference is the whole discrimination it had been skipping.
+
+THE METHOD FAILURE IS THE PART WORTH KEEPING.  The deletion was traced for
+files that existed only in those trees, and salvaged accordingly.  It was never
+traced for things in sd4windows that DEPENDED on those trees at run time.  One
+such dependency was found - check-client-sync.py - and finding one was taken as
+having found them all.  A grep -rn for the two tree names across the repository
+would have named both verifiers in a second, and it was not run until the suite
+failed.
+
+b117 IS GREEN IN BOTH HALVES: 22 of 22 unelevated, 25 of 25 elevated,
+assert-current exit 0, 31 of 31 free checks.  b115, b116 and b117 are spent.
