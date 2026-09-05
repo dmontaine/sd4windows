@@ -185,7 +185,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***32 of 32*** free guards green. ***NEXT FREE PRE_RELEASE ID 169.
 > `b115`–`b120` ARE SPENT — RUN `b121`.***
 >
-> ### ***WHERE TO START: THE FULL SUITE ON `b121`. 165 AND 166 HAVE NEVER RUN.***
+> ***SUPERSEDED WITHIN THE HOUR — READ THIS BEFORE THE BOX BELOW.*** The owner
+> refined the ruling after seeing `verify-sshadmin`'s transcript: **remote is
+> what is denied, not ssh and the API.** Local ssh and the local API keep
+> working for an administrator. **The gate, message 10174, `CREATE.ACCOUNT`'s
+> routes report and the verifier's own legs were all rebuilt for it** —
+> PRE_RELEASE **169**, §5.25. ***THE TREE IS STALE AGAIN AND `b120`'s RESULT NO
+> LONGER STANDS***: that run measured the narrower rule and its leg A now
+> asserts the opposite. **A cycle is owed before anything is re-measured.**
+>
+> ### ***WHERE TO START: A CYCLE, THEN THE FULL SUITE ON `b121`. 165 AND 166 HAVE NEVER RUN.***
 >
 > **In your own ORDINARY, UNELEVATED terminal:**
 >
@@ -14454,9 +14463,27 @@ session cannot.
 ### 5.25 Administration requires an interactive desktop (owner, 5 Sep 2026)
 
 ***THE RULE.*** Administrative work happens **at the console, or through a
-remote-control product or single-user remote desktop**. **Not over ssh, and not
-over the API.** Owner, 5 Sep 2026: *"Remote admin through api or ssh is just a
+remote-control product or single-user remote desktop**. **Not from another
+machine.** Owner, 5 Sep 2026: *"Remote admin through api or ssh is just a
 security nightmare waiting to happen."*
+
+***REFINED THE SAME DAY, AND THE REFINEMENT IS THE OPERATIVE RULE.*** The first
+build read "not over ssh, and not over the API" literally and refused **local**
+ssh too — `verify-sshadmin` ssh'd to localhost, was refused, and scored 10/0 on
+it. That was the gate working *as specified*, and the specification was narrower
+than the ruling. Owner, 5 Sep 2026: *"my lockout from remote API and SSH is
+fine. However, local API and SSH should continue to work — if I am at the
+console, everything works, only remote access is denied."*
+
+> **Admit an administrator's session when it has a desktop (`K$INTERACTIVE`)
+> OR its peer is provably this machine. Refuse otherwise.**
+
+**REMOTE is what is denied, not a transport.** ssh and the API both keep working
+for an administrator *on* the machine; both are refused *from* another one.
+`LOGIN`'s `peer.local.test` is the decision, reading `ENV('SSH_CLIENT')` for ssh
+and `system(42)` for the API. ***IT PROVES LOCAL RATHER THAN DISPROVING
+REMOTE***: a session whose origin cannot be established stays refused, which is
+what keeps an unattended scheduled task out.
 
 ***THE PRINCIPLE BEHIND IT, WHICH IS WHAT MAKES IT MECHANICAL.*** Administration
 requires a session where **UAC can render** — a real interactive desktop. That
