@@ -177,23 +177,32 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 38, 5 Sep 2026 — ***167 IS BUILT AND UNRUN: AN ADMINISTRATOR NOW GETS NO ssh AND NO API SESSION AT ALL. THE BASIC IS UNCOMPILED — `cycle.ps1 -SkipInstall` IS THE NEXT COMMAND AND IT IS YOURS.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** ***OPEN 3: 165, 166, 167 — ALL THREE WAITING ON
-> A RUN, NONE ON A DECISION.*** `make sd` **exit 0, no warnings**, all three
-> changed objects verified rebuilt by mtime. ***32 of 32*** free guards green in
-> **42 s**. ***THE BASIC HAS NOT BEEN COMPILED*** and no verifier step exists
-> yet. ***NEXT FREE PRE_RELEASE ID 169. `b115`–`b119` ARE SPENT — RUN `b120`.***
+> ***THE STATE, IN ONE LINE.*** ***167's GATE IS BUILT AND WITNESSED; 165 AND
+> 166 ARE STILL UNWITNESSED AND NEED THE FULL SUITE.*** The cycle completed
+> (10:37) and **the BASIC compiles — 197 units, every one `0 error(s)`**.
+> **`verify-sshadmin` ran on `b120`: 10 PASS / 0 FAIL, exit 0**, and its
+> temporary local administrator was confirmed gone by asking Windows.
+> ***32 of 32*** free guards green. ***NEXT FREE PRE_RELEASE ID 169.
+> `b115`–`b120` ARE SPENT — RUN `b121`.***
 >
-> ### ***WHERE TO START: COMPILE THE BASIC. IT IS THE CHEAP CHECK AND IT IS THE ONLY THING BLOCKING `b120`.***
+> ### ***WHERE TO START: THE FULL SUITE ON `b121`. 165 AND 166 HAVE NEVER RUN.***
 >
-> **In your own terminal, ELEVATED:**
+> **In your own ORDINARY, UNELEVATED terminal:**
 >
 > ```
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b121 -ThenElevated
 > ```
 >
-> `LOGIN`, `CPROC` and `INT$KEYS.H` all moved. **If it compiles, run the full
-> cycle and then `b120`**; if it does not, the break is in `LOGIN:560`'s new
-> block or the `K$INTERACTIVE` define.
+> ***THAT RUN IS OWED THREE THINGS, NOT ONE.*** **165**'s one-consent claim —
+> it asked **three** on `b119` and the cause was fixed but never re-run; **166**'s
+> `verify-osusers` rename; and the **regression** half, which is the whole reason
+> the rule says run it before a handoff — nothing in the product has been
+> witnessed since `b119` except the one step above.
+>
+> ***`b120` IS PARTLY SPENT AND MUST NOT BE REUSED.*** It made and removed
+> `sdsadmb120a` and `sdsadmb120p`; every other `b120` prefix is untouched, but
+> the convention is one token one run and `verify-profiledir` refuses a spent
+> one outright.
 >
 > ### ***WHAT CHANGED, AND THE ONE SENTENCE WORTH CARRYING***
 >
