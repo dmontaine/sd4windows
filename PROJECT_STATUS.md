@@ -175,45 +175,49 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***161's BUILD HALF IS DONE AND MEASURED: `make sd` NOW MAKES ALL FOUR CLIENT DLLs AND THE INSTALLER SHIPS THEM IN `usr\clients`. 162 FOUND AND FIXED — A GUARD THAT HAD QUIETLY STOPPED GUARDING. 163 FILED AND NEEDS A RULING. OPEN 3: 80, 161, 163. A CYCLE IS OWED AND NOTHING IS INSTALLED YET.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***161 IS DONE, CYCLED AND VERIFIED ON THE INSTALL: `make sd` MAKES ALL FOUR CLIENT DLLs, THE INSTALLER SHIPS THEM IN `usr\clients`, AND BOTH CLIENT REPOSITORIES ARE DELETED. 162 FOUND AND FIXED — A GUARD THAT HAD QUIETLY STOPPED GUARDING. 163 FILED AND NEEDS A RULING. OPEN 2: 80, 163. A FULL SUITE IS OWED.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** **32 of 32** free checks exit 0 in ~37 s;
-> `test-fixlist` **264/0**; `test-stalebin` **39/0**; `make check` in
-> `gplsrc/sdclilib` **5 tests, 0 warnings**. ***`assert-current` IS EXIT 1 AND
-> THAT IS CORRECT — `gplbld\stage.py` AND `gplsrc\sdclilib\Makefile` ARE NEWER
-> THAN THE INSTALL. NOTHING BUILT THIS SESSION HAS BEEN INSTALLED OR RUN.***
-> ***OPEN 3: 80, 161, 163. NEXT FREE PRE_RELEASE ID 164. RUN `b115`.***
+> ***THE STATE, IN ONE LINE.*** Install **4 Sep 18:49:35**, `sd.exe`
+> **E13C8C26FB2681F7**; `assert-current` **exit 0**; ***31 of 31*** free checks
+> exit 0 in ~38 s — **thirty-one, not thirty-two**, see below; `test-fixlist`
+> **264/0**; `test-stalebin` **39/0**; `make check` in `gplsrc/sdclilib`
+> **5 tests, 0 warnings**. ***OPEN 2: 80, 163 — TAKEN FROM THE CHECKER, NOT
+> FROM THIS BOX. NEXT FREE PRE_RELEASE ID 164. RUN `b115`.***
 >
-> ### ***FIRST THING: THE CYCLE, THEN THE SUITE***
+> ### ***WHAT IS OWED: A FULL SUITE, AND IT IS THE ONLY THING***
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b115
 > ```
 >
-> **Elevated PowerShell.** Step 0 rebuilds the C — source has moved. **Then a
-> FULL suite**, which is owed twice over: none has run since `b111`, and
-> CLAUDE.md asks for one before a handoff.
+> **An ordinary UNELEVATED prompt** — the runner raises its own elevation for
+> the second half, and several of its measurements are only valid from an
+> unelevated parent. **None has run since `b111`**, and CLAUDE.md asks for one
+> before a handoff. The cycle is already done, so nothing needs rebuilding.
 >
-> ### ***WHAT 161 BUILT, AND WHAT IS STILL OPEN***
+> ### ***WHAT 161 BUILT, AND THE ONE THING NOT TO RE-DERIVE***
 >
 > **Read 161's row for the detail; it carries the owner's words verbatim and
-> the measurements.** In one paragraph: `gplsrc/sdclilib/` now builds all four
-> DLLs — the ucrt64 pair and, with `CC32`, the mingw32 pair — and the QM-specific
-> sources came into this tree with the build. ***THE LAYOUT ARRIVED IN THREE
-> STEPS AND THE LAST TWO REVERSED THE FIRST***, so implement nothing from the
-> earlier wording: the 64-bit pair is installed **TWICE**, in `usr\bin` (the
-> server's own, and the only copy `SDConnectLocal` can work from) and in
+> the measurements.** In one paragraph: `gplsrc/sdclilib/` builds all four DLLs
+> — the ucrt64 pair, and the mingw32 pair through a new `CC32` — and the
+> QM-specific sources came into this tree with the build. ***THE LAYOUT ARRIVED
+> IN THREE STEPS AND THE LAST TWO REVERSED THE FIRST***, so implement nothing
+> from the earlier wording: the 64-bit pair is installed **TWICE**, in `usr\bin`
+> (the server's own, and the only copy `SDConnectLocal` can work from) and in
 > `usr\clients\client64\` (the user's); the 32-bit pair is in
-> `usr\clients\client32\` only. `sd.iss` needed **no change** —
+> `usr\clients\client32\` only. **`usr\clients` holds DLLs and nothing else** —
+> owner, *"just the dlls"*. `sd.iss` needed **no change**;
 > `{#Stage}\ProgramFiles\*` already recurses.
 >
-> ***TWO THINGS ARE STILL OPEN IN 161 AND BOTH ARE THE OWNER'S.*** **(b)**
-> whether import libraries and headers travel with the DLLs —
-> `usr\clients\` holds DLLs and nothing else today, and adding them is one line
-> in `stage.py`'s `CLIENT_DIRS`. **(c)** what becomes of `../winsdclilib` and
-> `../sdclilib32` — **this session touched neither**, so both still hold their
-> `.iss` files and stale `Output\` installers, and `check-client-sync.py`'s
-> checks 2 and 3 still describe a model nothing uses.
+> ***BOTH CLIENT REPOSITORIES ARE GONE AND MUST NOT BE RE-CREATED.***
+> `../winsdclilib` and `../sdclilib32` are deleted on the owner's ruling, and he
+> is deleting the GitHub repositories. Both were clean first — nothing
+> uncommitted, nothing unpushed, checked before removal. **Their documentation
+> was salvaged** into `SDCoreWindowsDocs/analysis/client-dll-docs/` for entry 80,
+> three files of it existing nowhere else. ***`gplbld/check-client-sync.py` IS
+> DELETED WITH THEM, WHICH IS WHY THE FREE LIST IS 31***: it compared copies
+> that no longer exist. **161 did not retire the check, it retired the defect.**
+> §2's sibling-repository section carries the whole of it.
 >
 > ### ***THE LESSON THIS SESSION PAID FOR: 162***
 >
@@ -11210,27 +11214,42 @@ accounts, not accounts and users.** `CREATE.USER`, `DELETE.USER`, `ADMIN.USER`
 and `LIST.USERS` are all deliberately absent, which is why `CREATE.ACCOUNT`
 provisions the operating system account itself.
 
-### The sibling repositories, and what "in sync" means
+### The sibling repositories — ***THERE ARE NO LONGER ANY CLIENT ONES (4 Sep 2026)***
 
-**THE ARROW TURNED ROUND ON 19 Aug 2026 AND THIS TABLE USED TO HAVE IT
-BACKWARDS.** `gplsrc/sdclilib/` is **the source of truth**; `winsdclilib` is a
-mirror of it. It was the other way round until the 32-bit client shipped
-without SCRAM in it — built from a `winsdclilib` that had not moved since
-15 Aug, still sending the password in clear, with nothing in either project
-able to report it. **One hop instead of two, so the middle copy cannot lag
-again.** `gplsrc/sdclilib/VENDORING.md` was rewritten around the new direction
-rather than deleted; read it before syncing anything.
+***DELETED BY THE OWNER, 4 Sep 2026, AND THE WHOLE "IN SYNC" QUESTION WENT WITH
+THEM.*** PRE_RELEASE **161**. His words: *"delete both `..\winsdclilib` and
+`..\sdclilib32` — I will delete the github repositories."* **Both working trees
+are gone from `C:\Users\dmont\Projects`**, verified after the removal; both were
+clean, with nothing uncommitted and nothing unpushed. **Their documentation was
+salvaged first** into `SDCoreWindowsDocs/analysis/client-dll-docs/`, for review
+by entry 80 — including the 32-bit/QMClient README, which existed nowhere else.
+
+***WHAT REPLACED THEM IS A BUILD, NOT ANOTHER CHECK.*** `make sd` now compiles
+all four client DLLs from `gplsrc/sdclilib/` and the installer ships them; the
+QM-specific source (`qmcompat.c`, `qmclilib.def`, `qmclilib.h`,
+`tests/qm_alias_test.c`) came into this tree with the build. **One source, one
+build, so divergence has nowhere to happen** — and `gplbld/check-client-sync.py`
+was deleted with them, because the question it asked cannot be asked any more.
+
+***DO NOT RE-CREATE EITHER TREE.*** The arrangement they existed for — a mirror
+and a downstream 32-bit build, kept in step by hand — is what let the 32-bit
+client **ship sending passwords in clear**, built from a `winsdclilib` that had
+not moved since 15 Aug, *"with nothing in either project able to report it"*.
+That is the defect 161 removed. `gplsrc/sdclilib/VENDORING.md` still describes
+the vendoring from upstream, which is a different question and stands.
 
 | Path | What it is | Our duty |
 |---|---|---|
 | `../sdb64` | upstream Linux project, `main` + `origin/dev` | **read-only.** Fixes it needs go in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) |
-| `../winsdclilib` | **a mirror of `gplsrc/sdclilib/`**, not its source | **push to it** when the client changes here |
-| `../sdclilib32` | the 32-bit `qmclilib.dll` for mvDeveloper. **Holds no source** — its `Makefile` `SRCDIR` points into this tree | build and test it after a client change |
-| this repository | the port, and the client library's home | — |
+| `../SDCoreWindowsDocs` | the documentation library | add documentation for entry 80 to review; it has no no-binaries rule |
+| this repository | the port, and the client library's only home | — |
 
 **32-bit is a shipping constraint, not a test convenience** — mvDeveloper needs
 it, and `qmclilib.dll` must stay a single file that can be copied beside an
-application, which is what chose PBKDF2 over Argon2 for SCRAM.
+application, which is what chose PBKDF2 over Argon2 for SCRAM. **That constraint
+is unchanged and is now met from here**: `make sd` builds it, `make check` runs
+the alias test against it, and the installer puts it in
+`usr\clients\client32`.
 
 ***THE LINUX CLIENT IS REMOVED FROM THE PROJECT — owner, 23 Aug 2026.***
 *"This build is windows only and I think the number of users that want to
@@ -11279,9 +11298,17 @@ two hops away and nothing compares it.**~~ ***BOTH HALVES ARE STALE, corrected
 `SRCDIR ?= ../sd4windows/sdb_ai/sd64/gplsrc/sdclilib` and its own comment at
 :36 records the change — *"19 Aug 26 - REPOINTED FROM ../winsdclilib TO THE SD
 FOR WINDOWS TREE"* — so it has been **one hop since the same day the mirror
-was**. And [check-client-sync.py](sdb_ai/sd64/gplbld/check-client-sync.py) now
-compares it, including a check that `SRCDIR` has not gone back via the mirror.
+was**. And `check-client-sync.py` compared it, including a check that `SRCDIR`
+had not gone back via the mirror.
 **The claim outlived its own fix by a week in the file that recorded the fix.**
+
+***ALL OF THAT IS HISTORY AS OF 4 Sep 2026 AND IS KEPT ONLY FOR THE LESSON.***
+PRE_RELEASE **161**: both sibling repositories are deleted, `check-client-sync.py`
+with them, and `make sd` builds every client DLL from this tree. **There is no
+hop count any more because there is no second copy** — see §2's sibling-repository
+section. The lesson that survives is the one the fix kept re-learning: a
+comparison between hand-kept copies is a worse answer than a build that cannot
+produce two.
 
 **THE SAME CONSTANT LIVES IN A DOZEN PLACES ACROSS THESE TREES**, and that is
 not hypothetical: it is how the `SV_EMSG_PAIR`/`SV_ECONTXT` transposition

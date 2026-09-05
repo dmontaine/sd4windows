@@ -501,9 +501,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
    `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`,
    `test-wraptext-units`, `test-upgradevoc-units`,
-   `test-privundetermined-units`, `check-client-sync.py`.
-   ***ALL THIRTY-TWO. Run these on
-   every change*** — **about 41 s for the whole set**, measured 4 Sep 2026, each
+   `test-privundetermined-units`.
+   ***ALL THIRTY-ONE. Run these on
+   every change*** — **about 37 s for the whole set**, measured 4 Sep 2026, each
    in its own process. A whole suite run has already been spent twice discovering
    what one
    of them names in a second. **`test-retired-wording-units` is the wording
@@ -613,16 +613,23 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    lines** — so it went red against a working wrapper. Same class as anchoring
    on a string the failure also carries.
 
-   ***`check-client-sync.py` JOINED IT 4 Sep 2026 AND IT IS THE OLDEST GUARD ON
-   THE LIST — IT HAD SIMPLY NEVER BEEN ON ONE.*** PRE_RELEASE 160. It compares
-   the API client across the three trees, and it fired only when somebody
-   thought of it, which is entry 82's shape exactly. **What it protects is worth
-   the second it costs**: its own header records the 32-bit client *shipping
-   passwords in clear*, built from a `winsdclilib` that had not moved for five
-   days, *"with nothing in either project able to report it"*. ***A MACHINE
-   WITHOUT THE TWO SIBLING CLONES GETS exit 2***, which is a refusal rather than
-   a failure — the client trees are part of the project and a full checkout has
-   all three.
+   ***`check-client-sync.py` JOINED THIS LIST AND LEFT IT ON THE SAME DAY,
+   4 Sep 2026, AND THE REASON IS WORTH THE PARAGRAPH.*** PRE_RELEASE 160 put it
+   here; PRE_RELEASE **161** deleted it. It compared the API client across three
+   trees, because one source produced five DLLs and only one of them was built
+   automatically — the other four were hand-built in `../winsdclilib` and
+   `../sdclilib32`, and were **fifteen days stale** when measured, with the
+   older copy winning on `PATH`. **What its absence had already cost is the
+   reason 161 was worth doing**: the 32-bit client *shipped sending passwords in
+   clear*, built from a mirror with no SCRAM in it, *"with nothing in either
+   project able to report it"*.
+
+   ***161 DID NOT RETIRE THE CHECK, IT RETIRED THE DEFECT.*** `make sd` now
+   builds all four DLLs from the one source, the owner deleted both sibling
+   repositories, and there is no second copy left to be out of sync with. **A
+   build that cannot diverge beats a check that reports divergence** — which is
+   the shape to reach for when a guard here starts looking permanent. The
+   deleted script's own history is in HISTORY.md and in entries 160 and 161.
 
    ***`test-privundetermined-units` JOINED IT 4 Sep 2026 IN THE COMMIT THAT
    CREATED IT, AND IT COSTS 0.5 s.*** It guards `gplbld/verify-privundetermined.ps1`,

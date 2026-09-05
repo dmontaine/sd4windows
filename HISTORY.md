@@ -48158,3 +48158,51 @@ grant check as an ordinary unelevated user.  NOTHING IN THE PRODUCT CALLS IT -
 the sd.c and win32pipe.c mentions are the server side answering it - so removal
 is possible; whether the transport is worth keeping for anything else is the
 owner's call.
+
+## 4 Sep 2026 - 161 closed: both client repositories deleted, and the check that watched them deleted with them
+
+CYCLED AND VERIFIED ON THE INSTALL.  18:49:35, sd.exe E13C8C26FB2681F7,
+assert-current exit 0.  C:\Program Files\SD\usr\clients\client64 holds
+sdclilib.dll and sdclient.dll, client32 holds qmclilib.dll and qmclient.dll,
+and usr\bin carries the 64-bit pair with both import libraries beside sd.exe.
+That is 161's whole claim, read off the installed tree rather than the staging
+one.
+
+THE LAST TWO QUESTIONS WERE RULED.  (b) "just the dlls" - so usr\clients holds
+four DLLs and nothing else, no import libraries and no headers.  (c) "delete
+both ..\winsdclilib and ..\sdclilib32 - I will delete the github repositories."
+
+BOTH WERE CHECKED CLEAN BEFORE THE REMOVAL RATHER THAN AFTER: no uncommitted
+changes, no unpushed commits, both on master with their remotes set.  A delete
+that turns out to have destroyed local work is not recoverable by apologising
+for it afterwards.
+
+THE DOCUMENTATION WAS SALVAGED FIRST, on the owner's instruction the same day -
+"documentation can be added to our documentation library for review and
+inclusion by task 80 where appropriate".  It went to
+SDCoreWindowsDocs/analysis/client-dll-docs/ with a README recording provenance,
+committed there as 04400be.  THREE FILES EXISTED NOWHERE ELSE: the 32-bit
+QMClient README (248 lines, the only written account of why the export table
+answers to both name sets and why the DLL is -static-libgcc), the rendered PDF,
+and generate_pdf.py.  tools/sd_connect.c went with them because it is not
+documentation and deleting the repository would otherwise have destroyed it.
+THE PDF IS ON DISK BUT NOT TRACKED - that repository's own .gitignore excludes
+*.pdf as rendered output, and it is regenerable from the guide beside it.
+
+AND THE SALVAGE FOUND SOMETHING FOR 80 AND 163.  The two USER_GUIDE.md copies
+said OPPOSITE things about SDConnectLocal - gplsrc's "is provided" against the
+mirror's "does not provide" - and after 161 both are wrong.  The mirror's
+sentence predated the implementation, so it was stale rather than considered,
+but it is accidentally closer to what a reader needs.
+
+check-client-sync.py IS DELETED WITH THEM AND THE FREE LIST IS 31, NOT 32.  It
+compared the API client across three trees; two of them no longer exist, and it
+exited 2 - a refusal - the moment they went.  CLAUDE.md's list, its paragraph,
+assert-current's $neverShipped and PROJECT_STATUS section 2 were all updated in
+the same commit.  THE WORDING THAT MATTERS IS IN CLAUDE.md: 161 did not retire
+the check, it retired the defect.  One build now makes every DLL from one
+source, so divergence has nowhere to happen - which is the shape to reach for
+when a guard starts to look permanent.
+
+31 of 31 free checks green in 38.2 s.  assert-current exit 0 after the deletion,
+so nothing on $neverShipped was left dangling.
