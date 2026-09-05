@@ -328,6 +328,33 @@ records this class of overrun already costing a session.
 **Found on the way and fixed in the same commit: [174](#), the `clparse`
 bound.** Checking that six tokens still fit is what turned it up.
 
+### ***THE DOCUMENTATION IS WRITTEN AND IT DESCRIBES THE FIXED BEHAVIOUR***
+
+Owner's instruction the same day: *"the documentation needs to be updated with
+the information about not changing executions policy - what happens if they
+do?"* Written in `SDCoreWindowsDocs`, commit `a7cd039`, two pages:
+**`Administrator/09-the-installed-scripts`** carries the section and the
+answer as a table, and **`GettingStarted/13-hardening`** a short version,
+because a reader TIGHTENING a machine arrives there and needs to know it will
+not break SD. `checklinks` 0 broken in both sets; HTML and PDF re-rendered.
+
+***SO THESE TWO PAGES ARE NOW A DEPENDENCY OF THIS ENTRY.*** They state that
+SD is unaffected by the machine's execution policy — which is **true of the
+built binary and has not been run**. **If the guest witness fails, the pages
+are wrong and must be corrected in the same breath as this row.**
+
+**What the pages claim, and on what evidence:**
+
+| claim | basis |
+|---|---|
+| the per-process switch overrides `LocalMachine` | **measured 5 Sep 2026** — `LocalMachine` is `RemoteSigned` here and would have allowed the probe; `-ExecutionPolicy Restricted` refused it |
+| **Group Policy overrides the per-process switch**, and stops SD | ***documented Windows behaviour, NOT measured*** — measuring it means setting a policy on this machine. It is the one claim on those pages taken on documentation rather than observation |
+
+**They also say the thing a user would not guess**: the `sh` verb still opens
+a prompt under the machine's own policy, because SD lifts the restriction only
+for the scripts it installed itself. That follows from the ruling above —
+`SH1` only — and is the user-facing half of it.
+
 **Length is not a constraint:** `MAX_SH_CMD_LEN` is 255 and `config.h:82`
 records the current `SH1` default as 93 characters. ` -ExecutionPolicy Bypass`
 adds 24, giving 117.
