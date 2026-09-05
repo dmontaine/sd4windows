@@ -181,7 +181,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > A RUN, NONE ON A DECISION.*** `make sd` **exit 0, no warnings**, all three
 > changed objects verified rebuilt by mtime. ***32 of 32*** free guards green in
 > **42 s**. ***THE BASIC HAS NOT BEEN COMPILED*** and no verifier step exists
-> yet. ***NEXT FREE PRE_RELEASE ID 168. `b115`–`b119` ARE SPENT — RUN `b120`.***
+> yet. ***NEXT FREE PRE_RELEASE ID 169. `b115`–`b119` ARE SPENT — RUN `b120`.***
 >
 > ### ***WHERE TO START: COMPILE THE BASIC. IT IS THE CHEAP CHECK AND IT IS THE ONLY THING BLOCKING `b120`.***
 >
