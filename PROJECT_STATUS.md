@@ -223,6 +223,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **The guest rig — task table 7.2 — is what closes it**, and until then 173
 > stays open however green the suite is.
 >
+> ***THE DOCUMENTATION IS WRITTEN AND IS A DEPENDENCY OF 173, NOT A SEPARATE
+> TASK.*** Owner's instruction the same day. `SDCoreWindowsDocs` `a7cd039`:
+> **`Administrator/09-the-installed-scripts`** carries the section and answers
+> *"what happens if they change it"* as a table,
+> **`GettingStarted/13-hardening`** the short version for the reader who is
+> **tightening** a machine. `checklinks` 0 broken in both sets; HTML and PDF
+> re-rendered and the README's staleness check is clean. ***THOSE PAGES STATE
+> THE FIXED BEHAVIOUR, WHICH HAS NOT RUN — if the guest witness fails they are
+> wrong and must be corrected with the row.*** **One claim on them is
+> documented rather than measured and 173 says which**: that Group Policy
+> overrides the per-process switch. **Measuring it means setting a policy on
+> this machine, so it was not done.**
+>
 > ***174 CAME OUT OF CHECKING 173 WAS SAFE, AND IS FIXED IN THE SAME COMMIT.***
 > `op_sh.c:461` passed `clparse` a bound of 9 and then wrote `argv[i]` and
 > `argv[i+1]` into a **ten**-pointer array, so a configured `SH1` of nine or
