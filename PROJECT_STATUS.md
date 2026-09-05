@@ -529,7 +529,8 @@ for a cold agent that will act on this: terse, factual, `file:line` over
 description. No emphasis for effect, no narrative, no argument. The `changelog`
 is the exception and stays plain English for users.
 
-> ***THE MOJIBAKE SCAN OF THIS FILE HAS AN EXPECTED VALUE, AND IT IS ONE.***
+> ***THE MOJIBAKE SCAN HAS AN EXPECTED VALUE OF ONE, AND SINCE 5 Sep 2026 THE
+> FILE IT APPLIES TO IS [HISTORY.md](HISTORY.md), NOT THIS ONE.***
 > Owner, 30 Aug 2026: *"every review of PROJECT_STATUS wonders about the
 > mojibake"* — so the answer lives here instead of being re-derived. **A
 > double-encoding scan** — `grep -a -o` for the CP1252-through-UTF-8 lead bytes
@@ -540,9 +541,18 @@ is the exception and stays plain English for users.
 > ***SO THE READING IS: 1 IS CORRECT, 0 MEANS SOMEBODY "FIXED" THE EVIDENCE, AND
 > 2 OR MORE IS REAL DAMAGE.*** A bare *"this is fine"* note would have settled
 > the first reading and left the other two unanswerable, which is why it is
-> written as a count. **Do not paste the sequence into any new prose here** —
-> naming the bytes keeps the expected value at 1, and a second literal copy would
-> break the check this paragraph exists to make cheap.
+> written as a count. **Do not paste the sequence into any new prose in either
+> file** — naming the bytes keeps the expected value at 1, and a second literal
+> copy would break the check this paragraph exists to make cheap.
+>
+> ***THE COUNT MOVED BECAUSE THE ENTRY DID, AND THE TOTAL IS UNCHANGED.*** The
+> 21 Aug 2026 entry sat inside START HERE's superseded handoff stack, which was
+> archived into HISTORY.md on 5 Sep 2026. **Measured either side of the move:
+> `PROJECT_STATUS.md` 1 → 0, `HISTORY.md` 0 → 1.** So **this file now expects
+> 0**, like every other tracked file, and HISTORY.md is the one with the
+> exception. **A paragraph stating an expected value is itself something that
+> goes stale when the thing it counts is moved** — this one did, in the same
+> session, and was caught only because the move's own encoding check read it.
 >
 > **The same is NOT true of `PRE_RELEASE_FIXES.md`, `HISTORY.md` or any script:
 > there the expected count is 0.** Measured 30 Aug 2026 across all three. The
