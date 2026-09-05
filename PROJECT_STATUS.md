@@ -175,6 +175,65 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 37, 5 Sep 2026 — ***q14 IS ANSWERED AND IT IS A DEFECT, NOT A CAVEAT: AN ADMINISTRATOR REACHES AN ELEVATED SHELL OVER ssh. RULED, ROADMAPPED, NOT STARTED. `b119` WAS GREEN IN BOTH HALVES.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***OPEN 3: 165, 166, 167.*** `b119` **green in
+> both halves** — 23 of 23 unelevated, 25 of 25 elevated, `post-cycle-elevated
+> exited 0`. `assert-current` **exit 0**; **32 of 32** free checks green in
+> ~31 s (`test-elevonce-units` is the new one, 60/0);
+> `test-fixlist-units` **269/0**; `check-stale-leads` **exit 0**.
+> ***NEXT FREE PRE_RELEASE ID 168. `b115`–`b119` ARE SPENT — RUN `b120`.***
+>
+> ### ***WHERE TO START: PRE_RELEASE 167's DETAIL SECTION. IT IS THE ROADMAP AND IT WAS WRITTEN THE NIGHT IT WAS RULED.***
+>
+> Do not re-derive it. It carries the rule, the measured signal, the trap, the
+> order, and the two open decisions. **The trap is the one thing that would
+> otherwise cost a session**: the interactive test goes at `kernel.c:251`'s
+> seed, ***NOT*** inside `IsElevated()`, because `sdwind.c:295` shells out to
+> `sd -cleanup` as LocalSystem and gating `IsElevated()` would break
+> `check_lost_users()` — the path whose failure already cost an install.
+>
+> **Owner's ruling, 5 Sep 2026**: administration happens at the console, or
+> through a remote-control product or single-user remote desktop. Not ssh, not
+> the API. *"Remote admin through api or ssh is just a security nightmare
+> waiting to happen."* §5.25 carries the decision; 167 carries the work.
+>
+> ***THE API NEEDS NO WORK — `CN_SOCKET` ALREADY EXCLUDES IT.*** Verify it,
+> do not build it.
+>
+> ### ***WHAT WAS MEASURED, AND IT REVERSED WHAT THIS FILE BELIEVED***
+>
+> q14 said an administrator over ssh would get a **filtered** token and be
+> unable to reach SDSYS — *"nobody gets extra access, the failure is that an
+> administrator gets less."* **The opposite.** `WHO` answered `3 SDSYS`,
+> `LIST ACCOUNTS` listed the register, and `sh` gave an elevated PowerShell:
+> `S-1-16-12288` High, `BUILTIN\Administrators` **enabled rather than
+> deny-only**, `NT AUTHORITY\NETWORK` in the same token, with
+> `LocalAccountTokenFilterPolicy` **NOT SET**. **The cause is OpenSSH, not SD** —
+> sshd runs as LocalSystem and builds the token itself. **A control ran first**
+> (the same account at an elevated console answered `2 SDSYS`) and the transport
+> was proven by the process chain, not assumed.
+>
+> ### ***THE ELEVATE-ONCE WORK: DONE, WITNESSED, AND ONE DEFECT FOUND BY ITS OWN GUARD***
+>
+> PRE_RELEASE **165** took the suite from ~7 consents to 1. On `b119` it asked
+> **three**, and the cause is recorded: `-HelperPipe` and `$script:helperPipe`
+> are **the same variable** — PowerShell names are case-insensitive — so two
+> verifiers wiped the parameter they had just been handed, started helpers of
+> their own and killed the run's consent. **Fixed by renaming; `b120` witnesses
+> the one-prompt claim.** ***THE LINT WRITTEN FOR IT FOUND A SECOND, OLDER
+> INSTANCE ON ITS FIRST RUN*** — PRE_RELEASE **166**, `$script:saveFile` against
+> `-SaveFile` in `verify-osusers.ps1`, latent data loss behind a green check.
+>
+> ### ***THE SUITE COSTS ONE CONSENT NOW, SO IT IS CHEAPER TO RUN THAN THE RECORD SAYS***
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b120 -ThenElevated
+> ```
+>
+> **In your own ORDINARY, UNELEVATED terminal.** `-NoHelper` puts back the
+> prompt-per-step route on both runners if the new one misbehaves.
+>
 > # ⇩⇩⇩ HANDOFF 36, 4 Sep 2026 — ***THE ELEVATE FIX IS WRITTEN AND UNRUN. THE SUITE ASKS FOR ONE UAC CONSENT INSTEAD OF ABOUT SEVEN. `-Run b119` IS THE ONLY THING LEFT AND IT IS THE OWNER'S TO RUN.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** ***OPEN 1: PRE_RELEASE 165, AND IT IS OPEN ONLY
@@ -14292,6 +14351,53 @@ decided, and all but the service registration are done:**
 elevated, which is exactly what the OS account commands need (§5.6) — so
 creating the initial accounts is something the installer can do and a normal
 session cannot.
+
+### 5.25 Administration requires an interactive desktop (owner, 5 Sep 2026)
+
+***THE RULE.*** Administrative work happens **at the console, or through a
+remote-control product or single-user remote desktop**. **Not over ssh, and not
+over the API.** Owner, 5 Sep 2026: *"Remote admin through api or ssh is just a
+security nightmare waiting to happen."*
+
+***THE PRINCIPLE BEHIND IT, WHICH IS WHAT MAKES IT MECHANICAL.*** Administration
+requires a session where **UAC can render** — a real interactive desktop. That
+is what makes an elevation *consented to by a person* rather than merely
+granted. ssh and the API have no desktop, so any elevation they obtain is
+unconsented.
+
+***IT WAS RULED ON A MEASUREMENT, NOT A PREFERENCE, AND THE MEASUREMENT
+REVERSED WHAT THIS FILE BELIEVED.*** §5.6.1 and q14 said the risk was that an
+administrator over ssh would get a **filtered** token and be unable to reach
+SDSYS — *"nobody gets extra access, the failure is that an administrator gets
+less"*. **The opposite is true.** On 5 Sep 2026 an administrator ssh'd in,
+`WHO` answered `3 SDSYS`, `LIST ACCOUNTS` listed the register, and `sh` gave an
+**elevated PowerShell** — `S-1-16-12288` High, `BUILTIN\Administrators`
+**enabled rather than deny-only**, and `NT AUTHORITY\NETWORK` in the same
+token. sshd runs as LocalSystem and builds the logon token itself, so
+`LocalAccountTokenFilterPolicy` never applies to it. **PRE_RELEASE 167 carries
+the full measurement and the roadmap.**
+
+***WHAT IT SUPERSEDES.*** §5.6.2 said the console belongs to administrators and
+ssh to everyone else, and treated that as enforced by Windows —
+`sd-elevate.ps1:29-35` and `LOGIN:630` say so in as many words. **Windows was
+not enforcing it.** This decision keeps §5.6.2's intent and moves the
+enforcement into SD, where it can be tested.
+
+***AND IT REINSTATES A MODEL THAT WAS WITHDRAWN ON A FALSE PREMISE.*** PRE_RELEASE
+56's morning model of 29 Aug 2026 took ssh from administrators; clause 2 reversed
+it the same day, and `LOGIN:60` records the reason — *"Administrators keep ssh,
+which the morning's model had taken"*, on the grounds that the cost was one *"which
+UAC decides rather than a test here"*. **UAC decides nothing here.** So this is
+not overturning a considered decision; it makes true what `LOGIN` has claimed
+since 29 August.
+
+***THE PART SD CANNOT ENFORCE, AND IT BELONGS IN THE DOCUMENTATION.*** The
+owner's *"remote desktop (single user), not RDP Server on Windows Server"* is an
+SKU and deployment choice. A token distinguishes an interactive logon from a
+network one; it does not distinguish how many people may hold one. **And a
+remote-control product only qualifies if it is installed as a SERVICE** — a
+per-user install cannot render the secure desktop and the operator sees a frozen
+screen (`sd-elevate.ps1:33-35`).
 
 ### 5.24 The BASIC functions and operators, verified (31 Aug 2026)
 

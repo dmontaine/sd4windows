@@ -48485,3 +48485,77 @@ helper - so 165 stays open until a real run.  31 of 32 free checks green in
 32.6 s; the 32nd was test-fixlist-units refusing PRE_RELEASE 165 before its row
 existed, which is that guard working, and it is 265/0 now.  -Run b119 is what
 witnesses it, and -NoHelper keeps the prompt-per-step route on both runners.
+
+## 5 Sep 2026 - b119 green, and q14 turns out to be a defect.  PRE_RELEASE 165, 166, 167
+
+b119 ran while this session worked: 23 of 23 unelevated, 25 of 25 elevated,
+post-cycle-elevated exited 0.  Green in both halves.
+
+THE ELEVATE-ONCE WORK ASKED FOR THREE CONSENTS INSTEAD OF ONE, AND ITS OWN
+TRANSCRIPT DIAGNOSED IT.  One consent covered the test-account create,
+verify-osusers' four elevated phases and verify-batchjob's two - seven
+elevations on one prompt.  The three were "-HelperPipe" and
+"$script:helperPipe" being THE SAME VARIABLE, because PowerShell names are
+case-insensitive: verify-doors-suite and verify-sdsyswrite each bound the
+runner's pipe and then assigned '' to what looked like a private variable,
+wiping it.  Both started helpers of their own; the first one's Stop killed the
+runner's, and the handover fell back - "elevated route: runas" in its own words.
+verify-osusers and verify-batchjob have no such variable and adopted correctly,
+which is why the split looked inexplicable until the names were compared.
+
+IT FAILED THE QUIET WAY.  Every step passed.  The only symptom was that the run
+went on asking, and nobody reads that as a defect.  Renamed to $script:elevPipe;
+b120 witnesses the one-prompt claim.
+
+THE LINT WRITTEN FOR IT FOUND AN OLDER INSTANCE ON ITS FIRST RUN - PRE_RELEASE
+166.  $script:saveFile against the -SaveFile parameter in verify-osusers.ps1,
+six sites.  Benign only by ordering: the -Phase blocks exit before reaching the
+assignment, so the elevated child never wiped its own argument.  Move that line
+up and the Revoke phase restores nothing - the real os.users record stays
+deleted while the verifier reports its cleanup as done.  The lint sweeps the
+whole directory and is general: any script assigning $script:<name> while taking
+a parameter of the same name is writing to its own parameter.
+
+q14 IS ANSWERED AND IT IS THE OPPOSITE OF WHAT WAS FEARED - PRE_RELEASE 167.
+q14 asked whether an administrator over ssh gets a FILTERED token and is
+therefore unable to reach SDSYS, and it was filed as not blocking a release on
+exactly that reasoning: "nobody gets extra access, the failure is that an
+administrator gets less".  Measured on the host: WHO answered 3 SDSYS,
+LIST ACCOUNTS listed the register, and sh gave an elevated PowerShell -
+S-1-16-12288 High, BUILTIN\Administrators ENABLED rather than deny-only, and
+NT AUTHORITY\NETWORK in the same token, with LocalAccountTokenFilterPolicy NOT
+SET.  The cause is OpenSSH, not SD: sshd runs as LocalSystem and builds the
+logon token itself, so the filtering that policy governs never applies.
+
+THE CONTROL RAN FIRST AND IS WHAT MAKES IT MEAN ANYTHING - the same account at
+an elevated console answered 2 SDSYS - and the transport was proven by the
+process chain sshd/sshd/sshd/cmd.exe/sd.exe within one second, not assumed.
+
+WHAT IT FALSIFIES: LOGIN:630 ("an ssh session is never elevated"),
+sd-elevate.ps1:29-35 ("enforced by Windows rather than by a test in SD that
+could drift"), verify-sdsysgate.ps1's header, and the shipped
+GettingStarted/08-ssh-access.md, whose caution is wrong in the dangerous
+direction.  The docs repo's last commit was f9409f9, "q14: the heading claimed a
+measurement the body denies" - yesterday the heading was corrected because the
+body was unmeasured; tonight the body became wrong.
+
+PROGRAMMERS AND STANDARD USERS DO NOT HAVE THE HOLE, AND IT WAS ALREADY TESTED.
+verify-sdsysgate ran green on b119, 10 decisive checks 0 failed, over ssh with a
+real non-administrator: refused BY IDENTITY (reason=not an administrator) and
+the elevate call was NEVER reached.  It anchors on the audit reason rather than
+message 10002, which CPROC prints on both refusal paths.
+
+RULED THE SAME NIGHT, AND THE RULE IS BROADER THAN "BLOCK ssh": administration
+requires a session where UAC can render.  Console and a service-installed
+remote-control product qualify; ssh and the API do not.  It is one token test -
+INTERACTIVE is gid 4 through getgroups(), which IsElevated() already walks,
+measured with id -Gn.  The API needs no work; CN_SOCKET already excludes it.
+5.25 carries the decision, 167's detail section carries the roadmap, and the
+trap is recorded there: the term goes at kernel.c:251's seed and NOT inside
+IsElevated(), because sdwind.c:295 shells out to sd -cleanup as LocalSystem.
+
+An earlier draft of 167 ran two questions together and called the behaviour a B
+outright.  The owner's point - that an administrator listing ACCOUNTS is exactly
+what an administrator is for - was right, and the entry was split: the false
+claims are certain and ours to fix; whether the behaviour changes was his.  He
+then ruled it should.
