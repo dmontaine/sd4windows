@@ -182,18 +182,32 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > exit 0 in ~38 s — **thirty-one, not thirty-two**, see below; `test-fixlist`
 > **264/0**; `test-stalebin` **39/0**; `make check` in `gplsrc/sdclilib`
 > **5 tests, 0 warnings**. ***OPEN 2: 80, 163 — TAKEN FROM THE CHECKER, NOT
-> FROM THIS BOX. NEXT FREE PRE_RELEASE ID 164. RUN `b115`.***
+> FROM THIS BOX. NEXT FREE PRE_RELEASE ID 164. `b115` IS SPENT — RUN `b116`.***
 >
 > ### ***WHAT IS OWED: A FULL SUITE, AND IT IS THE ONLY THING***
 >
 > ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b115
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b116
 > ```
 >
 > **An ordinary UNELEVATED prompt** — the runner raises its own elevation for
 > the second half, and several of its measurements are only valid from an
 > unelevated parent. **None has run since `b111`**, and CLAUDE.md asks for one
 > before a handoff. The cycle is already done, so nothing needs rebuilding.
+>
+> ***`b115` DIED AT STEP 6 AND LEFT `sdtub115` BEHIND — THE NEXT RUN SWEEPS IT,
+> DO NOTHING BY HAND.*** A keystroke landed on `verify-osusers` step 0a's UAC
+> dialog and cancelled it (*"The operation was canceled by the user"*), so the
+> step exited **2, COULD NOT RUN** — the instrument refusing rather than scoring
+> a false pass, which is the behaviour to expect. **`don`'s `os.users` record
+> was NOT disturbed**: the cancel came before the unlist, and it still reads 10
+> bytes at the install's own timestamp, checked. The stranded account is the
+> `b62` shape, and `VerifyInstall1:757-780` is the recovery that was built for
+> it — the pre-run sweep names any `sdtu*` orphan and **the elevated child
+> removes it in the same prompt it uses to create the new account**. ***THE
+> RUNNER COSTS ABOUT FIVE UAC PROMPTS, SO THIS CAN HAPPEN AGAIN***; consolidating
+> them behind `gplbld/sd-elevate.ps1`'s resident-helper pattern is unfiled and
+> would be CLAUDE.md's *"remove the need for a prompt"* rather than skip a step.
 >
 > ### ***WHAT 161 BUILT, AND THE ONE THING NOT TO RE-DERIVE***
 >
