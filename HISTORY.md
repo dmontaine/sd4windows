@@ -47915,6 +47915,42 @@ POSITIVE EVIDENCE that only one prompt appeared: if DELETE.ACCOUNT ever grows a
 second question, the line stops appearing and the second Y is silently doing
 real work.  verify-apiadmin.ps1 passes the same pair.
 
+## 4 Sep 2026 - 159: the block that exists to stop a green being over-read was itself wrong, twice
+
+THE OWNER READ STEP 9's "what this run did NOT reach" BLOCK AND BOTH OF ITS LAST
+TWO LINES WERE FALSE.  That block exists so "96 is covered" cannot quietly
+become true-sounding, which makes it the worst place in the file for a false
+sentence.
+
+PRIV_NO_USERNAME WAS IN THE WRONG BUCKET AND ITS WORDING READ AS A GUARANTEE.
+"no login route produces one" - but a login route is not what produces one.
+kernel.c sets my_uptr->username[0] = '\0' when GetUserName() fails and :285
+copies it into process.username, and GetUserName() is getpwuid(getuid())
+(linuxlb.c:294) - the SAME call whose failure gives PRIV_NO_PASSWD.  It belongs
+with the name-service four and is reachable on the same induced outage; listing
+it beside an arithmetic impossibility said the opposite.
+
+PRIV_PATH_TOO_LONG HAD THE RIGHT CONCLUSION ON A FALSE PREMISE, WHICH IS WORSE
+THAN BEING WRONG OUTRIGHT.  It said "sysdir is fixed".  It is not - sysdir is
+the SDSYS= line in sd.conf (config.c:306-309), so a site sets it, and a reader
+who checked would have found the sentence false with no way to tell whether the
+conclusion survived.  It does, by arithmetic, and the bound comes from the
+config READER rather than the field: fgets(rec, 200, ...) caps the line, so the
+value is at most 193 chars, and 193 + 10 + 32 = 235 against a 256 limit.  It
+cannot overflow by 21 characters, and that margin is now the claim.
+
+AND A PHANTOM DEFECT WAS NEARLY FILED ON THE WAY.  SDSYS= is a plain unbounded
+strcpy while its neighbours NETDIRS= and SH= both refuse an over-long value, the
+latter carrying a 14 Aug comment about "plain strcpy into fixed buffers"
+overrunning struct config.  It looks exactly like the one that sweep missed.  It
+is not: rec is char[201] read with fgets(rec, 200, ...), so 193 into a 256-byte
+field cannot overflow.  THE BOUND WAS MEASURED BEFORE ANYTHING WAS WRITTEN.  The
+missing check is untidy rather than a defect and is deliberately not filed.
+
+THE OUTPUT NOW SEPARATES THE TWO KINDS OF "CANNOT" - five need a fault induced,
+one is impossible on any machine.  Saying it once is what let the first error
+sit in the wrong group unnoticed.
+
 FIVE PROFILE DIRECTORIES ARE PENDING A RESTART - sdpwb112, b113, b113a, b114,
 b114a - each with its ProfileList entry kept beside it, which is the designed
 behaviour SD explained on screen and which reconcile-accounts.ps1 clears at the
