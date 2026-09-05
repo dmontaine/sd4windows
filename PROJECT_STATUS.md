@@ -217,6 +217,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **"leave it" is a legitimate answer**; prepending would put SD ahead of
 > `System32`, which is a bigger change than the problem.
 >
+> # ⇩⇩⇩ HANDOFF 38, 5 Sep 2026 — ***REMOTE ADMINISTRATION IS SHUT OVER ssh AND WITNESSED. 165, 166, 169 AND 167's PRODUCT HALF ALL CLOSED ON `b122`/`b123`. THE API HALF OF THE SAME RULING IS NOT BUILT — THAT IS 170, AND IT NEEDS ONE ANSWER FROM THE OWNER.*** ⇩⇩⇩
+>
+> ***EVERYTHING BELOW THIS LINE IS HANDOFF 38 AND IS SUPERSEDED BY 39 ABOVE.***
+> Its open items — 168, 170, and 167's documentation half — are all closed now,
+> and its "170 needs a ruling before it can be built" and "WHAT IS OWED" are
+> answered. It is kept because a handoff is a record of what a session handed
+> over, not a description of today.
+>
+> ***THE STATE, IN ONE LINE.*** ***`b123` RAN THE FULL SUITE: 23 OF 23
+> UNELEVATED, 25 OF 26 ELEVATED, AND THE ONE RED WAS A VERIFIER ASSERTING A
+> MESSAGE THIS SESSION RETIRED — FIXED.*** **165, 166, 169 and 167's product
+> half are all DONE AND WITNESSED.** ***OPEN 3: 167's DOCUMENTATION HALF, 168,
+> AND 170 — WHICH IS THE ONE THAT NEEDS A RULING.*** ***32 of 32*** free guards
+> green. ***NEXT FREE PRE_RELEASE ID 171. `b115`–`b123` ARE SPENT — RUN
+> `b124`.***
+>
 > ***165 IS MEASURED, NOT INFERRED: "just one uac prompt" for the whole run***,
 > owner, 5 Sep 2026 — about seven consents down to one across 49 steps. The
 > transcript had said the right things on `b119` too and still asked three
