@@ -48261,3 +48261,76 @@ failed.
 
 b117 IS GREEN IN BOTH HALVES: 22 of 22 unelevated, 25 of 25 elevated,
 assert-current exit 0, 31 of 31 free checks.  b115, b116 and b117 are spent.
+
+## 4 Sep 2026 - 163 closed: the removal was withdrawn, and the entry turned out to be about coverage
+
+THE PROPOSAL EXPIRED BEFORE IT WAS FILED AND THE ENTRY SHOULD HAVE SAID SO.
+The owner's three statements came in this order: windows applications always
+use the API; "SDConnectLocal is not available - in fact it should probably be
+removed from the API entirely"; and then "I realized I can make one change that
+solves the connect local problem, the 64 bit dlls should be in the usr\bin
+directory".  The second was made while it looked unavailable and the third is
+the fix for exactly that, so the premise died in his own next message - and 163
+carried the proposal forward anyway.  He asked the obvious question: "why do we
+need to remove SDConnectLocal, we have the dlls needed next to sd so it should
+work".
+
+IT WORKS, MEASURED AGAINST THE INSTALLED TREE.  DON admitted with a real
+session - WHO -> 1 DON - and SDSYS refused with "User not allowed in requested
+account", exit 0.
+
+AND THE REMOVAL WOULD NOT HAVE BEEN SMALL: not one entry point but a second
+transport - is_local, the pipe pair, two CreatePipe calls and a CreateProcessA
+with an inherit-handle attribute list, read and write branching on is_local,
+sd.c:435-451 decoding -C<txfd>!<rxfd> for this caller, gplsrc/win32pipe.c, and
+request type 25 in APISRVR's dispatch table.
+
+WHAT THE ENTRY TURNED OUT TO BE ABOUT IS COVERAGE.  SDConnectLocal is the ONLY
+route into SD that sends no password at all: vb.local.login takes the identity
+from the process owner, so the whole access decision is the grant check.  That
+check was exercised by "make check-local", by hand, on one machine, and by
+nothing in either half of the suite.  gplbld/verify-localconnect.ps1 is now a
+step in VerifyInstall1 - unelevated, because the identity tested is the
+caller's, and it refuses an elevated shell rather than answering.  make sd
+builds its binary, so it cannot go missing the way 164's did.
+
+THREE INSTRUMENT DEFECTS WERE FOUND WHILE BUILDING IT, ALL BEFORE IT RAN.
+
+  1  The test hardcoded the account "DON" - PRE_RELEASE 54's fixed-prefix trap,
+     which passes here and fails on every other machine.  It takes an argument
+     now and refuses the null case, because a run with no treatment would test
+     only the SDSYS control and read as a pass.
+
+  2  make check-local's refusal shared exit code 2 with the BINARY's "SDSYS was
+     ADMITTED", so the first script written against it reported a broken grant
+     check because an argument was missing.  THE DEEPER FINDING IS THAT make
+     COLLAPSES EVERY RECIPE FAILURE TO ITS OWN EXIT 2 whatever the recipe
+     exited - it printed "Error 4" and exited 2 - so make's code carries one
+     bit, "something failed".  The verifier runs the binary directly and never
+     through make.
+
+  3  $PSScriptRoot IS EMPTY IN A param() DEFAULT UNDER [CmdletBinding()] WHEN
+     THE SCRIPT RUNS AS A CHILD PROCESS.  Measured both ways: populated under
+     "& script", empty under "powershell.exe -File script", and populated
+     either way without [CmdletBinding()].  THE FAILURE IS A Join-Path BINDING
+     ERROR BEFORE THE BODY RUNS, so the script prints nothing at all - no
+     banner, no echoed inputs, no refusal.
+
+     IT WAS ALREADY LATENT IN 164's TWO VERIFIERS, and green, because both
+     runners invoke verifiers in-process with "&" - while every elevated child
+     in this project is launched with Start-Process -ArgumentList '-File',
+     which is the form that breaks.  All three now default empty and resolve in
+     the body from $MyInvocation, which is populated either way.
+
+THE DOCUMENTATION HALF WAS SAYING THE OPPOSITE IN TWO PLACES.  gplsrc/sdclilib
+README.md and USER_GUIDE.md both said SDConnectLocal "is provided" flatly,
+while the deleted winsdclilib mirror said it "does not provide" it - the mirror
+stale rather than considered, but accidentally closer to what a reader needs.
+Both now say where it works (usr\bin, beside sd.exe), where it does not (a DLL
+copied out of usr\clients\client64), that the 32-bit pair never had it, and
+that an application should use the API to 127.0.0.1.
+
+THE VERIFIER INVENTORY WAS RE-DERIVED RATHER THAN ADJUSTED, per VerifyInstall1's
+own rule, and it was stale in TWO columns rather than one: 49 verify-*.ps1 in
+the directory, 20 named in VerifyInstall1, 25 in VerifyInstall2, four correctly
+in neither, none in both.

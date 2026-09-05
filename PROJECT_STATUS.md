@@ -175,15 +175,68 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***GREEN IN BOTH HALVES ON `b117`, 22 AND 25 STEPS, EVERY ONE exit 0. 161 DONE: `make sd` MAKES ALL FOUR CLIENT DLLs, THE INSTALLER SHIPS THEM IN `usr\clients`, AND BOTH CLIENT REPOSITORIES ARE DELETED. 162 AND 164 FOUND AND FIXED — BOTH INSTRUMENTS, NEITHER THE PRODUCT. 163 FILED AND NEEDS A RULING. OPEN 2: 80, 163. NOTHING IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***161, 162, 163 AND 164 ALL CLOSED. OPEN IS 1: 80, THE DOCUMENTATION AUDIT, AND THE OWNER SCHEDULED IT FOR THE 1.0 WRAP-UP. `make sd` MAKES ALL FOUR CLIENT DLLs, BOTH CLIENT REPOSITORIES ARE DELETED, AND SDConnectLocal HAS A STANDING TEST FOR THE FIRST TIME. A CYCLE AND A SUITE ARE OWED.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** Install **4 Sep 19:49**, `assert-current`
-> **exit 0**; ***`b117` GREEN IN BOTH HALVES*** — 22 of 22 unelevated, 25 of 25
-> elevated; ***31 of 31*** free checks exit 0 in ~38 s — **thirty-one, not
-> thirty-two**, see below; `test-fixlist` **264/0**; `test-stalebin` **40/0**;
-> `make check` in `gplsrc/sdclilib` **5 tests, 0 warnings**. ***OPEN 2: 80, 163
-> — TAKEN FROM THE CHECKER, NOT FROM THIS BOX. NEXT FREE PRE_RELEASE ID 165.
+> ***THE STATE, IN ONE LINE.*** ***31 of 31*** free checks exit 0 in ~37 s —
+> **thirty-one, not thirty-two**, see below; `test-fixlist` **264/0**;
+> `test-stalebin` **40/0**. ***`assert-current` IS EXIT 1 AND THAT IS CORRECT***
+> — `gplsrc\sdclilib\Makefile` is newer than the install. ***OPEN 1: 80 —
+> TAKEN FROM THE CHECKER, NOT FROM THIS BOX. NEXT FREE PRE_RELEASE ID 165.
 > `b115`, `b116`, `b117` ARE SPENT — RUN `b118`.***
+>
+> ### ***WHAT IS OWED, IN ORDER***
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **Elevated PowerShell.** Then, in an **ordinary UNELEVATED** prompt, the new
+> step on its own before spending a token on the whole suite — it is free, needs
+> no prefix and raises no UAC prompt:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-localconnect.ps1
+> ```
+>
+> Then the full suite, **also unelevated**:
+>
+> ```powershell
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b118
+> ```
+>
+> ***`b117` WAS GREEN IN BOTH HALVES*** — 22 of 22 and 25 of 25 — **but that was
+> before 163's changes**, so it does not cover them. The unelevated half is
+> **23 steps** now.
+>
+> ### ***163 CLOSED, AND THE REMOVAL WAS WITHDRAWN RATHER THAN DONE***
+>
+> ***DO NOT RE-OPEN THE QUESTION OF REMOVING `SDConnectLocal`.*** The proposal
+> was made while it looked unavailable and the owner's **next** message fixed
+> exactly that, by putting the 64-bit DLLs in `usr\bin`. His words on being
+> shown it: *"why do we need to remove `SDConnectLocal`, we have the dlls needed
+> next to sd so it should work"* — **and it does, measured**: `DON` admitted
+> with `WHO -> 1 DON`, `SDSYS` refused. Removing it would have taken a second
+> transport, `sd.c`'s `-C` decoding, `win32pipe.c` and **request type 25** with
+> it.
+>
+> **What the entry turned out to be about is COVERAGE.** `SDConnectLocal` is the
+> only route into SD that sends **no password at all** — `vb.local.login` reads
+> the process owner — and its grant check was exercised by `make check-local`,
+> by hand, and by **nothing in either half of the suite**.
+> `gplbld/verify-localconnect.ps1` is now a step in `VerifyInstall1`, unelevated
+> because the identity tested is the caller's, and it **refuses an elevated
+> shell rather than answering**.
+>
+> ***THREE INSTRUMENT DEFECTS WERE FOUND BUILDING IT AND ONE IS WORTH CARRYING
+> ANYWHERE***: `$PSScriptRoot` is **EMPTY in a `param()` default under
+> `[CmdletBinding()]` when a script runs as a CHILD PROCESS** (`-File`) and
+> populated in-process (`&`). It was already latent in 164's two verifiers,
+> green only because the runners use `&` — while every `Start-Process
+> -ArgumentList '-File'` here is the form that breaks, failing during parameter
+> binding so the script prints **nothing at all**. The other two: the test
+> hardcoded the account `DON`, and `make` collapses every recipe failure to its
+> own exit **2**, so a caller reading make's code read *"SDSYS was ADMITTED"*
+> from a missing argument.
 >
 > ### ***164, AND IT IS THE ONE TO READ IF YOU READ ONLY ONE***
 >
