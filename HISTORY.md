@@ -48559,3 +48559,104 @@ outright.  The owner's point - that an administrator listing ACCOUNTS is exactly
 what an administrator is for - was right, and the entry was split: the false
 claims are certain and ours to fix; whether the behaviour changes was his.  He
 then ruled it should.
+
+================================================================================
+5 Sep 2026 - PRE_RELEASE 167 BUILT: AN ADMINISTRATOR GETS NO ssh AND NO API
+SESSION AT ALL.  THE ROADMAP THE PREVIOUS SESSION LEFT DID NOT ACHIEVE ITS OWN
+RULING, AND THE OWNER CAUGHT IT BY PRODUCING THE TRANSCRIPT.
+================================================================================
+
+THE DOCUMENT ARGUED AGAINST ITS OWN AUTHOR'S CONCLUSION, AND THAT IS THE ENTRY
+WORTH READING.  The session that wrote 167 had already established, in the
+transcript, that "gating only LOGIN's seed wouldn't hold: the process token
+really is elevated, so logto sdsys would still succeed".  The word "logto"
+appeared NOWHERE in entry 167 - index row or roadmap.  What went in was the
+opposite in bold, "the term goes at kernel.c:251's seed", and PROJECT_STATUS's
+handoff box repeated it as the trap that would otherwise cost a session.  The
+transcript's recommendation - "trace every IsElevated() caller and list the
+enforcement points" - became the one word "1. Trace".
+
+WHAT IT COST: this session traced it from scratch, found the same thing, put it
+to the owner - and was then talked back to the narrow fix TWICE by the document
+before he produced the transcript.  The lesson is not "write it down", because
+it was written down.  A roadmap must carry the objection to itself or it reads
+as settled.
+
+THREE DOORS REACH SDSYS AND THE SEED IS READ BY ONE.  LOGIN:675's landing case
+reads it.  CPROC:2707 (logto sdsys) and CPROC:4072 (int.logto) gate on
+K$OS.ADMINISTRATOR and sd_admin_tier and never read the seed - and CPROC:2858
+SETS the seed on entering SDSYS, so a session refused the landing got everything
+back by typing one command.  elevate('START') could not stop it either:
+sd-elevate.ps1:126 returns exit 0 when the token is already an administrator's.
+
+RULED TOTAL DENIAL, three times, reaffirmed after push-back: remote ssh and API
+access is denied to administrators outright.  The session does not exist; it is
+not narrowed.
+
+BUILT AS ONE REFUSAL AT LOGIN:560, before an account is chosen, which closes all
+three doors instead of patching each gate:
+  sd_admin_tier(@logname) and not(kernel(K$INTERACTIVE, 0)) -> 10174, terminate.
+  K$INTERACTIVE (key 64, op_kernel.c) = IsInteractive() && != CN_SOCKET, so one
+    key answers for ssh and the API.  INDEPENDENT OF ELEVATION on purpose: an
+    administrator at an UNELEVATED console must pass, and testing the seed would
+    refuse them.
+  IsInteractive() (linuxlb.c), sibling of IsElevated(), walks the same
+    getgroups() list for gid 4 (S-1-5-4).  No Win32 call, so 5.4's toolchain
+    split is untouched.  A SIBLING RATHER THAN A SHARED WALK deliberately -
+    folding them would move every "return FALSE" out of the functions
+    test-privwhy-units guards, whose per-predicate check would then pass on
+    nothing.
+  kernel.c:251's seed carries the term too, as defence in depth, with its own
+    PRIV_WHY out-parameter so a short-circuit cannot make the log name the wrong
+    predicate.
+  THE TIER DECIDES, NOT THE WINDOWS GROUP.  A Windows administrator holding an
+    ordinary SD account keeps ssh - the person 5.6.2 was written for.
+
+ELEVATION KEEPS S-1-5-4, AND THAT IS THE MEASUREMENT THE WHOLE FIX RESTS ON.
+Had it not, this would have locked out the console administrator - the one case
+that must keep working.  Read from ONE ORDINARY UNELEVATED SESSION via
+TokenLinkedToken, which hands back the token UAC would grant, so NO CONSENT WAS
+SPENT: INTERACTIVE true in both legs, with BUILTIN\Administrators moving
+FALSE -> TRUE between them.  That second row is the control - it is what stops
+the two legs being one token read twice.
+
+THE PROBE'S FIRST RUN SCORED A TRIVIAL PASS.  Write-Output inside a function
+joined the printed lines onto the return value, the caller got an array, and the
+verdict tested a non-empty array.  Rewritten to return a hashtable.  The trap is
+in the memory file and in elevate-once.ps1's header; it was walked into anyway.
+
+A THIRD FALSE CLAIM WAS FOUND BY THE TRACE, not on 167's list: CPROC:2664, "UAC
+draws its dialog on the interactive desktop, an ssh session has none, so
+!elevate fails there and this refuses - enforced by Windows rather than by a
+test here that could drift".  Windows was enforcing nothing.  LOGIN:630 and
+sd-elevate.ps1:29-35 were the two already listed; verify-sdsysgate.ps1:265 was
+passing for a false reason (its account is not an administrator, which is the
+real reason it passes).  All four corrected.
+
+NOT DONE: nobody has run it.  make sd exit 0 with no warnings - all three
+objects verified rebuilt by mtime, because kernel.o and op_kernel.o have
+explicit Makefile rules that print NO "Compiling" line, so the first check for
+one was measuring nothing.  32 of 32 free guards green in 42 s.  The BASIC is
+UNCOMPILED - cycle.ps1 -SkipInstall is that check and it is elevated.  No
+verifier step yet; verify-sdsysgate's header now names verify-sshadmin.ps1, so
+that name is committed to.  The ~9 documentation pages are not written.
+
+THE "NEVER EDIT A FILE WITH A PROGRAM" RULE WAS BROKEN TWICE IN THE MAKING OF
+THIS, THE SECOND TIME WHILE WRITING THE PARAGRAPH ABOUT THE FIRST.  One
+index-row status cell in PRE_RELEASE_FIXES.md went through "sed -i"; this entry
+itself went into HISTORY.md through a "cat >> <<'EOF'" heredoc.  CLAUDE.md
+forbids both outright in favour of Edit/Write, and the memory file names the
+heredoc form specifically.
+
+NEITHER DID DAMAGE, AND THAT IS THE POINT RATHER THAN THE DEFENCE.  Checked at
+byte level after each: no mojibake, no CR, no BOM, 3013 em dashes intact in
+PRE_RELEASE_FIXES.md, and the backslash in BUILTIN\Administrators survived the
+quoted heredoc - 26 occurrences, this entry's included.
+
+AND THE CHECK ITSELF FIRST REPORTED A FALSE ALARM: "grep -c 'BUILTIN\\Admin...'"
+answered 0, because a regex grep for a Windows path silently finds nothing.
+That trap is ALSO in the memory file.  grep -F answered 26.  Three separate
+written-down traps walked into in one sequence, by a session that had read all
+three - which is the same shape as the roadmap failure above, and the better
+argument for the rule than any of the corruptions in the record: the rule is
+cheap, and knowing why it exists demonstrably does not substitute for it.

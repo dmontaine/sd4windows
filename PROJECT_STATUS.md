@@ -175,6 +175,61 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 38, 5 Sep 2026 — ***167 IS BUILT AND UNRUN: AN ADMINISTRATOR NOW GETS NO ssh AND NO API SESSION AT ALL. THE BASIC IS UNCOMPILED — `cycle.ps1 -SkipInstall` IS THE NEXT COMMAND AND IT IS YOURS.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***OPEN 3: 165, 166, 167 — ALL THREE WAITING ON
+> A RUN, NONE ON A DECISION.*** `make sd` **exit 0, no warnings**, all three
+> changed objects verified rebuilt by mtime. ***32 of 32*** free guards green in
+> **42 s**. ***THE BASIC HAS NOT BEEN COMPILED*** and no verifier step exists
+> yet. ***NEXT FREE PRE_RELEASE ID 168. `b115`–`b119` ARE SPENT — RUN `b120`.***
+>
+> ### ***WHERE TO START: COMPILE THE BASIC. IT IS THE CHEAP CHECK AND IT IS THE ONLY THING BLOCKING `b120`.***
+>
+> **In your own terminal, ELEVATED:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1 -SkipInstall
+> ```
+>
+> `LOGIN`, `CPROC` and `INT$KEYS.H` all moved. **If it compiles, run the full
+> cycle and then `b120`**; if it does not, the break is in `LOGIN:560`'s new
+> block or the `K$INTERACTIVE` define.
+>
+> ### ***WHAT CHANGED, AND THE ONE SENTENCE WORTH CARRYING***
+>
+> ***THE ROADMAP IN 167 DID NOT ACHIEVE ITS OWN RULING, AND THE OWNER CAUGHT IT
+> BY PRODUCING THE TRANSCRIPT.*** The session that wrote it had already said
+> *"gating only LOGIN's seed wouldn't hold — `logto sdsys` would still
+> succeed"*. **The word `logto` appeared nowhere in the entry**; what went in
+> was the opposite, in bold, and this box repeated it as the trap to avoid.
+> **This session re-derived the finding, reported it, and was then talked back
+> to the narrow fix twice by the document itself.** The lesson is not *"write
+> it down"* — it was written down. ***A ROADMAP MUST CARRY THE OBJECTION TO
+> ITSELF OR IT READS AS SETTLED.***
+>
+> ***THE RULING IS TOTAL DENIAL.*** Owner, three times, reaffirmed after
+> push-back: **remote ssh and API access is denied to administrators outright.**
+> The session does not exist; it is not narrowed. Built as **one refusal at
+> `LOGIN:560`** — `sd_admin_tier(@logname) and not(kernel(K$INTERACTIVE, 0))` —
+> which closes **all three doors** into SDSYS at once instead of patching each
+> gate. **The tier decides, not the Windows group**: a Windows administrator
+> holding an ordinary SD account keeps ssh.
+>
+> ***ELEVATION KEEPS `S-1-5-4`, AND THE WHOLE FIX RESTS ON IT.*** Had it not,
+> this would have locked out the console administrator. Measured from **one
+> ordinary unelevated session** via `TokenLinkedToken` — **no consent spent** —
+> with `BUILTIN\Administrators` moving FALSE → TRUE between the legs as the
+> control.
+>
+> ### ***WHAT IS OWED***
+>
+> 1. **Compile the BASIC** (above), then a full cycle, then **`b120`** — which
+>    also witnesses **165** and **166**.
+> 2. **`verify-sshadmin.ps1` does not exist yet**, and
+>    `verify-sdsysgate.ps1`'s header now names it, so the name is committed to.
+>    It needs a second machine or a loopback ssh.
+> 3. **~9 documentation pages** in the docs repo still describe the old model.
+>
 > # ⇩⇩⇩ HANDOFF 37, 5 Sep 2026 — ***q14 IS ANSWERED AND IT IS A DEFECT, NOT A CAVEAT: AN ADMINISTRATOR REACHES AN ELEVATED SHELL OVER ssh. RULED, ROADMAPPED, NOT STARTED. `b119` WAS GREEN IN BOTH HALVES.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** ***OPEN 3: 165, 166, 167.*** `b119` **green in
@@ -184,14 +239,49 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `test-fixlist-units` **269/0**; `check-stale-leads` **exit 0**.
 > ***NEXT FREE PRE_RELEASE ID 168. `b115`–`b119` ARE SPENT — RUN `b120`.***
 >
-> ### ***WHERE TO START: PRE_RELEASE 167's DETAIL SECTION. IT IS THE ROADMAP AND IT WAS WRITTEN THE NIGHT IT WAS RULED.***
+> ### ***WHERE TO START: PRE_RELEASE 167's DETAIL SECTION — BUT READ THE CORRECTION BELOW FIRST. THE ROADMAP AS WRITTEN DOES NOT ACHIEVE THE RULING.***
 >
-> Do not re-derive it. It carries the rule, the measured signal, the trap, the
-> order, and the two open decisions. **The trap is the one thing that would
-> otherwise cost a session**: the interactive test goes at `kernel.c:251`'s
-> seed, ***NOT*** inside `IsElevated()`, because `sdwind.c:295` shells out to
-> `sd -cleanup` as LocalSystem and gating `IsElevated()` would break
-> `check_lost_users()` — the path whose failure already cost an install.
+> ***CORRECTED 5 Sep 2026 BY THE OWNER, WHO PRODUCED THE SESSION TRANSCRIPT THE
+> ENTRY WAS WRITTEN FROM. THE ENTRY LOST THE ONE SENTENCE THAT KILLS ITS OWN
+> PLAN.*** The session that wrote 167 had already established, in as many
+> words: *"Gating only LOGIN's seed wouldn't hold: the process token really is
+> elevated, so `logto sdsys` would still succeed — `sd-elevate.ps1:126`
+> short-circuits on a genuinely elevated token."* **The word `logto` appears
+> nowhere in entry 167**, index row or roadmap. What went in instead was the
+> opposite, in bold — *"the term goes at `kernel.c:251`'s seed"* — and this box
+> repeated it as the trap to avoid. **A document that argues against its own
+> author's conclusion is worse than a silent one**, and this one cost a session
+> re-deriving the finding and then being talked out of it twice.
+>
+> ***THE RULING IS TOTAL DENIAL, NOT A NARROWER SEED.*** Owner, 5 Sep 2026,
+> stated three times and reaffirmed after push-back: **remote ssh and API
+> access is totally denied to administrators.** Not "an administrator over ssh
+> gets fewer rights" — **the session does not exist.** Administrators work at
+> the console, or through a remote-control product or single-user remote
+> desktop. §5.25 carries the principle; the work is the refusal, in SD, where
+> it can be tested.
+>
+> ***WHY THE SEED ALONE CANNOT DO IT — TRACED INDEPENDENTLY 5 Sep 2026, AND IT
+> AGREES WITH THE TRANSCRIPT.*** There are **three** doors into SDSYS and the
+> seed is read by **one** of them:
+>
+> | door | gate | seed fix closes it? |
+> |---|---|---|
+> | `LOGIN:675` landing case | `K$ADMINISTRATOR` (the seed) **and** `K$OS.ADMINISTRATOR` **and** `sd_admin_tier` | **yes** |
+> | `CPROC:2707` — `logto sdsys` | `K$OS.ADMINISTRATOR` **and** `sd_admin_tier`, then `elevate('START')` | **no** |
+> | `CPROC:4072` — `int.logto`'s gate | `K$OS.ADMINISTRATOR` **and** `sd_admin_tier` | **no** |
+>
+> And door 2, once through, calls `kernel(K$ADMINISTRATOR, 1)` at
+> **`CPROC:2858`**, which **re-grants the very flag the seed fix cleared** — so
+> everything the narrow fix closed reopens behind one typed command.
+> `elevate('START')` cannot stop it: `sd-elevate.ps1:126` returns `exit 0` when
+> the token is already an administrator's, which over ssh it is.
+>
+> **The `kernel.c:251` trap in the superseded wording is still true and still
+> worth keeping**: the interactive test goes at the seed, ***NOT*** inside
+> `IsElevated()`, because `sdwind.c:295` shells out to `sd -cleanup` as
+> LocalSystem and gating `IsElevated()` would break `check_lost_users()` — the
+> path whose failure already cost an install. It was never the whole fix.
 >
 > **Owner's ruling, 5 Sep 2026**: administration happens at the console, or
 > through a remote-control product or single-user remote desktop. Not ssh, not
