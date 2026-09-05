@@ -177,24 +177,33 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 38, 5 Sep 2026 — ***167 IS BUILT AND UNRUN: AN ADMINISTRATOR NOW GETS NO ssh AND NO API SESSION AT ALL. THE BASIC IS UNCOMPILED — `cycle.ps1 -SkipInstall` IS THE NEXT COMMAND AND IT IS YOURS.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** ***167's GATE IS BUILT AND WITNESSED; 165 AND
-> 166 ARE STILL UNWITNESSED AND NEED THE FULL SUITE.*** The cycle completed
-> (10:37) and **the BASIC compiles — 197 units, every one `0 error(s)`**.
-> **`verify-sshadmin` ran on `b120`: 10 PASS / 0 FAIL, exit 0**, and its
-> temporary local administrator was confirmed gone by asking Windows.
-> ***32 of 32*** free guards green. ***NEXT FREE PRE_RELEASE ID 169.
-> `b115`–`b120` ARE SPENT — RUN `b121`.***
+> ***THE STATE, IN ONE LINE.*** ***167 AND 169's PRODUCT HALVES ARE DONE AND
+> WITNESSED ON `b122`, 14 PASS / 0 FAIL. OPEN 3: 165, 166 — NEITHER EVER RUN —
+> AND 167's DOCUMENTATION HALF.*** The install is current (`assert-current`
+> exit 0, 11:08) and the BASIC compiles — **197 units, every one `0 error(s)`**.
+> ***32 of 32*** free guards green. ***NEXT FREE PRE_RELEASE ID 170.
+> `b115`–`b122` ARE SPENT — RUN `b123`.***
 >
-> ***SUPERSEDED WITHIN THE HOUR — READ THIS BEFORE THE BOX BELOW.*** The owner
-> refined the ruling after seeing `verify-sshadmin`'s transcript: **remote is
-> what is denied, not ssh and the API.** Local ssh and the local API keep
-> working for an administrator. **The gate, message 10174, `CREATE.ACCOUNT`'s
-> routes report and the verifier's own legs were all rebuilt for it** —
-> PRE_RELEASE **169**, §5.25. ***THE TREE IS STALE AGAIN AND `b120`'s RESULT NO
-> LONGER STANDS***: that run measured the narrower rule and its leg A now
-> asserts the opposite. **A cycle is owed before anything is re-measured.**
+> ***NOTHING IN THE PRODUCT HAS BEEN WITNESSED SINCE `b119` EXCEPT ONE STEP.***
+> That is the case for the full run below, and it is the rule's own stated
+> purpose: `b75`'s second failure was a step nobody had touched.
 >
-> ### ***WHERE TO START: A CYCLE, THEN THE FULL SUITE ON `b121`. 165 AND 166 HAVE NEVER RUN.***
+> ***167 AND 169 ARE BOTH DONE AND WITNESSED — `b122`, 14 PASS / 0 FAIL.***
+> The owner refined the ruling after reading `verify-sshadmin`'s transcript:
+> **remote is what is denied, not ssh and the API.** Local ssh and the local API
+> keep working for an administrator. The gate, message 10174,
+> `CREATE.ACCOUNT`'s routes report (new **10175**) and the verifier's legs were
+> all rebuilt, cycled and witnessed. ***`b120` AND `b121` ARE SUPERSEDED AND
+> MUST NOT BE CITED***: `b120` measured the pre-refinement rule, and `b121`
+> failed on a verifier defect, not the product.
+>
+> ***THE AUDIT TRAIL IS THE EVIDENCE*** — the same account, two seconds apart,
+> admitted over loopback and refused via `10.0.0.3`, with the control on the
+> line below. `ENV('SSH_CLIENT')` is proven as the discriminator, on a
+> self-connection, **with no second machine** — which is what q14 was parked on
+> for weeks.
+>
+> ### ***WHERE TO START: THE FULL SUITE ON `b123`. 165 AND 166 HAVE NEVER RUN.***
 >
 > **In your own ORDINARY, UNELEVATED terminal:**
 >
