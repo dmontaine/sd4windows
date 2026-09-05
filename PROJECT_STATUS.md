@@ -175,38 +175,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***161, 162, 163 AND 164 ALL CLOSED. OPEN IS 1: 80, THE DOCUMENTATION AUDIT, AND THE OWNER SCHEDULED IT FOR THE 1.0 WRAP-UP. `make sd` MAKES ALL FOUR CLIENT DLLs, BOTH CLIENT REPOSITORIES ARE DELETED, AND SDConnectLocal HAS A STANDING TEST FOR THE FIRST TIME. A CYCLE AND A SUITE ARE OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***GREEN IN BOTH HALVES ON `b118`, 23 AND 25 STEPS, EVERY ONE exit 0. 161, 162, 163 AND 164 ALL CLOSED. OPEN IS 1: 80, THE DOCUMENTATION AUDIT, WHICH THE OWNER SCHEDULED FOR THE 1.0 WRAP-UP. NOTHING IS OWED.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** ***31 of 31*** free checks exit 0 in ~37 s —
-> **thirty-one, not thirty-two**, see below; `test-fixlist` **264/0**;
-> `test-stalebin` **40/0**. ***`assert-current` IS EXIT 1 AND THAT IS CORRECT***
-> — `gplsrc\sdclilib\Makefile` is newer than the install. ***OPEN 1: 80 —
-> TAKEN FROM THE CHECKER, NOT FROM THIS BOX. NEXT FREE PRE_RELEASE ID 165.
-> `b115`, `b116`, `b117` ARE SPENT — RUN `b118`.***
+> ***THE STATE, IN ONE LINE.*** ***`b118` GREEN IN BOTH HALVES*** — 23 of 23
+> unelevated, 25 of 25 elevated; `assert-current` **exit 0**; ***31 of 31***
+> free checks exit 0 in ~38 s — **thirty-one, not thirty-two**, see below;
+> `test-fixlist` **264/0**; `test-stalebin` **40/0**. ***OPEN 1: 80 — TAKEN FROM
+> THE CHECKER, NOT FROM THIS BOX. NEXT FREE PRE_RELEASE ID 165. `b115`–`b118`
+> ARE SPENT — RUN `b119`.***
 >
-> ### ***WHAT IS OWED, IN ORDER***
->
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
->
-> **Elevated PowerShell.** Then, in an **ordinary UNELEVATED** prompt, the new
-> step on its own before spending a token on the whole suite — it is free, needs
-> no prefix and raises no UAC prompt:
->
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\verify-localconnect.ps1
-> ```
->
-> Then the full suite, **also unelevated**:
->
-> ```powershell
-> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b118
-> ```
->
-> ***`b117` WAS GREEN IN BOTH HALVES*** — 22 of 22 and 25 of 25 — **but that was
-> before 163's changes**, so it does not cover them. The unelevated half is
-> **23 steps** now.
+> ***THE NEW STEP MEASURED RATHER THAN MERELY PASSING, AND THAT IS THE ROW TO
+> READ.*** `verify-localconnect` on `b118`: caller `GITORLI\don`, **elevated
+> False**, account record present, `DON` **admitted** with `WHO -> 96 DON` — a
+> live session that executed a command — and `SDSYS` **refused** with *"User not
+> allowed in requested account"*. Both legs, both guards, from inside the suite.
+> **A green from that step is now evidence about the grant check**, which is
+> what 163 was for.
 >
 > ### ***163 CLOSED, AND THE REMOVAL WAS WITHDRAWN RATHER THAN DONE***
 >

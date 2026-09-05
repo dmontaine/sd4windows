@@ -48334,3 +48334,16 @@ THE VERIFIER INVENTORY WAS RE-DERIVED RATHER THAN ADJUSTED, per VerifyInstall1's
 own rule, and it was stale in TWO columns rather than one: 49 verify-*.ps1 in
 the directory, 20 named in VerifyInstall1, 25 in VerifyInstall2, four correctly
 in neither, none in both.
+
+WITNESSED ON b118, GREEN IN BOTH HALVES: 23 of 23 unelevated - the new step is
+number 18 - and 25 of 25 elevated, assert-current exit 0, 31 of 31 free checks.
+
+AND THE NEW STEP MEASURED RATHER THAN MERELY PASSING, which is the only thing
+that makes its green worth anything.  From inside the suite: caller
+GITORLI\don, elevated False, the account record present, DON admitted with
+"WHO -> 96 DON" - a live session that ran a command - and SDSYS refused with
+"User not allowed in requested account".  Both legs and both guards.  The
+passwordless local login path has evidence behind it for the first time.
+
+OPEN IS 1: entry 80, the documentation audit, which the owner scheduled for
+just before the 1.0 wrap-up.  b115 to b118 are spent.
