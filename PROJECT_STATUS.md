@@ -178,17 +178,41 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > # ⇩⇩⇩ HANDOFF 35, 4 Sep 2026 — ***80 IS DONE. THE WHOLE DOCUMENTATION TREE IS AUDITED, REBUILT AND RELEASED. NOTHING IS OPEN. `check-stale-leads` READS 0 OPEN ROWS, 164 STRUCK.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** ***THE PRE_RELEASE LIST IS EMPTY.*** `assert-current`
-> **exit 0**, install 4 Sep 20:42:10; `check-stale-leads` **0 open, 164 struck**.
-> The documentation lives in `SDCoreWindowsDocs` and is **pushed** — ten commits,
-> `3079d0f` at the tip. ***NEXT FREE PRE_RELEASE ID 165. `b115`–`b118` ARE SPENT —
-> RUN `b119`.***
+> **exit 0**, install 4 Sep 20:42:10; **31 of 31** free checks exit 0 in **38 s**,
+> run at handoff; `check-stale-leads` **0 open, 164 struck**. ***BOTH REPOSITORIES
+> ARE PUSHED*** — `sd4windows` at `c05f96e`, `SDCoreWindowsDocs` at `f9409f9`
+> with twelve commits from this task. ***NEXT FREE PRE_RELEASE ID 165.
+> `b115`–`b118` ARE SPENT — RUN `b119`.***
 >
 > ### ***WHERE TO START: ASK. THERE IS NOTHING QUEUED AND NOTHING OWED.***
 >
 > Every entry that was open at the start of this session is closed, and 80 was
-> the last one. **The full verify suite has not been run since `b118`** and no
-> source in this repository changed today — the audit touched the other
-> repository only — so the tree is exactly where `b118` left it.
+> the last one.
+>
+> ***THE FULL SUITE HAS NOT BEEN RUN SINCE `b118`, AND THAT IS A JUDGEMENT
+> RATHER THAN AN OVERSIGHT.*** The rule is to run it before a handoff, and its
+> stated purpose is catching regressions in things you did not touch. **Nothing
+> in the product was touched**: the only changes here are `PROJECT_STATUS.md`,
+> `PRE_RELEASE_FIXES.md` and `HISTORY.md`, none of which ships, and
+> `assert-current` still exits 0. The audit's work was entirely in the other
+> repository. **`b118` was green in both halves on the same day and stands.**
+> If you want it run anyway, the commands are at the foot of this box — and
+> §4.0.1 is why an agent cannot run them.
+>
+> ### ***ONE MEASUREMENT IS STILL OWED, AND IT IS q14***
+>
+> An SD administrator arriving over ssh gets a **filtered** token, so they may
+> be unable to elevate and therefore unable to reach `SDSYS` remotely.
+> **Nobody gets extra access — the failure is that an administrator gets
+> less.** It has never been measured, and it needs a second machine, so it is
+> the VM rig.
+>
+> `GettingStarted/08-ssh-access.md` says so in those words. **Its heading used
+> to read *"One measured caution"* above a body saying *"It has not been
+> measured"*** — the heading was corrected, not the body, because the body was
+> right. That is the last unearned warrant the audit found and it is worth
+> knowing the shape of it: the page was not wrong about the mechanism, it was
+> wrong about its own standing.
 >
 > ### ***WHAT 80 ACTUALLY WAS, AND THE ONE SENTENCE WORTH CARRYING***
 >
@@ -225,6 +249,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > into `Administrator`** (`09` installed scripts, `10` restricted commands).
 > Three sets ship, not four. Nothing in `sd4windows` references those paths, but
 > `gplbld` scripts that ever grow a documentation path should use the new ones.
+>
+> ### ***THE SUITE, IF YOU WANT IT — AND AN AGENT CANNOT RUN IT***
+>
+> §4.0.1: *"the verify suite is run by a person, from their own ordinary
+> terminal."* A nested elevation has no desktop to put consent on, so a
+> verifier the agent launched is refused with *"The operation was canceled by
+> the user"* and **nobody is shown anything**. Do not spend a `-Run` token
+> finding this out again.
+>
+> **In your own ORDINARY, UNELEVATED terminal:**
+>
+> ```
+> C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Run b119 -ThenElevated
+> ```
+>
+> That runs the unelevated half and hands the elevated half on. It costs about
+> twenty minutes and five or six UAC prompts. **A single stray keystroke on one
+> of those prompts loses the run** — `b115` went that way.
 >
 > # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***GREEN IN BOTH HALVES ON `b118`, 23 AND 25 STEPS, EVERY ONE exit 0. 161, 162, 163 AND 164 ALL CLOSED. OPEN IS 1: 80, THE DOCUMENTATION AUDIT, WHICH THE OWNER SCHEDULED FOR THE 1.0 WRAP-UP. NOTHING IS OWED.*** ⇩⇩⇩
 >
