@@ -48347,3 +48347,75 @@ passwordless local login path has evidence behind it for the first time.
 
 OPEN IS 1: entry 80, the documentation audit, which the owner scheduled for
 just before the 1.0 wrap-up.  b115 to b118 are spent.
+
+## 4 Sep 2026 — entry 80, the documentation audit: done, and the tree is empty
+
+The whole documentation tree audited against the installed image, rebuilt and
+released.  Three sets ship, not four: GettingStarted 15 pages, Administrator
+10, User 43.  585 local links, 0 broken.  HTML and PDF current against their
+markdown in all three, three zips with SHA-256.  Ten commits in
+SDCoreWindowsDocs, tip 3079d0f, pushed.
+
+THE DOCUMENTATION HAD TWO AUTHORS AND THAT WAS THE DEFECT, not a list of
+corrections.  The fifteen pages added 29 Aug from upstream OpenQM
+documentation carried nearly every factual error found.  Six of the ten
+tutorial programs did not compile - the 106-line application had four errors.
+Four of six worked conversion examples were wrong.  sdencrypt was documented
+with two arguments where it takes three, with an example key that fails.  The
+terminfo page said the compiler does not ship and told readers to clone GitHub
+and build it, while sdtic.exe is 105,521 bytes on every install.
+
+THE ANSWER WAS CHECKERS RATHER THAN DILIGENCE.  tclmap had been red since
+30 Aug because it lives in the other repository and no check here runs it.
+Three more were written - confmap.py (52 configuration parameters against a
+page listing 19 and naming one that does not exist), verbcounts.py (every verb
+count in prose against the VOC; eleven wrong figures on six pages),
+scriptmap.py (37 installed scripts against a page claiming 26).  Each found a
+real gap on its first run.  extract_programs.py pulls a page's programs out so
+they can be compiled rather than read.
+
+TWO INSTRUMENT DEFECTS WERE CAUGHT BEFORE THEY REACHED A PAGE, and both are
+the same shape as the ones §"an instrument shows what it DID" exists for.
+confmap first called nine parameters inert, three of them GRPSIZE, GRPDIR and
+USRDIR - read from BASIC through config('NAME'), which a C-only test cannot
+see.  Then both CREATUSR hits turned out to be comments recording that the
+parameter was REMOVED, so a note that it is dead read as evidence it is alive.
+
+TWO OF ENTRY 80's OWN INSTRUCTIONS WERE WRONG.  It said to name "ssh.server
+with no keyword" as the way to answer "is OpenSSH installed?" - it answers
+"Command requires administrator privileges", because the guard at SSHSRVR:82
+runs before the keyword parse.  And it said [locked] is how a customised VERB
+survives an upgrade; LOGIN:1475 and message 10166 update a locked verb anyway
+and say which.  Both were written from the code in good faith and were still
+wrong, which is the argument for checking an entry rather than implementing it.
+
+THE INSTALLER PAGES WERE WRONG IN THE DANGEROUS DIRECTION.  Both said "API on
+4243, local only unless you tick otherwise".  The apiremote task is
+Flags: unchecked, and declining it installs an sd.conf with no APIPORT line and
+no socket at all.  They also still sold the stand-alone installation 75 deleted
+and said the ssh server is "always installed... not optional" against 67.
+
+RUNNING THE PIPELINE END TO END FOUND THREE TOOLCHAIN DEFECTS, each a pair of
+individually correct halves that had never been run in sequence: release.ps1
+refused every set over html\index.html, a generated file written by the other
+author's add_nav.py which it predates; release.ps1 never RAN add_nav.py, so
+navigation existed only when somebody remembered; and every set index linked
+back to the master index, a 404 in every delivered copy.
+
+STRUCTURE, ON THE OWNER'S RULING: Testing/ became GettingStarted/, and the
+Technical set dissolved into Administrator.  Entry 34 closes by removing the
+set rather than weakening the link check.
+
+VOICE: 591 ***...*** spans across 59 files, 397 of them capitalised shouts,
+lowered to sentence-case bold.  The script harvests canonical spellings from
+the corpus rather than a typed list; its first run was wrong twice and both are
+recorded in its header.  No BOM, CR count 3025 before and after, no mojibake,
+672 insertions against 672 deletions.  A sweep for 46 phrases from the
+published criticisms of AI-written documentation found four hits in 68 pages.
+
+q7 closes as SUPERSEDED - two different checkboxes were being conflated, and
+ssh-preflight.ps1 refuses the install on the machine it worried about.  The
+hyphen-for-dot spelling is documented rather than left as folklore, measured
+with both controls.
+
+NOTHING IS OPEN.  check-stale-leads reads 0 open rows, 164 struck.

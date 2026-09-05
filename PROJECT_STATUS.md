@@ -175,6 +175,57 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 35, 4 Sep 2026 — ***80 IS DONE. THE WHOLE DOCUMENTATION TREE IS AUDITED, REBUILT AND RELEASED. NOTHING IS OPEN. `check-stale-leads` READS 0 OPEN ROWS, 164 STRUCK.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***THE PRE_RELEASE LIST IS EMPTY.*** `assert-current`
+> **exit 0**, install 4 Sep 20:42:10; `check-stale-leads` **0 open, 164 struck**.
+> The documentation lives in `SDCoreWindowsDocs` and is **pushed** — ten commits,
+> `3079d0f` at the tip. ***NEXT FREE PRE_RELEASE ID 165. `b115`–`b118` ARE SPENT —
+> RUN `b119`.***
+>
+> ### ***WHERE TO START: ASK. THERE IS NOTHING QUEUED AND NOTHING OWED.***
+>
+> Every entry that was open at the start of this session is closed, and 80 was
+> the last one. **The full verify suite has not been run since `b118`** and no
+> source in this repository changed today — the audit touched the other
+> repository only — so the tree is exactly where `b118` left it.
+>
+> ### ***WHAT 80 ACTUALLY WAS, AND THE ONE SENTENCE WORTH CARRYING***
+>
+> **Read entry 80's struck row for the detail; it carries the measurements.**
+> The shape of it: the documentation had two authors, and the fifteen pages
+> written from upstream OpenQM documentation rather than from this machine
+> carried nearly every factual error — **six of the ten tutorial programs did
+> not compile**, four of six worked conversion examples were wrong, `sdencrypt`
+> was documented with the wrong number of arguments, and the terminfo page told
+> readers to clone GitHub and build a compiler that ships in `usr\bin`.
+>
+> ***THE ANSWER WAS CHECKERS, NOT DILIGENCE, AND THAT IS THE TRANSFERABLE
+> PART.*** `tclmap` had been red since 30 Aug because it lives in the other
+> repository and nothing here runs it. Three more were written —
+> `confmap.py`, `verbcounts.py`, `scriptmap.py` — each computing a roster from
+> the product and refusing to agree with a hand-kept list. **Every one found a
+> real gap on its first run.** A fourth, `extract_programs.py`, pulls the
+> tutorial's programs out so they can be compiled rather than read.
+>
+> ### ***TWO OF 80's OWN INSTRUCTIONS WERE WRONG. CHECK ENTRIES AGAINST THE CODE.***
+>
+> The entry said to name **`ssh.server` with no keyword** as the way to answer
+> "is OpenSSH installed?". It answers *"Command requires administrator
+> privileges"* — the guard at `SSHSRVR:82` runs **before** the keyword parse.
+> And it said `[locked]` is how a customised **verb** survives an upgrade;
+> `LOGIN:1475` and message **10166** update a locked verb anyway and say which,
+> because field 3 of a `V`/`IN` record is a number and a reassignment would
+> dispatch it silently to a different function. **Both were written in good
+> faith from the code and were still wrong.**
+>
+> ### ***THE STRUCTURE CHANGED, ON THE OWNER'S RULING, AND TOOLS HERE DO NOT KNOW***
+>
+> `Testing/` is **`GettingStarted/`** and the `Technical` set is **dissolved
+> into `Administrator`** (`09` installed scripts, `10` restricted commands).
+> Three sets ship, not four. Nothing in `sd4windows` references those paths, but
+> `gplbld` scripts that ever grow a documentation path should use the new ones.
+>
 > # ⇩⇩⇩ HANDOFF 34, 4 Sep 2026 — ***GREEN IN BOTH HALVES ON `b118`, 23 AND 25 STEPS, EVERY ONE exit 0. 161, 162, 163 AND 164 ALL CLOSED. OPEN IS 1: 80, THE DOCUMENTATION AUDIT, WHICH THE OWNER SCHEDULED FOR THE 1.0 WRAP-UP. NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** ***`b118` GREEN IN BOTH HALVES*** — 23 of 23
