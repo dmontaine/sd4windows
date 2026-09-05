@@ -389,10 +389,13 @@ him** — he does not read them. So:
   plain English, and gets anything a user would notice, in the same commit.
 - **[UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) is the other exception**, and it is
   **maintained, not written once**: when you find a defect that is also in
-  `sdb64`, add an entry in the same commit as the fix. Check first — the clone
-  is at `../sdb64`, and a bug carrying a `Composer AI - 2026/06/10` marker is
-  ours rather than upstream's unless the underlying flaw is there too. It is
-  written for the upstream maintainer, so plain English and self-contained.
+  `sdb64`, add an entry in the same commit as the fix. Check first — but
+  ***THE LOCAL CLONE IS GONE, owner 5 Sep 2026***, *"historical reference, not
+  part of this project"*, so checking now means cloning
+  <https://codeberg.org/stringdatabase/sdb64> again. A bug carrying a
+  `Composer AI - 2026/06/10` marker is ours rather than upstream's unless the
+  underlying flaw is there too. It is written for the upstream maintainer, so
+  plain English and self-contained.
 - **[PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md) is the third**: everything that
   needs deciding or fixing before W1.0-0 ships. Add an entry in the same commit
   as the finding and move it to DONE with a date when it is fixed. Most of it

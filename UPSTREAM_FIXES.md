@@ -44,12 +44,19 @@ English, the reasoning included, and the patch small enough to read.
 ## What belongs here
 
 A fix belongs here when **the defect is present in `sdb64` itself**, on `main`
-or `dev`. Check before adding — `../sdb64` is cloned locally:
+or `dev`. Check before adding — but **the local clone was removed on 5 Sep
+2026**, so clone it again first:
 
 ```sh
+git clone https://codeberg.org/stringdatabase/sdb64 ../sdb64
+git -C ../sdb64 fetch origin dev
 git -C ../sdb64 show main:sd64/gplsrc/<file>
 git -C ../sdb64 show origin/dev:sd64/gplsrc/<file>
 ```
+
+**Entries written before that date checked against the clone while it was
+there**; their findings stand, and the commands they quote need the clone back
+before they will run again.
 
 Three generations exist and only the first is upstream's problem
 (PROJECT_STATUS.md §2):

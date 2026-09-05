@@ -11653,11 +11653,13 @@ live.
 THE WHOLE ANSWER** (owner, 15 Aug 2026):
 
 1. **`sdb64`** — <https://codeberg.org/stringdatabase/sdb64>, the unmodified
-   Linux version and the active upstream project. **Cloned at `../sdb64`** with
-   `main` checked out and `origin/dev` fetched, so both branches are readable
-   without the network: `git -C ../sdb64 show origin/dev:sd64/<path>`.
-   **Diffing against it is the cheapest way to attribute a surprise** — it is
-   what settled §5.13 and §7 step 7.
+   Linux version and the active upstream project. ***THE LOCAL CLONE AT
+   `../sdb64` IS GONE — owner, 5 Sep 2026***, *"historical reference, not part
+   of this project"*. **Measured: the path does not exist**, so every
+   `git -C ../sdb64 show …` in this file and in UPSTREAM_FIXES.md is a command
+   that would now fail; clone it again from the URL above when a comparison is
+   needed. **Diffing against it is the cheapest way to attribute a surprise** —
+   it is what settled §5.13 and §7 step 7.
 2. **`sdb_ai`** — an experimental variant the owner produced by putting `sdb64`
    through **five AI cleaning and validation cycles**. This is why the code
    reads more cleanly than its age suggests, and why those cycles also
@@ -11789,9 +11791,21 @@ the vendoring from upstream, which is a different question and stands.
 
 | Path | What it is | Our duty |
 |---|---|---|
-| `../sdb64` | upstream Linux project, `main` + `origin/dev` | **read-only.** Fixes it needs go in [UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) |
 | `../SDCoreWindowsDocs` | the documentation library | add documentation for entry 80 to review; it has no no-binaries rule |
+| `../SDCore1.0-0` | the owner assembles the user release zip here, by hand | ***NOT PART OF THIS PROJECT.*** Do not read from it, write to it, or sweep it |
 | this repository | the port, and the client library's only home | — |
+
+***`../sdb64`'s ROW IS GONE WITH THE TREE — owner, 5 Sep 2026***, *"historical
+reference, not part of this project"*. **The duty did not go with it**: a
+defect that is also upstream's still belongs in
+[UPSTREAM_FIXES.md](UPSTREAM_FIXES.md), and checking now means cloning from the
+Codeberg URL in §"External reference trees" first.
+
+***`C:\Users\dmont\Projects` IS THE BASE FOR THE NEXT RELEASE — owner, 5 Sep
+2026.*** The previous `Projects` directory was zipped as the **1.0-0 snapshot**
+and is stored locally and on the pdrive. So the parent directory holds three
+things now — this repository, the documentation library, and the owner's
+release staging — and **nothing here should assume a fourth**.
 
 **32-bit is a shipping constraint, not a test convenience** — mvDeveloper needs
 it, and `qmclilib.dll` must stay a single file that can be copied beside an
@@ -11865,9 +11879,17 @@ survived from 5 to 15 Aug 2026 in three repositories at once. **Before changing
 any shared constant, grep them all:**
 
 ```sh
-grep -rn "define SV_" ../sdb64 ../winsdclilib ../sdclilib32 . \
-    --include=*.h --include=*.bi --include=*.c
+grep -rn "define SV_" . --include=*.h --include=*.bi --include=*.c
 ```
+
+***ALL THREE OTHER TREES ARE GONE AND THE SWEEP IS NOW ONE REPOSITORY.***
+`../winsdclilib` and `../sdclilib32` went on 4 Sep 2026 (PRE_RELEASE 161),
+`../sdb64` on 5 Sep 2026. **The paragraph above is kept because the reasoning
+is why it must stay that way** — one source, one build, so a shared constant
+has nowhere to diverge to. **The command was edited rather than deleted**: run
+against three paths that do not exist, `grep -rn` reports each as *"No such
+file or directory"* and still exits on what it found in `.`, which reads as a
+clean sweep of four trees.
 
 **AND THE SAME SWEEP IS WORTH RUNNING FOR A FEATURE, NOT ONLY A CONSTANT** -
 `grep -rli scram` over those trees is what found the Linux client three
