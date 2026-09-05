@@ -175,15 +175,47 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 38, 5 Sep 2026 — ***REMOTE ADMINISTRATION IS SHUT OVER ssh AND WITNESSED. 165, 166, 169 AND 167's PRODUCT HALF ALL CLOSED ON `b122`/`b123`. THE API HALF OF THE SAME RULING IS NOT BUILT — THAT IS 170, AND IT NEEDS ONE ANSWER FROM THE OWNER.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 39, 5 Sep 2026 — ***REMOTE ADMINISTRATION IS NOW SHUT ON BOTH TRANSPORTS AND BOTH ARE WITNESSED. 170's API GATE IS `b126`, 15/0. 168 IS GONE. WHAT IS LEFT OF 167 IS THE DOCUMENTATION, AND IT IS THE LARGER HALF.*** ⇩⇩⇩
 >
-> ***THE STATE, IN ONE LINE.*** ***`b123` RAN THE FULL SUITE: 23 OF 23
-> UNELEVATED, 25 OF 26 ELEVATED, AND THE ONE RED WAS A VERIFIER ASSERTING A
-> MESSAGE THIS SESSION RETIRED — FIXED.*** **165, 166, 169 and 167's product
-> half are all DONE AND WITNESSED.** ***OPEN 3: 167's DOCUMENTATION HALF, 168,
-> AND 170 — WHICH IS THE ONE THAT NEEDS A RULING.*** ***32 of 32*** free guards
-> green. ***NEXT FREE PRE_RELEASE ID 171. `b115`–`b123` ARE SPENT — RUN
-> `b124`.***
+> ***THE STATE, IN ONE LINE.*** ***BOTH HALVES OF THE 5 Sep RULING ARE BUILT AND
+> WITNESSED: ssh on `b122` (14/0) AND THE API ON `b126` (15/0).*** **168's dead
+> `EUID` chain is deleted and witnessed on the 12:39 cycle; 171 moved the client
+> import libraries out of `usr\bin` and put BOTH architectures beside `sd.exe`,
+> witnessed on the 13:28:27 install.** ***THE PRE-RELEASE LIST IS EMPTY — 0 OPEN
+> OF 172, read from `test-fixlist-units.ps1` (272 passed / 0 failed), never from
+> prose.*** 167's documentation half closed the same day: eight pages rewritten,
+> both sets re-rendered, `checklinks` 0 broken. ***32 of 32*** free guards green.
+> ***NEXT FREE PRE_RELEASE ID 173. `b115`–`b126` ARE SPENT — RUN `b127`.***
+>
+> ***WHAT THIS DOES NOT MEAN.*** No FULL suite has run since `b123`, and this
+> session changed `CPROC`, `LOGIN`, `APISRVR`, `CREATEA`, four C files and the
+> staging lists. **A full run is what catches regressions in what nobody
+> touched** — `b75`'s second failure was `verify-notyet`, unrelated to anything
+> changed that day. ***RUN THE FULL SUITE BEFORE CALLING W1.0-0 READY.***
+>
+> ***170's WITNESS IS THE ONE TO READ, BECAUSE ITS CONTROL IS WHAT MAKES IT MEAN
+> ANYTHING.*** `verify-apiremote` drives three legs on one machine with the
+> address as the only variable: a PROGRAMMER admitted via `10.0.0.3`, the
+> ADMINISTRATOR admitted via `127.0.0.1`, and **the same administrator refused
+> via `10.0.0.3`**. Without the first leg a refusal proves nothing — `10.0.0.3`
+> is this host's own LAN address, so the network could have refused everything.
+> The owner had already seen the same behaviour from his own 32-bit application
+> against a guest, which is the real-world half.
+>
+> ***172 IS RULED NOT A DEFECT AND STRUCK — "172 leave it", owner, 5 Sep 2026.***
+> The `sd.iss` `PATH` append stays, deliberately; the entry records why, so the
+> next session that finds it does not re-open it. The paragraph below is what
+> was measured on the way, and the first version of it OVERSTATED the case. What was measured is real: two retired client-installer directories sat
+> ahead of `usr\bin` on this machine's `PATH` holding **20 Aug** builds with
+> different hashes, so 171's fix reached a 32-bit utility not at all — found by
+> checking whether 171 had actually worked. **The owner removed them and this
+> machine is clean, measured.** ***WHAT WAS WRONG WAS GENERALISING IT***: the
+> entry claimed the `sd.iss` `PATH` append meant the same on every machine, and
+> the owner's correction is that ***those client-library installers never existed
+> anywhere but here — not on GitHub, never installed elsewhere.*** So no user is
+> in that position. The residue is append-vs-prepend as a preference, and
+> **"leave it" is a legitimate answer**; prepending would put SD ahead of
+> `System32`, which is a bigger change than the problem.
 >
 > ***165 IS MEASURED, NOT INFERRED: "just one uac prompt" for the whole run***,
 > owner, 5 Sep 2026 — about seven consents down to one across 49 steps. The
@@ -13147,6 +13179,13 @@ and the API is **not** piped through ssh. *(The original text is kept below
 unaltered; it is the record of what was decided on 14 Aug, not a description of
 today's design.)*
 
+***AND SUPERSEDED AGAIN ON THE ADMINISTRATOR SIDE, 5 Sep 2026 — READ §5.25.***
+This section's "the console belongs to administrators" half is now the *whole*
+of an administrator's remote story rather than a preference: an administrator is
+refused any session that did not start on this machine, over ssh and over the
+API alike (PRE_RELEASE 167 and 170, witnessed on `b122` and `b126`). What was a
+statement about who *should* use the console is now enforced.
+
 **Decision from the repository owner, 14 Aug 2026.** Accounts SD creates reach
 the machine **over ssh and nothing else**. Local terminal access — the physical
 console, and Remote Desktop — is for administrators, who have ordinary Windows
@@ -14471,7 +14510,7 @@ complete audit:
 | ~~`PLATFORM_NAME "Linux"`~~ — ***DONE 26 Aug 2026***, it is `"Windows"` and the token is `SD.WINDOWS` | `gplsrc/sddefs.h` | done |
 | `SYSTEM(91)` hardcoded 0, `is_nt` never assigned | `op_sys.c`, `kernel.h` | §5.4, and restore the BASIC branches first |
 | `setuid`/`setgid` in `login_user()` | `gplsrc/linuxio.c` | nothing; SD accounts are not OS users (§5.6) |
-| `EUID_SET`/`EUID_RESTORE` | `sdext_eguid.c`, `CPROC` line 272 | the service model (§5.7); no direct equivalent |
+| ~~`EUID_SET`/`EUID_RESTORE`~~ — ***CODE REMOVED 5 Sep 2026***, whole chain: `sdext_eguid.c`, both `GPL.BP` wrappers, `define_install.h`, the two `$ifndef IS_INSTALL` blocks and `privileged_commands` in `CPROC`, plus the SDEXT keys 102/103 and errors -10400 to -10403. PRE_RELEASE_FIXES 168 | gone | the service model (§5.7); no direct equivalent, and none wanted |
 | `usr/lib/systemd/`, `etc/xinetd.d/` | tree | a Windows service; kept deliberately as documentation of the topology |
 | `installsdai.sh`, `deletesdai.sh` | root | not ported, by decision (§5.9) |
 | `@ds` hardcoded `/` | `CPROC` | live for stage 2 only; `/` is correct on the MSYS2 runtime (§6) |
@@ -14529,10 +14568,25 @@ console, everything works, only remote access is denied."*
 
 **REMOTE is what is denied, not a transport.** ssh and the API both keep working
 for an administrator *on* the machine; both are refused *from* another one.
-`LOGIN`'s `peer.local.test` is the decision, reading `ENV('SSH_CLIENT')` for ssh
-and `system(42)` for the API. ***IT PROVES LOCAL RATHER THAN DISPROVING
-REMOTE***: a session whose origin cannot be established stays refused, which is
-what keeps an unattended scheduled task out.
+***THE RULE LIVES IN ONE PLACE AND IS CALLED FROM TWO — `gpl.bp/PEER_LOCAL`,
+catalogued as `!peer_local`***, reading `ENV('SSH_CLIENT')` for ssh and
+`system(42)` for the API. ***IT PROVES LOCAL RATHER THAN DISPROVING REMOTE***: a
+session whose origin cannot be established stays refused, which is what keeps an
+unattended scheduled task out. **"Local" means LOOPBACK** — `127.*`, `::1`,
+`::ffff:127.0.0.1` — so a connection to this machine's own LAN address is
+remote, which is what `b122` and `b126` both measured.
+
+> ***THIS PARAGRAPH USED TO SAY "`LOGIN`'s `peer.local.test` is the decision …
+> and `system(42)` for the API", AND THE API HALF OF THAT WAS FALSE.***
+> PRE_RELEASE 170: `APISRVR` is the top-level program for an API connection
+> (`K$CPROC.LEVEL 0`), so `CPROC` never runs, `CPROC`'s `call '$LOGIN'` never
+> happens, and **LOGIN's peer test never saw an API session at all** — the
+> `system(42)` branch was dead code written on the assumption that it did. The
+> ssh half was witnessed while the API half had never run. The gate is now in
+> `APISRVR`'s `vb.scram.final`, after the SCRAM proof and beside the `sdapi`
+> test, and the shared routine is what stops the two doors drifting apart.
+> Witnessed on `b126`, 15/0, with a PROGRAMMER admitted over the same remote
+> address as the control.
 
 ***THE PRINCIPLE BEHIND IT, WHICH IS WHAT MAKES IT MECHANICAL.*** Administration
 requires a session where **UAC can render** — a real interactive desktop. That
