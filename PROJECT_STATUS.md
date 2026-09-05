@@ -192,16 +192,40 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **A green from that step is now evidence about the grant check**, which is
 > what 163 was for.
 >
+> ### ***WHERE TO START: THERE IS NO QUEUED WORK, SO ASK RATHER THAN INVENT***
+>
+> ***THE ONE OPEN ENTRY IS 80 AND IT IS PHASE-BOUND, NOT WAITING ON ANYBODY.***
+> It is the documentation audit, and **the owner scheduled it for just before
+> the 1.0 wrap-up, against the final install image** — it now carries seven
+> items, the seventh being where the client DLLs are and how to obtain them.
+> **Do not start it early**; its whole value is being run against what actually
+> ships, and half of it is prose that a later change would invalidate.
+>
+> ***SO THE FIRST ACT OF THE NEXT SESSION IS TO ASK WHAT HE WANTS***, not to
+> pick something off a list. The tree is green, nothing is owed, no cycle is
+> pending, and every entry that was open at the start of this session is closed.
+>
+> ***ONE THING IS TRACED, UNFILED, AND HIS TO RULE ON.*** `VerifyInstall1`
+> costs about five or six UAC prompts, and `b115` was lost to a single stray
+> keystroke landing on one of them — a twenty-minute run, gone, with the step
+> correctly reporting *"The operation was canceled by the user"*.
+> `gplbld/sd-elevate.ps1` already holds the shape that would fix it: **one**
+> consent at `-Start`, then a resident elevated helper over a named pipe with a
+> `PING` that answers `ELEVATED`. That is CLAUDE.md's *"remove the need for a
+> prompt"*, which is the endorsed direction — **not** `-Silent`, which is the
+> forbidden one. **It is deliberately not filed**: it is build tooling, it costs
+> nothing to leave, and it is his call whether it belongs before 1.0.
+>
 > ### ***163 CLOSED, AND THE REMOVAL WAS WITHDRAWN RATHER THAN DONE***
 >
 > ***DO NOT RE-OPEN THE QUESTION OF REMOVING `SDConnectLocal`.*** The proposal
 > was made while it looked unavailable and the owner's **next** message fixed
 > exactly that, by putting the 64-bit DLLs in `usr\bin`. His words on being
 > shown it: *"why do we need to remove `SDConnectLocal`, we have the dlls needed
-> next to sd so it should work"* — **and it does, measured**: `DON` admitted
-> with `WHO -> 1 DON`, `SDSYS` refused. Removing it would have taken a second
-> transport, `sd.c`'s `-C` decoding, `win32pipe.c` and **request type 25** with
-> it.
+> next to sd so it should work"* — **and it does, measured twice**: by hand
+> before the step existed, and again inside `b118` (the row above). Removing it
+> would have taken a second transport, `sd.c`'s `-C` decoding, `win32pipe.c`
+> and **request type 25** with it.
 >
 > **What the entry turned out to be about is COVERAGE.** `SDConnectLocal` is the
 > only route into SD that sends **no password at all** — `vb.local.login` reads
@@ -234,7 +258,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > **Fixed by applying 161's own lesson to the test tooling**: `make sd` builds
 > `sd-connect.exe` into `bin\client32`, beside the DLL it loads, and both
-> verifiers derive the path from `$PSScriptRoot`. ***WITNESSED ON `b117`, NOT
+> verifiers derive the path from the script's own location — **resolved in the
+> body, not in a `param()` default**, which is 163's finding above and was
+> corrected there. ***WITNESSED ON `b117`, NOT
 > ASSUMED***: `verify-tierapi` **16 of 16** with real tier counts 355/397/420
 > and both negative controls firing, and `verify-doors` door 3 now **differing
 > between phases** — `sd-connect exit 0` in Control against **exit 1** in
