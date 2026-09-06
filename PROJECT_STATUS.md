@@ -257,10 +257,27 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > would turn the installed tree STALE and cost another cycle mid-freeze.** They
 > are the first work after the tag, not before it.
 >
-> ***THE ORDER MATTERS AND IT IS: CYCLE → NEW LOGON → `b133` → CHANGELOG →
-> TAGS.*** You tag what you tested, and the changelog commit is what the tag
-> should point at. **The install is DONE — 6 Sep 2026, `SD` service `Running`**
-> — so the live step is the logon and the run.
+> ***`b133` WAS GREEN IN BOTH HALVES, 6 Sep 2026, AND IT IS NOT THE RUN THAT
+> GETS TAGGED.*** **UNELEVATED *"every step exited 0"*; ELEVATED *"all 27 steps
+> exited 0"***, 13:58 to 14:25, after the new logon that entry 182's box
+> describes. ***THEN PRE_RELEASE 184 CHANGED A SHIPPED SCRIPT***, so the tree is
+> STALE again and the order restarts: **you tag what you tested, and nobody has
+> tested the tree that carries 184.**
+>
+> ***THE ORDER NOW IS: CYCLE → REBOOT → `b134` → CHANGELOG → TAGS.*** The
+> reboot is doing three jobs at once and is not optional: the new logon token
+> (182), the **three stuck hives** that stopped 178's sweep collecting anything
+> on `b133` (`sdtub133`, `sddrb133a`, `sddrb133b` — loaded hives cannot be
+> removed, and a restart unloads every one), and it is what a user is told to do
+> anyway.
+>
+> ⚠️ ***178 IS STILL NOT WITNESSED, AND `b133` IS WHY IT LOOKS LIKE IT MIGHT
+> BE.*** Its sweep **did** fire and **did** name itself — the wiring is proven —
+> but it **skipped all three profiles and removed nothing**, which is word for
+> word the falsification the entry wrote for itself: *"a full run whose opening
+> block does not name the script **or removes nothing on a machine that has
+> orphans**"*. **The reboot is what makes `b134`'s sweep able to collect**, and
+> that run is the witness.
 >
 > 1. ***THE FINAL INSTALL — `cycle.ps1`, ELEVATED.*** ***DONE 6 Sep 2026.***
 >    Nothing can be verified until it runs, because there is no installed tree
@@ -269,11 +286,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    -ExecutionPolicy Bypass -File "…\cycle.ps1"`.
 > 2. ***SIGN OUT AND BACK IN, OR REBOOT*** — the box above says why, and it is
 >    the step whose absence killed `b132`.
-> 3. ***`b133`, AND IT MUST BE RUN FROM THE OWNER'S TERMINAL.*** An agent
+> 3. ***`b134`, AND IT MUST BE RUN FROM THE OWNER'S TERMINAL.*** An agent
 >    session's sandbox refused to launch `VerifyInstall1.ps1` (it had allowed
 >    `b131` an hour earlier), so do not assume you can start it.
->    **UNELEVATED**, and it is also the first exercise of 178's start-of-run
->    sweep. `b132` is spent — see the box above.
+>    **UNELEVATED**. It is what witnesses **184**'s closing screen surviving a
+>    real run, and it is 178's second chance: `b133` fired the sweep but it
+>    collected nothing, and only a reboot before this run can change that.
+>    **`b132` and `b133` are both spent.**
 > 4. **`sdsys/changelog`**: `Windows port - unreleased` becomes **`W1.0-0`**,
 >    dated. Its own header says entries stay undated *"until there is a version
 >    to attach them to"*, and this is that moment.
