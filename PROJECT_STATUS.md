@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***`b131` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL. 173, 174, 176, 177, 179 AND 180 ALL CLOSED. THE PRODUCT IS READY TO FREEZE AS W1.0-0 AND THE FREEZE HAS NOT HAPPENED — `b132`, THE CHANGELOG VERSION, AND THE TAGS ARE ALL OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***`b131` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL. 173, 174, 176, 177, 179, 180 AND 181 ALL CLOSED; 178 IS BUILT AND ITS START-OF-RUN SWEEP IS STILL UNRUN, WHICH `b132` WITNESSES. THE PRODUCT IS READY TO FREEZE AS W1.0-0 AND THE FREEZE HAS NOT HAPPENED — `b132`, THE CHANGELOG VERSION, AND THE TAGS ARE ALL OWED.*** ⇩⇩⇩
 >
 > ### ***THE FREEZE, WHICH IS THE NEXT THING AND IS NOT STARTED***
 >
@@ -234,52 +234,44 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > from HTML at all** — it has never implemented CSS margin boxes. Do not try to
 > "fix" this in the stylesheet.
 >
-> ### ⚠️ ***KNOWN DEFECT, FOUND 6 Sep 2026 AND DELIBERATELY LEFT FOR THE NEXT SESSION: THE LICENCE PAGE IS IN THE WRONG PLACE IN TWO SETS OF THREE***
+> ### ***CLOSED 6 Sep 2026 — PRE_RELEASE 181, THE LICENCE PAGE NOW OPENS ALL THREE SETS IN THE HTML AND THE PDF: `SDCoreWindowsDocs` `977b51c`***
 >
 > Owner, reading the bound sets: *"there is no license page on the user guide or
 > getting started - since these are three separate documents, each set needs a
-> license page."*
+> license page."* It was a POSITION problem rather than a missing page — all
+> three books carried the licence exactly once — and his ruling was ***"follow
+> the existing pattern in administrator for both pdf and html."***
 >
-> ***MEASURED, AND IT IS A POSITION PROBLEM RATHER THAN A MISSING PAGE.*** All
-> three books DO contain the licence: `licenceblock` markup, the full
-> `Attribution-ShareAlike 4.0 International` name, and `Copyright © 2026` each
-> appear **exactly once** in every book's HTML. What differs is where:
+> ***SO THE FILENAMES MOVED AND THE CODE DID NOT.*** `00-start-here` and
+> `00-sd-introduction` became `00b-`, because `00-` sorts before `00a-` and both
+> the book and the website take `add_nav.py:78`'s plain `sorted()` — special-
+> casing either one would have put the book in a different order from the
+> prev/next chain, which is the invariant `mkbook.py` calls "two documents
+> claiming to be one". **`Administrator` was not touched and the licence page
+> keeps the same filename in all three sets.** The renumbering cost the entry
+> warned about did not materialise: **two files moved, two cross-references
+> followed, and both index pages build their links from the sort.**
 >
-> | set | first document | so the licence page sits |
-> |---|---|---|
-> | `Administrator` | `00a-copyright-and-licence` | **page 1**, merged with the front matter |
-> | `GettingStarted` | `00-start-here` | **after** the introduction |
-> | `User` | `00-sd-introduction` | **after** the introduction |
+> ***THE PART WORTH CARRYING FORWARD IS WHY IT SHIPPED: BOTH GUARDS WERE GREEN
+> THE WHOLE TIME, BECAUSE BOTH COUNTED AND NEITHER LOOKED.*** `add_nav`
+> required the licence block exactly once per set and got it; `mkbook` asked
+> only whether the copyright was in the book **anywhere**, which 53 documents
+> satisfy by accident. **Position is a number now too** — `add_nav` refuses a
+> set whose licence page does not sort first, `mkbook` refuses a book whose
+> first document is not the licence page, ***and both refusals were tested
+> against the pre-fix layout rather than assumed***: each named the set and both
+> pages, exited 1, and `mkbook` stopped before writing. `release.ps1` reads both
+> exit codes.
 >
-> ***THE CAUSE IS THE SORT.*** `mkbook.py` takes `add_nav.py:78`'s order, a
-> plain `sorted()`, and `00-` sorts before `00a-`. **Administrator only lands
-> correctly by accident** — it is the one set with no `00-` file.
+> **Measured after the rebuild**: page one of all three bound PDFs is the front
+> matter and the licence page on one sheet; the licence name and the copyright
+> appear exactly once per book; `/Outlines` in all three; `checklinks` **0
+> broken** across 88, 240 and 20 links; sheets **80 / 339 / 78**. All three zips
+> were rebuilt.
 >
-> ***AND IT IS PARTLY MINE.*** `mkbook.py`'s front matter deliberately carries
-> **no** copyright block, on the reasoning that "every set opens with
-> 00a-copyright-and-licence, which now shares page one". **That reasoning holds
-> for Administrator and is false for the other two.**
->
-> ***THE TENSION TO RESOLVE, AND IT IS WHY THIS IS NOT A ONE-LINE FIX.***
-> Special-casing `00a` to sit first in the book would put the **book in a
-> different order from the website's prev/next chain** — and `mkbook.py`'s own
-> docstring says that makes "two documents claiming to be one". The honest
-> options:
->
-> 1. **Move `00a` to the front in the book only** — simplest, breaks that
->    invariant, so the docstring's claim must be amended rather than quietly
->    contradicted.
-> 2. **Renumber so the licence sorts first in both** — keeps book and website
->    identical, but renumbering has a cost the record already knows:
->    `checklinks` and the `\d\d[a-z]?-` pattern, and every cross-reference.
-> 3. **Put the legal block back in `mkbook.py`'s front matter** — every set then
->    states it on page 1 regardless of order, at the price of the duplication
->    the owner asked to remove on Administrator, which is the one set where it
->    would then appear twice.
->
-> **The owner's words say what the requirement is — "each set needs a license
-> page" — and each set HAS one; what they do not yet say is where it belongs.**
-> Worth one question before building.
+> ⚠️ ***THE DOCUMENTATION TAG MUST POINT AT `977b51c` OR LATER, NOT AT WHAT
+> HANDOFF 45 WAS WRITTEN AGAINST.*** The `User` set still has not been read page
+> by page, which is where anything left would show.
 >
 > ### ***THE BUNDLE, AND THERE IS A TASK CHIP FOR IT***
 >
