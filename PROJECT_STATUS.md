@@ -284,9 +284,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   all 28 transcripts are on disk, which is the guard that replaced the old
 >   blanket ban.
 > - **Residue, read from the machine afterwards**: **no** stray accounts, **no**
->   stray `sdu_` groups, service `Running`. **41 profile directories** from
->   `b129`/`b130`/`b131` remain in `C:\Users` — **expected**, and what PRE_RELEASE
->   36's boot-time sweep (`reclaim-profiles.ps1`) reclaims at service start.
+>   stray `sdu_` groups, service `Running`. **40 test profile directories** from
+>   `b129`/`b130`/`b131` remained in `C:\Users`, for PRE_RELEASE 36's boot-time
+>   sweep. ***THE OWNER THEN REBOOTED AND THAT SWEEP IS NOW WITNESSED WORKING
+>   FOR THE FIRST TIME ON THIS MACHINE***: `reclaim-profiles.log` closes
+>   ***`26 considered, 26 reclaimed, 0 still pending, 0 refused`***, and
+>   `C:\Users` fell **40 → 14** — exactly those 26, two routes to one number.
+>   ***THE 14 THAT SURVIVED ARE PRE_RELEASE 178, FILED***: five verifiers remove
+>   their Windows account with `Remove-LocalUser`, which bypasses `DELETE_USER`,
+>   so no reclaim record exists and the sweep never sees them. **Not a product
+>   defect** — the product's own path recorded and was reclaimed, which is what
+>   the 26 prove. `gplbld/clean-test-profiles.ps1` collects them (`-SelfTest`
+>   **45/45 and 41/41** here), and **178 carries the ruling that is actually
+>   open**: route the verifiers through SD, or let the harness sweep its own.
 > - *One cosmetic artefact worth not re-investigating*: the unelevated
 >   transcript ends `PS>TerminatingError(): "System error."` just before
 >   `transcript end`, after both summaries were written and with the parent
@@ -294,8 +304,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   step reported anything; treat it as a transcript-stop artefact of that host
 >   unless it recurs in a normal console run.
 >
-> ***NEXT FREE PRE_RELEASE ID: 178. 1 OPEN: 176, this session's own and UNRUN.***
-> `test-fixlist-units` **276 passed / 0 failed**, 1 open entry.
+> ***NEXT FREE PRE_RELEASE ID: 179. 2 OPEN: 176 and 178, both this session's
+> own.*** **176 is fixed and unrun; 178 is a RULING the owner has not made yet,
+> not a fix waiting to be written.** `test-fixlist-units` **276 passed / 0
+> failed**.
 >
 > # ⇩⇩⇩ HANDOFF 44, 6 Sep 2026 — ***173 AND 174 ARE CLOSED AND WITNESSED ON A STOCK-`Restricted` MACHINE. THE 5 Sep FIX WAS IN THE BINARY AND THE DEFECT WAS IN `sd.conf`: `stage.py:633`'s TEMPLATE OVERRODE IT. 176 IS NEW AND UNRUN.*** ⇩⇩⇩
 >
