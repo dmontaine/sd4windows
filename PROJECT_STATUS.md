@@ -202,16 +202,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   timeouts. **Hardware is not the lever if that 20 minutes ever has to come
 >   down; the waits are.** **And do not re-measure this to keep it current** —
 >   it is recorded because it changes what to expect, not as a benchmark.
-> - ***THE SPEED MAY ALSO BE WHY 176 APPEARED HERE, AND THAT IS A HYPOTHESIS
->   RATHER THAN A FINDING.*** 176 is a race between a process existing and the
->   SCM reporting `Running`; it surfaced on this machine and the record shows it
->   never surfacing on the other. **What IS observed is that this box produced
->   the `StartPending` window at least once.** ***THAT WEAKENS THIS FILE'S OWN
->   ADVICE ON HOW TO CLOSE 176***: handoff 45 argues the window "cannot be
->   commanded" and therefore wants a units test that needs a shipped script
->   refactored. **If the window recurs here across a few restarts, a direct
->   witness is cheaper and touches nothing** — try that first, and fall back to
->   the guard only if it will not reproduce.
+> - ***THE SPEED WAS OFFERED AS A REASON 176 APPEARED HERE. IT WAS MEASURED THE
+>   SAME MORNING AND IT IS WRONG — KEPT BECAUSE THE CORRECTION IS THE USEFUL
+>   PART.*** 176's gap is **~5 seconds on every restart** (165 samples across
+>   three restarts), not a marginal race a fast CPU tips over. **A 500 ms poll
+>   against a 5 s gap fails every time on any machine.** ***THE REAL REASON IT
+>   WAS NEVER SEEN IS THAT `restart-sd.ps1` HAD BARELY BEEN RUN*** — it is entry
+>   78's script, reached through `REMOTEAPI`, and the owner met the failure the
+>   first time he invoked it. **Two machine facts do explain 173 and 177; this
+>   third one explained nothing and was a guess dressed as a lead.**
 > - ***HANDOFF 43's OPEN FALSIFICATION TEST PASSES.*** Its `$env:USERPROFILE`
 >   fix was flagged *"honestly untestable here"* on the old machine; measured
 >   here after the cycle, **`C:\Users\Don\stagetest` exists and there is no
@@ -252,28 +251,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ### ***WHAT IS OWED, SHORTEST FIRST***
 >
-> - ***176 IS THE ONLY OPEN ENTRY. IT IS FIXED AND UNRUN.*** `restart-sd.ps1`'s
->   wait now tests what its verdict tests. **A passing restart does not close
->   it** — if the service reaches `Running` quickly the OLD code passes too, so
->   a green run is consistent with both the bug and the fix, which is the null
->   case §"an instrument shows what it DID" forbids.
-> - **The route that would close it, and it is a plan rather than a finding:**
->   a `test-restartsd-units.ps1` driving the wait against a fake that reports
->   `StartPending` for the first few polls; assert it **polled more than once**;
->   ***a disqualifier row where the service NEVER reaches `Running` and the
->   script must still FAIL***, because a fix that always returns success would
->   otherwise pass and be worse than the bug; a mutant control restoring the old
->   loop and watching it go red; and the new guard **named in CLAUDE.md's tier-1
->   list in the commit that creates it**.
-> - ***THE OBJECTION TO THAT PLAN, RECORDED BECAUSE IT WAS RAISED AND NOT
->   SETTLED BY ANYTHING MEASURED.*** The wait is inline top-level code, so there
->   is nothing to lift by AST — **the guard needs a shipped script refactored
->   into a function purely to make it testable**, and that refactor would itself
->   want a cycle before it could be called done. **A reasonable person could
->   argue instead for watching a real suite transcript for the `StartPending`
->   window.** The counter is that the window cannot be commanded, so that route
->   may never produce a decisive run — **but it is a judgement, not a
->   measurement, and the next session may overrule it.**
+> - ***176 IS CLOSED AND WITNESSED, AND THE PLANNED UNITS TEST WAS NOT NEEDED.***
+>   An independent sampler — `gplbld/sample-sdstate.ps1`, 100 ms, service
+>   state and process list, deliberately **outside** the thing under test
+>   because the fix erases its own evidence by always reporting `Running` —
+>   watched three consecutive restarts and recorded ***165 samples with a
+>   process present while the service was still `StartPending`***: 45, 44 and 46
+>   consecutive samples, **~5.0 s each, three restarts of three**. **The fixed
+>   script carried all three through and printed *"SD is running again"***, tied
+>   to the samples by timestamp.
+> - ***THIS FILE PREVIOUSLY ARGUED THE WINDOW "CANNOT BE COMMANDED" AND WANTED A
+>   SHIPPED SCRIPT REFACTORED TO BE TESTABLE. BOTH CLAIMS WERE WRONG.*** The
+>   window is not rare — it is every restart — so a direct witness cost three
+>   restarts and a sampler, and **no shipped code was reshaped merely to be
+>   observable.** **The general lesson is the one worth keeping: when the fix
+>   hides the symptom, measure from outside rather than rebuilding the subject
+>   to report on itself.**
 > - ***177 IS CLOSED AND WITNESSED — `-Run b130 -Only verify-apiname`, 17 OF 17
 >   CHECKS PASSED, exit 0.*** **`probe built: True` is decisive because of the
 >   fix itself**: the probe is deleted before the build, so that row can only
@@ -322,10 +315,11 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   step reported anything; treat it as a transcript-stop artefact of that host
 >   unless it recurs in a normal console run.
 >
-> ***NEXT FREE PRE_RELEASE ID: 179. 2 OPEN: 176 and 178, both this session's
-> own.*** **176 is fixed and unrun; 178 is a RULING the owner has not made yet,
-> not a fix waiting to be written.** `test-fixlist-units` **276 passed / 0
-> failed**.
+> ***NEXT FREE PRE_RELEASE ID: 179. 1 OPEN: 178, AND IT IS A RULING THE OWNER
+> HAS NOT MADE, NOT A FIX WAITING TO BE WRITTEN*** — route the verifiers through
+> SD so `DELETE_USER` records, or keep the bypass and have the suite sweep its
+> own litter. **Its mess is already cleared.** ***173, 174, 176 AND 177 ARE ALL
+> CLOSED AND WITNESSED.***
 >
 > # ⇩⇩⇩ HANDOFF 44, 6 Sep 2026 — ***173 AND 174 ARE CLOSED AND WITNESSED ON A STOCK-`Restricted` MACHINE. THE 5 Sep FIX WAS IN THE BINARY AND THE DEFECT WAS IN `sd.conf`: `stage.py:633`'s TEMPLATE OVERRODE IT. 176 IS NEW AND UNRUN.*** ⇩⇩⇩
 >
