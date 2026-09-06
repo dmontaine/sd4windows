@@ -237,6 +237,48 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > installed product). ***`b128` IS STILL SPENT — RUN `b129`. NEXT FREE
 > PRE_RELEASE ID: 176. 2 OPEN of 175: 173 (B) and 174 (S).***
 >
+> ### ***THE MOVE ITSELF: `setup-devbox.ps1 -CheckOnly` RAN ON THE `don` MACHINE, AND FOUND A REAL BUG — FIXED, NOT YET CARRIED OVER***
+>
+> Owner ran `-CheckOnly` from an open (unelevated) PowerShell on the new
+> machine and it worked as designed — the earlier symptom, "a window briefly
+> appears and disappears," was double-clicking the `.ps1` rather than running
+> it from a console, not a script defect. Output confirmed: git, winget and
+> the Windows python are all present; GitHub CLI, MSYS2 and Inno Setup 6 are
+> not (reported `[BY HAND]`, correctly, since `-CheckOnly` installs nothing by
+> design — those all self-install via `winget` once run **elevated without
+> `-CheckOnly`**, which is the very next step owed on that machine).
+>
+> ***ONE REAL DEFECT, THOUGH: `Step-Docs` CRASHED*** — `Step-Docs stopped
+> unexpectedly - Traceback (most recent call last): ...`. **Same bug class
+> already fixed twice elsewhere in this script** (the git-clone
+> `CommandNotFoundException` and the PATH-refresh case, both commented in
+> `Update-SessionPath`): a native exe writing to stderr is a *terminating*
+> `NativeCommandError` under this script's `$ErrorActionPreference = 'Stop'`,
+> and **`2>$null` does not stop it** — the redirection is what wraps the line
+> in an ErrorRecord. `& $py.Source -c "import markdown" 2>$null` threw exactly
+> that when the Windows python (fresh machine, no `pip install` yet) raised
+> `ModuleNotFoundError`, which is the *expected* failure this check exists to
+> detect — so the check itself could never report it. **Fixed** in
+> `SD-Untracked\devtools\setup-devbox.ps1`'s `Step-Docs`: the whole function
+> body now runs under a local `$ErrorActionPreference = 'Continue'`
+> (try/finally, restored after), same fix shape as the two precedents.
+> ***MEASURED, NOT ASSUMED***: re-parsed on the old machine (0 errors, AST
+> function count 29 against `grep -c "^function "`'s 28 — the one-off
+> difference is `Test-Editors`, nested and indented, not a BOM swallowing a
+> definition), then **re-run `-CheckOnly` on the old machine: `[ok] markdown
+> 3.10.2 importable`, `[ok] pdf printer`, `No problems`** where it used to
+> crash.
+>
+> ***NOT YET ON THE `don` MACHINE.*** `SD-Untracked` is not tracked in this
+> repository (§"MOVING THE DEVELOPMENT ENVIRONMENT" above) — the fix lives
+> only in the old machine's copy, `C:\Users\dmont\Projects\SD-Untracked\
+> devtools\setup-devbox.ps1`, sha256 not yet re-pinned into a transfer kit.
+> **The bug is non-fatal either way** — each `Step-*` is wrapped in its own
+> try/catch (`setup-devbox.ps1:1144`), so the crash cost only the Docs step's
+> browser check and a scary traceback line, not the rest of the install. The
+> owner was told to proceed with the elevated run on the unfixed copy rather
+> than wait, and given the fixed copy for later.
+>
 > ### ***WHAT IS DONE, AND ALL OF IT IS RENDERED AND CHECKED***
 >
 > **86 pages across three sets, HTML and PDF, 348 links checked, 0 broken.**

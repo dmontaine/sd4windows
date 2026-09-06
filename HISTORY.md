@@ -59786,3 +59786,45 @@ those names are not steps on that runner at all (they split across
 half), and the runner correctly refused the unmatched names rather than
 quietly running a subset. Sorting the free-32 list by which runner actually
 owns each name is a separate task.
+
+## `setup-devbox.ps1` STEP-DOCS CRASHED ON THE FIRST REAL `don`-MACHINE RUN — SAME NATIVE-STDERR-UNDER-STOP BUG, THIRD OCCURRENCE
+
+Owner ran `-CheckOnly` on the new machine from an open PowerShell (the
+double-click symptom — window flashes and closes — was just that: a
+double-clicked `.ps1` gets no console to leave output in). Preflight, git,
+winget and the missing-tool reporting all worked. `Step-Docs` did not:
+`Step-Docs stopped unexpectedly - Traceback (most recent call last): ...`.
+
+**Cause, and it is the same class as `Update-SessionPath`'s comment already
+warns about**: `$ErrorActionPreference = 'Stop'` is set for the whole script.
+`& $py.Source -c "import markdown" 2>$null` is meant to let a missing module
+fail quietly so the script can report it as `[Hand]` or install it — but a
+native exe's stderr becomes a terminating `NativeCommandError` under `Stop`,
+and `2>$null` does not prevent that; the redirection is what wraps the line
+in an ErrorRecord in the first place. The Windows python on a fresh machine
+has no `markdown` installed, so `ModuleNotFoundError` on stderr is the
+*expected*, correct-to-detect case — and it was exactly the case that could
+never be detected, because it killed the step before the `if
+($LASTEXITCODE...)` below it ran.
+
+**Fixed** in `Step-Docs`: the function body runs under a local
+`$ErrorActionPreference = 'Continue'`, saved and restored via try/finally.
+Re-parsed clean (0 errors, AST function count 29 vs. `grep -c "^function "`'s
+28 — the gap is `Test-Editors`, a nested nested function, not a swallowed
+definition) and re-run `-CheckOnly` on the old machine: `[ok] markdown 3.10.2
+importable`, `[ok] pdf printer`, `No problems` — same steps that used to
+throw.
+
+**Not fatal, and said so before telling the owner to proceed**: every
+`Step-*` call is already wrapped in its own try/catch
+(`setup-devbox.ps1:1144`), so the crash cost only Step-Docs's own remaining
+check (the Edge/Chrome probe) and a scary traceback line — the elevated
+install-everything run is unaffected. Owner was told to run the elevated
+command on the unfixed copy rather than wait.
+
+**Not yet carried to the `don` machine.** `SD-Untracked` is not tracked in
+`sd4windows` (it is the one thing the transfer kit carries by hand, per
+PROJECT_STATUS's "MOVING THE DEVELOPMENT ENVIRONMENT"), so the fix exists
+only in the old machine's copy at `C:\Users\dmont\Projects\SD-Untracked\
+devtools\setup-devbox.ps1`. The `P:\setupdevbox\` kit's pinned sha256 is now
+stale and needs re-cutting before the next machine move.
