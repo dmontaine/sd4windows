@@ -247,11 +247,36 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > Owner asked for it, 5 Sep 2026. It lives at
 > `C:\Users\dmont\Projects\SD-Untracked\devtools\setup-devbox.ps1` — **not in
-> this repository**, it moved out 3 Sep — and a byte-identical copy is now at
-> ***`P:\setup-devbox.ps1`***, SHA-256
-> `7F1ADEA3C9EC5BF7841388B9C374ADE0DFFAEA9FEF2D104C5E9F31C84FDC15F6`.
-> **Both parse with 0 errors and both were run `-CheckOnly` end to end**, the
-> P: copy included: *"setup-devbox: finished, no problems."*
+> this repository**, it moved out 3 Sep.
+>
+> ***THE TRANSFER KIT IS `P:\setupdevbox\` AND IT IS COMPLETE.***
+>
+> ```
+> P:\setupdevbox\setup-devbox.ps1        (script, sha256 92672FF7…9C87)
+> P:\setupdevbox\SD-Untracked\           (the one thing that cannot be cloned)
+> ```
+>
+> **Only `SD-Untracked` has to be carried** — owner, 5 Sep 2026: *"only the
+> three directories in the Projects folder are current to the project"*, and
+> the other two are public GitHub repositories the script clones. **The two
+> pinned editors on P: were checked against `stage.py`'s `BUNDLED_EDITORS`
+> and match**: `micro.exe` `77a8b925…ef3f`, `edit.exe` `5f54a0fa…d9c0`. A kit
+> with the wrong versions would clone, install and then fail at staging.
+>
+> ***THE TREE IS FOUND BESIDE THE SCRIPT, SO THERE IS NO PATH TO TYPE.***
+> `-SdUntrackedSource` is only for a tree kept somewhere else. On the new
+> machine: `-CheckOnly` first (no elevation, changes nothing), then the same
+> command **elevated**.
+>
+> **Rehearsed against an empty root using the actual P: kit**: it reports
+> *"found SD-Untracked beside this script: P:\setupdevbox\SD-Untracked"*, would
+> clone both repositories, and finishes *"no problems."* ***AND BOTH DIRECTIONS
+> WERE DRIVEN IN A SANDBOX*** — with the editors present it finds them, with
+> them removed it refuses with *"the installer CANNOT be built without it"*.
+> *(The harness for that failed twice before it was right: `setup-devbox`
+> writes with `Write-Host`, which in PowerShell 5.1 goes to the information
+> stream, so `| Out-String` captured nothing and both assertions matched
+> nothing against a script that had printed the right answer. `6>&1`.)*
 >
 > **What was stale, all five measured rather than guessed:**
 >
@@ -278,6 +303,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    have failed `make sd`.
 > 5. ***THE SELF-FETCH URL IN ITS HEADER IS A 404*** — it still pointed into
 >    `gplbld/`, where the script has not been since 3 Sep.
+> 6. ***IT NAGGED ABOUT TWO TREES THAT ARE NOT PART OF THE PROJECT.***
+>    `Step-SdHelp`, `-SdHelpSource` and the `GPL.BP` summary line are **gone**
+>    on the owner's ruling above. Both reported on **every** run, so both were
+>    a standing hand-carry item for trees a new machine is not supposed to
+>    have. **LEFT FOR A PERSON went 3 → 1**, and the one left is the
+>    `python-markdown` package a real run installs. The header records what was
+>    removed so nobody restores it as a kindness.
 >
 > ***AND ONE FINDING THAT IS THE OWNER'S CALL RATHER THAN A FIX.*** The 26 Aug
 > ruling was that the documentation toolchain targets the **MSYS2** python, and
