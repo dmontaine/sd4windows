@@ -175,7 +175,130 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***`b131` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL — THE FIRST CLEAN SUITE ON A STOCK-CONFIGURATION MACHINE. 173, 174 AND 177 CLOSED AND WITNESSED. 176 IS THE ONLY OPEN ENTRY AND IS UNRUN.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***`b131` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL. 173, 174, 176, 177, 179 AND 180 ALL CLOSED. THE PRODUCT IS READY TO FREEZE AS W1.0-0 AND THE FREEZE HAS NOT HAPPENED — `b132`, THE CHANGELOG VERSION, AND THE TAGS ARE ALL OWED.*** ⇩⇩⇩
+>
+> ### ***THE FREEZE, WHICH IS THE NEXT THING AND IS NOT STARTED***
+>
+> Owner's decision, 6 Sep 2026: freeze as **W1.0-0**. **Not on GitHub** — the
+> release bundle carries third-party apps and PDF-only documentation, is
+> assembled by hand, zipped, and goes to pCloud for selected testers, then
+> SourceForge later. **He will want help creating the SourceForge project.**
+>
+> ***SD IS NOT INSTALLED ON THIS MACHINE RIGHT NOW, AND THAT IS DELIBERATE.***
+> Owner, 6 Sep 2026: *"I removed the sd installation - preparing for a final
+> installation run."* **`C:\Program Files\SD`, `C:\ProgramData\SD` and the `SD`
+> service are all absent**, so ***`assert-current` exits 2 saying "nothing
+> installed" and that is CORRECT rather than a fault.*** **Do not read it as a
+> broken tree, and do not try to repair it — the cure is the cycle below.**
+>
+> ***THE ORDER MATTERS AND IT IS: CYCLE → `b132` → CHANGELOG → TAGS.*** You tag
+> what you tested, and the changelog commit is what the tag should point at.
+>
+> 1. ***THE FINAL INSTALL — `cycle.ps1`, ELEVATED.*** Nothing can be verified
+>    until it runs, because there is no installed tree to verify.
+> 2. ***`b132`, AND IT MUST BE RUN FROM THE OWNER'S TERMINAL.*** An agent
+>    session's sandbox refused to launch `VerifyInstall1.ps1` (it had allowed
+>    `b131` an hour earlier), so do not assume you can start it.
+>    **UNELEVATED**, and it is also the first exercise of 178's start-of-run
+>    sweep.
+> 2. **`sdsys/changelog`**: `Windows port - unreleased` becomes **`W1.0-0`**,
+>    dated. Its own header says entries stay undated *"until there is a version
+>    to attach them to"*, and this is that moment.
+> 3. ***ANNOTATED `v1.0-0` TAGS ON BOTH REPOSITORIES***, pushed. **Neither has
+>    any tag today** — checked. `SDCoreWindowsDocs` must be tagged in the same
+>    sitting or the frozen code and the documentation describing it drift apart.
+>
+> ***A LOCAL `sd4windows-1.0-0` CLONE WAS CONSIDERED AND REJECTED, WITH A REASON
+> WORTH KEEPING***: it is a second tree that can diverge silently, invisible to
+> the other machine and to every later session — **PRE_RELEASE 161's shape
+> exactly**, where a stale mirror shipped the 32-bit client sending passwords in
+> clear *"with nothing in either project able to report it"*. A tag cannot
+> diverge. ***A DEV BRANCH IS ALSO NOT NEEDED YET***: the branch that will
+> matter is a maintenance one cut FROM the tag the day 1.0-0 needs a patch after
+> `main` has moved, and the tag preserves that option at zero cost.
+>
+> ### ***THE DOCUMENTATION IS BOUND NOW — PRE_RELEASE 180, DONE***
+>
+> **Each set is ONE PDF** with continuous page numbers and a bookmark tree, in
+> `<Set>\book\`. `GettingStarted` **19 pages / 88 links**, `User` **53 / 240**,
+> `Administrator` **14 / 20**, **0 broken**, all three carrying `/Outlines`.
+> **The 86 per-page PDFs still exist and are NOT what ships** — the bundle takes
+> the bound ones. ***THE OWNER HAS REVIEWED SAMPLES AND DIRECTED FOUR FIXES; THE
+> `User` SET HAS NOT BEEN READ PAGE BY PAGE***, and at 53 documents it is where
+> anything left would show.
+>
+> **The running footer is `printToPDF`'s `footerTemplate`, not HTML**, and that
+> distinction is the whole reason the per-page footers are stripped: an HTML
+> `<footer>` renders once at the end of a document, so in print it is unnoticed
+> or orphaned on a sheet of its own. **Chromium cannot make a running footer
+> from HTML at all** — it has never implemented CSS margin boxes. Do not try to
+> "fix" this in the stylesheet.
+>
+> ### ⚠️ ***KNOWN DEFECT, FOUND 6 Sep 2026 AND DELIBERATELY LEFT FOR THE NEXT SESSION: THE LICENCE PAGE IS IN THE WRONG PLACE IN TWO SETS OF THREE***
+>
+> Owner, reading the bound sets: *"there is no license page on the user guide or
+> getting started - since these are three separate documents, each set needs a
+> license page."*
+>
+> ***MEASURED, AND IT IS A POSITION PROBLEM RATHER THAN A MISSING PAGE.*** All
+> three books DO contain the licence: `licenceblock` markup, the full
+> `Attribution-ShareAlike 4.0 International` name, and `Copyright © 2026` each
+> appear **exactly once** in every book's HTML. What differs is where:
+>
+> | set | first document | so the licence page sits |
+> |---|---|---|
+> | `Administrator` | `00a-copyright-and-licence` | **page 1**, merged with the front matter |
+> | `GettingStarted` | `00-start-here` | **after** the introduction |
+> | `User` | `00-sd-introduction` | **after** the introduction |
+>
+> ***THE CAUSE IS THE SORT.*** `mkbook.py` takes `add_nav.py:78`'s order, a
+> plain `sorted()`, and `00-` sorts before `00a-`. **Administrator only lands
+> correctly by accident** — it is the one set with no `00-` file.
+>
+> ***AND IT IS PARTLY MINE.*** `mkbook.py`'s front matter deliberately carries
+> **no** copyright block, on the reasoning that "every set opens with
+> 00a-copyright-and-licence, which now shares page one". **That reasoning holds
+> for Administrator and is false for the other two.**
+>
+> ***THE TENSION TO RESOLVE, AND IT IS WHY THIS IS NOT A ONE-LINE FIX.***
+> Special-casing `00a` to sit first in the book would put the **book in a
+> different order from the website's prev/next chain** — and `mkbook.py`'s own
+> docstring says that makes "two documents claiming to be one". The honest
+> options:
+>
+> 1. **Move `00a` to the front in the book only** — simplest, breaks that
+>    invariant, so the docstring's claim must be amended rather than quietly
+>    contradicted.
+> 2. **Renumber so the licence sorts first in both** — keeps book and website
+>    identical, but renumbering has a cost the record already knows:
+>    `checklinks` and the `\d\d[a-z]?-` pattern, and every cross-reference.
+> 3. **Put the legal block back in `mkbook.py`'s front matter** — every set then
+>    states it on page 1 regardless of order, at the price of the duplication
+>    the owner asked to remove on Administrator, which is the one set where it
+>    would then appear twice.
+>
+> **The owner's words say what the requirement is — "each set needs a license
+> page" — and each set HAS one; what they do not yet say is where it belongs.**
+> Worth one question before building.
+>
+> ### ***THE BUNDLE, AND THERE IS A TASK CHIP FOR IT***
+>
+> `SDCore-W1.0-0\` with the installer at the root, `documentation\` (**the bound
+> PDFs only — the HTML is for a future website and must not ship**), and
+> `extras\` for third-party utilities with their own README. **mvDeveloper
+> 2.5.1** is the only one so far, `sha256 c5ab2e02…4ca32d`, free and cleared for
+> redistribution, and its author may contribute more.
+>
+> ***THE INSTALLER TO USE IS `C:\Users\Don\sdout\sd-setup-W1.0-0.exe`,
+> `sha256 2ca164f0…0cf4b0`, 6 Sep 00:57.*** A **stale** one dated 5 Sep 16:24
+> sat on the Desktop and **predated the `stage.py:633` fix, so it reinstated
+> PRE_RELEASE 173**; the owner deleted it. **Check the hash before zipping
+> anything.**
+>
+> ***mvDeveloper's README MUST SAY ITS ADMIN FEATURES NEED A LOCAL SESSION, AND
+> WHY: SD ITSELF REFUSES ADMINISTRATOR ACCOUNTS OVER ssh AND THE API*** (56).
+> **It does work remotely over the API for non-admin use — the owner has used it
+> to test the API connection** — so "it only works locally" would be wrong.
 >
 > ***THIS SESSION ENDED WITH EVERYTHING COMMITTED AND PUSHED — `9113af0`,
 > `main` level with `origin/main`.*** Handoff 44 below has the detail; this box
