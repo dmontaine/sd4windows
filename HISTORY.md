@@ -59676,3 +59676,85 @@ superseded blockquote is not a fact the next session has.**
 > 26 Aug 2026 — START HERE's closed record, sessions 49 to 60, in full"***.
 > The task table at the top of this file carries their conclusions. **Nothing
 > was deleted.**
+
+## 5 Sep 2026 — the documentation reformat: 86 pages, and five guards that were not guarding
+
+Documentation only. Nothing under `gplsrc`, `sdsys` or `gplbld` was touched, no
+cycle was run, and `b128` still stands. Three commits in `SDCoreWindowsDocs`:
+`06b6300`, `c1a5dc7`, `84ffa66`, all pushed.
+
+**What the owner asked for, over three instructions in one session.** The HTML
+to look like the PDF with no sidebar and prev/next controls top and bottom; the
+over-long pages split — *"you can also split them in pdf & markdown"*, so at
+source; the licence block off every page and *"available once for each set"*,
+with a copyright tag line in the footer instead, two blank lines between header
+and body and between body and footer; and no more stranded rules at a page
+break.
+
+**Delivered and rendered**: `GettingStarted` 19 pages, `User` 53,
+`Administrator` 14. 348 links checked, 0 broken. `tclmap` 147/147, `docmap`
+411/411, `scriptmap` 37/37. The `Measured` voice pass finished — 106 → 3 in
+`User`, all three the known false positives, 0 in the other two sets.
+
+**The split kept every number.** `04` stays `04` and the second half is `04a`,
+so every link, map entry and reference already written still lands. `01-` sorts
+before `01a` and both before `02-`. `tools/split_page.py` works in binary,
+proves the two halves rebuild the original body byte for byte before writing
+either file, and its first split was independently rebuilt with `sed` and
+diffed against a copy. `94`, the SD BASIC syntax card, stays whole at 24 KB on
+the owner's ruling: it is a lookup table read with Ctrl-F.
+
+### The five defects, and four of them were silent
+
+This is the part worth keeping. Every one is a guard that existed and was not
+guarding, and only the first was found by a person.
+
+1. ***`mkpdf.ps1` PASSED `--print-to-pdf-no-header` AND IT DOES NOTHING.***
+   Measured on Edge 152.0.4191.62: that switch and no switch at all both print
+   the same page at exactly **193,113 bytes**; `--no-pdf-header-footer` gives
+   **163,942**. So every PDF this project has shipped carried Edge's own
+   furniture on every sheet — the date and document title across the top, the
+   `file:///C:/Users/…` URL across the bottom — while the script contained a
+   switch asserting otherwise. **The owner found it by reading the output.**
+   The page numbers went with it; the CLI is all-or-nothing.
+2. **`checklinks.py` matched `\d\d-`**, so it would have skipped every link to
+   a continuation page and said nothing — a plausible count with the new pages
+   the only unchecked ones in the tree. Widened, it immediately found two real
+   breaks: two pages linked `12-security.html#the-audit-trail` after the audit
+   trail had moved to `12a`.
+3. **`tclmap.py` passed four verbs it should have failed.** `01` still
+   *mentions* `clean.account`, `config`, `delete.account` and
+   `update.accounts`, and a backtick is evidence — so the name was on the page
+   and the explanation had gone to `01a`. It named the other twelve correctly.
+   This is the incidental-mention false positive the script was written for,
+   arriving from the other direction.
+4. **`add_nav.py`'s page lists were typed**, and `Administrator/11` had never
+   been added — written that morning, so it had no prev/next bar and no line on
+   its own set index, and nothing said so. The lists are read from the
+   directory now, which removes the class rather than checking it.
+5. **`release.ps1` compared the PDF against the HTML and `README.md` already
+   said not to.** `add_nav` rewrites every page at the end of that script, so
+   the HTML was always newer: every release re-printed all 86 PDFs, each from
+   HTML that already carried the nav bars. Only the `@media print` rule hiding
+   `.pagenav` kept them out of the deliverable. It compares against the
+   markdown now; a second run prints 0 of 86.
+
+### Two more, both found in the first render of the fix
+
+**The licence page printed `@PRODUCT@` and `@COPYRIGHT@` to the screen.** The
+page template replaces `@BODY@` last, so a placeholder arriving inside the body
+had already missed its turn. Fixed where it belongs, and then fixed as a class:
+`mkdoc.py` now refuses any page with an `@PLACEHOLDER@` left in it. **Neither
+existing content assertion caught it** — both look for the copyright, and the
+real copyright was in the footer. Mutant control run: a page with a bare
+`@PRODUCT@` is refused by name.
+
+**Making headings unbreakable immediately caused the opposite defect.** The
+stranded rule the owner photographed was an `h2`'s `border-top`, and
+`break-after: avoid` could never have helped it — that property keeps a heading
+with what *follows*, and the break was falling *inside* the heading's own box.
+`break-inside` fixes it; but a table already had `break-inside: avoid`, so an
+unbreakable heading plus an unbreakable thirty-row table would not fit in what
+was left of a sheet and both moved on, leaving half a page blank. A table may
+now span a break and a **row** may not, with `thead` repeating. One page went
+from 4 sheets to 3 with page 1 full.

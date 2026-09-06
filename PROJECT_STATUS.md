@@ -175,6 +175,86 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 43, 5 Sep 2026 — ***THE DOCUMENTATION WORK HANDOFF 42 QUEUED IS DONE AND RENDERED. THE PRODUCT IS UNTOUCHED: `b128` STILL STANDS, 173 AND 174 ARE STILL THE ONLY TWO OPEN, AND 173 STILL NEEDS THE GUEST.*** ⇩⇩⇩
+>
+> ***NOTHING IN `sd4windows` WAS BUILT, CYCLED OR RUN THIS SESSION.*** Every
+> change is in `SDCoreWindowsDocs`, three commits, pushed: `06b6300`,
+> `c1a5dc7`, `84ffa66`. `assert-current` was not re-run and did not need to
+> be — no shipped file moved. ***`b128` IS STILL SPENT — RUN `b129`. NEXT FREE
+> PRE_RELEASE ID: 176. 2 OPEN of 175: 173 (B) and 174 (S).***
+>
+> ### ***WHAT IS DONE, AND ALL OF IT IS RENDERED AND CHECKED***
+>
+> **86 pages across three sets, HTML and PDF, 348 links checked, 0 broken.**
+> `GettingStarted` 19, `User` 53, `Administrator` 14. `tclmap` 147/147,
+> `docmap` 411/411, `scriptmap` 37/37, `confmap` 52/52, `verbcounts` 12
+> figures with 0 unaccounted for.
+>
+> 1. ***THE "MEASURED" VOICE PASS IS FINISHED IN ALL THREE SETS.*** 106 → 3 in
+>    `User`, and all three are the false positives handoff 42 named. 0 in the
+>    other two. The six `| Measured |` table columns went with it.
+> 2. ***THE HTML LOOKS LIKE THE PDF AND THE SIDEBAR IS GONE***, with prev /
+>    contents / next bars at the top and bottom of every page. Most of it was
+>    promoting `@media print` to the default rules rather than writing CSS.
+> 3. ***FOURTEEN LONG PAGES WERE CUT IN TWO.*** Owner's threshold, ~14,000
+>    characters; `94` stays whole at 24 KB on his ruling. **Nothing was
+>    renumbered** — `04` keeps its number and the second half is `04a`.
+> 4. ***THE LICENCE BLOCK IS OFF EVERY PAGE AND ON ONE PAGE PER SET***
+>    (`00a-copyright-and-licence`), with a copyright tag line in every page's
+>    footer.
+>
+> ### ***THE FIVE DEFECTS THIS TURNED UP, AND FOUR WERE SILENT***
+>
+> Read these rather than the feature list; each is a guard that was not
+> guarding.
+>
+> - ***`mkpdf.ps1` PASSED `--print-to-pdf-no-header` AND IT DOES NOTHING.***
+>   Measured on Edge 152.0.4191.62: that switch and **no switch at all** both
+>   give exactly **193,113 bytes**; `--no-pdf-header-footer` gives **163,942**.
+>   **Every PDF ever shipped carried Edge's own furniture** — the date and title
+>   across the top of each sheet, the `file:///C:/Users/…` URL across the
+>   bottom. **The owner found it by reading the output**, not the script.
+>   *(The page numbers went with it: the CLI is all-or-nothing. Keeping `3/4`
+>   without the URL would mean driving Edge over the DevTools protocol.)*
+> - ***`checklinks.py` MATCHED `\d\d-` AND WOULD HAVE SKIPPED EVERY LINK TO A
+>   CONTINUATION PAGE*** without saying so. Widened to `\d\d[a-z]?-`, and it
+>   then found two real breaks the split had caused.
+> - ***`tclmap.py` PASSED FOUR VERBS IT SHOULD HAVE FAILED.*** `01` still
+>   *mentions* `clean.account`, `config`, `delete.account` and
+>   `update.accounts`, and a backtick is evidence — so the name was on the page
+>   and the explanation had moved to `01a`. It named the other twelve
+>   correctly, one `NO EVIDENCE` row each.
+> - ***`add_nav.py`'s PAGE LISTS WERE TYPED, AND `Administrator/11` HAD NEVER
+>   BEEN ADDED*** — no prev/next bar, no line on its own set index, since it
+>   was written that morning. **The lists are read from the directory now.**
+> - ***`release.ps1` COMPARED THE PDF AGAINST THE HTML AND `README.md` ALREADY
+>   SAID NOT TO.*** `add_nav` rewrites every page at the end of the script, so
+>   the HTML was always newer: every release re-printed all 86 PDFs, each from
+>   HTML that already had nav bars in it. Only the `@media print` rule hiding
+>   `.pagenav` kept them out. **It compares against the markdown now**, and a
+>   second run prints 0 of 86.
+>
+> ### ***WHAT IS OWED, AND IT IS SHORT***
+>
+> - ***173 STILL NEEDS THE GUEST RIG*** (task table 7.2), one `logto sdsys`
+>   either side. **This host is `RemoteSigned`, so the fix and the defect look
+>   identical here.** 174 rides the same run. Nothing this session changed that.
+> - **A full suite before the next release**, per CLAUDE.md — not because
+>   anything here touched the product, but because `b128` predates nothing and
+>   the rule is milestones.
+>
+> ### ***WOULD BE WORTH DOING AND IS NOT STARTED — CONDITIONAL, NOT MEASURED***
+>
+> - **The PDFs have no page numbers now.** If that matters, the route is
+>   `Page.printToPDF` over the DevTools protocol with a `footerTemplate`,
+>   which would also let the copyright tag line repeat on every *sheet* rather
+>   than once per document. **This has not been tried and might not be worth
+>   the websocket client it needs.**
+> - **`tools/split_page.py` has no units test.** It proves its own byte-exact
+>   rebuild at run time and its first split was independently rebuilt with
+>   `sed` and diffed, so it is not unguarded — but there is no `test-*-units`
+>   for it, and it lives in the other repository where no tier-1 check runs.
+>
 > # ⇩⇩⇩ HANDOFF 42, 5 Sep 2026 — ***`b128` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL. THE PRODUCT IS NOT THE WORK: THE WORK IS THE DOCUMENTATION, AND THE NEXT TASK IS THE HTML TEMPLATE, WHICH IS NOT STARTED.*** ⇩⇩⇩
 >
 > ***THE STATE, IN ONE LINE.*** ***THE FULL SUITE RAN GREEN ON `b128`: 23 of 23
