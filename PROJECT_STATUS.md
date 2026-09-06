@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***`b131` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL. 173, 174, 176, 177, 179, 180 AND 181 ALL CLOSED; 178 IS BUILT AND ITS START-OF-RUN SWEEP IS STILL UNRUN, WHICH `b132` WITNESSES. THE PRODUCT IS READY TO FREEZE AS W1.0-0 AND THE FREEZE HAS NOT HAPPENED — `b132`, THE CHANGELOG VERSION, AND THE TAGS ARE ALL OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***`b131` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL. 173, 174, 176, 177, 179, 180 AND 181 ALL CLOSED; 178 IS BUILT AND ITS START-OF-RUN SWEEP IS STILL UNRUN, WHICH `b133` WITNESSES. ***THE FINAL INSTALL IS DONE AND `b132` DIED BEFORE ITS FIRST STEP ON A STALE LOGON TOKEN — READ THE TOKEN BOX BELOW BEFORE RE-RUNNING.*** 182 AND 183 ARE NEW, BOTH HARNESS INSTRUMENTS, BOTH FILED UNFIXED ON PURPOSE. THE PRODUCT IS READY TO FREEZE AS W1.0-0 AND THE FREEZE HAS NOT HAPPENED — `b132`, THE CHANGELOG VERSION, AND THE TAGS ARE ALL OWED.*** ⇩⇩⇩
 >
 > ### ***THE FREEZE, WHICH IS THE NEXT THING AND IS NOT STARTED***
 >
@@ -191,22 +191,74 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > installed" and that is CORRECT rather than a fault.*** **Do not read it as a
 > broken tree, and do not try to repair it — the cure is the cycle below.**
 >
-> ***THE ORDER MATTERS AND IT IS: CYCLE → `b132` → CHANGELOG → TAGS.*** You tag
-> what you tested, and the changelog commit is what the tag should point at.
+> ### ⚠️ ***A FRESH INSTALL INVALIDATES YOUR LOGON TOKEN. SIGN OUT AND BACK IN BEFORE THE SUITE, OR IT DIES BEFORE STEP 1 AND BLAMES SOMETHING ELSE***
 >
-> 1. ***THE FINAL INSTALL — `cycle.ps1`, ELEVATED.*** Nothing can be verified
->    until it runs, because there is no installed tree to verify.
-> 2. ***`b132`, AND IT MUST BE RUN FROM THE OWNER'S TERMINAL.*** An agent
+> ***MEASURED 6 Sep 2026, AND IT COST `b132` ENTIRELY.*** The cycle deletes and
+> recreates `C:\ProgramData\SD` **and the local groups**, so the new groups have
+> **new SIDs** — `sdusers` ***`…-1168`***, `sdsshonly` `…-1169`, `sdssh`
+> `…-1170`, `sdapi` `…-1171`, with `Don` a member of three of them. **A logon
+> token fixes group membership at logon**, so the session that started before the
+> cycle held only `sdu_Don` `…-1007` and ***none of the SIDs the new ACLs grant
+> to.*** Measured in that state:
+>
+> | | |
+> |---|---|
+> | `C:\ProgramData\SD`, `…\sdsys` | ***`Access is denied`*** |
+> | `C:\Program Files\SD` | readable, 44 entries |
+> | `sd-elevate.ps1 -Start` | ***threw `Access is denied`*** — fell back to a UAC prompt per step |
+> | `assert-current` | said ***`no installed data tree`*** on an install 40 minutes old |
+> | `b133`'s predecessor `b132` | died after creating `sdtub132`, on the unelevated parent's own write |
+>
+> ***THE THREE SYMPTOMS LOOK LIKE THREE FAULTS AND ARE ONE***, which is why this
+> box is here rather than a line in §6. **Nothing was wrong with the install, the
+> ACLs, the product or the suite.**
+>
+> **The cure should be a new logon — sign out and back in, or reboot — and that
+> is a PREDICTION rather than a measurement at the time of writing.** ***WHAT
+> WOULD FALSIFY IT***: if after a fresh logon `whoami /groups` still lacks
+> `sdusers`, or `C:\ProgramData\SD` still answers `Access is denied`, then the
+> cause is not the token and this box is wrong. **A reboot is the better of the
+> two anyway**, because it also gives `reclaim-profiles` a service start to run
+> at, which is the evidence 36 and 178 are measured against.
+>
+> ***AND THE RUN TOKEN IS SPENT EITHER WAY.*** `b132`'s test account name is
+> single-use, so the retry is **`b133`**, and the dead account has to go first —
+> `sdtestuser-admin.ps1 -Action Remove -Name sdtub132`, **elevated**.
+>
+> ***TWO INSTRUMENT DEFECTS CAME OUT OF READING IT, PRE_RELEASE 182 AND 183,
+> BOTH FILED AND BOTH DELIBERATELY UNFIXED***: `assert-current` conflates
+> *denied* with *absent*, and `Test-SdDirWritable`'s `finally` can throw despite
+> `-ErrorAction SilentlyContinue`, which is why the run reported a bare
+> `Access is denied` with none of the ACL evidence it was written to print.
+> **Neither is a product defect, and the fix for either touches `gplbld` — which
+> would turn the installed tree STALE and cost another cycle mid-freeze.** They
+> are the first work after the tag, not before it.
+>
+> ***THE ORDER MATTERS AND IT IS: CYCLE → NEW LOGON → `b133` → CHANGELOG →
+> TAGS.*** You tag what you tested, and the changelog commit is what the tag
+> should point at. **The install is DONE — 6 Sep 2026, `SD` service `Running`**
+> — so the live step is the logon and the run.
+>
+> 1. ***THE FINAL INSTALL — `cycle.ps1`, ELEVATED.*** ***DONE 6 Sep 2026.***
+>    Nothing can be verified until it runs, because there is no installed tree
+>    to verify. **On this box it needs the host wrapped**, see the
+>    execution-policy box in Handoff 44: `powershell -NoProfile
+>    -ExecutionPolicy Bypass -File "…\cycle.ps1"`.
+> 2. ***SIGN OUT AND BACK IN, OR REBOOT*** — the box above says why, and it is
+>    the step whose absence killed `b132`.
+> 3. ***`b133`, AND IT MUST BE RUN FROM THE OWNER'S TERMINAL.*** An agent
 >    session's sandbox refused to launch `VerifyInstall1.ps1` (it had allowed
 >    `b131` an hour earlier), so do not assume you can start it.
 >    **UNELEVATED**, and it is also the first exercise of 178's start-of-run
->    sweep.
-> 2. **`sdsys/changelog`**: `Windows port - unreleased` becomes **`W1.0-0`**,
+>    sweep. `b132` is spent — see the box above.
+> 4. **`sdsys/changelog`**: `Windows port - unreleased` becomes **`W1.0-0`**,
 >    dated. Its own header says entries stay undated *"until there is a version
 >    to attach them to"*, and this is that moment.
-> 3. ***ANNOTATED `v1.0-0` TAGS ON BOTH REPOSITORIES***, pushed. **Neither has
+> 5. ***ANNOTATED `v1.0-0` TAGS ON BOTH REPOSITORIES***, pushed. **Neither has
 >    any tag today** — checked. `SDCoreWindowsDocs` must be tagged in the same
->    sitting or the frozen code and the documentation describing it drift apart.
+>    sitting or the frozen code and the documentation describing it drift apart,
+>    and ***its tag must point at `977b51c` or later*** — PRE_RELEASE 181's
+>    licence-page fix landed after Handoff 45 was written.
 >
 > ***A LOCAL `sd4windows-1.0-0` CLONE WAS CONSIDERED AND REJECTED, WITH A REASON
 > WORTH KEEPING***: it is a second tree that can diverge silently, invisible to
