@@ -224,8 +224,27 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > identical here** — a green suite on this machine says nothing about 173.
 > ***THE GUEST RIG IS WHAT CLOSES IT.***
 >
-> ***WHAT IS OWED NOW: THE FULL SUITE ON `b128`.*** The tree is current, so it
-> can be run.
+> ***THE FULL SUITE RAN AND IS GREEN IN BOTH HALVES — `b128`, 5 Sep 2026.***
+> **UNELEVATED 23 of 23**, *"every step exited 0"*; **ELEVATED 27 of 27**,
+> *"all 27 steps exited 0"*. ***923 `[PASS]` / 0 `[FAIL]` / 0 `[SKIP]`***,
+> counted from the per-step captures with each file decoded rather than
+> byte-grepped. ***`b128` IS SPENT — RUN `b129`.***
+>
+> ***THE COUNT CORROBORATES §6's DEFECT RATHER THAN JUST REPEATING IT.*** The
+> 27 elevated captures are **UTF-16** and hold **575**; the one unelevated log
+> is **UTF-8** and holds **348**. That is exactly the 575 handoff 40 said a
+> byte grep loses — so the method is confirmed by arithmetic, not by assertion,
+> and 923 matches `b127` to the line.
+>
+> ***AND ONE STEP SCORES 0 WITHOUT HAVING DONE NOTHING — DO NOT RE-INVESTIGATE
+> IT.*** `verify-sdsysgate` reports in a **table** whose `Result` column reads
+> a bare `PASS`, not `[PASS]` lines: **11 rows, 10 decisive, 0 failed**, the
+> refusal by identity witnessed with `elevate` never reached. **Its 11 rows are
+> NOT in the 923**, so the run is at least that, and a bracket-strict count
+> will always show this one file as zero.
+>
+> ***NO UAC PROMPT WAS RAISED FOR THE HANDOVER*** — *"the elevated helper
+> starts it… Windows asks for nothing"*. PRE_RELEASE 165 working, observed.
 >
 > ***AND THIS HOST CANNOT WITNESS 173 EVEN AFTER A CYCLE.*** Its `LocalMachine`
 > policy is `RemoteSigned`, so the fix and the defect look identical here.
