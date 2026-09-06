@@ -194,6 +194,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > - ***SO NO `gplbld` SCRIPT RUNS BY PATH.*** Wrap the host — the recipe is in
 >   handoff 44, and `cycle.ps1` is safe under it because its helpers run
 >   in-process.
+> - ***THIS BOX IS ABOUT 40% FASTER THAN THE `dmont` ONE — Intel i9 AGAINST
+>   RYZEN 5, owner 6 Sep 2026 — AND THE SUITE DID NOT GET FASTER.*** Measured
+>   here: `b129` **20m12s**, `b131` **20m49s**, against CLAUDE.md's documented
+>   **~20 minutes** on the slower machine. ***SO THE SUITE IS WALL-CLOCK BOUND,
+>   NOT COMPUTE BOUND*** — fixed sleeps, service restarts, ssh and pipe
+>   timeouts. **Hardware is not the lever if that 20 minutes ever has to come
+>   down; the waits are.** **And do not re-measure this to keep it current** —
+>   it is recorded because it changes what to expect, not as a benchmark.
+> - ***THE SPEED MAY ALSO BE WHY 176 APPEARED HERE, AND THAT IS A HYPOTHESIS
+>   RATHER THAN A FINDING.*** 176 is a race between a process existing and the
+>   SCM reporting `Running`; it surfaced on this machine and the record shows it
+>   never surfacing on the other. **What IS observed is that this box produced
+>   the `StartPending` window at least once.** ***THAT WEAKENS THIS FILE'S OWN
+>   ADVICE ON HOW TO CLOSE 176***: handoff 45 argues the window "cannot be
+>   commanded" and therefore wants a units test that needs a shipped script
+>   refactored. **If the window recurs here across a few restarts, a direct
+>   witness is cheaper and touches nothing** — try that first, and fall back to
+>   the guard only if it will not reproduce.
 > - ***HANDOFF 43's OPEN FALSIFICATION TEST PASSES.*** Its `$env:USERPROFILE`
 >   fix was flagged *"honestly untestable here"* on the old machine; measured
 >   here after the cycle, **`C:\Users\Don\stagetest` exists and there is no
