@@ -175,6 +175,93 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***READ FIRST: THE STATE BELOW IS OBSERVED, AND AN ssh CYCLE WAS INTENDED TO RUN OVERNIGHT AFTER IT WAS WRITTEN. ITS OUTCOME IS UNKNOWN HERE. VERIFY BEFORE BELIEVING ANYTHING ABOUT IT.*** ⇩⇩⇩
+>
+> ***THIS SESSION ENDED WITH EVERYTHING COMMITTED AND PUSHED — `9113af0`,
+> `main` level with `origin/main`.*** Handoff 44 below has the detail; this box
+> is only what the next session needs in its first five minutes.
+>
+> ### ***WHAT IS OBSERVED AND CAN BE RELIED ON***
+>
+> - ***173 AND 174 ARE CLOSED AND WITNESSED.*** Install **6 Sep 00:38:28**,
+>   `assert-current` **exit 0** read live, `test-fixlist-units` **275 passed /
+>   0 failed** with **1 open entry: 176**. **Blockers: zero.**
+> - ***THIS MACHINE IS A STOCK-`Restricted` BOX AND THAT IS NOW A PROJECT
+>   ASSET.*** Every execution-policy scope reads `Undefined`. **It is the only
+>   thing in the project that can see 173's class of defect** — the `dmont` box
+>   is `RemoteSigned`, where the fix and the defect look identical.
+>   ***DO NOT RUN `Set-ExecutionPolicy` HERE.***
+> - ***SO NO `gplbld` SCRIPT RUNS BY PATH.*** Wrap the host — the recipe is in
+>   handoff 44, and `cycle.ps1` is safe under it because its helpers run
+>   in-process.
+> - ***HANDOFF 43's OPEN FALSIFICATION TEST PASSES.*** Its `$env:USERPROFILE`
+>   fix was flagged *"honestly untestable here"* on the old machine; measured
+>   here after the cycle, **`C:\Users\Don\stagetest` exists and there is no
+>   phantom `C:\Users\dmont`**. That item is done.
+> - **The install as of this handoff has NO ssh server**, by the owner's choice
+>   on that run.
+> - **git identity on this machine is now `dmontaine <dmontaine@gmail.com>`**,
+>   set globally, on the owner's instruction after a `gh auth login`.
+>   ***EVERY COMMIT BEFORE `9113af0` IS AUTHORED `bigriverguy@posteo.net`***, so
+>   two author addresses in the log is expected and is not a mistake to correct.
+>
+> ### ***WHAT WAS PLANNED AFTER THIS WAS WRITTEN — CONDITIONAL, NOT OBSERVED***
+>
+> The owner said he would run **one more cycle with the `sshserver` task
+> ticked** and let the OpenSSH download run while he slept. **Nothing here saw
+> that run.** ***DO NOT OPEN TOMORROW BY ASSUMING IT SUCCEEDED*** — the wizard
+> is interactive and blocks the cycle, the OpenSSH download comes from Windows
+> Update and can fail, and step 6 refuses if anything holds a handle on the
+> tree. **All three are ordinary outcomes, not disasters.**
+>
+> **What to establish first, in this order:**
+>
+> 1. `assert-current` — **exit 0**, and an install timestamp **newer than
+>    00:39:14**. If it is still 00:39:14, the cycle did not complete and
+>    everything below is moot.
+> 2. `Get-Content "C:\ProgramData\SD\sd.conf" | Select-String "^SH"` —
+>    ***THIS IS A REGRESSION CHECK ON 173, NOT A FORMALITY.*** `SH1=` must
+>    carry `-ExecutionPolicy Bypass` and `SH=` must not.
+> 3. Whether the OpenSSH server is actually present, and whether port 22 was
+>    opened — **the wizard's two ssh choices are separate**, and the second
+>    (`sshserver\sshremote`) is a deliberate network exposure that defaults to
+>    unticked. **Read what was actually done rather than inferring it from the
+>    first.**
+>
+> ***IF ssh DID INSTALL, THIS BOX GAINS SOMETHING NO OTHER MACHINE HAS***: the
+> ssh-dependent verifiers become runnable **on a stock-policy machine**. That
+> is a different measurement from every previous green run, and it is the
+> argument for spending `b129` here.
+>
+> ### ***WHAT IS OWED, SHORTEST FIRST***
+>
+> - ***176 IS THE ONLY OPEN ENTRY. IT IS FIXED AND UNRUN.*** `restart-sd.ps1`'s
+>   wait now tests what its verdict tests. **A passing restart does not close
+>   it** — if the service reaches `Running` quickly the OLD code passes too, so
+>   a green run is consistent with both the bug and the fix, which is the null
+>   case §"an instrument shows what it DID" forbids.
+> - **The route that would close it, and it is a plan rather than a finding:**
+>   a `test-restartsd-units.ps1` driving the wait against a fake that reports
+>   `StartPending` for the first few polls; assert it **polled more than once**;
+>   ***a disqualifier row where the service NEVER reaches `Running` and the
+>   script must still FAIL***, because a fix that always returns success would
+>   otherwise pass and be worse than the bug; a mutant control restoring the old
+>   loop and watching it go red; and the new guard **named in CLAUDE.md's tier-1
+>   list in the commit that creates it**.
+> - ***THE OBJECTION TO THAT PLAN, RECORDED BECAUSE IT WAS RAISED AND NOT
+>   SETTLED BY ANYTHING MEASURED.*** The wait is inline top-level code, so there
+>   is nothing to lift by AST — **the guard needs a shipped script refactored
+>   into a function purely to make it testable**, and that refactor would itself
+>   want a cycle before it could be called done. **A reasonable person could
+>   argue instead for watching a real suite transcript for the `StartPending`
+>   window.** The counter is that the window cannot be commanded, so that route
+>   may never produce a decisive run — **but it is a judgement, not a
+>   measurement, and the next session may overrule it.**
+> - **A full suite is owed** — `b128` is spent, ***run `b129`***. Nothing here
+>   ran one, and CLAUDE.md wants one before a release and before a handoff.
+>
+> ***NEXT FREE PRE_RELEASE ID: 177.***
+>
 > # ⇩⇩⇩ HANDOFF 44, 6 Sep 2026 — ***173 AND 174 ARE CLOSED AND WITNESSED ON A STOCK-`Restricted` MACHINE. THE 5 Sep FIX WAS IN THE BINARY AND THE DEFECT WAS IN `sd.conf`: `stage.py:633`'s TEMPLATE OVERRODE IT. 176 IS NEW AND UNRUN.*** ⇩⇩⇩
 >
 > ***THE MACHINE IS THE FINDING. THIS SESSION RAN ON THE `don` BOX, AND ITS
