@@ -59758,3 +59758,31 @@ unbreakable heading plus an unbreakable thirty-row table would not fit in what
 was left of a sheet and both moved on, leaving half a page blank. A table may
 now span a break and a **row** may not, with `thead` repeating. One page went
 from 4 sheets to 3 with page 1 full.
+
+## THE FIVE `C:\Users\dmont` SITES ARE ALL FIXED — RESUMED AFTER THE OUT-OF-CREDITS STOP
+
+Continuing handoff 43's mid-task stop (§PROJECT_STATUS "STOPPED MID-TASK").
+`cycle.ps1:60,61` (`$Stage`, `$Out`), `vm-shares.ps1:44,45,46,101`, and
+`test-transcriptwhole-units.ps1:185` (`$liveStage`) all switched from a typed
+`C:\Users\dmont\...` to a path built on `$env:USERPROFILE`, matching the two
+sites the previous session had already done. `vm-shares.ps1` keeps its
+existing forward-slash style (`$env:USERPROFILE -replace '\\','/'`) rather
+than backslashes, since VBoxManage and the script's own "already has"
+comparisons expect it.
+
+All three edited files parse with 0 errors and their AST function counts
+match `grep -c "^function "` (`cycle.ps1` 7, `vm-shares.ps1` 0,
+`test-transcriptwhole-units.ps1` 4) — no embedded BOM swallowed a definition.
+`test-transcriptwhole-units.ps1` was run directly, unelevated: 30/30 passed,
+both LIVE rows included, confirming the new `Join-Path $env:USERPROFILE
+'stagetest'` resolves to the same path the old literal did on this machine.
+
+**Not run**: `cycle.ps1` and `vm-shares.ps1` have no unit test of their own:
+the site would need a full elevated cycle or a VM edit to exercise for real,
+neither of which this session did unprompted. Tried and abandoned: running
+the CLAUDE.md 32-name free set through `VerifyInstall1.ps1 -Only` — most of
+those names are not steps on that runner at all (they split across
+`VerifyInstall2`, standalone `.py` scripts, and the `-Run`-gated test-account
+half), and the runner correctly refused the unmatched names rather than
+quietly running a subset. Sorting the free-32 list by which runner actually
+owns each name is a separate task.

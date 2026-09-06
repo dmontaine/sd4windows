@@ -177,41 +177,51 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 43, 5 Sep 2026 — ***THE DOCUMENTATION WORK HANDOFF 42 QUEUED IS DONE AND RENDERED. THE PRODUCT IS UNTOUCHED: `b128` STILL STANDS, 173 AND 174 ARE STILL THE ONLY TWO OPEN, AND 173 STILL NEEDS THE GUEST.*** ⇩⇩⇩
 >
-> ### ⚠ ***STOPPED MID-TASK, OUT OF CREDITS. TWO OF FIVE SITES DONE. READ THIS FIRST.***
+> ### ✅ ***ALL FIVE `C:\Users\dmont` SITES ARE DONE. READ THIS FIRST.***
 >
-> ***THE TREE IS SAFE — both edited scripts parse with 0 errors and both
-> `-SelfTest`s PASS*** (`clean-test-profiles` 45/45 and 41/41;
-> `cleanup-devlitter` 0 failed). **Nothing is half-written.** What is
-> incomplete is the *task*, not the files.
->
-> ***THE JOB: `C:\Users\dmont` IS TYPED INTO LIVE CODE AND THE SECOND COMPUTER'S
-> USER IS `don`.*** Owner, 5 Sep 2026, moving the development environment.
->
-> ***AND THE ACCOUNT NAME IS NOT THE FOLDER NAME — MEASURED, AND IT IS THE
-> WHOLE REASON THIS CANNOT BE A FIND-AND-REPLACE.*** On **this** machine
-> `$env:USERNAME` is already **`don`** while `$env:USERPROFILE` is
-> **`C:\Users\dmont`** — the account was renamed and the profile folder kept
-> its original name. **So typing `don` would be exactly as wrong as `dmont`.**
-> `$env:USERPROFILE` is the only thing that resolves on both machines, and it
-> **was measured to survive a `[CmdletBinding()]` param default under BOTH
-> `& script` and `powershell -File`** — unlike `$PSScriptRoot`, which is the
-> trap already on record.
+> ***THE JOB: `C:\Users\dmont` WAS TYPED INTO LIVE CODE AND THE SECOND
+> COMPUTER'S USER IS `don`.*** Owner, 5 Sep 2026, moving the development
+> environment. **The account name is not the folder name** — on **this**
+> machine `$env:USERNAME` is already `don` while `$env:USERPROFILE` is still
+> `C:\Users\dmont` (renamed account, original profile folder), so typing `don`
+> would have been exactly as wrong as `dmont`. `$env:USERPROFILE` is the only
+> thing that resolves on both machines.
 >
 > | | site | state |
 > |---|---|---|
-> | ✅ | `cleanup-devlitter.ps1:58` `$Home_` | done — and it now **refuses** (exit 2) if `USERPROFILE` does not resolve, because everything below it deletes |
+> | ✅ | `cleanup-devlitter.ps1:58` `$Home_` | done — **refuses** (exit 2) if `USERPROFILE` does not resolve, because everything below it deletes |
 > | ✅ | `clean-test-profiles.ps1:297` `$mustNot` | done — the home directory is **read**, not typed, so the self-test guards the real one |
-> | ⬜ | `cycle.ps1:60,61` `$Stage`, `$Out` | **not started** |
-> | ⬜ | `vm-shares.ps1:44,45,46,101` | **not started** |
-> | ⬜ | `test-transcriptwhole-units.ps1:185` `$liveStage` | **not started** |
+> | ✅ | `cycle.ps1:60,61` `$Stage`, `$Out` | done — both param defaults now `(Join-Path $env:USERPROFILE '...')` |
+> | ✅ | `vm-shares.ps1:44,45,46,101` | done — `$sdout`/`$xfer`/`$gplbld` built from `$env:USERPROFILE` (forward-slashed, matching the existing style); line 101's listing now reads `$sdout` instead of repeating the literal |
+> | ✅ | `test-transcriptwhole-units.ps1:185` `$liveStage` | done — `Join-Path $env:USERPROFILE 'stagetest'`, matching `cycle.ps1`'s `$Stage` default |
 >
-> ***WHAT THE THREE REMAINING ONES WOULD DO ON A `don` MACHINE — traced, not
-> run.*** `cycle.ps1` is the one that matters: Windows will happily create an
-> ordinary folder `C:\Users\dmont\` for a user that does not exist, so **the
-> cycle would appear to work while putting the staged tree and the installer in
-> a phantom user's directory.** `vm-shares.ps1` points VirtualBox at paths that
-> are not there. `test-transcriptwhole-units` would SKIP its live rows, which
-> is its designed behaviour and reads as normal.
+> ***MEASURED THIS SESSION, NOT JUST TRACED.*** All three newly-edited files
+> parse with **0 errors**, and the AST's recursive function count matches
+> `grep -c "^function "` for each (`cycle.ps1` 7, `vm-shares.ps1` 0,
+> `test-transcriptwhole-units.ps1` 4) — the BOM-swallowing trap did not fire.
+> `test-transcriptwhole-units.ps1` was then **run directly, unelevated: 30/30
+> passed**, including both LIVE rows against `C:\Users\dmont\AppData\Local\
+> SD-verify`'s real logs — the new `Join-Path $env:USERPROFILE 'stagetest'`
+> resolved to the same path the old literal did, on this machine, so nothing
+> regressed here where it is still checkable.
+>
+> ***NOT RUN, AND HONESTLY UNTESTABLE HERE.*** `cycle.ps1` and `vm-shares.ps1`
+> have no `-units`/`-SelfTest` of their own on the free list — exercising the
+> changed lines for real means a full elevated cycle (`cycle.ps1`) or mutating
+> a powered-off VM's shared folders (`vm-shares.ps1`), neither of which this
+> session ran unprompted. **What would falsify this fix**: on the `don`
+> machine, `cycle.ps1`'s first run should stage into `C:\Users\don\stagetest`
+> (not create a phantom `C:\Users\dmont\` folder), and `vm-shares.ps1 -Vm
+> "<guest>"` should point the `sdout`/`xfer`/`gplbld` shares at
+> `C:\Users\don\...` paths that actually exist.
+>
+> ***THE FULL 32-TEST FREE SET WAS NOT RE-RUN.*** `VerifyInstall1.ps1 -Only`
+> with all 32 names was tried unelevated; most of them are not this runner's
+> steps at all (`test-tiercounts-units` and `test-stemcoverage-units` are —
+> the rest split across `VerifyInstall2`, standalone `.py` scripts, or need
+> `-Run` for the test-account-gated half) and it correctly refused the
+> unmatched names rather than silently running a subset. Sorting out which
+> free names live on which runner is unrelated to this fix and was not done.
 >
 > ***ALSO NOT STARTED, AND LOWER VALUE: ~20 PRINTED USAGE STRINGS.*** Help text
 > and `Write-Output` lines across `verify-*.ps1`, `cycle.ps1:55`,
@@ -220,13 +230,11 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > hand over carries a full path" means the owner would be copying a wrong path
 > on the new machine.
 >
-> **The free guards were NOT re-run after these two edits** — only the two
-> scripts' own `-SelfTest`s. ***Run the 32 before trusting anything else.***
->
-> ***NOTHING IN `sd4windows` WAS BUILT, CYCLED OR RUN THIS SESSION.*** Every
-> change is in `SDCoreWindowsDocs`, three commits, pushed: `06b6300`,
-> `c1a5dc7`, `84ffa66`. `assert-current` was not re-run and did not need to
-> be — no shipped file moved. ***`b128` IS STILL SPENT — RUN `b129`. NEXT FREE
+> ***NOTHING IN `sd4windows` WAS BUILT, CYCLED OR RUN THIS SESSION*** beyond
+> the parse checks and the one unit test above. `assert-current` was not
+> re-run and did not need to be — no shipped file moved (`cycle.ps1`,
+> `vm-shares.ps1` and `test-transcriptwhole-units.ps1` are gplbld tooling, not
+> installed product). ***`b128` IS STILL SPENT — RUN `b129`. NEXT FREE
 > PRE_RELEASE ID: 176. 2 OPEN of 175: 173 (B) and 174 (S).***
 >
 > ### ***WHAT IS DONE, AND ALL OF IT IS RENDERED AND CHECKED***
