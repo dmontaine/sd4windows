@@ -256,16 +256,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   window.** The counter is that the window cannot be commanded, so that route
 >   may never produce a decisive run — **but it is a judgement, not a
 >   measurement, and the next session may overrule it.**
-> - ***177 IS FIXED AND THE FIXED VERIFIER IS UNRUN.*** Only its build command
->   was driven by hand — both directions, silent failure as written and
->   **exit 0 with a 139,519-byte exe** once `export`ed. **The cheap witness is
->   one targeted elevated step rather than another twenty minutes:**
->   `VerifyInstall2.ps1 -Run b130 -Only verify-apiname`, **elevated**.
-> - **A clean full suite is still owed** — `b129` had one red step, so no run
->   on this machine has yet been green end to end. **`b130` or later.**
+> - ***177 IS CLOSED AND WITNESSED — `-Run b130 -Only verify-apiname`, 17 OF 17
+>   CHECKS PASSED, exit 0.*** **`probe built: True` is decisive because of the
+>   fix itself**: the probe is deleted before the build, so that row can only
+>   mean a compiler ran in the elevated step. **The failure-printing branch is
+>   still unexercised** — it runs only when the build fails, and this one did
+>   not. **`b130` is spent — run `b131`.**
+> - **A clean full suite is still owed** — `b129` had one red step and `b130`
+>   was a deliberate `PARTIAL` of one, so ***no run on this machine has yet been
+>   green end to end.*** That is the milestone, and it is now the only thing
+>   between here and a suite that means what it says.
 >
-> ***NEXT FREE PRE_RELEASE ID: 178. 2 OPEN: 176 and 177, both this session's own
-> and both UNRUN.*** `test-fixlist-units` **276 passed / 0 failed**.
+> ***NEXT FREE PRE_RELEASE ID: 178. 1 OPEN: 176, this session's own and UNRUN.***
+> `test-fixlist-units` **276 passed / 0 failed**, 1 open entry.
 >
 > # ⇩⇩⇩ HANDOFF 44, 6 Sep 2026 — ***173 AND 174 ARE CLOSED AND WITNESSED ON A STOCK-`Restricted` MACHINE. THE 5 Sep FIX WAS IN THE BINARY AND THE DEFECT WAS IN `sd.conf`: `stage.py:633`'s TEMPLATE OVERRODE IT. 176 IS NEW AND UNRUN.*** ⇩⇩⇩
 >
