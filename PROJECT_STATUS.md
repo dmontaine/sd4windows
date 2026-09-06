@@ -175,6 +175,111 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 42, 5 Sep 2026 — ***`b128` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL. THE PRODUCT IS NOT THE WORK: THE WORK IS THE DOCUMENTATION, AND THE NEXT TASK IS THE HTML TEMPLATE, WHICH IS NOT STARTED.*** ⇩⇩⇩
+>
+> ***THE STATE, IN ONE LINE.*** ***THE FULL SUITE RAN GREEN ON `b128`: 23 of 23
+> UNELEVATED, 27 of 27 ELEVATED, 923 `[PASS]` / 0 `[FAIL]` / 0 `[SKIP]`.***
+> Install **5 Sep 16:26:40**, `sd.exe` `5A779A7448BFAA61`, `assert-current`
+> **exit 0**, **32 of 32** free guards green. ***2 OPEN of 175: 173 (B) and 174
+> (S), both fixed, installed and NOT YET WITNESSED.*** ***`b128` IS SPENT — RUN
+> `b129`. NEXT FREE PRE_RELEASE ID: 176.*** **Both repositories pushed and
+> clean.**
+>
+> ### ***THE NEXT TASK, AND IT IS NOT STARTED — OWNER, 5 Sep 2026***
+>
+> His words: *"Change the formatting of the html pages to look as much like the
+> pdfs as possible, no side bar. Allow the user to navigate forward and
+> backward through the pages using controls at both the top and bottom of the
+> pages."*
+>
+> ***NOTHING WAS BUILT FOR THIS. WHAT FOLLOWS IS A READING OF THE TOOLCHAIN,
+> NOT A DESIGN, AND IT SHOULD BE CHECKED BEFORE IT IS TRUSTED.*** Two things
+> were found that would change how the job is approached, and both are
+> observed:
+>
+> - ***`tools/mkdoc.py` ALREADY HAS AN `@media print` BLOCK THAT DOES MOST OF
+>   WHAT WAS ASKED FOR***, at `:377` onwards. It forces black on white and
+>   **already removes the sidebar**, and its own comment says why: *"the
+>   sidebar goes because a table of contents with no clickable anchors is a
+>   column of dead text down the side of every page"*. **The browser is the PDF
+>   exporter**, so that block IS the PDF's appearance. **The likely shape of
+>   the change is promoting those rules from `@media print` to the default
+>   screen rules** rather than writing new CSS — but that has not been tried.
+> - ***`tools/add_nav.py` ALREADY INSERTS A PREV/NEXT BAR AND WRITES THE SET
+>   INDEX PAGES.*** Its own docstring says it inserts the bar **before the
+>   `</footer>`** — so **bottom only today**, and the owner asked for top and
+>   bottom. **The top bar looks like an addition to that script rather than a
+>   new one.**
+>
+> ***AND THERE IS AN ORDERING TRAP THAT GETS WORSE WITH A TOP BAR, NOT
+> BETTER.*** `tools/release.ps1:169` runs `add_nav.py` **deliberately after
+> `mkpdf`**, and says so: *"a 'Next page' link pointing at…"* — the bars must
+> not reach the PDFs. **So any page re-rendered by `mkdoc.py` loses its nav
+> bars until `add_nav.py` runs again**, and a session that renders one page by
+> hand (as this one did, repeatedly) will produce HTML without them. ***RUN
+> `release.ps1` RATHER THAN THE TWO STEPS BY HAND ONCE THIS LANDS.***
+>
+> ***THE OBJECTION, WHICH WAS RAISED AGAINST THIS PLAN AND NOT RESOLVED.***
+> Making the HTML look like the PDF means **the screen loses the sidebar table
+> of contents**, and prev/next moves between *pages* rather than within one.
+> Some of these pages are long — `16` and `17` run to several hundred lines —
+> so a reader on screen would have no within-page navigation at all. **That may
+> be exactly what the owner wants** (the PDF has none either), **but it is a
+> loss and it was not put to him.** *Worth one question before building.*
+>
+> ### ***WHERE THE DOCUMENTATION PASS STOPPED, EXACTLY***
+>
+> The owner's rule, 5 Sep 2026: ***"The user pages need to tell the user how to
+> do what we know. Administrator pages need to warn about what we don't
+> know."*** Two things came out of it and **both are done**:
+>
+> 1. ***`Administrator/11-features-the-developers-could-not-test.md` EXISTS***
+>    and gathers every unverified claim, including four that had never been in
+>    any document — ssh **at a real terminal**, semaphores never observed
+>    **blocking**, API-vs-local contention, and no production data ever loaded.
+>    Each entry is Known / Not known / To settle it.
+> 2. **The "measured" voice is being removed from the two user-facing sets.**
+>    ***THIS IS PARTIAL AND THE COUNTS ARE THE HANDOVER.***
+>
+> | set | occurrences left |
+> |---|---|
+> | `User` | **106** |
+> | `GettingStarted` | **4** |
+> | `Administrator` | **7** |
+>
+> ***`User/10-sd-basic-sequential-files.md` IS HALF CONVERTED — ONE OF FIVE
+> DONE, FOUR LEFT.*** That is the one file a reader would mistake for
+> finished. Its four are the *"Measured, byte by byte"* CRLF heading sentence,
+> the `readseq` end-of-file example, the `seek` example, and the `fileinfo`
+> 21-fields sentence.
+>
+> **Some remaining hits are FALSE POSITIVES and must stay**: *"not a safety
+> measure"* in `02`, and *"Measuring and counting"* as `04`'s subject and
+> subtitle. **Check before editing; the grep does not know the difference.**
+>
+> ***THE THREE SHAPES, AND THE RULE THAT MADE THEM EASY.*** `Measured: X gives
+> Y` → `X gives Y`; `Measured on <input>:` → `For <input>:`; `### Measured` → a
+> heading that says what the table shows. **Tense goes with it** — a reference
+> says *"it refuses"*, not *"it refused"*.
+>
+> ***STILL QUEUED AND NOT STARTED: the six `| Measured |` table columns, and
+> the "earlier builds of this port" family*** — roughly 15 across 11 files,
+> which is the port's own history and goes by the same rule.
+>
+> ### ***WHAT IS OWED ON THE PRODUCT: NOTHING, EXCEPT A GUEST***
+>
+> ***173 CANNOT BE CLOSED ON THIS MACHINE AND A GREEN SUITE HERE IS NOT
+> EVIDENCE FOR IT.*** Its `LocalMachine` execution policy is `RemoteSigned`, so
+> the fix and the defect look identical. **The guest rig — task table 7.2 — is
+> what closes it**, with one `logto sdsys` before and after. 174 rides the same
+> run.
+>
+> ***THE LITTER SWEEP RAN AND WORKED: `C:\Users` WENT 198 → 8.*** What remains
+> is the three the pattern cannot see — `b48adm`, `sdw136a` (both with live,
+> **enabled** accounts) and the directory `sdw142a` — plus their groups
+> `sdu_b48adm`, `sdu_SDW136A`, `sdg_b48tier`, `sdg_b48susp`. **Every real
+> object survived.** Whether to widen the sweep or hand-clear them is unruled.
+>
 > # ⇩⇩⇩ HANDOFF 41, 5 Sep 2026 — ***THE RELEASE HAS A BLOCKER AGAIN: PRE_RELEASE 173. EVERY SHIPPED `.ps1` SD RUNS AT RUNTIME IS REFUSED ON A STOCK WINDOWS CLIENT. FOUND BY THE OWNER ON A SECOND MACHINE, REPRODUCED HERE, NOT FIXED.*** ⇩⇩⇩
 >
 > ### ***READ 173 FIRST. IT IS THE ONLY THING HERE THAT MATTERS.***
