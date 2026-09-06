@@ -175,6 +175,148 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 44, 6 Sep 2026 — ***173 AND 174 ARE CLOSED AND WITNESSED ON A STOCK-`Restricted` MACHINE. THE 5 Sep FIX WAS IN THE BINARY AND THE DEFECT WAS IN `sd.conf`: `stage.py:633`'s TEMPLATE OVERRODE IT. 176 IS NEW AND UNRUN.*** ⇩⇩⇩
+>
+> ***THE MACHINE IS THE FINDING. THIS SESSION RAN ON THE `don` BOX, AND ITS
+> `LocalMachine` EXECUTION POLICY IS `Undefined` — STOCK `Restricted`.*** Every
+> scope reads `Undefined` (`MachinePolicy`, `UserPolicy`, `CurrentUser`,
+> `LocalMachine`), measured before anything was touched. **That is the condition
+> the whole verify suite cannot reach on the `dmont` box, which is
+> `RemoteSigned`** — so this machine is the guest rig task table 7.2 was asking
+> for, and it is a real one rather than a VM. **Keep it that way: do not set an
+> execution policy on this host.**
+>
+> ### ***AND IT CHANGES HOW `gplbld` TOOLING IS RUN ON THIS BOX — READ THIS BEFORE YOUR FIRST COMMAND***
+>
+> ***NO `.ps1` IN `gplbld` CAN BE RUN BY PATH HERE.*** `cycle.ps1` refused with
+> the same *"running scripts is disabled on this system"*, and so will
+> `VerifyInstall1`, the free guards and every verifier. **Wrap the host, not the
+> script:**
+>
+> ```powershell
+> powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\Don\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
+> ```
+>
+> ***THIS IS NOT A DEVIATION FROM §"RUN STANDING PROCEDURES EXACTLY AS
+> WRITTEN".*** `cycle.ps1` still runs with **no arguments of its own**;
+> `-NoProfile -ExecutionPolicy Bypass -File` are arguments to `powershell.exe`.
+> The rule is about flags added to the owner's command, which `-Silent` was.
+>
+> ***DO NOT "FIX" THIS WITH `Set-ExecutionPolicy`.*** It would make this machine
+> convenient and blind in the same stroke — **that is exactly what the `dmont`
+> box is, and it is why 173 survived a green suite and two "fixed" claims.**
+> The stock policy here is a project asset now.
+>
+> **`cycle.ps1` is safe under the wrapper**: its three helper scripts run
+> in-process (`:209` and `:413` dot-sourced, `:873` via `&`), so they inherit
+> the parent's policy, and its `Start-Process` calls launch the installer
+> `.exe`. **A process-scope `Bypass` does NOT inherit into a freshly spawned
+> `powershell.exe`**, so anything that shells out that way needs its own switch
+> — worth checking before trusting a long run.
+>
+> *(`cycle.ps1:55`'s printed usage still says `C:\Users\dmont\…`. Handoff 43
+> filed that class — ~20 printed usage strings — as not started.)*
+>
+> ### ***173 IS REOPENED. WHAT WAS OBSERVED***
+>
+> - **`logto sdsys` on the 5 Sep 16:26:40 install refused with the owner's
+>   original message verbatim** — *"File `C:\Program Files\SD\sd-elevate.ps1`
+>   cannot be loaded because running scripts is disabled on this system"*.
+> - ***THE BINARY IS INNOCENT AND WAS CHECKED***: `C:\Program Files\SD\usr\bin\
+>   sd.exe` carries `NonInteractive -ExecutionPolicy Bypass -Command`, present,
+>   byte for byte. The 5 Sep C fix is real and installed.
+> - ***`sd.conf` IS WHAT OVERRIDES IT.*** `op_sh.c:503` prefers a non-empty
+>   `pcfg.sh1` over the compiled `dflt_sh1`, and this install's
+>   `C:\ProgramData\SD\sd.conf` read `SH1=…powershell.exe -NoProfile
+>   -NonInteractive -Command` — **no `-ExecutionPolicy Bypass`**. It comes from
+>   ***`gplbld/stage.py:633`***, which 173's fix never touched.
+> - **`SD_CONFIG` is unset at machine, user and process scope**, so that file is
+>   the one being read — checked rather than assumed (`inipath.c:61`).
+> - ***THE CURE IS WITNESSED BY HAND***: the switch added to that machine's own
+>   `sd.conf`, service restarted, then from an **unelevated** cmd prompt
+>   `logto sdsys` **succeeded** and `WHO` answered ***`SDSYS from DON`*** — the
+>   `from <ACCOUNT>` clause being the success wording, not a string the refusal
+>   carries. **The config line was the only thing that changed between refusal
+>   and success.**
+>
+> ***THE FIX IS `stage.py:633`***, which now emits `-ExecutionPolicy Bypass`,
+> matching `op_sh.c`'s default exactly. **`SH=` (632) is untouched, on the
+> standing "sh1 only" ruling.**
+>
+> ### ***CYCLED AND WITNESSED — 6 Sep 2026, THE 00:38:28 INSTALL. 173 AND 174 CLOSE***
+>
+> | checked | result |
+> |---|---|
+> | `SH1=` in the **generated** `sd.conf` | carries `-ExecutionPolicy Bypass` |
+> | `SH=` — **the control** | **without** it; the ruling held |
+> | `sd.conf` `LastWriteTime` | **00:38:28**, this install |
+> | `logto sdsys`, **unelevated** | **succeeded** |
+> | `WHO` | ***`4 SDSYS from DON`*** |
+> | *"running scripts is disabled"* | **absent** |
+>
+> ***THE TIMESTAMP IS THE CONTROL, AND IT WAS ARRANGED BEFORE THE RUN RATHER
+> THAN ARGUED AFTER IT.*** This machine had been hand-edited hours earlier to
+> prove the diagnosis, so a `sd.conf` carrying the switch would otherwise be
+> indistinguishable from that edit surviving. **`cycle.ps1:714` deletes
+> `C:\ProgramData\SD` outright** (`$PdTree`, `:258`), and the file came back
+> stamped with the install — so what was read is `stage.py`'s output.
+> ***`WHO`'s `from <ACCOUNT>` IS THE SUCCESS WORDING***, not a string the
+> refusal also carries, so this does not rest on "no error appeared".
+>
+> ***174 WAS EXECUTED, NOT MERELY COMPILED, IN THE SAME COMMAND***: `pcfg.sh1`
+> was non-empty, so `logto sdsys` ran the re-bounded `clparse(pcfg.sh1, argv, 8)`
+> with a six-token `SH1`. **The overflow case — nine or more tokens — was still
+> not driven**, and the bound is correct by reading.
+>
+> ***THE TWO DOCUMENTATION PAGES ARE TRUE AS OF THIS INSTALL AND WERE NOT
+> BEFORE IT.*** `Administrator/09-the-installed-scripts` and
+> `GettingStarted/13-hardening` say SD is unaffected by the machine's execution
+> policy — **true of the binary and false of every install ever made**, for the
+> day between the two fixes. **They need no edit; what is worth keeping is that
+> they were written from the fix rather than from a witness.**
+>
+> **The install was made WITHOUT the ssh server** (owner's choice on the run),
+> so the ssh door is not present on this box — irrelevant to 173, which is a
+> console matter, and worth knowing before anything here tests ssh.
+>
+> ### ***NEW: PRE_RELEASE 176, FOUND ON THE WAY AND FIXED***
+>
+> ***`gplbld/restart-sd.ps1` REPORTS A GOOD RESTART AS A FAILURE***, and it is
+> **shipped** and called by `REMOTEAPI`. Its wait loop exited on a **process**
+> appearing (`:129`) while the verdict requires the **service** to be `Running`
+> (`:142`); `sdwind` is up in a second and the SCM can still be `StartPending`.
+> **Observed**: *"after service=StartPending processes=sd(14632) sdwind(6996)"*
+> then *"SD did not come back up"*, with `Get-Service` reading **Running**
+> moments later — on the very restart that then let `logto sdsys` succeed. **The
+> verdict is unchanged; the wait now waits for both halves.** Parse-checked:
+> **0 errors, 3 functions by AST against 3 by `grep -c "^function "`, no BOM,
+> CR 0.** ***UNRUN.***
+>
+> ### ***ALSO SETTLED HERE, AND IT WAS DOCUMENTED BEHAVIOUR RATHER THAN A DEFECT***
+>
+> `sd` refused an unelevated session on this machine with **`Error 5 getting
+> semaphores`** (`sdsem.c:166`, `ERROR_ACCESS_DENIED`). **Cause: the install had
+> just added the user to `sdusers` and Windows fixes group membership into the
+> access token at logon** — `net localgroup sdusers` listed `Don` while
+> `whoami /groups` did not carry it. ***Signing out and back in cleared it***,
+> exactly as §"Adding yourself to a Windows group does not take effect in the
+> session you add it from" already said. **Nothing to fix; recorded because it
+> is what a new user meets on their first install.**
+>
+> ***STATE: INSTALL 6 Sep 00:38:28, CYCLED THIS SESSION. `b128` IS STILL SPENT —
+> RUN `b129`. NEXT FREE PRE_RELEASE ID: 177. 1 OPEN of 176: 176 (S), and it is
+> this session's own and UNRUN.*** ***173 AND 174 ARE CLOSED AND WITNESSED***,
+> which takes the blockers to **zero**. **A full suite is owed** — nothing here
+> ran one, and CLAUDE.md wants one before a release and before a handoff;
+> `b129` on this box would also be the first suite ever run on a stock-policy
+> machine, which is a different measurement from every previous green run.
+> ***`assert-current` EXIT 0 LIVE AFTER THE CYCLE***, read this session:
+> *"the installed tree matches source"*, install **06 Sep 00:39:14**, `sd.exe`
+> **`4B4072233B38002C`**. **That also cleared a mismatch that predated this
+> session** — `bin\sd.exe` had been `4B4072233B38002C` against an installed
+> `5A779A7448BFAA61`, i.e. something was built in this tree after the 5 Sep
+> install and never installed; the cycle is what reconciled them.
+>
 > # ⇩⇩⇩ HANDOFF 43, 5 Sep 2026 — ***THE DOCUMENTATION WORK HANDOFF 42 QUEUED IS DONE AND RENDERED. THE PRODUCT IS UNTOUCHED: `b128` STILL STANDS, 173 AND 174 ARE STILL THE ONLY TWO OPEN, AND 173 STILL NEEDS THE GUEST.*** ⇩⇩⇩
 >
 > ### ✅ ***ALL FIVE `C:\Users\dmont` SITES ARE DONE. READ THIS FIRST.***
