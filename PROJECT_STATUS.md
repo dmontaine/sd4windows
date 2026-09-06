@@ -264,7 +264,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > STALE again and the order restarts: **you tag what you tested, and nobody has
 > tested the tree that carries 184.**
 >
-> ***THE ORDER NOW IS: CYCLE → REBOOT → `b134` → CHANGELOG → TAGS.*** The
+> ***`b134` IS GREEN IN BOTH HALVES ON THE TREE THAT CARRIES 184 — 23 UNELEVATED
+> AND 27 ELEVATED STEPS, ALL EXIT 0, 6 Sep 2026*** — and `assert-current` says
+> the installed tree matches source afterwards, so **that run belongs to this
+> commit and this is what the tag points at.** `verify-notyet`, the one step
+> 184 could have disturbed, was step 3 and exited 0. ***WHAT IS LEFT IS THE
+> CHANGELOG (DONE) AND THE TWO TAGS.***
+>
+> ⚠️ ***AND 178's SWEEP HAS NOW COLLECTED NOTHING TWICE — SEE 185, WHICH IS THE
+> REASON AND IT IS STRUCTURAL.*** `b133` 3 stuck / 0 removed, `b134` **23 stuck
+> / 0 removed**, `C:\Users` at **40** test directories. **A run's own litter is
+> un-collectable before the run ends** — the hive outlives the account and is
+> never unloaded — so sweeping at the START cannot reach it, and `b134`'s sweep
+> skipped the three accounts that same run had just made. **Harness only, and
+> not a reason to hold the freeze.**
+>
+> ***THE ORDER WAS: CYCLE → REBOOT → `b134` → CHANGELOG → TAGS.*** The
 > reboot is doing three jobs at once and is not optional: the new logon token
 > (182), the **three stuck hives** that stopped 178's sweep collecting anything
 > on `b133` (`sdtub133`, `sddrb133a`, `sddrb133b` — loaded hives cannot be
