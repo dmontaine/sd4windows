@@ -212,25 +212,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > both witnesses 185 and, if it collects them, closes 178's collection half at
 > the same time. `-SelfTest` still 45/45 and 41/41.
 
-> ### 📁 ***THE TREE MOVES TO `C:\Users\Don\SDCoreProject\` — CHECK WHICH SIDE OF THAT YOU ARE ON BEFORE COPYING A COMMAND***
+> ### 📁 ***THE TREE IS `C:\Users\Don\SDCoreProject\` — DONE AND VERIFIED 6 Sep 2026***
 >
 > Owner's instruction, 6 Sep 2026: *"rename the Projects folder to SDCoreProject
 > as I may have other projects on this computer."* **`SDCore-W1.0-0\` and
 > `SDCore-W1.0-0.zip` are in there too**, beside `sd4windows`,
 > `SDCoreWindowsDocs` and `SD-Untracked`, so that one folder is the backup unit.
 >
-> ***THE RENAME COULD NOT BE DONE FROM INSIDE A SESSION AND MAY STILL BE
-> PENDING. MEASURED, 6 Sep 2026***: `Rename-Item` answers ***`Access to the path
-> 'C:\Users\Don\Projects' is denied`*** while `claude.exe` is running with that
-> tree as its working directory — **and moving the session's own directory does
-> not help, because that changes the logical directory and not the OS process's
-> CWD.** A *subfolder* rename succeeded and creating in the parent succeeded, so
-> it is a held handle rather than permissions. **The cure is to close the app and
-> rename the folder in Explorer**, then reopen it on the new path.
+> **Verified after the move**: `C:\Users\Don\Projects` is gone, both
+> repositories read clean and level with `origin/main` at the new path, and
+> ***`SDCoreWindowsDocs`'s build follows the rename by itself*** —
+> `tools/release.ps1:143` derives the server tree as
+> `Split-Path -Parent $root` + `sd4windows\sdb_ai\sd64`, so **the only standing
+> requirement is that the two repositories remain SIBLINGS.** Separate them and
+> the docs build stops with *"no sd4windows beside this repository"*.
 >
-> **How to tell which state you are in, rather than guessing: if
-> `C:\Users\Don\Projects` still exists, the rename has not happened yet and the
-> paths in this file are ahead of the disk.**
+> ***AN AGENT SESSION CANNOT DO THIS RENAME, AND THE REASON IS WORTH KEEPING
+> BECAUSE IT LOOKS LIKE A PERMISSION FAULT.*** Measured 6 Sep 2026 before the
+> owner did it in Explorer: `Rename-Item` answers ***`Access to the path
+> 'C:\Users\Don\Projects' is denied`*** while `claude.exe` runs with that tree as
+> its working directory, **and moving the session's own directory does not
+> help** — that changes the logical directory, not the OS process's CWD. **A
+> subfolder rename succeeded and creating in the parent succeeded**, which is how
+> it was told from permissions. So the top-level rename belongs to whoever can
+> close the app, and the paths are swept BEFORE it rather than after.
 >
 > ***OLD PATHS ARE LEFT ALONE IN TWO PLACES, DELIBERATELY.*** `HISTORY.md` names
 > `C:\Users\don\Projects\...` twice as build output a past session actually saw,
