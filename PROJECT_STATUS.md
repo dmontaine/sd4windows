@@ -205,33 +205,32 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   ***EVERY COMMIT BEFORE `9113af0` IS AUTHORED `bigriverguy@posteo.net`***, so
 >   two author addresses in the log is expected and is not a mistake to correct.
 >
-> ### ***WHAT WAS PLANNED AFTER THIS WAS WRITTEN — CONDITIONAL, NOT OBSERVED***
+> ### ***BOTH OF THOSE HAPPENED — THE ssh CYCLE RAN AND SO DID `b129`***
 >
-> The owner said he would run **one more cycle with the `sshserver` task
-> ticked** and let the OpenSSH download run while he slept. **Nothing here saw
-> that run.** ***DO NOT OPEN TOMORROW BY ASSUMING IT SUCCEEDED*** — the wizard
-> is interactive and blocks the cycle, the OpenSSH download comes from Windows
-> Update and can fail, and step 6 refuses if anything holds a handle on the
-> tree. **All three are ordinary outcomes, not disasters.**
+> ***THE ssh CYCLE COMPLETED***: install **6 Sep 00:58:12**, `assert-current`
+> clean, read from step 21's own header rather than reported.
 >
-> **What to establish first, in this order:**
+> ***`b129` — UNELEVATED 23 OF 23, "every step exited 0". ELEVATED 26 OF 27.***
+> **The single failure is `verify-apiname` and it is NOT the product** — it is
+> the verifier's own probe build, now **PRE_RELEASE 177**. **`b129` IS SPENT —
+> RUN `b130`.**
 >
-> 1. `assert-current` — **exit 0**, and an install timestamp **newer than
->    00:39:14**. If it is still 00:39:14, the cycle did not complete and
->    everything below is moot.
-> 2. `Get-Content "C:\ProgramData\SD\sd.conf" | Select-String "^SH"` —
->    ***THIS IS A REGRESSION CHECK ON 173, NOT A FORMALITY.*** `SH1=` must
->    carry `-ExecutionPolicy Bypass` and `SH=` must not.
-> 3. Whether the OpenSSH server is actually present, and whether port 22 was
->    opened — **the wizard's two ssh choices are separate**, and the second
->    (`sshserver\sshremote`) is a deliberate network exposure that defaults to
->    unticked. **Read what was actually done rather than inferring it from the
->    first.**
+> ***AND 177 IS 173's SHAPE FOR THE THIRD TIME IN TWO DAYS, WHICH IS THE THING
+> WORTH CARRYING FORWARD.*** Its build line reads
+> `PATH=…/ucrt64/bin:$PATH make … || ( gcc … )`, and **`VAR=value command`
+> scopes the variable to that one command**; the Makefile has **no rule** for
+> the target, so ***the fallback is the branch that always runs and the `PATH`
+> never applied to it.*** It can only fail where `ucrt64\bin` is absent from
+> the global `PATH` — **which is what a fresh machine is**, and why weeks of
+> green runs never tested the line. **The development box's own configuration
+> was again the thing hiding the defect.**
 >
-> ***IF ssh DID INSTALL, THIS BOX GAINS SOMETHING NO OTHER MACHINE HAS***: the
-> ssh-dependent verifiers become runnable **on a stock-policy machine**. That
-> is a different measurement from every previous green run, and it is the
-> argument for spending `b129` here.
+> **Two more defects were stacked in the same step and both are fixed**: the
+> compile died **silently** (`cc1.exe` cannot find its support DLLs; exit 1,
+> zero output — `gcc -v` stops dead at the `cc1.exe` line), and the verdict was
+> **`Test-Path` alone**, so a leftover exe would have scored a pass with no
+> compiler having run at all. ***THAT LAST ONE IS THE DANGEROUS ONE***: it
+> would have hidden this permanently on any machine that once built it.
 >
 > ### ***WHAT IS OWED, SHORTEST FIRST***
 >
@@ -257,10 +256,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   window.** The counter is that the window cannot be commanded, so that route
 >   may never produce a decisive run — **but it is a judgement, not a
 >   measurement, and the next session may overrule it.**
-> - **A full suite is owed** — `b128` is spent, ***run `b129`***. Nothing here
->   ran one, and CLAUDE.md wants one before a release and before a handoff.
+> - ***177 IS FIXED AND THE FIXED VERIFIER IS UNRUN.*** Only its build command
+>   was driven by hand — both directions, silent failure as written and
+>   **exit 0 with a 139,519-byte exe** once `export`ed. **The cheap witness is
+>   one targeted elevated step rather than another twenty minutes:**
+>   `VerifyInstall2.ps1 -Run b130 -Only verify-apiname`, **elevated**.
+> - **A clean full suite is still owed** — `b129` had one red step, so no run
+>   on this machine has yet been green end to end. **`b130` or later.**
 >
-> ***NEXT FREE PRE_RELEASE ID: 177.***
+> ***NEXT FREE PRE_RELEASE ID: 178. 2 OPEN: 176 and 177, both this session's own
+> and both UNRUN.*** `test-fixlist-units` **276 passed / 0 failed**.
 >
 > # ⇩⇩⇩ HANDOFF 44, 6 Sep 2026 — ***173 AND 174 ARE CLOSED AND WITNESSED ON A STOCK-`Restricted` MACHINE. THE 5 Sep FIX WAS IN THE BINARY AND THE DEFECT WAS IN `sd.conf`: `stage.py:633`'s TEMPLATE OVERRODE IT. 176 IS NEW AND UNRUN.*** ⇩⇩⇩
 >
