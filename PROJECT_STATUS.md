@@ -315,11 +315,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   step reported anything; treat it as a transcript-stop artefact of that host
 >   unless it recurs in a normal console run.
 >
-> ***NEXT FREE PRE_RELEASE ID: 179. 1 OPEN: 178, AND IT IS A RULING THE OWNER
-> HAS NOT MADE, NOT A FIX WAITING TO BE WRITTEN*** — route the verifiers through
-> SD so `DELETE_USER` records, or keep the bypass and have the suite sweep its
-> own litter. **Its mess is already cleared.** ***173, 174, 176 AND 177 ARE ALL
-> CLOSED AND WITNESSED.***
+> ***NEXT FREE PRE_RELEASE ID: 179. 173, 174, 176 AND 177 ARE CLOSED AND
+> WITNESSED; 178 IS RULED AND BUILT, AND ITS SWEEP IS THE ONE THING UNRUN.***
+>
+> ***178's RULING, 6 Sep 2026: THE HARNESS SWEEPS ITS OWN LITTER, AT THE START
+> OF A RUN.*** `VerifyInstall2.ps1` now calls `clean-test-profiles.ps1` before
+> its first step. **The bypass stays** — test cleanup must not depend on the
+> code under test, `verify-delaccount` already covers the real deletion path,
+> routing through SD would not clear anything until the next boot anyway, and it
+> would pre-empt the undecided question about what `DELETE.ACCOUNT` should
+> remove. ***AT THE START, BECAUSE A SWEEP AT THE END DESTROYS WHAT A FAILED RUN
+> LEFT TO BE READ.*** **Never on a `-Only` run** — that is the debugging path.
+> **It reports and never refuses.** ***PARSE-CHECKED AND UNRUN — `b132` IS WHAT
+> WITNESSES IT***, and what would falsify it is a full run whose opening block
+> does not name the script, or removes nothing on a machine that has orphans.
+> *(There are none to remove right now, so a witness needs a run that has itself
+> left some — i.e. the run after next, or a deliberate check of the banner.)*
 >
 > # ⇩⇩⇩ HANDOFF 44, 6 Sep 2026 — ***173 AND 174 ARE CLOSED AND WITNESSED ON A STOCK-`Restricted` MACHINE. THE 5 Sep FIX WAS IN THE BINARY AND THE DEFECT WAS IN `sd.conf`: `stage.py:633`'s TEMPLATE OVERRODE IT. 176 IS NEW AND UNRUN.*** ⇩⇩⇩
 >
