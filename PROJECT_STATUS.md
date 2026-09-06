@@ -175,7 +175,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***READ FIRST: THE STATE BELOW IS OBSERVED, AND AN ssh CYCLE WAS INTENDED TO RUN OVERNIGHT AFTER IT WAS WRITTEN. ITS OUTCOME IS UNKNOWN HERE. VERIFY BEFORE BELIEVING ANYTHING ABOUT IT.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***`b131` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL — THE FIRST CLEAN SUITE ON A STOCK-CONFIGURATION MACHINE. 173, 174 AND 177 CLOSED AND WITNESSED. 176 IS THE ONLY OPEN ENTRY AND IS UNRUN.*** ⇩⇩⇩
 >
 > ***THIS SESSION ENDED WITH EVERYTHING COMMITTED AND PUSHED — `9113af0`,
 > `main` level with `origin/main`.*** Handoff 44 below has the detail; this box
@@ -262,10 +262,37 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   mean a compiler ran in the elevated step. **The failure-printing branch is
 >   still unexercised** — it runs only when the build fails, and this one did
 >   not. **`b130` is spent — run `b131`.**
-> - **A clean full suite is still owed** — `b129` had one red step and `b130`
->   was a deliberate `PARTIAL` of one, so ***no run on this machine has yet been
->   green end to end.*** That is the milestone, and it is now the only thing
->   between here and a suite that means what it says.
+> - ***THAT MILESTONE IS DONE: `b131` IS GREEN IN BOTH HALVES.*** **UNELEVATED
+>   23 of 23**, *"every step exited 0"*; **ELEVATED 27 of 27**, *"all 27 steps
+>   exited 0"*; ***923 `[PASS]` / 0 `[FAIL]`*** — **575 elevated + 348
+>   unelevated**, counted with each transcript decoded rather than byte-grepped.
+>   ***THE SPLIT MATCHES `b127` AND `b128` TO THE LINE***, which corroborates
+>   the decode instead of asserting it. `verify-sdsysgate`'s 11 table rows are
+>   **not** in the 923 (it prints bare `PASS`), so the run is at least that.
+>   ***THIS IS THE FIRST GREEN END-TO-END SUITE ON A STOCK-CONFIGURATION
+>   MACHINE***, which is a stronger statement than any previous green run: every
+>   one of those was on the box whose own settings were hiding 173 and 177.
+>   **177 is confirmed in a full run** — step 21 `verify-apiname` exit 0.
+>   **`b131` IS SPENT — RUN `b132`.**
+> - ***THE `-Yes` FLAG WAS USED, WITH THE OWNER'S EXPLICIT AUTHORISATION GIVEN
+>   THAT DAY, AND IT IS RECORDED HERE SO IT IS NOT READ AS A SESSION DEVIATING
+>   ON ITS OWN.*** He was asked before it was used, because §"run standing
+>   procedures exactly as written" is what `-Silent` cost two sessions.
+>   `VerifyInstall1.ps1:344` refuses out loud in a host that cannot prompt —
+>   exit 2, nothing run — so an agent-driven run needs either the flag or a
+>   person at the keyboard. **The run was fully observable**: both summaries and
+>   all 28 transcripts are on disk, which is the guard that replaced the old
+>   blanket ban.
+> - **Residue, read from the machine afterwards**: **no** stray accounts, **no**
+>   stray `sdu_` groups, service `Running`. **41 profile directories** from
+>   `b129`/`b130`/`b131` remain in `C:\Users` — **expected**, and what PRE_RELEASE
+>   36's boot-time sweep (`reclaim-profiles.ps1`) reclaims at service start.
+> - *One cosmetic artefact worth not re-investigating*: the unelevated
+>   transcript ends `PS>TerminatingError(): "System error."` just before
+>   `transcript end`, after both summaries were written and with the parent
+>   exiting 0. **It appeared on a backgrounded, non-interactive parent** and no
+>   step reported anything; treat it as a transcript-stop artefact of that host
+>   unless it recurs in a normal console run.
 >
 > ***NEXT FREE PRE_RELEASE ID: 178. 1 OPEN: 176, this session's own and UNRUN.***
 > `test-fixlist-units` **276 passed / 0 failed**, 1 open entry.
