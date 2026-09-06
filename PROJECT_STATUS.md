@@ -175,6 +175,32 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ### 📁 ***THE TREE MOVES TO `C:\Users\Don\SDCoreProject\` — CHECK WHICH SIDE OF THAT YOU ARE ON BEFORE COPYING A COMMAND***
+>
+> Owner's instruction, 6 Sep 2026: *"rename the Projects folder to SDCoreProject
+> as I may have other projects on this computer."* **`SDCore-W1.0-0\` and
+> `SDCore-W1.0-0.zip` are in there too**, beside `sd4windows`,
+> `SDCoreWindowsDocs` and `SD-Untracked`, so that one folder is the backup unit.
+>
+> ***THE RENAME COULD NOT BE DONE FROM INSIDE A SESSION AND MAY STILL BE
+> PENDING. MEASURED, 6 Sep 2026***: `Rename-Item` answers ***`Access to the path
+> 'C:\Users\Don\Projects' is denied`*** while `claude.exe` is running with that
+> tree as its working directory — **and moving the session's own directory does
+> not help, because that changes the logical directory and not the OS process's
+> CWD.** A *subfolder* rename succeeded and creating in the parent succeeded, so
+> it is a held handle rather than permissions. **The cure is to close the app and
+> rename the folder in Explorer**, then reopen it on the new path.
+>
+> **How to tell which state you are in, rather than guessing: if
+> `C:\Users\Don\Projects` still exists, the rename has not happened yet and the
+> paths in this file are ahead of the disk.**
+>
+> ***OLD PATHS ARE LEFT ALONE IN TWO PLACES, DELIBERATELY.*** `HISTORY.md` names
+> `C:\Users\don\Projects\...` twice as build output a past session actually saw,
+> and it is **append-only** — editing it would falsify the record rather than
+> update it. And CLAUDE.md's `C:\Users\dmont\Projects\...` examples are **a
+> different machine and a different user**, untouched by this rename.
+
 > # ⇩⇩⇩ HANDOFF 45, 6 Sep 2026 — ***`b131` GREEN IN BOTH HALVES, 923 PASS / 0 FAIL. 173, 174, 176, 177, 179, 180 AND 181 ALL CLOSED; 178 IS BUILT AND ITS START-OF-RUN SWEEP IS STILL UNRUN, WHICH `b133` WITNESSES. ***THE FINAL INSTALL IS DONE AND `b132` DIED BEFORE ITS FIRST STEP ON A STALE LOGON TOKEN — READ THE TOKEN BOX BELOW BEFORE RE-RUNNING.*** 182 AND 183 ARE NEW, BOTH HARNESS INSTRUMENTS, BOTH FILED UNFIXED ON PURPOSE. THE PRODUCT IS READY TO FREEZE AS W1.0-0 AND THE FREEZE HAS NOT HAPPENED — `b132`, THE CHANGELOG VERSION, AND THE TAGS ARE ALL OWED.*** ⇩⇩⇩
 >
 > ### ***THE FREEZE, WHICH IS THE NEXT THING AND IS NOT STARTED***
@@ -575,7 +601,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > script:**
 >
 > ```powershell
-> powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\Don\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
+> powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
 > ```
 >
 > ***THIS IS NOT A DEVIATION FROM §"RUN STANDING PROCEDURES EXACTLY AS
