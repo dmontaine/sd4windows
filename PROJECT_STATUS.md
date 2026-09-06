@@ -323,10 +323,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > `SDCoreWindowsDocs\tools\release.ps1` runs `& python <script>` from
 > PowerShell, so the docs render under the **Windows** python and the pacman
-> package is used by nothing. A new `Step-Docs` provisions the interpreter that
-> is actually invoked (and checks Edge/Chrome for `mkpdf`); the pacman line
-> **stays**, because it costs nothing and honours the ruling. **Which of the
-> two should be canonical is unruled** — the script makes both work either way.
+> package was used by nothing.
+>
+> ***RULED THE SAME DAY, OWNER: "i install python on all my computers so the
+> windows one is fine."*** So the **Windows python is the documentation
+> interpreter**, `Step-Docs` is what provisions it and `markdown` on it, and
+> ***`msys/python-markdown` HAS BEEN REMOVED FROM `$PacmanPackages`.***
+>
+> **That was also the last false nag in the summary.** This machine has never
+> had the MSYS2 package, so every `-CheckOnly` reported a hand-carry item
+> against a box that renders the documentation perfectly well — the exact
+> failure the package list's own comment warns about, *"a setup script that
+> reports a working machine as incomplete teaches the operator to ignore it"*.
+> **`LEFT FOR A PERSON` is now absent entirely on a good machine**: `all 11
+> packages present`, `No problems.`
+>
+> ***THE MSYS2 PYTHON ITSELF STAYS AND IS A DIFFERENT QUESTION.*** `cycle.ps1`
+> runs `stage.py` through an MSYS2 **login** shell because `bootstrap.py`'s
+> `is_elevated()` asks `getgroups()`, which a native Windows python cannot
+> answer. Two interpreters, two jobs; only the markdown package was on the
+> wrong one.
 >
 > ### ***WOULD BE WORTH DOING AND IS NOT STARTED — CONDITIONAL, NOT MEASURED***
 >
