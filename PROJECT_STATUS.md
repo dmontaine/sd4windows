@@ -175,6 +175,43 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ### ***AFTER THE TAG, 6 Sep 2026: THE `User` SET AUDIT FOUND THREE FALSE STATEMENTS IN ONE DOCUMENT, AND 182, 183 AND 184 ARE CLOSED. 178 AND 185 ARE THE ONLY OPEN ENTRIES***
+>
+> ***THE `User` SET WAS AUDITED RATHER THAN READ WORD FOR WORD, AND THE METHOD IS
+> THE POINT.*** 53 documents, ~72,000 words. What found defects was **checking
+> sentences against the installed tree**, not reading prose: `37-sd-client-api`
+> claimed *"no import libraries … travel with them"* (four `.dll.a` files ship,
+> PRE_RELEASE 171 put them there **deliberately**), *"the 64-bit pair also
+> appears in `usr\bin`"* (**all four** DLLs are there, the owner's 5 Sep ruling),
+> and — in bold — ***"Nothing is put on the system PATH for you"*** while
+> `sd.iss:5362` adds `usr\bin` to the machine PATH under a task **ticked by
+> default**, measured present on this machine. ***ALL THREE WERE ALREADY RIGHT IN
+> `GettingStarted/10-client-distribution`***, so this was one fact in two copies
+> and 171 updated one of them. **Fixed, re-rendered, `checklinks` 0 broken, the
+> two sets now agree.**
+>
+> **What the mechanical sweep found and what it did not**: fences balanced, no
+> placeholders, no stale repo names, no wrong version strings, no doubled words
+> (three hits, all false — `to to.characters` is a parameter name), 5 short
+> sheets of 339 and 2 of 78 in `Administrator`, which is ordinary pagination.
+> ***A `�` between "See also" links was a FALSE LEAD*** — `pdftotext` without
+> `-enc UTF-8`; the character is a legitimate `·`, and re-extracting proved it.
+>
+> ***182 AND 183 ARE FIXED AND COST NO CYCLE***, which was measured rather than
+> hoped: `assert-current` reports *"the installed tree matches source"* after
+> editing all three scripts, so **the installer and bundle already built stay
+> valid.** ***AND 182's FIRST FIX WAS WRONG — THE TEST CAUGHT IT.*** `Test-Path`
+> reports *Access is denied* as a **non-terminating** error, so a bare
+> `try`/`catch` never fires; the classifier still said `absent`. **`-ErrorAction
+> Stop` is load-bearing, and a control run both ways proves it: `absent` without,
+> `denied` with.**
+>
+> ***185 IS BUILT AND UNWITNESSED, AND WITNESSING IT IS ONE ELEVATED COMMAND.***
+> The sweep now unloads each stuck hive itself. **40 test profile directories are
+> on this machine right now**, so running `clean-test-profiles.ps1` **elevated**
+> both witnesses 185 and, if it collects them, closes 178's collection half at
+> the same time. `-SelfTest` still 45/45 and 41/41.
+
 > ### 📁 ***THE TREE MOVES TO `C:\Users\Don\SDCoreProject\` — CHECK WHICH SIDE OF THAT YOU ARE ON BEFORE COPYING A COMMAND***
 >
 > Owner's instruction, 6 Sep 2026: *"rename the Projects folder to SDCoreProject
