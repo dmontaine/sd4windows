@@ -177,6 +177,52 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 43, 5 Sep 2026 — ***THE DOCUMENTATION WORK HANDOFF 42 QUEUED IS DONE AND RENDERED. THE PRODUCT IS UNTOUCHED: `b128` STILL STANDS, 173 AND 174 ARE STILL THE ONLY TWO OPEN, AND 173 STILL NEEDS THE GUEST.*** ⇩⇩⇩
 >
+> ### ⚠ ***STOPPED MID-TASK, OUT OF CREDITS. TWO OF FIVE SITES DONE. READ THIS FIRST.***
+>
+> ***THE TREE IS SAFE — both edited scripts parse with 0 errors and both
+> `-SelfTest`s PASS*** (`clean-test-profiles` 45/45 and 41/41;
+> `cleanup-devlitter` 0 failed). **Nothing is half-written.** What is
+> incomplete is the *task*, not the files.
+>
+> ***THE JOB: `C:\Users\dmont` IS TYPED INTO LIVE CODE AND THE SECOND COMPUTER'S
+> USER IS `don`.*** Owner, 5 Sep 2026, moving the development environment.
+>
+> ***AND THE ACCOUNT NAME IS NOT THE FOLDER NAME — MEASURED, AND IT IS THE
+> WHOLE REASON THIS CANNOT BE A FIND-AND-REPLACE.*** On **this** machine
+> `$env:USERNAME` is already **`don`** while `$env:USERPROFILE` is
+> **`C:\Users\dmont`** — the account was renamed and the profile folder kept
+> its original name. **So typing `don` would be exactly as wrong as `dmont`.**
+> `$env:USERPROFILE` is the only thing that resolves on both machines, and it
+> **was measured to survive a `[CmdletBinding()]` param default under BOTH
+> `& script` and `powershell -File`** — unlike `$PSScriptRoot`, which is the
+> trap already on record.
+>
+> | | site | state |
+> |---|---|---|
+> | ✅ | `cleanup-devlitter.ps1:58` `$Home_` | done — and it now **refuses** (exit 2) if `USERPROFILE` does not resolve, because everything below it deletes |
+> | ✅ | `clean-test-profiles.ps1:297` `$mustNot` | done — the home directory is **read**, not typed, so the self-test guards the real one |
+> | ⬜ | `cycle.ps1:60,61` `$Stage`, `$Out` | **not started** |
+> | ⬜ | `vm-shares.ps1:44,45,46,101` | **not started** |
+> | ⬜ | `test-transcriptwhole-units.ps1:185` `$liveStage` | **not started** |
+>
+> ***WHAT THE THREE REMAINING ONES WOULD DO ON A `don` MACHINE — traced, not
+> run.*** `cycle.ps1` is the one that matters: Windows will happily create an
+> ordinary folder `C:\Users\dmont\` for a user that does not exist, so **the
+> cycle would appear to work while putting the staged tree and the installer in
+> a phantom user's directory.** `vm-shares.ps1` points VirtualBox at paths that
+> are not there. `test-transcriptwhole-units` would SKIP its live rows, which
+> is its designed behaviour and reads as normal.
+>
+> ***ALSO NOT STARTED, AND LOWER VALUE: ~20 PRINTED USAGE STRINGS.*** Help text
+> and `Write-Output` lines across `verify-*.ps1`, `cycle.ps1:55`,
+> `probe-sessionfork`, `verify-upgrade:370,374` and others hand over
+> `C:\Users\dmont\...` commands. They break nothing, but §"Every command you
+> hand over carries a full path" means the owner would be copying a wrong path
+> on the new machine.
+>
+> **The free guards were NOT re-run after these two edits** — only the two
+> scripts' own `-SelfTest`s. ***Run the 32 before trusting anything else.***
+>
 > ***NOTHING IN `sd4windows` WAS BUILT, CYCLED OR RUN THIS SESSION.*** Every
 > change is in `SDCoreWindowsDocs`, three commits, pushed: `06b6300`,
 > `c1a5dc7`, `84ffa66`. `assert-current` was not re-run and did not need to
