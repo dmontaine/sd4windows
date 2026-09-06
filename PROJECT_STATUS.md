@@ -213,6 +213,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > box is here rather than a line in §6. **Nothing was wrong with the install, the
 > ACLs, the product or the suite.**
 >
+> ***AND THE PRODUCT ALREADY SAYS SO — THIS IS NOT A SHIPPING GAP, IT IS A
+> WARNING WE WERE SHOWN AND DID NOT READ.*** Measured 6 Sep 2026: the wizard
+> states it twice (`sd.iss:1989`, *"Windows only applies a new group when you
+> sign in, so YOU MUST SIGN OUT AND BACK IN"*, and again in the closing box —
+> PRE_RELEASE 141 already widened that wording once), the shipped documentation
+> carries it in four places (`GettingStarted/02-first-run` **opens with §1 "Sign
+> out of Windows and back in"**, `01-installation:161`,
+> `05a-managing-accounts:36` and `:187`), and `check-install.ps1` is built around
+> it — its at-install run reports *"not yet"* on every database check **by
+> design**, because the installing user's token cannot carry `sdusers` yet.
+> ***`cycle.ps1:744` RUNS THE WIZARD NON-SILENTLY ON PURPOSE***, *"because the
+> wizard pages are part of what a cycle shows"* — **so that page was on screen
+> during this install.** A user installing SD Core is told; a session running a
+> cycle is told too, and reads past it.
+>
+> ***WHAT WOULD HAVE CAUGHT IT, WHICH IS THE QUESTION THE INSTRUMENT RULES ASK
+> INSTEAD OF WHAT CAUSED IT***: `VerifyInstall1` could compare this token's
+> groups against the machine's live `sdusers` SID before its first step and
+> refuse with the cure in one line — *"your logon predates this install, sign out
+> and back in"*. **It is the same shape as the suite's existing SD-not-running
+> guard**, which exists so five steps do not each fail in their own wording for
+> one cause. **Unbuilt, and it belongs with 182 and 183 after the tag.**
+>
 > **The cure should be a new logon — sign out and back in, or reboot — and that
 > is a PREDICTION rather than a measurement at the time of writing.** ***WHAT
 > WOULD FALSIFY IT***: if after a fresh logon `whoami /groups` still lacks
