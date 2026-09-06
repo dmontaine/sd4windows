@@ -243,6 +243,59 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   anything here touched the product, but because `b128` predates nothing and
 >   the rule is milestones.
 >
+> ### ***MOVING THE DEVELOPMENT ENVIRONMENT: `setup-devbox.ps1` IS CURRENT AGAIN, AND IT HAD ROTTED IN FIVE PLACES***
+>
+> Owner asked for it, 5 Sep 2026. It lives at
+> `C:\Users\dmont\Projects\SD-Untracked\devtools\setup-devbox.ps1` — **not in
+> this repository**, it moved out 3 Sep — and a byte-identical copy is now at
+> ***`P:\setup-devbox.ps1`***, SHA-256
+> `7F1ADEA3C9EC5BF7841388B9C374ADE0DFFAEA9FEF2D104C5E9F31C84FDC15F6`.
+> **Both parse with 0 errors and both were run `-CheckOnly` end to end**, the
+> P: copy included: *"setup-devbox: finished, no problems."*
+>
+> **What was stale, all five measured rather than guessed:**
+>
+> 1. ***IT CLONED THREE REPOSITORIES THAT NO LONGER EXIST.*** `winsdclilib`
+>    and `sdclilib32` were deleted by the owner on 4 Sep (PRE_RELEASE 161);
+>    `../sdb64`'s clone went on 5 Sep. **Measured: the only directories under
+>    `Projects\` are `sd4windows`, `SDCoreWindowsDocs` and `SD-Untracked`.**
+>    Re-cloning the two client trees would recreate 161's defect.
+> 2. ***IT DID NOT CLONE `SDCoreWindowsDocs`, AND HAD NOT SINCE 26 Aug.*** The
+>    package list was updated for the documentation move that day and the clone
+>    list was not — so a machine built by this script had `python-markdown` and
+>    nothing to render.
+> 3. ***IT DID NOT KNOW ABOUT `SD-Untracked`, WHICH IS A BUILD DEPENDENCY.***
+>    `stage.py` refuses without `SD-Untracked\editors` (SHA-256-pinned
+>    `micro.exe` and `edit.exe`), so **the installer cannot be built without
+>    it** — while `make sd` still passes, which is what makes it easy to miss.
+>    New `Step-SdUntracked` and `-SdUntrackedSource`, counting the pinned files
+>    rather than the directory.
+> 4. ***THE 32-BIT COMPILER WAS MISSING FROM `$PacmanPackages`.*** 161 moved
+>    the 32-bit client pair into the normal build, and
+>    `gplsrc/sdclilib/Makefile` now reads `CC32 ?= /c/msys64/mingw32/bin/gcc.exe`.
+>    **Measured: `pacman -Qo /mingw32/bin/gcc.exe` answers
+>    `mingw-w64-i686-gcc 16.1.0-5`**, and it was in no list. A fresh box would
+>    have failed `make sd`.
+> 5. ***THE SELF-FETCH URL IN ITS HEADER IS A 404*** — it still pointed into
+>    `gplbld/`, where the script has not been since 3 Sep.
+>
+> ***AND ONE FINDING THAT IS THE OWNER'S CALL RATHER THAN A FIX.*** The 26 Aug
+> ruling was that the documentation toolchain targets the **MSYS2** python, and
+> `$PacmanPackages` carries `python-markdown` for it. ***THE CALLER WAS NEVER
+> CHANGED.*** Measured on this machine, 5 Sep 2026:
+>
+> | interpreter | version | `import markdown` |
+> |---|---|---|
+> | PowerShell `python` — what `release.ps1` runs | 3.13.14 | **3.10.2, works** |
+> | `C:\msys64\usr\bin\python.exe` | 3.12.13 | **ModuleNotFoundError** |
+>
+> `SDCoreWindowsDocs\tools\release.ps1` runs `& python <script>` from
+> PowerShell, so the docs render under the **Windows** python and the pacman
+> package is used by nothing. A new `Step-Docs` provisions the interpreter that
+> is actually invoked (and checks Edge/Chrome for `mkpdf`); the pacman line
+> **stays**, because it costs nothing and honours the ruling. **Which of the
+> two should be canonical is unruled** — the script makes both work either way.
+>
 > ### ***WOULD BE WORTH DOING AND IS NOT STARTED — CONDITIONAL, NOT MEASURED***
 >
 > - **The PDFs have no page numbers now.** If that matters, the route is
