@@ -4851,6 +4851,12 @@ satisfy the `-lintl` that `python3-config --ldflags --embed` emits (§2); plain
 exercising `SDConnectLocal()` matter more than their positions suggest. Not
 reordered yet — flagged, because it is the repository owner's call.
 
+**Reopened as a plan for the release after W1.0-0, 10 Sep 2026 — not decided in
+detail, not started.** The owner intends to bring Python back installed on the
+machine rather than shipped in the installer. §8 "Python after W1.0-0" holds the
+plan, its constraints and what would falsify it. This section still describes
+the tree and W1.0-0.
+
 ### 5.16 Convert every remaining Linux-ism, and the installer outranks Linux parity (decided 14 Aug 2026)
 
 Two standing instructions from the repository owner, given together on
@@ -7412,6 +7418,86 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 **answered on 13 Aug 2026** and is now §5.6. Neither option was taken.
 
 ---
+
+### Open: Python after W1.0-0, installed rather than shipped (owner, 10 Sep 2026)
+
+**Status: a plan. Nothing below has been built or run.** Owner, 10 Sep 2026:
+*"For the next version I will probably add python back with the install not
+embedded with the installer."* The installer would check whether Python is
+present and, if not, offer to fetch it with `winget install Python.Python.3.14`
+— optional, the way the ssh server is (`gplbld/sd.iss:247`, task `sshserver`).
+§5.15 stands for W1.0-0.
+
+**Read on 10 Sep 2026, not tested on any install:**
+
+- `Python.Python.3.14` 3.14.7 in `microsoft/winget-pkgs` (released 5 Aug 2026):
+  user and machine scope for x86, x64 and ARM64, all the traditional `burn`
+  installer, machine scope passing `InstallAllUsers=1 PrependPath=1`; plus one
+  `portable (zip)` entry per architecture (`python-3.14.7-amd64.zip`, contents
+  not inspected).
+- PEP 773 (Final, resolved 25 Apr 2025): the traditional `.exe` installer is
+  "no longer released from two years after this PEP is accepted", so about
+  Apr 2027, and its successor PyManager "has no mechanism to perform a
+  per-machine install". Read through a summarising web fetch — re-read the PEP
+  before building on the wording.
+- `C:\msys64\usr\include\python3.12\Python.h` is still on the dev box. It is
+  MSYS2's Python, not python.org's, and does not match a 3.14 DLL.
+- The removed code is at `489b18e^`: `gplsrc/sdext_py.c` (1,111 lines),
+  `gplsrc/op_sdpyobj.c` (395), 20 `GPL.BP/PY_*`, `SYSCOM/SDPYFUNC.H`, error
+  codes -12001 to -12036. `git revert 489b18e` would not apply: by 10 Sep 2026,
+  1,180 commits later, the seven files it edited had moved +2,139 lines and
+  `GPL.BP`/`SYSCOM` are lower case. Opcode `0xCFFE` is retired in place
+  (`gplsrc/opcodes.h:632`) and `BCOMP`'s intrinsic list is positional
+  (`gpl.bp/BCOMP:655`), so `SDPYOBJ` would go back in the same slot in both.
+
+**Constraints, as far as they are known:**
+
+1. *Scope.* Detection would have to accept only an all-users install (PEP 514,
+   `HKLM\SOFTWARE\Python\PythonCore\<ver>`) and the winget call would need
+   `--scope machine`: SD's accounts cannot log in to Windows and API sessions
+   run as LocalSystem, so neither reaches a per-user `%LOCALAPPDATA%` install.
+   Same trap as the editors — HISTORY.md "26 Aug 2026 - The full-screen editor
+   comes back as EDIT". Copy the flags at `gplbld/install-editors.ps1:232`,
+   including its refusal to fall back to user scope. `where python` is not
+   detection; it can find the Store alias.
+2. *Deadline.* If PEP 773 holds, a machine-scope winget install exists for 3.14
+   and may not for later versions. The portable zip unpacked into a directory
+   SD owns would sidestep that — unverified.
+3. *Toolchain (§5.3).* python.org's DLL is native; `sd.exe` is MSYS2, and §5.3
+   says the runtimes never meet. Loading one into the other: `long` is 8 bytes
+   under MSYS2 and 4 in the native DLL, and the old code passed a `FILE*` to
+   `PyRun_File` (`sdext_py.c:207` at `489b18e^`) across C runtimes. Proposed: a
+   native UCRT64 helper (`sdpy.exe`, built like the client DLLs), one per
+   session, over a pipe; `PY_*` become requests to it. The alternative — a
+   native shim DLL loaded by `sd.exe` exposing only fixed-width types — breaks
+   §5.3 and is riskier. Reasoning, not measurement.
+4. *Access model.* Python's `os.system` never reaches `os_permitted()`
+   (`gplsrc/op_sh.c:156`), so the old in-process API would make "API access
+   does not give os.execute access" false (PRE_RELEASE 80). Starting the helper
+   would need that gate. `os_permitted()` admits `HDR_INTERNAL` (`op_sh.c:170`):
+   if the `PY_*` subroutines are `$internal`, a gate that looks at the running
+   program admits every caller, so it has to test the user. Whether they were
+   `$internal` is not checked.
+5. *Version.* A build against one `python3XY.dll` needs exactly that version;
+   accepting any installed 3.x means the stable ABI (`python3.dll`,
+   `Py_LIMITED_API`). Undecided.
+6. *No winget* (Server SKUs, or blocked — `gplbld/install-editors.ps1:15`): SD
+   must install without Python; an administrator verb shaped like `ssh.server`
+   could report or add it later. The editors left winget for bundling
+   (PRE_RELEASE 66) over offline installs and version drift; bundling is what
+   this plan exists to avoid, so that remedy is not available here.
+
+**Superseded in the same conversation:** a first estimate assumed restoring the
+13 Aug in-process code against MSYS2's Python and shipping its 195 MB standard
+library. The owner's plan removes the shipping and makes the C side mostly new
+(constraint 3). Revised estimate, roughly 3–5 sessions — an estimate, not a
+measurement.
+
+**What would falsify the plan, cheapest first:** a machine-scope entry in a
+`Python.Python.3.16` manifest (constraint 2 goes); a native `python314.dll`
+loaded into `sd.exe` through a fixed-width shim and run clean (the helper in 3
+is unnecessary); the portable zip lacking the standard library (the zip route in
+2 goes).
 
 ### Open: how many kinds of user does SD have, and what enforces each (16 Aug 2026)
 
