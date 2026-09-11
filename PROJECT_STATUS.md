@@ -206,9 +206,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `verify-tiers:713`'s restore — and `b135` printed what that restore does,
 > `VOC: 0 records added, 0 removed, 0 left alone`, because **suspension does not
 > strip the VOC and the restore does not rebuild it.** ***NOTHING PROMOTES A
-> STANDARD ACCOUNT.*** `RELEASE_1.1` **13** is that missing leg, and entry 1
-> stays OPEN until it exists — **ticking it on `b135` would be ticking it on a
-> verifier proven blind to it.**
+> STANDARD ACCOUNT.***
+>
+> ### ***THE MISSING LEG IS NOW BUILT AND UNRUN — `b136` IS WHAT WITNESSES IT***
+>
+> `RELEASE_1.1` **13**: `verify-tierchange.ps1` gained **section 6**, which
+> creates a STANDARD account, promotes it to PROGRAMMER, and compares the added
+> record's field 1 with the shipped `newvoc` record. **It cost no cycle** —
+> that file is on `$neverShipped`, and `assert-current` still exits 0.
+>
+> ```
+> C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b136 -Only verify-tierchange
+> ```
+>
+> ***ELEVATED. ENTRY 1 STAYS OPEN UNTIL THAT RUN IS READ*** — ticking it on
+> `b135` would have been ticking it on a verifier proven blind to it. **The row
+> to read first is *"the promotion actually ADDED records"***: if that is not
+> PASS the transition wrote nothing and the decisive row below it is vacuous,
+> which is the exact trap `:713` set. **The decisive row is `basic` field 1
+> after the promotion**, expected `Verb to compile SDBasic program`; ***a bare
+> `V` there IS the defect.***
 
 > # ⇩⇩⇩ ***W1.1-0 OPENED, 11 Sep 2026. THE TRACKING IS BUILT AND GREEN.*** ⇩⇩⇩
 >
