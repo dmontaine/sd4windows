@@ -208,6 +208,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > strip the VOC and the restore does not rebuild it.** ***NOTHING PROMOTES A
 > STANDARD ACCOUNT.***
 >
+> ### ***SECOND CYCLE, 15:20:29 — `RELEASE_1.1` 11 IS FIXED AND WITNESSED ON THE INSTALL***
+>
+> `assert-current` exit 0, transcript **WHOLE**, **193 compile units at
+> `0 error(s)`**. The installed `messages/10134` carries
+> `-ExecutionPolicy Bypass` on both commands, ***0 installed scripts hold the
+> bare `powershell -File` form*** and 32 hold the fixed one — read from
+> `C:\Program Files\SD` rather than from what the build said. **Registered as
+> `R11` in `test-retired-wording-units`, with a mutant control.**
+>
+> *(193 here against 196 at 12:02 is `_SUM` and `_SUMALL` not needing a
+> recompile — their source has not moved since 5 Sep and both objects are in
+> the install at 15:20. Checked, not waved away.)*
+>
 > ### ***THE MISSING LEG IS NOW BUILT AND UNRUN — `b136` IS WHAT WITNESSES IT***
 >
 > `RELEASE_1.1` **13**: `verify-tierchange.ps1` gained **section 6**, which
