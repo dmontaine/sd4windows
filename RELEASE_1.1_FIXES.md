@@ -1,0 +1,117 @@
+# RELEASE 1.1 FIXES
+
+Defects and gaps to decide or fix before **W1.1-0** ships. Started 11 Sep 2026,
+the day after W1.0-0 was tagged `v1.0-0`.
+
+[PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md) is **frozen as the W1.0-0 record**
+and takes no new entries. Its two rows that were still open at the tag are
+carried forward here as 8 and 9, with their old numbers named, because a row
+nobody can add to is a row nobody reads.
+
+[BUGS_FROM_LINUX_PORT.md](BUGS_FROM_LINUX_PORT.md) is the **incoming** list from
+SD Core for Linux — what that project found in this tree while porting. It is a
+report, not a tracker: it says what Linux did about each defect and does not
+record what we did. ***IDS 1 TO 7 HERE ARE ITS OWN NUMBERS, DELIBERATELY***, so
+the two files can be read side by side. **That alignment covers 1–7 and nothing
+else**: a later Linux finding gets the next free id here and is named as
+*"Linux #n"* in its row, because our id space also holds work Linux knows
+nothing about.
+
+`SEV` is the recommendation, not a ruling: **B** blocks the release, **S**
+should be fixed, **M** minor.
+
+***THE TABLE BELOW IS THE INDEX. THE SECTIONS UNDER IT ARE DETAIL.*** A struck
+number is done; **read the table, never the section headings.** Some entries have
+no section at all. This is PRE_RELEASE_FIXES.md's rule and the reason for it is
+unchanged — counting `## N.` headings gives an answer that is wrong and looks
+authoritative.
+
+***CHECKED HERE, OR ONLY REPORTED?*** Every row says which, and the distinction
+is the point of the column rather than a courtesy. **A defect Linux measured on
+Linux is a claim about this tree until somebody reads this tree.** Rows 1 and 7
+were read in this source on 11 Sep 2026 and say so; the rest carry
+***REPORTED, NOT CHECKED HERE***, and the first job on picking one up is to earn
+that wording or remove it.
+
+***NEXT FREE ID: 11.*** Take it from here and increment it; **do not derive it by
+scanning.** `gplbld/test-fixlist-units.ps1` enforces this line, the uniqueness of
+every id, that a section and its row describe the same defect and agree on
+status, and that every `RELEASE_1.1 <n>` cited in PROJECT_STATUS.md, HISTORY.md
+or a `gplbld` script names an id this table actually has. It needs no install and
+no elevation.
+
+| | SEV | what | where |
+|---|---|---|---|
+| 7 | **B** — ***REPORTED BY LINUX AND CONFIRMED IN THIS SOURCE, 11 Sep 2026. Read from the code; not run here.*** Linux measured the fault on Linux, where it left `FILE_TABLE_LOCK` and `REC_LOCK_SEM` held and stopped every session | ***`GETLOCKS` / `LIST.READU` DEREFERENCES NULL FOR A LOCK WHOSE OWNER'S SESSION IS GONE.*** `UserPtr(n)` is `((*(UMap(n))!=0)?UPtr(*(UMap(n))):NULL)` — it **returns NULL for an unmapped user**, and both call sites take `->username` off it with no guard. **The Windows semaphores differ from Linux's, so the consequence may differ; the NULL does not.** Linux's fix is a helper returning `(gone)` when `UserPtr()` is NULL, used at both sites | `gplsrc/sysseg.h:224`; `gplsrc/op_lock.c:292`, `:312`; Linux #7 |
+| 1 | **S** — ***REPORTED BY LINUX AND CONFIRMED IN THIS SOURCE, 11 Sep 2026, AND IT HAS A SECOND HALF LINUX DID NOT REPORT.*** Read from the code; not run here | ***`tier.build.rec` STILL APPLIES THE TYPE-LETTER TRANSFORMATION PRE_RELEASE 136 REMOVED FROM `CREATEA`.*** The two lines are commented out at `CREATEA:1308` and live at `MODIFYA:1407` and `:1411`, and MODIFYA's own banner says the transformation *"is copied from CREATEA verbatim and must stay that way"* — so the two are now out of step and the banner asserts they are not. **Linux reports the downgrade half**: accounts hold whole descriptions, every rebuilt record compares unequal in `tier.del.one`, and `modify.account x standard` counts the PROGRAMMER verbs "left alone" instead of deleting them. ***THE HALF NOT REPORTED IS THE UPGRADE***: `tier.add.one` calls the same subroutine and **writes** `tier.rec`, so `modify.account x programmer` writes bare-letter VOC records — precisely the `listf` defect 136 was filed for, still reachable through a verb 136 did not touch. **Read from source, not run: no account has been rebuilt to watch it.** Linux's fix is to drop the transformation and read the record whole | `sdsys/gpl.bp/MODIFYA:1397`-`:1415`, `tier.add.one:1423`, `tier.del.one:1434`; `sdsys/gpl.bp/CREATEA:1308`; PRE_RELEASE 136; Linux #1 |
+| 6 | **S** — ***REPORTED, NOT CHECKED HERE*** | **Two `DELETEF` prompts loop for ever at end of input.** PRE_RELEASE 79 found prompts by their `Y/N` text and *"OK to delete DATA portion '%1'?"* has none, so it neither shows a default nor maps Enter; at end of input `input yn` yields `''`, which is neither `Y` nor `N`, and the `until` re-asks with no escape. **Linux measured 98.9 MB of the question in 40 s down a pipe.** Named in the same shape and fixed on Linux: `CATALOG` 3033/3034/3035, `DELETEF` 6131, `CPROC` `.D` 5040. **Deliberately not fixed on Linux**: `DELETEF` 2050 and 6133, neither having an obviously safe default. Linux's fix ends 6135/6140 with `(y/<n>)?` and defaults an empty answer to `N` | `gpl.bp/DELETEF:265`-`:271` and the DICT twin; `sdsys/messages/6135`, `6140`; PRE_RELEASE 79; UPSTREAM 27; Linux #6 |
+| 5 | **S** — ***REPORTED, NOT CHECKED HERE. THE OWNER'S RULING, AND THE LARGEST ENTRY IN THIS FILE.*** Release-blocking on Linux, where ext4 is case-sensitive; here NTFS has been hiding it | ***THE §5.12 LOWER-CASE CONVERSION IS INCOMPLETE.*** The standard was everything lower case with upper-case input folded on the fly, **so that no command, file or record id can exist in two casings**. Linux measured on this tree 11 Sep: `CREATE.FILE` still upper-cases the OS name of every new file unless `CREATE.FILE.CASE` is set and nothing sets it; **all 203 `gpl.bp` sources and 12 of 15 `syscom` includes are upper case**; `LOGIN:624` still sets `pterm(PT$INVERT, @true)`; account names are forced to upper case; `$ACC`, `$MAP`, `$RELEASE`, `SD.VOCLIB` and both `TIER.*` are upper-case VOC ids. **The lookup fold tries as typed, then lower, then upper**, so an upper-case name keeps working instead of being brought into line, and in a hashed file `LIST` and `list` are two different records. `%E`/`%G`/`%L` are escaped filenames and are correct as they are — PRE_RELEASE 3. **Not yet fixed on Linux either.** ***HOW FAR IT REACHES IS NOT RULED***: whether it touches record ids in users' own data files, and account names, is open | `gpl.bp/CREATEF:309`-`:311`, `gpl.bp/LOGIN:624`, `syscom/KEYS.H:269`, all of `gpl.bp` and `syscom`, `newvoc`, `voc_template`; PROJECT_STATUS.md §5.12; PRE_RELEASE 3; Linux #5 |
+| 2 | **S** — ***REPORTED, NOT CHECKED HERE.*** Linux witnessed its fix: bad fixture, old `sdtic` 1 file / exit 0, fixed `sdtic` 2 files / exit 1 | **A truncated last entry still exits 0.** The *"Unexpected end of source file"* branch does `goto exit_process_file`, which skips the `failed_entries++` UPSTREAM 9 added — so a source whose final entry is cut short, the likeliest shape of a hand-edited `terminfo.mods`, reports success. Linux's fix is `failed_entries++;` before the `goto` | `gplsrc/sdtic.c:537`-`:539`, `process_file()`; UPSTREAM 9; Linux #2 |
+| 3 | **M** — ***REPORTED, NOT CHECKED HERE. A WORDING DECISION, NOT A CODE DEFECT — THE OWNER'S CALL.*** Linux kept our text for conformity and recorded the objection rather than diverging | **Message 10114 can be false.** *"Unable to change the tier of %1; nothing has changed"* — but `voc.ok` also goes false in `tier.open.template` **after** the standard layer may already have been applied, and the banner there says so, so part of the VOC has changed. Linux's suggested wording: *"…; its tier in the register is unchanged"*. **This is the same class as a check anchoring on a string the failure also carries** — a message asserting an outcome it did not measure | `sdsys/messages/10114`; `sdsys/gpl.bp/MODIFYA`, `tier.set`, `tier.open.template`; Linux #3 |
+| 4 | **M** — ***REPORTED, NOT CHECKED HERE*** | **Stale grammar in a `START-DESCRIPTION` header**: `CREATE.ACCOUNT account.name path.name [NO.QUERY]`, the pre-0.9.0 form. **The syntax the verb prints is right; the comment is not.** It matters because it was believed: **a Linux session copied the line into a user-facing message and shipped a command that fails** | `sdsys/gpl.bp/CREATEA`, `START-DESCRIPTION`; Linux #4 |
+| 8 | **M** — ***CARRIED FORWARD FROM PRE_RELEASE 178 AT THE W1.0-0 TAG. NOT a product defect — the harness only. BUILT AND ITS COLLECTION IS STILL UNWITNESSED*** | ***FIVE VERIFIERS REMOVE THEIR WINDOWS ACCOUNT WITH `Remove-LocalUser`, WHICH BYPASSES `DELETE_USER`***, so no reclaim record is written and the boot sweep can never collect their profile directories. **The bypass stays, on four grounds** — test cleanup must not depend on the code under test; it buys no coverage over `verify-delaccount`; it would not clear them promptly, the sweep running at service start; and it would pre-empt an open question. `VerifyInstall2.ps1` now sweeps at the **start** of a run, never on `-Only`. **The wiring is witnessed on `b133` and `b134`; the collection is not — 0 removed both times, which is entry 9** | `gplbld/verify-createaccount.ps1`, `verify-apiport.ps1`, `verify-scramlogin.ps1`, `verify-sshonly.ps1`, `verify-tierapi.ps1`; `gplbld/clean-test-profiles.ps1`; PRE_RELEASE 178, 36 |
+| 9 | **M** — ***CARRIED FORWARD FROM PRE_RELEASE 185 AT THE W1.0-0 TAG. NOT a product defect — the harness only*** | ***THE START-OF-RUN SWEEP CANNOT COLLECT WHAT A RUN LEAVES, AND THAT IS STRUCTURAL.*** A verifier creates a Windows account, something loads its profile, the verifier deletes the account, and **Windows unloads a hive at logoff — so a hive that outlives its own account is never unloaded at all.** ***THE CURE EVERYONE REACHED FOR DOES NOT WORK, AND THAT IS MEASURED***: the owner ran the sweep elevated and **40 of 40 `reg unload` calls answered `ERROR: Access is denied`**, so elevation was never the missing thing; `gplbld/probe-stuckhives.ps1` then showed the hives are real, loaded and held. ***SD IS NOT THE HOLDER*** — the same unload was refused with the service stopped. **The remaining candidate is the User Profile Service over a logon that was killed rather than ended**, and ***A REBOOT IS THE ONLY CURE ANYBODY HAS AND IT IS UNTRIED.*** The script now says that instead of offering advice that fails | `gplbld/clean-test-profiles.ps1:464`, `:485`-`:488`; `gplbld/probe-stuckhives.ps1`; `gplbld/VerifyInstall2.ps1`; PRE_RELEASE 185, 178, 36 |
+| 10 | **M** — ***found 11 Sep 2026 by walking into it: the first prose added to §7 for W1.1-0 turned `check-stale-leads.py` red. NOT a product defect — the harness only. WORKED AROUND, NOT FIXED*** | ***PHASE 2 ATTRIBUTES §7's TRAILING PROSE TO THE LAST NUMBERED STEP, SO A SENTENCE ABOUT SOMETHING ELSE READS AS AN OPEN CLAIM ABOUT THAT STEP.*** Measured: a new `### W1.1-0` subsection at the end of §7 containing the words *"the two entries still open in PRE_RELEASE_FIXES.md"* was reported as ***"row 99: 7.2 is ticked DONE but its entry leads with an open claim"***. **7.2 is the VirtualBox rig and the sentence is about two harness entries** — the scan is right that the words are there and wrong about whose entry they are, because a `###` heading that is not an entry id does not end the previous entry. ***THE WORKAROUND WAS TO REWORD***, which is exactly the shape this tree distrusts: the guard is now green because the trigger word was removed, not because the mis-attribution went away. **It will recur, and more often as §7 fills with 1.1-0 prose**, which is a section that until now only ever shrank. Candidate fix: end an entry at the next heading of the same level regardless of whether it carries an id. **The risk is the reason it was not just done** — phase 2 is the only phase that sets a non-zero exit, `gplbld/test-staleleads-units.py` drives it, and loosening it wrongly turns the one deciding guard into a quiet one | `gplbld/check-stale-leads.py`, phase 2 entry parsing and `OPEN_PAT:62`; `gplbld/test-staleleads-units.py`; PROJECT_STATUS.md §7 |
+
+---
+
+## 1. `tier.build.rec` still applies the type-letter transformation PRE_RELEASE 136 removed from `CREATEA`
+
+***CONFIRMED IN THIS SOURCE 11 Sep 2026, BY READING IT. Nothing was run*** — no
+account has been created, upgraded or downgraded to watch this happen, and that
+witness is what closing this entry needs.
+
+**What was read.** `sdsys/gpl.bp/CREATEA:1308` carries the transformation as a
+**comment**, struck by PRE_RELEASE 136 on 2 Sep 2026 with a long banner
+explaining that field 1 of a VOC record is the description whose first character
+is the type code, and that reducing it left every created account with a bare
+`F` where SDSYS shows a sentence. `sdsys/gpl.bp/MODIFYA:1407` and `:1411` carry
+the same two lines **live**.
+
+***THE BANNER IS THE PART THAT MAKES THIS MORE THAN A MISSED EDIT.***
+`MODIFYA:1389` states *"THE TRANSFORMATION IS COPIED FROM CREATEA VERBATIM and
+must stay that way: it is what makes a rebuilt record byte-comparable with one
+CREATE.ACCOUNT wrote, which is the whole basis of the 'delete only what we would
+have written' rule in voc.delta."* **The invariant it names is true and the code
+under it no longer satisfies it** — so a reader who checks the comment is told
+the two agree.
+
+**The half Linux reported.** `tier.del.one:1434` reads the account's record and
+deletes only if it equals the rebuilt one. The rebuilt one is stripped and the
+account's is whole, so they never match, and `voc.removed` stays 0 while
+`voc.kept` absorbs the difference. `modify.account x standard` then reports a
+tier change through 10109 while the PROGRAMMER verbs are still in the VOC.
+
+***THE HALF NOT REPORTED.*** `tier.add.one:1423` calls the same subroutine and
+**writes the result**. An upgrade therefore puts bare-letter records into the
+account's VOC — the exact defect the owner saw in a `listf` on 2 Sep 2026 and
+which 136 fixed in `CREATEA` only. **`modify.account` was not in 136's scope**,
+so this is one defect surviving in the verb its own fix did not visit.
+
+**Why nothing failed.** Both halves need a tier change on an account created
+**after** 2 Sep. `verify-tiers` builds accounts and counts verbs; whether it
+would catch either half is not known and is worth establishing before the fix,
+so the fix has a witness that is not itself new.
+
+## 7. `GETLOCKS` dereferences NULL when a lock outlives its owner
+
+***CONFIRMED IN THIS SOURCE 11 Sep 2026, BY READING IT. Nothing was run here***
+— the fault was measured on Linux, not on Windows.
+
+`gplsrc/sysseg.h:224` defines `UserPtr(n)` as
+`((*(UMap(n))!=0)?UPtr(*(UMap(n))):NULL)`. **The NULL branch is the whole point
+of the macro**: an unmapped user has no table entry. `gplsrc/op_lock.c:292`
+(file locks) and `:312` (record locks) both pass its result straight into
+`ts_printf` as `UserPtr(abs(lock_owner))->username`.
+
+***WHAT IS NOT KNOWN HERE IS THE CONSEQUENCE, NOT THE DEFECT.*** On Linux the
+fault landed inside the `FILE_TABLE_LOCK` + `REC_LOCK_SEM` section and left both
+held, which stopped every session. This port's semaphores are POSIX rather than
+System V (§5.1), so **whether a fault there strands the same two locks has not
+been established** and should not be asserted from Linux's result. The
+dereference is identical either way.
+
+**Reaching it** needs a lock whose owner's session is gone — which
+PROJECT_STATUS.md §"Not verified" already lists as an exercise gap: *"a session
+dies without logging out; its user-table slot survives"*. That note describes
+the state this entry needs, so the two are worth reading together.

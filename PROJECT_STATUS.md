@@ -138,8 +138,10 @@ sessions, real application data, interactive SD over ssh at a real terminal,
 `K$SET.USERNAME`'s non-`$internal` refusal, and the daemon's `check_lost_users`
 symptom-without-cause. **None is a task with an owner; each is a thing nobody
 has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
-**Work for the version after W1.0-0 is not in this table either** — it is §7
-"After W1.0-0".
+**W1.1-0 work is not in this table either** — it is §7 "W1.1-0: the two
+objectives", and its defect list is [RELEASE_1.1_FIXES.md](RELEASE_1.1_FIXES.md).
+***THIS TABLE TRACKS W1.0-0, WHICH SHIPPED***; it is kept because the rest of
+the file cites its numbers.
 
 ## THE DESTINATION: SD MUST BE MOVEABLE TO A NEW COMPUTER
 
@@ -176,6 +178,54 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 <existing verb>`, `-stop` — and it calls a verb that already exists.
 
 ## NEXT SESSION: START HERE, IT IS SHORT
+
+> # ⇩⇩⇩ ***W1.1-0 IS OPEN, 11 Sep 2026. THE TRACKING IS BUILT AND GREEN; NO DEFECT IS FIXED YET.*** ⇩⇩⇩
+>
+> **Owner opened the version with two objectives** — the defects SD Core for
+> Linux found in this tree, and embedded Python back, installed rather than
+> shipped. §7 *"W1.1-0: the two objectives"* carries both. ***NOTHING IS
+> STARTED ON EITHER.***
+>
+> ### Where work is filed now, and it is not where it was
+>
+> ***`PRE_RELEASE_FIXES.md` IS FROZEN AS THE W1.0-0 RECORD AND TAKES NO NEW
+> ENTRIES.*** Its next free id of **187 will never be issued**.
+> **[RELEASE_1.1_FIXES.md](RELEASE_1.1_FIXES.md) is the live list**, ids from 1.
+> ***THE ID SPACES OVERLAP***, so cite `PRE_RELEASE <n>` or `RELEASE_1.1 <n>`
+> and never a bare number — `7` is a documentation entry in one file and a NULL
+> dereference in the other. `gplbld/test-fixlist-units.ps1` checks each token
+> against its own table and **will not accept the wrong one**.
+>
+> **178 and 185 moved rather than closed**; they are `RELEASE_1.1` 8 and 9, and
+> their old rows are struck with a note saying so. **Neither is fixed.**
+>
+> ### What was measured this session, and what was only read
+>
+> ***TWO OF THE SEVEN LINUX DEFECTS WERE CONFIRMED IN THIS SOURCE, BY READING
+> IT. NOTHING WAS RUN, NO CYCLE WAS SPENT, AND NO INSTALL EXISTS.***
+>
+> | | |
+> |---|---|
+> | `RELEASE_1.1` **7** | `UserPtr(n)` is `((*(UMap(n))!=0)?UPtr(*(UMap(n))):NULL)` (`gplsrc/sysseg.h:224`) and `op_lock.c:292` and `:312` both take `->username` off it unguarded. **Confirmed here.** Linux's *consequence* — two semaphores left held, every session stopped — was measured on Linux and **must not be asserted of this port**, whose semaphores are POSIX (§5.1) |
+> | `RELEASE_1.1` **1** | The type-letter transformation is commented out at `CREATEA:1308` and **live** at `MODIFYA:1407` and `:1411`. **Confirmed here — and it has a half Linux did not report**: `tier.add.one` calls the same subroutine and *writes* the result, so a tier **upgrade** writes bare-letter VOC records, which is PRE_RELEASE 136's defect surviving in a verb 136 never visited |
+> | the other five | ***REPORTED, NOT CHECKED HERE.*** Each row says so, and earning that wording is the first job on picking one up |
+>
+> ### The guards were changed, and that is the part to distrust
+>
+> `test-fixlist-units.ps1` and `check-stale-leads.py` both read one index file
+> and now read two. **All 32 free tests green in 27 s**, `test-staleleads-units`
+> **23 of 23** (up from 21 — two new rows). ***BOTH GUARDS WENT RED FIRST AND
+> THAT IS THEIR CONTROL***: `test-fixlist-units` caught real drift in the brand
+> new file (section 1's title disagreed with its row, ratio 0.40 against a 0.45
+> threshold), and `test-staleleads-units` failed loudly the moment phase 4
+> started expecting a second index its fixture did not write.
+>
+> ***THE ONE WEAKENED CHECK, SAID OUT LOUD.*** Check 6's old null-case guard
+> refused a run that found zero citations. That cannot be asked per token any
+> more — RELEASE_1.1_FIXES.md is new and legitimately has almost none — so a
+> **regex self-test** replaced it: each pattern is driven against a must-match
+> and a must-not-match sample every run. **If that is not enough, it is the
+> thing to strengthen.**
 
 > ### ***AFTER THE TAG, 6 Sep 2026: THE `User` SET AUDIT FOUND THREE FALSE STATEMENTS IN ONE DOCUMENT, AND 182, 183 AND 184 ARE CLOSED. 178 AND 185 ARE THE ONLY OPEN ENTRIES***
 >
@@ -4927,6 +4977,44 @@ elevated, which is exactly what the OS account commands need (§5.6) — so
 creating the initial accounts is something the installer can do and a normal
 session cannot.
 
+### 5.27 Python runs in a helper process, not inside `sd.exe` (owner, 11 Sep 2026)
+
+***RULED.*** Owner, 11 Sep 2026, opening W1.1-0 and choosing between the two
+shapes §8 had put to him. **Python comes back as a separate native process that
+SD talks to, not as a library loaded into `sd.exe`.**
+
+***NOTHING IS BUILT. THE PARAGRAPHS BELOW ARE A DESIGN AND A REASON, NOT A
+RESULT*** — no helper exists, no protocol is written, and no Python has been
+loaded by anything in this tree since `489b18e` removed it on 13 Aug 2026.
+
+**The shape.** A native UCRT64 `sdpy.exe`, built the way the client DLLs are
+(§5.3), started per session and spoken to over a pipe; the `PY_*` BASIC
+subroutines become requests to it.
+
+**Why, and the first reason is the only one that is measured.** §5.3's rule —
+the MSYS2 and native runtimes never meet in one process — is the project's, and
+it was paid for. Everything after it is reasoning:
+
+- `python.org`'s Python is a **native** build and `sd.exe` is MSYS2, so loading
+  one into the other mixes the runtimes. `long` is 8 bytes on one side and 4 on
+  the other.
+- The removed code passed a C `FILE*` straight into `PyRun_File`
+  (`sdext_py.c:207` at `489b18e^`), which does not survive two C runtimes.
+- A crash in the helper kills the helper rather than the SD session.
+- It is a natural place for the `os_permitted()` gate §8 constraint 4 requires,
+  since Python's `os.system` never reaches `op_sh.c:156`.
+
+***THE REJECTED ALTERNATIVE IS WORTH KEEPING, BECAUSE IT IS THE ONE THAT LOOKS
+CHEAPER.*** A native shim DLL loaded by `sd.exe` exposing only fixed-width types
+would work in principle and needs no protocol — **and it breaks §5.3
+deliberately.** It was put to the owner with that cost stated and he chose the
+helper.
+
+**What would falsify the ruling**, and it is one measurement rather than an
+argument: a native `python314.dll` loaded into `sd.exe` through a fixed-width
+shim, exercised, and run clean. **Nobody has attempted it.** If it worked, the
+helper and its protocol are unnecessary.
+
 ### 5.26 The API port stays 4243, on Windows and Linux (owner, 10 Sep 2026)
 
 **Ruled.** Owner, 10 Sep 2026: *"I think we will just stay with 4243 on both
@@ -7454,12 +7542,41 @@ the rest of this file refers to them by number. Do not renumber.
     profiles***: a loaded hive cannot be removed, and after a suite run every
     hive is loaded.
 
-### After W1.0-0: tasks for the next version
+### W1.1-0: the two objectives (owner, 11 Sep 2026)
 
-Not in the task table, which tracks W1.0-0. Nothing here is started.
+Not in the task table, which tracks W1.0-0 and whose every numbered step is
+closed. ***NOTHING BELOW IS STARTED.*** This is scope, written in the
+conditional; it records a decision about what to do, not a result.
 
-- **Python — planned, not ruled in detail.** §8 "Open: Python after W1.0-0,
-  installed rather than shipped".
+Owner, 11 Sep 2026, opening the version: *"This is the beginning of post
+release and building for version 1.1-0. It will have two main objectives,
+1) fixing the bugs found during the port from here to linux and 2) adding
+embedded python back into this version."*
+
+1. **The defects SD Core for Linux found in this tree.**
+   [BUGS_FROM_LINUX_PORT.md](BUGS_FROM_LINUX_PORT.md) is the incoming report —
+   what that project found and what it did about each one on its own side.
+   [RELEASE_1.1_FIXES.md](RELEASE_1.1_FIXES.md) ids 1 to 7 is where they are
+   tracked here and where their status lives. ***TWO ARE CONFIRMED IN THIS
+   SOURCE AND FIVE ARE REPORTED ONLY***, and the table says which of the two it
+   is for every row. **A defect Linux measured on Linux is a claim about this
+   tree until somebody reads this tree**, so earning that column is the first
+   job on picking any of them up.
+2. **Embedded Python, installed rather than shipped.** §5.27 carries the shape,
+   which is ruled. §8 *"Open: Python after W1.0-0, installed rather than
+   shipped"* holds the constraints, the estimate and what would falsify the
+   plan, and it is unchanged apart from the shape.
+
+**Also carried into 1.1-0**: `RELEASE_1.1` 8 and 9, which were PRE_RELEASE 178
+and 185 and had not been closed by the time W1.0-0 was tagged. Both are
+harness-only.
+
+***WHERE 1.1-0 WORK IS FILED, AND PRE_RELEASE_FIXES.md IS NOT IT.*** That file
+is frozen as the W1.0-0 record and takes no new entries; its declared next free
+id of 187 will never be issued. `gplbld/test-fixlist-units.ps1` now checks two
+tables against two citation tokens, so cite as `PRE_RELEASE <n>` or
+`RELEASE_1.1 <n>` and never as a bare number — **the id spaces overlap**, and
+`7` names a documentation entry in one file and a NULL dereference in the other.
 
 ## 8. Open questions
 
@@ -7479,6 +7596,10 @@ The identity question that stood here — admin flag inside SD, or OS group — 
 ---
 
 ### Open: Python after W1.0-0, installed rather than shipped (owner, 10 Sep 2026)
+
+***THIS IS NOW OBJECTIVE 2 OF W1.1-0*** (§7, owner 11 Sep 2026), and **constraint
+3's choice has been ruled: the helper process, §5.27.** Everything else below
+stands as written on 10 Sep and is still a plan.
 
 **Status: a plan. Nothing below has been built or run.** Owner, 10 Sep 2026:
 *"For the next version I will probably add python back with the install not
@@ -7525,11 +7646,14 @@ present and, if not, offer to fetch it with `winget install Python.Python.3.14`
 3. *Toolchain (§5.3).* python.org's DLL is native; `sd.exe` is MSYS2, and §5.3
    says the runtimes never meet. Loading one into the other: `long` is 8 bytes
    under MSYS2 and 4 in the native DLL, and the old code passed a `FILE*` to
-   `PyRun_File` (`sdext_py.c:207` at `489b18e^`) across C runtimes. Proposed: a
-   native UCRT64 helper (`sdpy.exe`, built like the client DLLs), one per
-   session, over a pipe; `PY_*` become requests to it. The alternative — a
-   native shim DLL loaded by `sd.exe` exposing only fixed-width types — breaks
-   §5.3 and is riskier. Reasoning, not measurement.
+   `PyRun_File` (`sdext_py.c:207` at `489b18e^`) across C runtimes. ***RULED
+   11 Sep 2026 — §5.27, THE HELPER***: a native UCRT64 `sdpy.exe`, built like
+   the client DLLs, one per session, over a pipe; `PY_*` become requests to it.
+   The alternative — a native shim DLL loaded by `sd.exe` exposing only
+   fixed-width types — breaks §5.3, was put to the owner with that cost stated,
+   and was not chosen. **The ruling is observed; the engineering under it is
+   still reasoning rather than measurement**, and §5.27 names the one
+   measurement that would overturn it.
 4. *Access model.* Python's `os.system` never reaches `os_permitted()`
    (`gplsrc/op_sh.c:156`), so the old in-process API would make "API access
    does not give os.execute access" false (PRE_RELEASE 80). Starting the helper
