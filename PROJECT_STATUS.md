@@ -138,6 +138,8 @@ sessions, real application data, interactive SD over ssh at a real terminal,
 `K$SET.USERNAME`'s non-`$internal` refusal, and the daemon's `check_lost_users`
 symptom-without-cause. **None is a task with an owner; each is a thing nobody
 has yet had cause to run.** Swept 26 Aug 2026: six stand, one struck.
+**Work for the version after W1.0-0 is not in this table either** — it is §7
+"After W1.0-0".
 
 ## THE DESTINATION: SD MUST BE MOVEABLE TO A NEW COMPUTER
 
@@ -4925,6 +4927,54 @@ elevated, which is exactly what the OS account commands need (§5.6) — so
 creating the initial accounts is something the installer can do and a normal
 session cannot.
 
+### 5.26 The API port stays 4243, on Windows and Linux (owner, 10 Sep 2026)
+
+**Ruled.** Owner, 10 Sep 2026: *"I think we will just stay with 4243 on both
+windows and Linux."* `APIPORT=4243` stays the shipped value
+(`gplbld/stage.py:602`). Linux is a separate repository; nothing here changes
+it.
+
+**Upstream `sdb64` uses 4245**, and moved there so SD does not collide with
+OpenQM on 4243 (`sdsys/changelog:5586`; `etc/xinetd.d/services:3`,
+`sdclient 4245/tcp`). SD Core and upstream SD therefore differ on this port, and
+a client written for upstream has to be given 4243. The comments calling 4243
+"the number the Linux build uses" (`gplsrc/config.h:73`, `gplbld/stage.py:564`,
+`gplbld/verify-apiport.ps1:35`, `gplbld/verify-scramlogin.ps1:43`) describe the
+owner's Linux build, not upstream's.
+
+**What the ruling accepts.** Where OpenQM already holds 4243, SD starts with no
+API and says so only in its log — `API listener not started: cannot bind port
+4243` (`gplsrc/sdwind.c:367`). The remedy, a different `APIPORT` in `sd.conf`,
+is not supported end to end today, read from the code and not run:
+`gplbld/api-listener.ps1:55-56` matches only the literal `APIPORT=4243`, so
+`remote.api` refuses any other port (exit 2, message 10133); and
+`gplbld/api-firewall.ps1:58` defaults to 4243 with neither caller passing
+`-Port` (`gplbld/sd.iss:2545`, `gpl.bp/REMOTEAPI:285`), so the rule would name
+the wrong port.
+
+**How it was reached, 10 Sep 2026.** A switch to 4245 was ruled for the next
+version and withdrawn the same day, before any commit, once the upgrade
+consequence was put: `sd.conf` is written `onlyifdoesntexist`
+(`gplbld/sd.iss:1708`), so after W1.0-0 ships an upgraded machine keeps
+`APIPORT=4243`, and a switch means either rewriting it on upgrade — which stops
+every W1.0-0 client connecting on 4243 — or making the tooling accept any port.
+Also weighed: a port choice at install (about 2–3 sessions), listening on both
+(a second shared-segment field, and the 4243 half still fails where OpenQM
+runs), and `APIPORT` as a free setting with 4243 the default (about 1 session).
+If revisited, `grep -rn 4243` re-surveys it; `test-retired-wording-units` is the
+guard for a reworded port.
+
+**Found in the same survey, independent of the port, not filed** (offered to the
+owner for PRE_RELEASE_FIXES on 10 Sep 2026):
+- `gplsrc/sdclilib/USER_GUIDE.md` examples connect on **4242** (lines 98, 126,
+  164, 167, 521) — OpenQM's telnet port, not the API.
+- `APIPORT` is `int16_t` (`gplsrc/config.h:74`, `gplsrc/sysseg.h:97`) with no
+  range check (`gplsrc/config.c:305`), and the client's `OpenSocket` takes
+  `int16_t` (`gplsrc/sdclilib/sdclilib.c:3994`) though `SDConnect` takes `int`.
+  A hand-set port above 32767 gives no listener and no log line (negative, so
+  `sdwind.c:350` reads it as unset) or a wrapped port, and the client silently
+  connects to 4243. Read from the code, not run.
+
 ### 5.25 Administration requires an interactive desktop (owner, 5 Sep 2026)
 
 ***THE RULE.*** Administrative work happens **at the console, or through a
@@ -7260,8 +7310,10 @@ Each of these cost real time. Read before debugging anything similar.
 
 ## 7. Next steps
 
-***SECTION 7 IS EMPTY. EVERY STEP IN IT IS CLOSED.*** The development phase
-ended on 26 Aug 2026 with step 18 and H.5. The task table at the top of this
+***EVERY NUMBERED STEP IN SECTION 7 IS CLOSED.*** The development phase
+ended on 26 Aug 2026 with step 18 and H.5. **The one open list here is "After
+W1.0-0" at the end of this section** — work for the next version, ruled or
+planned, not started, and not W1.0-0 work. The task table at the top of this
 file is the authority on status; the entries below carry each step's conclusion
 and the pointers that are still worth following.
 
@@ -7401,6 +7453,13 @@ the rest of this file refers to them by number. Do not renumber.
     testing resumes — and it ***needs a reboot between the accounts and the
     profiles***: a loaded hive cannot be removed, and after a suite run every
     hive is loaded.
+
+### After W1.0-0: tasks for the next version
+
+Not in the task table, which tracks W1.0-0. Nothing here is started.
+
+- **Python — planned, not ruled in detail.** §8 "Open: Python after W1.0-0,
+  installed rather than shipped".
 
 ## 8. Open questions
 
