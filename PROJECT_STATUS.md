@@ -5015,6 +5015,48 @@ argument: a native `python314.dll` loaded into `sd.exe` through a fixed-width
 shim, exercised, and run clean. **Nobody has attempted it.** If it worked, the
 helper and its protocol are unnecessary.
 
+***ALSO RULED 11 Sep 2026, AND IT IS A SCOPE RULING RATHER THAN A TECHNICAL
+ONE: THE UniVerse SHAPE IS DECLINED.*** Owner: *"drop the server idea — let's
+just stay with the original."* **The scope of objective 2 is this section plus
+§8, and nothing else.**
+
+A tester running UniVerse on Windows observed that it ships Python **and** a
+package set — FastAPI and Uvicorn among them — so an integration server can be
+started from a TCL session, and asked whether SD should do the same. **It was
+put to the owner the same day, with the split below, and declined.** Three
+separable things were on the table and **only the first is in 1.1-0**:
+
+1. Python present and callable from a session — *this is objective 2 already*.
+2. A curated third-party package set installed with SD. **Not adopted.** It
+   reverses the 10 Sep ruling (installed, not embedded), and `pydantic-core`,
+   `httptools` and `uvloop` are compiled wheels pinned to one CPython ABI,
+   which re-raises §8 constraint 5. *A middle option — `pip install` of a short
+   pinned list during the optional Python step — was offered and is not adopted
+   either.*
+3. A long-lived HTTP listener started from TCL. **Declined.**
+
+***THE REASON 3 WAS NOT A SMALL ADDITION IS WORTH KEEPING, BECAUSE IT WILL BE
+ASKED AGAIN AND IT DOES NOT LOOK LIKE A SECURITY QUESTION.*** It is barely a
+Python question at all:
+
+- **Lifetime.** An SD session is request/response and dies with its connection;
+  a listener must outlive it. That is a detached, service-shaped process, not
+  the per-session helper this section rules.
+- **Every existing gate is at connection time** — ssh at `sshd_config` then
+  `LOGIN`, the API inside the SCRAM handshake (`APISRVR:1463`), §5.25's
+  interactive-desktop rule. **A listener started inside a session is covered by
+  none of them**, and it would be a second front door with its own rights.
+- **API sessions run as LocalSystem**, so a process spawned from one inherits
+  that unless it is deliberately dropped. §8 constraint 4 already records that
+  Python's `os.system` never reaches `os_permitted()` (`op_sh.c:156`).
+- **Ports are not generalised.** §5.26 measured it: `api-listener.ps1:55`
+  matches only the literal `APIPORT=4243` and `api-firewall.ps1:58` defaults to
+  4243 with neither caller passing `-Port`.
+
+**None of that is an argument that it cannot be done** — it is the reason it
+would need an access ruling before any code, which is what made it a separate
+objective rather than an extension of this one. **Reasoning, not measurement.**
+
 ### 5.26 The API port stays 4243, on Windows and Linux (owner, 10 Sep 2026)
 
 **Ruled.** Owner, 10 Sep 2026: *"I think we will just stay with 4243 on both
