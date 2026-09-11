@@ -179,7 +179,38 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ ***W1.1-0 IS OPEN, 11 Sep 2026. THE TRACKING IS BUILT AND GREEN; NO DEFECT IS FIXED YET.*** ⇩⇩⇩
+> # ⇩⇩⇩ ***W1.1-0 IS OPEN, 11 Sep 2026. FOUR DEFECTS FIXED, TWO WITNESSED, AND THE THIRD CANNOT BE WITNESSED BY ANYTHING IN THE SUITE — WHICH IS THE FINDING WORTH CARRYING.*** ⇩⇩⇩
+>
+> ### ***THE CYCLE AND `b135`, 11 Sep 2026 — GREEN, AND GREEN ON THE WRONG LAYER***
+>
+> **Install 11 Sep 12:04:28, `assert-current` exit 0**, 196 compile units at
+> `0 error(s)` each. ***`-Run b135 -Only verify-tiers,verify-tierchange`: BOTH
+> exit 0***, `verify-tierchange` **28 of 28 decisive**. ***SPENT: b135 — USE
+> `b136`.*** **A PARTIAL RUN, and it says nothing about the other 25 steps.**
+>
+> ***BUT IT DOES NOT WITNESS `RELEASE_1.1` 1, AND THIS IS THE TRAP TO READ
+> BEFORE TRUSTING A GREEN TIER RUN.*** `tier.build.rec` only truncated field 1
+> when field 1 was **longer than its type prefix**. Measured 11 Sep: **all 22
+> `TIER.ADD.ADMINISTRATOR` records are bare type letters** in `voc_template`
+> (`list.locks` is `V`), **none is `K`-type with a field 3**, and **41 of the 42
+> `TIER.OMIT.STANDARD` records carry a description** (`basic` is *"Verb to
+> compile SDBasic program"*). **So the defect is invisible on the
+> `PROGRAMMER`↔`ADMINISTRATOR` round trip that `verify-tierchange` drives, and
+> reachable only where `newvoc` records are added.** ***`b131`'s GREEN WITH THE
+> DEFECT PRESENT WAS THEREFORE HONEST*** — this was first written up as a loose
+> threshold in that verifier and **that explanation was wrong**; the gap is
+> coverage.
+>
+> ***AND NO VERIFIER PERFORMS THE TRANSITION THAT WOULD REACH IT.*** Swept
+> 11 Sep: every `MODIFY.ACCOUNT` in every verifier is that round trip, or
+> `verify-tiers:713`'s restore — and `b135` printed what that restore does,
+> `VOC: 0 records added, 0 removed, 0 left alone`, because **suspension does not
+> strip the VOC and the restore does not rebuild it.** ***NOTHING PROMOTES A
+> STANDARD ACCOUNT.*** `RELEASE_1.1` **13** is that missing leg, and entry 1
+> stays OPEN until it exists — **ticking it on `b135` would be ticking it on a
+> verifier proven blind to it.**
+
+> # ⇩⇩⇩ ***W1.1-0 OPENED, 11 Sep 2026. THE TRACKING IS BUILT AND GREEN.*** ⇩⇩⇩
 >
 > **Owner opened the version with two objectives** — the defects SD Core for
 > Linux found in this tree, and embedded Python back, installed rather than
