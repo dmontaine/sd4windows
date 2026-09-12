@@ -230,17 +230,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | install | **11 Sep 15:20:29**, `assert-current` **exit 0** — current as this is written |
 > | binaries | `bin\` built **11 Sep 12:02:09**, carrying `op_lock.c` and `sdtic.c` |
 > | run tokens | ***SPENT: b135, b136. USE `b137`.*** |
-> | free tier | **32 of 32 green**, run after every change today |
+> | free tier | ***33 of 33 green, 30 s*** — `test-suitetranscript-units` is new |
 > | suite | ***`b136`: ELEVATED 27 OF 27 EXIT 0.*** `VerifyInstall1` did not run |
-> | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12** — all witnessed by reading |
-> | open | **3**, **5**, **6** (2 of 7 prompts witnessed), **7**, **8**, **9**, **10**, **13** (built, driven by `b136`), **14**, **15** |
+> | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12** witnessed by reading; **14** unit-driven with a mutant control, awaiting a real run |
+> | open | **3**, **5**, **6** (2 of 7 prompts witnessed), **7**, **8**, **9**, **10**, **13** (built, driven by `b136`), **15** |
 >
 > ### ⚠️ ***WHAT IS OWED, AND THE FIRST ITEM IS A RULE THIS SESSION DID NOT KEEP***
 >
-> 1. ***`RELEASE_1.1` 14 — THE RUNNER KEEPS NO RECORD WITHOUT `-Quiet`.*** It is
->    first because it is what stopped `b136` from being a reading, and it will
->    do the same to every run until it is fixed. `cycle.ps1`'s
->    `Start-Transcript` is the shape.
+> 1. ***`b137`, TO DRIVE `RELEASE_1.1` 14's FIX ON A REAL RUN.*** `VerifyInstall2`
+>    now keeps a transcript. **What shows it working is a
+>    `VerifyInstall2-<stamp>.log` holding all 27 steps** — if it stops after step
+>    1, the restore is not doing its job, which is the one failure that leaves
+>    the suite green. *(Unit-driven and mutant-controlled already; a real run is
+>    what it has not had.)*
 > 2. ***ENTRY 6's REMAINING FIVE PROMPTS.*** `CATALOG`'s 3033, 3034 and 3035 and
 >    `DELETEF`'s 6131 and 6140 are reached by **no verifier**, so their wording is
 >    read from source only. ***AND NO RUN HAS PRESSED ENTER AT ANY OF THE SEVEN***

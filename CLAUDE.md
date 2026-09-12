@@ -556,10 +556,13 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-sysmsg-units`, `test-vocverbs-units`, `test-reconcile-units`,
    `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`,
    `test-wraptext-units`, `test-upgradevoc-units`,
-   `test-privundetermined-units`, `test-elevonce-units`.
-   ***ALL THIRTY-TWO. Run these on
-   every change*** — **32.6 s for the whole set**, measured 4 Sep 2026 with the
-   thirty-second in it, each in its own process. A whole suite run has already been spent twice discovering
+   `test-privundetermined-units`, `test-elevonce-units`,
+   `test-suitetranscript-units`.
+   ***ALL THIRTY-THREE. Run these on
+   every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
+   thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
+   for thirty-two; the set got one longer and the wall clock did not, so do not
+   read either number as a budget.)* A whole suite run has already been spent twice discovering
    what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were
