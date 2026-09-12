@@ -7940,14 +7940,34 @@ itself is present here, so constraint 6's "no winget" case is not this box.
    for the helper**: a native UCRT64 binary links python.org's MSVC-built import
    libraries cleanly.
 
-   ***WHAT IS STILL UNDECIDED, AND IT IS THE HALF THAT MATTERS.*** The probe
-   used only limited-API-safe calls **on purpose**, so it says nothing about
-   whether the `PY_*` surface FITS inside the limited API. It does not:
-   `PyRun_File`, which `sdext_py.c:207` used at `489b18e^`, is excluded from it,
-   and so is `PyRun_SimpleString`. **So the choice is now a real trade with one
-   side measured** — portability across 3.x versus the calls the old code was
-   written against — rather than two unknowns. Sizing the `PY_*` surface against
-   the limited API is the next measurement.
+   ***AND THE SURFACE HAS NOW BEEN SIZED AGAINST IT TOO, 12 Sep 2026.*** Method:
+   every `Py*(` call site in `sdext_py.c` + `op_sdpyobj.c` at `489b18e^` (**51
+   distinct**), diffed against the **754** stable-ABI exports read out of
+   `python3.lib` itself rather than out of header guards.
+
+   **25 came back as "not in the stable ABI", and that number is misleading —
+   15 of them are SD's OWN functions** (`PyDictCrte`, `PyListGet`, `PyStrSet`,
+   `PyObjLen` …), which match the `Py*` pattern by coincidence and are defined
+   in the removed code. ***TEN ARE GENUINELY CPython:***
+
+   | | count | stable-ABI replacement |
+   |---|---|---|
+   | `PyBytes_/PyDict_/PyFloat_/PyList_/PyLong_/PyUnicode_Check` | 6 | `PyObject_IsInstance` + the type objects — **both confirmed present** |
+   | `Py_XDECREF` | 1 | `Py_DecRef` — present |
+   | `PyMapping_DelItem` | 1 | `PyObject_DelItem` — present |
+   | ***`PyRun_File`, `PyRun_String`*** | **2** | ***NONE DIRECT*** — reachable only via `builtins.compile`/`exec` through `PyObject_CallMethod`, which is present |
+
+   ***A CHECK THAT CORRECTED ITSELF, AND IT IS WORTH THE LINE.*** The type
+   objects first read as ABSENT, which would have made the six `_Check` calls
+   expensive. They are present as ***`__imp_PyList_Type`*** — data imports, which
+   `nm --defined-only` had filtered out. **The first answer was an artefact of
+   the extraction, not a fact about the ABI.**
+
+   ***SO THE STABLE ABI IS VIABLE AND IS THE RECOMMENDATION***: the cost is two
+   small families of shims and one re-expression of `PyRun_*`, not a redesign,
+   and it buys one `sdpy.exe` that runs on every Python at or above its floor.
+   **It stays cheap to revisit — the choice is a compile flag**, and nothing
+   else in §5.27 depends on it.
 6. *No winget* (Server SKUs, or blocked — `gplbld/install-editors.ps1:15`): SD
    must install without Python; an administrator verb shaped like `ssh.server`
    could report or add it later. The editors left winget for bundling
