@@ -229,20 +229,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > |---|---|
 > | install | **11 Sep 15:20:29**, `assert-current` **exit 0** — current as this is written |
 > | binaries | `bin\` built **11 Sep 12:02:09**, carrying `op_lock.c` and `sdtic.c` |
-> | run tokens | ***SPENT: b135, b136. USE `b137`.*** |
+> | run tokens | ***SPENT: b135, b136, b137. USE `b138`.*** |
 > | free tier | ***33 of 33 green, 30 s*** — `test-suitetranscript-units` is new |
 > | suite | ***`b136`: ELEVATED 27 OF 27 EXIT 0.*** `VerifyInstall1` did not run |
-> | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12**, **13** witnessed by reading; **14** unit-driven with a mutant control, awaiting a real run |
+> | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12**, **13**, **14** — all witnessed by reading |
 > | open | **3**, **5** (both the owner's rulings), **6** (2 of 7 prompts witnessed), **7**, **8**, **9**, **10**, **15** |
 >
 > ### ⚠️ ***WHAT IS OWED, AND THE FIRST ITEM IS A RULE THIS SESSION DID NOT KEEP***
 >
-> 1. ***`b137`, TO DRIVE `RELEASE_1.1` 14's FIX ON A REAL RUN.*** `VerifyInstall2`
->    now keeps a transcript. **What shows it working is a
->    `VerifyInstall2-<stamp>.log` holding all 27 steps** — if it stops after step
->    1, the restore is not doing its job, which is the one failure that leaves
->    the suite green. *(Unit-driven and mutant-controlled already; a real run is
->    what it has not had.)*
+> 1. ***THE SUITE NOW KEEPS ITS OWN RECORD — `RELEASE_1.1` 14, DONE AND DRIVEN
+>    ON `b137`.*** `C:\Users\Don\AppData\Local\SD-verify\VerifyInstall2-<stamp>.log`
+>    is where a run's evidence now lives whether or not `-Quiet` was given.
+>    ***SPENT: b135, b136, b137 — USE `b138`.*** **The next full suite is the
+>    first one that will leave a readable record of all 27 steps**, and that has
+>    not happened yet — `b137` proved the mechanism on two.
 > 2. ***ENTRY 6's REMAINING FIVE PROMPTS.*** `CATALOG`'s 3033, 3034 and 3035 and
 >    `DELETEF`'s 6131 and 6140 are reached by **no verifier**, so their wording is
 >    read from source only. ***AND NO RUN HAS PRESSED ENTER AT ANY OF THE SEVEN***
