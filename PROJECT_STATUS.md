@@ -7826,6 +7826,30 @@ present and, if not, offer to fetch it with `winget install Python.Python.3.14`
 — optional, the way the ssh server is (`gplbld/sd.iss:247`, task `sshserver`).
 §5.15 stands for W1.0-0.
 
+***MEASURED ON THIS MACHINE, 12 Sep 2026 — AND IT IS THE WRONG-ANSWER CASE,
+WHICH MAKES IT THE FIXTURE.*** `gplbld/python-detect.ps1` (new, read-only, no
+elevation) reports:
+
+| | |
+|---|---|
+| `HKLM\SOFTWARE\Python\PythonCore` | ***ABSENT*** — no all-users Python at all |
+| `HKCU\SOFTWARE\Python\PythonCore` | `3.13`, and its `InstallPath` is ***`C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_…`*** — the **Microsoft Store** package |
+| `python` on PATH | `C:\Users\Don\AppData\Local\Microsoft\WindowsApps\python.exe` — the shim |
+| verdict | **NONE USABLE, exit 1** |
+
+***THE STORE ENTRY SHARPENS CONSTRAINT 1 AND IS WORTH THE ROW.*** Its registry
+key is under **HKCU** while its files sit under **`C:\Program Files`** — so a
+detector that judged scope by whether the path *looked* all-users would call it
+usable and be wrong. **Scope is the hive, never the path.** `python-detect.ps1`
+judges by hive for that reason, and this machine is a standing negative fixture
+for it: anything that asks PATH answers *"yes, 3.13"* and is wrong twice over.
+
+***AND THE INSTALL HALF IS STILL POSSIBLE, CHECKED THE SAME DAY.***
+`winget show Python.Python.3.14 --scope machine` offers **3.14.7**, `burn`
+installer. **`Python.Python.3.15` and `.3.16` do not exist yet**, so constraint
+2's deadline cannot be tested and that falsification item stays open. `winget`
+itself is present here, so constraint 6's "no winget" case is not this box.
+
 **Read on 10 Sep 2026, not tested on any install:**
 
 - `Python.Python.3.14` 3.14.7 in `microsoft/winget-pkgs` (released 5 Aug 2026):
