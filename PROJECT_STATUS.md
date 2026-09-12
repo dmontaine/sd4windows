@@ -179,7 +179,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 46, 11 Sep 2026 — ***W1.1-0 IS OPEN. SIX DEFECTS FIXED; `b136` RAN THE FULL ELEVATED SUITE, 27 OF 27 EXIT 0, AND CLOSED `RELEASE_1.1` 1 — ON AN EXIT CODE, WITH ITS ROWS UNREAD, BECAUSE THE RUNNER KEEPS NO RECORD WITHOUT `-Quiet`. THAT IS ENTRY 14 AND IT IS THE THING TO FIX FIRST.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 46, 11 Sep 2026 — ***W1.1-0 IS OPEN. SIX DEFECTS FIXED; `b136` RAN THE FULL ELEVATED SUITE, 27 OF 27 EXIT 0, AND `RELEASE_1.1` 1 IS CLOSED ON A READING OF ITS ROWS. ENTRY 14 IS WHY THAT WAS NEARLY NOT POSSIBLE AND IS THE THING TO FIX FIRST.*** ⇩⇩⇩
+>
+> ### ***`RELEASE_1.1` 1 IS WITNESSED — THE UPGRADE HALF, WHICH IS THE HALF LINUX DID NOT REPORT***
+>
+> From the owner's scrollback, `verify-tierchange` **38 of 38 decisive** (was 28
+> — the 10 new rows are section 6):
+>
+> | | |
+> |---|---|
+> | the control, first | `.L basic` before the promotion → ***`'basic' not found in VOC`*** |
+> | the promotion | `VOC: 42 records added, 0 removed, 0 left alone` — **42 is exactly `TIER.OMIT.STANDARD`'s length** |
+> | the decisive row | `.L basic` after → ***`001  Verb to compile SDBasic program`***, not the bare `V` the defect wrote |
+>
+> ***AND ENTRY 6 GOT A BEFORE/AFTER FROM TWO INDEPENDENT RUNS.*** `b136` printed
+> `OK to delete DATA portion '' (y/<n>)?N`; the **6 Sep** log of the same step
+> reads `OK to delete DATA portion ''? N`. **The `(y/<n>)?` is the only
+> difference.** *(The empty quotes are `RELEASE_1.1` 15 — pre-existing, and that
+> 6 Sep log is what proves entry 6 did not cause them.)*
 >
 > ### ***`b136`: 27 OF 27, AND WHAT IT DID NOT LEAVE BEHIND***
 >
@@ -215,8 +232,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | run tokens | ***SPENT: b135, b136. USE `b137`.*** |
 > | free tier | **32 of 32 green**, run after every change today |
 > | suite | ***`b136`: ELEVATED 27 OF 27 EXIT 0.*** `VerifyInstall1` did not run |
-> | closed | `RELEASE_1.1` **2**, **4**, **11**, **12** witnessed; **1** on an exit code with its rows unread — see entry 14 |
-> | open | **3**, **5**, **6**, **7**, **8**, **9**, **10**, **13** (built, driven by `b136`), **14** |
+> | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12** — all witnessed by reading |
+> | open | **3**, **5**, **6** (2 of 7 prompts witnessed), **7**, **8**, **9**, **10**, **13** (built, driven by `b136`), **14**, **15** |
 >
 > ### ⚠️ ***WHAT IS OWED, AND THE FIRST ITEM IS A RULE THIS SESSION DID NOT KEEP***
 >
@@ -224,9 +241,11 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    first because it is what stopped `b136` from being a reading, and it will
 >    do the same to every run until it is fixed. `cycle.ps1`'s
 >    `Start-Transcript` is the shape.
-> 2. ***ENTRY 1's TWO NUMBERS.*** *"the promotion actually ADDED records"* and
->    `basic` field 1, from `verify-tierchange` section 6. **The scrollback of the
->    `b136` window has them**; failing that, one `-Quiet` run does.
+> 2. ***ENTRY 6's REMAINING FIVE PROMPTS.*** `CATALOG`'s 3033, 3034 and 3035 and
+>    `DELETEF`'s 6131 and 6140 are reached by **no verifier**, so their wording is
+>    read from source only. ***AND NO RUN HAS PRESSED ENTER AT ANY OF THE SEVEN***
+>    — every one was answered with a real `Y` or `N`, so the defaults themselves
+>    are still unwitnessed.
 > 3. **`VerifyInstall1`, the unelevated half** — it did not run in that window,
 >    and several measurements are only valid there.
 > 4. **Entries 6 and 7 have no witness path at all** and are fixed in source.
