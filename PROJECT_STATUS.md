@@ -232,8 +232,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | run tokens | ***SPENT: b135, b136. USE `b137`.*** |
 > | free tier | ***33 of 33 green, 30 s*** — `test-suitetranscript-units` is new |
 > | suite | ***`b136`: ELEVATED 27 OF 27 EXIT 0.*** `VerifyInstall1` did not run |
-> | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12** witnessed by reading; **14** unit-driven with a mutant control, awaiting a real run |
-> | open | **3**, **5**, **6** (2 of 7 prompts witnessed), **7**, **8**, **9**, **10**, **13** (built, driven by `b136`), **15** |
+> | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12**, **13** witnessed by reading; **14** unit-driven with a mutant control, awaiting a real run |
+> | open | **3**, **5** (both the owner's rulings), **6** (2 of 7 prompts witnessed), **7**, **8**, **9**, **10**, **15** |
 >
 > ### ⚠️ ***WHAT IS OWED, AND THE FIRST ITEM IS A RULE THIS SESSION DID NOT KEEP***
 >
