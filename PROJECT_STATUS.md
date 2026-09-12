@@ -7830,12 +7830,30 @@ present and, if not, offer to fetch it with `winget install Python.Python.3.14`
 WHICH MAKES IT THE FIXTURE.*** `gplbld/python-detect.ps1` (new, read-only, no
 elevation) reports:
 
-| | |
-|---|---|
-| `HKLM\SOFTWARE\Python\PythonCore` | ***ABSENT*** — no all-users Python at all |
-| `HKCU\SOFTWARE\Python\PythonCore` | `3.13`, and its `InstallPath` is ***`C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_…`*** — the **Microsoft Store** package |
-| `python` on PATH | `C:\Users\Don\AppData\Local\Microsoft\WindowsApps\python.exe` — the shim |
-| verdict | **NONE USABLE, exit 1** |
+| | before the install | after it |
+|---|---|---|
+| `HKLM\…\PythonCore` | ***ABSENT*** | ***`3.14` → `C:\Program Files\Python314\`*** |
+| `HKCU\…\PythonCore` | `3.13`, `InstallPath` = `C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_…` — the **Store** package | unchanged, still rejected |
+| `python` on PATH | `…\WindowsApps\python.exe` — the shim | ***STILL the shim*** |
+| verdict | **NONE USABLE, exit 1** | **USABLE: 3.14, exit 0** |
+
+***PATH GOT IT WRONG IN BOTH DIRECTIONS, WHICH IS THE WHOLE ARGUMENT FOR THE
+DETECTOR.*** Before: PATH said *"3.13 is here"* when nothing usable was.
+After: a usable 3.14 exists and PATH **still** points at the shim. Neither
+answer came from the hive, and neither was right.
+
+**Installed 12 Sep 2026**, `winget install --id Python.Python.3.14 --exact
+--scope machine --silent …` (`install-editors.ps1:232`'s flags). ***3.13 WAS
+DELIBERATELY LEFT***: four free-tier checks run on it (`python` in bash is the
+Store 3.13, measured **3.13.14**, unchanged by the install), and it is a
+different hive and version key so nothing collides.
+
+***BOTH OF CONSTRAINT 5's ROUTES ARE NOW PRESENT TO TEST***, in
+`C:\Program Files\Python314`: `python314.dll` + `libs\python314.lib` for an
+exact-version build, `python3.dll` + `libs\python3.lib` for the stable ABI,
+with `include\` for either. **Choosing 3.14 forecloses neither floor** —
+`Py_LIMITED_API` sets the minimum at BUILD time, so a 3.13 floor running
+against 3.14 stays open.
 
 ***THE STORE ENTRY SHARPENS CONSTRAINT 1 AND IS WORTH THE ROW.*** Its registry
 key is under **HKCU** while its files sit under **`C:\Program Files`** — so a
