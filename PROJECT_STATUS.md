@@ -179,7 +179,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 46, 11 Sep 2026 — ***W1.1-0 IS OPEN. SIX DEFECTS FIXED; `b136` RAN THE FULL ELEVATED SUITE, 27 OF 27 EXIT 0, AND `RELEASE_1.1` 1 IS CLOSED ON A READING OF ITS ROWS. ENTRY 14 IS WHY THAT WAS NEARLY NOT POSSIBLE AND IS THE THING TO FIX FIRST.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 47, 12 Sep 2026 — ***OBJECTIVE 1 IS ESSENTIALLY DONE AND WITNESSED: `b140` GREEN IN BOTH HALVES, 50 STEPS, 933 `[PASS]`, ZERO `[FAIL]`. OBJECTIVE 2 IS SURVEYED AND UNBUILT — ALL SIX §8 CONSTRAINTS ANSWERED OR BOUNDED IN ONE SITTING, NO CYCLE SPENT. THE NEXT THING IS ONE ELEVATED PROBE, NOT CODE.*** ⇩⇩⇩
 >
 > ### ***`RELEASE_1.1` 1 IS WITNESSED — THE UPGRADE HALF, WHICH IS THE HALF LINUX DID NOT REPORT***
 >
@@ -227,9 +227,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > | | |
 > |---|---|
-> | install | **11 Sep 15:20:29**, `assert-current` **exit 0** — current as this is written |
+> | install | **11 Sep 23:41:16**, `assert-current` **exit 0** as this is written |
 > | binaries | `bin\` built **11 Sep 12:02:09**, carrying `op_lock.c` and `sdtic.c` |
 > | run tokens | ***SPENT: b135–b140. USE `b141`.*** |
+> | 🐍 objective 2 | ***ALL SIX §8 CONSTRAINTS ANSWERED OR BOUNDED, 12 Sep — NO CODE WRITTEN YET.*** See the block below |
 > | ✅ `b140` | ***GREEN IN BOTH HALVES. 23 of 23 unelevated + 27 of 27 elevated = 50 steps, 933 `[PASS]`, ZERO `[FAIL]`.*** Against the 11 Sep 23:41:16 install |
 > | ⚠️ `b139` | ***UNELEVATED 23 OF 23, ELEVATED 0 OF 27 — IT DIED BEFORE STEP 1 AND LOOKED FINISHED.*** `RELEASE_1.1` **16**, found by reading the transcript, fixed, and `b140` is its witness |
 > | free tier | ***33 of 33 green, 30 s*** — `test-suitetranscript-units` is new |
@@ -237,7 +238,31 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12**, **13**, **14**, **15** — all witnessed by reading |
 > | open | **3**, **5** (both the owner's rulings), **6** (2 of 7 prompts witnessed), **7**, **8**, **9**, **10** |
 >
-> ### ⚠️ ***WHAT IS OWED, AND THE FIRST ITEM IS A RULE THIS SESSION DID NOT KEEP***
+> ### 🐍 ***OBJECTIVE 2: THE GROUND IS SURVEYED, NOTHING IS BUILT***
+>
+> **12 Sep 2026. No cycle, no elevation, no run token was spent on any of it.**
+> §8 carries the detail; this is the shape.
+>
+> | constraint | state |
+> |---|---|
+> | **1** scope | ***SETTLED BOTH WAYS.*** `gplbld/python-detect.ps1` reads the PEP 514 hive. Proved on the negative case, then on the positive after **3.14 was installed at machine scope**. ***PATH WAS WRONG IN BOTH DIRECTIONS*** — it named a useless Store 3.13 when nothing usable existed, and still names it now that 3.14 does |
+> | **3** toolchain | ruled (§5.27); **linking side measured** — a native UCRT64 binary links python.org's MSVC import libraries clean |
+> | **4** access model | ***TRACED, AND THE ANSWER IS THE BAD ONE.*** 20 of 20 `PY_*` are `$internal`, so `os_permitted()` would pass **every user**. Gate specified, not built |
+> | **5** version/ABI | ***BOTH HALVES MEASURED.*** Stable ABI forwards and runs below its floor; the surface needs **two** shim families + one re-expression of `PyRun_*`. **Recommended, not ruled — it is a compile flag** |
+> | **6** winget | present here, so its "no winget" case is not this box |
+> | **2** PEP 773 | ***UNTESTABLE*** — `Python.Python.3.15`/`.3.16` do not exist yet. Falsification item stays open |
+>
+> ***THE LAST THING BEFORE CODE, AND IT IS A CLAIM I OVER-STATED ONCE:***
+> **whether LocalSystem can reach `C:\Program Files\Python314`.** It almost
+> certainly can — but "almost certainly" is what this project punishes, and it
+> needs a probe run as SYSTEM, which is elevated. **Do that before writing
+> `sdpy.exe`**, because the helper's whole identity story rests on it.
+>
+> **3.13 was deliberately left installed**: four free-tier checks run on it
+> (`python` in bash is the Store 3.13, **3.13.14**, unchanged by the 3.14
+> install). Removing it breaks the tier for no gain.
+>
+> ### ⚠️ ***WHAT IS OWED***
 >
 > 1. ***THE SUITE NOW KEEPS ITS OWN RECORD — `RELEASE_1.1` 14, DONE AND DRIVEN
 >    ON `b137`.*** `C:\Users\Don\AppData\Local\SD-verify\VerifyInstall2-<stamp>.log`

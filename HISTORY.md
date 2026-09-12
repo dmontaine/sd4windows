@@ -59922,3 +59922,54 @@ fire.** `RELEASE_1.1` 16 lists them.
 **Reading note, paid for twice now**: the elevated summary and all 27 per-step
 logs are **UTF-16**. A plain `grep` reports 0 PASS / 0 FAIL on them, which reads
 exactly like a suite that did nothing. Spent: b135–b140; use `b141`.
+
+## 12 Sep 2026 — objective 2 surveyed: all six §8 constraints answered or bounded, no code written
+
+**No cycle, no elevation, no run token.** §8 carries the detail; this is what
+changed and what it cost to find.
+
+**Constraint 1, scope — settled both ways.** `gplbld/python-detect.ps1` reads
+the PEP 514 hive. ***PATH WAS WRONG IN BOTH DIRECTIONS***: before the install it
+named a Store 3.13 registered to HKCU when nothing usable existed; after 3.14
+went in at machine scope it *still* names the shim. The Store entry sharpened
+the rule — its key is `HKCU` while its files sit under `C:\Program Files`, so
+**scope is the hive, never the path.**
+
+**3.13 was left installed deliberately**: four free-tier checks run on it, and
+it is a different hive and version key.
+
+**Constraint 5 — both halves measured.** `gplbld/probe-pylimited.c`, built both
+ways with the UCRT64 compiler: the stable ABI **really forwards**, `python3.dll`
+pulling in `python314.DLL`, compiled against a 3.13 floor and running on 3.14.7.
+Then the surface: 51 distinct `Py*(` call sites at `489b18e^` against 754 exports
+read out of `python3.lib` itself. **25 fell outside and that number is
+misleading — 15 are SD's own functions** matching `Py*` by coincidence. Of the
+ten real ones, eight have confirmed replacements; only `PyRun_File` and
+`PyRun_String` need re-expressing through `builtins.compile`/`exec`.
+
+***A CHECK THAT CORRECTED ITSELF AND IS WORTH THE PARAGRAPH.*** The type objects
+first read as ABSENT, which would have made six `_Check` calls expensive and
+argued against the stable ABI. They are present as `__imp_PyList_Type` — data
+imports, which `nm --defined-only` filtered out. **The first answer was an
+artefact of the extraction.** Reporting it would have lost the route on a
+measurement error.
+
+**Constraint 4 — traced, and the answer is the bad one.** §8 said *"whether they
+were `$internal` is not checked"*. They were: **20 of 20**. `$internal` sets the
+flag (`BCOMP:2875`), `os_permitted()` returns TRUE on `HDR_INTERNAL` **before it
+reads the username** (`op_sh.c:170`), and `op_sdext.c` has no gate at all. ***So
+a gate called from inside a `PY_*` passes for every user, always*** — the file's
+own banner has the word: decoration. And `$internal` is not removable: it is
+load-bearing for the `!name` catalogue convention elsewhere.
+
+**Constraint 2 is untestable** — 3.15/3.16 do not exist yet.
+
+***WHAT IS STILL UNMEASURED, AND IT IS A CLAIM THIS SESSION OVER-STATED ONCE***:
+whether **LocalSystem** can reach `C:\Program Files\Python314`. It almost
+certainly can; that word is the problem. It needs a probe run as SYSTEM, and it
+should be taken **before** `sdpy.exe` is written, because the helper's identity
+story rests on it.
+
+*(Two process slips, both recorded in their commits: `$?` read after a pipe
+reported `head`'s status as `gcc`'s, and a first UCRT64 build failed silently
+because the toolchain was not on `PATH` for its own sub-tools.)*
