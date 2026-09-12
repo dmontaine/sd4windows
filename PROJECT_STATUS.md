@@ -179,6 +179,94 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 48, 12 Sep 2026 — ***THE PROBE HANDOFF 47 ASKED FOR IS BUILT AND VERIFIED TO LOAD. IT IS UNRUN: THE AGENT SHELL'S ELEVATION WAS REFUSED HERE, WHICH §4.0.1 SAYS SHOULD HAVE WORKED. NO CYCLE, NO RUN TOKEN, NO CODE WRITTEN. ONE ELEVATED COMMAND IS OWED AND IT IS THE WHOLE OF THE NEXT STEP.*** ⇩⇩⇩
+>
+> ### ***WHAT TO RUN FIRST, AND IT IS THE ONLY THING BLOCKING OBJECTIVE 2***
+>
+> ***ELEVATED PowerShell, the owner's own terminal.*** No run token, no
+> install, no cycle:
+>
+> ```
+> C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-pysystem.ps1
+> ```
+>
+> | exit | meaning |
+> |---|---|
+> | **0** | every decisive leg passed — LocalSystem reaches, reads, runs and binds. §5.27's assumption holds and `sdpy.exe` can be started |
+> | **1** | ***a decisive leg FAILED.*** §5.27 assumes the opposite; read the rows before writing any of the helper |
+> | **2** | the question could not be asked (not elevated, no machine-scope Python, task would not register) |
+> | **3** | nothing failed, but a leg was NOT MEASURED — almost certainly `probe-pylimited-limited.exe` not built |
+>
+> **It prints SYSTEM's own report verbatim before it parses anything, and
+> reports that file's first bytes first** — handoff 47's UTF-16 trap, where a
+> plain `grep` reads 0 PASS / 0 FAIL and looks exactly like a run that did
+> nothing.
+>
+> ### ***WHAT WAS BUILT — `gplbld/probe-pysystem.ps1`, commit `8146a2a`***
+>
+> Handoff 47: *"whether LocalSystem can reach `C:\Program Files\Python314`… it
+> needs a probe run as SYSTEM."* Detection (`python-detect.ps1`) proves a Python
+> is **installed**; it says nothing about the identity that would load
+> `python3.dll`, and an API session — therefore `sdpy.exe` — is LocalSystem.
+>
+> It runs the measurement inside a scheduled task with a ServiceAccount
+> principal and removes the task on every path, failure included. Six `ROW|`
+> legs, §8 constraint 1 has the detail. **The two worth knowing here:**
+>
+> - ***THE FIRST LEG IS THE NULL-CASE REFUSAL.*** The token must read
+>   `S-1-5-18` or the payload writes one FAIL row and stops. A payload that ran
+>   as the interactive user would pass every row below it and mean nothing.
+> - ***THE DECISIVE LEG IS `probe-pylimited-limited.exe`, NOT `python.exe`.***
+>   That binary is what `sdpy.exe` would be — native UCRT64, `-lpython3`,
+>   `Py_LIMITED_API` — and the row wants a DLL **read back from the loader**.
+>   `python.exe` running as SYSTEM is a different claim and is its own, separate
+>   leg. **A leg that could not run reports `SKIP` and the probe exits 3**, so
+>   an unmeasured question can never read as an answered one.
+>
+> **Verified to load before it was handed over**: 0 parse errors, **both**
+> functions found by the AST, no BOM, LF-only. On `$neverShipped` — nothing
+> ships it, same standing as `probe-pylimited.c`.
+>
+> ### ⚠️ ***§4.0.1's FIRST TABLE ROW DID NOT HOLD ON THIS MACHINE, AND IT IS A QUESTION FOR THE OWNER***
+>
+> A **direct** `Start-Process -Verb RunAs` from the agent's shell — recorded
+> there as **WORKS**, measured 4× on 23 Aug 2026 — was refused here with
+> ***"The operation was canceled by the user"***. **One attempt, not repeated.**
+> **Nothing was left behind**: no `SDProbePySystem` task, no transcript, `0`
+> payload files in `%SystemRoot%\Temp`.
+>
+> ***THE TWO CAUSES ARE INDISTINGUISHABLE FROM INSIDE AND THEY HAVE OPPOSITE
+> CONSEQUENCES.*** The owner may have seen a consent dialog and declined it, in
+> which case §4.0.1 stands unchanged; or nothing rendered, which is §4.0.1's own
+> nested-elevation signature and would mean **every elevated command gets handed
+> over, not just the suite**. **Ask; do not spend a second attempt guessing.**
+> The 23 Aug measurement was taken on the other machine under a different
+> harness, so it is not thereby wrong. §4.0.1 carries the full note.
+>
+> ### ***THE STATE — NOTHING IN THE PRODUCT MOVED***
+>
+> | | |
+> |---|---|
+> | install | **11 Sep 23:41:16**, `assert-current` **exit 0** as this is written |
+> | run tokens | ***SPENT: b135–b140. USE `b141` — this session spent none.*** |
+> | free tier | ***33 of 33 green***, 35.2 s then 27 s, run twice — before and after the documentation |
+> | suite | **unchanged: `b140` is still the witness**, green in both halves, 50 steps, 933 `[PASS]`, 0 `[FAIL]` |
+> | `RELEASE_1.1` | **unchanged**: open **3**, **5**, **6**, **7**, **8**, **9**, **10** |
+> | objective 2 | ***STILL NO CODE.*** The six §8 constraints are as handoff 47 left them; this adds the seventh measurement and does not take it |
+>
+> ***EVERYTHING HANDOFF 47 LISTED AS OWED IS STILL OWED*** — entry 6's remaining
+> five prompts and the unpressed Enter at all seven, entries 6 and 7 having no
+> witness path, and the owner's four: message 2050 across six verbs, defects 3
+> and 5, whether to re-clone `sdb64`, and whether `SDCoreWindowsDocs` repeats
+> the `powershell -File` form entry 11 fixed here.
+>
+> *(Also this session, and it is not in the tree: a short Linux-port paragraph
+> for the SourceForge page, which will carry both zips from one repository,
+> `sdcore`. Two facts were flagged to the owner as unverifiable from here — that
+> the Linux release installs as a **systemd** service, and that
+> `sd.iss:16` ships `msys-2.0.dll`, so *"no POSIX layer to install"* is true as
+> written but invites a `strings` argument.)*
+
 > # ⇩⇩⇩ HANDOFF 47, 12 Sep 2026 — ***OBJECTIVE 1 IS ESSENTIALLY DONE AND WITNESSED: `b140` GREEN IN BOTH HALVES, 50 STEPS, 933 `[PASS]`, ZERO `[FAIL]`. OBJECTIVE 2 IS SURVEYED AND UNBUILT — ALL SIX §8 CONSTRAINTS ANSWERED OR BOUNDED IN ONE SITTING, NO CYCLE SPENT. THE NEXT THING IS ONE ELEVATED PROBE, NOT CODE.*** ⇩⇩⇩
 >
 > ### ***`RELEASE_1.1` 1 IS WITNESSED — THE UPGRADE HALF, WHICH IS THE HALF LINUX DID NOT REPORT***
