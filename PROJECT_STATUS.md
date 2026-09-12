@@ -229,7 +229,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > |---|---|
 > | install | **11 Sep 15:20:29**, `assert-current` **exit 0** — current as this is written |
 > | binaries | `bin\` built **11 Sep 12:02:09**, carrying `op_lock.c` and `sdtic.c` |
-> | run tokens | ***SPENT: b135–b138. USE `b139`.*** |
+> | run tokens | ***SPENT: b135–b139. USE `b140`.*** |
+> | ⚠️ `b139` | ***UNELEVATED 23 OF 23. ELEVATED 0 OF 27 — IT DIED BEFORE STEP 1 AND THE RUN LOOKED FINISHED.*** `RELEASE_1.1` **16**, fixed. **The full suite is still owed.** |
 > | free tier | ***33 of 33 green, 30 s*** — `test-suitetranscript-units` is new |
 > | suite | ***`b136`: ELEVATED 27 OF 27 EXIT 0.*** `VerifyInstall1` did not run |
 > | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12**, **13**, **14**, **15** — all witnessed by reading |
@@ -240,10 +241,11 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 1. ***THE SUITE NOW KEEPS ITS OWN RECORD — `RELEASE_1.1` 14, DONE AND DRIVEN
 >    ON `b137`.*** `C:\Users\Don\AppData\Local\SD-verify\VerifyInstall2-<stamp>.log`
 >    is where a run's evidence now lives whether or not `-Quiet` was given.
->    ***SPENT: b135–b138 — USE `b139`.*** **The next full suite is the first one
->    that will leave a readable record of all 27 steps**, and that has not
->    happened yet — `b137` proved the mechanism on two steps and `b138` on one
->    that mattered.
+>    ***SPENT: b135–b139 — USE `b140`.*** **The full suite is still owed**, and
+>    `b139` is why: the elevated half died before step 1 on `RELEASE_1.1` 16.
+>    ***THE TRANSCRIPT IS WHAT FOUND THAT***, which is entry 14 earning itself
+>    on its first full-suite outing — the console said nothing a reader would
+>    have doubted, and the 2,368-byte log said everything.
 > 2. ***ENTRY 6's REMAINING FIVE PROMPTS.*** `CATALOG`'s 3033, 3034 and 3035 and
 >    `DELETEF`'s 6131 and 6140 are reached by **no verifier**, so their wording is
 >    read from source only. ***AND NO RUN HAS PRESSED ENTER AT ANY OF THE SEVEN***
