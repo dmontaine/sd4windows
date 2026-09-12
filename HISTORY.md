@@ -59998,3 +59998,53 @@ rendered at all, cannot be told from inside**; the 23 Aug measurement was taken
 on the other machine under a different harness, so it is not thereby wrong.
 Nothing was left behind: no `SDProbePySystem` task, no transcript, no payload
 file. §4.0.1 carries it, and the command is handed over instead.
+
+## 12 Sep 2026 — Linux #8: the coverage claim was prose, and it was wrong in seven places
+
+`RELEASE_1.1` **17, done and witnessed**: `verify-basicfuncs` **184 of 184, 0
+FAIL, exit 0**, unelevated on the 23:41:16 install, coverage **176 known = 116
+exercised + 60 declared**, V1–V5 all PASS. No cycle, no run token.
+
+`basicfuncs.sb` ended its exclusion list with *"Everything else in BCOMP's
+intrinsics table is exercised below."* **A comment cannot be wrong out loud.**
+It is now `* NOT.TESTED:` declarations plus `Get-CoverageVerdict`, which reads
+BCOMP's own table and fails on named-nowhere, claimed-both-ways, declared-but-
+unknown, and a label naming no intrinsic — V1 refusing a table that did not
+parse, because that leaves every other row passing vacuously.
+
+***LINUX REPORTED THREE NAMES; THIS TREE HAD SEVEN FAULTS.*** Theirs:
+`ASSIGNED`, `UNASSIGNED`, `SWAP` named nowhere, `DELETE` counted twice, `CHANGE`
+excluded as *"change the process"* when `op_chnge.c:35` is a pure substring
+replace. **Three more found here**: `NOT` was also named nowhere — *the old
+header's own English hid it*, a name-scan finding the word NOT in *"WHAT IS
+DELIBERATELY NOT TESTED HERE"*; a case labelled `INMAT.reuse` had always called
+`reuse()`, crediting a declared-untested name and leaving `REUSE` looking
+untested; and `ADDS.via.SUM` named a function **neither BCOMP nor OPCODES.H
+has**.
+
+**Three measurements corrected mid-work, each arriving as a red row rather than
+a doubt.** An unanchored `intrinsics<-1>` pattern matched `int.intrinsics` too
+and answered **212** instead of 176 — the internal table, `BCOMP:619`. A line
+wrap put the declaration keyword at the start of a continuation line and V4 read
+**thirteen English words** as intrinsic names. And the live row reported
+`exercised = True`: the sets are keyed by function names, **BCOMP has an
+intrinsic called `COUNT`**, and `$h.Count` resolves to that key's value rather
+than the tally — every fixture passed while it was broken, none having a COUNT
+in it. `.psbase.Count` is the fix.
+
+***AND TWO TEST EXPECTATIONS WERE WRONG BEFORE THEY WERE RIGHT.*** A named
+common is **not** unassigned: `op_array.c:140` creates the block with
+`initialise_zero`, so elements start as INTEGER 0. `ASSIGNED.no` and
+`UNASSIGNED.yes` failed, the product was correct, and the working shape is a
+local the compiler sees assigned on a branch the run never takes
+(`op_array.c:693` allocates locals as UNASSIGNED). The common is kept as
+`ASSIGNED.common`, pinned with the answer it actually gives.
+
+`CHANGE`'s arity is now driven rather than described: **arg 4 is how many
+occurrences, arg 5 is which one to start at** — `BCOMP:4064` and `op_chnge.c`'s
+stack, and the reverse of what the names suggest. `SWAP` shares the opcode and
+is driven too. No `UPSTREAM_FIXES.md` entry: both files are this port's own,
+written 31 Aug 2026, and no product defect was found.
+
+New free guard `test-basicfuncscov-units.ps1`, **18 rows**, registered in
+CLAUDE.md's list in the same commit; the tier is **34 of 34 in 28 s**.

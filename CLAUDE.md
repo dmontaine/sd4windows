@@ -557,8 +557,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`,
    `test-wraptext-units`, `test-upgradevoc-units`,
    `test-privundetermined-units`, `test-elevonce-units`,
-   `test-suitetranscript-units`.
-   ***ALL THIRTY-THREE. Run these on
+   `test-suitetranscript-units`, `test-basicfuncscov-units`.
+   ***ALL THIRTY-FOUR. Run these on
    every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
    thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
    for thirty-two; the set got one longer and the wall clock did not, so do not
@@ -722,6 +722,19 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    without somebody classifying it. **Mutant control, both directions**: a
    reworded reason and a deleted unreachable entry each turned it red naming the
    site, and the file was restored to the same SHA-256.
+
+   ***`test-basicfuncscov-units` JOINED IT 12 Sep 2026 IN THE COMMIT THAT
+   CREATED IT.*** It guards `Get-CoverageVerdict`, the decision RELEASE_1.1 17
+   added to `verify-basicfuncs.ps1` so that `basicfuncs.sb`'s coverage claim is
+   mechanical rather than prose. **Every row that matters is unreachable
+   exactly when the tree is healthy** — a clean partition has nothing
+   unaccounted, nothing claimed both ways and no stray label — so the verdict
+   is driven directly on fixtures, with a live control and two mutants.
+   ***IT CAUGHT TWO DEFECTS BEFORE IT WENT GREEN***, and the second is worth
+   the sentence: these hashtables are keyed by BASIC function names, **BCOMP
+   has an intrinsic called `COUNT`**, and PowerShell resolves `$h.Count` to
+   that key's value instead of the tally — the count came back as `True`. Use
+   `.psbase.Count` on any hashtable whose keys are data.
 
    ***`test-reconcile-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT***, which is the rule above working and needs no paragraph of its own. It

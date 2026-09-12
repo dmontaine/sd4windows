@@ -33,7 +33,7 @@ were read in this source on 11 Sep 2026 and say so; the rest carry
 ***REPORTED, NOT CHECKED HERE***, and the first job on picking one up is to earn
 that wording or remove it.
 
-***NEXT FREE ID: 17.*** Take it from here and increment it; **do not derive it by
+***NEXT FREE ID: 18.*** Take it from here and increment it; **do not derive it by
 scanning.** `gplbld/test-fixlist-units.ps1` enforces this line, the uniqueness of
 every id, that a section and its row describe the same defect and agree on
 status, and that every `RELEASE_1.1 <n>` cited in PROJECT_STATUS.md, HISTORY.md
@@ -42,6 +42,7 @@ no elevation.
 
 | | SEV | what | where |
 |---|---|---|---|
+| ~~17~~ | **M** (verifier gap, not product) — ***DONE AND WITNESSED 12 Sep 2026, UNELEVATED, ON THE 23:41:16 INSTALL: `verify-basicfuncs` 184 of 184, 0 FAIL, exit 0, coverage 176 = 116 + 60 with V1–V5 all PASS.*** **Linux #8, and the version measured HERE is bigger than the one reported.** `basicfuncs.sb` closed its exclusion list with *"Everything else in BCOMP's intrinsics table is exercised below"* — prose, which **cannot be wrong out loud**. Now mechanical: `Get-CoverageVerdict` in `verify-basicfuncs.ps1` reads BCOMP's own table, reads the `* NOT.TESTED:` declarations, reads every case label, and fails on **V2** named nowhere, **V3** claimed both ways, **V4** declared but unknown to BCOMP, **V5** a label naming no intrinsic — with **V1** refusing the null case (a table that did not parse makes every other row vacuous). ***FIVE DEFECTS, NOT THREE: `ASSIGNED`, `UNASSIGNED` and `SWAP` were named nowhere (Linux's three), `DELETE` was declared untested AND tested, `CHANGE` was excluded as "change the process" when `op_chnge.c:35` is a pure substring replace — AND TWO MORE THIS TREE FOUND***: `NOT` was also named nowhere, hidden because the old prose header's own English *"WHAT IS DELIBERATELY NOT TESTED HERE"* made a name-scan count the intrinsic as declared; and one case was labelled `INMAT.reuse` while calling `reuse()`, so the record credited `INMAT` (which is declared untested) and left `REUSE` looking untested — one label, two wrong entries. A seventh, `ADDS.via.SUM`, named a function **BCOMP and OPCODES.H both lack entirely**. `test-basicfuncscov-units.ps1` (18 rows, free tier) drives every verdict with a live control and two mutants | `gplbld/basicfuncs.sb`, `gplbld/verify-basicfuncs.ps1`, `gplbld/test-basicfuncscov-units.ps1`; §17 below |
 | ~~16~~ | **B** — ***DONE AND WITNESSED ON `b140`, 12 Sep 2026: GREEN IN BOTH HALVES.*** The sweep met **23** stuck hives, **all 23 refused**, said so, `exited 1 - CONTINUING`, **and the suite ran** — 27 of 27 where `b139` managed 0. **That is the fix doing exactly what the design says**: *"litter is not a reason to refuse a run"*. ***FOUND BY READING `b139`'s TRANSCRIPT AFTER THE RUN WAS REPORTED DONE.*** Harness, not product — but it made the elevated half unrunnable, which is why it is **B** | ***`clean-test-profiles.ps1` KILLED THE WHOLE ELEVATED SUITE BEFORE STEP 1, AND THE RUN LOOKED FINISHED.*** `b139`: unelevated **23 of 23 exit 0**, elevated ***0 of 27*** — `reg.exe unload` answered `Access is denied` for the first held hive, PowerShell 5.1 wrapped that native stderr in an `ErrorRecord`, `$ErrorActionPreference = 'Stop'` (`:46`) made it **terminating**, and PRE_RELEASE 178 runs this sweep **before** the first verifier. ***THE COMMENT DIRECTLY ABOVE THE LINE DESCRIBES THE DEFECT AND THEN THE LINE COMMITS IT***: *"Redirecting a native command's stderr in PowerShell 5.1 wraps every line in an ErrorRecord … The exit code is the verdict; stderr goes nowhere"* — written for PRE_RELEASE 185, which replaced `2>&1` with `2>$null`. ***`2>$null` IS A REDIRECTION.*** It looks like discarding and is not. **Fixed with `try { … } catch { }`**, keeping `2>$null` so nothing prints and `$LASTEXITCODE` as the verdict. ***DRIVEN, BOTH LEGS, IN SEPARATE PROCESSES***: the old form raises `NativeCommandError` and **never reaches the next line** (exit 1); the new form reaches it with `LASTEXITCODE=1` intact (exit 0). ***IT WAS LATENT UNTIL HIVES ACCUMULATED***, which is why `b136` was green — it took this branch not at all (*"removed 27, failed 0"*), and `b136`+`b137`+`b138` then left **20** stuck hives for `b139` to meet. **Every run makes more, so the next run was always going to be the one.** ***AND THE CLASS IS WIDER THAN THE INSTANCE, UNMEASURED***: a sweep of `gplbld` found **16 more sites** in 10 scripts redirecting a native command's stderr under `Stop` without a `try` — `probe-impersonate`, `probe-impfork`, `probe-osadmin`, `probe-s4u`, `probe-tasklock`, `secure-account-dirs:116`, `test-sdtestuser-units` (×4, and it is on the free tier), `verify-catgate:450`, `verify-credacl:143`, `verify-privundetermined:352`, `verify-sysdiracl:219`. ***NONE OF THOSE IS ESTABLISHED AS A DEFECT***: the shape only bites when the command actually writes to stderr, and `b136` shows `secure-account-dirs` surviving its routine *"group does not exist"* path. **Latent, not universal — and nobody has worked through which can fire** | `gplbld/clean-test-profiles.ps1:527`→`:548`, `:46`, `:515`-`:519`; `gplbld/VerifyInstall2.ps1` (178's start-of-run sweep); PRE_RELEASE 185, 178 |
 | 7 | **B** — ***FIXED IN SOURCE 11 Sep 2026 AND NOT WITNESSED. `op_lock.c` COMPILES CLEAN — `make sd` exit 0, no warning*** (the first attempt DID warn, `return discards 'volatile' qualifier`, and the cast that fixes it is the one `clopts.c:183` already uses). **Nothing has been run**: reaching the fixed path needs a lock whose owner's session is gone, which §"Not verified" lists as an exercise gap nobody has staged. ***REPORTED BY LINUX AND CONFIRMED IN THIS SOURCE, 11 Sep 2026, BEFORE ANY EDIT.*** ***AND THE SWEEP IS THE PART WORTH KEEPING***: every `UserPtr` use in `gplsrc` was read, and `clopts.c:172` and `op_misc.c:1581` both already NULL-check — so these two were the only unguarded dereferences in the tree, and **this same file had already been fixed for this same class in June 2026** (`op_lock.c:1160`, `:1182`, the deadlock loops) with these two sites missed. Linux measured the fault on Linux, where it left `FILE_TABLE_LOCK` and `REC_LOCK_SEM` held and stopped every session | ***`GETLOCKS` / `LIST.READU` DEREFERENCES NULL FOR A LOCK WHOSE OWNER'S SESSION IS GONE.*** `UserPtr(n)` is `((*(UMap(n))!=0)?UPtr(*(UMap(n))):NULL)` — it **returns NULL for an unmapped user**, and both call sites take `->username` off it with no guard. **The Windows semaphores differ from Linux's, so the consequence may differ; the NULL does not.** Linux's fix is a helper returning `(gone)` when `UserPtr()` is NULL, used at both sites | `gplsrc/sysseg.h:224`; `gplsrc/op_lock.c:292`, `:312`; Linux #7 |
 | ~~1~~ | **S** — ***DONE AND WITNESSED BY READING, 11 Sep 2026, `b136`, FROM THE OWNER'S SCROLLBACK.*** `verify-tierchange` **38 of 38 decisive** (was 28; the 10 new rows are section 6). ***THE UPGRADE HALF, THE ONE LINUX DID NOT REPORT, IS THE ONE NOW MEASURED***: `MODIFY.ACCOUNT SDTCB136B PROGRAMMER BOTH` printed `VOC: 42 records added, 0 removed, 0 left alone` — **42 is exactly `TIER.OMIT.STANDARD`'s length**, so the promotion wrote the whole layer — and `.L basic` read back `001  Verb to compile SDBasic program`, not the bare `V` the defect produced. **The control ran first**: `.L basic` before the promotion said `'basic' not found in VOC`, so the record read back is one this transition caused to be written. ***THE EARLIER CLOSURE ON `b136`'s EXIT CODE ALONE IS SUPERSEDED BY THIS, AND THE QUALIFICATION IT CARRIED WAS RIGHT TO MAKE*** — the rows existed only in a console window, which is entry 14. **Superseded text:** *closed on an exit code, rows unread.*** `verify-tierchange.ps1 -Prefix sdtcb136` exited **0** in a full suite of **27 of 27**. ***WHAT THAT PROVES IS A CONTROL-FLOW ARGUMENT RATHER THAN A READING***: section 6 is straight-line and runs before cleanup, **every early exit in it is `exit 2`**, `$ErrorActionPreference` is `Stop` so an exception cannot skip it silently, every row it adds is decisive, and `Write-Verdict` refuses *"NO DECISIVE CHECK RAN"* — so exit 0 cannot be reached with section 6 skipped or any of its rows failing. **The two numbers that matter — *"the promotion actually ADDED records"* and `basic` field 1 — went to a console and were not kept**, which is entry 14. ***AN INDEPENDENT CHECK WAS TRIED AND REFUSED ITSELF***: nothing on disk names `sdtcb136b`, but nothing names the control `sdtcb136a` either, and that account certainly existed — so the absence measures the cleanup, not the run. **To upgrade this to a reading**: the scrollback, or one `-Quiet` run. ***FIXED IN SOURCE 11 Sep 2026.*** The transformation is removed from `tier.build.rec` and the banner above it now says what changed and why, instead of asserting an agreement that had stopped holding. ***A CYCLE IS OWED BEFORE THIS CLOSES***, and the witness is a tier change in each direction on an account created after 2 Sep: a downgrade that actually removes, and an upgrade whose new VOC records carry descriptions rather than a bare letter. ***REPORTED BY LINUX AND CONFIRMED IN THIS SOURCE BEFORE ANY EDIT, AND IT HAS A SECOND HALF LINUX DID NOT REPORT*** | ***`tier.build.rec` STILL APPLIES THE TYPE-LETTER TRANSFORMATION PRE_RELEASE 136 REMOVED FROM `CREATEA`.*** The two lines are commented out at `CREATEA:1308` and live at `MODIFYA:1407` and `:1411`, and MODIFYA's own banner says the transformation *"is copied from CREATEA verbatim and must stay that way"* — so the two are now out of step and the banner asserts they are not. **Linux reports the downgrade half**: accounts hold whole descriptions, every rebuilt record compares unequal in `tier.del.one`, and `modify.account x standard` counts the PROGRAMMER verbs "left alone" instead of deleting them. ***THE HALF NOT REPORTED IS THE UPGRADE***: `tier.add.one` calls the same subroutine and **writes** `tier.rec`, so `modify.account x programmer` writes bare-letter VOC records — precisely the `listf` defect 136 was filed for, still reachable through a verb 136 did not touch. **Read from source, not run: no account has been rebuilt to watch it.** ***AND WHICH TRANSITION MATTERS WAS MEASURED 11 Sep 2026, AFTER THIS ROW FIRST OVERSTATED IT.*** The strip only bit a record whose field 1 was **longer than its type prefix**: **41 of the 42** `TIER.OMIT.STANDARD` ids (the STANDARD→PROGRAMMER layer, read from `newvoc`) carry a description, and **0 of the 22** `TIER.ADD.ADMINISTRATOR` ids (read from `voc_template`) do. **So both halves are invisible on the PROGRAMMER↔ADMINISTRATOR round trip and reachable only where `newvoc` records are involved** — which is why `b131` was honestly green, and why entry 13 exists. Linux's fix is to drop the transformation and read the record whole | `sdsys/gpl.bp/MODIFYA:1397`-`:1415`, `tier.add.one:1423`, `tier.del.one:1434`; `sdsys/gpl.bp/CREATEA:1308`; PRE_RELEASE 136; Linux #1 |
@@ -121,3 +122,77 @@ dereference is identical either way.
 PROJECT_STATUS.md §"Not verified" already lists as an exercise gap: *"a session
 dies without logging out; its user-table slot survives"*. That note describes
 the state this entry needs, so the two are worth reading together.
+
+## 17. `gplbld/basicfuncs.sb` and `gplbld/verify-basicfuncs.ps1`: the coverage claim was prose
+
+**DONE AND WITNESSED 12 Sep 2026**, unelevated, on the 23:41:16 install:
+`verify-basicfuncs` **184 of 184, 0 FAIL, exit 0**, compiled at `0 error(s)`
+with no warnings, coverage **176 known = 116 exercised + 60 declared**, V1–V5
+all PASS. Linux #8.
+
+***THE DEFECT IS THE SENTENCE, NOT THE FIVE NAMES.*** The file ended its
+exclusion list with *"Everything else in BCOMP's intrinsics table is exercised
+below."* A comment cannot be wrong out loud, so an intrinsic added to BCOMP
+later joined the gap in silence and nothing in the tree could notice.
+
+**What the claim was hiding, measured here before anything was changed.** Linux
+reported three names; this tree had **seven distinct faults**:
+
+| | |
+|---|---|
+| `ASSIGNED`, `UNASSIGNED`, `SWAP` | named nowhere — neither exercised nor declared. **Linux's three** |
+| `DELETE` | declared untested **and** tested by `DELETE.fn`. The double count |
+| `CHANGE` | excluded under *"change the process"* beside `CHGPHANT` and `CONFIG`, when `gplsrc/op_chnge.c:35` is *"op_change() - Change substrings"* — a pure substring replace touching no session state |
+| ***`NOT`*** | ***also named nowhere, and the old header is what hid it***: a scan for known names found the word NOT inside the heading *"WHAT IS DELIBERATELY NOT TESTED HERE"* and counted the intrinsic as declared. **Not in Linux's report** |
+| ***`INMAT.reuse`*** | ***a case labelled for one function while calling another.*** The code has always been `reuse(1)`; the label credited `INMAT`, which is declared untested, and left `REUSE` looking untested. **One label, two wrong entries. Not in Linux's report** |
+| ***`ADDS.via.SUM`*** | ***named a function this tree does not have at all*** — no `ADDS` in BCOMP's table and none in `OPCODES.H`. **Not in Linux's report** |
+
+**The fix, in three parts.** The exclusions are now declared on `* NOT.TESTED:`
+lines. `Get-CoverageVerdict` in `verify-basicfuncs.ps1` reads BCOMP's own table,
+the declarations and every case label, and the verifier fails on **V2** named
+nowhere, **V3** claimed both ways, **V4** declared but unknown to BCOMP, **V5** a
+label matching no intrinsic and not an `OP.` operator case. ***V1 REFUSES THE
+NULL CASE***: a table that did not parse leaves every other row passing
+vacuously, so fewer than 100 names is itself a failure.
+
+***BCOMP HAS TWO TABLES AND ONLY ONE IS IN SCOPE.*** `intrinsics` is the
+ordinary set; `int.intrinsics` (`BCOMP:619`) is the 36 internal ones an
+`$internal` program may call. An unanchored pattern matches both and answers
+**212** instead of 176 — measured, and it was the first answer this work
+produced. Same class as the `nm --defined-only` artefact in §8's constraint 5.
+
+***THE ARGUMENT ORDER OF `CHANGE` IS NOW PINNED, BECAUSE IT IS THE REVERSE OF
+WHAT THE NAMES SUGGEST.*** `BCOMP:4064` — *"3, 4 or 5 arguments. Arg 4 defaults
+to -1, arg 5 to 1"* — and `op_chnge.c`'s stack comment puts *"First occurrence
+to change"* on **top**, so **arg 4 is how many to change and arg 5 is which one
+to start at**. Driven: `change('a-a-a','a','Z',2)` → `Z-Z-a` and
+`change('a-a-a','a','Z',1,2)` → `a-Z-a`. `SWAP` shares the opcode
+(`BCOMP:592`) and is driven too rather than assumed equivalent.
+
+***AND TWO EXPECTATIONS WERE WRONG BEFORE THEY WERE RIGHT, WHICH IS THE FILE
+WORKING AS DESIGNED.*** `ASSIGNED`/`UNASSIGNED` need a variable with no value.
+A plain local raises `BCOMP:1509`'s *"%1 is not assigned a value"* at compile
+time; a named **common** does not, but is not unassigned either —
+`op_array.c:140` creates the block with `initialise_zero` and `a_alloc`'s own
+comment reads *"TRUE: initialise to zero, FALSE leave as UNASSIGNED"*, so every
+element starts as INTEGER 0. **That arrived as two FAIL lines, not as a
+theory.** What works is a variable the compiler sees assigned and the run never
+reaches — `op_array.c:693` allocates locals with FALSE. The common is kept, with
+the answer it actually gives, as `ASSIGNED.common`.
+
+**The guard**: `gplbld/test-basicfuncscov-units.ps1`, free tier, 18 rows. It
+lifts `Get-CoverageVerdict` out by AST so it cannot drift from the verifier,
+drives all five V rows on fixtures, carries a **live control** against the real
+BCOMP and probe, and two **mutants** — a dropped declaration must turn V2 red
+naming `DIR`, a double claim must turn V3 red naming `ABS` — both done as
+in-memory string mutations, with a row asserting nothing on disk changed.
+
+***IT CAUGHT TWO THINGS BEFORE IT WENT GREEN.*** A line wrap put the declaration
+keyword at the start of a continuation line in the new header, and **V4 read
+thirteen English words as intrinsic names** — the check earning itself before it
+had ever run in anger. Then the live row reported `exercised = True`: these
+hashtables are keyed by BASIC function names, **BCOMP has an intrinsic called
+`COUNT`**, and PowerShell resolves `$h.Count` to the value of that key rather
+than the tally. Every fixture row passed while it was broken, because no fixture
+had a `COUNT` in it. `.psbase.Count` is the fix and there is a row pinning the
+shape.
