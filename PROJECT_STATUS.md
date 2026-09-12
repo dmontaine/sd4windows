@@ -179,7 +179,32 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 46, 11 Sep 2026 — ***W1.1-0 IS OPEN. FIVE DEFECTS FIXED AND FOUR WITNESSED; `RELEASE_1.1` 1 IS FIXED AND ITS WITNESS IS BUILT AND UNRUN — `b136` IS THE ONE COMMAND THAT CLOSES IT. ⚠️ THE FULL SUITE HAS NOT RUN THIS SESSION, WHICH CLAUDE.md REQUIRES BEFORE A HANDOFF.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 46, 11 Sep 2026 — ***W1.1-0 IS OPEN. SIX DEFECTS FIXED; `b136` RAN THE FULL ELEVATED SUITE, 27 OF 27 EXIT 0, AND CLOSED `RELEASE_1.1` 1 — ON AN EXIT CODE, WITH ITS ROWS UNREAD, BECAUSE THE RUNNER KEEPS NO RECORD WITHOUT `-Quiet`. THAT IS ENTRY 14 AND IT IS THE THING TO FIX FIRST.*** ⇩⇩⇩
+>
+> ### ***`b136`: 27 OF 27, AND WHAT IT DID NOT LEAVE BEHIND***
+>
+> **Every elevated step exit 0**, `verify-tierchange -Prefix sdtcb136` among
+> them, which is the step carrying section 6 and therefore entry 1.
+> ***SPENT: b136. USE `b137`.***
+>
+> ***THE RUN LEFT NO PER-STEP LOGS: `0` FILES NAMED `20260911-*`, AGAINST `108`
+> FROM THE `-Quiet` RUNS OF 6 Sep.*** `VerifyInstall2:921` writes them only on
+> the `-Quiet` path; the other branch runs each verifier straight to the console
+> and `continue`s. **The file says so at `:865`** — *"THIS RUNNER HAS NO
+> TRANSCRIPT OF ITS OWN"* — and `verify-tierchange` writes none either, unlike
+> `verify-tiers:194`. **So entry 1 rests on a control-flow argument** (section 6
+> is straight-line, every early exit is `exit 2`, every row decisive, and
+> `Write-Verdict` refuses a run with no decisive check) **rather than on anybody
+> reading the two numbers.** `RELEASE_1.1` **14** carries it; `cycle.ps1` already
+> solved the same problem with `Start-Transcript`.
+>
+> ***AND AN INDEPENDENT CHECK WAS TRIED AND CORRECTLY REFUSED ITSELF***: nothing
+> on disk names section 6's account `sdtcb136b` — **but nothing names the control
+> `sdtcb136a` either**, and that one certainly existed. The absence measures the
+> cleanup, not the run.
+>
+> **The unelevated half (`VerifyInstall1`) did not run in this window**, so
+> nothing here speaks for it.
 >
 > ### ***THE STATE, IN SIX LINES***
 >
@@ -187,21 +212,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > |---|---|
 > | install | **11 Sep 15:20:29**, `assert-current` **exit 0** — current as this is written |
 > | binaries | `bin\` built **11 Sep 12:02:09**, carrying `op_lock.c` and `sdtic.c` |
-> | run tokens | ***SPENT: b135. USE `b136`.*** |
+> | run tokens | ***SPENT: b135, b136. USE `b137`.*** |
 > | free tier | **32 of 32 green**, run after every change today |
-> | closed and witnessed | `RELEASE_1.1` **2**, **4**, **11**, **12** |
-> | open | **1** (fixed, needs `b136`), **3**, **5**, **6**, **7**, **8**, **9**, **10**, **13** (built, unrun) |
+> | suite | ***`b136`: ELEVATED 27 OF 27 EXIT 0.*** `VerifyInstall1` did not run |
+> | closed | `RELEASE_1.1` **2**, **4**, **11**, **12** witnessed; **1** on an exit code with its rows unread — see entry 14 |
+> | open | **3**, **5**, **6**, **7**, **8**, **9**, **10**, **13** (built, driven by `b136`), **14** |
 >
 > ### ⚠️ ***WHAT IS OWED, AND THE FIRST ITEM IS A RULE THIS SESSION DID NOT KEEP***
 >
-> 1. ***THE FULL SUITE.*** CLAUDE.md: *"The full suite — before a release, and
->    **before a handoff**."* **It did not run.** Only `-Only
->    verify-tiers,verify-tierchange` did, on `b135`. ***SO NOTHING HERE SAYS
->    ANYTHING ABOUT THE OTHER 25 STEPS***, and `b75`'s second failure was
->    `verify-notyet`, unrelated to anything changed that day. **A full run is the
->    first thing to spend `b136` or `b137` on if the tier question is not urgent.**
-> 2. **`b136 -Only verify-tierchange`** — closes `RELEASE_1.1` 1. Elevated.
-> 3. **Entries 6 and 7 have no witness path at all** and are fixed in source.
+> 1. ***`RELEASE_1.1` 14 — THE RUNNER KEEPS NO RECORD WITHOUT `-Quiet`.*** It is
+>    first because it is what stopped `b136` from being a reading, and it will
+>    do the same to every run until it is fixed. `cycle.ps1`'s
+>    `Start-Transcript` is the shape.
+> 2. ***ENTRY 1's TWO NUMBERS.*** *"the promotion actually ADDED records"* and
+>    `basic` field 1, from `verify-tierchange` section 6. **The scrollback of the
+>    `b136` window has them**; failing that, one `-Quiet` run does.
+> 3. **`VerifyInstall1`, the unelevated half** — it did not run in that window,
+>    and several measurements are only valid there.
+> 4. **Entries 6 and 7 have no witness path at all** and are fixed in source.
 >    7 needs a lock whose owner's session is gone (§"Not verified" lists it as an
 >    exercise gap); 6 needs a prompt driven at end of input.
 >
