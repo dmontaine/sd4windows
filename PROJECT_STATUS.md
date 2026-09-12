@@ -7917,10 +7917,37 @@ itself is present here, so constraint 6's "no winget" case is not this box.
 4. *Access model.* Python's `os.system` never reaches `os_permitted()`
    (`gplsrc/op_sh.c:156`), so the old in-process API would make "API access
    does not give os.execute access" false (PRE_RELEASE 80). Starting the helper
-   would need that gate. `os_permitted()` admits `HDR_INTERNAL` (`op_sh.c:170`):
-   if the `PY_*` subroutines are `$internal`, a gate that looks at the running
-   program admits every caller, so it has to test the user. Whether they were
-   `$internal` is not checked.
+   would need that gate.
+
+   ***CHECKED 12 Sep 2026, AND THE ANSWER IS THE BAD ONE. THE CHAIN IS MEASURED
+   END TO END:***
+
+   | | |
+   |---|---|
+   | ***20 of 20*** `PY_*` programs at `489b18e^` carry `$internal` | measured |
+   | `$internal` sets the flag — `header.flags = bitor(header.flags, hdr.internal)` | `gpl.bp/BCOMP:2875` |
+   | `os_permitted()` returns **TRUE on `HDR_INTERNAL` before it ever reads the username** | `op_sh.c:170`-`:171` |
+   | `op_sdext.c` — where the `SD_Py*` opcodes dispatched — has ***no gate at all***: no `HDR_INTERNAL`, no `os_permitted` | measured |
+
+   ***SO A GATE CALLED FROM INSIDE A `PY_*` WOULD PASS FOR EVERY USER, ALWAYS.***
+   Not "might" — the first test in `os_permitted()` short-circuits on a flag all
+   twenty carry. **The file's own banner has the word for that: decoration.**
+
+   ***AND `$internal` IS NOT SIMPLY REMOVABLE***: the `PY_*` are catalogued as
+   `!name`, and `HDR_INTERNAL` is load-bearing elsewhere for that convention
+   (`op_kernel.c:267`, `op_jumps.c`, `op_dio2.c`). **Dropping it to fix the gate
+   would be changing the calling convention to fix a permissions bug.**
+
+   ***THE SPECIFICATION THAT FOLLOWS — reasoning on measured facts, not yet
+   built:*** the gate wants `USR_ADMIN` → yes (an administrator always has
+   `os.execute`, 27 Aug), otherwise the `os.users` lookup on
+   `process.username` — that is, **`os_permitted()`'s second and third tests
+   without its first.** It cannot live in a `PY_*`, and it cannot live in
+   `op_sdext.c`'s dispatcher unaltered, because by then `process.program` is the
+   `$internal` wrapper either way.
+
+   *(Nothing ships this: `489b18e` removed Python. It is a fact about the code
+   the helper would restore, not about W1.0-0.)*
 5. *Version.* A build against one `python3XY.dll` needs exactly that version;
    accepting any installed 3.x means the stable ABI (`python3.dll`,
    `Py_LIMITED_API`). ***THE LINKING HALF IS NOW MEASURED — `gplbld/probe-pylimited.c`,
