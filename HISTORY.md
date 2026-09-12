@@ -59973,3 +59973,28 @@ story rests on it.
 *(Two process slips, both recorded in their commits: `$?` read after a pipe
 reported `head`'s status as `gcc`'s, and a first UCRT64 build failed silently
 because the toolchain was not on `PATH` for its own sub-tools.)*
+
+## 12 Sep 2026 — the SYSTEM-reach probe is built and unrun; the agent shell could not elevate here
+
+Objective 2. Handoff 47 named one thing before code: whether **LocalSystem** can
+reach `C:\Program Files\Python314`. `gplbld/probe-pysystem.ps1` is that
+measurement — a scheduled task with a ServiceAccount principal, six `ROW|` legs,
+the task removed on every path. The decisive one is `probe-pylimited-limited.exe`
+(the constraint-5 binary, which is what `sdpy.exe` would be) binding
+`python3.dll` under the SYSTEM token; `python.exe` running is not the same
+claim. Its first leg is the null-case refusal — the token must read `S-1-5-18`,
+because a payload that ran as the interactive user would pass every row below
+and mean nothing.
+
+**Verified to load, not to run**: 0 parse errors, both functions found by the
+AST, no BOM, LF-only; `assert-current` exit 0 with it on `$neverShipped`; free
+tier 33 of 33 in 35.2 s.
+
+***THE RUN DID NOT HAPPEN.*** A direct `Start-Process -Verb RunAs` from the
+agent shell — §4.0.1's first table row, **WORKS**, measured 4× on 23 Aug 2026 —
+was refused here with *"The operation was canceled by the user"*. One attempt,
+not repeated. **Whether a consent dialog appeared and was declined, or none
+rendered at all, cannot be told from inside**; the 23 Aug measurement was taken
+on the other machine under a different harness, so it is not thereby wrong.
+Nothing was left behind: no `SDProbePySystem` task, no transcript, no payload
+file. §4.0.1 carries it, and the command is handed over instead.

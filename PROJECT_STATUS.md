@@ -2898,6 +2898,26 @@ so they would need that call made conditional before any of them could ship.
 > `cycle.ps1` and one-off elevated commands; it may not run `VerifyInstall1`.
 > **Do not spend a `-Run` token finding this out again.**
 >
+> ***12 Sep 2026, ON THIS MACHINE (`C:\Users\Don\SDCoreProject`): THE FIRST ROW
+> OF THAT TABLE DID NOT HOLD.*** A **direct** `Start-Process -Verb RunAs` from
+> the agent's shell — the case measured 4× on 23 Aug as **WORKS** — was refused
+> with *"The operation was canceled by the user"*, launching
+> `probe-pysystem.ps1` through a wrapper. **One attempt, not repeated.**
+>
+> ***WHAT IS NOT KNOWN IS WHICH OF TWO THINGS IT WAS***, and the two are
+> indistinguishable from inside: the owner may have seen a consent dialog and
+> declined it, or no dialog may have rendered at all — that second case is
+> §4.0.1's nested-elevation signature, and *"canceled by the user"* with nobody
+> asked is exactly how it reads. **The 23 Aug measurement was taken on the other
+> machine and under a different harness**, so this is not evidence that it was
+> wrong then. ***DO NOT SPEND A SECOND ATTEMPT RESOLVING IT BY GUESSING***: ask
+> the owner whether a prompt appeared. If none did, the practical rule is
+> unchanged and wider than the suite — **hand elevated commands over**.
+>
+> **NOTHING WAS LEFT BEHIND**, checked immediately: no `SDProbePySystem`
+> scheduled task, no transcript, `0` payload files in `%SystemRoot%\Temp`. The
+> refusal happens before the script starts, so it costs nothing but the attempt.
+>
 > **NOTHING IS LEFT BEHIND WHEN IT FAILS THIS WAY** — checked 23 Aug: no `b16`
 > user or `sdu_` group, no `os.users` record, `batch.jobs` empty, no stray
 > `sd.exe`. `verify-osusers` says so itself: *"Nothing was measured and nothing
@@ -7925,6 +7945,26 @@ itself is present here, so constraint 6's "no winget" case is not this box.
    comes back as EDIT". Copy the flags at `gplbld/install-editors.ps1:232`,
    including its refusal to fall back to user scope. `where python` is not
    detection; it can find the Store alias.
+
+   ***THE SYSTEM-REACH HALF IS BUILT AND UNRUN — `gplbld/probe-pysystem.ps1`,
+   12 Sep 2026.*** Handoff 47 named it as the last thing before code: detection
+   proves a Python is *installed*, not that **LocalSystem** — the identity an
+   API session, and therefore `sdpy.exe`, runs as — can reach it. The probe
+   registers a scheduled task with a ServiceAccount principal, measures from
+   inside it, and removes the task on every path. Six legs, each a `ROW|` line:
+   the token really is `S-1-5-18` (**the null-case refusal — a payload that ran
+   as the interactive user would pass every row and mean nothing**), the PEP 514
+   hive read by SYSTEM itself, traverse, **read** as distinct from traverse,
+   `python.exe -c` anchored on a `PYOK` marker the failure path cannot print,
+   and `probe-pylimited-limited.exe` — the constraint-5 binary, which is what
+   `sdpy.exe` would be — binding `python3.dll` under the SYSTEM token. Exit 0
+   all decisive legs passed, 1 one failed, 2 the question could not be asked,
+   **3 nothing failed but a decisive leg was NOT MEASURED**.
+
+   **Verified to load, not yet to run**: 0 parse errors, both functions found by
+   the AST, no BOM, LF-only. `assert-current` exit 0 with it on `$neverShipped`.
+   ***IT IS UNRUN BECAUSE THE ELEVATION WAS REFUSED*** — see §4.0.1's 12 Sep
+   row. It needs an elevated PowerShell and no run token, install or cycle.
 2. *Deadline.* If PEP 773 holds, a machine-scope winget install exists for 3.14
    and may not for later versions. The portable zip unpacked into a directory
    SD owns would sidestep that — unverified.
