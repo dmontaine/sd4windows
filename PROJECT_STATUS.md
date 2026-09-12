@@ -229,8 +229,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > |---|---|
 > | install | **11 Sep 15:20:29**, `assert-current` **exit 0** — current as this is written |
 > | binaries | `bin\` built **11 Sep 12:02:09**, carrying `op_lock.c` and `sdtic.c` |
-> | run tokens | ***SPENT: b135–b139. USE `b140`.*** |
-> | ⚠️ `b139` | ***UNELEVATED 23 OF 23. ELEVATED 0 OF 27 — IT DIED BEFORE STEP 1 AND THE RUN LOOKED FINISHED.*** `RELEASE_1.1` **16**, fixed. **The full suite is still owed.** |
+> | run tokens | ***SPENT: b135–b140. USE `b141`.*** |
+> | ✅ `b140` | ***GREEN IN BOTH HALVES. 23 of 23 unelevated + 27 of 27 elevated = 50 steps, 933 `[PASS]`, ZERO `[FAIL]`.*** Against the 11 Sep 23:41:16 install |
+> | ⚠️ `b139` | ***UNELEVATED 23 OF 23, ELEVATED 0 OF 27 — IT DIED BEFORE STEP 1 AND LOOKED FINISHED.*** `RELEASE_1.1` **16**, found by reading the transcript, fixed, and `b140` is its witness |
 > | free tier | ***33 of 33 green, 30 s*** — `test-suitetranscript-units` is new |
 > | suite | ***`b136`: ELEVATED 27 OF 27 EXIT 0.*** `VerifyInstall1` did not run |
 > | closed | `RELEASE_1.1` **1**, **2**, **4**, **11**, **12**, **13**, **14**, **15** — all witnessed by reading |
@@ -241,11 +242,17 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 1. ***THE SUITE NOW KEEPS ITS OWN RECORD — `RELEASE_1.1` 14, DONE AND DRIVEN
 >    ON `b137`.*** `C:\Users\Don\AppData\Local\SD-verify\VerifyInstall2-<stamp>.log`
 >    is where a run's evidence now lives whether or not `-Quiet` was given.
->    ***SPENT: b135–b139 — USE `b140`.*** **The full suite is still owed**, and
->    `b139` is why: the elevated half died before step 1 on `RELEASE_1.1` 16.
->    ***THE TRANSCRIPT IS WHAT FOUND THAT***, which is entry 14 earning itself
->    on its first full-suite outing — the console said nothing a reader would
->    have doubted, and the 2,368-byte log said everything.
+>    ***SPENT: b135–b140 — USE `b141`.*** **The full suite is PAID**: `b140` is
+>    green in both halves, 50 steps and 933 `[PASS]` with zero `[FAIL]`.
+>
+>    ***AND IT TOOK TWO RUNS, WHICH IS THE PART WORTH CARRYING.*** `b139` was
+>    reported finished and was **0 of 27 elevated** — it died before step 1 on
+>    `RELEASE_1.1` 16, printing nothing a reader would have doubted. **The
+>    2,368-byte transcript is what found it**, which is entry 14 earning itself
+>    on its first full-suite outing. ***READ THE TRANSCRIPT, NOT THE CONSOLE,
+>    AND CHECK ITS ENCODING FIRST***: the elevated summary and the 27 per-step
+>    logs are **UTF-16**, where a plain `grep` reports 0 PASS / 0 FAIL and reads
+>    exactly like a suite that did nothing.
 > 2. ***ENTRY 6's REMAINING FIVE PROMPTS.*** `CATALOG`'s 3033, 3034 and 3035 and
 >    `DELETEF`'s 6131 and 6140 are reached by **no verifier**, so their wording is
 >    read from source only. ***AND NO RUN HAS PRESSED ENTER AT ANY OF THE SEVEN***

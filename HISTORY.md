@@ -59881,3 +59881,44 @@ mutant control that went red naming `sd-path.ps1:116`.
 
 ***THE FULL SUITE DID NOT RUN, WHICH CLAUDE.md REQUIRES BEFORE A HANDOFF.***
 Only `-Only verify-tiers,verify-tierchange` on `b135`. Spent: b135; use `b136`.
+
+## 12 Sep 2026 — `b140` green in both halves, and the run before it was reported finished having done nothing
+
+**`b140`: 23 of 23 unelevated + 27 of 27 elevated, 50 steps, 933 `[PASS]`, zero
+`[FAIL]`**, against the 11 Sep 23:41:16 install. First green-in-both-halves of
+W1.1-0, carrying six defect fixes from the Linux port plus four harness ones.
+
+***IT TOOK TWO RUNS AND THE FIRST ONE LIED BY OMISSION.*** `b139` was handed
+back as completed. It was **23 of 23 unelevated and 0 of 27 elevated**:
+`clean-test-profiles` met a held hive, `reg.exe unload` answered *"Access is
+denied"*, PowerShell 5.1 wrapped that native stderr in an `ErrorRecord`,
+`$ErrorActionPreference = 'Stop'` made it terminating, and PRE_RELEASE 178 runs
+that sweep **before step 1**. The elevated half died without running a verifier
+and printed nothing a reader would have doubted.
+
+**The transcript is what found it** — 2,368 bytes where a real run is 36,363 —
+and that transcript existed only because `RELEASE_1.1` 14 had added it hours
+earlier. It earned itself on its first full-suite outing.
+
+***THE COMMENT ABOVE THE OFFENDING LINE DESCRIBED THE DEFECT AND THE LINE
+COMMITTED IT.*** Written for PRE_RELEASE 185: *"Redirecting a native command's
+stderr in PowerShell 5.1 wraps every line in an ErrorRecord … the exit code is
+the verdict; stderr goes nowhere"* — and 185's fix replaced `2>&1` with
+`2>$null`. **`2>$null` is a redirection.** It looks like discarding and is not.
+Fixed with `try { … } catch { }`, driven in two processes: the old form never
+reaches the next line, the new form does with `$LASTEXITCODE` intact.
+
+**It was latent until hives accumulated.** `b136` never entered that branch;
+`b136`–`b138` left 20 stuck hives and `b139` met them. On `b140` there were 23,
+all refused, reported, `exited 1 - CONTINUING` — the fix, and the design.
+
+***THE CLASS IS WIDER AND IS NOT CLAIMED AS FIXED.*** 16 further sites in 10
+`gplbld` scripts redirect a native command's stderr under `Stop` without a
+`try`. The shape only bites when the command actually writes to stderr, and
+`b136` shows `secure-account-dirs` surviving its routine *"group does not
+exist"* path — **latent, not universal, and nobody has worked through which can
+fire.** `RELEASE_1.1` 16 lists them.
+
+**Reading note, paid for twice now**: the elevated summary and all 27 per-step
+logs are **UTF-16**. A plain `grep` reports 0 PASS / 0 FAIL on them, which reads
+exactly like a suite that did nothing. Spent: b135–b140; use `b141`.
