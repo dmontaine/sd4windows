@@ -7923,7 +7923,31 @@ itself is present here, so constraint 6's "no winget" case is not this box.
    `$internal` is not checked.
 5. *Version.* A build against one `python3XY.dll` needs exactly that version;
    accepting any installed 3.x means the stable ABI (`python3.dll`,
-   `Py_LIMITED_API`). Undecided.
+   `Py_LIMITED_API`). ***THE LINKING HALF IS NOW MEASURED — `gplbld/probe-pylimited.c`,
+   12 Sep 2026, built BOTH ways with the UCRT64 compiler (gcc 16.1.0), `-Wall
+   -Wextra`, no warnings, and both run:***
+
+   | leg | bound at run time | ran |
+   |---|---|---|
+   | `-lpython314`, full API | `python314.dll` | 3.14.7 |
+   | `-lpython3`, `Py_LIMITED_API 0x030D0000` | ***`python3.dll` AND `python314.DLL`*** | 3.14.7 |
+
+   ***THE SECOND ROW IS THE FINDING***: the stable ABI really does forward —
+   `python3.dll` loaded and pulled in the concrete `python314.DLL` behind it —
+   and the binary was **compiled against a 3.13 floor while running on 3.14.7**,
+   which is the whole point of the route. Read back from the loader
+   (`GetModuleHandle`), not assumed from the link line. **It also answers §5.3
+   for the helper**: a native UCRT64 binary links python.org's MSVC-built import
+   libraries cleanly.
+
+   ***WHAT IS STILL UNDECIDED, AND IT IS THE HALF THAT MATTERS.*** The probe
+   used only limited-API-safe calls **on purpose**, so it says nothing about
+   whether the `PY_*` surface FITS inside the limited API. It does not:
+   `PyRun_File`, which `sdext_py.c:207` used at `489b18e^`, is excluded from it,
+   and so is `PyRun_SimpleString`. **So the choice is now a real trade with one
+   side measured** — portability across 3.x versus the calls the old code was
+   written against — rather than two unknowns. Sizing the `PY_*` surface against
+   the limited API is the next measurement.
 6. *No winget* (Server SKUs, or blocked — `gplbld/install-editors.ps1:15`): SD
    must install without Python; an administrator verb shaped like `ssh.server`
    could report or add it later. The editors left winget for bundling
