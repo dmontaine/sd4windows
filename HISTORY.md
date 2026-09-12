@@ -59828,3 +59828,56 @@ PROJECT_STATUS's "MOVING THE DEVELOPMENT ENVIRONMENT"), so the fix exists
 only in the old machine's copy at `C:\Users\dmont\Projects\SD-Untracked\
 devtools\setup-devbox.ps1`. The `P:\setupdevbox\` kit's pinned sha256 is now
 stale and needs re-cutting before the next machine move.
+
+## 11 Sep 2026 — W1.1-0 opened; the Linux port's defects, and three instruments that could not see what they were pointed at
+
+**Owner opened the version**: two objectives, the defects SD Core for Linux
+found in this tree, and embedded Python back, installed rather than shipped
+(§5.27 rules the shape — a native `sdpy.exe` helper over a pipe, nothing built).
+A tester's question about UniVerse shipping FastAPI and Uvicorn was put to him
+and **declined**; §5.27 records why it is not a small addition.
+
+**Tracking moved.** `PRE_RELEASE_FIXES.md` is frozen as the W1.0-0 record — its
+next free id, 187, will never be issued — and `RELEASE_1.1_FIXES.md` took over
+from 1. Ids 1–7 there are `BUGS_FROM_LINUX_PORT.md`'s own numbers, so the id
+spaces overlap and every citation now carries a token. `test-fixlist-units` and
+`check-stale-leads` read two indexes; 178 and 185 moved rather than closed.
+
+**Five defects fixed** — 1 (`MODIFYA`), 2 (`sdtic`), 4 (`CREATEA` comments),
+6 (seven prompts across `DELETEF`, `CATALOG`, `CPROC`), 7 (`op_lock.c` NULL
+dereference) — plus 11, found when the owner's own elevated shell refused
+`cycle.ps1`. **Two were wider than the incoming report**: `tier.add.one` writes
+through the same subroutine as `tier.del.one`, so the upgrade half existed too;
+and the undefaulted prompts were seven, not two.
+
+**Witnessed**: 2 with a two-sided control, 4, 11 on the installed tree, 12 on
+`b135`. Two cycles, 12:04:28 and 15:20:29.
+
+***THE PART WORTH KEEPING IS THE THREE INSTRUMENTS THAT WERE POINTED AT
+NOTHING, BECAUSE ALL THREE LOOKED LIKE EVIDENCE.***
+
+- **`verify-tierchange` cannot see defect 1**, so `b131`'s green with the defect
+  four days old was honest. This was first written up as a loose threshold and
+  that was wrong: all 22 `TIER.ADD.ADMINISTRATOR` records are bare type letters
+  and none is `K`-type with a field 3, so the strip was a no-op on that layer in
+  both directions. Only a STANDARD→PROGRAMMER promotion reaches it, and no
+  verifier performed one. `verify-tierchange` section 6 is that leg — built,
+  unrun.
+- **The first plan for that leg would have measured nothing.** It was to hang a
+  row on `verify-tiers:713`'s restore. `b135` printed what that restore does:
+  `VOC: 0 records added, 0 removed, 0 left alone`.
+- **`grep -c $'\r'` is not a CR counter.** It matched every line and was reported
+  as *"676 CR for 676 lines"*. These files are LF-only. A CR control on this tree
+  compares 0 with 0, which is how `fix11.ps1`'s first guard passed vacuously.
+
+**Also corrected**: PRE_RELEASE_FIXES.md:366's *"LocalMachine is RemoteSigned
+here"* is false on this machine — every scope reads `Undefined`. 173's fix is
+unaffected; one of its supporting claims is not.
+
+**11's fix was 175 sites in 84 files**, done byte-level so no encoding could be
+touched, verified pairwise across the whole diff (0 changed lines that were
+anything but the substitution), and registered in `$RETIRED` as `R11` with a
+mutant control that went red naming `sd-path.ps1:116`.
+
+***THE FULL SUITE DID NOT RUN, WHICH CLAUDE.md REQUIRES BEFORE A HANDOFF.***
+Only `-Only verify-tiers,verify-tierchange` on `b135`. Spent: b135; use `b136`.

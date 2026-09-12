@@ -179,7 +179,60 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ ***W1.1-0 IS OPEN, 11 Sep 2026. FOUR DEFECTS FIXED, TWO WITNESSED, AND THE THIRD CANNOT BE WITNESSED BY ANYTHING IN THE SUITE — WHICH IS THE FINDING WORTH CARRYING.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 46, 11 Sep 2026 — ***W1.1-0 IS OPEN. FIVE DEFECTS FIXED AND FOUR WITNESSED; `RELEASE_1.1` 1 IS FIXED AND ITS WITNESS IS BUILT AND UNRUN — `b136` IS THE ONE COMMAND THAT CLOSES IT. ⚠️ THE FULL SUITE HAS NOT RUN THIS SESSION, WHICH CLAUDE.md REQUIRES BEFORE A HANDOFF.*** ⇩⇩⇩
+>
+> ### ***THE STATE, IN SIX LINES***
+>
+> | | |
+> |---|---|
+> | install | **11 Sep 15:20:29**, `assert-current` **exit 0** — current as this is written |
+> | binaries | `bin\` built **11 Sep 12:02:09**, carrying `op_lock.c` and `sdtic.c` |
+> | run tokens | ***SPENT: b135. USE `b136`.*** |
+> | free tier | **32 of 32 green**, run after every change today |
+> | closed and witnessed | `RELEASE_1.1` **2**, **4**, **11**, **12** |
+> | open | **1** (fixed, needs `b136`), **3**, **5**, **6**, **7**, **8**, **9**, **10**, **13** (built, unrun) |
+>
+> ### ⚠️ ***WHAT IS OWED, AND THE FIRST ITEM IS A RULE THIS SESSION DID NOT KEEP***
+>
+> 1. ***THE FULL SUITE.*** CLAUDE.md: *"The full suite — before a release, and
+>    **before a handoff**."* **It did not run.** Only `-Only
+>    verify-tiers,verify-tierchange` did, on `b135`. ***SO NOTHING HERE SAYS
+>    ANYTHING ABOUT THE OTHER 25 STEPS***, and `b75`'s second failure was
+>    `verify-notyet`, unrelated to anything changed that day. **A full run is the
+>    first thing to spend `b136` or `b137` on if the tier question is not urgent.**
+> 2. **`b136 -Only verify-tierchange`** — closes `RELEASE_1.1` 1. Elevated.
+> 3. **Entries 6 and 7 have no witness path at all** and are fixed in source.
+>    7 needs a lock whose owner's session is gone (§"Not verified" lists it as an
+>    exercise gap); 6 needs a prompt driven at end of input.
+>
+> ### ***FOUR CORRECTIONS. EACH ONE IS A CLAIM THIS SESSION MADE AND THEN DISPROVED, AND RE-DERIVING ANY OF THEM COSTS AN HOUR***
+>
+> - ***`b131`'s GREEN WITH DEFECT 1 PRESENT WAS HONEST.*** It was first written
+>   up as a loose threshold in `verify-tierchange`; that was wrong. All 22
+>   `TIER.ADD.ADMINISTRATOR` records are bare type letters and none is `K`-type
+>   with a field 3, so the strip was a **no-op on the layer that verifier
+>   exercises, in both directions.** The gap is coverage.
+> - ***`verify-tiers:713`'s RESTORE MOVES NOTHING.*** `b135` printed
+>   `VOC: 0 records added, 0 removed, 0 left alone`. Suspension does not strip
+>   the VOC and the restore does not rebuild it. **A check hung there would pass
+>   by measuring nothing** — which is what entry 13's first plan would have done.
+> - ***`grep -c $'\r'` IS NOT A CR COUNTER.*** It matched every line and was
+>   reported as *"676 CR for 676 lines"*. These files are **LF-only** — confirmed
+>   by a byte scan, `tr`, and `file`. A CR control on this tree compares 0 with 0.
+> - ***PRE_RELEASE_FIXES.md:366's `"LocalMachine is RemoteSigned here"` IS FALSE
+>   ON THIS MACHINE.*** Every scope reads `Undefined` (measured 11 Sep). That
+>   control proved nothing; **173's fix is unaffected**, resting on the other
+>   direction.
+>
+> ### ***STILL THE OWNER'S, AND NONE IS STARTED***
+>
+> **Message 2050 across six verbs** — all six hang at end of input and `N` is
+> safe in all six, but one line each changes what six user-facing verbs do on
+> Enter. **Defects 3** (message 10114's wording) **and 5** (the lower-case
+> ruling's scope). **Whether to re-clone `sdb64`** for the `UPSTREAM_FIXES.md`
+> entries owed on 7, 2 and 6. **Whether `SDCoreWindowsDocs` repeats the
+> `powershell -File` commands entry 11 fixed here** — a separate repository,
+> not looked at.
 >
 > ### ***THE CYCLE AND `b135`, 11 Sep 2026 — GREEN, AND GREEN ON THE WRONG LAYER***
 >
@@ -240,12 +293,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > after the promotion**, expected `Verb to compile SDBasic program`; ***a bare
 > `V` there IS the defect.***
 
-> # ⇩⇩⇩ ***W1.1-0 OPENED, 11 Sep 2026. THE TRACKING IS BUILT AND GREEN.*** ⇩⇩⇩
+> ### ***HOW W1.1-0 WAS OPENED, AND WHERE WORK IS FILED NOW***
 >
 > **Owner opened the version with two objectives** — the defects SD Core for
 > Linux found in this tree, and embedded Python back, installed rather than
-> shipped. §7 *"W1.1-0: the two objectives"* carries both. ***NOTHING IS
-> STARTED ON EITHER.***
+> shipped. §7 *"W1.1-0: the two objectives"* carries both. ***OBJECTIVE 2,
+> PYTHON, IS NOT STARTED*** — §5.27 rules its shape and nothing is built.
+> **Objective 1 is most of the way through**: see the state table at the top.
 >
 > ### Where work is filed now, and it is not where it was
 >
@@ -263,7 +317,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ### What was measured this session, and what was only read
 >
 > ***TWO OF THE SEVEN LINUX DEFECTS WERE CONFIRMED IN THIS SOURCE, BY READING
-> IT. NOTHING WAS RUN, NO CYCLE WAS SPENT, AND NO INSTALL EXISTS.***
+> IT, BEFORE EITHER WAS TOUCHED.*** *(Written before any cycle had run. Two
+> cycles ran later the same day — 12:04:28 and 15:20:29 — and the state table
+> at the top is the authority on what is installed.)*
 >
 > | | |
 > |---|---|
