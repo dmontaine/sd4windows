@@ -60191,3 +60191,57 @@ attributed to an unrelated `sysmsg(7278)` sixty lines above, which is a wrong
 answer that reads exactly like a right one. And `crt` asks questions as well as
 `display` (`SETPTR:557`), which made a perfectly traceable prompt look indirect.
 **Two real reports survived all four corrections: 6131, and nothing else.**
+
+## 12 Sep 2026 — LocalSystem reaches the Python, objective 2 is unblocked, and the hand-over failed before the probe did
+
+***THE QUESTION HANDOFF 47 NAMED AS THE LAST THING BEFORE CODE IS ANSWERED, AND
+THE ANSWER IS YES.*** `probe-pysystem.ps1`, run by the owner elevated at 19:41:
+**5 PASS, 1 FAIL**, the task registered as SYSTEM and removed, payload UTF-8 with
+no BOM.
+
+**The decisive leg passed**, and it is the one §5.27 rests on:
+`probe-pylimited-limited.exe` — native UCRT64, `-lpython3`, `Py_LIMITED_API`
+**0x030D0000**, a 3.13 floor — ran as `S-1-5-18` and bound `python3.dll` →
+`python314.DLL`, `sys.version` **3.14.7**, finalised cleanly, **DLLs read back
+from the loader rather than assumed from the link line**. Token `S-1-5-18`,
+`HKLM` read by SYSTEM itself, traverse and a real `MZ` read of the 73,952-byte
+`python3.dll`. ***`sdpy.exe` may be written.***
+
+***THE ONE FAILING LEG NEVER REACHED PYTHON, AND THE PROBE'S OWN TRANSCRIPT IS
+WHAT SAID SO.*** `Start-Process -ArgumentList @('-c', $code)` under PowerShell
+5.1 joins the list into one command line, and **the comma in `import sys, os`
+ended the argument**: the interpreter got the single word `import` and answered
+*"SyntaxError: Expected one or more names after 'import'"*. **Rule 1 of the
+instrument section — print what the tool actually did — is the whole reason this
+reads as a probe bug in two seconds instead of as a product defect.** Replaced
+with a temp `.py` file, which has no quoting surface and is also what the helper
+will do. **Unrun in that form.**
+
+**Two contrast rows, neither decisive.** SYSTEM's PATH resolves `python.exe` to
+`C:\Program Files\Python314\python.exe` — *no WindowsApps shim for SYSTEM* — so
+PATH is right for that identity and wrong for the interactive user, which is
+constraint 1 from the other side. And ***SYSTEM's `HKCU` DID show the per-user
+3.13***, against this probe's own written expectation. Harmless —
+`python-detect.ps1` rejects `HKCU` whoever asks — but *"SYSTEM cannot see a
+per-user install"* is the wrong reason for that rule and the comment asserting
+it is gone.
+
+***AND THE HAND-OVER FAILED BEFORE THE PROBE RAN.*** The command was given as a
+bare script path and his elevated shell answered ***`PSSecurityException`:
+"running scripts is disabled on this system"***. Measured: every scope reads
+`Undefined` there, which on a desktop edition is `Restricted`, **while an
+agent's own shell runs at `Process = Bypass`** — so the command that had just
+worked here was refused there. ***THIS IS `RELEASE_1.1` 11's DEFECT COMMITTED BY
+THE HAND-OVER RATHER THAN BY THE PRODUCT***, one day after 32 more instances
+were fixed in the documentation, and the same session had the execution-policy
+measurement on screen minutes earlier and read nothing into it.
+
+**Proposed as a third clause for CLAUDE.md §"Every command you hand over carries
+a full path and an elevation verdict", NOT added, because that section records
+the owner's own instructions and he has not ruled on it:**
+
+> ***3. THE EXECUTION POLICY SWITCH, ON EVERY `.ps1`.***
+> `powershell -ExecutionPolicy Bypass -File <absolute path>`, never a bare path.
+> His shells read `Undefined` in every scope — measured 12 Sep 2026 — which is
+> `Restricted`, and an agent's own shell runs at `Process = Bypass`, so **the
+> command that just worked here is refused there.**

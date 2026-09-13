@@ -181,14 +181,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 48, 12 Sep 2026 — ***THE PROBE HANDOFF 47 ASKED FOR IS BUILT AND VERIFIED TO LOAD. IT IS UNRUN: THE AGENT SHELL'S ELEVATION WAS REFUSED HERE, WHICH §4.0.1 SAYS SHOULD HAVE WORKED. NO CYCLE, NO RUN TOKEN, NO CODE WRITTEN. ONE ELEVATED COMMAND IS OWED AND IT IS THE WHOLE OF THE NEXT STEP.*** ⇩⇩⇩
 >
-> ### ***WHAT TO RUN FIRST, AND IT IS THE ONLY THING BLOCKING OBJECTIVE 2***
+> ### ✅ ***ANSWERED 12 Sep 2026, 19:41 — LocalSystem REACHES, READS AND BINDS. OBJECTIVE 2 IS UNBLOCKED***
 >
-> ***ELEVATED PowerShell, the owner's own terminal.*** No run token, no
-> install, no cycle:
+> Run by the owner, elevated. **5 PASS, 1 FAIL, and the FAIL was the probe's own
+> argument passing** — §8 constraint 1 has the table and the cause. ***The
+> decisive leg passed***: a native UCRT64 binary built against a **3.13** floor
+> ran as `S-1-5-18` and bound `python3.dll` → `python314.DLL`, 3.14.7, read back
+> from the loader. **§5.27's helper may be written.**
+>
+> ***AND THE HAND-OVER ITSELF FAILED FIRST, WHICH IS THE PROCESS LESSON.*** The
+> command was given as a bare path and his elevated shell answered
+> ***`PSSecurityException` — "running scripts is disabled on this system"***.
+> Every scope reads `Undefined` there (= `Restricted`); **an agent's own shell
+> runs at `Process = Bypass`, so the command that works here is refused there.**
+> That is `RELEASE_1.1` 11's defect committed by the hand-over rather than by
+> the product, one day after 32 more of them were fixed in the documentation.
+> ***HAND SCRIPTS OVER IN THIS FORM:***
 >
 > ```
-> C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-pysystem.ps1
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-pysystem.ps1
 > ```
+>
+> *(A third clause for §"Every command you hand over…" was drafted and is NOT
+> added: that section records the owner's own instructions and he has not ruled
+> on it. The wording is in the 12 Sep HISTORY entry.)*
 >
 > | exit | meaning |
 > |---|---|
@@ -8089,10 +8105,39 @@ itself is present here, so constraint 6's "no winget" case is not this box.
    all decisive legs passed, 1 one failed, 2 the question could not be asked,
    **3 nothing failed but a decisive leg was NOT MEASURED**.
 
-   **Verified to load, not yet to run**: 0 parse errors, both functions found by
-   the AST, no BOM, LF-only. `assert-current` exit 0 with it on `$neverShipped`.
-   ***IT IS UNRUN BECAUSE THE ELEVATION WAS REFUSED*** — see §4.0.1's 12 Sep
-   row. It needs an elevated PowerShell and no run token, install or cycle.
+   ***RUN 12 Sep 2026, 19:41, BY THE OWNER, ELEVATED. THE ANSWER IS YES.***
+   5 PASS, 1 FAIL, and ***the FAIL was this probe's own bug, not the
+   product's***. The decisive leg — the one `sdpy.exe` rests on — passed:
+
+   | | |
+   |---|---|
+   | token | `NT AUTHORITY\SYSTEM`, **`S-1-5-18`** — the null-case refusal cleared |
+   | hive | `HKLM` `3.14` → `C:\Program Files\Python314`, read **by SYSTEM itself** |
+   | traverse | `python.exe`, `python3.dll`, `Lib\os.py` all present |
+   | read | `python3.dll` opened, `MZ`, 73,952 bytes |
+   | ***bind*** | ***`probe-pylimited-limited.exe` ran as SYSTEM and bound `python3.dll` → `python314.DLL`, `sys.version` 3.14.7, finalised cleanly*** |
+
+   **A native UCRT64 binary compiled against a 3.13 floor ran as LocalSystem and
+   pulled in 3.14.7 through the stable ABI, with the DLLs read back from the
+   loader.** §5.27's helper may be written; its identity assumption holds.
+
+   ***THE FAILING LEG WAS `python.exe -c` AND IT NEVER REACHED PYTHON.***
+   `Start-Process -ArgumentList @('-c', $code)` in PowerShell 5.1 joined the
+   list and the **comma in `import sys, os`** ended the argument: the
+   interpreter received the single word `import` and answered *"SyntaxError:
+   Expected one or more names after 'import'"*. **Rule 1 of the instrument
+   section is what caught it** — the probe echoes what the tool actually
+   printed, so the transcript names the cause. Now a temp `.py` file with no
+   quoting surface, which is also what the helper will do. ***UNRUN IN THAT
+   FORM.***
+
+   **Two contrast rows, neither decisive, both worth carrying.** SYSTEM's PATH
+   resolves `python.exe` to `C:\Program Files\Python314\python.exe` — **no
+   WindowsApps shim for SYSTEM**, so PATH is right for that identity and wrong
+   for the interactive user. And ***SYSTEM's `HKCU` DID show the per-user
+   3.13***, against this probe's own written expectation; it changes nothing,
+   since `python-detect.ps1` rejects `HKCU` whoever asks, but *"SYSTEM cannot
+   see a per-user install"* is the wrong reason to give for that rule.
 2. *Deadline.* If PEP 773 holds, a machine-scope winget install exists for 3.14
    and may not for later versions. The portable zip unpacked into a directory
    SD owns would sidestep that — unverified.
