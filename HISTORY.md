@@ -60080,3 +60080,47 @@ clean result — it is not evidence either way.*
 `R11` scans this tree, so nothing stops the wording coming back there.
 `core.autocrlf` is `true` there and this tree is `* -text`, so a guard shared
 between them would have to handle both.
+
+## 12 Sep 2026 — the docs artefacts are rebuilt, and objective 2's Python install had broken the build
+
+**Both sets rebuilt with the documented command, `tools\release.ps1` and
+`tools\release.ps1 -Set Administrator`, both exit 0.** GettingStarted 19 pages,
+sha256 `877B337C…`; Administrator 14 pages, sha256 `43EB4005…`. 88 links checked,
+0 broken. **The `User` set was not rebuilt and does not need it** — its
+`html/index.html` is byte-identical to the copy inside the 6 Sep zip, checked
+with `cmp` rather than assumed, so that zip is not stale.
+
+***THE BUILD WOULD NOT RUN, AND THIS SESSION IS WHAT BROKE IT.*** `release.ps1`
+invokes bare `python`. Installing Python 3.14 at machine scope on 12 Sep — for
+objective 2, §8 constraint 1 — put `C:\Program Files\Python314` ahead of the
+Store 3.13 on PATH, and **3.14 has no `markdown`** while the Store 3.13 has
+**3.10.3**. So a change made to measure Python detection silently broke an
+unrelated build in another repository. **Same lesson as constraint 1 itself:
+`python` on PATH is whatever happens to be first, and nothing declares which one
+a tool meant.**
+
+Fixed with `python -m pip install --user markdown` — **3.10.3, the same version
+the Store python has**, so no version drift, and it lands in
+`%APPDATA%\Python\Python314\site-packages` rather than in
+`C:\Program Files\Python314`, **deliberately: the machine-scope install is what
+`probe-pysystem.ps1` is about to measure as SYSTEM and it is left untouched.**
+
+***AND THE PDF CLAIM THE LAST ENTRY REFUSED TO MAKE IS NOW MEASURED.*** That
+entry said the `pdf` directories reporting no hits was *"grep unable to read
+compressed streams rather than a clean result"*. Both halves are now checked:
+rendered HTML **0 bare / 29 fixed**, and the PDFs read with `pypdf` — **35
+files, 315 pages, 514,885 characters, 0 old form, 58 new** (29 per-page, 29 in
+the two bound books).
+
+***THE FIRST PDF READER WAS BLIND AND ITS CONTROL IS WHAT SAID SO.*** Inflating
+the `FlateDecode` streams by hand found **neither** form — not the new one and
+not the old one, which was certainly there before the rebuild. Chrome subsets
+its fonts, so the content streams carry glyph indices rather than ASCII.
+**Searching for the string that should still be absent is what turned "clean"
+into "blind"**; a one-sided check would have reported a pass. `pypdf` (6.18.1,
+user scope, verification only — not a build dependency) applies the font
+encoding and reads the real text.
+
+**Nothing was committed in the docs repository**: `.gitignore` covers `*.html`,
+`*.zip` and the PDFs, so the artefacts live only on this machine and
+**publishing them is a separate act**.

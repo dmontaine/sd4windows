@@ -272,6 +272,25 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **That repository has no lint of its own**, so nothing there stops a
 > recurrence the way `test-retired-wording-units`'s `R11` does here.
 >
+> ***THE ARTEFACTS ARE REBUILT AND VERIFIED, 12 Sep 2026.*** `tools\release.ps1`
+> for both changed sets, both exit 0 — GettingStarted sha256 `877B337C…`,
+> Administrator `43EB4005…`, 88 links checked and 0 broken. Rendered HTML **0
+> bare / 29 fixed**; the PDFs read with `pypdf` — **35 files, 315 pages, 0 old
+> form, 58 new**. The `User` zip is **not** stale (its index is byte-identical
+> to the copy inside it, checked with `cmp`). ***PUBLISHING IS STILL OWED AND IS
+> A SEPARATE ACT***: `.gitignore` covers `*.html`, `*.zip` and the PDFs, so the
+> artefacts exist only on this machine.
+>
+> ⚠️ ***AND INSTALLING PYTHON 3.14 FOR OBJECTIVE 2 HAD BROKEN THAT BUILD.***
+> `release.ps1` invokes bare `python`; the 12 Sep machine-scope install put
+> `C:\Program Files\Python314` ahead of the Store 3.13 on PATH, and **3.14 has
+> no `markdown` while the Store 3.13 has 3.10.3**. A change made to measure
+> Python detection silently broke an unrelated build in another repository —
+> **the same lesson as constraint 1 itself**. Fixed with
+> `python -m pip install --user markdown`, **3.10.3 to match**, landing in
+> `%APPDATA%` and ***deliberately NOT in `C:\Program Files\Python314`, which
+> `probe-pysystem.ps1` is about to measure as SYSTEM.***
+>
 > *(Also this session, and it is not in the tree: a short Linux-port paragraph
 > for the SourceForge page, which will carry both zips from one repository,
 > `sdcore`. Two facts were flagged to the owner as unverifiable from here — that
