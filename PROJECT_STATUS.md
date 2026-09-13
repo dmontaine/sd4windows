@@ -179,7 +179,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***THE BASIC HALF COMPILES AND THE WHOLE PATH WAS DRIVEN END TO END FOR THE FIRST TIME. IT FAILED, THE CAUSE IS FOUND AND PROVED, AND THE FIX IS WRITTEN AND UNWITNESSED. ONE CYCLE IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 WORKS END TO END. CPython EVALUATED `6*7` AND THE BYTES CAME HOME THROUGH BASIC, THE OPCODES, THE PIPE AND BACK, ON A REAL INSTALL. ONE STATUS-CODE DEFECT IS LEFT, FIXED IN SOURCE AND UNWITNESSED — ONE CYCLE IS OWED.*** ⇩⇩⇩
 >
 > ### ⚠️ ***RUN THIS FIRST***
 >
@@ -189,38 +189,51 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
-> **It carries a C change** (`sdpy_session.c`), so step 0 rebuilds. Then re-run
-> the end-to-end probe — **an ORDINARY UNELEVATED prompt**, and it is the whole
-> verdict:
+> Then the whole verdict, in an ***ORDINARY UNELEVATED prompt***:
 >
 > ```
-> powershell -ExecutionPolicy Bypass -File C:\Users\Don\AppData\Local\Temp\claude\C--Users-Don-SDCoreProject-sd4windows\5a44a5a0-0678-4499-82e3-91b7d4b1e372\scratchpad\probe-pyapi.ps1
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-pyapi.ps1
 > ```
 >
-> ***THAT PROBE IS IN A SCRATCHPAD AND WILL NOT SURVIVE. Promoting it to
-> `gplbld/verify-pyapi.ps1` is the first thing worth doing*** — it needs a
-> `$neverShipped` line, and it could not be written there this session without
-> making the tree STALE before it could be run.
+> ***EXPECT 9 OF 9. It was 8 of 9 on the 22:55:41 install***, the one failure
+> being `RELEASE_1.1` 22, whose fix is in this commit and has not been compiled.
+> ***UNELEVATED IS NOT AN OVERSIGHT***: elevated sets `USR_ADMIN` and takes the
+> gate's *"an administrator always may"* branch, which measures a different
+> question. The probe gates on `assert-current` itself and refuses a stale tree.
 >
-> ### ***WHAT THE 22:33:38 CYCLE ANSWERED***
+> ### ***WHAT THE TWO CYCLES ANSWERED***
 >
 > | | |
 > |---|---|
 > | the BASIC compiles | ***YES. 46 batches, `0 error(s)` in every one***, and **0** of the fatal *"is not assigned a value"* class |
 > | the 20 `PY_*` | ***ALL 20 in `gpl.bp.out` AND all 20 in `gcat` as `!PY_*`*** |
 > | the helper ships | **YES** — `RELEASE_1.1` 19 witnessed, SHA identical, beside `sd.exe` |
-> | ***does it WORK*** | ***NO. Every `PY_*` answered `-12040`*** |
+> | ***does it WORK*** | ***YES, AFTER 20 WAS FIXED***: `PYPRB-ATTR=SDPY-42`, `PYPRB-TYPE=str`, `RUN=0`, `FIN=0`, no `-12040` anywhere |
+> | what is left | ***`PY_INITIALIZE` REPORTS `-12004` ON A GOOD INIT.*** `RELEASE_1.1` 22, fixed in source, **unwitnessed** |
 >
-> ### ***AND THE `-12040` IS DIAGNOSED, PROVED, AND FIXED IN SOURCE — `RELEASE_1.1` 20***
+> ### ***THE `-12040` WAS THE PATH FORM, AND IT IS CLOSED — `RELEASE_1.1` 20***
 >
 > ***`exe_directory()` ANSWERS A POSIX PATH AND `CreateProcessA` IS NATIVE.***
 > Measured with a control, both legs built with the same MSYS2 gcc `sd.exe`
 > uses: the POSIX form **failed, GetLastError 3**; the same file as
-> `C:\…\sdpy.exe` **started**. ***THE GATE WAS EXONERATED FIRST, WHICH IS WHY
-> THIS IS NOT A PERMISSION BUG***: in the same session a **non-`$internal`**
-> compiled program ran `os.execute` and captured its output.
-> **`cygwin_conv_path` at the boundary; `-fsyntax-only` with `-Wall
-> -Wformat=2` gives 0 errors, 0 warnings. It has not run.**
+> `C:\…\sdpy.exe` **started**. ***THE GATE WAS EXONERATED BEFORE THE PATH WAS
+> SUSPECTED***: in the same session a **non-`$internal`** compiled program ran
+> `os.execute` and captured its output, so `sd_os_permitted()` answers TRUE.
+> **`cygwin_conv_path` at the boundary — not in `exe_directory()`, whose three
+> POSIX callers are correct as they are. Witnessed on the 22:55:41 install.**
+>
+> ### ***AND THE RUN THAT PROVED 20 FOUND 22, WHICH IS THE ARGUMENT FOR MULTI-ROW PROBES***
+>
+> `PYPRB-INIT=-12004` sat directly above `ISINIT=1`, `RUN=0`, `ATTR=SDPY-42`,
+> `TYPE=str` and `FIN=0`. ***A PROBE THAT CHECKED ONLY THE INIT STATUS WOULD
+> HAVE CALLED THE FEATURE BROKEN; ONE THAT CHECKED ONLY THE END-TO-END VALUE
+> WOULD HAVE CALLED IT PERFECT.*** `PY_INITIALIZE` ran
+> `sys.stdout.reconfigure(...)` after a good init — a `TextIOWrapper` method —
+> but `sdpy.c:231` replaces both streams with an **`io.StringIO`** before any
+> user code runs, **because stdout IS the protocol channel**. Measured:
+> StringIO has no `reconfigure`. ***SO IT THREW ON LINE ONE AND THE TRANSLATION
+> HAS NOT HAPPENED SINCE PYTHON LEFT `sd.exe` — REMOVING IT IS
+> BEHAVIOUR-PRESERVING***, and only the status code was ever wrong.
 >
 > ***THE REASON EXISTED ALL ALONG AND NOTHING COULD READ IT — `RELEASE_1.1`
 > 21.*** `sdpy_session_error()` has **no caller outside its own file**, so
@@ -279,21 +292,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > | | |
 > |---|---|
-> | install | **12 Sep 22:33:38**, `assert-current` **exit 0 live** — then ***STALE again by the `sdpy_session.c` fix***, which is a C change |
-> | compiled | ***THE BASIC: YES, 0 errors. THE C FIX: SYNTAX-CHECKED ONLY, never linked*** |
-> | free tier | ***36***, all green in 30.2 s. `test-intrinsics-units.py` is new |
+> | install | **12 Sep 22:55:41**, `assert-current` **exit 0 live** — then ***STALE by the `PY_INITIALIZE` fix*** |
+> | compiled | ***THE BASIC AND THE C FIX: BOTH, AND BOTH WITNESSED. 22's one-line BASIC change is NOT*** |
+> | free tier | ***36***, all green in ~29 s. `test-intrinsics-units.py` is new |
 > | run tokens | ***`b141` — this session spent none.*** No suite step has ever touched this path |
-> | `RELEASE_1.1` | **19 CLOSED AND WITNESSED**; **20** and **21** new. Open: 3, 5, 6, 7, 8, 9, 10, 18, 20, 21 |
-> | changelog | ***STILL DELIBERATELY NOT WRITTEN.*** `PY_*` does not work yet — 20 is unwitnessed — so an entry now would be the 12 Sep prompt-defaults mistake again |
+> | `RELEASE_1.1` | **19 and 20 CLOSED AND WITNESSED**; **21** and **22** open. Open: 3, 5, 6, 7, 8, 9, 10, 18, 21, 22 |
+> | changelog | ***OWED, AND THE FIRST THING TO WRITE ONCE 22 IS WITNESSED.*** It has been withheld twice on purpose — the feature did not work — and **that reason expires with the next green probe.** Embedded Python returning as a helper process is exactly what a user notices |
 >
 > ### ***WHAT WOULD FALSIFY THE PLAN — written in the conditional***
 >
-> - ***THE FIX IS THE ONLY UNMEASURED THING LEFT, AND IT IS ONE LINE OF
->   BEHAVIOUR.*** `cygwin_conv_path` was proved to cure the mechanism **in a
->   standalone probe**, not inside `sd.exe`. **If `probe-pyapi` still answers
->   `-12040` after the cycle, the path form was not the only cause** — and
->   entry 21 is then worth doing first, because the reason is already being
->   computed and thrown away.
+> - ***22'S FIX IS THE ONLY UNMEASURED THING LEFT.*** Removing the reconfigure
+>   block is argued to be behaviour-preserving **because the block already
+>   threw**, so nothing downstream of it ever ran. **If `PYPRB-INIT` is still
+>   non-zero after the cycle, that argument was wrong** and the remaining
+>   failure is in `SD_PyInit` itself rather than in the post-init script.
 > - **The 53-of-53 `test-sdpy-units` green was never evidence about SD.** It
 >   drives `sdpy.exe` directly over a pipe and never goes through `sd.exe`,
 >   which is exactly why a dead feature looked healthy. **Nothing in the free

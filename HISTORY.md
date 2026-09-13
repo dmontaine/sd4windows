@@ -60530,3 +60530,61 @@ needs regenerating, `BCOMP`'s intrinsics table and its **positional**
 been run against an install, and the tree is stale on purpose*** — this is the
 one cycle the previous entry said would be paid once, for the whole
 integration.
+
+## 12 Sep 2026 — Objective 2 works end to end, and what hid it for a day
+
+Two cycles, both the owner's. The BASIC half restored and compiled — 46 batches
+at `0 error(s)`, all 20 `PY_*` in `gpl.bp.out` and catalogued as `!PY_*` — and
+then the whole path driven for the first time: BASIC → `!PY_*` → `SDEXT`/
+`SDPYOBJ` → `sdpy_client` → the pipe → CPython and back. `PYPRB-ATTR=SDPY-42`,
+the string only the interpreter can produce.
+
+**The previous entry's list of what was left was incomplete, and the shape of
+the omission is the lesson.** It named `KEYS.H`, `ERR.H`, `BCOMP` and the 20
+programs. `ERRTEXT.H` and `OPCODES.H` are generated from the C headers too, and
+`OPCODES.H` had to come back because the opcode was un-retired; `SDPYFUNC.H` and
+four `bp/` test programs were not named either. All six were found by reading
+`489b18e`'s `--name-status` rather than its prose — the commit message is a
+summary and the file list is the fact.
+
+**Three defects, and none was in the code anybody was looking at.**
+
+`RELEASE_1.1` 19: `sdpy.exe` was built by `make sd` and staged by nothing, so no
+install had ever had the helper. Found by listing `usr\bin`. Nothing guards "a
+binary the build produces reaches the install": `assert-current` compares six
+mirrored directories and sweeps for leftovers, and neither direction sees a
+binary that was never staged.
+
+`RELEASE_1.1` 20: every `PY_*` then answered `-12040` on a correct install with
+a healthy helper beside `sd.exe`. `exe_directory()` reads `/proc/self/exe` and
+answers a POSIX path; its three other callers hand that to `execl()` and
+`system()`, which translate it, and this one handed it to `CreateProcessA`,
+which does not. Proved with a two-leg control built with the same MSYS2 gcc:
+POSIX failed with `GetLastError 3`, native started. The gate was exonerated
+first — a non-`$internal` program ran `os.execute` in the same session — which
+is why this was never chased as a permission bug. `exepath.c`'s own header
+documents two earlier members of this family and says both "failed SILENTLY and
+both worked in development".
+
+`RELEASE_1.1` 22: the run that proved 20 fixed showed `PY_INITIALIZE` returning
+`-12004` above five passing rows. It reconfigures `sys.stdout` newlines after a
+good init, and `sdpy.c:231` replaces that stream with an `io.StringIO` before
+any user code runs, because stdout IS the protocol channel. StringIO has no
+`reconfigure`, so the call threw every time and the translation has not happened
+since Python left `sd.exe`.
+
+**What made all of it invisible: nothing drives the whole path.**
+`test-sdpy-units` drives `sdpy.exe` directly over a pipe and was **53 of 53
+green throughout the entire period the feature was dead.**
+`gplbld/probe-pyapi.ps1` is now the only instrument that crosses `sd.exe`, and
+its multi-row shape is what separated a working feature from a wrong status code
+in one run.
+
+**A wrong turn worth recording**: the four `bp/PY_*` test programs were restored
+with the rest and had to be removed again. `sdsys/bp` ships nothing — it left
+the mirror list on 25 Aug 2026 — so a file put there in source can never be in
+the install, and `assert-current`'s rename walk reports it and every verifier
+behind it refuses. They stay at `489b18e^`.
+
+`gplbld/test-intrinsics-units.py` is new and guards `BCOMP`'s two positional
+intrinsic lists, which had only ever been guarded by a comment.
