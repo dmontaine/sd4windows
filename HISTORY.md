@@ -60391,3 +60391,33 @@ appending to one is **-12034**, a missing key is **-12007**, and creating a
 name twice is **-12012** rather than a silent overwrite — each with its own row,
 because every one of those is a path a caller reaches by mistake rather than by
 design.
+
+## 12 Sep 2026 — RUNFILE and GETATTR: the verb surface is complete at 53 of 53
+
+***ALL TWENTY `PY_*` NOW HAVE A HELPER VERB BEHIND THEM***, checked one at a
+time against the inventory rather than counted. **The whole SD side remains
+unbuilt**: no `PY_*` exists, nothing speaks to a pipe, and `sd.exe` has never
+started this process.
+
+***`GETATTR` DOES NO getattr.*** `SD_PyGetAtt` is
+`PyMapping_GetItemString(global_dict, Arg)` — fetch a name from the namespace
+and `str()` it — so the verb name is the only thing suggesting attributes are
+involved. Reading the old C was what settled it, and the consequence is a real
+division of labour: **`GETATTR` is the general reader and `STRGET` is the
+strict one.** `STRGET` on an integer now answers **-12019** *"not a String"*
+instead of -12009 *"could not encode"*, which stops the encoding being blamed
+for a type error, and there are two rows on the same object to hold the pair
+apart.
+
+***`RUNFILE` IS WHERE THE HELPER SHAPE PAYS FOR ITSELF, AND IT IS THE EXACT
+DEFECT §5.27 CITED.*** The removed code called `fopen()` inside `sd.exe` and
+passed the `FILE*` into `PyRun_File` (`sdext_py.c:207`) — a stdio handle
+crossing from the MSYS2 runtime into the native one, which §5.3 says does not
+survive. **In this shape SD sends a path**, which is just a string, and the file
+is opened on the side that reads it. *The problem is not solved; it is absent.*
+
+Compiling with the real filename is the only reason `RUNFILE` needs to be a
+verb at all rather than "read the file and call `RUNSTR`", so there is a row
+requiring a failing script's traceback to name **the file and line 2** — and the
+`-12006` for a missing script **names the path it tried**, because a "could not
+open" with no path in it is the verdict-without-evidence §0 forbids.

@@ -5393,8 +5393,30 @@ elevation, no run token, no SD.
 `STRSET`, `STRGET`, `OBJTYPE`, `OBJLEN`, `DELOBJ`, and ***the dict and list
 families*** — `DICTCRTE`, `DICTCLR`, `DICTKEYS`, `DICTVALUES`, `DICTVSET`,
 `DICTVGET`, `DICTIDEL`, `LISTCRTE`, `LISTAPPD`, `LISTCLR`, `LISTGET`
-(**46 of 46**, 12 Sep 2026). **Not yet**: `RUNFILE`, `GETATTR`, and every line
-of the SD side — no `PY_*` exists and `sd.exe` has never started this process.
+`RUNFILE` and `GETATTR` (**53 of 53**, 12 Sep 2026).
+
+***THE VERB SURFACE IS COMPLETE: ALL TWENTY `PY_*` NOW HAVE A HELPER VERB
+BEHIND THEM***, checked one at a time against the inventory rather than
+counted. **What is not built is the whole SD side** — no `PY_*` exists, no
+`SDEXT`/`SDPYOBJ` speaks to a pipe, and `sd.exe` has never started this
+process.
+
+***`GETATTR` DOES NO getattr, AND THE NAME IS THE ONLY THING THAT SAYS IT
+DOES.*** `SD_PyGetAtt` at `489b18e^` is `PyMapping_GetItemString(global_dict,
+Arg)` — fetch a name out of the namespace and `str()` it. **So it is the
+GENERAL reader** and `STRGET` is the str-only one. That division is now
+enforced: `STRGET` on an integer answers **-12019** *"not a String"* rather than
+blaming the encoding, which is the old contract restored; `GETATTR` reads the
+same object as `42`.
+
+***`RUNFILE` IS WHERE THE HELPER SHAPE PAYS FOR ITSELF.*** The removed code did
+`fopen()` inside `sd.exe` and passed the `FILE*` into `PyRun_File`
+(`sdext_py.c:207`) — a stdio handle crossing from the MSYS2 runtime into the
+native one, which §5.3 says does not survive and which this section cites as a
+reason for the helper. **Here SD sends a path, which is just a string, and the
+file is opened on the side that reads it.** Compiling with the real filename
+makes a traceback name the script and its line — driven, and the `-12006` for a
+missing file **names the path it tried**.
 
 ***THE LIST SEPARATOR IS `@fm`, AND EVERY `PY_*` HEADER SAID OTHERWISE.***
 `PY_DICTGETKEYS` and its neighbours all document *"tab separated list"*; the C
