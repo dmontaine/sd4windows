@@ -179,7 +179,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 52, 13 Sep 2026 — ***THE OWNER RAN THE CYCLE AND THE STEP: `verify-pygate` 40 OF 40 AND `verify-pyapi` 13 OF 13 ON `b141`. `RELEASE_1.1` 21 AND 23 ARE CLOSED, TASK 3 IS DONE, OBJECTIVE 2'S GATE IS WITNESSED BOTH WAYS. NOTHING IS OWED; ONE OPTIONAL RERUN WOULD PRINT WHAT b141 SCORED WITHOUT SHOWING.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 52, 13 Sep 2026 — ***THE OWNER RAN THE CYCLE AND THE STEP: `verify-pygate` 40 OF 40 AND `verify-pyapi` 13 OF 13 ON `b141`, THEN `verify-pygate` 40 OF 40 AGAIN ON `b142` WITH EVERY LEG PRINTED. `RELEASE_1.1` 21 AND 23 ARE CLOSED, TASK 3 IS DONE, OBJECTIVE 2'S GATE IS WITNESSED BOTH WAYS. NOTHING IS OWED.*** ⇩⇩⇩
+>
+> ### ✅ ***b142, 10:35:44 — THE CLEAN WITNESS, RUN BY THE OWNER AND PASTED BACK IN FULL***
+>
+> Every leg transcript printed, every Observed a scalar. Leg A: `INIT=-12041`,
+> `INIT2=-12041`, `ISINIT=0`, `RUN=-12041`, `ATTR=` empty, `FIN=-12041`. Leg B:
+> `-12042` on every status call, and the errlog grew by exactly one 180-byte
+> entry, `User 18 (pid 542, sdpygb142)`. Leg C: `0`, `0`, `ISINIT=1`, `RUN=0`,
+> ***`ATTR=SDPY-42`***, `FIN=0`. So the instrument fix below is witnessed as
+> well as the product fix, and the table below stands twice over.
+>
+> **Litter to know about, not to act on**: DELETE.ACCOUNT kept the Windows
+> profiles of `sdpygb141` and `sdpygb142` — the hive was still mounted from the
+> ssh sessions, the documented deferral (sysmsg 10075) — and recorded both in
+> `profile-reclaim` for the service to remove at the next restart.
+> `C:\Users\sdpygb141` and `…142` exist until then; the `sdpyg` stem in
+> `clean-test-profiles.ps1` is what makes the sweep see them meanwhile.
 >
 > ### ***WHAT b141 SHOWED — READ FROM `SD-verify\VerifyInstall2-20260913-102414.log`, NOT FROM THE EXIT CODES***
 >
@@ -222,26 +238,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   edited tree. **A new gplbld script that ships nowhere goes on that list in
 >   the commit that creates it.**
 >
-> ### ***OPTIONAL — the clean witness, ELEVATED PowerShell, no cycle needed***
+> ### ***THE RERUN — DONE. It was offered as optional and the owner ran it***
 >
-> ```
-> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b142 -Only verify-pygate
-> ```
->
-> The tree is current (`assert-current` exit 0 after the edits), so this costs
-> about a minute and prints the three leg transcripts b141 scored without
-> showing. `b142` is unspent. Nothing else is owed.
+> `VerifyInstall2.ps1 -Run b142 -Only verify-pygate`, elevated, no cycle
+> needed: the tree was current (`assert-current` exit 0 after the edits), and
+> it printed the three leg transcripts b141 had scored without showing — see
+> the top of this handoff. Nothing is owed.
 >
 > ### ***STATE***
 >
 > | | |
 > |---|---|
 > | install | **13 Sep 10:23:02**, ***CURRENT*** — `assert-current` exit 0 after every edit in this handoff |
-> | run tokens | ***`b141` spent*** (this run). **Use `b142`** |
+> | run tokens | ***`b141` and `b142` spent.*** **Use `b143`** |
 > | `RELEASE_1.1` | **21 and 23 CLOSED AND WITNESSED**. Open: 3, 5, 6, 7, 8, 9, 10, 18 |
 > | objective 2 | ***the gate is witnessed both ways; the plumbing 13 of 13 inside the suite.*** Still open: 18 (the zip), and the owner's call on a 21st program (`SD_PyListCrte` 2220) |
 > | free tier | ***36 of 36*** |
-> | suite | `b140` the last FULL witness; `verify-pyapi` and `verify-pygate` have now each run inside it once |
+> | suite | `b140` the last FULL witness; `verify-pyapi` has run inside it once, `verify-pygate` twice |
 >
 > # ⇩⇩⇩ HANDOFF 51, 13 Sep 2026 — ***TASK 3 IS BUILT, AND BUILDING IT FOUND THAT THE PYTHON GATE ADMITTED EVERY USER. `RELEASE_1.1` 23 IS FIXED IN SOURCE AND UNWITNESSED; `verify-pygate` IS BUILT AND UNRUN. ONE CYCLE AND ONE ELEVATED SUITE STEP ARE OWED, AND TOGETHER THEY CLOSE 21, 23 AND TASK 3.*** ⇩⇩⇩
 >

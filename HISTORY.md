@@ -60683,3 +60683,11 @@ blocking its own rerun, the 17 Aug 2026 shape exactly. Listed; exit 0 again.
 
 A rerun on `b142` would print the legs. It is offered as optional; nothing
 is owed.
+
+**The owner ran it.** `b142`, 10:35:44, 40 of 40, every leg transcript
+printed and every Observed a scalar — so the instrument fix is witnessed as
+well as the product fix. The refused legs also showed `PY_FINALIZE` returning
+the session's code and `PY_GETATTR` returning empty, which is what the
+changelog says. Both runs deferred the throwaway account's profile to the
+next restart (hive still mounted, sysmsg 10075), the documented path; the
+`sdpyg` stem covers them for the sweep until then.
