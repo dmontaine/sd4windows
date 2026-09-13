@@ -60723,3 +60723,29 @@ gate, not the socket. The measurement owed is a targeted rerun of the two.
 `C:\Users\sdtub143` remained and `CREATE.ACCOUNT` refused rather than give a
 suffixed home. The documented deferral (sysmsg 10075), not a fault; a rerun
 needs a fresh token or a restart.
+
+---
+
+## 13 Sep 2026 — b144 splits the two suite reds; both fixed in source
+
+**Commit:** see the commit that carries this entry. The owner ran the targeted
+rerun `VerifyInstall2.ps1 -Run b144 -Only verify-apiname,verify-registersweep`.
+
+**`verify-registersweep` went green (7 of 7)** — confirming `RELEASE_1.1` 25's
+failure was the racing service stop, not the sweep: it cleared all four dead
+`sdtapi` records and `verify-register` passed on the swept tree. Hardened by
+replacing `Restart-Service -Force` with a call to `restart-sd.ps1`, which waits
+on the processes and falls back to `sd -stop` — the call `restart-sd.ps1`
+exists to be. The b144 green used the old call, so the new path is unwitnessed;
+the race it guards against only appears in the full-suite ordering after
+`verify-tierapi`.
+
+**`verify-apiname` failed again, exit 1, in isolation** — which is the proof
+for `RELEASE_1.1` 24. Alone, with no predecessor to leave the port on, it
+cannot pass, because it never enabled the listener itself; its prior greens
+were that accident. Fixed to enable the listener the way `verify-apiport` does
+(back up `sd.conf`, add `APIPORT`, `Stop-SD`/`Start-SD`, restore in a `finally`
+guarded so a run that found the port up leaves the file alone), and to score a
+listener it could not raise as a cannot-run (exit 2) rather than a `Note`-driven
+exit 1. Both fixes parse-clean, are in `$neverShipped`, and are unwitnessed —
+a `-Run b145` rerun is owed and should show both green.

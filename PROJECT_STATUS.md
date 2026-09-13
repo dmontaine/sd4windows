@@ -179,6 +179,52 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 54, 13 Sep 2026 — ***THE b144 RERUN SPLIT THE TWO CLEANLY: `verify-registersweep` GREEN (transient, and now hardened), `verify-apiname` RED AGAIN IN ISOLATION (a real verifier defect, now fixed). BOTH FIXES ARE IN SOURCE AND UNWITNESSED — ONE ELEVATED RERUN IS OWED.*** ⇩⇩⇩
+>
+> ### ***WHAT b144 PROVED*** (`-Only verify-apiname,verify-registersweep`, elevated)
+>
+> | step | b144 | reading |
+> |---|---|---|
+> | `verify-registersweep` | ***exit 0, 7 of 7*** | the b143 failure was the racing service stop, not the sweep — it cleared all 4 dead `sdtapi` records and `verify-register` passed on the swept tree |
+> | `verify-apiname` | ***exit 1 again*** | run in isolation, with no predecessor to leave the port on, it fails every time — the proof it never enabled the listener itself. A real verifier defect; its prior greens were the accident |
+>
+> ### ***THE FIXES — IN SOURCE, UNWITNESSED*** (`RELEASE_1.1` 24, 25)
+>
+> - **`verify-apiname.ps1`** now enables the listener when it is off (back up
+>   `sd.conf`, add `APIPORT`, `Stop-SD`/`Start-SD` copied verbatim from
+>   `verify-apiport.ps1`, re-check, restore in a `finally` guarded so a run that
+>   found it already up leaves the file alone). A listener it could not raise is
+>   a `Refuse` → **exit 2**, not a `Note`-scored **exit 1**.
+> - **`verify-registersweep.ps1`** now restarts through `restart-sd.ps1` (waits
+>   on the processes) instead of `Restart-Service -Force` (asks the SCM, returns
+>   early). Its own `$up` loop still re-verifies.
+> - Both parse-clean, both already in `assert-current`'s `$neverShipped`,
+>   `assert-current` exit 0. ***Neither is run*** — they edit `sd.conf` and
+>   restart SD, so an unelevated agent shell must not drive them.
+>
+> ### ⚠️ ***THE WITNESS OWED — ELEVATED PowerShell, fresh token***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b145 -Only verify-apiname,verify-registersweep
+> ```
+>
+> Expected: **both exit 0**. `verify-apiname` green in isolation is the whole
+> point of 24's fix; `verify-registersweep` green confirms the `restart-sd.ps1`
+> path (though the race it hardens against only appears in the full-suite
+> ordering after `verify-tierapi`, so a later full run is the complete witness).
+> **`b145` is unspent; a rerun of a SPENT token stops at the test user** (the
+> deferred-profile trap in Handoff 53 still applies).
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **13 Sep 10:23:02**, ***CURRENT*** — `assert-current` exit 0 |
+> | run tokens | ***`b141`–`b144` spent.*** **Use `b145`** |
+> | `RELEASE_1.1` | 21, 23 closed; **24, 25 fixed in source, unwitnessed**. Open: 3, 5, 6, 7, 8, 9, 10, 18, 24, 25 |
+> | suite | b143 was the last full run (unelevated 24/24, elevated 27/29); the two reds are fixed and await b145 |
+> | free tier | ***36 of 36*** |
+>
 > # ⇩⇩⇩ HANDOFF 53, 13 Sep 2026 — ***THE FULL SUITE RAN ON b143. OBJECTIVE 2 IS GREEN IN THE SUITE (sdsysgate, pyapi, pygate all exit 0). TWO ELEVATED STEPS FAILED — `verify-apiname` AND `verify-registersweep` — BOTH GREEN ON b140, BOTH SERVICE/LISTENER-TIMING, NEITHER IN THE PYTHON WORK. FILED AS `RELEASE_1.1` 24 AND 25, NOT YET REPRODUCED IN ISOLATION.*** ⇩⇩⇩
 >
 > ### ***THE RESULT — READ FROM THE LOGS, NOT THE EXIT LINE***
