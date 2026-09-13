@@ -179,6 +179,86 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 49, 12 Sep 2026 — ***OBJECTIVE 2 IS BUILT AS FAR AS C GOES: THE HELPER RUNS, ALL 20 VERBS EXIST, THE OPCODES ARE WIRED AND `sd.exe` LINKS. THE BASIC HALF IS UNTOUCHED AND NOTHING HAS EVER RUN ON AN INSTALL. THE TREE IS STALE ON PURPOSE — RUN THE CYCLE FIRST.*** ⇩⇩⇩
+>
+> ### ⚠️ ***RUN THIS FIRST. NOTHING BELOW IS MEASURABLE UNTIL IT HAS RUN***
+>
+> ***ELEVATED PowerShell, the owner's own terminal:***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> `assert-current` refuses right now, naming `gplsrc\err.h`, `sdpy_client.*`
+> and `sdpy\sdpy.c`. **This is the cycle the integration was scheduled to cost
+> once**, not an accident. ***IT IS ALSO THE FIRST TIME ANY OF THIS MEETS A REAL
+> SYSTEM***: everything below was proved by compiling, linking and driving
+> binaries directly, and **nothing has been run against an install.**
+>
+> ### ***WHAT EXISTS, AND ALL OF IT IS MEASURED***
+>
+> | | |
+> |---|---|
+> | `gplsrc/sdpy/sdpy.c` | the helper. Native UCRT64, `-lpython3` at a **3.13 floor**, running **3.14.7**. **53 of 53** over a real pipe |
+> | verbs | ***ALL TWENTY `PY_*` HAVE ONE***, checked against the inventory one at a time |
+> | `gplsrc/sdpy_client.c` | SD's side. **MSYS2 code driving the native child — 9 of 9**, including a value with `@fm`/`@vm`/`@sm`, a NUL and a newline **byte for byte** |
+> | opcodes | `0xCFFE` un-retired **at the same number**; 6 lifecycle keys added to `op_sdext.c` |
+> | `sd.exe` | ***LINKS CLEAN: 2,004,386 bytes, 0 warnings*** (11 Sep: 1,969,871) |
+> | the gate | `sdpy_session.c`, **once per session at process start**, via a new `sd_os_permitted()` wrapper — §8 constraint 4 |
+>
+> ### ***WHAT IS NOT DONE — THE BASIC HALF, AND IT IS THE WHOLE REMAINDER***
+>
+> **Written in the conditional: none of it is started.**
+>
+> 1. **`sdsys/syscom/KEYS.H` has ZERO Python keys.** The C `keys.h` kept *all*
+>    of them, which is why the C step was small — **the BASIC half is where the
+>    work is.**
+> 2. **`SYSCOM/ERR.H` needs regenerating** with `gplbld/gen_includes.py` now
+>    that `err.h` has the codes back.
+> 3. ***`BCOMP`'s INTRINSICS TABLE AND ITS `on i gosub` LIST ARE POSITIONAL AND
+>    MUST STAY ALIGNED.*** `BCOMP:66` says so, and the removal's own comment at
+>    the `int.intrinsics` block records that `SDPYOBJ`'s entry went with it.
+>    **Adding it back in one list and not the other is the failure mode.**
+> 4. **The 20 `PY_*` programs** — they are at `489b18e^` and the BASIC surface
+>    is unchanged, so they should restore as they were.
+>
+> ### ***THREE THINGS THAT WILL SAVE A SESSION***
+>
+> - ***`make sdpy` AND `make sdsvc` BOTH FAIL IN AN AGENT SHELL, AND `sdsvc` IS
+>   NOT OURS.*** Root cause is `TMP`: the shell `make` runs does not hand a
+>   native child a usable one, so gcc cannot write its temporaries. **Do not
+>   debug it as a code fault** — the owner's cycle builds both fine.
+> - ***THE OPCODE LAYER IS NUL-LIMITED AND THE PIPE IS NOT.*** `getarg()` and
+>   `SDEXT` hand up NUL-terminated C strings. Marks pass; NUL truncates. The
+>   end-to-end contract is **"any byte except NUL"**.
+> - **The payload encoding is Latin-1**, not UTF-8, and that is not a
+>   preference: `@fm` is `0xFE` and is not valid UTF-8. The removed code's own
+>   error names say so (`SD_PyErr_EnLatin`).
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **12 Sep 19:47:59** — and ***STALE***, see the cycle above |
+> | run tokens | ***SPENT: b135–b140. USE `b141` — this session spent none.*** |
+> | free tier | **35 by CLAUDE.md's list, all green.** *A runner that GLOBS `test-*-units.ps1` sees 36 and would fail on a clean checkout: `test-sdpy-units` needs the helper built and exits 2 without it. CLAUDE.md says so where a globbing session will look* |
+> | suite | **`b140` is still the last witness.** The new `verify-promptenter` step has never run inside a suite |
+> | `RELEASE_1.1` | closed **17**; **18** filed (the W1.0-0 zip's PDFs ride into 1.1). Open: **3**, **5**, **6**, **7**, **8**, **9**, **10**, **18** |
+>
+> ### ***ALSO THIS SESSION***
+>
+> - **Entry 6 has its first real witness.** `verify-promptenter`, 8 of 8 — ***the
+>   first Enter ever pressed at one of those prompts***, on 6131, whose wording
+>   landed the same day. **Now step 21 of `VerifyInstall1`** on the owner's
+>   ruling.
+> - **`RELEASE_1.1` 17**: `basicfuncs.sb`'s coverage claim was prose and wrong in
+>   **seven** places; it is mechanical now, and `test-basicfuncscov-units` guards
+>   it.
+> - **The docs repo**: 32 bare `powershell -File` sites fixed, artefacts
+>   rebuilt and **verified with `pypdf`** — 0 old / 58 new across 35 files.
+> - ***CLAUDE.md's HAND-OVER RULE GAINED A THIRD CLAUSE ON THE OWNER'S RULING***:
+>   the execution-policy switch. **This handoff's own command carries it.**
+
 > # ⇩⇩⇩ HANDOFF 48, 12 Sep 2026 — ***THE PROBE HANDOFF 47 ASKED FOR IS BUILT AND VERIFIED TO LOAD. IT IS UNRUN: THE AGENT SHELL'S ELEVATION WAS REFUSED HERE, WHICH §4.0.1 SAYS SHOULD HAVE WORKED. NO CYCLE, NO RUN TOKEN, NO CODE WRITTEN. ONE ELEVATED COMMAND IS OWED AND IT IS THE WHOLE OF THE NEXT STEP.*** ⇩⇩⇩
 >
 > ### ✅ ***ANSWERED 12 Sep 2026, 19:41 — LocalSystem REACHES, READS AND BINDS. OBJECTIVE 2 IS UNBLOCKED***
