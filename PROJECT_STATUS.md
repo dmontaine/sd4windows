@@ -179,6 +179,70 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 52, 13 Sep 2026 — ***THE OWNER RAN THE CYCLE AND THE STEP: `verify-pygate` 40 OF 40 AND `verify-pyapi` 13 OF 13 ON `b141`. `RELEASE_1.1` 21 AND 23 ARE CLOSED, TASK 3 IS DONE, OBJECTIVE 2'S GATE IS WITNESSED BOTH WAYS. NOTHING IS OWED; ONE OPTIONAL RERUN WOULD PRINT WHAT b141 SCORED WITHOUT SHOWING.*** ⇩⇩⇩
+>
+> ### ***WHAT b141 SHOWED — READ FROM `SD-verify\VerifyInstall2-20260913-102414.log`, NOT FROM THE EXIT CODES***
+>
+> Install **13 Sep 10:23:02**, step 0 relinked all 12 binaries, `assert-current`
+> exit 0 before and after. Then, one PROGRAMMER account over ssh, one probe,
+> the record the only thing varying:
+>
+> | leg | record | `PY_INITIALIZE` ×2 | and |
+> |---|---|---|---|
+> | A | absent | **`-12041`, `-12041`** | `ISINIT=0`, `RUN=-12041`, no `SDPY-42` |
+> | B | `yes`, no newline | **`-12042`, `-12042`** | ***errlog, verbatim in the log***: `10:24:41 User 12 (pid 498, sdpygb141): PRIVILEGE CHECK UNDETERMINED Python helper start: the os.users record has no second field` |
+> | C | `yes`/`yes` | **`0`, `0`** | `ISINIT=1`, `RUN=0`, ***`ATTR=SDPY-42`***, `FIN=0`, none of the three codes |
+>
+> `'sdpygb141' among them: False` for Administrators; CREATE.ACCOUNT PROGRAMMER
+> wrote no record; account and record gone afterwards. ***So the gate refuses
+> on the record, admits on the record, and CPython ran for a non-administrator.***
+> Handoff 51's two falsifiers on leg C did not fire.
+>
+> ### ⚠️ ***THE RUN'S ONE DEFECT WAS THE INSTRUMENT'S, AND IT IS FIXED — READ THIS BEFORE COPYING `Invoke-Leg`'s SHAPE ANYWHERE***
+>
+> ***THE THREE LEG TRANSCRIPTS WERE NOT PRINTED.*** `Invoke-Leg` printed AND
+> `return`ed, and in PowerShell a function's `Write-Output` IS its return
+> value — so every line went into `$a`, and every leg row then ran `-match`
+> against an ARRAY. The Observed column reads `{SD Core for Windows…}` or `{}`.
+> **The verdicts are sound, measured afterwards both ways** (`semantics.ps1`,
+> scratch): `-match` on an array returns the matching elements, `$true -eq
+> <non-empty>` is true, `$true -eq @()` is false, and no non-text element can
+> satisfy any row's pattern — **so each PASS still means the session text
+> carried that exact string.** Right by accident is still the instrument
+> rule's subject:
+>
+> - `Invoke-Leg` returns nothing now; the text travels through `$script:legText`.
+> - **`Note` THROWS on a collection Observed** — the guard for the class.
+>   Driven by AST lift against HEAD's copy: HEAD emits 5 objects and sets
+>   nothing, the fix emits 4 and sets the text; array → throws, bool/int → noted.
+> - ***`verify-pygate.ps1` WAS NOT IN `assert-current`'s `$neverShipped`.***
+>   Harmless on b141 (the file predated the install); the first edit after it
+>   measured **`STALE: gplbld\verify-pygate.ps1`** — the 17 Aug shape, a
+>   verifier blocking itself. Listed now; `assert-current` exit 0 on the
+>   edited tree. **A new gplbld script that ships nowhere goes on that list in
+>   the commit that creates it.**
+>
+> ### ***OPTIONAL — the clean witness, ELEVATED PowerShell, no cycle needed***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b142 -Only verify-pygate
+> ```
+>
+> The tree is current (`assert-current` exit 0 after the edits), so this costs
+> about a minute and prints the three leg transcripts b141 scored without
+> showing. `b142` is unspent. Nothing else is owed.
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **13 Sep 10:23:02**, ***CURRENT*** — `assert-current` exit 0 after every edit in this handoff |
+> | run tokens | ***`b141` spent*** (this run). **Use `b142`** |
+> | `RELEASE_1.1` | **21 and 23 CLOSED AND WITNESSED**. Open: 3, 5, 6, 7, 8, 9, 10, 18 |
+> | objective 2 | ***the gate is witnessed both ways; the plumbing 13 of 13 inside the suite.*** Still open: 18 (the zip), and the owner's call on a 21st program (`SD_PyListCrte` 2220) |
+> | free tier | ***36 of 36*** |
+> | suite | `b140` the last FULL witness; `verify-pyapi` and `verify-pygate` have now each run inside it once |
+>
 > # ⇩⇩⇩ HANDOFF 51, 13 Sep 2026 — ***TASK 3 IS BUILT, AND BUILDING IT FOUND THAT THE PYTHON GATE ADMITTED EVERY USER. `RELEASE_1.1` 23 IS FIXED IN SOURCE AND UNWITNESSED; `verify-pygate` IS BUILT AND UNRUN. ONE CYCLE AND ONE ELEVATED SUITE STEP ARE OWED, AND TOGETHER THEY CLOSE 21, 23 AND TASK 3.*** ⇩⇩⇩
 >
 > ### ⚠️ ***TWO COMMANDS, BOTH ELEVATED PowerShell, IN THIS ORDER***
@@ -8639,6 +8703,14 @@ embedded python back into this version."*
    which is ruled. §8 *"Open: Python after W1.0-0, installed rather than
    shipped"* holds the constraints, the estimate and what would falsify the
    plan, and it is unchanged apart from the shape.
+
+   ***13 Sep 2026 — BUILT AND WITNESSED, so "nothing below is started" no
+   longer holds for this item.*** The plumbing is `verify-pyapi` 13 of 13
+   inside `VerifyInstall2` (`b141`), the gate is `verify-pygate` 40 of 40 on
+   the same run — refused on the record, admitted on the record, CPython run
+   for a non-administrator. `RELEASE_1.1` 19–23 are the five defects the
+   route cost, all closed. What remains is `RELEASE_1.1` 18 (the zip) and
+   the owner's call on a 21st program (`SD_PyListCrte` 2220, unreferenced).
 
 **Also carried into 1.1-0**: `RELEASE_1.1` 8 and 9, which were PRE_RELEASE 178
 and 185 and had not been closed by the time W1.0-0 was tagged. Both are

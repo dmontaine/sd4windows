@@ -60642,3 +60642,44 @@ here; one of them found `-notmatch` letting a mixed-case prefix through, now
 runner's own list has it 28th. `verify-osusers.ps1`'s "OS.EX is read by
 nobody" comment, flagged and left by the previous session, now says who reads
 it.
+
+---
+
+## 13 Sep 2026 — the gate is witnessed both ways on b141, and the witness had a defect of its own
+
+**Commit:** see the commit that carries this entry. Same session, after the
+owner ran the cycle and `VerifyInstall2.ps1 -Run b141 -Only
+verify-pyapi,verify-pygate`, elevated, and pasted the summary.
+
+**The run.** Install 13 Sep 10:23:02, step 0 relinked all twelve binaries,
+`assert-current` exit 0. `verify-pyapi` 13 of 13 — its first run inside the
+suite. `verify-pygate` 40 of 40: `-12041` twice with no record, `-12042` twice
+with a one-field record plus the errlog line verbatim (`User 12 (pid 498,
+sdpygb141): PRIVILEGE CHECK UNDETERMINED Python helper start: the os.users
+record has no second field`), and `0` / `ISINIT=1` / `ATTR=SDPY-42` with
+`yes`/`yes`. `'sdpygb141' among them: False` for Administrators. `RELEASE_1.1`
+21 and 23 closed; objective 2's gate is measured in both directions for the
+first time.
+
+**What the log did not contain, and why.** The three leg transcripts.
+`Invoke-Leg` both printed and returned, and a PowerShell function's
+`Write-Output` is its return value — so every line was captured into `$a`,
+nothing reached the transcript, and each leg row ran `-match` against an
+array. The Observed column read `{SD Core for Windows…}` or `{}`. The verdicts
+were checked afterwards rather than assumed: `-match` on an array returns its
+matching elements, `$true -eq <non-empty array>` is true and `$true -eq @()`
+is false, both directions driven in a scratch script, and none of the three
+non-text elements can satisfy any row's pattern. So every PASS still means the
+session text carried that exact string — right, and right by accident, with
+the evidence unprinted. Fixed: the text goes through `$script:legText`, and
+`Note` now throws on a collection Observed, which is the guard for the class.
+Both driven by AST lift against HEAD's copy of the function.
+
+**And a second omission, measured rather than noticed.** `verify-pygate.ps1`
+was never added to `assert-current`'s `$neverShipped`. It cost nothing on
+b141 because the file predated the install; the first edit to it afterwards
+made `assert-current` answer `STALE: gplbld\verify-pygate.ps1` — a verifier
+blocking its own rerun, the 17 Aug 2026 shape exactly. Listed; exit 0 again.
+
+A rerun on `b142` would print the legs. It is offered as optional; nothing
+is owed.
