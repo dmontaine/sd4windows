@@ -277,9 +277,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > Administrator `43EB4005…`, 88 links checked and 0 broken. Rendered HTML **0
 > bare / 29 fixed**; the PDFs read with `pypdf` — **35 files, 315 pages, 0 old
 > form, 58 new**. The `User` zip is **not** stale (its index is byte-identical
-> to the copy inside it, checked with `cmp`). ***PUBLISHING IS STILL OWED AND IS
-> A SEPARATE ACT***: `.gitignore` covers `*.html`, `*.zip` and the PDFs, so the
-> artefacts exist only on this machine.
+> to the copy inside it, checked with `cmp`).
+>
+> ***NOTHING NEEDS PUBLISHING, AND TWO EARLIER COMMITS SAID OTHERWISE.*** Owner,
+> 12 Sep 2026, correcting this session twice: **SourceForge carries only the
+> release zip; the source and documentation repositories are on GitHub**, and in
+> `SDCoreWindowsDocs` ***only the Markdown is on GitHub***. The HTML and PDF are
+> **built for each release** — the PDFs are then bundled into the release zip,
+> the HTML is kept locally in case a web site ever wants it, and **neither is
+> uploaded anywhere**, because both regenerate from the Markdown that is already
+> current on GitHub. `393c8e4` and `65e2307` call publishing *"owed"* and name
+> SourceForge as the destination for the docs zips; **both are wrong and this
+> paragraph replaces them.**
 >
 > ⚠️ ***AND INSTALLING PYTHON 3.14 FOR OBJECTIVE 2 HAD BROKEN THAT BUILD.***
 > `release.ps1` invokes bare `python`; the 12 Sep machine-scope install put

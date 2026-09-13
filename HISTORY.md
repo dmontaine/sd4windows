@@ -60124,3 +60124,32 @@ encoding and reads the real text.
 **Nothing was committed in the docs repository**: `.gitignore` covers `*.html`,
 `*.zip` and the PDFs, so the artefacts live only on this machine and
 **publishing them is a separate act**.
+
+## 12 Sep 2026 — CORRECTION: nothing needs publishing, and the entry above says otherwise
+
+***THE OWNER CORRECTED THIS SESSION TWICE ON THE SAME POINT***, and the two
+entries above carry the error, so it is corrected here rather than edited out of
+them. **SourceForge carries only the release zip. The source and documentation
+repositories are on GitHub.** In `SDCoreWindowsDocs`, ***only the Markdown is on
+GitHub***: the HTML and PDF are **built for each release**, the PDFs are bundled
+into the release zip, the HTML is kept locally in case a web site ever wants it,
+and ***neither is uploaded anywhere*** — both regenerate from the Markdown, which
+is on GitHub and kept current.
+
+**So "publishing is owed" was wrong**, and naming SourceForge as the destination
+for the docs zips was wrong. `393c8e4` and `65e2307` say both. The docs zips
+`release.ps1` builds are a convenience, not a deliverable.
+
+***WHAT IS REAL IS NARROWER AND IS NOW `RELEASE_1.1` 18.*** The bound PDFs staged
+in `SDCore-W1.0-0\documentation\` carry **29 commands missing the switch** — 22
+Administrator, 7 GettingStarted, measured with `pypdf` over 3 files and 497
+pages, **29 old / 0 new**. ***THE OWNER RULED THEY RIDE INTO W1.1-0***: the
+helper scripts stay frozen with the release they shipped in, and the corrected
+documentation goes out with the corrected source at 1.1. **Re-publishing under a
+shipped version number would put two different zips behind one name.**
+
+*(The reader that measured those staged PDFs exited 2 on its own null-case
+guard, which requires the NEW form to appear somewhere. That guard is right for
+a rebuilt file and wrong for a pre-fix one; finding the old form 29 times is
+itself the proof it was not blind. Noted so the exit code is not read as a
+failed measurement.)*
