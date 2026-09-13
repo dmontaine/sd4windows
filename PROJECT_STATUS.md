@@ -5380,6 +5380,64 @@ argument: a native `python314.dll` loaded into `sd.exe` through a fixed-width
 shim, exercised, and run clean. **Nobody has attempted it.** If it worked, the
 helper and its protocol are unnecessary.
 
+#### The protocol, 12 Sep 2026 — ***PROPOSED, NOT RULED, AND NOTHING IS BUILT***
+
+**The surface was inventoried first, and it is measured.** All 20 `PY_*` at
+`489b18e^` were read; the table below is what they call, not what the removed C
+looked like. ***THE FINDING THAT SHAPES EVERYTHING: THE BASIC SURFACE IS ALREADY
+A REMOTE CALL.*** It is two opcodes taking strings and returning one value —
+which is a pipe message with the framing missing, so the protocol does not have
+to be invented, only framed.
+
+| | verbs | shape |
+|---|---|---|
+| `SDEXT(arg, flag, key)` | **6** — `PY_INITIALIZE`, `PY_FINALIZE`, `PY_IS_INITIALIZED`, `PY_RUNSTRING`, `PY_RUNFILE`, `PY_GETATTR` | one string, one flag |
+| `SDPYOBJ(a1, a2, a3, key)` | **14** — the dict, list, str and obj families | three strings |
+
+**Every argument is a string.** The only non-string is `SDEXT`'s flag, and
+***it is `@FALSE` at all six call sites*** — so a field nobody has ever set to
+TRUE would be carried into a new protocol out of politeness. **Say why it is
+kept or drop it; do not copy it silently.**
+
+***OBJECTS ARE NAMED, NOT HANDLED, AND THAT IS THE LOAD-BEARING FACT.***
+`PY_CREATEDICT(dictname)` creates a dict *called* `dictname`; every later verb
+names it again. There is no handle table and no id to leak. **The names are
+per-session state**, which is an independent argument for the per-session helper
+this section already rules — two sessions sharing one helper would share a
+namespace and collide on a name the user chose.
+
+**Three things a design would have to settle, and only the first is a decision
+this project has not already made:**
+
+1. ***FRAMING MUST BE LENGTH-PREFIXED, NOT LINE-BASED.*** The payloads are
+   arbitrary SD strings — `PY_RUNSTRING` carries a whole Python program, and
+   dict values carry `@fm`/`@vm` marks and can carry NUL. **A line protocol
+   would corrupt exactly the values it is built to move, and silently.** This is
+   cheap now and expensive after the first verb works.
+2. **The response carries a status as well as a value**, because `process.status`
+   is part of the existing contract — every one of the 20 documents
+   *"status() - 0 on success, error code as defined in ERR.H"*. The error
+   numbers already exist (`-12001` to `-12036`), so they travel rather than
+   being re-invented.
+3. **The value is an int for most verbs and a string for seven** —
+   `PY_DICTGETKEYS`, `PY_DICTGETVALUES`, `PY_DICTVALGETS`, `PY_LISTGETS`,
+   `PY_OBJTYPE`, `PY_STRGET`, `PY_GETATTR`. The BASIC side already knows which,
+   so one payload field serves both.
+
+**What would falsify it**: a verb needing to pass something that is not a
+string — a file handle, a matrix, a select list. ***None of the 20 does***,
+which is measured and is the reason a three-string frame is proposed at all.
+`PY_RUNFILE` takes a **path**, not an open file, so `489b18e^`'s
+`FILE*`-across-runtimes problem (`sdext_py.c:207`) does not exist in this shape.
+
+*(Two instrument slips while measuring this, both corrected before anything was
+written down. A `grep … | head -1` took its answer from each verb's
+`START-DESCRIPTION` block and reported `PY_RUNSTRING` and `PY_RUNFILE` as having
+their calls **commented out** — they do not; the comment is the documentation
+above the code. And a truncating `grep -o 'PY_[A-Z]*'` invented a verb called
+`PY_` and hid `PY_IS_INITIALIZED`. The inventory above is from
+`git ls-tree` and from the files with comment lines excluded.)*
+
 ***ALSO RULED 11 Sep 2026, AND IT IS A SCOPE RULING RATHER THAN A TECHNICAL
 ONE: THE UniVerse SHAPE IS DECLINED.*** Owner: *"drop the server idea — let's
 just stay with the original."* **The scope of objective 2 is this section plus
