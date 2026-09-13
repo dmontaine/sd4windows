@@ -60459,3 +60459,74 @@ integration** rather than twice. They move in the commit that wires the
 opcodes — which is also what still remains: no `PY_*` exists, no
 `SDEXT`/`SDPYOBJ` speaks to `sdpy_client`, `sd.exe` has never started this
 process, and §8 constraint 4's gate is unwritten.
+
+## 12 Sep 2026 — the opcodes are wired: sd.exe links with Python behind a pipe
+
+**The C half of the integration compiles.** `sd.exe` links at **2,004,386
+bytes** (11 Sep: 1,969,871), **0 warnings** on every new file. `sdpy.c` moved to
+`gplsrc/sdpy/` — **its own directory**, for `sdsvc`'s documented reason:
+`TEMPSRCS` wildcards `gplsrc/*.c` and would have compiled a native source with
+POSIX flags. `sdpy_client.c` and `sdpy_session.c` are in `gplsrc` and named in
+`gpl.src`, so they are inside `sd.exe`.
+
+***`0xCFFE` CAME BACK AT THE SAME NUMBER***, which is precisely why it was
+retired in place on 13 Aug rather than deleted: removing the line would have
+renumbered every opcode after it and invalidated all compiled pcode. One line
+changed. **`err.h`'s `-12001`…`-12034` are restored unchanged**, because every
+`PY_*` documents *"error code as defined in ERR.H"* and the contract should
+survive a change of mechanism.
+
+***THE GATE IS BUILT WHERE CONSTRAINT 4 SAYS IT MUST BE.*** `sdpy_session.c`
+decides **once per session at the moment the process starts** — not per call,
+because the process *is* the privilege, and re-testing each verb would imply a
+revocation that does not exist. It calls a **new wrapper**, `sd_os_permitted()`,
+round `op_sh.c`'s `Private os_permitted()`: ***a wrapper and deliberately not a
+copy***, since Python's `os.system` never reaches `op_sh.c:156`, so a session
+that may not use the shell must not get an interpreter — and two
+implementations of one rule would drift silently in the permissive direction.
+`PRIV_WHY` is carried rather than flattened: *not permitted* and *could not be
+determined* both refuse and say different things.
+
+**One new error number, `-12040`**, because a helper is a PROCESS and can fail
+in a way an in-process interpreter never could — by not being there. Every
+other code says what Python said; this one says Python was never reached.
+
+***THE OPCODE LAYER IS NUL-LIMITED AND THE PIPE IS NOT.*** `getarg()` and
+`SDEXT` hand up NUL-terminated C strings, so a value containing NUL is
+truncated **before** it reaches the pipe, while marks pass through fine. The
+end-to-end contract is **"any byte except NUL"** and the limit belongs to this
+layer, not the protocol — the same sentence `keys.h` already makes about SCRAM.
+
+**Two real errors the compiler caught**, both worth the line. `SD_PyListCrte`
+was **commented out with its number 2220 already reserved** — independent
+confirmation of the list-creation gap `LISTCRTE` filled, so it is uncommented
+rather than invented. And `helper_path()` first built `<sysdir>/bin/sdpy.exe`,
+which is the exact bug `exepath.c` was written for: the Windows layout splits
+binaries into `C:\Program Files\SD\usr\bin` while pcode stays with SDSYS, so
+that path holds **no executable at all**, and *both* previous call sites failed
+**silently** while working perfectly in development. It uses `exe_directory()`.
+
+***A LONG DETOUR THAT WAS NOT THE TREE'S FAULT, RECORDED SO THE NEXT SESSION
+DOES NOT REPEAT IT.*** `make sdpy` fails in an agent shell with the compiler
+never launching, and so does `make sdsvc` — **a target this session never
+touched**, whose binary the owner's 19:47 cycle built fine. The root cause is
+`TMP`: the shell `make` runs does not hand a native child a usable one, so
+`.NET`'s `GetTempFileName` answers *"Access to the path is denied"* and gcc
+cannot write its own temporaries. `build-sdpy.ps1` now says which of *could not
+launch* / *ran and failed* happened instead of *"printed nothing"*, and avoids
+temp files entirely. **`sd.exe` was linked directly to prove the wiring**, and
+`sdpy.exe` builds from `gplsrc/sdpy/sdpy.c` with the script run outside make —
+**53 of 53 still green against the relocated source**.
+
+*(Two traps from this project's own record met again in one line:
+`RELEASE_1.1` 16's `2>&1`-under-`EAP=Stop`, and the `$args` automatic variable
+the instrument section names. The `$args` rename was not the cause here but is
+kept, because the record says that name cost a session once already.)*
+
+**What is not done is the BASIC half**: `syscom/KEYS.H` has zero Python keys —
+the C `keys.h` kept all of them, which is why this step was small — `ERR.H`
+needs regenerating, `BCOMP`'s intrinsics table and its **positional**
+`on i gosub` list need `SDPYOBJ`, and the 20 `PY_*` do not exist. ***Nothing has
+been run against an install, and the tree is stale on purpose*** — this is the
+one cycle the previous entry said would be paid once, for the whole
+integration.

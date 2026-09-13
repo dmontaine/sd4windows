@@ -5430,12 +5430,54 @@ compiler — `gcc.exe` finds its own DLLs, the `cc1.exe` it spawns resolves
 through `PATH`, and without it the compile dies with "cannot open shared object
 file" and writes nothing. The build script sets it and says why.)*
 
-**What is STILL not built is the rest of the SD side** — no `PY_*` exists, no
-`SDEXT`/`SDPYOBJ` opcode speaks to `sdpy_client`, `sd.exe` has never started
-this process, and the §8 constraint 4 gate is unwritten. ***The files sit in
-`gplbld` rather than `gplsrc` deliberately***: a `.c` in `gplsrc` makes `bin\`
-stale, and that cycle is worth paying **once, for the whole integration**,
-rather than twice.
+#### ✅ ***THE OPCODES ARE WIRED — 12 Sep 2026. `sd.exe` LINKS CLEAN AND THE TREE IS STALE ON PURPOSE***
+
+**The C half of the integration is done and compiles.** `sd.exe` links at
+**2,004,386 bytes** against 1,969,871 for the 11 Sep build, **0 warnings** on
+every new file.
+
+| | |
+|---|---|
+| `gplsrc/sdpy/sdpy.c` | the helper, **its own directory** for `sdsvc`'s reason — `TEMPSRCS` is a wildcard over `gplsrc/*.c` and would compile a native source with POSIX flags |
+| `gplsrc/sdpy_client.c`, `sdpy_session.c` | MSYS2, **inside `sd.exe`**, named in `gpl.src` |
+| `gplsrc/op_sdpyobj.c` | the 14 object verbs |
+| `op_sdext.c` | the 6 lifecycle and run keys, added to the switch that already carries SCRAM |
+| `opcodes.h` | ***`0xCFFE` UN-RETIRED AT THE SAME NUMBER*** — which is exactly why it was retired in place rather than deleted |
+| `err.h` | the `-12001`…`-12034` codes restored **unchanged**, plus one new |
+| `Makefile`, `gpl.src` | an `sdpy` target calling `build-sdpy.ps1`, and three new objects |
+
+***THE GATE IS BUILT, AND IT IS WHERE CONSTRAINT 4 SAYS IT MUST BE.***
+`sdpy_session.c` decides **once per session, at the moment the process is
+started** — not per call, because the process *is* the privilege. It calls
+`sd_os_permitted()`, a new **wrapper** round `op_sh.c`'s `Private
+os_permitted()`: ***a wrapper and not a copy***, because Python's `os.system`
+never reaches `op_sh.c:156`, so a session that may not use the shell must not
+get an interpreter, and two implementations of that rule would drift silently
+in the permissive direction. **`PRIV_WHY` is carried, not flattened** — "not
+permitted" and "could not determine" both refuse and say different things.
+
+***AND ONE NEW ERROR NUMBER, `-12040`, BECAUSE THE HELPER IS A PROCESS.*** It
+can fail in a way an in-process interpreter never could: not be there. Every
+other code describes something Python said; this one describes not having
+reached Python at all, and a caller deciding whether to retry needs them apart.
+
+***THE OPCODE LAYER IS NUL-LIMITED AND THE PIPE IS NOT — SAY SO RATHER THAN
+IMPLY OTHERWISE.*** `getarg()` and `SDEXT` hand up **NUL-terminated C
+strings**, so a value containing NUL is truncated *before* it reaches the pipe.
+Marks pass through perfectly well. `sdpy.exe` and `sdpy_client.c` both carry
+explicit lengths and move any byte; **the end-to-end contract is "any byte
+except NUL"**, and the limit is this layer's, not the protocol's. The same
+sentence is already true of SCRAM — see the note in `keys.h`.
+
+***WHAT IS NOT DONE: THE BASIC HALF.*** `syscom/KEYS.H` has **zero** Python
+keys (the C `keys.h` kept all of them, which is why this step was small),
+`SYSCOM/ERR.H` needs regenerating with `gen_includes.py`, `BCOMP`'s intrinsics
+table and its **positional** `on i gosub` list need `SDPYOBJ` back, and the 20
+`PY_*` programs do not exist. **Nothing has been run against an install.**
+
+***THE TREE IS STALE, WHICH IS THIS STEP PAYING THE CYCLE IT PROMISED TO PAY
+ONCE.*** `assert-current` refuses, naming `gplsrc\err.h`, `sdpy_client.*` and
+`sdpy\sdpy.c`.
 
 ***`GETATTR` DOES NO getattr, AND THE NAME IS THE ONLY THING THAT SAYS IT
 DOES.*** `SD_PyGetAtt` at `489b18e^` is `PyMapping_GetItemString(global_dict,
