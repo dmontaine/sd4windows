@@ -179,21 +179,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 IS DONE AND WITNESSED: `probe-pyapi` 9 OF 9 ON THE 23:04:53 INSTALL. CPython EVALUATED `6*7` AND THE BYTES CAME HOME THROUGH BASIC, THE OPCODES AND THE PIPE. THE `changelog` IS WRITTEN. NOTHING IS OWED TO FINISH IT.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 IS DONE AND WITNESSED: `probe-pyapi` 11 OF 11. CPython EVALUATED `6*7` AND THE BYTES CAME HOME THROUGH BASIC, THE OPCODES AND THE PIPE. THE `changelog` IS WRITTEN AND ITS DOCUMENTED ROUTE IS MEASURED. NOTHING IS OWED.*** ⇩⇩⇩
 >
-> ### ***THE ONE THING LEFT IS A CONFIRMATION, NOT A FIX***
->
-> ***ELEVATED PowerShell*** — the tree is current, so this needs **no cycle**:
+> ### ***HOW TO RE-MEASURE IT — ELEVATED, AND IT NEEDS NO CYCLE WHILE THE TREE IS CURRENT***
 >
 > ```
 > powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-pyapi.ps1
 > ```
 >
-> It grew an eleventh row after the 9-of-9 run: ***`$include SDPYFUNC.H`, the
-> route the `changelog` tells a user to write***, which the probe's own fixture
-> had deliberately avoided by declaring its `deffun`s inline. **That leg has
-> never run.** A shipped include record that does not resolve is a documentation
-> defect nobody finds until a user tries it. **Expect 11 of 11.**
+> ***11 OF 11, AND THE LAST TWO ROWS ARE THE `changelog`'s OWN INSTRUCTION.***
+> `$include SDPYFUNC.H` compiles and a program using it initialises — **the
+> route a user is told to write, rather than the inline `deffun`s the probe's
+> first fixture used.** A shipped include record that did not resolve would have
+> been a documentation defect nobody found until a user tried it, and the
+> paragraph telling them to write it was already in the `changelog`.
 >
 > ### ⚠️ ***IT NEEDS ELEVATION, AND THIS HANDOFF SAID THE OPPOSITE FOR THREE RUNS***
 >
@@ -311,23 +310,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | `RELEASE_1.1` | **19, 20 and 22 CLOSED AND WITNESSED**; **21** open. Open: 3, 5, 6, 7, 8, 9, 10, 18, 21 |
 > | changelog | ***WRITTEN, 12 Sep.*** Withheld twice on the stated ground that the feature did not work; that ground expired at 9 of 9. It is the one file that ships and is **exempt from the staleness walk**, so editing it costs no cycle |
 >
-> ### ***WHAT WOULD FALSIFY THE PLAN — written in the conditional***
+> ### ***WHAT IS STILL NOT COVERED — these are gaps, not doubts about what ran***
 >
-> - ***THE `$include SDPYFUNC.H` LEG HAS NEVER RUN, AND THE `changelog` ALREADY
->   TELLS USERS TO WRITE IT.*** It follows the same bare form as
->   `$include KEYS.H` and `$include ERR.H`, which demonstrably compile, and the
->   record is installed — **but that is reading, not measuring.** If it fails,
->   the changelog paragraph is what needs correcting, not the product.
-> - ***THE GATE IS UNTESTED FROM BASIC.*** Every run so far was elevated, which
->   takes `may_start_helper()`'s `USR_ADMIN` branch. **Nothing has yet asked
->   whether a permitted non-administrator gets an interpreter, or whether a
->   refused one is turned away** — and `RELEASE_1.1` 21 means a refusal would
->   arrive as a bare `-12040` with its reason unreadable.
-> - **The 53-of-53 `test-sdpy-units` green was never evidence about SD.** It
->   drives `sdpy.exe` directly over a pipe and never goes through `sd.exe`,
->   which is exactly why a dead feature looked healthy. **Nothing in the free
->   tier or either suite half covers BASIC → `PY_*` → CPython**; that gap is
->   what promoting the probe would close.
+> - ***THE GATE IS UNTESTED FROM BASIC, AND IT IS THE NEXT PIECE OF WORK.***
+>   Every run so far was elevated, which takes `may_start_helper()`'s
+>   `USR_ADMIN` branch. **Nothing has yet asked whether a permitted
+>   non-administrator gets an interpreter, or whether a refused one is turned
+>   away** — and `RELEASE_1.1` 21 means a refusal would arrive as a bare
+>   `-12040` with its reason unreadable. `VerifyInstall1`'s throwaway test user
+>   is the apparatus for it.
+> - ***NOTHING IN EITHER SUITE HALF RUNS `probe-pyapi`, SO NOTHING WOULD CATCH
+>   THIS BREAKING AGAIN.*** Wiring it in is a deliberate open call, not an
+>   oversight: it needs an elevated shell, and `-Only` does not combine with
+>   `-ThenElevated`. **The 53-of-53 `test-sdpy-units` green was never evidence
+>   about SD** — it drives `sdpy.exe` directly and never goes through `sd.exe`,
+>   which is exactly why a dead feature looked healthy for a day.
 > - ***`SD_PyListCrte` 2220 IS IN `KEYS.H` AND NO `PY_*` CALLS IT.*** It was
 >   uncommented in `gplsrc/keys.h` this port and `op_sdpyobj.c:213` dispatches
 >   it, but the removed API never had a list-create program. **A 21st program is
