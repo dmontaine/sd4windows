@@ -179,6 +179,43 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 55, 13 Sep 2026 — ***CLEAN FULL SUITE ON b146: UNELEVATED EVERY STEP EXIT 0, ELEVATED 29 OF 29. THE FIRST GREEN-BOTH-HALVES RUN SINCE b140, NOW CARRYING OBJECTIVE 2 AND THE TWO REPAIRED VERIFIERS. NOTHING IS OWED.*** ⇩⇩⇩
+>
+> ### ✅ ***b146, run by the owner — READ FROM THE STEP LOGS, NOT THE EXIT LINE***
+>
+> Install **13 Sep 10:23:02**, current. `VerifyInstall1 -ThenElevated -Run b146`,
+> one consent, helper pipe.
+>
+> | | |
+> |---|---|
+> | unelevated | ***every step exit 0*** (`post-cycle-unelevated-20260913-114441.txt`) |
+> | elevated | ***all 29 steps exit 0*** (`post-cycle-20260913-114820.txt`) |
+> | `verify-apiname` (21) | ***16/16*** — no predecessor left the port on, so it self-enabled the listener and restored `sd.conf`. `RELEASE_1.1` 24 witnessed in-suite |
+> | `verify-registersweep` (27) | ***7/7*** — after `verify-tierapi` left 4 dead records, `restart-sd` hit `before service=StartPending`, cleared it via `sd -stop`, swept all 4. ***`RELEASE_1.1` 25's full-suite timing — the one thing b145 could not reach — is now witnessed*** |
+> | objective 2 | ***`verify-sdsysgate` 10/10, `verify-pyapi` 13/13 (`SDPY-42`), `verify-pygate` 40/40*** (leg C `SDPY-42` for a non-admin) |
+>
+> **Not a fault, just noise to know**: the run's opening litter sweep found 25
+> stuck hives (deferred profiles from earlier runs) it could not unload — the
+> documented PRE_RELEASE 185 case (a handle is held; only a restart releases
+> them). `C:\Users` keeps accumulating `sd*`/`sdtu*` profile dirs until the
+> machine restarts; none collide with future `-Run` tokens.
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **13 Sep 10:23:02**, ***CURRENT*** |
+> | run tokens | ***`b141`–`b146` spent.*** **Use `b147`** |
+> | suite | ***b146 GREEN IN BOTH HALVES: unelevated all exit 0, elevated 29/29.*** The newest full witness |
+> | `RELEASE_1.1` | 21, 23, 24, 25 closed and witnessed. Open: 3, 5, 6, 7, 8, 9, 10, 18 |
+> | objective 2 | done and witnessed end to end, gate both ways, and now inside a full suite |
+> | free tier | ***36 of 36*** |
+>
+> ***WHAT IS LEFT is the `RELEASE_1.1` backlog that predates this thread*** — the
+> Linux-port defects (3, 5, 6, 7, 10) and the release-step items (8, 9, 18). None
+> is Python and none is a suite fault; pick one from the table and earn its
+> "checked here" column.
+>
 > # ⇩⇩⇩ HANDOFF 54, 13 Sep 2026 — ***BOTH VERIFIER FIXES ARE WITNESSED GREEN ON b145: `verify-apiname` 16 OF 16 IN ISOLATION (it now self-enables the listener), `verify-registersweep` GREEN THROUGH `restart-sd.ps1`, WHICH USED ITS `sd -stop` FALLBACK ON A REAL RACE. `RELEASE_1.1` 24 AND 25 CLOSED. NOTHING IS OWED BUT A FULL SUITE RUN AT THE NEXT MILESTONE.*** ⇩⇩⇩
 >
 > ### ✅ ***b145, 11:38 — THE WITNESS, RUN BY THE OWNER***

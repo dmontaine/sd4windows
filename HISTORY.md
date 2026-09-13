@@ -60762,3 +60762,31 @@ cleared by its `sd -stop` fallback — the case `Restart-Service -Force` failed 
 in b143. `RELEASE_1.1` 24 and 25 closed. The only thing b145 did not reproduce
 is 25's original full-suite timing (after `verify-tierapi`); a full suite run at
 the next milestone is the belt-and-braces confirmation.
+
+---
+
+## 13 Sep 2026 — clean full suite on b146, the first green-both-halves since b140
+
+**Commit:** see the commit that carries this entry. The owner ran
+`VerifyInstall1.ps1 -ThenElevated -Run b146`, one consent.
+
+Unelevated every step exit 0; elevated all 29 exit 0. The first full run to
+come back green in both halves since b140 — and the first ever to carry
+objective 2 (`verify-pyapi` 28, `verify-pygate` 29) and the two verifiers this
+week repaired.
+
+The two b143 reds are now witnessed fixed in the suite itself.
+`verify-apiname` 16 of 16: with no predecessor leaving the port on, it
+self-enabled the listener and restored `sd.conf` — 24's fix in the exact
+setting it was written for. `verify-registersweep` 7 of 7, and this is 25's
+belt-and-braces: after `verify-tierapi` left 4 dead records, `restart-sd`
+reported `before service=StartPending processes=sdwind(9940)` — the exact race
+`Restart-Service -Force` failed on in b143 — cleared it with `sd -stop`, and the
+sweep removed all 4. Objective 2 green in-suite: `verify-sdsysgate` 10/10,
+`verify-pyapi` 13/13, `verify-pygate` 40/40, `SDPY-42` home on both Python
+steps.
+
+Noise, not a fault: the opening litter sweep found 25 stuck hives it could not
+unload (PRE_RELEASE 185 — a handle is held, only a restart releases them), so
+`C:\Users` keeps accumulating deferred profile dirs between restarts. None
+collide with fresh `-Run` tokens.
