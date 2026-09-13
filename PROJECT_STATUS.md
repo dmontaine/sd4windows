@@ -5390,9 +5390,35 @@ over a real pipe** — not a model of it — **27 of 27, exit 0**. No install, n
 elevation, no run token, no SD.
 
 **Implemented**: `HELLO`, `PING`, `INIT`, `ISINIT`, `FIN`, `QUIT`, `RUNSTR`,
-`STRSET`, `STRGET`, `OBJTYPE`, `OBJLEN`, `DELOBJ`. **Not yet**: the dict and
-list families, `RUNFILE`, `GETATTR`, and every line of the SD side — no `PY_*`
-exists and `sd.exe` has never started this process.
+`STRSET`, `STRGET`, `OBJTYPE`, `OBJLEN`, `DELOBJ`, and ***the dict and list
+families*** — `DICTCRTE`, `DICTCLR`, `DICTKEYS`, `DICTVALUES`, `DICTVSET`,
+`DICTVGET`, `DICTIDEL`, `LISTCRTE`, `LISTAPPD`, `LISTCLR`, `LISTGET`
+(**46 of 46**, 12 Sep 2026). **Not yet**: `RUNFILE`, `GETATTR`, and every line
+of the SD side — no `PY_*` exists and `sd.exe` has never started this process.
+
+***THE LIST SEPARATOR IS `@fm`, AND EVERY `PY_*` HEADER SAID OTHERWISE.***
+`PY_DICTGETKEYS` and its neighbours all document *"tab separated list"*; the C
+beside them joined with `PyUnicode_FromString("þ")` — **U+00FE, which IS
+`@fm`** — with the tab version commented out one line above. **The code was
+right and the headers were stale**, the same shape as the `CREATE.ACCOUNT`
+grammar SD Core for Linux filed as bug 4. Measured at `489b18e^`; the rows hold
+the code's answer.
+
+**Two deliberate divergences from the removed behaviour, recorded because they
+are decisions and not drift:**
+
+- ***AN EMPTY COLLECTION IS NO LONGER AN ERROR.*** The old code returned
+  `SD_PyErr_NoItems` (**-12030**) for an empty dict or list, so every caller had
+  to special-case a perfectly normal state. It is now status **0** with an empty
+  payload, which `DCOUNT` reads as 0 with no special casing.
+- ***`LISTCRTE` IS NEW, AND ITS ABSENCE LOOKED LIKE A GAP RATHER THAN A
+  DECISION.*** The removed API could append to a list, clear one and read one —
+  but could only **create** one by running a script that said `x = []`.
+
+***A LIMIT WORTH KNOWING RATHER THAN HIDING: a key or value that itself
+contains `@fm` makes an ambiguous list.*** It is inherent to a mark-joined
+string and not fixable inside that format. **The removed code had the same hole
+and nothing said so**; `DCOUNT` on the result is where a caller would meet it.
 
 ***FIVE THINGS IT DOES THAT THE REMOVED VERSION COULD NOT***, and three are
 corrections rather than features:

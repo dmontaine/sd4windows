@@ -60358,3 +60358,36 @@ session running the tier by globbing the directory rather than by the list would
 see a failure that is not one. It cannot be made to pass by skipping; that is
 the vacuous pass §0 forbids. **It joins the list the day the Makefile builds the
 helper.**
+
+## 12 Sep 2026 — the dict and list families, and the separator the headers got wrong
+
+`sdpy.c` gains `DICTCRTE DICTCLR DICTKEYS DICTVALUES DICTVSET DICTVGET
+DICTIDEL LISTCRTE LISTAPPD LISTCLR LISTGET`. **46 of 46 over the pipe**, green
+on the first run of the new rows, 0 warnings at `-Wall -Wextra`.
+
+***THE SEPARATOR IS `@fm` AND EVERY `PY_*` HEADER SAID "TAB SEPARATED".***
+`PY_DICTGETKEYS`, `PY_DICTGETVALUES` and `PY_LISTGETS` all document a *"tab
+separated list"*. The C beside them joined with `PyUnicode_FromString("þ")` —
+U+00FE, `@fm` — and the tab version is **commented out one line above it**. The
+code was right and the documentation was stale, which is the shape SD Core for
+Linux filed as bug 4 against `CREATE.ACCOUNT`'s grammar. Measured at
+`489b18e^`, and the test rows hold the code's answer rather than the header's.
+
+**Two deliberate divergences, recorded so they are decisions rather than
+drift.** An **empty collection is no longer an error**: the old code returned
+`SD_PyErr_NoItems` (-12030) for an empty dict or list, so every caller had to
+special-case a normal state; it is now status 0 with an empty payload and
+`DCOUNT` reads 0. And **`LISTCRTE` is new** — the removed API could append to a
+list, clear one and read one, but could only *create* one by running a script
+that said `x = []`, which looks like a gap rather than a decision.
+
+***AND A LIMIT IS NOW WRITTEN DOWN THAT NEVER WAS: a key or value containing
+`@fm` makes an ambiguous list.*** Inherent to a mark-joined string, not fixable
+inside that format, and **the removed code had exactly the same hole with
+nothing saying so**. A caller meets it as a wrong `DCOUNT`.
+
+Type guards throughout: asking a `str` for its dict keys is **-12017**,
+appending to one is **-12034**, a missing key is **-12007**, and creating a
+name twice is **-12012** rather than a silent overwrite — each with its own row,
+because every one of those is a path a caller reaches by mistake rather than by
+design.
