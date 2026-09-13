@@ -60245,3 +60245,46 @@ the owner's own instructions and he has not ruled on it:**
 > His shells read `Undefined` in every scope — measured 12 Sep 2026 — which is
 > `Restricted`, and an agent's own shell runs at `Process = Bypass`, so **the
 > command that just worked here is refused there.**
+
+## 12 Sep 2026 — the first Enter ever pressed at one of entry 6's prompts
+
+Cycle by the owner, install **12 Sep 19:47:59**, `assert-current` exit 0, and
+`messages/6131` reaches the tree reading `Use file '%1' (y/<n>)?`.
+
+***`verify-promptenter` 8 of 8, exit 0, UNELEVATED AND WITH NO RUN TOKEN.***
+Entry 6 had recorded the gap plainly — *"every one of these was answered with a
+real Y or N, so no run has yet pressed Enter at one"* — and that is now false
+for prompt **6131**, which is deliberately the one whose wording landed the same
+day, so the message and the default are witnessed together.
+
+**Reached by naming the file in lower case when its VOC record is upper case**
+(`DELETEF:190`-`196`): DELETEF reports 6130, upcases, finds the record and asks
+whether you meant that one. The transcript reads `No VOC record found for
+zzprompte` / `Use file 'ZZPROMPTE' (y/<n>)?` and then goes straight to `:OFF` —
+marker shown, empty answer taken, loop ended, `LISTF` still finding the file.
+
+***THE CONTROL IS THE HALF THAT MATTERS.*** "The file survived" is equally what
+a command that never ran produces. The same prompt answered `Y` printed
+`DATA portion 'ZZPROMPTE' deleted`, so the prompt is live and drives a real
+deletion. A run where both answers leave the file is a FAIL, not a pass.
+
+***AND SD REFUSES A REDIRECTED FILE AS STDIN — MEASURED, AND IT COST THE FIRST
+VERSION OF THIS VERIFIER.*** `Start-Process -RedirectStandardInput <file>` makes
+sd.exe answer ***"Process terminated"*** before it reads one command, on **both
+LF and CRLF**, so it is the handle rather than the line endings. The pipe shape
+`verify-basicfuncs.ps1` has always used is the one that works, so the bounding
+was built around the pipe instead of replacing it: a job with a timeout, and any
+sd.exe left behind killed ***by PID diff, never by name*** — the SD service runs
+sd.exe too, and killing that would be worse than the hang being guarded against.
+
+**Two things this leg does NOT witness**, and the entry says so: the other six
+Enter-defaults, and `CATALOG`'s 3033/3034/3035 and `DELETEF`'s 6135/6140, which
+no verifier reaches. ***Measured while building this***: `DELETE.FILE` on a
+plain file in the caller's own account asks **nothing at all** — it prints three
+"deleted" lines and returns — so those prompts need a branch this leg does not
+take.
+
+`verify-promptenter.ps1` is on `$neverShipped` and is **not wired into
+`VerifyInstall1`**: it needs no elevation and no token and would cost the suite
+seconds, but suite composition has been the owner's ruling before
+(PRE_RELEASE 106), so it is offered rather than added.
