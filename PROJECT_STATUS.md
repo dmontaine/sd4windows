@@ -179,7 +179,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 IS DONE AND WITNESSED: `verify-pyapi` 11 OF 11, AND IT IS NOW STEP 29 OF `VerifyInstall2`. `RELEASE_1.1` 21 IS FIXED IN SOURCE SINCE, SO ONE CYCLE IS OWED AGAIN.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 IS DONE AND WITNESSED: `verify-pyapi` 11 OF 11, AND IT IS NOW STEP 29 OF `VerifyInstall2`. TWO OF THE THREE FOLLOW-UPS ARE DONE; `RELEASE_1.1` 21 IS FIXED IN SOURCE AND UNWITNESSED, SO ONE CYCLE IS OWED. THE THIRD IS NOT STARTED.*** ⇩⇩⇩
+>
+> ### ***THE THREE FOLLOW-UPS, TAKEN CHEAPEST FIRST ON THE OWNER'S INSTRUCTION***
+>
+> | | | |
+> |---|---|---|
+> | 1 | `verify-pyapi` wired into `VerifyInstall2` | **DONE**, no cycle. ***Never run INSIDE the suite*** — the runner refuses an unelevated shell before the `-Only` filter, so an agent shell cannot drive it |
+> | 2 | `RELEASE_1.1` 21, the three-way code split | **DONE IN SOURCE**, compiles clean, ***unwitnessed — and a cycle alone cannot witness it*** |
+> | 3 | the gate from BASIC as a non-administrator | ***NOT STARTED. Research only — see the section below, written in the conditional*** |
 >
 > ### ⚠️ ***A CYCLE IS OWED — `err.h` AND `sdpy_session.c` CHANGED AFTER THE 23:04:53 INSTALL***
 >
@@ -350,6 +358,65 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   uncommented in `gplsrc/keys.h` this port and `op_sdpyobj.c:213` dispatches
 >   it, but the removed API never had a list-create program. **A 21st program is
 >   the owner's call**; `sdpy.c:585` says *"nothing is obliged to use it"*.
+>
+> ### ***TASK 3 OF 3 IS NOT STARTED — RESEARCH ONLY, AND THIS IS THE CONDITIONAL***
+>
+> **Nothing below was built. No file was created.** It is written down only so
+> the next session does not re-derive it; **every claim about what the new
+> verifier WOULD do is a plan, not a measurement.**
+>
+> ***WHAT IT IS***: test the Python gate from BASIC as a real
+> non-administrator. **It is also `RELEASE_1.1` 21's only possible witness** —
+> `-12041` and `-12042` cannot be reached from an elevated session, because
+> `may_start_helper()` short-circuits on `USR_ADMIN`. **Two tasks, one
+> measurement.**
+>
+> ***THE SHAPE WOULD BE A CONTROLLED PAIR***, the form the door tests use: same
+> account, same program, the permission the only thing that changes.
+>
+> | leg | `os.users\<account>` | expected |
+> |---|---|---|
+> | refused | **absent** — which is the default, so it costs nothing to set up | `PY_INITIALIZE` = **-12041** |
+> | permitted | `yes` + `yes` | **0**, and `PY_IS_INITIALIZED` = 1 |
+>
+> ***THE APPARATUS ALL EXISTS AND WAS READ*** — `gplbld/verify-sdsysgate.ps1` is
+> the template to copy, being an **elevated** verifier that drives a
+> non-administrator:
+>
+> - `New-SdTestPassword`, then `New-SdTestUserScript -Name -Password` emits
+>   `CREATE.ACCOUNT USER <n> PROGRAMMER SSH` plus the password twice.
+>   ***PROGRAMMER, NOT STANDARD, AND THAT IS LOAD-BEARING***: `STANDARD` has no
+>   `basic` or `run`, so the probe could not be compiled.
+> - `Invoke-SdAsTestUser -Name -Password -Commands @(...)` drives SD **over
+>   ssh** as that account; it sends `TERM 200,9999` and appends `OFF`.
+> - **The probe is planted straight into the file system**, not through `ED`:
+>   `Get-SdTestUserHome -Name` gives the account directory, `BP` is a DIRECTORY
+>   file so each record is a file, and `verify-nocase.ps1:213` writes it with
+>   `[System.IO.File]::WriteAllText(..., GetEncoding('iso-8859-1'))` — **latin-1
+>   and LF**, matching the BASIC this tree ships. ***NOT `Set-Content`.***
+> - **The `os.users` record is written the same way**, directly:
+>   `verify-osusers.ps1:264` does `WriteAllText($record, "yes`nno`n", ...)` and
+>   saves and restores what was there. It runs elevated.
+> - `Remove-SdTestUserScript -Name` in a `finally`, as `verify-sdsysgate:349`.
+>
+> ***IT MUST GO IN THE ELEVATED HALF, AND THAT IS FORCED***: creating and
+> removing the account needs elevation, and the ssh session it drives is a
+> fresh logon that carries the account's own token regardless of the parent.
+>
+> ***TWO CONTROLS THE TEMPLATE ALREADY INSISTS ON, AND THEY ARE THE POINT***:
+> `Get-LocalUser` must confirm the account exists — **SD's own wording is not
+> evidence, because a verb that refused still echoes the name** — and the
+> account must be confirmed **NOT** in `Administrators`, or the whole test is
+> inverted and a refusal proves nothing.
+>
+> ***AND ONE THING WOULD FALSIFY THE WHOLE PLAN***: nothing has established
+> that a non-administrator can start `sdpy.exe` at all. **If the permitted leg
+> also refuses, the finding is about the helper's own launchability, not about
+> the gate** — and that would be a new entry rather than a failed test.
+>
+> *(A stale comment noticed in passing, not fixed: `verify-osusers.ps1:259`
+> says `OS.EX` is "stored, dictionaried and READ BY NOBODY". `op_sh.c`'s
+> `os_permitted()` reads it, and since 12 Sep the Python gate does too.)*
 >
 > ### ***THE NEW GUARD, AND WHY IT WAS WORTH A FILE***
 >
