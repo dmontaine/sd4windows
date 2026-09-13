@@ -5380,7 +5380,68 @@ argument: a native `python314.dll` loaded into `sd.exe` through a fixed-width
 shim, exercised, and run clean. **Nobody has attempted it.** If it worked, the
 helper and its protocol are unnecessary.
 
-#### The protocol, 12 Sep 2026 — ***PROPOSED, NOT RULED, AND NOTHING IS BUILT***
+#### ✅ BUILT AND DRIVEN, 12 Sep 2026 — `gplbld/sdpy.c`, **27 of 27 over a real pipe**
+
+***THE HELPER EXISTS AND WORKS.*** Owner: *"build it - and feel free to improve
+the embedded python system if you can."* `build-sdpy.ps1` → **150,788 bytes, 0
+warnings at `-Wall -Wextra`**, UCRT64 gcc 16.1.0, linked `-lpython3` at a 3.13
+floor and running **3.14.7**. `test-sdpy-units.ps1` drives the **real binary
+over a real pipe** — not a model of it — **27 of 27, exit 0**. No install, no
+elevation, no run token, no SD.
+
+**Implemented**: `HELLO`, `PING`, `INIT`, `ISINIT`, `FIN`, `QUIT`, `RUNSTR`,
+`STRSET`, `STRGET`, `OBJTYPE`, `OBJLEN`, `DELOBJ`. **Not yet**: the dict and
+list families, `RUNFILE`, `GETATTR`, and every line of the SD side — no `PY_*`
+exists and `sd.exe` has never started this process.
+
+***FIVE THINGS IT DOES THAT THE REMOVED VERSION COULD NOT***, and three are
+corrections rather than features:
+
+1. ***IT RETURNS THE TRACEBACK.*** The old surface returned an `int`, so a
+   failing script gave the caller `-12004` and nothing else. `sys.stderr` is
+   captured, so `PyErr_Print()` writes the real traceback into the buffer and
+   it comes back as the payload — driven: `ValueError: deliberate` with its
+   file and line, and a `SyntaxError` reported as one.
+2. ***IT CAPTURES `print()`, AND THAT IS A CORRECTNESS REQUIREMENT OF THE
+   SHAPE.*** **stdout IS the protocol channel**, so an unredirected `print()`
+   would desynchronise every frame after it — and would look like a protocol
+   bug anywhere except where it was caused. There is a row for exactly that:
+   a `PING` immediately after a printing script must still answer `PONG`.
+3. **One namespace, shared both ways.** SD's named objects and the scripts'
+   globals are the same dict, so `STRSET greeting` then `print(greeting)`
+   works, and what a script creates is readable by SD.
+4. **A versioned handshake.** `HELLO` must come first and must agree, so a
+   stale helper cannot quietly answer a newer SD.
+5. **The flag is gone** — `@FALSE` at all six `SDEXT` call sites and never TRUE
+   anywhere.
+
+***THE PAYLOAD ENCODING IS LATIN-1, AND GETTING THAT WRONG WOULD HAVE BROKEN IT
+ON THE FIRST DYNAMIC ARRAY.*** The first version used `PyUnicode_FromString`.
+**An SD string is bytes**: `@fm`/`@vm`/`@sm` are `0xFE`/`0xFD`/`0xFC`, which are
+not valid UTF-8, and a NUL would have truncated the value. Latin-1 maps
+`0x00`-`0xFF` one for one, and the length is carried explicitly. ***The removed
+code already knew this and its error names are the evidence*** —
+`SD_PyErr_EnLatin`, `SD_PyErr_UniToStr`. **Driven**: a value carrying all three
+marks, a NUL and a newline round-trips **byte for byte**, and `OBJLEN` counts
+every one of them.
+
+***WHAT IT DELIBERATELY DOES NOT DO IS THE PERMISSION GATE.*** §8 constraint 4:
+the gate belongs where the helper is **started**, on SD's side, and faking one
+here would be the decoration that constraint already names. The process refuses
+to run on a terminal, and that is the whole of its own claim.
+
+**Not in the free tier, deliberately**: `test-sdpy-units.ps1` needs a built
+binary, and a test that passed because nothing was there to drive would be the
+vacuous pass §0 forbids. It exits **2** when `sdpy.exe` is missing. Build then
+test, the same standing as `probe-pylimited.c`.
+
+**Next, in order**: the dict and list families and `RUNFILE`/`GETATTR`; then the
+SD side — `sdpy.c` moves to `gplsrc` with a Makefile target, `SDEXT`/`SDPYOBJ`
+become pipe calls, and the 20 `PY_*` come back. ***The first of those is what
+turns this from a standalone binary into part of SD, and it is the point at
+which a cycle starts being needed.***
+
+#### The protocol, 12 Sep 2026 — ***AS PROPOSED BELOW, AND NOW BUILT TO IT***
 
 **The surface was inventoried first, and it is measured.** All 20 `PY_*` at
 `489b18e^` were read; the table below is what they call, not what the removed C

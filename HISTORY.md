@@ -60312,3 +60312,49 @@ non-interactive host, which that gate catches and names — so **no step ran, no
 `SD-verify` file from it, no stray `sd.exe`, no `sd*` account. The wiring was
 then checked the way it should have been in the first place, by intersecting the
 name lists without running anything.)*
+
+## 12 Sep 2026 — `sdpy.exe` exists and answers: 27 of 27 over a real pipe
+
+Owner: *"build it - and feel free to improve the embedded python system if you
+can."* `gplbld/sdpy.c`, built by `build-sdpy.ps1` with the **UCRT64 gcc
+16.1.0** — **150,788 bytes, 0 warnings at `-Wall -Wextra`** — linked
+`-lpython3` at a **3.13** floor and running **3.14.7**. `test-sdpy-units.ps1`
+drives **the real binary over a real pipe**, not a model of it: **27 of 27,
+exit 0**, no install, no elevation, no run token, no SD.
+
+`HELLO PING INIT ISINIT FIN QUIT RUNSTR STRSET STRGET OBJTYPE OBJLEN DELOBJ`
+are implemented. The dict and list families, `RUNFILE`, `GETATTR` and ***every
+line of the SD side*** are not: no `PY_*` exists and `sd.exe` has never started
+this process. §5.27 carries the design and the inventory it was built from.
+
+***THE CORRECTION THAT MATTERED MOST WOULD HAVE BROKEN IT ON THE FIRST DYNAMIC
+ARRAY.*** The first version encoded payloads as UTF-8. **An SD string is
+bytes** — `@fm`/`@vm`/`@sm` are `0xFE`/`0xFD`/`0xFC`, not valid UTF-8, and
+`PyUnicode_FromString` would have stopped at the first NUL besides. Latin-1 maps
+`0x00`-`0xFF` one for one and the length travels explicitly. ***The removed code
+already knew this and its error names are the evidence***: `SD_PyErr_EnLatin`
+*"error encoding latin string to unicode"*, `SD_PyErr_UniToStr`. **Driven**: a
+value carrying all three marks, a NUL and a newline round-trips **byte for
+byte**, and `OBJLEN` counts every one of them. *Found by asking what a fixture
+should contain rather than by a failure, which is the cheapest place to find it.*
+
+**Two correctness properties of the shape, each with its own row.** `sys.stdout`
+IS the protocol channel, so an unredirected `print()` would desynchronise every
+frame after it — and would look like a protocol bug anywhere except where it was
+caused; there is a `PING` straight after a printing script that must still
+answer `PONG`. And because `sys.stderr` is captured, `PyErr_Print()` puts the
+**real traceback** in the payload, where the old surface returned `-12004` and
+nothing else.
+
+*(One fixture was wrong and the helper was right: `this is not python` was meant
+to be a syntax error and is valid Python — the `is not` operator on two names —
+so it compiled and raised `NameError`. Replaced with `def broken(:`, and kept as
+a comment because it is a good trap.)*
+
+***NOT IN THE FREE TIER, DELIBERATELY, AND CLAUDE.md NOW SAYS SO WHERE A
+GLOBBING SESSION WILL SEE IT.*** The test needs the binary built, so on a clean
+checkout it exits **2** — and it matches the `test-*-units.ps1` shape, so a
+session running the tier by globbing the directory rather than by the list would
+see a failure that is not one. It cannot be made to pass by skipping; that is
+the vacuous pass §0 forbids. **It joins the list the day the Makefile builds the
+helper.**

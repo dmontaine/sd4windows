@@ -738,6 +738,18 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    reworded reason and a deleted unreachable entry each turned it red naming the
    site, and the file was restored to the same SHA-256.
 
+   ***`test-sdpy-units` IS DELIBERATELY NOT ON THIS LIST, AND IT MATCHES THE
+   `test-*-units.ps1` SHAPE, SO READ THIS BEFORE ADDING IT.*** It drives
+   `sdpy.exe` (§5.27's helper) over a real pipe and therefore needs the binary
+   **built** — `gplbld/build-sdpy.ps1`. On a clean checkout there is no
+   `sdpy.exe`, so it exits **2**, and a session running the tier by globbing
+   the directory rather than by this list will see a failure that is not one.
+   **It cannot be made to pass by skipping**: a test that passed because
+   nothing was there to drive is the vacuous pass §0 forbids. Build, then test
+   — the same standing as `probe-pylimited.c`. ***It joins this list the day
+   the Makefile builds the helper***, because from then on a checkout that can
+   build SD can build it.
+
    ***`test-promptdefaults-units` JOINED IT 12 Sep 2026 IN THE COMMIT THAT
    CREATED IT, AND IT WENT RED ON THE TREE IT WAS WRITTEN FOR.*** A prompt fix
    has two halves in two files — the `if x = '' then x = 'N'` in `gpl.bp`, and
