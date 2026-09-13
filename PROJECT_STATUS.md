@@ -5397,9 +5397,45 @@ families*** — `DICTCRTE`, `DICTCLR`, `DICTKEYS`, `DICTVALUES`, `DICTVSET`,
 
 ***THE VERB SURFACE IS COMPLETE: ALL TWENTY `PY_*` NOW HAVE A HELPER VERB
 BEHIND THEM***, checked one at a time against the inventory rather than
-counted. **What is not built is the whole SD side** — no `PY_*` exists, no
-`SDEXT`/`SDPYOBJ` speaks to a pipe, and `sd.exe` has never started this
-process.
+counted.
+
+#### ✅ ***THE TWO RUNTIMES CAN TALK — MEASURED 12 Sep 2026, 9 of 9***
+
+***THIS IS THE ASSUMPTION THE WHOLE RULING RESTS ON AND NOTHING HAD EVER TESTED
+IT.*** §5.3 says the MSYS2 and native runtimes never meet in one process, and
+§5.27 chose the helper over a shim DLL on that ground — **but "they must not
+share a process" is not "they can talk", and no line in this tree had shown the
+second.**
+
+`gplbld/sdpy_client.c` is SD's side of the pipe: **MSYS2 code, compiled with
+`/usr/bin/gcc` — the compiler `sd.exe` is built with (`Makefile:48`)** — driving
+the **native UCRT64** `sdpy.exe`. `build-sdpyclient.ps1` builds and runs it.
+**Nothing of Python appears in that file**; no Python header, no link line, only
+bytes on a pipe.
+
+| | |
+|---|---|
+| start + handshake | an MSYS2 process starts the native child and `HELLO` agrees |
+| `PING`, `INIT` | the child runs **3.14.7** behind the stable ABI |
+| ***marks and NUL*** | a value carrying `@fm`/`@vm`/`@sm`, a **NUL** and a newline round-trips ***byte for byte*** across the boundary |
+| failure | a raising script returns its traceback rather than a broken pipe, **and the pipe is still in step afterwards** |
+| shutdown | `sdpy_stop()` sends `QUIT`, closes and reaps without hanging |
+
+**Win32 `CreatePipe`/`CreateProcess`, not `fork()`/`exec()`**: MSYS2 emulates
+fork at cost and with its own failure modes, and the child is a native program
+that knows nothing about the emulation.
+
+*(The compile met the trap `Makefile:150` already records for the UCRT64
+compiler — `gcc.exe` finds its own DLLs, the `cc1.exe` it spawns resolves
+through `PATH`, and without it the compile dies with "cannot open shared object
+file" and writes nothing. The build script sets it and says why.)*
+
+**What is STILL not built is the rest of the SD side** — no `PY_*` exists, no
+`SDEXT`/`SDPYOBJ` opcode speaks to `sdpy_client`, `sd.exe` has never started
+this process, and the §8 constraint 4 gate is unwritten. ***The files sit in
+`gplbld` rather than `gplsrc` deliberately***: a `.c` in `gplsrc` makes `bin\`
+stale, and that cycle is worth paying **once, for the whole integration**,
+rather than twice.
 
 ***`GETATTR` DOES NO getattr, AND THE NAME IS THE ONLY THING THAT SAYS IT
 DOES.*** `SD_PyGetAtt` at `489b18e^` is `PyMapping_GetItemString(global_dict,

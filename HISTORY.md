@@ -60421,3 +60421,41 @@ verb at all rather than "read the file and call `RUNSTR`", so there is a row
 requiring a failing script's traceback to name **the file and line 2** — and the
 `-12006` for a missing script **names the path it tried**, because a "could not
 open" with no path in it is the verdict-without-evidence §0 forbids.
+
+## 12 Sep 2026 — the SD side begins: the two runtimes can talk, 9 of 9
+
+***THE ASSUMPTION THE WHOLE RULING RESTS ON HAD NEVER BEEN TESTED.*** §5.3 says
+the MSYS2 and native runtimes never meet in one process and §5.27 chose the
+helper over a shim DLL on that ground — but **"they must not share a process"
+is not "they can talk"**, and no line in this tree had shown the second. It
+does now.
+
+`gplbld/sdpy_client.c` is SD's side of the pipe. **MSYS2 code, built with
+`/usr/bin/gcc`** — the compiler `sd.exe` is built with, `Makefile:48` — driving
+the **native UCRT64** `sdpy.exe`, which is linked against python.org's
+`python3.dll`. **9 of 9**: start and handshake, `PING`, `INIT` reporting
+**3.14.7**, a script's output returned, ***a value carrying `@fm`/`@vm`/`@sm`, a
+NUL and a newline round-tripping byte for byte***, a traceback instead of a
+broken pipe, the pipe still in step after that failure, and a clean shutdown.
+
+**Nothing of Python appears in that file** — no header, no link line, only bytes
+on a pipe — which is what keeps §5.3 intact while the two sides cooperate.
+
+**Win32 `CreatePipe`/`CreateProcess` rather than `fork()`/`exec()`**: MSYS2
+emulates fork at cost and with its own failure modes, and the child is a native
+program that knows nothing about the emulation. The parent's ends of both pipes
+are marked non-inheritable, or the child holds the write end of its own output
+and a read never sees EOF when it dies.
+
+*(The compile met the trap `Makefile:150` already records for the UCRT64
+compiler: `gcc.exe` finds its own DLLs beside itself, the `cc1.exe` it spawns
+resolves through `PATH`, and without it the compile dies with "cannot open
+shared object file" having written nothing. Recorded there for one toolchain,
+met here in the other, and the build script now sets it and says why.)*
+
+***THE FILES ARE IN `gplbld` AND NOT `gplsrc`, DELIBERATELY.*** A `.c` in
+`gplsrc` makes `bin\` stale, and that cycle is worth paying **once for the whole
+integration** rather than twice. They move in the commit that wires the
+opcodes — which is also what still remains: no `PY_*` exists, no
+`SDEXT`/`SDPYOBJ` speaks to `sdpy_client`, `sd.exe` has never started this
+process, and §8 constraint 4's gate is unwritten.
