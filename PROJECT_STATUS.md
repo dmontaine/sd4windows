@@ -179,7 +179,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 IS DONE AND WITNESSED: `probe-pyapi` 11 OF 11. CPython EVALUATED `6*7` AND THE BYTES CAME HOME THROUGH BASIC, THE OPCODES AND THE PIPE. THE `changelog` IS WRITTEN AND ITS DOCUMENTED ROUTE IS MEASURED. NOTHING IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 IS DONE AND WITNESSED: `verify-pyapi` 11 OF 11, AND IT IS NOW STEP 29 OF `VerifyInstall2`. `RELEASE_1.1` 21 IS FIXED IN SOURCE SINCE, SO ONE CYCLE IS OWED AGAIN.*** ⇩⇩⇩
+>
+> ### ⚠️ ***A CYCLE IS OWED — `err.h` AND `sdpy_session.c` CHANGED AFTER THE 23:04:53 INSTALL***
+>
+> ***ELEVATED PowerShell:***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **It carries a C change, so step 0 rebuilds.** Everything below was measured
+> on the 23:04:53 install and still stands; what has NOT been through a
+> compiler is `RELEASE_1.1` 21's three-way split.
 >
 > ### ***HOW TO RE-MEASURE IT — ELEVATED, AND IT NEEDS NO CYCLE WHILE THE TREE IS CURRENT***
 >
@@ -307,22 +319,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > | | |
 > |---|---|
-> | install | **12 Sep 23:04:53**, `assert-current` ***exit 0 live, and current as this was written*** |
-> | compiled | ***EVERYTHING IS COMPILED AND WITNESSED.*** No cycle is owed |
+> | install | **12 Sep 23:04:53** — ***STALE by `RELEASE_1.1` 21's C change*** |
+> | compiled | **Objective 2 is compiled and witnessed.** ***21's three-way split is NOT*** — `-fsyntax-only -Wall -Wformat=2` clean on all three files, never linked |
 > | free tier | ***36***, all green in ~29 s. `test-intrinsics-units.py` is new |
 > | run tokens | ***`b141` — this session spent none.*** No suite step has ever touched this path |
-> | `RELEASE_1.1` | **19, 20 and 22 CLOSED AND WITNESSED**; **21** open. Open: 3, 5, 6, 7, 8, 9, 10, 18, 21 |
+> | `RELEASE_1.1` | **19, 20 and 22 CLOSED AND WITNESSED**; **21 fixed in source, unwitnessed**. Open: 3, 5, 6, 7, 8, 9, 10, 18, 21 |
 > | changelog | ***WRITTEN, 12 Sep.*** Withheld twice on the stated ground that the feature did not work; that ground expired at 9 of 9. It is the one file that ships and is **exempt from the staleness walk**, so editing it costs no cycle |
 >
 > ### ***WHAT IS STILL NOT COVERED — these are gaps, not doubts about what ran***
 >
-> - ***THE GATE IS UNTESTED FROM BASIC, AND IT IS THE NEXT PIECE OF WORK.***
+> - ***THE GATE IS UNTESTED FROM BASIC, AND IT IS THE LAST OF THE THREE.***
 >   Every run so far was elevated, which takes `may_start_helper()`'s
 >   `USR_ADMIN` branch. **Nothing has yet asked whether a permitted
 >   non-administrator gets an interpreter, or whether a refused one is turned
->   away** — and `RELEASE_1.1` 21 means a refusal would arrive as a bare
->   `-12040` with its reason unreadable. `VerifyInstall1`'s throwaway test user
->   is the apparatus for it.
+>   away.** `VerifyInstall1`'s throwaway test user is the apparatus.
+>   ***AND IT IS ALSO `RELEASE_1.1` 21'S WITNESS***: `-12041` and `-12042`
+>   cannot be reached from an elevated session at all, so the only way to see
+>   the new codes do their job is to produce a session that is genuinely
+>   refused. **Two tasks, one measurement.**
 > - ***`verify-pyapi` IS NOW STEP 29 OF `VerifyInstall2` AND HAS NEVER RUN
 >   INSIDE THE SUITE.*** Registered and structurally checked — 28 steps → 29
 >   against `HEAD`, free tier 36 of 36 — but ***the runner refuses an
