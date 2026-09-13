@@ -557,8 +557,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-stalebin-units`, `test-privwhy-units`, `test-editorver-units`,
    `test-wraptext-units`, `test-upgradevoc-units`,
    `test-privundetermined-units`, `test-elevonce-units`,
-   `test-suitetranscript-units`, `test-basicfuncscov-units`.
-   ***ALL THIRTY-FOUR. Run these on
+   `test-suitetranscript-units`, `test-basicfuncscov-units`,
+   `test-promptdefaults-units`.
+   ***ALL THIRTY-FIVE. Run these on
    every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
    thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
    for thirty-two; the set got one longer and the wall clock did not, so do not
@@ -722,6 +723,25 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    without somebody classifying it. **Mutant control, both directions**: a
    reworded reason and a deleted unreachable entry each turned it red naming the
    site, and the file was restored to the same SHA-256.
+
+   ***`test-promptdefaults-units` JOINED IT 12 Sep 2026 IN THE COMMIT THAT
+   CREATED IT, AND IT WENT RED ON THE TREE IT WAS WRITTEN FOR.*** A prompt fix
+   has two halves in two files — the `if x = '' then x = 'N'` in `gpl.bp`, and
+   the `<n>` marker in `sdsys/messages` — and **either half works alone while
+   both are wrong alone**. Message **6131** had the default and not the marker,
+   and ***the shipped `changelog` had been telling users all seven prompts
+   showed their default for a day***. `test-retired-wording-units` cannot see
+   this class: nothing was retired, an addition never arrived.
+   ***IT DERIVES THE PROMPT SET BY WALKING `gpl.bp` RATHER THAN HOLDING A
+   LIST*** — 22 found where the entry named 7 — so a new defaulted prompt is
+   covered the moment it is written, and the two whose text comes from a caller
+   are **declared**, with a partition row that refuses an undeclared third.
+   ***FOUR OF ITS OWN ANSWERS WERE WRONG BEFORE IT WENT GREEN***, every one
+   caught by a control rather than by inspection: the variable is not always
+   `yn`, a fixed look-ahead is eaten by the fixes' comment blocks, the nearest
+   `sysmsg` is not the question (`QPROC` displays a parameter and was
+   confidently attributed to an unrelated message), and `crt` asks questions as
+   well as `display`.
 
    ***`test-basicfuncscov-units` JOINED IT 12 Sep 2026 IN THE COMMIT THAT
    CREATED IT.*** It guards `Get-CoverageVerdict`, the decision RELEASE_1.1 17

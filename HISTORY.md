@@ -60153,3 +60153,41 @@ guard, which requires the NEW form to appear somewhere. That guard is right for
 a rebuilt file and wrong for a pre-fix one; finding the old form 29 times is
 itself the proof it was not blind. Noted so the exit code is not read as a
 failed measurement.)*
+
+## 12 Sep 2026 — entry 6's seventh prompt never got its wording, and the changelog had said it did
+
+***THE CHANGELOG WAS AHEAD OF THE TREE FOR A DAY.*** `sdsys/changelog`, 11 Sep:
+*"Seven prompts now end (y/<n>) and take Enter as no: the DATA, DICT and 'use
+file' questions in DELETE.FILE…"*. The **"use file"** one — message **6131** —
+never got it. The code default is at `DELETEF:202`; the message read
+`Use file '%1'? ` and was **last touched 19 Aug 2026**, while the other six were
+touched by `ffea2f9` on 11 Sep. **Fixed to `Use file '%1' (y/<n>)?`**,
+byte-checked against 6135's style. ***The changelog needed no edit: it already
+described the intended state, and the fix is what made it true.***
+***THE TREE IS STALE ON THAT ONE FILE*** — `assert-current` exit 1 naming it —
+**and one `cycle.ps1` clears it.**
+
+***THE FIX IS ONE LINE; THE GUARD IS THE WORK.***
+`gplbld/test-promptdefaults-units.ps1`, free tier, no install and no elevation.
+A prompt fix has two halves in two files and **either half works alone while
+both are wrong alone**. `test-retired-wording-units` cannot see this class —
+nothing was retired, an addition never arrived.
+
+***IT DERIVES THE SET RATHER THAN LISTING IT, AND THE NUMBER IS THE ARGUMENT:
+22 DEFAULTED PROMPTS WHERE THE ENTRY NAMED 7.*** It walks `gpl.bp` for
+`if x = '' then x = 'N'`, anchors each to the `display`/`crt` that asks the
+question, requires every traced message to carry `<n>`, and **declares** the two
+whose text comes from a caller — `ED`'s shared `yes.no` (six callers) and
+`QPROC`'s `get.label.yn` — with a partition row that refuses an undeclared
+third. Mutant controls both ways, in memory, with a row asserting nothing on
+disk moved.
+
+***FOUR OF ITS OWN ANSWERS WERE WRONG BEFORE IT WENT GREEN, AND EVERY ONE WAS
+CAUGHT BY A CONTROL RATHER THAN BY READING IT.*** The variable is not always
+`yn` (`CPROC:1212` uses `s`) — three false misses. A fixed look-ahead window is
+eaten by the fixes' own comment blocks — three more. **The nearest `sysmsg` is
+not the question**: `QPROC:6542` displays a `txt` parameter and was confidently
+attributed to an unrelated `sysmsg(7278)` sixty lines above, which is a wrong
+answer that reads exactly like a right one. And `crt` asks questions as well as
+`display` (`SETPTR:557`), which made a perfectly traceable prompt look indirect.
+**Two real reports survived all four corrections: 6131, and nothing else.**
