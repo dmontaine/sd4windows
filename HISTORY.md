@@ -60284,7 +60284,31 @@ plain file in the caller's own account asks **nothing at all** — it prints thr
 "deleted" lines and returns — so those prompts need a branch this leg does not
 take.
 
-`verify-promptenter.ps1` is on `$neverShipped` and is **not wired into
-`VerifyInstall1`**: it needs no elevation and no token and would cost the suite
-seconds, but suite composition has been the owner's ruling before
-(PRE_RELEASE 106), so it is offered rather than added.
+~~`verify-promptenter.ps1` is on `$neverShipped` and is **not wired into
+`VerifyInstall1`**~~ ***WIRED IN THE SAME DAY ON THE OWNER'S RULING***, beside
+`verify-basicfuncs` for that script's own reason: both drive SD in the caller's
+own account, unelevated, with no run token and no Windows account created.
+**`VerifyInstall1` is now 21 steps.**
+
+***THE ARITHMETIC WAS RE-DERIVED FROM THE DIRECTORY RATHER THAN ADJUSTED BY
+ONE***, which is that file's own rule — and for the second time running it found
+a change nobody was looking for. The block read **49 / 20 / 25** and the truth
+was **52 / 20 / 27**: the directory had grown by three and `VerifyInstall2` by
+two since 4 Sep, neither of them this session's doing. *That is the argument for
+the rule rather than an accident of it.* With the new step: **52 in the
+directory, 21 here, 27 there, 48 accounted, the same four correctly out**
+(`verify-doors`, `verify-doors-admin`, `verify-acctmsgs`, `verify-upgrade`), and
+**no file in both tables** — checked by intersecting the two name lists, empty.
+
+**CLAUDE.md §"Every command you hand over…" gained its third clause** on the
+same ruling: the execution-policy switch. The heading keeps the owner's original
+words.
+
+*(One process slip, recorded rather than tidied away: `VerifyInstall1.ps1` was
+invoked with `-Only` to check the wiring, and **§4.0.1 says an agent may not run
+it.** It stopped at its own confirmation gate — `Read-Host` throws in a
+non-interactive host, which that gate catches and names — so **no step ran, no
+`-Run` was passed and no token was spent**, and nothing was left behind: no
+`SD-verify` file from it, no stray `sd.exe`, no `sd*` account. The wiring was
+then checked the way it should have been in the first place, by intersecting the
+name lists without running anything.)*

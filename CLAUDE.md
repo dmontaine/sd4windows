@@ -220,7 +220,8 @@ elevated."* Said after a session gave `verify-tiers.ps1` correctly the first
 time — absolute path, *"in your own terminal, elevated"* — and then handed over
 the `-Prefix sdtierb` rerun as a bare command with no elevation stated.
 
-**Both parts, every time, in the same block:**
+**All three parts, every time, in the same block.** *(The third was added
+12 Sep 2026; the heading keeps the owner's original words.)*
 
 1. ***THE ABSOLUTE PATH, WITH EVERY VARIABLE ALREADY EXPANDED.***
    `C:\Users\dmont\Projects\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`, never
@@ -236,11 +237,24 @@ the `-Prefix sdtierb` rerun as a bare command with no elevation stated.
    unelevated — §4.0.1's suite, `edit bp ZZMARKS` in item 5.3, the `logto`
    suspension door — so the wrong shell does not merely fail, **it can produce
    a clean-looking wrong answer.**
+3. ***THE EXECUTION POLICY SWITCH, ON EVERY `.ps1`.*** Added on the owner's
+   ruling, 12 Sep 2026, after `cycle.ps1` was handed over as a bare path and his
+   elevated shell answered ***`PSSecurityException` — "running scripts is
+   disabled on this system"***. Hand scripts over as
+   **`powershell -ExecutionPolicy Bypass -File <absolute path>`**, never a bare
+   path. **His shells read `Undefined` in every scope** — measured that day —
+   **which on a desktop edition is `Restricted`; an agent's own shell runs at
+   `Process = Bypass`.** So *the command that just worked here is refused
+   there*, and it fails in his terminal rather than in yours. ***THIS IS
+   `RELEASE_1.1` 11's DEFECT COMMITTED BY THE HAND-OVER RATHER THAN BY THE
+   PRODUCT***: that entry put the switch on all 175 sites SD *prints*, and 32
+   more were fixed in `SDCoreWindowsDocs` the day before this happened. **The
+   product stopped making this mistake before the hand-overs did.**
 
 **The trigger is the hand-over, not the first mention.** A rerun, a retry with
 a different flag, a command repeated from earlier in the same message — each is
-a fresh hand-over and carries both parts again. It is two lines; he is the one
-who pays when either is missing.
+a fresh hand-over and carries all three parts again. It is two lines; he is the
+one who pays when any is missing.
 
 ## An instrument shows what it DID, not just what it concluded
 
