@@ -60691,3 +60691,35 @@ the session's code and `PY_GETATTR` returning empty, which is what the
 changelog says. Both runs deferred the throwaway account's profile to the
 next restart (hive still mounted, sysmsg 10075), the documented path; the
 `sdpyg` stem covers them for the sweep until then.
+
+---
+
+## 13 Sep 2026 — the full suite on b143: objective 2 green, two unrelated steps red
+
+**Commit:** see the commit that carries this entry. The owner ran
+`VerifyInstall1.ps1 -ThenElevated -Run b143`, one consent, helper pipe.
+
+**Unelevated 24 of 24 exit 0; elevated 27 of 29.** Objective 2 is green in the
+suite for the first time: `verify-sdsysgate` (10), `verify-pyapi` (28) and
+`verify-pygate` (29) all exit 0 — the gate and the plumbing, in a real suite
+run rather than a targeted step.
+
+**Two elevated steps failed, both exit-0 on b140, neither in the Python work.**
+`verify-apiname` (21) exit 1, *"Nothing is listening on 4243"*, and
+`verify-registersweep` (27) exit 2, *"the SD service would not restart"*.
+Filed as `RELEASE_1.1` 24 and 25 in the conditional — observed, not yet
+reproduced in isolation. The first is a latent ordering gap: `verify-apiname`
+does not itself enable the listener (alone among the API verifiers), the
+baseline `sd.conf` ships none, and its predecessor `verify-privundetermined`
+restores that baseline and restarts — so the port is off when it looks, and
+b140 passed on timing. The second is `Restart-Service -Force`, the call
+`restart-sd.ps1` was written to replace, firing while the SCM still settled
+after `verify-tierapi` cycled the service twice. Neither can be the objective-2
+change: `verify-pygate` is step 29, after both, and the C split is the shell
+gate, not the socket. The measurement owed is a targeted rerun of the two.
+
+**A second `-Run b143` at 11:13 stopped at the test-user creation** — the
+10:41 run had deleted `sdtub143` but Windows still held its hive, so
+`C:\Users\sdtub143` remained and `CREATE.ACCOUNT` refused rather than give a
+suffixed home. The documented deferral (sysmsg 10075), not a fault; a rerun
+needs a fresh token or a restart.

@@ -179,6 +179,76 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 53, 13 Sep 2026 — ***THE FULL SUITE RAN ON b143. OBJECTIVE 2 IS GREEN IN THE SUITE (sdsysgate, pyapi, pygate all exit 0). TWO ELEVATED STEPS FAILED — `verify-apiname` AND `verify-registersweep` — BOTH GREEN ON b140, BOTH SERVICE/LISTENER-TIMING, NEITHER IN THE PYTHON WORK. FILED AS `RELEASE_1.1` 24 AND 25, NOT YET REPRODUCED IN ISOLATION.*** ⇩⇩⇩
+>
+> ### ***THE RESULT — READ FROM THE LOGS, NOT THE EXIT LINE***
+>
+> The owner ran `VerifyInstall1.ps1 -ThenElevated -Run b143` at **10:41**
+> (`VerifyInstall1-20260913-104151.log`, elevated half
+> `post-cycle-20260913-104535.txt`). One consent, helper pipe served the run.
+>
+> | half | result |
+> |---|---|
+> | unelevated | ***24 of 24 exit 0*** — "every step exited 0" |
+> | elevated | ***27 of 29 exit 0*** — failures at step 21 and step 27 |
+> | objective 2 | ***`verify-sdsysgate` (10), `verify-pyapi` (28), `verify-pygate` (29) all exit 0*** — the gate and the plumbing, green in the suite |
+>
+> ### ⚠️ ***THE TWO FAILURES — FILED, CONDITIONAL, NOT REPRODUCED***
+>
+> Both were **exit 0 on b140** (`post-cycle-20260912-010034.txt`) and both are
+> the SD service / API listener, which no objective-2 change touches — pygate
+> is step 29, after both, so it cannot reach back.
+>
+> - ***`verify-apiname` (21) exit 1*** — *"Nothing is listening on 4243"*.
+>   `RELEASE_1.1` **24**. It reads `netstat` for a listener but, alone among
+>   the API verifiers, ***does not add `APIPORT` and restart to make one***; the
+>   baseline `sd.conf` has none (measured: resting state `0` LISTENING), and its
+>   predecessor `verify-privundetermined` restores that baseline and restarts.
+>   So the failure is **latent and ordering-dependent**, and b140 passed on
+>   timing. Its exit code is a second, smaller bug: a missing listener it did
+>   not itself create is a *cannot-run*, but the check is scored decisive so it
+>   reports exit 1, not 2.
+> - ***`verify-registersweep` (27) exit 2 COULD NOT RUN*** — the SD service
+>   *"would not restart … Cannot stop SD"*. `RELEASE_1.1` **25**. It uses
+>   `Restart-Service -Force`, the exact call `restart-sd.ps1`'s header says not
+>   to use, right after `verify-tierapi` cycled the service twice — most likely
+>   the SCM still settling. **Transient**: the service is Running now, the
+>   register is consistent.
+>
+> ***THE MEASUREMENT OWED IS A TARGETED RERUN OF THE TWO*** (elevated, fresh
+> token — and see the profile trap below first):
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b144 -Only verify-apiname,verify-registersweep
+> ```
+>
+> **The fixes, if the reruns confirm them, are small and named in 24 and 25**:
+> `verify-apiname` self-enables the listener as `verify-tierapi` does (or scores
+> the precondition non-decisive → exit 2); `verify-registersweep` calls
+> `restart-sd.ps1` instead of `Restart-Service -Force`. ***NOT DONE — the owner
+> has not been asked, and neither is reproduced.***
+>
+> ### ⚠️ ***A RE-RUN OF THE SAME TOKEN STOPS AT THE TEST USER — THIS IS EXPECTED***
+>
+> The owner ran `-ThenElevated -Run b143` a SECOND time at 11:13; it stopped at
+> once — `Cannot create sdtub143: a Windows profile directory is already there`.
+> That is the documented deferral, not a fault: the 10:41 run deleted `sdtub143`
+> but Windows still had its hive mounted, so `C:\Users\sdtub143` stays until a
+> restart, and `CREATE.ACCOUNT` refuses rather than give a suffixed home.
+> ***A rerun needs a FRESH token (b144+) OR a restart to clear the profile.***
+> `C:\Users` also carries the usual deferred `sd*b136`/`b140`/`b141`/`b142`
+> profiles; the service reclaims them at the next restart.
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **13 Sep 10:23:02**, ***CURRENT*** — `assert-current` exit 0 |
+> | run tokens | ***`b141`, `b142`, `b143` spent.*** **Use `b144`** |
+> | suite | ***b143 is the newest full run: unelevated 24/24, elevated 27/29.*** Open: `RELEASE_1.1` 24 (`verify-apiname`) and 25 (`verify-registersweep`), both green on b140 |
+> | `RELEASE_1.1` | 21, 23 closed. Open: 3, 5, 6, 7, 8, 9, 10, 18, **24, 25** |
+> | free tier | ***36 of 36*** |
+>
 > # ⇩⇩⇩ HANDOFF 52, 13 Sep 2026 — ***THE OWNER RAN THE CYCLE AND THE STEP: `verify-pygate` 40 OF 40 AND `verify-pyapi` 13 OF 13 ON `b141`, THEN `verify-pygate` 40 OF 40 AGAIN ON `b142` WITH EVERY LEG PRINTED. `RELEASE_1.1` 21 AND 23 ARE CLOSED, TASK 3 IS DONE, OBJECTIVE 2'S GATE IS WITNESSED BOTH WAYS. NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ### ✅ ***b142, 10:35:44 — THE CLEAN WITNESS, RUN BY THE OWNER AND PASTED BACK IN FULL***
