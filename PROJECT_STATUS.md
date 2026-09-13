@@ -179,6 +179,96 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***THE BASIC HALF IS WRITTEN AND NOT ONE LINE OF IT HAS BEEN COMPILED. THE CYCLE IS THE NEXT STEP AND IT IS THE OWNER'S.*** ⇩⇩⇩
+>
+> ### ⚠️ ***RUN THIS FIRST. NOTHING BELOW IS MEASURABLE UNTIL IT HAS RUN***
+>
+> ***ELEVATED PowerShell, the owner's own terminal:***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> `assert-current` refuses right now, naming **32** source files — the 25
+> restored BASIC records and the 7 edited ones. ***THE BASIC HALF CANNOT BE
+> COMPILED FROM AN AGENT SHELL***: `stage.py --bootstrap` refuses unelevated
+> (§3316), so *"does any of this compile"* is a question only this cycle can
+> answer. **`-SkipInstall` answers it without spending an install.**
+>
+> ### ***WHAT HANDOFF 49 ASKED FOR, AND WHAT IT DID NOT KNOW IT WAS ASKING FOR***
+>
+> **Its four-item list was incomplete. Six things were owed, not four** — found
+> by reading `489b18e`'s own `--name-status` rather than its prose:
+>
+> | | |
+> |---|---|
+> | `SYSCOM/KEYS.H` | **done by hand** — it is NOT generated. Plus `SD_PyListCrte` **2220**, see below |
+> | `SYSCOM/ERR.H` | **done**, `gen_includes.py` |
+> | ***`GPL.BP/ERRTEXT.H`*** | **not in 49's list.** Same generator, 26 `-120xx` texts |
+> | ***`GPL.BP/OPCODES.H`*** | **not in 49's list.** Same generator. `OP.SDPYOBJ 53246` and its `prefixed.opcodes` entry — it follows from the opcode being un-retired |
+> | `GPL.BP/BCOMP` | **done, both halves, verified aligned** |
+> | the programs | **25 restored, not 20**: 20 `gpl.bp/PY_*`, ***4 `bp/` test programs*** and ***`syscom/SDPYFUNC.H`***, neither named in 49 |
+>
+> ***THE TREE WAS RENAMED TO LOWERCASE AFTER `489b18e`, SO `git checkout <old
+> path>` IS THE WRONG RESTORE*** — it adds `GPL.BP/` beside the live `gpl.bp/`
+> and collides on a case-insensitive filesystem. Restored with
+> `git show <rev>:<old> > <new>` and **every one SHA-256-verified against its
+> blob**; `git status` carries no uppercase path.
+>
+> ### ***THE FINDING, AND IT WOULD HAVE BEEN BLAMED ON THE BASIC HALF***
+>
+> ***`sdpy.exe` WAS BUILT BY `make sd` AND STAGED BY NOTHING.*** `RELEASE_1.1`
+> **19**, fixed. The 21:41:13 install had **nine** executables in `usr\bin` and
+> no helper anywhere, while `sdpy_session.c:65` looks for it **beside
+> `sd.exe`** — so every `PY_*` would have failed at `CreateProcess`, on a tree
+> where `assert-current` reads **exit 0**. ***NOTHING GUARDS "A BINARY THE BUILD
+> PRODUCES REACHES THE INSTALL"***: the staleness walk compares six mirrored
+> directories and sweeps for leftovers, and neither direction sees a binary that
+> was never staged. **Found by listing `usr\bin` by hand.**
+>
+> **`sd.iss` needed no edit** — `:517` wildcards the staged tree — and the entry
+> is **optional, not mandatory**, because `build-sdpy.ps1 -SkipIfNoPython` rules
+> a no-Python build machine legitimate. **Both branches driven into a scratch
+> tree**: present → staged byte-identical; absent → reported, exit 0, nothing
+> staged.
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **12 Sep 21:41:13**, and ***STALE again by this session's own edits*** |
+> | compiled | ***NOTHING. No BASIC in this handoff has been through `BCOMP`.*** |
+> | free tier | ***36 now***, all green in 28.1 s. `test-intrinsics-units.py` is new |
+> | run tokens | ***`b141` — this session spent none*** |
+> | `RELEASE_1.1` | **19** filed and fixed-in-source. Open: 3, 5, 6, 7, 8, 9, 10, 18, 19 |
+> | changelog | ***DELIBERATELY NOT WRITTEN.*** Nothing has run; an entry now would be the 12 Sep prompt-defaults mistake again |
+>
+> ### ***WHAT WOULD FALSIFY THE PLAN — written in the conditional***
+>
+> - **The BASIC may not compile.** It has not been near a compiler. `BCOMP`'s
+>   own `SDPYOBJ` dispatch takes `in.four`, which still exists with three other
+>   callers — checked — but **that is reading, not compiling**.
+> - ***`SD_PyListCrte` 2220 IS IN `KEYS.H` AND NO `PY_*` CALLS IT.*** It was
+>   uncommented in `gplsrc/keys.h` this port and `op_sdpyobj.c:213` dispatches
+>   it, but the removed API never had a list-create program. **A 21st program is
+>   the owner's call**; `sdpy.c:585` says *"nothing is obliged to use it"*.
+> - **The helper is unreachable from BASIC until the cycle ships it.** The
+>   staging fix is proved into a scratch tree and **has never been through the
+>   installer**.
+>
+> ### ***THE NEW GUARD, AND WHY IT WAS WORTH A FILE***
+>
+> `gplbld/test-intrinsics-units.py`. `BCOMP`'s two intrinsic lists are matched
+> **by position** and kept in step by hand; a name in one and not the other
+> ***misroutes every intrinsic after it and compiles cleanly***. Until now the
+> only guard was a comment. **Mutant control three ways** — dropped from
+> dispatch, dropped from registration, and same names in the wrong order, the
+> last being the one a membership check cannot see — the live file restored to
+> the same SHA-256 each time. ***ITS OWN FIRST VERDICT WAS FALSE***: the first
+> registration initialises the list without `<-1>`, so requiring `<-1>` reported
+> 38 against 39 with every position off by one. **The instrument was wrong, not
+> `BCOMP`.**
+>
 > # ⇩⇩⇩ HANDOFF 49, 12 Sep 2026 — ***OBJECTIVE 2 IS BUILT AS FAR AS C GOES: THE HELPER RUNS, ALL 20 VERBS EXIST, THE OPCODES ARE WIRED AND `sd.exe` LINKS. THE BASIC HALF IS UNTOUCHED AND NOTHING HAS EVER RUN ON AN INSTALL. THE TREE IS STALE ON PURPOSE — RUN THE CYCLE FIRST.*** ⇩⇩⇩
 >
 > ### ⚠️ ***RUN THIS FIRST. NOTHING BELOW IS MEASURABLE UNTIL IT HAS RUN***

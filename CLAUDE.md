@@ -572,8 +572,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-wraptext-units`, `test-upgradevoc-units`,
    `test-privundetermined-units`, `test-elevonce-units`,
    `test-suitetranscript-units`, `test-basicfuncscov-units`,
-   `test-promptdefaults-units`.
-   ***ALL THIRTY-FIVE. Run these on
+   `test-promptdefaults-units`, `test-intrinsics-units.py`.
+   ***ALL THIRTY-SIX. Run these on
    every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
    thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
    for thirty-two; the set got one longer and the wall clock did not, so do not
@@ -781,6 +781,29 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    has an intrinsic called `COUNT`**, and PowerShell resolves `$h.Count` to
    that key's value instead of the tally — the count came back as `True`. Use
    `.psbase.Count` on any hashtable whose keys are data.
+
+   ***`test-intrinsics-units.py` JOINED IT 12 Sep 2026 IN THE COMMIT THAT
+   CREATED IT, AND IT IS THE FIRST GUARD OVER A PAIR OF LISTS THAT HAD ONLY
+   EVER BEEN GUARDED BY A COMMENT.*** `BCOMP` registers each intrinsic in
+   `int.intrinsics` and dispatches it through an `on i goto` **matched by
+   position**; the two are kept in step by hand, and adding a name to one and
+   not the other **misroutes every intrinsic after it**. ***THAT FAULT COMPILES
+   CLEANLY AND PRODUCES WRONG CODE***, so nothing downstream reports it — the
+   13 Aug 2026 removal commit said exactly this in its own message and left a
+   comment in `BCOMP` asking the next person to remember, which was the only
+   guard available. **Restoring `SDPYOBJ` for objective 2 is the second edit to
+   that pair in a month.** ***ITS OWN FIRST TWO ANSWERS WERE WRONG, AND BOTH
+   ARE NOW FIXTURES***: the first registration **initialises** the list
+   (`int.intrinsics = "ABORT.CAUSE"`, no `<-1>`), so a pattern requiring `<-1>`
+   drops it and reports **38 against 39 with every position off by one**; and
+   one dispatch comment is spelled `EXPANDHF` against a registered `EXPAND.HF`,
+   which is cosmetic because the comments are labels and alignment is
+   positional. **Mutant control, three ways** — entry dropped from the dispatch
+   list, from the registrations, and the same names in the wrong order — the
+   last being the one a membership check cannot see; the live file was restored
+   to the same SHA-256 each time. ***AND ITS TALLY IS COUNTED RATHER THAN
+   WRITTEN DOWN***, because the first version printed `9` for a run of ten
+   rows.
 
    ***`test-reconcile-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT***, which is the rule above working and needs no paragraph of its own. It
