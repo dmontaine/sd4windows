@@ -60588,3 +60588,57 @@ behind it refuses. They stay at `489b18e^`.
 
 `gplbld/test-intrinsics-units.py` is new and guards `BCOMP`'s two positional
 intrinsic lists, which had only ever been guarded by a comment.
+
+---
+
+## 13 Sep 2026 — the Python gate admitted every user, found by writing its test
+
+**Commit:** see the commit that carries this entry. Picked up on "pull
+continue" with Handoff 50: two follow-ups done, the third — the gate from
+BASIC as a non-administrator — researched and not started. No elevation in the
+agent shell, so nothing here was run against an install; the cycle and the
+suite step are handed over.
+
+**The finding came from needing an expected value.** The verifier's refused
+leg needed a number, so the gate was traced from `sdpy_session()` down rather
+than read off its comments. `sd_os_permitted()` returned `os_permitted(why)`
+whole; `os_permitted()`'s first test returns TRUE on `HDR_INTERNAL` before it
+reads the username; the opcode that starts the helper executes inside
+`!PY_INITIALIZE`, and `k_call()` ORs the callee's header flags into
+`process.program.flags` (`kernel.c:1006`). The shipped object settled it: the
+flags word at offset 28 of `sdsys\gpl.bp.out\PY_INITIALIZE` is `0x22`,
+`HDR_INTERNAL | HDR_IS_FUNCTION`, with `object_size` matching the file. So a
+non-administrator passed on test 1 and the `os.users` branch — the gate's
+whole purpose — was unreachable. `RELEASE_1.1` 23.
+
+**Why nothing saw it**: every run was elevated, and `USR_ADMIN` short-circuits
+one line earlier. `verify-pyapi` is green with the gate deleted. And the
+comment beside the wrapper explained, confidently, why the caller could not be
+inside a `$internal` program — "the helper is started from the opcode rather
+than from BASIC" — which is true and irrelevant, since the opcode is executed
+by the wrapper. §8 constraint 4 had specified "the second and third tests
+without the first" and was not followed; §5.27 recorded the wrapper as built
+where constraint 4 said it must be.
+
+**The fix is the split the spec asked for.** `os_permitted()` keeps test 1 and
+delegates; `os_user_permitted()` is tests 2 and 3; `sd_os_permitted()` calls
+the second. One body, `SH` unchanged, `gcc -c` clean with the Makefile's
+flags. `sdpy_session.c` also gains `priv_log_undetermined()` on its
+undetermined branch — the `-12042` case wrote its reason into `helper_error`,
+which has no reader, and nothing else. `test-privwhy-units` follows the body
+and gains the regression row; against HEAD's files it goes red on 7.
+
+**The verifier is `gplbld/verify-pygate.ps1`**, `verify-sdsysgate`'s shape:
+one PROGRAMMER account over ssh, one compiled probe, three legs with only the
+`os.users` record varying — absent, `yes` with no newline, `yes`/`yes` —
+expecting `-12041`, `-12042` plus an errlog line, and `0` with `SDPY-42`. The
+probe calls `PY_INITIALIZE` twice so 21's remembered-answer fix is scored on
+every leg. Forty decisive rows, exact roster. Step 29 of `VerifyInstall2`,
+`sdpyg` in the litter sweep with its fixture. Its refusal paths were driven
+here; one of them found `-notmatch` letting a mixed-case prefix through, now
+`-cnotmatch`. Everything past that is unrun.
+
+**Corrected in passing**: Handoff 50 called `verify-pyapi` "step 29"; the
+runner's own list has it 28th. `verify-osusers.ps1`'s "OS.EX is read by
+nobody" comment, flagged and left by the previous session, now says who reads
+it.

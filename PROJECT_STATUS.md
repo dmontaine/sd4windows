@@ -179,6 +179,85 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 51, 13 Sep 2026 — ***TASK 3 IS BUILT, AND BUILDING IT FOUND THAT THE PYTHON GATE ADMITTED EVERY USER. `RELEASE_1.1` 23 IS FIXED IN SOURCE AND UNWITNESSED; `verify-pygate` IS BUILT AND UNRUN. ONE CYCLE AND ONE ELEVATED SUITE STEP ARE OWED, AND TOGETHER THEY CLOSE 21, 23 AND TASK 3.*** ⇩⇩⇩
+>
+> ### ⚠️ ***TWO COMMANDS, BOTH ELEVATED PowerShell, IN THIS ORDER***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **It carries C changes** — `err.h` and `sdpy_session.c` from 21, and
+> `op_sh.c` and `sdpy_session.c` again from 23 — **so step 0 rebuilds.** Then:
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b141 -Only verify-pyapi,verify-pygate
+> ```
+>
+> `b141` is unspent. The two steps are the plumbing and the gate, in that
+> order; ***`verify-pyapi` has never run INSIDE the suite and `verify-pygate`
+> has never run at all***, so this one command is both first witnesses.
+> *(Positions, counted from the runner's own list rather than the handoff
+> below: `verify-pyapi` is 28 of 29 and `verify-pygate` is 29 of 29 — Handoff
+> 50's "step 29" for `verify-pyapi` was one high.)*
+>
+> ### ***WHAT WAS FOUND — OBSERVED, NOT RUN***
+>
+> Task 3 needed expected values, so the gate was traced instead of trusted:
+>
+> | | |
+> |---|---|
+> | `sd_os_permitted()` | returned `os_permitted(why)` — **all three tests**, `op_sh.c` at HEAD |
+> | `os_permitted()` test 1 | `process.program.flags & HDR_INTERNAL` → TRUE, **before the username is read** |
+> | who is `process.program` when the helper starts | the opcode runs INSIDE `!PY_INITIALIZE`; `k_call()` ORs the callee's header flags in (`kernel.c:1006`) |
+> | ***the shipped object's flags word*** | ***`0x22` = `HDR_INTERNAL` \| `HDR_IS_FUNCTION`***, offset 28 of `sdsys\gpl.bp.out\PY_INITIALIZE` on the 23:04:53 install, `object_size` = the file's 231 bytes |
+>
+> **So a non-administrator passed the gate on test 1 and the `os.users` branch
+> was unreachable.** Every run so far was elevated, where `USR_ADMIN`
+> short-circuits one line earlier — so `verify-pyapi` is green with the gate
+> deleted. ***§8 constraint 4 had specified "the second and third tests
+> without the first" in as many words***; §5.27's *"a wrapper and not a copy"*
+> was built as all three, and the comment beside it explained why that could
+> not happen. **A measurement you took beats a claim you read — this is that
+> rule, applied to a comment.**
+>
+> ### ***WHAT WAS BUILT, AND HOW FAR EACH PIECE IS PROVED***
+>
+> | | |
+> |---|---|
+> | `op_sh.c` | `os_permitted()` split: test 1 stays, tests 2 and 3 are `os_user_permitted()`, `sd_os_permitted()` calls that. `SH` unchanged. **`gcc -c`, Makefile flags, 0 warnings** |
+> | `sdpy_session.c` | comments corrected; `priv_log_undetermined("Python helper start", why)` on the undetermined branch — it was silent there, unlike `op_sh.c:277`. **0 warnings** |
+> | `test-privwhy-units` | follows the body; **33 of 33**, nine new rows. ***Mutant control: against HEAD's two files, 7 rows red***, one naming the defect |
+> | `verify-pygate.ps1` | **new**, the template is `verify-sdsysgate`. Three legs, **40 decisive rows, exact roster**. 0 parse errors, 5 functions found, no BOM. ***UNRUN beyond its three refusal paths*** (no prefix, mixed-case prefix — `-cnotmatch`, found on the dry run — and unelevated) |
+> | `VerifyInstall2` | step 29, `$PyGatePrefix` = `sdpyg$Run`; **`sdpyg` in `clean-test-profiles.ps1` with fixture `sdpygb141`**, self-test 46 of 46; stem coverage green |
+> | `RELEASE_1.1` | **23 filed**, 21 updated (witness built; its `-12042` branch was silent at the log); `NEXT FREE ID: 24`. `changelog` gained the codes a refused user sees |
+> | free tier | ***36 of 36, 37 s*** |
+>
+> ### ***WHAT THE RUN WOULD SHOW — CONDITIONAL, AND WHAT FALSIFIES IT***
+>
+> One PROGRAMMER account over ssh, one compiled probe, only the `os.users`
+> record varying:
+>
+> | leg | record | expected | if not |
+> |---|---|---|---|
+> | A | absent | `PYGATE-INIT=-12041`, `INIT2` the same, no `SDPY-42` | `INIT=0` would mean the split did not reach the install — the script prints the diagnosis |
+> | B | `yes`, no newline | `-12042`, and one errlog line *"…Python helper start: the os.users record has no second field"* | a missing line with the right code = the log call did not land |
+> | C | `yes`/`yes` | `0`, `ISINIT=1`, `SDPY-42` | **`-12040` = the helper as a non-administrator, NOT the gate** (the falsifier Handoff 50 named; `python3.dll` is on the machine PATH, so unlikely). **`-12042` = the record unreadable by the account** — an ACL finding |
+>
+> **Unmeasured assumptions the run tests**: that a PROGRAMMER account can
+> compile from its own `BP` over ssh (`verify-nocase` does exactly this, green
+> on `b140`); that CREATE.ACCOUNT PROGRAMMER writes no `os.users` record (the
+> script refuses if it does).
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **12 Sep 23:04:53** — ***STALE by `err.h`, `op_sh.c`, `sdpy_session.c`*** |
+> | run tokens | ***`b141` — unspent; this session spent none*** |
+> | `RELEASE_1.1` | **23 fixed in source, unwitnessed**; **21 fixed in source, witness built, unrun**. Open: 3, 5, 6, 7, 8, 9, 10, 18, 21, 23 |
+> | suite | `b140` is still the last full witness. `verify-pyapi` and `verify-pygate` have never run inside it |
+>
 > # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 IS DONE AND WITNESSED: `verify-pyapi` 11 OF 11, AND IT IS NOW STEP 29 OF `VerifyInstall2`. TWO OF THE THREE FOLLOW-UPS ARE DONE; `RELEASE_1.1` 21 IS FIXED IN SOURCE AND UNWITNESSED, SO ONE CYCLE IS OWED. THE THIRD IS NOT STARTED.*** ⇩⇩⇩
 >
 > ### ***THE THREE FOLLOW-UPS, TAKEN CHEAPEST FIRST ON THE OWNER'S INSTRUCTION***
@@ -5788,6 +5867,16 @@ get an interpreter, and two implementations of that rule would drift silently
 in the permissive direction. **`PRIV_WHY` is carried, not flattened** — "not
 permitted" and "could not determine" both refuse and say different things.
 
+***CORRECTED 13 Sep 2026 — RELEASE_1.1 23. THE WRAPPER AS BUILT CALLED ALL
+THREE TESTS, AND THE FIRST ADMITTED EVERY USER.*** The opcode that starts the
+helper runs inside `!PY_INITIALIZE`, whose flags word is `0x22`
+(`HDR_INTERNAL`), so `os_permitted()`'s first test answered TRUE before the
+username was read; the `os.users` branch was unreachable and every elevated
+run agreed, on `USR_ADMIN`. `os_permitted()` is now split — test 1 stays, tests
+2 and 3 are `os_user_permitted()`, and `sd_os_permitted()` calls that — which
+is the shape constraint 4 specified. Still one body. `verify-pygate` is the
+witness, unrun at the time of writing.
+
 ***AND ONE NEW ERROR NUMBER, `-12040`, BECAUSE THE HELPER IS A PROCESS.*** It
 can fail in a way an in-process interpreter never could: not be there. Every
 other code describes something Python said; this one describes not having
@@ -8760,6 +8849,14 @@ itself is present here, so constraint 6's "no winget" case is not this box.
    without its first.** It cannot live in a `PY_*`, and it cannot live in
    `op_sdext.c`'s dispatcher unaltered, because by then `process.program` is the
    `$internal` wrapper either way.
+
+   ***13 Sep 2026 — THE PARAGRAPH ABOVE WAS RIGHT AND THE IMPLEMENTATION DID
+   NOT FOLLOW IT.*** `sd_os_permitted()` was written as a call to the whole
+   of `os_permitted()`, first test included, from inside the dispatcher —
+   and the shipped `!PY_INITIALIZE` carries `HDR_INTERNAL` (flags `0x22`), so
+   it passed every user. RELEASE_1.1 23: `os_permitted()` split, the Python
+   gate asks tests 2 and 3 only, `test-privwhy-units` refuses a wrapper that
+   goes through test 1, `verify-pygate` is the run-time witness.
 
    *(Nothing ships this: `489b18e` removed Python. It is a fact about the code
    the helper would restore, not about W1.0-0.)*
