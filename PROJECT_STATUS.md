@@ -184,8 +184,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ### ***HOW TO RE-MEASURE IT — ELEVATED, AND IT NEEDS NO CYCLE WHILE THE TREE IS CURRENT***
 >
 > ```
-> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-pyapi.ps1
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-pyapi.ps1
 > ```
+>
+> ***IT IS `verify-pyapi.ps1` SINCE 12 Sep 2026, AND IT IS STEP 29 OF
+> `VerifyInstall2`.*** It was `probe-pyapi.ps1`; the rename went with the
+> wiring, because every other step in that runner is a `verify-`.
 >
 > ***11 OF 11, AND THE LAST TWO ROWS ARE THE `changelog`'s OWN INSTRUCTION.***
 > `$include SDPYFUNC.H` compiles and a program using it initialises — **the
@@ -319,12 +323,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   away** — and `RELEASE_1.1` 21 means a refusal would arrive as a bare
 >   `-12040` with its reason unreadable. `VerifyInstall1`'s throwaway test user
 >   is the apparatus for it.
-> - ***NOTHING IN EITHER SUITE HALF RUNS `probe-pyapi`, SO NOTHING WOULD CATCH
->   THIS BREAKING AGAIN.*** Wiring it in is a deliberate open call, not an
->   oversight: it needs an elevated shell, and `-Only` does not combine with
->   `-ThenElevated`. **The 53-of-53 `test-sdpy-units` green was never evidence
->   about SD** — it drives `sdpy.exe` directly and never goes through `sd.exe`,
->   which is exactly why a dead feature looked healthy for a day.
+> - ***`verify-pyapi` IS NOW STEP 29 OF `VerifyInstall2` AND HAS NEVER RUN
+>   INSIDE THE SUITE.*** Registered and structurally checked — 28 steps → 29
+>   against `HEAD`, free tier 36 of 36 — but ***the runner refuses an
+>   unelevated shell before it reaches the `-Only` filter***, so the wiring
+>   could not be driven from an agent shell at all. **The first elevated suite
+>   run is what confirms it.** *(Standalone, it is 11 of 11.)* **The 53-of-53
+>   `test-sdpy-units` green was never evidence about SD** — it drives
+>   `sdpy.exe` directly and never goes through `sd.exe`, which is exactly why a
+>   dead feature looked healthy for a day.
 > - ***`SD_PyListCrte` 2220 IS IN `KEYS.H` AND NO `PY_*` CALLS IT.*** It was
 >   uncommented in `gplsrc/keys.h` this port and `op_sdpyobj.c:213` dispatches
 >   it, but the removed API never had a list-create program. **A 21st program is
