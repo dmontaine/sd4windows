@@ -179,9 +179,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***THE BASIC HALF IS WRITTEN AND NOT ONE LINE OF IT HAS BEEN COMPILED. THE CYCLE IS THE NEXT STEP AND IT IS THE OWNER'S.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***THE BASIC HALF COMPILES AND THE WHOLE PATH WAS DRIVEN END TO END FOR THE FIRST TIME. IT FAILED, THE CAUSE IS FOUND AND PROVED, AND THE FIX IS WRITTEN AND UNWITNESSED. ONE CYCLE IS OWED.*** ⇩⇩⇩
 >
-> ### ⚠️ ***RUN THIS FIRST. NOTHING BELOW IS MEASURABLE UNTIL IT HAS RUN***
+> ### ⚠️ ***RUN THIS FIRST***
 >
 > ***ELEVATED PowerShell, the owner's own terminal:***
 >
@@ -189,11 +189,54 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
-> `assert-current` refuses right now, naming **32** source files — the 25
-> restored BASIC records and the 7 edited ones. ***THE BASIC HALF CANNOT BE
-> COMPILED FROM AN AGENT SHELL***: `stage.py --bootstrap` refuses unelevated
-> (§3316), so *"does any of this compile"* is a question only this cycle can
-> answer. **`-SkipInstall` answers it without spending an install.**
+> **It carries a C change** (`sdpy_session.c`), so step 0 rebuilds. Then re-run
+> the end-to-end probe — **an ORDINARY UNELEVATED prompt**, and it is the whole
+> verdict:
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\AppData\Local\Temp\claude\C--Users-Don-SDCoreProject-sd4windows\5a44a5a0-0678-4499-82e3-91b7d4b1e372\scratchpad\probe-pyapi.ps1
+> ```
+>
+> ***THAT PROBE IS IN A SCRATCHPAD AND WILL NOT SURVIVE. Promoting it to
+> `gplbld/verify-pyapi.ps1` is the first thing worth doing*** — it needs a
+> `$neverShipped` line, and it could not be written there this session without
+> making the tree STALE before it could be run.
+>
+> ### ***WHAT THE 22:33:38 CYCLE ANSWERED***
+>
+> | | |
+> |---|---|
+> | the BASIC compiles | ***YES. 46 batches, `0 error(s)` in every one***, and **0** of the fatal *"is not assigned a value"* class |
+> | the 20 `PY_*` | ***ALL 20 in `gpl.bp.out` AND all 20 in `gcat` as `!PY_*`*** |
+> | the helper ships | **YES** — `RELEASE_1.1` 19 witnessed, SHA identical, beside `sd.exe` |
+> | ***does it WORK*** | ***NO. Every `PY_*` answered `-12040`*** |
+>
+> ### ***AND THE `-12040` IS DIAGNOSED, PROVED, AND FIXED IN SOURCE — `RELEASE_1.1` 20***
+>
+> ***`exe_directory()` ANSWERS A POSIX PATH AND `CreateProcessA` IS NATIVE.***
+> Measured with a control, both legs built with the same MSYS2 gcc `sd.exe`
+> uses: the POSIX form **failed, GetLastError 3**; the same file as
+> `C:\…\sdpy.exe` **started**. ***THE GATE WAS EXONERATED FIRST, WHICH IS WHY
+> THIS IS NOT A PERMISSION BUG***: in the same session a **non-`$internal`**
+> compiled program ran `os.execute` and captured its output.
+> **`cygwin_conv_path` at the boundary; `-fsyntax-only` with `-Wall
+> -Wformat=2` gives 0 errors, 0 warnings. It has not run.**
+>
+> ***THE REASON EXISTED ALL ALONG AND NOTHING COULD READ IT — `RELEASE_1.1`
+> 21.*** `sdpy_session_error()` has **no caller outside its own file**, so
+> `-12040` means three different things with one number. Separating them cost a
+> probe, a discriminator and a two-leg control.
+>
+> ### ***THE TRAP THAT COST THIS SESSION A REFUSED `assert-current`***
+>
+> ***DO NOT RESTORE `489b18e`'s FOUR `bp/PY_*` TEST PROGRAMS.*** They are in the
+> removal commit's own file list, so the next session will be tempted exactly as
+> this one was. **`sdsys/bp` ships nothing** — `stage.py:320`, and it was
+> deliberately removed from the mirror list on 25 Aug 2026 — so a file placed
+> there in SOURCE can never be in the install, and `assert-current`'s rename
+> walk reports it and **every verifier behind it refuses**. They were restored,
+> found, and removed again; they remain at `489b18e^` if anyone wants them as
+> fixtures, which is where they should go rather than into `sdsys`.
 >
 > ### ***WHAT HANDOFF 49 ASKED FOR, AND WHAT IT DID NOT KNOW IT WAS ASKING FOR***
 >
@@ -236,25 +279,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > | | |
 > |---|---|
-> | install | **12 Sep 21:41:13**, and ***STALE again by this session's own edits*** |
-> | compiled | ***NOTHING. No BASIC in this handoff has been through `BCOMP`.*** |
-> | free tier | ***36 now***, all green in 28.1 s. `test-intrinsics-units.py` is new |
-> | run tokens | ***`b141` — this session spent none*** |
-> | `RELEASE_1.1` | **19** filed and fixed-in-source. Open: 3, 5, 6, 7, 8, 9, 10, 18, 19 |
-> | changelog | ***DELIBERATELY NOT WRITTEN.*** Nothing has run; an entry now would be the 12 Sep prompt-defaults mistake again |
+> | install | **12 Sep 22:33:38**, `assert-current` **exit 0 live** — then ***STALE again by the `sdpy_session.c` fix***, which is a C change |
+> | compiled | ***THE BASIC: YES, 0 errors. THE C FIX: SYNTAX-CHECKED ONLY, never linked*** |
+> | free tier | ***36***, all green in 30.2 s. `test-intrinsics-units.py` is new |
+> | run tokens | ***`b141` — this session spent none.*** No suite step has ever touched this path |
+> | `RELEASE_1.1` | **19 CLOSED AND WITNESSED**; **20** and **21** new. Open: 3, 5, 6, 7, 8, 9, 10, 18, 20, 21 |
+> | changelog | ***STILL DELIBERATELY NOT WRITTEN.*** `PY_*` does not work yet — 20 is unwitnessed — so an entry now would be the 12 Sep prompt-defaults mistake again |
 >
 > ### ***WHAT WOULD FALSIFY THE PLAN — written in the conditional***
 >
-> - **The BASIC may not compile.** It has not been near a compiler. `BCOMP`'s
->   own `SDPYOBJ` dispatch takes `in.four`, which still exists with three other
->   callers — checked — but **that is reading, not compiling**.
+> - ***THE FIX IS THE ONLY UNMEASURED THING LEFT, AND IT IS ONE LINE OF
+>   BEHAVIOUR.*** `cygwin_conv_path` was proved to cure the mechanism **in a
+>   standalone probe**, not inside `sd.exe`. **If `probe-pyapi` still answers
+>   `-12040` after the cycle, the path form was not the only cause** — and
+>   entry 21 is then worth doing first, because the reason is already being
+>   computed and thrown away.
+> - **The 53-of-53 `test-sdpy-units` green was never evidence about SD.** It
+>   drives `sdpy.exe` directly over a pipe and never goes through `sd.exe`,
+>   which is exactly why a dead feature looked healthy. **Nothing in the free
+>   tier or either suite half covers BASIC → `PY_*` → CPython**; that gap is
+>   what promoting the probe would close.
 > - ***`SD_PyListCrte` 2220 IS IN `KEYS.H` AND NO `PY_*` CALLS IT.*** It was
 >   uncommented in `gplsrc/keys.h` this port and `op_sdpyobj.c:213` dispatches
 >   it, but the removed API never had a list-create program. **A 21st program is
 >   the owner's call**; `sdpy.c:585` says *"nothing is obliged to use it"*.
-> - **The helper is unreachable from BASIC until the cycle ships it.** The
->   staging fix is proved into a scratch tree and **has never been through the
->   installer**.
 >
 > ### ***THE NEW GUARD, AND WHY IT WAS WORTH A FILE***
 >
