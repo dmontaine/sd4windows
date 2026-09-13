@@ -179,27 +179,39 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 WORKS END TO END. CPython EVALUATED `6*7` AND THE BYTES CAME HOME THROUGH BASIC, THE OPCODES, THE PIPE AND BACK, ON A REAL INSTALL. ONE STATUS-CODE DEFECT IS LEFT, FIXED IN SOURCE AND UNWITNESSED — ONE CYCLE IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 50, 12 Sep 2026 — ***OBJECTIVE 2 IS DONE AND WITNESSED: `probe-pyapi` 9 OF 9 ON THE 23:04:53 INSTALL. CPython EVALUATED `6*7` AND THE BYTES CAME HOME THROUGH BASIC, THE OPCODES AND THE PIPE. THE `changelog` IS WRITTEN. NOTHING IS OWED TO FINISH IT.*** ⇩⇩⇩
 >
-> ### ⚠️ ***RUN THIS FIRST***
+> ### ***THE ONE THING LEFT IS A CONFIRMATION, NOT A FIX***
 >
-> ***ELEVATED PowerShell, the owner's own terminal:***
->
-> ```
-> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
-> ```
->
-> Then the whole verdict, in an ***ORDINARY UNELEVATED prompt***:
+> ***ELEVATED PowerShell*** — the tree is current, so this needs **no cycle**:
 >
 > ```
 > powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-pyapi.ps1
 > ```
 >
-> ***EXPECT 9 OF 9. It was 8 of 9 on the 22:55:41 install***, the one failure
-> being `RELEASE_1.1` 22, whose fix is in this commit and has not been compiled.
-> ***UNELEVATED IS NOT AN OVERSIGHT***: elevated sets `USR_ADMIN` and takes the
-> gate's *"an administrator always may"* branch, which measures a different
-> question. The probe gates on `assert-current` itself and refuses a stale tree.
+> It grew an eleventh row after the 9-of-9 run: ***`$include SDPYFUNC.H`, the
+> route the `changelog` tells a user to write***, which the probe's own fixture
+> had deliberately avoided by declaring its `deffun`s inline. **That leg has
+> never run.** A shipped include record that does not resolve is a documentation
+> defect nobody finds until a user tries it. **Expect 11 of 11.**
+>
+> ### ⚠️ ***IT NEEDS ELEVATION, AND THIS HANDOFF SAID THE OPPOSITE FOR THREE RUNS***
+>
+> ***`LOGTO SDSYS` FROM AN UNELEVATED SESSION REACHES `elevate('START')`, WHICH
+> GATES ON `Start-Process -Verb RunAs` (`CPROC:2687`) — A UAC CONSENT NOTHING
+> DRIVEN DOWN A PIPE CAN ANSWER.*** It hangs at the `LOGTO` and the transcript
+> ends on a prompt whose next command never appears. ***THE ONE UNELEVATED RUN
+> THAT WORKED DID SO BY ACCIDENT***: a resident `sd-elevate` helper, left by an
+> elevated cycle minutes before, served its pipe. **Measured both ways — helper
+> pipe present, worked; no `sd-elev-*` pipe, hung twice.** The probe now says
+> this in its own output instead of reporting *"fixture file not created"*.
+>
+> ***AND THE COVERAGE COST IS REAL, NOT A FORMALITY***: an elevated session sets
+> `USR_ADMIN`, so `may_start_helper()` returns on its *"an administrator always
+> may"* branch and ***the `OS.USERS` field 2 route is NOT exercised by this
+> probe at all.*** It measures the plumbing. Exercising the gate properly needs
+> a non-administrator, which is what `VerifyInstall1`'s throwaway test user is
+> for — **and that is the obvious next piece of work.**
 >
 > ### ***WHAT THE TWO CYCLES ANSWERED***
 >
@@ -292,20 +304,25 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > | | |
 > |---|---|
-> | install | **12 Sep 22:55:41**, `assert-current` **exit 0 live** — then ***STALE by the `PY_INITIALIZE` fix*** |
-> | compiled | ***THE BASIC AND THE C FIX: BOTH, AND BOTH WITNESSED. 22's one-line BASIC change is NOT*** |
+> | install | **12 Sep 23:04:53**, `assert-current` ***exit 0 live, and current as this was written*** |
+> | compiled | ***EVERYTHING IS COMPILED AND WITNESSED.*** No cycle is owed |
 > | free tier | ***36***, all green in ~29 s. `test-intrinsics-units.py` is new |
 > | run tokens | ***`b141` — this session spent none.*** No suite step has ever touched this path |
-> | `RELEASE_1.1` | **19 and 20 CLOSED AND WITNESSED**; **21** and **22** open. Open: 3, 5, 6, 7, 8, 9, 10, 18, 21, 22 |
-> | changelog | ***OWED, AND THE FIRST THING TO WRITE ONCE 22 IS WITNESSED.*** It has been withheld twice on purpose — the feature did not work — and **that reason expires with the next green probe.** Embedded Python returning as a helper process is exactly what a user notices |
+> | `RELEASE_1.1` | **19, 20 and 22 CLOSED AND WITNESSED**; **21** open. Open: 3, 5, 6, 7, 8, 9, 10, 18, 21 |
+> | changelog | ***WRITTEN, 12 Sep.*** Withheld twice on the stated ground that the feature did not work; that ground expired at 9 of 9. It is the one file that ships and is **exempt from the staleness walk**, so editing it costs no cycle |
 >
 > ### ***WHAT WOULD FALSIFY THE PLAN — written in the conditional***
 >
-> - ***22'S FIX IS THE ONLY UNMEASURED THING LEFT.*** Removing the reconfigure
->   block is argued to be behaviour-preserving **because the block already
->   threw**, so nothing downstream of it ever ran. **If `PYPRB-INIT` is still
->   non-zero after the cycle, that argument was wrong** and the remaining
->   failure is in `SD_PyInit` itself rather than in the post-init script.
+> - ***THE `$include SDPYFUNC.H` LEG HAS NEVER RUN, AND THE `changelog` ALREADY
+>   TELLS USERS TO WRITE IT.*** It follows the same bare form as
+>   `$include KEYS.H` and `$include ERR.H`, which demonstrably compile, and the
+>   record is installed — **but that is reading, not measuring.** If it fails,
+>   the changelog paragraph is what needs correcting, not the product.
+> - ***THE GATE IS UNTESTED FROM BASIC.*** Every run so far was elevated, which
+>   takes `may_start_helper()`'s `USR_ADMIN` branch. **Nothing has yet asked
+>   whether a permitted non-administrator gets an interpreter, or whether a
+>   refused one is turned away** — and `RELEASE_1.1` 21 means a refusal would
+>   arrive as a bare `-12040` with its reason unreadable.
 > - **The 53-of-53 `test-sdpy-units` green was never evidence about SD.** It
 >   drives `sdpy.exe` directly over a pipe and never goes through `sd.exe`,
 >   which is exactly why a dead feature looked healthy. **Nothing in the free
