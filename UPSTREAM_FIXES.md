@@ -2807,3 +2807,43 @@ The fix is one character: make the banner say 15.
 Found while adding an optional keyword to that routine in the Windows port on
 4 Sep 2026, where the same wrong number is present and has now been corrected.
 Read from upstream's source; there is no behaviour to reproduce.
+
+## 38. `MODIFY.ACCOUNT` reports "nothing has changed" after it has already changed part of the VOC
+
+Message 10114 reads *"Unable to change the tier of %1; nothing has changed"*.
+`MODIFYA` prints it on three paths, and on two of them something has already
+changed by the time it is printed, so the message asserts an outcome it did not
+measure.
+
+The tier change applies the VOC in layers and then writes the register last.
+The report routine `tier.open.template` even documents the hazard in its own
+banner: *"Its failure is not fatal to the whole delta: the standard layer may
+already have been applied, and reporting a partial move truthfully beats undoing
+work that was correct."*
+
+- **The partial-VOC path.** Promoting an account across the standard boundary
+  (for example STANDARD → ADMINISTRATOR) first applies the `TIER.OMIT.STANDARD`
+  layer to the account's VOC, then opens the system `VOC_TEMPLATE` for the
+  administrator layer. If that open fails, `voc.ok` goes false and the caller
+  prints 10114 — but the standard layer was already written to the VOC.
+- **The register-write-failure path.** When `voc.delta` has succeeded and only
+  the final `write` of the register record fails, the caller again prints
+  10114. The VOC now reflects the new tier while the register still names the
+  old one.
+
+In both cases "nothing has changed" is false, and the message is the one an
+administrator relies on to know whether they must clean up.
+
+The fix is a wording change: *"Unable to change the tier of %1; its tier in the
+register is unchanged"*, which is true on every path (the register write is
+always last, so the register's tier is what never changed). The register is the
+authority on tier and the VOC is derived from it, so this is the honest
+minimum; a fuller fix would make the VOC layering transactional so a failed
+promotion leaves no partial VOC behind, but that is a larger change than the
+message.
+
+Confirmed by reading this tree's `gpl.bp/MODIFYA` (the three `sysmsg(10114)`
+sites and the `tier.open.template` / `voc.delta` routines); the message text and
+the layering logic are shared with `sdb64`. Reported to the Windows port by SD
+Core for Linux as its finding #3, which kept the shared text rather than
+diverging. Corrected in the Windows port on 13 Sep 2026.
