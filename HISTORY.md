@@ -60749,3 +60749,16 @@ guarded so a run that found the port up leaves the file alone), and to score a
 listener it could not raise as a cannot-run (exit 2) rather than a `Note`-driven
 exit 1. Both fixes parse-clean, are in `$neverShipped`, and are unwitnessed —
 a `-Run b145` rerun is owed and should show both green.
+
+**b145 witnessed both green.** `verify-apiname` 16 of 16 in isolation: it
+printed *"no listener on 4243 - enabling APIPORT and restarting SD"*, then
+*"up (this run enabled it)"*, ran the charset and audit checks, and restored
+`sd.conf` — the run that could not pass alone before 24's fix is now the normal
+case, and the audit rows confirm the security property (refused names recorded
+sanitised, no raw backslash, `valid_os_name` refusal told apart from a wrong
+password). `verify-registersweep` exit 0 through `restart-sd.ps1`, which hit the
+very race it exists for — `before service=StartPending`, sdwind lingering,
+cleared by its `sd -stop` fallback — the case `Restart-Service -Force` failed on
+in b143. `RELEASE_1.1` 24 and 25 closed. The only thing b145 did not reproduce
+is 25's original full-suite timing (after `verify-tierapi`); a full suite run at
+the next milestone is the belt-and-braces confirmation.

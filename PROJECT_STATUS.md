@@ -179,7 +179,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 54, 13 Sep 2026 — ***THE b144 RERUN SPLIT THE TWO CLEANLY: `verify-registersweep` GREEN (transient, and now hardened), `verify-apiname` RED AGAIN IN ISOLATION (a real verifier defect, now fixed). BOTH FIXES ARE IN SOURCE AND UNWITNESSED — ONE ELEVATED RERUN IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 54, 13 Sep 2026 — ***BOTH VERIFIER FIXES ARE WITNESSED GREEN ON b145: `verify-apiname` 16 OF 16 IN ISOLATION (it now self-enables the listener), `verify-registersweep` GREEN THROUGH `restart-sd.ps1`, WHICH USED ITS `sd -stop` FALLBACK ON A REAL RACE. `RELEASE_1.1` 24 AND 25 CLOSED. NOTHING IS OWED BUT A FULL SUITE RUN AT THE NEXT MILESTONE.*** ⇩⇩⇩
+>
+> ### ✅ ***b145, 11:38 — THE WITNESS, RUN BY THE OWNER***
+>
+> | step | b145 | what it shows |
+> |---|---|---|
+> | `verify-apiname` | ***16 of 16, exit 0*** | *"no listener on 4243 - enabling APIPORT and restarting SD"* → *"up (this run enabled it)"* → charset + audit checks → *"sd.conf restored"*. The isolation run that was impossible before 24's fix is now the normal case |
+> | `verify-registersweep` | ***exit 0*** | `restart-sd.ps1` ran: `before service=StartPending` → *"processes remain - asking sd -stop"* → *"SD is running again"*. The `sd -stop` fallback absorbed the exact race `Restart-Service -Force` choked on in b143 (6/6 + one SKIP: register clean from b144, removal path witnessed there) |
+>
+> **The one thing not re-run in its original timing**: `verify-registersweep`
+> after `verify-tierapi` in a full suite, where 25 first bit. The mechanism is
+> the anti-race call by construction and it absorbed a StartPending race here,
+> so the next full run is confirmation, not a doubt.
+>
+> ### ***PRIOR HANDOFF 54 TEXT (the b144 split that led here), kept for the trail***
 >
 > ### ***WHAT b144 PROVED*** (`-Only verify-apiname,verify-registersweep`, elevated)
 >
@@ -220,9 +234,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | | |
 > |---|---|
 > | install | **13 Sep 10:23:02**, ***CURRENT*** — `assert-current` exit 0 |
-> | run tokens | ***`b141`–`b144` spent.*** **Use `b145`** |
-> | `RELEASE_1.1` | 21, 23 closed; **24, 25 fixed in source, unwitnessed**. Open: 3, 5, 6, 7, 8, 9, 10, 18, 24, 25 |
-> | suite | b143 was the last full run (unelevated 24/24, elevated 27/29); the two reds are fixed and await b145 |
+> | run tokens | ***`b141`–`b145` spent.*** **Use `b146`** |
+> | `RELEASE_1.1` | 21, 23, **24, 25 CLOSED AND WITNESSED**. Open: 3, 5, 6, 7, 8, 9, 10, 18 |
+> | suite | b143 last full run (unelevated 24/24, elevated 27/29); its two reds fixed and witnessed green on b145. ***A clean FULL suite run is owed at the next milestone*** — the only thing b145 could not reproduce is 25's post-`verify-tierapi` timing |
 > | free tier | ***36 of 36*** |
 >
 > # ⇩⇩⇩ HANDOFF 53, 13 Sep 2026 — ***THE FULL SUITE RAN ON b143. OBJECTIVE 2 IS GREEN IN THE SUITE (sdsysgate, pyapi, pygate all exit 0). TWO ELEVATED STEPS FAILED — `verify-apiname` AND `verify-registersweep` — BOTH GREEN ON b140, BOTH SERVICE/LISTENER-TIMING, NEITHER IN THE PYTHON WORK. FILED AS `RELEASE_1.1` 24 AND 25, NOT YET REPRODUCED IN ISOLATION.*** ⇩⇩⇩
