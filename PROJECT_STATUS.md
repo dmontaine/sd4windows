@@ -256,9 +256,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***EVERYTHING HANDOFF 47 LISTED AS OWED IS STILL OWED*** — entry 6's remaining
 > five prompts and the unpressed Enter at all seven, entries 6 and 7 having no
-> witness path, and the owner's four: message 2050 across six verbs, defects 3
-> and 5, whether to re-clone `sdb64`, and whether `SDCoreWindowsDocs` repeats
-> the `powershell -File` form entry 11 fixed here.
+> witness path, and the owner's: message 2050 across six verbs, defects 3
+> and 5, and whether to re-clone `sdb64`.
+>
+> ***ONE OF THAT LIST IS ANSWERED AND FIXED, 12 Sep 2026: `SDCoreWindowsDocs`
+> DID REPEAT IT, 32 SITES IN 8 FILES, NONE ALREADY CARRYING THE SWITCH.***
+> Fixed there, commit `76e1dce`; that repository is at
+> `C:\Users\Don\SDCoreProject\SDCoreWindowsDocs` and is on this machine.
+> **`Administrator/markdown/09-the-installed-scripts.md` contradicted itself
+> inside two screens** — it states the desktop default is `Restricted`, tells
+> the reader to leave it alone because SD passes the switch itself, then gives
+> **22 commands under *"Every command below is complete as written"*** with the
+> switch on none of them. ***THE RENDERED ARTEFACTS ARE STALE AND NOT REBUILT***:
+> five HTML files still carry the old text and the three zips date from 6 Sep.
+> **That repository has no lint of its own**, so nothing there stops a
+> recurrence the way `test-retired-wording-units`'s `R11` does here.
 >
 > *(Also this session, and it is not in the tree: a short Linux-port paragraph
 > for the SourceForge page, which will carry both zips from one repository,

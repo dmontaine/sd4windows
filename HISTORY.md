@@ -60048,3 +60048,35 @@ written 31 Aug 2026, and no product defect was found.
 
 New free guard `test-basicfuncscov-units.ps1`, **18 rows**, registered in
 CLAUDE.md's list in the same commit; the tier is **34 of 34 in 28 s**.
+
+## 12 Sep 2026 — `SDCoreWindowsDocs` did repeat entry 11's defect: 32 sites, and a page that argued with itself
+
+Handoff 47's open question, answered by looking. The repository is on this
+machine at `C:\Users\Don\SDCoreProject\SDCoreWindowsDocs`. **32 bare
+`powershell -File ` sites in 8 files, and not one already carried the switch.**
+Fixed there, commit `76e1dce`, 33 insertions / 33 deletions.
+
+***THE SHARP CASE IS `Administrator/markdown/09-the-installed-scripts.md`,
+WHICH CONTRADICTS ITSELF INSIDE TWO SCREENS.*** It states that the desktop
+default is `Restricted`, *"which allows no script at all"*; it tells the reader
+to leave that setting alone, because every script is launched with an explicit
+`-ExecutionPolicy Bypass`; and then, under ***"Every command below is complete
+as written"***, it gives **22 commands carrying no switch**. A reader on a stock
+client copies one, Windows refuses it, and the page has already told them not to
+change the policy that refused it. PRE_RELEASE 173 is the same failure in the
+product.
+
+Seven more of the shape in the GettingStarted set, and three in the project's
+own build commands — `README.md`, `tools/mkbookpdf.ps1`'s header, `.gitignore`
+— fixed too, since a maintainer on a fresh machine copies those and `mkpdf.ps1`
+is refused by the same policy.
+
+**Source only. The artefacts are stale**: five rendered HTML files still carry
+the old text and the three zips date from 6 Sep. *The `pdf` directories report
+no hits, but that is `grep` unable to read compressed streams rather than a
+clean result — it is not evidence either way.*
+
+***AND THAT REPOSITORY HAS NO LINT OF ITS OWN.*** `test-retired-wording-units`'s
+`R11` scans this tree, so nothing stops the wording coming back there.
+`core.autocrlf` is `true` there and this tree is `* -text`, so a guard shared
+between them would have to handle both.
