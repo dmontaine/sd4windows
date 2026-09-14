@@ -61029,3 +61029,34 @@ Y, which deleted it. The run was 46 of 46, unelevated. All seven prompts 6
 fixed have now met Enter on a real install. The two it left alone on purpose,
 2050 and 6133, are a decision rather than a defect, so they moved to
 `RELEASE_1.1` 33 to wait for the owner.
+
+---
+
+## 13 Sep 2026 — `RELEASE_1.1` 33 ruled and built: 2050 defaults to N, 6133 gains cancel
+
+**Commit:** see the commit that carries this entry. Built, not cycled.
+
+The owner was asked and answered: *"Default to N"* and *"Add a cancel answer"*.
+
+- **2050**: one line in each of its six verbs, and the message now ends
+  `(y/<n>)?`.
+- **6133**: an empty answer becomes C, and C releases the record and returns
+  `ER$STOPPED` without deleting anything. Y and N are unchanged.
+
+**The guard would have missed half of this.** `test-promptdefaults-units`
+matched only `'N'` defaults, so 6133's `'C'` would have been invisible to it.
+Widening it to any letter immediately caught a false positive, `QDISP:652`, an
+ordinary variable default. So the walk now also requires an `input` of the
+variable, and that line is kept as a fixture.
+
+`verify-promptenter` gained legs 7 and 8. Their shapes were captured on the
+current install before being written:
+
+- 2050: `SSELECT VOC SAMPLE 1` then `CT VOC`.
+- 6133: `CREATE.FILE X,C1` and `X,C2` make a multifile; N deletes the
+  dictionary only, and Y goes on to ask 6135 for each component.
+
+The probe used explicit answers, which are valid both before and after the
+change. It ran out of input after Y, so it was killed at its timeout with no
+stray process. It also left a `zzprmf` directory behind, which was removed by
+hand and checked.

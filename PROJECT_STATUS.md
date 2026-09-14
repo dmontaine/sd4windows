@@ -195,7 +195,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***AND THEN 6 CLOSED, same session***: `verify-promptenter` leg 6 pressed Enter at `CPROC` 5040 (46/46, unelevated), the last of the seven. Its two deliberately-untouched prompts moved to **`RELEASE_1.1` 33 — 2050 (six verbs, N is safe) and 6133 (needs a cancel answer), awaiting the owner's decision.** Leg 6 has not yet run inside a suite.
 >
-> ***`RELEASE_1.1` OPEN NOW: 5, 7, 18, 33.*** Everything below this box is the plan that led here and is still accurate about 7, 18 and 5.
+> ***AND THEN 33 WAS RULED AND BUILT, same session — THE TREE IS STALE ON PURPOSE, A CYCLE IS OWED.*** Owner: *"Default to N"* (2050, six verbs) and *"Add a cancel answer"* (6133, C = cancel = Enter). **Six BASIC programs and two messages changed** — `CD`, `COPY`, `CT`, `DELETE`, `ED`, `DELETEF`, `messages/2050`, `6133`; `assert-current` names exactly those eight. `test-promptdefaults-units` widened (any default letter, requires an `input`), 29 prompts, 14/14; free tier 36/36. `verify-promptenter` gained legs 7–8 (2050 via CT; 6133 on a multifile), ***built from captured output but unrunnable until the cycle***. **Owed, in order**: `cycle.ps1` (**ELEVATED**), then from an **ordinary unelevated** prompt `VerifyInstall1.ps1 -ThenElevated -Run b153` — `DELETEF` is on many steps' path, so a full run rather than `verify-promptenter` alone. A reboot first is optional (21 profile dirs from `b152` are litter, not a fault).
+>
+> ***`RELEASE_1.1` OPEN NOW: 5, 7, 18, 33 (fixed in source).*** Everything below this box is the plan that led here and is still accurate about 7, 18 and 5.
 
 > # ⇩⇩⇩ HANDOFF 58, 13 Sep 2026 — ***THE INSTALL IS CURRENT, EVERYTHING IS PUSHED, AND THE NEXT STEP IS THE OWNER'S: ONE REBOOT, THEN ONE FULL RUN ON `b151`, WHICH WITNESSES FOUR THINGS AT ONCE. NOTHING IS BROKEN AND NOTHING IS HALF-DONE.*** ⇩⇩⇩
 >
