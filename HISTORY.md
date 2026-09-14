@@ -61173,3 +61173,27 @@ if a compile actually ran.
 Cycle 02:30 with 0 compile errors, then a full suite. Unelevated 27/27 exit 0
 (484 PASS); elevated 30/30 exit 0 (629 PASS); no FAIL. `verify-dictfold` passed
 15/15 on its first suite run.
+
+## 14 Sep 2026 — stage 2b in source: shipped dictionary ids renamed lower; the upgrade no longer twins them
+
+72 of the 78 `FILES_DICTS` records were renamed, and the field tokens in the
+I-types and phrases were lowered. CREATE.FILE and CREATE.ACCOUNT now write
+`@id`. The handoff's step-4 objection was correct: `WRITE_INSTALL_DICTS`
+merged by id and deleted nothing, so every upgrade would have kept `TYPE`
+beside `type`. It now deletes an id that differs only in case.
+
+Measured before anything was built on the assumption: COPY is exact, so
+`verify-dictfold`'s setup would have broken. It now builds its upper-case
+I-type from a `bp` record. Its red run on `b157` failed exactly the 6 new rows.
+New witness `verify-dictrename` (elevated) forces the upgrade branch. It has
+not run yet, because a cycle is owed. `test-staleleads-units.py` is red at
+`8035ac7` in a clean worktree, unrelated to this change; it was flagged for a
+separate task.
+
+## 14 Sep 2026 — `b158`: stage 2b witnessed
+
+Full suite. Unelevated 27/27 exit 0, 492 PASS; elevated 31/31 exit 0, 641
+PASS; no FAIL. `verify-dictfold` passed 23/23. On its first run,
+`verify-dictrename` passed 12/12: the installed upgrade step replaced exactly
+the two planted twins and kept the control id. THIRD.COMPILE compiled 17
+I-types under lower-case ids.

@@ -184,7 +184,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | | |
 > |---|---|
 > | install | `b157` cycle 02:30; unelevated 27/27 (484 PASS), elevated 30/30 (629 PASS), 0 FAIL |
-> | tokens | **`b157` spent — use `b158`** |
+> | tokens | **`b158` spent — use `b159`** (see the `b158` box below) |
 > | closed today | RELEASE_1.1 33, 34; 5's creation verbs (SET.FILE, `.S`, CNAME) |
 > | open | **5** (stage 2b, then stage 3), **7** (needs the owner's go-ahead to stage a dead-owner lock), **18** (release PDFs, at W1.1-0 assembly); plus the unruled `-Only` register-residue class (Handoff 58) |
 >
@@ -194,7 +194,35 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > - **Bulk edits by scratch script, per batch, with checks**: dry run first, refuse BOM/CR, exact tokens in named files only, word-diff after. Small edits stay on Edit.
 > - An existing id in another case is **"the same id"** (fold the existence test, keep the matched id).
 >
-> ***STAGE 2b — A PLAN, NOT STARTED; WHAT WOULD FALSIFY EACH STEP IS NAMED.***
+> ### ✅ ***`b158`, 14 Sep 2026 — STAGE 2b WITNESSED, FULL SUITE GREEN. THE INSTALL IS CURRENT; NOTHING IS OWED. NEXT: STAGE 3 (needs its own plan).***
+>
+> | | |
+> |---|---|
+> | cycle | 10:02–10:05: 0 compile errors, no "not assigned" warnings; bootstrap `DICTIONARY:` 78, `REPLACED` 0; THIRD.COMPILE compiled **17** I-types, all under lower-case ids (the plan's "16" was a miscount) |
+> | unelevated | 27/27 exit 0, **492 PASS / 0 FAIL** in the log; `verify-dictfold` **23/23** |
+> | elevated | 31/31 exit 0, **641 PASS / 0 FAIL** across the step logs; sdsysgate 10 and pygate 40 decisive, 0 failed; `verify-dictrename` **12/12** |
+> | dictrename | DICT VOC 16 → planted 19 → after `upgrade-dicts` 17; printed `REPLACED OLD ID: voc.dic @ID BY @id` and `… TYPE BY type`, exactly 2 REPLACED lines; `zzdrkeep` survived; cleanup left none of the three |
+> | tokens | **`b158` spent — use `b159`** |
+> | residue | 3 stuck hives from this run's own VI1 accounts (`sdtub158`, `sddrb158a`/`b`), the known class — reboot before the next full run |
+>
+> *(The pre-cycle box follows.)*
+>
+> ### ⚠️ ***14 Sep 2026, NEXT SESSION — STAGE 2b IS IN SOURCE AND THE TREE IS STALE ON PURPOSE. A CYCLE AND `b158` ARE OWED.***
+>
+> Steps 1–5 below were built, and step 6's instruments exist. Detail is in RELEASE_1.1 5 ("Stage 2b as built").
+> - **Step 4's objection held.** `WRITE_INSTALL_DICTS` now replaces an id that differs only in case, rather than twinning it.
+> - **COPY does not fold (measured).** So `verify-dictfold` takes `xtype` from a `bp` record. Its scratch red run on `b157` failed exactly the 6 new rows.
+> - **New `verify-dictrename.ps1`** (elevated, in `VerifyInstall2`) forces the upgrade branch. It has never run past assert-current.
+> - **Free tier: 35/36.** `test-staleleads-units.py` is red at `8035ac7` in a clean worktree; it is not this change and is flagged for a separate task.
+>
+> **Owed, in order:** `cycle.ps1` (**ELEVATED**), then `VerifyInstall1.ps1 -ThenElevated -Run b158` from an **ordinary unelevated** prompt. It is a full run because `CREATEF` is on many steps' paths.
+>
+> **If a step fails, suspect these first:**
+> - an I-type whose tokens were lowered failing THIRD.COMPILE (the cycle's compile check would name it);
+> - `verify-dictrename`'s plant being refused in an SDSYS session;
+> - its REPLACED-count control catching a twin that some other code made (for example `dir_dict` or `$hold.dic` gaining an `@ID`). That would be a finding, not a flaky row.
+>
+> ***STAGE 2b — THE PLAN AS HANDED OVER (NOW BUILT, SEE THE BOX ABOVE); WHAT WOULD FALSIFY EACH STEP IS NAMED.***
 > 1. Rename the 72 upper ids in `gplbld/FILES_DICTS` (78 records, 8 dictionaries, file names `<dict>^<id>`), `@ID`/`@` included. *Falsified if* `WRITE_INSTALL_DICTS` or `bootstrap.py` derive ids from anything but the file name — read both first.
 > 2. Lower the field-name tokens inside the 16 I-type expressions (only tokens naming a field of the same dictionary; literals like `'V'`, `'K'`, `'@QMSYS'` must not move). 2a makes this cosmetic for resolution, so it could be skipped if it proves risky.
 > 3. `CREATEF:488` and `CREATEA:1879` write `@id`; `QPROC:737`, `MKINDX`, `SHOW`, `CNAME` already read both.
