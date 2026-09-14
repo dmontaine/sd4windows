@@ -187,7 +187,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | tokens | **`b159` spent — use `b160`** |
 > | owed | **a reboot before the next full run.** VI2's opening sweep found 24 stuck hives (21 from `b158`, 3 from `b159`'s VI1) and continued as designed (PRE_RELEASE 185). Boot was 09:30, before `b158`: the reboot Handoff 60 asked for did not happen. Each full run adds ~21; a reboot resets it to 3 |
 > | closed today | RELEASE_1.1 5 stage 3a |
-> | open | **5** (D2, then 3b; and the COMMON-name question in Handoff 60 for the owner), **7** (needs the owner's go-ahead to stage a dead-owner lock), **18** (release PDFs, at W1.1-0 assembly); plus the unruled `-Only` register-residue class (Handoff 58) |
+> | open | **5** (D2, then 3b), **7** (needs the owner's go-ahead to stage a dead-owner lock), **18** (release PDFs, at W1.1-0 assembly); plus the unruled `-Only` register-residue class (Handoff 58) |
+> | ruled today | ***COMMON block names stay upper*** — owner, 14 Sep 2026, closing Handoff 60's question. Nothing to build: `BCOMP:3573` upcases every identifier and `get.name` (`:3160`) stores that, so `common /myblock/` typed in any case already binds to `MYBLOCK`; `DELCOM:57` upcases too. `get.name` stays as 3a left it, and `op_array.c:148`'s `strcmp` stays exact |
 >
 > **The three checks passed this time**: a new `cycle-*.log`, `sd.exe` dated after the run, `gcat` 152 names / 0 with an upper-case letter.
 >
@@ -215,7 +216,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***WHAT 3a WOULD BREAK IF IT IS WRONG, AND HOW IT WOULD SAY SO.*** `valid_call_name` now accepts lower case only, deliberately, so a missed site fails as *"Illegal call name"* rather than being hidden by NTFS; `Pcode item <x> not found` means `bbcmp.py` and `load_pcode` disagree; `Unable to load '$cproc'` means the placeholder or CATALOG's name. Each names its site. **Do not relax `valid_call_name` to get past one.**
 >
-> **One decision the next session should put to the owner:** COMMON block names were deliberately left upper case (the kernel matches them across programs with `strcmp`, so lowering them would split `COMMON /X/` between objects compiled before and after 3a). Everything else named in "lower case everywhere" is done or listed.
+> **One decision the next session should put to the owner** — ***RULED 14 Sep 2026, see Handoff 61: they stay upper.*** COMMON block names were deliberately left upper case (the kernel matches them across programs with `strcmp`, so lowering them would split `COMMON /X/` between objects compiled before and after 3a). Everything else named in "lower case everywhere" is done or listed.
 >
 > *(Handoff 59 follows, still accurate about 7, 18 and the stage plan.)*
 

@@ -61282,3 +61282,13 @@ measured — so the wider boundary reports no drift the narrow one did not.
 its own control was red. That is the same shape as the checker passing while
 `test-staleleads-units.py` sat at 12 of 13 for days in September: the listed
 check is not the guard over the check.
+
+## 14 Sep 2026 — COMMON block names stay upper (owner's ruling)
+
+Handoff 60 left one question from stage 3a: whether "lower case everywhere"
+reaches COMMON block names. Read before asking: BCOMP upcases every identifier
+(`:3573`) and `get.name` stores that (`:3160`), so `common /myblock/` typed in
+any case already binds to `MYBLOCK`; `DELETE.COMMON` upcases too (`DELCOM:57`);
+the kernel's `strcmp` (`op_array.c:148`) only ever sees upper. Lowering what
+BCOMP emits would split a block between objects compiled before and after.
+Owner: leave them upper. Nothing built.
