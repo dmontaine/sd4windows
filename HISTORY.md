@@ -60917,3 +60917,21 @@ was lifted by AST and driven through `Select-SuiteSteps`, which kept the
 runner's order and refused a typo. Re-deriving the header's counts (56 in the
 directory, 22 and 29 in the runners) found `verify-createfilecase.ps1` in
 neither table. It is recorded there, not wired, pending a ruling.
+
+**The owner then ruled `verify-createfilecase` into `VerifyInstall2`** (step 26
+of 30). Reading it before wiring found three rows that could not fail
+(`RELEASE_1.1` 32):
+
+- The LISTF row matched the id anywhere, and the session echoes the command
+  that contains it.
+- The two COUNT rows checked only for failure words and never for
+  `record(s) counted`.
+
+So the owner's earlier 6 of 6 was half a witness. The real hit and miss formats
+were captured from an unelevated session first. The new matchers were then
+driven against that text, and so were the old patterns: the old ones passed the
+real misses. It also gained a VOC-record-gone row.
+
+The same lesson as this morning, arriving from a different side: **a verifier
+nobody has read since it was written is a verifier nobody has checked, however
+green it is.**
