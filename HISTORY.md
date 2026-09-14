@@ -61220,3 +61220,25 @@ earlier BCOMP edit. Also: `verify-callcase`'s first red run exposed its own
 matcher counting a message line as a VOC row.
 
 A cycle is owed.
+
+## 14 Sep 2026 — `b159`: stage 3a witnessed
+
+Cycle 12:07 (`cycle-20260914-120650.log`): step 0 relinked all 12 binaries, 0
+compile errors, the same 7 benign warnings as `b158`, `DICTIONARY:` 78 /
+`REPLACED` 0, THIRD.COMPILE 17 I-types, `gcat/$cproc` written lower, none of
+the three bootstrap markers. `assert-current` matched source.
+
+Full suite. Unelevated 28/28 exit 0; elevated 31/31 exit 0; no FAIL.
+`verify-callcase` passed 23/23 on its first run against the fix (13 FAIL / 10
+PASS on `b158`), reading names rather than verdicts: gcat 152 / 0 upper, 55
+pcode header names lower, CATALOG's messages lower, a missing call named
+`'!zznosuchsub3a'`, an old upper local entry still loading and renamed on
+re-catalogue.
+
+Handoff 60's three checks were what proved the cycle had run this time: a new
+log, `sd.exe` 12:07:12, `gcat` 0 upper-case names. The reboot it asked for did
+not happen (boot 09:30); VI2's sweep found 24 stuck hives, the known class, and
+continued. Two artefacts read and dismissed: an unelevated second `cycle.ps1`
+that stopped at its guard, and PASS-word counts in three VI1 steps that differ
+from `b158` only because a narrower console truncated the `PASS` column. The
+elevated step logs are UTF-16 and grep as empty until decoded.

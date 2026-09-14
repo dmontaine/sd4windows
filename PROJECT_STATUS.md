@@ -179,6 +179,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 61, 14 Sep 2026 — ***STAGE 3a IS DONE AND WITNESSED (`b159`, GREEN IN BOTH HALVES). THE INSTALL IS CURRENT; NOTHING IS OWED BUT A REBOOT. NEXT: RELEASE_1.1 5 D2 (design, cost unmeasured), THEN 3b.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | **`b159`**, 14 Sep 12:07 (`cycle-20260914-120650.log`, `sd.exe` 12:07:12) — unelevated **28/28** exit 0, elevated **31/31** exit 0, 0 FAIL, no `PARTIAL`; `assert-current: the installed tree matches source` |
+> | tokens | **`b159` spent — use `b160`** |
+> | owed | **a reboot before the next full run.** VI2's opening sweep found 24 stuck hives (21 from `b158`, 3 from `b159`'s VI1) and continued as designed (PRE_RELEASE 185). Boot was 09:30, before `b158`: the reboot Handoff 60 asked for did not happen. Each full run adds ~21; a reboot resets it to 3 |
+> | closed today | RELEASE_1.1 5 stage 3a |
+> | open | **5** (D2, then 3b; and the COMMON-name question in Handoff 60 for the owner), **7** (needs the owner's go-ahead to stage a dead-owner lock), **18** (release PDFs, at W1.1-0 assembly); plus the unruled `-Only` register-residue class (Handoff 58) |
+>
+> **The three checks passed this time**: a new `cycle-*.log`, `sd.exe` dated after the run, `gcat` 152 names / 0 with an upper-case letter.
+>
+> **The 3a witness, `verify-callcase`: 23/23** on its first run against the fix (13 FAIL / 10 PASS on `b158`). It read names: gcat 152 / 0 upper; 55 `bin\pcode` header names all lower; CATALOG's 3029/3031/3040/3042 wording lower; the runtime named a missing call `'!zznosuchsub3a'`; an old `ZZCL3A` local entry still loaded through `_VOC_CAT`'s fold and was renamed on re-catalogue; DELETE.CATALOG found it. **Cycle**: step 0 relinked 12 binaries, 0 compile errors, the same 7 "assigned but never used" warnings as `b158` (no "not assigned"), `DICTIONARY:` 78 / `REPLACED` 0, THIRD.COMPILE 17 I-types, the bootstrap wrote `gcat/$cproc` lower, none of the three bootstrap markers. Elevated PASS-words 897, identical to `b158`; sdsysgate 10 decisive / 0 failed.
+>
+> **Not a defect, do not re-investigate:** a second `cycle.ps1` at 12:09:31 was unelevated, stopped at the guard, did nothing. VI1's transcript ends in the `"System error."` transcript-stop artefact Handoff 45 recorded. Three VI1 steps show more PASS-words than `b158` only because `b158`'s narrower console truncated the table's `PASS` column — compare each step's own verdict line, never PASS-word counts. The elevated per-step logs are UTF-16: `grep` answers 0 until piped through `iconv -f UTF-16 -t UTF-8`.
+>
+> **Still not covered by `verify-callcase`** (unchanged from the entry): SET.TRIGGER's stored name; the `$debug`/`$pdbg`/`$proc` literals.
+>
+> *(Handoff 60 follows. Its "owed" row and "THE CYCLE ... HAS NOT RUN" paragraph are history; its stage-3 plan, worklist and the COMMON-name question still stand.)*
+
 > # ⇩⇩⇩ HANDOFF 60, 14 Sep 2026 — ***STAGE 2b IS DONE AND WITNESSED (`b158`, GREEN IN BOTH HALVES). STAGE 3 IS RULED AND 3a IS IN SOURCE, UNWITNESSED: THE TREE IS STALE ON PURPOSE AND A CYCLE IS OWED.*** ⇩⇩⇩
 >
 > | | |
