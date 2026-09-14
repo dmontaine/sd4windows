@@ -179,9 +179,41 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ### ✅ ***`b157`, 14 Sep 2026 — "FINISH 5" STAGE 2a DONE AND WITNESSED. THE INSTALL IS CURRENT; NOTHING IS OWED. NEXT: 2b (rename shipped dictionary ids, @ID included).***
+> # ⇩⇩⇩ HANDOFF 59, 14 Sep 2026 — ***THE INSTALL IS CURRENT (`b157`, GREEN IN BOTH HALVES), EVERYTHING IS COMMITTED AND PUSHED, AND NOTHING IS OWED. THE NEXT PIECE OF WORK IS RELEASE_1.1 5 STAGE 2b, NOT STARTED.*** ⇩⇩⇩
 >
-> Unelevated 27/27 exit 0, 484 PASS; elevated 30/30, 629 PASS; no FAIL. `verify-dictfold` 15/15. **Tokens: `b157` spent — use `b158`.** *(As built:)* 11 BASIC programs; new `verify-dictfold.ps1` (VerifyInstall1, red 6/6 decisive on the old install); `ICOMP:1212` was a real bug (I-types could only name upper-case fields). Owner ruled `@ID` → `@id` too, for 2b. Detail: RELEASE_1.1 5. **Tokens: `b157` next.** *(The select-mode trap is in memory.)*
+> | | |
+> |---|---|
+> | install | `b157` cycle 02:30; unelevated 27/27 (484 PASS), elevated 30/30 (629 PASS), 0 FAIL |
+> | tokens | **`b157` spent — use `b158`** |
+> | closed today | RELEASE_1.1 33, 34; 5's creation verbs (SET.FILE, `.S`, CNAME) |
+> | open | **5** (stage 2b, then stage 3), **7** (needs the owner's go-ahead to stage a dead-owner lock), **18** (release PDFs, at W1.1-0 assembly); plus the unruled `-Only` register-residue class (Handoff 58) |
+>
+> ***OWNER RULINGS TODAY THAT BIND THE NEXT SESSION:***
+> - **"Finish 5" = all of phase (b)**: dictionary field names, program and catalogue names, as well as what is already done. Account names stay upper (earlier ruling).
+> - **`@ID` → `@id` too**, including the `@ID` record `CREATE.FILE` writes into new files.
+> - **Bulk edits by scratch script, per batch, with checks**: dry run first, refuse BOM/CR, exact tokens in named files only, word-diff after. Small edits stay on Edit.
+> - An existing id in another case is **"the same id"** (fold the existence test, keep the matched id).
+>
+> ***STAGE 2b — A PLAN, NOT STARTED; WHAT WOULD FALSIFY EACH STEP IS NAMED.***
+> 1. Rename the 72 upper ids in `gplbld/FILES_DICTS` (78 records, 8 dictionaries, file names `<dict>^<id>`), `@ID`/`@` included. *Falsified if* `WRITE_INSTALL_DICTS` or `bootstrap.py` derive ids from anything but the file name — read both first.
+> 2. Lower the field-name tokens inside the 16 I-type expressions (only tokens naming a field of the same dictionary; literals like `'V'`, `'K'`, `'@QMSYS'` must not move). 2a makes this cosmetic for resolution, so it could be skipped if it proves risky.
+> 3. `CREATEF:488` and `CREATEA:1879` write `@id`; `QPROC:737`, `MKINDX`, `SHOW`, `CNAME` already read both.
+> 4. ***THE OBJECTION THAT MUST BE ANSWERED BEFORE BUILDING***: `WRITE_INSTALL_DICTS` and `gplbld/upgrade-dicts.ps1` **merge record by record**, so an upgraded SDSYS would hold `TYPE` **and** `type` unless they rename like `update.voc` now does (stage 1). Unmeasured whether they write by id or replace the file.
+> 5. Anything that names a shipped dictionary id as a literal: grep `gplbld` verifiers and `gpl.bp` for `DATA.NAME`, `TYPE`, `DESC`, `F1`…, and `'@ID'` compared as a token (e.g. `ED:2673`) — a token compare is not a read and 2a did not touch it.
+> 6. Witness: extend `verify-dictfold` (the stored ids in `LIST DICT VOC` read `-cmatch`, and a query naming `TYPE` still works); an upgrade leg if 4 applies. **Stage 3** (223 gpl.bp names, gcat, pcode.out, the C kernel's 8 loaded names, the compiler's CALL names) is larger than 2b and needs its own plan.
+>
+> ***TRAPS PAID FOR TODAY — READ BEFORE REPEATING ANY OF THEM:***
+> - **A verify suite silent between steps, runner with no child process, no `sd.exe`** = a console in **Select** mode. Esc. Kill nothing. (Also in memory.)
+> - **Edit/Write strip trailing spaces**; message files that end `? ` need a byte-level write (owner approved the pattern once).
+> - **`LIST VOC WITH @ID = "x"` folds the selection** between upper and lower; read the stored id from the row with `-cmatch`, never the selection.
+> - **`update.accounts` is ADMINISTRATOR-only** — a fixture in a STANDARD or PROGRAMMER account gets "not in your VOC"; `verify-tiers` §5 had passed on that refusal for weeks.
+> - **COPY carries a dictionary item's compiled object**, so "no compile error" proves nothing unless "Compiling <item>" is in the same transcript.
+> - **Case inversion is not in effect on Windows** — measured piped, under `sd -internal`, and interactively; do not build a witness for it.
+> - **The hook blocks `sed -i` and a heredoc anywhere in a command that also contains `>`** (even `=>` in a grep); write commit messages to a scratch file and `git commit -F`.
+>
+> ### ✅ ***`b157`, 14 Sep 2026 — "FINISH 5" STAGE 2a DONE AND WITNESSED.***
+>
+> Unelevated 27/27 exit 0, 484 PASS; elevated 30/30, 629 PASS; no FAIL. `verify-dictfold` 15/15. *(As built:)* 11 BASIC programs; new `verify-dictfold.ps1` (VerifyInstall1, red 6/6 decisive on the old install); `ICOMP:1212` was a real bug (I-types could only name upper-case fields). Detail: RELEASE_1.1 5.
 >
 > ### ✅ ***`b156`, 14 Sep 2026 — "FINISH 5" STAGE 1 DONE AND WITNESSED. THE INSTALL IS CURRENT; NOTHING IS OWED. NEXT: STAGE 2 (dictionary ids).***
 >
