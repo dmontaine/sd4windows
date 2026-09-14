@@ -61333,3 +61333,30 @@ dictionaries (D2b). Recorded as an assumption: users' own data files stay
 out, per 13 Sep. The witness can no longer plant twins by `write`; they
 must arrive as a restore would, an OS-level copy of a hashed file built as
 user data, which moves the VOC legs to the elevated runner.
+
+## 14 Sep 2026 — D2 built as NOCASE-by-construction (the read-side design dropped)
+
+The owner widened the ruling to "anywhere, including user files." That made
+the whole read-side-probe design above unnecessary: instead of probing 45
+fold sites for a twin at read time and guarding writes into VOC and
+dictionaries, the kernel makes EVERY hashed file case insensitive at creation
+(`op_create_dh` in gplsrc/op_dio1.c, the one opcode every creation path
+reaches). A twin then cannot exist - the second casing is the first record -
+so there is nothing to probe and no write to guard. Directory files were
+already folded by NTFS.
+
+In source, cycle-owed (C syntax-clean, BASIC block-balanced, free guard
+green; not yet run): the kernel default; DHF_KEEPCASE, an internal-mode-only
+request bit for building a case-sensitive fixture; CREATE.FILE/CONFIGURE.FILE
+refusing CASE outside internal mode (10176); CONFIGURE.FILE's rebuild made
+twin-safe (it refused ER_TWIN 3042 / 10177 instead of silently dropping one
+of a pair - CONFIGF:333 was the loss); ER_TWIN; messages 10176/10177; the
+free guard test-voctwins-units.py; and the witness verify-twins.ps1 (elevated,
+because only sd -internal can build the case-sensitive fixture the twin-refusal
+leg needs).
+
+Left for a separate build: the upgrade-conversion walk. A fresh install makes
+everything NOCASE, but an upgraded machine keeps its case-sensitive data files
+(upgrade invariant), so each needs CONFIGURE.FILE NO.CASE. That is
+upgrade-path-only, untestable by cycle.ps1, and large enough to keep apart
+from the witnessed core.

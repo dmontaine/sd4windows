@@ -179,7 +179,33 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 61, 14 Sep 2026 — ***STAGE 3a IS DONE AND WITNESSED (`b159`, GREEN IN BOTH HALVES). THE INSTALL IS CURRENT; NOTHING IS OWED BUT A REBOOT. NEXT: RELEASE_1.1 5 D2 (design, cost unmeasured), THEN 3b.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 62, 14 Sep 2026 — ***D2's PREVENTION IS IN SOURCE, THE TREE IS STALE ON PURPOSE, A CYCLE AND `b160` ARE OWED. THE FRESH-INSTALL HALF IS COMPLETE; THE UPGRADE-CONVERSION WALK IS NOT BUILT.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | `b159`, current until this source lands — `assert-current` now refuses everything, on purpose |
+> | tokens | **use `b160`** |
+> | owed, in order | a reboot (24 stuck hives from `b158`/`b159`, never cleared); `cycle.ps1` **ELEVATED**; then `VerifyInstall1.ps1 -ThenElevated -Run b160` **unelevated**. `verify-twins` is a new elevated step |
+> | built today | D2's prevention (below), witnessed on a fresh install by the new `verify-twins` |
+> | NOT built | the upgrade-conversion walk (converts an upgraded machine's existing case-sensitive files) — scoped below, upgrade-path-only; and 3b |
+> | open | **5** (the upgrade walk, then 3b), **7**, **18**, the `-Only` register-residue class (Handoff 58) |
+>
+> ***THE RULING (owner, 14 Sep 2026): "whatever is needed to prevent two record ids (program names, voc items, etc) that differ only by case, anywhere, including user files."*** So this is prevention, not a read-side refusal, and it reaches every file.
+>
+> **WHAT IS IN SOURCE (observed: C syntax-clean under the Makefile flags, BASIC block-balanced, the free guard green; NOT yet cycled or run):**
+> - **The kernel makes every hashed file case insensitive.** `op_create_dh()` (`gplsrc/op_dio1.c`) forces `DHF_NOCASE` on every file it creates, whatever the caller asked — and that one opcode is where `CREATE.FILE`, the BASIC `create.file`, the bootstrap and `CONFIGURE.FILE`'s rebuild all arrive. So a twin cannot be written: the second casing IS the first record (`dh_hash.c`, `dh_write.c` et al. already honour the flag). This is the whole prevention on a fresh install, and it is why `verify-twins` is the witness.
+> - **`DHF_KEEPCASE`** (`dh.h`, value `0x04`, outside `DHF_CREATE` so it never reaches a file header) is a request bit the opcode honours **only in internal mode** (`sd -internal`, behind `check_admin`). It exists for one reason: to build a case-sensitive fixture so the upgrade's twin refusal can be witnessed. Nothing a user can reach sets it.
+> - **`CREATE.FILE`/`CONFIGURE.FILE` refuse `CASE`** outside internal mode (`sysmsg 10176`). `CREATEF`, `CONFIGF`.
+> - **`CONFIGURE.FILE`'s rebuild is twin-safe.** Converting a case-sensitive file to NOCASE used to copy `jack` then write `JACK` over it and come out a record short, silently (`CONFIGF:333`). It now looks each id up in the new file first; a hit is a twin, and it refuses with **`ER_TWIN` (3042)** and **`sysmsg 10177`** naming both spellings, deletes the temp file and leaves the original case-sensitive and whole. The fold still serves it until someone resolves the pair.
+> - **Messages 10176, 10177; `ER_TWIN` 3042** (`gplsrc/err.h`, regenerated into `syscom/err.h` and `ERRTEXT.H` by `gen_includes.py` — `--check` clean).
+> - **Free guard `test-voctwins-units.py`** (green, 9/9): the shipped source loaded into these files — `newvoc`, `voc_template`, `FILES_DICTS` — holds no two ids that fold together (a fresh install can't make a twin, but a shipped *pair* would load one and drop the other). Registered in CLAUDE.md's free tier and `assert-current`'s `$neverShipped`.
+> - **Witness `verify-twins.ps1`** (elevated, `VerifyInstall2`, after `verify-dictrename`; `$neverShipped`): leg A a fresh file folds (`jack` over `JACK` → one record, stored `jack`); B `CASE` refused for a normal session; C an `sd -internal`-built case-sensitive file holding both `jack` and `JACK` is refused by `CONFIGURE.FILE NO.CASE` (10177) and left whole; D a single-spelling file converts cleanly. It is elevated, not `VerifyInstall1` as the design first said, because only `sd -internal` can build the case-sensitive fixture. ***Its A and C legs are the decisive pre-fix rows*** — on a build without the kernel default a fresh file is case-sensitive, so A stores two and C's rebuild drops one. **Unwitnessed until the cycle: `verify-twins` has never run** (no install carries the change yet), and its SD command details — the `ED`/`LIST` legs — are the likeliest thing to need a fix on first run.
+>
+> ***THE UPGRADE-CONVERSION WALK IS NOT BUILT, AND HERE IS WHY IT IS SEPARATE.*** A fresh install creates every file NOCASE, so the ruling holds there by construction and the cycle witnesses it. But an *upgraded* machine keeps its existing hashed files (the upgrade invariant: shipped source is replaced, data files preserved), and those were built case-sensitive — so until each is converted with `CONFIGURE.FILE NO.CASE`, a twin can still be written into it. The walk that converts every account's VOC, every dictionary and SDSYS's own files is real and required, but it is **upgrade-path-only and cannot be tested by `cycle.ps1`** (which does a fresh install); it needs the `upgrade.iss` apparatus, like `verify-upgrade`. It is large enough that bundling it untested with the witnessed core would risk shipping a wrong walk. **Design, conditional:** a BASIC `UPGRADE_NOCASE` reusing `CONFIGURE.FILE` per file (so the twin refusal is shared, not reimplemented), run from a new `upgrade-nocase.ps1` in the installer's upgrade sequence beside `upgrade-dicts`; twins it cannot convert are reported and left, exactly as `CONFIGF` leaves them. *Falsified if* a preserved file is opened by a path the walk does not reach — the F-record audit `_VOC_REF` needs is the place to enumerate.
+>
+> **Not covered by the prevention, by the owner's earlier boundary now widened:** the ruling says *including user files*, so there is no longer a user-data exception — every hashed file is NOCASE. Directory files (program source, catalogues) were already case-folded by NTFS.
+>
+> *(Handoff 61 follows, still accurate about the reboot, and about 7, 18 and 3b.)*
 >
 > | | |
 > |---|---|
@@ -199,6 +225,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > **Still not covered by `verify-callcase`** (unchanged from the entry): SET.TRIGGER's stored name; the `$debug`/`$pdbg`/`$proc` literals.
 >
+> ### ⚠️ D2 — THIS DESIGN (read-side probe at every fold site) IS SUPERSEDED. See Handoff 62. The owner's "prevent... anywhere" ruling made the far simpler NOCASE-by-construction approach the right one: every hashed file is case insensitive, so a twin cannot exist and there is nothing to probe for. The `!TWIN` routine, the 45-site probe, the `_VOC_CAT` abort, and message 10176-at-use-sites below were NOT built. Kept for the reasoning about where twins can occur. ⚠️
 > ### D2 — DESIGN, WRITTEN 14 Sep 2026 AFTER THE COST MEASUREMENT. NOT STARTED. Everything below is a plan and is written in the conditional; the falsifiers are named where they belong.
 >
 > **What it would do.** A VOC id, a dictionary id or a local catalogue entry that exists in more than one case would be refused at the point of use, naming both spellings, instead of the fold silently picking one. The ruling is D2 = yes (Handoff 60); the cost is settled (~2 µs per probe, above). **Scope is the hashed system files where two casings can coexist — VOC, `DICT` of any file, and local catalogue entries, which are VOC ids.** Out, by the owner's 13 Sep boundary: record ids in users' data files — so `QPROC:4091` (explicit ids in a query), `CT:208`, `ED:3638`, `EDIT:491`, `LOGIN:1501`, `BASIC:308`, `CATALOG:287`, `BCOMP:3075` and `CPROC:2328` keep their fold and get no check. Directory files cannot hold a twin on NTFS.

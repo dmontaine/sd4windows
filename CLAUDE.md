@@ -572,8 +572,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-wraptext-units`, `test-upgradevoc-units`,
    `test-privundetermined-units`, `test-elevonce-units`,
    `test-suitetranscript-units`, `test-basicfuncscov-units`,
-   `test-promptdefaults-units`, `test-intrinsics-units.py`.
-   ***ALL THIRTY-SIX. Run these on
+   `test-promptdefaults-units`, `test-intrinsics-units.py`,
+   `test-voctwins-units.py`.
+   ***ALL THIRTY-SEVEN. Run these on
    every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
    thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
    for thirty-two; the set got one longer and the wall clock did not, so do not
@@ -810,6 +811,15 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    guards `gplbld/reconcile-accounts.ps1`'s decision table, PRE_RELEASE 93 and
    65's sweep — the one that deletes account directories as LocalSystem at
    every service start.
+
+   ***`test-voctwins-units.py` JOINED IT 14 Sep 2026 IN THE COMMIT THAT CREATED
+   IT***, RELEASE_1.1 5 D2's free guard. The kernel makes every hashed file
+   case insensitive, so a twin cannot be written at runtime — but the SHIPPED
+   SOURCE loaded into those files is plain text (`sdsys/newvoc`,
+   `sdsys/voc_template`, `gplbld/FILES_DICTS`), where nothing stops two records
+   naming ids that fold to one; a shipped pair would load one and drop the
+   other. It reads the three trees for a fold-collision, with a planted-twin
+   mutant as the control. No SD, install, elevation or cycle.
 
    ***`test-stalebin-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT.*** It guards `gplbld/stale-binaries.ps1` — this script's own check A2,
