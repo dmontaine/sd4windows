@@ -61117,3 +61117,12 @@ Three things learned while building stage 1:
 
 The audit of all 86 `input` sites found none that compares an answer to an
 upper-case literal without upcasing it first.
+
+**Correction, the same session, before the cycle.** `sd -internal` cannot
+witness case inversion either. On the old install, the owner's elevated
+`sd -internal PTERM DISPLAY` read Off. So did an interactive session, where
+typing in lower case echoed in lower case.
+
+On Windows, inversion was already not in effect, and the cause is untraced. The
+stage 1 removal is dead-code cleanup, so its changelog entry was withdrawn. The
+`-internal` rows are a regression guard, not a witness.
