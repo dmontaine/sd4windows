@@ -60940,3 +60940,30 @@ green it is.**
 8 of 8. LISTF printed a real table row for `zzlctest211644`, COUNT resolved it
 in both cases on `record(s) counted`, and the VOC record and directory were both
 gone after cleanup. An independent VOC scan found no `zzlctest*`. 32 closed.
+
+---
+
+## 13 Sep 2026 — `RELEASE_1.1` 6: Enter pressed at four more prompts
+
+**Commit:** see the commit that carries this entry. No cycle, no run token.
+
+This was the owner's "cheapest to most expensive" order, starting with 6.
+`verify-promptenter` gained two legs and now passes 38 of 38, run unelevated by
+the agent.
+
+- **Leg 4: `DELETEF` 6135 and 6140.** A plain `DELETE.FILE` asks nothing; the
+  prompts fire only when the stored path differs from the typed name.
+  `COPY FROM VOC zzpromptd,zzpromptx` makes such a pointer. Enter at both
+  deleted nothing; Y at both deleted both portions.
+- **Leg 5: `CATALOG` 3033 and 3034.** `LOCAL` then private meets 3033, and
+  `LOCAL` again meets 3034. Enter kept the `V`/`CS` record and the `cat` record;
+  Y removed each.
+
+Every behaviour was captured from a scratch session first, and cleanup is
+asserted by rows.
+
+**3035 is unreachable unelevated, and that is measured.** It needs a global
+catalogue entry whose name matches a private or local one. All 152 `gcat`
+names carry a `$ ! *` prefix that a private or local name cannot, and writing
+`gcat` needs an administrator. If it is covered, `verify-catgate` is the place.
+2050 and 6133 stay the owner's decisions.
