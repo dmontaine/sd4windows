@@ -61068,3 +61068,25 @@ exit 0, 424 PASS; elevated 30/30 exit 0, 616 PASS; no FAIL in either.
 `verify-promptenter` 64/64, the first suite run of legs 6–8. `verify-catgate`
 33/33. SDSYS VOC holds no fixture names, and `sdcatgb148bp.out` is gone.
 `RELEASE_1.1` open: 5, 7, 18.
+
+## 14 Sep 2026 — `RELEASE_1.1` 5's creation verbs, and 34 found on the way
+
+Every VOC write in `gpl.bp` was listed to find the verbs that mint a new id from
+user input: SET.FILE, `.S`, CNAME and CATALOG. The owner ruled the first three
+in scope. Catalogue names stay upper, because `CALL` finds a LOCAL entry by
+exact match in `_VOC_CAT` and the object cache.
+
+A scratch probe measured each defect on `b153` before any edit. Two of them
+created a second record in another case without a word. CNAME also could not
+find a lower-case file typed in upper case, and left the dictionary behind.
+
+The first CNAME draft had a data-loss path: a new name that folds to the old
+one writes onto the old record, then deletes it. It is refused now, and
+`verify-vocidcase` leg 9 guards it.
+
+Reading `.S` found prompt 5045 re-asking for ever on Enter (34). The prompt
+walk in `test-promptdefaults-units` cannot see such a prompt until it has a
+default.
+
+The Edit and Write tools strip trailing spaces, which cost 2050, 6133 and 5045
+their space after `?`. No test noticed.

@@ -179,6 +179,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ### ⚠️ ***14 Sep 2026, LATER — 5's "OTHER CREATION VERBS" AND NEW 34 ARE FIXED IN SOURCE. THE TREE IS STALE ON PURPOSE; A CYCLE IS OWED.***
+>
+> Owner rulings: scope *SET.FILE, .S, CNAME* (catalogue names out — `_VOC_CAT` and the object cache match exactly); an existing id in another case is *"the same id"*; 5045 *"Default to N"* (34). Changed: `gpl.bp/SETFILE`, `CPROC`, `CNAME`, `messages/5045`, `changelog` — `assert-current` names those source files. New **`gplbld/verify-vocidcase.ps1`** (unelevated, `VerifyInstall1` step 23 of 23, `$neverShipped`), **8/23 red against `b153` as designed** (scratch copy without the assert gate). Free tier 36/36 once 34's row existed. **Owed, in order**: `cycle.ps1` (**ELEVATED**), then from an **ordinary unelevated** prompt `VerifyInstall1.ps1 -ThenElevated -Run b154` — `CPROC` is on every session's path, so a full run. **Open question put to the owner**: the Edit/Write tools strip trailing spaces, so messages `2050`, `6133` (in `3ac49b0`) and `5045` lost the space after `?`; restoring it needs a byte-level write, which CLAUDE.md requires asking for. Full detail: RELEASE_1.1 5 and 34.
+
 > ### ✅ ***`b153`, 14 Sep 2026 — 33 WITNESSED AND CLOSED. THE INSTALL IS CURRENT; NOTHING IS OWED.***
 >
 > Cycle 23:55 carrying 33, then `VerifyInstall1 -ThenElevated -Run b153`, no reboot. ***Unelevated: 25 steps exit 0, 424 `[PASS]` / 0 `[FAIL]`. Elevated: 30 exit 0, 616 `[PASS]` / 0 `[FAIL]`*** (per-step logs decoded; `verify-sdsysgate` 10 and `verify-pygate` 40 decisive rows, 0 failed). `verify-promptenter` **64/64** — legs 6, 7, 8 all ran inside a suite for the first time. `verify-catgate` 33/33. SDSYS VOC scan: no `zzprompt*`, `sdcatg*`, `probepy*` (control `listf` found; `sdcatgb148bp.out` gone). **Tokens: `b153` spent — use `b154`.** Profile dirs from `b152`/`b153` are litter for the next reboot.
