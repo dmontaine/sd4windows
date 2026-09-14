@@ -179,6 +179,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ### ✅ ***`b152`, 13 Sep 2026, AFTER THE REBOOT — THE CLEAN FULL PASS. NOTHING IS OWED.***
+>
+> `VerifyInstall1 -ThenElevated -Run b152`, run by the owner. ***Unelevated: every step exit 0, 398 `[PASS]` / 0 `[FAIL]`. Elevated: all 30 exit 0, 616 `[PASS]` / 0 `[FAIL]`*** across the 30 per-step logs (decoded; `verify-sdsysgate`'s 11 and `verify-pygate`'s 40 table rows all PASS too). ***Read from the logs, not the exit lines.***
+>
+> | | |
+> |---|---|
+> | first full pass | `verify-pagesuppress` 7/7, `verify-createfilecase` 8/8, `verify-promptenter` 38/38 |
+> | **6** | ***3035 witnessed on its first run*** (`verify-catgate` 1b, 9 rows). All seven prompts reached; Enter pressed at six — only `CPROC` 5040 never met Enter. **Still open for that and for 2050/6133 (owner's decisions)** |
+> | **8** | ***CLOSED*** — sweep `removed 50, failed 0` after the reboot |
+> | **9** | ***CLOSED*** — the same sweep could not take `sdtub152`/`sddrb152a`/`b`, this run's own accounts: the structural claim, witnessed. **Reboot between full runs** |
+> | `verify-register` | 7/7 — the reboot's service start cleared `b149`'s `sdcatgb149` |
+> | residue | SDSYS VOC holds only `sdcatgb148bp.out` (known, gone at the next cycle); `accounts` = `don`, `sdsys`; no unprefixed gcat entry; 21 `sd*` profile dirs from this run, for the next reboot |
+> | tokens | **`b152` spent — use `b153`** |
+>
+> ***`RELEASE_1.1` OPEN NOW: 5, 6 (5040's Enter + two owner decisions), 7, 18.*** Everything below this box is the plan that led here and is still accurate about 7, 18 and 5.
+
 > # ⇩⇩⇩ HANDOFF 58, 13 Sep 2026 — ***THE INSTALL IS CURRENT, EVERYTHING IS PUSHED, AND THE NEXT STEP IS THE OWNER'S: ONE REBOOT, THEN ONE FULL RUN ON `b151`, WHICH WITNESSES FOUR THINGS AT ONCE. NOTHING IS BROKEN AND NOTHING IS HALF-DONE.*** ⇩⇩⇩
 >
 > ### ⚠️ ***`b151` WAS RUN WITHOUT THE REBOOT AND STOPPED AT `VerifyInstall1` STEP 19 — READ THIS, THEN USE `b152`***

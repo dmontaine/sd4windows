@@ -60997,3 +60997,28 @@ start clears it. `b151` is spent; use `b152`.
 **The class is open and unruled**: a partial elevated run can leave residue
 that fails the next full run 19 steps in. The run that made the residue says
 nothing about it.
+
+---
+
+## 13 Sep 2026 — `b152` after the reboot: the clean full pass; 8 and 9 closed, 3035 witnessed
+
+`VerifyInstall1 -ThenElevated -Run b152`, run by the owner after rebooting.
+
+- **Unelevated**: every step exit 0, 398 `[PASS]` / 0 `[FAIL]`.
+- **Elevated**: 30 of 30 exit 0, 616 `[PASS]` / 0 `[FAIL]`, counted by decoding
+  all 30 UTF-16 per-step logs.
+
+It was the first full pass for `verify-pagesuppress`, `verify-createfilecase`
+and `verify-promptenter`'s legs 4–5. `verify-catgate` section 1b witnessed 3035
+on its first run: Enter kept the unprefixed global entry, Y removed it, and
+cleanup left nothing.
+
+The start-of-run sweep read `removed 50, failed 0`, which closes **8**. It could
+not take three hives, `sdtub152` and `sddrb152a`/`b`, all made by this run's own
+unelevated half. That is **9**'s structural claim witnessed on the same run as
+its cure, so **9** closes too, with the rule "reboot between full runs".
+`verify-register` 7/7 confirmed the reboot's service start had cleared
+`sdcatgb149`.
+
+6 stays open only for 5040, which has never met Enter, and for two owner
+decisions. `RELEASE_1.1` open: 5, 6, 7, 18.
