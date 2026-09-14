@@ -179,6 +179,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ### ⚠️ ***14 Sep 2026, LATER — "FINISH 5": STAGE 1 OF 3 IS IN SOURCE. THE TREE IS STALE ON PURPOSE; A MEASUREMENT, A CYCLE AND `b155` ARE OWED.***
+>
+> Owner ruled all of phase (b) plus case inversion off; bulk edits by per-batch scratch script with checks. Stage 1 = inversion off (`LOGIN`, `linuxio.c`), `$acc`/`$map`/`$release`/`sd.voclib`, `update.voc` renaming an account's old upper-case copy, syscom names lower. Full detail and stages 2–3: RELEASE_1.1 5. Free tier 36/36; `linuxio.c` gcc syntax clean; `gen_includes --check` in sync. **Owed, in order**: (1) **before the cycle**, elevated, `"C:\Program Files\SD\usr\bin\sd.exe" -internal PTERM DISPLAY` — must read **Case inversion: On** on the old install, or `verify-createfilecase`'s new row cannot discriminate; (2) `cycle.ps1` (**ELEVATED**); (3) `VerifyInstall1.ps1 -ThenElevated -Run b155` (**unelevated**). **Trap found**: a piped session reads inversion Off even when LOGIN set it — do not use a pipe to witness it.
+>
 > ### ✅ ***`b154`, 14 Sep 2026 — 34 CLOSED, 5's CREATION VERBS WITNESSED. THE INSTALL IS CURRENT; NOTHING IS OWED.***
 >
 > Cycle 00:41 (CNAME, SETFILE, CPROC 0 errors), then `VerifyInstall1 -ThenElevated -Run b154`. ***Unelevated: 26 steps exit 0, 455 `[PASS]` / 0 `[FAIL]`. Elevated: 30 exit 0, 616 / 0*** (sdsysgate 10, pygate 40 decisive, 0 failed). `verify-vocidcase` **31/31**, `verify-promptenter` 64/64, `verify-tierchange` 38/38. SDSYS and `Don` VOCs hold no `zzvid*`/`zzprompt*`/`sdcatg*`/`probepy*` (control `listf` found in both). **Tokens: `b154` spent — use `b155`.** ***`RELEASE_1.1` OPEN NOW: 5 (phase (b) only), 7, 18.***

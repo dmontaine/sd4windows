@@ -61097,3 +61097,23 @@ Cycle 00:41, full suite on `b154`. Unelevated 26/26 exit 0 (455 PASS),
 elevated 30/30 exit 0 (616 PASS), no FAIL. `verify-vocidcase` 31/31 on its
 first suite run, after going 8/23 red on `b153`. No fixture ids are left in
 the SDSYS or `Don` VOC. `RELEASE_1.1` open: 5 (phase (b)), 7, 18.
+
+## 14 Sep 2026 — "finish 5" ruled; stage 1 built
+
+The owner ruled in every remaining slice of phase (b), and case inversion off.
+A measurement showed most of phase (b) was already done on 18 Aug.
+
+Three things learned while building stage 1:
+
+- **A renamed VOC id would have twinned in every upgraded account.**
+  `update.voc` matched by exact id, so it now takes over the old upper-case
+  record. Separately, LOGIN's exact read of `$RELEASE` would have ended the
+  session of every older account (5028).
+- **A piped session cannot witness case inversion.** A piped `PTERM DISPLAY`
+  already read Off on the install that still turned inversion on.
+  `sd -internal` is the only reachable instrument, and it needs elevation.
+- **COPY and DELETE are withheld from STANDARD accounts,** so a fixture that
+  plants records has to use the PROGRAMMER account.
+
+The audit of all 86 `input` sites found none that compares an answer to an
+upper-case literal without upcasing it first.
