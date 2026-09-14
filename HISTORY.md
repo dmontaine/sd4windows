@@ -61325,3 +61325,11 @@ never sees an upper twin once the exact id hits (`LOGIN:1689-1693`). The
 objection recorded in the design: a read-side refusal does not stop `ED`,
 `COPY` or a program's `WRITE` from making a twin; a kernel write-side guard
 would, and is left to the owner.
+
+Ruled the same day: "whatever is needed to prevent two record ids (program
+names, voc items, etc) that differ only by case." D2 is prevention, both
+halves: the read-side refusal and a kernel guard on writes into VOC and
+dictionaries (D2b). Recorded as an assumption: users' own data files stay
+out, per 13 Sep. The witness can no longer plant twins by `write`; they
+must arrive as a restore would, an OS-level copy of a hashed file built as
+user data, which moves the VOC legs to the elevated runner.
