@@ -2847,3 +2847,39 @@ sites and the `tier.open.template` / `voc.delta` routines); the message text and
 the layering logic are shared with `sdb64`. Reported to the Windows port by SD
 Core for Linux as its finding #3, which kept the shared text rather than
 diverging. Corrected in the Windows port on 13 Sep 2026.
+
+## 39. "Suppress pagination" at a report's page prompt stops the prompts but still clears the screen at every page
+
+When a query report such as `LIST ONLY VOC` fills the screen, `QDISP` shows
+*"Action (Abort/Quit/Next/Suppress pagination):"*. Answering `S` is meant to
+let the rest of the report run on, as the `NO.PAGE` keyword does. It stops the
+prompt, but every later page still clears the screen and redraws the page
+heading, so on a terminal the user sees only the last page.
+
+The cause is one missing assignment. `QDISP` has two flags:
+
+- `qd.paginate` decides whether `page.prompt` is called at the end of a page;
+- `qd.no.page` is what `emit.line` tests before `display @(-1)`, the heading at
+  the top of each new page, and the footer.
+
+`disable.pagination` (the `QD$NPAG` entry, used for `NO.PAGE`) sets both. The
+`S` branch of `page.prompt` sets only the first:
+
+```
+case action = 'S' and not(final.page)
+   qd.paginate = @false
+   exit
+```
+
+The fix is to add `qd.no.page = @true` there, so `S` does exactly what
+`NO.PAGE` does from that point on.
+
+**Measured in the Windows port, not upstream** (the two cannot run against each
+other; see the top of this file). This was on the 13 Sep 2026 install with
+`TERM 80,12` over 421 VOC records. `LIST ONLY VOC NO.PAGE` produced 1
+clear-screen, 1 heading and no prompt. `LIST ONLY VOC` with the first prompt
+answered `S` produced 48 clear-screens and 47 headings, 46 of each after the
+prompt. The branch above is byte-for-byte the same in `sdb64`
+(`sd64/sdsys/GPL.BP/QDISP:851`, `main` at `ae0cc5f`) and carries no generation-2
+marker, so upstream has the same behaviour by reading. Corrected in the Windows
+port on 13 Sep 2026.

@@ -60825,3 +60825,81 @@ repository's `sdsys/bp`, which stays README-only, while this writes to
 
 Free tier 36 of 36. Both scripts parse with 0 errors and no BOM or CR. `DELETEF`
 is uncompiled; the next cycle compiles it and `b147` witnesses all three.
+
+---
+
+## 13 Sep 2026 — "Suppress pagination" kept clearing the screen
+
+**Commit:** see the commit that carries this entry. No cycle, no run token.
+
+The owner reported that answering the page prompt's "Suppress pagination" in
+`LIST ONLY VOC` did not simply run the rest of the report on. `QDISP`'s `S`
+branch set `qd.paginate` (which stops the prompt) and not `qd.no.page`, which
+`emit.line` tests before clearing the screen and emitting the heading at each
+page. `NO.PAGE` sets both. The C pager in `op_tio.c` is not involved, because
+`QDISP` disables it with `@(0,0)`.
+
+It was measured before it was fixed: an unelevated piped session at
+`TERM 80,12`, run bounded in a job. `NO.PAGE` gave 1 clear-screen and 1 heading;
+the prompt answered `S` gave 48 and 47. The fix is one line. `sdb64` has the
+identical branch, so it is UPSTREAM 39.
+
+`verify-pagesuppress.ps1` is new. Two corrections to it came from controls, not
+from reading:
+
+- **Totals are not comparable with `NO.PAGE`.** The sign-on banner clears the
+  screen in both legs, and a paginated LIST clears before page 1 where `NO.PAGE`
+  does not. So the decisive rows count only what follows the first prompt.
+  Comparing totals would have gone red on a correct fix.
+- **The first heading pattern counted 0 for the control.** A heading repeats the
+  whole sentence, `LIST ONLY VOC NO.PAGE ... Page 1`, and the pattern had no
+  room for the keyword.
+
+A scratch copy with only `assert-current` removed was run against the unfixed
+install. It went red on exactly the two decisive rows (46, 46) with the other
+five green. `RELEASE_1.1` 28.
+
+---
+
+## 13 Sep 2026 — `b147` and `b148`: four fixes witnessed, three stale instruments found
+
+**Commit:** see the commit that carries this entry. Cycle 18:41:41 (the owner's),
+then `b147` in both halves and `b148` for the elevated half.
+
+**Unelevated half of `b147`: every step exit 0, 367 `[PASS]`, 0 `[FAIL]`.**
+`verify-promptenter` 14 of 14 witnessed `RELEASE_1.1` 27 (leg 3: a lower-case
+id deleted by its upper-case name, no 6130, no 6131). `verify-createfilecase`
+6 of 6 and `verify-pagesuppress` 7 of 7 were run by the owner.
+
+**The elevated half of `b147` died at step 6.** `verify-tiers` still read the
+tier lists from `newvoc\TIER.*`, which `a47526f` had moved to `tier.policy`
+without updating this file. It threw on `Get-Content` and the runner stopped
+with 23 steps unrun (`RELEASE_1.1` 29). Fixed; section 0 was driven unelevated
+by AST lift against the installed files before the rerun.
+
+**`b148`: 28 of 29 exit 0.** It witnessed:
+
+- 29: `verify-tiers` 35/0, COUNT VOC 355/397/420, so the relocation works in
+  the product;
+- 26: `verify-pyapi` 14/14, VOC row green;
+- 27's second half: `verify-catgate` removed its lower-case file by its upper
+  name.
+
+The two defects `b148` found were both instruments, both left behind by phase
+(a):
+
+- **`verify-vocverbs` exit 1** (`RELEASE_1.1` 30). Entry 26 matched
+  `DATA portion 'SDVVB148W' deleted` while SD had correctly printed
+  `'sdvvb148w'`. The rows now take the name from `CREATE.FILE`'s own success
+  line.
+- **A green step left litter** (`RELEASE_1.1` 31). `sdcatgb148bp.out` stayed
+  in SDSYS's VOC because `verify-catgate` deleted the `.OUT` by its old
+  upper-case id. Found only by scanning the VOC after the run. The step now
+  scans it itself, with a `listf` control.
+
+**The lesson from these three**: phase (a) changed what the product prints and
+stores, and its commit said nothing that says so moves. A case change is output
+every verifier's anchors depend on, so the sweep that belongs with such a change
+is *"which checks name this in the old case"*. That was done for the fold, 76
+sites on 18 Aug. It was not done here: one product site (`DELETEF`) and three
+instruments missed it.
