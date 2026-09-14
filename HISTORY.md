@@ -61152,3 +61152,18 @@ install passed with 59 PASS and no FAIL. Section 5 really ran
 `$ACC $MAP $RELEASE SD.VOCLIB` became `$acc $map $release sd.voclib`, and the
 VOC count stayed at 420, so the ids were renamed rather than copied.
 `verify-registersweep` passed 7/7.
+
+## 14 Sep 2026 — stage 2a: dictionary reads fold; ICOMP's I-type field lookup was broken
+
+The owner ruled that `@ID` also becomes `@id`. Stage 2 was split so that the
+additive fold is installed before any dictionary id is renamed, as the VOC work
+was on 18 Aug.
+
+The fold had only one side. QPROC tried a dictionary id as typed, then in
+upper case, and never in lower case. ICOMP:1212 read the upper-cased token
+twice, so an I-type could never name a lower-case field.
+
+`verify-dictfold` failed on exactly its 6 decisive rows against the old
+install. Its first draft passed 2 rows on the old code, because COPY carries a
+dictionary item's compiled object code with it. A no-error row now counts only
+if a compile actually ran.
