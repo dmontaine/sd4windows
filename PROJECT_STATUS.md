@@ -193,7 +193,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | residue | SDSYS VOC holds only `sdcatgb148bp.out` (known, gone at the next cycle); `accounts` = `don`, `sdsys`; no unprefixed gcat entry; 21 `sd*` profile dirs from this run, for the next reboot |
 > | tokens | **`b152` spent — use `b153`** |
 >
-> ***`RELEASE_1.1` OPEN NOW: 5, 6 (5040's Enter + two owner decisions), 7, 18.*** Everything below this box is the plan that led here and is still accurate about 7, 18 and 5.
+> ***AND THEN 6 CLOSED, same session***: `verify-promptenter` leg 6 pressed Enter at `CPROC` 5040 (46/46, unelevated), the last of the seven. Its two deliberately-untouched prompts moved to **`RELEASE_1.1` 33 — 2050 (six verbs, N is safe) and 6133 (needs a cancel answer), awaiting the owner's decision.** Leg 6 has not yet run inside a suite.
+>
+> ***`RELEASE_1.1` OPEN NOW: 5, 7, 18, 33.*** Everything below this box is the plan that led here and is still accurate about 7, 18 and 5.
 
 > # ⇩⇩⇩ HANDOFF 58, 13 Sep 2026 — ***THE INSTALL IS CURRENT, EVERYTHING IS PUSHED, AND THE NEXT STEP IS THE OWNER'S: ONE REBOOT, THEN ONE FULL RUN ON `b151`, WHICH WITNESSES FOUR THINGS AT ONCE. NOTHING IS BROKEN AND NOTHING IS HALF-DONE.*** ⇩⇩⇩
 >

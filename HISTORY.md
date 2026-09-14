@@ -61022,3 +61022,10 @@ its cure, so **9** closes too, with the rule "reboot between full runs".
 
 6 stays open only for 5040, which has never met Enter, and for two owner
 decisions. `RELEASE_1.1` open: 5, 6, 7, 18.
+
+**Then 6 closed.** `verify-promptenter` leg 6 pressed Enter at `CPROC` 5040:
+`.S zzpromptv 1`, then `.D zzpromptv` with Enter, which kept the sentence, and
+Y, which deleted it. The run was 46 of 46, unelevated. All seven prompts 6
+fixed have now met Enter on a real install. The two it left alone on purpose,
+2050 and 6133, are a decision rather than a defect, so they moved to
+`RELEASE_1.1` 33 to wait for the owner.
