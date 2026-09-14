@@ -179,6 +179,53 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 56, 13 Sep 2026 — ***THE `RELEASE_1.1` BACKLOG WAS VALIDATED AND THE ACTIONABLE ITEMS FIXED IN SOURCE. ONE CYCLE + ONE FULL SUITE WITNESSES ALL OF IT. THE TREE IS STALE ON PURPOSE.*** ⇩⇩⇩
+>
+> ### ⚠️ ***RUN THIS FIRST — ELEVATED PowerShell.  It carries BASIC and message changes, so step 0 rebuilds and installs***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> Then the targeted witness for the new CREATE.FILE behaviour (ELEVATED, no cycle):
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-createfilecase.ps1
+> ```
+>
+> Then the full suite — ORDINARY unelevated — which witnesses the tier relocation and 10114, and re-confirms everything:
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b147
+> ```
+>
+> ### ***WHAT WAS DONE THIS SESSION (validate-then-fix, cheapest first)***
+>
+> | item | verdict | state |
+> |---|---|---|
+> | **10** | real | ***FIXED + UNIT-WITNESSED*** (harness parser; a §7 `###` sub-list collided with real steps). No install needed |
+> | **3** | real | ***FIXED IN SOURCE*** — 10114 reworded ("…its tier in the register is unchanged"), lint-registered, upstream #38. Cycle installs it |
+> | **5 phase (a)** | real | ***FIXED IN SOURCE*** — `CREATE.FILE` stores new file ids lower (`CREATEF`); `verify-createfilecase` built. Cycle + that verifier witness it |
+> | **5 tier relocation** | owner-driven | ***FIXED IN SOURCE*** — tier lists moved newvoc → `sdsys/tier.policy` (control data, not VOC); `CREATEA/LOGIN/MODIFYA` read from there, skip logic gone. Cycle + full suite witness it |
+> | **7** | real | already fixed in source, in the b146 sd.exe; live witness (a lock outliving its owner) is a staging exercise, undone |
+> | **6** | real | product already fixed + guarded; runtime coverage of 5 prompts is a low-value gap |
+> | **8, 9** | not bugs | documented decisions (the `Remove-LocalUser` bypass; reboot-only stuck hives) |
+>
+> ***`RELEASE_1.1` OPEN AFTER THIS***: 3, 5, 6, 7 (all fixed-in-source or done, awaiting the cycle/suite witness), 8, 9, 18. Struck: 10, and (this session's earlier work) 21, 23, 24, 25.
+>
+> ### ⚠️ ***THE BASIC WAS NOT COMPILED HERE — CREATEA/LOGIN/MODIFYA/CREATEF ARE CROWN-JEWEL PATHS***
+>
+> All four are edited in source and **unbuilt**. The cycle's bootstrap compiles them; if any has a slip it fails there, not in the product. The full suite's tier steps (`verify-tiers`, `verify-tierchange`, `verify-createaccount`, `verify-sdsysgate`, `verify-tierapi`) are the functional witness for the relocation, and file-creating steps (`verify-pyapi`, `verify-vocverbs`) exercise the CREATE.FILE lower-casing. **Read the step logs, not the exit line.**
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **13 Sep 10:23:02** — ***STALE*** by this session's BASIC + message changes |
+> | run tokens | `b141`–`b146` spent. **Use `b147`** |
+> | free tier | ***36 of 36*** after every change |
+> | tier counts | derive 393 → STANDARD 355 / PROGRAMMER 397 / ADMINISTRATOR 420, unchanged by the relocation |
+>
 > # ⇩⇩⇩ HANDOFF 55, 13 Sep 2026 — ***CLEAN FULL SUITE ON b146: UNELEVATED EVERY STEP EXIT 0, ELEVATED 29 OF 29. THE FIRST GREEN-BOTH-HALVES RUN SINCE b140, NOW CARRYING OBJECTIVE 2 AND THE TWO REPAIRED VERIFIERS. NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ### ✅ ***b146, run by the owner — READ FROM THE STEP LOGS, NOT THE EXIT LINE***
