@@ -60903,3 +60903,10 @@ every verifier's anchors depend on, so the sweep that belongs with such a change
 is *"which checks name this in the old case"*. That was done for the fold, 76
 sites on 18 Aug. It was not done here: one product site (`DELETEF`) and three
 instruments missed it.
+
+**`b149`** (`-Only verify-vocverbs,verify-catgate`, elevated, same install):
+both exit 0. `verify-vocverbs` 36/36 with entry 26 reading `sdvvb149w` from
+`CREATE.FILE`'s line; `verify-catgate` 27/0 with both new cleanup rows green.
+An independent VOC scan found no `sdcatgb149*`. 30 and 31 closed. Every suite
+step has now exited 0 on the 18:41:41 install, though across three runs rather
+than one.
