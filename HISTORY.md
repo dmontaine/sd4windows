@@ -61312,3 +61312,16 @@ So a probe on every hit is about 2 µs per fold site, 1.6% of the cheapest
 command. Cost does not decide D2; correctness does, and the cheaper variant
 misses a twin whenever the canonical spelling is hit first. Design still
 unwritten.
+
+## 14 Sep 2026 — D2 design written, not built
+
+In PROJECT_STATUS.md START HERE, Handoff 61. Found by enumerating the fold
+sites: 55 in 27 files, of which nine are on user-data or directory-file
+records and stay out by the owner's 13 Sep boundary. The probe need only try
+the spellings the fold has not — one read on the canonical path, none when
+the upper spelling was the hit. `_VOC_CAT` cannot refuse by returning `''`:
+`object.c:184-197` then tries the private catalogue and `gcat`. `update.voc`
+never sees an upper twin once the exact id hits (`LOGIN:1689-1693`). The
+objection recorded in the design: a read-side refusal does not stop `ED`,
+`COPY` or a program's `WRITE` from making a twin; a kernel write-side guard
+would, and is left to the owner.
