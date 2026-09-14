@@ -179,6 +179,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 60, 14 Sep 2026 — ***STAGE 2b IS DONE AND WITNESSED (`b158`, GREEN IN BOTH HALVES). STAGE 3 IS RULED AND 3a IS IN SOURCE, UNWITNESSED: THE TREE IS STALE ON PURPOSE AND A CYCLE IS OWED.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | **`b158`**, 14 Sep 10:04 — unelevated 27/27 exit 0 (492 PASS), elevated 31/31 (641 PASS), 0 FAIL. ***It predates stage 3a, so `assert-current` refuses everything now*** |
+> | tokens | **`b158` spent — use `b159`** |
+> | owed | a reboot (3 stuck hives from `b158`), then `cycle.ps1` **ELEVATED**, then `VerifyInstall1.ps1 -ThenElevated -Run b159` **unelevated**. A full run: every program's CALL path changed |
+> | closed today | RELEASE_1.1 5 stages 1, 2a and 2b |
+> | open | **5** (3a unwitnessed, then D2 and 3b), **7** (needs the owner's go-ahead to stage a dead-owner lock), **18** (release PDFs, at W1.1-0 assembly); plus the unruled `-Only` register-residue class (Handoff 58) |
+>
+> ***THE CYCLE WAS ASKED FOR TWICE AND HAS NOT RUN.*** Twice this session the owner said the cycle and suite had finished; both times there was no `cycle-*.log` after 10:02, `sd.exe` still read 14 Sep 01:35 and `gcat` still held 152 upper-case names. **Read those three before believing any 3a result** — a stale tree cannot show this change, and `assert-current` is what enforces it.
+>
+> ***OWNER RULINGS, STAGE 3 (14 Sep 2026):*** the full conversion, lower case everywhere (D1a); **refuse a name that exists in two casings** (D2, design not written, cost unmeasured); **CATALOG stores lower** (D3, built).
+>
+> ***WHAT 3a WOULD BREAK IF IT IS WRONG, AND HOW IT WOULD SAY SO.*** `valid_call_name` now accepts lower case only, deliberately, so a missed site fails as *"Illegal call name"* rather than being hidden by NTFS; `Pcode item <x> not found` means `bbcmp.py` and `load_pcode` disagree; `Unable to load '$cproc'` means the placeholder or CATALOG's name. Each names its site. **Do not relax `valid_call_name` to get past one.**
+>
+> **One decision the next session should put to the owner:** COMMON block names were deliberately left upper case (the kernel matches them across programs with `strcmp`, so lowering them would split `COMMON /X/` between objects compiled before and after 3a). Everything else named in "lower case everywhere" is done or listed.
+>
+> *(Handoff 59 follows, still accurate about 7, 18 and the stage plan.)*
+
 > # ⇩⇩⇩ HANDOFF 59, 14 Sep 2026 — ***THE INSTALL IS CURRENT (`b157`, GREEN IN BOTH HALVES), EVERYTHING IS COMMITTED AND PUSHED, AND NOTHING IS OWED. THE NEXT PIECE OF WORK IS RELEASE_1.1 5 STAGE 2b, NOT STARTED.*** ⇩⇩⇩
 >
 > | | |
@@ -193,6 +213,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > - **`@ID` → `@id` too**, including the `@ID` record `CREATE.FILE` writes into new files.
 > - **Bulk edits by scratch script, per batch, with checks**: dry run first, refuse BOM/CR, exact tokens in named files only, word-diff after. Small edits stay on Edit.
 > - An existing id in another case is **"the same id"** (fold the existence test, keep the matched id).
+>
+> ### ⚠️ ***14 Sep 2026 — STAGE 3a IS IN SOURCE AND THE TREE IS STALE ON PURPOSE. A CYCLE AND `b159` ARE OWED.***
+>
+> The worklist below was built; RELEASE_1.1 5 ("Stage 3a as built") has each item.
+>
+> | | |
+> |---|---|
+> | changed | C in 11 files (gcc syntax-clean); BCOMP, bbcmp.py, CATALOG, DELCAT, SETTRIG, DEBUG, PSTAT, `_VOC_CAT`; 181 verb records; `bootstrap.py`, `stage.py`, `cycle.ps1` |
+> | witness | new `verify-callcase.ps1` (VI1). Scratch red run on `b158`: 13 decisive FAIL, 10 PASS |
+> | free tier | 36/36 |
+> | found | `cycle.ps1`'s seed-`$BCOMP` check was already blind at `HEAD` (exact 70,697 against a real 70,828); now a threshold |
+>
+> **Owed, in order:** a reboot, recommended (three stuck hives from `b158`); `cycle.ps1` (**ELEVATED**); then `VerifyInstall1.ps1 -ThenElevated -Run b159` from an **ordinary unelevated** prompt. It is a full run: every program's CALL path changed.
+>
+> ***THE BOOTSTRAP IS THE RISK.*** If the cycle fails, read the bootstrap section of `cycle-*.log` first:
+> - `Pcode item <x> not found`: `bbcmp.py` and `load_pcode` disagree on a name.
+> - `Illegal call name`: a site that still hands upper case to `valid_call_name`, which is now lower-only on purpose.
+> - `Unable to load '$cproc'`: the placeholder or CATALOG's name.
+>
+> Each of those names the site. Do not relax `valid_call_name` to get past one.
 >
 > ### ***STAGE 3 — RULED 14 Sep 2026, NOT STARTED. Owner: D1 = (a), the full conversion, lower case everywhere; D2 = yes, refuse a name that exists in two casings; D3 = yes, CATALOG stores lower. The plan below is still conditional; it was revised the same day after the two probes that follow.***
 >
@@ -219,6 +259,25 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   - ***A FRESH INSTALL'S GCAT, GPL.BP.OUT OBJECT HEADERS AND PCODE THEN COME OUT LOWER BY THEMSELVES***, because the bootstrap catalogues everything through the flipped code.
 >   - *Falsified if* any path hands `load_object` or `k_call` a name that bypassed canonicalization and matches exactly. Candidates to grep before building: `op_misc.c:1230` `$PROC`, trigger names (`dh_open.c:268`), `objprog.c` class names, and `k_call(processor)` at `kernel.c:529`.
 >   - *Objection:* NTFS hides a missed site, so a green Windows suite does not prove the flip complete. The 3a witness should therefore read the NAMES produced (gcat listing `-cmatch` lower, `$map`, an object header's `program_name`) rather than only whether things run.
+> - **3a WORKLIST — the bypass audit, 14 Sep 2026, by reading. In progress; each item is ticked in RELEASE_1.1 5 as it lands.**
+>   - **C:**
+>     - `UpperCaseString` → lower at `op_jumps.c:95, 213, 278, 379, 690` and `objprog.c:179` (call and class names).
+>     - `valid_call_name` (`op_jumps.c:874`) accepts lower.
+>     - `load_pcode` (`sd.c:879`).
+>     - `op_settrig` (`dh_misc.c:381`) lowers before validating; `dh_open.c:268` loads a lowered copy, because old files' headers hold upper trigger names.
+>     - Literals `$cproc` (`kernel.h:68`, `op_exec.c:210`), `$bbproc` (`sd.c:362`), `$apisrvr` (`linuxio.c:119`), `$debug`/`$pdbg` (`op_debug.c:768`), `$proc` (`op_misc.c:1230`).
+>     - ***NOT*** `objprog.c:312` (class property names are identifiers). ***NOT*** common block names: `op_array.c:143` matches them with `strcmp` across programs, so lowering what BCOMP emits would split `COMMON /X/` between objects compiled before and after 3a. `$SYSCOM` stays as it is.
+>   - **BCOMP:**
+>     - `get.call.name` returns `downcase` (CALL, SUBROUTINE `:11074`, FUNCTION `:7839`, ENTER `:7205`, `$catalog` `:2684`, CLASS INHERITS `:6109` — but that site's `symbol.name` stays upper, since it is a variable); PROGRAM `:10134` and CLASS `:6059` downcase their names.
+>     - `get.name` itself is unchanged (COMMON `:6298`, VARSET `:6275`).
+>     - Catalogue-name check `:2714` accepts lower; `LOCAL`/`GLOBAL` compare at `:2692`; DEFFUN CALLING `:6712`.
+>   - **bbcmp.py, in lockstep:** `get_call_name` (`:9636`), `$catalog` (`:7175`), the program name from the file's basename (`:10433`), and the gcat file it writes.
+>   - **BASIC:**
+>     - CATALOG (15 `upcase`: call name, object-file name, program name; header write `:309`; local VOC id `:350`); DELCAT `:76`; MAPCAT; SETTRIG `:89`.
+>     - DEBUG `:1552` and PSTAT `:191/195` compare a program name with `'$CPROC'`.
+>     - `_VOC_CAT` VOC read as typed → lower → upper.
+>   - **Data:** `newvoc`/`voc_template` verb field 3 (~95 × 2, scripted batch).
+>   - **Witness:** a new verifier reads the NAMES produced — gcat listing `-cmatch` lower, `$map`, CATALOG's 3029/3030 wording, a trigger — plus an old upper-name local catalogue entry still loading.
 > - **3b — rename the source files.** 223 `gpl.bp` records via `git mv` (per-batch scratch script with checks); `BBCMP_FIRST`, `pcode_bld.py`'s list, `stage.py`, `bootstrap.py`/`cycle.ps1`/`read_config` (`gcat/$CPROC`), `sd.iss`, `$include` names in BASIC, and the ~30 scripts and tests that name `gpl.bp/<NAME>`. `gcat`, `gpl.bp` and `gpl.bp.out` are on the upgrade replace list, so no twins arise there.
 > - **D2 — refuse a name in two casings (design, conditional).** Where two casings can coexist on Windows: hashed files (VOC, dictionaries, local catalogue entries in VOC). Directory files cannot, on NTFS. Proposal:
 >   - every fold site (`_VOC_REF`, `_VOC_CAT`, 2a's dictionary reads) refuses, naming both ids, when the name resolves and a different-case spelling also exists;

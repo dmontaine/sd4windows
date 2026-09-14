@@ -61197,3 +61197,26 @@ PASS; no FAIL. `verify-dictfold` passed 23/23. On its first run,
 `verify-dictrename` passed 12/12: the installed upgrade step replaced exactly
 the two planted twins and kept the control id. THIRD.COMPILE compiled 17
 I-types under lower-case ids.
+
+## 14 Sep 2026 — stage 3 ruled; stage 3a (program names lower) in source
+
+Owner's rulings: the full conversion, refuse a name that exists in two casings,
+and CATALOG stores lower.
+
+Two probes changed the plan before anything was built. The runtime already
+upper-cases every CALL name before loading it (seven C sites). SD's MSYS2
+runtime opens a gcat file in any case. So 3a flips the canonical case at those
+sites, and old objects follow automatically. The alternative, a permanent
+three-way fold, was not needed.
+
+Kept upper, deliberately: COMMON block names (matched across programs by
+`strcmp`) and CLASS INHERITS names (also variables).
+
+`valid_call_name` now refuses upper case, so a missed site fails loudly on NTFS
+instead of being hidden.
+
+Found on the way: `cycle.ps1`'s seed-BCOMP size check had been blind since some
+earlier BCOMP edit. Also: `verify-callcase`'s first red run exposed its own
+matcher counting a message line as a VOC row.
+
+A cycle is owed.
