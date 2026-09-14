@@ -61292,3 +61292,23 @@ any case already binds to `MYBLOCK`; `DELETE.COMMON` upcases too (`DELCOM:57`);
 the kernel's `strcmp` (`op_array.c:148`) only ever sees upper. Lowering what
 BCOMP emits would split a block between objects compiled before and after.
 Owner: leave them upper. Nothing built.
+
+## 14 Sep 2026 — D2's cost measured on `b159`
+
+The plan said measure before choosing between probing on every hit and
+probing only when the hit was not the lower spelling. A scratch program in
+the owner's `bp` (deleted after), driven unelevated through `verify-callcase`'s
+`Invoke-SD`, timed with `system(1020)`: 100,000 VOC reads of a present id,
+100,000 of an absent one, loop overhead subtracted; then 3,000 each of
+`execute 'who'`, `execute 'WHO'` and `execute 'count voc'`, output captured
+and shown. Controls printed every run.
+
+A hit 3.4–3.6 µs; a miss 1.9–2.0 µs; `who` 118–130 µs; `count voc`
+1,053–1,087 µs; the in-situ extra read in CPROC +2.7 to +8 µs. A first pass at
+300 commands per loop gave +3.3, −10, +3.3 for that delta — the millisecond
+timer's step was the size of the effect — and was rerun at 3,000.
+
+So a probe on every hit is about 2 µs per fold site, 1.6% of the cheapest
+command. Cost does not decide D2; correctness does, and the cheaper variant
+misses a twin whenever the canonical spelling is hit first. Design still
+unwritten.

@@ -188,6 +188,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | owed | **a reboot before the next full run.** VI2's opening sweep found 24 stuck hives (21 from `b158`, 3 from `b159`'s VI1) and continued as designed (PRE_RELEASE 185). Boot was 09:30, before `b158`: the reboot Handoff 60 asked for did not happen. Each full run adds ~21; a reboot resets it to 3 |
 > | closed today | RELEASE_1.1 5 stage 3a |
 > | open | **5** (D2, then 3b), **7** (needs the owner's go-ahead to stage a dead-owner lock), **18** (release PDFs, at W1.1-0 assembly); plus the unruled `-Only` register-residue class (Handoff 58) |
+> | measured today | ***D2's cost: a VOC read that misses is 1.9–2.0 µs, a hit 3.4–3.6 µs; one extra read inside CPROC is +2.7 to +8 µs on a 120 µs `who`; `count voc` is ~1,060 µs.*** So "check on every hit" is ~2 µs per fold site, 1.6% of the cheapest command and under 1% of anything that touches a file, and **cost does not decide D2** — the cheaper variant misses a twin whenever the canonical spelling is hit first. Method, controls and the not-measured list are in the RELEASE_1.1 5 entry. D2's design is still not written |
 > | ruled today | ***COMMON block names stay upper*** — owner, 14 Sep 2026, closing Handoff 60's question. Nothing to build: `BCOMP:3573` upcases every identifier and `get.name` (`:3160`) stores that, so `common /myblock/` typed in any case already binds to `MYBLOCK`; `DELCOM:57` upcases too. `get.name` stays as 3a left it, and `op_array.c:148`'s `strcmp` stays exact |
 >
 > **The three checks passed this time**: a new `cycle-*.log`, `sd.exe` dated after the run, `gcat` 152 names / 0 with an upper-case letter.
@@ -304,7 +305,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >   - every fold site (`_VOC_REF`, `_VOC_CAT`, 2a's dictionary reads) refuses, naming both ids, when the name resolves and a different-case spelling also exists;
 >   - UPDATE.ACCOUNTS / update.voc reports twins it cannot rename;
 >   - the creation verbs already refuse to make one (stage 1, 34).
->   - ***THE COST IS UNMEASURED***: checking on every hit is one extra read per VOC lookup, and VOC lookups run for every command. Measure before choosing between "check on every hit" and "check only when the hit was not the lower spelling".
+>   - ***THE COST IS UNMEASURED*** — ***MEASURED 14 Sep 2026 after `b159`, see Handoff 61 and the RELEASE_1.1 5 entry: about 2 µs per fold-site call, so cost does not decide it.*** *(As written:)* checking on every hit is one extra read per VOC lookup, and VOC lookups run for every command. Measure before choosing between "check on every hit" and "check only when the hit was not the lower spelling".
 > - **Cost, estimated:** 3a one cycle plus a full suite; D2 likely its own cycle; 3b one cycle plus a full suite. The bootstrap is at risk in 3a and 3b.
 >
 > ### ✅ ***`b158`, 14 Sep 2026 — STAGE 2b WITNESSED, FULL SUITE GREEN. THE INSTALL IS CURRENT; NOTHING IS OWED. NEXT: STAGE 3 (needs its own plan).***
