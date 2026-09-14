@@ -238,6 +238,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | tokens | **`b158` spent — use `b159`** |
 > | residue | 3 stuck hives from this run's own VI1 accounts (`sdtub158`, `sddrb158a`/`b`), the known class — reboot before the next full run |
 >
+> ***FREE TIER IS 36 OF 36 AGAIN — `test-staleleads-units.py` IS GREEN AT 25 OF 25, AND IT WAS NEVER ABOUT STAGE 2b.*** RELEASE_1.1 **35**: `check-stale-leads.py`'s `BOUNDARY` read `#{2,}`, so a `> # ⇩⇩⇩ HANDOFF N ⇩⇩⇩` banner did not end an entry and the test's own fixture ran 37 lines into HANDOFF 59. Boundary widened to `#{1,6}` (0 of 19 entry ranges move); the fixture now bounds itself; new case *"a level-1 heading ends an entry"*. **No cycle, no install, no token.**
+>
 > *(The pre-cycle box follows.)*
 >
 > ### ⚠️ ***14 Sep 2026, NEXT SESSION — STAGE 2b IS IN SOURCE AND THE TREE IS STALE ON PURPOSE. A CYCLE AND `b158` ARE OWED.***

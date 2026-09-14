@@ -61197,3 +61197,43 @@ PASS; no FAIL. `verify-dictfold` passed 23/23. On its first run,
 `verify-dictrename` passed 12/12: the installed upgrade step replaced exactly
 the two planted twins and kept the control id. THIRD.COMPILE compiled 17
 I-types under lower-case ids.
+
+## 14 Sep 2026 — a level-1 heading did not end an entry (RELEASE_1.1 35)
+
+`test-staleleads-units.py` was red at `8035ac7` in a clean worktree, 18 of 24.
+Six rows, all in phase 3, all reporting the same thing: `H.9 is ticked DONE but
+its entry leads with an open claim`.
+
+`check-stale-leads.py`'s BOUNDARY was `^>? *#{2,} `, two lines below a comment
+saying an entry ends at "the next heading of any kind". A level-1 heading is
+not `#{2,}`, and `> # ⇩⇩⇩ HANDOFF N ⇩⇩⇩` — nineteen in PROJECT_STATUS.md — is
+the largest structural marker inside START HERE. The units test's synthetic
+item 9 sat immediately above HANDOFF 59, so its range ran 37 lines into the
+handoff and picked up "Unmeasured whether they write by id or replace the
+file". Neither the checker's subject nor the injected text was at fault.
+
+BOUNDARY is now `#{1,6}`. Measured before the change: it moves 0 of 19 entry
+ranges in the real file at HEAD and at `8035ac7`, and no line inside a fenced
+block starts with a hash — all 20 single-hash lines are headings.
+
+The fixture was wrong too. It bounded item 8 with item 9, and nothing bounded
+item 9; bounding an entry with another entry is a regress. Item 9 and row H.9
+are gone and item 8 ends at a `> ##` heading, which needs no table row and
+bounds under either version of BOUNDARY — so the phase-3 cases do not depend on
+the fix beside them. This is the third time this file went red for a document's
+content (26 Aug, 5 Sep, today); the first two were repaired by re-anchoring,
+which is why the repair this time is structural.
+
+Controls: reverting BOUNDARY to `#{2,}` turns exactly the new level-1 row red
+and leaves the other 24 green, and the file was restored to the same SHA-256;
+the old fixture with the fixed checker passes at `8035ac7`, which separates the
+two halves of the fix; and the fixed pair scores 25 of 25 against the
+PROJECT_STATUS.md of all 40 commits that have touched it.
+
+The widened checker exits 0 on all 40 of those documents — 0 non-zero exits,
+measured — so the wider boundary reports no drift the narrow one did not.
+
+`check-stale-leads.py` itself exited 0 throughout, including at `8035ac7` where
+its own control was red. That is the same shape as the checker passing while
+`test-staleleads-units.py` sat at 12 of 13 for days in September: the listed
+check is not the guard over the check.
