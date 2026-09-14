@@ -60967,3 +60967,14 @@ catalogue entry whose name matches a private or local one. All 152 `gcat`
 names carry a `$ ! *` prefix that a private or local name cannot, and writing
 `gcat` needs an administrator. If it is covered, `verify-catgate` is the place.
 2050 and 6133 stay the owner's decisions.
+
+**3035 was then built there, as `verify-catgate` section 1b, and is unrun.** The
+`GLOBAL` keyword with an unprefixed per-run name writes `gcat` unprefixed, and
+a private catalogue of that name asks 3035. Enter keeps the entry and Y removes
+it. Cleanup uses both `DELETE.CATALOG` forms, and `DELCAT` asks nothing
+(checked in source).
+
+**The cheapest way to witness it is also the way to witness 8 and 9**: reboot,
+then `VerifyInstall1 -ThenElevated -Run b151`. The reboot unloads the stuck
+hives that made `VerifyInstall2`'s start-of-run sweep report 0 removed on
+`b133`/`b134`. The same run is the milestone's clean full pass.

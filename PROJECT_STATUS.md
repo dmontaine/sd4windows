@@ -211,7 +211,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ### ***WHAT IS LEFT, AND NONE OF IT IS STARTED***
 >
 > - **`RELEASE_1.1` 5's remainder** — other creation verbs (`SET.FILE`, catalogue pointers) and phase (b), converting shipped upper ids. Its row says large and mostly cosmetic. ***Apply the lesson above first.***
-> - **6** — ***six of seven prompts now pressed with Enter on a real install*** (`verify-promptenter` 38/38, legs 4–5 added 13 Sep: 6135, 6140, 3033, 3034). Left: `CATALOG` **3035**, reachable only elevated (a global catalogue entry; would go in `verify-catgate`), and **2050 / 6133**, the owner's decisions. **7** — fixed in source long since; its live witness needs a lock whose owner's session is gone. **8, 9** — documented decisions, not bugs. **18** — the release zip.
+> - **6** — ***six of seven prompts now pressed with Enter on a real install*** (`verify-promptenter` 38/38, legs 4–5 added 13 Sep: 6135, 6140, 3033, 3034). `CATALOG` **3035** is reachable only elevated — ***now built as `verify-catgate` section 1b, unrun***. Left after that: **2050 / 6133**, the owner's decisions.
+>
+> ***THE NEXT MEASUREMENT IS ONE COMMAND AFTER ONE REBOOT, AND IT WITNESSES FOUR THINGS.*** Reboot (clears the 45 stuck hives), then, from an **ordinary unelevated** prompt:
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b151
+> ```
+>
+> It is the clean full run the milestone wants; it carries `verify-pagesuppress` and `verify-createfilecase` in a full pass for the first time, `verify-promptenter`'s legs 4–5 and `verify-catgate`'s 3035 section (**6**); and `VerifyInstall2`'s start-of-run sweep after a reboot is exactly **8** and **9**'s collection witness — both read *"0 removed"* on `b133`/`b134` because the hives were still loaded. ***Read the sweep block at the top of `post-cycle-elevated-*.log` first.*** **7** — fixed in source long since; its live witness needs a lock whose owner's session is gone. **8, 9** — documented decisions, not bugs. **18** — the release zip.
 > - ~~wire `verify-pagesuppress` into `VerifyInstall1`?~~ ***DONE, owner's instruction, same day*** — step 22 of 23, beside `verify-promptenter`. Wiring proved without a token: the table lifted by AST through `Select-SuiteSteps` (`-Only verify-pagesuppress` selects exactly it, `Partial` true; a typo refused). ***IT HAS NOT YET RUN INSIDE THE SUITE*** — `b150` is its first. Re-deriving the header counts found **`verify-createfilecase.ps1` in no runner** — ***and the owner then ruled it into `VerifyInstall2`***: step 26 of 30. ***Reading it first found three rows that could not fail*** (LISTF matched its own echo; COUNT asserted only no failure word) — **`RELEASE_1.1` 32**, fixed and driven against real hit/miss text, so the earlier 6/6 was half a witness. ~~Owed: `VerifyInstall2 -Run b150 -Only verify-createfilecase`~~ ***DONE — `b150`, 8 of 8 inside the runner, 32 closed, no litter. `b150` spent; the next full run is `b151`.***
 > - **A reboot is worth doing before `b151`**: 45 stuck hives from deferred test profiles, which only a restart releases (PRE_RELEASE 185). Not a fault.
 >
