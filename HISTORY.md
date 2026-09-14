@@ -60935,3 +60935,8 @@ real misses. It also gained a VOC-record-gone row.
 The same lesson as this morning, arriving from a different side: **a verifier
 nobody has read since it was written is a verifier nobody has checked, however
 green it is.**
+
+**`b150`** (`-Only verify-createfilecase`, elevated, inside `VerifyInstall2`):
+8 of 8. LISTF printed a real table row for `zzlctest211644`, COUNT resolved it
+in both cases on `record(s) counted`, and the VOC record and directory were both
+gone after cleanup. An independent VOC scan found no `zzlctest*`. 32 closed.
