@@ -181,10 +181,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > # ⇩⇩⇩ HANDOFF 58, 13 Sep 2026 — ***THE INSTALL IS CURRENT, EVERYTHING IS PUSHED, AND THE NEXT STEP IS THE OWNER'S: ONE REBOOT, THEN ONE FULL RUN ON `b151`, WHICH WITNESSES FOUR THINGS AT ONCE. NOTHING IS BROKEN AND NOTHING IS HALF-DONE.*** ⇩⇩⇩
 >
+> ### ⚠️ ***`b151` WAS RUN WITHOUT THE REBOOT AND STOPPED AT `VerifyInstall1` STEP 19 — READ THIS, THEN USE `b152`***
+>
+> 13 Sep 21:31–21:33, `VerifyInstall1-20260913-213137.log`. **Steps 1–18 exit 0; `verify-register` exit 1; the runner correctly did not hand over**, so ***nothing this run was meant to witness ran*** — not `verify-pagesuppress`, not `verify-promptenter`'s legs 4–5, not 3035, not the sweep. **The cause is harness residue, not the product**: `verify-register` found ***`sdcatgb149` — a dead ACCOUNTS record*** (*"names a Windows account that no longer exists"*). `verify-catgate` leaves its register record by design, and in a FULL elevated run `verify-registersweep` (restart → `reconcile-accounts.ps1`) clears it; ***`b149` was `-Only verify-vocverbs,verify-catgate`, which never reaches that step, so the record outlived the run and failed the next suite's first register check.*** Machine last booted 12 Sep 01:25 — no reboot had happened. **`b151` is spent** (it made `sdtub151`, whose profile is deferred until a restart).
+>
+> ***A REBOOT CURES ALL OF IT***: the SD service's start runs `reconcile-accounts.ps1`, which removes `sdcatgb149`, reclaims the deferred profiles, and the stuck hives unload. **Unfixed class, worth a ruling**: a `-Only` elevated run of an account-creating step leaves register residue that breaks the NEXT `VerifyInstall1`, discovered 19 steps in rather than announced by the run that made it.
+>
 > ### ⚠️ ***THE NEXT MEASUREMENT — REBOOT FIRST, THEN AN ORDINARY UNELEVATED PROMPT (it asks for elevation once)***
 >
 > ```
-> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b151
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b152
 > ```
 >
 > | it witnesses | read |
@@ -202,7 +208,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > |---|---|
 > | install | **13 Sep 18:41:41**, ***CURRENT*** — `assert-current` exit 0 after the last edit |
 > | git | `main` level with `origin/main` at the commit carrying this handoff, clean — check with `git status -sb` |
-> | run tokens | `b147`–`b150` spent. **Use `b151`** |
+> | run tokens | `b147`–`b151` spent. **Use `b152`** |
 > | suite | `VerifyInstall1` **23 steps**, `VerifyInstall2` **30** |
 > | `RELEASE_1.1` | ***closed and witnessed 13 Sep: 26–32.*** Open: **5, 6, 7, 8, 9, 18** — `test-fixlist-units` 325/0 |
 > | free tier | ***36 of 36*** |

@@ -60978,3 +60978,22 @@ it. Cleanup uses both `DELETE.CATALOG` forms, and `DELCAT` asks nothing
 then `VerifyInstall1 -ThenElevated -Run b151`. The reboot unloads the stuck
 hives that made `VerifyInstall2`'s start-of-run sweep report 0 removed on
 `b133`/`b134`. The same run is the milestone's clean full pass.
+
+---
+
+## 13 Sep 2026 — `b151`: run before the reboot, stopped at step 19 on residue from `b149`
+
+`VerifyInstall1 -ThenElevated -Run b151`, 21:31. Steps 1–18 exited 0, then
+`verify-register` exited 1 and the runner stopped without handing over, as
+designed. The dead record was `sdcatgb149`. `verify-catgate` leaves its
+register record deliberately, and only a full elevated run's last step,
+`verify-registersweep`, clears it by restarting the service. `b149` was an
+`-Only` run, so nothing cleared it, and the next suite's first register check
+found it.
+
+The machine had not rebooted (last boot 12 Sep 01:25), and a reboot's service
+start clears it. `b151` is spent; use `b152`.
+
+**The class is open and unruled**: a partial elevated run can leave residue
+that fails the next full run 19 steps in. The run that made the residue says
+nothing about it.
