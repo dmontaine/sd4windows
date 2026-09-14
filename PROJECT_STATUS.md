@@ -212,6 +212,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | **8, 9** | not bugs | documented decisions (the `Remove-LocalUser` bypass; reboot-only stuck hives) |
 >
 > ***`RELEASE_1.1` OPEN AFTER THIS***: 3, 5, 6, 7 (all fixed-in-source or done, awaiting the cycle/suite witness), 8, 9, 18. Struck: 10, and (this session's earlier work) 21, 23, 24, 25.
+
+### ⚠️ ***ADDENDUM, SAME DAY, NEXT SESSION — TWO MORE FIXES RIDE THE SAME CYCLE AND `b147`; THE COMMANDS ABOVE ARE UNCHANGED***
+
+| item | state |
+|---|---|
+| **26** | `verify-pyapi` left 2 dead F-pointers in SDSYS's VOC per run (6 on disk, b141/b143/b146) — PRE_RELEASE 60 again. ***Owner: "they should not be stored in VOC."*** Probes now go into SDSYS `bp`, no file created; new row scans the VOC with a `listf` null-case control. The 6 go with the cycle |
+| **27** | ***phase (a) broke `DELETE.FILE <UPPER>`***: `DELETEF:189` was a raw `readu` with no lower tier. Fixed (silent lower tier, 6131 unchanged). `verify-promptenter` re-premised on `OPTION CREATE.FILE.UPCASE` + a leg 3 that witnesses 27. ***`DELETEF` is uncompiled — the cycle's bootstrap is its first compile*** |
+| free tier | 36 of 36 after both |
+
+**Read in `b147`**: `verify-pyapi` (VOC row), `verify-promptenter` (leg 3), and `verify-catgate`'s cleanup (its `DELETE.FILE <upper> FORCE` relies on 27). **Asked by the owner and answered from the record, after which he said to proceed**: planting into the INSTALLED SDSYS `bp`/`bp.out` is not the no-binaries rule — that governs the repository's `sdsys/bp`, which must stay README-only (Handoff 50's trap).
 >
 > ### ⚠️ ***THE BASIC WAS NOT COMPILED HERE — CREATEA/LOGIN/MODIFYA/CREATEF ARE CROWN-JEWEL PATHS***
 >

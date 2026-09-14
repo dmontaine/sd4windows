@@ -60790,3 +60790,38 @@ Noise, not a fault: the opening litter sweep found 25 stuck hives it could not
 unload (PRE_RELEASE 185 — a handle is held, only a restart releases them), so
 `C:\Users` keeps accumulating deferred profile dirs between restarts. None
 collide with fresh `-Run` tokens.
+
+---
+
+## 13 Sep 2026 — `verify-pyapi`'s dead VOC records, and phase (a) had broken `DELETE.FILE`
+
+**Commit:** see the commit that carries this entry. No cycle, no run token.
+
+The owner spotted `PROBEPYBP*` entries in SDSYS's VOC. A byte scan of
+`sdsys\voc\%0`/`%1` found six: a file pointer and its `.OUT` for each of b141,
+b143 and b146. `verify-pyapi` ran `CREATE.FILE` in SDSYS and removed only the
+directories — PRE_RELEASE 60's `verify-catgate` defect, copied. Owner: *"they
+should not be stored in VOC"*. The probes now go into SDSYS's own `bp`
+(`verify-batchjob`'s shape), and a new row scans the VOC for the probe names
+after finding `listf` as its null-case control. The scan was driven against the
+live VOC by AST lift: `listf` and `PROBEPYBP102416` found, a fresh name not.
+`RELEASE_1.1` 26.
+
+Checking the neighbours found a real regression in unbuilt work. Phase (a)
+(`a8c3241`) stores new `CREATE.FILE` ids in lower case and relied on the lookup
+fold, but `DELETEF:189` is a raw `readu` with only an upper-case fallback. So
+`DELETE.FILE ZZX` on a new `zzx` would stop with 6130. It would have turned
+`verify-promptenter` red, since its 6131 leg needs an upper-case record, and left
+`verify-catgate`'s fixture behind. Fixed with a silent lower tier; 6131 keeps
+guarding the upper tier. `verify-promptenter` now makes its fixture with
+`OPTION CREATE.FILE.UPCASE` and asserts the stored case, and gained a leg 3 that
+witnesses the fix. `RELEASE_1.1` 27. Phase (a) had shipped no changelog entry;
+one now covers it and the `DELETE.FILE` half.
+
+The owner asked whether compiling into SDSYS `bp.out` breaks the no-binaries
+rule. From the record, no: that rule and Handoff 50's trap govern the
+repository's `sdsys/bp`, which stays README-only, while this writes to
+`C:\ProgramData\SD`. He then said to fix and commit.
+
+Free tier 36 of 36. Both scripts parse with 0 errors and no BOM or CR. `DELETEF`
+is uncompiled; the next cycle compiles it and `b147` witnesses all three.
