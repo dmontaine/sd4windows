@@ -179,9 +179,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ### ⚠️ ***14 Sep 2026, LATER — "FINISH 5" STAGE 2a (DICTIONARY READS FOLD) IS IN SOURCE. THE TREE IS STALE ON PURPOSE; `cycle.ps1` (ELEVATED) THEN `VerifyInstall1 -ThenElevated -Run b157` (UNELEVATED) ARE OWED.***
+> ### ✅ ***`b157`, 14 Sep 2026 — "FINISH 5" STAGE 2a DONE AND WITNESSED. THE INSTALL IS CURRENT; NOTHING IS OWED. NEXT: 2b (rename shipped dictionary ids, @ID included).***
 >
-> 11 BASIC programs; new `verify-dictfold.ps1` (VerifyInstall1, red 6/6 decisive on the old install); `ICOMP:1212` was a real bug (I-types could only name upper-case fields). Owner ruled `@ID` → `@id` too, for 2b. Detail: RELEASE_1.1 5. **Tokens: `b157` next.** *(The select-mode trap is in memory.)*
+> Unelevated 27/27 exit 0, 484 PASS; elevated 30/30, 629 PASS; no FAIL. `verify-dictfold` 15/15. **Tokens: `b157` spent — use `b158`.** *(As built:)* 11 BASIC programs; new `verify-dictfold.ps1` (VerifyInstall1, red 6/6 decisive on the old install); `ICOMP:1212` was a real bug (I-types could only name upper-case fields). Owner ruled `@ID` → `@id` too, for 2b. Detail: RELEASE_1.1 5. **Tokens: `b157` next.** *(The select-mode trap is in memory.)*
 >
 > ### ✅ ***`b156`, 14 Sep 2026 — "FINISH 5" STAGE 1 DONE AND WITNESSED. THE INSTALL IS CURRENT; NOTHING IS OWED. NEXT: STAGE 2 (dictionary ids).***
 >

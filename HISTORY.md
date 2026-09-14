@@ -61167,3 +61167,9 @@ twice, so an I-type could never name a lower-case field.
 install. Its first draft passed 2 rows on the old code, because COPY carries a
 dictionary item's compiled object code with it. A no-error row now counts only
 if a compile actually ran.
+
+## 14 Sep 2026 — `b157`: stage 2a witnessed
+
+Cycle 02:30 with 0 compile errors, then a full suite. Unelevated 27/27 exit 0
+(484 PASS); elevated 30/30 exit 0 (629 PASS); no FAIL. `verify-dictfold` passed
+15/15 on its first suite run.
