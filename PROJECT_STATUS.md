@@ -179,7 +179,11 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ### ⚠️ ***14 Sep 2026, LATER — "FINISH 5": STAGE 1 OF 3 IS IN SOURCE. THE TREE IS STALE ON PURPOSE; A MEASUREMENT, A CYCLE AND `b155` ARE OWED.***
+> ### ⚠️ ***`b155`, 14 Sep 2026 — STAGE 1 INSTALLED, SUITE GREEN BUT ONE ROW: `verify-tiers` §5b NEVER RAN `update.voc`. INSTRUMENT FIXED; `-Only verify-tiers,verify-registersweep -Run b156` (ELEVATED) IS OWED.***
+>
+> 5b's PROGRAMMER account lacks `update.accounts` (ADMINISTRATOR-only), and §5 had been passing on the same refusal in the STANDARD account. Both fixed (RELEASE_1.1 5). The install is still current — only `verify-tiers.ps1` changed and it ships nowhere. `verify-registersweep` rides along so the run clears its own register residue (Handoff 58's `-Only` class). **Trap, suite**: the b155 elevated half stalled 6 min between steps 8 and 9 — a console in Select mode; Esc resumed it.
+>
+> *(Pre-cycle box:)* ***"FINISH 5": STAGE 1 OF 3 IS IN SOURCE.***
 >
 > Owner ruled all of phase (b) plus case inversion off; bulk edits by per-batch scratch script with checks. Stage 1 = inversion off (`LOGIN`, `linuxio.c`), `$acc`/`$map`/`$release`/`sd.voclib`, `update.voc` renaming an account's old upper-case copy, syscom names lower. Full detail and stages 2–3: RELEASE_1.1 5. Free tier 36/36; `linuxio.c` gcc syntax clean; `gen_includes --check` in sync. **Measured before the cycle**: inversion already read **Off** on the old install piped, under `sd -internal`, and interactively (owner) — the removal is dead-code cleanup, no instrument can witness it, cause untraced. **Owed**: `cycle.ps1` (**ELEVATED**), then `VerifyInstall1.ps1 -ThenElevated -Run b155` (**unelevated**).
 >

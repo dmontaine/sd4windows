@@ -61126,3 +61126,20 @@ typing in lower case echoed in lower case.
 On Windows, inversion was already not in effect, and the cause is untraced. The
 stage 1 removal is dead-code cleanup, so its changelog entry was withdrawn. The
 `-internal` rows are a regression guard, not a witness.
+
+## 14 Sep 2026 — `b155`: stage 1 green except a check that never ran
+
+Cycle 01:35 and a full suite. Unelevated 26/26 exit 0 (469 PASS). Elevated
+29/30 exit 0 (624 PASS, 1 FAIL). The FAIL was `verify-tiers` 5b: in the
+PROGRAMMER account, `UPDATE.ACCOUNTS` answered "not in your VOC", because
+`update.accounts` is ADMINISTRATOR-only.
+
+Section 5 had been passing for the same reason in the STANDARD account, with no
+raw output printed to show it. 5b now uses the ADMINISTRATOR account and
+refuses a run without message 5200. Section 5 now uses `UPDATE.ACCOUNTS ALL`.
+
+`LIST VOC WITH @ID = "x"` folds the selection between upper and lower case. Only
+the printed row shows the stored case.
+
+The elevated half stalled for 6 minutes between steps because a console was in
+Select mode.
