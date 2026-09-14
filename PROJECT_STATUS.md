@@ -194,6 +194,39 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > - **Bulk edits by scratch script, per batch, with checks**: dry run first, refuse BOM/CR, exact tokens in named files only, word-diff after. Small edits stay on Edit.
 > - An existing id in another case is **"the same id"** (fold the existence test, keep the matched id).
 >
+> ### ***STAGE 3 — RULED 14 Sep 2026, NOT STARTED. Owner: D1 = (a), the full conversion, lower case everywhere; D2 = yes, refuse a name that exists in two casings; D3 = yes, CATALOG stores lower. The plan below is still conditional; it was revised the same day after the two probes that follow.***
+>
+> **Measured by reading the source, 14 Sep:**
+> - The names: 223 `gpl.bp` sources, 211 `gpl.bp.out` objects and 152 `gcat` entries, all upper case. `pcode.out` holds the `_*` items. About 95 `newvoc` verbs name an upper-case processor in field 3 (for example `$CREATEF`), and every existing account's VOC does the same. About 30 `gplbld` scripts name `gpl.bp/<NAME>` or `gcat/<NAME>` by path.
+> - ***UPPER IS THE RUNTIME'S CANONICAL CASE, NOT LEFTOVER SPELLING:***
+>   - `BCOMP:3150` upper-cases every CALL/SUBROUTINE name (*"Call names are always uppercase"*), and `:2714` accepts only `A-Z0-9.%$_-` in a catalogue name.
+>   - `CATALOG:159-378` upper-cases names.
+>   - `sd.c:875` `load_pcode` upper-cases the names it looks for.
+>   - Kernel literals: `$CPROC` (`kernel.h:68`, `op_exec.c:210`), `$BBPROC` (`sd.c:362`), `$APISRVR` (`linuxio.c:119`), `$DEBUG`/`$PDBG` (`op_debug.c:768`), `$SYSCOM` (`op_array.c:168`).
+>   - The object cache is `strcmp` (`object.c:109`), and `_VOC_CAT` reads VOC exactly with no fold.
+>   - The `$catalog` directives are already mixed case (`$acomp`, `!py_*`), with no effect, because CATALOG upper-cases.
+> - ***AND THE RUNTIME UPPER-CASES EVERY CALL NAME BEFORE LOOKING IT UP*** — `UpperCaseString` at `op_jumps.c:95, 213, 278, 379, 690` and `objprog.c:179, 312`, then `valid_call_name` (`op_jumps.c:874`, upper-case character set). ***MEASURED 14 Sep (scratch program in the owner's account, `b158`):*** `call @x` with `'!USERNAME'`, `'!username'` and `'!UsErNaMe'` all returned `Don`, and the negative control `'!zznosuchsub'` failed as ***`Unable to load '!ZZNOSUCHSUB'`*** — upper-cased by the runtime. So a literal CALL, a `"!PARSER"` string and every old compiled object reach `load_object` in one canonical case, whatever they hold.
+> - ***NTFS FOLDS A GCAT OPEN UNDER SD'S MSYS2 RUNTIME — MEASURED 14 Sep***, `openseq` on `/cygdrive/c/ProgramData/SD/sdsys/gcat/<name>`: `!USERNAME` (exists) status 3003, **`!username` status 3003**, `!zznosuchsub` (absent) status 0. So on Windows a lower-case name opens the upper-case file. On ext4 it would not.
+> - **Therefore the canonical case can be flipped at the runtime's canonicalization points**, and every old object, `"!PARSER"` string and user program follows automatically. No permanent three-way fold is needed on the CALL path. **Two exact lookups sit outside that path:** kernel literals passed straight to `k_call`, and `_VOC_CAT`'s VOC read (a local catalogue entry is a VOC id, stored upper by the old CATALOG).
+>
+> **THE REVISED PLAN (supersedes the "fold first" draft, which assumed call names reached the loader as typed; the probe showed they do not).**
+> - **3a — flip the canonical case to lower, one coherent cycle. On Windows it is additive because NTFS carries the still-upper files (measured above).**
+>   - C: the seven `UpperCaseString` sites → lower; `valid_call_name`'s character set; `load_pcode` (`sd.c:875`); the kernel literals `$cproc`, `$bbproc`, `$apisrvr`, `$debug`/`$pdbg`, `$syscom`, `$proc` (`op_misc.c:1230`).
+>   - Compilers: `BCOMP:3150` and `:2714`, and `bbcmp.py` in lockstep. The bootstrap compiler writes gcat and pcode names, so a mismatch would stop the build at `load_pcode`, loudly.
+>   - `CATALOG` stores lower (D3); DELETE.CATALOG and MAPCAT's compares and `$map` ids follow.
+>   - `_VOC_CAT` reads as typed → lower → upper, so an old account's local catalogue entry still loads.
+>   - `newvoc`/`voc_template` verb field 3 lowered (~95 × 2). Old accounts keep upper processor names, which the runtime canonicalizes anyway.
+>   - ***A FRESH INSTALL'S GCAT, GPL.BP.OUT OBJECT HEADERS AND PCODE THEN COME OUT LOWER BY THEMSELVES***, because the bootstrap catalogues everything through the flipped code.
+>   - *Falsified if* any path hands `load_object` or `k_call` a name that bypassed canonicalization and matches exactly. Candidates to grep before building: `op_misc.c:1230` `$PROC`, trigger names (`dh_open.c:268`), `objprog.c` class names, and `k_call(processor)` at `kernel.c:529`.
+>   - *Objection:* NTFS hides a missed site, so a green Windows suite does not prove the flip complete. The 3a witness should therefore read the NAMES produced (gcat listing `-cmatch` lower, `$map`, an object header's `program_name`) rather than only whether things run.
+> - **3b — rename the source files.** 223 `gpl.bp` records via `git mv` (per-batch scratch script with checks); `BBCMP_FIRST`, `pcode_bld.py`'s list, `stage.py`, `bootstrap.py`/`cycle.ps1`/`read_config` (`gcat/$CPROC`), `sd.iss`, `$include` names in BASIC, and the ~30 scripts and tests that name `gpl.bp/<NAME>`. `gcat`, `gpl.bp` and `gpl.bp.out` are on the upgrade replace list, so no twins arise there.
+> - **D2 — refuse a name in two casings (design, conditional).** Where two casings can coexist on Windows: hashed files (VOC, dictionaries, local catalogue entries in VOC). Directory files cannot, on NTFS. Proposal:
+>   - every fold site (`_VOC_REF`, `_VOC_CAT`, 2a's dictionary reads) refuses, naming both ids, when the name resolves and a different-case spelling also exists;
+>   - UPDATE.ACCOUNTS / update.voc reports twins it cannot rename;
+>   - the creation verbs already refuse to make one (stage 1, 34).
+>   - ***THE COST IS UNMEASURED***: checking on every hit is one extra read per VOC lookup, and VOC lookups run for every command. Measure before choosing between "check on every hit" and "check only when the hit was not the lower spelling".
+> - **Cost, estimated:** 3a one cycle plus a full suite; D2 likely its own cycle; 3b one cycle plus a full suite. The bootstrap is at risk in 3a and 3b.
+>
 > ### ✅ ***`b158`, 14 Sep 2026 — STAGE 2b WITNESSED, FULL SUITE GREEN. THE INSTALL IS CURRENT; NOTHING IS OWED. NEXT: STAGE 3 (needs its own plan).***
 >
 > | | |
