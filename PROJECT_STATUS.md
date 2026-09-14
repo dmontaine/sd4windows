@@ -179,7 +179,54 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 57, 13 Sep 2026 — ***HANDOFF 56's CYCLE AND SUITE RAN, AND EVERYTHING IT CARRIED IS WITNESSED. SIX MORE `RELEASE_1.1` ENTRIES WERE FOUND AND CLOSED ON THE WAY (26–31). THE INSTALL IS CURRENT, EVERYTHING IS PUSHED, AND NOTHING IS OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 58, 13 Sep 2026 — ***THE INSTALL IS CURRENT, EVERYTHING IS PUSHED, AND THE NEXT STEP IS THE OWNER'S: ONE REBOOT, THEN ONE FULL RUN ON `b151`, WHICH WITNESSES FOUR THINGS AT ONCE. NOTHING IS BROKEN AND NOTHING IS HALF-DONE.*** ⇩⇩⇩
+>
+> ### ⚠️ ***THE NEXT MEASUREMENT — REBOOT FIRST, THEN AN ORDINARY UNELEVATED PROMPT (it asks for elevation once)***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b151
+> ```
+>
+> | it witnesses | read |
+> |---|---|
+> | ***the clean full pass the milestone wants*** — today's green was split across `b147`–`b150` | both summaries, then the step logs |
+> | `verify-pagesuppress` (VI1 step 22) and `verify-createfilecase` (VI2 step 26) **in a full pass for the first time** | their rows, not the exit line |
+> | **`RELEASE_1.1` 6**: `verify-promptenter` legs 4–5 (6135/6140/3033/3034, 38/38 when the agent ran it) and ***`verify-catgate` section 1b — prompt 3035, BUILT AND NEVER RUN*** | `verify-catgate-<stamp>.log` (it writes its own transcript) |
+> | **`RELEASE_1.1` 8 and 9**: `VerifyInstall2`'s start-of-run profile sweep **after a reboot** — it read *"0 removed"* on `b133`/`b134` because the hives were still loaded | ***the sweep block at the top of `post-cycle-elevated-*.log`, FIRST*** |
+>
+> ***If 1b fails, suspect the section before the product***: it was written from `CATALOG:356`/`:421` and 3033/3034's captured behaviour, and nothing SDSYS-side could be driven from an agent shell.
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **13 Sep 18:41:41**, ***CURRENT*** — `assert-current` exit 0 after the last edit |
+> | git | `main` level with `origin/main` at the commit carrying this handoff, clean — check with `git status -sb` |
+> | run tokens | `b147`–`b150` spent. **Use `b151`** |
+> | suite | `VerifyInstall1` **23 steps**, `VerifyInstall2` **30** |
+> | `RELEASE_1.1` | ***closed and witnessed 13 Sep: 26–32.*** Open: **5, 6, 7, 8, 9, 18** — `test-fixlist-units` 325/0 |
+> | free tier | ***36 of 36*** |
+>
+> ### ***WHAT IS LEFT, CHEAPEST FIRST — THE ORDER THE OWNER ASKED FOR***
+>
+> | | cost | state |
+> |---|---|---|
+> | **6** | the `b151` run | six of seven prompts pressed with Enter on a real install; **3035 built, unrun**. Then only **2050 / 6133** remain, and those are ***the owner's decisions***, not work |
+> | **8, 9** | reboot + the `b151` run | harness only; documented decisions, the collection unwitnessed |
+> | **18** | nothing until W1.1-0 is assembled | copy the rebuilt PDFs from `SDCoreWindowsDocs` `<Set>\book\` into the release's `documentation\` — a hand step with no script |
+> | **7** | ***a staged fault, and ASK THE OWNER FIRST*** | `LIST.READU` NULL-deref fix compiled, never run. Reaching it needs **a lock whose owner's session is gone**, i.e. killing a live `sd` — which §4 records can leave the install forcing every new session out, recoverable only by an elevated `sd -cleanup`. **Do it after `b151`, expect a cycle afterwards, and get the owner's go-ahead** |
+> | **5** | large | the rest of the lower-case work (`SET.FILE`, catalogue pointers, phase (b)). ***Before any of it, grep `gplbld` case-sensitively for every spelling and path it moves*** — today's phase (a) cost `RELEASE_1.1` 27, 29, 30 and 31 by not doing that |
+>
+> ### ***WHAT THIS SESSION ADDED AFTER HANDOFF 57, ONE LINE EACH***
+>
+> - `verify-pagesuppress` wired into `VerifyInstall1`; `verify-createfilecase` into `VerifyInstall2` — both on the owner's instruction, both wiring proofs by AST lift through `Select-SuiteSteps`, no token spent.
+> - **32**: reading `verify-createfilecase` before wiring it found three rows that could not fail (LISTF matched its own echo; COUNT asserted only no failure word). Repaired from captured real output, `b150` 8/8 — ***so its earlier 6/6 was half a witness***.
+> - **6**: `verify-promptenter` legs 4–5; `verify-catgate` section 1b for 3035.
+> - Row 5 of the fix list led with its morning state ("unwitnessed, a cycle is owed") and now leads with what is done.
+>
+> ***THE ONE LESSON, SINCE HANDOFF 57 ALREADY HAS THE OTHERS***: ***A VERIFIER NOBODY HAS READ SINCE IT WAS WRITTEN IS ONE NOBODY HAS CHECKED, HOWEVER GREEN IT IS.*** Four of today's defects were instruments, and three of those were green. **When wiring an existing verifier into a runner, read every row's anchor against captured real output first** — it cost one scratch session each time here.
+
+> # ⇩⇩⇩ HANDOFF 57, 13 Sep 2026 — ***SUPERSEDED BY HANDOFF 58 ABOVE; its state table is out of date (tokens, counts, open items).*** — ***HANDOFF 56's CYCLE AND SUITE RAN, AND EVERYTHING IT CARRIED IS WITNESSED. SIX MORE `RELEASE_1.1` ENTRIES WERE FOUND AND CLOSED ON THE WAY (26–31). THE INSTALL IS CURRENT, EVERYTHING IS PUSHED, AND NOTHING IS OWED.*** ⇩⇩⇩
 >
 > ### ***STATE***
 >
