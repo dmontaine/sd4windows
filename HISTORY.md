@@ -61143,3 +61143,12 @@ the printed row shows the stored case.
 
 The elevated half stalled for 6 minutes between steps because a console was in
 Select mode.
+
+## 14 Sep 2026 — `b156`: stage 1 of "finish 5" witnessed
+
+A targeted run of `verify-tiers` and `verify-registersweep` on the `b155`
+install passed with 59 PASS and no FAIL. Section 5 really ran
+`UPDATE.ACCOUNTS ALL` across 5 accounts. In section 5b, the upper-case ids
+`$ACC $MAP $RELEASE SD.VOCLIB` became `$acc $map $release sd.voclib`, and the
+VOC count stayed at 420, so the ids were renamed rather than copied.
+`verify-registersweep` passed 7/7.

@@ -179,7 +179,11 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ### ⚠️ ***`b155`, 14 Sep 2026 — STAGE 1 INSTALLED, SUITE GREEN BUT ONE ROW: `verify-tiers` §5b NEVER RAN `update.voc`. INSTRUMENT FIXED; `-Only verify-tiers,verify-registersweep -Run b156` (ELEVATED) IS OWED.***
+> ### ✅ ***`b156`, 14 Sep 2026 — "FINISH 5" STAGE 1 DONE AND WITNESSED. THE INSTALL IS CURRENT; NOTHING IS OWED. NEXT: STAGE 2 (dictionary ids).***
+>
+> `verify-tiers` 59/0 with §5 really running UPDATE.ACCOUNTS ALL and §5b showing `$ACC…` → `$acc…` at an unchanged count; `verify-registersweep` 7/7. Tokens: `b156` spent — use `b157`. Stage 2 plan (conditional, not started): trace why a piped `LIST VOC WITH type` already finds `TYPE`, fold the dictionary reads that lack it, then rename the shipped dictionary ids; stage 3 is program and catalogue names. RELEASE_1.1 5 has the detail.
+>
+> *(Earlier:)* ***`b155` — STAGE 1 INSTALLED, SUITE GREEN BUT ONE ROW: `verify-tiers` §5b NEVER RAN `update.voc`. INSTRUMENT FIXED.***
 >
 > 5b's PROGRAMMER account lacks `update.accounts` (ADMINISTRATOR-only), and §5 had been passing on the same refusal in the STANDARD account. Both fixed (RELEASE_1.1 5). The install is still current — only `verify-tiers.ps1` changed and it ships nowhere. `verify-registersweep` rides along so the run clears its own register residue (Handoff 58's `-Only` class). **Trap, suite**: the b155 elevated half stalled 6 min between steps 8 and 9 — a console in Select mode; Esc resumed it.
 >
