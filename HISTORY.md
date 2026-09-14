@@ -61060,3 +61060,11 @@ The probe used explicit answers, which are valid both before and after the
 change. It ran out of input after Y, so it was killed at its timeout with no
 stray process. It also left a `zzprmf` directory behind, which was removed by
 hand and checked.
+
+## 14 Sep 2026 — `b153`: 33 witnessed and closed, full suite green
+
+Cycle 23:55 with 33 in it, then the full suite on `b153`. Unelevated 25/25
+exit 0, 424 PASS; elevated 30/30 exit 0, 616 PASS; no FAIL in either.
+`verify-promptenter` 64/64, the first suite run of legs 6–8. `verify-catgate`
+33/33. SDSYS VOC holds no fixture names, and `sdcatgb148bp.out` is gone.
+`RELEASE_1.1` open: 5, 7, 18.

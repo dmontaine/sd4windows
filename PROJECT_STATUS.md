@@ -179,6 +179,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ### ✅ ***`b153`, 14 Sep 2026 — 33 WITNESSED AND CLOSED. THE INSTALL IS CURRENT; NOTHING IS OWED.***
+>
+> Cycle 23:55 carrying 33, then `VerifyInstall1 -ThenElevated -Run b153`, no reboot. ***Unelevated: 25 steps exit 0, 424 `[PASS]` / 0 `[FAIL]`. Elevated: 30 exit 0, 616 `[PASS]` / 0 `[FAIL]`*** (per-step logs decoded; `verify-sdsysgate` 10 and `verify-pygate` 40 decisive rows, 0 failed). `verify-promptenter` **64/64** — legs 6, 7, 8 all ran inside a suite for the first time. `verify-catgate` 33/33. SDSYS VOC scan: no `zzprompt*`, `sdcatg*`, `probepy*` (control `listf` found; `sdcatgb148bp.out` gone). **Tokens: `b153` spent — use `b154`.** Profile dirs from `b152`/`b153` are litter for the next reboot.
+>
+> ***`RELEASE_1.1` OPEN NOW: 5 (lower-case remainder), 7 (LIST.READU null deref — needs the owner's go-ahead to stage a dead-owner lock), 18 (release PDFs, at W1.1-0 assembly).*** Plus the unruled `-Only` register-residue class (Handoff 58 below). The `b152` box below is superseded on "open" and "tokens" only.
+
 > ### ✅ ***`b152`, 13 Sep 2026, AFTER THE REBOOT — THE CLEAN FULL PASS. NOTHING IS OWED.***
 >
 > `VerifyInstall1 -ThenElevated -Run b152`, run by the owner. ***Unelevated: every step exit 0, 398 `[PASS]` / 0 `[FAIL]`. Elevated: all 30 exit 0, 616 `[PASS]` / 0 `[FAIL]`*** across the 30 per-step logs (decoded; `verify-sdsysgate`'s 11 and `verify-pygate`'s 40 table rows all PASS too). ***Read from the logs, not the exit lines.***
