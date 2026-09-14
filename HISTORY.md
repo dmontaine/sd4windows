@@ -60910,3 +60910,10 @@ both exit 0. `verify-vocverbs` 36/36 with entry 26 reading `sdvvb149w` from
 An independent VOC scan found no `sdcatgb149*`. 30 and 31 closed. Every suite
 step has now exited 0 on the 18:41:41 install, though across three runs rather
 than one.
+
+**`verify-pagesuppress` wired into `VerifyInstall1`** as step 22 of 23, on the
+owner's instruction. The wiring was proven without a run token: the step table
+was lifted by AST and driven through `Select-SuiteSteps`, which kept the
+runner's order and refused a typo. Re-deriving the header's counts (56 in the
+directory, 22 and 29 in the runners) found `verify-createfilecase.ps1` in
+neither table. It is recorded there, not wired, pending a ruling.
