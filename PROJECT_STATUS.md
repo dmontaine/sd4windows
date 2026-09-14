@@ -179,7 +179,52 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 57, 13 Sep 2026 — ***HANDOFF 56's CYCLE AND SUITE RAN, AND EVERYTHING IT CARRIED IS WITNESSED. SIX MORE `RELEASE_1.1` ENTRIES WERE FOUND AND CLOSED ON THE WAY (26–31). THE INSTALL IS CURRENT, EVERYTHING IS PUSHED, AND NOTHING IS OWED.*** ⇩⇩⇩
+>
+> ### ***STATE***
+>
+> | | |
+> |---|---|
+> | install | **13 Sep 18:41:41**, ***CURRENT*** — `assert-current` exit 0 after the last edit |
+> | git | `main` = `origin/main` = `1bf142d`, working tree clean |
+> | run tokens | `b147`, `b148`, `b149` spent. **Use `b150`** |
+> | suite | ***every step has exited 0 on this install — but across three runs***: `b147` unelevated (every step, 367 `[PASS]` / 0 `[FAIL]`), `b148` elevated (28 of 29; the red was **30**, an instrument), `b149` `-Only verify-vocverbs,verify-catgate` (both green). **One clean full run on `b150` is the next milestone's job, not owed now** |
+> | `RELEASE_1.1` | ***closed and witnessed today: 26, 27, 28, 29, 30, 31.*** Open: **5, 6, 7, 8, 9, 18** — `test-fixlist-units` 324/0 |
+> | also witnessed today | **5**'s relocation and phase (a) work on the install (`verify-tiers` COUNT VOC 355/397/420, `verify-tierchange` 38/38, `verify-createfilecase` 6/6). **3**'s reworded 10114 is installed — the installed record is byte-identical to source — ***but no verifier reaches its failure path, so the message has never been displayed***. Both entries stay open, see their rows |
+> | free tier | ***36 of 36*** |
+>
+> ### ***WHAT HAPPENED, ONE LINE EACH — THE FIX FILE HAS THE EVIDENCE***
+>
+> | | |
+> |---|---|
+> | **26** | `verify-pyapi` left 2 dead F-pointers in SDSYS's VOC per run. Owner: *"they should not be stored in VOC."* Probes now go in SDSYS's own `bp`; a VOC byte-scan row with a `listf` control. `b148` 14/14 |
+> | **27** | ***product***: phase (a) stores new `CREATE.FILE` ids lower and `DELETEF:189` had no lower tier, so `DELETE.FILE ZZX` missed `zzx`. Silent lower tier added; `verify-promptenter` re-premised and a leg 3 added. `b147` 14/14, and `verify-catgate` on `b148` |
+> | **28** | ***product, owner-reported***: "Suppress pagination" at `QDISP`'s page prompt still cleared the screen every page. One line (`qd.no.page`). UPSTREAM 39. New `verify-pagesuppress.ps1`; owner ran it 7/7 |
+> | **29** | `verify-tiers` still read `newvoc\TIER.*` — `b147`'s elevated half died at step 6 |
+> | **30** | `verify-vocverbs` entry 26 anchored on an upper-case name phase (a) made lower — `b148`'s only red, product right |
+> | **31** | `verify-catgate`, green, left `sdcatgb148bp.out` in SDSYS's VOC — deleted the `.OUT` by its old upper-case id. Now deletes both and scans the VOC |
+>
+> ### ⚠️ ***THE LESSON THAT COST THREE OF THOSE SIX***
+>
+> ***A CHANGE TO WHAT THE PRODUCT STORES OR PRINTS IS A CHANGE TO EVERY VERIFIER THAT ANCHORS ON IT.*** Phase (a) (lower-case `CREATE.FILE` ids) and the `tier.policy` move each shipped with the product half swept and the instrument half not: 27 was a product site the fold never reached (a `readu`, not an `open`), and 29, 30 and 31 were verifiers still naming the old case or path. **Before the next such change, grep `gplbld` for the old spelling — case-sensitively — and for every path it moves.** The 18 Aug fold did exactly this (76 sites); phase (a) did not.
+>
+> ### ***WHAT IS LEFT, AND NONE OF IT IS STARTED***
+>
+> - **`RELEASE_1.1` 5's remainder** — other creation verbs (`SET.FILE`, catalogue pointers) and phase (b), converting shipped upper ids. Its row says large and mostly cosmetic. ***Apply the lesson above first.***
+> - **6, 7** — fixed in source long since; 6's runtime coverage of five prompts and 7's live witness are low-value gaps. **8, 9** — documented decisions, not bugs. **18** — the release zip.
+> - ***THE OWNER'S OPEN QUESTION***: wire `verify-pagesuppress` into `VerifyInstall1`? It is unelevated and standalone today, and in no runner.
+> - **A reboot is worth doing before `b150`**: 45 stuck hives from deferred test profiles, which only a restart releases (PRE_RELEASE 185). Not a fault.
+>
+> ### ***FOUR THINGS THAT COST TIME TODAY AND ARE CHEAP TO KNOW***
+>
+> - ***THE PROJECT'S HOOK BLOCKS AN INLINE PYTHON HEREDOC AND ANY `>` REDIRECT INTO A FILE*** (`.claude/hooks/no-program-edits.py`). To read the suite's UTF-16 logs, write the decoder to the scratchpad and print to stdout; set `PYTHONIOENCODING=utf-8` or a `■` in a transcript kills `print`.
+> - ***`VerifyInstall2`'s transcript does not contain every step's output***: `verify-sshonly` and `verify-catgate` write their own `verify-<step>-<stamp>.log`. A step showing 0 rows in the transcript is not a step that did nothing — open its log.
+> - ***A GREEN STEP CAN LEAVE LITTER***, and 31 was found only by byte-scanning `sdsys\voc\%0`/`%1` after the run (`grep -a -o -i`). A dead VOC record from a verifier is invisible to every exit code.
+> - ***A QUERY REPORT'S PAGE PROMPT CAN BE DRIVEN DOWN A PIPE*** — `TERM 80,12`, then the answer as the next line (`keycode()` takes one byte). `verify-pagesuppress` is the worked shape, bounded by a job with a PID-diff kill.
+
 > # ⇩⇩⇩ HANDOFF 56, 13 Sep 2026 — ***THE `RELEASE_1.1` BACKLOG WAS VALIDATED AND THE ACTIONABLE ITEMS FIXED IN SOURCE. ONE CYCLE + ONE FULL SUITE WITNESSES ALL OF IT. THE TREE IS STALE ON PURPOSE.*** ⇩⇩⇩
+>
+> ***SUPERSEDED BY HANDOFF 57 ABOVE — the cycle ran (18:41:41) and the suite across `b147`–`b149`; the tree is current and nothing below is owed.*** Kept for its evidence and addendum tables.
 >
 > ### ⚠️ ***RUN THIS FIRST — ELEVATED PowerShell.  It carries BASIC and message changes, so step 0 rebuilds and installs***
 >
