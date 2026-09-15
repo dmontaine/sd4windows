@@ -915,14 +915,19 @@ machines, and no Claude facility connects them. They share a mailbox on pCloud �
   already-authorized work (RELEASE_1.1 41) — or a parity decision the exception
   above makes binding — it may act directly, and must report what it did. A
   message needing anything else is left in the inbox and brought to the owner.
-- **The poll interval is ADAPTIVE (owner, 15 Sep 2026; parity decision, same on
-  both ports): fast during a parity exchange, slow when idle** — otherwise
-  simple coordination takes hours. While a parity exchange is in flight (a
-  message awaiting a reply, or one being worked on, or shared-wire work the owner
-  is actively directing), poll every **2 min**. Drop back to **15 min** after
-  **30 minutes with nothing sent or received**. The floor the runtime allows is
-  60 s. *(These exact numbers were approved by the owner on the Linux side and
-  bind both ports under the parity rule above; the Linux loop runs the same.)*
+- **Mail is delivered by a WATCHER, not a slow poll (owner, 15 Sep 2026; parity
+  with Linux).** A background process watches `P:\sdcore-mail\to-windows\` every
+  ~5 s, ignores `*.partial`, and wakes the session on the first new message — so
+  a message is picked up within seconds of pCloud syncing it. On wake: handle the
+  message, then **relaunch the watcher** (it self-exits after ~1 h so it is
+  re-armed fresh rather than lingering). A ~30-min `ScheduleWakeup` is the
+  fallback heartbeat — it re-checks the inbox and relaunches the watcher if it
+  has died. The Windows watcher is a `Bash` `run_in_background` loop: from
+  `/p/sdcore-mail`, if `ls to-windows/ | grep -v '\.partial$'` is non-empty echo
+  it and `exit 0`, else `sleep 5`, up to ~720 times. *(Linux runs the same design
+  with a Monitor; an earlier 2-minute cadence note is superseded. The floor a
+  `ScheduleWakeup` allows is 60 s, which is why the fast path is the watcher, not
+  a poll.)*
 - **Git stays the record.** A message points at a commit or an entry; a finding
   that must last goes into this repository (`PROJECT_STATUS.md`,
   `BUGS_FROM_LINUX_PORT.md`, `RELEASE_1.1_FIXES.md`), not the mailbox.
