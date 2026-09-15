@@ -61454,3 +61454,11 @@ and stored ids before and after. Reading UPGRADE_NOCASE before writing it found
 two defects: `old.path` used at :218 before :284 sets it (abort on the first
 case-sensitive file), and SDSYS's self-naming `voc` F-record queueing the live
 VOC. Built, parse clean, probe bbcmp rc 0, free tier 38/38; unrun.
+
+Its first run (owner, elevated) refused its precondition on every fixture with
+"(no probe line)", and the probe's output never printed. The harness, not SD: a
+PowerShell function's `Write-Output` joins its return value, and `Get-Probe`
+called `Show` inside itself, so `$b` was text lines plus the map and every key
+lookup was `$null`. Fixed for the class - `Get-Probe` returns one object and the
+caller prints; an AST scan found no other assigned function emitting output;
+the lifted function driven 9/0 with an in-memory `Write-Output` mutant caught.
