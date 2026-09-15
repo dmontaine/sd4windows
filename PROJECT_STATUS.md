@@ -179,6 +179,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 66, 14 Sep 2026 (late) — ***5a STARTED: THE UPGRADE-WALK HARNESS IS BUILT AND UNRUN; READING `UPGRADE_NOCASE` FOUND TWO DEFECTS THAT WOULD FAIL EVERY REAL UPGRADE. A RED RUN IS OWED BEFORE ANY FIX (owner: red first).*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | still 22:54:54; `assert-current` exit 0 after these edits (the harness and runner edits ship nowhere) — **no cycle needed for the red run** |
+> | owner's rulings | harness = forced state first (a `VerifyInstall2` step), a real W1.0-0 → current upgrade later as the end-to-end witness; **red first, then fix** |
+> | built | `gplbld/verify-nocaseupgrade.ps1` (elevated; `VerifyInstall2` after `verify-twins`; `$neverShipped`). In SDSYS with `sd -internal`: `zznuclean` (case sensitive, clean), `zznutwin` (holds `jack`+`JACK`), `zznuak` (indexed), `zznunc` (NOCASE control); runs the INSTALLED `upgrade-nocase.ps1`; a probe program reads FL$NOCASE, FL$AK and every stored id of each DATA and DICT part before and after. Parses clean; its probe bbcmp-compiles; `VerifyInstall1`'s count note re-derived (62 = 25 + 33 + the same four); free tier 38/38 |
+> | ***found by reading, not yet witnessed*** | (1) `UPGRADE_NOCASE:218` builds phase 1's probe path from `old.path`, first set at `:284` — so the first case-sensitive file aborts the walk (SD stops on an unassigned variable) before `COMPLETE`. (2) SDSYS's VOC has an F-record `voc` naming itself (`voc_template/voc`), so `do.account.at` queues the LIVE VOC through its file list despite skipping it by design. **The harness can reach (1) only; (2) needs a case-sensitive SDSYS VOC — the real-upgrade phase** |
+> | expected red (conditional) | driver exit 1, no `COMPLETE`, "Unassigned variable" in the report; the fixtures' before/after rows PASS (nothing converted, nothing lost). *Falsified if* the walk reaches `COMPLETE` on today's install |
+>
+> **Owed — the red run**, from an **elevated** PowerShell (standalone, so no run token is spent):
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-nocaseupgrade.ps1
+> ```
+> Then: fix both defects, cycle, rerun green; then plan the W1.0-0 → current real upgrade.
+>
+> *(Handoff 65 follows; still accurate.)*
+
 > # ⇩⇩⇩ HANDOFF 65, 14 Sep 2026 (late) — ***THE INSTALL IS CURRENT (22:54:54) AND EVERY STEP D2 TOUCHED IS GREEN. D2's PREVENTION IS DONE. NOTHING IS OWED EXCEPT THE UPGRADE HARNESS (NOT STARTED).*** ⇩⇩⇩
 >
 > | | |

@@ -61444,3 +61444,13 @@ had misdated its own work "15 Sep"; corrected to 14 Sep before this commit.
 promptenter 61/0 (3033 asked once, Enter kept the entry), callcase 22/0,
 dictfold 24/0, catgate 33/33 (`b163`). D2's prevention is done; its upgrade
 walk still has no harness and has never run.
+
+**5a started, same night.** Pushed `a34bf5b`. Owner ruled the harness forced
+state first (a VerifyInstall2 step), a real W1.0-0 -> current upgrade later,
+and red before any fix. `verify-nocaseupgrade.ps1` builds four SDSYS fixtures
+(clean, twinned, indexed case-sensitive files via `sd -internal`, plus a NOCASE
+control), runs the installed `upgrade-nocase.ps1`, and probes FL$NOCASE, FL$AK
+and stored ids before and after. Reading UPGRADE_NOCASE before writing it found
+two defects: `old.path` used at :218 before :284 sets it (abort on the first
+case-sensitive file), and SDSYS's self-naming `voc` F-record queueing the live
+VOC. Built, parse clean, probe bbcmp rc 0, free tier 38/38; unrun.
