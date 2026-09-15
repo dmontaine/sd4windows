@@ -574,8 +574,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-suitetranscript-units`, `test-basicfuncscov-units`,
    `test-promptdefaults-units`, `test-intrinsics-units.py`,
    `test-voctwins-units.py`, `test-upgradenocase-units`,
-   `test-selectlists-units.py`, `test-tlsconsts-units.py`.
-   ***ALL FORTY. Run these on
+   `test-selectlists-units.py`, `test-tlsconsts-units.py`,
+   `test-scramprobe-units.py`.
+   ***ALL FORTY-ONE. Run these on
    every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
    thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
    for thirty-two; the set got one longer and the wall clock did not, so do not
@@ -844,6 +845,18 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    contract** (not read from one file as authority) so a drift on either the
    Windows or the Linux side fails, and a control refuses the null case. Mutant:
    one constant changed → red naming the file; restored → green.
+
+   ***`test-scramprobe-units.py` JOINED IT 15 Sep 2026 IN THE COMMIT THAT
+   CREATED IT (RELEASE_1.1 42).*** It guards `gplbld/scram-probe.py`, the
+   TLS+SCRAM probe that lets `verify-scramlogin` reach the now-TLS-only API
+   server (41). The probe's own SCRAM arithmetic must be right or a real red is
+   blamed on the server, so it drives `scram_compute()` against the **RFC 7677
+   §3 vector** (the published ClientProof and server signature), with a
+   wrong-password and a mutated-`c=` control; it also loads `libssl-3-x64.dll`
+   and resolves every OpenSSL symbol the TLS class declares (the ABI check
+   `verify-apiport` otherwise only proves live), and checks the exit-code
+   contract (no password → 2, commands without account → 2, `--no-tls` to a
+   dead port is never a pass). No SD, install, elevation or server.
 
    ***`test-stalebin-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT.*** It guards `gplbld/stale-binaries.ps1` — this script's own check A2,
