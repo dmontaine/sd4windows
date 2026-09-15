@@ -61599,3 +61599,21 @@ BASIC tokenizes in bbcmp pass1 (pass2 is the cycle's, bbcmp lacks echo/hush/
 writepkt/class). Deps installed on the dev box and added to setup-devbox:
 openssl-devel, mingw-w64-{ucrt-x86_64,i686}-openssl. NOT cycled, NOT witnessed
 on an install; a cycle and a capture/interop witness are owed (Handoff 72).
+
+## RELEASE_1.1 42 — the raw-socket API verifiers moved onto scram-probe.py (15 Sep 2026)
+
+`verify-scramlogin` and `verify-apiidentity` carried a .NET TcpClient SCRAM
+client; with 41 installed it cannot reach the TLS-only server and SslStream
+cannot export the tls-exporter binding. Both now drive `gplbld/scram-probe.py`
+(Linux's split, mailbox 15 Sep 12:15: positives over TLS, the plaintext socket
+kept only as the `--no-tls` refusal control). Probe modes added so each refusal
+stays wrong in exactly one way: `--gs2`, `--tamper-nonce`, `--bad-cbind`,
+`--replay` (c= rewritten to the second connection's binding, else the binding
+check fires before the nonce check, apisrvr:1439 before :1448), `--open` /
+`--write` (requests 4/16, for apiidentity), and a `wire` line replacing the
+.NET Sent-buffer search. Three rows new in scramlogin: wrong binding, `n,,`
+over TLS, plaintext gets no ACK. `verify-peerlog` needs no change by reading.
+Free: `test-scramprobe-units` 20/20; mutants on scratch copies (big-endian
+fileno, wire search disabled, write after refused open) all red — the third
+first crashed with a traceback naming no row, so `quiet()` now reports
+exceptions as output. Not witnessed on an install; elevated `-Only` run owed.
