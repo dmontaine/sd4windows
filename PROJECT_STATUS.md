@@ -183,9 +183,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > | | |
 > |---|---|
-> | install | `b159`, current until this source lands — `assert-current` now refuses everything, on purpose |
-> | tokens | **use `b160`** |
-> | owed, in order | a reboot (24 stuck hives from `b158`/`b159`, never cleared); `cycle.ps1` **ELEVATED**; then `VerifyInstall1.ps1 -ThenElevated -Run b160` **unelevated**. `verify-twins` is a new elevated step |
+> | install | ***`b160`, 14 Sep 19:26 — D2 IS INSTALLED*** (`assert-current` passed; `sd.exe` built 19:24:58). The C is witnessed at the flag level: `verify-nocase` measured the VOC (a dynamic file) reads `FL$NOCASE 1` now, which is exactly D2 (`op_dio1.c`). |
+> | tokens | ***`b160` spent (its VI1 unelevated half ran and stopped at `verify-nocase`; `sdtub160`'s profile hive is stuck until a reboot). USE `b161`.*** |
+> | owed, in order | a **`-ContinueOnFailure` re-run** (below) to enumerate the D2-stale tests in one pass, then fix them. No reboot needed for `b161` (a fresh token dodges the stuck `sdtub160`). |
+> | ***b160 CAUGHT (this is D2 working, not a regression)*** | `verify-nocase` asserted the dynamic VOC stays case-SENSITIVE (`FL$NOCASE 0`), the pre-D2 world. D2 makes every hashed file NOCASE, so it reads `1`. **Fixed** (`ded160b`): expect `1`, with `FL$TYPE` as the new control. **The cascade:** any test that plants a case-twin can no longer set it up on a NOCASE tree — `verify-dictrename` (COPY `type`→`TYPE` now overwrites) and `verify-callcase` leg F (plant `ZZCL3A`, expect rename) are the next two, neither has run yet. **Do not "fix" these by weakening D2** — the tree is correct; the tests encode the old world. The `-ContinueOnFailure` run surfaces the full list. |
 > | built today | D2's prevention (fresh-install, witnessed by `verify-twins`) **and** the upgrade-conversion walk (`UPGRADE_NOCASE`, `upgrade-nocase.ps1`, wired into `sd.iss`) |
 > | NOT witnessed | the upgrade walk (upgrade-path only, no `cycle.ps1` coverage; its BASIC compiles under bbcmp, its driver's verdict is unit-tested 14/14, but it has never RUN); and `sd.iss` is not ISCC-compiled here (no ISCC on this machine) |
 > | open | **5** (witness D2 — the "D2 — WHAT REMAINS" list below — then 3b), **7**, **18**, the `-Only` register-residue class (Handoff 58) |
