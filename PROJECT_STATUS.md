@@ -179,6 +179,27 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 70, 15 Sep 2026 — ***HANDOFF 69's CYCLE AND FULL SUITE RAN (`b164`): 3b, COPY's SELF-COPY FIX AND THE `-Only` SWEEP ARE WITNESSED. TWO INSTRUMENTS FAILED AND ARE REBUILT, UNRUN: `verify-pyapi` (did not compile) AND `verify-deadlock` (refused, killed nothing).*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | 15 Sep 00:30:17 (cycle, no bootstrap "not found"); `assert-current` still matches — both edited scripts are in `$neverShipped` |
+> | tokens | **`b164` spent — use `b165`** |
+> | ***witnessed, `b164`*** | VI1 **28/28** exit 0, 0 `[FAIL]`; VI2 **32 of 33** exit 0. `verify-twins` **13/0** incl. leg E (one record, 10187, `jack,jill` control) — RELEASE_1.1 36; `verify-dictrename` 15/0; `verify-nocaseupgrade` 31/0; `verify-registersweep` 7/0. Installed `gpl.bp`, `gpl.bp.out`, `gcat`: **0 upper-case names** — 3b |
+> | `verify-pyapi` | **COULD NOT RUN**: probe line 30 `lt = PY_OBJTYPE(...)` — `LT` is BASIC's less-than, "Unrecognised statement". Renamed `lty`; the other probe variables (`la lc lg nl ot rs vv`) are not keywords. So PY_LISTCREATE is still unwitnessed |
+> | `verify-deadlock` | **exit 1, nothing killed, health OK.** Cause: holder was a .NET Process at `INPUT`; `StandardInput.WriteLine` sends CRLF, the stray line end answered `INPUT`, it released at once, the probe rightly saw no lock. Its sd.exe also drew on the owner's console (~40 lines lost). **Rebuilt:** holder loops on `SLEEP 1` until record `zzdlrelease` exists (no stdin), runs in a `Start-Job`; holding is proved by the probe seeing a named lock (60 s poll), not by holder output; kill target = exactly one new sd.exe PID; clean release writes the record; own transcript `%LOCALAPPDATA%\SD-verify\verify-deadlock-*.log`. Parse 0 errors / 5 functions, no BOM; bbcmp rc 0 with `SLEEP` stubbed (bbcmp lacks it; BCOMP `st.sleep`, bcomp:10981) |
+>
+> **Owed:** both runs **elevated**, no cycle first. A cycle after `verify-deadlock` **only if its last line says a session was killed**. Then 5's remaining half (the real W1.0-0 upgrade, owner: later) and 18 (at W1.1-0 assembly).
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b165 -Only verify-pyapi
+> ```
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-deadlock.ps1
+> ```
+> *Falsified-if*: `verify-pyapi` LCREATE/LAPPD not 0, LGET without `SDPY-42`, LTYPE not `list`. `verify-deadlock` exit 2 "not reached" remains as likely as 0 (Handoff 69's note stands); a refusal at "exactly one new sd.exe" would mean another session started meanwhile.
+>
+> *(Handoff 69 follows; its "install", "tokens" and "Owed" rows are superseded.)*
+
 > # ⇩⇩⇩ HANDOFF 69, 15 Sep 2026 — ***"DO EVERYTHING EXCEPT W1.0-0": 3b, THE 21st PYTHON PROGRAM, COPY's SELF-COPY LOSS, THE `-Only` SWEEP AND ITEM 7's WITNESS ARE ALL IN SOURCE. NOTHING IS CYCLED. A CYCLE, A FULL SUITE AND THE DEAD-OWNER LOCK RUN ARE OWED.*** ⇩⇩⇩
 >
 > | | |

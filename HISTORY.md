@@ -61516,3 +61516,20 @@ started, and scores only "(gone)" - a lock still named or cleared ends "not
 reached". bbcmp: probe rc 0, holder rc 0 with PROMPT/INPUT stubbed.
 
 Nothing cycled. Free tier 39/39.
+
+## 15 Sep 2026 — b164: 3b and COPY's fix witnessed; verify-pyapi and verify-deadlock rebuilt
+
+Cycle 00:30:17, then `b164`: VI1 28/28, VI2 32/33. `verify-twins` 13/0 with
+leg E (RELEASE_1.1 36 witnessed); installed gpl.bp/gpl.bp.out/gcat carry no
+upper-case name (3b witnessed).
+
+**verify-pyapi could not run**: the probe named a variable `lt`, BASIC's
+less-than keyword ("Unrecognised statement", line 30). Renamed `lty`.
+
+**verify-deadlock exit 1, nothing killed.** The holder was a .NET Process
+waiting at INPUT; WriteLine's CRLF left a stray line end that answered it, so it
+released immediately and its "HOLD=LOCKED" line was the only evidence of
+holding. Its sd.exe also wrote over the owner's console. Rebuilt: holder waits
+on a release record with SLEEP (no stdin) in a Start-Job; holding is proved by
+the $internal probe seeing a named lock; kill only when exactly one new sd.exe
+appeared; own transcript file. bbcmp lacks SLEEP (stubbed, rc 0).
