@@ -188,7 +188,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | owed, in order | a reboot (24 stuck hives from `b158`/`b159`, never cleared); `cycle.ps1` **ELEVATED**; then `VerifyInstall1.ps1 -ThenElevated -Run b160` **unelevated**. `verify-twins` is a new elevated step |
 > | built today | D2's prevention (fresh-install, witnessed by `verify-twins`) **and** the upgrade-conversion walk (`UPGRADE_NOCASE`, `upgrade-nocase.ps1`, wired into `sd.iss`) |
 > | NOT witnessed | the upgrade walk (upgrade-path only, no `cycle.ps1` coverage; its BASIC compiles under bbcmp, its driver's verdict is unit-tested 14/14, but it has never RUN); and `sd.iss` is not ISCC-compiled here (no ISCC on this machine) |
-> | open | **5** (3b only now — the upgrade walk is built), **7**, **18**, the `-Only` register-residue class (Handoff 58) |
+> | open | **5** (witness D2 — the "D2 — WHAT REMAINS" list below — then 3b), **7**, **18**, the `-Only` register-residue class (Handoff 58) |
 >
 > ***THE RULING (owner, 14 Sep 2026): "whatever is needed to prevent two record ids (program names, voc items, etc) that differ only by case, anywhere, including user files."*** So this is prevention, not a read-side refusal, and it reaches every file.
 >
@@ -208,6 +208,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > - Messages **10178–10186**; the report names **record ids only**, never field values (owner confirmed the scope).
 >
 > ***What it is NOT: witnessed.*** No upgrade-path test exists (`cycle.ps1` does a fresh install), so `UPGRADE_NOCASE` has **never run**. It compiles fully under `bbcmp` with the three BCOMP-only statements (`VOID`/`FILELOCK`/`SET.TRIGGER`, all used identically in `CONFIGF`) stubbed; its structure, block balance and gosub targets are checked. *Falsified if:* a preserved file is opened by a path the walk does not reach (the F-record audit is where to look); or `sd.iss` fails ISCC (not compiled here — no ISCC on this machine; `cycle.ps1`'s preflight lint and the cycle's ISCC run are the check).
+>
+> ***D2 — WHAT REMAINS (task list).*** Everything below is validation of code already written; nothing new is designed.
+> 1. **Witness the fresh-install prevention.** Reboot → `cycle.ps1` (elevated) → `VerifyInstall1.ps1 -ThenElevated -Run b160` (unelevated). The new elevated `verify-twins` step is the witness; a fresh install makes every file NOCASE, so its A and C legs, red on a pre-D2 build, should go green. *If `verify-twins` is red, its `ED`/`LIST` SD-command legs are the first suspect — they have never run, only their PowerShell parsed.*
+> 2. **ISCC-compile `sd.iss`.** Happens inside the cycle (no ISCC on this machine). `RefreshNocase` is the new `[Code]`; if it fails, check for a line starting with `#` or a `[bracketed]` word (`cycle.ps1`'s preflight lint catches both). Structurally it is a copy of `RefreshDictionaries`.
+> 3. ***THE UPGRADE WALK IS THE ONE REAL GAP: it has no test path and has never run.*** `cycle.ps1` does a fresh install, on which `UPGRADE_NOCASE` correctly no-ops, so the cycle does **not** exercise it. Witnessing it needs an upgrade-path harness (an `upgrade.iss` run over a pre-D2 data tree holding a planted twin, the way `verify-upgrade` would) — which does not exist yet. *Until that harness exists, the walk stays checked-not-run:* bbcmp-compiles, verdict unit-tested 14/14, block-balanced. Building that harness is the next concrete D2 task after the cycle.
+> 4. **When 1–3 pass, move D2 to done in the RELEASE_1.1 5 entry** and note in the row that the upgrade walk remains witnessed only by its unit test until item 3's harness runs. Then only 3b is left in RELEASE_1.1 5.
 >
 > **Not covered by the prevention, by the owner's earlier boundary now widened:** the ruling says *including user files*, so there is no longer a user-data exception — every hashed file is NOCASE. Directory files (program source, catalogues) were already case-folded by NTFS.
 >
