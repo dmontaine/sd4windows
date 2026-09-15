@@ -179,6 +179,32 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 69, 15 Sep 2026 — ***"DO EVERYTHING EXCEPT W1.0-0": 3b, THE 21st PYTHON PROGRAM, COPY's SELF-COPY LOSS, THE `-Only` SWEEP AND ITEM 7's WITNESS ARE ALL IN SOURCE. NOTHING IS CYCLED. A CYCLE, A FULL SUITE AND THE DEAD-OWNER LOCK RUN ARE OWED.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | 14 Sep 23:39:00 — **stale on purpose**: every `gpl.bp` name, `copy`, `upgrade_nocase`, `py_listcreate`, message 10187 and `sdpyfunc.h` changed since |
+> | tokens | **`b163` spent — use `b164`** |
+> | owner's rulings | 7: *"yes, after 3b's cycle"*; `SD_PyListCrte`: *"add a 21st program"*; `-Only` register residue: *"auto-add the sweep"*; everything except the W1.0-0 upgrade |
+> | built, in source | **3b** (RELEASE_1.1 5): 224 renames, 220 reference lines in 77 files, `gen_includes.py` in sync. **`py_listcreate`** + its `sdpyfunc.h` deffun + a `verify-pyapi` list leg (create, append, read back `SDPY-42`, type `list`, never-created control). **RELEASE_1.1 36**: COPY `DELETING` onto the same record skips the delete (10187) + `verify-twins` leg E with a control. **`-Only`**: `suite-only.ps1` `Add-RegisterSweep`, called by `VerifyInstall2`, driven by `test-suiteonly-units` (60/60). **RELEASE_1.1 7**: `verify-deadlock.ps1` (in neither runner). `upgrade_nocase` prints one separator |
+> | checked, not run | 29 changed `.ps1` parse clean, 8 `.py` compile; free tier **39/39**; bbcmp rc 0 for `copy`, `upgrade_nocase` and `zzdlhold` (BCOMP-only statements stubbed, diffs show only stubs), `zzdlprobe`, and by their NEW names `bbproc`, `pathtkn`, `bcomp` (70,881), `write_install_dicts`; `py_listcreate` stops at `SDPYOBJ` exactly where its sibling `py_createdict` does (bbcmp lacks it) |
+>
+> **Owed, in order:** a **reboot** (b162's full run added stuck hives); the cycle **elevated**; the full suite from an **ordinary unelevated** prompt (3b moved every program's source, so nothing less will do); then the dead-owner lock run **elevated**, and **another cycle after it**.
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b164
+> ```
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-deadlock.ps1
+> ```
+>
+> **If the cycle fails, read the bootstrap section of `cycle-*.log` first (conditional):** `Pcode item <x> not found` would mean `pcode_fs`'s lowered names and `load_pcode` disagree; a `gpl.bp` record "not found" would mean a reference the script did not reach. *Falsified-if rows for the suite*: `verify-pyapi`'s five list rows, `verify-twins` leg E, and every step that compiles or catalogues a shipped program.
+> **`verify-deadlock` is expected to end exit 2 "not reached" as often as 0** — whether a killed owner's lock is ever seen with its user unmapped is not known. Recovery if SD is unusable after it: `sd -cleanup` elevated, then `restart-sd.ps1`, then a cycle; the script prints both.
+>
+> *(Handoff 68 follows; its "open" row is superseded by the above.)*
+
 > # ⇩⇩⇩ HANDOFF 68, 14 Sep 2026 (late) — ***5a's FORCED-STATE HALF IS DONE AND WITNESSED: `verify-nocaseupgrade` 31/0 ON THE FIXED INSTALL. WHAT REMAINS OF 5a IS THE REAL W1.0-0 → CURRENT UPGRADE (owner: later, before release).*** ⇩⇩⇩
 >
 > | | |
@@ -9471,7 +9497,9 @@ embedded python back into this version."*
    the same run — refused on the record, admitted on the record, CPython run
    for a non-administrator. `RELEASE_1.1` 19–23 are the five defects the
    route cost, all closed. What remains is `RELEASE_1.1` 18 (the zip) and
-   the owner's call on a 21st program (`SD_PyListCrte` 2220, unreferenced).
+   the owner's call on a 21st program (`SD_PyListCrte` 2220, unreferenced) —
+   ***ruled 15 Sep 2026, "add a 21st program": `gpl.bp/py_listcreate`, in
+   source with its `sdpyfunc.h` deffun and a `verify-pyapi` list leg, uncycled.***
 
 **Also carried into 1.1-0**: `RELEASE_1.1` 8 and 9, which were PRE_RELEASE 178
 and 185 and had not been closed by the time W1.0-0 was tagged. Both are

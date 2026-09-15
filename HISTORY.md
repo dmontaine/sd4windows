@@ -61481,3 +61481,38 @@ driver exit 2, COMPLETE, "Converted 4 of 26", the twin named with jack / JACK,
 the indexed file named, the four expected parts NOCASE, every part's ids
 unchanged case for case, no temp files. 5a's forced-state half is done; the
 real W1.0-0 -> current upgrade remains (owner: later, before release).
+
+## 15 Sep 2026 — "do everything except W1.0-0": 3b, PY_LISTCREATE, COPY's self-copy loss, the -Only sweep, item 7's witness
+
+Pushed `a62bc21`. Owner's rulings: item 7 go-ahead after 3b's cycle; add a 21st
+Python program; auto-add the register sweep to account-creating `-Only` runs.
+
+**3b.** `threeb.py` (scratch; the owner's bulk-edit ruling): the name set
+computed from the 224 tracked upper-case records; `--plan` reviewed line by
+line (caught `GPL.BP/ERRTEXT.` at a sentence end and `pcode_bld.py`'s bare
+`pcode_fs` list, both fixed and re-planned); `--refs` applied 220 lines in 77
+files identical to the plan, then `--rename` 224 `git mv`s through a temp name;
+`gen_includes.py` regenerated and `--check` in sync; bootstrap's first programs
+bbcmp-compile by their new names. Record documents untouched.
+
+**COPY (RELEASE_1.1 36).** Same file, same record (identical, or equal ignoring
+case on a NOCASE or directory file) with DELETING no longer deletes; 10187.
+Witness `verify-twins` leg E with a `jack,jill` control.
+
+**PY_LISTCREATE.** `gpl.bp/py_listcreate` wraps SD_PyListCrte 2220 (already
+dispatched to the helper's LISTCRTE); `sdpyfunc.h` declares it - it had all the
+others and would have left the documented route without it; `verify-pyapi`
+gains a list leg.
+
+**-Only sweep.** `Add-RegisterSweep` in suite-only.ps1 (pure, 60/60 in
+test-suiteonly-units): a partial VerifyInstall2 run whose steps carry a Prefix
+or Account gets verify-registersweep appended and the banner says why. Safe on a
+partial run: the sweep skips its removal rows by name when nothing is dead.
+
+**Item 7.** `verify-deadlock.ps1`: GETLOCKS shows other users' locks only to an
+$internal program (op_lock.c:981), so the probe runs under sd -internal; it
+checks the live lock is visible before killing anything, kills only the PID it
+started, and scores only "(gone)" - a lock still named or cleared ends "not
+reached". bbcmp: probe rc 0, holder rc 0 with PROMPT/INPUT stubbed.
+
+Nothing cycled. Free tier 39/39.
