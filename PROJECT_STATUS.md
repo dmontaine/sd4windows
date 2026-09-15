@@ -179,6 +179,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 68, 14 Sep 2026 (late) — ***5a's FORCED-STATE HALF IS DONE AND WITNESSED: `verify-nocaseupgrade` 31/0 ON THE FIXED INSTALL. WHAT REMAINS OF 5a IS THE REAL W1.0-0 → CURRENT UPGRADE (owner: later, before release).*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | 14 Sep 23:39:00, `assert-current` matched source |
+> | ***witnessed*** | `verify-nocaseupgrade` **31/0** (owner, elevated, standalone): driver exit **2**, `COMPLETE`, "Converted **4** of 26", 10178 "1 file(s) hold 1 record id(s)", `File: …/zznutwin` with `jack / JACK`, 10185 naming `zznuak` and 10186 counting 1, no runtime-error line. Probe after: `zznuclean` DATA+DICT, `zznutwin` DICT and `zznuak` DICT NOCASE=1; `zznutwin` DATA and `zznuak` DATA left NOCASE=0 (index kept); **every part's ids identical case for case**; no `~SD*` temp file; cleanup left nothing |
+> | still unwitnessed | the live-VOC skip (needs a case-sensitive SDSYS VOC) and the installer's own `RefreshNocase` call — the real-upgrade phase |
+> | cosmetic, noted | the report prints mixed separators, `C:\ProgramData\SD\sdsys/zznutwin` (`@sdsys` plus `@ds` `/`) |
+> | open | **5**: the real W1.0-0 → current upgrade (plan not written), then 3b; **7**, **18**; `-Only` register residue (SDCATGB163 from `b163` is still in the register — a reboot clears it before the next `VerifyInstall1`) |
+>
+> *(Handoff 67 follows; its "owed" is done.)*
+
 > # ⇩⇩⇩ HANDOFF 67, 14 Sep 2026 (late) — ***THE HARNESS WENT RED ON A THIRD DEFECT, AND ALL THREE ARE FIXED IN SOURCE WITH A FREE GUARD FOR THE CLASS. THE TREE IS STALE ON PURPOSE; A CYCLE AND A GREEN RERUN ARE OWED.*** ⇩⇩⇩
 >
 > | | |

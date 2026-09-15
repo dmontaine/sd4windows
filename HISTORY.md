@@ -61475,3 +61475,9 @@ by FL$PATH against @voc); bbcmp rc 0 with the BCOMP-only statements stubbed.
 New free guard `test-selectlists-units.py` (limits from sd.h, literal list
 numbers in gpl.bp): red on the six live 14/15 lines before the last edit, green
 after; no other program over the limit. Free tier 39/39.
+
+**Green after the cycle** (install 23:39:00): `verify-nocaseupgrade` 31/0 -
+driver exit 2, COMPLETE, "Converted 4 of 26", the twin named with jack / JACK,
+the indexed file named, the four expected parts NOCASE, every part's ids
+unchanged case for case, no temp files. 5a's forced-state half is done; the
+real W1.0-0 -> current upgrade remains (owner: later, before release).
