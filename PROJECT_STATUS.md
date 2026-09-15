@@ -179,6 +179,33 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 63, 15 Sep 2026 — ***D2's FALLOUT IS FIXED IN SOURCE: TWO PRODUCT DEFECTS MEASURED AND FIXED, NINE TESTS MIGRATED. THE TREE IS STALE ON PURPOSE; A CYCLE AND `b162` ARE OWED.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | `b160` (14 Sep 19:26) is still installed. `WRITE_INSTALL_DICTS` and `CATALOG` changed since, so `assert-current` refuses every verifier until the cycle |
+> | tokens | **`b161` spent — use `b162`** |
+> | owed, in order | a **reboot** (b161's VI2 sweep: 4 stuck hives survived; last boot 14 Sep 19:22, before `b160`); `cycle.ps1` **ELEVATED**; `VerifyInstall1.ps1 -ThenElevated -Run b162 -ContinueOnFailure` from an **ordinary unelevated** prompt. Commands below |
+> | ***observed today*** | **b161 deleted `$savedlists`, `$hold`, `$command.stack` from the owner's VOC** (lcnames' toggles) — probed MISSING, restored with CREATEA's contents, read back. **On a NOCASE file, write-new-then-delete-old deletes the record** (scratch file: 0 records). **A second `CATALOG bp x LOCAL` leaves no entry** (scratch probe). **`LIST … WITH @ID LIKE` prints the stored id; `@ID =` and CT echo the typed one.** Details: RELEASE_1.1 5, HISTORY 15 Sep, memory `nocase-write-delete-trap` |
+> | fixed in source | `WRITE_INSTALL_DICTS` deletes first on a NOCASE dictionary (bbcmp rc 0); `CATALOG`'s upper-id probe runs only on a case-sensitive VOC (bbcmp cannot compile CATALOG — no `PROMPT`/`INPUT`; stubbed, HEAD and the fix stop at the same `INPUT` 9 lines apart, past the edit — BCOMP in the cycle is the check) |
+> | migrated, parse clean, never run against the fix | `verify-lcnames`, `-vocidcase`, `-callcase`, `-dictfold`, `-vocverbs`, `-promptenter`, `-tiers` 5b, `-dictrename` (rebuilt). `verify-twins` and `verify-nocase` unchanged from `40a829b`/`ded160b` |
+> | free tier | 38/38 exit 0, 37 s |
+> | open | **5** (D2's upgrade-walk harness, then 3b), **7**, **18**, the `-Only` register-residue class; not fixed, recorded: `COPY … OVERWRITING DELETING` with a case-only rename, and 6131 unreachable |
+>
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b162 -ContinueOnFailure
+> ```
+> The first **elevated**, the second an **ordinary unelevated** prompt.
+>
+> **What `b162` should show, if the fixes and migrations are right (conditional — none of it has run).** `verify-twins` green (D2's first witness). `verify-dictrename` is `WRITE_INSTALL_DICTS`'s witness: *falsified if* "'type' is stored - the item was renamed, not deleted" fails. `verify-callcase` F ("re-cataloguing left exactly one entry") is `CATALOG`'s: *falsified if* it lists 0. **Likeliest first-run misses are new rows whose SD wording was never captured**: `verify-vocidcase` leg 3's `COUNT` through a Q-pointer; `verify-promptenter` leg 1's 6144 line; `verify-dictrename`'s "Record 'F1' already exists" (captured on VOC by COPY, not on a dictionary); `verify-tiers` 5b's four `COPY FROM VOC x,zzt5btmpN` plants. Read the raw output before the verdict.
+>
+> **Handoff 62's "D2 — what remains" item 2 is done**: `b160`'s cycle ISCC-compiled `sd.iss` with `RefreshNocase` and installed. Items 1 and 4 wait on `b162`; item 3 (the upgrade harness) is unstarted.
+>
+> *(Handoff 62 follows. Its "THE MIGRATION" row is superseded by the above: the fallout was not all cosmetic.)*
+
 > # ⇩⇩⇩ HANDOFF 62, 14 Sep 2026 — ***D2 IS BUILT IN FULL (PREVENTION + UPGRADE-CONVERSION WALK), IN SOURCE, THE TREE IS STALE ON PURPOSE, A CYCLE AND `b160` ARE OWED. THE FRESH-INSTALL HALF IS WITNESSABLE NEXT CYCLE; THE UPGRADE WALK IS NOT (NO UPGRADE-PATH TEST EXISTS).*** ⇩⇩⇩
 >
 > | | |

@@ -61385,3 +61385,46 @@ Checked, not witnessed: UPGRADE_NOCASE compiles fully under bbcmp with VOID,
 FILELOCK and SET.TRIGGER stubbed (all BCOMP-only, used the same way in CONFIGF),
 block-balanced, gosub targets present; but it has never RUN - no upgrade-path
 test exists, and sd.iss is not ISCC-compiled on this machine.
+
+## 15 Sep 2026 — D2's fallout: the suite damaged the owner's VOC, two write-then-delete defects, nine tests migrated
+
+Opened on "pull continue"; both repositories up to date. Handoff 62 called the
+b161 fallout cosmetic ("verbs echo the typed case"). Reading the b161 logs
+showed it was not all cosmetic.
+
+**b161 deleted three records from the owner's own account.** verify-lcnames
+§5/5a/5b renamed a shipped VOC id by "write UPPER, delete lower"; on a NOCASE
+VOC that deletes the only record (`MOVED=UP`, then `MOVED=NONE`, `Error 8206
+creating $savedlists`, `OPENED=NO`). A read-only probe on 15 Sep found
+`$savedlists`, `$hold`, `$command.stack` MISSING; restored (owner: yes) with
+CREATEA's contents by a throwaway program, each read back by CT.
+
+**The mechanism, measured on a scratch NOCASE file** (`FL$NOCASE` = 1): write
+`TYPE`, write `type` (stored id stays `[TYPE]`, data NEW), delete `TYPE` → 0
+records. A class sweep of gpl.bp for write-then-delete found two product sites:
+- `WRITE_INSTALL_DICTS:125-133` (2b) — deletes a renamed shipped item when
+  upgrade-dicts runs on a NOCASE dictionary still storing the old id, which the
+  installer's message tells an admin to do if that step failed. Fixed (owner:
+  "fix it now"): delete first, write after, on a NOCASE dictionary. bbcmp rc 0.
+- `CATALOG:352-376` (3a) — measured: a second `CATALOG bp zzcatp LOCAL` printed
+  3029 and left 0 entries. Fixed the same day under that ruling: the upper-id
+  probe runs only on a case-sensitive VOC. bbcmp cannot compile CATALOG (no
+  PROMPT or INPUT); stubbing PROMPT, HEAD and the fix stop at the same INPUT,
+  9 lines apart (the lines added), past the edit - partial; BCOMP decides.
+Safe by reading: update.voc (exact read first), CNAME (6151/6163), DELETE.CATALOG.
+Recorded, not fixed: COPY OVERWRITING DELETING with a case-only rename in one
+file; message 6131 now unreachable.
+
+**Instruments, measured:** `LIST VOC WITH @ID LIKE "$HOLD"` lists `$hold` (the
+stored id, any case, with or without `...`); `@ID = "$HOLD"` lists `$HOLD`, and
+CT echoes the spelling typed. So every "echo says which spelling is stored"
+check died with D2.
+
+**Migrated (owner: retire and replace), parse clean, none run against the fix:**
+lcnames (§3/§10a reached + LIKE-stored, §5 toggles removed, §5a/§5b kept on the
+shipped ids, §9 LIKE), vocidcase (3, 5-8 case-blind; 10 = refused recase loses
+nothing), callcase (F plant retired; F is now CATALOG's witness), dictfold 2b,
+vocverbs entry 5, promptenter 1-2 (lower name deletes an upper record, no
+prompt), tiers 5b (one stored-upper record per id, planted delete-first; rows
+require no loss), dictrename (rebuilt as WRITE_INSTALL_DICTS's witness; cleanup
+restores via upgrade-dicts, never by deleting a shipped name). Free tier 38/38.
