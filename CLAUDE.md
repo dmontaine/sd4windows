@@ -933,8 +933,8 @@ machines, and no Claude facility connects them. They share a mailbox on pCloud �
   ~5 s, ignores `*.partial`, and wakes the session on the first new message — so
   a message is picked up within seconds of pCloud syncing it. On wake: handle the
   message, then **relaunch the watcher** (it self-exits after ~1 h so it is
-  re-armed fresh rather than lingering). A ~30-min `ScheduleWakeup` is the
-  fallback heartbeat — it re-checks the inbox and relaunches the watcher if it
+  re-armed fresh rather than lingering). A ~15-min `ScheduleWakeup` is the
+  fallback heartbeat (owner, 15 Sep 2026: 15 min, to match Linux) — it re-checks the inbox and relaunches the watcher if it
   has died. The Windows watcher is a `Bash` `run_in_background` loop: from
   `/p/sdcore-mail`, if `ls to-windows/ | grep -v '\.partial$'` is non-empty echo
   it and `exit 0`, else `sleep 5`, up to ~720 times. *(Linux runs the same design
