@@ -61533,3 +61533,7 @@ holding. Its sd.exe also wrote over the owner's console. Rebuilt: holder waits
 on a release record with SLEEP (no stdin) in a Start-Job; holding is proved by
 the $internal probe seeing a named lock; kill only when exactly one new sd.exe
 appeared; own transcript file. bbcmp lacks SLEEP (stubbed, rc 0).
+
+**b165**: `VerifyInstall2 -Only verify-pyapi` 19/19, run twice - the list leg
+(create 0, append 0, read back SDPY-42, type list, never-created control empty)
+witnesses PY_LISTCREATE.
